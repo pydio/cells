@@ -70,19 +70,8 @@ func NewTaskFromEvent(runtime, ctx context.Context, job *jobs.Job, event interfa
 	c := servicecontext.WithOperationID(ctx, operationID)
 
 	// Inject evaluated job parameters if it's not already here
-	if len(job.Parameters) > 0 && c.Value(ContextJobParametersKey{}) == nil {
-		params := make(map[string]string, len(job.Parameters))
-		for _, p := range job.Parameters {
-			params[p.Name] = jobs.EvaluateFieldStr(ctx, &jobs.ActionMessage{}, p.Value)
-		}
-		// Replace job parameters with values passed through TriggerEvent
-		if jte, ok := event.(*jobs.JobTriggerEvent); ok && len(jte.RunParameters) > 0 {
-			for k, v := range jte.RunParameters {
-				if _, o := params[k]; o {
-					params[k] = jobs.EvaluateFieldStr(ctx, &jobs.ActionMessage{}, v)
-				}
-			}
-		}
+	if c.Value(ContextJobParametersKey{}) == nil {
+		params := jobs.RunParametersComputer(c, &jobs.ActionMessage{}, job, event)
 		c = context.WithValue(c, ContextJobParametersKey{}, params)
 	}
 
@@ -97,7 +86,6 @@ func NewTaskFromEvent(runtime, ctx context.Context, job *jobs.Job, event interfa
 			JobID:         job.ID,
 			Status:        jobs.TaskStatus_Queued,
 			StatusMessage: "Pending",
-			ActionsLogs:   []*jobs.ActionLog{},
 			TriggerOwner:  ctxUserName,
 			CanStop:       true,
 		},
@@ -198,8 +186,12 @@ func (t *Task) Done(delta int) {
 	}
 }
 
-// Save publish task to PubSub topic
 func (t *Task) Save() {
+	t.SaveStatus(nil, 0)
+}
+
+// SaveStatus publish task to PubSub topic, including Runnable context if passed
+func (t *Task) SaveStatus(runnableContext context.Context, runnableStatus jobs.TaskStatus) {
 	if t.lastStatus == jobs.TaskStatus_Unknown || t.taskChanged() {
 		cl := t.Clone()
 		t.lastStatus = cl.Status
@@ -207,7 +199,15 @@ func (t *Task) Save() {
 		t.lastHasProgress = cl.HasProgress
 		t.lastCanPause = cl.CanPause
 		t.lastProgress = cl.Progress
-		PubSub.Pub(cl, PubSubTopicTaskStatuses)
+		if runnableContext != nil {
+			PubSub.Pub(&TaskStatusUpdate{
+				Task:            cl,
+				RunnableContext: runnableContext,
+				RunnableStatus:  runnableStatus,
+			}, PubSubTopicTaskStatuses)
+		} else {
+			PubSub.Pub(cl, PubSubTopicTaskStatuses)
+		}
 	}
 }
 
@@ -266,8 +266,8 @@ func (t *Task) SetError(e error, appendLog bool) {
 }
 
 // GetRunnableChannels prepares a set of data channels for action actual Run method.
-func (t *Task) GetRunnableChannels(controllable bool) (*actions.RunnableChannels, chan bool) {
-	status, statusMsg, progress, done := t.createStatusesChannels()
+func (t *Task) GetRunnableChannels(runnableCtx context.Context, controllable bool) (*actions.RunnableChannels, chan bool) {
+	status, statusMsg, progress, done := t.createStatusesChannels(runnableCtx)
 	c := &actions.RunnableChannels{
 		Status:    status,
 		StatusMsg: statusMsg,
@@ -281,7 +281,7 @@ func (t *Task) GetRunnableChannels(controllable bool) (*actions.RunnableChannels
 
 // createStatusesChannels provides a set of channel used by the runnable to send
 // updates about its status to the outside world
-func (t *Task) createStatusesChannels() (chan jobs.TaskStatus, chan string, chan float32, chan bool) {
+func (t *Task) createStatusesChannels(runnableCtx context.Context) (chan jobs.TaskStatus, chan string, chan float32, chan bool) {
 
 	status := make(chan jobs.TaskStatus)
 	statusMsg := make(chan string)
@@ -298,10 +298,10 @@ func (t *Task) createStatusesChannels() (chan jobs.TaskStatus, chan string, chan
 			select {
 			case s := <-status:
 				t.task.Status = s
-				t.Save()
+				t.SaveStatus(runnableCtx, jobs.TaskStatus_Running)
 			case s := <-statusMsg:
 				t.task.StatusMessage = s
-				t.Save()
+				t.SaveStatus(runnableCtx, jobs.TaskStatus_Running)
 			case p := <-progress:
 				diff := p - t.task.Progress
 				save := false
@@ -310,7 +310,7 @@ func (t *Task) createStatusesChannels() (chan jobs.TaskStatus, chan string, chan
 					save = true
 				}
 				if save {
-					t.Save()
+					t.SaveStatus(runnableCtx, jobs.TaskStatus_Running)
 				}
 			case <-done:
 				return

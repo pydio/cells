@@ -19,7 +19,6 @@
  */
 
 export {default as InfoPanel} from "./InfoPanel";
-export {default as UserPanel} from "./UserPanel";
 export {default as ASClient} from "./Client";
 export {default as Activity} from "./Activity";
 export {default as ActivityList} from "./ActivityList";

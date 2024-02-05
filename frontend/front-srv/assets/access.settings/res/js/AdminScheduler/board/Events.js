@@ -29,140 +29,173 @@ const LightGrey = '#e0e0e0';
 
 const eventMessages = {
     NODE_CHANGE:{
-        title:'Files and folders (nodes) events : detect files modifications to move them or update their metadata automatically.',
+        title:'trigger.type.nodes',
         '0':{
             title:'trigger.create.node',
-            icon:'file-plus',
-            description:'A new file was uploaded or a new folder was created'
+            description:'trigger.create.node.description',
+            icon:'file-plus'
         },
         '1':{
             title:'trigger.read.node',
-            icon:'eye',
-            description:'A file was downloaded or a folder content was listed'
+            description:'trigger.read.node.description',
+            icon:'eye'
         },
         '2':{
             title:'trigger.update.path',
-            icon:'folder-move',
-            description:'A file or folder was moved or renamed'
+            description:'trigger.update.path.description',
+            icon:'folder-move'
         },
         '3':{
             title:'trigger.update.content',
-            icon:'content-save',
-            description:'A file content was updated by edition or upload overwriting'
+            description:'trigger.update.content.description',
+            icon:'content-save'
         },
         '5':{
             title:'trigger.delete.node',
-            icon:'delete',
-            description:'A file or a folder was definitively deleted'
+            description:'trigger.delete.node.description',
+            icon:'delete'
         },
         '4':{
             title:'trigger.update.metadata',
-            icon:'tag',
-            description:'Internal metadata were modified on file or folder'
+            description:'trigger.update.metadata.description',
+            icon:'tag'
         },
         '6':{
             title:'trigger.update.user-metadata',
-            icon:'tag-multiple',
-            description:'User-defined metadata were modified (event contains updated metadata)'
+            description:'trigger.update.user-metadata.description',
+            icon:'tag-multiple'
         }
     },
     IDM_CHANGE: {
         USER : {
-            title:'User events : triggered when adding/removing user and when users log in and log out. Can be used for triggering validation flows or assigning accesses.',
+            title:'trigger.type.users',
             '0': {
                 title:'trigger.create.user',
                 icon:'account-plus',
                 tint:'#009688',
-                description:'A user or a group was created'
+                description:'trigger.create.user.description'
             },
             '1': {
                 title:'trigger.read.user',
+                description:'trigger.read.user.description',
                 icon:'account',
-                tint:'#009688',
-                description:'A user or a group was accessed'
+                tint:'#009688'
             },
             '2': {
                 title:'trigger.update.user',
+                description:'trigger.update.user.description',
                 icon:'account-box',
-                tint:'#009688',
-                description:'A user or a group data was updated'
+                tint:'#009688'
             },
             '3': {
                 title:'trigger.delete.user',
+                description:'trigger.delete.user.description',
                 icon:'account-minus',
-                tint:'#009688',
-                description:'A user or a group was deleted'
+                tint:'#009688'
             },
             '4': {
                 title:'trigger.bind.user',
+                description:'trigger.bind.user.description',
                 icon:'login',
-                tint:'#009688',
-                description:'A user has logged in'
+                tint:'#009688'
             },
             '5': {
                 title:'trigger.logout.user',
+                description:'trigger.logout.user.description',
                 icon:'logout',
-                tint:'#009688',
-                description:'A user has logged out'
+                tint:'#009688'
             }
         },
         ROLE : {
-            title:'Role events : can be used to automate accesses based on role names. Use IsTeam, IsGroup, IsUser flags to filter roles.',
+            title:'trigger.type.users',
             '0': {
-                title:'Create Role',
+                title:'trigger.role.create',
+                description:'trigger.role.create.description',
                 icon:'account-card-details',
-                tint:'#607d8b',
-                description:'New role created.'
+                tint:'#607d8b'
             },
             '2': {
-                title:'Update Role',
+                title:'trigger.role.update',
+                description:'trigger.role.update.description',
                 icon:'pencil',
-                tint:'#607d8b',
-                description:'A role has been updated'
+                tint:'#607d8b'
             },
             '3': {
-                title:'Delete Role',
+                title:'trigger.role.delete',
+                description:'trigger.role.delete.description',
                 icon:'delete-forever',
-                tint:'#607d8b',
-                description:'A role has been deleted'
+                tint:'#607d8b'
             },
         },
         WORKSPACE : {
-            title:'Workspace events : triggered on workspace creation / deletion. Use the Scope flag to filter Workspaces from Cells',
+            title:'trigger.type.workspaces',
             '0': {
-                title:'Create Workspace',
+                title:'trigger.workspace.create',
+                description:'trigger.workspace.create.description',
                 icon:'folder-plus',
-                tint:'#ff9800',
-                description:'A workspace has been created'
+                tint:'#ff9800'
             },
             '2': {
-                title:'Update Workspace',
+                title:'trigger.workspace.update',
+                description:'trigger.workspace.update.description',
                 icon:'pencil',
-                tint:'#ff9800',
-                description:'A workspace has been updated'
+                tint:'#ff9800'
             },
             '3': {
-                title:'Delete Workspace',
+                title:'trigger.workspace.delete',
+                description:'trigger.workspace.delete.description',
                 icon:'delete-forever',
-                tint:'#ff9800',
-                description:'New file uploaded or folder created'
+                tint:'#ff9800'
             },
         },
         ACL : {
-            title:'ACL events : access control lists link workspaces, nodes and roles together to provide accesses to data.',
+            title:'trigger.type.acls',
             '2': {
-                title:'Create/Update Acl',
+                title:'trigger.acl.create',
+                description:'trigger.acl.create.description',
                 icon:'view-list',
-                tint:'#795548',
-                description:'An access control has been opened'
+                tint:'#795548'
             },
             '3': {
-                title:'Delete Acl',
+                title:'trigger.acl.delete',
+                description:'trigger.acl.delete.description',
                 icon:'delete-forever',
-                tint:'#795548',
-                description:'An access control has been closed'
+                tint:'#795548'
             },
         },
+    },
+    CHAT_EVENT:{
+        title:'trigger.type.chats',
+        MESSAGE: {
+            title: 'trigger.type.chat-messages',
+            'PUT':{
+                title: 'trigger.chat-message.put',
+                description: 'trigger.chat-message.put.description',
+                icon: 'chat-plus-outline',
+                tint: '#f6d076'
+            },
+            'DELETE':{
+                title: 'trigger.chat-message.delete',
+                description: 'trigger.chat-message.delete.description',
+                icon: 'chat-remove-outline',
+                tint: '#f6d076'
+            }
+        },
+        ROOM: {
+            title: 'trigger.type.chat-rooms',
+            'PUT':{
+                title: 'trigger.chat-room.put',
+                description: 'trigger.chat-room.put.description',
+                icon: 'forum-plus-outline',
+                tint: '#f6d076'
+            },
+            'DELETE':{
+                title: 'trigger.chat-room.delete',
+                description: 'trigger.chat-room.delete.description',
+                icon: 'forum-minus-outline',
+                tint: '#f6d076'
+            }
+        }
     }
 };
 
@@ -225,11 +258,11 @@ class Events extends React.Component{
             if(k === 'title'){
                 return;
             }
-            if(isNaN(k) && k !== 'IDM_CHANGE'){
+            if(isNaN(k) && k !== 'PUT' && k !== 'DELETE' && k !== 'IDM_CHANGE' && k !== 'CHAT_EVENT'){
                 data.push({header: s[k].title});
             }
             const v = s[k];
-            if (isNaN(k)) {
+            if (isNaN(k)  && k !== 'PUT' && k !== 'DELETE') {
                 data.push(...Events.flatStruct(v, [...pref, k]))
             } else {
                 data.push([...pref, k].join(':'))
@@ -288,7 +321,7 @@ class Events extends React.Component{
         return (
             <div>
                 <Dialog
-                    title={"Trigger job on..."}
+                    title={Events.T('trigger.picker.title')}
                     open={open}
                     dialogProps={{}}
                     onDismiss={()=>{this.dismiss()}}
@@ -299,7 +332,7 @@ class Events extends React.Component{
                         onPick={(eventId) => {this.add(eventId); this.dismiss()}}
                     />
                 </Dialog>
-                <FlatButton style={{width:'100%'}} label={"Trigger job on..."} primary={true} onClick={() => this.setState({open: true})} icon={<FontIcon className={"mdi mdi-pulse"}/>}/>
+                <FlatButton style={{width:'100%'}} label={Events.T('trigger.picker.title')} primary={true} onClick={() => this.setState({open: true})} icon={<FontIcon className={"mdi mdi-pulse"}/>}/>
                 <List>{list}</List>
             </div>
         )

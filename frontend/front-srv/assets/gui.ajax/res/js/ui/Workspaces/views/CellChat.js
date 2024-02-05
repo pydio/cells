@@ -50,7 +50,7 @@ class CellChat extends React.Component{
                     roomObjectId={cellId}
                     style={chatStyle}
                     chatUsersStyle={{padding: '8px 10px', borderBottom:'1px solid ' + muiTheme.palette.mui3['outline-variant-50'], display:'flex', flexWrap:'wrap'}}
-                    msgContainerStyle={{maxHeight:null, flex:1, paddingTop: '10px !important'}}
+                    msgContainerStyle={{maxHeight:null, flex:1, paddingTop: '10px !important', backgroundColor:muiTheme.palette.mui3['surface'], borderBottom: chatStyle.border}}
                     fieldHint={pydio.MessageHash['636']}
                     pushMessagesToBottom={true}
                     emptyStateProps={{

@@ -29,7 +29,6 @@ import (
 	"time"
 
 	"go.uber.org/zap"
-	"google.golang.org/protobuf/proto"
 
 	"github.com/pydio/cells/v4/common/log"
 	"github.com/pydio/cells/v4/common/proto/jobs"
@@ -68,6 +67,7 @@ func RootRunnable(ctx context.Context, task *Task) Runnable {
 		servicecontext.ContextMetaJobUuid:        task.Job.ID,
 		servicecontext.ContextMetaTaskUuid:       task.GetRunUUID(),
 		servicecontext.ContextMetaTaskActionPath: "ROOT",
+		servicecontext.ContextMetaTaskActionTags: "",
 	})
 	return Runnable{
 		Context:    ctx,
@@ -103,7 +103,7 @@ func NewRunnable(ctx context.Context, parent *Runnable, queue chan RunnerFunc, a
 	}
 
 	r.collector = parent.collector
-	if action.MergeAction != nil {
+	if action.MergeAction != nil && !action.BreakAfter {
 		r.SetupCollector(parentCtx, action.MergeAction, queue)
 	}
 	return r
@@ -134,6 +134,9 @@ func (r *Runnable) SetupCollector(parentCtx context.Context, mergeAction *jobs.A
 	r.Add(1) // register one task and +1 on parent collector if set
 	r.collector = newCollector(parentCtx)
 	go func() {
+		defer func() {
+			recover()
+		}()
 		msg := r.collector.WaitMsg()
 		// Reset context
 		_, ct := r.BuildTaskActionPath(parentCtx, "$MERGE")
@@ -238,7 +241,9 @@ func (r *Runnable) Dispatch(input *jobs.ActionMessage, aa []*jobs.Action, queue 
 func (r *Runnable) RunAction(queue chan RunnerFunc) {
 
 	defer func() {
+		runnableStatus := jobs.TaskStatus_Finished
 		if re := recover(); re != nil {
+			runnableStatus = jobs.TaskStatus_Error
 			r.Task.SetStatus(jobs.TaskStatus_Error, "Panic inside task")
 			if e, ok := re.(error); ok {
 				r.Task.SetStatus(jobs.TaskStatus_Error, "Panic inside task: "+e.Error())
@@ -246,8 +251,14 @@ func (r *Runnable) RunAction(queue chan RunnerFunc) {
 				log.Logger(r.Context).Error("Recovered scheduler task "+r.Action.ID, zap.Error(e))
 				r.Task.SetError(e, true)
 			}
-			r.Task.Save()
+		} else {
+			label := r.Action.GetLabel()
+			if label == "" {
+				label = r.Action.ID
+			}
+			r.Task.SetStatus(jobs.TaskStatus_Running, "Finished "+label)
 		}
+		r.Task.SaveStatus(r.Context, runnableStatus)
 		r.Done()
 	}()
 
@@ -255,6 +266,13 @@ func (r *Runnable) RunAction(queue chan RunnerFunc) {
 		err := errors.NotFound("jobs.action.not.found", fmt.Sprintf("cannot run action: no concrete implementation found for ID %s, are you sure this action has been correctly registered?", r.Action.ID))
 		r.Task.SetError(err, true)
 		return
+	}
+
+	select {
+	case <-r.Context.Done():
+		r.Task.SetStatus(jobs.TaskStatus_Interrupted, "Flow was interrupted, exiting")
+		return
+	default:
 	}
 
 	if taskConsumer, ok := (r.Implementation).(actions.TaskUpdaterDelegateAction); ok {
@@ -269,9 +287,9 @@ func (r *Runnable) RunAction(queue chan RunnerFunc) {
 	if progressProvider, ok := r.Implementation.(actions.ProgressProviderAction); ok && progressProvider.ProvidesProgress() {
 		r.Task.SetHasProgress()
 	}
-	r.Task.SetStatus(jobs.TaskStatus_Running)
+	r.Task.SetStatus(jobs.TaskStatus_Running, "Starting "+r.Action.GetLabel())
 	r.Task.SetStartTime(time.Now())
-	r.Task.Save()
+	r.Task.SaveStatus(r.Context, jobs.TaskStatus_Running)
 
 	log.TasksLogger(r.Context).Debug("ZAPS", zap.Object("Input", r.Message))
 
@@ -279,7 +297,7 @@ func (r *Runnable) RunAction(queue chan RunnerFunc) {
 	var err error
 	if r.Action.Bypass {
 		log.TasksLogger(r.Context).Warn("Skipping action " + r.ID + " as it is flagged Bypass. Forwarding input to output.")
-		outputMessage = proto.Clone(r.Message).(*jobs.ActionMessage)
+		outputMessage = r.Message.Clone() // proto.Clone(r.Message).(*jobs.ActionMessage)
 	} else {
 		runCtx := r.Context
 		if d, o := itemTimeout(r.Context, r.Action.Timeout); o {
@@ -287,7 +305,7 @@ func (r *Runnable) RunAction(queue chan RunnerFunc) {
 			runCtx, can = context.WithTimeout(runCtx, d)
 			defer can()
 		}
-		runnableChannels, done := r.Task.GetRunnableChannels(setupControls)
+		runnableChannels, done := r.Task.GetRunnableChannels(runCtx, setupControls)
 		outputMessage, err = r.Implementation.Run(runCtx, runnableChannels, r.Message)
 
 		log.TasksLogger(r.Context).Debug("ZAPS", zap.Object("Output", outputMessage))
@@ -298,7 +316,7 @@ func (r *Runnable) RunAction(queue chan RunnerFunc) {
 		log.TasksLogger(r.Context).Error("Error while running action "+r.ID, zap.Error(err))
 		r.Task.SetStatus(jobs.TaskStatus_Error, "Error: "+err.Error())
 		r.Task.SetError(err, false)
-		r.Task.Save()
+		r.Task.SaveStatus(r.Context, jobs.TaskStatus_Error)
 		if r.collector != nil {
 			r.collector.Merge(outputMessage)
 		}

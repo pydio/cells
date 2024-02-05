@@ -84,6 +84,10 @@ func TestMongoDAO_Init(t *testing.T) {
 		So(e, ShouldBeNil)
 		So(res.Uuid, ShouldEqual, roomUuid)
 
+		res, e = m.RoomByUuid(ctx, chat.RoomType_ANY, roomUuid)
+		So(e, ShouldBeNil)
+		So(res.Uuid, ShouldEqual, roomUuid)
+
 		msg, e := m.PostMessage(ctx, &chat.ChatMessage{Message: "Hello world", RoomUuid: roomUuid, Timestamp: time.Now().UnixNano()})
 		So(e, ShouldBeNil)
 		So(msg.Uuid, ShouldNotBeEmpty)

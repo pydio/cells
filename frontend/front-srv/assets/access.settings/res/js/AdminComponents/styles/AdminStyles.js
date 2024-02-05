@@ -62,10 +62,7 @@ function cssFormGroupFullStyle() {
 
 const cssFormSimple = `
 .react-mui-context .pydio-form-panel.form-panel-odd > .pydio-form-group {
-    background-color:white;
-    padding: 16px;  
-    border:1px solid rgba(30, 58, 74, 0.14);
-    border-radius:6px;                      
+    margin: 2px 10px -16px;
 }
 .react-mui-context .pydio-form-panel.form-panel-odd >.pydio-form-group > h1 {
     background-color:#fbfbfc;
@@ -127,7 +124,9 @@ export default function(palette = {}) {
                         borderRadius: '50%',
                         backgroundColor: palette.primary1Color,
                         padding: 7,
-                        marginLeft: 5
+                        marginLeft: 5,
+                        display:'flex',
+                        justifyContent:'center'
                     },
                     iconStyle:{
                         fontSize: 20,

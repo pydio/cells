@@ -55,6 +55,15 @@ const (
 	defaultContentAnalyzer  = en.AnalyzerName
 )
 
+var (
+	validSortFields = map[string]string{
+		tree.MetaSortName: "Basename",
+		tree.MetaSortTime: "ModifTime",
+		tree.MetaSortSize: "Size",
+		tree.MetaSortType: "Type",
+	}
+)
+
 type Codec struct {
 	ResultBasenameFacetCount int32
 	ResultContentFacetCount  int32
@@ -182,7 +191,7 @@ func (b *Codec) FlushCustomFacets() (facets []interface{}) {
 	return
 }
 
-func (b *Codec) BuildQuery(qu interface{}, offset, limit int32) (interface{}, interface{}, error) {
+func (b *Codec) BuildQuery(qu interface{}, offset, limit int32, sortFields string, sortDesc bool) (interface{}, interface{}, error) {
 
 	ba, ca, _ := b.extractConfigs(b.queryConfig)
 
@@ -202,13 +211,13 @@ func (b *Codec) BuildQuery(qu interface{}, offset, limit int32) (interface{}, in
 
 	// File Size Range
 	if queryObject.MinSize > 0 || queryObject.MaxSize > 0 {
-		var min = float64(queryObject.MinSize)
-		var max = float64(queryObject.MaxSize)
+		var mi = float64(queryObject.MinSize)
+		var ma = float64(queryObject.MaxSize)
 		var numRange *query.NumericRangeQuery
-		if max == 0 {
-			numRange = bleve.NewNumericRangeQuery(&min, nil)
+		if ma == 0 {
+			numRange = bleve.NewNumericRangeQuery(&mi, nil)
 		} else {
-			numRange = bleve.NewNumericRangeQuery(&min, &max)
+			numRange = bleve.NewNumericRangeQuery(&mi, &ma)
 		}
 		numRange.SetField("Size")
 		boolean.AddMust(numRange)
@@ -310,6 +319,23 @@ func (b *Codec) BuildQuery(qu interface{}, offset, limit int32) (interface{}, in
 	searchRequest.From = int(offset)
 	searchRequest.Fields = []string{"Uuid", "Path", "NodeType", "Basename", "Size", "ModifTime"}
 	searchRequest.IncludeLocations = true
+
+	// Handle sorting
+	if sortFields != "" {
+		var sorts []string
+		for _, sf := range strings.Split(sortFields, ",") {
+			if sortField, ok := validSortFields[strings.TrimSpace(sf)]; ok {
+				if sortDesc {
+					sorts = append(sorts, "-"+sortField)
+				} else {
+					sorts = append(sorts, "+"+sortField)
+				}
+			}
+		}
+		if len(sorts) > 0 {
+			searchRequest.SortBy(sorts)
+		}
+	}
 
 	searchRequest.AddFacet("Type", &bleve.FacetRequest{
 		Field: "NodeType",

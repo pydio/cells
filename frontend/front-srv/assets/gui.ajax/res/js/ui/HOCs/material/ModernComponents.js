@@ -22,6 +22,18 @@ import PropTypes from 'prop-types'
 import {TextField, SelectField, AutoComplete} from 'material-ui'
 
 
+const mergeProps = (root, overrides) => {
+    Object.keys(overrides).forEach((k) => {
+        if(overrides[k] instanceof Object){
+            const roots = root[k] ||  {}
+            root[k] = {...roots, ...overrides[k]};
+        } else {
+            root[k] = overrides[k]
+        }
+    });
+    return root;
+}
+
 const styles = (muiTheme) => {
 
     const noWrap = {
@@ -48,7 +60,7 @@ const styles = (muiTheme) => {
     }
 
 
-    return {
+    const result = {
         textField: {
             inputStyle: {backgroundColor: v1BgColor, height: 34, borderRadius: 3, marginTop: 6, padding: 7},
             hintStyle: {paddingLeft: 7, color: muiTheme.darkMode?'#aaa':'#454545', ...noWrap, width: '100%'},
@@ -99,11 +111,10 @@ const styles = (muiTheme) => {
         },
         textareaFieldV2: {
             rows: 4,
-            rowsMax: 4,
-            style: {height: 128},
+            rowsMax: 10,
             inputStyle: {
                 backgroundColor: v2Block.backgroundColor,
-                height: 120,
+                height: "calc(100% - 8px)",
                 borderRadius: v2Block.borderRadius,
                 marginTop: 8,
                 paddingLeft: 8
@@ -215,6 +226,36 @@ const styles = (muiTheme) => {
         },
         v1SearchRadiusRight, v1SearchRadiusLeft
     };
+
+    const compactFont = 13
+    const compactRadius = 20
+    const compactPadding = 16
+    result.textFieldCompact = mergeProps(
+        {...result.textField},
+        {
+            inputStyle: {borderRadius: compactRadius, paddingLeft: compactPadding, fontSize: compactFont},
+            hintStyle: {paddingLeft: compactPadding, fontSize: compactFont},
+            underlineShow: false
+        }
+    );
+
+    result.selectFieldCompact = mergeProps(
+        {...result.selectField},
+        {
+            style: {borderRadius: compactRadius, fontSize: compactFont, paddingLeft: compactPadding},
+            hintStyle: {fontSize: compactFont}
+        }
+    );
+    result.toggleFieldCompact = mergeProps(
+        {...result.toggleField},
+        {
+            style:{fontSize: compactFont, borderRadius: compactRadius, paddingLeft: compactPadding, paddingRight: compactPadding},
+            trackStyle:{zoom: 0.7, marginTop: 3},
+            thumbStyle:{zoom: 0.8, marginTop: 3}
+        }
+    )
+
+    return result
 }
 
 const defaultStyles = styles({
@@ -331,6 +372,8 @@ function withModernTheme(formComponent) {
                 } else {
                     if(variant === 'v2') {
                         styleProps = this.mergedProps(getV2WithBlocks({...styles(muiTheme).textFieldV2}, hasLeftBlock, hasRightBlock));
+                    } else if (variant === 'compact') {
+                        styleProps = this.mergedProps({...styles(muiTheme).textFieldCompact});
                     } else {
                         styleProps = this.mergedProps({...styles(muiTheme).textField});
                     }
@@ -340,6 +383,8 @@ function withModernTheme(formComponent) {
                 let styleProps;
                 if (variant === 'v2') {
                     styleProps = this.mergedProps(getV2WithBlocks({...styles(muiTheme).selectFieldV2}, hasLeftBlock, hasRightBlock));
+                } else if(variant === 'compact') {
+                    styleProps = this.mergedProps({...styles(muiTheme).selectFieldCompact});
                 } else {
                     styleProps = this.mergedProps({...styles(muiTheme).selectField});
                 }

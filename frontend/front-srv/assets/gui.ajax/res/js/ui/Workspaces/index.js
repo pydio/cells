@@ -28,6 +28,7 @@ import UnifiedSearchForm from "./search/components/UnifiedSearchForm";
 import Renderer from "./search/components/Renderer";
 import AdvancedChips from "./search/components/AdvancedChips"
 import Facets from './search/components/Facets'
+import SearchSorter from './search/components/SearchSorter'
 
 import WorkspacesList from './wslist/WorkspacesList'
 import WorkspacesListMaterial from './wslist/WorkspacesListMaterial'
@@ -67,6 +68,7 @@ const classes = {
     MasterLayout,
     MetaRenderer:Renderer,
     Facets,
+    SearchSorter,
 
     InfoPanel,
     InfoPanelCard,

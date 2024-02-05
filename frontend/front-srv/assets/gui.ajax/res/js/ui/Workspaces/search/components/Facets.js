@@ -73,7 +73,7 @@ class Facets extends React.Component {
     }
 
     render() {
-        const {pydio, facets, onToggleFacet, activeFacets=[], zDepth=1, styles = {}, emptyStateView} = this.props;
+        const {pydio, facets, topPane, onToggleFacet, activeFacets=[], zDepth=1, styles = {}, emptyStateView} = this.props;
         const m = (id) => pydio.MessageHash['user_home.' + id] || id
         const groups = {}
         const groupKeys = {
@@ -114,6 +114,7 @@ class Facets extends React.Component {
             <Paper zDepth={zDepth} style={styles.container}>
                 {!hasFacets && emptyStateView}
                 {hasFacets && <div style={styles.header}>{m('search.facets.title')}</div>}
+                {topPane}
                 {hasFacets && Object.keys(groupKeys)
                     .filter(k => groups[k])
                     .filter(k => {

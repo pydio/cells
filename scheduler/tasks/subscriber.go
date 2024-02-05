@@ -23,6 +23,8 @@ package tasks
 import (
 	"context"
 	"fmt"
+	"github.com/pydio/cells/v4/common/proto/chat"
+	"html"
 	"strings"
 	"sync"
 	"time"
@@ -172,6 +174,14 @@ func NewSubscriber(parentContext context.Context) *Subscriber {
 		return nil
 	}, queueOpt, counterOpt)
 
+	_ = broker.SubscribeCancellable(parentContext, common.TopicChatEvent, func(message broker.Message) error {
+		target := &chat.ChatEvent{}
+		if ctx, e := message.Unmarshal(target); e == nil {
+			return s.chatEvent(ctx, target)
+		}
+		return nil
+	}, queueOpt, counterOpt)
+
 	//s.listenToQueue()
 	s.taskChannelSubscription()
 
@@ -298,7 +308,7 @@ func (s *Subscriber) jobsChangeEvent(ctx context.Context, msg *jobs.JobChangeEve
 }
 
 // prepareTaskContext creates adequate context for launching a task
-func (s *Subscriber) prepareTaskContext(ctx context.Context, job *jobs.Job, addSystemUser bool, eventParameters ...map[string]string) context.Context {
+func (s *Subscriber) prepareTaskContext(ctx context.Context, job *jobs.Job, addSystemUser bool, event interface{}) context.Context {
 
 	// Add System User if necessary
 	if addSystemUser {
@@ -315,21 +325,8 @@ func (s *Subscriber) prepareTaskContext(ctx context.Context, job *jobs.Job, addS
 	}
 
 	// Inject evaluated job parameters
-	if len(job.Parameters) > 0 {
-		params := make(map[string]string, len(job.Parameters))
-		for _, p := range job.Parameters {
-			params[p.Name] = jobs.EvaluateFieldStr(ctx, &jobs.ActionMessage{}, p.Value)
-		}
-		if len(eventParameters) > 0 {
-			// Replace job parameters with values passed through TriggerEvent
-			for k, v := range eventParameters[0] {
-				if _, o := params[k]; o {
-					params[k] = jobs.EvaluateFieldStr(ctx, &jobs.ActionMessage{}, v)
-				}
-			}
-		}
-		ctx = context.WithValue(ctx, ContextJobParametersKey{}, params)
-	}
+	params := jobs.RunParametersComputer(ctx, &jobs.ActionMessage{}, job, event)
+	ctx = context.WithValue(ctx, ContextJobParametersKey{}, params)
 
 	return ctx
 }
@@ -359,9 +356,9 @@ func (s *Subscriber) timerEvent(ctx context.Context, event *jobs.JobTriggerEvent
 		return nil
 	}
 	if event.GetRunNow() && event.GetRunParameters() != nil {
-		ctx = s.prepareTaskContext(ctx, j, true, event.GetRunParameters())
+		ctx = s.prepareTaskContext(ctx, j, true, event)
 	} else {
-		ctx = s.prepareTaskContext(ctx, j, true)
+		ctx = s.prepareTaskContext(ctx, j, true, nil)
 	}
 	if event.GetRunNow() {
 		log.Logger(ctx).Info("Run Job " + jobId + " on demand")
@@ -402,7 +399,7 @@ func (s *Subscriber) processNodeEvent(ctx context.Context, event *tree.NodeChang
 			continue
 		}
 		sameJobUuid := s.contextJobSameUuid(ctx, jobId)
-		tCtx := s.prepareTaskContext(ctx, jobData, false)
+		tCtx := s.prepareTaskContext(ctx, jobData, false, nil)
 		var eventMatch string
 		for _, eName := range jobData.EventNames {
 			if eType, ok := jobs.ParseNodeChangeEventName(eName); ok {
@@ -441,7 +438,7 @@ func (s *Subscriber) processNodeEvent(ctx context.Context, event *tree.NodeChang
 
 }
 
-// idmEvent Reacts to a trigger linked to a nodeChange event.
+// idmEvent Reacts to a trigger linked to an idmChangeEvent.
 func (s *Subscriber) idmEvent(ctx context.Context, event *idm.ChangeEvent) error {
 
 	s.Lock()
@@ -451,8 +448,11 @@ func (s *Subscriber) idmEvent(ctx context.Context, event *idm.ChangeEvent) error
 		if jobData.Inactive {
 			continue
 		}
+		if len(jobData.EventNames) == 0 {
+			continue
+		}
 		sameJob := s.contextJobSameUuid(ctx, jobId)
-		tCtx := s.prepareTaskContext(ctx, jobData, true)
+		tCtx := s.prepareTaskContext(ctx, jobData, true, nil)
 		if jobData.ContextMetaFilter != nil && !s.jobLevelContextFilterPass(tCtx, jobData.ContextMetaFilter) {
 			continue
 		}
@@ -461,6 +461,50 @@ func (s *Subscriber) idmEvent(ctx context.Context, event *idm.ChangeEvent) error
 		}
 		for _, eName := range jobData.EventNames {
 			if jobs.MatchesIdmChangeEvent(eName, event) {
+				if sameJob {
+					log.Logger(tCtx).Debug("Prevent loop for job " + jobData.Label + " on event " + eName)
+					continue
+				}
+				if err := s.requiresUnsupportedCapacity(ctx, jobData); err != nil {
+					continue
+				}
+				log.Logger(tCtx).Debug("Run Job " + jobId + " on event " + eName)
+				s.enqueue(tCtx, jobData, event)
+			}
+		}
+	}
+	return nil
+}
+
+// chatEvent Reacts to a trigger linked to a chat.ChatEvent
+func (s *Subscriber) chatEvent(ctx context.Context, event *chat.ChatEvent) error {
+
+	s.Lock()
+	defer s.Unlock()
+
+	for jobId, jobData := range s.definitions {
+		if jobData.Inactive {
+			continue
+		}
+		if len(jobData.EventNames) == 0 {
+			continue
+		}
+		sameJob := s.contextJobSameUuid(ctx, jobId)
+		tCtx := s.prepareTaskContext(ctx, jobData, true, nil)
+		if jobData.ContextMetaFilter != nil && !s.jobLevelContextFilterPass(tCtx, jobData.ContextMetaFilter) {
+			continue
+		}
+		if event.Message != nil && event.Message.Message != "" {
+			// ChatMessages are sanitized, and produce HTML Entities, we must re-decode them with Unescape
+			event.Message.Message = html.UnescapeString(event.Message.Message)
+		}
+		if jobData.ChatEventFilter != nil {
+			if _, _, ok := jobData.ChatEventFilter.Filter(tCtx, createMessageFromEvent(event)); !ok {
+				continue
+			}
+		}
+		for _, eName := range jobData.EventNames {
+			if jobs.MatchesChatEvent(eName, event) {
 				if sameJob {
 					log.Logger(tCtx).Debug("Prevent loop for job " + jobData.Label + " on event " + eName)
 					continue
@@ -590,6 +634,11 @@ func createMessageFromEvent(event interface{}) *jobs.ActionMessage {
 		if idmEvent.Acl != nil {
 			initialInput = initialInput.WithAcl(idmEvent.Acl)
 		}
+
+	} else if chatEvent, ok := event.(*chat.ChatEvent); ok {
+
+		ap, _ := anypb.New(chatEvent)
+		initialInput.Event = ap
 
 	}
 

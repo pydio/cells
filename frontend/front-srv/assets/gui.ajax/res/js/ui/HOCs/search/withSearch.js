@@ -180,7 +180,7 @@ export default function withSearch(Component, historyIdentifier, defaultScope){
         }
 
         performSearch() {
-            const {values, limit, dataModel, activeFacets} = this.state;
+            const {values, limit, dataModel, activeFacets, sortField, sortDesc} = this.state;
             const searchRootNode = dataModel.getSearchNode();
             searchRootNode.getMetadata().set('search_values', values);
             searchRootNode.getMetadata().set('active_facets', activeFacets);
@@ -211,7 +211,7 @@ export default function withSearch(Component, historyIdentifier, defaultScope){
             searchRootNode.setLoading(true);
             searchRootNode.notify("loading");
             const api = new SearchApi(Pydio.getInstance());
-            api.search(this.mergeFacets(values, activeFacets), scope, limit).then(response => {
+            api.search(this.mergeFacets(values, activeFacets), scope, limit, false, sortField, sortDesc).then(response => {
                 searchRootNode.clear();
                 const res = response.Results || []
                 res.forEach((node, i) => {
@@ -225,7 +225,8 @@ export default function withSearch(Component, historyIdentifier, defaultScope){
                 }
                 this.setState({
                     searchLoading: false,
-                    facets: response.Facets ||[]
+                    facets: response.Facets ||[],
+                    resultsCount: res.length
                 });
             }).catch(()=>{
                 searchRootNode.clear();
@@ -319,6 +320,10 @@ export default function withSearch(Component, historyIdentifier, defaultScope){
 
         setLimit(limit){
             this.setState({limit}, this.performSearch.bind(this));
+        }
+
+        setSortField(sortField, sortDesc) {
+            this.setState({sortField, sortDesc}, this.performSearch.bind(this))
         }
 
         toggleFacet(facet, toggle){
@@ -479,6 +484,7 @@ export default function withSearch(Component, historyIdentifier, defaultScope){
                 submitSearch:this.performSearch.bind(this),
                 setValues:this.setValues.bind(this),
                 setLimit:this.setLimit.bind(this),
+                setSortField:this.setSortField.bind(this),
                 toggleFacet:this.toggleFacet.bind(this),
                 humanizeValues:this.humanize.bind(this),
                 saveSearch:this.pushSavedSearches.bind(this),

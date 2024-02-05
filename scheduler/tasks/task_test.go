@@ -31,9 +31,10 @@ import (
 
 	"github.com/pydio/cells/v4/common/proto/jobs"
 	"github.com/pydio/cells/v4/common/proto/tree"
+	"github.com/pydio/cells/v4/common/service/context"
+	"github.com/pydio/cells/v4/common/service/context/metadata"
 
 	// registered default scheduler actions
-	"github.com/pydio/cells/v4/common/service/context"
 	_ "github.com/pydio/cells/v4/scheduler/actions/scheduler"
 )
 
@@ -177,7 +178,7 @@ func TestTaskEvents(t *testing.T) {
 
 func TestTask_Save(t *testing.T) {
 
-	Convey("Test task Save", t, func() {
+	Convey("Test task SaveStatus", t, func() {
 
 		event := &jobs.JobTriggerEvent{JobID: "ajob"}
 		task := NewTaskFromEvent(runtimeCtx, context.Background(), &jobs.Job{ID: "ajob"}, event)
@@ -187,6 +188,23 @@ func TestTask_Save(t *testing.T) {
 		rt, o := read.(*jobs.Task)
 		So(o, ShouldBeTrue)
 		So(rt.ID, ShouldEqual, task.task.ID)
+		PubSub.Unsub(ch, PubSubTopicTaskStatuses)
+
+	})
+
+	Convey("Test task SaveStatus With Context", t, func() {
+
+		event := &jobs.JobTriggerEvent{JobID: "ajob"}
+		task := NewTaskFromEvent(runtimeCtx, context.Background(), &jobs.Job{ID: "ajob"}, event)
+		ch := PubSub.Sub(PubSubTopicTaskStatuses)
+		runnableCtx := metadata.WithAdditionalMetadata(runtimeCtx, map[string]string{servicecontext.ContextMetaTaskActionPath: "action-path"})
+		task.SaveStatus(runnableCtx, jobs.TaskStatus_Running)
+		read := <-ch
+		rt, o := read.(*TaskStatusUpdate)
+		So(o, ShouldBeTrue)
+		So(rt.ID, ShouldEqual, task.task.ID)
+		So(rt.RunnableContext, ShouldNotBeNil)
+		So(rt.RunnableStatus, ShouldEqual, jobs.TaskStatus_Running)
 		PubSub.Unsub(ch, PubSubTopicTaskStatuses)
 
 	})

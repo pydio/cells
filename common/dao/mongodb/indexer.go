@@ -145,7 +145,7 @@ func (i *Indexer) DeleteOne(ctx context.Context, data interface{}) error {
 }
 
 func (i *Indexer) DeleteMany(ctx context.Context, query interface{}) (int32, error) {
-	request, _, err := i.codec.BuildQuery(query, 0, 0)
+	request, _, err := i.codec.BuildQuery(query, 0, 0, "", false)
 	if err != nil {
 		return 0, err
 	}
@@ -163,7 +163,7 @@ func (i *Indexer) DeleteMany(ctx context.Context, query interface{}) (int32, err
 	}
 }
 
-func (i *Indexer) FindMany(ctx context.Context, query interface{}, offset, limit int32, customCodec dao.IndexCodex) (chan interface{}, error) {
+func (i *Indexer) FindMany(ctx context.Context, query interface{}, offset, limit int32, sortFields string, sortDesc bool, customCodec dao.IndexCodex) (chan interface{}, error) {
 	codec := i.codec
 	if customCodec != nil {
 		codec = customCodec
@@ -179,12 +179,12 @@ func (i *Indexer) FindMany(ctx context.Context, query interface{}, offset, limit
 	}
 	// Eventually override options
 	if op, ok := i.codec.(dao.QueryOptionsProvider); ok {
-		if oo, e := op.BuildQueryOptions(query, offset, limit); e == nil {
+		if oo, e := op.BuildQueryOptions(query, offset, limit, sortFields, sortDesc); e == nil {
 			opts = oo.(*options.FindOptions)
 		}
 	}
 	// Build Query
-	request, aggregation, err := codec.BuildQuery(query, offset, limit)
+	request, aggregation, err := codec.BuildQuery(query, offset, limit, sortFields, sortDesc)
 	if err != nil {
 		return nil, err
 	}

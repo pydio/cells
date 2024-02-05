@@ -7,10 +7,24 @@ import "cells-tree.proto";
 import "cells-idm.proto";
 import "cells-activitystream.proto";
 import "cells-object.proto";
+import "cells-chat.proto";
 
 package jobs;
 
 option go_package="github.com/pydio/cells/common/proto/jobs";
+
+message SelectorRange {
+    // Limit number of results - use string to allow templating
+    string Limit = 10;
+    // Start offset - use string to allow templating
+    string Offset = 11;
+    // OrderBy a given field of the object
+    string OrderBy = 12;
+    // Order direction (asc/desc)
+    string OrderDir = 13;
+
+}
+
 ///////////////////
 // JOB  SERVICE  //
 ///////////////////
@@ -34,6 +48,8 @@ message NodesSelector {
     string Timeout = 8;
     // Clear previous selection
     bool ClearInput = 10;
+    // Handle ranges
+    SelectorRange Range = 11;
 }
 
 // Possible values for IdmSelector.Type
@@ -64,6 +80,8 @@ message IdmSelector {
     string Timeout = 7;
     // Clear previous selection
     bool ClearInput = 9;
+    // Handle ranges
+    SelectorRange Range = 11;
 }
 
 // Select or filter users - should be replaced by more generic IdmSelector
@@ -198,6 +216,32 @@ message DataSelectorSingleQuery {
     string JsonPath = 1;
 }
 
+message ChatEventFilter {
+    // Selector custom label
+    string Label = 1;
+    // Selector additional description
+    string Description = 2;
+    // Query used to compute output object or list of objects
+    service.Query Query = 3;
+}
+
+message ChatEventFilterQuery {
+    // EventType, inferred from ChatEvent Details field and presence of Message or Room in event
+    string EventType = 1;
+    // Room UUID
+    string RoomUuid = 2;
+    // Room Type
+    chat.RoomType RoomType = 3;
+    // Room Associated Object
+    string RoomTypeObject = 4;
+    // Room Label
+    string RoomLabelRegexp = 5;
+    // Message Regexp
+    string MessageRegexp = 6;
+    // Message Author
+    string MessageAuthor = 7;
+}
+
 message Schedule {
     // ISO 8601 Description of the scheduling for instance "R2/2015-06-04T19:25:16.828696-07:00/PT4S"
     // where first part is the number of repetitions (if 0, infinite repetition), 
@@ -253,6 +297,9 @@ message Action {
     DataSelector DataSelector = 22;
     // Filter values from JsonBody
     DataSelector DataFilter = 23;
+
+    // Filter values from ChatEvent
+    ChatEventFilter ChatEventFilter = 24;
 
     // Defined parameters for this action
     map<string, string> Parameters = 7;
@@ -330,6 +377,8 @@ message Job {
     ContextMetaFilter ContextMetaFilter = 18;
     // DataSource objects filter
     DataSourceSelector DataSourceFilter = 21;
+    // Filter values from ChatEvent
+    ChatEventFilter ChatEventFilter = 31;
 
     // Job-level parameters that can be passed to underlying actions
     repeated JobParameter Parameters = 19;
@@ -384,6 +433,8 @@ message JobChangeEvent {
 message TaskChangeEvent {
     Task TaskUpdated = 1;
     Job Job = 2;
+    int64 NanoStamp = 3;
+    map<string, string> StatusMeta = 4;
 }
 
 message PutJobRequest {
@@ -447,6 +498,7 @@ message ListTasksResponse {
 
 message PutTaskRequest {
     Task Task = 1;
+    map<string, string> StatusMeta = 2;
 }
 
 message PutTaskResponse {

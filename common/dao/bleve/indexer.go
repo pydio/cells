@@ -326,12 +326,12 @@ func (s *Indexer) DeleteMany(ctx context.Context, qu interface{}) (int32, error)
 
 }
 
-func (s *Indexer) FindMany(ctx context.Context, query interface{}, offset, limit int32, customCodec dao.IndexCodex) (chan interface{}, error) {
+func (s *Indexer) FindMany(ctx context.Context, query interface{}, offset, limit int32, sortFields string, sortDesc bool, customCodec dao.IndexCodex) (chan interface{}, error) {
 	codec := s.codec
 	if customCodec != nil {
 		codec = customCodec
 	}
-	request, _, err := codec.BuildQuery(query, offset, limit)
+	request, _, err := codec.BuildQuery(query, offset, limit, sortFields, sortDesc)
 	if err != nil {
 		return nil, err
 	}

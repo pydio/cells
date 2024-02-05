@@ -27,7 +27,6 @@ import (
 
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/forms"
-	"github.com/pydio/cells/v4/common/log"
 	"github.com/pydio/cells/v4/common/proto/jobs"
 	"github.com/pydio/cells/v4/scheduler/actions"
 )
@@ -138,7 +137,7 @@ func (f *FakeAction) Run(ctx context.Context, channels *actions.RunnableChannels
 		tick = timer
 	}
 
-	log.TasksLogger(ctx).Info("Starting Timer")
+	//log.TasksLogger(ctx).Info("Starting Timer")
 	outputMessage.AppendOutput(&jobs.ActionOutput{StringBody: "Hello World"})
 	ticker := time.NewTicker(time.Second * time.Duration(tick))
 	finished := make(chan struct{}, 1)
@@ -146,28 +145,28 @@ func (f *FakeAction) Run(ctx context.Context, channels *actions.RunnableChannels
 		<-time.After(time.Second * time.Duration(timer))
 		close(finished)
 	}()
-	steps := float32(timer) / float32(tick)
+	//steps := float32(timer) / float32(tick)
 	step := float32(0)
 
 loop:
 	for {
 		select {
-		case t := <-ticker.C:
-			channels.Progress <- step * 100 / steps
+		case <-ticker.C:
+			//channels.Progress <- step * 100 / steps
 			step++
-			message := fmt.Sprintf("Ticking Now %v", t)
-			log.TasksLogger(ctx).Info(message)
-			channels.StatusMsg <- message
+			//message := fmt.Sprintf("Ticking Now %v", t)
+			//log.TasksLogger(ctx).Info(message)
+			//channels.StatusMsg <- message
 		case <-channels.Pause:
-			log.TasksLogger(ctx).Info("Task received pause from channels, should pause here")
+			//log.TasksLogger(ctx).Info("Task received pause from channels, should pause here")
 			<-channels.BlockUntilResume(ctx)
-			log.TasksLogger(ctx).Info("Block-until-resume passed, received resume, continue")
+			//log.TasksLogger(ctx).Info("Block-until-resume passed, received resume, continue")
 		case <-ctx.Done():
-			log.TasksLogger(ctx).Error("Context is Done: interrupting")
+			//log.TasksLogger(ctx).Error("Context is Done: interrupting")
 			ticker.Stop()
 			return outputMessage.WithError(ErrTaskInterrupted), ErrTaskInterrupted
 		case <-finished:
-			log.TasksLogger(ctx).Info("Sleep time finished")
+			//log.TasksLogger(ctx).Info("Sleep time finished")
 			ticker.Stop()
 			break loop
 		}

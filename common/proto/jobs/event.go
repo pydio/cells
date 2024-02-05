@@ -25,6 +25,7 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/pydio/cells/v4/common/proto/chat"
 	"github.com/pydio/cells/v4/common/proto/idm"
 	"github.com/pydio/cells/v4/common/proto/tree"
 )
@@ -96,4 +97,28 @@ func MatchesIdmChangeEvent(eventName string, event *idm.ChangeEvent) bool {
 	}
 
 	return true
+}
+
+// ChatEventName computes a string identifier to identify corresponding chat.ChatEvent
+func ChatEventName(event *chat.ChatEvent) string {
+	var objType, evType string
+	if event.GetMessage() != nil {
+		objType = "MESSAGE"
+		if event.Details != "" {
+			evType = event.Details
+		} else {
+			evType = "PUT"
+		}
+	} else if event.GetRoom() != nil {
+		objType = "ROOM"
+		evType = event.Details
+	} else {
+		return ""
+	}
+	return fmt.Sprintf("CHAT_EVENT:%s:%s", objType, evType)
+}
+
+// MatchesChatEvent checks if an event matches the passed string name
+func MatchesChatEvent(eventName string, event *chat.ChatEvent) bool {
+	return eventName == ChatEventName(event)
 }

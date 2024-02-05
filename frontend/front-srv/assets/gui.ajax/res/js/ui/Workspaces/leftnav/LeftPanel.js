@@ -61,7 +61,6 @@ const LeftPanel = ({style={}, userWidgetProps, workspacesListProps = {}, pydio, 
                     showTreeForWorkspace={pydio.user?pydio.user.activeRepository:false}
                     {...workspacesListProps}
                 />
-                <TasksPanel pydio={pydio} mode={"flex"}/>
             </div>
         );
 };

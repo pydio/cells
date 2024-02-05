@@ -201,7 +201,11 @@ func (c *ChatHandler) initHandlers(ctx context.Context) {
 				log.Logger(ctx).Debug("CANNOT JOIN", zap.Any("msg", chatMsg), zap.Any("r", foundRoom), zap.Error(e1))
 				break
 			}
+
 			sessRoom.uuid = foundRoom.Uuid
+			sessRoom.typeString = foundRoom.Type.String()
+			sessRoom.typeObject = foundRoom.RoomTypeObject
+
 			c.heartbeat(ctx, userName, foundRoom)
 			c.storeSessionRoom(session, sessRoom)
 			// Update Room Users
@@ -244,34 +248,74 @@ func (c *ChatHandler) initHandlers(ctx context.Context) {
 					}
 				}
 			}
+			// First make sure to send a RoomUpdate
+			wsMessage := &chat.WebSocketMessage{
+				Type: chat.WsMessageType_ROOM_UPDATE,
+				Room: foundRoom,
+			}
+			buff, _ := protojson.Marshal(wsMessage)
+			session.Write(buff)
+
 			// List existing Messages
 			ct, ca := context.WithCancel(ctx)
 			defer ca()
 			stream, e2 := chatClient.ListMessages(ct, request)
 			if e2 == nil {
+				count := 0
+				var first *chat.ChatMessage
 				for {
 					resp, e3 := stream.Recv()
 					if e3 != nil {
 						break
 					}
-					b, _ := protojson.Marshal(resp.Message)
-					session.Write(b)
+					if count == 0 {
+						first = resp.GetMessage()
+					}
+					b, _ := protojson.Marshal(resp.GetMessage())
+					_ = session.Write(b)
+					count++
+				}
+				if request.Limit > 0 && count == int(request.Limit) && first != nil {
+					// indicate that there may be more pending messages
+					type HasMoreData struct {
+						Type      string `json:"@type"`
+						RoomUuid  string `json:"RoomUuid"`
+						Timestamp int64  `json:"Timestamp"`
+						Offset    int    `json:"Offset"`
+						Limit     int    `json:"Limit"`
+					}
+					b, _ := json.Marshal(HasMoreData{
+						Type:      "MAY_HAVE_MORE",
+						RoomUuid:  foundRoom.Uuid,
+						Timestamp: first.GetTimestamp(),
+						Offset:    int(request.Offset + request.Limit),
+						Limit:     int(request.Limit),
+					})
+					_ = session.Write(b)
 				}
 			}
 
 		case chat.WsMessageType_POST:
 
 			log.Logger(ctx).Debug("POST", zap.Any("msg", chatMsg))
-			if session, found := c.roomInSession(session, chatMsg.Message.RoomUuid); !found || session.readonly {
+			var knownRoom *chat.ChatRoom
+			if room, found := c.roomInSession(session, chatMsg.Message.RoomUuid); !found || room.readonly {
 				log.Logger(ctx).Error("Not authorized to post in this room")
 				break
+			} else {
+				knownRoom = &chat.ChatRoom{
+					Uuid:           room.uuid,
+					Type:           chat.RoomType(chat.RoomType_value[room.typeString]),
+					RoomTypeObject: room.typeObject,
+				}
 			}
 			message := chatMsg.Message
 			message.Author = userName
 			message.Message = bluemonday.UGCPolicy().Sanitize(message.Message)
 			message.Timestamp = time.Now().Unix()
 			_, e := chatClient.PostMessage(ctx, &chat.PostMessageRequest{
-				Messages: []*chat.ChatMessage{message},
+				Messages:   []*chat.ChatMessage{message},
+				KnownRooms: map[string]*chat.ChatRoom{message.RoomUuid: knownRoom},
 			})
 			if e != nil {
 				log.Logger(ctx).Error("Error while posting message", zap.Any("msg", message), zap.Error(e))
@@ -280,14 +324,22 @@ func (c *ChatHandler) initHandlers(ctx context.Context) {
 		case chat.WsMessageType_DELETE_MSG:
 
 			log.Logger(ctx).Debug("Delete", zap.Any("msg", chatMsg))
-			if session, found := c.roomInSession(session, chatMsg.Message.RoomUuid); !found || session.readonly {
+			var knownRoom *chat.ChatRoom
+			if room, found := c.roomInSession(session, chatMsg.Message.RoomUuid); !found || room.readonly {
 				log.Logger(ctx).Error("Not authorized to post in this room")
 				break
+			} else {
+				knownRoom = &chat.ChatRoom{
+					Uuid:           room.uuid,
+					Type:           chat.RoomType(chat.RoomType_value[room.typeString]),
+					RoomTypeObject: room.typeObject,
+				}
 			}
 			message := chatMsg.Message
 			if message.Author == userName {
 				_, e := chatClient.DeleteMessage(ctx, &chat.DeleteMessageRequest{
-					Messages: []*chat.ChatMessage{message},
+					Messages:   []*chat.ChatMessage{message},
+					KnownRooms: map[string]*chat.ChatRoom{message.RoomUuid: knownRoom},
 				})
 				if e != nil {
 					log.Logger(ctx).Error("Error while deleting message", zap.Any("msg", message), zap.Error(e))
@@ -301,8 +353,10 @@ func (c *ChatHandler) initHandlers(ctx context.Context) {
 }
 
 type sessionRoom struct {
-	uuid     string
-	readonly bool
+	uuid       string
+	typeString string
+	typeObject string
+	readonly   bool
 }
 
 func (c *ChatHandler) roomInSession(session *melody.Session, roomUuid string) (*sessionRoom, bool) {

@@ -57,6 +57,11 @@ type cmp struct {
 	val   int64
 }
 
+func ValidSortField(sortField string) bool {
+	return sortField == MetaSortName || sortField == MetaSortTime || sortField == MetaSortSize ||
+		sortField == MetaSortType || sortField == MetaSortMPath
+}
+
 // MetaFilter holds specific filtering conditions, generally transformed from standard
 // search queries to basic Listing options.
 type MetaFilter struct {
@@ -234,17 +239,12 @@ func (m *MetaFilter) Where() (where string, args []interface{}) {
 	return strings.Join(ww, " and "), args
 }
 
-func (m *MetaFilter) validSortField(sortField string) bool {
-	return sortField == MetaSortName || sortField == MetaSortTime || sortField == MetaSortSize ||
-		sortField == MetaSortType || sortField == MetaSortMPath
-}
-
 // AddSort adds a sort instruction
 func (m *MetaFilter) AddSort(defaultField, sortField string, sortDesc bool) {
 	var filtered []string
 	for _, f := range strings.Split(sortField, ",") {
 		f = strings.TrimSpace(f)
-		if m.validSortField(f) {
+		if ValidSortField(f) {
 			filtered = append(filtered, f)
 		}
 	}

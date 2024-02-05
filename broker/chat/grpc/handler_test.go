@@ -154,11 +154,38 @@ func TestChatHandler_PutMessage(t *testing.T) {
 		So(resp.Messages, ShouldHaveLength, 1)
 		storedUuid := resp.Messages[0].Uuid
 
+		// Update Message content: post with UUID - author must be the same!
+		resp, e = handler.PostMessage(ctx, &chat.PostMessageRequest{Messages: []*chat.ChatMessage{{
+			Uuid:     storedUuid,
+			RoomUuid: "room",
+			Message:  "Hello World - Updated",
+			Author:   "tester",
+		}}})
+		So(e, ShouldBeNil)
+		So(resp.Messages, ShouldHaveLength, 1)
+
+		resp, e = handler.PostMessage(ctx, &chat.PostMessageRequest{Messages: []*chat.ChatMessage{{
+			Uuid:     storedUuid,
+			RoomUuid: "room",
+			Message:  "Hello World - Updated Fail",
+			Author:   "author",
+		}}})
+		So(e, ShouldNotBeNil)
+
+		resp, e = handler.PostMessage(ctx, &chat.PostMessageRequest{Messages: []*chat.ChatMessage{{
+			Uuid:     "unknown-uuid",
+			RoomUuid: "room",
+			Message:  "Hello World - Updated Fail",
+			Author:   "tester",
+		}}})
+		So(e, ShouldNotBeNil)
+
 		stub := &msgSrvStub{}
 		stub.Ctx = ctx
 		e = handler.ListMessages(&chat.ListMessagesRequest{RoomUuid: "room"}, stub)
 		So(e, ShouldBeNil)
 		So(stub.mm, ShouldHaveLength, 1)
+		So(stub.mm[0].Message.Message, ShouldEqual, "Hello World - Updated")
 
 		_, ee := handler.DeleteMessage(ctx, &chat.DeleteMessageRequest{Messages: []*chat.ChatMessage{{
 			RoomUuid: "room",

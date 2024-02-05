@@ -113,9 +113,8 @@ class UsersSearchBox extends React.Component{
         const {crtValue} = this.state;
 
         return (
-            <div className={(this.props.className?this.props.className:'')} style={{display:'flex', alignItems:'center', ...this.props.style}}>
-                <div style={{flex: 1}}/>
-                <div style={{maxWidth: 190}}>
+            <div className={(this.props.className?this.props.className:'')} style={{display:'flex', alignItems:'center', justifyContent:'center', ...this.props.style}}>
+                <div style={{flex: 1, maxWidth: 420}}>
                     <form autoComplete={"off"}>
                     <ModernTextField
                         ref={"query"}
@@ -124,6 +123,7 @@ class UsersSearchBox extends React.Component{
                         fullWidth={true}
                         value={crtValue}
                         onChange={(e,v) => {this.setState({crtValue: v})}}
+                        variant={"compact"}
                     />
                     </form>
                 </div>

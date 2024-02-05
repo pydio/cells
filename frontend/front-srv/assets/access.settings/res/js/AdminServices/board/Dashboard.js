@@ -77,20 +77,20 @@ export default createReactClass({
         const m = id => pydio.MessageHash['ajxp_admin.services.' + id] || id;
 
         const buttonContainer = (
-            <div style={{display: 'flex', alignItems: 'center', width: '100%'}}>
+            <div style={{display: 'flex', alignItems: 'center', justifyContent:'center', width: '100%'}}>
                 <div style={{width:150, marginRight: 8}} className={"media-small-hide"}>
-                    <ModernTextField fullWidth={true} value={inputFilter} onChange={(e,v)=> this.setState({inputFilter: v})} hintText={m('text-filter.hint')}/>
+                    <ModernTextField variant={"compact"} fullWidth={true} value={inputFilter} onChange={(e,v)=> this.setState({inputFilter: v})} hintText={m('text-filter.hint')}/>
                 </div>
                 {peers.length > 0 &&
-                    <div style={{width: 150, height:14, marginRight: 8}}>
-                        <ModernSelectField fullWidth={true} className={"media-small-hide"} style={{marginTop: -10}} underlineStyle={{display:'none'}} value={peerFilter} onChange={this.onPeerFilterChange}>
+                    <div style={{width: 150, marginRight: 8}}>
+                        <ModernSelectField fullWidth={true} variant={"compact"} className={"media-small-hide"} underlineStyle={{display:'none'}} value={peerFilter} onChange={this.onPeerFilterChange}>
                             <MenuItem value={''} primaryText={m('peerfilter.title')} />
                             {peers.map(peer => <MenuItem value={peer} primaryText={peer} />)}
                         </ModernSelectField>
                     </div>
                 }
-                <div style={{width: 150, height:14}}>
-                    <ModernSelectField fullWidth={true} className={"media-small-hide"} style={{marginTop: -10}} underlineStyle={{display:'none'}} value={filter} onChange={this.onFilterChange}>
+                <div style={{width: 150}}>
+                    <ModernSelectField fullWidth={true} variant={"compact"} className={"media-small-hide"} underlineStyle={{display:'none'}} value={filter} onChange={this.onFilterChange}>
                         <MenuItem value={''} primaryText={m('filter.nofilter')} />
                         <MenuItem value={'STARTED'} primaryText={m('filter.started')} />
                         <MenuItem value={'STOPPED'} primaryText={m('filter.stopped')} />
@@ -107,7 +107,7 @@ export default createReactClass({
                         title={toolsAbsolute?'':this.context.getMessage('172', 'settings')}
                         icon={toolsAbsolute?'':"mdi mdi-access-point-network"}
                         legend={this.context.getMessage('173', 'settings')}
-                        actions={[buttonContainer]}
+                        centerContent={buttonContainer}
                         reloadAction={this.reloadList.bind(this)}
                         style={toolsAbsolute?{position:'absolute', top:0, right: 0}:null}
                     />

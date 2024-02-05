@@ -49,8 +49,8 @@ import Clipboard from 'clipboard'
 import WFetch from 'whatwg-fetch'
 import QRCodeReact from 'qrcode.react'
 import ReactMarkdown from 'react-markdown'
-import ReactMarkdownLatest from 'react-markdown-latest'
 import RemarkGFM from 'remark-gfm'
+import RemarkEmoji from 'remark-emoji'
 
 // Temporary backward compat, last cleaning @TODO
 window.React = React
@@ -113,10 +113,10 @@ if(originalRequire) {
                 return QRCodeReact
             case 'react-markdown':
                 return ReactMarkdown
-            case 'react-markdown-latest':
-                return ReactMarkdownLatest
             case 'remark-gfm':
                 return RemarkGFM
+            case 'remark-emoji':
+                return RemarkEmoji
             default:
                 break;
         }

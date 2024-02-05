@@ -74,7 +74,7 @@ class UserInfo extends React.Component {
     render(){
 
         const {user, pydio} = this.props;
-        const {parameters, showLegends} = this.state;
+        const {parameters} = this.state;
         if(!parameters){
             return <div>Loading...</div>;
         }
@@ -135,18 +135,24 @@ class UserInfo extends React.Component {
 
         return (
             <div>
-                <h3 className={"paper-right-title"} style={{display:'flex', alignItems: 'center', paddingLeft:26, paddingRight:26}}>
+                <h3 className={"paper-right-title"} style={{display:'flex', alignItems: 'center'}}>
                     <div style={{flex:1}}>
                         {pydio.MessageHash['pydio_role.24']}
                         <div className={"section-legend"}>{pydio.MessageHash['pydio_role.54']}</div>
                     </div>
-                    <div style={{lineHeight:'24px'}}>
-                    <IconButton iconClassName={"mdi mdi-help-circle-outline"} tooltip={'Show/hide form legends'} tooltipPosition={'bottom-left'} onClick={()=>{this.setState({showLegends:!showLegends})}}/>
+                    <div style={{lineHeight:'24px', padding: '0 10px'}}>
                     <IconMenu
-                        iconButtonElement={<IconButton primary={true} tooltip={'Security Actions'} tooltipPosition={'bottom-left'} iconClassName={"mdi mdi-lock"+(locks.indexOf('logout')>-1?'-open':'')} iconStyle={{color:locks.indexOf('logout')>-1?'#e53935':''}}/>}
+                        iconButtonElement={
+                        <IconButton
+                            primary={true}
+                            tooltip={this.getPydioRoleMessage('button.info.menu.security')}
+                            tooltipPosition={'bottom-left'}
+                            iconClassName={"mdi mdi-lock"+(locks.indexOf('logout')>-1?'-open':'')}
+                            iconStyle={{color:locks.indexOf('logout')>-1?'#e53935':''}}/>
+                    }
                         anchorOrigin={{horizontal: 'right', vertical: 'top'}}
                         targetOrigin={{horizontal: 'right', vertical: 'top'}}
-                        tooltip={"Actions"}
+                        desktop={true}
                     >
                         <MenuItem disabled={secuActionsDisabled} primaryText={this.getPydioRoleMessage('25')} onClick={() => this.buttonCallback('update_user_pwd')}/>
                         <MenuItem disabled={secuActionsDisabled} primaryText={this.getPydioRoleMessage((locks.indexOf('logout') > -1?'27':'26'))} onClick={() => this.buttonCallback('user_set_lock-lock')}/>
@@ -154,15 +160,18 @@ class UserInfo extends React.Component {
                     </IconMenu>
                     </div>
                 </h3>
-                <FormPanel
-                    parameters={params}
-                    onParameterChange={this.onParameterChange.bind(this)}
-                    values={values}
-                    depth={-2}
-                    variant={'v2'}
-                    variantShowLegend={showLegends}
-                    binary_context={this.getBinaryContext()}
-                />
+                <div className={"paper-right-block"} style={{padding: '0 6px'}}>
+                    <div style={{fontSize: 16, padding: '16px 10px 10px'}}>{this.getPydioRoleMessage('user.info.main')}</div>
+                    <FormPanel
+                        parameters={params}
+                        onParameterChange={this.onParameterChange.bind(this)}
+                        values={values}
+                        depth={-2}
+                        variant={'v2'}
+                        variantShowLegend={true}
+                        binary_context={this.getBinaryContext()}
+                    />
+                </div>
                 {rolesPicker}
             </div>
         );

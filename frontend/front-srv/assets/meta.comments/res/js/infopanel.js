@@ -32,6 +32,7 @@ class InfoPanel extends React.Component {
         return (
             <InfoPanelCard identifier={"meta-comments"} style={this.props.style} title={pydio.MessageHash['meta.comments.1']} popoverPanel={popoverPanel}>
                 <Chat
+                    pydio={pydio}
                     roomType="NODE"
                     roomObjectId={node.getMetadata().get("uuid")}
                     fieldHint={pydio.MessageHash['meta.comments.2']}

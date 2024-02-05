@@ -168,10 +168,15 @@ let RolesDashboard = createReactClass({
         );
 
         const searchBox = (
-            <div style={{display:'flex'}}>
-                <div style={{flex: 1}}/>
-                <div style={{width:190}}>
-                    <ModernTextField fullWidth={true} hintText={this.context.getMessage('47', 'role_editor') + '...'} value={searchRoleString || ''} onChange={(e,v) => this.setState({searchRoleString:v}) } />
+            <div style={{display:'flex', alignItems:'center', justifyContent:'center'}}>
+                <div style={{flex: 1, maxWidth:420}}>
+                    <ModernTextField
+                        fullWidth={true}
+                        hintText={this.context.getMessage('47', 'role_editor') + '...'}
+                        value={searchRoleString || ''}
+                        onChange={(e,v) => this.setState({searchRoleString:v}) }
+                        variant={"compact"}
+                    />
                 </div>
             </div>
         );

@@ -47,7 +47,7 @@ const AppBar = ({pydio, muiTheme, styles, headerHeight, searchView, searchTools,
         "other"
     ];
 
-    const {values, humanizeValues, limit, setLimit, searchLoading} = searchTools;
+    const {values, humanizeValues, limit, setLimit, searchLoading, empty, resultsCount} = searchTools;
 
     const newButtonProps = {
         buttonStyle:{...styles.flatButtonStyle, ...styles.raisedButtonStyle},
@@ -56,35 +56,48 @@ const AppBar = ({pydio, muiTheme, styles, headerHeight, searchView, searchTools,
 
     let searchToolbar
     if(searchView) {
-        const count = pydio.getContextHolder().getSearchNode().getChildren().size;
         let stLabel, stDisable = true;
         let labelStyle = {...styles.flatButtonLabelStyle}
         if(searchLoading) {
             stLabel = pydio.MessageHash['searchengine.searching'];
-        } else if(count === 0) {
+        } else if(empty) {
+            // TODO
+            stLabel = 'searchengine.start'
+        } else if(resultsCount === 0) {
             stLabel = pydio.MessageHash['478'] // No results found
-        } else if(count < limit) {
-            stLabel = pydio.MessageHash['searchengine.results.foundN'].replace('%1', count)
-        } else if(count === limit) {
+        } else if(resultsCount < limit) {
+            stLabel = pydio.MessageHash['searchengine.results.foundN'].replace('%1', resultsCount)
+        } else if(resultsCount === limit) {
             stDisable = false
             stLabel = pydio.MessageHash['searchengine.results.withMore'].replace('%1', limit)
         }
         if(stDisable){
-            labelStyle = {...labelStyle, /*color: themeLight?'#616161':'white'*/}
+            searchToolbar = (
+                <div style={{
+                    fontSize: 13,
+                    fontWeight: 500,
+                    height:24,
+                    lineHeight:'25px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    color:'var(--md-sys-color-secondary)'
+                }}>{stLabel}</div>
+            )
+        } else {
+            searchToolbar = (
+                <FlatButton
+                    style={styles.flatButtonStyle}
+                    labelStyle={labelStyle}
+                    label={stLabel}
+                    onClick={()=>{setLimit(limit+20)}}
+                />
+            )
+
         }
-        searchToolbar = (
-            <FlatButton
-                style={styles.flatButtonStyle}
-                labelStyle={labelStyle}
-                label={stLabel}
-                disabled={stDisable}
-                onClick={()=>{setLimit(limit+20)}}
-            />
-        )
     }
 
     let sortingTag
-    if(sortingInfo && sortingInfo.label) {
+    if(!searchView && sortingInfo && sortingInfo.label) {
         sortingTag = (
             <div style={{
                 height: 24,

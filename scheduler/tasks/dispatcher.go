@@ -23,6 +23,7 @@ package tasks
 import (
 	"context"
 	"fmt"
+	"github.com/pydio/cells/v4/common/proto/chat"
 	"go.uber.org/zap"
 	"math"
 	"time"
@@ -82,6 +83,7 @@ func NewDispatcher(rootCtx context.Context, maxWorkers int, job *jobs.Job, tags 
 				tce := &tree.NodeChangeEvent{}
 				ice := &idm.ChangeEvent{}
 				jte := &jobs.JobTriggerEvent{}
+				ce := &chat.ChatEvent{}
 				if ct, e := msg.Unmarshal(tce); e == nil {
 					event = tce
 					eventCtx = ct
@@ -91,6 +93,9 @@ func NewDispatcher(rootCtx context.Context, maxWorkers int, job *jobs.Job, tags 
 				} else if ct3, e := msg.Unmarshal(jte); e == nil {
 					event = jte
 					eventCtx = ct3
+				} else if ct4, e := msg.Unmarshal(ce); e == nil {
+					event = ce
+					eventCtx = ct4
 				} else {
 					fmt.Println("Cannot unmarshall msg data to any known event type")
 					continue

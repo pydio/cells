@@ -24,7 +24,7 @@ import Pydio from 'pydio'
 import React from 'react';
 import DOMUtils from 'pydio/util/dom'
 import { connect } from 'react-redux';
-import Markdown from "react-markdown-latest";
+import Markdown from "react-markdown";
 import RemarkGFM from "remark-gfm";
 import ReactCodeMirror from "./ReactCodeMirror";
 import {Resizable} from 're-resizable'

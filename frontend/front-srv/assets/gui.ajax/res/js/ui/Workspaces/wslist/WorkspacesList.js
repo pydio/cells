@@ -29,6 +29,7 @@ import {FontIcon, IconButton, IconMenu, MenuItem, FlatButton, Subheader} from 'm
 const {muiThemeable} = require('material-ui/styles');
 import Color from 'color'
 import Facets from "../search/components/Facets";
+import SearchSorter from "../search/components/SearchSorter";
 const {ThemedContainers:{Popover}} = Pydio.requireLib('hoc');
 
 class Entries extends React.Component{
@@ -203,10 +204,10 @@ class WorkspacesList extends React.Component{
     shouldComponentUpdate(nextProps, nextState){
         return nextState.random !== this.state.random
             || nextState.popoverOpen !== this.state.popoverOpen
-            || nextProps.searchView !== this.props.searchView
-            || nextProps.values !== this.props.values
-            || nextProps.facets !== this.props.facets
-            || nextProps.activeFacets !== this.props.activeFacets;
+            || nextProps.searchTools !== this.props.searchTools
+//            || nextProps.values !== this.props.values
+ //           || nextProps.facets !== this.props.facets
+ //           || nextProps.activeFacets !== this.props.activeFacets;
     }
 
     stateFromPydio(pydio){
@@ -271,7 +272,7 @@ class WorkspacesList extends React.Component{
         const {workspaces, hiddenWorkspaces, hiddenWsStatus ,activeWorkspace,
             popoverOpen, popoverAnchor, popoverContent, merge, cellsSortingMixed} = this.state;
         const {pydio, className, muiTheme, sectionTitleStyle, workspaceEntryStyler,
-            searchView, values, setValues, searchLoading, facets, activeFacets, toggleFacet} = this.props;
+            searchView, searchTools} = this.props;
 
         // Split Workspaces from Cells
         let wsList = [];
@@ -280,7 +281,7 @@ class WorkspacesList extends React.Component{
             wsList = wsList.filter(ws =>
                 hiddenWorkspaces.indexOf(ws.getId())=== -1
                 || activeWorkspace === ws.getId()
-                || (searchView && values.scope && values.scope.indexOf(ws.getSlug() + '/') === 0)
+                || (searchTools && searchTools.values.scope && searchTools.values.scope.indexOf(ws.getSlug() + '/') === 0)
             )
         }
         wsList = wsList.filter(ws => !Repository.isInternal(ws.getId()));
@@ -375,6 +376,7 @@ class WorkspacesList extends React.Component{
         }
 
         if(searchView) {
+            const {values, setValues, searchLoading, facets, activeFacets, toggleFacet} = searchTools
             const additionalEntries = []
 
             const fakeScopeEntry = new Repository('previous_context')
@@ -388,6 +390,7 @@ class WorkspacesList extends React.Component{
             additionalEntries.push(fakeAllEntry)
             return (
                 <div className={classNames.join(' ')}>
+                    <SearchSorter searchTools={searchTools} style={{padding:10, marginBottom: -20}} selectStyle={{borderRadius:6, marginTop: 0}}/>
                     <Entries
                         {...entriesProps}
                         title={messages['searchengine.scope.title']}

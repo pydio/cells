@@ -36,6 +36,7 @@ import (
 	"github.com/pkg/errors"
 	"go.uber.org/zap"
 	"golang.org/x/image/colornames"
+	_ "golang.org/x/image/webp"
 	"google.golang.org/protobuf/proto"
 
 	"github.com/pydio/cells/v4/common"

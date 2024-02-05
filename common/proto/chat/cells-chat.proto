@@ -11,6 +11,7 @@ enum RoomType {
     WORKSPACE = 1;
     USER      = 2;
     NODE      = 3;
+    ANY       = 4;
 }
 
 message ChatRoom {
@@ -31,7 +32,9 @@ message ChatMessage {
     string Author = 4;
     int64 Timestamp = 5;
 
+    // Additional information or metadata
     activity.Object Activity = 6;
+    map<string,string> Info = 7;
 }
 
 service ChatService {
@@ -54,6 +57,7 @@ message PutRoomResponse {
 
 message PostMessageRequest {
     repeated ChatMessage Messages = 1;
+    map<string, ChatRoom> KnownRooms = 2;
 }
 message PostMessageResponse {
     bool Success = 1;
@@ -62,6 +66,7 @@ message PostMessageResponse {
 
 message DeleteMessageRequest {
     repeated ChatMessage Messages = 1;
+    map<string, ChatRoom> KnownRooms = 2;
 }
 message DeleteMessageResponse {
     bool Success = 1;

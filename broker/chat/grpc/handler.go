@@ -24,6 +24,10 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"github.com/pydio/cells/v4/common/proto/activity"
+	"google.golang.org/protobuf/proto"
+	"google.golang.org/protobuf/types/known/timestamppb"
+	"time"
 
 	"github.com/pydio/cells/v4/common/client/grpc"
 
@@ -133,37 +137,84 @@ func (c *ChatHandler) ListMessages(req *chat.ListMessagesRequest, streamer chat.
 func (c *ChatHandler) PostMessage(ctx context.Context, req *chat.PostMessageRequest) (*chat.PostMessageResponse, error) {
 
 	resp := &chat.PostMessageResponse{}
+	type outMsg struct {
+		update bool
+		*chat.ChatMessage
+	}
 	log.Logger(ctx).Debug("Post Messages", zap.Any(common.KeyChatPostMsgReq, req))
-
+	var results []*outMsg
 	for _, m := range req.Messages {
-		newMessage, err := c.dao.PostMessage(ctx, m)
+		var newMessage *chat.ChatMessage
+		var err error
+		out := &outMsg{update: m.Uuid != ""}
+		if out.update {
+			newMessage, err = c.dao.UpdateMessage(ctx, m, func(msg *chat.ChatMessage) (matches bool, filtered *chat.ChatMessage, err error) {
+				if msg.Uuid != m.Uuid {
+					return
+				}
+				if msg.Author != m.Author {
+					err = fmt.Errorf("cannot edit message from a different user")
+					return
+				}
+				matches = true
+				filtered = proto.Clone(msg).(*chat.ChatMessage)
+				originalMessage := filtered.GetMessage()
+				filtered.Message = m.GetMessage()
+				// Append an activity
+				if filtered.GetActivity() == nil {
+					filtered.Activity = &activity.Object{}
+				}
+				filtered.Activity.Items = append(filtered.Activity.Items, &activity.Object{
+					Markdown: originalMessage,
+					Updated: &timestamppb.Timestamp{
+						Seconds: time.Now().Unix(),
+					},
+				})
+				return
+			})
+			if err == nil && newMessage == nil {
+				err = fmt.Errorf("cannot find message")
+			}
+		} else {
+			newMessage, err = c.dao.PostMessage(ctx, m)
+		}
 		if err != nil {
 			return nil, err
 		}
+		out.ChatMessage = newMessage
+		results = append(results, out)
 		resp.Messages = append(resp.Messages, newMessage)
 	}
 	resp.Success = true
+	krs := req.GetKnownRooms()
+	if krs == nil {
+		krs = make(map[string]*chat.ChatRoom)
+	}
 	go func() {
-		for _, m := range resp.Messages {
+		for _, m := range results {
+			kr, _ := c.knownRoomFromUuid(ctx, m.RoomUuid, krs)
 			bgCtx := metadata.NewBackgroundWithUserKey(m.Author)
 			broker.MustPublish(bgCtx, common.TopicChatEvent, &chat.ChatEvent{
-				Message: m,
+				Message: m.ChatMessage,
+				Room:    kr,
 			})
-			// For comments on nodes, publish an UPDATE_USER_META event
-			if room, err := c.dao.RoomByUuid(bgCtx, chat.RoomType_NODE, m.RoomUuid); err == nil {
-				broker.MustPublish(bgCtx, common.TopicMetaChanges, &tree.NodeChangeEvent{
-					Type: tree.NodeChangeEvent_UPDATE_USER_META,
-					Target: &tree.Node{Uuid: room.RoomTypeObject, MetaStore: map[string]string{
-						"comments": `"` + m.Message + `"`,
-					}},
-				})
-				if count, e := c.dao.CountMessages(bgCtx, room); e == nil {
-					getMetaClient(c.RuntimeCtx).UpdateNode(bgCtx, &tree.UpdateNodeRequest{To: &tree.Node{
-						Uuid: room.RoomTypeObject,
-						MetaStore: map[string]string{
-							"has_comments": fmt.Sprintf("%d", count),
-						},
-					}})
+			// For comments on nodes, publish an UPDATE_USER_META event (if not a message update)
+			if !m.update {
+				if room, err := c.dao.RoomByUuid(bgCtx, chat.RoomType_NODE, m.RoomUuid); err == nil {
+					broker.MustPublish(bgCtx, common.TopicMetaChanges, &tree.NodeChangeEvent{
+						Type: tree.NodeChangeEvent_UPDATE_USER_META,
+						Target: &tree.Node{Uuid: room.RoomTypeObject, MetaStore: map[string]string{
+							"comments": `"` + m.Message + `"`,
+						}},
+					})
+					if count, e := c.dao.CountMessages(bgCtx, room); e == nil {
+						getMetaClient(c.RuntimeCtx).UpdateNode(bgCtx, &tree.UpdateNodeRequest{To: &tree.Node{
+							Uuid: room.RoomTypeObject,
+							MetaStore: map[string]string{
+								"has_comments": fmt.Sprintf("%d", count),
+							},
+						}})
+					}
 				}
 			}
 		}
@@ -174,14 +225,19 @@ func (c *ChatHandler) PostMessage(ctx context.Context, req *chat.PostMessageRequ
 func (c *ChatHandler) DeleteMessage(ctx context.Context, req *chat.DeleteMessageRequest) (*chat.DeleteMessageResponse, error) {
 
 	log.Logger(ctx).Debug("Delete Messages", zap.Any(common.KeyChatPostMsgReq, req))
-
+	krs := req.GetKnownRooms()
+	if krs == nil {
+		krs = make(map[string]*chat.ChatRoom)
+	}
 	for _, m := range req.Messages {
 		err := c.dao.DeleteMessage(ctx, m)
 		if err != nil {
 			return nil, err
 		}
+		kr, _ := c.knownRoomFromUuid(ctx, m.RoomUuid, krs)
 		broker.MustPublish(ctx, common.TopicChatEvent, &chat.ChatEvent{
 			Message: m,
+			Room:    kr,
 			Details: "DELETE",
 		})
 	}
@@ -194,7 +250,7 @@ func (c *ChatHandler) DeleteMessage(ctx context.Context, req *chat.DeleteMessage
 					if count > 0 {
 						meta = fmt.Sprintf("%d", count)
 					}
-					getMetaClient(c.RuntimeCtx).UpdateNode(bgCtx, &tree.UpdateNodeRequest{To: &tree.Node{
+					_, _ = getMetaClient(c.RuntimeCtx).UpdateNode(bgCtx, &tree.UpdateNodeRequest{To: &tree.Node{
 						Uuid: room.RoomTypeObject,
 						MetaStore: map[string]string{
 							"has_comments": meta,
@@ -205,4 +261,16 @@ func (c *ChatHandler) DeleteMessage(ctx context.Context, req *chat.DeleteMessage
 		}
 	}()
 	return &chat.DeleteMessageResponse{Success: true}, nil
+}
+
+// knownRoomFromUuid tries to find room in map, or look up in DAO
+func (c *ChatHandler) knownRoomFromUuid(ctx context.Context, roomUuid string, kr map[string]*chat.ChatRoom) (*chat.ChatRoom, error) {
+	if r, ok := kr[roomUuid]; ok {
+		return r, nil
+	}
+	r, e := c.dao.RoomByUuid(ctx, chat.RoomType_ANY, roomUuid)
+	if r != nil {
+		kr[roomUuid] = r
+	}
+	return r, e
 }
