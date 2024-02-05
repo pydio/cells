@@ -132,7 +132,6 @@ processes:
     env: *env
 
     services:
-      idm:
       discovery:
       gateway:
       frontend:
@@ -149,13 +148,13 @@ processes:
 #    services:
 #      data:
 
-#  idm:
-#    connections: *connections
-#    servers: *servers
-#    env: *env
-#
-#    services:
-#      idm:
+  idm:
+    connections: *connections
+    servers: *servers
+    env: *env
+
+    services:
+      idm:
 
 #  datasource-peer:
 #    connections: *connections

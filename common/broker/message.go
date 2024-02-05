@@ -22,11 +22,12 @@ package broker
 
 import (
 	"context"
+	"github.com/pydio/cells/v4/common/service/context/metadata"
 	"google.golang.org/protobuf/proto"
 )
 
 type Message interface {
-	Unmarshal(target proto.Message) error
+	Unmarshal(ctx context.Context, target proto.Message) (context.Context, error)
 	RawData() (map[string]string, []byte)
 }
 
@@ -35,11 +36,16 @@ type message struct {
 	body   []byte
 }
 
-func (m *message) Unmarshal(target proto.Message) error {
+func (m *message) Unmarshal(ctx context.Context, target proto.Message) (context.Context, error) {
 	if e := proto.Unmarshal(m.body, target); e != nil {
-		return e
+		return ctx, e
 	}
-	return nil
+
+	if m.header != nil {
+		ctx = metadata.NewContext(ctx, m.header)
+	}
+
+	return ctx, nil
 }
 
 func (m *message) RawData() (map[string]string, []byte) {

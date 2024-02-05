@@ -42,19 +42,19 @@ type protoWithContext struct {
 	Ctx      context.Context
 }
 
-func (t *protoWithContext) Unmarshal(target proto.Message) error {
+func (t *protoWithContext) Unmarshal(ctx context.Context, target proto.Message) (context.Context, error) {
 	// We assume that expected output will be of the same type
 	originalValue := reflect.ValueOf(t.Original).Elem()
 	targetValue := reflect.ValueOf(target).Elem()
 
 	// If they're not of the same type, return an error
 	if originalValue.Type() != targetValue.Type() {
-		return fmt.Errorf("t.Original and target are not of the same type")
+		return ctx, fmt.Errorf("t.Original and target are not of the same type")
 	}
 
 	// Copy the fields from t.Original to target
 	targetValue.Set(originalValue)
-	return nil
+	return ctx, nil
 }
 
 func (t *protoWithContext) RawData() (map[string]string, []byte) {

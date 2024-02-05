@@ -87,11 +87,10 @@ type pulledMessage struct {
 	a    *anypb.Any
 }
 
-func (p *pulledMessage) Unmarshal(target proto.Message) error {
+func (p *pulledMessage) Unmarshal(ctx context.Context, target proto.Message) (context.Context, error) {
 	if e := p.a.UnmarshalTo(target); e != nil {
-		return e
+		return ctx, e
 	}
-	ctx := context.Background()
 	if p.hh != nil {
 		ctx = metadata.NewContext(ctx, p.hh)
 		// If X-Pydio-User found in meta, add it to context as well
@@ -99,7 +98,7 @@ func (p *pulledMessage) Unmarshal(target proto.Message) error {
 			ctx = context.WithValue(ctx, common.PydioContextUserKey, u)
 		}
 	}
-	return nil
+	return ctx, nil
 }
 
 func (p *pulledMessage) RawData() (map[string]string, []byte) {

@@ -86,7 +86,7 @@ func newCacheHandler() *CacheHandler {
 		syncCache = c
 		_, _ = broker.Subscribe(context.TODO(), common.TopicTreeChanges, func(ctx context.Context, publication broker.Message) error {
 			var event tree.NodeChangeEvent
-			if e := publication.Unmarshal(&event); e == nil && !event.Optimistic {
+			if ctx, e := publication.Unmarshal(ctx, &event); e == nil && !event.Optimistic {
 				if event.Type == tree.NodeChangeEvent_CREATE || event.Type == tree.NodeChangeEvent_UPDATE_PATH || event.Type == tree.NodeChangeEvent_DELETE {
 					ctx = servicecontext.WithServiceName(ctx, nodes.ViewsLibraryName)
 					s.cacheEvent(ctx, &event)

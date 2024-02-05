@@ -24,6 +24,7 @@ import (
 	"context"
 	_ "embed"
 	"github.com/pydio/cells/v4/common"
+	"github.com/pydio/cells/v4/common/broker"
 	clientcontext "github.com/pydio/cells/v4/common/client/context"
 	clientgrpc "github.com/pydio/cells/v4/common/client/grpc"
 	"github.com/pydio/cells/v4/common/config"
@@ -180,6 +181,9 @@ ENVIRONMENT
 
 		ctx = clientcontext.WithClientConn(ctx, conn)
 		// ctx = nodescontext.WithSourcesPool(ctx, nodes.NewPool(ctx, reg))
+
+		// Init broker
+		broker.Register(broker.NewBroker(runtime.BrokerURL(), broker.WithContext(ctx)))
 
 		m, err := manager.NewManager(ctx, reg, "", "main", log.Logger(servicecontext.WithServiceName(ctx, "pydio.server.manager")))
 		if err != nil {

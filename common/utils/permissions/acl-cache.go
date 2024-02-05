@@ -42,7 +42,9 @@ func getAclCache() cache.Cache {
 		aclCache, _ = cache.OpenCache(context.TODO(), runtime.ShortCacheURL("evictionTime", "60s", "cleanWindow", "30s"))
 		_, _ = broker.Subscribe(context.TODO(), common.TopicIdmEvent, func(ctx context.Context, message broker.Message) error {
 			event := &idm.ChangeEvent{}
-			if e := message.Unmarshal(event); e != nil {
+			ctx, e := message.Unmarshal(ctx, event)
+
+			if e != nil {
 				return e
 			}
 			switch event.Type {

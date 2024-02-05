@@ -1,11 +1,10 @@
 syntax = "proto3";
 
-import "google/protobuf/descriptor.proto";
-
 import "cells-service.proto";
 import "cells-tree.proto";
 import "orm.proto";
 import "buf/validate/validate.proto";
+import "google/protobuf/descriptor.proto";
 
 package idm;
 

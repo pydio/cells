@@ -1,19 +1,21 @@
 module github.com/pydio/cells/v4/cmd/protoc-gen-go-setter
 
-go 1.19
+go 1.21
+
+toolchain go1.21.6
 
 require (
 	github.com/lyft/protoc-gen-star/v2 v2.0.3
 	github.com/pydio/cells/v4 v4.0.0-00010101000000-000000000000
-	google.golang.org/protobuf v1.31.0
+	google.golang.org/protobuf v1.32.0
 )
 
 require (
-	github.com/spf13/afero v1.9.5 // indirect
-	golang.org/x/mod v0.12.0 // indirect
-	golang.org/x/sys v0.13.0 // indirect
-	golang.org/x/text v0.13.0 // indirect
-	golang.org/x/tools v0.13.0 // indirect
+	github.com/spf13/afero v1.10.0 // indirect
+	golang.org/x/mod v0.14.0 // indirect
+	golang.org/x/sys v0.16.0 // indirect
+	golang.org/x/text v0.14.0 // indirect
+	golang.org/x/tools v0.15.0 // indirect
 )
 
-replace github.com/pydio/cells/v4 => /Users/ghecquet/go/src/github.com/pydio/cells
+replace github.com/pydio/cells/v4 => /Users/ghecquet/work/src/github.com/pydio/cells

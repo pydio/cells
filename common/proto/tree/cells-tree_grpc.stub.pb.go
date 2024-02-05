@@ -12,7 +12,6 @@ import (
 	stubs "github.com/pydio/cells/v4/common/server/stubs"
 	grpc "google.golang.org/grpc"
 	io "io"
-	time "time"
 )
 
 // This is a compile-time assertion to ensure that this generated file
@@ -46,14 +45,10 @@ func (s *NodeProviderStub) NewStream(ctx context.Context, desc *grpc.StreamDesc,
 	case "/tree.NodeProvider/ListNodes":
 		st := &NodeProviderStub_ListNodesStreamer{}
 		st.Init(ctx, func(i interface{}) error {
-			go func() {
-				defer func() {
-					close(st.RespChan)
-				}()
-				s.NodeProviderServer.ListNodes(i.(*ListNodesRequest), st)
+			defer func() {
+				close(st.RespChan)
 			}()
-			<-time.After(100 * time.Millisecond)
-			return nil
+			return s.NodeProviderServer.ListNodes(i.(*ListNodesRequest), st)
 		})
 		return st, nil
 	}
@@ -129,14 +124,10 @@ func (s *NodeChangesStreamerStub) NewStream(ctx context.Context, desc *grpc.Stre
 	case "/tree.NodeChangesStreamer/StreamChanges":
 		st := &NodeChangesStreamerStub_StreamChangesStreamer{}
 		st.Init(ctx, func(i interface{}) error {
-			go func() {
-				defer func() {
-					close(st.RespChan)
-				}()
-				s.NodeChangesStreamerServer.StreamChanges(i.(*StreamChangesRequest), st)
+			defer func() {
+				close(st.RespChan)
 			}()
-			<-time.After(100 * time.Millisecond)
-			return nil
+			return s.NodeChangesStreamerServer.StreamChanges(i.(*StreamChangesRequest), st)
 		})
 		return st, nil
 	}
@@ -377,14 +368,10 @@ func (s *NodeEventsProviderStub) NewStream(ctx context.Context, desc *grpc.Strea
 	case "/tree.NodeEventsProvider/WatchNode":
 		st := &NodeEventsProviderStub_WatchNodeStreamer{}
 		st.Init(ctx, func(i interface{}) error {
-			go func() {
-				defer func() {
-					close(st.RespChan)
-				}()
-				s.NodeEventsProviderServer.WatchNode(i.(*WatchNodeRequest), st)
+			defer func() {
+				close(st.RespChan)
 			}()
-			<-time.After(100 * time.Millisecond)
-			return nil
+			return s.NodeEventsProviderServer.WatchNode(i.(*WatchNodeRequest), st)
 		})
 		return st, nil
 	}
@@ -419,14 +406,10 @@ func (s *SearcherStub) NewStream(ctx context.Context, desc *grpc.StreamDesc, met
 	case "/tree.Searcher/Search":
 		st := &SearcherStub_SearchStreamer{}
 		st.Init(ctx, func(i interface{}) error {
-			go func() {
-				defer func() {
-					close(st.RespChan)
-				}()
-				s.SearcherServer.Search(i.(*SearchRequest), st)
+			defer func() {
+				close(st.RespChan)
 			}()
-			<-time.After(100 * time.Millisecond)
-			return nil
+			return s.SearcherServer.Search(i.(*SearchRequest), st)
 		})
 		return st, nil
 	}
@@ -529,14 +512,10 @@ func (s *NodeVersionerStub) NewStream(ctx context.Context, desc *grpc.StreamDesc
 	case "/tree.NodeVersioner/ListVersions":
 		st := &NodeVersionerStub_ListVersionsStreamer{}
 		st.Init(ctx, func(i interface{}) error {
-			go func() {
-				defer func() {
-					close(st.RespChan)
-				}()
-				s.NodeVersionerServer.ListVersions(i.(*ListVersionsRequest), st)
+			defer func() {
+				close(st.RespChan)
 			}()
-			<-time.After(100 * time.Millisecond)
-			return nil
+			return s.NodeVersionerServer.ListVersions(i.(*ListVersionsRequest), st)
 		})
 		return st, nil
 	}
@@ -603,14 +582,10 @@ func (s *SyncChangesStub) NewStream(ctx context.Context, desc *grpc.StreamDesc, 
 	case "/tree.SyncChanges/Search":
 		st := &SyncChangesStub_SearchStreamer{}
 		st.Init(ctx, func(i interface{}) error {
-			go func() {
-				defer func() {
-					close(st.RespChan)
-				}()
-				s.SyncChangesServer.Search(i.(*SearchSyncChangeRequest), st)
+			defer func() {
+				close(st.RespChan)
 			}()
-			<-time.After(100 * time.Millisecond)
-			return nil
+			return s.SyncChangesServer.Search(i.(*SearchSyncChangeRequest), st)
 		})
 		return st, nil
 	}

@@ -318,7 +318,7 @@ func initLogLevel() {
 func initLogLevelListener(ctx context.Context) {
 	_, er := broker.Subscribe(ctx, common.TopicLogLevelEvent, func(_ context.Context, message broker.Message) error {
 		event := &log2.LogLevelEvent{}
-		if e := message.Unmarshal(event); e == nil {
+		if _, e := message.Unmarshal(ctx, event); e == nil {
 			log.SetDynamicDebugLevels(event.GetResetInfo(), event.GetLevelDebug(), event.GetServices()...)
 		} else {
 			return e

@@ -23,6 +23,7 @@ package grpc
 
 import (
 	"context"
+	"github.com/pydio/cells/v4/common/broker"
 
 	"google.golang.org/grpc"
 
@@ -65,16 +66,16 @@ func init() {
 				tree.RegisterNodeProviderStreamerServer(server, handler)
 
 				// Clean role on user deletion
-				//cleaner := NewCleaner()
-				//if e := broker.SubscribeCancellable(ctx, common.TopicIdmEvent, func(message broker.Message) error {
-				//	ev := &idm.ChangeEvent{}
-				//	if ct, e := message.Unmarshal(ev); e == nil {
-				//		return cleaner.Handle(ct, ev)
-				//	}
-				//	return nil
-				//}, broker.WithCounterName("idm_meta")); e != nil {
-				//	return e
-				//}
+				cleaner := NewCleaner()
+				if e := broker.SubscribeCancellable(ctx, common.TopicIdmEvent, func(ctx context.Context, message broker.Message) error {
+					ev := &idm.ChangeEvent{}
+					if ctx, e := message.Unmarshal(ctx, ev); e == nil {
+						return cleaner.Handle(ctx, ev)
+					}
+					return nil
+				}, broker.WithCounterName("idm_meta")); e != nil {
+					return e
+				}
 
 				return nil
 			}),

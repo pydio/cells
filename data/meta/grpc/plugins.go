@@ -65,7 +65,7 @@ func init() {
 				sub := engine.Subscriber(ctx)
 				if e := broker.SubscribeCancellable(ctx, common.TopicTreeChanges, func(ctx context.Context, message broker.Message) error {
 					msg := &tree.NodeChangeEvent{}
-					if e := message.Unmarshal(msg); e == nil {
+					if ctx, e := message.Unmarshal(ctx, msg); e == nil {
 						return sub.Handle(ctx, msg)
 					}
 					return nil
