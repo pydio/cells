@@ -308,7 +308,7 @@ class WelcomeTour extends Component{
                         }
                     }
                 });
-            }, 500)
+            }, 1000)
         }
     }
 
