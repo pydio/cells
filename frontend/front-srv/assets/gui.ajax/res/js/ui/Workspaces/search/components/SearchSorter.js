@@ -23,17 +23,19 @@ import Pydio from 'pydio'
 import {MenuItem} from 'material-ui'
 const {ModernSelectField} = Pydio.requireLib('hoc')
 
+const m = (id) => Pydio.getMessages()['user_home.search.sorter.'+id] || id
+
 export default ({searchTools, style={}, selectStyle={}}) => {
 
     const {sortField = '', sortDesc = false, setSortField = () =>{}} = searchTools;
 
     const items = [
-        {key: "", label: "Most Relevant First"},
-        {key: "-mtime", desc: true, label: "Recently Added First"},
-        {key: "mtime", desc: false, label: "Oldest First"},
-        {key: "-size", desc: true, label: "Biggest First"},
-        {key: "size", desc: false, label: "Smallest First"},
-    ]
+        {key: "", label: "relevant.desc"},
+        {key: "-mtime", desc: true, label: "modified.desc"},
+        {key: "mtime", desc: false, label: "modified.asc"},
+        {key: "-size", desc: true, label: "size.desc"},
+        {key: "size", desc: false, label: "size.asc"},
+    ];
 
     let value = sortField;
     if(sortField && sortDesc){
@@ -50,7 +52,7 @@ export default ({searchTools, style={}, selectStyle={}}) => {
                     setSortField(v.replace('-', ''), v.indexOf('-') === 0)
                 }}
             >
-                {items.map(i => <MenuItem value={i.key} primaryText={i.label}/>)}
+                {items.map(i => <MenuItem value={i.key} primaryText={m(i.label)}/>)}
             </ModernSelectField>
         </div>
     )

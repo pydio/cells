@@ -33,9 +33,10 @@ export default function({pydio, ASLib, activities = [], jobs = [], loading=false
     const [hover, setHover] = useState(false)
 
     const Activity = ASLib ? ASLib.Activity : PlaceHolder
+    const m = (id)=>pydio.MessageHash['notification_center.'+id] || id;
 
     let emptyStateIcon = "mdi mdi-pulse";
-    let emptyStateString = loading ? pydio.MessageHash['notification_center.17'] : pydio.MessageHash['notification_center.18'];
+    let emptyStateString = m(loading?'17':'18');
     if(error){
         emptyStateString = error.Detail || error.msg || error;
         emptyStateIcon = "mdi mdi-alert-circle-outline";
@@ -108,7 +109,7 @@ export default function({pydio, ASLib, activities = [], jobs = [], loading=false
 
     all.forEach(function(obj, i){
 
-        let fromNow = obj.running? 'running tasks' :  obj.time.fromNow();
+        let fromNow = obj.running? m('tasks.subheader') :  obj.time.fromNow();
         if (fromNow !== previousFrom) {
             const padding = content.length ? '20px 16px 8px' : '0 16px 8px';
             content.push(<div style={{padding, ...dateSepStyle}}>{fromNow}</div>);

@@ -88,17 +88,21 @@ class WelcomeTour extends Component{
     }
 
     componentDidMount(){
-        if(!this.state.started){
-            pydio.UI.openComponentInModal('UserAccount', 'WelcomeModal', {
-                onRequestStart:(skip) => {
-                    if(skip) {
-                        this.discard(true);
-                    }else{
-                        this.discard(false);
-                        this.setState({started: true});
+        const {pydio} = this.props;
+        const {started} = this.state;
+        if(!started){
+            setTimeout(()=> {
+                pydio.UI.openComponentInModal('UserAccount', 'WelcomeModal', {
+                    onRequestStart:(skip) => {
+                        if(skip) {
+                            this.discard(true);
+                        }else{
+                            this.discard(false);
+                            this.setState({started: true});
+                        }
                     }
-                }
-            });
+                });
+            }, 500)
         }
     }
 

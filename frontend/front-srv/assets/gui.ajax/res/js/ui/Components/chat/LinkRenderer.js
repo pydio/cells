@@ -36,7 +36,7 @@ export default ({href, children}) => {
         ResourcesManager.loadClass('PydioWorkspaces').then(lib => setWsLib(lib))
     }, [])
 
-    console.log(href);
+    const m = (id) => pydio.MessageHash['chat.link.' + id] || id;
 
     const loadNode = (nodeUUID) => {
         setLoading(true)
@@ -98,15 +98,15 @@ export default ({href, children}) => {
         icon = 'mdi mdi-file-outline'
         const hasPreview = href.indexOf('?preview') > -1;
         const nodeUUID = href.replace('doc://', '').replace('?preview', '')
-        title = loading ? 'Loading document...' : 'Go to document'
+        title = loading ? m('doc.loading') : m('doc.goto')
         let singleNode;
         if(resolved === null) {
             onEnter=()=> loadNode(nodeUUID);
         } else if(resolved.length === 1) {
             singleNode = resolved[0];
-            title = 'Click to open ' + resolved[0].getPath()
+            title = m('doc.click-indicator').replace('%s', resolved[0].getPath())
             onClick = () => {
-                title = 'Opening document...'
+                title = m('doc.opening')
                 pydio.goTo(resolved[0]);
             }
         } else if(resolved.length > 1) {
@@ -114,13 +114,13 @@ export default ({href, children}) => {
             const liStyle = {marginLeft: 10,textDecoration:'underline', cursor: 'pointer'};
             title = (
                 <Fragment>
-                    <div>Open document in...</div>
+                    <div>{m('doc.open-in')}</div>
                     <ul>{resolved.map(n => <li style={liStyle} onClick={() => {pydio.goTo(n)}}>{n.getMetadata().get('repository_display')}</li>)}</ul>
                 </Fragment>
             );
         } else if(resolved === false) {
             icon='mdi mdi-file-alert-outline';
-            title = 'Document not found, may have been deleted?'
+            title = m('doc.not-found')
         }
         if(singleNode) {
             let icClass = singleNode.getSvgSource() || (singleNode.isLeaf() ? 'file': 'folder');
@@ -149,7 +149,7 @@ export default ({href, children}) => {
         }
     } else if (href.startsWith('workspaces://')) {
 
-        title = 'Switch to workspace'
+        title = m('ws.switch')
         icon = 'mdi mdi-folder'
         const wsId = href.replace('workspaces://', '');
         if (user && user.getRepositoriesList().has(wsId)) {
@@ -166,7 +166,7 @@ export default ({href, children}) => {
             }
         }
         if (loading) {
-            title = 'Switching to workspace...'
+            title = m('ws.switching')
         }
     } else {
         return <a href={href} target={"_blank"}>{children}</a>

@@ -42,6 +42,20 @@ const usePrevious = (value) => {
     return ref.current;
 }
 
+const miniIcon = {
+    style:{
+        width:20,
+        height:20,
+        padding: 1,
+        marginLeft: 4,
+    },
+    iconStyle:{
+        fontSize: 16,
+        color: 'var(--md-sys-color-primary)'
+    },
+    tooltipPosition:'top-left'
+}
+
 let Chat = ({roomType, roomObjectId, style, msgContainerStyle, chatUsersStyle, fieldContainerStyle, fieldHint, textFieldProps, emptyStateProps,
                   pydio, pushMessagesToBottom, computePresenceFromACLs, readonly, muiTheme, popoverPanel}) => {
 /*
@@ -69,6 +83,8 @@ let Chat = ({roomType, roomObjectId, style, msgContainerStyle, chatUsersStyle, f
     const textfieldRef = useRef()
 
     const {room, postMessage, deleteMessage, editMessage, loadMore} = useChatMessages({pydio, roomType, roomObjectId, loadSize: LoadSize, setMessages, setVideoData, setHasMoreBefore})
+
+    const m = (id) => pydio.MessageHash['chat.' + id] || id;
 
     // Handle scroll with usePrevious
     const ts = messages.length ? parseFloat(messages[messages.length-1].Timestamp) : 0
@@ -152,6 +168,7 @@ let Chat = ({roomType, roomObjectId, style, msgContainerStyle, chatUsersStyle, f
                 setEdit={(ed) => setCurrentEdit(ed?m.Uuid:null)}
                 moreLoader={moreLoader}
                 muiTheme={muiTheme}
+                actionIconProps={miniIcon}
             />);
         previousMDate = mDate;
         previousAuthor = m.Author;
@@ -171,7 +188,7 @@ let Chat = ({roomType, roomObjectId, style, msgContainerStyle, chatUsersStyle, f
     }
     const notConnected = !room;
     let hintStyle = {
-        color: Color(muiTheme.palette.mui3['on-surface-variant']).fade(.5).toString(),
+        color: Color(muiTheme.palette.mui3['on-surface-variant']).fade(0.5).toString(),
         whiteSpace:'nowrap'
     }
     if(textFieldProps && textFieldProps.hintStyle){
@@ -218,17 +235,17 @@ let Chat = ({roomType, roomObjectId, style, msgContainerStyle, chatUsersStyle, f
                         <div style={{display:'flex', alignItems:'center'}}>
                             <span className={'mdi mdi-' + (dropping.isLeaf()?'file':'folder')} style={{marginRight: 5}}/>
                             <span style={{flex: 1}}>{dropping.getLabel()}</span>
-                            <div className={"mdi mdi-close"} title={"Remove"} onClick={() => setDropping(null)}></div>
+                            <div className={"mdi mdi-close"} title={m('dropzone.remove')} onClick={() => setDropping(null)}></div>
                         </div>
                         <div style={{display:'flex', alignItems:'center', marginTop: 10}}>
                         {droppingCanPreview &&
                             <div style={{flex: 1}} className={"include-action"} onClick={()=>setDroppingPreview(!droppingPreview)}>
                                 <span className={'mdi mdi-checkbox-'+(droppingPreview?'marked':'blank')+'-outline'} style={{marginRight: 5}}/>
-                                Include preview?
+                                {m('dropzone.preview')}
                             </div>
                         }
                         <div className={'include-action'} onClick={insertDroppingNodeInline}
-                             style={{cursor:'pointer'}}><span className={'mdi mdi-arrow-down-left'}/> Insert inline</div>
+                             style={{cursor:'pointer'}}><span className={'mdi mdi-arrow-down-left'}/> {m('dropzone.inline')}</div>
                         </div>
                     </div>
                 }

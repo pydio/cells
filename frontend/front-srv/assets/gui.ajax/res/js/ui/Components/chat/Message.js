@@ -20,7 +20,7 @@
 import React, {Fragment, useState, useRef, useEffect, useCallback, useMemo} from 'react';
 import Pydio from 'pydio'
 import UserAvatar from '../users/avatar/UserAvatar'
-import {FlatButton, Dialog} from 'material-ui'
+import {FlatButton, IconButton, Dialog} from 'material-ui'
 import {muiThemeable} from 'material-ui/styles'
 const {moment} = Pydio.requireLib('boot');
 import DOMUtils from 'pydio/util/dom'
@@ -61,7 +61,7 @@ const CustomLinks = {
     a:({node, href, children, ...props}) => <LinkRenderer href={href}>{children}</LinkRenderer>
 }
 
-let Message = ({message, pydio, hideDate, sameAuthor, onDeleteMessage, edit, setEdit, onEditMessage, moreLoader, muiTheme}) => {
+let Message = ({message, pydio, hideDate, sameAuthor, onDeleteMessage, edit, setEdit, onEditMessage, moreLoader, actionIconProps, muiTheme}) => {
 
     const [hover, setHover] = useState(false);
     const mDate = moment(parseFloat(message.Timestamp)*1000);
@@ -69,6 +69,8 @@ let Message = ({message, pydio, hideDate, sameAuthor, onDeleteMessage, edit, set
     const [confirmDelete, setConfirmDelete] = useState(false)
     const [cursor, setCursor] = useState(-1)
     const textfieldRef = useRef(null)
+
+    const m = (id) => pydio.MessageHash[id] || id;
 
     useEffect(() => {
         if(cursor > -1 && textfieldRef.current) {
@@ -126,8 +128,8 @@ let Message = ({message, pydio, hideDate, sameAuthor, onDeleteMessage, edit, set
         },
         actionBar: {
             position: 'absolute',
-            top: 5,
-            right: 0,
+            top: 2,
+            right: 4,
             zIndex: 2,
             cursor: 'pointer',
             fontSize: 16,
@@ -162,11 +164,11 @@ let Message = ({message, pydio, hideDate, sameAuthor, onDeleteMessage, edit, set
     );
     let actions = [];
     let textStyle = {...styles.commentContent};
-    let deleteAction = {title:pydio.MessageHash['7'], icon:'delete-outline', click: () => setConfirmDelete(true)}
+    let deleteAction = {title:m('chat.msg.delete'), icon:'delete-outline', click: () => setConfirmDelete(true)}
 
     if(authorIsLogged && !edit && !statusIndicator){
         if(onEditMessage) {
-            actions.push({title:'Edit', icon:'pencil-outline', click: () => setEdit(true)})
+            actions.push({title:m('chat.msg.edit'), icon:'pencil-outline', click: () => setEdit(true)})
         }
         actions.push(deleteAction)
     }
@@ -191,11 +193,11 @@ let Message = ({message, pydio, hideDate, sameAuthor, onDeleteMessage, edit, set
             setEdit(false)
         }
         if(editValue) {
-            actions.push({title:'Save', icon:'content-save-outline', click: save})
+            actions.push({title:m('chat.msg.save'), icon:'content-save-outline', click: save})
         } else {
             actions.push(deleteAction)
         }
-        actions.push({title:'Cancel', icon:'undo-variant', click: cancel})
+        actions.push({title:m('chat.msg.revert'), icon:'undo-variant', click: cancel})
         body = (<ModernTextField
             value={editValue}
             onChange={(e,v)=>setEditValue(v)}
@@ -226,7 +228,10 @@ let Message = ({message, pydio, hideDate, sameAuthor, onDeleteMessage, edit, set
 
     let actionBar;
     if(actions.length) {
-        actionBar = <div style={styles.actionBar}>{actions.map(a => <span className={'mdi mdi-' + a.icon} onClick={a.click} title={a.title}/> )}</div>
+        actionBar = (
+            <div style={styles.actionBar}>
+                {actions.map(a => <IconButton {...actionIconProps} iconClassName={'mdi mdi-' + a.icon} onClick={a.click} tooltip={a.title}/> )}
+            </div>)
     }
 
     body = <Fragment>{actionBar}{body}{statusIndicator}</Fragment>
@@ -263,7 +268,7 @@ let Message = ({message, pydio, hideDate, sameAuthor, onDeleteMessage, edit, set
                 <Dialog
                     open={confirmDelete}
                     modal={false}
-                    title={"Confirm this action"}
+                    title={m('chat.msg.delete.confirm.title')}
                     contentStyle={{
                         background:muiTheme.dialog['containerBackground'],
                         borderRadius:muiTheme.borderRadius,
@@ -273,16 +278,16 @@ let Message = ({message, pydio, hideDate, sameAuthor, onDeleteMessage, edit, set
                     }}
                     actions={
                     [
-                        <FlatButton label={"Yes"} onClick={onDeleteMessage} keyboardFocused={true}/>,
-                        <FlatButton label={"No"} onClick={() => setConfirmDelete(false)}/>
+                        <FlatButton label={m('440')} onClick={onDeleteMessage} keyboardFocused={true}/>,
+                        <FlatButton label={m('441')} onClick={() => setConfirmDelete(false)}/>
                     ]
                 }>
-                    Delete this message?
+                    {m('chat.msg.delete.confirm')}
                 </Dialog>
             }
             {moreLoader &&
             <div style={{...styles.loader}}>
-                <FlatButton primary={true} label={Pydio.getMessages()['chat.load-older']} onClick={moreLoader}/>
+                <FlatButton primary={true} label={m('chat.load-older')} onClick={moreLoader}/>
             </div>
             }
             {!hideDate &&

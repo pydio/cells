@@ -17,10 +17,22 @@
  *
  * The latest code can be found at <https://pydio.com>.
  */
-
+import Pydio from 'pydio'
 import React from 'react'
 import TaskAction from './TaskAction'
 import {LinearProgress, Paper} from 'material-ui'
+import moment from '../Moment'
+
+function computeDuration(start, end) {
+    const f = moment.utc(end.diff(start));
+    const h = f.format('H') ;
+    const mn = f.format('m');
+    const ss = f.format('s');
+    if(h === '0' && mn === '0' && ss === '0'){
+        return '< 1s';
+    }
+    return (h === '0' ? '' : h + 'h:') + (h === '0' && mn === '0' ? '' : mn + 'mn:') + ss + 's'
+}
 
 class JobEntry extends React.Component {
 
@@ -74,13 +86,30 @@ class JobEntry extends React.Component {
             }
         };
 
+        let statusMessage = task.StatusMessage;
+        let known = Pydio.getMessages()['ajax_gui.task.status.'+task.StatusMessage];
+        if(known){
+            const start = moment(task.StartTime*1000)
+            const end = moment(task.EndTime*1000)
+            const tokens = {
+                "startTime": start.fromNow(),
+                "endTime": end.fromNow(),
+                "duration": computeDuration(start, end)
+            }
+            Object.keys(tokens).forEach(k=>{
+                known = known.replace(`{${k}}`, tokens[k])
+            })
+            statusMessage = known;
+        }
+
+
         return (
             <Paper zDepth={0} style={styles.paper} onClick={click}>
                 <div style={{display:'flex', alignItems: 'center'}}>
                     <div style={styles.title}>{job.Label}</div>
                     <TaskAction {...this.props} task={task}/>
                 </div>
-                <div style={styles.status}>{task.StatusMessage}</div>
+                <div style={styles.status}>{statusMessage}</div>
                 {progress}
             </Paper>
             );
