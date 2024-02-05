@@ -107,7 +107,6 @@ class LogTable extends React.Component {
         }
         Pydio.startLoading();
         Log.loadLogs(service, query, page, size, contentType).then((data) => {
-            console.log(data);
             Pydio.endLoading();
             const {logs, rootSpans} = this.initRootSpans(data.Logs);
             this.setState({logs, rootSpans, loading: false}, () => {
