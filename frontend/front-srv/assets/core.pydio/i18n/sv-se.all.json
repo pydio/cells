@@ -117,7 +117,7 @@
     "other": "No file or folder"
   },
   "133": {
-    "other": "Name"
+    "other": "Namn"
   },
   "134": {
     "other": "Type"
@@ -225,7 +225,7 @@
     "other": "Edit text files online."
   },
   "163": {
-    "other": "Log in"
+    "other": "Logga in"
   },
   "164": {
     "other": "Log out"
@@ -288,7 +288,7 @@
     "other": "Login"
   },
   "182": {
-    "other": "Password"
+    "other": "Lösenord"
   },
   "183": {
     "other": "Please select a destination folder different from the origin!"
@@ -324,7 +324,7 @@
     "other": "Thumbnails"
   },
   "194": {
-    "other": "Change Password"
+    "other": "Ändra lösenord"
   },
   "195": {
     "other": "User Preferences"
@@ -567,7 +567,7 @@
     "other": "B"
   },
   "267": {
-    "other": "Create"
+    "other": "Skapa"
   },
   "268": {
     "other": "Create a new table"
@@ -642,7 +642,7 @@
     "other": "Group"
   },
   "29": {
-    "other": "Create"
+    "other": "Skapa"
   },
   "290": {
     "other": "All"
@@ -1248,7 +1248,7 @@
     "other": "No results found"
   },
   "479": {
-    "other": "Forgot your password?"
+    "other": "Glömt ditt lösenord?"
   },
   "48": {
     "other": "Ok"
@@ -1266,7 +1266,7 @@
     "other": "You are not authorized to create more users!"
   },
   "484": {
-    "other": "Create user"
+    "other": "Skapa användare"
   },
   "485": {
     "other": "Create a shared user"
@@ -1284,7 +1284,7 @@
     "other": "Metadata"
   },
   "49": {
-    "other": "Cancel"
+    "other": "Avbryt"
   },
   "490": {
     "other": "Date range"
@@ -1401,7 +1401,7 @@
     "other": "User ID"
   },
   "523": {
-    "other": "Password"
+    "other": "Lösenord"
   },
   "524": {
     "other": "Update Password"
@@ -1419,7 +1419,7 @@
     "other": "Internal users"
   },
   "53": {
-    "other": "Save"
+    "other": "Spara"
   },
   "530": {
     "other": "External users"
@@ -1581,7 +1581,7 @@
     "other": "Team Members"
   },
   "576": {
-    "other": "%s members"
+    "other": "%s medlemmar"
   },
   "577": {
     "other": "No members"
@@ -1602,7 +1602,7 @@
     "other": "User belongs to %s team(s)"
   },
   "582": {
-    "other": "Delete User"
+    "other": "Radera användare"
   },
   "583": {
     "other": "Search Directory"
@@ -1668,7 +1668,7 @@
     "other": "RAR File"
   },
   "600": {
-    "other": "Edit user"
+    "other": "Redigera användare"
   },
   "601": {
     "other": "One shared cell"
@@ -1836,7 +1836,7 @@
     "other": "Or select another directory"
   },
   "7": {
-    "other": "Delete"
+    "other": "Radera"
   },
   "70": {
     "other": "Move"
@@ -1965,7 +1965,7 @@
     "other": "F, jS Y"
   },
   "date_relative_days_ago": {
-    "other": "%s days ago"
+    "other": "%s dagar sedan"
   },
   "date_relative_days_ahead": {
     "other": "in %s days"
@@ -2286,7 +2286,7 @@
     "other": "Change visibility"
   },
   "visibility.panel.save": {
-    "other": "Save changes"
+    "other": "Spara ändringar"
   },
   "visibility.panel.revert": {
     "other": "Revert changes"
@@ -2382,7 +2382,7 @@
     "other": "Showing %1, load more..."
   },
   "searchengine.query.action.save": {
-    "other": "Save"
+    "other": "Spara"
   },
   "searchengine.query.action.save-new": {
     "other": "Save Query"
@@ -2394,7 +2394,7 @@
     "other": "Clear All"
   },
   "searchengine.query.action.delete": {
-    "other": "Delete"
+    "other": "Radera"
   },
   "searchengine.query.action.delete-confirm": {
     "other": "Delete this saved query?"
@@ -2426,8 +2426,53 @@
   "searchengine.complete.activefilters-edit": {
     "other": "Click to modify"
   },
+  "chat.dropzone.remove": {
+    "other": "Remove"
+  },
+  "chat.dropzone.preview": {
+    "other": "Include preview?"
+  },
+  "chat.dropzone.inline": {
+    "other": "Insert inline"
+  },
   "chat.load-older": {
     "other": "Older entries"
+  },
+  "chat.msg.edit": {
+    "other": "Redigera meddelande"
+  },
+  "chat.msg.save": {
+    "other": "Spara ändringar"
+  },
+  "chat.msg.revert": {
+    "other": "Revert Changes"
+  },
+  "chat.msg.delete": {
+    "other": "Radera meddelande"
+  },
+  "chat.msg.delete.confirm.title": {
+    "other": "Delete Message?"
+  },
+  "chat.msg.delete.confirm": {
+    "other": "This action cannot be undone"
+  },
+  "chat.link.doc.loading": {
+    "other": "Loading document..."
+  },
+  "chat.link.doc.opening": {
+    "other": "Opening document..."
+  },
+  "chat.link.doc.goto": {
+    "other": "Go to document"
+  },
+  "chat.link.doc.not-found": {
+    "other": "Document not found, it may have been deleted."
+  },
+  "chat.link.doc.click-indicator": {
+    "other": "Click to open %s"
+  },
+  "chat.link.doc.open-in": {
+    "other": "Open document in..."
   },
   "workspace.quota-usage": {
     "other": "Quota Usage"

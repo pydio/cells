@@ -21,7 +21,7 @@
     "other": "If you did not trigger this request, you can safely ignore that. If you keep receiving emails like this, please alert your administrator as it may be a security issue."
   },
   "Mail.ResetPassword.LinkLabel": {
-    "other": "Reset My Password"
+    "other": "Återställ mitt lösenord"
   },
   "Mail.ResetPassword.LinkInstructions": {
     "other": "Click to reset your password"

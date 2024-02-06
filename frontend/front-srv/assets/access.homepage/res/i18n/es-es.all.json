@@ -200,6 +200,21 @@
   "search.facet.metadata": {
     "other": "Metadatos"
   },
+  "search.sorter.relevant.desc": {
+    "other": "Most Relevant First"
+  },
+  "search.sorter.modified.desc": {
+    "other": "Recently Added First"
+  },
+  "search.sorter.modified.asc": {
+    "other": "Oldest First"
+  },
+  "search.sorter.size.desc": {
+    "other": "Biggest First"
+  },
+  "search.sorter.size.asc": {
+    "other": "Smallest First"
+  },
   "facet.label.file": {
     "other": "Archivo"
   },

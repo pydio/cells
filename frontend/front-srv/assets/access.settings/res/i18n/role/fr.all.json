@@ -193,5 +193,11 @@
   },
   "role.override.description": {
     "other": "Le rôle est toujours appliqué en dernier, après les autres rôles, à l'exception du rôle utilisateur qui prévaut."
+  },
+  "user.info.main": {
+    "other": "Survoler les champs pour afficher l'explication"
+  },
+  "button.info.menu.security": {
+    "other": "Options de sécurité"
   }
 }

@@ -66,7 +66,7 @@
     "other": "User Roles"
   },
   "25": {
-    "other": "Change Password"
+    "other": "Ändra lösenord"
   },
   "26": {
     "other": "Lock out user"
@@ -193,5 +193,11 @@
   },
   "role.override.description": {
     "other": "Role is always applied last after other roles, except for user role that will still prevail."
+  },
+  "user.info.main": {
+    "other": "Hover fields to show explanation"
+  },
+  "button.info.menu.security": {
+    "other": "Security Actions"
   }
 }

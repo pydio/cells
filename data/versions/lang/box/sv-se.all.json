@@ -23,13 +23,13 @@
     "other": "Policy"
   },
   "Config.GroupPolicy.Name.Label": {
-    "other": "Name"
+    "other": "Namn"
   },
   "Config.GroupPolicy.Name.Description": {
     "other": "Policy Name"
   },
   "Config.GroupPolicy.Description.Label": {
-    "other": "Description"
+    "other": "Beskrivning"
   },
   "Config.GroupPolicy.Description.Description": {
     "other": "Policy description"

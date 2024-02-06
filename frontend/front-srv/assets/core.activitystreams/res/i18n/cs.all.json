@@ -58,5 +58,8 @@
   },
   "9": {
     "other": "Aktivita v pracovním prostoru"
+  },
+  "tasks.subheader": {
+    "other": "Running Tasks"
   }
 }
