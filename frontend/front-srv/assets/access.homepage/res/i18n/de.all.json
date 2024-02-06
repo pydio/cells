@@ -201,19 +201,19 @@
     "other": "Metadaten"
   },
   "search.sorter.relevant.desc": {
-    "other": "Most Relevant First"
+    "other": "Relevantesten zuerst"
   },
   "search.sorter.modified.desc": {
-    "other": "Recently Added First"
+    "other": "Zuletzt hinzugefügt zuerst"
   },
   "search.sorter.modified.asc": {
-    "other": "Oldest First"
+    "other": "Älteste zuerst"
   },
   "search.sorter.size.desc": {
-    "other": "Biggest First"
+    "other": "Größte zuerst"
   },
   "search.sorter.size.asc": {
-    "other": "Smallest First"
+    "other": "Kleinste zuerst"
   },
   "facet.label.file": {
     "other": "Datei"
