@@ -58,5 +58,8 @@
   },
   "9": {
     "other": "Activité du workspace"
+  },
+  "tasks.subheader": {
+    "other": "Running Tasks"
   }
 }

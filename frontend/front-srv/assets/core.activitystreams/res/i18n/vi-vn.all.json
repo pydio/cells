@@ -58,5 +58,8 @@
   },
   "9": {
     "other": "Hoạt động Workspace"
+  },
+  "tasks.subheader": {
+    "other": "Running Tasks"
   }
 }

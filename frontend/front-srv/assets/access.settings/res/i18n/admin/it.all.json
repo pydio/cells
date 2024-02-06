@@ -629,6 +629,48 @@
   "logs.noresults": {
     "other": "Nessun risultato"
   },
+  "logs.details.copy": {
+    "other": "Copy log to clipboard"
+  },
+  "logs.details.show-focus": {
+    "other": "Show +/- 5 minutes"
+  },
+  "logs.details.close": {
+    "other": "Close log detail"
+  },
+  "logs.details.user": {
+    "other": "User"
+  },
+  "logs.details.user-attributes": {
+    "other": "User Attributes"
+  },
+  "logs.details.date": {
+    "other": "Event Date"
+  },
+  "logs.details.msg": {
+    "other": "Event Message"
+  },
+  "logs.details.service": {
+    "other": "Emitting Service"
+  },
+  "logs.details.connection": {
+    "other": "Connection IP"
+  },
+  "logs.details.agent": {
+    "other": "User-Agent"
+  },
+  "logs.details.protocol": {
+    "other": "Protocol"
+  },
+  "logs.details.node": {
+    "other": "File/Folder"
+  },
+  "logs.details.transfer-size": {
+    "other": "Transfer Size"
+  },
+  "logs.details.workspace": {
+    "other": "In Workspace"
+  },
   "menu.0": {
     "other": "Cruscotto"
   },
@@ -1853,44 +1895,182 @@
   "scheduler.tasks.delete.confirm": {
     "other": "Are you sure you want to clear all tasks for this Flow?"
   },
+  "scheduler.trigger.picker.title": {
+    "other": "Trigger job on..."
+  },
+  "scheduler.trigger.type.nodes": {
+    "other": "Files and folders (nodes) events : detect files modifications to move them or update their metadata automatically."
+  },
+  "scheduler.trigger.type.workspaces": {
+    "other": "Workspace events : triggered on workspace creation / deletion. Use the Scope flag to filter Workspaces from Cells"
+  },
+  "scheduler.trigger.type.acls": {
+    "other": "ACL events : access control lists link workspaces, nodes and roles together to provide accesses to data."
+  },
+  "scheduler.trigger.type.users": {
+    "other": "User events : triggered when adding/removing user and when users log in and log out. Can be used for triggering validation flows or assigning accesses."
+  },
+  "scheduler.trigger.type.roles": {
+    "other": "Role events : can be used to automate accesses based on role names. Use IsTeam, IsGroup, IsUser flags to filter roles."
+  },
+  "scheduler.trigger.type.chat": {
+    "other": "Chat Events: react to new chat message or chat room modification"
+  },
+  "scheduler.trigger.type.chat-messages": {
+    "other": "Chat Messages Events"
+  },
+  "scheduler.trigger.type.chat-rooms": {
+    "other": "Chat Rooms Events"
+  },
   "scheduler.trigger.create.node": {
     "other": "Crea Nodo"
+  },
+  "scheduler.trigger.create.node.description": {
+    "other": "A new file was uploaded or a new folder was created."
   },
   "scheduler.trigger.read.node": {
     "other": "Leggi Nodo"
   },
+  "scheduler.trigger.read.node.description": {
+    "other": "A file was downloaded or a folder content was listed."
+  },
   "scheduler.trigger.update.path": {
     "other": "Aggiorna percorso"
+  },
+  "scheduler.trigger.update.path.description": {
+    "other": "A file or folder was moved or renamed."
   },
   "scheduler.trigger.update.content": {
     "other": "Aggiorna Contenuto"
   },
+  "scheduler.trigger.update.content.description": {
+    "other": "A file content was updated by edition or upload overwriting."
+  },
   "scheduler.trigger.update.metadata": {
     "other": "Aggiorna Metadati"
+  },
+  "scheduler.trigger.update.metadata.description": {
+    "other": "Internal metadata were modified on file or folder."
   },
   "scheduler.trigger.update.user-metadata": {
     "other": "Aggiorna I Metadati Utente"
   },
+  "scheduler.trigger.update.user-metadata.description": {
+    "other": "User-defined metadata were modified (event contains updated metadata)."
+  },
   "scheduler.trigger.delete.node": {
     "other": "Elimina il Nodo"
+  },
+  "scheduler.trigger.delete.node.description": {
+    "other": "A file or a folder was definitively deleted."
   },
   "scheduler.trigger.create.user": {
     "other": "Crea utente"
   },
+  "scheduler.trigger.create.user.description": {
+    "other": "A user or a group was created."
+  },
   "scheduler.trigger.read.user": {
     "other": "Leggi utente"
+  },
+  "scheduler.trigger.read.user.description": {
+    "other": "A user or a group was accessed or listed."
   },
   "scheduler.trigger.update.user": {
     "other": "Aggiorna utente"
   },
+  "scheduler.trigger.update.user.description": {
+    "other": "A user or a group data was updated. Typically happens if user changes a preference or admin assigns a role."
+  },
   "scheduler.trigger.delete.user": {
     "other": "Elimina utente"
+  },
+  "scheduler.trigger.delete.user.description": {
+    "other": "A user or a group was deleted."
   },
   "scheduler.trigger.bind.user": {
     "other": "Associazione utente"
   },
+  "scheduler.trigger.bind.user.description": {
+    "other": "A user has logged in."
+  },
   "scheduler.trigger.logout.user": {
     "other": "Logout utente"
+  },
+  "scheduler.trigger.logout.user.description": {
+    "other": "A user has logged out."
+  },
+  "scheduler.trigger.role.create": {
+    "other": "Create Role"
+  },
+  "scheduler.trigger.role.create.description": {
+    "other": "A new role was created, by admin or by users."
+  },
+  "scheduler.trigger.role.udpate": {
+    "other": "Update Role"
+  },
+  "scheduler.trigger.role.update.description": {
+    "other": "A role has been updated."
+  },
+  "scheduler.trigger.role.delete": {
+    "other": "Delete Role"
+  },
+  "scheduler.trigger.role.delete.description": {
+    "other": "A role has been deleted."
+  },
+  "scheduler.trigger.workspace.create": {
+    "other": "Create Workspace"
+  },
+  "scheduler.trigger.workspace.create.description": {
+    "other": "A new Workspace or Cell was created."
+  },
+  "scheduler.trigger.workspace.udpate": {
+    "other": "Update Workspace"
+  },
+  "scheduler.trigger.workspace.update.description": {
+    "other": "A Workspace or a Cell has been updated."
+  },
+  "scheduler.trigger.workspace.delete": {
+    "other": "Delete Workspace"
+  },
+  "scheduler.trigger.workspace.delete.description": {
+    "other": "A Workspace or a Cell has been deleted."
+  },
+  "scheduler.trigger.acl.create": {
+    "other": "Create/Update ACL"
+  },
+  "scheduler.trigger.acl.create.description": {
+    "other": "An Access Control was opened."
+  },
+  "scheduler.trigger.acl.delete": {
+    "other": "Delete ACL"
+  },
+  "scheduler.trigger.acl.delete.description": {
+    "other": "An Access Control was removed."
+  },
+  "scheduler.trigger.chat-message.put": {
+    "other": "New Chat Message"
+  },
+  "scheduler.trigger.chat-message.put.description": {
+    "other": "A Message was posted in a ChatRoom."
+  },
+  "scheduler.trigger.chat-message.delete": {
+    "other": "Chat Message Deleted"
+  },
+  "scheduler.trigger.chat-message.delete.description": {
+    "other": "A Message was deleted from a ChatRoom."
+  },
+  "scheduler.trigger.chat-room.put": {
+    "other": "New Chat Room"
+  },
+  "scheduler.trigger.chat-room.put.description": {
+    "other": "A new ChatRoom was created."
+  },
+  "scheduler.trigger.chat-room.delete": {
+    "other": "Delete Chat Room"
+  },
+  "scheduler.trigger.chat-room.delete.description": {
+    "other": "A Chatroom has been deleted."
   },
   "scheduler.trigger.events": {
     "other": "Eventi"

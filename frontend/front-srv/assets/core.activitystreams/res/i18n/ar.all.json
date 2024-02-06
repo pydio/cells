@@ -58,5 +58,8 @@
   },
   "9": {
     "other": "نشاط مساحة العمل"
+  },
+  "tasks.subheader": {
+    "other": "Running Tasks"
   }
 }

@@ -9,13 +9,13 @@
     "other": "Common '%s' plugins options"
   },
   "101": {
-    "other": "Name"
+    "other": "Namn"
   },
   "102": {
     "other": "Identifier"
   },
   "103": {
-    "other": "Description"
+    "other": "Beskrivning"
   },
   "104": {
     "other": "Enabled"
@@ -435,7 +435,7 @@
     "other": "Successfully deleted role"
   },
   "69": {
-    "other": "Roles"
+    "other": "Roller"
   },
   "7": {
     "other": "Is Admin"
@@ -486,7 +486,7 @@
     "other": "Drag'n'drop roles to apply them to all selected users (shared users are skipped)"
   },
   "84": {
-    "other": "Users Roles"
+    "other": "Användarroller"
   },
   "85": {
     "other": "Manual actions filtering"

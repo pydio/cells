@@ -192,7 +192,7 @@
     "other": "プログラムのメインタイトル"
   },
   "form.frontendDefaultLanguage.label": {
-    "other": "デフォルトの言語"
+    "other": "既定の言語"
   },
   "form.frontendLogin.label": {
     "other": "管理者ユーザーのログイン *"

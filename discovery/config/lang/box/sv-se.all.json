@@ -18,7 +18,7 @@
     "other": "Prune versions regularly at various intervals"
   },
   "aclAction.Name": {
-    "other": "Name"
+    "other": "Namn"
   },
   "aclAction.Value": {
     "other": "Value"
@@ -312,7 +312,7 @@
     "other": "Not"
   },
   "userSingleQuery.Password": {
-    "other": "Password"
+    "other": "Lösenord"
   },
   "userSingleQuery.Recursive": {
     "other": "Recursive"
@@ -330,7 +330,7 @@
     "other": "Attribute Value"
   },
   "workspaceSingleQuery.Description": {
-    "other": "Description"
+    "other": "Beskrivning"
   },
   "workspaceSingleQuery.HasAttribute": {
     "other": "Has Attribute"
@@ -354,7 +354,7 @@
     "other": "Uuid"
   },
   "workspaceSingleQuery.description": {
-    "other": "Description"
+    "other": "Beskrivning"
   },
   "workspaceSingleQuery.label": {
     "other": "Label"
@@ -384,7 +384,7 @@
     "other": "Uuid"
   },
   "dataSourceSingleQuery.Name": {
-    "other": "Name"
+    "other": "Namn"
   },
   "dataSourceSingleQuery.IsDisabled": {
     "other": "Is Disabled"
