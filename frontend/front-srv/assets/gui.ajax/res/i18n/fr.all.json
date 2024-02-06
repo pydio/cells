@@ -274,5 +274,20 @@
   },
   "leftrail.buttons.theme.dark": {
     "other": "Mode Sombre"
+  },
+  "task.status.Starting": {
+    "other": "Démarré {startTime}"
+  },
+  "task.status.Pending": {
+    "other": "En attente de démarrage..."
+  },
+  "task.status.Complete": {
+    "other": "Tâche terminée en {duration}"
+  },
+  "task.status.Finished": {
+    "other": "Tâche terminée en {duration}"
+  },
+  "task.status.Error": {
+    "other": "Une erreur est survenue !"
   }
 }

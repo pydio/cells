@@ -2426,8 +2426,53 @@
   "searchengine.complete.activefilters-edit": {
     "other": "Cliquer pour modifier"
   },
+  "chat.dropzone.remove": {
+    "other": "Supprimer"
+  },
+  "chat.dropzone.preview": {
+    "other": "Prévisualiser ?"
+  },
+  "chat.dropzone.inline": {
+    "other": "Dans le texte"
+  },
   "chat.load-older": {
     "other": "Messages précédents"
+  },
+  "chat.msg.edit": {
+    "other": "Éditer le message"
+  },
+  "chat.msg.save": {
+    "other": "Sauvegarder les modifications"
+  },
+  "chat.msg.revert": {
+    "other": "Annuler les modifications"
+  },
+  "chat.msg.delete": {
+    "other": "Supprimer le message"
+  },
+  "chat.msg.delete.confirm.title": {
+    "other": "Supprimer le message ?"
+  },
+  "chat.msg.delete.confirm": {
+    "other": "Cette action est irréversible."
+  },
+  "chat.link.doc.loading": {
+    "other": "Chargement du document..."
+  },
+  "chat.link.doc.opening": {
+    "other": "Ouverture du document..."
+  },
+  "chat.link.doc.goto": {
+    "other": "Accéder au document"
+  },
+  "chat.link.doc.not-found": {
+    "other": "Document introuvable, il a peut-être été supprimé."
+  },
+  "chat.link.doc.click-indicator": {
+    "other": "Cliquez pour accéder à %s"
+  },
+  "chat.link.doc.open-in": {
+    "other": "Ouvrir le document dans..."
   },
   "workspace.quota-usage": {
     "other": "Utilisation du quota"

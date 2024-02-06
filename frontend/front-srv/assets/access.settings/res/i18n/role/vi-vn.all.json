@@ -193,5 +193,11 @@
   },
   "role.override.description": {
     "other": "Vai trò luôn được áp dụng sau các vai trò khác, ngoại trừ vai trò người dùng vẫn sẽ chiếm ưu thế."
+  },
+  "user.info.main": {
+    "other": "Hover fields to show explanation"
+  },
+  "button.info.menu.security": {
+    "other": "Security Actions"
   }
 }

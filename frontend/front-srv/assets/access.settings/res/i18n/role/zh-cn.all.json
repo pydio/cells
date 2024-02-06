@@ -193,5 +193,11 @@
   },
   "role.override.description": {
     "other": "角色总是在其他角色之后最后应用，除了仍然占主导地位的用户角色。"
+  },
+  "user.info.main": {
+    "other": "Hover fields to show explanation"
+  },
+  "button.info.menu.security": {
+    "other": "Security Actions"
   }
 }

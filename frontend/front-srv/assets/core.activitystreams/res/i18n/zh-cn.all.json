@@ -58,5 +58,8 @@
   },
   "9": {
     "other": "工作区活动"
+  },
+  "tasks.subheader": {
+    "other": "Running Tasks"
   }
 }

@@ -193,5 +193,11 @@
   },
   "role.override.description": {
     "other": "El rol siempre se aplica después de otros roles, excepto para el rol de usuario que prevalecerá."
+  },
+  "user.info.main": {
+    "other": "Hover fields to show explanation"
+  },
+  "button.info.menu.security": {
+    "other": "Security Actions"
   }
 }

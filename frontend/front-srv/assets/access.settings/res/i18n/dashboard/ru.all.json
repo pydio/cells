@@ -117,13 +117,13 @@
     "other": "Ошибки"
   },
   "recentLogs.emptyState": {
-    "other": "No activity found"
+    "other": "Активность не обнаружена"
   },
   "recentLogs.more": {
-    "other": "All Activities"
+    "other": "Все активности"
   },
   "graph.files": {
-    "other": "Files Activity"
+    "other": "Активность файла"
   },
   "graph.connections": {
     "other": "Веб-соединения"

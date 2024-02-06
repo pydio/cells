@@ -193,5 +193,11 @@
   },
   "role.override.description": {
     "other": "ロールは常に他のロールの後に適用されます。ただし、それでも優先されるユーザーロールは除きます。"
+  },
+  "user.info.main": {
+    "other": "Hover fields to show explanation"
+  },
+  "button.info.menu.security": {
+    "other": "Security Actions"
   }
 }

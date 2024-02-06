@@ -200,6 +200,21 @@
   "search.facet.metadata": {
     "other": "Métadonnées"
   },
+  "search.sorter.relevant.desc": {
+    "other": "Les plus pertinents"
+  },
+  "search.sorter.modified.desc": {
+    "other": "Les plus récents"
+  },
+  "search.sorter.modified.asc": {
+    "other": "Les moins récents"
+  },
+  "search.sorter.size.desc": {
+    "other": "Les plus gros"
+  },
+  "search.sorter.size.asc": {
+    "other": "Les plus petits"
+  },
   "facet.label.file": {
     "other": "Fichier"
   },

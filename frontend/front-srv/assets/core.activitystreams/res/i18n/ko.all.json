@@ -58,5 +58,8 @@
   },
   "9": {
     "other": "작업공간 활동"
+  },
+  "tasks.subheader": {
+    "other": "Running Tasks"
   }
 }
