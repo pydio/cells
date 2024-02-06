@@ -2006,8 +2006,8 @@
   "scheduler.trigger.role.create.description": {
     "other": "A new role was created, by admin or by users."
   },
-  "scheduler.trigger.role.udpate": {
-    "other": "Uppdatera roll"
+  "scheduler.trigger.role.update": {
+    "other": "Update Role"
   },
   "scheduler.trigger.role.update.description": {
     "other": "A role has been updated."
@@ -2024,7 +2024,7 @@
   "scheduler.trigger.workspace.create.description": {
     "other": "A new Workspace or Cell was created."
   },
-  "scheduler.trigger.workspace.udpate": {
+  "scheduler.trigger.workspace.update": {
     "other": "Update Workspace"
   },
   "scheduler.trigger.workspace.update.description": {

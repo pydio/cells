@@ -2427,10 +2427,10 @@
     "other": "Zum Ändern anklicken"
   },
   "chat.dropzone.remove": {
-    "other": "Remove"
+    "other": "Entfernen"
   },
   "chat.dropzone.preview": {
-    "other": "Include preview?"
+    "other": "Vorschau einbeziehen?"
   },
   "chat.dropzone.inline": {
     "other": "Insert inline"
@@ -2439,31 +2439,31 @@
     "other": "Ältere Einträge"
   },
   "chat.msg.edit": {
-    "other": "Edit Message"
+    "other": "Nachricht bearbeiten"
   },
   "chat.msg.save": {
-    "other": "Save Changes"
+    "other": "Änderungen speichern"
   },
   "chat.msg.revert": {
-    "other": "Revert Changes"
+    "other": "Änderungen verwerfen"
   },
   "chat.msg.delete": {
-    "other": "Delete Message"
+    "other": "Nachricht löschen"
   },
   "chat.msg.delete.confirm.title": {
-    "other": "Delete Message?"
+    "other": "Nachricht löschen?"
   },
   "chat.msg.delete.confirm": {
-    "other": "This action cannot be undone"
+    "other": "Diese Aktion kann nicht rückgängig gemacht werden"
   },
   "chat.link.doc.loading": {
-    "other": "Loading document..."
+    "other": "Dokument wird geladen…"
   },
   "chat.link.doc.opening": {
-    "other": "Opening document..."
+    "other": "Öffne Dokument..."
   },
   "chat.link.doc.goto": {
-    "other": "Go to document"
+    "other": "Zum Dokument gehen"
   },
   "chat.link.doc.not-found": {
     "other": "Document not found, it may have been deleted."
