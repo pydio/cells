@@ -9,16 +9,16 @@
     "other": "No mailer configured to send emails, contact your administrator"
   },
   "4": {
-    "other": "From"
+    "other": "Från"
   },
   "5": {
-    "other": "To"
+    "other": "Till"
   },
   "6": {
-    "other": "Subject"
+    "other": "Ämne"
   },
   "7": {
-    "other": "Message"
+    "other": "Meddelande"
   },
   "8": {
     "other": "Pick a user or type an address"

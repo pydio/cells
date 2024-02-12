@@ -39,7 +39,7 @@
     "other": "Info Panel"
   },
   "tour.locale.back": {
-    "other": "Back"
+    "other": "Tillbaka"
   },
   "tour.locale.close": {
     "other": "Close"
@@ -48,7 +48,7 @@
     "other": "Finish"
   },
   "tour.locale.next": {
-    "other": "Next"
+    "other": "Nästa"
   },
   "tour.locale.skip": {
     "other": "Skip"
@@ -270,9 +270,24 @@
     "other": "All Files"
   },
   "leftrail.buttons.theme.light": {
-    "other": "Light Mode"
+    "other": "Ljust läge"
   },
   "leftrail.buttons.theme.dark": {
-    "other": "Dark Mode"
+    "other": "Mörkt läge"
+  },
+  "task.status.Starting": {
+    "other": "Started {startTime}"
+  },
+  "task.status.Pending": {
+    "other": "Will start soon..."
+  },
+  "task.status.Complete": {
+    "other": "Task completed in {duration}"
+  },
+  "task.status.Finished": {
+    "other": "Task completed in {duration}"
+  },
+  "task.status.Error": {
+    "other": "An error happened!"
   }
 }

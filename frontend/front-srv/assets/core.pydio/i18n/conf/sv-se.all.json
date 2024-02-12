@@ -123,13 +123,13 @@
     "other": "Data Source Name"
   },
   "Database": {
-    "other": "Database"
+    "other": "Databas"
   },
   "Database file": {
     "other": "Database file"
   },
   "Database name": {
-    "other": "Database name"
+    "other": "Databasnamn"
   },
   "Database server": {
     "other": "Database server"
@@ -165,7 +165,7 @@
     "other": "Descending"
   },
   "Description": {
-    "other": "Description"
+    "other": "Beskrivning"
   },
   "Digest Realm": {
     "other": "Digest Realm"
@@ -222,7 +222,7 @@
     "other": "File Type"
   },
   "File size": {
-    "other": "File size"
+    "other": "Filstorlek"
   },
   "Filename length": {
     "other": "Filename length"
@@ -315,7 +315,7 @@
     "other": "Modification date"
   },
   "Name": {
-    "other": "Name"
+    "other": "Namn"
   },
   "OAuth Commons": {
     "other": "OAuth Commons"
@@ -333,7 +333,7 @@
     "other": "Pagination Threshold"
   },
   "Password": {
-    "other": "Password"
+    "other": "Lösenord"
   },
   "Prefilled label for the new repository, you can use the PYDIO_USER keyworkd in it.": {
     "other": "Prefilled label for the new workspace, you can use the PYDIO_USER keyworkd in it."

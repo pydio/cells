@@ -60,37 +60,37 @@
     "other": "Enviando arquivos para o servidor..."
   },
   "task.status.folders": {
-    "other": "Creating Folders"
+    "other": "Criando pastas"
   },
   "task.message.folder-one": {
-    "other": "Creating one folder"
+    "other": "Criando uma pasta"
   },
   "task.message.folder-many": {
-    "other": "Creating %s folders"
+    "other": "Criando %s pastas"
   },
   "task.status.analyse": {
-    "other": "Preparing files for upload"
+    "other": "Preparando ficheiros para carregar"
   },
   "task.message.analyse-many": {
-    "other": "Analyzing %s items..."
+    "other": "Analisando %s itens..."
   },
   "task.message.analyse-one": {
-    "other": "Analyzing one item"
+    "other": "Analisando um item"
   },
   "task.message.analyse-wait": {
-    "other": "Please wait..."
+    "other": "Por favor, aguarde..."
   },
   "task.status.ready": {
-    "other": "Ready to upload"
+    "other": "Pronto para carregar"
   },
   "task.status.paused": {
-    "other": "Upload paused"
+    "other": "Carregamento em pausa"
   },
   "task.status.upload": {
-    "other": "Uploading files"
+    "other": "A carregar ficheiros"
   },
   "task.message.upload-progress": {
-    "other": "Uploading %s%"
+    "other": "Carregando %s%"
   },
   "no-folders-support": {
     "other": "Parece que seu navegador não oferece suporte a descarte de pastas"
@@ -114,7 +114,7 @@
     "other": "Transferências"
   },
   "attempt": {
-    "other": "attempt"
+    "other": "tentativa"
   },
   "status.new": {
     "other": "Pendente"
@@ -129,16 +129,16 @@
     "other": "Analisando..."
   },
   "status.dir.new": {
-    "other": "Folder awaiting upload..."
+    "other": "Pasta aguardando carregamento..."
   },
   "status.file.new": {
-    "other": "File awaiting upload..."
+    "other": "Ficheiro aguardando carregamento..."
   },
   "status.dir.analyse": {
-    "other": "Analyzing folder..."
+    "other": "Analisando pasta..."
   },
   "status.file.analyse": {
-    "other": "Analyzing file..."
+    "other": "Analisando ficheiro..."
   },
   "status.dir.loading": {
     "other": "Criando pasta"

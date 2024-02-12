@@ -193,5 +193,11 @@
   },
   "role.override.description": {
     "other": "Die Rolle wird immer nach anderen Rollen angewandt, mit Ausnahme der Benutzerrolle, die immer noch vorherrscht."
+  },
+  "user.info.main": {
+    "other": "Schwebende Felder um Erklärung anzuzeigen"
+  },
+  "button.info.menu.security": {
+    "other": "Sicherheitsmaßnahmen"
   }
 }

@@ -58,5 +58,8 @@
   },
   "9": {
     "other": "Активность по рабочему пространству"
+  },
+  "tasks.subheader": {
+    "other": "Running Tasks"
   }
 }

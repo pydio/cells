@@ -629,6 +629,48 @@
   "logs.noresults": {
     "other": "Keine Treffer"
   },
+  "logs.details.copy": {
+    "other": "Protokoll in die Zwischenablage kopieren"
+  },
+  "logs.details.show-focus": {
+    "other": "Zeige +/- 5 Minuten"
+  },
+  "logs.details.close": {
+    "other": "Log-Details schließen"
+  },
+  "logs.details.user": {
+    "other": "Benutzer"
+  },
+  "logs.details.user-attributes": {
+    "other": "Benutzerattribute"
+  },
+  "logs.details.date": {
+    "other": "Event-Datum"
+  },
+  "logs.details.msg": {
+    "other": "Ereignisnachricht"
+  },
+  "logs.details.service": {
+    "other": "Veröffentlichender Dienst"
+  },
+  "logs.details.connection": {
+    "other": "Verbindungs-IP"
+  },
+  "logs.details.agent": {
+    "other": "User-Agent"
+  },
+  "logs.details.protocol": {
+    "other": "Protokol"
+  },
+  "logs.details.node": {
+    "other": "Datei/Ordner"
+  },
+  "logs.details.transfer-size": {
+    "other": "Übertragungsgröße"
+  },
+  "logs.details.workspace": {
+    "other": "Im Workspace"
+  },
   "menu.0": {
     "other": "Kontrollzentrum"
   },
@@ -1853,44 +1895,182 @@
   "scheduler.tasks.delete.confirm": {
     "other": "Möchten Sie wirklich alle Aufgaben für diesen Flow löschen?"
   },
+  "scheduler.trigger.picker.title": {
+    "other": "Job auslösen am..."
+  },
+  "scheduler.trigger.type.nodes": {
+    "other": "Ereignisse für Dateien und Ordner (Knoten): Erkennen von Dateiänderungen, um sie automatisch zu verschieben oder ihre Metadaten zu aktualisieren."
+  },
+  "scheduler.trigger.type.workspaces": {
+    "other": "Workspace-Ereignisse: werden bei der Erstellung/Löschung von Workspaces ausgelöst. Verwenden Sie die Scope-Flagge, um Workspace von Cells zu filtern"
+  },
+  "scheduler.trigger.type.acls": {
+    "other": "ACL-Ereignisse: Zugriffssteuerungslisten verknüpfen Workspaces, Knoten und Rollen, um den Zugriff auf Daten zu ermöglichen."
+  },
+  "scheduler.trigger.type.users": {
+    "other": "Benutzerereignisse: werden ausgelöst, wenn Benutzer hinzugefügt/entfernt werden und wenn Benutzer sich anmelden und abmelden. Können für das Auslösen von Validierungsabläufen oder das Zuweisen von Zugriffen verwendet werden."
+  },
+  "scheduler.trigger.type.roles": {
+    "other": "Rollenereignisse: können verwendet werden, um Zugriffe basierend auf Rollennamen zu automatisieren. Verwenden Sie die Flags IsTeam, IsGroup und IsUser, um Rollen zu filtern."
+  },
+  "scheduler.trigger.type.chat": {
+    "other": "Chat-Ereignisse: Reagieren Sie auf neue Chat-Nachrichten oder Änderungen am Chat-Raum"
+  },
+  "scheduler.trigger.type.chat-messages": {
+    "other": "Chat-Nachrichten Ereignisse"
+  },
+  "scheduler.trigger.type.chat-rooms": {
+    "other": "Chatraumereignisse"
+  },
   "scheduler.trigger.create.node": {
     "other": "Node erstellen"
+  },
+  "scheduler.trigger.create.node.description": {
+    "other": "Es wurde eine neue Datei hochgeladen oder ein neuer Ordner erstellt."
   },
   "scheduler.trigger.read.node": {
     "other": "Node lesen"
   },
+  "scheduler.trigger.read.node.description": {
+    "other": "Es wurde eine Datei heruntergeladen oder ein Ordnerinhalt aufgelistet."
+  },
   "scheduler.trigger.update.path": {
     "other": "Pfad aktualisieren"
+  },
+  "scheduler.trigger.update.path.description": {
+    "other": "Eine Datei oder ein Ordner wurde verschoben oder umbenannt."
   },
   "scheduler.trigger.update.content": {
     "other": "Inhalt aktualisieren"
   },
+  "scheduler.trigger.update.content.description": {
+    "other": "Ein Dateiinhalt wurde nach Ausgabe aktualisiert oder überschrieben."
+  },
   "scheduler.trigger.update.metadata": {
     "other": "Metadaten aktualisieren"
+  },
+  "scheduler.trigger.update.metadata.description": {
+    "other": "Interne Metadaten wurden in Datei oder Ordner geändert."
   },
   "scheduler.trigger.update.user-metadata": {
     "other": "Benützer Metadaten aktualisieren"
   },
+  "scheduler.trigger.update.user-metadata.description": {
+    "other": "Benutzerdefinierte Metadaten wurden geändert (Ereignis enthält aktualisierte Metadaten)."
+  },
   "scheduler.trigger.delete.node": {
     "other": "Node löschen"
+  },
+  "scheduler.trigger.delete.node.description": {
+    "other": "Eine Datei oder ein Ordner wurde endgültig gelöscht."
   },
   "scheduler.trigger.create.user": {
     "other": "Benutzer erstellen"
   },
+  "scheduler.trigger.create.user.description": {
+    "other": "Ein Benutzer oder eine Gruppe wurde erstellt."
+  },
   "scheduler.trigger.read.user": {
     "other": "Benutzer lesen"
+  },
+  "scheduler.trigger.read.user.description": {
+    "other": "Auf einen Benutzer oder eine Gruppe wurde zugegriffen oder aufgelistet."
   },
   "scheduler.trigger.update.user": {
     "other": "Benutzer aktualisieren"
   },
+  "scheduler.trigger.update.user.description": {
+    "other": "Ein Benutzer oder eine Gruppendaten wurden aktualisiert. In der Regel passiert es, wenn ein Benutzer eine Voreinstellung ändert oder ein Administrator eine Rolle zuweist."
+  },
   "scheduler.trigger.delete.user": {
     "other": "Benutzer löschen"
+  },
+  "scheduler.trigger.delete.user.description": {
+    "other": "Ein Benutzer oder eine Gruppe wurde gelöscht."
   },
   "scheduler.trigger.bind.user": {
     "other": "Benutzer Bind"
   },
+  "scheduler.trigger.bind.user.description": {
+    "other": "Ein Benutzer hat sich angemeldet."
+  },
   "scheduler.trigger.logout.user": {
     "other": "Benutzer abmelden"
+  },
+  "scheduler.trigger.logout.user.description": {
+    "other": "Ein Benutzer hat sich abgemeldet."
+  },
+  "scheduler.trigger.role.create": {
+    "other": "Rolle erstellen"
+  },
+  "scheduler.trigger.role.create.description": {
+    "other": "Eine neue Rolle wurde von Admin oder Benutzern erstellt."
+  },
+  "scheduler.trigger.role.update": {
+    "other": "Rolle aktualisieren"
+  },
+  "scheduler.trigger.role.update.description": {
+    "other": "Eine Rolle wurde aktualisiert."
+  },
+  "scheduler.trigger.role.delete": {
+    "other": "Rolle löschen"
+  },
+  "scheduler.trigger.role.delete.description": {
+    "other": "Eine Rolle wurde gelöscht."
+  },
+  "scheduler.trigger.workspace.create": {
+    "other": "Workspace erstellen"
+  },
+  "scheduler.trigger.workspace.create.description": {
+    "other": "Ein neues Workspace oder eine Cell wurde erstellt."
+  },
+  "scheduler.trigger.workspace.update": {
+    "other": "Arbeitsbereich aktualisieren"
+  },
+  "scheduler.trigger.workspace.update.description": {
+    "other": "Ein Workspace oder eine Cell wurde aktualisiert."
+  },
+  "scheduler.trigger.workspace.delete": {
+    "other": "Workspace löschen"
+  },
+  "scheduler.trigger.workspace.delete.description": {
+    "other": "Ein Workspace oder eine Cell wurde gelöscht."
+  },
+  "scheduler.trigger.acl.create": {
+    "other": "ACL erstellen/aktualisieren"
+  },
+  "scheduler.trigger.acl.create.description": {
+    "other": "Eine Zugriffskontrolle wurde geöffnet."
+  },
+  "scheduler.trigger.acl.delete": {
+    "other": "ACL löschen"
+  },
+  "scheduler.trigger.acl.delete.description": {
+    "other": "Eine Zugriffskontrolle wurde entfernt."
+  },
+  "scheduler.trigger.chat-message.put": {
+    "other": "Neue Chat-Nachricht"
+  },
+  "scheduler.trigger.chat-message.put.description": {
+    "other": "Eine Nachricht wurde in einem Chatraum veröffentlicht."
+  },
+  "scheduler.trigger.chat-message.delete": {
+    "other": "Chat-Nachricht gelöscht"
+  },
+  "scheduler.trigger.chat-message.delete.description": {
+    "other": "Eine Nachricht wurde aus einem Chatraum gelöscht."
+  },
+  "scheduler.trigger.chat-room.put": {
+    "other": "Neuer Chatraum"
+  },
+  "scheduler.trigger.chat-room.put.description": {
+    "other": "Ein neuer Chatraum wurde erstellt."
+  },
+  "scheduler.trigger.chat-room.delete": {
+    "other": "Chatraum löschen"
+  },
+  "scheduler.trigger.chat-room.delete.description": {
+    "other": "Ein Chatraum wurde gelöscht."
   },
   "scheduler.trigger.events": {
     "other": "Ereignisse"

@@ -58,5 +58,8 @@
   },
   "9": {
     "other": "Darbvirsmas aktivitāte"
+  },
+  "tasks.subheader": {
+    "other": "Running Tasks"
   }
 }

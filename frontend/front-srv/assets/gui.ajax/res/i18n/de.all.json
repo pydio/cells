@@ -274,5 +274,20 @@
   },
   "leftrail.buttons.theme.dark": {
     "other": "Dunkelmodus"
+  },
+  "task.status.Starting": {
+    "other": "{startTime} gestartet"
+  },
+  "task.status.Pending": {
+    "other": "Startet bald..."
+  },
+  "task.status.Complete": {
+    "other": "Aufgabe erledigt in {duration}"
+  },
+  "task.status.Finished": {
+    "other": "Aufgabe erledigt in {duration}"
+  },
+  "task.status.Error": {
+    "other": "Ein Fehler ist aufgetreten!"
   }
 }

@@ -2426,8 +2426,53 @@
   "searchengine.complete.activefilters-edit": {
     "other": "Click to modify"
   },
+  "chat.dropzone.remove": {
+    "other": "Remove"
+  },
+  "chat.dropzone.preview": {
+    "other": "Include preview?"
+  },
+  "chat.dropzone.inline": {
+    "other": "Insert inline"
+  },
   "chat.load-older": {
     "other": "较早文章"
+  },
+  "chat.msg.edit": {
+    "other": "Edit Message"
+  },
+  "chat.msg.save": {
+    "other": "Save Changes"
+  },
+  "chat.msg.revert": {
+    "other": "Revert Changes"
+  },
+  "chat.msg.delete": {
+    "other": "Delete Message"
+  },
+  "chat.msg.delete.confirm.title": {
+    "other": "Delete Message?"
+  },
+  "chat.msg.delete.confirm": {
+    "other": "This action cannot be undone"
+  },
+  "chat.link.doc.loading": {
+    "other": "Loading document..."
+  },
+  "chat.link.doc.opening": {
+    "other": "Opening document..."
+  },
+  "chat.link.doc.goto": {
+    "other": "Go to document"
+  },
+  "chat.link.doc.not-found": {
+    "other": "Document not found, it may have been deleted."
+  },
+  "chat.link.doc.click-indicator": {
+    "other": "Click to open %s"
+  },
+  "chat.link.doc.open-in": {
+    "other": "Open document in..."
   },
   "workspace.quota-usage": {
     "other": "配额使用"

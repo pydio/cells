@@ -193,5 +193,11 @@
   },
   "role.override.description": {
     "other": "Роль всегда применяется последней после других ролей, за исключением роли пользователя, которая все равно будет преобладать."
+  },
+  "user.info.main": {
+    "other": "Hover fields to show explanation"
+  },
+  "button.info.menu.security": {
+    "other": "Security Actions"
   }
 }

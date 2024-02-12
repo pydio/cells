@@ -2426,8 +2426,53 @@
   "searchengine.complete.activefilters-edit": {
     "other": "Zum Ändern anklicken"
   },
+  "chat.dropzone.remove": {
+    "other": "Entfernen"
+  },
+  "chat.dropzone.preview": {
+    "other": "Vorschau einbeziehen?"
+  },
+  "chat.dropzone.inline": {
+    "other": "Insert inline"
+  },
   "chat.load-older": {
     "other": "Ältere Einträge"
+  },
+  "chat.msg.edit": {
+    "other": "Nachricht bearbeiten"
+  },
+  "chat.msg.save": {
+    "other": "Änderungen speichern"
+  },
+  "chat.msg.revert": {
+    "other": "Änderungen verwerfen"
+  },
+  "chat.msg.delete": {
+    "other": "Nachricht löschen"
+  },
+  "chat.msg.delete.confirm.title": {
+    "other": "Nachricht löschen?"
+  },
+  "chat.msg.delete.confirm": {
+    "other": "Diese Aktion kann nicht rückgängig gemacht werden"
+  },
+  "chat.link.doc.loading": {
+    "other": "Dokument wird geladen…"
+  },
+  "chat.link.doc.opening": {
+    "other": "Öffne Dokument..."
+  },
+  "chat.link.doc.goto": {
+    "other": "Zum Dokument gehen"
+  },
+  "chat.link.doc.not-found": {
+    "other": "Dokument nicht gefunden, es wurde möglicherweise gelöscht."
+  },
+  "chat.link.doc.click-indicator": {
+    "other": "Klicke um %s zu öffnen"
+  },
+  "chat.link.doc.open-in": {
+    "other": "Dokument öffnen in..."
   },
   "workspace.quota-usage": {
     "other": "Kontingentnutzung"

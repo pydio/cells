@@ -81,7 +81,7 @@
     "other": "Condição livre"
   },
   "dataSelectorSingleQuery.JsonPath": {
-    "other": "JSON Path"
+    "other": "Caminho JSON"
   },
   "conditionCIDRCondition.CIDR": {
     "other": "CIDR"
@@ -102,10 +102,10 @@
     "other": "ocorrências"
   },
   "conditionPathGlobCondition.glob": {
-    "other": "pattern"
+    "other": "padrão"
   },
   "conditionBooleanCondition.value": {
-    "other": "True"
+    "other": "Verdadeiro"
   },
   "contextMetaCondition.CIDRCondition": {
     "other": "Condição CIDR"
@@ -138,10 +138,10 @@
     "other": "Data após"
   },
   "contextMetaCondition.PathGlobCondition": {
-    "other": "Glob Matcher"
+    "other": "Padrão para correspondência de ficheiros"
   },
   "contextMetaCondition.BooleanCondition": {
-    "other": "Boolean Value"
+    "other": "Valor booleano"
   },
   "contextMetaField.ContentType": {
     "other": "Tipo de conteúdo"
@@ -159,10 +159,10 @@
     "other": "Solicitar Hostname"
   },
   "contextMetaField.RequestHost": {
-    "other": "Request Host"
+    "other": "Servidor a contactar"
   },
   "contextMetaField.RequestPort": {
-    "other": "Request Port"
+    "other": "Porta a contactar"
   },
   "contextMetaField.RequestMethod": {
     "other": "Método de solicitação"
@@ -453,16 +453,16 @@
     "other": "Desencadeamento agendado"
   },
   "triggerFilterQuery.IsApiHook": {
-    "other": "Triggered by Webhook"
+    "other": "Accionado por um Webhook"
   },
   "triggerFilterQuery.ApiHookSlug": {
-    "other": "Webhook Api Slug"
+    "other": "Slug para a API dos Webhooks"
   },
   "triggerFilterQuery.RunParameterName": {
-    "other": "Run Parameter Name"
+    "other": "Nome do parâmetro de execução"
   },
   "triggerFilterQuery.RunParameterValue": {
-    "other": "Run Parameter Value"
+    "other": "Valor do parâmetro de execução"
   },
   "triggerFilterQuery.IsManual": {
     "other": "Desencadeamento manual"

@@ -9,13 +9,13 @@
     "other": "Common '%s' plugins options"
   },
   "101": {
-    "other": "Name"
+    "other": "Namn"
   },
   "102": {
     "other": "Identifier"
   },
   "103": {
-    "other": "Description"
+    "other": "Beskrivning"
   },
   "104": {
     "other": "Enabled"
@@ -198,7 +198,7 @@
     "other": "Shared"
   },
   "159": {
-    "other": "Guest"
+    "other": "Gäst"
   },
   "160": {
     "other": "Group was successfully created"
@@ -435,13 +435,13 @@
     "other": "Successfully deleted role"
   },
   "69": {
-    "other": "Roles"
+    "other": "Roller"
   },
   "7": {
     "other": "Is Admin"
   },
   "70": {
-    "other": "User Roles"
+    "other": "Användarroller"
   },
   "71": {
     "other": "Available Roles"
@@ -456,7 +456,7 @@
     "other": "Role deleted from user "
   },
   "75": {
-    "other": "New Role"
+    "other": "Ny roll"
   },
   "76": {
     "other": "Role Id"
@@ -486,7 +486,7 @@
     "other": "Drag'n'drop roles to apply them to all selected users (shared users are skipped)"
   },
   "84": {
-    "other": "Users Roles"
+    "other": "Användarroller"
   },
   "85": {
     "other": "Manual actions filtering"
@@ -510,7 +510,7 @@
     "other": "New Workspace"
   },
   "91": {
-    "other": "New Template"
+    "other": "Ny mall"
   },
   "92": {
     "other": "Create a new template"

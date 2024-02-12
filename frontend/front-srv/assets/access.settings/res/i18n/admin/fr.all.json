@@ -629,6 +629,48 @@
   "logs.noresults": {
     "other": "Pas de résultats"
   },
+  "logs.details.copy": {
+    "other": "Copier la ligne dans le presse-papier"
+  },
+  "logs.details.show-focus": {
+    "other": "Afficher +/- 5 minutes"
+  },
+  "logs.details.close": {
+    "other": "Fermer le détail"
+  },
+  "logs.details.user": {
+    "other": "Utilisateur"
+  },
+  "logs.details.user-attributes": {
+    "other": "Attributs de l'utilisateur"
+  },
+  "logs.details.date": {
+    "other": "Date de l’événement"
+  },
+  "logs.details.msg": {
+    "other": "Message"
+  },
+  "logs.details.service": {
+    "other": "Service émetteur"
+  },
+  "logs.details.connection": {
+    "other": "IP de la connexion"
+  },
+  "logs.details.agent": {
+    "other": "Agent"
+  },
+  "logs.details.protocol": {
+    "other": "Protocole"
+  },
+  "logs.details.node": {
+    "other": "Fichier / Dossier"
+  },
+  "logs.details.transfer-size": {
+    "other": "Taille du transfert"
+  },
+  "logs.details.workspace": {
+    "other": "Workspace"
+  },
   "menu.0": {
     "other": "Tableau de bord"
   },
@@ -1853,44 +1895,182 @@
   "scheduler.tasks.delete.confirm": {
     "other": "Êtes-vous sûr de vouloir effacer toutes les tâches pour ce Flow ?"
   },
+  "scheduler.trigger.picker.title": {
+    "other": "Déclencher lors de..."
+  },
+  "scheduler.trigger.type.nodes": {
+    "other": "Événements de fichiers et dossiers (nœuds) : détecter les ajouts, suppressions et modifications de fichiers et de leurs métadonnées."
+  },
+  "scheduler.trigger.type.workspaces": {
+    "other": "Événements des Workspaces : déclenchés lors de la création / suppression de workspaces. Utilisez l'attribut \"Scope\" pour distinguer les Workspaces et les Cells."
+  },
+  "scheduler.trigger.type.acls": {
+    "other": "Événements des ACL : les contrôles d'accès associent les Workspaces, les fichiers/dossiers et les rôles pour ouvrir des accès aux données."
+  },
+  "scheduler.trigger.type.users": {
+    "other": "Événements des utilisateurs : déclenchés lors de l'ajout/suppression d'utilisateurs et lorsqu'ils se connectent ou se déconnectent. Peuvent être utilisés pour déclencher des flux de validation ou ouvrir des accès."
+  },
+  "scheduler.trigger.type.roles": {
+    "other": "Événements des rôles : les utiliser pour automatiser les accès en fonction des noms de rôles. Utilisez les attributs IsTeam, IsGroup, IsUser pour les filtrer."
+  },
+  "scheduler.trigger.type.chat": {
+    "other": "Évènements des Chats : réagir à un nouveau message ou à la modification d'une Discussion."
+  },
+  "scheduler.trigger.type.chat-messages": {
+    "other": "Événements des messages de Chat"
+  },
+  "scheduler.trigger.type.chat-rooms": {
+    "other": "Événements des Discussions"
+  },
   "scheduler.trigger.create.node": {
     "other": "Création"
+  },
+  "scheduler.trigger.create.node.description": {
+    "other": "Un nouveau fichier a été téléchargé ou un nouveau dossier a été créé."
   },
   "scheduler.trigger.read.node": {
     "other": "Lecture"
   },
+  "scheduler.trigger.read.node.description": {
+    "other": "Un fichier a été téléchargé ou le contenu d'un dossier a été listé."
+  },
   "scheduler.trigger.update.path": {
     "other": "Déplacement"
+  },
+  "scheduler.trigger.update.path.description": {
+    "other": "Un fichier ou un dossier a été déplacé ou renommé."
   },
   "scheduler.trigger.update.content": {
     "other": "Contenu"
   },
+  "scheduler.trigger.update.content.description": {
+    "other": "Le contenu d'un fichier a été mis à jour (par édition en ligne ou téléchargement)."
+  },
   "scheduler.trigger.update.metadata": {
     "other": "Métadonnées"
+  },
+  "scheduler.trigger.update.metadata.description": {
+    "other": "Les métadonnées internes ont été modifiées sur un fichier ou un dossier."
   },
   "scheduler.trigger.update.user-metadata": {
     "other": "Mettre à jour les métadonnées"
   },
+  "scheduler.trigger.update.user-metadata.description": {
+    "other": "Les métadonnées éditées par les utilisateurs ont été modifiées (l'événement contient les métadonnées à jour)."
+  },
   "scheduler.trigger.delete.node": {
     "other": "Suppression"
+  },
+  "scheduler.trigger.delete.node.description": {
+    "other": "Un fichier ou un dossier a été définitivement supprimé."
   },
   "scheduler.trigger.create.user": {
     "other": "Utilisateur créé"
   },
+  "scheduler.trigger.create.user.description": {
+    "other": "Un utilisateur ou un groupe a été créé."
+  },
   "scheduler.trigger.read.user": {
     "other": "Utilisateur accédé"
+  },
+  "scheduler.trigger.read.user.description": {
+    "other": "Un utilisateur ou un groupe a été accédé ou listé."
   },
   "scheduler.trigger.update.user": {
     "other": "Utilisateur mis à jour"
   },
+  "scheduler.trigger.update.user.description": {
+    "other": "Un utilisateur ou un groupe a été mis à jour. Cela se produit généralement si l'utilisateur change une préférence ou si l'administrateur assigne un rôle."
+  },
   "scheduler.trigger.delete.user": {
     "other": "Utilisateur supprimé"
+  },
+  "scheduler.trigger.delete.user.description": {
+    "other": "Un utilisateur ou un groupe a été supprimé."
   },
   "scheduler.trigger.bind.user": {
     "other": "Utilisateur authentifié"
   },
+  "scheduler.trigger.bind.user.description": {
+    "other": "Un utilisateur s'est connecté."
+  },
   "scheduler.trigger.logout.user": {
     "other": "Utilisateur déconnecté"
+  },
+  "scheduler.trigger.logout.user.description": {
+    "other": "Un utilisateur s'est déconnecté."
+  },
+  "scheduler.trigger.role.create": {
+    "other": "Création de Rôle"
+  },
+  "scheduler.trigger.role.create.description": {
+    "other": "Un nouveau rôle a été créé, par l'administrateur ou par les utilisateurs."
+  },
+  "scheduler.trigger.role.update": {
+    "other": "Mise à jour d'un rôle"
+  },
+  "scheduler.trigger.role.update.description": {
+    "other": "Un rôle a été édité."
+  },
+  "scheduler.trigger.role.delete": {
+    "other": "Suppression de Rôle"
+  },
+  "scheduler.trigger.role.delete.description": {
+    "other": "Un rôle a été supprimé."
+  },
+  "scheduler.trigger.workspace.create": {
+    "other": "Création d'un Workspace"
+  },
+  "scheduler.trigger.workspace.create.description": {
+    "other": "Un nouveau Workspace ou une nouvelle Cell a été créé(e)."
+  },
+  "scheduler.trigger.workspace.update": {
+    "other": "Mise à jour d'un Workspace"
+  },
+  "scheduler.trigger.workspace.update.description": {
+    "other": "Un Workspace ou une Cell a été mis(e) à jour."
+  },
+  "scheduler.trigger.workspace.delete": {
+    "other": "Suppression de Workspace"
+  },
+  "scheduler.trigger.workspace.delete.description": {
+    "other": "Un Workspace ou une Cell a été supprimé(e)."
+  },
+  "scheduler.trigger.acl.create": {
+    "other": "Création/Mise à jour d'ACL"
+  },
+  "scheduler.trigger.acl.create.description": {
+    "other": "Un contrôle d'accès a été ouvert ou modifié."
+  },
+  "scheduler.trigger.acl.delete": {
+    "other": "Suppression d'ACL"
+  },
+  "scheduler.trigger.acl.delete.description": {
+    "other": "Un contrôle d'accès a été fermé."
+  },
+  "scheduler.trigger.chat-message.put": {
+    "other": "Nouveau message de Chat"
+  },
+  "scheduler.trigger.chat-message.put.description": {
+    "other": "Un message a été posté dans une discussion."
+  },
+  "scheduler.trigger.chat-message.delete": {
+    "other": "Suppression de message"
+  },
+  "scheduler.trigger.chat-message.delete.description": {
+    "other": "Un message a été supprimé d'une discussion."
+  },
+  "scheduler.trigger.chat-room.put": {
+    "other": "Création d'une Discussion"
+  },
+  "scheduler.trigger.chat-room.put.description": {
+    "other": "Une nouvelle discussion a été créée."
+  },
+  "scheduler.trigger.chat-room.delete": {
+    "other": "Suppression de Discussion"
+  },
+  "scheduler.trigger.chat-room.delete.description": {
+    "other": "Un fil de discussion a été supprimé."
   },
   "scheduler.trigger.events": {
     "other": "Evénements"
