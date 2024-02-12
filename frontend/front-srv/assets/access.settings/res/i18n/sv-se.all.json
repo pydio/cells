@@ -198,7 +198,7 @@
     "other": "Shared"
   },
   "159": {
-    "other": "Guest"
+    "other": "Gäst"
   },
   "160": {
     "other": "Group was successfully created"
@@ -441,7 +441,7 @@
     "other": "Is Admin"
   },
   "70": {
-    "other": "User Roles"
+    "other": "Användarroller"
   },
   "71": {
     "other": "Available Roles"
@@ -456,7 +456,7 @@
     "other": "Role deleted from user "
   },
   "75": {
-    "other": "New Role"
+    "other": "Ny roll"
   },
   "76": {
     "other": "Role Id"
@@ -510,7 +510,7 @@
     "other": "New Workspace"
   },
   "91": {
-    "other": "New Template"
+    "other": "Ny mall"
   },
   "92": {
     "other": "Create a new template"

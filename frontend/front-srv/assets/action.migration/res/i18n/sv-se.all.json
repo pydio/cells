@@ -6,10 +6,10 @@
     "other": "Import tool from Pydio 8"
   },
   "next": {
-    "other": "Next"
+    "other": "Nästa"
   },
   "back": {
-    "other": "Back"
+    "other": "Tillbaka"
   },
   "step.categories.choose": {
     "other": "Choose features to import"
@@ -243,7 +243,7 @@
     "other": "No template path required"
   },
   "step.mapper.next10": {
-    "other": "Next "
+    "other": "Nästa "
   },
   "step.mapper.prev10": {
     "other": "Previous "

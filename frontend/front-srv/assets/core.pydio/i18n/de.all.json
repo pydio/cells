@@ -2466,13 +2466,13 @@
     "other": "Zum Dokument gehen"
   },
   "chat.link.doc.not-found": {
-    "other": "Document not found, it may have been deleted."
+    "other": "Dokument nicht gefunden, es wurde möglicherweise gelöscht."
   },
   "chat.link.doc.click-indicator": {
-    "other": "Click to open %s"
+    "other": "Klicke um %s zu öffnen"
   },
   "chat.link.doc.open-in": {
-    "other": "Open document in..."
+    "other": "Dokument öffnen in..."
   },
   "workspace.quota-usage": {
     "other": "Kontingentnutzung"

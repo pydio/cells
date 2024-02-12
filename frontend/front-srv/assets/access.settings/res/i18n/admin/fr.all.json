@@ -2007,7 +2007,7 @@
     "other": "Un nouveau rôle a été créé, par l'administrateur ou par les utilisateurs."
   },
   "scheduler.trigger.role.update": {
-    "other": "Update Role"
+    "other": "Mise à jour d'un rôle"
   },
   "scheduler.trigger.role.update.description": {
     "other": "Un rôle a été édité."
@@ -2025,7 +2025,7 @@
     "other": "Un nouveau Workspace ou une nouvelle Cell a été créé(e)."
   },
   "scheduler.trigger.workspace.update": {
-    "other": "Update Workspace"
+    "other": "Mise à jour d'un Workspace"
   },
   "scheduler.trigger.workspace.update.description": {
     "other": "Un Workspace ou une Cell a été mis(e) à jour."

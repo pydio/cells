@@ -195,9 +195,9 @@
     "other": "Die Rolle wird immer nach anderen Rollen angewandt, mit Ausnahme der Benutzerrolle, die immer noch vorherrscht."
   },
   "user.info.main": {
-    "other": "Hover fields to show explanation"
+    "other": "Schwebende Felder um Erklärung anzuzeigen"
   },
   "button.info.menu.security": {
-    "other": "Security Actions"
+    "other": "Sicherheitsmaßnahmen"
   }
 }

@@ -12,25 +12,25 @@
     "other": "Enter"
   },
   "43": {
-    "other": "My Profile"
+    "other": "Min profil"
   },
   "43t": {
     "other": "All my personal data"
   },
   "44": {
-    "other": "My Account"
+    "other": "Mitt konto"
   },
   "45": {
     "other": "Personal data"
   },
   "46": {
-    "other": "Address Book"
+    "other": "Adressbok"
   },
   "47": {
     "other": "Users and teams that you created"
   },
   "48": {
-    "other": "My Users"
+    "other": "Mina användare"
   },
   "49": {
     "other": "External users that you created"
@@ -189,7 +189,7 @@
     "other": "Extension"
   },
   "search.facet.size": {
-    "other": "Size"
+    "other": "Storlek"
   },
   "search.facet.modified": {
     "other": "Modified"
