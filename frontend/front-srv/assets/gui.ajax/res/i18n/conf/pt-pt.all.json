@@ -144,10 +144,10 @@
     "other": "Login Page"
   },
   "Logo": {
-    "other": "Logo"
+    "other": "Logótipo"
   },
   "Logo Height": {
-    "other": "Logo Height"
+    "other": "Altura do logótipo"
   },
   "Logo Left": {
     "other": "Logo Left"
@@ -231,16 +231,16 @@
     "other": "Tile (repeat both directions)"
   },
   "Title": {
-    "other": "Title"
+    "other": "Título"
   },
   "Title Font Size": {
-    "other": "Title Font Size"
+    "other": "Tamanho da letra do título"
   },
   "Top Toolbar": {
-    "other": "Top Toolbar"
+    "other": "Barra superior de ferramentas"
   },
   "Top-right logo displayed on minisite page": {
-    "other": "Top-right logo displayed on minisite page"
+    "other": "Logótipo superior direito exibido na página de mini-site"
   },
   "URI to a custom image to be used as start up logo": {
     "other": "URI to a custom image to be used as start up logo"
@@ -252,13 +252,13 @@
     "other": "Use configured branding"
   },
   "User Home Logo": {
-    "other": "User Home Logo"
+    "other": "Logo do utilizador"
   },
   "Warning Before": {
     "other": "Warning before session expires"
   },
   "Web Session": {
-    "other": "Web Session"
+    "other": "Sessão web"
   },
   "Web Interface auto-logout after inactivity": {
     "other": "Web Interface auto-logout after inactivity"

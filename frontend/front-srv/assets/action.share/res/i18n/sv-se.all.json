@@ -42,7 +42,7 @@
     "other": "Share this"
   },
   "110b": {
-    "other": "Share"
+    "other": "Dela"
   },
   "111": {
     "other": "Share this page with other people"
@@ -102,10 +102,10 @@
     "other": "Migrate legacy shares"
   },
   "129": {
-    "other": "Copy URL"
+    "other": "Kopiera URL"
   },
   "13": {
-    "other": "Yes"
+    "other": "Ja"
   },
   "130": {
     "other": "Copy URL to your clipboard"
@@ -144,7 +144,7 @@
     "other": "You have shared this folder as a workspace with application users, but it is currently inactive (expired)."
   },
   "14": {
-    "other": "No"
+    "other": "Nej"
   },
   "140": {
     "other": "You have shared this file via a public link"
@@ -597,10 +597,10 @@
     "other": "Share file"
   },
   "270": {
-    "other": "users"
+    "other": "användare"
   },
   "271": {
-    "other": "groups"
+    "other": "grupper"
   },
   "272": {
     "other": "teams"
@@ -609,7 +609,7 @@
     "other": "nobody"
   },
   "274": {
-    "other": " and "
+    "other": " och "
   },
   "275": {
     "other": "Create cells to collaborate with other users. First start by describing the object of this cell."
@@ -651,7 +651,7 @@
     "other": "Wrong password"
   },
   "30": {
-    "other": "Share with..."
+    "other": "Dela med..."
   },
   "31": {
     "other": "Read"
@@ -675,7 +675,7 @@
     "other": "Set a label and a short description"
   },
   "37": {
-    "other": "Confirm"
+    "other": "Bekräfta"
   },
   "38": {
     "other": "Watch this folder content"
@@ -879,7 +879,7 @@
     "other": "Tags (Enter to save)"
   },
   "92": {
-    "other": "Create link"
+    "other": "Skapa länk"
   },
   "93": {
     "other": "Existing links"

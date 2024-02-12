@@ -201,19 +201,19 @@
     "other": "Metadados"
   },
   "search.sorter.relevant.desc": {
-    "other": "Most Relevant First"
+    "other": "Mais relevante primeiro"
   },
   "search.sorter.modified.desc": {
-    "other": "Recently Added First"
+    "other": "Recentemente adicionados primeiro"
   },
   "search.sorter.modified.asc": {
-    "other": "Oldest First"
+    "other": "Mais antigos primeiro"
   },
   "search.sorter.size.desc": {
-    "other": "Biggest First"
+    "other": "Maiores primeiro"
   },
   "search.sorter.size.asc": {
-    "other": "Smallest First"
+    "other": "Menores primeiro"
   },
   "facet.label.file": {
     "other": "Arquivo"
@@ -255,12 +255,12 @@
     "other": "Nome do Arquivo"
   },
   "reco.bookmark": {
-    "other": "Bookmark"
+    "other": "Favorito"
   },
   "reco.workspace": {
-    "other": "Workspace"
+    "other": "Área de trabalho"
   },
   "reco.cell": {
-    "other": "Cell"
+    "other": "Célula"
   }
 }

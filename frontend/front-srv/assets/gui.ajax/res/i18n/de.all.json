@@ -276,18 +276,18 @@
     "other": "Dunkelmodus"
   },
   "task.status.Starting": {
-    "other": "Started {startTime}"
+    "other": "{startTime} gestartet"
   },
   "task.status.Pending": {
-    "other": "Will start soon..."
+    "other": "Startet bald..."
   },
   "task.status.Complete": {
-    "other": "Task completed in {duration}"
+    "other": "Aufgabe erledigt in {duration}"
   },
   "task.status.Finished": {
-    "other": "Task completed in {duration}"
+    "other": "Aufgabe erledigt in {duration}"
   },
   "task.status.Error": {
-    "other": "An error happened!"
+    "other": "Ein Fehler ist aufgetreten!"
   }
 }
