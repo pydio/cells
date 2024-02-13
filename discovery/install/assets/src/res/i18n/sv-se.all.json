@@ -273,10 +273,10 @@
     "other": "You are not allowed to create buckets, make sure to create them manually!"
   },
   "stepper.button.next": {
-    "other": "Next"
+    "other": "Nästa"
   },
   "stepper.button.back": {
-    "other": "Back"
+    "other": "Tillbaka"
   },
   "stepper.button.last": {
     "other": "Install Now"
