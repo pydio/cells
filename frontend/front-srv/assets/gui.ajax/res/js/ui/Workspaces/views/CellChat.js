@@ -1,6 +1,6 @@
 import React from 'react'
 import Pydio from 'pydio'
-import {Paper} from 'material-ui'
+import {Paper, IconButton} from 'material-ui'
 const {Chat} = Pydio.requireLib('components');
 import {muiThemeable} from 'material-ui/styles'
 
@@ -29,9 +29,9 @@ class CellChat extends React.Component{
     }
 
     render(){
-        const {pydio, style, zDepth, onRequestClose, muiTheme} = this.props;
+        const {pydio, style, chatStyle, fieldContainerStyle, zDepth, onRequestClose, muiTheme} = this.props;
         const {cellModel, cellId} = this.state
-        const chatStyle = {
+        const chatBoxStyle = {
             flex: 1,
             display:'flex',
             flexDirection:'column',
@@ -40,17 +40,24 @@ class CellChat extends React.Component{
             borderRadius: muiTheme.palette.mui3['card-border-radius'],
             margin: muiTheme.palette.mui3['fstemplate-master-margin'],
             border: '1px solid ' + muiTheme.palette.mui3['outline-variant-50'],
+            ...chatStyle
         };
         let chatRoomType = 'WORKSPACE';
         return (
-            <Paper id="info_panel" zDepth={zDepth} rounded={false} style={{display:'flex', flexDirection:'column', ...style}}>
+            <Paper zDepth={zDepth} rounded={false} style={{display:'flex', flexDirection:'column', ...style}}>
+                {onRequestClose &&
+                    <div style={{position:'absolute', right: 0, top: 0}}>
+                        <IconButton iconClassName={'mdi mdi-close'} onClick={onRequestClose} iconStyle={{opacity:0.3}}/>
+                    </div>
+                }
                 <Chat
                     pydio={pydio}
                     roomType={chatRoomType}
                     roomObjectId={cellId}
-                    style={chatStyle}
+                    style={chatBoxStyle}
+                    fieldContainerStyle={fieldContainerStyle}
                     chatUsersStyle={{padding: '8px 10px', borderBottom:'1px solid ' + muiTheme.palette.mui3['outline-variant-50'], display:'flex', flexWrap:'wrap'}}
-                    msgContainerStyle={{maxHeight:null, flex:1, paddingTop: '10px !important', backgroundColor:muiTheme.palette.mui3['surface'], borderBottom: chatStyle.border}}
+                    msgContainerStyle={{maxHeight:null, flex:1, paddingTop: '10px !important', backgroundColor:muiTheme.palette.mui3['surface'], borderBottom: chatBoxStyle.border}}
                     fieldHint={pydio.MessageHash['636']}
                     pushMessagesToBottom={true}
                     emptyStateProps={{

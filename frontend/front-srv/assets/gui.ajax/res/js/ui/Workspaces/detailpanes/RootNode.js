@@ -19,27 +19,24 @@
  */
 
 import React from 'react'
-import createReactClass from 'create-react-class';
 import InfoPanelCard from './InfoPanelCard'
 
-export default createReactClass({
-    displayName: 'RootNode',
+export default class RootNode extends React.Component{
 
-    getInitialState() {
-        return {
-            repoKey: null
-        }
-    },
+    constructor(props) {
+        super(props);
+        this.state = {repoKey: null}
+    }
 
     componentDidMount() {
         this.loadData(this.props);
-    },
+    }
 
     componentWillReceiveProps(nextProps) {
         if (nextProps.pydio.user && nextProps.pydio.user.activeRepository !== this.state.repoKey) {
             this.loadData(nextProps);
         }
-    },
+    }
 
     loadData(props) {
         if(!props.pydio.user) {
@@ -61,7 +58,7 @@ export default createReactClass({
                 // Todo: load info about workspace
             });
         }
-    },
+    }
 
     render() {
         const messages = this.props.pydio.MessageHash;
@@ -81,5 +78,5 @@ export default createReactClass({
         return (
             <InfoPanelCard identifier={"file-info"} title={messages[249]} style={this.props.style} standardData={panelData} icon="account-multiple-outline" iconColor="00838f">{content}</InfoPanelCard>
         );
-    },
-});
+    }
+}

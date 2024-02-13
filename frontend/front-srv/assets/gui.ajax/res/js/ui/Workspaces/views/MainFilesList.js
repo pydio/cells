@@ -845,6 +845,7 @@ class MainFilesList extends React.Component {
             if(this.props.horizontalRibbon){
                 className += ' horizontal-ribbon';
             }
+            additionalStyle = {padding: 0, margin: -4}
 
         } else if(dMode === 'list'){
 
@@ -950,7 +951,7 @@ class MainFilesList extends React.Component {
                             renderActions: this.entryRenderActions.bind(this)
                         }}
                         emptyStateProps={emptyStateProps}
-                        containerStyle={style}
+                        containerStyle={{...style, margin: -2, padding: 2}}
                         columnWidth={cWidth}
                         onScroll={onScroll}
                     />

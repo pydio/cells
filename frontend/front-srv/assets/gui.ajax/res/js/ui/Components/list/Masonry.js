@@ -295,7 +295,7 @@ export default React.memo(({className, dataModel, entryProps, emptyStateProps, c
 
     let useEmptyView = emptyStateProps && !node.isLoading() && (!items || !items.length)
     return (
-        <div style={{flex: 1, padding: 8, overflowY:'auto', ...containerStyle}} className={className} ref={containerRef} onKeyDown={keyDown}>
+        <div style={{flex: 1, overflowY:'auto', ...containerStyle}} className={className} ref={containerRef} onKeyDown={keyDown}>
             {useEmptyView && <EmptyStateView pydio={Pydio.getInstance()} {...emptyStateProps} />}
             {!useEmptyView && masonryElement}
         </div>

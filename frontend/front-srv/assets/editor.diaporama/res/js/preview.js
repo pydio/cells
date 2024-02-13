@@ -17,64 +17,55 @@
  *
  * The latest code can be found at <https://pydio.com>.
  */
-import React, {Component} from 'react'
+import React, {useEffect, useState} from 'react'
 import { ImageContainer } from './components'
 import urlForSize from './sizes'
 
-class Preview extends Component {
+export default ({node, containerWidth, ...remainingProps}) => {
 
-    constructor(props){
-        super(props);
-        this.state = {src: ''};
-    }
-
-    componentDidMount(){
-        const {node} = this.props;
-        urlForSize(node, 'preview').then(url => {
+    const [src, setSrc] = useState('')
+    useEffect(() => {
+        urlForSize(node, containerWidth && containerWidth > 500 ? 'editor' : 'preview').then(url => {
             if (url) {
-                this.setState({src: url});
+                setSrc(url)
             }
         });
+    }, [node, containerWidth])
+
+    if (!src) {
+        return null;
     }
 
-    render(){
-        const {node, ...remainingProps} = this.props;
-        let orientation;
-        if(node && node.getMetadata().get("image_exif_orientation")){
-            orientation = node.getMetadata().get("image_exif_orientation");
-            if(remainingProps.className){
-                remainingProps.className += ' ort-rotate-' + orientation
-            } else {
-                remainingProps.className = 'ort-rotate-' + orientation
-            }
-            if(parseInt(orientation) >= 5 && remainingProps.style && remainingProps.style.height === 200){
-                remainingProps.style.height = 250;
-            }
+    let orientation;
+    if(node && node.getMetadata().get("image_exif_orientation")){
+        orientation = node.getMetadata().get("image_exif_orientation");
+        if(remainingProps.className){
+            remainingProps.className += ' ort-rotate-' + orientation
+        } else {
+            remainingProps.className = 'ort-rotate-' + orientation
         }
-
-        const {src} = this.state;
-        if (!src) {
-            return null;
+        if(parseInt(orientation) >= 5 && remainingProps.style && remainingProps.style.height === 200){
+            remainingProps.style.height = 250;
         }
-        let mFont;
-        const {mimeFontOverlay} = remainingProps;
-        if(mimeFontOverlay && node.isLeaf() && node.getMetadata().get('ImagePreview')){
-            const icClass = node.getSvgSource()
-            if (icClass){
-                mFont = 'mdi mdi-' + icClass
-            }
-        }
-        return (<ImageContainer
-            {...remainingProps}
-            src={src}
-            mFont={mFont}
-            imgStyle={{
-                width: "100%",
-                height: "100%",
-                flex: 1
-            }}
-        />);
     }
+
+    let mFont;
+    const {mimeFontOverlay} = remainingProps;
+    if(mimeFontOverlay && node.isLeaf() && node.getMetadata().get('ImagePreview')){
+        const icClass = node.getSvgSource()
+        if (icClass){
+            mFont = 'mdi mdi-' + icClass
+        }
+    }
+    return (<ImageContainer
+        {...remainingProps}
+        src={src}
+        mFont={mFont}
+        imgStyle={{
+            width: "100%",
+            height: "100%",
+            flex: 1
+        }}
+    />);
+
 }
-
-export default Preview

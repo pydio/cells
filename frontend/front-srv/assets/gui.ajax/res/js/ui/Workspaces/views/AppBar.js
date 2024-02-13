@@ -29,7 +29,7 @@ const {ButtonMenu, Toolbar, ListPaginator} = Pydio.requireLib('components');
 const {ThemedContainers:{IconButton}} = Pydio.requireLib('hoc');
 
 
-const AppBar = ({pydio, muiTheme, styles, headerHeight, searchView, searchTools, searchViewTransition, showInfoPanel, showAddressBook, rightColumnState, showChatTab, onOpenDrawer, onUpdateSearchView, onOpenRightPanel, sortingInfo={}}) => {
+const AppBar = ({pydio, muiTheme, styles, searchView, searchTools, searchViewTransition, showInfoPanel, showAddressBook, rightColumnState, showChatTab, chatOpen, onOpenDrawer, onUpdateSearchView, onOpenRightPanel, sortingInfo={}}) => {
 
 
     const mobile = pydio.UI.MOBILE_EXTENSIONS;
@@ -61,8 +61,7 @@ const AppBar = ({pydio, muiTheme, styles, headerHeight, searchView, searchTools,
         if(searchLoading) {
             stLabel = pydio.MessageHash['searchengine.searching'];
         } else if(empty) {
-            // TODO
-            stLabel = 'searchengine.start'
+            stLabel = pydio.MessageHash['searchengine.start'];
         } else if(resultsCount === 0) {
             stLabel = pydio.MessageHash['478'] // No results found
         } else if(resultsCount < limit) {
@@ -232,10 +231,10 @@ const AppBar = ({pydio, muiTheme, styles, headerHeight, searchView, searchTools,
                     {!searchView && showChatTab &&
                         <IconButton
                             iconClassName={"mdi mdi-message-text"}
-                            style={rightColumnState === 'chat' ? styles.activeButtonStyle : styles.buttonsStyle}
-                            iconStyle={rightColumnState === 'chat' ? styles.activeButtonIconStyle : styles.buttonsIconStyle}
+                            style={chatOpen ? styles.activeButtonStyle : styles.buttonsStyle}
+                            iconStyle={chatOpen ? styles.activeButtonIconStyle : styles.buttonsIconStyle}
                             onClick={()=>{onOpenRightPanel('chat')}}
-                            tooltip={pydio.MessageHash[rightColumnState === 'chat' ? '86':'635']}
+                            tooltip={pydio.MessageHash[chatOpen ? '86':'635']}
                             tooltipPosition={"bottom-left"}
                         />
                     }

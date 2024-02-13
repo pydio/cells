@@ -21,6 +21,7 @@ import React from 'react'
 import Pydio from 'pydio'
 import {Paper, IconButton, FlatButton, RaisedButton, FontIcon, IconMenu, FloatingActionButton} from 'material-ui'
 import {muiThemeable} from 'material-ui/styles';
+import Tooltip from '@mui/material/Tooltip'
 const {PlaceHolder, PhRoundShape, PhTextRow, AdditionalIcons} = Pydio.requireLib('hoc')
 
 const globalStyles = {
@@ -117,7 +118,7 @@ class GenericCard extends React.Component{
     render(){
 
         const {title, onDismissAction, onEditAction, onDeleteAction, otherActions, moreMenuItems,
-            children, muiTheme, style, headerSmall, editTooltip, deleteTooltip, mui3 = false, topLeftAvatar} = this.props;
+            children, muiTheme, style, headerSmall, smallActionsBottom, genericFlex, editTooltip, deleteTooltip, mui3 = false, topLeftAvatar} = this.props;
 
         const headerBg = muiTheme.palette.mui3['secondary-container'];
         const headerColor = muiTheme.palette.mui3['on-secondary-container'];
@@ -178,23 +179,33 @@ class GenericCard extends React.Component{
                 }
             }
         }
+        if(genericFlex) {
+            styles.mainContainer = {height:'100%', display:'flex', flexDirection:'column'}
+            styles.childrenContainer = {flex: 1}
+        }
 
-        const {DeleteOutline} = AdditionalIcons;
+
+        const headerActions = []
+        const ttipStyle = {padding:'0 4px'}
+        if(onEditAction){
+            headerActions.push(
+                <Tooltip title={<span style={ttipStyle}>{editTooltip}</span>} placement={smallActionsBottom?"top-end":"bottom-end"}><span><IconButton style={styles.button.style} iconStyle={styles.button.iconStyle} iconClassName={"mdi mdi-pencil"} onClick={onEditAction}/></span></Tooltip>
+            )
+        }
+        if(onDeleteAction) {
+            headerActions.push(
+                <Tooltip title={<span style={ttipStyle}>{deleteTooltip}</span>} placement={smallActionsBottom?"top-end":"bottom-end"}><span><IconButton style={{...styles.button.style, padding: 7}} iconClassName={"mdi mdi-delete-outline"} iconStyle={styles.button.iconStyle} onClick={onDeleteAction}/></span></Tooltip>)
+        }
 
         return (
-            <div style={{width: '100%', position:'relative', overflowX: 'hidden', ...style}}>
+            <div style={{width: '100%', position:'relative', overflowX: 'hidden', ...styles.mainContainer, ...style}}>
                 <Paper zDepth={0} style={{backgroundColor:styles.headerBg, color: styles.headerColor, height: styles.headerHeight, borderRadius: '2px 2px 0 0'}}>
                     <div style={styles.buttonBar}>
                         {topLeftAvatar}
                         {headerSmall && <span style={{flex: 1, fontSize: 14, fontWeight:500}}>{title}</span>}
                         {!headerSmall && <span style={{flex: 1}}/>}
                         {otherActions}
-                        {onEditAction && headerSmall &&
-                            <IconButton style={styles.button.style} iconStyle={styles.button.iconStyle} iconClassName={"mdi mdi-pencil"} onClick={onEditAction} tooltip={editTooltip} tooltipPosition={"bottom-left"}/>
-                        }
-                        {onDeleteAction && headerSmall &&
-                            <IconButton style={{...styles.button.style, padding: 7}} iconStyle={styles.button.iconStyle} onClick={onDeleteAction} tooltip={deleteTooltip} tooltipPosition={"bottom-left"}><DeleteOutline/></IconButton>
-                        }
+                        {headerSmall && !smallActionsBottom && headerActions}
                         {moreMenuItems && moreMenuItems.length > 0 &&
                             <IconMenu
                                 anchorOrigin={{vertical:'top', horizontal:headerSmall?'right':'left'}}
@@ -216,6 +227,12 @@ class GenericCard extends React.Component{
                     }
                     {children}
                 </div>
+                {headerSmall && smallActionsBottom &&
+                    <div style={{display:'flex', borderTop: '1px solid ' + muiTheme.palette.mui3['outline-variant']}}>
+                        <span style={{flex: 1}}/>
+                        {headerActions}
+                    </div>
+                }
                 {(onEditAction || onDeleteAction) && !headerSmall && mui3 &&
                     <div style={{padding:'12px 0', margin:'0 20px', display:'flex', borderTop: '1px solid ' + muiTheme.palette.mui3['outline-variant']}}>
                         <span style={{flex: 1}}/>

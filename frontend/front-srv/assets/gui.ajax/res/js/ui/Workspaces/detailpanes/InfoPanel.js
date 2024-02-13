@@ -33,16 +33,6 @@ let Template = ({id, style, children}) => {
     return <Paper zDepth={0} rounded={false} id={id} style={{backgroundColor:'transparent', ...style}}>{children}</Paper>
 }
 
-/*
-const {Animations} = Pydio.requireLib('hoc')
-const originStyles = {translateX: 600}
-const targetStyles = {translateX: 0}
-
-Template = compose(
-    Animations.makeAsync,
-    Animations.makeTransition(originStyles, targetStyles),
-)(Template)
-*/
 
 class InfoPanel extends React.Component {
 
@@ -61,6 +51,12 @@ class InfoPanel extends React.Component {
     componentWillReceiveProps(nextProps, nextContext) {
         const {muiTheme:currentTheme} = this.props;
         const {muiTheme} = nextProps;
+        if(this._updateHandler && nextProps.columns !== this.props.columns) {
+            this._updateHandler();
+        }
+        if(nextProps.switches !== this.props.switches) {
+            this._updateExpected = true
+        }
         if(muiTheme.darkMode !== currentTheme.darkMode) {
             this._updateExpected = true
         }
@@ -112,7 +108,7 @@ class InfoPanel extends React.Component {
     selectionToTemplates(initTemplates = null){
 
         let refTemplates = initTemplates || this.state.templates;
-        const {dataModel} = this.props;
+        const {dataModel, displayForColumn, column, columnIndex} = this.props;
         let selection = dataModel.getSelectedNodes();
         if((!selection || !selection.length) && dataModel.getContextNode() === dataModel.getRootNode()){
             selection = [dataModel.getContextNode()];
@@ -151,9 +147,11 @@ class InfoPanel extends React.Component {
                 }
             });
         }
-
         if(this.props.onContentChange && !initTemplates){
             this.props.onContentChange(templates.length);
+        }
+        if(this.props.onTemplatesChange) {
+            this.props.onTemplatesChange(templates)
         }
         templates.sort(function(a, b){
             return (a.WEIGHT === b.WEIGHT ? 0 : ( a.WEIGHT > b.WEIGHT ? 1 : -1));
@@ -163,17 +161,33 @@ class InfoPanel extends React.Component {
 
     render() {
 
-        const {mainEmptyStateProps} = this.props;
+        const {mainEmptyStateProps, onContentChange, style, switches, muiTheme, ...subProps} = this.props;
         const {displayData} = this.state;
+        const styles = muiTheme.buildFSTemplate({}).infoPanel;
 
-        let templates = displayData.TEMPLATES.map((tpl, i) => {
+        let dataTemplates = [...displayData.TEMPLATES];
+
+        if(switches) {
+            // Apply registered switches
+            switches.forEach(({source, target}) => {
+                const srcIndex = dataTemplates.findIndex(t => t.COMPONENT === source)
+                const targetIndex = dataTemplates.findIndex(t => t.COMPONENT === target)
+                if(srcIndex > -1 && targetIndex > -1) {
+                    const temp = dataTemplates[targetIndex]
+                    dataTemplates[targetIndex] = dataTemplates[srcIndex]
+                    dataTemplates[srcIndex] = temp;
+                }
+            });
+        }
+
+        let templates = dataTemplates.map((tpl, i) => {
             const component = tpl.COMPONENT;
             const [namespace, name] = component.split('.', 2);
 
             return (
                 <AsyncComponent
                     {...displayData.DATA}
-                    {...this.props}
+                    {...subProps}
                     key={"ip_" + component}
                     namespace={namespace}
                     componentName={name}
@@ -184,7 +198,7 @@ class InfoPanel extends React.Component {
             templates.push(<EmptyStateView {...mainEmptyStateProps}/>)
         }
         return (
-            <Template style={this.props.style}>{templates}</Template>
+            <Template style={{...styles.contentContainer, ...this.props.style}}>{templates}</Template>
         );
     }
 }
@@ -198,6 +212,8 @@ InfoPanel.propTypes = {
 InfoPanel.contextTypes = {
     scrollArea: PropTypes.object
 };
+
+const InfoPanelNoScroll = muiThemeable()(InfoPanel);
 
 InfoPanel = withVerticalScroll(InfoPanel, {id: "info_panel"})
 InfoPanel = muiThemeable()(InfoPanel)
@@ -232,3 +248,4 @@ class ConfigsParser {
 }
 
 export {InfoPanel as default};
+export {InfoPanelNoScroll};

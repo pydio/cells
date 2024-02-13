@@ -19,48 +19,34 @@
  */
 
 import Pydio from 'pydio'
-import React from 'react'
+import React, {useContext} from 'react'
 import CompositeCard from '../composite/CompositeCard'
 import CellCard from '../cells/CellCard'
-const {InfoPanelCard} = Pydio.requireLib('workspaces')
+const {InfoPanelCard, MultiColumnContext} = Pydio.requireLib('workspaces')
 
-class InfoPanel extends React.Component {
+const InfoPanel = ({pydio, node, popoverPanel, popoverRequestClose, ...infoProps}) => {
 
-    constructor(props){
-        super(props);
-        this.state = {popoverOpen: false}
-    }
+    const {currentPin} = useContext(MultiColumnContext) || {}
 
-    openPopover(event){
-        this.setState({popoverOpen:true, popoverAnchor:event.target});
-    }
-
-    render(){
-
-        const {pydio, node, popoverPanel, popoverRequestClose} = this.props;
-
-        if(node.isRoot()){
-            return (
-                <InfoPanelCard popoverPanel={popoverPanel}>
-                    <div style={{padding:0}}>
-                        <CellCard cellId={pydio.user.activeRepository} pydio={pydio} mode="infoPanel"/>
-                    </div>
-                </InfoPanelCard>
-            );
-        } else {
-            return (
-                <InfoPanelCard popoverPanel={popoverPanel}>
-                    <div style={{padding:0}}>
-                        <CompositeCard node={node} pydio={pydio} mode="infoPanel" popoverPanel={popoverPanel} popoverRequestClose={popoverRequestClose}/>
-                    </div>
-                </InfoPanelCard>
-            );
-
-        }
-
-
+    if(node.isRoot()){
+        return (
+            <InfoPanelCard popoverPanel={popoverPanel} icon={"icomoon-cells"} closedTitle={"Cell Info"} {...infoProps}>
+                <div style={{padding:0, height:currentPin?'100%':null}}>
+                    <CellCard cellId={pydio.user.activeRepository} pydio={pydio} mode="infoPanel" popoverPanel={popoverPanel} genericFlex={currentPin} />
+                </div>
+            </InfoPanelCard>
+        );
+    } else {
+        return (
+            <InfoPanelCard popoverPanel={popoverPanel} icon={"mdi mdi-share-variant-outline"} closedTitle={"Share Info"} {...infoProps}>
+                <div style={{padding:0, height:currentPin?'100%':null}}>
+                    <CompositeCard node={node} pydio={pydio} mode="infoPanel" popoverPanel={popoverPanel} popoverRequestClose={popoverRequestClose} genericFlex={currentPin}/>
+                </div>
+            </InfoPanelCard>
+        );
 
     }
+
 }
 
 export {InfoPanel as default}

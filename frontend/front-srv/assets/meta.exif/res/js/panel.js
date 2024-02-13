@@ -132,7 +132,7 @@ class Panel extends Component {
             return null;
         }
         return (
-            <InfoPanelCard identifier={"meta-exif"} style={this.props.style} title={this.props.pydio.MessageHash['meta.exif.3']} actions={actions} icon="camera">
+            <InfoPanelCard {...this.props} identifier={"meta-exif"} title={this.props.pydio.MessageHash['meta.exif.3']} actions={actions} icon="mdi mdi-camera-marker-outline">
                 {items}
             </InfoPanelCard>
         );

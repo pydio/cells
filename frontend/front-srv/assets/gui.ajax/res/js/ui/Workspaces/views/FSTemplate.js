@@ -23,17 +23,15 @@ import Pydio from 'pydio';
 import {debounce} from 'lodash'
 const {withSearch} = Pydio.requireLib('hoc')
 import {muiThemeable} from 'material-ui/styles'
-import {Resizable} from "re-resizable";
 import MainFilesList from './MainFilesList'
 import EditionPanel from './EditionPanel'
-import InfoPanel from '../detailpanes/InfoPanel'
 import WelcomeTour from './WelcomeTour'
 import CellChat from './CellChat'
-import AddressBookPanel from './AddressBookPanel'
 import MasterLayout from './MasterLayout'
 import AppBar from './AppBar'
 import WorkspacesList from "../wslist/WorkspacesList";
 import {MUITour} from "./WelcomeMuiTour";
+import {MultiColumnPanel} from "../detailpanes/MultiColumnPanel";
 
 class FSTemplate extends React.Component {
 
@@ -71,7 +69,7 @@ class FSTemplate extends React.Component {
         const {pydio} = this.props
         const {searchView} = this.state;
         if(!searchView) {
-            this.setState({searchViewTransition: true, workspaceRootView: false})
+            this.setState({searchViewTransition: true})
         }
         const dm = pydio.getContextHolder();
         dm.setSelectedNodes([]);
@@ -91,7 +89,7 @@ class FSTemplate extends React.Component {
         dm.setSelectedNodes([]);
         const ctxNode = previousContext || dm.getRootNode()
         dm.setContextNode(ctxNode, true);
-        this.setState({previousContext: null, workspaceRootView: ctxNode.isRoot()});
+        this.setState({previousContext: null});
     }
 
     componentDidMount(){
@@ -105,10 +103,6 @@ class FSTemplate extends React.Component {
             if(searchView !== this.state.searchView) {
                 this.setState({searchView, searchViewTransition: true}, resizeTrigger)
             }
-            const workspaceRootView = pydio.getContextHolder().getContextNode().isRoot();
-            if(workspaceRootView !== this.state.workspaceRootView) {
-                this.setState({workspaceRootView})
-            }
         }
         pydio.observe('context_changed', this._ctxObserver)
     }
@@ -119,7 +113,11 @@ class FSTemplate extends React.Component {
     }
 
     openRightPanel(name){
-        const {rightColumnState} = this.state;
+        const {rightColumnState, chatOpen = false} = this.state;
+        if(name === 'chat') {
+            this.setState({chatOpen: !chatOpen})
+            return;
+        }
         if(name === rightColumnState){
             this.closeRightPanel();
             return;
@@ -173,16 +171,9 @@ class FSTemplate extends React.Component {
         const wTourEnabled = pydio.getPluginConfigs('gui.ajax').get('ENABLE_WELCOME_TOUR');
         const dm = pydio.getContextHolder();
         const searchView = dm.getContextNode() === dm.getSearchNode();
-        const {searchViewTransition, workspaceRootView = dm.getContextNode().isRoot()} = this.state;
+        const {searchViewTransition} = this.state;
 
-        // Header Size FX
-        const {headerLarge = true} = this.state;
-        const headerBase = 72;
-        let headerHeight = headerBase;
-        if(workspaceRootView && !searchView && headerLarge) {
-            //Toggle Header Height
-            //headerHeight = 152
-        }
+        let headerHeight = 72;
 
         let showChatTab = (!pydio.getPluginConfigs("action.advanced_settings").get("GLOBAL_DISABLE_CHATS")) && !xtraSmallScreen;
         let showAddressBook = (!pydio.getPluginConfigs("action.user").get("DASH_DISABLE_ADDRESS_BOOK")) && !smallScreen;
@@ -194,7 +185,7 @@ class FSTemplate extends React.Component {
                 showChatTab = false;
             }
         }
-        let {drawerOpen, rightColumnState, rightColumnWidth, displayMode, sortingInfo} = this.state;
+        let {drawerOpen, rightColumnState, chatOpen, displayMode, sortingInfo} = this.state;
         let rightColumnClosed = false;
 
         if(!showChatTab && rightColumnState === 'chat') {
@@ -222,7 +213,7 @@ class FSTemplate extends React.Component {
         }
 
         let leftPanelProps = {
-            headerHeight:headerBase,
+            headerHeight,
             style:styles.leftPanel.masterStyle,
             railPanelStyle:styles.leftPanel.railPanelStyle,
             closed: searchView || smallScreen,
@@ -280,15 +271,16 @@ class FSTemplate extends React.Component {
 
                     showChatTab={showChatTab}
                     showInfoPanel={showInfoPanel}
-                    showAddressBook={showAddressBook}
+                    showAddressBook={false}
                     rightColumnState={rightColumnState}
+                    chatOpen={chatOpen}
                     onOpenRightPanel={(p) => this.openRightPanel(p)}
 
                     onOpenDrawer={(e)=>this.openDrawer(e)}
 
                 />
 
-                <div style={{display:'flex', flex: 1, overflow:'hidden'}}>
+                <div style={styles.masterListContainer}>
                     {searchView &&
                         <WorkspacesList
                             className={"left-panel"}
@@ -315,44 +307,37 @@ class FSTemplate extends React.Component {
                                 this.setState({sortingInfo: si})
                             }
                         }}
-                        onScroll={({scrollTop}) => this.setState({headerLarge: scrollTop < 10})}
                         style={styles.listStyle}
                     />
-                    <Resizable
-                        enable={{ top:false, right:false, bottom:false, left:!rightColumnClosed, topRight:false, bottomRight:false, bottomLeft:false, topLeft:false }}
-                        style={{transition: 'width 550ms cubic-bezier(0.23, 1, 0.32, 1) 0ms'}}
-                        handleStyles={{left:{width: 6, left: 0}}}
-                        size={{width:rightColumnClosed?0:rightColumnWidth, height: '100%'}}
-                        onResizeStop={(e, direction, ref, d)=>{
-                            const newWidth = rightColumnWidth+d.width
-                            this.setState({rightColumnWidth:newWidth})
-                            localStorage.setItem('pydio.layout.rightColumnWidth', newWidth+'')
-                            this.resizeAfterTransition()
-                        }}
-                    >
-                        {rightColumnState === 'info-panel' &&
-                            <InfoPanel
-                                {...props}
-                                dataModel={pydio.getContextHolder()}
-                                onRequestClose={()=>{this.closeRightPanel()}}
-                                onContentChange={this.infoPanelContentChange.bind(this)}
-                                style={styles.infoPanel.masterStyle}
-                                mainEmptyStateProps={{
-                                    iconClassName:'',
-                                    primaryTextId:'ajax_gui.infopanel.empty.select.file',
-                                    style:{minHeight: 180, backgroundColor: 'transparent', padding:'0 20px'}
-                                }}
-                            />
-                        }
-                        {rightColumnState === 'chat' &&
-                            <CellChat pydio={pydio} style={styles.otherPanelsStyle} zDepth={0} onRequestClose={()=>{this.closeRightPanel()}}/>
-                        }
-                        {rightColumnState === 'address-book' &&
-                            <AddressBookPanel pydio={pydio} style={styles.otherPanelsStyle} zDepth={0} onRequestClose={()=>{this.closeRightPanel()}}/>
-                        }
-                    </Resizable>
-                </div>
+                    {rightColumnState === 'info-panel' &&
+                        <MultiColumnPanel
+                            {...props}
 
+                            afterResize={()=>this.resizeAfterTransition()}
+                            storageKey={searchView?'pydio.layout.searchView':'pydio.layout.infoPanel'}
+
+                            dataModel={pydio.getContextHolder()}
+                            onRequestClose={()=>{this.closeRightPanel()}}
+                            onContentChange={this.infoPanelContentChange.bind(this)}
+                            style={styles.infoPanel.masterStyle}
+                            mainEmptyStateProps={{
+                                iconClassName:'',
+                                primaryTextId:'ajax_gui.infopanel.empty.select.file',
+                                style:{minHeight: 180, backgroundColor: 'transparent', padding:'0 20px'}
+                            }}
+                        />
+                    }
+                </div>
+                {showChatTab && chatOpen &&
+                    <CellChat
+                        pydio={pydio}
+                        style={{position:'absolute', bottom: 0, right: 20, width: 460, maxHeight: '80%', borderRadius:'12px 12px 0 0'}}
+                        chatStyle={{margin: 0, borderRadius:'12px 12px 0 0'}}
+                        fieldContainerStyle={{borderRadius: 0}}
+                        zDepth={2}
+                        onRequestClose={()=>{this.setState({chatOpen: false})}}
+                    />
+                }
                 <EditionPanel {...props}/>
 
             </MasterLayout>

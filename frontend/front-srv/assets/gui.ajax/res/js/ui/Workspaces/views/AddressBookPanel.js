@@ -117,7 +117,7 @@ class AddressBookPanel extends React.Component{
 
     render(){
 
-        const {pydio, style, zDepth} = this.props;
+        const {pydio, id = 'info_panel', style, zDepth} = this.props;
         const {cellModel, noCell} = this.state;
         let cellInfo;
         if(!noCell && cellModel){
@@ -148,7 +148,7 @@ class AddressBookPanel extends React.Component{
         };
 
         return (
-            <Paper id={"info_panel"} zDepth={zDepth} rounded={false} style={{...columnStyle}}>
+            <Paper id={id} zDepth={zDepth} rounded={false} style={{...columnStyle}}>
                 {cellInfo}
                 {pydio.Controller.getActionByName("open_address_book") &&
                     <InfoPanelCard>

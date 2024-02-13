@@ -18,7 +18,7 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-import React, {useState, useEffect, Fragment} from 'react'
+import React, {useState, useEffect, createContext, useContext, Fragment} from 'react'
 
 const PropTypes = require('prop-types');
 const Pydio = require('pydio')
@@ -36,6 +36,9 @@ import BookmarksList from "./BookmarksList";
 import Tooltip from '@mui/material/Tooltip'
 import CircularProgress from '@mui/material/CircularProgress'
 import NotificationsList from "./NotificationsList";
+import AddressBookPanel from "../views/AddressBookPanel";
+
+const RailHoverContext = createContext(null);
 
 const RailIcon = muiThemeable()(({muiTheme,icon,iconOnly = false,text,active,alert,progress,indeterminate,last = false,onClick = () => {},hover,setHover}) => {
     const [iHover, setIHover] = useState(false)
@@ -139,6 +142,7 @@ let RailPanel = ({
     };
     const {MessageHash, Controller, user} = pydio
     const [hover, setHover] = useState(false)
+    const [hoverLock, setHoverLock] = useState(false)
     const [hoverBarDef, setHoverBarDef] = useState(null)
     const [ASData, setASData] = useState([])
     const [ASLib, setASLib] = useState()
@@ -269,19 +273,23 @@ let RailPanel = ({
                         )
                     },
                     hoverWidth: 320
-                },
+                }
+            ],
+            "bottom": [
                 {
                     id:'directory',
                     text: MessageHash['ajax_gui.leftrail.buttons.directory'],
                     ignore: !user.getRepositoriesList().has('directory'),
                     active: user.activeRepository === 'directory',
                     icon: 'account-box-outline',
+                    hoverWidth: 320,
                     onClick: () => {
                         pydio.triggerRepositoryChange('directory')
                     },
-                }
-            ],
-            "bottom": [
+                    hoverBar: () => {
+                        return (<div style={{height:'100%', display:'flex', flexDirection:'column', width:'100%', overflow:'hidden'}} className={"rail-hover-bar"}><AddressBookPanel pydio={pydio} style={{position: 'relative',width: '100%',top: 0}} zDepth={0} onRequestClose={()=>{}}/></div>)
+                    }
+                },
                 {
                     id: 'notifications',
                     text: MessageHash['notification_center.1'],
@@ -327,6 +335,9 @@ let RailPanel = ({
                 }
             ]
         }
+    if(pydio.getPluginConfigs("action.user").get("DASH_DISABLE_ADDRESS_BOOK")) {
+        toolbars.bottom = toolbars.bottom.filter(b => b.id !== 'directory')
+    }
     const load = (def) => {
         def.setHover = (h) => {
             if(!h) {

@@ -562,10 +562,17 @@ export default class ThemeBuilder {
                 display:'flex',
                 ...appBarRounded
             },
+            masterListContainer:{
+                flex: 1,
+                display:'flex',
+                overflow:'hidden',
+                columnGap:masterMargin,
+                padding:masterMargin,
+                paddingBottom: 0,
+            },
             listStyle: {
                 flex: 1,
-                marginRight:listMarginRight,
-                marginTop:listMarginTop,
+                margin: 0,
                 backgroundColor:isGrid?'transparent':mui3.surface,
                 borderRadius:isGrid?0:`${themeCusto.borderRadius}px ${themeCusto.borderRadius}px 0 0`
             },
@@ -623,13 +630,21 @@ export default class ThemeBuilder {
                     top: 0,
                     width: '100%'
                 },
+                contentContainer: {
+                    display:'grid',
+                    rowGap: masterMargin,
+                    paddingBottom: masterMargin
+                },
+                shrinked:{
+                    background: isMUI3?mui3['surface-1']:"white"
+                },
                 card: {
                     zDepth: 0,
                     panel:{
                         background: isMUI3?mui3['surface-1']:"white",
                         boxShadow: isMUI3?'none':'rgb(0,0, 0, .15) 0px 0px 12px',
                         borderRadius: mui3['card-border-radius'] || 10,
-                        margin: masterMargin,
+                        //margin: masterMargin,
                         overflow:'hidden',
                         //border:'1px solid transparent'
                     },
@@ -639,27 +654,61 @@ export default class ThemeBuilder {
                     header:{
                         backgroundColor:'transparent',
                         position:'relative',
-                        color:mui3['on-surface-variant'],
-                        fontSize: 14,
-                        fontWeight: 500,
-                        padding: '12px 16px',
-                        cursor:'pointer'
+                        display:'flex',
+                        alignItems:'center'
                     },
                     content:{
                         backgroundColor:'transparent',
                         paddingBottom: 0,
                         color:mui3['on-surface-variant']
                     },
+                    headerTitle:{
+                        flex: 1,
+                        color:mui3['on-surface-variant'],
+                        fontSize: 14,
+                        fontWeight: 500,
+                        padding: '12px 16px',
+                        whiteSpace:'nowrap',
+                        overflow:'hidden',
+                        textOverflow:'ellipsis',
+                        cursor:'move'
+                    },
                     headerIcon:{
-                        position:'absolute',
-                        top: -1,
-                        right: 0,
                         color:'#ccc'
                     },
                     actions:{
                         padding: 2,
                         textAlign: 'right',
                         borderTop: '1px solid ' + mui3['outline-variant-50']
+                    },
+                    shrinked: {
+                        panel:{
+                            background:'transparent'
+                        },
+                        header:{
+                            display:'flex',
+                            flexDirection:'column',
+                            alignItems:'center',
+                            justifyContent:'center',
+                            padding: 8
+                        },
+                        headerTitle:{
+                            fontSize: 12,
+                            whiteSpace:'wrap',
+                            textAlign:'center',
+                            lineHeight: '1.2em',
+                            padding: 0,
+                            paddingTop: 4
+                        },
+                        icon: {
+                            fontSize: 22,
+                            cursor: 'pointer',
+                            padding: '4px 12px',
+                            borderRadius: 12
+                        },
+                        iconHover:{
+                            background: 'var(--md-sys-color-surface-5)'
+                        }
                     }
                 },
                 toolbar:{
@@ -726,8 +775,8 @@ export default class ThemeBuilder {
                 workspacesList:{
                     // must be named style for WorkspacesList widget, will be applied to vertical scroller
                     style:searchView ? {
-                        margin: 8,
-                        marginRight:0,
+                        margin: 0,
+                        marginBottom: masterMargin,
                         width:220,
                         borderRadius: mui3['card-border-radius'],
                         border: '1px solid ' + mui3['outline-variant-50'],

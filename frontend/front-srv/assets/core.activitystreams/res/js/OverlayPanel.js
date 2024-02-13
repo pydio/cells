@@ -27,11 +27,12 @@ import {muiThemeable} from 'material-ui/styles'
 class OverlayPanel extends Component {
 
     render() {
-        const {pydio, node, style, popoverPanel, muiTheme} = this.props;
+        const {pydio, node, style, popoverPanel, muiTheme, ...infoProps} = this.props;
         const Comp = muiTheme.userTheme === 'mui3' ? WatchSelectorMui3 : WatchSelector
         return (
             <InfoPanelCard
-                identifier={"meta-user"}
+                {...infoProps}
+                identifier={"activity-stream"}
                 style={style}
                 title={pydio.MessageHash['meta.watch.selector.legend.mui']}
                 popoverPanel={popoverPanel}

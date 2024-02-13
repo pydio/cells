@@ -101,7 +101,7 @@ class FileInfoCard extends React.Component {
                 title={getMessage('341')}
                 standardData={data}
                 contentStyle={{paddingBottom: 10}}
-                icon="information-outline"
+                icon="mdi mdi-information-outline"
                 iconColor="#2196f3"
             />
         );
