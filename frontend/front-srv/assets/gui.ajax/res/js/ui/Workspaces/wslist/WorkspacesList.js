@@ -339,28 +339,36 @@ class WorkspacesList extends React.Component{
             }
         };
 
-        if(this.createRepositoryEnabled() && (sharedEntries.length||(merge && (sharedEntries.length || entries.length)))){
-            if(merge) {
-                createActionEntry = (
-                    <div onClick={createClick} className={"workspace-entry"} style={{...workspaceEntryStyler.rootItemStyle.default, color:'var(--md-sys-color-primary)'}}>
-                        <span className={"icomoon-cells-full-plus"} style={{fontSize: 24, marginRight: 13, marginLeft:-4, opacity: 0.53}}/>
-                        <div>{messages[417]}</div>
-                    </div>
-                )
+        if(this.createRepositoryEnabled()) {
 
-            } else {
-                createActionIcon = <IconButton
-                    key={"create-cell"}
-                    style={buttonStyles.button}
-                    iconStyle={buttonStyles.icon}
-                    iconClassName={"mdi mdi-plus"}
-                    tooltip={messages[417]}
-                    tooltipPosition={merge?"bottom-left":"top-left"}
-                    onClick={createClick}
-                />
+            let caeClass = 'create-cell-small' // will be shown only if column is small
+            if((sharedEntries.length||(merge && (sharedEntries.length || entries.length)))){
+                if(merge) {
+                    caeClass = ''; // always show
+                } else {
+                    createActionIcon = <IconButton
+                        key={"create-cell"}
+                        style={buttonStyles.button}
+                        iconStyle={buttonStyles.icon}
+                        iconClassName={"mdi mdi-plus"}
+                        tooltip={messages[417]}
+                        tooltipPosition={merge?"bottom-left":"top-left"}
+                        onClick={createClick}
+                    />
+                }
             }
-        }
+            createActionEntry = (
+                <div
+                    onClick={createClick}
+                    className={"workspace-entry " + caeClass}
+                    style={{...workspaceEntryStyler.rootItemStyle.default, color:'var(--md-sys-color-primary)'}}
+                >
+                    <span className={"icomoon-cells-full-plus"} style={{fontSize: 24, marginRight: 13, marginLeft:-4, opacity: 0.53}}/>
+                    <div className={"workspace-label"}>{messages[417]}</div>
+                </div>
+            )
 
+        }
 
         let classNames = ['user-workspaces-list'];
         if(className) {
@@ -506,7 +514,7 @@ class WorkspacesList extends React.Component{
                     createActionEntry={createActionEntry}
                     className={showWorkspacesSection ? "" : "first-section"}
                     emptyState={
-                        <div style={emptyStateStyle}>
+                        <div style={emptyStateStyle} className={"create-cell-empty-state"}>
                             <div className="icomoon-cells" style={{fontSize:60}}></div>
                             {this.createRepositoryEnabled() && <FlatButton style={{color: muiTheme.palette.mui3.primary, marginTop:5}} primary={true} label={messages[418]} onClick={createClick}/>}
                             <div style={{fontSize: 13, padding: '5px 20px'}}>{messages[633]}</div>
