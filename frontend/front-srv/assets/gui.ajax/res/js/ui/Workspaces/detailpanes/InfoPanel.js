@@ -108,7 +108,7 @@ class InfoPanel extends React.Component {
     selectionToTemplates(initTemplates = null){
 
         let refTemplates = initTemplates || this.state.templates;
-        const {dataModel, displayForColumn, column, columnIndex} = this.props;
+        const {dataModel} = this.props;
         let selection = dataModel.getSelectedNodes();
         if((!selection || !selection.length) && dataModel.getContextNode() === dataModel.getRootNode()){
             selection = [dataModel.getContextNode()];

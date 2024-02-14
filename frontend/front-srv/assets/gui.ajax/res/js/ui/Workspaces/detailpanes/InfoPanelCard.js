@@ -33,12 +33,12 @@ import {DragTypes, itemSource, itemTarget, collect, collectDrop} from "./dnd";
 /**
  * Default InfoPanel Card
  */
-let ContextInfoPanelCard = ({primaryToolbars, icon, title, closedTitle, shrinkTitle, actions, muiTheme, pydio, standardData, popoverPanel, namespace, componentName, style, contentStyle, isDragging, connectDragSource, connectDragPreview, connectDropTarget, displayForColumn, stickToColumn, currentColumn, currentPin, setColumnPin, children}) => {
+let ContextInfoPanelCard = ({primaryToolbars, icon, title, closedTitle, shrinkTitle, actions, defaultOpen = false, muiTheme, pydio, standardData, popoverPanel, namespace, componentName, style, contentStyle, isDragging, connectDragSource, connectDragPreview, connectDropTarget, displayForColumn, stickToColumn, currentColumn, currentPin, setColumnPin, children}) => {
 
     const identifier = namespace + '.' + componentName;
 
     const {width=0, setWidth=()=>{}} = useContext(ResizableContext) || {};
-    let [open, setOpen] = useLocalStorage('pydio.layout.infoPanel.cardStatus.'+identifier+'.open', false)
+    let [open, setOpen] = useLocalStorage('pydio.layout.infoPanel.cardStatus.'+identifier+'.open', defaultOpen)
     const [hoverRow, setHoverRow] = useState(null)
     const [hoverTitle, setHoverTitle] = useState(false)
 
@@ -48,7 +48,7 @@ let ContextInfoPanelCard = ({primaryToolbars, icon, title, closedTitle, shrinkTi
 
     const styles = muiTheme.buildFSTemplate({}).infoPanel;
 
-    const shrinkMode = width && width < 80;
+    const shrinkMode = !!(width && width < 80);
 
     let refinedStyles = {};
     if(currentColumn > 0) {

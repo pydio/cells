@@ -384,7 +384,7 @@ class WorkspaceEntry extends React.Component {
         const {popoverOpen, popoverAnchor, popoverTop, popoverHeight, loading} = this.state;
 
         if(loading) {
-            additionalAction = <CircularProgress size={20} thickness={2} style={{marginTop: 2, marginRight: 6, opacity: .5}}/>
+            additionalAction = <CircularProgress className={"ws-loader-progress"} size={20} thickness={2} style={{marginTop: 2, marginRight: 6, opacity: .5}}/>
         } else if (!searchView) {
             const addStyle = popoverOpen ? {opacity:1} : {};
             if(popoverOpen){

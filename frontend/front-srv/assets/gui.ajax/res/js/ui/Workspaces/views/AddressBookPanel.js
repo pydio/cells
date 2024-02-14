@@ -132,6 +132,7 @@ class AddressBookPanel extends React.Component{
                 <InfoPanelCard
                     title={pydio.MessageHash['639']}
                     style={{margin: '10px 10px 0'}}
+                    popoverPanel={true}
                 >
                     <List>{items}</List>
                 </InfoPanelCard>
@@ -151,7 +152,7 @@ class AddressBookPanel extends React.Component{
             <Paper id={id} zDepth={zDepth} rounded={false} style={{...columnStyle}}>
                 {cellInfo}
                 {pydio.Controller.getActionByName("open_address_book") &&
-                    <InfoPanelCard>
+                    <InfoPanelCard style={{margin: 10}} popoverPanel={true}>
                         <AddressBook
                             mode="selector"
                             bookColumn={true}
