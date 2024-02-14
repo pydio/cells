@@ -1,4 +1,5 @@
 import Pydio from '../Pydio';
+import PydioApi from './PydioApi'
 import LangUtils from "../util/LangUtils"
 import {UserServiceApi, RestSearchUserRequest, IdmUserSingleQuery, ServiceOperationType, IdmNodeType, IdmUser, RoleServiceApi, IdmRole, RestSearchRoleRequest, IdmRoleSingleQuery, ServiceResourcePolicy, GraphServiceApi} from 'cells-sdk';
 
@@ -356,6 +357,74 @@ class IdmApi {
             return roles;
         });
 
+
+    }
+
+    /**
+     *
+     * @param offset int Offset for the query
+     * @param limit int Limit number of results
+     * @param types [] List of PydioApi.RoleTypeXXX constants
+     * @param labelFilter string Optional filter on Label, can use wildcards
+     * @return {Promise<any>}
+     */
+    listRolesV2(offset = 0, limit = -1, types = [PydioApi.RoleTypeAdmin], labelFilter = ''){
+
+        if (types.length === 0) {
+            throw Error('please provide at least one of PydioApi.RoleTypeAdmin, PydioApi.RoleTypeUser, PydioApi.RoleTypeGroup or PydioApi.RoleTypeTeam')
+        }
+        const api = new RoleServiceApi(this.client);
+        const request = new RestSearchRoleRequest();
+        if(offset > 0){
+            request.Offset = offset + '';
+        }
+        if(limit > -1){
+            request.Limit = limit + '';
+        }
+        const includeAdmin = types.indexOf(PydioApi.RoleTypeAdmin) > -1
+        let queries = [];
+        if(includeAdmin){
+            // We have to build request by exclusion
+            queries = [PydioApi.RoleTypeUser, PydioApi.RoleTypeTeam, PydioApi.RoleTypeGroup].filter(t => types.indexOf(t)===-1).map(t => {
+                const q = new IdmRoleSingleQuery()
+                q[t] = true;
+                q.not = true;
+                return q;
+            })
+        } else {
+            // build by inclusion
+            queries = types.filter(t => t !== PydioApi.RoleTypeAdmin).map(t => {
+                const q = new IdmRoleSingleQuery()
+                q[t] = true;
+                return q
+            })
+        }
+
+        if (queries.length === 0) {
+            return api.searchRoles(request).then(coll => {
+                return coll.Roles || [];
+            });
+
+        } else {
+            request.Queries = queries;
+            request.Operation = ServiceOperationType.constructFromObject(includeAdmin ? 'AND' : 'OR');
+            const p1 = api.searchRoles(request).then(coll => {
+                return coll.Roles || [];
+            });
+            // Make sure to append ROOT_GROUP if admin type is request (and not groups)
+            if(includeAdmin && types.indexOf(PydioApi.RoleTypeGroup) === -1){
+                const p2 = this.loadRole('ROOT_GROUP');
+                return Promise.all([p1, p2]).then(result => {
+                    let roles = result[0];
+                    if (result[1] !== null) {
+                        roles = [result[1], ...roles];
+                    }
+                    return roles;
+                });
+            } else {
+                return p1;
+            }
+        }
 
     }
 

@@ -77,7 +77,7 @@ const CreateRoleOrGroupForm = createReactClass({
     },
 
     submit() {
-        const {type, pydio, reload} = this.props;
+        const {type, pydio, reload, openRoleEditor} = this.props;
         let currentNode;
         const {groupId, groupIdError, groupLabel, groupLabelError, roleId, roleIdError, roleLabel, roleLabelError} = this.state;
         if( type === "group"){
@@ -105,10 +105,13 @@ const CreateRoleOrGroupForm = createReactClass({
             if(roleLabelError || roleIdError){
                 return;
             }
-            PydioApi.getRestClient().getIdmApi().createRole(roleLabel, roleId).then(() => {
+            PydioApi.getRestClient().getIdmApi().createRole(roleLabel, roleId).then((createdRole) => {
                 this.dismiss();
                 if(reload) {
                     reload();
+                }
+                if(openRoleEditor) {
+                    openRoleEditor(createdRole);
                 }
             });
         }
