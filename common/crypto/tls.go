@@ -19,6 +19,8 @@ const (
 )
 
 func TLSConfigFromURL(u *url.URL) (*tls.Config, error) {
+	var done bool
+
 	conf := &tls.Config{}
 
 	q := u.Query()
@@ -64,10 +66,14 @@ func TLSConfigFromURL(u *url.URL) (*tls.Config, error) {
 		if len(certs) > 0 {
 			conf.Certificates = certs
 		}
+
+		done = true
 	}
 
 	if certStoreName := q.Get(KeyCertStoreName); certStoreName != "" {
 		conf.ServerName = certStoreName
+
+		done = true
 	}
 
 	if q.Has(KeyCertInsecureHost) {
@@ -87,6 +93,12 @@ func TLSConfigFromURL(u *url.URL) (*tls.Config, error) {
 		}
 
 		conf.RootCAs = caCertPool
+
+		done = true
+	}
+
+	if !done {
+		return nil, nil
 	}
 
 	return conf, nil
