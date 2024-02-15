@@ -114,7 +114,7 @@
     "other": "Details"
   },
   "132": {
-    "other": "No file or folder"
+    "other": "Ingen fil eller mapp"
   },
   "133": {
     "other": "Namn"
@@ -156,10 +156,10 @@
     "other": "Mina bokmärken"
   },
   "146": {
-    "other": "Delete Bookmark"
+    "other": "Radera bokmärke"
   },
   "147": {
-    "other": "Bookmarks"
+    "other": "Bokmärken"
   },
   "148": {
     "other": "Parent"
@@ -228,10 +228,10 @@
     "other": "Logga in"
   },
   "164": {
-    "other": "Log out"
+    "other": "Logga ut"
   },
   "165": {
-    "other": "Settings"
+    "other": "Inställningar"
   },
   "166": {
     "other": "Om"
@@ -399,7 +399,7 @@
     "other": "Start Upload"
   },
   "216": {
-    "other": "Clear"
+    "other": "Rensa"
   },
   "217": {
     "other": "Clear Completed"
@@ -495,7 +495,7 @@
     "other": "Author"
   },
   "245": {
-    "other": "Date"
+    "other": "Datum"
   },
   "246": {
     "other": "Meddelande"
@@ -516,7 +516,7 @@
     "other": "Workspaces"
   },
   "251": {
-    "other": "Logs"
+    "other": "Loggar"
   },
   "252": {
     "other": "The total file size limit has been reached."
@@ -549,7 +549,7 @@
     "other": "bytes"
   },
   "261": {
-    "other": "Remember Me"
+    "other": "Kom ihåg mig"
   },
   "262": {
     "other": "One or more files appear to exist \\nalready in the destination folder.\\nWhat do you want to do?"
@@ -561,7 +561,7 @@
     "other": "Skip"
   },
   "265": {
-    "other": "Files"
+    "other": "Filer"
   },
   "266": {
     "other": "B"
@@ -636,16 +636,16 @@
     "other": "File Permissions"
   },
   "288": {
-    "other": "User"
+    "other": "Användare"
   },
   "289": {
-    "other": "Group"
+    "other": "Grupp"
   },
   "29": {
     "other": "Skapa"
   },
   "290": {
-    "other": "All"
+    "other": "Alla"
   },
   "291": {
     "other": "Apply recursively?"
@@ -873,7 +873,7 @@
     "other": "Choose a name for the shared workspace."
   },
   "359": {
-    "other": "Label"
+    "other": "Etikett"
   },
   "36": {
     "other": "It's size is"
@@ -906,7 +906,7 @@
     "other": "Selection successfully extracted from archive %s to folder %s"
   },
   "369": {
-    "other": "Shortcut"
+    "other": "Genväg"
   },
   "37": {
     "other": "You must write a valid name"
@@ -1155,7 +1155,7 @@
     "other": "directory"
   },
   "450": {
-    "other": "Sort by ..."
+    "other": "Sortera efter ..."
   },
   "451": {
     "other": "Sort thumbnails by ..."
@@ -1245,7 +1245,7 @@
     "other": "Select a file or folder to see its details here"
   },
   "478": {
-    "other": "No results found"
+    "other": "Inga resultat hittades"
   },
   "479": {
     "other": "Glömt ditt lösenord?"
@@ -1257,7 +1257,7 @@
     "other": "Browse all folders of the current workspace."
   },
   "481": {
-    "other": "All your shared files and folders"
+    "other": "Alla dina delade filer och mappar"
   },
   "482": {
     "other": "Quick access to your bookmarked items"
@@ -1329,7 +1329,7 @@
     "other": "Extension"
   },
   "501": {
-    "other": "or"
+    "other": "eller"
   },
   "502": {
     "other": "Folders only"
@@ -1341,7 +1341,7 @@
     "other": "1k,1M,1G"
   },
   "505": {
-    "other": "to"
+    "other": "till"
   },
   "506": {
     "other": "Application parameters (users, workspaces, configurations)"
@@ -1404,7 +1404,7 @@
     "other": "Lösenord"
   },
   "524": {
-    "other": "Update Password"
+    "other": "Uppdatera lösenord"
   },
   "525": {
     "other": "Show original picture"
@@ -1425,10 +1425,10 @@
     "other": "External users"
   },
   "531": {
-    "other": "Users"
+    "other": "Användare"
   },
   "532": {
-    "other": "Groups"
+    "other": "Grupper"
   },
   "533": {
     "other": "Identifier used to login, please use alphanumeric or email lowercase characters."
@@ -1467,7 +1467,7 @@
     "other": "Results limited to %s."
   },
   "544": {
-    "other": "Show more"
+    "other": "Visa mer"
   },
   "545": {
     "other": "Remote Share"
@@ -1494,7 +1494,7 @@
     "other": "Reject"
   },
   "552": {
-    "other": "Please provide password."
+    "other": "Ange lösenord."
   },
   "553": {
     "other": "Invalid password, please try again. \\n Make sure your Caps Lock is not engaged!"
@@ -1593,7 +1593,7 @@
     "other": "Create Team"
   },
   "58": {
-    "other": "CSS File"
+    "other": "CSS-fil"
   },
   "580": {
     "other": "Edit team label"
@@ -1626,7 +1626,7 @@
     "other": "External user"
   },
   "59": {
-    "other": "MP3 File"
+    "other": "MP3-fil"
   },
   "590": {
     "other": "Internal user"
@@ -1659,7 +1659,7 @@
     "other": "Add a user"
   },
   "599-a": {
-    "other": "All Results"
+    "other": "Alla resultat"
   },
   "6": {
     "other": "Rename"
@@ -1866,7 +1866,7 @@
     "other": "Pass"
   },
   "79": {
-    "other": "PDF File"
+    "other": "PDF-fil"
   },
   "8": {
     "other": "Directory"
@@ -2274,7 +2274,7 @@
     "other": "View"
   },
   "visibility.panel.right-edit": {
-    "other": "Edit"
+    "other": "Redigera"
   },
   "visibility.panel.list.users": {
     "other": "Användare"
@@ -2313,7 +2313,7 @@
     "other": "Multiple Selection"
   },
   "confirm.dialog.title": {
-    "other": "Confirm"
+    "other": "Bekräfta"
   },
   "confirm.dialog.destructive": {
     "other": "You are about to delete"
@@ -2322,7 +2322,7 @@
     "other": "Do not warn me next time"
   },
   "material.paginator.rows": {
-    "other": "Rows per page"
+    "other": "Rader per sida"
   },
   "material.paginator.of": {
     "other": "av"
@@ -2331,7 +2331,7 @@
     "other": "Please use only images (jpeg,png,bmp,webp)"
   },
   "form.input-image.clearButton": {
-    "other": "Reset"
+    "other": "Återställ"
   },
   "form.input-image.clearConfirm": {
     "other": "Do you want to remove current image?"
@@ -2339,17 +2339,20 @@
   "form.input-image.avatarMax": {
     "other": "Please use images smaller than 5MB"
   },
+  "searchengine.start": {
+    "other": "Start typing to search for files and folders"
+  },
   "searchengine.searching": {
     "other": "Searching..."
   },
   "searchengine.main.placeholder": {
-    "other": "Search..."
+    "other": "Sök..."
   },
   "searchengine.topbar.title": {
-    "other": "Search: "
+    "other": "Sök: "
   },
   "searchengine.scope.title": {
-    "other": "Search In..."
+    "other": "Sök i..."
   },
   "searchengine.share.title": {
     "other": "Shared"
@@ -2376,7 +2379,7 @@
     "other": "Advanced Filters"
   },
   "searchengine.results.foundN": {
-    "other": "%1 results found"
+    "other": "%1 resultat hittades"
   },
   "searchengine.results.withMore": {
     "other": "Showing %1, load more..."

@@ -963,7 +963,7 @@
     "other": "サーバーの高負荷を検出する（Linuxサーバーのみ）"
   },
   "perfs.load.error": {
-    "other": "サーバーにCPUやRAMを追加する必要があるかもしれません。"
+    "other": "Maybe adding some CPU or RAM to your server could be necessary."
   },
   "perfs.load.help": {
     "other": "サーバーの負荷が高い場合は、Pydioを使用しているため、サーバーにCPUまたはRAMがないことを示している可能性があります。"
@@ -978,7 +978,7 @@
     "other": "メーラーはメールの送信を再送するように設定されていません。"
   },
   "perfs.mailer.help": {
-    "other": "メールキューを使用すると、すべてのアクションとリクエスト中にすべてのメールを直接送信できなくなります。 別のデータベースに保存して別々にキューを処理します"
+    "other": "Using a mail queue prevents the direct sending of emails for each action and request. Instead, it stores them in a separate database and processes the queue independently."
   },
   "perfs.mailer.title": {
     "other": "メールキュー"

@@ -171,7 +171,7 @@
     "other": "Digest Realm"
   },
   "Disable WebDAV": {
-    "other": "Disable WebDAV"
+    "other": "Inaktivera WebDAV"
   },
   "Disable Zip browsing": {
     "other": "Disable Zip browsing"
@@ -198,13 +198,13 @@
     "other": "Driver type (do not touch)"
   },
   "Enable WebDAV": {
-    "other": "Enable WebDAV"
+    "other": "Aktivera WebDAV"
   },
   "Enable WebDAV for all users by default. If set to false, users will have to manually enable WebDAV via their preferences panel.": {
     "other": "Enable WebDAV for all users by default. If set to false, users will have to manually enable WebDAV via their preferences panel."
   },
   "Enable for all users": {
-    "other": "Enable for all users"
+    "other": "Aktivera för alla användare"
   },
   "Enable the webDAV support. Please READ THE DOC to safely use this feature.": {
     "other": "Enable the webDAV support. Please READ THE DOC to safely use this feature."
@@ -375,7 +375,7 @@
     "other": "Scope"
   },
   "Server URL": {
-    "other": "Server URL"
+    "other": "Server-URL"
   },
   "Server URL used to build share links and notifications. It will be detected if empty.": {
     "other": "Server URL used to build share links and notifications. It will be detected if empty."
@@ -441,7 +441,7 @@
     "other": "Use COM class"
   },
   "Use MySQLi": {
-    "other": "Use MySQLi"
+    "other": "Använd MySQLi"
   },
   "Use PHP MySQLi extension": {
     "other": "Use PHP MySQLi extension"
@@ -468,7 +468,7 @@
     "other": "User password - Can be overriden on a per-user basis."
   },
   "WebDAV Server": {
-    "other": "WebDAV Server"
+    "other": "WebDAV-server"
   },
   "When a folder will contain more items than this number, display will switch to pagination mode, for better performances.": {
     "other": "When a folder will contain more items than this number, display will switch to pagination mode, for better performances."

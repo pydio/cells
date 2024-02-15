@@ -30,7 +30,7 @@
     "other": "Plugin Configurations"
   },
   "108": {
-    "other": "Documentation"
+    "other": "Dokumentation"
   },
   "109": {
     "other": "Application Parameters"
@@ -63,7 +63,7 @@
     "other": "Template Driver"
   },
   "118": {
-    "other": "New group"
+    "other": "Ny grupp"
   },
   "119": {
     "other": "Set user group"
@@ -84,7 +84,7 @@
     "other": "Other plugins"
   },
   "124": {
-    "other": "Source"
+    "other": "Källa"
   },
   "125": {
     "other": "Alias"
@@ -231,7 +231,7 @@
     "other": "No users were moved, there must have been something wrong!"
   },
   "17": {
-    "other": "Date"
+    "other": "Datum"
   },
   "170": {
     "other": "Enable %1 (%2)"
@@ -267,7 +267,7 @@
     "other": "People"
   },
   "20": {
-    "other": "User"
+    "other": "Användare"
   },
   "21": {
     "other": "Action"
@@ -339,7 +339,7 @@
     "other": "Template Paths"
   },
   "4": {
-    "other": "Logs"
+    "other": "Loggar"
   },
   "40": {
     "other": "Please check the box to confirm!"
@@ -417,7 +417,7 @@
     "other": "Rights Summary"
   },
   "63": {
-    "other": "All"
+    "other": "Alla"
   },
   "64": {
     "other": "Changed right for role "
@@ -444,7 +444,7 @@
     "other": "Användarroller"
   },
   "71": {
-    "other": "Available Roles"
+    "other": "Tillgängliga roller"
   },
   "72": {
     "other": "Drag'n'drop roles to assign them to the user"
@@ -513,10 +513,10 @@
     "other": "Ny mall"
   },
   "92": {
-    "other": "Create a new template"
+    "other": "Skapa ny mall"
   },
   "93": {
-    "other": "Edit"
+    "other": "Redigera"
   },
   "94": {
     "other": "Batch Edit"
@@ -543,7 +543,7 @@
     "other": "Show/hide advanced parameters"
   },
   "topbar.button.about": {
-    "other": "Learn more about Pydio Cells"
+    "other": "Läs mer om Pydio Cells"
   },
   "group_access": {
     "other": "g"

@@ -185,6 +185,12 @@
   "infopanel.empty.select.file": {
     "other": "选择要显示信息的文件"
   },
+  "infopanel.card.pin": {
+    "other": "Attach card (full height)"
+  },
+  "infopanel.card.unpin": {
+    "other": "Detach card"
+  },
   "pinned-bookmarks.other": {
     "other": "全部文件"
   },

@@ -33,7 +33,7 @@
     "other": "Mapp"
   },
   "tour.infopanel.search": {
-    "other": "Search"
+    "other": "Sök"
   },
   "tour.infopanel.title": {
     "other": "Info Panel"
@@ -42,7 +42,7 @@
     "other": "Tillbaka"
   },
   "tour.locale.close": {
-    "other": "Close"
+    "other": "Stäng"
   },
   "tour.locale.last": {
     "other": "Finish"
@@ -51,7 +51,7 @@
     "other": "Nästa"
   },
   "tour.locale.skip": {
-    "other": "Skip"
+    "other": "Hoppa över"
   },
   "tour.openworkspace": {
     "other": "At the first connection, your history is probably empty. Enter a workspace or a cell to start adding files."
@@ -75,7 +75,7 @@
     "other": "User Cartouche"
   },
   "tour.welcomemodal.skip": {
-    "other": "Skip"
+    "other": "Hoppa över"
   },
   "tour.welcomemodal.start": {
     "other": "Start the tour"
@@ -185,8 +185,14 @@
   "infopanel.empty.select.file": {
     "other": "Select a file to display informations"
   },
+  "infopanel.card.pin": {
+    "other": "Attach card (full height)"
+  },
+  "infopanel.card.unpin": {
+    "other": "Detach card"
+  },
   "pinned-bookmarks.other": {
-    "other": "All files"
+    "other": "Alla filer"
   },
   "file.temporary-etag.flag": {
     "other": "Incomplete"
@@ -267,7 +273,7 @@
     "other": "Directory"
   },
   "leftrail.buttons.all-files": {
-    "other": "All Files"
+    "other": "Alla filer"
   },
   "leftrail.buttons.theme.light": {
     "other": "Ljust läge"

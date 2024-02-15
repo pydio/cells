@@ -6,10 +6,10 @@
     "other": "Pause"
   },
   "clear": {
-    "other": "Clear"
+    "other": "Rensa"
   },
   "clear-header": {
-    "other": "Clear list..."
+    "other": "Rensa lista..."
   },
   "clear-finished": {
     "other": "Finished Uploads"
@@ -102,7 +102,7 @@
     "other": "Drop files here"
   },
   "drop-or": {
-    "other": "or"
+    "other": "eller"
   },
   "drop-pick-file": {
     "other": "browse files"

@@ -963,7 +963,7 @@
     "other": "Phát hiện máy chủ vận hành công suất cao (chỉ máy chủ Linux)"
   },
   "perfs.load.error": {
-    "other": "Có lẽ việc thêm một số CPU hoặc RAM vào máy chủ của bạn có thể là cần thiết."
+    "other": "Maybe adding some CPU or RAM to your server could be necessary."
   },
   "perfs.load.help": {
     "other": "Máy chủ vận hành công suất cao có thể cho thấy rằng máy chủ của bạn thiếu CPU hoặc RAM do việc sử dụng Pydio của bạn."
@@ -978,7 +978,7 @@
     "other": "Mailer không được cấu hình để trì hoãn gửi email."
   },
   "perfs.mailer.help": {
-    "other": "Sử dụng hàng đợi mail sẽ tránh gửi trực tiếp mọi email trong mỗi hành động và yêu cầu, nhưng lưu trữ chúng trong một cơ sở dữ liệu riêng biệt và xử lý hàng đợi riêng biệt."
+    "other": "Using a mail queue prevents the direct sending of emails for each action and request. Instead, it stores them in a separate database and processes the queue independently."
   },
   "perfs.mailer.title": {
     "other": "Hàng đợi Mailer"

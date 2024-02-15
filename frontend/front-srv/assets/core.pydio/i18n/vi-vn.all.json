@@ -2339,6 +2339,9 @@
   "form.input-image.avatarMax": {
     "other": "Vui lòng sử dụng ảnh nhỏ hơn 5MB"
   },
+  "searchengine.start": {
+    "other": "Start typing to search for files and folders"
+  },
   "searchengine.searching": {
     "other": "Đang tìm kiếm..."
   },

@@ -2339,6 +2339,9 @@
   "form.input-image.avatarMax": {
     "other": "5MB未満の画像を使用してください"
   },
+  "searchengine.start": {
+    "other": "Start typing to search for files and folders"
+  },
   "searchengine.searching": {
     "other": "検索中..."
   },

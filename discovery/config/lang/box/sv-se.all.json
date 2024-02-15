@@ -150,7 +150,7 @@
     "other": "Cookies String"
   },
   "contextMetaField.HttpProtocol": {
-    "other": "HTTP Protocol"
+    "other": "HTTP-protokoll"
   },
   "contextMetaField.RemoteAddress": {
     "other": "Remote Address"
@@ -297,7 +297,7 @@
     "other": "Login"
   },
   "userSingleQuery.NodeType": {
-    "other": "Object Type"
+    "other": "Objekttyp"
   },
   "userSingleQuery.NodeType.GROUP": {
     "other": "Group"
@@ -336,7 +336,7 @@
     "other": "Has Attribute"
   },
   "workspaceSingleQuery.Label": {
-    "other": "Label"
+    "other": "Etikett"
   },
   "workspaceSingleQuery.LastUpdated": {
     "other": "Last updated"
@@ -426,13 +426,13 @@
     "other": "User-pwd"
   },
   "dataSourceSingleQuery.EncryptionMode.CLEAR": {
-    "other": "Clear"
+    "other": "Rensa"
   },
   "dataSourceSingleQuery.EncryptionMode.MASTER": {
     "other": "Master-key"
   },
   "dataSourceSingleQuery.EncryptionKey": {
-    "other": "Encryption Key"
+    "other": "Krypteringsnyckel"
   },
   "dataSourceSingleQuery.VersioningPolicyName": {
     "other": "Versioning Policy"

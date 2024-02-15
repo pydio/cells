@@ -9,7 +9,7 @@
     "other": "コンテンツ参照メタデータ"
   },
   "Search.Config.ContentRef.Description": {
-    "other": "特定のファイルへの参照を保存するメタデータ: エクストラクターはファイルのテキスト表現を作成し、ファイルをプレーン テキストまたは gzip エンコードで保存します。検索エンジンはインデックス作成時にこのコンテンツをロードしようとします。 pydio: プレフィックスを使用して、漏洩しないようにしてください。"
+    "other": "Name of the metadata pointing to the internal file that contains textual representation of the original document. Such internal contents may be plain-text or gzip-encoded, depending on the text extraction tool used (e.g. Tika). The search engine typically indexes this content to enable full-text search. Make sure to prefix the metadata name with 'pydio:' to prevent data leakage."
   },
   "Search.Config.PlainTextExtensions.Label": {
     "other": "プレーンテキストの拡張子"

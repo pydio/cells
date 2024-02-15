@@ -2339,6 +2339,9 @@
   "form.input-image.avatarMax": {
     "other": "请使用小于5MB 的图像"
   },
+  "searchengine.start": {
+    "other": "Start typing to search for files and folders"
+  },
   "searchengine.searching": {
     "other": "搜索中......"
   },

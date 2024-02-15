@@ -978,7 +978,7 @@
     "other": "Es wird keine E-Mail-Warteschlange verwendet, um Nachrichten im Hintergrund zu versenden."
   },
   "perfs.mailer.help": {
-    "other": "Mit der E-Mail-Warteschlange werden Nachrichten in eine Warteschlange gespeichert (Datenbank) und im Hintergrund versendet."
+    "other": "Die Verwendung einer E-Mail-Warteschlange verhindert das direkte Senden von E-Mails für jede Aktion und Anfrage. Stattdessen werden sie in einer separaten Datenbank gespeichert und die Warteschlange wird unabhängig verarbeitet."
   },
   "perfs.mailer.title": {
     "other": "E-Mail-Warteschlange"

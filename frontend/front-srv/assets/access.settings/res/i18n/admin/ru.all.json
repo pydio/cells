@@ -963,7 +963,7 @@
     "other": "Определять высокую загрузку сервера (только для серверов Linux)"
   },
   "perfs.load.error": {
-    "other": "Может потребоваться добавление ЦП или ОЗУ на ваш сервер."
+    "other": "Maybe adding some CPU or RAM to your server could be necessary."
   },
   "perfs.load.help": {
     "other": "Высокая загрузка сервера может указывать на то, что вашему серверу не хватает процессора или оперативной памяти, если вы используете Pydio."
@@ -978,7 +978,7 @@
     "other": "Почта не настроена для отсрочки отправки писем."
   },
   "perfs.mailer.help": {
-    "other": "Использование почтовой очереди позволяет избежать отправки каждой электронной почты непосредственно во время каждого действия и запроса, но хранит их в отдельной базе данных и обрабатывает очередь отдельно."
+    "other": "Using a mail queue prevents the direct sending of emails for each action and request. Instead, it stores them in a separate database and processes the queue independently."
   },
   "perfs.mailer.title": {
     "other": "Очередь рассылки"

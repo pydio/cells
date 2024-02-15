@@ -9,7 +9,7 @@
     "other": "Metadata référençant le contenu"
   },
   "Search.Config.ContentRef.Description": {
-    "other": "Cette métadonnée garde une référence à un fichier : les extracteurs peuvent créer une représentation textuelle des fichiers (stockée en texte brut ou en gzip). Le moteur de recherche essaiera alors de charger ce contenu à l'indexation. Utiliser le préfixe 'pydio:' pour vous assurer que cette métadonnée reste interne."
+    "other": "Name of the metadata pointing to the internal file that contains textual representation of the original document. Such internal contents may be plain-text or gzip-encoded, depending on the text extraction tool used (e.g. Tika). The search engine typically indexes this content to enable full-text search. Make sure to prefix the metadata name with 'pydio:' to prevent data leakage."
   },
   "Search.Config.PlainTextExtensions.Label": {
     "other": "Extensions Texte"
