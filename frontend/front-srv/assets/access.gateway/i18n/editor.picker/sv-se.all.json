@@ -30,18 +30,18 @@
     "other": "Share folder"
   },
   "drop.cell.file.move": {
-    "other": "Move file"
+    "other": "Flytta fil"
   },
   "drop.cell.folder.move": {
-    "other": "Move folder"
+    "other": "Flytta mapp"
   },
   "drop.cell.file.copy": {
-    "other": "Copy file"
+    "other": "Kopiera fil"
   },
   "drop.cell.folder.copy": {
-    "other": "Copy folder"
+    "other": "Kopiera mapp"
   },
   "download.as.pdf": {
-    "other": "Download as PDF"
+    "other": "Ladda ner som PDF"
   }
 }

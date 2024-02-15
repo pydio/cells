@@ -963,7 +963,7 @@
     "other": "Detection de charge élevée (serveurs linux seulement)"
   },
   "perfs.load.error": {
-    "other": "Il serait sans doute opportun d'ajouter du CPU et/ou de la RAM, ou de déployer Pydio en configuration multi-noeud."
+    "other": "Maybe adding some CPU or RAM to your server could be necessary."
   },
   "perfs.load.help": {
     "other": "Une charge élevée du serveur peut indiquer que votre matériel est sous-dimensionné par rapport à votre nombre d'utilisateurs et votre usage."
@@ -978,7 +978,7 @@
     "other": "Le mailer n'est pas configuré pour utiliser la queue. Voir la page de configuration, penser à ajouter la tâche d'envoi dans le planificateur."
   },
   "perfs.mailer.help": {
-    "other": "Utiliser la queue évite d'envoyer directement des mails pendant les requêtes, mais stocke les mails dans une base séparée et les envoie de manière asynchrone."
+    "other": "Using a mail queue prevents the direct sending of emails for each action and request. Instead, it stores them in a separate database and processes the queue independently."
   },
   "perfs.mailer.title": {
     "other": "Queue des mails"

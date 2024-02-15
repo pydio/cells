@@ -111,7 +111,7 @@
     "other": "Copy URL to your clipboard"
   },
   "131": {
-    "other": "No shared files or folders yet."
+    "other": "Inga delade filer eller mappar än."
   },
   "132": {
     "other": "Workspace"
@@ -261,7 +261,7 @@
     "other": "If you want a durable and pretty link (like https://.../my-share-link), you can use this field. Link handle will be generated if left empty."
   },
   "174": {
-    "other": "Reset"
+    "other": "Återställ"
   },
   "175": {
     "other": "Please set a password and make sure it's long enough!"
@@ -318,7 +318,7 @@
     "other": "This file is not currently publicly accessible. Enabling a public link will create a unique access that you can send to anyone. If you want to share with existing Pydio users, use the \"Users\" tab."
   },
   "191": {
-    "other": "Copy link to clipboard"
+    "other": "Kopiera länk till urklipp"
   },
   "192": {
     "other": "Link has been copied to clipboard"
@@ -669,7 +669,7 @@
     "other": "Select Users"
   },
   "35": {
-    "other": "Label"
+    "other": "Etikett"
   },
   "36": {
     "other": "Set a label and a short description"
@@ -813,7 +813,7 @@
     "other": "Upload files"
   },
   "74b": {
-    "other": "Edit"
+    "other": "Redigera"
   },
   "75": {
     "other": "Please use a positive number for both Expiration and Download limit fields."
@@ -885,10 +885,10 @@
     "other": "Existing links"
   },
   "94": {
-    "other": "QR Code"
+    "other": "QR-kod"
   },
   "95": {
-    "other": "QR code"
+    "other": "QR-kod"
   },
   "96": {
     "other": "stop sharing"
@@ -906,7 +906,7 @@
     "other": "Add users/data"
   },
   "cells.create.buttons.separator": {
-    "other": "or"
+    "other": "eller"
   },
   "cells.create.title.fill.folders": {
     "other": "Share existing folder(s)"

@@ -240,13 +240,13 @@
     "other": "Today"
   },
   "facet.label.date.last.7": {
-    "other": "Last 7 days"
+    "other": "Senaste 7 dagarna"
   },
   "facet.label.date.last.30": {
-    "other": "Last 30 days"
+    "other": "Senaste 30 dagarna"
   },
   "facet.label.date.older.30": {
-    "other": "Older than 30 days"
+    "other": "Äldre än 30 dagar"
   },
   "facet.label.found.contents": {
     "other": "Contents"

@@ -3,7 +3,7 @@
     "other": "Dashboard"
   },
   "dashboard.tab.activity": {
-    "other": "Activity"
+    "other": "Aktivitet"
   },
   "loading": {
     "other": "Loading..."
@@ -33,7 +33,7 @@
     "other": "Create a new workspace at the root of datasource %s"
   },
   "ds.board.wsfromds.field": {
-    "other": "Label"
+    "other": "Etikett"
   },
   "ds.board.wsfromds.defaultPrefix": {
     "other": "DataSource %s"
@@ -90,7 +90,7 @@
     "other": "Set an identifier for the new key"
   },
   "ds.editor.enc.key": {
-    "other": "Encryption Key"
+    "other": "Krypteringsnyckel"
   },
   "ds.editor.enc.key.clear": {
     "other": "Ingen kryptering"
@@ -294,7 +294,7 @@
     "other": "Custom Endpoint URL"
   },
   "ds.editor.storage.s3.endpoint.hint": {
-    "other": "include http(s)://"
+    "other": "inkludera http(s)://"
   },
   "ds.editor.storage.s3.region": {
     "other": "S3 Api Region"
@@ -384,7 +384,7 @@
     "other": "Data Lifecycle"
   },
   "ds.editor.tab.advanced": {
-    "other": "Advanced Options"
+    "other": "Avancerade alternativ"
   },
   "ds.editor.initFlatFromSnapshot": {
     "other": "If this storage was previously used as a flat datasource, initialize it from an existing snapshot file (must be found inside the storage)"
@@ -399,19 +399,19 @@
     "other": "No master key created"
   },
   "ds.encryption.key.create": {
-    "other": "Create Key"
+    "other": "Skapa nyckel"
   },
   "ds.encryption.key.created": {
     "other": "Created on"
   },
   "ds.encryption.key.delete": {
-    "other": "Delete Key"
+    "other": "Radera nyckel"
   },
   "ds.encryption.key.delete.warning": {
     "other": "If the key is currently used for encrypted data, this is a very destructive operation! Are you sure you want to do that?"
   },
   "ds.encryption.key.export": {
-    "other": "Export Key"
+    "other": "Exportera nyckel"
   },
   "ds.encryption.key.export.confirm": {
     "other": "Bekräfta lösenord"
@@ -429,7 +429,7 @@
     "other": "Identifier"
   },
   "ds.encryption.key.import": {
-    "other": "Import Key"
+    "other": "Importera nyckel"
   },
   "ds.encryption.key.import.content": {
     "other": "Paste key here from your backup file"
@@ -534,13 +534,13 @@
     "other": "Export and download"
   },
   "logs.11": {
-    "other": "Export as..."
+    "other": "Exportera som..."
   },
   "logs.2": {
     "other": "Pick a day"
   },
   "logs.filter.legend": {
-    "other": "Filter by..."
+    "other": "Filtrera efter..."
   },
   "logs.export.disabled": {
     "other": "Pick a date or filter result"
@@ -549,13 +549,13 @@
     "other": "Click on the link to download"
   },
   "logs.filter.period": {
-    "other": "Time Period"
+    "other": "Tidsperiod"
   },
   "logs.filter.period.from": {
-    "other": "From"
+    "other": "Från"
   },
   "logs.filter.period.to": {
-    "other": "To"
+    "other": "Till"
   },
   "logs.filter.period.time": {
     "other": "At..."
@@ -627,13 +627,13 @@
     "other": "No entries"
   },
   "logs.noresults": {
-    "other": "No results"
+    "other": "Inga resultat"
   },
   "logs.details.copy": {
-    "other": "Copy log to clipboard"
+    "other": "Kopiera logg till urklipp"
   },
   "logs.details.show-focus": {
-    "other": "Show +/- 5 minutes"
+    "other": "Visa +/- 5 minuter"
   },
   "logs.details.close": {
     "other": "Close log detail"
@@ -660,7 +660,7 @@
     "other": "User-Agent"
   },
   "logs.details.protocol": {
-    "other": "Protocol"
+    "other": "Protokoll"
   },
   "logs.details.node": {
     "other": "File/Folder"
@@ -819,7 +819,7 @@
     "other": "Group Name (creates an expandable section). Use '/' for sub-groups."
   },
   "metadata.default-group": {
-    "other": "No Group"
+    "other": "Ingen grupp"
   },
   "metadata.toggle.index": {
     "other": "Index in search engine"
@@ -963,7 +963,7 @@
     "other": "Detect high server load (Linux servers only)"
   },
   "perfs.load.error": {
-    "other": "Maybe adding some CPU or RAM to your server could be neccessary."
+    "other": "Maybe adding some CPU or RAM to your server could be necessary."
   },
   "perfs.load.help": {
     "other": "A high server load may indicate that your server is missing CPU or RAM given your usage of Pydio."
@@ -978,7 +978,7 @@
     "other": "Mailer is not configured to defer emails sending."
   },
   "perfs.mailer.help": {
-    "other": "Using the mail queue avoids sending every emails directly during every actions and requests, but store them in a separate database and process the queue separately."
+    "other": "Using a mail queue prevents the direct sending of emails for each action and request. Instead, it stores them in a separate database and processes the queue independently."
   },
   "perfs.mailer.title": {
     "other": "Mailer Queue"
@@ -1044,7 +1044,7 @@
     "other": "Edit plugin parameters"
   },
   "plugins.documentation": {
-    "other": "Documentation"
+    "other": "Dokumentation"
   },
   "policies.policy.create": {
     "other": "Skapa"
@@ -1065,7 +1065,7 @@
     "other": "Edit policy rules"
   },
   "policies.policy.editLabels": {
-    "other": "Edit Labels"
+    "other": "Redigera etiketter"
   },
   "policies.policy.saveLabels": {
     "other": "Spara ändringar"
@@ -1083,7 +1083,7 @@
     "other": "Policy Type"
   },
   "policies.rule.create": {
-    "other": "Add new rule"
+    "other": "Lägg till ny regel"
   },
   "policies.rule.delete": {
     "other": "Radera regel"
@@ -1182,7 +1182,7 @@
     "other": "shared"
   },
   "user.14": {
-    "other": "Create a new role"
+    "other": "Skapa ny roll"
   },
   "user.15": {
     "other": "Create a new group"
@@ -1239,13 +1239,13 @@
     "other": "User Personal Role"
   },
   "user.3": {
-    "other": "Groups"
+    "other": "Grupper"
   },
   "user.4": {
     "other": "Roller"
   },
   "user.5": {
-    "other": "Groups & Users"
+    "other": "Grupper & Användare"
   },
   "user.6": {
     "other": "+ Role"
@@ -1275,7 +1275,7 @@
     "other": "Admins only"
   },
   "user.filter.all": {
-    "other": "All users"
+    "other": "Alla användare"
   },
   "user.filter.anon": {
     "other": "Show anonymous"
@@ -1359,7 +1359,7 @@
     "other": "Display code"
   },
   "virtual.code.edit": {
-    "other": "Edit code"
+    "other": "Redigera kod"
   },
   "virtual.card.title": {
     "other": "Dynamically computed path"
@@ -1677,7 +1677,7 @@
     "other": "Workspace Layout"
   },
   "ws.editor.other.layout.default": {
-    "other": "Default"
+    "other": "Standard"
   },
   "ws.editor.other.layout.easy": {
     "other": "Easy Transfer Layout (enterprise only)"
@@ -2151,7 +2151,7 @@
     "other": "Disable Multiple"
   },
   "scheduler.tasks.bulk.clear": {
-    "other": "Clear All"
+    "other": "Rensa alla"
   },
   "scheduler.tasks.activity.title": {
     "other": "Task Activity"
@@ -2160,7 +2160,7 @@
     "other": "Loading activity..."
   },
   "scheduler.tasks.activity.empty": {
-    "other": "No logs found"
+    "other": "Inga loggar hittades"
   },
   "scheduler.schedule.monthly": {
     "other": "Every %1 of each month at %2"

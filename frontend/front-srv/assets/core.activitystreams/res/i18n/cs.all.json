@@ -8,6 +8,9 @@
   "11": {
     "other": "File Activity"
   },
+  "11b": {
+    "other": "Activity"
+  },
   "12": {
     "other": "Depending on your browser, this will ask for a specific permission. To disable, go through your browser preferences and exceptions. If you have already enabled this feature, probably nothing will happen."
   },

@@ -963,7 +963,7 @@
     "other": "检测是否服务器负载过高 (仅对Linux服务器)"
   },
   "perfs.load.error": {
-    "other": "也许添加一些CPU或RAM 到您的服务器来说很有必要。"
+    "other": "Maybe adding some CPU or RAM to your server could be necessary."
   },
   "perfs.load.help": {
     "other": "A high server load may indicate that your server is missing CPU or RAM given your usage of Pydio."
@@ -978,7 +978,7 @@
     "other": "邮件发送器未配置为延迟发送电子邮件。"
   },
   "perfs.mailer.help": {
-    "other": "Using the mail queue avoids sending every emails directly during every actions and requests, but store them in a separate database and process the queue separately."
+    "other": "Using a mail queue prevents the direct sending of emails for each action and request. Instead, it stores them in a separate database and processes the queue independently."
   },
   "perfs.mailer.title": {
     "other": "邮件队列"

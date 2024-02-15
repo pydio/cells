@@ -963,7 +963,7 @@
     "other": "Detectar alta carga do servidor (servidor Linux somente)"
   },
   "perfs.load.error": {
-    "other": "Talvez adicionar alguma CPU ou RAM ao seu servidor possa ser necessário."
+    "other": "Maybe adding some CPU or RAM to your server could be necessary."
   },
   "perfs.load.help": {
     "other": "Uma alta carga do servidor pode indicar que seu servidor está sem CPU ou RAM devido ao uso do Pydio."
@@ -978,7 +978,7 @@
     "other": "O mailer não está configurado para adiar o envio de emails."
   },
   "perfs.mailer.help": {
-    "other": "Usando a fila de e-mails evita enviar todos os emails diretamente durante cada ação e solicitação, mas armazena-os em um banco de dados separado e processa a fila separadamente."
+    "other": "Using a mail queue prevents the direct sending of emails for each action and request. Instead, it stores them in a separate database and processes the queue independently."
   },
   "perfs.mailer.title": {
     "other": "Fila de Mailer"

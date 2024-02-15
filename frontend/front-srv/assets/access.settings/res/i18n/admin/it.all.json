@@ -963,7 +963,7 @@
     "other": "Rileva il carico elevato del server (solo server Linux)"
   },
   "perfs.load.error": {
-    "other": "Forse è necessario aggiungere CPU o RAM al tuo server."
+    "other": "Maybe adding some CPU or RAM to your server could be necessary."
   },
   "perfs.load.help": {
     "other": "Un carico elevato sul server può indicare che il server non ha abbastanza CPU o RAM per l'utilizzo di Pydio."
@@ -978,7 +978,7 @@
     "other": "Mailer non è configurato per posticipare l'invio di email."
   },
   "perfs.mailer.help": {
-    "other": "Utilizzando la coda di posta si evita l'invio di un email direttamente durante le azioni e le richieste, per memorizzarlo in un database separato ed elaborare separatamente la coda."
+    "other": "Using a mail queue prevents the direct sending of emails for each action and request. Instead, it stores them in a separate database and processes the queue independently."
   },
   "perfs.mailer.title": {
     "other": "Coda del Mailer"

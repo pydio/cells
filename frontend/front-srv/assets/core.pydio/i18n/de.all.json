@@ -2339,6 +2339,9 @@
   "form.input-image.avatarMax": {
     "other": "Bitte verwenden Sie Bilder, die kleiner als 5 MB sind"
   },
+  "searchengine.start": {
+    "other": "Start typing to search for files and folders"
+  },
   "searchengine.searching": {
     "other": "Suche läuft..."
   },

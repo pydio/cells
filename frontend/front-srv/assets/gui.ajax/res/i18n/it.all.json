@@ -185,6 +185,12 @@
   "infopanel.empty.select.file": {
     "other": "Seleziona un file per visualizzare le informazioni"
   },
+  "infopanel.card.pin": {
+    "other": "Attach card (full height)"
+  },
+  "infopanel.card.unpin": {
+    "other": "Detach card"
+  },
   "pinned-bookmarks.other": {
     "other": "Tutti i file"
   },

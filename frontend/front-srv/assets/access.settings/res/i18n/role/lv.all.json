@@ -176,6 +176,54 @@
   "dashboard.technical.show": {
     "other": "Rādīt tehniskās lomas"
   },
+  "dashboard.filterByType": {
+    "other": "Filter by Type..."
+  },
+  "dashboard.filterSelectOne": {
+    "other": "Please select at least one role type in the list"
+  },
+  "roleType": {
+    "other": "Role Type"
+  },
+  "roleType.description": {
+    "other": "Standard roles are assigned by administrors, whereas teams are managed by users in their address book. Technical roles are attached automatically to each users and groups and in that case their type cannot be modified."
+  },
+  "roleType.admin": {
+    "other": "Standard"
+  },
+  "roleType.admin.description": {
+    "other": "Standard Role"
+  },
+  "roleType.IsTeam": {
+    "other": "Team"
+  },
+  "roleType.IsTeam.description": {
+    "other": "Team (visible as a Team in address book)"
+  },
+  "roleType.IsUserRole": {
+    "other": "[Tech] User"
+  },
+  "roleType.IsUserRole.description": {
+    "other": "[Technical] Created automatically for the corresponding User"
+  },
+  "roleType.IsGroupRole": {
+    "other": "[Tech] Group"
+  },
+  "roleType.IsGroupRole.description": {
+    "other": "[Technical] Created automatically for the corresponding Group"
+  },
+  "dashboard.typeFilter.admin": {
+    "other": "Standard Roles"
+  },
+  "dashboard.typeFilter.IsTeam": {
+    "other": "User-defined Teams"
+  },
+  "dashboard.typeFilter.IsUserRole": {
+    "other": "[Technical] Attached to each users"
+  },
+  "dashboard.typeFilter.IsGroupRole": {
+    "other": "[Technical] Attached to each groups"
+  },
   "last_update": {
     "other": "Pēdējo reizi atjaunots"
   },

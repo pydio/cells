@@ -963,7 +963,7 @@
     "other": "Detecta carga elevada en el servidor (sólo servidores Linux)"
   },
   "perfs.load.error": {
-    "other": "Posiblemente deba añadir más CPU o RAM a su servidor."
+    "other": "Maybe adding some CPU or RAM to your server could be necessary."
   },
   "perfs.load.help": {
     "other": "Una carga elevada en el servidor puede indicar que a su servidor le falta CPU o RAM para utilizar Pydio."
@@ -978,7 +978,7 @@
     "other": "El gestor de correos no está configurado para aplazar el envío de correos."
   },
   "perfs.mailer.help": {
-    "other": "El uso de colas de correo permite que no se envíen los correos directamente durante cada acción o petición, los almacena en una base de datos y se procesa la cola de forma independiente."
+    "other": "Using a mail queue prevents the direct sending of emails for each action and request. Instead, it stores them in a separate database and processes the queue independently."
   },
   "perfs.mailer.title": {
     "other": "Cola de Correo"

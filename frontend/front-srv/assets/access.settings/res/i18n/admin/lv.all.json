@@ -963,7 +963,7 @@
     "other": "Noteikt paaugstinātu servera slodzi (tikai Linux serveriem)"
   },
   "perfs.load.error": {
-    "other": "Iespējams ka serverim nepieciešams papildu procesors vai operatīvā atmiņa."
+    "other": "Maybe adding some CPU or RAM to your server could be necessary."
   },
   "perfs.load.help": {
     "other": "Paaugstināta servera slodze var norādīt par ierobežotu procesoru skaitu vai nepietiekamu operatīvo atmiņu priekš Pydio lietošanas."
@@ -978,7 +978,7 @@
     "other": "E-pastu sūtīšana nav konfigurētas, lai atliktu e-pasta ziņojumu sūtīšanu."
   },
   "perfs.mailer.help": {
-    "other": "Vēstuļu rindas sūtīšana ļauj izvairīties no katra atsevišķa e-pasta sūtīšanas katrai darbībai un pieprasījumam, bet glabā tos atsevišķā datu bāzē un apstrādā rindu atsevišķi."
+    "other": "Using a mail queue prevents the direct sending of emails for each action and request. Instead, it stores them in a separate database and processes the queue independently."
   },
   "perfs.mailer.title": {
     "other": "E-pasta sūtīšanas rinda"

@@ -1,6 +1,6 @@
 {
   "cont.btn.fb": {
-    "other": "Follow us"
+    "other": "Följ oss"
   },
   "cont.btn.github": {
     "other": "Github Star"
@@ -39,7 +39,7 @@
     "other": "Contact Sales"
   },
   "ent.btn.more": {
-    "other": "Learn More"
+    "other": "Läs mer"
   },
   "ent.features": {
     "other": "Enterprise-oriented features"
@@ -60,7 +60,7 @@
     "other": "Discover Pydio Cells Enterprise"
   },
   "ent.upgrade": {
-    "other": "Upgrade now!"
+    "other": "Uppgradera nu!"
   },
   "ent.upgrade.legend": {
     "other": "In-app upgrade Cells Enterprise (license required)"
@@ -75,7 +75,7 @@
     "other": "Getting Started"
   },
   "welc.btn.users": {
-    "other": "Users"
+    "other": "Användare"
   },
   "welc.btn.ws": {
     "other": "Workspaces"
@@ -99,7 +99,7 @@
     "other": "Quick Access"
   },
   "card.quick-access.add": {
-    "other": "Add a shortcut ..."
+    "other": "Lägg till en genväg ..."
   },
   "card.update.current": {
     "other": "Software Version"
@@ -108,7 +108,7 @@
     "other": "Software is up-to-date"
   },
   "card.update.new-version": {
-    "other": "A new version is available"
+    "other": "En ny version är tillgänglig"
   },
   "recentLogs.title": {
     "other": "Last Events"
@@ -117,10 +117,10 @@
     "other": "Errors"
   },
   "recentLogs.emptyState": {
-    "other": "No activity found"
+    "other": "Ingen aktivitet hittades"
   },
   "recentLogs.more": {
-    "other": "All Activities"
+    "other": "Alla aktiviteter"
   },
   "graph.files": {
     "other": "Files Activity"

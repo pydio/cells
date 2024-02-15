@@ -2339,6 +2339,9 @@
   "form.input-image.avatarMax": {
     "other": "5MB보다 작은 이미지를 사용해주세요."
   },
+  "searchengine.start": {
+    "other": "Start typing to search for files and folders"
+  },
   "searchengine.searching": {
     "other": "검색 중..."
   },

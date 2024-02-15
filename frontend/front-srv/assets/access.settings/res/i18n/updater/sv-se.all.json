@@ -39,7 +39,7 @@
     "other": "Version"
   },
   "package.label": {
-    "other": "Label"
+    "other": "Etikett"
   },
   "package.details": {
     "other": "Details"
@@ -63,13 +63,13 @@
     "other": "Start"
   },
   "upgrade.ed.button.cancel": {
-    "other": "Cancel"
+    "other": "Avbryt"
   },
   "upgrade.ed.button.install": {
-    "other": "Install now"
+    "other": "Installera nu"
   },
   "upgrade.ed.button.close": {
-    "other": "Close"
+    "other": "Stäng"
   },
   "upgrade.ed.eula.title": {
     "other": "Please Accept End-User License Agreement"

@@ -1,6 +1,6 @@
 {
   "welcome.stepLabel": {
-    "other": "Terms of Use"
+    "other": "Användarvillkor"
   },
   "welcome.title": {
     "other": "Welcome to Pydio Cells Installation Wizard"
@@ -132,7 +132,7 @@
     "other": "Error was: "
   },
   "form.dbConnectionType.label": {
-    "other": "Connection Type"
+    "other": "Anslutningstyp"
   },
   "form.dbConnectionType.tcp": {
     "other": "TCP"
@@ -279,7 +279,7 @@
     "other": "Tillbaka"
   },
   "stepper.button.last": {
-    "other": "Install Now"
+    "other": "Installera nu"
   },
   "stepper.button.reload": {
     "other": "Reload"

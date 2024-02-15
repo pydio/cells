@@ -185,6 +185,12 @@
   "infopanel.empty.select.file": {
     "other": "Ấn vào tệp để có thêm thông tin"
   },
+  "infopanel.card.pin": {
+    "other": "Attach card (full height)"
+  },
+  "infopanel.card.unpin": {
+    "other": "Detach card"
+  },
   "pinned-bookmarks.other": {
     "other": "Tất cả tập tin"
   },
