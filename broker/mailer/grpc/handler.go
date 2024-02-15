@@ -139,14 +139,11 @@ func (h *Handler) SendMail(ctx context.Context, req *proto.SendMailRequest) (*pr
 					body.FreeMarkdown = hermes.Markdown(m.ContentMarkdown)
 				}
 			} else {
+				body = templates.PrepareSimpleBody(to, languages...)
 				if m.ContentMarkdown != "" {
-					body = hermes.Body{
-						FreeMarkdown: hermes.Markdown(m.ContentMarkdown),
-					}
+					body.FreeMarkdown = hermes.Markdown(m.ContentMarkdown)
 				} else {
-					body = hermes.Body{
-						Intros: []string{m.ContentPlain},
-					}
+					body.Intros = []string{m.ContentPlain}
 				}
 			}
 			hermesMail := hermes.Email{Body: body}
