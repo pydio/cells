@@ -39,6 +39,7 @@ let ResizableColumn = ({storageKey, closed, isGhost, isLast, afterResize = ()=>{
     if((width && width <= 100) || isGhost) {
         style.background = 'var(--md-sys-color-surface-1)'
         style.borderRadius = '12px 12px 0 0';
+        style.paddingTop = 8;
     }
     if(isOver) {
         style.background = 'var(--md-sys-color-surface-3)';
@@ -48,6 +49,9 @@ let ResizableColumn = ({storageKey, closed, isGhost, isLast, afterResize = ()=>{
         if(isOver) {
             minWidth = 73;
         }
+    }
+    if(closed){
+        style.marginRight = -8
     }
 
     useEffect(()=>{

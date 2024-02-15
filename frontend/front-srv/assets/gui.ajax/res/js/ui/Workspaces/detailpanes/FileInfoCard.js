@@ -18,94 +18,80 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-import React from 'react'
+import React, {useState, useEffect} from 'react'
 import Pydio from 'pydio'
 import InfoPanelCard from './InfoPanelCard'
 import PathUtils from 'pydio/util/path'
 const {PydioContextConsumer} = Pydio.requireLib('boot')
 
-class FileInfoCard extends React.Component {
+let FileInfoCard = ({node, getMessage, ...otherProps}) => {
 
-    constructor(props){
-        super(props);
-        this._observer = () => {
-            this.forceUpdate();
-        };
-        if(props.node){
-            props.node.observe('node_replaced', this._observer)
+    const [meta, setMeta] = useState(new Map())
+    useEffect(() => {
+        if(!node){
+            return () => {}
         }
+        setMeta(node.getMetadata())
+        const observer = () => {
+            setMeta(node.getMetadata())
+        }
+        node.observe('node_replaced', observer)
+        return () => {
+            node.stopObserving('node_replaced', observer)
+        }
+    }, [node])
+
+    let size = meta.get('bytesize');
+    let hSize = PathUtils.roundFileSize(parseInt(size));
+    const unit = Pydio.getMessages()['byte_unit_symbol'] || 'B';
+    const date = new Date();
+    date.setTime(parseInt(meta.get('ajxp_modiftime')) * 1000);
+    let formattedDate = PathUtils.formatModifDate(date);
+
+    let data = [
+        {key:'size',label:getMessage('2'),value:hSize, hoverValue: size + ' ' + unit},
+        {key:'date',label:getMessage('4'),value:formattedDate}
+    ];
+
+    let w = meta.get('image_width');
+    let h = meta.get('image_height');
+    if(w && h){
+        data = [
+            ...data,
+            {key:'image', label:getMessage('135'), value:w + 'px X ' + h + 'px'}
+        ]
     }
 
-    componentWillReceiveProps(newProps){
-        if(this.props.node){
-            this.props.node.stopObserving('node_replaced', this._observer)
-        }
-        if(newProps.node){
-            newProps.node.observe('node_replaced', this._observer)
-        }
+    if(meta.has('x-cells-hash')) {
+        data.push({key:'x-cells-hash', label:'Internal Hash', value:meta.get('x-cells-hash')})
     }
 
-    componentWillUnmount(){
-        if(this.props.node){
-            this.props.node.stopObserving('node_replaced', this._observer)
-        }
+    if(meta.has('uuid')) {
+        data.push({key:'uuid', label:'Unique Identifier', value:meta.get('uuid')})
     }
 
-    render() {
-
-        const {node, getMessage} = this.props;
-        const meta = node.getMetadata();
-
-        let size = meta.get('bytesize');
-        let hSize = PathUtils.roundFileSize(parseInt(size));
-        const unit = Pydio.getMessages()['byte_unit_symbol'] || 'B';
-        const date = new Date();
-        date.setTime(parseInt(meta.get('ajxp_modiftime')) * 1000);
-        let formattedDate = PathUtils.formatModifDate(date);
-
-        let data = [
-            {key:'size',label:getMessage('2'),value:hSize, hoverValue: size + ' ' + unit},
-            {key:'date',label:getMessage('4'),value:formattedDate}
-        ];
-
-        let w = meta.get('image_width');
-        let h = meta.get('image_height');
-        if(w && h){
-            data = [
-                ...data,
-                {key:'image', label:getMessage('135'), value:w + 'px X ' + h + 'px'}
-            ]
-        }
-
-        if(meta.has('x-cells-hash')) {
-            data.push({key:'x-cells-hash', label:'Internal Hash', value:meta.get('x-cells-hash')})
-        }
-
-        if(meta.has('uuid')) {
-            data.push({key:'uuid', label:'Unique Identifier', value:meta.get('uuid')})
-        }
-
-        if(meta.has('mime')) {
-            data.push({key:'mime', label:'Mime Type', value:meta.get('mime')})
-        }
-
-        if(meta.has('etag')) {
-            data.push({key:'etag', label:'Storage ETag', value:meta.get('etag')})
-        }
-
-
-        return (
-            <InfoPanelCard
-                {...this.props}
-                identifier={"file-info"}
-                title={getMessage('341')}
-                standardData={data}
-                contentStyle={{paddingBottom: 10}}
-                icon="mdi mdi-information-outline"
-                iconColor="#2196f3"
-            />
-        );
+    if(meta.has('mime')) {
+        data.push({key:'mime', label:'Mime Type', value:meta.get('mime')})
     }
+
+    if(meta.has('etag')) {
+        data.push({key:'etag', label:'Storage ETag', value:meta.get('etag')})
+    }
+
+
+    return (
+        <InfoPanelCard
+            node={node}
+            getMessage={getMessage}
+            {...otherProps}
+            identifier={"file-info"}
+            title={getMessage('341')}
+            standardData={data}
+            contentStyle={{paddingBottom: 10}}
+            icon="mdi mdi-information-outline"
+            iconColor="#2196f3"
+        />
+    );
 }
 
 FileInfoCard = PydioContextConsumer(FileInfoCard);

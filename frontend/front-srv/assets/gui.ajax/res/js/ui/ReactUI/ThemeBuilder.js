@@ -674,7 +674,8 @@ export default class ThemeBuilder {
                         cursor:'move'
                     },
                     headerIcon:{
-                        color:'#ccc'
+                        color:mui3['outline-variant'],
+                        paddingRight: 2
                     },
                     actions:{
                         padding: 2,

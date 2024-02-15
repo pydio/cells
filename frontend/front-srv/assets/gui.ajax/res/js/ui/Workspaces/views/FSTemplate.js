@@ -309,24 +309,22 @@ class FSTemplate extends React.Component {
                         }}
                         style={styles.listStyle}
                     />
-                    {rightColumnState === 'info-panel' &&
-                        <MultiColumnPanel
-                            {...props}
+                    <MultiColumnPanel
+                        {...props}
+                        closed={rightColumnState !== 'info-panel'}
+                        afterResize={()=>this.resizeAfterTransition()}
+                        storageKey={searchView?'pydio.layout.searchView':'pydio.layout.infoPanel'}
 
-                            afterResize={()=>this.resizeAfterTransition()}
-                            storageKey={searchView?'pydio.layout.searchView':'pydio.layout.infoPanel'}
-
-                            dataModel={pydio.getContextHolder()}
-                            onRequestClose={()=>{this.closeRightPanel()}}
-                            onContentChange={this.infoPanelContentChange.bind(this)}
-                            style={styles.infoPanel.masterStyle}
-                            mainEmptyStateProps={{
-                                iconClassName:'',
-                                primaryTextId:'ajax_gui.infopanel.empty.select.file',
-                                style:{minHeight: 180, backgroundColor: 'transparent', padding:'0 20px'}
-                            }}
-                        />
-                    }
+                        dataModel={pydio.getContextHolder()}
+                        onRequestClose={()=>{this.closeRightPanel()}}
+                        onContentChange={this.infoPanelContentChange.bind(this)}
+                        style={styles.infoPanel.masterStyle}
+                        mainEmptyStateProps={{
+                            iconClassName:'',
+                            primaryTextId:'ajax_gui.infopanel.empty.select.file',
+                            style:{minHeight: 180, backgroundColor: 'transparent', padding:'0 20px'}
+                        }}
+                    />
                 </div>
                 {showChatTab && chatOpen &&
                     <CellChat

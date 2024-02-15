@@ -40,7 +40,6 @@ import MasterLayout from './views/MasterLayout'
 
 import InfoPanel from './detailpanes/InfoPanel'
 import InfoPanelCard from './detailpanes/InfoPanelCard'
-import InfoRootNode from './detailpanes/RootNode'
 import {MultiColumnContext} from './detailpanes/MultiColumnPanel'
 
 import GenericInfoCard from './detailpanes/GenericInfoCard'
@@ -73,7 +72,6 @@ const classes = {
 
     InfoPanel,
     InfoPanelCard,
-    InfoRootNode,
     FileInfoCard,
     GenericInfoCard,
     MultiColumnContext,

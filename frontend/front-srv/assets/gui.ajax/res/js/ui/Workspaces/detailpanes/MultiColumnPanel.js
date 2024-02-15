@@ -22,7 +22,7 @@ import React, {Fragment, createContext, useState, useEffect} from 'react'
 import {useLocalStorage} from "react-use";
 import InfoPanel, {InfoPanelNoScroll} from "./InfoPanel";
 import {ResizableColumn} from "./ResizableColumn";
-
+import {useTemplates} from './useTemplates'
 
 const MultiColumnContext = createContext(null);
 
@@ -36,7 +36,10 @@ const MultiColumnPanel = ({afterResize = ()=>{}, storageKey, onContentChange, ..
     const [storedSwitches, storeSwitches] = useLocalStorage(storageKey + '.switches', [])
     const [switches, setSwitches] = useState(storedSwitches)
 
-    const [templates, setTemplates] = useState([])
+    const {activeTemplates} = useTemplates({onContentChange, ...infoProps})
+    const templates = activeTemplates.TEMPLATES
+    //console.log(templates)
+
 
     useEffect(() => {
         afterResize()
@@ -128,13 +131,13 @@ const MultiColumnPanel = ({afterResize = ()=>{}, storageKey, onContentChange, ..
                 switchItems,
             };
 
-            let {style, closed} = {infoProps}
+            let {style, closed} = infoProps;
             style = {...style}
             if(currentPin) {
                 style = {...style, height: '100%', display:'flex', flexDirection:'column', overflow:'hidden'}
             }
 
-            if(idx > 0 && !ghostDrop && !templates.filter(t => displayForColumn(t.COMPONENT)).length) {
+            if(!ghostDrop && !templates.filter(t => displayForColumn(t.COMPONENT)).length) {
                 closed = true
             }
 
@@ -145,14 +148,13 @@ const MultiColumnPanel = ({afterResize = ()=>{}, storageKey, onContentChange, ..
 
             const finalInfoProps = {
                 ...infoProps,
-                switches
-            }
-            if(idx === 0) {
-                finalInfoProps.onTemplatesChange = (tpl) => {
-                    setTemplates(tpl);
-                    onContentChange(tpl.length)
+                switches,
+                displayData: {
+                    DATA: activeTemplates.DATA,
+                    TEMPLATES: templates.filter(t => displayForColumn(t.COMPONENT))
                 }
             }
+
             const isLast = idx === allColumns.length-1
             const isFirst = idx === 0
 

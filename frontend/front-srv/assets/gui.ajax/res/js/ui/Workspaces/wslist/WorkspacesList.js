@@ -181,7 +181,7 @@ class Entries extends React.Component{
                         />
                     ))}
                     {!entries.length && emptyState}
-                    {(entries.length > 0 || !emptyState) && createActionEntry}
+                    {createActionEntry}
                     {pagination.use && this.renderPagination(pagination)}
                 </div>
             </div>
@@ -485,10 +485,10 @@ class WorkspacesList extends React.Component{
                     anchorEl={popoverAnchor}
                     useLayerForClickAway={true}
                     onRequestClose={() => {this.setState({popoverOpen: false})}}
-                    anchorOrigin={sharedEntries.length ? {horizontal:"left",vertical:"top"} : {horizontal:"left",vertical:"bottom"}}
-                    targetOrigin={sharedEntries.length ? {horizontal:"left",vertical:"top"} : {horizontal:"left",vertical:"bottom"}}
+                    anchorOrigin={{horizontal:"right",vertical:"center"}}
+                    targetOrigin={{horizontal:"left",vertical:"center"}}
                     zDepth={3}
-                    style={{overflow: 'hidden', marginLeft:sharedEntries.length?-10:0, marginTop:sharedEntries.length?-10:0}}
+                    style={{overflow: 'hidden'}}
                 >{popoverContent}</Popover>
                 {showWorkspacesSection &&
                     <Entries

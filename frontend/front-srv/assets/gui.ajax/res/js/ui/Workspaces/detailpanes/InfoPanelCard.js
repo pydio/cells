@@ -18,10 +18,11 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-import React, {useState, useContext} from 'react';
+import React, {useState, useContext, useLayoutEffect} from 'react';
 import Pydio from 'pydio'
 import {IconButton, Paper} from 'material-ui'
 import {muiThemeable} from 'material-ui/styles'
+import Tooltip from '@mui/material/Tooltip'
 import {useLocalStorage} from "react-use";
 import {MultiColumnContext} from "./MultiColumnPanel";
 import {ResizableContext} from "./ResizableColumn";
@@ -33,7 +34,7 @@ import {DragTypes, itemSource, itemTarget, collect, collectDrop} from "./dnd";
 /**
  * Default InfoPanel Card
  */
-let ContextInfoPanelCard = ({primaryToolbars, icon, title, closedTitle, shrinkTitle, actions, defaultOpen = false, muiTheme, pydio, standardData, popoverPanel, namespace, componentName, style, contentStyle, isDragging, connectDragSource, connectDragPreview, connectDropTarget, displayForColumn, stickToColumn, currentColumn, currentPin, setColumnPin, children}) => {
+let ContextInfoPanelCard = ({primaryToolbars, icon, title, closedTitle, shrinkTitle, actions, defaultOpen = false, muiTheme, pydio, standardData, popoverPanel, namespace, componentName, style, contentStyle, isDragging, connectDragSource, connectDragPreview, connectDropTarget, displayForColumn, stickToColumn, currentColumn, currentPin, setColumnPin, scrollAreaProps, children}) => {
 
     const identifier = namespace + '.' + componentName;
 
@@ -46,9 +47,17 @@ let ContextInfoPanelCard = ({primaryToolbars, icon, title, closedTitle, shrinkTi
         return null;
     }
 
-    const styles = muiTheme.buildFSTemplate({}).infoPanel;
+    useLayoutEffect(() => {
+        if(scrollAreaProps){
+            try{
+                setTimeout(scrollAreaProps.refresh, 250)
+            }catch(e){}
+        }
+    }, [open])
 
+    const styles = muiTheme.buildFSTemplate({}).infoPanel;
     const shrinkMode = !!(width && width < 80);
+    const m  = (id) => Pydio.getMessages()['ajax_gui.' + id] || id
 
     let refinedStyles = {};
     if(currentColumn > 0) {
@@ -98,23 +107,23 @@ let ContextInfoPanelCard = ({primaryToolbars, icon, title, closedTitle, shrinkTi
         const actions = [];
         if(!connectDragSource){ // DND not here, use arrows to move to next column?
             if(currentColumn > 0) {-
-                actions.push({icon: 'arrow-left', label:'Move left', click:()=> stickToColumn(identifier, currentColumn-1)})
+                actions.push({icon: 'arrow-left', click:()=> stickToColumn(identifier, currentColumn-1)})
             }
-            actions.push({icon: 'arrow-right', label:'Move Right', click:()=> stickToColumn(identifier, currentColumn+1)})
+            actions.push({icon: 'arrow-right', click:()=> stickToColumn(identifier, currentColumn+1)})
         }
         if(currentPin) { // there is a pinned panel
             if(currentPin === identifier) {
                 if(hoverTitle){
-                    actions.push({icon:'pin-off', label: 'Unpin Pane', click:() => setColumnPin(null)})
+                    actions.push({icon:'pin-off-outline', label: m('infopanel.card.unpin'), click:() => setColumnPin(null)})
                 }
             } else {
-                actions.push({icon:'chevron-right', label: 'Expand', click:() => setColumnPin(identifier)})
+                actions.push({icon:'chevron-right',  click:() => setColumnPin(identifier)})
             }
         } else {
             if(open && hoverTitle) {
-                actions.push({icon:'pin', label: 'Pin Pane', click:() => setColumnPin(identifier)})
+                actions.push({icon:'pin-outline', label: m('infopanel.card.pin'), click:() => setColumnPin(identifier)})
             }
-            actions.push({icon:open?'chevron-up':'chevron-down', label:'Toggle Pane', click:()=>setOpen(!open)})
+            actions.push({icon:open?'chevron-up':'chevron-down', click:()=>setOpen(!open)})
         }
         let shrinkIconStyle = styles.card.shrinked.icon
         if(hoverTitle){
@@ -128,15 +137,19 @@ let ContextInfoPanelCard = ({primaryToolbars, icon, title, closedTitle, shrinkTi
                 {shrinkMode && <div style={shrinkIconStyle}><span className={icon ? icon : "mdi mdi-information-box-outline"}/></div>}
                 <div style={{...styles.card.headerTitle, ...refinedStyles.title}}>{shrinkMode && shrinkTitle || title}</div>
                 {!shrinkMode &&
-                    <div style={{...styles.card.headerIcon, zoom: 0.8}}>
+                    <div style={{...styles.card.headerIcon}}>
                         {actions.map(a => {
-                            return (
-                                <IconButton
-                                    iconClassName={"mdi mdi-"+a.icon}
-                                    onClick={a.click}
-                                    iconStyle={{color:styles.card.headerIcon.color}}
-                                />
-                            )
+                            const iconButton = (<IconButton
+                                iconClassName={"mdi mdi-"+a.icon}
+                                onClick={a.click}
+                                style={{width:36, height:36, padding: 8, marginLeft: -3}}
+                                iconStyle={{fontSize:18, color:styles.card.headerIcon.color}}
+                            />)
+                            if(a.label) {
+                                return ( <Tooltip placement={"bottom-end"} title={<span style={{padding:'0 10px'}}>{a.label}</span>}><span>{iconButton}</span></Tooltip> )
+                            } else {
+                                return iconButton;
+                            }
                         })}
                     </div>
                 }
