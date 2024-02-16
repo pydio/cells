@@ -186,10 +186,10 @@
     "other": "Wählen Sie eine Datei aus, um Informationen anzuzeigen"
   },
   "infopanel.card.pin": {
-    "other": "Attach card (full height)"
+    "other": "Karte anhängen (volle Höhe)"
   },
   "infopanel.card.unpin": {
-    "other": "Detach card"
+    "other": "Karte trennen"
   },
   "pinned-bookmarks.other": {
     "other": "Alle Dateien"
