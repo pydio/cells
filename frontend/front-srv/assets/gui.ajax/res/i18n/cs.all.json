@@ -191,6 +191,18 @@
   "infopanel.card.unpin": {
     "other": "Detach card"
   },
+  "infopanel.card.detach": {
+    "other": "Detach in a separate panel"
+  },
+  "infopanel.detached.minimize": {
+    "other": "Minimize Panel"
+  },
+  "infopanel.detached.maximize": {
+    "other": "Open Panel"
+  },
+  "infopanel.detached.dock": {
+    "other": "Dock in the right-hand column"
+  },
   "pinned-bookmarks.other": {
     "other": "Všechny soubory"
   },

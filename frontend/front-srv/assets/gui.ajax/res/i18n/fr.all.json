@@ -191,6 +191,18 @@
   "infopanel.card.unpin": {
     "other": "Détacher la carte"
   },
+  "infopanel.card.detach": {
+    "other": "Détacher dans un panneau séparé"
+  },
+  "infopanel.detached.minimize": {
+    "other": "Réduire"
+  },
+  "infopanel.detached.maximize": {
+    "other": "Agrandir"
+  },
+  "infopanel.detached.dock": {
+    "other": "Intégrer à la colonne de droite"
+  },
   "pinned-bookmarks.other": {
     "other": "Tous les fichiers"
   },
