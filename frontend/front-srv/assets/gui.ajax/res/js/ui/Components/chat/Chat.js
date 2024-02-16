@@ -221,7 +221,7 @@ let Chat = ({roomType, roomObjectId, style, msgContainerStyle, chatUsersStyle, f
     return (
         <DropZoneWrapper onDropNode={onDropNode} style={{padding: 0, ...style}}>
             {computePresenceFromACLs !== undefined  &&
-                <div style={chatUsersStyle}><SharedUsersStack acls={computePresenceFromACLs} max={12} onlines={room?room.Users:[]}/></div>
+                <div className={"chat-handle"} style={chatUsersStyle}><SharedUsersStack acls={computePresenceFromACLs} max={12} onlines={room?room.Users:[]}/></div>
             }
             <div className="comments_feed" style={{maxHeight: 300, overflowY: 'auto',  ...pushStyle, ...msgContainerStyle}}>
                 {pusher}

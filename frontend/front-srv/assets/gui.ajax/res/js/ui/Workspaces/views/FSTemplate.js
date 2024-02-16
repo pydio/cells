@@ -26,7 +26,7 @@ import {muiThemeable} from 'material-ui/styles'
 import MainFilesList from './MainFilesList'
 import EditionPanel from './EditionPanel'
 import WelcomeTour from './WelcomeTour'
-import CellChat from './CellChat'
+import {CellChatDetached} from './CellChat'
 import MasterLayout from './MasterLayout'
 import AppBar from './AppBar'
 import WorkspacesList from "../wslist/WorkspacesList";
@@ -38,28 +38,11 @@ class FSTemplate extends React.Component {
     constructor(props){
         super(props);
 
-        let rState = 'info-panel';
-        if(localStorage.getItem('pydio.layout.rightColumnState') !== undefined && localStorage.getItem('pydio.layout.rightColumnState')){
-            rState = localStorage.getItem('pydio.layout.rightColumnState');
-        }
-        const closedToggle = localStorage.getItem('pydio.layout.infoPanelToggle') === 'closed';
-        const closedInfo = localStorage.getItem('pydio.layout.infoPanelOpen') === 'closed';
-
-        let defaultResizerWidth = 250;
-        if(localStorage.getItem('pydio.layout.rightColumnWidth')){
-            const p = parseInt(localStorage.getItem('pydio.layout.rightColumnWidth'))
-            if(p > 0) {
-                defaultResizerWidth = p
-            }
-        }
-
-
         this.state = {
-            infoPanelOpen: !closedInfo,
-            infoPanelToggle: !closedToggle,
+            infoPanelOpen: localStorage.getItem('pydio.layout.infoPanelOpen') !== 'false', // open by default
+            chatOpen: localStorage.getItem('pydio.layout.chatOpen') === 'true', // closed by default
+            chatDetached: localStorage.getItem('pydio.layout.chatDetached') !== 'false', // detached by default
             drawerOpen: false,
-            rightColumnState: rState,
-            rightColumnWidth: defaultResizerWidth,
             searchFormState: {},
             searchView: false
         };
@@ -112,47 +95,27 @@ class FSTemplate extends React.Component {
         pydio.stopObserving('context_changed', this._ctxObserver)
     }
 
-    openRightPanel(name){
-        const {rightColumnState, chatOpen = false} = this.state;
-        if(name === 'chat') {
-            this.setState({chatOpen: !chatOpen})
-            return;
-        }
-        if(name === rightColumnState){
-            this.closeRightPanel();
-            return;
-        }
-        this.setState({rightColumnState: name}, () => {
-            let {infoPanelOpen} = this.state;
-            if(name !== 'info-panel'){
-                infoPanelOpen = true;
-            }
-            localStorage.setItem('pydio.layout.rightColumnState', name);
-            localStorage.setItem('pydio.layout.infoPanelToggle', 'open');
-            localStorage.setItem('pydio.layout.infoPanelOpen', infoPanelOpen?'open':'closed');
-            this.setState({infoPanelToggle:true, infoPanelOpen}, () => this.resizeAfterTransition())
-        });
+    toggleAndStore(keyName) {
+        const value = this.state[keyName]
+        const newValue = !value;
+        this.setState({[keyName]: newValue}, ()=> {
+            this.resizeAfterTransition()
+            localStorage.setItem('pydio.layout.' + keyName, newValue ? 'true': 'false')
+        })
     }
 
-    closeRightPanel() {
-        this.setState({infoPanelToggle: false}, () => {
-            this.resizeAfterTransition();
-        });
-        localStorage.setItem('pydio.layout.rightColumnState', '');
-        localStorage.setItem('pydio.layout.infoPanelToggle', 'closed');
+    toggleRightPanel(name){
+        this.toggleAndStore(name === 'chat' ? 'chatOpen' : 'infoPanel')
     }
 
 
     resizeAfterTransition(){
-        if(!this.state.infoPanelToggle){
-            this.setState({rightColumnState: null});
-        }
         setTimeout(() => { window.dispatchEvent(new Event('resize')) }, 250);
         setTimeout(() => { window.dispatchEvent(new Event('resize')) }, 500);
     }
 
     infoPanelContentChange(numberOfCards){
-        this.setState({infoPanelOpen: (numberOfCards > 0)}, () => this.resizeAfterTransition())
+        //this.setState({infoPanelOpen: (numberOfCards > 0)}, () => this.resizeAfterTransition())
     }
 
     openDrawer(event){
@@ -176,7 +139,6 @@ class FSTemplate extends React.Component {
         let headerHeight = 72;
 
         let showChatTab = (!pydio.getPluginConfigs("action.advanced_settings").get("GLOBAL_DISABLE_CHATS")) && !xtraSmallScreen;
-        let showAddressBook = (!pydio.getPluginConfigs("action.user").get("DASH_DISABLE_ADDRESS_BOOK")) && !smallScreen;
         let showInfoPanel = !xtraSmallScreen;
 
         if(showChatTab){
@@ -185,22 +147,10 @@ class FSTemplate extends React.Component {
                 showChatTab = false;
             }
         }
-        let {drawerOpen, rightColumnState, chatOpen, displayMode, sortingInfo} = this.state;
-        let rightColumnClosed = false;
-
-        if(!showChatTab && rightColumnState === 'chat') {
-            rightColumnState = 'info-panel';
-        }
-        if(!showInfoPanel && rightColumnState === 'info-panel'){
-            rightColumnState = '';
-        }
+        let {drawerOpen, infoPanelOpen, chatOpen, chatDetached=true, displayMode, sortingInfo} = this.state;
 
         let classes = ['vertical_fit', 'react-fs-template'];
-        if(!rightColumnState || xtraSmallScreen) {
-            rightColumnClosed = true
-
-        }
-        const styles = muiTheme.buildFSTemplate({headerHeight, searchView, rightColumnClosed, displayMode})
+        const styles = muiTheme.buildFSTemplate({headerHeight, searchView, rightColumnClosed: !infoPanelOpen, displayMode})
 
         // Making sure we only pass the style to the parent element
         const {style, ...props} = this.props;
@@ -245,6 +195,14 @@ class FSTemplate extends React.Component {
         if(muiTheme.userTheme!=='mui3'){
             styles.searchForm.textField = {color:'white'}
         }
+        let rightAdditionalTemplates;
+        if(showChatTab && chatOpen && !chatDetached) {
+            rightAdditionalTemplates = [{
+                COMPONENT: "PydioWorkspaces.CellChatInfoCard",
+                WEIGHT: -600,
+                PROPS: {onRequestDetachPanel: () => this.toggleAndStore('chatDetached')}
+            }];
+        }
 
         return (
             <MasterLayout
@@ -270,16 +228,12 @@ class FSTemplate extends React.Component {
                     onUpdateSearchView={(u) => u?this.setSearchView():this.unsetSearchView()}
 
                     showChatTab={showChatTab}
-                    showInfoPanel={showInfoPanel}
-                    showAddressBook={false}
-                    rightColumnState={rightColumnState}
                     chatOpen={chatOpen}
-                    onOpenRightPanel={(p) => this.openRightPanel(p)}
-
+                    showInfoPanel={showInfoPanel}
+                    infoPanelOpen={infoPanelOpen}
+                    onToggleRightPanel={(p) => this.toggleRightPanel(p)}
                     onOpenDrawer={(e)=>this.openDrawer(e)}
-
                 />
-
                 <div style={styles.masterListContainer}>
                     {searchView &&
                         <WorkspacesList
@@ -311,12 +265,11 @@ class FSTemplate extends React.Component {
                     />
                     <MultiColumnPanel
                         {...props}
-                        closed={rightColumnState !== 'info-panel'}
+                        closed={!infoPanelOpen}
                         afterResize={()=>this.resizeAfterTransition()}
                         storageKey={searchView?'pydio.layout.searchView':'pydio.layout.infoPanel'}
-
                         dataModel={pydio.getContextHolder()}
-                        onRequestClose={()=>{this.closeRightPanel()}}
+                        onRequestClose={()=>{this.toggleRightPanel('info-panel')}}
                         onContentChange={this.infoPanelContentChange.bind(this)}
                         style={styles.infoPanel.masterStyle}
                         mainEmptyStateProps={{
@@ -324,16 +277,14 @@ class FSTemplate extends React.Component {
                             primaryTextId:'ajax_gui.infopanel.empty.select.file',
                             style:{minHeight: 180, backgroundColor: 'transparent', padding:'0 20px'}
                         }}
+                        additionalTemplates={rightAdditionalTemplates}
                     />
                 </div>
-                {showChatTab && chatOpen &&
-                    <CellChat
+                {showChatTab && chatOpen && chatDetached &&
+                    <CellChatDetached
                         pydio={pydio}
-                        style={{position:'absolute', bottom: 0, right: 20, width: 460, maxHeight: '80%', borderRadius:'12px 12px 0 0'}}
-                        chatStyle={{margin: 0, borderRadius:'12px 12px 0 0'}}
-                        fieldContainerStyle={{borderRadius: 0}}
-                        zDepth={2}
-                        onRequestClose={()=>{this.setState({chatOpen: false})}}
+                        onRequestClose={()=> this.toggleRightPanel('chat')}
+                        onRequestToInfoPanel={() => this.toggleAndStore('chatDetached')}
                     />
                 }
                 <EditionPanel {...props}/>

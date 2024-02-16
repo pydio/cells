@@ -44,6 +44,7 @@ import {MultiColumnContext} from './detailpanes/MultiColumnPanel'
 
 import GenericInfoCard from './detailpanes/GenericInfoCard'
 import FileInfoCard from './detailpanes/FileInfoCard'
+import {CellChatInfoCard} from './views/CellChat'
 
 import {Editor} from './editor/components/editor'
 
@@ -74,6 +75,7 @@ const classes = {
     InfoPanelCard,
     FileInfoCard,
     GenericInfoCard,
+    CellChatInfoCard,
     MultiColumnContext,
 
     MUITour,

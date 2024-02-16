@@ -29,7 +29,7 @@ const {ButtonMenu, Toolbar, ListPaginator} = Pydio.requireLib('components');
 const {ThemedContainers:{IconButton}} = Pydio.requireLib('hoc');
 
 
-const AppBar = ({pydio, muiTheme, styles, searchView, searchTools, searchViewTransition, showInfoPanel, showAddressBook, rightColumnState, showChatTab, chatOpen, onOpenDrawer, onUpdateSearchView, onOpenRightPanel, sortingInfo={}}) => {
+const AppBar = ({pydio, muiTheme, styles, searchView, searchTools, searchViewTransition, showInfoPanel, infoPanelOpen, showChatTab, chatOpen, onOpenDrawer, onUpdateSearchView, onToggleRightPanel, sortingInfo={}}) => {
 
 
     const mobile = pydio.UI.MOBILE_EXTENSIONS;
@@ -222,30 +222,20 @@ const AppBar = ({pydio, muiTheme, styles, searchView, searchTools, searchViewTra
                     {showInfoPanel &&
                         <IconButton
                             iconClassName={"mdi mdi-information"}
-                            style={rightColumnState === 'info-panel' ? styles.activeButtonStyle : styles.buttonsStyle}
-                            iconStyle={rightColumnState === 'info-panel' ? styles.activeButtonIconStyle : styles.buttonsIconStyle}
-                            onClick={()=>{onOpenRightPanel('info-panel')}}
-                            tooltip={pydio.MessageHash[rightColumnState === 'info-panel' ? '86':'341']}
+                            style={infoPanelOpen ? styles.activeButtonStyle : styles.buttonsStyle}
+                            iconStyle={infoPanelOpen ? styles.activeButtonIconStyle : styles.buttonsIconStyle}
+                            onClick={()=>{onToggleRightPanel('info-panel')}}
+                            tooltip={pydio.MessageHash[infoPanelOpen ? '86':'341']}
                         />
                     }
                     {!searchView && showChatTab &&
                         <IconButton
-                            iconClassName={"mdi mdi-message-text"}
-                            style={chatOpen ? styles.activeButtonStyle : styles.buttonsStyle}
-                            iconStyle={chatOpen ? styles.activeButtonIconStyle : styles.buttonsIconStyle}
-                            onClick={()=>{onOpenRightPanel('chat')}}
+                            iconClassName={chatOpen ? "mdi mdi-message-bulleted-off" : "mdi mdi-message-text"}
+                            style={styles.buttonsStyle}
+                            iconStyle={styles.buttonsIconStyle}
+                            onClick={()=>{onToggleRightPanel('chat')}}
                             tooltip={pydio.MessageHash[chatOpen ? '86':'635']}
                             tooltipPosition={"bottom-left"}
-                        />
-                    }
-                    {!searchView && showAddressBook &&
-                        <IconButton
-                            iconClassName={"mdi mdi-account-card-details"}
-                            style={rightColumnState === 'address-book' ? styles.activeButtonStyle : styles.buttonsStyle}
-                            iconStyle={rightColumnState === 'address-book' ? styles.activeButtonIconStyle : styles.buttonsIconStyle}
-                            onClick={()=>{onOpenRightPanel('address-book')}}
-                            tooltip={pydio.MessageHash[rightColumnState === 'address-book' ? '86':'592']}
-                            tooltipPosition={showChatTab?"bottom-center":"bottom-left"}
                         />
                     }
                 </div>

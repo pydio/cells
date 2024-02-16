@@ -26,7 +26,7 @@ import {useTemplates} from './useTemplates'
 
 const MultiColumnContext = createContext(null);
 
-const MultiColumnPanel = ({afterResize = ()=>{}, storageKey, onContentChange, ...infoProps}) => {
+const MultiColumnPanel = ({afterResize = ()=>{}, storageKey, onContentChange, additionalTemplates = [], ...infoProps}) => {
 
     const [columns, setColumns] = useLocalStorage(storageKey + '.multicolumns', [])
     const [defaultColumn, setDefaultColumn] = useLocalStorage(storageKey + '.defaultColumn', {})
@@ -36,10 +36,9 @@ const MultiColumnPanel = ({afterResize = ()=>{}, storageKey, onContentChange, ..
     const [storedSwitches, storeSwitches] = useLocalStorage(storageKey + '.switches', [])
     const [switches, setSwitches] = useState(storedSwitches)
 
-    const {activeTemplates} = useTemplates({onContentChange, ...infoProps})
-    const templates = activeTemplates.TEMPLATES
-    //console.log(templates)
-
+    const {pydio, dataModel} = infoProps;
+    const {activeTemplates} = useTemplates({pydio, dataModel, onContentChange})
+    const templates = [...activeTemplates.TEMPLATES, ...additionalTemplates];
 
     useEffect(() => {
         afterResize()

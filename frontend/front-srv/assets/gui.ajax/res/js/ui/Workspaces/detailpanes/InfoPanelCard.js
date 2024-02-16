@@ -34,7 +34,7 @@ import {DragTypes, itemSource, itemTarget, collect, collectDrop} from "./dnd";
 /**
  * Default InfoPanel Card
  */
-let ContextInfoPanelCard = ({primaryToolbars, icon, title, closedTitle, shrinkTitle, actions, defaultOpen = false, muiTheme, pydio, standardData, popoverPanel, namespace, componentName, style, contentStyle, isDragging, connectDragSource, connectDragPreview, connectDropTarget, displayForColumn, stickToColumn, currentColumn, currentPin, setColumnPin, scrollAreaProps, children}) => {
+let ContextInfoPanelCard = ({primaryToolbars, icon, title, closedTitle, shrinkTitle, actions, defaultOpen = false, onRequestDetachPanel, muiTheme, pydio, standardData, popoverPanel, namespace, componentName, style, contentStyle, isDragging, connectDragSource, connectDragPreview, connectDropTarget, displayForColumn, stickToColumn, currentColumn, currentPin, setColumnPin, scrollAreaProps, children}) => {
 
     const identifier = namespace + '.' + componentName;
 
@@ -60,9 +60,6 @@ let ContextInfoPanelCard = ({primaryToolbars, icon, title, closedTitle, shrinkTi
     const m  = (id) => Pydio.getMessages()['ajax_gui.' + id] || id
 
     let refinedStyles = {};
-    if(currentColumn > 0) {
-        refinedStyles = {main: {marginLeft: 0}}
-    }
     if (shrinkMode) {
         refinedStyles.main = styles.card.shrinked.panel
         refinedStyles.header = styles.card.shrinked.header
@@ -110,6 +107,9 @@ let ContextInfoPanelCard = ({primaryToolbars, icon, title, closedTitle, shrinkTi
                 actions.push({icon: 'arrow-left', click:()=> stickToColumn(identifier, currentColumn-1)})
             }
             actions.push({icon: 'arrow-right', click:()=> stickToColumn(identifier, currentColumn+1)})
+        }
+        if(onRequestDetachPanel && open && hoverTitle) {
+            actions.push({icon:'picture-in-picture-bottom-right', label:m('infopanel.card.detach'), click:onRequestDetachPanel})
         }
         if(currentPin) { // there is a pinned panel
             if(currentPin === identifier) {

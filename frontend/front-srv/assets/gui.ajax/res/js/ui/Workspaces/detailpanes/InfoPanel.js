@@ -66,6 +66,7 @@ class InfoPanel extends React.Component {
                 <AsyncComponent
                     {...displayData.DATA}
                     {...subProps}
+                    {...tpl.PROPS}
                     key={"ip_" + component}
                     namespace={namespace}
                     componentName={name}
