@@ -177,13 +177,13 @@
     "other": "Technische Rollen zeigen"
   },
   "dashboard.filterByType": {
-    "other": "Filter by Type..."
+    "other": "Nach Typ filtern…"
   },
   "dashboard.filterSelectOne": {
-    "other": "Please select at least one role type in the list"
+    "other": "Bitte wählen Sie mindestens einen Rollentyp in der Liste"
   },
   "roleType": {
-    "other": "Role Type"
+    "other": "Rollenart"
   },
   "roleType.description": {
     "other": "Standard roles are assigned by administrors, whereas teams are managed by users in their address book. Technical roles are attached automatically to each users and groups and in that case their type cannot be modified."
@@ -192,37 +192,37 @@
     "other": "Standard"
   },
   "roleType.admin.description": {
-    "other": "Standard Role"
+    "other": "Standardrolle"
   },
   "roleType.IsTeam": {
     "other": "Team"
   },
   "roleType.IsTeam.description": {
-    "other": "Team (visible as a Team in address book)"
+    "other": "Team (als Team im Adressbuch sichtbar)"
   },
   "roleType.IsUserRole": {
-    "other": "[Tech] User"
+    "other": "[Tech] Benutzer"
   },
   "roleType.IsUserRole.description": {
-    "other": "[Technical] Created automatically for the corresponding User"
+    "other": "[Technical] automatisch für den entsprechenden Benutzer erstellt"
   },
   "roleType.IsGroupRole": {
-    "other": "[Tech] Group"
+    "other": "[Tech] Gruppe"
   },
   "roleType.IsGroupRole.description": {
-    "other": "[Technical] Created automatically for the corresponding Group"
+    "other": "[Technical] automatisch für die entsprechende Gruppe erstellt"
   },
   "dashboard.typeFilter.admin": {
-    "other": "Standard Roles"
+    "other": "Standardrollen"
   },
   "dashboard.typeFilter.IsTeam": {
-    "other": "User-defined Teams"
+    "other": "Benutzerdefinierte Teams"
   },
   "dashboard.typeFilter.IsUserRole": {
-    "other": "[Technical] Attached to each users"
+    "other": "[Technical] An jeden Benutzer angeschlossen"
   },
   "dashboard.typeFilter.IsGroupRole": {
-    "other": "[Technical] Attached to each groups"
+    "other": "[Technical] An jede Gruppe angeschlossen"
   },
   "last_update": {
     "other": "Zuletzt aktualisiert"

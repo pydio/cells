@@ -963,7 +963,7 @@
     "other": "Detection de charge élevée (serveurs linux seulement)"
   },
   "perfs.load.error": {
-    "other": "Maybe adding some CPU or RAM to your server could be necessary."
+    "other": "Il peut être opportun d'ajouter du CPU et/ou de la RAM."
   },
   "perfs.load.help": {
     "other": "Une charge élevée du serveur peut indiquer que votre matériel est sous-dimensionné par rapport à votre nombre d'utilisateurs et votre usage."
@@ -978,7 +978,7 @@
     "other": "Le mailer n'est pas configuré pour utiliser la queue. Voir la page de configuration, penser à ajouter la tâche d'envoi dans le planificateur."
   },
   "perfs.mailer.help": {
-    "other": "Using a mail queue prevents the direct sending of emails for each action and request. Instead, it stores them in a separate database and processes the queue independently."
+    "other": "L'utilisation d'une file d'attente empêche l'envoi instantané d'emails à chaque action ou requête. Ils sont stockés dans une file d'attente qui est traitée de manière indépendante."
   },
   "perfs.mailer.title": {
     "other": "Queue des mails"
