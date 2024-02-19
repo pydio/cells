@@ -99,12 +99,7 @@ class Toolbar extends React.Component {
             searchLabel, onSearch, searchTerm, setSearchTerm,
             style:{flex:1, minWidth: 110},
         };
-        if (mode === 'selector'){
-            searchProps.inputStyle={color:'white'};
-            searchProps.hintStyle={color:'rgba(255,255,255,.5)'};
-            searchProps.underlineStyle={borderColor:'rgba(255,255,255,.5)'};
-            searchProps.underlineFocusStyle={borderColor:'white'};
-        } else {
+        if (mode !== 'selector'){
             searchProps.underlineShow=false
             searchProps.style = {
                 ...searchProps.style,
