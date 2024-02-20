@@ -192,16 +192,16 @@
     "other": "Karte trennen"
   },
   "infopanel.card.detach": {
-    "other": "Detach in a separate panel"
+    "other": "In einem separaten Panel trennen"
   },
   "infopanel.detached.minimize": {
-    "other": "Minimize Panel"
+    "other": "Panel minimieren"
   },
   "infopanel.detached.maximize": {
-    "other": "Open Panel"
+    "other": "Panel öffnen"
   },
   "infopanel.detached.dock": {
-    "other": "Dock in the right-hand column"
+    "other": "In der rechten Spalte anheften"
   },
   "pinned-bookmarks.other": {
     "other": "Alle Dateien"
