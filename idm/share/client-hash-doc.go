@@ -131,7 +131,7 @@ func (sc *Client) LoadHashDocumentData(ctx context.Context, shareLink *rest.Shar
 		}
 	}
 	if linkDoc == nil {
-		return errors.NotFound(common.ServiceDocStore, "Cannot find link associated to this workspace")
+		return errors.NotFound(common.ServiceDocStore + ": Cannot find link associated to this workspace")
 	}
 	shareLink.LinkHash = linkDoc.ID
 	var linkData *docstore.ShareDocument
