@@ -85,6 +85,7 @@ const CellChatDetached = ({pydio, onRequestClose, onRequestToInfoPanel}) => {
             style={{position:'absolute', bottom: 0, right: 20, borderRadius:'12px 12px 0 0', zIndex: 910}}
             onRequestClose={onRequestClose}
             onRequestToInfoPanel={onRequestToInfoPanel}
+            dragHandleSelector={".chat-handle"}
         >
             <CellChat
                 pydio={pydio}
