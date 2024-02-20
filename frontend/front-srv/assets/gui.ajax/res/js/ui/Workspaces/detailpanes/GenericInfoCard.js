@@ -24,6 +24,7 @@ import FilePreview from '../views/FilePreview'
 import {muiThemeable} from "material-ui/styles";
 import {ResizableContext} from "./ResizableColumn";
 import {MultiColumnContext} from "./MultiColumnPanel";
+import Pydio from 'pydio'
 
 const parseSelection = ({node, nodes}) => {
     let isMultiple, isLeaf, isDir, recycleContext;
@@ -108,7 +109,7 @@ let GenericInfoCard = (props) => {
             contentStyle = {...props.contentStyle, display:'flex', flexDirection:'column'}
         }
         return (
-            <InfoPanelCard {...props} closedTitle={"Preview"} icon={"mdi mdi-file-eye-outline"} contentStyle={contentStyle} primaryToolbars={toolbars}>
+            <InfoPanelCard {...props} closedTitle={Pydio.getMessages()['ajax_gui.1']} icon={"mdi mdi-file-eye-outline"} contentStyle={contentStyle} primaryToolbars={toolbars}>
                 <FilePreview
                     key={props.node.getPath()}
                     style={style}

@@ -2079,10 +2079,10 @@
     "other": "Various implementations for storing metadata along with files and folders"
   },
   "plugtype.desc.mq": {
-    "other": "Implementations of a simple PUB/SUB server"
+    "other": "简单的PUB/SUB服务实现"
   },
   "plugtype.desc.sec": {
-    "other": "Advanced Security Features"
+    "other": "高级安全特性"
   },
   "plugtype.desc.shorten": {
     "other": "缩短公共链接的网络服务连接"
@@ -2250,10 +2250,10 @@
     "other": "不要在文件名中使用 / ！"
   },
   "filename.forbidden.empty": {
-    "other": "You must provide a name!"
+    "other": "必须输入名字!"
   },
   "filename.trailing-leading.spaces": {
-    "other": "Warning, it seems that the name begins or ends with a blank character (perhaps a typo?)"
+    "other": "警告, 名字开头或结尾包含空格(是否为误输入?)."
   },
   "rename.newvalue.error.similar": {
     "other": "请使用不同的值来重命名!"
@@ -2310,7 +2310,7 @@
     "other": "选择组"
   },
   "addressbook.pick.multiple": {
-    "other": "Multiple Selection"
+    "other": "多选"
   },
   "confirm.dialog.title": {
     "other": "确认"
@@ -2340,7 +2340,7 @@
     "other": "请使用小于5MB 的图像"
   },
   "searchengine.start": {
-    "other": "Start typing to search for files and folders"
+    "other": "输入文字搜索文件或文件夹"
   },
   "searchengine.searching": {
     "other": "搜索中......"
@@ -2355,13 +2355,13 @@
     "other": "搜索中......"
   },
   "searchengine.share.title": {
-    "other": "Shared"
+    "other": "已分享的"
   },
   "searchengine.share.hint": {
-    "other": "No status"
+    "other": "无状态"
   },
   "searchengine.share.option.link": {
-    "other": "Public Link"
+    "other": "共享链接"
   },
   "searchengine.share.option.cell": {
     "other": "Shared in Cell"
@@ -2370,10 +2370,10 @@
     "other": "Public Link or Cell"
   },
   "searchengine.format.title": {
-    "other": "Format"
+    "other": "格式"
   },
   "searchengine.format.file-only": {
-    "other": "Files Only"
+    "other": "只包括文件"
   },
   "searchengine.advanced-filter.tooltip": {
     "other": "高级过滤器"
@@ -2388,19 +2388,19 @@
     "other": "保存"
   },
   "searchengine.query.action.save-new": {
-    "other": "Save Query"
+    "other": "保存查询"
   },
   "searchengine.query.action.clear": {
     "other": "清空"
   },
   "searchengine.query.action.clear-all": {
-    "other": "Clear All"
+    "other": "清除所有"
   },
   "searchengine.query.action.delete": {
     "other": "删除"
   },
   "searchengine.query.action.delete-confirm": {
-    "other": "Delete this saved query?"
+    "other": "删除已保存的搜索?"
   },
   "searchengine.query.save-label": {
     "other": "输入标签"
@@ -2409,73 +2409,73 @@
     "other": "名称/内容"
   },
   "searchengine.complete.group.saved": {
-    "other": "Saved Searches"
+    "other": "已保存的搜索"
   },
   "searchengine.complete.group.history": {
-    "other": "Last Searches"
+    "other": "最近搜索"
   },
   "searchengine.complete.group.suggestion": {
-    "other": "Advanced Suggestion"
+    "other": "高级建议"
   },
   "searchengine.complete.suggestion.intro": {
-    "other": "Do you mean"
+    "other": "您是指"
   },
   "searchengine.complete.suggestion.remain": {
-    "other": "containing '%s'"
+    "other": "包含 '%s'"
   },
   "searchengine.complete.activefilters": {
-    "other": "Filters:"
+    "other": "过滤器:"
   },
   "searchengine.complete.activefilters-edit": {
-    "other": "Click to modify"
+    "other": "点击修改"
   },
   "chat.dropzone.remove": {
-    "other": "Remove"
+    "other": "删除"
   },
   "chat.dropzone.preview": {
-    "other": "Include preview?"
+    "other": "包括预览?"
   },
   "chat.dropzone.inline": {
-    "other": "Insert inline"
+    "other": "在行内插入"
   },
   "chat.load-older": {
     "other": "较早文章"
   },
   "chat.msg.edit": {
-    "other": "Edit Message"
+    "other": "编辑消息"
   },
   "chat.msg.save": {
-    "other": "Save Changes"
+    "other": "保存变更"
   },
   "chat.msg.revert": {
-    "other": "Revert Changes"
+    "other": "恢复修改"
   },
   "chat.msg.delete": {
-    "other": "Delete Message"
+    "other": "删除消息"
   },
   "chat.msg.delete.confirm.title": {
-    "other": "Delete Message?"
+    "other": "删除消息?"
   },
   "chat.msg.delete.confirm": {
-    "other": "This action cannot be undone"
+    "other": "此操作无法恢复"
   },
   "chat.link.doc.loading": {
-    "other": "Loading document..."
+    "other": "文档加载中..."
   },
   "chat.link.doc.opening": {
-    "other": "Opening document..."
+    "other": "打开文档..."
   },
   "chat.link.doc.goto": {
-    "other": "Go to document"
+    "other": "跳到文档"
   },
   "chat.link.doc.not-found": {
-    "other": "Document not found, it may have been deleted."
+    "other": "文档不存在，可能已经被删除."
   },
   "chat.link.doc.click-indicator": {
-    "other": "Click to open %s"
+    "other": "点击打开 %s"
   },
   "chat.link.doc.open-in": {
-    "other": "Open document in..."
+    "other": "在...中打开文档"
   },
   "workspace.quota-usage": {
     "other": "配额使用"

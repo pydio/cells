@@ -22,6 +22,7 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import ResourcesManager from 'pydio/http/resources-manager';
 import debounce from 'lodash.debounce'
+import Pydio from 'pydio';
 
 /********************/
 /* ASYNC COMPONENTS */
@@ -108,7 +109,7 @@ class AsyncComponent extends Component {
     render() {
         const {hasError, Component} = this.state;
         if(hasError) {
-            return <div>Oops, something went wrong, please reload the window!</div>
+            return <div>{Pydio.getMessages()['ajax_gui.2']}</div>
         }
         if (!Component) {
             return null;

@@ -1,4 +1,10 @@
 {
+  "1":{
+    "other": "预览"
+  },
+  "2": {
+    "other": "哎呀~，遇到了一些问题，您可以刷新窗口重试!"
+  },
   "tour.create-menu": {
     "other": "开始添加新文件或文件夹到当前工作区。"
   },
@@ -186,34 +192,34 @@
     "other": "选择要显示信息的文件"
   },
   "infopanel.card.pin": {
-    "other": "Attach card (full height)"
+    "other": "添加卡片(全高)"
   },
   "infopanel.card.unpin": {
-    "other": "Detach card"
+    "other": "删除卡片"
   },
   "infopanel.card.detach": {
-    "other": "Detach in a separate panel"
+    "other": "添加到单独的面板中"
   },
   "infopanel.detached.minimize": {
-    "other": "Minimize Panel"
+    "other": "最小化面板"
   },
   "infopanel.detached.maximize": {
-    "other": "Open Panel"
+    "other": "打卡面板"
   },
   "infopanel.detached.dock": {
-    "other": "Dock in the right-hand column"
+    "other": "停靠在右边栏"
   },
   "pinned-bookmarks.other": {
     "other": "全部文件"
   },
   "file.temporary-etag.flag": {
-    "other": "Incomplete"
+    "other": "尚未完成"
   },
   "file.temporary-etag.tooltip": {
     "other": "此文件正在上传(或上传失败)。"
   },
   "mimegroup.byextension": {
-    "other": "By File Extension..."
+    "other": "根据文件扩展名..."
   },
   "mimegroup.word": {
     "other": "Word 文件"
@@ -240,16 +246,16 @@
     "other": "快速访问"
   },
   "fastsearch.quick-jump.legend": {
-    "other": "Hit [Enter] to jump, add a trailing [/] to search inside children, [Esc] to Close"
+    "other": "点击[Enter]键跳过, 使用[/]键在子项目中进行搜索,[Esc]键关闭"
   },
   "fastsearch.quick-move.title": {
     "other": "快速移动"
   },
   "fastsearch.quick-move.target-error": {
-    "other": "Cannot move to this target!"
+    "other": "不能移动到此目标址!"
   },
   "fastsearch.quick-move.legend": {
-    "other": "Hit [Enter] to move %s selected items to target, [Esc] to Close"
+    "other": "点击[Enter]键移动%s的选择项到目标地址,点击[Esc]键关闭"
   },
   "fastsearch.quick-copy.title": {
     "other": "快速拷贝"
@@ -258,19 +264,19 @@
     "other": "无法复制到此目标！"
   },
   "fastsearch.quick-copy.legend": {
-    "other": "Hit [Enter] to copy %s selected items to target, [Esc] to Close"
+    "other": "点击[Enter]键拷贝%s的选择项到目标地址,点击[Esc]键关闭"
   },
   "wslist-options.title": {
-    "other": "Display Options"
+    "other": "显示选项"
   },
   "wslist-options.show-masked": {
-    "other": "Show masked items"
+    "other": "显示屏蔽项"
   },
   "wslist.action.mask": {
-    "other": "Mask"
+    "other": "屏蔽"
   },
   "wslist.action.unmask": {
-    "other": "Unmask"
+    "other": "解除屏蔽"
   },
   "wslist-options.merge-workspaces": {
     "other": "Merge workspaces and cells"
@@ -294,18 +300,33 @@
     "other": "暗黑模式"
   },
   "task.status.Starting": {
-    "other": "Started {startTime}"
+    "other": "开始时间 {startTime}"
   },
   "task.status.Pending": {
-    "other": "Will start soon..."
+    "other": "即将运行..."
   },
   "task.status.Complete": {
-    "other": "Task completed in {duration}"
+    "other": "任务完成耗时 {duration}"
   },
   "task.status.Finished": {
-    "other": "Task completed in {duration}"
+    "other": "任务完成耗时 {duration}"
   },
   "task.status.Error": {
-    "other": "An error happened!"
+    "other": "发生错误!"
+  },
+  "search.1": {
+    "other": "文件及文件夹"
+  },
+  "search.2": {
+    "other": "当前文件夹"
+  },
+  "search.3": {
+    "other": "当前工作空间"
+  },
+  "search.4": {
+    "other": " 使用一个过滤器"
+  },
+  "search.5": {
+    "other": " 使用%1个过滤器"
   }
 }

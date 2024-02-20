@@ -1,4 +1,10 @@
 {
+  "1":{
+    "other": "Preview"
+  },
+  "2": {
+    "other": "Oops, something went wrong, please reload the window!"
+  },
   "tour.create-menu": {
     "other": "Sākt pievienot failus vai direktorijas esošajai darbvirsmai."
   },
@@ -307,5 +313,20 @@
   },
   "task.status.Error": {
     "other": "An error happened!"
+  },
+  "search.1": {
+    "other": "files and folders"
+  },
+  "search.2": {
+    "other": " in current folder"
+  },
+  "search.3": {
+    "other": " in current workspace"
+  },
+  "search.4": {
+    "other": " with one additional filter"
+  },
+  "search.5": {
+    "other": " with %1 additional filters"
   }
 }

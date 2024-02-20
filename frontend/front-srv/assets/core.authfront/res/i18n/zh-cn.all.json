@@ -24,12 +24,12 @@
     "other": "使用下面的表单重置您的密码。请输入您的登录名和新密码两次。"
   },
   "9": {
-    "other": "Please enter your username and password"
+    "other": "请输入您的用户名与账号"
   },
   "10": {
-    "other": "Please enter the password you received"
+    "other": "请输入您收到的密码"
   },
   "11": {
-    "other": "Login failed: could not recognise your username or password"
+    "other": "登录失败: 账号与密码不匹配"
   }
 }

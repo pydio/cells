@@ -201,19 +201,19 @@
     "other": "元数据"
   },
   "search.sorter.relevant.desc": {
-    "other": "Most Relevant First"
+    "other": "最相关的优先"
   },
   "search.sorter.modified.desc": {
-    "other": "Recently Added First"
+    "other": "最近添加的优先"
   },
   "search.sorter.modified.asc": {
-    "other": "Oldest First"
+    "other": "最早添加的优先"
   },
   "search.sorter.size.desc": {
-    "other": "Biggest First"
+    "other": "文件最大的优先"
   },
   "search.sorter.size.asc": {
-    "other": "Smallest First"
+    "other": "文件最小的优先"
   },
   "facet.label.file": {
     "other": "文件"

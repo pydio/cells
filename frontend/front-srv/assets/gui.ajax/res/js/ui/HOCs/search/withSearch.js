@@ -51,7 +51,7 @@ const SearchConstants = {
     ],
     MimeGroupsMessage : (id) => 'ajax_gui.mimegroup.' + id
 }
-
+const m = (id) => Pydio.getMessages()['ajax_gui.' + id];
 export {SearchConstants};
 
 
@@ -155,22 +155,22 @@ export default function withSearch(Component, historyIdentifier, defaultScope){
                 typeScope = '%s files'.replace('%s', mime)
             }
             if(basenameOrContent === '*'){
-                s = 'all %1'.replace('%1', typeScope || 'files and folders')
+                s = 'all %1'.replace('%1', typeScope || m('search.1'))
             } else if(basenameOrContent) {
                 s = '%1%2'.replace('%1', basenameOrContent).replace('%2', typeScope ? ' in ' + typeScope : '')
             } else {
-                s = '%1'.replace('%1', typeScope || 'files and folders')
+                s = '%1'.replace('%1', typeScope || m('search.1'))
             }
             const f = Object.keys(others).length
             if(f === 1){
-                s += ' with one additional filter'
+                s += m("search.4")
             } else if(f > 1) {
-                s += ' with %1 additional filters'.replace('%1', f)
+                s += m("search.5").replace('%1', f)
             }
             if(scope === 'ws') {
-                s += ' in current workspace'
+                s += m("search.3")
             } else if (scope === 'previous_context') {
-                s += ' in current folder'
+                s += m("search.2")
             }
             return s;
         }

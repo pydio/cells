@@ -27,7 +27,7 @@ const {InfoPanelCard, MultiColumnContext} = Pydio.requireLib('workspaces')
 const InfoPanel = ({pydio, node, popoverPanel, popoverRequestClose, ...infoProps}) => {
 
     const {currentPin} = useContext(MultiColumnContext) || {}
-
+    const m = (id) => pydio.MessageHash['share_center.' + id];
     if(node.isRoot()){
         return (
             <InfoPanelCard popoverPanel={popoverPanel} icon={"icomoon-cells"} closedTitle={"Cell Info"} {...infoProps}>
@@ -38,7 +38,7 @@ const InfoPanel = ({pydio, node, popoverPanel, popoverRequestClose, ...infoProps
         );
     } else {
         return (
-            <InfoPanelCard popoverPanel={popoverPanel} icon={"mdi mdi-share-variant-outline"} closedTitle={"Share Info"} {...infoProps}>
+            <InfoPanelCard popoverPanel={popoverPanel} icon={"mdi mdi-share-variant-outline"} closedTitle={m('share.panel.title-info')} {...infoProps}>
                 <div style={{padding:0, height:currentPin?'100%':null}}>
                     <CompositeCard node={node} pydio={pydio} mode="infoPanel" popoverPanel={popoverPanel} popoverRequestClose={popoverRequestClose} genericFlex={currentPin}/>
                 </div>
