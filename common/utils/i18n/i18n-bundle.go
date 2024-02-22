@@ -34,6 +34,12 @@ type I18nBundle struct {
 	bundle.Bundle
 }
 
+type TranslateFunc func(translationID string, args ...interface{}) string
+
+func IdentityFunc(translationID string, args ...interface{}) string {
+	return translationID
+}
+
 func NewI18nBundle(box statics.FS) *I18nBundle {
 	b := bundle.New()
 	B := &I18nBundle{}
@@ -62,7 +68,7 @@ func (b *I18nBundle) LoadPackrTranslationFiles(box statics.FS) {
 // GetTranslationFunc provides the correct translation func for language or the IdentityFunc
 // if language is not supported. Languages can be a list of weighted languages as provided
 // in the http header Accept-Language
-func (b *I18nBundle) GetTranslationFunc(languages ...string) i18n.TranslateFunc {
+func (b *I18nBundle) GetTranslationFunc(languages ...string) TranslateFunc {
 
 	var t bundle.TranslateFunc
 	var e error
@@ -72,9 +78,14 @@ func (b *I18nBundle) GetTranslationFunc(languages ...string) i18n.TranslateFunc 
 		t, e = b.Tfunc("en-US")
 	}
 	if e != nil {
-		return i18n.IdentityTfunc()
+		return func(id string, args ...interface{}) string {
+			return id
+		}
 	} else {
-		return i18n.TranslateFunc(t)
+		tf := i18n.TranslateFunc(t)
+		return func(id string, args ...interface{}) string {
+			return tf(id, args...)
+		}
 	}
 
 }

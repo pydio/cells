@@ -25,21 +25,20 @@ import (
 	"embed"
 	"sync"
 
-	"github.com/nicksnyder/go-i18n/i18n"
-	i18n2 "github.com/pydio/cells/v4/common/utils/i18n"
+	"github.com/pydio/cells/v4/common/utils/i18n"
 	"github.com/pydio/cells/v4/common/utils/statics"
 )
 
 var (
 	//go:embed box/*.json
 	content embed.FS
-	b       *i18n2.I18nBundle
+	b       *i18n.I18nBundle
 	o       = sync.Once{}
 )
 
 func T(lang ...string) i18n.TranslateFunc {
 	o.Do(func() {
-		b = i18n2.NewI18nBundle(statics.AsFS(content, "box"))
+		b = i18n.NewI18nBundle(statics.AsFS(content, "box"))
 	})
 	return b.GetTranslationFunc(lang...)
 }
