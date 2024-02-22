@@ -70,7 +70,7 @@ require (
 	github.com/mssola/user_agent v0.5.3
 	github.com/mwitkow/go-proto-validators v0.3.2
 	github.com/nats-io/nats.go v1.31.0
-	github.com/nicksnyder/go-i18n v1.10.0
+	github.com/nicksnyder/go-i18n/v2 v2.4.0
 	github.com/olekukonko/tablewriter v0.0.5
 	github.com/ory/fosite v0.42.3-0.20220729111320-05d71b23559c
 	github.com/ory/hydra v1.11.10
