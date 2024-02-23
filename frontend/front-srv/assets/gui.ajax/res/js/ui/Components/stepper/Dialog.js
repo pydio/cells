@@ -55,7 +55,7 @@ class StepperDialog extends React.Component {
                         <div style={{flex: 1, whiteSpace:'nowrap', overflow:'hidden', textOverflow:'ellipsis'}}>{title}</div>
                     {onFilter &&
                         <div style={{flex: 1, height: 34, marginTop: -10, marginRight: onDismiss && !customFilter?50:10, marginLeft: 10}}>
-                            <ModernTextField variant={"compact"} hintText={filterHint || 'Find in list'} onChange={(e,v)=>{onFilter(v)}} fullWidth={true} focusOnMount={true}/>
+                            <ModernTextField variant={"compact"} hintText={filterHint || Pydio.getMessages()['ajax_gui.bigppanel.filter.default-hint']} onChange={(e,v)=>{onFilter(v)}} fullWidth={true} focusOnMount={true}/>
                         </div>
                     }
                     {customFilter &&

@@ -281,7 +281,7 @@ class Events extends React.Component{
                     model.Sections.push(section);
                 }
                 // Reset section
-                section = {title: k.header, Actions:[]}
+                section = {title: Events.T(k.header), Actions:[]}
             } else {
                 const eData = Events.eventData(k);
                 if(filter && eData.title.toLowerCase().indexOf(filter) === -1 && eData.description.toLowerCase().indexOf(filter) === -1){
