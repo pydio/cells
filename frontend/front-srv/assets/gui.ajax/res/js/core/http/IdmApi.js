@@ -92,9 +92,10 @@ class IdmApi {
      * @param offset integer
      * @param limit integer
      * @param profile string filter by profile
+     * @param disableAutoWildcard bool force ignoring autoWildcard on filter
      * @return Promise<IdmUser[]>
      */
-    listUsers(baseGroup='/', filterString='', recursive = false, offset = 0, limit = -1, profile = ''){
+    listUsers(baseGroup='/', filterString='', recursive = false, offset = 0, limit = -1, profile = '', disableAutoWildcard=false){
 
         return this.loadRootPath(baseGroup).then(bg => {
             const api = new UserServiceApi(this.client);
@@ -109,7 +110,7 @@ class IdmApi {
 
             if(filterString){
                 const queryString = new IdmUserSingleQuery();
-                if (this.autoWildCard){
+                if (this.autoWildCard && !disableAutoWildcard){
                     filterString = '*' + filterString;
                 }
                 queryString.Login = filterString + '*';
@@ -211,9 +212,10 @@ class IdmApi {
      * @param offset integer
      * @param limit integer
      * @param filterString
+     * @param disableAutoWildcard bool force ignoring autoWildcard on filter
      * @return Promise<RestUsersCollection>
      */
-    listUsersWithRole(roleId, offset = 0, limit = -1, filterString = ''){
+    listUsersWithRole(roleId, offset = 0, limit = -1, filterString = '', disableAutoWildcard=false){
 
         const api = new UserServiceApi(this.client);
         const request = new RestSearchUserRequest();
@@ -229,7 +231,7 @@ class IdmApi {
         request.Queries.push(query2);
         if(filterString){
             const queryString = new IdmUserSingleQuery();
-            if (this.autoWildCard){
+            if (this.autoWildCard && !disableAutoWildcard){
                 filterString = '*' + filterString;
             }
             queryString.Login = filterString + '*';

@@ -177,9 +177,10 @@ class Loaders{
     }
 
     static loadExternalUsers(entry, callback){
-        let filter = '', offset = 0, limit = StdLimit;
+        let filter = '', offset = 0, limit = StdLimit, disableAW = false;
         if(entry.currentParams && entry.currentParams.alpha_pages){
             filter = entry.currentParams.value;
+            disableAW = true
         }
         if(entry.range){
             let [start, end] = entry.range.split('-');
@@ -188,7 +189,7 @@ class Loaders{
             limit = end - offset;
         }
         const pydio = PydioApi.getClient().getPydioObject();
-        IdmApi.listUsers('/', filter, true, offset, limit, 'shared').then(users => {
+        IdmApi.listUsers('/', filter, true, offset, limit, 'shared', disableAW).then(users => {
             entry.pagination = Loaders.computePagination(users);
             const items = users.Users.filter(idmUser => idmUser.Login !== pydio.user.id).map((idmUser) => {
                 return {
@@ -202,12 +203,15 @@ class Loaders{
     }
 
     static loadGroupUsers(entry, callback){
-        let path = '/', filter = '', offset = 0, limit = StdLimit;
+        let path = '/', filter = '', offset = 0, limit = StdLimit, disableAW = false;
         if(entry.IdmUser){
             path = LangUtils.trimRight(entry.IdmUser.GroupPath, '/') + '/' + entry.IdmUser.GroupLabel;
         }
         if(entry.currentParams && (entry.currentParams.alpha_pages || entry.currentParams.has_search)){
             filter = entry.currentParams.value;
+            if(entry.currentParams.alpha_pages) {
+                disableAW = true
+            }
         }
         if(entry.range){
             let [start, end] = entry.range.split('-');
@@ -216,7 +220,7 @@ class Loaders{
             limit = end - offset;
         }
         const pydio = PydioApi.getClient().getPydioObject();
-        IdmApi.listUsers(path, filter, false, offset, limit, '!shared').then(users => {
+        IdmApi.listUsers(path, filter, false, offset, limit, '!shared', disableAW).then(users => {
             entry.pagination = Loaders.computePagination(users);
             const items = users.Users.filter(idmUser => idmUser.Login !== pydio.user.id && idmUser.Login !== "pydio.anon.user").map((idmUser) => {
                 return {
@@ -229,7 +233,7 @@ class Loaders{
     }
 
     static loadTeamUsers(entry, callback){
-        let offset = 0, limit = StdLimit, filter = '';
+        let offset = 0, limit = StdLimit, filter = '', disableAW = false;
         if(entry.range){
             let [start, end] = entry.range.split('-');
             offset = parseInt(start);
@@ -238,8 +242,11 @@ class Loaders{
         }
         if(entry.currentParams && (entry.currentParams.alpha_pages || entry.currentParams.has_search)){
             filter = entry.currentParams.value;
+            if(entry.currentParams.alpha_pages){
+                disableAW = true
+            }
         }
-        IdmApi.listUsersWithRole(entry.IdmRole.Uuid, offset, limit, filter).then(users => {
+        IdmApi.listUsersWithRole(entry.IdmRole.Uuid, offset, limit, filter, disableAW).then(users => {
             entry.pagination = Loaders.computePagination(users);
             const items = users.Users.map((idmUser) => {
                 return {
