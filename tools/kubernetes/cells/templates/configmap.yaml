@@ -116,7 +116,7 @@ data:
 
     vault write auth/kubernetes/role/app \
        bound_service_account_names=app \
-       bound_service_account_namespaces=cells \
+       bound_service_account_namespaces={{ .Release.Namespace }} \
        policies=app,pki \
        ttl=24h
 
