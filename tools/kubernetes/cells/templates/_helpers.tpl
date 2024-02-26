@@ -69,6 +69,24 @@ Create the name of the service account to use
 Names
 */}}
 
+{{- define "cells.urlUser" -}}
+{{- if and .enabled .user .password }}
+{{- printf "%s@" .user }}
+{{- end }}
+{{- end }}
+
+{{- define "cells.urlTLSScheme" -}}
+{{- if .enabled }}
+{{- printf "+tls" }}
+{{- end }}
+{{- end }}
+
+{{- define "cells.urlTLSParams" -}}
+{{- if .enabled }}
+{{- printf "?tlsCertUUID=%s-%s&tlsCertKeyUUID=%s-%s&tlsCertCAUUID=%s-%s" .prefix .certFilename .prefix .certKeyFilename .prefix .caFilename }}
+{{- end }}
+{{- end }}
+
 {{/*
 ETCD HOST
 */}}
@@ -87,16 +105,9 @@ ETCD HOST
 {{- define "cells.etcdURL" -}}
 {{- $path := index . 1 }}
 {{- with index . 0 }}
-{{- $user := "" }}
-{{- if .Values.etcd.auth.rbac.create }}
-{{- $user = "root:$(ETCD_ROOT_PASSWORD)@" }}
-{{- end }}
-{{- $tls := "" }}
-{{- $tlsParams := "" }}
-{{- if .Values.etcd.auth.client.secureTransport }}
-{{- $tls = "+tls" }}
-{{- $tlsParams = print "?tlsCertUUID=" .Values.etcd.auth.client.certFilename  "&tlsCertKeyUUID=" .Values.etcd.auth.client.certKeyFilename "&tlsCertCAUUID=" .Values.etcd.auth.client.caFilename }}
-{{- end }}
+{{- $tls := include "cells.urlTLSScheme" (dict "enabled" .Values.etcd.auth.client.secureTransport) }}
+{{- $user := include "cells.urlUser" (dict "enabled" .Values.etcd.auth.rbac.create "user" "root" "password" "$(ETCD_ROOT_PASSWORD)") }}
+{{- $tlsParams := include "cells.urlTLSParams" (dict "enabled" .Values.etcd.auth.client.secureTransport "prefix" "etcd" "certFilename" .Values.etcd.auth.client.certFilename "certKeyFilename" .Values.etcd.auth.client.certKeyFilename "caFilename" .Values.etcd.auth.client.caFilename) }}
 {{- printf "etcd%s://%s%s:%s%s%s" $tls $user (include "cells.etcdHost" .) (include "cells.etcdPort" .) $path $tlsParams }}
 {{- end }}
 {{- end }}
@@ -140,10 +151,12 @@ REDIS HOST
 {{- end }}
 
 {{- define "cells.redisURL" -}}
-{{- if .Values.redis.auth.enabled }}
-{{- printf "redis://root:$(REDIS_PASSWORD)@%s:%s" (include "cells.redisHost" .) (include "cells.redisPort" .) }}
-{{- else }}
-{{- printf "redis://%s:%s" (include "cells.redisHost" .) (include "cells.redisPort" .) }}
+{{- $path := index . 1 }}
+{{- with index . 0 }}
+{{- $tls := include "cells.urlTLSScheme" (dict "enabled" .Values.redis.tls.enabled) }}
+{{- $user := include "cells.urlUser" (dict "enabled" .Values.redis.auth.enabled "user" "root" "password" "$(REDIS_PASSWORD)") }}
+{{- $tlsParams := include "cells.urlTLSParams" (dict "enabled" .Values.redis.tls.enabled "prefix" "redis" "certFilename" .Values.redis.tls.certFilename "certKeyFilename" .Values.redis.tls.certKeyFilename "caFilename" .Values.redis.tls.certCAFilename) }}
+{{- printf "redis%s://%s@%s:%s%s%s" $tls $user (include "cells.redisHost" .) (include "cells.redisPort" .) $path $tlsParams }}
 {{- end }}
 {{- end }}
 
@@ -188,7 +201,30 @@ MARIADB HOST
 {{- end }}
 
 {{- define "cells.mariadbURL" -}}
-{{- printf "mysql://%s:%s" (include "cells.mariadbHost" .) (include "cells.mariadbPort" .) }}
+{{- $tls := include "cells.urlTLSScheme" (dict "enabled" .Values.mariadb.tls.enabled) }}
+{{- $user := include "cells.urlUser" (dict "enabled" .Values.etcd.auth.rbac.create "user" "root" "password" "$(ETCD_ROOT_PASSWORD)") }}
+{{- $tlsParams := include "cells.urlTLSParams" (dict "enabled" .Values.etcd.auth.client.secureTransport "prefix" "etcd" "certFilename" .Values.etcd.auth.client.certFilename "certKeyFilename" .Values.etcd.auth.client.certKeyFilename "caFilename" .Values.etcd.auth.client.caFilename) }}
+{{- printf "mysql://%s:%s/%s?%s" $tls $user (include "cells.mariadbHost" .) (include "cells.mariadbPort" .) (include "cells.mariadbName" .) $tlsParams }}
+{{- end }}
+
+{{/*
+MARIADB GALERA HOST
+*/}}
+
+{{- define "cells.mariadbGaleraName" -}}
+{{ include "cells.fullname" (dict "Release" .Release "Values" .Values.mariadb "Chart" (dict "Name" "mariadb-galera")) }}
+{{- end }}
+
+{{- define "cells.mariadbGaleraHost" -}}
+{{- printf "%s-mariadb-galera.%s.svc.%s" .Release.Name .Release.Namespace .Values.clusterDomain }}
+{{- end }}
+
+{{- define "cells.mariadbGaleraPort" -}}
+{{ index .Values "mariadb-galera" "service" "ports" "mysql" | toString }}
+{{- end }}
+
+{{- define "cells.mariadbGaleraURL" -}}
+{{- printf "mysql://%s:%s" (include "cells.mariadbGaleraHost" .) (include "cells.mariadbGaleraPort" .) }}
 {{- end }}
 
 {{/*
@@ -226,6 +262,9 @@ MINIO HOST
 {{- end }}
 
 {{- define "cells.minioURL" -}}
+{{- $tls := include "cells.urlTLSScheme" (dict "enabled" .Values.etcd.auth.client.secureTransport) }}
+{{- $user := include "cells.urlUser" (dict "enabled" .Values.etcd.auth.rbac.create "user" "root" "password" "$(ETCD_ROOT_PASSWORD)") }}
+{{- $tlsParams := include "cells.urlTLSParams" (dict "enabled" .Values.etcd.auth.client.secureTransport "prefix" "etcd" "certFilename" .Values.etcd.auth.client.certFilename "certKeyFilename" .Values.etcd.auth.client.certKeyFilename "caFilename" .Values.etcd.auth.client.caFilename) }}
 {{- printf "http://%s:%s" (include "cells.minioHost" .) (include "cells.minioPort" .) }}
 {{- end }}
 
