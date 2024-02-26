@@ -24,6 +24,7 @@ package gateway
 import (
 	"context"
 	"fmt"
+	servicecontext "github.com/pydio/cells/v4/common/service/context"
 	"net/http"
 	"net/http/httputil"
 	"net/url"
@@ -77,8 +78,9 @@ func init() {
 			service.Context(ctx),
 			service.Tag(common.ServiceTagGateway),
 			service.Description("S3 Gateway to tree service"),
+			service.Fork(true),
 			service.WithHTTP(func(c context.Context, mux server.HttpMux) error {
-
+				c = servicecontext.WithServiceName(ctx, common.ServiceGatewayData)
 				console.Printf = func(format string, data ...interface{}) {
 					if strings.HasPrefix(format, "WARNING: ") {
 						format = strings.TrimPrefix(format, "WARNING: ")

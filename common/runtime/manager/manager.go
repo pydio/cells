@@ -273,7 +273,7 @@ func (m *manager) ServeAll(oo ...server.ServeOption) {
 
 func (m *manager) StopAll() {
 	eg := &errgroup.Group{}
-	for _, srv := range m.serversWithStatus(registry.StatusReady) {
+	for _, srv := range m.servers {
 		func(sr server.Server) {
 			eg.Go(func() error {
 				if err := m.stopServer(sr, registry.WithDeregisterFull()); err != nil {
