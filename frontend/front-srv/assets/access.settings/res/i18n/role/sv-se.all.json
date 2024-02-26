@@ -183,7 +183,7 @@
     "other": "Please select at least one role type in the list"
   },
   "roleType": {
-    "other": "Role Type"
+    "other": "Rolltyp"
   },
   "roleType.description": {
     "other": "Standard roles are assigned by administrators, whereas teams are managed by users in their address book. Technical roles are attached automatically to each users and groups and in that case their type cannot be modified."

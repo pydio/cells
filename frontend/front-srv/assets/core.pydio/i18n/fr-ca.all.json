@@ -2250,10 +2250,10 @@
     "other": "N'utilisez pas le caractère \"/\" dans les noms de fichiers !"
   },
   "filename.forbidden.empty": {
-    "other": "You must provide a name!"
+    "other": "Veuillez indiquer un nouveau nom !"
   },
   "filename.trailing-leading.spaces": {
-    "other": "Warning, it seems that the name begins or ends with a blank character (perhaps a typo?)"
+    "other": "Attention, il semble que le nom commence ou se termine par un espace (peut-être une faute de frappe ?)"
   },
   "rename.newvalue.error.similar": {
     "other": "Veuillez utiliser un nom différent pour renommer!"
@@ -2340,7 +2340,7 @@
     "other": "Veuillez utiliser une image plus petite que 5Mo"
   },
   "searchengine.start": {
-    "other": "Start typing to search for files and folders"
+    "other": "Commencez à taper pour rechercher des fichiers et des dossiers"
   },
   "searchengine.searching": {
     "other": "Recherche en cours..."
@@ -2430,46 +2430,46 @@
     "other": "Cliquer pour modifier"
   },
   "chat.dropzone.remove": {
-    "other": "Remove"
+    "other": "Supprimer"
   },
   "chat.dropzone.preview": {
-    "other": "Include preview?"
+    "other": "Prévisualiser ?"
   },
   "chat.dropzone.inline": {
-    "other": "Insert inline"
+    "other": "Dans le texte"
   },
   "chat.load-older": {
     "other": "Messages précédents"
   },
   "chat.msg.edit": {
-    "other": "Edit Message"
+    "other": "Éditer le message"
   },
   "chat.msg.save": {
-    "other": "Save Changes"
+    "other": "Sauvegarder les modifications"
   },
   "chat.msg.revert": {
-    "other": "Revert Changes"
+    "other": "Annuler les modifications"
   },
   "chat.msg.delete": {
-    "other": "Delete Message"
+    "other": "Supprimer le message"
   },
   "chat.msg.delete.confirm.title": {
-    "other": "Delete Message?"
+    "other": "Supprimer le message ?"
   },
   "chat.msg.delete.confirm": {
-    "other": "This action cannot be undone"
+    "other": "Cette action est irréversible"
   },
   "chat.link.doc.loading": {
-    "other": "Loading document..."
+    "other": "Chargement du document..."
   },
   "chat.link.doc.opening": {
-    "other": "Opening document..."
+    "other": "Ouverture du document..."
   },
   "chat.link.doc.goto": {
-    "other": "Go to document"
+    "other": "Accéder au document"
   },
   "chat.link.doc.not-found": {
-    "other": "Document not found, it may have been deleted."
+    "other": "Document introuvable, il a peut-être été supprimé."
   },
   "chat.link.doc.click-indicator": {
     "other": "Click to open %s"

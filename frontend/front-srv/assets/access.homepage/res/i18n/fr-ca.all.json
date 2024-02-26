@@ -201,19 +201,19 @@
     "other": "Métadonnées"
   },
   "search.sorter.relevant.desc": {
-    "other": "Most Relevant First"
+    "other": "Les plus pertinents"
   },
   "search.sorter.modified.desc": {
-    "other": "Recently Added First"
+    "other": "Les plus récents"
   },
   "search.sorter.modified.asc": {
-    "other": "Oldest First"
+    "other": "Les moins récents"
   },
   "search.sorter.size.desc": {
-    "other": "Biggest First"
+    "other": "Les plus gros"
   },
   "search.sorter.size.asc": {
-    "other": "Smallest First"
+    "other": "Les plus petits"
   },
   "facet.label.file": {
     "other": "Fichier"

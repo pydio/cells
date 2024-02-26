@@ -307,5 +307,8 @@
   },
   "task.status.Error": {
     "other": "An error happened!"
+  },
+  "bigppanel.filter.default-hint": {
+    "other": "Quick Find..."
   }
 }
