@@ -2466,7 +2466,7 @@
     "other": "Opening document..."
   },
   "chat.link.doc.goto": {
-    "other": "Go to document"
+    "other": "Gå till dokument"
   },
   "chat.link.doc.not-found": {
     "other": "Document not found, it may have been deleted."
@@ -2475,7 +2475,7 @@
     "other": "Click to open %s"
   },
   "chat.link.doc.open-in": {
-    "other": "Open document in..."
+    "other": "Öppna dokument i..."
   },
   "workspace.quota-usage": {
     "other": "Quota Usage"

@@ -307,5 +307,8 @@
   },
   "task.status.Error": {
     "other": "Une erreur est survenue !"
+  },
+  "bigppanel.filter.default-hint": {
+    "other": "Recherche rapide..."
   }
 }
