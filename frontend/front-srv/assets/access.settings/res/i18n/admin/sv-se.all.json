@@ -1992,13 +1992,13 @@
     "other": "User Bind"
   },
   "scheduler.trigger.bind.user.description": {
-    "other": "A user has logged in."
+    "other": "En användare har loggat in."
   },
   "scheduler.trigger.logout.user": {
     "other": "User Logout"
   },
   "scheduler.trigger.logout.user.description": {
-    "other": "A user has logged out."
+    "other": "En användare har loggat ut."
   },
   "scheduler.trigger.role.create": {
     "other": "Skapa roll"
@@ -2007,16 +2007,16 @@
     "other": "A new role was created, by admin or by users."
   },
   "scheduler.trigger.role.update": {
-    "other": "Update Role"
+    "other": "Uppdatera roll"
   },
   "scheduler.trigger.role.update.description": {
-    "other": "A role has been updated."
+    "other": "En roll har uppdaterats."
   },
   "scheduler.trigger.role.delete": {
     "other": "Radera roll"
   },
   "scheduler.trigger.role.delete.description": {
-    "other": "A role has been deleted."
+    "other": "En roll har raderats."
   },
   "scheduler.trigger.workspace.create": {
     "other": "Create Workspace"
