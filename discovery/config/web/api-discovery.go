@@ -117,8 +117,14 @@ func (s *Handler) EndpointsDiscovery(req *restful.Request, resp *restful.Respons
 			reg := servicecontext.GetRegistry(s.MainCtx)
 			if ss, e := reg.List(registry.WithName(common.ServiceGatewayGrpcClear), registry.WithType(pbregistry.ItemType_SERVICE)); e == nil && len(ss) > 0 {
 				for _, s := range ss {
-					for _, n := range reg.ListAdjacentItems(s, registry.WithType(pbregistry.ItemType_SERVER)) {
-						for _, a := range reg.ListAdjacentItems(n, registry.WithType(pbregistry.ItemType_ADDRESS)) {
+					for _, n := range reg.ListAdjacentItems(
+						registry.WithAdjacentSourceItems([]registry.Item{s}),
+						registry.WithAdjacentTargetOptions(registry.WithType(pbregistry.ItemType_SERVER)),
+					) {
+						for _, a := range reg.ListAdjacentItems(
+							registry.WithAdjacentSourceItems([]registry.Item{n}),
+							registry.WithAdjacentTargetOptions(registry.WithType(pbregistry.ItemType_ADDRESS)),
+						) {
 							if _, p, e := net2.SplitHostPort(a.Name()); e == nil {
 								/*strings.ReplaceAll(a.Name(), "[::]:", "")*/
 								grpcPorts = append(grpcPorts, p)

@@ -23,7 +23,6 @@ package rest
 import (
 	"context"
 	"fmt"
-	"github.com/pydio/cells/v4/common/config"
 	"path"
 	"sync"
 	"time"
@@ -35,6 +34,7 @@ import (
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/auth"
 	"github.com/pydio/cells/v4/common/client/grpc"
+	"github.com/pydio/cells/v4/common/config"
 	"github.com/pydio/cells/v4/common/log"
 	"github.com/pydio/cells/v4/common/nodes/compose"
 	"github.com/pydio/cells/v4/common/proto/activity"

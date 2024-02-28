@@ -23,6 +23,7 @@ package servicecontext
 
 import (
 	"context"
+
 	"github.com/pydio/cells/v4/common/broker"
 	"github.com/pydio/cells/v4/common/crypto"
 	"github.com/pydio/cells/v4/common/dao"
@@ -73,16 +74,8 @@ func WithOperationID(ctx context.Context, operationID string, operationLabel ...
 }
 
 // WithDAO links a dao to the context
-func WithDAO[T any](ctx context.Context, dao T) context.Context {
+func WithDAO(ctx context.Context, dao any) context.Context {
 	return context.WithValue(ctx, daoKey, dao)
-}
-
-func WithDAOs(ctx context.Context, dao any) context.Context {
-	return context.WithValue(ctx, daoKey, dao)
-}
-
-func GetDAOs(ctx context.Context) any {
-	return ctx.Value(daoKey)
 }
 
 // WithIndexer links a dao for indexation to the context
@@ -142,11 +135,10 @@ func GetOperationID(ctx context.Context) (string, string) {
 }
 
 // GetDAO returns the dao from the context in argument
-func GetDAO(ctx context.Context) dao.DAO {
-	if db, ok := ctx.Value(daoKey).(dao.DAO); ok {
-		return db
-	}
-	return nil
+func GetDAO[T any](ctx context.Context) T {
+	var db T
+	db = ctx.Value(daoKey).(T)
+	return db
 }
 
 // GetIndexer returns the dao for indexing from the context in argument

@@ -84,7 +84,7 @@ import (
 	//_ "github.com/pydio/cells/v4/idm/oauth/grpc"
 	//_ "github.com/pydio/cells/v4/idm/oauth/rest"
 	//_ "github.com/pydio/cells/v4/idm/oauth/web"
-	//_ "github.com/pydio/cells/v4/idm/policy/grpc"
+	_ "github.com/pydio/cells/v4/idm/policy/grpc"
 	_ "github.com/pydio/cells/v4/idm/policy/rest"
 	_ "github.com/pydio/cells/v4/idm/role/grpc"
 	_ "github.com/pydio/cells/v4/idm/role/rest"

@@ -31,7 +31,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/gdamore/tcell/v2"
+	tcell "github.com/gdamore/tcell/v2"
 	"github.com/rivo/tview"
 	"github.com/spf13/cobra"
 	"google.golang.org/grpc"
@@ -62,23 +62,27 @@ type item struct {
 type itemsByName []item
 
 func (b itemsByName) Len() int { return len(b) }
+
 func (b itemsByName) Less(i, j int) bool {
 	if b[i].main == b[j].main {
 		return b[i].secondary < b[j].secondary
 	}
 	return b[i].main < b[j].main
 }
+
 func (b itemsByName) Swap(i, j int) { b[i], b[j] = b[j], b[i] }
 
 type itemsByType []item
 
 func (b itemsByType) Len() int { return len(b) }
+
 func (b itemsByType) Less(i, j int) bool {
 	if b[i].it == b[j].it {
 		return b[i].ri.Name() < b[j].ri.Name()
 	}
 	return b[i].it < b[j].it
 }
+
 func (b itemsByType) Swap(i, j int) { b[i], b[j] = b[j], b[i] }
 
 type model struct {
@@ -281,7 +285,10 @@ func (m *model) loadEdges(source registry.Item, oo ...registry.Option) {
 		}
 	}
 	//	m.currentEdge = 0
-	for _, i := range m.reg.ListAdjacentItems(source, oo...) {
+	for _, i := range m.reg.ListAdjacentItems(
+		registry.WithAdjacentSourceItems([]registry.Item{source}),
+		registry.WithAdjacentTargetOptions(oo...),
+	) {
 		eType := util.DetectType(i)
 		m.edges = append(m.edges, item{ri: i, main: i.Name(), secondary: eType.String() + " - " + i.ID(), it: eType})
 		sort.Sort(itemsByType(m.edges))

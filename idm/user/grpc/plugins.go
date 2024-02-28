@@ -23,11 +23,13 @@ package grpc
 
 import (
 	"context"
+
 	"google.golang.org/grpc"
 
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/log"
 	"github.com/pydio/cells/v4/common/proto/idm"
+	service2 "github.com/pydio/cells/v4/common/proto/service"
 	"github.com/pydio/cells/v4/common/runtime"
 	"github.com/pydio/cells/v4/common/service"
 	"github.com/pydio/cells/v4/common/service/errors"
@@ -68,7 +70,7 @@ func init() {
 
 				handler := NewHandler(ctx)
 				idm.RegisterUserServiceServer(server, handler)
-				// service2.RegisterLoginModifierServer(server, handler.(*Handler))
+				service2.RegisterLoginModifierServer(server, handler)
 
 				// Register a cleaner for removing a workspace when there are no more ACLs on it.
 				//cleaner := &RolesCleaner{Dao: dao}

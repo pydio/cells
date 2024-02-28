@@ -55,7 +55,7 @@ func TestMain(m *testing.M) {
 	v.SetDefault(runtime.KeyShortCache, "pm://")
 	runtime.SetRuntime(v)
 
-	c, err := cache.OpenCache(context.TODO(),  "pm://?evictionTime=3600s&cleanWindow=7200s")
+	c, err := cache.OpenCache(context.TODO(), "pm://?evictionTime=3600s&cleanWindow=7200s")
 	if err != nil {
 		panic(err)
 	}

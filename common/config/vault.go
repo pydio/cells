@@ -114,8 +114,8 @@ func (v *vault) Get() configx.Value {
 }
 
 // Set new value
-func (v *vault) Set(val interface{}) error {
-	return v.config.Set(val)
+func (v *vault) Set(value interface{}) error {
+	return v.config.Set(value)
 }
 
 // Val of the path
@@ -151,11 +151,11 @@ func (v *vaultvalues) Get() configx.Value {
 }
 
 // Set ensures that the keys that have been target are saved encrypted in the vault
-func (v *vaultvalues) Set(val interface{}) error {
+func (v *vaultvalues) Set(value interface{}) error {
 	// Checking we have a registered value
 	for _, p := range registeredVaultKeys {
 		if v.path == p {
-			return v.set(val)
+			return v.set(value)
 		}
 
 		if strings.HasPrefix(p, v.path) {
@@ -163,7 +163,7 @@ func (v *vaultvalues) Set(val interface{}) error {
 			current := v.Values.Map()
 
 			// Need to loop through all below
-			switch m := val.(type) {
+			switch m := value.(type) {
 			case map[string]string:
 				for k := range current {
 					if _, ok := m[k]; !ok {
@@ -198,7 +198,7 @@ func (v *vaultvalues) Set(val interface{}) error {
 		}
 	}
 
-	vval, ok := val.(configx.Values)
+	vval, ok := value.(configx.Values)
 	if ok {
 		if vval.Get() == nil {
 			// Nothing to set
@@ -207,7 +207,7 @@ func (v *vaultvalues) Set(val interface{}) error {
 		return v.Values.Set(vval.Get())
 	}
 
-	return v.Values.Set(val)
+	return v.Values.Set(value)
 }
 
 // Default value

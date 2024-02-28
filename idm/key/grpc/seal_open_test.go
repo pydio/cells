@@ -25,12 +25,13 @@ import (
 	"encoding/base64"
 	"testing"
 
-	"github.com/pydio/cells/v4/common/proto/encryption"
-
 	. "github.com/smartystreets/goconvey/convey"
+
+	"github.com/pydio/cells/v4/common/proto/encryption"
 )
 
 var data *encryption.Key
+
 var k []byte
 
 func TestAll(t *testing.T) {

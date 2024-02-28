@@ -36,7 +36,12 @@ func (s *TreeServer) ModifyLogin(ctx context.Context, req *service.ModifyLoginRe
 	resp.Messages = append(resp.Messages, fmt.Sprintf("Received req %s=>%s with uuid %s (path %s)", req.OldLogin, req.NewLogin, opts["uuid"], opts["path"]))
 
 	if !req.GetDryRun() {
-		i, er := s.dao.UpdateNameInPlace(req.OldLogin, req.NewLogin, opts["uuid"], -1)
+		dao, err := s.getDAO(ctx, "")
+		if err != nil {
+			return nil, err
+		}
+
+		i, er := dao.UpdateNameInPlace(req.OldLogin, req.NewLogin, opts["uuid"], -1)
 		if er != nil {
 			return nil, er
 		} else {

@@ -17,4 +17,4 @@ require (
 	golang.org/x/tools v0.15.0 // indirect
 )
 
-replace github.com/pydio/cells/v4 => /Users/ghecquet/work/src/github.com/pydio/cells
+replace github.com/pydio/cells/v4 => /Users/ghecquet/go/src/github.com/pydio/cells

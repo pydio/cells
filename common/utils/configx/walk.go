@@ -20,7 +20,9 @@
 
 package configx
 
-import "fmt"
+import (
+	"fmt"
+)
 
 type WalkFunc func(key []string, v Value) error
 

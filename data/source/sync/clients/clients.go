@@ -203,10 +203,9 @@ func InitEndpoints(ctx context.Context, syncConfig *object.DataSource, clientRea
 		if computer != nil {
 			multiClient.SetPlainSizeComputer(computer)
 		}
-		if dao := servicecontext.GetDAO(ctx); dao != nil {
-			if csm, ok := dao.(s3.ChecksumMapper); ok {
-				multiClient.SetChecksumMapper(csm)
-			}
+
+		if dao := servicecontext.GetDAO[s3.ChecksumMapper](ctx); dao != nil {
+			multiClient.SetChecksumMapper(dao)
 		}
 		if keepNativeEtags {
 			multiClient.SkipRecomputeEtagByCopy()
@@ -225,10 +224,8 @@ func InitEndpoints(ctx context.Context, syncConfig *object.DataSource, clientRea
 		if /*syncConfig.StorageType == object.StorageType_GCS ||*/ keepNativeEtags {
 			s3client.SkipRecomputeEtagByCopy()
 		}
-		if dao := servicecontext.GetDAO(ctx); dao != nil {
-			if csm, ok := dao.(s3.ChecksumMapper); ok {
-				s3client.SetChecksumMapper(csm, true)
-			}
+		if dao := servicecontext.GetDAO[s3.ChecksumMapper](ctx); dao != nil {
+			s3client.SetChecksumMapper(dao, true)
 		}
 		source = s3client
 	}

@@ -25,7 +25,7 @@ import (
 func UpgradeTo120(ctx context.Context) error {
 
 	fmt.Println("Upgrade to 120 ?")
-	dao := servicecontext.GetDAO(ctx).(acl.DAO)
+	dao := servicecontext.GetDAO[acl.DAO](ctx)
 
 	// REMOVE pydiogateway ACLs
 	log.Logger(ctx).Info("ACLS: remove pydiogateway ACLs")

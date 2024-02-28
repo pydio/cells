@@ -23,20 +23,18 @@ package grpc
 import (
 	"context"
 	"fmt"
-	"github.com/bufbuild/protovalidate-go"
-	"github.com/pydio/cells/v4/common/log"
 	"net/http"
 	"runtime/debug"
 	"strings"
 	"time"
 
-	"github.com/pydio/cells/v4/common/proto/sync"
-
 	"go.uber.org/zap"
 
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/broker"
+	"github.com/pydio/cells/v4/common/log"
 	"github.com/pydio/cells/v4/common/proto/object"
+	"github.com/pydio/cells/v4/common/proto/sync"
 	"github.com/pydio/cells/v4/common/proto/tree"
 	servicecontext "github.com/pydio/cells/v4/common/service/context"
 	"github.com/pydio/cells/v4/common/service/context/metadata"
@@ -48,8 +46,6 @@ import (
 
 // TreeServer definition.
 type TreeServer struct {
-	// dao
-	DAO          index.DAO
 	sessionStore sessions.DAO
 
 	handlerName string
@@ -85,18 +81,21 @@ func NewTreeServer(ds *object.DataSource, handlerName string) *TreeServer {
 	}
 }
 
-func (s *TreeServer) getDAO(ctx context.Context, session string) index.DAO {
+func (s *TreeServer) getDAO(ctx context.Context, session string) (index.DAO, error) {
+	dao := servicecontext.GetDAO[index.DAO](ctx)
+	if dao == nil {
+		return nil, common.ErrMissingDAO
+	}
 
 	if session != "" {
 		if dao := index.GetDAOCache(session); dao != nil {
-			return dao.(index.DAO)
+			return dao.(index.DAO), nil
 		}
 
-		return index.NewDAOCache(session, s.dao).(index.DAO)
+		return index.NewDAOCache(session, dao).(index.DAO), nil
 	}
 
-	dao := index.NewDAO(ctx)
-	return dao
+	return dao, nil
 }
 
 func (s *TreeServer) Name() string {
@@ -132,17 +131,6 @@ func (s *TreeServer) updateMeta(ctx context.Context, dao index.DAO, node tree.IT
 // CreateNode implementation for the TreeServer.
 func (s *TreeServer) CreateNode(ctx context.Context, req *tree.CreateNodeRequest) (resp *tree.CreateNodeResponse, err error) {
 
-	v, err := protovalidate.New()
-	if err != nil {
-		return nil, err
-	}
-
-	fmt.Println("Name is ", s.handlerName)
-
-	if err = v.Validate(req); err != nil {
-		return nil, err
-	}
-
 	resp = &tree.CreateNodeResponse{}
 
 	defer func() {
@@ -152,7 +140,11 @@ func (s *TreeServer) CreateNode(ctx context.Context, req *tree.CreateNodeRequest
 		}
 	}()
 
-	dao := s.getDAO(ctx, req.GetIndexationSession())
+	dao, err := s.getDAO(ctx, req.GetIndexationSession())
+	if err != nil {
+		return nil, err
+	}
+
 	name := servicecontext.GetServiceName(ctx)
 
 	var node tree.ITreeNode
@@ -271,15 +263,6 @@ func (s *TreeServer) CreateNode(ctx context.Context, req *tree.CreateNodeRequest
 
 // ReadNode implementation for the TreeServer.
 func (s *TreeServer) ReadNode(ctx context.Context, req *tree.ReadNodeRequest) (resp *tree.ReadNodeResponse, err error) {
-	v, err := protovalidate.New()
-	if err != nil {
-		return nil, err
-	}
-
-	if err = v.Validate(req); err != nil {
-		return nil, err
-	}
-
 	resp = &tree.ReadNodeResponse{}
 
 	defer track(log.Logger(ctx), "ReadNode", time.Now(), req, resp)
@@ -288,7 +271,11 @@ func (s *TreeServer) ReadNode(ctx context.Context, req *tree.ReadNodeRequest) (r
 	if md, has := metadata.CanonicalMeta(ctx, "x-indexation-session"); has {
 		session = md
 	}
-	dao := s.getDAO(ctx, session)
+
+	dao, err := s.getDAO(ctx, session)
+	if err != nil {
+		return nil, err
+	}
 
 	name := servicecontext.GetServiceName(ctx)
 
@@ -322,24 +309,6 @@ func (s *TreeServer) ReadNode(ctx context.Context, req *tree.ReadNodeRequest) (r
 			// Do not return error, or send a file not exists?
 			return nil, errors.NotFound(name, "Could not retrieve node %s", node.GetNode().GetPath())
 		}
-
-		//node, err = dao.GetNode(ctx, path)
-		//if err != nil {
-		//	if len(path) == 1 && path[0] == 1 {
-		//		// This is the root node, let's create it
-		//		node = index.NewNode(&tree.Node{
-		//			Uuid: "ROOT",
-		//			Type: tree.NodeType_COLLECTION,
-		//		}, path, []string{""})
-		//		if err = dao.AddNode(ctx, node); err != nil {
-		//			return nil, err
-		//		}
-		//	} else {
-		//		return nil, errors.NotFound(name, "Could not retrieve node %s", reqPath)
-		//	}
-		//}
-		//
-		//node.Path = reqPath
 	}
 
 	resp.Success = true
@@ -365,22 +334,15 @@ func (s *TreeServer) ReadNode(ctx context.Context, req *tree.ReadNodeRequest) (r
 // ListNodes implementation for the TreeServer.
 func (s *TreeServer) ListNodes(req *tree.ListNodesRequest, resp tree.NodeProvider_ListNodesServer) (err error) {
 
-	v, err := protovalidate.New()
-	if err != nil {
-		return err
-	}
-
-	fmt.Println("Name is ", s.handlerName)
-
-	if err = v.Validate(req); err != nil {
-		return err
-	}
-
 	ctx := resp.Context()
 
 	defer track(log.Logger(ctx), "ListNodes", time.Now(), req, resp)
 
-	dao := s.getDAO(ctx, "")
+	dao, err := s.getDAO(ctx, "")
+	if err != nil {
+		return err
+	}
+
 	name := servicecontext.GetServiceName(ctx)
 
 	if req.Ancestors && req.Recursive {
@@ -576,7 +538,10 @@ func (s *TreeServer) UpdateNode(ctx context.Context, req *tree.UpdateNodeRequest
 		log.Logger(ctx).Debug("Finished UpdateNode")
 	}()
 
-	dao := s.getDAO(ctx, req.GetIndexationSession())
+	dao, err := s.getDAO(ctx, req.GetIndexationSession())
+	if err != nil {
+		return nil, err
+	}
 	name := servicecontext.GetServiceName(ctx)
 
 	reqFromPath := safePath(req.GetFrom().GetPath())
@@ -657,7 +622,10 @@ func (s *TreeServer) DeleteNode(ctx context.Context, req *tree.DeleteNodeRequest
 		}
 	}()
 
-	dao := s.getDAO(ctx, req.GetIndexationSession())
+	dao, err := s.getDAO(ctx, req.GetIndexationSession())
+	if err != nil {
+		return nil, err
+	}
 	name := servicecontext.GetServiceName(ctx)
 
 	reqPath := safePath(req.GetNode().GetPath())
@@ -760,9 +728,12 @@ func (s *TreeServer) FlushSession(ctx context.Context, req *tree.FlushSessionReq
 	if session != nil {
 		log.Logger(ctx).Info("Flushing Indexation Session " + req.GetSession().GetUuid())
 
-		dao := s.getDAO(ctx, session.GetUuid())
-		err := dao.Flush(ctx, false)
+		dao, err := s.getDAO(ctx, session.GetUuid())
 		if err != nil {
+			return nil, err
+		}
+
+		if err := dao.Flush(ctx, false); err != nil {
 			log.Logger(ctx).Error("Error while flushing indexation Session "+req.GetSession().GetUuid(), zap.Error(err))
 			return nil, err
 		}
@@ -778,17 +749,18 @@ func (s *TreeServer) CloseSession(ctx context.Context, req *tree.CloseSessionReq
 	if session != nil {
 		log.Logger(ctx).Info("Closing Indexation Session " + req.GetSession().GetUuid())
 
-		dao := s.getDAO(ctx, session.GetUuid())
-
-		err := dao.Flush(ctx, true)
+		dao, err := s.getDAO(ctx, session.GetUuid())
 		if err != nil {
+			return nil, err
+		}
+
+		if err := dao.Flush(ctx, true); err != nil {
 			log.Logger(ctx).Error("Error while closing (flush) indexation Session "+req.GetSession().GetUuid(), zap.Error(err))
 			return nil, err
 		}
 		batcher.Flush(ctx, dao)
 
-		err = s.sessionStore.DeleteSession(req.GetSession())
-		if err != nil {
+		if err := s.sessionStore.DeleteSession(req.GetSession()); err != nil {
 			log.Logger(ctx).Error("Error while closing (DeleteSession) indexation Session "+req.GetSession().GetUuid(), zap.Error(err))
 			return nil, err
 		}
@@ -800,7 +772,13 @@ func (s *TreeServer) CloseSession(ctx context.Context, req *tree.CloseSessionReq
 // CleanResourcesBeforeDelete ensure all resources are cleant before deleting.
 func (s *TreeServer) CleanResourcesBeforeDelete(ctx context.Context, request *object.CleanResourcesRequest) (resp *object.CleanResourcesResponse, err error) {
 	resp = &object.CleanResourcesResponse{}
-	msg, err := s.getDAO(ctx, "").CleanResourcesOnDeletion(ctx)
+
+	dao, err := s.getDAO(ctx, "")
+	if err != nil {
+		return nil, err
+	}
+
+	msg, err := dao.CleanResourcesOnDeletion(ctx)
 	if err != nil {
 		resp.Success = false
 	} else {

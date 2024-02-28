@@ -25,7 +25,9 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"github.com/pydio/cells/v4/common/storage"
 	"github.com/pydio/cells/v4/common/utils/openurl"
+	"gorm.io/gorm"
 	"net/url"
 	"os"
 	"strconv"
@@ -33,12 +35,8 @@ import (
 	"time"
 
 	"github.com/pydio/cells/v4/common/config"
-	"github.com/pydio/cells/v4/common/dao"
-	"github.com/pydio/cells/v4/common/sql"
 	"github.com/pydio/cells/v4/common/utils/configx"
 	json "github.com/pydio/cells/v4/common/utils/jsonx"
-	"github.com/pydio/cells/v4/common/utils/statics"
-	migrate "github.com/rubenv/sql-migrate"
 )
 
 var (
@@ -123,72 +121,21 @@ func (o *URLOpener) OpenURL(ctx context.Context, u *url.URL) (config.Store, erro
 }
 
 type SQL struct {
-	dao      dao.DAO
+	dao      DAO
 	config   configx.Values
 	watchers []*receiver
 }
 
 func New(ctx context.Context, driver string, dsn string, prefix string) (config.Store, error) {
-	var d dao.DAO
-	var de error
-	switch driver {
-	case "mysql":
-		c, er := sql.NewDAO(ctx, driver, dsn, prefix)
-		if er != nil {
-			return nil, er
-		}
-		d, de = NewDAO(ctx, c)
-	case "sqlite3":
-		c, er := sql.NewDAO(ctx, driver, dsn, prefix)
-		if er != nil {
-			return nil, er
-		}
-		d, de = NewDAO(ctx, c)
-	}
-	if de != nil {
-		return nil, de
-	}
+	var db *gorm.DB
 
-	dc := configx.New()
-	//if er := dc.Val("prepare").Set(true); er != nil {
-	//	return nil, er
-	//}
+	storage.Get(ctx, &db)
 
-	if er := d.Init(ctx, dc); er != nil {
-		return nil, er
-	}
+	d := NewDAO(db)
 
 	return &SQL{
 		dao: d,
 	}, nil
-}
-
-// Init handler for the SQL DAO
-func (s *SQL) Init(ctx context.Context, options configx.Values) error {
-
-	migrations := &sql.FSMigrationSource{
-		Box:         statics.AsFS(migrationsFS, "migrations"),
-		Dir:         "./" + s.dao.Driver(),
-		TablePrefix: s.dao.Prefix(),
-	}
-
-	sqldao := s.dao.(sql.DAO)
-
-	_, err := sql.ExecMigration(sqldao.DB(), s.dao.Driver(), migrations, migrate.Up, s.dao.Prefix())
-	if err != nil {
-		return err
-	}
-
-	// Preparing the db statements
-	if options.Val("prepare").Default(true).Bool() {
-		for key, query := range queries {
-			if err := sqldao.Prepare(key, query); err != nil {
-				return err
-			}
-		}
-	}
-
-	return nil
 }
 
 func (s *SQL) Val(path ...string) configx.Values {
@@ -203,7 +150,7 @@ func (s *SQL) Get() configx.Value {
 
 	v := configx.New(configx.WithJSON())
 
-	b, err := dao.Get()
+	b, err := dao.Get(context.TODO())
 	if err != nil {
 		v.Set(map[string]interface{}{})
 	}
@@ -215,15 +162,15 @@ func (s *SQL) Get() configx.Value {
 	return v
 }
 
-func (s *SQL) Set(data interface{}) error {
+func (s *SQL) Set(value interface{}) error {
 	dao := s.dao.(DAO)
 
-	b, err := json.Marshal(data)
+	b, err := json.Marshal(value)
 	if err != nil {
 		return err
 	}
 
-	if err := dao.Set(b); err != nil {
+	if err := dao.Set(context.TODO(), b); err != nil {
 		return err
 	}
 
@@ -332,8 +279,8 @@ type wrappedConfig struct {
 	s *SQL
 }
 
-func (w *wrappedConfig) Set(val interface{}) error {
-	err := w.Values.Set(val)
+func (w *wrappedConfig) Set(value interface{}) error {
+	err := w.Values.Set(value)
 	if err != nil {
 		return err
 	}

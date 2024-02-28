@@ -3,6 +3,13 @@ package registry
 import (
 	"context"
 	"fmt"
+	"net"
+	"sort"
+	"strconv"
+	"sync"
+	"sync/atomic"
+	"time"
+
 	cluster "github.com/envoyproxy/go-control-plane/envoy/config/cluster/v3"
 	core "github.com/envoyproxy/go-control-plane/envoy/config/core/v3"
 	endpoint "github.com/envoyproxy/go-control-plane/envoy/config/endpoint/v3"
@@ -19,30 +26,23 @@ import (
 	secretservice "github.com/envoyproxy/go-control-plane/envoy/service/secret/v3"
 	"github.com/envoyproxy/go-control-plane/pkg/cache/types"
 	cachev3 "github.com/envoyproxy/go-control-plane/pkg/cache/v3"
-	"github.com/envoyproxy/go-control-plane/pkg/resource/v3"
+	resource "github.com/envoyproxy/go-control-plane/pkg/resource/v3"
 	xds "github.com/envoyproxy/go-control-plane/pkg/server/v3"
 	"github.com/envoyproxy/go-control-plane/pkg/wellknown"
-	"github.com/pydio/cells/v4/common/registry"
-	"github.com/pydio/cells/v4/common/service/context/ckeys"
-	"google.golang.org/protobuf/types/known/durationpb"
-	"net"
-	"sort"
-	"strconv"
-	"sync"
-	"sync/atomic"
-	"time"
-
 	"google.golang.org/grpc"
 	"google.golang.org/protobuf/types/known/anypb"
+	"google.golang.org/protobuf/types/known/durationpb"
 	"google.golang.org/protobuf/types/known/wrapperspb"
 
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/client"
 	"github.com/pydio/cells/v4/common/log"
 	pbregistry "github.com/pydio/cells/v4/common/proto/registry"
+	"github.com/pydio/cells/v4/common/registry"
 	"github.com/pydio/cells/v4/common/runtime"
 	"github.com/pydio/cells/v4/common/service"
 	servicecontext "github.com/pydio/cells/v4/common/service/context"
+	"github.com/pydio/cells/v4/common/service/context/ckeys"
 )
 
 type Convertible interface {
@@ -121,8 +121,14 @@ func init() {
 									continue
 								}
 
-								endpointItems := reg.ListAdjacentItems(srvItem, registry.WithType(pbregistry.ItemType_ENDPOINT))
-								addrItems := reg.ListAdjacentItems(srvItem, registry.WithType(pbregistry.ItemType_ADDRESS))
+								endpointItems := reg.ListAdjacentItems(
+									registry.WithAdjacentSourceItems([]registry.Item{srvItem}),
+									registry.WithAdjacentTargetOptions(registry.WithType(pbregistry.ItemType_ENDPOINT)),
+								)
+								addrItems := reg.ListAdjacentItems(
+									registry.WithAdjacentSourceItems([]registry.Item{srvItem}),
+									registry.WithAdjacentTargetOptions(registry.WithType(pbregistry.ItemType_ADDRESS)),
+								)
 								if len(endpointItems) == 0 {
 									continue
 								}
@@ -186,7 +192,10 @@ func init() {
 									continue
 								}
 
-								endpointItems := reg.ListAdjacentItems(srvItem, registry.WithType(pbregistry.ItemType_ENDPOINT))
+								endpointItems := reg.ListAdjacentItems(
+									registry.WithAdjacentSourceItems([]registry.Item{srvItem}),
+									registry.WithAdjacentTargetOptions(registry.WithType(pbregistry.ItemType_ENDPOINT)),
+								)
 								if len(endpointItems) == 0 {
 									continue
 								}
@@ -218,13 +227,19 @@ func init() {
 									continue
 								}
 
-								endpointItems := reg.ListAdjacentItems(srvItem, registry.WithType(pbregistry.ItemType_ENDPOINT))
+								endpointItems := reg.ListAdjacentItems(
+									registry.WithAdjacentSourceItems([]registry.Item{srvItem}),
+									registry.WithAdjacentTargetOptions(registry.WithType(pbregistry.ItemType_ENDPOINT)),
+								)
 								if len(endpointItems) == 0 {
 									continue
 								}
 
 								for _, endpointItem := range endpointItems {
-									svcItems := reg.ListAdjacentItems(endpointItem, registry.WithType(pbregistry.ItemType_SERVICE))
+									svcItems := reg.ListAdjacentItems(
+										registry.WithAdjacentSourceItems([]registry.Item{endpointItem}),
+										registry.WithAdjacentTargetOptions(registry.WithType(pbregistry.ItemType_SERVICE)),
+									)
 									if len(svcItems) == 0 {
 										routes = append(routes, &route.Route{
 											Name: endpointItem.ID(),
@@ -375,13 +390,16 @@ func (cb *callbacks) Report() {
 	cb.mu.Lock()
 	defer cb.mu.Unlock()
 }
+
 func (cb *callbacks) OnStreamOpen(ctx context.Context, id int64, typ string) error {
 	//fmt.Printf("OnStreamOpen %d open for Type [%s]\n", id, typ)
 	return nil
 }
+
 func (cb *callbacks) OnStreamClosed(id int64, node *core.Node) {
 	//fmt.Printf("OnStreamClosed %d closed\n", id)
 }
+
 func (cb *callbacks) OnStreamRequest(id int64, r *discoveryservice.DiscoveryRequest) error {
 	//fmt.Printf("OnStreamRequest %d  Request[%v]\n", id, r.TypeUrl)
 	cb.mu.Lock()
@@ -393,12 +411,14 @@ func (cb *callbacks) OnStreamRequest(id int64, r *discoveryservice.DiscoveryRequ
 	}
 	return nil
 }
+
 func (cb *callbacks) OnStreamResponse(ctx context.Context, id int64, req *discoveryservice.DiscoveryRequest, resp *discoveryservice.DiscoveryResponse) {
 	//fmt.Printf("OnStreamResponse... %d   Request [%v],  Response[%v]\n", id, req.TypeUrl, resp.TypeUrl)
 
 	// fmt.Println(resp.Resources)
 	cb.Report()
 }
+
 func (cb *callbacks) OnFetchRequest(ctx context.Context, req *discoveryservice.DiscoveryRequest) error {
 	//fmt.Printf("OnFetchRequest... Request [%v]\n", req.TypeUrl)
 	cb.mu.Lock()
@@ -410,6 +430,7 @@ func (cb *callbacks) OnFetchRequest(ctx context.Context, req *discoveryservice.D
 	}
 	return nil
 }
+
 func (cb *callbacks) OnFetchResponse(req *discoveryservice.DiscoveryRequest, resp *discoveryservice.DiscoveryResponse) {
 	//fmt.Printf("OnFetchResponse... Resquest[%v],  Response[%v]\n", req.TypeUrl, resp.TypeUrl)
 }
@@ -434,8 +455,10 @@ func (c *callbacks) OnStreamDeltaResponse(i int64, request *discoveryservice.Del
 
 type ByCluster []registry.Item
 
-func (a ByCluster) Len() int      { return len(a) }
+func (a ByCluster) Len() int { return len(a) }
+
 func (a ByCluster) Swap(i, j int) { a[i], a[j] = a[j], a[i] }
+
 func (a ByCluster) Less(i, j int) bool {
 	return a[j].Metadata()[runtime.NodeMetaCluster] != runtime.Cluster() && a[i].Metadata()[runtime.NodeMetaCluster] == runtime.Cluster()
 }

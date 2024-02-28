@@ -296,11 +296,11 @@ func (m *etcd) Val(path ...string) configx.Values {
 	return &values{values: m.values, valuesLocker: m.valuesLocker, withKeys: m.withKeys, ops: m.ops, prefix: m.prefix, path: strings.Join(path, "/"), leaseID: m.leaseID, opts: m.opts}
 }
 
-func (m *etcd) Set(data interface{}) error {
+func (m *etcd) Set(value interface{}) error {
 	m.valuesLocker.Lock()
 	defer m.valuesLocker.Unlock()
 
-	if err := m.values.Set(data); err != nil {
+	if err := m.values.Set(value); err != nil {
 		return err
 	}
 

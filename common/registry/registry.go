@@ -22,14 +22,63 @@ package registry
 
 import (
 	"context"
-	pb "github.com/pydio/cells/v4/common/proto/registry"
 	"sync"
+
+	pb "github.com/pydio/cells/v4/common/proto/registry"
 )
 
 type Registry interface {
 	RawRegistry
 	RegisterEdge(item1, item2, edgeLabel string, metadata map[string]string, oo ...RegisterOption) (Edge, error)
-	ListAdjacentItems(sourceItem Item, targetOptions ...Option) (items []Item)
+	ListAdjacentItems(options ...AdjacentItemOption) (items []Item)
+}
+
+type AdjacentItemOption func(options *AdjacentItemOptions)
+
+type AdjacentItemOptions struct {
+	edgeItems   []Item
+	sourceItems []Item
+	targetItems []Item
+
+	edgeOptions   []Option
+	sourceOptions []Option
+	targetOptions []Option
+}
+
+func WithAdjacentEdgeItems(items []Item) AdjacentItemOption {
+	return func(o *AdjacentItemOptions) {
+		o.edgeItems = items
+	}
+}
+
+func WithAdjacentSourceItems(items []Item) AdjacentItemOption {
+	return func(o *AdjacentItemOptions) {
+		o.sourceItems = items
+	}
+}
+
+func WithAdjacentTargetItems(items []Item) AdjacentItemOption {
+	return func(o *AdjacentItemOptions) {
+		o.targetItems = items
+	}
+}
+
+func WithAdjacentEdgeOptions(opts ...Option) AdjacentItemOption {
+	return func(o *AdjacentItemOptions) {
+		o.sourceOptions = opts
+	}
+}
+
+func WithAdjacentSourceOptions(opts ...Option) AdjacentItemOption {
+	return func(o *AdjacentItemOptions) {
+		o.sourceOptions = opts
+	}
+}
+
+func WithAdjacentTargetOptions(opts ...Option) AdjacentItemOption {
+	return func(o *AdjacentItemOptions) {
+		o.targetOptions = opts
+	}
 }
 
 type RawRegistry interface {

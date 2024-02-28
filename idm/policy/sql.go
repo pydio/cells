@@ -24,30 +24,29 @@ import (
 	"context"
 	"embed"
 	"fmt"
-	"github.com/pydio/cells/v4/common"
-	servicecontext "github.com/pydio/cells/v4/common/service/context"
 	"strings"
+	"sync"
 	"time"
 
-	"github.com/jmoiron/sqlx"
 	"github.com/ory/ladon"
-	migrate "github.com/rubenv/sql-migrate"
 	"go.uber.org/zap"
+	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
 
 	"github.com/pydio/cells/v4/common/log"
 	"github.com/pydio/cells/v4/common/proto/idm"
-	"github.com/pydio/cells/v4/common/sql"
-	"github.com/pydio/cells/v4/common/sql/ladon-manager"
-	"github.com/pydio/cells/v4/common/utils/configx"
-	"github.com/pydio/cells/v4/common/utils/statics"
+	json "github.com/pydio/cells/v4/common/utils/jsonx"
 	"github.com/pydio/cells/v4/common/utils/uuid"
 	"github.com/pydio/cells/v4/idm/policy/converter"
 )
 
 type sqlimpl struct {
-	sql.DAO
+	DB *gorm.DB
+
+	Manager
 	ladon.Ladon
-	ladon_manager.SQLManager
+
+	once *sync.Once
 }
 
 var (
@@ -68,61 +67,35 @@ var (
 )
 
 type PolicyGroup struct {
+	UUID          string                  `gorm:"column:uuid;primaryKey"`
+	Name          string                  `gorm:"column:name"`           // VARCHAR(500) NOT NULL,
+	Description   string                  `gorm:"column:description"`    // VARCHAR(500) NOT NULL,
+	OwnerUUID     string                  `gorm:"column:owner_uuid"`     // VARCHAR(255) NULL,
+	ResourceGroup idm.PolicyResourceGroup `gorm:"column:resource_group"` // INT,
+	LastUpdated   int                     `gorm:"column:last_updated"`
+	Policies      []Policy                `gorm:"many2many:policy_rel;foreignKey:UUID;joinForeignKey:GroupUUID;References:ID;joinReferences:PolicyID;"`
 }
 
 type PolicyRel struct {
+	ID        int    `gorm:"column:id;primaryKey"'` // BIGINT NOT NULL AUTO_INCREMENT,
+	GroupUUID string `gorm:"column:group_uuid"`     // VARCHAR(255) NOT NULL,
+	PolicyID  string `gorm:"policy_id"`             //  VARCHAR(255) NOT NULL,
 }
 
-// Init of the SQL DAO
-func (s *sqlimpl) Init(ctx context.Context, options configx.Values) error {
-
-	// First - Create Ladon package tables
-	db := sqlx.NewDb(s.DB(), s.Driver())
-	manag := ladon_manager.NewSQLManager(db, nil)
-
-	sql.LockMigratePackage()
-	if _, err := manag.CreateSchemas("", "ladon_migrations"); err != nil {
-		sql.UnlockMigratePackage()
-		return err
-	}
-	sql.UnlockMigratePackage()
-
-	s.Manager = manag
-	s.SQLManager = *manag
-
-	// Detect version
-	driverName := s.Driver()
-	if driverName == "mysql" {
-		var version string
-		if e := db.QueryRow("SELECT VERSION()").Scan(&version); e == nil && strings.Contains(version, "MariaDB") {
-			log.Logger(servicecontext.WithServiceName(context.Background(), common.ServiceGrpcNamespace_+common.ServicePolicy)).Info("MariaDB Detected - switching to specific migrations")
-			driverName = "maria"
-		}
+func (s *sqlimpl) instance(ctx context.Context) *gorm.DB {
+	if s.once == nil {
+		s.once = &sync.Once{}
 	}
 
-	// Doing the database migrations
-	migrations := &sql.FSMigrationSource{
-		Box:         statics.AsFS(migrationsFS, "migrations"),
-		Dir:         driverName,
-		TablePrefix: s.Prefix(),
-	}
+	db := s.DB.Session(&gorm.Session{SkipDefaultTransaction: true}).WithContext(ctx)
 
-	_, err := sql.ExecMigration(s.DB(), s.Driver(), migrations, migrate.Up, "idm_policy_")
-	if err != nil {
-		return err
-	}
+	s.once.Do(func() {
+		db.SetupJoinTable(&PolicyGroup{}, "Policies", &PolicyRel{})
 
-	// Preparing the db statements
-	if options.Val("prepare").Default(true).Bool() {
-		for key, query := range queries {
-			if err := s.Prepare(key, query); err != nil {
-				return err
-			}
-		}
-	}
+		db.AutoMigrate(&PolicyGroup{})
+	})
 
-	return nil
-
+	return db
 }
 
 // StorePolicyGroup first upserts policies (and fail fast) before upserting the passed policy group
@@ -132,50 +105,8 @@ func (s *sqlimpl) StorePolicyGroup(ctx context.Context, group *idm.PolicyGroup) 
 	if group.Uuid == "" {
 		group.Uuid = uuid.New()
 	} else {
-		// Gather remove policies
-		var delPolicies []string
-		stmt, er := s.GetStmt("listRelPolicies")
-		if er != nil {
-			return nil, er
-		}
-		if res, err := stmt.Query(group.Uuid); err == nil {
-			defer res.Close()
-			for res.Next() {
-				var pId string
-				sE := res.Scan(&pId)
-				if sE != nil {
-					return nil, sE
-				}
-				var found bool
-				for _, in := range group.Policies {
-					if in.Id == pId {
-						found = true
-						break
-					}
-				}
-				if !found {
-					delPolicies = append(delPolicies, pId)
-				}
-			}
-		}
-
-		// First clear relations
-		stmt, er = s.GetStmt("deleteRelPolicies")
-		if er != nil {
-			return nil, er
-		}
-
-		_, err := stmt.Exec(group.Uuid)
-		if err != nil {
-			log.Logger(ctx).Error(fmt.Sprintf("could not delete relation for policy group %s", group.Uuid), zap.Error(err))
-			return group, err
-		}
-
-		// Delete removed ones
-		for _, pID := range delPolicies {
-			if er := s.Manager.Delete(pID); er != nil {
-				return nil, er
-			}
+		if err := s.DeletePolicyGroup(ctx, group); err != nil {
+			return nil, err
 		}
 	}
 
@@ -183,21 +114,21 @@ func (s *sqlimpl) StorePolicyGroup(ctx context.Context, group *idm.PolicyGroup) 
 	for _, policy := range group.Policies {
 		if policy.Id == "" { // must be a new policy
 			policy.Id = uuid.New()
-			err := s.Manager.Create(converter.ProtoToLadonPolicy(policy))
+			err := s.Manager.WithContext(ctx).Create(converter.ProtoToLadonPolicy(policy))
 			if err != nil {
 				log.Logger(ctx).Error(fmt.Sprintf("cannot create new ladon policy with description: %s", policy.Description), zap.Error(err))
 				return group, err
 			}
 		} else { // maybe new or update
-			p, err := s.Manager.Get(policy.Id)
+			p, err := s.Manager.WithContext(ctx).Get(policy.Id)
 			if err != nil && err.Error() != "sql: no rows in result set" {
 				log.Logger(ctx).Error(fmt.Sprintf("unable to retrieve policy with id %s", policy.Id), zap.Error(err))
 				return group, err
 			}
 			if p != nil {
-				err = s.Manager.Update(converter.ProtoToLadonPolicy(policy))
+				err = s.Manager.WithContext(ctx).Update(converter.ProtoToLadonPolicy(policy))
 			} else {
-				err = s.Manager.Create(converter.ProtoToLadonPolicy(policy))
+				err = s.Manager.WithContext(ctx).Create(converter.ProtoToLadonPolicy(policy))
 			}
 			if err != nil {
 				log.Logger(ctx).Error(fmt.Sprintf("cannot upsert policy with id %s", policy.Id), zap.Error(err))
@@ -207,137 +138,87 @@ func (s *sqlimpl) StorePolicyGroup(ctx context.Context, group *idm.PolicyGroup) 
 	}
 
 	// Insert Policy Group
-	now := int32(time.Now().Unix())
+	s.instance(ctx).Clauses(clause.OnConflict{
+		DoUpdates: clause.AssignmentColumns([]string{"name", "description", "owner_uuid", "resource_group", "last_updated"}), // column needed to be updated
+	}).Create(&PolicyGroup{
+		UUID:          group.Uuid,
+		Name:          group.Name,
+		Description:   group.Description,
+		OwnerUUID:     group.OwnerUuid,
+		ResourceGroup: group.ResourceGroup,
+		LastUpdated:   int(time.Now().Unix()),
+		// TODO - add policies
+	})
 
-	stmt, er := s.GetStmt("upsertPolicyGroup")
-	if er != nil {
-		return nil, er
-	}
-
-	_, err := stmt.Exec(
-		group.Uuid, group.Name, group.Description, group.OwnerUuid, group.ResourceGroup, now, // INSERT
-		group.Name, group.Description, group.OwnerUuid, group.ResourceGroup, now, // UPDATE
-	)
-	if err != nil {
-		log.Logger(ctx).Error("cannot upsert policy group "+group.Uuid, zap.Error(err))
-	}
-
-	// Now recreate relations
-	for _, policy := range group.Policies {
-		stmt, er := s.GetStmt("insertRelPolicy")
-		if er != nil {
-			return nil, er
-		}
-
-		if _, err := stmt.Exec(group.Uuid, policy.Id); err != nil {
-			log.Logger(ctx).Error(fmt.Sprintf("cannot insert relation between group %s and policy %s", group.Uuid, policy.Id), zap.Error(err))
-		}
-	}
-
-	return group, err
+	return group, nil
 
 }
 
 // ListPolicyGroups searches the db and returns an array of PolicyGroup.
 func (s *sqlimpl) ListPolicyGroups(ctx context.Context, filter string) (groups []*idm.PolicyGroup, e error) {
 
-	stmtName := "listJoined"
-	var args []interface{}
+	tx := s.instance(ctx)
+
 	if strings.HasPrefix(filter, "resource_group:") {
+
 		res := strings.TrimPrefix(filter, "resource_group:")
 		if resId, ok := idm.PolicyResourceGroup_value[res]; ok {
-			stmtName = "listJoinedRes"
-			args = append(args, resId)
+			tx = tx.Where(&PolicyGroup{ResourceGroup: idm.PolicyResourceGroup(resId)})
 		}
 	} else if strings.HasPrefix(filter, "uuid:") {
 		id := strings.TrimPrefix(filter, "uuid:")
-		stmtName = "listJoinedUuid"
-		args = append(args, id)
+
+		tx = tx.Where(&PolicyGroup{UUID: id})
 	} else if strings.HasPrefix(filter, "like:") {
 		like := "%" + strings.TrimPrefix(filter, "like:") + "%"
-		stmtName = "listJoinedLike"
-		args = append(args, like, like)
+
+		tx = tx.Where(clause.Like{Column: "name", Value: like}).Or(clause.Like{Column: "description", Value: like})
 	}
 
-	stmt, er := s.GetStmt(stmtName)
-	if er != nil {
-		return nil, er
+	var policyGroups []PolicyGroup
+	tx = tx.Find(&policyGroups)
+	if tx.Error != nil {
+		return nil, tx.Error
 	}
 
-	res, err := stmt.Query(args...)
-	if err != nil {
-		return groups, err
-	}
-	result := make(map[string]*idm.PolicyGroup)
-	defer res.Close()
-	for res.Next() {
-		policyGroup := new(idm.PolicyGroup)
-		var resourceGroup int32
-		var policyId string
-		res.Scan(
-			&policyGroup.Uuid,
-			&policyGroup.Name,
-			&policyGroup.Description,
-			&policyGroup.OwnerUuid,
-			&resourceGroup,
-			&policyGroup.LastUpdated,
-			&policyId,
-		)
-		if alreadyScanned, ok := result[policyGroup.Uuid]; ok {
-			policyGroup = alreadyScanned
+	for _, policyGroup := range policyGroups {
+		var policies []*idm.Policy
+		for _, policy := range policyGroup.Policies {
+
+			p := &idm.Policy{
+				Id:          policy.ID,
+				Description: policy.Description,
+				//Subjects:    policy.Subjects,
+				//Resources:   policy.Resources,
+				//Actions:     policy.Actions,
+				//Effect:      policy.Effect,
+			}
+
+			if err := json.Unmarshal([]byte(policy.Conditions), p.Conditions); err != nil {
+				return nil, err
+			}
+
+			policies = append(policies, p)
 		}
-		if policy, e := s.Get(policyId); e == nil {
-			policyGroup.Policies = append(policyGroup.Policies, converter.LadonToProtoPolicy(policy))
-		}
-		policyGroup.ResourceGroup = idm.PolicyResourceGroup(resourceGroup)
-		result[policyGroup.Uuid] = policyGroup
+		groups = append(groups, &idm.PolicyGroup{
+			Uuid:          policyGroup.UUID,
+			OwnerUuid:     policyGroup.OwnerUUID,
+			Policies:      policies,
+			ResourceGroup: policyGroup.ResourceGroup,
+			LastUpdated:   int32(policyGroup.LastUpdated),
+		})
 	}
-	for _, group := range result {
-		groups = append(groups, group)
-	}
+
 	return
 }
 
 // DeletePolicyGroup deletes a policy group and all related policies.
 func (s *sqlimpl) DeletePolicyGroup(ctx context.Context, group *idm.PolicyGroup) error {
 
-	var policies []string
-
-	stmt, er := s.GetStmt("listRelPolicies")
-	if er != nil {
-		return er
-	}
-
-	if res, err := stmt.Query(group.Uuid); err == nil {
-		defer res.Close()
-		for res.Next() {
-			var pId string
-			res.Scan(&pId)
-			policies = append(policies, pId)
-		}
-	}
-
-	stmt, er = s.GetStmt("deleteRelPolicies")
-	if er != nil {
-		return er
-	}
-
-	if _, err := stmt.Exec(group.Uuid); err != nil {
-		return err
-	}
-
-	stmt, er = s.GetStmt("deletePolicyGroup")
-	if er != nil {
-		return er
-	}
-	if _, err := stmt.Exec(group.Uuid); err != nil {
-		return err
-	}
-
-	for _, policyId := range policies {
-		if err := s.Delete(policyId); err != nil {
-			log.Logger(ctx).Error("cannot delete policy "+policyId, zap.String("policyId", policyId), zap.Error(err))
-		}
+	// TODO - cascade ?
+	tx := s.instance(ctx).Where(&PolicyGroup{UUID: group.Uuid}).Delete(&PolicyGroup{})
+	if tx.Error != nil {
+		return tx.Error
 	}
 
 	return nil

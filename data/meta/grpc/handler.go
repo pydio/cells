@@ -22,7 +22,6 @@ package grpc
 
 import (
 	"context"
-	"github.com/pydio/cells/v4/data/meta"
 	"strings"
 	"sync"
 
@@ -39,6 +38,7 @@ import (
 	"github.com/pydio/cells/v4/common/utils/cache"
 	json "github.com/pydio/cells/v4/common/utils/jsonx"
 	"github.com/pydio/cells/v4/common/utils/queue"
+	"github.com/pydio/cells/v4/data/meta"
 )
 
 // MetaServer definition
@@ -50,8 +50,6 @@ type MetaServer struct {
 
 	eventsChannel chan *queue.TypeWithContext[*tree.NodeChangeEvent]
 	cache         cache.Cache
-
-	DAO meta.DAO
 
 	stopped     bool
 	stoppedLock *sync.Mutex
@@ -209,9 +207,9 @@ func (s *MetaServer) ReadNode(ctx context.Context, req *tree.ReadNodeRequest) (r
 		}
 	}
 
-	dao, err := meta.NewDAO(ctx)
-	if err != nil {
-		return nil, err
+	dao := servicecontext.GetDAO[meta.DAO](ctx)
+	if dao == nil {
+		return nil, common.ErrMissingDAO
 	}
 
 	metadata, err := dao.GetMetadata(req.Node.Uuid)

@@ -22,8 +22,6 @@ package http
 
 import (
 	"fmt"
-	pb "github.com/pydio/cells/v4/common/proto/registry"
-	"github.com/pydio/cells/v4/common/registry"
 	"math/rand"
 	"net/http"
 	"net/http/httputil"
@@ -36,6 +34,8 @@ import (
 	"github.com/pydio/cells/v4/common/client"
 	"github.com/pydio/cells/v4/common/config"
 	"github.com/pydio/cells/v4/common/log"
+	pb "github.com/pydio/cells/v4/common/proto/registry"
+	"github.com/pydio/cells/v4/common/registry"
 )
 
 type Balancer interface {
@@ -99,7 +99,10 @@ func (b *balancer) Build(reg registry.Registry) error {
 			continue
 		}
 
-		addrs := reg.ListAdjacentItems(srv, registry.WithType(pb.ItemType_ADDRESS))
+		addrs := reg.ListAdjacentItems(
+			registry.WithAdjacentSourceItems([]registry.Item{srv}),
+			registry.WithAdjacentTargetOptions(registry.WithType(pb.ItemType_ADDRESS)),
+		)
 		for _, addr := range addrs {
 			addr := addr.Name()
 			usedAddr[addr] = struct{}{}
@@ -116,8 +119,14 @@ func (b *balancer) Build(reg registry.Registry) error {
 				}
 				proxy = &reverseProxy{
 					ReverseProxy: httputil.NewSingleHostReverseProxy(u),
-					services:     reg.ListAdjacentItems(srv, registry.WithType(pb.ItemType_SERVICE)),
-					endpoints:    reg.ListAdjacentItems(srv, registry.WithType(pb.ItemType_ENDPOINT)),
+					services: reg.ListAdjacentItems(
+						registry.WithAdjacentSourceItems([]registry.Item{srv}),
+						registry.WithAdjacentTargetOptions(registry.WithType(pb.ItemType_SERVICE)),
+					),
+					endpoints: reg.ListAdjacentItems(
+						registry.WithAdjacentSourceItems([]registry.Item{srv}),
+						registry.WithAdjacentTargetOptions(registry.WithType(pb.ItemType_ENDPOINT)),
+					),
 				}
 				proxy.ErrorHandler = func(writer http.ResponseWriter, request *http.Request, err error) {
 					if err.Error() == "context canceled" {

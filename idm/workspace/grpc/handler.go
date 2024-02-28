@@ -23,15 +23,17 @@ package grpc
 import (
 	"context"
 	"fmt"
-	"github.com/pydio/cells/v4/common/proto/service"
-	"github.com/pydio/cells/v4/common/sql/resources"
+
 	"go.uber.org/zap"
 
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/broker"
 	"github.com/pydio/cells/v4/common/log"
 	"github.com/pydio/cells/v4/common/proto/idm"
+	"github.com/pydio/cells/v4/common/proto/service"
+	servicecontext "github.com/pydio/cells/v4/common/service/context"
 	"github.com/pydio/cells/v4/common/service/errors"
+	"github.com/pydio/cells/v4/common/sql/resources"
 	"github.com/pydio/cells/v4/common/utils/slug"
 	"github.com/pydio/cells/v4/idm/workspace"
 )
@@ -40,8 +42,6 @@ import (
 type Handler struct {
 	idm.UnimplementedWorkspaceServiceServer
 	service.UnimplementedLoginModifierServer
-
-	DAO workspace.DAO
 }
 
 func NewHandler() *Handler {
@@ -50,14 +50,18 @@ func NewHandler() *Handler {
 
 // CreateWorkspace in database
 func (h *Handler) CreateWorkspace(ctx context.Context, req *idm.CreateWorkspaceRequest) (*idm.CreateWorkspaceResponse, error) {
+	dao := servicecontext.GetDAO[workspace.DAO](ctx)
+	if dao == nil {
+		return nil, common.ErrMissingDAO
+	}
 
 	if req.Workspace.Slug == "" {
 		req.Workspace.Slug = slug.Make(req.Workspace.Label)
 	}
-	update, err := h.DAO.Add(ctx, req.Workspace)
+	update, err := dao.Add(ctx, req.Workspace)
 	// ADD POLICIES
 	if len(req.Workspace.Policies) > 0 {
-		if e := h.DAO.AddPolicies(ctx, update, req.Workspace.UUID, req.Workspace.Policies); e != nil {
+		if e := dao.AddPolicies(ctx, update, req.Workspace.UUID, req.Workspace.Policies); e != nil {
 			return nil, e
 		}
 	}
@@ -97,13 +101,17 @@ func (h *Handler) CreateWorkspace(ctx context.Context, req *idm.CreateWorkspaceR
 
 // DeleteWorkspace from database
 func (h *Handler) DeleteWorkspace(ctx context.Context, req *idm.DeleteWorkspaceRequest) (*idm.DeleteWorkspaceResponse, error) {
+	dao := servicecontext.GetDAO[workspace.DAO](ctx)
+	if dao == nil {
+		return nil, common.ErrMissingDAO
+	}
 
 	workspaces := new([]interface{})
-	if err := h.DAO.Search(ctx, req.Query, workspaces); err != nil {
+	if err := dao.Search(ctx, req.Query, workspaces); err != nil {
 		return nil, err
 	}
 
-	numRows, err := h.DAO.Del(ctx, req.Query)
+	numRows, err := dao.Del(ctx, req.Query)
 	response := &idm.DeleteWorkspaceResponse{
 		RowsDeleted: numRows,
 	}
@@ -114,7 +122,7 @@ func (h *Handler) DeleteWorkspace(ctx context.Context, req *idm.DeleteWorkspaceR
 	// Update relevant policies and propagate event
 	for _, w := range *workspaces {
 		currW := w.(*idm.Workspace)
-		err2 := h.DAO.DeletePoliciesForResource(ctx, currW.UUID)
+		err2 := dao.DeletePoliciesForResource(ctx, currW.UUID)
 		if err2 != nil {
 			log.Logger(ctx).Error("could not delete policies for removed ws "+currW.Slug, zap.Error(err2))
 			continue
@@ -139,14 +147,19 @@ func (h *Handler) SearchWorkspace(request *idm.SearchWorkspaceRequest, response 
 
 	ctx := response.Context()
 
+	dao := servicecontext.GetDAO[workspace.DAO](ctx)
+	if dao == nil {
+		return common.ErrMissingDAO
+	}
+
 	workspaces := new([]interface{})
-	if err := h.DAO.Search(ctx, request.Query, workspaces); err != nil {
+	if err := dao.Search(ctx, request.Query, workspaces); err != nil {
 		return err
 	}
 	var e error
 	for _, in := range *workspaces {
 		ws, ok := in.(*idm.Workspace)
-		if ws.Policies, e = h.DAO.GetPoliciesForResource(ctx, ws.UUID); e != nil {
+		if ws.Policies, e = dao.GetPoliciesForResource(ctx, ws.UUID); e != nil {
 			log.Logger(ctx).Error("cannot load policies for workspace "+ws.UUID, zap.Error(e))
 			continue
 		}
@@ -169,6 +182,11 @@ func (h *Handler) StreamWorkspace(streamer idm.WorkspaceService_StreamWorkspaceS
 
 	ctx := streamer.Context()
 
+	dao := servicecontext.GetDAO[workspace.DAO](ctx)
+	if dao == nil {
+		return common.ErrMissingDAO
+	}
+
 	for {
 		incoming, err := streamer.Recv()
 		if incoming == nil {
@@ -179,14 +197,14 @@ func (h *Handler) StreamWorkspace(streamer idm.WorkspaceService_StreamWorkspaceS
 		}
 
 		workspaces := new([]interface{})
-		if err := h.DAO.Search(ctx, incoming.Query, workspaces); err != nil {
+		if err := dao.Search(ctx, incoming.Query, workspaces); err != nil {
 			continue
 		}
 
 		var e error
 		for _, in := range *workspaces {
 			if ws, ok := in.(*idm.Workspace); ok {
-				if ws.Policies, e = h.DAO.GetPoliciesForResource(ctx, ws.UUID); e != nil {
+				if ws.Policies, e = dao.GetPoliciesForResource(ctx, ws.UUID); e != nil {
 					log.Logger(ctx).Error("cannot load policies for workspace "+ws.UUID, zap.Error(e))
 					continue
 				}
@@ -203,5 +221,10 @@ func (h *Handler) StreamWorkspace(streamer idm.WorkspaceService_StreamWorkspaceS
 }
 
 func (h *Handler) ModifyLogin(ctx context.Context, req *service.ModifyLoginRequest) (*service.ModifyLoginResponse, error) {
-	return resources.ModifyLogin(ctx, h.DAO, req)
+	dao := servicecontext.GetDAO[workspace.DAO](ctx)
+	if dao == nil {
+		return nil, common.ErrMissingDAO
+	}
+
+	return resources.ModifyLogin(ctx, dao, req)
 }

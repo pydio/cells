@@ -40,7 +40,7 @@ func testWatch(t *testing.T, store config.Store) {
 		Convey("Simple GetSet Works", func() {
 
 			wg := &sync.WaitGroup{}
-			
+
 			w, _ := store.Watch()
 			// We first receive the initial list
 			w.Next()

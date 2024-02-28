@@ -24,24 +24,26 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	pb "github.com/pydio/cells/v4/common/proto/registry"
-	servercontext "github.com/pydio/cells/v4/common/server/context"
-	"github.com/pydio/cells/v4/common/storage"
-	"google.golang.org/grpc/reflection"
 	"net"
 	"net/url"
 	"reflect"
 	"strings"
 	"sync"
 
+	protovalidate "github.com/bufbuild/protovalidate-go"
+	"go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc"
 	"go.uber.org/zap"
 	"google.golang.org/grpc"
 	channelz "google.golang.org/grpc/channelz/service"
 	"google.golang.org/grpc/health"
 	_ "google.golang.org/grpc/health"
 	"google.golang.org/grpc/health/grpc_health_v1"
+	"google.golang.org/grpc/reflection"
+	"google.golang.org/protobuf/proto"
 
+	"github.com/pydio/cells/v4/common/config"
 	"github.com/pydio/cells/v4/common/log"
+	pb "github.com/pydio/cells/v4/common/proto/registry"
 	"github.com/pydio/cells/v4/common/registry"
 	"github.com/pydio/cells/v4/common/registry/util"
 	"github.com/pydio/cells/v4/common/runtime"
@@ -49,8 +51,8 @@ import (
 	"github.com/pydio/cells/v4/common/server/middleware"
 	"github.com/pydio/cells/v4/common/service"
 	servicecontext "github.com/pydio/cells/v4/common/service/context"
+	"github.com/pydio/cells/v4/common/storage"
 	"github.com/pydio/cells/v4/common/utils/uuid"
-	"go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc"
 )
 
 func init() {
@@ -139,124 +141,175 @@ func (s *Server) lazyGrpc(ctx context.Context) *grpc.Server {
 
 	reg := servicecontext.GetRegistry(s.ctx)
 
-	unaryInterceptors = append(unaryInterceptors, func(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (interface{}, error) {
-		serviceName := servicecontext.GetServiceName(ctx)
-		if serviceName != "" {
-			endpoints := reg.ListAdjacentItems(s, registry.WithName(info.FullMethod), registry.WithType(pb.ItemType_ENDPOINT))
+	unaryInterceptors = append(unaryInterceptors,
 
-			for _, endpoint := range endpoints {
-				ep := endpoint.(registry.Endpoint)
+		func(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (interface{}, error) {
+			serviceName := servicecontext.GetServiceName(ctx)
+			if serviceName != "" {
+				endpoints := reg.ListAdjacentItems(
+					registry.WithAdjacentSourceItems([]registry.Item{s}),
+					registry.WithAdjacentTargetOptions(registry.WithName(info.FullMethod), registry.WithType(pb.ItemType_ENDPOINT)),
+				)
 
-				services := reg.ListAdjacentItems(endpoint, registry.WithType(pb.ItemType_SERVICE))
+				for _, endpoint := range endpoints {
+					ep := endpoint.(registry.Endpoint)
 
-				var svc service.Service
-				for _, service := range services {
-					if service.Name() == serviceName {
-						service.As(&svc)
-						break
-					}
-				}
+					services := reg.ListAdjacentItems(
+						registry.WithAdjacentSourceItems([]registry.Item{endpoint}),
+						registry.WithAdjacentTargetOptions(registry.WithType(pb.ItemType_SERVICE)),
+					)
 
-				if svc == nil {
-					continue
-				}
-
-				// Inject dao in handler
-				for _, store := range svc.Options().Storages {
-					handlerV := reflect.ValueOf(store.Handler)
-					handlerT := reflect.TypeOf(store.Handler)
-					if handlerV.Kind() != reflect.Func {
-						return nil, errors.New("storage handler is not a function")
-					}
-					if handlerT.NumIn() != 1 {
-						return nil, errors.New("storage handler should have only 1 argument")
-					}
-
-					db := reflect.New(handlerT.In(0))
-					storage.Get(ctx, db.Interface())
-
-					dao := handlerV.Call([]reflect.Value{db.Elem()})
-
-					field := reflect.ValueOf(ep.Handler()).Elem().FieldByName(store.Key)
-					if field.CanSet() {
-						if dao[0].IsValid() {
-							field.Set(dao[0])
+					var svc service.Service
+					for _, service := range services {
+						if service.Name() == serviceName {
+							service.As(&svc)
+							break
 						}
 					}
+
+					if svc == nil {
+						continue
+					}
+
+					// Inject dao in handler
+					for _, store := range svc.Options().Storages {
+						handlerV := reflect.ValueOf(store.Handler)
+						handlerT := reflect.TypeOf(store.Handler)
+						if handlerV.Kind() != reflect.Func {
+							return nil, errors.New("storage handler is not a function")
+						}
+						if handlerT.NumIn() != 1 {
+							return nil, errors.New("storage handler should have only 1 argument")
+						}
+
+						db := reflect.New(handlerT.In(0))
+						storage.Get(ctx, db.Interface())
+
+						// Checking all migrations
+						err := service.UpdateServiceVersion(ctx, config.Main(), svc.Options())
+						if err != nil {
+							return nil, err
+						}
+
+						dao := handlerV.Call([]reflect.Value{db.Elem()})
+
+						ctx = servicecontext.WithDAO(ctx, dao[0].Interface())
+
+						//field := reflect.ValueOf(ep.Handler()).Elem().FieldByName(store.Key)
+						//if field.CanSet() {
+						//	if dao[0].IsValid() {
+						//		field.Set(dao[0])
+						//	}
+						//}
+					}
+
+					method := info.FullMethod[strings.LastIndex(info.FullMethod, "/")+1:]
+					outputs := reflect.ValueOf(ep.Handler()).MethodByName(method).Call([]reflect.Value{reflect.ValueOf(ctx), reflect.ValueOf(req)})
+
+					resp := outputs[0].Interface()
+					err := outputs[1].Interface()
+					if err != nil {
+						return nil, err.(error)
+					}
+
+					return resp, nil
 				}
 
-				method := info.FullMethod[strings.LastIndex(info.FullMethod, "/")+1:]
-				outputs := reflect.ValueOf(ep.Handler()).MethodByName(method).Call([]reflect.Value{reflect.ValueOf(ctx), reflect.ValueOf(req)})
-
-				resp := outputs[0].Interface()
-				err := outputs[1].Interface()
-				if err != nil {
-					return nil, err.(error)
-				}
-
-				return resp, nil
+				return nil, grpc.ErrServerStopped
 			}
 
-			return nil, grpc.ErrServerStopped
-		}
+			return handler(ctx, req)
+		},
 
-		return handler(ctx, req)
-	})
+		func(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (interface{}, error) {
+			v, err := protovalidate.New()
+			if err != nil {
+				return nil, err
+			}
 
-	streamInterceptors = append(streamInterceptors, func(srv interface{}, ss grpc.ServerStream, info *grpc.StreamServerInfo, handler grpc.StreamHandler) error {
-		tenant := servercontext.GetTenant(ss.Context())
-		fmt.Println("Tenant ", tenant)
-		serviceName := servicecontext.GetServiceName(ss.Context())
-		if serviceName != "" {
-			endpoints := reg.ListAdjacentItems(s, registry.WithName(info.FullMethod), registry.WithType(pb.ItemType_ENDPOINT))
+			if err = v.Validate(req.(proto.Message)); err != nil {
+				return nil, err
+			}
 
-			for _, endpoint := range endpoints {
-				services := reg.ListAdjacentItems(endpoint, registry.WithType(pb.ItemType_SERVICE))
+			return handler(ctx, req)
+		},
+	)
 
-				var svc service.Service
-				for _, service := range services {
-					if service.Name() == serviceName {
-						service.As(&svc)
-						break
-					}
-				}
+	streamInterceptors = append(streamInterceptors,
+		//func(srv interface{}, ss grpc.ServerStream, info *grpc.StreamServerInfo, handler grpc.StreamHandler) error {
+		//	v, err := protovalidate.New()
+		//	if err != nil {
+		//		fmt.Println("failed to initialize validator:", err)
+		//	}
+		//
+		//	if err = v.Validate(req.(proto.Message)); err != nil {
+		//		fmt.Println("validation failed:", err)
+		//	} else {
+		//		fmt.Println("validation succeeded")
+		//	}
+		//
+		//	return handler(srv, ss)
+		//},
+		func(srv interface{}, ss grpc.ServerStream, info *grpc.StreamServerInfo, handler grpc.StreamHandler) error {
+			// tenant := servercontext.GetTenant(ss.Context())
+			serviceName := servicecontext.GetServiceName(ss.Context())
+			if serviceName != "" {
+				endpoints := reg.ListAdjacentItems(
+					registry.WithAdjacentSourceItems([]registry.Item{s}),
+					registry.WithAdjacentEdgeOptions(registry.WithName("server"), registry.WithMeta("serverType", "grpc")),
+					registry.WithAdjacentTargetOptions(registry.WithName(info.FullMethod), registry.WithType(pb.ItemType_ENDPOINT)),
+				)
 
-				if svc == nil {
-					continue
-				}
+				for _, endpoint := range endpoints {
+					services := reg.ListAdjacentItems(
+						registry.WithAdjacentSourceItems([]registry.Item{endpoint}),
+						registry.WithAdjacentTargetOptions(registry.WithType(pb.ItemType_SERVICE)),
+					)
 
-				ep := endpoint.(registry.Endpoint)
-
-				// Inject dao in handler
-				for _, store := range svc.Options().Storages {
-					handlerV := reflect.ValueOf(store.Handler)
-					handlerT := reflect.TypeOf(store.Handler)
-					if handlerV.Kind() != reflect.Func {
-						return errors.New("storage handler is not a function")
-					}
-					if handlerT.NumIn() != 1 {
-						return errors.New("storage handler should have only 1 argument")
-					}
-
-					db := reflect.New(handlerT.In(0))
-					storage.Get(ctx, db.Interface())
-
-					dao := handlerV.Call([]reflect.Value{db.Elem()})
-
-					field := reflect.ValueOf(ep.Handler()).Elem().FieldByName(store.Key)
-					if field.CanSet() {
-						if dao[0].IsValid() {
-							field.Set(dao[0])
+					var svc service.Service
+					for _, service := range services {
+						if service.Name() == serviceName {
+							service.As(&svc)
+							break
 						}
 					}
+
+					if svc == nil {
+						continue
+					}
+
+					ep := endpoint.(registry.Endpoint)
+
+					// Inject dao in handler
+					for _, store := range svc.Options().Storages {
+						handlerV := reflect.ValueOf(store.Handler)
+						handlerT := reflect.TypeOf(store.Handler)
+						if handlerV.Kind() != reflect.Func {
+							return errors.New("storage handler is not a function")
+						}
+						if handlerT.NumIn() != 1 {
+							return errors.New("storage handler should have only 1 argument")
+						}
+
+						db := reflect.New(handlerT.In(0))
+						storage.Get(ctx, db.Interface())
+
+						dao := handlerV.Call([]reflect.Value{db.Elem()})
+
+						field := reflect.ValueOf(ep.Handler()).Elem().FieldByName(store.Key)
+						if field.CanSet() {
+							if dao[0].IsValid() {
+								field.Set(dao[0])
+							}
+						}
+					}
+
+					return handler(ep.Handler(), ss)
 				}
-
-				return handler(ep.Handler(), ss)
 			}
-		}
 
-		return handler(srv, ss)
-	})
+			return handler(srv, ss)
+		})
 
 	gs := grpc.NewServer(
 		grpc.ChainUnaryInterceptor(
@@ -424,10 +477,17 @@ type serverRegistrar struct {
 }
 
 func (r *serverRegistrar) GetServiceInfo() map[string]grpc.ServiceInfo {
-	endpoints, err := r.reg.List(registry.WithType(pb.ItemType_ENDPOINT))
-	if err != nil {
-		return r.Server.GetServiceInfo()
-	}
+
+	endpoints := r.reg.ListAdjacentItems(
+		registry.WithAdjacentSourceItems([]registry.Item{r}),
+		registry.WithAdjacentEdgeOptions(registry.WithName("server"), registry.WithMeta("serverType", "grpc")),
+		registry.WithAdjacentTargetOptions(registry.WithType(pb.ItemType_ENDPOINT)),
+	)
+
+	//endpoints, err := r.reg.List(registry.WithType(pb.ItemType_ENDPOINT))
+	//if err != nil {
+	//	return r.Server.GetServiceInfo()
+	//}
 
 	info := map[string]grpc.ServiceInfo{}
 	for _, endpoint := range endpoints {
@@ -462,8 +522,11 @@ func (r *serverRegistrar) RegisterService(desc *grpc.ServiceDesc, impl interface
 	for _, method := range desc.Methods {
 		endpoint := util.CreateEndpoint("/"+desc.ServiceName+"/"+method.MethodName, impl, map[string]string{})
 
+		//fmt.Println("Registering ", "/"+desc.ServiceName+"/"+method.MethodName, endpoint.ID(), r.id)
 		r.reg.Register(endpoint,
-			registry.WithEdgeTo(r.id, "server", nil),
+			registry.WithEdgeTo(r.id, "server", map[string]string{
+				"serverType": "grpc",
+			}),
 		)
 	}
 
@@ -471,7 +534,9 @@ func (r *serverRegistrar) RegisterService(desc *grpc.ServiceDesc, impl interface
 		endpoint := util.CreateEndpoint("/"+desc.ServiceName+"/"+method.StreamName, impl, map[string]string{})
 
 		r.reg.Register(endpoint,
-			registry.WithEdgeTo(r.id, "server", nil))
+			registry.WithEdgeTo(r.id, "server", map[string]string{
+				"serverType": "grpc",
+			}))
 	}
 }
 

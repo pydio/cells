@@ -25,11 +25,6 @@ import (
 	"database/sql"
 	_ "embed"
 	"fmt"
-	"github.com/pkg/errors"
-	"github.com/pydio/cells/v4/common/registry/util"
-	"github.com/pydio/cells/v4/common/storage"
-	"github.com/pydio/cells/v4/common/utils/fork"
-	json "github.com/pydio/cells/v4/common/utils/jsonx"
 	"io"
 	"os"
 	"strconv"
@@ -38,6 +33,7 @@ import (
 	"time"
 
 	"github.com/bep/debounce"
+	"github.com/pkg/errors"
 	"go.uber.org/zap"
 	"golang.org/x/sync/errgroup"
 
@@ -47,12 +43,16 @@ import (
 	"github.com/pydio/cells/v4/common/log"
 	pb "github.com/pydio/cells/v4/common/proto/registry"
 	"github.com/pydio/cells/v4/common/registry"
+	"github.com/pydio/cells/v4/common/registry/util"
 	"github.com/pydio/cells/v4/common/runtime"
 	"github.com/pydio/cells/v4/common/server"
 	servercontext "github.com/pydio/cells/v4/common/server/context"
 	"github.com/pydio/cells/v4/common/service"
 	servicecontext "github.com/pydio/cells/v4/common/service/context"
+	"github.com/pydio/cells/v4/common/storage"
 	"github.com/pydio/cells/v4/common/utils/configx"
+	"github.com/pydio/cells/v4/common/utils/fork"
+	json "github.com/pydio/cells/v4/common/utils/jsonx"
 )
 
 const (
@@ -833,7 +833,10 @@ func (m *manager) WatchTransientStatus() {
 
 		for _, i := range res.Items() {
 			statusToSet := string(registry.StatusReady)
-			items := m.localRegistry.ListAdjacentItems(i, registry.WithType(pb.ItemType_SERVICE))
+			items := m.localRegistry.ListAdjacentItems(
+				registry.WithAdjacentSourceItems([]registry.Item{i}),
+				registry.WithAdjacentTargetOptions(registry.WithType(pb.ItemType_SERVICE)),
+			)
 			for _, item := range items {
 				itemStatus := item.Metadata()[registry.MetaStatusKey]
 				if itemStatus != string(registry.StatusReady) && itemStatus != string(registry.StatusWaiting) && itemStatus != string(registry.StatusError) {

@@ -81,8 +81,8 @@ func (v *versionStore) Get() configx.Value {
 }
 
 // Set new value
-func (v *versionStore) Set(data interface{}) error {
-	return v.store.Set(data)
+func (v *versionStore) Set(value interface{}) error {
+	return v.store.Set(value)
 }
 
 // Del version store

@@ -23,29 +23,17 @@ package sql
 import (
 	"context"
 	"embed"
-	"github.com/pydio/cells/v4/common/utils/std"
-	migrate "github.com/rubenv/sql-migrate"
-	"time"
-
-	"github.com/pydio/cells/v4/common/dao"
-	"github.com/pydio/cells/v4/common/sql"
-	"github.com/pydio/cells/v4/common/utils/configx"
-	"github.com/pydio/cells/v4/common/utils/statics"
+	"gorm.io/gorm"
+	"sync"
 )
 
-func NewDAO(ctx context.Context, o dao.DAO) (dao.DAO, error) {
-	switch v := o.(type) {
-	case sql.DAO:
-		return &sqlimpl{DAO: v}, nil
-	}
-	return nil, dao.UnsupportedDriver(o)
+func NewDAO(db *gorm.DB) DAO {
+	return &sqlimpl{DB: db}
 }
 
 type DAO interface {
-	dao.DAO
-
-	Get() ([]byte, error)
-	Set([]byte) error
+	Get(ctx context.Context) ([]byte, error)
+	Set(ctx context.Context, data []byte) error
 }
 
 var (
@@ -58,67 +46,45 @@ var (
 )
 
 type sqlimpl struct {
-	sql.DAO
+	*gorm.DB
+
+	once *sync.Once
 }
 
-// Init handler for the SQL DAO
-func (s *sqlimpl) Init(ctx context.Context, options configx.Values) error {
-
-	// super
-	s.DAO.Init(ctx, options)
-
-	migrations := &sql.FSMigrationSource{
-		Box:         statics.AsFS(migrationsFS, "migrations"),
-		Dir:         s.DAO.Driver(),
-		TablePrefix: s.DAO.Prefix(),
-	}
-
-	err := std.Retry(ctx, func() error {
-		_, err := sql.ExecMigration(s.DAO.DB(), s.DAO.Driver(), migrations, migrate.Up, s.DAO.Prefix())
-		if err != nil {
-			return err
-		}
-
-		return nil
-	}, 1*time.Second, 30*time.Second)
-	if err != nil {
-		return err
-	}
-
-	// Preparing the db statements
-	if options.Val("prepare").Default(true).Bool() {
-		for key, query := range queries {
-			if err := s.Prepare(key, query); err != nil {
-				return err
-			}
-		}
-	}
-
-	return nil
+type KV struct {
+	id   int    `gorm:"column:id; primaryKey"`
+	data []byte `gorm:"column:data"`
 }
 
-func (s *sqlimpl) Get() ([]byte, error) {
-	stmt, err := s.DAO.GetStmt("get")
-	if err != nil {
-		return nil, err
+func (s *sqlimpl) instance(ctx context.Context) *gorm.DB {
+	if s.once == nil {
+		s.once = &sync.Once{}
 	}
 
-	var b []byte
+	db := s.DB.Session(&gorm.Session{SkipDefaultTransaction: true}).WithContext(ctx)
 
-	row := stmt.QueryRow()
-	row.Scan(&b)
+	s.once.Do(func() {
+		db.AutoMigrate(&KV{})
+	})
 
-	return b, nil
+	return db
 }
 
-func (s *sqlimpl) Set(data []byte) error {
-	stmt, err := s.DAO.GetStmt("set")
-	if err != nil {
-		return err
+func (s *sqlimpl) Get(ctx context.Context) ([]byte, error) {
+	var kv *KV
+
+	tx := s.instance(ctx).First(&kv)
+	if tx.Error != nil {
+		return nil, tx.Error
 	}
 
-	if _, err := stmt.Exec(data, data); err != nil {
-		return err
+	return kv.data, nil
+}
+
+func (s *sqlimpl) Set(ctx context.Context, data []byte) error {
+	tx := s.instance(ctx).Create(&KV{data: data})
+	if tx.Error != nil {
+		return tx.Error
 	}
 
 	return nil

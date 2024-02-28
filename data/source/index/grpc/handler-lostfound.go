@@ -24,12 +24,11 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/pydio/cells/v4/common/client/grpc"
-
 	"go.uber.org/zap"
 	"google.golang.org/protobuf/types/known/anypb"
 
 	"github.com/pydio/cells/v4/common"
+	"github.com/pydio/cells/v4/common/client/grpc"
 	"github.com/pydio/cells/v4/common/log"
 	"github.com/pydio/cells/v4/common/proto/idm"
 	service "github.com/pydio/cells/v4/common/proto/service"
@@ -43,7 +42,10 @@ var (
 
 // TriggerResync on index performs a Lost+Found request to auto-heal indexation errors, whenever possible
 func (s *TreeServer) TriggerResync(ctx context.Context, request *sync.ResyncRequest) (*sync.ResyncResponse, error) {
-	dao := s.getDAO(ctx, "")
+	dao, err := s.getDAO(ctx, "")
+	if err != nil {
+		return nil, err
+	}
 
 	resp := &sync.ResyncResponse{}
 	if request.GetPath() == "flatten" {

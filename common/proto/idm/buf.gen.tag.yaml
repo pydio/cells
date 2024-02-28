@@ -2,4 +2,5 @@ version: v1
 plugins:
   - name: go-tags
     out: .
-    opt: paths=source_relative
+    opt: module=github.com/pydio/cells/v4/common/proto/tree
+

@@ -229,11 +229,11 @@ func (f *file) Clone() configx.Value {
 	return f.v.Get()
 }
 
-func (f *file) Set(data interface{}) error {
+func (f *file) Set(value interface{}) error {
 	f.mtx.RLock()
 	defer f.mtx.RUnlock()
 
-	if err := f.v.Set(data); err != nil {
+	if err := f.v.Set(value); err != nil {
 		return err
 	}
 
@@ -384,11 +384,11 @@ func (v *values) Val(path ...string) configx.Values {
 	return &values{Values: v.Values.Val(path...), lock: v.lock, f: v.f}
 }
 
-func (v *values) Set(data interface{}) error {
+func (v *values) Set(value interface{}) error {
 	v.lock.Lock()
 	defer v.lock.Unlock()
 
-	if err := v.Values.Set(data); err != nil {
+	if err := v.Values.Set(value); err != nil {
 		return err
 	}
 

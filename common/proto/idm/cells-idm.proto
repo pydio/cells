@@ -606,7 +606,7 @@ message Policy {
 }
 
 message PolicyGroup {
-    string Uuid = 1;
+    string Uuid = 1  [(buf.validate.field).required = true];
     string Name = 2;
     string Description = 3;
     string OwnerUuid = 4;
@@ -617,13 +617,13 @@ message PolicyGroup {
 
 // Request / Response Messages
 message StorePolicyGroupRequest{
-    PolicyGroup PolicyGroup = 1;
+    PolicyGroup PolicyGroup = 1 [(buf.validate.field).required = true];
 }
 message StorePolicyGroupResponse{
     PolicyGroup PolicyGroup = 1;
 }
 message DeletePolicyGroupRequest{
-    PolicyGroup PolicyGroup = 1;
+    PolicyGroup PolicyGroup = 1 [(buf.validate.field).required = true];
 }
 message DeletePolicyGroupResponse{
     bool Success = 1;

@@ -188,7 +188,9 @@ spec:
             - |
               sleep 3
               source /var/cells-install/source
-              cells configure
+              if ! cells admin config check; then 
+                cells configure
+              fi
               sleep 3
           env:
             - name: CELLS_INSTALL_YAML

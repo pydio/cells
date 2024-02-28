@@ -23,8 +23,9 @@ package acl
 
 import (
 	"context"
-	"gorm.io/gorm"
 	"time"
+
+	"gorm.io/gorm"
 
 	"github.com/pydio/cells/v4/common/sql"
 )

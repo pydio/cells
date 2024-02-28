@@ -60,9 +60,6 @@ func init() {
 			service.Context(ctx),
 			service.Tag(common.ServiceTagData),
 			service.Description("Versioning service"),
-			//service.Dependency(common.ServiceGrpcNamespace_+common.ServiceJobs, []string{}),
-			//service.Dependency(common.ServiceGrpcNamespace_+common.ServiceDocStore, []string{}),
-			//service.Dependency(common.ServiceGrpcNamespace_+common.ServiceTree, []string{}),
 			service.Migrations([]*service.Migration{
 				{
 					TargetVersion: service.FirstRun(),
@@ -77,7 +74,6 @@ func init() {
 					return boltdb.Driver, filepath.Join(runtime.MustServiceDataDir(Name), "versions.db")
 				}),
 			),
-			//service.Unique(true),
 			service.AfterServe(func(ctx context.Context) error {
 				// return std.Retry(ctx, func() error {
 				bg := runtime.ForkContext(context.Background(), ctx)
@@ -112,7 +108,7 @@ func init() {
 					db:      dao,
 				}
 
-				tree.RegisterNodeVersionerEnhancedServer(server, engine)
+				tree.RegisterNodeVersionerServer(server, engine)
 
 				return nil
 			}),

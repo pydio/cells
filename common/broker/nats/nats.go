@@ -63,6 +63,8 @@ func getConnection(ctx context.Context, u *url.URL) (*nats.Conn, error) {
 		return nil, err
 	}
 
+	fmt.Println(tlsConfig)
+
 	if err := std.Retry(ctx, func() error {
 		u.RawQuery = ""
 		opts := []nats.Option{

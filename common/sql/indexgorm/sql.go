@@ -29,14 +29,6 @@ import (
 	"encoding/hex"
 	"errors"
 	"fmt"
-	"github.com/go-gorm/caches"
-	"github.com/pydio/cells/v4/common/proto/options/orm"
-	"github.com/pydio/cells/v4/common/storage"
-	"github.com/pydio/cells/v4/common/utils/uuid"
-	"google.golang.org/protobuf/proto"
-	"google.golang.org/protobuf/types/known/anypb"
-	"gorm.io/gorm"
-	"gorm.io/gorm/clause"
 	"path"
 	"reflect"
 	"sort"
@@ -46,8 +38,17 @@ import (
 	"sync/atomic"
 	"time"
 
+	"github.com/go-gorm/caches"
+	"google.golang.org/protobuf/proto"
+	"google.golang.org/protobuf/types/known/anypb"
+	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
+
+	"github.com/pydio/cells/v4/common/proto/options/orm"
 	"github.com/pydio/cells/v4/common/proto/tree"
 	"github.com/pydio/cells/v4/common/sql"
+	"github.com/pydio/cells/v4/common/storage"
+	"github.com/pydio/cells/v4/common/utils/uuid"
 )
 
 var (
@@ -993,6 +994,28 @@ func (dao *IndexSQL[T]) FixRandHash2(ctx context.Context, excludes ...LostAndFou
 
 func (dao *IndexSQL[T]) Convert(val *anypb.Any, in any) (out any, ok bool) {
 	return in, false
+}
+
+// UpdateNameInPlace in replacement of previous node
+func (dao *IndexSQL[T]) UpdateNameInPlace(ctx context.Context, oldName, newName string, knownUuid string, knownLevel int) (int64, error) {
+
+	tx := dao.instance(ctx)
+
+	tx = tx.Where("name", oldName)
+
+	if knownLevel > -1 {
+		tx = tx.Where("level", knownLevel)
+	} else if knownUuid != "" {
+		tx = tx.Where("uuid", knownUuid)
+	}
+
+	tx = tx.Update("name", newName)
+	if tx.Error != nil {
+		return 0, tx.Error
+	}
+
+	return tx.RowsAffected, nil
+
 }
 
 // NewBatchSend Creation of the channels

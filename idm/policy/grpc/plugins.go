@@ -23,15 +23,12 @@ package grpc
 
 import (
 	"context"
-	"github.com/pydio/cells/v4/common/dao/mysql"
-	"github.com/pydio/cells/v4/common/dao/sqlite"
-	"github.com/pydio/cells/v4/common/server"
-	commonsql "github.com/pydio/cells/v4/common/sql"
-	"github.com/pydio/cells/v4/common/storage"
-	"github.com/pydio/cells/v4/common/utils/configx"
+
 	"google.golang.org/grpc"
 
 	"github.com/pydio/cells/v4/common"
+	"github.com/pydio/cells/v4/common/dao/mysql"
+	"github.com/pydio/cells/v4/common/dao/sqlite"
 	"github.com/pydio/cells/v4/common/proto/idm"
 	"github.com/pydio/cells/v4/common/runtime"
 	"github.com/pydio/cells/v4/common/service"
@@ -42,86 +39,74 @@ const ServiceName = common.ServiceGrpcNamespace_ + common.ServicePolicy
 
 func init() {
 	runtime.Register("main", func(ctx context.Context) {
-		var s service.Service
-
-		s = service.NewService(
+		service.NewService(
 			service.Name(ServiceName),
 			service.Context(ctx),
 			service.Tag(common.ServiceTagIdm),
 			service.Description("Policy Engine Service"),
-			service.WithTODOStorage(policy.NewDAO, commonsql.NewDAO,
+			service.WithStorage(
+				"DAO",
+				policy.NewDAO,
 				service.WithStoragePrefix("idm_policy"),
 				service.WithStorageSupport(mysql.Driver, sqlite.Driver),
 			),
-			service.TODOMigrations(func() []*service.Migration {
-				return []*service.Migration{
-					{
-						TargetVersion: service.FirstRun(),
-						Up:            policy.InitDefaults,
-					},
-					{
-						TargetVersion: service.ValidVersion("1.0.1"),
-						Up:            policy.Upgrade101,
-					},
-					{
-						TargetVersion: service.ValidVersion("1.0.3"),
-						Up:            policy.Upgrade103,
-					},
-					{
-						TargetVersion: service.ValidVersion("1.2.0"),
-						Up:            policy.Upgrade120,
-					},
-					{
-						TargetVersion: service.ValidVersion("1.2.2"),
-						Up:            policy.Upgrade122,
-					},
-					{
-						TargetVersion: service.ValidVersion("1.4.2"),
-						Up:            policy.Upgrade142,
-					},
-					{
-						TargetVersion: service.ValidVersion("2.0.2"),
-						Up:            policy.Upgrade202,
-					},
-					{
-						TargetVersion: service.ValidVersion("2.0.99"),
-						Up:            policy.Upgrade210,
-					},
-					{
-						TargetVersion: service.ValidVersion("2.1.99"),
-						Up:            policy.Upgrade220,
-					},
-					{
-						TargetVersion: service.ValidVersion("2.2.7"),
-						Up:            policy.Upgrade227,
-					},
-					{
-						TargetVersion: service.ValidVersion("3.9.99"),
-						Up:            policy.Upgrade399,
-					},
-					{
-						TargetVersion: service.ValidVersion("4.1.99"),
-						Up:            policy.Upgrade4199,
-					},
-				}
+			service.Migrations([]*service.Migration{
+				{
+					TargetVersion: service.FirstRun(),
+					Up:            policy.InitDefaults,
+				},
+				{
+					TargetVersion: service.ValidVersion("1.0.1"),
+					Up:            policy.Upgrade101,
+				},
+				{
+					TargetVersion: service.ValidVersion("1.0.3"),
+					Up:            policy.Upgrade103,
+				},
+				{
+					TargetVersion: service.ValidVersion("1.2.0"),
+					Up:            policy.Upgrade120,
+				},
+				{
+					TargetVersion: service.ValidVersion("1.2.2"),
+					Up:            policy.Upgrade122,
+				},
+				{
+					TargetVersion: service.ValidVersion("1.4.2"),
+					Up:            policy.Upgrade142,
+				},
+				{
+					TargetVersion: service.ValidVersion("2.0.2"),
+					Up:            policy.Upgrade202,
+				},
+				{
+					TargetVersion: service.ValidVersion("2.0.99"),
+					Up:            policy.Upgrade210,
+				},
+				{
+					TargetVersion: service.ValidVersion("2.1.99"),
+					Up:            policy.Upgrade220,
+				},
+				{
+					TargetVersion: service.ValidVersion("2.2.7"),
+					Up:            policy.Upgrade227,
+				},
+				{
+					TargetVersion: service.ValidVersion("3.9.99"),
+					Up:            policy.Upgrade399,
+				},
+				{
+					TargetVersion: service.ValidVersion("4.1.99"),
+					Up:            policy.Upgrade4199,
+				},
+			}),
+			service.WithGRPC(func(ctx context.Context, srv grpc.ServiceRegistrar) error {
+				handler := NewHandler()
+
+				idm.RegisterPolicyEngineServiceServer(srv, handler)
+
+				return nil
 			}),
 		)
-
-		var srv grpc.ServiceRegistrar
-		if !server.Get(&srv) {
-			panic("no grpc server available")
-		}
-
-		dao, err := policy.NewDAO(ctx, storage.Main)
-		if err != nil {
-			panic(err)
-		}
-
-		opts := configx.New()
-		dao.Init(ctx, opts)
-
-		handler := NewHandler(ctx, s, dao.(policy.DAO))
-
-		idm.RegisterPolicyEngineServiceServer(srv, handler)
 	})
 }

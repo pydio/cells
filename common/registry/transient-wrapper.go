@@ -35,7 +35,10 @@ func (m *TransientWrapper) Register(item Item, opts ...RegisterOption) error {
 	items := m.opts.filterItems(item)
 
 	if len(items) == 1 {
-		targetItems := m.Registry.ListAdjacentItems(item, WithType(pb.ItemType_SERVER), WithType(pb.ItemType_NODE))
+		targetItems := m.Registry.ListAdjacentItems(
+			WithAdjacentSourceItems([]Item{item}),
+			WithAdjacentTargetOptions(WithType(pb.ItemType_SERVER), WithType(pb.ItemType_NODE)),
+		)
 
 		status := item.Metadata()[MetaStatusKey]
 

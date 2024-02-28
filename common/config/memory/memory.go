@@ -176,8 +176,8 @@ func (m *memory) Get() configx.Value {
 	return m.v
 }
 
-func (m *memory) Set(data interface{}) error {
-	if err := m.v.Set(data); err != nil {
+func (m *memory) Set(value interface{}) error {
+	if err := m.v.Set(value); err != nil {
 		return err
 	}
 
@@ -362,8 +362,8 @@ type values struct {
 	path []string
 }
 
-func (v *values) Set(data interface{}) error {
-	if err := v.Values.Set(data); err != nil {
+func (v *values) Set(value interface{}) error {
+	if err := v.Values.Set(value); err != nil {
 		return err
 	}
 

@@ -81,11 +81,11 @@ func (p *proxy) Val(path ...string) configx.Values {
 	return p.Store.Val(path...)
 }
 
-func (p *proxyValues) Set(val interface{}) error {
+func (p *proxyValues) Set(value interface{}) error {
 	if p.setter != nil {
-		return p.setter(p.store, val, p.path...)
+		return p.setter(p.store, value, p.path...)
 	}
-	return p.Values.Set(val)
+	return p.Values.Set(value)
 }
 
 func (p *proxyValues) Get() configx.Value {

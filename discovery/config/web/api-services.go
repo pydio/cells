@@ -22,7 +22,6 @@ package rest
 
 import (
 	"context"
-	"github.com/pydio/cells/v4/common/registry/util"
 	"net"
 	"path"
 	"sort"
@@ -41,6 +40,7 @@ import (
 	"github.com/pydio/cells/v4/common/proto/rest"
 	"github.com/pydio/cells/v4/common/proto/tree"
 	"github.com/pydio/cells/v4/common/registry"
+	"github.com/pydio/cells/v4/common/registry/util"
 	"github.com/pydio/cells/v4/common/runtime"
 	servercontext "github.com/pydio/cells/v4/common/server/context"
 	"github.com/pydio/cells/v4/common/service"
@@ -89,7 +89,10 @@ func (h *Handler) ListServices(req *restful.Request, resp *restful.Response) {
 		if _, dis := disabledDss[srv.Name()]; dis {
 			continue
 		}
-		nodes := pluginsReg.ListAdjacentItems(srv, registry.WithType(rpb.ItemType_SERVER))
+		nodes := pluginsReg.ListAdjacentItems(
+			registry.WithAdjacentSourceItems([]registry.Item{srv}),
+			registry.WithAdjacentTargetOptions(registry.WithType(rpb.ItemType_SERVER)),
+		)
 		output.Services = append(output.Services, h.serviceToRest(pluginsReg, srv, nodes))
 	}
 
@@ -136,7 +139,10 @@ func (h *Handler) ListRegistry(req *restful.Request, resp *restful.Response) {
 					}
 				}
 			}
-			aa := pluginsReg.ListAdjacentItems(i, adjOpts...)
+			aa := pluginsReg.ListAdjacentItems(
+				registry.WithAdjacentSourceItems([]registry.Item{i}),
+				registry.WithAdjacentTargetOptions(adjOpts...),
+			)
 			item.Adjacents = util.ToProtoItems(aa)
 		}
 		response.Items = append(response.Items, item)
@@ -162,7 +168,10 @@ func (h *Handler) ListPeersAddresses(req *restful.Request, resp *restful.Respons
 	for _, n := range nodes {
 		node := n.(registry.Server)
 		var aa []string
-		for _, a := range reg.ListAdjacentItems(n, registry.WithType(rpb.ItemType_ADDRESS)) {
+		for _, a := range reg.ListAdjacentItems(
+			registry.WithAdjacentSourceItems([]registry.Item{n}),
+			registry.WithAdjacentTargetOptions(registry.WithType(rpb.ItemType_ADDRESS)),
+		) {
 			aa = append(aa, a.Name())
 		}
 		if ho, _, e := net.SplitHostPort(strings.Join(aa, "")); e == nil && ho != "" && ho != "::" {
@@ -382,7 +391,10 @@ func (h *Handler) serviceToRest(r registry.Registry, srv registry.Service, nodes
 		Metadata:     srv.Metadata(),
 	}
 	for _, node := range nodes {
-		aa := r.ListAdjacentItems(node, registry.WithType(rpb.ItemType_ADDRESS))
+		aa := r.ListAdjacentItems(
+			registry.WithAdjacentSourceItems([]registry.Item{node}),
+			registry.WithAdjacentTargetOptions(registry.WithType(rpb.ItemType_ADDRESS)),
+		)
 		if len(aa) > 0 {
 			h, p, _ := net.SplitHostPort(aa[0].Name())
 			port, _ := strconv.Atoi(p)

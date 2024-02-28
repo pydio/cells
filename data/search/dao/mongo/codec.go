@@ -2,6 +2,7 @@ package mongo
 
 import (
 	"fmt"
+
 	"strings"
 	"time"
 
@@ -9,7 +10,7 @@ import (
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
-	"go.mongodb.org/mongo-driver/x/bsonx"
+	bsonx "go.mongodb.org/mongo-driver/x/bsonx/bsoncore"
 	"google.golang.org/protobuf/proto"
 
 	"github.com/pydio/cells/v4/common/dao/mongodb"

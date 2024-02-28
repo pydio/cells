@@ -177,8 +177,8 @@ func (r *remote) Get() configx.Value {
 	return v
 }
 
-func (r *remote) Set(data interface{}) error {
-	b, err := json.Marshal(data)
+func (r *remote) Set(value interface{}) error {
+	b, err := json.Marshal(value)
 	if err != nil {
 		return err
 	}
@@ -377,8 +377,8 @@ func (v *values) Clone() configx.Value {
 	return c.Get()
 }
 
-func (v *values) Set(val interface{}) error {
-	b, err := json.Marshal(val)
+func (v *values) Set(value interface{}) error {
+	b, err := json.Marshal(value)
 	if err != nil {
 		return err
 	}

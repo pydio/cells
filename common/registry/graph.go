@@ -24,12 +24,12 @@ import (
 	"crypto/md5"
 	"encoding/hex"
 	"fmt"
-	"github.com/pydio/cells/v4/common/utils/uuid"
 	"sort"
 	"strings"
 	"sync"
 
 	pb "github.com/pydio/cells/v4/common/proto/registry"
+	"github.com/pydio/cells/v4/common/utils/uuid"
 )
 
 type graphRegistry struct {
@@ -153,28 +153,46 @@ func (r *graphRegistry) RegisterEdge(item1, item2, edgeLabel string, metadata ma
 	return e, r.r.Register(e, oo...)
 }
 
-func (r *graphRegistry) ListAdjacentItems(sourceItem Item, targetOptions ...Option) (items []Item) {
-	ee, _ := r.List(WithType(pb.ItemType_EDGE))
-	var ids []string
+func (r *graphRegistry) ListAdjacentItems(opts ...AdjacentItemOption) (items []Item) {
 
-	for _, e := range ee {
+	opt := &AdjacentItemOptions{}
+	for _, o := range opts {
+		o(opt)
+	}
+
+	if len(opt.edgeItems) == 0 {
+		opt.edgeItems, _ = r.List(append(opt.edgeOptions, WithType(pb.ItemType_EDGE))...)
+	}
+
+	if len(opt.sourceItems) == 0 {
+		opt.sourceItems, _ = r.List(opt.sourceOptions...)
+	}
+
+	if len(opt.targetItems) == 0 {
+		opt.targetItems, _ = r.List(opt.targetOptions...)
+	}
+
+	var ids []string
+	for _, e := range opt.edgeItems {
 		edg, ok := e.(Edge)
 		if !ok {
 			continue
 		}
-		vv := edg.Vertices()
-		if vv[0] == sourceItem.ID() {
-			ids = append(ids, vv[1])
-		} else if vv[1] == sourceItem.ID() {
-			ids = append(ids, vv[0])
+
+		for _, sourceItem := range opt.sourceItems {
+			vv := edg.Vertices()
+			if vv[0] == sourceItem.ID() {
+				ids = append(ids, vv[1])
+			} else if vv[1] == sourceItem.ID() {
+				ids = append(ids, vv[0])
+			}
 		}
 	}
 	if len(ids) == 0 {
 		return
 	}
-	allItems, _ := r.List(targetOptions...)
 	for _, id := range ids {
-		for _, i := range allItems {
+		for _, i := range opt.targetItems {
 			if i.ID() == id {
 				items = append(items, i)
 				break

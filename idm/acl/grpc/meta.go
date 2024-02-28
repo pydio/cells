@@ -30,7 +30,9 @@ import (
 	"github.com/pydio/cells/v4/common/proto/rest"
 	service "github.com/pydio/cells/v4/common/proto/service"
 	"github.com/pydio/cells/v4/common/proto/tree"
+	servicecontext "github.com/pydio/cells/v4/common/service/context"
 	"github.com/pydio/cells/v4/common/utils/permissions"
+	"github.com/pydio/cells/v4/idm/acl"
 )
 
 // ReadNodeStream implements method to be a MetaProvider
@@ -38,6 +40,12 @@ func (h *Handler) ReadNodeStream(stream tree.NodeProviderStreamer_ReadNodeStream
 
 	ctx := stream.Context()
 	workspaceClient := idm.NewWorkspaceServiceClient(grpc.GetClientConnFromCtx(ctx, common.ServiceWorkspace))
+
+	dao := servicecontext.GetDAO[acl.DAO](ctx)
+
+	if dao == nil {
+		return errMissingDAO
+	}
 
 	for {
 		req, er := stream.Recv()
@@ -59,7 +67,7 @@ func (h *Handler) ReadNodeStream(stream tree.NodeProviderStreamer_ReadNodeStream
 				permissions.AclPolicy,
 			},
 		})
-		if e := h.DAO.Search(ctx, &service.Query{SubQueries: []*anypb.Any{q}}, acls, nil); e != nil {
+		if e := dao.Search(ctx, &service.Query{SubQueries: []*anypb.Any{q}}, acls, nil); e != nil {
 			return e
 		}
 		var contentLock string

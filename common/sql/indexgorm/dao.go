@@ -25,9 +25,11 @@ import (
 	"context"
 	"errors"
 	"fmt"
+
+	"gorm.io/gorm"
+
 	"github.com/pydio/cells/v4/common/proto/tree"
 	"github.com/pydio/cells/v4/common/sql"
-	"gorm.io/gorm"
 )
 
 // Errors
@@ -76,6 +78,7 @@ type DAO interface {
 	FixLostAndFound(ctx context.Context, lost LostAndFound) error
 	FixRandHash2(ctx context.Context, excludes ...LostAndFound) (int64, error)
 	Flatten(context.Context) (string, error)
+	UpdateNameInPlace(ctx context.Context, oldName, newName string, knownUuid string, knownLevel int) (int64, error)
 }
 
 type CacheDAO interface {

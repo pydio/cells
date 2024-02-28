@@ -48,7 +48,7 @@ import (
 	"github.com/pydio/cells/v4/common/server/middleware"
 	servicecontext "github.com/pydio/cells/v4/common/service/context"
 	"github.com/pydio/cells/v4/common/service/frontend"
-	dao2 "github.com/pydio/cells/v4/common/service/frontend/sessions"
+	"github.com/pydio/cells/v4/common/service/frontend/sessions"
 )
 
 var (
@@ -183,12 +183,8 @@ func WithWeb(handler func(ctx context.Context) WebHandler) ServiceOption {
 				}
 			}
 			if o.UseWebSession {
-				if dao := servicecontext.GetDAO(ctx); dao != nil {
-					if sd, ok := dao.(dao2.DAO); ok {
-						wrapped = frontend.NewSessionWrapper(wrapped, sd, o.WebSessionExcludes...)
-					} else {
-						fmt.Println("-- Not a SessionDAO, cannot wrap with SessionWrapper")
-					}
+				if dao := servicecontext.GetDAO[sessions.DAO](ctx); dao != nil {
+					wrapped = frontend.NewSessionWrapper(wrapped, dao, o.WebSessionExcludes...)
 				} else {
 					fmt.Println("-- No DAO found, cannot wrap with SessionWrapper")
 				}

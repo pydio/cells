@@ -25,12 +25,14 @@ package user
 
 import (
 	"context"
+
+	"gorm.io/gorm"
+
 	"github.com/pydio/cells/v4/common/proto/idm"
 	"github.com/pydio/cells/v4/common/sql"
 	index "github.com/pydio/cells/v4/common/sql/indexgorm"
 	"github.com/pydio/cells/v4/common/sql/resources"
 	user_model "github.com/pydio/cells/v4/idm/user/model"
-	"gorm.io/gorm"
 )
 
 // DAO interface
@@ -50,6 +52,7 @@ type DAO interface {
 	Bind(ctx context.Context, userName string, password string) (*idm.User, error)
 	CleanRole(ctx context.Context, roleId string) error
 	TouchUser(ctx context.Context, userUuid string) error
+	LoginModifiedAttr(ctx context.Context, oldName, newName string) (int64, error)
 }
 
 // NewDAO wraps passed DAO with specific Pydio implementation of User DAO and returns it.

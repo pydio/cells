@@ -24,8 +24,6 @@ import (
 	"context"
 	"embed"
 	"fmt"
-	user_model "github.com/pydio/cells/v4/idm/user/model"
-	"gorm.io/gorm"
 	"strings"
 	"sync"
 	"time"
@@ -35,6 +33,7 @@ import (
 	"golang.org/x/text/transform"
 	"golang.org/x/text/unicode/norm"
 	"google.golang.org/protobuf/types/known/anypb"
+	"gorm.io/gorm"
 
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/auth"
@@ -46,6 +45,7 @@ import (
 	"github.com/pydio/cells/v4/common/sql"
 	index "github.com/pydio/cells/v4/common/sql/indexgorm"
 	"github.com/pydio/cells/v4/common/sql/resources"
+	user_model "github.com/pydio/cells/v4/idm/user/model"
 )
 
 const (
@@ -108,6 +108,7 @@ var (
 )
 
 type resourcesDAO resources.DAO
+
 type indexDAO index.DAO
 
 // Impl of the SQL interface
@@ -596,19 +597,21 @@ func (s *sqlimpl) CleanRole(ctx context.Context, roleId string) error {
 
 }
 
-//func (s *sqlimpl) LoginModifiedAttr(oldName, newName string) (int64, error) {
-//
-//	st, er := s.GetStmt("UpdateLoginInAttributes")
-//	if er != nil {
-//		return 0, er
-//	}
-//	if res, err := st.Exec(strings.ToLower(newName), strings.ToLower(oldName)); err == nil {
-//		return res.RowsAffected()
-//	} else {
-//		return 0, err
-//	}
-//
-//}
+func (s *sqlimpl) LoginModifiedAttr(ctx context.Context, oldName, newName string) (int64, error) {
+
+	db := s.instance(ctx)
+
+	tx := db.Model(&user_model.UserAttribute{}).
+		Where("name = ?", "pydio:labelLike").
+		Where("value = ?", oldName).
+		Update("value", newName)
+
+	if tx.Error != nil {
+		return 0, tx.Error
+	}
+
+	return tx.RowsAffected, nil
+}
 
 func (s *sqlimpl) deleteNodeData(ctx context.Context, uuid string) error {
 

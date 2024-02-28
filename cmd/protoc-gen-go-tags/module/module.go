@@ -2,11 +2,9 @@ package module
 
 import (
 	"fmt"
-	"go/build"
 	"go/parser"
 	"go/printer"
 	"go/token"
-	"os"
 	"path/filepath"
 	"strings"
 
@@ -87,13 +85,13 @@ func (m mod) Execute(targets map[string]pgs.File, packages map[string]pgs.Packag
 		var buf strings.Builder
 		m.CheckErr(printer.Fprint(&buf, fs, fn))
 
-		dir, err := os.Getwd()
-		m.CheckErr(err)
+		//dir, err := os.Getwd()
+		//m.CheckErr(err)
+		//
+		//rel, err := filepath.Rel(filepath.Join(build.Default.GOPATH, "src"), dir)
+		//m.CheckErr(err)
 
-		rel, err := filepath.Rel(filepath.Join(build.Default.GOPATH, "src"), dir)
-		m.CheckErr(err)
-
-		m.OverwriteGeneratorFile(filepath.Join(".", rel, filename), buf.String())
+		m.OverwriteGeneratorFile(filename, buf.String())
 	}
 
 	return m.Artifacts()

@@ -56,7 +56,10 @@ func ProcessesAsTargets(ctx context.Context, reg registry.Registry, includeCaddy
 		meta := i.Metadata()
 		pid := meta[runtime.NodeMetaPID]
 		// Retrieve parent node
-		nn := reg.ListAdjacentItems(i, registry.WithType(pb.ItemType_NODE))
+		nn := reg.ListAdjacentItems(
+			registry.WithAdjacentSourceItems([]registry.Item{i}),
+			registry.WithAdjacentTargetOptions(registry.WithType(pb.ItemType_NODE)),
+		)
 		if len(nn) == 0 {
 			continue
 		}
@@ -66,7 +69,10 @@ func ProcessesAsTargets(ctx context.Context, reg registry.Registry, includeCaddy
 		}
 		var host string
 		if replaceHost == "" {
-			if aa := reg.ListAdjacentItems(i, registry.WithType(pb.ItemType_ADDRESS)); len(aa) > 0 {
+			if aa := reg.ListAdjacentItems(
+				registry.WithAdjacentSourceItems([]registry.Item{i}),
+				registry.WithAdjacentTargetOptions(registry.WithType(pb.ItemType_ADDRESS)),
+			); len(aa) > 0 {
 				host = aa[0].Name()
 			}
 			if host == "" {

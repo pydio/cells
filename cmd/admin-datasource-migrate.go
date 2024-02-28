@@ -30,12 +30,7 @@ import (
 	"strings"
 	"time"
 
-	registry2 "github.com/pydio/cells/v4/common/proto/registry"
-	"github.com/pydio/cells/v4/common/registry"
-	"github.com/pydio/cells/v4/common/runtime"
-	"github.com/pydio/cells/v4/common/utils/uuid"
-
-	"github.com/dustin/go-humanize"
+	humanize "github.com/dustin/go-humanize"
 	"github.com/manifoldco/promptui"
 	"github.com/spf13/cobra"
 
@@ -45,10 +40,14 @@ import (
 	"github.com/pydio/cells/v4/common/nodes"
 	"github.com/pydio/cells/v4/common/nodes/models"
 	"github.com/pydio/cells/v4/common/proto/object"
+	registry2 "github.com/pydio/cells/v4/common/proto/registry"
 	"github.com/pydio/cells/v4/common/proto/sync"
 	"github.com/pydio/cells/v4/common/proto/tree"
+	"github.com/pydio/cells/v4/common/registry"
+	"github.com/pydio/cells/v4/common/runtime"
 	"github.com/pydio/cells/v4/common/service/context/metadata"
 	"github.com/pydio/cells/v4/common/utils/configx"
+	"github.com/pydio/cells/v4/common/utils/uuid"
 )
 
 var (
@@ -131,7 +130,10 @@ DESCRIPTION
 		}
 
 		if item, err := reg.Get(common.ServiceGrpcNamespace_ + common.ServiceDataSync_ + source.Name); err == nil {
-			if len(reg.ListAdjacentItems(item, registry.WithType(registry2.ItemType_SERVER))) > 0 {
+			if len(reg.ListAdjacentItems(
+				registry.WithAdjacentSourceItems([]registry.Item{item}),
+				registry.WithAdjacentTargetOptions(registry.WithType(registry2.ItemType_SERVER)),
+			)) > 0 {
 				migrateLogger("[ERROR] Datasource "+source.Name+" sync appears to be running. Can you please restart cells without an active sync ? `./cells start -x pydio.grpc.data.sync`", true)
 				return fmt.Errorf("sync is running")
 			}

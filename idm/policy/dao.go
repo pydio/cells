@@ -23,18 +23,14 @@ package policy
 
 import (
 	"context"
-	"github.com/pydio/cells/v4/common/storage"
 	"gorm.io/gorm"
 
 	"github.com/ory/ladon"
 
-	"github.com/pydio/cells/v4/common/dao"
 	"github.com/pydio/cells/v4/common/proto/idm"
-	"github.com/pydio/cells/v4/common/sql"
 )
 
 type DAO interface {
-	sql.DAO
 	ladon.Warden
 	ladon.Manager
 
@@ -43,12 +39,6 @@ type DAO interface {
 	DeletePolicyGroup(ctx context.Context, group *idm.PolicyGroup) error
 }
 
-func NewDAO(ctx context.Context) (dao.DAO, error) {
-	var db *gorm.DB
-
-	if storage.Get(ctx, &db) {
-		return &sqlimpl{db: db}, nil
-	}
-
-	return nil, storage.UnsupportedDriver(store)
+func NewDAO(db *gorm.DB) DAO {
+	return &sqlimpl{DB: db, Manager: NewManager(db)}
 }

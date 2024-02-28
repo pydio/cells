@@ -46,6 +46,7 @@ import (
 type Handler struct {
 	tree.UnimplementedNodeVersionerServer
 	srvName string
+	DAO     versions.DAO
 }
 
 //func (h *Handler) Name() string {
