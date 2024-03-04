@@ -479,8 +479,7 @@ type serverRegistrar struct {
 func (r *serverRegistrar) GetServiceInfo() map[string]grpc.ServiceInfo {
 
 	endpoints := r.reg.ListAdjacentItems(
-		registry.WithAdjacentSourceItems([]registry.Item{r}),
-		registry.WithAdjacentEdgeOptions(registry.WithName("server"), registry.WithMeta("serverType", "grpc")),
+		registry.WithAdjacentSourceOptions(registry.WithName("grpc"), registry.WithType(pb.ItemType_SERVER)),
 		registry.WithAdjacentTargetOptions(registry.WithType(pb.ItemType_ENDPOINT)),
 	)
 

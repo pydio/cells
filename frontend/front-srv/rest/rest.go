@@ -24,6 +24,8 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	servicecontext "github.com/pydio/cells/v4/common/service/context"
+	"github.com/pydio/cells/v4/common/service/frontend/sessions"
 	"io"
 	"os"
 	"strconv"
@@ -48,7 +50,6 @@ import (
 	"github.com/pydio/cells/v4/common/service"
 	"github.com/pydio/cells/v4/common/service/context/metadata"
 	"github.com/pydio/cells/v4/common/service/frontend"
-	"github.com/pydio/cells/v4/common/service/frontend/sessions"
 	"github.com/pydio/cells/v4/common/service/resources"
 	"github.com/pydio/cells/v4/common/utils/permissions"
 	"github.com/pydio/cells/v4/common/utils/uuid"
@@ -65,11 +66,10 @@ var (
 type FrontendHandler struct {
 	runtimeCtx context.Context
 	resources.ResourceProviderHandler
-	dao sessions.DAO
 }
 
-func NewFrontendHandler(runtimeCtx context.Context, dao sessions.DAO) *FrontendHandler {
-	f := &FrontendHandler{runtimeCtx: runtimeCtx, dao: dao}
+func NewFrontendHandler() *FrontendHandler {
+	f := &FrontendHandler{}
 	return f
 }
 
@@ -89,6 +89,7 @@ func (a *FrontendHandler) FrontState(req *restful.Request, rsp *restful.Response
 		service.RestError500(req, rsp, e)
 		return
 	}
+
 	ctx := req.Request.Context()
 
 	user := &frontend.User{}
@@ -183,7 +184,9 @@ func (a *FrontendHandler) FrontPlugins(req *restful.Request, rsp *restful.Respon
 // FrontSessionGet loads a cookie-based session to get info about an access token
 func (a *FrontendHandler) FrontSessionGet(req *restful.Request, rsp *restful.Response) {
 
-	session, err := a.dao.GetSession(req.Request)
+	dao := servicecontext.GetDAO[sessions.DAO](req.Request.Context())
+
+	session, err := dao.GetSession(req.Request)
 	if err != nil && session == nil {
 		service.RestError500(req, rsp, fmt.Errorf("could not load session store: %s", err))
 		return
@@ -204,6 +207,8 @@ func (a *FrontendHandler) FrontSessionGet(req *restful.Request, rsp *restful.Res
 // FrontSession initiate a cookie-based session based on a LoginRequest
 func (a *FrontendHandler) FrontSession(req *restful.Request, rsp *restful.Response) {
 
+	dao := servicecontext.GetDAO[sessions.DAO](req.Request.Context())
+
 	var loginRequest rest.FrontSessionRequest
 	if e := req.ReadEntity(&loginRequest); e != nil {
 		service.RestError500(req, rsp, e)
@@ -223,7 +228,7 @@ func (a *FrontendHandler) FrontSession(req *restful.Request, rsp *restful.Respon
 		isMinisite = true
 	}
 
-	session, err := a.dao.GetSession(req.Request)
+	session, err := dao.GetSession(req.Request)
 	if err != nil && session == nil {
 		service.RestError500(req, rsp, fmt.Errorf("could not load session store: %s", err))
 		return
@@ -275,7 +280,9 @@ func (a *FrontendHandler) FrontSession(req *restful.Request, rsp *restful.Respon
 // FrontSessionDel logs out user by clearing the associated cookie session.
 func (a *FrontendHandler) FrontSessionDel(req *restful.Request, rsp *restful.Response) {
 
-	session, err := a.dao.GetSession(req.Request)
+	dao := servicecontext.GetDAO[sessions.DAO](req.Request.Context())
+
+	session, err := dao.GetSession(req.Request)
 	if err != nil && session == nil {
 		service.RestError500(req, rsp, fmt.Errorf("could not load session store: %s", err))
 		return
