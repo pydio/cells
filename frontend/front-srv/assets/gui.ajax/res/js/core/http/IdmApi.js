@@ -92,11 +92,11 @@ class IdmApi {
      * @param recursive boolean
      * @param offset integer
      * @param limit integer
-     * @param profile string filter by profile
+     * @param profileOrAtts string|array profile filter (string) or array of {name, value, not} attributes
      * @param disableAutoWildcard bool force ignoring autoWildcard on filter
      * @return Promise<IdmUser[]>
      */
-    listUsers(baseGroup='/', filterString='', recursive = false, offset = 0, limit = -1, profile = '', disableAutoWildcard=false){
+    listUsers(baseGroup='/', filterString='', recursive = false, offset = 0, limit = -1, profileOrAtts = '', disableAutoWildcard=false){
 
         return this.loadRootPath(baseGroup).then(bg => {
             const api = new UserServiceApi(this.client);
@@ -117,22 +117,39 @@ class IdmApi {
                 queryString.Login = filterString + '*';
                 request.Queries.push(queryString);
             }
-            if(profile){
-                const exclude = profile[0] === '!';
-                const profileQ = new IdmUserSingleQuery();
-                profileQ.AttributeName = 'profile';
-                profileQ.AttributeValue = exclude ? profile.substring(1) : profile;
-                if(exclude){
-                    profileQ.not = true;
+            let skipHidden = true;
+
+            if(profileOrAtts){
+                if(typeof profileOrAtts === 'string') {
+                    const exclude = profileOrAtts[0] === '!';
+                    const profileQ = new IdmUserSingleQuery();
+                    profileQ.AttributeName = 'profile';
+                    profileQ.AttributeValue = exclude ? profileOrAtts.substring(1) : profileOrAtts;
+                    if(exclude){
+                        profileQ.not = true;
+                    }
+                    request.Queries.push(profileQ);
+                } else if (typeof profileOrAtts === 'object' && profileOrAtts.length) {
+                    // Manually set a list of attributes queries - May allow showing hidden users
+                    skipHidden = false;
+                    request.Queries.push(...profileOrAtts.map(def => {
+                        const q = new IdmUserSingleQuery()
+                        q.AttributeName = def.name
+                        q.AttributeValue = def.value
+                        q.not = def.not
+                        return q
+                    }))
                 }
-                request.Queries.push(profileQ);
             }
 
-            const query2 = new IdmUserSingleQuery();
-            query2.AttributeName = 'hidden';
-            query2.AttributeValue = 'true';
-            query2.not = true;
-            request.Queries.push(query2);
+            if(skipHidden) {
+                const query2 = new IdmUserSingleQuery();
+                query2.AttributeName = 'hidden';
+                query2.AttributeValue = 'true';
+                query2.not = true;
+                request.Queries.push(query2);
+            }
+
             if(offset > 0){
                 request.Offset = offset + '';
             }

@@ -357,7 +357,8 @@ class DataSourcesBoard extends React.Component {
             defaultValue: m('board.wsfromds.defaultPrefix').replace('%s', dsName),
             submitValue:(v) => {
                 model.Label = v;
-                ws.save().then(() => {
+                ws.save().then((newWS) => {
+                    localStorage.setItem('admin.workspace.autoload', newWS.UUID)
                     pydio.goTo('/data/workspaces');
                 });
             }

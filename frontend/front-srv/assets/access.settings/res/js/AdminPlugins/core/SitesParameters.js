@@ -129,8 +129,8 @@ class SitesParameters extends React.Component {
                 <div>
                     <div style={hStyle}>{m('sites.title')}</div>
 
-                    <div style={{padding:'8px 16px', fontSize: 12, color: 'inherit', fontWeight: 'normal'}} className={"form-legend"} dangerouslySetInnerHTML={{__html:m('sites.details')}}/>
-                    <div style={{padding:'8px 16px'}} className={"form-legend"}>{m('sites.detected.sites')}</div>
+                    <div style={{padding:16, fontSize: 14, color: 'inherit', fontWeight: 'normal'}} className={"form-legend"} dangerouslySetInnerHTML={{__html:m('sites.details')}}/>
+                    <div style={{padding:16}} className={"form-legend"}>{m('sites.detected.sites')}</div>
 
                     <div style={{backgroundColor: 'rgb(245 245 245)', margin: '0 16px 16px', borderRadius: 3}}>
                         <table style={{width: '100%'}}>
@@ -164,7 +164,7 @@ class SitesParameters extends React.Component {
                         </table>
                     </div>
 
-                    <div style={{padding:'8px 16px 16px', fontSize: 12, color: 'inherit', fontWeight: 'normal'}} className={"form-legend"} dangerouslySetInnerHTML={{__html:m('sites.details.note')}}/>
+                    <div style={{padding:'8px 16px 16px', fontSize: 14, color: 'inherit', fontWeight: 'normal'}} className={"form-legend"} dangerouslySetInnerHTML={{__html:m('sites.details.note')}}/>
                 </div>
             )
 
@@ -176,7 +176,7 @@ class SitesParameters extends React.Component {
 
                     <div style={{padding: '8px 16px 2px'}}>
 
-                        <div style={{paddingBottom:8, fontSize: 12, color: 'inherit', fontWeight: 'normal'}} className={"form-legend"} dangerouslySetInnerHTML={{__html: m('sites.externals.details')}}/>
+                        <div style={{paddingBottom:8, fontSize: 14, color: 'inherit', fontWeight: 'normal'}} className={"form-legend"} dangerouslySetInnerHTML={{__html: m('sites.externals.details')}}/>
                         <ModernAutoComplete
                             {...ModernStyles.textField}
                             floatingLabelText={m('sites.mailer.url') + (mailDirty ? (" " + m('sites.enter-to-save')):'')}

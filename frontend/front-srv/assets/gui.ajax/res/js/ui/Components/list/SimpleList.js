@@ -539,6 +539,9 @@ let SimpleList = createReactClass({
             if(this.props.filterNodes && !this.props.filterNodes(child)){
                 return;
             }
+            if(this.props.entryEnableSelector && !this.props.entryEnableSelector(child)){
+                return;
+            }
             if(child.isLeaf()){
                 selection.set(child, true);
             }
@@ -1090,10 +1093,15 @@ let SimpleList = createReactClass({
 
             leftToolbar =(
                 <ToolbarGroup key={0} float="left">
-                    <div style={{fontSize: 12, fontWeight: 500, color: '#9e9e9e'}}>{this.getMessage('searchengine.topbar.title') + ' ' + this.props.searchResultData.term}</div>
+                    <div style={{fontSize: 14, fontWeight: 500, color: '#9e9e9e'}}>{this.getMessage('searchengine.topbar.title') + ' ' + this.props.searchResultData.term}</div>
                 </ToolbarGroup>
             );
-            rightButtons = <RaisedButton key={1} label={this.getMessage('86')} primary={true} onClick={this.props.searchResultData.toggleState} style={{marginRight: -10}} />;
+            rightButtons = <RaisedButton key={1} label={this.getMessage('86')} primary={true}
+                                         onClick={this.props.searchResultData.toggleState}
+                                         buttonStyle={{borderRadius: 20, height: 30, lineHeight: '30px'}}
+                                         labelStyle={{textTransform:'capitalize'}}
+                                         style={{boxShadow:'none', marginRight: -10}}
+            />;
 
         }else if(this.actionsCache.multiple.size || this.props.multipleActions){
             let bulkLabel = this.getMessage('react.2');
@@ -1113,7 +1121,10 @@ let SimpleList = createReactClass({
             leftToolbar = (
                 <ToolbarGroup key={0} float="left" className="hide-on-vertical-layout">
                     <Checkbox checked={bulkSelectorChecked} onCheck={(e,v) => this.selectAll(v)} style={cbStyle}/>
-                    <FlatButton label={bulkLabel} onClick={() => this.toggleSelector()} style={buttonStyle} />
+                    <FlatButton label={bulkLabel} onClick={() => this.toggleSelector()}
+                                style={{...buttonStyle, borderRadius: 20}}
+                                buttonStyle={{height: 30, lineHeight: '30px'}}
+                                labelStyle={{textTransform:'capitalize', opacity:0.5}} />
                 </ToolbarGroup>
             );
 
@@ -1129,7 +1140,9 @@ let SimpleList = createReactClass({
                         onClick={this.applyMultipleAction}
                         primary={true}
                         disabled={!selection || !selection.size}
-                        style={{marginLeft: 5}}
+                        buttonStyle={{borderRadius: 20}}
+                        labelStyle={{textTransform:'capitalize', height: 30, lineHeight: '30px'}}
+                        style={{marginLeft: 5, boxShadow:'none'}}
                         />
                     );
                 }.bind(this));

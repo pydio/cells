@@ -19,11 +19,13 @@
  */
 import React from 'react'
 import Pydio from 'pydio'
+import PydioApi from 'pydio/http/api'
 import {Paper, MenuItem, RefreshIndicator, FontIcon, IconButton} from 'material-ui'
 import debounce from 'lodash.debounce'
 import PathUtils from 'pydio/util/path'
+import LangUtils from 'pydio/util/lang'
 import {AdminTreeServiceApi, TreeListNodesRequest, TreeNode} from 'cells-sdk';
-const {ModernAutoComplete, ThemedModernStyles} = Pydio.requireLib('hoc');
+const {ModernAutoComplete, ModernTextField, ThemedModernStyles, ModernSelectField} = Pydio.requireLib('hoc');
 import {muiThemeable} from 'material-ui/styles'
 
 const ThemedBlock = muiThemeable()(({muiTheme, children, ...props})=> {
@@ -61,7 +63,7 @@ export default class WsAutoComplete extends React.Component{
 
             // Checking if we have a collection and load deeper values if it's the case
             const node = nodes
-                .filter((node) => node.Path === value && (!node.Type || (node.Type == "COLLECTION" && !node.MetaStore && !node.MetaStore.resolution)))
+                .filter((node) => node.Path === value && (!node.Type || (node.Type === "COLLECTION" && !node.MetaStore && !node.MetaStore.resolution)))
                 .map((node) => {
 
                     this.loadValues(value + "/")
@@ -76,6 +78,10 @@ export default class WsAutoComplete extends React.Component{
     handleUpdateInput(input) {
         this.debounced();
         this.setState({value: input});
+        if(!input) {
+            const {onDelete} = this.props;
+            onDelete()
+        }
     }
 
     handleNewRequest(value) {
@@ -160,7 +166,7 @@ export default class WsAutoComplete extends React.Component{
             text        : node.Path,
             node        : node,
             categ       : categ,
-            value       : <MenuItem><FontIcon className={icon} color="#607d8b" style={{float:'left',marginRight:8}}/> {label}</MenuItem>
+            value       : <MenuItem value={node.Path}><FontIcon className={icon} color="#607d8b" style={{float:'left',marginRight:8, fontSize: 20}}/> {label}</MenuItem>
         };
     }
 
@@ -168,7 +174,7 @@ export default class WsAutoComplete extends React.Component{
 
         const {value, nodes, loading} = this.state;
 
-        const {pydio, onDelete, skipTemplates, label, zDepth = 0} = this.props;
+        const {pydio, onDelete, onChange, isTemplatePath, skipTemplates, label, zDepth = 0} = this.props;
 
         const m = (id) => pydio.MessageHash['ajxp_admin.' + id] || id;
 
@@ -192,12 +198,12 @@ export default class WsAutoComplete extends React.Component{
             });
 
             if (Object.keys(categs).length > 1) {
-                dataSource.push({key: "h1", text: '', value: <MenuItem primaryText={m('ws.complete.datasources')} style={{fontSize: 13, fontWeight: 500}} disabled={true}/>});
+                dataSource.push({key: "h1", text: '', value: <MenuItem primaryText={m('ws.complete.datasources')} style={{fontSize: 13, fontWeight: 500}} disabled={true} value={'____subheader____'}/>});
                 const dValues = categs[Object.keys(categs)[0]];
                 dValues.sort(LangUtils.arraySorter("text"));
                 dataSource.push(...dValues);
                 if(!skipTemplates){
-                    dataSource.push({key: "h2", text: '' , value: <MenuItem primaryText={m('ws.complete.templates')} style={{fontSize: 13, fontWeight: 500}} disabled={true}/>});
+                    dataSource.push({key: "h2", text: '' , value: <MenuItem primaryText={m('ws.complete.templates')} style={{fontSize: 13, fontWeight: 500}} disabled={true} value={'____subheader____'}/>});
                     const tValues = categs[Object.keys(categs)[1]];
                     tValues.sort(LangUtils.arraySorter("text"));
                     dataSource.push(...tValues);
@@ -205,6 +211,53 @@ export default class WsAutoComplete extends React.Component{
             } else if (Object.keys(categs).length === 1) {
                 dataSource.push(...categs[Object.keys(categs)[0]])
             }
+        }
+
+        let showDelete = true
+        let field = (
+            <ModernAutoComplete
+                fullWidth={true}
+                searchText={value}
+                onUpdateInput={(value) => this.handleUpdateInput(value)}
+                onNewRequest={(value) => this.handleNewRequest(value)}
+                onClose={() => this.handleNewRequest(value)}
+                dataSource={dataSource}
+                filter={(searchText, key) => (key.toLowerCase().indexOf(searchText.toLowerCase()) === 0)}
+                floatingLabelText={label || m('ws.complete.label')}
+                openOnFocus={true}
+                menuProps={{maxHeight: 200, desktop: true}}
+                hasRightBlock={true}
+            />
+        );
+        if(!value || value === '/') {
+            field = (
+                <ModernSelectField
+                    floatingLabelText={label || m('ws.complete.label')}
+                    variant={"v2"}
+                    fullWidth={true}
+                    maxHeight={300}
+                    onChange={(e,i,v) => {
+                        const node = nodes.filter(node => node.Path === v)[0]
+                        onChange(node.Path, node)
+                    }}
+                >
+                    {dataSource.map(obj => obj.value)}
+                </ModernSelectField>
+            );
+            showDelete = false
+        } else if(isTemplatePath) {
+            const resolutionPart = isTemplatePath.MetaStore["resolution"].split("\n").pop();
+            const fieldValue = value + ' - ' + m('ws.complete.resolves')  + resolutionPart;
+            field = (
+                <ModernTextField
+                    floatingLabelText={label || m('ws.complete.label')}
+                    variant={"v2"}
+                    fullWidth={true}
+                    value={fieldValue}
+                    inputStyle={{color:'inherit'}}
+                    disabled={true}
+                />
+            )
         }
 
         return (
@@ -218,23 +271,13 @@ export default class WsAutoComplete extends React.Component{
                             status={loading ? "loading" : "hide"}
                         />
                     </div>
-                    <ModernAutoComplete
-                        fullWidth={true}
-                        searchText={value}
-                        onUpdateInput={(value) => this.handleUpdateInput(value)}
-                        onNewRequest={(value) => this.handleNewRequest(value)}
-                        onClose={() => this.handleNewRequest(value)}
-                        dataSource={dataSource}
-                        filter={(searchText, key) => (key.toLowerCase().indexOf(searchText.toLowerCase()) === 0)}
-                        floatingLabelText={label || m('ws.complete.label')}
-                        openOnFocus={true}
-                        menuProps={{maxHeight: 200}}
-                        hasRightBlock={true}
-                    />
+                    {field}
                 </div>
-                <ThemedBlock>
-                    <IconButton style={{marginTop: 2}} iconStyle={{color:onDelete?'#9e9e9e':'#eee'}} iconClassName={"mdi mdi-delete"} onClick={onDelete} disabled={!onDelete}/>
-                </ThemedBlock>
+                {showDelete &&
+                    <ThemedBlock>
+                        <IconButton style={{marginTop: 2}} iconStyle={{color:onDelete?'#9e9e9e':'#eee'}} iconClassName={"mdi mdi-delete"} onClick={onDelete} disabled={!onDelete}/>
+                    </ThemedBlock>
+                }
             </Paper>
         );
     }

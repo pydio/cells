@@ -22,7 +22,7 @@ import React from 'react';
 import createReactClass from 'create-react-class';
 import PropTypes from 'prop-types';
 
-import {IconButton, IconMenu, MenuItem, Divider, Paper, FlatButton, FontIcon} from 'material-ui'
+import {IconButton, IconMenu, MenuItem, Divider, Paper, FlatButton, FontIcon, Subheader} from 'material-ui'
 import Editor from '../editor/Editor'
 import PydioDataModel from 'pydio/model/data-model'
 import {muiThemeable} from 'material-ui/styles'
@@ -30,9 +30,12 @@ import UsersSearchBox from './UsersSearchBox'
 import AjxpNode from 'pydio/model/node'
 import Callbacks from './Callbacks'
 import Pydio from 'pydio'
+import PathUtils from 'pydio/util/path'
 const {JobsStore} = Pydio.requireLib('boot');
 const {DNDTreeView, SimpleList} = Pydio.requireLib('components')
 import {loadEditorClass} from "../editor/util/ClassLoader";
+
+const LockRed = '#E53934'
 
 let Dashboard = createReactClass({
     displayName: 'Dashboard',
@@ -88,12 +91,32 @@ let Dashboard = createReactClass({
     },
 
     reloadList(){
-        if(this.refs["mainlist"]){
-            this.refs["mainlist"].reload();
+        const {searchResultData} = this.state
+        if(searchResultData) {
+            searchResultData.reload()
+        } else {
+            if(this.refs["mainlist"]){
+                this.refs["mainlist"].reload();
+            }
         }
     },
 
     renderListUserAvatar(node){
+        const style={
+            backgroundColor: '#9e9e9e',
+            color:           'white',
+            borderRadius:    '50%',
+            margin:          16,
+            width:           33,
+            height:          33,
+            fontSize:        18,
+            padding:         6,
+            textAlign:       'center'
+        };
+
+        if(node.getAjxpMime() === 'role') {
+            return <FontIcon className={'mdi mdi-account-card-details'} style={style}/>;
+        }
         const idmUser = node.getMetadata().get('IdmUser');
         const {pydio} = this.props;
         if(idmUser.Attributes && idmUser.Attributes['avatar']){
@@ -108,22 +131,14 @@ let Dashboard = createReactClass({
                 margin:          16,
             }}/>;
         }
-        const style={
-            backgroundColor: '#9e9e9e',
-            color:           'white',
-            borderRadius:    '50%',
-            margin:          16,
-            width:           33,
-            height:          33,
-            fontSize:        18,
-            padding:         6,
-            textAlign:       'center'
-        };
-        const iconClass = node.isLeaf()?"mdi mdi-account":"mdi mdi-folder";
+        const iconClass = node.isLeaf()?"mdi mdi-account":"mdi mdi-folder-account";
         return <FontIcon className={iconClass} style={style}/>;
     },
 
     renderListEntryFirstLine(node){
+        if(node.getAjxpMime() === 'role') {
+            return <span>{node.getMetadata().get('IdmRole').Label}</span>;
+        }
         const idmUser = node.getMetadata().get('IdmUser');
         const profile = idmUser.Attributes ? idmUser.Attributes['profile'] : '';
         let icons = [];
@@ -135,13 +150,17 @@ let Dashboard = createReactClass({
             icons.push(<span className={"mdi mdi-security"} style={{...iconStyle, color:'#03a9f4'}}/>);
         }
         if(idmUser.Attributes && idmUser.Attributes['locks'] && idmUser.Attributes['locks'].indexOf('logout') > -1){
-            icons.push(<span className={"mdi mdi-lock"} style={{...iconStyle, color:'#E53934'}}/>);
+            icons.push(<span className={"mdi mdi-lock"} style={{...iconStyle, color:LockRed}}/>);
         }
 
         return <span>{node.getLabel()} {icons}</span>;
     },
 
     renderListEntrySecondLine(node){
+        const {searchResultData} = this.state;
+        if(node.getAjxpMime() === 'role') {
+            return <span>{this.context.getMessage('user.rootgroup.legend')}</span>;
+        }
         const idmUser = node.getMetadata().get('IdmUser');
         if(node.isLeaf()){
             if(node.getPath() === '/idm/users'){
@@ -150,6 +169,9 @@ let Dashboard = createReactClass({
             }
             let strings = [];
             strings.push(idmUser.Login);
+            if(searchResultData && idmUser.GroupPath !== '/') {
+                strings.push(this.context.getMessage('user.12') + ': ' + PathUtils.getDirname(idmUser.GroupPath));
+            }
             const attributes = idmUser.Attributes || {};
             if(attributes['profile']) {
                 strings.push("Profile " + attributes['profile']);
@@ -169,18 +191,19 @@ let Dashboard = createReactClass({
     },
 
     renderListEntrySelector(node){
-        if(node.getPath() === '/idm/users') {
+        if(node.getPath() === '/idm/users' || node.getAjxpMime() === 'role') {
             return false;
         }
         return node.isLeaf();
     },
 
-    displaySearchResults(searchTerm, searchDataModel){
+    displaySearchResults(searchTerm, searchDataModel, reloader, clearer){
         this.setState({
             searchResultTerm:searchTerm,
             searchResultData: {
                 term:searchTerm,
-                toggleState:this.hideSearchResults
+                toggleState:() => {clearer(); this.hideSearchResults()},
+                reload: reloader
             },
             currentNode:searchDataModel.getContextNode(),
             dataModel:searchDataModel
@@ -192,7 +215,7 @@ let Dashboard = createReactClass({
             searchResultData: false,
             currentNode:this.props.currentNode,
             dataModel:this.props.dataModel
-        });
+        }, () => this.reloadList());
     },
 
     createUserAction(){
@@ -223,6 +246,10 @@ let Dashboard = createReactClass({
             afterSave:()=>{this.reloadList()},
             ...rolesEditorProps
         };
+        if(node.getAjxpMime() === 'role'){
+            delete(editorProps.node)
+            editorProps.idmRole = node.getMetadata().get('IdmRole')
+        }
 
         loadEditorClass(rolesEditorClass, Editor).then(component => {
             this.props.openRightPane({
@@ -256,19 +283,20 @@ let Dashboard = createReactClass({
             return <div></div>;
         }
         const iconStyle = {
-            color: 'rgba(0,0,0,0.3)',
+            color: 'inherit',
+            opacity: 0.5,
             fontSize: 20
         };
         const disabledStyle = {
-            color: 'rgba(0,0,0,0.15)',
+            color: 'inherit',
+            opacity: 0.15,
             fontSize: 20
         };
         let actions = [];
+        actions.push(<IconButton key="edit" iconClassName="mdi mdi-pencil" onClick={(e) => {e.stopPropagation();this.openRoleEditor(node)}} iconStyle={iconStyle} />);
         if(mime === 'user_editable' || mime === 'group'){
-            actions.push(<IconButton key="edit" iconClassName="mdi mdi-pencil" onClick={(e) => {e.stopPropagation();this.openRoleEditor(node)}} iconStyle={iconStyle} />);
             actions.push(<IconButton key="delete" iconClassName="mdi mdi-delete" onClick={(e) => {e.stopPropagation();this.deleteAction(node)}} iconStyle={iconStyle} />);
-        }else if(mime === 'user'){
-            actions.push(<IconButton key="edit" iconClassName="mdi mdi-pencil" onClick={(e) => {e.stopPropagation();this.openRoleEditor(node)}} iconStyle={iconStyle} />);
+        }else if(mime === 'user' || mime === 'role'){
             actions.push(<IconButton key="delete" iconClassName="mdi mdi-delete" disabled={true} iconStyle={disabledStyle} onClick={(e)=>{e.stopPropagation()}} />);
         }
         return (
@@ -294,13 +322,88 @@ let Dashboard = createReactClass({
 
     },
 
-    applyFilter(profile){
-        if(profile === 'toggle-anon') {
-            this.setState({showAnon:!this.state.showAnon});
+    findUsersRoot(node) {
+        let parent = node;
+        while(parent.getPath() !== '/idm/users') {
+            parent = parent.getParent()
+            if(!parent) {
+                return null
+            }
+        }
+        return parent;
+    },
+
+    applyFilter(filterValue) {
+        const [type, value] = filterValue.split(':')
+        const {filter = {}, showAnon} = this.state;
+        switch (type){
+            case 'toggle-anon':
+                this.setState({showAnon:!showAnon})
+                return
+            case 'profile':
+                filter.profile = value;
+                break
+            case 'attr':
+                if(!filter.attrs){
+                    filter.attrs = {}
+                }
+                filter.attrs[value] = !filter.attrs[value]
+                break
+            default :
+                break
+        }
+        // do not set hidden flag for non-shared users
+        if((filter.profile === 'standard' || filter.profile === 'admin') && filter.attrs && filter.attrs.hidden) {
+            delete(filter.attrs.hidden)
+        }
+        const allAttrs = filter.attrs || {}
+        const filterActive = filter.profile || Object.keys(allAttrs).filter(a => allAttrs[a]).length > 0
+        const queries = this.filterToQueries(filter);
+        this.setState({filter, filterActive, filterQueries:queries}, () => this.computeFilter(queries))
+    },
+
+    filterToQueries(filter) {
+        let {profile, attrs} = filter;
+        const queries = [];
+        if(profile) {
+            let not = false
+            if(profile[0] === '!'){
+                not = true
+                profile = profile.substring(1)
+            }
+            queries.push({name: 'profile', value: profile, not})
+        }
+        if(attrs && Object.keys(attrs).length) {
+            Object.keys(attrs).filter(attr => attrs[attr]).map(attr => {
+                switch (attr){
+                    case 'locks':
+                        queries.push({name: 'locks', value:'*logout*'})
+                        break
+                    case 'hidden':
+                        queries.push({name:'hidden', value: 'true'})
+                        break
+                }
+            })
+        }
+        if(queries.length > 0 && !queries.filter(q => q.name === 'hidden').length){
+            // Hidden is not specifically set, append a hidden condition
+            queries.push({name:'hidden', value: 'true', not: true})
+        }
+        return queries;
+    },
+
+    computeFilter(queries){
+        const {currentNode} = this.props;
+        const usersRoot = this.findUsersRoot(currentNode)
+        if(!usersRoot) {
             return;
         }
-        const {currentNode} = this.props;
-        currentNode.getMetadata().set('userProfileFilter', profile);
+        usersRoot.getMetadata().delete('userProfileFilter');
+        if(queries.length) {
+            usersRoot.getMetadata().set('userProfileFilter', queries);
+        } else {
+            usersRoot.getMetadata().delete('userProfileFilter');
+        }
         currentNode.getMetadata().delete('paginationData');
         this.setState({currentNode}, () => {this.reloadList();});
     },
@@ -308,44 +411,9 @@ let Dashboard = createReactClass({
     render(){
 
         const {accessByName, muiTheme, rootNode, pydio} = this.props;
+        const {searchResultData, currentNode, dataModel, showAnon, filter = {}, filterActive = false, filterQueries} = this.state;
         const styles = AdminComponents.AdminStyles(muiTheme.palette);
 
-
-        const {searchResultData, currentNode, dataModel, showAnon} = this.state;
-
-        /*
-        const fontIconStyle = {
-            style : {
-                backgroundColor: muiTheme.palette.accent2Color,
-                borderRadius: '50%',
-                width: 36,
-                height: 36,
-                padding: 8,
-                marginRight: 10
-            },
-            iconStyle : {
-                color: 'white',
-                fontSize: 20
-            }
-        };
-        let importButton = <IconButton {...fontIconStyle} iconClassName="mdi mdi-file-excel" primary={false} tooltipPosition={"bottom-left"} tooltip={this.context.getMessage('171', 'settings')} onClick={this.openUsersImporter}/>;
-        if(!ResourcesManager.moduleIsAvailable('EnterprisePeople')){
-            let disabled = {style:{...fontIconStyle.style}, iconStyle:{...fontIconStyle.iconStyle}};
-            disabled.style.backgroundColor = 'rgba(0,0,0,0.23)';
-            importButton = <IconButton {...disabled} iconClassName="mdi mdi-file-excel" primary={false} tooltipPosition={"bottom-left"} tooltip={this.context.getMessage('171', 'settings')} disabled={true}/>;
-        }
-        */
-
-        const searchBox = (
-            <UsersSearchBox
-                displayResults={this.displaySearchResults}
-                displayResultsState={searchResultData}
-                hideResults={this.hideSearchResults}
-                limit={50}
-                textLabel={this.context.getMessage('user.7')}
-                className={"media-small-hide"}
-            />
-        );
 
         let headerButtons = [];
         let renderActionsFunc = () => {return []};
@@ -361,36 +429,94 @@ let Dashboard = createReactClass({
             ];
         }
 
-        let profileFilter = '';
-        if(currentNode.getMetadata().has('userProfileFilter')){
-            profileFilter = currentNode.getMetadata().get('userProfileFilter');
-        }
+        const profileFilter = 'profile:' + (filter.profile || '');
+        const locks = filter.attrs && filter.attrs.locks;
+        const hidden = filter.attrs && filter.attrs.hidden;
 
-        const iconColor = (profileFilter === '' ? 'rgba(0,0,0,0.4)' : muiTheme.palette.accent1Color);
+        const rightIcon = {zoom: 0.8, top: 0}
+        let lockIcon = {...rightIcon}
+        let incognitoIcon = {...rightIcon}
+        if(locks){
+            lockIcon = {...rightIcon, color: LockRed}
+        }
+        if(showAnon){
+            incognitoIcon = {...rightIcon, color: '#03a9f4'}
+        }
+        let filterIconStyle = {}
+        if(filterActive) {
+            filterIconStyle = {backgroundColor: muiTheme.palette.accent1Color}
+        }
         const filterIcon = (
             <IconMenu
-                iconButtonElement={<IconButton style={{marginRight:-16, marginLeft: 8}} iconStyle={{color:iconColor}} iconClassName={"mdi mdi-filter-variant"} tooltip={this.context.getMessage('user.filter.tooltip')} tooltipPosition={"bottom-left"}/>}
-                anchorOrigin={{horizontal: 'right', vertical: 'top'}}
+                iconButtonElement={<IconButton
+                    iconClassName={filterActive ? 'mdi mdi-filter-variant-plus' : 'mdi mdi-filter-variant'}
+                    tooltip={this.context.getMessage('user.filter.tooltip')}
+                    tooltipPosition={"bottom-left"}
+                    style={{...styles.props.header.iconButton.style, ...filterIconStyle}}
+                    iconStyle={styles.props.header.iconButton.iconStyle}
+                />}
+                anchorOrigin={{horizontal: 'right', vertical: 'bottom'}}
                 targetOrigin={{horizontal: 'right', vertical: 'top'}}
                 value={profileFilter}
                 onChange={(e,val)=>{this.applyFilter(val)}}
                 desktop={true}
+                clickCloseDelay={0}
             >
-                <MenuItem value={""} primaryText={this.context.getMessage('user.filter.all')} />
-                <MenuItem value={"!shared"} primaryText={this.context.getMessage('user.filter.internal')} />
-                <MenuItem value={"shared"} primaryText={this.context.getMessage('user.filter.shared')} />
-                <MenuItem value={"admin"} primaryText={this.context.getMessage('user.filter.admins')} />
+                <Subheader style={{lineHeight:'28px'}}>Profile</Subheader>
+                <MenuItem value={"profile:"}
+                          primaryText={this.context.getMessage('user.filter.all')}
+                          rightIcon={<FontIcon style={rightIcon} className={'mdi mdi-'+(!hidden && profileFilter==='profile:'?'checkbox-marked-outline':'checkbox-blank-outline')}/>}
+                />
+                <MenuItem value={"profile:admin"}
+                          primaryText={this.context.getMessage('user.filter.admins')}
+                          rightIcon={<FontIcon style={rightIcon} className={'mdi mdi-'+(profileFilter==='profile:admin'?'checkbox-marked-outline':'checkbox-blank-outline')}/>}
+                />
+                <MenuItem value={"profile:standard"}
+                          primaryText={this.context.getMessage('user.filter.internal')}
+                          rightIcon={<FontIcon style={rightIcon} className={'mdi mdi-'+(profileFilter==='profile:standard'?'checkbox-marked-outline':'checkbox-blank-outline')}/>}
+                />
+                <MenuItem value={"profile:shared"}
+                          primaryText={this.context.getMessage('user.filter.shared')}
+                          rightIcon={<FontIcon style={rightIcon} className={'mdi mdi-'+(!hidden && profileFilter==='profile:shared'?'checkbox-marked-outline':'checkbox-blank-outline')}/>}
+                />
+                <MenuItem value={"attr:hidden"}
+                          primaryText={this.context.getMessage('user.filter.hidden')}
+                          disabled={profileFilter==='profile:standard' || profileFilter === 'profile:admin'}
+                          rightIcon={<FontIcon style={rightIcon} className={'mdi mdi-'+(hidden?'checkbox-marked-outline':'checkbox-blank-outline')}/>}
+                />
                 <Divider/>
-                <MenuItem value={"toggle-anon"} primaryText={this.context.getMessage('user.filter.anon')} secondaryText={showAnon?<FontIcon className={"mdi mdi-check"}/>:null} />
+                <Subheader  style={{lineHeight:'28px'}}>Status</Subheader>
+                <MenuItem value={"attr:locks"}
+                          primaryText={this.context.getMessage('user.filter.locks')}
+                          rightIcon={<FontIcon style={{...lockIcon}} className={"mdi mdi-" + (locks?'lock-check-outline':'lock-outline')}/>}
+                />
+                <MenuItem value={"toggle-anon"}
+                          primaryText={this.context.getMessage('user.filter.anon')}
+                          rightIcon={<FontIcon style={incognitoIcon} className={"mdi mdi-" + (showAnon?'incognito':'incognito-off')}/>} />
             </IconMenu>
         );
-        const {body} = AdminComponents.AdminStyles();
+
+
+        const searchBox = (
+            <UsersSearchBox
+                displayResults={this.displaySearchResults}
+                displayResultsState={searchResultData}
+                hideResults={this.hideSearchResults}
+                limit={50}
+                textLabel={this.context.getMessage('user.7')}
+                className={"media-small-hide"}
+                filterButton={filterIcon}
+                filterQueries={filterQueries}
+            />
+        );
+
+        const {body} = styles
         const blockProps = body.block.props;
         const blockStyle = body.block.container;
         const groupHeaderStyle = {
             height: 48,
             lineHeight:'48px',
-            fontSize: 12,
+            fontSize: 14,
             fontWeight: 500,
             ...body.block.header,
             borderBottom: '1px solid ' + body.tableMaster.row.borderBottomColor,
@@ -453,7 +579,6 @@ let Dashboard = createReactClass({
                                 borderBottom: groupHeaderStyle.borderBottom
                             }}
                             multipleActions={multipleActions}
-                            additionalActions={filterIcon}
                             filterNodes={this.filterNodes.bind(this)}
                         />
                     </div>

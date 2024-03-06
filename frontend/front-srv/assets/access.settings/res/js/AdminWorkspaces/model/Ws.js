@@ -111,6 +111,7 @@ class Workspace extends Observable{
         return api.putWorkspace(this.model.Slug, this.model).then(ws => {
             this.initModel(ws);
             this.observableModel = this.buildProxy(this.model);
+            return ws;
         });
     }
 

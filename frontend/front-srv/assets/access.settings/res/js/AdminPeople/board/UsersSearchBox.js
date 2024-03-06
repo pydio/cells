@@ -73,10 +73,11 @@ class UsersSearchBox extends React.Component{
             return;
         }
         const dm = this.state.dataModel;
-        const limit = this.props.limit || 100;
+        const {limit = 100, filterQueries} = this.props;
+
         dm.getRootNode().setChildren([]);
         const p1 = PydioApi.getRestClient().getIdmApi().listGroups('/', value, true, 0, limit);
-        const p2 = PydioApi.getRestClient().getIdmApi().listUsers('/', value, true, 0, limit);
+        const p2 = PydioApi.getRestClient().getIdmApi().listUsers('/', value, true, 0, limit, filterQueries);
         Promise.all([p1, p2]).then(result => {
             const groups = result[0];
             const users = result[1];
@@ -89,14 +90,14 @@ class UsersSearchBox extends React.Component{
             });
             users.Users.map(user => {
                 const label = (user.Attributes && user.Attributes['displayName']) ? user.Attributes['displayName'] : user.Login;
-                const uNode = new Node('/idm/users' + user.Login, true, label);
+                const uNode = new Node('/idm/users/' + user.Login, true, label);
                 uNode.getMetadata().set('IdmUser', user);
                 uNode.getMetadata().set('ajxp_mime', 'user_editable');
                 dm.getRootNode().addChild(uNode)
             });
             dm.getRootNode().setLoaded(true);
             this.displayResultsState();
-            this.props.displayResults(value, dm);
+            this.props.displayResults(value, dm, () => this.triggerSearch(), () => this.setState({crtValue: ''}));
         });
     }
 
@@ -111,6 +112,7 @@ class UsersSearchBox extends React.Component{
 
     render(){
         const {crtValue} = this.state;
+        const {filterButton} = this.props;
 
         return (
             <div className={(this.props.className?this.props.className:'')} style={{display:'flex', alignItems:'center', justifyContent:'center', ...this.props.style}}>
@@ -127,6 +129,7 @@ class UsersSearchBox extends React.Component{
                     />
                     </form>
                 </div>
+                {filterButton}
             </div>
         );
     }

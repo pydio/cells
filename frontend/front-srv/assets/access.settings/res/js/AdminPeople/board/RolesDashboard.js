@@ -171,8 +171,8 @@ let RolesDashboard = createReactClass({
         const filterButton = (
             <IconMenu
                 iconButtonElement={<IconButton tooltip={this.context.getMessage('dashboard.filterByType', 'role_editor')}  iconClassName={"mdi mdi-filter-variant"} {...styles.props.header.iconButton}/>}
-                anchorOrigin={{horizontal: 'left', vertical: 'top'}}
-                targetOrigin={{horizontal: 'left', vertical: 'top'}}
+                anchorOrigin={{horizontal: 'right', vertical: 'bottom'}}
+                targetOrigin={{horizontal: 'right', vertical: 'top'}}
                 onChange={(e, v)=> {
                     let newTypes
                     if(types.indexOf(v) > -1) {

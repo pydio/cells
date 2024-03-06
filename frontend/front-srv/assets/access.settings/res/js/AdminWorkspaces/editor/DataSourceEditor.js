@@ -24,7 +24,7 @@ import Pydio from 'pydio';
 import PydioApi from 'pydio/http/api'
 import React,{Fragment} from 'react'
 import DataSource from '../model/DataSource'
-import {Dialog, Divider, Checkbox, Toggle, FlatButton, RaisedButton, MenuItem, Paper, Stepper, Step, StepLabel} from 'material-ui'
+import {Dialog, Checkbox, Toggle, FlatButton, MenuItem, Paper} from 'material-ui'
 import {muiThemeable} from 'material-ui/styles'
 import DataSourceLocalSelector from './DataSourceLocalSelector'
 import DsStorageSelector from './DsStorageSelector'
@@ -32,6 +32,7 @@ import DataSourceBucketSelector from './DataSourceBucketSelector'
 const {PaperEditorLayout, AdminStyles} = AdminComponents;
 const {ModernTextField, ModernSelectField, ThemedModernStyles} = Pydio.requireLib('hoc');
 import {ConfigServiceApi, EncryptionAdminCreateKeyRequest} from 'cells-sdk'
+import stepper from "./stepper";
 
 const createSteps = ['main', 'storage', 'data', 'advanced'];
 
@@ -271,55 +272,32 @@ class DataSourceEditor extends React.Component{
 
         let Steps, CreateButton;
         if(create) {
-            const stepperStyle = {
-                display:'flex',
-                alignItems:'center',
-                padding:'0 20px 0 8px',
-                position: 'absolute',
-                height: 64,
-                zIndex: 10,
-                top: 64,
-                left: 0,
-                right: 0,
-                backgroundColor: 'rgb(246 246 248)',
-                boxShadow: 'rgba(0, 0, 0, .1) 0px 1px 2px'
+
+            const allSteps = {
+                main:m('tab.identifier'),
+                storage:m('tab.storage'),
+                data:m('tab.lifecycle'),
+                advanced:m('tab.advanced')
             };
-            let backDisabled = createSteps.indexOf(currentPane) === 0;
-            let nextDisabled = createSteps.indexOf(currentPane) === createSteps.length - 1
+            let nextDisabled = false;
             if(currentPane === 'main' && (!model.Name || observable.getNameError(m))){
                 nextDisabled = true;
             } else if(currentPane === 'storage' && !observable.isValid()){
                 nextDisabled = true;
             }
-            Steps = (
-                <div style={stepperStyle}>
-                    <div style={{flex: 1}}>
-                        <Stepper activeStep={createSteps.indexOf(currentPane)}>
-                            <Step>
-                                <StepLabel>{m('tab.identifier')}</StepLabel>
-                            </Step>
-                            <Step>
-                                <StepLabel>{m('tab.storage')}</StepLabel>
-                            </Step>
-                            <Step>
-                                <StepLabel>{m('tab.lifecycle')}</StepLabel>
-                            </Step>
-                            <Step>
-                                <StepLabel>{m('tab.advanced')}</StepLabel>
-                            </Step>
-                        </Stepper>
-                    </div>
-                </div>
+
+            const stepperData = stepper(
+                allSteps,
+                currentPane,
+                (p)=>this.setState({currentPane:p}),
+                nextDisabled,
+                ()=>this.saveSource(),
+                ()=>observable.isValid(),
+                {back:m('tab.button-back'), next:m('tab.button-next'), save:m('tab.button-create')}
             );
-            CreateButton = (
-                <div style={{...stepperStyle, top: null, bottom: 0, backgroundColor:'white', boxShadow:'rgba(0, 0, 0, .1) 0px -1px 2px'}}>
-                    <span style={{flex: 1}}/>
-                    <FlatButton primary={true} label={m('tab.button-back')} onClick={()=>this.stepperBack()} disabled={backDisabled}/>
-                    <FlatButton primary={true} label={m('tab.button-next')} onClick={()=>this.stepperNext()} disabled={nextDisabled}/>
-                    <div style={{width:1, height:40, backgroundColor:'#efefef', margin:'0 5px'}}/>
-                    <FlatButton primary={true} label={m('tab.button-create')} onClick={()=>this.saveSource()} disabled={!observable.isValid()}/>
-                </div>
-            );
+            Steps = stepperData.Steps
+            CreateButton = stepperData.Buttons
+
         }
 
         const EncDialog = (

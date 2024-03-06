@@ -111,13 +111,13 @@ const PluginsList = createReactClass({
                     toggled={row.xmlNode.getAttribute('enabled') !== 'false'}
                     onToggle={(e,v) => this.togglePluginEnable(row.xmlNode, v)}
                     onClick={(e)=> e.stopPropagation()}
-                    disabled={enableValue === 'always' || enableValue === 'auto'  || !accessByName('Create')  || row.id === 'meta.layout_sendfile'}
+                    disabled={enableValue === 'always' || enableValue === 'auto'  || !accessByName('Create')  || row.id === 'meta.layout_sendfile' || row.id === 'gui.mobile'}
                 />
             );
         };
         const enabledSortValue = (row) => {
             const enableValue = row.xmlNode.getAttribute("enabled");
-            const disabled = enableValue === 'always' || enableValue === 'auto'  || !accessByName('Create')  || row.id === 'meta.layout_sendfile';
+            const disabled = enableValue === 'always' || enableValue === 'auto'  || !accessByName('Create')  || row.id === 'meta.layout_sendfile'  || row.id === 'gui.mobile';
             if(disabled) {
                 return -1;
             } else if (row.xmlNode.getAttribute('enabled') !== 'false'){
