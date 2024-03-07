@@ -1266,19 +1266,19 @@
     "other": "Filtrer la liste..."
   },
   "user.filter.locks": {
-    "other": "Locked Users"
+    "other": "Utilisateurs verrouillés"
   },
   "user.filter.hidden": {
-    "other": "Public Links (hidden)"
+    "other": "Liens publics (cachés)"
   },
   "user.type.hidden": {
-    "other": "Public User"
+    "other": "Utilisateur public"
   },
   "user.type.hidden.legend": {
-    "other": "Public users are created for public links (one per link) and are hidden by default. It can be useful to list them to detect locked public links."
+    "other": "Les utilisateurs publics sont créés pour les liens publics (un par lien) et sont masqués par défaut. Il peut être utile de les lister pour détecter les liens publics verrouillés."
   },
   "user.rootgroup.legend": {
-    "other": "Permissions applied to the entire user hierarchy"
+    "other": "Autorisations appliquées à toute la hiérarchie des utilisateurs"
   },
   "user.filter.internal": {
     "other": "Utilisateurs internes"
@@ -1632,16 +1632,16 @@
     "other": "Synchro"
   },
   "ws.complete.datasources": {
-    "other": "DataSources"
+    "other": "Datasources"
   },
   "ws.complete.folders": {
-    "other": "Internal Folders"
+    "other": "Dossiers Internes"
   },
   "ws.complete.label": {
-    "other": "Select a DataSource or a Template Path"
+    "other": "Sélectionnez une Datasource ou un modèle prédéfini"
   },
   "ws.complete.additional": {
-    "other": "Additional Root"
+    "other": "Ajouter un dossier racine"
   },
   "ws.complete.resolves": {
     "other": "Résolu en"
@@ -1662,7 +1662,7 @@
     "other": "Choisissez les permissions par défaut pour ce workspace (elles seront appliquées à tous les utilisateurs internes). Vous pouvez écraser ces permissions en fonction des utilisateurs/roles/groupes dans la section Utilisateurs."
   },
   "ws.editor.default_rights.hint": {
-    "other": "Default Rights"
+    "other": "Droits par défaut"
   },
   "ws.editor.default_rights.none": {
     "other": "Pas d'accès"

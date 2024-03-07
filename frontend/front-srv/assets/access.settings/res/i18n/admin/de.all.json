@@ -1266,19 +1266,19 @@
     "other": "Benutzerliste filtern..."
   },
   "user.filter.locks": {
-    "other": "Locked Users"
+    "other": "Gesperrte Benutzer"
   },
   "user.filter.hidden": {
-    "other": "Public Links (hidden)"
+    "other": "Öffentliche Links (versteckt)"
   },
   "user.type.hidden": {
-    "other": "Public User"
+    "other": "Öffentlicher Benutzer"
   },
   "user.type.hidden.legend": {
-    "other": "Public users are created for public links (one per link) and are hidden by default. It can be useful to list them to detect locked public links."
+    "other": "Öffentliche Benutzer werden für öffentliche Links (einer pro Link) erstellt und standardmäßig versteckt. Es kann nützlich sein, sie aufzulisten, um gesperrte öffentliche Links zu erkennen."
   },
   "user.rootgroup.legend": {
-    "other": "Permissions applied to the entire user hierarchy"
+    "other": "Auf die gesamte Benutzerhierarchie angewendete Berechtigungen"
   },
   "user.filter.internal": {
     "other": "Interne Benutzer"
@@ -1635,13 +1635,13 @@
     "other": "DataSources"
   },
   "ws.complete.folders": {
-    "other": "Internal Folders"
+    "other": "Interne Ordner"
   },
   "ws.complete.label": {
-    "other": "Select a DataSource or a Template Path"
+    "other": "Wählen Sie eine DataSource oder einen Vorlagenpfad"
   },
   "ws.complete.additional": {
-    "other": "Additional Root"
+    "other": "Zusätzliche Root"
   },
   "ws.complete.resolves": {
     "other": "Löst sich in"
@@ -1662,7 +1662,7 @@
     "other": "Richten Sie Standardberechtigungen für diesen Workspace ein (gilt für alle internen Benutzer der Anwendung). Sie können diese Berechtigungen auf Benutzerbasis / pro Rolle / pro Gruppe im Abschnitt Personen überschreiben."
   },
   "ws.editor.default_rights.hint": {
-    "other": "Default Rights"
+    "other": "Standardrechte"
   },
   "ws.editor.default_rights.none": {
     "other": "Keine"
