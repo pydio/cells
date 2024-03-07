@@ -1265,6 +1265,21 @@
   "user.filter.tooltip": {
     "other": "Фильтровать список пользователей..."
   },
+  "user.filter.locks": {
+    "other": "Locked Users"
+  },
+  "user.filter.hidden": {
+    "other": "Public Links (hidden)"
+  },
+  "user.type.hidden": {
+    "other": "Public User"
+  },
+  "user.type.hidden.legend": {
+    "other": "Public users are created for public links (one per link) and are hidden by default. It can be useful to list them to detect locked public links."
+  },
+  "user.rootgroup.legend": {
+    "other": "Permissions applied to the entire user hierarchy"
+  },
   "user.filter.internal": {
     "other": "Внутренние пользователи"
   },
@@ -1617,10 +1632,16 @@
     "other": "Синхронизация"
   },
   "ws.complete.datasources": {
-    "other": "Источники данных и папки"
+    "other": "DataSources"
+  },
+  "ws.complete.folders": {
+    "other": "Internal Folders"
   },
   "ws.complete.label": {
-    "other": "Выберите папку или предопределенный путь к шаблону"
+    "other": "Select a DataSource or a Template Path"
+  },
+  "ws.complete.additional": {
+    "other": "Additional Root"
   },
   "ws.complete.resolves": {
     "other": "Решает для"
@@ -1639,6 +1660,9 @@
   },
   "ws.editor.default_rights": {
     "other": "Установить права по умолчанию для этого проекта (применяются ко всем внутренним пользователям приложения). Вы можете переопределить эти разрешения для каждого пользователя / для каждой роли / для каждой группы в разделе Люди."
+  },
+  "ws.editor.default_rights.hint": {
+    "other": "Default Rights"
   },
   "ws.editor.default_rights.none": {
     "other": "Нет"

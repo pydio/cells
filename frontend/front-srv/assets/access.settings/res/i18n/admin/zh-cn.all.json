@@ -1265,6 +1265,21 @@
   "user.filter.tooltip": {
     "other": "过滤用户列表..."
   },
+  "user.filter.locks": {
+    "other": "Locked Users"
+  },
+  "user.filter.hidden": {
+    "other": "Public Links (hidden)"
+  },
+  "user.type.hidden": {
+    "other": "Public User"
+  },
+  "user.type.hidden.legend": {
+    "other": "Public users are created for public links (one per link) and are hidden by default. It can be useful to list them to detect locked public links."
+  },
+  "user.rootgroup.legend": {
+    "other": "Permissions applied to the entire user hierarchy"
+  },
   "user.filter.internal": {
     "other": "内部用户"
   },
@@ -1617,10 +1632,16 @@
     "other": "同步"
   },
   "ws.complete.datasources": {
-    "other": "数据源和文件夹"
+    "other": "DataSources"
+  },
+  "ws.complete.folders": {
+    "other": "Internal Folders"
   },
   "ws.complete.label": {
-    "other": "选择文件夹或预定义模板路径"
+    "other": "Select a DataSource or a Template Path"
+  },
+  "ws.complete.additional": {
+    "other": "Additional Root"
   },
   "ws.complete.resolves": {
     "other": "先解决"
@@ -1639,6 +1660,9 @@
   },
   "ws.editor.default_rights": {
     "other": "设置此工作区的默认权限（适用于应用程序的所有内部用户）。 您可以在“人员”中按每个用户/每个角色/每个组的基础上覆盖这些权限。"
+  },
+  "ws.editor.default_rights.hint": {
+    "other": "Default Rights"
   },
   "ws.editor.default_rights.none": {
     "other": "无"

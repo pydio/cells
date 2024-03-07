@@ -1265,6 +1265,21 @@
   "user.filter.tooltip": {
     "other": "ユーザー一覧をフィルター..."
   },
+  "user.filter.locks": {
+    "other": "Locked Users"
+  },
+  "user.filter.hidden": {
+    "other": "Public Links (hidden)"
+  },
+  "user.type.hidden": {
+    "other": "Public User"
+  },
+  "user.type.hidden.legend": {
+    "other": "Public users are created for public links (one per link) and are hidden by default. It can be useful to list them to detect locked public links."
+  },
+  "user.rootgroup.legend": {
+    "other": "Permissions applied to the entire user hierarchy"
+  },
   "user.filter.internal": {
     "other": "内部ユーザー"
   },
@@ -1617,10 +1632,16 @@
     "other": "同期"
   },
   "ws.complete.datasources": {
-    "other": "データソースとフォルダ"
+    "other": "DataSources"
+  },
+  "ws.complete.folders": {
+    "other": "Internal Folders"
   },
   "ws.complete.label": {
-    "other": "フォルダまたは定義済みテンプレートパスを選択"
+    "other": "Select a DataSource or a Template Path"
+  },
+  "ws.complete.additional": {
+    "other": "Additional Root"
   },
   "ws.complete.resolves": {
     "other": "解決先"
@@ -1639,6 +1660,9 @@
   },
   "ws.editor.default_rights": {
     "other": "このワークスペースにデフォルトの権限を設定します（アプリケーションのすべての内部ユーザーに適用されます）。 ピープルのセクションでは、ユーザー/役割ごと/グループごとにこれらの権限を上書きできます。"
+  },
+  "ws.editor.default_rights.hint": {
+    "other": "Default Rights"
   },
   "ws.editor.default_rights.none": {
     "other": "なし"

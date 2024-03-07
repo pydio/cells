@@ -2472,10 +2472,10 @@
     "other": "Document introuvable, il a peut-être été supprimé."
   },
   "chat.link.doc.click-indicator": {
-    "other": "Click to open %s"
+    "other": "Cliquez pour accéder à %s"
   },
   "chat.link.doc.open-in": {
-    "other": "Open document in..."
+    "other": "Ouvrir le document dans..."
   },
   "workspace.quota-usage": {
     "other": "Utilisation du quota"

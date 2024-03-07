@@ -2,7 +2,7 @@
   "CKEditor": {
     "other": "CKEditor"
   },
-  "Wysiwyg HTML Editor, requires separate library to be downloaded.": {
-    "other": "개별적인 라이브러리가 요구되는 위지위그 HTML 편집기가 다운로드 될 것입니다."
+  "WYSIWYG HTML Editor use CKEditor Library": {
+    "other": "WYSIWYG HTML Editor use CKEditor Library"
   }
 }

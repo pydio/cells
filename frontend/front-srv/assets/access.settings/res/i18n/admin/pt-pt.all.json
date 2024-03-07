@@ -1265,6 +1265,21 @@
   "user.filter.tooltip": {
     "other": "Filtrar lista de utiliadores..."
   },
+  "user.filter.locks": {
+    "other": "Locked Users"
+  },
+  "user.filter.hidden": {
+    "other": "Public Links (hidden)"
+  },
+  "user.type.hidden": {
+    "other": "Public User"
+  },
+  "user.type.hidden.legend": {
+    "other": "Public users are created for public links (one per link) and are hidden by default. It can be useful to list them to detect locked public links."
+  },
+  "user.rootgroup.legend": {
+    "other": "Permissions applied to the entire user hierarchy"
+  },
   "user.filter.internal": {
     "other": "Usuários internos"
   },
@@ -1617,10 +1632,16 @@
     "other": "Sincronizar"
   },
   "ws.complete.datasources": {
-    "other": "Fontes de dados e pastas"
+    "other": "DataSources"
+  },
+  "ws.complete.folders": {
+    "other": "Internal Folders"
   },
   "ws.complete.label": {
-    "other": "Select a folder or a predefined template path"
+    "other": "Select a DataSource or a Template Path"
+  },
+  "ws.complete.additional": {
+    "other": "Additional Root"
   },
   "ws.complete.resolves": {
     "other": "Resolve para"
@@ -1639,6 +1660,9 @@
   },
   "ws.editor.default_rights": {
     "other": "Set up default permissions to this workspace (applied to all internal users of the application). You can override these permissions on a per-user / per-role / per-group basis in the People section."
+  },
+  "ws.editor.default_rights.hint": {
+    "other": "Default Rights"
   },
   "ws.editor.default_rights.none": {
     "other": "Nenhum"

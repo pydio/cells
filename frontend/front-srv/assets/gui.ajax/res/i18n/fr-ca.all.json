@@ -186,22 +186,22 @@
     "other": "Sélectionnez un fichier pour afficher ses informations"
   },
   "infopanel.card.pin": {
-    "other": "Attach card (full height)"
+    "other": "Attacher la carte (toute la hauteur)"
   },
   "infopanel.card.unpin": {
-    "other": "Detach card"
+    "other": "Détacher la carte"
   },
   "infopanel.card.detach": {
-    "other": "Detach in a separate panel"
+    "other": "Détacher dans un panneau séparé"
   },
   "infopanel.detached.minimize": {
-    "other": "Minimize Panel"
+    "other": "Réduire"
   },
   "infopanel.detached.maximize": {
-    "other": "Open Panel"
+    "other": "Agrandir"
   },
   "infopanel.detached.dock": {
-    "other": "Dock in the right-hand column"
+    "other": "Intégrer à la colonne de droite"
   },
   "pinned-bookmarks.other": {
     "other": "Tous les fichiers"
@@ -294,21 +294,21 @@
     "other": "Mode Sombre"
   },
   "task.status.Starting": {
-    "other": "Started {startTime}"
+    "other": "Démarré {startTime}"
   },
   "task.status.Pending": {
-    "other": "Will start soon..."
+    "other": "En attente de démarrage..."
   },
   "task.status.Complete": {
-    "other": "Task completed in {duration}"
+    "other": "Tâche terminée en {duration}"
   },
   "task.status.Finished": {
-    "other": "Task completed in {duration}"
+    "other": "Tâche terminée en {duration}"
   },
   "task.status.Error": {
-    "other": "An error happened!"
+    "other": "Une erreur est survenue !"
   },
   "bigppanel.filter.default-hint": {
-    "other": "Quick Find..."
+    "other": "Recherche rapide..."
   }
 }
