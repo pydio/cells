@@ -78,8 +78,13 @@ func (b *I18nBundle) GetTranslationFunc(languages ...string) TranslateFunc {
 
 	l := i18n.NewLocalizer(b.Bundle, languages...)
 	return func(id string, args ...interface{}) string {
+		var tData interface{}
+		if len(args) > 0 {
+			tData = args[0]
+		}
 		msg, err := l.Localize(&i18n.LocalizeConfig{
-			MessageID: id,
+			MessageID:    id,
+			TemplateData: tData,
 		})
 		if err != nil {
 			return id
