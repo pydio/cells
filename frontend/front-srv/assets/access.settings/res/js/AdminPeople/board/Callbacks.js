@@ -4,7 +4,7 @@ const {DNDActionParameter} = Pydio.requireLib('components')
 
 class Callbacks {
 
-    static deleteAction(manager, args){
+    static deleteAction(manager, args, reloadCallback){
 
         let userSelection;
         if(args && args.length){
@@ -29,7 +29,9 @@ class Callbacks {
         }
 
         let reload = () => {}
-        if(firstNode.getParent()) {
+        if(reloadCallback) {
+            reload = reloadCallback
+        } else if(firstNode.getParent()) {
             const parent = firstNode.getParent();
             reload = () => {parent.reload(null, true)}
         }

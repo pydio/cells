@@ -5,6 +5,7 @@ import User from '../model/User'
 import {IconMenu, IconButton, MenuItem} from 'material-ui';
 const {FormPanel} = Pydio.requireLib('form');
 import UserRolesPicker from '../user/UserRolesPicker'
+import {profileToLabel} from "../../board/Dashboard";
 
 class UserInfo extends React.Component {
 
@@ -125,9 +126,10 @@ class UserInfo extends React.Component {
             });
 
         }
+        const profileChoices = ['admin', 'standard', 'shared'].map(p => p+'|'+profileToLabel(p, (i)=>pydio.MessageHash['settings.' + i]||i )).join(',')
         const params = [
             {name:"login", label:this.getPydioRoleMessage('21'),description:pydio.MessageHash['pydio_role.31'],"type":"string", readonly:true},
-            {name:"profile", label:this.getPydioRoleMessage('22'), description:pydio.MessageHash['pydio_role.32'],"type":"select", choices:'admin|Administrator,standard|Standard,shared|Shared'},
+            {name:"profile", label:this.getPydioRoleMessage('22'), description:pydio.MessageHash['pydio_role.32'],"type":"select", choices:profileChoices},
             ...parameters
         ];
 

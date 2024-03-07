@@ -35,6 +35,20 @@ const {JobsStore} = Pydio.requireLib('boot');
 const {DNDTreeView, SimpleList} = Pydio.requireLib('components')
 import {loadEditorClass} from "../editor/util/ClassLoader";
 
+const profileToLabel = (profile, messageFunc) => {
+    switch (profile) {
+        case 'admin':
+            return messageFunc(157, 'settings')
+        case 'shared':
+            return messageFunc(158, 'settings')
+        case 'standard':
+            return messageFunc(156, 'settings')
+        default:
+            return profile
+    }
+}
+export {profileToLabel}
+
 const LockRed = '#E53934'
 
 let Dashboard = createReactClass({
@@ -188,7 +202,7 @@ let Dashboard = createReactClass({
             }
             const attributes = idmUser.Attributes || {};
             if(attributes['profile']) {
-                strings.push("Profile " + attributes['profile']);
+                strings.push(profileToLabel(attributes['profile'], this.context.getMessage));
             }
             if(attributes['last_connection_readable']){
                 strings.push( this.context.getMessage('user.9') + ' ' + attributes['last_connection_readable']);
@@ -288,7 +302,7 @@ let Dashboard = createReactClass({
     deleteAction(node){
         const dm = new PydioDataModel();
         dm.setSelectedNodes([node]);
-        Callbacks.deleteAction(null, [dm]);
+        Callbacks.deleteAction(null, [dm], () => {this.reloadList()});
     },
 
     renderNodeActions(node){
