@@ -1271,6 +1271,12 @@
   "user.filter.hidden":{
     "other": "Public Links (hidden)"
   },
+  "user.type.hidden":{
+    "other": "Public User"
+  },
+  "user.type.hidden.legend":{
+    "other": "Public users are created for public links (one per link) and are hidden by default. It can be useful to list them to detect locked public links."
+  },
   "user.rootgroup.legend":{
     "other": "Permissions applied to the entire user hierarchy"
   },

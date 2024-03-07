@@ -613,17 +613,26 @@
 
     .users-groups-tree {
       .tree-item{
-        line-height: 38px;
+        line-height: 44px;
+        font-size: 14px;
         &.mui-is-selected{
           background-color: #EEEEEE;
         }
+        div.tree-item-label {
+          font-weight: 500;
+        }
         span.tree-icon{
-          font-size: inherit;
-          margin-right: 6px;
+          font-size: 20px;
+          margin-right: 3px;
           color: #9E9E9E;
 
           &.mdi.mdi-folder{
-            display:none;
+            margin-right: 6px;
+            color: #795548;
+            &:before{
+              /* Replace mdi-folder with mdi-folder-account */
+              content:"\F024C"
+            }
           }
         }
       }
@@ -633,6 +642,13 @@
     }
     .listentry_data_users .material-list-actions .icon-trash {
       display: none;
+    }
+    div.list-parent-node .material-list-icon span.mdi-chevron-left {
+      background-color: #795548 !important;
+      padding: 6px 3px !important;
+      &:before{
+        content:'\F0259'
+      }
     }
 
     .people-title {

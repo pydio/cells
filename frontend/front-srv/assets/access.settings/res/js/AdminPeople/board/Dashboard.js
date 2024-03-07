@@ -18,7 +18,7 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-import React from 'react';
+import React, {Fragment} from 'react';
 import createReactClass from 'create-react-class';
 import PropTypes from 'prop-types';
 
@@ -51,11 +51,19 @@ let Dashboard = createReactClass({
 
     getInitialState(){
         const {currentNode, dataModel} = this.props;
+        const root = this.findUsersRoot(currentNode)
+        const filterState = {}
+        if(root && root.getMetadata().has('dashboardFilter')) {
+            filterState.filter = root.getMetadata().get('dashboardFilter')
+            filterState.filterActive = root.getMetadata().get('dashboardFilterActive')
+            filterState.filterQueries = root.getMetadata().get('userProfileFilter')
+        }
         return {
             searchResultData: false,
             currentNode:currentNode,
             dataModel:dataModel,
             showAnon: false,
+            ...filterState
         };
     },
 
@@ -115,6 +123,7 @@ let Dashboard = createReactClass({
         };
 
         if(node.getAjxpMime() === 'role') {
+            style.backgroundColor = '#607d8b'
             return <FontIcon className={'mdi mdi-account-card-details'} style={style}/>;
         }
         const idmUser = node.getMetadata().get('IdmUser');
@@ -132,6 +141,7 @@ let Dashboard = createReactClass({
             }}/>;
         }
         const iconClass = node.isLeaf()?"mdi mdi-account":"mdi mdi-folder-account";
+        style.backgroundColor = node.isLeaf()?'#9e9e9e':'#795548';
         return <FontIcon className={iconClass} style={style}/>;
     },
 
@@ -152,8 +162,12 @@ let Dashboard = createReactClass({
         if(idmUser.Attributes && idmUser.Attributes['locks'] && idmUser.Attributes['locks'].indexOf('logout') > -1){
             icons.push(<span className={"mdi mdi-lock"} style={{...iconStyle, color:LockRed}}/>);
         }
+        let hidden;
+        if(idmUser.Attributes && idmUser.Attributes['hidden'] === 'true') {
+            hidden = this.context.getMessage('user.type.hidden') + ' '
+        }
 
-        return <span>{node.getLabel()} {icons}</span>;
+        return <span>{hidden}{node.getLabel()} {icons}</span>;
     },
 
     renderListEntrySecondLine(node){
@@ -359,7 +373,7 @@ let Dashboard = createReactClass({
         const allAttrs = filter.attrs || {}
         const filterActive = filter.profile || Object.keys(allAttrs).filter(a => allAttrs[a]).length > 0
         const queries = this.filterToQueries(filter);
-        this.setState({filter, filterActive, filterQueries:queries}, () => this.computeFilter(queries))
+        this.setState({filter, filterActive, filterQueries:queries}, () => this.computeFilter(queries, filter, filterActive))
     },
 
     filterToQueries(filter) {
@@ -392,17 +406,19 @@ let Dashboard = createReactClass({
         return queries;
     },
 
-    computeFilter(queries){
+    computeFilter(queries, filter, filterActive){
         const {currentNode} = this.props;
         const usersRoot = this.findUsersRoot(currentNode)
         if(!usersRoot) {
             return;
         }
         usersRoot.getMetadata().delete('userProfileFilter');
+        usersRoot.getMetadata().delete('dashboardFilter');
+        usersRoot.getMetadata().delete('dashboardFilterActive');
         if(queries.length) {
             usersRoot.getMetadata().set('userProfileFilter', queries);
-        } else {
-            usersRoot.getMetadata().delete('userProfileFilter');
+            usersRoot.getMetadata().set('dashboardFilter', filter);
+            usersRoot.getMetadata().set('dashboardFilterActive', filterActive);
         }
         currentNode.getMetadata().delete('paginationData');
         this.setState({currentNode}, () => {this.reloadList();});
@@ -497,19 +513,6 @@ let Dashboard = createReactClass({
         );
 
 
-        const searchBox = (
-            <UsersSearchBox
-                displayResults={this.displaySearchResults}
-                displayResultsState={searchResultData}
-                hideResults={this.hideSearchResults}
-                limit={50}
-                textLabel={this.context.getMessage('user.7')}
-                className={"media-small-hide"}
-                filterButton={filterIcon}
-                filterQueries={filterQueries}
-            />
-        );
-
         const {body} = styles
         const blockProps = body.block.props;
         const blockStyle = body.block.container;
@@ -523,7 +526,7 @@ let Dashboard = createReactClass({
             padding: '0 20px'
         };
         let groupPanelStyle = {
-            width: 226,
+            width: 250,
             borderRight: '1px solid' + body.tableMaster.row.borderBottomColor,
             overflowY: 'auto',
             flex:'none'
@@ -539,7 +542,16 @@ let Dashboard = createReactClass({
                     title={this.context.getMessage('2', 'settings')}
                     icon="mdi mdi-account-multiple"
                     actions={headerButtons}
-                    centerContent={searchBox}
+                    centerContent={<UsersSearchBox
+                        displayResults={this.displaySearchResults}
+                        displayResultsState={searchResultData}
+                        hideResults={this.hideSearchResults}
+                        limit={50}
+                        textLabel={this.context.getMessage('user.7')}
+                        className={"media-small-hide"}
+                        filterButton={filterIcon}
+                        filterQueries={filterQueries}
+                    />}
                 />
 
                 <Paper {...blockProps} style={blockStyle} className={"horizontal-layout layout-fill"}>
