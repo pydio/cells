@@ -4,7 +4,6 @@ import Pydio from 'pydio'
 import User from '../model/User'
 import {IconMenu, IconButton, MenuItem} from 'material-ui';
 const {FormPanel} = Pydio.requireLib('form');
-import UserRolesPicker from '../user/UserRolesPicker'
 import {profileToLabel} from "../../board/Dashboard";
 
 class UserInfo extends React.Component {
@@ -82,7 +81,6 @@ class UserInfo extends React.Component {
 
         let values = {profiles:[]};
         let locks = [];
-        let rolesPicker;
 
         if(user){
             // Compute values
@@ -100,15 +98,6 @@ class UserInfo extends React.Component {
                     locks = arrL;
                 }
             }
-            rolesPicker = (
-                <UserRolesPicker
-                    profile={idmUser.Attributes?idmUser.Attributes['profile']:''}
-                    roles={idmUser.Roles}
-                    addRole={(r) => user.addRole(r)}
-                    removeRole={(r) => user.removeRole(r)}
-                    switchRoles={(r1,r2) => user.switchRoles(r1,r2)}
-                />
-            );
 
             const attributes = idmUser.Attributes || {};
             values = {
@@ -174,7 +163,6 @@ class UserInfo extends React.Component {
                         binary_context={this.getBinaryContext()}
                     />
                 </div>
-                {rolesPicker}
             </div>
         );
 

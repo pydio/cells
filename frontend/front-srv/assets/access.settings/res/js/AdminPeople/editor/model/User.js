@@ -91,6 +91,7 @@ class User extends Observable{
         parentRoles = [...parentRoles.filter(r => r.Uuid !== role.Uuid), role];
         this.idmUser.Roles = [...parentRoles, this.idmRole];
         this.dirty = true;
+        this.role.setUniqueRoleDisplay(null)
         this.role.updateParentRoles(parentRoles);
     }
 
@@ -98,6 +99,7 @@ class User extends Observable{
         const parentRoles = this.idmUser.Roles.filter(r => (r.Uuid !== this.idmUser.Uuid && r.Uuid !== role.Uuid));
         this.idmUser.Roles = [...parentRoles, this.idmRole];
         this.dirty = true;
+        this.role.setUniqueRoleDisplay(null)
         this.role.updateParentRoles(parentRoles);
     }
 
@@ -116,6 +118,7 @@ class User extends Observable{
         parentRoles[pos2] = b;
         this.idmUser.Roles = [...parentRoles, this.idmRole];
         this.dirty = true;
+        this.role.setUniqueRoleDisplay(null)
         this.role.updateParentRoles(parentRoles);
     }
 

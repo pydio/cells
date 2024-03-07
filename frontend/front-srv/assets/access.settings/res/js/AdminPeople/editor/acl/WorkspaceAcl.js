@@ -45,12 +45,14 @@ class WorkspaceAcl extends React.Component{
         }
 
         const {aclString, inherited} = role.getAclString(workspace);
+        const disabled = !!role.getUniqueRoleDisplay()
 
         const action = (
             <RightsSelector
                 acl={aclString}
                 onChange={this.onAclChange.bind(this)}
                 hideLabels={true}
+                disabled={disabled}
             />
         );
 

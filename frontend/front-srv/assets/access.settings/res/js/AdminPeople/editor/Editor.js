@@ -20,10 +20,8 @@
 
 
 import PropTypes from 'prop-types';
-
-
 import Pydio from 'pydio';
-const {PaperEditorLayout, PaperEditorNavEntry, PaperEditorNavHeader, PluginsLoader, AdminStyles} = AdminComponents;
+const {PaperEditorLayout, PluginsLoader, AdminStyles} = AdminComponents;
 
 import Role from './model/Role'
 import User from './model/User'
@@ -40,6 +38,7 @@ import UserInfo from './info/UserInfo'
 import GroupInfo from './info/GroupInfo'
 
 import ParametersPanel from './params/ParametersPanel'
+import UserRolesPicker from "./user/UserRolesPicker";
 
 class Editor extends React.Component{
 
@@ -201,22 +200,21 @@ class Editor extends React.Component{
 
     render(){
         const {advancedAcl, pydio, muiTheme} = this.props;
-
-        const {observableRole, observableUser, pluginsRegistry, currentPane, modal} = this.state;
+        const {observableRole, observableUser, pluginsRegistry, currentPane, modal, roleType} = this.state;
 
         let title = '', infoTitle = '';
         let infoMenuTitle = this.getMessage('24'); // user information
         let otherForm;
         let pagesShowSettings = false;
 
-        if(this.state.roleType === 'user') {
+        if(roleType === 'user') {
 
             const idmUser = observableUser.getIdmUser();
             title = (idmUser.Attributes && idmUser.Attributes['displayName']) ? idmUser.Attributes['displayName'] : idmUser.Login;
             pagesShowSettings = idmUser.Attributes['profile'] === 'admin';
             otherForm = <UserInfo user={observableUser} pydio={pydio} pluginsRegistry={pluginsRegistry}/>
 
-        }else if(this.state.roleType === 'group'){
+        }else if(roleType === 'group'){
 
             infoTitle = this.getMessage('26'); // group information
             infoMenuTitle = this.getMessage('27');
@@ -226,7 +224,7 @@ class Editor extends React.Component{
             }
             otherForm = <GroupInfo group={observableUser} pydio={pydio} pluginsRegistry={pluginsRegistry}/>
 
-        }else if(this.state.roleType === 'role'){
+        }else if(roleType === 'role'){
 
             title = observableRole ? observableRole.getIdmRole().Label : '...';
             infoTitle = this.getMessage('28'); // role information
@@ -277,6 +275,17 @@ class Editor extends React.Component{
                         {this.getRootMessage('250')}
                         <div className="section-legend">{this.getMessage('43')}</div>
                     </h3>
+                    {roleType === 'user' && observableUser && observableUser.getIdmUser() &&
+                        <UserRolesPicker
+                            profile={observableUser.getIdmUser().Attributes?observableUser.getIdmUser().Attributes['profile']:''}
+                            roles={observableUser.getIdmUser().Roles}
+                            addRole={(r) => observableUser.addRole(r)}
+                            removeRole={(r) => observableUser.removeRole(r)}
+                            switchRoles={(r1,r2) => observableUser.switchRoles(r1,r2)}
+                            uniqueRoleDisplay={observableUser.getRole().getUniqueRoleDisplay()}
+                            setUniqueRoleDisplay={(r)=>observableUser.getRole().setUniqueRoleDisplay(r)}
+                        />
+                    }
                     <div className={"paper-right-block"}>
                         <div className="read-write-header" style={{textAlign: 'right', paddingRight: 16}}>
                             <span className="header-read">{this.getMessage('react.5a','ajxp_admin')}</span>

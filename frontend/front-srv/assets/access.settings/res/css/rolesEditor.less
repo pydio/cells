@@ -352,39 +352,51 @@
   }
 
   .user-roles-picker{
-    padding: 0 20px;
-    .mui-paper {
-      margin: 8px 0;
-    }
-    .role-item {
-      padding: 10px;
-      font-size: 14px;
-      background-color: #ffffff;
-      border-radius: 2px;
-      &.role-item-sortable{
-        cursor: ns-resize;
-        span.button {
-          margin-top: -13px;
-          float: right;
+
+    .roles-list{
+      .role-item {
+
+
+        padding: 10px;
+        margin: 8px 0;
+        font-size: 14px;
+        font-weight: 500;
+        background-color: rgb(246, 246, 248);
+        border-radius: 4px;
+        cursor: pointer;
+        border: 1px solid rgb(246, 246, 248);
+        .left-icon, .right-icon, .toggle-select{
           cursor: pointer;
-          padding: 13px;
-          color: #bbb;
+          font-size: 20px;
+          opacity: 0.7;
+        }
+        .toggle-select{
+          opacity: 0;
+          font-size: 12px;
+          margin-left: 6px;
+        }
+        .left-icon {
+          margin-right: 8px;
+        }
+        &.role-item-sortable:hover{
+          cursor: ns-resize;
+          border: 1px solid #e0e0e0;
+        }
+        &.effective{
+          cursor:default;
+        }
+        &:hover .toggle-select, &.role-item-selected .toggle-select {
+          opacity: 1;
         }
       }
-    }
-    .roles-picker-menu{
-      float: right;
-      margin-top: 0;
-      .mui-drop-down-menu{
-        width: 200px !important;
-      }
-      .mui-menu-label {
-        text-transform: uppercase;
-        font-weight: 500;
-        color: #FF6F42;
-      }
-      .mui-menu-control-underline{
-        display: none;
+      &.has-selection{
+        .role-item {
+          opacity: 0.5;
+          &.role-item-selected{
+            opacity: 1;
+            box-shadow: 0px 0px 8px rgba(0,0,0,.2);
+          }
+        }
       }
     }
 
