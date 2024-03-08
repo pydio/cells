@@ -52,7 +52,7 @@ class PagesAcls extends React.Component{
                     if(i < workspaces.length-1) {
                         style = {borderBottom:'1px solid #e0e0e0'}
                     }
-                    return <div style={style}><WorkspaceAcl workspace={ws} role={role} /></div>
+                    return <div style={style}><WorkspaceAcl workspace={ws} role={role} pageAcl={true} /></div>
                 })}
             </div>
         );

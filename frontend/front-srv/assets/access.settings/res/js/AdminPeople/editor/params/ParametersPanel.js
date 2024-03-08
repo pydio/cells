@@ -130,7 +130,7 @@ export default class ParametersPanel extends React.Component {
                         return (
                             <table style={{width:"100%", marginBottom: i < Object.keys(scopes).length - 1 ? 40 : 0 }}>
                                 <tr style={{borderBottom: '1px solid #e0e0e0'}}>
-                                    <td colSpan={2} style={{padding:'10px 12px 8px', fontWeight: 500}}>{scopeLabel}</td>
+                                    <td colSpan={2} style={{padding:'16px 12px', fontSize: 16}}>{scopeLabel}</td>
                                     <td style={{width: 50}}>
                                         <IconButton iconClassName={"mdi mdi-plus"} onClick={()=>{this.addParameter(s)}} tooltip={m('parameters.custom.add')} style={{zoom: 0.8}}/>
                                     </td>

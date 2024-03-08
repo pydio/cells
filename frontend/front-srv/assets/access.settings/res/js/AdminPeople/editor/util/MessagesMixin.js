@@ -19,45 +19,7 @@ import React, { Component } from 'react';
  *
  * The latest code can be found at <https://pydio.com>.
  */
-import PropTypes from 'prop-types';
-
 import Pydio from 'pydio'
-
-const RoleMessagesConsumerMixin = {
-    contextTypes: {
-        messages:PropTypes.object,
-        getMessage:PropTypes.func,
-        getPydioRoleMessage:PropTypes.func,
-        getRootMessage:PropTypes.func
-    }
-};
-
-const RoleMessagesProviderMixin = {
-
-    childContextTypes: {
-        messages:PropTypes.object,
-        getMessage:PropTypes.func,
-        getPydioRoleMessage:PropTypes.func,
-        getRootMessage:PropTypes.func
-    },
-
-    getChildContext: function() {
-        var messages = this.context.pydio.MessageHash;
-        return {
-            messages: messages,
-            getMessage: function(messageId, namespace='pydio_role'){
-                return messages[namespace + (namespace?".":"") + messageId] || messageId;
-            },
-            getPydioRoleMessage: function(messageId){
-                return messages['role_editor.' + messageId] || messageId;
-            },
-            getRootMessage: function(messageId){
-                return messages[messageId] || messageId;
-            }
-        };
-    }
-
-};
 
 function withRoleMessages(PydioComponent){
 
@@ -92,4 +54,4 @@ function withRoleMessages(PydioComponent){
     }
 }
 
-export {RoleMessagesConsumerMixin, RoleMessagesProviderMixin, withRoleMessages}
+export {withRoleMessages}

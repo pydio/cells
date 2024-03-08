@@ -2,7 +2,7 @@ import React from 'react'
 import PropTypes from 'prop-types';
 import Pydio from 'pydio'
 import User from '../model/User'
-import {IconMenu, IconButton, MenuItem} from 'material-ui';
+import {IconMenu, IconButton, MenuItem, FlatButton} from 'material-ui';
 const {FormPanel} = Pydio.requireLib('form');
 import {profileToLabel} from "../../board/Dashboard";
 
@@ -73,7 +73,7 @@ class UserInfo extends React.Component {
 
     render(){
 
-        const {user, pydio} = this.props;
+        const {user, pydio, adminStyles} = this.props;
         const {parameters} = this.state;
         if(!parameters){
             return <div>Loading...</div>;
@@ -123,34 +123,34 @@ class UserInfo extends React.Component {
         ];
 
         const secuActionsDisabled = (user.getIdmUser().Login === pydio.user.id)
+        const buttons = [
+            {label:'25', callback:'update_user_pwd'},
+            {label:locks.indexOf('logout') > -1?'27':'26', callback:'user_set_lock-lock', active: locks.indexOf('logout') > -1},
+            {label:locks.indexOf('pass_change') > -1?'28b':'28', callback:'user_set_lock-pass_change', active: locks.indexOf('pass_change') > -1}
+        ]
 
         return (
             <div>
-                <h3 className={"paper-right-title"} style={{display:'flex', alignItems: 'center'}}>
-                    <div style={{flex:1}}>
-                        {pydio.MessageHash['pydio_role.24']}
-                        <div className={"section-legend"}>{pydio.MessageHash['pydio_role.54']}</div>
-                    </div>
-                    <div style={{lineHeight:'24px', padding: '0 10px'}}>
-                    <IconMenu
-                        iconButtonElement={
-                        <IconButton
-                            primary={true}
-                            tooltip={this.getPydioRoleMessage('button.info.menu.security')}
-                            tooltipPosition={'bottom-left'}
-                            iconClassName={"mdi mdi-lock"+(locks.indexOf('logout')>-1?'-open':'')}
-                            iconStyle={{color:locks.indexOf('logout')>-1?'#e53935':''}}/>
-                    }
-                        anchorOrigin={{horizontal: 'right', vertical: 'top'}}
-                        targetOrigin={{horizontal: 'right', vertical: 'top'}}
-                        desktop={true}
-                    >
-                        <MenuItem disabled={secuActionsDisabled} primaryText={this.getPydioRoleMessage('25')} onClick={() => this.buttonCallback('update_user_pwd')}/>
-                        <MenuItem disabled={secuActionsDisabled} primaryText={this.getPydioRoleMessage((locks.indexOf('logout') > -1?'27':'26'))} onClick={() => this.buttonCallback('user_set_lock-lock')}/>
-                        <MenuItem disabled={secuActionsDisabled} primaryText={this.getPydioRoleMessage((locks.indexOf('pass_change') > -1?'28b':'28'))} onClick={() => this.buttonCallback('user_set_lock-pass_change')}/>
-                    </IconMenu>
-                    </div>
+                <h3 className={"paper-right-title"}>
+                    {pydio.MessageHash['pydio_role.24']}
+                    <div className={"section-legend"}>{pydio.MessageHash['pydio_role.54']}</div>
                 </h3>
+                {!secuActionsDisabled &&
+                    <div style={{padding: '10px 16px 0'}}>
+                        {buttons.map(b => {
+                            let ss = b.active? {backgroundColor: '#e53935'}: {}
+                            return (
+                                <FlatButton
+                                    disabled={secuActionsDisabled}
+                                    label={this.getPydioRoleMessage(b.label)}
+                                    onClick={() => this.buttonCallback(b.callback)}
+                                    {...adminStyles.props.header.flatButton}
+                                    {...ss}
+                                />
+                            );
+                        })}
+                    </div>
+                }
                 <div className={"paper-right-block"} style={{padding: '0 6px'}}>
                     <div style={{fontSize: 16, padding: '16px 10px 10px'}}>{this.getPydioRoleMessage('user.info.main')}</div>
                     <FormPanel

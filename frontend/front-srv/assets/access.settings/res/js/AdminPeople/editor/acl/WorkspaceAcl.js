@@ -32,7 +32,7 @@ class WorkspaceAcl extends React.Component{
 
     render(){
 
-        const {workspace, role, getPydioRoleMessage} = this.props;
+        const {workspace, role, pageAcl, getPydioRoleMessage} = this.props;
 
         if (!workspace.RootNodes || !Object.keys(workspace.RootNodes).length ){
             // This is not normal, a workspace should always have a root node!
@@ -52,6 +52,7 @@ class WorkspaceAcl extends React.Component{
                 acl={aclString}
                 onChange={this.onAclChange.bind(this)}
                 hideLabels={true}
+                hideWrite={pageAcl}
                 disabled={disabled}
             />
         );

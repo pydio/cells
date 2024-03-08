@@ -155,7 +155,7 @@ let Dashboard = createReactClass({
             }}/>;
         }
         const iconClass = node.isLeaf()?"mdi mdi-account":"mdi mdi-folder-account";
-        style.backgroundColor = node.isLeaf()?'#9e9e9e':'#795548';
+        style.backgroundColor = node.isLeaf()?'#9e9e9e':'#607d8b';
         return <FontIcon className={iconClass} style={style}/>;
     },
 
@@ -260,6 +260,7 @@ let Dashboard = createReactClass({
 
     openRoleEditor(node, initialSection = 'activity'){
         const {pydio, rolesEditorClass, rolesEditorProps} = this.props;
+        const {dataModel} = this.state;
         if(this.refs.editor && this.refs.editor.isDirty()){
             if(!window.confirm(pydio.MessageHash["role_editor.19"])) {
                 return false;
@@ -267,8 +268,9 @@ let Dashboard = createReactClass({
         }
         const editorProps =  {
             ref:"editor",
-            node:node,
-            pydio: pydio,
+            node,
+            dataModel,
+            pydio,
             initialEditSection:initialSection,
             onRequestTabClose:this.closeRoleEditor,
             afterSave:()=>{this.reloadList()},

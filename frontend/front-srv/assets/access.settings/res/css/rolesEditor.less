@@ -379,17 +379,21 @@
           margin-right: 8px;
         }
         &.role-item-sortable:hover{
-          cursor: ns-resize;
           border: 1px solid #e0e0e0;
         }
-        &.effective{
+        &.effective, &.role-item-noclick{
           cursor:default;
         }
         &:hover .toggle-select, &.role-item-selected .toggle-select {
           opacity: 1;
         }
       }
-      &.has-selection{
+      &.has-sortable {
+        .role-item-sortable:hover{
+          cursor: ns-resize;
+        }
+      }
+      &.has-selection {
         .role-item {
           opacity: 0.5;
           &.role-item-selected{

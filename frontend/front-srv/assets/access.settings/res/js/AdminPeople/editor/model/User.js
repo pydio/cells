@@ -71,8 +71,16 @@ class User extends Observable{
         this.idmUser = this.snapshot;
         this.makeSnapshot();
         this.dirty = false;
-        this.notify('update');
         this.role.revert();
+        // Reload parent roles
+        if(this.idmUser.Roles){
+            this.idmRole = this.idmUser.Roles.filter(r=>r.Uuid === this.idmUser.Uuid)[0];
+            if(!this.idmUser.IsGroup){
+                const parentRoles = this.idmUser.Roles.filter(r=>r.Uuid !== this.idmUser.Uuid);
+                this.role.updateParentRoles(parentRoles)
+            }
+        }
+        this.notify('update');
     }
 
     makeSnapshot(){

@@ -391,13 +391,22 @@ function withModernTheme(formComponent) {
                 return <SelectField {...otherProps} {...styleProps} ref={this.compRef}/>
             } else if (formComponent === AutoComplete) {
 
-                const {style, ...tfStyles} = getV2WithBlocks({...styles(muiTheme).textFieldV2}, hasLeftBlock, hasRightBlock)
+                let textFieldStyle, otherPropsStyle;
+                if (variant === 'compact') {
+                    otherPropsStyle = this.mergedProps({...styles(muiTheme).textFieldCompact});
+                    otherProps.hintText = otherProps.floatingLabelText
+                    delete(otherProps.floatingLabelText)
+                } else {
+                    const {style, ...tfStyles} = getV2WithBlocks({...styles(muiTheme).textFieldV2}, hasLeftBlock, hasRightBlock)
+                    textFieldStyle = style;
+                    otherPropsStyle = tfStyles
+                }
                 return <AutoComplete
                     {...otherProps}
                     ref={"component"}
-                    textFieldStyle={style}
+                    textFieldStyle={textFieldStyle}
                     menuStyle={muiTheme.palette.mui3?{background:muiTheme.menuContainer.background}:null}
-                    {...tfStyles}
+                    {...otherPropsStyle}
                 />
 
             } else {

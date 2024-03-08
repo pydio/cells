@@ -419,6 +419,12 @@ class IdmApi {
             })
         }
 
+        if(labelFilter) {
+            const q = new IdmRoleSingleQuery()
+            q.Label = labelFilter
+            queries.push(q)
+        }
+
         if (queries.length === 0) {
             return api.searchRoles(request).then(coll => {
                 return coll.Roles || [];
