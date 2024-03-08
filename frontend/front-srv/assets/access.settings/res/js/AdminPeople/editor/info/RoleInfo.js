@@ -60,6 +60,7 @@ class RoleInfo extends React.Component {
         const choices = Object.keys(profiles).map(k => k+'|'+pydio.MessageHash['settings.'+profiles[k]]).join(',')
 
         let values = {applies: []};
+        let techRole = false
         let roleTypeValue;
         const adminChoiceLabel = this.getPydioRoleMessage('roleType.admin.description').replace(',', '').replace('|', '')
         const teamChoiceLabel = this.getPydioRoleMessage('roleType.IsTeam.description').replace(',', '').replace('|', '')
@@ -76,6 +77,7 @@ class RoleInfo extends React.Component {
                 roleTypeField.readonly = true;
                 roleTypeField.type = 'string'
                 roleTypeValue = this.getPydioRoleMessage('roleType.' + (idmRole.GroupRole ? PydioApi.RoleTypeGroup : PydioApi.RoleTypeUser) + '.description')
+                techRole = true;
             } else {
                 roleTypeValue = idmRole.IsTeam ? 'team' : 'admin'
             }
@@ -100,10 +102,10 @@ class RoleInfo extends React.Component {
             {"name":"roleId", label:this.getPydioRoleMessage('31'),"type":"string", readonly:true, description:this.getPydioRoleMessage('role.id.description')},
             roleTypeField,
             {"name":"roleLabel", label:this.getPydioRoleMessage('32'),"type":"string", description: this.getPydioRoleMessage('role.label.description')},
-            {"name":"applies", label:this.getPydioRoleMessage('33'),"type":"select", multiple:true, choices:choices, description:this.getPydioRoleMessage('role.autoapply.description')},
-            {"name":"roleForceOverride", label:this.getPydioRoleMessage('role.override.label'),"type":"boolean", description:this.getPydioRoleMessage('role.override.description')},
+            !techRole && {"name":"applies", label:this.getPydioRoleMessage('33'),"type":"select", multiple:true, choices:choices, description:this.getPydioRoleMessage('role.autoapply.description')},
+            !techRole && {"name":"roleForceOverride", label:this.getPydioRoleMessage('role.override.label'),"type":"boolean", description:this.getPydioRoleMessage('role.override.description')},
             ...parameters
-        ];
+        ].filter(a => a);
 
         //console.log(values);
 

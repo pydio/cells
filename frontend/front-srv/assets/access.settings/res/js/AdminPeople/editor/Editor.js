@@ -228,11 +228,14 @@ class Editor extends React.Component{
         let leftNavItems;
         let otherForm;
         let pagesShowSettings = false;
+        let hiddenUser;
 
         if(roleType === 'user') {
 
             const idmUser = observableUser.getIdmUser();
             title = (idmUser.Attributes && idmUser.Attributes['displayName']) ? idmUser.Attributes['displayName'] : idmUser.Login;
+            hiddenUser = idmUser.Attributes && idmUser.Attributes['hidden'] === 'true'
+
             if(idmUser.GroupPath !== '' && idmUser.GroupPath !== '/') {
                 title = (
                     <div>
@@ -251,6 +254,12 @@ class Editor extends React.Component{
                 {value: "pages", label:this.getMessage('36'), icon:'mdi mdi-folder-home-outline'},
                 {value: "params", label:this.getMessage('38'), icon: 'mdi mdi-book-settings-outline'},
             ]
+            if(hiddenUser) {
+                leftNavItems=[
+                    {subHeader: "User Info"},
+                    {value: "info", label:this.getMessage('24'), icon:'mdi mdi-account-circle'},
+                ]
+            }
 
 
         }else if(roleType === 'group'){

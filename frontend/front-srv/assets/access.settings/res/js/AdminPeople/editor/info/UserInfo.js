@@ -81,11 +81,14 @@ class UserInfo extends React.Component {
 
         let values = {profiles:[]};
         let locks = [];
+        let hidden;
 
         if(user){
             // Compute values
             const idmUser = user.getIdmUser();
             const role = user.getRole();
+            hidden = idmUser.Attributes['hidden'] === 'true'
+
             if(idmUser.Attributes['locks']){
                 locks = JSON.parse(idmUser.Attributes['locks']) || [];
                 if (typeof locks === 'object' && locks.length === undefined){ // Backward compat issue
@@ -113,14 +116,17 @@ class UserInfo extends React.Component {
                     values[p.name] = role.getParameterValue(p.aclKey);
                 }
             });
-
         }
         const profileChoices = ['admin', 'standard', 'shared'].map(p => p+'|'+profileToLabel(p, (i)=>pydio.MessageHash['settings.' + i]||i )).join(',')
-        const params = [
+        let params = [
             {name:"login", label:this.getPydioRoleMessage('21'),description:pydio.MessageHash['pydio_role.31'],"type":"string", readonly:true},
             {name:"profile", label:this.getPydioRoleMessage('22'), description:pydio.MessageHash['pydio_role.32'],"type":"select", choices:profileChoices},
             ...parameters
         ];
+        if(hidden) {
+            const allowed = ['login', 'avatar']
+            params = params.filter(p => allowed.indexOf(p.name) > -1)
+        }
 
         const secuActionsDisabled = (user.getIdmUser().Login === pydio.user.id)
         const buttons = [
