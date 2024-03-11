@@ -81,7 +81,7 @@
     "other": "Piekļuves Kontrole"
   },
   "35": {
-    "other": "Permissions"
+    "other": "Workspaces"
   },
   "36": {
     "other": "Pages"
@@ -125,11 +125,14 @@
   "45": {
     "other": "Piekļuve galvenajām aplikāciju lapām (tādām kā Mans Konts, sākuma lapa, u.t.t.)"
   },
-  "46": {
-    "other": "Parametri un darbības"
+  "application-params.title": {
+    "other": "Parameters and actions"
   },
-  "47": {
-    "other": "Precizēt darbvirsmu parametru vērtības un darbības noteiktām darbvirsmām"
+  "application-params.legend": {
+    "other": "Modify UX parameters and show/hide certain actions for a specific role, globally or by workspace."
+  },
+  "application-params.legend.user-disclaimer": {
+    "other": "As a general rule, this should be managed at role level, not user level!"
   },
   "49": {
     "other": "Koplietotie dati"
@@ -150,7 +153,7 @@
     "other": "Koplietojis %1 no darbvirsmas %2"
   },
   "54": {
-    "other": "Lietotāja pamata informācija. Lietojiet pogu labajā pusē lai redzētu vairāk darbību."
+    "other": "User informations and security actions. Hover fields in the form below to display explanations."
   },
   "55": {
     "other": "Pārslēgt profilu un lomas automātiski piešķirot atļaujas šim lietotājam."
@@ -220,5 +223,17 @@
   },
   "acls.rights.advanced.root": {
     "other": "Visa darbvirsma"
+  },
+  "section.user-info": {
+    "other": "User Info"
+  },
+  "section.permissions": {
+    "other": "Permissions"
+  },
+  "section.security": {
+    "other": "Security"
+  },
+  "section.advanced": {
+    "other": "Advanced"
   }
 }

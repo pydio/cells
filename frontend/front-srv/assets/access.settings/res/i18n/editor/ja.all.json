@@ -81,7 +81,7 @@
     "other": "アクセスコントロール"
   },
   "35": {
-    "other": "Permissions"
+    "other": "Workspaces"
   },
   "36": {
     "other": "Pages"
@@ -125,11 +125,14 @@
   "45": {
     "other": "メインアプリケーションページ(マイアカウント、ウェルカムページなど) へのアクセス"
   },
-  "46": {
-    "other": "パラメーターとアクション"
+  "application-params.title": {
+    "other": "Parameters and actions"
   },
-  "47": {
-    "other": "特定のワークスペースの値とアクションを設定します"
+  "application-params.legend": {
+    "other": "Modify UX parameters and show/hide certain actions for a specific role, globally or by workspace."
+  },
+  "application-params.legend.user-disclaimer": {
+    "other": "As a general rule, this should be managed at role level, not user level!"
   },
   "49": {
     "other": "共有"
@@ -150,7 +153,7 @@
     "other": "%1 がワークスペース %2 内から共有しました"
   },
   "54": {
-    "other": "基本的なユーザー情報。より多くのアクションを表示するには、右側のボタンを使用してください。"
+    "other": "User informations and security actions. Hover fields in the form below to display explanations."
   },
   "55": {
     "other": "プロファイルとロールを切り替えて、このユーザーに権限を自動的に付与します。"
@@ -220,5 +223,17 @@
   },
   "acls.rights.advanced.root": {
     "other": "ワークスペース全体"
+  },
+  "section.user-info": {
+    "other": "User Info"
+  },
+  "section.permissions": {
+    "other": "Permissions"
+  },
+  "section.security": {
+    "other": "Security"
+  },
+  "section.advanced": {
+    "other": "Advanced"
   }
 }

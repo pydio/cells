@@ -81,7 +81,7 @@
     "other": "Kiểm soát truy cập"
   },
   "35": {
-    "other": "Permissions"
+    "other": "Workspaces"
   },
   "36": {
     "other": "Pages"
@@ -125,11 +125,14 @@
   "45": {
     "other": "Truy cập vào các trang ứng dụng chính (như Tài khoản, trang chào mừng, v. v.)"
   },
-  "46": {
-    "other": "Thông số và lệnh"
+  "application-params.title": {
+    "other": "Parameters and actions"
   },
-  "47": {
-    "other": "Tinh chỉnh các giá trị tham số workspaces và hành động cho các workspaces cụ thể"
+  "application-params.legend": {
+    "other": "Modify UX parameters and show/hide certain actions for a specific role, globally or by workspace."
+  },
+  "application-params.legend.user-disclaimer": {
+    "other": "As a general rule, this should be managed at role level, not user level!"
   },
   "49": {
     "other": "Chia sẻ"
@@ -150,7 +153,7 @@
     "other": "Được chia sẻ bởi %1 từ trong workspace %2"
   },
   "54": {
-    "other": "Thông tin user cơ bản. Sử dụng nút bên phải để xem thêm hành động."
+    "other": "User informations and security actions. Hover fields in the form below to display explanations."
   },
   "55": {
     "other": "Chuyển đổi cấu hình và roles để tự động cấp quyền cho user này."
@@ -220,5 +223,17 @@
   },
   "acls.rights.advanced.root": {
     "other": "Toàn bộ workspace"
+  },
+  "section.user-info": {
+    "other": "User Info"
+  },
+  "section.permissions": {
+    "other": "Permissions"
+  },
+  "section.security": {
+    "other": "Security"
+  },
+  "section.advanced": {
+    "other": "Advanced"
   }
 }

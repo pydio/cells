@@ -81,7 +81,7 @@
     "other": "Access Controls"
   },
   "35": {
-    "other": "Permissions"
+    "other": "Workspaces"
   },
   "36": {
     "other": "Pages"
@@ -125,11 +125,14 @@
   "45": {
     "other": "Access to main application pages (like My Account, welcome page, etc.)"
   },
-  "46": {
+  "application-params.title": {
     "other": "Parameters and actions"
   },
-  "47": {
-    "other": "Refine workspaces parameters values and actions for specific workspaces"
+  "application-params.legend": {
+    "other": "Modify UX parameters and show/hide certain actions for a specific role, globally or by workspace."
+  },
+  "application-params.legend.user-disclaimer": {
+    "other": "As a general rule, this should be managed at role level, not user level!"
   },
   "49": {
     "other": "Shares"
@@ -150,7 +153,7 @@
     "other": "Shared by %1 from within workspace %2"
   },
   "54": {
-    "other": "Basic user informations. Use button on the right to see more actions."
+    "other": "User informations and security actions. Hover fields in the form below to display explanations."
   },
   "55": {
     "other": "Toggle profile and roles to automatically grant permissions to this user."
@@ -220,5 +223,17 @@
   },
   "acls.rights.advanced.root": {
     "other": "Whole workspace"
+  },
+  "section.user-info": {
+    "other": "User Info"
+  },
+  "section.permissions": {
+    "other": "Permissions"
+  },
+  "section.security": {
+    "other": "Security"
+  },
+  "section.advanced": {
+    "other": "Advanced"
   }
 }

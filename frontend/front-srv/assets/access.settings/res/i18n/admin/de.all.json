@@ -1274,6 +1274,9 @@
   "user.filter.hidden": {
     "other": "Öffentliche Links (versteckt)"
   },
+  "user.filter.status": {
+    "other": "Zustand"
+  },
   "user.type.hidden": {
     "other": "Öffentlicher Benutzer"
   },
