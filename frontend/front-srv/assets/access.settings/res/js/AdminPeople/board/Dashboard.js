@@ -494,7 +494,7 @@ let Dashboard = createReactClass({
                 desktop={true}
                 clickCloseDelay={0}
             >
-                <Subheader style={{lineHeight:'28px'}}>Profile</Subheader>
+                <Subheader style={{lineHeight:'28px'}}>{this.context.getMessage('22', 'role_editor')}</Subheader>
                 <MenuItem value={"profile:"}
                           primaryText={this.context.getMessage('user.filter.all')}
                           rightIcon={<FontIcon style={rightIcon} className={'mdi mdi-'+(!hidden && profileFilter==='profile:'?'checkbox-marked-outline':'checkbox-blank-outline')}/>}
@@ -517,7 +517,7 @@ let Dashboard = createReactClass({
                           rightIcon={<FontIcon style={rightIcon} className={'mdi mdi-'+(hidden?'checkbox-marked-outline':'checkbox-blank-outline')}/>}
                 />
                 <Divider/>
-                <Subheader  style={{lineHeight:'28px'}}>Status</Subheader>
+                <Subheader  style={{lineHeight:'28px'}}>{this.context.getMessage('user.filter.status')}</Subheader>
                 <MenuItem value={"attr:locks"}
                           primaryText={this.context.getMessage('user.filter.locks')}
                           rightIcon={<FontIcon style={{...lockIcon}} className={"mdi mdi-" + (locks?'lock-check-outline':'lock-outline')}/>}

@@ -66,7 +66,7 @@ export default class ParametersPanel extends React.Component {
 
 
     render(){
-        const {role, pydio} = this.props;
+        const {role, roleType, pydio} = this.props;
         if(!role){
             return null;
         }
@@ -99,10 +99,13 @@ export default class ParametersPanel extends React.Component {
             <div>
                 <h3 className="paper-right-title" style={{display: 'flex'}}>
                     <span style={{flex: 1, paddingRight: 20}}>
-                        {m('46')}
-                        <div className={"section-legend"}>{m('47')}</div>
+                        {m('application-params.title')}
+                        <div className={"section-legend"}>
+                            {m('application-params.legend')}
+                            {roleType==='user'&& <div><span className={"mdi mdi-alert"}/> {m('application-params.legend.user-disclaimer')}</div>}
+                        </div>
                     </span>
-                    <div style={{width: 160}}><ModernSelectField variant={"compact"} fullWidth={true} value={1}>{wsItems}</ModernSelectField></div>
+                    <div style={{width: 260}}><ModernSelectField variant={"compact"} fullWidth={true} value={1}>{wsItems}</ModernSelectField></div>
                 </h3>
                 <div className={"paper-right-block"}>
                     {Object.keys(scopes).map((s, i) => {

@@ -157,8 +157,7 @@ class UserInfo extends React.Component {
                         })}
                     </div>
                 }
-                <div className={"paper-right-block"} style={{padding: '0 6px'}}>
-                    <div style={{fontSize: 16, padding: '16px 10px 10px'}}>{this.getPydioRoleMessage('user.info.main')}</div>
+                <div className={"paper-right-block"} style={{padding: '6px 6px 2px'}}>
                     <FormPanel
                         parameters={params}
                         onParameterChange={this.onParameterChange.bind(this)}

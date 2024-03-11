@@ -247,10 +247,10 @@ class Editor extends React.Component{
             pagesShowSettings = idmUser.Attributes['profile'] === 'admin';
             otherForm = <UserInfo user={observableUser} pydio={pydio} pluginsRegistry={pluginsRegistry} adminStyles={AdminStyles(muiTheme.palette)}/>
             leftNavItems=[
-                {subHeader: "User Info"},
+                {subHeader: this.getMessage('section.user-info')},
                 {value: "info", label:this.getMessage('24'), icon:'mdi mdi-account-circle'},
-                {value: "workspaces", label:this.getMessage('35'), icon: 'mdi mdi-folder-lock-open-outline'},
-                {subHeader: "Advanced"},
+                {value: "workspaces", label:this.getMessage('section.permissions'), icon: 'mdi mdi-folder-lock-open-outline'},
+                {subHeader: this.getMessage('section.advanced')},
                 {value: "pages", label:this.getMessage('36'), icon:'mdi mdi-folder-home-outline'},
                 {value: "params", label:this.getMessage('38'), icon: 'mdi mdi-book-settings-outline'},
             ]
@@ -271,11 +271,11 @@ class Editor extends React.Component{
             }
             otherForm = <GroupInfo group={observableUser} pydio={pydio} pluginsRegistry={pluginsRegistry} adminStyles={AdminStyles(muiTheme.palette)}/>
             leftNavItems=[
-                {subHeader: "Permissions"},
+                {subHeader: this.getMessage('section.permissions')},
                 {value: "workspaces", label:this.getMessage('35'), icon: 'mdi mdi-folder-lock-open-outline'},
                 {value: "pages", label:this.getMessage('36'), icon:'mdi mdi-folder-home-outline'},
                 {value: "params", label:this.getMessage('38'), icon: 'mdi mdi-book-settings-outline'},
-                {subHeader: "Advanced"},
+                {subHeader: this.getMessage('section.advanced')},
                 {value: "info", label:this.getMessage('27'), icon:'mdi mdi-account-circle'},
             ]
 
@@ -287,11 +287,11 @@ class Editor extends React.Component{
             pagesShowSettings = true;
             otherForm = <RoleInfo role={observableRole} pydio={pydio} pluginsRegistry={pluginsRegistry} adminStyles={AdminStyles(muiTheme.palette)}/>
             leftNavItems=[
-                {subHeader: "Permissions"},
+                {subHeader: this.getMessage('section.permissions')},
                 {value: "workspaces", label:this.getMessage('35'), icon: 'mdi mdi-folder-lock-open-outline'},
                 {value: "pages", label:this.getMessage('36'), icon:'mdi mdi-folder-home-outline'},
                 {value: "params", label:this.getMessage('38'), icon: 'mdi mdi-book-settings-outline'},
-                {subHeader: "Advanced"},
+                {subHeader: this.getMessage('section.advanced')},
                 {value: "info", label:this.getMessage('29'), icon:'mdi mdi-account-circle'},
             ]
 
