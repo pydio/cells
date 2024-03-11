@@ -28,11 +28,11 @@ class Rule extends React.Component{
 
     componentDidMount(){
         if(this.props.create) {
-            this.openEditor();
+            this.openEditor(true);
         }
     }
 
-    openEditor(){
+    openEditor(create = false){
 
         const {pydio, policy, rule, openRightPane, rulesEditorClass} = this.props;
 
@@ -52,8 +52,8 @@ class Rule extends React.Component{
                     policy:policy,
                     rule:rule,
                     pydio: pydio,
+                    create,
                     saveRule:this.props.onRuleChange,
-                    create:this.props.create,
                     onRequestTabClose:this.closeEditor.bind(this)
                 }
             });
@@ -94,27 +94,26 @@ class Rule extends React.Component{
     }
 
     render(){
-        const {rule, readonly, isLast} = this.props;
+        const {rule, readonly, isLast, create} = this.props;
+
+        if (create) {
+            //return null;
+        }
+
         const iconColor = rule.effect === 'allow' ? '#33691e' : '#d32f2f';
         let buttons = [];
         if(!readonly){
             buttons = [
-                <span className="mdi mdi-pencil" style={{fontSize: 16, color:'rgba(0,0,0,.33)', cursor:'pointer', marginLeft: 12}} onClick={this.openEditor.bind(this)}/>,
-                <span className="mdi mdi-delete" style={{fontSize: 16, color:'rgba(0,0,0,.33)', cursor:'pointer', marginLeft: 12}} onClick={this.removeRule.bind(this)}/>
+                <span className="mdi mdi-pencil" style={{fontSize: 16, color:'rgba(0,0,0,.33)', cursor:'pointer', marginLeft: 12}} onClick={(e) => this.openEditor()}/>,
+                <span className="mdi mdi-delete" style={{fontSize: 16, color:'rgba(0,0,0,.33)', cursor:'pointer', marginLeft: 12}} onClick={(e) => this.removeRule()}/>
             ]
         }
-        const label = (
-            <div>
-                {rule.description}
-                {buttons}
-            </div>
-        );
 
         return (
             <div style={{display:'flex', padding:'6px 0 5px', borderBottom:isLast?null:'1px solid white'}}>
                 <FontIcon className="mdi mdi-traffic-light" color={iconColor} style={{fontSize: 16, marginRight: 10}}/>
                 <div style={{flex: 1}}>
-                    {rule.description}
+                    {create && <span>[NEW] </span>}{rule.description}
                     {buttons}
                 </div>
             </div>

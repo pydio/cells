@@ -25,14 +25,16 @@ import createReactClass from 'create-react-class';
 import PydioDataModel from 'pydio/model/data-model'
 import Node from 'pydio/model/node'
 import ResourcesManager from 'pydio/http/resources-manager'
-import {Paper, List, ListItem, Subheader, Divider, IconButton, FlatButton, IconMenu, MenuItem, Popover, SelectField, TextField} from 'material-ui'
+import {Paper, Dialog, FlatButton} from 'material-ui'
 import {PolicyServiceApi, IdmListPolicyGroupsRequest} from 'cells-sdk'
 import PydioApi from 'pydio/http/api'
 import {muiThemeable} from 'material-ui/styles';
 import {v4 as uuid} from 'uuid'
 const {MaterialTable} = Pydio.requireLib('components');
+const {ModernTextField} = Pydio.requireLib('hoc');
 
 import Policy from '../policies/Policy'
+import {PolicyPicker} from "../policies/PolicyPicker";
 
 const ResourceGroups = ["acl", "rest", "oidc"];
 
@@ -93,13 +95,28 @@ let PoliciesBoard = createReactClass({
 
     },
 
+    pickCreatePolicy(value) {
+        if(value.template) {
+            // Replace Group and Policies IDs
+            const newID = uuid()
+            const saveTpl = {...value.template, Uuid: newID}
+            saveTpl.Policies.forEach(p => {
+                p.id = uuid()
+                p.subjects = ['policy:'+newID]
+            })
+            this.savePolicy(saveTpl, false);
+        } else {
+            this.setState({newPolicyType: value.ResourceGroup})
+        }
+    },
+
     /**
      *
      * @param policy IdmPolicyGroup
      * @param revertOnly
      */
     savePolicy(policy, revertOnly){
-        "use strict";
+        this.setState({newPolicyId: null})
         if (revertOnly){
             this.listPolicies();
             return;
@@ -134,14 +151,13 @@ let PoliciesBoard = createReactClass({
 
     createPolicy(event){
 
-        const {newPolicyName, newPolicyDescription} = this.refs;
-        const {newPolicyType} = this.state;
+        const {newPolicyType, newPolicyName, newPolicyDescription} = this.state;
         const newId = uuid();
 
         const policy = {
             Uuid: newId,
-            Name:newPolicyName.getValue(),
-            Description:newPolicyDescription.getValue(),
+            Name:newPolicyName,
+            Description:newPolicyDescription,
             ResourceGroup:newPolicyType,
             Policies:[]
         };
@@ -156,29 +172,11 @@ let PoliciesBoard = createReactClass({
             popoverOpen: false,
             newPolicyId: newId,
             selectedPolicy: newId,
+            newPolicyType: null,
+            newPolicyName: '',
+            newPolicyDescription: ''
         });
 
-    },
-
-    openPopover(event){
-        "use strict";
-        // This prevents ghost click.
-        event.preventDefault();
-        this.setState({
-            newPolicyType: 'acl',
-            popoverOpen: true,
-            anchorEl: event.currentTarget,
-        }, () => {
-            setTimeout(() => {this.refs.newPolicyName.focus();}, 200);
-        });
-    },
-
-    handleRequestClose(){
-        this.setState({popoverOpen: false});
-    },
-
-    handleChangePolicyType(event, index, value){
-        this.setState({newPolicyType: value});
     },
 
     selectRows(rows){
@@ -195,7 +193,7 @@ let PoliciesBoard = createReactClass({
         const {muiTheme, currentNode, pydio, accessByName} = this.props;
         let {readonly} = this.props;
         readonly = readonly || !accessByName('Create');
-        const {policies, selectedPolicy, newPolicyId} = this.state;
+        const {policies, selectedPolicy, newPolicyId, newPolicyName, newPolicyDescription, openPicker, newPolicyType} = this.state;
         const m = (id) => pydio.MessageHash['ajxp_admin.policies.' + id] || id;
         const adminStyles = AdminComponents.AdminStyles(muiTheme.palette);
 
@@ -249,6 +247,8 @@ let PoliciesBoard = createReactClass({
             });
             const title = m('type.' + k + '.title');
             const legend = m('type.' + k + '.legend');
+            const localActions = (k === 'oidc') ? actions.filter(a => a.iconClassName !== 'mdi mdi-delete'): actions
+
             return (
                 <div>
                     <AdminComponents.SubHeader title={title} legend={legend}/>
@@ -256,7 +256,7 @@ let PoliciesBoard = createReactClass({
                         <MaterialTable
                             data={dd}
                             columns={columns}
-                            actions={actions}
+                            actions={localActions}
                             onSelectRows={(rr) => this.selectRows(rr)}
                             deselectOnClickAway={true}
                             showCheckboxes={false}
@@ -274,38 +274,9 @@ let PoliciesBoard = createReactClass({
                 <FlatButton
                     {...adminStyles.props.header.flatButton}
                     primary={true}
-                    onClick={this.openPopover.bind(this)}
+                    onClick={() => this.setState({openPicker: true})}
                     label={m('policy.new')}
                 />
-                <Popover
-                    open={this.state.popoverOpen}
-                    anchorEl={this.state.anchorEl}
-                    anchorOrigin={{horizontal: 'right', vertical: 'top'}}
-                    targetOrigin={{horizontal: 'right', vertical: 'top'}}
-                    onRequestClose={this.handleRequestClose.bind(this)}
-                >
-                    <div>
-                        <div style={{padding : '0 12px'}}>
-                            <TextField floatingLabelText={m('policy.name')} ref="newPolicyName"/>
-                            <br/>
-                            <TextField floatingLabelText={m('policy.description')} ref="newPolicyDescription"/>
-                            <br/>
-                            <SelectField
-                                floatingLabelText={m('policy.type')}
-                                ref="newPolicyType"
-                                value={this.state.newPolicyType || 'rest'}
-                                onChange={this.handleChangePolicyType.bind(this)}
-                            >
-                                {ResourceGroups.map((k) => <MenuItem value={k} primaryText={m('type.' + k + '.title')}/>)}
-                            </SelectField>
-                            </div>
-                        <Divider/>
-                        <div style={{textAlign: 'right', padding: '6px 12px'}}>
-                            <FlatButton label={pydio.MessageHash['54']} onClick={this.handleRequestClose.bind(this)}/>
-                            <FlatButton label={m('policy.create')} onClick={this.createPolicy.bind(this)}/>
-                        </div>
-                    </div>
-                </Popover>
             </div>
         );
 
@@ -322,6 +293,33 @@ let PoliciesBoard = createReactClass({
                 <div className="layout-fill">
                     {tables}
                 </div>
+                {!readonly &&
+                    <PolicyPicker
+                        m={m}
+                        open={openPicker}
+                        onPick={(value) => {
+                            this.pickCreatePolicy(value);
+                            this.setState({openPicker: false});
+                        }}
+                        onRequestClose={()=>this.setState({openPicker: false})}
+                    />
+                }
+                {!readonly &&
+                    <Dialog
+                        title={m('policy.new')}
+                        actions={[
+                            <FlatButton label={pydio.MessageHash['54']} onClick={()=>this.setState({newPolicyType: null})}/>,
+                            <FlatButton label={m('policy.create')} onClick={this.createPolicy.bind(this)}/>
+                        ]}
+                        modal={false}
+                        open={newPolicyType}
+                        contentStyle={{width: 320}}
+                    >
+                        <ModernTextField fullWidth={true} hintText={m('policy.name')} value={newPolicyName} focusOnMount={true} onChange={(e,v)=>this.setState({newPolicyName: v})} variant={"v2"}/>
+                        <ModernTextField fullWidth={true} hintText={m('policy.description')}  value={newPolicyDescription} onChange={(e,v)=>this.setState({newPolicyDescription: v})} variant={"v2"}/>
+                    </Dialog>
+
+                }
             </div>
         );
 

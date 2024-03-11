@@ -44,12 +44,14 @@ class Policy extends React.Component{
     onNameChange(value){
         let policy = {...this.state.policy};
         policy.Name = value;
+        this.setState({createRule:null});
         this.props.savePolicy(policy);
     }
 
     onDescriptionChange(value){
         let policy = {...this.state.policy};
         policy.Description = value;
+        this.setState({createRule:null});
         this.props.savePolicy(policy);
     }
 
@@ -61,7 +63,7 @@ class Policy extends React.Component{
         if(pDesc) {
             policy.Description = pDesc;
         }
-        this.setState({pName: null, pDesc: null});
+        this.setState({pName: null, pDesc: null, createRule: null});
         this.props.savePolicy(policy);
     }
 
@@ -75,6 +77,7 @@ class Policy extends React.Component{
         } else {
             policy.Policies = [rule];
         }
+        this.setState({createRule:null});
         this.props.savePolicy(policy);
 
     }
@@ -82,6 +85,7 @@ class Policy extends React.Component{
     onRemoveRule(rule, dontSave = false){
         let policy = {...this.state.policy};
         policy.Policies = policy.Policies.filter((p) => (p.id !== rule.id));
+        this.setState({createRule:null});
         this.props.savePolicy(policy, dontSave);
     }
 
@@ -108,26 +112,37 @@ class Policy extends React.Component{
             resources   :resources,
             effect      :"deny",
         });
-        this.setState({policy: policy, openRule:newId}, () => {
-            this.setState({openRule:null});
+        this.setState({policy: policy, createRule:newId}, () => {
+            //this.setState({createRule:null});
         });
 
     }
 
     render(){
         const {readonly, pydio} = this.props;
-        const {policy, openRule} = this.state;
+        const {policy, createRule} = this.state;
 
         const m = (id) => pydio.MessageHash['ajxp_admin.policies.' + id] || id;
 
-        const rules = policy.Policies.map((rule, i) => {
+        // Handle new rule first as it will not display in list but will open an editor directly
+        const sorter = (a,b) => {
+            if(a.id === createRule) {
+                return -1
+            }
+            if(b.id === createRule) {
+                return 1
+            }
+            return a.description.localeCompare(b.description)
+        }
+
+        const rules = policy.Policies.sort(sorter).map((rule, i) => {
             return (
                 <Rule
                     {...this.props}
                     key={rule.description}
                     rule={rule}
                     isLast={i === policy.Policies.length-1}
-                    create={openRule === rule.id}
+                    create={createRule === rule.id}
                     onRuleChange={this.onRuleChange.bind(this)}
                     onRemoveRule={this.onRemoveRule.bind(this)}
                 />
