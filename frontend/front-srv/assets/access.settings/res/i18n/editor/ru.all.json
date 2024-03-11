@@ -81,7 +81,7 @@
     "other": "Права доступа"
   },
   "35": {
-    "other": "Permissions"
+    "other": "Workspaces"
   },
   "36": {
     "other": "Pages"
@@ -125,11 +125,14 @@
   "45": {
     "other": "Доступ к основным страницам приложения (например, Мой аккаунт, приветственная страница и т. д.)"
   },
-  "46": {
-    "other": "Параметры и действия"
+  "application-params.title": {
+    "other": "Parameters and actions"
   },
-  "47": {
-    "other": "Уточнить значения параметров рабочих областей и действия для определенных рабочих пространств"
+  "application-params.legend": {
+    "other": "Modify UX parameters and show/hide certain actions for a specific role, globally or by workspace."
+  },
+  "application-params.legend.user-disclaimer": {
+    "other": "As a general rule, this should be managed at role level, not user level!"
   },
   "49": {
     "other": "Поделиться"
@@ -150,7 +153,7 @@
     "other": "Поделились %1 из рабочего пространства %2"
   },
   "54": {
-    "other": "Базовая информация о пользователе. Используйте кнопку справа для просмотра дополнительных действий."
+    "other": "User informations and security actions. Hover fields in the form below to display explanations."
   },
   "55": {
     "other": "Переключение профиля и ролей для автоматического предоставления прав доступа этому пользователю."
@@ -220,5 +223,17 @@
   },
   "acls.rights.advanced.root": {
     "other": "Весе рабочие пространства"
+  },
+  "section.user-info": {
+    "other": "User Info"
+  },
+  "section.permissions": {
+    "other": "Permissions"
+  },
+  "section.security": {
+    "other": "Security"
+  },
+  "section.advanced": {
+    "other": "Advanced"
   }
 }

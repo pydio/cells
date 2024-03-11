@@ -81,7 +81,7 @@
     "other": "Controlli di accesso"
   },
   "35": {
-    "other": "Permissions"
+    "other": "Workspaces"
   },
   "36": {
     "other": "Pages"
@@ -125,11 +125,14 @@
   "45": {
     "other": "Accesso alle pagine principali dell'applicazione (come il mio account, la pagina di benvenuto, ecc.)"
   },
-  "46": {
-    "other": "Parametri e azioni"
+  "application-params.title": {
+    "other": "Parameters and actions"
   },
-  "47": {
-    "other": "Affina i valori dei parametri dei workspace e le azioni per specifici workspace"
+  "application-params.legend": {
+    "other": "Modify UX parameters and show/hide certain actions for a specific role, globally or by workspace."
+  },
+  "application-params.legend.user-disclaimer": {
+    "other": "As a general rule, this should be managed at role level, not user level!"
   },
   "49": {
     "other": "Condivisioni"
@@ -150,7 +153,7 @@
     "other": "Condiviso da %1 dall'interno del workspace %2"
   },
   "54": {
-    "other": "Informazioni di base sull'utente. Usa il pulsante a destra per vedere più azioni."
+    "other": "User informations and security actions. Hover fields in the form below to display explanations."
   },
   "55": {
     "other": "Attiva/disattiva profilo e ruoli per concedere automaticamente i permessi a questo utente."
@@ -220,5 +223,17 @@
   },
   "acls.rights.advanced.root": {
     "other": "Intero workspace"
+  },
+  "section.user-info": {
+    "other": "User Info"
+  },
+  "section.permissions": {
+    "other": "Permissions"
+  },
+  "section.security": {
+    "other": "Security"
+  },
+  "section.advanced": {
+    "other": "Advanced"
   }
 }

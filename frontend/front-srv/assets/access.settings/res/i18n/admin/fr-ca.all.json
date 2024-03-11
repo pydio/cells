@@ -1274,6 +1274,9 @@
   "user.filter.hidden": {
     "other": "Liens publics (cachés)"
   },
+  "user.filter.status": {
+    "other": "Status"
+  },
   "user.type.hidden": {
     "other": "Utilisateur public"
   },
