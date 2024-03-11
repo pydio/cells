@@ -45,7 +45,7 @@
     "other": "Loading parameters cache, please wait, this will be done only once..."
   },
   "24": {
-    "other": "Account"
+    "other": "Konto"
   },
   "25": {
     "other": "Access Restrictions"
@@ -84,7 +84,7 @@
     "other": "Permissions"
   },
   "36": {
-    "other": "Pages"
+    "other": "Sidor"
   },
   "37": {
     "other": "Customize Parameters"
@@ -171,7 +171,7 @@
     "other": "Hantera användarroller"
   },
   "roles.picker.add": {
-    "other": "Add role"
+    "other": "Lägg till roll"
   },
   "roles.picker.hint": {
     "other": "Start typing to search roles..."
