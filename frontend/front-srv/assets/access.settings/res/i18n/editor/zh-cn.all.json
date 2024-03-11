@@ -81,7 +81,7 @@
     "other": "访问控制"
   },
   "35": {
-    "other": "Permissions"
+    "other": "Workspaces"
   },
   "36": {
     "other": "Pages"
@@ -125,11 +125,14 @@
   "45": {
     "other": "访问主应用程序页面 (例如我的帐户，欢迎页等)"
   },
-  "46": {
-    "other": "参数和操作"
+  "application-params.title": {
+    "other": "Parameters and actions"
   },
-  "47": {
-    "other": "为特定的工作空间细化参数值和操作项"
+  "application-params.legend": {
+    "other": "Modify UX parameters and show/hide certain actions for a specific role, globally or by workspace."
+  },
+  "application-params.legend.user-disclaimer": {
+    "other": "As a general rule, this should be managed at role level, not user level!"
   },
   "49": {
     "other": "共享"
@@ -150,7 +153,7 @@
     "other": "%1 从工作区内分享的 %2"
   },
   "54": {
-    "other": "基本用户信息。 使用右侧的按钮查看更多操作。"
+    "other": "User informations and security actions. Hover fields in the form below to display explanations."
   },
   "55": {
     "other": "切换配置文件和角色以自动授予此用户权限。"
@@ -220,5 +223,17 @@
   },
   "acls.rights.advanced.root": {
     "other": "整个工作区"
+  },
+  "section.user-info": {
+    "other": "User Info"
+  },
+  "section.permissions": {
+    "other": "Permissions"
+  },
+  "section.security": {
+    "other": "Security"
+  },
+  "section.advanced": {
+    "other": "Advanced"
   }
 }

@@ -81,7 +81,7 @@
     "other": "Zugriffskontrolle"
   },
   "35": {
-    "other": "Berechtigungen"
+    "other": "Workspaces"
   },
   "36": {
     "other": "Seiten"
@@ -125,11 +125,14 @@
   "45": {
     "other": "Zugriff auf die Hauptseiten"
   },
-  "46": {
+  "application-params.title": {
     "other": "Parameter und Aktionen"
   },
-  "47": {
-    "other": "Überschreiben Sie Parameter oder Aktionen für alle Workspaces"
+  "application-params.legend": {
+    "other": "Ändern Sie UX-Parameter und zeigen/verbergen Sie bestimmte Aktionen für eine spezifische Rolle, global oder nach Workspace."
+  },
+  "application-params.legend.user-disclaimer": {
+    "other": "Als allgemeine Regel sollte dies auf Rollenebene und nicht auf Benutzerebene verwaltet werden!"
   },
   "49": {
     "other": "Freigaben"
@@ -150,7 +153,7 @@
     "other": "Von %1 aus dem Workspace %2 geteilt"
   },
   "54": {
-    "other": "Grundlegende Benutzerinformationen. Verwenden Sie die Schaltfläche auf der rechten Seite, um weitere Aktionen anzuzeigen."
+    "other": "Benutzerinformationen und Sicherheitsaktionen. Fahren Sie mit der Maus über die Felder im untenstehenden Formular, um Erklärungen anzuzeigen."
   },
   "55": {
     "other": "Verändern Sie Profil und Rollen, um diesem Benutzer automatisch Berechtigungen zu erteilen."
@@ -220,5 +223,17 @@
   },
   "acls.rights.advanced.root": {
     "other": "Gesamter Workspace"
+  },
+  "section.user-info": {
+    "other": "Benutzer-Info"
+  },
+  "section.permissions": {
+    "other": "Berechtigungen"
+  },
+  "section.security": {
+    "other": "Sicherheit"
+  },
+  "section.advanced": {
+    "other": "Erweitert"
   }
 }

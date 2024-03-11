@@ -1274,6 +1274,9 @@
   "user.filter.hidden": {
     "other": "Public Links (hidden)"
   },
+  "user.filter.status": {
+    "other": "Status"
+  },
   "user.type.hidden": {
     "other": "Public User"
   },
