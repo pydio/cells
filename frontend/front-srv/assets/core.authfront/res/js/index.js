@@ -149,7 +149,11 @@ let LoginPasswordDialog = createReactClass({
 
     fireForgotPassword(e){
         e.stopPropagation();
-        Pydio.getInstance().getController().fireAction(this.state.authParameters.get("FORGOT_PASSWORD_ACTION"));
+        if(this.state.authParameters.get("FORGOT_PASSWORD_EXTERNAL_LINK")) {
+            window.open(this.state.authParameters.get("FORGOT_PASSWORD_EXTERNAL_LINK"))
+        } else {
+            Pydio.getInstance().getController().fireAction(this.state.authParameters.get("FORGOT_PASSWORD_ACTION")||'reset-password-ask');
+        }
     },
 
     useBlur(){
