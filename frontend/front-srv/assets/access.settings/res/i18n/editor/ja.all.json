@@ -35,9 +35,6 @@
   "2": {
     "other": "有効化"
   },
-  "20": {
-    "other": "+ 役割を追加"
-  },
   "21": {
     "other": "リロード中..."
   },
@@ -48,7 +45,7 @@
     "other": "パラメータキャッシュを読み込んでいます、しばらくお待ちください、これは一度だけ行われます..."
   },
   "24": {
-    "other": "ユーザー情報"
+    "other": "Account"
   },
   "25": {
     "other": "アクセス制限"
@@ -84,10 +81,10 @@
     "other": "アクセスコントロール"
   },
   "35": {
-    "other": "ワークスペース アクセス"
+    "other": "Permissions"
   },
   "36": {
-    "other": "アプリケーション ページ"
+    "other": "Pages"
   },
   "37": {
     "other": "パラメータのカスタマイズ"
@@ -112,6 +109,15 @@
   },
   "43": {
     "other": "現在のロール/ユーザー/グループのワークスペースへのアクセスを許可"
+  },
+  "permissions.legend.user": {
+    "other": "Provide access to workspaces for the current user, overriding permissions inherited from user's roles. Use 'Manage Roles' to add/remove roles and identify the sources of inherited permissions."
+  },
+  "permissions.legend.group": {
+    "other": "Provide access to workspaces for the current group. These permissions will be inherited by all users belonging this group."
+  },
+  "permissions.legend.role": {
+    "other": "Provide access to workspaces for the current role. These permissions will be applied to all users to whom the role has been assigned."
   },
   "44": {
     "other": "アプリケーションのメインページ"
@@ -163,6 +169,15 @@
   },
   "roles.picker.title": {
     "other": "ユーザーロールの管理"
+  },
+  "roles.picker.add": {
+    "other": "Add role"
+  },
+  "roles.picker.hint": {
+    "other": "Start typing to search roles..."
+  },
+  "roles.picker.effective": {
+    "other": "Effective role for %s"
   },
   "parameters.scope.selector.title": {
     "other": "追加..."

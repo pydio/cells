@@ -35,9 +35,6 @@
   "2": {
     "other": "Ieslēgts"
   },
-  "20": {
-    "other": "+ pievienot lomu"
-  },
   "21": {
     "other": "pārlādē..."
   },
@@ -48,7 +45,7 @@
     "other": "Ielādē perametru kešu, uzgaidiet, tas tiks darīts tikai vienu reizi..."
   },
   "24": {
-    "other": "Lietotāja informācija"
+    "other": "Account"
   },
   "25": {
     "other": "Piekļuves liegumi"
@@ -84,10 +81,10 @@
     "other": "Piekļuves Kontrole"
   },
   "35": {
-    "other": "Darbvirsmu piekļuve"
+    "other": "Permissions"
   },
   "36": {
-    "other": "Aplikāciju lapas"
+    "other": "Pages"
   },
   "37": {
     "other": "Pielāgot parametrus"
@@ -112,6 +109,15 @@
   },
   "43": {
     "other": "Ļaut piekļuvi darbvirsmām šai lomai/lietotājam/grupai"
+  },
+  "permissions.legend.user": {
+    "other": "Provide access to workspaces for the current user, overriding permissions inherited from user's roles. Use 'Manage Roles' to add/remove roles and identify the sources of inherited permissions."
+  },
+  "permissions.legend.group": {
+    "other": "Provide access to workspaces for the current group. These permissions will be inherited by all users belonging this group."
+  },
+  "permissions.legend.role": {
+    "other": "Provide access to workspaces for the current role. These permissions will be applied to all users to whom the role has been assigned."
   },
   "44": {
     "other": "Galvenās aplikāciju lapas"
@@ -163,6 +169,15 @@
   },
   "roles.picker.title": {
     "other": "Pārvaldīt lietotāju lomas"
+  },
+  "roles.picker.add": {
+    "other": "Add role"
+  },
+  "roles.picker.hint": {
+    "other": "Start typing to search roles..."
+  },
+  "roles.picker.effective": {
+    "other": "Effective role for %s"
   },
   "parameters.scope.selector.title": {
     "other": "Pievienot priekš ..."

@@ -35,9 +35,6 @@
   "2": {
     "other": "Включено"
   },
-  "20": {
-    "other": "+ добавить роль"
-  },
   "21": {
     "other": "перезагрузка..."
   },
@@ -48,7 +45,7 @@
     "other": "Загрузка параметров кеша действий, пожалуйста, подождите, это будет сделано однократно..."
   },
   "24": {
-    "other": "Данные пользователя"
+    "other": "Account"
   },
   "25": {
     "other": "Ограничения доступа"
@@ -84,10 +81,10 @@
     "other": "Права доступа"
   },
   "35": {
-    "other": "Доступ к рабочему пространству"
+    "other": "Permissions"
   },
   "36": {
-    "other": "Страницы приложений"
+    "other": "Pages"
   },
   "37": {
     "other": "Настройка параметров"
@@ -112,6 +109,15 @@
   },
   "43": {
     "other": "Предоставить доступ к рабочим областям для текущей роли/пользователя/группы"
+  },
+  "permissions.legend.user": {
+    "other": "Provide access to workspaces for the current user, overriding permissions inherited from user's roles. Use 'Manage Roles' to add/remove roles and identify the sources of inherited permissions."
+  },
+  "permissions.legend.group": {
+    "other": "Provide access to workspaces for the current group. These permissions will be inherited by all users belonging this group."
+  },
+  "permissions.legend.role": {
+    "other": "Provide access to workspaces for the current role. These permissions will be applied to all users to whom the role has been assigned."
   },
   "44": {
     "other": "Основные страницы приложений"
@@ -163,6 +169,15 @@
   },
   "roles.picker.title": {
     "other": "Управление ролями"
+  },
+  "roles.picker.add": {
+    "other": "Add role"
+  },
+  "roles.picker.hint": {
+    "other": "Start typing to search roles..."
+  },
+  "roles.picker.effective": {
+    "other": "Effective role for %s"
   },
   "parameters.scope.selector.title": {
     "other": "Добавить для ..."
