@@ -35,9 +35,6 @@
   "2": {
     "other": "Attivato"
   },
-  "20": {
-    "other": "+ aggiungi ruolo"
-  },
   "21": {
     "other": "ricaricamento..."
   },
@@ -48,7 +45,7 @@
     "other": "Caricamento cache dei parametri, attendere, questo verrà fatto solo una volta..."
   },
   "24": {
-    "other": "Informazioni Utente"
+    "other": "Account"
   },
   "25": {
     "other": "Restrizioni di accesso"
@@ -84,10 +81,10 @@
     "other": "Controlli di accesso"
   },
   "35": {
-    "other": "Accesso ai Workspace"
+    "other": "Permissions"
   },
   "36": {
-    "other": "Pagine delle Applicazioni"
+    "other": "Pages"
   },
   "37": {
     "other": "Personalizza i parametri"
@@ -112,6 +109,15 @@
   },
   "43": {
     "other": "Concedi l'accesso ai workspace per il ruolo/utente/gruppo corrente"
+  },
+  "permissions.legend.user": {
+    "other": "Provide access to workspaces for the current user, overriding permissions inherited from user's roles. Use 'Manage Roles' to add/remove roles and identify the sources of inherited permissions."
+  },
+  "permissions.legend.group": {
+    "other": "Provide access to workspaces for the current group. These permissions will be inherited by all users belonging this group."
+  },
+  "permissions.legend.role": {
+    "other": "Provide access to workspaces for the current role. These permissions will be applied to all users to whom the role has been assigned."
   },
   "44": {
     "other": "Pagine principali dell'applicazione"
@@ -163,6 +169,15 @@
   },
   "roles.picker.title": {
     "other": "Gestisci i ruoli utente"
+  },
+  "roles.picker.add": {
+    "other": "Add role"
+  },
+  "roles.picker.hint": {
+    "other": "Start typing to search roles..."
+  },
+  "roles.picker.effective": {
+    "other": "Effective role for %s"
   },
   "parameters.scope.selector.title": {
     "other": "Aggiungi per..."

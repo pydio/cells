@@ -35,9 +35,6 @@
   "2": {
     "other": "Bật"
   },
-  "20": {
-    "other": "+ thêm role"
-  },
   "21": {
     "other": "đang tải lại..."
   },
@@ -48,7 +45,7 @@
     "other": "Đang tải parameters cache, vui lòng đợi, việc này sẽ chỉ được thực hiện một lần..."
   },
   "24": {
-    "other": "Thông tin người dùng"
+    "other": "Account"
   },
   "25": {
     "other": "Truy cập bị hạn chế"
@@ -84,10 +81,10 @@
     "other": "Kiểm soát truy cập"
   },
   "35": {
-    "other": "Truy cập Workspaces"
+    "other": "Permissions"
   },
   "36": {
-    "other": "Trang ứng dụng"
+    "other": "Pages"
   },
   "37": {
     "other": "Tùy chỉnh tham số"
@@ -112,6 +109,15 @@
   },
   "43": {
     "other": "Cấp quyền truy cập vào các không gian làm việc cho role/user/group hiện tại"
+  },
+  "permissions.legend.user": {
+    "other": "Provide access to workspaces for the current user, overriding permissions inherited from user's roles. Use 'Manage Roles' to add/remove roles and identify the sources of inherited permissions."
+  },
+  "permissions.legend.group": {
+    "other": "Provide access to workspaces for the current group. These permissions will be inherited by all users belonging this group."
+  },
+  "permissions.legend.role": {
+    "other": "Provide access to workspaces for the current role. These permissions will be applied to all users to whom the role has been assigned."
   },
   "44": {
     "other": "Trang ứng dụng chính"
@@ -163,6 +169,15 @@
   },
   "roles.picker.title": {
     "other": "Quản lý user roles"
+  },
+  "roles.picker.add": {
+    "other": "Add role"
+  },
+  "roles.picker.hint": {
+    "other": "Start typing to search roles..."
+  },
+  "roles.picker.effective": {
+    "other": "Effective role for %s"
   },
   "parameters.scope.selector.title": {
     "other": "Thêm cho ..."

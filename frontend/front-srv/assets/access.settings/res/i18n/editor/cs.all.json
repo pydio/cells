@@ -35,9 +35,6 @@
   "2": {
     "other": "Zapnuto"
   },
-  "20": {
-    "other": "+ přidat roli"
-  },
   "21": {
     "other": "opětovné načítání…"
   },
@@ -48,7 +45,7 @@
     "other": "Loading parameters cache, please wait, this will be done only once..."
   },
   "24": {
-    "other": "Informace o uživateli"
+    "other": "Account"
   },
   "25": {
     "other": "Omezení přístupu"
@@ -84,10 +81,10 @@
     "other": "Access Controls"
   },
   "35": {
-    "other": "Přístup k pracovním prostorům"
+    "other": "Permissions"
   },
   "36": {
-    "other": "Application Pages"
+    "other": "Pages"
   },
   "37": {
     "other": "Přizpůsobit parametry"
@@ -112,6 +109,15 @@
   },
   "43": {
     "other": "Grant access to workspaces for the current role/user/group"
+  },
+  "permissions.legend.user": {
+    "other": "Provide access to workspaces for the current user, overriding permissions inherited from user's roles. Use 'Manage Roles' to add/remove roles and identify the sources of inherited permissions."
+  },
+  "permissions.legend.group": {
+    "other": "Provide access to workspaces for the current group. These permissions will be inherited by all users belonging this group."
+  },
+  "permissions.legend.role": {
+    "other": "Provide access to workspaces for the current role. These permissions will be applied to all users to whom the role has been assigned."
   },
   "44": {
     "other": "Hlavní stránky aplikace"
@@ -163,6 +169,15 @@
   },
   "roles.picker.title": {
     "other": "Manage user roles"
+  },
+  "roles.picker.add": {
+    "other": "Add role"
+  },
+  "roles.picker.hint": {
+    "other": "Start typing to search roles..."
+  },
+  "roles.picker.effective": {
+    "other": "Effective role for %s"
   },
   "parameters.scope.selector.title": {
     "other": "Add for ..."

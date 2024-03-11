@@ -35,9 +35,6 @@
   "2": {
     "other": "已启用"
   },
-  "20": {
-    "other": "+ 添加角色"
-  },
   "21": {
     "other": "重新加载..."
   },
@@ -48,7 +45,7 @@
     "other": "正在加载参数缓存，请稍候，这将只完成一次..."
   },
   "24": {
-    "other": "用户信息"
+    "other": "Account"
   },
   "25": {
     "other": "访问限制"
@@ -84,10 +81,10 @@
     "other": "访问控制"
   },
   "35": {
-    "other": "工作区访问权限"
+    "other": "Permissions"
   },
   "36": {
-    "other": "应用程序页面"
+    "other": "Pages"
   },
   "37": {
     "other": "自定义参数"
@@ -112,6 +109,15 @@
   },
   "43": {
     "other": "允许当前角色/用户/组访问工作区"
+  },
+  "permissions.legend.user": {
+    "other": "Provide access to workspaces for the current user, overriding permissions inherited from user's roles. Use 'Manage Roles' to add/remove roles and identify the sources of inherited permissions."
+  },
+  "permissions.legend.group": {
+    "other": "Provide access to workspaces for the current group. These permissions will be inherited by all users belonging this group."
+  },
+  "permissions.legend.role": {
+    "other": "Provide access to workspaces for the current role. These permissions will be applied to all users to whom the role has been assigned."
   },
   "44": {
     "other": "主应用程序页面"
@@ -163,6 +169,15 @@
   },
   "roles.picker.title": {
     "other": "管理用户角色"
+  },
+  "roles.picker.add": {
+    "other": "Add role"
+  },
+  "roles.picker.hint": {
+    "other": "Start typing to search roles..."
+  },
+  "roles.picker.effective": {
+    "other": "Effective role for %s"
   },
   "parameters.scope.selector.title": {
     "other": "从... 添加"
