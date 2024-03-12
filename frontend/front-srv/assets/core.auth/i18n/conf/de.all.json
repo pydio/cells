@@ -45,7 +45,7 @@
     "other": "Passwort vergessen Aktion"
   },
   "Forgot Password Link": {
-    "other": "Forgot Password Link"
+    "other": "Passwort-vergessen Link"
   },
   "Generic Auth Features": {
     "other": "Standard-Authentifizierung"
@@ -141,7 +141,7 @@
     "other": "Auszulösende Aktion beim Klicken auf Passwort vergessen. Kann geändert werden, um eine benutzerdefinierte Aktion auszulösen, wenn Sie sich auf ein externes Authentifizierungssystem verlassen."
   },
   "When relying on an external authentication system, replace the Forgot Action with an external link that will be opened in a new window.": {
-    "other": "When relying on an external authentication system, replace the Forgot Action with an external link that will be opened in a new window."
+    "other": "Wenn Sie sich auf ein externes Authentifizierungssystem verlassen, ersetzen Sie die \"Passwort vergessen\"-Aktion durch einen externen Link, der in einem neuen Fenster geöffnet wird."
   },
   "Let user create new cells": {
     "other": "Lassen Sie den Benutzer neue Cells erstellen"
