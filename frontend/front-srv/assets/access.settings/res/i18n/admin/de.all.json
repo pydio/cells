@@ -1088,6 +1088,9 @@
   "policies.rule.delete": {
     "other": "Regel löschen"
   },
+  "policies.acl.empty-string": {
+    "other": "Keine Richtlinien definiert, erstellen Sie eine, um sie als dynamische Workspace-Berechtigung zu verwenden."
+  },
   "policies.rule.delete.confirm": {
     "other": "Möchten Sie diese Sicherheitsregel wirklich entfernen? Dies könnte das Sicherheitsmodell der Anwendung beschädigen!"
   },

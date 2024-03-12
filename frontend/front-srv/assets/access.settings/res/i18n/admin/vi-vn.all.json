@@ -1088,6 +1088,9 @@
   "policies.rule.delete": {
     "other": "Xoá rule"
   },
+  "policies.acl.empty-string": {
+    "other": "No policies defined, create one use to it as a dynamic workspace permission."
+  },
   "policies.rule.delete.confirm": {
     "other": "Bạn có chắc chắn muốn xóa quy tắc bảo mật này? Nó có thể phá vỡ mô hình bảo mật của ứng dụng!"
   },
