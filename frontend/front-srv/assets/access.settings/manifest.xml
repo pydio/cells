@@ -7,11 +7,12 @@
 	<client_settings icon="plug/access.settings/admin.png">
 		<resources>
 			<i18n namespace="settings" remote="plug/access.settings/res/i18n" />
-			<i18n namespace="role_editor" remote="plug/access.settings/res/i18n/role" />
-			<i18n namespace="pydio_role" remote="plug/access.settings/res/i18n/editor" />
+			<i18n namespace="role_editor" remote="plug/access.settings/res/i18n/role_editor" />
+			<i18n namespace="pydio_role" remote="plug/access.settings/res/i18n/pydio_role" />
             <i18n namespace="ajxp_admin" remote="plug/access.settings/res/i18n/admin" />
             <i18n namespace="admin_dashboard" remote="plug/access.settings/res/i18n/admin_dashboard" />
             <i18n namespace="updater" remote="plug/access.settings/res/i18n/updater" />
+            <i18n namespace="tpl_policies" remote="plug/access.settings/res/i18n/tpl_policies" />
 
             <js className="AdminComponents" file="plug/access.settings/res/dist/AdminComponents.min.js" depends="React,PydioComponents,PydioWorkspaces,PydioCoreActions"/>
             <js className="AdminPeople" file="plug/access.settings/res/dist/AdminPeople.min.js" depends="React,PydioComponents,PydioForm"/>

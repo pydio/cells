@@ -1,14 +1,34 @@
+/*
+ * Copyright 2024 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
+ * This file is part of Pydio.
+ *
+ * Pydio is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Pydio is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with Pydio.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ * The latest code can be found at <https://pydio.com>.
+ */
+
 const Templates = [
     {
         "Icon": "shield-lock-outline",
         "Uuid": "sample-acl-policy",
-        "Name": "Complex ACL Policy",
-        "Description": "Sample Complex Policy for managing ACLs dynamically",
+        "Name": "ACLSample1.Title",
+        "Description": "ACLSample1.Description",
         "ResourceGroup": "acl",
         "Policies": [
             {
                 "id": "acl-complex-rule1",
-                "description": "Default allowing read/write",
+                "description": "ACLSample1.Rule1",
                 "subjects": [
                     "policy:sample-acl-policy"
                 ],
@@ -23,7 +43,7 @@ const Templates = [
             },
             {
                 "id": "acl-complex-rule2",
-                "description": "Preventing modification based on IP and file metadata conditions",
+                "description": "ACLSample1.Rule2",
                 "subjects": [
                     "policy:sample-acl-policy"
                 ],
@@ -47,7 +67,7 @@ const Templates = [
             },
             {
                 "id": "acl-complex-rule3",
-                "description": "Filter out any file with a PNG extension if request does not come from localhost",
+                "description": "ACLSample1.Rule3",
                 "subjects": [
                     "policy:sample-acl-policy"
                 ],
@@ -74,13 +94,13 @@ const Templates = [
     {
         "Icon": "wall-fire",
         "Uuid": "no-external-access-acl-policy",
-        "Name": "Disable access based on IP",
-        "Description": "Disable access to IPs outside of LAN",
+        "Name": "ACLSampleExternalIP.Title",
+        "Description": "ACLSampleExternalIP.Description",
         "ResourceGroup": "acl",
         "Policies": [
             {
                 "id": "acl-complex-rule4",
-                "description": "Global read/write",
+                "description": "ACLSampleExternalIP.Rule1",
                 "subjects": [
                     "policy:no-external-access-acl-policy"
                 ],
@@ -95,7 +115,7 @@ const Templates = [
             },
             {
                 "id": "acl-complex-rule5",
-                "description": "Denying IP if it's not localhost, 127.0.0.1 or ::1",
+                "description": "ACLSampleExternalIP.Rule2",
                 "subjects": [
                     "policy:no-external-access-acl-policy"
                 ],
@@ -119,13 +139,13 @@ const Templates = [
     {
         "Icon": "timer-lock-outline",
         "Uuid": "limited-period-access-acl-policy2",
-        "Name": "Limited Period",
-        "Description": "Enables access to a workspace only for a given period",
+        "Name": "ACLSamplePeriod.Title",
+        "Description": "ACLSamplePeriod.Description",
         "ResourceGroup": "acl",
         "Policies": [
             {
                 "id": "acl-temporary-access2",
-                "description": "ACL Rule example, allowing access only in Feb. and March 2018",
+                "description": "ACLSamplePeriod.Rule1",
                 "subjects": [
                     "policy:limited-period-access-acl-policy2"
                 ],
@@ -149,13 +169,13 @@ const Templates = [
     {
         "Icon": "calendar-lock-outline",
         "Uuid": "no-access-after-acl-policy",
-        "Name": "No access after a given date",
-        "Description": "Disable access to a workspace after a given date",
+        "Name": "ACLSampleDateDisable.Title",
+        "Description": "ACLSampleDateDisable.Description",
         "ResourceGroup": "acl",
         "Policies": [
             {
                 "id": "acl-date-rule1",
-                "description": "Global read/write",
+                "description": "ACLSampleDateDisable.Rule1",
                 "subjects": [
                     "policy:no-access-after-acl-policy"
                 ],
@@ -170,7 +190,7 @@ const Templates = [
             },
             {
                 "id": "acl-date-rule2",
-                "description": "Deny read/write if date is after 2018-02-28",
+                "description": "ACLSampleDateDisable.Rule2",
                 "subjects": [
                     "policy:no-access-after-acl-policy"
                 ],
@@ -194,13 +214,13 @@ const Templates = [
     {
         "Icon": "clock-check-outline",
         "Uuid": "office-hours-access-acl-policy",
-        "Name": "Access allowed only during business hours",
-        "Description": "Enable access to a workspace only certain days within pre-defined hours",
+        "Name": "ACLSampleBusinessHours.Title",
+        "Description": "ACLSampleBusinessHours.Description",
         "ResourceGroup": "acl",
         "Policies": [
             {
                 "id": "acl-office-hours-rule",
-                "description": "Office hours rule example, allowing read/write",
+                "description": "ACLSampleBusinessHours.Rule1",
                 "subjects": [
                     "policy:office-hours-access-acl-policy"
                 ],

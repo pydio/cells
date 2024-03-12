@@ -180,7 +180,7 @@ let PoliciesBoard = createReactClass({
     },
 
     selectRows(rows){
-        if(!rows.length){
+        if(!rows.length || !rows[0]){
             return;
         }
         const policy = rows[0];
@@ -223,11 +223,14 @@ let PoliciesBoard = createReactClass({
             });
         }
 
-        const tables = Object.keys(policies).map((k)=> {
+        const tables = ResourceGroups.map((k)=> {
             if (readonly && k === 'acl') {
                 return null;
             }
-            const data = policies[k];
+            const data = policies[k] || [];
+            if (readonly && !data.length) {
+                return null
+            }
             const dd = data.map(policy => {
                 if(policy.Uuid === selectedPolicy){
                     return {...policy, expandedRow: (
@@ -262,6 +265,7 @@ let PoliciesBoard = createReactClass({
                             showCheckboxes={false}
                             masterStyles={adminStyles.body.tableMaster}
                             storageKey={'console.policies.' + k + '.list'}
+                            emptyStateString={<span onClick={() => this.setState({openPicker: true})} style={{cursor:'pointer'}}>{m('acl.empty-string')}</span>}
                         />
                     </Paper>
                 </div>
