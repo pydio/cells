@@ -1088,6 +1088,9 @@
   "policies.rule.delete": {
     "other": "Supprimer la règle"
   },
+  "policies.acl.empty-string": {
+    "other": "Aucune stratégie définie, créez-en une pour assigner dynamiquement des droits d'accès aux Workspaces."
+  },
   "policies.rule.delete.confirm": {
     "other": "Êtes-vous sûr de vouloir supprimer cette règle de sécurité ? Cela pourrait casser le modèle de sécurité de l'application !"
   },

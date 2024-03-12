@@ -1,4 +1,16 @@
 {
+  "PolicyGroup.Create": {
+    "other": "Richtlinie erstellen"
+  },
+  "PolicyGroup.Filter": {
+    "other": "Vorlagen filtern..."
+  },
+  "PolicyGroup.Create.Manual": {
+    "other": "Manuelle Erstellung"
+  },
+  "PolicyGroup.Create.Templates": {
+    "other": "Vorlagen"
+  },
   "PolicyGroup.ACLSample1.Title": {
     "other": "[Beispiel] Komplexe ACL-Richtlinie"
   },

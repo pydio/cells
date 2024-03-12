@@ -1088,6 +1088,9 @@
   "policies.rule.delete": {
     "other": "Excluir regra"
   },
+  "policies.acl.empty-string": {
+    "other": "No policies defined, create one use to it as a dynamic workspace permission."
+  },
   "policies.rule.delete.confirm": {
     "other": "Tem certeza que deseja remover esta regra de segurança? Isto pode quebrar o modelo de segurança do aplicativo!"
   },
