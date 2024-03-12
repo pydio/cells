@@ -1146,7 +1146,7 @@
     "other": "Ecrire"
   },
   "react.5c": {
-    "other": "access"
+    "other": "accès"
   },
   "react.6": {
     "other": "enfants"
@@ -1275,7 +1275,7 @@
     "other": "Liens publics (cachés)"
   },
   "user.filter.status": {
-    "other": "Status"
+    "other": "Statut"
   },
   "user.type.hidden": {
     "other": "Utilisateur public"
@@ -1284,7 +1284,7 @@
     "other": "Les utilisateurs publics sont créés pour les liens publics (un par lien) et sont masqués par défaut. Il peut être utile de les lister pour détecter les liens publics verrouillés."
   },
   "user.rootgroup.legend": {
-    "other": "Permissions applied to the entire user hierarchy"
+    "other": "Autorisations appliquées à toute la hiérarchie des utilisateurs"
   },
   "user.filter.internal": {
     "other": "Utilisateurs internes"
@@ -1638,16 +1638,16 @@
     "other": "Synchro"
   },
   "ws.complete.datasources": {
-    "other": "DataSources"
+    "other": "Datasources"
   },
   "ws.complete.folders": {
-    "other": "Internal Folders"
+    "other": "Dossiers Internes"
   },
   "ws.complete.label": {
-    "other": "Select a DataSource or a Template Path"
+    "other": "Sélectionnez une Datasource ou un modèle prédéfini"
   },
   "ws.complete.additional": {
-    "other": "Additional Root"
+    "other": "Ajouter un dossier racine"
   },
   "ws.complete.resolves": {
     "other": "Résolu en"
@@ -1668,7 +1668,7 @@
     "other": "Choisissez les permissions par défaut pour ce workspace (elles seront appliquées à tous les utilisateurs internes). Vous pouvez écraser ces permissions en fonction des utilisateurs/roles/groupes dans la section Utilisateurs."
   },
   "ws.editor.default_rights.hint": {
-    "other": "Default Rights"
+    "other": "Droits par défaut"
   },
   "ws.editor.default_rights.none": {
     "other": "Pas d'accès"
@@ -1926,109 +1926,109 @@
     "other": "Êtes-vous sûr de vouloir effacer toutes les tâches pour ce Flow ?"
   },
   "scheduler.trigger.picker.title": {
-    "other": "Trigger job on..."
+    "other": "Déclencher lors de..."
   },
   "scheduler.trigger.type.nodes": {
-    "other": "Files and folders (nodes) events : detect files modifications to move them or update their metadata automatically."
+    "other": "Événements de fichiers et dossiers (nœuds) : détecter les ajouts, suppressions et modifications de fichiers et de leurs métadonnées."
   },
   "scheduler.trigger.type.workspaces": {
-    "other": "Workspace events : triggered on workspace creation / deletion. Use the Scope flag to filter Workspaces from Cells"
+    "other": "Événements des Workspaces : déclenchés lors de la création / suppression de workspaces. Utilisez l'attribut \"Scope\" pour distinguer les Workspaces et les Cells"
   },
   "scheduler.trigger.type.acls": {
-    "other": "ACL events : access control lists link workspaces, nodes and roles together to provide accesses to data."
+    "other": "Événements des ACL : les contrôles d'accès associent les Workspaces, les fichiers/dossiers et les rôles pour ouvrir des accès aux données."
   },
   "scheduler.trigger.type.users": {
-    "other": "User events : triggered when adding/removing user and when users log in and log out. Can be used for triggering validation flows or assigning accesses."
+    "other": "Événements des utilisateurs : déclenchés lors de l'ajout/suppression d'utilisateurs et lorsqu'ils se connectent ou se déconnectent. Peuvent être utilisés pour déclencher des flux de validation ou ouvrir des accès."
   },
   "scheduler.trigger.type.roles": {
-    "other": "Role events : can be used to automate accesses based on role names. Use IsTeam, IsGroup, IsUser flags to filter roles."
+    "other": "Événements des rôles : les utiliser pour automatiser les accès en fonction des noms de rôles. Utilisez les attributs IsTeam, IsGroup, IsUser pour les filtrer."
   },
   "scheduler.trigger.type.chat": {
-    "other": "Chat Events: react to new chat message or chat room modification"
+    "other": "Évènements des Chats : réagir à un nouveau message ou à la modification d'une Discussion"
   },
   "scheduler.trigger.type.chat-messages": {
-    "other": "Chat Messages Events"
+    "other": "Événements des messages de Chat"
   },
   "scheduler.trigger.type.chat-rooms": {
-    "other": "Chat Rooms Events"
+    "other": "Événements des Discussions"
   },
   "scheduler.trigger.create.node": {
     "other": "Création"
   },
   "scheduler.trigger.create.node.description": {
-    "other": "A new file was uploaded or a new folder was created."
+    "other": "Un nouveau fichier a été téléchargé ou un nouveau dossier a été créé."
   },
   "scheduler.trigger.read.node": {
     "other": "Lecture"
   },
   "scheduler.trigger.read.node.description": {
-    "other": "A file was downloaded or a folder content was listed."
+    "other": "Un fichier a été téléchargé ou le contenu d'un dossier a été listé."
   },
   "scheduler.trigger.update.path": {
     "other": "Déplacement"
   },
   "scheduler.trigger.update.path.description": {
-    "other": "A file or folder was moved or renamed."
+    "other": "Un fichier ou un dossier a été déplacé ou renommé."
   },
   "scheduler.trigger.update.content": {
     "other": "Contenu"
   },
   "scheduler.trigger.update.content.description": {
-    "other": "A file content was updated by edition or upload overwriting."
+    "other": "Le contenu d'un fichier a été mis à jour (par édition en ligne ou téléchargement)."
   },
   "scheduler.trigger.update.metadata": {
     "other": "Métadonnées"
   },
   "scheduler.trigger.update.metadata.description": {
-    "other": "Internal metadata were modified on file or folder."
+    "other": "Les métadonnées internes ont été modifiées sur un fichier ou un dossier."
   },
   "scheduler.trigger.update.user-metadata": {
     "other": "Mettre à jour les métadonnées"
   },
   "scheduler.trigger.update.user-metadata.description": {
-    "other": "User-defined metadata were modified (event contains updated metadata)."
+    "other": "Les métadonnées éditées par les utilisateurs ont été modifiées (l'événement contient les métadonnées à jour)."
   },
   "scheduler.trigger.delete.node": {
     "other": "Suppression"
   },
   "scheduler.trigger.delete.node.description": {
-    "other": "A file or a folder was definitively deleted."
+    "other": "Un fichier ou un dossier a été définitivement supprimé."
   },
   "scheduler.trigger.create.user": {
     "other": "Utilisateur créé"
   },
   "scheduler.trigger.create.user.description": {
-    "other": "A user or a group was created."
+    "other": "Un utilisateur ou un groupe a été créé."
   },
   "scheduler.trigger.read.user": {
     "other": "Utilisateur accédé"
   },
   "scheduler.trigger.read.user.description": {
-    "other": "A user or a group was accessed or listed."
+    "other": "Un utilisateur ou un groupe a été accédé ou listé."
   },
   "scheduler.trigger.update.user": {
     "other": "Utilisateur mis à jour"
   },
   "scheduler.trigger.update.user.description": {
-    "other": "A user or a group data was updated. Typically happens if user changes a preference or admin assigns a role."
+    "other": "Un utilisateur ou un groupe a été mis à jour. Cela se produit généralement si l'utilisateur change une préférence ou si l'administrateur assigne un rôle."
   },
   "scheduler.trigger.delete.user": {
     "other": "Utilisateur supprimé"
   },
   "scheduler.trigger.delete.user.description": {
-    "other": "A user or a group was deleted."
+    "other": "Un utilisateur ou un groupe a été supprimé."
   },
   "scheduler.trigger.bind.user": {
     "other": "Utilisateur authentifié"
   },
   "scheduler.trigger.bind.user.description": {
-    "other": "A user has logged in."
+    "other": "Un utilisateur s'est connecté."
   },
   "scheduler.trigger.logout.user": {
     "other": "Utilisateur déconnecté"
   },
   "scheduler.trigger.logout.user.description": {
-    "other": "A user has logged out."
+    "other": "Un utilisateur s'est déconnecté."
   },
   "scheduler.trigger.role.create": {
     "other": "Create Role"

@@ -201,19 +201,19 @@
     "other": "Метаданные"
   },
   "search.sorter.relevant.desc": {
-    "other": "Most Relevant First"
+    "other": "Наиболее актуальные сначала"
   },
   "search.sorter.modified.desc": {
-    "other": "Recently Added First"
+    "other": "Сначала недавно добавленные"
   },
   "search.sorter.modified.asc": {
-    "other": "Oldest First"
+    "other": "Сначала старые"
   },
   "search.sorter.size.desc": {
-    "other": "Biggest First"
+    "other": "Сначала большие"
   },
   "search.sorter.size.asc": {
-    "other": "Smallest First"
+    "other": "Сначала маленькие"
   },
   "facet.label.file": {
     "other": "Файл"

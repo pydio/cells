@@ -6,16 +6,16 @@
     "other": "Если установлено значение true, индексатор будет искать метаданные ContentRef, читать содержимое по этой ссылке и индексировать его для поиска."
   },
   "Search.Config.ContentRef.Label": {
-    "other": "Content Reference Metadata"
+    "other": "Метаданные ссылки на содержимое"
   },
   "Search.Config.ContentRef.Description": {
-    "other": "Name of the metadata pointing to the internal file that contains textual representation of the original document. Such internal contents may be plain-text or gzip-encoded, depending on the text extraction tool used (e.g. Tika). The search engine typically indexes this content to enable full-text search. Make sure to prefix the metadata name with 'pydio:' to prevent data leakage."
+    "other": "Имя метаданных, указывающее на внутренний файл, содержащий текстовое представление оригинального документа. Такое внутреннее содержимое может быть простым текстом или сжатым в формате gzip в зависимости от используемого инструмента извлечения текста (например, Tika). Поисковый движок обычно индексирует это содержимое для обеспечения полнотекстового поиска. Убедитесь, что добавлен префикс 'pydio:' к имени метаданных, чтобы предотвратить утечку данных"
   },
   "Search.Config.PlainTextExtensions.Label": {
-    "other": "Plain Text Extensions"
+    "other": "Расширения для обычного текста"
   },
   "Search.Config.PlainTextExtensions.Description": {
-    "other": "List of extensions for files containing directly indexable plain-text contents (comma-separated-list)."
+    "other": "Список расширений файлов, содержащих непосредственно индексируемое содержимое в виде обычного текста (разделенных запятыми)."
   },
   "Search.Config.BasenameAnalyze.Label": {
     "other": "Анализатор имен файлов"

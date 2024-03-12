@@ -3,13 +3,13 @@
     "other": "%s Public Download"
   },
   "10": {
-    "other": "Folder is shared"
+    "other": "Folder jest udostępniony"
   },
   "100": {
-    "other": "Shared files"
+    "other": "Udostępnione pliki"
   },
   "101": {
-    "other": "All files shared as public links"
+    "other": "Wszystkie pliki udostępnione jako linki publiczne"
   },
   "102": {
     "other": "Shared folders"

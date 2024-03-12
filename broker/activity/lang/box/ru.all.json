@@ -1,6 +1,6 @@
 {
   "AccessedBy": {
-    "other": "Доступ к {{.Actor}}"
+    "other": "Доступ предоставлен пользователю {{.Actor}}"
   },
   "AccessedObject": {
     "other": "Доступ к {{.Object}}"
@@ -12,7 +12,7 @@
     "other": "Сотовый"
   },
   "CreatedBy": {
-    "other": "Создано {{.Actor}}"
+    "other": "Создано пользователем {{.Actor}}"
   },
   "CreatedObject": {
     "other": "Создано {{.Object}}"
@@ -21,7 +21,7 @@
     "other": "{{.Object}} был создан {{.Actor}}"
   },
   "DeletedBy": {
-    "other": "Удалено {{.Actor}}"
+    "other": "Удалено пользователем {{.Actor}}"
   },
   "DeletedObject": {
     "other": "Удалено {{.Object}}"
@@ -45,7 +45,7 @@
     "other": "Папка"
   },
   "ModifiedBy": {
-    "other": "Изменено {{.Actor}}"
+    "other": "Изменено пользователем {{.Actor}}"
   },
   "ModifiedObject": {
     "other": "Изменено {{.Object}}"
@@ -54,7 +54,7 @@
     "other": "{{.Object}} Был изменен {{.Actor}} \n"
   },
   "MetaModifiedBy": {
-    "other": "Метаданные изменены {{.Actor}}"
+    "other": "Метаданные изменены пользователем {{.Actor}}"
   },
   "MetaModifiedObject": {
     "other": "Изменены метаданные на {{.Object}}"
@@ -63,22 +63,22 @@
     "other": "{{.Actor}} изменил метаданные на {{.Object}}"
   },
   "CommentedBy": {
-    "other": "Прокомментировал {{.Actor}}"
+    "other": "{{.Actor}} прокомментировал"
   },
   "CommentedObject": {
-    "other": "Оставил комментарий к {{.Object}}"
+    "other": "Прокомментировано {{.Object}}"
   },
   "CommentedObjectBy": {
     "other": "{{.Actor}} опубликовал новый комментарий к {{.Object}}"
   },
   "MovedBy": {
-    "other": "Перемещено {{.Actor}}"
+    "other": "Перемещено пользователем {{.Actor}}"
   },
   "MovedObject": {
     "other": "Перемещено {{.Object}}"
   },
   "MovedObjectBy": {
-    "other": "{{.Object}} был перемещен {{.Actor}}"
+    "other": "{{.Object}} был перемещен пользователем {{.Actor}}"
   },
   "Workspace": {
     "other": "Рабочее пространство"

@@ -42,7 +42,7 @@
     "other": "Allow non-admin users to create a workspace from this template."
   },
   "Allow the users to pick an existing user when sharing a folder": {
-    "other": "Allow the users to pick an existing user when sharing a folder"
+    "other": "폴더 공유 시 사용자가 기존 사용자 선택 허용"
   },
   "Allow to group admins": {
     "other": "Allow to group admins"
