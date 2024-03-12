@@ -1,36 +1,36 @@
 {
   "Exif Rotation": {
-    "other": "Exif Rotation"
+    "other": "Вращение Exif"
   },
   "Generate thumbnails or not": {
-    "other": "Генерировать миниатюры или нет"
+    "other": "Генерировать эскизы или нет"
   },
   "Image viewer": {
     "other": "Просмотр изображения"
   },
   "Image viewer, used for previewing images and browsing them in a diaporam. Generates a thumbnail version of the images.": {
-    "other": "Image viewer, used for previewing images and browsing them in a diaporama. Generates a thumbnail version of the images."
+    "other": "Просмотрщик изображений, используемый для предварительного просмотра изображений и их просмотра в виде диапроектора. Генерирует миниатюрную версию изображений."
   },
   "Low-res Sizes": {
-    "other": "Low-res Sizes"
+    "other": "Низкоразрешенные размеры"
   },
   "Quality": {
     "other": "Качество"
   },
   "Remote Wrappers": {
-    "other": "Remote Wrappers"
+    "other": "Удаленные оболочки"
   },
   "Rotate image using exif rotation": {
-    "other": "Rotate image using exif rotation"
+    "other": "Повернуть изображение с использованием вращения Exif"
   },
   "Size Threshold": {
-    "other": "Size Threshold"
+    "other": "Порог размера"
   },
   "Threshold": {
-    "other": "Threshold"
+    "other": "Порог"
   },
   "Threshold for low-res versions of images": {
-    "other": "Threshold for low-res versions of images"
+    "other": "Порог для низкоразрешенных версий изображений"
   },
   "Thumbnails": {
     "other": "Миниатюры"
@@ -39,6 +39,6 @@
     "other": "Качество миниатюр"
   },
   "When connected to a remote server, metadata extraction can make the listing action very long, as it must first copy each file locally. For plugins using the defined wrappers and files whose size is greater than this threshold, the image type and dimension will be skipped.": {
-    "other": "When connected to a remote server, metadata extraction can make the listing action very long, as it must first copy each file locally. For plugins using the defined wrappers and files whose size is greater than this threshold, the image type and dimension will be skipped."
+    "other": "При подключении к удаленному серверу извлечение метаданных может замедлить процесс просмотра, так как сначала нужно скопировать каждый файл локально. Для плагинов, использующих определенные оболочки, и файлов размером больше этого порога, тип и размер изображения будут пропущены."
   }
 }
