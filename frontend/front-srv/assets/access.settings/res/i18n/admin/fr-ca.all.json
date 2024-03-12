@@ -1088,6 +1088,9 @@
   "policies.rule.delete": {
     "other": "Supprimer la règle"
   },
+  "policies.acl.empty-string": {
+    "other": "No policies defined, create one use to it as a dynamic workspace permission."
+  },
   "policies.rule.delete.confirm": {
     "other": "Êtes-vous sûr de vouloir supprimer cette règle de sécurité ? Cela pourrait casser le modèle de sécurité de l'application !"
   },
@@ -2031,31 +2034,31 @@
     "other": "Un utilisateur s'est déconnecté."
   },
   "scheduler.trigger.role.create": {
-    "other": "Create Role"
+    "other": "Création de Rôle"
   },
   "scheduler.trigger.role.create.description": {
-    "other": "A new role was created, by admin or by users."
+    "other": "Un nouveau rôle a été créé, par l'administrateur ou par les utilisateurs."
   },
   "scheduler.trigger.role.update": {
-    "other": "Update Role"
+    "other": "Mise à jour d'un rôle"
   },
   "scheduler.trigger.role.update.description": {
-    "other": "A role has been updated."
+    "other": "Un rôle a été édité."
   },
   "scheduler.trigger.role.delete": {
-    "other": "Delete Role"
+    "other": "Suppression de Rôle"
   },
   "scheduler.trigger.role.delete.description": {
-    "other": "A role has been deleted."
+    "other": "Un rôle a été supprimé."
   },
   "scheduler.trigger.workspace.create": {
-    "other": "Create Workspace"
+    "other": "Création d'un Workspace"
   },
   "scheduler.trigger.workspace.create.description": {
-    "other": "A new Workspace or Cell was created."
+    "other": "Un nouveau Workspace ou une nouvelle Cell a été créé(e)."
   },
   "scheduler.trigger.workspace.update": {
-    "other": "Update Workspace"
+    "other": "Mise à jour d'un Workspace"
   },
   "scheduler.trigger.workspace.update.description": {
     "other": "A Workspace or a Cell has been updated."

@@ -1,4 +1,16 @@
 {
+  "PolicyGroup.Create": {
+    "other": "Create Policy"
+  },
+  "PolicyGroup.Filter": {
+    "other": "Filter Templates..."
+  },
+  "PolicyGroup.Create.Manual": {
+    "other": "Manual Creation"
+  },
+  "PolicyGroup.Create.Templates": {
+    "other": "Templates"
+  },
   "PolicyGroup.ACLSample1.Title": {
     "other": "[Example] 컴플렉스 ACL 정책"
   },

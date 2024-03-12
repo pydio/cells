@@ -1,4 +1,16 @@
 {
+  "PolicyGroup.Create": {
+    "other": "Créer une Stratégie de Sécurité"
+  },
+  "PolicyGroup.Filter": {
+    "other": "Filtrer les modèles..."
+  },
+  "PolicyGroup.Create.Manual": {
+    "other": "Création Manuelle"
+  },
+  "PolicyGroup.Create.Templates": {
+    "other": "Modèles"
+  },
   "PolicyGroup.ACLSample1.Title": {
     "other": "[Exemple] Règle d'ACL complexe"
   },
