@@ -28,13 +28,14 @@ import (
 
 	"github.com/pydio/cells/v4/common/auth"
 	"github.com/pydio/cells/v4/common/log"
+	servicecontext "github.com/pydio/cells/v4/common/service/context"
 	"github.com/pydio/cells/v4/common/service/frontend/sessions"
 )
 
 // NewSessionWrapper creates a Http middleware checking if a cookie is passed
 // along and if this cookie contains a proper JWT.
 // The excludes parameter may be used to namely ignore specific "METHOD:/URI“ for this check.
-func NewSessionWrapper(h http.Handler, dao sessions.DAO, excludes ...string) http.Handler {
+func NewSessionWrapper(h http.Handler, excludes ...string) http.Handler {
 
 	jwtVerifier := auth.DefaultJWTVerifier()
 
@@ -50,6 +51,8 @@ func NewSessionWrapper(h http.Handler, dao sessions.DAO, excludes ...string) htt
 				return
 			}
 		}
+
+		dao := servicecontext.GetDAO[sessions.DAO](r.Context())
 
 		session, err := dao.GetSession(r)
 		if err != nil && !strings.Contains(err.Error(), "securecookie: the value is not valid") {

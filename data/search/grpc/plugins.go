@@ -32,15 +32,11 @@ import (
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/broker"
 	"github.com/pydio/cells/v4/common/config"
-	dao2 "github.com/pydio/cells/v4/common/dao"
 	"github.com/pydio/cells/v4/common/dao/bleve"
-	"github.com/pydio/cells/v4/common/dao/mongodb"
-	"github.com/pydio/cells/v4/common/nodes/meta"
 	"github.com/pydio/cells/v4/common/proto/sync"
 	"github.com/pydio/cells/v4/common/proto/tree"
 	"github.com/pydio/cells/v4/common/runtime"
 	"github.com/pydio/cells/v4/common/service"
-	servicecontext "github.com/pydio/cells/v4/common/service/context"
 	"github.com/pydio/cells/v4/data/search/dao"
 )
 
@@ -58,41 +54,49 @@ func init() {
 			service.Context(ctx),
 			service.Tag(common.ServiceTagData),
 			service.Description("Search Engine"),
-			service.Fork(true),
-			service.WithIndexer(dao.NewDAO,
+			// service.Fork(true),
+			service.WithStorage(
+				"bleve",
+				dao.NewBleveDAO,
+				service.Default(true),
 				service.WithStoragePrefix("searchengine"),
-				service.WithStorageSupport(bleve.Driver, mongodb.Driver),
+				// service.WithStorageSupport(bleve.Driver, mongodb.Driver),
 				service.WithStorageDefaultDriver(func() (string, string) {
 					return bleve.Driver, filepath.Join(runtime.MustServiceDataDir(Name), "searchengine.bleve?rotationSize=-1&mapping=node")
 				}),
 			),
+			service.WithStorage(
+				"mongodb",
+				dao.NewMongoDAO,
+				service.WithStoragePrefix("searchengine"),
+			),
 			service.WithGRPC(func(c context.Context, server grpc.ServiceRegistrar) error {
 
-				cfg := config.Get("services", Name)
-				nsProvider := meta.NewNsProvider(c)
-				indexer := servicecontext.GetIndexer(c).(dao2.IndexDAO)
-				bleveEngine, err := dao.NewEngine(c, indexer, nsProvider, cfg)
-				if err != nil {
-					return err
-				}
+				//cfg := config.Get("services", Name)
+				//nsProvider := meta.NewNsProvider(c)
+				//indexer := servicecontext.GetIndexer(c).(dao2.IndexDAO)
+				//bleveEngine, err := dao.NewEngine(c, indexer, nsProvider, cfg)
+				//if err != nil {
+				//	return err
+				//}
 
 				searcher := &SearchServer{
-					RuntimeCtx:       c,
-					Engine:           bleveEngine,
-					NsProvider:       nsProvider,
+					RuntimeCtx: c,
+					// Engine:           bleveEngine,
+					// NsProvider:       nsProvider,
 					ReIndexThrottler: make(chan struct{}, 5),
 				}
 
-				tree.RegisterSearcherEnhancedServer(server, searcher)
-				sync.RegisterSyncEndpointEnhancedServer(server, searcher)
+				tree.RegisterSearcherServer(server, searcher)
+				sync.RegisterSyncEndpointServer(server, searcher)
 
 				subscriber := searcher.Subscriber()
 				if er := subscriber.Start(c); er != nil {
 					return er
 				}
-				if e := broker.SubscribeCancellable(c, common.TopicMetaChanges, func(message broker.Message) error {
+				if e := broker.SubscribeCancellable(c, common.TopicMetaChanges, func(ctx context.Context, message broker.Message) error {
 					msg := &tree.NodeChangeEvent{}
-					if ct, e := message.Unmarshal(msg); e == nil {
+					if ct, e := message.Unmarshal(ctx, msg); e == nil {
 						return subscriber.Push(ct, msg)
 					}
 					return nil

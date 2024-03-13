@@ -2,7 +2,6 @@ package mongo
 
 import (
 	"fmt"
-
 	"strings"
 	"time"
 
@@ -10,7 +9,6 @@ import (
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
-	bsonx "go.mongodb.org/mongo-driver/x/bsonx/bsoncore"
 	"google.golang.org/protobuf/proto"
 
 	"github.com/pydio/cells/v4/common/dao/mongodb"
@@ -143,15 +141,15 @@ func (m *Codex) BuildQuery(query interface{}, offset, limit int32) (interface{},
 	if term := queryObject.GetFileNameOrContent(); term != "" && term != "*" {
 		// add weight on basename ?
 		filters = append(filters, bson.E{"$or", bson.A{
-			bson.M{"basename": bson.M{"$regex": bsonx.Regex(term, "i")}},
-			bson.M{"text_content": bson.M{"$regex": bsonx.Regex(term, "i")}},
+			bson.M{"basename": bson.M{"$regex": primitive.Regex{Pattern: term, Options: "i"}}},
+			bson.M{"text_content": bson.M{"$regex": primitive.Regex{Pattern: term, Options: "i"}}},
 		}})
 	} else {
 		if bn := queryObject.GetFileName(); bn != "" {
-			filters = append(filters, bson.E{"basename", bson.M{"$regex": bsonx.Regex(bn, "i")}})
+			filters = append(filters, bson.E{"basename", bson.M{"$regex": primitive.Regex{Pattern: bn, Options: "i"}}})
 		}
 		if cn := queryObject.GetContent(); cn != "" {
-			filters = append(filters, bson.E{"text_content", bson.M{"$regex": bsonx.Regex(cn, "i")}})
+			filters = append(filters, bson.E{"text_content", bson.M{"$regex": primitive.Regex{Pattern: cn, Options: "i"}}})
 		}
 	}
 
@@ -181,14 +179,14 @@ func (m *Codex) BuildQuery(query interface{}, offset, limit int32) (interface{},
 	if len(queryObject.Paths) > 0 {
 		ors := bson.A{}
 		for _, pa := range queryObject.Paths {
-			ors = append(ors, bson.M{"path": bson.M{"$regex": bsonx.Regex("^"+pa+"$", "i")}})
+			ors = append(ors, bson.M{"path": bson.M{"$regex": primitive.Regex{Pattern: "^" + pa + "$", Options: "i"}}})
 		}
 		filters = append(filters, bson.E{Key: "$or", Value: ors})
 
 	} else if len(queryObject.PathPrefix) > 0 {
 		ors := bson.A{}
 		for _, prefix := range queryObject.PathPrefix {
-			ors = append(ors, bson.M{"path": bson.M{"$regex": bsonx.Regex("^"+prefix, "i")}})
+			ors = append(ors, bson.M{"path": bson.M{"$regex": primitive.Regex{Pattern: "^" + prefix, Options: "i"}}})
 		}
 		filters = append(filters, bson.E{Key: "$or", Value: ors})
 	}

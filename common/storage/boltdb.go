@@ -2,9 +2,13 @@ package storage
 
 import (
 	"context"
+	"strings"
+	"time"
+
+	"go.etcd.io/bbolt"
+
 	servercontext "github.com/pydio/cells/v4/common/server/context"
 	servicecontext "github.com/pydio/cells/v4/common/service/context"
-	"go.etcd.io/bbolt"
 )
 
 var (
@@ -31,6 +35,22 @@ func (s *boltdbStorage) Provides(conn any) bool {
 	}
 
 	return false
+}
+
+func (s *boltdbStorage) GetConn(str string) (any, bool) {
+	if strings.HasPrefix(str, "boltdb") {
+		options := bbolt.DefaultOptions
+		options.Timeout = 5 * time.Second
+
+		conn, err := bbolt.Open(strings.TrimPrefix(str, "boltdb://"), 0644, options)
+		if err != nil {
+			return nil, false
+		}
+
+		return conn, true
+	}
+
+	return nil, false
 }
 
 func (s *boltdbStorage) Register(conn any, tenant string, service string) {

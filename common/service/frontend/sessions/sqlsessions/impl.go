@@ -6,20 +6,19 @@ import (
 	"encoding/gob"
 	"errors"
 	"fmt"
-	"go.uber.org/zap"
 	"net/http"
 	"net/url"
 	"time"
 
 	"github.com/gorilla/securecookie"
 	"github.com/gorilla/sessions"
-	migrate "github.com/rubenv/sql-migrate"
+	"go.uber.org/zap"
+	"gorm.io/gorm"
 
+	"github.com/pydio/cells/v4/common/dao"
 	"github.com/pydio/cells/v4/common/log"
 	"github.com/pydio/cells/v4/common/service/frontend/sessions/utils"
-	"github.com/pydio/cells/v4/common/sql"
 	"github.com/pydio/cells/v4/common/utils/configx"
-	"github.com/pydio/cells/v4/common/utils/statics"
 )
 
 var (
@@ -47,7 +46,8 @@ func init() {
 }
 
 type Impl struct {
-	sql.DAO
+	dao.DAO
+	DB      *gorm.DB
 	Codecs  []securecookie.Codec
 	Options *sessions.Options
 }
@@ -72,25 +72,25 @@ func (h *Impl) Init(ctx context.Context, options configx.Values) error {
 	h.Codecs = securecookie.CodecsFromPairs(keys)
 
 	// Doing the database migrations
-	migrations := &sql.FSMigrationSource{
-		Box:         statics.AsFS(migrationsFS, "migrations"),
-		Dir:         h.Driver(),
-		TablePrefix: h.Prefix(),
-	}
+	//migrations := &sql.FSMigrationSource{
+	//	Box:         statics.AsFS(migrationsFS, "migrations"),
+	//	Dir:         h.Driver(),
+	//	TablePrefix: h.Prefix(),
+	//}
 
-	_, err := sql.ExecMigration(h.DB(), h.Driver(), migrations, migrate.Up, "idm_frontend")
-	if err != nil {
-		return err
-	}
-
-	// Preparing the db statements
-	if options.Val("prepare").Default(true).Bool() {
-		for key, query := range queries {
-			if err := h.Prepare(key, query); err != nil {
-				return err
-			}
-		}
-	}
+	//_, err := sql.ExecMigration(h.DB(), h.Driver(), migrations, migrate.Up, "idm_frontend")
+	//if err != nil {
+	//	return err
+	//}
+	//
+	//// Preparing the db statements
+	//if options.Val("prepare").Default(true).Bool() {
+	//	for key, query := range queries {
+	//		if err := h.Prepare(key, query); err != nil {
+	//			return err
+	//		}
+	//	}
+	//}
 
 	return nil
 }

@@ -26,22 +26,24 @@ import (
 	"database/sql"
 	"encoding/json"
 	"fmt"
-	"gorm.io/gorm"
-	"gorm.io/gorm/clause"
 	"sort"
 	"strings"
 	"sync"
 
 	"github.com/ory/ladon"
 	"github.com/ory/ladon/compiler"
+	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
 )
 
 var _ ladon.Manager = (*manager)(nil)
+
 var _ ladon.Manager = (*managerWithContext)(nil)
 
 type Manager interface {
 	WithContext(ctx context.Context) ladon.Manager
 	ladon.Manager
+	ladon.Warden
 }
 
 // Manager is a gorm implementation for Manager to store policies persistently.
@@ -242,6 +244,10 @@ func (m *manager) FindPoliciesForSubject(subject string) (ladon.Policies, error)
 
 func (m *manager) FindPoliciesForResource(resource string) (ladon.Policies, error) {
 	panic("manager should be be called without context")
+}
+
+func (m *manager) IsAllowed(r *ladon.Request) error {
+	panic("manager is not allowed")
 }
 
 func (s *managerWithContext) instance(ctx context.Context) *gorm.DB {

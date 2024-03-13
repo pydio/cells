@@ -35,7 +35,7 @@ func init() {
 	dao.RegisterDAODriver(Driver, NewDAO, func(ctx context.Context, driver, dsn string) dao.ConnDriver {
 		return new(BleveConfig)
 	})
-	dao.RegisterIndexerDriver(Driver, NewIndexer)
+	// dao.RegisterIndexerDriver(Driver, NewIndexer)
 }
 
 // DAO defines the functions specific to the boltdb dao

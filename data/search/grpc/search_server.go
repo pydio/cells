@@ -23,19 +23,21 @@ package grpc
 import (
 	"context"
 	"fmt"
-	"go.uber.org/zap"
 	"strings"
 	"sync"
+
+	"go.uber.org/zap"
 
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/broker"
 	"github.com/pydio/cells/v4/common/client/grpc"
 	"github.com/pydio/cells/v4/common/config"
+	dao2 "github.com/pydio/cells/v4/common/dao"
 	"github.com/pydio/cells/v4/common/log"
 	"github.com/pydio/cells/v4/common/nodes/meta"
 	protosync "github.com/pydio/cells/v4/common/proto/sync"
 	"github.com/pydio/cells/v4/common/proto/tree"
-	"github.com/pydio/cells/v4/common/service/context"
+	servicecontext "github.com/pydio/cells/v4/common/service/context"
 	"github.com/pydio/cells/v4/common/service/context/metadata"
 	"github.com/pydio/cells/v4/common/service/errors"
 	"github.com/pydio/cells/v4/common/utils/queue"
@@ -46,8 +48,8 @@ import (
 type SearchServer struct {
 	tree.UnimplementedSearcherServer
 	protosync.UnimplementedSyncEndpointServer
-	RuntimeCtx       context.Context
-	Engine           dao.SearchEngine
+	RuntimeCtx context.Context
+	// Engine           dao.SearchEngine
 	eventsChannel    chan *queue.TypeWithContext[*tree.NodeChangeEvent]
 	TreeClient       tree.NodeProviderClient
 	TreeClientStream tree.NodeProviderStreamerClient
@@ -88,19 +90,26 @@ func (s *SearchServer) processEvent(ctx context.Context, e *tree.NodeChangeEvent
 	log.Logger(ctx).Debug("processEvent", zap.Any("event", e))
 	excludes := s.NsProvider.ExcludeIndexes()
 
+	indexer := servicecontext.GetDAO[dao2.IndexDAO](ctx)
+	nsProvider := meta.NewNsProvider(ctx)
+	engine, err := dao.NewEngine(ctx, indexer, nsProvider, config.Get("services", Name))
+	if err != nil {
+		return
+	}
+
 	switch e.GetType() {
 	case tree.NodeChangeEvent_CREATE:
 		// Let's extract the basic information from the tree and store it
 		if e.Target.Etag == common.NodeFlagEtagTemporary || tree.IgnoreNodeForOutput(ctx, e.Target) {
 			break
 		}
-		s.Engine.IndexNode(ctx, e.Target, false, excludes)
+		engine.IndexNode(ctx, e.Target, false, excludes)
 	case tree.NodeChangeEvent_UPDATE_PATH:
 		// Let's extract the basic information from the tree and store it
 		if tree.IgnoreNodeForOutput(ctx, e.Target) {
 			break
 		}
-		s.Engine.IndexNode(ctx, e.Target, false, excludes)
+		engine.IndexNode(ctx, e.Target, false, excludes)
 		if !e.Target.IsLeaf() {
 			go s.ReindexFolder(ctx, e.Target, excludes)
 		}
@@ -109,25 +118,25 @@ func (s *SearchServer) processEvent(ctx context.Context, e *tree.NodeChangeEvent
 		if e.Target.Path != "" && tree.IgnoreNodeForOutput(ctx, e.Target) {
 			break
 		}
-		s.Engine.IndexNode(ctx, e.Target, false, excludes)
+		engine.IndexNode(ctx, e.Target, false, excludes)
 	case tree.NodeChangeEvent_UPDATE_USER_META:
 		// Let's extract the basic information from the tree and store it
 		if e.Target.Path != "" && tree.IgnoreNodeForOutput(ctx, e.Target) {
 			break
 		}
-		s.Engine.IndexNode(ctx, e.Target, true, excludes)
+		engine.IndexNode(ctx, e.Target, true, excludes)
 	case tree.NodeChangeEvent_UPDATE_CONTENT:
 		// We may have to store the metadata again
 		if tree.IgnoreNodeForOutput(ctx, e.Target) {
 			break
 		}
-		s.Engine.IndexNode(ctx, e.Target, false, excludes)
+		engine.IndexNode(ctx, e.Target, false, excludes)
 	case tree.NodeChangeEvent_DELETE:
 		// Lets delete all metadata
 		if tree.IgnoreNodeForOutput(ctx, e.Source) {
 			break
 		}
-		s.Engine.DeleteNode(ctx, e.Source)
+		engine.DeleteNode(ctx, e.Source)
 	default:
 		log.Logger(ctx).Error("Could not recognize event type", zap.Any("type", e.GetType()))
 	}
@@ -136,12 +145,20 @@ func (s *SearchServer) processEvent(ctx context.Context, e *tree.NodeChangeEvent
 func (s *SearchServer) Search(req *tree.SearchRequest, streamer tree.Searcher_SearchServer) error {
 
 	ctx := streamer.Context()
+
 	resultsChan := make(chan *tree.Node)
 	facetsChan := make(chan *tree.SearchFacet)
 	doneChan := make(chan bool)
 	defer close(resultsChan)
 	defer close(facetsChan)
 	defer close(doneChan)
+
+	indexer := servicecontext.GetDAO[dao2.IndexDAO](ctx)
+	nsProvider := meta.NewNsProvider(ctx)
+	engine, err := dao.NewEngine(ctx, indexer, nsProvider, config.Get("services", Name))
+	if err != nil {
+		return err
+	}
 
 	var treeStreamer tree.NodeProviderStreamer_ReadNodeStreamClient
 	defer func() {
@@ -208,8 +225,7 @@ func (s *SearchServer) Search(req *tree.SearchRequest, streamer tree.Searcher_Se
 		}
 	}()
 
-	err := s.Engine.SearchNodes(ctx, req.GetQuery(), req.GetFrom(), req.GetSize(), resultsChan, facetsChan, doneChan)
-	if err != nil {
+	if err := engine.SearchNodes(ctx, req.GetQuery(), req.GetFrom(), req.GetSize(), resultsChan, facetsChan, doneChan); err != nil {
 		return err
 	}
 
@@ -217,21 +233,28 @@ func (s *SearchServer) Search(req *tree.SearchRequest, streamer tree.Searcher_Se
 	return nil
 }
 
-func (s *SearchServer) TriggerResync(c context.Context, req *protosync.ResyncRequest) (*protosync.ResyncResponse, error) {
+func (s *SearchServer) TriggerResync(ctx context.Context, req *protosync.ResyncRequest) (*protosync.ResyncResponse, error) {
+
+	indexer := servicecontext.GetDAO[dao2.IndexDAO](ctx)
+	nsProvider := meta.NewNsProvider(ctx)
+	engine, err := dao.NewEngine(ctx, indexer, nsProvider, config.Get("services", Name))
+	if err != nil {
+		return nil, err
+	}
 
 	reqPath := strings.Trim(req.GetPath(), "/")
 	if reqPath == "" {
-		log.Logger(c).Info("Clearing search engine index before full re-indexation")
-		if e := s.Engine.ClearIndex(c); e != nil {
+		log.Logger(ctx).Info("Clearing search engine index before full re-indexation")
+		if e := engine.ClearIndex(ctx); e != nil {
 			return nil, e
 		}
-		log.Logger(c).Info("Clearing search engine : done")
+		log.Logger(ctx).Info("Clearing search engine : done")
 	}
 	var roots []*tree.Node
 	if len(reqPath) > 0 {
 		// Use reqPath as first level
 		roots = append(roots, &tree.Node{Path: reqPath})
-		log.Logger(c).Info("Will Re-Index DataSource " + reqPath)
+		log.Logger(ctx).Info("Will Re-Index DataSource " + reqPath)
 	} else {
 		// List all Datasources
 		dss := config.SourceNamesForDataServices(common.ServiceDataSync)
@@ -258,13 +281,13 @@ func (s *SearchServer) TriggerResync(c context.Context, req *protosync.ResyncReq
 				wg.Done()
 				<-throttle
 			}()
-			log.Logger(c).Info("Start Reindexing DataSource " + ro.GetPath())
+			log.Logger(ctx).Info("Start Reindexing DataSource " + ro.GetPath())
 			dsStream, err := s.getTreeClient().ListNodes(bg, &tree.ListNodesRequest{
 				Node:      ro,
 				Recursive: true,
 			})
 			if err != nil {
-				log.Logger(c).Error("Could not list nodes"+err.Error(), zap.Error(err))
+				log.Logger(ctx).Error("Could not list nodes"+err.Error(), zap.Error(err))
 				return
 			}
 			var count int
@@ -273,22 +296,29 @@ func (s *SearchServer) TriggerResync(c context.Context, req *protosync.ResyncReq
 				if e != nil || response == nil {
 					break
 				}
-				if !strings.HasPrefix(response.Node.GetUuid(), "DATASOURCE:") && !tree.IgnoreNodeForOutput(c, response.Node) {
-					s.Engine.IndexNode(bg, response.Node, false, excludes)
+				if !strings.HasPrefix(response.Node.GetUuid(), "DATASOURCE:") && !tree.IgnoreNodeForOutput(ctx, response.Node) {
+					engine.IndexNode(bg, response.Node, false, excludes)
 					count++
 					if count%5000 == 0 {
-						log.Logger(c).Info(fmt.Sprintf("[%s] Current Indexation: %d nodes", ro.GetPath(), count))
+						log.Logger(ctx).Info(fmt.Sprintf("[%s] Current Indexation: %d nodes", ro.GetPath(), count))
 					}
 				}
 			}
-			log.Logger(c).Info(fmt.Sprintf("[%s] Total Indexed : %d nodes", ro.GetPath(), count))
+			log.Logger(ctx).Info(fmt.Sprintf("[%s] Total Indexed : %d nodes", ro.GetPath(), count))
 		}(root)
 	}
 
 	return &protosync.ResyncResponse{Success: true}, nil
 }
 
-func (s *SearchServer) ReindexFolder(c context.Context, node *tree.Node, excludes map[string]struct{}) {
+func (s *SearchServer) ReindexFolder(ctx context.Context, node *tree.Node, excludes map[string]struct{}) {
+
+	indexer := servicecontext.GetDAO[dao2.IndexDAO](ctx)
+	nsProvider := meta.NewNsProvider(ctx)
+	engine, err := dao.NewEngine(ctx, indexer, nsProvider, config.Get("services", Name))
+	if err != nil {
+		return
+	}
 
 	s.ReIndexThrottler <- struct{}{}
 	defer func() {
@@ -300,7 +330,7 @@ func (s *SearchServer) ReindexFolder(c context.Context, node *tree.Node, exclude
 		Recursive: true,
 	})
 	if err != nil {
-		log.Logger(c).Error("ReindexFolder", zap.Error(err))
+		log.Logger(ctx).Error("ReindexFolder", zap.Error(err))
 		return
 	}
 	var count int
@@ -309,13 +339,13 @@ func (s *SearchServer) ReindexFolder(c context.Context, node *tree.Node, exclude
 		if e != nil || response == nil {
 			break
 		}
-		if !strings.HasPrefix(response.Node.GetUuid(), "DATASOURCE:") && !tree.IgnoreNodeForOutput(c, response.Node) {
-			_ = s.Engine.IndexNode(bg, response.Node, false, excludes)
+		if !strings.HasPrefix(response.Node.GetUuid(), "DATASOURCE:") && !tree.IgnoreNodeForOutput(ctx, response.Node) {
+			_ = engine.IndexNode(bg, response.Node, false, excludes)
 			count++
 		}
 	}
 	if count > 0 {
-		log.Logger(c).Info(fmt.Sprintf("Search Server re-indexed %d folders", count))
+		log.Logger(ctx).Info(fmt.Sprintf("Search Server re-indexed %d folders", count))
 	}
 
 }

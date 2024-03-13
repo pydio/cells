@@ -80,6 +80,8 @@ const (
 	KeyLogJson   = "log_json"
 	KeyLogToFile = "log_to_file"
 
+	KeySet = "set"
+
 	KeyEnableMetrics    = "enable_metrics"
 	KeyMetricsBasicAuth = "metrics_basic_auth"
 	KeyEnablePprof      = "enable_pprof"

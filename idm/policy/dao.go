@@ -23,17 +23,18 @@ package policy
 
 import (
 	"context"
-	"gorm.io/gorm"
 
 	"github.com/ory/ladon"
+	"gorm.io/gorm"
 
 	"github.com/pydio/cells/v4/common/proto/idm"
 )
 
 type DAO interface {
-	ladon.Warden
+	// ladon.Warden
 	ladon.Manager
 
+	IsAllowed(ctx context.Context, r *ladon.Request) error
 	StorePolicyGroup(ctx context.Context, group *idm.PolicyGroup) (*idm.PolicyGroup, error)
 	ListPolicyGroups(ctx context.Context, filter string) ([]*idm.PolicyGroup, error)
 	DeletePolicyGroup(ctx context.Context, group *idm.PolicyGroup) error

@@ -2,10 +2,14 @@ package storage
 
 import (
 	"context"
+	"strings"
+
+	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
+
 	"github.com/pydio/cells/v4/common/dao/mongodb"
 	servercontext "github.com/pydio/cells/v4/common/server/context"
 	servicecontext "github.com/pydio/cells/v4/common/service/context"
-	"go.mongodb.org/mongo-driver/mongo"
 )
 
 var (
@@ -46,6 +50,21 @@ func (s *mongoStorage) Register(conn any, tenant string, service string) {
 		tenant:  tenant,
 		service: service,
 	})
+}
+
+func (s *mongoStorage) GetConn(str string) (any, bool) {
+	for _, mongoType := range mongoTypes {
+		if strings.HasPrefix(str, mongoType) {
+			client, err := mongo.Connect(context.TODO(), options.Client().ApplyURI(str))
+			if err != nil {
+				return nil, false
+			}
+
+			return client, true
+		}
+	}
+
+	return nil, false
 }
 
 func (s *mongoStorage) Get(ctx context.Context, out interface{}) bool {

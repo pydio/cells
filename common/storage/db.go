@@ -1,6 +1,8 @@
 package storage
 
-import "context"
+import (
+	"context"
+)
 
 type ProviderFunc func() Storage
 
@@ -9,6 +11,7 @@ type Provider interface {
 }
 
 type Storage interface {
+	GetConn(str string) (any, bool)
 	Provides(conn any) bool
 	Register(conn any, tenant string, service string)
 	Get(ctx context.Context, out interface{}) bool
@@ -24,6 +27,16 @@ func Provides(conn any) bool {
 	}
 
 	return false
+}
+
+func RegisterURL(str string, tenant string, service string) error {
+	for _, storage := range storages {
+		if conn, ok := storage.GetConn(str); ok {
+			storage.Register(conn, tenant, service)
+		}
+	}
+
+	return nil
 }
 
 func Register(conn any, tenant string, service string) {

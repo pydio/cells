@@ -48,6 +48,7 @@ import (
 	"github.com/pydio/cells/v4/common/registry/util"
 	"github.com/pydio/cells/v4/common/runtime"
 	"github.com/pydio/cells/v4/common/server"
+	servercontext "github.com/pydio/cells/v4/common/server/context"
 	"github.com/pydio/cells/v4/common/server/middleware"
 	"github.com/pydio/cells/v4/common/service"
 	servicecontext "github.com/pydio/cells/v4/common/service/context"
@@ -182,6 +183,9 @@ func (s *Server) lazyGrpc(ctx context.Context) *grpc.Server {
 							return nil, errors.New("storage handler should have only 1 argument")
 						}
 
+						cfg := servercontext.GetConfig(ctx)
+						cfg.Val("services", svc.Name(), "db", "driver")
+
 						db := reflect.New(handlerT.In(0))
 						storage.Get(ctx, db.Interface())
 
@@ -194,13 +198,6 @@ func (s *Server) lazyGrpc(ctx context.Context) *grpc.Server {
 						dao := handlerV.Call([]reflect.Value{db.Elem()})
 
 						ctx = servicecontext.WithDAO(ctx, dao[0].Interface())
-
-						//field := reflect.ValueOf(ep.Handler()).Elem().FieldByName(store.Key)
-						//if field.CanSet() {
-						//	if dao[0].IsValid() {
-						//		field.Set(dao[0])
-						//	}
-						//}
 					}
 
 					method := info.FullMethod[strings.LastIndex(info.FullMethod, "/")+1:]
@@ -292,7 +289,8 @@ func (s *Server) lazyGrpc(ctx context.Context) *grpc.Server {
 						}
 
 						db := reflect.New(handlerT.In(0))
-						storage.Get(ctx, db.Interface())
+						if !storage.Get(ctx, db.Interface()) {
+						}
 
 						dao := handlerV.Call([]reflect.Value{db.Elem()})
 

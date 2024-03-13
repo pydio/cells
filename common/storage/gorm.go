@@ -3,13 +3,14 @@ package storage
 import (
 	"context"
 	"database/sql"
-	"gorm.io/gorm/logger"
+	"strings"
 	"sync"
 
 	"gorm.io/driver/mysql"
 	"gorm.io/driver/postgres"
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
+	"gorm.io/gorm/logger"
 
 	cellsmysql "github.com/pydio/cells/v4/common/dao/mysql"
 	cellspostgres "github.com/pydio/cells/v4/common/dao/pgsql"
@@ -42,6 +43,21 @@ func (gs *gormStorage) Provides(conn any) bool {
 	}
 
 	return true
+}
+
+func (s *gormStorage) GetConn(str string) (any, bool) {
+	for _, gormType := range gormTypes {
+		if strings.HasPrefix(str, gormType+"://") {
+			db, err := sql.Open(gormType, strings.TrimPrefix(str, gormType+"://"))
+			if err != nil {
+				return nil, false
+			}
+
+			return db, true
+		}
+	}
+
+	return nil, false
 }
 
 func (gs *gormStorage) Register(conn any, tenant string, service string) {

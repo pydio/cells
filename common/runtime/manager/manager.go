@@ -22,7 +22,6 @@ package manager
 
 import (
 	"context"
-	"database/sql"
 	_ "embed"
 	"fmt"
 	"io"
@@ -231,6 +230,14 @@ func (m *manager) ServeAll(oo ...server.ServeOption) error {
 
 		store.Set([]byte(b.String()))
 
+		for _, pair := range runtime.GetStringSlice(runtime.KeySet) {
+			kv := strings.SplitN(pair, "=", 2)
+			if len(kv) != 2 {
+				return nil
+			}
+			store.Val(kv[0]).Set(kv[1])
+		}
+
 		return nil
 	}
 
@@ -390,16 +397,67 @@ func (m *manager) ServeAll(oo ...server.ServeOption) error {
 			}
 		}()
 	} else {
+		if err := reset(nil); err != nil {
+			return err
+		}
 
-		// TODO - connections
+		go func() {
+			w, err := store.Watch(configx.WithPath("processes", runtime.GetString(runtime.KeyName), "*"))
+			if err != nil {
+				return
+			}
+
+			for {
+				diff, err := w.Next()
+				if err != nil {
+					return
+				}
+
+				connections := diff.(configx.Values).Val("processes", runtime.GetString(runtime.KeyName), "connections")
+
+				// Adding connections to the environment
+				for k := range connections.Map() {
+					storage.RegisterURL(connections.Val(k, "uri").String(), "", "")
+				}
+			}
+		}()
+
+		go func() {
+			r := runtime.GetRuntime()
+			conf, err := config.OpenStore(m.ctx, r.GetString(runtime.KeyConfig))
+			if err != nil {
+				fmt.Println("Error is ", err)
+			}
+
+			reset(conf)
+
+			res, err := conf.Watch()
+			if err != nil {
+				fmt.Println("Error is there ", err)
+				return
+			}
+
+			fmt.Println("We have an update")
+
+			for {
+				_, err := res.Next()
+				if err != nil {
+					return
+				}
+
+				fmt.Println("Received update here !! ")
+
+				reset(conf)
+			}
+		}()
 
 		// SQL
-		dsn := strings.Split(os.Getenv("CELLS_SQL"), "://")
-		db, err := sql.Open(dsn[0], dsn[1])
-		if err != nil {
-			panic(err)
-		}
-		storage.Register(db, "", "")
+		//dsn := strings.Split(os.Getenv("CELLS_SQL"), "://")
+		//db, err := sql.Open(dsn[0], dsn[1])
+		//if err != nil {
+		//	panic(err)
+		//}
+		//storage.Register(db, "", "")
 
 		m.servers = map[string]server.Server{}
 		m.services = map[string]service.Service{}

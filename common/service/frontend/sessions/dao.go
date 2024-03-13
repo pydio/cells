@@ -11,14 +11,11 @@ import (
 	"github.com/pydio/cells/v4/common/config"
 	"github.com/pydio/cells/v4/common/dao"
 	"github.com/pydio/cells/v4/common/log"
-	"github.com/pydio/cells/v4/common/service/frontend/sessions/securecookie"
-	"github.com/pydio/cells/v4/common/service/frontend/sessions/sqlsessions"
 	"github.com/pydio/cells/v4/common/service/frontend/sessions/utils"
-	"github.com/pydio/cells/v4/common/sql"
 	"github.com/pydio/cells/v4/common/utils/configx"
 )
 
-func NewDAO(ctx context.Context, o dao.DAO) (dao.DAO, error) {
+func NewCookieDAO() DAO {
 
 	timeout := config.Get("frontend", "plugin", "gui.ajax", "SESSION_TIMEOUT").Default(60).Int()
 	defaultOptions := &sessions.Options{
@@ -27,36 +24,44 @@ func NewDAO(ctx context.Context, o dao.DAO) (dao.DAO, error) {
 		HttpOnly: true,
 	}
 
-	switch v := o.(type) {
-	case securecookie.DAO:
-		ci := &cookiesImpl{}
-		ci.DAO = v
-		ci.storeFactory = func(u *url.URL, keyPairs ...[]byte) (sessions.Store, error) {
-			cs := sessions.NewCookieStore(keyPairs...)
-			cs.Options = &sessions.Options{
-				Path:     defaultOptions.Path,
-				MaxAge:   defaultOptions.MaxAge,
-				HttpOnly: defaultOptions.HttpOnly,
-			}
-			if u.Scheme == "https" {
-				cs.Options.Secure = true
-			}
-			cs.Options.Domain = u.Hostname()
-			return cs, nil
+	ci := &cookiesImpl{}
+	ci.storeFactory = func(u *url.URL, keyPairs ...[]byte) (sessions.Store, error) {
+		cs := sessions.NewCookieStore(keyPairs...)
+		cs.Options = &sessions.Options{
+			Path:     defaultOptions.Path,
+			MaxAge:   defaultOptions.MaxAge,
+			HttpOnly: defaultOptions.HttpOnly,
 		}
-		return ci, nil
-	case sql.DAO:
-		return &sqlsessions.Impl{
-			DAO:     v,
-			Options: defaultOptions,
-		}, nil
-	default:
-		return nil, dao.UnsupportedDriver(o)
+		if u.Scheme == "https" {
+			cs.Options.Secure = true
+		}
+		cs.Options.Domain = u.Hostname()
+		return cs, nil
 	}
+
+	ci.sessionStores = make(map[string]sessions.Store)
+	if k, e := utils.LoadKey(); e == nil {
+		ci.secureKeyPairs = k
+	}
+
+	return ci
 }
 
+//func NewSQLDAO(db *gorm.DB) DAO {
+//	timeout := config.Get("frontend", "plugin", "gui.ajax", "SESSION_TIMEOUT").Default(60).Int()
+//	defaultOptions := &sessions.Options{
+//		Path:     "/a/frontend",
+//		MaxAge:   60 * timeout,
+//		HttpOnly: true,
+//	}
+//
+//	return &sqlsessions.Impl{
+//		DB:      db,
+//		Options: defaultOptions,
+//	}
+//}
+
 type DAO interface {
-	dao.DAO
 	GetSession(r *http.Request) (*sessions.Session, error)
 	DeleteExpired(ctx context.Context, logger log.ZapLogger)
 }

@@ -70,7 +70,7 @@ func (h *Handler) IsAllowed(ctx context.Context, request *idm.PolicyEngineReques
 			Context:  reqContext,
 		}
 
-		if err := dao.IsAllowed(ladonRequest); err == nil {
+		if err := dao.IsAllowed(ctx, ladonRequest); err == nil {
 			// Explicit allow
 			allowed = true
 		} else if strings.Contains(err.Error(), "Request was denied by default") {
@@ -200,5 +200,4 @@ func (h *Handler) DeletePolicyGroup(ctx context.Context, request *idm.DeletePoli
 	_ = broker.Publish(ctx, common.TopicIdmPolicies, &idm.ChangeEvent{Type: idm.ChangeEventType_UPDATE})
 
 	return response, nil
-
 }

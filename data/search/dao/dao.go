@@ -25,10 +25,10 @@ import (
 	"context"
 
 	"github.com/pydio/cells/v4/common/dao"
-	"github.com/pydio/cells/v4/common/dao/bleve"
 	"github.com/pydio/cells/v4/common/dao/mongodb"
 	"github.com/pydio/cells/v4/common/nodes/meta"
 	"github.com/pydio/cells/v4/common/proto/tree"
+	"github.com/pydio/cells/v4/common/storage/bleve"
 	"github.com/pydio/cells/v4/common/utils/configx"
 	bleve2 "github.com/pydio/cells/v4/data/search/dao/bleve"
 	"github.com/pydio/cells/v4/data/search/dao/mongo"
@@ -42,23 +42,34 @@ type SearchEngine interface {
 	Close() error
 }
 
-func NewDAO(ctx context.Context, o dao.DAO) (dao.DAO, error) {
-	switch v := o.(type) {
-	case *bleve.Indexer:
-		v.SetCodex(&bleve2.Codec{})
-		return v, nil
-	case *mongodb.Indexer:
-		v.SetCollection(mongo.Collection)
-		v.SetCodex(&mongo.Codex{})
-		return v, nil
-	}
-	return nil, dao.UnsupportedDriver(o)
-
+func NewBleveDAO(v bleve.Indexer) bleve.IndexDAO {
+	v.SetCodex(&bleve2.Codec{})
+	return bleve.NewDAO(v)
 }
+
+func NewMongoDAO(v *mongodb.Indexer) dao.IndexDAO {
+	v.SetCollection(mongo.Collection)
+	v.SetCodex(&mongo.Codex{})
+	return v
+}
+
+//func NewDAO(ctx context.Context, o dao.DAO) (dao.DAO, error) {
+//	switch v := o.(type) {
+//	case *bleve.Indexer:
+//		v.SetCodex(&bleve2.Codec{})
+//		return v, nil
+//	case *mongodb.Indexer:
+//		v.SetCollection(mongo.Collection)
+//		v.SetCodex(&mongo.Codex{})
+//		return v, nil
+//	}
+//	return nil, dao.UnsupportedDriver(o)
+//
+//}
 
 func NewQueryCodec(indexDAO dao.IndexDAO, values configx.Values, metaProvider *meta.NsProvider) dao.IndexCodex {
 	switch indexDAO.(type) {
-	case *bleve.Indexer:
+	case bleve.IndexDAO:
 		return bleve2.NewQueryCodec(values, metaProvider)
 	case *mongodb.Indexer:
 		return &mongo.Codex{

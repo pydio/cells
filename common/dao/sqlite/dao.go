@@ -23,10 +23,12 @@ package sqlite
 import (
 	"context"
 	"database/sql"
+	"regexp"
+
 	sqlite3 "github.com/mattn/go-sqlite3"
+
 	"github.com/pydio/cells/v4/common/dao"
 	commonsql "github.com/pydio/cells/v4/common/sql"
-	"regexp"
 )
 
 const (
@@ -45,7 +47,14 @@ func init() {
 	sql.Register(Driver,
 		&sqlite3.SQLiteDriver{
 			ConnectHook: func(conn *sqlite3.SQLiteConn) error {
-				return conn.RegisterFunc("regexp_like", regex, true)
+				if err := conn.RegisterFunc("regexp_like", regex, true); err != nil {
+					return err
+				}
+				if err := conn.RegisterFunc("REGEXP_LIKE", regex, true); err != nil {
+					return err
+				}
+
+				return nil
 			},
 		})
 

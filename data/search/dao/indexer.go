@@ -24,13 +24,14 @@ package dao
 import (
 	"context"
 	"fmt"
-	"github.com/pydio/cells/v4/common"
-	"github.com/pydio/cells/v4/common/config"
-	"github.com/pydio/cells/v4/common/log"
-	"go.uber.org/zap"
 	"time"
 
+	"go.uber.org/zap"
+
+	"github.com/pydio/cells/v4/common"
+	"github.com/pydio/cells/v4/common/config"
 	"github.com/pydio/cells/v4/common/dao"
+	"github.com/pydio/cells/v4/common/log"
 	"github.com/pydio/cells/v4/common/nodes"
 	"github.com/pydio/cells/v4/common/nodes/meta"
 	"github.com/pydio/cells/v4/common/proto/tree"
@@ -70,6 +71,7 @@ func NewEngine(ctx context.Context, indexer dao.IndexDAO, nsProvider *meta.NsPro
 	}
 	go server.watchOperations()
 	go server.watchConfigs(ctx)
+
 	return server, nil
 }
 
@@ -127,8 +129,10 @@ func (s *Server) watchConfigs(ctx context.Context) {
 		if err != nil {
 			break
 		}
+
 		s.confChan <- config.Get("services", serviceName)
 	}
+
 	watcher.Stop()
 }
 
@@ -138,7 +142,6 @@ func (s *Server) Close() error {
 }
 
 func (s *Server) IndexNode(c context.Context, n *tree.Node, reloadCore bool, excludes map[string]struct{}) error {
-
 	if n.GetUuid() == "" {
 		return fmt.Errorf("missing uuid")
 	}
@@ -157,7 +160,6 @@ func (s *Server) IndexNode(c context.Context, n *tree.Node, reloadCore bool, exc
 }
 
 func (s *Server) DeleteNode(c context.Context, n *tree.Node) error {
-
 	s.deletes <- n.GetUuid()
 	return nil
 
@@ -170,7 +172,6 @@ func (s *Server) ClearIndex(ctx context.Context) error {
 }
 
 func (s *Server) SearchNodes(c context.Context, queryObject *tree.Query, from int32, size int32, resultChan chan *tree.Node, facets chan *tree.SearchFacet, doneChan chan bool) error {
-
 	accu := NewQueryCodec(s.Engine, s.configs, s.nsProvider)
 
 	searchResult, err := s.Engine.FindMany(c, queryObject, from, size, accu)
@@ -198,5 +199,4 @@ func (s *Server) SearchNodes(c context.Context, queryObject *tree.Query, from in
 
 	doneChan <- true
 	return nil
-
 }

@@ -29,6 +29,7 @@ type StorageOptions struct {
 	Key              string
 	SupportedDrivers []string
 	Handler          any
+	Default          bool
 	DefaultDriver    dao.DriverProviderFunc
 	Migrator         dao.MigratorFunc
 	prefix           interface{}
@@ -78,6 +79,12 @@ func WithStoragePrefix(i interface{}) StorageOption {
 func WithStorageSupport(dd ...string) StorageOption {
 	return func(options *StorageOptions) {
 		options.SupportedDrivers = append(options.SupportedDrivers, dd...)
+	}
+}
+
+func Default(b bool) StorageOption {
+	return func(options *StorageOptions) {
+		options.Default = true
 	}
 }
 

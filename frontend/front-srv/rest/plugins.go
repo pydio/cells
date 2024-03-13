@@ -32,7 +32,7 @@ import (
 	"github.com/pydio/cells/v4/common/service"
 	"github.com/pydio/cells/v4/common/service/frontend"
 	"github.com/pydio/cells/v4/common/service/frontend/sessions"
-	"github.com/pydio/cells/v4/frontend/front-srv"
+	front_srv "github.com/pydio/cells/v4/frontend/front-srv"
 	"github.com/pydio/cells/v4/frontend/front-srv/rest/modifiers"
 )
 
@@ -117,13 +117,15 @@ func init() {
 			service.PluginBoxes(BasePluginsBox),
 			service.WithStorage(
 				"DAO",
-				sessions.NewDAO,
-				service.WithStorageDefaultDriver(func() (string, string) {
-					return "securecookie", ""
-				}),
-				service.WithStorageSupport("securecookie", "mysql"),
+				sessions.NewCookieDAO,
+				service.Default(true),
 				service.WithStoragePrefix("idm_frontend_"),
 			),
+			//service.WithStorage(
+			//	"DAO",
+			//	sessions.NewSQLDAO,
+			//	service.WithStoragePrefix("idm_frontend_"),
+			//),
 			service.WithWebSession("POST:/frontend/binaries"),
 			service.WithWeb(func(c context.Context) service.WebHandler {
 				//dao := servicecontext.GetDAO(c)
@@ -141,5 +143,4 @@ func init() {
 	if os.Getenv("CELLS_ENABLE_FORMS_DEVEL") == "1" {
 		config.RegisterExposedConfigs("pydio.rest.forms-devel", formDevelConfigs)
 	}
-
 }

@@ -21,7 +21,7 @@ tenants:
       logs:
         uri: file://stdout
       sql:
-        uri: sqlite3://:memory
+        uri: sqlite3_extended://:memory
       nosql:
 
 connections: &connections
@@ -34,7 +34,7 @@ connections: &connections
   logs:
     uri: file://stdout
   sql:
-    uri: sqlite3://:memory
+    uri: sqlite3_extended://:memory
 
 #--------------------------------------------
 # Default servers configuration
@@ -114,6 +114,8 @@ processes:
     runtime: discovery
     connections:
       <<: *connections
+      search:
+        uri: bleve:///Users/ghecquet/Library/Application Support/Pydio/cells/search
       config:
         uri: file:///Users/ghecquet/Library/Application Support/Pydio/cells/pydio.json
       registry:
