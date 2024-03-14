@@ -12,7 +12,7 @@
     "other": "Templates"
   },
   "PolicyGroup.ACLSample1.Title": {
-    "other": "[Example] Complex ACL Policy"
+    "other": "Complex ACL Policy"
   },
   "PolicyGroup.ACLSample1.Description": {
     "other": "Sample Complex Policy for managing ACLs dynamically"
@@ -28,7 +28,7 @@
   },
 
   "PolicyGroup.ACLSamplePeriod.Title": {
-    "other": "[Example] Limited Period"
+    "other": "Limited Period"
   },
   "PolicyGroup.ACLSamplePeriod.Description": {
     "other": "Enables access to a workspace only for a given period"
@@ -38,7 +38,7 @@
   },
 
   "PolicyGroup.ACLSampleDateDisable.Title": {
-    "other": "[Example] No access after a given date"
+    "other": "No access after a given date"
   },
   "PolicyGroup.ACLSampleDateDisable.Description": {
     "other": "Disable access to a workspace after a given date"
@@ -51,7 +51,7 @@
   },
 
   "PolicyGroup.ACLSampleBusinessHours.Title": {
-    "other": "[Example] Access allowed only during business hours"
+    "other": "Access allowed only during business hours"
   },
   "PolicyGroup.ACLSampleBusinessHours.Description": {
     "other": "Enable access to a workspace only certain days within pre-defined hours"
@@ -61,7 +61,7 @@
   },
 
   "PolicyGroup.ACLSampleExternalIP.Title": {
-    "other": "[Example] Disable access based on IP"
+    "other": "Disable access based on IP"
   },
   "PolicyGroup.ACLSampleExternalIP.Description": {
     "other": "Disable access to IPs outside of LAN"
