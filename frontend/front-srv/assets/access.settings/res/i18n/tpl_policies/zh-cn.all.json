@@ -36,7 +36,7 @@
     "other": "ACL 规则示例，只允许在2018年2月和3月访问"
   },
   "PolicyGroup.ACLSampleDateDisable.Title": {
-    "other": "No access after a given date"
+    "other": "Scheduled Expiration"
   },
   "PolicyGroup.ACLSampleDateDisable.Description": {
     "other": "在给定日期后禁用访问工作区"
@@ -48,7 +48,7 @@
     "other": "如果日期在 2018-02-28 后，拒绝读写。"
   },
   "PolicyGroup.ACLSampleBusinessHours.Title": {
-    "other": "Access allowed only during business hours"
+    "other": "Business Hours"
   },
   "PolicyGroup.ACLSampleBusinessHours.Description": {
     "other": "在预定义的小时内只允许访问某个工作区"
@@ -57,7 +57,7 @@
     "other": "办公时间规则示例，允许读/写"
   },
   "PolicyGroup.ACLSampleExternalIP.Title": {
-    "other": "Disable access based on IP"
+    "other": "Filter IP Address"
   },
   "PolicyGroup.ACLSampleExternalIP.Description": {
     "other": "禁用访问局域网以外的 IP"

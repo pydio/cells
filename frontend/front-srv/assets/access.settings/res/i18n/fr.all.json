@@ -39,7 +39,7 @@
     "other": "Ajouter une source"
   },
   "110": {
-    "other": "Dépôts & Utilisateurs"
+    "other": "Workspaces & Utilisateurs"
   },
   "111": {
     "other": "Logs & Autres données"
@@ -285,7 +285,7 @@
     "other": "Résultat"
   },
   "25": {
-    "other": "Accès aux dépôts"
+    "other": "Accès aux workspaces"
   },
   "26": {
     "other": "Changer le mot de passe"
@@ -303,13 +303,13 @@
     "other": "Gestion des données"
   },
   "3": {
-    "other": "Dépôts"
+    "other": "Workspaces"
   },
   "30": {
     "other": "Ecrire"
   },
   "32": {
-    "other": "Plugin du dépôt"
+    "other": "Plugin du workspace"
   },
   "33": {
     "other": "Chargement ..."
@@ -318,7 +318,7 @@
     "other": "Êtes-vous sûr de vouloir effacer cet utilisateur? Cette opération est irréversible !"
   },
   "35": {
-    "other": "Êtes-vous sur de vouloir effacer ce dépôt? Cette opération est irréversible !"
+    "other": "Êtes-vous sur de vouloir effacer ce workspace ? Cette opération est irréversible !"
   },
   "36": {
     "other": "Des champs obligatoires ne sont pas remplis !"

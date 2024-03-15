@@ -36,7 +36,7 @@
     "other": "Пример ACL правила, разрешающий доступ только в Feb и March 2018"
   },
   "PolicyGroup.ACLSampleDateDisable.Title": {
-    "other": "No access after a given date"
+    "other": "Scheduled Expiration"
   },
   "PolicyGroup.ACLSampleDateDisable.Description": {
     "other": "Отключить доступ к workspace после заданной даты"
@@ -48,7 +48,7 @@
     "other": "Запретить чтение/запись, если дата после 2018-02-28"
   },
   "PolicyGroup.ACLSampleBusinessHours.Title": {
-    "other": "Access allowed only during business hours"
+    "other": "Business Hours"
   },
   "PolicyGroup.ACLSampleBusinessHours.Description": {
     "other": "Разрешить доступ к рабочему пространству только в определенные часы"
@@ -57,7 +57,7 @@
     "other": "Пример правила, разрешающего чтение/запись в рабочее время"
   },
   "PolicyGroup.ACLSampleExternalIP.Title": {
-    "other": "Disable access based on IP"
+    "other": "Filter IP Address"
   },
   "PolicyGroup.ACLSampleExternalIP.Description": {
     "other": "Отключить доступ к IP-адресам вне локальной сети"

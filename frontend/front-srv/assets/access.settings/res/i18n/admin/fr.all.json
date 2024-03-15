@@ -57,7 +57,7 @@
     "other": "Importer des données existantes"
   },
   "ds.format-picker.structured.legend": {
-    "other": "The tree structure is reflected in the storage and maintained in real-time synchronization. This legacy option is NOT recommended and should only be used for importing existing data. It is event-based and must not be used in high load or clustered installation."
+    "other": "L'arborescence des répertoires et des fichiers est visible dans le stockage et synchronisée en temps réel. Ce format est historique et n'est pas recommandé, il peut être utiliser ponctuellement pour importer des données existantes. Ne pas utiliser pour des gros volumes ou des déploiements en cluster."
   },
   "ds.format-picker.internal.title": {
     "other": "Format Interne"

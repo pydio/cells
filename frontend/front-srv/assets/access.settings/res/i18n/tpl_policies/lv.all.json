@@ -36,7 +36,7 @@
     "other": "ACL noteikumu paraugs, atļaut pieeju tikai Februārī un Martā 2018"
   },
   "PolicyGroup.ACLSampleDateDisable.Title": {
-    "other": "No access after a given date"
+    "other": "Scheduled Expiration"
   },
   "PolicyGroup.ACLSampleDateDisable.Description": {
     "other": "Atslēgt piekļuvi darbvirsmai pēc noteikta datuma"
@@ -48,7 +48,7 @@
     "other": "Aizliegt lasīt/rakstīt pēc 2018-02-28"
   },
   "PolicyGroup.ACLSampleBusinessHours.Title": {
-    "other": "Access allowed only during business hours"
+    "other": "Business Hours"
   },
   "PolicyGroup.ACLSampleBusinessHours.Description": {
     "other": "Ieslēgt piekļuvi darbvirsmai tikai noteiktās dienās ar iepriekš norādītiem darba laikiem"
@@ -57,7 +57,7 @@
     "other": "Darba laika noteikumu paraugs, ļauj lasīt/rakstīt"
   },
   "PolicyGroup.ACLSampleExternalIP.Title": {
-    "other": "Disable access based on IP"
+    "other": "Filter IP Address"
   },
   "PolicyGroup.ACLSampleExternalIP.Description": {
     "other": "Aizliegt piekļuvi IP adresēm kuras ir ārpus LAN tīkla"

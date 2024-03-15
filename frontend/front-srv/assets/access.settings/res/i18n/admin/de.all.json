@@ -2058,7 +2058,7 @@
     "other": "Ein neues Workspace oder eine Cell wurde erstellt."
   },
   "scheduler.trigger.workspace.update": {
-    "other": "Arbeitsbereich aktualisieren"
+    "other": "Workspace aktualisieren"
   },
   "scheduler.trigger.workspace.update.description": {
     "other": "Ein Workspace oder eine Cell wurde aktualisiert."

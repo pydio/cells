@@ -36,7 +36,7 @@
     "other": "ACLルールの例では、2018年2月と3月にのみアクセスを許可"
   },
   "PolicyGroup.ACLSampleDateDisable.Title": {
-    "other": "No access after a given date"
+    "other": "Scheduled Expiration"
   },
   "PolicyGroup.ACLSampleDateDisable.Description": {
     "other": "指定された日付の後にワークスペースへのアクセスを無効にする"
@@ -48,7 +48,7 @@
     "other": "日付が2018-02-28以降の場合は読み込み/書き込みを拒否する"
   },
   "PolicyGroup.ACLSampleBusinessHours.Title": {
-    "other": "Access allowed only during business hours"
+    "other": "Business Hours"
   },
   "PolicyGroup.ACLSampleBusinessHours.Description": {
     "other": "事前に定義された時間でワークスペースへのアクセスを有効にする"
@@ -57,7 +57,7 @@
     "other": "勤務時間ルールの例、読み取り/書き込みを許可"
   },
   "PolicyGroup.ACLSampleExternalIP.Title": {
-    "other": "Disable access based on IP"
+    "other": "Filter IP Address"
   },
   "PolicyGroup.ACLSampleExternalIP.Description": {
     "other": "LAN 以外へのIP へのアクセスを無効にする"
