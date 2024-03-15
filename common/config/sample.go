@@ -97,7 +97,9 @@ var SampleConfig = `{
         "pydio.grpc.search": {
             "indexContent": false,
 			"basenameAnalyzer": "standard",
-			"contentAnalyzer": "en"
+			"contentAnalyzer": "en",
+			"contentRef": "pydio:ContentRef",
+			"plainTextExtensions": "text,md"
         },
 		"pydio.grpc.policy": {
 			"dsn": "databaseParseTime"
