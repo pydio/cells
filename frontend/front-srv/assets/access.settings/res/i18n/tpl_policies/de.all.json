@@ -12,7 +12,7 @@
     "other": "Vorlagen"
   },
   "PolicyGroup.ACLSample1.Title": {
-    "other": "[Beispiel] Komplexe ACL-Richtlinie"
+    "other": "Komplexe ACL-Richtlinien"
   },
   "PolicyGroup.ACLSample1.Description": {
     "other": "Beispiel für eine komplexe Richtlinie zum dynamischen Verwalten von ACLs"
@@ -27,7 +27,7 @@
     "other": "Filtern Sie Dateien mit der Erweiterung PNG aus, wenn die Anforderung nicht von localhost stammt"
   },
   "PolicyGroup.ACLSamplePeriod.Title": {
-    "other": "[Example] Begrenzter Zeitraum"
+    "other": "Begrenzter Zeitraum"
   },
   "PolicyGroup.ACLSamplePeriod.Description": {
     "other": "Ermöglicht den Zugriff auf einen bestimmten Workspace nur für einen festgelegten Zeitraum"
@@ -36,7 +36,7 @@
     "other": "Beispiel für eine ACL-Regel, die den Zugriff nur im Februar und März 2018 erlaubt"
   },
   "PolicyGroup.ACLSampleDateDisable.Title": {
-    "other": "[Beispiel] Kein Zugriff nach einem bestimmten Datum"
+    "other": "Kein Zugriff nach einem bestimmten Datum"
   },
   "PolicyGroup.ACLSampleDateDisable.Description": {
     "other": "Den Zugriff auf einen Workspace nach einem bestimmten Datum deaktivieren"
@@ -48,7 +48,7 @@
     "other": "Lese- und Schreibzugriff verweigern, wenn das akuelle Datum nach 2018-02-28 liegt"
   },
   "PolicyGroup.ACLSampleBusinessHours.Title": {
-    "other": "[Example] Zugriff ist nur während der üblichen Geschäftszeiten erlaubt"
+    "other": "Zugriff nur während Geschäftszeiten erlaubt"
   },
   "PolicyGroup.ACLSampleBusinessHours.Description": {
     "other": "Zugriff auf einen Workspace nur an bestimmten Tagen innerhalb vordefinierter Stunden aktivieren"
@@ -57,7 +57,7 @@
     "other": "Geschäftszeiten Beispiel, ermöglicht Lese- und Schreibzugriff"
   },
   "PolicyGroup.ACLSampleExternalIP.Title": {
-    "other": "[Example] Deaktivieren Sie den Zugriff basierend auf IP-Adressen"
+    "other": "Deaktiviere Zugriff basierend auf IP"
   },
   "PolicyGroup.ACLSampleExternalIP.Description": {
     "other": "Zugriff auf IPs außerhalb LAN deaktivieren"

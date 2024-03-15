@@ -12,7 +12,7 @@
     "other": "Modèles"
   },
   "PolicyGroup.ACLSample1.Title": {
-    "other": "[Exemple] Règle d'ACL complexe"
+    "other": "ACL Complexes"
   },
   "PolicyGroup.ACLSample1.Description": {
     "other": "Exemple de règle permettant de décider dynamiquement d'un accès à un workspace"
@@ -27,7 +27,7 @@
     "other": "Laisser de côté tous les fichiers ayant une extension .png si la requête client ne vient pas de localhost"
   },
   "PolicyGroup.ACLSamplePeriod.Title": {
-    "other": "[Exemple] Période Limitée"
+    "other": "Durée limitée"
   },
   "PolicyGroup.ACLSamplePeriod.Description": {
     "other": "Exemple d'accès à un workspace pendant une période limitée"
@@ -36,7 +36,7 @@
     "other": "Accès autorisé seulement entre le 1er février et le 31 mars 2018"
   },
   "PolicyGroup.ACLSampleDateDisable.Title": {
-    "other": "[Exemple] Limite de date"
+    "other": "Date de début"
   },
   "PolicyGroup.ACLSampleDateDisable.Description": {
     "other": "Désactivation de l'accès après une date donnée"
@@ -48,7 +48,7 @@
     "other": "Restriction si la date est après le 2 février 2018"
   },
   "PolicyGroup.ACLSampleBusinessHours.Title": {
-    "other": "[Exemple] Horaires de bureau"
+    "other": "Horaires de bureau"
   },
   "PolicyGroup.ACLSampleBusinessHours.Description": {
     "other": "Autorisation d'accès seulement entre certaines heures"
@@ -57,7 +57,7 @@
     "other": "Autoriser l'accès entre 9:00 et 18:30 du lundi au vendredi"
   },
   "PolicyGroup.ACLSampleExternalIP.Title": {
-    "other": "[Exemple] Filtrage par adresse IP"
+    "other": "Filtrage par IP"
   },
   "PolicyGroup.ACLSampleExternalIP.Description": {
     "other": "Désactiver l'accès pour les IP hors du réseau local"

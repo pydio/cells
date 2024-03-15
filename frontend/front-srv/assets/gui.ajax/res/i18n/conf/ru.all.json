@@ -48,7 +48,7 @@
     "other": "Фоновые атрибуты (низкое разрешение)"
   },
   "Browser-based rich interface. Contains configurations for theming, custom welcome message, etc.": {
-    "other": "Browser-based rich interface. Contains configurations for theming, custom welcome message, etc."
+    "other": "Обширный интерфейс на основе браузера. Содержит настройки для оформления, сообщения приветствия и т.д."
   },
   "Center in Page (no-repeat)": {
     "other": "По центру страницы (без повтора)"
@@ -90,7 +90,7 @@
     "other": "Обнаруженный путь к серверу"
   },
   "Display Branding Tool": {
-    "other": "Display Branding Tool"
+    "other": "Показать инструмент брендинга"
   },
   "Enable Welcome Tour": {
     "other": "Включить приветственное сообщение"
@@ -99,43 +99,43 @@
     "other": "Включить небольшой маршрут, срабатывающий при первом посещении"
   },
   "Fetch Window (no repeat)": {
-    "other": "Fetch Window (no repeat)"
+    "other": "Получить окно (без повтора)"
   },
   "Fetch Window (repeat vertically)": {
-    "other": "Fetch Window (repeat vertically)"
+    "other": "Получить окно (повторять вертикально)"
   },
   "Font sized used for the title in the start up screen": {
     "other": "Размер шрифта для заголовка на экране запуска"
   },
   "Google Analytics": {
-    "other": "Google Analytics"
+    "other": "Аналитика Google"
   },
   "Google Analytics Analytics Domain": {
-    "other": "Google Analytics Analytics Domain"
+    "other": "Домен аналитики Google Analytics"
   },
   "Google Analytics Analytics Events": {
-    "other": "Google Analytics Analytics Events"
+    "other": "События аналитики Google Analytics"
   },
   "Google Analytics Analytics ID": {
-    "other": "Google Analytics Analytics ID"
+    "other": "ID аналитики Google Analytics"
   },
   "Height of the custom icon (with the px mention)": {
-    "other": "Height of the custom icon (with the px mention)"
+    "other": "Высота пользовательской иконки (с px)"
   },
   "Icon Height": {
-    "other": "Icon Height"
+    "other": "Высота иконки"
   },
   "Icon Only": {
-    "other": "Icon Only"
+    "other": "Только иконки"
   },
   "Icon Path (Legacy)": {
-    "other": "Icon Path (Legacy)"
+    "other": "Путь к иконке (унаследованный)"
   },
   "Icon Width": {
-    "other": "Icon Width"
+    "other": "Ширина иконки"
   },
   "Id of your GA account, something like UE-XXXX-YY": {
-    "other": "Id of your GA account, something like UE-XXXX-YY"
+    "other": "Id вашей учётной записи GA, что-то вроде UE-XXXX-YY"
   },
   "Image used as a background": {
     "other": "Изображение, используемое в качестве фона"
@@ -150,10 +150,10 @@
     "other": "Высота логотипа"
   },
   "Logo Left": {
-    "other": "Logo Left"
+    "other": "Логотип слева"
   },
   "Logo Top": {
-    "other": "Logo Top"
+    "other": "Логотип сверху"
   },
   "Logo Width": {
     "other": "Ширина логотипа"
@@ -183,108 +183,108 @@
     "other": "Минисайт"
   },
   "Minisite Logo": {
-    "other": "Minisite Logo"
+    "other": "Логотип мини-сайта"
   },
   "Number of MINUTES before the session expiration for issuing an alert to the user": {
     "other": "Количество МИНУТ до истечения сессии для отправки оповещения пользователю"
   },
   "Override default styles and colors with the options defined in the branding tool. Make sure to reload the interface if you toggle this option.": {
-    "other": "Override default styles and colors with the options defined in the branding tool. Make sure to reload the interface if you toggle this option."
+    "other": "Переопределить стили и цвета по умолчанию с параметрами, определенными в инструменте брендинга. Не забудьте перезагрузить интерфейс, если переключите эту опцию."
   },
   "Page Background Images": {
-    "other": "Page Background Images"
+    "other": "Фоновые изображения страницы"
   },
   "Replace the logo displayed in the welcome page": {
-    "other": "Replace the logo displayed in the welcome page"
+    "other": "Заменить логотип, отображаемый на странице приветствия"
   },
   "Replace the top left logo in the top toolbar": {
-    "other": "Replace the top left logo in the top toolbar"
+    "other": "Заменить верхний левый логотип в верхней панели инструментов"
   },
   "Set the domain for your analytics reports (not mandatory!)": {
-    "other": "Set the domain for your analytics reports (not mandatory!)"
+    "other": "Задайте домен для отчетов по аналитике (не обязательно!)"
   },
   "Set the domain for yuor analytics reports (not mandatory!)": {
-    "other": "Set the domain for your analytics reports (not mandatory!)"
+    "other": "Задайте домен для отчетов по аналитике (не обязательно!)"
   },
   "Set up some application parameters. If you enable Emails, please use the Test button to check if your php is correctly configured.": {
-    "other": "Set up some application parameters. If you enable Emails, please use the Test button to check if your php is correctly configured."
+    "other": "Настройте некоторые параметры приложения. Если вы включите электронную почту, пожалуйста, используйте кнопку Тест, чтобы проверить, правильно ли настроен ваш php."
   },
   "Show the palette on the interface to change the interface colors and logos. Make sure to reload the interface if you toggle this option.": {
-    "other": "Show the palette on the interface to change the interface colors and logos. Make sure to reload the interface if you toggle this option."
+    "other": "Показать палитру на интерфейсе для изменения цвета и логотипа интерфейса. Если включить эту опцию, перезагрузите интерфейс."
   },
   "Skip the title, only display an image": {
-    "other": "Skip the title, only display an image"
+    "other": "Пропустить заголовок, показывать только изображение"
   },
   "Start Up Screen": {
-    "other": "Start Up Screen"
+    "other": "Начальный экран"
   },
   "The length of the client session in SECONDS. By default, it's copying the server session length. In most PHP installation, it will be 1440, ie 24minutes. You can set this value to 0, this will make the client session 'infinite' by pinging the server at regular occasions (thus keeping the PHP session alive). This is not a recommanded setting for evident security reasons.": {
-    "other": "The length of the client session in SECONDS. The server session length will be used by default. In most PHP installations, the session length is set to 1440 seconds (24 minutes). You can set this value to 0. This will make the client session 'infinite' by pinging the server periodically. This keeps the PHP session alive. For evident security reasons, this is not a recommended setting."
+    "other": "Длина сессии клиента в SECONDS. По умолчанию будет использоваться длительность сессии сервера. В большинстве установок PHP длительность сессии устанавливается в 1440 секунд (24 минуты). Вы можете установить значение 0. Это сделает сеанс клиента 'бесконечным', показывая сервер периодически. Это сохраняет PHP сеанс в реальном времени. По очевидным причинам безопасности это не рекомендуемая настройка."
   },
   "Theme": {
-    "other": "Theme"
+    "other": "Тема"
   },
   "Theme used for display": {
-    "other": "Theme used for display"
+    "other": "Тема используемая для отображения"
   },
   "Tile (repeat both directions)": {
-    "other": "Tile (repeat both directions)"
+    "other": "Заголовок (повторить оба направления)"
   },
   "Title": {
-    "other": "Title"
+    "other": "Заголовок"
   },
   "Title Font Size": {
-    "other": "Title Font Size"
+    "other": "Размер шрифта заголовка"
   },
   "Top Toolbar": {
-    "other": "Top Toolbar"
+    "other": "Верхняя панель"
   },
   "Top-right logo displayed on minisite page": {
-    "other": "Top-right logo displayed on minisite page"
+    "other": "Верхний правый логотип отображается на странице напоминания"
   },
   "URI to a custom image to be used as start up logo": {
-    "other": "URI to a custom image to be used as start up logo"
+    "other": "URI пользовательского изображения для запуска логотипа"
   },
   "Use Events Logging, experimental only implemented on download action in Pydio": {
-    "other": "Use Events Logging, experimental only implemented on download action in Pydio"
+    "other": "Использовать журнал событий и экспериментальный режим только для загрузки на Pydio"
   },
   "Use configured branding": {
-    "other": "Use configured branding"
+    "other": "Использовать настроенный брендинг"
   },
   "User Home Logo": {
-    "other": "User Home Logo"
+    "other": "Логотип пользовательской главной страницы"
   },
   "Warning Before": {
-    "other": "Warning before session expires"
+    "other": "Предупреждение до окончания сессии"
   },
   "Web Session": {
-    "other": "Web Session"
+    "other": "Веб-сеанс"
   },
   "Web Interface auto-logout after inactivity": {
-    "other": "Web Interface auto-logout after inactivity"
+    "other": "Автоматический выход через веб-интерфейс после бездействия"
   },
   "For security, disconnect user if there was no activity. Set to the cookie expiration by default.": {
-    "other": "For security, disconnect user if there was no activity. Set to the cookie expiration by default."
+    "other": "В целях безопасности, отключите пользователя, если не было активности. По умолчанию установите истечение срока действия cookie."
   },
   "Welcome Message": {
-    "other": "Welcome Message"
+    "other": "Приветственное сообщение"
   },
   "Welcome Page": {
     "other": "Страница приветствия"
   },
   "Width of the custom image (by default 35px)": {
-    "other": "Width of the custom image (Default 35px)"
+    "other": "Ширина пользовательского изображения (По умолчанию 35px)"
   },
   "Alert the user that the web session is about to expire. Number of minutes before session expiration": {
-    "other": "Alert the user that the web session is about to expire. Number of minutes before session expiration"
+    "other": "Предупредите пользователя о истечении веб-сеанса. Количество минут до окончания сеанса"
   },
   "Warning Before Session Expiration": {
-    "other": "Warning Before Session Expiration"
+    "other": "Предупреждение до окончания сессии"
   },
   "Custom HTML Header": {
-    "other": "Custom HTML Header"
+    "other": "Пользовательский HTML заголовок"
   },
   "Custom HTML you want to be included in the pages header. Beware, make sure to put valid HTML here!": {
-    "other": "Custom HTML you want to be included in the pages header. Beware, make sure to put valid HTML here!"
+    "other": "Пользовательский HTML, который вы хотите включить в заголовок страницы. Будьте осторожны, убедитесь, что ввели правильный HTML здесь!"
   }
 }

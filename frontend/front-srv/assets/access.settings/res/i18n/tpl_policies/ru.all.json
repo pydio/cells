@@ -1,18 +1,18 @@
 {
   "PolicyGroup.Create": {
-    "other": "Create Policy"
+    "other": "Создать политику"
   },
   "PolicyGroup.Filter": {
-    "other": "Filter Templates..."
+    "other": "Шаблоны фильтров..."
   },
   "PolicyGroup.Create.Manual": {
-    "other": "Manual Creation"
+    "other": "Ручное создание"
   },
   "PolicyGroup.Create.Templates": {
-    "other": "Templates"
+    "other": "Шаблоны"
   },
   "PolicyGroup.ACLSample1.Title": {
-    "other": "[Example] Комплексная политика ACL"
+    "other": "Complex ACL Policy"
   },
   "PolicyGroup.ACLSample1.Description": {
     "other": "Пример комплексной политики для динамического управления ACL"
@@ -27,7 +27,7 @@
     "other": "Отфильтровать любой файл с расширением PNG, если запрос не приходит с локального хоста"
   },
   "PolicyGroup.ACLSamplePeriod.Title": {
-    "other": "[Example] Ограниченный период"
+    "other": "Limited Period"
   },
   "PolicyGroup.ACLSamplePeriod.Description": {
     "other": "Разрешает доступ к проекту только за данный период"
@@ -36,7 +36,7 @@
     "other": "Пример ACL правила, разрешающий доступ только в Feb и March 2018"
   },
   "PolicyGroup.ACLSampleDateDisable.Title": {
-    "other": "[Example] Нет доступа после указанной даты"
+    "other": "No access after a given date"
   },
   "PolicyGroup.ACLSampleDateDisable.Description": {
     "other": "Отключить доступ к workspace после заданной даты"
@@ -48,7 +48,7 @@
     "other": "Запретить чтение/запись, если дата после 2018-02-28"
   },
   "PolicyGroup.ACLSampleBusinessHours.Title": {
-    "other": "[Example] Доступ допускается только в рабочее время"
+    "other": "Access allowed only during business hours"
   },
   "PolicyGroup.ACLSampleBusinessHours.Description": {
     "other": "Разрешить доступ к рабочему пространству только в определенные часы"
@@ -57,7 +57,7 @@
     "other": "Пример правила, разрешающего чтение/запись в рабочее время"
   },
   "PolicyGroup.ACLSampleExternalIP.Title": {
-    "other": "[Example] Отключить доступ на основе IP"
+    "other": "Disable access based on IP"
   },
   "PolicyGroup.ACLSampleExternalIP.Description": {
     "other": "Отключить доступ к IP-адресам вне локальной сети"

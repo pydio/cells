@@ -12,7 +12,7 @@
     "other": "Templates"
   },
   "PolicyGroup.ACLSample1.Title": {
-    "other": "[Example] Complex ACL Policy"
+    "other": "Complex ACL Policy"
   },
   "PolicyGroup.ACLSample1.Description": {
     "other": "Sample Complex Policy for managing ACLs dynamically"
@@ -27,7 +27,7 @@
     "other": "Filter out any file with a PNG extension if request does not come from localhost"
   },
   "PolicyGroup.ACLSamplePeriod.Title": {
-    "other": "[Example] Limited Period"
+    "other": "Limited Period"
   },
   "PolicyGroup.ACLSamplePeriod.Description": {
     "other": "Enables access to a workspace only for a given period"
@@ -36,7 +36,7 @@
     "other": "ACL Rule example, allowing access only in Feb. and March 2018"
   },
   "PolicyGroup.ACLSampleDateDisable.Title": {
-    "other": "[Example] No access after a given date"
+    "other": "No access after a given date"
   },
   "PolicyGroup.ACLSampleDateDisable.Description": {
     "other": "Disable access to a workspace after a given date"
@@ -48,7 +48,7 @@
     "other": "Deny read/write if date is after 2018-02-28"
   },
   "PolicyGroup.ACLSampleBusinessHours.Title": {
-    "other": "[Example] Access allowed only during business hours"
+    "other": "Access allowed only during business hours"
   },
   "PolicyGroup.ACLSampleBusinessHours.Description": {
     "other": "Enable access to a workspace only certain days within pre-defined hours"
@@ -57,7 +57,7 @@
     "other": "Office hours rule example, allowing read/write"
   },
   "PolicyGroup.ACLSampleExternalIP.Title": {
-    "other": "[Example] Disable access based on IP"
+    "other": "Disable access based on IP"
   },
   "PolicyGroup.ACLSampleExternalIP.Description": {
     "other": "Disable access to IPs outside of LAN"

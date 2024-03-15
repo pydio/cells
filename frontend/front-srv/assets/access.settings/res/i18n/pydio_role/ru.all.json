@@ -111,13 +111,13 @@
     "other": "Предоставить доступ к рабочим областям для текущей роли/пользователя/группы"
   },
   "permissions.legend.user": {
-    "other": "Provide access to workspaces for the current user, overriding permissions inherited from user's roles. Use 'Manage Roles' to add/remove roles and identify the sources of inherited permissions."
+    "other": "Предоставьте доступ к рабочим областям для текущего пользователя, переопределяя разрешения, унаследованные от ролей пользователя. Используйте \"Управление ролями\", чтобы добавлять/удалять роли и определять источники унаследованных разрешений."
   },
   "permissions.legend.group": {
-    "other": "Provide access to workspaces for the current group. These permissions will be inherited by all users belonging this group."
+    "other": "Предоставить доступ к проектам для текущей группы. Эти права будут унаследованы всеми пользователями, принадлежащими этой группе."
   },
   "permissions.legend.role": {
-    "other": "Provide access to workspaces for the current role. These permissions will be applied to all users to whom the role has been assigned."
+    "other": "Предоставить доступ к рабочим областям для текущей роли. Эти права будут применяться ко всем пользователям, которым была назначена роль."
   },
   "44": {
     "other": "Основные страницы приложений"
@@ -126,13 +126,13 @@
     "other": "Доступ к основным страницам приложения (например, Мой аккаунт, приветственная страница и т. д.)"
   },
   "application-params.title": {
-    "other": "Parameters and actions"
+    "other": "Параметры и действия"
   },
   "application-params.legend": {
-    "other": "Modify UX parameters and show/hide certain actions for a specific role, globally or by workspace."
+    "other": "Измените параметры UX и показать/скрыть определенные действия для определенной роли, глобально или рабочей области."
   },
   "application-params.legend.user-disclaimer": {
-    "other": "As a general rule, this should be managed at role level, not user level!"
+    "other": "Как правило, это должно управляться на уровне ролей, а не на уровне пользователей!"
   },
   "49": {
     "other": "Поделиться"
@@ -153,7 +153,7 @@
     "other": "Поделились %1 из рабочего пространства %2"
   },
   "54": {
-    "other": "User informations and security actions. Hover fields in the form below to display explanations."
+    "other": "Информация о пользователе и действия по безопасности. Наведите курсор на поля в форме ниже, чтобы отобразить пояснения."
   },
   "55": {
     "other": "Переключение профиля и ролей для автоматического предоставления прав доступа этому пользователю."
@@ -174,13 +174,13 @@
     "other": "Управление ролями"
   },
   "roles.picker.add": {
-    "other": "Add role"
+    "other": "Добавить роль"
   },
   "roles.picker.hint": {
-    "other": "Start typing to search roles..."
+    "other": "Введите текст для поиска ролей…"
   },
   "roles.picker.effective": {
-    "other": "Effective role for %s"
+    "other": "Эффективная роль для %s"
   },
   "parameters.scope.selector.title": {
     "other": "Добавить для ..."
@@ -189,7 +189,7 @@
     "other": "Все рабочие области"
   },
   "parameters.scope.shared": {
-    "other": "Только доступные Cell"
+    "other": "Только доступные ячейки"
   },
   "parameters.scope.workspace": {
     "other": "Рабочее пространство %s"
@@ -216,7 +216,7 @@
     "other": "Консоль администратора"
   },
   "workspace.statics.settings.description": {
-    "other": "Панель администрирования Pydio Cell"
+    "other": "Панель управления администрирования Pydio Cells"
   },
   "acls.rights.policy.manual": {
     "other": "Права установлены вручную"
@@ -225,15 +225,15 @@
     "other": "Весе рабочие пространства"
   },
   "section.user-info": {
-    "other": "User Info"
+    "other": "Информация о пользователе"
   },
   "section.permissions": {
-    "other": "Permissions"
+    "other": "Разрешения"
   },
   "section.security": {
-    "other": "Security"
+    "other": "Безопасность"
   },
   "section.advanced": {
-    "other": "Advanced"
+    "other": "Дополнительные параметры"
   }
 }

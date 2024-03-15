@@ -51,13 +51,13 @@
     "other": "Bộ lưu trữ theo định dạng phẳng"
   },
   "ds.format-picker.flat.legend": {
-    "other": "Tệp được lưu trữ trực tiếp trong một thư mục đem lại hiệu năng cao nhất. Cấu trúc thư mục được lưu trữ trong cơ sở dữ liệu riêng."
+    "other": "The files are stored as binaries along regular snapshots of the tree structure to ensure an efficient disaster recovery. This is the recommended option for best performances and scalability."
   },
   "ds.format-picker.structured.title": {
     "other": "Trích xuất từ dữ liệu đã có"
   },
   "ds.format-picker.structured.legend": {
-    "other": "Cấu trúc thư mục được giữ nguyên như trên thiết bị lưu trữ, cells sẽ cần phải thực hiện việc đánh chỉ mục để chép cấu trúc thư mục vào cơ sở dữ liệu."
+    "other": "The tree structure is reflected in the storage and maintained in real-time synchronization. This legacy option is NOT recommended and should only be used for importing existing data. It is event-based and must not be used in high load or clustered installation."
   },
   "ds.format-picker.internal.title": {
     "other": "Cells nội bộ"

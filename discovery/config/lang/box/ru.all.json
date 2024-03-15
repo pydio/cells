@@ -96,16 +96,16 @@
     "other": "равно"
   },
   "conditionStringMatchCondition.Matches": {
-    "other": "Совпадения"
+    "other": "Совпадает"
   },
   "conditionStringMatchCondition.matches": {
-    "other": "совпадения"
+    "other": "совпадает"
   },
   "conditionPathGlobCondition.glob": {
-    "other": "шаблон"
+    "other": "паттерн"
   },
   "conditionBooleanCondition.value": {
-    "other": "True"
+    "other": "Истина"
   },
   "contextMetaCondition.CIDRCondition": {
     "other": "CIDRCondition"
