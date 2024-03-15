@@ -36,7 +36,7 @@
     "other": "ACL 룰 예제, 2018년 2월 및 3월에만 액세스 허용"
   },
   "PolicyGroup.ACLSampleDateDisable.Title": {
-    "other": "No access after a given date"
+    "other": "Scheduled Expiration"
   },
   "PolicyGroup.ACLSampleDateDisable.Description": {
     "other": "주어진 날짜 이후로 작업공간에 접근 못하게 함"
@@ -48,7 +48,7 @@
     "other": "날짜가 2018-02-28 이후로 읽기/쓰기 금지"
   },
   "PolicyGroup.ACLSampleBusinessHours.Title": {
-    "other": "Access allowed only during business hours"
+    "other": "Business Hours"
   },
   "PolicyGroup.ACLSampleBusinessHours.Description": {
     "other": "미리 정의된 시간 내에 특정 일에만 작업 공간에 접근 가능"
@@ -57,7 +57,7 @@
     "other": "업무 시간 규칙 예제, 읽기/쓰기 허용"
   },
   "PolicyGroup.ACLSampleExternalIP.Title": {
-    "other": "Disable access based on IP"
+    "other": "Filter IP Address"
   },
   "PolicyGroup.ACLSampleExternalIP.Description": {
     "other": "LAN 외부의 IP는 접근 못하게 함"

@@ -36,7 +36,7 @@
     "other": "Ví dụ ACL Rule, cho phép truy cập chỉ vào tháng 2 và 3 năm 2018"
   },
   "PolicyGroup.ACLSampleDateDisable.Title": {
-    "other": "No access after a given date"
+    "other": "Scheduled Expiration"
   },
   "PolicyGroup.ACLSampleDateDisable.Description": {
     "other": "Không cho phép truy cập vào một workspace sau một ngày nhất định"
@@ -48,7 +48,7 @@
     "other": "Không cho read/write sau ngày 2018-02-28"
   },
   "PolicyGroup.ACLSampleBusinessHours.Title": {
-    "other": "Access allowed only during business hours"
+    "other": "Business Hours"
   },
   "PolicyGroup.ACLSampleBusinessHours.Description": {
     "other": "Cho phép truy cập vào một workspace trong một số ngày ở một vài giờ cho trước"
@@ -57,7 +57,7 @@
     "other": "Ví dụ về cho phép read/write trong giờ làm việc"
   },
   "PolicyGroup.ACLSampleExternalIP.Title": {
-    "other": "Disable access based on IP"
+    "other": "Filter IP Address"
   },
   "PolicyGroup.ACLSampleExternalIP.Description": {
     "other": "Cấm truy cập đối với những IP đến từ ngoài LAN"

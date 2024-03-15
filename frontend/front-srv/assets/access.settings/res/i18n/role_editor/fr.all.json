@@ -36,7 +36,7 @@
     "other": "Ajouter cette action"
   },
   "16": {
-    "other": "Utilisez les sélecteurs ci-dessous pour choisir les paramètres que vous voulez personnaliser pour le rôle. La valeur pour s'appliquer dépôt par dépôt ou pour tous les dépôts, mais ceci peut aussi dépendre des paramètres choisis."
+    "other": "Utilisez les sélecteurs ci-dessous pour choisir les paramètres que vous voulez personnaliser pour le rôle. La valeur peut s'appliquer workspace par workspace ou pour tous les workspaces, mais ceci peut aussi dépendre des paramètres choisis."
   },
   "17": {
     "other": "Nom du paramètre"

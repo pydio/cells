@@ -36,7 +36,7 @@
     "other": "Accès autorisé seulement entre le 1er février et le 31 mars 2018"
   },
   "PolicyGroup.ACLSampleDateDisable.Title": {
-    "other": "Date de début"
+    "other": "Expiration programmée"
   },
   "PolicyGroup.ACLSampleDateDisable.Description": {
     "other": "Désactivation de l'accès après une date donnée"

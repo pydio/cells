@@ -36,7 +36,7 @@
     "other": "Beispiel für eine ACL-Regel, die den Zugriff nur im Februar und März 2018 erlaubt"
   },
   "PolicyGroup.ACLSampleDateDisable.Title": {
-    "other": "Kein Zugriff nach einem bestimmten Datum"
+    "other": "Geplanter Ablauf"
   },
   "PolicyGroup.ACLSampleDateDisable.Description": {
     "other": "Den Zugriff auf einen Workspace nach einem bestimmten Datum deaktivieren"
@@ -48,7 +48,7 @@
     "other": "Lese- und Schreibzugriff verweigern, wenn das akuelle Datum nach 2018-02-28 liegt"
   },
   "PolicyGroup.ACLSampleBusinessHours.Title": {
-    "other": "Zugriff nur während Geschäftszeiten erlaubt"
+    "other": "Geschäftszeiten"
   },
   "PolicyGroup.ACLSampleBusinessHours.Description": {
     "other": "Zugriff auf einen Workspace nur an bestimmten Tagen innerhalb vordefinierter Stunden aktivieren"
@@ -57,7 +57,7 @@
     "other": "Geschäftszeiten Beispiel, ermöglicht Lese- und Schreibzugriff"
   },
   "PolicyGroup.ACLSampleExternalIP.Title": {
-    "other": "Deaktiviere Zugriff basierend auf IP"
+    "other": "IP-Adresse filtern"
   },
   "PolicyGroup.ACLSampleExternalIP.Description": {
     "other": "Zugriff auf IPs außerhalb LAN deaktivieren"
