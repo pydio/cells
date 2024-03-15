@@ -68,6 +68,9 @@ class AsyncComponent extends Component {
                 componentName = rest.join('.')
             }
             const {[componentName]: Component} = ns;
+            if(!Component) {
+                throw new Error('cannot find ' + componentName + ' in namespace')
+            }
             this.setState({Component});
             callback();
         }).catch(e => {
