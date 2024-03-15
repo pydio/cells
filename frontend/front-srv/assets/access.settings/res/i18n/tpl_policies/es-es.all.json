@@ -36,7 +36,7 @@
     "other": "Ejemplo de regla ACL, que permite el acceso sólo en febrero y marzo de 2018"
   },
   "PolicyGroup.ACLSampleDateDisable.Title": {
-    "other": "No access after a given date"
+    "other": "Scheduled Expiration"
   },
   "PolicyGroup.ACLSampleDateDisable.Description": {
     "other": "Deshabilitar el acceso a un espacio de trabajo después de una fecha determinada"
@@ -48,7 +48,7 @@
     "other": "Denegar lectura/escritura si la fecha es posterior al 28-02-2018"
   },
   "PolicyGroup.ACLSampleBusinessHours.Title": {
-    "other": "Access allowed only during business hours"
+    "other": "Business Hours"
   },
   "PolicyGroup.ACLSampleBusinessHours.Description": {
     "other": "Habilitar el acceso a un espacio de trabajo sólo en determinados días dentro de las horas predefinidas"
@@ -57,7 +57,7 @@
     "other": "Ejemplo de regla permitiendo lectura/escritura sólo en horas de oficina"
   },
   "PolicyGroup.ACLSampleExternalIP.Title": {
-    "other": "Disable access based on IP"
+    "other": "Filter IP Address"
   },
   "PolicyGroup.ACLSampleExternalIP.Description": {
     "other": "Deshabilitar el acceso a IPs ajenas a la LAN"

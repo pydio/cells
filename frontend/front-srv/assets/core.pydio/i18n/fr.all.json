@@ -1071,7 +1071,7 @@
     "other": "Etes-vous sûr de vouloir supprimer ce workspace? Cette opération est irréversible!"
   },
   "425": {
-    "other": "Le workspace est créé, il est accessible via la liste des dépôts (en haut à gauche). Si vous désirez le supprimer, mettez vous sur un autre dépôt et cliquez sur la croix rouge."
+    "other": "Le workspace est maintenant créé, si vous voulez le supprimer, assurez-vous de passer à un autre workspace."
   },
   "426": {
     "other": "Erreur lors de la création du workspace"
