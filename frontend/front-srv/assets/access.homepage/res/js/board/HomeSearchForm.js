@@ -241,7 +241,7 @@ class HomeSearchForm extends Component{
                             />
                         </div>
                     }
-                    <div style={{display:fullScreen?'none':'block', flex:1, overflowY:'auto', marginTop: 40}} id="history-block">{this.props.children}</div>
+                    <div style={{display:fullScreen?'none':'block', flex:1, overflowY:fullScreen?'auto':'hidden'}} id="history-block">{this.props.children}</div>
                 </div>
                 {fullScreen &&
                 <IconButton
