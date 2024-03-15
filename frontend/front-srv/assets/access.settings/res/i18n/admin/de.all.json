@@ -51,13 +51,13 @@
     "other": "Flacher Speicher"
   },
   "ds.format-picker.flat.legend": {
-    "other": "Die Dateien werden im Speicher als Binärdateien gespeichert, um die Leistung zu verbessern. Die Struktur von Dateien und Ordnern wird nur im internen Index gespeichert."
+    "other": "Die Dateien werden zusammen mit regelmäßigen Schnappschüssen der Baumstruktur als Binärdateien gespeichert, um eine effiziente Katastrophenwiederherstellung zu gewährleisten. Dies ist die empfohlene Option für die beste Leistung und Skalierbarkeit."
   },
   "ds.format-picker.structured.title": {
     "other": "Vorhandene Daten importieren"
   },
   "ds.format-picker.structured.legend": {
-    "other": "Dateien und Ordner werden im Ist-Zustand gespeichert, die Echtzeit-Synchronisation spiegelt die Speicherstruktur in internen Indizes wider."
+    "other": "Die Baumstruktur spiegelt sich im Speicher wider und wird in Echtzeitsynchronisation gehalten. Diese veraltete Option wird NICHT empfohlen und sollte nur zum Importieren vorhandener Daten verwendet werden. Sie basiert auf Ereignissen und darf nicht bei hoher Auslastung oder in Cluster-Installationen verwendet werden."
   },
   "ds.format-picker.internal.title": {
     "other": "Cells intern"

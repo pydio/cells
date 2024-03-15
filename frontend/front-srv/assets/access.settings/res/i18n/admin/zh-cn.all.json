@@ -51,13 +51,13 @@
     "other": "平面存储"
   },
   "ds.format-picker.flat.legend": {
-    "other": "性能最佳，文件作为二进制存储器存储。文件和文件夹结构只保存在内部索引中。"
+    "other": "The files are stored as binaries along regular snapshots of the tree structure to ensure an efficient disaster recovery. This is the recommended option for best performances and scalability."
   },
   "ds.format-picker.structured.title": {
     "other": "导入已有数据"
   },
   "ds.format-picker.structured.legend": {
-    "other": "文件和文件夹按原样存储，实时同步反映内部索引中的存储结构。"
+    "other": "The tree structure is reflected in the storage and maintained in real-time synchronization. This legacy option is NOT recommended and should only be used for importing existing data. It is event-based and must not be used in high load or clustered installation."
   },
   "ds.format-picker.internal.title": {
     "other": "单元格"

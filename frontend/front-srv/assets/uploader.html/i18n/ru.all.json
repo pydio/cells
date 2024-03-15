@@ -60,37 +60,37 @@
     "other": "Загрузка файлов на сервер..."
   },
   "task.status.folders": {
-    "other": "Creating Folders"
+    "other": "Создание папок"
   },
   "task.message.folder-one": {
-    "other": "Creating one folder"
+    "other": "Создание одной папки"
   },
   "task.message.folder-many": {
-    "other": "Creating %s folders"
+    "other": "Создание папок %s"
   },
   "task.status.analyse": {
-    "other": "Preparing files for upload"
+    "other": "Подготовка файлов к загрузке"
   },
   "task.message.analyse-many": {
-    "other": "Analyzing %s items..."
+    "other": "Анализ элементов %s..."
   },
   "task.message.analyse-one": {
-    "other": "Analyzing one item"
+    "other": "Анализ одного элемента"
   },
   "task.message.analyse-wait": {
-    "other": "Please wait..."
+    "other": "Пожалуйста, подождите..."
   },
   "task.status.ready": {
-    "other": "Ready to upload"
+    "other": "Готово к загрузке"
   },
   "task.status.paused": {
-    "other": "Upload paused"
+    "other": "Загрузка приостановлена"
   },
   "task.status.upload": {
-    "other": "Uploading files"
+    "other": "Загрузка файлов"
   },
   "task.message.upload-progress": {
-    "other": "Uploading %s%"
+    "other": "Загрузка %s"
   },
   "no-folders-support": {
     "other": "Похоже, ваш браузер не поддерживает перетаскивание папок"
@@ -114,7 +114,7 @@
     "other": "Загрузки"
   },
   "attempt": {
-    "other": "attempt"
+    "other": "попытка"
   },
   "status.new": {
     "other": "Ожидают"
@@ -129,16 +129,16 @@
     "other": "Анализ..."
   },
   "status.dir.new": {
-    "other": "Folder awaiting upload..."
+    "other": "Папка ожидает загрузки..."
   },
   "status.file.new": {
-    "other": "File awaiting upload..."
+    "other": "Папка ожидает загрузки..."
   },
   "status.dir.analyse": {
-    "other": "Analyzing folder..."
+    "other": "Анализ папки..."
   },
   "status.file.analyse": {
-    "other": "Analyzing file..."
+    "other": "Анализ файла..."
   },
   "status.dir.loading": {
     "other": "Создание папки"
@@ -168,12 +168,12 @@
     "other": "Невозможно приостановить загрузку части"
   },
   "status.error.aborted": {
-    "other": "interrupted by user"
+    "other": "прервано пользователем"
   },
   "status.error.403": {
-    "other": "you are not allowed to upload here"
+    "other": "вы не можете загрузить здесь"
   },
   "status.error.422": {
-    "other": "quota reached, cannot upload more"
+    "other": "достигнута квота, больше нельзя загрузить"
   }
 }

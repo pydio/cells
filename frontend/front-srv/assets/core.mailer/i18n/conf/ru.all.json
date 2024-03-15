@@ -48,16 +48,16 @@
     "other": "Получить письмо в HTML"
   },
   "Layout Folder": {
-    "other": "Layout Folder"
+    "other": "Папка шаблонов"
   },
   "Mailer Plugin": {
-    "other": "Mailer Plugin"
+    "other": "Плагин почтового клиента"
   },
   "Mailers": {
     "other": "Почтовые службы"
   },
   "Main Layout for the email body, use HTML for send nice emails, and use the PYDIO_MAIL_BODY keyword for the real content.": {
-    "other": "Main Layout for the email body, use HTML for send nice emails, and use the PYDIO_MAIL_BODY keyword for the real content."
+    "other": "Главный макет для тела электронной почты, используйте HTML для отправки приятных писем и используйте ключевое слово PYDIO_MAIL_BODY для реального содержимого."
   },
   "Name of the sender": {
     "other": "Имя отправителя"
@@ -69,7 +69,7 @@
     "other": "Получать уведомления по электронной почте"
   },
   "Select the plugin to activate for concretely sending emails": {
-    "other": "Select the plugin to activate for concretely sending emails"
+    "other": "Выберите плагин для самостоятельной отправки писем"
   },
   "Send as HTML": {
     "other": "Отправить как HTML"
@@ -96,13 +96,13 @@
     "other": "Строка автоматически добавляется в конце письма"
   },
   "Subject Append": {
-    "other": "Subject Append"
+    "other": "Добавить тему"
   },
   "Subject Prepend": {
-    "other": "Subject Prepend"
+    "other": "Подготовка к теме"
   },
   "Twice a day (every day at and)": {
-    "other": "Twice a day (every day at and)"
+    "other": "Дважды в день (каждый день в их)"
   },
   "Unique Sender": {
     "other": "Уникальный отправитель"

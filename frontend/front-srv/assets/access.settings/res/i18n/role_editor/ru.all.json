@@ -57,7 +57,7 @@
     "other": "ID пользователя"
   },
   "22": {
-    "other": "Profile"
+    "other": "Профиль"
   },
   "23": {
     "other": "Хранилище по умолчанию"
@@ -177,52 +177,52 @@
     "other": "Показать технические роли"
   },
   "dashboard.filterByType": {
-    "other": "Filter by Type..."
+    "other": "Фильтр по типу..."
   },
   "dashboard.filterSelectOne": {
-    "other": "Please select at least one role type in the list"
+    "other": "Пожалуйста, выберите хотя бы один пункт в списке"
   },
   "roleType": {
-    "other": "Role Type"
+    "other": "Тип роли "
   },
   "roleType.description": {
-    "other": "Standard roles are assigned by administrators, whereas teams are managed by users in their address book. Technical roles are attached automatically to each users and groups and in that case their type cannot be modified."
+    "other": "Стандартные роли назначаются администраторами, в то время как команды управляются пользователями в их адресной книге. Технические роли автоматически присваиваются каждому пользователю и группе, и в этом случае их тип не может быть изменен."
   },
   "roleType.admin": {
-    "other": "Standard"
+    "other": "Стандартный"
   },
   "roleType.admin.description": {
-    "other": "Standard Role"
+    "other": "Стандартная роль"
   },
   "roleType.IsTeam": {
-    "other": "Team"
+    "other": "Команда"
   },
   "roleType.IsTeam.description": {
-    "other": "Team (visible as a Team in address book)"
+    "other": "Команда (видима как команда в адресной книге)"
   },
   "roleType.IsUserRole": {
-    "other": "[Tech] User"
+    "other": "[Технический] пользователь"
   },
   "roleType.IsUserRole.description": {
-    "other": "[Technical] Created automatically for the corresponding User"
+    "other": "[Технический] Создается автоматически для соответствующего пользователя"
   },
   "roleType.IsGroupRole": {
-    "other": "[Tech] Group"
+    "other": "[Технический] группа"
   },
   "roleType.IsGroupRole.description": {
-    "other": "[Technical] Created automatically for the corresponding Group"
+    "other": "[Технический] Создается автоматически для соответствующего пользователя"
   },
   "dashboard.typeFilter.admin": {
-    "other": "Standard Roles"
+    "other": "Стандартные роли"
   },
   "dashboard.typeFilter.IsTeam": {
-    "other": "User-defined Teams"
+    "other": "Пользовательские команды"
   },
   "dashboard.typeFilter.IsUserRole": {
-    "other": "[Technical] Attached to each users"
+    "other": "[Technical] Прикреплено к каждому пользователю"
   },
   "dashboard.typeFilter.IsGroupRole": {
-    "other": "[Technical] Attached to each groups"
+    "other": "[Technical] Прикреплено к каждому пользователю"
   },
   "last_update": {
     "other": "Последнее обновление"
@@ -243,9 +243,9 @@
     "other": "Роль всегда применяется последней после других ролей, за исключением роли пользователя, которая все равно будет преобладать."
   },
   "user.info.main": {
-    "other": "Hover fields to show explanation"
+    "other": "Наведите поля, чтобы показать объяснение"
   },
   "button.info.menu.security": {
-    "other": "Security Actions"
+    "other": "Меры безопасности"
   }
 }

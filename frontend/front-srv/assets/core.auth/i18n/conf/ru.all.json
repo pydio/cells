@@ -1,6 +1,6 @@
 {
   "Action to trigger when clicking on Forgot Password": {
-    "other": "Действие при нажатии на Забыли Пароль"
+    "other": "Действие, которое срабатывает при нажатии на \"Забыли пароль\""
   },
   "Activate the users management system to protect your Pydio installation.": {
     "other": "Активировать управление пользователями для защиты вашей системы."
@@ -45,7 +45,7 @@
     "other": "Забыли пароль"
   },
   "Forgot Password Link": {
-    "other": "Forgot Password Link"
+    "other": "Ссылка на сброс пароля"
   },
   "Generic Auth Features": {
     "other": "Ключевые параметры"
@@ -120,7 +120,7 @@
     "other": "Хранить аут. данные в сессии"
   },
   "This is necessary to discriminate users data loaded from various sources. Warning, use foldername compliant characters. For example :: does not work!": {
-    "other": "This is necessary to discriminate users data loaded from various sources. Warning, use foldername compliant characters. For example :: does not work!"
+    "other": "Это необходимо для дискриминации данных пользователей, загруженных из различных источников. Предупреждение: используйте символы, соответствующие имени папки. Например, :: не работает!"
   },
   "User Choice": {
     "other": "Выбор пользователя"
@@ -141,13 +141,13 @@
     "other": "Действие для запуска при нажатии на Забыли Пароль. Может быть изменено для запуска пользовательского действия, если вы полагаетесь на внешнюю систему аутентификации."
   },
   "When relying on an external authentication system, replace the Forgot Action with an external link that will be opened in a new window.": {
-    "other": "When relying on an external authentication system, replace the Forgot Action with an external link that will be opened in a new window."
+    "other": "При использовании внешней системы аутентификации замените действие \"Забыли пароль\" внешней ссылкой, которая будет открываться в новом окне."
   },
   "Let user create new cells": {
-    "other": "Разрешить пользователю создавать новые Cells"
+    "other": "Разрешить пользователю создавать новые ячейки"
   },
   "Whether users can create their own cells or not": {
-    "other": "Может ли пользователь создавать свои собственные Cells или нет"
+    "other": "Может ли пользователь создавать свои собственные ячейки или нет"
   },
   "Delegation": {
     "other": "Делегирование"

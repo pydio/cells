@@ -18,7 +18,7 @@
     "other": "Ограничения"
   },
   "Maximum size per file allowed to upload. Warning, this limit can vary depending on your underlying storage and the Multipart Chunk Size. For example, Amazon S3 restricts uploads to maximum 10000 distinct parts.": {
-    "other": "Maximum size per file allowed to upload. Warning, this limit can vary depending on your underlying storage and the Multipart Chunk Size. For example, Amazon S3 restricts uploads to maximum 10000 distinct parts."
+    "other": "Максимальный размер файла для загрузки. Предупреждение, этот предел может варьироваться в зависимости от размера вашего базового хранилища и размера нескольких чанков. Например, Amazon S3 ограничивает загрузку максимум 10000 различных частей."
   },
   "Options shared by all uploaders plugins": {
     "other": "Настройки для всех плагинов загрузки"
@@ -36,13 +36,13 @@
     "other": "Размер нескольких частей"
   },
   "Multipart Threshold": {
-    "other": "Multipart Threshold"
+    "other": "Порог нескольких частей"
   },
   "Switch to Multipart Upload for files bigger than this value (in bytes)": {
-    "other": "Switch to Multipart Upload for files bigger than this value (in bytes)"
+    "other": "Переключиться на многочастную загрузку для файлов больше, чем это значение (в байтах)"
   },
   "Chunk Size used for multipart uploads, it must be a multiple of 10MB for hashing consistency. If you plan to upload very large files (bigger 500GB), raise this value to lower the total number of parts sent.": {
-    "other": "Chunk Size used for multipart uploads, it must be a multiple of 10MB for hashing consistency. If you plan to upload very large files (bigger 500GB), raise this value to lower the total number of parts sent."
+    "other": "Размер чанка, используемый для многочастых загрузок, он должен быть несколько 10 МБ для обеспечения согласованности хэширования. Если вы планируете загружать очень большие файлы (больше 500GB), увеличьте это значение до уменьшения общего количества отправленных частей."
   },
   "Queue Size": {
     "other": "Размер очереди"

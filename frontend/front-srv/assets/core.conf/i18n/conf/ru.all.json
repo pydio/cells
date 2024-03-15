@@ -6,25 +6,25 @@
     "other": "Все роли"
   },
   "Allow Group Listing": {
-    "other": "Allow Group Listing"
+    "other": "Разрешить список групп"
   },
   "Allow Role Listing": {
-    "other": "Allow Role Listing"
+    "other": "Разрешить список ролей"
   },
   "Allow the users to create a new user when sharing a folder": {
-    "other": "Allow the users to create a new user when sharing a folder"
+    "other": "Разрешить пользователям создавать новых пользователей при совместном использовании папки"
   },
   "Allow the users to pick an existing user when sharing a folder": {
-    "other": "Allow the users to pick an existing user when sharing a folder"
+    "other": "Разрешить пользователям выбирать существующего пользователя при совместном использовании папки"
   },
   "Allow to search users from other groups through auto completer (can be handy if previous option is set to false) and share workspaces with them": {
-    "other": "Allow to search users from other groups through auto completer (can be handy if previous option is set to false) and share workspaces with them"
+    "other": "Разрешить поиск пользователей из других групп через автоматическое заполнение (может быть полезно, если предыдущая опция установлена в false) и делиться с ними проектами"
   },
   "Always Override": {
     "other": "Всегда переопределять"
   },
   "Always override other roles, included group roles.": {
-    "other": "Always override other roles, included group roles."
+    "other": "Всегда перезаписывать другие роли, включенные в группы."
   },
   "Avatar": {
     "other": "Аватара"
@@ -33,7 +33,7 @@
     "other": "Выберите конфигурационный плагин"
   },
   "Configuration Store Instance": {
-    "other": "Configuration Store Instance"
+    "other": "Экземпляр хранилища конфигурации"
   },
   "Configurations Management": {
     "other": "Управление конфигурациями"
@@ -54,22 +54,22 @@
     "other": "Начальное хранилище по умолчанию"
   },
   "Display roles and/or groups": {
-    "other": "Display roles and/or groups"
+    "other": "Отображать роли и/или группы"
   },
   "Do not display real login in parenthesis": {
-    "other": "Do not display real login in parenthesis"
+    "other": "Не показывать реальный логин в скобках"
   },
   "Do not load groups and users list if no regexp is entered. Avoid sending large search on LDAP.": {
-    "other": "Do not load groups and users list if no regexp is entered. Avoid sending large search on LDAP."
+    "other": "Не загружать группы и список пользователей, если не введено регулярное выражение. Избегайте отправки большого поиска на LDAP."
   },
   "Email": {
     "other": "Почтовый адрес (Email)"
   },
   "Excluded Roles": {
-    "other": "Excluded Roles"
+    "other": "Исключённые роли"
   },
   "External Users Creation": {
-    "other": "External Users Creation"
+    "other": "Создание внешних пользователей"
   },
   "External users parameters": {
     "other": "Параметры внешних пользователей"
@@ -84,22 +84,22 @@
     "other": "Скрыть реальный логин"
   },
   "If previous option is set to True, directly display a full list of users from all groups": {
-    "other": "If previous option is set to True, directly display a full list of users from all groups"
+    "other": "Если предыдущая опция установлена на Истину, то сразу отобразить полный список пользователей из всех групп"
   },
   "If set, this action will be triggered automatically at users login. Can be logout (to lock out the users), pass_change (to force password change), or anything else": {
-    "other": "If set, this action will be triggered automatically at users login. Can be logout (to lock out the users), pass_change (to force password change), or anything else"
+    "other": "Если установлено, это действие будет срабатывать автоматически при входе пользователей. Может быть выполнен выход (для блокировки пользователей), pass_change (для принудительного изменения пароля) или что-нибудь другое"
   },
   "If the 'guest' user is enabled, remember her preferences accross sessions.": {
-    "other": "If the 'guest' user is enabled, remember her preferences accross sessions."
+    "other": "Если пользователь \"гость\" включен, запоминайте его предпочтения между сеансами."
   },
   "Image displayed next to the user name": {
     "other": "Изображение, которое отображается рядом с именем пользователя"
   },
   "Included Roles": {
-    "other": "Included Roles"
+    "other": "Включенные роли"
   },
   "Instance": {
-    "other": "Instance"
+    "other": "Экземпляр"
   },
   "Internal / External Users": {
     "other": "Внутренние / внешние пользователи"
@@ -111,28 +111,28 @@
     "other": "Разрешить пользоватею создавать рабочие пространства"
   },
   "Let user create repositories from templates": {
-    "other": "Let user create repositories from templates"
+    "other": "Разрешить пользователю создавать репозитории из шаблонов"
   },
   "List Roles By": {
-    "other": "List Roles By"
+    "other": "Список ролей по"
   },
   "List existing from all groups": {
-    "other": "List existing from all groups"
+    "other": "Список существующих из всех групп"
   },
   "List of parameters to be edited when creating a new shared user.": {
-    "other": "List of parameters to be edited when creating a new shared user."
+    "other": "Список параметров, которые будут отредактированы при создании нового общего пользователя."
   },
   "Make regexp mandatory": {
-    "other": "Make regexp mandatory"
+    "other": "Сделать регулярные выражения обязательными"
   },
   "Maximum number of shared users per user": {
     "other": "Максимальное количество общих пользователей для этого пользователя"
   },
   "Maximum number of users displayed in the users autocompleter": {
-    "other": "Maximum number of users displayed in the users autocompleter"
+    "other": "Максимальное количество отображаемых пользователей в автозаполнении"
   },
   "Minimum number of characters to trigger the auto completion feature": {
-    "other": "Minimum number of characters to trigger the auto completion feature"
+    "other": "Минимальное количество символов для автоматического заполнения"
   },
   "Name": {
     "other": "Имя"
@@ -147,10 +147,10 @@
     "other": "Название роли"
   },
   "Role/Group Listing": {
-    "other": "Role/Group Listing"
+    "other": "Список ролей/групп"
   },
   "Roles / Groups Directory Listing": {
-    "other": "Roles / Groups Directory Listing"
+    "other": "Список ролей/групп из каталога"
   },
   "SQL Connexion": {
     "other": "SQL Connexion"
@@ -159,10 +159,10 @@
     "other": "Смотреть существующих пользователей"
   },
   "Sets how the application core data (users,roles,etc) is stored.": {
-    "other": "Sets how the application core data (users,roles,etc) is stored."
+    "other": "Задает способ хранения основных данных приложения (пользователи, роли и т. д.)."
   },
   "Share with existing users from all groups": {
-    "other": "Share with existing users from all groups"
+    "other": "Поделиться с существующими пользователями из всех групп"
   },
   "Shared users limit": {
     "other": "Лимит общих пользователей"
@@ -174,57 +174,57 @@
     "other": "Пропустить настройку интерфейса"
   },
   "Some roles should be disappered in the list.  list separated by ',' or start with 'preg:' for regex.": {
-    "other": "Some roles should be disappered in the list.  list separated by ',' or start with 'preg:' for regex."
+    "other": "Некоторые роли должны быть удалены из списка. Разделенные символом ',' или начинаться с 'preg:' для регулярного выражения."
   },
   "Some roles should be shown in the list.  list separated by ',' or start with 'preg:' for regex.": {
-    "other": "Some roles should be shown in the list.  list separated by ',' or start with 'preg:' for regex."
+    "other": "Некоторые роли должны быть удалены из списка. Разделенные символом ',' или начинаться с 'preg:' для регулярного выражения."
   },
   "Use this option to avoid automatic reloading of the interface state (last folder, opened tabs, etc)": {
-    "other": "Use this option to avoid automatic reloading of the interface state (last folder, opened tabs, etc)"
+    "other": "Используйте этот параметр, чтобы избежать автоматической перезагрузки состояния интерфейса (последняя папка, открытые вкладки и т.д."
   },
   "User Language": {
     "other": "Язык пользователя"
   },
   "User roles only": {
-    "other": "User roles only"
+    "other": "Только роли пользователя"
   },
   "Users Directory Listing": {
-    "other": "Users Directory Listing"
+    "other": "Список пользователей каталога"
   },
   "Users Lock Action": {
-    "other": "Users Lock Action"
+    "other": "Действие блокировки пользователей"
   },
   "Users completer limit": {
-    "other": "Users completer limit"
+    "other": "Ограничение количества пользователей для автозаполнения"
   },
   "Users completer min chars": {
-    "other": "Users completer min chars"
+    "other": "Минимальное количество символов для автозаполнения пользователей"
   },
   "Users only (do not list groups nor roles)": {
-    "other": "Users only (do not list groups nor roles)"
+    "other": "Только пользователи (не список групп и ролей)"
   },
   "Whether users can create their own repositories, based on predefined templates.": {
-    "other": "Whether users can create their own repositories, based on predefined templates."
+    "other": "Могут ли пользователи создавать свои собственные репозитории на основе заранее определенных шаблонов."
   },
   "Workspace creation delegation": {
-    "other": "Workspace creation delegation"
+    "other": "Делегирование создания рабочей области"
   },
   "role prefix": {
-    "other": "Role prefix"
+    "other": "Префикс роли"
   },
   "System Default": {
-    "other": "System Default"
+    "other": "Система по умолчанию"
   },
   "Material 3 (detect)": {
-    "other": "Material 3 (detect)"
+    "other": "Материал 3 (обнаружение)"
   },
   "Material 3 (light)": {
-    "other": "Material 3 (light)"
+    "other": "Material 3 (светлый)"
   },
   "Material 3 (dark)": {
-    "other": "Material 3 (dark)"
+    "other": "Material 3 (темный)"
   },
   "Material Legacy": {
-    "other": "Material Legacy"
+    "other": "Наследие материала"
   }
 }

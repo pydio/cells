@@ -12,7 +12,7 @@
     "other": "Templates"
   },
   "PolicyGroup.ACLSample1.Title": {
-    "other": "[Example] Kompleksa ACL Politika"
+    "other": "Complex ACL Policy"
   },
   "PolicyGroup.ACLSample1.Description": {
     "other": "Paraugs sarežģītai politikai lai dinamiski pārvaldītu ACL"
@@ -27,7 +27,7 @@
     "other": "Atfiltrēt fisus failus ar PNG paplašinājumu ja pieprasījums nav no localhost"
   },
   "PolicyGroup.ACLSamplePeriod.Title": {
-    "other": "[Example] Limitēts Periods"
+    "other": "Limited Period"
   },
   "PolicyGroup.ACLSamplePeriod.Description": {
     "other": "Ļauj piekļuvi darbvirsmai tikai noteiktu laiku"
@@ -36,7 +36,7 @@
     "other": "ACL noteikumu paraugs, atļaut pieeju tikai Februārī un Martā 2018"
   },
   "PolicyGroup.ACLSampleDateDisable.Title": {
-    "other": "[Example] Nav piekļuves pēc noteiktā datuma"
+    "other": "No access after a given date"
   },
   "PolicyGroup.ACLSampleDateDisable.Description": {
     "other": "Atslēgt piekļuvi darbvirsmai pēc noteikta datuma"
@@ -48,7 +48,7 @@
     "other": "Aizliegt lasīt/rakstīt pēc 2018-02-28"
   },
   "PolicyGroup.ACLSampleBusinessHours.Title": {
-    "other": "[Example] Piekļuve atļauta tikai darba laikā"
+    "other": "Access allowed only during business hours"
   },
   "PolicyGroup.ACLSampleBusinessHours.Description": {
     "other": "Ieslēgt piekļuvi darbvirsmai tikai noteiktās dienās ar iepriekš norādītiem darba laikiem"
@@ -57,7 +57,7 @@
     "other": "Darba laika noteikumu paraugs, ļauj lasīt/rakstīt"
   },
   "PolicyGroup.ACLSampleExternalIP.Title": {
-    "other": "[Example] Aizliegt piekļuvi no noteiktas IP adreses"
+    "other": "Disable access based on IP"
   },
   "PolicyGroup.ACLSampleExternalIP.Description": {
     "other": "Aizliegt piekļuvi IP adresēm kuras ir ārpus LAN tīkla"
