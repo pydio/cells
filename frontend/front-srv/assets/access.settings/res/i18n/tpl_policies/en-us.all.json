@@ -38,7 +38,7 @@
   },
 
   "PolicyGroup.ACLSampleDateDisable.Title": {
-    "other": "No access after a given date"
+    "other": "Scheduled Expiration"
   },
   "PolicyGroup.ACLSampleDateDisable.Description": {
     "other": "Disable access to a workspace after a given date"
@@ -51,7 +51,7 @@
   },
 
   "PolicyGroup.ACLSampleBusinessHours.Title": {
-    "other": "Access allowed only during business hours"
+    "other": "Business Hours"
   },
   "PolicyGroup.ACLSampleBusinessHours.Description": {
     "other": "Enable access to a workspace only certain days within pre-defined hours"
@@ -61,7 +61,7 @@
   },
 
   "PolicyGroup.ACLSampleExternalIP.Title": {
-    "other": "Disable access based on IP"
+    "other": "Filter IP Address"
   },
   "PolicyGroup.ACLSampleExternalIP.Description": {
     "other": "Disable access to IPs outside of LAN"
