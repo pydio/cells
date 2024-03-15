@@ -168,7 +168,7 @@
     "other": "Описание"
   },
   "Digest Realm": {
-    "other": "Digest Realm"
+    "other": "Область дайджеста"
   },
   "Disable WebDAV": {
     "other": "Отключить WebDAV"
@@ -183,7 +183,7 @@
     "other": "Отображение списка файлов и папок при доступе через браузер"
   },
   "Download Delegation": {
-    "other": "Download Delegation"
+    "other": "Скачать делегацию"
   },
   "Download Folder (Legacy)": {
     "other": "Папка загрузок (Устаревшее)"
@@ -228,7 +228,7 @@
     "other": "Длина имени файла"
   },
   "Filesystem Commons": {
-    "other": "Filesystem Commons"
+    "other": "Общие файловые системы"
   },
   "For exotic auth drivers, an user ID that must be considered as admin by default.": {
     "other": "Для нестандартных драйверов аутентификации, имя пользователя которое будет считаться администратором."
@@ -240,7 +240,7 @@
     "other": "Принудительно включить Basic Auth"
   },
   "Force remote sorting when in paginated mode. Warning, this can impact the performances.": {
-    "other": "Force remote sorting when in paginated mode. Warning, this can impact the performances."
+    "other": "Принудительная удаленная сортировка в режиме пагинации. Предупреждение, это может повлиять на производительность."
   },
   "Group Path": {
     "other": "Путь группы"
@@ -276,43 +276,43 @@
     "other": "Если включено, выше должен быть установлен лимит по умолчанию, когда файлы более не будут сжаты."
   },
   "If not inferred directly from the current pydio URL plus the public base URI, replace the public access URL here.": {
-    "other": "If not inferred directly from the current pydio URL plus the public base URI, replace the public access URL here."
+    "other": "Если не введен напрямую с текущего URL-адреса pydio плюс общедоступный URI, замените URL доступа здесь."
   },
   "If set to a given URL, the login action will not trigger the display of login screen but redirect to this URL.": {
-    "other": "If set to a given URL, the login action will not trigger the display of login screen but redirect to this URL."
+    "other": "Если задать данный URL, действие логина не вызовет экран входа, а перенаправит на этот URL."
   },
   "If you encounter problems with online zip creation or multiple files downloading, you can disable the feature.": {
-    "other": "If you encounter problems with online zip creation or multiple files downloading, you can disable the feature."
+    "other": "Если вы столкнетесь с проблемами с онлайн-созданием zip или загрузкой нескольких файлов, вы можете отключить эту функцию."
   },
   "If you have tons of workspaces (which is not recommanded), admin users login can take a long time while updating admin access to all repositories. Use this option to disable this step, admin will always have access to the Settings.": {
-    "other": "If you have tons of workspaces (which is not recommanded), admin users login can take a long time while updating admin access to all repositories. Use this option to disable this step, admin will always have access to the Settings."
+    "other": "Если у вас есть куча проектов (которые не были изменены), то вход администраторов может занять много времени при обновлении прав администратора во всех репозиториях. Используйте эту опцию, чтобы отключить этот шаг, администратор всегда будет иметь доступ к настройкам."
   },
   "If your server does not set correctly its charset, it can be good to specify it here manually.": {
-    "other": "If your server does not set correctly its charset, it can be good to specify it here manually."
+    "other": "Если ваш сервер неправильно установил кодировку, то его можно указывать вручную."
   },
   "Leave empty if you do not want to use a recycle bin.": {
-    "other": "Leave empty if you do not want to use a recycle bin."
+    "other": "Оставьте пустым, если не хотите использовать корзину."
   },
   "Login Redirect": {
-    "other": "Login Redirect"
+    "other": "Перенаправление Входа"
   },
   "Main": {
     "other": "Основные параметры"
   },
   "Main container for core Pydio settings (application title, sharing, webdav server config, etc...)": {
-    "other": "Main container for core Pydio settings (application title, sharing, webdav server config, etc...)"
+    "other": "Основной контейнер для основных настроек Pydio (название приложения, общий доступ, конфигурация сервера webdav и т.д...)"
   },
   "Maximum characters length of new files or folders": {
-    "other": "Maximum characters length of new files or folders"
+    "other": "Максимальная длина символов новых файлов или папок"
   },
   "Metadata and indexation": {
-    "other": "Metadata and indexation"
+    "other": "Метаданные и индексация"
   },
   "Miscellaneous": {
-    "other": "Miscellaneous"
+    "other": "Прочее"
   },
   "Modification date": {
-    "other": "Modification date"
+    "other": "Дата изменения"
   },
   "Name": {
     "other": "Наименование"
@@ -339,7 +339,7 @@
     "other": "Prefilled label for the new workspace, you can use the PYDIO_USER keyworkd in it."
   },
   "Public Base URI": {
-    "other": "Public Base URI"
+    "other": "Публичный URI базы"
   },
   "Pydio Main Options": {
     "other": "Pydio Main Options"
@@ -351,28 +351,28 @@
     "other": "Чтение и запись"
   },
   "Recycle Bin Folder": {
-    "other": "Recycle Bin Folder"
+    "other": "Папка корзины"
   },
   "Redirect URL": {
-    "other": "Redirect URL"
+    "other": "Переадресация URL"
   },
   "Remote Sorting": {
-    "other": "Remote Sorting"
+    "other": "Удаленная сортировка"
   },
   "Remote Sorting Default Direction": {
-    "other": "Remote Sorting Default Direction"
+    "other": "Направление удаленной сортировки по умолчанию"
   },
   "Remote Sorting Default Field": {
-    "other": "Remote Sorting Default Field"
+    "other": "Удаленная сортировка по умолчанию"
   },
   "Repository Commons": {
-    "other": "Repository Commons"
+    "other": "Комменты репозитория"
   },
   "Repository Slug": {
     "other": "Repository Slug"
   },
   "Scope": {
-    "other": "Scope"
+    "other": "Область"
   },
   "Server URL": {
     "other": "Server URL"
@@ -396,25 +396,25 @@
     "other": "Shares URI"
   },
   "Sharing": {
-    "other": "Sharing"
+    "other": "Поделиться"
   },
   "Show files beginning with a .": {
     "other": "Show files beginning with a ."
   },
   "Show hidden files": {
-    "other": "Show hidden files"
+    "other": "Показать скрытые файлы"
   },
   "Skip auto-update admin rights": {
-    "other": "Skip auto-update admin rights"
+    "other": "Пропустить автообновление прав администратора"
   },
   "Small Icon": {
-    "other": "Small Icon"
+    "other": "Маленькая иконка"
   },
   "Template Options": {
     "other": "Параметры шаблона"
   },
   "Temporary Folder": {
-    "other": "Temporary Folder"
+    "other": "Временная папка"
   },
   "This authentication mechanism is less secure, but will avoid the users having to re-enter a password in some case.": {
     "other": "This authentication mechanism is less secure, but will avoid the users having to re-enter a password in some case."
@@ -453,19 +453,19 @@
     "other": "Пользователь"
   },
   "User Credentials": {
-    "other": "User Credentials"
+    "other": "Учетные данные пользователя"
   },
   "User name": {
-    "other": "User name"
+    "other": "Имя пользователя"
   },
   "User name - Can be overriden on a per-user basis (see users 'Personal Data' tab)": {
-    "other": "User name - Can be overriden on a per-user basis (see users 'Personal Data' tab)"
+    "other": "Имя пользователя - может быть переопределен на основе каждого пользователя (см. вкладку \"Личные данные\")"
   },
   "User password": {
     "other": "Пароль пользователя"
   },
   "User password - Can be overriden on a per-user basis.": {
-    "other": "User password - Can be overriden on a per-user basis."
+    "other": "Пароль пользователя - может быть переопределен для каждого пользователя."
   },
   "WebDAV Server": {
     "other": "WebDAV Server"
@@ -483,21 +483,21 @@
     "other": "Whether to show the recycle bin folder. Unlike in the following options, the folder will be hidden but still writeable."
   },
   "Write Only (upload)": {
-    "other": "Write Only (upload)"
+    "other": "Только запись (загрузка)"
   },
   "Your application title": {
     "other": "This title will appear as the window title, in the splash screen."
   },
   "Zip Creation": {
-    "other": "Zip Creation"
+    "other": "Создание Zip"
   },
   "Zip Encoding": {
-    "other": "Zip Encoding"
+    "other": "Кодировка Zip"
   },
   "Merge Workspaces and Cells": {
-    "other": "Merge Workspaces and Cells"
+    "other": "Объединить рабочие области и ячейки"
   },
   "Do not display workspaces and cells separately": {
-    "other": "Do not display workspaces and cells separately"
+    "other": "Не показывать отдельно рабочие области и ячейки"
   }
 }

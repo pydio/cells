@@ -3,25 +3,25 @@
     "other": "Метаданные"
   },
   "10": {
-    "other": "Existing or new tag"
+    "other": "Существующий или новый тег"
   },
   "11": {
-    "other": "No metadata set, click to add any"
+    "other": "Метаданные не установлены, нажмите для добавления"
   },
   "16": {
-    "other": "No metadata set"
+    "other": "Нет набора метаданных"
   },
   "12": {
-    "other": "Multiple Selection:"
+    "other": "Выбрать несколько:"
   },
   "13": {
-    "other": "check the fields that you want to update, value will be applied to all selected files"
+    "other": "проверьте поля, которые вы хотите обновить, значение будет применяться ко всем выбранным файлам"
   },
   "14": {
-    "other": "Edit meta"
+    "other": "Изменить мету"
   },
   "15": {
-    "other": "Save meta"
+    "other": "Сохранить мету"
   },
   "2": {
     "other": "Нет метки"

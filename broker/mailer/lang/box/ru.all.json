@@ -231,7 +231,7 @@
     "other": "Api Key, предоставленный SendGrid для подключения к сервису"
   },
   "Mail.Config.Sendmail.Label": {
-    "other": "Sendmail"
+    "other": "Отправить почту"
   },
   "Mail.Config.Sendmail.Legend": {
     "other": "ВНИМАНИЕ: По умолчанию путь к исполняемому файлу /usr/bin/sendmail. Если вам нужно изменить его, пожалуйста, не забудьте установить ключ 'defaults > sendmail' в файле конфигурации pydio.json."

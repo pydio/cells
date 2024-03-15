@@ -1,6 +1,6 @@
 {
   "1": {
-    "other": "Versions"
+    "other": "Версии"
   },
   "10": {
     "other": "Дата"
@@ -9,57 +9,57 @@
     "other": "Автор"
   },
   "12": {
-    "other": "Modification"
+    "other": "Изменение"
   },
   "13": {
-    "other": "Are you sure you want to do this? Reverting to an old version will now create a new version of the document with the selected revision."
+    "other": "Вы уверены, что хотите это сделать? Возврат к старой версии позволит создать новую версию документа с выбранной версией."
   },
   "14": {
-    "other": "No previous versions found"
+    "other": "Предыдущие версии не найдены"
   },
   "15": {
-    "other": "Versions are created when you update the file content"
+    "other": "Версии создаются при обновлении содержимого файла"
   },
   "16": {
-    "other": "Previous versions for '%s'"
+    "other": "Предыдущие версии для '%s'"
   },
   "2": {
-    "other": "Document previous versions"
+    "other": "Предыдущие версии документа"
   },
   "3": {
     "other": "Скачивание"
   },
   "4": {
-    "other": "Download selected version to your computer"
+    "other": "Скачать выбранную версию на ваш компьютер"
   },
   "5": {
-    "other": "Preview (browser)"
+    "other": "Предпросмотр (браузер)"
   },
   "6": {
-    "other": "Open the selected version in a browser window"
+    "other": "Открыть выбранную версию в окне браузера"
   },
   "7": {
-    "other": "Revert to..."
+    "other": "Вернуться к..."
   },
   "8": {
-    "other": "Revert the file to the selected revision on the server"
+    "other": "Вернуть файл выбранной ревизии на сервере"
   },
   "9": {
     "other": "#"
   },
   "CREATION": {
-    "other": "File created"
+    "other": "Файл создан"
   },
   "DELETION": {
-    "other": "File deleted"
+    "other": "Файл удален"
   },
   "MODIFICATION": {
-    "other": "Content modified"
+    "other": "Содержимое изменено"
   },
   "MOVE": {
-    "other": "File moved"
+    "other": "Файл перемещен"
   },
   "RENAME": {
-    "other": "File renamed"
+    "other": "Файл переименован"
   }
 }

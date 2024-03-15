@@ -51,13 +51,13 @@
     "other": "フラットストレージ"
   },
   "ds.format-picker.flat.legend": {
-    "other": "パフォーマンスに最適で、ファイルはストレージ内にバイナリとして保存されます。ファイルとフォルダ構造は内部インデックスにのみ保存されます。"
+    "other": "The files are stored as binaries along regular snapshots of the tree structure to ensure an efficient disaster recovery. This is the recommended option for best performances and scalability."
   },
   "ds.format-picker.structured.title": {
     "other": "既存のデータをインポート"
   },
   "ds.format-picker.structured.legend": {
-    "other": "ファイルとフォルダはそのまま保存され、リアルタイム同期は内部インデックス内のストレージ構造を反映しています。"
+    "other": "The tree structure is reflected in the storage and maintained in real-time synchronization. This legacy option is NOT recommended and should only be used for importing existing data. It is event-based and must not be used in high load or clustered installation."
   },
   "ds.format-picker.internal.title": {
     "other": "Cells の内部"

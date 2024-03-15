@@ -15,7 +15,7 @@
     "other": "Источник данных"
   },
   "ds.board.enc.legend": {
-    "other": "Мастер-ключи автоматически генерируются сервисом Pydio и хранятся в защищенной от сервера связке ключей. Используйте инструменты ниже, чтобы экспортировать/импортировать эти ключи в случае, если вам нужно переустановить или развернуть на другом сервере"
+    "other": "Мастер-ключи автоматически генерируются службой Pydio и сохраняются в защищенном хранилище ключей на сервере. Используйте инструменты ниже для экспорта/импорта этих ключей в случае необходимости переустановки или развертывания на другом сервере"
   },
   "ds.board.enc.title": {
     "other": "Мастер-ключи шифрования"
@@ -51,13 +51,13 @@
     "other": "Фиксированное хранилище"
   },
   "ds.format-picker.flat.legend": {
-    "other": "Лучше всего для производительности, файлы хранятся в виде двоичных данных внутри хранилища. Структура файлов и папок хранится только во внутреннем индексе."
+    "other": "The files are stored as binaries along regular snapshots of the tree structure to ensure an efficient disaster recovery. This is the recommended option for best performances and scalability."
   },
   "ds.format-picker.structured.title": {
     "other": "Импорт существующих данных"
   },
   "ds.format-picker.structured.legend": {
-    "other": "Файлы и папки хранятся как таковые, в реальном времени отражают структуру хранилища во внутренних индексах."
+    "other": "The tree structure is reflected in the storage and maintained in real-time synchronization. This legacy option is NOT recommended and should only be used for importing existing data. It is event-based and must not be used in high load or clustered installation."
   },
   "ds.format-picker.internal.title": {
     "other": "Содержимое ячейки"
@@ -165,7 +165,7 @@
     "other": "Режим только для чтения"
   },
   "ds.editor.storage.legend.readOnly": {
-    "other": "Используйте режим только для чтения, если вам требуется, чтобы Cells никогда не записывали никаких файлов и использовали собственные теги eTag в качестве контрольных сумм (это может быть необходимо для блоков с огромным количеством существующих данных). Обратите внимание, что любые рабочие пространства, созданные на таком источнике данных, должны быть установлены как Только для чтения, так как функция перемещения не сможет функционировать."
+    "other": "Используйте режим только для чтения, если вам требуется, чтобы ячейки никогда не записывали никаких файлов и использовали собственные теги eTag в качестве контрольных сумм (это может быть необходимо для блоков с огромным количеством существующих данных). Обратите внимание, что любые рабочие пространства, созданные на таком источнике данных, должны быть установлены как Только для чтения, так как функция перемещения не сможет функционировать."
   },
   "ds.editor.storage.flatStorage": {
     "other": "Сохранять структуру данных при хранении"
@@ -186,7 +186,7 @@
     "other": "Использовать Etags (отключит синхронизацию с компьютером)"
   },
   "ds.editor.storage.legend.checksumMapper": {
-    "other": "Для правильного обнаружения изменений контрольные суммы файлов (md5) вычисляются Cells (или хранилищем с копией на месте, когда это возможно) и присоединяются в качестве метаданных к объектам. Для достижения наилучших результатов используйте флаг ETags, чтобы сохранить исходные значения хранилища, но помните, что это отключит синхронизацию рабочего стола в этом источнике данных. Вы также можете просто предотвратить модификацию объектов, все еще вычисляя контрольные суммы, сохраняя метаданные локально."
+    "other": "Для правильного обнаружения изменений контрольные суммы файлов (md5) вычисляются ячейки (или хранилищем с копией на месте, когда это возможно) и присоединяются в качестве метаданных к объектам. Для достижения наилучших результатов используйте флаг ETags, чтобы сохранить исходные значения хранилища, но помните, что это отключит синхронизацию рабочего стола в этом источнике данных. Вы также можете просто предотвратить модификацию объектов, все еще вычисляя контрольные суммы, сохраняя метаданные локально."
   },
   "ds.editor.new": {
     "other": "Новый источник данных"
@@ -237,10 +237,10 @@
     "other": "Любой пир (уникальный узел или распределенный FS)"
   },
   "ds.editor.selector.peer.word": {
-    "other": "Пир"
+    "other": "Равноправный участник"
   },
   "ds.editor.selector.peer.invalid": {
-    "other": "недопустимо"
+    "other": "неверный"
   },
   "ds.editor.selector.mkdir": {
     "other": "Создать папку"
@@ -1089,7 +1089,7 @@
     "other": "Удалить правило"
   },
   "policies.acl.empty-string": {
-    "other": "No policies defined, create one use to it as a dynamic workspace permission."
+    "other": "Политики не определены, создайте их как разрешение на динамическое пространство."
   },
   "policies.rule.delete.confirm": {
     "other": "Вы уверены, что хотите удалить это правило безопасности? Это может нарушить модель безопасности приложения!"
@@ -1725,7 +1725,7 @@
     "other": "Разрешить синхронизацию рабочего стола"
   },
   "ws.editor.other.sync.legend": {
-    "other": "Desktop synchronisation allows users to synchronize their files offline on their computer. Warning, this feature is currently supported for personal files only, as shared workspaces may create conflicts if many users synchronize docs in the same folder. For personal files, you can also enable/disable this feature on a per-role basis using Security Policies."
+    "other": "Синхронизация рабочего стола позволяет пользователям синхронизировать свои файлы в автономном режиме на своем компьютере. Предупреждение, эта функция в настоящее время поддерживается только для личных файлов, так как общие рабочие пространства могут создавать конфликты, если много пользователей синхронизируют документы в одной папке. Для персональных файлов вы также можете включить/отключить эту функцию на основе отдельных ролей, используя Политики безопасности."
   },
   "ws.editor.other.sync-personal": {
     "other": "(только для личного рабочего пространства)"
@@ -1737,13 +1737,13 @@
     "other": "Я понимаю"
   },
   "ws.editor.sync.warning.enable": {
-    "other": "Enabling sync on shared workspaces may have unexpected results if many users are syncing and editing files together. Please note that THIS FEATURE IS CURRENTLY NOT SUPPORTED by our professional services. Please use this feature at your own risk!"
+    "other": "Включение синхронизации на разделяемом рабочем пространстве может иметь неожиданные результаты, если пользователи синхронизируют и редактируют файлы вместе. Пожалуйста, обратите внимание, что ЭТО БУДУТ НЕ ПОДДЕРЖИВАЕТСЯ нашими профессиональными услугами. Пожалуйста, используйте эту функцию на свой страх и риск!"
   },
   "ws.editor.sync.warning.disable": {
-    "other": "If people are connected to this workspace, their sync task will not be working any more! Are you sure you want to change that?"
+    "other": "Если люди подключены к этому проекту, их задача синхронизации больше не будет работать! Вы уверены, что хотите изменить это?"
   },
   "ws.editor.other.quota": {
-    "other": "Disk Usage Quota (leave 0 for no limit). This quota is computed on all files of this workspace (or user-specific contents for workspaces like Personal Files)."
+    "other": "Disk Usage Quota (оставьте 0 без ограничения). Эта квота вычисляется на всех файлах этого проекта (или на конкретном пользовательском контенте для рабочих областей, таких как личные файлы)."
   },
   "ws.editor.other.quota.noquota": {
     "other": "Квота не установлена"
@@ -1758,7 +1758,7 @@
     "other": "Техническое имя, используемое, например, в URL, автоматически генерируется, но вы можете настроить его."
   },
   "services.text-filter.hint": {
-    "other": "Filter..."
+    "other": "Фильтр..."
   },
   "services.filter.nofilter": {
     "other": "Все сервисы"
@@ -1776,10 +1776,10 @@
     "other": "Показать детали"
   },
   "services.empty.loading": {
-    "other": "Loading services status"
+    "other": "Статус загрузки сервисов"
   },
   "services.empty.noservice": {
-    "other": "No service"
+    "other": "Нет сервиса"
   },
   "services.column.name": {
     "other": "Имя сервиса"
@@ -1824,7 +1824,7 @@
     "other": "Планировщик"
   },
   "services.tag.scheduler.description": {
-    "other": "Services for managing background jobs. The task server can be dispatched across various peers."
+    "other": "Сервисы для управления фоновыми заданиями. Сервер задач может быть отправлен по различным узлам."
   },
   "services.tag.broker.title": {
     "other": "Брокер"
@@ -1833,31 +1833,31 @@
     "other": "Сервис диспетчеризации и обработки событий (как правило, по отношению к пользователям) по всему приложению."
   },
   "services.tag.frontend.title": {
-    "other": "Frontend"
+    "other": "Интерфейс"
   },
   "services.tag.frontend.description": {
-    "other": "Web services for user interfaces in the browser"
+    "other": "Веб-сервисы для пользовательских интерфейсов в браузере"
   },
   "services.tag.discovery.title": {
-    "other": "Discovery"
+    "other": "Поиск"
   },
   "services.tag.discovery.description": {
-    "other": "Basic configurations and services registries called by all other services."
+    "other": "Основные конфигурации и службы реестров, вызываемых всеми другими сервисами."
   },
   "services.service.ip": {
-    "other": "Running on %s"
+    "other": "Выполняется на %s"
   },
   "services.service.datasource.sync": {
-    "other": "Sync"
+    "other": "Синхронизация"
   },
   "services.service.datasource.objects": {
-    "other": "Objects"
+    "other": "Объекты"
   },
   "services.service.datasource.objects.legend": {
-    "other": "S3 layer to serve data as object storage"
+    "other": "S3 слой для обработки данных в качестве хранилища объектов"
   },
   "services.service.datasource.legend": {
-    "other": "Datasource is synchronizing data from objects layer to index DB."
+    "other": "Источник данных синхронизирует данные с уровня объектов до индекса БД."
   },
   "services.service.datasource.index": {
     "other": "Индексация"
@@ -1866,34 +1866,34 @@
     "other": "Планировщик"
   },
   "scheduler.legend": {
-    "other": "Flows running in background on a periodical basis or triggered by events"
+    "other": "Потоки, работающие в фоновом режиме на периодической основе или вызываемые событиями"
   },
   "scheduler.system.title": {
-    "other": "System Flows"
+    "other": "Системные Потоки"
   },
   "scheduler.system.legend": {
-    "other": "These Flows are registered by default inside the application. They are generally in charge of extracting information from node in background, or doing some cleaning operations."
+    "other": "Эти Потоки по умолчанию зарегистрированы внутри приложения. Они обычно отвечают за извлечение информации из узла в фоновом режиме или выполнение некоторых операций очистки."
   },
   "scheduler.inactives.title": {
-    "other": "Inactive Flows"
+    "other": "Неактивные потоки"
   },
   "scheduler.inactives.legend": {
-    "other": "These Flows are inactive, click on a Flow to enable it."
+    "other": "Эти потоки неактивны, нажмите на поток, чтобы включить его."
   },
   "scheduler.system.empty": {
-    "other": "No Flows scheduled."
+    "other": "Потоки не запланированы."
   },
   "scheduler.users.title": {
-    "other": "Users Flows"
+    "other": "Потоки пользователей"
   },
   "scheduler.users.legend": {
-    "other": "These Flows are dynamically created and trigged by user actions."
+    "other": "Эти потоки динамически создаются и вызываются действиями пользователей."
   },
   "scheduler.users.empty": {
-    "other": "No Flows launched by users"
+    "other": "Нет динамиков, запущенных пользователями"
   },
   "scheduler.cellsflows.cta.button": {
-    "other": "+ Custom Flow"
+    "other": "+ Пользовательский поток"
   },
   "scheduler.cellsflows.cta.text": {
     "other": "Хотите создать свой собственный Flow? Узнайте, как Cells Flows упрощает автоматизацию повторяющихся ручных задач в Cells."
@@ -2103,7 +2103,7 @@
     "other": "Удалить комнату чата"
   },
   "scheduler.trigger.chat-room.delete.description": {
-    "other": "A Chatroom has been deleted."
+    "other": "Чат-комната была удалена."
   },
   "scheduler.trigger.events": {
     "other": "События"
@@ -2133,13 +2133,13 @@
     "other": "Удалить"
   },
   "scheduler.task.action.enable": {
-    "other": "Enable Flow"
+    "other": "Включить поток"
   },
   "scheduler.task.action.run": {
     "other": "Запустить"
   },
   "scheduler.task.action.disable": {
-    "other": "Disable Flow"
+    "other": "Отключить поток"
   },
   "scheduler.task.id": {
     "other": "ID"
@@ -2217,7 +2217,7 @@
     "other": "Каждый %1"
   },
   "scheduler.schedule.title": {
-    "other": "Flow Schedule"
+    "other": "Расписание потока"
   },
   "scheduler.schedule.type": {
     "other": "Тип расписания"
@@ -2238,7 +2238,7 @@
     "other": "Каждые..."
   },
   "scheduler.schedule.type.once": {
-    "other": "Run Once"
+    "other": "Запустить один раз"
   },
   "scheduler.schedule.detail.monthday": {
     "other": "День месяца"
@@ -2250,13 +2250,13 @@
     "other": "Время"
   },
   "scheduler.schedule.detail.daydate": {
-    "other": "Unique Date"
+    "other": "Уникальная дата"
   },
   "scheduler.schedule.detail.minutes": {
     "other": "Период в минутах"
   },
   "scheduler.job-parameters.dialog": {
-    "other": "Flow Parameters"
+    "other": "Параметры потока"
   },
   "scheduler.job-parameters.button": {
     "other": "Установите метку и короткое описание"
@@ -2277,10 +2277,10 @@
     "other": "Загрузка библиотеки почты..."
   },
   "sites.title": {
-    "other": "Sites"
+    "other": "Сайты"
   },
   "sites.externals": {
-    "other": "External URLs"
+    "other": "Внешние URL-адреса"
   },
   "sites.details": {
     "other": "<div>\nSites define how Cells is binding to network interfaces and how it is exposed to the outside world.\nUse ‘<i>./cells configure sites</i>’ to manage your sites from the command line.\n<br/><br/>\nEach site has the following parameters:\n\n<ol>\n<li>1. <u>Bind(s)</u>: one or more [ip/hostname:port] to hook the internal webserver to.</li>\n<li>2. <u>TLS Settings</u>: TLS configuration for HTTPS support.</li>\n<li>3. <u>External URL</u>: the URL you communicate to your end-users. It can differ from your bind address, typically if the app is behind a reverse-proxy or inside a container with ports mapping.</li>\n<li>4. <u>Maintenance Mode</u> [On|Off]: display a maintenance page on this endpoint, although Cells is running.</li>\n</ol></div>"

@@ -12,7 +12,7 @@
     "other": "Templates"
   },
   "PolicyGroup.ACLSample1.Title": {
-    "other": "[Example] 複雑な ACL ポリシー"
+    "other": "Complex ACL Policy"
   },
   "PolicyGroup.ACLSample1.Description": {
     "other": "ACLを動的に管理するための複雑なポリシーのサンプル"
@@ -27,7 +27,7 @@
     "other": "Localhost以外からリクエストは、PNG拡張子のファイルを除外します"
   },
   "PolicyGroup.ACLSamplePeriod.Title": {
-    "other": "[Example] 期間制限"
+    "other": "Limited Period"
   },
   "PolicyGroup.ACLSamplePeriod.Description": {
     "other": "指定された期間のみワークスペースへのアクセスを有効にします"
@@ -36,7 +36,7 @@
     "other": "ACLルールの例では、2018年2月と3月にのみアクセスを許可"
   },
   "PolicyGroup.ACLSampleDateDisable.Title": {
-    "other": "[Example] 指定された日付以降のアクセスはありません"
+    "other": "No access after a given date"
   },
   "PolicyGroup.ACLSampleDateDisable.Description": {
     "other": "指定された日付の後にワークスペースへのアクセスを無効にする"
@@ -48,7 +48,7 @@
     "other": "日付が2018-02-28以降の場合は読み込み/書き込みを拒否する"
   },
   "PolicyGroup.ACLSampleBusinessHours.Title": {
-    "other": "[Example] アクセスは営業時間中のみ許可されます"
+    "other": "Access allowed only during business hours"
   },
   "PolicyGroup.ACLSampleBusinessHours.Description": {
     "other": "事前に定義された時間でワークスペースへのアクセスを有効にする"
@@ -57,7 +57,7 @@
     "other": "勤務時間ルールの例、読み取り/書き込みを許可"
   },
   "PolicyGroup.ACLSampleExternalIP.Title": {
-    "other": "[Example] IP ベースのアクセスを無効にする"
+    "other": "Disable access based on IP"
   },
   "PolicyGroup.ACLSampleExternalIP.Description": {
     "other": "LAN 以外へのIP へのアクセスを無効にする"

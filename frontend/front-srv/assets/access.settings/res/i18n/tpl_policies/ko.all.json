@@ -12,7 +12,7 @@
     "other": "Templates"
   },
   "PolicyGroup.ACLSample1.Title": {
-    "other": "[Example] 컴플렉스 ACL 정책"
+    "other": "Complex ACL Policy"
   },
   "PolicyGroup.ACLSample1.Description": {
     "other": "동적으로 ACL을 관리하기 위한 샘플 컴플렉스 정책"
@@ -27,7 +27,7 @@
     "other": "요청이 localhost에서 오지 않는 경우 확장자가 PNG인 파일을 필터링"
   },
   "PolicyGroup.ACLSamplePeriod.Title": {
-    "other": "[Example] 기간 제한"
+    "other": "Limited Period"
   },
   "PolicyGroup.ACLSamplePeriod.Description": {
     "other": "오직 주어진 기간동안 작업공간을 접근하게 함"
@@ -36,7 +36,7 @@
     "other": "ACL 룰 예제, 2018년 2월 및 3월에만 액세스 허용"
   },
   "PolicyGroup.ACLSampleDateDisable.Title": {
-    "other": "[Example] 주어진 날짜 이후로 접근 불가"
+    "other": "No access after a given date"
   },
   "PolicyGroup.ACLSampleDateDisable.Description": {
     "other": "주어진 날짜 이후로 작업공간에 접근 못하게 함"
@@ -48,7 +48,7 @@
     "other": "날짜가 2018-02-28 이후로 읽기/쓰기 금지"
   },
   "PolicyGroup.ACLSampleBusinessHours.Title": {
-    "other": "[Example] 오직 업무 시간에만 접근 허용"
+    "other": "Access allowed only during business hours"
   },
   "PolicyGroup.ACLSampleBusinessHours.Description": {
     "other": "미리 정의된 시간 내에 특정 일에만 작업 공간에 접근 가능"
@@ -57,7 +57,7 @@
     "other": "업무 시간 규칙 예제, 읽기/쓰기 허용"
   },
   "PolicyGroup.ACLSampleExternalIP.Title": {
-    "other": "[Example] IP 기반 접근 안 함"
+    "other": "Disable access based on IP"
   },
   "PolicyGroup.ACLSampleExternalIP.Description": {
     "other": "LAN 외부의 IP는 접근 못하게 함"

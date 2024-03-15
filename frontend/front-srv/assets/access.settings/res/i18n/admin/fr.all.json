@@ -51,13 +51,13 @@
     "other": "Stockage à plat"
   },
   "ds.format-picker.flat.legend": {
-    "other": "Pour de meilleures performances, les fichiers sont stockés en tant que binaires à l'intérieur du stockage. La structure des fichiers et des dossiers est conservée dans l'index interne seulement."
+    "other": "Les fichiers sont stockés comme des objets binaires, et l'arborescence des répertoires est envoyée régulièrement dans le stockage en cas de besoin de récupération. Option recommandée pour les performances et la scalabilité."
   },
   "ds.format-picker.structured.title": {
     "other": "Importer des données existantes"
   },
   "ds.format-picker.structured.legend": {
-    "other": "Les fichiers et les dossiers sont stockés tels quels, la synchronisation en temps réel reflète la structure de stockage à l'intérieur des index internes."
+    "other": "The tree structure is reflected in the storage and maintained in real-time synchronization. This legacy option is NOT recommended and should only be used for importing existing data. It is event-based and must not be used in high load or clustered installation."
   },
   "ds.format-picker.internal.title": {
     "other": "Format Interne"

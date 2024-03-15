@@ -1,26 +1,26 @@
 {
   "Audio/Video Capture": {
-    "other": "Audio/Video Capture"
+    "other": "Аудио/Видео захват"
   },
   "Use device webcam, microphone or screencast to capture audio and video": {
-    "other": "Use device webcam, microphone or screencast to capture audio and video"
+    "other": "Использовать веб-камеру, микрофон или скринкаст устройства для записи аудио и видео"
   },
   "Enable Webcam": {
-    "other": "Enable Webcam"
+    "other": "Включить веб-камеру"
   },
   "Enable capturing from webcam": {
-    "other": "Enable capturing from webcam"
+    "other": "Включить захват с веб-камеры"
   },
   "Enable Screencast": {
-    "other": "Enable Screencast"
+    "other": "Включить скринкаст"
   },
   "Enable capturing from shared screen": {
-    "other": "Enable capturing from shared screen"
+    "other": "Включить захват с общего экрана"
   },
   "Enable Audio": {
-    "other": "Enable Audio"
+    "other": "Включить звук"
   },
   "Enable capturing simple audio from microphone": {
-    "other": "Enable capturing simple audio from microphone"
+    "other": "Включить захват простого звука с микрофона"
   }
 }

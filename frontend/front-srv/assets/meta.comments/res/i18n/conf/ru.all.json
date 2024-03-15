@@ -1,14 +1,14 @@
 {
   "Comment limit": {
-    "other": "Comment limit"
+    "other": "Предельное количество комментариев"
   },
   "Comments Feed": {
-    "other": "Comments Feed"
+    "other": "Лента комментариев"
   },
   "Display a chat-like feed on every nodes": {
-    "other": "Display a chat-like feed on every nodes"
+    "other": "Отображать чат-ленту на каждом узле"
   },
   "Maximum number of characters for each comment": {
-    "other": "Maximum number of characters for each comment"
+    "other": "Максимальное количество символов для каждого комментария"
   }
 }

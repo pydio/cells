@@ -51,13 +51,13 @@
     "other": "Armazenamento plano"
   },
   "ds.format-picker.flat.legend": {
-    "other": "O melhor para desempenho, os arquivos são armazenados como binários dentro do armazenamento. A estrutura dos arquivos e pastas é mantida apenas no índice interno."
+    "other": "The files are stored as binaries along regular snapshots of the tree structure to ensure an efficient disaster recovery. This is the recommended option for best performances and scalability."
   },
   "ds.format-picker.structured.title": {
     "other": "Importar dados existentes"
   },
   "ds.format-picker.structured.legend": {
-    "other": "Arquivos e pastas são armazenadas como está, sincronização em tempo real reflete a estrutura de armazenamento dentro de índices internos."
+    "other": "The tree structure is reflected in the storage and maintained in real-time synchronization. This legacy option is NOT recommended and should only be used for importing existing data. It is event-based and must not be used in high load or clustered installation."
   },
   "ds.format-picker.internal.title": {
     "other": "Células Internas"

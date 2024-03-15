@@ -12,7 +12,7 @@
     "other": "Templates"
   },
   "PolicyGroup.ACLSample1.Title": {
-    "other": "[Example] Política de ACL Complexa"
+    "other": "Complex ACL Policy"
   },
   "PolicyGroup.ACLSample1.Description": {
     "other": "Exemplo de política complexa para gerenciar as ACLs dinamicamente"
@@ -27,7 +27,7 @@
     "other": "Filtrar qualquer arquivo com uma extensão PNG se a solicitação não for feita de localhost"
   },
   "PolicyGroup.ACLSamplePeriod.Title": {
-    "other": "[Example] Período Limitado"
+    "other": "Limited Period"
   },
   "PolicyGroup.ACLSamplePeriod.Description": {
     "other": "Habilita o acesso a um espaço de trabalho para somente um determinado período"
@@ -36,7 +36,7 @@
     "other": "Exemplo de regra de ACL, permitindo acesso apenas em Fev. e Março de 2018"
   },
   "PolicyGroup.ACLSampleDateDisable.Title": {
-    "other": "[Example] Sem acesso após uma determinada data"
+    "other": "No access after a given date"
   },
   "PolicyGroup.ACLSampleDateDisable.Description": {
     "other": "Desabilitar acesso a um espaço de trabalho após uma determinada data"
@@ -48,7 +48,7 @@
     "other": "Negar leitura/escrita se a data for depois de 2018-02-28"
   },
   "PolicyGroup.ACLSampleBusinessHours.Title": {
-    "other": "[Example] Acesso permitido somente durante o horário comercial"
+    "other": "Access allowed only during business hours"
   },
   "PolicyGroup.ACLSampleBusinessHours.Description": {
     "other": "Permitir o acesso a um espaço de trabalho somente determinados dias dentro de horas pré-definidas"
@@ -57,7 +57,7 @@
     "other": "Exemplo de regra de horário de escritório, permitindo leitura/escrita"
   },
   "PolicyGroup.ACLSampleExternalIP.Title": {
-    "other": "[Example] Desabilitar acesso baseado em IP"
+    "other": "Disable access based on IP"
   },
   "PolicyGroup.ACLSampleExternalIP.Description": {
     "other": "Desabilitar acesso a IPs fora da LAN"
