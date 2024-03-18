@@ -22,7 +22,17 @@ const HomepageRouterWrapper = (pydio) => {
     class HomepageRouter extends React.PureComponent {
         componentDidMount() {
             if (pydio.user) {
-                pydio.triggerRepositoryChange("homepage");
+                if(localStorage.getItem('loginOrigin')) {
+                    return
+                }
+                const {user} = pydio;
+                let start = user.getPreference('DEFAULT_START_REPOSITORY')
+                if(start === '-1') {
+                    start = 'homepage'
+                }
+                if(user.getActiveRepository() !== start && user.getRepositoriesList().has(start)) {
+                    pydio.triggerRepositoryChange(start).catch(e =>{});
+                }
             }
         }
 
