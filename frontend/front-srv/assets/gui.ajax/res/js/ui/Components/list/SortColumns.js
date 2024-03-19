@@ -26,12 +26,11 @@ import IconButtonMenu from '../menu/IconButtonMenu'
 
 
 class SortColumns extends React.Component {
-    // static propTypes = {
-    //     tableKeys           : React.PropTypes.object.isRequired,
-    //     columnClicked       : React.PropTypes.func,
-    //     sortingInfo         : React.PropTypes.object,
-    //     displayMode         : React.PropTypes.string
-    // };
+
+    constructor(props) {
+        super(props)
+        this.state = {expandMore: false}
+    }
 
     onMenuClicked(object){
         this.props.columnClicked(object.payload);
@@ -52,11 +51,10 @@ class SortColumns extends React.Component {
                 controller.notify('actions_refreshed');
             }
         };
-        const {tableKeys, sortingInfo} = this.props;
+        const {pydio, tableKeys, sortingInfo} = this.props;
+        const {expandMore} = this.state;
 
-        return Object.keys(tableKeys).map(key => {
-            let data = tableKeys[key];
-            let style = data['width']?{width:data['width']}:null;
+        const dataStatus = (key, data) => {
             let icon;
             let className = 'cell header_cell cell-' + key;
             let isActive;
@@ -72,6 +70,22 @@ class SortColumns extends React.Component {
                     isActive = true
                 }
             }
+            return {icon, className, isActive}
+        }
+
+        let userMetas = []
+        let allKeys = {...tableKeys}
+        if(displayMode === 'menu_data' && !expandMore) {
+            Object.keys(allKeys).filter(key => key.indexOf('usermeta-') === 0).forEach(k => {
+                userMetas.push({...allKeys[k], name: k})
+                delete (allKeys[k])
+            })
+        }
+
+        const entries = Object.keys(allKeys).map(key => {
+            let data = allKeys[key];
+            let style = data['width']?{width:data['width']}:null;
+            const {icon, className, isActive} = dataStatus(key, data)
             if(displayMode === 'menu') {
                 data['name'] = key;
                 return {
@@ -99,6 +113,29 @@ class SortColumns extends React.Component {
             }
 
         })
+
+        if(userMetas.length) {
+            entries.push({
+                name: pydio.MessageHash['ajax_gui.sorter.metas.more'],
+                icon_class: 'mdi mdi-tag-multiple-outline',
+                subMenu:userMetas.map(meta => {
+                    const {icon, className, isActive} = dataStatus(meta.name, meta)
+                    const label = (
+                        <span style={{display:'flex'}}>
+                            <span style={{flex:1, fontWeight:isActive?500:'inherit'}}>{meta['label']}</span>
+                            {isActive && <span className={'mdi mdi-checkbox-marked-circle-outline'}/>}
+                        </span>
+                    )
+                    return {
+                        text: label,
+                        iconClassName:icon || 'mdi mdi-tag-outline',
+                        payload:() => {this.onHeaderClick(meta.name, callback)}
+                    }
+                })
+            })
+        }
+
+        return entries;
 
     }
 

@@ -1,7 +1,5 @@
-import React from 'react';
-
 /*
- * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
+ * Copyright 2024 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
  *
  * Pydio is free software: you can redistribute it and/or modify
@@ -19,6 +17,8 @@ import React from 'react';
  *
  * The latest code can be found at <https://pydio.com>.
  */
+
+import React from 'react';
 
 import PropTypes from 'prop-types';
 
@@ -189,7 +189,7 @@ class MainFilesList extends React.Component {
         if(!pydio.user){
             return defaultValue;
         }
-        return pydio.user.getWorkspacePreference(prefName, defaultValue)
+        return pydio.user.getLayoutPreference(prefName, defaultValue)
     }
 
     /**
@@ -199,7 +199,7 @@ class MainFilesList extends React.Component {
      */
     setPrefValue(prefName, value){
         const {pydio} = this.props;
-        pydio.user && pydio.user.setWorkspacePreference(prefName, value)
+        pydio.user && pydio.user.setLayoutPreference(prefName, value)
     }
 
     componentDidMount() {

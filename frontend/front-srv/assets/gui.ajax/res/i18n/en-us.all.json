@@ -310,5 +310,8 @@
   },
   "bigppanel.filter.default-hint": {
     "other": "Quick Find..."
+  },
+  "sorter.metas.more": {
+    "other": "More..."
   }
 }

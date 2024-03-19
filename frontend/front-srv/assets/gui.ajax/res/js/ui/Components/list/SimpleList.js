@@ -197,7 +197,7 @@ let SimpleList = createReactClass({
                     stateSetCallback();
                 }
                 if(sortingPreferenceKey) {
-                    user.setWorkspacePreference(sortingPreferenceKey, sortingInfo)
+                    user.setLayoutPreference(sortingPreferenceKey, sortingInfo)
                 }
                 this.sortingInfoChange(sortingInfo)
             });
@@ -325,7 +325,7 @@ let SimpleList = createReactClass({
         }
         let sortingInfo = defaultSortingInfo || null;
         if(sortingPreferenceKey) {
-            sortingInfo = pydio.user.getWorkspacePreference(sortingPreferenceKey, sortingInfo)
+            sortingInfo = pydio.user.getLayoutPreference(sortingPreferenceKey, sortingInfo)
         }
         let state = {
             loaded              : node.isLoaded(),
@@ -349,7 +349,7 @@ let SimpleList = createReactClass({
         } else if(remote instanceof Object) {
             sortingInfo = remote;
         } else if(node !== this.props.node && sortingPreferenceKey) {
-            sortingInfo = pydio.user.getWorkspacePreference(sortingPreferenceKey, sortingInfo)
+            sortingInfo = pydio.user.getLayoutPreference(sortingPreferenceKey, sortingInfo)
         }
         this.sortingInfoChange(sortingInfo)
         this.setState({

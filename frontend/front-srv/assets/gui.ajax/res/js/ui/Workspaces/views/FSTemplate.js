@@ -39,13 +39,13 @@ class FSTemplate extends React.Component {
         super(props);
         const {pydio} = props
         const uPref = (k, v) => {
-            return pydio.user ? pydio.user.getWorkspacePreference(k, v) : v
+            return pydio.user ? pydio.user.getLayoutPreference(k, v) : v
         }
 
         this.state = {
-            infoPanelOpen: uPref('pydio.layout.infoPanelOpen', true), // open by default
-            chatOpen: uPref('pydio.layout.chatOpen', false), // closed by default
-            chatDetached: uPref('pydio.layout.chatDetached', true), // detached by default
+            infoPanelOpen: uPref('FSTemplate.infoPanelOpen', true), // open by default
+            chatOpen: uPref('FSTemplate.chatOpen', false), // closed by default
+            chatDetached: uPref('FSTemplate.chatDetached', true), // detached by default
             drawerOpen: false,
             searchFormState: {},
             searchView: false
@@ -105,7 +105,7 @@ class FSTemplate extends React.Component {
         const {pydio} = this.props;
         this.setState({[keyName]: newValue}, ()=> {
             this.resizeAfterTransition()
-            pydio.user.setWorkspacePreference('pydio.layout.' + keyName, !!newValue)
+            pydio.user.setLayoutPreference('FSTemplate.' + keyName, !!newValue)
         })
     }
 
@@ -273,7 +273,7 @@ class FSTemplate extends React.Component {
                         {...props}
                         closed={!infoPanelOpen}
                         afterResize={()=>this.resizeAfterTransition()}
-                        storageKey={searchView?'pydio.layout.searchView':'pydio.layout.infoPanel'}
+                        storageKey={searchView?'MultiColumn.SearchView':'MultiColumn.InfoPanel'}
                         dataModel={pydio.getContextHolder()}
                         onRequestClose={()=>{this.toggleRightPanel('info-panel')}}
                         onContentChange={this.infoPanelContentChange.bind(this)}
