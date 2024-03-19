@@ -36,22 +36,11 @@ class Store extends Observable{
     }
 
     getUserPreference(prefName){
-        var prefKey = this._namespace + prefName;
-        var guiPrefs = this._pydio.user.getPreference('gui_preferences', true);
-        if(guiPrefs && guiPrefs[prefKey]){
-            return guiPrefs[prefKey];
-        }else{
-            return null;
-        }
+        return this._pydio.user.getLayoutPreference(this._namespace + prefName, null)
     }
 
     saveUserPreference(prefName, prefValue){
-        var prefKey = this._namespace + prefName;
-        var guiPrefs = this._pydio.user.getPreference('gui_preferences', true);
-        if(!guiPrefs) guiPrefs = {};
-        guiPrefs[prefKey] = prefValue;
-        this._pydio.user.setPreference('gui_preferences', guiPrefs, true);
-        this._pydio.user.savePreference('gui_preferences');
+        this._pydio.user.setLayoutPreference(this._namespace + prefName, prefValue)
     }
 
     saveCards(cards){

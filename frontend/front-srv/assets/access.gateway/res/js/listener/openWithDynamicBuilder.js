@@ -38,8 +38,9 @@ export default function(pydio) {
 
         const user = pydio.user;
         // Patch editors list before looking for available ones
-        if (user && user.getPreference("gui_preferences", true) && user.getPreference("gui_preferences", true)["other_editor_extensions"]) {
-            const otherRegistered = user.getPreference("gui_preferences", true)["other_editor_extensions"];
+
+        if(user) {
+            const otherRegistered = user.getLayoutPreference("Editor.Associations", {})
             Object.keys(otherRegistered).forEach(function (key) {
                 let editor;
                 pydio.Registry.getActiveExtensionByType("editor").forEach(function (ed) {
@@ -53,7 +54,7 @@ export default function(pydio) {
             }.bind(this));
         }
 
-        const editors = pydio.Registry.findEditorsForMime(selectedMime);
+        const editors = pydio.Registry.findEditorsForMime(selectedMime, false);
         let index = 0, sepAdded = false;
         if (editors.length) {
             editors.forEach(function (el) {

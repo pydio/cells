@@ -302,7 +302,7 @@ class WorkspaceEntry extends React.Component {
             currentClass +=" workspace-current";
         }
 
-        const maskedWorkspaces = pydio.user.getGUIPreference('MaskedWorkspaces') || []
+        const maskedWorkspaces = pydio.user.getLayoutPreference('MaskedWorkspaces', [])
         let isMasked;
         if(maskedWorkspaces.indexOf && maskedWorkspaces.indexOf(workspace.getId()) > -1) {
             isMasked = true;
@@ -396,7 +396,7 @@ class WorkspaceEntry extends React.Component {
                 addIcName = 'mdi-playlist-check'
                 addIcTitle = 'Unmask ' + workspace.getLabel()
                 addIcClick = (e) => {
-                    pydio.user.setGUIPreference('MaskedWorkspaces', maskedWorkspaces.filter(i=>i!==workspace.getId()), true)
+                    pydio.user.setLayoutPreference('MaskedWorkspaces', maskedWorkspaces.filter(i=>i!==workspace.getId()))
                 }
             }
             additionalAction = (

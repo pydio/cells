@@ -37,11 +37,15 @@ class FSTemplate extends React.Component {
 
     constructor(props){
         super(props);
+        const {pydio} = props
+        const uPref = (k, v) => {
+            return pydio.user ? pydio.user.getWorkspacePreference(k, v) : v
+        }
 
         this.state = {
-            infoPanelOpen: localStorage.getItem('pydio.layout.infoPanelOpen') !== 'false', // open by default
-            chatOpen: localStorage.getItem('pydio.layout.chatOpen') === 'true', // closed by default
-            chatDetached: localStorage.getItem('pydio.layout.chatDetached') !== 'false', // detached by default
+            infoPanelOpen: uPref('pydio.layout.infoPanelOpen', true), // open by default
+            chatOpen: uPref('pydio.layout.chatOpen', false), // closed by default
+            chatDetached: uPref('pydio.layout.chatDetached', true), // detached by default
             drawerOpen: false,
             searchFormState: {},
             searchView: false
@@ -98,14 +102,15 @@ class FSTemplate extends React.Component {
     toggleAndStore(keyName) {
         const value = this.state[keyName]
         const newValue = !value;
+        const {pydio} = this.props;
         this.setState({[keyName]: newValue}, ()=> {
             this.resizeAfterTransition()
-            localStorage.setItem('pydio.layout.' + keyName, newValue ? 'true': 'false')
+            pydio.user.setWorkspacePreference('pydio.layout.' + keyName, !!newValue)
         })
     }
 
     toggleRightPanel(name){
-        this.toggleAndStore(name === 'chat' ? 'chatOpen' : 'infoPanel')
+        this.toggleAndStore(name === 'chat' ? 'chatOpen' : 'infoPanelOpen')
     }
 
 
@@ -130,7 +135,6 @@ class FSTemplate extends React.Component {
         const {breakpoint = 'md', userTheme} = muiTheme;
         const smallScreen = (breakpoint==='s'|| breakpoint==='xs'), xtraSmallScreen = (breakpoint === 'xs')
 
-        const guiPrefs = pydio.user ? pydio.user.getPreference('gui_preferences', true) : {};
         const wTourEnabled = pydio.getPluginConfigs('gui.ajax').get('ENABLE_WELCOME_TOUR');
         const dm = pydio.getContextHolder();
         const searchView = dm.getContextNode() === dm.getSearchNode();
@@ -156,9 +160,11 @@ class FSTemplate extends React.Component {
         const {style, ...props} = this.props;
 
         let tutorialComponent;
-        if (wTourEnabled && !guiPrefs['WelcomeComponent.Pydio8.TourGuide.FSTemplate']){
+        const wTour = pydio.user.getLayoutPreference('WelcomeComponent.Pydio8.TourGuide.FSTemplate', false)
+        const wtMUI = pydio.user.getLayoutPreference('WelcomeComponent.MUITour', false)
+        if (wTourEnabled && !wTour){
             tutorialComponent = <WelcomeTour pydio={pydio}/>;
-        } else if (userTheme === 'mui3' && guiPrefs['WelcomeComponent.Pydio8.TourGuide.FSTemplate'] && !guiPrefs['WelcomeComponent.MUITour']) {
+        } else if (userTheme === 'mui3' && wTour && !wtMUI) {
             tutorialComponent = <MUITour pydio={pydio}/>
         }
 

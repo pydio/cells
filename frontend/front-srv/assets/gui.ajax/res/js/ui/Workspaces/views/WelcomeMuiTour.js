@@ -75,12 +75,7 @@ class MUITour extends React.Component{
 
     discard(finished){
         const {user} = this.props.pydio;
-        let guiPrefs = user.getPreference('gui_preferences', true);
-        if(finished) {
-            guiPrefs['WelcomeComponent.MUITour'] = true;
-        }
-        user.setPreference('gui_preferences', guiPrefs, true);
-        user.savePreference('gui_preferences');
+        user.setLayoutPreference('WelcomeComponent.MUITour', finished)
     }
 
     

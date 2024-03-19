@@ -214,13 +214,11 @@ class WorkspacesList extends React.Component{
         const workspaces = pydio.user ? pydio.user.getRepositoriesList() : new Map();
         let hiddenWorkspaces, hiddenWsStatus, cellsSortingMixed = false, prefs = {}, merge = false;
         if(pydio.user) {
-            prefs = pydio.user.getGUIPreferences();
-            if(prefs['MaskedWorkspaces'] && prefs['MaskedWorkspaces'].length) {
-                hiddenWorkspaces = prefs['MaskedWorkspaces']
-                hiddenWsStatus = prefs['LeftPanel.MaskedWorkspaces.Show'] || false
-            }
-            cellsSortingMixed = prefs['LeftPanel.OwnedCellsFirst'];
-            merge = prefs['LeftPanel.MergeWorkspaces'] || pydio.getPluginConfigs('core.pydio').get('MERGE_WORKSPACES_AND_CELLS')
+            const glp = (k,v) => pydio.user.getLayoutPreference(k, v)
+            hiddenWorkspaces = glp('MaskedWorkspaces', [])
+            hiddenWsStatus = glp('LeftPanel.MaskedWorkspaces.Show', false)
+            cellsSortingMixed = glp('LeftPanel.OwnedCellsFirst', false);
+            merge = glp('LeftPanel.MergeWorkspaces', false) || pydio.getPluginConfigs('core.pydio').get('MERGE_WORKSPACES_AND_CELLS')
         }
         return {
             random: Math.random(),
@@ -229,7 +227,6 @@ class WorkspacesList extends React.Component{
             hiddenWorkspaces,
             hiddenWsStatus,
             cellsSortingMixed,
-            userPrefs: prefs,
             activeWorkspace: pydio.user ? pydio.user.activeRepository : false,
             activeRepoIsHome: pydio.user && pydio.user.activeRepository === 'homepage'
         };
@@ -237,22 +234,23 @@ class WorkspacesList extends React.Component{
 
     togglePref(name) {
         const {pydio} = this.props;
-        const {userPrefs} = this.state;
         switch (name){
             case "mask":
                 const {hiddenWsStatus} = this.state;
-                userPrefs['LeftPanel.MaskedWorkspaces.Show'] = !hiddenWsStatus;
+                pydio.user.setLayoutPreference('LeftPanel.MaskedWorkspaces.Show', !hiddenWsStatus || undefined);
             break;
             case "owned":
                 const {cellsSortingMixed} = this.state;
-                userPrefs['LeftPanel.OwnedCellsFirst'] = !cellsSortingMixed;
+                pydio.user.setLayoutPreference('LeftPanel.OwnedCellsFirst', !cellsSortingMixed || undefined);
             break;
             case "merge":
                 const {merge} = this.state;
-                userPrefs['LeftPanel.MergeWorkspaces'] = !merge;
-
+                pydio.user.setLayoutPreference('LeftPanel.MergeWorkspaces', !merge || undefined)
+            break;
+            default:
+                return
         }
-        pydio.user.setGUIPreferences(userPrefs, true)
+        this.setState(this.stateFromPydio(pydio))
     }
 
     componentDidMount(){

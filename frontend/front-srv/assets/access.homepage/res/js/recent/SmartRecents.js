@@ -228,18 +228,17 @@ class RecentCard extends React.Component{
     }
 }
 
-const LayoutKey = "pydio.homepage.list.layout"
+const LayoutKey = "Recents.List.Display"
 
 class SmartRecents extends React.Component{
 
     constructor(props){
         super(props);
-        //this.loader = new Loader(props.pydio, this);
-        this.loader = new RecoLoader(props.pydio, this);
-        const {muiTheme} = this.props;
+        const {pydio, muiTheme} = props;
+        this.loader = new RecoLoader(pydio, this);
         let list = false;
         if(muiTheme.userTheme === 'mui3') {
-            list = localStorage.getItem(LayoutKey)==='true'
+            list = pydio.user && pydio.user.getWorkspacePreference(LayoutKey, false)
         }
         this.state = {nodes:[], loading:false, list};
     }
@@ -255,10 +254,12 @@ class SmartRecents extends React.Component{
     }
 
     toggleList() {
+        const {pydio} = this.props
         const {list} = this.state;
         const nl = !list
-        this.setState({list: nl})
-        nl ? localStorage.setItem(LayoutKey, 'true') : localStorage.removeItem(LayoutKey);
+        this.setState({list: nl}, () => {
+            pydio.user.setWorkspacePreference(LayoutKey, nl)
+        })
     }
 
     render(){

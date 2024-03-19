@@ -22,6 +22,11 @@ import PydioApi from '../http/PydioApi'
 import Repository from './Repository'
 import {UserServiceApi, IdmUserSingleQuery, RestSearchUserRequest} from 'cells-sdk';
 import HasherUtils from "../util/HasherUtils";
+import LangUtils from "../util/LangUtils"
+import {debounce} from 'lodash'
+import Preferences from "./Preferences";
+
+const LayoutPrefVersion= 1
 
 /**
  * Abstraction of the currently logged user. Can be a "fake" user when users management
@@ -94,6 +99,8 @@ export default class User{
          */
         this._parsedJSONCache= new Map();
 
+        this.savePrefDebounced = debounce(this.savePreference.bind(this), 500)
+
         if(xmlDef) {
             this.loadFromXml(xmlDef);
         }
@@ -164,46 +171,57 @@ export default class User{
 	}
 
     /**
-     * Get all user gui preferences as an object
-     * @return {Object}
-     */
-    getGUIPreferences() {
-        return this.getPreference('gui_preferences', true) || {}
-    }
-
-    /**
-     * Set user gui preferences as a bunch
-     * @param prefs
-     */
-    setGUIPreferences(prefs, save = false) {
-        this.setPreference('gui_preferences', prefs, true)
-        if(save) {
-            this.savePreference();
-        }
-    }
-
-    /**
-     * Find one user gui preference
-     * @param name
-     * @return {*}
-     */
-    getGUIPreference(name) {
-        const pref = this.getPreference('gui_preferences', true) || {}
-        return pref[name]
-    }
-
-    /**
-     * Set one user GUI preference
-     * @param name
+     * Retrieve a layout preference that may differ per-workspace
+     * @param path
      * @param value
      */
-    setGUIPreference(name, value, save = false) {
-        const pref = this.getPreference('gui_preferences', true) || {}
-        pref[name] = value
-        this.setPreference('gui_preferences', pref, true)
-        if(save) {
-            this.savePreference();
+    setWorkspacePreference(path, value) {
+        if(!this.activeRepository) {
+            console.error('cannot set a workspace preference when no active repo is set')
+            return
         }
+        this.setLayoutPreference(this.getActiveRepositoryObject().getSlug()+'.' +path, value)
+    }
+
+    /**
+     * Set a layout preference automatically prefixed with current workspace
+     * @param path
+     * @param defaultValue
+     * @return {*}
+     */
+    getWorkspacePreference(path, defaultValue = undefined) {
+        if(!this.activeRepository) {
+            console.error('cannot set a workspace preference when no active repo is set')
+            return defaultValue
+        }
+        return this.getLayoutPreference(this.getActiveRepositoryObject().getSlug()+'.'+path, defaultValue)
+    }
+
+    /**
+     * Set a layout preference and call save debounced
+     * @param path
+     * @param value
+     */
+    setLayoutPreference(path, value) {
+        const top = this.getPreference('gui_preferences', true) || {PrefVersion: LayoutPrefVersion}
+        Preferences.updateByPath(top, path, value)
+        this.setPreference('gui_preferences', top, true)
+        this.savePrefDebounced()
+    }
+
+    /**
+     * Retrieved a saved layout preference where path is a dot-representation of an object
+     * @param path
+     * @param defaultValue
+     * @return {*}
+     */
+    getLayoutPreference(path = '', defaultValue = undefined) {
+        let current = this.getPreference('gui_preferences', true) || {PrefVersion: LayoutPrefVersion}
+        if(current['PrefVersion'] !== LayoutPrefVersion) {
+            current = Preferences.migratePreferences(current, LayoutPrefVersion)
+            this.setPreference('gui_preferences', current, true)
+        }
+        return Preferences.lookupByPath(current, path, defaultValue)
     }
 
 	/**
@@ -263,29 +281,13 @@ export default class User{
             try{
     			prefValue = JSON.stringify(prefValue);
             }catch (e){
-                if(console) {
-                    function isCyclic (obj) {
-                        let seenObjects = [];
-
-                        function detect (obj) {
-                            if (obj && typeof obj === 'object') {
-                                if (seenObjects.indexOf(obj) !== -1) {
-                                    return true;
-                                }
-                                seenObjects.push(obj);
-                                for (let key in obj) {
-                                    if (obj.hasOwnProperty(key) && detect(obj[key])) {
-                                        console.log(obj, 'cycle at ' + key);
-                                        return true;
-                                    }
-                                }
-                            }
-                            return false;
-                        }
-                        return detect(obj);
-                    }
-                    console.log("Caught toJSON error " + e.message, prefValue, isCyclic(prefValue));
-
+                if(!console) {
+                    return
+                }
+                if(LangUtils.isCyclic(prefValue)) {
+                    console.log("cannot serialize cyclic preference " + prefName, prefValue)
+                } else {
+                    console.log("cannot serialize preference " + prefName + ': ' + e.message);
                 }
                 return;
             }
@@ -347,6 +349,47 @@ export default class User{
             })
         });
 	}
+
+    loadWorkspacePresets() {
+        return this.getIdmUser().then(idmUser => {
+            let presets = []
+            try {
+                presets = JSON.parse(HasherUtils.fromBase64(idmUser.Attributes['presets']))
+            } catch (e) {
+                console.error(e.message)
+            }
+            return presets
+        })
+    }
+
+    saveWorkspacePreset(id, label, del = false) {
+        this.getIdmUser().then(idmUser => {
+            let presets = []
+            try {
+                presets = JSON.parse(HasherUtils.fromBase64(idmUser.Attributes['presets']))
+            } catch(e) {}
+            if(del && !presets.includes((p => p.id === id))) {
+                // No need to delete
+                return presets
+            }
+            if(!del) {
+                presets.push({
+                    id,
+                    label,
+                    payload: this.getLayoutPreference()
+                })
+            }
+            idmUser.Attributes['presets'] = HasherUtils.toBase64(JSON.stringify(presets));
+
+            // Use a silent client to avoid displaying errors
+            const api = new UserServiceApi(PydioApi.getRestClient({silent: true}));
+            return api.putUser(idmUser.Login, idmUser).then(ok => {
+                this.idmUser = idmUser;
+                return presets
+            })
+        });
+
+    }
 
     /**
      * @return {Promise<IdmUser>}

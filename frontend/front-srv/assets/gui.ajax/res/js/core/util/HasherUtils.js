@@ -46,6 +46,25 @@ export default class HasherUtils{
     static b64_hmac_md5(key, data) { return HasherUtils.binl2b64(HasherUtils.core_hmac_md5(key, data)); }
     static str_hmac_md5(key, data) { return HasherUtils.binl2str(HasherUtils.core_hmac_md5(key, data)); }
 
+    static toBase64(string) {
+        return HasherUtils.bytesToBase64(new TextEncoder().encode(string));
+    }
+
+    static fromBase64(string) {
+        return new TextDecoder().decode(HasherUtils.base64ToBytes(string));
+    }
+
+    static base64ToBytes(base64) {
+        const binString = atob(base64);
+        return Uint8Array.from(binString, (m) => m.codePointAt(0));
+    }
+
+    static bytesToBase64(bytes) {
+        const binString = Array.from(bytes, (byte) =>
+            String.fromCodePoint(byte),
+        ).join("");
+        return btoa(binString);
+    }
 
     static base64_encode( data ) {
         // http://kevin.vanzonneveld.net

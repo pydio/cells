@@ -19,21 +19,21 @@
  */
 
 import React, {Fragment, createContext, useState, useEffect} from 'react'
-import {useLocalStorage} from "react-use";
 import InfoPanel, {InfoPanelNoScroll} from "./InfoPanel";
 import {ResizableColumn} from "./ResizableColumn";
 import {useTemplates} from './useTemplates'
+import useWorkspacePref from "../views/useWorkspacePref";
 
 const MultiColumnContext = createContext(null);
 
 const MultiColumnPanel = ({afterResize = ()=>{}, storageKey, onContentChange, additionalTemplates = [], ...infoProps}) => {
 
-    const [columns, setColumns] = useLocalStorage(storageKey + '.multicolumns', [])
-    const [defaultColumn, setDefaultColumn] = useLocalStorage(storageKey + '.defaultColumn', {})
+    const [columns, setColumns] = useWorkspacePref(storageKey + '.multicolumns', [])
+    const [defaultColumn, setDefaultColumn] = useWorkspacePref(storageKey + '.defaultColumn', {})
     const [ghostDrop, setGhostDrop] = useState(false)
     const [dragSession, setDragSession] = useState(0)
 
-    const [storedSwitches, storeSwitches] = useLocalStorage(storageKey + '.switches', [])
+    const [storedSwitches, storeSwitches] = useWorkspacePref(storageKey + '.switches', [])
     const [switches, setSwitches] = useState(storedSwitches)
 
     const {pydio, dataModel} = infoProps;
@@ -165,7 +165,7 @@ const MultiColumnPanel = ({afterResize = ()=>{}, storageKey, onContentChange, ad
                         isGhost={ghostColumn}
                         isLast={idx === allColumns.length-1}
                         minWidth={73}
-                        defaultWith={isLast && !isFirst && !ghostColumn && 73 || 250}
+                        defaultWidth={isLast && !isFirst && !ghostColumn && 73 || 250}
                         dropColumnIndex={idx}
                         onColumnDrop={stickToColumn}
                         closed={closed}

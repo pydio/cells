@@ -147,20 +147,16 @@ let RailPanel = ({
     const [unreadCount, setUnreadCount] = useState(0)
     const {wsDisconnected, running, jobs, progress} = useRunningTasksMonitor({pydio, statusString:'Any'})
 
-    let baseActivePref = user.getGUIPreference('Layout.RailPanel.ActivePanel');
-    if(baseActivePref === undefined) {
-        baseActivePref = 'files'
-    }
-    const [activePanel, setActivePanel] = useState(baseActivePref)
+    const [activePanel, setActivePanel] = useState(user.getLayoutPreference('RailPanel.ActivePanel', 'files'))
     const updateActivePanel = (c) => {
         setActivePanel(c);
-        user.setGUIPreference('Layout.RailPanel.ActivePanel', c, true)
+        user.setLayoutPreference('RailPanel.ActivePanel', c)
     }
 
     const [showCloseToggle, setShowCloseToggle] = useState(false)
 
     let defaultResizerWidth = defaultWidth;
-    const upw = user.getGUIPreference('Layout.RailPanel.ActiveWidth')
+    const upw = user.getLayoutPreference('RailPanel.ActiveWidth')
     if(upw && upw < 1) {
         defaultResizerWidth = upw * DOMUtils.getViewportWidth();
     }
@@ -169,7 +165,7 @@ let RailPanel = ({
         setResizerWidth(w);
         window.dispatchEvent(new Event('resize'))
         // Store a percentage
-        user.setGUIPreference('Layout.RailPanel.ActiveWidth', w/DOMUtils.getViewportWidth(), true)
+        user.setLayoutPreference('RailPanel.ActiveWidth', w/DOMUtils.getViewportWidth())
     }
 
     const activitiesLoader = () => {

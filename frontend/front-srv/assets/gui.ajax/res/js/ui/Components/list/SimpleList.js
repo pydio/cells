@@ -197,10 +197,7 @@ let SimpleList = createReactClass({
                     stateSetCallback();
                 }
                 if(sortingPreferenceKey) {
-                    const crtSlug = user.getActiveRepositoryObject().getSlug()
-                    const allInfos = user.getGUIPreference(sortingPreferenceKey) || {}
-                    allInfos[crtSlug] = sortingInfo
-                    user.setGUIPreference(sortingPreferenceKey, allInfos, true)
+                    user.setWorkspacePreference(sortingPreferenceKey, sortingInfo)
                 }
                 this.sortingInfoChange(sortingInfo)
             });
@@ -327,12 +324,8 @@ let SimpleList = createReactClass({
             this.dm.setContextNode(dataModel.getContextNode());
         }
         let sortingInfo = defaultSortingInfo || null;
-        if(sortingPreferenceKey && pydio.user.getGUIPreference(sortingPreferenceKey)) {
-            const crtSlug = pydio.user.getActiveRepositoryObject().getSlug()
-            const allInfos = pydio.user.getGUIPreference(sortingPreferenceKey) || {}
-            if(allInfos[crtSlug] && !allInfos[crtSlug].remote){
-                sortingInfo = allInfos[crtSlug]
-            }
+        if(sortingPreferenceKey) {
+            sortingInfo = pydio.user.getWorkspacePreference(sortingPreferenceKey, sortingInfo)
         }
         let state = {
             loaded              : node.isLoaded(),
@@ -355,12 +348,8 @@ let SimpleList = createReactClass({
             sortingInfo = {}
         } else if(remote instanceof Object) {
             sortingInfo = remote;
-        } else if(node !== this.props.node && sortingPreferenceKey && pydio.user.getGUIPreference(sortingPreferenceKey)) {
-            const crtSlug = pydio.user.getActiveRepositoryObject().getSlug()
-            const allInfos = pydio.user.getGUIPreference(sortingPreferenceKey) || {}
-            if(allInfos[crtSlug]){
-                sortingInfo = allInfos[crtSlug]
-            }
+        } else if(node !== this.props.node && sortingPreferenceKey) {
+            sortingInfo = pydio.user.getWorkspacePreference(sortingPreferenceKey, sortingInfo)
         }
         this.sortingInfoChange(sortingInfo)
         this.setState({

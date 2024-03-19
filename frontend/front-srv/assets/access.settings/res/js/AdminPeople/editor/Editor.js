@@ -201,6 +201,9 @@ class Editor extends React.Component{
         if(!node.getParent()) {
             // Node may have been detached, lookup in datamodel
             node = node.findInArbo(dataModel.getRootNode())
+            if(!node) {
+                return '' // cannot find parent node
+            }
         }
         let parts = []
         while(node.getParent()) {

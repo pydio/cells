@@ -160,7 +160,7 @@ class MainFilesList extends React.Component {
         configParser.loadConfigs('FilesList').then((columns) => {
             this.setState({columns});
         })
-        const dMode = this.getPrefValue('FilesListDisplayMode', this.props.displayMode || 'list');
+        const dMode = this.getPrefValue('FilesList.DisplayMode', this.props.displayMode || 'list');
         let tSize = 200;
         if(dMode === 'grid-320') {
             tSize = 320;
@@ -173,8 +173,8 @@ class MainFilesList extends React.Component {
         this.state = {
             contextNode : dataModel.getContextNode(),
             displayMode : dMode,
-            showExtensions: this.getPrefValue('FilesListShowExtensions', false),
-            pinBookmarks: this.getPrefValue('FilesListPinBookmarks', false),
+            showExtensions: this.getPrefValue('FilesList.ShowExtensions', false),
+            pinBookmarks: this.getPrefValue('FilesList.PinBookmarks', false),
             thumbNearest: tSize,
             thumbSize   : tSize,
             elementsPerLine: 5,
@@ -189,32 +189,17 @@ class MainFilesList extends React.Component {
         if(!pydio.user){
             return defaultValue;
         }
-        const slug = pydio.user.getActiveRepositoryObject().getSlug();
-        const guiPrefs = pydio.user ? pydio.user.getPreference('gui_preferences', true) : {};
-        if(guiPrefs[prefName] && guiPrefs[prefName][slug] !== undefined){
-            return guiPrefs[prefName][slug];
-        }
-        return defaultValue;
+        return pydio.user.getWorkspacePreference(prefName, defaultValue)
     }
 
     /**
      * Save displayMode to user prefs
      * @param prefName
      * @param value
-     * @return {string}
      */
     setPrefValue(prefName, value){
         const {pydio} = this.props;
-        if(!pydio.user){
-            return;
-        }
-        const slug = pydio.user.getActiveRepositoryObject().getSlug();
-        const guiPrefs = pydio.user ? pydio.user.getPreference('gui_preferences', true) : {};
-        const dPrefs = guiPrefs[prefName] || {};
-        dPrefs[slug] = value;
-        guiPrefs[prefName] = dPrefs;
-        pydio.user.setPreference('gui_preferences', guiPrefs, true);
-        pydio.user.savePreference('gui_preferences');
+        pydio.user && pydio.user.setWorkspacePreference(prefName, value)
     }
 
     componentDidMount() {
@@ -277,7 +262,7 @@ class MainFilesList extends React.Component {
             configParser.loadConfigs('FilesList').then((columns) => {
                 this.setState({columns});
             })
-            const dMode = this.getPrefValue('FilesListDisplayMode', displayMode || 'list');
+            const dMode = this.getPrefValue('FilesList.DisplayMode', displayMode || 'list');
             if(prevState.displayMode !== dMode && dMode.indexOf('grid-') === 0){
                 let tSize = 160;
                 if(dMode === 'grid-320') {
@@ -672,7 +657,7 @@ class MainFilesList extends React.Component {
                 near = parseInt(displayMode.split('-')[1]);
             }
             this.recomputeThumbnailsDimension(near);
-            this.setPrefValue('FilesListDisplayMode', displayMode);
+            this.setPrefValue('FilesList.DisplayMode', displayMode);
             if(this.props.onDisplayModeChange) {
                 this.props.onDisplayModeChange(displayMode);
             }
@@ -743,14 +728,14 @@ class MainFilesList extends React.Component {
             {name:Pydio.getMessages()['ajax_gui.list.extensions.show'], icon_class:showExtensions?'mdi mdi-toggle-switch':'mdi mdi-toggle-switch-off', callback:()=>{
                     this.setState({showExtensions:!showExtensions}, () => {
                         this.props.pydio.notify('actions_refreshed');
-                        this.setPrefValue('FilesListShowExtensions', !showExtensions);
+                        this.setPrefValue('FilesList.ShowExtensions', !showExtensions);
                     });
                 }
             },
             {name:Pydio.getMessages()['ajax_gui.list.pin.bookmarks'], icon_class:pinBookmarks?'mdi mdi-toggle-switch':'mdi mdi-toggle-switch-off', callback:()=>{
                     this.setState({pinBookmarks:!pinBookmarks}, () => {
                         this.props.pydio.notify('actions_refreshed');
-                        this.setPrefValue('FilesListPinBookmarks', !pinBookmarks);
+                        this.setPrefValue('FilesList.PinBookmarks', !pinBookmarks);
                     });
                 }
             }
@@ -1008,7 +993,7 @@ class MainFilesList extends React.Component {
                 horizontalRibbon={this.props.horizontalRibbon}
                 emptyStateProps={emptyStateProps}
                 defaultSortingInfo={{sortType:'file-natural',attribute:'',direction:'asc'}}
-                sortingPreferenceKey={'FilesListSortingInfo'}
+                sortingPreferenceKey={'FilesList.SortingInfo'}
                 onSortingInfoChange={sortingInfoChange}
                 hideToolbar={true}
                 customToolbar={<CellsMessageToolbar pydio={pydio}/>}

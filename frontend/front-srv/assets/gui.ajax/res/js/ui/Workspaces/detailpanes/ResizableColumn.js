@@ -22,13 +22,13 @@
 import React, {createContext, useState, useEffect} from 'react'
 import ReactDOM from 'react-dom'
 import {Resizable} from "re-resizable";
-import {useLocalStorage} from "react-use";
+import useWorkspacePref from '../views/useWorkspacePref'
 import reactdnd from 'react-dnd'
 import {collectDrop, DragTypes, itemTarget} from "./dnd";
 
-let ResizableColumn = ({storageKey, closed, isGhost, isLast, afterResize = ()=>{}, defaultWith= 250, minWidth, connectDropTarget, isOver, isOverCurrent, children}) => {
+let ResizableColumn = ({storageKey, closed, isGhost, isLast, afterResize = ()=>{}, defaultWidth= 250, minWidth, connectDropTarget, isOver, isOverCurrent, children}) => {
 
-    const [width, setWidth] = useLocalStorage(storageKey, defaultWith);
+    const [width, setWidth] = useWorkspacePref(storageKey, defaultWidth)
     const [handleHover, setHandlerHover] = useState(false)
 
     let style = {

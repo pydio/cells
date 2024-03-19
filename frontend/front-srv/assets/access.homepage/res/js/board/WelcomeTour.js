@@ -84,7 +84,13 @@ class WelcomeTour extends Component{
 
     constructor(props, context){
         super(props, context);
-        this.state = {started: !(props.pydio.user && !props.pydio.user.getPreference('gui_preferences', true)['UserAccount.WelcomeModal.Shown'])};
+        const {user} = props.pydio
+        this.state = {started: false}
+        if(!user) {
+            return
+        }
+        const userAccountShown = user.getLayoutPreference('UserAccount.WelcomeModal.Shown', false)
+        this.state = {started: userAccountShown};
     }
 
     componentDidMount(){
@@ -109,22 +115,21 @@ class WelcomeTour extends Component{
     discard(finished = false){
         const {pydio, onFinish} = this.props;
         const {user} =  pydio;
-        let guiPrefs = user.getPreference('gui_preferences', true);
-        guiPrefs['UserAccount.WelcomeModal.Shown'] = true;
+        user.setLayoutPreference('UserAccount.WelcomeModal.Shown', true)
         if(finished) {
-            guiPrefs['WelcomeComponent.MUITour'] = true;
-            guiPrefs['WelcomeComponent.Pydio8.TourGuide.Welcome'] = true;
+            user.setLayoutPreference('WelcomeComponent.Pydio8.TourGuide.FSTemplate', true)
+            user.setLayoutPreference('WelcomeComponent.MUITour', true)
             if(onFinish){
                 onFinish();
             }
         }
-        user.setPreference('gui_preferences', guiPrefs, true);
-        user.savePreference('gui_preferences');
     }
 
     render(){
 
-        if(!this.state.started){
+        const {pydio} = this.props
+
+        if(!this.state.started || (pydio.user && pydio.user.getLayoutPreference('WelcomeComponent.MUITour'))){
             return null;
         }
         const {getMessage} = this.props;

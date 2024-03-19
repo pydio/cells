@@ -23,13 +23,13 @@ import Pydio from 'pydio'
 import {IconButton, Paper} from 'material-ui'
 import {muiThemeable} from 'material-ui/styles'
 import Tooltip from '@mui/material/Tooltip'
-import {useLocalStorage} from "react-use";
 import {MultiColumnContext} from "./MultiColumnPanel";
 import {ResizableContext} from "./ResizableColumn";
 const {Toolbar} = Pydio.requireLib('components')
 import ReactDOM from 'react-dom';
 import reactdnd from 'react-dnd'
 import {DragTypes, itemSource, itemTarget, collect, collectDrop} from "./dnd";
+import useWorkspacePref from "../views/useWorkspacePref";
 
 /**
  * Default InfoPanel Card
@@ -39,7 +39,7 @@ let ContextInfoPanelCard = ({primaryToolbars, icon, title, closedTitle, shrinkTi
     const identifier = namespace + '.' + componentName;
 
     const {width=0, setWidth=()=>{}} = useContext(ResizableContext) || {};
-    let [open, setOpen] = useLocalStorage('pydio.layout.infoPanel.cardStatus.'+identifier+'.open', defaultOpen)
+    let [open, setOpen] = useWorkspacePref('pydio.layout.infoPanel.cardStatus.'+identifier+'.open', defaultOpen)
     const [hoverRow, setHoverRow] = useState(null)
     const [hoverTitle, setHoverTitle] = useState(false)
 
