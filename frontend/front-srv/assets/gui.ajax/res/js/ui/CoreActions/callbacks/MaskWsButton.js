@@ -36,7 +36,7 @@ export default class MaskWsButton extends React.Component {
         const isMasked = wss.indexOf && wss.indexOf(workspaceId) > -1
         return (
             <IconButton
-                iconClassName={'mdi mdi-playlist-'+(isMasked?'check':'remove')}
+                iconClassName={'mdi mdi-eye-'+(isMasked?'':'off-')+'outline'}
                 style={{...baseStyles.style, ...style}}
                 iconStyle={{...baseStyles.iconStyle, ...iconStyle}}
                 tooltip={pydio.MessageHash['ajax_gui.wslist.action.' + (isMasked?'unmask':'mask')]}

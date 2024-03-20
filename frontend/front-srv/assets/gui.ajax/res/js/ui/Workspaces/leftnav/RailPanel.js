@@ -385,6 +385,7 @@ let RailPanel = ({
     }
 
     const activeBarMinWidth = 76
+    const activeBarMaxWidth = 350
     const activeBarSmall = resizerWidth <= 130
     let activeBar
     if (!closed && activePanel) {
@@ -491,6 +492,7 @@ let RailPanel = ({
                         size={{width: resizerWidth, height: '100%'}}
                         onResizeStop={(e, direction, ref, d)=> updateResizerWidth(resizerWidth+d.width) }
                         minWidth={activeBarMinWidth}
+                        maxWidth={activeBarMaxWidth}
                         handleStyles={{right: {zIndex: 900, width: 8, right: -8}}}
                         handleComponent={{right: handleComp}}
                         style={{transition: 'width 550ms cubic-bezier(0.23, 1, 0.32, 1) 0ms', zIndex: 900}}

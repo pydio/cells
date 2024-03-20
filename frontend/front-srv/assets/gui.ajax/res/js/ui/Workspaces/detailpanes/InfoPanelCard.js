@@ -42,6 +42,17 @@ let ContextInfoPanelCard = ({primaryToolbars, icon, title, closedTitle, shrinkTi
     let [open, setOpen] = useWorkspacePref('FSTemplate.MultiColumn.InfoPanel.cardStatus.'+identifier+'.open', defaultOpen)
     const [hoverRow, setHoverRow] = useState(null)
     const [hoverTitle, setHoverTitle] = useState(false)
+    const [mouseDownTitle, setMouseDownTitle] = useState(false)
+
+    let mdtInt;
+    const wrapMouseDownTitle = (value) => {
+        clearTimeout(mdtInt)
+        if(!value) {
+            setMouseDownTitle(false)
+            return
+        }
+        mdtInt = setTimeout(()=>{setMouseDownTitle(true); console.log('set')}, 250)
+    }
 
     if(displayForColumn && !displayForColumn(identifier)){
         return null;
@@ -102,6 +113,7 @@ let ContextInfoPanelCard = ({primaryToolbars, icon, title, closedTitle, shrinkTi
             headerStyle = {...headerStyle, position: 'absolute', zIndex: 10, left: 0, right: 0}
         }
         const actions = [];
+        let titleOpenToggle;
         if(!connectDragSource){ // DND not here, use arrows to move to next column?
             if(currentColumn > 0) {-
                 actions.push({icon: 'arrow-left', click:()=> stickToColumn(identifier, currentColumn-1)})
@@ -123,7 +135,8 @@ let ContextInfoPanelCard = ({primaryToolbars, icon, title, closedTitle, shrinkTi
             if(open && hoverTitle) {
                 actions.push({icon:'pin-outline', label: m('infopanel.card.pin'), click:() => setColumnPin(identifier)})
             }
-            actions.push({icon:open?'chevron-up':'chevron-down', click:()=>setOpen(!open)})
+            titleOpenToggle = ()=>setOpen(!open)
+            actions.push({icon:open?'chevron-up':'chevron-down', click:titleOpenToggle})
         }
         let shrinkIconStyle = styles.card.shrinked.icon
         if(hoverTitle){
@@ -135,7 +148,13 @@ let ContextInfoPanelCard = ({primaryToolbars, icon, title, closedTitle, shrinkTi
                 ref={(instance)=>connectDragSource(ReactDOM.findDOMNode(instance))}
             >
                 {shrinkMode && <div style={shrinkIconStyle}><span className={icon ? icon : "mdi mdi-information-box-outline"}/></div>}
-                <div style={{...styles.card.headerTitle, ...refinedStyles.title}}>{shrinkMode && shrinkTitle || title}</div>
+                <div
+                    style={{...styles.card.headerTitle, ...refinedStyles.title, cursor:mouseDownTitle||!titleOpenToggle?'move':'default'}}
+                    onClick={titleOpenToggle}
+                    onMouseDown={()=>wrapMouseDownTitle(true)}
+                    onMouseUp={()=>wrapMouseDownTitle(false)}
+                    onMouseOut={()=>wrapMouseDownTitle(false)}
+                >{shrinkMode && shrinkTitle || title}</div>
                 {!shrinkMode &&
                     <div style={{...styles.card.headerIcon}}>
                         {actions.map(a => {

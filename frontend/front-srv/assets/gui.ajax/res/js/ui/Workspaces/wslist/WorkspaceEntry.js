@@ -302,7 +302,7 @@ class WorkspaceEntry extends React.Component {
             currentClass +=" workspace-current";
         }
 
-        const maskedWorkspaces = pydio.user.getLayoutPreference('FSTemplate.MaskedWorkspaces', [])
+        const maskedWorkspaces = pydio.user.getLayoutPreference('MaskedWorkspaces', [])
         let isMasked;
         if(maskedWorkspaces.indexOf && maskedWorkspaces.indexOf(workspace.getId()) > -1) {
             isMasked = true;
@@ -393,7 +393,7 @@ class WorkspaceEntry extends React.Component {
             let addIcName = 'mdi-dots-vertical', addIcTitle = ''
             let addIcClick = (e) => this.workspacePopover(e, popoverNode)
             if(isMasked) {
-                addIcName = 'mdi-playlist-check'
+                addIcName = 'mdi-eye-outline'
                 addIcTitle = 'Unmask ' + workspace.getLabel()
                 addIcClick = (e) => {
                     pydio.user.setLayoutPreference('MaskedWorkspaces', maskedWorkspaces.filter(i=>i!==workspace.getId()))

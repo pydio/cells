@@ -175,6 +175,16 @@ export default function({pydio, ASLib, activities = [], jobs = [], loading=false
                 />
             </div>)
     }
+    if(!content.length) {
+        return (
+            <EmptyStateView
+                pydio={pydio}
+                iconClassName={emptyStateIcon}
+                primaryTextId={emptyStateString}
+                style={{backgroundColor: 'transparent', minHeight: 250}}
+            />
+        )
+    }
     return <List style={style}>{content}</List>;
 
 }

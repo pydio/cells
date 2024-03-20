@@ -18,7 +18,7 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-import React from 'react';
+import React, {createRef} from 'react';
 import Pydio from 'pydio';
 import {debounce} from 'lodash'
 const {withSearch} = Pydio.requireLib('hoc')
@@ -49,6 +49,7 @@ class FSTemplate extends React.Component {
             searchFormState: {},
             searchView: false
         };
+        this.parentRef = createRef()
     }
 
     stateFromPrefs() {
@@ -156,6 +157,9 @@ class FSTemplate extends React.Component {
 
 
     resizeAfterTransition(){
+        if(this.parentRef.current) {
+            this.setState({parentWidth: this.parentRef.current.offsetWidth})
+        }
         setTimeout(() => { window.dispatchEvent(new Event('resize')) }, 250);
         setTimeout(() => { window.dispatchEvent(new Event('resize')) }, 500);
     }
@@ -303,7 +307,7 @@ class FSTemplate extends React.Component {
                 showChatTab = false;
             }
         }
-        let {drawerOpen, infoPanelOpen, chatOpen, chatDetached=true, displayMode, sortingInfo} = this.state;
+        let {drawerOpen, infoPanelOpen, chatOpen, chatDetached=true, displayMode, sortingInfo, parentWidth} = this.state;
 
         let classes = ['vertical_fit', 'react-fs-template'];
         const styles = muiTheme.buildFSTemplate({headerHeight, searchView, rightColumnClosed: !infoPanelOpen, displayMode})
@@ -392,7 +396,7 @@ class FSTemplate extends React.Component {
                     onToggleRightPanel={(p) => this.toggleRightPanel(p)}
                     onOpenDrawer={(e)=>this.openDrawer(e)}
                 />
-                <div style={styles.masterListContainer}>
+                <div style={styles.masterListContainer} ref={this.parentRef}>
                     {searchView &&
                         <WorkspacesList
                             className={"left-panel"}
@@ -436,6 +440,7 @@ class FSTemplate extends React.Component {
                             style:{minHeight: 180, backgroundColor: 'transparent', padding:'0 20px'}
                         }}
                         additionalTemplates={rightAdditionalTemplates}
+                        parentWidth={parentWidth}
                     />
                 </div>
                 {showChatTab && chatOpen && chatDetached &&

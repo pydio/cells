@@ -215,7 +215,7 @@ class WorkspacesList extends React.Component{
         let hiddenWorkspaces, hiddenWsStatus, cellsSortingMixed = false, prefs = {}, merge = false;
         if(pydio.user) {
             const glp = (k,v) => pydio.user.getLayoutPreference(k, v)
-            hiddenWorkspaces = glp('FSTemplate.MaskedWorkspaces', [])
+            hiddenWorkspaces = glp('MaskedWorkspaces', [])
             hiddenWsStatus = glp('FSTemplate.LeftPanel.MaskedWorkspaces.Show', false)
             cellsSortingMixed = glp('FSTemplate.LeftPanel.OwnedCellsFirst', false);
             merge = glp('FSTemplate.LeftPanel.MergeWorkspaces', false) || pydio.getPluginConfigs('core.pydio').get('MERGE_WORKSPACES_AND_CELLS')
@@ -456,7 +456,7 @@ class WorkspacesList extends React.Component{
             >
                 <Subheader style={{marginTop:-10}}>{messages['ajax_gui.wslist-options.title']}</Subheader>
                 <MenuItem
-                    leftIcon={<FontIcon className={"mdi mdi-playlist-plus"} style={listItemFontIcon}/>}
+                    leftIcon={<FontIcon className={"mdi mdi-eye-plus-outline"} style={listItemFontIcon}/>}
                     primaryText={messages['ajax_gui.wslist-options.show-masked']}
                     onClick={() => this.togglePref("mask")}
                     rightIcon={<FontIcon className={'mdi mdi-toggle-switch'+(hiddenWsStatus?'':'-off')} style={listItemFontIconRight}/>}

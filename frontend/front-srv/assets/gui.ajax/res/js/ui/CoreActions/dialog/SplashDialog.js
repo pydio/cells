@@ -117,8 +117,9 @@ const SplashDialog = createReactClass({
                         <FlatButton primary={true} icon={<FontIcon className="mdi mdi-github-box" />} label="Issues" onClick={this.openGithub}/>
                         <span style={{flex: 1}}/>
                         <IconButton style={{width:40,height:40,padding:8}} iconStyle={{color:'#FF786A'}} iconClassName={"icomoon-cells"} onClick={() => {open('https://pydio.com/?utm_source=cells-about')} } tooltip={"Pydio.com"}/>
-                        <IconButton style={{width:40,height:40,padding:8}} iconStyle={{color:'#3b5998'}} iconClassName={"mdi mdi-facebook-box"} onClick={() => {open('https://facebook.com/Pydio')} } tooltip={"@Pydio"}/>
-                        <IconButton style={{width:40,height:40,padding:8}} iconStyle={{color:'#00acee'}} iconClassName={"mdi mdi-twitter-box"} onClick={() => {open('https://twitter.com/pydio')} } tooltip={"@pydio"}/>
+                        <IconButton style={{width:40,height:40,padding:8}} iconStyle={{color:'#3b5998'}} iconClassName={"mdi mdi-facebook"} onClick={() => {open('https://facebook.com/Pydio')} } tooltip={"@Pydio"}/>
+                        <IconButton style={{width:40,height:40,padding:8}} iconStyle={{color:'#00acee'}} iconClassName={"mdi mdi-twitter"} onClick={() => {open('https://twitter.com/pydio')} } tooltip={"@pydio"}/>
+                        <IconButton style={{width:40,height:40,padding:8}} iconStyle={{color:'#0e76a8'}} iconClassName={"mdi mdi-linkedin"} onClick={() => {open('https://linkedin.com/company/pydio')} } tooltip={"Pydio"}/>
                     </CardActions>
                     <Divider/>
                     <CardText className={"credits-md"}>

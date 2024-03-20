@@ -185,7 +185,7 @@ class RecentCard extends React.Component{
                 styles.title.fontSize = 15
                 styles.legend.fontSize = 12
 
-                if(node.getMetadata().has('reco-annotation') && node.getMetadata().get('reco-annotation').indexOf('activity:') === 0) {
+                if(node.getMetadata().has('reco-annotation') && (node.getMetadata().get('reco-annotation').indexOf('activity:') === 0 || node.getMetadata().get('reco-annotation') === 'bookmark')) {
                     const repoId= node.getMetadata().get('repository_id')
                     const repoLabel = pydio.user.getRepositoriesList().get(repoId).getLabel()
                     let dir = PathUtils.getDirname(node.getPath())
@@ -275,17 +275,35 @@ class SmartRecents extends React.Component{
             phStyle.margin=4;
             phStyle.borderRadius=12;
         }
+        if(list) {
+            phStyle.width = '100%'
+            phStyle.display = 'flex'
+            phStyle.flexDirection = 'row'
+            phStyle.height = 'auto'
+        }
 
         const cardsPH = (
             <div style={{display:'flex', flexWrap:'wrap'}}>
                 {[...Array(Limit).keys()].map(() => {
-                    return (
-                        <div style={phStyle}>
-                            <PhRoundShape style={{width:'100%', height:100, borderRadius: phStyle.borderRadius}}/>
-                            <PhTextRow/>
-                            <PhTextRow/>
-                        </div>
-                    );
+                    if(list) {
+                        return (
+                            <div style={phStyle}>
+                                <PhRoundShape style={{width:'100%', height:40, width: 40, borderRadius: phStyle.borderRadius}}/>
+                                <div style={{flex: 1, marginTop: -8, marginLeft: 10}}>
+                                    <PhTextRow/>
+                                    <PhTextRow/>
+                                </div>
+                            </div>
+                        );
+                    } else {
+                        return (
+                            <div style={phStyle}>
+                                <PhRoundShape style={{width:'100%', height:100, borderRadius: phStyle.borderRadius}}/>
+                                <PhTextRow/>
+                                <PhTextRow/>
+                            </div>
+                        );
+                    }
                 })}
             </div>
         );
@@ -323,7 +341,7 @@ class SmartRecents extends React.Component{
                     {muiTheme.userTheme==='mui3' && <M3Tooltip title={<span style={{padding: '0 8px'}}>{pydio.MessageHash[list?'193':'192']}</span>}><span className={'mdi mdi-view-' + (list ? 'grid':'list')} onClick={()=>this.toggleList()} style={{cursor: 'pointer', fontSize: 16}}/></M3Tooltip>}
                 </div>
                 <div style={{overflowY: 'auto', flex: 1}}>
-                    <div style={{display:'flex', flexWrap: 'wrap', justifyContent:'center', ...style}}>
+                    <div style={{display:(loading&&list)?'block':'flex', flexWrap: 'wrap', justifyContent:'center', ...style}}>
                         <PlaceHolder ready={!loading} showLoadingAnimation customPlaceholder={cardsPH}>
                             {cards}
                         </PlaceHolder>

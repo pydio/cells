@@ -569,12 +569,14 @@ export default class ThemeBuilder {
                 columnGap:masterMargin,
                 padding:masterMargin,
                 paddingBottom: 0,
+                maxWidth: '100%'
             },
             listStyle: {
                 flex: 1,
                 margin: 0,
                 backgroundColor:isGrid?'transparent':mui3.surface,
-                borderRadius:isGrid?0:`${themeCusto.borderRadius}px ${themeCusto.borderRadius}px 0 0`
+                borderRadius:isGrid?0:`${themeCusto.borderRadius}px ${themeCusto.borderRadius}px 0 0`,
+                minWidth: 280,
             },
             buttonsStyle : {
                 width: 40,
@@ -691,10 +693,11 @@ export default class ThemeBuilder {
                             flexDirection:'column',
                             alignItems:'center',
                             justifyContent:'center',
-                            padding: 8
+                            padding: '8px 4px'
                         },
                         headerTitle:{
                             fontSize: 12,
+                            width: '100%',
                             whiteSpace:'wrap',
                             textAlign:'center',
                             lineHeight: '1.2em',

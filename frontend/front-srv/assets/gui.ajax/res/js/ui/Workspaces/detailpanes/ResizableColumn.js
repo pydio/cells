@@ -26,7 +26,7 @@ import useWorkspacePref from '../views/useWorkspacePref'
 import reactdnd from 'react-dnd'
 import {collectDrop, DragTypes, itemTarget} from "./dnd";
 
-let ResizableColumn = ({storageKey, closed, isGhost, isLast, afterResize = ()=>{}, defaultWidth= 250, minWidth, connectDropTarget, isOver, isOverCurrent, children}) => {
+let ResizableColumn = ({storageKey, closed, isGhost, isLast, afterResize = ()=>{}, defaultWidth= 250, minWidth, maxWidth, connectDropTarget, isOver, isOverCurrent /*, controlledWidth: width, setControlledWidth: setWidth*/, children}) => {
 
     const [width, setWidth] = useWorkspacePref(storageKey, defaultWidth)
     const [handleHover, setHandlerHover] = useState(false)
@@ -88,6 +88,7 @@ let ResizableColumn = ({storageKey, closed, isGhost, isLast, afterResize = ()=>{
                 minWidth={closed?0:minWidth}
                 maxWidth={isGhost?minWidth:undefined}
                 identifier={storageKey}
+                boundsByDirection={true}
                 onResizeStop={(e, direction, ref, d)=>{
                     let newWidth = width+d.width
                     if(newWidth < 100) {

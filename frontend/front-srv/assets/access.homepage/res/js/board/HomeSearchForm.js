@@ -189,6 +189,18 @@ class HomeSearchForm extends Component{
             esProps.primaryTextId = 'searchengine.start'
         }
 
+        let recentsBlockStyle =
+            {
+                display:'block',
+                flex:1,
+                overflowY:'hidden',
+                width: 680,
+                maxWidth: '98%'
+            }
+        if(fullScreen){
+            recentsBlockStyle.display = 'none'
+        }
+
         return (
             <Paper style={style} zDepth={zDepth} className="vertical-layout home-center-paper" rounded={false}>
 
@@ -241,7 +253,7 @@ class HomeSearchForm extends Component{
                             />
                         </div>
                     }
-                    <div style={{display:fullScreen?'none':'block', flex:1, overflowY:fullScreen?'auto':'hidden'}} id="history-block">{this.props.children}</div>
+                    <div style={recentsBlockStyle} id="history-block">{this.props.children}</div>
                 </div>
                 {fullScreen &&
                 <IconButton
