@@ -152,6 +152,30 @@
   "oauth.authentication.code-copy-failed": {
     "other": "Konnte nicht in die Zwischenablage kopieren."
   },
+  "layouts.preferences": {
+    "other": "Layouts verwalten"
+  },
+  "layouts.preferences.legend": {
+    "other": "Layouts speichern und als Vorlagen zurückrufen"
+  },
+  "layouts.action.rename": {
+    "other": "Layout umbenennen"
+  },
+  "layouts.action.remove": {
+    "other": "Layout entfernen"
+  },
+  "layouts.action.create": {
+    "other": "Aktuelles speichern..."
+  },
+  "layouts.action.create.default": {
+    "other": "Meine Layouts"
+  },
+  "layouts.prompt.save": {
+    "other": "Layout speichern als..."
+  },
+  "layouts.prompt.save.field": {
+    "other": "Wählen Sie einen Namen zum Speichern/Zurückrufen des aktuellen Layouts"
+  },
   "list.display-mode.list": {
     "other": "Liste"
   },
@@ -310,5 +334,8 @@
   },
   "bigppanel.filter.default-hint": {
     "other": "Schnellsuche..."
+  },
+  "sorter.metas.more": {
+    "other": "Mehr..."
   }
 }

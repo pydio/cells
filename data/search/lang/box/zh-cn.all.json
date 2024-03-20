@@ -6,13 +6,13 @@
     "other": "如果设置为true，索引器将查找 ContentRef 元数据，从该引用中读取内容并为其编制索引以进行搜索"
   },
   "Search.Config.ContentRef.Label": {
-    "other": "Content Reference Metadata"
+    "other": "内容参考元数据"
   },
   "Search.Config.ContentRef.Description": {
     "other": "Name of the metadata pointing to the internal file that contains textual representation of the original document. Such internal contents may be plain-text or gzip-encoded, depending on the text extraction tool used (e.g. Tika). The search engine typically indexes this content to enable full-text search. Make sure to prefix the metadata name with 'pydio:' to prevent data leakage."
   },
   "Search.Config.PlainTextExtensions.Label": {
-    "other": "Plain Text Extensions"
+    "other": "纯文本扩展"
   },
   "Search.Config.PlainTextExtensions.Description": {
     "other": "List of extensions for files containing directly indexable plain-text contents (comma-separated-list)."

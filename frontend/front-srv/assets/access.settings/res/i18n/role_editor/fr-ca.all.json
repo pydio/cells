@@ -57,7 +57,7 @@
     "other": "ID utilisateur"
   },
   "22": {
-    "other": "Profile"
+    "other": "Profil"
   },
   "23": {
     "other": "Workspace par défaut"
@@ -177,52 +177,52 @@
     "other": "Montrer les rôles techniques"
   },
   "dashboard.filterByType": {
-    "other": "Filter by Type..."
+    "other": "Filtrer par type..."
   },
   "dashboard.filterSelectOne": {
-    "other": "Please select at least one role type in the list"
+    "other": "Veuillez sélectionner au moins un élément dans la liste"
   },
   "roleType": {
-    "other": "Role Type"
+    "other": "Type de rôle"
   },
   "roleType.description": {
-    "other": "Standard roles are assigned by administrators, whereas teams are managed by users in their address book. Technical roles are attached automatically to each users and groups and in that case their type cannot be modified."
+    "other": "Les rôles standards sont attribués par les administrateurs, tandis que les équipes sont gérées par les utilisateurs via leur carnet d'adresses. Les rôles techniques sont attachés automatiquement à chaque utilisateur et groupe et leur type ne peut pas être modifié."
   },
   "roleType.admin": {
     "other": "Standard"
   },
   "roleType.admin.description": {
-    "other": "Standard Role"
+    "other": "Rôle standard"
   },
   "roleType.IsTeam": {
-    "other": "Team"
+    "other": "Equipe"
   },
   "roleType.IsTeam.description": {
-    "other": "Team (visible as a Team in address book)"
+    "other": "Équipe (visible dans le carnet d'adresses des utilisateurs)"
   },
   "roleType.IsUserRole": {
-    "other": "[Tech] User"
+    "other": "[Tech] Utilisateur"
   },
   "roleType.IsUserRole.description": {
-    "other": "[Technical] Created automatically for the corresponding User"
+    "other": "[Technique] Créé automatiquement pour chaque utilisateur"
   },
   "roleType.IsGroupRole": {
-    "other": "[Tech] Group"
+    "other": "[Tech] Groupe"
   },
   "roleType.IsGroupRole.description": {
-    "other": "[Technical] Created automatically for the corresponding Group"
+    "other": "[Technique] Créé automatiquement pour chaque groupe"
   },
   "dashboard.typeFilter.admin": {
-    "other": "Standard Roles"
+    "other": "Rôles standards"
   },
   "dashboard.typeFilter.IsTeam": {
-    "other": "User-defined Teams"
+    "other": "Équipes définies par les utilisateurs"
   },
   "dashboard.typeFilter.IsUserRole": {
-    "other": "[Technical] Attached to each users"
+    "other": "[Tech] Attachés à chaque utilisateur"
   },
   "dashboard.typeFilter.IsGroupRole": {
-    "other": "[Technical] Attached to each groups"
+    "other": "[Tech] Attachés à chaque groupe"
   },
   "last_update": {
     "other": "Dernière modification"
@@ -243,9 +243,9 @@
     "other": "Le rôle est toujours appliqué en dernier, après les autres rôles, à l'exception du rôle utilisateur qui prévaut."
   },
   "user.info.main": {
-    "other": "Hover fields to show explanation"
+    "other": "Survoler les champs pour afficher l'explication"
   },
   "button.info.menu.security": {
-    "other": "Security Actions"
+    "other": "Options de sécurité"
   }
 }

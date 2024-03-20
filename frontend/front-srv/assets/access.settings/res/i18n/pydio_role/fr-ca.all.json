@@ -45,7 +45,7 @@
     "other": "Chargement du cache des paramètres, veuillez patienter, cela ne sera fait qu'une fois..."
   },
   "24": {
-    "other": "Account"
+    "other": "Compte"
   },
   "25": {
     "other": "Restrictions d'accès"
@@ -111,13 +111,13 @@
     "other": "Gestion des accès aux workspaces"
   },
   "permissions.legend.user": {
-    "other": "Provide access to workspaces for the current user, overriding permissions inherited from user's roles. Use 'Manage Roles' to add/remove roles and identify the sources of inherited permissions."
+    "other": "Assigner les accès aux Workspaces pour l'utilisateur, en écrasant les permissions héritées de ses rôles ou groupes. Utilisez 'Gérer les rôles' pour ajouter/supprimer des rôles, et identifier la provenance des permissions héritées."
   },
   "permissions.legend.group": {
-    "other": "Provide access to workspaces for the current group. These permissions will be inherited by all users belonging this group."
+    "other": "Assigner des accès aux Workspaces pour ce groupe. Ces permissions seront héritées par tous les utilisateurs de ce groupe."
   },
   "permissions.legend.role": {
-    "other": "Provide access to workspaces for the current role. These permissions will be applied to all users to whom the role has been assigned."
+    "other": "Assigner des accès aux Workspaces pour ce rôle. Ces autorisations seront appliquées à tous les utilisateurs auxquels le rôle a été attribué."
   },
   "44": {
     "other": "Pages principles de l'application"
@@ -126,13 +126,13 @@
     "other": "Accès aux pages spécifiques (type Page d'accueil, Console d'Admin, etc.)"
   },
   "application-params.title": {
-    "other": "Parameters and actions"
+    "other": "Paramètres et Actions"
   },
   "application-params.legend": {
-    "other": "Modify UX parameters and show/hide certain actions for a specific role, globally or by workspace."
+    "other": "Modifier les paramètres de l'interface et afficher/masquer certaines actions pour un rôle spécifique, globalement ou par Workspace."
   },
   "application-params.legend.user-disclaimer": {
-    "other": "As a general rule, this should be managed at role level, not user level!"
+    "other": "En règle générale, il vaut mieux gérer ces paramètres au niveau des rôles, pas au niveau d'un utilisateur !"
   },
   "49": {
     "other": "Cellules et Liens Publics"
@@ -153,7 +153,7 @@
     "other": "Partagé par %1 depuis le workspace %2"
   },
   "54": {
-    "other": "User informations and security actions. Hover fields in the form below to display explanations."
+    "other": "Informations utilisateur et actions de sécurité. Passez votre souris sur les champs du formulaire ci-dessous pour afficher des explications."
   },
   "55": {
     "other": "Le profil et les rôles permettent d'assigner des permissions automatiquement à cet utilisateur."
@@ -174,13 +174,13 @@
     "other": "Gérer les rôles"
   },
   "roles.picker.add": {
-    "other": "Add role"
+    "other": "Ajouter un rôle"
   },
   "roles.picker.hint": {
-    "other": "Start typing to search roles..."
+    "other": "Saisir du texte pour rechercher des rôles..."
   },
   "roles.picker.effective": {
-    "other": "Effective role for %s"
+    "other": "Rôle effectif de %s"
   },
   "parameters.scope.selector.title": {
     "other": "Ajouter pour..."
@@ -225,15 +225,15 @@
     "other": "Tout le workspace"
   },
   "section.user-info": {
-    "other": "User Info"
+    "other": "Infos Utilisateur"
   },
   "section.permissions": {
     "other": "Permissions"
   },
   "section.security": {
-    "other": "Security"
+    "other": "Sécurité"
   },
   "section.advanced": {
-    "other": "Advanced"
+    "other": "Avancé"
   }
 }

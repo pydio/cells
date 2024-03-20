@@ -81,7 +81,7 @@
     "other": "自由条件"
   },
   "dataSelectorSingleQuery.JsonPath": {
-    "other": "JSON Path"
+    "other": "JSON 路径"
   },
   "conditionCIDRCondition.CIDR": {
     "other": "CIDR"

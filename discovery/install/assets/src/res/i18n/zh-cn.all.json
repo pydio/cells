@@ -84,7 +84,7 @@
     "other": "密码"
   },
   "advanced.mongo.authSource": {
-    "other": "Auth DB"
+    "other": "认证数据库"
   },
   "advanced.mongo.validate": {
     "other": "测试连接"

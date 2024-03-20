@@ -207,7 +207,7 @@
     "other": "连接安全"
   },
   "Mail.Config.Smtp.Security.Description": {
-    "other": "Protocol used for securing connection. Clear is not supported, if required use a custom Sendmail instead."
+    "other": "用于安全连接的协议。不支持清除，必要的话使用自定义Sendmail来替代。"
   },
   "Mail.Config.Smtp.SkipVerify.Label": {
     "other": "自签名证书"

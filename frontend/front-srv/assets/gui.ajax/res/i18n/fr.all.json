@@ -152,6 +152,30 @@
   "oauth.authentication.code-copy-failed": {
     "other": "Impossible de copier dans le presse-papiers."
   },
+  "layouts.preferences": {
+    "other": "Gérer les mises en page"
+  },
+  "layouts.preferences.legend": {
+    "other": "Enregistrer et rappeler les mises en page comme préréglages"
+  },
+  "layouts.action.rename": {
+    "other": "Renommer la mise en page"
+  },
+  "layouts.action.remove": {
+    "other": "Supprimer la mise en page"
+  },
+  "layouts.action.create": {
+    "other": "Enregistrer la mise en page..."
+  },
+  "layouts.action.create.default": {
+    "other": "Ma mise en page"
+  },
+  "layouts.prompt.save": {
+    "other": "Enregistrer la mise en page sous..."
+  },
+  "layouts.prompt.save.field": {
+    "other": "Choisissez un nom pour enregistrer/rappeler la mise en page actuelle"
+  },
   "list.display-mode.list": {
     "other": "Liste"
   },
@@ -310,5 +334,8 @@
   },
   "bigppanel.filter.default-hint": {
     "other": "Recherche rapide..."
+  },
+  "sorter.metas.more": {
+    "other": "Plus..."
   }
 }
