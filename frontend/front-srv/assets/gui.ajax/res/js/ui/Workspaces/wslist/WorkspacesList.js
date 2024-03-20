@@ -215,10 +215,10 @@ class WorkspacesList extends React.Component{
         let hiddenWorkspaces, hiddenWsStatus, cellsSortingMixed = false, prefs = {}, merge = false;
         if(pydio.user) {
             const glp = (k,v) => pydio.user.getLayoutPreference(k, v)
-            hiddenWorkspaces = glp('MaskedWorkspaces', [])
-            hiddenWsStatus = glp('LeftPanel.MaskedWorkspaces.Show', false)
-            cellsSortingMixed = glp('LeftPanel.OwnedCellsFirst', false);
-            merge = glp('LeftPanel.MergeWorkspaces', false) || pydio.getPluginConfigs('core.pydio').get('MERGE_WORKSPACES_AND_CELLS')
+            hiddenWorkspaces = glp('FSTemplate.MaskedWorkspaces', [])
+            hiddenWsStatus = glp('FSTemplate.LeftPanel.MaskedWorkspaces.Show', false)
+            cellsSortingMixed = glp('FSTemplate.LeftPanel.OwnedCellsFirst', false);
+            merge = glp('FSTemplate.LeftPanel.MergeWorkspaces', false) || pydio.getPluginConfigs('core.pydio').get('MERGE_WORKSPACES_AND_CELLS')
         }
         return {
             random: Math.random(),
@@ -237,15 +237,15 @@ class WorkspacesList extends React.Component{
         switch (name){
             case "mask":
                 const {hiddenWsStatus} = this.state;
-                pydio.user.setLayoutPreference('LeftPanel.MaskedWorkspaces.Show', !hiddenWsStatus || undefined);
+                pydio.user.setLayoutPreference('FSTemplate.LeftPanel.MaskedWorkspaces.Show', !hiddenWsStatus || undefined);
             break;
             case "owned":
                 const {cellsSortingMixed} = this.state;
-                pydio.user.setLayoutPreference('LeftPanel.OwnedCellsFirst', !cellsSortingMixed || undefined);
+                pydio.user.setLayoutPreference('FSTemplate.LeftPanel.OwnedCellsFirst', !cellsSortingMixed || undefined);
             break;
             case "merge":
                 const {merge} = this.state;
-                pydio.user.setLayoutPreference('LeftPanel.MergeWorkspaces', !merge || undefined)
+                pydio.user.setLayoutPreference('FSTemplate.LeftPanel.MergeWorkspaces', !merge || undefined)
             break;
             default:
                 return

@@ -607,27 +607,38 @@ let SimpleList = createReactClass({
     },
 
     componentDidMount: function(){
-        if(this.props.delayInitialLoad){
-            setTimeout(() => {this._loadNodeIfNotLoaded()}, this.props.delayInitialLoad);
+        const {pydio, sortingPreferenceKey, delayInitialLoad, elementsPerLine, autoRefresh, observeNodeReload, dataModel} = this.props;
+        if(sortingPreferenceKey) {
+            this._prefObserver = () => {
+                const sortingInfo = pydio.user.getLayoutPreference(sortingPreferenceKey)
+                if(sortingInfo !== undefined) {
+                    this.setState({sortingInfo})
+                }
+            }
+            pydio.observe('reload_layout_preferences', this._prefObserver)
+        }
+
+        if(delayInitialLoad){
+            setTimeout(() => {this._loadNodeIfNotLoaded()}, delayInitialLoad);
         }else{
             this._loadNodeIfNotLoaded();
         }
-        this.patchInfiniteGrid(this.props.elementsPerLine);
-        if(this.props.autoRefresh){
-            this.refreshInterval = window.setInterval(this.reload, this.props.autoRefresh);
+        this.patchInfiniteGrid(elementsPerLine);
+        if(autoRefresh){
+            this.refreshInterval = window.setInterval(this.reload, autoRefresh);
         }
-        if(this.props.observeNodeReload){
+        if(observeNodeReload){
             this.wireReloadListeners();
         }
-        this.props.dataModel.observe('root_node_changed', (rootNode) => {
+        dataModel.observe('root_node_changed', (rootNode) => {
             this.rootNodeChangedFlag = true;
         });
-        this.props.dataModel.observe('selection_changed', function(){
+        dataModel.observe('selection_changed', function(){
             if(!this.isMounted()) {
                 return;
             }
             let selection = new Map();
-            const selectedNodes = this.props.dataModel.getSelectedNodes();
+            const selectedNodes = dataModel.getSelectedNodes();
             selectedNodes.map(function(n){
                 selection.set(n, true);
             });
@@ -640,7 +651,7 @@ let SimpleList = createReactClass({
         }.bind(this));
         // Selection on Mount
         const selection = new Map();
-        const selectedNodes = this.props.dataModel.getSelectedNodes();
+        const selectedNodes = dataModel.getSelectedNodes();
         if(selectedNodes.length) {
             selectedNodes.map(function(n){
                 selection.set(n, true);
@@ -652,14 +663,18 @@ let SimpleList = createReactClass({
     },
 
     componentWillUnmount: function(){
+        const {pydio, node, observeNodeReload} = this.props;
         if(this.refreshInterval){
             window.clearInterval(this.refreshInterval);
         }
-        if(this.props.observeNodeReload){
+        if(observeNodeReload){
             this.stopReloadListeners();
         }
-        if(this.props.node) {
-            this.observeNodeChildren(this.props.node, true);
+        if(node) {
+            this.observeNodeChildren(node, true);
+        }
+        if(this._prefObserver) {
+            pydio.stopObserving('reload_layout_preferences', this._prefObserver)
         }
     },
 

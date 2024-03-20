@@ -22,6 +22,8 @@ import React from 'react';
 import Pydio from 'pydio';
 import {debounce} from 'lodash'
 const {withSearch} = Pydio.requireLib('hoc')
+const {PromptValidators} = Pydio.requireLib('boot')
+import Action from 'pydio/model/action'
 import {muiThemeable} from 'material-ui/styles'
 import MainFilesList from './MainFilesList'
 import EditionPanel from './EditionPanel'
@@ -32,24 +34,33 @@ import AppBar from './AppBar'
 import WorkspacesList from "../wslist/WorkspacesList";
 import {MUITour} from "./WelcomeMuiTour";
 import {MultiColumnPanel} from "../detailpanes/MultiColumnPanel";
+import genUuid from 'uuid4'
+
+const CurrentTemplateKey = 'FSTemplate'
+const TemplatesKey = 'FSTemplatePresets'
 
 class FSTemplate extends React.Component {
 
     constructor(props){
         super(props);
-        const {pydio} = props
-        const uPref = (k, v) => {
-            return pydio.user ? pydio.user.getLayoutPreference(k, v) : v
-        }
-
         this.state = {
-            infoPanelOpen: uPref('FSTemplate.infoPanelOpen', true), // open by default
-            chatOpen: uPref('FSTemplate.chatOpen', false), // closed by default
-            chatDetached: uPref('FSTemplate.chatDetached', true), // detached by default
+            ...this.stateFromPrefs(),
             drawerOpen: false,
             searchFormState: {},
             searchView: false
         };
+    }
+
+    stateFromPrefs() {
+        const {pydio} = this.props
+        const uPref = (k, v) => {
+            return pydio.user ? pydio.user.getLayoutPreference(k, v) : v
+        }
+        return {
+            infoPanelOpen: uPref('FSTemplate.infoPanelOpen', true), // open by default
+            chatOpen: uPref('FSTemplate.chatOpen', false), // closed by default
+            chatDetached: uPref('FSTemplate.chatDetached', true), // detached by default
+        }
     }
 
     setSearchView() {
@@ -91,12 +102,42 @@ class FSTemplate extends React.Component {
                 this.setState({searchView, searchViewTransition: true}, resizeTrigger)
             }
         }
+        this._prefObserver = ({path, value}) => {
+            if(!path || path.indexOf(CurrentTemplateKey +'.') !== 0) {
+                return
+            }
+            // If a template is currently in use, update it
+            const presets = pydio.user.getLayoutPreference(TemplatesKey, [])
+            const currents = presets.filter(p => p.current)
+            if(!currents.length) {
+                return
+            }
+            const current = currents[0]
+            const newPayload = pydio.user.getLayoutPreference(CurrentTemplateKey)
+            presets.forEach(p => {
+                if(p.id === current.id) {
+                    p.payload = newPayload
+                }
+            })
+            pydio.user.setLayoutPreference(TemplatesKey, presets)
+        };
+        this._reloadPrefObserver = () => {
+            this.setState(this.stateFromPrefs())
+        }
+        pydio.getController().updateGuiActions(this.getPydioActions());
         pydio.observe('context_changed', this._ctxObserver)
+        pydio.observe('set_layout_preference', this._prefObserver)
+        pydio.observe('reload_layout_preferences', this._reloadPrefObserver)
     }
 
     componentWillUnmount(){
         const {pydio} = this.props;
         pydio.stopObserving('context_changed', this._ctxObserver)
+        pydio.stopObserving('set_layout_preference', this._prefObserver)
+        pydio.stopObserving('reload_layout_preferences', this._reloadPrefObserver)
+        this.getPydioActions(true).map(function(key){
+            pydio.getController().deleteFromGuiActions(key);
+        }.bind(this));
     }
 
     toggleAndStore(keyName) {
@@ -126,6 +167,117 @@ class FSTemplate extends React.Component {
     openDrawer(event){
         event.stopPropagation();
         this.setState({drawerOpen: true});
+    }
+
+
+
+    buildLayoutActions() {
+        //{name, icon_class, callback (), highlight ()}
+        const {pydio} = this.props;
+        if(!pydio.user) {
+            return []
+        }
+
+        const save = (k, v) => pydio.user.setLayoutPreference(k, v)
+        const labelPrompt = (defaultValue, submitValue) => {
+            pydio.UI.openComponentInModal('PydioReactUI', 'PromptDialog', {
+                dialogTitleId:'ajax_gui.layouts.prompt.save',
+                fieldLabelId:'ajax_gui.layouts.prompt.save.field',
+                validate:PromptValidators.Empty,
+                defaultValue,
+                submitValue
+            });
+        }
+
+        const presets = [...pydio.user.getLayoutPreference(TemplatesKey, [])]
+        const actions = presets.map(({id, label, current, payload}) => {
+            const use =()=>{
+                const newPresets = [...presets]
+                newPresets.forEach(p => p.current = p.id === id)
+                save(CurrentTemplateKey, payload)
+                save(TemplatesKey, newPresets)
+                pydio.notify('reload_layout_preferences')
+            }
+
+            if(current) {
+                return {
+                    name: label,
+                    icon_class:'mdi mdi-check',
+                    subMenu:[
+                        {
+                            text:pydio.MessageHash['ajax_gui.layouts.action.rename'],
+                            iconClassName:'mdi mdi-view-dashboard-edit-outline',
+                            payload:()=>{
+                                labelPrompt((label, value) => {
+                                    // update label in-place
+                                    presets.forEach(p => {
+                                        if(p.id === id) {
+                                            p.label = value
+                                        }
+                                    })
+                                    save(TemplatesKey, presets)
+                                })
+                            }
+                        },
+                        {
+                            text:pydio.MessageHash['ajax_gui.layouts.action.remove'],
+                            iconClassName:'mdi mdi-delete-outline',
+                            payload:()=>{
+                                save(TemplatesKey, [...presets.filter(p => p.id !== id)])
+                            }
+                        },
+                    ]
+                }
+            } else {
+                return {
+                    name: label,
+                    icon_class: 'mdi mdi-view-dashboard-outline',
+                    callback: use
+                }
+            }
+        })
+        actions.push({
+            name:pydio.MessageHash['ajax_gui.layouts.action.create'],
+            icon_class:'mdi mdi-content-save',
+            callback:() => {
+                labelPrompt(pydio.MessageHash['ajax_gui.layouts.action.create.default'], (value) => {
+                    const current = pydio.user.getLayoutPreference(CurrentTemplateKey)
+                    const preset = {id:genUuid(), label:value, current: true, payload: current}
+                    save(TemplatesKey, [...presets.map(p => {return {...p, current: false}}), preset])
+                });
+            }
+        })
+        return actions
+    }
+
+    getPydioActions(keysOnly = false) {
+        if(keysOnly) {
+            return ['manage_layouts_preferences']
+        }
+        const actions = new Map()
+        const manageAction = new Action({
+            name:'manage_layouts_preferences',
+            icon_class:'mdi mdi-view-list',
+            text_id:'ajax_gui.layouts.preferences',
+            title_id:'ajax_gui.layouts.preferences.legend',
+            text:Pydio.getMessages()['ajax_gui.layouts.preferences'],
+            title:Pydio.getMessages()['ajax_gui.layouts.preferences.legend'],
+            hasAccessKey:false,
+            subMenu:true,
+            subMenuUpdateImage:true,
+            weight:500
+        }, {
+            selection:false,
+            dir:true,
+            actionBar:true,
+            actionBarGroup:'display_toolbar',
+            contextMenu:false,
+            infoPanel:false
+        }, {}, {}, {
+            dynamicBuilder: this.buildLayoutActions.bind(this),
+        })
+        actions.set('manage_layouts_preferences', manageAction)
+        return actions
     }
 
     render () {
@@ -273,7 +425,7 @@ class FSTemplate extends React.Component {
                         {...props}
                         closed={!infoPanelOpen}
                         afterResize={()=>this.resizeAfterTransition()}
-                        storageKey={searchView?'MultiColumn.SearchView':'MultiColumn.InfoPanel'}
+                        storageKey={searchView?'FSTemplate.MultiColumn.SearchView':'FSTemplate.MultiColumn.InfoPanel'}
                         dataModel={pydio.getContextHolder()}
                         onRequestClose={()=>{this.toggleRightPanel('info-panel')}}
                         onContentChange={this.infoPanelContentChange.bind(this)}

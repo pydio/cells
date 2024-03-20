@@ -39,7 +39,7 @@ let ContextInfoPanelCard = ({primaryToolbars, icon, title, closedTitle, shrinkTi
     const identifier = namespace + '.' + componentName;
 
     const {width=0, setWidth=()=>{}} = useContext(ResizableContext) || {};
-    let [open, setOpen] = useWorkspacePref('MultiColumn.InfoPanel.cardStatus.'+identifier+'.open', defaultOpen)
+    let [open, setOpen] = useWorkspacePref('FSTemplate.MultiColumn.InfoPanel.cardStatus.'+identifier+'.open', defaultOpen)
     const [hoverRow, setHoverRow] = useState(null)
     const [hoverTitle, setHoverTitle] = useState(false)
 

@@ -189,7 +189,7 @@ class MainFilesList extends React.Component {
         if(!pydio.user){
             return defaultValue;
         }
-        return pydio.user.getLayoutPreference(prefName, defaultValue)
+        return pydio.user.getLayoutPreference('FSTemplate.' + prefName, defaultValue)
     }
 
     /**
@@ -199,17 +199,29 @@ class MainFilesList extends React.Component {
      */
     setPrefValue(prefName, value){
         const {pydio} = this.props;
-        pydio.user && pydio.user.setLayoutPreference(prefName, value)
+        pydio.user && pydio.user.setLayoutPreference('FSTemplate.' + prefName, value)
     }
 
     componentDidMount() {
-        const {dataModel} = this.props;
+        const {dataModel, pydio, onDisplayModeChange} = this.props;
         // Hook to the central datamodel
-        this._contextObserver = function(){
+        this._contextObserver = () =>{
             this.setState({contextNode: dataModel.getContextNode()});
-        }.bind(this);
+        };
         dataModel.observe("context_changed", this._contextObserver);
-        this.props.pydio.getController().updateGuiActions(this.getPydioActions());
+        pydio.getController().updateGuiActions(this.getPydioActions());
+
+        this._prefObserver = () => {
+            this.setState({
+                showExtensions: this.getPrefValue('FilesList.ShowExtensions', false),
+                pinBookmarks: this.getPrefValue('FilesList.PinBookmarks', false)
+            })
+            const displayMode = this.getPrefValue('FilesList.DisplayMode', undefined)
+            if(displayMode !== undefined) {
+                this.setState({displayMode})
+            }
+        }
+        pydio.observe('reload_layout_preferences', this._prefObserver)
 
         this.recomputeThumbnailsDimension();
         this._thumbObserver = debounce(this.recomputeThumbnailsDimension.bind(this), 500);
@@ -218,14 +230,16 @@ class MainFilesList extends React.Component {
         }else{
             window.attachEvent('onresize', this._thumbObserver);
         }
-        if(this.props.onDisplayModeChange && this.state && this.state.displayMode){
-            this.props.onDisplayModeChange(this.state.displayMode);
+        if(onDisplayModeChange && this.state && this.state.displayMode){
+            onDisplayModeChange(this.state.displayMode);
         }
     }
 
     componentWillUnmount() {
-        const {dataModel} = this.props;
+        const {dataModel, pydio} = this.props;
         dataModel.stopObserving("context_changed", this._contextObserver);
+        pydio.stopObserving('reload_layout_preferences', this._prefObserver)
+
         this.getPydioActions(true).map(function(key){
             this.props.pydio.getController().deleteFromGuiActions(key);
         }.bind(this));
@@ -766,8 +780,6 @@ class MainFilesList extends React.Component {
         }, {}, {}, {
             dynamicBuilder:this.buildDisplayModeItems.bind(this),
         });
-        let buttons = new Map();
-        buttons.set('switch_display_mode', multiAction);
         const extAction = new Action(
             {
                 name:'toggle_show_extensions',
@@ -789,8 +801,11 @@ class MainFilesList extends React.Component {
                 dynamicBuilder: this.buildShowExtensionsItems.bind(this)
             }
         );
-        buttons.set('toggle_show_extensions', extAction);
-        return buttons;
+
+        const actions = new Map();
+        actions.set('switch_display_mode', multiAction);
+        actions.set('toggle_show_extensions', extAction);
+        return actions;
     }
 
     render() {
@@ -993,7 +1008,7 @@ class MainFilesList extends React.Component {
                 horizontalRibbon={this.props.horizontalRibbon}
                 emptyStateProps={emptyStateProps}
                 defaultSortingInfo={{sortType:'file-natural',attribute:'',direction:'asc'}}
-                sortingPreferenceKey={'FilesList.SortingInfo'}
+                sortingPreferenceKey={'FSTemplate.FilesList.SortingInfo'}
                 onSortingInfoChange={sortingInfoChange}
                 hideToolbar={true}
                 customToolbar={<CellsMessageToolbar pydio={pydio}/>}

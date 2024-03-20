@@ -302,7 +302,7 @@ class WorkspaceEntry extends React.Component {
             currentClass +=" workspace-current";
         }
 
-        const maskedWorkspaces = pydio.user.getLayoutPreference('MaskedWorkspaces', [])
+        const maskedWorkspaces = pydio.user.getLayoutPreference('FSTemplate.MaskedWorkspaces', [])
         let isMasked;
         if(maskedWorkspaces.indexOf && maskedWorkspaces.indexOf(workspace.getId()) > -1) {
             isMasked = true;

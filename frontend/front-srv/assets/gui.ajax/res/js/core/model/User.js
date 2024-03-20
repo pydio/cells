@@ -206,6 +206,7 @@ export default class User{
         const top = this.getPreference('gui_preferences', true) || {PrefVersion: LayoutPrefVersion}
         Preferences.updateByPath(top, path, value)
         this.setPreference('gui_preferences', top, true)
+        this._pydioObject.notify('set_layout_preference', {path, value})
         this.savePrefDebounced()
     }
 

@@ -19,7 +19,7 @@
  */
 
 import Pydio from 'pydio'
-import React, {useState} from 'react'
+import React, {useState, useEffect} from 'react'
 
 // We use LayoutPreference instead of WorkspacePreference and assume that they are shared amongst workspaces
 export default (name, def, pydio) => {
@@ -32,23 +32,21 @@ export default (name, def, pydio) => {
         user.setLayoutPreference(name, value)
         setInternal(value)
     }
-    /*
     // Could be used to refresh if we switch to getWorkspacePreference
     useEffect(()=>{
         const observer = () => {
             const {user} = pydio
-            const savedVal = user.getWorkspacePreference(name)
-            console.log('refresh?', name, savedVal, user.getActiveRepository())
-            if(savedVal !== undefined && savedVal !== internal) {
+            const savedVal = user.getLayoutPreference(name)
+            if(savedVal !== undefined) {
                 setInternal(savedVal)
             }
         }
-        pydio.observe('repository_list_refreshed', observer)
+        pydio.observe('reload_layout_preferences', observer)
         return () => {
-            pydio.stopObserving('repository_list_refreshed', observer)
+            pydio.stopObserving('reload_layout_preferences', observer)
         }
     }, [])
-     */
+
     return [internal, setWrapped]
 
 }

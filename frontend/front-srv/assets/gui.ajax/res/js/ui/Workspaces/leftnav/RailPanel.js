@@ -25,6 +25,7 @@ const Pydio = require('pydio')
 import DOMUtils from 'pydio/util/dom'
 import UserWidget from './UserWidget'
 import WorkspacesList from '../wslist/WorkspacesList'
+import useWorkspacePref from '../views/useWorkspacePref'
 
 const {useRunningTasksMonitor} = Pydio.requireLib("boot");
 import {muiThemeable} from 'material-ui/styles'
@@ -147,25 +148,20 @@ let RailPanel = ({
     const [unreadCount, setUnreadCount] = useState(0)
     const {wsDisconnected, running, jobs, progress} = useRunningTasksMonitor({pydio, statusString:'Any'})
 
-    const [activePanel, setActivePanel] = useState(user.getLayoutPreference('RailPanel.ActivePanel', 'files'))
-    const updateActivePanel = (c) => {
-        setActivePanel(c);
-        user.setLayoutPreference('RailPanel.ActivePanel', c)
-    }
+
+    const [activePanel, setActivePanel] = useWorkspacePref('FSTemplate.RailPanel.ActivePanel', 'files', pydio)
 
     const [showCloseToggle, setShowCloseToggle] = useState(false)
 
-    let defaultResizerWidth = defaultWidth;
-    const upw = user.getLayoutPreference('RailPanel.ActiveWidth')
-    if(upw && upw < 1) {
-        defaultResizerWidth = upw * DOMUtils.getViewportWidth();
+    let [resizerWidth, setResizerWidth] = useWorkspacePref('FSTemplate.RailPanel.ActiveWidth', 1, pydio)
+    if(resizerWidth && resizerWidth < 1) {
+        resizerWidth *= DOMUtils.getViewportWidth();
+    } else {
+        resizerWidth = defaultWidth
     }
-    const [resizerWidth, setResizerWidth] = useState(defaultResizerWidth)
     const updateResizerWidth = (w) => {
-        setResizerWidth(w);
+        setResizerWidth(w/DOMUtils.getViewportWidth());
         window.dispatchEvent(new Event('resize'))
-        // Store a percentage
-        user.setLayoutPreference('RailPanel.ActiveWidth', w/DOMUtils.getViewportWidth())
     }
 
     const activitiesLoader = () => {
@@ -508,7 +504,7 @@ let RailPanel = ({
                             onMouseLeave={activeBarSmall?null:()=> setShowCloseToggle(false)}
                         >
                             {activeBar}
-                            {showCloseToggle && <div style={{...closerStyle}} onClick={() => updateActivePanel('')}><span className={"mdi mdi-pin-off-outline"}/></div>}
+                            {showCloseToggle && <div style={{...closerStyle}} onClick={() => setActivePanel('')}><span className={"mdi mdi-pin-off-outline"}/></div>}
                         </div>
                     </Resizable>
 
@@ -525,7 +521,7 @@ let RailPanel = ({
                         <div
                             style={{...closerStyle}}
                             onMouseEnter={() => setHover(true)}
-                            onClick={() => { updateActivePanel(hoverBarDef.id); setHover(false);}}>
+                            onClick={() => { setActivePanel(hoverBarDef.id); setHover(false);}}>
                             <span className={"mdi mdi-pin-outline"}/>
                         </div>
                     }
