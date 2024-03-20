@@ -555,9 +555,9 @@
     "other": "o"
   },
   "uploaders-chunk-size-warn-multiple": {
-    "other": "Part size must be a multiple of 10MB!"
+    "other": "分块大小必须是10MB的倍数！"
   },
   "uploaders-chunk-size-warn-too-small": {
-    "other": "Part size must be at least 10MB!"
+    "other": "分块大小必须至少是10MB！"
   }
 }

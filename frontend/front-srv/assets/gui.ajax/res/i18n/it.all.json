@@ -152,6 +152,30 @@
   "oauth.authentication.code-copy-failed": {
     "other": "Impossibile copiare negli appunti."
   },
+  "layouts.preferences": {
+    "other": "Manage Layouts"
+  },
+  "layouts.preferences.legend": {
+    "other": "Save and Recall Layouts as Presets"
+  },
+  "layouts.action.rename": {
+    "other": "Rename Layout"
+  },
+  "layouts.action.remove": {
+    "other": "Remove Layout"
+  },
+  "layouts.action.create": {
+    "other": "Save current..."
+  },
+  "layouts.action.create.default": {
+    "other": "My Layout"
+  },
+  "layouts.prompt.save": {
+    "other": "Save Layout As..."
+  },
+  "layouts.prompt.save.field": {
+    "other": "Choose a name to save/recall the current layout"
+  },
   "list.display-mode.list": {
     "other": "Lista"
   },
@@ -310,5 +334,8 @@
   },
   "bigppanel.filter.default-hint": {
     "other": "Quick Find..."
+  },
+  "sorter.metas.more": {
+    "other": "More..."
   }
 }
