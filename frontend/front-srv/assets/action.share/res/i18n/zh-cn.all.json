@@ -537,13 +537,13 @@
     "other": "资料库中的共享"
   },
   "254b": {
-    "other": "With users or groups"
+    "other": "与用户或组"
   },
   "254c": {
-    "other": "Shared in %d cells"
+    "other": "在 %d 单元格中共享"
   },
   "254d": {
-    "other": "Shared in '%s'"
+    "other": "在'%s'中共享"
   },
   "255": {
     "other": "您确定要删除此项目上的所有资料库和链接吗？"
@@ -663,10 +663,10 @@
     "other": "监视"
   },
   "34": {
-    "other": "Select or Create Users"
+    "other": "选择或创建用户"
   },
   "34b": {
-    "other": "Select Users"
+    "other": "选择用户"
   },
   "35": {
     "other": "标签"
@@ -912,40 +912,40 @@
     "other": "共享现有文件夹(s)"
   },
   "cells.remove.node": {
-    "other": "Remove from this cell"
+    "other": "从此单元格中删除"
   },
   "cell.visibility.advanced": {
     "other": "此高级功能允许您决定谁可以编辑此资料库的属性 (有权添加/移除用户，添加/移除资料库根目录下的文件夹)。 如果只需管理数据的实际访问权限，请使用\"共享\"选项卡。"
   },
   "cell.add.existing-or-new": {
-    "other": "Add to existing or new Cell"
+    "other": "添加到现有或新单元格"
   },
   "cell.add.existing": {
-    "other": "Add to existing Cell"
+    "other": "添加到现有单元格"
   },
   "cell.add.new": {
-    "other": "Create a new Cell"
+    "other": "创建新单元格"
   },
   "cell.participant.single": {
-    "other": "One participant"
+    "other": "一名参加者"
   },
   "cell.participant.multiple": {
-    "other": "%d participants"
+    "other": "%d参加者"
   },
   "cell.participant.other.single": {
-    "other": "One other participant"
+    "other": "另一名参与者"
   },
   "cell.participant.other.multiple": {
-    "other": "%d other participants"
+    "other": "%d 其他参与者"
   },
   "cell.folder-root.single": {
-    "other": "One folder"
+    "other": "一个文件夹"
   },
   "cell.folder-root.multiple": {
-    "other": "%d folders"
+    "other": "%d文件夹"
   },
   "link.visibility.title": {
-    "other": "[Advanced] Visibility"
+    "other": "[高级] 可见性"
   },
   "link.visibility.advanced": {
     "other": "此高级功能允许您决定在其他用户看到此文件时是否对他们可见， 以及他们是否可以编辑其属性。 默认情况下，您创建的链接只对您可见。您可以通过输入用户名，将所有权转让给其他用户。"
@@ -954,39 +954,39 @@
     "other": "有未保存的更改，您确定要关闭吗？"
   },
   "dialog.link.confirm.remove": {
-    "other": "Are you sure that you want to disable this link?"
+    "other": "您确定要禁用此链接吗？"
   },
   "sharelist.quick-filter": {
     "other": "快速过滤"
   },
   "composite.deleteAll": {
-    "other": "Disable all shares"
+    "other": "禁用所有共享"
   },
   "link.active": {
-    "other": "active"
+    "other": "已激活"
   },
   "link.disable": {
-    "other": "Disable Link"
+    "other": "禁用链接"
   },
   "link.floatingLabel": {
-    "other": "Copy and send this link for direct access"
+    "other": "复制并发送此链接以直接访问"
   },
   "link.secure.title": {
-    "other": "Access Restrictions"
+    "other": "访问限制"
   },
   "link.secure.expires": {
-    "other": "expires"
+    "other": "过期"
   },
   "link.secure.expired": {
-    "other": "expired"
+    "other": "已过期"
   },
   "link.secure.hasPassword": {
-    "other": "password required"
+    "other": "密码是必填的"
   },
   "link.secure.maxdownloads": {
-    "other": "%d downloads only"
+    "other": "仅下载 %d"
   },
   "minisite.toggle.theme": {
-    "other": "Toggle Dark/Light Theme"
+    "other": "切换暗淡/亮主题"
   }
 }

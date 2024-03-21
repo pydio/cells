@@ -44,6 +44,9 @@
   "Country": {
     "other": "Land"
   },
+  "User Country": {
+    "other": "Benutzerland"
+  },
   "Create external users": {
     "other": "Benutzer für Freigaben erstellen"
   },

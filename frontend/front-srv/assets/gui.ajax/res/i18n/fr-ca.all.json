@@ -153,28 +153,40 @@
     "other": "Impossible de copier dans le presse-papiers."
   },
   "layouts.preferences": {
-    "other": "Manage Layouts"
+    "other": "Gérer les mises en page"
   },
   "layouts.preferences.legend": {
-    "other": "Save and Recall Layouts as Presets"
+    "other": "Enregistrer et rappeler les mises en page comme préréglages"
   },
   "layouts.action.rename": {
-    "other": "Rename Layout"
+    "other": "Renommer la mise en page"
   },
   "layouts.action.remove": {
-    "other": "Remove Layout"
+    "other": "Supprimer la mise en page"
+  },
+  "layouts.action.remove.confirm": {
+    "other": "Voulez-vous supprimer cette mise en page ?"
+  },
+  "layouts.action.reset": {
+    "other": "Réinitialiser"
+  },
+  "layouts.action.reset.confirm": {
+    "other": "Voulez-vous réinitialiser la mise en page actuelle ?"
   },
   "layouts.action.create": {
-    "other": "Save current..."
+    "other": "Enregistrer..."
+  },
+  "layouts.action.fork": {
+    "other": "Nouvelle mise en page..."
   },
   "layouts.action.create.default": {
-    "other": "My Layout"
+    "other": "Ma mise en page"
   },
   "layouts.prompt.save": {
-    "other": "Save Layout As..."
+    "other": "Enregistrer la mise en page sous..."
   },
   "layouts.prompt.save.field": {
-    "other": "Choose a name to save/recall the current layout"
+    "other": "Choisissez un nom pour enregistrer/rappeler la mise en page actuelle"
   },
   "list.display-mode.list": {
     "other": "Liste"
@@ -205,6 +217,12 @@
   },
   "list.pin.bookmarks": {
     "other": "Épingler les favoris en haut"
+  },
+  "list.writeonly.emptystate.title": {
+    "other": "Déposez des fichiers ici"
+  },
+  "list.writeonly.emptystate.legend": {
+    "other": "Ce dossier n'est accessible qu'en écriture : vous ne pouvez pas voir son contenu et vous êtes uniquement autorisé à y déposer des fichiers ou des dossiers. Vos propres contenus ne seront pas visible après le transfert !"
   },
   "infopanel.empty.select.file": {
     "other": "Sélectionnez un fichier pour afficher ses informations"
@@ -336,6 +354,6 @@
     "other": "Recherche rapide..."
   },
   "sorter.metas.more": {
-    "other": "More..."
+    "other": "Plus..."
   }
 }

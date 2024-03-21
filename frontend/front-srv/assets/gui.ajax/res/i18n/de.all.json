@@ -164,8 +164,20 @@
   "layouts.action.remove": {
     "other": "Layout entfernen"
   },
+  "layouts.action.remove.confirm": {
+    "other": "Wollen Sie dieses Layout wirklich löschen?"
+  },
+  "layouts.action.reset": {
+    "other": "Layout zurücksetzen"
+  },
+  "layouts.action.reset.confirm": {
+    "other": "Möchten Sie das aktuelle Layout zurücksetzen?"
+  },
   "layouts.action.create": {
-    "other": "Aktuelles speichern..."
+    "other": "Layout speichern..."
+  },
+  "layouts.action.fork": {
+    "other": "Neu von Aktuell..."
   },
   "layouts.action.create.default": {
     "other": "Meine Layouts"
@@ -205,6 +217,12 @@
   },
   "list.pin.bookmarks": {
     "other": "Lesezeichen oben anheften"
+  },
+  "list.writeonly.emptystate.title": {
+    "other": "Dateien hier ablegen"
+  },
+  "list.writeonly.emptystate.legend": {
+    "other": "Dieser Ordner ist schreibgeschützt: Sie können seinen Inhalt nicht sehen und sind nur berechtigt, Dateien oder Ordner hochzuladen. Ihr eigener Inhalt wird nach dem Hochladen nicht sichtbar sein!"
   },
   "infopanel.empty.select.file": {
     "other": "Wählen Sie eine Datei aus, um Informationen anzuzeigen"

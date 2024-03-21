@@ -44,6 +44,9 @@
   "Country": {
     "other": "国家/地区"
   },
+  "User Country": {
+    "other": "User Country"
+  },
   "Create external users": {
     "other": "创建外部用户"
   },
