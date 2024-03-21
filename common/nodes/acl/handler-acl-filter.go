@@ -94,6 +94,15 @@ func (a *FilterHandler) ReadNode(ctx context.Context, in *tree.ReadNodeRequest, 
 		n := response.Node.Clone()
 		n.MustSetMeta(common.MetaFlagReadonly, "true")
 		response.Node = n
+	} else if !accessList.CanRead(ctx, parents...) && accessList.CanWrite(ctx, parents...) {
+		n := response.Node.Clone()
+		// Set special flag and remove children info
+		n.MustSetMeta(common.MetaFlagWriteOnly, "true")
+		delete(n.MetaStore, common.MetaFlagChildrenCount)
+		delete(n.MetaStore, common.MetaFlagChildrenFolders)
+		delete(n.MetaStore, common.MetaFlagChildrenFiles)
+		delete(n.MetaStore, common.MetaFlagRecursiveCount)
+		response.Node = n
 	}
 	updatedParents := append([]*tree.Node{response.GetNode()}, parents[1:]...)
 	if checkDl && accessList.HasExplicitDeny(ctx, permissions.FlagDownload, updatedParents...) {

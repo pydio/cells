@@ -203,6 +203,7 @@ const (
 
 	KeyringMasterKey             = "keyring.master"
 	MetaFlagReadonly             = "node_readonly"
+	MetaFlagWriteOnly            = "node_writeonly"
 	MetaFlagLevelReadonly        = "level_readonly"
 	MetaFlagEncrypted            = "datasource_encrypted"
 	MetaFlagVersioning           = "datasource_versioning"

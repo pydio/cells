@@ -152,6 +152,9 @@ func (h *Handler) GetBulkMeta(req *restful.Request, resp *restful.Response) {
 
 	for _, folderNode := range folderNodes {
 		var childrenCount, total, childrenLoaded int32
+		if folderNode.GetStringMeta(common.MetaFlagWriteOnly) == "true" {
+			continue
+		}
 		if e := folderNode.GetMeta(common.MetaFlagChildrenCount, &childrenCount); e == nil && childrenCount > 0 {
 			total = childrenCount
 		}
