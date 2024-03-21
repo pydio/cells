@@ -1,7 +1,37 @@
-# Changes between v4.4.0-alpha1 and v4.4.0-alpha2
+# Changes between v4.3.5 and v4.4.0-rc1
 
-[See Full Changelog](https://github.com/pydio/cells/compare/v4.4.0-alpha1...v4.4.0-alpha2)
+[See Full Changelog](https://github.com/pydio/cells/compare/v4.3.5...v4.4.0-rc1)
 
+- [#2040748](https://github.com/pydio/cells/commit/20407487647b75d10ba76f6236d7ffe82bffe81a): New messages + DE/FR translations
+- [#c531451](https://github.com/pydio/cells/commit/c531451742cc7aed0211b844b330922df6c089b4): New messages + DE/FR translations
+- [#bcf5e48](https://github.com/pydio/cells/commit/bcf5e48e8f2577ef55678126157c16d1eec62489): Better handling of write-only node (nice message in ux)
+- [#ac2bfce](https://github.com/pydio/cells/commit/ac2bfcecce707b3caa0f01c5bd093648873fc737): Better handling of write-only node (avoid error)
+- [#f330a23](https://github.com/pydio/cells/commit/f330a2332bfe55a12d5c6ccc399c57f23a7f8569): Wrong state variable name
+- [#1eeb9bb](https://github.com/pydio/cells/commit/1eeb9bbca7fd70c670a8d26d96cc7bfec8309a19): Refine Layouts management
+- [#c4d1c81](https://github.com/pydio/cells/commit/c4d1c8101910e931247ff21fab50350b9c96a816): Change "Country" field description
+- [#9737e12](https://github.com/pydio/cells/commit/9737e12940cd83ce2cd6996ed08379b71982479c): Fix libreoffice lang parameter
+- [#3332e5a](https://github.com/pydio/cells/commit/3332e5aa3ab68b7a2187b678a97955201841067a): UX - Fixes and glitches
+- [#cd2951c](https://github.com/pydio/cells/commit/cd2951c4da9209cbaad6525c227825ddb2fb10e8): New messages + DE/FR translation
+- [#02b59ec](https://github.com/pydio/cells/commit/02b59ec9c910bf1297d90a63593992200a0e1581): New messages + DE/FR translation
+- [#ff842a7](https://github.com/pydio/cells/commit/ff842a76837ae9d079981da46faaed6369b20d49): Set up a way to manage layouts
+- [#144b2ed](https://github.com/pydio/cells/commit/144b2ed252d738151348f65b0049369c5c9d16c4): Refactor centralized LayoutPreference management (simplify)
+- [#c8fdadc](https://github.com/pydio/cells/commit/c8fdadc5a44f65661db939cac420e55c24cc9b0b): Refactor centralized LayoutPreference management
+- [#69f8b78](https://github.com/pydio/cells/commit/69f8b78deb3df428921fe23d937c570ec690659d): Tests: flakky boltdb test - replace time.After by Retries
+- [#6161ca7](https://github.com/pydio/cells/commit/6161ca70dac88de205c5e642e6295605e6a07254): Re-fix "Default Workspace" (again...)
+- [#6d21466](https://github.com/pydio/cells/commit/6d2146688ea2d2c64ea4abce211cba824c4c894d): Policies: remove defaults that are now exposed as templates
+- [#65a2d9f](https://github.com/pydio/cells/commit/65a2d9fc882ac05943dd40e6f53a29f76baf1271): Fixing nats tls secure connection
+- [#31d1ff4](https://github.com/pydio/cells/commit/31d1ff4b355d6b414ccf35cc49c818be692c4b67): Update pydio.grpc.search defaults
+- [#2d1eb21](https://github.com/pydio/cells/commit/2d1eb213d0eacf21532cf03516c46a24cb37cfee): Adapt after EN fixs + never translate workspace
+- [#807c647](https://github.com/pydio/cells/commit/807c6478991dda74644cd90d86ec5cb758ab61d8): Adapt after EN fixs + never translate workspace
+- [#08f28eb](https://github.com/pydio/cells/commit/08f28eb699c4f4c814fcadd803dd966d55e5f41f): AsyncComponent: prevent infinite loop
+- [#c731127](https://github.com/pydio/cells/commit/c73112792e3d3bc2bbd5b4bc347c2384d9c6a88e): Restore delete file (still used in legacy theme)
+- [#dab0061](https://github.com/pydio/cells/commit/dab00613ea80a081a4724ee618192a9e8066650f): Change en keys
+- [#bd36411](https://github.com/pydio/cells/commit/bd36411e870c2a58677bfc7716482c0bfd79a082): New messages + DE/FR translations + more Russian & Chinese
+- [#7bdff48](https://github.com/pydio/cells/commit/7bdff48f749351c5d4ff16470256aab7e20690ce): New messages + DE/FR translations + more Russian & Chinese
+- [#ff07a98](https://github.com/pydio/cells/commit/ff07a9873dc17beeaf2466c8a1a77ac503d0823b): New list display for recent activity
+- [#bf2f00b](https://github.com/pydio/cells/commit/bf2f00bbbf9fdb1ac4824a540e9e474db514beef): Explain more difference between flat and structured DS
+- [#03506ee](https://github.com/pydio/cells/commit/03506ee3121b97de375c567715033f9c51809cbc): Remove [Example] prefix from policies templates
+- [#2f6190e](https://github.com/pydio/cells/commit/2f6190e5874ef5fbdc8341c3f17ea6a529c90f01): Release v4.4.0-alpha2
 - [#26c2f82](https://github.com/pydio/cells/commit/26c2f829c92c211efa655a3e2950898b8a5f7a50): Clean after refactoring
 - [#1c4afde](https://github.com/pydio/cells/commit/1c4afde5a614b643512d0d0b66e74618f79b1834): Clean after refactoring
 - [#6fd4796](https://github.com/pydio/cells/commit/6fd4796947a97807b86ebe96d8db8aaf5411dc49): Adapt after refactoring
@@ -39,3 +69,85 @@
 - [#876f8c6](https://github.com/pydio/cells/commit/876f8c60aba3fc679dcc862da36b9a00086d1e0a): Enable plugin by default
 - [#f46306d](https://github.com/pydio/cells/commit/f46306d8fc334a8822cc9537e8a3c71d4d318f06): Fix new i18n lib version with template data
 - [#2201ea0](https://github.com/pydio/cells/commit/2201ea0807216e595b154446b7f527fd1047a158): Work on People dashboard and other stuff, remove unused plugin
+- [#14a119d](https://github.com/pydio/cells/commit/14a119d9c5838a50f6e90d9782d0607b14b738fb): Release v4.4.0-alpha1
+- [#ab86197](https://github.com/pydio/cells/commit/ab861974a5c5f06fedf7ccfc08f6f7044e43716d): Remove hardcoded namespace
+- [#73c4b08](https://github.com/pydio/cells/commit/73c4b08fd35f01175d7ad5b8d9ae317f6051e836): Updating charts
+- [#f4777b0](https://github.com/pydio/cells/commit/f4777b07fa8a2c063445734423b08478d76c3c3f): Update Chart.yaml
+- [#1596cce](https://github.com/pydio/cells/commit/1596cce9fd3980e28709d5c4e22db12a6a7e5fa4): Checking deployment is new
+- [#599faa4](https://github.com/pydio/cells/commit/599faa4b84402e3dc5452edbfdc6b1f20aa825d1): Fix auto-wildcard being applied to alpha-paging
+- [#baf1c3d](https://github.com/pydio/cells/commit/baf1c3db85b8b71f9bfd7594d73b3760a6463bcf): New message + DE/FR translation
+- [#acdfc77](https://github.com/pydio/cells/commit/acdfc77cd2cf3140797c7430209fe2339800070e): New message + DE/FR translation
+- [#adf0295](https://github.com/pydio/cells/commit/adf0295d632e41566a143f562d8eef277464ce75): i18n
+- [#8ffa32c](https://github.com/pydio/cells/commit/8ffa32ccd9bcd2345a4f8c697fb45457100e0f89): Upgrade i18n library to v2
+- [#b28e0b5](https://github.com/pydio/cells/commit/b28e0b51798349d423f4cb7f0c9dbd234e2cf81d): Refactor i18n for better library encapsulation
+- [#4c50926](https://github.com/pydio/cells/commit/4c509260f384a92d804569fcd9db727f5fedc01c): Fix DE after fixing the typo in EN
+- [#1bf8f74](https://github.com/pydio/cells/commit/1bf8f74484239c86508407c1ff92d4ae11a6bc9d): Fix DE after fixing the typo in EN
+- [#9a5b22d](https://github.com/pydio/cells/commit/9a5b22dc36a51cfe18331b42e6158899a472374a): Fix merge issue
+- [#0d07879](https://github.com/pydio/cells/commit/0d0787997ce1a248d8b0fbf88a80b38d818f6125): Merge remote-tracking branch 'upstream/main'
+- [#48fa391](https://github.com/pydio/cells/commit/48fa3918782f140f9f32baaa465640631c68289c): Missing dragHandleSelector on CellChatDetached.
+- [#24ce0d5](https://github.com/pydio/cells/commit/24ce0d5d64fe63fe4723b87c791993591bd67718): FR Translations
+- [#28974f9](https://github.com/pydio/cells/commit/28974f9db2dc289b5acce05b914a921fe2f3068a): FR Translations
+- [#0a72a4e](https://github.com/pydio/cells/commit/0a72a4ed760483c26f72843c3ab42f6d8ffd53d6): Handle chat status as detached panel
+- [#a9c343b](https://github.com/pydio/cells/commit/a9c343b3fe0a72ffaf6097ed8ba59ea6e42d9d03): Fix i18n Typo
+- [#6c5d090](https://github.com/pydio/cells/commit/6c5d090be53673e66a8d53a8018ce90dcc25a725): DE/FR translations
+- [#c6c2550](https://github.com/pydio/cells/commit/c6c25506f14dbe3a2a893400fb9a5c5c9160c050): DE/FR translations
+- [#6c9ca13](https://github.com/pydio/cells/commit/6c9ca13b985e5590172725da9ec9b30923f5fde1): New messages
+- [#4d1ebae](https://github.com/pydio/cells/commit/4d1ebae901519b69b511a6772e8150345bd12bee): New Crowdin updates (#78)
+- [#2f8e718](https://github.com/pydio/cells/commit/2f8e71873e846355147efb1ab077dc016efa315c): Fix Address book SearchForm styling issues
+- [#26d5fd7](https://github.com/pydio/cells/commit/26d5fd7c6c76370e8fa2d867bcd929111f24d98a): Fix Greetings/Signature not translated in some cases
+- [#c75ebf5](https://github.com/pydio/cells/commit/c75ebf5882e8f10ac35ec10470b834efb26f89ba): fixes on multicolumn panel
+- [#9a2204e](https://github.com/pydio/cells/commit/9a2204e7ede780eac2e1161fdf0a1516cdd4c0e0): Work on Roles Dashboard - Better filtering options and handle user-defined Teams.
+- [#8942417](https://github.com/pydio/cells/commit/89424175d62b2210738b5bb12bb1bc5f343698a5): Fix "Create Cell" in small mode
+- [#09065a5](https://github.com/pydio/cells/commit/09065a5de9dc94474351e7fb28aa2ae800ff5dae): Apply new InfoPanel patterns on RailPanel and adapt for directory (still wip)
+- [#4d66c8e](https://github.com/pydio/cells/commit/4d66c8e4d888f606e0138cb0ea5e069d09a64cd9): Merge remote-tracking branch 'origin/main'
+- [#279584b](https://github.com/pydio/cells/commit/279584be4228238236c1f36b5a4d948edfcec8c0): Massive rework of InfoPanel - resizable, multiple columns, drag and drop and re-order cards for improved layout flexibility.
+- [#d47cea6](https://github.com/pydio/cells/commit/d47cea637d17cf536c544a7bc669e6093ca14b55): Clearer hint
+- [#d1f0728](https://github.com/pydio/cells/commit/d1f0728322b1808745a06ab351fe59f3b8989f05): Fix typos in i18n EN messages
+- [#b804e40](https://github.com/pydio/cells/commit/b804e405c022aea2d5bda7b23b9eeb56738d982d): New messages + DE/FR translation + more Portuguese and Swedish
+- [#ded508d](https://github.com/pydio/cells/commit/ded508d20c5973dbf688a4314579c7a95b6c0b53): New messages + DE/FR translation + more Portuguese and Swedish
+- [#9c7962e](https://github.com/pydio/cells/commit/9c7962efeff77be17cce7b6d9e877cc330f74688): Fix typo in key
+- [#f9e21a2](https://github.com/pydio/cells/commit/f9e21a27f351b6e5a2f5891130b7ad2bf0381ffd): Fix typo in key
+- [#a41a15d](https://github.com/pydio/cells/commit/a41a15d1eadc005aade7b2d75cc178eaad1d6882): Typo in key udpate instead of update
+- [#2a8e3bc](https://github.com/pydio/cells/commit/2a8e3bc63caf08144d0cb24dd363913a46fbb4ae): Merge remote-tracking branch 'origin/main'
+- [#ea7a3d2](https://github.com/pydio/cells/commit/ea7a3d22b0e5108a0617da0085a4b0a35d4d91de): Update makefile dev version
+- [#e816a82](https://github.com/pydio/cells/commit/e816a8292262343b4f93169895e99bd144ee24bd): New messages (mainly Cells Flows) + FR translation
+- [#fb8a764](https://github.com/pydio/cells/commit/fb8a764d5a851cb8cd2ddf49b12c57459b97764f): New messages (mainly Cells Flows) + FR translation
+- [#02150ea](https://github.com/pydio/cells/commit/02150eaf7f564fee9380ad53cc05f27266b33634): Update some dependencies
+- [#a117a14](https://github.com/pydio/cells/commit/a117a14715a547106cda966530f942fd53183ace): Merge scheduler branch
+- [#659fa3c](https://github.com/pydio/cells/commit/659fa3cf007afcae2954abc2fcdb88db62b72224): Next development cycle
+- [#8d0a819](https://github.com/pydio/cells/commit/8d0a8193fb0a7e60c55791e90324377813be5fe0): i18n and better messaging for tasks
+- [#76c224d](https://github.com/pydio/cells/commit/76c224d79e826f43b098953281b2040869c1e331): Refix search by Uuid for bleve implementation and add unit test
+- [#7ede4df](https://github.com/pydio/cells/commit/7ede4dfe259090b3320869a0ab02833e9e7644b8): An i18n pass and UX re-harmonization in users/roles/groups editor.
+- [#ad423ab](https://github.com/pydio/cells/commit/ad423ab971a7697b29bbdbc6c18ea63651f19d75): Support wildcard on AttributeValue in user matcher
+- [#5ea5427](https://github.com/pydio/cells/commit/5ea5427468791cc9506f2e191677bee05182d3f5): Fix MsgId for PutMultipart log
+- [#bcc0338](https://github.com/pydio/cells/commit/bcc0338f926af15289c49bd4e8a86326e0001f3f): Rework PanelBigButtons UX
+- [#4a395b2](https://github.com/pydio/cells/commit/4a395b2c1f46adc737836ad18ffd67e9a73fc3ad): Remove legacy MD lib and replace with latest
+- [#e7b6bc7](https://github.com/pydio/cells/commit/e7b6bc71debaa54f191c15748d7e9ec7aee9839b): Protobuf: add Info map on ChatMessage
+- [#f00369e](https://github.com/pydio/cells/commit/f00369eda2a9a869030c706c437f4db6d2537a3f): Various UX work on chat
+- [#2427f67](https://github.com/pydio/cells/commit/2427f67c7232f31d748899778b21a0015bfb346d): Fix search by Uuid, handle chat message update, handle chat listing cursor message
+- [#c071848](https://github.com/pydio/cells/commit/c071848c023690f688bede0457cc428ba9e3659c): Restyle search boxes using new "compact" variant in all admin dashboards.
+- [#081d4a4](https://github.com/pydio/cells/commit/081d4a49f98d7dad0e133bcc6ab4a7a1c2530b62): Fix Unimplemented api on Search requests
+- [#7b98d79](https://github.com/pydio/cells/commit/7b98d798188b41e826ddbde15a44ed650e6930cd): Fix duplicates in subsequent activities stream calls if similar activities are grouped together.
+- [#fa1073d](https://github.com/pydio/cells/commit/fa1073d76fff3426d7980e23354bad2305510f88): Refix ListBucket request filtering to avoid conflict with new aws-sdk-go/v2
+- [#8e1fc9f](https://github.com/pydio/cells/commit/8e1fc9f745e7f681a0189e54b4ad2efbce2ab728): Revert "Fix ListBucket request filtering to avoid conflict with new aws-sdk-go/v2"
+- [#95a93eb](https://github.com/pydio/cells/commit/95a93eb47d8e50c0d8905e26a67b49320693ca68): Adding support for one-way tls
+- [#427e866](https://github.com/pydio/cells/commit/427e866f0b4525ca66fac750d179e71a6fce1fd8): Fix ListBucket request filtering to avoid conflict with new aws-sdk-go/v2
+- [#881b3c2](https://github.com/pydio/cells/commit/881b3c247741024a6b99c51e4fab6a432e0c0f69): More restrictions to log output size
+- [#452e209](https://github.com/pydio/cells/commit/452e2095a0359bba298e2b7942f3cb31bb77b632): Fixes to support more MongoDB connection string options
+- [#9cbdf78](https://github.com/pydio/cells/commit/9cbdf786080d26b8ca54654e16a18a3a9f134bbc): UX install: ability to edit queryString in mongoDSN
+- [#36ea30c](https://github.com/pydio/cells/commit/36ea30c7ffd1d0bbcf7816ea590f81172dfe7aab): WIP - Regroup Activities & Jobs Statuses in NotificationsList
+- [#5efe5e4](https://github.com/pydio/cells/commit/5efe5e40512bd70ab3489206d63d6d05c096c540): Fix DB compaction again (wrong re-opening)
+- [#4faa0c8](https://github.com/pydio/cells/commit/4faa0c8c5c7d0358c3767b913c784a1fa20dcd8e): Cherry pick last minio update
+- [#b24e6d9](https://github.com/pydio/cells/commit/b24e6d9b73c823be2f44fdf6810a1adcddd5084a): Prevent a nil in handler-path-multiple-roots.go
+- [#c0d75b3](https://github.com/pydio/cells/commit/c0d75b391a12b7908bfaf71e4aa16a980e44964b): Fix 0 value in MetaForm
+- [#e622e41](https://github.com/pydio/cells/commit/e622e419e7748a24a28592b6676259c5e851cfa5): Cherry pick Moment missing dep
+- [#8398478](https://github.com/pydio/cells/commit/8398478326fc7fad80bd39a9d26241e4691287c1): Compact DB: fix possible opened resource preventing disk space liberation before restart. Do not re-create buckets if they are empty.
+- [#824bed1](https://github.com/pydio/cells/commit/824bed1989506aa8c8195a44e23466711cfd535b): Lower level when ignoring digest for users without workspaces
+- [#0796c15](https://github.com/pydio/cells/commit/0796c15d04132ab07be0e75fe27e0e316f6a2fa1): Fix missing context metadata when sending some logs
+- [#90e835f](https://github.com/pydio/cells/commit/90e835f2d20de822b8f6dedf21efbe0fa4542d6a): Implement search sorting, add webp support in editor.diaporama
+- [#b714f10](https://github.com/pydio/cells/commit/b714f10b585cb5d27a174c298f78ee63459d3de0): New flags for sorting in search API, and for range+sorting in scheduler selectors. Better status reporting for each task Runnable.
+- [#452123e](https://github.com/pydio/cells/commit/452123eded5d8f6f89d4f2f2d7b427397723a144): Fix skipping keys in console encoder
+- [#01a65d9](https://github.com/pydio/cells/commit/01a65d9de04b00bd78b3a65d1f3b47914c66308a): Do not setup collector on MergeAction if parent action is BreakAfter
+- [#929b37f](https://github.com/pydio/cells/commit/929b37f2bce088e95b5dc741c2b348c61f36b4fd): Update some protos and scheduler internals.
+- [#1cc5919](https://github.com/pydio/cells/commit/1cc5919e1b2a5d8b4e985fd1796386badd06e641): Additional option on JobsList
+- [#f6282a0](https://github.com/pydio/cells/commit/f6282a0fe1a30cd29a4067baeecb3386a3c06334): Scheduler: factorize run parameters computing
