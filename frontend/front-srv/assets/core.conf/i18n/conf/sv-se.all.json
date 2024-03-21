@@ -44,6 +44,9 @@
   "Country": {
     "other": "Land"
   },
+  "User Country": {
+    "other": "User Country"
+  },
   "Create external users": {
     "other": "Create external users"
   },
