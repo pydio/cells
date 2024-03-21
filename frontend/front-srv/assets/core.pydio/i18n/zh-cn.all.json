@@ -1251,7 +1251,7 @@
     "other": "忘记密码？"
   },
   "48": {
-    "other": "Ok"
+    "other": "确定"
   },
   "480": {
     "other": "浏览当前工作区的所有文件夹。"
@@ -1284,7 +1284,7 @@
     "other": "元数据"
   },
   "49": {
-    "other": "Cancel"
+    "other": "取消"
   },
   "490": {
     "other": "日期范围"
@@ -1302,7 +1302,7 @@
     "other": "昨天"
   },
   "494t": {
-    "other": "Tomorrow"
+    "other": "明天"
   },
   "495": {
     "other": "上周"
@@ -1659,7 +1659,7 @@
     "other": "添加用户"
   },
   "599-a": {
-    "other": "All Results"
+    "other": "所有结果"
   },
   "6": {
     "other": "重命名"
@@ -1977,13 +1977,13 @@
     "other": "H:i"
   },
   "date_relative_today": {
-    "other": "today at TIME"
+    "other": "今天在时间"
   },
   "date_relative_tomorrow": {
-    "other": "tomorrow at TIME"
+    "other": "明天在时间"
   },
   "date_relative_yesterday": {
-    "other": "yesterday at TIME"
+    "other": "昨天某个时间"
   },
   "delete_access_key": {
     "other": "D"
@@ -2007,7 +2007,7 @@
     "other": "N"
   },
   "languageLabel": {
-    "other": "English"
+    "other": "英语"
   },
   "leftpane_accesskey": {
     "other": "L"
@@ -2433,49 +2433,49 @@
     "other": "Remove"
   },
   "chat.dropzone.preview": {
-    "other": "Include preview?"
+    "other": "包括预览？"
   },
   "chat.dropzone.inline": {
-    "other": "Insert inline"
+    "other": "内嵌插入"
   },
   "chat.load-older": {
     "other": "较早文章"
   },
   "chat.msg.edit": {
-    "other": "Edit Message"
+    "other": "编辑信息"
   },
   "chat.msg.save": {
-    "other": "Save Changes"
+    "other": "保存更改"
   },
   "chat.msg.revert": {
-    "other": "Revert Changes"
+    "other": "还原更改"
   },
   "chat.msg.delete": {
-    "other": "Delete Message"
+    "other": "删除消息"
   },
   "chat.msg.delete.confirm.title": {
-    "other": "Delete Message?"
+    "other": "删除消息?"
   },
   "chat.msg.delete.confirm": {
-    "other": "This action cannot be undone"
+    "other": "该操作无法撤销"
   },
   "chat.link.doc.loading": {
-    "other": "Loading document..."
+    "other": "正在加载文档……"
   },
   "chat.link.doc.opening": {
-    "other": "Opening document..."
+    "other": "正在打开文档..."
   },
   "chat.link.doc.goto": {
-    "other": "Go to document"
+    "other": "前往文档"
   },
   "chat.link.doc.not-found": {
-    "other": "Document not found, it may have been deleted."
+    "other": "找不到文档，它可能已被删除。"
   },
   "chat.link.doc.click-indicator": {
-    "other": "Click to open %s"
+    "other": "点击打开%s"
   },
   "chat.link.doc.open-in": {
-    "other": "Open document in..."
+    "other": "打开文档在..."
   },
   "workspace.quota-usage": {
     "other": "配额使用"

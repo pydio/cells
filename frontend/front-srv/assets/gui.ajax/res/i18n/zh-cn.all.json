@@ -120,7 +120,7 @@
     "other": "用户目录"
   },
   "tour.directory.legend": {
-    "other": "Manage users (internal and external) and teams in a central location."
+    "other": "在中央位置管理用户(内部和外部) 和团队。"
   },
   "background.jobs.title": {
     "other": "后台任务"
@@ -153,28 +153,40 @@
     "other": "无法复制到剪贴板。"
   },
   "layouts.preferences": {
-    "other": "Manage Layouts"
+    "other": "管理布局"
   },
   "layouts.preferences.legend": {
-    "other": "Save and Recall Layouts as Presets"
+    "other": "将布局保存和调用为预设"
   },
   "layouts.action.rename": {
-    "other": "Rename Layout"
+    "other": "重命名布局"
   },
   "layouts.action.remove": {
-    "other": "Remove Layout"
+    "other": "移除布局"
+  },
+  "layouts.action.remove.confirm": {
+    "other": "Do you want to remove this layout?"
+  },
+  "layouts.action.reset": {
+    "other": "Reset Layout"
+  },
+  "layouts.action.reset.confirm": {
+    "other": "Do you want to reset the current layout?"
   },
   "layouts.action.create": {
-    "other": "Save current..."
+    "other": "Save Layout..."
+  },
+  "layouts.action.fork": {
+    "other": "New From Current..."
   },
   "layouts.action.create.default": {
-    "other": "My Layout"
+    "other": "我的布局"
   },
   "layouts.prompt.save": {
-    "other": "Save Layout As..."
+    "other": "保存布局为..."
   },
   "layouts.prompt.save.field": {
-    "other": "Choose a name to save/recall the current layout"
+    "other": "选择一个名称来保存/调用当前布局"
   },
   "list.display-mode.list": {
     "other": "列表"
@@ -206,38 +218,44 @@
   "list.pin.bookmarks": {
     "other": "置顶书签项"
   },
+  "list.writeonly.emptystate.title": {
+    "other": "Drop Files Here"
+  },
+  "list.writeonly.emptystate.legend": {
+    "other": "This folder is write-only: you cannot see its contents and are only authorized to upload files or folders. Your own content will not be visible after upload!"
+  },
   "infopanel.empty.select.file": {
     "other": "选择要显示信息的文件"
   },
   "infopanel.card.pin": {
-    "other": "Attach card (full height)"
+    "other": "附加卡片(完整高度)"
   },
   "infopanel.card.unpin": {
-    "other": "Detach card"
+    "other": "分离卡片"
   },
   "infopanel.card.detach": {
-    "other": "Detach in a separate panel"
+    "other": "在单独的面板中分离"
   },
   "infopanel.detached.minimize": {
-    "other": "Minimize Panel"
+    "other": "最小化面板"
   },
   "infopanel.detached.maximize": {
-    "other": "Open Panel"
+    "other": "打开面板"
   },
   "infopanel.detached.dock": {
-    "other": "Dock in the right-hand column"
+    "other": "停靠在右侧列中"
   },
   "pinned-bookmarks.other": {
     "other": "全部文件"
   },
   "file.temporary-etag.flag": {
-    "other": "Incomplete"
+    "other": "未完成"
   },
   "file.temporary-etag.tooltip": {
     "other": "此文件正在上传(或上传失败)。"
   },
   "mimegroup.byextension": {
-    "other": "By File Extension..."
+    "other": "按文件扩展名..."
   },
   "mimegroup.word": {
     "other": "Word 文件"
@@ -264,16 +282,16 @@
     "other": "快速访问"
   },
   "fastsearch.quick-jump.legend": {
-    "other": "Hit [Enter] to jump, add a trailing [/] to search inside children, [Esc] to Close"
+    "other": "按 [Enter] 跳转，添加尾随 [/] 在子项中搜索，[Esc] 关闭"
   },
   "fastsearch.quick-move.title": {
     "other": "快速移动"
   },
   "fastsearch.quick-move.target-error": {
-    "other": "Cannot move to this target!"
+    "other": "无法移动到这个目标！"
   },
   "fastsearch.quick-move.legend": {
-    "other": "Hit [Enter] to move %s selected items to target, [Esc] to Close"
+    "other": "按 [Enter] 将 %s 个选定项目移动到目标，按 [Esc] 关闭"
   },
   "fastsearch.quick-copy.title": {
     "other": "快速拷贝"
@@ -282,22 +300,22 @@
     "other": "无法复制到此目标！"
   },
   "fastsearch.quick-copy.legend": {
-    "other": "Hit [Enter] to copy %s selected items to target, [Esc] to Close"
+    "other": "按 [Enter] 将 %s 个选定项目复制到目标，按 [Esc] 关闭"
   },
   "wslist-options.title": {
-    "other": "Display Options"
+    "other": "显示选项"
   },
   "wslist-options.show-masked": {
-    "other": "Show masked items"
+    "other": "显示遮罩项"
   },
   "wslist.action.mask": {
-    "other": "Mask"
+    "other": "掩盖"
   },
   "wslist.action.unmask": {
-    "other": "Unmask"
+    "other": "取消隐藏"
   },
   "wslist-options.merge-workspaces": {
-    "other": "Merge workspaces and cells"
+    "other": "合并工作区和单元格"
   },
   "wslist-options.own-cells-first": {
     "other": "由我先创建的Cell"
@@ -318,24 +336,24 @@
     "other": "暗黑模式"
   },
   "task.status.Starting": {
-    "other": "Started {startTime}"
+    "other": "已开始｛startTime｝"
   },
   "task.status.Pending": {
-    "other": "Will start soon..."
+    "other": "即将开始..."
   },
   "task.status.Complete": {
-    "other": "Task completed in {duration}"
+    "other": "任务在 {duration} 内完成"
   },
   "task.status.Finished": {
-    "other": "Task completed in {duration}"
+    "other": "任务在 {duration} 内完成"
   },
   "task.status.Error": {
-    "other": "An error happened!"
+    "other": "出现了错误！"
   },
   "bigppanel.filter.default-hint": {
-    "other": "Quick Find..."
+    "other": "快速查找..."
   },
   "sorter.metas.more": {
-    "other": "More..."
+    "other": "更多..."
   }
 }

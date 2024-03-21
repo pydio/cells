@@ -9,13 +9,13 @@
     "other": "内容参考元数据"
   },
   "Search.Config.ContentRef.Description": {
-    "other": "Name of the metadata pointing to the internal file that contains textual representation of the original document. Such internal contents may be plain-text or gzip-encoded, depending on the text extraction tool used (e.g. Tika). The search engine typically indexes this content to enable full-text search. Make sure to prefix the metadata name with 'pydio:' to prevent data leakage."
+    "other": "指向包含原始文档文本表示形式的内部文件的元数据名称。 此类内部内容可能是纯文本或 gzip 编码，具体取决于所使用的文本提取工具(例如 Tika)。 搜索引擎通常会索引该内容以启用全文搜索。 确保在元数据名称前添加“pydio:”前缀，以防止数据泄漏。"
   },
   "Search.Config.PlainTextExtensions.Label": {
     "other": "纯文本扩展"
   },
   "Search.Config.PlainTextExtensions.Description": {
-    "other": "List of extensions for files containing directly indexable plain-text contents (comma-separated-list)."
+    "other": "包含可直接索引的纯文本内容的文件的扩展名列表(逗号分隔列表)。"
   },
   "Search.Config.BasenameAnalyze.Label": {
     "other": "文件名分析器"

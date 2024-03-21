@@ -44,6 +44,9 @@
   "Country": {
     "other": "Quốc gia"
   },
+  "User Country": {
+    "other": "User Country"
+  },
   "Create external users": {
     "other": "Tạo người dùng khách"
   },

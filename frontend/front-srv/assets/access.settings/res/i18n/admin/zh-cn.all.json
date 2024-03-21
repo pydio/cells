@@ -51,19 +51,19 @@
     "other": "平面存储"
   },
   "ds.format-picker.flat.legend": {
-    "other": "The files are stored as binaries along regular snapshots of the tree structure to ensure an efficient disaster recovery. This is the recommended option for best performances and scalability."
+    "other": "文件沿着树结构的常规快照存储为二进制文件，以确保有效的灾难恢复。 这是获得最佳性能和可扩展性的推荐选项。"
   },
   "ds.format-picker.structured.title": {
     "other": "导入已有数据"
   },
   "ds.format-picker.structured.legend": {
-    "other": "The tree structure is reflected in the storage and maintained in real-time synchronization. This legacy option is NOT recommended and should only be used for importing existing data. It is event-based and must not be used in high load or clustered installation."
+    "other": "树形结构反映在存储中并实时同步维护。 不建议使用此旧选项，并且仅应将其用于导入现有数据。 它是基于事件的，不得在高负载或集群安装中使用。"
   },
   "ds.format-picker.internal.title": {
     "other": "单元格"
   },
   "ds.format-picker.internal.legend": {
-    "other": "Used to store internal binaries (e.g. files versions, thumbnails). Limited features, data is not indexed in search engines."
+    "other": "用于存储内部二进制文件(例如文件版本、缩略图)。 功能有限，数据未在搜索引擎中建立索引。"
   },
   "ds.editor.delete.warning": {
     "other": "您确定要删除此数据源吗？此操作不可撤销，您可能会丢失所有连接到这些节点的数据！"
