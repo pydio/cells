@@ -37,9 +37,7 @@ export default (name, def, pydio) => {
         const observer = () => {
             const {user} = pydio
             const savedVal = user.getLayoutPreference(name)
-            if(savedVal !== undefined) {
-                setInternal(savedVal)
-            }
+            setInternal(savedVal === undefined ? def : savedVal)
         }
         pydio.observe('reload_layout_preferences', observer)
         return () => {

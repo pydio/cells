@@ -164,8 +164,20 @@
   "layouts.action.remove": {
     "other": "Remove Layout"
   },
+  "layouts.action.remove.confirm": {
+    "other": "Do you want to remove this layout?"
+  },
+  "layouts.action.reset": {
+    "other": "Reset Layout"
+  },
+  "layouts.action.reset.confirm": {
+    "other": "Do you want to reset the current layout?"
+  },
   "layouts.action.create": {
-    "other": "Save current..."
+    "other": "Save Layout..."
+  },
+  "layouts.action.fork": {
+    "other": "New From Current..."
   },
   "layouts.action.create.default": {
     "other": "My Layout"

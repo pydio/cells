@@ -157,7 +157,6 @@ class AdvancedSearch extends Component {
     toggleGroup(group) {
         const {expands} = this.state;
         const newExpands = {...expands, [group]: !expands[group]}
-        console.log(expands, newExpands)
         this.setState({expands: newExpands})
         localStorage.setItem(localKey, JSON.stringify(newExpands));
     }
@@ -233,7 +232,6 @@ class AdvancedSearch extends Component {
                 actives += this.treeToActives(tree[key])
             }
         })
-        console.log(tree, actives)
         return actives
     }
 

@@ -51,7 +51,7 @@ let ContextInfoPanelCard = ({primaryToolbars, icon, title, closedTitle, shrinkTi
             setMouseDownTitle(false)
             return
         }
-        mdtInt = setTimeout(()=>{setMouseDownTitle(true); console.log('set')}, 250)
+        mdtInt = setTimeout(()=>{setMouseDownTitle(true)}, 250)
     }
 
     if(displayForColumn && !displayForColumn(identifier)){

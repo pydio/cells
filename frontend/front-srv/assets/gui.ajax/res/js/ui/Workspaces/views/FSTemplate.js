@@ -192,6 +192,12 @@ class FSTemplate extends React.Component {
                 submitValue
             });
         }
+        const confirmPrompt = (message, validCallback) => {
+            pydio.UI.openComponentInModal('PydioReactUI', 'ConfirmDialog', {
+                message,
+                validCallback
+            })
+        }
 
         const presets = [...pydio.user.getLayoutPreference(TemplatesKey, [])]
         const actions = presets.map(({id, label, current, payload}) => {
@@ -212,7 +218,7 @@ class FSTemplate extends React.Component {
                             text:pydio.MessageHash['ajax_gui.layouts.action.rename'],
                             iconClassName:'mdi mdi-view-dashboard-edit-outline',
                             payload:()=>{
-                                labelPrompt((label, value) => {
+                                labelPrompt(label, (value) => {
                                     // update label in-place
                                     presets.forEach(p => {
                                         if(p.id === id) {
@@ -224,10 +230,28 @@ class FSTemplate extends React.Component {
                             }
                         },
                         {
+                            text:pydio.MessageHash['ajax_gui.layouts.action.reset'],
+                            iconClassName:'mdi mdi-eraser',
+                            payload:()=>{
+                                confirmPrompt(pydio.MessageHash['ajax_gui.layouts.action.reset.confirm'], () => {
+                                    presets.forEach(p => {
+                                        if(p.id === id) {
+                                            p.payload = {}
+                                        }
+                                    })
+                                    save(CurrentTemplateKey, {})
+                                    save(TemplatesKey, presets)
+                                    pydio.notify('reload_layout_preferences')
+                                })
+                            }
+                        },
+                        {
                             text:pydio.MessageHash['ajax_gui.layouts.action.remove'],
                             iconClassName:'mdi mdi-delete-outline',
                             payload:()=>{
-                                save(TemplatesKey, [...presets.filter(p => p.id !== id)])
+                                confirmPrompt(pydio.MessageHash['ajax_gui.layouts.action.remove.confirm'], ()=>{
+                                    save(TemplatesKey, [...presets.filter(p => p.id !== id)])
+                                })
                             }
                         },
                     ]
@@ -240,12 +264,24 @@ class FSTemplate extends React.Component {
                 }
             }
         })
+        if(!presets.length) {
+            actions.push({
+                name:pydio.MessageHash['ajax_gui.layouts.action.reset'],
+                icon_class:'mdi mdi-eraser',
+                callback:() => {
+                    confirmPrompt(pydio.MessageHash['ajax_gui.layouts.action.reset.confirm'], (value) => {
+                        save(CurrentTemplateKey, {})
+                        pydio.notify('reload_layout_preferences')
+                    });
+                }
+            })
+        }
         actions.push({
-            name:pydio.MessageHash['ajax_gui.layouts.action.create'],
+            name:pydio.MessageHash['ajax_gui.layouts.action.' + (presets.length ? 'fork': 'create')],
             icon_class:'mdi mdi-content-save',
             callback:() => {
                 labelPrompt(pydio.MessageHash['ajax_gui.layouts.action.create.default'], (value) => {
-                    const current = pydio.user.getLayoutPreference(CurrentTemplateKey)
+                    const current = JSON.parse(JSON.stringify(pydio.user.getLayoutPreference(CurrentTemplateKey, {})))
                     const preset = {id:genUuid(), label:value, current: true, payload: current}
                     save(TemplatesKey, [...presets.map(p => {return {...p, current: false}}), preset])
                 });

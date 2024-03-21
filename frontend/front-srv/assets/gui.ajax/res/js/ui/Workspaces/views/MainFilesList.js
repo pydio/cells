@@ -216,10 +216,8 @@ class MainFilesList extends React.Component {
                 showExtensions: this.getPrefValue('FilesList.ShowExtensions', false),
                 pinBookmarks: this.getPrefValue('FilesList.PinBookmarks', false)
             })
-            const displayMode = this.getPrefValue('FilesList.DisplayMode', undefined)
-            if(displayMode !== undefined) {
-                this.setState({displayMode})
-            }
+            const displayMode = this.getPrefValue('FilesList.DisplayMode', 'list')
+            this.setState({displayMode})
         }
         pydio.observe('reload_layout_preferences', this._prefObserver)
 
