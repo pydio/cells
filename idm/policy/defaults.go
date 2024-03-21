@@ -665,3 +665,24 @@ func Upgrade4199(ctx context.Context) error {
 	}
 	return nil
 }
+
+func Upgrade4399(ctx context.Context) error {
+	dao := servicecontext.GetDAO(ctx).(DAO)
+	if dao == nil {
+		return fmt.Errorf("cannot find DAO for policies initialization")
+	}
+	groups, e := dao.ListPolicyGroups(ctx, "")
+	if e != nil {
+		return e
+	}
+	for _, group := range groups {
+		if strings.HasPrefix(group.Name, "PolicyGroup.ACLSample") {
+			if er := dao.DeletePolicyGroup(ctx, group); er != nil {
+				log.Logger(ctx).Error("could not delete policy group "+group.Uuid, zap.Error(er))
+			} else {
+				log.Logger(ctx).Info("Removed sample policy group replaced by the template picker " + group.Uuid)
+			}
+		}
+	}
+	return nil
+}

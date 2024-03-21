@@ -92,6 +92,10 @@ func init() {
 					TargetVersion: service.ValidVersion("4.1.99"),
 					Up:            policy.Upgrade4199,
 				},
+				{
+					TargetVersion: service.ValidVersion("4.3.99"),
+					Up:            policy.Upgrade4399,
+				},
 			}),
 			service.WithGRPC(func(ctx context.Context, server grpc.ServiceRegistrar) error {
 				handler := NewHandler(ctx, servicecontext.GetDAO(ctx).(policy.DAO))
