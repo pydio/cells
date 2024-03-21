@@ -308,6 +308,8 @@ let Dashboard = createReactClass({
     },
 
     renderNodeActions(node){
+        const {dataModel, rootNode} =  this.props
+        const {searchResultData} = this.state;
         const mime = node.getAjxpMime();
         if(node.getMetadata().has('IdmUser') && !node.getMetadata().get("IdmUser").PoliciesContextEditable) {
             return <div></div>;
@@ -343,8 +345,8 @@ let Dashboard = createReactClass({
         if(!node.getMetadata().has("IdmUser")){
             return true;
         }
-        const {showAnon, displaySearchResult} = this.state;
-        if(displaySearchResult || showAnon){
+        const {showAnon, searchResultData} = this.state;
+        if(searchResultData || showAnon){
             return true;
         }
         const attributes = node.getMetadata().get("IdmUser").Attributes || {};
