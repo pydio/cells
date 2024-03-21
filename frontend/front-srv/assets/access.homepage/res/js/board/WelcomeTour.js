@@ -117,7 +117,7 @@ class WelcomeTour extends Component{
         const {user} =  pydio;
         user.setLayoutPreference('UserAccount.WelcomeModal.Shown', true)
         if(finished) {
-            user.setLayoutPreference('WelcomeComponent.Pydio8.TourGuide.FSTemplate', true)
+            user.setLayoutPreference('WelcomeComponent.Pydio8.TourGuide.Welcome', true)
             user.setLayoutPreference('WelcomeComponent.MUITour', true)
             if(onFinish){
                 onFinish();
