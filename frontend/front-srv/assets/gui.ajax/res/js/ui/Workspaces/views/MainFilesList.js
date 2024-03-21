@@ -855,6 +855,7 @@ class MainFilesList extends React.Component {
 
         const messages = pydio.MessageHash;
         const canUpload = (pydio.Controller.getActionByName('upload') && !contextNode.getMetadata().has('node_readonly'));
+        const writeOnly = contextNode.getMetadata().has('node_writeonly');
         const secondary = messages[canUpload ? '565' : '566'];
         const iconClassName = canUpload ? 'mdi mdi-cloud-upload' : 'mdi mdi-folder-outline';
         let emptyStateProps = {
@@ -863,7 +864,12 @@ class MainFilesList extends React.Component {
             primaryTextId   : messages['562'],
             secondaryTextId : secondary,
         };
-        if(contextNode.isRoot()){
+        if(writeOnly) {
+
+            emptyStateProps.primaryTextId = messages['ajax_gui.list.writeonly.emptystate.title']
+            emptyStateProps.secondaryTextId = messages['ajax_gui.list.writeonly.emptystate.legend']
+
+        } else if(contextNode.isRoot()){
             const isCell = (pydio.user && pydio.user.activeRepository) ? pydio.user.getRepositoriesList().get(pydio.user.activeRepository).getOwner() : false;
             const recyclePath = contextNode.getMetadata().get('repo_has_recycle');
             emptyStateProps = {
