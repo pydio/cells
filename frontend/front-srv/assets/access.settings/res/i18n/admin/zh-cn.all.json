@@ -2332,5 +2332,11 @@
   },
   "sites.configs.tls.notls-reverse": {
     "other": "代理后没有TLS"
+  },
+  "ds.board.ds.internalds": {
+    "other": "内部数据源用于存储类似文件版本这样的二进制数据"
+  },
+  "ds.encryption.key.createone": {
+    "other": "创建密钥"
   }
 }

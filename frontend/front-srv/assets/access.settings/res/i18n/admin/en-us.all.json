@@ -2332,5 +2332,11 @@
   },
   "sites.configs.tls.notls-reverse": {
     "other": "No TLS behind proxy"
+  },
+  "ds.board.ds.internalds": {
+    "other": "Internal DataSources are used to store binaries like files versions"
+  },
+  "ds.encryption.key.createone": {
+    "other": "Create A Key"
   }
 }

@@ -216,7 +216,7 @@ class EncryptionKeys extends React.Component{
                 <FlatButton label={m('key.import')} primary={true} onClick={()=>{this.importKey()}}/>
             ];
         } else if(showCreateKey) {
-            dialogTitle = "Create a Key";
+            dialogTitle = m('key.createone');
             dialogContent = (
                 <div>
                     <ModernTextField floatingLabelText={m('key.import.id')} ref="createKeyId" fullWidth={true}/>
