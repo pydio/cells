@@ -11,6 +11,9 @@
   "ds.board.ds.legend": {
     "other": "Datu avoti ir konkrētas uzglabāšanas vietas kuras tiek veidotas Pydio direktoriju kokā. Tās var būtizvietotas uz atsevišķiem datu nesējiem pēc nepieciešamības."
   },
+  "ds.board.ds.internal.legend": {
+    "other": "Internal DataSources are used to store binaries like files versions"
+  },
   "ds.board.ds.title": {
     "other": "Datu avoti"
   },

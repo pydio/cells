@@ -11,6 +11,9 @@
   "ds.board.ds.legend": {
     "other": "Datasources là các đường dẫn tới dữ liệu và được Pydio tập hợp vào một cây thư mục duy nhất. Nó có thể nằm ở nhiều nơi khác nhau trong hệ thống lưu trữ của bạn."
   },
+  "ds.board.ds.internal.legend": {
+    "other": "Internal DataSources are used to store binaries like files versions"
+  },
   "ds.board.ds.title": {
     "other": "DataSources"
   },

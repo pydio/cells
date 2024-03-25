@@ -201,13 +201,13 @@
     "other": "Metadatos"
   },
   "search.sorter.relevant.desc": {
-    "other": "Most Relevant First"
+    "other": "Lo más relevante primero"
   },
   "search.sorter.modified.desc": {
     "other": "Recently Added First"
   },
   "search.sorter.modified.asc": {
-    "other": "Oldest First"
+    "other": "Más antiguo primero"
   },
   "search.sorter.size.desc": {
     "other": "Biggest First"

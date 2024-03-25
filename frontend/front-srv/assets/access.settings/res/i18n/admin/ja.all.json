@@ -11,6 +11,9 @@
   "ds.board.ds.legend": {
     "other": "データソースはPydioのグローバルツリー配下のストレージに存在します。データソースは必要に応じて複数のストレージノードで分散できます。"
   },
+  "ds.board.ds.internal.legend": {
+    "other": "Internal DataSources are used to store binaries like files versions"
+  },
   "ds.board.ds.title": {
     "other": "データソース"
   },

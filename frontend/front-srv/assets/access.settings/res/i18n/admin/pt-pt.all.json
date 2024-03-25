@@ -11,6 +11,9 @@
   "ds.board.ds.legend": {
     "other": "Fontes de dados são locais de armazenamento concretos que são agregados pelo Pydio em uma árvore global. Eles podem ser distribuídos entre muitos nós de armazenamento conforme necessário."
   },
+  "ds.board.ds.internal.legend": {
+    "other": "Internal DataSources are used to store binaries like files versions"
+  },
   "ds.board.ds.title": {
     "other": "Fontes de dados"
   },

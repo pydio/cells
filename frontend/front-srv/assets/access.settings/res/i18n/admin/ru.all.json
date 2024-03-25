@@ -11,6 +11,9 @@
   "ds.board.ds.legend": {
     "other": "Источники данных являются определенными хранилищами, объединенными в глобальное дерево. Они могут распределяться через множество узлов хранения при необходимости."
   },
+  "ds.board.ds.internal.legend": {
+    "other": "Internal DataSources are used to store binaries like files versions"
+  },
   "ds.board.ds.title": {
     "other": "Источник данных"
   },

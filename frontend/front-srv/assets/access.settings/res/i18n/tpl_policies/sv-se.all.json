@@ -3,13 +3,13 @@
     "other": "Create Policy"
   },
   "PolicyGroup.Filter": {
-    "other": "Filter Templates..."
+    "other": "Filtrera mallar..."
   },
   "PolicyGroup.Create.Manual": {
     "other": "Manual Creation"
   },
   "PolicyGroup.Create.Templates": {
-    "other": "Templates"
+    "other": "Mallar"
   },
   "PolicyGroup.ACLSample1.Title": {
     "other": "Complex ACL Policy"

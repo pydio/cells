@@ -1,27 +1,27 @@
 {
   "Android App URL": {
-    "other": "下载 Android 客户端"
+    "other": "安卓应用程序的 URL"
   },
   "Display Server QRCode": {
     "other": "显示服务器的二维码"
   },
   "Enable Getting Started": {
-    "other": "启用入门教程"
+    "other": "启用入门"
   },
   "Enable Global Search": {
     "other": "启用全局搜索"
   },
   "Enable addition tabulation to access getting started videos": {
-    "other": "启用额外的表单以访问教学视频"
+    "other": "启用附加制表以访问入门视频"
   },
   "Enable cross-workspaces search form on home page": {
     "other": "在主页上启用跨工作区搜索"
   },
   "Let users connect easily to the latest mobile applications by displaying a QRCode": {
-    "other": "显示二维码，让用户方便的连接到移动端程序"
+    "other": "让用户通过显示二维码轻松连接到最新的移动应用程序"
   },
   "Mac PydioSync URL": {
-    "other": "Mac版 PydioSync URL"
+    "other": "Mac PydioSync URL"
   },
   "Open workspace by simple click": {
     "other": "点击打开工作区"
@@ -30,16 +30,16 @@
     "other": "单击打开工作区，而不是双击。"
   },
   "URL of the Android application": {
-    "other": "Android 应用程序的 URL (如果您想要隐藏此链接，请留空)"
+    "other": "安卓应用程序的 URL(如果要隐藏该块，请留空)"
   },
   "URL of the iOS application": {
-    "other": "IOS 应用程序的 URL (如果您想要隐藏此链接，请留空)"
+    "other": "IOS 应用程序的 URL(如果要隐藏该块，请留空)"
   },
   "URL of the mac sync application": {
-    "other": "Mac 同步应用程序的 URL (如果您想要隐藏此链接，请留空)"
+    "other": "Mac 同步应用程序的 URL(如果要隐藏该块，请留空)"
   },
   "URL of the windows sync application": {
-    "other": "Windows 同步应用程序的 URL (如果您想要隐藏此链接，请留空)"
+    "other": "Windows 同步应用程序的 URL(如果要隐藏该块，请留空)"
   },
   "Welcome Page": {
     "other": "欢迎页面"
@@ -48,7 +48,7 @@
     "other": "欢迎页面显示工作区列表"
   },
   "Windows PydioSync URL": {
-    "other": "Windows版 PydioSync URL"
+    "other": "Windows PydioSync URL"
   },
   "iOS App URL": {
     "other": "IOS 应用程序的 URL"

@@ -222,7 +222,7 @@
     "other": "Déposez des fichiers ici"
   },
   "list.writeonly.emptystate.legend": {
-    "other": "Ce dossier n'est accessible qu'en écriture : vous ne pouvez pas voir son contenu et vous êtes uniquement autorisé à y déposer des fichiers ou des dossiers. Vos propres contenus ne seront pas visible après le téléchargement !"
+    "other": "Ce dossier n'est accessible qu'en écriture : vous ne pouvez pas voir son contenu et vous êtes uniquement autorisé à y déposer des fichiers ou des dossiers. Vos propres contenus ne seront pas visibles une fois le téléchargement terminé !"
   },
   "infopanel.empty.select.file": {
     "other": "Sélectionnez un fichier pour afficher ses informations"
