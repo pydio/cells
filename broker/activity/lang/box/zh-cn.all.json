@@ -9,7 +9,7 @@
     "other": "{{.Object}} 被 {{.Actor}} 访问"
   },
   "Cell": {
-    "other": "Cell"
+    "other": "单元"
   },
   "CreatedBy": {
     "other": "由 {{.Actor}} 创建"

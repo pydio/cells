@@ -9,22 +9,22 @@
     "other": "推特"
   },
   "cont.intro": {
-    "other": "代码可在 Github上公开查阅。 您想修复一个 bug，或帮助论坛中的其他人或推送下一个杀手级功能吗？立即参与！\n                            或在社交网络上显示您的好评！"
+    "other": "代码可在 Github上公开查阅。 您想修复错误、帮助论坛中的其他人或推出下一个杀手级功能吗？ 参与其中！\n                            或者在社交网络上表达你的爱！"
   },
   "cont.subtitle": {
-    "other": "Pydio Cells 是免费的开源软件。提出您的反馈吧！"
+    "other": "Pydio Cells 是免费的开源软件。 回馈！"
   },
   "cont.title": {
-    "other": "付款！"
+    "other": "向前支付！"
   },
   "cont.topic.pr": {
-    "other": "我实现了一个新功能：向 github 推送代码"
+    "other": "我实现了一个新功能：github 拉取请求"
   },
   "cont.topic.report": {
-    "other": "我想我发现了一个漏洞！在论坛上发帖。"
+    "other": "我想我发现了一个错误！在论坛上发帖。"
   },
   "cont.topic.report.2": {
-    "other": "我的 bug 是合格的：打开一个 github 问题。"
+    "other": "我的错误是合格的：打开一个 github 问题。"
   },
   "cont.topic.translate": {
     "other": "如何创建或完善语言翻译？"
@@ -33,7 +33,7 @@
     "other": "高级管理员面板"
   },
   "ent.advanced.legend": {
-    "other": "用于实时监测平台使用情况的唯一管理员面板。"
+    "other": "用于实时监测平台使用情况的独特管理员面板。"
   },
   "ent.btn.contact": {
     "other": "联系销售人员"
@@ -45,10 +45,10 @@
     "other": "面向企业的功能"
   },
   "ent.features.legend": {
-    "other": "面向企业的功能：AD/LDAP连接器，审计日志，简易传输器..."
+    "other": "面向企业的功能：AD/LDAP连接器，可审计日志以确保合规性，简易传输器..."
   },
   "ent.subtitle": {
-    "other": "更多特性 - 符合GDPR - 创建品牌"
+    "other": "更多功能 - GDPR 合规性 - 扩展品牌"
   },
   "ent.support": {
     "other": "支助和维护"
@@ -57,22 +57,22 @@
     "other": "直接从核心团队获得安装帮助"
   },
   "ent.title": {
-    "other": "探索 Pydio Cells 企业版"
+    "other": "探索 Pydio Cells 企业"
   },
   "ent.upgrade": {
     "other": "立即升级！"
   },
   "ent.upgrade.legend": {
-    "other": "在应用内升级到 Cells 企业版（需要许可文件）"
+    "other": "在应用内升级Cells 企业(需要许可文件)"
   },
   "welc.btn.advanced": {
-    "other": "高级版"
+    "other": "先进的"
   },
   "welc.btn.parameters": {
     "other": "关于参数"
   },
   "welc.btn.start": {
-    "other": "入门教程"
+    "other": "入门"
   },
   "welc.btn.users": {
     "other": "用户"
@@ -87,7 +87,7 @@
     "other": "这是管理Pydio的仪表盘。 使用左侧菜单，您可以创建 <a class=\"doc-link\" data-path=\"/data/workspaces\">工作区</a> 和 <a class=\"doc-link\" data-path=\"/idm/users\">用户</a>,\n                            查看平台上发生的所有 <a class=\"doc-link\" data-path=\"/admin/logs\">事件</a> 并管理 <a class=\"doc-link\" data-path=\"/parameters/core\">配置</a> 和 <a class=\"doc-link\" data-path=\"/plugins/manager\">插件</a>."
   },
   "welc.import": {
-    "other": "如果您正在运行 Pydio 8 版本， 请注意， <u>Pydio 8 将在2019年底终止更新</u>。 您可以使用 <a class=\"doc-link\" data-path=\"/data/migration\">导入工具</a> 将所有数据迁移到 Pydio Cells。"
+    "other": "如果您正在运行 Pydio 8 版本， 请注意， <u>Pydio 8 将于 2019 年底被视为停产</u>。 您可以使用 <a class=\"doc-link\" data-path=\"/data/migration\">导入工具</a> 将所有数据迁移到 Pydio Cells。"
   },
   "welc.subtitle": {
     "other": "管理和监控您的平台活动的地方"
@@ -126,6 +126,6 @@
     "other": "文件活动"
   },
   "graph.connections": {
-    "other": "Web Connections"
+    "other": "网络连接"
   }
 }

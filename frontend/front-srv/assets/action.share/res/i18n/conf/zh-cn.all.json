@@ -39,7 +39,7 @@
     "other": "下载文本"
   },
   "Download text w/ Pass": {
-    "other": "Download text w/ Pass"
+    "other": "使用 Pass 下载文本"
   },
   "Enable folder sharing": {
     "other": "启用文件夹共享"
@@ -78,7 +78,7 @@
     "other": "强制使用外部邮件程序"
   },
   "Fork Events Forwarding": {
-    "other": "Fork Events Forwarding"
+    "other": "分叉事件转发"
   },
   "Hash minimum length": {
     "other": "哈希最小长度"
@@ -87,7 +87,7 @@
     "other": "可编辑哈希值"
   },
   "If you detect performances issues while modifiyng files under deep trees, try activating that one. Please be sure of what you do, this may trigger a whole lot of php processes on the server.": {
-    "other": "If you detect performances issues while modifiyng files under deep trees, try activating that one. Please be sure of what you do, this may trigger a whole lot of php processes on the server."
+    "other": "如果您在修改深层树下的文件时检测到性能问题，请尝试激活该问题。 请确定你做了什么，这可能会触发服务器上大量的 php 进程。"
   },
   "Image used as a button for downloading the file": {
     "other": "作为下载文件的按钮使用的图像"
@@ -132,7 +132,7 @@
     "other": "设置密码为必填项"
   },
   "Sharing parameters and authorizations": {
-    "other": "Sharing parameters and authorizations"
+    "other": "共享参数和授权"
   },
   "Share page background color.": {
     "other": "分享页面的背景颜色。"

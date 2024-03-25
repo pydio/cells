@@ -51,13 +51,13 @@
     "other": "停止监控这个文件的修改"
   },
   "9": {
-    "other": "咨询"
+    "other": "查阅"
   },
   "selector.legend": {
     "other": "发生下列活动时收到通知..."
   },
   "selector.legend.mui": {
-    "other": "Receive notifications when content is..."
+    "other": "当有下面事件产生时接收新通知..."
   },
   "selector.ignore": {
     "other": "永远不通知"
@@ -66,13 +66,13 @@
     "other": "被访问时"
   },
   "selector.read.mui": {
-    "other": "Accessed"
+    "other": "被访问"
   },
   "selector.change": {
     "other": "被修改时"
   },
   "selector.change.mui": {
-    "other": "Modified"
+    "other": "被修改"
   },
   "selector.both": {
     "other": "访问或修改时"

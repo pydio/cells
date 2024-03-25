@@ -11,6 +11,9 @@
   "ds.board.ds.legend": {
     "other": "Datenquellen sind konkrete Speicherorte, die von Pydio zu einem globalen Baum zusammengefasst werden. Sie können bei Bedarf auf viele Speicherknoten verteilt werden."
   },
+  "ds.board.ds.internal.legend": {
+    "other": "Interne Datenquellen werden verwendet, um Binärdateien wie Dateiversionen zu speichern"
+  },
   "ds.board.ds.title": {
     "other": "Datenquellen"
   },

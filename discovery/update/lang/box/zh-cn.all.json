@@ -6,7 +6,7 @@
     "other": "更新服务器"
   },
   "Update.Config.Url.Description": {
-    "other": "更新服务器的 URL"
+    "other": "更新服务器的 Http URL"
   },
   "Update.Config.PublicKey.Label": {
     "other": "公钥"
@@ -15,31 +15,31 @@
     "other": "用于验证二进制签名的官方密钥。"
   },
   "Update.Config.Channel.Label": {
-    "other": "更新通道"
+    "other": "更新频道"
   },
   "Update.Config.Channel.Description": {
-    "other": "用于请求更新的通道。如果您不确定，请选择稳定版通道。"
+    "other": "用于请求更新的频道。如果您不确定，请选择稳定版。"
   },
   "Update.Config.Channel.ValueStable": {
-    "other": "稳定版"
+    "other": "稳定"
   },
   "Update.Config.Channel.ValueDev": {
-    "other": "开发者版(自行承担后果)"
+    "other": "开发(风险自负)"
   },
   "Update.Config.ProxyHost.Label": {
-    "other": "代理服务器"
+    "other": "代理"
   },
   "Update.Config.ProxyHost.Description": {
     "other": "出站连接需要的代理服务器主机"
   },
   "Update.Config.ProxyUser.Label": {
-    "other": "代理服务器用户名"
+    "other": "代理用户"
   },
   "Update.Config.ProxyUser.Description": {
     "other": "代理服务器标识的用户"
   },
   "Update.Config.ProxyPassword.Label": {
-    "other": "代理服务器密码"
+    "other": "代理密码"
   },
   "Update.Config.ProxyPassword.Description": {
     "other": "代理服务器标识密码"

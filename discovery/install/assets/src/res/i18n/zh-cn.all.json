@@ -6,7 +6,7 @@
     "other": "欢迎使用 Pydio Cells安装向导"
   },
   "welcome.legend": {
-    "other": "这将在当前服务器上安装所有服务。请在开始前同意以下许可条款"
+    "other": "将在当前服务器上安装所有服务。请在开始前同意以下许可条款"
   },
   "welcome.agreed": {
     "other": "我同意"
@@ -225,13 +225,13 @@
     "other": "本地文件系统 (所有数据存储的此服务器上)"
   },
   "form.dsType.S3": {
-    "other": "Amazon S3 / S3 兼容(S3 buckets)"
+    "other": "Amazon S3 / S3 兼容(存储到 S3 桶中)"
   },
   "form.dsS3Custom.label": {
-    "other": "URL, append ?minio=true if Minio."
+    "other": "URL, 用 Minio 时加上 ?minio=true。"
   },
   "form.dsS3Custom.legend": {
-    "other": "留空为Amazon"
+    "other": "使用 Amazon 则留空"
   },
   "form.dsS3CustomRegion.label": {
     "other": "S3 自定义区域"

@@ -9,7 +9,10 @@
     "other": "加载中..."
   },
   "ds.board.ds.legend": {
-    "other": "数据源是数据的实际存储存储位置，由Pydio聚合到全局树种。它们可以根据需要分布到许多存储节点上。"
+    "other": "数据源是由 Pydio 聚合到全局树中的具体存储位置。 它们可以根据需要分布在许多存储节点上。"
+  },
+  "ds.board.ds.internal.legend": {
+    "other": "Internal DataSources are used to store binaries like files versions"
   },
   "ds.board.ds.title": {
     "other": "数据源"
@@ -24,7 +27,7 @@
     "other": "您可以定义每个数据源上如何为文件生成版本，以及程序在一段时间内保留多少版本。"
   },
   "ds.board.versioning.title": {
-    "other": "版本策略"
+    "other": "版本政策"
   },
   "ds.board.wsfromds.title": {
     "other": "创建工作区"
@@ -42,7 +45,7 @@
     "other": "创建数据源"
   },
   "ds.format-picker.legend": {
-    "other": "数据源是挂载点，允许您将实际存储附加到应用程序。首先选择存储中数据的组织方式。"
+    "other": "数据源是装载点，允许您将实际存储附加到应用程序。首先选择数据在存储器中的组织方式。"
   },
   "ds.format-picker.submit": {
     "other": "开始"
@@ -60,7 +63,7 @@
     "other": "树形结构反映在存储中并实时同步维护。 不建议使用此旧选项，并且仅应将其用于导入现有数据。 它是基于事件的，不得在高负载或集群安装中使用。"
   },
   "ds.format-picker.internal.title": {
-    "other": "单元格"
+    "other": "单元内部"
   },
   "ds.format-picker.internal.legend": {
     "other": "用于存储内部二进制文件(例如文件版本、缩略图)。 功能有限，数据未在搜索引擎中建立索引。"
@@ -99,13 +102,13 @@
     "other": "用新密钥设置加密..."
   },
   "ds.editor.enc.validate": {
-    "other": "我明白了"
+    "other": "我明白"
   },
   "ds.editor.enc.warning": {
     "other": "警告！"
   },
   "ds.editor.legend.delete.1": {
-    "other": "删除数据源是一个破坏性的操作：虽然它不会删除存储中的实际数据。，但它将摧毁现有的索引并取消链接到此索引节点的所有ACL。"
+    "other": "删除数据源是一个破坏性的操作：虽然它不会删除底层存储中的数据，但它会破坏现有索引并取消链接到索引节点的所有 ACL。"
   },
   "ds.editor.legend.delete.2": {
     "other": "请确保在删除之前先删除指向此数据源的所有工作区。"
@@ -114,13 +117,13 @@
     "other": "删除数据源"
   },
   "ds.editor.legend.local": {
-    "other": "文件系统数据源通过对象存储服务器提供服务，将会以S3的存储桶作为父目录。 为此，选定的文件夹必须符合下列要求："
+    "other": "文件系统数据源通过对象存储服务器提供文件服务，该服务器从父文件夹启动并将目标作为 s3 存储桶提供服务。 因此，所选文件夹必须满足以下要求："
   },
   "ds.editor.legend.local.li.1": {
     "other": "至少有两级深度。"
   },
   "ds.editor.legend.local.li.2": {
-    "other": "父文件夹必须可写"
+    "other": "父文件夹必须可由应用程序服务用户写入"
   },
   "ds.editor.legend.local.li.3": {
     "other": "目标文件夹必须符合DNS名称(小写，无空格或特殊字符)。"
@@ -132,46 +135,46 @@
     "other": "重新同步"
   },
   "ds.editor.legend.s3.1": {
-    "other": "远程存储数据源将通过远程、兼容 S3 存储的文件服务来代理所有请求而提供文件服务。"
+    "other": "远程存储数据源将通过代理所有请求来为来自远程s3兼容存储的文件提供服务。"
   },
   "ds.editor.legend.s3.2": {
-    "other": "使用标准的 API Key/ Api Secret进行身份验证，使用官方Amazon S3则将URL留空， 或填写您自己的S3兼容存储的URL。"
+    "other": "使用标准 API 密钥/Api秘密进行身份验证，将亚马逊S3 的终端节点 URL 留空，或将您的存储 URL 用于其他内部部署解决方案。"
   },
   "ds.editor.storage.legend.fs": {
-    "other": "浏览本地或网络附加文件系统的数据。"
+    "other": "从本地或网络连接的文件系统浏览数据。"
   },
   "ds.editor.storage.legend.fs.peer": {
-    "other": "限制数据源到对等地址将仅启动一个特定节点。 使用“Any”值将在单元格运行的所有节点上启动服务, 当共享文件系统挂载在同一位置的所有节点上时，它可以是便捷的， 或者如果您的节点可能在重启时更改其IP。 为了避免冲突，最好是要么对所有数据源使用ANY，要么选择所有数据源的特定节点。"
+    "other": "限制数据源到某一个节点时，将会仅启动一个特定节点的服务。 使用\"Any\"值，将在运行 Cells 的所有节点上启动服务，如果所有节点上的相同位置挂载了共享文件系统，或者如果你的节点在重新启动时可能改变其 IP，这会很方便。为避免冲突，最好对所有数据源使用 ANY，或为所有数据源都选择特定节点。"
   },
   "ds.editor.storage.legend.fs.path": {
     "other": "请确保最后一个文件夹名是小写的，其父文件夹是可写的。 如果您现有的文件夹是大写，您可以使用别名链接来处理此限制。"
   },
   "ds.editor.storage.legend.s3": {
-    "other": "浏览Amazon S3存储库或兼容的 S3 存储库的数据。"
+    "other": "浏览亚马逊S3存储桶或兼容的 S3 存储库的数据。"
   },
   "ds.editor.storage.legend.azure": {
     "other": "浏览Azure Blob 存储桶中的数据。"
   },
   "ds.editor.storage.legend.gcs": {
-    "other": "浏览来自谷歌云存储桶（GCS）的数据。"
+    "other": "浏览来自谷歌云存储桶的数据。"
   },
   "ds.editor.storage.legend.versioning": {
-    "other": "设置版本控制策略来保存文件内容修改历史。请注意它将使用额外的存储空间。"
+    "other": "设置版本控制政策来保存文件内容修改历史。请注意它将使用额外的存储空间。"
   },
   "ds.editor.storage.legend.encryption": {
-    "other": "静态加密可以用来确保文件永远不会以清晰的格式存储在存储器中。如果您不信任存储提供程序，这可能会很有用。"
+    "other": "静态加密可用于确保文件永远不会以明文格式存储在存储中。 如果您不信任存储提供商，这可能很有用。"
   },
   "ds.editor.storage.readOnly": {
     "other": "只读模式"
   },
   "ds.editor.storage.legend.readOnly": {
-    "other": "如果您不允许程序写入任何隐藏文件并使用ETags作为校验（这对于存储桶中有大量的存在数据来说非常必要），请设置为只读模式。请注意，任何在该数据源中创建的工作区都被设置为只读，文件将无法移动。"
+    "other": "如果您要求 Cell 永远不写入任何隐藏文件并使用本机 eTags 作为校验和(这对于具有大量现有数据的存储桶来说可能是必要的)，请使用只读模式。 但是，请注意，在此数据源上创建的任何工作区都应设置为只读，因为移动功能无法正常运行。"
   },
   "ds.editor.storage.flatStorage": {
-    "other": "保持存储上的数据结构"
+    "other": "将数据结构保存在存储中"
   },
   "ds.editor.storage.legend.flatStorage": {
-    "other": "平面(无结构)存储性能最好。 只有当您明确要在实际存储中生成文件和文件夹(或者说对应到原有的文件夹结构)时，才使用结构化存储。 创建数据源后无法更改此项。"
+    "other": "扁平(非结构化) 存储最适合性能。 仅当您希望确保查看实际存储中复制的文件和文件夹(或映射到包含预先存在的数据的文件夹) 时，才使用结构化存储。 创建数据源后不能更改。"
   },
   "ds.editor.storage.skipResync": {
     "other": "重启时跳过完全重新同步"
@@ -189,7 +192,7 @@
     "other": "为了正确的检测文件变更，文件校验码(md5) 由Cells来计算(或者可能的话由储存的副本来计算) 并作为元数据附加到对象上。 处于最佳性能的考虑，使用原生ETags标志来保留存储原始值，但是这将会禁用此数据源上的桌面同步功能。 您还可以通过本地存储元数据，避免在计算校验和时修改对象。"
   },
   "ds.editor.new": {
-    "other": "新建数据源"
+    "other": "新数据源"
   },
   "ds.editor.name.inuse": {
     "other": "此名称已被使用，请务必选择另一个名称！"
@@ -213,7 +216,7 @@
     "other": "选择一个文件夹"
   },
   "ds.editor.selector.completer.hint": {
-    "other": "从列表中选择，或输入路径并按回车键入确认"
+    "other": "从列表中选择或输入路径并按 Enter 键"
   },
   "ds.editor.selector.completer.create": {
     "other": "文件夹将被创建"
@@ -222,10 +225,10 @@
     "other": "请确保选择一个二级文件夹。对象存储将从父文件夹开始。"
   },
   "ds.editor.selector.error.dnsname": {
-    "other": "文件夹暴露为S3 bucket，必须符合DNS名称(小写，没有空格或特殊字符)。"
+    "other": "文件夹作为 S3 存储桶公开，必须符合 DNS 名称 (小写，无空格或特殊字符) 的要求。"
   },
   "ds.editor.selector.folder": {
-    "other": "本地目录"
+    "other": "本地文件夹"
   },
   "ds.editor.selector.folder.hint": {
     "other": "选择一个对等点加载文件夹"
@@ -234,10 +237,10 @@
     "other": "对等地址"
   },
   "ds.editor.selector.peer.any": {
-    "other": "任何节点 (唯一节点或分布的 FS)"
+    "other": "任何对等点(唯一节点或分布式 FS)"
   },
   "ds.editor.selector.peer.word": {
-    "other": "节点 / Peer"
+    "other": "对等点"
   },
   "ds.editor.selector.peer.invalid": {
     "other": "无效"
@@ -249,7 +252,7 @@
     "other": "在 %s 下创建一个新文件夹"
   },
   "ds.editor.selector.mkdir.field": {
-    "other": "文件夹名"
+    "other": "文件夹名称"
   },
   "ds.editor.storage.fs.macos": {
     "other": "操作系统是 MacOSX"
@@ -261,28 +264,28 @@
     "other": "Azure密钥"
   },
   "ds.editor.storage.azure.bucket": {
-    "other": "存储空间名"
+    "other": "桶名称"
   },
   "ds.editor.storage.gcs.credentials": {
     "other": "粘贴GCS JSON 凭据文件的内容"
   },
   "ds.editor.storage.gcs.bucket": {
-    "other": "存储空间名"
+    "other": "桶名称"
   },
   "ds.editor.storage.s3.api": {
-    "other": "S3 Api Key"
+    "other": "S3 Api 密钥"
   },
   "ds.editor.storage.s3.bucket": {
-    "other": "存储空间名"
+    "other": "桶名称"
   },
   "ds.editor.storage.s3.endpoint.type": {
-    "other": "Endpoint Type"
+    "other": "端点类型"
   },
   "ds.editor.storage.s3.signatureVersion": {
-    "other": "Signature Version"
+    "other": "签名版本"
   },
   "ds.editor.storage.s3.endpoint.amazon": {
-    "other": "Amazon S3"
+    "other": "亚马逊 S3"
   },
   "ds.editor.storage.s3.endpoint.custom": {
     "other": "S3 兼容存储"
@@ -291,7 +294,7 @@
     "other": "Minio 服务器"
   },
   "ds.editor.storage.s3.endpoint": {
-    "other": "自定义终点URL"
+    "other": "自定义端点 URL"
   },
   "ds.editor.storage.s3.endpoint.hint": {
     "other": "包括 http(s)://"
@@ -303,19 +306,19 @@
     "other": "内部路径"
   },
   "ds.editor.storage.s3.secret": {
-    "other": "S3 Api Secret"
+    "other": "S3 Api 秘密"
   },
   "ds.editor.storage.buckets.legend": {
-    "other": "选择一个或多个bucet"
+    "other": "选择一个或多个桶"
   },
   "ds.editor.storage.buckets.reload": {
-    "other": "重新加载buckets"
+    "other": "重新装载桶"
   },
   "ds.editor.storage.buckets.create": {
-    "other": "创建 Bucket"
+    "other": "创建桶"
   },
   "ds.editor.storage.buckets.create.hint": {
-    "other": "Bucket名称"
+    "other": "桶名称"
   },
   "ds.editor.storage.buckets.regexp": {
     "other": "使用正则表达式"
@@ -324,31 +327,31 @@
     "other": "正则表达式"
   },
   "ds.editor.storage.buckets.cont.nokeys": {
-    "other": "设置存储以加载bucket"
+    "other": "设设置存储以加载桶"
   },
   "ds.editor.storage.buckets.cont.loading": {
-    "other": "正在加载可访问的数据包"
+    "other": "加载可访问的桶"
   },
   "ds.editor.storage.buckets.cont.empty": {
-    "other": "未找到bucket"
+    "other": "没有找到桶"
   },
   "ds.editor.storage.s3.legend.tags": {
-    "other": "从bucets或对象同步S3标签 (使用逗号分隔的模式列表进行匹配)。 请注意，这将执行更多的请求到存储，并且可能会减慢同步过程。 原标签将映射到 pydio:s3-bucket-tag-NAME 和 pydio:s3-object-tag-NAME 内部。"
+    "other": "同步桶或对象中的 S3 标签(使用逗号分隔的模式列表进行匹配)。 请注意，这将执行额外的存储请求，并可能减慢同步过程。 原始标签将在内部映射到 pydio:s3-bucket-tag-NAME 和 pydio:s3-object-tag-NAME 。"
   },
   "ds.editor.storage.s3.bucketsTags": {
-    "other": "Buckets 标签 (启用多个 Buckets)"
+    "other": "桶标签(启用多个桶)"
   },
   "ds.editor.storage.s3.objectsTags": {
     "other": "对象标签"
   },
   "ds.editor.storage.s3.legend.bucketPathPrefix": {
-    "other": "在 bucket 中使用路径前缀 (将创建一个虚拟文件夹来存储对象)"
+    "other": "在存储桶内使用路径前缀(将创建一个虚拟文件夹来存储对象)"
   },
   "ds.editor.storage.s3.bucketPathPrefix": {
-    "other": "Path prefix"
+    "other": "路径前缀"
   },
   "ds.editor.storage.s3.legend.storageClass": {
-    "other": "Custom Storage Class (leave empty to use STANDARD). Amazon S3 supports the following values: REDUCED_REDUNDANCY, STANDARD_IA, ONEZONE_IA, INTELLIGENT_TIERING, GLACIER, DEEP_ARCHIVE, OUTPOSTS, GLACIER_IR. Beware that using GLACIER or equivalent will make the datasource write-only, as objects have to be manually restored before being available for download."
+    "other": "自定义存储类别(留空以使用标准)。亚马逊S3 支持以下值：REDUCED_REDUNDANCY、STANDARD_IA、ONEZONE_IA、INTELLIGENT_TIERING、GLACIER、DEEP_ARCHIVE、OUTPOSTS、GLACIER_IR。 请注意，使用 GLACIER 或等效工具将使数据源成为只写数据源，因为对象必须在可供下载之前手动恢复。"
   },
   "ds.editor.storage.s3.storageClass": {
     "other": "存储类型"
@@ -357,7 +360,7 @@
     "other": "数据源 %s"
   },
   "ds.editor.versioning": {
-    "other": "版本策略"
+    "other": "版本政策"
   },
   "ds.editor.versioning.disabled": {
     "other": "不启用版本控制"
@@ -372,7 +375,7 @@
     "other": "创建"
   },
   "ds.editor.tab.identifier": {
-    "other": "识别码"
+    "other": "标识符"
   },
   "ds.editor.tab.main": {
     "other": "主选项"
@@ -390,7 +393,7 @@
     "other": "如果此存储先前被用作平坦的数据源，请从现有的快照文件初始化(必须在存储中)"
   },
   "ds.editor.foldersShardingPattern": {
-    "other": "By default, all files are stored inside a unique folder. Use a pattern 'N:P:Q' to auto-create sub folders id[:N]/id[:P]/id[:Q]/..."
+    "other": "默认情况下，所有文件都存储在一个唯一的文件夹中。使用 \"N:P:Q \"模式自动创建子文件夹 id[:N]/id[:P]/id[:Q]/..."
   },
   "ds.encryption": {
     "other": "已加密"
@@ -426,10 +429,10 @@
     "other": "将结果复制到文件以保存密钥"
   },
   "ds.encryption.key.id": {
-    "other": "识别码"
+    "other": "标识符"
   },
   "ds.encryption.key.import": {
-    "other": "导入私钥"
+    "other": "导入密钥"
   },
   "ds.encryption.key.import.content": {
     "other": "从您的备份文件粘贴密钥至此"
@@ -438,10 +441,10 @@
     "other": "导入时出现错误"
   },
   "ds.encryption.key.import.id": {
-    "other": "此密钥唯一标识符"
+    "other": "此密钥独特标识符"
   },
   "ds.encryption.key.import.label": {
-    "other": "此密钥的可读标签"
+    "other": "该密钥的人类可读标签"
   },
   "ds.encryption.key.import.password": {
     "other": "导出时使用的密码"
@@ -507,7 +510,7 @@
     "other": "存储"
   },
   "ds.versioning": {
-    "other": "创建版本中"
+    "other": "版本控制"
   },
   "ds.syncStatus": {
     "other": "上次同步"
@@ -522,7 +525,7 @@
     "other": "名称"
   },
   "ds.versioning.periods": {
-    "other": "保留策略"
+    "other": "保留政策"
   },
   "ds.versioning.storage": {
     "other": "存储"
@@ -540,7 +543,7 @@
     "other": "选择日期"
   },
   "logs.filter.legend": {
-    "other": "过滤条件："
+    "other": "过滤..."
   },
   "logs.export.disabled": {
     "other": "选择日期或过滤结果"
@@ -612,10 +615,10 @@
     "other": "级别"
   },
   "logs.level.exact": {
-    "other": "(only)"
+    "other": "(仅有的)"
   },
   "logs.level.greaterthan": {
-    "other": "(and up)"
+    "other": "(及以上)"
   },
   "logs.service": {
     "other": "服务"
@@ -630,46 +633,46 @@
     "other": "没有结果"
   },
   "logs.details.copy": {
-    "other": "Copy log to clipboard"
+    "other": "复制日志到剪贴板"
   },
   "logs.details.show-focus": {
-    "other": "Show +/- 5 minutes"
+    "other": "显示 +/- 5 分钟"
   },
   "logs.details.close": {
-    "other": "Close log detail"
+    "other": "关闭日志详细信息"
   },
   "logs.details.user": {
-    "other": "User"
+    "other": "用户"
   },
   "logs.details.user-attributes": {
-    "other": "User Attributes"
+    "other": "用户属性"
   },
   "logs.details.date": {
-    "other": "Event Date"
+    "other": "事件日期"
   },
   "logs.details.msg": {
-    "other": "Event Message"
+    "other": "事件消息"
   },
   "logs.details.service": {
-    "other": "Emitting Service"
+    "other": "发出服务"
   },
   "logs.details.connection": {
-    "other": "Connection IP"
+    "other": "连接 IP"
   },
   "logs.details.agent": {
-    "other": "User-Agent"
+    "other": "用户-代理"
   },
   "logs.details.protocol": {
-    "other": "Protocol"
+    "other": "协议"
   },
   "logs.details.node": {
-    "other": "File/Folder"
+    "other": "文件/文件夹"
   },
   "logs.details.transfer-size": {
-    "other": "Transfer Size"
+    "other": "传输大小"
   },
   "logs.details.workspace": {
-    "other": "In Workspace"
+    "other": "在工作区"
   },
   "menu.0": {
     "other": "仪表盘"
@@ -699,10 +702,10 @@
     "other": "用户如何从应用程序的各个部分获取通知。"
   },
   "menu.16": {
-    "other": "Pydio Booster"
+    "other": "Pydio 助推器"
   },
   "menu.17": {
-    "other": "Instant messaging and external accelerator tool"
+    "other": "即时通讯和外部加速器工具"
   },
   "menu.18": {
     "other": "所有插件"
@@ -723,7 +726,7 @@
     "other": "欢迎页面"
   },
   "menu.23": {
-    "other": "Landing page for user after login. Configure displayed elements and links."
+    "other": "登录后用户登录页面。配置显示的元素和链接。"
   },
   "menu.3": {
     "other": "外观"
@@ -744,13 +747,13 @@
     "other": "启用/禁用编辑器和管理他们的参数"
   },
   "menu.9": {
-    "other": "文件上传"
+    "other": "上传者"
   },
   "menu.metadata": {
     "other": "元数据"
   },
   "menu.metadata.description": {
-    "other": "User-editable fields attached to data"
+    "other": "用户可编辑字段附加到数据"
   },
   "metadata.definition": {
     "other": "定义"
@@ -777,7 +780,7 @@
     "other": "值"
   },
   "metadata.editor.selection.steps": {
-    "other": "显示在步骤中"
+    "other": "显示为步骤"
   },
   "metadata.editor.tags.cleared": {
     "other": "已清除命名空间 %s 的标签"
@@ -789,7 +792,7 @@
     "other": "创建命名空间"
   },
   "metadata.empty": {
-    "other": "没有元数据"
+    "other": "未定义元数据"
   },
   "metadata.indexable": {
     "other": "可索引"
@@ -798,37 +801,37 @@
     "other": "标签"
   },
   "metadata.namespace": {
-    "other": "组名"
+    "other": "名称"
   },
   "metadata.namespace.add": {
-    "other": "+ 添加命名空间"
+    "other": "+ 命名空间"
   },
   "metadata.namespaces": {
     "other": "命名空间"
   },
   "metadata.namespaces.legend": {
-    "other": "用户可以将元数据附加到任何文件或文件夹。 您可以在此处定义要显示的元数据的类型，以及每个元数据是否可由标准用户（而不是管理员用户）读取/写入。"
+    "other": "用户可以将元数据附加到任何文件或文件夹。 您可以在此处定义要显示的元数据的类型，以及每个元数据是否可由标准用户(而不是管理员用户) 读取/写入。"
   },
   "metadata.order": {
     "other": "顺序"
   },
   "metadata.group": {
-    "other": "Group"
+    "other": "组"
   },
   "metadata.group-field": {
-    "other": "Group Name (creates an expandable section). Use '/' for sub-groups."
+    "other": "组名称 (创建一个可展开的部分)。使用 '/' 来创建子分组。"
   },
   "metadata.default-group": {
-    "other": "No Group"
+    "other": "无组"
   },
   "metadata.toggle.index": {
-    "other": "是否可被搜索引擎索引"
+    "other": "搜索引擎中的索引"
   },
   "metadata.toggle.read": {
-    "other": "限制管理员查看"
+    "other": "将可见性限制为管理员"
   },
   "metadata.toggle.write": {
-    "other": "限制管理员编辑"
+    "other": "将版本限制为管理员"
   },
   "metadata.type": {
     "other": "类型"
@@ -891,7 +894,7 @@
     "other": "格式"
   },
   "metadata.type.integer.format.general": {
-    "other": "A. 概况"
+    "other": "常规"
   },
   "metadata.type.integer.format.bytesize": {
     "other": "字节大小"
@@ -909,16 +912,16 @@
     "other": "必填"
   },
   "perfs.booster.description": {
-    "other": "检查 Pydio Booster 是否已运行并启用 WebSocket 通信"
+    "other": "检查 Pydio助推器是否已启动并启用 WebSocket 通信"
   },
   "perfs.booster.error": {
-    "other": "Pydio Booster 错误，请查看专用面板"
+    "other": "Pydio助推器错误，请查看专用面板"
   },
   "perfs.booster.help": {
-    "other": "Pydio Booster 提供了一个易于部署的附加工具，用于添加 WebSocket 支持以及Pydio 上传/下载加密器。"
+    "other": "Pydio助推器提供了一个易于部署的附加工具，用于添加 WebSocket 支持以及Pydio 上传/下载加速器。"
   },
   "perfs.booster.title": {
-    "other": "Pydio Booster"
+    "other": "Pydio 助推器"
   },
   "perfs.cache.description": {
     "other": "检查Pydio是否配置为使用缓存层"
@@ -933,7 +936,7 @@
     "other": "Pydio 缓存"
   },
   "perfs.cli.description": {
-    "other": "Defer time-consuming tasks to command line."
+    "other": "将耗时的任务推迟到命令行。"
   },
   "perfs.cli.error": {
     "other": "警告，命令行未启用！"
@@ -963,10 +966,10 @@
     "other": "检测是否服务器负载过高 (仅对Linux服务器)"
   },
   "perfs.load.error": {
-    "other": "Maybe adding some CPU or RAM to your server could be necessary."
+    "other": "也许有必要向您的服务器添加一些 CPU 或 RAM。"
   },
   "perfs.load.help": {
-    "other": "A high server load may indicate that your server is missing CPU or RAM given your usage of Pydio."
+    "other": "服务器负载高可能表明您的服务器缺少 CPU 或 RAM，因为您使用的是 Pydio。"
   },
   "perfs.load.title": {
     "other": "服务器负载"
@@ -978,7 +981,7 @@
     "other": "邮件发送器未配置为延迟发送电子邮件。"
   },
   "perfs.mailer.help": {
-    "other": "Using a mail queue prevents the direct sending of emails for each action and request. Instead, it stores them in a separate database and processes the queue independently."
+    "other": "使用邮件队列可以防止针对每个操作和请求直接发送电子邮件。 相反，它将它们存储在单独的数据库中并独立处理队列。"
   },
   "perfs.mailer.title": {
     "other": "邮件队列"
@@ -1020,7 +1023,7 @@
     "other": "副驱动"
   },
   "plugins.4": {
-    "other": "编辑器插件是与应用程序中任何文件类型相关联的预览器/编辑器。\n                    这些插件是专门在 GUI (扩展) 中处理的，可以声明它们支持的 mimetypes 。\n                    订单参数也允许定义“打开”优先级。.' 操作"
+    "other": "编辑器插件是与应用程序中任何文件类型相关联的预览器/编辑器。\n                    这些插件是专门在 GUI (扩展) 中处理的，可以声明它们支持的 mimetypes 。\n                    命令参数还允许定义“打开方式...”操作的优先级。"
   },
   "plugins.5": {
     "other": "保存更改"
@@ -1050,16 +1053,16 @@
     "other": "创建"
   },
   "policies.policy.description": {
-    "other": "策略描述"
+    "other": "政策描述"
   },
   "policies.policy.name": {
-    "other": "策略名称"
+    "other": "政策名称"
   },
   "policies.policy.rules": {
     "other": "# 规则"
   },
   "policies.policy.display": {
-    "other": "显示策略规则"
+    "other": "显示政策规则"
   },
   "policies.policy.edit": {
     "other": "编辑政策规则"
@@ -1071,16 +1074,16 @@
     "other": "保存更改"
   },
   "policies.policy.delete": {
-    "other": "删除策略"
+    "other": "删除政策"
   },
   "policies.policy.delete.confirm": {
-    "other": "您确定要删除此策略吗？请确保它不会破坏应用程序的安全性！"
+    "other": "您确定要删除此政策吗？请确保它不会破坏应用程序的安全性！"
   },
   "policies.policy.new": {
-    "other": "+ 新策略"
+    "other": "+ 新政策"
   },
   "policies.policy.type": {
-    "other": "策略类型"
+    "other": "政策类型"
   },
   "policies.rule.create": {
     "other": "添加新规则"
@@ -1089,25 +1092,25 @@
     "other": "删除规则"
   },
   "policies.acl.empty-string": {
-    "other": "No policies defined, create one use to it as a dynamic workspace permission."
+    "other": "未定义政策，创建一个将其用作动态工作区权限的用途。"
   },
   "policies.rule.delete.confirm": {
     "other": "您确定要删除此安全规则吗？这可能会破坏应用程序的安全模型！"
   },
   "policies.type.acl.legend": {
-    "other": "These policies are used to dynamically provide read/write access to workspaces or nodes based on the request context and/or the node metadata. They are defined here and used in the Access Control Panel of the users and roles."
+    "other": "这些政策用于根据请求上下文和/或节点元数据动态提供对工作区或节点的读/写访问。 它们在此处定义并在用户和角色的访问控制面板中使用。"
   },
   "policies.type.acl.title": {
     "other": "基于上下文的 ACL"
   },
   "policies.type.oidc.legend": {
-    "other": "OpenId Connect Service is used for authentication of the user, before any access to the APIs. As such, you can totally disable the login operation for a set of users based on the requests context, e.g. disable loging from a given set of IP or at a given time."
+    "other": "OpenId连接服务用于在访问 API 之前对用户进行身份验证。 因此，您可以根据请求上下文完全禁用一组用户的登录操作，例如禁用从给定 IP 组或在给定时间登录。"
   },
   "policies.type.oidc.title": {
-    "other": "OpenId Connect Resources"
+    "other": "OpenId 连接资源"
   },
   "policies.type.rest.legend": {
-    "other": "These policies are protecting the REST APIs on a per-uri / per-method basis. They grant basic access to some specific APIs for public discovery, and a restriction access to many APIs to make sure they are accessed only by frontend application. You should generally not touch these unless you know exactly what you do."
+    "other": "这些政策基于每个 uri/每个方法来保护 REST API。 它们授予对某些特定 API 的基本访问权限以供公共发现，并限制对许多 API 的访问，以确保它们只能由前端应用程序访问。 除非您确切知道自己在做什么，否则通常不应触摸这些。"
   },
   "policies.type.rest.title": {
     "other": "REST 资源"
@@ -1128,7 +1131,7 @@
     "other": "显示完整权限"
   },
   "react.14": {
-    "other": "Show resulting tree"
+    "other": "显示结果树"
   },
   "react.2": {
     "other": "批量操作"
@@ -1149,7 +1152,7 @@
     "other": "写"
   },
   "react.5c": {
-    "other": "access"
+    "other": "访问"
   },
   "react.6": {
     "other": "子类"
@@ -1158,31 +1161,31 @@
     "other": "创建规则"
   },
   "react.8": {
-    "other": "You are about to manage permissions at the lower level. This folder will be read\n                        only by default, and you will manage permissions selectively on its children. Choose\n                        whether to copy the current permissions to its children, or to clear their permissions, which would make\n                        them inaccessible by default."
+    "other": "您将要管理较低级别的权限。 该文件夹将被读取\n                         仅默认情况下，您将有选择地管理其子级的权限。 \n选择\n                         是否将当前权限复制给其子级，或者清除其权限，这将使\n                         默认情况下它们不可访问。"
   },
   "react.9": {
-    "other": "You are about to disable the permissions management at the sub-level: all\n                        children will automatically inherit this folder permissions, and you current settings\n                        for these children will be lost. Are you sure to confirm ?"
+    "other": "您将要禁用子级别的权限管理：全部\n                         其子级会自动继承此文件夹的权限，而你当前的设置\n                         因为这些子级将会丢失。 您确定确认吗？"
   },
   "scheduler.1": {
-    "other": "Scheduler is used to trigger tasks automatically on a regular basis. It requires the launch of a master command regularly: if you are using Pydio Booster, it should trigger this for you. Otherwise, use a CRON to launch master command every minute."
+    "other": "调度程序用于定期自动触发任务。 它需要定期启动主命令：如果您正在使用 Pydio 助推器，它应该会为您触发此命令。 否则，使用 CRON 每分钟启动一次主命令。"
   },
   "scheduler.2": {
-    "other": "Command-line is not enabled in the %1, the scheduler will not be able to run the jobs."
+    "other": "命令行在 %1中未启用，调度程序将无法运行任务。"
   },
   "scheduler.3": {
     "other": "全局配置"
   },
   "user.1": {
-    "other": "+ 添加用户"
+    "other": "+ 用户"
   },
   "user.10": {
-    "other": "访问 %i 个工作区"
+    "other": "访问 %i 工作区"
   },
   "user.11": {
     "other": "%i 角色"
   },
   "user.12": {
-    "other": "群组路径"
+    "other": "组路径"
   },
   "user.13": {
     "other": "共享"
@@ -1191,40 +1194,40 @@
     "other": "创建新角色"
   },
   "user.15": {
-    "other": "创建新群组"
+    "other": "创建新组"
   },
   "user.16": {
-    "other": "群组标识符"
+    "other": "组标识符"
   },
   "user.16.empty": {
-    "other": "请提供唯一标识符"
+    "other": "请提供独特标识符"
   },
   "user.16.format": {
     "other": "请只使用字母数字"
   },
   "user.17": {
-    "other": "群组名称"
+    "other": "组标签"
   },
   "user.17.empty": {
-    "other": "请为此群组提供名称"
+    "other": "请为该组提供标签"
   },
   "user.18": {
     "other": "角色标识符"
   },
   "user.18.empty": {
-    "other": "请为此角色提供名称"
+    "other": "请提供该角色的标签"
   },
   "user.19": {
     "other": "创建新用户"
   },
   "user.2": {
-    "other": "+ 添加用户组"
+    "other": "+ 组"
   },
   "user.20": {
-    "other": "用户将被创建在群组 %s"
+    "other": "用户将被创建在组 %s"
   },
   "user.21": {
-    "other": "用户登录名"
+    "other": "用户登录"
   },
   "user.22": {
     "other": "用户密码"
@@ -1233,7 +1236,7 @@
     "other": "确认密码"
   },
   "user.24": {
-    "other": "根群组"
+    "other": "根组"
   },
   "user.25": {
     "other": "根组角色"
@@ -1245,49 +1248,49 @@
     "other": "用户个人角色"
   },
   "user.3": {
-    "other": "群组"
+    "other": "组"
   },
   "user.4": {
     "other": "角色"
   },
   "user.5": {
-    "other": "群组和用户"
+    "other": "组和用户"
   },
   "user.6": {
-    "other": "+ 添加角色"
+    "other": "+ 角色"
   },
   "user.7": {
     "other": "搜索用户和组"
   },
   "user.8": {
-    "other": "在此群组中设置参数以应用所有群组和用户。"
+    "other": "在此组中设置参数以应用所有组和用户。"
   },
   "user.9": {
     "other": "上次连接"
   },
   "user.moveto.hint": {
-    "other": "选择目标组， '/' 为 root 组。"
+    "other": "选择目标组，为根组保留“/”。"
   },
   "user.filter.tooltip": {
     "other": "过滤用户列表..."
   },
   "user.filter.locks": {
-    "other": "Locked Users"
+    "other": "锁定的用户"
   },
   "user.filter.hidden": {
-    "other": "Public Links (hidden)"
+    "other": "公共链接(隐藏)"
   },
   "user.filter.status": {
-    "other": "Status"
+    "other": "状态"
   },
   "user.type.hidden": {
-    "other": "Public User"
+    "other": "公开用户"
   },
   "user.type.hidden.legend": {
-    "other": "Public users are created for public links (one per link) and are hidden by default. It can be useful to list them to detect locked public links."
+    "other": "公共用户是为公共链接创建的(每个链接一个)，默认情况下是隐藏的。 列出它们以检测锁定的公共链接可能是有用的。"
   },
   "user.rootgroup.legend": {
-    "other": "Permissions applied to the entire user hierarchy"
+    "other": "应用于整个用户层次结构的权限"
   },
   "user.filter.internal": {
     "other": "内部用户"
@@ -1296,25 +1299,25 @@
     "other": "共享用户"
   },
   "user.filter.admins": {
-    "other": "仅管理员可用"
+    "other": "仅管理员"
   },
   "user.filter.all": {
     "other": "所有用户"
   },
   "user.filter.anon": {
-    "other": "显示匿名信息"
+    "other": "显示匿名"
   },
   "versions.editor.delete": {
-    "other": "删除策略"
+    "other": "删除政策"
   },
   "versions.editor.delete.confirm": {
-    "other": "您确定要删除此策略吗？此操作不可撤销！"
+    "other": "您确定要删除此政策吗？ 这是不可撤销的！"
   },
   "versions.editor.error.lastdelete": {
-    "other": "上一次配置了删除所有版本，您不能添加新版本！"
+    "other": "最后一段配置删除所有版本，您不能添加新版本！"
   },
   "versions.editor.title": {
-    "other": "策略 %s"
+    "other": "政策 %s"
   },
   "versions.period.keep-all": {
     "other": "保持所有"
@@ -1326,7 +1329,7 @@
     "other": "保留 %s 个版本"
   },
   "versions.period.keep-n-after": {
-    "other": "保留 %2 之后的 %1 个版本"
+    "other": "保留 %2 之后的 %1 版本"
   },
   "versions.period.max-n": {
     "other": "最多 %s 个版本"
@@ -1359,7 +1362,7 @@
     "other": "模板标签"
   },
   "virtual.legend.1": {
-    "other": "模板路径是根据上下文动态计算的。它们可以用作工作空间的根目录来代替固定的数据源路径。 他们被默认用来创建个人文件工作区，指向每个用户不同的文件夹，并计算用户资料库文件夹的位置。"
+    "other": "模板路径是根据上下文动态计算的。它们可以用作工作区的根，以替换固定的数据源路径。 默认情况下，它们用于创建指向每个用户的不同文件夹的个人文件工作区，并用于计算用户单元文件夹的位置。"
   },
   "virtual.legend.2": {
     "other": "在编辑器中使用Ctrl + Space可获得有关可能值的提示。 支持的当前值为：User.Name（动态解析为当前用户登录的登录名）和DataSources（动态选择数据源）。"
@@ -1392,10 +1395,10 @@
     "other": "用户删除后将数据重命名为 {deleted-NAME-UUID}。"
   },
   "virtual.card.cleanOnDelete-legend-off": {
-    "other": "This option should not be used if the template path is not creating a folder for each user (using User.Name)."
+    "other": "如果模板路径不是为每个用户创建文件夹，则不应使用此选项(使用 User.Name)。"
   },
   "virtual.card.cleanOnDelete-legend-on": {
-    "other": "This option may be recommended as the template path seems to create a folder for each user (using User.Name)."
+    "other": "此选项可能被推荐，因为模板路径似乎为每个用户(使用 User.Name) 创建一个文件夹。"
   },
   "ws.1": {
     "other": "管理数据源"
@@ -1437,10 +1440,10 @@
     "other": "创建"
   },
   "ws.21": {
-    "other": "模板通用配置"
+    "other": "模板常规选项"
   },
   "ws.22": {
-    "other": "工作区通用配置"
+    "other": "工作区常规选项"
   },
   "ws.23": {
     "other": "删除工作区"
@@ -1464,13 +1467,13 @@
     "other": "参数"
   },
   "ws.3": {
-    "other": "+ 添加工作区"
+    "other": "+ 工作区"
   },
   "ws.filter.workspaces": {
     "other": "过滤工作区..."
   },
   "ws.30": {
-    "other": "通用设置"
+    "other": "常规选项"
   },
   "ws.31": {
     "other": "删除功能"
@@ -1488,7 +1491,7 @@
     "other": "%i 个用户可访问"
   },
   "ws.36": {
-    "other": "已共享 %i 个文件或文件夹"
+    "other": "+ %i 个文件或文件夹已共享"
   },
   "ws.37": {
     "other": "使用此模板的工作区"
@@ -1512,13 +1515,13 @@
     "other": "文件夹级别权限"
   },
   "ws.43": {
-    "other": "Specify here the default access permissions to this workspace folders.\n                                To enable the permissions management at a sub-level, select the 'CHILDREN' on a given folder.\n                                This will set the current folder as readonly by default, and you will be able to open accesses\n                                selectively to any of its children folders."
+    "other": "在此指定此工作区文件夹的默认访问权限。\n                                 要启用子级别的权限管理，请选择给定文件夹的“子级”。\n                                 默认情况下，这会将当前文件夹设置为只读，您将能够打开访问\n                                 有选择地访问其任何子文件夹。"
   },
   "ws.44": {
-    "other": "Please be aware that this is only a mask: if you modify the real folders directly, you may have\n                                to edit this mask accordingly. Also, these permissions may be globally limited by the 'Default Rights'\n                                parameter set for this workspace (see the General tab)."
+    "other": "请注意，这只是一个掩码：如果您直接修改真实文件夹，您可能会\n                                 相应地编辑此掩码。 此外，这些权限可能会受到“默认权利”的全局限制\n                                 该工作区的参数集(请参阅“常规”选项卡)。"
   },
   "ws.45": {
-    "other": "As its parameters are using 'PYDIO_USER' or 'PYDIO_GROUP_*' keywords, the contents of\n                                this workspace will vary depending on the currently authenticated user. For this reason, you cannot browse the\n                                folders directly and assign permissions to them, but you can freely define some generic paths that will be used as masks."
+    "other": "由于其参数使用“PYDIO_USER”或“PYDIO_GROUP_*”关键字，因此内容\n                                 此工作区将根据当前经过身份验证的用户而有所不同。 因此，您无法浏览\n                                 直接文件夹并为其分配权限，但您可以自由定义一些将用作掩码的通用路径。"
   },
   "ws.46": {
     "other": "添加功能"
@@ -1533,40 +1536,40 @@
     "other": ""
   },
   "ws.4b": {
-    "other": "+ 版本策略"
+    "other": "+ 版本政策"
   },
   "ws.5": {
-    "other": "缩写"
+    "other": "迟缓"
   },
   "ws.50": {
     "other": "索引"
   },
   "ws.51": {
-    "other": "This workspace has an indexer (%s). Normally, indexation is done \"on-the-fly\" when files are added/removed\n                    through the application interfaces. However if you are doing some modifications directly at the storage level, you may have\n                    to manually re-trigger an indexation from time to time. Use buttons below to either index now, or program a task in the scheduler\n                    to run indexation on a regular basis."
+    "other": "该工作区有一个索引器(%s)。 通常，当添加/删除文件时，索引是“即时”完成的\n                     通过应用程序接口。 但是，如果您直接在存储级别进行一些修改，您可能会\n                     不时手动重新触发索引。 使用下面的按钮立即建立索引，或在调度程序中编写任务\n                     定期运行指数化。"
   },
   "ws.52": {
-    "other": "Please note: as this worksace has user-specific contents, indexation will be launched for each user."
+    "other": "请注意：由于此工作区具有特定于用户的内容，因此将为每个用户启动索引。"
   },
   "ws.53": {
     "other": "立即启动索引"
   },
   "ws.54": {
-    "other": "计划每日上午3点"
+    "other": "安排每天凌晨 3 点"
   },
   "ws.55": {
     "other": "自动清除"
   },
   "ws.56": {
-    "other": "This workspace has a \"purge\" setup, to automatically remove documents that were left untouched since %s days. Make sure to add a task in the\n                    scheduler to regularly process this workspace and look for expired document. You can use the buttons below to create this task automatically,\n                    ok run the purge directly."
+    "other": "此工作区具有“清除”设置，可自动删除自 %s 天以来未触及的文档。 确保添加任务在\n                     调度程序定期处理此工作区并查找过期文档。\n您可以使用下面的按钮自动创建此任务，\n                     ok直接运行清除。"
   },
   "ws.57": {
-    "other": "Please note: as this worksace has user-specific contents, purge will be running for each user."
+    "other": "请注意：由于此工作区具有特定于用户的内容，因此将为每个用户运行清除。"
   },
   "ws.58": {
     "other": "立即清除"
   },
   "ws.59": {
-    "other": "计划每日上午4点"
+    "other": "安排每天凌晨 4 点"
   },
   "ws.6": {
     "other": "新工作区"
@@ -1575,10 +1578,10 @@
     "other": "工作区活动"
   },
   "ws.61": {
-    "other": "Activity of the workspace is displayed to the users in the right-hand panel. You can clear all activity\n                            for this workspace, which can be handy e.g. if you are going \"live\" in production after a staging period where you have\n                            made some tests in this workspace."
+    "other": "工作区的活动在右侧面板中向用户显示。 您可以清除所有活动\n                             对于这个工作区，这可以很方便，例如,如果您在经过一段时间后要“上线”生产\n                             在此工作区中进行了一些测试。"
   },
   "ws.62": {
-    "other": "清除活动日志"
+    "other": "清除活动"
   },
   "ws.63": {
     "other": "警告，这将清除显示给用户的此工作区的所有活动。您确定要这样做吗？"
@@ -1602,7 +1605,7 @@
     "other": "基于模板的工作区"
   },
   "ws.7": {
-    "other": "新建数据源"
+    "other": "新数据源"
   },
   "ws.70": {
     "other": "基于驱动的工作区"
@@ -1617,10 +1620,10 @@
     "other": "在继续之前选择值"
   },
   "ws.74": {
-    "other": "Use the form on the right to create a new DataSource. "
+    "other": "使用右边的表单创建一个新的数据源。 "
   },
   "ws.75": {
-    "other": "A DataSource defines where your data is stored."
+    "other": "数据源定义了您存储数据的位置。"
   },
   "ws.76": {
     "other": "Pydio将把您所有的数据源合并成一个主树，您可以在这个树上使用工作区赋予权限。"
@@ -1635,43 +1638,43 @@
     "other": "未定义工作区"
   },
   "ws.board.summary": {
-    "other": "工作区根目录"
+    "other": "工作区根"
   },
   "ws.board.syncable": {
     "other": "同步"
   },
   "ws.complete.datasources": {
-    "other": "DataSources"
+    "other": "数据源"
   },
   "ws.complete.folders": {
-    "other": "Internal Folders"
+    "other": "内部文件夹"
   },
   "ws.complete.label": {
-    "other": "Select a DataSource or a Template Path"
+    "other": "选择一个数据源或模板路径"
   },
   "ws.complete.additional": {
-    "other": "Additional Root"
+    "other": "附加根"
   },
   "ws.complete.resolves": {
-    "other": "先解决"
+    "other": "解决"
   },
   "ws.complete.templates": {
     "other": "预设模板路径"
   },
   "ws.dashboard": {
-    "other": "工作区为用户定义了数据的主要访问点。 确保至少定义一个数据源，以便能够创建一个指向该数据源路径的工作空间。"
+    "other": "工作区为用户定义了数据的主要访问点。 确保至少定义一个数据源，以便能够创建一个指向该数据源路径的工作区。"
   },
   "ws.editor.data.legend": {
-    "other": "工作区向用户显示一个或多个“根目录”：从任意数据源或在运行时自动解析的模板路径中选择一个或多个路径。"
+    "other": "工作区向用户显示一个或多个“根”：从任意数据源或在运行时自动解析的模板路径中选择一个或多个路径。"
   },
   "ws.editor.data.title": {
-    "other": "数据访问配置"
+    "other": "数据访问"
   },
   "ws.editor.default_rights": {
-    "other": "设置此工作区的默认权限（适用于应用程序的所有内部用户）。 您可以在“人员”中按每个用户/每个角色/每个组的基础上覆盖这些权限。"
+    "other": "设置此工作区的默认权限(适用于应用程序的所有内部用户)。 您可以在“人员”部分中按每个用户/每个角色/每个组覆盖这些权限。"
   },
   "ws.editor.default_rights.hint": {
-    "other": "Default Rights"
+    "other": "默认权限"
   },
   "ws.editor.default_rights.none": {
     "other": "无"
@@ -1698,7 +1701,7 @@
     "other": "警告，危险操作！ 这是不可恢复的。"
   },
   "ws.editor.label.legend": {
-    "other": "Human-friendly label for this workspace"
+    "other": "此工作区的人性化标签"
   },
   "ws.editor.options.legend": {
     "other": "显示给用户的标签和描述。选择一个通俗易懂的名称，以帮助用户更好地管理数据。"
@@ -1719,13 +1722,13 @@
     "other": "跳过回收站"
   },
   "ws.editor.other.skiprecycle.legend": {
-    "other": "禁用此工作区回收站：所有文件将被永久删除。 这不适用于在此工作区内创建的资料库，文件总是会被移动到工作区，以避免人为错误。"
+    "other": "禁用此工作区回收站：所有文件将被永久删除。 这不适用于在此工作区中创建的单元，文件将始终移至工作区回收以避免人为错误。"
   },
   "ws.editor.other.sync": {
     "other": "允许桌面同步"
   },
   "ws.editor.other.sync.legend": {
-    "other": "Desktop synchronisation allows users to synchronize their files offline on their computer. Warning, this feature is currently supported for personal files only, as shared workspaces may create conflicts if many users synchronize docs in the same folder. For personal files, you can also enable/disable this feature on a per-role basis using Security Policies."
+    "other": "桌面同步允许用户在计算机上离线同步文件。 警告，此功能目前仅支持个人文件，因为如果许多用户在同一文件夹中同步文档，共享工作区可能会产生冲突。 对于个人文件，您还可以使用安全政策针对每个角色启用/禁用此功能。"
   },
   "ws.editor.other.sync-personal": {
     "other": "(仅限个人工作区)"
@@ -1737,13 +1740,13 @@
     "other": "我明白"
   },
   "ws.editor.sync.warning.enable": {
-    "other": "Enabling sync on shared workspaces may have unexpected results if many users are syncing and editing files together. Please note that THIS FEATURE IS CURRENTLY NOT SUPPORTED by our professional services. Please use this feature at your own risk!"
+    "other": "如果许多用户一起同步和编辑文件，则在共享工作区上启用同步可能会产生意外结果。 请注意，我们的专业服务目前不支持此功能。 请自行承担使用此功能的风险！"
   },
   "ws.editor.sync.warning.disable": {
-    "other": "If people are connected to this workspace, their sync task will not be working any more! Are you sure you want to change that?"
+    "other": "如果人们连接到此工作区，他们的同步任务将不再有效！ 您确定要更改此设置吗？"
   },
   "ws.editor.other.quota": {
-    "other": "磁盘使用配额(0则无限制)。 此配额由此工作区的所有文件计算(或个人文件等工作区的用户特定内容)。"
+    "other": "磁盘使用配额(保留 0 表示无限制)。 此配额是针对该工作区的所有文件(或工作区的用户特定内容，如个人文件) 计算的。"
   },
   "ws.editor.other.quota.noquota": {
     "other": "未设置配额"
@@ -1758,7 +1761,7 @@
     "other": "使用了技术化名称，例如URL，自动计算但您可以自定义。"
   },
   "services.text-filter.hint": {
-    "other": "Filter..."
+    "other": "过滤器..."
   },
   "services.filter.nofilter": {
     "other": "所有服务"
@@ -1794,55 +1797,55 @@
     "other": "标签"
   },
   "services.column.peers": {
-    "other": "Peers"
+    "other": "对等点"
   },
   "services.tag.gateway.title": {
     "other": "网关"
   },
   "services.tag.gateway.description": {
-    "other": "World-facing services for accessing the platform"
+    "other": "用于访问平台的面向世界的服务"
   },
   "services.tag.datasource.title": {
     "other": "数据源"
   },
   "services.tag.datasource.description": {
-    "other": "Storage endpoints used to access concrete file storages. Main services are in charge of starting sub services (per datasource)."
+    "other": "用于访问具体文件存储的存储端点。主服务负责启动子服务(按数据源划分)。"
   },
   "services.tag.data.title": {
     "other": "数据"
   },
   "services.tag.data.description": {
-    "other": "服务处理数据和元数据。"
+    "other": "处理数据和元数据的服务。"
   },
   "services.tag.idm.title": {
     "other": "身份管理"
   },
   "services.tag.idm.description": {
-    "other": "All services related to authentication and authorizations, roles, security policies, etc."
+    "other": "所有与身份验证、授权、角色、安全政策等相关的服务。"
   },
   "services.tag.scheduler.title": {
-    "other": "定时任务"
+    "other": "调度程序"
   },
   "services.tag.scheduler.description": {
-    "other": "Services for managing background jobs. The task server can be dispatched across various peers."
+    "other": "用于管理后台作业的服务。任务服务器可以跨不同的对等点进行调度。"
   },
   "services.tag.broker.title": {
-    "other": "Broker"
+    "other": "消息代理"
   },
   "services.tag.broker.description": {
-    "other": "服务发送和处理整个应用程序的事件 (一般是给用户)。"
+    "other": "发送和处理整个应用程序的事件 (一般是给用户) 的服务。"
   },
   "services.tag.frontend.title": {
     "other": "前端"
   },
   "services.tag.frontend.description": {
-    "other": "Web services for user interfaces in the browser"
+    "other": "浏览器中用户界面的网络服务"
   },
   "services.tag.discovery.title": {
     "other": "发现"
   },
   "services.tag.discovery.description": {
-    "other": "Basic configurations and services registries called by all other services."
+    "other": "所有其他服务都会调用的基本配置和已注册的服务。"
   },
   "services.service.ip": {
     "other": "运行于 %s"
@@ -1854,49 +1857,49 @@
     "other": "对象"
   },
   "services.service.datasource.objects.legend": {
-    "other": "用于将数据作为对象存储的 S3 图层"
+    "other": "S3层将数据作为对象存储"
   },
   "services.service.datasource.legend": {
-    "other": "数据源正在同步来自对象图层的数据到 index DB。"
+    "other": "数据源正在将对象层的数据同步到索引数据库。"
   },
   "services.service.datasource.index": {
     "other": "索引"
   },
   "scheduler.title": {
-    "other": "定时任务"
+    "other": "调度程序"
   },
   "scheduler.legend": {
-    "other": "Flows running in background on a periodical basis or triggered by events"
+    "other": "流程定期在后台运行或由事件触发"
   },
   "scheduler.system.title": {
-    "other": "System Flows"
+    "other": "系统流程"
   },
   "scheduler.system.legend": {
-    "other": "These Flows are registered by default inside the application. They are generally in charge of extracting information from node in background, or doing some cleaning operations."
+    "other": "这些流默认在应用程序内注册。 他们一般负责在后台从节点中提取信息，或者做一些清理操作。"
   },
   "scheduler.inactives.title": {
-    "other": "Inactive Flows"
+    "other": "非活动流"
   },
   "scheduler.inactives.legend": {
-    "other": "These Flows are inactive, click on a Flow to enable it."
+    "other": "这些流处于非活动状态，单击流即可启用它。"
   },
   "scheduler.system.empty": {
-    "other": "No Flows scheduled."
+    "other": "没有安排流。"
   },
   "scheduler.users.title": {
-    "other": "用户Flows"
+    "other": "用户流"
   },
   "scheduler.users.legend": {
-    "other": "These Flows are dynamically created and trigged by user actions."
+    "other": "这些流是由用户操作动态创建和触发的。"
   },
   "scheduler.users.empty": {
-    "other": "没有用户启动的Flow作业"
+    "other": "用户没有启动任何流程"
   },
   "scheduler.cellsflows.cta.button": {
-    "other": "+ Custom Flow"
+    "other": "+ 自定义流程"
   },
   "scheduler.cellsflows.cta.text": {
-    "other": "Do you need to create your own Flow? Discover how Cells Flows makes it easy to automate your repetitive manual tasks in Cells."
+    "other": "你需要创建自己的流程吗？了解单元格的流程方式，使您可以轻松地在单元格中自动执行重复的手动任务。"
   },
   "scheduler.cellsflows.dialog.button": {
     "other": "了解更多"
@@ -1923,187 +1926,187 @@
     "other": "删除"
   },
   "scheduler.job.delete.confirm": {
-    "other": "Are you sure you want to delete this Flow? This operation cannot be reverted!"
+    "other": "您确定要删除此流程吗？ 此操作无法恢复！"
   },
   "scheduler.tasks.delete.confirm": {
-    "other": "Are you sure you want to clear all tasks for this Flow?"
+    "other": "您确定要清除此流程的所有任务吗？"
   },
   "scheduler.trigger.picker.title": {
-    "other": "Trigger job on..."
+    "other": "触发任务..."
   },
   "scheduler.trigger.type.nodes": {
-    "other": "Files and folders (nodes) events : detect files modifications to move them or update their metadata automatically."
+    "other": "文件和文件夹(节点) 事件：检测文件修改以自动移动它们或更新其元数据。"
   },
   "scheduler.trigger.type.workspaces": {
-    "other": "Workspace events : triggered on workspace creation / deletion. Use the Scope flag to filter Workspaces from Cells"
+    "other": "工作区事件：在工作区创建/删除时触发。 使用范围标志从单元中过滤工作区"
   },
   "scheduler.trigger.type.acls": {
-    "other": "ACL events : access control lists link workspaces, nodes and roles together to provide accesses to data."
+    "other": "ACL事件：访问控制列表将工作区、节点和角色链接在一起以提供对数据的访问。"
   },
   "scheduler.trigger.type.users": {
-    "other": "User events : triggered when adding/removing user and when users log in and log out. Can be used for triggering validation flows or assigning accesses."
+    "other": "用户事件：添加/删除用户以及用户登录和注销时触发。可用于触发验证流程或分配访问权限。"
   },
   "scheduler.trigger.type.roles": {
-    "other": "Role events : can be used to automate accesses based on role names. Use IsTeam, IsGroup, IsUser flags to filter roles."
+    "other": "角色事件：可用于根据角色名称自动进行访问。 使用 IsTeam、IsGroup、IsUser 标志来过滤角色。"
   },
   "scheduler.trigger.type.chat": {
-    "other": "Chat Events: react to new chat message or chat room modification"
+    "other": "聊天事件：对新的聊天消息或聊天室修改做出反应"
   },
   "scheduler.trigger.type.chat-messages": {
-    "other": "Chat Messages Events"
+    "other": "聊天消息事件"
   },
   "scheduler.trigger.type.chat-rooms": {
-    "other": "Chat Rooms Events"
+    "other": "聊天室事件"
   },
   "scheduler.trigger.create.node": {
     "other": "创建节点"
   },
   "scheduler.trigger.create.node.description": {
-    "other": "A new file was uploaded or a new folder was created."
+    "other": "新文件已上传或新文件夹已创建。"
   },
   "scheduler.trigger.read.node": {
     "other": "读取节点"
   },
   "scheduler.trigger.read.node.description": {
-    "other": "A file was downloaded or a folder content was listed."
+    "other": "已下载文件或列出文件夹内容。"
   },
   "scheduler.trigger.update.path": {
     "other": "更新路径"
   },
   "scheduler.trigger.update.path.description": {
-    "other": "A file or folder was moved or renamed."
+    "other": "文件或文件夹已被移动或重命名。"
   },
   "scheduler.trigger.update.content": {
     "other": "更新内容"
   },
   "scheduler.trigger.update.content.description": {
-    "other": "A file content was updated by edition or upload overwriting."
+    "other": "文件内容已通过版本更新或上传覆盖。"
   },
   "scheduler.trigger.update.metadata": {
     "other": "更新元数据"
   },
   "scheduler.trigger.update.metadata.description": {
-    "other": "Internal metadata were modified on file or folder."
+    "other": "在文件或文件夹中修改了内部元数据。"
   },
   "scheduler.trigger.update.user-metadata": {
     "other": "更新用户元数据"
   },
   "scheduler.trigger.update.user-metadata.description": {
-    "other": "User-defined metadata were modified (event contains updated metadata)."
+    "other": "用户定义的元数据已被修改(事件包含更新的元数据)。"
   },
   "scheduler.trigger.delete.node": {
     "other": "删除节点"
   },
   "scheduler.trigger.delete.node.description": {
-    "other": "A file or a folder was definitively deleted."
+    "other": "文件或文件夹被明确删除。"
   },
   "scheduler.trigger.create.user": {
     "other": "创建用户"
   },
   "scheduler.trigger.create.user.description": {
-    "other": "A user or a group was created."
+    "other": "用户或组已创建。"
   },
   "scheduler.trigger.read.user": {
     "other": "读取用户"
   },
   "scheduler.trigger.read.user.description": {
-    "other": "A user or a group was accessed or listed."
+    "other": "用户或组已被访问或列出。"
   },
   "scheduler.trigger.update.user": {
     "other": "更新用户"
   },
   "scheduler.trigger.update.user.description": {
-    "other": "A user or a group data was updated. Typically happens if user changes a preference or admin assigns a role."
+    "other": "用户或组数据已更新。 如果用户更改首选项或管理员分配角色，通常会发生这种情况。"
   },
   "scheduler.trigger.delete.user": {
     "other": "删除用户"
   },
   "scheduler.trigger.delete.user.description": {
-    "other": "A user or a group was deleted."
+    "other": "用户或组已被删除。"
   },
   "scheduler.trigger.bind.user": {
     "other": "用户绑定"
   },
   "scheduler.trigger.bind.user.description": {
-    "other": "A user has logged in."
+    "other": "用户已登录。"
   },
   "scheduler.trigger.logout.user": {
-    "other": "用户注销"
+    "other": "用户登出"
   },
   "scheduler.trigger.logout.user.description": {
-    "other": "A user has logged out."
+    "other": "用户已登出。"
   },
   "scheduler.trigger.role.create": {
-    "other": "Create Role"
+    "other": "创建角色"
   },
   "scheduler.trigger.role.create.description": {
-    "other": "A new role was created, by admin or by users."
+    "other": "由管理员或用户创建了一个新角色。"
   },
   "scheduler.trigger.role.update": {
-    "other": "Update Role"
+    "other": "更新角色"
   },
   "scheduler.trigger.role.update.description": {
-    "other": "A role has been updated."
+    "other": "角色已更新。"
   },
   "scheduler.trigger.role.delete": {
-    "other": "Delete Role"
+    "other": "删除角色"
   },
   "scheduler.trigger.role.delete.description": {
-    "other": "A role has been deleted."
+    "other": "角色已被删除。"
   },
   "scheduler.trigger.workspace.create": {
-    "other": "Create Workspace"
+    "other": "创建工作区"
   },
   "scheduler.trigger.workspace.create.description": {
-    "other": "A new Workspace or Cell was created."
+    "other": "创建了一个新的工作区或单元格。"
   },
   "scheduler.trigger.workspace.update": {
-    "other": "Update Workspace"
+    "other": "更新工作区"
   },
   "scheduler.trigger.workspace.update.description": {
-    "other": "A Workspace or a Cell has been updated."
+    "other": "工作区或单元格已更新。"
   },
   "scheduler.trigger.workspace.delete": {
-    "other": "Delete Workspace"
+    "other": "删除工作区"
   },
   "scheduler.trigger.workspace.delete.description": {
-    "other": "A Workspace or a Cell has been deleted."
+    "other": "工作区或单元格已删除。"
   },
   "scheduler.trigger.acl.create": {
-    "other": "Create/Update ACL"
+    "other": "创建/更新 ACL"
   },
   "scheduler.trigger.acl.create.description": {
-    "other": "An Access Control was opened."
+    "other": "打开了访问控制。"
   },
   "scheduler.trigger.acl.delete": {
-    "other": "Delete ACL"
+    "other": "删除 ACL"
   },
   "scheduler.trigger.acl.delete.description": {
-    "other": "An Access Control was removed."
+    "other": "访问控制已删除。"
   },
   "scheduler.trigger.chat-message.put": {
-    "other": "New Chat Message"
+    "other": "新聊天消息"
   },
   "scheduler.trigger.chat-message.put.description": {
-    "other": "A Message was posted in a ChatRoom."
+    "other": "在聊天室中发布了一条消息。"
   },
   "scheduler.trigger.chat-message.delete": {
-    "other": "Chat Message Deleted"
+    "other": "聊天消息已删除"
   },
   "scheduler.trigger.chat-message.delete.description": {
-    "other": "A Message was deleted from a ChatRoom."
+    "other": "一条消息已从聊天室中删除。"
   },
   "scheduler.trigger.chat-room.put": {
-    "other": "New Chat Room"
+    "other": "新聊天室"
   },
   "scheduler.trigger.chat-room.put.description": {
-    "other": "A new ChatRoom was created."
+    "other": "创建了新的聊天室。"
   },
   "scheduler.trigger.chat-room.delete": {
-    "other": "Delete Chat Room"
+    "other": "删除聊天室"
   },
   "scheduler.trigger.chat-room.delete.description": {
-    "other": "A Chatroom has been deleted."
+    "other": "聊天室已被删除。"
   },
   "scheduler.trigger.events": {
     "other": "事件"
@@ -2112,7 +2115,7 @@
     "other": "手动触发"
   },
   "scheduler.trigger.periodic": {
-    "other": "Periodic Schedule"
+    "other": "定期时间表"
   },
   "scheduler.job.disabled": {
     "other": "禁用"
@@ -2124,7 +2127,7 @@
     "other": "暂停任务"
   },
   "scheduler.task.action.resume": {
-    "other": "恢复任务"
+    "other": "继续任务"
   },
   "scheduler.task.action.stop": {
     "other": "立即停止"
@@ -2133,13 +2136,13 @@
     "other": "删除"
   },
   "scheduler.task.action.enable": {
-    "other": "开启Flow"
+    "other": "启用流程"
   },
   "scheduler.task.action.run": {
     "other": "立即运行"
   },
   "scheduler.task.action.disable": {
-    "other": "关闭Flow"
+    "other": "禁用流程"
   },
   "scheduler.task.id": {
     "other": "ID"
@@ -2160,7 +2163,7 @@
     "other": "信息"
   },
   "scheduler.tasks.running": {
-    "other": "运行中任务"
+    "other": "运行任务"
   },
   "scheduler.tasks.history": {
     "other": "任务历史"
@@ -2217,13 +2220,13 @@
     "other": "每 %1"
   },
   "scheduler.schedule.title": {
-    "other": "Flow调度"
+    "other": "流程表"
   },
   "scheduler.schedule.type": {
     "other": "计划类型"
   },
   "scheduler.schedule.type.manual": {
-    "other": "手动模式"
+    "other": "手动"
   },
   "scheduler.schedule.type.monthly": {
     "other": "每月"
@@ -2238,31 +2241,31 @@
     "other": "全部..."
   },
   "scheduler.schedule.type.once": {
-    "other": "Run Once"
+    "other": "运行一次"
   },
   "scheduler.schedule.detail.monthday": {
-    "other": "几号(月份)"
+    "other": "该月的哪一天"
   },
   "scheduler.schedule.detail.weekday": {
-    "other": "周几"
+    "other": "一周中的天"
   },
   "scheduler.schedule.detail.daytime": {
-    "other": "时间"
+    "other": "一天中的时间"
   },
   "scheduler.schedule.detail.daydate": {
-    "other": "Unique Date"
+    "other": "独特日期"
   },
   "scheduler.schedule.detail.minutes": {
-    "other": "持续时间（分钟）"
+    "other": "周期(以分钟为单位)"
   },
   "scheduler.job-parameters.dialog": {
-    "other": "Flow参数"
+    "other": "流参数"
   },
   "scheduler.job-parameters.button": {
     "other": "参数"
   },
   "developer.rest.apis": {
-    "other": "API 文档"
+    "other": "Rest API 文档"
   },
   "developer.rest.apis.legend": {
     "other": "以下是Pydio Cell中所有可用的 API。 要使用这些API，您首先必须通过OpenIDConnect 服务的验证才能获得一个有效的JWT。 查看在线管理员指南了解更多信息。"
@@ -2283,13 +2286,13 @@
     "other": "外部网址"
   },
   "sites.details": {
-    "other": "<div>\n此站点配置中，将设置平台如何绑定到网络接口以及它如何对外暴露。\n使用<i>./cells configure sites</i>从命令行管理您的站点配置。\n<br/><br/>\n每个站点有以下参数：\n\n<ol>\n<li>1. <u>绑定</u>: 被绑定的一个或多个[ip/hostname:port]。</li>\n<li>2. <u>TLS 设置</u>: 配置TLS以开启HTTPS。</li>\n<li>3. <u>外部URL</u>：用于最终用户访问的URL。 它可能不同于您的绑定地址，通常应用程序在反向代理后面或在一个有端口映射的容器内需要做此设置。</li>\n<li>4. <u>维护模式</u> [On|Off]：显示维护页面。</li>\n</ol></div>"
+    "other": "<div>\n站点定义 Cells 如何绑定到网络接口以及如何暴露给外部世界。\n使用“<i>./cells 配置站点</i>”从命令行管理您的站点。\n<br/><br/>\n每个站点都有以下参数：\n\n<ol>\n<li>1. <u>绑定</u>：一个或多个[ip/hostname:port]，用于挂钩内部网络服务器。</li>\n<li>2. <u>TLS 设置</u>：HTTPS 支持的 TLS 配置。</li>\n<li>3. <u>外部 URL</u>：您与最终用户交流的 URL。 它可能与您的绑定地址不同，通常如果应用程序位于反向代理后面或位于具有端口映射的容器内。</li>\n<li>4. <u>维护模式</u> [开|关]：尽管 Cells 正在运行，但在此端点上显示维护页面。</li>\n</ol></div>"
   },
   "sites.details.note": {
-    "other": "<div><i>附加说明</i>\n<ol>\n<li>1. 当没有配置站点设置时，平台将使用默认配置 (具有自签名的 https://0.0.0.0:8080)。</li>\n<li>2. 可以使用 '--bind' 参数或 'CELS_BIND' 环境变量在运行时覆盖网页上的站点设置。\n</li>\n</ol></div>"
+    "other": "<div><i>附加说明</i>\n<ol>\n<li>1. 当没有定义站点时，Cells 使用默认配置 (具有自签名的 https://0.0.0.0:8080)。</li>\n<li>2. 可以使用 '--bind' 参数或 'CELS_BIND' 环境变量在运行时覆盖网页上的站点。\n</li>\n</ol></div>"
   },
   "sites.externals.details": {
-    "other": "<div>\n在某些功能中，平台用此来检测公共URL。 它将尝试根据您的配置使用最合适的值。 <br/><br/>例如：\n<ul>\n<li>&bull; 如果定义了一个唯一的站点并且它有一个外部的 URL， 这可能是正确的。</li>\n<li>&bull; 当定义了多个站点，您可能想要强制一个唯一的URL用于所有外部通信。</li>\n<li>&bull; 如果没有检测到外部URL，它将回退到内部绑定地址。 在这种情况下，您可能不想对外发送私有IP(或0.0.0.0:端口…)。</li>\n</ul>\n\n<br/>\n下面的字段显示检测到的值。 选择以编辑或输入自定义值并按回车键保存。\n</div>"
+    "other": "<div>\nCells 在某些功能中使用其检测到的公共 URL。 它将尝试根据您的配置使用最合适的值。 <br/><br/>例如：\n<ul>\n<li>&bull; 如果定义了一个独特的站点并且它有一个外部的 URL， 这可能是正确的。</li>\n<li>&bull; 当定义了多个站点，您可能想要强制一个独特的URL用于所有外部通信。</li>\n<li>&bull; 如果没有检测到外部URL，它将回退到内部绑定地址。 在这种情况下，您可能不想对外发送私有IP(或0.0.0.0:端口…)。</li>\n</ul>\n\n<br/>\n下面的字段显示检测到的值。 选择以编辑或输入自定义值并按回车键保存。\n</div>"
   },
   "sites.mailer.url": {
     "other": "用于邮件中生成链接的 URL"
@@ -2319,7 +2322,7 @@
     "other": "反向代理"
   },
   "sites.configs.tls.letsencrypt": {
-    "other": "Let's Encrypt"
+    "other": "让我们加密"
   },
   "sites.configs.tls.self": {
     "other": "自签名"

@@ -36,7 +36,7 @@
     "other": "添加操作"
   },
   "16": {
-    "other": "使用下面的选择器来选择您想要为此角色的用户设置的参数。 只能应用于所有或某个工作区，尽管这可能依赖于插件上下文。"
+    "other": "使用下面的选择器来选择您想要为此角色的用户设置的参数。 可以应用于所有或仅一个给定工作区，尽管这可能取决于插件上下文。"
   },
   "17": {
     "other": "参数名称"
@@ -57,7 +57,7 @@
     "other": "用户 ID"
   },
   "22": {
-    "other": "Profile"
+    "other": "资料"
   },
   "23": {
     "other": "默认工作区"
@@ -102,7 +102,7 @@
     "other": "角色标签"
   },
   "33": {
-    "other": "自动应用将配置应用到用户..."
+    "other": "自动应用于具有配置文件的用户..."
   },
   "34": {
     "other": "组 ID"
@@ -120,7 +120,7 @@
     "other": "继承的"
   },
   "workspace.roots.invalid": {
-    "other": "无效的根目录"
+    "other": "无效的根"
   },
   "39": {
     "other": "禁用"
@@ -165,87 +165,87 @@
     "other": "个人信息"
   },
   "9": {
-    "other": "选择使用此角色访问的工作区。 勾选【拒绝】选项来覆盖上层角色或继承的角色的值。"
+    "other": "选择具有此角色的用户将有权访问的工作区。 使用“拒绝”值可以覆盖先前角色设置的值，或者明确拒绝访问此工作区，甚至拒绝继承的角色。"
   },
   "dashboard.description": {
-    "other": "角色是一个容器，用来准许访问工作区或自定义参数及活动的访问列表。它可以手工关联到任意用户。"
+    "other": "角色是访问列表的容器，用于授予对任何工作区的访问权限或自定义参数和操作。 它们可以手动分配给任何用户。"
   },
   "dashboard.technical.hide": {
-    "other": "隐藏角色"
+    "other": "隐藏技术角色"
   },
   "dashboard.technical.show": {
-    "other": "显示角色"
+    "other": "显示技术角色"
   },
   "dashboard.filterByType": {
-    "other": "Filter by Type..."
+    "other": "按类型筛选..."
   },
   "dashboard.filterSelectOne": {
-    "other": "Please select at least one role type in the list"
+    "other": "请在列表中至少选择一种角色类型"
   },
   "roleType": {
-    "other": "Role Type"
+    "other": "角色类型"
   },
   "roleType.description": {
-    "other": "Standard roles are assigned by administrators, whereas teams are managed by users in their address book. Technical roles are attached automatically to each users and groups and in that case their type cannot be modified."
+    "other": "标准角色由管理员分配，而团队由地址簿中的用户管理。 技术角色会自动附加到每个用户和组，在这种情况下，无法修改其类型。"
   },
   "roleType.admin": {
-    "other": "Standard"
+    "other": "标准"
   },
   "roleType.admin.description": {
-    "other": "Standard Role"
+    "other": "标准角色"
   },
   "roleType.IsTeam": {
-    "other": "Team"
+    "other": "团队"
   },
   "roleType.IsTeam.description": {
-    "other": "Team (visible as a Team in address book)"
+    "other": "团队(在地址簿中显示为团队)"
   },
   "roleType.IsUserRole": {
-    "other": "[Tech] User"
+    "other": "[技术] 用户"
   },
   "roleType.IsUserRole.description": {
-    "other": "[Technical] Created automatically for the corresponding User"
+    "other": "[技术] 自动为相应的用户创建"
   },
   "roleType.IsGroupRole": {
-    "other": "[Tech] Group"
+    "other": "[技术] 组"
   },
   "roleType.IsGroupRole.description": {
-    "other": "[Technical] Created automatically for the corresponding Group"
+    "other": "[技术] 自动为相应组创建"
   },
   "dashboard.typeFilter.admin": {
-    "other": "Standard Roles"
+    "other": "标准角色"
   },
   "dashboard.typeFilter.IsTeam": {
-    "other": "User-defined Teams"
+    "other": "用户定义的团队"
   },
   "dashboard.typeFilter.IsUserRole": {
-    "other": "[Technical] Attached to each users"
+    "other": "[技术] 附各用户"
   },
   "dashboard.typeFilter.IsGroupRole": {
-    "other": "[Technical] Attached to each groups"
+    "other": "[技术] 附各组"
   },
   "last_update": {
     "other": "上次更新"
   },
   "role.id.description": {
-    "other": "角色的唯一ID（不能修改）。"
+    "other": "该角色的独特 ID(无法更改)。"
   },
   "role.label.description": {
-    "other": "易读标签。"
+    "other": "人类可读的标签。"
   },
   "role.autoapply.description": {
-    "other": "角色始终适用于此配置文件。"
+    "other": "角色始终应用于具有此配置文件的用户。"
   },
   "role.override.label": {
-    "other": "Always Override"
+    "other": "总是覆盖"
   },
   "role.override.description": {
     "other": "角色总是在其他角色之后最后应用，除了仍然占主导地位的用户角色。"
   },
   "user.info.main": {
-    "other": "Hover fields to show explanation"
+    "other": "将鼠标悬停在字段上可显示说明"
   },
   "button.info.menu.security": {
-    "other": "Security Actions"
+    "other": "安全行动"
   }
 }

@@ -1776,7 +1776,7 @@
     "other": "尚无资料库"
   },
   "633": {
-    "other": "资料库是与其他人协作文当的共享空间"
+    "other": "资料库是与其他人协作文档的共享空间"
   },
   "634": {
     "other": "您"
@@ -2025,64 +2025,64 @@
     "other": "P"
   },
   "plugtype.desc.access": {
-    "other": "Plugins defining how a workspace will both access its backend (a file storage or whatever else) and major layouts and actions."
+    "other": "定义工作区如何访问其后端(文件存储或其他任何文件) 以及主要布局和动作的插件。"
   },
   "plugtype.desc.action": {
-    "other": "Feature oriented plugins for various aspects"
+    "other": "面向各个方面的功能插件"
   },
   "plugtype.desc.auth": {
-    "other": "How users data are stored in the backend"
+    "other": "用户数据如何存储在后端"
   },
   "plugtype.desc.authfront": {
-    "other": "Methods for gathering identification credentials (web form, api key, etc)"
+    "other": "收集身份凭证的方法(网络表格、api 密钥等)"
   },
   "plugtype.desc.boot": {
-    "other": "Unique plugin for loading the framework"
+    "other": "用于加载框架的唯一插件"
   },
   "plugtype.desc.cache": {
-    "other": "Unique plugin to set up the cache server used by the application"
+    "other": "设置应用程序使用的缓存服务器的唯一插件"
   },
   "plugtype.desc.conf": {
-    "other": "How configuration data are stored in the backend"
+    "other": "如何在后端存储配置数据"
   },
   "plugtype.desc.cypher": {
     "other": "数据加密插件"
   },
   "plugtype.desc.editor": {
-    "other": "Viewers or editors for wide range of mime types"
+    "other": "适用于各种哑剧类型的观众或编辑者"
   },
   "plugtype.desc.feed": {
-    "other": "Implementations for storing data events (only SQL yet)"
+    "other": "存储数据事件的实现(仅限 SQL)"
   },
   "plugtype.desc.gui": {
-    "other": "Main web interface, themes and extensions"
+    "other": "主网络接口、主题和扩展"
   },
   "plugtype.desc.helper": {
-    "other": "Helpers tools for administrative tasks"
+    "other": "帮助管理任务的工具"
   },
   "plugtype.desc.index": {
-    "other": "Tools for indexing data and providing quick search option"
+    "other": "索引数据和提供快速搜索选项的工具"
   },
   "plugtype.desc.log": {
-    "other": "Send application logs to various channels"
+    "other": "将应用程序日志发送到各种频道"
   },
   "plugtype.desc.mailer": {
-    "other": "Tools for letting the application send emails"
+    "other": "让应用程序发送电子邮件的工具"
   },
   "plugtype.desc.search-engine": {
     "other": "搜索引擎选项"
   },
   "plugtype.desc.meta": {
-    "other": "Additional features to be added to the workspaces"
+    "other": "要添加到工作区的额外功能"
   },
   "plugtype.desc.metastore": {
-    "other": "Various implementations for storing metadata along with files and folders"
+    "other": "用于存储元数据以及文件和文件夹的各种实现"
   },
   "plugtype.desc.mq": {
-    "other": "Implementations of a simple PUB/SUB server"
+    "other": "简单 PUB/SUB 服务器的实现"
   },
   "plugtype.desc.sec": {
-    "other": "Advanced Security Features"
+    "other": "先进的安全功能"
   },
   "plugtype.desc.shorten": {
     "other": "缩短公共链接的网络服务连接"
@@ -2136,7 +2136,7 @@
     "other": "邮件服务器"
   },
   "plugtype.title.search-engine": {
-    "other": "Search Engine"
+    "other": "搜索引擎"
   },
   "plugtype.title.meta": {
     "other": "工作区元数据"
@@ -2250,10 +2250,10 @@
     "other": "不要在文件名中使用 / ！"
   },
   "filename.forbidden.empty": {
-    "other": "You must provide a name!"
+    "other": "您必须提供名称！"
   },
   "filename.trailing-leading.spaces": {
-    "other": "Warning, it seems that the name begins or ends with a blank character (perhaps a typo?)"
+    "other": "警告，该名称似乎以空白字符开头或结尾(可能是拼写错误？)"
   },
   "rename.newvalue.error.similar": {
     "other": "请使用不同的值来重命名!"
@@ -2310,7 +2310,7 @@
     "other": "选择组"
   },
   "addressbook.pick.multiple": {
-    "other": "Multiple Selection"
+    "other": "多重选择"
   },
   "confirm.dialog.title": {
     "other": "确认"
@@ -2340,7 +2340,7 @@
     "other": "请使用小于5MB 的图像"
   },
   "searchengine.start": {
-    "other": "Start typing to search for files and folders"
+    "other": "开始输入内容来搜索文件和文件夹"
   },
   "searchengine.searching": {
     "other": "搜索中......"
@@ -2355,25 +2355,25 @@
     "other": "搜索中......"
   },
   "searchengine.share.title": {
-    "other": "Shared"
+    "other": "共享状态"
   },
   "searchengine.share.hint": {
-    "other": "No status"
+    "other": "无状态"
   },
   "searchengine.share.option.link": {
-    "other": "Public Link"
+    "other": "对外共享"
   },
   "searchengine.share.option.cell": {
-    "other": "Shared in Cell"
+    "other": "内部共享"
   },
   "searchengine.share.option.any": {
-    "other": "Public Link or Cell"
+    "other": "内部或外部共享"
   },
   "searchengine.format.title": {
-    "other": "Format"
+    "other": "格式"
   },
   "searchengine.format.file-only": {
-    "other": "Files Only"
+    "other": "仅文件"
   },
   "searchengine.advanced-filter.tooltip": {
     "other": "高级过滤器"
@@ -2388,19 +2388,19 @@
     "other": "保存"
   },
   "searchengine.query.action.save-new": {
-    "other": "Save Query"
+    "other": "保存查询"
   },
   "searchengine.query.action.clear": {
     "other": "清空"
   },
   "searchengine.query.action.clear-all": {
-    "other": "Clear All"
+    "other": "全部清除"
   },
   "searchengine.query.action.delete": {
     "other": "删除"
   },
   "searchengine.query.action.delete-confirm": {
-    "other": "Delete this saved query?"
+    "other": "删除此保存的查询？"
   },
   "searchengine.query.save-label": {
     "other": "输入标签"
@@ -2409,28 +2409,28 @@
     "other": "名称/内容"
   },
   "searchengine.complete.group.saved": {
-    "other": "Saved Searches"
+    "other": "已保存的搜索"
   },
   "searchengine.complete.group.history": {
-    "other": "Last Searches"
+    "other": "上次搜索"
   },
   "searchengine.complete.group.suggestion": {
-    "other": "Advanced Suggestion"
+    "other": "高级建议"
   },
   "searchengine.complete.suggestion.intro": {
-    "other": "Do you mean"
+    "other": "您指的是"
   },
   "searchengine.complete.suggestion.remain": {
-    "other": "containing '%s'"
+    "other": "包含'%s'"
   },
   "searchengine.complete.activefilters": {
-    "other": "Filters:"
+    "other": "过滤:"
   },
   "searchengine.complete.activefilters-edit": {
-    "other": "Click to modify"
+    "other": "点击修改"
   },
   "chat.dropzone.remove": {
-    "other": "Remove"
+    "other": "删除"
   },
   "chat.dropzone.preview": {
     "other": "包括预览？"
