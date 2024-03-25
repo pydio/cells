@@ -180,7 +180,7 @@ class AltDashboard extends React.Component {
                     </div>
                 </Paper>
                 <HomeSearchForm zDepth={0} {...this.props} style={styles.wsListsContainerStyle} fullScreen={fullScreen} fullScreenTransition={fullScreenTransition} onFocusChange={onFocusChange}>
-                    <SmartRecents {...this.props} style={{maxWidth: 680, width:'100%', padding:'8px 0'}} emptyStateProps={{style:{backgroundColor:'transparent'}}}/>
+                    <SmartRecents {...this.props} emptyStateProps={{style:{backgroundColor:'transparent'}}}/>
                 </HomeSearchForm>
             </MasterLayout>
 

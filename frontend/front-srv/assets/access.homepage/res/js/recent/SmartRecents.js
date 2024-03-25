@@ -265,9 +265,17 @@ class SmartRecents extends React.Component{
     render(){
 
 
-        const {pydio, style, muiTheme} = this.props;
+        const {pydio, muiTheme} = this.props;
         const {nodes, loading, list} = this.state;
 
+        const style = {
+            display:(loading&&list)?'block':'flex',
+            padding:list?'4px 0':4,
+            flexWrap: 'wrap',
+            justifyContent:'flex-start',
+            maxWidth: 680,
+            width:'100%'
+        }
         let phStyle = {margin:10,width:140, height: 160, padding: 6, display:'flex', flexDirection:'column', alignItems:'center', borderRadius: 6}
         if(muiTheme.userTheme === 'mui3') {
             phStyle.width = 160;
@@ -341,7 +349,7 @@ class SmartRecents extends React.Component{
                     {muiTheme.userTheme==='mui3' && <M3Tooltip title={<span style={{padding: '0 8px'}}>{pydio.MessageHash[list?'193':'192']}</span>}><span className={'mdi mdi-view-' + (list ? 'grid':'list')} onClick={()=>this.toggleList()} style={{cursor: 'pointer', fontSize: 16}}/></M3Tooltip>}
                 </div>
                 <div style={{overflowY: 'auto', flex: 1}}>
-                    <div style={{display:(loading&&list)?'block':'flex', flexWrap: 'wrap', justifyContent:'center', ...style}}>
+                    <div style={style}>
                         <PlaceHolder ready={!loading} showLoadingAnimation customPlaceholder={cardsPH}>
                             {cards}
                         </PlaceHolder>

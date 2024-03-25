@@ -42,7 +42,7 @@ class EncryptionKeys extends React.Component{
             showCreateKey: null,
             showImportKey: null,
 
-            m: id => props.pydio.MessageHash['ajxp_admin.ds.encryption.' + id] || id
+            m: id => props.pydio.MessageHash['ajxp_admin.ds.encryption.' + id] || props.pydio.MessageHash[id] || id
         };
     }
 
@@ -66,7 +66,7 @@ class EncryptionKeys extends React.Component{
         request.StrPassword = this.refs['key-password-field'].getValue();
         const confirm = this.refs['key-password-confirm'].getValue();
         if(confirm !== request.StrPassword){
-            pydio.UI.displayMessage('ERROR', 'Warning, passwords differ!');
+            pydio.UI.displayMessage('ERROR', m('238'));
             return;
         }
         api.exportEncryptionKey(request).then(response => {
@@ -174,13 +174,14 @@ class EncryptionKeys extends React.Component{
                     <ModernTextField
                         value={exportedKey.Content}
                         fullWidth={true}
+                        variant={"v2"}
                         floatingLabelText={m('key.export.result.copy')}
                         multiLine={true}
                         ref="key-imported-field"
                     />
                 );
                 dialogActions = [
-                    <FlatButton label={"Close"} onClick={()=>{
+                    <FlatButton label={m('86')} onClick={()=>{
                         clearTimeout(this.timeout);
                         this.setState({showExportKey:null, exportedKey:'', showDialog: false})}
                     }/>
@@ -188,12 +189,12 @@ class EncryptionKeys extends React.Component{
             } else {
                 dialogContent = (
                     <div>
-                        <ModernTextField floatingLabelText={m('key.export.password')} ref="key-password-field" type={"password"} fullWidth={true}/>
-                        <ModernTextField floatingLabelText={m('key.export.confirm')} ref="key-password-confirm" type={"password"} fullWidth={true}/>
+                        <ModernTextField variant={"v2"} floatingLabelText={m('key.export.password')} ref="key-password-field" type={"password"} fullWidth={true}/>
+                        <ModernTextField variant={"v2"} floatingLabelText={m('key.export.confirm')} ref="key-password-confirm" type={"password"} fullWidth={true}/>
                     </div>
                 );
                 dialogActions = [
-                    <FlatButton label={pydio.MessageHash['54']} onClick={()=>{this.setState({showExportKey:null, showDialog: false})}}/>,
+                    <FlatButton label={m('54')} onClick={()=>{this.setState({showExportKey:null, showDialog: false})}}/>,
                     <FlatButton label={m('key.export')} primary={true} onClick={()=>{this.exportKey()}}/>
                 ];
             }
@@ -203,28 +204,28 @@ class EncryptionKeys extends React.Component{
                 <div>
                     {!showImportKey.ID &&
                         <div>
-                            <ModernTextField floatingLabelText={m('key.import.id')} ref="key-import-id" fullWidth={true}/>
-                            <ModernTextField floatingLabelText={m('key.import.label')} ref="key-import-label" fullWidth={true}/>
+                            <ModernTextField variant={"v2"} floatingLabelText={m('key.import.id')} ref="key-import-id" fullWidth={true}/>
+                            <ModernTextField variant={"v2"} floatingLabelText={m('key.import.label')} ref="key-import-label" fullWidth={true}/>
                         </div>
                     }
-                    <ModernTextField floatingLabelText={m('key.import.password')} ref="key-password-field" type={"password"} fullWidth={true}/>
-                    <ModernTextField fullWidth={true} floatingLabelText={m('key.import.content')} multiLine={true} ref="key-imported-field"/>
+                    <ModernTextField variant={"v2"} floatingLabelText={m('key.import.password')} ref="key-password-field" type={"password"} fullWidth={true}/>
+                    <ModernTextField variant={"v2"} fullWidth={true} floatingLabelText={m('key.import.content')} multiLine={true} ref="key-imported-field"/>
                 </div>
             );
             dialogActions =[
-                <FlatButton label={pydio.MessageHash['54']} onClick={()=>{this.setState({showImportKey:null, showDialog: false})}}/>,
+                <FlatButton label={m('54')} onClick={()=>{this.setState({showImportKey:null, showDialog: false})}}/>,
                 <FlatButton label={m('key.import')} primary={true} onClick={()=>{this.importKey()}}/>
             ];
         } else if(showCreateKey) {
-            dialogTitle = "Create a Key";
+            dialogTitle = m('key.create');
             dialogContent = (
                 <div>
-                    <ModernTextField floatingLabelText={m('key.import.id')} ref="createKeyId" fullWidth={true}/>
-                    <ModernTextField floatingLabelText={m('key.import.label')} ref="createKeyLabel" fullWidth={true}/>
+                    <ModernTextField variant={"v2"} floatingLabelText={m('key.import.id')} ref="createKeyId" fullWidth={true}/>
+                    <ModernTextField variant={"v2"} floatingLabelText={m('key.import.label')} ref="createKeyLabel" fullWidth={true}/>
                 </div>
             );
             dialogActions = [
-                <FlatButton label={pydio.MessageHash['54']} onClick={()=>{this.setState({showCreateKey:null, showDialog: false})}}/>,
+                <FlatButton label={m('54')} onClick={()=>{this.setState({showCreateKey:null, showDialog: false})}}/>,
                 <FlatButton label={m('key.create')} primary={true} onClick={()=>{this.createKey()}}/>
             ];
         }

@@ -536,7 +536,7 @@ class DataSourcesBoard extends React.Component {
                         </Paper>
                         {internalSources.length > 0 &&
                             <Fragment>
-                                <div style={{padding: '0px 20px'}}>Internal DataSources are used to store binaries like files versions</div>
+                                <div style={{padding: '0px 20px'}}>{m('board.ds.internal.legend')}</div>
                                 <Paper {...blockProps} style={{...blockStyle}}>
                                     <MaterialTable
                                         data={internalSources}
