@@ -6,7 +6,7 @@
     "other": "添加文件"
   },
   "tour.display-bar": {
-    "other": "此工具栏允许您更改显示方式：根据您的用法，切换到缩略图或详细模式，并按名称、日期等分类文件..."
+    "other": "此工具栏允许您更改显示方式：根据您的用法，切换到缩略图或详细模式，并按名称、日期等方式分类文件..."
   },
   "tour.display-bar.title": {
     "other": "显示选项"
@@ -72,7 +72,7 @@
     "other": "访问其他选项：管理您的个人资料和安全功能，浏览您共享的所有资源，退出平台。"
   },
   "tour.uwidget.title": {
-    "other": "User Cartouche"
+    "other": "用户标识"
   },
   "tour.welcomemodal.skip": {
     "other": "跳过"
@@ -81,7 +81,7 @@
     "other": "开始游览"
   },
   "tour.welcomemodal.subtitle": {
-    "other": "拖放您的最佳照片用于个人资料！这次快速游览将引导您进入网页界面。"
+    "other": "将您的最佳照片拖放到上面，它将会在个人资料中显示！快速游览将会在网页上引导您如何使用。"
   },
   "tour.welcomemodal.title": {
     "other": "欢迎使用 APPLICATION_TITLE"
@@ -165,19 +165,19 @@
     "other": "移除布局"
   },
   "layouts.action.remove.confirm": {
-    "other": "Do you want to remove this layout?"
+    "other": "您想删除此布局吗？"
   },
   "layouts.action.reset": {
-    "other": "Reset Layout"
+    "other": "重置布局"
   },
   "layouts.action.reset.confirm": {
-    "other": "Do you want to reset the current layout?"
+    "other": "您想重置当前布局吗？"
   },
   "layouts.action.create": {
-    "other": "Save Layout..."
+    "other": "保存布局..."
   },
   "layouts.action.fork": {
-    "other": "New From Current..."
+    "other": "从当前新建。。。"
   },
   "layouts.action.create.default": {
     "other": "我的布局"
@@ -219,10 +219,10 @@
     "other": "置顶书签项"
   },
   "list.writeonly.emptystate.title": {
-    "other": "Drop Files Here"
+    "other": "将文件放于此"
   },
   "list.writeonly.emptystate.legend": {
-    "other": "This folder is write-only: you cannot see its contents and are only authorized to upload files or folders. Your own content will not be visible after upload!"
+    "other": "该文件夹是只写的：您无法看到其内容，并且仅被授权上传文件或文件夹。 您自己的内容上传后将不可见！"
   },
   "infopanel.empty.select.file": {
     "other": "选择要显示信息的文件"

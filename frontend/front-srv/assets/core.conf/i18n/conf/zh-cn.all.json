@@ -45,7 +45,7 @@
     "other": "国家/地区"
   },
   "User Country": {
-    "other": "User Country"
+    "other": "用户国家"
   },
   "Create external users": {
     "other": "创建外部用户"
@@ -219,15 +219,15 @@
     "other": "系统默认"
   },
   "Material 3 (detect)": {
-    "other": "Material 3 (detect)"
+    "other": "材料 3(检测)"
   },
   "Material 3 (light)": {
-    "other": "Material 3 (light)"
+    "other": "材料 3(轻)"
   },
   "Material 3 (dark)": {
-    "other": "Material 3 (dark)"
+    "other": "材料3(深色)"
   },
   "Material Legacy": {
-    "other": "Material Legacy"
+    "other": "材料遗产"
   }
 }

@@ -6,7 +6,7 @@
     "other": "欢迎，%s！ "
   },
   "41": {
-    "other": "使用此工作区作为默认值"
+    "other": "使用此工作区作为默认工作区"
   },
   "42": {
     "other": "进入"
@@ -39,22 +39,22 @@
     "other": "我的团队"
   },
   "51": {
-    "other": "共享时用作快捷方式的团队用户"
+    "other": "用户团队，用作共享时的快捷方式"
   },
   "52": {
     "other": "您确定要删除此团队吗？这将不会删除任何用户。"
   },
   "53": {
-    "other": "新手入门"
+    "other": "入门"
   },
   "54": {
-    "other": "关注教学视频开始使用 APPLICATION_TITLE 。"
+    "other": "通过以下操作视频开始APPLICATION_TITLE"
   },
   "55": {
     "other": "初次使用APPLICATION_TITLE？ <a>观看我们的教程</a>！"
   },
   "56": {
-    "other": "开始使用 APPLICATION_TITLE？请看视频！"
+    "other": "开始使用 APPLICATION_TITLE？ 这里有一些视频给你！"
   },
   "57": {
     "other": "下载 APPLICATION_TITLE..."
@@ -72,19 +72,19 @@
     "other": "Windows"
   },
   "62": {
-    "other": "<h2>[How-to] 什么是工作区？</h2>\n            此视频解释了在APPLICATION_TITLE中的工作区\n            <ul>\n                <li>为什么工作区在APPLICATION_TITLE中处于中心位置？</li>\n                <li>从技术角度来看什么是工作区？</li>\n                <li>它们如何让您组织数据？</li>\n            </ul>\n            "
+    "other": "<h2>[操作方法] 什么是工作区？</h2>\n            此视频解释了在APPLICATION_TITLE中的工作区\n            <ul>\n                <li>为什么工作区在APPLICATION_TITLE中处于中心位置？</li>\n                <li>从技术角度来看什么是工作区？</li>\n                <li>它们如何让您组织数据？</li>\n            </ul>\n            "
   },
   "63": {
-    "other": "<h2>[How-to] 将文件上传到APPLICATION_TITLE</h2>\n            以APPLICATION_TITLE 开始并查看如何上传文件\n            <ul>\n                <li>拖放文件到APPLICATION_TITLE</li>\n                <li>创建一个新文件夹</li>\n                <li>重命名文件</li>\n                <li>下载文件到您的电脑</li>\n            </ul>\n            "
+    "other": "<h2>[操作方法] 将文件上传到APPLICATION_TITLE</h2>\n            以APPLICATION_TITLE 开始并查看如何上传文件\n            <ul>\n                <li>拖放文件到APPLICATION_TITLE</li>\n                <li>创建一个新文件夹</li>\n                <li>重命名文件</li>\n                <li>下载文件到您的电脑</li>\n            </ul>\n            "
   },
   "64": {
-    "other": "<h2>[How-to] 搜索、浏览并管理您的文件</h2>\n            此视频向您展示各种技巧，让您高效的管理在 APPLICATION_TITLE 中的文件\n            <ul>\n                <li>跨工作区搜索栏</li>\n                <li>内容显示模式、键盘快捷键</li>\n                <li>排序文件</li>\n                <li>元数据、书签</li>\n            </ul>\n            "
+    "other": "<h2>[操作方法] 搜索、浏览并管理您的文件</h2>\n            此视频向您展示各种技巧，让您高效的管理在 APPLICATION_TITLE 中的文件\n            <ul>\n                <li>跨工作区搜索栏</li>\n                <li>内容显示模式、键盘快捷键</li>\n                <li>排序文件</li>\n                <li>元数据、书签</li>\n            </ul>\n            "
   },
   "65": {
     "other": "在APPLICATION_TITLE频道中探索更多！"
   },
   "66": {
-    "other": "<h2>[How-to] 在iOS设备上使用 APPLICATION_TITLE</h2>\n                            此视频解释如何使用 APPLICATION_TITLE 应用程序 (可在App Store上可以安装)。 跟安卓系统的操作非常相似。\n<ul><li>设置服务器连接</li>\n<li>浏览文件</li>\n<li>保持离线文件并与外部应用程序交互</li>\n<li>使用PIN码保护应用程序</li>\n<li>使用书签和搜索引擎</li></ul>"
+    "other": "<h2>[操作方法] 在iOS设备上使用 APPLICATION_TITLE</h2>\n                            此视频解释如何使用 APPLICATION_TITLE 应用程序 (可在App Store上可以安装)。 跟安卓系统的操作非常相似。\n<ul><li>设置服务器连接</li>\n<li>浏览文件</li>\n<li>保持离线文件并与外部应用程序交互</li>\n<li>使用PIN码保护应用程序</li>\n<li>使用书签和搜索引擎</li></ul>"
   },
   "67": {
     "other": "如果你不是 %s, %logout."
@@ -96,10 +96,10 @@
     "other": "下载Mac OSX同步客户端"
   },
   "70": {
-    "other": "iOS 原生应用程序"
+    "other": "适用于 iOS 设备的本机应用程序"
   },
   "71": {
-    "other": "Android 原生应用程序"
+    "other": "适用于安卓设备的本机应用程序"
   },
   "72": {
     "other": "服务器二维码"
@@ -123,25 +123,25 @@
     "other": "选择目标工作区"
   },
   "79": {
-    "other": "<h2>[How-to] 共享文件和文件夹</h2>\n            本教程向您展示如何共享文件和文件夹，包括对内及对外\n            <ul>\n                <li>为外部人员创建共享链接</li>\n                <li>与内部协作者共享文件和文件夹</li>\n                <li>将文件夹共享为工作空间</li>\n                <li>共享文件夹的布局选项</li>\n                <li>创建一个拖放文件夹</li>\n                <li>管理用户和共享权限</li>\n            </ul>\n            "
+    "other": "<h2>[操作方法] 共享文件和文件夹</h2>\n            本教程向您展示如何共享文件和文件夹，包括对内及对外\n            <ul>\n                <li>为外部人员创建共享链接</li>\n                <li>与内部协作者共享文件和文件夹</li>\n                <li>将文件夹共享为工作空间</li>\n                <li>共享文件夹的布局选项</li>\n                <li>创建一个拖放文件夹</li>\n                <li>管理用户和共享权限</li>\n            </ul>\n            "
   },
   "80": {
-    "other": "<h2>[How-to] 共享：安全功能</h2>\n            此视频会演示各种共享设置帮助您保护您的共享\n            <ul>\n                <li>密码保护</li>\n                <li>过期日期</li>\n                <li>限制下载次数</li>\n            </ul>\n            "
+    "other": "<h2>[操作方法] 共享：安全功能</h2>\n            此视频会演示各种共享设置帮助您保护您的共享\n            <ul>\n                <li>密码保护</li>\n                <li>过期日期</li>\n                <li>限制下载次数</li>\n            </ul>\n            "
   },
   "81": {
-    "other": "<h2>[How-to] 自定义您的共享链接</h2>\n            看看您如何能够自定义您共享链接的URL，使它们更加易用。\n            "
+    "other": "<h2>[操作方法] 自定义您的共享链接</h2>\n            看看您如何能够自定义您共享链接的URL，使它们更加易用。\n            "
   },
   "82": {
-    "other": "<h2>[How-to] 共享链接自定义权</h2>\n            此视频向您展示如何管理添加权限到您的共享中\n            <ul>\n                <li>预览</li>\n                <li>下载</li>\n                <li>上传/编辑</li>\n            </ul>\n            "
+    "other": "<h2>[操作方法] 共享链接自定义权</h2>\n            此视频向您展示如何管理添加权限到您的共享中\n            <ul>\n                <li>预览</li>\n                <li>下载</li>\n                <li>上传/编辑</li>\n            </ul>\n            "
   },
   "83": {
-    "other": "<h2>[How-to] 语言</h2>\n            APPLICATION_TITLE 有28种语言。此视频向您展示了如何更改APPLICATION_TITLE 中的语言。\n            "
+    "other": "<h2>[操作方法] 语言</h2>\n            APPLICATION_TITLE 有28种语言。此视频向您展示了如何更改APPLICATION_TITLE 中的语言。\n            "
   },
   "84": {
-    "other": "<h2>[How-to] 警报</h2>\n            学习如何设置文件警报，以便查看文件何时被修改或查询。\n            "
+    "other": "<h2>[操作方法] 警报</h2>\n            学习如何设置文件警报，以便查看文件何时被修改或查询。\n            "
   },
   "85": {
-    "other": "<h2>[How-to] 协同编辑</h2>\n            此视频向您展示如何在办公文档上进行协作， 感谢Collabora在线办公套件\n            <ul>\n                <li>在文本文档，幻灯片，电子表格上工作</li>\n                <li>实时合作编辑文档</li>\n                <li>直接从您的浏览器创建新文档</li>\n            </ul>\n            "
+    "other": "<h2>[操作方法] 协同编辑</h2>\n            此视频向您展示如何在办公文档上进行协作， 感谢Collabora在线办公套件\n            <ul>\n                <li>在文本文档，幻灯片，电子表格上工作</li>\n                <li>实时合作编辑文档</li>\n                <li>直接从您的浏览器创建新文档</li>\n            </ul>\n            "
   },
   "86": {
     "other": "播放视频"
@@ -159,7 +159,7 @@
     "other": "选择目标工作区"
   },
   "91": {
-    "other": "保持您的文件与我们的桌面同步客户端离线"
+    "other": "使用我们的桌面同步客户端使您的文件保持离线状态"
   },
   "92": {
     "other": "应用程序下载"
@@ -192,7 +192,7 @@
     "other": "大小"
   },
   "search.facet.modified": {
-    "other": "修改时间"
+    "other": "修改"
   },
   "search.facet.found": {
     "other": "发现在"
@@ -234,7 +234,7 @@
     "other": "> 100MB"
   },
   "facet.label.date.moments": {
-    "other": "刚刚"
+    "other": "不久前"
   },
   "facet.label.date.today": {
     "other": "今天"
@@ -249,10 +249,10 @@
     "other": "30天以上"
   },
   "facet.label.found.contents": {
-    "other": "目录"
+    "other": "内容"
   },
   "facet.label.found.basename": {
-    "other": "文件名"
+    "other": "文件名称"
   },
   "reco.bookmark": {
     "other": "书签"

@@ -12,19 +12,19 @@
     "other": "永远保持所有版本"
   },
   "Regular Pruning": {
-    "other": "定期消除"
+    "other": "定期修剪"
   },
   "Prune versions regularly at various intervals": {
-    "other": "定期以不同的间隔来消除版本"
+    "other": "以不同的时间间隔定期修剪版本"
   },
   "aclAction.Name": {
-    "other": "组名"
+    "other": "名称"
   },
   "aclAction.Value": {
     "other": "值"
   },
   "aclSingleQuery.Actions": {
-    "other": "操作"
+    "other": "行动"
   },
   "aclSingleQuery.NodeIDs": {
     "other": "节点标识符"
@@ -48,28 +48,28 @@
     "other": "成功"
   },
   "actionOutputSingleQuery.JsonBodyHasKey": {
-    "other": "Json拥有主键..."
+    "other": "Json 主体有密钥..."
   },
   "actionOutputSingleQuery.JsonBodyRegexp": {
-    "other": "在 Json 上搜索 (regexp)"
+    "other": "搜索 Json 正文(regexp)"
   },
   "actionOutputSingleQuery.JsonBodySizeGreaterThan": {
-    "other": "Json长度大于"
+    "other": "Json 主体的大小大于"
   },
   "actionOutputSingleQuery.JsonBodySizeSmallerThan": {
-    "other": "Json长度小于"
+    "other": "Json 主体的大小小于"
   },
   "actionOutputSingleQuery.Not": {
     "other": "非"
   },
   "actionOutputSingleQuery.StringBodyRegexp": {
-    "other": "在字符串中搜索 (regexp)"
+    "other": "搜索字符串主体(regexp)"
   },
   "actionOutputSingleQuery.StringBodySizeGreaterThan": {
-    "other": "字符串正文大于"
+    "other": "字符串主体的大小大于"
   },
   "actionOutputSingleQuery.StringBodySizeSmallerThan": {
-    "other": "字符串长度小于"
+    "other": "字符串主体的大小小于"
   },
   "actionOutputSingleQuery.TaskTimeGt": {
     "other": "任务时间晚于"
@@ -123,13 +123,13 @@
     "other": "字符串匹配"
   },
   "contextMetaCondition.StringPairsEqualCondition": {
-    "other": "StringPairs 等于"
+    "other": "字符串对等于"
   },
   "contextMetaCondition.StringNotMatchCondition": {
     "other": "字符串不匹配"
   },
   "contextMetaCondition.WithinPeriodCondition": {
-    "other": "日期区间"
+    "other": "日期期间"
   },
   "contextMetaCondition.OfficeHoursCondition": {
     "other": "办公时间"
@@ -138,7 +138,7 @@
     "other": "日期晚于"
   },
   "contextMetaCondition.PathGlobCondition": {
-    "other": "Glob Matcher"
+    "other": "全局匹配器"
   },
   "contextMetaCondition.BooleanCondition": {
     "other": "布尔值"
@@ -147,7 +147,7 @@
     "other": "内容类型"
   },
   "contextMetaField.CookiesString": {
-    "other": "Cookies 字符串"
+    "other": "曲奇字符串"
   },
   "contextMetaField.HttpProtocol": {
     "other": "HTTP 协议"
@@ -159,7 +159,7 @@
     "other": "请求主机名"
   },
   "contextMetaField.RequestHost": {
-    "other": "请求主机名"
+    "other": "请求主机"
   },
   "contextMetaField.RequestPort": {
     "other": "请求端口"
@@ -174,7 +174,7 @@
     "other": "服务器时间"
   },
   "contextMetaField.UserAgent": {
-    "other": "浏览器版本"
+    "other": "用户代理"
   },
   "contextMetaSingleQuery.Condition": {
     "other": "条件"
@@ -201,7 +201,7 @@
     "other": "非"
   },
   "roleSingleQuery.Uuid": {
-    "other": "用户ID"
+    "other": "用户uid"
   },
   "roleSingleQuery.not": {
     "other": "非"
@@ -210,7 +210,7 @@
     "other": "内容"
   },
   "treeQuery.DurationDate": {
-    "other": "修改日期 (比较)"
+    "other": "修改日期(使用比较)"
   },
   "treeQuery.Extension": {
     "other": "文件扩展名"
@@ -222,7 +222,7 @@
     "other": "文件名或内容"
   },
   "treeQuery.FreeString": {
-    "other": "像Bleve-search 字符串"
+    "other": "类似 Bleve 的搜索字符串"
   },
   "treeQuery.GeoQuery": {
     "other": "地理位置查询"
@@ -234,7 +234,7 @@
     "other": "最大大小"
   },
   "treeQuery.MinDate": {
-    "other": "修改晚于"
+    "other": "修改自"
   },
   "treeQuery.MinSize": {
     "other": "大小超过"
@@ -264,7 +264,7 @@
     "other": "任意"
   },
   "treeQuery.UUIDs": {
-    "other": "节点UUID"
+    "other": "节点UUIDs"
   },
   "treeQuery.ETag": {
     "other": "ETag"
@@ -279,7 +279,7 @@
     "other": "属性值"
   },
   "userSingleQuery.ConnectedSince": {
-    "other": "连接开始于"
+    "other": "连接自"
   },
   "userSingleQuery.FullPath": {
     "other": "完整路径"
@@ -300,7 +300,7 @@
     "other": "对象类型"
   },
   "userSingleQuery.NodeType.GROUP": {
-    "other": "群组"
+    "other": "组"
   },
   "userSingleQuery.NodeType.UNKNOWN": {
     "other": "任意"
@@ -318,7 +318,7 @@
     "other": "递归"
   },
   "userSingleQuery.Uuid": {
-    "other": "用户ID"
+    "other": "用户uid"
   },
   "userSingleQuery.not": {
     "other": "非"
@@ -339,7 +339,7 @@
     "other": "标签"
   },
   "workspaceSingleQuery.LastUpdated": {
-    "other": "上次更新"
+    "other": "最近更新时间"
   },
   "workspaceSingleQuery.Not": {
     "other": "非"
@@ -348,10 +348,10 @@
     "other": "范围"
   },
   "workspaceSingleQuery.Slug": {
-    "other": "缩写"
+    "other": "迟缓"
   },
   "workspaceSingleQuery.Uuid": {
-    "other": "用户ID"
+    "other": "用户uid"
   },
   "workspaceSingleQuery.description": {
     "other": "说明"
@@ -375,16 +375,16 @@
     "other": "公开链接"
   },
   "workspaceSingleQuery.scope.ROOM": {
-    "other": "细胞"
+    "other": "单元"
   },
   "workspaceSingleQuery.slug": {
-    "other": "缩写"
+    "other": "迟缓"
   },
   "workspaceSingleQuery.uuid": {
-    "other": "用户ID"
+    "other": "用户uid"
   },
   "dataSourceSingleQuery.Name": {
-    "other": "组名"
+    "other": "名称"
   },
   "dataSourceSingleQuery.IsDisabled": {
     "other": "已禁用"
@@ -426,7 +426,7 @@
     "other": "用户-密码"
   },
   "dataSourceSingleQuery.EncryptionMode.CLEAR": {
-    "other": "清空"
+    "other": "清除"
   },
   "dataSourceSingleQuery.EncryptionMode.MASTER": {
     "other": "主-密钥"
@@ -435,7 +435,7 @@
     "other": "加密密钥"
   },
   "dataSourceSingleQuery.VersioningPolicyName": {
-    "other": "版本策略"
+    "other": "版本政策"
   },
   "dataSourceSingleQuery.StorageConfigurationName": {
     "other": "配置键"
@@ -450,7 +450,7 @@
     "other": "非"
   },
   "triggerFilterQuery.IsSchedule": {
-    "other": "计划触发器"
+    "other": "预定触发"
   },
   "triggerFilterQuery.IsApiHook": {
     "other": "由 Webhook 触发"
@@ -465,7 +465,7 @@
     "other": "运行参数值"
   },
   "triggerFilterQuery.IsManual": {
-    "other": "手动触发器"
+    "other": "手动触发"
   },
   "triggerFilterQuery.EventNames": {
     "other": "事件"

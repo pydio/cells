@@ -9,24 +9,24 @@
     "other": "已为 {{.Uuid}} 创建版本元数据"
   },
   "Job.Version.StatusPrune": {
-    "one": "消除的 {{.Count}} 版本",
-    "other": "消除的 {{.Count}} 版本"
+    "one": "修剪后的 {{.Count}} 版本",
+    "other": "修剪后的 {{.Count}} 版本"
   },
   "Job.Pruning.Title": {
     "other": "清理已删除节点的版本文件"
   },
   "Job.Pruning.StatusDone": {
     "one": "成功删除了 {{.Count}} 版本",
-    "other": "成功删除了 {{.Count}} 个版本。"
+    "other": "成功删除了 {{.Count}} 版本."
   },
   "Config.GroupPolicy.Title": {
     "other": "策略"
   },
   "Config.GroupPolicy.Name.Label": {
-    "other": "组名"
+    "other": "名称"
   },
   "Config.GroupPolicy.Name.Description": {
-    "other": "策略名称"
+    "other": "政策名称"
   },
   "Config.GroupPolicy.Description.Label": {
     "other": "说明"
@@ -38,10 +38,10 @@
     "other": "存储"
   },
   "Config.GroupPolicy.VersionsDataSourceName.Description": {
-    "other": "该数据源版本化"
+    "other": "用于存储版本的数据源"
   },
   "Config.GroupPolicy.VersionsDataSourceBucket.Label": {
-    "other": "存储桶"
+    "other": "桶"
   },
   "Config.GroupPolicy.VersionsDataSourceBucket.Description": {
     "other": "在此数据源中使用的存储桶"
@@ -53,10 +53,10 @@
     "other": "所有版本保存在此桶中的全局大小"
   },
   "Config.GroupSizes.MaxTotalSize.Description": {
-    "other": "限制所需的总大小。如果达到限制，最老的版本将被删除。使用-1表示无限制"
+    "other": "限制所采取的总体尺寸。 如果达到限制，最旧的版本将被删除。 使用 -1 表示无限制"
   },
   "Config.GroupSizes.MaxSizePerFile.Label": {
-    "other": "文件版本的累计大小"
+    "other": "一个给定文件的版本的累积大小"
   },
   "Config.GroupSizes.MaxSizePerFile.Description": {
     "other": "限制一个文件的所有版本的大小。如果达到限制，最老的版本将被删除。使用 -1 表示无限制"
@@ -65,7 +65,7 @@
     "other": "忽略大于... 的文件"
   },
   "Config.GroupSizes.IgnoreFilesGreaterThan.Description": {
-    "other": "大于此大小的文件不要版本化。使用 -1 表示无限制"
+    "other": "不要对大小大于此限制的文件进行版本控制。 使用 -1 表示无限制"
   },
   "Config.GroupRetention.Title": {
     "other": "保留期"

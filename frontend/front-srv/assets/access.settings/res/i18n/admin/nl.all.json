@@ -11,6 +11,9 @@
   "ds.board.ds.legend": {
     "other": "Gegevensbronnen zijn concrete opslaglocaties die worden geaggregeerd door Pydio in een globale boomstructuur. Ze kunnen worden gedistribueerd op veel opslagnodes indien nodig."
   },
+  "ds.board.ds.internal.legend": {
+    "other": "Internal DataSources are used to store binaries like files versions"
+  },
   "ds.board.ds.title": {
     "other": "GegevensBronnen"
   },

@@ -6,7 +6,7 @@
     "other": "代表模板的 16X16 图标"
   },
   "A user-defined description of the content of this workspace": {
-    "other": "A user-defined description of the content of this workspace"
+    "other": "用户定义的该工作区内容的描述"
   },
   "API endpoint - Used to launch the window allowing the user to authenticate and accept the terms of the app": {
     "other": "API端点-用于启动窗口，允许用户验证和接受应用程序的条款"
@@ -27,13 +27,13 @@
     "other": "管理员邮箱"
   },
   "Administrator email, not used for the moment": {
-    "other": "Administrator email, not used for the moment"
+    "other": "管理员邮箱，暂时不用"
   },
   "Alias": {
     "other": "别名"
   },
   "Alias for replacing the generated unique id of the repository": {
-    "other": "Alias for replacing the generated unique id of the workspace"
+    "other": "用于替换生成的工作区独特id的别名"
   },
   "Allow group administrators to create a repository from this template.": {
     "other": "允许组管理员从此模板创建存储库。"
@@ -57,7 +57,7 @@
     "other": "升序"
   },
   "Auth Driver Commons": {
-    "other": "Auth Driver Commons"
+    "other": "Auth驱动程序公用"
   },
   "Auth URL": {
     "other": "身份验证URL"
@@ -87,10 +87,10 @@
     "other": "客户端密钥"
   },
   "Comma separated list of metastore and meta plugins, that will be automatically applied to all repositories created with this driver": {
-    "other": "Comma separated list of metastore and meta plugins, that will be automatically applied to all workspaces created with this driver"
+    "other": "以逗号分隔的元存储和元插件列表，将自动应用于使用此驱动程序创建的所有工作区"
   },
   "Comma-separated list of extensions to hide. Extensions, files and folders that are hidden are also access forbidden.": {
-    "other": "Comma-separated list of extensions to hide. Extensions, files and folders that are hidden are also access forbidden."
+    "other": "要隐藏的以逗号分隔的扩展名列表。 隐藏的扩展程序、文件和文件夹也被禁止访问。"
   },
   "Comma-separated list of specific files to hide": {
     "other": "以逗号分隔的要隐藏的特定文件列表"
@@ -108,13 +108,13 @@
     "other": "命令行PHP"
   },
   "Common URI to access the shares. Please READ THE DOC to safely use this feature.": {
-    "other": "Common URI to access the shares. Please READ THE DOC to safely use this feature."
+    "other": "用于访问共享的通用 URI。 请阅读文档以安全使用此功能。"
   },
   "Compression Features": {
     "other": "压缩功能"
   },
   "Core Connexion": {
-    "other": "Core Connexion"
+    "other": "核心连接"
   },
   "DSN": {
     "other": "DSN"
@@ -153,13 +153,13 @@
     "other": "用户没有设置自己的语言时的默认语言。"
   },
   "Default realm for authentication. Please READ THE DOC to safely use this feature.": {
-    "other": "Default realm for authentication. Please READ THE DOC to safely use this feature."
+    "other": "用于身份验证的默认领域。 请阅读文档以安全使用此功能。"
   },
   "Default sorting direction": {
     "other": "默认排序方向"
   },
   "Delegates download operations to an alternative agent, either webserver or pydio agent. Warning, this requires external modules to be installed. When using XSendFile/XaccelRedirect, you have to manually add the folders where files will be downloaded in the module configuration": {
-    "other": "Delegates download operations to an alternative agent, either webserver or pydio agent. Warning, this requires external modules to be installed. When using XSendFile/XaccelRedirect, you have to manually add the folders where files will be downloaded in the module configuration"
+    "other": "委托将操作下载到另一个代理，即网络服务器或pydio代理。警告，这需要安装外部模块。使用XSendFile/XaccelRedirect时，必须手动添加将在模块配置中下载文件的文件夹"
   },
   "Descending": {
     "other": "降序"
@@ -168,7 +168,7 @@
     "other": "说明"
   },
   "Digest Realm": {
-    "other": "Digest Realm"
+    "other": "摘要领域"
   },
   "Disable WebDAV": {
     "other": "禁用WebDAV"
@@ -177,16 +177,16 @@
     "other": "禁用 Zip 浏览"
   },
   "Disable Zip files inline browsing. This can be necessary if you always store huge zip archives: it can have some impact on performance.": {
-    "other": "Disable Zip files inline browsing. This can be necessary if you always store huge zip archives: it can have some impact on performance."
+    "other": "禁用 Zip 文件内联浏览。 如果您总是存储巨大的 zip 存档，这可能是必要的：它可能会对性能产生一些影响。"
   },
   "Display the list of files and folder when accessing through the browser": {
-    "other": "Display the list of files and folder when accessing through the browser"
+    "other": "通过浏览器访问时显示文件和文件夹列表"
   },
   "Download Delegation": {
-    "other": "Download Delegation"
+    "other": "下载委托"
   },
   "Download Folder (Legacy)": {
-    "other": "Download Folder (Legacy)"
+    "other": "下载文件夹(遗迹)"
   },
   "Download URL": {
     "other": "下载链接"
@@ -195,7 +195,7 @@
     "other": "驱动"
   },
   "Driver type (do not touch)": {
-    "other": "Driver type (do not touch)"
+    "other": "驱动程序类型(不触摸)"
   },
   "Enable WebDAV": {
     "other": "启用WebDAV"
@@ -213,7 +213,7 @@
     "other": "现有用户"
   },
   "Explicitly disable WebDAV access for this repository.": {
-    "other": "Explicitly disable WebDAV access for this repository."
+    "other": "明确禁用此仓库的 WebDAV 访问权限。"
   },
   "File": {
     "other": "文件"
@@ -231,16 +231,16 @@
     "other": "文件系统共享"
   },
   "For exotic auth drivers, an user ID that must be considered as admin by default.": {
-    "other": "For exotic auth drivers, an user ID that must be considered as admin by default."
+    "other": "对于外来身份验证驱动程序，默认情况下必须将其视为管理员的用户 ID。"
   },
   "For multiple authentication, apply this role to users authenticated via this driver": {
-    "other": "For multiple authentication, apply this role to users authenticated via this driver"
+    "other": "对于多重身份验证，将此角色应用于通过此驱动进行身份验证的用户"
   },
   "Force Basic Auth": {
     "other": "强制基本认证"
   },
   "Force remote sorting when in paginated mode. Warning, this can impact the performances.": {
-    "other": "Force remote sorting when in paginated mode. Warning, this can impact the performances."
+    "other": "在分页模式下强制远程排序。 警告，这可能会影响性能。"
   },
   "Group Path": {
     "other": "组路径"
@@ -252,7 +252,7 @@
     "other": "Gzip 限制"
   },
   "Gzip files on-the-fly before downloading. Disabled by default, as it's generally useful only on small files, and decreases performances on big files. This has nothing to see with the Zip Creation feature, it's just a on-the-fly compression applied on a unique file at download.": {
-    "other": "Gzip files on-the-fly before downloading. Disabled by default, as it's generally useful only on small files, and decreases performances on big files. This has nothing to see with the Zip Creation feature, it's just a on-the-fly compression applied on a unique file at download."
+    "other": "下载前即时 Gzip 文件。 默认情况下禁用，因为它通常仅对小文件有用，并会降低大文件的性能。 这与 Zip 创建功能无关，它只是在下载时对独特文件应用即时压缩。"
   },
   "Hide extensions": {
     "other": "隐藏扩展名"
@@ -264,49 +264,49 @@
     "other": "隐藏文件夹"
   },
   "Hide recycle bin": {
-    "other": "Hide recycle bin"
+    "other": "隐藏回收站"
   },
   "Host": {
     "other": "主机"
   },
   "Host used in webDAV protocol. Should be detected by default. Please READ THE DOC to safely use this feature.": {
-    "other": "Host used in webDAV protocol. Should be detected by default. Please READ THE DOC to safely use this feature."
+    "other": "webDAV 协议中使用的主机。 默认情况下应该检测到。 请阅读文档以安全使用此功能。"
   },
   "If activated, a default limit should be set above when files are no more compressed.": {
-    "other": "If activated, a default limit should be set above when files are no more compressed."
+    "other": "如果激活，则当文件不再压缩时，应在上面设置默认限制。"
   },
   "If not inferred directly from the current pydio URL plus the public base URI, replace the public access URL here.": {
-    "other": "If not inferred directly from the current pydio URL plus the public base URI, replace the public access URL here."
+    "other": "如果不是直接从当前 pydio URL 加公共基础 URI 推断出来，请替换此处的公共访问 URL。"
   },
   "If set to a given URL, the login action will not trigger the display of login screen but redirect to this URL.": {
-    "other": "If set to a given URL, the login action will not trigger the display of login screen but redirect to this URL."
+    "other": "如果设置为给定 URL，登录操作将不会触发登录屏幕的显示，而是重定向到该 URL。"
   },
   "If you encounter problems with online zip creation or multiple files downloading, you can disable the feature.": {
-    "other": "If you encounter problems with online zip creation or multiple files downloading, you can disable the feature."
+    "other": "如果您在在线创建 zip 或下载多个文件时遇到问题，可以禁用该功能。"
   },
   "If you have tons of workspaces (which is not recommanded), admin users login can take a long time while updating admin access to all repositories. Use this option to disable this step, admin will always have access to the Settings.": {
-    "other": "If you have tons of workspaces (which is not recommanded), admin users login can take a long time while updating admin access to all repositories. Use this option to disable this step, admin will always have access to the Settings."
+    "other": "如果您有大量工作区(不推荐)，则管理员用户登录可能需要很长时间才能更新对所有存储库的管理员访问权限。 使用此选项禁用此步骤，管理员将始终有权访问设置。"
   },
   "If your server does not set correctly its charset, it can be good to specify it here manually.": {
-    "other": "If your server does not set correctly its charset, it can be good to specify it here manually."
+    "other": "如果您的服务器没有正确设置其字符集，最好在此处手动指定它。"
   },
   "Leave empty if you do not want to use a recycle bin.": {
-    "other": "Leave empty if you do not want to use a recycle bin."
+    "other": "如果您不想使用回收站，请留空。"
   },
   "Login Redirect": {
-    "other": "Login Redirect"
+    "other": "登录重定向"
   },
   "Main": {
     "other": "主选项"
   },
   "Main container for core Pydio settings (application title, sharing, webdav server config, etc...)": {
-    "other": "Main container for core Pydio settings (application title, sharing, webdav server config, etc...)"
+    "other": "Pydio 核心设置的主容器(应用程序标题、共享、webdav 服务器配置等...)"
   },
   "Maximum characters length of new files or folders": {
     "other": "新文件或文件夹的最大字符长度"
   },
   "Metadata and indexation": {
-    "other": "Metadata and indexation"
+    "other": "元数据和索引"
   },
   "Miscellaneous": {
     "other": "其他"
@@ -318,28 +318,28 @@
     "other": "组名"
   },
   "OAuth Commons": {
-    "other": "OAuth Commons"
+    "other": "OAuth 共用"
   },
   "On Windows running IIS, set this option to true if the COM extension is loaded, this may enable the use of the php command line.": {
-    "other": "On Windows running IIS, set this option to true if the COM extension is loaded, this may enable the use of the php command line."
+    "other": "在运行 IIS 的 Windows 上，如果加载了 COM 扩展，则将此选项设置为 true，这可能会启用 php 命令行。"
   },
   "On specific hosts, you may have to use a specific path to access the php command line": {
-    "other": "On specific hosts, you may have to use a specific path to access the php command line"
+    "other": "在特定主机上，您可能必须使用特定路径来访问 php 命令行"
   },
   "Once in pagination mode, number of items to display per page.": {
-    "other": "Once in pagination mode, number of items to display per page."
+    "other": "进入分页模式后，每页显示的项目数。"
   },
   "Pagination Threshold": {
-    "other": "Pagination Threshold"
+    "other": "分页阈值"
   },
   "Password": {
     "other": "密码"
   },
   "Prefilled label for the new repository, you can use the PYDIO_USER keyworkd in it.": {
-    "other": "Prefilled label for the new workspace, you can use the PYDIO_USER keyworkd in it."
+    "other": "新工作区的预填充标签，您可以在其中使用 PYDIO_USER 关键字。"
   },
   "Public Base URI": {
-    "other": "Public Base URI"
+    "other": "公共基础 URI"
   },
   "Pydio Main Options": {
     "other": "Pydio 主选项"
@@ -369,7 +369,7 @@
     "other": "仓库共享"
   },
   "Repository Slug": {
-    "other": "Repository Slug"
+    "other": "存储库段头"
   },
   "Scope": {
     "other": "范围"
@@ -378,16 +378,16 @@
     "other": "服务器 URL"
   },
   "Server URL used to build share links and notifications. It will be detected if empty.": {
-    "other": "Server URL used to build share links and notifications. It will be detected if empty."
+    "other": "用于构建共享链接和通知的服务器 URL。 如果为空，则会被检测到。"
   },
   "Session credentials": {
     "other": "会话凭据"
   },
   "Set this repository group owner : only users of this group will see it": {
-    "other": "Set this repository group owner : only users of this group will see it"
+    "other": "设置此存储库组所有者：只有该组的用户才能看到它"
   },
   "Set up a specific encoding (try IBM850 or CP437) for filenames to fix characters problems during Zip creation. This may create OS-incompatible archives (Win/Mac).": {
-    "other": "Set up a specific encoding (try IBM850 or CP437) for filenames to fix characters problems during Zip creation. This may create OS-incompatible archives (Win/Mac). If you still have issue, you can add //TRANSLIT after the encoding string to force transliteration of unknown characters in your target encoding (example CP437//TRANSLIT)."
+    "other": "为文件名设置特定的编码(尝试 IBM850 或 CP437)，以修复 Zip 创建过程中的字符问题。 这可能会创建与操作系统不兼容的存档(Win/Mac)。 如果仍有问题，您可以在编码字符串后添加 //TRANSLIT，以强制音译目标编码中的未知字符(例如 CP437//TRANSLIT)。"
   },
   "Shares Host": {
     "other": "共享主机"
@@ -417,10 +417,10 @@
     "other": "临时文件夹"
   },
   "This authentication mechanism is less secure, but will avoid the users having to re-enter a password in some case.": {
-    "other": "This authentication mechanism is less secure, but will avoid the users having to re-enter a password in some case."
+    "other": "这种身份验证机制不太安全，但可以避免用户在某些情况下重新输入密码。"
   },
   "This is necessary only if you have errors concerning the tmp dir access or writeability : most probably, they are due to PHP SAFE MODE (should disappear in php6) or various OPEN_BASEDIR restrictions. In that case, create and set writeable a tmp folder somewhere at the root of your hosting (but above the web/ or www/ or http/ if possible!!) and enter here the full path to this folder": {
-    "other": "This is necessary only if you have errors concerning the tmp dir access or writeability : most probably, they are due to PHP SAFE MODE (should disappear in php6) or various OPEN_BASEDIR restrictions. In that case, create and set writeable a tmp folder somewhere at the root of your hosting (but above the web/ or www/ or http/ if possible!!) and enter here the full path to this folder"
+    "other": "仅当您遇到有关 tmp 目录访问或可写性的错误时，这是必要的：最有可能的是，它们是由于 PHP 安全模式(应该在 php6 中消失)或各种 OPEN_BASEDIR 限制造成的。 在这种情况下，请在主机根目录的某个位置创建并设置可写的 tmp 文件夹(但在网络/ 或 www/ 或 http/ 之上，如果可能的话！)，并在此处输入该文件夹的完整路径"
   },
   "This right pattern (empty, r, or rw) will be applied at user creation for this repository.": {
     "other": "此权限模式(空、读或读写) 将应用于此工作区的用户创建。"
@@ -429,13 +429,13 @@
     "other": "令牌网址"
   },
   "Transmit Clear Pass": {
-    "other": "Transmit Clear Pass"
+    "other": "传输清晰通行证"
   },
   "Try to use the current Pydio user credentials for connecting. Warning, the PYDIO_SESSION_SET_CREDENTIALS config must be set to true!": {
-    "other": "Try to use the current Pydio user credentials for connecting. Warning, the PYDIO_SESSION_SET_CREDENTIALS config must be set to true!"
+    "other": "尝试使用当前的 Pydio 用户凭据进行连接。 警告，PYDIO_SESSION_SET_CREDENTIALS 配置必须设置为 true！"
   },
   "URI where to serve the public links": {
-    "other": "URI where to serve the public links"
+    "other": "为公共链接提供服务的URI"
   },
   "Use COM class": {
     "other": "使用 COM 类"

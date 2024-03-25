@@ -45,16 +45,16 @@
     "other": "正在加载参数缓存，请稍候，这将只完成一次..."
   },
   "24": {
-    "other": "Account"
+    "other": "帐户"
   },
   "25": {
     "other": "访问限制"
   },
   "26": {
-    "other": "群组信息"
+    "other": "组信息"
   },
   "27": {
-    "other": "群组信息"
+    "other": "组信息"
   },
   "28": {
     "other": "角色信息"
@@ -69,10 +69,10 @@
     "other": "个人资料和角色"
   },
   "31": {
-    "other": "用户唯一标识符。 您不能修改此值。"
+    "other": "用户独特标识符。 您不能修改此值。"
   },
   "32": {
-    "other": "具体配置。某些角色会自动应用。"
+    "other": "具体简介。 可能意味着某些角色自动应用。"
   },
   "33": {
     "other": "关闭"
@@ -81,10 +81,10 @@
     "other": "访问控制"
   },
   "35": {
-    "other": "Workspaces"
+    "other": "工作区"
   },
   "36": {
-    "other": "Pages"
+    "other": "页"
   },
   "37": {
     "other": "自定义参数"
@@ -105,19 +105,19 @@
     "other": "额外参数"
   },
   "42": {
-    "other": "优化应用程序参数值并有选择地禁用当前角色的插件操作。 这里的参数是全局的应用程序(认证、配置等)。请参阅工作区选项卡以获取特定的参数/动作。"
+    "other": "优化应用程序参数值并有选择地禁用当前角色的插件操作。 这里的参数是全局的应用程序(认证、配置等)。请参阅工作区选项卡了解工作区特定的参数/操作。"
   },
   "43": {
     "other": "允许当前角色/用户/组访问工作区"
   },
   "permissions.legend.user": {
-    "other": "Provide access to workspaces for the current user, overriding permissions inherited from user's roles. Use 'Manage Roles' to add/remove roles and identify the sources of inherited permissions."
+    "other": "为当前用户提供对工作区的访问权限，覆盖从用户角色继承的权限。 使用“管理角色”添加/删除角色并确定继承权限的来源。"
   },
   "permissions.legend.group": {
-    "other": "Provide access to workspaces for the current group. These permissions will be inherited by all users belonging this group."
+    "other": "为当前组提供对工作区的访问权限。 这些权限将由属于该组的所有用户继承。"
   },
   "permissions.legend.role": {
-    "other": "Provide access to workspaces for the current role. These permissions will be applied to all users to whom the role has been assigned."
+    "other": "提供对当前角色的工作区的访问权限。 这些权限将应用于已分配该角色的所有用户。"
   },
   "44": {
     "other": "主应用程序页面"
@@ -126,13 +126,13 @@
     "other": "访问主应用程序页面 (例如我的帐户，欢迎页等)"
   },
   "application-params.title": {
-    "other": "Parameters and actions"
+    "other": "参数和操作"
   },
   "application-params.legend": {
-    "other": "Modify UX parameters and show/hide certain actions for a specific role, globally or by workspace."
+    "other": "全局或按工作区修改 UX 参数并显示/隐藏特定角色的某些操作。"
   },
   "application-params.legend.user-disclaimer": {
-    "other": "As a general rule, this should be managed at role level, not user level!"
+    "other": "作为一般规则，这应该在角色级别而不是用户级别进行管理！"
   },
   "49": {
     "other": "共享"
@@ -147,13 +147,13 @@
     "other": "对于此用户"
   },
   "52": {
-    "other": "此用户创建的资料库和公共链接"
+    "other": "该用户创建的单元格和公共链接"
   },
   "53": {
     "other": "%1 从工作区内分享的 %2"
   },
   "54": {
-    "other": "User informations and security actions. Hover fields in the form below to display explanations."
+    "other": "用户信息和安全操作。 将鼠标悬停在下面表单中的字段可显示说明。"
   },
   "55": {
     "other": "切换配置文件和角色以自动授予此用户权限。"
@@ -174,22 +174,22 @@
     "other": "管理用户角色"
   },
   "roles.picker.add": {
-    "other": "Add role"
+    "other": "添加角色"
   },
   "roles.picker.hint": {
-    "other": "Start typing to search roles..."
+    "other": "开始输入搜索角色..."
   },
   "roles.picker.effective": {
-    "other": "Effective role for %s"
+    "other": "%s 的有效角色"
   },
   "parameters.scope.selector.title": {
-    "other": "从... 添加"
+    "other": "添加用于..."
   },
   "parameters.scope.all": {
     "other": "所有工作区"
   },
   "parameters.scope.shared": {
-    "other": "仅共享资料库"
+    "other": "仅限共享单元"
   },
   "parameters.scope.workspace": {
     "other": "工作区 %s"
@@ -210,7 +210,7 @@
     "other": "目录"
   },
   "workspace.statics.directory.description": {
-    "other": "Show address book full page (used by Mui3 Theme)"
+    "other": "显示地址簿完整页面(由 Mui3 主题使用)"
   },
   "workspace.statics.settings.title": {
     "other": "管理控制台"
@@ -225,15 +225,15 @@
     "other": "整个工作区"
   },
   "section.user-info": {
-    "other": "User Info"
+    "other": "用户信息"
   },
   "section.permissions": {
-    "other": "Permissions"
+    "other": "权限"
   },
   "section.security": {
-    "other": "Security"
+    "other": "安全"
   },
   "section.advanced": {
-    "other": "Advanced"
+    "other": "先进的"
   }
 }

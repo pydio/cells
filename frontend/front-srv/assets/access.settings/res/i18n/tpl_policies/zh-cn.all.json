@@ -1,33 +1,33 @@
 {
   "PolicyGroup.Create": {
-    "other": "Create Policy"
+    "other": "创建政策"
   },
   "PolicyGroup.Filter": {
-    "other": "Filter Templates..."
+    "other": "过滤器模板..."
   },
   "PolicyGroup.Create.Manual": {
-    "other": "Manual Creation"
+    "other": "手动创建"
   },
   "PolicyGroup.Create.Templates": {
-    "other": "Templates"
+    "other": "模板"
   },
   "PolicyGroup.ACLSample1.Title": {
-    "other": "Complex ACL Policy"
+    "other": "复杂的 ACL 政策"
   },
   "PolicyGroup.ACLSample1.Description": {
-    "other": "动态管理ACL的示例复杂策略"
+    "other": "用于动态管理 ACL 的复杂政策示例"
   },
   "PolicyGroup.ACLSample1.Rule1": {
     "other": "默认允许读/写"
   },
   "PolicyGroup.ACLSample1.Rule2": {
-    "other": "阻止基于IP和文件元数据条件的修改"
+    "other": "基于IP和文件元数据条件阻止修改"
   },
   "PolicyGroup.ACLSample1.Rule3": {
     "other": "如果请求不是来自本地主机的，则过滤任何带有PNG扩展的文件"
   },
   "PolicyGroup.ACLSamplePeriod.Title": {
-    "other": "Limited Period"
+    "other": "限定期间"
   },
   "PolicyGroup.ACLSamplePeriod.Description": {
     "other": "只允许在给定时期内访问工作区"
@@ -36,7 +36,7 @@
     "other": "ACL 规则示例，只允许在2018年2月和3月访问"
   },
   "PolicyGroup.ACLSampleDateDisable.Title": {
-    "other": "Scheduled Expiration"
+    "other": "预定到期时间"
   },
   "PolicyGroup.ACLSampleDateDisable.Description": {
     "other": "在给定日期后禁用访问工作区"
@@ -48,19 +48,19 @@
     "other": "如果日期在 2018-02-28 后，拒绝读写。"
   },
   "PolicyGroup.ACLSampleBusinessHours.Title": {
-    "other": "Business Hours"
+    "other": "营业时间"
   },
   "PolicyGroup.ACLSampleBusinessHours.Description": {
-    "other": "在预定义的小时内只允许访问某个工作区"
+    "other": "仅允许在预定义时间内的特定日期访问工作区"
   },
   "PolicyGroup.ACLSampleBusinessHours.Rule1": {
     "other": "办公时间规则示例，允许读/写"
   },
   "PolicyGroup.ACLSampleExternalIP.Title": {
-    "other": "Filter IP Address"
+    "other": "过滤 IP 地址"
   },
   "PolicyGroup.ACLSampleExternalIP.Description": {
-    "other": "禁用访问局域网以外的 IP"
+    "other": "禁止访问 LAN 之外的 IP"
   },
   "PolicyGroup.ACLSampleExternalIP.Rule1": {
     "other": "全局读写"

@@ -11,6 +11,9 @@
   "ds.board.ds.legend": {
     "other": "I DataSource sono aree di archiviazione concrete che vengono aggregate da Pydio in un albero globale. Esse possono essere distribuite attraverso più nodi di archiviazione secondo necessità."
   },
+  "ds.board.ds.internal.legend": {
+    "other": "Internal DataSources are used to store binaries like files versions"
+  },
   "ds.board.ds.title": {
     "other": "DataSource"
   },

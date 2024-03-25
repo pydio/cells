@@ -11,6 +11,9 @@
   "ds.board.ds.legend": {
     "other": "Les datasources représentent concrètement les points d'accès à vos stockages, et sont agrégées dans un namespace global par Pydio. Elles peuvent être distribuées sur différents nœuds."
   },
+  "ds.board.ds.internal.legend": {
+    "other": "Internal DataSources are used to store binaries like files versions"
+  },
   "ds.board.ds.title": {
     "other": "Datasources"
   },
