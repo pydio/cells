@@ -168,7 +168,7 @@ class CompositeCard extends React.Component {
 
             // Header
             const header = (
-                <div style={{fontSize: 20, padding: 10}}>
+                <div style={{fontSize: 20, padding: 10, wordBreak: 'break-word', lineHeight: '1.3em'}}>
                     <Mailer {...mailerData} pydio={pydio} onDismiss={this.dismissMailer.bind(this)}/>
                     {node && m(256).replace('%s', node.getLabel()) + (model.isDirty() ? ' *' : '')}
                 </div>
