@@ -74,7 +74,7 @@ let GenericInfoCard = (props) => {
         }
         const sepColor = muiTheme.palette.mui3?muiTheme.palette.mui3['outline-variant-50']:'#eee'
         return (
-            <InfoPanelCard identifier={"preview"} {...props} primaryToolbars={toolbars}>
+            <InfoPanelCard identifier={"preview-multiple"} alwaysOpen={true} {...props} primaryToolbars={toolbars}>
                 <div style={{padding:'0'}}>
                     {nodes.map(function(node){
                         return (
@@ -108,7 +108,7 @@ let GenericInfoCard = (props) => {
             contentStyle = {...props.contentStyle, display:'flex', flexDirection:'column'}
         }
         return (
-            <InfoPanelCard {...props} closedTitle={"Preview"} icon={"mdi mdi-file-eye-outline"} contentStyle={contentStyle} primaryToolbars={toolbars}>
+            <InfoPanelCard {...props} closedTitle={"Preview"} defaultOpen={true} icon={"mdi mdi-file-eye-outline"} contentStyle={contentStyle} primaryToolbars={toolbars}>
                 <FilePreview
                     key={props.node.getPath()}
                     style={style}

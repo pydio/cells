@@ -26,14 +26,15 @@ import useWorkspacePref from '../views/useWorkspacePref'
 import reactdnd from 'react-dnd'
 import {collectDrop, DragTypes, itemTarget} from "./dnd";
 
-let ResizableColumn = ({storageKey, closed, isGhost, isLast, afterResize = ()=>{}, defaultWidth= 250, minWidth, maxWidth, connectDropTarget, isOver, isOverCurrent /*, controlledWidth: width, setControlledWidth: setWidth*/, children}) => {
+let ResizableColumn = ({storageKey, closed, isGhost, isLast, afterResize = ()=>{}, defaultWidth= 250, minWidth, maxWidth, connectDropTarget, isOver, isOverCurrent, children}) => {
 
     const [width, setWidth] = useWorkspacePref(storageKey, defaultWidth)
     const [handleHover, setHandlerHover] = useState(false)
 
     let style = {
         transition: 'all 550ms cubic-bezier(0.23, 1, 0.32, 1) 0ms',
-        borderRadius: 10
+        borderRadius: 10,
+        flexGrow: 0
     }
     let height = '100%';
     if((width && width <= 100) || isGhost) {
@@ -89,6 +90,7 @@ let ResizableColumn = ({storageKey, closed, isGhost, isLast, afterResize = ()=>{
                 maxWidth={isGhost?minWidth:undefined}
                 identifier={storageKey}
                 boundsByDirection={true}
+                className={"no-flex-shrink"}
                 onResizeStop={(e, direction, ref, d)=>{
                     let newWidth = width+d.width
                     if(newWidth < 100) {

@@ -717,11 +717,14 @@ export default class ThemeBuilder {
                 },
                 toolbar:{
                     container: {
+                        display:'flex',
                         backgroundColor:'transparent',
                         justifyContent: 'flex-end',
                         alignItems: 'center',
                         position:'relative',
-                        borderTop: mui3['outline-variant-50']
+                        borderTop: mui3['outline-variant-50'],
+                        padding: 4,
+                        minHeight: 40
                     },
                     button: {
                         paddingRight: 8,

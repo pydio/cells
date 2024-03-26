@@ -30,7 +30,6 @@ const MultiColumnPanel = ({afterResize = ()=>{}, storageKey, onContentChange, pa
 
     const [columns, setColumns] = useWorkspacePref(storageKey + '.multicolumns', [])
     const [defaultColumn, setDefaultColumn] = useWorkspacePref(storageKey + '.defaultColumn', {})
-    //const [columnsWidths, setColumnWidths] = useWorkspacePref(storageKey + '.widths', {})
     const [ghostDrop, setGhostDrop] = useState(false)
     const [dragSession, setDragSession] = useState(0)
 
@@ -158,15 +157,6 @@ const MultiColumnPanel = ({afterResize = ()=>{}, storageKey, onContentChange, pa
             const isLast = idx === allColumns.length-1
             const isFirst = idx === 0
 
-            /*
-            let maxWidth;
-            if(parentWidth) {
-                const otherColsWidth = Object.keys(columnsWidths).filter(i => parseInt(i) !== idx).map(i => columnsWidths[i]).reduce((p, c) => p+c, 0)
-                maxWidth=parentWidth-280-otherColsWidth-((allColumns.length+1)*8)
-                //console.log('max width for', idx, maxWidth, columnsWidths, otherColsWidth, parentWidth)
-            }
-             */
-
             return (
                 <MultiColumnContext.Provider value={contextObject}>
                     <ResizableColumn
@@ -184,7 +174,9 @@ const MultiColumnPanel = ({afterResize = ()=>{}, storageKey, onContentChange, pa
                     </ResizableColumn>
                 </MultiColumnContext.Provider>
             );
-        })}</Fragment>
+        })}
+        <style type={"text/css"} dangerouslySetInnerHTML={{__html:'.no-flex-shrink{flex-shrink: inherit !important;}'}}></style>
+        </Fragment>
     )
 
 }

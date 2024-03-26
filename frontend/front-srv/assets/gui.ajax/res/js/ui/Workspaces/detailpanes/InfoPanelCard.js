@@ -34,12 +34,15 @@ import useWorkspacePref from "../views/useWorkspacePref";
 /**
  * Default InfoPanel Card
  */
-let ContextInfoPanelCard = ({primaryToolbars, icon, title, closedTitle, shrinkTitle, actions, defaultOpen = false, onRequestDetachPanel, muiTheme, pydio, standardData, popoverPanel, namespace, componentName, style, contentStyle, isDragging, connectDragSource, connectDragPreview, connectDropTarget, displayForColumn, stickToColumn, currentColumn, currentPin, setColumnPin, scrollAreaProps, children}) => {
+let ContextInfoPanelCard = ({primaryToolbars, icon, title, closedTitle, shrinkTitle, actions, defaultOpen = false, alwaysOpen=false, onRequestDetachPanel, muiTheme, pydio, standardData, popoverPanel, namespace, componentName, style, contentStyle, isDragging, connectDragSource, connectDragPreview, connectDropTarget, displayForColumn, stickToColumn, currentColumn, currentPin, setColumnPin, scrollAreaProps, children}) => {
 
     const identifier = namespace + '.' + componentName;
 
     const {width=0, setWidth=()=>{}} = useContext(ResizableContext) || {};
     let [open, setOpen] = useWorkspacePref('FSTemplate.MultiColumn.InfoPanel.cardStatus.'+identifier+'.open', defaultOpen)
+    if(alwaysOpen) {
+        setOpen = () => {}
+    }
     const [hoverRow, setHoverRow] = useState(null)
     const [hoverTitle, setHoverTitle] = useState(false)
     const [mouseDownTitle, setMouseDownTitle] = useState(false)
@@ -89,7 +92,9 @@ let ContextInfoPanelCard = ({primaryToolbars, icon, title, closedTitle, shrinkTi
     }
 
     // Recompute open status
-    if(shrinkMode) {
+    if(alwaysOpen) {
+        open = true
+    } else if(shrinkMode) {
         open = false
     } else if(!identifier || popoverPanel || currentPin === identifier){
         open = true
@@ -123,7 +128,9 @@ let ContextInfoPanelCard = ({primaryToolbars, icon, title, closedTitle, shrinkTi
         if(onRequestDetachPanel && open && hoverTitle) {
             actions.push({icon:'picture-in-picture-bottom-right', label:m('infopanel.card.detach'), click:onRequestDetachPanel})
         }
-        if(currentPin) { // there is a pinned panel
+        if(alwaysOpen) {
+            // Do not append any actions
+        } else if(currentPin) { // there is a pinned panel
             if(currentPin === identifier) {
                 if(hoverTitle){
                     actions.push({icon:'pin-off-outline', label: m('infopanel.card.unpin'), click:() => setColumnPin(null)})
