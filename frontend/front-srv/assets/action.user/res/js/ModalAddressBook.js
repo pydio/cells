@@ -54,7 +54,7 @@ const ModalAddressBook = createReactClass({
             <AddressBook
                 mode="book"
                 {...this.props}
-                style={{width:'100%', flex: 1, height: 'auto'}}
+                style={{width:'100%', flex: 1, height: 'auto', overflow:'hidden', borderRadius:'var(--md-sys-color-paper-border-radius)'}}
                 closeButton={<IconButton iconClassName={"mdi mdi-close"} tooltip={pydio.MessageHash['86']} onClick={()=>this.dismiss()} style={{marginRight: 10}}/>}
             />
         );
