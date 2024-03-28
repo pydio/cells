@@ -163,7 +163,6 @@ export default function(palette = {}) {
                     alignItems:'center',
                     width: 'auto',
                     marginRight: 10,
-                    zoom: 0.8
                 },
             },
             leftNav: {
