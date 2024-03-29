@@ -25,6 +25,8 @@ import UserWidget from './UserWidget'
 import WorkspacesList from '../wslist/WorkspacesList'
 const {TasksPanel} = Pydio.requireLib("boot");
 
+// THIS IS STILL USED IN MATERIAL-LEGACY THEME
+
 const LeftPanel = ({style={}, userWidgetProps, workspacesListProps = {}, pydio, onClick, onMouseOver, closed, drawerOpen}) => {
 
         let uWidgetProps = {...userWidgetProps};
@@ -61,6 +63,7 @@ const LeftPanel = ({style={}, userWidgetProps, workspacesListProps = {}, pydio, 
                     showTreeForWorkspace={pydio.user?pydio.user.activeRepository:false}
                     {...workspacesListProps}
                 />
+                <TasksPanel pydio={pydio} mode={"flex"} panelStyle={{borderRight: '1px solid rgb(224, 224, 224)'}}/>
             </div>
         );
 };

@@ -79,7 +79,7 @@ const AppBar = ({pydio, muiTheme, styles, searchView, searchTools, searchViewTra
                     lineHeight:'25px',
                     display: 'flex',
                     alignItems: 'center',
-                    color:'var(--md-sys-color-secondary)'
+                    color:muiTheme.userTheme === 'mui3' ? 'var(--md-sys-color-secondary)': 'white'
                 }}>{stLabel}</div>
             )
         } else {

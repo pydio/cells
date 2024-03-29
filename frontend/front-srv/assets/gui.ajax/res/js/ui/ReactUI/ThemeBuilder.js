@@ -344,6 +344,7 @@ export default class ThemeBuilder {
                 styleTarget.style.setProperty('--md-sys-color-on-surface-variant', palette.primary1Color)
                 styleTarget.style.setProperty('--md-sys-color-hover-background', 'rgba(0,0,0,.1)')
                 styleTarget.style.setProperty('--md-sys-color-field-underline-idle', '#e0e0e0')
+                styleTarget.style.setProperty('--md-sys-color-surface-2', '#ffffff')
             }
 
         }
@@ -527,24 +528,7 @@ export default class ThemeBuilder {
         const headerBase = 72
         const buttonsHeight = 24
         const buttonsFont = 13
-
-        let listMarginRight = 0, listMarginTop = 0, isGrid;
-        isGrid = !(displayMode==='list'||displayMode==='detail');
-
-        if(isMUI3) {
-            if(displayMode.indexOf('grid-')!==0 && displayMode !== 'masonry'){
-                listMarginTop = masterMargin
-            }
-            if(rightColumnClosed) {
-                if(!isGrid){
-                    listMarginRight = masterMargin
-                }
-            } else {
-                if(isGrid){
-                    listMarginRight = -masterMargin
-                }
-            }
-        }
+        const isGrid = !(displayMode==='list'||displayMode==='detail');
 
         let styles = {
             masterMargin,
@@ -844,6 +828,11 @@ export default class ThemeBuilder {
             const border = styles.leftPanel.masterStyle.borderRight
             delete(styles.leftPanel.masterStyle.borderRight)
             styles.leftPanel.workspacesList.style = {borderRight:border};
+            delete(styles.infoPanel.contentContainer.paddingBottom)
+            styles.infoPanel.contentContainer.padding = masterMargin
+            if(!isGrid) {
+                styles.masterListContainer.padding = 0
+            }
         }
 
         return styles;
