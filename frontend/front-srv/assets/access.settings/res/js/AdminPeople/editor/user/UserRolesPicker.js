@@ -18,7 +18,7 @@
  * The latest code can be found at <https://pydio.com>.
  */
 import React, {Fragment, Component} from 'react';
-import {MenuItem} from 'material-ui'
+import {MenuItem, FontIcon} from 'material-ui'
 import {withRoleMessages} from '../util/MessagesMixin'
 import Pydio from 'pydio'
 import PydioApi from 'pydio/http/api';
@@ -54,7 +54,18 @@ class RolesComplete extends Component {
         const {getMessage} = this.props;
         const {value, roles, focus} = this.state;
         const datasource = roles.map(r => {
-            return {value: <MenuItem primaryText={r.Label} onKeyDown={(e) =>{if(e.key==='Enter'){this.handleNewRequest({payload: r})} }}/>, key:r.Uuid, text: r.Label, payload: r}
+            return {
+                value: (
+                    <MenuItem
+                        primaryText={r.Label}
+                        onKeyDown={(e) =>{if(e.key==='Enter'){this.handleNewRequest({payload: r})} }}
+                        leftIcon={<FontIcon style={{zoom: 0.9, top: 0}} className={'mdi mdi-' + (r.IsTeam?'account-group-outline':'card-account-details-outline')}/>}
+                    />
+                ),
+                key:r.Uuid,
+                text: r.Label,
+                payload: r
+            }
         })
         let inputStyle;
         if(!focus){
@@ -160,17 +171,23 @@ class UsersRolesPicker extends Component{
                 return;
             }
             if(r.GroupRole){
+                const icon = 'folder-account-outline'
                 if(r.Uuid === 'ROOT_GROUP') {
-                    groups.push({payload: r.Uuid, text: '/', icon:'folder-account-outline'});
+                    groups.push({payload: r.Uuid, text: '/', icon});
                 }else {
                     const path = buildGroupPath(r.Uuid)
-                    groups.push({payload: r.Uuid, text:path || getMessage('user.26', 'ajxp_admin').replace('%s', r.Label || r.Uuid), icon:'folder-account-outline'});
+                    groups.push({
+                        payload: r.Uuid,
+                        text:path || getMessage('user.26', 'ajxp_admin').replace('%s', r.Label || r.Uuid),
+                        icon,
+                    });
                 }
             } else {
+                const icon = r.IsTeam ? 'account-group-outline' : 'card-account-details-outline'
                 if(r.AutoApplies && r.AutoApplies.indexOf(profile) !== -1){
-                    groups.push({payload: r.Uuid, text:r.Label + ' [auto]', icon:'account-multiple-outline'});
+                    groups.push({payload: r.Uuid, text:r.Label + ' [auto]', icon});
                 } else {
-                    manual.push({payload:r.Uuid, text:r.Label, removable: true, icon:'account-multiple-outline'});
+                    manual.push({payload:r.Uuid, text:r.Label, removable: true, icon});
                 }
             }
         });

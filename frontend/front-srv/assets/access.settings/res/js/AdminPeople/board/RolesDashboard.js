@@ -28,6 +28,13 @@ import {loadEditorClass} from "../editor/util/ClassLoader";
 const {MaterialTable} = Pydio.requireLib('components');
 const {ModernTextField} = Pydio.requireLib('hoc');
 
+const typeIcons = {
+    'admin':'card-account-details-outline',
+    'IsUserRole':'clipboard-account',
+    'IsGroupRole':'folder-account',
+    'IsTeam':'account-group-outline'
+}
+
 let RolesDashboard = createReactClass({
     displayName: 'RolesDashboard',
     mixins: [AdminComponents.MessagesConsumerMixin],
@@ -143,7 +150,11 @@ let RolesDashboard = createReactClass({
             data.push({
                 role,
                 roleId: role.Uuid,
-                roleLabel: label,
+                roleLabel: (
+                    <span style={{display:'flex', alignItems:'flex-end'}}>
+                        <span style={{fontSize: 22, marginRight: 12, marginLeft: -8, opacity:0.7}} title={this.context.getMessage('roleType.' + roleType, 'role_editor')} className={'mdi mdi-' + typeIcons[roleType]}/>
+                        {label}
+                    </span>),
                 sorterValue: role.Uuid === 'ROOT_GROUP' ? '0000000' : label,
                 isDefault: role.AutoApplies.join(', ') || '-',
                 lastUpdated: role.LastUpdated,
@@ -195,7 +206,9 @@ let RolesDashboard = createReactClass({
                         <MenuItem
                             primaryText={this.context.getMessage('dashboard.typeFilter.' + t, 'role_editor')}
                             value={t}
-                            rightIcon={<FontIcon className={"mdi mdi-" +icon} style={{zoom: 0.9, top: 0}}/>}/>
+                            leftIcon={<FontIcon className={"mdi mdi-" +typeIcons[t]} style={{zoom: 0.9, top: 0}}/>}
+                            rightIcon={<FontIcon className={"mdi mdi-" +icon} style={{zoom: 0.9, top: 0}}/>}
+                        />
                     );
                 })}
             </IconMenu>
@@ -217,8 +230,8 @@ let RolesDashboard = createReactClass({
         );
 
         const columns = [
-            {name:'roleType', label: this.context.getMessage('roleType', 'role_editor'), style:{width:140}, headerStyle:{width:140}, hideSmall:true, sorter:{type:'string'}},
             {name:'roleLabel', label: this.context.getMessage('32', 'role_editor'), style:{width:'40%', fontSize:15}, headerStyle:{width:'40%'}, sorter:{type:'string', default: true, value:(row)=>row.sorterValue}},
+            {name:'roleType', label: this.context.getMessage('roleType', 'role_editor'), style:{width:140}, headerStyle:{width:140}, hideSmall:true, sorter:{type:'string'}},
             {name:'lastUpdated', useMoment: true, label: this.context.getMessage('last_update', 'role_editor'), hideSmall:true, sorter:{type:'number'}},
             {name:'isDefault', label: this.context.getMessage('114', 'settings'), style:{width:'15%'}, headerStyle:{width:'15%'}, hideSmall:true, sorter:{type:'string'}},
         ];

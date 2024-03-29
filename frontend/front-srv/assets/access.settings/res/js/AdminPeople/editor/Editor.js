@@ -232,6 +232,7 @@ class Editor extends React.Component{
         let otherForm;
         let pagesShowSettings = false;
         let hiddenUser;
+        let headerIcon = 'account-circle'
 
         if(roleType === 'user') {
 
@@ -267,6 +268,7 @@ class Editor extends React.Component{
 
         }else if(roleType === 'group'){
 
+            headerIcon = 'folder-account'
             infoTitle = this.getMessage('26'); // group information
             title = observableUser.getIdmUser().GroupLabel;
             if(observableUser.getIdmUser().Attributes && observableUser.getIdmUser().Attributes['displayName']){
@@ -285,7 +287,18 @@ class Editor extends React.Component{
 
         }else if(roleType === 'role'){
 
-            title = observableRole ? observableRole.getIdmRole().Label : '...';
+            const idmRole = observableRole && observableRole.getIdmRole()
+            title = idmRole ? idmRole.Label : '...';
+            headerIcon = 'card-account-details-outline'
+            if(idmRole) {
+                if(idmRole.IsTeam) {
+                    headerIcon = 'account-group-outline'
+                } else if(idmRole.UserRole) {
+                    headerIcon = 'clipboard-account'
+                } else if (idmRole.GroupRole) {
+                    headerIcon = 'folder-account'
+                }
+            }
             infoTitle = this.getMessage('28'); // role information
             pagesShowSettings = true;
             otherForm = <RoleInfo role={observableRole} pydio={pydio} pluginsRegistry={pluginsRegistry} adminStyles={AdminStyles(muiTheme.palette)}/>
@@ -406,7 +419,7 @@ class Editor extends React.Component{
         return (
             <PaperEditorLayout
                 title={title}
-                titleLeftIcon={"mdi mdi-account"}
+                titleLeftIcon={"mdi mdi-" + headerIcon}
                 titleActionBar={rightButtons}
                 closeAction={() => {this.props.onRequestTabClose();}}
                 contentFill={true}
