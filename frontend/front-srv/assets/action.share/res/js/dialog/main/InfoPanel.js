@@ -30,7 +30,7 @@ const InfoPanel = ({pydio, node, popoverPanel, popoverRequestClose, ...infoProps
 
     if(node.isRoot()){
         return (
-            <InfoPanelCard popoverPanel={popoverPanel} icon={"icomoon-cells"} closedTitle={"Cell Info"} {...infoProps}>
+            <InfoPanelCard popoverPanel={popoverPanel} icon={"icomoon-cells"} closedTitle={Pydio.getMessages()['ajax_gui.infopanel.detailcard.cell-info']} {...infoProps}>
                 <div style={{padding:0, height:currentPin?'100%':null}}>
                     <CellCard cellId={pydio.user.activeRepository} pydio={pydio} mode="infoPanel" popoverPanel={popoverPanel} genericFlex={currentPin} />
                 </div>
@@ -38,7 +38,7 @@ const InfoPanel = ({pydio, node, popoverPanel, popoverRequestClose, ...infoProps
         );
     } else {
         return (
-            <InfoPanelCard popoverPanel={popoverPanel} icon={"mdi mdi-share-variant-outline"} closedTitle={"Share Info"} {...infoProps}>
+            <InfoPanelCard popoverPanel={popoverPanel} icon={"mdi mdi-share-variant-outline"} closedTitle={Pydio.getMessages()['share_center.50']} {...infoProps}>
                 <div style={{padding:0, height:currentPin?'100%':null}}>
                     <CompositeCard node={node} pydio={pydio} mode="infoPanel" popoverPanel={popoverPanel} popoverRequestClose={popoverRequestClose} genericFlex={currentPin}/>
                 </div>

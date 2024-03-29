@@ -106,8 +106,9 @@ const CellChatInfoCard = ({pydio, ...infoProps}) => {
     } else {
         msgContainerStyle = {minHeight: 260, maxHeight: 420}
     }
+    const title = pydio.MessageHash['ajax_gui.infopanel.detailcard.cell-chat']
     return (
-        <InfoPanelCard icon={"mdi mdi-forum-outline"} title={<span>&nbsp;</span>} closedTitle={"Cell Chat"} shrinkTitle={"Cell Chat"} {...infoProps}>
+        <InfoPanelCard icon={"mdi mdi-forum-outline"} title={<span>&nbsp;</span>} closedTitle={title} shrinkTitle={title} {...infoProps}>
             <CellChat
                 pydio={pydio}
                 chatStyle={{margin: 0, borderWidth: 0, borderRadius:0, position:'relative', overflow:'visible', ...style}}

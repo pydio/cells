@@ -19,6 +19,7 @@
  */
 
 import React, {useContext} from 'react'
+import Pydio from 'pydio'
 import InfoPanelCard from './InfoPanelCard'
 import FilePreview from '../views/FilePreview'
 import {muiThemeable} from "material-ui/styles";
@@ -107,8 +108,9 @@ let GenericInfoCard = (props) => {
             style.flex = 1;
             contentStyle = {...props.contentStyle, display:'flex', flexDirection:'column'}
         }
+
         return (
-            <InfoPanelCard {...props} closedTitle={"Preview"} defaultOpen={true} icon={"mdi mdi-file-eye-outline"} contentStyle={contentStyle} primaryToolbars={toolbars}>
+            <InfoPanelCard {...props} closedTitle={Pydio.getMessages()['ajax_gui.infopanel.detailcard.preview']} defaultOpen={true} icon={"mdi mdi-file-eye-outline"} contentStyle={contentStyle} primaryToolbars={toolbars}>
                 <FilePreview
                     key={props.node.getPath()}
                     style={style}
