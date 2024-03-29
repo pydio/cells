@@ -3,13 +3,13 @@
     "other": "允许用户在文件上生成公共链接"
   },
   "Allow users to generate public links on folders": {
-    "other": "允许用户在文件夹中生成公共链接"
+    "other": "允许用户在文件夹生成公共链接"
   },
   "Allow users to manually choose a hash for the generated links": {
     "other": "允许用户手动为生成的链接设置哈希值"
   },
   "Authorizations": {
-    "other": "身份验证"
+    "other": "授权"
   },
   "Avoid labels duplication": {
     "other": "避免标签重复"

@@ -3,7 +3,7 @@
     "other": "点击忘记密码时触发动作"
   },
   "Activate the users management system to protect your Pydio installation.": {
-    "other": "激活用户管理系统以保护您的 Pydio。"
+    "other": "激活用户管理系统以保护您的 Pydio 安装。"
   },
   "Add a Forgot Password link at the bottom of the login form": {
     "other": "在登录表单底部添加忘记密码链接"
@@ -69,7 +69,7 @@
     "other": "主身份验证标签"
   },
   "Master Only": {
-    "other": "仅限主节点"
+    "other": "仅限大师"
   },
   "Master/Slave": {
     "other": "主/从"
@@ -102,7 +102,7 @@
     "other": "辅助实例驱动程序"
   },
   "Secure Login Form": {
-    "other": "安全登录"
+    "other": "安全登录表格"
   },
   "Separator": {
     "other": "分隔器"
@@ -144,10 +144,10 @@
     "other": "当依赖外部身份验证系统时，请将忘记操作替换为将在新窗口中打开的外部链接。"
   },
   "Let user create new cells": {
-    "other": "允许用户创建新资料库"
+    "other": "让用户创建新单元格"
   },
   "Whether users can create their own cells or not": {
-    "other": "用户是否可以创建自己的资料库"
+    "other": "用户是否可以创建自己的单元格"
   },
   "Delegation": {
     "other": "委托"

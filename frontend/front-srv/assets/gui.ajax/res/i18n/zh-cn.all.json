@@ -245,6 +245,15 @@
   "infopanel.detached.dock": {
     "other": "停靠在右侧列中"
   },
+  "infopanel.detailcard.preview": {
+    "other": "Preview"
+  },
+  "infopanel.detailcard.cell-info": {
+    "other": "Cell Info"
+  },
+  "infopanel.detailcard.cell-chat": {
+    "other": "Cell Chat"
+  },
   "pinned-bookmarks.other": {
     "other": "全部文件"
   },

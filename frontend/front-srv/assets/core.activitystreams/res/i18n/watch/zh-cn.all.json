@@ -1,15 +1,15 @@
 {
   "1": {
-    "other": "监控..."
+    "other": "关注..."
   },
   "1-off": {
-    "other": "监控..."
+    "other": "正在关注..."
   },
   "10": {
     "other": "任何人打开该文件"
   },
   "10b": {
-    "other": "任何人浏览该目录"
+    "other": "任何人都在探索该文件夹"
   },
   "11": {
     "other": "修改"
@@ -18,10 +18,10 @@
     "other": "任何人修改该文件"
   },
   "12b": {
-    "other": "任何人修改此目录中文件"
+    "other": "任何人正在修改此文件夹内的文件"
   },
   "13": {
-    "other": "同时"
+    "other": "两个都"
   },
   "14": {
     "other": "任何打开或写入文件的人"
@@ -30,52 +30,52 @@
     "other": "任何人浏览或修改文件夹内容"
   },
   "2": {
-    "other": "访问此文件夹时需要通知"
+    "other": "访问此文件夹时收到通知"
   },
   "3": {
-    "other": "停止监控"
+    "other": "停止关注"
   },
   "4": {
     "other": "停止监视此文件夹的访问"
   },
   "5": {
-    "other": "监控..."
+    "other": "关注..."
   },
   "6": {
-    "other": "监控这个文件的修改"
+    "other": "观察此文件的更改"
   },
   "7": {
-    "other": "停止监控"
+    "other": "停止关注"
   },
   "8": {
     "other": "停止监控这个文件的修改"
   },
   "9": {
-    "other": "查阅"
+    "other": "咨询"
   },
   "selector.legend": {
-    "other": "发生下列活动时收到通知..."
+    "other": "收到通知时..."
   },
   "selector.legend.mui": {
-    "other": "当有下面事件产生时接收新通知..."
+    "other": "当内容...时接收通知"
   },
   "selector.ignore": {
-    "other": "永远不通知"
+    "other": "从不(无通知)"
   },
   "selector.read": {
-    "other": "被访问时"
+    "other": "内容已被访问"
   },
   "selector.read.mui": {
     "other": "被访问"
   },
   "selector.change": {
-    "other": "被修改时"
+    "other": "内容已修改"
   },
   "selector.change.mui": {
     "other": "被修改"
   },
   "selector.both": {
-    "other": "访问或修改时"
+    "other": "内容被访问或修改"
   },
   "selector.mixed": {
     "other": "混合值"

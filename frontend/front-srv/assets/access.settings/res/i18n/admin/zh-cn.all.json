@@ -12,7 +12,7 @@
     "other": "数据源是由 Pydio 聚合到全局树中的具体存储位置。 它们可以根据需要分布在许多存储节点上。"
   },
   "ds.board.ds.internal.legend": {
-    "other": "Internal DataSources are used to store binaries like files versions"
+    "other": "内部数据源用于存储二进制文件，例如文件版本"
   },
   "ds.board.ds.title": {
     "other": "数据源"

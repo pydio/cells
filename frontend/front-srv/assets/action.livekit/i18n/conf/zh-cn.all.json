@@ -18,9 +18,9 @@
     "other": "Livekit 服务器 API 密钥"
   },
   "API Secret": {
-    "other": "API 密钥"
+    "other": "API秘密"
   },
   "Livekit server API Secret": {
-    "other": "Livekit 服务器 API 密钥"
+    "other": "Livekit 服务器 API秘密"
   }
 }

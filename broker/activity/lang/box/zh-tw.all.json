@@ -6,7 +6,7 @@
     "other": "{{.Object}}訪問"
   },
   "AccessedObjectBy": {
-    "other": "{{.Object}} に {{.Actor}} 被訪問"
+    "other": "{{.Object}} 已被 {{.Actor}} 存取"
   },
   "Cell": {
     "other": "單元"
@@ -36,13 +36,13 @@
     "other": "{{.Actor}}由{{.Object}}與你共享"
   },
   "DigestTitle": {
-    "other": "这是你的Pydio日志"
+    "other": "這是你的Pydio每日摘要"
   },
   "Document": {
     "other": "文件"
   },
   "Folder": {
-    "other": "文件夹"
+    "other": "資料夾"
   },
   "ModifiedBy": {
     "other": "{{.Actor}} 修改"
@@ -54,7 +54,7 @@
     "other": "{{.Object}} 由 {{.Actor}} 修改"
   },
   "MetaModifiedBy": {
-    "other": "{{.Actor}}编辑了元数据"
+    "other": "{{.Actor}}編輯了詮釋資料"
   },
   "MetaModifiedObject": {
     "other": "{{.Object}}修改了属性"
