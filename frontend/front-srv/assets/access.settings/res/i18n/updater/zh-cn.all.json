@@ -45,7 +45,7 @@
     "other": "详细信息"
   },
   "package.changelog": {
-    "other": "显示更新日志"
+    "other": "显示变更日志"
   },
   "start.update": {
     "other": "开始升级"
@@ -54,7 +54,7 @@
     "other": "保存设置"
   },
   "upgrade.ed.title": {
-    "other": "升级到Cells企业版"
+    "other": "升级到Cells企业"
   },
   "upgrade.ed.button.next": {
     "other": "下一步"
@@ -90,10 +90,10 @@
     "other": "寻找最接近的Cells企业版本"
   },
   "upgrade.ed.version.error": {
-    "other": "无法加载Cells 企业版的可用版本！"
+    "other": "无法加载Cells 企业的可用版本！"
   },
   "upgrade.ed.version.error.string": {
-    "other": "错误"
+    "other": "错误为"
   },
   "upgrade.ed.version.available": {
     "other": "准备安装 %s"
@@ -108,7 +108,7 @@
     "other": "描述"
   },
   "upgrade.ed.version.legend": {
-    "other": "点击下一步将下载新版本并替换您当前的Cells文件。 如果您需要恢复上一个版本，可在Cells的配置目录 (在%s) 中找到备份文件。"
+    "other": "点击“下一步”现在将下载这个新版本并替换您当前的 Cells 二进制文件。 如果您需要恢复，原始可执行文件的备份将保存在您的单元格配置文件夹(位于 %s 下) 中。"
   },
   "upgrade.ed.version.nomatch": {
     "other": "无法找到类似的Cells企业版"

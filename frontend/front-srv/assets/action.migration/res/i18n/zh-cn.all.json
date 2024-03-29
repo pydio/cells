@@ -33,7 +33,7 @@
     "other": "Pydio 8 连接"
   },
   "step.connection.legend": {
-    "other": "使用下面的表单，使用您创建的专用用户连接到Pydio 8服务器。"
+    "other": "使用您创建的专用用户，使用下面的表单连接到 Pydio 8 服务器。"
   },
   "step.connection.fail": {
     "other": "无法连接到%s"
@@ -63,7 +63,7 @@
     "other": "导入元数据"
   },
   "step.meta.legend": {
-    "other": "将元数据映射到资料库内部的功能。 从API或文件读取的全局元数据（监控或书签）将会直接从数据源内的.ajxp_meta文件转换而来。"
+    "other": "将元数据映射到单元格内部功能。全局元数据(监控或书签)将从API读取，文件元数据将从数据源内的.ajxp_meta文件直接转换。"
   },
   "step.meta.feature.watches": {
     "other": "用户在文件和文件夹中设置的观察"
@@ -72,13 +72,13 @@
     "other": "用户书签"
   },
   "step.meta.feature.files": {
-    "other": "文件和文件夹元数据：使用下面的映射来创建资料库元数据命名空间"
+    "other": "文件和文件夹元数据：使用下面的映射创建单元格元数据命名空间"
   },
   "step.meta.from": {
     "other": "来自工作区的元数据"
   },
   "step.meta.to": {
-    "other": "资料库命名空间 (点击编辑)"
+    "other": "单元格名称空间(单击可编辑)"
   },
   "step.meta.map.ws": {
     "other": "工作区 %s"
@@ -90,7 +90,7 @@
     "other": "免责声明"
   },
   "step.disclaimer": {
-    "other": "鉴于Pydio 8提供的功能数量，每次安装都是唯一的，并且该工具无法处理所有可能的组合。 它最适合从典型的Pydio 8安装中导入数据，包括用户，工作区（仅fs和s3），访问权限和共享。"
+    "other": "鉴于Pydio 8提供的功能数量，每次安装都是独特的，并且该工具无法处理所有可能的组合。 它最适合从典型的Pydio 8安装中导入数据，包括用户，工作区(仅fs和s3)，访问权限和共享。"
   },
   "step.disclaimer.ed": {
     "other": "我们强烈建议您联系我们的支持人员(通过您的pydio.com帐户)，并安排一个由Pydio专家指导迁移的预约"
@@ -117,7 +117,7 @@
     "other": "1. 准备Pydio 8"
   },
   "step.prereq.step2": {
-    "other": "2. 准备资料库和数据"
+    "other": "2. 准备单元格和数据"
   },
   "step.prereq.step3": {
     "other": "3. 准备数据源"
@@ -129,22 +129,22 @@
     "other": "将所有Pydio 8数据（用户访问的文件和文件夹）复制到服务器上的其他位置。 为了进行测试，您最终可以使用假文件（例如1字节文件）重新创建完整的树状结构。"
   },
   "step.prereq.check.install": {
-    "other": "在 Pydio 8 服务器上安装专用迁移插件。 解压并将文件夹放入你的 Pydio 8 服务器的插件文件夹中并清除插件缓存。从这里下载它 "
+    "other": "在 Pydio 8 服务器上安装专用迁移插件。 解压并将文件夹放入你的 Pydio 8 服务器的插件/文件夹中并清除插件缓存。从这里下载它 "
   },
   "step.prereq.check.admincell": {
     "other": "创建具有管理权限的专用用户 (例如cells_importter)。 用户导入时将尝试将 Pydio 8 用户同步到Cells用户，只有此特定登录不会被触及。"
   },
   "step.prereq.check.adminpydio": {
-    "other": "创建一个拥有管理权限的 Pydio 8 用户，使用另一个登录 (例如导入)。 一些导入任务将自动设置导入用户在所有工作区的读/写权限。"
+    "other": "创建一个具有管理权限的专用 Pydio 8 用户，并使用另一个登录名(例如导入)。 某些导入任务将自动为此导入用户在所有工作区上设置读/写权限。"
   },
   "step.prereq.ds.create": {
     "other": "创建指向新数据的数据源并等待索引完成。"
   },
   "step.prereq.ds.tpl.ed": {
-    "other": "对于\"每个用户\"的工作区(如我的文件)，使用现有的资料库\"个人\"模板路径，或为新位置准备新的模板路径。"
+    "other": "对于\"每个用户\"的工作区(如我的文件)，使用单元格“个人”模板路径的现有位置，或为新位置准备新的模板路径。"
   },
   "step.prereq.ds.tpl.home": {
-    "other": "对于\"每个用户\"的工作区(如我的文件)，请确保将数据放置在已存在的资料库“个人”模板路径下。"
+    "other": "对于“按用户”工作区(如“我的文件”)，请确保将数据放置在单元格“个人”模板路径的现有位置下。"
   },
   "step.prereq.ds.done": {
     "other": "一旦数据源正确索引，您可以开始迁移过程。向导将帮助您映射您的 Pydio 8 工作区到新的工作区。"
@@ -165,10 +165,10 @@
     "other": "请选择至少一个共享类型！"
   },
   "step.shares.legend": {
-    "other": "将 Pydio 8 公开连接和共享文件夹导入到Cells中。公开链接将用相同的标识符和属性创建(密码、到期等)。在 Pydio 8 中作为工作区共享的文件夹将被映射到新的资料库。"
+    "other": "将Pydio 8公共链接和共享文件夹导入单元格。将使用相同的标识符和属性(密码、过期等) 创建公共链接。在Pydio 8中共享为工作区的文件夹将映射到新的单元格。"
   },
   "step.shares.legend.warning": {
-    "other": "请注意，共享导入是单向同步：多次执行此步骤将创建重复。 如果您打算多次进行迁移，您应该首先为数量有限的测试用户导入共享。"
+    "other": "请注意，共享导入是单向同步：多次执行此步骤将创建重复项。 如果您计划多次执行迁移，则应首先为有限数量的测试用户导入共享。"
   },
   "step.shares.restrict.type": {
     "other": "1. 限制要导入的共享类型 (至少选择一个)："
@@ -180,7 +180,7 @@
     "other": "所有者登录"
   },
   "step.ws.title": {
-    "other": "导入工作空间"
+    "other": "导入工作区"
   },
   "step.ws.loading": {
     "other": "(加载中...)"
@@ -204,13 +204,13 @@
     "other": "工作区已映射(相同的 UUID)"
   },
   "step.mapper.wsnumber": {
-    "other": "从服务器映射 %s 个工作空间到新的资料库工作区"
+    "other": "将%s工作区从服务器映射到新的单元格工作区"
   },
   "step.mapper.loading": {
     "other": "从服务器加载工作区..."
   },
   "step.mapper.loading.error": {
-    "other": "从服务器%s加载工作空间时出错。 确保Pydio8已安装且启用了CORS。"
+    "other": "从服务器加载工作区时出错：%s。 确保在 Pydio8 安装上启用 CORS。"
   },
   "step.mapper.p8.title": {
     "other": "Pydio 8 工作区"
@@ -288,10 +288,10 @@
     "other": "任务 %s中记录的日志"
   },
   "action.createws.success": {
-    "other": "[Workspaces] 创建工作区 %s"
+    "other": "[工作区] 创建工作区 %s"
   },
   "action.createws.fail.": {
-    "other": "[Workspaces] 创建工作区时出错 %1 : %s"
+    "other": "[工作区] 创建工作区时出错 %1 : %s"
   },
   "action.createws.summary": {
     "other": "以下uuid => uuid 映射将被应用："
@@ -300,7 +300,7 @@
     "other": "Pydio"
   },
   "action.createws.head.cells": {
-    "other": "Cells"
+    "other": "单元格"
   },
   "action.createws.head.status": {
     "other": "状态"

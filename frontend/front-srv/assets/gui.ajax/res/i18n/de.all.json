@@ -245,6 +245,15 @@
   "infopanel.detached.dock": {
     "other": "In der rechten Spalte anheften"
   },
+  "infopanel.detailcard.preview": {
+    "other": "Preview"
+  },
+  "infopanel.detailcard.cell-info": {
+    "other": "Cell Info"
+  },
+  "infopanel.detailcard.cell-chat": {
+    "other": "Cell Chat"
+  },
   "pinned-bookmarks.other": {
     "other": "Alle Dateien"
   },

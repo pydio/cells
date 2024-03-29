@@ -1,9 +1,9 @@
 {
   "open-addressbook": {
-    "other": "通讯录"
+    "other": "地址簿"
   },
   "desc": {
-    "other": "管理我的账户首选项、我的地址簿、共享等。"
+    "other": "管理我的账户首选项、我的地址簿、共享元素等。"
   },
   "title": {
     "other": "我的帐户"

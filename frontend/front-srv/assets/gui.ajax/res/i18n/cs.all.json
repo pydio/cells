@@ -245,6 +245,15 @@
   "infopanel.detached.dock": {
     "other": "Dock in the right-hand column"
   },
+  "infopanel.detailcard.preview": {
+    "other": "Preview"
+  },
+  "infopanel.detailcard.cell-info": {
+    "other": "Cell Info"
+  },
+  "infopanel.detailcard.cell-chat": {
+    "other": "Cell Chat"
+  },
   "pinned-bookmarks.other": {
     "other": "Všechny soubory"
   },

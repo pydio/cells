@@ -245,6 +245,15 @@
   "infopanel.detached.dock": {
     "other": "Intégrer à la colonne de droite"
   },
+  "infopanel.detailcard.preview": {
+    "other": "Preview"
+  },
+  "infopanel.detailcard.cell-info": {
+    "other": "Cell Info"
+  },
+  "infopanel.detailcard.cell-chat": {
+    "other": "Cell Chat"
+  },
   "pinned-bookmarks.other": {
     "other": "Tous les fichiers"
   },
