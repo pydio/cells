@@ -344,6 +344,9 @@ class FSTemplate extends React.Component {
             }
         }
         let {drawerOpen, infoPanelOpen, chatOpen, chatDetached=true, displayMode, sortingInfo, parentWidth} = this.state;
+        if(xtraSmallScreen){
+            infoPanelOpen = false
+        }
 
         let classes = ['vertical_fit', 'react-fs-template'];
         const styles = muiTheme.buildFSTemplate({headerHeight, searchView, rightColumnClosed: !infoPanelOpen, displayMode})

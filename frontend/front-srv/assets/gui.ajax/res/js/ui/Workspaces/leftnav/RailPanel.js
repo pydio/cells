@@ -106,6 +106,14 @@ const RailIcon = muiThemeable()(({muiTheme,icon,iconOnly = false,text,active,ale
             border: '1px solid ' + muiTheme.palette.mui3["outline-variant"]
         }
     }
+    const {breakpoint} = muiTheme;
+    if (breakpoint === 'xs' && setHover) {
+        const wrapped = onClick
+        onClick = () => {
+            setHover(true)
+            wrapped()
+        }
+    }
     return (
         <div style={styles.container} onClick={() => onClick()} onMouseEnter={() => {
             setHover(true);
@@ -148,9 +156,12 @@ let RailPanel = ({
     const [unreadCount, setUnreadCount] = useState(0)
     const {wsDisconnected, running, jobs, progress} = useRunningTasksMonitor({pydio, statusString:'Any'})
 
-
-    const [activePanel, setActivePanel] = useWorkspacePref('FSTemplate.RailPanel.ActivePanel', 'files', pydio)
-
+    const {breakpoint} = muiTheme;
+    const smallScreen = breakpoint === 'xs'
+    let [activePanel, setActivePanel] = useWorkspacePref('FSTemplate.RailPanel.ActivePanel', 'files', pydio)
+    if(smallScreen) {
+        activePanel = ''
+    }
     const [showCloseToggle, setShowCloseToggle] = useState(false)
 
     let [resizerWidth, setResizerWidth] = useWorkspacePref('FSTemplate.RailPanel.ActiveWidth', 1, pydio)
@@ -224,7 +235,7 @@ let RailPanel = ({
     let toolbars =[
         {
             id:'home',
-            icon: 'home-outline',
+            icon: smallScreen ? 'home-search-outline' : 'home-outline',
             position:'top',
             text: MessageHash['ajax_gui.leftrail.buttons.home'],
             ignore: !user.getRepositoriesList().has('homepage'),
@@ -240,6 +251,9 @@ let RailPanel = ({
             text: MessageHash['ajax_gui.leftrail.buttons.all-files'],
             active: user.getActiveRepositoryObject().accessType === 'gateway',
             onClick: () => {
+                if(smallScreen) {
+                    return
+                }
                 if(user.getActiveRepositoryObject().accessType !== 'gateway') {
                     // Switch to the first repository of the list
                     let rr = []
@@ -318,7 +332,7 @@ let RailPanel = ({
             onClick: () => {
                 pydio.triggerRepositoryChange('directory')
             },
-            hoverBar: user.activeRepository === 'directory' ? null : () => {
+            hoverBar: user.activeRepository === 'directory' || smallScreen ? null : () => {
                 return directoryBar('rail-hover-bar')
             },
             leaveByClickAway: true
@@ -402,6 +416,7 @@ let RailPanel = ({
         top: 0,
         bottom: 0,
         width: 0,
+        maxWidth:'calc(100% - 120px)',
         transition: 'width 350ms cubic-bezier(0.23, 1, 0.32, 1) 0ms',
         background: style.background,
         zIndex: 902,
@@ -448,7 +463,6 @@ let RailPanel = ({
             }
         </div>
     )
-
 
     return (
             <div className="left-panel" style={{
@@ -511,15 +525,15 @@ let RailPanel = ({
                     </Resizable>
 
                 }
-                {hoverBarDef && hoverBarDef.leaveByClickAway && hover &&
+                {hoverBarDef && (hoverBarDef.leaveByClickAway || smallScreen) && hover &&
                     <div style={{position: 'absolute', inset: 0, zIndex: 902, backgroundColor:'rgba(0,0,0,0.05)'}} onClick={() => setHover(false)}/>
                 }
                 <div style={hoverStyle}>
                     <div className={"vertical_layout" + (showStickToggle?' with-rail-stick-toggle':'')}
-                         style={{flex: 1, height: '100%', position: 'absolute', width: innerWidth, right: 0, zIndex: 901, ...style}}
+                         style={{flex: 1, height: '100%', position: 'absolute', width: smallScreen ? '100%' : innerWidth, right: 0, zIndex: 901, ...style}}
                          onMouseEnter={() => setHover(true)}
                          onMouseLeave={hoverBarDef && hoverBarDef.leaveByClickAway ? null : () => setHover(false)}>{hoverBarDef && hoverBarDef.hoverBar(ASLib, ASData, jobs)}</div>
-                    {showStickToggle &&
+                    {showStickToggle && !smallScreen &&
                         <div
                             style={{...closerStyle}}
                             onMouseEnter={() => setHover(true)}
