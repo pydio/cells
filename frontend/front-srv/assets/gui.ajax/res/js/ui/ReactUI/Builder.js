@@ -18,6 +18,8 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
+import dayjs from "dayjs";
+
 const React = require('react');
 const ReactDOM = require('react-dom');
 const XMLUtils = require('pydio/util/xml');
@@ -37,12 +39,27 @@ export default class Builder{
         this._pydio.observe('repository_list_refreshed', this.pageTitleObserver.bind(this));
         this._pydio.getContextHolder().observe('context_loaded', this.pageTitleObserver.bind(this));
         if (this._pydio.currentLanguage) {
-            moment.locale(this._pydio.currentLanguage);
+            this.updateMomentLocale(this._pydio.currentLanguage)
         }
         this._pydio.observe('language', (lang) => {
-            moment.locale(lang);
+            this.updateMomentLocale(lang)
         });
         this.themeBuilder = ThemeBuilder.getInstance(pydio, () => this.refreshTemplateParts())
+    }
+
+    updateMomentLocale(lang) {
+        moment.locale(lang);
+        const mess = Pydio.getMessages()
+        dayjs.updateLocale(lang, {
+            calendar:{
+                lastDay: mess['date_relative_yesterday'],
+                sameDay: mess['date_relative_today'],
+                nextDay: mess['date_relative_tomorrow'],
+                lastWeek: mess['date_relative_lastweek'],
+                nextWeek: mess['date_relative_nextWeek'],
+                sameElse: function(){return this.fromNow()}
+            }
+        })
     }
 
     pageTitleObserver(){
