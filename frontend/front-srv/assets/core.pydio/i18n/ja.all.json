@@ -1977,13 +1977,19 @@
     "other": "H:i"
   },
   "date_relative_today": {
-    "other": "今日"
+    "other": "[Today at] LT"
   },
   "date_relative_tomorrow": {
-    "other": "明日時間に"
+    "other": "[Tomorrow at] LT"
   },
   "date_relative_yesterday": {
-    "other": "昨日"
+    "other": "[Yesterday at] LT"
+  },
+  "date_relative_lastweek": {
+    "other": "[Last] dddd [at] LT"
+  },
+  "date_relative_nextweek": {
+    "other": "dddd [at] LT"
   },
   "delete_access_key": {
     "other": "D"

@@ -1977,13 +1977,19 @@
     "other": "H:m"
   },
   "date_relative_today": {
-    "other": "hoy a las TIME"
+    "other": "[Hoy a las] LT"
   },
   "date_relative_tomorrow": {
-    "other": "mañana a las TIME"
+    "other": "[Mañana a las] LT"
   },
   "date_relative_yesterday": {
-    "other": "ayer a las TIME"
+    "other": "[Ayer a las] LT"
+  },
+  "date_relative_lastweek": {
+    "other": "[El pasado] dddd [a las] LT"
+  },
+  "date_relative_nextweek": {
+    "other": "dddd [a las] LT"
   },
   "delete_access_key": {
     "other": "D"
