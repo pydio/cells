@@ -82,15 +82,15 @@ export default createReactClass({
                     <ModernTextField variant={"compact"} fullWidth={true} value={inputFilter} onChange={(e,v)=> this.setState({inputFilter: v})} hintText={m('text-filter.hint')}/>
                 </div>
                 {peers.length > 0 &&
-                    <div style={{width: 150, marginRight: 8}}>
-                        <ModernSelectField fullWidth={true} variant={"compact"} className={"media-small-hide"} underlineStyle={{display:'none'}} value={peerFilter} onChange={this.onPeerFilterChange}>
+                    <div style={{width: 150, marginRight: 8}} className={"media-small-hide"} >
+                        <ModernSelectField fullWidth={true} variant={"compact"} underlineStyle={{display:'none'}} value={peerFilter} onChange={this.onPeerFilterChange}>
                             <MenuItem value={''} primaryText={m('peerfilter.title')} />
                             {peers.map(peer => <MenuItem value={peer} primaryText={peer} />)}
                         </ModernSelectField>
                     </div>
                 }
-                <div style={{width: 150}}>
-                    <ModernSelectField fullWidth={true} variant={"compact"} className={"media-small-hide"} underlineStyle={{display:'none'}} value={filter} onChange={this.onFilterChange}>
+                <div style={{width: 150}} className={"media-small-hide"} >
+                    <ModernSelectField fullWidth={true} variant={"compact"} underlineStyle={{display:'none'}} value={filter} onChange={this.onFilterChange}>
                         <MenuItem value={''} primaryText={m('filter.nofilter')} />
                         <MenuItem value={'STARTED'} primaryText={m('filter.started')} />
                         <MenuItem value={'STOPPED'} primaryText={m('filter.stopped')} />
