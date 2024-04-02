@@ -1977,13 +1977,19 @@
     "other": "H:i"
   },
   "date_relative_today": {
-    "other": "hôm nay lúc TIME"
+    "other": "[Today at] LT"
   },
   "date_relative_tomorrow": {
-    "other": "ngày mai lúc TIME"
+    "other": "[Tomorrow at] LT"
   },
   "date_relative_yesterday": {
-    "other": "ngày hôm qua lúc TIME"
+    "other": "[Yesterday at] LT"
+  },
+  "date_relative_lastweek": {
+    "other": "[Last] dddd [at] LT"
+  },
+  "date_relative_nextweek": {
+    "other": "dddd [at] LT"
   },
   "delete_access_key": {
     "other": "D"
