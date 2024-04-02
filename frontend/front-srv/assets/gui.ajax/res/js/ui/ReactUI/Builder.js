@@ -50,6 +50,16 @@ export default class Builder{
     updateMomentLocale(lang) {
         moment.locale(lang);
         const mess = Pydio.getMessages()
+        const realLangs = {
+            'es-es' : 'es',
+            'fr-ca': 'fr',
+            'pt-pt': 'pt',
+            'sv-se': 'sv',
+            'en-us': 'en'
+        }
+        if(realLangs[lang]){
+            lang = realLangs[lang]
+        }
         dayjs.updateLocale(lang, {
             calendar:{
                 lastDay: mess['date_relative_yesterday'],

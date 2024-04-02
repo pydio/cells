@@ -1,5 +1,3 @@
-import Pydio from 'pydio'
-
 import dayjs from 'dayjs'
 import 'dayjs/locale/ca'
 import 'dayjs/locale/cs'
