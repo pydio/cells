@@ -15,7 +15,7 @@
     "other": "列可见性"
   },
   "Created by...": {
-    "other": "创建者..."
+    "other": "由...创建..."
   },
   "Depending on the field type. Currently used for selection only": {
     "other": "取决于字段类型。目前仅用于选择"
@@ -30,7 +30,7 @@
     "other": "隐藏"
   },
   "Hidden file used inside folders to save meta data": {
-    "other": "隐藏文件夹中保存元数据的文件"
+    "other": "文件夹内使用隐藏文件来保存元数据"
   },
   "Id of fiels, use standard characters here.": {
     "other": "字段ID，使用标准字符。"
@@ -39,10 +39,10 @@
     "other": "标签"
   },
   "Label of the field, human friendly": {
-    "other": "字段标签，易读的名称"
+    "other": "领域标签，人性化"
   },
   "Last updated by...": {
-    "other": "上次更新时间..."
+    "other": "最后更新者..."
   },
   "Long text": {
     "other": "长文本"
@@ -51,7 +51,7 @@
     "other": "元文件"
   },
   "Selection (set choices in Additional Info)": {
-    "other": "选择 项(在附加信息中设置选项)"
+    "other": "选择(在附加信息中设置选项)"
   },
   "Set default visibility.": {
     "other": "设置默认可见性。"

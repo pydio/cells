@@ -6,16 +6,16 @@
     "other": "缩进大小"
   },
   "2": {
-    "other": "CodeMirror 语法高亮"
+    "other": "CodeMirror 语法荧光笔"
   },
   "3": {
-    "other": "自动换行"
+    "other": "换行"
   },
   "3b": {
-    "other": "切换自动换行"
+    "other": "切换换行"
   },
   "4": {
-    "other": "行号"
+    "other": "数字"
   },
   "5": {
     "other": "切换行号"

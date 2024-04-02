@@ -3,10 +3,10 @@
     "other": "公开访问"
   },
   "PolicyGroup.PublicAccess.Description": {
-    "other": "公开访问发现节点"
+    "other": "对发现端点的公共访问"
   },
   "PolicyGroup.PublicAccess.Rule1": {
-    "other": "匿名访问 (GET)"
+    "other": "匿名访问发现 (GET)"
   },
   "PolicyGroup.PublicAccess.Rule2": {
     "other": "匿名访问重置密码端点 (PUT, POST)"
@@ -30,10 +30,10 @@
     "other": "登录用户和管理员访问权限"
   },
   "PolicyGroup.LoggedUsers.Description": {
-    "other": "决定用户/共享用户/管理员如何访问Rest APIs的标准"
+    "other": "决定标准用户/共享用户/管理员用户如何访问rest API"
   },
   "PolicyGroup.LoggedUsers.Rule1": {
-    "other": "完全的 REST 访问管理配置文件"
+    "other": "对管理员配置文件的完全 REST 访问"
   },
   "PolicyGroup.LoggedUsers.Rule2": {
     "other": "登录用户的默认 REST 访问"

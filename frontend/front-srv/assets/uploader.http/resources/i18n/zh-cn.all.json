@@ -1,6 +1,6 @@
 {
   "1": {
-    "other": "远程下载"
+    "other": "远程DL"
   },
   "10": {
     "other": "下载到 APPLCATION_TITLE"
@@ -9,16 +9,16 @@
     "other": "下载到 %s"
   },
   "10b": {
-    "other": "下载到 %s"
+    "other": "DL到 %s"
   },
   "10c": {
-    "other": "下载到 %s"
+    "other": "DL到 %s"
   },
   "10d": {
     "other": "AjXp 下载 (%s)"
   },
   "11": {
-    "other": "拖动以下链接到您的书签栏： "
+    "other": "将以下链接之一拖到您的书签栏： "
   },
   "12": {
     "other": "触发远程文件下载"

@@ -1,9 +1,9 @@
 {
   "1.android": {
-    "other": "在安卓操作系统上有原生应用APPLICATION_TITLE可用来访问 %s。"
+    "other": "在安卓操作系统上有一个本机 APPLICATION_TITLE 客户端可用于访问 %s。"
   },
   "1.ios": {
-    "other": "在iPhone/iPad上有原生应用可访问 %s！"
+    "other": "有一个本机应用程序可用于通过 iPhone/iPad 访问 %s！"
   },
   "2.android": {
     "other": "我已经有了，打开它并将此服务器添加到预配置的远程服务器中"
@@ -12,19 +12,19 @@
     "other": "我已经有了，打开它并将此服务器添加到我的远程服务器中"
   },
   "3.android": {
-    "other": "我还没有，让我跳转到Play商店！"
+    "other": "我没有，请立即将我发送到 Play 商店！"
   },
   "3.ios": {
-    "other": "我还没有，让我跳到App Store！"
+    "other": "我没有，请立即发送给我到 App 商店！"
   },
   "4.android": {
-    "other": "无所谓，请允许我使用 %s 的Web版本。"
+    "other": "无所谓，请允许我使用 %s 的网页版。"
   },
   "4.ios": {
-    "other": "无所谓，请允许我使用 %s 的Web版本。"
+    "other": "无所谓，请允许我使用 %s 的网页版。"
   },
   "Mobile": {
-    "other": "移动客户端"
+    "other": "移动"
   },
   "Template extending gui.ajax for small screen terminals.": {
     "other": "为小屏幕终端扩展 gui.ajax 模板。"
@@ -45,12 +45,12 @@
     "other": "商店上的 iOS 应用程序 ID"
   },
   "Android Application ID": {
-    "other": "Android 应用程序 ID"
+    "other": "安卓应用程序 ID"
   },
   "Android App ID": {
-    "other": "Android App ID"
+    "other": "安卓 App ID"
   },
   "Android App Icon": {
-    "other": "Android 应用程序图标"
+    "other": "安卓应用程序图标"
   }
 }

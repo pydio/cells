@@ -3,13 +3,13 @@
     "other": "额外的JS框架"
   },
   "Additional JS frameworks description": {
-    "other": "以逗号分隔的 JS 文件路径列表，这些文件必须先于 Pydio 主框架加载。 首选方式应该是使用插件资源声明。 在页面开头加载JS文件只是在某些情况下的备选方案。"
+    "other": "以逗号分隔的 JS 文件路径列表，这些文件必须在加载主 Pydio 框架之前加载。首选方式应该是使用插件资源声明。 在页面开头加载JS文件只是在某些情况下的备选方案。"
   },
   "An additionnal message displayed in the start up screen": {
     "other": "在启动屏幕上显示的附加消息"
   },
   "Analytics Domain": {
-    "other": "分析域"
+    "other": "分析领域"
   },
   "Analytics Events": {
     "other": "分析事件"
@@ -48,7 +48,7 @@
     "other": "背景属性 (低分辨率)"
   },
   "Browser-based rich interface. Contains configurations for theming, custom welcome message, etc.": {
-    "other": "基于浏览器的接口。包括配置主题，自定义欢迎消息等。"
+    "other": "基于浏览器的丰富界面。 包含主题配置、自定义欢迎消息等。"
   },
   "Center in Page (no-repeat)": {
     "other": "在页面中居中 (无重复)"
@@ -90,13 +90,13 @@
     "other": "检测到的服务器路径"
   },
   "Display Branding Tool": {
-    "other": "显示品牌"
+    "other": "展示品牌工具"
   },
   "Enable Welcome Tour": {
-    "other": "启用欢迎教程"
+    "other": "启用欢迎导览"
   },
   "Enable the small tour triggered at first visit": {
-    "other": "启用首次访问时触发小教程"
+    "other": "启用首次访问时触发的小游览"
   },
   "Fetch Window (no repeat)": {
     "other": "获取窗口 (无重复)"
@@ -111,16 +111,16 @@
     "other": "谷歌分析"
   },
   "Google Analytics Analytics Domain": {
-    "other": "谷歌分析域"
+    "other": "谷歌分析分析域"
   },
   "Google Analytics Analytics Events": {
-    "other": "谷歌分析事件"
+    "other": "谷歌分析分析事件"
   },
   "Google Analytics Analytics ID": {
-    "other": "谷歌分析ID"
+    "other": "谷歌分析分析ID"
   },
   "Height of the custom icon (with the px mention)": {
-    "other": "自定义图标的高度 (采用px)"
+    "other": "自定义图标的高度(带有 px 提及)"
   },
   "Icon Height": {
     "other": "图标高度"
@@ -186,7 +186,7 @@
     "other": "迷你站点徽标"
   },
   "Number of MINUTES before the session expiration for issuing an alert to the user": {
-    "other": "会话到期前MINUTES 分钟向用户发出警报"
+    "other": "会话到期前向用户发出警报的分钟数"
   },
   "Override default styles and colors with the options defined in the branding tool. Make sure to reload the interface if you toggle this option.": {
     "other": "用品牌工具中定义的选项覆盖默认样式和颜色。如果您切换此选项，请确保重新加载接口。"
@@ -204,7 +204,7 @@
     "other": "设置您的分析报告域名(非强制性!)"
   },
   "Set the domain for yuor analytics reports (not mandatory!)": {
-    "other": "设置您的分析报告域名(非强制性!)"
+    "other": "为您的分析报告设置域(非强制性!)"
   },
   "Set up some application parameters. If you enable Emails, please use the Test button to check if your php is correctly configured.": {
     "other": "设置一些应用程序参数。如果您启用电子邮件，请使用测试按钮检查您的php是否正确配置。"
@@ -219,7 +219,7 @@
     "other": "开始界面"
   },
   "The length of the client session in SECONDS. By default, it's copying the server session length. In most PHP installation, it will be 1440, ie 24minutes. You can set this value to 0, this will make the client session 'infinite' by pinging the server at regular occasions (thus keeping the PHP session alive). This is not a recommanded setting for evident security reasons.": {
-    "other": "客户端会话的长度（以秒为单位）。 默认情况下，将使用服务器会话长度。 在大多数PHP安装版本中，会话长度设置为1440秒（24分钟）。 您可以将此值设置为0。这将通过定期ping服务器来使客户端会话“活跃”。 这样可以使PHP会话保持活动状态。 出于明显的安全原因，不建议这样设置。"
+    "other": "客户端会话的长度, 以秒为单位。 默认情况下，将使用服务器会话长度。 在大多数PHP安装版本中，会话长度设置为1440秒(24分钟)。 您可以将此值设置为0。这将通过定期 ping 服务器来使客户端会话“无限”。 这使 PHP 会话保持活动状态。 出于明显的安全原因，不建议这样做。"
   },
   "Theme": {
     "other": "主题"
@@ -249,7 +249,7 @@
     "other": "启用事件日志，仅在Pydio下载操作中实验性开启。"
   },
   "Use configured branding": {
-    "other": "使用已配置的品牌标记"
+    "other": "使用配置的品牌"
   },
   "User Home Logo": {
     "other": "用户主页徽标"
@@ -258,13 +258,13 @@
     "other": "会话到期前警告"
   },
   "Web Session": {
-    "other": "Web 会话"
+    "other": "网络会话"
   },
   "Web Interface auto-logout after inactivity": {
-    "other": "不活动后自动注销"
+    "other": "网络界面在不活动后自动注销"
   },
   "For security, disconnect user if there was no activity. Set to the cookie expiration by default.": {
-    "other": "为了安全起见，如果没有活动则断开用户连接。默认设置为 cookie 过期。"
+    "other": "为了安全起见，如果没有活动则断开用户连接。默认设置为曲奇过期。"
   },
   "Welcome Message": {
     "other": "欢迎消息"
@@ -285,6 +285,6 @@
     "other": "自定义 HTML 头部"
   },
   "Custom HTML you want to be included in the pages header. Beware, make sure to put valid HTML here!": {
-    "other": "自定义你想要包含在页面头部的HTML。请确保将有效的 HTML 放在这里！"
+    "other": "您想要包含在页面标题中的自定义 HTML。 请注意，请务必在此处输入有效的 HTML！"
   }
 }

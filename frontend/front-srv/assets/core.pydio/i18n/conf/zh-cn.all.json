@@ -1,6 +1,6 @@
 {
   "#Items per page": {
-    "other": "每页显示"
+    "other": "＃每页项目"
   },
   "16X16 Icon for representing the template": {
     "other": "代表模板的 16X16 图标"
@@ -18,7 +18,7 @@
     "other": "API设置-OAuth应用程序的重定向URL"
   },
   "Absolute path to the public folder where temporary download links will be created. This is used for legacy purpose, newly created links do not use it anymore, but use the Base URI instead.": {
-    "other": "公用文件夹的绝对路径，将在该公用文件夹中创建临时下载链接。 这用于遗留用途，新创建的链接不再使用它，而是使用基本URI。"
+    "other": "将在其中创建临时下载链接的公共文件夹的绝对路径。 这用于遗留目的，新创建的链接不再使用它，而是使用基本 URI。。"
   },
   "Admin Login": {
     "other": "管理员登录"
@@ -45,7 +45,7 @@
     "other": "允许用户在共享文件夹时选择已有用户"
   },
   "Allow to group admins": {
-    "other": "允许管理员群组"
+    "other": "允许对管理员进行分组"
   },
   "Allow to user": {
     "other": "允许用户"
@@ -60,7 +60,7 @@
     "other": "Auth驱动程序公用"
   },
   "Auth URL": {
-    "other": "身份验证URL"
+    "other": "Auth URL"
   },
   "Auto Create User": {
     "other": "自动创建用户"
@@ -84,7 +84,7 @@
     "other": "客户端 ID"
   },
   "Client SECRET": {
-    "other": "客户端密钥"
+    "other": "客户秘密"
   },
   "Comma separated list of metastore and meta plugins, that will be automatically applied to all repositories created with this driver": {
     "other": "以逗号分隔的元存储和元插件列表，将自动应用于使用此驱动程序创建的所有工作区"
@@ -120,7 +120,7 @@
     "other": "DSN"
   },
   "Data Source Name": {
-    "other": "数据源"
+    "other": "数据源名称"
   },
   "Database": {
     "other": "数据库"
@@ -147,7 +147,7 @@
     "other": "默认权限"
   },
   "Default field to sort on": {
-    "other": "开启默认字段排序"
+    "other": "要排序的默认字段"
   },
   "Default language when a user does not have set his/her own.": {
     "other": "用户没有设置自己的语言时的默认语言。"
@@ -192,7 +192,7 @@
     "other": "下载链接"
   },
   "Driver": {
-    "other": "驱动"
+    "other": "驱动程序"
   },
   "Driver type (do not touch)": {
     "other": "驱动程序类型(不触摸)"
@@ -204,7 +204,7 @@
     "other": "默认情况下为所有用户启用 WebDAV 。如果设置为 false，每个用户可以通过他们各自的首选项面板手动启用 WebDAV。"
   },
   "Enable for all users": {
-    "other": "启用所有用户"
+    "other": "为所有用户启用"
   },
   "Enable the webDAV support. Please READ THE DOC to safely use this feature.": {
     "other": "启用webDAV支持。请阅读文档以安全使用此功能。"
@@ -228,10 +228,10 @@
     "other": "文件名长度"
   },
   "Filesystem Commons": {
-    "other": "文件系统共享"
+    "other": "文件系统公用"
   },
   "For exotic auth drivers, an user ID that must be considered as admin by default.": {
-    "other": "对于外来身份验证驱动程序，默认情况下必须将其视为管理员的用户 ID。"
+    "other": "对于奇异的身份验证驱动程序，默认情况下必须将其视为管理员的用户 ID。"
   },
   "For multiple authentication, apply this role to users authenticated via this driver": {
     "other": "对于多重身份验证，将此角色应用于通过此驱动进行身份验证的用户"
@@ -366,7 +366,7 @@
     "other": "远程排序默认字段"
   },
   "Repository Commons": {
-    "other": "仓库共享"
+    "other": "存储库公用"
   },
   "Repository Slug": {
     "other": "存储库段头"
@@ -399,7 +399,7 @@
     "other": "分享中"
   },
   "Show files beginning with a .": {
-    "other": "显示以 . 开头的文件。"
+    "other": "显示以 a开头的文件。"
   },
   "Show hidden files": {
     "other": "显示隐藏文件"
@@ -453,13 +453,13 @@
     "other": "用户"
   },
   "User Credentials": {
-    "other": "用户证书"
+    "other": "用户凭证"
   },
   "User name": {
-    "other": "用户名"
+    "other": "用户名称"
   },
   "User name - Can be overriden on a per-user basis (see users 'Personal Data' tab)": {
-    "other": "用户名 - 每个用户可自行修改(见用户“个人数据”选项卡)"
+    "other": "用户名称 - 每个用户可自行修改(见用户“个人数据”选项卡)"
   },
   "User password": {
     "other": "用户密码"
@@ -495,9 +495,9 @@
     "other": "Zip 编码"
   },
   "Merge Workspaces and Cells": {
-    "other": "合并工作区和资料库"
+    "other": "合并工作区和单元格"
   },
   "Do not display workspaces and cells separately": {
-    "other": "不单独显示工作区和资料库"
+    "other": "不要单独显示工作区和单元格"
   }
 }

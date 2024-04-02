@@ -21,7 +21,7 @@
     "other": "远程包装器"
   },
   "Rotate image using exif rotation": {
-    "other": "使用 exif 旋转图像"
+    "other": "使用 exif 旋转来旋转图像"
   },
   "Size Threshold": {
     "other": "大小阈值"
@@ -39,6 +39,6 @@
     "other": "缩略图质量"
   },
   "When connected to a remote server, metadata extraction can make the listing action very long, as it must first copy each file locally. For plugins using the defined wrappers and files whose size is greater than this threshold, the image type and dimension will be skipped.": {
-    "other": "当连接到远程服务器时，元数据提取可以使列表操作变得很长，因为它必须首先复制每个文件。 对于使用已定义的封面和文件的插件，其大小大于此阈值的插件，图像类型和尺寸将会被跳过。"
+    "other": "当连接到远程服务器时，元数据提取可能会使列表操作变得非常长，因为它必须首先在本地复制每个文件。 对于使用定义的包装器和大小大于此阈值的文件的插件，将跳过图像类型和尺寸。"
   }
 }

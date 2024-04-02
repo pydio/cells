@@ -3,10 +3,10 @@
     "other": "发送电子邮件的核心组件"
   },
   "Activate Queue": {
-    "other": "活动队列"
+    "other": "激活队列"
   },
   "Active notifications by email": {
-    "other": "通过电子邮件激活通知"
+    "other": "通过电子邮件发出主动通知"
   },
   "Adress of the sender": {
     "other": "发件人的地址"
@@ -69,7 +69,7 @@
     "other": "通过电子邮件接收通知"
   },
   "Select the plugin to activate for concretely sending emails": {
-    "other": "选择要激活的插件用于发送电子邮件"
+    "other": "选择要激活的插件以具体发送电子邮件"
   },
   "Send as HTML": {
     "other": "以 HTML 格式发送"
@@ -87,7 +87,7 @@
     "other": "发件人名称"
   },
   "Store emails in a queue and batch-process them. Users can choose the sending frequency. Make sure to set up a CRON on consume_mail_queue action if you use this option.": {
-    "other": "将电子邮件存储在队列和并做批处理。用户可以选择发送频率。 如果您使用此选项，请确保在consume_mail_queue动作上设置一个 CRON。"
+    "other": "将电子邮件存储在队列并做批处理。用户可以选择发送频率。 如果您使用此选项，请确保在consume_mail_queue动作上设置一个 CRON。"
   },
   "String automatically added at the beginning of the mail subject": {
     "other": "在邮件主题开头自动添加的字符串"
@@ -102,12 +102,12 @@
     "other": "主题前缀"
   },
   "Twice a day (every day at and)": {
-    "other": "每天两次(每天)"
+    "other": "每天两次(每天在和)"
   },
   "Unique Sender": {
     "other": "唯一的发件人"
   },
   "You can add many email separated by commas": {
-    "other": "您可以添加通过逗号分隔添加许多电子邮件"
+    "other": "您可以添加多个电子邮件，以逗号分隔"
   }
 }
