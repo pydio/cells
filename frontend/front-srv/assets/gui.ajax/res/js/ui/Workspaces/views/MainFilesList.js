@@ -582,7 +582,6 @@ class MainFilesList extends React.Component {
         if(metaData.has('ajxp_modiftime')) {
             let mDate = moment(parseFloat(metaData.get('ajxp_modiftime'))*1000);
             let dateString = mDate.calendar();
-            console.log(dateString)
             if(dateString.indexOf('/') > -1) {
                 dateString = mDate.fromNow();
             }
