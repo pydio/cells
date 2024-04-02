@@ -18,13 +18,13 @@
     "other": "默认行为"
   },
   "Default value for automatically closing the dialog after upload or not": {
-    "other": "默认上传后自动关闭对话框"
+    "other": "上传后是否自动关闭对话框的默认值"
   },
   "Default value for automatically starting upload or not": {
-    "other": "默认自动开始上传或不上传"
+    "other": "是否自动开始上传的默认值"
   },
   "Existing Files": {
-    "other": "已存在的文件"
+    "other": "现有文件"
   },
   "HTML Uploader": {
     "other": "常规"

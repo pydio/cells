@@ -1,6 +1,6 @@
 {
   "Jobs.Default.Thumbs": {
-    "other": "提取图像缩略图和EXIF数据"
+    "other": "提取图像缩略图和Exif数据"
   },
   "Jobs.Default.ThumbsCache": {
     "other": "清除已删除文件的缩略图缓存"
@@ -36,7 +36,7 @@
     "other": "压缩选项..."
   },
   "Jobs.User.Extract": {
-    "other": "解压缩到..."
+    "other": "正在提取存档..."
   },
   "Jobs.User.Delete": {
     "other": "正在后台删除选择的文件..."
@@ -57,7 +57,7 @@
     "other": "正在后台复制选择的文件..."
   },
   "Jobs.User.MultipleMove": {
-    "other": "正在后台移动选择的文件..."
+    "other": "在后台移动选择..."
   },
   "Jobs.User.MoveRecycle": {
     "other": "在后台移动到回收站..."

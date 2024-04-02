@@ -6,7 +6,7 @@
     "other": "所有角色"
   },
   "Allow Group Listing": {
-    "other": "允许群组列表"
+    "other": "允许组列表"
   },
   "Allow Role Listing": {
     "other": "允许角色列表"
@@ -42,7 +42,7 @@
     "other": "核心SQL连接"
   },
   "Country": {
-    "other": "国家/地区"
+    "other": "国家"
   },
   "User Country": {
     "other": "用户国家"
@@ -57,7 +57,7 @@
     "other": "登录后显示的默认工作区。“主页”是带有活动和搜索引擎的欢迎页面。"
   },
   "Display roles and/or groups": {
-    "other": "显示角色和/或群组"
+    "other": "显示角色和/或组"
   },
   "Do not display real login in parenthesis": {
     "other": "不要在括号中显示真实的登录信息"
@@ -69,7 +69,7 @@
     "other": "电子邮件"
   },
   "Excluded Roles": {
-    "other": "排除角色"
+    "other": "排除的角色"
   },
   "External Users Creation": {
     "other": "外部用户创建"
@@ -90,16 +90,16 @@
     "other": "如果之前的选项设置为 True，直接显示来自所有组的完整用户列表"
   },
   "If set, this action will be triggered automatically at users login. Can be logout (to lock out the users), pass_change (to force password change), or anything else": {
-    "other": "如果设置，此操作将在用户登录时自动触发。 可以登出(锁定用户)、密码更改(强制密码更改) 或其他任何内容"
+    "other": "如果设置，此操作将在用户登录时自动触发。 可以登出(锁定用户)、pass_change(强制密码更改) 或其他任何内容"
   },
   "If the 'guest' user is enabled, remember her preferences accross sessions.": {
-    "other": "如果启用了 'guest' 用户，请记住她在会话中的偏好。"
+    "other": "如果启用了“访客”用户，请记住她在各个会话中的偏好。"
   },
   "Image displayed next to the user name": {
     "other": "显示在用户名旁边的图像"
   },
   "Included Roles": {
-    "other": "包含角色"
+    "other": "包含的角色"
   },
   "Instance": {
     "other": "实例"
@@ -117,28 +117,28 @@
     "other": "允许用户从模板创建资源库"
   },
   "List Roles By": {
-    "other": "列出角色由"
+    "other": "列出角色依据"
   },
   "List existing from all groups": {
-    "other": "列表中存在于所有组"
+    "other": "列出所有组中现有的"
   },
   "List of parameters to be edited when creating a new shared user.": {
     "other": "创建新共享用户时要编辑的参数列表。"
   },
   "Make regexp mandatory": {
-    "other": "强制使用regexp"
+    "other": "强制使用正则表达式"
   },
   "Maximum number of shared users per user": {
     "other": "每个用户的最大共享用户数"
   },
   "Maximum number of users displayed in the users autocompleter": {
-    "other": "用户自动完成时显示的最大用户数"
+    "other": "用户自动完成程序中显示的最大用户数"
   },
   "Minimum number of characters to trigger the auto completion feature": {
     "other": "触发自动完成功能的最小字符数"
   },
   "Name": {
-    "other": "组名"
+    "other": "名称"
   },
   "Preferences Saving": {
     "other": "首选项保存"
@@ -150,10 +150,10 @@
     "other": "角色标签"
   },
   "Role/Group Listing": {
-    "other": "角色/群组列表"
+    "other": "角色/组列表"
   },
   "Roles / Groups Directory Listing": {
-    "other": "角色/群组目录列表"
+    "other": "角色/组目录列表"
   },
   "SQL Connexion": {
     "other": "SQL连接"
@@ -177,10 +177,10 @@
     "other": "跳过界面偏好设置"
   },
   "Some roles should be disappered in the list.  list separated by ',' or start with 'preg:' for regex.": {
-    "other": "某些角色应该消失在列表中，用','分隔，或者用正则表达式开头以'preg:'开始。"
+    "other": "有些角色应该从列表中消失。 列表以“,”分隔，或者以“preg:”开头（对于正则表达式）。"
   },
   "Some roles should be shown in the list.  list separated by ',' or start with 'preg:' for regex.": {
-    "other": "某些角色应该消失在列表中，用','分隔，或者用正则表达式开头以'preg:'开始。"
+    "other": "一些角色应该显示在列表中。 列表以“,”分隔，或者以“preg:”开头（对于正则表达式）。"
   },
   "Use this option to avoid automatic reloading of the interface state (last folder, opened tabs, etc)": {
     "other": "使用此选项以避免自动重新加载界面状态(如最后一个文件夹，打开标签等)"

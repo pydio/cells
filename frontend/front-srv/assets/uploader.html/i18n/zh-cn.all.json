@@ -6,7 +6,7 @@
     "other": "暂停"
   },
   "clear": {
-    "other": "清空"
+    "other": "清除"
   },
   "clear-header": {
     "other": "清空列表..."
@@ -24,7 +24,7 @@
     "other": "%d 个更多 - 显示所有"
   },
   "options.existing": {
-    "other": "存在具有相同名称的文件："
+    "other": "如果存在同名文件："
   },
   "options.existing.alert": {
     "other": "停止上传并提醒我"
@@ -48,7 +48,7 @@
     "other": "合并文件夹并覆盖文件"
   },
   "confirm.save.choice": {
-    "other": "下次上传默认采用该选择"
+    "other": "保存选择以供下次上传"
   },
   "options": {
     "other": "上传选项"
@@ -69,7 +69,7 @@
     "other": "正在创建 %s 个文件夹"
   },
   "task.status.analyse": {
-    "other": "准备上传文件"
+    "other": "正在准备要上载的文件"
   },
   "task.message.analyse-many": {
     "other": "正在分析 %s 项..."
@@ -159,7 +159,7 @@
     "other": "正在上传片块"
   },
   "status.multi-pause": {
-    "other": "暂停前正在完成当前片块的上传"
+    "other": "暂停前完成当前块"
   },
   "status.file.cannot-pause": {
     "other": "无法暂停此传输"
@@ -168,7 +168,7 @@
     "other": "无法暂停片块传输"
   },
   "status.error.aborted": {
-    "other": "用户中断"
+    "other": "被用户打断"
   },
   "status.error.403": {
     "other": "您无权上传到这里"

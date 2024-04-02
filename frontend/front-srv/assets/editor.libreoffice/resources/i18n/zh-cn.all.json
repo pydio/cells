@@ -1,6 +1,6 @@
 {
   "1": {
-    "other": "Libre Office 文档"
+    "other": "Libre办公室文档"
   },
   "10": {
     "other": "创建空文档"
@@ -21,13 +21,13 @@
     "other": "未知文档格式"
   },
   "2": {
-    "other": "Libre Office 外部浏览器窗口"
+    "other": "Libre办公室外部浏览器窗口"
   },
   "ext.doc": {
-    "other": "Microsoft Word 97/2000/XP/2003"
+    "other": "微软Word 97/2000/XP/2003"
   },
   "ext.docx": {
-    "other": "Microsoft Word 2007/2010/2013 XML"
+    "other": "微软Word 2007/2010/2013 XML"
   },
   "ext.odg": {
     "other": "ODF 绘图"
@@ -42,18 +42,18 @@
     "other": "ODF 文本文档"
   },
   "ext.ppt": {
-    "other": "Microsoft PowerPoint 97/2000/XP/2003"
+    "other": "微软PowerPoint 97/2000/XP/2003"
   },
   "ext.pptx": {
-    "other": "Microsoft PowerPoint 2007/2010/2013 XML"
+    "other": "微软PowerPoint 2007/2010/2013 XML"
   },
   "ext.rtf": {
     "other": "富文本"
   },
   "ext.xls": {
-    "other": "Microsoft Excel 97/2000/XP/2003"
+    "other": "微软Excel 97/2000/XP/2003"
   },
   "ext.xlsx": {
-    "other": "Microsoft Excel 2007/2010/2013 XML"
+    "other": "微软Excel 2007/2010/2013 XML"
   }
 }

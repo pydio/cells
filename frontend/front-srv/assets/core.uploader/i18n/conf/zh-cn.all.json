@@ -18,7 +18,7 @@
     "other": "限制"
   },
   "Maximum size per file allowed to upload. Warning, this limit can vary depending on your underlying storage and the Multipart Chunk Size. For example, Amazon S3 restricts uploads to maximum 10000 distinct parts.": {
-    "other": "允许上传的每个文件的最大大小。警告：此限制会因底层存储和多部分分块大小的不同而变化。例如，Amazon S3 将上传限制为最多 10000 个不同部分。"
+    "other": "允许上传的每个文件的最大大小。警告：此限制会因底层存储和多部分分块大小的不同而变化。例如，亚马逊 S3 将上传限制为最多 10000 个不同部分。"
   },
   "Options shared by all uploaders plugins": {
     "other": "所有上传插件共享的选项"
@@ -39,7 +39,7 @@
     "other": "多部分的分块阈值"
   },
   "Switch to Multipart Upload for files bigger than this value (in bytes)": {
-    "other": "大于此值的文件切换到多部分上传模式(字节)"
+    "other": "对于大于此值(以字节为单位) 的文件，切换到分段上传"
   },
   "Chunk Size used for multipart uploads, it must be a multiple of 10MB for hashing consistency. If you plan to upload very large files (bigger 500GB), raise this value to lower the total number of parts sent.": {
     "other": "用于多部分上传的分块大小，必须是 10MB 的倍数，以保证散列一致性。如果计划上传超大文件(大于 500GB)，则应增大此值以降低发送的部件总数。"
