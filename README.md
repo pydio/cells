@@ -21,7 +21,7 @@ These instructions will get you a copy of the project up and running on your loc
 
 The following elements are required to compile and run Pydio Cells on your machine:
 
-- Go language **v1.20** or higher and a [correctly configured](https://golang.org/doc/install#testing) Go toolchain,
+- Go language **v1.21** or higher and a [correctly configured](https://golang.org/doc/install#testing) Go toolchain,
 - MySQL database 5.6 or higher (or MariaDB equivalent).
 
 _Note: We have developed and tested Pydio Cells on macOS, Ubuntu, Debian and CentOS. Windows version might still have unknown glitches and is not yet supported._
@@ -73,11 +73,6 @@ Please read the [CONTRIBUTING.md](CONTRIBUTING.md) document if you wish to add m
 
 Binaries are currently provided for [Linux, macOS and Windows distributions](https://pydio.com/en/download). To deploy them on a live system, please see the [Installation Guide](https://pydio.com/en/docs/cells/v4/cells-installation) instructions.
 
-## Built With
-
-Pydio Cells uses many open-source Golang libraries. The most important ones are listed below, please see [DEPENDENCIES](DEPENDENCIES) for an exhaustive list of other libs and their licenses.
-
-- [Minio](https://github.com/minio/minio) - Objects server implementing s3 protocol
 
 ## Contributing
 
@@ -85,6 +80,8 @@ Please read [CONTRIBUTING.md](CONTRIBUTING.md) for details on our code of conduc
 
 We are also looking for help to translate the Cells interface in various languages.
 It is really easy to participate: just navigate to [our page in the Crowdin translation tool](https://crowdin.com/project/pydio-cells), create an account and get started.
+
+Pydio Cells uses many open-source libraries. The most important ones are listed below, please see [DEPENDENCIES](DEPENDENCIES) for an exhaustive list of other libs and their licenses.
 
 ## Versioning & Branches
 
