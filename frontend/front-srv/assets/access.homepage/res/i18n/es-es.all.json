@@ -210,10 +210,10 @@
     "other": "Más antiguo primero"
   },
   "search.sorter.size.desc": {
-    "other": "Biggest First"
+    "other": "Más grande primero"
   },
   "search.sorter.size.asc": {
-    "other": "Smallest First"
+    "other": "Más pequeño primero"
   },
   "facet.label.file": {
     "other": "Archivo"

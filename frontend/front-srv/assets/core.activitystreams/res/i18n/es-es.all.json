@@ -9,7 +9,7 @@
     "other": "Actividad del archivo"
   },
   "11b": {
-    "other": "Activity"
+    "other": "Actividad"
   },
   "12": {
     "other": "Dependiendo de su navegador, se le pedirá un permiso específico. Para desactivar, cambiar las preferencias del navegador y excepciones. Si ya ha activado esta función, probablemente no pasará nada."
@@ -63,6 +63,6 @@
     "other": "Actividad del workspace"
   },
   "tasks.subheader": {
-    "other": "Running Tasks"
+    "other": "Tareas en Ejecución"
   }
 }

@@ -2256,10 +2256,10 @@
     "other": "¡No utilizar / en nombres de archivo!"
   },
   "filename.forbidden.empty": {
-    "other": "You must provide a name!"
+    "other": "¡Debes proporcionar un nombre!"
   },
   "filename.trailing-leading.spaces": {
-    "other": "Warning, it seems that the name begins or ends with a blank character (perhaps a typo?)"
+    "other": "Advertencia, parece que el nombre comienza o termina con un carácter en blanco (¿tal vez un tipo?)"
   },
   "rename.newvalue.error.similar": {
     "other": "¡Por favor, utilice un valor diferente para renombrar!"
@@ -2316,7 +2316,7 @@
     "other": "Seleccionar grupo"
   },
   "addressbook.pick.multiple": {
-    "other": "Multiple Selection"
+    "other": "Selección Múltiple"
   },
   "confirm.dialog.title": {
     "other": "Confirmar"
@@ -2346,7 +2346,7 @@
     "other": "Por favor, utilice imágenes de menos de 5MB"
   },
   "searchengine.start": {
-    "other": "Start typing to search for files and folders"
+    "other": "Empezar a escribir para buscar archivos y carpetas"
   },
   "searchengine.searching": {
     "other": "Buscando..."
@@ -2361,13 +2361,13 @@
     "other": "Buscar en..."
   },
   "searchengine.share.title": {
-    "other": "Shared"
+    "other": "Compartido"
   },
   "searchengine.share.hint": {
-    "other": "No status"
+    "other": "Sin estatus"
   },
   "searchengine.share.option.link": {
-    "other": "Public Link"
+    "other": "Enlace Público"
   },
   "searchengine.share.option.cell": {
     "other": "Shared in Cell"
