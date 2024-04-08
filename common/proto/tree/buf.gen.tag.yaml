@@ -2,7 +2,7 @@ version: v1
 plugins:
   - name: go-tags
     opt: paths=source_relative
-    out: tree
+    out: .
   - name: go-setter
     opt: paths=source_relative
-    out: tree
+    out: .

@@ -1,8 +1,5 @@
 version: v1
 plugins:
-  # - name: go
-  #  opt: module=github.com/pydio/cells/v4/common/proto/options/setter
-  #  out: .
   - name: go
     opt: module=github.com/pydio/cells/v4/common/proto/tree
     out: .
@@ -11,8 +8,6 @@ plugins:
     out: .
   - name: go-client-stub
     opt: module=github.com/pydio/cells/v4/common/proto/tree
-    out: .
-  - plugin: buf.build/protocolbuffers/go
     out: .
   - plugin: buf.build/grpc/python
     out: ../../../python
