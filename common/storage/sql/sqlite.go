@@ -18,7 +18,7 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-package storage
+package sql
 
 import (
 	"strings"

@@ -31,6 +31,7 @@ import (
 	"sync"
 
 	protovalidate "github.com/bufbuild/protovalidate-go"
+	grpc_middleware "github.com/grpc-ecosystem/go-grpc-middleware"
 	"go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc"
 	"go.uber.org/zap"
 	"google.golang.org/grpc"
@@ -284,15 +285,23 @@ func (s *Server) lazyGrpc(ctx context.Context) *grpc.Server {
 						if handlerV.Kind() != reflect.Func {
 							return errors.New("storage handler is not a function")
 						}
-						if handlerT.NumIn() != 1 {
+						if handlerT.NumIn() != 1 && handlerT.NumIn() != 2 {
 							return errors.New("storage handler should have only 1 argument")
 						}
 
-						db := reflect.New(handlerT.In(0))
+						db := reflect.New(handlerT.In(handlerT.NumIn() - 1))
 						if !storage.Get(ctx, db.Interface()) {
+							return fmt.Errorf("Could not retrieve storage for some reason")
 						}
 
-						dao := handlerV.Call([]reflect.Value{db.Elem()})
+						args := []reflect.Value{db.Elem()}
+						if handlerT.NumIn() != 1 {
+							args = append([]reflect.Value{reflect.ValueOf(ctx)}, args...)
+						}
+
+						fmt.Println(args)
+
+						dao := handlerV.Call(args)
 
 						field := reflect.ValueOf(ep.Handler()).Elem().FieldByName(store.Key)
 						if field.CanSet() {
@@ -300,9 +309,13 @@ func (s *Server) lazyGrpc(ctx context.Context) *grpc.Server {
 								field.Set(dao[0])
 							}
 						}
+
+						ctx = servicecontext.WithDAO(ss.Context(), dao[0].Interface())
 					}
 
-					return handler(ep.Handler(), ss)
+					wrapped := grpc_middleware.WrapServerStream(ss)
+					wrapped.WrappedContext = ctx
+					return handler(ep.Handler(), wrapped)
 				}
 			}
 

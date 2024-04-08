@@ -32,7 +32,7 @@ import (
 )
 
 const (
-	Driver       = "sqlite3_extended"
+	Driver       = "sqlite3-extended"
 	SharedMemDSN = "file::memory:?mode=memory&cache=shared"
 )
 

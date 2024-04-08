@@ -12,7 +12,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/r3labs/diff/v3"
+	diff "github.com/r3labs/diff/v3"
 
 	"github.com/pydio/cells/v4/common/config"
 	"github.com/pydio/cells/v4/common/utils/configx"
@@ -229,6 +229,7 @@ func (m *memory) Watch(opts ...configx.WatchOption) (configx.Receiver, error) {
 
 	r := &receiver{
 		closed:      false,
+		sendLock:    &sync.Mutex{},
 		ch:          make(chan diff.Change),
 		regPath:     regPath,
 		level:       len(o.Path),
@@ -245,8 +246,10 @@ func (m *memory) Watch(opts ...configx.WatchOption) (configx.Receiver, error) {
 }
 
 type receiver struct {
-	closed bool
-	ch     chan diff.Change
+	closed   bool
+	sendLock *sync.Mutex
+
+	ch chan diff.Change
 
 	regPath     *regexp.Regexp
 	level       int
@@ -281,9 +284,17 @@ func (r *receiver) call(op diff.Change) error {
 		return nil
 	}
 
+	r.sendLock.Lock()
+
+	if r.closed {
+		return errClosedChannel
+	}
+
 	if r.regPath.MatchString(strings.Join(op.Path, "/")) {
 		r.ch <- op
 	}
+
+	r.sendLock.Unlock()
 	return nil
 }
 
@@ -351,8 +362,10 @@ func (r *receiver) Next() (interface{}, error) {
 }
 
 func (r *receiver) Stop() {
+	r.sendLock.Lock()
 	r.closed = true
 	close(r.ch)
+	r.sendLock.Unlock()
 }
 
 type values struct {

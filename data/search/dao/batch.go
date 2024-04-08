@@ -36,7 +36,6 @@ import (
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/auth"
 	"github.com/pydio/cells/v4/common/auth/claim"
-	"github.com/pydio/cells/v4/common/dao"
 	"github.com/pydio/cells/v4/common/log"
 	"github.com/pydio/cells/v4/common/nodes"
 	"github.com/pydio/cells/v4/common/nodes/compose"
@@ -44,6 +43,7 @@ import (
 	"github.com/pydio/cells/v4/common/nodes/models"
 	"github.com/pydio/cells/v4/common/proto/tree"
 	"github.com/pydio/cells/v4/common/runtime"
+	"github.com/pydio/cells/v4/common/storage/indexer"
 	"github.com/pydio/cells/v4/common/utils/configx"
 )
 
@@ -96,7 +96,7 @@ func (b *Batch) Size() int {
 	return l
 }
 
-func (b *Batch) Flush(indexer dao.IndexDAO) error {
+func (b *Batch) Flush(indexer indexer.Indexer) error {
 	b.Lock()
 	l := len(b.inserts) + len(b.deletes)
 	if l == 0 {
@@ -115,18 +115,18 @@ func (b *Batch) Flush(indexer dao.IndexDAO) error {
 	}
 	b.nsProvider.CloseStreamers()
 	for _, n := range nodes {
-		if er := indexer.InsertOne(nil, n); er != nil {
+		if er := indexer.InsertOne(n); er != nil {
 			fmt.Println("Search batch - InsertOne error", er.Error())
 		}
 	}
 	for uuid := range b.deletes {
-		if er := indexer.DeleteOne(nil, uuid); er != nil {
+		if er := indexer.DeleteOne(uuid); er != nil {
 			fmt.Println("Search batch - DeleteOne error", er.Error())
 		}
 		delete(b.deletes, uuid)
 	}
 	b.Unlock()
-	return indexer.Flush(b.ctx)
+	return indexer.Flush()
 }
 
 func (b *Batch) LoadIndexableNode(indexNode *tree.IndexableNode, excludes map[string]struct{}) error {

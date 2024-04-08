@@ -68,11 +68,14 @@ var (
 )
 
 type Manager interface {
+	Registry() registry.Registry
 	ServeAll(...server.ServeOption) error
 	StopAll()
 	SetServeOptions(...server.ServeOption)
 	WatchServicesConfigs()
 	WatchBroker(ctx context.Context, br broker.Broker) error
+
+	GetStorage(ctx context.Context, name string, out any) error
 }
 
 type manager struct {
@@ -94,7 +97,7 @@ type manager struct {
 	logger log.ZapLogger
 }
 
-func NewManager(ctx context.Context, clusterRegistry registry.Registry, srcUrl string, namespace string, logger log.ZapLogger) (Manager, error) {
+func NewManager(ctx context.Context, namespace string, logger log.ZapLogger) (Manager, error) {
 
 	reg, err := registry.OpenRegistry(ctx, "mem:///?cache="+namespace)
 	if err != nil {
@@ -105,8 +108,7 @@ func NewManager(ctx context.Context, clusterRegistry registry.Registry, srcUrl s
 		ctx: ctx,
 		ns:  namespace,
 
-		localRegistry:   reg,
-		clusterRegistry: clusterRegistry,
+		localRegistry: reg,
 
 		//processes: make(map[string]registry),
 		//servers:  make(map[string]server.Server),
@@ -124,6 +126,11 @@ func NewManager(ctx context.Context, clusterRegistry registry.Registry, srcUrl s
 	}, registry.WithType(pb.ItemType_SERVER), registry.WithType(pb.ItemType_SERVICE), registry.WithType(pb.ItemType_NODE))
 
 	reg.Register(m.root)
+
+	// Initialising default connections
+	if err := m.initConnections(); err != nil {
+		return nil, err
+	}
 
 	reg = registry.NewFuncWrapper(reg,
 		registry.OnRegister(func(item *registry.Item, opts *[]registry.RegisterOption) {
@@ -173,6 +180,119 @@ func NewManager(ctx context.Context, clusterRegistry registry.Registry, srcUrl s
 	return m, nil
 }
 
+func reset(conf config.Store, store config.Store) error {
+	tmpl := defaultTemplate
+
+	// Then generate the new template based on the config
+	if file := runtime.GetString("file"); file != "" {
+		f, err := os.Open(file)
+		if err != nil {
+			return err
+		}
+		b, err := io.ReadAll(f)
+		if err != nil {
+			return err
+		}
+		tmpl = string(b)
+	} else if yaml := runtime.GetString("yaml"); yaml != "" {
+		tmpl = yaml
+	}
+
+	t, err := template.New("context").Delims("{{{{", "}}}}").Parse(tmpl)
+	if err != nil {
+		return err
+	}
+
+	var b strings.Builder
+
+	r := runtime.GetRuntime()
+	if err := t.Execute(&b, struct {
+		ConfigURL     string
+		RegistryURL   string
+		BrokerURL     string
+		CacheURL      string
+		BindHost      string
+		AdvertiseHost string
+		DiscoveryPort string
+		FrontendPort  string
+		Config        config.Store
+	}{
+		runtime.ConfigURL(),
+		runtime.RegistryURL(),
+		runtime.BrokerURL(),
+		runtime.CacheURL(""),
+		r.GetString(runtime.KeyBindHost),
+		r.GetString(runtime.KeyBindHost),
+		r.GetString(runtime.KeyGrpcDiscoveryPort),
+		r.GetString(runtime.KeyHttpPort),
+		conf,
+	}); err != nil {
+		return err
+	}
+
+	store.Set([]byte(b.String()))
+
+	for _, pair := range runtime.GetStringSlice(runtime.KeySet) {
+		kv := strings.SplitN(pair, "=", 2)
+		if len(kv) != 2 {
+			return nil
+		}
+		store.Val(kv[0]).Set(kv[1])
+	}
+
+	return nil
+}
+
+func (m *manager) Registry() registry.Registry {
+	return m.localRegistry
+}
+
+func (m *manager) GetStorage(ctx context.Context, name string, out any) error {
+	item, err := m.localRegistry.Get(name, registry.WithType(pb.ItemType_STORAGE))
+	if err != nil {
+		return err
+	}
+
+	var store storage.Storage
+	if done := item.As(&store); !done {
+		return errors.New("wrong item format")
+	}
+
+	if done := store.Get(ctx, out); !done {
+		return errors.New("wrong out format")
+	}
+
+	return nil
+}
+
+func (m *manager) initConnections() error {
+	store, err := config.OpenStore(m.ctx, "mem://?encode=yaml")
+	if err != nil {
+		return err
+	}
+
+	if err := reset(nil, store); err != nil {
+		return err
+	}
+
+	storages := store.Val("storages")
+	for k := range storages.Map() {
+		conn, err := storage.OpenStorage(m.ctx, storages.Val(k, "uri").String())
+		if err != nil {
+			continue
+		}
+
+		if conn != nil {
+			registry.NewMetaWrapper(m.localRegistry, func(meta map[string]string) {
+				meta[registry.MetaTimestampKey] = fmt.Sprintf("%d", time.Now().UnixNano())
+				meta[registry.MetaStatusKey] = string(registry.StatusTransient)
+			}).Register(registry.NewRichItem(k, k, conn), registry.WithEdgeTo(m.root.ID(), "storage", nil))
+		}
+	}
+
+	return nil
+}
+
 func (m *manager) ServeAll(oo ...server.ServeOption) error {
 
 	store, err := config.OpenStore(m.ctx, "mem://?encode=yaml")
@@ -180,71 +300,10 @@ func (m *manager) ServeAll(oo ...server.ServeOption) error {
 		return err
 	}
 
-	reset := func(conf config.Store) error {
-		tmpl := defaultTemplate
-
-		// Then generate the new template based on the config
-		if file := runtime.GetString("file"); file != "" {
-			f, err := os.Open(file)
-			if err != nil {
-				return err
-			}
-			b, err := io.ReadAll(f)
-			if err != nil {
-				return err
-			}
-			tmpl = string(b)
-		}
-
-		t, err := template.New("context").Parse(tmpl)
-		if err != nil {
-			return err
-		}
-
-		var b strings.Builder
-
-		r := runtime.GetRuntime()
-		if err := t.Execute(&b, struct {
-			ConfigURL     string
-			RegistryURL   string
-			BrokerURL     string
-			CacheURL      string
-			BindHost      string
-			AdvertiseHost string
-			DiscoveryPort string
-			FrontendPort  string
-			Config        config.Store
-		}{
-			runtime.ConfigURL(),
-			runtime.RegistryURL(),
-			runtime.BrokerURL(),
-			runtime.CacheURL(""),
-			r.GetString(runtime.KeyBindHost),
-			r.GetString(runtime.KeyBindHost),
-			r.GetString(runtime.KeyGrpcDiscoveryPort),
-			r.GetString(runtime.KeyHttpPort),
-			conf,
-		}); err != nil {
-			return err
-		}
-
-		store.Set([]byte(b.String()))
-
-		for _, pair := range runtime.GetStringSlice(runtime.KeySet) {
-			kv := strings.SplitN(pair, "=", 2)
-			if len(kv) != 2 {
-				return nil
-			}
-			store.Val(kv[0]).Set(kv[1])
-		}
-
-		return nil
-	}
-
 	if len(runtime.GetStringSlice(runtime.KeyArgTags)) == 0 {
 		cmds := make(map[string]*fork.Process)
 
-		if err := reset(nil); err != nil {
+		if err := reset(nil, store); err != nil {
 			return err
 		}
 
@@ -375,7 +434,7 @@ func (m *manager) ServeAll(oo ...server.ServeOption) error {
 				fmt.Println("Error is ", err)
 			}
 
-			reset(conf)
+			reset(conf, store)
 
 			res, err := conf.Watch()
 			if err != nil {
@@ -393,11 +452,17 @@ func (m *manager) ServeAll(oo ...server.ServeOption) error {
 
 				fmt.Println("Received update here !! ")
 
-				reset(conf)
+				reset(conf, store)
 			}
 		}()
 	} else {
-		if err := reset(nil); err != nil {
+
+		registry.NewMetaWrapper(m.localRegistry, func(meta map[string]string) {
+			meta[registry.MetaTimestampKey] = fmt.Sprintf("%d", time.Now().UnixNano())
+			meta[registry.MetaStatusKey] = string(registry.StatusTransient)
+		}).Register(m.root)
+
+		if err := reset(nil, store); err != nil {
 			return err
 		}
 
@@ -417,7 +482,19 @@ func (m *manager) ServeAll(oo ...server.ServeOption) error {
 
 				// Adding connections to the environment
 				for k := range connections.Map() {
-					storage.RegisterURL(connections.Val(k, "uri").String(), "", "")
+					conn, err := storage.OpenStorage(m.ctx, connections.Val(k, "uri").String())
+					if err != nil {
+						continue
+					}
+
+					if conn != nil {
+						registry.NewMetaWrapper(m.localRegistry, func(meta map[string]string) {
+							meta[registry.MetaTimestampKey] = fmt.Sprintf("%d", time.Now().UnixNano())
+							meta[registry.MetaStatusKey] = string(registry.StatusTransient)
+						}).Register(registry.NewRichItem("test", "Test", conn), registry.WithEdgeTo(m.root.ID(), "storage", map[string]string{
+							"tenant": "",
+						}))
+					}
 				}
 			}
 		}()
@@ -427,9 +504,10 @@ func (m *manager) ServeAll(oo ...server.ServeOption) error {
 			conf, err := config.OpenStore(m.ctx, r.GetString(runtime.KeyConfig))
 			if err != nil {
 				fmt.Println("Error is ", err)
+				return
 			}
 
-			reset(conf)
+			reset(conf, store)
 
 			res, err := conf.Watch()
 			if err != nil {
@@ -447,17 +525,9 @@ func (m *manager) ServeAll(oo ...server.ServeOption) error {
 
 				fmt.Println("Received update here !! ")
 
-				reset(conf)
+				reset(conf, store)
 			}
 		}()
-
-		// SQL
-		//dsn := strings.Split(os.Getenv("CELLS_SQL"), "://")
-		//db, err := sql.Open(dsn[0], dsn[1])
-		//if err != nil {
-		//	panic(err)
-		//}
-		//storage.Register(db, "", "")
 
 		m.servers = map[string]server.Server{}
 		m.services = map[string]service.Service{}
@@ -520,11 +590,6 @@ func (m *manager) ServeAll(oo ...server.ServeOption) error {
 		for _, sr := range byScheme {
 			m.servers[sr.ID()] = sr // Keep a ref to the actual object
 		}
-
-		registry.NewMetaWrapper(m.localRegistry, func(meta map[string]string) {
-			meta[registry.MetaTimestampKey] = fmt.Sprintf("%d", time.Now().UnixNano())
-			meta[registry.MetaStatusKey] = string(registry.StatusTransient)
-		}).Register(m.root)
 
 		if locker := m.localRegistry.NewLocker("start-node-" + m.ns); locker != nil {
 			locker.Lock()

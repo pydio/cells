@@ -193,6 +193,10 @@ func (r *graphRegistry) ListAdjacentItems(opts ...AdjacentItemOption) (items []I
 	}
 	for _, id := range ids {
 		for _, i := range opt.targetItems {
+			if i == nil {
+				// fmt.Println("This is nil ? ", i)
+				continue
+			}
 			if i.ID() == id {
 				items = append(items, i)
 				break

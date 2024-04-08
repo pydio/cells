@@ -24,7 +24,6 @@ import (
 	"context"
 	"crypto/tls"
 	"fmt"
-	"github.com/pydio/cells/v4/common/crypto"
 	"net/url"
 	"os"
 	"strings"
@@ -38,6 +37,7 @@ import (
 	"github.com/pydio/cells/v4/common/config/etcd"
 	"github.com/pydio/cells/v4/common/config/file"
 	"github.com/pydio/cells/v4/common/config/memory"
+	"github.com/pydio/cells/v4/common/crypto"
 	"github.com/pydio/cells/v4/common/log"
 	pb "github.com/pydio/cells/v4/common/proto/registry"
 	"github.com/pydio/cells/v4/common/registry"
@@ -296,6 +296,10 @@ func (c *configRegistry) Stop(item registry.Item) error {
 }
 
 func getType(item registry.Item) string {
+	var d registry.Dao
+	if item.As(&d) {
+		return "dao"
+	}
 	switch v := item.(type) {
 	case registry.Service:
 		return "service"

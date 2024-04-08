@@ -25,13 +25,12 @@ import (
 	"context"
 
 	"github.com/pydio/cells/v4/common/dao"
-	"github.com/pydio/cells/v4/common/dao/mongodb"
 	"github.com/pydio/cells/v4/common/nodes/meta"
 	"github.com/pydio/cells/v4/common/proto/tree"
 	"github.com/pydio/cells/v4/common/storage/bleve"
+	"github.com/pydio/cells/v4/common/storage/indexer"
 	"github.com/pydio/cells/v4/common/utils/configx"
 	bleve2 "github.com/pydio/cells/v4/data/search/dao/bleve"
-	"github.com/pydio/cells/v4/data/search/dao/mongo"
 )
 
 type SearchEngine interface {
@@ -42,40 +41,26 @@ type SearchEngine interface {
 	Close() error
 }
 
-func NewBleveDAO(v bleve.Indexer) bleve.IndexDAO {
+func NewBleveDAO(v indexer.Indexer) indexer.DAO {
 	v.SetCodex(&bleve2.Codec{})
-	return bleve.NewDAO(v)
+	return indexer.NewDAO(v)
 }
 
-func NewMongoDAO(v *mongodb.Indexer) dao.IndexDAO {
-	v.SetCollection(mongo.Collection)
-	v.SetCodex(&mongo.Codex{})
-	return v
-}
-
-//func NewDAO(ctx context.Context, o dao.DAO) (dao.DAO, error) {
-//	switch v := o.(type) {
-//	case *bleve.Indexer:
-//		v.SetCodex(&bleve2.Codec{})
-//		return v, nil
-//	case *mongodb.Indexer:
-//		v.SetCollection(mongo.Collection)
-//		v.SetCodex(&mongo.Codex{})
-//		return v, nil
-//	}
-//	return nil, dao.UnsupportedDriver(o)
-//
+//func NewMongoDAO(v *mongodb.bleveIndexer) indexer.DAO {
+//	v.SetCollection(mongo.Collection)
+//	v.SetCodex(&mongo.Codex{})
+//	return v
 //}
 
-func NewQueryCodec(indexDAO dao.IndexDAO, values configx.Values, metaProvider *meta.NsProvider) dao.IndexCodex {
+func NewQueryCodec(indexDAO indexer.Indexer, values configx.Values, metaProvider *meta.NsProvider) dao.IndexCodex {
 	switch indexDAO.(type) {
-	case bleve.IndexDAO:
+	case *bleve.bleveIndexer:
 		return bleve2.NewQueryCodec(values, metaProvider)
-	case *mongodb.Indexer:
-		return &mongo.Codex{
-			QueryConfigs:    values,
-			QueryNsProvider: metaProvider,
-		}
+		//case *mongodb.bleveIndexer:
+		//	return &mongo.Codex{
+		//		QueryConfigs:    values,
+		//		QueryNsProvider: metaProvider,
+		//	}
 	}
 	return nil
 }

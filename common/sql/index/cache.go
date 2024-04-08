@@ -208,8 +208,8 @@ func (d *daocache) Metadata() map[string]string {
 	return d.DAO.(dao.DAO).Metadata()
 }
 
-func (d *daocache) Dsn() string {
-	return d.DAO.(dao.DAO).Dsn()
+func (d *daocache) DSN() string {
+	return d.DAO.(dao.DAO).DSN()
 }
 
 func (d *daocache) As(i interface{}) bool {
@@ -582,6 +582,7 @@ func (d *daocache) GetNodeChild(path mtree.MPath, name string) (*mtree.TreeNode,
 
 	return d.DAO.GetNodeChild(path, name)
 }
+
 func (d *daocache) GetNodeLastChild(path mtree.MPath) (*mtree.TreeNode, error) {
 	d.mutex.RLock()
 	defer d.mutex.RUnlock()
@@ -605,6 +606,7 @@ func (d *daocache) GetNodeLastChild(path mtree.MPath) (*mtree.TreeNode, error) {
 
 	return d.DAO.GetNodeLastChild(path)
 }
+
 func (d *daocache) GetNodeFirstAvailableChildIndex(path mtree.MPath) (uint64, error) {
 	d.mutex.RLock()
 	defer d.mutex.RUnlock()
@@ -714,6 +716,7 @@ func (d *daocache) GetNodeTree(ctx context.Context, path mtree.MPath, filter ...
 
 	return c
 }
+
 func (d *daocache) MoveNodeTree(nodeFrom *mtree.TreeNode, nodeTo *mtree.TreeNode) error {
 
 	err := d.DAO.MoveNodeTree(nodeFrom, nodeTo)

@@ -18,27 +18,31 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-package storage
+package sql
 
 import (
-	"strings"
+	"fmt"
+
+	cellsmysql "github.com/pydio/cells/v4/common/dao/mysql"
+	cellspostgres "github.com/pydio/cells/v4/common/dao/pgsql"
+	cellssqlite "github.com/pydio/cells/v4/common/dao/sqlite"
 )
 
-type mysqlHelper struct{}
+type Helper interface {
+	Concat(...string) string
+	Hash(...string) string
+	HashParent(string, ...string) string
+}
 
-func (m *mysqlHelper) Concat(s ...string) string {
-	if len(s) == 1 {
-		return s[0]
+func newHelper(d string) (Helper, error) {
+	switch d {
+	case cellsmysql.Driver:
+		return new(mysqlHelper), nil
+	case cellspostgres.Driver:
+		return new(postgresHelper), nil
+	case cellssqlite.Driver:
+		return new(sqliteHelper), nil
+	default:
+		return nil, fmt.Errorf("wrong driver")
 	}
-
-	return `CONCAT(` + strings.Join(s, ", ") + `)`
-}
-
-func (m *mysqlHelper) Hash(s ...string) string {
-	return `SHA1(` + m.Concat(s...) + `)`
-}
-
-func (m *mysqlHelper) HashParent(name string, s ...string) string {
-	pmpath := `SUBSTRING_INDEX(` + m.Concat(s...) + `, '.', level-1)`
-	return m.Hash(name, "'__###PARENT_HASH###__'", pmpath)
 }

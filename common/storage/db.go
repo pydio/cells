@@ -2,6 +2,8 @@ package storage
 
 import (
 	"context"
+
+	"github.com/pydio/cells/v4/common/registry"
 )
 
 type ProviderFunc func() Storage
@@ -11,33 +13,49 @@ type Provider interface {
 }
 
 type Storage interface {
-	GetConn(str string) (any, bool)
+	GetConn(str string) (Conn, error)
 	Provides(conn any) bool
 	Register(conn any, tenant string, service string)
 	Get(ctx context.Context, out interface{}) bool
 }
 
+type Conn interface {
+	registry.Item
+	Driver() string
+	DSN() string
+}
+
 var storages []Storage
 
-func Provides(conn any) bool {
-	for _, storage := range storages {
-		if storage.Provides(conn) {
-			return true
-		}
-	}
-
-	return false
-}
-
-func RegisterURL(str string, tenant string, service string) error {
-	for _, storage := range storages {
-		if conn, ok := storage.GetConn(str); ok {
-			storage.Register(conn, tenant, service)
-		}
-	}
-
-	return nil
-}
+//func Provides(conn any) bool {
+//	for _, storage := range storages {
+//		if storage.Provides(conn) {
+//			return true
+//		}
+//	}
+//
+//	return false
+//}
+//
+//func OpenStorage(str string, opts ...registry.Option) Conn {
+//	for _, storage := range storages {
+//		if conn, ok := storage.GetConn(str); ok {
+//			return conn
+//		}
+//	}
+//
+//	return nil
+//}
+//
+//func RegisterURL(str string, tenant string, service string) error {
+//	for _, storage := range storages {
+//		if conn, ok := storage.GetConn(str); ok {
+//			storage.Register(conn, tenant, service)
+//		}
+//	}
+//
+//	return nil
+//}
 
 func Register(conn any, tenant string, service string) {
 	for _, storage := range storages {

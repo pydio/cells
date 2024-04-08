@@ -402,6 +402,7 @@ func (s *Indexer) listIndexes(renameIfNeeded ...bool) (paths []string) {
 			}
 		}
 	}
+
 	sort.Strings(paths)
 	if len(renameIfNeeded) > 0 && renameIfNeeded[0] && len(paths) > 0 && paths[0] != base {
 		// Old files were removed, renumber files
@@ -420,6 +421,7 @@ func (s *Indexer) listIndexes(renameIfNeeded ...bool) (paths []string) {
 		}
 		return s.listIndexes()
 	}
+
 	return
 }
 

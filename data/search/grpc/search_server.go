@@ -32,7 +32,6 @@ import (
 	"github.com/pydio/cells/v4/common/broker"
 	"github.com/pydio/cells/v4/common/client/grpc"
 	"github.com/pydio/cells/v4/common/config"
-	dao2 "github.com/pydio/cells/v4/common/dao"
 	"github.com/pydio/cells/v4/common/log"
 	"github.com/pydio/cells/v4/common/nodes/meta"
 	protosync "github.com/pydio/cells/v4/common/proto/sync"
@@ -90,12 +89,7 @@ func (s *SearchServer) processEvent(ctx context.Context, e *tree.NodeChangeEvent
 	log.Logger(ctx).Debug("processEvent", zap.Any("event", e))
 	excludes := s.NsProvider.ExcludeIndexes()
 
-	indexer := servicecontext.GetDAO[dao2.IndexDAO](ctx)
-	nsProvider := meta.NewNsProvider(ctx)
-	engine, err := dao.NewEngine(ctx, indexer, nsProvider, config.Get("services", Name))
-	if err != nil {
-		return
-	}
+	engine := servicecontext.GetDAO[dao.SearchEngine](ctx)
 
 	switch e.GetType() {
 	case tree.NodeChangeEvent_CREATE:
@@ -153,12 +147,7 @@ func (s *SearchServer) Search(req *tree.SearchRequest, streamer tree.Searcher_Se
 	defer close(facetsChan)
 	defer close(doneChan)
 
-	indexer := servicecontext.GetDAO[dao2.IndexDAO](ctx)
-	nsProvider := meta.NewNsProvider(ctx)
-	engine, err := dao.NewEngine(ctx, indexer, nsProvider, config.Get("services", Name))
-	if err != nil {
-		return err
-	}
+	engine := servicecontext.GetDAO[dao.SearchEngine](ctx)
 
 	var treeStreamer tree.NodeProviderStreamer_ReadNodeStreamClient
 	defer func() {
@@ -235,12 +224,7 @@ func (s *SearchServer) Search(req *tree.SearchRequest, streamer tree.Searcher_Se
 
 func (s *SearchServer) TriggerResync(ctx context.Context, req *protosync.ResyncRequest) (*protosync.ResyncResponse, error) {
 
-	indexer := servicecontext.GetDAO[dao2.IndexDAO](ctx)
-	nsProvider := meta.NewNsProvider(ctx)
-	engine, err := dao.NewEngine(ctx, indexer, nsProvider, config.Get("services", Name))
-	if err != nil {
-		return nil, err
-	}
+	engine := servicecontext.GetDAO[dao.SearchEngine](ctx)
 
 	reqPath := strings.Trim(req.GetPath(), "/")
 	if reqPath == "" {
@@ -313,12 +297,7 @@ func (s *SearchServer) TriggerResync(ctx context.Context, req *protosync.ResyncR
 
 func (s *SearchServer) ReindexFolder(ctx context.Context, node *tree.Node, excludes map[string]struct{}) {
 
-	indexer := servicecontext.GetDAO[dao2.IndexDAO](ctx)
-	nsProvider := meta.NewNsProvider(ctx)
-	engine, err := dao.NewEngine(ctx, indexer, nsProvider, config.Get("services", Name))
-	if err != nil {
-		return
-	}
+	engine := servicecontext.GetDAO[dao.SearchEngine](ctx)
 
 	s.ReIndexThrottler <- struct{}{}
 	defer func() {

@@ -23,6 +23,7 @@ package sync
 
 import (
 	"context"
+
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
 
@@ -41,7 +42,7 @@ type DAO interface {
 func NewDAO(ctx context.Context, o dao.DAO) (dao.DAO, error) {
 	switch v := o.(type) {
 	case sql.DAO:
-		dialector := sqlite.Open(v.Dsn())
+		dialector := sqlite.Open(v.DSN())
 		db, err := gorm.Open(dialector, &gorm.Config{
 			FullSaveAssociations: true,
 		})

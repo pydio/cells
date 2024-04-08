@@ -21,12 +21,12 @@
 package util
 
 import (
-	"github.com/pydio/cells/v4/common/utils/std"
 	"golang.org/x/exp/maps"
 
 	pb "github.com/pydio/cells/v4/common/proto/registry"
 	"github.com/pydio/cells/v4/common/registry"
 	"github.com/pydio/cells/v4/common/utils/merger"
+	"github.com/pydio/cells/v4/common/utils/std"
 )
 
 func ToProtoDao(d registry.Dao) *pb.Dao {
@@ -35,7 +35,7 @@ func ToProtoDao(d registry.Dao) *pb.Dao {
 	}
 	return &pb.Dao{
 		Driver: d.Driver(),
-		Dsn:    d.Dsn(),
+		Dsn:    d.DSN(),
 	}
 }
 
@@ -98,7 +98,7 @@ func (d *dao) Driver() string {
 	return d.d.Driver
 }
 
-func (d *dao) Dsn() string {
+func (d *dao) DSN() string {
 	return d.d.Dsn
 }
 

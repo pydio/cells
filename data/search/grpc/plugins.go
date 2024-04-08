@@ -57,7 +57,7 @@ func init() {
 			// service.Fork(true),
 			service.WithStorage(
 				"bleve",
-				dao.NewBleveDAO,
+				dao.NewBleveEngine,
 				service.Default(true),
 				service.WithStoragePrefix("searchengine"),
 				// service.WithStorageSupport(bleve.Driver, mongodb.Driver),
@@ -65,11 +65,11 @@ func init() {
 					return bleve.Driver, filepath.Join(runtime.MustServiceDataDir(Name), "searchengine.bleve?rotationSize=-1&mapping=node")
 				}),
 			),
-			service.WithStorage(
-				"mongodb",
-				dao.NewMongoDAO,
-				service.WithStoragePrefix("searchengine"),
-			),
+			//service.WithStorage(
+			//	"mongodb",
+			//	dao.NewMongoDAO,
+			//	service.WithStoragePrefix("searchengine"),
+			//),
 			service.WithGRPC(func(c context.Context, server grpc.ServiceRegistrar) error {
 
 				//cfg := config.Get("services", Name)

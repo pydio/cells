@@ -35,6 +35,7 @@ const (
 	ItemType_PROCESS  ItemType = 9
 	ItemType_ENDPOINT ItemType = 10
 	ItemType_STATS    ItemType = 11
+	ItemType_STORAGE  ItemType = 12
 )
 
 // Enum value maps for ItemType.

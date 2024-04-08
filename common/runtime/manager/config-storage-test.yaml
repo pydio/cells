@@ -1,0 +1,5 @@
+storages:
+  sql:
+    uri: cells:P@ssw0rd@tcp(localhost:3306)/test?parseTime=true
+#  nosql:
+#    uri: bleve:///tmp/{{tenant}}/{{prefix}}

@@ -36,7 +36,7 @@ import (
 func TestQueryResourceForAction(t *testing.T) {
 
 	wrapper := func(ctx context.Context, d dao.DAO) (dao.DAO, error) {
-		dialector := gsqlite.Open(d.Dsn())
+		dialector := gsqlite.Open(d.DSN())
 		db, err := gorm.Open(dialector, &gorm.Config{
 			//DisableForeignKeyConstraintWhenMigrating: true,
 			FullSaveAssociations: true,

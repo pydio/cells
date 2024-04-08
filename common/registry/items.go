@@ -70,7 +70,7 @@ type Dao interface {
 	Item
 
 	Driver() string
-	Dsn() string
+	DSN() string
 }
 
 // Edge links two vertices together
@@ -91,4 +91,41 @@ type Generic interface {
 	Item
 
 	Type() registry.ItemType
+}
+
+type RichItem[T any] struct {
+	id   string
+	name string
+	meta map[string]string
+
+	item T
+}
+
+func (r *RichItem[T]) ID() string {
+	return r.id
+}
+
+func (r *RichItem[T]) Name() string {
+	return r.name
+}
+
+func (r *RichItem[T]) Metadata() map[string]string {
+	return r.meta
+}
+
+func (r *RichItem[T]) As(t any) bool {
+	if v, ok := t.(*T); ok {
+		*v = r.item
+		return true
+	}
+
+	return false
+}
+
+func NewRichItem[T any](id string, name string, base T) Item {
+	return &RichItem[T]{
+		item: base,
+		id:   id,
+		name: name,
+	}
 }

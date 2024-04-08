@@ -175,6 +175,6 @@ func (h *abstract) As(i interface{}) bool {
 }
 
 // Dsn returns dao DSN
-func (h *abstract) Dsn() string {
+func (h *abstract) DSN() string {
 	return h.dsn
 }

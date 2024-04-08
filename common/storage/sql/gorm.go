@@ -1,11 +1,14 @@
-package storage
+package sql
 
 import (
 	"context"
 	"database/sql"
+	"net/url"
 	"strings"
 	"sync"
+	"text/template"
 
+	"github.com/pborman/uuid"
 	"gorm.io/driver/mysql"
 	"gorm.io/driver/postgres"
 	"gorm.io/driver/sqlite"
@@ -15,24 +18,40 @@ import (
 	cellsmysql "github.com/pydio/cells/v4/common/dao/mysql"
 	cellspostgres "github.com/pydio/cells/v4/common/dao/pgsql"
 	cellssqlite "github.com/pydio/cells/v4/common/dao/sqlite"
+	"github.com/pydio/cells/v4/common/storage"
 	"github.com/pydio/cells/v4/common/storage/dbresolver"
 )
 
 var (
 	gormTypes = []string{cellsmysql.Driver, cellspostgres.Driver, cellssqlite.Driver}
 
-	_ Storage = (*gormStorage)(nil)
+	_ storage.Storage = (*gormStorage)(nil)
 )
 
 func init() {
-	storages = append(storages, &gormStorage{once: &sync.Once{}})
+	gs := &gormStorage{}
+	for _, gormType := range gormTypes {
+		storage.DefaultURLMux().Register(gormType, gs)
+	}
 }
 
 type gormStorage struct {
-	db *gorm.DB
-	dr *dbresolver.DBResolver
+	template *template.Template
+	db       *gorm.DB
+	dr       *dbresolver.DBResolver
 
 	once *sync.Once
+}
+
+func (gs *gormStorage) OpenURL(ctx context.Context, u *url.URL) (storage.Storage, error) {
+	t, err := template.New("gormStorage").Parse(u.String())
+	if err != nil {
+		return nil, err
+	}
+
+	gs.template = t
+
+	return gs, nil
 }
 
 func (gs *gormStorage) Provides(conn any) bool {
@@ -45,19 +64,19 @@ func (gs *gormStorage) Provides(conn any) bool {
 	return true
 }
 
-func (s *gormStorage) GetConn(str string) (any, bool) {
+func (gs *gormStorage) GetConn(str string) (storage.Conn, error) {
 	for _, gormType := range gormTypes {
 		if strings.HasPrefix(str, gormType+"://") {
 			db, err := sql.Open(gormType, strings.TrimPrefix(str, gormType+"://"))
 			if err != nil {
-				return nil, false
+				return nil, err
 			}
 
-			return db, true
+			return (*gormItem)(db), nil
 		}
 	}
 
-	return nil, false
+	return nil, nil
 }
 
 func (gs *gormStorage) Register(conn any, tenant string, service string) {
@@ -95,6 +114,10 @@ func (gs *gormStorage) Register(conn any, tenant string, service string) {
 		Helper:    helper,
 	}
 
+	if gs.once == nil {
+		gs.once = &sync.Once{}
+	}
+
 	gs.once.Do(func() {
 		db, _ := gorm.Open(dialect, &gorm.Config{
 			//DisableForeignKeyConstraintWhenMigrating: true,
@@ -119,6 +142,7 @@ func (gs *gormStorage) Register(conn any, tenant string, service string) {
 }
 
 func (gs *gormStorage) Get(ctx context.Context, out interface{}) bool {
+
 	if v, ok := out.(**gorm.DB); ok {
 		*v = gs.db
 		return true
@@ -139,4 +163,30 @@ func (d *Dialector) Translate(err error) error {
 	}
 
 	return t.Translate(err)
+}
+
+type gormItem sql.DB
+
+func (i *gormItem) Name() string {
+	return "gorm"
+}
+
+func (i *gormItem) ID() string {
+	return uuid.New()
+}
+
+func (i *gormItem) Metadata() map[string]string {
+	return map[string]string{}
+}
+
+func (i *gormItem) As(i2 interface{}) bool {
+	return false
+}
+
+func (i *gormItem) Driver() string {
+	return "gorm"
+}
+
+func (i *gormItem) DSN() string {
+	return "TODO"
 }

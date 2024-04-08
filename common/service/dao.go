@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+
 	"github.com/pydio/cells/v4/common/crypto"
 	servicecontext "github.com/pydio/cells/v4/common/service/context"
 )
@@ -35,7 +36,7 @@ import (
 //				found := false
 //				// Check if we already have it
 //				for _, dao := range s.daos {
-//					if dao.Driver() == driver && dao.Dsn() == dsn && dao.Prefix() == storage.prefix {
+//					if dao.Driver() == driver && dao.DSN() == dsn && dao.Prefix() == storage.prefix {
 //						t = dao
 //						found = true
 //					}

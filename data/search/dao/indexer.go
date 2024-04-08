@@ -35,7 +35,11 @@ import (
 	"github.com/pydio/cells/v4/common/nodes"
 	"github.com/pydio/cells/v4/common/nodes/meta"
 	"github.com/pydio/cells/v4/common/proto/tree"
+	servercontext "github.com/pydio/cells/v4/common/server/context"
+	"github.com/pydio/cells/v4/common/storage/bleve"
+	"github.com/pydio/cells/v4/common/storage/indexer"
 	"github.com/pydio/cells/v4/common/utils/configx"
+	bleve2 "github.com/pydio/cells/v4/data/search/dao/bleve"
 )
 
 var (
@@ -43,40 +47,48 @@ var (
 )
 
 type Server struct {
-	Ctx     context.Context
-	Router  nodes.Handler
-	Engine  dao.IndexDAO
-	configs configx.Values
+	DAO indexer.DAO
+
+	Router nodes.Handler
+	Engine indexer.Indexer
 
 	inserts  chan *tree.IndexableNode
 	deletes  chan string
 	done     chan bool
 	confChan chan configx.Values
-
-	nsProvider *meta.NsProvider
 }
 
-func NewEngine(ctx context.Context, indexer dao.IndexDAO, nsProvider *meta.NsProvider, configs configx.Values) (*Server, error) {
+func NewBleveEngine(ctx context.Context, idx *bleve.bleveIndexer) (*Server, error) {
+	return newEngine(ctx, idx)
+}
+
+func newEngine(ctx context.Context, idx indexer.Indexer) (*Server, error) {
+
+	idx.SetCodex(&bleve2.Codec{})
 
 	server := &Server{
-		Ctx:     ctx,
-		Engine:  indexer,
-		configs: configs,
+		Engine: idx,
+		DAO:    indexer.NewDAO(idx),
 
-		inserts:    make(chan *tree.IndexableNode),
-		deletes:    make(chan string),
-		done:       make(chan bool, 1),
-		confChan:   make(chan configx.Values),
-		nsProvider: nsProvider,
+		inserts:  make(chan *tree.IndexableNode),
+		deletes:  make(chan string),
+		done:     make(chan bool, 1),
+		confChan: make(chan configx.Values),
 	}
-	go server.watchOperations()
+
+	idx.Open(ctx)
+
+	go server.watchOperations(ctx)
 	go server.watchConfigs(ctx)
 
 	return server, nil
 }
 
-func (s *Server) watchOperations() {
-	batch := NewBatch(s.Ctx, s.nsProvider, BatchOptions{config: s.configs})
+func (s *Server) watchOperations(ctx context.Context) {
+	nsProvider := meta.NewNsProvider(ctx)
+	conf := servercontext.GetConfig(ctx)
+
+	batch := NewBatch(ctx, nsProvider, BatchOptions{config: conf.Val()})
 	debounce := 1 * time.Second
 	timer := time.NewTimer(debounce)
 	defer func() {
@@ -101,17 +113,17 @@ func (s *Server) watchOperations() {
 		case <-timer.C:
 			batch.Flush(s.Engine)
 		case cf := <-s.confChan:
-			s.configs = cf
+			// s.configs = cf
 			batch.options.config = cf
-			log.Logger(s.Ctx).Info("Changing search engine content indexation status", zap.Bool("i", cf.Val("indexContent").Bool()))
-		case <-s.Ctx.Done():
-			batch.Flush(s.Engine)
-			s.Engine.Close(s.Ctx)
-			close(s.done)
-			return
+			log.Logger(ctx).Info("Changing search engine content indexation status", zap.Bool("i", cf.Val("indexContent").Bool()))
+		//case <-ctx.Done():
+		//	batch.Flush(s.Engine)
+		//	s.Engine.Close(ctx)
+		//	close(s.done)
+		//	return
 		case <-s.done:
 			batch.Flush(s.Engine)
-			s.Engine.Close(s.Ctx)
+			s.Engine.Close(ctx)
 			return
 		}
 	}
@@ -138,7 +150,7 @@ func (s *Server) watchConfigs(ctx context.Context) {
 
 func (s *Server) Close() error {
 	close(s.done)
-	return s.Engine.Close(s.Ctx)
+	return s.Engine.Close(context.TODO())
 }
 
 func (s *Server) IndexNode(c context.Context, n *tree.Node, reloadCore bool, excludes map[string]struct{}) error {
@@ -171,10 +183,13 @@ func (s *Server) ClearIndex(ctx context.Context) error {
 	})
 }
 
-func (s *Server) SearchNodes(c context.Context, queryObject *tree.Query, from int32, size int32, resultChan chan *tree.Node, facets chan *tree.SearchFacet, doneChan chan bool) error {
-	accu := NewQueryCodec(s.Engine, s.configs, s.nsProvider)
+func (s *Server) SearchNodes(ctx context.Context, queryObject *tree.Query, from int32, size int32, resultChan chan *tree.Node, facets chan *tree.SearchFacet, doneChan chan bool) error {
+	nsProvider := meta.NewNsProvider(ctx)
+	conf := servercontext.GetConfig(ctx)
 
-	searchResult, err := s.Engine.FindMany(c, queryObject, from, size, accu)
+	accu := NewQueryCodec(s.Engine, conf.Val(), nsProvider)
+
+	searchResult, err := s.DAO.FindMany(ctx, queryObject, from, size, accu)
 	if err != nil {
 		doneChan <- true
 		return err
