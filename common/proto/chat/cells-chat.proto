@@ -2,8 +2,9 @@ syntax="proto3";
 
 package chat;
 
-option go_package="github.com/pydio/cells/common/proto/chat";
+option go_package="github.com/pydio/cells/v4/common/proto/chat";
 
+import "cells-setter.proto";
 import "cells-activitystream.proto";
 
 enum RoomType {
@@ -11,9 +12,11 @@ enum RoomType {
     WORKSPACE = 1;
     USER      = 2;
     NODE      = 3;
+    ANY       = 4;
 }
 
 message ChatRoom {
+    option (setter.all_fields) = true;
     string Uuid = 1;
     RoomType Type = 2;
     string RoomTypeObject = 3;
@@ -24,6 +27,7 @@ message ChatRoom {
 }
 
 message ChatMessage {
+    option (setter.all_fields) = true;
     string Uuid = 1;
     string RoomUuid = 2;
 
@@ -56,6 +60,7 @@ message PutRoomResponse {
 
 message PostMessageRequest {
     repeated ChatMessage Messages = 1;
+    map<string, ChatRoom> KnownRooms = 2;
 }
 message PostMessageResponse {
     bool Success = 1;
@@ -64,6 +69,7 @@ message PostMessageResponse {
 
 message DeleteMessageRequest {
     repeated ChatMessage Messages = 1;
+    map<string, ChatRoom> KnownRooms = 2;
 }
 message DeleteMessageResponse {
     bool Success = 1;
@@ -98,6 +104,7 @@ message DeleteRoomResponse{
 }
 
 message ChatEvent {
+    option (setter.all_fields) = true;
     ChatMessage Message = 1;
     ChatRoom Room = 2;
     string Details = 3;
@@ -114,6 +121,7 @@ enum WsMessageType {
 }
 
 message WebSocketMessage {
+    option (setter.all_fields) = true;
     WsMessageType Type = 1 [json_name="@type"];
     ChatRoom Room = 2;
     ChatMessage Message = 3;

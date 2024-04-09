@@ -7,6 +7,7 @@ import "cells-tree.proto";
 import "cells-idm.proto";
 import "cells-activitystream.proto";
 import "cells-object.proto";
+import "cells-setter.proto";
 
 package jobs;
 
@@ -225,6 +226,8 @@ message Schedule {
 }
 
 message Action {
+    option (setter.all_fields) = true;
+
     // String Identifier for specific action
     string ID = 1;
 
@@ -288,6 +291,8 @@ message Action {
 }
 
 message Job {
+    option (setter.all_fields) = true;
+
     // Unique ID for this Job
     string ID = 1;
     // Human-readable Label
@@ -365,6 +370,8 @@ message Job {
 
 // Dynamically expose a job trigger via API
 message JobHook {
+    option (setter.all_fields) = true;
+
     // Custom ApiSlug, otherwise use the job UUID
     string ApiSlug = 1;
     // Preset parameters values when calling this endpoint. May be overriden by a map[string]string in the body
@@ -378,6 +385,8 @@ message JobHook {
 }
 
 message JobParameter {
+    option (setter.all_fields) = true;
+
     // Parameter name
     string Name = 1;
     // Additional description

@@ -4,11 +4,11 @@ deps:
   - remote: buf.build
     owner: googleapis
     repository: googleapis
-    commit: 75b4300737fb4efca0831636be94e517
+    commit: 7a6bc1e3207144b38e9066861e1de0ff
   - remote: buf.build
     owner: grpc-ecosystem
     repository: grpc-gateway
-    commit: a1ecdc58eccd49aa8bea2a7a9022dc27
+    commit: 3f42134f4c564983838425bc43c7a65f
   - remote: buf.build
     owner: torq
     repository: go-proto-validators
