@@ -24,16 +24,16 @@ package chat
 import (
 	"context"
 
-	"github.com/pydio/cells/v4/common/dao"
-	"github.com/pydio/cells/v4/common/dao/boltdb"
-	"github.com/pydio/cells/v4/common/dao/mongodb"
+	"go.etcd.io/bbolt"
+	"go.mongodb.org/mongo-driver/mongo"
+
 	"github.com/pydio/cells/v4/common/proto/chat"
 )
 
 type MessageMatcher func(msg *chat.ChatMessage) (matches bool, filtered *chat.ChatMessage, err error)
 
 type DAO interface {
-	dao.DAO
+	//dao.DAO
 	// PutRoom creates a new ChatRoom
 	PutRoom(ctx context.Context, room *chat.ChatRoom) (*chat.ChatRoom, error)
 	// DeleteRoom deletes a whole ChatRoom
@@ -54,74 +54,82 @@ type DAO interface {
 	CountMessages(ctx context.Context, room *chat.ChatRoom) (count int, e error)
 }
 
-func NewDAO(ctx context.Context, o dao.DAO) (dao.DAO, error) {
-	switch v := o.(type) {
-	case boltdb.DAO:
-		return &boltdbimpl{DAO: v, HistorySize: 1000}, nil
-	case mongodb.DAO:
-		return &mongoImpl{DAO: v}, nil
-	}
-	return nil, dao.UnsupportedDriver(o)
+func NewBoltDAO(db *bbolt.DB) DAO {
+	dao := &boltdbimpl{db: db, HistorySize: 1000}
+
+	// TODO - use interface
+	dao.Init(nil, nil)
+
+	return dao
 }
 
-func Migrate(f dao.DAO, t dao.DAO, dryRun bool, status chan dao.MigratorStatus) (map[string]int, error) {
-	ctx := context.Background()
-	res := map[string]int{
-		"Rooms":    0,
-		"Messages": 0,
-	}
-	var from, to DAO
-	if df, e := NewDAO(ctx, f); e == nil {
-		from = df.(DAO)
-	} else {
-		return res, e
-	}
-	if dt, e := NewDAO(ctx, t); e == nil {
-		to = dt.(DAO)
-	} else {
-		return res, e
-	}
-	for _, roomType := range chat.RoomType_value {
-		rooms, er := from.ListRooms(ctx, &chat.ListRoomsRequest{
-			ByType: chat.RoomType(roomType),
-		})
-		if er != nil {
-			return res, er
-		}
-		for _, room := range rooms {
-			if dryRun {
-				res["Rooms"]++
-			} else if _, er := to.PutRoom(ctx, room); er != nil {
-				return res, er
-			} else {
-				res["Rooms"]++
-			}
-			pageSize := int64(1000)
-			page := int64(0)
-			for {
-				messages, er := from.ListMessages(ctx, &chat.ListMessagesRequest{
-					RoomUuid: room.GetUuid(),
-					Offset:   page * pageSize,
-					Limit:    pageSize,
-				})
-				if er != nil {
-					return res, er
-				}
-				for _, msg := range messages {
-					if dryRun {
-						res["Messages"]++
-					} else if _, er := to.PostMessage(ctx, msg); er != nil {
-						return res, er
-					} else {
-						res["Messages"]++
-					}
-				}
-				if int64(len(messages)) < pageSize {
-					break
-				}
-				page++
-			}
-		}
-	}
-	return res, nil
+func NewMongoDAO(db *mongo.Database) DAO {
+	dao := &mongoImpl{db: db}
+
+	// TODO - use interface
+	dao.Init(nil, nil)
+
+	return dao
 }
+
+//func Migrate(f DAO, t DAO, dryRun bool, status chan dao.MigratorStatus) (map[string]int, error) {
+//	ctx := context.Background()
+//	res := map[string]int{
+//		"Rooms":    0,
+//		"Messages": 0,
+//	}
+//	var from, to DAO
+//	if df, e := NewDAO(ctx, f); e == nil {
+//		from = df.(DAO)
+//	} else {
+//		return res, e
+//	}
+//	if dt, e := NewDAO(ctx, t); e == nil {
+//		to = dt.(DAO)
+//	} else {
+//		return res, e
+//	}
+//	for _, roomType := range chat.RoomType_value {
+//		rooms, er := from.ListRooms(ctx, &chat.ListRoomsRequest{
+//			ByType: chat.RoomType(roomType),
+//		})
+//		if er != nil {
+//			return res, er
+//		}
+//		for _, room := range rooms {
+//			if dryRun {
+//				res["Rooms"]++
+//			} else if _, er := to.PutRoom(ctx, room); er != nil {
+//				return res, er
+//			} else {
+//				res["Rooms"]++
+//			}
+//			pageSize := int64(1000)
+//			page := int64(0)
+//			for {
+//				messages, er := from.ListMessages(ctx, &chat.ListMessagesRequest{
+//					RoomUuid: room.GetUuid(),
+//					Offset:   page * pageSize,
+//					Limit:    pageSize,
+//				})
+//				if er != nil {
+//					return res, er
+//				}
+//				for _, msg := range messages {
+//					if dryRun {
+//						res["Messages"]++
+//					} else if _, er := to.PostMessage(ctx, msg); er != nil {
+//						return res, er
+//					} else {
+//						res["Messages"]++
+//					}
+//				}
+//				if int64(len(messages)) < pageSize {
+//					break
+//				}
+//				page++
+//			}
+//		}
+//	}
+//	return res, nil
+//}

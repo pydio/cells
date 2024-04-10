@@ -23,6 +23,7 @@ package service
 import (
 	"context"
 	"crypto/tls"
+
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/log"
 	"github.com/pydio/cells/v4/common/registry"
@@ -76,7 +77,8 @@ type ServiceOptions struct {
 	UseWebSession      bool     `json:"-"`
 	WebSessionExcludes []string `json:"-"`
 
-	Storages []*StorageOptions `json:"-"`
+	DefaultStorageConn string
+	Storages           []*StorageOptions `json:"-"`
 
 	localLogger log.ZapLogger
 }

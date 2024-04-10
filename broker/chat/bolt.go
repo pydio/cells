@@ -28,7 +28,7 @@ import (
 	bolt "go.etcd.io/bbolt"
 
 	"github.com/pydio/cells/v4/common"
-	"github.com/pydio/cells/v4/common/dao/boltdb"
+	"github.com/pydio/cells/v4/common/log"
 	"github.com/pydio/cells/v4/common/proto/chat"
 	"github.com/pydio/cells/v4/common/service/errors"
 	"github.com/pydio/cells/v4/common/utils/configx"
@@ -37,7 +37,7 @@ import (
 )
 
 type boltdbimpl struct {
-	boltdb.DAO
+	db          *bolt.DB
 	HistorySize int64
 }
 
@@ -48,7 +48,7 @@ const (
 )
 
 func (h *boltdbimpl) Init(ctx context.Context, config configx.Values) error {
-	return h.DB().Update(func(tx *bolt.Tx) error {
+	return h.db.Update(func(tx *bolt.Tx) error {
 		_, err := tx.CreateBucketIfNotExists([]byte(rooms))
 		if err != nil {
 			return err
@@ -131,7 +131,7 @@ func (h *boltdbimpl) getRoomsBucket(tx *bolt.Tx, createIfNotExist bool, roomType
 
 func (h *boltdbimpl) PutRoom(ctx context.Context, room *chat.ChatRoom) (*chat.ChatRoom, error) {
 
-	err := h.DB().Update(func(tx *bolt.Tx) error {
+	err := h.db.Update(func(tx *bolt.Tx) error {
 
 		bucket, err := h.getRoomsBucket(tx, true, room.Type, room.RoomTypeObject)
 		if err != nil {
@@ -151,7 +151,7 @@ func (h *boltdbimpl) PutRoom(ctx context.Context, room *chat.ChatRoom) (*chat.Ch
 func (h *boltdbimpl) DeleteRoom(ctx context.Context, room *chat.ChatRoom) (bool, error) {
 
 	var success bool
-	err := h.DB().Update(func(tx *bolt.Tx) error {
+	err := h.db.Update(func(tx *bolt.Tx) error {
 
 		bucket, err := h.getRoomsBucket(tx, false, room.Type, room.RoomTypeObject)
 		if bucket == nil {
@@ -173,7 +173,7 @@ func (h *boltdbimpl) DeleteRoom(ctx context.Context, room *chat.ChatRoom) (bool,
 
 func (h *boltdbimpl) ListRooms(ctx context.Context, request *chat.ListRoomsRequest) (rooms []*chat.ChatRoom, e error) {
 
-	e = h.DB().View(func(tx *bolt.Tx) error {
+	e = h.db.View(func(tx *bolt.Tx) error {
 
 		if request.TypeObject != "" {
 
@@ -243,7 +243,7 @@ func (h *boltdbimpl) roomByTypeUuid(ctx context.Context, byType chat.RoomType, r
 
 	var foundRoom chat.ChatRoom
 	var found bool
-	e := h.DB().View(func(tx *bolt.Tx) error {
+	e := h.db.View(func(tx *bolt.Tx) error {
 		bucket, _ := h.getRoomsBucket(tx, false, byType, "")
 		if bucket == nil {
 			return fmt.Errorf("rooms bucket %s not initialized", byType.String())
@@ -276,7 +276,7 @@ func (h *boltdbimpl) roomByTypeUuid(ctx context.Context, byType chat.RoomType, r
 }
 
 func (h *boltdbimpl) CountMessages(ctx context.Context, room *chat.ChatRoom) (count int, e error) {
-	e = h.DB().View(func(tx *bolt.Tx) error {
+	e = h.db.View(func(tx *bolt.Tx) error {
 		if bucket, e := h.getMessagesBucket(tx, false, room.Uuid); e != nil {
 			return e
 		} else {
@@ -290,7 +290,7 @@ func (h *boltdbimpl) CountMessages(ctx context.Context, room *chat.ChatRoom) (co
 func (h *boltdbimpl) ListMessages(ctx context.Context, request *chat.ListMessagesRequest) (messages []*chat.ChatMessage, e error) {
 
 	bounds := request.Limit > 0 || request.Offset > 0
-	e = h.DB().View(func(tx *bolt.Tx) error {
+	e = h.db.View(func(tx *bolt.Tx) error {
 
 		bucket, _ := h.getMessagesBucket(tx, false, request.RoomUuid)
 		if bucket == nil {
@@ -339,13 +339,14 @@ func (h *boltdbimpl) ListMessages(ctx context.Context, request *chat.ListMessage
 
 	return messages, e
 }
+
 func (h *boltdbimpl) PostMessage(ctx context.Context, request *chat.ChatMessage) (*chat.ChatMessage, error) {
 
 	if request.Uuid == "" {
 		request.Uuid = uuid.New()
 	}
 
-	err := h.DB().Update(func(tx *bolt.Tx) error {
+	err := h.db.Update(func(tx *bolt.Tx) error {
 		bucket, err := h.getMessagesBucket(tx, true, request.RoomUuid)
 		if err != nil {
 			return nil
@@ -363,7 +364,7 @@ func (h *boltdbimpl) PostMessage(ctx context.Context, request *chat.ChatMessage)
 
 func (h *boltdbimpl) UpdateMessage(ctx context.Context, request *chat.ChatMessage, callback MessageMatcher) (out *chat.ChatMessage, err error) {
 
-	err = h.DB().Update(func(tx *bolt.Tx) error {
+	err = h.db.Update(func(tx *bolt.Tx) error {
 		bucket, err := h.getMessagesBucket(tx, false, request.RoomUuid)
 		if err != nil {
 			return nil
@@ -395,7 +396,7 @@ func (h *boltdbimpl) DeleteMessage(ctx context.Context, message *chat.ChatMessag
 		return errors.BadRequest(common.ServiceChat, "Cannot delete a message without Uuid")
 	}
 
-	err := h.DB().Update(func(tx *bolt.Tx) error {
+	err := h.db.Update(func(tx *bolt.Tx) error {
 		bucket, err := h.getMessagesBucket(tx, false, message.RoomUuid)
 		if err != nil || bucket == nil {
 			return nil

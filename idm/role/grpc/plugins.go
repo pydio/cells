@@ -24,6 +24,8 @@ package grpc
 import (
 	"context"
 
+	"google.golang.org/grpc"
+
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/broker"
 	"github.com/pydio/cells/v4/common/dao/mysql"
@@ -32,8 +34,6 @@ import (
 	"github.com/pydio/cells/v4/common/runtime"
 	"github.com/pydio/cells/v4/common/service"
 	"github.com/pydio/cells/v4/idm/role"
-
-	"google.golang.org/grpc"
 )
 
 const ServiceName = common.ServiceGrpcNamespace_ + common.ServiceRole
@@ -60,6 +60,7 @@ func init() {
 					Up:            UpgradeTo421,
 				},
 			}),
+			service.WithDefaultStorageConn("sql"),
 			service.WithStorage("DAO",
 				role.NewDAO,
 				service.WithStoragePrefix("idm_role"),

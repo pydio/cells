@@ -37,6 +37,8 @@ storages: &storages
     uri: "sqlite3-extended://:memory:"
   nosql:
     uri: bleve://tmp/{{ .Value service }}
+  bolt:
+    uri: boltdb:///tmp/chat.db
 
 #--------------------------------------------
 # Default servers configuration

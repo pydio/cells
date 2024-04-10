@@ -53,7 +53,6 @@ import (
 	"github.com/pydio/cells/v4/common/server/middleware"
 	"github.com/pydio/cells/v4/common/service"
 	servicecontext "github.com/pydio/cells/v4/common/service/context"
-	"github.com/pydio/cells/v4/common/storage"
 	"github.com/pydio/cells/v4/common/utils/uuid"
 
 	_ "google.golang.org/grpc/health"
@@ -194,7 +193,7 @@ func (s *Server) lazyGrpc(ctx context.Context) *grpc.Server {
 
 						db := reflect.New(handlerT.In(0))
 
-						manager.GetStorage(ctx, "sql", db.Interface())
+						manager.GetStorage(ctx, svc.Options().DefaultStorageConn, db.Interface())
 
 						// Checking all migrations
 						err := service.UpdateServiceVersion(ctx, config.Main(), svc.Options())
@@ -296,8 +295,13 @@ func (s *Server) lazyGrpc(ctx context.Context) *grpc.Server {
 						}
 
 						db := reflect.New(handlerT.In(handlerT.NumIn() - 1))
-						if !storage.Get(ctx, db.Interface()) {
-							return fmt.Errorf("Could not retrieve storage for some reason")
+
+						manager.GetStorage(ctx, svc.Options().DefaultStorageConn, db.Interface())
+
+						// Checking all migrations
+						err := service.UpdateServiceVersion(ctx, config.Main(), svc.Options())
+						if err != nil {
+							return err
 						}
 
 						args := []reflect.Value{db.Elem()}

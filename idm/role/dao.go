@@ -42,5 +42,8 @@ type DAO interface {
 }
 
 func NewDAO(db *gorm.DB) (DAO, error) {
-	return &sqlimpl{db: db}, nil
+	return &sqlimpl{
+		db:           db,
+		resourcesDAO: resources.NewDAO(db),
+	}, nil
 }

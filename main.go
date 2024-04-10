@@ -3,6 +3,8 @@ package main
 import (
 	"github.com/pydio/cells/v4/common"
 
+	_ "github.com/pydio/cells/v4/common/storage/boltdb"
+
 	// Register minio client for objects storage
 	_ "github.com/pydio/cells/v4/common/nodes/objects/mc"
 
@@ -51,7 +53,7 @@ import (
 	// Broker
 	//_ "github.com/pydio/cells/v4/broker/activity/grpc"
 	//_ "github.com/pydio/cells/v4/broker/activity/rest"
-	//_ "github.com/pydio/cells/v4/broker/chat/grpc"
+	_ "github.com/pydio/cells/v4/broker/chat/grpc"
 	//_ "github.com/pydio/cells/v4/broker/log/grpc"
 	//_ "github.com/pydio/cells/v4/broker/log/rest"
 	//_ "github.com/pydio/cells/v4/broker/mailer/grpc"

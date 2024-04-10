@@ -30,11 +30,9 @@ import (
 	"github.com/pydio/cells/v4/broker/chat"
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/dao/boltdb"
-	"github.com/pydio/cells/v4/common/dao/mongodb"
 	proto "github.com/pydio/cells/v4/common/proto/chat"
 	"github.com/pydio/cells/v4/common/runtime"
 	"github.com/pydio/cells/v4/common/service"
-	servicecontext "github.com/pydio/cells/v4/common/service/context"
 )
 
 var ServiceName = common.ServiceGrpcNamespace_ + common.ServiceChat
@@ -46,16 +44,27 @@ func init() {
 			service.Context(ctx),
 			service.Tag(common.ServiceTagBroker),
 			service.Description("Chat Service to attach real-time chats to various object. Coupled with WebSocket"),
-			service.WithStorage(chat.NewDAO,
+			service.WithDefaultStorageConn("bolt"),
+			service.WithStorage(
+				"bolt",
+				chat.NewBoltDAO,
 				service.WithStoragePrefix("chat"),
-				service.WithStorageSupport(boltdb.Driver, mongodb.Driver),
-				service.WithStorageMigrator(chat.Migrate),
+				// service.WithStorageMigrator(chat.Migrate),
 				service.WithStorageDefaultDriver(func() (string, string) {
 					return boltdb.Driver, filepath.Join(runtime.MustServiceDataDir(ServiceName), "chat.db")
 				}),
 			),
+			//service.WithStorage(
+			//	"mongo",
+			//	chat.NewMongoDAO,
+			//	service.WithStoragePrefix("chat"),
+			//	// service.WithStorageMigrator(chat.Migrate),
+			//	service.WithStorageDefaultDriver(func() (string, string) {
+			//		return boltdb.Driver, filepath.Join(runtime.MustServiceDataDir(ServiceName), "chat.db")
+			//	}),
+			//),
 			service.WithGRPC(func(c context.Context, server grpc.ServiceRegistrar) error {
-				proto.RegisterChatServiceEnhancedServer(server, &ChatHandler{RuntimeCtx: c, dao: servicecontext.GetDAO(c).(chat.DAO)})
+				proto.RegisterChatServiceServer(server, &ChatHandler{RuntimeCtx: c})
 				return nil
 			}),
 		)

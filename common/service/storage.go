@@ -158,6 +158,12 @@ func WithStorageMigrator(d dao.MigratorFunc) StorageOption {
 //	return !s
 //}
 
+func WithDefaultStorageConn(name string) ServiceOption {
+	return func(o *ServiceOptions) {
+		o.DefaultStorageConn = name
+	}
+}
+
 // WithStorage adds a storage handler to the current service
 func WithStorage(name string, fd any, opts ...StorageOption) ServiceOption {
 	return makeStorageServiceOption(name, fd, opts...)

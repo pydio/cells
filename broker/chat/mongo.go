@@ -26,6 +26,7 @@ import (
 
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
+	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 
 	"github.com/pydio/cells/v4/common/dao/mongodb"
@@ -56,20 +57,20 @@ var mongoModel = mongodb.Model{
 }
 
 type mongoImpl struct {
-	mongodb.DAO
+	db *mongo.Database
 }
 
 func (m *mongoImpl) Init(ctx context.Context, values configx.Values) error {
-	if e := mongoModel.Init(context.Background(), m.DAO); e != nil {
+	if e := mongoModel.Init(context.Background(), m.db); e != nil {
 		return e
 	}
-	return m.DAO.Init(ctx, values)
+	return nil
 }
 
 func (m *mongoImpl) PutRoom(ctx context.Context, room *chat.ChatRoom) (*chat.ChatRoom, error) {
 	if room.Uuid == "" {
 		room.Uuid = uuid.New()
-		_, e := m.Collection("rooms").InsertOne(ctx, room)
+		_, e := m.db.Collection("rooms").InsertOne(ctx, room)
 		if e != nil {
 			return nil, e
 		} else {
@@ -78,7 +79,7 @@ func (m *mongoImpl) PutRoom(ctx context.Context, room *chat.ChatRoom) (*chat.Cha
 		}
 	} else {
 		upsert := true
-		_, e := m.Collection("rooms").ReplaceOne(ctx, bson.D{{"uuid", room.Uuid}}, room, &options.ReplaceOptions{Upsert: &upsert})
+		_, e := m.db.Collection("rooms").ReplaceOne(ctx, bson.D{{"uuid", room.Uuid}}, room, &options.ReplaceOptions{Upsert: &upsert})
 		if e != nil {
 			return nil, e
 		} else {
@@ -89,12 +90,12 @@ func (m *mongoImpl) PutRoom(ctx context.Context, room *chat.ChatRoom) (*chat.Cha
 }
 
 func (m *mongoImpl) DeleteRoom(ctx context.Context, room *chat.ChatRoom) (bool, error) {
-	res := m.Collection("rooms").FindOneAndDelete(ctx, bson.D{{"uuid", room.Uuid}})
+	res := m.db.Collection("rooms").FindOneAndDelete(ctx, bson.D{{"uuid", room.Uuid}})
 	if res.Err() != nil && !strings.Contains(res.Err().Error(), "no documents in result") {
 		return false, res.Err()
 	} else {
 		// Delete all messages for this room
-		_, er := m.Collection("messages").DeleteMany(ctx, bson.D{{"roomuuid", room.Uuid}})
+		_, er := m.db.Collection("messages").DeleteMany(ctx, bson.D{{"roomuuid", room.Uuid}})
 		if er != nil && !strings.Contains(er.Error(), "no documents in result") {
 			return false, er
 		} else {
@@ -109,7 +110,7 @@ func (m *mongoImpl) ListRooms(ctx context.Context, request *chat.ListRoomsReques
 	if request.TypeObject != "" {
 		filter = append(filter, primitive.E{Key: "roomtypeobject", Value: request.TypeObject})
 	}
-	cursor, err := m.Collection("rooms").Find(ctx, filter)
+	cursor, err := m.db.Collection("rooms").Find(ctx, filter)
 	if err != nil {
 		return nil, err
 	}
@@ -125,7 +126,7 @@ func (m *mongoImpl) ListRooms(ctx context.Context, request *chat.ListRoomsReques
 }
 
 func (m *mongoImpl) RoomByUuid(ctx context.Context, byType chat.RoomType, roomUUID string) (*chat.ChatRoom, error) {
-	single := m.Collection("rooms").FindOne(ctx, bson.D{
+	single := m.db.Collection("rooms").FindOne(ctx, bson.D{
 		{"type", byType}, {"uuid", roomUUID},
 	})
 	if single.Err() != nil {
@@ -146,7 +147,7 @@ func (m *mongoImpl) ListMessages(ctx context.Context, request *chat.ListMessages
 		opts.Skip = &request.Offset
 	}
 	opts.Sort = bson.D{{"timestamp", -1}}
-	cursor, err := m.Collection("messages").Find(ctx, filter, opts)
+	cursor, err := m.db.Collection("messages").Find(ctx, filter, opts)
 	if err != nil {
 		return nil, err
 	}
@@ -169,7 +170,7 @@ func (m *mongoImpl) PostMessage(ctx context.Context, request *chat.ChatMessage) 
 	if request.Uuid == "" {
 		request.Uuid = uuid.New()
 	}
-	_, e := m.Collection("messages").InsertOne(ctx, request)
+	_, e := m.db.Collection("messages").InsertOne(ctx, request)
 	if e != nil {
 		return nil, e
 	} else {
@@ -184,7 +185,7 @@ func (m *mongoImpl) UpdateMessage(ctx context.Context, request *chat.ChatMessage
 		{Key: "uuid", Value: request.Uuid},
 		{Key: "author", Value: request.Author},
 	}
-	single := m.Collection("messages").FindOne(ctx, search)
+	single := m.db.Collection("messages").FindOne(ctx, search)
 	if se := single.Err(); se != nil {
 		return nil, se
 	}
@@ -199,12 +200,12 @@ func (m *mongoImpl) UpdateMessage(ctx context.Context, request *chat.ChatMessage
 	if !matches {
 		return nil, nil
 	}
-	_, e := m.Collection("messages").ReplaceOne(ctx, search, newMsg)
+	_, e := m.db.Collection("messages").ReplaceOne(ctx, search, newMsg)
 	return newMsg, e
 }
 
 func (m *mongoImpl) DeleteMessage(ctx context.Context, message *chat.ChatMessage) error {
-	res := m.Collection("messages").FindOneAndDelete(ctx, bson.D{{"uuid", message.Uuid}})
+	res := m.db.Collection("messages").FindOneAndDelete(ctx, bson.D{{"uuid", message.Uuid}})
 	if res.Err() != nil {
 		return res.Err()
 	} else {
@@ -213,6 +214,6 @@ func (m *mongoImpl) DeleteMessage(ctx context.Context, message *chat.ChatMessage
 }
 
 func (m *mongoImpl) CountMessages(ctx context.Context, room *chat.ChatRoom) (count int, e error) {
-	c, e := m.Collection("messages").CountDocuments(ctx, bson.D{{"roomuuid", room.Uuid}})
+	c, e := m.db.Collection("messages").CountDocuments(ctx, bson.D{{"roomuuid", room.Uuid}})
 	return int(c), e
 }
