@@ -31,10 +31,12 @@ connections: &connections
     uri: xds://default.cells.com/cells
   broker:
     uri: xds://default.cells.com/cells
-  logs:
-    uri: file://stdout
+
+storages: &storages
   sql:
-    uri: sqlite3_extended://:memory
+    uri: "sqlite3-extended://:memory:"
+  nosql:
+    uri: bleve://tmp/{{ .Value service }}
 
 #--------------------------------------------
 # Default servers configuration
@@ -141,6 +143,7 @@ processes:
       scheduler:
       auth:
       broker:
+      idm:
 
 #  data:
 #    connections: *connections
@@ -150,13 +153,13 @@ processes:
 #    services:
 #      data:
 
-  idm:
-    connections: *connections
-    servers: *servers
-    env: *env
+#  idm:
+#    connections: *connections
+#    servers: *servers
+#    env: *env
+#
+#    services:
 
-    services:
-      idm:
 
 #  datasource-peer:
 #    connections: *connections

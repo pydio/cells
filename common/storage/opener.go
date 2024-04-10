@@ -22,9 +22,6 @@ package storage
 
 import (
 	"context"
-	"fmt"
-	"net/url"
-	"strings"
 	"text/template"
 
 	"github.com/pydio/cells/v4/common/utils/openurl"
@@ -36,7 +33,7 @@ import (
 //
 // This interface is generally implemented by types in driver packages.
 type URLOpener interface {
-	OpenURL(ctx context.Context, u *url.URL) (Storage, error)
+	OpenURL(ctx context.Context, dsn string) (Storage, error)
 }
 
 // URLMux is a URL opener multiplexer. It matches the scheme of the URLs
@@ -124,23 +121,12 @@ func (mux *URLMux) OpenStorage(ctx context.Context, urlstr string, opt ...Option
 		}
 	}
 
-	b := strings.Builder{}
-	tmpl, err := mux.tmpl.Clone()
-	if err != nil {
-		return nil, err
-	}
-	if _, err := tmpl.Parse(urlstr); err != nil {
-		return nil, err
-	}
-	tmpl.Execute(&b, nil)
-	fmt.Println(b.String())
-
-	opener, u, err := mux.schemes.FromString("Storage", urlstr)
+	opener, err := mux.schemes.FromStringNoParse("Storage", urlstr)
 	if err != nil {
 		return nil, err
 	}
 
-	st, err := opener.(URLOpener).OpenURL(ctx, u)
+	st, err := opener.(URLOpener).OpenURL(ctx, urlstr)
 	if err != nil {
 		return nil, err
 	}

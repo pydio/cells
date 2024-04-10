@@ -4,14 +4,13 @@ import (
 	"context"
 	"net/url"
 	"strings"
+	"text/template"
 
 	"github.com/pborman/uuid"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 
 	"github.com/pydio/cells/v4/common/dao/mongodb"
-	servercontext "github.com/pydio/cells/v4/common/server/context"
-	servicecontext "github.com/pydio/cells/v4/common/service/context"
 	"github.com/pydio/cells/v4/common/storage"
 )
 
@@ -29,34 +28,20 @@ func init() {
 }
 
 type mongoStorage struct {
-	clients []*mongoClient
+	template *template.Template
+	clients  map[string]*mongo.Client
 }
 
-func (o *mongoStorage) OpenURL(ctx context.Context, u *url.URL) (storage.Storage, error) {
-	// First we check if the connection is already used somewhere
-	//for _, client := range o.clients {
-	//	client.client.
-	//	if db.db.Path() == u.Path {
-	//		o.Register(db, "", "")
-	//		return o, nil
-	//	}
-	//}
-
-	client, err := mongo.Connect(ctx, options.Client().ApplyURI(u.String()))
+func (o *mongoStorage) OpenURL(ctx context.Context, urlstr string) (storage.Storage, error) {
+	t, err := template.New("storage").Parse(urlstr)
 	if err != nil {
 		return nil, err
 	}
 
-	// register the conn for future usage
-	o.Register(client, "", "")
-
-	return o, nil
-}
-
-type mongoClient struct {
-	client  *mongo.Client
-	service string
-	tenant  string
+	return &mongoStorage{
+		template: t,
+		clients:  make(map[string]*mongo.Client),
+	}, nil
 }
 
 func (s *mongoStorage) Provides(conn any) bool {
@@ -68,11 +53,6 @@ func (s *mongoStorage) Provides(conn any) bool {
 }
 
 func (s *mongoStorage) Register(conn any, tenant string, service string) {
-	s.clients = append(s.clients, &mongoClient{
-		client:  conn.(*mongo.Client),
-		tenant:  tenant,
-		service: service,
-	})
 }
 
 func (s *mongoStorage) GetConn(str string) (storage.Conn, error) {
@@ -91,13 +71,33 @@ func (s *mongoStorage) GetConn(str string) (storage.Conn, error) {
 }
 
 func (s *mongoStorage) Get(ctx context.Context, out interface{}) bool {
-	if v, ok := out.(**mongo.Client); ok {
-		for _, client := range s.clients {
-			if client.tenant == servercontext.GetTenant(ctx) && client.service == servicecontext.GetServiceName(ctx) {
-				*v = client.client
-				return true
-			}
+	if v, ok := out.(**mongo.Database); ok {
+		pathBuilder := &strings.Builder{}
+		if err := s.template.Execute(pathBuilder, ctx); err != nil {
+			return false
 		}
+
+		path := pathBuilder.String()
+
+		u, err := url.Parse(path)
+		if err != nil {
+			return false
+		}
+
+		if cli, ok := s.clients[path]; ok {
+			*v = cli.Database(u.Path)
+		} else {
+			cli, err := mongo.Connect(context.TODO(), options.Client().ApplyURI(path))
+			if err != nil {
+				return false
+			}
+
+			*v = cli.Database(u.Path)
+
+			s.clients[path] = cli
+		}
+
+		return true
 	}
 
 	return false

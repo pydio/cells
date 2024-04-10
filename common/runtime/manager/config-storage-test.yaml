@@ -1,5 +1,9 @@
 storages:
   sql:
-    uri: cells:P@ssw0rd@tcp(localhost:3306)/test?parseTime=true
-#  nosql:
-#    uri: bleve:///tmp/{{tenant}}/{{prefix}}
+    uri: "sqlite3-extended:///tmp/sqlite"
+  mongo:
+    uri: mongodb://localhost:27017/test
+  bleve:
+    uri: bleve:///tmp/bleve/test
+  bolt:
+    uri: boltdb:///tmp/bolt/test

@@ -2,25 +2,27 @@ package manager
 
 import (
 	"context"
-	_ "embed"
 	"fmt"
 	"testing"
 
-	. "github.com/smartystreets/goconvey/convey"
 	"github.com/spf13/viper"
+	"go.etcd.io/bbolt"
 	"go.mongodb.org/mongo-driver/mongo"
 	"gorm.io/gorm"
 
-	_ "github.com/pydio/cells/v4/common/registry/config"
 	"github.com/pydio/cells/v4/common/runtime"
 	servercontext "github.com/pydio/cells/v4/common/server/context"
 	"github.com/pydio/cells/v4/common/server/generic"
 	"github.com/pydio/cells/v4/common/service"
-	_ "github.com/pydio/cells/v4/common/storage/bleve"
+	"github.com/pydio/cells/v4/common/storage/bleve"
+
+	_ "embed"
+	_ "github.com/pydio/cells/v4/common/registry/config"
 	_ "github.com/pydio/cells/v4/common/storage/boltdb"
-	_ "github.com/pydio/cells/v4/common/storage/mem"
 	_ "github.com/pydio/cells/v4/common/storage/mongo"
 	_ "github.com/pydio/cells/v4/common/storage/sql"
+
+	. "github.com/smartystreets/goconvey/convey"
 )
 
 var (
@@ -63,11 +65,32 @@ func TestManager(t *testing.T) {
 		})
 
 		Convey("Mongo", func() {
-			var cli *mongo.Client
+			var cli *mongo.Database
 			err := manager.GetStorage(ctx, "mongo", &cli)
 			So(err, ShouldBeNil)
 
-			cli.Database("test").CreateCollection(ctx, "collection")
+			cli.CreateCollection(ctx, "collection")
+		})
+
+		Convey("Bolt", func() {
+			var cli *bbolt.DB
+			err := manager.GetStorage(ctx, "bolt", &cli)
+			So(err, ShouldBeNil)
+
+			cli.Update(func(tx *bbolt.Tx) error {
+				_, err := tx.CreateBucketIfNotExists([]byte(`test`))
+				return err
+			})
+		})
+
+		Convey("Bleve", func() {
+			var cli bleve.Indexer
+			err := manager.GetStorage(ctx, "bleve", &cli)
+			So(err, ShouldBeNil)
+
+			err = cli.InsertOne(context.TODO(), "test")
+			So(err, ShouldBeNil)
+
 		})
 	})
 

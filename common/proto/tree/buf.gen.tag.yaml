@@ -4,5 +4,5 @@ plugins:
     opt: paths=source_relative
     out: .
   - name: go-setter
-    opt: paths=source_relative
+    opt: paths=source_relative 
     out: .

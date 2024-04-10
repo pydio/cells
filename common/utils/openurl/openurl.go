@@ -52,6 +52,32 @@ func (m *SchemeMap) Register(api, typ, scheme string, value interface{}) {
 	m.m[scheme] = value
 }
 
+// FromStringNoParse parses urlstr as an URL and looks up the value for the URL's scheme.
+func (m *SchemeMap) FromStringNoParse(typ, urlstr string) (interface{}, error) {
+	parts := strings.SplitN(urlstr, "://", 2)
+	if len(parts) != 2 {
+		return nil, fmt.Errorf("open %s.%s: should have a scheme", m.api, typ)
+	}
+	scheme := parts[0]
+	if scheme == "" {
+		return nil, fmt.Errorf("open %s.%s: no scheme in URL %s", m.api, typ, urlstr)
+	}
+	for _, prefix := range []string{
+		fmt.Sprintf("%s+%s+", m.api, strings.ToLower(typ)),
+		fmt.Sprintf("%s+", m.api),
+	} {
+		scheme = strings.TrimPrefix(scheme, prefix)
+	}
+
+	scheme = strings.SplitN(scheme, "+", 2)[0]
+
+	v, ok := m.m[scheme]
+	if !ok {
+		return nil, fmt.Errorf("open %s.%s: no driver registered for %q for URL %s; available schemes: %v", m.api, typ, scheme, urlstr, strings.Join(m.Schemes(), ", "))
+	}
+	return v, nil
+}
+
 // FromString parses urlstr as an URL and looks up the value for the URL's scheme.
 func (m *SchemeMap) FromString(typ, urlstr string) (interface{}, *url.URL, error) {
 	u, err := url.Parse(urlstr)

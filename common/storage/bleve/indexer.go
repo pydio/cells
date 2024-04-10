@@ -26,11 +26,11 @@ import (
 	"fmt"
 	"math"
 	"os"
+	"path"
 	"path/filepath"
 	"sort"
 	"strings"
 	"sync"
-	"text/template"
 
 	bleve "github.com/blevesearch/bleve/v2"
 	"github.com/blevesearch/bleve/v2/index/scorch"
@@ -243,22 +243,23 @@ func (s *bleveIndexer) getFullPath(path string, prefix string, rotationID string
 }
 
 func (s *bleveIndexer) getPrefix(ctx context.Context) string {
-	prefix := ctx.Value("prefix").(*template.Template)
-
-	prefixBuilder := &strings.Builder{}
-	if err := prefix.Execute(prefixBuilder, struct {
-		Ctx context.Context
-	}{
-		Ctx: ctx,
-	}); err != nil {
-		return ""
-	}
-
-	if prefixBuilder.Len() == 0 {
-		return ""
-	}
-
-	return prefixBuilder.String()
+	return path.Base(s.conf.BlevePath)
+	//prefix := ctx.Value("prefix").(*template.Template)
+	//
+	//prefixBuilder := &strings.Builder{}
+	//if err := prefix.Execute(prefixBuilder, struct {
+	//	Ctx context.Context
+	//}{
+	//	Ctx: ctx,
+	//}); err != nil {
+	//	return ""
+	//}
+	//
+	//if prefixBuilder.Len() == 0 {
+	//	return ""
+	//}
+	//
+	//return prefixBuilder.String()
 }
 
 func (s *bleveIndexer) getPath(ctx context.Context) string {

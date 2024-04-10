@@ -23,7 +23,7 @@ package role
 
 import (
 	"context"
-	"github.com/pydio/cells/v4/common/storage"
+
 	"gorm.io/gorm"
 
 	"github.com/pydio/cells/v4/common/proto/idm"
@@ -41,14 +41,6 @@ type DAO interface {
 	Count(ctx context.Context, query sql.Enquirer) (int32, error)
 }
 
-func NewDAO(ctx context.Context) (DAO, error) {
-	var db *gorm.DB
-
-	if storage.Get(ctx, &db) {
-		return &sqlimpl{
-			db: db,
-		}, nil
-	}
-
-	return nil, storage.NotFound
+func NewDAO(db *gorm.DB) (DAO, error) {
+	return &sqlimpl{db: db}, nil
 }

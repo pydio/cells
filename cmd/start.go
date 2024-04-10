@@ -22,7 +22,6 @@ package cmd
 
 import (
 	"context"
-	_ "embed"
 	"os"
 	"path/filepath"
 
@@ -42,6 +41,8 @@ import (
 	servercontext "github.com/pydio/cells/v4/common/server/context"
 	servicecontext "github.com/pydio/cells/v4/common/service/context"
 	"github.com/pydio/cells/v4/common/utils/filex"
+
+	_ "embed"
 )
 
 var (
@@ -185,7 +186,7 @@ ENVIRONMENT
 		// Init broker
 		broker.Register(broker.NewBroker(runtime.BrokerURL(), broker.WithContext(ctx)))
 
-		m, err := manager.NewManager(ctx, reg, "", "main", log.Logger(servicecontext.WithServiceName(ctx, "pydio.server.manager")))
+		m, err := manager.NewManager(ctx, "main", log.Logger(servicecontext.WithServiceName(ctx, "pydio.server.manager")))
 		if err != nil {
 			return err
 		}
@@ -242,7 +243,7 @@ func init() {
 	StartCmd.Flags().Bool(runtime.KeyEnableMetrics, false, "Instrument code to expose internal metrics (to local JSON file, or service discovery if Metrics Basic Auth is set)")
 	StartCmd.Flags().String(runtime.KeyMetricsBasicAuth, "", "Expose metrics to a service discovery endpoint /metrics/sd")
 	StartCmd.Flags().Bool(runtime.KeyEnablePprof, false, "Enable pprof remote debugging")
-	StartCmd.Flags().Int(runtime.KeyHealthCheckPort, 0, "Healthcheck port number")
+	//StartCmd.Flags().Int(runtime.KeyHealthCheckPort, 0, "Healthcheck port number")
 
 	StartCmd.Flags().StringSlice(runtime.KeySet, []string{}, "Set value")
 

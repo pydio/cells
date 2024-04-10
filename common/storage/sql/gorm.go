@@ -3,7 +3,6 @@ package sql
 import (
 	"context"
 	"database/sql"
-	"net/url"
 	"strings"
 	"sync"
 	"text/template"
@@ -18,8 +17,10 @@ import (
 	cellsmysql "github.com/pydio/cells/v4/common/dao/mysql"
 	cellspostgres "github.com/pydio/cells/v4/common/dao/pgsql"
 	cellssqlite "github.com/pydio/cells/v4/common/dao/sqlite"
+	servercontext "github.com/pydio/cells/v4/common/server/context"
+	servicecontext "github.com/pydio/cells/v4/common/service/context"
 	"github.com/pydio/cells/v4/common/storage"
-	"github.com/pydio/cells/v4/common/storage/dbresolver"
+	"github.com/pydio/cells/v4/common/storage/sql/dbresolver"
 )
 
 var (
@@ -40,11 +41,13 @@ type gormStorage struct {
 	db       *gorm.DB
 	dr       *dbresolver.DBResolver
 
+	conns map[string]*sql.DB
+
 	once *sync.Once
 }
 
-func (gs *gormStorage) OpenURL(ctx context.Context, u *url.URL) (storage.Storage, error) {
-	t, err := template.New("gormStorage").Parse(u.String())
+func (gs *gormStorage) OpenURL(ctx context.Context, dsn string) (storage.Storage, error) {
+	t, err := template.New("gormStorage").Parse(dsn)
 	if err != nil {
 		return nil, err
 	}
@@ -142,8 +145,28 @@ func (gs *gormStorage) Register(conn any, tenant string, service string) {
 }
 
 func (gs *gormStorage) Get(ctx context.Context, out interface{}) bool {
-
 	if v, ok := out.(**gorm.DB); ok {
+		pathBuilder := &strings.Builder{}
+		if err := gs.template.Execute(pathBuilder, ctx); err != nil {
+			return false
+		}
+
+		path := pathBuilder.String()
+		if conn, ok := gs.conns[path]; !ok {
+			parts := strings.Split(path, "://")
+			if len(parts) < 2 {
+				return false
+			}
+
+			if conn, err := sql.Open(parts[0], strings.Join(parts[1:], "")); err != nil {
+				return false
+			} else {
+				gs.Register(conn, servercontext.GetTenant(ctx), servicecontext.GetServiceName(ctx))
+			}
+		} else {
+			gs.Register(conn, servercontext.GetTenant(ctx), servicecontext.GetServiceName(ctx))
+		}
+
 		*v = gs.db
 		return true
 	}

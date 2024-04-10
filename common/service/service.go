@@ -24,7 +24,6 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"github.com/pydio/cells/v4/common/config"
 	"sync"
 
 	errors2 "github.com/pkg/errors"
@@ -300,17 +299,18 @@ func (s *service) OnServe(oo ...registry.RegisterOption) error {
 	if refCtx == nil {
 		refCtx = s.Opts.rootContext
 	}
-	go func() {
-		if locker := s.Opts.GetRegistry().NewLocker("update-service-version-" + s.Opts.Name); locker != nil {
-			locker.Lock()
-			defer locker.Unlock()
-		}
 
-		defer w.Done()
-		if e := UpdateServiceVersion(refCtx, config.Main(), s.Opts); e != nil {
-			s.Opts.Logger().Error("UpdateServiceVersion failed", zap.Error(e))
-		}
-	}()
+	//go func() {
+	//	if locker := s.Opts.GetRegistry().NewLocker("update-service-version-" + s.Opts.Name); locker != nil {
+	//		locker.Lock()
+	//		defer locker.Unlock()
+	//	}
+	//
+	//	defer w.Done()
+	//	if e := UpdateServiceVersion(refCtx, config.Main(), s.Opts); e != nil {
+	//		s.Opts.Logger().Error("UpdateServiceVersion failed", zap.Error(e))
+	//	}
+	//}()
 
 	for _, after := range s.Opts.AfterServe {
 		go func(f func(context.Context) error) {
@@ -369,12 +369,15 @@ func (s *service) updateRegister(status ...registry.Status) {
 func (s *service) Name() string {
 	return s.Opts.Name
 }
+
 func (s *service) ID() string {
 	return s.Opts.ID
 }
+
 func (s *service) Version() string {
 	return s.Opts.Version
 }
+
 func (s *service) Tags() []string {
 	return s.Opts.Tags
 }

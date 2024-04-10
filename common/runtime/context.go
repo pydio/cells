@@ -48,6 +48,7 @@ type contextType int
 
 const (
 	configKey contextType = iota
+	managerKey
 )
 
 func WithConfig(ctx context.Context, c configx.Values) context.Context {
@@ -70,4 +71,28 @@ func GetConfig(ctx context.Context) configx.Values {
 	}
 
 	return c
+}
+
+func With[T any](ctx context.Context, key string, t T) context.Context {
+	return context.WithValue(ctx, key, t)
+}
+
+func Get[T any](ctx context.Context, key string, out *T) bool {
+	if ctx == nil {
+		return false
+	}
+
+	i := ctx.Value(key)
+	if i == nil {
+		return false
+	}
+
+	c, ok := i.(T)
+	if !ok {
+		return false
+	}
+
+	*out = c
+
+	return true
 }

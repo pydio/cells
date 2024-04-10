@@ -47,7 +47,7 @@ import (
 	"github.com/pydio/cells/v4/common/proto/options/orm"
 	"github.com/pydio/cells/v4/common/proto/tree"
 	"github.com/pydio/cells/v4/common/sql"
-	"github.com/pydio/cells/v4/common/storage"
+	storagesql "github.com/pydio/cells/v4/common/storage/sql"
 	"github.com/pydio/cells/v4/common/utils/uuid"
 )
 
@@ -814,7 +814,7 @@ func (dao *IndexSQL[T]) MoveNodeTree(ctx context.Context, nodeFrom tree.ITreeNod
 			concat = append(concat, fmt.Sprintf(`SUBSTR(mpath%d, %d, %d)`, modPart.quo+1, modPart.from+1, modPart.to-modPart.from))
 		}
 
-		helper := dao.instance(ctx).Dialector.(storage.Helper)
+		helper := dao.instance(ctx).Dialector.(storagesql.Helper)
 
 		mpathSub[fmt.Sprintf("mpath%d", cnt+1)] = gorm.Expr(helper.Concat(concat...))
 

@@ -5,9 +5,8 @@ import (
 	"net/url"
 	"strconv"
 	"strings"
+	"text/template"
 
-	servercontext "github.com/pydio/cells/v4/common/server/context"
-	servicecontext "github.com/pydio/cells/v4/common/service/context"
 	"github.com/pydio/cells/v4/common/storage"
 	"github.com/pydio/cells/v4/common/utils/uuid"
 )
@@ -21,65 +20,24 @@ func init() {
 }
 
 type bleveStorage struct {
-	dbs []*blevedb
+	template *template.Template
+	dbs      []*blevedb
 }
 
-func (o *bleveStorage) OpenURL(ctx context.Context, u *url.URL) (storage.Storage, error) {
-	// First we check if the connection is already used somewhere
-	for _, db := range o.dbs {
-		if db.db.MustBleveConfig(ctx).BlevePath == u.Path {
-			o.Register(db.db, "", "")
-			return o, nil
-		}
-	}
-
-	q := u.Query()
-
-	rotationSize := DefaultRotationSize
-	if q.Has("rotationSize") {
-		if size, err := strconv.ParseInt(q.Get("rotationSize"), 10, 0); err != nil {
-			return nil, err
-		} else {
-			rotationSize = size
-		}
-	}
-
-	batchSize := DefaultBatchSize
-	if q.Has("batchSize") {
-		if size, err := strconv.ParseInt(q.Get("batchSize"), 10, 0); err != nil {
-			return nil, err
-		} else {
-			batchSize = size
-		}
-	}
-
-	mappingName := DefaultMappingName
-	if q.Has("mapping") {
-		if mn := q.Get("mapping"); mn != "" {
-			mappingName = mn
-		}
-	}
-
-	index, err := newBleveIndexer(&BleveConfig{
-		BlevePath:    u.Path,
-		RotationSize: rotationSize,
-		BatchSize:    batchSize,
-		MappingName:  mappingName,
-	})
+func (o *bleveStorage) OpenURL(ctx context.Context, urlstr string) (storage.Storage, error) {
+	t, err := template.New("storage").Parse(urlstr)
 	if err != nil {
 		return nil, err
 	}
 
-	// register the conn for future usage
-	o.Register(index, "", "")
-
-	return o, nil
+	return &bleveStorage{
+		template: t,
+	}, nil
 }
 
 type blevedb struct {
-	db      *bleveIndexer
-	service string
-	tenant  string
+	path string
+	db   *bleveIndexer
 }
 
 func (s *bleveStorage) Provides(conn any) bool {
@@ -105,24 +63,77 @@ func (s *bleveStorage) GetConn(str string) (storage.Conn, error) {
 }
 
 func (s *bleveStorage) Register(conn any, tenant string, service string) {
-	s.dbs = append(s.dbs, &blevedb{
-		db:      conn.(*bleveIndexer),
-		tenant:  tenant,
-		service: service,
-	})
+
 }
 
 func (s *bleveStorage) Get(ctx context.Context, out interface{}) bool {
-	if v, ok := out.(**bleveIndexer); ok {
+	if v, ok := out.(*Indexer); ok {
+		pathBuilder := &strings.Builder{}
+		if err := s.template.Execute(pathBuilder, ctx); err != nil {
+			return false
+		}
+
+		path := pathBuilder.String()
+
+		u, err := url.Parse(path)
+		if err != nil {
+			return false
+		}
+
 		for _, db := range s.dbs {
-			tenant := servercontext.GetTenant(ctx)
-			service := servicecontext.GetServiceName(ctx)
-			if (db.tenant == tenant && db.service == service) || (db.tenant == "" && db.service == "") {
-				//db.db.Open(ctx)
+			if path == db.path {
 				*v = db.db
 				return true
 			}
 		}
+
+		// Not found, opening
+
+		q := u.Query()
+
+		rotationSize := DefaultRotationSize
+		if q.Has("rotationSize") {
+			if size, err := strconv.ParseInt(q.Get("rotationSize"), 10, 0); err != nil {
+				return false
+			} else {
+				rotationSize = size
+			}
+		}
+
+		batchSize := DefaultBatchSize
+		if q.Has("batchSize") {
+			if size, err := strconv.ParseInt(q.Get("batchSize"), 10, 0); err != nil {
+				return false
+			} else {
+				batchSize = size
+			}
+		}
+
+		mappingName := DefaultMappingName
+		if q.Has("mapping") {
+			if mn := q.Get("mapping"); mn != "" {
+				mappingName = mn
+			}
+		}
+
+		index, err := newBleveIndexer(&BleveConfig{
+			BlevePath:    u.Path,
+			RotationSize: rotationSize,
+			BatchSize:    batchSize,
+			MappingName:  mappingName,
+		})
+		if err != nil {
+			return false
+		}
+
+		*v = index
+
+		s.dbs = append(s.dbs, &blevedb{
+			db:   index,
+			path: path,
+		})
+
+		return true
 	}
 
 	return false

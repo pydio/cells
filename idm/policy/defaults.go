@@ -669,7 +669,7 @@ func Upgrade4199(ctx context.Context) error {
 }
 
 func Upgrade4399(ctx context.Context) error {
-	dao := servicecontext.GetDAO(ctx).(DAO)
+	dao := servicecontext.GetDAO[DAO](ctx)
 	if dao == nil {
 		return fmt.Errorf("cannot find DAO for policies initialization")
 	}

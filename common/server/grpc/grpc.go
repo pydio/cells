@@ -37,7 +37,6 @@ import (
 	"google.golang.org/grpc"
 	channelz "google.golang.org/grpc/channelz/service"
 	"google.golang.org/grpc/health"
-	_ "google.golang.org/grpc/health"
 	"google.golang.org/grpc/health/grpc_health_v1"
 	"google.golang.org/grpc/reflection"
 	"google.golang.org/protobuf/proto"
@@ -48,6 +47,7 @@ import (
 	"github.com/pydio/cells/v4/common/registry"
 	"github.com/pydio/cells/v4/common/registry/util"
 	"github.com/pydio/cells/v4/common/runtime"
+	"github.com/pydio/cells/v4/common/runtime/manager"
 	"github.com/pydio/cells/v4/common/server"
 	servercontext "github.com/pydio/cells/v4/common/server/context"
 	"github.com/pydio/cells/v4/common/server/middleware"
@@ -55,6 +55,8 @@ import (
 	servicecontext "github.com/pydio/cells/v4/common/service/context"
 	"github.com/pydio/cells/v4/common/storage"
 	"github.com/pydio/cells/v4/common/utils/uuid"
+
+	_ "google.golang.org/grpc/health"
 )
 
 func init() {
@@ -141,6 +143,9 @@ func (s *Server) lazyGrpc(ctx context.Context) *grpc.Server {
 		streamInterceptors []grpc.StreamServerInterceptor
 	)
 
+	var manager manager.Manager
+	runtime.Get(ctx, "manager", &manager)
+
 	reg := servicecontext.GetRegistry(s.ctx)
 
 	unaryInterceptors = append(unaryInterceptors,
@@ -188,7 +193,8 @@ func (s *Server) lazyGrpc(ctx context.Context) *grpc.Server {
 						cfg.Val("services", svc.Name(), "db", "driver")
 
 						db := reflect.New(handlerT.In(0))
-						storage.Get(ctx, db.Interface())
+
+						manager.GetStorage(ctx, "sql", db.Interface())
 
 						// Checking all migrations
 						err := service.UpdateServiceVersion(ctx, config.Main(), svc.Options())

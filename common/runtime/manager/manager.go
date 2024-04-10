@@ -22,7 +22,6 @@ package manager
 
 import (
 	"context"
-	_ "embed"
 	"fmt"
 	"io"
 	"os"
@@ -52,6 +51,8 @@ import (
 	"github.com/pydio/cells/v4/common/utils/configx"
 	"github.com/pydio/cells/v4/common/utils/fork"
 	json "github.com/pydio/cells/v4/common/utils/jsonx"
+
+	_ "embed"
 )
 
 const (
@@ -74,7 +75,6 @@ type Manager interface {
 	SetServeOptions(...server.ServeOption)
 	WatchServicesConfigs()
 	WatchBroker(ctx context.Context, br broker.Broker) error
-
 	GetStorage(ctx context.Context, name string, out any) error
 }
 
@@ -148,8 +148,9 @@ func NewManager(ctx context.Context, namespace string, logger log.ZapLogger) (Ma
 
 		// Adding to cluster registry
 		registry.OnRegister(func(item *registry.Item, opts *[]registry.RegisterOption) {
-			fmt.Println((*item).Name(), (*item).Metadata())
-			m.clusterRegistry.Register(*item, *opts...)
+			if m.clusterRegistry != nil {
+				m.clusterRegistry.Register(*item, *opts...)
+			}
 		}),
 	)
 
@@ -169,6 +170,7 @@ func NewManager(ctx context.Context, namespace string, logger log.ZapLogger) (Ma
 
 	ctx = servercontext.WithRegistry(ctx, reg)
 	ctx = servicecontext.WithRegistry(ctx, reg)
+	ctx = runtime.With(ctx, "manager", m)
 
 	runtime.Init(ctx, "discovery")
 	runtime.Init(ctx, m.ns)

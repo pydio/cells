@@ -4,12 +4,11 @@ import (
 	"context"
 	"net/url"
 	"strings"
+	"text/template"
 	"time"
 
 	"go.etcd.io/bbolt"
 
-	servercontext "github.com/pydio/cells/v4/common/server/context"
-	servicecontext "github.com/pydio/cells/v4/common/service/context"
 	"github.com/pydio/cells/v4/common/storage"
 	"github.com/pydio/cells/v4/common/utils/uuid"
 )
@@ -23,44 +22,24 @@ func init() {
 }
 
 type boltdbStorage struct {
-	dbs []*boltdb
+	template *template.Template
+	dbs      []*boltdb
 }
 
-func (o *boltdbStorage) OpenURL(ctx context.Context, u *url.URL) (storage.Storage, error) {
-	// First we check if the connection is already used somewhere
-	for _, db := range o.dbs {
-		if db.db.Path() == u.Path {
-			o.Register(db.db, "", "")
-			return o, nil
-		}
-	}
-
-	q := u.Query()
-
-	options := bbolt.DefaultOptions
-	options.Timeout = 5 * time.Second
-
-	if q.Has("timeout") {
-		if timeout, err := time.ParseDuration(q.Get("timeout")); err != nil {
-			options.Timeout = timeout
-		}
-	}
-
-	conn, err := bbolt.Open(u.Path, 0644, options)
+func (o *boltdbStorage) OpenURL(ctx context.Context, urlstr string) (storage.Storage, error) {
+	t, err := template.New("storage").Parse(urlstr)
 	if err != nil {
 		return nil, err
 	}
 
-	// register the conn for future usage
-	o.Register(conn, "", "")
-
-	return o, nil
+	return &boltdbStorage{
+		template: t,
+	}, nil
 }
 
 type boltdb struct {
-	db      *bbolt.DB
-	service string
-	tenant  string
+	path string
+	db   *bbolt.DB
 }
 
 func (s *boltdbStorage) Provides(conn any) bool {
@@ -88,21 +67,54 @@ func (s *boltdbStorage) GetConn(str string) (storage.Conn, error) {
 }
 
 func (s *boltdbStorage) Register(conn any, tenant string, service string) {
-	s.dbs = append(s.dbs, &boltdb{
-		db:      conn.(*bbolt.DB),
-		tenant:  tenant,
-		service: service,
-	})
 }
 
 func (s *boltdbStorage) Get(ctx context.Context, out interface{}) bool {
 	if v, ok := out.(**bbolt.DB); ok {
+		pathBuilder := &strings.Builder{}
+		if err := s.template.Execute(pathBuilder, ctx); err != nil {
+			return false
+		}
+
+		path := pathBuilder.String()
+
+		u, err := url.Parse(path)
+		if err != nil {
+			return false
+		}
+
 		for _, db := range s.dbs {
-			if db.tenant == servercontext.GetTenant(ctx) && db.service == servicecontext.GetServiceName(ctx) {
+			if db.path == path {
 				*v = db.db
 				return true
 			}
 		}
+
+		// If not found, create one
+		options := bbolt.DefaultOptions
+		options.Timeout = 5 * time.Second
+
+		q := u.Query()
+		if q.Has("timeout") {
+			if timeout, err := time.ParseDuration(q.Get("timeout")); err != nil {
+				options.Timeout = timeout
+			}
+		}
+
+		conn, err := bbolt.Open(strings.TrimPrefix(path, "boltdb://"), 0644, options)
+		if err != nil {
+			return false
+		}
+
+		*v = conn
+
+		s.dbs = append(s.dbs, &boltdb{
+			db:   conn,
+			path: path,
+		})
+
+		return true
+
 	}
 
 	return false

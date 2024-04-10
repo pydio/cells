@@ -2499,12 +2499,12 @@ type TreeNode struct {
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
-	Node  *Node  `protobuf:"bytes,1,opt,name=Node,proto3" json:"Node,omitempty" gorm:"embedded;"`
-	Name  string `protobuf:"bytes,2,opt,name=Name,proto3" json:"Name,omitempty" gorm:"column:name;"`
-	Level int64  `protobuf:"varint,3,opt,name=Level,proto3" json:"Level,omitempty" gorm:"column:level;type:SMALLINT;;"`
-	MPath *MPath `protobuf:"bytes,4,opt,name=MPath,proto3" json:"MPath,omitempty" gorm:"embedded;"`
-	Hash  string `protobuf:"bytes,5,opt,name=Hash,proto3" json:"Hash,omitempty" gorm:"column:hash;type:VARCHAR(255);unique;"`
-	Hash2 string `protobuf:"bytes,6,opt,name=Hash2,proto3" json:"Hash2,omitempty" gorm:"column:hash2;type:VARCHAR(255);unique;"`
+	Node  *Node  `protobuf:"bytes,1,opt,name=Node,proto3" json:"Node,omitempty"`
+	Name  string `protobuf:"bytes,2,opt,name=Name,proto3" json:"Name,omitempty"`
+	Level int64  `protobuf:"varint,3,opt,name=Level,proto3" json:"Level,omitempty"`
+	MPath *MPath `protobuf:"bytes,4,opt,name=MPath,proto3" json:"MPath,omitempty"`
+	Hash  string `protobuf:"bytes,5,opt,name=Hash,proto3" json:"Hash,omitempty"`
+	Hash2 string `protobuf:"bytes,6,opt,name=Hash2,proto3" json:"Hash2,omitempty"`
 }
 
 func (x *TreeNode) Reset() {
@@ -2586,10 +2586,10 @@ type MPath struct {
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
-	MPath1 string `protobuf:"bytes,1,opt,name=MPath1,proto3" json:"MPath1,omitempty" gorm:"column:mpath1;"`
-	MPath2 string `protobuf:"bytes,2,opt,name=MPath2,proto3" json:"MPath2,omitempty" gorm:"column:mpath2;"`
-	MPath3 string `protobuf:"bytes,3,opt,name=MPath3,proto3" json:"MPath3,omitempty" gorm:"column:mpath3;"`
-	MPath4 string `protobuf:"bytes,4,opt,name=MPath4,proto3" json:"MPath4,omitempty" gorm:"column:mpath4;"`
+	MPath1 string `protobuf:"bytes,1,opt,name=MPath1,proto3" json:"MPath1,omitempty"`
+	MPath2 string `protobuf:"bytes,2,opt,name=MPath2,proto3" json:"MPath2,omitempty"`
+	MPath3 string `protobuf:"bytes,3,opt,name=MPath3,proto3" json:"MPath3,omitempty"`
+	MPath4 string `protobuf:"bytes,4,opt,name=MPath4,proto3" json:"MPath4,omitempty"`
 }
 
 func (x *MPath) Reset() {
@@ -2660,27 +2660,27 @@ type Node struct {
 	// ------------------------------------
 	// Core identification of the node
 	// ------------------------------------
-	Uuid string   `protobuf:"bytes,1,opt,name=Uuid,proto3" json:"Uuid,omitempty" gorm:"column:uuid;type:VARCHAR(128);primaryKey;"`
-	Path string   `protobuf:"bytes,2,opt,name=Path,proto3" json:"Path,omitempty" gorm:"-:all"`
-	Type NodeType `protobuf:"varint,3,opt,name=Type,proto3,enum=tree.NodeType" json:"Type,omitempty" gorm:"column:leaf;type:TINYINT(1);"`
+	Uuid string   `protobuf:"bytes,1,opt,name=Uuid,proto3" json:"Uuid,omitempty"`
+	Path string   `protobuf:"bytes,2,opt,name=Path,proto3" json:"Path,omitempty"`
+	Type NodeType `protobuf:"varint,3,opt,name=Type,proto3,enum=tree.NodeType" json:"Type,omitempty"`
 	// Size of the file, or cumulated size of folder
-	Size int64 `protobuf:"varint,4,opt,name=Size,proto3" json:"Size,omitempty" gorm:"column:size;"`
+	Size int64 `protobuf:"varint,4,opt,name=Size,proto3" json:"Size,omitempty"`
 	// Last modification Timestamp
-	MTime int64 `protobuf:"varint,5,opt,name=MTime,proto3" json:"MTime,omitempty" gorm:"column:mtime;"`
+	MTime int64 `protobuf:"varint,5,opt,name=MTime,proto3" json:"MTime,omitempty"`
 	// Permission mode, like 0777
-	Mode int32 `protobuf:"varint,6,opt,name=Mode,proto3" json:"Mode,omitempty" gorm:"column:mode;type:INT;"`
+	Mode int32 `protobuf:"varint,6,opt,name=Mode,proto3" json:"Mode,omitempty"`
 	// Hash of the content if node is a LEAF, Uuid or
-	Etag string `protobuf:"bytes,7,opt,name=Etag,proto3" json:"Etag,omitempty" gorm:"column:etag;type:VARCHAR(255);"`
+	Etag string `protobuf:"bytes,7,opt,name=Etag,proto3" json:"Etag,omitempty"`
 	// List of successive commits
 	//
 	// Deprecated: Marked as deprecated in cells-tree.proto.
-	Commits []*ChangeLog `protobuf:"bytes,9,rep,name=Commits,proto3" json:"Commits,omitempty" gorm:"-:all"`
+	Commits []*ChangeLog `protobuf:"bytes,9,rep,name=Commits,proto3" json:"Commits,omitempty"`
 	// ------------------------------------
 	// Then a free K => V representation of any kind of metadata
 	// ------------------------------------
-	MetaStore map[string]string `protobuf:"bytes,8,rep,name=MetaStore,proto3" json:"MetaStore,omitempty" protobuf_key:"bytes,1,opt,name=key,proto3" protobuf_val:"bytes,2,opt,name=value,proto3" gorm:"-:all"`
+	MetaStore map[string]string `protobuf:"bytes,8,rep,name=MetaStore,proto3" json:"MetaStore,omitempty" protobuf_key:"bytes,1,opt,name=key,proto3" protobuf_val:"bytes,2,opt,name=value,proto3"`
 	// Can be used for output when node is appearing in multiple workspaces
-	AppearsIn []*WorkspaceRelativePath `protobuf:"bytes,10,rep,name=AppearsIn,proto3" json:"AppearsIn,omitempty" gorm:"-:all"`
+	AppearsIn []*WorkspaceRelativePath `protobuf:"bytes,10,rep,name=AppearsIn,proto3" json:"AppearsIn,omitempty"`
 }
 
 func (x *Node) Reset() {
