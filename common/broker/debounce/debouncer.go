@@ -18,7 +18,7 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-package memory
+package debounce
 
 import (
 	"context"
@@ -33,7 +33,6 @@ import (
 
 	"github.com/pydio/cells/v4/common/broker"
 	"github.com/pydio/cells/v4/common/log"
-	"github.com/pydio/cells/v4/common/utils/queue"
 )
 
 // protoWithContext composes a generic type and a context
@@ -62,7 +61,7 @@ func (t *protoWithContext) RawData() (map[string]string, []byte) {
 }
 
 func init() {
-	queue.DefaultURLMux().Register("mem", &debounce{})
+	broker.DefaultURLMux().Register("mem", &debounce{})
 }
 
 // debounce debounces events on a given timeframe and calls process on them afterward
@@ -80,8 +79,8 @@ type debounce struct {
 	closed          bool
 }
 
-// OpenURL creates a new *debounce{} to be used as queue.Queue
-func (b *debounce) OpenURL(ctx context.Context, u *url.URL) (queue.Queue, error) {
+// OpenURL creates a new *debounce{} to be used as broker.AsyncQueue
+func (b *debounce) OpenURL(ctx context.Context, u *url.URL) (broker.AsyncQueue, error) {
 	deb := 3 * time.Second
 	idl := 20 * time.Second
 	max := 2000

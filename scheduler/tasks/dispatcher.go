@@ -23,9 +23,10 @@ package tasks
 import (
 	"context"
 	"fmt"
-	"go.uber.org/zap"
 	"math"
 	"time"
+
+	"go.uber.org/zap"
 
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/broker"
@@ -35,7 +36,6 @@ import (
 	"github.com/pydio/cells/v4/common/proto/tree"
 	"github.com/pydio/cells/v4/common/runtime"
 	"github.com/pydio/cells/v4/common/service/metrics"
-	"github.com/pydio/cells/v4/common/utils/queue"
 )
 
 const (
@@ -48,7 +48,7 @@ type RunnerFunc func(queue chan RunnerFunc)
 // Dispatcher orchestrates the jobs by dispatching work to available workers.
 type Dispatcher struct {
 	// A pool of workers channels that are registered with the dispatcher
-	fifo       queue.Queue
+	fifo       broker.AsyncQueue
 	fifoCancel context.CancelFunc
 	fifoQueue  chan RunnerFunc
 
@@ -68,7 +68,7 @@ func NewDispatcher(rootCtx context.Context, maxWorkers int, job *jobs.Job, tags 
 	jobQueue := make(chan RunnerFunc)
 	var fifoQueue chan RunnerFunc
 	ctx, can := context.WithCancel(rootCtx)
-	fifo, er := queue.OpenQueue(ctx, runtime.PersistingQueueURL("serviceName", common.ServiceGrpcNamespace_+common.ServiceTasks, "name", "jobs", "prefix", job.ID))
+	fifo, er := broker.OpenAsyncQueue(ctx, runtime.PersistingQueueURL("serviceName", common.ServiceGrpcNamespace_+common.ServiceTasks, "name", "jobs", "prefix", job.ID))
 	if er != nil {
 		can()
 		log.Logger(rootCtx).Warn("Cannot open fifo for dispatcher - job "+job.ID+", this will run without queue", zap.Error(er))

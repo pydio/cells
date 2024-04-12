@@ -18,7 +18,7 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-package queue
+package broker
 
 import (
 	"context"
@@ -33,7 +33,7 @@ import (
 //
 // This interface is generally implemented by types in driver packages.
 type URLOpener interface {
-	OpenURL(ctx context.Context, u *url.URL) (Queue, error)
+	OpenURL(ctx context.Context, u *url.URL) (AsyncQueue, error)
 }
 
 // URLMux is a URL opener multiplexer. It matches the scheme of the URLs
@@ -55,13 +55,13 @@ func (mux *URLMux) ValidScheme(scheme string) bool { return mux.schemes.ValidSch
 // Register registers the opener with the given scheme. If an opener
 // already exists for the scheme, Register panics.
 func (mux *URLMux) Register(scheme string, opener URLOpener) {
-	mux.schemes.Register("queue", "Queue", scheme, opener)
+	mux.schemes.Register("queue", "AsyncQueue", scheme, opener)
 }
 
-// OpenQueue calls OpenURL with the URL parsed from urlstr.
+// OpenAsyncQueue calls OpenURL with the URL parsed from urlstr.
 // OpenTopic is safe to call from multiple goroutines.
-func (mux *URLMux) OpenQueue(ctx context.Context, urlstr string) (Queue, error) {
-	opener, u, err := mux.schemes.FromString("Queue", urlstr)
+func (mux *URLMux) OpenAsyncQueue(ctx context.Context, urlstr string) (AsyncQueue, error) {
+	opener, u, err := mux.schemes.FromString("AsyncQueue", urlstr)
 	if err != nil {
 		return nil, err
 	}
@@ -78,10 +78,10 @@ func DefaultURLMux() *URLMux {
 	return defaultURLMux
 }
 
-// OpenQueue opens a Queue identified by the URL given.
+// OpenAsyncQueue opens a AsyncQueue identified by the URL given.
 // See the URLOpener documentation in driver subpackages for
 // details on supported URL formats, and https://gocloud.dev/concepts/urls
 // for more information.
-func OpenQueue(ctx context.Context, urlstr string) (Queue, error) {
-	return defaultURLMux.OpenQueue(ctx, urlstr)
+func OpenAsyncQueue(ctx context.Context, urlstr string) (AsyncQueue, error) {
+	return defaultURLMux.OpenAsyncQueue(ctx, urlstr)
 }

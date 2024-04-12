@@ -59,15 +59,35 @@ func WithContext(ctx context.Context) Option {
 	}
 }
 
+// WithChainPublisherInterceptor synchronously modifies the pushed messages
 func WithChainPublisherInterceptor(interceptors ...PublisherInterceptor) Option {
 	return func(options *Options) {
 		options.chainPublisherInts = append(options.chainPublisherInts, interceptors...)
 	}
 }
 
+// WithChainSubscriberInterceptor synchronously modifies the received messages
 func WithChainSubscriberInterceptor(interceptors ...SubscriberInterceptor) Option {
 	return func(options *Options) {
 		options.chainSubscriberInts = append(options.chainSubscriberInts, interceptors...)
+	}
+}
+
+// WithAsyncPublisherInterceptor registers a FIFO-like queue to intercept the pushed messages and send them
+// asynchronously after pre-processing
+func WithAsyncPublisherInterceptor(queueURL string, fallbackURLs ...string) PublishOption {
+	return func(options *PublishOptions) {
+		options.MessageQueueURLs = append(options.MessageQueueURLs, queueURL)
+		options.MessageQueueURLs = append(options.MessageQueueURLs, fallbackURLs...)
+	}
+}
+
+// WithAsyncSubscriberInterceptor registers a FIFO-like queue to intercept messages received and trigger the main
+// SubscribeHandler asynchronously
+func WithAsyncSubscriberInterceptor(queueURL string, fallbackURLs ...string) SubscribeOption {
+	return func(options *SubscribeOptions) {
+		options.MessageQueueURLs = append(options.MessageQueueURLs, queueURL)
+		options.MessageQueueURLs = append(options.MessageQueueURLs, fallbackURLs...)
 	}
 }
 
@@ -80,7 +100,10 @@ func BeforeDisconnect(f func() error) Option {
 
 type PublishOptions struct {
 	Context context.Context
+
+	MessageQueueURLs []string
 }
+
 type PublishOption func(options *PublishOptions)
 
 func PublishContext(ctx context.Context) PublishOption {
@@ -103,7 +126,11 @@ type SubscribeOptions struct {
 	Context context.Context
 
 	// Optional MessageQueue than can debounce/persist
-	// received messages and re-process them later on
+	// received messages and re-process them later on.
+	// They should be dynamically opened based on the input context
+	MessageQueueURLs []string
+	MessageQueuePool *MuxPool[MessageQueue]
+	// TODO: Remove
 	MessageQueue MessageQueue
 
 	// Optional name for metrics
@@ -139,13 +166,6 @@ func Queue(name string) SubscribeOption {
 	}
 }
 
-// WithLocalQueue passes a FIFO queue to absorb input
-func WithLocalQueue(q MessageQueue) SubscribeOption {
-	return func(o *SubscribeOptions) {
-		o.MessageQueue = q
-	}
-}
-
 // WithCounterName adds a custom id for metrics counter name
 func WithCounterName(n string) SubscribeOption {
 	return func(options *SubscribeOptions) {
@@ -161,7 +181,9 @@ func SubscribeContext(ctx context.Context) SubscribeOption {
 }
 
 type Publisher func(ctx context.Context, msg *pubsub.Message) error
+
 type PublisherInterceptor func(ctx context.Context, msg *pubsub.Message, publisher Publisher) error
+
 type SubscriberInterceptor func(ctx context.Context, msg Message, handler SubscriberHandler) error
 
 // chainPublisherInterceptors chains all publisher interceptors into one.

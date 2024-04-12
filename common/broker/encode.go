@@ -18,7 +18,7 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-package queue
+package broker
 
 import (
 	"bytes"
@@ -30,7 +30,6 @@ import (
 	"google.golang.org/protobuf/types/known/anypb"
 
 	"github.com/pydio/cells/v4/common"
-	"github.com/pydio/cells/v4/common/broker"
 	"github.com/pydio/cells/v4/common/service/context/metadata"
 	json "github.com/pydio/cells/v4/common/utils/jsonx"
 )
@@ -47,7 +46,7 @@ func EncodeProtoWithContext(ctx context.Context, msg proto.Message) []byte {
 }
 
 // EncodeBrokerMessage just joins on the md+bytes raw data from a broker message
-func EncodeBrokerMessage(message broker.Message) []byte {
+func EncodeBrokerMessage(message Message) []byte {
 	md, bb := message.RawData()
 	var hh []byte
 	if md != nil {
@@ -57,7 +56,7 @@ func EncodeBrokerMessage(message broker.Message) []byte {
 }
 
 // DecodeToBrokerMessage tries to parse a combination of json-encoded metadata and a marshalled protobuf
-func DecodeToBrokerMessage(msg []byte) (broker.Message, error) {
+func DecodeToBrokerMessage(msg []byte) (Message, error) {
 	if bb, er := splitWithLengthPrefix(msg); er == nil && len(bb) == 2 {
 		headers := bb[0]
 		rawData := bb[1]

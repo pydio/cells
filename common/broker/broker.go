@@ -23,11 +23,12 @@ package broker
 import (
 	"context"
 	"fmt"
-	"gocloud.dev/pubsub"
-	"google.golang.org/protobuf/proto"
 	"net/url"
 	"strings"
 	"sync"
+
+	"gocloud.dev/pubsub"
+	"google.golang.org/protobuf/proto"
 
 	"github.com/pydio/cells/v4/common/service/context/metadata"
 	"github.com/pydio/cells/v4/common/service/errors"
@@ -151,39 +152,53 @@ func SubscribeCancellable(ctx context.Context, topic string, handler SubscriberH
 	return nil
 }
 
-func Subscribe(ctx context.Context, topic string, handler SubscriberHandler, opts ...SubscribeOption) (UnSubscriber, error) {
+func Subscribe(root context.Context, topic string, handler SubscriberHandler, opts ...SubscribeOption) (UnSubscriber, error) {
 	so := parseSubscribeOptions(opts...)
+
+	// Wrap Handler for counters
 	id := "sub_" + topicReplacer.Replace(topic)
 	c := metrics.GetMetrics().Tagged(map[string]string{"subscriber": so.CounterName}).Counter(id)
-
 	wh := func(ctx context.Context, m Message) error {
 		c.Inc(1)
 		return handler(ctx, m)
 	}
 
-	if so.MessageQueue != nil {
-		qH := func(ctx context.Context, m Message) error {
-			return so.MessageQueue.PushRaw(ctx, m)
-		}
-		er := so.MessageQueue.Consume(func(mm ...Message) {
-			for _, m := range mm {
-				if err := wh(ctx, m); err != nil {
-					if so.ErrorHandler != nil {
-						so.ErrorHandler(err)
-					} else {
-						fmt.Println("cannot apply message handler", err)
-					}
+	if len(so.MessageQueueURLs) > 0 {
+		if so.MessageQueuePool == nil {
+			so.MessageQueuePool = NewMuxPool[MessageQueue](so.MessageQueueURLs, func(s string) string {
+				return s
+			}, func(ctx context.Context, url string) (MessageQueue, error) {
+				// On open, set up consume
+				q, er := OpenAsyncQueue(root, url) // OPEN WITH ROOT CONTEXT AS IT CONTROLS THE DONE()
+				if er != nil {
+					return q, er
 				}
+				er = q.Consume(func(mm ...Message) {
+					for _, m := range mm {
+						if err := wh(ctx, m); err != nil {
+							if so.ErrorHandler != nil {
+								so.ErrorHandler(err)
+							} else {
+								fmt.Println("cannot apply message handler", err)
+							}
+						}
+					}
+				})
+				return q, er
+			})
+		}
+		qH := func(ctx context.Context, m Message) error {
+			mq, er := so.MessageQueuePool.Get(ctx)
+			if er != nil {
+				return er
 			}
-		})
-		if er != nil {
-			return nil, er
+			return mq.PushRaw(ctx, m)
 		}
 		// Replace original handler
-		return std.Subscribe(ctx, topic, qH, opts...)
+		return std.Subscribe(root, topic, qH, opts...)
 	}
 
-	return std.Subscribe(ctx, topic, wh, opts...)
+	return std.Subscribe(root, topic, wh, opts...)
 }
 
 type broker struct {
@@ -195,6 +210,7 @@ type broker struct {
 }
 
 type TopicOpener func(context.Context, string) (*pubsub.Topic, error)
+
 type SubscribeOpener func(string, ...SubscribeOption) (*pubsub.Subscription, error)
 
 func (b *broker) openTopic(topic string) (*pubsub.Topic, error) {

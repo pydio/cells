@@ -18,21 +18,18 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-package queue
+package broker
 
 import (
 	"context"
 
 	"google.golang.org/protobuf/proto"
-
-	"github.com/pydio/cells/v4/common/broker"
 )
 
-type Consumer func(...broker.Message)
+type Consumer func(...Message)
 
-type Queue interface {
-	Consume(callback func(...broker.Message)) error
-	PushRaw(ctx context.Context, message broker.Message) error
+type AsyncQueue interface {
+	MessageQueue
 	Push(ctx context.Context, msg proto.Message) error
 }
 

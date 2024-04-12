@@ -3,23 +3,22 @@ package goque
 import (
 	"context"
 	"fmt"
-	"go.uber.org/zap"
 	"net/url"
 	"path/filepath"
 	"sync"
 	"time"
 
 	"github.com/beeker1121/goque"
+	"go.uber.org/zap"
 	"google.golang.org/protobuf/proto"
 
 	"github.com/pydio/cells/v4/common/broker"
 	"github.com/pydio/cells/v4/common/log"
 	config2 "github.com/pydio/cells/v4/common/runtime"
-	"github.com/pydio/cells/v4/common/utils/queue"
 )
 
 func init() {
-	queue.DefaultURLMux().Register("file", &gq{})
+	broker.DefaultURLMux().Register("file", &gq{})
 	queues = map[string]*serviceQueue{}
 	ql = &sync.Mutex{}
 }
@@ -45,9 +44,9 @@ type gq struct {
 func (g *gq) Push(ctx context.Context, msg proto.Message) error {
 	var er error
 	if g.prefix != "" {
-		_, er = g.pQu.Enqueue([]byte(g.prefix), queue.EncodeProtoWithContext(ctx, msg))
+		_, er = g.pQu.Enqueue([]byte(g.prefix), broker.EncodeProtoWithContext(ctx, msg))
 	} else {
-		_, er = g.qu.Enqueue(queue.EncodeProtoWithContext(ctx, msg))
+		_, er = g.qu.Enqueue(broker.EncodeProtoWithContext(ctx, msg))
 	}
 	return er
 }
@@ -55,9 +54,9 @@ func (g *gq) Push(ctx context.Context, msg proto.Message) error {
 func (g *gq) PushRaw(_ context.Context, message broker.Message) error {
 	var er error
 	if g.prefix != "" {
-		_, er = g.pQu.Enqueue([]byte(g.prefix), queue.EncodeBrokerMessage(message))
+		_, er = g.pQu.Enqueue([]byte(g.prefix), broker.EncodeBrokerMessage(message))
 	} else {
-		_, er = g.qu.Enqueue(queue.EncodeBrokerMessage(message))
+		_, er = g.qu.Enqueue(broker.EncodeBrokerMessage(message))
 	}
 	return er
 }
@@ -89,7 +88,7 @@ func (g *gq) Consume(callback func(...broker.Message)) error {
 				<-time.After(500 * time.Millisecond)
 				continue
 			}
-			if msg, er := queue.DecodeToBrokerMessage(it.Value); er == nil {
+			if msg, er := broker.DecodeToBrokerMessage(it.Value); er == nil {
 				callback(msg)
 			} else {
 				log.Logger(g.ctx).Error("[goque] Cannot decode message in "+g.prefix, zap.Error(er))
@@ -99,7 +98,7 @@ func (g *gq) Consume(callback func(...broker.Message)) error {
 	return nil
 }
 
-func (g *gq) OpenURL(ctx context.Context, u *url.URL) (queue.Queue, error) {
+func (g *gq) OpenURL(ctx context.Context, u *url.URL) (broker.AsyncQueue, error) {
 	srv := u.Query().Get("serviceName")
 	if srv == "" {
 		return nil, fmt.Errorf("please provide a service name")

@@ -26,7 +26,7 @@ import (
 	"net/url"
 	"time"
 
-	"github.com/nats-io/nats.go"
+	nats "github.com/nats-io/nats.go"
 	"github.com/nats-io/nats.go/jetstream"
 	"go.uber.org/zap"
 	"google.golang.org/protobuf/proto"
@@ -34,7 +34,6 @@ import (
 	"github.com/pydio/cells/v4/common/broker"
 	"github.com/pydio/cells/v4/common/crypto"
 	"github.com/pydio/cells/v4/common/log"
-	"github.com/pydio/cells/v4/common/utils/queue"
 )
 
 var (
@@ -43,7 +42,7 @@ var (
 
 type streamOpener struct{}
 
-func (s *streamOpener) OpenURL(ctx context.Context, u *url.URL) (queue.Queue, error) {
+func (s *streamOpener) OpenURL(ctx context.Context, u *url.URL) (broker.AsyncQueue, error) {
 	streamName := u.Query().Get("name")
 	if streamName == "" {
 		return nil, fmt.Errorf("missing query parameter 'name' for opening queue")
@@ -52,7 +51,7 @@ func (s *streamOpener) OpenURL(ctx context.Context, u *url.URL) (queue.Queue, er
 }
 
 func init() {
-	queue.DefaultURLMux().Register("nats", &streamOpener{})
+	broker.DefaultURLMux().Register("nats", &streamOpener{})
 }
 
 type Queue struct {
@@ -63,14 +62,14 @@ type Queue struct {
 
 // Push serializes json-encoded context metadata and proto-encoded event together
 func (q *Queue) Push(ctx context.Context, event proto.Message) error {
-	data := queue.EncodeProtoWithContext(ctx, event)
+	data := broker.EncodeProtoWithContext(ctx, event)
 	_, er := q.js.Publish(ctx, q.streamName+".msg", data)
 	return er
 }
 
 // PushRaw forwards a broker.Message to the queue
 func (q *Queue) PushRaw(ctx context.Context, message broker.Message) error {
-	data := queue.EncodeBrokerMessage(message)
+	data := broker.EncodeBrokerMessage(message)
 	_, er := q.js.Publish(ctx, q.streamName+".msg", data)
 	return er
 }
@@ -96,7 +95,7 @@ func (q *Queue) Consume(process func(...broker.Message)) error {
 	go func() {
 		cons, _ := c.Consume(func(msg jetstream.Msg) {
 			_ = msg.Ack()
-			if pm, e := queue.DecodeToBrokerMessage(msg.Data()); e == nil {
+			if pm, e := broker.DecodeToBrokerMessage(msg.Data()); e == nil {
 				process(pm)
 			} else {
 				log.Logger(q.rootCtx).Error("[nats-queue] cannot consume pulled message correctly", zap.Error(e))
