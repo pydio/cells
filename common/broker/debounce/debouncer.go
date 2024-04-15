@@ -72,6 +72,7 @@ type debounce struct {
 
 	Done            chan bool
 	globalCtx       context.Context
+	cancel          context.CancelFunc
 	debounce        time.Duration
 	idle            time.Duration
 	maxEvents       int
@@ -131,6 +132,8 @@ func (b *debounce) Start() {
 		b.closed = true
 		close(b.Events)
 	}()
+	ctx, can := context.WithCancel(b.globalCtx)
+	b.cancel = can
 	for {
 		select {
 		case e := <-b.Events:
@@ -142,7 +145,7 @@ func (b *debounce) Start() {
 		case <-time.After(next):
 			b.process()
 			next = b.idle
-		case <-b.globalCtx.Done():
+		case <-ctx.Done():
 			b.process()
 			return
 		}
@@ -181,4 +184,11 @@ func (b *debounce) processBatch(bb []broker.Message) {
 		cleanEvents = append(cleanEvents, e)
 	}
 	b.processCallback(b.globalCtx, cleanEvents...)
+}
+
+func (b *debounce) Close(ctx context.Context) error {
+	if b.cancel != nil {
+		b.cancel()
+	}
+	return nil
 }

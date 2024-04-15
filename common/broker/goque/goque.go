@@ -98,6 +98,15 @@ func (g *gq) Consume(callback func(context.Context, ...broker.Message)) error {
 	return nil
 }
 
+func (g *gq) Close(ctx context.Context) error {
+	if g.qu != nil {
+		return g.qu.Close()
+	} else if g.pQu != nil {
+		return g.pQu.Close()
+	}
+	return nil
+}
+
 func (g *gq) OpenURL(ctx context.Context, u *url.URL) (broker.AsyncQueue, error) {
 	srv := u.Query().Get("serviceName")
 	if srv == "" {

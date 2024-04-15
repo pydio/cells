@@ -57,4 +57,5 @@ func (m *message) RawData() (map[string]string, []byte) {
 type MessageQueue interface {
 	Consume(callback func(context.Context, ...Message)) error
 	PushRaw(ctx context.Context, message Message) error
+	Close(ctx context.Context) error
 }

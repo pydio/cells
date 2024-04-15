@@ -29,7 +29,7 @@ import (
 	"time"
 
 	redisc "github.com/go-redis/cache/v8"
-	"github.com/go-redis/redis/v8"
+	redis "github.com/go-redis/redis/v8"
 
 	"github.com/pydio/cells/v4/common/crypto"
 	cache "github.com/pydio/cells/v4/common/utils/cache"
@@ -211,6 +211,6 @@ func (q *redisCache) Iterate(it func(key string, val interface{})) error {
 	return nil
 }
 
-func (q *redisCache) Close() error {
+func (q *redisCache) Close(_ context.Context) error {
 	return q.UniversalClient.Close()
 }

@@ -167,7 +167,7 @@ func Subscribe(root context.Context, topic string, handler SubscriberHandler, op
 	if len(so.MessageQueueURLs) > 0 {
 		if so.MessageQueuePool == nil {
 			var er error
-			so.MessageQueuePool, er = openurl.OpenPool[MessageQueue](so.MessageQueueURLs, func(ctx context.Context, url string) (MessageQueue, error) {
+			so.MessageQueuePool, er = openurl.OpenPool[MessageQueue](nil, so.MessageQueueURLs, func(ctx context.Context, url string) (MessageQueue, error) {
 				// On open, set up consume
 				q, er := OpenAsyncQueue(root, url) // OPEN WITH ROOT CONTEXT AS IT CONTROLS THE DONE()
 				if er != nil {

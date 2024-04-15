@@ -148,6 +148,6 @@ func (q *pmCache) Iterate(it func(key string, val interface{})) error {
 	return nil
 }
 
-func (q *pmCache) Close() error {
+func (q *pmCache) Close(_ context.Context) error {
 	return nil
 }

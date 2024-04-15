@@ -30,8 +30,8 @@ import (
 	"sync"
 	"time"
 
-	"github.com/allegro/bigcache/v3"
-	"github.com/uber-go/tally/v4"
+	bigcache "github.com/allegro/bigcache/v3"
+	tally "github.com/uber-go/tally/v4"
 
 	"github.com/pydio/cells/v4/common/runtime"
 	"github.com/pydio/cells/v4/common/service/metrics"
@@ -183,7 +183,7 @@ func (b *bigCache) Iterate(f func(key string, val interface{})) error {
 	return nil
 }
 
-func (b *bigCache) Close() error {
+func (b *bigCache) Close(_ context.Context) error {
 	if !b.closed {
 		if b.ticker != nil {
 			b.ticker.Stop()

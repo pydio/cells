@@ -60,6 +60,6 @@ func (d *discard) Iterate(it func(key string, val interface{})) error {
 	return nil
 }
 
-func (d *discard) Close() error {
+func (d *discard) Close(_ context.Context) error {
 	return nil
 }

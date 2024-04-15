@@ -78,7 +78,7 @@ func NewEventsSubscriber(ctx context.Context) (*MicroEventsSubscriber, error) {
 		return q, er
 	}
 	var er error
-	m.muxPool, er = openurl.OpenPool[broker.AsyncQueue]([]string{dbcURL}, dbcOpener)
+	m.muxPool, er = openurl.OpenPool[broker.AsyncQueue](ctx, []string{dbcURL}, dbcOpener)
 	if er != nil {
 		return nil, er
 	}

@@ -22,7 +22,10 @@
 
 package cache
 
-import "time"
+import (
+	"context"
+	"time"
+)
 
 type Cache interface {
 	Get(key string, value interface{}) (ok bool)
@@ -34,5 +37,5 @@ type Cache interface {
 	Exists(key string) (ok bool)
 	KeysByPrefix(prefix string) ([]string, error)
 	Iterate(it func(key string, val interface{})) error
-	Close() error
+	Close(ctx context.Context) error
 }

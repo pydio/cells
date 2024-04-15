@@ -58,6 +58,7 @@ type Queue struct {
 	rootCtx    context.Context
 	streamName string
 	js         jetstream.JetStream
+	conn       *nats.Conn
 }
 
 // Push serializes json-encoded context metadata and proto-encoded event together
@@ -108,6 +109,13 @@ func (q *Queue) Consume(process func(context.Context, ...broker.Message)) error 
 	return nil
 }
 
+func (q *Queue) Close(ctx context.Context) error {
+	if q.conn != nil {
+		q.conn.Close()
+	}
+	return nil
+}
+
 func NewNatsQueue(ctx context.Context, u *url.URL, streamName string) (*Queue, error) {
 	if nc == nil {
 		tlsConfig, err := crypto.TLSConfigFromURL(u)
@@ -134,6 +142,7 @@ func NewNatsQueue(ctx context.Context, u *url.URL, streamName string) (*Queue, e
 
 	q := &Queue{
 		rootCtx:    ctx,
+		conn:       nc,
 		streamName: streamName,
 		js:         js,
 	}
