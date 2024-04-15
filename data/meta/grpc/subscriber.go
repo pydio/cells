@@ -22,14 +22,14 @@ package grpc
 
 import (
 	"context"
+	"github.com/pydio/cells/v4/common/broker"
 
 	"github.com/pydio/cells/v4/common/proto/tree"
-	"github.com/pydio/cells/v4/common/utils/queue"
 )
 
 // EventsSubscriber definition
 type EventsSubscriber struct {
-	outputChannel chan *queue.TypeWithContext[*tree.NodeChangeEvent]
+	outputChannel chan *broker.TypeWithContext[*tree.NodeChangeEvent]
 }
 
 // Handle the events received and send them to the subscriber
@@ -37,7 +37,7 @@ func (e *EventsSubscriber) Handle(ctx context.Context, msg *tree.NodeChangeEvent
 	if msg.Optimistic {
 		return nil
 	}
-	e.outputChannel <- &queue.TypeWithContext[*tree.NodeChangeEvent]{
+	e.outputChannel <- &broker.TypeWithContext[*tree.NodeChangeEvent]{
 		Ctx:      ctx,
 		Original: msg,
 	}

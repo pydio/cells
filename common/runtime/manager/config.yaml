@@ -13,7 +13,7 @@ tenants:
   default:
     connections:
       config:
-        uri: file:///Users/ghecquet/Library/Application Support/Pydio/cells/pydio.json
+        uri: file:///Users/charles/Library/Application Support/Pydio/cells5/pydio.json
       registry:
         uri: mem://?cache=shared
       broker:
@@ -119,9 +119,9 @@ processes:
     connections:
       <<: *connections
       search:
-        uri: bleve:///Users/ghecquet/Library/Application Support/Pydio/cells/search
+        uri: bleve:///Users/charles/Library/Application Support/Pydio/cells5/search
       config:
-        uri: file:///Users/ghecquet/Library/Application Support/Pydio/cells/pydio.json
+        uri: file:///Users/charles/Library/Application Support/Pydio/cells5/pydio.json
       registry:
         uri: mem://?cache=shared
       broker:

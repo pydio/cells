@@ -25,7 +25,6 @@ import (
 	"strings"
 	"testing"
 
-	. "github.com/smartystreets/goconvey/convey"
 	"github.com/spf13/viper"
 
 	"github.com/pydio/cells/v4/common"
@@ -36,7 +35,10 @@ import (
 	"github.com/pydio/cells/v4/common/runtime"
 	"github.com/pydio/cells/v4/common/service/errors"
 	"github.com/pydio/cells/v4/common/utils/cache"
+
 	_ "github.com/pydio/cells/v4/common/utils/cache/gocache"
+
+	. "github.com/smartystreets/goconvey/convey"
 )
 
 func TestMain(m *testing.M) {
@@ -56,9 +58,9 @@ func newTestHandlerBranchTranslator(pool *nodes.ClientsPool) (*DataSourceHandler
 	testRootNode.MustSetMeta(common.MetaNamespaceDatasourceName, "datasource")
 	testRootNode.MustSetMeta(common.MetaNamespaceDatasourcePath, "root")
 	b := newDataSourceHandler()
-	c, _ := cache.OpenCache(context.TODO(), runtime.ShortCacheURL("evictionTime", "1s", "cleanWindow", "10s"))
-	b.RootNodesCache = c
-	b.RootNodesCache.Set("root-node-uuid", testRootNode)
+	b.RootNodesCache = cache.OpenPool(runtime.ShortCacheURL("evictionTime", "1s", "cleanWindow", "10s"))
+	ka, _ := b.RootNodesCache.Get(context.TODO())
+	_ = ka.Set("root-node-uuid", testRootNode)
 	mock := nodes.NewHandlerMock()
 	mock.Nodes["datasource/root/inner/path"] = &tree.Node{
 		Path: "datasource/root/inner/path",

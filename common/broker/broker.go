@@ -33,6 +33,7 @@ import (
 	"github.com/pydio/cells/v4/common/service/context/metadata"
 	"github.com/pydio/cells/v4/common/service/errors"
 	"github.com/pydio/cells/v4/common/service/metrics"
+	"github.com/pydio/cells/v4/common/utils/openurl"
 )
 
 var (
@@ -165,15 +166,13 @@ func Subscribe(root context.Context, topic string, handler SubscriberHandler, op
 
 	if len(so.MessageQueueURLs) > 0 {
 		if so.MessageQueuePool == nil {
-			so.MessageQueuePool = NewMuxPool[MessageQueue](so.MessageQueueURLs, func(s string) string {
-				return s
-			}, func(ctx context.Context, url string) (MessageQueue, error) {
+			so.MessageQueuePool = openurl.NewMuxPool[MessageQueue](so.MessageQueueURLs, func(ctx context.Context, url string) (MessageQueue, error) {
 				// On open, set up consume
 				q, er := OpenAsyncQueue(root, url) // OPEN WITH ROOT CONTEXT AS IT CONTROLS THE DONE()
 				if er != nil {
 					return q, er
 				}
-				er = q.Consume(func(mm ...Message) {
+				er = q.Consume(func(ctx context.Context, mm ...Message) {
 					for _, m := range mm {
 						if err := wh(ctx, m); err != nil {
 							if so.ErrorHandler != nil {

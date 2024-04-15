@@ -82,7 +82,7 @@ func (m *MultipleRootsHandler) updateInputBranch(ctx context.Context, node *tree
 		return ctx, node, nil
 	}
 	if len(branch.RootUUIDs) == 1 {
-		rootNode, err := m.LookupRoot(branch.RootUUIDs[0])
+		rootNode, err := m.LookupRoot(ctx, branch.RootUUIDs[0])
 		if err != nil {
 			return ctx, node, err
 		}
@@ -97,7 +97,7 @@ func (m *MultipleRootsHandler) updateInputBranch(ctx context.Context, node *tree
 	parts := strings.Split(strings.Trim(node.Path, "/"), "/")
 	if len(parts) > 0 {
 		rootId := parts[0]
-		rootKeys, e := m.GetRootKeys(branch.RootUUIDs)
+		rootKeys, e := m.GetRootKeys(ctx, branch.RootUUIDs)
 		if e != nil {
 			return ctx, out, e
 		}
@@ -135,7 +135,7 @@ func (m *MultipleRootsHandler) updateOutputBranch(ctx context.Context, node *tre
 		return ctx, m.setWorkspaceRootFlag(branch.Workspace, out), nil
 	}
 	if len(branch.RootUUIDs) == 1 {
-		if root, er := m.LookupRoot(branch.RootUUIDs[0]); er == nil && !root.IsLeaf() {
+		if root, er := m.LookupRoot(ctx, branch.RootUUIDs[0]); er == nil && !root.IsLeaf() {
 			return ctx, m.setWorkspaceRootFlag(branch.Workspace, out), nil
 		} else if er != nil {
 			return ctx, node, nodes.ErrBranchInfoRootMissing(identifier)
@@ -158,7 +158,7 @@ func (m *MultipleRootsHandler) ListNodes(ctx context.Context, in *tree.ListNodes
 
 		branch, _ := nodes.GetBranchInfo(ctx, "in")
 		streamer := nodes.NewWrappingStreamer(ctx)
-		nn, e := m.GetRootKeys(branch.RootUUIDs)
+		nn, e := m.GetRootKeys(ctx, branch.RootUUIDs)
 		if e != nil {
 			return streamer, e
 		}
@@ -199,7 +199,7 @@ func (m *MultipleRootsHandler) ReadNode(ctx context.Context, in *tree.ReadNodeRe
 
 		// Load multiple root nodes and build a fake parent node
 		branch, _ := nodes.GetBranchInfo(ctx, "in")
-		nn, e := m.GetRootKeys(branch.RootUUIDs)
+		nn, e := m.GetRootKeys(ctx, branch.RootUUIDs)
 		if e != nil {
 			return &tree.ReadNodeResponse{Success: true, Node: &tree.Node{Path: ""}}, nil
 		}

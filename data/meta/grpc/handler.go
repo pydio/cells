@@ -22,6 +22,7 @@ package grpc
 
 import (
 	"context"
+	"github.com/pydio/cells/v4/common/utils/openurl"
 	"strings"
 	"sync"
 
@@ -37,7 +38,6 @@ import (
 	"github.com/pydio/cells/v4/common/service/errors"
 	"github.com/pydio/cells/v4/common/utils/cache"
 	json "github.com/pydio/cells/v4/common/utils/jsonx"
-	"github.com/pydio/cells/v4/common/utils/queue"
 	"github.com/pydio/cells/v4/data/meta"
 )
 
@@ -48,17 +48,16 @@ type MetaServer struct {
 	tree.UnimplementedNodeReceiverServer
 	tree.UnimplementedSearcherServer
 
-	eventsChannel chan *queue.TypeWithContext[*tree.NodeChangeEvent]
-	cache         cache.Cache
+	eventsChannel chan *broker.TypeWithContext[*tree.NodeChangeEvent]
+	cachePool     *openurl.MuxPool[cache.Cache]
 
 	stopped     bool
 	stoppedLock *sync.Mutex
 }
 
 func NewMetaServer(ctx context.Context) *MetaServer {
-	c, _ := cache.OpenCache(context.TODO(), runtime.CacheURL(ServiceName, "evictionTime", "1m"))
 	m := &MetaServer{}
-	m.cache = c
+	m.cachePool = cache.OpenPool(runtime.CacheURL(ServiceName, "evictionTime", "1m"))
 	m.stoppedLock = &sync.Mutex{}
 	go func() {
 		<-ctx.Done()
@@ -75,8 +74,8 @@ func (s *MetaServer) Stop() {
 		return
 	}
 
-	if s.cache != nil {
-		s.cache.Close()
+	if s.cachePool != nil {
+		s.cachePool.Close(context.Background())
 	}
 	if s.eventsChannel != nil {
 		close(s.eventsChannel)
@@ -99,7 +98,7 @@ func (s *MetaServer) Subscriber(parentContext context.Context) *EventsSubscriber
 
 func (s *MetaServer) initEventsChannel() {
 
-	s.eventsChannel = make(chan *queue.TypeWithContext[*tree.NodeChangeEvent])
+	s.eventsChannel = make(chan *broker.TypeWithContext[*tree.NodeChangeEvent])
 	go func() {
 		for eventWCtx := range s.eventsChannel {
 			newCtx := servicecontext.WithServiceName(eventWCtx.Ctx, common.ServiceGrpcNamespace_+common.ServiceMeta)
@@ -183,10 +182,11 @@ func (s *MetaServer) ReadNode(ctx context.Context, req *tree.ReadNodeRequest) (r
 	}
 	resp = &tree.ReadNodeResponse{}
 
-	if s.cache != nil {
+	ca, _ := s.cachePool.Get(ctx)
+	if ca != nil {
 		//s.cacheMutex.Lock(req.Node.Uuid)
 		//defer s.cacheMutex.Unlock(req.Node.Uuid)
-		data, ok := s.cache.GetBytes(req.Node.Uuid)
+		data, ok := ca.GetBytes(req.Node.Uuid)
 		if ok {
 			var metaD map[string]string
 			if er := json.Unmarshal(data, &metaD); er == nil {
@@ -217,11 +217,11 @@ func (s *MetaServer) ReadNode(ctx context.Context, req *tree.ReadNodeRequest) (r
 		return resp, errors.NotFound(common.ServiceMeta, "Node with Uuid "+req.Node.Uuid+" not found")
 	}
 
-	if s.cache != nil {
+	if ca != nil {
 		value, e := json.Marshal(metadata)
 		if e == nil {
 			//log.Logger(ctx).Info("META / Setting cache for " + req.Node.Uuid)
-			s.cache.Set(req.Node.Uuid, value)
+			ca.Set(req.Node.Uuid, value)
 		}
 	}
 	resp = &tree.ReadNodeResponse{}
@@ -288,11 +288,12 @@ func (s *MetaServer) CreateNode(ctx context.Context, req *tree.CreateNodeRequest
 		author = claims.Name
 	}
 
-	if s.cache != nil {
+	ca, _ := s.cachePool.Get(ctx)
+	if ca != nil {
 		//s.cacheMutex.Lock(req.Node.Uuid)
 		//defer s.cacheMutex.Unlock(req.Node.Uuid)
 		//log.Logger(ctx).Info("META / Clearing cache for "+req.Node.Uuid, req.Node.Zap())
-		s.cache.Delete(req.Node.Uuid)
+		ca.Delete(req.Node.Uuid)
 	}
 
 	dao, err := meta.NewDAO(ctx)
@@ -327,11 +328,12 @@ func (s *MetaServer) UpdateNode(ctx context.Context, req *tree.UpdateNodeRequest
 		author = claims.Name
 	}
 
-	if s.cache != nil {
+	ca, _ := s.cachePool.Get(ctx)
+	if ca != nil {
 		//s.cacheMutex.Lock(req.To.Uuid)
 		//defer s.cacheMutex.Unlock(req.To.Uuid)
 		//log.Logger(ctx).Info("META / Clearing cache for "+req.To.Uuid, req.To.Zap())
-		s.cache.Delete(req.To.Uuid)
+		ca.Delete(req.To.Uuid)
 	}
 
 	dao, err := meta.NewDAO(ctx)
@@ -365,11 +367,12 @@ func (s *MetaServer) UpdateNode(ctx context.Context, req *tree.UpdateNodeRequest
 // DeleteNode metadata (Not implemented)
 func (s *MetaServer) DeleteNode(ctx context.Context, request *tree.DeleteNodeRequest) (result *tree.DeleteNodeResponse, err error) {
 
-	if s.cache != nil {
+	ca, _ := s.cachePool.Get(ctx)
+	if ca != nil {
 		//log.Logger(ctx).Info("META / Clearing cache for " + request.Node.Uuid)
 		//s.cacheMutex.Lock(request.Node.Uuid)
 		//defer s.cacheMutex.Unlock(request.Node.Uuid)
-		s.cache.Delete(request.Node.Uuid)
+		ca.Delete(request.Node.Uuid)
 	}
 
 	dao, err := meta.NewDAO(ctx)

@@ -75,7 +75,7 @@ func (q *Queue) PushRaw(ctx context.Context, message broker.Message) error {
 }
 
 // Consume creates a jetstream Consumer with the current streamName
-func (q *Queue) Consume(process func(...broker.Message)) error {
+func (q *Queue) Consume(process func(context.Context, ...broker.Message)) error {
 	// Create a stream
 	s, er := q.js.CreateStream(q.rootCtx, jetstream.StreamConfig{
 		Name:     q.streamName,
@@ -96,7 +96,7 @@ func (q *Queue) Consume(process func(...broker.Message)) error {
 		cons, _ := c.Consume(func(msg jetstream.Msg) {
 			_ = msg.Ack()
 			if pm, e := broker.DecodeToBrokerMessage(msg.Data()); e == nil {
-				process(pm)
+				process(q.rootCtx, pm)
 			} else {
 				log.Logger(q.rootCtx).Error("[nats-queue] cannot consume pulled message correctly", zap.Error(e))
 			}

@@ -26,10 +26,10 @@ package activity
 
 import (
 	"context"
-	"github.com/pydio/cells/v4/common/storage"
+	"time"
+
 	"go.etcd.io/bbolt"
 	"go.mongodb.org/mongo-driver/mongo"
-	"time"
 
 	"github.com/pydio/cells/v4/common/proto/activity"
 )
@@ -94,18 +94,18 @@ type batchDAO interface {
 	BatchPost([]*batchActivity) error
 }
 
-func NewDAO(ctx context.Context) (DAO, error) {
-	var boltdb *bbolt.DB
-	if storage.Get(ctx, &boltdb) {
-		return WithCache(&boltdbimpl{DB: boltdb, InboxMaxSize: 1000}), nil
-	}
+func NewBoltDAO(db *bbolt.DB) DAO {
+	dao := &boltdbimpl{DB: db, InboxMaxSize: 1000}
 
-	var cli *mongo.Client
-	if storage.Get(ctx, &cli) {
-		return &mongoimpl{Database: cli.Database("test")}, nil
-	}
+	// TODO - use interface
+	dao.Init(nil, nil)
 
-	return nil, storage.NotFound
+	return WithCache(dao)
+}
+
+func NewMongoDAO(database *mongo.Database) DAO {
+	return &mongoimpl{Database: database}
+
 }
 
 //func Migrate(f dao.DAO, t dao.DAO, dryRun bool, status chan dao.MigratorStatus) (map[string]int, error) {

@@ -43,6 +43,7 @@ import (
 	servicecontext "github.com/pydio/cells/v4/common/service/context"
 	"github.com/pydio/cells/v4/common/service/context/metadata"
 	"github.com/pydio/cells/v4/common/utils/cache"
+	"github.com/pydio/cells/v4/common/utils/openurl"
 	"github.com/pydio/cells/v4/idm/policy/converter"
 )
 
@@ -56,23 +57,25 @@ const (
 	PolicyNodeMeta_         = "NodeMeta:"
 )
 
-var polCache cache.Cache
+var polCachePool *openurl.MuxPool[cache.Cache]
+
 var polCacheSync sync.Once
 
-func getCheckersCache() cache.Cache {
+func getCheckersCache(ctx context.Context) cache.Cache {
 	polCacheSync.Do(func() {
-		var er error
-		ctx := context.Background()
-		polCache, er = cache.OpenCache(context.TODO(), runtime.ShortCacheURL("evictionTime", "1m", "cleanWindow", "10m"))
-		if er != nil {
-			polCache, _ = cache.OpenCache(ctx, "discard://")
-		}
-		broker.Subscribe(ctx, common.TopicIdmPolicies, func(_ context.Context, message broker.Message) error {
-			_ = polCache.Delete("acl")
-			_ = polCache.Delete("oidc")
+		polCachePool = cache.OpenPool(runtime.ShortCacheURL("evictionTime", "1m", "cleanWindow", "10m"))
+		broker.Subscribe(context.Background(), common.TopicIdmPolicies, func(ct context.Context, message broker.Message) error {
+			if polCache, er := polCachePool.Get(ct); er == nil {
+				_ = polCache.Delete("acl")
+				_ = polCache.Delete("oidc")
+			}
 			return nil
 		}, broker.WithCounterName("policies-cache"))
 	})
+	polCache, er := polCachePool.Get(ctx)
+	if er != nil {
+		polCache, _ = cache.OpenCache(ctx, "discard://")
+	}
 	return polCache
 }
 
@@ -196,7 +199,7 @@ func loadPoliciesByResourcesType(ctx context.Context, resType string) ([]*idm.Po
 
 // ClearCachedPolicies empties local cache
 func ClearCachedPolicies(ctx context.Context, resType string) {
-	_ = getCheckersCache().Delete(resType)
+	_ = getCheckersCache(ctx).Delete(resType)
 }
 
 func CachedPoliciesChecker(ctx context.Context, resType string, requestContext map[string]string) (ladon.Warden, error) {
@@ -204,7 +207,7 @@ func CachedPoliciesChecker(ctx context.Context, resType string, requestContext m
 		Manager: memory.NewMemoryManager(),
 	}
 
-	ca := getCheckersCache()
+	ca := getCheckersCache(ctx)
 	var policies []*idm.Policy
 	if !ca.Get(resType, &policies) {
 		if p, err := loadPoliciesByResourcesType(ctx, resType); err != nil {

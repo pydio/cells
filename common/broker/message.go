@@ -22,8 +22,10 @@ package broker
 
 import (
 	"context"
-	"github.com/pydio/cells/v4/common/service/context/metadata"
+
 	"google.golang.org/protobuf/proto"
+
+	"github.com/pydio/cells/v4/common/service/context/metadata"
 )
 
 type Message interface {
@@ -53,6 +55,6 @@ func (m *message) RawData() (map[string]string, []byte) {
 }
 
 type MessageQueue interface {
-	Consume(callback func(...Message)) error
+	Consume(callback func(context.Context, ...Message)) error
 	PushRaw(ctx context.Context, message Message) error
 }

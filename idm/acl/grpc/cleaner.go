@@ -33,7 +33,6 @@ import (
 	service "github.com/pydio/cells/v4/common/proto/service"
 	"github.com/pydio/cells/v4/common/proto/tree"
 	"github.com/pydio/cells/v4/common/runtime"
-	"github.com/pydio/cells/v4/common/utils/queue"
 )
 
 type WsRolesCleaner struct {
@@ -72,16 +71,16 @@ func (c *WsRolesCleaner) Handle(ctx context.Context, msg *idm.ChangeEvent) error
 
 type nodesCleaner struct {
 	handler *Handler
-	fifo    queue.Queue
+	fifo    broker.AsyncQueue
 }
 
 func newNodesCleaner(ctx context.Context, h *Handler) (*nodesCleaner, error) {
 	nc := &nodesCleaner{handler: h}
 	var er error
-	if nc.fifo, er = queue.OpenQueue(ctx, runtime.QueueURL("debounce", "750ms", "idle", "2s", "max", "5000")); er != nil {
+	if nc.fifo, er = broker.OpenAsyncQueue(ctx, runtime.QueueURL("debounce", "750ms", "idle", "2s", "max", "5000")); er != nil {
 		return nil, er
 	} else {
-		er = nc.fifo.Consume(func(events ...broker.Message) {
+		er = nc.fifo.Consume(func(ct context.Context, events ...broker.Message) {
 			var uu []string
 			for _, e := range events {
 				t := &tree.NodeChangeEvent{}

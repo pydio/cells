@@ -37,7 +37,7 @@ import (
 	tplText "text/template"
 	"time"
 
-	"github.com/Masterminds/sprig/v3"
+	sprig "github.com/Masterminds/sprig/v3"
 	"go.uber.org/zap"
 
 	"github.com/pydio/cells/v4/common"
@@ -57,6 +57,7 @@ import (
 	"github.com/pydio/cells/v4/common/service/frontend"
 	"github.com/pydio/cells/v4/common/utils/cache"
 	json "github.com/pydio/cells/v4/common/utils/jsonx"
+	"github.com/pydio/cells/v4/common/utils/openurl"
 	"github.com/pydio/cells/v4/common/utils/permissions"
 	"github.com/pydio/cells/v4/gateway/dav"
 )
@@ -67,7 +68,7 @@ type PublicHandler struct {
 	error          *template.Template
 	runtimeContext context.Context
 
-	davWssCache cache.Cache
+	davWssCachePool *openurl.MuxPool[cache.Cache]
 }
 
 func NewPublicHandler(c context.Context) *PublicHandler {
@@ -76,7 +77,7 @@ func NewPublicHandler(c context.Context) *PublicHandler {
 	}
 	h.tpl, _ = template.New("public").Parse(Public)
 	h.error, _ = template.New("error").Parse(errorTpl)
-	h.davWssCache, _ = cache.OpenCache(c, "pm:///?evictionTime=30s&cleanWindow=5m")
+	h.davWssCachePool = cache.OpenPool("pm:///?evictionTime=30s&cleanWindow=5m")
 	return h
 }
 
@@ -246,7 +247,8 @@ func (h *PublicHandler) ServeDAV(w http.ResponseWriter, r *http.Request, linkId 
 
 	// Load workspace and its root nodes
 	var ws *idm.Workspace
-	if !h.davWssCache.Get(linkData.RepositoryId, &ws) {
+	ca, _ := h.davWssCachePool.Get(ctx)
+	if !ca.Get(linkData.RepositoryId, &ws) {
 		workspace, er := permissions.SearchUniqueWorkspace(ctx, linkData.RepositoryId, "")
 		if er != nil {
 			return er
@@ -260,7 +262,7 @@ func (h *PublicHandler) ServeDAV(w http.ResponseWriter, r *http.Request, linkId 
 			return er
 		}
 		ws = workspace
-		_ = h.davWssCache.Set(ws.GetUUID(), workspace)
+		_ = ca.Set(ws.GetUUID(), workspace)
 		log.Logger(ctx).Debug("WS Roots Not In Cache", zap.Duration("time", time.Since(t)))
 		t = time.Now()
 	} else {

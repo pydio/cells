@@ -61,7 +61,7 @@ func (g *gq) PushRaw(_ context.Context, message broker.Message) error {
 	return er
 }
 
-func (g *gq) Consume(callback func(...broker.Message)) error {
+func (g *gq) Consume(callback func(context.Context, ...broker.Message)) error {
 	go func() {
 		for {
 			select {
@@ -89,7 +89,7 @@ func (g *gq) Consume(callback func(...broker.Message)) error {
 				continue
 			}
 			if msg, er := broker.DecodeToBrokerMessage(it.Value); er == nil {
-				callback(msg)
+				callback(g.ctx, msg)
 			} else {
 				log.Logger(g.ctx).Error("[goque] Cannot decode message in "+g.prefix, zap.Error(er))
 			}

@@ -45,6 +45,7 @@ import (
 	"github.com/pydio/cells/v4/common/runtime"
 	"github.com/pydio/cells/v4/common/service/errors"
 	"github.com/pydio/cells/v4/common/utils/cache"
+	"github.com/pydio/cells/v4/common/utils/openurl"
 	"github.com/pydio/cells/v4/common/utils/permissions"
 )
 
@@ -59,7 +60,7 @@ func WithQuota() nodes.Option {
 // QuotaFilter applies storage quota limitation on a per-workspace basis.
 type QuotaFilter struct {
 	abstract.Handler
-	readCache cache.Cache
+	readCache *openurl.MuxPool[cache.Cache]
 	once      sync.Once
 }
 
@@ -85,13 +86,14 @@ func (a *QuotaFilter) ReadNode(ctx context.Context, in *tree.ReadNodeRequest, op
 		u  int64
 	}
 	a.once.Do(func() {
-		a.readCache, _ = cache.OpenCache(context.TODO(), runtime.ShortCacheURL("evictionTime", "30s", "cleanWindow", "3m"))
+		a.readCache = cache.OpenPool(runtime.ShortCacheURL("evictionTime", "30s", "cleanWindow", "3m"))
 	})
 	var cacheKey string
+	ca, _ := a.readCache.Get(ctx)
 	if claims, ok := ctx.Value(claim.ContextKey).(claim.Claims); ok {
 		cacheKey = branch.Workspace.UUID + "-" + claims.Name
 		var qc *qCache
-		if a.readCache.Get(cacheKey, &qc) {
+		if ca != nil && ca.Get(cacheKey, &qc) {
 			if qc.no {
 				return resp, nil
 			}
@@ -107,11 +109,11 @@ func (a *QuotaFilter) ReadNode(ctx context.Context, in *tree.ReadNodeRequest, op
 		n.MustSetMeta("ws_quota", q)
 		n.MustSetMeta("ws_quota_usage", u)
 		resp.Node = n
-		if cacheKey != "" {
-			_ = a.readCache.Set(cacheKey, &qCache{q: q, u: u})
+		if ca != nil && cacheKey != "" {
+			_ = ca.Set(cacheKey, &qCache{q: q, u: u})
 		}
-	} else if cacheKey != "" {
-		_ = a.readCache.Set(cacheKey, &qCache{no: true})
+	} else if ca != nil && cacheKey != "" {
+		_ = ca.Set(cacheKey, &qCache{no: true})
 	}
 	return resp, err
 }

@@ -85,3 +85,8 @@ func DefaultURLMux() *URLMux {
 func OpenCache(ctx context.Context, urlstr string) (Cache, error) {
 	return defaultURLMux.OpenCache(ctx, urlstr)
 }
+
+// OpenPool opens a MuxPool[Cache] using OpenCache as opener
+func OpenPool(u string) *openurl.MuxPool[Cache] {
+	return openurl.NewMuxPool[Cache]([]string{u}, OpenCache)
+}

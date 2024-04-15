@@ -26,33 +26,39 @@ import (
 	"io"
 	"path"
 	"strings"
+	"sync"
 
 	"google.golang.org/grpc/status"
 
 	"github.com/pydio/cells/v4/common/proto/tree"
 	"github.com/pydio/cells/v4/common/runtime"
 	"github.com/pydio/cells/v4/common/utils/cache"
+	"github.com/pydio/cells/v4/common/utils/openurl"
 )
 
 var (
-	ancestorsParentsCache cache.Cache
-	ancestorsNodesCache   cache.Cache
+	ancestorsParentsPool *openurl.MuxPool[cache.Cache]
+	appOnce              sync.Once
+	ancestorsNodesPool   *openurl.MuxPool[cache.Cache]
+	anpOnce              sync.Once
+	//	ancestorsParentsCache cache.Cache
+	//	ancestorsNodesCache   cache.Cache
 )
 
-func getAncestorsParentsCache() cache.Cache {
-	if ancestorsParentsCache == nil {
-		c, _ := cache.OpenCache(context.TODO(), runtime.ShortCacheURL("evictionTime", "1500ms", "cleanWindow", "3m"))
-		ancestorsParentsCache = c
-	}
-	return ancestorsParentsCache
+func getAncestorsParentsCache(ctx context.Context) cache.Cache {
+	appOnce.Do(func() {
+		ancestorsParentsPool = cache.OpenPool(runtime.ShortCacheURL("evictionTime", "1500ms", "cleanWindow", "3m"))
+	})
+	c, _ := ancestorsParentsPool.Get(ctx)
+	return c
 }
 
-func getAncestorsNodesCache() cache.Cache {
-	if ancestorsNodesCache == nil {
-		c, _ := cache.OpenCache(context.TODO(), runtime.ShortCacheURL("evictionTime", "1500ms", "cleanWindow", "3m"))
-		ancestorsNodesCache = c
-	}
-	return ancestorsNodesCache
+func getAncestorsNodesCache(ctx context.Context) cache.Cache {
+	appOnce.Do(func() {
+		ancestorsNodesPool = cache.OpenPool(runtime.ShortCacheURL("evictionTime", "1500ms", "cleanWindow", "3m"))
+	})
+	c, _ := ancestorsNodesPool.Get(ctx)
+	return c
 }
 
 // BuildAncestorsList uses ListNodes with "Ancestors" flag to build the list of parent nodes.
@@ -66,17 +72,18 @@ func BuildAncestorsList(ctx context.Context, treeClient tree.NodeProviderClient,
 	*/
 	if node.GetPath() != "" {
 		var parents []*tree.Node
-		if getAncestorsParentsCache().Get(path.Dir(node.GetPath()), &parents) {
+		if getAncestorsParentsCache(ctx).Get(path.Dir(node.GetPath()), &parents) {
 			var cachedNode *tree.Node
 			// Lookup First node
-			if getAncestorsNodesCache().Get(node.GetPath(), &cachedNode) {
+			anc := getAncestorsNodesCache(ctx)
+			if anc.Get(node.GetPath(), &cachedNode) {
 				parentUuids = append(parentUuids, cachedNode)
 			} else {
 				r, er := treeClient.ReadNode(ctx, &tree.ReadNodeRequest{Node: node})
 				if er != nil {
 					return parentUuids, er
 				}
-				getAncestorsNodesCache().Set(node.GetPath(), r.GetNode())
+				anc.Set(node.GetPath(), r.GetNode())
 				parentUuids = append(parentUuids, r.GetNode())
 			}
 			parentUuids = append(parentUuids, parents...)
@@ -111,19 +118,21 @@ func BuildAncestorsList(ctx context.Context, treeClient tree.NodeProviderClient,
 	}
 
 	if len(parentUuids) > 1 {
+		apc := getAncestorsParentsCache(ctx)
+		anc := getAncestorsNodesCache(ctx)
 		cNode := parentUuids[0]
 		pNodes := parentUuids[1:]
-		_ = getAncestorsNodesCache().Set(node.GetPath(), cNode)
+		_ = anc.Set(node.GetPath(), cNode)
 		if !cNode.IsLeaf() {
-			storeParents(node.GetPath(), parentUuids)
+			storeParents(apc, node.GetPath(), parentUuids)
 		}
 		dirPath := path.Dir(node.GetPath())
 		if dirPath != "." && dirPath != "" {
-			storeParents(dirPath, pNodes)
+			storeParents(apc, dirPath, pNodes)
 			for i, n := range pNodes {
-				_ = getAncestorsNodesCache().Set(n.GetPath(), n)
+				_ = anc.Set(n.GetPath(), n)
 				if i < len(pNodes)-2 {
-					storeParents(path.Dir(n.GetPath()), pNodes[i+1:])
+					storeParents(apc, path.Dir(n.GetPath()), pNodes[i+1:])
 				}
 			}
 		}
@@ -131,9 +140,9 @@ func BuildAncestorsList(ctx context.Context, treeClient tree.NodeProviderClient,
 	return parentUuids, err
 }
 
-func storeParents(dirPath string, parents []*tree.Node) {
+func storeParents(apc cache.Cache, dirPath string, parents []*tree.Node) {
 	if len(parents) > 0 {
-		_ = getAncestorsParentsCache().Set(dirPath, parents)
+		_ = apc.Set(dirPath, parents)
 	}
 }
 

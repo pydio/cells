@@ -49,6 +49,7 @@ import (
 	"github.com/pydio/cells/v4/common/sql/resources"
 	"github.com/pydio/cells/v4/common/utils/cache"
 	json "github.com/pydio/cells/v4/common/utils/jsonx"
+	"github.com/pydio/cells/v4/common/utils/openurl"
 	"github.com/pydio/cells/v4/common/utils/permissions"
 	"github.com/pydio/cells/v4/idm/user"
 	"github.com/pydio/cells/v4/scheduler/tasks"
@@ -59,7 +60,7 @@ var (
 		{Subject: "profile:standard", Action: pbservice.ResourcePolicyAction_READ, Effect: pbservice.ResourcePolicy_allow},
 		{Subject: "profile:admin", Action: pbservice.ResourcePolicyAction_WRITE, Effect: pbservice.ResourcePolicy_allow},
 	}
-	autoAppliesCache cache.Cache
+	autoAppliesCachePool *openurl.MuxPool[cache.Cache]
 )
 
 // ByOverride implements sort.Interface for []Role based on the ForceOverride field.
@@ -499,8 +500,9 @@ func (h *Handler) applyAutoApplies(usr *idm.User, autoApplies map[string][]*idm.
 func (h *Handler) loadAutoAppliesRoles(ctx context.Context) (autoApplies map[string][]*idm.Role, err error) {
 
 	// Check if it's not already cached
-	if autoAppliesCache != nil {
-		if autoAppliesCache.Get("autoApplies", &autoApplies) {
+	if autoAppliesCachePool != nil {
+		ca, _ := autoAppliesCachePool.Get(ctx)
+		if ca != nil && ca.Get("autoApplies", &autoApplies) {
 			return
 		}
 	}
@@ -530,11 +532,12 @@ func (h *Handler) loadAutoAppliesRoles(ctx context.Context) (autoApplies map[str
 	}
 
 	// Save to cache
-	if autoAppliesCache == nil {
-		c, _ := cache.OpenCache(context.TODO(), runtime.ShortCacheURL("evictionTime", "10s", "cleanWindow", "20s"))
-		autoAppliesCache = c
+	if autoAppliesCachePool == nil {
+		autoAppliesCachePool = cache.OpenPool(runtime.ShortCacheURL("evictionTime", "10s", "cleanWindow", "20s"))
 	}
-	autoAppliesCache.Set("autoApplies", autoApplies)
+	if c, er := autoAppliesCachePool.Get(ctx); er == nil {
+		_ = c.Set("autoApplies", autoApplies)
+	}
 
 	return
 }

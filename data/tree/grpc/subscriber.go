@@ -34,11 +34,12 @@ import (
 	"github.com/pydio/cells/v4/common/service/context/metadata"
 	"github.com/pydio/cells/v4/common/utils/cache"
 	json "github.com/pydio/cells/v4/common/utils/jsonx"
+	"github.com/pydio/cells/v4/common/utils/openurl"
 )
 
 type EventSubscriber struct {
-	TreeServer  *TreeServer
-	sharedCache cache.Cache
+	TreeServer *TreeServer
+	cachePool  *openurl.MuxPool[cache.Cache]
 }
 
 func NewEventSubscriber(t *TreeServer) (*EventSubscriber, error) {
@@ -46,7 +47,7 @@ func NewEventSubscriber(t *TreeServer) (*EventSubscriber, error) {
 		TreeServer: t,
 	}
 	var er error
-	es.sharedCache, er = cache.OpenCache(context.Background(), runtime.CacheURL("pydio.grpc.tree", "evictionTime", "10m"))
+	es.cachePool = cache.OpenPool(runtime.CacheURL("pydio.grpc.tree", "evictionTime", "10m"))
 	return es, er
 }
 
@@ -64,7 +65,8 @@ func (s *EventSubscriber) enqueueInCache(ctx context.Context, moveUuid string, e
 	} else {
 		opposite = moveUuid + "-" + tree.NodeChangeEvent_CREATE.String()
 	}
-	if d, o := s.sharedCache.GetBytes(opposite); o {
+	ca, _ := s.cachePool.Get(ctx)
+	if d, o := ca.GetBytes(opposite); o {
 		_ = json.Unmarshal(d, &other)
 		update := &tree.NodeChangeEvent{
 			Type: tree.NodeChangeEvent_UPDATE_PATH,
@@ -85,14 +87,14 @@ func (s *EventSubscriber) enqueueInCache(ctx context.Context, moveUuid string, e
 			//log.Logger(ctx).Info(" => Complete update event", zap.Bool("loop", loop), zap.Any("update source", update.Source.Path), zap.Any("update target", update.Target.Path))
 			s.publish(ctx, update)
 		}
-		s.sharedCache.Delete(opposite)
+		_ = ca.Delete(opposite)
 		return
 	}
 
 	if !loop {
 		//log.Logger(ctx).Info("Enqueue in cache", zap.String("key", key), zap.Any("type", event.Type.String()))
 		d, _ := json.Marshal(event)
-		s.sharedCache.Set(key, d)
+		_ = ca.Set(key, d)
 		go func() {
 			<-time.After(300 * time.Millisecond)
 			// Retry once if other key was stored just at the same time

@@ -37,10 +37,11 @@ import (
 	"github.com/pydio/cells/v4/common/utils/cache"
 	"github.com/pydio/cells/v4/common/utils/configx"
 	json "github.com/pydio/cells/v4/common/utils/jsonx"
+	"github.com/pydio/cells/v4/common/utils/openurl"
 	"github.com/pydio/cells/v4/scheduler/actions"
 )
 
-var policiesCache cache.Cache
+var policiesCachePool *openurl.MuxPool[cache.Cache]
 
 func init() {
 
@@ -63,10 +64,10 @@ func init() {
 // PolicyForNode checks datasource name and find corresponding VersioningPolicy (if set). Returns nil otherwise.
 func PolicyForNode(ctx context.Context, node *tree.Node) *tree.VersioningPolicy {
 
-	if policiesCache == nil {
-		c, _ := cache.OpenCache(context.TODO(), runtime.ShortCacheURL("evictionTime", "1h", "cleanWindow", "1h"))
-		policiesCache = c
+	if policiesCachePool == nil {
+		policiesCachePool = cache.OpenPool(runtime.ShortCacheURL("evictionTime", "1h", "cleanWindow", "1h"))
 	}
+	policiesCache, _ := policiesCachePool.Get(ctx)
 
 	dataSourceName := node.GetStringMeta(common.MetaNamespaceDatasourceName)
 	policyName := config.Get("services", common.ServiceGrpcNamespace_+common.ServiceDataSync_+dataSourceName, "VersioningPolicyName").String()

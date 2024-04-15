@@ -1,4 +1,4 @@
-package broker
+package openurl
 
 import (
 	"context"
@@ -19,11 +19,13 @@ type MuxPool[T any] struct {
 	pool     []*namedT[T]
 }
 
-func NewMuxPool[T any](uu []string, resolver func(string) string, opener Opener[T]) *MuxPool[T] {
+func NewMuxPool[T any](uu []string, opener Opener[T]) *MuxPool[T] {
 	return &MuxPool[T]{
-		urls:     uu,
-		resolver: resolver,
-		opener:   opener,
+		urls: uu,
+		resolver: func(s string) string {
+			return s
+		},
+		opener: opener,
 	}
 }
 
@@ -49,4 +51,9 @@ func (m *MuxPool[T]) Get(ctx context.Context) (T, error) {
 	}
 	var res T
 	return res, fmt.Errorf("cannot resolve")
+}
+
+// TODO - Close all underlying resources
+func (m *MuxPool[T]) Close(ctx context.Context) error {
+	return nil
 }

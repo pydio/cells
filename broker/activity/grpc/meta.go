@@ -31,13 +31,13 @@ import (
 	"github.com/pydio/cells/v4/common/log"
 	activity2 "github.com/pydio/cells/v4/common/proto/activity"
 	"github.com/pydio/cells/v4/common/proto/tree"
+	servicecontext "github.com/pydio/cells/v4/common/service/context"
 	"github.com/pydio/cells/v4/common/service/context/metadata"
 )
 
 type MetaProvider struct {
 	tree.UnimplementedNodeProviderStreamerServer
 	RuntimeCtx context.Context
-	dao        activity.DAO
 }
 
 func (m *MetaProvider) Name() string {
@@ -47,6 +47,8 @@ func (m *MetaProvider) Name() string {
 func (m *MetaProvider) ReadNodeStream(streamer tree.NodeProviderStreamer_ReadNodeStreamServer) error {
 
 	ctx := streamer.Context()
+	dao := servicecontext.GetDAO[activity.DAO](ctx)
+
 	// Extract current user Id from X-Pydio-User key
 	var userId string
 	if u, o := metadata.CanonicalMeta(ctx, common.PydioContextUserKey); o {
@@ -63,7 +65,7 @@ func (m *MetaProvider) ReadNodeStream(streamer tree.NodeProviderStreamer_ReadNod
 		}
 		node := request.Node
 		if userId != "" { // No user found, just skip
-			if subs, err := m.dao.ListSubscriptions(nil, activity2.OwnerType_NODE, []string{node.Uuid}); err == nil {
+			if subs, err := dao.ListSubscriptions(nil, activity2.OwnerType_NODE, []string{node.Uuid}); err == nil {
 				for _, sub := range subs {
 					if sub.UserId == userId && len(sub.Events) > 0 {
 						events := strings.Join(sub.Events, ",")

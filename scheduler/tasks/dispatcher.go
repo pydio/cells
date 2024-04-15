@@ -74,7 +74,7 @@ func NewDispatcher(rootCtx context.Context, maxWorkers int, job *jobs.Job, tags 
 		log.Logger(rootCtx).Warn("Cannot open fifo for dispatcher - job "+job.ID+", this will run without queue", zap.Error(er))
 	} else {
 		fifoQueue = make(chan RunnerFunc)
-		_ = fifo.Consume(func(mm ...broker.Message) {
+		_ = fifo.Consume(func(ct context.Context, mm ...broker.Message) {
 
 			for _, msg := range mm {
 				var event interface{}

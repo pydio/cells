@@ -25,6 +25,7 @@ import (
 
 	"gocloud.dev/pubsub"
 
+	"github.com/pydio/cells/v4/common/utils/openurl"
 	"github.com/pydio/cells/v4/common/utils/uuid"
 )
 
@@ -129,9 +130,7 @@ type SubscribeOptions struct {
 	// received messages and re-process them later on.
 	// They should be dynamically opened based on the input context
 	MessageQueueURLs []string
-	MessageQueuePool *MuxPool[MessageQueue]
-	// TODO: Remove
-	MessageQueue MessageQueue
+	MessageQueuePool *openurl.MuxPool[MessageQueue]
 
 	// Optional name for metrics
 	CounterName string

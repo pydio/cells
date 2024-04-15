@@ -59,13 +59,13 @@ import (
 	//_ "github.com/pydio/cells/v4/broker/mailer/grpc"
 	//_ "github.com/pydio/cells/v4/broker/mailer/rest"
 
-	// Cache
+	// Cache & Queues
+	_ "github.com/pydio/cells/v4/common/broker/debounce"
+	_ "github.com/pydio/cells/v4/common/broker/goque"
+	_ "github.com/pydio/cells/v4/common/broker/jetstream"
 	_ "github.com/pydio/cells/v4/common/utils/cache/bigcache"
 	_ "github.com/pydio/cells/v4/common/utils/cache/gocache"
 	_ "github.com/pydio/cells/v4/common/utils/cache/redis"
-	_ "github.com/pydio/cells/v4/common/utils/queue/goque"
-	_ "github.com/pydio/cells/v4/common/utils/queue/jetstream"
-	_ "github.com/pydio/cells/v4/common/utils/queue/memory"
 
 	// Gateways
 	_ "github.com/pydio/cells/v4/gateway/data"

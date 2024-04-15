@@ -27,7 +27,6 @@ package grpc
 
 import (
 	"context"
-	"path/filepath"
 	"time"
 
 	"google.golang.org/grpc"
@@ -38,8 +37,6 @@ import (
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/broker"
 	grpc2 "github.com/pydio/cells/v4/common/client/grpc"
-	"github.com/pydio/cells/v4/common/dao/boltdb"
-	"github.com/pydio/cells/v4/common/dao/mongodb"
 	"github.com/pydio/cells/v4/common/log"
 	"github.com/pydio/cells/v4/common/nodes/meta"
 	acproto "github.com/pydio/cells/v4/common/proto/activity"
@@ -49,9 +46,7 @@ import (
 	"github.com/pydio/cells/v4/common/proto/tree"
 	"github.com/pydio/cells/v4/common/runtime"
 	"github.com/pydio/cells/v4/common/service"
-	servicecontext "github.com/pydio/cells/v4/common/service/context"
 	"github.com/pydio/cells/v4/common/service/context/metadata"
-	"github.com/pydio/cells/v4/common/utils/queue"
 )
 
 var (
@@ -74,24 +69,27 @@ func init() {
 					Up:            registerDigestJob,
 				},
 			}),
-			service.WithStorage(activity.NewDAO,
+			//service.WithDefaultStorageConn("bolt"), >> CONFIG.YAML : bolt + le chemin par défaut
+			service.WithStorage("bolt", activity.NewBoltDAO,
 				service.WithStoragePrefix("activity"),
-				service.WithStorageSupport(boltdb.Driver, mongodb.Driver),
-				service.WithStorageMigrator(activity.Migrate),
-				service.WithStorageDefaultDriver(func() (string, string) {
-					return boltdb.Driver, filepath.Join(runtime.MustServiceDataDir(Name), "activities.db")
-				}),
+				//				service.WithStorageSupport(boltdb.Driver, mongodb.Driver),
+				//				service.WithStorageMigrator(activity.Migrate),
+				//				service.WithStorageDefaultDriver(func() (string, string) {
+				//					return boltdb.Driver, filepath.Join(runtime.MustServiceDataDir(Name), "activities.db")
+				//				}),
 			),
+			//service.WithStorage("toto", activity.NewBoltDAO,....),
 			service.WithGRPC(func(c context.Context, srv grpc.ServiceRegistrar) error {
 
-				d := servicecontext.GetDAO(c).(activity.DAO)
 				// Register Subscribers
-				subscriber := NewEventsSubscriber(c, d)
+				subscriber := NewEventsSubscriber(c)
 				// Start fifo - it is stopped by c.Done()
-				fifo, er := queue.OpenQueue(c, runtime.PersistingQueueURL("serviceName", common.ServiceGrpcNamespace_+common.ServiceActivity, "name", "changes"))
-				if er != nil {
-					return er
-				}
+				/*
+					fifo, er := queue.OpenQueue(c, runtime.PersistingQueueURL("serviceName", common.ServiceGrpcNamespace_+common.ServiceActivity, "name", "changes"))
+					if er != nil {
+						return er
+					}
+				*/
 				counterName := broker.WithCounterName("activity")
 
 				processOneWithTimeout := func(ct context.Context, event *tree.NodeChangeEvent) error {
@@ -101,7 +99,7 @@ func init() {
 					return subscriber.HandleNodeChange(ctx, event)
 				}
 
-				if e := broker.SubscribeCancellable(c, common.TopicTreeChanges, func(message broker.Message) error {
+				if e := broker.SubscribeCancellable(c, common.TopicTreeChanges, func(ctx context.Context, message broker.Message) error {
 					md, bb := message.RawData()
 					msg := &tree.NodeChangeEvent{}
 					if e := proto.Unmarshal(bb, msg); e == nil {
@@ -114,16 +112,16 @@ func init() {
 						if msg.Optimistic {
 							return nil
 						}
-						return processOneWithTimeout(metadata.NewContext(c, md), msg)
+						return processOneWithTimeout(metadata.NewContext(ctx, md), msg)
 					}
 					return nil
-				}, broker.WithLocalQueue(fifo), counterName); e != nil {
+				}, broker.WithAsyncSubscriberInterceptor(runtime.PersistingQueueURL("serviceName", common.ServiceGrpcNamespace_+common.ServiceActivity, "name", "changes")), counterName); e != nil {
 					return e
 				}
 
-				if e := broker.SubscribeCancellable(c, common.TopicMetaChanges, func(message broker.Message) error {
+				if e := broker.SubscribeCancellable(c, common.TopicMetaChanges, func(ctx context.Context, message broker.Message) error {
 					msg := &tree.NodeChangeEvent{}
-					if ctx, e := message.Unmarshal(msg); e == nil {
+					if ctx, e := message.Unmarshal(ctx, msg); e == nil {
 						if msg.Optimistic || msg.Type != tree.NodeChangeEvent_UPDATE_USER_META {
 							return nil
 						}
@@ -134,9 +132,9 @@ func init() {
 					return e
 				}
 
-				if e := broker.SubscribeCancellable(c, common.TopicIdmEvent, func(message broker.Message) error {
+				if e := broker.SubscribeCancellable(c, common.TopicIdmEvent, func(ctx context.Context, message broker.Message) error {
 					msg := &idm.ChangeEvent{}
-					if ctx, e := message.Unmarshal(msg); e == nil {
+					if ctx, e := message.Unmarshal(ctx, msg); e == nil {
 						return subscriber.HandleIdmChange(ctx, msg)
 					}
 					return nil
@@ -144,8 +142,8 @@ func init() {
 					return e
 				}
 
-				acproto.RegisterActivityServiceEnhancedServer(srv, &Handler{RuntimeCtx: ctx, dao: d})
-				tree.RegisterNodeProviderStreamerEnhancedServer(srv, &MetaProvider{RuntimeCtx: ctx, dao: d})
+				acproto.RegisterActivityServiceServer(srv, &Handler{RuntimeCtx: ctx})
+				tree.RegisterNodeProviderStreamerServer(srv, &MetaProvider{RuntimeCtx: ctx})
 
 				return nil
 			}),

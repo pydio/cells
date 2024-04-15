@@ -4,7 +4,6 @@ import (
 	"context"
 	"encoding/hex"
 	"fmt"
-	"google.golang.org/grpc"
 	"hash"
 	"io"
 	"strconv"
@@ -13,6 +12,7 @@ import (
 
 	errors2 "github.com/pkg/errors"
 	"go.uber.org/zap"
+	"google.golang.org/grpc"
 
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/log"
@@ -24,6 +24,7 @@ import (
 	"github.com/pydio/cells/v4/common/utils/cache"
 	"github.com/pydio/cells/v4/common/utils/hasher"
 	"github.com/pydio/cells/v4/common/utils/hasher/simd"
+	"github.com/pydio/cells/v4/common/utils/openurl"
 )
 
 func WithHashInterceptor() nodes.Option {
@@ -42,7 +43,7 @@ var HashFunc = func() hash.Hash {
 type HashHandler struct {
 	abstract.Handler
 	hashesAsETags  bool
-	partsCache     cache.Cache
+	partsCache     *openurl.MuxPool[cache.Cache]
 	partsCacheOnce sync.Once
 }
 
@@ -73,7 +74,7 @@ func (m *HashHandler) PutObject(ctx context.Context, node *tree.Node, reader io.
 func (m *HashHandler) MultipartPutObjectPart(ctx context.Context, target *tree.Node, uploadID string, partNumberMarker int, reader io.Reader, requestData *models.PutRequestData) (models.MultipartObjectPart, error) {
 
 	partID := strconv.Itoa(partNumberMarker)
-	c, e := m.getPartsCache()
+	c, e := m.getPartsCache(ctx)
 	if e != nil {
 		return models.MultipartObjectPart{}, e
 	}
@@ -92,7 +93,7 @@ func (m *HashHandler) MultipartPutObjectPart(ctx context.Context, target *tree.N
 
 // MultipartComplete reconstructs final hash from the parts hashes stored in cache
 func (m *HashHandler) MultipartComplete(ctx context.Context, target *tree.Node, uploadID string, uploadedParts []models.MultipartObjectPart) (models.ObjectInfo, error) {
-	f, e := m.computeMultipartFinalHash(uploadID, len(uploadedParts))
+	f, e := m.computeMultipartFinalHash(ctx, uploadID, len(uploadedParts))
 	if e != nil {
 		return models.ObjectInfo{}, errors2.Wrap(e, "cannot initialize cache")
 	}
@@ -106,7 +107,7 @@ func (m *HashHandler) MultipartComplete(ctx context.Context, target *tree.Node, 
 
 // MultipartAbort clears parts stored in cache on multipart cancellation
 func (m *HashHandler) MultipartAbort(ctx context.Context, target *tree.Node, uploadID string, requestData *models.MultipartRequestData) error {
-	go m.clearMultipartCachedHashes(uploadID)
+	go m.clearMultipartCachedHashes(ctx, uploadID)
 	return m.Next.MultipartAbort(ctx, target, uploadID, requestData)
 }
 
@@ -232,18 +233,16 @@ func (m *HashHandler) StreamChanges(ctx context.Context, in *tree.StreamChangesR
 }
 
 // getPartsCache initializes a cache for multipart hashes
-func (m *HashHandler) getPartsCache() (c cache.Cache, e error) {
+func (m *HashHandler) getPartsCache(ctx context.Context) (c cache.Cache, e error) {
 	m.partsCacheOnce.Do(func() {
-		if c, e = cache.OpenCache(context.Background(), runtime.CacheURL("partshasher", "evictionTime", "24h", "cleanWindow", "24h")); e == nil {
-			m.partsCache = c
-		}
+		m.partsCache = cache.OpenPool(runtime.CacheURL("partshasher", "evictionTime", "24h", "cleanWindow", "24h"))
 	})
-	return m.partsCache, e
+	return m.partsCache.Get(ctx)
 }
 
 // clearMultipartCachedHashes removes any stored parts from the cache
-func (m *HashHandler) clearMultipartCachedHashes(uploadID string) {
-	c, e := m.getPartsCache()
+func (m *HashHandler) clearMultipartCachedHashes(ctx context.Context, uploadID string) {
+	c, e := m.getPartsCache(ctx)
 	if e != nil {
 		return
 	}
@@ -257,9 +256,9 @@ func (m *HashHandler) clearMultipartCachedHashes(uploadID string) {
 
 // computeMultipartFinalHash retrieves all parts from the cache and compute the final value.
 // Todo : it could be used to also verify that parts have the correct size
-func (m *HashHandler) computeMultipartFinalHash(uploadID string, partsNumber int) (string, error) {
+func (m *HashHandler) computeMultipartFinalHash(ctx context.Context, uploadID string, partsNumber int) (string, error) {
 
-	c, e := m.getPartsCache()
+	c, e := m.getPartsCache(ctx)
 	if e != nil {
 		return "", errors2.Wrap(e, "cannot initialize cache")
 	}

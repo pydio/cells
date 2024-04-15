@@ -25,6 +25,7 @@ import (
 	"io"
 	"path"
 	"strings"
+	"sync"
 	"time"
 
 	"go.uber.org/zap"
@@ -42,10 +43,13 @@ import (
 	"github.com/pydio/cells/v4/common/service/errors"
 	"github.com/pydio/cells/v4/common/utils/cache"
 	json "github.com/pydio/cells/v4/common/utils/jsonx"
+	"github.com/pydio/cells/v4/common/utils/openurl"
 )
 
 var (
-	syncCache       cache.Cache
+	cachePool *openurl.MuxPool[cache.Cache]
+	//getCtxCache(ctx)       cache.Cache
+	pkgOnce         sync.Once
 	cacheNodePrefix = "__node__"
 	cacheDiffPrefix = "__diff__"
 )
@@ -81,9 +85,8 @@ func (s *CacheHandler) Adapt(c nodes.Handler, options nodes.RouterOptions) nodes
 func newCacheHandler() *CacheHandler {
 	s := &CacheHandler{}
 
-	if syncCache == nil {
-		c, _ := cache.OpenCache(context.TODO(), runtime.CacheURL("nodes-cache", "evictionTime", "30s", "cleanWindow", "1m"))
-		syncCache = c
+	pkgOnce.Do(func() {
+		cachePool = cache.OpenPool(runtime.CacheURL("nodes-cache", "evictionTime", "30s", "cleanWindow", "1m"))
 		_, _ = broker.Subscribe(context.TODO(), common.TopicTreeChanges, func(ctx context.Context, publication broker.Message) error {
 			var event tree.NodeChangeEvent
 			if ctx, e := publication.Unmarshal(ctx, &event); e == nil && !event.Optimistic {
@@ -94,8 +97,18 @@ func newCacheHandler() *CacheHandler {
 			}
 			return nil
 		}, broker.WithCounterName("nodes-cache"))
-	}
+	})
+
 	return s
+}
+
+func getCtxCache(ctx context.Context) cache.Cache {
+	if ca, er := cachePool.Get(ctx); er != nil {
+		di, _ := cache.OpenCache(ctx, "discard://")
+		return di
+	} else {
+		return ca
+	}
 }
 
 func (s *CacheHandler) cacheEvent(ctx context.Context, event *tree.NodeChangeEvent) {
@@ -112,17 +125,17 @@ func (s *CacheHandler) cacheEvent(ctx context.Context, event *tree.NodeChangeEve
 	}
 	if add != nil {
 		log.Logger(ctx).Debug("Clearing cache key " + add.GetPath())
-		syncCache.Delete(cacheNodePrefix + add.GetPath())
+		getCtxCache(ctx).Delete(cacheNodePrefix + add.GetPath())
 		dir := path.Dir(add.GetPath())
 		if diff, ok := s.cacheDiff(ctx, dir); ok {
 			if _, o := diff.Adds[add.GetPath()]; o {
 				log.Logger(ctx).Debug("Clearing Add key from diff " + add.GetPath())
 				delete(diff.Adds, add.GetPath())
 				if len(diff.Adds)+len(diff.Deletes) == 0 {
-					syncCache.Delete(cacheDiffPrefix + dir)
+					getCtxCache(ctx).Delete(cacheDiffPrefix + dir)
 				} else {
 					diffData, _ := json.Marshal(diff)
-					syncCache.Set(cacheDiffPrefix+dir, diffData)
+					getCtxCache(ctx).Set(cacheDiffPrefix+dir, diffData)
 				}
 			}
 		}
@@ -134,10 +147,10 @@ func (s *CacheHandler) cacheEvent(ctx context.Context, event *tree.NodeChangeEve
 				log.Logger(ctx).Debug("Clearing Delete key from diff " + remove.GetPath())
 				delete(diff.Deletes, remove.GetPath())
 				if len(diff.Adds)+len(diff.Deletes) == 0 {
-					syncCache.Delete(cacheDiffPrefix + dir)
+					getCtxCache(ctx).Delete(cacheDiffPrefix + dir)
 				} else {
 					diffData, _ := json.Marshal(diff)
-					syncCache.Set(cacheDiffPrefix+dir, diffData)
+					getCtxCache(ctx).Set(cacheDiffPrefix+dir, diffData)
 				}
 			}
 		}
@@ -147,17 +160,17 @@ func (s *CacheHandler) cacheEvent(ctx context.Context, event *tree.NodeChangeEve
 func (s *CacheHandler) cacheAdd(ctx context.Context, node *tree.Node) {
 	d, _ := json.Marshal(node)
 	log.Logger(ctx).Debug("Storing node to cache", node.Zap())
-	syncCache.Set(cacheNodePrefix+node.GetPath(), d)
+	getCtxCache(ctx).Set(cacheNodePrefix+node.GetPath(), d)
 	// Update diff
 	diff := NewCacheDiff()
 	dir := path.Dir(node.GetPath())
-	if diffDat, ok := syncCache.GetBytes(cacheDiffPrefix + dir); ok {
+	if diffDat, ok := getCtxCache(ctx).GetBytes(cacheDiffPrefix + dir); ok {
 		json.Unmarshal(diffDat, &diff)
 	}
 	diff.Adds[node.GetPath()] = struct{}{}
 	delete(diff.Deletes, node.GetPath())
 	diffDat, _ := json.Marshal(diff)
-	syncCache.Set(cacheDiffPrefix+dir, diffDat)
+	getCtxCache(ctx).Set(cacheDiffPrefix+dir, diffDat)
 }
 
 func (s *CacheHandler) cacheDel(ctx context.Context, node *tree.Node) {
@@ -168,7 +181,7 @@ func (s *CacheHandler) cacheDel(ctx context.Context, node *tree.Node) {
 		p = path.Dir(p)
 	}
 	dir := path.Dir(p)
-	if diffDat, ok := syncCache.GetBytes(cacheDiffPrefix + dir); ok {
+	if diffDat, ok := getCtxCache(ctx).GetBytes(cacheDiffPrefix + dir); ok {
 		json.Unmarshal(diffDat, &diff)
 	}
 	// Register as deleted
@@ -176,15 +189,15 @@ func (s *CacheHandler) cacheDel(ctx context.Context, node *tree.Node) {
 	// Remove from cache if just previously added
 	delete(diff.Adds, p)
 
-	syncCache.Delete(cacheNodePrefix + dir)
+	getCtxCache(ctx).Delete(cacheNodePrefix + dir)
 
 	diffDat, _ := json.Marshal(diff)
 	log.Logger(ctx).Debug("SyncCache: registering node as deleted ", node.Zap(), zap.String("dir", dir), zap.Any("diff", diff))
-	syncCache.Set(cacheDiffPrefix+dir, diffDat)
+	getCtxCache(ctx).Set(cacheDiffPrefix+dir, diffDat)
 }
 
 func (s *CacheHandler) cacheGet(ctx context.Context, path string) (*tree.Node, bool) {
-	if c, ok := syncCache.GetBytes(cacheNodePrefix + path); ok {
+	if c, ok := getCtxCache(ctx).GetBytes(cacheNodePrefix + path); ok {
 		var dir *tree.Node
 		if ee := json.Unmarshal(c, &dir); ee == nil {
 			return dir, true
@@ -195,7 +208,7 @@ func (s *CacheHandler) cacheGet(ctx context.Context, path string) (*tree.Node, b
 
 func (s *CacheHandler) cacheDiff(ctx context.Context, path string) (*cacheDiff, bool) {
 	log.Logger(ctx).Debug("Looking for cacheDiff for " + path)
-	if c, ok := syncCache.GetBytes(cacheDiffPrefix + path); ok {
+	if c, ok := getCtxCache(ctx).GetBytes(cacheDiffPrefix + path); ok {
 		var diff *cacheDiff
 		if ee := json.Unmarshal(c, &diff); ee == nil {
 			log.Logger(ctx).Debug("SyncCache cacheDiff for "+path, zap.Any("adds", diff.Adds), zap.Any("deletes", diff.Deletes))

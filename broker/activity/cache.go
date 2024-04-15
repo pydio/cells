@@ -29,6 +29,7 @@ import (
 	"github.com/pydio/cells/v4/common/utils/cache"
 	"github.com/pydio/cells/v4/common/utils/configx"
 	"github.com/pydio/cells/v4/common/utils/jsonx"
+	"github.com/pydio/cells/v4/common/utils/openurl"
 )
 
 func WithCache(dao DAO) DAO {
@@ -36,17 +37,16 @@ func WithCache(dao DAO) DAO {
 	if _, o := dao.(batchDAO); o {
 		useBatch = true
 	}
-	c, _ := cache.OpenCache(context.TODO(), runtime.CacheURL("activities", "evictionTime", "5m"))
 	return &Cache{
-		DAO:      dao,
-		cache:    c,
-		useBatch: useBatch,
+		DAO:       dao,
+		cachePool: cache.OpenPool(runtime.CacheURL("activities", "evictionTime", "5m")),
+		useBatch:  useBatch,
 	}
 }
 
 type Cache struct {
 	DAO
-	cache cache.Cache
+	cachePool *openurl.MuxPool[cache.Cache]
 
 	useBatch bool
 	done     chan bool
@@ -129,7 +129,9 @@ func (c *Cache) PostActivity(ctx context.Context, ownerType activity.OwnerType, 
 
 func (c *Cache) UpdateSubscription(ctx context.Context, subscription *activity.Subscription) error {
 	// Clear cache
-	c.cache.Delete(subscription.ObjectType.String() + "-" + subscription.ObjectId)
+	if ca, er := c.cachePool.Get(ctx); er == nil {
+		_ = ca.Delete(subscription.ObjectType.String() + "-" + subscription.ObjectId)
+	}
 	return c.DAO.UpdateSubscription(ctx, subscription)
 }
 
@@ -137,17 +139,23 @@ func (c *Cache) ListSubscriptions(ctx context.Context, objectType activity.Owner
 
 	var filtered []string
 	toCache := make(map[string][]*activity.Subscription)
+	var ca cache.Cache
+	if k, er := c.cachePool.Get(ctx); er == nil {
+		ca = k
+	}
 
 	for _, id := range objectIds {
 		// We'll cache an empty slice by default
 		toCache[id] = []*activity.Subscription{}
 
 		k := objectType.String() + "-" + id
-		if v, ok := c.cache.GetBytes(k); ok {
-			var subs []*activity.Subscription
-			if e := jsonx.Unmarshal(v, &subs); e == nil {
-				res = append(res, subs...)
-				continue
+		if ca != nil {
+			if v, ok := ca.GetBytes(k); ok {
+				var subs []*activity.Subscription
+				if e := jsonx.Unmarshal(v, &subs); e == nil {
+					res = append(res, subs...)
+					continue
+				}
 			}
 		}
 		filtered = append(filtered, id)
@@ -160,9 +168,11 @@ func (c *Cache) ListSubscriptions(ctx context.Context, objectType activity.Owner
 	for _, s := range res {
 		toCache[s.ObjectId] = append(toCache[s.ObjectId], s)
 	}
-	for i, t := range toCache {
-		if data, e := jsonx.Marshal(t); e == nil {
-			c.cache.Set(objectType.String()+"-"+i, data)
+	if ca != nil {
+		for i, t := range toCache {
+			if data, e := jsonx.Marshal(t); e == nil {
+				_ = ca.Set(objectType.String()+"-"+i, data)
+			}
 		}
 	}
 	return

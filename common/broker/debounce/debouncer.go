@@ -75,7 +75,7 @@ type debounce struct {
 	debounce        time.Duration
 	idle            time.Duration
 	maxEvents       int
-	processCallback func(message ...broker.Message)
+	processCallback func(ctx context.Context, message ...broker.Message)
 	closed          bool
 }
 
@@ -118,7 +118,7 @@ func (b *debounce) OpenURL(ctx context.Context, u *url.URL) (broker.AsyncQueue, 
 }
 
 // Consume registers the processor as callback and starts listening to queue
-func (b *debounce) Consume(process func(...broker.Message)) error {
+func (b *debounce) Consume(process func(context.Context, ...broker.Message)) error {
 	b.processCallback = process
 	go b.Start()
 	return nil
@@ -180,5 +180,5 @@ func (b *debounce) processBatch(bb []broker.Message) {
 	for _, e := range bb {
 		cleanEvents = append(cleanEvents, e)
 	}
-	b.processCallback(cleanEvents...)
+	b.processCallback(b.globalCtx, cleanEvents...)
 }

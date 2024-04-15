@@ -23,9 +23,9 @@ package grpc
 import (
 	"context"
 	"fmt"
-	"google.golang.org/protobuf/types/known/anypb"
-
 	"strings"
+
+	"google.golang.org/protobuf/types/known/anypb"
 
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/auth"
@@ -40,6 +40,7 @@ import (
 	"github.com/pydio/cells/v4/common/sql/resources"
 	"github.com/pydio/cells/v4/common/utils/cache"
 	json "github.com/pydio/cells/v4/common/utils/jsonx"
+	"github.com/pydio/cells/v4/common/utils/openurl"
 	"github.com/pydio/cells/v4/idm/meta"
 )
 
@@ -49,14 +50,14 @@ type Handler struct {
 	tree.UnimplementedNodeProviderStreamerServer
 	pbservice.UnimplementedLoginModifierServer
 
-	DAO         meta.DAO
-	searchCache cache.Cache
+	DAO             meta.DAO
+	searchCachePool *openurl.MuxPool[cache.Cache]
 }
 
 func NewHandler(ctx context.Context) *Handler {
-	c, _ := cache.OpenCache(ctx, runtime.CacheURL(common.ServiceGrpcNamespace_+common.ServiceUserMeta))
-	h := &Handler{}
-	h.searchCache = c
+	h := &Handler{
+		searchCachePool: cache.OpenPool(runtime.CacheURL(common.ServiceGrpcNamespace_ + common.ServiceUserMeta)),
+	}
 	go func() {
 		<-ctx.Done()
 		h.Stop()
@@ -65,7 +66,7 @@ func NewHandler(ctx context.Context) *Handler {
 }
 
 func (h *Handler) Stop() {
-	h.searchCache.Close()
+	h.searchCachePool.Close(context.Background())
 }
 
 // UpdateUserMeta adds, updates or deletes user meta.
@@ -76,7 +77,7 @@ func (h *Handler) UpdateUserMeta(ctx context.Context, request *idm.UpdateUserMet
 	nodes := make(map[string]*tree.Node)
 	sources := make(map[string]*tree.Node)
 	for _, metaData := range request.MetaDatas {
-		h.clearCacheForNode(metaData.NodeUuid)
+		h.clearCacheForNode(ctx, metaData.NodeUuid)
 		var prevValue string
 		if request.Operation == idm.UpdateUserMetaRequest_PUT {
 			// Check JsonValue is valid json
@@ -241,7 +242,7 @@ func (h *Handler) ReadNodeStream(stream tree.NodeProviderStreamer_ReadNodeStream
 		node := req.Node
 		var results []*idm.UserMeta
 		var err error
-		if r, ok := h.resultsFromCache(node.Uuid, subjects); ok {
+		if r, ok := h.resultsFromCache(ctx, node.Uuid, subjects); ok {
 			results = r
 		} else {
 			searchUserMetaAny, err := anypb.New(&idm.SearchUserMetaRequest{
@@ -268,7 +269,7 @@ func (h *Handler) ReadNodeStream(stream tree.NodeProviderStreamer_ReadNodeStream
 			results, err = h.DAO.Search(ctx, query)
 			log.Logger(ctx).Debug(fmt.Sprintf("Got %d results for node", len(results)), node.ZapUuid())
 			if err == nil {
-				h.resultsToCache(node.Uuid, subjects, results)
+				h.resultsToCache(ctx, node.Uuid, subjects, results)
 			}
 		}
 		if err == nil && len(results) > 0 {
@@ -332,23 +333,25 @@ func (h *Handler) ModifyLogin(ctx context.Context, req *pbservice.ModifyLoginReq
 	return resources.ModifyLogin(ctx, h.DAO, req)
 }
 
-func (h *Handler) resultsToCache(nodeId string, searchSubjects []string, results []*idm.UserMeta) {
-	if h.searchCache == nil {
+func (h *Handler) resultsToCache(ctx context.Context, nodeId string, searchSubjects []string, results []*idm.UserMeta) {
+	sc, _ := h.searchCachePool.Get(ctx)
+	if sc == nil {
 		return
 	}
 	key := fmt.Sprintf("%s-%s", nodeId, strings.Join(searchSubjects, "-"))
 	//log.Logger(context.Background()).Info("User-Meta - Store Cache Key: " + key)
 	if data, e := json.Marshal(results); e == nil {
-		h.searchCache.Set(key, data)
+		sc.Set(key, data)
 	}
 }
 
-func (h *Handler) resultsFromCache(nodeId string, searchSubjects []string) (results []*idm.UserMeta, found bool) {
-	if h.searchCache == nil {
+func (h *Handler) resultsFromCache(ctx context.Context, nodeId string, searchSubjects []string) (results []*idm.UserMeta, found bool) {
+	sc, _ := h.searchCachePool.Get(ctx)
+	if sc == nil {
 		return
 	}
 	key := fmt.Sprintf("%s-%s", nodeId, strings.Join(searchSubjects, "-"))
-	if data, ok := h.searchCache.GetBytes(key); ok {
+	if data, ok := sc.GetBytes(key); ok {
 		if er := json.Unmarshal(data, &results); er == nil {
 			//log.Logger(context.Background()).Info("User-Meta - Got Cache Key: " + key)
 			return results, true
@@ -358,14 +361,15 @@ func (h *Handler) resultsFromCache(nodeId string, searchSubjects []string) (resu
 	return
 }
 
-func (h *Handler) clearCacheForNode(nodeId string) {
-	if h.searchCache == nil {
+func (h *Handler) clearCacheForNode(ctx context.Context, nodeId string) {
+	sc, _ := h.searchCachePool.Get(ctx)
+	if sc == nil {
 		return
 	}
-	if clears, e := h.searchCache.KeysByPrefix(nodeId + "-"); e == nil {
+	if clears, e := sc.KeysByPrefix(nodeId + "-"); e == nil {
 		for _, k := range clears {
 			//log.Logger(context.Background()).Info("User-Meta - Clear Cache Key: " + k)
-			_ = h.searchCache.Delete(k)
+			_ = sc.Delete(k)
 		}
 	}
 

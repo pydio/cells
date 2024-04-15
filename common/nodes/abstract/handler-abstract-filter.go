@@ -38,6 +38,7 @@ import (
 	"github.com/pydio/cells/v4/common/runtime"
 	"github.com/pydio/cells/v4/common/service/errors"
 	"github.com/pydio/cells/v4/common/utils/cache"
+	"github.com/pydio/cells/v4/common/utils/openurl"
 )
 
 // BranchFilter is a ready-made Handler that can be used by all handlers that just modify the path in one way
@@ -46,22 +47,22 @@ type BranchFilter struct {
 	Handler
 	InputMethod    nodes.FilterFunc
 	OutputMethod   nodes.FilterFunc
-	RootNodesCache cache.Cache
+	RootNodesCache *openurl.MuxPool[cache.Cache]
 }
 
-func (v *BranchFilter) LookupRoot(uuid string) (*tree.Node, error) {
+func (v *BranchFilter) LookupRoot(ctx context.Context, uuid string) (*tree.Node, error) {
 
 	if virtualNode, exists := GetVirtualNodesManager(v.RuntimeCtx).ByUuid(uuid); exists {
 		return virtualNode, nil
 	}
 
 	if v.RootNodesCache == nil {
-		c, _ := cache.OpenCache(context.TODO(), runtime.ShortCacheURL("evictionTime", "10s", "cleanWindow", "60s"))
-		v.RootNodesCache = c
+		v.RootNodesCache = cache.OpenPool(runtime.ShortCacheURL("evictionTime", "10s", "cleanWindow", "60s"))
 	}
+	ca, _ := v.RootNodesCache.Get(ctx)
 
 	var n *tree.Node
-	if v.RootNodesCache.Get(uuid, &n) {
+	if ca != nil && ca.Get(uuid, &n) {
 		return n, nil
 	}
 
@@ -71,7 +72,9 @@ func (v *BranchFilter) LookupRoot(uuid string) (*tree.Node, error) {
 	if err != nil {
 		return nil, err
 	}
-	v.RootNodesCache.Set(uuid, resp.Node)
+	if ca != nil {
+		_ = ca.Set(uuid, resp.Node)
+	}
 
 	return resp.Node, nil
 }
@@ -92,10 +95,10 @@ func (v *BranchFilter) MakeRootKey(rNode *tree.Node) string {
 	return rand[0:8] + "-" + rNode.GetStringMeta("name")
 }
 
-func (v *BranchFilter) GetRootKeys(rootNodes []string) (map[string]*tree.Node, error) {
+func (v *BranchFilter) GetRootKeys(ctx context.Context, rootNodes []string) (map[string]*tree.Node, error) {
 	list := make(map[string]*tree.Node, len(rootNodes))
 	for _, root := range rootNodes {
-		if rNode, err := v.LookupRoot(root); err == nil {
+		if rNode, err := v.LookupRoot(ctx, root); err == nil {
 			list[v.MakeRootKey(rNode)] = rNode
 		} else {
 			return list, err

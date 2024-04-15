@@ -26,7 +26,7 @@ import (
 	"io"
 	"strings"
 
-	"github.com/emicklei/go-restful/v3"
+	restful "github.com/emicklei/go-restful/v3"
 	"go.uber.org/zap"
 	"google.golang.org/protobuf/types/known/anypb"
 
@@ -48,6 +48,7 @@ import (
 	"github.com/pydio/cells/v4/common/service/resources"
 	"github.com/pydio/cells/v4/common/utils/cache"
 	json "github.com/pydio/cells/v4/common/utils/jsonx"
+	"github.com/pydio/cells/v4/common/utils/openurl"
 	"github.com/pydio/cells/v4/common/utils/permissions"
 	"github.com/pydio/cells/v4/common/utils/uuid"
 	"github.com/pydio/cells/v4/idm/user/grpc"
@@ -905,15 +906,15 @@ func paramsAclsToAttributes(ctx context.Context, users []*idm.User) {
 
 }
 
-var cachedParams cache.Cache
+var cachedParams *openurl.MuxPool[cache.Cache]
 
 func allowedAclKey(ctx context.Context, k string, contextEditable bool) bool {
 	var params []*front.ExposedParameter
 	if cachedParams == nil {
-		c, _ := cache.OpenCache(context.TODO(), runtime.ShortCacheURL("evictionTime", "20s", "cleanWindow", "1m"))
-		cachedParams = c
+		cachedParams = cache.OpenPool(runtime.ShortCacheURL("evictionTime", "20s", "cleanWindow", "1m"))
 	}
-	if !cachedParams.Get("params", &params) {
+	ca, _ := cachedParams.Get(ctx)
+	if ca != nil && !ca.Get("params", &params) {
 		mC := front.NewManifestServiceClient(grpc2.GetClientConnFromCtx(ctx, common.ServiceFrontStatics))
 		resp, e := mC.ExposedParameters(ctx, &front.ExposedParametersRequest{
 			Scope:   "user",
@@ -924,7 +925,7 @@ func allowedAclKey(ctx context.Context, k string, contextEditable bool) bool {
 			return false
 		}
 		params = resp.Parameters
-		cachedParams.Set("params", resp.Parameters)
+		_ = ca.Set("params", resp.Parameters)
 	}
 
 	// Find params that contain user scope but not only that scope
