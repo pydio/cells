@@ -5,7 +5,6 @@ import (
 	"database/sql"
 	"strings"
 	"sync"
-	"text/template"
 
 	"github.com/pborman/uuid"
 	"gorm.io/driver/mysql"
@@ -21,6 +20,7 @@ import (
 	servicecontext "github.com/pydio/cells/v4/common/service/context"
 	"github.com/pydio/cells/v4/common/storage"
 	"github.com/pydio/cells/v4/common/storage/sql/dbresolver"
+	"github.com/pydio/cells/v4/common/utils/openurl"
 )
 
 var (
@@ -37,7 +37,7 @@ func init() {
 }
 
 type gormStorage struct {
-	template *template.Template
+	template openurl.Template
 	db       *gorm.DB
 	dr       *dbresolver.DBResolver
 
@@ -47,7 +47,7 @@ type gormStorage struct {
 }
 
 func (gs *gormStorage) OpenURL(ctx context.Context, dsn string) (storage.Storage, error) {
-	t, err := template.New("gormStorage").Parse(dsn)
+	t, err := openurl.URLTemplate(dsn)
 	if err != nil {
 		return nil, err
 	}
@@ -147,12 +147,10 @@ func (gs *gormStorage) Register(conn any, tenant string, service string) {
 
 func (gs *gormStorage) Get(ctx context.Context, out interface{}) bool {
 	if v, ok := out.(**gorm.DB); ok {
-		pathBuilder := &strings.Builder{}
-		if err := gs.template.Execute(pathBuilder, ctx); err != nil {
+		path, err := gs.template.Resolve(ctx)
+		if err != nil {
 			return false
 		}
-
-		path := pathBuilder.String()
 		if conn, ok := gs.conns[path]; !ok {
 			parts := strings.Split(path, "://")
 			if len(parts) < 2 {

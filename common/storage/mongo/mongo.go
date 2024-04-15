@@ -2,9 +2,7 @@ package mongo
 
 import (
 	"context"
-	"net/url"
 	"strings"
-	"text/template"
 
 	"github.com/pborman/uuid"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -12,6 +10,7 @@ import (
 
 	"github.com/pydio/cells/v4/common/dao/mongodb"
 	"github.com/pydio/cells/v4/common/storage"
+	"github.com/pydio/cells/v4/common/utils/openurl"
 )
 
 var (
@@ -28,12 +27,12 @@ func init() {
 }
 
 type mongoStorage struct {
-	template *template.Template
+	template openurl.Template
 	clients  map[string]*mongo.Client
 }
 
 func (o *mongoStorage) OpenURL(ctx context.Context, urlstr string) (storage.Storage, error) {
-	t, err := template.New("storage").Parse(urlstr)
+	t, err := openurl.URLTemplate(urlstr)
 	if err != nil {
 		return nil, err
 	}
@@ -72,17 +71,11 @@ func (s *mongoStorage) GetConn(str string) (storage.Conn, error) {
 
 func (s *mongoStorage) Get(ctx context.Context, out interface{}) bool {
 	if v, ok := out.(**mongo.Database); ok {
-		pathBuilder := &strings.Builder{}
-		if err := s.template.Execute(pathBuilder, ctx); err != nil {
-			return false
-		}
-
-		path := pathBuilder.String()
-
-		u, err := url.Parse(path)
+		u, err := s.template.ResolveURL(ctx)
 		if err != nil {
 			return false
 		}
+		path := u.String()
 
 		if cli, ok := s.clients[path]; ok {
 			*v = cli.Database(u.Path)

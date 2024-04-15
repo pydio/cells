@@ -13,27 +13,39 @@ type namedT[T any] struct {
 type Opener[T any] func(ctx context.Context, url string) (T, error)
 
 type MuxPool[T any] struct {
-	urls     []string
-	resolver func(string) string
-	opener   func(ctx context.Context, url string) (T, error)
-	pool     []*namedT[T]
+	resolvers []Template
+	opener    func(ctx context.Context, url string) (T, error)
+	pool      []*namedT[T]
 }
 
 func NewMuxPool[T any](uu []string, opener Opener[T]) *MuxPool[T] {
+	rs := make([]Template, len(uu))
+	for _, u := range uu {
+		if r, e := URLTemplate(u); e != nil {
+			panic(e)
+		} else {
+			rs = append(rs, r)
+		}
+	}
+
 	return &MuxPool[T]{
-		urls: uu,
-		resolver: func(s string) string {
-			return s
-		},
-		opener: opener,
+		resolvers: rs,
+		opener:    opener,
 	}
 }
 
-func (m *MuxPool[T]) Get(ctx context.Context) (T, error) {
-	last := len(m.urls) - 1
-	for i, u := range m.urls {
+func (m *MuxPool[T]) Get(ctx context.Context, resolutionData ...map[string]interface{}) (T, error) {
+	last := len(m.resolvers) - 1
+	for i, resolver := range m.resolvers {
 		// RESOLVE URL
-		realURL := m.resolver(u)
+		realURL, er := resolver.Resolve(ctx, resolutionData...)
+		if er != nil {
+			if i < last {
+				continue // Try next one provided as fallback
+			}
+			var q T
+			return q, er
+		}
 		for _, nq := range m.pool {
 			if nq.name == realURL {
 				return nq.t, nil

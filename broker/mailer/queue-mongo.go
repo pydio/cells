@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 
 	"github.com/pydio/cells/v4/common/dao/mongodb"
@@ -15,7 +16,7 @@ import (
 )
 
 type mongoQueue struct {
-	mongodb.DAO
+	db      *mongo.Database
 	runtime context.Context
 }
 
@@ -41,7 +42,7 @@ var (
 )
 
 func (m *mongoQueue) Init(ctx context.Context, conf configx.Values) error {
-	return model.Init(ctx, m.DAO)
+	return model.Init(ctx, m.db)
 }
 
 func (m *mongoQueue) Push(email *mailer.Mail) error {
@@ -50,12 +51,12 @@ func (m *mongoQueue) Push(email *mailer.Mail) error {
 		ID:    uuid.New(),
 		Email: email,
 	}
-	_, e := m.Collection(collMailerQueue).InsertOne(m.runtime, store)
+	_, e := m.db.Collection(collMailerQueue).InsertOne(m.runtime, store)
 	return e
 }
 
 func (m *mongoQueue) Consume(f func(email *mailer.Mail) error) error {
-	coll := m.Collection(collMailerQueue)
+	coll := m.db.Collection(collMailerQueue)
 	ctx := m.runtime
 	cursor, e := coll.Find(ctx, bson.D{}, &options.FindOptions{Sort: bson.D{{"ts", 1}}})
 	if e != nil {
@@ -84,5 +85,6 @@ func (m *mongoQueue) Consume(f func(email *mailer.Mail) error) error {
 }
 
 func (m *mongoQueue) Close(ctx context.Context) error {
-	return m.DAO.CloseConn(ctx)
+	return nil
+	// return m.DAO.CloseConn(ctx)
 }

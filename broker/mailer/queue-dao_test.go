@@ -26,11 +26,11 @@ import (
 	"path/filepath"
 	"testing"
 
-	. "github.com/smartystreets/goconvey/convey"
-
 	"github.com/pydio/cells/v4/common/dao/test"
 	"github.com/pydio/cells/v4/common/proto/mailer"
 	"github.com/pydio/cells/v4/common/utils/configx"
+
+	. "github.com/smartystreets/goconvey/convey"
 )
 
 var (
@@ -118,7 +118,7 @@ func TestEnqueueMail(t *testing.T) {
 
 	Convey("Test Queue DAO", t, func() {
 
-		d, c, e := test.OnFileTestDAO("boltdb", filepath.Join(os.TempDir(), "test-mail-queue.db"), "", "mailqueue-test", false, NewQueueDAO)
+		d, c, e := test.OnFileTestDAO("boltdb", filepath.Join(os.TempDir(), "test-mail-queue.db"), "", "mailqueue-test", false, NewBoltDAO)
 		So(e, ShouldBeNil)
 		queue := d.(Queue)
 		defer c()

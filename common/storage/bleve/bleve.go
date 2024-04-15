@@ -2,12 +2,11 @@ package bleve
 
 import (
 	"context"
-	"net/url"
 	"strconv"
 	"strings"
-	"text/template"
 
 	"github.com/pydio/cells/v4/common/storage"
+	"github.com/pydio/cells/v4/common/utils/openurl"
 	"github.com/pydio/cells/v4/common/utils/uuid"
 )
 
@@ -20,12 +19,12 @@ func init() {
 }
 
 type bleveStorage struct {
-	template *template.Template
+	template openurl.Template
 	dbs      []*blevedb
 }
 
 func (o *bleveStorage) OpenURL(ctx context.Context, urlstr string) (storage.Storage, error) {
-	t, err := template.New("storage").Parse(urlstr)
+	t, err := openurl.URLTemplate(urlstr)
 	if err != nil {
 		return nil, err
 	}
@@ -68,17 +67,12 @@ func (s *bleveStorage) Register(conn any, tenant string, service string) {
 
 func (s *bleveStorage) Get(ctx context.Context, out interface{}) bool {
 	if v, ok := out.(*Indexer); ok {
-		pathBuilder := &strings.Builder{}
-		if err := s.template.Execute(pathBuilder, ctx); err != nil {
-			return false
-		}
 
-		path := pathBuilder.String()
-
-		u, err := url.Parse(path)
+		u, err := s.template.ResolveURL(ctx)
 		if err != nil {
 			return false
 		}
+		path := u.String()
 
 		for _, db := range s.dbs {
 			if path == db.path {
