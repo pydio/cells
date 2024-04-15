@@ -26,7 +26,6 @@ import (
 	"sync"
 	"testing"
 
-	. "github.com/smartystreets/goconvey/convey"
 	"github.com/spf13/viper"
 	"google.golang.org/grpc/metadata"
 	"google.golang.org/protobuf/types/known/anypb"
@@ -38,9 +37,10 @@ import (
 	"github.com/pydio/cells/v4/common/proto/service"
 	"github.com/pydio/cells/v4/common/runtime"
 	"github.com/pydio/cells/v4/common/utils/cache"
-	_ "github.com/pydio/cells/v4/common/utils/cache/gocache"
 	"github.com/pydio/cells/v4/common/utils/configx"
 	"github.com/pydio/cells/v4/idm/user"
+
+	. "github.com/smartystreets/goconvey/convey"
 )
 
 var (
@@ -55,13 +55,13 @@ func TestMain(m *testing.M) {
 	v.SetDefault(runtime.KeyShortCache, "pm://")
 	runtime.SetRuntime(v)
 
-	c, err := cache.OpenCache(context.TODO(), "pm://?evictionTime=3600s&cleanWindow=7200s")
+	// Use the cache mechanism to avoid trying to retrieve the role service
+	autoAppliesCachePool = cache.MustOpenPool("pm://?evictionTime=3600s&cleanWindow=7200s")
+	c, err := autoAppliesCachePool.Get(context.TODO())
 	if err != nil {
 		panic(err)
 	}
-	// Use the cache mechanism to avoid trying to retrieve the role service
-	autoAppliesCache = c
-	autoAppliesCache.Set("autoApplies", map[string][]*idm.Role{
+	_ = c.Set("autoApplies", map[string][]*idm.Role{
 		"autoApplyProfile": {{Uuid: "auto-apply", AutoApplies: []string{"autoApplyProfile"}}},
 	})
 

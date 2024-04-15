@@ -37,9 +37,9 @@ import (
 )
 
 var (
-	ancestorsParentsPool *openurl.MuxPool[cache.Cache]
+	ancestorsParentsPool *openurl.Pool[cache.Cache]
 	appOnce              sync.Once
-	ancestorsNodesPool   *openurl.MuxPool[cache.Cache]
+	ancestorsNodesPool   *openurl.Pool[cache.Cache]
 	anpOnce              sync.Once
 	//	ancestorsParentsCache cache.Cache
 	//	ancestorsNodesCache   cache.Cache
@@ -47,7 +47,7 @@ var (
 
 func getAncestorsParentsCache(ctx context.Context) cache.Cache {
 	appOnce.Do(func() {
-		ancestorsParentsPool = cache.OpenPool(runtime.ShortCacheURL("evictionTime", "1500ms", "cleanWindow", "3m"))
+		ancestorsParentsPool = cache.MustOpenPool(runtime.ShortCacheURL("evictionTime", "1500ms", "cleanWindow", "3m"))
 	})
 	c, _ := ancestorsParentsPool.Get(ctx)
 	return c
@@ -55,7 +55,7 @@ func getAncestorsParentsCache(ctx context.Context) cache.Cache {
 
 func getAncestorsNodesCache(ctx context.Context) cache.Cache {
 	appOnce.Do(func() {
-		ancestorsNodesPool = cache.OpenPool(runtime.ShortCacheURL("evictionTime", "1500ms", "cleanWindow", "3m"))
+		ancestorsNodesPool = cache.MustOpenPool(runtime.ShortCacheURL("evictionTime", "1500ms", "cleanWindow", "3m"))
 	})
 	c, _ := ancestorsNodesPool.Get(ctx)
 	return c

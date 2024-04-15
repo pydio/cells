@@ -906,12 +906,12 @@ func paramsAclsToAttributes(ctx context.Context, users []*idm.User) {
 
 }
 
-var cachedParams *openurl.MuxPool[cache.Cache]
+var cachedParams *openurl.Pool[cache.Cache]
 
 func allowedAclKey(ctx context.Context, k string, contextEditable bool) bool {
 	var params []*front.ExposedParameter
 	if cachedParams == nil {
-		cachedParams = cache.OpenPool(runtime.ShortCacheURL("evictionTime", "20s", "cleanWindow", "1m"))
+		cachedParams = cache.MustOpenPool(runtime.ShortCacheURL("evictionTime", "20s", "cleanWindow", "1m"))
 	}
 	ca, _ := cachedParams.Get(ctx)
 	if ca != nil && !ca.Get("params", &params) {

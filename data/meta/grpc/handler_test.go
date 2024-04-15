@@ -22,18 +22,18 @@ package grpc
 
 import (
 	"context"
-	"github.com/pydio/cells/v4/common/utils/queue"
 	"testing"
 	"time"
 
-	. "github.com/smartystreets/goconvey/convey"
-
+	"github.com/pydio/cells/v4/common/broker"
 	"github.com/pydio/cells/v4/common/dao"
 	"github.com/pydio/cells/v4/common/dao/sqlite"
 	common "github.com/pydio/cells/v4/common/proto/tree"
 	"github.com/pydio/cells/v4/common/service/errors"
 	"github.com/pydio/cells/v4/common/utils/configx"
 	"github.com/pydio/cells/v4/data/meta"
+
+	. "github.com/smartystreets/goconvey/convey"
 )
 
 var (
@@ -157,7 +157,7 @@ func TestSubscriber(t *testing.T) {
 	Convey("Test Create Event to Subscriber", t, func() {
 
 		sub := server.Subscriber(ctx)
-		sub.outputChannel <- &queue.TypeWithContext[*common.NodeChangeEvent]{
+		sub.outputChannel <- &broker.TypeWithContext[*common.NodeChangeEvent]{
 			Ctx: ctx,
 			Original: &common.NodeChangeEvent{
 				Type: common.NodeChangeEvent_CREATE,
@@ -197,7 +197,7 @@ func TestSubscriber(t *testing.T) {
 			},
 		})
 
-		sub.outputChannel <- &queue.TypeWithContext[*common.NodeChangeEvent]{
+		sub.outputChannel <- &broker.TypeWithContext[*common.NodeChangeEvent]{
 			Ctx: ctx,
 			Original: &common.NodeChangeEvent{
 				Type: common.NodeChangeEvent_UPDATE_META,
@@ -238,7 +238,7 @@ func TestSubscriber(t *testing.T) {
 			},
 		})
 
-		sub.outputChannel <- &queue.TypeWithContext[*common.NodeChangeEvent]{
+		sub.outputChannel <- &broker.TypeWithContext[*common.NodeChangeEvent]{
 			Ctx: ctx,
 			Original: &common.NodeChangeEvent{
 				Type: common.NodeChangeEvent_DELETE,

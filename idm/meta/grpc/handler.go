@@ -52,12 +52,12 @@ type Handler struct {
 	pbservice.UnimplementedLoginModifierServer
 
 	DAO             meta.DAO
-	searchCachePool *openurl.MuxPool[cache.Cache]
+	searchCachePool *openurl.Pool[cache.Cache]
 }
 
 func NewHandler(ctx context.Context) *Handler {
 	h := &Handler{
-		searchCachePool: cache.OpenPool(runtime.CacheURL(common.ServiceGrpcNamespace_ + common.ServiceUserMeta)),
+		searchCachePool: cache.MustOpenPool(runtime.CacheURL(common.ServiceGrpcNamespace_ + common.ServiceUserMeta)),
 	}
 	go func() {
 		<-ctx.Done()

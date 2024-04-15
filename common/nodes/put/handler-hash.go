@@ -43,7 +43,7 @@ var HashFunc = func() hash.Hash {
 type HashHandler struct {
 	abstract.Handler
 	hashesAsETags  bool
-	partsCache     *openurl.MuxPool[cache.Cache]
+	partsCache     *openurl.Pool[cache.Cache]
 	partsCacheOnce sync.Once
 }
 
@@ -234,9 +234,13 @@ func (m *HashHandler) StreamChanges(ctx context.Context, in *tree.StreamChangesR
 
 // getPartsCache initializes a cache for multipart hashes
 func (m *HashHandler) getPartsCache(ctx context.Context) (c cache.Cache, e error) {
+	var er error
 	m.partsCacheOnce.Do(func() {
-		m.partsCache = cache.OpenPool(runtime.CacheURL("partshasher", "evictionTime", "24h", "cleanWindow", "24h"))
+		m.partsCache, er = cache.OpenPool(runtime.CacheURL("partshasher", "evictionTime", "24h", "cleanWindow", "24h"))
 	})
+	if er != nil {
+		return nil, er
+	}
 	return m.partsCache.Get(ctx)
 }
 

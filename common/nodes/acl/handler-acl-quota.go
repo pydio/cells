@@ -60,7 +60,7 @@ func WithQuota() nodes.Option {
 // QuotaFilter applies storage quota limitation on a per-workspace basis.
 type QuotaFilter struct {
 	abstract.Handler
-	readCache *openurl.MuxPool[cache.Cache]
+	readCache *openurl.Pool[cache.Cache]
 	once      sync.Once
 }
 
@@ -85,9 +85,13 @@ func (a *QuotaFilter) ReadNode(ctx context.Context, in *tree.ReadNodeRequest, op
 		q  int64
 		u  int64
 	}
+	var er error
 	a.once.Do(func() {
-		a.readCache = cache.OpenPool(runtime.ShortCacheURL("evictionTime", "30s", "cleanWindow", "3m"))
+		a.readCache, er = cache.OpenPool(runtime.ShortCacheURL("evictionTime", "30s", "cleanWindow", "3m"))
 	})
+	if er != nil {
+		return nil, er
+	}
 	var cacheKey string
 	ca, _ := a.readCache.Get(ctx)
 	if claims, ok := ctx.Value(claim.ContextKey).(claim.Claims); ok {

@@ -23,12 +23,13 @@ package grpc
 
 import (
 	"context"
-	"github.com/pydio/cells/v4/common/dao/mysql"
-	"github.com/pydio/cells/v4/common/dao/sqlite"
+
 	"google.golang.org/grpc"
 
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/broker"
+	"github.com/pydio/cells/v4/common/dao/mysql"
+	"github.com/pydio/cells/v4/common/dao/sqlite"
 	"github.com/pydio/cells/v4/common/proto/tree"
 	"github.com/pydio/cells/v4/common/runtime"
 	"github.com/pydio/cells/v4/common/service"

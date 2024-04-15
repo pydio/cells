@@ -22,7 +22,6 @@ package grpc
 
 import (
 	"context"
-	"github.com/pydio/cells/v4/common/utils/openurl"
 	"strings"
 	"sync"
 
@@ -38,6 +37,7 @@ import (
 	"github.com/pydio/cells/v4/common/service/errors"
 	"github.com/pydio/cells/v4/common/utils/cache"
 	json "github.com/pydio/cells/v4/common/utils/jsonx"
+	"github.com/pydio/cells/v4/common/utils/openurl"
 	"github.com/pydio/cells/v4/data/meta"
 )
 
@@ -49,7 +49,7 @@ type MetaServer struct {
 	tree.UnimplementedSearcherServer
 
 	eventsChannel chan *broker.TypeWithContext[*tree.NodeChangeEvent]
-	cachePool     *openurl.MuxPool[cache.Cache]
+	cachePool     *openurl.Pool[cache.Cache]
 
 	stopped     bool
 	stoppedLock *sync.Mutex
@@ -57,7 +57,7 @@ type MetaServer struct {
 
 func NewMetaServer(ctx context.Context) *MetaServer {
 	m := &MetaServer{}
-	m.cachePool = cache.OpenPool(runtime.CacheURL(ServiceName, "evictionTime", "1m"))
+	m.cachePool, _ = cache.OpenPool(runtime.CacheURL(ServiceName, "evictionTime", "1m"))
 	m.stoppedLock = &sync.Mutex{}
 	go func() {
 		<-ctx.Done()

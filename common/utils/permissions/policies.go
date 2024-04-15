@@ -57,14 +57,14 @@ const (
 	PolicyNodeMeta_         = "NodeMeta:"
 )
 
-var polCachePool *openurl.MuxPool[cache.Cache]
+var polCachePool *openurl.Pool[cache.Cache]
 
 var polCacheSync sync.Once
 
 func getCheckersCache(ctx context.Context) cache.Cache {
 	polCacheSync.Do(func() {
-		polCachePool = cache.OpenPool(runtime.ShortCacheURL("evictionTime", "1m", "cleanWindow", "10m"))
-		broker.Subscribe(context.Background(), common.TopicIdmPolicies, func(ct context.Context, message broker.Message) error {
+		polCachePool = cache.MustOpenPool(runtime.ShortCacheURL("evictionTime", "1m", "cleanWindow", "10m"))
+		_, _ = broker.Subscribe(context.Background(), common.TopicIdmPolicies, func(ct context.Context, message broker.Message) error {
 			if polCache, er := polCachePool.Get(ct); er == nil {
 				_ = polCache.Delete("acl")
 				_ = polCache.Delete("oidc")

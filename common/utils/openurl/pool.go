@@ -12,13 +12,13 @@ type namedT[T any] struct {
 
 type Opener[T any] func(ctx context.Context, url string) (T, error)
 
-type MuxPool[T any] struct {
+type Pool[T any] struct {
 	resolvers []Template
 	opener    func(ctx context.Context, url string) (T, error)
 	pool      []*namedT[T]
 }
 
-func NewMuxPool[T any](uu []string, opener Opener[T]) *MuxPool[T] {
+func OpenPool[T any](uu []string, opener Opener[T]) (*Pool[T], error) {
 	rs := make([]Template, len(uu))
 	for _, u := range uu {
 		if r, e := URLTemplate(u); e != nil {
@@ -28,13 +28,13 @@ func NewMuxPool[T any](uu []string, opener Opener[T]) *MuxPool[T] {
 		}
 	}
 
-	return &MuxPool[T]{
+	return &Pool[T]{
 		resolvers: rs,
 		opener:    opener,
-	}
+	}, nil
 }
 
-func (m *MuxPool[T]) Get(ctx context.Context, resolutionData ...map[string]interface{}) (T, error) {
+func (m *Pool[T]) Get(ctx context.Context, resolutionData ...map[string]interface{}) (T, error) {
 	last := len(m.resolvers) - 1
 	for i, resolver := range m.resolvers {
 		// RESOLVE URL
@@ -66,6 +66,6 @@ func (m *MuxPool[T]) Get(ctx context.Context, resolutionData ...map[string]inter
 }
 
 // TODO - Close all underlying resources
-func (m *MuxPool[T]) Close(ctx context.Context) error {
+func (m *Pool[T]) Close(ctx context.Context) error {
 	return nil
 }

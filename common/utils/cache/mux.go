@@ -22,6 +22,7 @@ package cache
 
 import (
 	"context"
+	"fmt"
 	"net/url"
 
 	"github.com/pydio/cells/v4/common/utils/openurl"
@@ -86,7 +87,19 @@ func OpenCache(ctx context.Context, urlstr string) (Cache, error) {
 	return defaultURLMux.OpenCache(ctx, urlstr)
 }
 
-// OpenPool opens a MuxPool[Cache] using OpenCache as opener
-func OpenPool(u string) *openurl.MuxPool[Cache] {
-	return openurl.NewMuxPool[Cache]([]string{u}, OpenCache)
+// OpenPool opens a Pool[Cache] using OpenCache as opener
+func OpenPool(u string) (*openurl.Pool[Cache], error) {
+	return openurl.OpenPool[Cache]([]string{u}, OpenCache)
+}
+
+// MustOpenPool opens a Pool[Cache] using OpenCache as opener, returns a discard:// cache on fail
+func MustOpenPool(u string) *openurl.Pool[Cache] {
+	p, e := openurl.OpenPool[Cache]([]string{u}, OpenCache)
+	if e == nil {
+		return p
+	} else {
+		fmt.Println("[WARN] cache.MustOpenPool failed with URL", u, "using a discard:// cache instead")
+		p, _ = openurl.OpenPool[Cache]([]string{"discard://"}, OpenCache)
+		return p
+	}
 }

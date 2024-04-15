@@ -130,7 +130,7 @@ type SubscribeOptions struct {
 	// received messages and re-process them later on.
 	// They should be dynamically opened based on the input context
 	MessageQueueURLs []string
-	MessageQueuePool *openurl.MuxPool[MessageQueue]
+	MessageQueuePool *openurl.Pool[MessageQueue]
 
 	// Optional name for metrics
 	CounterName string

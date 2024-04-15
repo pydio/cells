@@ -68,7 +68,7 @@ type PublicHandler struct {
 	error          *template.Template
 	runtimeContext context.Context
 
-	davWssCachePool *openurl.MuxPool[cache.Cache]
+	davWssCachePool *openurl.Pool[cache.Cache]
 }
 
 func NewPublicHandler(c context.Context) *PublicHandler {
@@ -77,7 +77,7 @@ func NewPublicHandler(c context.Context) *PublicHandler {
 	}
 	h.tpl, _ = template.New("public").Parse(Public)
 	h.error, _ = template.New("error").Parse(errorTpl)
-	h.davWssCachePool = cache.OpenPool("pm:///?evictionTime=30s&cleanWindow=5m")
+	h.davWssCachePool = cache.MustOpenPool("pm:///?evictionTime=30s&cleanWindow=5m")
 	return h
 }
 

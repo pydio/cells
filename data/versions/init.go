@@ -41,7 +41,7 @@ import (
 	"github.com/pydio/cells/v4/scheduler/actions"
 )
 
-var policiesCachePool *openurl.MuxPool[cache.Cache]
+var policiesCachePool *openurl.Pool[cache.Cache]
 
 func init() {
 
@@ -65,7 +65,7 @@ func init() {
 func PolicyForNode(ctx context.Context, node *tree.Node) *tree.VersioningPolicy {
 
 	if policiesCachePool == nil {
-		policiesCachePool = cache.OpenPool(runtime.ShortCacheURL("evictionTime", "1h", "cleanWindow", "1h"))
+		policiesCachePool, _ = cache.OpenPool(runtime.ShortCacheURL("evictionTime", "1h", "cleanWindow", "1h"))
 	}
 	policiesCache, _ := policiesCachePool.Get(ctx)
 

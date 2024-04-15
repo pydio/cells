@@ -60,7 +60,7 @@ var (
 		{Subject: "profile:standard", Action: pbservice.ResourcePolicyAction_READ, Effect: pbservice.ResourcePolicy_allow},
 		{Subject: "profile:admin", Action: pbservice.ResourcePolicyAction_WRITE, Effect: pbservice.ResourcePolicy_allow},
 	}
-	autoAppliesCachePool *openurl.MuxPool[cache.Cache]
+	autoAppliesCachePool *openurl.Pool[cache.Cache]
 )
 
 // ByOverride implements sort.Interface for []Role based on the ForceOverride field.
@@ -533,7 +533,10 @@ func (h *Handler) loadAutoAppliesRoles(ctx context.Context) (autoApplies map[str
 
 	// Save to cache
 	if autoAppliesCachePool == nil {
-		autoAppliesCachePool = cache.OpenPool(runtime.ShortCacheURL("evictionTime", "10s", "cleanWindow", "20s"))
+		autoAppliesCachePool, err = cache.OpenPool(runtime.ShortCacheURL("evictionTime", "10s", "cleanWindow", "20s"))
+		if err != nil {
+			return
+		}
 	}
 	if c, er := autoAppliesCachePool.Get(ctx); er == nil {
 		_ = c.Set("autoApplies", autoApplies)

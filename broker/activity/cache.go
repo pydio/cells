@@ -38,16 +38,17 @@ func WithCache(dao DAO) DAO {
 	if _, o := dao.(batchDAO); o {
 		useBatch = true
 	}
+	c, _ := cache.OpenPool(runtime.CacheURL("activities", "evictionTime", "5m"))
 	return &Cache{
 		DAO:       dao,
-		cachePool: cache.OpenPool(runtime.CacheURL("activities", "evictionTime", "5m")),
+		cachePool: c,
 		useBatch:  useBatch,
 	}
 }
 
 type Cache struct {
 	DAO
-	cachePool *openurl.MuxPool[cache.Cache]
+	cachePool *openurl.Pool[cache.Cache]
 
 	useBatch bool
 	done     chan bool

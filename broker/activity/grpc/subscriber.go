@@ -58,11 +58,11 @@ type MicroEventsSubscriber struct {
 	wsClient   idm.WorkspaceServiceClient
 	RuntimeCtx context.Context
 
-	cachePool *openurl.MuxPool[cache.Cache]
-	muxPool   *openurl.MuxPool[broker.AsyncQueue]
+	cachePool *openurl.Pool[cache.Cache]
+	muxPool   *openurl.Pool[broker.AsyncQueue]
 }
 
-func NewEventsSubscriber(ctx context.Context) *MicroEventsSubscriber {
+func NewEventsSubscriber(ctx context.Context) (*MicroEventsSubscriber, error) {
 
 	m := &MicroEventsSubscriber{
 		RuntimeCtx: ctx,
@@ -77,12 +77,16 @@ func NewEventsSubscriber(ctx context.Context) *MicroEventsSubscriber {
 		er := q.Consume(m.ProcessIdmBatch)
 		return q, er
 	}
-	m.muxPool = openurl.NewMuxPool[broker.AsyncQueue]([]string{dbcURL}, dbcOpener)
+	var er error
+	m.muxPool, er = openurl.OpenPool[broker.AsyncQueue]([]string{dbcURL}, dbcOpener)
+	if er != nil {
+		return nil, er
+	}
 
 	cacheURL := runtime.ShortCacheURL("evictionTime", "3m", "cleanWindow", "10m")
-	m.cachePool = cache.OpenPool(cacheURL)
+	m.cachePool, er = cache.OpenPool(cacheURL)
 
-	return m
+	return m, er
 }
 
 func (e *MicroEventsSubscriber) getTreeClient() tree.NodeProviderClient {

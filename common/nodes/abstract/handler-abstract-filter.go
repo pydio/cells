@@ -47,7 +47,7 @@ type BranchFilter struct {
 	Handler
 	InputMethod    nodes.FilterFunc
 	OutputMethod   nodes.FilterFunc
-	RootNodesCache *openurl.MuxPool[cache.Cache]
+	RootNodesCache *openurl.Pool[cache.Cache]
 }
 
 func (v *BranchFilter) LookupRoot(ctx context.Context, uuid string) (*tree.Node, error) {
@@ -57,7 +57,11 @@ func (v *BranchFilter) LookupRoot(ctx context.Context, uuid string) (*tree.Node,
 	}
 
 	if v.RootNodesCache == nil {
-		v.RootNodesCache = cache.OpenPool(runtime.ShortCacheURL("evictionTime", "10s", "cleanWindow", "60s"))
+		var er error
+		v.RootNodesCache, er = cache.OpenPool(runtime.ShortCacheURL("evictionTime", "10s", "cleanWindow", "60s"))
+		if er != nil {
+			return nil, er
+		}
 	}
 	ca, _ := v.RootNodesCache.Get(ctx)
 

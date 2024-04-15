@@ -47,7 +47,7 @@ import (
 )
 
 var (
-	cachePool *openurl.MuxPool[cache.Cache]
+	cachePool *openurl.Pool[cache.Cache]
 	//getCtxCache(ctx)       cache.Cache
 	pkgOnce         sync.Once
 	cacheNodePrefix = "__node__"
@@ -86,7 +86,7 @@ func newCacheHandler() *CacheHandler {
 	s := &CacheHandler{}
 
 	pkgOnce.Do(func() {
-		cachePool = cache.OpenPool(runtime.CacheURL("nodes-cache", "evictionTime", "30s", "cleanWindow", "1m"))
+		cachePool = cache.MustOpenPool(runtime.CacheURL("nodes-cache", "evictionTime", "30s", "cleanWindow", "1m"))
 		_, _ = broker.Subscribe(context.TODO(), common.TopicTreeChanges, func(ctx context.Context, publication broker.Message) error {
 			var event tree.NodeChangeEvent
 			if ctx, e := publication.Unmarshal(ctx, &event); e == nil && !event.Optimistic {

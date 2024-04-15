@@ -39,7 +39,7 @@ import (
 
 type EventSubscriber struct {
 	TreeServer *TreeServer
-	cachePool  *openurl.MuxPool[cache.Cache]
+	cachePool  *openurl.Pool[cache.Cache]
 }
 
 func NewEventSubscriber(t *TreeServer) (*EventSubscriber, error) {
@@ -47,7 +47,7 @@ func NewEventSubscriber(t *TreeServer) (*EventSubscriber, error) {
 		TreeServer: t,
 	}
 	var er error
-	es.cachePool = cache.OpenPool(runtime.CacheURL("pydio.grpc.tree", "evictionTime", "10m"))
+	es.cachePool, _ = cache.OpenPool(runtime.CacheURL("pydio.grpc.tree", "evictionTime", "10m"))
 	return es, er
 }
 

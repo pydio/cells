@@ -83,7 +83,10 @@ func init() {
 			service.WithGRPC(func(c context.Context, srv grpc.ServiceRegistrar) error {
 
 				// Register Subscribers
-				subscriber := NewEventsSubscriber(c)
+				subscriber, err := NewEventsSubscriber(c)
+				if err != nil {
+					return err
+				}
 				// Start fifo - it is stopped by c.Done()
 				/*
 					fifo, er := queue.OpenQueue(c, runtime.PersistingQueueURL("serviceName", common.ServiceGrpcNamespace_+common.ServiceActivity, "name", "changes"))

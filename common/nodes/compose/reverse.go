@@ -49,7 +49,7 @@ import (
 type Reverse struct {
 	nodes.Client
 	runtimeCtx context.Context
-	rootsCache *openurl.MuxPool[cache.Cache]
+	rootsCache *openurl.Pool[cache.Cache]
 }
 
 func ReverseClient(ctx context.Context, oo ...nodes.Option) *Reverse {
@@ -73,10 +73,11 @@ func ReverseClient(ctx context.Context, oo ...nodes.Option) *Reverse {
 		encryption.WithEncryption(),
 	)
 	cl := newClient(opts...)
+	cp, _ := cache.OpenPool(runtime.ShortCacheURL("evictionTime", "120s", "cleanWindow", "10m"))
 	return &Reverse{
 		Client:     cl,
 		runtimeCtx: cl.runtimeCtx,
-		rootsCache: cache.OpenPool(runtime.ShortCacheURL("evictionTime", "120s", "cleanWindow", "10m")),
+		rootsCache: cp,
 	}
 }
 

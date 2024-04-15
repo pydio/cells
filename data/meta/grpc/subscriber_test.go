@@ -22,27 +22,27 @@ package grpc
 
 import (
 	"context"
-	"github.com/pydio/cells/v4/common/utils/queue"
 	"sync"
 	"testing"
 
-	. "github.com/smartystreets/goconvey/convey"
-
+	"github.com/pydio/cells/v4/common/broker"
 	"github.com/pydio/cells/v4/common/proto/tree"
+
+	. "github.com/smartystreets/goconvey/convey"
 )
 
 func TestEventsSubscriber_Handle(t *testing.T) {
 
 	Convey("Test Events Subscriber", t, func() {
 
-		out := make(chan *queue.TypeWithContext[*tree.NodeChangeEvent])
+		out := make(chan *broker.TypeWithContext[*tree.NodeChangeEvent])
 		subscriber := &EventsSubscriber{
 			outputChannel: out,
 		}
 
 		wg := sync.WaitGroup{}
 		wg.Add(1)
-		var output *queue.TypeWithContext[*tree.NodeChangeEvent]
+		var output *broker.TypeWithContext[*tree.NodeChangeEvent]
 		go func() {
 			defer wg.Done()
 			for e := range out {
@@ -64,7 +64,7 @@ func TestEventsSubscriber_Handle(t *testing.T) {
 
 		wg.Wait()
 
-		So(output, ShouldResemble, &queue.TypeWithContext[*tree.NodeChangeEvent]{
+		So(output, ShouldResemble, &broker.TypeWithContext[*tree.NodeChangeEvent]{
 			Ctx:      ctx,
 			Original: ev,
 		})
