@@ -228,16 +228,7 @@ storages: &storages
 # All services
 #------------------------------------
 services:
-  pydio.grpc.meta:
-    caches:
-      - type: fifo
-        prefix: meta
-    storages:
-      - type: sql1
-        prefix: idm_meta_
-      - type: sql2
-        name: readonly
-        prefix: idm_meta_
+
   pydio.grpc.search:
     storages:
       - type: bolt
@@ -248,12 +239,32 @@ services:
         target: core
       - type: bolt
         name: core
-
   pydio.grpc.role:
-    caches:
-      - type: fifo
-        prefix: role
-        evictionTime: 30s
     storages:
       - type: sql
         prefix: idm_role_
+  pydio.grpc.acl:
+    storages:
+      - type: sql
+        prefix: idm_acl_
+  pydio.grpc.user:
+    storages:
+      - type: sql
+        prefix: idm_user_
+  pydio.grpc.key:
+    storages:
+      - type: sql
+        prefix: idm_key_
+  pydio.grpc.workspace:
+    storages:
+      - type: sql
+        prefix: idm_workspace_
+  pydio.grpc.meta:
+    storages:
+      - type: sql
+        prefix: idm_meta_
+  pydio.grpc.policy:
+    storages:
+      - type: sql
+        prefix: idm_policy_
+
