@@ -23,9 +23,9 @@ package grpc
 import (
 	"context"
 	"fmt"
-	"google.golang.org/protobuf/types/known/anypb"
-
 	"strings"
+
+	"google.golang.org/protobuf/types/known/anypb"
 
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/auth"
@@ -35,6 +35,7 @@ import (
 	pbservice "github.com/pydio/cells/v4/common/proto/service"
 	"github.com/pydio/cells/v4/common/proto/tree"
 	"github.com/pydio/cells/v4/common/runtime"
+	"github.com/pydio/cells/v4/common/runtime/runtimecontext"
 	servicecontext "github.com/pydio/cells/v4/common/service/context"
 	"github.com/pydio/cells/v4/common/service/context/metadata"
 	"github.com/pydio/cells/v4/common/sql/resources"
@@ -122,7 +123,7 @@ func (h *Handler) UpdateUserMeta(ctx context.Context, request *idm.UpdateUserMet
 
 	go func() {
 		bgCtx := metadata.NewBackgroundWithMetaCopy(ctx)
-		bgCtx = runtime.ForkContext(bgCtx, ctx)
+		bgCtx = runtimecontext.ForkContext(bgCtx, ctx)
 		subjects, _ := auth.SubjectsForResourcePolicyQuery(bgCtx, nil)
 
 		for nodeId, source := range sources {
@@ -224,7 +225,7 @@ func (h *Handler) ReadNodeStream(stream tree.NodeProviderStreamer_ReadNodeStream
 	bgCtx := metadata.NewBackgroundWithMetaCopy(ctx)
 	//bgCtx = clientcontext.WithClientConn(bgCtx, clientcontext.GetClientConn(ctx))
 	//bgCtx = servicecontext.WithRegistry(bgCtx, servicecontext.GetRegistry(ctx))
-	bgCtx = runtime.ForkContext(bgCtx, ctx)
+	bgCtx = runtimecontext.ForkContext(bgCtx, ctx)
 	subjects, e := auth.SubjectsForResourcePolicyQuery(bgCtx, nil)
 	if e != nil {
 		return e

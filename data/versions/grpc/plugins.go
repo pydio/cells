@@ -38,6 +38,7 @@ import (
 	"github.com/pydio/cells/v4/common/proto/jobs"
 	"github.com/pydio/cells/v4/common/proto/tree"
 	"github.com/pydio/cells/v4/common/runtime"
+	"github.com/pydio/cells/v4/common/runtime/runtimecontext"
 	"github.com/pydio/cells/v4/common/service"
 	servicecontext "github.com/pydio/cells/v4/common/service/context"
 	"github.com/pydio/cells/v4/common/utils/i18n"
@@ -76,7 +77,7 @@ func init() {
 			),
 			service.AfterServe(func(ctx context.Context) error {
 				// return std.Retry(ctx, func() error {
-				bg := runtime.ForkContext(context.Background(), ctx)
+				bg := runtimecontext.ForkContext(context.Background(), ctx)
 				go func() {
 					jobsClient := jobs.NewJobServiceClient(grpc2.GetClientConnFromCtx(bg, common.ServiceJobs))
 

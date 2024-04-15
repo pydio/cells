@@ -77,8 +77,7 @@ type ServiceOptions struct {
 	UseWebSession      bool     `json:"-"`
 	WebSessionExcludes []string `json:"-"`
 
-	DefaultStorageConn string
-	Storages           []*StorageOptions `json:"-"`
+	StorageOptions StorageOptions `json:"-"`
 
 	localLogger log.ZapLogger
 }

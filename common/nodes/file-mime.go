@@ -31,7 +31,7 @@ import (
 
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/proto/tree"
-	"github.com/pydio/cells/v4/common/runtime"
+	"github.com/pydio/cells/v4/common/runtime/runtimecontext"
 	"github.com/pydio/cells/v4/common/service/context/metadata"
 )
 
@@ -142,7 +142,7 @@ func WrapReaderForMime(ctx context.Context, clone *tree.Node, reader io.Reader) 
 		return reader
 	}
 	bgCtx := metadata.NewBackgroundWithMetaCopy(ctx)
-	bgCtx = runtime.ForkContext(bgCtx, ctx)
+	bgCtx = runtimecontext.ForkContext(bgCtx, ctx)
 	return NewTeeMimeReader(reader, func(result *MimeResult) {
 		mime := "application/octet-stream"
 		if result.GetError() == nil && result.GetMime() != "" {

@@ -23,21 +23,21 @@ package middleware
 import (
 	"context"
 	"fmt"
-	"github.com/pydio/cells/v4/common"
-	clientgrpc "github.com/pydio/cells/v4/common/client/grpc"
-	"github.com/pydio/cells/v4/common/config"
-	"github.com/pydio/cells/v4/common/runtime"
-	servercontext "github.com/pydio/cells/v4/common/server/context"
-	servicecontext "github.com/pydio/cells/v4/common/service/context"
-	"github.com/pydio/cells/v4/common/service/context/ckeys"
-	metadata2 "github.com/pydio/cells/v4/common/service/context/metadata"
+	"strings"
+
 	"go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 	"google.golang.org/grpc/metadata"
-	"strings"
 
+	"github.com/pydio/cells/v4/common"
 	clientcontext "github.com/pydio/cells/v4/common/client/context"
+	clientgrpc "github.com/pydio/cells/v4/common/client/grpc"
+	"github.com/pydio/cells/v4/common/config"
+	servercontext "github.com/pydio/cells/v4/common/server/context"
+	servicecontext "github.com/pydio/cells/v4/common/service/context"
+	"github.com/pydio/cells/v4/common/service/context/ckeys"
+	metadata2 "github.com/pydio/cells/v4/common/service/context/metadata"
 )
 
 // ClientConnIncomingContext adds the ClientConn to context
@@ -147,9 +147,9 @@ func setContextForService(ctx context.Context) context.Context {
 		}
 	}
 
-	c := servercontext.GetConfig(ctx)
+	//c := servercontext.GetConfig(ctx)
 
-	ctx = runtime.WithConfig(ctx, c.Val("services", service))
+	//ctx = context2.WithConfig(ctx, c.Val("services", service))
 	ctx = servicecontext.WithServiceName(ctx, service)
 
 	return ctx

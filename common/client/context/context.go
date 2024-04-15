@@ -24,8 +24,6 @@ import (
 	"context"
 
 	"google.golang.org/grpc"
-
-	"github.com/pydio/cells/v4/common/runtime"
 )
 
 type contextType int
@@ -35,9 +33,9 @@ const (
 )
 
 func init() {
-	runtime.RegisterContextInjector(func(ctx, parent context.Context) context.Context {
-		return WithClientConn(ctx, GetClientConn(parent))
-	})
+	//context2.RegisterContextInjector(func(ctx, parent context.Context) context.Context {
+	//	return WithClientConn(ctx, GetClientConn(parent))
+	//})
 }
 
 // WithClientConn links a client connection to the context

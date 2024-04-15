@@ -48,6 +48,7 @@ import (
 	serviceproto "github.com/pydio/cells/v4/common/proto/service"
 	"github.com/pydio/cells/v4/common/proto/tree"
 	"github.com/pydio/cells/v4/common/runtime"
+	"github.com/pydio/cells/v4/common/runtime/runtimecontext"
 	"github.com/pydio/cells/v4/common/service"
 	servicecontext "github.com/pydio/cells/v4/common/service/context"
 	"github.com/pydio/cells/v4/common/service/context/metadata"
@@ -96,7 +97,7 @@ func init() {
 
 				processOneWithTimeout := func(ct context.Context, event *tree.NodeChangeEvent) error {
 					var ca context.CancelFunc
-					ctx, ca = context.WithTimeout(runtime.ForkContext(ct, c), 10*time.Second)
+					ctx, ca = context.WithTimeout(runtimecontext.ForkContext(ct, c), 10*time.Second)
 					defer ca()
 					return subscriber.HandleNodeChange(ctx, event)
 				}

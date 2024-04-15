@@ -41,7 +41,6 @@ import (
 	"go.uber.org/zap"
 
 	"github.com/pydio/cells/v4/common"
-	"github.com/pydio/cells/v4/common/config"
 	"github.com/pydio/cells/v4/common/log"
 	"github.com/pydio/cells/v4/common/proto/rest"
 	"github.com/pydio/cells/v4/common/runtime"
@@ -49,7 +48,6 @@ import (
 	"github.com/pydio/cells/v4/common/server/middleware"
 	servicecontext "github.com/pydio/cells/v4/common/service/context"
 	"github.com/pydio/cells/v4/common/service/frontend"
-	"github.com/pydio/cells/v4/common/storage"
 )
 
 var (
@@ -211,38 +209,38 @@ func WithWeb(handler func(ctx context.Context) WebHandler) ServiceOption {
 
 			wrapped = func(h http.Handler, o *ServiceOptions) http.Handler {
 				return http.HandlerFunc(func(rw http.ResponseWriter, req *http.Request) {
-					// Inject dao in handler
-					for _, store := range o.Storages {
-						if store.Default || len(o.Storages) == 1 {
-							handlerV := reflect.ValueOf(store.Handler)
-							handlerT := reflect.TypeOf(store.Handler)
-							//if handlerV.Kind() != reflect.Func {
-							//	return nil, errors.New("storage handler is not a function")
-							//}
-
-							//if handlerT.NumIn() > 1 {
-							//	return nil, errors.New("storage handler should have max 1 argument")
-							//}
-
-							var dao []reflect.Value
-							if handlerT.NumIn() == 1 {
-								db := reflect.New(handlerT.In(0))
-								storage.Get(ctx, db.Interface())
-
-								// Checking all migrations
-								err := UpdateServiceVersion(ctx, config.Main(), o)
-								if err != nil {
-									// return nil, err
-								}
-
-								dao = handlerV.Call([]reflect.Value{db.Elem()})
-							} else {
-								dao = handlerV.Call([]reflect.Value{})
-							}
-
-							ctx = servicecontext.WithDAO(ctx, dao[0].Interface())
-						}
-					}
+					//// Inject dao in handler
+					//for _, store := range o.Storages {
+					//	if store.Default || len(o.Storages) == 1 {
+					//		handlerV := reflect.ValueOf(store.Handler)
+					//		handlerT := reflect.TypeOf(store.Handler)
+					//		//if handlerV.Kind() != reflect.Func {
+					//		//	return nil, errors.New("storage handler is not a function")
+					//		//}
+					//
+					//		//if handlerT.NumIn() > 1 {
+					//		//	return nil, errors.New("storage handler should have max 1 argument")
+					//		//}
+					//
+					//		var dao []reflect.Value
+					//		if handlerT.NumIn() == 1 {
+					//			db := reflect.New(handlerT.In(0))
+					//			storage.Get(ctx, db.Interface())
+					//
+					//			// Checking all migrations
+					//			err := UpdateServiceVersion(ctx, config.Main(), o)
+					//			if err != nil {
+					//				// return nil, err
+					//			}
+					//
+					//			dao = handlerV.Call([]reflect.Value{db.Elem()})
+					//		} else {
+					//			dao = handlerV.Call([]reflect.Value{})
+					//		}
+					//
+					//		ctx = servicecontext.WithDAO(ctx, dao[0].Interface())
+					//	}
+					//}
 
 					h.ServeHTTP(rw, req.WithContext(ctx))
 				})

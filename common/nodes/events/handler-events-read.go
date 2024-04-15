@@ -22,7 +22,6 @@ package events
 
 import (
 	"context"
-	"github.com/pydio/cells/v4/common/runtime"
 	"io"
 
 	"go.uber.org/zap"
@@ -38,6 +37,7 @@ import (
 	"github.com/pydio/cells/v4/common/proto/docstore"
 	"github.com/pydio/cells/v4/common/proto/idm"
 	"github.com/pydio/cells/v4/common/proto/tree"
+	runtimecontext "github.com/pydio/cells/v4/common/runtime/runtimecontext"
 	"github.com/pydio/cells/v4/common/service/context/metadata"
 	"github.com/pydio/cells/v4/common/service/errors"
 	json "github.com/pydio/cells/v4/common/utils/jsonx"
@@ -165,7 +165,7 @@ func (h *HandlerRead) sharedLinkWithDownloadLimit(ctx context.Context) (doc *doc
 	if claims.Profile != common.PydioProfileShared {
 		return
 	}
-	bgContext := runtime.ForkContext(context.Background(), ctx)
+	bgContext := runtimecontext.ForkContext(context.Background(), ctx)
 	user, e := permissions.SearchUniqueUser(bgContext, userLogin, "", &idm.UserSingleQuery{AttributeName: idm.UserAttrHidden, AttributeValue: "true"})
 	if e != nil || user == nil {
 		return

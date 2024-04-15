@@ -53,6 +53,7 @@ func (gs *gormStorage) OpenURL(ctx context.Context, dsn string) (storage.Storage
 	}
 
 	gs.template = t
+	gs.conns = make(map[string]*sql.DB)
 
 	return gs, nil
 }
@@ -162,6 +163,7 @@ func (gs *gormStorage) Get(ctx context.Context, out interface{}) bool {
 				return false
 			} else {
 				gs.Register(conn, servercontext.GetTenant(ctx), servicecontext.GetServiceName(ctx))
+				gs.conns[path] = conn
 			}
 		} else {
 			gs.Register(conn, servercontext.GetTenant(ctx), servicecontext.GetServiceName(ctx))

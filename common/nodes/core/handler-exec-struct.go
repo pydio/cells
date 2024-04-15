@@ -37,7 +37,7 @@ import (
 	"github.com/pydio/cells/v4/common/nodes/abstract"
 	"github.com/pydio/cells/v4/common/nodes/models"
 	"github.com/pydio/cells/v4/common/proto/tree"
-	"github.com/pydio/cells/v4/common/runtime"
+	runtimecontext "github.com/pydio/cells/v4/common/runtime/runtimecontext"
 	"github.com/pydio/cells/v4/common/service/context/metadata"
 	"github.com/pydio/cells/v4/common/service/errors"
 	"github.com/pydio/cells/v4/common/utils/uuid"
@@ -63,7 +63,7 @@ func (f *StructStorageHandler) publish(ctx context.Context, identifier string, e
 	bi, ok := nodes.GetBranchInfo(ctx, identifier)
 
 	// Fork context to de-intricate query and publication cancellation
-	ctx = runtime.ForkContext(metadata.NewBackgroundWithMetaCopy(ctx), ctx)
+	ctx = runtimecontext.ForkContext(metadata.NewBackgroundWithMetaCopy(ctx), ctx)
 
 	// Publish only for remote non-minio structured servers
 	if ok && bi.FlatStorage {
@@ -211,7 +211,7 @@ func getPostNodeChangeClient(ctx context.Context, serviceName string, refresh bo
 		return c, nil
 	}
 	cl := tree.NewNodeChangesReceiverStreamerClient(grpc2.GetClientConnFromCtx(ctx, common.ServiceGrpcNamespace_+common.ServiceDataSync_+serviceName))
-	bg := runtime.ForkContext(context.Background(), ctx)
+	bg := runtimecontext.ForkContext(context.Background(), ctx)
 	c, e := cl.PostNodeChanges(bg)
 	if e != nil {
 		return nil, e

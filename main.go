@@ -4,13 +4,14 @@ import (
 	"github.com/pydio/cells/v4/common"
 
 	_ "github.com/pydio/cells/v4/common/storage/boltdb"
+	_ "github.com/pydio/cells/v4/common/storage/sql"
 
 	// Register minio client for objects storage
 	_ "github.com/pydio/cells/v4/common/nodes/objects/mc"
 
 	// Frontend
-	_ "github.com/pydio/cells/v4/frontend/front-srv/rest"
-	_ "github.com/pydio/cells/v4/frontend/front-srv/web"
+	//_ "github.com/pydio/cells/v4/frontend/front-srv/rest"
+	//_ "github.com/pydio/cells/v4/frontend/front-srv/web"
 
 	// Discovery
 	_ "github.com/pydio/cells/v4/discovery/broker/grpc"
@@ -24,10 +25,10 @@ import (
 	//_ "github.com/pydio/cells/v4/discovery/update/rest"
 
 	// Data
-	_ "github.com/pydio/cells/v4/data/docstore/grpc"
-	_ "github.com/pydio/cells/v4/data/key/grpc"
-	_ "github.com/pydio/cells/v4/data/meta/grpc"
-	_ "github.com/pydio/cells/v4/data/meta/rest"
+	//_ "github.com/pydio/cells/v4/data/docstore/grpc"
+	//_ "github.com/pydio/cells/v4/data/key/grpc"
+	//_ "github.com/pydio/cells/v4/data/meta/grpc"
+	//_ "github.com/pydio/cells/v4/data/meta/rest"
 	//_ "github.com/pydio/cells/v4/data/search/grpc"
 	//_ "github.com/pydio/cells/v4/data/search/rest"
 
@@ -60,12 +61,12 @@ import (
 	//_ "github.com/pydio/cells/v4/broker/mailer/rest"
 
 	// Cache
+	_ "github.com/pydio/cells/v4/common/broker/debounce"
+	_ "github.com/pydio/cells/v4/common/broker/goque"
+	_ "github.com/pydio/cells/v4/common/broker/jetstream"
 	_ "github.com/pydio/cells/v4/common/utils/cache/bigcache"
 	_ "github.com/pydio/cells/v4/common/utils/cache/gocache"
 	_ "github.com/pydio/cells/v4/common/utils/cache/redis"
-	_ "github.com/pydio/cells/v4/common/utils/queue/goque"
-	_ "github.com/pydio/cells/v4/common/utils/queue/jetstream"
-	_ "github.com/pydio/cells/v4/common/utils/queue/memory"
 
 	// Gateways
 	_ "github.com/pydio/cells/v4/gateway/data"
@@ -77,24 +78,24 @@ import (
 	_ "github.com/pydio/cells/v4/gateway/wopi"
 
 	// IDM
-	_ "github.com/pydio/cells/v4/idm/acl/grpc"
-	_ "github.com/pydio/cells/v4/idm/acl/rest"
-	_ "github.com/pydio/cells/v4/idm/graph/rest"
-	_ "github.com/pydio/cells/v4/idm/key/grpc"
-	_ "github.com/pydio/cells/v4/idm/meta/grpc"
-	_ "github.com/pydio/cells/v4/idm/meta/rest"
+	//_ "github.com/pydio/cells/v4/idm/acl/grpc"
+	//_ "github.com/pydio/cells/v4/idm/acl/rest"
+	//_ "github.com/pydio/cells/v4/idm/graph/rest"
+	//_ "github.com/pydio/cells/v4/idm/key/grpc"
+	//_ "github.com/pydio/cells/v4/idm/meta/grpc"
+	//_ "github.com/pydio/cells/v4/idm/meta/rest"
 	//_ "github.com/pydio/cells/v4/idm/oauth/grpc"
 	//_ "github.com/pydio/cells/v4/idm/oauth/rest"
 	//_ "github.com/pydio/cells/v4/idm/oauth/web"
-	_ "github.com/pydio/cells/v4/idm/policy/grpc"
-	_ "github.com/pydio/cells/v4/idm/policy/rest"
+	//_ "github.com/pydio/cells/v4/idm/policy/grpc"
+	//_ "github.com/pydio/cells/v4/idm/policy/rest"
 	_ "github.com/pydio/cells/v4/idm/role/grpc"
-	_ "github.com/pydio/cells/v4/idm/role/rest"
-	_ "github.com/pydio/cells/v4/idm/share/rest"
-	_ "github.com/pydio/cells/v4/idm/user/grpc"
-	_ "github.com/pydio/cells/v4/idm/user/rest"
-	_ "github.com/pydio/cells/v4/idm/workspace/grpc"
-	_ "github.com/pydio/cells/v4/idm/workspace/rest"
+	//_ "github.com/pydio/cells/v4/idm/role/rest"
+	//_ "github.com/pydio/cells/v4/idm/share/rest"
+	//_ "github.com/pydio/cells/v4/idm/user/grpc"
+	//_ "github.com/pydio/cells/v4/idm/user/rest"
+	//_ "github.com/pydio/cells/v4/idm/workspace/grpc"
+	//_ "github.com/pydio/cells/v4/idm/workspace/rest"
 
 	// Scheduler
 	//_ "github.com/pydio/cells/v4/scheduler/jobs/grpc"

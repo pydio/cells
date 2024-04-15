@@ -22,7 +22,6 @@ package grpc
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"net"
 	"net/url"
@@ -32,24 +31,26 @@ import (
 
 	protovalidate "github.com/bufbuild/protovalidate-go"
 	grpc_middleware "github.com/grpc-ecosystem/go-grpc-middleware"
+	grpc_recovery "github.com/grpc-ecosystem/go-grpc-middleware/recovery"
 	"go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc"
 	"go.uber.org/zap"
 	"google.golang.org/grpc"
 	channelz "google.golang.org/grpc/channelz/service"
+	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/health"
 	"google.golang.org/grpc/health/grpc_health_v1"
 	"google.golang.org/grpc/reflection"
+	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/proto"
 
-	"github.com/pydio/cells/v4/common/config"
 	"github.com/pydio/cells/v4/common/log"
 	pb "github.com/pydio/cells/v4/common/proto/registry"
 	"github.com/pydio/cells/v4/common/registry"
 	"github.com/pydio/cells/v4/common/registry/util"
 	"github.com/pydio/cells/v4/common/runtime"
 	"github.com/pydio/cells/v4/common/runtime/manager"
+	"github.com/pydio/cells/v4/common/runtime/runtimecontext"
 	"github.com/pydio/cells/v4/common/server"
-	servercontext "github.com/pydio/cells/v4/common/server/context"
 	"github.com/pydio/cells/v4/common/server/middleware"
 	"github.com/pydio/cells/v4/common/service"
 	servicecontext "github.com/pydio/cells/v4/common/service/context"
@@ -143,7 +144,7 @@ func (s *Server) lazyGrpc(ctx context.Context) *grpc.Server {
 	)
 
 	var manager manager.Manager
-	runtime.Get(ctx, "manager", &manager)
+	runtimecontext.Get(ctx, "manager", &manager)
 
 	reg := servicecontext.GetRegistry(s.ctx)
 
@@ -177,34 +178,7 @@ func (s *Server) lazyGrpc(ctx context.Context) *grpc.Server {
 						continue
 					}
 
-					// Inject dao in handler
-					for _, store := range svc.Options().Storages {
-						handlerV := reflect.ValueOf(store.Handler)
-						handlerT := reflect.TypeOf(store.Handler)
-						if handlerV.Kind() != reflect.Func {
-							return nil, errors.New("storage handler is not a function")
-						}
-						if handlerT.NumIn() != 1 {
-							return nil, errors.New("storage handler should have only 1 argument")
-						}
-
-						cfg := servercontext.GetConfig(ctx)
-						cfg.Val("services", svc.Name(), "db", "driver")
-
-						db := reflect.New(handlerT.In(0))
-
-						manager.GetStorage(ctx, svc.Options().DefaultStorageConn, db.Interface())
-
-						// Checking all migrations
-						err := service.UpdateServiceVersion(ctx, config.Main(), svc.Options())
-						if err != nil {
-							return nil, err
-						}
-
-						dao := handlerV.Call([]reflect.Value{db.Elem()})
-
-						ctx = servicecontext.WithDAO(ctx, dao[0].Interface())
-					}
+					ctx = runtimecontext.With(ctx, "service", svc)
 
 					method := info.FullMethod[strings.LastIndex(info.FullMethod, "/")+1:]
 					outputs := reflect.ValueOf(ep.Handler()).MethodByName(method).Call([]reflect.Value{reflect.ValueOf(ctx), reflect.ValueOf(req)})
@@ -254,7 +228,6 @@ func (s *Server) lazyGrpc(ctx context.Context) *grpc.Server {
 		//	return handler(srv, ss)
 		//},
 		func(srv interface{}, ss grpc.ServerStream, info *grpc.StreamServerInfo, handler grpc.StreamHandler) error {
-			// tenant := servercontext.GetTenant(ss.Context())
 			serviceName := servicecontext.GetServiceName(ss.Context())
 			if serviceName != "" {
 				endpoints := reg.ListAdjacentItems(
@@ -283,48 +256,11 @@ func (s *Server) lazyGrpc(ctx context.Context) *grpc.Server {
 
 					ep := endpoint.(registry.Endpoint)
 
-					// Inject dao in handler
-					for _, store := range svc.Options().Storages {
-						handlerV := reflect.ValueOf(store.Handler)
-						handlerT := reflect.TypeOf(store.Handler)
-						if handlerV.Kind() != reflect.Func {
-							return errors.New("storage handler is not a function")
-						}
-						if handlerT.NumIn() != 1 && handlerT.NumIn() != 2 {
-							return errors.New("storage handler should have only 1 argument")
-						}
-
-						db := reflect.New(handlerT.In(handlerT.NumIn() - 1))
-
-						manager.GetStorage(ctx, svc.Options().DefaultStorageConn, db.Interface())
-
-						// Checking all migrations
-						err := service.UpdateServiceVersion(ctx, config.Main(), svc.Options())
-						if err != nil {
-							return err
-						}
-
-						args := []reflect.Value{db.Elem()}
-						if handlerT.NumIn() != 1 {
-							args = append([]reflect.Value{reflect.ValueOf(ctx)}, args...)
-						}
-
-						fmt.Println(args)
-
-						dao := handlerV.Call(args)
-
-						field := reflect.ValueOf(ep.Handler()).Elem().FieldByName(store.Key)
-						if field.CanSet() {
-							if dao[0].IsValid() {
-								field.Set(dao[0])
-							}
-						}
-
-						ctx = servicecontext.WithDAO(ss.Context(), dao[0].Interface())
-					}
+					ctx = runtimecontext.With(ctx, "service", svc)
 
 					wrapped := grpc_middleware.WrapServerStream(ss)
 					wrapped.WrappedContext = ctx
+
 					return handler(ep.Handler(), wrapped)
 				}
 			}
@@ -332,9 +268,20 @@ func (s *Server) lazyGrpc(ctx context.Context) *grpc.Server {
 			return handler(srv, ss)
 		})
 
+	// Recovery
+	// Define customfunc to handle panic
+	customFunc := func(p interface{}) (err error) {
+		return status.Errorf(codes.Unknown, "panic triggered: %v", p)
+	}
+	// Shared options for the logger, with a custom gRPC code to log level function.
+	recoveryOpts := []grpc_recovery.Option{
+		grpc_recovery.WithRecoveryHandler(customFunc),
+	}
+
 	gs := grpc.NewServer(
 		grpc.ChainUnaryInterceptor(
 			ErrorFormatUnaryInterceptor,
+			grpc_recovery.UnaryServerInterceptor(recoveryOpts...),
 			servicecontext.MetricsUnaryServerInterceptor(),
 			servicecontext.ContextUnaryServerInterceptor(servicecontext.MetaIncomingContext),
 			servicecontext.ContextUnaryServerInterceptor(servicecontext.SpanIncomingContext),
@@ -348,6 +295,7 @@ func (s *Server) lazyGrpc(ctx context.Context) *grpc.Server {
 		),
 		grpc.ChainStreamInterceptor(
 			ErrorFormatStreamInterceptor,
+			grpc_recovery.StreamServerInterceptor(recoveryOpts...),
 			servicecontext.MetricsStreamServerInterceptor(),
 			servicecontext.ContextStreamServerInterceptor(servicecontext.MetaIncomingContext),
 			servicecontext.ContextStreamServerInterceptor(servicecontext.SpanIncomingContext),

@@ -26,11 +26,13 @@ package docstore
 
 import (
 	"context"
-	"github.com/blevesearch/bleve/v2"
-	"github.com/pydio/cells/v4/common/proto/docstore"
-	"github.com/pydio/cells/v4/common/storage"
+
+	bleve "github.com/blevesearch/bleve/v2"
 	"go.etcd.io/bbolt"
 	"go.mongodb.org/mongo-driver/mongo"
+
+	"github.com/pydio/cells/v4/common/proto/docstore"
+	"github.com/pydio/cells/v4/common/storage"
 )
 
 type DAO interface {

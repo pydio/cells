@@ -23,6 +23,7 @@ package grpc
 
 import (
 	"context"
+	"github.com/pydio/cells/v4/common/dao/pgsql"
 
 	"google.golang.org/grpc"
 
@@ -60,12 +61,11 @@ func init() {
 					Up:            UpgradeTo421,
 				},
 			}),
-			service.WithDefaultStorageConn("sql"),
-			service.WithStorage("DAO",
-				role.NewDAO,
-				service.WithStoragePrefix("idm_role"),
-				service.WithStorageSupport(mysql.Driver, sqlite.Driver),
-			),
+
+			service.WithStorageDriver(mysql.Driver, role.NewDAO),
+			service.WithStorageDriver(pgsql.Driver, role.NewDAO),
+			service.WithStorageDriver(sqlite.Driver, role.NewDAO),
+
 			service.WithGRPC(func(ctx context.Context, server grpc.ServiceRegistrar) error {
 				handler := NewHandler()
 
