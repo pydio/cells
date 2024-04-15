@@ -33,6 +33,7 @@ import (
 	"github.com/pydio/cells/v4/common/runtime"
 	"github.com/pydio/cells/v4/common/service"
 	"github.com/pydio/cells/v4/common/service/errors"
+	"github.com/pydio/cells/v4/common/storage/sql"
 	"github.com/pydio/cells/v4/idm/user"
 	"github.com/pydio/cells/v4/scheduler/actions"
 )
@@ -61,11 +62,7 @@ func init() {
 			//		Up:            InitDefaults,
 			//	},
 			//}),
-			service.WithStorage(
-				"DAO",
-				user.NewDAO,
-				service.WithStoragePrefix("idm_user"),
-			),
+			service.WithStorageDriver(sql.Drivers, user.NewDAO),
 			service.WithGRPC(func(ctx context.Context, server grpc.ServiceRegistrar) error {
 
 				handler := NewHandler(ctx)

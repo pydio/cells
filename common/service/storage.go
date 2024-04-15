@@ -35,7 +35,7 @@ type StorageOptions struct {
 }
 
 type Driver struct {
-	Type    string
+	Type    []string
 	Handler any
 }
 
@@ -85,7 +85,7 @@ func WithStorageMigrator(d dao.MigratorFunc) ServiceOption {
 }
 
 // WithStorageDriver adds a storage handler to the current service
-func WithStorageDriver(typ string, fd any) ServiceOption {
+func WithStorageDriver(typ []string, fd any) ServiceOption {
 	return func(o *ServiceOptions) {
 		o.StorageOptions.SupportedDrivers = append(o.StorageOptions.SupportedDrivers, Driver{
 			Type:    typ,

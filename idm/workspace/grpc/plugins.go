@@ -23,15 +23,16 @@ package grpc
 
 import (
 	"context"
-	service2 "github.com/pydio/cells/v4/common/proto/service"
-	"github.com/pydio/cells/v4/idm/workspace"
 
 	"google.golang.org/grpc"
 
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/proto/idm"
+	service2 "github.com/pydio/cells/v4/common/proto/service"
 	"github.com/pydio/cells/v4/common/runtime"
 	"github.com/pydio/cells/v4/common/service"
+	"github.com/pydio/cells/v4/common/storage/sql"
+	"github.com/pydio/cells/v4/idm/workspace"
 )
 
 const (
@@ -45,11 +46,7 @@ func init() {
 			service.Context(ctx),
 			service.Tag(common.ServiceTagIdm),
 			service.Description("Workspaces Service"),
-			service.WithStorage(
-				"DAO",
-				workspace.NewDAO,
-				service.WithStoragePrefix("idm_workspace"),
-			),
+			service.WithStorageDriver(sql.Drivers, workspace.NewDAO),
 			service.WithGRPC(func(ctx context.Context, srv grpc.ServiceRegistrar) error {
 				h := NewHandler()
 				idm.RegisterWorkspaceServiceServer(srv, h)

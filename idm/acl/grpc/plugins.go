@@ -28,12 +28,12 @@ import (
 
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/broker"
-	"github.com/pydio/cells/v4/common/dao/mysql"
 	"github.com/pydio/cells/v4/common/nodes/meta"
 	"github.com/pydio/cells/v4/common/proto/idm"
 	"github.com/pydio/cells/v4/common/proto/tree"
 	"github.com/pydio/cells/v4/common/runtime"
 	"github.com/pydio/cells/v4/common/service"
+	"github.com/pydio/cells/v4/common/storage/sql"
 	"github.com/pydio/cells/v4/idm/acl"
 )
 
@@ -48,11 +48,7 @@ func init() {
 			service.Context(ctx),
 			service.Tag(common.ServiceTagIdm),
 			service.Description("Access Control List service"),
-			service.WithStorage("DAO",
-				acl.NewDAO,
-				service.WithStoragePrefix("idm_acl"),
-				service.WithStorageSupport(mysql.Driver),
-			),
+			service.WithStorageDriver(sql.Drivers, acl.NewDAO),
 			service.Migrations([]*service.Migration{
 				{
 					TargetVersion: service.ValidVersion("1.2.0"),

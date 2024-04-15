@@ -24,6 +24,7 @@ import (
 	routeservice "github.com/envoyproxy/go-control-plane/envoy/service/route/v3"
 	runtimeservice "github.com/envoyproxy/go-control-plane/envoy/service/runtime/v3"
 	secretservice "github.com/envoyproxy/go-control-plane/envoy/service/secret/v3"
+	matcherv3 "github.com/envoyproxy/go-control-plane/envoy/type/matcher/v3"
 	"github.com/envoyproxy/go-control-plane/pkg/cache/types"
 	cachev3 "github.com/envoyproxy/go-control-plane/pkg/cache/v3"
 	resource "github.com/envoyproxy/go-control-plane/pkg/resource/v3"
@@ -265,8 +266,10 @@ func init() {
 														Path: endpointItem.Name(),
 													},
 													Headers: []*route.HeaderMatcher{{
-														Name:                 ckeys.TargetServiceName,
-														HeaderMatchSpecifier: &route.HeaderMatcher_ExactMatch{ExactMatch: svcItem.Name()},
+														Name: ckeys.TargetServiceName,
+														HeaderMatchSpecifier: &route.HeaderMatcher_StringMatch{
+															StringMatch: &matcherv3.StringMatcher{MatchPattern: &matcherv3.StringMatcher_Exact{Exact: svcItem.Name()}},
+														},
 													}},
 												},
 												Action: &route.Route_Route{
