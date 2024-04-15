@@ -27,10 +27,13 @@ import (
 	"google.golang.org/grpc"
 
 	"github.com/pydio/cells/v4/common"
+	"github.com/pydio/cells/v4/common/broker"
 	"github.com/pydio/cells/v4/common/proto/idm"
 	service2 "github.com/pydio/cells/v4/common/proto/service"
 	"github.com/pydio/cells/v4/common/runtime"
+	"github.com/pydio/cells/v4/common/runtime/manager"
 	"github.com/pydio/cells/v4/common/service"
+	"github.com/pydio/cells/v4/common/service/resources"
 	"github.com/pydio/cells/v4/common/storage/sql"
 	"github.com/pydio/cells/v4/idm/workspace"
 )
@@ -53,25 +56,28 @@ func init() {
 				service2.RegisterLoginModifierServer(srv, h)
 
 				// Register a cleaner for removing a workspace when there are no more ACLs on it.
-				//wsCleaner := NewWsCleaner(ctx, h)
-				//cleaner := &resources.PoliciesCleaner{
-				//	Dao: servicecontext.GetDAO(ctx),
-				//	Options: resources.PoliciesCleanerOptions{
-				//		SubscribeRoles: true,
-				//		SubscribeUsers: true,
-				//	},
-				//	LogCtx: ctx,
-				//}
-				//if e := broker.SubscribeCancellable(ctx, common.TopicIdmEvent, func(message broker.Message) error {
-				//	ev := &idm.ChangeEvent{}
-				//	if ct, e := message.Unmarshal(ev); e == nil {
-				//		_ = wsCleaner.Handle(ct, ev)
-				//		return cleaner.Handle(ct, ev)
-				//	}
-				//	return nil
-				//}); e != nil {
-				//	return e
-				//}
+				wsCleaner := NewWsCleaner(ctx, h)
+				cleaner := &resources.PoliciesCleaner{
+					Options: resources.PoliciesCleanerOptions{
+						SubscribeRoles: true,
+						SubscribeUsers: true,
+					},
+					LogCtx: ctx,
+				}
+				if e := broker.SubscribeCancellable(ctx, common.TopicIdmEvent, func(ctx context.Context, message broker.Message) error {
+					ev := &idm.ChangeEvent{}
+					if ct, e := message.Unmarshal(ctx, ev); e == nil {
+						dao, err := manager.Resolve[workspace.DAO](ct)
+						if err != nil {
+							return err
+						}
+						_ = wsCleaner.Handle(ct, ev)
+						return cleaner.Handle(ct, dao, ev)
+					}
+					return nil
+				}); e != nil {
+					return e
+				}
 				return nil
 			}),
 		)

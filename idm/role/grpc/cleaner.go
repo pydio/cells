@@ -29,7 +29,9 @@ import (
 	"github.com/pydio/cells/v4/common/log"
 	"github.com/pydio/cells/v4/common/proto/idm"
 	"github.com/pydio/cells/v4/common/proto/service"
+	"github.com/pydio/cells/v4/common/runtime/manager"
 	"github.com/pydio/cells/v4/common/service/resources"
+	"github.com/pydio/cells/v4/idm/role"
 )
 
 func NewCleaner(ctx context.Context, handler idm.RoleServiceServer) *Cleaner {
@@ -50,6 +52,11 @@ func (c *Cleaner) Handle(ctx context.Context, msg *idm.ChangeEvent) error {
 	if msg.Type != idm.ChangeEventType_DELETE || msg.User == nil {
 		return nil
 	}
+	dao, err := manager.Resolve[role.DAO](ctx)
+	if err != nil {
+		return err
+	}
+
 	q, _ := anypb.New(&idm.RoleSingleQuery{
 		Uuid: []string{msg.User.Uuid},
 	})
@@ -61,6 +68,6 @@ func (c *Cleaner) Handle(ctx context.Context, msg *idm.ChangeEvent) error {
 	}
 
 	// Call parent to clean policies as well
-	return c.PoliciesCleaner.Handle(ctx, msg)
+	return c.PoliciesCleaner.Handle(ctx, dao, msg)
 
 }

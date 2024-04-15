@@ -43,6 +43,7 @@ import (
 	service "github.com/pydio/cells/v4/common/proto/service"
 	"github.com/pydio/cells/v4/common/proto/tree"
 	"github.com/pydio/cells/v4/common/runtime"
+	"github.com/pydio/cells/v4/common/runtime/manager"
 	servicecontext "github.com/pydio/cells/v4/common/service/context"
 	"github.com/pydio/cells/v4/common/service/context/metadata"
 	"github.com/pydio/cells/v4/common/service/errors"
@@ -88,9 +89,9 @@ func NewHandler(ctx context.Context) *Handler {
 // BindUser binds a user with login/password
 func (h *Handler) BindUser(ctx context.Context, req *idm.BindUserRequest) (*idm.BindUserResponse, error) {
 
-	dao := servicecontext.GetDAO[user.DAO](ctx)
-	if dao == nil {
-		return nil, common.ErrMissingDAO
+	dao, err := manager.Resolve[user.DAO](ctx)
+	if err != nil {
+		return nil, err
 	}
 
 	u, err := dao.Bind(ctx, req.UserName, req.Password)
@@ -107,9 +108,9 @@ func (h *Handler) BindUser(ctx context.Context, req *idm.BindUserRequest) (*idm.
 
 // CreateUser adds or creates a user or a group in the underlying database.
 func (h *Handler) CreateUser(ctx context.Context, req *idm.CreateUserRequest) (*idm.CreateUserResponse, error) {
-	dao := servicecontext.GetDAO[user.DAO](ctx)
-	if dao == nil {
-		return nil, common.ErrMissingDAO
+	dao, err := manager.Resolve[user.DAO](ctx)
+	if err != nil {
+		return nil, err
 	}
 
 	passChange := req.User.Password
@@ -258,9 +259,9 @@ func (h *Handler) DeleteUser(ctx context.Context, req *idm.DeleteUserRequest) (*
 		defer autoClient.Stop()
 	}
 
-	dao := servicecontext.GetDAO[user.DAO](ctx)
-	if dao == nil {
-		return nil, common.ErrMissingDAO
+	dao, err := manager.Resolve[user.DAO](ctx)
+	if err != nil {
+		return nil, err
 	}
 
 	i, err := dao.Count(ctx, req.Query, true)
@@ -355,9 +356,9 @@ func (h *Handler) SearchUser(request *idm.SearchUserRequest, response idm.UserSe
 
 	ctx := response.Context()
 
-	dao := servicecontext.GetDAO[user.DAO](ctx)
-	if dao == nil {
-		return common.ErrMissingDAO
+	dao, err := manager.Resolve[user.DAO](ctx)
+	if err != nil {
+		return err
 	}
 
 	autoApplies, er := h.loadAutoAppliesRoles(ctx)
@@ -390,9 +391,9 @@ func (h *Handler) SearchUser(request *idm.SearchUserRequest, response idm.UserSe
 
 // CountUser in database
 func (h *Handler) CountUser(ctx context.Context, request *idm.SearchUserRequest) (*idm.CountUserResponse, error) {
-	dao := servicecontext.GetDAO[user.DAO](ctx)
-	if dao == nil {
-		return nil, common.ErrMissingDAO
+	dao, err := manager.Resolve[user.DAO](ctx)
+	if err != nil {
+		return nil, err
 	}
 
 	total, err := dao.Count(ctx, request.Query)
@@ -408,9 +409,9 @@ func (h *Handler) StreamUser(streamer idm.UserService_StreamUserServer) error {
 
 	ctx := streamer.Context()
 
-	dao := servicecontext.GetDAO[user.DAO](ctx)
-	if dao == nil {
-		return common.ErrMissingDAO
+	dao, err := manager.Resolve[user.DAO](ctx)
+	if err != nil {
+		return err
 	}
 
 	autoApplies, e := h.loadAutoAppliesRoles(ctx)
@@ -546,9 +547,9 @@ func (h *Handler) loadAutoAppliesRoles(ctx context.Context) (autoApplies map[str
 }
 
 func (h *Handler) ModifyLogin(ctx context.Context, req *service.ModifyLoginRequest) (resp *service.ModifyLoginResponse, err error) {
-	dao := servicecontext.GetDAO[user.DAO](ctx)
-	if dao == nil {
-		return nil, common.ErrMissingDAO
+	dao, err := manager.Resolve[user.DAO](ctx)
+	if err != nil {
+		return nil, err
 	}
 
 	var mm []string

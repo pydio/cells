@@ -35,36 +35,25 @@ import (
 	"github.com/pydio/cells/v4/common/crypto"
 	"github.com/pydio/cells/v4/common/log"
 	enc "github.com/pydio/cells/v4/common/proto/encryption"
+	"github.com/pydio/cells/v4/common/runtime"
 	"github.com/pydio/cells/v4/common/runtime/manager"
 	"github.com/pydio/cells/v4/common/service"
 	"github.com/pydio/cells/v4/common/service/errors"
+	"github.com/pydio/cells/v4/common/utils/cache"
+	"github.com/pydio/cells/v4/common/utils/openurl"
 	"github.com/pydio/cells/v4/idm/key"
 )
 
 type userKeyStore struct {
 	enc.UnimplementedUserKeyStoreServer
 
-	master []byte
-	legacy []byte
+	ctxCachePool *openurl.Pool[cache.Cache]
 }
 
 // NewUserKeyStore creates a master password based
 func NewUserKeyStore(ctx context.Context) (enc.UserKeyStoreServer, error) {
-
-	// TODO, retrieve keyring from context
-	masterPasswordStr, err := service.KeyringFromContext(ctx).Get(common.ServiceGrpcNamespace_+common.ServiceUserKey, common.KeyringMasterKey)
-	if err != nil {
-		return nil, errors2.Wrap(err, "could not get master password from keyring")
-	}
-
-	masterPassword, err := base64.StdEncoding.DecodeString(masterPasswordStr)
-	if err != nil {
-		return nil, errors2.Wrap(err, "could not decode master password")
-	}
-
 	return &userKeyStore{
-		// Service: svc,
-		master: masterPassword,
+		ctxCachePool: cache.MustOpenPool(runtime.ShortCacheURL("evictionTime", "24h", "cleanWindow", "24h")),
 	}, nil
 }
 
@@ -101,9 +90,12 @@ func (ukm *userKeyStore) GetKey(ctx context.Context, req *enc.GetKeyRequest) (*e
 		return nil, nil
 	}
 
-	pwd := ukm.master
+	pwd, err := ukm.masterFromCache(ctx)
+	if err != nil {
+		return nil, err
+	}
 	if version < 4 {
-		if p, e := ukm.getLegacyFormat(); e == nil {
+		if p, e := ukm.legacyFromCache(ctx, pwd); e == nil {
 			pwd = p
 		} else {
 			return nil, e
@@ -179,8 +171,12 @@ func (ukm *userKeyStore) AdminImportKey(ctx context.Context, req *enc.AdminImpor
 		return rsp, errors.InternalServerError(common.ServiceEncKey, "unable to decrypt %s for import, cause: %s", req.Key.ID, err.Error())
 	}
 
+	master, err := ukm.masterFromCache(ctx)
+	if err != nil {
+		return nil, err
+	}
 	log.Logger(ctx).Debug("Sealing with master key")
-	err = seal(req.Key, ukm.master)
+	err = seal(req.Key, master)
 	if err != nil {
 		rsp.Success = false
 		return rsp, errors.InternalServerError(common.ServiceEncKey, "unable to encrypt %s.%s for export, cause: %s", common.PydioSystemUsername, req.Key.ID, err.Error())
@@ -257,9 +253,13 @@ func (ukm *userKeyStore) AdminExportKey(ctx context.Context, req *enc.AdminExpor
 		return rsp, errors.InternalServerError(common.ServiceEncKey, "failed to update key info, cause: %s", err.Error())
 	}
 
-	pwd := ukm.master
+	pwd, err := ukm.masterFromCache(ctx)
+	if err != nil {
+		return nil, err
+	}
+
 	if version < 4 {
-		if p, e := ukm.getLegacyFormat(); e == nil {
+		if p, e := ukm.legacyFromCache(ctx, pwd); e == nil {
 			pwd = p
 		} else {
 			return nil, e
@@ -296,7 +296,12 @@ func (ukm *userKeyStore) createSystemKey(ctx context.Context, keyID string, keyL
 		return err
 	}
 
-	masterKey := crypto.KeyFromPassword(ukm.master, 32)
+	master, err := ukm.masterFromCache(ctx)
+	if err != nil {
+		return err
+	}
+
+	masterKey := crypto.KeyFromPassword(master, 32)
 	encryptedKeyContentBytes, err := crypto.Seal(masterKey, keyContentBytes)
 	if err != nil {
 		return errors.InternalServerError(common.ServiceEncKey, "failed to encrypt the default key. Cause: %s", err.Error())
@@ -306,22 +311,58 @@ func (ukm *userKeyStore) createSystemKey(ctx context.Context, keyID string, keyL
 	return dao.SaveKey(ctx, systemKey)
 }
 
-func (ukm *userKeyStore) getLegacyFormat() ([]byte, error) {
-	if len(ukm.legacy) == 0 {
-		// Ensure that the master password is correctly encoded
-		s, err := json.Marshal(map[string]string{
-			"master": string(ukm.master),
-		})
-		if err != nil {
-			return nil, fmt.Errorf("error marshalling key %v", err)
-		}
-		var mm map[string]string
-		if err := json.Unmarshal(s, &mm); err != nil {
-			return nil, fmt.Errorf("error unmarshalling key %v", err)
-		}
-		ukm.legacy = []byte(mm["master"])
+func (ukm *userKeyStore) masterFromCache(ctx context.Context) (master []byte, err error) {
+	ka, er := ukm.ctxCachePool.Get(ctx)
+	if er != nil {
+		return nil, er
 	}
-	return ukm.legacy, nil
+	// Already in cache
+	if ka.Get("master", &master) {
+		return master, nil
+	}
+
+	// Compute an cache
+	// TODO, retrieve keyring from context
+	masterPasswordStr, err := service.KeyringFromContext(ctx).Get(common.ServiceGrpcNamespace_+common.ServiceUserKey, common.KeyringMasterKey)
+	if err != nil {
+		return nil, errors2.Wrap(err, "could not get master password from keyring")
+	}
+
+	masterPassword, err := base64.StdEncoding.DecodeString(masterPasswordStr)
+	if err != nil {
+		return nil, errors2.Wrap(err, "could not decode master password")
+	}
+	_ = ka.Set("master", masterPassword)
+	return masterPassword, nil
+
+}
+
+func (ukm *userKeyStore) legacyFromCache(ctx context.Context, master []byte) (legacy []byte, err error) {
+	ka, er := ukm.ctxCachePool.Get(ctx)
+	if er != nil {
+		return nil, er
+	}
+	// Already in cache
+	if ka.Get("legacy", &legacy) {
+		return legacy, nil
+	}
+
+	// Ensure that the master password is correctly encoded
+	s, err := json.Marshal(map[string]string{
+		"master": string(master),
+	})
+	if err != nil {
+		return nil, fmt.Errorf("error marshalling key %v", err)
+	}
+	var mm map[string]string
+	if err := json.Unmarshal(s, &mm); err != nil {
+		return nil, fmt.Errorf("error unmarshalling key %v", err)
+	}
+	legacy = []byte(mm["master"])
+
+	_ = ka.Set("legacy", legacy)
+
+	return legacy, nil
 }
 
 func seal(k *enc.Key, passwordBytes []byte) error {

@@ -30,7 +30,7 @@ import (
 	"github.com/pydio/cells/v4/common/proto/rest"
 	service "github.com/pydio/cells/v4/common/proto/service"
 	"github.com/pydio/cells/v4/common/proto/tree"
-	servicecontext "github.com/pydio/cells/v4/common/service/context"
+	"github.com/pydio/cells/v4/common/runtime/manager"
 	"github.com/pydio/cells/v4/common/utils/permissions"
 	"github.com/pydio/cells/v4/idm/acl"
 )
@@ -41,10 +41,9 @@ func (h *Handler) ReadNodeStream(stream tree.NodeProviderStreamer_ReadNodeStream
 	ctx := stream.Context()
 	workspaceClient := idm.NewWorkspaceServiceClient(grpc.GetClientConnFromCtx(ctx, common.ServiceWorkspace))
 
-	dao := servicecontext.GetDAO[acl.DAO](ctx)
-
-	if dao == nil {
-		return errMissingDAO
+	dao, err := manager.Resolve[acl.DAO](ctx)
+	if err != nil {
+		return err
 	}
 
 	for {

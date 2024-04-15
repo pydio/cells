@@ -23,12 +23,12 @@ package resources
 import (
 	"context"
 	"fmt"
-	"github.com/pydio/cells/v4/idm/workspace"
 
 	"go.uber.org/zap"
 
 	"github.com/pydio/cells/v4/common/log"
 	"github.com/pydio/cells/v4/common/proto/idm"
+	"github.com/pydio/cells/v4/common/sql/resources"
 )
 
 type PoliciesCleanerOptions struct {
@@ -37,13 +37,12 @@ type PoliciesCleanerOptions struct {
 }
 
 type PoliciesCleaner struct {
-	DAO     workspace.DAO
 	Options PoliciesCleanerOptions
 	LogCtx  context.Context
 }
 
 // Handle cleans resources in the current DAO based on the delete events
-func (c *PoliciesCleaner) Handle(ctx context.Context, msg *idm.ChangeEvent) error {
+func (c *PoliciesCleaner) Handle(ctx context.Context, dao resources.DAO, msg *idm.ChangeEvent) error {
 
 	if msg.Type != idm.ChangeEventType_DELETE {
 		return nil
@@ -63,7 +62,7 @@ func (c *PoliciesCleaner) Handle(ctx context.Context, msg *idm.ChangeEvent) erro
 
 	if len(subject) > 0 {
 		log.Logger(c.LogCtx).Debug("DELETING POLICIES ON EVENT", zap.Any("event", msg), zap.String("subject", subject))
-		return c.DAO.DeletePoliciesBySubject(ctx, subject)
+		return dao.DeletePoliciesBySubject(ctx, subject)
 	}
 	return nil
 

@@ -32,21 +32,22 @@ import (
 	"github.com/pydio/cells/v4/common/broker"
 	"github.com/pydio/cells/v4/common/log"
 	"github.com/pydio/cells/v4/common/proto/idm"
+	"github.com/pydio/cells/v4/common/runtime"
 	servicecontext "github.com/pydio/cells/v4/common/service/context"
+	"github.com/pydio/cells/v4/common/utils/cache"
+	"github.com/pydio/cells/v4/common/utils/openurl"
 	"github.com/pydio/cells/v4/idm/policy"
-)
-
-var (
-	groupsCache      []*idm.PolicyGroup
-	groupsCacheValid bool
 )
 
 type Handler struct {
 	idm.UnimplementedPolicyEngineServiceServer
+	groupsCachePool *openurl.Pool[cache.Cache]
 }
 
 func NewHandler() idm.PolicyEngineServiceServer {
-	return &Handler{}
+	return &Handler{
+		groupsCachePool: cache.MustOpenPool(runtime.ShortCacheURL("evictionTime", "72h", "cleanWindow", "72h")),
+	}
 }
 
 func (h *Handler) IsAllowed(ctx context.Context, request *idm.PolicyEngineRequest) (*idm.PolicyEngineResponse, error) {
@@ -104,26 +105,12 @@ func (h *Handler) StreamPolicyGroups(request *idm.ListPolicyGroupsRequest, strea
 
 	ctx := stream.Context()
 
-	dao := servicecontext.GetDAO[policy.DAO](ctx)
-
-	var gg []*idm.PolicyGroup
-	if groupsCacheValid && request.Filter == "" {
-		gg = groupsCache
-	}
-
-	if groups, err := dao.ListPolicyGroups(ctx, request.Filter); err != nil {
+	resp, err := h.ListPolicyGroups(ctx, request)
+	if err != nil {
 		return err
-	} else {
-		gg = groups
 	}
-
-	for _, group := range gg {
+	for _, group := range resp.GetPolicyGroups() {
 		_ = stream.Send(group)
-	}
-
-	if request.Filter == "" {
-		groupsCache = gg
-		groupsCacheValid = true
 	}
 
 	return nil
@@ -135,9 +122,10 @@ func (h *Handler) ListPolicyGroups(ctx context.Context, request *idm.ListPolicyG
 
 	response := &idm.ListPolicyGroupsResponse{}
 
-	if groupsCacheValid && request.Filter == "" {
-		response.PolicyGroups = groupsCache
-		response.Total = int32(len(groupsCache))
+	ka, er := h.groupsCachePool.Get(ctx)
+
+	if er == nil && request.Filter == "" && ka.Get("policyGroup", &response.PolicyGroups) {
+		response.Total = int32(len(response.PolicyGroups))
 		return response, nil
 	}
 
@@ -148,9 +136,8 @@ func (h *Handler) ListPolicyGroups(ctx context.Context, request *idm.ListPolicyG
 	response.PolicyGroups = groups
 	response.Total = int32(len(groups))
 
-	if request.Filter == "" {
-		groupsCache = groups
-		groupsCacheValid = true
+	if request.Filter == "" && ka != nil {
+		_ = ka.Set("policyGroup", groups)
 	}
 
 	return response, nil
@@ -160,7 +147,10 @@ func (h *Handler) StorePolicyGroup(ctx context.Context, request *idm.StorePolicy
 
 	dao := servicecontext.GetDAO[policy.DAO](ctx)
 
-	groupsCacheValid = false
+	if ka, er := h.groupsCachePool.Get(ctx); er == nil {
+		_ = ka.Delete("policyGroup")
+	}
+
 	response := &idm.StorePolicyGroupResponse{}
 
 	stored, err := dao.StorePolicyGroup(ctx, request.PolicyGroup)
@@ -183,7 +173,10 @@ func (h *Handler) DeletePolicyGroup(ctx context.Context, request *idm.DeletePoli
 
 	dao := servicecontext.GetDAO[policy.DAO](ctx)
 
-	groupsCacheValid = false
+	if ka, er := h.groupsCachePool.Get(ctx); er == nil {
+		_ = ka.Delete("policyGroup")
+	}
+
 	response := &idm.DeletePolicyGroupResponse{}
 
 	err := dao.DeletePolicyGroup(ctx, request.PolicyGroup)

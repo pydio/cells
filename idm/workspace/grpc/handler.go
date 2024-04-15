@@ -31,7 +31,7 @@ import (
 	"github.com/pydio/cells/v4/common/log"
 	"github.com/pydio/cells/v4/common/proto/idm"
 	"github.com/pydio/cells/v4/common/proto/service"
-	servicecontext "github.com/pydio/cells/v4/common/service/context"
+	"github.com/pydio/cells/v4/common/runtime/manager"
 	"github.com/pydio/cells/v4/common/service/errors"
 	"github.com/pydio/cells/v4/common/sql/resources"
 	"github.com/pydio/cells/v4/common/utils/slug"
@@ -50,9 +50,9 @@ func NewHandler() *Handler {
 
 // CreateWorkspace in database
 func (h *Handler) CreateWorkspace(ctx context.Context, req *idm.CreateWorkspaceRequest) (*idm.CreateWorkspaceResponse, error) {
-	dao := servicecontext.GetDAO[workspace.DAO](ctx)
-	if dao == nil {
-		return nil, common.ErrMissingDAO
+	dao, err := manager.Resolve[workspace.DAO](ctx)
+	if err != nil {
+		return nil, err
 	}
 
 	if req.Workspace.Slug == "" {
@@ -101,9 +101,9 @@ func (h *Handler) CreateWorkspace(ctx context.Context, req *idm.CreateWorkspaceR
 
 // DeleteWorkspace from database
 func (h *Handler) DeleteWorkspace(ctx context.Context, req *idm.DeleteWorkspaceRequest) (*idm.DeleteWorkspaceResponse, error) {
-	dao := servicecontext.GetDAO[workspace.DAO](ctx)
-	if dao == nil {
-		return nil, common.ErrMissingDAO
+	dao, err := manager.Resolve[workspace.DAO](ctx)
+	if err != nil {
+		return nil, err
 	}
 
 	workspaces := new([]interface{})
@@ -147,9 +147,9 @@ func (h *Handler) SearchWorkspace(request *idm.SearchWorkspaceRequest, response 
 
 	ctx := response.Context()
 
-	dao := servicecontext.GetDAO[workspace.DAO](ctx)
-	if dao == nil {
-		return common.ErrMissingDAO
+	dao, err := manager.Resolve[workspace.DAO](ctx)
+	if err != nil {
+		return err
 	}
 
 	workspaces := new([]interface{})
@@ -182,9 +182,9 @@ func (h *Handler) StreamWorkspace(streamer idm.WorkspaceService_StreamWorkspaceS
 
 	ctx := streamer.Context()
 
-	dao := servicecontext.GetDAO[workspace.DAO](ctx)
-	if dao == nil {
-		return common.ErrMissingDAO
+	dao, err := manager.Resolve[workspace.DAO](ctx)
+	if err != nil {
+		return err
 	}
 
 	for {
@@ -221,10 +221,9 @@ func (h *Handler) StreamWorkspace(streamer idm.WorkspaceService_StreamWorkspaceS
 }
 
 func (h *Handler) ModifyLogin(ctx context.Context, req *service.ModifyLoginRequest) (*service.ModifyLoginResponse, error) {
-	dao := servicecontext.GetDAO[workspace.DAO](ctx)
-	if dao == nil {
-		return nil, common.ErrMissingDAO
+	dao, err := manager.Resolve[workspace.DAO](ctx)
+	if err != nil {
+		return nil, err
 	}
-
 	return resources.ModifyLogin(ctx, dao, req)
 }
