@@ -23,18 +23,17 @@ package grpc
 
 import (
 	"context"
-	"github.com/pydio/cells/v4/common/broker"
 
 	"google.golang.org/grpc"
 
 	"github.com/pydio/cells/v4/common"
-	"github.com/pydio/cells/v4/common/dao/mysql"
-	"github.com/pydio/cells/v4/common/dao/sqlite"
+	"github.com/pydio/cells/v4/common/broker"
 	meta2 "github.com/pydio/cells/v4/common/nodes/meta"
 	"github.com/pydio/cells/v4/common/proto/idm"
 	"github.com/pydio/cells/v4/common/proto/tree"
 	"github.com/pydio/cells/v4/common/runtime"
 	"github.com/pydio/cells/v4/common/service"
+	"github.com/pydio/cells/v4/common/storage/sql"
 	"github.com/pydio/cells/v4/idm/meta"
 )
 
@@ -52,13 +51,8 @@ func init() {
 			service.Metadata(meta2.ServiceMetaNsProvider, "list"),
 			service.Metadata(meta2.ServiceMetaProviderRequired, "true"),
 			service.Description("User-defined Metadata"),
-			service.WithStorage("DAO",
-				meta.NewDAO,
-				service.WithStoragePrefix("idm_usr_meta"),
-				service.WithStorageSupport(mysql.Driver, sqlite.Driver),
-			),
+			service.WithStorageDriver(sql.Drivers, meta.NewDAO),
 			service.Unique(true),
-
 			service.WithGRPC(func(ctx context.Context, server grpc.ServiceRegistrar) error {
 
 				handler := NewHandler(ctx)

@@ -30,6 +30,7 @@ import (
 	"github.com/pydio/cells/v4/common/proto/encryption"
 	"github.com/pydio/cells/v4/common/runtime"
 	"github.com/pydio/cells/v4/common/service"
+	"github.com/pydio/cells/v4/common/storage/sql"
 	"github.com/pydio/cells/v4/idm/key"
 )
 
@@ -42,11 +43,7 @@ func init() {
 			service.Context(ctx),
 			service.Tag(common.ServiceTagIdm),
 			service.Description("Encryption Keys server"),
-			service.WithStorage(
-				"DAO",
-				key.NewDAO,
-				service.WithStoragePrefix("idm_key"),
-			),
+			service.WithStorageDriver(sql.Drivers, key.NewDAO),
 			service.WithGRPC(func(ctx context.Context, server grpc.ServiceRegistrar) error {
 				h, e := NewUserKeyStore(ctx)
 				if e != nil {

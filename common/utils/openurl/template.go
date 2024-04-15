@@ -51,7 +51,7 @@ func URLTemplate(rawURL string) (Template, error) {
 
 	tplRegLock.RLock()
 	defer tplRegLock.RUnlock()
-	if o, ok := tplRegister[scheme]; !ok {
+	if o, ok := tplRegister[scheme]; ok {
 		return o(rawURL)
 	} else {
 		return nil, fmt.Errorf("cannot find corresponding URL Template")

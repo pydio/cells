@@ -263,6 +263,8 @@ func (s *Server) lazyGrpc(ctx context.Context) *grpc.Server {
 
 					return handler(ep.Handler(), wrapped)
 				}
+
+				//return grpc.ErrServerStopped
 			}
 
 			return handler(srv, ss)

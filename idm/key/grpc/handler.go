@@ -35,8 +35,8 @@ import (
 	"github.com/pydio/cells/v4/common/crypto"
 	"github.com/pydio/cells/v4/common/log"
 	enc "github.com/pydio/cells/v4/common/proto/encryption"
+	"github.com/pydio/cells/v4/common/runtime/manager"
 	"github.com/pydio/cells/v4/common/service"
-	servicecontext "github.com/pydio/cells/v4/common/service/context"
 	"github.com/pydio/cells/v4/common/service/errors"
 	"github.com/pydio/cells/v4/idm/key"
 )
@@ -69,12 +69,10 @@ func NewUserKeyStore(ctx context.Context) (enc.UserKeyStoreServer, error) {
 }
 
 func (ukm *userKeyStore) AddKey(ctx context.Context, req *enc.AddKeyRequest) (*enc.AddKeyResponse, error) {
-	dao := servicecontext.GetDAO[key.DAO](ctx)
-
-	if dao == nil {
-		return nil, common.ErrMissingDAO
+	dao, err := manager.Resolve[key.DAO](ctx)
+	if err != nil {
+		return nil, err
 	}
-
 	if err := seal(req.Key, []byte(req.StrPassword)); err != nil {
 		return nil, err
 	}
@@ -84,19 +82,16 @@ func (ukm *userKeyStore) AddKey(ctx context.Context, req *enc.AddKeyRequest) (*e
 
 func (ukm *userKeyStore) GetKey(ctx context.Context, req *enc.GetKeyRequest) (*enc.GetKeyResponse, error) {
 
-	dao := servicecontext.GetDAO[key.DAO](ctx)
-
-	if dao == nil {
-		return nil, common.ErrMissingDAO
+	dao, err := manager.Resolve[key.DAO](ctx)
+	if err != nil {
+		return nil, err
 	}
-
 	rsp := &enc.GetKeyResponse{}
 
 	// TODO: Extract user / password info from Context
 	user := common.PydioSystemUsername
 
 	var version int
-	var err error
 	rsp.Key, version, err = dao.GetKey(ctx, user, req.KeyID)
 	if err != nil {
 		return nil, err
@@ -119,13 +114,10 @@ func (ukm *userKeyStore) GetKey(ctx context.Context, req *enc.GetKeyRequest) (*e
 }
 
 func (ukm *userKeyStore) AdminListKeys(ctx context.Context, req *enc.AdminListKeysRequest) (*enc.AdminListKeysResponse, error) {
-	dao := servicecontext.GetDAO[key.DAO](ctx)
-
-	if dao == nil {
-		return nil, common.ErrMissingDAO
+	dao, err := manager.Resolve[key.DAO](ctx)
+	if err != nil {
+		return nil, err
 	}
-
-	var err error
 
 	rsp := &enc.AdminListKeysResponse{}
 
@@ -134,10 +126,9 @@ func (ukm *userKeyStore) AdminListKeys(ctx context.Context, req *enc.AdminListKe
 }
 
 func (ukm *userKeyStore) AdminCreateKey(ctx context.Context, req *enc.AdminCreateKeyRequest) (*enc.AdminCreateKeyResponse, error) {
-	dao := servicecontext.GetDAO[key.DAO](ctx)
-
-	if dao == nil {
-		return nil, common.ErrMissingDAO
+	dao, err := manager.Resolve[key.DAO](ctx)
+	if err != nil {
+		return nil, err
 	}
 
 	rsp := &enc.AdminCreateKeyResponse{Success: true}
@@ -156,24 +147,21 @@ func (ukm *userKeyStore) AdminCreateKey(ctx context.Context, req *enc.AdminCreat
 }
 
 func (ukm *userKeyStore) AdminDeleteKey(ctx context.Context, req *enc.AdminDeleteKeyRequest) (*enc.AdminDeleteKeyResponse, error) {
-	dao := servicecontext.GetDAO[key.DAO](ctx)
-
-	if dao == nil {
-		return nil, common.ErrMissingDAO
+	dao, err := manager.Resolve[key.DAO](ctx)
+	if err != nil {
+		return nil, err
 	}
 
 	return &enc.AdminDeleteKeyResponse{}, dao.DeleteKey(ctx, common.PydioSystemUsername, req.KeyID)
 }
 
 func (ukm *userKeyStore) AdminImportKey(ctx context.Context, req *enc.AdminImportKeyRequest) (*enc.AdminImportKeyResponse, error) {
-	dao := servicecontext.GetDAO[key.DAO](ctx)
-
-	if dao == nil {
-		return nil, common.ErrMissingDAO
+	dao, err := manager.Resolve[key.DAO](ctx)
+	if err != nil {
+		return nil, err
 	}
 
 	var k *enc.Key
-	var err error
 	k, _, err = dao.GetKey(ctx, common.PydioSystemUsername, req.Key.ID)
 	if err != nil {
 		if errors.FromError(err).Code != 404 {
@@ -241,13 +229,10 @@ func (ukm *userKeyStore) AdminImportKey(ctx context.Context, req *enc.AdminImpor
 }
 
 func (ukm *userKeyStore) AdminExportKey(ctx context.Context, req *enc.AdminExportKeyRequest) (*enc.AdminExportKeyResponse, error) {
-	dao := servicecontext.GetDAO[key.DAO](ctx)
-
-	if dao == nil {
-		return nil, common.ErrMissingDAO
+	dao, err := manager.Resolve[key.DAO](ctx)
+	if err != nil {
+		return nil, err
 	}
-
-	var err error
 
 	rsp := &enc.AdminExportKeyResponse{}
 	var version int
@@ -294,10 +279,9 @@ func (ukm *userKeyStore) AdminExportKey(ctx context.Context, req *enc.AdminExpor
 
 // Create a default key or create a system key with a given ID
 func (ukm *userKeyStore) createSystemKey(ctx context.Context, keyID string, keyLabel string) error {
-	dao := servicecontext.GetDAO[key.DAO](ctx)
-
-	if dao == nil {
-		return common.ErrMissingDAO
+	dao, err := manager.Resolve[key.DAO](ctx)
+	if err != nil {
+		return err
 	}
 
 	systemKey := &enc.Key{
@@ -308,8 +292,7 @@ func (ukm *userKeyStore) createSystemKey(ctx context.Context, keyID string, keyL
 	}
 
 	keyContentBytes := make([]byte, 32)
-	_, err := rand.Read(keyContentBytes)
-	if err != nil {
+	if _, err := rand.Read(keyContentBytes); err != nil {
 		return err
 	}
 

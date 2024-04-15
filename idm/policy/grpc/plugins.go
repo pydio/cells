@@ -27,11 +27,10 @@ import (
 	"google.golang.org/grpc"
 
 	"github.com/pydio/cells/v4/common"
-	"github.com/pydio/cells/v4/common/dao/mysql"
-	"github.com/pydio/cells/v4/common/dao/sqlite"
 	"github.com/pydio/cells/v4/common/proto/idm"
 	"github.com/pydio/cells/v4/common/runtime"
 	"github.com/pydio/cells/v4/common/service"
+	"github.com/pydio/cells/v4/common/storage/sql"
 	"github.com/pydio/cells/v4/idm/policy"
 )
 
@@ -44,12 +43,7 @@ func init() {
 			service.Context(ctx),
 			service.Tag(common.ServiceTagIdm),
 			service.Description("Policy Engine Service"),
-			service.WithStorage(
-				"DAO",
-				policy.NewDAO,
-				service.WithStoragePrefix("idm_policy"),
-				service.WithStorageSupport(mysql.Driver, sqlite.Driver),
-			),
+			service.WithStorageDriver(sql.Drivers, policy.NewDAO),
 			service.Migrations([]*service.Migration{
 				{
 					TargetVersion: service.FirstRun(),

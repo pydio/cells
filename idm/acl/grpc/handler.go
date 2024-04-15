@@ -30,6 +30,7 @@ import (
 	"github.com/pydio/cells/v4/common/proto/idm"
 	pbservice "github.com/pydio/cells/v4/common/proto/service"
 	"github.com/pydio/cells/v4/common/proto/tree"
+	"github.com/pydio/cells/v4/common/runtime/manager"
 	servicecontext "github.com/pydio/cells/v4/common/service/context"
 	"github.com/pydio/cells/v4/common/service/errors"
 	"github.com/pydio/cells/v4/idm/acl"
@@ -52,10 +53,9 @@ func (h *Handler) CreateACL(ctx context.Context, req *idm.CreateACLRequest) (*id
 
 	resp := &idm.CreateACLResponse{}
 
-	dao := servicecontext.GetDAO[acl.DAO](ctx)
-
-	if dao == nil {
-		return nil, errMissingDAO
+	dao, err := manager.Resolve[acl.DAO](ctx)
+	if err != nil {
+		return nil, err
 	}
 
 	if err := dao.Add(ctx, req.ACL); err != nil {
@@ -157,10 +157,9 @@ func (h *Handler) SearchACL(request *idm.SearchACLRequest, response idm.ACLServi
 
 	ctx := response.Context()
 
-	dao := servicecontext.GetDAO[acl.DAO](ctx)
-
-	if dao == nil {
-		return errMissingDAO
+	dao, err := manager.Resolve[acl.DAO](ctx)
+	if err != nil {
+		return err
 	}
 
 	acls := new([]interface{})
@@ -186,10 +185,9 @@ func (h *Handler) StreamACL(streamer idm.ACLService_StreamACLServer) error {
 
 	ctx := streamer.Context()
 
-	dao := servicecontext.GetDAO[acl.DAO](ctx)
-
-	if dao == nil {
-		return errMissingDAO
+	dao, err := manager.Resolve[acl.DAO](ctx)
+	if err != nil {
+		return err
 	}
 
 	for {

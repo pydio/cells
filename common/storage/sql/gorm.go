@@ -24,14 +24,14 @@ import (
 )
 
 var (
-	gormTypes = []string{cellsmysql.Driver, cellspostgres.Driver, cellssqlite.Driver}
+	Drivers = []string{cellsmysql.Driver, cellspostgres.Driver, cellssqlite.Driver}
 
 	_ storage.Storage = (*gormStorage)(nil)
 )
 
 func init() {
 	gs := &gormStorage{}
-	for _, gormType := range gormTypes {
+	for _, gormType := range Drivers {
 		storage.DefaultURLMux().Register(gormType, gs)
 	}
 }
@@ -69,7 +69,7 @@ func (gs *gormStorage) Provides(conn any) bool {
 }
 
 func (gs *gormStorage) GetConn(str string) (storage.Conn, error) {
-	for _, gormType := range gormTypes {
+	for _, gormType := range Drivers {
 		if strings.HasPrefix(str, gormType+"://") {
 			db, err := sql.Open(gormType, strings.TrimPrefix(str, gormType+"://"))
 			if err != nil {
