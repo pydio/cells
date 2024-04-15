@@ -26,6 +26,7 @@ import (
 
 	"github.com/pydio/cells/v4/common/proto/activity"
 	"github.com/pydio/cells/v4/common/runtime"
+	runtimecontext "github.com/pydio/cells/v4/common/runtime/runtimecontext"
 	"github.com/pydio/cells/v4/common/utils/cache"
 	"github.com/pydio/cells/v4/common/utils/configx"
 	"github.com/pydio/cells/v4/common/utils/jsonx"
@@ -114,7 +115,7 @@ func (c *Cache) PostActivity(ctx context.Context, ownerType activity.OwnerType, 
 	} else {
 		var publishCtx context.Context
 		if publish {
-			publishCtx = runtime.ForkContext(context.Background(), ctx)
+			publishCtx = runtimecontext.ForkContext(context.Background(), ctx)
 		}
 		c.input <- &batchActivity{
 			Object:     object,

@@ -9,21 +9,6 @@ advertise: &advertise 0.0.0.0
 #--------------------------------------------
 # Default connection to runtime functions
 #--------------------------------------------
-tenants:
-  default:
-    connections:
-      config:
-        uri: file:///Users/charles/Library/Application Support/Pydio/cells5/pydio.json
-      registry:
-        uri: mem://?cache=shared
-      broker:
-        uri: mem://
-      logs:
-        uri: file://stdout
-      sql:
-        uri: sqlite3_extended://:memory
-      nosql:
-
 connections: &connections
   config:
     uri: xds://default.cells.com/cells
@@ -32,13 +17,7 @@ connections: &connections
   broker:
     uri: xds://default.cells.com/cells
 
-storages: &storages
-  sql:
-    uri: "sqlite3-extended://:memory:"
-  nosql:
-    uri: bleve://tmp/{{ .Value service }}
-  bolt:
-    uri: boltdb:///tmp/chat.db
+
 
 #--------------------------------------------
 # Default servers configuration
@@ -119,9 +98,9 @@ processes:
     connections:
       <<: *connections
       search:
-        uri: bleve:///Users/charles/Library/Application Support/Pydio/cells5/search
+        uri: bleve:///Users/ghecquet/Library/Application Support/Pydio/cells/search
       config:
-        uri: file:///Users/charles/Library/Application Support/Pydio/cells5/pydio.json
+        uri: file:///Users/ghecquet/Library/Application Support/Pydio/cells/pydio.json
       registry:
         uri: mem://?cache=shared
       broker:
@@ -147,82 +126,134 @@ processes:
       broker:
       idm:
 
-#  data:
-#    connections: *connections
-#    servers: *servers
-#    env: *env
-#
-#    services:
-#      data:
 
-#  idm:
-#    connections: *connections
-#    servers: *servers
-#    env: *env
-#
-#    services:
+      #  data:
+      #    connections: *connections
+      #    servers: *servers
+      #    env: *env
+      #
+      #    services:
+      #      data:
+
+      #  idm:
+      #    connections: *connections
+      #    servers: *servers
+      #    env: *env
+      #
+      #    services:
 
 
-#  datasource-peer:
-#    connections: *connections
-#    servers: *servers
-#    env: *env
-#
-#    services:
-#      datasource:
-#        - pydio.grpc.data.objects.peer
-#
-#  {{ if .Config }}
-#  {{ $objectsVal := .Config.Val "services/pydio.grpc.data.objects/sources" }}
-#  {{ $ := .Config }}
-#  {{ range $objectsVal.StringArray }}
-#  {{ if or (lt (len .) 8) (ne (slice . 0 8) ("updated:")) }}
-#  {{ if not ($.Val "services" (print "pydio.grpc.data.objects." .) "Disabled").Bool }}
-#  objects-{{ . }}:
-#    connections: *connections
-#    servers: *servers
-#    env: *env
-#
-#    services:
-#      datasource:
-#        - pydio.grpc.data.objects.{{ . }}
-#  {{ end }}
-#  {{ end }}
-#  {{ end }}
-#
-#  {{ $indexesVal := .Config.Val "services/pydio.grpc.data.index/sources" }}
-#  {{ $ := .Config }}
-#  {{ range $indexesVal.StringArray }}
-#  {{ if or (lt (len .) 8) (ne (slice . 0 8) ("updated:")) }}
-#  {{ if not ($.Val "services" (print "pydio.grpc.data.index." .) "Disabled").Bool }}
-#  index-{{ . }}:
-#    #{{ if eq . "pydiods1" }}debug: true{{ end }}
-#    connections: *connections
-#    servers: *servers
-#    env: *env
-#
-#    services:
-#      datasource:
-#        - pydio.grpc.data.index.{{ . }}
-#  {{ end }}
-#  {{ end }}
-#  {{ end }}
-#
-#  {{ $syncVal := .Config.Val "services/pydio.grpc.data.sync/sources" }}
-#  {{ $ := .Config }}
-#  {{ range $syncVal.StringArray }}
-#  {{ if or (lt (len .) 8) (ne (slice . 0 8) ("updated:")) }}
-#  {{ if not ($.Val "services" (print "pydio.grpc.data.sync." .) "Disabled").Bool }}
-#  sync-{{ . }}:
-#    #{{ if eq . "pydiods1" }}debug: true{{ end }}
-#    connections: *connections
-#    servers: *servers
-#    env: *env
-#
-#    services:
-#      datasource:
-#        - pydio.grpc.data.sync.{{ . }}
-#  {{ end }}
-#  {{ end }}
-#  {{ end }}
-#  {{ end }}
+      #  datasource-peer:
+      #    connections: *connections
+      #    servers: *servers
+      #    env: *env
+      #
+      #    services:
+      #      datasource:
+      #        - pydio.grpc.data.objects.peer
+      #
+      #  {{ if .Config }}
+      #  {{ $objectsVal := .Config.Val "services/pydio.grpc.data.objects/sources" }}
+      #  {{ $ := .Config }}
+      #  {{ range $objectsVal.StringArray }}
+      #  {{ if or (lt (len .) 8) (ne (slice . 0 8) ("updated:")) }}
+      #  {{ if not ($.Val "services" (print "pydio.grpc.data.objects." .) "Disabled").Bool }}
+      #  objects-{{ . }}:
+      #    connections: *connections
+      #    servers: *servers
+      #    env: *env
+      #
+      #    services:
+      #      datasource:
+      #        - pydio.grpc.data.objects.{{ . }}
+      #  {{ end }}
+      #  {{ end }}
+      #  {{ end }}
+      #
+      #  {{ $indexesVal := .Config.Val "services/pydio.grpc.data.index/sources" }}
+      #  {{ $ := .Config }}
+      #  {{ range $indexesVal.StringArray }}
+      #  {{ if or (lt (len .) 8) (ne (slice . 0 8) ("updated:")) }}
+      #  {{ if not ($.Val "services" (print "pydio.grpc.data.index." .) "Disabled").Bool }}
+      #  index-{{ . }}:
+      #    #{{ if eq . "pydiods1" }}debug: true{{ end }}
+      #    connections: *connections
+      #    servers: *servers
+      #    env: *env
+      #
+      #    services:
+      #      datasource:
+      #        - pydio.grpc.data.index.{{ . }}
+      #  {{ end }}
+      #  {{ end }}
+      #  {{ end }}
+      #
+      #  {{ $syncVal := .Config.Val "services/pydio.grpc.data.sync/sources" }}
+      #  {{ $ := .Config }}
+      #  {{ range $syncVal.StringArray }}
+      #  {{ if or (lt (len .) 8) (ne (slice . 0 8) ("updated:")) }}
+      #  {{ if not ($.Val "services" (print "pydio.grpc.data.sync." .) "Disabled").Bool }}
+      #  sync-{{ . }}:
+      #    #{{ if eq . "pydiods1" }}debug: true{{ end }}
+      #    connections: *connections
+      #    servers: *servers
+      #    env: *env
+      #
+      #    services:
+      #      datasource:
+      #        - pydio.grpc.data.sync.{{ . }}
+      #  {{ end }}
+      #  {{ end }}
+      #  {{ end }}
+      #  {{ end }}
+
+# Storages
+storages: &storages
+  sql:
+    uri: "sqlite3-extended://:memory:"
+  nosql:
+    uri: bleve://tmp/{{ .Value service }}
+  bolt:
+    uri: boltdb:///tmp/{{ .Value tenant }}/{{ .Value prefix }}.db
+  fifo:
+    uri: goq:///tmp/{{ .Value tenant }}/fifo/{{ .Value prefix }}?evictionTime={{ .evictionTime }}
+  user:
+    uri: mysql://tcp(localhost:3306)/cells-{{ .Value tenant }}?prefix={{ .Value prefix }}&shardedBy=name
+  redis-cache:
+    uri: redis://:53535/{{tenant}}
+
+
+
+#------------------------------------
+# All services
+#------------------------------------
+services:
+  pydio.grpc.meta:
+    caches:
+      - type: fifo
+        prefix: meta
+    storages:
+      - type: sql1
+        prefix: idm_meta_
+      - type: sql2
+        name: readonly
+        prefix: idm_meta_
+  pydio.grpc.search:
+    storages:
+      - type: bolt
+        path: chat
+  pydio.grpc.docstore:
+    storages:
+      - type: redis-cache
+        target: core
+      - type: bolt
+        name: core
+
+  pydio.grpc.role:
+    caches:
+      - type: fifo
+        prefix: role
+        evictionTime: 30s
+    storages:
+      - type: sql
+        prefix: idm_role_

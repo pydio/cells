@@ -32,8 +32,8 @@ import (
 	"github.com/pydio/cells/v4/common/log"
 	"github.com/pydio/cells/v4/common/proto/idm"
 	pbservice "github.com/pydio/cells/v4/common/proto/service"
+	"github.com/pydio/cells/v4/common/runtime/manager"
 	"github.com/pydio/cells/v4/common/service"
-	servicecontext "github.com/pydio/cells/v4/common/service/context"
 	"github.com/pydio/cells/v4/common/service/errors"
 	"github.com/pydio/cells/v4/idm/role"
 )
@@ -58,10 +58,9 @@ func NewHandler() idm.RoleServiceServer {
 
 // CreateRole adds a role and its policies in database
 func (h *Handler) CreateRole(ctx context.Context, req *idm.CreateRoleRequest) (*idm.CreateRoleResponse, error) {
-
-	dao := servicecontext.GetDAO[role.DAO](ctx)
-	if dao == nil {
-		return nil, common.ErrMissingDAO
+	dao, err := manager.Resolve[role.DAO](ctx)
+	if err != nil {
+		return nil, err
 	}
 
 	resp := &idm.CreateRoleResponse{}
@@ -127,9 +126,9 @@ func (h *Handler) CreateRole(ctx context.Context, req *idm.CreateRoleRequest) (*
 // DeleteRole from database
 func (h *Handler) DeleteRole(ctx context.Context, req *idm.DeleteRoleRequest) (*idm.DeleteRoleResponse, error) {
 
-	dao := servicecontext.GetDAO[role.DAO](ctx)
-	if dao == nil {
-		return nil, common.ErrMissingDAO
+	dao, err := manager.Resolve[role.DAO](ctx)
+	if err != nil {
+		return nil, err
 	}
 
 	if req.Query == nil {
@@ -182,9 +181,10 @@ func (h *Handler) SearchRole(request *idm.SearchRoleRequest, response idm.RoleSe
 	var roles []*idm.Role
 
 	ctx := response.Context()
-	dao := servicecontext.GetDAO[role.DAO](ctx)
-	if dao == nil {
-		return common.ErrMissingDAO
+
+	dao, err := manager.Resolve[role.DAO](ctx)
+	if err != nil {
+		return err
 	}
 
 	if err := dao.Search(ctx, request.Query, &roles); err != nil {
@@ -202,9 +202,9 @@ func (h *Handler) SearchRole(request *idm.SearchRoleRequest, response idm.RoleSe
 
 // CountRole in database
 func (h *Handler) CountRole(ctx context.Context, request *idm.SearchRoleRequest) (*idm.CountRoleResponse, error) {
-	dao := servicecontext.GetDAO[role.DAO](ctx)
-	if dao == nil {
-		return nil, common.ErrMissingDAO
+	dao, err := manager.Resolve[role.DAO](ctx)
+	if err != nil {
+		return nil, err
 	}
 
 	count, err := dao.Count(ctx, request.Query)
@@ -219,9 +219,9 @@ func (h *Handler) CountRole(ctx context.Context, request *idm.SearchRoleRequest)
 func (h *Handler) StreamRole(streamer idm.RoleService_StreamRoleServer) error {
 	ctx := streamer.Context()
 
-	dao := servicecontext.GetDAO[role.DAO](ctx)
-	if dao == nil {
-		return common.ErrMissingDAO
+	dao, err := manager.Resolve[role.DAO](ctx)
+	if err != nil {
+		return err
 	}
 
 	for {

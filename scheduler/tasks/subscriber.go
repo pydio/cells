@@ -43,6 +43,7 @@ import (
 	rpb "github.com/pydio/cells/v4/common/proto/registry"
 	"github.com/pydio/cells/v4/common/proto/tree"
 	"github.com/pydio/cells/v4/common/runtime"
+	runtimecontext "github.com/pydio/cells/v4/common/runtime/runtimecontext"
 	servicecontext "github.com/pydio/cells/v4/common/service/context"
 	"github.com/pydio/cells/v4/common/service/context/metadata"
 	"github.com/pydio/cells/v4/common/utils/permissions"
@@ -303,7 +304,7 @@ func (s *Subscriber) prepareTaskContext(ctx context.Context, job *jobs.Job, addS
 	}
 
 	md, ok := metadata.FromContextCopy(ctx)
-	ctx = runtime.ForkContext(ctx, s.rootCtx)
+	ctx = runtimecontext.ForkContext(ctx, s.rootCtx)
 	if ok {
 		ctx = metadata.NewContext(ctx, md)
 	}

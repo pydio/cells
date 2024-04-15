@@ -2,8 +2,9 @@ package nodescontext
 
 import (
 	"context"
+
 	"github.com/pydio/cells/v4/common/nodes"
-	"github.com/pydio/cells/v4/common/runtime"
+	runtimecontext "github.com/pydio/cells/v4/common/runtime/runtimecontext"
 )
 
 type contextType int
@@ -13,7 +14,7 @@ const (
 )
 
 func init() {
-	runtime.RegisterContextInjector(func(ctx, parent context.Context) context.Context {
+	runtimecontext.RegisterContextInjector(func(ctx, parent context.Context) context.Context {
 		if p := GetSourcesPool(parent); p != nil {
 			return WithSourcesPool(ctx, p)
 		}

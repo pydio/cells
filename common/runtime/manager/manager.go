@@ -25,6 +25,7 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"reflect"
 	"strconv"
 	"strings"
 	"text/template"
@@ -43,6 +44,7 @@ import (
 	"github.com/pydio/cells/v4/common/registry"
 	"github.com/pydio/cells/v4/common/registry/util"
 	"github.com/pydio/cells/v4/common/runtime"
+	"github.com/pydio/cells/v4/common/runtime/runtimecontext"
 	"github.com/pydio/cells/v4/common/server"
 	servercontext "github.com/pydio/cells/v4/common/server/context"
 	"github.com/pydio/cells/v4/common/service"
@@ -170,7 +172,7 @@ func NewManager(ctx context.Context, namespace string, logger log.ZapLogger) (Ma
 
 	ctx = servercontext.WithRegistry(ctx, reg)
 	ctx = servicecontext.WithRegistry(ctx, reg)
-	ctx = runtime.With(ctx, "manager", m)
+	ctx = runtimecontext.With(ctx, "manager", m)
 
 	runtime.Init(ctx, "discovery")
 	runtime.Init(ctx, m.ns)
@@ -553,6 +555,11 @@ func (m *manager) ServeAll(oo ...server.ServeOption) error {
 			return err
 		}
 
+		storages, err := m.localRegistry.List(registry.WithType(pb.ItemType_STORAGE))
+		if err != nil {
+			return err
+		}
+
 		for _, ss := range services {
 			var s service.Service
 			if !ss.As(&s) {
@@ -572,6 +579,7 @@ func (m *manager) ServeAll(oo ...server.ServeOption) error {
 				continue
 			}
 
+			// Find server and start it
 			scheme := s.ServerScheme()
 			if sr, o := byScheme[scheme]; o {
 				opts.Server = sr
@@ -584,6 +592,22 @@ func (m *manager) ServeAll(oo ...server.ServeOption) error {
 
 			if mustFork {
 				continue // Do not register here
+			}
+
+			// Find storage and link it
+			var stores []map[string]string
+			if err := store.Val("services", ss.Name(), "storages").Scan(&stores); err != nil {
+				fmt.Println(err)
+				return err
+			}
+
+			for _, store := range stores {
+				for _, storage := range storages {
+					if store["type"] == storage.Name() {
+						edge, err := m.localRegistry.RegisterEdge(s.ID(), storage.ID(), "storage", nil)
+						fmt.Println(edge, err)
+					}
+				}
 			}
 
 			m.services[s.ID()] = s
@@ -1058,4 +1082,58 @@ func (m *manager) WatchServerUniques(srv server.Server, ss []service.Service, co
 			}
 		})
 	}
+}
+
+func Resolve[T any](ctx context.Context) (T, error) {
+
+	var t T
+
+	// First we get the contextualized manager
+	reg := servercontext.GetRegistry(ctx)
+
+	// First we get the service from the context
+	var svc service.Service
+	runtimecontext.Get(ctx, "service", &svc)
+
+	storages := reg.ListAdjacentItems(
+		registry.WithAdjacentSourceItems([]registry.Item{svc}),
+		registry.WithAdjacentTargetOptions(registry.WithType(pb.ItemType_STORAGE)),
+	)
+
+	// Inject dao in handler
+	for _, store := range svc.Options().StorageOptions.SupportedDrivers {
+		handlerV := reflect.ValueOf(store.Handler)
+		handlerT := reflect.TypeOf(store.Handler)
+		if handlerV.Kind() != reflect.Func {
+			return t, errors.New("storage handler is not a function")
+		}
+
+		if handlerT.NumIn() != 1 {
+			return t, errors.New("storage handler should have only 1 argument")
+		}
+
+		db := reflect.New(handlerT.In(0))
+
+		for _, st := range storages {
+			var st1 storage.Storage
+
+			st.As(&st1)
+			if st1.Get(ctx, db.Interface()) {
+				break
+			}
+		}
+
+		// Checking all migrations
+		err := service.UpdateServiceVersion(ctx, config.Main(), svc.Options())
+		if err != nil {
+			return t, err
+		}
+
+		dao := handlerV.Call([]reflect.Value{db.Elem()})
+		t = dao[0].Interface().(T)
+
+		return t, nil
+	}
+
+	return t, nil
 }

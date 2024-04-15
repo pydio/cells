@@ -40,7 +40,7 @@ import (
 	"github.com/pydio/cells/v4/common/proto/object"
 	protosync "github.com/pydio/cells/v4/common/proto/sync"
 	"github.com/pydio/cells/v4/common/proto/tree"
-	"github.com/pydio/cells/v4/common/runtime"
+	runtimecontext "github.com/pydio/cells/v4/common/runtime/runtimecontext"
 	servicecontext "github.com/pydio/cells/v4/common/service/context"
 	"github.com/pydio/cells/v4/common/service/context/metadata"
 	"github.com/pydio/cells/v4/common/sync/endpoints/chanwatcher"
@@ -515,7 +515,7 @@ func (s *Handler) TriggerResync(c context.Context, req *protosync.ResyncRequest)
 		doneChan = make(chan interface{})
 
 		subCtx := metadata.WithUserNameMetadata(context.Background(), common.PydioSystemUsername)
-		subCtx = runtime.ForkContext(subCtx, c)
+		subCtx = runtimecontext.ForkContext(subCtx, c)
 
 		theTask := req.Task
 		autoClient := tasks.NewTaskReconnectingClient(subCtx)

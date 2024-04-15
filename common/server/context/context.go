@@ -23,10 +23,9 @@ package servercontext
 
 import (
 	"context"
-	"github.com/pydio/cells/v4/common/config"
 
+	"github.com/pydio/cells/v4/common/config"
 	"github.com/pydio/cells/v4/common/registry"
-	"github.com/pydio/cells/v4/common/runtime"
 )
 
 type contextType int
@@ -38,13 +37,13 @@ const (
 )
 
 func init() {
-	runtime.RegisterContextInjector(func(ctx, parent context.Context) context.Context {
-		return WithRegistry(ctx, GetRegistry(parent))
-	})
-
-	runtime.RegisterContextInjector(func(ctx, parent context.Context) context.Context {
-		return WithConfig(ctx, config.Main())
-	})
+	//context2.RegisterContextInjector(func(ctx, parent context.Context) context.Context {
+	//	return WithRegistry(ctx, GetRegistry(parent))
+	//})
+	//
+	//context2.RegisterContextInjector(func(ctx, parent context.Context) context.Context {
+	//	return WithConfig(ctx, config.Main())
+	//})
 }
 
 // WithRegistry links a registry to the context

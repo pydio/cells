@@ -18,6 +18,7 @@ import (
 	"github.com/pydio/cells/v4/common/proto/install"
 	"github.com/pydio/cells/v4/common/proto/tree"
 	"github.com/pydio/cells/v4/common/runtime"
+	"github.com/pydio/cells/v4/common/runtime/runtimecontext"
 	"github.com/pydio/cells/v4/common/server"
 	grpc2 "github.com/pydio/cells/v4/common/server/grpc"
 	"github.com/pydio/cells/v4/common/service"
@@ -156,7 +157,7 @@ func createJwtCtxModifier(runtimeCtx context.Context) servicecontext.IncomingCon
 
 	return func(ctx context.Context) (context.Context, bool, error) {
 
-		ctx = runtime.ForkContext(ctx, runtimeCtx)
+		ctx = runtimecontext.ForkContext(ctx, runtimeCtx)
 
 		jwtVerifier := auth.DefaultJWTVerifier()
 		meta, ok := metadata2.FromIncomingContext(ctx)
