@@ -52,12 +52,12 @@ type Handler struct {
 	tree.UnimplementedNodeProviderStreamerServer
 	pbservice.UnimplementedLoginModifierServer
 
-	searchCachePool *openurl.MuxPool[cache.Cache]
+	searchCachePool *openurl.Pool[cache.Cache]
 }
 
 func NewHandler(ctx context.Context) *Handler {
 	h := &Handler{
-		searchCachePool: cache.OpenPool(runtime.CacheURL(common.ServiceGrpcNamespace_ + common.ServiceUserMeta)),
+		searchCachePool: cache.MustOpenPool(runtime.CacheURL(common.ServiceGrpcNamespace_ + common.ServiceUserMeta)),
 	}
 	go func() {
 		<-ctx.Done()
@@ -67,7 +67,7 @@ func NewHandler(ctx context.Context) *Handler {
 }
 
 func (h *Handler) Stop() {
-	h.searchCachePool.Close(context.Background())
+	_ = h.searchCachePool.Close(context.Background())
 }
 
 // UpdateUserMeta adds, updates or deletes user meta.
