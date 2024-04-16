@@ -34,11 +34,12 @@ import (
 
 func NewTreeService(dss []string, nodes ...*tree.Node) (grpc.ClientConnInterface, error) {
 
-	server := srv.NewTreeServer(context.Background(), "")
+	ct := context.Background()
+	server := srv.NewTreeServer(ct, "")
 
 	for _, ds := range dss {
-		conn := grpc2.ResolveConn(context.Background(), common.ServiceDataIndex_+ds)
-		server.AppendDatasource(ds, srv.NewDataSource(ds, tree.NewNodeProviderClient(conn), tree.NewNodeReceiverClient(conn)))
+		conn := grpc2.ResolveConn(ct, common.ServiceDataIndex_+ds)
+		server.AppendDatasource(ct, ds, srv.NewDataSource(ds, tree.NewNodeProviderClient(conn), tree.NewNodeReceiverClient(conn)))
 	}
 
 	serv1 := &tree.NodeProviderStub{}

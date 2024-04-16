@@ -34,6 +34,7 @@ import (
 	"go.uber.org/zap"
 
 	"github.com/pydio/cells/v4/common"
+	"github.com/pydio/cells/v4/common/client/commons/idmc"
 	"github.com/pydio/cells/v4/common/client/grpc"
 	"github.com/pydio/cells/v4/common/etl"
 	"github.com/pydio/cells/v4/common/etl/stores/pydio8"
@@ -150,7 +151,7 @@ func (c *MigrateGlobalMetaAction) loadMeta(ctx context.Context, conf *config.Sdk
 		return e
 	}
 	subClient := activity.NewActivityServiceClient(grpc.ResolveConn(ctx, common.ServiceActivity))
-	metaClient := idm.NewUserMetaServiceClient(grpc.ResolveConn(ctx, common.ServiceUserMeta))
+	metaClient := idmc.UserMetaServiceClient(ctx)
 	log.TasksLogger(ctx).Info("Global Meta", zap.Int("data length", len(data)))
 	for wsId, users := range data {
 		slug := c.FindSlug(ctx, wsId)

@@ -31,6 +31,7 @@ import (
 	"github.com/pydio/cells/v4/common/proto/tree"
 	"github.com/pydio/cells/v4/common/runtime"
 	"github.com/pydio/cells/v4/common/service"
+	servicecontext "github.com/pydio/cells/v4/common/service/context"
 	"github.com/pydio/cells/v4/data/meta"
 )
 
@@ -55,12 +56,15 @@ func init() {
 				tree.RegisterNodeReceiverServer(srv, engine)
 				tree.RegisterSearcherServer(srv, engine)
 
-				// Register Subscribers
-				sub := engine.Subscriber(ctx)
+				// Register Subscriber
 				if e := broker.SubscribeCancellable(ctx, common.TopicTreeChanges, func(ctx context.Context, message broker.Message) error {
 					msg := &tree.NodeChangeEvent{}
-					if ctx, e := message.Unmarshal(ctx, msg); e == nil {
-						return sub.Handle(ctx, msg)
+					if ct, e := message.Unmarshal(ctx, msg); e == nil {
+						if msg.Optimistic {
+							return nil
+						}
+						ct = servicecontext.WithServiceName(ct, common.ServiceGrpcNamespace_+common.ServiceMeta)
+						return engine.processEvent(ct, msg)
 					}
 					return nil
 				}, broker.WithCounterName("data_meta")); e != nil {

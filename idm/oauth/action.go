@@ -26,6 +26,7 @@ import (
 	"time"
 
 	"github.com/pydio/cells/v4/common"
+	"github.com/pydio/cells/v4/common/client/commons/docstorec"
 	"github.com/pydio/cells/v4/common/client/grpc"
 	"github.com/pydio/cells/v4/common/config"
 	"github.com/pydio/cells/v4/common/forms"
@@ -105,7 +106,7 @@ func (c *PruneTokensAction) Run(ctx context.Context, channels *actions.RunnableC
 	}
 
 	// Prune reset password tokens
-	docCli := docstore.NewDocStoreClient(grpc.ResolveConn(ctx, common.ServiceDocStore))
+	docCli := docstorec.DocStoreClient(ctx)
 	deleteResponse, er := docCli.DeleteDocuments(ctx, &docstore.DeleteDocumentsRequest{
 		StoreID: "resetPasswordKeys",
 		Query: &docstore.DocumentQuery{

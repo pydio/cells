@@ -29,6 +29,7 @@ import (
 	"github.com/pydio/cells/v4/common/log"
 	proto "github.com/pydio/cells/v4/common/proto/docstore"
 	"github.com/pydio/cells/v4/common/proto/sync"
+	"github.com/pydio/cells/v4/common/runtime/manager"
 	"github.com/pydio/cells/v4/data/docstore"
 )
 
@@ -42,7 +43,7 @@ func (h *Handler) Name() string {
 }
 
 func (h *Handler) PutDocument(ctx context.Context, request *proto.PutDocumentRequest) (*proto.PutDocumentResponse, error) {
-	dao, err := docstore.NewDAO(ctx)
+	dao, err := manager.Resolve[docstore.DAO](ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -57,7 +58,7 @@ func (h *Handler) PutDocument(ctx context.Context, request *proto.PutDocumentReq
 }
 
 func (h *Handler) GetDocument(ctx context.Context, request *proto.GetDocumentRequest) (*proto.GetDocumentResponse, error) {
-	dao, err := docstore.NewDAO(ctx)
+	dao, err := manager.Resolve[docstore.DAO](ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -72,7 +73,7 @@ func (h *Handler) GetDocument(ctx context.Context, request *proto.GetDocumentReq
 
 func (h *Handler) DeleteDocuments(ctx context.Context, request *proto.DeleteDocumentsRequest) (*proto.DeleteDocumentsResponse, error) {
 
-	dao, err := docstore.NewDAO(ctx)
+	dao, err := manager.Resolve[docstore.DAO](ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -104,7 +105,7 @@ func (h *Handler) CountDocuments(ctx context.Context, request *proto.ListDocumen
 
 	log.Logger(ctx).Debug("CountDocuments", zap.Any("req", request))
 
-	dao, err := docstore.NewDAO(ctx)
+	dao, err := manager.Resolve[docstore.DAO](ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -126,7 +127,7 @@ func (h *Handler) ListDocuments(request *proto.ListDocumentsRequest, stream prot
 	ctx := stream.Context()
 	log.Logger(ctx).Debug("ListDocuments", zap.Any("req", request))
 
-	dao, err := docstore.NewDAO(ctx)
+	dao, err := manager.Resolve[docstore.DAO](ctx)
 	if err != nil {
 		return err
 	}

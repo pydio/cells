@@ -31,8 +31,7 @@ import (
 	"go.uber.org/zap"
 
 	"github.com/pydio/cells/v4/broker/log"
-	"github.com/pydio/cells/v4/common"
-	"github.com/pydio/cells/v4/common/client/grpc"
+	"github.com/pydio/cells/v4/common/client/commons/jobsc"
 	log2 "github.com/pydio/cells/v4/common/log"
 	"github.com/pydio/cells/v4/common/proto/jobs"
 	proto "github.com/pydio/cells/v4/common/proto/log"
@@ -123,7 +122,6 @@ func (h *Handler) TriggerResync(ctx context.Context, request *sync.ResyncRequest
 		theTask := request.Task
 		theTask.StartTime = int32(time.Now().Unix())
 		closeTask = func(e error) {
-			taskClient := jobs.NewJobServiceClient(grpc.ResolveConn(h.RuntimeCtx, common.ServiceJobs))
 			theTask.EndTime = int32(time.Now().Unix())
 			if e != nil {
 				theTask.StatusMessage = "Error " + e.Error()
@@ -132,7 +130,7 @@ func (h *Handler) TriggerResync(ctx context.Context, request *sync.ResyncRequest
 				theTask.StatusMessage = "Done"
 				theTask.Status = jobs.TaskStatus_Finished
 			}
-			_, err := taskClient.PutTask(context.Background(), &jobs.PutTaskRequest{Task: theTask})
+			_, err := jobsc.JobServiceClient(ctx).PutTask(context.Background(), &jobs.PutTaskRequest{Task: theTask})
 			if err != nil {
 				fmt.Println("Cannot post task!", err)
 			}

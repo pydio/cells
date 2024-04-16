@@ -46,7 +46,7 @@ type DAO interface {
 var _ DAO = (*BleveServer)(nil)
 
 func NewBleveDAO(db bleve.Index) DAO {
-	// return NewBleveEngine(boltdb, bleveIndex)
+	//return NewBleveEngine(boltdb, bleveIndex)
 }
 
 func NewMongoDAO(db *mongo.Database) DAO {

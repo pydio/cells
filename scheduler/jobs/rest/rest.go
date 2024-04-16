@@ -31,6 +31,7 @@ import (
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/auth/claim"
 	"github.com/pydio/cells/v4/common/broker"
+	"github.com/pydio/cells/v4/common/client/commons/jobsc"
 	"github.com/pydio/cells/v4/common/client/grpc"
 	"github.com/pydio/cells/v4/common/config"
 	"github.com/pydio/cells/v4/common/log"
@@ -77,7 +78,7 @@ func (s *JobsHandler) UserListJobs(req *restful.Request, rsp *restful.Response) 
 		return
 	}
 	ctx := req.Request.Context()
-	cli := jobs.NewJobServiceClient(grpc.ResolveConn(ctx, common.ServiceJobs))
+	cli := jobsc.JobServiceClient(ctx)
 	output := &rest.UserJobsCollection{}
 	var uName, profile string
 	if ctx.Value(claim.ContextKey) != nil {
@@ -152,7 +153,7 @@ func (s *JobsHandler) UserControlJob(req *restful.Request, rsp *restful.Response
 	}
 	ctx := req.Request.Context()
 	if cmd.Cmd == jobs.Command_Delete {
-		cli := jobs.NewJobServiceClient(grpc.ResolveConn(ctx, common.ServiceJobs))
+		cli := jobsc.JobServiceClient(ctx)
 		delRequest := &jobs.DeleteTasksRequest{
 			JobId:  cmd.JobId,
 			TaskID: []string{cmd.TaskId},
@@ -174,7 +175,7 @@ func (s *JobsHandler) UserControlJob(req *restful.Request, rsp *restful.Response
 
 	} else if cmd.Cmd == jobs.Command_Active || cmd.Cmd == jobs.Command_Inactive {
 
-		cli := jobs.NewJobServiceClient(grpc.ResolveConn(ctx, common.ServiceJobs))
+		cli := jobsc.JobServiceClient(ctx)
 		if jobResp, err := cli.GetJob(ctx, &jobs.GetJobRequest{JobID: cmd.JobId}); err == nil {
 
 			job := jobResp.Job
@@ -212,8 +213,8 @@ func (s *JobsHandler) UserDeleteTasks(req *restful.Request, rsp *restful.Respons
 		return
 	}
 
-	cli := jobs.NewJobServiceClient(grpc.ResolveConn(req.Request.Context(), common.ServiceJobs))
-	response, e := cli.DeleteTasks(req.Request.Context(), &request)
+	ctx := req.Request.Context()
+	response, e := jobsc.JobServiceClient(ctx).DeleteTasks(ctx, &request)
 	if e != nil {
 		service.RestErrorDetect(req, rsp, e)
 		return

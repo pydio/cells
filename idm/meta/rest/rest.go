@@ -33,7 +33,6 @@ import (
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/auth"
 	"github.com/pydio/cells/v4/common/client/commons/idmc"
-	"github.com/pydio/cells/v4/common/client/grpc"
 	"github.com/pydio/cells/v4/common/log"
 	"github.com/pydio/cells/v4/common/nodes/compose"
 	"github.com/pydio/cells/v4/common/proto/idm"
@@ -57,6 +56,10 @@ func NewUserMetaHandler(ctx context.Context) *UserMetaHandler {
 	handler.PoliciesLoader = handler.PoliciesForMeta
 	handler.tvc = &meta.TagsValuesClient{}
 	return handler
+}
+
+func userMetaClient(ctx context.Context) idm.UserMetaServiceClient {
+	return idmc.UserMetaServiceClient(ctx)
 }
 
 type UserMetaHandler struct {
@@ -130,8 +133,7 @@ func (s *UserMetaHandler) UpdateUserMeta(req *restful.Request, rsp *restful.Resp
 		return
 	}
 	ctx := req.Request.Context()
-	userMetaClient := idm.NewUserMetaServiceClient(grpc.ResolveConn(s.ctx, common.ServiceUserMeta))
-	nsList, e := s.ListAllNamespaces(ctx, userMetaClient)
+	nsList, e := s.ListAllNamespaces(ctx, userMetaClient(req.Request.Context()))
 	if e != nil {
 		service.RestError500(req, rsp, e)
 		return
@@ -206,8 +208,9 @@ func (s *UserMetaHandler) UpdateUserMeta(req *restful.Request, rsp *restful.Resp
 		}
 	}
 	// Some existing meta will be updated / deleted : load their policies and check their rights!
+	umc := userMetaClient(ctx)
 	if len(loadUuids) > 0 {
-		stream, e := userMetaClient.SearchUserMeta(ctx, &idm.SearchUserMetaRequest{MetaUuids: loadUuids})
+		stream, e := umc.SearchUserMeta(ctx, &idm.SearchUserMetaRequest{MetaUuids: loadUuids})
 		if e != nil {
 			service.RestError500(req, rsp, e)
 			return
@@ -227,7 +230,7 @@ func (s *UserMetaHandler) UpdateUserMeta(req *restful.Request, rsp *restful.Resp
 			}
 		}
 	}
-	if response, err := userMetaClient.UpdateUserMeta(ctx, &input); err != nil {
+	if response, err := umc.UpdateUserMeta(ctx, &input); err != nil {
 		service.RestError500(req, rsp, err)
 	} else {
 		rsp.WriteEntity(response)
@@ -305,8 +308,7 @@ func (s *UserMetaHandler) UpdateUserMetaNamespace(req *restful.Request, rsp *res
 		}
 	}
 
-	nsClient := idm.NewUserMetaServiceClient(grpc.ResolveConn(ctx, common.ServiceUserMeta))
-	response, err := nsClient.UpdateUserMetaNamespace(ctx, &input)
+	response, err := userMetaClient(ctx).UpdateUserMetaNamespace(ctx, &input)
 	if err != nil {
 		service.RestError500(req, rsp, err)
 	} else {
@@ -319,9 +321,8 @@ func (s *UserMetaHandler) ListUserMetaNamespace(req *restful.Request, rsp *restf
 
 	ctx := req.Request.Context()
 
-	nsClient := idm.NewUserMetaServiceClient(grpc.ResolveConn(ctx, common.ServiceUserMeta))
 	output := &rest.UserMetaNamespaceCollection{}
-	if ns, err := s.ListAllNamespaces(ctx, nsClient); err == nil {
+	if ns, err := s.ListAllNamespaces(ctx, userMetaClient(ctx)); err == nil {
 		for _, n := range ns {
 			if n.Namespace == namespace.ReservedNamespaceBookmark {
 				continue
@@ -337,8 +338,7 @@ func (s *UserMetaHandler) ListUserMetaTags(req *restful.Request, rsp *restful.Re
 	ns := req.PathParameter("Namespace")
 	ctx := req.Request.Context()
 	log.Logger(ctx).Debug("Listing tags for namespace " + ns)
-	nsClient := idm.NewUserMetaServiceClient(grpc.ResolveConn(ctx, common.ServiceUserMeta))
-	nss, er := s.ListAllNamespaces(ctx, nsClient)
+	nss, er := s.ListAllNamespaces(ctx, userMetaClient(ctx))
 	if er != nil {
 		service.RestErrorDetect(req, rsp, er)
 		return
@@ -363,8 +363,7 @@ func (s *UserMetaHandler) PutUserMetaTag(req *restful.Request, rsp *restful.Resp
 	}
 
 	ctx := req.Request.Context()
-	nsClient := idm.NewUserMetaServiceClient(grpc.ResolveConn(ctx, common.ServiceUserMeta))
-	nss, er := s.ListAllNamespaces(ctx, nsClient)
+	nss, er := s.ListAllNamespaces(ctx, userMetaClient(ctx))
 	if er != nil {
 		service.RestErrorDetect(req, rsp, er)
 		return
@@ -413,8 +412,7 @@ func (s *UserMetaHandler) PerformSearchMetaRequest(ctx context.Context, request 
 		Subjects: subjects,
 	}
 
-	userMetaClient := idm.NewUserMetaServiceClient(grpc.ResolveConn(ctx, common.ServiceUserMeta))
-	stream, er := userMetaClient.SearchUserMeta(ctx, request)
+	stream, er := userMetaClient(ctx).SearchUserMeta(ctx, request)
 	if er != nil {
 		return nil, e
 	}

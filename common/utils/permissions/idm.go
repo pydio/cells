@@ -34,7 +34,6 @@ import (
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/auth/claim"
 	"github.com/pydio/cells/v4/common/client/commons/idmc"
-	"github.com/pydio/cells/v4/common/client/grpc"
 	"github.com/pydio/cells/v4/common/log"
 	"github.com/pydio/cells/v4/common/proto/idm"
 	service "github.com/pydio/cells/v4/common/proto/service"
@@ -277,7 +276,7 @@ func GetACLsForWorkspace(ctx context.Context, workspaceIds []string, actions ...
 }
 
 func workspacesByUUIDs(ctx context.Context, uuids []string) (ww []*idm.Workspace, e error) {
-	workspaceClient := idm.NewWorkspaceServiceClient(grpc.ResolveConn(ctx, common.ServiceWorkspace))
+	workspaceClient := idmc.WorkspaceServiceClient(ctx)
 	var queries []*anypb.Any
 	for _, id := range uuids {
 		query, _ := anypb.New(&idm.WorkspaceSingleQuery{Uuid: id})
@@ -563,7 +562,7 @@ func GroupExists(ctx context.Context, group string) (*idm.User, bool) {
 // SearchUniqueWorkspace is a wrapper of SearchWorkspace to load a unique workspace
 func SearchUniqueWorkspace(ctx context.Context, wsUuid string, wsSlug string, queries ...*idm.WorkspaceSingleQuery) (*idm.Workspace, error) {
 
-	wsCli := idm.NewWorkspaceServiceClient(grpc.ResolveConn(ctx, common.ServiceWorkspace))
+	wsCli := idmc.WorkspaceServiceClient(ctx)
 	if wsUuid != "" {
 		queries = append(queries, &idm.WorkspaceSingleQuery{Uuid: wsUuid})
 	} else if wsSlug != "" {

@@ -29,7 +29,7 @@ import (
 	"github.com/go-openapi/errors"
 
 	"github.com/pydio/cells/v4/common"
-	"github.com/pydio/cells/v4/common/client/grpc"
+	"github.com/pydio/cells/v4/common/client/commons/docstorec"
 	"github.com/pydio/cells/v4/common/config"
 	"github.com/pydio/cells/v4/common/proto/docstore"
 	"github.com/pydio/cells/v4/common/proto/idm"
@@ -43,7 +43,7 @@ const PasswordComplexitySuffix = "#$!Az1"
 // StoreHashDocument sends link data to the storage backend, currently the Docstore service.
 func (sc *Client) StoreHashDocument(ctx context.Context, ownerUser *idm.User, link *rest.ShareLink, updateHash ...string) error {
 
-	store := docstore.NewDocStoreClient(grpc.ResolveConn(sc.RuntimeContext, common.ServiceDocStore))
+	store := docstorec.DocStoreClient(ctx)
 
 	hashDoc := &docstore.ShareDocument{
 		OwnerId:       ownerUser.Login,
@@ -109,7 +109,7 @@ func (sc *Client) StoreHashDocument(ctx context.Context, ownerUser *idm.User, li
 // LoadHashDocumentData loads link data from the storage (currently Docstore) by link Uuid.
 func (sc *Client) LoadHashDocumentData(ctx context.Context, shareLink *rest.ShareLink, acls []*idm.ACL) error {
 
-	store := docstore.NewDocStoreClient(grpc.ResolveConn(sc.RuntimeContext, common.ServiceDocStore))
+	store := docstorec.DocStoreClient(ctx)
 	ct, ca := context.WithCancel(ctx)
 	defer ca()
 	streamer, er := store.ListDocuments(ct, &docstore.ListDocumentsRequest{StoreID: common.DocStoreIdShares, Query: &docstore.DocumentQuery{
@@ -197,7 +197,7 @@ func (sc *Client) LoadHashDocumentData(ctx context.Context, shareLink *rest.Shar
 // DeleteHashDocument removes link data from the storage.
 func (sc *Client) DeleteHashDocument(ctx context.Context, shareId string) error {
 
-	store := docstore.NewDocStoreClient(grpc.ResolveConn(sc.RuntimeContext, common.ServiceDocStore))
+	store := docstorec.DocStoreClient(ctx)
 	resp, err := store.DeleteDocuments(ctx, &docstore.DeleteDocumentsRequest{StoreID: common.DocStoreIdShares, Query: &docstore.DocumentQuery{
 		MetaQuery: "+REPOSITORY:\"" + shareId + "\" +SHARE_TYPE:minisite",
 	}})
@@ -215,7 +215,7 @@ func (sc *Client) DeleteHashDocument(ctx context.Context, shareId string) error 
 // the passed userLogin value.
 func (sc *Client) SearchHashDocumentForUser(ctx context.Context, userLogin string) (*docstore.ShareDocument, error) {
 
-	store := docstore.NewDocStoreClient(grpc.ResolveConn(sc.RuntimeContext, common.ServiceDocStore))
+	store := docstorec.DocStoreClient(ctx)
 
 	// SEARCH PUBLIC
 	streamer, err := store.ListDocuments(ctx, &docstore.ListDocumentsRequest{StoreID: common.DocStoreIdShares, Query: &docstore.DocumentQuery{

@@ -29,8 +29,7 @@ import (
 	"github.com/olekukonko/tablewriter"
 	"github.com/spf13/cobra"
 
-	"github.com/pydio/cells/v4/common"
-	"github.com/pydio/cells/v4/common/client/grpc"
+	"github.com/pydio/cells/v4/common/client/commons/jobsc"
 	"github.com/pydio/cells/v4/common/proto/jobs"
 	"github.com/pydio/cells/v4/scheduler/lang"
 )
@@ -113,9 +112,8 @@ EXAMPLE
 		if _, er := confirm.Run(); er != nil {
 			return er
 		}
-		jobClient := jobs.NewJobServiceClient(grpc.ResolveConn(ctx, common.ServiceJobs))
 
-		if _, er = jobClient.PutJob(ctx, &jobs.PutJobRequest{Job: job.Job}); er != nil {
+		if _, er = jobsc.JobServiceClient(ctx).PutJob(ctx, &jobs.PutJobRequest{Job: job.Job}); er != nil {
 			fmt.Println(promptui.IconBad + " Error while inserting job " + er.Error())
 		} else {
 			msg := " Job was successfully reset"

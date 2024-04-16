@@ -30,6 +30,7 @@ import (
 
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/broker"
+	"github.com/pydio/cells/v4/common/client/commons/jobsc"
 	grpc2 "github.com/pydio/cells/v4/common/client/grpc"
 	"github.com/pydio/cells/v4/common/config"
 	"github.com/pydio/cells/v4/common/dao/mysql"
@@ -129,7 +130,7 @@ func newService(ctx context.Context, dsObject *object.DataSource) {
 				md := make(map[string]string)
 				md[common.PydioContextUserKey] = common.PydioSystemUsername
 				jobCtx := metadata.NewContext(ctx, md)
-				jobsClient := jobs.NewJobServiceClient(grpc2.ResolveConn(ctx, common.ServiceJobs))
+				jobsClient := jobsc.JobServiceClient(ctx)
 				serviceName := common.ServiceGrpcNamespace_ + common.ServiceDataSync_ + datasource
 
 				if !dsObject.FlatStorage {

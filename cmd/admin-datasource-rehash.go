@@ -31,7 +31,6 @@ import (
 	"google.golang.org/protobuf/types/known/anypb"
 
 	"github.com/pydio/cells/v4/common"
-	"github.com/pydio/cells/v4/common/client/grpc"
 	"github.com/pydio/cells/v4/common/proto/jobs"
 	"github.com/pydio/cells/v4/common/proto/object"
 	"github.com/pydio/cells/v4/common/proto/service"
@@ -90,7 +89,7 @@ EXAMPLES
 			Name: rehashDsName,
 		})
 
-		jobClient := jobs.NewJobServiceClient(grpc.ResolveConn(ctx, common.ServiceJobs))
+		jobClient := jobsc.JobServiceClient(ctx)
 		job := &jobs.Job{
 			ID:             uuid.New(),
 			Owner:          rehashUserName,

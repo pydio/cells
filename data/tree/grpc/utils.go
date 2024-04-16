@@ -46,9 +46,10 @@ func updateServicesList(ctx context.Context, treeServer *TreeServer, retry int) 
 		return
 	}
 
-	treeServer.sourcesLock.RLock()
-	initialLength := len(treeServer.sources)
-	treeServer.sourcesLock.RUnlock()
+	k, _ := treeServer.sourcesCaches.Get(ctx)
+	all, _ := k.KeysByPrefix("")
+	_ = k.Reset()
+	initialLength := len(all)
 
 	reg := servicecontext.GetRegistry(ctx)
 	items, err := reg.List(registry.WithType(pb.ItemType_SERVICE), registry.WithFilter(func(item registry.Item) bool {
@@ -59,7 +60,7 @@ func updateServicesList(ctx context.Context, treeServer *TreeServer, retry int) 
 	}
 
 	var dsKeys []string
-	dataSources := make(map[string]DataSource)
+
 	for _, i := range items {
 		var syncService registry.Service
 		if !i.As(&syncService) {
@@ -67,21 +68,18 @@ func updateServicesList(ctx context.Context, treeServer *TreeServer, retry int) 
 		}
 		dataSourceName := strings.TrimPrefix(syncService.Name(), common.ServiceGrpcNamespace_+common.ServiceDataSync_)
 		indexService := common.ServiceDataIndex_ + dataSourceName
-		dataSources[dataSourceName] = DataSource{
+		obj := DataSource{
 			Name:   dataSourceName,
 			writer: tree.NewNodeReceiverClient(grpc.ResolveConn(ctx, indexService)),
 			reader: tree.NewNodeProviderClient(grpc.ResolveConn(ctx, indexService)),
 		}
 		dsKeys = append(dsKeys, dataSourceName)
+		_ = k.Set(dataSourceName, obj)
 		log.Logger(ctx).Debug("[Tree:updateServicesList] Add datasource " + dataSourceName)
 	}
 
-	treeServer.sourcesLock.Lock()
-	treeServer.sources = dataSources
-	treeServer.sourcesLock.Unlock()
-
 	// If registry event comes too soon, running services may not be loaded yet
-	if retry < 4 && initialLength == len(dataSources) {
+	if retry < 4 && initialLength == len(dsKeys) {
 		<-time.After(10 * time.Second)
 		updateServicesList(ctx, treeServer, retry+1)
 	}

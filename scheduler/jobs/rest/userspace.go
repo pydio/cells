@@ -34,6 +34,7 @@ import (
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/auth/claim"
 	"github.com/pydio/cells/v4/common/broker"
+	"github.com/pydio/cells/v4/common/client/commons/jobsc"
 	"github.com/pydio/cells/v4/common/client/grpc"
 	"github.com/pydio/cells/v4/common/config"
 	"github.com/pydio/cells/v4/common/log"
@@ -149,8 +150,7 @@ func compress(ctx context.Context, selectedPaths []string, targetNodePath string
 			},
 		}
 
-		cli := jobs.NewJobServiceClient(grpc.ResolveConn(ctx, common.ServiceJobs))
-		_, er := cli.PutJob(ctx, &jobs.PutJobRequest{Job: job})
+		_, er := jobsc.JobServiceClient(ctx).PutJob(ctx, &jobs.PutJobRequest{Job: job})
 		return er
 
 	})
@@ -231,8 +231,7 @@ func extract(ctx context.Context, selectedNode string, targetPath string, format
 			},
 		}
 
-		cli := jobs.NewJobServiceClient(grpc.ResolveConn(ctx, common.ServiceJobs))
-		_, err := cli.PutJob(ctx, &jobs.PutJobRequest{Job: job})
+		_, err := jobsc.JobServiceClient(ctx).PutJob(ctx, &jobs.PutJobRequest{Job: job})
 		return err
 
 	})
@@ -397,8 +396,7 @@ func dirCopy(ctx context.Context, selectedPathes []string, targetNodePath string
 			},
 		}
 
-		cli := jobs.NewJobServiceClient(grpc.ResolveConn(ctx, common.ServiceJobs))
-		_, er := cli.PutJob(ctx, &jobs.PutJobRequest{Job: job})
+		_, er := jobsc.JobServiceClient(ctx).PutJob(ctx, &jobs.PutJobRequest{Job: job})
 		return er
 
 	})
@@ -409,7 +407,7 @@ func dirCopy(ctx context.Context, selectedPathes []string, targetNodePath string
 func syncDatasource(ctx context.Context, dsName string, languages ...string) (string, error) {
 
 	jobUuid := "resync-ds-" + dsName
-	cli := jobs.NewJobServiceClient(grpc.ResolveConn(ctx, common.ServiceJobs))
+	cli := jobsc.JobServiceClient(ctx)
 	if resp, er := cli.GetJob(ctx, &jobs.GetJobRequest{JobID: jobUuid}); er == nil && resp.Job != nil {
 		broker.MustPublish(ctx, common.TopicTimerEvent, &jobs.JobTriggerEvent{
 			JobID:  jobUuid,
@@ -467,7 +465,7 @@ func wgetTasks(ctx context.Context, parentPath string, urls []string, languages 
 	if bl != "" {
 		blackList = strings.Split(bl, ",")
 	}
-	cli := jobs.NewJobServiceClient(grpc.ResolveConn(ctx, common.ServiceJobs))
+	cli := jobsc.JobServiceClient(ctx)
 	for _, u := range urls {
 		parsed, e := url.Parse(u)
 		if e != nil {
@@ -565,7 +563,7 @@ func p8migration(ctx context.Context, jsonParams string) (string, error) {
 
 	log.Logger(ctx).Info("Posting Job", zap.Object("job", job))
 
-	cli := jobs.NewJobServiceClient(grpc.ResolveConn(ctx, common.ServiceJobs))
+	cli := jobsc.JobServiceClient(ctx)
 	if _, er := cli.PutJob(ctx, &jobs.PutJobRequest{Job: job}); er == nil {
 		<-time.After(2 * time.Second)
 		broker.MustPublish(ctx, common.TopicTimerEvent, &jobs.JobTriggerEvent{

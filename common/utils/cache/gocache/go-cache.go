@@ -60,13 +60,15 @@ func (o *URLOpener) OpenURL(ctx context.Context, u *url.URL) (cache.Cache, error
 		CleanWindow:  10 * time.Minute,
 	}
 	if v := u.Query().Get("evictionTime"); v != "" {
-		if i, err := time.ParseDuration(v); err != nil {
+		if v == "-1" {
+			opt.EvictionTime = pm.NoExpiration
+		} else if i, err := time.ParseDuration(v); err != nil {
 			return nil, err
 		} else {
 			opt.EvictionTime = i
 		}
 	}
-	if v := u.Query().Get("cleanWindow"); v != "" {
+	if v := u.Query().Get("cleanWindow"); v != "" && opt.EvictionTime != pm.NoExpiration {
 		if i, err := time.ParseDuration(v); err != nil {
 			return nil, err
 		} else {

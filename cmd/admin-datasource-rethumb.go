@@ -27,8 +27,7 @@ import (
 	"github.com/spf13/cobra"
 	"google.golang.org/protobuf/types/known/anypb"
 
-	"github.com/pydio/cells/v4/common"
-	"github.com/pydio/cells/v4/common/client/grpc"
+	"github.com/pydio/cells/v4/common/client/commons/jobsc"
 	"github.com/pydio/cells/v4/common/proto/jobs"
 	"github.com/pydio/cells/v4/common/proto/service"
 	"github.com/pydio/cells/v4/common/proto/tree"
@@ -74,7 +73,7 @@ EXAMPLES
 			FreeString: "-Meta.is_image:T* Extension:jpg Extension:jpeg  Extension:png Extension:bmp",
 		})
 
-		jobClient := jobs.NewJobServiceClient(grpc.ResolveConn(ctx, common.ServiceJobs))
+		jobClient := jobsc.JobServiceClient(ctx)
 		job := &jobs.Job{
 			ID:             uuid.New(),
 			Owner:          rethumbUserName,

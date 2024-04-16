@@ -30,7 +30,7 @@ import (
 	"go.uber.org/zap/zapcore"
 
 	"github.com/pydio/cells/v4/common"
-	"github.com/pydio/cells/v4/common/client/grpc"
+	"github.com/pydio/cells/v4/common/client/commons/treec"
 	"github.com/pydio/cells/v4/common/log"
 	"github.com/pydio/cells/v4/common/proto/idm"
 	"github.com/pydio/cells/v4/common/proto/tree"
@@ -455,7 +455,7 @@ func (a *AccessList) loadNodePathAcls(ctx context.Context, resolver VirtualPathR
 		// Do not open an unnecessary stream...
 		return nil
 	}
-	cli := tree.NewNodeProviderStreamerClient(grpc.ResolveConn(ctx, common.ServiceTree))
+	cli := treec.NodeProviderStreamerClient(ctx)
 	ct, ca := context.WithCancel(ctx)
 	defer ca()
 	st, e := cli.ReadNodeStream(ct)

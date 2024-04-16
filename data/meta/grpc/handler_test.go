@@ -25,7 +25,6 @@ import (
 	"testing"
 	"time"
 
-	"github.com/pydio/cells/v4/common/broker"
 	"github.com/pydio/cells/v4/common/dao"
 	"github.com/pydio/cells/v4/common/dao/sqlite"
 	common "github.com/pydio/cells/v4/common/proto/tree"
@@ -146,30 +145,18 @@ func TestSubscriber(t *testing.T) {
 	server := &MetaServer{dao: func(ctx context.Context) meta.DAO { return mockDAO }}
 	ctx := context.Background()
 
-	Convey("Test CreateSubscriber", t, func() {
-
-		sub := server.Subscriber(ctx)
-		So(sub, ShouldNotBeNil)
-		So(sub.outputChannel, ShouldEqual, server.eventsChannel)
-
-	})
-
 	Convey("Test Create Event to Subscriber", t, func() {
 
-		sub := server.Subscriber(ctx)
-		sub.outputChannel <- &broker.TypeWithContext[*common.NodeChangeEvent]{
-			Ctx: ctx,
-			Original: &common.NodeChangeEvent{
-				Type: common.NodeChangeEvent_CREATE,
-				Target: &common.Node{
-					Uuid: "event-node-uid",
-					MetaStore: map[string]string{
-						"Meta1": "\"Test\"",
-						"Meta2": "\"Test\"",
-					},
+		server.processEvent(ctx, &common.NodeChangeEvent{
+			Type: common.NodeChangeEvent_CREATE,
+			Target: &common.Node{
+				Uuid: "event-node-uid",
+				MetaStore: map[string]string{
+					"Meta1": "\"Test\"",
+					"Meta2": "\"Test\"",
 				},
 			},
-		}
+		})
 
 		time.Sleep(100 * time.Millisecond)
 		respObject, readErr := server.ReadNode(ctx, &common.ReadNodeRequest{
@@ -187,7 +174,6 @@ func TestSubscriber(t *testing.T) {
 	Convey("Test Update Event to Subscriber", t, func() {
 
 		ctx := ctx
-		sub := server.Subscriber(ctx)
 		server.UpdateNode(ctx, &common.UpdateNodeRequest{
 			To: &common.Node{
 				Uuid: "event-node-uid",
@@ -197,19 +183,16 @@ func TestSubscriber(t *testing.T) {
 			},
 		})
 
-		sub.outputChannel <- &broker.TypeWithContext[*common.NodeChangeEvent]{
-			Ctx: ctx,
-			Original: &common.NodeChangeEvent{
-				Type: common.NodeChangeEvent_UPDATE_META,
-				Target: &common.Node{
-					Uuid: "event-node-uid",
-					MetaStore: map[string]string{
-						"Meta1": "\"NewValue\"",
-						"Meta2": "\"Test\"",
-					},
+		server.processEvent(ctx, &common.NodeChangeEvent{
+			Type: common.NodeChangeEvent_UPDATE_META,
+			Target: &common.Node{
+				Uuid: "event-node-uid",
+				MetaStore: map[string]string{
+					"Meta1": "\"NewValue\"",
+					"Meta2": "\"Test\"",
 				},
 			},
-		}
+		})
 
 		time.Sleep(100 * time.Millisecond)
 
@@ -228,7 +211,6 @@ func TestSubscriber(t *testing.T) {
 	Convey("Test Delete Event to Subscriber", t, func() {
 
 		ctx := ctx
-		sub := server.Subscriber(ctx)
 		server.UpdateNode(ctx, &common.UpdateNodeRequest{
 			To: &common.Node{
 				Uuid: "event-node-uid",
@@ -238,15 +220,12 @@ func TestSubscriber(t *testing.T) {
 			},
 		})
 
-		sub.outputChannel <- &broker.TypeWithContext[*common.NodeChangeEvent]{
-			Ctx: ctx,
-			Original: &common.NodeChangeEvent{
-				Type: common.NodeChangeEvent_DELETE,
-				Source: &common.Node{
-					Uuid: "event-node-uid",
-				},
+		server.processEvent(ctx, &common.NodeChangeEvent{
+			Type: common.NodeChangeEvent_DELETE,
+			Source: &common.Node{
+				Uuid: "event-node-uid",
 			},
-		}
+		})
 
 		time.Sleep(100 * time.Millisecond)
 

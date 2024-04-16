@@ -88,7 +88,7 @@ func (v *BrowserHandler) ListNodes(ctx context.Context, in *tree.ListNodesReques
 	}
 	s := nodes.NewWrappingStreamer(ctx)
 	go func() {
-		vManager.Load(true)
+		vManager.Load(ctx, true)
 		defer s.CloseSend()
 		for {
 			resp, err := stream.Recv()

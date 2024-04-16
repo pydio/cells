@@ -47,6 +47,8 @@ import (
 	servicecontext "github.com/pydio/cells/v4/common/service/context"
 	"github.com/pydio/cells/v4/common/service/context/metadata"
 	"github.com/pydio/cells/v4/common/service/errors"
+	"github.com/pydio/cells/v4/common/utils/cache"
+	"github.com/pydio/cells/v4/common/utils/openurl"
 	"github.com/pydio/cells/v4/common/utils/permissions"
 )
 
@@ -109,18 +111,21 @@ type TreeServer struct {
 	name      string
 	listeners []*changesListener
 
-	sources     map[string]DataSource
-	sourcesLock *sync.RWMutex
-	mainCtx     context.Context
+	//sources     map[string]DataSource
+	//sourcesLock *sync.RWMutex
+	sourcesCaches *openurl.Pool[cache.Cache]
+
+	mainCtx context.Context
 }
 
 // NewTreeServer initialize a TreeServer with proper internals
 func NewTreeServer(ctx context.Context, name string) *TreeServer {
 	return &TreeServer{
-		mainCtx:     ctx,
-		name:        name,
-		sources:     make(map[string]DataSource),
-		sourcesLock: &sync.RWMutex{},
+		mainCtx:       ctx,
+		name:          name,
+		sourcesCaches: cache.MustOpenPool("pm://?evictionTime=-1"), // Create in-memory, non-expirable cache
+		//sources:     make(map[string]DataSource),
+		//sourcesLock: &sync.RWMutex{},
 	}
 }
 
@@ -129,18 +134,28 @@ func (s *TreeServer) Name() string {
 }
 
 // AppendDatasource feeds internal datasources map
-func (s *TreeServer) AppendDatasource(name string, obj DataSource) {
-	s.sourcesLock.Lock()
-	s.sources[name] = obj
-	s.sourcesLock.Unlock()
+func (s *TreeServer) AppendDatasource(ctx context.Context, name string, obj DataSource) {
+
+	k, _ := s.sourcesCaches.Get(ctx)
+	k.Set(name, obj)
+	/*
+		s.sourcesLock.Lock()
+		s.sources[name] = obj
+		s.sourcesLock.Unlock()
+	*/
 }
 
 // datasourcebyName finds a datasource in the internal map
-func (s *TreeServer) datasourceByName(dsName string) (DataSource, bool) {
-	s.sourcesLock.RLock()
-	ds, ok := s.sources[dsName]
-	s.sourcesLock.RUnlock()
-	return ds, ok
+func (s *TreeServer) datasourceByName(ctx context.Context, dsName string) (obj DataSource, ok bool) {
+	k, _ := s.sourcesCaches.Get(ctx)
+	ok = k.Get(dsName, &obj)
+	return
+	/*
+		s.sourcesLock.RLock()
+		ds, ok := s.sources[dsName]
+		s.sourcesLock.RUnlock()
+		return ds, ok
+	*/
 }
 
 // ReadNodeStream Implement stream for readNode method
@@ -231,7 +246,7 @@ func (s *TreeServer) CreateNode(ctx context.Context, req *tree.CreateNodeRequest
 		return nil, errors.Forbidden(common.ServiceTree, "Cannot write to root node or to datasource node")
 	}
 
-	if ds, ok := s.datasourceByName(dsName); ok {
+	if ds, ok := s.datasourceByName(ctx, dsName); ok {
 
 		node.Path = dsPath
 		dsReq := &tree.CreateNodeRequest{
@@ -294,7 +309,7 @@ func (s *TreeServer) ReadNode(ctx context.Context, req *tree.ReadNodeRequest) (*
 		return resp, nil
 	}
 
-	if ds, ok := s.datasourceByName(dsName); ok {
+	if ds, ok := s.datasourceByName(ctx, dsName); ok {
 
 		dsReq := &tree.ReadNodeRequest{
 			Node:      &tree.Node{Path: dsPath},
@@ -384,7 +399,7 @@ func (s *TreeServer) ListNodes(req *tree.ListNodesRequest, resp tree.NodeProvide
 
 		if len(dsPath) > 0 {
 
-			ds, ok := s.datasourceByName(dsName)
+			ds, ok := s.datasourceByName(ctx, dsName)
 			if !ok {
 				return errors.BadRequest(common.ServiceTree, "Cannot find datasource client for %s", dsName)
 			}
@@ -460,11 +475,17 @@ func (s *TreeServer) ListNodesWithLimit(ctx context.Context, metaStreamer meta.L
 	if dsName == "" {
 
 		var names []string
-		s.sourcesLock.RLock()
-		for name := range s.sources {
-			names = append(names, name)
-		}
-		s.sourcesLock.RUnlock()
+		k, _ := s.sourcesCaches.Get(ctx)
+		k.Iterate(func(key string, _ interface{}) {
+			names = append(names, key)
+		})
+		/*
+			s.sourcesLock.RLock()
+			for name := range s.sources {
+				names = append(names, name)
+			}
+			s.sourcesLock.RUnlock()
+		*/
 		log.Logger(ctx).Debug("Should List datasources", zap.Strings("names", names))
 		metaFilter := tree.NewMetaFilter(node)
 		hasFilter := metaFilter.Parse()
@@ -482,7 +503,7 @@ func (s *TreeServer) ListNodesWithLimit(ctx context.Context, metaStreamer meta.L
 			}
 			outputNode.MustSetMeta(common.MetaNamespaceNodeName, name)
 
-			ds, _ := s.datasourceByName(name)
+			ds, _ := s.datasourceByName(ctx, name)
 			if size, counts, er := s.dsSize(ctx, ds, req.StatFlags); er == nil {
 				outputNode.Size = size
 				if tree.StatFlags(req.StatFlags).RecursiveCount() {
@@ -523,7 +544,7 @@ func (s *TreeServer) ListNodesWithLimit(ctx context.Context, metaStreamer meta.L
 		return nil
 	}
 
-	if ds, ok := s.datasourceByName(dsName); ok {
+	if ds, ok := s.datasourceByName(ctx, dsName); ok {
 
 		reqNode := node.Clone()
 		reqNode.Path = dsPath
@@ -626,7 +647,7 @@ func (s *TreeServer) UpdateNode(ctx context.Context, req *tree.UpdateNodeRequest
 		return nil, errors.Forbidden(common.ServiceTree, "Cannot move between two different datasources")
 	}
 
-	if ds, ok := s.datasourceByName(dsNameTo); ok {
+	if ds, ok := s.datasourceByName(ctx, dsNameTo); ok {
 
 		from.Path = dsPathFrom
 		to.Path = dsPathTo
@@ -656,7 +677,7 @@ func (s *TreeServer) DeleteNode(ctx context.Context, req *tree.DeleteNodeRequest
 		return nil, errors.Forbidden(common.ServiceTree, "Cannot delete root node or datasource node")
 	}
 
-	if ds, ok := s.datasourceByName(dsName); ok {
+	if ds, ok := s.datasourceByName(ctx, dsName); ok {
 		node.Path = dsPath
 		if response, e := ds.writer.DeleteNode(ctx, &tree.DeleteNodeRequest{Node: node}); e != nil {
 			return nil, e
@@ -832,7 +853,7 @@ func (s *TreeServer) lookUpByUuid(ctx context.Context, uuid string, statFlags ..
 	if strings.HasPrefix(uuid, "DATASOURCE:") {
 		dsName := strings.TrimPrefix(uuid, "DATASOURCE:")
 
-		if ds, ok := s.datasourceByName(dsName); ok {
+		if ds, ok := s.datasourceByName(ctx, dsName); ok {
 			resp, err := ds.reader.ReadNode(ctx, &tree.ReadNodeRequest{
 				Node:      &tree.Node{Uuid: "ROOT"},
 				StatFlags: statFlags,
@@ -850,12 +871,11 @@ func (s *TreeServer) lookUpByUuid(ctx context.Context, uuid string, statFlags ..
 	defer cancel()
 	wg := &sync.WaitGroup{}
 
-	s.sourcesLock.RLock()
-	for dsName, ds := range s.sources {
+	k, _ := s.sourcesCaches.Get(ctx)
+	_ = k.Iterate(func(dsName string, val interface{}) {
+		ds := val.(DataSource)
 		wg.Add(1)
-		reader := ds.reader
-		name := dsName
-		go func() {
+		go func(name string, reader tree.NodeProviderClient) {
 			defer wg.Done()
 
 			resp, err := reader.ReadNode(c, &tree.ReadNodeRequest{
@@ -869,10 +889,9 @@ func (s *TreeServer) lookUpByUuid(ctx context.Context, uuid string, statFlags ..
 				foundNode = resp.Node
 				cancel()
 			}
-		}()
-	}
+		}(dsName, ds.reader)
+	})
 	wg.Wait()
-	s.sourcesLock.RUnlock()
 
 	if foundNode != nil {
 		return foundNode, nil

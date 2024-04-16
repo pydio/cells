@@ -121,7 +121,7 @@ func (h *GraphHandler) Relation(req *restful.Request, rsp *restful.Response) {
 	}
 	log.Logger(ctx).Debug("Common Workspaces", zap.Any("common", commonWorkspaces), zap.Any("context", contextWorkspaces), zap.Any("target", targetWorkspaces))
 
-	wsCli := idm.NewWorkspaceServiceClient(grpc.ResolveConn(ctx, common.ServiceWorkspace))
+	wsCli := idmc.WorkspaceServiceClient(ctx)
 	query := &service2.Query{
 		SubQueries: []*anypb.Any{},
 		Operation:  service2.OperationType_OR,
@@ -284,7 +284,7 @@ func (h *GraphHandler) Recommend(req *restful.Request, rsp *restful.Response) {
 				},
 			}
 
-			userMetaClient := idm.NewUserMetaServiceClient(grpc.ResolveConn(ctx, common.ServiceUserMeta))
+			userMetaClient := idmc.UserMetaServiceClient(ctx)
 			stream, er := userMetaClient.SearchUserMeta(ctx, sr)
 			if er != nil {
 				return
