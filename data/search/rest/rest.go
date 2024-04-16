@@ -23,16 +23,14 @@ package rest
 
 import (
 	"context"
-	"github.com/pydio/cells/v4/common/service/resources"
-	"github.com/pydio/cells/v4/idm/share"
 	"regexp"
 	"strings"
 
 	restful "github.com/emicklei/go-restful/v3"
-	"github.com/pydio/cells/v4/common/client/grpc"
 	"go.uber.org/zap"
 
 	"github.com/pydio/cells/v4/common"
+	"github.com/pydio/cells/v4/common/client/grpc"
 	"github.com/pydio/cells/v4/common/log"
 	"github.com/pydio/cells/v4/common/nodes"
 	"github.com/pydio/cells/v4/common/nodes/acl"
@@ -42,6 +40,8 @@ import (
 	"github.com/pydio/cells/v4/common/proto/tree"
 	"github.com/pydio/cells/v4/common/service"
 	"github.com/pydio/cells/v4/common/service/context/metadata"
+	"github.com/pydio/cells/v4/common/service/resources"
+	"github.com/pydio/cells/v4/idm/share"
 )
 
 type Handler struct {
@@ -69,7 +69,7 @@ func (s *Handler) getRouter() nodes.Client {
 
 func (s *Handler) getClient() tree.SearcherClient {
 	if s.client == nil {
-		s.client = tree.NewSearcherClient(grpc.GetClientConnFromCtx(s.runtimeCtx, common.ServiceSearch))
+		s.client = tree.NewSearcherClient(grpc.ResolveConn(s.runtimeCtx, common.ServiceSearch))
 	}
 	return s.client
 }
@@ -144,7 +144,7 @@ func (s *Handler) Nodes(req *restful.Request, rsp *restful.Response) {
 		}
 	}
 
-	cl := tree.NewNodeProviderStreamerClient(grpc.GetClientConnFromCtx(ctx, common.ServiceTree))
+	cl := tree.NewNodeProviderStreamerClient(grpc.ResolveConn(ctx, common.ServiceTree))
 	readCtx := metadata.WithAdditionalMetadata(ctx, tree.StatFlags(searchRequest.StatFlags).AsMeta())
 	nodeStreamer, e := cl.ReadNodeStream(readCtx)
 	if e == nil {

@@ -23,11 +23,6 @@ package configtest
 import (
 	"context"
 	"fmt"
-	pb "github.com/pydio/cells/v4/common/proto/registry"
-	"github.com/pydio/cells/v4/common/registry/util"
-	"github.com/pydio/cells/v4/common/utils/configx"
-	"github.com/pydio/cells/v4/common/utils/std"
-	"github.com/r3labs/diff/v3"
 	"log"
 	"os"
 	"sync"
@@ -35,7 +30,7 @@ import (
 
 	"github.com/google/go-cmp/cmp"
 	"github.com/google/go-cmp/cmp/cmpopts"
-	"github.com/pydio/cells/v4/common/proto/object"
+	diff "github.com/r3labs/diff/v3"
 	"github.com/smartystreets/goconvey/convey"
 	"google.golang.org/protobuf/runtime/protoimpl"
 
@@ -43,9 +38,13 @@ import (
 	clientcontext "github.com/pydio/cells/v4/common/client/context"
 	"github.com/pydio/cells/v4/common/client/grpc"
 	"github.com/pydio/cells/v4/common/config"
+	"github.com/pydio/cells/v4/common/proto/object"
+	pb "github.com/pydio/cells/v4/common/proto/registry"
+	"github.com/pydio/cells/v4/common/registry/util"
 	"github.com/pydio/cells/v4/common/server/stubs/discoverytest"
+	"github.com/pydio/cells/v4/common/utils/configx"
+	"github.com/pydio/cells/v4/common/utils/std"
 
-	// Plugins to test
 	_ "github.com/pydio/cells/v4/common/config/etcd"
 	_ "github.com/pydio/cells/v4/common/config/file"
 	_ "github.com/pydio/cells/v4/common/config/memory"
@@ -212,7 +211,7 @@ func TestGetSetGRPC(t *testing.T) {
 	config.Register(mem)
 	config.RegisterVault(vault)
 
-	conn := grpc.GetClientConnFromCtx(context.Background(), common.ServiceConfig)
+	conn := grpc.ResolveConn(context.Background(), common.ServiceConfig)
 	ctx := clientcontext.WithClientConn(context.Background(), conn)
 
 	store, err := config.OpenStore(ctx, "grpc://"+common.ServiceConfig)

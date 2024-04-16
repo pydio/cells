@@ -183,7 +183,7 @@ func (s *Handler) initSync(syncConfig *object.DataSource) error {
 		go func() {
 			defer wg.Done()
 			log.Logger(ctx).Debug("Sync " + dataSource + " - Try to contact Index")
-			cli := tree.NewNodeProviderClient(grpccli.GetClientConnFromCtx(ctx, common.ServiceDataIndex_+dataSource))
+			cli := tree.NewNodeProviderClient(grpccli.ResolveConn(ctx, common.ServiceDataIndex_+dataSource))
 			if _, e := cli.ReadNode(ctx, &tree.ReadNodeRequest{Node: &tree.Node{Path: "/"}}); e != nil {
 				return
 			}
@@ -197,7 +197,7 @@ func (s *Handler) initSync(syncConfig *object.DataSource) error {
 		var minioErr error
 		go func() {
 			defer wg.Done()
-			cli := object.NewObjectsEndpointClient(grpccli.GetClientConnFromCtx(ctx, common.ServiceDataObjects_+syncConfig.ObjectsServiceName))
+			cli := object.NewObjectsEndpointClient(grpccli.ResolveConn(ctx, common.ServiceDataObjects_+syncConfig.ObjectsServiceName))
 			resp, err := cli.GetMinioConfig(ctx, &object.GetMinioConfigRequest{})
 			if err != nil {
 				log.Logger(ctx).Warn(common.ServiceDataObjects_+syncConfig.ObjectsServiceName+" not yet available", zap.Error(err))
@@ -273,7 +273,7 @@ func (s *Handler) initSync(syncConfig *object.DataSource) error {
 		normalizeS3, _ := strconv.ParseBool(syncConfig.StorageConfiguration[object.StorageKeyNormalize])
 		var computer func(string) (int64, error)
 		if syncConfig.EncryptionMode != object.EncryptionMode_CLEAR {
-			keyClient := encryption.NewNodeKeyManagerClient(grpccli.GetClientConnFromCtx(ctx, common.ServiceEncKey))
+			keyClient := encryption.NewNodeKeyManagerClient(grpccli.ResolveConn(ctx, common.ServiceEncKey))
 			computer = func(nodeUUID string) (i int64, e error) {
 				if resp, e := keyClient.GetNodePlainSize(ctx, &encryption.GetNodePlainSizeRequest{
 					NodeId: nodeUUID,
@@ -357,7 +357,7 @@ func (s *Handler) initSync(syncConfig *object.DataSource) error {
 		}
 	*/
 
-	conn := grpccli.GetClientConnFromCtx(s.globalCtx, common.ServiceDataIndex_+syncConfig.Name)
+	conn := grpccli.ResolveConn(s.globalCtx, common.ServiceDataIndex_+syncConfig.Name)
 	s.indexClientWrite = tree.NewNodeReceiverClient(conn)
 	s.indexClientRead = tree.NewNodeProviderClient(conn)
 	s.indexClientClean = protosync.NewSyncEndpointClient(conn)
@@ -626,7 +626,7 @@ func (s *Handler) TriggerResync(c context.Context, req *protosync.ResyncRequest)
 	if e != nil {
 		if req.Task != nil {
 			theTask := req.Task
-			taskClient := jobs.NewJobServiceClient(grpccli.GetClientConnFromCtx(s.globalCtx, common.ServiceJobs))
+			taskClient := jobs.NewJobServiceClient(grpccli.ResolveConn(s.globalCtx, common.ServiceJobs))
 			theTask.StatusMessage = "Error"
 			theTask.HasProgress = true
 			theTask.Progress = 1
@@ -690,7 +690,7 @@ func (s *Handler) CleanResourcesBeforeDelete(ctx context.Context, request *objec
 
 	serviceName := servicecontext.GetServiceName(ctx)
 	dsName := strings.TrimPrefix(serviceName, common.ServiceGrpcNamespace_+common.ServiceDataSync_)
-	taskClient := jobs.NewJobServiceClient(grpccli.GetClientConnFromCtx(ctx, common.ServiceJobs))
+	taskClient := jobs.NewJobServiceClient(grpccli.ResolveConn(ctx, common.ServiceJobs))
 	log.Logger(ctx).Info("Removing job for datasource " + dsName)
 	if _, e := taskClient.DeleteJob(ctx, &jobs.DeleteJobRequest{
 		JobID: "resync-ds-" + dsName,

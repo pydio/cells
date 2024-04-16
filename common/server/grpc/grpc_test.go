@@ -23,8 +23,6 @@ package grpc
 import (
 	"context"
 	"fmt"
-	mock2 "github.com/pydio/cells/v4/common/config/mock"
-	"github.com/pydio/cells/v4/common/server"
 	"log"
 	"net"
 	"testing"
@@ -35,8 +33,10 @@ import (
 
 	clientcontext "github.com/pydio/cells/v4/common/client/context"
 	cgrpc "github.com/pydio/cells/v4/common/client/grpc"
+	mock2 "github.com/pydio/cells/v4/common/config/mock"
 	pbregistry "github.com/pydio/cells/v4/common/proto/registry"
 	"github.com/pydio/cells/v4/common/registry"
+	"github.com/pydio/cells/v4/common/server"
 	servercontext "github.com/pydio/cells/v4/common/server/context"
 	"github.com/pydio/cells/v4/common/service"
 	servicecontext "github.com/pydio/cells/v4/common/service/context"
@@ -149,12 +149,12 @@ func TestServiceRegistry(t *testing.T) {
 
 	ctx = clientcontext.WithClientConn(ctx, conn)
 
-	cli1 := helloworld.NewGreeterClient(cgrpc.GetClientConnFromCtx(ctx, "test.registry"))
+	cli1 := helloworld.NewGreeterClient(cgrpc.ResolveConn(ctx, "test.registry"))
 	resp1, err1 := cli1.SayHello(ctx, &helloworld.HelloRequest{Name: "test"})
 
 	fmt.Println(resp1, err1)
 
-	cli2 := helloworld.NewGreeterClient(cgrpc.GetClientConnFromCtx(ctx, "service.that.does.not.exist"))
+	cli2 := helloworld.NewGreeterClient(cgrpc.ResolveConn(ctx, "service.that.does.not.exist"))
 	resp2, err2 := cli2.SayHello(ctx, &helloworld.HelloRequest{Name: "test"}, grpc.WaitForReady(false))
 
 	fmt.Println(resp2, err2)

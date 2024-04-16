@@ -23,16 +23,17 @@ package grpc
 import (
 	"context"
 	"fmt"
-	"github.com/pydio/cells/v4/common/service/context/ckeys"
-	metadata2 "github.com/pydio/cells/v4/common/service/context/metadata"
-	"go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc"
-	"google.golang.org/grpc/metadata"
 	"runtime/debug"
 	"strings"
 	"sync"
 	"time"
 
-	_ "google.golang.org/grpc/xds"
+	"go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc"
+	"go.uber.org/zap/zapcore"
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/backoff"
+	"google.golang.org/grpc/credentials/insecure"
+	"google.golang.org/grpc/metadata"
 
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/client"
@@ -42,11 +43,11 @@ import (
 	"github.com/pydio/cells/v4/common/runtime"
 	servercontext "github.com/pydio/cells/v4/common/server/context"
 	servicecontext "github.com/pydio/cells/v4/common/service/context"
+	"github.com/pydio/cells/v4/common/service/context/ckeys"
+	metadata2 "github.com/pydio/cells/v4/common/service/context/metadata"
 	"github.com/pydio/cells/v4/common/service/metrics"
-	"go.uber.org/zap/zapcore"
-	"google.golang.org/grpc"
-	"google.golang.org/grpc/backoff"
-	"google.golang.org/grpc/credentials/insecure"
+
+	_ "google.golang.org/grpc/xds"
 )
 
 type ctxBalancerFilterKey struct{}
@@ -86,13 +87,13 @@ func DialOptionsForRegistry(reg registry.Registry, options ...grpc.DialOption) [
 	}, options...)
 }
 
-func GetClientConnFromCtx(ctx context.Context, serviceName string, opt ...Option) grpc.ClientConnInterface {
+func ResolveConn(ctx context.Context, serviceName string, opt ...Option) grpc.ClientConnInterface {
 	if ctx == nil {
 		return NewClientConn(serviceName, runtime.Cluster(), opt...)
 	}
 	conn := clientcontext.GetClientConn(ctx)
 	if conn == nil && WarnMissingConnInContext {
-		fmt.Println("Warning, GetClientConnFromCtx could not find conn, will create a new one")
+		fmt.Println("Warning, ResolveConn could not find conn, will create a new one")
 		debug.PrintStack()
 	}
 	reg := servercontext.GetRegistry(ctx)

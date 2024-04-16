@@ -30,14 +30,15 @@ import (
 	"github.com/spf13/cobra"
 	"google.golang.org/protobuf/types/known/anypb"
 
-	"github.com/pydio/cells/v4/common"
-	"github.com/pydio/cells/v4/common/client/grpc"
+	"github.com/pydio/cells/v4/common/client/commons/idmc"
 	"github.com/pydio/cells/v4/common/proto/idm"
 	service "github.com/pydio/cells/v4/common/proto/service"
 )
 
 var userSearchLogin string
+
 var userSearchOffset int
+
 var userSearchLimit int
 
 var userSearchCmd = &cobra.Command{
@@ -62,7 +63,7 @@ EXAMPLES
 `,
 
 	RunE: func(cmd *cobra.Command, args []string) error {
-		client := idm.NewUserServiceClient(grpc.GetClientConnFromCtx(ctx, common.ServiceUser, longGrpcCallTimeout()))
+		client := idmc.UserServiceClient(ctx, longGrpcCallTimeout())
 
 		if userSearchLogin == "*" {
 			userSearchLogin = ""

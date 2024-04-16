@@ -29,8 +29,7 @@ import (
 	"github.com/manifoldco/promptui"
 	"github.com/spf13/cobra"
 
-	"github.com/pydio/cells/v4/common"
-	"github.com/pydio/cells/v4/common/client/grpc"
+	"github.com/pydio/cells/v4/common/client/commons/idmc"
 	"github.com/pydio/cells/v4/common/proto/idm"
 )
 
@@ -91,7 +90,7 @@ EXAMPLE
 		return nil
 	},
 	Run: func(cmd *cobra.Command, args []string) {
-		client := idm.NewUserServiceClient(grpc.GetClientConnFromCtx(ctx, common.ServiceUser))
+		client := idmc.UserServiceClient(ctx)
 
 		users, err := searchUser(context.Background(), client, userPwdLogin)
 		if err != nil {

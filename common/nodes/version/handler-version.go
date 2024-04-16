@@ -55,7 +55,7 @@ func (v *Handler) Adapt(c nodes.Handler, options nodes.RouterOptions) nodes.Hand
 
 func (v *Handler) getVersionClient() tree.NodeVersionerClient {
 	if v.versionClient == nil {
-		v.versionClient = tree.NewNodeVersionerClient(grpc2.GetClientConnFromCtx(v.RuntimeCtx, common.ServiceVersions))
+		v.versionClient = tree.NewNodeVersionerClient(grpc2.ResolveConn(v.RuntimeCtx, common.ServiceVersions))
 	}
 	return v.versionClient
 }

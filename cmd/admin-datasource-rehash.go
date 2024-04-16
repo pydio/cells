@@ -23,8 +23,6 @@
 package cmd
 
 import (
-	"github.com/pydio/cells/v4/common/proto/object"
-	grpc_jobs "github.com/pydio/cells/v4/scheduler/jobs/grpc"
 	"os"
 	"path"
 
@@ -35,9 +33,11 @@ import (
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/client/grpc"
 	"github.com/pydio/cells/v4/common/proto/jobs"
+	"github.com/pydio/cells/v4/common/proto/object"
 	"github.com/pydio/cells/v4/common/proto/service"
 	"github.com/pydio/cells/v4/common/proto/tree"
 	"github.com/pydio/cells/v4/common/utils/uuid"
+	grpc_jobs "github.com/pydio/cells/v4/scheduler/jobs/grpc"
 )
 
 var (
@@ -90,7 +90,7 @@ EXAMPLES
 			Name: rehashDsName,
 		})
 
-		jobClient := jobs.NewJobServiceClient(grpc.GetClientConnFromCtx(ctx, common.ServiceJobs))
+		jobClient := jobs.NewJobServiceClient(grpc.ResolveConn(ctx, common.ServiceJobs))
 		job := &jobs.Job{
 			ID:             uuid.New(),
 			Owner:          rehashUserName,

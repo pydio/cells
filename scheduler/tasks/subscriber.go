@@ -177,7 +177,7 @@ func NewSubscriber(parentContext context.Context) *Subscriber {
 func (s *Subscriber) Init(ctx context.Context) error {
 
 	// Load Jobs Definitions
-	jobClients := jobs.NewJobServiceClient(grpc.GetClientConnFromCtx(s.rootCtx, common.ServiceJobs))
+	jobClients := jobs.NewJobServiceClient(grpc.ResolveConn(s.rootCtx, common.ServiceJobs))
 	streamer, e := jobClients.ListJobs(ctx, &jobs.ListJobsRequest{})
 	if e != nil {
 		return e
@@ -338,7 +338,7 @@ func (s *Subscriber) timerEvent(ctx context.Context, event *jobs.JobTriggerEvent
 	j, ok := s.definitions[jobId]
 	if !ok {
 		// Try to load definition directly for JobsService
-		jobClients := jobs.NewJobServiceClient(grpc.GetClientConnFromCtx(s.rootCtx, common.ServiceJobs))
+		jobClients := jobs.NewJobServiceClient(grpc.ResolveConn(s.rootCtx, common.ServiceJobs))
 		resp, e := jobClients.GetJob(ctx, &jobs.GetJobRequest{JobID: jobId})
 		if e != nil || resp.Job == nil {
 			return nil

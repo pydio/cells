@@ -30,7 +30,7 @@ import (
 	"github.com/spf13/cobra"
 
 	"github.com/pydio/cells/v4/common"
-	"github.com/pydio/cells/v4/common/client/grpc"
+	"github.com/pydio/cells/v4/common/client/commons/idmc"
 	"github.com/pydio/cells/v4/common/proto/idm"
 )
 
@@ -101,7 +101,7 @@ EXAMPLE
 	},
 	RunE: func(cmd *cobra.Command, args []string) error {
 		ctx := cmd.Context()
-		client := idm.NewUserServiceClient(grpc.GetClientConnFromCtx(ctx, common.ServiceUser))
+		client := idmc.UserServiceClient(ctx)
 		users, err := searchUser(context.Background(), client, userProfileLogin)
 		if err != nil {
 			fmt.Printf("Cannot list users for login %s: %s", userProfileLogin, err.Error())

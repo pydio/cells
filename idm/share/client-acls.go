@@ -30,6 +30,7 @@ import (
 	"google.golang.org/protobuf/types/known/anypb"
 
 	"github.com/pydio/cells/v4/common"
+	"github.com/pydio/cells/v4/common/client/commons/idmc"
 	"github.com/pydio/cells/v4/common/client/grpc"
 	"github.com/pydio/cells/v4/common/log"
 	"github.com/pydio/cells/v4/common/proto/idm"
@@ -150,7 +151,7 @@ func (sc *Client) LoadCellAclsObjects(ctx context.Context, roomAcls map[string]*
 	if len(roomAcls) == 0 {
 		return nil
 	}
-	roleClient := idm.NewRoleServiceClient(grpc.GetClientConnFromCtx(sc.RuntimeContext, common.ServiceRole))
+	roleClient := idmc.RoleServiceClient(ctx)
 	var roleIds []string
 	for _, acl := range roomAcls {
 		roleIds = append(roleIds, acl.RoleId)
@@ -183,7 +184,7 @@ func (sc *Client) LoadCellAclsObjects(ctx context.Context, roomAcls map[string]*
 			userQ, _ := anypb.New(&idm.UserSingleQuery{Uuid: roleId})
 			subQueries = append(subQueries, userQ)
 		}
-		userClient := idm.NewUserServiceClient(grpc.GetClientConnFromCtx(sc.RuntimeContext, common.ServiceUser))
+		userClient := idmc.UserServiceClient(ctx)
 		stream, err := userClient.SearchUser(ctx, &idm.SearchUserRequest{Query: &service.Query{SubQueries: subQueries}})
 		if err != nil {
 			return err
@@ -446,7 +447,7 @@ func (sc *Client) GetOrCreateWorkspace(ctx context.Context, ownerUser *idm.User,
 
 	log.Logger(ctx).Debug("GetOrCreateWorkspace", zap.String("wsUuid", wsUuid), zap.Any("scope", scope.String()), zap.Bool("updateIfNeeded", updateIfNeeded))
 
-	wsClient := idm.NewWorkspaceServiceClient(grpc.GetClientConnFromCtx(sc.RuntimeContext, common.ServiceWorkspace))
+	wsClient := idm.NewWorkspaceServiceClient(grpc.ResolveConn(sc.RuntimeContext, common.ServiceWorkspace))
 	var create bool
 	if wsUuid == "" {
 		if label == "" {
@@ -552,7 +553,7 @@ func (sc *Client) DeleteWorkspace(ctx context.Context, ownerLogin string, scope 
 		}
 	}
 	// Deleting workspace will delete associated policies and associated ACLs
-	wsClient := idm.NewWorkspaceServiceClient(grpc.GetClientConnFromCtx(sc.RuntimeContext, common.ServiceWorkspace))
+	wsClient := idm.NewWorkspaceServiceClient(grpc.ResolveConn(sc.RuntimeContext, common.ServiceWorkspace))
 	q, _ := anypb.New(&idm.WorkspaceSingleQuery{
 		Uuid: workspaceId,
 	})

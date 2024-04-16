@@ -35,7 +35,7 @@ import (
 
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/broker"
-	"github.com/pydio/cells/v4/common/client/grpc"
+	"github.com/pydio/cells/v4/common/client/commons/idmc"
 	"github.com/pydio/cells/v4/common/log"
 	"github.com/pydio/cells/v4/common/proto/idm"
 	"github.com/pydio/cells/v4/common/proto/jobs"
@@ -509,7 +509,7 @@ func (h *Handler) loadAutoAppliesRoles(ctx context.Context) (autoApplies map[str
 	}
 
 	autoApplies = make(map[string][]*idm.Role)
-	roleCli := idm.NewRoleServiceClient(grpc.GetClientConnFromCtx(h.ctx, common.ServiceRole))
+	roleCli := idmc.RoleServiceClient(ctx) //idm.NewRoleServiceClient(grpc.ResolveConn(h.ctx, common.ServiceRole))
 	q, _ := anypb.New(&idm.RoleSingleQuery{HasAutoApply: true})
 	stream, e := roleCli.SearchRole(ctx, &idm.SearchRoleRequest{Query: &pbservice.Query{SubQueries: []*anypb.Any{q}}})
 	if e != nil {

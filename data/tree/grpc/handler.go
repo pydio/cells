@@ -804,7 +804,7 @@ func (s *TreeServer) ModifyLogin(ctx context.Context, req *service.ModifyLoginRe
 				if len(parts) > 1 {
 					// We have a dsname and a path
 					indexService := common.ServiceDataIndex_ + dsName
-					idx := service.NewLoginModifierClient(grpc2.GetClientConnFromCtx(ctx, indexService))
+					idx := service.NewLoginModifierClient(grpc2.ResolveConn(ctx, indexService))
 					if mr, e := idx.ModifyLogin(ctx, &service.ModifyLoginRequest{
 						OldLogin: req.OldLogin,
 						NewLogin: req.NewLogin,

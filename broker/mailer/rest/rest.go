@@ -24,7 +24,6 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"github.com/pydio/cells/v4/common/client/grpc"
 	"regexp"
 
 	restful "github.com/emicklei/go-restful/v3"
@@ -32,6 +31,7 @@ import (
 
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/auth/claim"
+	"github.com/pydio/cells/v4/common/client/grpc"
 	"github.com/pydio/cells/v4/common/config"
 	"github.com/pydio/cells/v4/common/log"
 	"github.com/pydio/cells/v4/common/proto/mailer"
@@ -82,7 +82,7 @@ func (mh *MailerHandler) Send(req *restful.Request, rsp *restful.Response) {
 	log.Logger(ctx).Debug("Sending Email", log.DangerouslyZapSmallSlice("to", message.To), zap.String("subject", message.Subject), zap.Any("templateData", message.TemplateData))
 
 	langs := i18n.UserLanguagesFromRestRequest(req, config.Get())
-	cli := mailer.NewMailerServiceClient(grpc.GetClientConnFromCtx(mh.RuntimeCtx, common.ServiceMailer))
+	cli := mailer.NewMailerServiceClient(grpc.ResolveConn(mh.RuntimeCtx, common.ServiceMailer))
 
 	claims, ok := ctx.Value(claim.ContextKey).(claim.Claims)
 	if !ok {

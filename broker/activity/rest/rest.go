@@ -69,7 +69,7 @@ func (a *ActivityHandler) Filter() func(string) string {
 
 // Internal function to retrieve activity GRPC client
 func (a *ActivityHandler) getClient() activity.ActivityServiceClient {
-	return activity.NewActivityServiceClient(grpc.GetClientConnFromCtx(a.RuntimeCtx, common.ServiceActivity))
+	return activity.NewActivityServiceClient(grpc.ResolveConn(a.RuntimeCtx, common.ServiceActivity))
 }
 
 // Stream returns a collection of activities

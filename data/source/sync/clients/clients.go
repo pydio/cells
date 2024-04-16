@@ -30,6 +30,7 @@ import (
 	"go.uber.org/zap"
 
 	"github.com/pydio/cells/v4/common"
+	"github.com/pydio/cells/v4/common/client/commons/treec"
 	grpccli "github.com/pydio/cells/v4/common/client/grpc"
 	"github.com/pydio/cells/v4/common/config"
 	"github.com/pydio/cells/v4/common/log"
@@ -60,7 +61,7 @@ func InitEndpoints(ctx context.Context, syncConfig *object.DataSource, clientRea
 	go func() {
 		defer wg.Done()
 		log.Logger(ctx).Debug("Sync " + dataSource + " - Try to contact Index")
-		cli := tree.NewNodeProviderClient(grpccli.GetClientConnFromCtx(ctx, common.ServiceDataIndex_+dataSource))
+		cli := treec.ServiceNodeProviderClient(ctx, common.ServiceDataIndex_+dataSource)
 		if _, e := cli.ReadNode(ctx, &tree.ReadNodeRequest{Node: &tree.Node{Path: "/"}}); e != nil {
 			return
 		}
@@ -74,7 +75,7 @@ func InitEndpoints(ctx context.Context, syncConfig *object.DataSource, clientRea
 	var minioErr error
 	go func() {
 		defer wg.Done()
-		cli := object.NewObjectsEndpointClient(grpccli.GetClientConnFromCtx(ctx, common.ServiceDataObjects_+syncConfig.ObjectsServiceName))
+		cli := object.NewObjectsEndpointClient(grpccli.ResolveConn(ctx, common.ServiceDataObjects_+syncConfig.ObjectsServiceName))
 		resp, err := cli.GetMinioConfig(ctx, &object.GetMinioConfigRequest{})
 		if err != nil {
 			log.Logger(ctx).Warn(common.ServiceDataObjects_+syncConfig.ObjectsServiceName+" not yet available", zap.Error(err))
@@ -150,7 +151,7 @@ func InitEndpoints(ctx context.Context, syncConfig *object.DataSource, clientRea
 	normalizeS3, _ := strconv.ParseBool(syncConfig.StorageConfiguration[object.StorageKeyNormalize])
 	var computer func(string) (int64, error)
 	if syncConfig.EncryptionMode != object.EncryptionMode_CLEAR {
-		keyClient := encryption.NewNodeKeyManagerClient(grpccli.GetClientConnFromCtx(ctx, common.ServiceEncKey))
+		keyClient := encryption.NewNodeKeyManagerClient(grpccli.ResolveConn(ctx, common.ServiceEncKey))
 		computer = func(nodeUUID string) (i int64, e error) {
 			if resp, e := keyClient.GetNodePlainSize(ctx, &encryption.GetNodePlainSizeRequest{
 				NodeId: nodeUUID,

@@ -26,11 +26,10 @@ import (
 	"io"
 	"strings"
 
-	"github.com/pydio/cells/v4/common/client/grpc"
-
 	"go.uber.org/zap"
 
 	"github.com/pydio/cells/v4/common"
+	"github.com/pydio/cells/v4/common/client/grpc"
 	"github.com/pydio/cells/v4/common/crypto"
 	"github.com/pydio/cells/v4/common/log"
 	"github.com/pydio/cells/v4/common/nodes"
@@ -652,7 +651,7 @@ func (e *Handler) getKeyProtectionTool(ctx context.Context) (UserKeyTool, error)
 func (e *Handler) getNodeKeyManagerClient() encryption.NodeKeyManagerClient {
 	nodeEncryptionClient := e.nodeKeyManagerClient
 	if nodeEncryptionClient == nil {
-		nodeEncryptionClient = encryption.NewNodeKeyManagerClient(grpc.GetClientConnFromCtx(e.RuntimeCtx, common.ServiceEncKey))
+		nodeEncryptionClient = encryption.NewNodeKeyManagerClient(grpc.ResolveConn(e.RuntimeCtx, common.ServiceEncKey))
 	}
 	return nodeEncryptionClient
 }

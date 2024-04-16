@@ -39,7 +39,7 @@ import (
 func (h *Handler) ReadNodeStream(stream tree.NodeProviderStreamer_ReadNodeStreamServer) error {
 
 	ctx := stream.Context()
-	workspaceClient := idm.NewWorkspaceServiceClient(grpc.GetClientConnFromCtx(ctx, common.ServiceWorkspace))
+	workspaceClient := idm.NewWorkspaceServiceClient(grpc.ResolveConn(ctx, common.ServiceWorkspace))
 
 	dao, err := manager.Resolve[acl.DAO](ctx)
 	if err != nil {

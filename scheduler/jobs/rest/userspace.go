@@ -149,7 +149,7 @@ func compress(ctx context.Context, selectedPaths []string, targetNodePath string
 			},
 		}
 
-		cli := jobs.NewJobServiceClient(grpc.GetClientConnFromCtx(ctx, common.ServiceJobs))
+		cli := jobs.NewJobServiceClient(grpc.ResolveConn(ctx, common.ServiceJobs))
 		_, er := cli.PutJob(ctx, &jobs.PutJobRequest{Job: job})
 		return er
 
@@ -231,7 +231,7 @@ func extract(ctx context.Context, selectedNode string, targetPath string, format
 			},
 		}
 
-		cli := jobs.NewJobServiceClient(grpc.GetClientConnFromCtx(ctx, common.ServiceJobs))
+		cli := jobs.NewJobServiceClient(grpc.ResolveConn(ctx, common.ServiceJobs))
 		_, err := cli.PutJob(ctx, &jobs.PutJobRequest{Job: job})
 		return err
 
@@ -350,7 +350,7 @@ func dirCopy(ctx context.Context, selectedPathes []string, targetNodePath string
 		log.Logger(ctx).Info("Creating copy/move job", pZap, zap.String("target", targetNodePath))
 		if move && strings.Contains(targetNodePath, common.RecycleBinName) {
 			// Update node meta before moving
-			metaClient := tree.NewNodeReceiverClient(grpc.GetClientConnFromCtx(ctx, common.ServiceMeta))
+			metaClient := tree.NewNodeReceiverClient(grpc.ResolveConn(ctx, common.ServiceMeta))
 			for _, n := range loadedNodes {
 				metaNode := &tree.Node{Uuid: n.GetUuid()}
 				metaNode.MustSetMeta(common.MetaNamespaceRecycleRestore, n.Path)
@@ -397,7 +397,7 @@ func dirCopy(ctx context.Context, selectedPathes []string, targetNodePath string
 			},
 		}
 
-		cli := jobs.NewJobServiceClient(grpc.GetClientConnFromCtx(ctx, common.ServiceJobs))
+		cli := jobs.NewJobServiceClient(grpc.ResolveConn(ctx, common.ServiceJobs))
 		_, er := cli.PutJob(ctx, &jobs.PutJobRequest{Job: job})
 		return er
 
@@ -409,7 +409,7 @@ func dirCopy(ctx context.Context, selectedPathes []string, targetNodePath string
 func syncDatasource(ctx context.Context, dsName string, languages ...string) (string, error) {
 
 	jobUuid := "resync-ds-" + dsName
-	cli := jobs.NewJobServiceClient(grpc.GetClientConnFromCtx(ctx, common.ServiceJobs))
+	cli := jobs.NewJobServiceClient(grpc.ResolveConn(ctx, common.ServiceJobs))
 	if resp, er := cli.GetJob(ctx, &jobs.GetJobRequest{JobID: jobUuid}); er == nil && resp.Job != nil {
 		broker.MustPublish(ctx, common.TopicTimerEvent, &jobs.JobTriggerEvent{
 			JobID:  jobUuid,
@@ -467,7 +467,7 @@ func wgetTasks(ctx context.Context, parentPath string, urls []string, languages 
 	if bl != "" {
 		blackList = strings.Split(bl, ",")
 	}
-	cli := jobs.NewJobServiceClient(grpc.GetClientConnFromCtx(ctx, common.ServiceJobs))
+	cli := jobs.NewJobServiceClient(grpc.ResolveConn(ctx, common.ServiceJobs))
 	for _, u := range urls {
 		parsed, e := url.Parse(u)
 		if e != nil {
@@ -565,7 +565,7 @@ func p8migration(ctx context.Context, jsonParams string) (string, error) {
 
 	log.Logger(ctx).Info("Posting Job", zap.Object("job", job))
 
-	cli := jobs.NewJobServiceClient(grpc.GetClientConnFromCtx(ctx, common.ServiceJobs))
+	cli := jobs.NewJobServiceClient(grpc.ResolveConn(ctx, common.ServiceJobs))
 	if _, er := cli.PutJob(ctx, &jobs.PutJobRequest{Job: job}); er == nil {
 		<-time.After(2 * time.Second)
 		broker.MustPublish(ctx, common.TopicTimerEvent, &jobs.JobTriggerEvent{

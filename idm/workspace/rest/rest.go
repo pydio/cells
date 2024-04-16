@@ -95,7 +95,7 @@ func (h *WorkspaceHandler) PutWorkspace(req *restful.Request, rsp *restful.Respo
 	}
 	log.Logger(req.Request.Context()).Debug("Received Workspace.Put API request", zap.Any("inputWorkspace", inputWorkspace))
 
-	cli := idm.NewWorkspaceServiceClient(grpc.GetClientConnFromCtx(ctx, common.ServiceWorkspace))
+	cli := idm.NewWorkspaceServiceClient(grpc.ResolveConn(ctx, common.ServiceWorkspace))
 	update := false
 	if ws, _ := h.workspaceById(ctx, inputWorkspace.UUID, cli); ws != nil {
 		update = true
@@ -174,7 +174,7 @@ func (h *WorkspaceHandler) DeleteWorkspace(req *restful.Request, rsp *restful.Re
 	serviceQuery := &service.Query{SubQueries: []*anypb.Any{query}}
 
 	ctx := req.Request.Context()
-	cli := idm.NewWorkspaceServiceClient(grpc.GetClientConnFromCtx(ctx, common.ServiceWorkspace))
+	cli := idm.NewWorkspaceServiceClient(grpc.ResolveConn(ctx, common.ServiceWorkspace))
 
 	if stream, e := cli.SearchWorkspace(ctx, &idm.SearchWorkspaceRequest{Query: serviceQuery}); e == nil {
 		for {
@@ -239,7 +239,7 @@ func (h *WorkspaceHandler) SearchWorkspaces(req *restful.Request, rsp *restful.R
 		return
 	}
 
-	cli := idm.NewWorkspaceServiceClient(grpc.GetClientConnFromCtx(ctx, common.ServiceWorkspace))
+	cli := idm.NewWorkspaceServiceClient(grpc.ResolveConn(ctx, common.ServiceWorkspace))
 
 	streamer, err := cli.SearchWorkspace(ctx, &idm.SearchWorkspaceRequest{
 		Query: query,

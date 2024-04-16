@@ -180,7 +180,7 @@ func (c *CaptureAction) Run(ctx context.Context, channels *actions.RunnableChann
 	if sec := config.GetSecret(syncConfig.ApiSecret).String(); sec != "" {
 		syncConfig.ApiSecret = sec
 	}
-	conn := grpc.GetClientConnFromCtx(ctx, common.ServiceGrpcNamespace_+common.ServiceDataIndex_+dsName)
+	conn := grpc.ResolveConn(ctx, common.ServiceGrpcNamespace_+common.ServiceDataIndex_+dsName)
 	cRead := tree.NewNodeProviderClient(conn)
 	cWrite := tree.NewNodeReceiverClient(conn)
 	cSess := tree.NewSessionIndexerClient(conn)

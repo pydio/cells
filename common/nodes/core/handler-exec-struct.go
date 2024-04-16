@@ -210,7 +210,7 @@ func getPostNodeChangeClient(ctx context.Context, serviceName string, refresh bo
 	if c, o := pncClients[serviceName]; o {
 		return c, nil
 	}
-	cl := tree.NewNodeChangesReceiverStreamerClient(grpc2.GetClientConnFromCtx(ctx, common.ServiceGrpcNamespace_+common.ServiceDataSync_+serviceName))
+	cl := tree.NewNodeChangesReceiverStreamerClient(grpc2.ResolveConn(ctx, common.ServiceGrpcNamespace_+common.ServiceDataSync_+serviceName))
 	bg := runtimecontext.ForkContext(context.Background(), ctx)
 	c, e := cl.PostNodeChanges(bg)
 	if e != nil {

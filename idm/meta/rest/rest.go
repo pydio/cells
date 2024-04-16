@@ -32,6 +32,7 @@ import (
 
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/auth"
+	"github.com/pydio/cells/v4/common/client/commons/idmc"
 	"github.com/pydio/cells/v4/common/client/grpc"
 	"github.com/pydio/cells/v4/common/log"
 	"github.com/pydio/cells/v4/common/nodes/compose"
@@ -78,7 +79,7 @@ func (s *UserMetaHandler) Filter() func(string) string {
 func (s *UserMetaHandler) updateLock(ctx context.Context, meta *idm.UserMeta, operation idm.UpdateUserMetaRequest_UserMetaOp) error {
 	log.Logger(ctx).Debug("Should update content lock in ACLs", zap.Any("meta", meta), zap.Any("operation", operation))
 	nodeUuid := meta.NodeUuid
-	aclClient := idm.NewACLServiceClient(grpc.GetClientConnFromCtx(ctx, common.ServiceAcl))
+	aclClient := idmc.ACLServiceClient(ctx)
 	q, _ := anypb.New(&idm.ACLSingleQuery{
 		NodeIDs: []string{nodeUuid},
 		Actions: []*idm.ACLAction{{Name: permissions.AclContentLock.Name}},
@@ -129,7 +130,7 @@ func (s *UserMetaHandler) UpdateUserMeta(req *restful.Request, rsp *restful.Resp
 		return
 	}
 	ctx := req.Request.Context()
-	userMetaClient := idm.NewUserMetaServiceClient(grpc.GetClientConnFromCtx(s.ctx, common.ServiceUserMeta))
+	userMetaClient := idm.NewUserMetaServiceClient(grpc.ResolveConn(s.ctx, common.ServiceUserMeta))
 	nsList, e := s.ListAllNamespaces(ctx, userMetaClient)
 	if e != nil {
 		service.RestError500(req, rsp, e)
@@ -304,7 +305,7 @@ func (s *UserMetaHandler) UpdateUserMetaNamespace(req *restful.Request, rsp *res
 		}
 	}
 
-	nsClient := idm.NewUserMetaServiceClient(grpc.GetClientConnFromCtx(ctx, common.ServiceUserMeta))
+	nsClient := idm.NewUserMetaServiceClient(grpc.ResolveConn(ctx, common.ServiceUserMeta))
 	response, err := nsClient.UpdateUserMetaNamespace(ctx, &input)
 	if err != nil {
 		service.RestError500(req, rsp, err)
@@ -318,7 +319,7 @@ func (s *UserMetaHandler) ListUserMetaNamespace(req *restful.Request, rsp *restf
 
 	ctx := req.Request.Context()
 
-	nsClient := idm.NewUserMetaServiceClient(grpc.GetClientConnFromCtx(ctx, common.ServiceUserMeta))
+	nsClient := idm.NewUserMetaServiceClient(grpc.ResolveConn(ctx, common.ServiceUserMeta))
 	output := &rest.UserMetaNamespaceCollection{}
 	if ns, err := s.ListAllNamespaces(ctx, nsClient); err == nil {
 		for _, n := range ns {
@@ -336,7 +337,7 @@ func (s *UserMetaHandler) ListUserMetaTags(req *restful.Request, rsp *restful.Re
 	ns := req.PathParameter("Namespace")
 	ctx := req.Request.Context()
 	log.Logger(ctx).Debug("Listing tags for namespace " + ns)
-	nsClient := idm.NewUserMetaServiceClient(grpc.GetClientConnFromCtx(ctx, common.ServiceUserMeta))
+	nsClient := idm.NewUserMetaServiceClient(grpc.ResolveConn(ctx, common.ServiceUserMeta))
 	nss, er := s.ListAllNamespaces(ctx, nsClient)
 	if er != nil {
 		service.RestErrorDetect(req, rsp, er)
@@ -362,7 +363,7 @@ func (s *UserMetaHandler) PutUserMetaTag(req *restful.Request, rsp *restful.Resp
 	}
 
 	ctx := req.Request.Context()
-	nsClient := idm.NewUserMetaServiceClient(grpc.GetClientConnFromCtx(ctx, common.ServiceUserMeta))
+	nsClient := idm.NewUserMetaServiceClient(grpc.ResolveConn(ctx, common.ServiceUserMeta))
 	nss, er := s.ListAllNamespaces(ctx, nsClient)
 	if er != nil {
 		service.RestErrorDetect(req, rsp, er)
@@ -412,7 +413,7 @@ func (s *UserMetaHandler) PerformSearchMetaRequest(ctx context.Context, request 
 		Subjects: subjects,
 	}
 
-	userMetaClient := idm.NewUserMetaServiceClient(grpc.GetClientConnFromCtx(ctx, common.ServiceUserMeta))
+	userMetaClient := idm.NewUserMetaServiceClient(grpc.ResolveConn(ctx, common.ServiceUserMeta))
 	stream, er := userMetaClient.SearchUserMeta(ctx, request)
 	if er != nil {
 		return nil, e

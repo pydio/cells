@@ -168,7 +168,7 @@ func PolicyContextFromClaims(policyContext map[string]string, ctx context.Contex
 
 func loadPoliciesByResourcesType(ctx context.Context, resType string) ([]*idm.Policy, error) {
 
-	cli := idm.NewPolicyEngineServiceClient(grpc.GetClientConnFromCtx(ctx, common.ServicePolicy))
+	cli := idm.NewPolicyEngineServiceClient(grpc.ResolveConn(ctx, common.ServicePolicy))
 	st, e := cli.StreamPolicyGroups(ctx, &idm.ListPolicyGroupsRequest{Filter: "resource_group:" + resType})
 	if e != nil {
 		return nil, e

@@ -25,12 +25,10 @@ import (
 	"encoding/base64"
 	"sync"
 
-	"github.com/pydio/cells/v4/common/client/grpc"
-
 	"github.com/pydio/cells/v4/common"
-	"github.com/pydio/cells/v4/common/proto/encryption"
-
+	"github.com/pydio/cells/v4/common/client/grpc"
 	"github.com/pydio/cells/v4/common/crypto"
+	"github.com/pydio/cells/v4/common/proto/encryption"
 )
 
 // UserKeyTool describes a tool that can encrypt/decrypt data based on user context
@@ -61,7 +59,7 @@ func (kt *userKeyTool) keyByID(ctx context.Context, id string) ([]byte, error) {
 		return k, nil
 	}
 
-	client := encryption.NewUserKeyStoreClient(grpc.GetClientConnFromCtx(ctx, common.ServiceUserKey))
+	client := encryption.NewUserKeyStoreClient(grpc.ResolveConn(ctx, common.ServiceUserKey))
 	rsp, err := client.GetKey(ctx, &encryption.GetKeyRequest{KeyID: id})
 	if err != nil {
 		return nil, err

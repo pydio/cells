@@ -31,7 +31,7 @@ import (
 	"github.com/pydio/cells/v4/common/log"
 	activity2 "github.com/pydio/cells/v4/common/proto/activity"
 	"github.com/pydio/cells/v4/common/proto/tree"
-	servicecontext "github.com/pydio/cells/v4/common/service/context"
+	"github.com/pydio/cells/v4/common/runtime/manager"
 	"github.com/pydio/cells/v4/common/service/context/metadata"
 )
 
@@ -47,7 +47,10 @@ func (m *MetaProvider) Name() string {
 func (m *MetaProvider) ReadNodeStream(streamer tree.NodeProviderStreamer_ReadNodeStreamServer) error {
 
 	ctx := streamer.Context()
-	dao := servicecontext.GetDAO[activity.DAO](ctx)
+	dao, err := manager.Resolve[activity.DAO](ctx)
+	if err != nil {
+		return err
+	}
 
 	// Extract current user Id from X-Pydio-User key
 	var userId string

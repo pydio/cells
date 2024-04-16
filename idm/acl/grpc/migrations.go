@@ -10,7 +10,7 @@ import (
 	"google.golang.org/protobuf/types/known/anypb"
 
 	"github.com/pydio/cells/v4/common"
-	"github.com/pydio/cells/v4/common/client/grpc"
+	"github.com/pydio/cells/v4/common/client/commons/treec"
 	"github.com/pydio/cells/v4/common/log"
 	"github.com/pydio/cells/v4/common/proto/idm"
 	service "github.com/pydio/cells/v4/common/proto/service"
@@ -40,7 +40,7 @@ func UpgradeTo120(ctx context.Context) error {
 
 	// ADD recycle_root on workspaces
 	log.Logger(ctx).Info("Upgrading ACLs for recycle_root flags")
-	metaClient := tree.NewNodeProviderClient(grpc.GetClientConnFromCtx(ctx, common.ServiceMeta))
+	metaClient := treec.ServiceNodeProviderClient(ctx, common.ServiceMeta)
 	q, _ := anypb.New(&idm.ACLSingleQuery{
 		Actions: []*idm.ACLAction{
 			{Name: permissions.AclWsrootActionName},
@@ -84,7 +84,7 @@ func UpgradeTo120(ctx context.Context) error {
 		}
 	}
 
-	treeClient := tree.NewNodeProviderClient(grpc.GetClientConnFromCtx(ctx, common.ServiceTree))
+	treeClient := treec.NodeProviderClient(ctx)
 	// Special case for personal files: browse existing folders, assume they are users personal workspaces and add recycle root
 	std.Retry(ctx, func() error {
 		stream, e := treeClient.ListNodes(ctx, &tree.ListNodesRequest{Node: &tree.Node{Path: "personal"}})

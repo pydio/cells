@@ -52,7 +52,7 @@ func (h *Handler) UpdateRequired(req *restful.Request, rsp *restful.Response) {
 		service.RestError500(req, rsp, e)
 		return
 	}
-	cli := update.NewUpdateServiceClient(grpc.GetClientConnFromCtx(ctx, common.ServiceUpdate))
+	cli := update.NewUpdateServiceClient(grpc.ResolveConn(ctx, common.ServiceUpdate))
 	response, err := cli.UpdateRequired(ctx, &updateRequest)
 	if err != nil {
 		service.RestError500(req, rsp, err)
@@ -75,7 +75,7 @@ func (h *Handler) ApplyUpdate(req *restful.Request, rsp *restful.Response) {
 		return
 	}
 
-	cli := update.NewUpdateServiceClient(grpc.GetClientConnFromCtx(ctx, common.ServiceUpdate))
+	cli := update.NewUpdateServiceClient(grpc.ResolveConn(ctx, common.ServiceUpdate))
 	response, err := cli.ApplyUpdate(ctx, &applyRequest)
 	if err != nil {
 		service.RestError500(req, rsp, err)

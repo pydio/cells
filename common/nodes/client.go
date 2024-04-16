@@ -68,12 +68,13 @@ var (
 )
 
 var metaClient tree.NodeReceiverClient
+
 var mcOnce sync.Once
 
 // CoreMetaWriter lazily loads a ServiceMeta grpc client
 func CoreMetaWriter(ctx context.Context) tree.NodeReceiverClient {
 	mcOnce.Do(func() {
-		metaClient = tree.NewNodeReceiverClient(grpc.GetClientConnFromCtx(ctx, common.ServiceMeta))
+		metaClient = tree.NewNodeReceiverClient(grpc.ResolveConn(ctx, common.ServiceMeta))
 	})
 	return metaClient
 }

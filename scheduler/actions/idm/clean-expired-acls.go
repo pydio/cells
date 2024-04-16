@@ -6,7 +6,7 @@ import (
 	"time"
 
 	"github.com/pydio/cells/v4/common"
-	"github.com/pydio/cells/v4/common/client/grpc"
+	"github.com/pydio/cells/v4/common/client/commons/idmc"
 	"github.com/pydio/cells/v4/common/forms"
 	"github.com/pydio/cells/v4/common/log"
 	"github.com/pydio/cells/v4/common/proto/idm"
@@ -101,7 +101,7 @@ func (c *CleanExpiredACLAction) Run(ctx context.Context, channels *actions.Runna
 		return input.WithError(e), e
 	}
 
-	aclClient := idm.NewACLServiceClient(grpc.GetClientConnFromCtx(c.GetRuntimeContext(), common.ServiceAcl))
+	aclClient := idmc.ACLServiceClient(ctx) // TODO CHECK CONTEXT - was c.RuntimeContext
 	resp, e := aclClient.DeleteACL(ctx, req)
 	if e != nil {
 		return input.WithError(e), e

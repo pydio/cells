@@ -27,11 +27,10 @@ import (
 	"strings"
 	"time"
 
-	"github.com/pydio/cells/v4/common/client/grpc"
-
 	"go.uber.org/zap"
 
 	"github.com/pydio/cells/v4/common"
+	"github.com/pydio/cells/v4/common/client/grpc"
 	"github.com/pydio/cells/v4/common/forms"
 	"github.com/pydio/cells/v4/common/log"
 	"github.com/pydio/cells/v4/common/nodes"
@@ -127,7 +126,7 @@ func (c *OnDeleteVersionsAction) Run(ctx context.Context, channels *actions.Runn
 	prefix := strings.TrimSuffix(base, ext)
 	parentCreated := false
 
-	versionClient := tree.NewNodeVersionerClient(grpc.GetClientConnFromCtx(c.GetRuntimeContext(), common.ServiceVersions))
+	versionClient := tree.NewNodeVersionerClient(grpc.ResolveConn(c.GetRuntimeContext(), common.ServiceVersions))
 
 	if response, err := versionClient.PruneVersions(ctx, &tree.PruneVersionsRequest{UniqueNode: node}); err == nil {
 		deleteStrategy := policy.GetNodeDeletedStrategy()

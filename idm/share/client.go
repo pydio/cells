@@ -32,6 +32,7 @@ import (
 
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/auth"
+	"github.com/pydio/cells/v4/common/client/commons/idmc"
 	"github.com/pydio/cells/v4/common/client/grpc"
 	"github.com/pydio/cells/v4/common/log"
 	"github.com/pydio/cells/v4/common/nodes"
@@ -123,7 +124,7 @@ func (sc *Client) UpsertLink(ctx context.Context, link *rest.ShareLink, linkOpti
 	var err error
 	var create bool
 	var refLabel string
-	aclClient := idm.NewACLServiceClient(grpc.GetClientConnFromCtx(sc.RuntimeContext, common.ServiceAcl))
+	aclClient := idmc.ACLServiceClient(ctx) //idm.NewACLServiceClient(grpc.ResolveConn(sc.RuntimeContext, common.ServiceAcl))
 	if len(link.RootNodes) == 1 {
 		refLabel = path.Base(link.RootNodes[0].GetPath())
 	}
@@ -182,7 +183,7 @@ func (sc *Client) UpsertLink(ctx context.Context, link *rest.ShareLink, linkOpti
 			Action:   service2.ResourcePolicyAction_READ,
 			Effect:   service2.ResourcePolicy_allow,
 		})
-		wsClient := idm.NewWorkspaceServiceClient(grpc.GetClientConnFromCtx(sc.RuntimeContext, common.ServiceWorkspace))
+		wsClient := idm.NewWorkspaceServiceClient(grpc.ResolveConn(sc.RuntimeContext, common.ServiceWorkspace))
 		if _, er := wsClient.CreateWorkspace(ctx, &idm.CreateWorkspaceRequest{Workspace: workspace}); er != nil {
 			return nil, er
 		}
@@ -288,8 +289,8 @@ func (sc *Client) DeleteLink(ctx context.Context, id string) error {
 // SharesForNode finds all active workspaces (Links or Cells) for a given node+owner combination
 func (sc *Client) SharesForNode(ctx context.Context, node *tree.Node, contextOwner *idm.User, scopes ...idm.WorkspaceScope) ([]*idm.Workspace, error) {
 
-	aclClient := idm.NewACLServiceClient(grpc.GetClientConnFromCtx(sc.RuntimeContext, common.ServiceAcl))
-	wsClient := idm.NewWorkspaceServiceClient(grpc.GetClientConnFromCtx(sc.RuntimeContext, common.ServiceWorkspace))
+	aclClient := idmc.ACLServiceClient(ctx)      //idm.NewACLServiceClient(grpc.ResolveConn(sc.RuntimeContext, common.ServiceAcl))
+	wsClient := idmc.WorkspaceServiceClient(ctx) //idm.NewWorkspaceServiceClient(grpc.ResolveConn(sc.RuntimeContext, common.ServiceWorkspace))
 
 	q, _ := anypb.New(&idm.ACLSingleQuery{
 		NodeIDs: []string{node.Uuid},
@@ -403,7 +404,7 @@ func (sc *Client) UpsertCell(ctx context.Context, cell *rest.Cell, ownerUser *id
 	}
 
 	// Now set ACLs on Workspace
-	aclClient := idm.NewACLServiceClient(grpc.GetClientConnFromCtx(sc.RuntimeContext, common.ServiceAcl))
+	aclClient := idmc.ACLServiceClient(ctx) //idm.NewACLServiceClient(grpc.ResolveConn(sc.RuntimeContext, common.ServiceAcl))
 	var currentAcls []*idm.ACL
 	var currentRoots []string
 	if !wsCreated {
@@ -522,7 +523,7 @@ func (sc *Client) UpsertCell(ctx context.Context, cell *rest.Cell, ownerUser *id
 
 	// Now update workspace
 	log.Logger(ctx).Debug("Updating workspace", zap.Any("workspace", workspace))
-	wsClient := idm.NewWorkspaceServiceClient(grpc.GetClientConnFromCtx(sc.RuntimeContext, common.ServiceWorkspace))
+	wsClient := idm.NewWorkspaceServiceClient(grpc.ResolveConn(sc.RuntimeContext, common.ServiceWorkspace))
 	if _, err := wsClient.CreateWorkspace(ctx, &idm.CreateWorkspaceRequest{Workspace: workspace}); err != nil {
 		return nil, err
 	}

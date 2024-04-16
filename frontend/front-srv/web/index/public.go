@@ -517,7 +517,7 @@ func (h *PublicHandler) davDirectoryIndex(w http.ResponseWriter, r *http.Request
 // Load link from Docstore
 func (h *PublicHandler) loadLink(ctx context.Context, linkUuid string) (*docstore.ShareDocument, error) {
 
-	store := docstore.NewDocStoreClient(grpc.GetClientConnFromCtx(ctx, common.ServiceDocStore))
+	store := docstore.NewDocStoreClient(grpc.ResolveConn(ctx, common.ServiceDocStore))
 	resp, e := store.GetDocument(ctx, &docstore.GetDocumentRequest{DocumentID: linkUuid, StoreID: common.DocStoreIdShares})
 	if e != nil {
 		return nil, fmt.Errorf("cannot find document")

@@ -22,15 +22,15 @@ package cmd
 
 import (
 	"fmt"
-	"github.com/pydio/cells/v4/common/proto/idm"
 	"os"
 	"strconv"
 	"time"
 
-	"github.com/pydio/cells/v4/common/client/grpc"
 	"github.com/spf13/cobra"
 
 	"github.com/pydio/cells/v4/common"
+	"github.com/pydio/cells/v4/common/client/grpc"
+	"github.com/pydio/cells/v4/common/proto/idm"
 )
 
 var (
@@ -82,7 +82,7 @@ EXAMPLES
 			return
 		}
 
-		aclClient := idm.NewACLServiceClient(grpc.GetClientConnFromCtx(ctx, common.ServiceAcl))
+		aclClient := idm.NewACLServiceClient(grpc.ResolveConn(ctx, common.ServiceAcl))
 		resp, e := aclClient.DeleteACL(ctx, req)
 		if e != nil {
 			cmd.Println("[ERROR] " + e.Error())

@@ -8,6 +8,7 @@ import (
 	"google.golang.org/protobuf/types/known/anypb"
 
 	"github.com/pydio/cells/v4/common"
+	"github.com/pydio/cells/v4/common/client/commons/idmc"
 	"github.com/pydio/cells/v4/common/client/grpc"
 	"github.com/pydio/cells/v4/common/forms"
 	"github.com/pydio/cells/v4/common/proto/idm"
@@ -87,7 +88,7 @@ func (a *DeleteUsersAction) Run(ctx context.Context, channels *actions.RunnableC
 		return input.WithError(e), e
 	}
 	q, _ := anypb.New(singleQ)
-	uCl := idm.NewUserServiceClient(grpc.GetClientConnFromCtx(ctx, common.ServiceUser, grpc.WithCallTimeout(30*time.Minute)))
+	uCl := idmc.UserServiceClient(ctx, grpc.WithCallTimeout(30*time.Minute))
 	_, e := uCl.DeleteUser(ctx, &idm.DeleteUserRequest{Query: &service.Query{SubQueries: []*anypb.Any{q}}})
 	if e != nil {
 		input = input.WithError(e)

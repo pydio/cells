@@ -23,7 +23,6 @@ package grpc
 import (
 	"context"
 	"fmt"
-	servicecontext "github.com/pydio/cells/v4/common/service/context"
 	"math"
 	"strings"
 	"sync"
@@ -39,6 +38,7 @@ import (
 	"github.com/pydio/cells/v4/common/log"
 	proto "github.com/pydio/cells/v4/common/proto/jobs"
 	log2 "github.com/pydio/cells/v4/common/proto/log"
+	servicecontext "github.com/pydio/cells/v4/common/service/context"
 	"github.com/pydio/cells/v4/common/service/context/metadata"
 	"github.com/pydio/cells/v4/common/service/errors"
 	"github.com/pydio/cells/v4/common/utils/uuid"
@@ -548,7 +548,7 @@ func (j *JobsHandler) CleanStuckTasks(ctx context.Context, serverStart bool, log
 
 func (j *JobsHandler) cleanStuckByStatus(ctx context.Context, serverStart bool, logger log.ZapLogger, status proto.TaskStatus, isRetry bool, duration ...time.Duration) ([]*proto.Task, bool, error) {
 
-	tcli := proto.NewTaskServiceClient(grpc.GetClientConnFromCtx(ctx, common.ServiceTasks))
+	tcli := proto.NewTaskServiceClient(grpc.ResolveConn(ctx, common.ServiceTasks))
 	shouldRetry := false
 	var currentTaskID string
 	if mm, ok := metadata.FromContextRead(ctx); ok {

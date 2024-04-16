@@ -26,6 +26,7 @@ import (
 	"google.golang.org/protobuf/types/known/anypb"
 
 	"github.com/pydio/cells/v4/common"
+	"github.com/pydio/cells/v4/common/client/commons/treec"
 	"github.com/pydio/cells/v4/common/client/grpc"
 	"github.com/pydio/cells/v4/common/proto/idm"
 	"github.com/pydio/cells/v4/common/proto/service"
@@ -52,13 +53,13 @@ DESCRIPTION
 
 		ctx := cmd.Context()
 
-		treeClient := tree.NewNodeProviderClient(grpc.GetClientConnFromCtx(ctx, common.ServiceTree, longGrpcCallTimeout()))
+		treeClient := treec.NodeProviderClient(ctx, longGrpcCallTimeout())
 		stream, e := treeClient.ListNodes(ctx, &tree.ListNodesRequest{Node: &tree.Node{Path: patchRecycleRoot}})
 		if e != nil {
 			return e
 		}
 
-		aclClient := idm.NewACLServiceClient(grpc.GetClientConnFromCtx(ctx, common.ServiceAcl))
+		aclClient := idm.NewACLServiceClient(grpc.ResolveConn(ctx, common.ServiceAcl))
 
 		for {
 			resp, er := stream.Recv()

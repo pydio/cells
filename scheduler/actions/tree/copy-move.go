@@ -244,7 +244,7 @@ func (c *CopyMoveAction) suffixPathIfNecessary(ctx context.Context, cli nodes.Ha
 
 	if r, e := cli.ReadNode(ctx, &tree.ReadNodeRequest{Node: pNode}); e == nil && !nodes.IsUnitTestEnv {
 		pNode = r.GetNode()
-		aclClient := idm.NewACLServiceClient(grpc.GetClientConnFromCtx(c.GetRuntimeContext(), common.ServiceAcl))
+		aclClient := idm.NewACLServiceClient(grpc.ResolveConn(c.GetRuntimeContext(), common.ServiceAcl))
 		q, _ := anypb.New(&idm.ACLSingleQuery{
 			Actions: []*idm.ACLAction{{Name: permissions.AclChildLock.Name + ":*"}},
 			NodeIDs: []string{pNode.GetUuid()},

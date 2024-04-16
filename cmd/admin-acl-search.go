@@ -63,7 +63,7 @@ EXAMPLES
 `,
 	Run: func(cmd *cobra.Command, args []string) {
 
-		client := idm.NewACLServiceClient(clientgrpc.GetClientConnFromCtx(cmd.Context(), common.ServiceAcl))
+		client := idm.NewACLServiceClient(clientgrpc.ResolveConn(cmd.Context(), common.ServiceAcl))
 
 		var aclActions []*idm.ACLAction
 		for _, action := range actions {

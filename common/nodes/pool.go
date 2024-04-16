@@ -132,11 +132,12 @@ func (p *ClientsPool) Close() {
 }
 
 // GetTreeClient returns the internal NodeProviderClient pointing to the TreeService.
+// TODO CONTEXT
 func (p *ClientsPool) GetTreeClient() tree.NodeProviderClient {
 	if p.treeClient != nil {
 		return p.treeClient
 	}
-	return tree.NewNodeProviderClient(clientgrpc.GetClientConnFromCtx(p.ctx, common.ServiceGrpcNamespace_+common.ServiceTree))
+	return tree.NewNodeProviderClient(clientgrpc.ResolveConn(p.ctx, common.ServiceGrpcNamespace_+common.ServiceTree))
 }
 
 // GetTreeClientWrite returns the internal NodeReceiverClient pointing to the TreeService.
@@ -144,7 +145,7 @@ func (p *ClientsPool) GetTreeClientWrite() tree.NodeReceiverClient {
 	if p.treeClientWrite != nil {
 		return p.treeClientWrite
 	}
-	return tree.NewNodeReceiverClient(clientgrpc.GetClientConnFromCtx(p.ctx, common.ServiceGrpcNamespace_+common.ServiceTree))
+	return tree.NewNodeReceiverClient(clientgrpc.ResolveConn(p.ctx, common.ServiceGrpcNamespace_+common.ServiceTree))
 }
 
 // GetDataSourceInfo tries to find information about a DataSource, eventually retrying as DataSource
@@ -236,7 +237,7 @@ func (p *ClientsPool) LoadDataSources() {
 			continue
 		}
 
-		endpointClient := object.NewDataSourceEndpointClient(clientgrpc.GetClientConnFromCtx(p.ctx, common.ServiceGrpcNamespace_+common.ServiceDataSync_+source))
+		endpointClient := object.NewDataSourceEndpointClient(clientgrpc.ResolveConn(p.ctx, common.ServiceGrpcNamespace_+common.ServiceDataSync_+source))
 		to, ca := context.WithTimeout(p.ctx, 20*time.Second)
 		response, err := endpointClient.GetDataSourceConfig(to, &object.GetDataSourceConfigRequest{})
 		if err == nil && response.DataSource != nil {

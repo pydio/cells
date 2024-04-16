@@ -345,7 +345,7 @@ func (a *Handler) generateArchiveFromSelection(ctx context.Context, writer io.Wr
 func (a *Handler) getSelectionByUuid(ctx context.Context, selectionUuid string) (bool, []*tree.Node, error) {
 
 	var data []*tree.Node
-	dcClient := docstore.NewDocStoreClient(grpc2.GetClientConnFromCtx(ctx, common.ServiceDocStore))
+	dcClient := docstore.NewDocStoreClient(grpc2.ResolveConn(ctx, common.ServiceDocStore))
 	if resp, e := dcClient.GetDocument(ctx, &docstore.GetDocumentRequest{
 		StoreID:    common.DocStoreIdSelections,
 		DocumentID: selectionUuid,
@@ -368,7 +368,7 @@ func (a *Handler) getSelectionByUuid(ctx context.Context, selectionUuid string) 
 
 // deleteSelectionByUuid Delete selection
 func (a *Handler) deleteSelectionByUuid(ctx context.Context, selectionUuid string) {
-	dcClient := docstore.NewDocStoreClient(grpc2.GetClientConnFromCtx(ctx, common.ServiceDocStore))
+	dcClient := docstore.NewDocStoreClient(grpc2.ResolveConn(ctx, common.ServiceDocStore))
 	_, e := dcClient.DeleteDocuments(ctx, &docstore.DeleteDocumentsRequest{
 		StoreID:    common.DocStoreIdSelections,
 		DocumentID: selectionUuid,

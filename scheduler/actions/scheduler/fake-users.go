@@ -145,8 +145,8 @@ func (f *FakeUsersAction) Run(ctx context.Context, channels *actions.RunnableCha
 	outputMessage := input.Clone()
 	outputMessage.AppendOutput(&jobs.ActionOutput{StringBody: "Creating random users"})
 
-	userServiceClient := idm.NewUserServiceClient(grpc.GetClientConnFromCtx(f.GetRuntimeContext(), common.ServiceUser))
-	rolesServiceClient := idm.NewRoleServiceClient(grpc.GetClientConnFromCtx(f.GetRuntimeContext(), common.ServiceRole))
+	userServiceClient := idm.NewUserServiceClient(grpc.ResolveConn(f.GetRuntimeContext(), common.ServiceUser))
+	rolesServiceClient := idm.NewRoleServiceClient(grpc.ResolveConn(f.GetRuntimeContext(), common.ServiceRole))
 	builder := service.NewResourcePoliciesBuilder()
 
 	groupPaths := []string{"/"}

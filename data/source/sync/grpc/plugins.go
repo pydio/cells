@@ -23,9 +23,6 @@ package grpc
 
 import (
 	"context"
-	"github.com/pydio/cells/v4/common/dao/mysql"
-	"github.com/pydio/cells/v4/common/dao/sqlite"
-	commonsql "github.com/pydio/cells/v4/common/sql"
 
 	"go.uber.org/zap"
 	"google.golang.org/grpc"
@@ -35,6 +32,8 @@ import (
 	"github.com/pydio/cells/v4/common/broker"
 	grpc2 "github.com/pydio/cells/v4/common/client/grpc"
 	"github.com/pydio/cells/v4/common/config"
+	"github.com/pydio/cells/v4/common/dao/mysql"
+	"github.com/pydio/cells/v4/common/dao/sqlite"
 	"github.com/pydio/cells/v4/common/log"
 	"github.com/pydio/cells/v4/common/proto/jobs"
 	"github.com/pydio/cells/v4/common/proto/object"
@@ -45,6 +44,7 @@ import (
 	servicecontext "github.com/pydio/cells/v4/common/service/context"
 	"github.com/pydio/cells/v4/common/service/context/metadata"
 	"github.com/pydio/cells/v4/common/service/errors"
+	commonsql "github.com/pydio/cells/v4/common/sql"
 	"github.com/pydio/cells/v4/data/source/sync"
 	grpc_jobs "github.com/pydio/cells/v4/scheduler/jobs/grpc"
 )
@@ -129,7 +129,7 @@ func newService(ctx context.Context, dsObject *object.DataSource) {
 				md := make(map[string]string)
 				md[common.PydioContextUserKey] = common.PydioSystemUsername
 				jobCtx := metadata.NewContext(ctx, md)
-				jobsClient := jobs.NewJobServiceClient(grpc2.GetClientConnFromCtx(ctx, common.ServiceJobs))
+				jobsClient := jobs.NewJobServiceClient(grpc2.ResolveConn(ctx, common.ServiceJobs))
 				serviceName := common.ServiceGrpcNamespace_ + common.ServiceDataSync_ + datasource
 
 				if !dsObject.FlatStorage {

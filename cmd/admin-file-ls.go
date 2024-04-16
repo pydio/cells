@@ -28,13 +28,13 @@ import (
 	"strings"
 	"time"
 
-	"github.com/dustin/go-humanize"
+	humanize "github.com/dustin/go-humanize"
 	"github.com/manifoldco/promptui"
 	"github.com/olekukonko/tablewriter"
 	"github.com/spf13/cobra"
 
 	"github.com/pydio/cells/v4/common"
-	"github.com/pydio/cells/v4/common/client/grpc"
+	"github.com/pydio/cells/v4/common/client/commons/treec"
 	"github.com/pydio/cells/v4/common/proto/tree"
 )
 
@@ -70,7 +70,7 @@ EXAMPLE
 
  `,
 	RunE: func(cmd *cobra.Command, args []string) error {
-		client := tree.NewNodeProviderClient(grpc.GetClientConnFromCtx(ctx, common.ServiceTree))
+		client := treec.NodeProviderClient(ctx)
 
 		table := tablewriter.NewWriter(cmd.OutOrStdout())
 		hh := []string{"Type", "Path", "Size", "Modified"}

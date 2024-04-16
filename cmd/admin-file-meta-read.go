@@ -30,7 +30,7 @@ import (
 	"github.com/spf13/cobra"
 
 	"github.com/pydio/cells/v4/common"
-	"github.com/pydio/cells/v4/common/client/grpc"
+	"github.com/pydio/cells/v4/common/client/commons/treec"
 	"github.com/pydio/cells/v4/common/proto/tree"
 )
 
@@ -75,7 +75,7 @@ EXAMPLE
 		return nil
 	},
 	RunE: func(cmd *cobra.Command, args []string) error {
-		client := tree.NewNodeProviderClient(grpc.GetClientConnFromCtx(ctx, common.ServiceMeta))
+		client := treec.ServiceNodeProviderClient(ctx, common.ServiceMeta)
 
 		response, err := client.ReadNode(context.Background(), &tree.ReadNodeRequest{
 			Node: &tree.Node{

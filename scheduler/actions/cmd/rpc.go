@@ -206,7 +206,7 @@ func (c *RpcAction) Run(ctx context.Context, channels *actions.RunnableChannels,
 	}
 
 	output := input.Clone()
-	conn := grpc.GetClientConnFromCtx(c.GetRuntimeContext(), serviceName)
+	conn := grpc.ResolveConn(c.GetRuntimeContext(), serviceName)
 	if methodDescriptor.IsStreamingServer() {
 
 		cStream, e := conn.NewStream(ctx, &grpc2.StreamDesc{ServerStreams: true}, methodSendName, grpc2.WaitForReady(false))

@@ -33,6 +33,7 @@ import (
 
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/auth"
+	"github.com/pydio/cells/v4/common/client/commons/idmc"
 	"github.com/pydio/cells/v4/common/client/grpc"
 	"github.com/pydio/cells/v4/common/config"
 	"github.com/pydio/cells/v4/common/log"
@@ -120,7 +121,7 @@ func (h *GraphHandler) Relation(req *restful.Request, rsp *restful.Response) {
 	}
 	log.Logger(ctx).Debug("Common Workspaces", zap.Any("common", commonWorkspaces), zap.Any("context", contextWorkspaces), zap.Any("target", targetWorkspaces))
 
-	wsCli := idm.NewWorkspaceServiceClient(grpc.GetClientConnFromCtx(ctx, common.ServiceWorkspace))
+	wsCli := idm.NewWorkspaceServiceClient(grpc.ResolveConn(ctx, common.ServiceWorkspace))
 	query := &service2.Query{
 		SubQueries: []*anypb.Any{},
 		Operation:  service2.OperationType_OR,
@@ -163,7 +164,7 @@ func (h *GraphHandler) Relation(req *restful.Request, rsp *restful.Response) {
 	}
 
 	// Load the current user teams, to check if the current user is part of one of them
-	roleCli := idm.NewRoleServiceClient(grpc.GetClientConnFromCtx(ctx, common.ServiceRole))
+	roleCli := idmc.RoleServiceClient(ctx)
 	var uuids []string
 	for _, role := range targetUserAccessList.GetRoles() {
 		uuids = append(uuids, role.Uuid)
@@ -231,7 +232,7 @@ func (h *GraphHandler) Recommend(req *restful.Request, rsp *restful.Response) {
 			defer wg.Done()
 
 			// Load activities
-			ac := activity.NewActivityServiceClient(grpc.GetClientConnFromCtx(h.runtimeContext, common.ServiceActivity))
+			ac := activity.NewActivityServiceClient(grpc.ResolveConn(h.runtimeContext, common.ServiceActivity))
 			acReq := &activity.StreamActivitiesRequest{
 				Context:     activity.StreamContext_USER_ID,
 				ContextData: uName,
@@ -283,7 +284,7 @@ func (h *GraphHandler) Recommend(req *restful.Request, rsp *restful.Response) {
 				},
 			}
 
-			userMetaClient := idm.NewUserMetaServiceClient(grpc.GetClientConnFromCtx(ctx, common.ServiceUserMeta))
+			userMetaClient := idm.NewUserMetaServiceClient(grpc.ResolveConn(ctx, common.ServiceUserMeta))
 			stream, er := userMetaClient.SearchUserMeta(ctx, sr)
 			if er != nil {
 				return

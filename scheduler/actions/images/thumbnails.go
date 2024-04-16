@@ -36,7 +36,6 @@ import (
 	"github.com/pkg/errors"
 	"go.uber.org/zap"
 	"golang.org/x/image/colornames"
-	_ "golang.org/x/image/webp"
 	"google.golang.org/protobuf/proto"
 
 	"github.com/pydio/cells/v4/common"
@@ -49,6 +48,8 @@ import (
 	"github.com/pydio/cells/v4/common/proto/tree"
 	json "github.com/pydio/cells/v4/common/utils/jsonx"
 	"github.com/pydio/cells/v4/scheduler/actions"
+
+	_ "golang.org/x/image/webp"
 )
 
 const (
@@ -137,7 +138,7 @@ func (t *ThumbnailExtractor) Init(job *jobs.Job, action *jobs.Action) error {
 		t.thumbSizes = map[string]int{"sm": 300}
 	}
 	if !nodes.IsUnitTestEnv {
-		t.metaClient = tree.NewNodeReceiverClient(grpc.GetClientConnFromCtx(t.GetRuntimeContext(), common.ServiceMeta))
+		t.metaClient = tree.NewNodeReceiverClient(grpc.ResolveConn(t.GetRuntimeContext(), common.ServiceMeta))
 	}
 	return nil
 }

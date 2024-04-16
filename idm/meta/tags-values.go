@@ -2,6 +2,7 @@ package meta
 
 import (
 	"context"
+
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/client/grpc"
 	"github.com/pydio/cells/v4/common/proto/docstore"
@@ -17,7 +18,7 @@ type TagsValuesClient struct {
 
 func (s *TagsValuesClient) getClient(ctx context.Context) docstore.DocStoreClient {
 	if s.docClient == nil {
-		s.docClient = docstore.NewDocStoreClient(grpc.GetClientConnFromCtx(ctx, common.ServiceDocStore))
+		s.docClient = docstore.NewDocStoreClient(grpc.ResolveConn(ctx, common.ServiceDocStore))
 	}
 	return s.docClient
 }

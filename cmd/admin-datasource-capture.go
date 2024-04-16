@@ -89,7 +89,7 @@ EXAMPLES
 		if sec := config.GetSecret(syncConfig.ApiSecret).String(); sec != "" {
 			syncConfig.ApiSecret = sec
 		}
-		conn := grpc.GetClientConnFromCtx(ctx, common.ServiceGrpcNamespace_+common.ServiceDataIndex_+captureDsName)
+		conn := grpc.ResolveConn(ctx, common.ServiceGrpcNamespace_+common.ServiceDataIndex_+captureDsName)
 		cRead := tree.NewNodeProviderClient(conn)
 		cWrite := tree.NewNodeReceiverClient(conn)
 		cSess := tree.NewSessionIndexerClient(conn)

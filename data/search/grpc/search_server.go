@@ -30,7 +30,7 @@ import (
 
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/broker"
-	"github.com/pydio/cells/v4/common/client/grpc"
+	"github.com/pydio/cells/v4/common/client/commons/treec"
 	"github.com/pydio/cells/v4/common/config"
 	"github.com/pydio/cells/v4/common/log"
 	"github.com/pydio/cells/v4/common/nodes/meta"
@@ -39,7 +39,6 @@ import (
 	servicecontext "github.com/pydio/cells/v4/common/service/context"
 	"github.com/pydio/cells/v4/common/service/context/metadata"
 	"github.com/pydio/cells/v4/common/service/errors"
-	"github.com/pydio/cells/v4/common/utils/queue"
 	"github.com/pydio/cells/v4/data/search/dao"
 )
 
@@ -49,9 +48,7 @@ type SearchServer struct {
 	protosync.UnimplementedSyncEndpointServer
 	RuntimeCtx context.Context
 	// Engine           dao.SearchEngine
-	eventsChannel    chan *queue.TypeWithContext[*tree.NodeChangeEvent]
-	TreeClient       tree.NodeProviderClient
-	TreeClientStream tree.NodeProviderStreamerClient
+	eventsChannel    chan *broker.TypeWithContext[*tree.NodeChangeEvent]
 	NsProvider       *meta.NsProvider
 	ReIndexThrottler chan struct{}
 }
@@ -75,7 +72,7 @@ func (s *SearchServer) Subscriber() *EventsSubscriber {
 
 func (s *SearchServer) initEventsChannel() {
 
-	s.eventsChannel = make(chan *queue.TypeWithContext[*tree.NodeChangeEvent])
+	s.eventsChannel = make(chan *broker.TypeWithContext[*tree.NodeChangeEvent])
 	go func() {
 		for eventWCtx := range s.eventsChannel {
 			ctx := servicecontext.WithServiceName(eventWCtx.Ctx, common.ServiceGrpcNamespace_+common.ServiceSearch)
@@ -183,7 +180,7 @@ func (s *SearchServer) Search(req *tree.SearchRequest, streamer tree.Searcher_Se
 							}
 						}
 						if treeStreamer == nil {
-							response, readError = s.getTreeClient().ReadNode(ctx, readReq)
+							response, readError = s.getTreeClient(ctx).ReadNode(ctx, readReq)
 						} else {
 							if sendEr := treeStreamer.Send(readReq); sendEr == nil {
 								response, readError = treeStreamer.Recv()
@@ -267,7 +264,7 @@ func (s *SearchServer) TriggerResync(ctx context.Context, req *protosync.ResyncR
 				<-throttle
 			}()
 			log.Logger(ctx).Info("Start Reindexing DataSource " + ro.GetPath())
-			dsStream, err := s.getTreeClient().ListNodes(bg, &tree.ListNodesRequest{
+			dsStream, err := s.getTreeClient(ctx).ListNodes(bg, &tree.ListNodesRequest{
 				Node:      ro,
 				Recursive: true,
 			})
@@ -305,7 +302,7 @@ func (s *SearchServer) ReindexFolder(ctx context.Context, node *tree.Node, exclu
 		<-s.ReIndexThrottler
 	}()
 	bg := context.Background()
-	dsStream, err := s.getTreeClient().ListNodes(bg, &tree.ListNodesRequest{
+	dsStream, err := s.getTreeClient(ctx).ListNodes(bg, &tree.ListNodesRequest{
 		Node:      node,
 		Recursive: true,
 	})
@@ -330,16 +327,10 @@ func (s *SearchServer) ReindexFolder(ctx context.Context, node *tree.Node, exclu
 
 }
 
-func (s *SearchServer) getTreeClient() tree.NodeProviderClient {
-	if s.TreeClient == nil {
-		s.TreeClient = tree.NewNodeProviderClient(grpc.GetClientConnFromCtx(s.RuntimeCtx, common.ServiceTree))
-	}
-	return s.TreeClient
+func (s *SearchServer) getTreeClient(ctx context.Context) tree.NodeProviderClient {
+	return treec.NodeProviderClient(ctx)
 }
 
 func (s *SearchServer) newTreeStreamer(ctx context.Context) (tree.NodeProviderStreamer_ReadNodeStreamClient, error) {
-	if s.TreeClientStream == nil {
-		s.TreeClientStream = tree.NewNodeProviderStreamerClient(grpc.GetClientConnFromCtx(s.RuntimeCtx, common.ServiceTree))
-	}
-	return s.TreeClientStream.ReadNodeStream(ctx)
+	return treec.NodeProviderStreamerClient(ctx).ReadNodeStream(ctx)
 }

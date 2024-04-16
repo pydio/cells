@@ -22,13 +22,14 @@ package rest
 
 import (
 	"context"
-	restful "github.com/emicklei/go-restful/v3"
-	"go.uber.org/zap"
-	"google.golang.org/protobuf/proto"
 	"math"
 	"path"
 	"path/filepath"
 	"strings"
+
+	restful "github.com/emicklei/go-restful/v3"
+	"go.uber.org/zap"
+	"google.golang.org/protobuf/proto"
 
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/broker"
@@ -280,7 +281,7 @@ func (h *Handler) SetMeta(req *restful.Request, resp *restful.Response) {
 	er := h.GetRouter().WrapCallback(func(inputFilter nodes.FilterFunc, outputFilter nodes.FilterFunc) error {
 		ctx, node, _ = inputFilter(ctx, node, "in")
 
-		cli := tree.NewNodeReceiverClient(grpc.GetClientConnFromCtx(ctx, common.ServiceMeta))
+		cli := tree.NewNodeReceiverClient(grpc.ResolveConn(ctx, common.ServiceMeta))
 		if _, er := cli.UpdateNode(ctx, &tree.UpdateNodeRequest{From: node, To: node}); er != nil {
 			log.Logger(ctx).Error("Failed to change the meta data", zap.Error(er))
 			return er
@@ -318,7 +319,7 @@ func (h *Handler) DeleteMeta(req *restful.Request, resp *restful.Response) {
 	er := h.GetRouter().WrapCallback(func(inputFilter nodes.FilterFunc, outputFilter nodes.FilterFunc) error {
 		ctx, node, _ = inputFilter(ctx, node, "in")
 
-		cli := tree.NewNodeReceiverClient(grpc.GetClientConnFromCtx(ctx, common.ServiceMeta))
+		cli := tree.NewNodeReceiverClient(grpc.ResolveConn(ctx, common.ServiceMeta))
 		if _, er := cli.UpdateNode(ctx, &tree.UpdateNodeRequest{From: node, To: node}); er != nil {
 			return er
 		}

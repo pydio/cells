@@ -31,6 +31,7 @@ import (
 
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/auth/claim"
+	"github.com/pydio/cells/v4/common/client/commons/treec"
 	"github.com/pydio/cells/v4/common/client/grpc"
 	"github.com/pydio/cells/v4/common/log"
 	"github.com/pydio/cells/v4/common/nodes"
@@ -167,7 +168,7 @@ func (sc *Client) ParseRootNodes(ctx context.Context, cell *rest.Cell, createEmp
 			}
 			// Update node meta
 			createResp.Node.MustSetMeta(common.MetaFlagCellNode, true)
-			metaClient := tree.NewNodeReceiverClient(grpc.GetClientConnFromCtx(sc.RuntimeContext, common.ServiceMeta))
+			metaClient := tree.NewNodeReceiverClient(grpc.ResolveConn(sc.RuntimeContext, common.ServiceMeta))
 			metaClient.CreateNode(ctx, &tree.CreateNodeRequest{Node: createResp.Node})
 			cell.RootNodes = append(cell.RootNodes, createResp.Node)
 		} else {
@@ -286,7 +287,7 @@ func (sc *Client) DeleteRootNodeRecursively(ctx context.Context, ownerName strin
 		}
 		realNode := &tree.Node{Path: parentNode.Path + "/" + strings.TrimRight(roomNode.Path, "/")}
 		// Now send deletion to scheduler
-		cli := jobs.NewJobServiceClient(grpc.GetClientConnFromCtx(sc.RuntimeContext, common.ServiceJobs))
+		cli := jobs.NewJobServiceClient(grpc.ResolveConn(sc.RuntimeContext, common.ServiceJobs))
 		jobUuid := "cells-delete-" + uuid.New()
 		q, _ := anypb.New(&tree.Query{
 			Paths: []string{realNode.Path},
@@ -381,7 +382,7 @@ func (sc *Client) LoadAdminRootNodes(ctx context.Context, detectedRoots []string
 
 	rootNodes = make(map[string]*tree.Node)
 	router := sc.getUuidAdminRouter()
-	metaClient := tree.NewNodeProviderClient(grpc.GetClientConnFromCtx(sc.GetRuntimeContext(), common.ServiceMeta))
+	metaClient := treec.ServiceNodeProviderClient(sc.GetRuntimeContext(), common.ServiceMeta)
 	for _, rootId := range detectedRoots {
 		request := &tree.ReadNodeRequest{Node: &tree.Node{Uuid: rootId}}
 		if resp, err := router.ReadNode(ctx, request); err == nil {

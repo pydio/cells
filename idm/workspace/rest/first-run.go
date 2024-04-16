@@ -25,6 +25,7 @@ import (
 	"fmt"
 
 	"github.com/pydio/cells/v4/common"
+	"github.com/pydio/cells/v4/common/client/commons/idmc"
 	"github.com/pydio/cells/v4/common/client/grpc"
 	"github.com/pydio/cells/v4/common/config"
 	"github.com/pydio/cells/v4/common/log"
@@ -62,7 +63,7 @@ func FirstRun(ctx context.Context) error {
 		return nil
 	}
 
-	wsClient := idm.NewWorkspaceServiceClient(grpc.GetClientConnFromCtx(ctx, common.ServiceWorkspace))
+	wsClient := idm.NewWorkspaceServiceClient(grpc.ResolveConn(ctx, common.ServiceWorkspace))
 
 	if hasPersonal {
 		log.Logger(ctx).Info("Creating a Personal workspace")
@@ -116,7 +117,7 @@ func createWs(ctx context.Context, wsClient idm.WorkspaceServiceClient, ws *idm.
 	}
 
 	log.Logger(ctx).Info("Settings ACLS for workspace")
-	aclClient := idm.NewACLServiceClient(grpc.GetClientConnFromCtx(ctx, common.ServiceAcl))
+	aclClient := idmc.ACLServiceClient(ctx) //idm.NewACLServiceClient(grpc.ResolveConn(ctx, common.ServiceAcl))
 	for _, acl := range acls {
 		_, e := aclClient.CreateACL(ctx, &idm.CreateACLRequest{ACL: acl})
 		if e != nil {

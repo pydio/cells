@@ -33,7 +33,7 @@ import (
 	"google.golang.org/protobuf/types/known/anypb"
 
 	"github.com/pydio/cells/v4/common"
-	"github.com/pydio/cells/v4/common/client/grpc"
+	"github.com/pydio/cells/v4/common/client/commons/idmc"
 	"github.com/pydio/cells/v4/common/proto/idm"
 	"github.com/pydio/cells/v4/common/proto/service"
 )
@@ -110,7 +110,7 @@ EXAMPLES
 			Attributes: map[string]string{"profile": common.PydioProfileStandard},
 		}
 
-		userClient := idm.NewUserServiceClient(grpc.GetClientConnFromCtx(ctx, common.ServiceUser))
+		userClient := idmc.UserServiceClient(ctx)
 		sQ, _ := anypb.New(&idm.UserSingleQuery{Login: login})
 		st, e := userClient.SearchUser(ctx, &idm.SearchUserRequest{Query: &service.Query{SubQueries: []*anypb.Any{sQ}}})
 		if e != nil {
@@ -146,8 +146,7 @@ EXAMPLES
 			Label:    "User " + u.Login + " role",
 		}
 
-		roleClient := idm.NewRoleServiceClient(grpc.GetClientConnFromCtx(ctx, common.ServiceRole))
-		if _, err := roleClient.CreateRole(context.Background(), &idm.CreateRoleRequest{
+		if _, err := idmc.RoleServiceClient(ctx).CreateRole(context.Background(), &idm.CreateRoleRequest{
 			Role: &newRole,
 		}); err != nil {
 			cmd.Println(err.Error())

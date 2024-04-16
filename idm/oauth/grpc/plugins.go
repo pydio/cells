@@ -174,7 +174,7 @@ func insertPruningJob(ctx context.Context) error {
 	log2.Logger(ctx).Info("Inserting pruning job for revoked token and reset password tokens")
 
 	pJob := pruningJob(i18n.GetDefaultLanguage(config.Get()))
-	cli := jobs.NewJobServiceClient(grpc2.GetClientConnFromCtx(ctx, common.ServiceJobs))
+	cli := jobs.NewJobServiceClient(grpc2.ResolveConn(ctx, common.ServiceJobs))
 	if resp, e := cli.GetJob(ctx, &jobs.GetJobRequest{JobID: pJob.ID}); e == nil && resp.Job != nil {
 		return nil // Already exists
 	} else if e != nil && errors.FromError(e).Code != 404 {

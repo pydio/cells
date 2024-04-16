@@ -147,7 +147,7 @@ func getMetaProviderStreamers(ctx context.Context, flags tree.Flags) ([]tree.Nod
 	}
 
 	// Load core Meta
-	result = append(result, tree.NewNodeProviderStreamerClient(grpc.GetClientConnFromCtx(ctx, common.ServiceMeta)))
+	result = append(result, tree.NewNodeProviderStreamerClient(grpc.ResolveConn(ctx, common.ServiceMeta)))
 	names = append(names, common.ServiceGrpcNamespace_+common.ServiceMeta)
 
 	// Load User meta (if claims are not empty!)
@@ -166,7 +166,7 @@ func getMetaProviderStreamers(ctx context.Context, flags tree.Flags) ([]tree.Nod
 			log.Logger(ctx).Debug("Skipping service " + srv.Name() + " because of minimal metas flag")
 			continue
 		}
-		result = append(result, tree.NewNodeProviderStreamerClient(grpc.GetClientConnFromCtx(ctx, strings.TrimPrefix(srv.Name(), common.ServiceGrpcNamespace_))))
+		result = append(result, tree.NewNodeProviderStreamerClient(grpc.ResolveConn(ctx, strings.TrimPrefix(srv.Name(), common.ServiceGrpcNamespace_))))
 		names = append(names, srv.Name())
 	}
 

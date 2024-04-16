@@ -29,6 +29,7 @@ import (
 	"go.uber.org/zap"
 
 	"github.com/pydio/cells/v4/common"
+	"github.com/pydio/cells/v4/common/client/commons/idmc"
 	"github.com/pydio/cells/v4/common/client/grpc"
 	"github.com/pydio/cells/v4/common/config"
 	"github.com/pydio/cells/v4/common/log"
@@ -75,7 +76,7 @@ func (a *TokenHandler) Revoke(req *restful.Request, resp *restful.Response) {
 
 	revokeRequest := &auth.RevokeTokenRequest{}
 	revokeRequest.Token = &auth.Token{AccessToken: input.TokenId}
-	revokerClient := auth.NewAuthTokenRevokerClient(grpc.GetClientConnFromCtx(ctx, common.ServiceOAuth))
+	revokerClient := auth.NewAuthTokenRevokerClient(grpc.ResolveConn(ctx, common.ServiceOAuth))
 	if _, err := revokerClient.Revoke(ctx, revokeRequest); err != nil {
 		service.RestError500(req, resp, err)
 		return
@@ -125,7 +126,7 @@ func (a *TokenHandler) ResetPasswordToken(req *restful.Request, resp *restful.Re
 		UserEmail:  u.Attributes["email"],
 		Expiration: int32(expiration),
 	})
-	cli := docstore.NewDocStoreClient(grpc.GetClientConnFromCtx(ctx, common.ServiceDocStore))
+	cli := docstore.NewDocStoreClient(grpc.ResolveConn(ctx, common.ServiceDocStore))
 	_, err := cli.PutDocument(ctx, &docstore.PutDocumentRequest{
 		StoreID: common.DocStoreIdResetPassKeys,
 		Document: &docstore.Document{
@@ -144,7 +145,7 @@ func (a *TokenHandler) ResetPasswordToken(req *restful.Request, resp *restful.Re
 	}
 
 	// Send email
-	mailCli := mailer.NewMailerServiceClient(grpc.GetClientConnFromCtx(ctx, common.ServiceMailer))
+	mailCli := mailer.NewMailerServiceClient(grpc.ResolveConn(ctx, common.ServiceMailer))
 	mailCli.SendMail(ctx, &mailer.SendMailRequest{
 		InQueue: false,
 		Mail: &mailer.Mail{
@@ -176,7 +177,7 @@ func (a *TokenHandler) ResetPassword(req *restful.Request, resp *restful.Respons
 	T := lang.Bundle().GetTranslationFunc(i18n.UserLanguagesFromRestRequest(req, config.Get())...)
 	ctx := req.Request.Context()
 	token := input.ResetPasswordToken
-	cli := docstore.NewDocStoreClient(grpc.GetClientConnFromCtx(ctx, common.ServiceDocStore))
+	cli := docstore.NewDocStoreClient(grpc.ResolveConn(ctx, common.ServiceDocStore))
 	docResp, e := cli.GetDocument(ctx, &docstore.GetDocumentRequest{
 		StoreID:    common.DocStoreIdResetPassKeys,
 		DocumentID: token,
@@ -217,7 +218,7 @@ func (a *TokenHandler) ResetPassword(req *restful.Request, resp *restful.Respons
 	uLang := i18n.UserLanguage(ctx, u, config.Get())
 	T = lang.Bundle().GetTranslationFunc(uLang)
 	u.Password = input.NewPassword
-	userClient := idm.NewUserServiceClient(grpc.GetClientConnFromCtx(ctx, common.ServiceUser))
+	userClient := idmc.UserServiceClient(ctx)
 	if _, e := userClient.CreateUser(ctx, &idm.CreateUserRequest{User: u}); e != nil {
 		service.RestError500(req, resp, fmt.Errorf(T("ResetPassword.Err.ResetFailed")))
 		return
@@ -225,7 +226,7 @@ func (a *TokenHandler) ResetPassword(req *restful.Request, resp *restful.Respons
 
 	go func() {
 		// Send email
-		mailCli := mailer.NewMailerServiceClient(grpc.GetClientConnFromCtx(ctx, common.ServiceMailer))
+		mailCli := mailer.NewMailerServiceClient(grpc.ResolveConn(ctx, common.ServiceMailer))
 		mailCli.SendMail(ctx, &mailer.SendMailRequest{
 			InQueue: false,
 			Mail: &mailer.Mail{
@@ -293,7 +294,7 @@ func (a *TokenHandler) GenerateDocumentAccessToken(req *restful.Request, resp *r
 }
 
 func (a *TokenHandler) GenerateAndWrite(ctx context.Context, genReq *auth.PatGenerateRequest, req *restful.Request, resp *restful.Response) {
-	cli := auth.NewPersonalAccessTokenServiceClient(grpc.GetClientConnFromCtx(ctx, common.ServiceToken))
+	cli := auth.NewPersonalAccessTokenServiceClient(grpc.ResolveConn(ctx, common.ServiceToken))
 	log.Logger(ctx).Debug("Sending generate request", zap.Any("req", genReq))
 	genResp, e := cli.Generate(ctx, genReq)
 	if e != nil {

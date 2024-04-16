@@ -32,6 +32,7 @@ import (
 	"go.uber.org/zap"
 
 	"github.com/pydio/cells/v4/common"
+	"github.com/pydio/cells/v4/common/client/commons/treec"
 	"github.com/pydio/cells/v4/common/client/grpc"
 	"github.com/pydio/cells/v4/common/log"
 	"github.com/pydio/cells/v4/common/proto/ctl"
@@ -204,10 +205,11 @@ func (h *Handler) ListPeerFolders(req *restful.Request, resp *restful.Response) 
 	if listReq.PeerAddress != "" {
 		opts = append(opts, grpc.WithPeerSelector(listReq.PeerAddress))
 	}
-	cl := tree.NewNodeProviderClient(grpc.GetClientConnFromCtx(req.Request.Context(), common.ServiceDataObjectsPeer, opts...))
+	ctx := req.Request.Context()
+	cl := treec.ServiceNodeProviderClient(ctx, common.ServiceDataObjectsPeer, opts...)
 
 	// Use a selector to make sure to we call the service that is running on the specific node
-	streamer, e := cl.ListNodes(req.Request.Context(), &tree.ListNodesRequest{
+	streamer, e := cl.ListNodes(ctx, &tree.ListNodesRequest{
 		Node: &tree.Node{Path: listReq.Path},
 	})
 	if e != nil {
@@ -239,7 +241,7 @@ func (h *Handler) CreatePeerFolder(req *restful.Request, resp *restful.Response)
 	if createReq.PeerAddress != "" {
 		opts = append(opts, grpc.WithPeerSelector(createReq.PeerAddress))
 	}
-	cl := tree.NewNodeReceiverClient(grpc.GetClientConnFromCtx(req.Request.Context(), common.ServiceDataObjectsPeer, opts...))
+	cl := tree.NewNodeReceiverClient(grpc.ResolveConn(req.Request.Context(), common.ServiceDataObjectsPeer, opts...))
 	cr, e := cl.CreateNode(req.Request.Context(), &tree.CreateNodeRequest{Node: &tree.Node{Path: createReq.Path}})
 	if e != nil {
 		service.RestErrorDetect(req, resp, e)
@@ -300,7 +302,7 @@ func (h *Handler) ValidateLocalDSFolderOnPeer(ctx context.Context, newSource *ob
 	if newSource.PeerAddress != "" {
 		opts = append(opts, grpc.WithPeerSelector(newSource.PeerAddress))
 	}
-	conn := grpc.GetClientConnFromCtx(ctx, srvName, opts...)
+	conn := grpc.ResolveConn(ctx, srvName, opts...)
 
 	cl := tree.NewNodeProviderClient(conn)
 	wCl := tree.NewNodeReceiverClient(conn)

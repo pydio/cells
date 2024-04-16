@@ -33,7 +33,8 @@ import (
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/auth"
 	"github.com/pydio/cells/v4/common/broker"
-	"github.com/pydio/cells/v4/common/client/grpc"
+	"github.com/pydio/cells/v4/common/client/commons/idmc"
+	"github.com/pydio/cells/v4/common/client/commons/treec"
 	"github.com/pydio/cells/v4/common/log"
 	"github.com/pydio/cells/v4/common/nodes"
 	"github.com/pydio/cells/v4/common/nodes/abstract"
@@ -42,6 +43,7 @@ import (
 	"github.com/pydio/cells/v4/common/proto/service"
 	"github.com/pydio/cells/v4/common/proto/tree"
 	"github.com/pydio/cells/v4/common/runtime"
+	"github.com/pydio/cells/v4/common/runtime/manager"
 	servicecontext "github.com/pydio/cells/v4/common/service/context"
 	"github.com/pydio/cells/v4/common/service/context/metadata"
 	"github.com/pydio/cells/v4/common/service/errors"
@@ -52,10 +54,6 @@ import (
 
 type MicroEventsSubscriber struct {
 	sync.Mutex
-	treeClient tree.NodeProviderClient
-	usrClient  idm.UserServiceClient
-	roleClient idm.RoleServiceClient
-	wsClient   idm.WorkspaceServiceClient
 	RuntimeCtx context.Context
 
 	cachePool *openurl.Pool[cache.Cache]
@@ -87,34 +85,6 @@ func NewEventsSubscriber(ctx context.Context) (*MicroEventsSubscriber, error) {
 	m.cachePool, er = cache.OpenPool(cacheURL)
 
 	return m, er
-}
-
-func (e *MicroEventsSubscriber) getTreeClient() tree.NodeProviderClient {
-	if e.treeClient == nil {
-		e.treeClient = tree.NewNodeProviderClient(grpc.GetClientConnFromCtx(e.RuntimeCtx, common.ServiceTree))
-	}
-	return e.treeClient
-}
-
-func (e *MicroEventsSubscriber) getUserClient() idm.UserServiceClient {
-	if e.usrClient == nil {
-		e.usrClient = idm.NewUserServiceClient(grpc.GetClientConnFromCtx(e.RuntimeCtx, common.ServiceUser))
-	}
-	return e.usrClient
-}
-
-func (e *MicroEventsSubscriber) getRoleClient() idm.RoleServiceClient {
-	if e.roleClient == nil {
-		e.roleClient = idm.NewRoleServiceClient(grpc.GetClientConnFromCtx(e.RuntimeCtx, common.ServiceRole))
-	}
-	return e.roleClient
-}
-
-func (e *MicroEventsSubscriber) getWorkspaceClient() idm.WorkspaceServiceClient {
-	if e.wsClient == nil {
-		e.wsClient = idm.NewWorkspaceServiceClient(grpc.GetClientConnFromCtx(e.RuntimeCtx, common.ServiceWorkspace))
-	}
-	return e.wsClient
 }
 
 func (e *MicroEventsSubscriber) ignoreForInternal(node *tree.Node) bool {
@@ -224,7 +194,7 @@ func (e *MicroEventsSubscriber) HandleNodeChange(ctx context.Context, msg *tree.
 			continue
 		}
 		userCtx := auth.WithImpersonate(ctx, user)
-		ancestors, ez := nodes.BuildAncestorsListOrParent(userCtx, e.getTreeClient(), loadedNode)
+		ancestors, ez := nodes.BuildAncestorsListOrParent(userCtx, treec.NodeProviderClient(userCtx), loadedNode)
 		if ez != nil {
 			log.Logger(ctx).Error("Could not load ancestors list", zap.Error(er))
 			continue
@@ -245,7 +215,10 @@ func (e *MicroEventsSubscriber) vNodeResolver(ctx context.Context, n *tree.Node)
 
 func (e *MicroEventsSubscriber) HandleIdmChange(ctx context.Context, msg *idm.ChangeEvent) error {
 
-	dao := servicecontext.GetDAO[activity.DAO](ctx)
+	dao, err := manager.Resolve[activity.DAO](ctx)
+	if err != nil {
+		return err
+	}
 
 	if msg.Acl != nil {
 		author, _ := permissions.FindUserNameInContext(ctx)
@@ -289,7 +262,7 @@ func (e *MicroEventsSubscriber) parentsFromCache(ctx context.Context, node *tree
 	// parentUuids = append(parentUuids, node.Uuid)
 	if node.Path == "" && !isDel {
 		// Reload by Uuid
-		if resp, err := e.getTreeClient().ReadNode(ctx, &tree.ReadNodeRequest{Node: &tree.Node{Uuid: node.Uuid}}); err == nil && resp.Node != nil {
+		if resp, err := treec.NodeProviderClient(ctx).ReadNode(ctx, &tree.ReadNodeRequest{Node: &tree.Node{Uuid: node.Uuid}}); err == nil && resp.Node != nil {
 			loadedNode = resp.Node
 		} else if err != nil {
 			return nil, []string{}, err
@@ -322,7 +295,7 @@ func (e *MicroEventsSubscriber) parentsFromCache(ctx context.Context, node *tree
 				parentUuids = append(parentUuids, pU)
 			}
 		} else {
-			resp, err := e.getTreeClient().ReadNode(ctx, &tree.ReadNodeRequest{
+			resp, err := treec.NodeProviderClient(ctx).ReadNode(ctx, &tree.ReadNodeRequest{
 				Node:      &tree.Node{Path: parentPath},
 				StatFlags: []uint32{tree.StatFlagNone}},
 			)
@@ -390,7 +363,11 @@ func (e *MicroEventsSubscriber) ProcessIdmBatch(ctx context.Context, cE ...broke
 	if er := e.LoadResources(ctx, roles, users, workspaces); er != nil {
 		return
 	}
-	dao := servicecontext.GetDAO[activity.DAO](ctx)
+	dao, err := manager.Resolve[activity.DAO](ctx)
+	if err != nil {
+		log.Logger(ctx).Error("cannot load DAO in activity subscriber", zap.Error(err))
+		return
+	}
 
 	// For the moment, only handle real users (no roles or groups), and skip source == target
 	for _, r := range remaining {
@@ -425,7 +402,7 @@ func (e *MicroEventsSubscriber) LoadResources(ctx context.Context, roles map[str
 		rUuids = append(rUuids, k)
 	}
 	q, _ := anypb.New(&idm.RoleSingleQuery{Uuid: rUuids})
-	streamer, er := e.getRoleClient().SearchRole(ctx, &idm.SearchRoleRequest{Query: &service.Query{SubQueries: []*anypb.Any{q}}})
+	streamer, er := idmc.RoleServiceClient(ctx).SearchRole(ctx, &idm.SearchRoleRequest{Query: &service.Query{SubQueries: []*anypb.Any{q}}})
 	if er != nil {
 		return er
 	}
@@ -449,7 +426,7 @@ func (e *MicroEventsSubscriber) LoadResources(ctx context.Context, roles map[str
 			queries = append(queries, q2)
 		}
 	}
-	stream2, er := e.getUserClient().SearchUser(ctx, &idm.SearchUserRequest{Query: &service.Query{
+	stream2, er := idmc.UserServiceClient(ctx).SearchUser(ctx, &idm.SearchUserRequest{Query: &service.Query{
 		SubQueries: queries,
 		Operation:  service.OperationType_OR,
 	}})
@@ -474,7 +451,7 @@ func (e *MicroEventsSubscriber) LoadResources(ctx context.Context, roles map[str
 		q3, _ := anypb.New(&idm.WorkspaceSingleQuery{Uuid: k})
 		queriesW = append(queriesW, q3)
 	}
-	stream3, er := e.getWorkspaceClient().SearchWorkspace(ctx, &idm.SearchWorkspaceRequest{Query: &service.Query{SubQueries: queriesW}})
+	stream3, er := idmc.WorkspaceServiceClient(ctx).SearchWorkspace(ctx, &idm.SearchWorkspaceRequest{Query: &service.Query{SubQueries: queriesW}})
 	if er != nil {
 		return er
 	}

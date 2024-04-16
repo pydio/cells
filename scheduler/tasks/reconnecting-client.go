@@ -45,7 +45,7 @@ func (s *ReconnectingClient) Stop() {
 func (s *ReconnectingClient) chanToStream(ch chan interface{}) {
 
 	go func() {
-		taskClient := jobs.NewJobServiceClient(cgrpc.GetClientConnFromCtx(s.parentCtx, common.ServiceJobs))
+		taskClient := jobs.NewJobServiceClient(cgrpc.ResolveConn(s.parentCtx, common.ServiceJobs))
 		ct, ca := context.WithCancel(s.parentCtx)
 		defer ca()
 		streamer, e := taskClient.PutTaskStream(ct)

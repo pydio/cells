@@ -22,6 +22,7 @@ package datatest
 
 import (
 	"context"
+
 	"google.golang.org/grpc"
 
 	"github.com/pydio/cells/v4/common"
@@ -36,7 +37,7 @@ func NewTreeService(dss []string, nodes ...*tree.Node) (grpc.ClientConnInterface
 	server := srv.NewTreeServer(context.Background(), "")
 
 	for _, ds := range dss {
-		conn := grpc2.GetClientConnFromCtx(context.Background(), common.ServiceDataIndex_+ds)
+		conn := grpc2.ResolveConn(context.Background(), common.ServiceDataIndex_+ds)
 		server.AppendDatasource(ds, srv.NewDataSource(ds, tree.NewNodeProviderClient(conn), tree.NewNodeReceiverClient(conn)))
 	}
 

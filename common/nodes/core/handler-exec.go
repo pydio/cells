@@ -23,11 +23,12 @@ package core
 import (
 	"context"
 	"encoding/hex"
-	"go.uber.org/zap"
-	"google.golang.org/grpc"
 	"io"
 	"path"
 	"strings"
+
+	"go.uber.org/zap"
+	"google.golang.org/grpc"
 
 	"github.com/pydio/cells/v4/common"
 	grpc2 "github.com/pydio/cells/v4/common/client/grpc"
@@ -470,7 +471,7 @@ func (e *Executor) MultipartListObjectParts(ctx context.Context, target *tree.No
 
 func (e *Executor) StreamChanges(ctx context.Context, in *tree.StreamChangesRequest, opts ...grpc.CallOption) (tree.NodeChangesStreamer_StreamChangesClient, error) {
 
-	cli := tree.NewNodeChangesStreamerClient(grpc2.GetClientConnFromCtx(ctx, common.ServiceTree))
+	cli := tree.NewNodeChangesStreamerClient(grpc2.ResolveConn(ctx, common.ServiceTree))
 	return cli.StreamChanges(ctx, in, opts...)
 
 }

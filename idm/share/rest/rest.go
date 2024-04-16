@@ -27,7 +27,7 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/emicklei/go-restful/v3"
+	restful "github.com/emicklei/go-restful/v3"
 	"go.uber.org/zap"
 	"google.golang.org/grpc/health/grpc_health_v1"
 
@@ -289,7 +289,7 @@ func (h *SharesHandler) UpdateSharePolicies(req *restful.Request, rsp *restful.R
 		service.RestErrorDetect(req, rsp, err)
 		return
 	}
-	cli := idm.NewWorkspaceServiceClient(grpc.GetClientConnFromCtx(h.ctx, common.ServiceWorkspace))
+	cli := idm.NewWorkspaceServiceClient(grpc.ResolveConn(h.ctx, common.ServiceWorkspace))
 	ws, err := permissions.SearchUniqueWorkspace(ctx, input.Uuid, "")
 	if err != nil {
 		service.RestError500(req, rsp, errors.NotFound("share.not.found", "cannot find associated workspace"))
@@ -322,7 +322,7 @@ func (h *SharesHandler) UpdateSharePolicies(req *restful.Request, rsp *restful.R
 }
 
 func (h *SharesHandler) docStoreStatus(ctx context.Context) error {
-	cli := grpc_health_v1.NewHealthClient(grpc.GetClientConnFromCtx(ctx, common.ServiceDocStore))
+	cli := grpc_health_v1.NewHealthClient(grpc.ResolveConn(ctx, common.ServiceDocStore))
 	_, er := cli.Check(context.Background(), &grpc_health_v1.HealthCheckRequest{})
 	return er
 }

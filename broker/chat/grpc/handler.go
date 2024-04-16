@@ -33,7 +33,7 @@ import (
 	chat2 "github.com/pydio/cells/v4/broker/chat"
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/broker"
-	"github.com/pydio/cells/v4/common/client/grpc"
+	"github.com/pydio/cells/v4/common/client/commons/treec"
 	"github.com/pydio/cells/v4/common/log"
 	"github.com/pydio/cells/v4/common/proto/activity"
 	"github.com/pydio/cells/v4/common/proto/chat"
@@ -42,15 +42,8 @@ import (
 	"github.com/pydio/cells/v4/common/service/context/metadata"
 )
 
-var (
-	metaClient tree.NodeReceiverClient
-)
-
-func getMetaClient(runtimeContext context.Context) tree.NodeReceiverClient {
-	if metaClient == nil {
-		metaClient = tree.NewNodeReceiverClient(grpc.GetClientConnFromCtx(runtimeContext, common.ServiceMeta))
-	}
-	return metaClient
+func getMetaClient(ctx context.Context) tree.NodeReceiverClient {
+	return treec.ServiceNodeReceiverClient(ctx, common.ServiceMeta)
 }
 
 type ChatHandler struct {

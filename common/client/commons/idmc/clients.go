@@ -1,0 +1,29 @@
+package idmc
+
+import (
+	"context"
+
+	"github.com/pydio/cells/v4/common"
+	"github.com/pydio/cells/v4/common/client/grpc"
+	"github.com/pydio/cells/v4/common/proto/idm"
+)
+
+// UserServiceClient provides a resolved idm.UserServiceClient pointing to ServiceUser by default
+func UserServiceClient(ctx context.Context, opt ...grpc.Option) idm.UserServiceClient {
+	return idm.NewUserServiceClient(grpc.ResolveConn(ctx, common.ServiceUser, opt...))
+}
+
+// RoleServiceClient provides a resolved idm.RoleServiceClient pointing to ServiceRole by default
+func RoleServiceClient(ctx context.Context, opt ...grpc.Option) idm.RoleServiceClient {
+	return idm.NewRoleServiceClient(grpc.ResolveConn(ctx, common.ServiceRole, opt...))
+}
+
+// WorkspaceServiceClient provides a resolved idm.WorkspaceServiceClient pointing to ServiceWorkspace by default
+func WorkspaceServiceClient(ctx context.Context, opt ...grpc.Option) idm.WorkspaceServiceClient {
+	return idm.NewWorkspaceServiceClient(grpc.ResolveConn(ctx, common.ServiceWorkspace, opt...))
+}
+
+// ACLServiceClient provides a resolved idm.ACLServiceClient pointing to ServiceAcl by default
+func ACLServiceClient(ctx context.Context, opt ...grpc.Option) idm.ACLServiceClient {
+	return idm.NewACLServiceClient(grpc.ResolveConn(ctx, common.ServiceAcl, opt...))
+}

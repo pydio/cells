@@ -24,9 +24,8 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/pydio/cells/v4/common/client/grpc"
-
 	"github.com/pydio/cells/v4/common"
+	"github.com/pydio/cells/v4/common/client/grpc"
 	"github.com/pydio/cells/v4/common/forms"
 	"github.com/pydio/cells/v4/common/log"
 	"github.com/pydio/cells/v4/common/proto/jobs"
@@ -115,7 +114,7 @@ func (c *PruneJobsAction) Run(ctx context.Context, channels *actions.RunnableCha
 		maxRunningTime = 3600
 	}
 
-	cli := jobs.NewJobServiceClient(grpc.GetClientConnFromCtx(c.GetRuntimeContext(), common.ServiceJobs))
+	cli := jobs.NewJobServiceClient(grpc.ResolveConn(c.GetRuntimeContext(), common.ServiceJobs))
 	// Fix Stuck Tasks
 	resp, e := cli.DetectStuckTasks(ctx, &jobs.DetectStuckTasksRequest{
 		Since: int32(maxRunningTime),

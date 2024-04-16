@@ -30,6 +30,7 @@ import (
 	"path"
 	"strings"
 
+	"github.com/pydio/pydio-sdk-go/config"
 	"go.uber.org/zap"
 
 	"github.com/pydio/cells/v4/common"
@@ -48,7 +49,6 @@ import (
 	json "github.com/pydio/cells/v4/common/utils/jsonx"
 	"github.com/pydio/cells/v4/common/utils/permissions"
 	"github.com/pydio/cells/v4/scheduler/actions"
-	"github.com/pydio/pydio-sdk-go/config"
 )
 
 type MigrateGlobalMetaAction struct {
@@ -149,8 +149,8 @@ func (c *MigrateGlobalMetaAction) loadMeta(ctx context.Context, conf *config.Sdk
 		log.TasksLogger(ctx).Error("Cannot load access list for user", zap.Any("login", c.cellAdmin), zap.Error(e))
 		return e
 	}
-	subClient := activity.NewActivityServiceClient(grpc.GetClientConnFromCtx(ctx, common.ServiceActivity))
-	metaClient := idm.NewUserMetaServiceClient(grpc.GetClientConnFromCtx(ctx, common.ServiceUserMeta))
+	subClient := activity.NewActivityServiceClient(grpc.ResolveConn(ctx, common.ServiceActivity))
+	metaClient := idm.NewUserMetaServiceClient(grpc.ResolveConn(ctx, common.ServiceUserMeta))
 	log.TasksLogger(ctx).Info("Global Meta", zap.Int("data length", len(data)))
 	for wsId, users := range data {
 		slug := c.FindSlug(ctx, wsId)
@@ -319,7 +319,7 @@ func (c *MigrateGlobalMetaAction) FindSlug(ctx context.Context, p8WsId string) s
 		return ws.GetSlug()
 	}
 	/*
-		wsClient := idm.NewWorkspaceServiceClient(grpc.GetClientConnFromCtx(ctx, common.ServiceWorkspace))
+		wsClient := idm.NewWorkspaceServiceClient(grpc.ResolveConn(ctx, common.ServiceWorkspace))
 		q, _ := anypb.New(&idm.WorkspaceSingleQuery{Uuid: mapped})
 		s, e := wsClient.SearchWorkspace(ctx, &idm.SearchWorkspaceRequest{Query: &service.Query{SubQueries: []*anypb.Any{q}}})
 		if e != nil {

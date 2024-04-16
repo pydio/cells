@@ -31,7 +31,8 @@ import (
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/auth"
 	"github.com/pydio/cells/v4/common/auth/claim"
-	"github.com/pydio/cells/v4/common/client/grpc"
+	"github.com/pydio/cells/v4/common/client/commons/idmc"
+	"github.com/pydio/cells/v4/common/client/commons/treec"
 	"github.com/pydio/cells/v4/common/log"
 	"github.com/pydio/cells/v4/common/nodes/abstract"
 	"github.com/pydio/cells/v4/common/proto/idm"
@@ -72,7 +73,7 @@ func (a *Handler) WriteAllowed(ctx context.Context, acl *idm.ACL) error {
 // in the current context
 func (a *Handler) CheckRole(ctx context.Context, roleID string) error {
 
-	cli := idm.NewRoleServiceClient(grpc.GetClientConnFromCtx(ctx, common.ServiceRole))
+	cli := idmc.RoleServiceClient(ctx)
 	q, _ := anypb.New(&idm.RoleSingleQuery{Uuid: []string{roleID}})
 	stream, err := cli.SearchRole(ctx, &idm.SearchRoleRequest{Query: &service.Query{SubQueries: []*anypb.Any{q}}})
 	if err != nil {
@@ -112,7 +113,7 @@ func (a *Handler) CheckNode(ctx context.Context, nodeID string, action *idm.ACLA
 		return err
 	}
 
-	treeClient := tree.NewNodeProviderClient(grpc.GetClientConnFromCtx(a.ctx, common.ServiceTree))
+	treeClient := treec.NodeProviderClient(ctx)
 
 	ancestorStream, lErr := treeClient.ListNodes(ctx, &tree.ListNodesRequest{
 		Node:      &tree.Node{Uuid: nodeID},

@@ -30,7 +30,7 @@ import (
 	grpc2 "google.golang.org/grpc"
 
 	"github.com/pydio/cells/v4/common"
-	"github.com/pydio/cells/v4/common/client/grpc"
+	"github.com/pydio/cells/v4/common/client/commons/idmc"
 	"github.com/pydio/cells/v4/common/config"
 	"github.com/pydio/cells/v4/common/log"
 	"github.com/pydio/cells/v4/common/proto/idm"
@@ -178,7 +178,7 @@ func InitRoles(ctx context.Context) error {
 		roleName := insert.Role.Label
 
 		//go func(rolesACLs []*idm.ACL, roleName string) {
-		aclClient := idm.NewACLServiceClient(grpc.GetClientConnFromCtx(ctx, common.ServiceAcl))
+		aclClient := idmc.ACLServiceClient(ctx)
 		for _, acl := range rolesACLs {
 			if _, err := aclClient.CreateACL(ctx, &idm.CreateACLRequest{ACL: acl}); err != nil {
 				log.Logger(ctx).Error("Failed inserting ACLs for role "+roleName, zap.Error(err))
@@ -246,7 +246,7 @@ func UpgradeTo12(ctx context.Context) error {
 		}
 
 		e = std.Retry(ctx, func() error {
-			aclClient := idm.NewACLServiceClient(grpc.GetClientConnFromCtx(ctx, common.ServiceAcl))
+			aclClient := idmc.ACLServiceClient(ctx)
 			for _, acl := range insert.Acls {
 				_, e := aclClient.CreateACL(ctx, &idm.CreateACLRequest{ACL: acl})
 				if e != nil {
@@ -266,7 +266,7 @@ func UpgradeTo4199(ctx context.Context) error {
 		{RoleID: "ROOT_GROUP", Action: permissions.AclRead, WorkspaceID: common.IdmWsInternalDirectoryID, NodeID: "directory-ROOT"},
 		{RoleID: "ROOT_GROUP", Action: permissions.AclWrite, WorkspaceID: common.IdmWsInternalDirectoryID, NodeID: "directory-ROOT"},
 	}
-	aclClient := idm.NewACLServiceClient(grpc.GetClientConnFromCtx(ctx, common.ServiceAcl))
+	aclClient := idmc.ACLServiceClient(ctx)
 	for _, acl := range newACLs {
 		_, e := aclClient.CreateACL(ctx, &idm.CreateACLRequest{ACL: acl}, grpc2.WaitForReady(true))
 		if e != nil {
@@ -281,7 +281,7 @@ func UpgradeTo421(ctx context.Context) error {
 	newACLs := []*idm.ACL{
 		{RoleID: "EXTERNAL_USERS", Action: &idm.ACLAction{Name: "parameter:core.auth:USER_CREATE_USERS", Value: "false"}, WorkspaceID: permissions.FrontWsScopeAll},
 	}
-	aclClient := idm.NewACLServiceClient(grpc.GetClientConnFromCtx(ctx, common.ServiceAcl))
+	aclClient := idmc.ACLServiceClient(ctx)
 	for _, acl := range newACLs {
 		_, e := aclClient.CreateACL(ctx, &idm.CreateACLRequest{ACL: acl}, grpc2.WaitForReady(true))
 		if e != nil {

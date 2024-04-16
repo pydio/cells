@@ -33,6 +33,7 @@ import (
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/auth"
 	"github.com/pydio/cells/v4/common/auth/claim"
+	"github.com/pydio/cells/v4/common/client/commons/idmc"
 	grpc2 "github.com/pydio/cells/v4/common/client/grpc"
 	"github.com/pydio/cells/v4/common/config"
 	"github.com/pydio/cells/v4/common/log"
@@ -107,8 +108,7 @@ func (s *UserHandler) GetUser(req *restful.Request, rsp *restful.Response) {
 	query.ResourcePolicyQuery, _ = s.RestToServiceResourcePolicy(ctx, nil)
 	var result *idm.User
 
-	cli := idm.NewUserServiceClient(grpc2.GetClientConnFromCtx(ctx, common.ServiceUser))
-	streamer, err := cli.SearchUser(ctx, &idm.SearchUserRequest{
+	streamer, err := idmc.UserServiceClient(ctx).SearchUser(ctx, &idm.SearchUserRequest{
 		Query: query,
 	})
 	if err != nil {
@@ -181,7 +181,7 @@ func (s *UserHandler) SearchUsers(req *restful.Request, rsp *restful.Response) {
 			query.SubQueries = append(query.SubQueries, anyfied)
 		}
 	}
-	cli := idm.NewUserServiceClient(grpc2.GetClientConnFromCtx(ctx, common.ServiceUser))
+	cli := idmc.UserServiceClient(ctx)
 	resp, err := cli.CountUser(ctx, &idm.SearchUserRequest{
 		Query: query,
 	})
@@ -257,7 +257,7 @@ func (s *UserHandler) DeleteUser(req *restful.Request, rsp *restful.Response) {
 	}
 	query, _ := anypb.New(singleQ)
 	mainQuery := &service2.Query{SubQueries: []*anypb.Any{query}}
-	cli := idm.NewUserServiceClient(grpc2.GetClientConnFromCtx(ctx, common.ServiceUser))
+	cli := idmc.UserServiceClient(ctx)
 
 	// Search first to check policies
 	stream, err := cli.SearchUser(ctx, &idm.SearchUserRequest{Query: mainQuery})
@@ -309,7 +309,7 @@ func (s *UserHandler) DeleteUser(req *restful.Request, rsp *restful.Response) {
 			},
 		}
 
-		cli := jobs.NewJobServiceClient(grpc2.GetClientConnFromCtx(ctx, common.ServiceJobs))
+		cli := jobs.NewJobServiceClient(grpc2.ResolveConn(ctx, common.ServiceJobs))
 		_, er := cli.PutJob(ctx, &jobs.PutJobRequest{Job: job})
 		if er != nil {
 			service.RestError500(req, rsp, er)
@@ -360,7 +360,7 @@ func (s *UserHandler) PutUser(req *restful.Request, rsp *restful.Response) {
 		service.RestError500(req, rsp, fmt.Errorf("login field cannot contain a group path"))
 		return
 	}
-	cli := idm.NewUserServiceClient(grpc2.GetClientConnFromCtx(ctx, common.ServiceUser))
+	cli := idmc.UserServiceClient(ctx)
 	log.Logger(req.Request.Context()).Debug("Received User.Put API request", inputUser.ZapLogin())
 	var update *idm.User
 	if inputUser.Uuid != "" {
@@ -387,7 +387,7 @@ func (s *UserHandler) PutUser(req *restful.Request, rsp *restful.Response) {
 			return
 		}
 		// Check ADD/REMOVE Roles Policies
-		roleCli := idm.NewRoleServiceClient(grpc2.GetClientConnFromCtx(ctx, common.ServiceRole))
+		roleCli := idmc.RoleServiceClient(ctx)
 		rolesToCheck := s.diffRoles(inputUser.Roles, update.Roles)
 		removes := s.diffRoles(update.Roles, inputUser.Roles)
 		log.Logger(ctx).Debug("ADD/REMOVE ROLES", log.DangerouslyZapSmallSlice("add", rolesToCheck), log.DangerouslyZapSmallSlice("remove", removes), log.DangerouslyZapSmallSlice("new", inputUser.Roles), log.DangerouslyZapSmallSlice("existings", update.Roles))
@@ -566,7 +566,7 @@ func (s *UserHandler) PutUser(req *restful.Request, rsp *restful.Response) {
 				},
 			}
 		}
-		roleCli := idm.NewRoleServiceClient(grpc2.GetClientConnFromCtx(ctx, common.ServiceRole))
+		roleCli := idmc.RoleServiceClient(ctx)
 		_, er := roleCli.CreateRole(ctx, &idm.CreateRoleRequest{Role: newRole})
 		if er != nil {
 			service.RestError500(req, rsp, er)
@@ -611,7 +611,7 @@ func (s *UserHandler) PutUser(req *restful.Request, rsp *restful.Response) {
 	u := response.User
 
 	if len(acls) > 0 {
-		aclClient := idm.NewACLServiceClient(grpc2.GetClientConnFromCtx(ctx, common.ServiceAcl))
+		aclClient := idmc.ACLServiceClient(ctx) //idm.NewACLServiceClient(grpc2.ResolveConn(ctx, common.ServiceAcl))
 		if len(deleteAclActions) > 0 {
 			delQuery := &service2.Query{Operation: service2.OperationType_OR}
 			for _, action := range deleteAclActions {
@@ -677,7 +677,7 @@ func (s *UserHandler) PutUser(req *restful.Request, rsp *restful.Response) {
 		if l, o := u.Attributes["parameter:core.conf:lang"]; o {
 			lang = strings.Trim(l, `"`)
 		}
-		mailCli := mailer.NewMailerServiceClient(grpc2.GetClientConnFromCtx(ctx, common.ServiceMailer))
+		mailCli := mailer.NewMailerServiceClient(grpc2.ResolveConn(ctx, common.ServiceMailer))
 		email := &mailer.Mail{
 			To: []*mailer.User{{
 				Uuid:     u.Uuid,
@@ -724,7 +724,7 @@ func (s *UserHandler) PutRoles(req *restful.Request, rsp *restful.Response) {
 		service.RestError500(req, rsp, errors.BadRequest(common.ServiceUser, "Please provide a user ID"))
 		return
 	}
-	cli := idm.NewUserServiceClient(grpc2.GetClientConnFromCtx(ctx, common.ServiceUser))
+	cli := idmc.UserServiceClient(ctx)
 	var update *idm.User
 	var exists bool
 	if update, exists = s.userById(ctx, inputUser.Uuid, cli); !exists {
@@ -733,7 +733,7 @@ func (s *UserHandler) PutRoles(req *restful.Request, rsp *restful.Response) {
 	}
 
 	// Check ADD/REMOVE Roles Policies
-	roleCli := idm.NewRoleServiceClient(grpc2.GetClientConnFromCtx(ctx, common.ServiceRole))
+	roleCli := idmc.RoleServiceClient(ctx)
 	rolesToCheck := s.diffRoles(inputUser.Roles, update.Roles)
 	removes := s.diffRoles(update.Roles, inputUser.Roles)
 	log.Logger(ctx).Debug("ADD/REMOVE ROLES", log.DangerouslyZapSmallSlice("add", rolesToCheck), log.DangerouslyZapSmallSlice("remove", removes), log.DangerouslyZapSmallSlice("new", inputUser.Roles), log.DangerouslyZapSmallSlice("existings", update.Roles))
@@ -915,7 +915,7 @@ func allowedAclKey(ctx context.Context, k string, contextEditable bool) bool {
 	}
 	ca, _ := cachedParams.Get(ctx)
 	if ca != nil && !ca.Get("params", &params) {
-		mC := front.NewManifestServiceClient(grpc2.GetClientConnFromCtx(ctx, common.ServiceFrontStatics))
+		mC := front.NewManifestServiceClient(grpc2.ResolveConn(ctx, common.ServiceFrontStatics))
 		resp, e := mC.ExposedParameters(ctx, &front.ExposedParametersRequest{
 			Scope:   "user",
 			Exposed: true,
@@ -945,7 +945,7 @@ func allowedAclKey(ctx context.Context, k string, contextEditable bool) bool {
 
 func allowedUserSpecialPermissions(ctx context.Context, claims claim.Claims) bool {
 	subjects := permissions.PolicyRequestSubjectsFromClaims(claims)
-	client := idm.NewPolicyEngineServiceClient(grpc2.GetClientConnFromCtx(ctx, common.ServicePolicy))
+	client := idm.NewPolicyEngineServiceClient(grpc2.ResolveConn(ctx, common.ServicePolicy))
 	request := &idm.PolicyEngineRequest{
 		Subjects: subjects,
 		Resource: "rest:/acl",

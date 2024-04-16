@@ -7,7 +7,6 @@ import (
 
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/client/grpc"
-
 	"github.com/pydio/cells/v4/common/proto/chat"
 )
 
@@ -60,7 +59,7 @@ func (c *ChatHandler) heartbeat(ctx context.Context, username string, room *chat
 				for _, roomChat := range heartbeater.rooms {
 					if f, e := c.findOrCreateRoom(ctx, roomChat, false); e == nil && f != nil {
 						if save := c.removeUserFromRoom(f, username); save {
-							chatClient := chat.NewChatServiceClient(grpc.GetClientConnFromCtx(ctx, common.ServiceChat))
+							chatClient := chat.NewChatServiceClient(grpc.ResolveConn(ctx, common.ServiceChat))
 							chatClient.PutRoom(ctx, &chat.PutRoomRequest{Room: f})
 						}
 					}

@@ -8,6 +8,7 @@ import (
 	"google.golang.org/protobuf/types/known/anypb"
 
 	"github.com/pydio/cells/v4/common"
+	"github.com/pydio/cells/v4/common/client/commons/idmc"
 	"github.com/pydio/cells/v4/common/client/grpc"
 	"github.com/pydio/cells/v4/common/log"
 	"github.com/pydio/cells/v4/common/proto/idm"
@@ -27,7 +28,7 @@ func CheckDefinedRootsForWorkspace(ctx context.Context, ws *idm.Workspace, resol
 		return fmt.Errorf("cannot define workspace without any root nodes")
 	}
 
-	streamer := tree.NewNodeProviderStreamerClient(grpc.GetClientConnFromCtx(ctx, common.ServiceTree))
+	streamer := tree.NewNodeProviderStreamerClient(grpc.ResolveConn(ctx, common.ServiceTree))
 	c, e := streamer.ReadNodeStream(ctx)
 	if e != nil {
 		return e
@@ -60,7 +61,7 @@ func LoadRootNodesForWorkspaces(ctx context.Context, wsUUIDs []string, wss map[s
 	for _, a := range acls {
 		wsAcls[a.WorkspaceID] = append(wsAcls[a.WorkspaceID], a)
 	}
-	streamer := tree.NewNodeProviderStreamerClient(grpc.GetClientConnFromCtx(ctx, common.ServiceTree))
+	streamer := tree.NewNodeProviderStreamerClient(grpc.ResolveConn(ctx, common.ServiceTree))
 	c, e := streamer.ReadNodeStream(ctx)
 	if e != nil {
 		return e
@@ -109,7 +110,7 @@ func LoadRootNodesForWorkspaces(ctx context.Context, wsUUIDs []string, wss map[s
 func StoreRootNodesAsACLs(ctx context.Context, ws *idm.Workspace, update bool) error {
 
 	reassign := make(map[string][]*idm.ACLAction)
-	aclClient := idm.NewACLServiceClient(grpc.GetClientConnFromCtx(ctx, common.ServiceAcl))
+	aclClient := idmc.ACLServiceClient(ctx)
 
 	if update {
 		// Delete current Root Nodes ACLs
@@ -242,7 +243,7 @@ func ExtractDefaultRights(ctx context.Context, workspace *idm.Workspace) (string
 // of ManageDefaultRights in read mode.
 func BulkReadDefaultRights(ctx context.Context, uuids []string, wss map[string]*idm.Workspace) error {
 
-	aclClient := idm.NewACLServiceClient(grpc.GetClientConnFromCtx(ctx, common.ServiceAcl))
+	aclClient := idmc.ACLServiceClient(ctx)
 	// Load RootRole ACLs and append to Attributes
 	q1, _ := anypb.New(&idm.ACLSingleQuery{
 		WorkspaceIDs: uuids,
@@ -303,7 +304,7 @@ func BulkReadDefaultRights(ctx context.Context, uuids []string, wss map[string]*
 // For reading on many workspace, use BulkReadDefaultRights instead.
 func ManageDefaultRights(ctx context.Context, workspace *idm.Workspace, read bool, rightsValue string, newQuota string) error {
 
-	aclClient := idm.NewACLServiceClient(grpc.GetClientConnFromCtx(ctx, common.ServiceAcl))
+	aclClient := idmc.ACLServiceClient(ctx)
 	if read {
 		// Load RootRole ACLs and append to Attributes
 		q1, _ := anypb.New(&idm.ACLSingleQuery{

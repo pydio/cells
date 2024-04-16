@@ -118,7 +118,7 @@ func registerQueueJob(ctx context.Context) error {
 
 	log.Logger(ctx).Info("Registering default job for consuming mailer queue")
 
-	cliJob := jobs.NewJobServiceClient(grpc2.GetClientConnFromCtx(ctx, common.ServiceJobs))
+	cliJob := jobs.NewJobServiceClient(grpc2.ResolveConn(ctx, common.ServiceJobs))
 	if _, err := cliJob.PutJob(ctx, &jobs.PutJobRequest{Job: queueJob()}); err != nil {
 		return err
 	}

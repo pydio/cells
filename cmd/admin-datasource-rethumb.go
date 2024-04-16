@@ -21,10 +21,11 @@
 package cmd
 
 import (
+	"os"
+
 	"github.com/manifoldco/promptui"
 	"github.com/spf13/cobra"
 	"google.golang.org/protobuf/types/known/anypb"
-	"os"
 
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/client/grpc"
@@ -73,7 +74,7 @@ EXAMPLES
 			FreeString: "-Meta.is_image:T* Extension:jpg Extension:jpeg  Extension:png Extension:bmp",
 		})
 
-		jobClient := jobs.NewJobServiceClient(grpc.GetClientConnFromCtx(ctx, common.ServiceJobs))
+		jobClient := jobs.NewJobServiceClient(grpc.ResolveConn(ctx, common.ServiceJobs))
 		job := &jobs.Job{
 			ID:             uuid.New(),
 			Owner:          rethumbUserName,

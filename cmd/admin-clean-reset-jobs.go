@@ -113,7 +113,7 @@ EXAMPLE
 		if _, er := confirm.Run(); er != nil {
 			return er
 		}
-		jobClient := jobs.NewJobServiceClient(grpc.GetClientConnFromCtx(ctx, common.ServiceJobs))
+		jobClient := jobs.NewJobServiceClient(grpc.ResolveConn(ctx, common.ServiceJobs))
 
 		if _, er = jobClient.PutJob(ctx, &jobs.PutJobRequest{Job: job.Job}); er != nil {
 			fmt.Println(promptui.IconBad + " Error while inserting job " + er.Error())

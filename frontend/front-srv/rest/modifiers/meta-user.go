@@ -23,10 +23,10 @@ package modifiers
 import (
 	"context"
 	"fmt"
-	"go.uber.org/zap"
 
 	"github.com/ory/ladon"
 	"github.com/ory/ladon/manager/memory"
+	"go.uber.org/zap"
 
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/auth"
@@ -70,7 +70,7 @@ func MetaUserRegModifier(ctx context.Context, status frontend.RequestStatus, reg
 		return nil
 	}
 
-	client := idm.NewUserMetaServiceClient(grpc.GetClientConnFromCtx(status.RuntimeCtx, common.ServiceUserMeta))
+	client := idm.NewUserMetaServiceClient(grpc.ResolveConn(status.RuntimeCtx, common.ServiceUserMeta))
 	respStream, e := client.ListUserMetaNamespace(ctx, &idm.ListUserMetaNamespaceRequest{})
 	if e != nil {
 		return e

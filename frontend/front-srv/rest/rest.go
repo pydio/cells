@@ -24,8 +24,6 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	servicecontext "github.com/pydio/cells/v4/common/service/context"
-	"github.com/pydio/cells/v4/common/service/frontend/sessions"
 	"io"
 	"os"
 	"strconv"
@@ -38,7 +36,7 @@ import (
 
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/broker"
-	"github.com/pydio/cells/v4/common/client/grpc"
+	"github.com/pydio/cells/v4/common/client/commons/idmc"
 	"github.com/pydio/cells/v4/common/config"
 	"github.com/pydio/cells/v4/common/log"
 	"github.com/pydio/cells/v4/common/nodes/compose"
@@ -48,8 +46,10 @@ import (
 	"github.com/pydio/cells/v4/common/proto/rest"
 	"github.com/pydio/cells/v4/common/proto/tree"
 	"github.com/pydio/cells/v4/common/service"
+	servicecontext "github.com/pydio/cells/v4/common/service/context"
 	"github.com/pydio/cells/v4/common/service/context/metadata"
 	"github.com/pydio/cells/v4/common/service/frontend"
+	"github.com/pydio/cells/v4/common/service/frontend/sessions"
 	"github.com/pydio/cells/v4/common/service/resources"
 	"github.com/pydio/cells/v4/common/utils/permissions"
 	"github.com/pydio/cells/v4/common/utils/uuid"
@@ -468,7 +468,7 @@ func (a *FrontendHandler) FrontPutBinary(req *restful.Request, rsp *restful.Resp
 			user.Attributes = map[string]string{}
 		}
 		user.Attributes["avatar"] = binaryId
-		cli := idm.NewUserServiceClient(grpc.GetClientConnFromCtx(ctx, common.ServiceUser))
+		cli := idmc.UserServiceClient(ctx)
 		_, e = cli.CreateUser(ctx, &idm.CreateUserRequest{User: user})
 		if e != nil {
 			service.RestError404(req, rsp, e)

@@ -26,8 +26,7 @@ import (
 
 	"google.golang.org/protobuf/proto"
 
-	"github.com/pydio/cells/v4/common"
-	"github.com/pydio/cells/v4/common/client/grpc"
+	"github.com/pydio/cells/v4/common/client/commons/idmc"
 	"github.com/pydio/cells/v4/common/log"
 	"github.com/pydio/cells/v4/common/proto/idm"
 	"github.com/pydio/cells/v4/common/service/errors"
@@ -57,7 +56,7 @@ func (p *pydioconnector) Prompt() string {
 
 func (p *pydioconnector) Login(ctx context.Context, s Scopes, username, password string) (Identity, bool, error) {
 	// Check the user has successfully logged in
-	c := idm.NewUserServiceClient(grpc.GetClientConnFromCtx(ctx, common.ServiceUser))
+	c := idmc.UserServiceClient(ctx)
 	resp, err := c.BindUser(ctx, &idm.BindUserRequest{UserName: username, Password: password})
 	if err != nil {
 		if errors.FromError(err).Code == http.StatusForbidden {

@@ -22,20 +22,19 @@ package grpc
 
 import (
 	"context"
-	"github.com/pydio/cells/v4/common/proto/rest"
-	"github.com/pydio/cells/v4/idm/share"
 	"sync"
 	"time"
-
-	"github.com/pydio/cells/v4/common/client/grpc"
 
 	"go.uber.org/zap"
 	"google.golang.org/protobuf/types/known/anypb"
 
 	"github.com/pydio/cells/v4/common"
+	"github.com/pydio/cells/v4/common/client/grpc"
 	"github.com/pydio/cells/v4/common/log"
 	"github.com/pydio/cells/v4/common/proto/idm"
+	"github.com/pydio/cells/v4/common/proto/rest"
 	"github.com/pydio/cells/v4/common/proto/service"
+	"github.com/pydio/cells/v4/idm/share"
 )
 
 type AclBatcher struct {
@@ -137,7 +136,8 @@ func (c *WsCleaner) deleteEmptyWs(workspaceId string) error {
 	defer ca()
 
 	// Check if there are still some ACLs for this workspace
-	cl := idm.NewACLServiceClient(grpc.GetClientConnFromCtx(c.ctx, common.ServiceAcl))
+	// TODO RETRIEVE CONTEXT
+	cl := idm.NewACLServiceClient(grpc.ResolveConn(c.ctx, common.ServiceAcl))
 	q, _ := anypb.New(&idm.ACLSingleQuery{
 		WorkspaceIDs: []string{workspaceId},
 	})

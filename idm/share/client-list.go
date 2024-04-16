@@ -76,7 +76,7 @@ func (sc *Client) ListSharedResources(ctx context.Context, subject string, scope
 		qs = append(qs, q)
 	}
 
-	cl := idm.NewWorkspaceServiceClient(grpc.GetClientConnFromCtx(sc.RuntimeContext, common.ServiceWorkspace))
+	cl := idm.NewWorkspaceServiceClient(grpc.ResolveConn(sc.RuntimeContext, common.ServiceWorkspace))
 	streamer, err := cl.SearchWorkspace(ctx, &idm.SearchWorkspaceRequest{
 		Query: &service2.Query{
 			SubQueries: qs,

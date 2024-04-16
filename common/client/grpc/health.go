@@ -23,9 +23,9 @@ package grpc
 import (
 	"context"
 	"fmt"
-	"google.golang.org/grpc"
 	"time"
 
+	"google.golang.org/grpc"
 	"google.golang.org/grpc/health/grpc_health_v1"
 )
 
@@ -48,14 +48,14 @@ type healthChecker struct {
 
 // Monitor blocks a connection to a specific service health.
 func (h *healthChecker) Monitor(serviceName string) {
-	cli := grpc_health_v1.NewHealthClient(GetClientConnFromCtx(h.c, serviceName))
+	cli := grpc_health_v1.NewHealthClient(ResolveConn(h.c, serviceName))
 	ct, can := context.WithCancel(context.Background())
 	h.cancel = can
 
 	if cli == nil {
 		return
 	}
-	
+
 	resp, er := cli.Check(ct, &grpc_health_v1.HealthCheckRequest{}, grpc.WaitForReady(true))
 	if er != nil {
 		fmt.Println("[ERROR] Could not monitor service " + serviceName + ": " + er.Error())

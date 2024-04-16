@@ -455,7 +455,7 @@ func (a *AccessList) loadNodePathAcls(ctx context.Context, resolver VirtualPathR
 		// Do not open an unnecessary stream...
 		return nil
 	}
-	cli := tree.NewNodeProviderStreamerClient(grpc.GetClientConnFromCtx(ctx, common.ServiceTree))
+	cli := tree.NewNodeProviderStreamerClient(grpc.ResolveConn(ctx, common.ServiceTree))
 	ct, ca := context.WithCancel(ctx)
 	defer ca()
 	st, e := cli.ReadNodeStream(ct)

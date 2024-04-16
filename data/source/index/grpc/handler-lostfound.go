@@ -27,8 +27,7 @@ import (
 	"go.uber.org/zap"
 	"google.golang.org/protobuf/types/known/anypb"
 
-	"github.com/pydio/cells/v4/common"
-	"github.com/pydio/cells/v4/common/client/grpc"
+	"github.com/pydio/cells/v4/common/client/commons/idmc"
 	"github.com/pydio/cells/v4/common/log"
 	"github.com/pydio/cells/v4/common/proto/idm"
 	service "github.com/pydio/cells/v4/common/proto/service"
@@ -104,7 +103,7 @@ func (s *TreeServer) TriggerResync(ctx context.Context, request *sync.ResyncRequ
 func (s *TreeServer) checkACLs(ctx context.Context, ll []index.LostAndFound) (marked []index.LostAndFound, conflicts []index.LostAndFound, e error) {
 
 	if aclClient == nil {
-		aclClient = idm.NewACLServiceClient(grpc.GetClientConnFromCtx(ctx, common.ServiceAcl))
+		aclClient = idmc.ACLServiceClient(ctx)
 	}
 	var uuids []string
 	for _, l := range ll {

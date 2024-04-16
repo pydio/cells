@@ -87,7 +87,7 @@ func (c *PruneTokensAction) Run(ctx context.Context, channels *actions.RunnableC
 	output := input
 
 	// Prune revoked tokens on OAuth service
-	cli := auth.NewAuthTokenPrunerClient(grpc.GetClientConnFromCtx(ctx, common.ServiceOAuth))
+	cli := auth.NewAuthTokenPrunerClient(grpc.ResolveConn(ctx, common.ServiceOAuth))
 	if pruneResp, e := cli.PruneTokens(ctx, &auth.PruneTokensRequest{}); e != nil {
 		return input.WithError(e), e
 	} else {
@@ -96,7 +96,7 @@ func (c *PruneTokensAction) Run(ctx context.Context, channels *actions.RunnableC
 	}
 
 	// Prune revoked tokens on OAuth service
-	cli2 := auth.NewAuthTokenPrunerClient(grpc.GetClientConnFromCtx(ctx, common.ServiceToken))
+	cli2 := auth.NewAuthTokenPrunerClient(grpc.ResolveConn(ctx, common.ServiceToken))
 	if pruneResp, e := cli2.PruneTokens(ctx, &auth.PruneTokensRequest{}); e != nil {
 		return input.WithError(e), e
 	} else {
@@ -105,7 +105,7 @@ func (c *PruneTokensAction) Run(ctx context.Context, channels *actions.RunnableC
 	}
 
 	// Prune reset password tokens
-	docCli := docstore.NewDocStoreClient(grpc.GetClientConnFromCtx(ctx, common.ServiceDocStore))
+	docCli := docstore.NewDocStoreClient(grpc.ResolveConn(ctx, common.ServiceDocStore))
 	deleteResponse, er := docCli.DeleteDocuments(ctx, &docstore.DeleteDocumentsRequest{
 		StoreID: "resetPasswordKeys",
 		Query: &docstore.DocumentQuery{

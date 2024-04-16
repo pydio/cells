@@ -34,6 +34,7 @@ import (
 
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/auth/claim"
+	"github.com/pydio/cells/v4/common/client/commons/idmc"
 	"github.com/pydio/cells/v4/common/client/grpc"
 	"github.com/pydio/cells/v4/common/config"
 	"github.com/pydio/cells/v4/common/log"
@@ -96,7 +97,7 @@ func (m *VirtualNodesManager) Load(forceReload ...bool) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
 	m.nodes = []*tree.Node{}
-	cli := docstore.NewDocStoreClient(grpc.GetClientConnFromCtx(m.ctx, common.ServiceDocStore))
+	cli := docstore.NewDocStoreClient(grpc.ResolveConn(m.ctx, common.ServiceDocStore))
 	stream, e := cli.ListDocuments(m.ctx, &docstore.ListDocumentsRequest{
 		StoreID: common.DocStoreIdVirtualNodes,
 		Query:   &docstore.DocumentQuery{},
@@ -322,7 +323,8 @@ func (m *VirtualNodesManager) resolvePathWithClaims(ctx context.Context, vNode *
 
 // copyRecycleRootAcl creates recycle_root ACL on newly created node
 func (m *VirtualNodesManager) copyRecycleRootAcl(ctx context.Context, vNode *tree.Node, resolved *tree.Node) error {
-	cl := idm.NewACLServiceClient(grpc.GetClientConnFromCtx(m.ctx, common.ServiceAcl))
+	cl := idmc.ACLServiceClient(ctx)
+
 	// Check if vNode has this flag set
 	q, _ := anypb.New(&idm.ACLSingleQuery{
 		NodeIDs: []string{vNode.Uuid},

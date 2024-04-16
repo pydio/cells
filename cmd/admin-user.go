@@ -28,8 +28,7 @@ import (
 	"github.com/spf13/cobra"
 	"google.golang.org/protobuf/types/known/anypb"
 
-	"github.com/pydio/cells/v4/common"
-	"github.com/pydio/cells/v4/common/client/grpc"
+	"github.com/pydio/cells/v4/common/client/commons/idmc"
 	"github.com/pydio/cells/v4/common/proto/idm"
 	service2 "github.com/pydio/cells/v4/common/proto/service"
 )
@@ -103,7 +102,7 @@ func deleteUser(ctx context.Context, login string) error {
 	}
 	query, _ := anypb.New(singleQ)
 	mainQuery := &service2.Query{SubQueries: []*anypb.Any{query}}
-	cli := idm.NewUserServiceClient(grpc.GetClientConnFromCtx(ctx, common.ServiceUser))
+	cli := idmc.UserServiceClient(ctx)
 
 	stream, err := cli.SearchUser(ctx, &idm.SearchUserRequest{Query: mainQuery})
 	if err != nil {

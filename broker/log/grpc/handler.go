@@ -23,22 +23,21 @@ package grpc
 import (
 	"context"
 	"fmt"
-	servicecontext "github.com/pydio/cells/v4/common/service/context"
 	"io"
 	"strconv"
 	"strings"
 	"time"
 
-	"github.com/pydio/cells/v4/common/client/grpc"
-
 	"go.uber.org/zap"
 
 	"github.com/pydio/cells/v4/broker/log"
 	"github.com/pydio/cells/v4/common"
+	"github.com/pydio/cells/v4/common/client/grpc"
 	log2 "github.com/pydio/cells/v4/common/log"
 	"github.com/pydio/cells/v4/common/proto/jobs"
 	proto "github.com/pydio/cells/v4/common/proto/log"
 	"github.com/pydio/cells/v4/common/proto/sync"
+	servicecontext "github.com/pydio/cells/v4/common/service/context"
 	"github.com/pydio/cells/v4/common/service/errors"
 )
 
@@ -124,7 +123,7 @@ func (h *Handler) TriggerResync(ctx context.Context, request *sync.ResyncRequest
 		theTask := request.Task
 		theTask.StartTime = int32(time.Now().Unix())
 		closeTask = func(e error) {
-			taskClient := jobs.NewJobServiceClient(grpc.GetClientConnFromCtx(h.RuntimeCtx, common.ServiceJobs))
+			taskClient := jobs.NewJobServiceClient(grpc.ResolveConn(h.RuntimeCtx, common.ServiceJobs))
 			theTask.EndTime = int32(time.Now().Unix())
 			if e != nil {
 				theTask.StatusMessage = "Error " + e.Error()

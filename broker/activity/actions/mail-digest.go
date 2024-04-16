@@ -50,10 +50,8 @@ const (
 
 type MailDigestAction struct {
 	common.RuntimeHolder
-	mailerClient   mailer.MailerServiceClient
-	activityClient activity.ActivityServiceClient
-	dryRun         bool
-	dryMail        string
+	dryRun  bool
+	dryMail string
 }
 
 // GetDescription returns the action description
@@ -89,9 +87,15 @@ func (m *MailDigestAction) Init(job *jobs.Job, action *jobs.Action) error {
 	if email, ok := action.Parameters["dryMail"]; ok && email != "" {
 		m.dryMail = email
 	}
-	m.mailerClient = mailer.NewMailerServiceClient(grpc.GetClientConnFromCtx(m.GetRuntimeContext(), common.ServiceMailer))
-	m.activityClient = activity.NewActivityServiceClient(grpc.GetClientConnFromCtx(m.GetRuntimeContext(), common.ServiceActivity))
 	return nil
+}
+
+func mailerClient(ctx context.Context) mailer.MailerServiceClient {
+	return mailer.NewMailerServiceClient(grpc.ResolveConn(ctx, common.ServiceMailer))
+}
+
+func activityClient(ctx context.Context) activity.ActivityServiceClient {
+	return activity.NewActivityServiceClient(grpc.ResolveConn(ctx, common.ServiceActivity))
 }
 
 // Run processes the actual action code
@@ -128,7 +132,7 @@ func (m *MailDigestAction) Run(ctx context.Context, channels *actions.RunnableCh
 		AsDigest:    true,
 	}
 
-	streamer, e := m.activityClient.StreamActivities(ctx, query)
+	streamer, e := activityClient(ctx).StreamActivities(ctx, query)
 	if e != nil {
 		output := input.WithError(e)
 		return output, e
@@ -198,7 +202,7 @@ func (m *MailDigestAction) Run(ctx context.Context, channels *actions.RunnableCh
 		user.Address = m.dryMail
 	}
 
-	_, err = m.mailerClient.SendMail(ctx, &mailer.SendMailRequest{
+	_, err = mailerClient(ctx).SendMail(ctx, &mailer.SendMailRequest{
 		Mail: &mailer.Mail{
 			TemplateId:      "Digest",
 			ContentMarkdown: md,
@@ -212,7 +216,7 @@ func (m *MailDigestAction) Run(ctx context.Context, channels *actions.RunnableCh
 	log.TasksLogger(ctx).Info("Digest sent to user "+userObject.Login, userObject.ZapLogin())
 	if len(collection) > 0 && !m.dryRun {
 		lastActivity := collection[0] // Activities are in reverse order, the first one is the last id
-		_, err := m.activityClient.SetUserLastActivity(ctx, &activity.UserLastActivityRequest{
+		_, err := activityClient(ctx).SetUserLastActivity(ctx, &activity.UserLastActivityRequest{
 			ActivityId: lastActivity.Id,
 			UserId:     userObject.Login,
 			BoxName:    "lastsent",

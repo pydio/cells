@@ -69,7 +69,7 @@ func init() {
 				// return std.Retry(ctx, func() error {
 				bg := runtimecontext.ForkContext(context.Background(), ctx)
 				go func() {
-					jobsClient := jobs.NewJobServiceClient(grpc2.GetClientConnFromCtx(bg, common.ServiceJobs))
+					jobsClient := jobs.NewJobServiceClient(grpc2.ResolveConn(bg, common.ServiceJobs))
 
 					// Migration from old prune-versions-job : delete if exists, replaced by composed job
 					var reinsert bool
@@ -147,7 +147,7 @@ func InitDefaults(ctx context.Context) error {
 		NodeDeletedStrategy:    tree.VersioningNodeDeletedStrategy_KeepLast,
 	})
 
-	dc := docstore.NewDocStoreClient(grpc2.GetClientConnFromCtx(ctx, common.ServiceDocStore))
+	dc := docstore.NewDocStoreClient(grpc2.ResolveConn(ctx, common.ServiceDocStore))
 	if _, err := dc.PutDocument(ctx, &docstore.PutDocumentRequest{
 		StoreID:    common.DocStoreIdVersioningPolicies,
 		DocumentID: "default-policy",

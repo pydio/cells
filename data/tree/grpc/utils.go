@@ -27,14 +27,13 @@ import (
 
 	"go.uber.org/zap"
 
-	"github.com/pydio/cells/v4/common/client/grpc"
-	pb "github.com/pydio/cells/v4/common/proto/registry"
-	servicecontext "github.com/pydio/cells/v4/common/service/context"
-
 	"github.com/pydio/cells/v4/common"
+	"github.com/pydio/cells/v4/common/client/grpc"
 	"github.com/pydio/cells/v4/common/log"
+	pb "github.com/pydio/cells/v4/common/proto/registry"
 	"github.com/pydio/cells/v4/common/proto/tree"
 	"github.com/pydio/cells/v4/common/registry"
+	servicecontext "github.com/pydio/cells/v4/common/service/context"
 )
 
 var (
@@ -70,8 +69,8 @@ func updateServicesList(ctx context.Context, treeServer *TreeServer, retry int) 
 		indexService := common.ServiceDataIndex_ + dataSourceName
 		dataSources[dataSourceName] = DataSource{
 			Name:   dataSourceName,
-			writer: tree.NewNodeReceiverClient(grpc.GetClientConnFromCtx(ctx, indexService)),
-			reader: tree.NewNodeProviderClient(grpc.GetClientConnFromCtx(ctx, indexService)),
+			writer: tree.NewNodeReceiverClient(grpc.ResolveConn(ctx, indexService)),
+			reader: tree.NewNodeProviderClient(grpc.ResolveConn(ctx, indexService)),
 		}
 		dsKeys = append(dsKeys, dataSourceName)
 		log.Logger(ctx).Debug("[Tree:updateServicesList] Add datasource " + dataSourceName)

@@ -70,16 +70,18 @@ func init() {
 					Up:            registerDigestJob,
 				},
 			}),
+			service.WithStorageDrivers(activity.NewBoltDAO),
 			//service.WithDefaultStorageConn("bolt"), >> CONFIG.YAML : bolt + le chemin par défaut
-			service.WithStorage("bolt", activity.NewBoltDAO,
-				service.WithStoragePrefix("activity"),
-				//				service.WithStorageSupport(boltdb.Driver, mongodb.Driver),
-				//				service.WithStorageMigrator(activity.Migrate),
-				//				service.WithStorageDefaultDriver(func() (string, string) {
-				//					return boltdb.Driver, filepath.Join(runtime.MustServiceDataDir(Name), "activities.db")
-				//				}),
-			),
-			//service.WithStorage("toto", activity.NewBoltDAO,....),
+			/*
+				service.WithStorage("bolt", activity.NewBoltDAO,
+					service.WithStoragePrefix("activity"),
+					//				service.WithStorageSupport(boltdb.Driver, mongodb.Driver),
+					//				service.WithStorageMigrator(activity.Migrate),
+					//				service.WithStorageDefaultDriver(func() (string, string) {
+					//					return boltdb.Driver, filepath.Join(runtime.MustServiceDataDir(Name), "activities.db")
+					//				}),
+				),
+			*/
 			service.WithGRPC(func(c context.Context, srv grpc.ServiceRegistrar) error {
 
 				// Register Subscribers
@@ -187,7 +189,7 @@ func digestJob() *jobs.Job {
 func registerDigestJob(ctx context.Context) error {
 
 	log.Logger(ctx).Info("Registering default job for creating activities digests")
-	cliJob := jobs.NewJobServiceClient(grpc2.GetClientConnFromCtx(ctx, common.ServiceJobs))
+	cliJob := jobs.NewJobServiceClient(grpc2.ResolveConn(ctx, common.ServiceJobs))
 	if _, err := cliJob.PutJob(ctx, &jobs.PutJobRequest{Job: digestJob()}); err != nil {
 		return err
 	}

@@ -25,10 +25,9 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/pydio/cells/v4/common/client/grpc"
-
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/broker"
+	"github.com/pydio/cells/v4/common/client/grpc"
 	"github.com/pydio/cells/v4/common/proto/idm"
 	"github.com/pydio/cells/v4/common/proto/tree"
 )
@@ -112,7 +111,7 @@ func (p *NsProvider) Load() {
 	ct, ca := context.WithCancel(context.Background())
 	defer ca()
 	for _, srv := range services {
-		cl := idm.NewUserMetaServiceClient(grpc.GetClientConnFromCtx(p.Ctx, strings.TrimPrefix(srv.Name(), common.ServiceGrpcNamespace_)))
+		cl := idm.NewUserMetaServiceClient(grpc.ResolveConn(p.Ctx, strings.TrimPrefix(srv.Name(), common.ServiceGrpcNamespace_)))
 		s, e := cl.ListUserMetaNamespace(ct, &idm.ListUserMetaNamespaceRequest{})
 		if e != nil {
 			continue
@@ -139,7 +138,7 @@ func (p *NsProvider) InitStreamers(ctx context.Context) error {
 	ct, can := context.WithCancel(ctx)
 	p.closer = can
 	for _, srv := range services {
-		c := tree.NewNodeProviderStreamerClient(grpc.GetClientConnFromCtx(ctx, strings.TrimPrefix(srv.Name(), common.ServiceGrpcNamespace_)))
+		c := tree.NewNodeProviderStreamerClient(grpc.ResolveConn(ctx, strings.TrimPrefix(srv.Name(), common.ServiceGrpcNamespace_)))
 		if s, e := c.ReadNodeStream(ct); e == nil {
 			p.streamers = append(p.streamers, s)
 		}

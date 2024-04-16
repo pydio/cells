@@ -31,7 +31,7 @@ import (
 	"github.com/pydio/cells/v4/broker/activity"
 	"github.com/pydio/cells/v4/broker/activity/render"
 	"github.com/pydio/cells/v4/common"
-	"github.com/pydio/cells/v4/common/client/grpc"
+	"github.com/pydio/cells/v4/common/client/commons/treec"
 	"github.com/pydio/cells/v4/common/config"
 	"github.com/pydio/cells/v4/common/log"
 	activity2 "github.com/pydio/cells/v4/common/proto/activity"
@@ -192,7 +192,7 @@ func (h *Handler) StoreVersion(ctx context.Context, request *tree.StoreVersionRe
 
 func (h *Handler) PruneVersions(ctx context.Context, request *tree.PruneVersionsRequest) (*tree.PruneVersionsResponse, error) {
 
-	cl := tree.NewNodeProviderClient(grpc.GetClientConnFromCtx(ctx, common.ServiceTree))
+	cl := treec.NodeProviderClient(ctx)
 
 	dao, err := manager.Resolve[versions.DAO](ctx)
 	if err != nil {

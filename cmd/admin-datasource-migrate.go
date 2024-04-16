@@ -35,6 +35,7 @@ import (
 	"github.com/spf13/cobra"
 
 	"github.com/pydio/cells/v4/common"
+	"github.com/pydio/cells/v4/common/client/commons/treec"
 	"github.com/pydio/cells/v4/common/client/grpc"
 	"github.com/pydio/cells/v4/common/config"
 	"github.com/pydio/cells/v4/common/nodes"
@@ -198,7 +199,7 @@ DESCRIPTION
 			p := promptui.Prompt{Label: "All objects were successfully copied, do you wish to clean the index table now", IsConfirm: true, Default: "y"}
 			if _, e := p.Run(); e == nil {
 				if tgtFmt == "flat" {
-					resyncClient := sync.NewSyncEndpointClient(grpc.GetClientConnFromCtx(ctx, common.ServiceDataIndex_+source.Name, longGrpcCallTimeout()))
+					resyncClient := sync.NewSyncEndpointClient(grpc.ResolveConn(ctx, common.ServiceDataIndex_+source.Name, longGrpcCallTimeout()))
 					resp, e := resyncClient.TriggerResync(authCtx, &sync.ResyncRequest{Path: "flatten"})
 					if e != nil {
 						migrateLogger(fmt.Sprintf("[ERROR] while cleaning index from '.pydio' entries: %+v", e), true)
@@ -207,7 +208,7 @@ DESCRIPTION
 						migrateLogger("Cleaned index with result: "+resp.GetJsonDiff(), true)
 					}
 				} else {
-					streamClient := tree.NewNodeReceiverStreamClient(grpc.GetClientConnFromCtx(ctx, common.ServiceDataIndex_+source.Name, longGrpcCallTimeout()))
+					streamClient := tree.NewNodeReceiverStreamClient(grpc.ResolveConn(ctx, common.ServiceDataIndex_+source.Name, longGrpcCallTimeout()))
 					streamer, e := streamClient.CreateNodeStream(authCtx)
 					if e != nil {
 						migrateLogger(fmt.Sprintf("[ERROR] Cannot open stream to index service %s", e.Error()), true)
@@ -299,14 +300,14 @@ func migratePickDS() (source *object.DataSource, srcFmt, tgtFmt, srcBucket, tgtB
 
 func migratePrepareClients(source *object.DataSource) (rootNode *tree.Node, idx tree.NodeProviderClient, mc nodes.StorageClient, e error) {
 
-	idx = tree.NewNodeProviderClient(grpc.GetClientConnFromCtx(ctx, common.ServiceDataIndex_+source.Name, longGrpcCallTimeout()))
+	idx = treec.ServiceNodeProviderClient(ctx, common.ServiceDataIndex_+source.Name, longGrpcCallTimeout())
 	r, er := idx.ReadNode(authCtx, &tree.ReadNodeRequest{Node: &tree.Node{Path: "/"}})
 	if er != nil {
 		e = er
 		return
 	}
 	rootNode = r.GetNode()
-	objCli := object.NewObjectsEndpointClient(grpc.GetClientConnFromCtx(ctx, common.ServiceDataObjects_+source.ObjectsServiceName))
+	objCli := object.NewObjectsEndpointClient(grpc.ResolveConn(ctx, common.ServiceDataObjects_+source.ObjectsServiceName))
 	or, er := objCli.GetMinioConfig(authCtx, &object.GetMinioConfigRequest{})
 	if er != nil {
 		e = er

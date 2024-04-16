@@ -86,7 +86,7 @@ func (e *ExifProcessor) GetName() string {
 func (e *ExifProcessor) Init(job *jobs.Job, action *jobs.Action) error {
 	//e.Router = views.NewStandardRouter(views.RouterOptions{AdminView: true, WatchRegistry: false})
 	if !nodes.IsUnitTestEnv {
-		e.metaClient = tree.NewNodeReceiverClient(grpc.GetClientConnFromCtx(e.GetRuntimeContext(), common.ServiceMeta))
+		e.metaClient = tree.NewNodeReceiverClient(grpc.ResolveConn(e.GetRuntimeContext(), common.ServiceMeta))
 	}
 	return nil
 }

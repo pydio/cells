@@ -60,7 +60,7 @@ EXAMPLES
 		}
 		syncService := "pydio.grpc.data.sync." + resyncDsName
 
-		cli := sync.NewSyncEndpointClient(grpc.GetClientConnFromCtx(cmd.Context(), syncService, longGrpcCallTimeout()))
+		cli := sync.NewSyncEndpointClient(grpc.ResolveConn(cmd.Context(), syncService, longGrpcCallTimeout()))
 		c := metadata.WithUserNameMetadata(context.Background(), common.PydioSystemUsername)
 		resp, err := cli.TriggerResync(c, &sync.ResyncRequest{Path: "/"})
 		if err != nil {

@@ -30,23 +30,22 @@ import (
 	"github.com/pydio/cells/v4/common/log"
 	"github.com/pydio/cells/v4/common/proto/tree"
 	"github.com/pydio/cells/v4/common/runtime"
-	"github.com/pydio/cells/v4/common/utils/queue"
 )
 
 // EventsSubscriber definition
 type EventsSubscriber struct {
-	queue.Queue
-	outputChannel chan *queue.TypeWithContext[*tree.NodeChangeEvent]
+	broker.AsyncQueue
+	outputChannel chan *broker.TypeWithContext[*tree.NodeChangeEvent]
 }
 
 func (e *EventsSubscriber) Start(ctx context.Context) error {
-	if qu, err := queue.OpenQueue(ctx, runtime.PersistingQueueURL("serviceName", common.ServiceGrpcNamespace_+common.ServiceSearch, "name", "search")); err == nil {
-		e.Queue = qu
+	if qu, err := broker.OpenAsyncQueue(ctx, runtime.PersistingQueueURL("serviceName", common.ServiceGrpcNamespace_+common.ServiceSearch, "name", "search")); err == nil {
+		e.AsyncQueue = qu
 	} else {
 		log.Logger(ctx).Error("Cannot start queue, using an in-memory instead", zap.Error(err))
 
 	}
-	er := e.Consume(func(messages ...broker.Message) {
+	er := e.Consume(func(ctx context.Context, messages ...broker.Message) {
 		for _, message := range messages {
 			msg := &tree.NodeChangeEvent{}
 			if ct, er := message.Unmarshal(ctx, msg); er == nil {
@@ -71,7 +70,7 @@ func (e *EventsSubscriber) Handle(ctx context.Context, msg *tree.NodeChangeEvent
 	}
 
 	go func() {
-		e.outputChannel <- &queue.TypeWithContext[*tree.NodeChangeEvent]{
+		e.outputChannel <- &broker.TypeWithContext[*tree.NodeChangeEvent]{
 			Ctx:      ctx,
 			Original: msg,
 		}
