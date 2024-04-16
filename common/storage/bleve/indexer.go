@@ -49,30 +49,8 @@ const (
 	MinRotationSize  = 68 * 1024
 )
 
-type Indexer interface {
-	InsertOne(ctx context.Context, data interface{}) error
-	DeleteOne(ctx context.Context, data interface{}) error
-	DeleteMany(ctx context.Context, query interface{}) (int32, error)
-	FindMany(ctx context.Context, query interface{}, offset, limit int32, customCodex indexer.IndexCodex) (chan interface{}, error)
-	NewBatch(ctx context.Context) (Batch, error)
-
-	// SetCodex sets the IndexCodex to be used for marshalling/unmarshalling data. Can be locally overriden during FindMany requests.
-	SetCodex(c indexer.IndexCodex)
-	GetCodex() indexer.IndexCodex
-
-	// Resync should clear the index and rewrite it from scratch. Used by bolt implementations for defragmentation.
-	//Resync(ctx context.Context, logger func(string)) error
-	//// Truncate should free some disk space. Used by bleve implementation in conjunction with rotationSize parameter.
-	//Truncate(ctx context.Context, max int64, logger func(string)) error
-
-	// Open(ctx context.Context) error
-
-	// Close closes the index connection
-	Close(ctx context.Context) error
-}
-
-// bleveIndexer is the syslog specific implementation of the Log server
-type bleveIndexer struct {
+// Indexer is the syslog specific implementation of the Log server
+type Indexer struct {
 	conf *BleveConfig
 
 	indexes []bleve.Index
@@ -94,14 +72,34 @@ type bleveIndexer struct {
 	metricsName string
 }
 
+func (s *Indexer) Flush(ctx context.Context) error {
+	//TODO implement me
+	panic("implement me")
+}
+
+func (s *Indexer) Resync(ctx context.Context, logger func(string)) error {
+	//TODO implement me
+	panic("implement me")
+}
+
+func (s *Indexer) Truncate(ctx context.Context, max int64, logger func(string)) error {
+	//TODO implement me
+	panic("implement me")
+}
+
+func (s *Indexer) Open(ctx context.Context) error {
+	//TODO implement me
+	panic("implement me")
+}
+
 // NewIndexer creates and configures a default Bleve instance to store technical logs
 // Setting rotationSize to -1 fully disables rotation
-func newBleveIndexer(conf *BleveConfig) (*bleveIndexer, error) {
+func newBleveIndexer(conf *BleveConfig) (*Indexer, error) {
 	if conf.RotationSize > -1 && conf.RotationSize < MinRotationSize {
 		return nil, fmt.Errorf("use a rotation size bigger than %d", MinRotationSize)
 	}
 
-	indexer := &bleveIndexer{
+	indexer := &Indexer{
 		conf:        conf,
 		inserts:     make(chan interface{}, BufferedChanSize),
 		deletes:     make(chan interface{}, BufferedChanSize),
@@ -120,23 +118,23 @@ func newBleveIndexer(conf *BleveConfig) (*bleveIndexer, error) {
 	return indexer, nil
 }
 
-func (s *bleveIndexer) Name() string {
+func (s *Indexer) Name() string {
 	return "bleve"
 }
 
-func (s *bleveIndexer) ID() string {
+func (s *Indexer) ID() string {
 	return uuid.New()
 }
 
-func (s *bleveIndexer) Metadata() map[string]string {
+func (s *Indexer) Metadata() map[string]string {
 	return map[string]string{}
 }
 
-func (s *bleveIndexer) MustBleveConfig(ctx context.Context) *BleveConfig {
+func (s *Indexer) MustBleveConfig(ctx context.Context) *BleveConfig {
 	return s.conf
 }
 
-func (s *bleveIndexer) As(i interface{}) bool {
+func (s *Indexer) As(i interface{}) bool {
 	//if sw, ok := i.(*registry.StatusReporter); ok {
 	//	*sw = s
 	//	return true
@@ -144,7 +142,7 @@ func (s *bleveIndexer) As(i interface{}) bool {
 	return false
 }
 
-//func (s *bleveIndexer) WatchStatus() (registry.StatusWatcher, error) {
+//func (s *Indexer) WatchStatus() (registry.StatusWatcher, error) {
 //	if s.debouncer == nil {
 //		s.debouncer = debounce.New(5 * time.Second)
 //		s.statusInput = make(chan map[string]interface{})
@@ -160,7 +158,7 @@ func (s *bleveIndexer) As(i interface{}) bool {
 //	return w, nil
 //}
 //
-//func (s *bleveIndexer) sendStatus() {
+//func (s *Indexer) sendStatus() {
 //	m := map[string]interface{}{
 //		"Indexes": s.listIndexes(),
 //	}
@@ -171,7 +169,7 @@ func (s *bleveIndexer) As(i interface{}) bool {
 //	s.statusInput <- m
 //}
 //
-//func (s *bleveIndexer) updateStatus() {
+//func (s *Indexer) updateStatus() {
 //	if s.debouncer == nil {
 //		return
 //	}
@@ -183,7 +181,7 @@ func (s *bleveIndexer) As(i interface{}) bool {
 //}
 
 // Stats implements DAO method by listing opened indexes and documents counts
-//func (s *bleveIndexer) Stats() map[string]interface{} {
+//func (s *Indexer) Stats() map[string]interface{} {
 //	m := map[string]interface{}{
 //		"indexes": s.listIndexes(),
 //	}
@@ -196,7 +194,7 @@ func (s *bleveIndexer) As(i interface{}) bool {
 // Open lists all existing indexes and creates a writeable index on the active one
 // and a composed index for searching. It calls watchInserts() to start watching for
 // new logs
-//func (s *bleveIndexer) Open(ctx context.Context) error {
+//func (s *Indexer) Open(ctx context.Context) error {
 //
 //	conf := s.MustBleveConfig(ctx)
 //
@@ -227,7 +225,7 @@ func (s *bleveIndexer) As(i interface{}) bool {
 //	return nil
 //}
 
-func (s *bleveIndexer) getFullPath(path string, prefix string, rotationID string) string {
+func (s *Indexer) getFullPath(path string, prefix string, rotationID string) string {
 	builder := strings.Builder{}
 
 	builder.WriteString(path)
@@ -242,7 +240,7 @@ func (s *bleveIndexer) getFullPath(path string, prefix string, rotationID string
 	return builder.String()
 }
 
-func (s *bleveIndexer) getPrefix(ctx context.Context) string {
+func (s *Indexer) getPrefix(ctx context.Context) string {
 	return path.Base(s.conf.BlevePath)
 	//prefix := ctx.Value("prefix").(*template.Template)
 	//
@@ -262,11 +260,11 @@ func (s *bleveIndexer) getPrefix(ctx context.Context) string {
 	//return prefixBuilder.String()
 }
 
-func (s *bleveIndexer) getPath(ctx context.Context) string {
+func (s *Indexer) getPath(ctx context.Context) string {
 	return s.conf.BlevePath
 }
 
-func (s *bleveIndexer) Close(ctx context.Context) error {
+func (s *Indexer) Close(ctx context.Context) error {
 	if !s.opened {
 		return nil
 	}
@@ -278,7 +276,7 @@ func (s *bleveIndexer) Close(ctx context.Context) error {
 	return nil
 }
 
-func (s *bleveIndexer) InsertOne(ctx context.Context, data interface{}) error {
+func (s *Indexer) InsertOne(ctx context.Context, data interface{}) error {
 	index, err := s.getWriteIndex(ctx)
 	if err != nil {
 		return err
@@ -293,7 +291,7 @@ func (s *bleveIndexer) InsertOne(ctx context.Context, data interface{}) error {
 	return index.Index(id, data)
 }
 
-func (s *bleveIndexer) DeleteOne(ctx context.Context, data interface{}) error {
+func (s *Indexer) DeleteOne(ctx context.Context, data interface{}) error {
 	index, err := s.getWriteIndex(ctx)
 	if err != nil {
 		return err
@@ -307,7 +305,7 @@ func (s *bleveIndexer) DeleteOne(ctx context.Context, data interface{}) error {
 	return index.Delete(id)
 }
 
-func (s *bleveIndexer) checkRotate(ctx context.Context) bool {
+func (s *Indexer) checkRotate(ctx context.Context) bool {
 	if s.conf.RotationSize == -1 {
 		return false
 	}
@@ -325,7 +323,7 @@ func (s *bleveIndexer) checkRotate(ctx context.Context) bool {
 	return du > s.conf.RotationSize
 }
 
-func (s *bleveIndexer) DeleteMany(ctx context.Context, qu interface{}) (int32, error) {
+func (s *Indexer) DeleteMany(ctx context.Context, qu interface{}) (int32, error) {
 	var q query.Query
 	var str string
 	var ok bool
@@ -365,7 +363,7 @@ func (s *bleveIndexer) DeleteMany(ctx context.Context, qu interface{}) (int32, e
 	return count, nil
 }
 
-func (s *bleveIndexer) FindMany(ctx context.Context, qu interface{}, offset, limit int32, customCodec indexer.IndexCodex) (chan interface{}, error) {
+func (s *Indexer) FindMany(ctx context.Context, qu interface{}, offset, limit int32, sortFields string, sortDesc bool, customCodec indexer.IndexCodex) (chan interface{}, error) {
 	codec := s.GetCodex()
 	if customCodec != nil {
 		codec = customCodec
@@ -384,7 +382,7 @@ func (s *bleveIndexer) FindMany(ctx context.Context, qu interface{}, offset, lim
 		request = bleve.NewSearchRequest(q)
 	} else {
 
-		if r, _, err := codec.BuildQuery(qu, offset, limit); err != nil {
+		if r, _, err := codec.BuildQuery(qu, offset, limit, sortFields, sortDesc); err != nil {
 			return nil, err
 		} else {
 			if req, ok := r.(*bleve.SearchRequest); !ok {
@@ -427,7 +425,7 @@ func (s *bleveIndexer) FindMany(ctx context.Context, qu interface{}, offset, lim
 	return cRes, nil
 }
 
-func (s *bleveIndexer) rotate(ctx context.Context) error {
+func (s *Indexer) rotate(ctx context.Context) error {
 	path := s.getPath(ctx)
 	prefix := s.getPrefix(ctx)
 	rotationID := s.getNextRotationID(path + "/" + prefix)
@@ -443,15 +441,15 @@ func (s *bleveIndexer) rotate(ctx context.Context) error {
 	return nil
 }
 
-func (s *bleveIndexer) GetCodex() indexer.IndexCodex {
+func (s *Indexer) GetCodex() indexer.IndexCodex {
 	return s.codec
 }
 
-func (s *bleveIndexer) SetCodex(c indexer.IndexCodex) {
+func (s *Indexer) SetCodex(c indexer.IndexCodex) {
 	s.codec = c
 }
 
-//func (s *bleveIndexer) getWriteIndex() bleve.Index {
+//func (s *Indexer) getWriteIndex() bleve.Index {
 //
 //	if s.cursor == -1 || len(s.indexes) < s.cursor-1 {
 //		// Use a no-op, in-memory index to avoid crashes
@@ -465,7 +463,7 @@ func (s *bleveIndexer) SetCodex(c indexer.IndexCodex) {
 //	return s.indexes[s.cursor]
 //}
 
-func (s *bleveIndexer) getWriteIndex(ctx context.Context) (bleve.Index, error) {
+func (s *Indexer) getWriteIndex(ctx context.Context) (bleve.Index, error) {
 	path := s.getPath(ctx)
 	prefix := s.getPrefix(ctx)
 	rotationID := s.getRotationID(path + "/" + prefix)
@@ -492,7 +490,7 @@ func (s *bleveIndexer) getWriteIndex(ctx context.Context) (bleve.Index, error) {
 	return indexes[len(indexes)-1], nil
 }
 
-func (s *bleveIndexer) getSearchIndex(ctx context.Context) (bleve.Index, error) {
+func (s *Indexer) getSearchIndex(ctx context.Context) (bleve.Index, error) {
 	path := s.getPath(ctx)
 	prefix := s.getPrefix(ctx)
 	fullPath := s.getFullPath(path, prefix, "")
@@ -507,7 +505,7 @@ func (s *bleveIndexer) getSearchIndex(ctx context.Context) (bleve.Index, error) 
 	return bleve.NewIndexAlias(indexes...), nil
 }
 
-//func (s *bleveIndexer) watchInserts() {
+//func (s *Indexer) watchInserts() {
 //	bc := s.MustBleveConfig(context.Background())
 //	batchSize := int(bc.BatchSize)
 //	for {
@@ -568,7 +566,7 @@ func (s *bleveIndexer) getSearchIndex(ctx context.Context) (bleve.Index, error) 
 //	}
 //}
 
-func (s *bleveIndexer) getNextRotationID(prefix string) string {
+func (s *Indexer) getNextRotationID(prefix string) string {
 	count := 0
 	for _, idx := range s.indexes {
 		if strings.HasPrefix(idx.Name(), prefix) {
@@ -579,7 +577,7 @@ func (s *bleveIndexer) getNextRotationID(prefix string) string {
 	return fmt.Sprintf("%04d", count)
 }
 
-func (s *bleveIndexer) getRotationID(prefix string) string {
+func (s *Indexer) getRotationID(prefix string) string {
 	count := 0
 	for _, idx := range s.indexes {
 		if strings.HasPrefix(idx.Name(), prefix) {
@@ -591,7 +589,7 @@ func (s *bleveIndexer) getRotationID(prefix string) string {
 }
 
 // Resync creates a copy of current index. It has been originally used for switching analyze format from bleve to scorch.
-//func (s *bleveIndexer) Resync(ctx context.Context, logger func(string)) error {
+//func (s *Indexer) Resync(ctx context.Context, logger func(string)) error {
 //
 //	copyDir := filepath.Join(filepath.Dir(s.conf.BlevePath), uuid.New())
 //	e := os.Mkdir(copyDir, 0777)
@@ -608,7 +606,7 @@ func (s *bleveIndexer) getRotationID(prefix string) string {
 //
 //	conf.BlevePath = copyPath
 //
-//	dup := &bleveIndexer{
+//	dup := &Indexer{
 //		conf: conf,
 //	}
 //	dup.SetCodex(s.codec)
@@ -696,7 +694,7 @@ func (s *bleveIndexer) getRotationID(prefix string) string {
 
 // Truncate gathers size of existing indexes, starting from last. When max is reached
 // it starts deleting all previous indexes.
-//func (s *bleveIndexer) Truncate(ctx context.Context, max int64, logger func(string)) error {
+//func (s *Indexer) Truncate(ctx context.Context, max int64, logger func(string)) error {
 //	logger("Closing log server, waiting for five seconds")
 //	dir := filepath.Dir(s.indexPath)
 //	if er := s.Close(ctx); er != nil {
@@ -749,7 +747,7 @@ func (s *bleveIndexer) getRotationID(prefix string) string {
 //	return nil
 //}
 
-func (s *bleveIndexer) listIndexes(path string) (paths []string) {
+func (s *Indexer) listIndexes(path string) (paths []string) {
 	files, err := os.ReadDir(path)
 	if err != nil {
 		return
@@ -768,7 +766,7 @@ func (s *bleveIndexer) listIndexes(path string) (paths []string) {
 	return
 }
 
-func (s *bleveIndexer) openAllIndex(blevePath string, mappingName string) ([]bleve.Index, error) {
+func (s *Indexer) openAllIndex(blevePath string, mappingName string) ([]bleve.Index, error) {
 	var indexes []bleve.Index
 
 	for _, path := range s.listIndexes(blevePath) {
@@ -784,7 +782,7 @@ func (s *bleveIndexer) openAllIndex(blevePath string, mappingName string) ([]ble
 }
 
 // openOneIndex tries to open an existing index at a given path, or creates a new one
-func (s *bleveIndexer) openOneIndex(bleveIndexPath string, mappingName string) (bleve.Index, error) {
+func (s *Indexer) openOneIndex(bleveIndexPath string, mappingName string) (bleve.Index, error) {
 
 	index, err := bleve.Open(bleveIndexPath)
 	if err != nil {
@@ -818,7 +816,7 @@ type Batch interface {
 	Close() error
 }
 
-func (s *bleveIndexer) NewBatch(ctx context.Context) (Batch, error) {
+func (s *Indexer) NewBatch(ctx context.Context) (Batch, error) {
 	index, err := s.getWriteIndex(ctx)
 	if err != nil {
 		return nil, err

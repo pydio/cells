@@ -25,14 +25,12 @@ package grpc
 
 import (
 	"context"
-	"path/filepath"
 
 	"google.golang.org/grpc"
 
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/broker"
 	"github.com/pydio/cells/v4/common/config"
-	"github.com/pydio/cells/v4/common/dao/bleve"
 	"github.com/pydio/cells/v4/common/proto/sync"
 	"github.com/pydio/cells/v4/common/proto/tree"
 	"github.com/pydio/cells/v4/common/runtime"
@@ -55,7 +53,7 @@ func init() {
 			service.Tag(common.ServiceTagData),
 			service.Description("Search Engine"),
 			// service.Fork(true),
-			service.WithStorageDrivers(dao.NewBleveEngine),
+			service.WithStorageDrivers(dao.NewBleveDAO),
 			service.WithGRPC(func(c context.Context, server grpc.ServiceRegistrar) error {
 
 				//cfg := config.Get("services", Name)
@@ -83,7 +81,7 @@ func init() {
 				if e := broker.SubscribeCancellable(c, common.TopicMetaChanges, func(ctx context.Context, message broker.Message) error {
 					msg := &tree.NodeChangeEvent{}
 					if ct, e := message.Unmarshal(ctx, msg); e == nil {
-						return subscriber.Push(ct, msg)
+						return subscriber.Handle(ct, msg)
 					}
 					return nil
 				}, broker.Queue("search"), broker.WithCounterName("search")); e != nil {

@@ -30,16 +30,13 @@ import (
 
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/config"
-	"github.com/pydio/cells/v4/common/dao"
 	"github.com/pydio/cells/v4/common/log"
-	"github.com/pydio/cells/v4/common/nodes"
 	"github.com/pydio/cells/v4/common/nodes/meta"
 	"github.com/pydio/cells/v4/common/proto/tree"
+	"github.com/pydio/cells/v4/common/runtime/manager"
 	servercontext "github.com/pydio/cells/v4/common/server/context"
-	"github.com/pydio/cells/v4/common/storage/bleve"
 	"github.com/pydio/cells/v4/common/storage/indexer"
 	"github.com/pydio/cells/v4/common/utils/configx"
-	bleve2 "github.com/pydio/cells/v4/data/search/dao/bleve"
 )
 
 var (
@@ -47,10 +44,7 @@ var (
 )
 
 type Server struct {
-	DAO indexer.DAO
-
-	Router nodes.Handler
-	Engine indexer.Indexer
+	indexer.Indexer
 
 	inserts  chan *tree.IndexableNode
 	deletes  chan string
@@ -58,31 +52,31 @@ type Server struct {
 	confChan chan configx.Values
 }
 
-func NewBleveEngine(ctx context.Context, idx *bleve.bleveIndexer) (*Server, error) {
-	return newEngine(ctx, idx)
-}
-
-func newEngine(ctx context.Context, idx indexer.Indexer) (*Server, error) {
-
-	idx.SetCodex(&bleve2.Codec{})
-
-	server := &Server{
-		Engine: idx,
-		DAO:    indexer.NewDAO(idx),
-
-		inserts:  make(chan *tree.IndexableNode),
-		deletes:  make(chan string),
-		done:     make(chan bool, 1),
-		confChan: make(chan configx.Values),
-	}
-
-	idx.Open(ctx)
-
-	go server.watchOperations(ctx)
-	go server.watchConfigs(ctx)
-
-	return server, nil
-}
+//func NewBleveEngine(ctx context.Context, idx *bleve.bleveIndexer) (*Server, error) {
+//	return newEngine(ctx, idx)
+//}
+//
+//func newEngine(ctx context.Context, idx indexer.Indexer) (*Server, error) {
+//
+//	// idx.SetCodex(&bleve2.Codec{})
+//
+//	server := &Server{
+//		Engine: idx,
+//		DAO:    indexer.NewDAO(idx),
+//
+//		inserts:  make(chan *tree.IndexableNode),
+//		deletes:  make(chan string),
+//		done:     make(chan bool, 1),
+//		confChan: make(chan configx.Values),
+//	}
+//
+//	idx.Open(ctx)
+//
+//	go server.watchOperations(ctx)
+//	go server.watchConfigs(ctx)
+//
+//	return server, nil
+//}
 
 func (s *Server) watchOperations(ctx context.Context) {
 	nsProvider := meta.NewNsProvider(ctx)
@@ -101,17 +95,17 @@ func (s *Server) watchOperations(ctx context.Context) {
 			timer = time.NewTimer(debounce)
 			batch.Index(n)
 			if batch.Size() >= BatchSize {
-				batch.Flush(s.Engine)
+				batch.Flush(s)
 			}
 		case d := <-s.deletes:
 			timer.Stop()
 			timer = time.NewTimer(debounce)
 			batch.Delete(d)
 			if batch.Size() >= BatchSize {
-				batch.Flush(s.Engine)
+				batch.Flush(s)
 			}
 		case <-timer.C:
-			batch.Flush(s.Engine)
+			batch.Flush(s)
 		case cf := <-s.confChan:
 			// s.configs = cf
 			batch.options.config = cf
@@ -122,8 +116,8 @@ func (s *Server) watchOperations(ctx context.Context) {
 		//	close(s.done)
 		//	return
 		case <-s.done:
-			batch.Flush(s.Engine)
-			s.Engine.Close(ctx)
+			batch.Flush(s)
+			s.Close(ctx)
 			return
 		}
 	}
@@ -148,27 +142,33 @@ func (s *Server) watchConfigs(ctx context.Context) {
 	watcher.Stop()
 }
 
-func (s *Server) Close() error {
+func (s *Server) Close(ctx context.Context) error {
 	close(s.done)
-	return s.Engine.Close(context.TODO())
+	return s.Indexer.Close(ctx)
 }
 
 func (s *Server) IndexNode(c context.Context, n *tree.Node, reloadCore bool, excludes map[string]struct{}) error {
+	dao, err := manager.Resolve[indexer.Indexer](c)
+	if err != nil {
+		return err
+	}
+
 	if n.GetUuid() == "" {
 		return fmt.Errorf("missing uuid")
 	}
+
 	forceCore := false
 	if n.GetPath() == "" || n.GetType() == tree.NodeType_UNKNOWN {
 		forceCore = true
 	}
+
 	iNode := &tree.IndexableNode{
 		Node:       *n,
 		ReloadCore: reloadCore || forceCore,
 		ReloadNs:   !reloadCore,
 	}
-	s.inserts <- iNode
 
-	return nil
+	return dao.InsertOne(c, iNode)
 }
 
 func (s *Server) DeleteNode(c context.Context, n *tree.Node) error {
@@ -178,19 +178,23 @@ func (s *Server) DeleteNode(c context.Context, n *tree.Node) error {
 }
 
 func (s *Server) ClearIndex(ctx context.Context) error {
-	return s.Engine.Truncate(ctx, 0, func(s string) {
+	return s.Truncate(ctx, 0, func(s string) {
 		log.Logger(ctx).Info(s)
 	})
 }
 
-func (s *Server) SearchNodes(c context.Context, queryObject *tree.Query, from int32, size int32, sortField string, sortDesc bool, resultChan chan *tree.Node, facets chan *tree.SearchFacet, doneChan chan bool) error {
+func (s *Server) SearchNodes(ctx context.Context, queryObject *tree.Query, from int32, size int32, sortField string, sortDesc bool, resultChan chan *tree.Node, facets chan *tree.SearchFacet, doneChan chan bool) error {
+	dao, err := manager.Resolve[indexer.Indexer](ctx)
+	if err != nil {
+		return err
+	}
 
 	nsProvider := meta.NewNsProvider(ctx)
 	conf := servercontext.GetConfig(ctx)
 
-	accu := NewQueryCodec(s.Engine, conf.Val(), nsProvider)
+	accu := NewQueryCodec(s.Indexer, conf.Val(), nsProvider)
 
-	searchResult, err := s.Engine.FindMany(c, queryObject, from, size, sortField, sortDesc, accu)
+	searchResult, err := dao.FindMany(ctx, queryObject, from, size, sortField, sortDesc, accu)
 	if err != nil {
 		doneChan <- true
 		return err
@@ -207,7 +211,7 @@ func (s *Server) SearchNodes(c context.Context, queryObject *tree.Query, from in
 		}
 	}
 
-	if facetParser, ok := accu.(dao.FacetParser); ok {
+	if facetParser, ok := accu.(indexer.FacetParser); ok {
 		for _, f := range facetParser.FlushCustomFacets() {
 			facets <- f.(*tree.SearchFacet)
 		}

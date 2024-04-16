@@ -26,11 +26,11 @@ package log
 
 import (
 	"context"
+	"github.com/pydio/cells/v4/common/storage/mongo"
 	"time"
 
 	"github.com/pydio/cells/v4/common/dao"
 	"github.com/pydio/cells/v4/common/dao/bleve"
-	"github.com/pydio/cells/v4/common/dao/mongodb"
 	log2 "github.com/pydio/cells/v4/common/log"
 	"github.com/pydio/cells/v4/common/proto/log"
 	"github.com/pydio/cells/v4/common/utils/configx"
@@ -53,7 +53,7 @@ func NewDAO(ctx context.Context, d dao.DAO) (dao.DAO, error) {
 	case bleve.IndexDAO:
 		v.SetCodex(&BleveCodec{})
 		return v, nil
-	case mongodb.IndexDAO:
+	case mongo.IndexDAO:
 		v.SetCollection(mongoCollection)
 		v.SetCodex(&MongoCodec{})
 		return v, nil

@@ -18,11 +18,12 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-package mongodb
+package mongo
 
 import (
 	"context"
 	"fmt"
+	"github.com/pydio/cells/v4/common/dao/mongodb"
 	"time"
 
 	"go.mongodb.org/mongo-driver/bson"
@@ -32,19 +33,20 @@ import (
 
 	"github.com/pydio/cells/v4/common/dao"
 	"github.com/pydio/cells/v4/common/log"
+	"github.com/pydio/cells/v4/common/storage/indexer"
 	"github.com/pydio/cells/v4/common/utils/configx"
 )
 
 type IndexDAO interface {
-	DAO
+	mongodb.DAO
 	dao.IndexDAO
 	SetCollection(string)
 }
 
 type Indexer struct {
-	DAO
+	mongodb.DAO
 	collection      string
-	collectionModel Collection
+	collectionModel mongodb.Collection
 	codec           dao.IndexCodex
 	inserts         []interface{}
 	deletes         []string
@@ -55,17 +57,24 @@ type Indexer struct {
 	runtime         context.Context
 }
 
-func NewIndexer(ctx context.Context, dao dao.DAO) (dao.IndexDAO, error) {
+func (i *Indexer) GetCodex() indexer.IndexCodex {
+	return i.codec
+}
+
+func (i *Indexer) Open(ctx context.Context) error {
+	//TODO implement me
+	panic("implement me")
+}
+
+func NewIndexer(db *mongo.Database) *Indexer {
 	i := &Indexer{
-		DAO:        dao.(DAO),
 		bufferSize: 2000,
 		tick:       make(chan bool),
 		flush:      make(chan bool, 1),
 		done:       make(chan bool, 1),
-		runtime:    ctx,
 	}
 	go i.watch()
-	return i, nil
+	return i
 }
 
 func (i *Indexer) watch() {
@@ -105,7 +114,7 @@ func (i *Indexer) Init(ctx context.Context, cfg configx.Values) error {
 	}
 	if i.codec != nil {
 		if mo, ok := i.codec.GetModel(cfg); ok {
-			model := mo.(Model)
+			model := mo.(mongodb.Model)
 			//if er := model.Init(context.Background(), i.DAO); er != nil {
 			//	return er
 			//}
@@ -163,7 +172,7 @@ func (i *Indexer) DeleteMany(ctx context.Context, query interface{}) (int32, err
 	}
 }
 
-func (i *Indexer) FindMany(ctx context.Context, query interface{}, offset, limit int32, sortFields string, sortDesc bool, customCodec dao.IndexCodex) (chan interface{}, error) {
+func (i *Indexer) FindMany(ctx context.Context, query interface{}, offset, limit int32, sortFields string, sortDesc bool, customCodec indexer.IndexCodex) (chan interface{}, error) {
 	codec := i.codec
 	if customCodec != nil {
 		codec = customCodec
@@ -333,10 +342,12 @@ func (i *Indexer) Truncate(ctx context.Context, max int64, logger func(string)) 
 	log.TasksLogger(ctx).Info(fmt.Sprintf("Flushed Mongo index from %d records", res.DeletedCount))
 	return nil
 }
+
 func (i *Indexer) Close(ctx context.Context) error {
 	close(i.done)
 	return i.CloseConn(ctx)
 }
+
 func (i *Indexer) Flush(ctx context.Context) error {
 	conn := i.Collection(i.collection)
 
@@ -379,6 +390,6 @@ func (i *Indexer) Flush(ctx context.Context) error {
 	return nil
 }
 
-func (i *Indexer) SetCodex(c dao.IndexCodex) {
+func (i *Indexer) SetCodex(c indexer.IndexCodex) {
 	i.codec = c
 }

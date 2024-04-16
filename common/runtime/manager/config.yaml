@@ -211,6 +211,8 @@ processes:
 storages: &storages
   sql:
     uri: "sqlite3-extended://:memory:"
+  search:
+    uri: bleve://tmp/search/search
   nosql:
     uri: bleve://tmp/{{ .Value service }}
   bolt:
@@ -230,7 +232,7 @@ storages: &storages
 services:
   pydio.grpc.search:
     storages:
-      - type: bolt
+      - type: search
         path: chat
   pydio.grpc.docstore:
     storages:

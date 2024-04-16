@@ -36,6 +36,7 @@ import (
 	"github.com/pydio/cells/v4/common/nodes/meta"
 	protosync "github.com/pydio/cells/v4/common/proto/sync"
 	"github.com/pydio/cells/v4/common/proto/tree"
+	"github.com/pydio/cells/v4/common/runtime/manager"
 	servicecontext "github.com/pydio/cells/v4/common/service/context"
 	"github.com/pydio/cells/v4/common/service/context/metadata"
 	"github.com/pydio/cells/v4/common/service/errors"
@@ -49,6 +50,8 @@ type SearchServer struct {
 	RuntimeCtx context.Context
 	// Engine           dao.SearchEngine
 	eventsChannel    chan *broker.TypeWithContext[*tree.NodeChangeEvent]
+	TreeClient       tree.NodeProviderClient
+	TreeClientStream tree.NodeProviderStreamerClient
 	NsProvider       *meta.NsProvider
 	ReIndexThrottler chan struct{}
 }
@@ -86,7 +89,10 @@ func (s *SearchServer) processEvent(ctx context.Context, e *tree.NodeChangeEvent
 	log.Logger(ctx).Debug("processEvent", zap.Any("event", e))
 	excludes := s.NsProvider.ExcludeIndexes()
 
-	engine := servicecontext.GetDAO[dao.SearchEngine](ctx)
+	engine, err := manager.Resolve[dao.SearchEngine](ctx)
+	if err != nil {
+		return
+	}
 
 	switch e.GetType() {
 	case tree.NodeChangeEvent_CREATE:
@@ -144,7 +150,10 @@ func (s *SearchServer) Search(req *tree.SearchRequest, streamer tree.Searcher_Se
 	defer close(facetsChan)
 	defer close(doneChan)
 
-	engine := servicecontext.GetDAO[dao.SearchEngine](ctx)
+	engine, err := manager.Resolve[dao.SearchEngine](ctx)
+	if err != nil {
+		return err
+	}
 
 	var treeStreamer tree.NodeProviderStreamer_ReadNodeStreamClient
 	defer func() {
@@ -211,8 +220,7 @@ func (s *SearchServer) Search(req *tree.SearchRequest, streamer tree.Searcher_Se
 		}
 	}()
 
-	err := s.Engine.SearchNodes(ctx, req.GetQuery(), req.GetFrom(), req.GetSize(), req.GetSortField(), req.GetSortDirDesc(), resultsChan, facetsChan, doneChan)
-	if err != nil {
+	if err := engine.SearchNodes(ctx, req.GetQuery(), req.GetFrom(), req.GetSize(), req.GetSortField(), req.GetSortDirDesc(), resultsChan, facetsChan, doneChan); err != nil {
 		return err
 	}
 
@@ -222,7 +230,10 @@ func (s *SearchServer) Search(req *tree.SearchRequest, streamer tree.Searcher_Se
 
 func (s *SearchServer) TriggerResync(ctx context.Context, req *protosync.ResyncRequest) (*protosync.ResyncResponse, error) {
 
-	engine := servicecontext.GetDAO[dao.SearchEngine](ctx)
+	engine, err := manager.Resolve[dao.SearchEngine](ctx)
+	if err != nil {
+		return nil, err
+	}
 
 	reqPath := strings.Trim(req.GetPath(), "/")
 	if reqPath == "" {
@@ -295,7 +306,10 @@ func (s *SearchServer) TriggerResync(ctx context.Context, req *protosync.ResyncR
 
 func (s *SearchServer) ReindexFolder(ctx context.Context, node *tree.Node, excludes map[string]struct{}) {
 
-	engine := servicecontext.GetDAO[dao.SearchEngine](ctx)
+	engine, err := manager.Resolve[dao.SearchEngine](ctx)
+	if err != nil {
+		return
+	}
 
 	s.ReIndexThrottler <- struct{}{}
 	defer func() {

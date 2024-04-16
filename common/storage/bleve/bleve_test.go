@@ -8,10 +8,11 @@ import (
 	"time"
 
 	"github.com/blevesearch/bleve/v2/search"
-	. "github.com/smartystreets/goconvey/convey"
 
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/storage"
+
+	. "github.com/smartystreets/goconvey/convey"
 )
 
 func TestBleve(t *testing.T) {
@@ -36,7 +37,7 @@ func TestBleve(t *testing.T) {
 
 		storage.Get(ctx, storage.WithName("test"))
 
-		indexer := &bleveIndexer{}
+		indexer := &Indexer{}
 		conn.As(&indexer)
 
 		batch, err := indexer.NewBatch(contexts[0])

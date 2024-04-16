@@ -34,19 +34,20 @@ import (
 )
 
 type SearchEngine interface {
+	indexer.Indexer
 	IndexNode(context.Context, *tree.Node, bool, map[string]struct{}) error
 	DeleteNode(context.Context, *tree.Node) error
 	SearchNodes(context.Context, *tree.Query, int32, int32, string, bool, chan *tree.Node, chan *tree.SearchFacet, chan bool) error
 	ClearIndex(ctx context.Context) error
-	Close() error
 }
 
-func NewBleveDAO(v indexer.Indexer) indexer.DAO {
+func NewBleveDAO(v *bleve.Indexer) SearchEngine {
 	v.SetCodex(&bleve2.Codec{})
-	return indexer.NewDAO(v)
+	return &Server{Indexer: v}
 }
 
-//func NewMongoDAO(v *mongodb.bleveIndexer) indexer.DAO {
+//
+//func NewMongoDAO(v *mongo2.Indexer) indexer.Indexer {
 //	v.SetCollection(mongo.Collection)
 //	v.SetCodex(&mongo.Codex{})
 //	return v
@@ -54,7 +55,7 @@ func NewBleveDAO(v indexer.Indexer) indexer.DAO {
 
 func NewQueryCodec(indexDAO indexer.Indexer, values configx.Values, metaProvider *meta.NsProvider) dao.IndexCodex {
 	switch indexDAO.(type) {
-	case *bleve.bleveIndexer:
+	case *bleve.Indexer:
 		return bleve2.NewQueryCodec(values, metaProvider)
 		//case *mongodb.bleveIndexer:
 		//	return &mongo.Codex{

@@ -25,6 +25,7 @@ package cmd
 import (
 	"context"
 	"fmt"
+	"github.com/pydio/cells/v4/common/storage/mongo"
 	"log"
 	"strings"
 	"time"
@@ -233,7 +234,7 @@ func initDAO(ctx context.Context, driver, dsn, prefix, storageKey string) (dao.D
 		case bleve.Driver:
 			d, e = bleve.NewIndexer(ctx, d)
 		case mongodb.Driver:
-			d, e = mongodb.NewIndexer(ctx, d)
+			d, e = mongo.NewIndexer(ctx, d)
 		}
 	}
 	return d, e

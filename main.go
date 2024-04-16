@@ -29,8 +29,8 @@ import (
 	_ "github.com/pydio/cells/v4/data/key/grpc"
 	_ "github.com/pydio/cells/v4/data/meta/grpc"
 	_ "github.com/pydio/cells/v4/data/meta/rest"
-	//_ "github.com/pydio/cells/v4/data/search/grpc"
-	//_ "github.com/pydio/cells/v4/data/search/rest"
+	_ "github.com/pydio/cells/v4/data/search/grpc"
+	_ "github.com/pydio/cells/v4/data/search/rest"
 
 	_ "github.com/pydio/cells/v4/data/source/index"
 	_ "github.com/pydio/cells/v4/data/source/index/grpc"

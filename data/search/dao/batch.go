@@ -115,18 +115,18 @@ func (b *Batch) Flush(indexer indexer.Indexer) error {
 	}
 	b.nsProvider.CloseStreamers()
 	for _, n := range nodes {
-		if er := indexer.InsertOne(n); er != nil {
+		if er := indexer.InsertOne(b.ctx, n); er != nil {
 			fmt.Println("Search batch - InsertOne error", er.Error())
 		}
 	}
 	for uuid := range b.deletes {
-		if er := indexer.DeleteOne(uuid); er != nil {
+		if er := indexer.DeleteOne(b.ctx, uuid); er != nil {
 			fmt.Println("Search batch - DeleteOne error", er.Error())
 		}
 		delete(b.deletes, uuid)
 	}
 	b.Unlock()
-	return indexer.Flush()
+	return indexer.Flush(b.ctx)
 }
 
 func (b *Batch) LoadIndexableNode(indexNode *tree.IndexableNode, excludes map[string]struct{}) error {

@@ -36,11 +36,11 @@ func (o *bleveStorage) OpenURL(ctx context.Context, urlstr string) (storage.Stor
 
 type blevedb struct {
 	path string
-	db   *bleveIndexer
+	db   *Indexer
 }
 
 func (s *bleveStorage) Provides(conn any) bool {
-	if _, ok := conn.(*bleveIndexer); ok {
+	if _, ok := conn.(*Indexer); ok {
 		return true
 	}
 
@@ -66,7 +66,7 @@ func (s *bleveStorage) Register(conn any, tenant string, service string) {
 }
 
 func (s *bleveStorage) Get(ctx context.Context, out interface{}) bool {
-	if v, ok := out.(*Indexer); ok {
+	if v, ok := out.(**Indexer); ok {
 
 		u, err := s.template.ResolveURL(ctx)
 		if err != nil {
@@ -133,7 +133,7 @@ func (s *bleveStorage) Get(ctx context.Context, out interface{}) bool {
 	return false
 }
 
-type bleveItem bleveIndexer
+type bleveItem Indexer
 
 func (i *bleveItem) Name() string {
 	return "bleve"
@@ -148,8 +148,8 @@ func (i *bleveItem) Metadata() map[string]string {
 }
 
 func (i *bleveItem) As(i2 interface{}) bool {
-	if v, ok := i2.(**bleveIndexer); ok {
-		*v = (*bleveIndexer)(i)
+	if v, ok := i2.(**Indexer); ok {
+		*v = (*Indexer)(i)
 		return true
 	}
 	return false
@@ -160,5 +160,5 @@ func (i *bleveItem) Driver() string {
 }
 
 func (i *bleveItem) DSN() string {
-	return (*bleveIndexer)(i).MustBleveConfig(context.TODO()).BlevePath
+	return (*Indexer)(i).MustBleveConfig(context.TODO()).BlevePath
 }
