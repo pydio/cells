@@ -33,7 +33,7 @@ import (
 
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/broker"
-	"github.com/pydio/cells/v4/common/client/grpc"
+	"github.com/pydio/cells/v4/common/client/commons/treec"
 	"github.com/pydio/cells/v4/common/log"
 	"github.com/pydio/cells/v4/common/nodes"
 	"github.com/pydio/cells/v4/common/nodes/compose"
@@ -281,7 +281,7 @@ func (h *Handler) SetMeta(req *restful.Request, resp *restful.Response) {
 	er := h.GetRouter().WrapCallback(func(inputFilter nodes.FilterFunc, outputFilter nodes.FilterFunc) error {
 		ctx, node, _ = inputFilter(ctx, node, "in")
 
-		cli := tree.NewNodeReceiverClient(grpc.ResolveConn(ctx, common.ServiceMeta))
+		cli := treec.ServiceNodeReceiverClient(ctx, common.ServiceMeta)
 		if _, er := cli.UpdateNode(ctx, &tree.UpdateNodeRequest{From: node, To: node}); er != nil {
 			log.Logger(ctx).Error("Failed to change the meta data", zap.Error(er))
 			return er
@@ -319,7 +319,7 @@ func (h *Handler) DeleteMeta(req *restful.Request, resp *restful.Response) {
 	er := h.GetRouter().WrapCallback(func(inputFilter nodes.FilterFunc, outputFilter nodes.FilterFunc) error {
 		ctx, node, _ = inputFilter(ctx, node, "in")
 
-		cli := tree.NewNodeReceiverClient(grpc.ResolveConn(ctx, common.ServiceMeta))
+		cli := treec.ServiceNodeReceiverClient(ctx, common.ServiceMeta)
 		if _, er := cli.UpdateNode(ctx, &tree.UpdateNodeRequest{From: node, To: node}); er != nil {
 			return er
 		}

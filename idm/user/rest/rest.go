@@ -34,6 +34,7 @@ import (
 	"github.com/pydio/cells/v4/common/auth"
 	"github.com/pydio/cells/v4/common/auth/claim"
 	"github.com/pydio/cells/v4/common/client/commons/idmc"
+	"github.com/pydio/cells/v4/common/client/commons/jobsc"
 	grpc2 "github.com/pydio/cells/v4/common/client/grpc"
 	"github.com/pydio/cells/v4/common/config"
 	"github.com/pydio/cells/v4/common/log"
@@ -309,7 +310,7 @@ func (s *UserHandler) DeleteUser(req *restful.Request, rsp *restful.Response) {
 			},
 		}
 
-		cli := jobs.NewJobServiceClient(grpc2.ResolveConn(ctx, common.ServiceJobs))
+		cli := jobsc.JobServiceClient(ctx)
 		_, er := cli.PutJob(ctx, &jobs.PutJobRequest{Job: job})
 		if er != nil {
 			service.RestError500(req, rsp, er)

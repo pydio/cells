@@ -31,6 +31,7 @@ import (
 
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/auth/claim"
+	"github.com/pydio/cells/v4/common/client/commons/jobsc"
 	"github.com/pydio/cells/v4/common/client/commons/treec"
 	"github.com/pydio/cells/v4/common/client/grpc"
 	"github.com/pydio/cells/v4/common/log"
@@ -287,7 +288,7 @@ func (sc *Client) DeleteRootNodeRecursively(ctx context.Context, ownerName strin
 		}
 		realNode := &tree.Node{Path: parentNode.Path + "/" + strings.TrimRight(roomNode.Path, "/")}
 		// Now send deletion to scheduler
-		cli := jobs.NewJobServiceClient(grpc.ResolveConn(sc.RuntimeContext, common.ServiceJobs))
+		cli := jobsc.JobServiceClient(ctx)
 		jobUuid := "cells-delete-" + uuid.New()
 		q, _ := anypb.New(&tree.Query{
 			Paths: []string{realNode.Path},

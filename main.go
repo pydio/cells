@@ -10,8 +10,8 @@ import (
 	_ "github.com/pydio/cells/v4/common/nodes/objects/mc"
 
 	// Frontend
-	//_ "github.com/pydio/cells/v4/frontend/front-srv/rest"
-	//_ "github.com/pydio/cells/v4/frontend/front-srv/web"
+	_ "github.com/pydio/cells/v4/frontend/front-srv/rest"
+	_ "github.com/pydio/cells/v4/frontend/front-srv/web"
 
 	// Discovery
 	_ "github.com/pydio/cells/v4/discovery/broker/grpc"

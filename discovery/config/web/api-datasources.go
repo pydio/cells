@@ -35,6 +35,7 @@ import (
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/broker"
 	"github.com/pydio/cells/v4/common/client/commons/idmc"
+	"github.com/pydio/cells/v4/common/client/commons/jobsc"
 	"github.com/pydio/cells/v4/common/client/commons/treec"
 	"github.com/pydio/cells/v4/common/client/grpc"
 	"github.com/pydio/cells/v4/common/config"
@@ -505,7 +506,7 @@ func (s *Handler) findWorkspacesForDatasource(ctx context.Context, dsName string
 
 func removeFullVersioningJob(ctx context.Context, dsName string) error {
 	jId := "full-versioning-job-" + dsName
-	jobsClient := jobs.NewJobServiceClient(grpc.ResolveConn(ctx, common.ServiceJobs))
+	jobsClient := jobsc.JobServiceClient(ctx)
 	to, can := context.WithTimeout(ctx, grpc.CallTimeoutShort)
 	defer can()
 	_, e := jobsClient.DeleteJob(to, &jobs.DeleteJobRequest{JobID: jId})
@@ -545,7 +546,7 @@ func createFullVersioningJob(ctx context.Context, dsName string) error {
 		},
 	}
 
-	jobsClient := jobs.NewJobServiceClient(grpc.ResolveConn(ctx, common.ServiceJobs))
+	jobsClient := jobsc.JobServiceClient(ctx)
 	to, can := context.WithTimeout(ctx, grpc.CallTimeoutShort)
 	defer can()
 	if _, err := jobsClient.GetJob(to, &jobs.GetJobRequest{JobID: j.ID}); err != nil {

@@ -27,3 +27,8 @@ func WorkspaceServiceClient(ctx context.Context, opt ...grpc.Option) idm.Workspa
 func ACLServiceClient(ctx context.Context, opt ...grpc.Option) idm.ACLServiceClient {
 	return idm.NewACLServiceClient(grpc.ResolveConn(ctx, common.ServiceAcl, opt...))
 }
+
+// UserMetaServiceClient provides a resolved idm.UserMetaServiceClient pointing to ServiceUserMeta by default
+func UserMetaServiceClient(ctx context.Context, opt ...grpc.Option) idm.UserMetaServiceClient {
+	return idm.NewUserMetaServiceClient(grpc.ResolveConn(ctx, common.ServiceUserMeta, opt...))
+}

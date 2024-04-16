@@ -25,6 +25,7 @@ import (
 	"strings"
 	"sync"
 
+	errors2 "github.com/pkg/errors"
 	"go.uber.org/zap"
 
 	"github.com/pydio/cells/v4/common"
@@ -34,7 +35,6 @@ import (
 	"github.com/pydio/cells/v4/common/proto/tree"
 	"github.com/pydio/cells/v4/common/runtime"
 	"github.com/pydio/cells/v4/common/runtime/manager"
-	servicecontext "github.com/pydio/cells/v4/common/service/context"
 	"github.com/pydio/cells/v4/common/service/errors"
 	"github.com/pydio/cells/v4/common/utils/cache"
 	json "github.com/pydio/cells/v4/common/utils/jsonx"
@@ -49,8 +49,7 @@ type MetaServer struct {
 	tree.UnimplementedNodeReceiverServer
 	tree.UnimplementedSearcherServer
 
-	eventsChannel chan *broker.TypeWithContext[*tree.NodeChangeEvent]
-	cachePool     *openurl.Pool[cache.Cache]
+	cachePool *openurl.Pool[cache.Cache]
 
 	stopped     bool
 	stoppedLock *sync.Mutex
@@ -76,39 +75,13 @@ func (s *MetaServer) Stop() {
 	}
 
 	if s.cachePool != nil {
-		s.cachePool.Close(context.Background())
-	}
-	if s.eventsChannel != nil {
-		close(s.eventsChannel)
+		_ = s.cachePool.Close(context.Background())
 	}
 
 	s.stopped = true
 }
 
-// Subscriber that will treat events for the meta server
-func (s *MetaServer) Subscriber(parentContext context.Context) *EventsSubscriber {
-
-	if s.eventsChannel == nil {
-		s.initEventsChannel()
-	}
-	subscriber := &EventsSubscriber{
-		outputChannel: s.eventsChannel,
-	}
-	return subscriber
-}
-
-func (s *MetaServer) initEventsChannel() {
-
-	s.eventsChannel = make(chan *broker.TypeWithContext[*tree.NodeChangeEvent])
-	go func() {
-		for eventWCtx := range s.eventsChannel {
-			newCtx := servicecontext.WithServiceName(eventWCtx.Ctx, common.ServiceGrpcNamespace_+common.ServiceMeta)
-			s.processEvent(newCtx, eventWCtx.Original)
-		}
-	}()
-}
-
-func (s *MetaServer) processEvent(ctx context.Context, e *tree.NodeChangeEvent) {
+func (s *MetaServer) processEvent(ctx context.Context, e *tree.NodeChangeEvent) error {
 
 	log.Logger(ctx).Debug("processEvent", zap.Any("type", e.GetType()))
 
@@ -122,7 +95,7 @@ func (s *MetaServer) processEvent(ctx context.Context, e *tree.NodeChangeEvent) 
 			Silent: e.Silent,
 		})
 		if er != nil {
-			log.Logger(ctx).Warn("Error while processing meta event (CREATE)", zap.Error(er))
+			return errors2.Wrap(er, "processing meta event (CREATE)")
 		}
 	case tree.NodeChangeEvent_UPDATE_PATH:
 		log.Logger(ctx).Debug("Received Update event", zap.Any("event", e))
@@ -135,7 +108,7 @@ func (s *MetaServer) processEvent(ctx context.Context, e *tree.NodeChangeEvent) 
 			// UpdateNode will trigger an UPDATE_META, forward UPDATE_PATH event as well
 			broker.MustPublish(ctx, common.TopicMetaChanges, e)
 		} else {
-			log.Logger(ctx).Warn("Error while processing meta event (UPDATE_PATH)", zap.Error(er))
+			return errors2.Wrap(er, "processing meta event (UPDATE_PATH)")
 		}
 	case tree.NodeChangeEvent_UPDATE_META:
 		log.Logger(ctx).Debug("Received Update meta", zap.Any("event", e))
@@ -146,14 +119,14 @@ func (s *MetaServer) processEvent(ctx context.Context, e *tree.NodeChangeEvent) 
 			Silent: e.Silent,
 		})
 		if er != nil {
-			log.Logger(ctx).Warn("Error while processing meta event (UPDATE_META)", zap.Error(er))
+			return errors2.Wrap(er, "processing meta event (UPDATE_META)")
 		}
 
 	case tree.NodeChangeEvent_UPDATE_CONTENT:
 		// Simply forward to TopicMetaChange
 		if e.Target != nil && e.Target.GetStringMeta(common.MetaNamespaceHash) != "" {
 			if _, er := s.UpdateNode(ctx, &tree.UpdateNodeRequest{To: e.Target, Silent: e.Silent}); er != nil {
-				log.Logger(ctx).Warn("Error while processing meta event (UPDATE_CONTENT)", zap.Error(er))
+				return errors2.Wrap(er, "processing meta event (UPDATE_CONTENT)")
 			}
 		}
 		log.Logger(ctx).Debug("Received Update content, forwarding to TopicMetaChange", zap.Any("event", e))
@@ -168,12 +141,13 @@ func (s *MetaServer) processEvent(ctx context.Context, e *tree.NodeChangeEvent) 
 			Silent: e.Silent,
 		})
 		if er != nil {
-			log.Logger(ctx).Warn("Error while processing meta event (DELETE)", zap.Error(er))
+			return errors2.Wrap(er, "processing meta event (DELETE)")
 		}
 
 	default:
 		log.Logger(ctx).Debug("Ignoring event type", zap.Any("event", e.GetType()))
 	}
+	return nil
 }
 
 // ReadNode information off the meta server

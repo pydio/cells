@@ -7,9 +7,8 @@ import (
 
 	"google.golang.org/protobuf/types/known/anypb"
 
-	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/client/commons/idmc"
-	"github.com/pydio/cells/v4/common/client/grpc"
+	"github.com/pydio/cells/v4/common/client/commons/treec"
 	"github.com/pydio/cells/v4/common/log"
 	"github.com/pydio/cells/v4/common/proto/idm"
 	"github.com/pydio/cells/v4/common/proto/service"
@@ -28,7 +27,7 @@ func CheckDefinedRootsForWorkspace(ctx context.Context, ws *idm.Workspace, resol
 		return fmt.Errorf("cannot define workspace without any root nodes")
 	}
 
-	streamer := tree.NewNodeProviderStreamerClient(grpc.ResolveConn(ctx, common.ServiceTree))
+	streamer := treec.NodeProviderStreamerClient(ctx)
 	c, e := streamer.ReadNodeStream(ctx)
 	if e != nil {
 		return e
@@ -61,7 +60,7 @@ func LoadRootNodesForWorkspaces(ctx context.Context, wsUUIDs []string, wss map[s
 	for _, a := range acls {
 		wsAcls[a.WorkspaceID] = append(wsAcls[a.WorkspaceID], a)
 	}
-	streamer := tree.NewNodeProviderStreamerClient(grpc.ResolveConn(ctx, common.ServiceTree))
+	streamer := treec.NodeProviderStreamerClient(ctx)
 	c, e := streamer.ReadNodeStream(ctx)
 	if e != nil {
 		return e

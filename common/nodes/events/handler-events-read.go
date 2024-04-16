@@ -29,7 +29,7 @@ import (
 
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/broker"
-	grpc2 "github.com/pydio/cells/v4/common/client/grpc"
+	"github.com/pydio/cells/v4/common/client/commons/docstorec"
 	"github.com/pydio/cells/v4/common/log"
 	"github.com/pydio/cells/v4/common/nodes"
 	"github.com/pydio/cells/v4/common/nodes/abstract"
@@ -143,8 +143,7 @@ func (h *HandlerRead) GetObject(ctx context.Context, node *tree.Node, requestDat
 				linkData.DownloadCount++
 				newData, _ := json.Marshal(linkData)
 				doc.Data = string(newData)
-				store := docstore.NewDocStoreClient(grpc2.ResolveConn(ctx, common.ServiceDocStore))
-				_, e3 := store.PutDocument(bgContext, &docstore.PutDocumentRequest{StoreID: common.DocStoreIdShares, DocumentID: doc.ID, Document: doc})
+				_, e3 := docstorec.DocStoreClient(ctx).PutDocument(bgContext, &docstore.PutDocumentRequest{StoreID: common.DocStoreIdShares, DocumentID: doc.ID, Document: doc})
 				if e3 == nil {
 					logger.Debug("Updated share download count " + doc.ID)
 				} else {
@@ -170,8 +169,9 @@ func (h *HandlerRead) sharedLinkWithDownloadLimit(ctx context.Context) (doc *doc
 	if e != nil || user == nil {
 		return
 	}
+
 	// This is a unique hidden user - search corresponding link and update download number
-	store := docstore.NewDocStoreClient(grpc2.ResolveConn(ctx, common.ServiceDocStore))
+	store := docstorec.DocStoreClient(ctx)
 
 	// SEARCH WITH PRESET_LOGIN
 	lC, ca := context.WithCancel(bgContext)

@@ -29,6 +29,7 @@ import (
 	"go.uber.org/zap"
 
 	"github.com/pydio/cells/v4/common"
+	"github.com/pydio/cells/v4/common/client/commons/docstorec"
 	"github.com/pydio/cells/v4/common/client/commons/idmc"
 	"github.com/pydio/cells/v4/common/client/grpc"
 	"github.com/pydio/cells/v4/common/config"
@@ -126,8 +127,7 @@ func (a *TokenHandler) ResetPasswordToken(req *restful.Request, resp *restful.Re
 		UserEmail:  u.Attributes["email"],
 		Expiration: int32(expiration),
 	})
-	cli := docstore.NewDocStoreClient(grpc.ResolveConn(ctx, common.ServiceDocStore))
-	_, err := cli.PutDocument(ctx, &docstore.PutDocumentRequest{
+	_, err := docstorec.DocStoreClient(ctx).PutDocument(ctx, &docstore.PutDocumentRequest{
 		StoreID: common.DocStoreIdResetPassKeys,
 		Document: &docstore.Document{
 			ID:            token,
@@ -177,7 +177,7 @@ func (a *TokenHandler) ResetPassword(req *restful.Request, resp *restful.Respons
 	T := lang.Bundle().GetTranslationFunc(i18n.UserLanguagesFromRestRequest(req, config.Get())...)
 	ctx := req.Request.Context()
 	token := input.ResetPasswordToken
-	cli := docstore.NewDocStoreClient(grpc.ResolveConn(ctx, common.ServiceDocStore))
+	cli := docstorec.DocStoreClient(ctx)
 	docResp, e := cli.GetDocument(ctx, &docstore.GetDocumentRequest{
 		StoreID:    common.DocStoreIdResetPassKeys,
 		DocumentID: token,

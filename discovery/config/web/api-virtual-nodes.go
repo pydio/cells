@@ -25,7 +25,7 @@ import (
 	"google.golang.org/protobuf/encoding/protojson"
 
 	"github.com/pydio/cells/v4/common"
-	"github.com/pydio/cells/v4/common/client/grpc"
+	"github.com/pydio/cells/v4/common/client/commons/docstorec"
 	"github.com/pydio/cells/v4/common/proto/docstore"
 	"github.com/pydio/cells/v4/common/proto/rest"
 	"github.com/pydio/cells/v4/common/proto/tree"
@@ -39,8 +39,8 @@ VERSIONING POLICIES MANAGEMENT
 // ListVirtualNodes list all defined template paths.
 func (s *Handler) ListVirtualNodes(req *restful.Request, resp *restful.Response) {
 	//T := lang.Bundle().GetTranslationFunc(utils.UserLanguagesFromRestRequest(req)...)
-	dc := docstore.NewDocStoreClient(grpc.ResolveConn(s.MainCtx, common.ServiceDocStore))
-	docs, er := dc.ListDocuments(req.Request.Context(), &docstore.ListDocumentsRequest{
+	ctx := req.Request.Context()
+	docs, er := docstorec.DocStoreClient(ctx).ListDocuments(ctx, &docstore.ListDocumentsRequest{
 		StoreID: common.DocStoreIdVirtualNodes,
 	})
 	if er != nil {

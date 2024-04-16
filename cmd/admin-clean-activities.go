@@ -36,8 +36,6 @@ import (
 	"github.com/spf13/cobra"
 
 	"github.com/pydio/cells/v4/broker/activity"
-	"github.com/pydio/cells/v4/common"
-	"github.com/pydio/cells/v4/common/client/grpc"
 	"github.com/pydio/cells/v4/common/dao/boltdb"
 	activity2 "github.com/pydio/cells/v4/common/proto/activity"
 	"github.com/pydio/cells/v4/common/proto/jobs"
@@ -164,7 +162,7 @@ EXAMPLES
 		} else {
 			requestData, _ := json.Marshal(requestParameters)
 
-			jobClient := jobs.NewJobServiceClient(grpc.ResolveConn(ctx, common.ServiceJobs))
+			jobClient := jobsc.JobServiceClient(ctx)
 			job := &jobs.Job{
 				ID:             uuid.New(),
 				Owner:          purgeActivityAdminUser,

@@ -30,7 +30,7 @@ import (
 
 	mailer2 "github.com/pydio/cells/v4/broker/mailer"
 	"github.com/pydio/cells/v4/common"
-	grpc2 "github.com/pydio/cells/v4/common/client/grpc"
+	"github.com/pydio/cells/v4/common/client/commons/jobsc"
 	"github.com/pydio/cells/v4/common/config"
 	"github.com/pydio/cells/v4/common/dao/boltdb"
 	"github.com/pydio/cells/v4/common/dao/mongodb"
@@ -118,8 +118,7 @@ func registerQueueJob(ctx context.Context) error {
 
 	log.Logger(ctx).Info("Registering default job for consuming mailer queue")
 
-	cliJob := jobs.NewJobServiceClient(grpc2.ResolveConn(ctx, common.ServiceJobs))
-	if _, err := cliJob.PutJob(ctx, &jobs.PutJobRequest{Job: queueJob()}); err != nil {
+	if _, err := jobsc.JobServiceClient(ctx).PutJob(ctx, &jobs.PutJobRequest{Job: queueJob()}); err != nil {
 		return err
 	}
 

@@ -36,7 +36,7 @@ import (
 	"github.com/pydio/cells/v4/broker/activity"
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/broker"
-	grpc2 "github.com/pydio/cells/v4/common/client/grpc"
+	"github.com/pydio/cells/v4/common/client/commons/jobsc"
 	"github.com/pydio/cells/v4/common/log"
 	"github.com/pydio/cells/v4/common/nodes/meta"
 	acproto "github.com/pydio/cells/v4/common/proto/activity"
@@ -189,8 +189,8 @@ func digestJob() *jobs.Job {
 func registerDigestJob(ctx context.Context) error {
 
 	log.Logger(ctx).Info("Registering default job for creating activities digests")
-	cliJob := jobs.NewJobServiceClient(grpc2.ResolveConn(ctx, common.ServiceJobs))
-	if _, err := cliJob.PutJob(ctx, &jobs.PutJobRequest{Job: digestJob()}); err != nil {
+
+	if _, err := jobsc.JobServiceClient(ctx).PutJob(ctx, &jobs.PutJobRequest{Job: digestJob()}); err != nil {
 		return err
 	}
 

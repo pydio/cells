@@ -34,8 +34,8 @@ import (
 
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/auth/claim"
+	"github.com/pydio/cells/v4/common/client/commons/docstorec"
 	"github.com/pydio/cells/v4/common/client/commons/idmc"
-	"github.com/pydio/cells/v4/common/client/grpc"
 	"github.com/pydio/cells/v4/common/config"
 	"github.com/pydio/cells/v4/common/log"
 	"github.com/pydio/cells/v4/common/nodes"
@@ -49,19 +49,23 @@ import (
 	"github.com/pydio/cells/v4/common/service/context/metadata"
 	"github.com/pydio/cells/v4/common/service/errors"
 	"github.com/pydio/cells/v4/common/utils/cache"
+	"github.com/pydio/cells/v4/common/utils/openurl"
 	"github.com/pydio/cells/v4/common/utils/permissions"
 )
 
 var (
-	vManager            *VirtualNodesManager
-	vManagerCache       cache.Cache
+	vManagerPool *openurl.Pool[*VirtualNodesManager]
+	vMPoolOnce   sync.Once
+
 	AdminClientProvider func(runtime context.Context) nodes.Client
 )
 
 // VirtualNodesManager keeps an internal list of virtual nodes.
 // They are cached for one minute to avoid too many requests on docstore service.
 type VirtualNodesManager struct {
-	ctx        context.Context
+	cache.Cache
+
+	//ctx        context.Context
 	nodes      []*tree.Node
 	loginLower bool
 	mu         *sync.RWMutex
@@ -69,36 +73,42 @@ type VirtualNodesManager struct {
 
 // GetVirtualNodesManager creates a new VirtualNodesManager.
 func GetVirtualNodesManager(ctx context.Context) *VirtualNodesManager {
-	if vManagerCache == nil {
-		c, _ := cache.OpenCache(context.TODO(), runtime.ShortCacheURL("evictionTime", "60s", "cleanWindow", "120s"))
-		vManagerCache = c
-	}
-	if vManager != nil {
-		vManager.Load()
-		return vManager
-	}
-	vManager = &VirtualNodesManager{ctx: ctx, mu: &sync.RWMutex{}}
-	vManager.Load()
+
+	vMPoolOnce.Do(func() {
+		vManagerPool, _ = openurl.OpenPool[*VirtualNodesManager](ctx, []string{runtime.ShortCacheURL("evictionTime", "60s", "cleanWindow", "120s")}, func(ct context.Context, url string) (*VirtualNodesManager, error) {
+			vcache, er := cache.OpenCache(ct, url)
+			if er != nil {
+				vcache = cache.MustDiscard()
+			}
+			manager := &VirtualNodesManager{
+				Cache: vcache,
+				mu:    &sync.RWMutex{},
+			}
+			manager.Load(ct)
+			return manager, nil
+		})
+	})
+
+	vManager, _ := vManagerPool.Get(ctx)
 	return vManager
 }
 
 // Load requests the virtual nodes from the DocStore service.
-func (m *VirtualNodesManager) Load(forceReload ...bool) {
+func (m *VirtualNodesManager) Load(ctx context.Context, forceReload ...bool) {
 	if len(forceReload) == 0 || !forceReload[0] {
 		var vNodes []*tree.Node
-		if vManagerCache.Get("###virtual-nodes###", &vNodes) {
+		if m.Cache.Get("###virtual-nodes###", &vNodes) {
 			m.mu.Lock()
 			m.nodes = vNodes
 			m.mu.Unlock()
 			return
 		}
 	}
-	log.Logger(m.ctx).Debug("Reloading virtual nodes to cache")
+	log.Logger(ctx).Debug("Reloading virtual nodes to cache")
 	m.mu.Lock()
 	defer m.mu.Unlock()
 	m.nodes = []*tree.Node{}
-	cli := docstore.NewDocStoreClient(grpc.ResolveConn(m.ctx, common.ServiceDocStore))
-	stream, e := cli.ListDocuments(m.ctx, &docstore.ListDocumentsRequest{
+	stream, e := docstorec.DocStoreClient(ctx).ListDocuments(ctx, &docstore.ListDocumentsRequest{
 		StoreID: common.DocStoreIdVirtualNodes,
 		Query:   &docstore.DocumentQuery{},
 	})
@@ -123,7 +133,7 @@ func (m *VirtualNodesManager) Load(forceReload ...bool) {
 			m.nodes = append(m.nodes, &node)
 		}
 	}
-	if e := vManagerCache.Set("###virtual-nodes###", m.nodes); e != nil {
+	if e := m.Cache.Set("###virtual-nodes###", m.nodes); e != nil {
 		log.Logger(context.Background()).Error("cannot set virtual-nodes to cache", zap.Error(e))
 	}
 	if config.Get("services", "pydio.grpc.user", "loginCI").Default(false).Bool() {
@@ -170,7 +180,7 @@ func (m *VirtualNodesManager) ListNodes() []*tree.Node {
 // and the current metadata contained in context.
 func (m *VirtualNodesManager) ResolveInContext(ctx context.Context, vNode *tree.Node, create bool, retry ...bool) (*tree.Node, error) {
 
-	pool := nodescontext.GetSourcesPool(m.ctx)
+	pool := nodescontext.GetSourcesPool(ctx)
 	userName, claims := permissions.FindUserNameInContext(ctx) // We may use Claims returned to grab role or user groupPath
 	if userName == "" {
 		log.Logger(ctx).Error("No UserName found in context, cannot resolve virtual node", zap.Any("ctx", ctx))
@@ -182,13 +192,13 @@ func (m *VirtualNodesManager) ResolveInContext(ctx context.Context, vNode *tree.
 	}
 
 	var cn *tree.Node
-	if vManagerCache.Get(resolved.Path, &cn) {
+	if m.Cache.Get(resolved.Path, &cn) {
 		log.Logger(ctx).Debug("VirtualNodes: returning cached resolved node", cn.Zap())
 		return cn, nil
 	}
 
 	if readResp, e := pool.GetTreeClient().ReadNode(ctx, &tree.ReadNodeRequest{Node: resolved}); e == nil {
-		_ = vManagerCache.Set(resolved.Path, readResp.Node)
+		_ = m.Cache.Set(resolved.Path, readResp.Node)
 		return readResp.Node, nil
 	} else if errors.FromError(e).Code == 404 {
 		if len(retry) == 0 {
@@ -215,7 +225,7 @@ func (m *VirtualNodesManager) ResolveInContext(ctx context.Context, vNode *tree.
 			}
 			resolved = createResp.GetNode()
 			isFlat := false
-			client := AdminClientProvider(m.ctx)
+			client := AdminClientProvider(ctx)
 			if bI, e := client.BranchInfoForNode(ctx, resolved); e == nil {
 				isFlat = bI.FlatStorage
 			}
@@ -234,7 +244,7 @@ func (m *VirtualNodesManager) ResolveInContext(ctx context.Context, vNode *tree.
 			if e := m.copyRecycleRootAcl(ctx, vNode, resolved); e != nil {
 				log.Logger(ctx).Warn("Silently ignoring copyRecycleRoot", resolved.Zap("resolved"), zap.Error(e))
 			}
-			_ = vManagerCache.Set(resolved.GetPath(), resolved)
+			_ = m.Cache.Set(resolved.GetPath(), resolved)
 			return createResp.Node, nil
 		}
 	}
@@ -245,8 +255,8 @@ func (m *VirtualNodesManager) ResolveInContext(ctx context.Context, vNode *tree.
 // GetResolver injects some dependencies to generate a simple resolver function
 func (m *VirtualNodesManager) GetResolver(createIfNotExists bool) func(context.Context, *tree.Node) (*tree.Node, bool) {
 	return func(ctx context.Context, node *tree.Node) (*tree.Node, bool) {
-		if virtualNode, exists := vManager.ByUuid(node.Uuid); exists {
-			if resolved, e := vManager.ResolveInContext(ctx, virtualNode, createIfNotExists); e == nil {
+		if virtualNode, exists := m.ByUuid(node.Uuid); exists {
+			if resolved, e := m.ResolveInContext(ctx, virtualNode, createIfNotExists); e == nil {
 				return resolved, true
 			}
 		}

@@ -28,7 +28,8 @@ import (
 	"google.golang.org/grpc"
 
 	"github.com/pydio/cells/v4/common"
-	grpc2 "github.com/pydio/cells/v4/common/client/grpc"
+	"github.com/pydio/cells/v4/common/client/commons/docstorec"
+	"github.com/pydio/cells/v4/common/client/commons/jobsc"
 	"github.com/pydio/cells/v4/common/config"
 	"github.com/pydio/cells/v4/common/log"
 	"github.com/pydio/cells/v4/common/proto/docstore"
@@ -69,7 +70,7 @@ func init() {
 				// return std.Retry(ctx, func() error {
 				bg := runtimecontext.ForkContext(context.Background(), ctx)
 				go func() {
-					jobsClient := jobs.NewJobServiceClient(grpc2.ResolveConn(bg, common.ServiceJobs))
+					jobsClient := jobsc.JobServiceClient(bg)
 
 					// Migration from old prune-versions-job : delete if exists, replaced by composed job
 					var reinsert bool
@@ -147,7 +148,7 @@ func InitDefaults(ctx context.Context) error {
 		NodeDeletedStrategy:    tree.VersioningNodeDeletedStrategy_KeepLast,
 	})
 
-	dc := docstore.NewDocStoreClient(grpc2.ResolveConn(ctx, common.ServiceDocStore))
+	dc := docstorec.DocStoreClient(ctx)
 	if _, err := dc.PutDocument(ctx, &docstore.PutDocumentRequest{
 		StoreID:    common.DocStoreIdVersioningPolicies,
 		DocumentID: "default-policy",

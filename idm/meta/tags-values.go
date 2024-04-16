@@ -3,8 +3,7 @@ package meta
 import (
 	"context"
 
-	"github.com/pydio/cells/v4/common"
-	"github.com/pydio/cells/v4/common/client/grpc"
+	"github.com/pydio/cells/v4/common/client/commons/docstorec"
 	"github.com/pydio/cells/v4/common/proto/docstore"
 	json "github.com/pydio/cells/v4/common/utils/jsonx"
 )
@@ -12,15 +11,10 @@ import (
 const TagsDocStoreId = "user_meta_tags"
 
 // TagsValuesClient is an utilitary used for listing/storing a set of values used in a given usermeta namespace
-type TagsValuesClient struct {
-	docClient docstore.DocStoreClient
-}
+type TagsValuesClient struct{}
 
 func (s *TagsValuesClient) getClient(ctx context.Context) docstore.DocStoreClient {
-	if s.docClient == nil {
-		s.docClient = docstore.NewDocStoreClient(grpc.ResolveConn(ctx, common.ServiceDocStore))
-	}
-	return s.docClient
+	return docstorec.DocStoreClient(ctx)
 }
 
 // ListTags retrieves all values from the docstore

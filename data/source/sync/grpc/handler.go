@@ -33,6 +33,7 @@ import (
 
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/broker"
+	"github.com/pydio/cells/v4/common/client/commons/jobsc"
 	grpccli "github.com/pydio/cells/v4/common/client/grpc"
 	"github.com/pydio/cells/v4/common/config"
 	"github.com/pydio/cells/v4/common/log"
@@ -626,7 +627,7 @@ func (s *Handler) TriggerResync(c context.Context, req *protosync.ResyncRequest)
 	if e != nil {
 		if req.Task != nil {
 			theTask := req.Task
-			taskClient := jobs.NewJobServiceClient(grpccli.ResolveConn(s.globalCtx, common.ServiceJobs))
+			taskClient := jobsc.JobServiceClient(s.globalCtx) //jobs.NewJobServiceClient(grpccli.ResolveConn(s.globalCtx, common.ServiceJobs))
 			theTask.StatusMessage = "Error"
 			theTask.HasProgress = true
 			theTask.Progress = 1
@@ -690,7 +691,7 @@ func (s *Handler) CleanResourcesBeforeDelete(ctx context.Context, request *objec
 
 	serviceName := servicecontext.GetServiceName(ctx)
 	dsName := strings.TrimPrefix(serviceName, common.ServiceGrpcNamespace_+common.ServiceDataSync_)
-	taskClient := jobs.NewJobServiceClient(grpccli.ResolveConn(ctx, common.ServiceJobs))
+	taskClient := jobsc.JobServiceClient(ctx)
 	log.Logger(ctx).Info("Removing job for datasource " + dsName)
 	if _, e := taskClient.DeleteJob(ctx, &jobs.DeleteJobRequest{
 		JobID: "resync-ds-" + dsName,
