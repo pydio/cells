@@ -36,6 +36,7 @@ import (
 	"github.com/pydio/cells/v4/common/proto/object"
 	"github.com/pydio/cells/v4/common/proto/sync"
 	"github.com/pydio/cells/v4/common/proto/tree"
+	"github.com/pydio/cells/v4/common/runtime/manager"
 	servicecontext "github.com/pydio/cells/v4/common/service/context"
 	"github.com/pydio/cells/v4/common/service/context/metadata"
 	"github.com/pydio/cells/v4/common/service/errors"
@@ -82,9 +83,9 @@ func NewTreeServer(ds *object.DataSource, handlerName string) *TreeServer {
 }
 
 func (s *TreeServer) getDAO(ctx context.Context, session string) (index.DAO, error) {
-	dao := servicecontext.GetDAO[index.DAO](ctx)
-	if dao == nil {
-		return nil, common.ErrMissingDAO
+	dao, err := manager.Resolve[index.DAO](ctx)
+	if err != nil {
+		return nil, err
 	}
 
 	if session != "" {

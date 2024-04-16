@@ -26,11 +26,10 @@ import (
 
 	"go.uber.org/zap"
 
-	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/log"
 	"github.com/pydio/cells/v4/common/proto/encryption"
 	"github.com/pydio/cells/v4/common/proto/tree"
-	servicecontext "github.com/pydio/cells/v4/common/service/context"
+	"github.com/pydio/cells/v4/common/runtime/manager"
 	"github.com/pydio/cells/v4/common/service/errors"
 	"github.com/pydio/cells/v4/data/key"
 )
@@ -63,16 +62,15 @@ func (km *NodeKeyManagerHandler) HandleTreeChanges(ctx context.Context, msg *tre
 }
 
 func (km *NodeKeyManagerHandler) GetNodeInfo(ctx context.Context, req *encryption.GetNodeInfoRequest) (*encryption.GetNodeInfoResponse, error) {
-	dao := servicecontext.GetDAO[key.DAO](ctx)
-	if dao == nil {
-		return nil, common.ErrMissingDAO
+	dao, err := manager.Resolve[key.DAO](ctx)
+	if err != nil {
+		return nil, err
 	}
 
 	rsp := &encryption.GetNodeInfoResponse{}
 
 	rsp.NodeInfo = new(encryption.NodeInfo)
 
-	var err error
 	rsp.NodeInfo.Node, err = dao.GetNode(ctx, req.NodeId)
 	if err != nil {
 		return nil, err
@@ -162,9 +160,9 @@ func (km *NodeKeyManagerHandler) GetNodeInfo(ctx context.Context, req *encryptio
 }
 
 func (km *NodeKeyManagerHandler) GetNodePlainSize(ctx context.Context, req *encryption.GetNodePlainSizeRequest) (*encryption.GetNodePlainSizeResponse, error) {
-	dao := servicecontext.GetDAO[key.DAO](ctx)
-	if dao == nil {
-		return nil, common.ErrMissingDAO
+	dao, err := manager.Resolve[key.DAO](ctx)
+	if err != nil {
+		return nil, err
 	}
 
 	blocks, err := dao.ListEncryptedBlockInfo(ctx, req.NodeId)
@@ -187,12 +185,11 @@ func (km *NodeKeyManagerHandler) SetNodeInfo(stream encryption.NodeKeyManager_Se
 
 	ctx := stream.Context()
 
-	dao := servicecontext.GetDAO[key.DAO](ctx)
-	if dao == nil {
-		return common.ErrMissingDAO
+	dao, err := manager.Resolve[key.DAO](ctx)
+	if err != nil {
+		return err
 	}
 
-	var err error
 	sessionOpened := true
 
 	var rangedBlocks *encryption.RangedBlock
@@ -282,9 +279,9 @@ func (km *NodeKeyManagerHandler) SetNodeInfo(stream encryption.NodeKeyManager_Se
 }
 
 func (km *NodeKeyManagerHandler) CopyNodeInfo(ctx context.Context, req *encryption.CopyNodeInfoRequest) (*encryption.CopyNodeInfoResponse, error) {
-	dao := servicecontext.GetDAO[key.DAO](ctx)
-	if dao == nil {
-		return nil, common.ErrMissingDAO
+	dao, err := manager.Resolve[key.DAO](ctx)
+	if err != nil {
+		return nil, err
 	}
 
 	rsp := &encryption.CopyNodeInfoResponse{}
@@ -292,9 +289,9 @@ func (km *NodeKeyManagerHandler) CopyNodeInfo(ctx context.Context, req *encrypti
 }
 
 func (km *NodeKeyManagerHandler) DeleteNode(ctx context.Context, req *encryption.DeleteNodeRequest) (*encryption.DeleteNodeResponse, error) {
-	dao := servicecontext.GetDAO[key.DAO](ctx)
-	if dao == nil {
-		return nil, common.ErrMissingDAO
+	dao, err := manager.Resolve[key.DAO](ctx)
+	if err != nil {
+		return nil, err
 	}
 
 	rsp := &encryption.DeleteNodeResponse{}
@@ -302,9 +299,9 @@ func (km *NodeKeyManagerHandler) DeleteNode(ctx context.Context, req *encryption
 }
 
 func (km *NodeKeyManagerHandler) DeleteNodeKey(ctx context.Context, req *encryption.DeleteNodeKeyRequest) (*encryption.DeleteNodeKeyResponse, error) {
-	dao := servicecontext.GetDAO[key.DAO](ctx)
-	if dao == nil {
-		return nil, common.ErrMissingDAO
+	dao, err := manager.Resolve[key.DAO](ctx)
+	if err != nil {
+		return nil, err
 	}
 
 	rsp := &encryption.DeleteNodeKeyResponse{}
@@ -315,9 +312,9 @@ func (km *NodeKeyManagerHandler) DeleteNodeKey(ctx context.Context, req *encrypt
 }
 
 func (km *NodeKeyManagerHandler) DeleteNodeSharedKey(ctx context.Context, req *encryption.DeleteNodeSharedKeyRequest) (*encryption.DeleteNodeSharedKeyResponse, error) {
-	dao := servicecontext.GetDAO[key.DAO](ctx)
-	if dao == nil {
-		return nil, common.ErrMissingDAO
+	dao, err := manager.Resolve[key.DAO](ctx)
+	if err != nil {
+		return nil, err
 	}
 
 	rsp := &encryption.DeleteNodeSharedKeyResponse{}
@@ -328,16 +325,15 @@ func (km *NodeKeyManagerHandler) DeleteNodeSharedKey(ctx context.Context, req *e
 }
 
 func (km *NodeKeyManagerHandler) saveNodeKey(ctx context.Context, nodeKey *encryption.NodeKey) error {
-	dao := servicecontext.GetDAO[key.DAO](ctx)
-	if dao == nil {
-		return common.ErrMissingDAO
+	dao, err := manager.Resolve[key.DAO](ctx)
+	if err != nil {
+		return err
 	}
 
-	err := dao.SaveNode(ctx, &encryption.Node{
+	if err := dao.SaveNode(ctx, &encryption.Node{
 		NodeId: nodeKey.NodeId,
 		Legacy: false,
-	})
-	if err != nil {
+	}); err != nil {
 		log.Logger(ctx).Error("failed to save node info", zap.Error(err))
 		return err
 	}

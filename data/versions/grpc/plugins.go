@@ -23,7 +23,6 @@ package grpc
 
 import (
 	"context"
-	"path/filepath"
 
 	"go.uber.org/zap"
 	"google.golang.org/grpc"
@@ -31,8 +30,6 @@ import (
 	"github.com/pydio/cells/v4/common"
 	grpc2 "github.com/pydio/cells/v4/common/client/grpc"
 	"github.com/pydio/cells/v4/common/config"
-	"github.com/pydio/cells/v4/common/dao/boltdb"
-	"github.com/pydio/cells/v4/common/dao/mongodb"
 	"github.com/pydio/cells/v4/common/log"
 	"github.com/pydio/cells/v4/common/proto/docstore"
 	"github.com/pydio/cells/v4/common/proto/jobs"
@@ -40,7 +37,6 @@ import (
 	"github.com/pydio/cells/v4/common/runtime"
 	"github.com/pydio/cells/v4/common/runtime/runtimecontext"
 	"github.com/pydio/cells/v4/common/service"
-	servicecontext "github.com/pydio/cells/v4/common/service/context"
 	"github.com/pydio/cells/v4/common/utils/i18n"
 	json "github.com/pydio/cells/v4/common/utils/jsonx"
 	"github.com/pydio/cells/v4/data/versions"
@@ -67,14 +63,8 @@ func init() {
 					Up:            InitDefaults,
 				},
 			}),
-			service.WithStorage(versions.NewDAO,
-				service.WithStoragePrefix("versions"),
-				service.WithStorageSupport(boltdb.Driver, mongodb.Driver),
-				service.WithStorageMigrator(versions.Migrate),
-				service.WithStorageDefaultDriver(func() (string, string) {
-					return boltdb.Driver, filepath.Join(runtime.MustServiceDataDir(Name), "versions.db")
-				}),
-			),
+			// service.WithStorageMigrator(versions.Migrate),
+			service.WithStorageDrivers(versions.NewBoltDAO, versions.NewMongoDAO),
 			service.AfterServe(func(ctx context.Context) error {
 				// return std.Retry(ctx, func() error {
 				bg := runtimecontext.ForkContext(context.Background(), ctx)
@@ -103,11 +93,7 @@ func init() {
 			}),
 			service.WithGRPC(func(ctx context.Context, server grpc.ServiceRegistrar) error {
 
-				dao := servicecontext.GetDAO(ctx).(versions.DAO)
-				engine := &Handler{
-					srvName: Name,
-					db:      dao,
-				}
+				engine := &Handler{srvName: Name}
 
 				tree.RegisterNodeVersionerServer(server, engine)
 

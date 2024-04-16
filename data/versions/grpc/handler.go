@@ -36,6 +36,7 @@ import (
 	"github.com/pydio/cells/v4/common/log"
 	activity2 "github.com/pydio/cells/v4/common/proto/activity"
 	"github.com/pydio/cells/v4/common/proto/tree"
+	"github.com/pydio/cells/v4/common/runtime/manager"
 	"github.com/pydio/cells/v4/common/service/errors"
 	"github.com/pydio/cells/v4/common/utils/i18n"
 	"github.com/pydio/cells/v4/common/utils/permissions"
@@ -46,12 +47,7 @@ import (
 type Handler struct {
 	tree.UnimplementedNodeVersionerServer
 	srvName string
-	DAO     versions.DAO
 }
-
-//func (h *Handler) Name() string {
-//	return h.srvName
-//}
 
 func (h *Handler) buildVersionDescription(ctx context.Context, version *tree.ChangeLog) string {
 	var description string
@@ -83,7 +79,10 @@ func (h *Handler) ListVersions(request *tree.ListVersionsRequest, versionsStream
 
 	ctx := versionsStream.Context()
 
-	dao, _ := versions.NewDAO(ctx)
+	dao, err := manager.Resolve[versions.DAO](ctx)
+	if err != nil {
+		return err
+	}
 
 	log.Logger(ctx).Debug("[VERSION] ListVersions for node ", request.Node.Zap())
 	logs, _ := dao.GetVersions(request.Node.Uuid)
@@ -102,7 +101,10 @@ func (h *Handler) ListVersions(request *tree.ListVersionsRequest, versionsStream
 
 func (h *Handler) HeadVersion(ctx context.Context, request *tree.HeadVersionRequest) (*tree.HeadVersionResponse, error) {
 
-	dao, _ := versions.NewDAO(ctx)
+	dao, err := manager.Resolve[versions.DAO](ctx)
+	if err != nil {
+		return nil, err
+	}
 
 	v, e := dao.GetVersion(request.Node.Uuid, request.VersionId)
 	if e != nil {
@@ -120,7 +122,10 @@ func (h *Handler) HeadVersion(ctx context.Context, request *tree.HeadVersionRequ
 func (h *Handler) CreateVersion(ctx context.Context, request *tree.CreateVersionRequest) (*tree.CreateVersionResponse, error) {
 
 	log.Logger(ctx).Debug("[VERSION] GetLastVersion for node " + request.Node.Uuid)
-	dao, _ := versions.NewDAO(ctx)
+	dao, err := manager.Resolve[versions.DAO](ctx)
+	if err != nil {
+		return nil, err
+	}
 
 	last, err := dao.GetLastVersion(request.Node.Uuid)
 	if err != nil {
@@ -144,10 +149,12 @@ func (h *Handler) StoreVersion(ctx context.Context, request *tree.StoreVersionRe
 	}
 	log.Logger(ctx).Info("Storing Version for node ", request.Node.ZapUuid())
 
-	dao, _ := versions.NewDAO(ctx)
+	dao, err := manager.Resolve[versions.DAO](ctx)
+	if err != nil {
+		return nil, err
+	}
 
-	err := dao.StoreVersion(request.Node.Uuid, request.Version)
-	if err == nil {
+	if err := dao.StoreVersion(request.Node.Uuid, request.Version); err == nil {
 		resp.Success = true
 	}
 
@@ -187,7 +194,10 @@ func (h *Handler) PruneVersions(ctx context.Context, request *tree.PruneVersions
 
 	cl := tree.NewNodeProviderClient(grpc.GetClientConnFromCtx(ctx, common.ServiceTree))
 
-	dao, _ := versions.NewDAO(ctx)
+	dao, err := manager.Resolve[versions.DAO](ctx)
+	if err != nil {
+		return nil, err
+	}
 
 	var idsToDelete []string
 

@@ -228,7 +228,6 @@ storages: &storages
 # All services
 #------------------------------------
 services:
-
   pydio.grpc.search:
     storages:
       - type: bolt

@@ -28,8 +28,6 @@ import (
 
 	"github.com/pydio/cells/v4/broker/chat"
 	"github.com/pydio/cells/v4/common"
-	"github.com/pydio/cells/v4/common/dao/boltdb"
-	"github.com/pydio/cells/v4/common/dao/mongodb"
 	proto "github.com/pydio/cells/v4/common/proto/chat"
 	"github.com/pydio/cells/v4/common/runtime"
 	"github.com/pydio/cells/v4/common/service"
@@ -44,8 +42,7 @@ func init() {
 			service.Context(ctx),
 			service.Tag(common.ServiceTagBroker),
 			service.Description("Chat Service to attach real-time chats to various object. Coupled with WebSocket"),
-			service.WithStorageDriver([]string{boltdb.Driver}, chat.NewBoltDAO),
-			service.WithStorageDriver([]string{mongodb.Driver}, chat.NewMongoDAO),
+			service.WithStorageDrivers(chat.NewBoltDAO, chat.NewMongoDAO),
 			//service.WithStorageMigrator(chat.Migrate),
 			// service.WithStoragePrefix("chat"),
 			service.WithGRPC(func(c context.Context, server grpc.ServiceRegistrar) error {

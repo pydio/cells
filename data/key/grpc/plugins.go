@@ -23,8 +23,7 @@ package grpc
 
 import (
 	"context"
-	"github.com/pydio/cells/v4/common/dao/mysql"
-	"github.com/pydio/cells/v4/common/dao/sqlite"
+
 	"google.golang.org/grpc"
 
 	"github.com/pydio/cells/v4/common"
@@ -43,11 +42,7 @@ func init() {
 			service.Context(ctx),
 			service.Tag(common.ServiceTagData),
 			service.Description("Encryption Keys server"),
-			service.WithStorage(
-				"DAO",
-				key.NewDAO,
-				service.WithStoragePrefix("data_key"),
-				service.WithStorageSupport(mysql.Driver, sqlite.Driver)),
+			service.WithStorageDrivers(key.NewDAO),
 			service.WithGRPC(func(c context.Context, srv grpc.ServiceRegistrar) error {
 				h := NewNodeKeyManagerHandler()
 				encryption.RegisterNodeKeyManagerServer(srv, h)

@@ -27,36 +27,6 @@ type Conn interface {
 
 var storages []Storage
 
-//func Provides(conn any) bool {
-//	for _, storage := range storages {
-//		if storage.Provides(conn) {
-//			return true
-//		}
-//	}
-//
-//	return false
-//}
-//
-//func OpenStorage(str string, opts ...registry.Option) Conn {
-//	for _, storage := range storages {
-//		if conn, ok := storage.GetConn(str); ok {
-//			return conn
-//		}
-//	}
-//
-//	return nil
-//}
-//
-//func RegisterURL(str string, tenant string, service string) error {
-//	for _, storage := range storages {
-//		if conn, ok := storage.GetConn(str); ok {
-//			storage.Register(conn, tenant, service)
-//		}
-//	}
-//
-//	return nil
-//}
-
 func Register(conn any, tenant string, service string) {
 	for _, storage := range storages {
 		if storage.Provides(conn) {

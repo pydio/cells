@@ -26,17 +26,12 @@ import (
 )
 
 type StorageOptions struct {
-	SupportedDrivers []Driver
+	SupportedDrivers []any
 	Handler          any
 	Migrator         dao.MigratorFunc
 	prefix           interface{}
 
 	jsonMeta string
-}
-
-type Driver struct {
-	Type    []string
-	Handler any
 }
 
 func (o *StorageOptions) Prefix(options *ServiceOptions) string {
@@ -84,12 +79,9 @@ func WithStorageMigrator(d dao.MigratorFunc) ServiceOption {
 	}
 }
 
-// WithStorageDriver adds a storage handler to the current service
-func WithStorageDriver(typ []string, fd any) ServiceOption {
+// WithStorageDrivers adds a storage handler to the current service
+func WithStorageDrivers(f ...any) ServiceOption {
 	return func(o *ServiceOptions) {
-		o.StorageOptions.SupportedDrivers = append(o.StorageOptions.SupportedDrivers, Driver{
-			Type:    typ,
-			Handler: fd,
-		})
+		o.StorageOptions.SupportedDrivers = append(o.StorageOptions.SupportedDrivers, f...)
 	}
 }

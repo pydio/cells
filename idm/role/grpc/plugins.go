@@ -31,7 +31,6 @@ import (
 	"github.com/pydio/cells/v4/common/proto/idm"
 	"github.com/pydio/cells/v4/common/runtime"
 	"github.com/pydio/cells/v4/common/service"
-	"github.com/pydio/cells/v4/common/storage/sql"
 	"github.com/pydio/cells/v4/idm/role"
 )
 
@@ -60,7 +59,7 @@ func init() {
 				},
 			}),
 
-			service.WithStorageDriver(sql.Drivers, role.NewDAO),
+			service.WithStorageDrivers(role.NewDAO),
 			service.WithGRPC(func(ctx context.Context, server grpc.ServiceRegistrar) error {
 				handler := NewHandler()
 

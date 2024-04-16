@@ -33,6 +33,7 @@ import (
 	"github.com/pydio/cells/v4/common/log"
 	"github.com/pydio/cells/v4/common/proto/tree"
 	"github.com/pydio/cells/v4/common/runtime"
+	"github.com/pydio/cells/v4/common/runtime/manager"
 	servicecontext "github.com/pydio/cells/v4/common/service/context"
 	"github.com/pydio/cells/v4/common/service/errors"
 	"github.com/pydio/cells/v4/common/utils/cache"
@@ -207,9 +208,9 @@ func (s *MetaServer) ReadNode(ctx context.Context, req *tree.ReadNodeRequest) (r
 		}
 	}
 
-	dao := servicecontext.GetDAO[meta.DAO](ctx)
-	if dao == nil {
-		return nil, common.ErrMissingDAO
+	dao, err := manager.Resolve[meta.DAO](ctx)
+	if err != nil {
+		return nil, err
 	}
 
 	metadata, err := dao.GetMetadata(req.Node.Uuid)
@@ -296,7 +297,7 @@ func (s *MetaServer) CreateNode(ctx context.Context, req *tree.CreateNodeRequest
 		ca.Delete(req.Node.Uuid)
 	}
 
-	dao, err := meta.NewDAO(ctx)
+	dao, err := manager.Resolve[meta.DAO](ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -336,7 +337,7 @@ func (s *MetaServer) UpdateNode(ctx context.Context, req *tree.UpdateNodeRequest
 		ca.Delete(req.To.Uuid)
 	}
 
-	dao, err := meta.NewDAO(ctx)
+	dao, err := manager.Resolve[meta.DAO](ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -375,7 +376,7 @@ func (s *MetaServer) DeleteNode(ctx context.Context, request *tree.DeleteNodeReq
 		ca.Delete(request.Node.Uuid)
 	}
 
-	dao, err := meta.NewDAO(ctx)
+	dao, err := manager.Resolve[meta.DAO](ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -402,7 +403,7 @@ func (s *MetaServer) Search(request *tree.SearchRequest, result tree.Searcher_Se
 
 	ctx := result.Context()
 
-	dao, err := meta.NewDAO(ctx)
+	dao, err := manager.Resolve[meta.DAO](ctx)
 	if err != nil {
 		return err
 	}

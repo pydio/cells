@@ -23,16 +23,15 @@ package grpc
 
 import (
 	"context"
+
+	"google.golang.org/grpc"
+
 	"github.com/pydio/cells/v4/common"
-	"github.com/pydio/cells/v4/common/dao/boltdb"
-	"github.com/pydio/cells/v4/common/dao/mongodb"
 	proto "github.com/pydio/cells/v4/common/proto/docstore"
 	"github.com/pydio/cells/v4/common/proto/sync"
 	"github.com/pydio/cells/v4/common/runtime"
 	"github.com/pydio/cells/v4/common/service"
 	"github.com/pydio/cells/v4/data/docstore"
-	"google.golang.org/grpc"
-	"path/filepath"
 )
 
 var (
@@ -46,15 +45,7 @@ func init() {
 			service.Context(ctx),
 			service.Tag(common.ServiceTagData),
 			service.Description("Generic document store"),
-			service.WithStorage("DAO",
-				docstore.NewDAO,
-				service.WithStoragePrefix("docstore"),
-				//service.WithStorageMigrator(docstore.Migrate),
-				service.WithStorageSupport(boltdb.Driver, mongodb.Driver),
-				service.WithStorageDefaultDriver(func() (string, string) {
-					return boltdb.Driver, filepath.Join(runtime.MustServiceDataDir(Name), "docstore.db")
-				}),
-			),
+			service.WithStorageDrivers(docstore.NewBleveDAO, docstore.NewMongoDAO),
 			service.WithGRPC(func(ctx context.Context, srv grpc.ServiceRegistrar) error {
 				handler := &Handler{}
 

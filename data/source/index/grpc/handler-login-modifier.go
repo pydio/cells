@@ -41,7 +41,7 @@ func (s *TreeServer) ModifyLogin(ctx context.Context, req *service.ModifyLoginRe
 			return nil, err
 		}
 
-		i, er := dao.UpdateNameInPlace(req.OldLogin, req.NewLogin, opts["uuid"], -1)
+		i, er := dao.UpdateNameInPlace(ctx, req.OldLogin, req.NewLogin, opts["uuid"], -1)
 		if er != nil {
 			return nil, er
 		} else {

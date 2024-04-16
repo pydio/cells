@@ -34,7 +34,6 @@ import (
 	"github.com/pydio/cells/v4/common/runtime/manager"
 	"github.com/pydio/cells/v4/common/service"
 	"github.com/pydio/cells/v4/common/service/resources"
-	"github.com/pydio/cells/v4/common/storage/sql"
 	"github.com/pydio/cells/v4/idm/workspace"
 )
 
@@ -49,7 +48,7 @@ func init() {
 			service.Context(ctx),
 			service.Tag(common.ServiceTagIdm),
 			service.Description("Workspaces Service"),
-			service.WithStorageDriver(sql.Drivers, workspace.NewDAO),
+			service.WithStorageDrivers(workspace.NewDAO),
 			service.WithGRPC(func(ctx context.Context, srv grpc.ServiceRegistrar) error {
 				h := NewHandler()
 				idm.RegisterWorkspaceServiceServer(srv, h)
@@ -64,6 +63,7 @@ func init() {
 					},
 					LogCtx: ctx,
 				}
+
 				if e := broker.SubscribeCancellable(ctx, common.TopicIdmEvent, func(ctx context.Context, message broker.Message) error {
 					ev := &idm.ChangeEvent{}
 					if ct, e := message.Unmarshal(ctx, ev); e == nil {

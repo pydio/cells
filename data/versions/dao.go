@@ -22,8 +22,6 @@
 package versions
 
 import (
-	"context"
-	"github.com/pydio/cells/v4/common/storage"
 	"go.etcd.io/bbolt"
 	"go.mongodb.org/mongo-driver/mongo"
 
@@ -41,18 +39,12 @@ type DAO interface {
 	ListAllVersionedNodesUuids() (chan string, chan bool, chan error)
 }
 
-func NewDAO(ctx context.Context) (DAO, error) {
-	var boltdb *bbolt.DB
-	if storage.Get(ctx, &boltdb) {
-		return NewBoltStore(boltdb)
-	}
+func NewBoltDAO(db *bbolt.DB) (DAO, error) {
+	return NewBoltStore(db)
+}
 
-	var cli *mongo.Client
-	if storage.Get(ctx, &cli) {
-		return &mongoStore{Database: cli.Database("test")}, nil
-	}
-
-	return nil, storage.NotFound
+func NewMongoDAO(db *mongo.Database) DAO {
+	return &mongoStore{Database: db}
 }
 
 //func Migrate(f dao.DAO, t dao.DAO, dryRun bool, status chan dao.MigratorStatus) (map[string]int, error) {

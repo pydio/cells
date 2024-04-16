@@ -1101,9 +1101,9 @@ func Resolve[T any](ctx context.Context) (T, error) {
 	)
 
 	// Inject dao in handler
-	for _, store := range svc.Options().StorageOptions.SupportedDrivers {
-		handlerV := reflect.ValueOf(store.Handler)
-		handlerT := reflect.TypeOf(store.Handler)
+	for _, handler := range svc.Options().StorageOptions.SupportedDrivers {
+		handlerV := reflect.ValueOf(handler)
+		handlerT := reflect.TypeOf(handler)
 		if handlerV.Kind() != reflect.Func {
 			return t, errors.New("storage handler is not a function")
 		}
@@ -1116,8 +1116,8 @@ func Resolve[T any](ctx context.Context) (T, error) {
 
 		for _, st := range storages {
 			var st1 storage.Storage
-
 			st.As(&st1)
+
 			if st1.Get(ctx, db.Interface()) {
 				break
 			}

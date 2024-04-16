@@ -33,7 +33,6 @@ import (
 	"github.com/pydio/cells/v4/common/proto/tree"
 	"github.com/pydio/cells/v4/common/runtime"
 	"github.com/pydio/cells/v4/common/service"
-	"github.com/pydio/cells/v4/common/storage/sql"
 	"github.com/pydio/cells/v4/idm/acl"
 )
 
@@ -48,7 +47,7 @@ func init() {
 			service.Context(ctx),
 			service.Tag(common.ServiceTagIdm),
 			service.Description("Access Control List service"),
-			service.WithStorageDriver(sql.Drivers, acl.NewDAO),
+			service.WithStorageDrivers(acl.NewDAO),
 			service.Migrations([]*service.Migration{
 				{
 					TargetVersion: service.ValidVersion("1.2.0"),

@@ -26,14 +26,11 @@ package grpc
 import (
 	"context"
 	"fmt"
-	"strings"
 
 	"google.golang.org/grpc"
 
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/config"
-	"github.com/pydio/cells/v4/common/dao/mysql"
-	"github.com/pydio/cells/v4/common/dao/sqlite"
 	"github.com/pydio/cells/v4/common/proto/object"
 	"github.com/pydio/cells/v4/common/proto/sync"
 	"github.com/pydio/cells/v4/common/proto/tree"
@@ -43,7 +40,6 @@ import (
 )
 
 func init() {
-
 	runtime.Register("main", func(ctx context.Context) {
 		// Retrieve server from the runtime - TODO
 		sources := config.SourceNamesForDataServices(common.ServiceDataIndex)
@@ -53,24 +49,11 @@ func init() {
 			service.NewService(
 				service.Name(name),
 				service.Context(ctx),
-				//service.WithLogger(log.Logger(ctx)),
 				service.Tag(common.ServiceTagDatasource),
 				service.Description("Datasource indexation service"),
 				service.Source(source),
-				// service.Fork(true),
-				//service.AutoStart(false),
-				//service.Unique(true),
-				service.WithStorage(
-					"DAO",
-					index.NewDAO,
-					service.WithStoragePrefix(func(o *service.ServiceOptions) string {
-						// Returning a prefix for the dao
-						return strings.Replace(strings.TrimPrefix(o.Name, common.ServiceGrpcNamespace_), ".", "_", -1)
-					}),
-					service.WithStorageSupport(mysql.Driver, sqlite.Driver),
-				),
+				service.WithStorageDrivers(index.NewDAO),
 				service.WithGRPC(func(ctx context.Context, srv grpc.ServiceRegistrar) error {
-
 					dsObject, e := config.GetSourceInfoByName(name)
 					if e != nil {
 						return fmt.Errorf("cannot find datasource configuration for " + name)

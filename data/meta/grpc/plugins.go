@@ -28,8 +28,6 @@ import (
 
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/broker"
-	"github.com/pydio/cells/v4/common/dao/mysql"
-	"github.com/pydio/cells/v4/common/dao/sqlite"
 	"github.com/pydio/cells/v4/common/proto/tree"
 	"github.com/pydio/cells/v4/common/runtime"
 	"github.com/pydio/cells/v4/common/service"
@@ -48,12 +46,7 @@ func init() {
 			service.Tag(common.ServiceTagData),
 			service.Description("Metadata server for tree nodes"),
 			service.Unique(true),
-			service.WithStorage(
-				"DAO",
-				meta.NewDAO,
-				service.WithStoragePrefix("data_meta"),
-				service.WithStorageSupport(mysql.Driver, sqlite.Driver),
-			),
+			service.WithStorageDrivers(meta.NewDAO),
 			service.WithGRPC(func(ctx context.Context, srv grpc.ServiceRegistrar) error {
 				engine := NewMetaServer(ctx)
 

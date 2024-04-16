@@ -25,14 +25,10 @@
 package docstore
 
 import (
-	"context"
-
 	bleve "github.com/blevesearch/bleve/v2"
-	"go.etcd.io/bbolt"
 	"go.mongodb.org/mongo-driver/mongo"
 
 	"github.com/pydio/cells/v4/common/proto/docstore"
-	"github.com/pydio/cells/v4/common/storage"
 )
 
 type DAO interface {
@@ -49,21 +45,12 @@ type DAO interface {
 
 var _ DAO = (*BleveServer)(nil)
 
-func NewDAO(ctx context.Context) (DAO, error) {
-	var boltdb *bbolt.DB
-	var bleveIndex bleve.Index
-	if storage.Get(ctx, &boltdb) && storage.Get(ctx, &bleveIndex) {
-		return NewBleveEngine(boltdb, bleveIndex)
-	}
+func NewBleveDAO(db bleve.Index) DAO {
+	// return NewBleveEngine(boltdb, bleveIndex)
+}
 
-	var cli *mongo.Client
-	if storage.Get(ctx, &cli) {
-		return &mongoImpl{
-			Database: cli.Database("test"),
-		}, nil
-	}
-
-	return nil, storage.NotFound
+func NewMongoDAO(db *mongo.Database) DAO {
+	return &mongoImpl{Database: db}
 }
 
 //func Migrate(f dao.DAO, t dao.DAO, dryRun bool, status chan dao.MigratorStatus) (map[string]int, error) {

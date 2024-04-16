@@ -33,7 +33,6 @@ import (
 	"github.com/pydio/cells/v4/common/proto/tree"
 	"github.com/pydio/cells/v4/common/runtime"
 	"github.com/pydio/cells/v4/common/service"
-	"github.com/pydio/cells/v4/common/storage/sql"
 	"github.com/pydio/cells/v4/idm/meta"
 )
 
@@ -51,7 +50,7 @@ func init() {
 			service.Metadata(meta2.ServiceMetaNsProvider, "list"),
 			service.Metadata(meta2.ServiceMetaProviderRequired, "true"),
 			service.Description("User-defined Metadata"),
-			service.WithStorageDriver(sql.Drivers, meta.NewDAO),
+			service.WithStorageDrivers(meta.NewDAO),
 			service.Unique(true),
 			service.WithGRPC(func(ctx context.Context, server grpc.ServiceRegistrar) error {
 

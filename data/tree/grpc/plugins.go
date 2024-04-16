@@ -23,6 +23,7 @@ package grpc
 
 import (
 	"context"
+
 	"google.golang.org/grpc"
 
 	"github.com/pydio/cells/v4/common"
@@ -52,18 +53,18 @@ func init() {
 
 				go updateServicesList(ctx, treeServer, 0)
 
-				tree.RegisterNodeProviderEnhancedServer(server, treeServer)
-				tree.RegisterNodeReceiverEnhancedServer(server, treeServer)
-				tree.RegisterSearcherEnhancedServer(server, treeServer)
-				tree.RegisterNodeChangesStreamerEnhancedServer(server, treeServer)
-				tree.RegisterNodeProviderStreamerEnhancedServer(server, treeServer)
-				service2.RegisterLoginModifierEnhancedServer(server, treeServer)
+				tree.RegisterNodeProviderServer(server, treeServer)
+				tree.RegisterNodeReceiverServer(server, treeServer)
+				tree.RegisterSearcherServer(server, treeServer)
+				tree.RegisterNodeChangesStreamerServer(server, treeServer)
+				tree.RegisterNodeProviderStreamerServer(server, treeServer)
+				service2.RegisterLoginModifierServer(server, treeServer)
 
 				go watchRegistry(ctx, treeServer)
 
 				if err := broker.SubscribeCancellable(ctx, common.TopicIndexChanges, func(ctx context.Context, message broker.Message) error {
 					msg := &tree.NodeChangeEvent{}
-					if e := message.Unmarshal(msg); e == nil {
+					if ctx, e := message.Unmarshal(ctx, msg); e == nil {
 						return eventSubscriber.Handle(ctx, msg)
 					}
 					return nil
