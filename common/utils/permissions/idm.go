@@ -43,18 +43,23 @@ import (
 	"github.com/pydio/cells/v4/common/service/errors"
 	"github.com/pydio/cells/v4/common/utils/cache"
 	json "github.com/pydio/cells/v4/common/utils/jsonx"
+	"github.com/pydio/cells/v4/common/utils/openurl"
 )
 
 var (
-	usersCache cache.Cache
-	usersOnce  sync.Once
+	usersCachePool *openurl.Pool[cache.Cache]
+	usersOnce      sync.Once
 )
 
-func getUsersCache() cache.Cache {
+func getUsersCache(ctx context.Context) cache.Cache {
 	usersOnce.Do(func() {
-		usersCache, _ = cache.OpenCache(context.TODO(), runtime.ShortCacheURL("evictionTime", "5s", "cleanWindow", "30s"))
+		usersCachePool = cache.MustOpenPool(runtime.ShortCacheURL("evictionTime", "5s", "cleanWindow", "30s"))
 	})
-	return usersCache
+	if c, er := usersCachePool.Get(ctx); er == nil {
+		return c
+	} else {
+		return cache.MustDiscard()
+	}
 }
 
 // GetRolesForUser loads the roles of a given user.
@@ -384,7 +389,7 @@ func AccessListFromContextClaims(ctx context.Context) (accessList *AccessList, e
 		log.Logger(ctx).Debug("No Claims in Context, workspaces will be empty - probably anonymous user")
 		return
 	}
-	if cached, ok := newFromCache(claims.GetUniqueKey()); ok {
+	if cached, ok := newFromCache(ctx, claims.GetUniqueKey()); ok {
 		log.Logger(ctx).Debug("Returning cached version of AccessList")
 
 		return cached, nil
@@ -410,7 +415,7 @@ func AccessListFromContextClaims(ctx context.Context) (accessList *AccessList, e
 		return nil, er
 	}
 
-	if er := accessList.cache(claims.GetUniqueKey()); er != nil {
+	if er := accessList.cache(ctx, claims.GetUniqueKey()); er != nil {
 		log.Logger(ctx).Warn("Could not store ACL to cache: "+er.Error(), zap.Error(err))
 	}
 	return
@@ -439,7 +444,7 @@ func AccessListFromUser(ctx context.Context, userNameOrUuid string, isUuid bool)
 	}
 	keyLookup := strings.Join(rr, "-")
 	if len(keyLookup) > 0 {
-		if cached, ok := newFromCache("by-roles-" + keyLookup); ok {
+		if cached, ok := newFromCache(ctx, "by-roles-"+keyLookup); ok {
 			log.Logger(ctx).Debug("AccessListFromUser - AccessList already in cache")
 			accessList = cached
 			return
@@ -449,7 +454,7 @@ func AccessListFromUser(ctx context.Context, userNameOrUuid string, isUuid bool)
 	accessList, err = AccessListFromRoles(ctx, user.Roles, true, true)
 
 	if err == nil && len(keyLookup) > 0 {
-		_ = accessList.cache("by-roles-" + keyLookup)
+		_ = accessList.cache(ctx, "by-roles-"+keyLookup)
 	}
 
 	return
@@ -480,15 +485,15 @@ func AccessListFromRoles(ctx context.Context, roles []*idm.Role, countPolicies b
 
 }
 
-// SearchUniqueUser provides a shortcurt to search user services for one specific user.
+// SearchUniqueUser provides a shortcut to search user services for one specific user.
 func SearchUniqueUser(ctx context.Context, login string, uuid string, queries ...*idm.UserSingleQuery) (user *idm.User, err error) {
 
 	if login != "" && len(queries) == 0 {
-		if getUsersCache().Get(login, &user) {
+		if getUsersCache(ctx).Get(login, &user) {
 			return user, nil
 		}
 	} else if uuid != "" && len(queries) == 0 {
-		if getUsersCache().Get(uuid, &user) {
+		if getUsersCache(ctx).Get(uuid, &user) {
 			return user, nil
 		}
 	}
@@ -526,10 +531,11 @@ func SearchUniqueUser(ctx context.Context, login string, uuid string, queries ..
 	user = resp.GetUser()
 	// Store to quick cache
 	if len(queries) == 0 {
+		ka := getUsersCache(ctx)
 		if uuid != "" {
-			_ = getUsersCache().Set(uuid, user)
+			_ = ka.Set(uuid, user)
 		} else if login != "" {
-			_ = getUsersCache().Set(login, user)
+			_ = ka.Set(login, user)
 		}
 	}
 	return
@@ -694,8 +700,6 @@ func CheckContentLock(ctx context.Context, node *tree.Node) error {
 	return nil
 }
 
-func ForceClearUserCache(login string) {
-	if usersCache != nil {
-		usersCache.Delete(login)
-	}
+func ForceClearUserCache(ctx context.Context, login string) {
+	_ = getUsersCache(ctx).Delete(login)
 }

@@ -88,7 +88,7 @@ func (h *WorkspaceHandler) updateInputBranch(ctx context.Context, node *tree.Nod
 		if _, has := accessList.GetNodesBitmasks()[vNode.Uuid]; has {
 			if resolvedRoot, err := virtualManager.ResolveInContext(ctx, vNode, false); err == nil {
 				log.Logger(ctx).Debug("Updating Access List with resolved node Uuid", zap.Any("virtual", vNode), zap.Any("resolved", resolvedRoot))
-				accessList.ReplicateBitmask(vNode.Uuid, resolvedRoot.Uuid, true)
+				accessList.ReplicateBitmask(ctx, vNode.Uuid, resolvedRoot.Uuid, true)
 			}
 		}
 	}

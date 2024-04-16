@@ -22,7 +22,6 @@ package permissions
 
 import (
 	"context"
-	"github.com/pydio/cells/v4/common/utils/std"
 	"sort"
 	"strings"
 	"sync"
@@ -37,6 +36,7 @@ import (
 	"github.com/pydio/cells/v4/common/proto/tree"
 	"github.com/pydio/cells/v4/common/utils/configx"
 	json "github.com/pydio/cells/v4/common/utils/jsonx"
+	"github.com/pydio/cells/v4/common/utils/std"
 )
 
 // PolicyResolver implements the check of an object against a set of ACL policies
@@ -212,7 +212,7 @@ func (a *AccessList) AddNodeBitmask(id string, b Bitmask) {
 }
 
 // ReplicateBitmask copies a bitmask value from one position to another
-func (a *AccessList) ReplicateBitmask(fromUuid, toUuid string, replaceInRoots ...bool) bool {
+func (a *AccessList) ReplicateBitmask(ctx context.Context, fromUuid, toUuid string, replaceInRoots ...bool) bool {
 	replace := len(replaceInRoots) > 0 && replaceInRoots[0]
 	// Protect this method from concurrency
 	a.maskBULock.Lock()
@@ -220,7 +220,7 @@ func (a *AccessList) ReplicateBitmask(fromUuid, toUuid string, replaceInRoots ..
 		a.maskBULock.Unlock()
 		if replace && a.cacheKey != "" {
 			//fmt.Println("Updating acl in cache with key", a.cacheKey)
-			_ = a.cache(a.cacheKey)
+			_ = a.cache(ctx, a.cacheKey)
 		}
 	}()
 	if b, o := a.masksByUUIDs[fromUuid]; o {
@@ -571,7 +571,7 @@ func (a *AccessList) replicateMasksResolved(ctx context.Context, resolver Virtua
 	a.maskBULock.RUnlock()
 	for _, id := range ids {
 		if res, o := resolver(ctx, &tree.Node{Uuid: id}); o {
-			a.ReplicateBitmask(id, res.Uuid)
+			a.ReplicateBitmask(ctx, id, res.Uuid)
 		}
 	}
 }

@@ -87,6 +87,12 @@ func OpenCache(ctx context.Context, urlstr string) (Cache, error) {
 	return defaultURLMux.OpenCache(ctx, urlstr)
 }
 
+// MustDiscard opens a discard-cache that can be used as fallback for openCache-related errors
+func MustDiscard() Cache {
+	C, _ := defaultURLMux.OpenCache(context.Background(), "discard://")
+	return C
+}
+
 // OpenPool opens a Pool[Cache] using OpenCache as opener
 func OpenPool(u string, opt ...openurl.PoolOption) (*openurl.Pool[Cache], error) {
 	return openurl.OpenPool[Cache](nil, []string{u}, OpenCache, opt...)

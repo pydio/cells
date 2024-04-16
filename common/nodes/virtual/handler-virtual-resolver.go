@@ -71,7 +71,7 @@ func (v *ResolverHandler) updateInput(ctx context.Context, node *tree.Node, iden
 			branchInfo.Root = resolvedRoot
 			ctx = nodes.WithBranchInfo(ctx, identifier, branchInfo)
 			if accessList, ok := acl.FromContext(ctx); ok {
-				if copied := accessList.ReplicateBitmask(originalUuid, resolvedRoot.Uuid); copied {
+				if copied := accessList.ReplicateBitmask(ctx, originalUuid, resolvedRoot.Uuid); copied {
 					ctx = acl.ToContext(ctx, accessList)
 				}
 			}

@@ -635,7 +635,7 @@ func (s *UserHandler) PutUser(req *restful.Request, rsp *restful.Response) {
 	}
 
 	if !u.IsGroup {
-		permissions.ForceClearUserCache(u.Login)
+		permissions.ForceClearUserCache(ctx, u.Login)
 	}
 
 	// Reload user fully
@@ -766,7 +766,7 @@ func (s *UserHandler) PutRoles(req *restful.Request, rsp *restful.Response) {
 			zap.Int("Roles length", len(u.Roles)),
 		)
 		rsp.WriteEntity(u.WithPublicData(ctx, s.IsContextEditable(ctx, u.Uuid, u.Policies)))
-		permissions.ForceClearUserCache(response.User.GetLogin())
+		permissions.ForceClearUserCache(ctx, response.User.GetLogin())
 	}
 }
 

@@ -22,7 +22,6 @@ package permissions
 
 import (
 	"context"
-	"github.com/pydio/cells/v4/common/utils/std"
 	"sync"
 
 	"github.com/pydio/cells/v4/common"
@@ -30,31 +29,42 @@ import (
 	"github.com/pydio/cells/v4/common/proto/idm"
 	"github.com/pydio/cells/v4/common/runtime"
 	"github.com/pydio/cells/v4/common/utils/cache"
+	"github.com/pydio/cells/v4/common/utils/openurl"
+	"github.com/pydio/cells/v4/common/utils/std"
 )
 
 var (
-	aclCache cache.Cache
-	aclOnce  sync.Once
+	aclCachePool *openurl.Pool[cache.Cache]
+	aclOnce      sync.Once
 )
 
-func getAclCache() cache.Cache {
+func getAclCache(ctx context.Context) cache.Cache {
 	aclOnce.Do(func() {
-		aclCache, _ = cache.OpenCache(context.TODO(), runtime.ShortCacheURL("evictionTime", "60s", "cleanWindow", "30s"))
-		_, _ = broker.Subscribe(context.TODO(), common.TopicIdmEvent, func(ctx context.Context, message broker.Message) error {
-			event := &idm.ChangeEvent{}
-			ctx, e := message.Unmarshal(ctx, event)
+		// Init pool
+		aclCachePool = cache.MustOpenPool(runtime.ShortCacheURL("evictionTime", "60s", "cleanWindow", "30s"))
 
+		// Subscribe
+		_, _ = broker.Subscribe(context.Background(), common.TopicIdmEvent, func(ct context.Context, message broker.Message) error {
+			event := &idm.ChangeEvent{}
+			msgCtx, e := message.Unmarshal(ct, event)
 			if e != nil {
 				return e
 			}
 			switch event.Type {
 			case idm.ChangeEventType_CREATE, idm.ChangeEventType_UPDATE, idm.ChangeEventType_DELETE:
-				return aclCache.Reset()
+				if ka, er := aclCachePool.Get(msgCtx); er == nil {
+					return ka.Reset()
+				}
 			}
 			return nil
 		}, broker.WithCounterName("acl-cache"))
 	})
-	return aclCache
+
+	if ka, er := aclCachePool.Get(ctx); er == nil {
+		return ka
+	} else {
+		return cache.MustDiscard()
+	}
 }
 
 type CachedAccessList struct {
@@ -70,7 +80,7 @@ type CachedAccessList struct {
 }
 
 // cache uses the CachedAccessList struct with public fields for cache serialization
-func (a *AccessList) cache(key string) error {
+func (a *AccessList) cache(ctx context.Context, key string) error {
 	a.cacheKey = key
 	a.maskBPLock.RLock()
 	a.maskBULock.RLock()
@@ -90,13 +100,13 @@ func (a *AccessList) cache(key string) error {
 		ClaimsScopes:    std.CloneMap(a.claimsScopes),
 	}
 
-	return getAclCache().Set(key, m)
+	return getAclCache(ctx).Set(key, m)
 }
 
 // newFromCache looks up for a CachedAccessList struct in the cache and init an AccessList with the values.
-func newFromCache(key string) (*AccessList, bool) {
+func newFromCache(ctx context.Context, key string) (*AccessList, bool) {
 	m := &CachedAccessList{}
-	if b := getAclCache().Get(key, &m); !b {
+	if b := getAclCache(ctx).Get(key, &m); !b {
 		//fmt.Println("Get from cache ", key)
 		return nil, b
 	}

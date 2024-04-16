@@ -104,8 +104,7 @@ func newCacheHandler() *CacheHandler {
 
 func getCtxCache(ctx context.Context) cache.Cache {
 	if ca, er := cachePool.Get(ctx); er != nil {
-		di, _ := cache.OpenCache(ctx, "discard://")
-		return di
+		return cache.MustDiscard()
 	} else {
 		return ca
 	}

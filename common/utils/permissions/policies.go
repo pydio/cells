@@ -74,7 +74,7 @@ func getCheckersCache(ctx context.Context) cache.Cache {
 	})
 	polCache, er := polCachePool.Get(ctx)
 	if er != nil {
-		polCache, _ = cache.OpenCache(ctx, "discard://")
+		polCache = cache.MustDiscard()
 	}
 	return polCache
 }
