@@ -39,7 +39,7 @@ type PoolOption struct {
 // If PoolOption is passed, it will monitor idle resources and close them regulary to free memory
 // Maybe PoolOptions could also be passed by the URL
 func OpenPool[T ResourceClosable](ctx context.Context, uu []string, opener Opener[T], opt ...PoolOption) (*Pool[T], error) {
-	rs := make([]Template, len(uu))
+	var rs []Template
 	for _, u := range uu {
 		if r, e := URLTemplate(u); e != nil {
 			panic(e)
