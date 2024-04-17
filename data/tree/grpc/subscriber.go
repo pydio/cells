@@ -53,7 +53,7 @@ func NewEventSubscriber(t *TreeServer) (*EventSubscriber, error) {
 
 func (s *EventSubscriber) publish(ctx context.Context, msg *tree.NodeChangeEvent) {
 	broker.MustPublish(ctx, common.TopicTreeChanges, msg)
-	s.TreeServer.PublishChange(msg)
+	s.TreeServer.PublishChange(ctx, msg)
 }
 
 func (s *EventSubscriber) enqueueInCache(ctx context.Context, moveUuid string, event *tree.NodeChangeEvent, loop bool) {

@@ -43,17 +43,19 @@ import (
 	"github.com/pydio/cells/v4/common/nodes/mocks"
 	"github.com/pydio/cells/v4/common/proto/service"
 	"github.com/pydio/cells/v4/common/proto/tree"
-	runtimecontext "github.com/pydio/cells/v4/common/runtime/runtimecontext"
+	"github.com/pydio/cells/v4/common/runtime/runtimecontext"
 	servicecontext "github.com/pydio/cells/v4/common/service/context"
 	"github.com/pydio/cells/v4/common/service/context/metadata"
 	"github.com/pydio/cells/v4/common/service/errors"
 	"github.com/pydio/cells/v4/common/utils/cache"
 	"github.com/pydio/cells/v4/common/utils/openurl"
 	"github.com/pydio/cells/v4/common/utils/permissions"
+	"github.com/pydio/cells/v4/common/utils/uuid"
 )
 
 // changesListener is an autoclosing pipe used for fanning out events
 type changesListener struct {
+	id      string
 	in      chan *tree.NodeChangeEvent
 	out     chan *tree.NodeChangeEvent
 	done    chan struct{}
@@ -62,6 +64,7 @@ type changesListener struct {
 
 func newListener() *changesListener {
 	l := &changesListener{
+		id:   uuid.New(),
 		in:   make(chan *tree.NodeChangeEvent),
 		out:  make(chan *tree.NodeChangeEvent, 1000),
 		done: make(chan struct{}, 1),
@@ -108,24 +111,18 @@ type TreeServer struct {
 	tree.UnimplementedNodeChangesStreamerServer
 	service.UnimplementedLoginModifierServer
 
-	name      string
-	listeners []*changesListener
+	name string
 
-	//sources     map[string]DataSource
-	//sourcesLock *sync.RWMutex
+	listenersPool *openurl.Pool[cache.Cache]
 	sourcesCaches *openurl.Pool[cache.Cache]
-
-	mainCtx context.Context
 }
 
 // NewTreeServer initialize a TreeServer with proper internals
 func NewTreeServer(ctx context.Context, name string) *TreeServer {
 	return &TreeServer{
-		mainCtx:       ctx,
 		name:          name,
 		sourcesCaches: cache.MustOpenPool("pm://?evictionTime=-1"), // Create in-memory, non-expirable cache
-		//sources:     make(map[string]DataSource),
-		//sourcesLock: &sync.RWMutex{},
+		listenersPool: cache.MustOpenPool("pm://?evictionTime=-1"), // Create in-memory, non-expirable cache
 	}
 }
 
@@ -138,11 +135,6 @@ func (s *TreeServer) AppendDatasource(ctx context.Context, name string, obj Data
 
 	k, _ := s.sourcesCaches.Get(ctx)
 	k.Set(name, obj)
-	/*
-		s.sourcesLock.Lock()
-		s.sources[name] = obj
-		s.sourcesLock.Unlock()
-	*/
 }
 
 // datasourcebyName finds a datasource in the internal map
@@ -150,12 +142,6 @@ func (s *TreeServer) datasourceByName(ctx context.Context, dsName string) (obj D
 	k, _ := s.sourcesCaches.Get(ctx)
 	ok = k.Get(dsName, &obj)
 	return
-	/*
-		s.sourcesLock.RLock()
-		ds, ok := s.sources[dsName]
-		s.sourcesLock.RUnlock()
-		return ds, ok
-	*/
 }
 
 // ReadNodeStream Implement stream for readNode method
@@ -165,7 +151,8 @@ func (s *TreeServer) ReadNodeStream(streamer tree.NodeProviderStreamer_ReadNodeS
 	// We must make sure that metaStreamers are using a proper context at creation
 	// otherwise it can create a goroutine leak on linux.
 	ctx := metadata.NewBackgroundWithMetaCopy(streamer.Context())
-	ctx = runtimecontext.ForkContext(ctx, s.mainCtx)
+	// TODO RECHECK THAT
+	ctx = runtimecontext.ForkContext(ctx, ctx)
 
 	var flags tree.Flags
 	if sf, o := metadata.CanonicalMeta(streamer.Context(), tree.StatFlagHeaderName); o {
@@ -340,13 +327,12 @@ func (s *TreeServer) ListNodes(req *tree.ListNodesRequest, resp tree.NodeProvide
 	ctx := resp.Context()
 	defer track("ListNodes", ctx, time.Now(), req, resp)
 
-	mainCtx := servicecontext.WithRegistry(ctx, servicecontext.GetRegistry(s.mainCtx))
 	var metaStreamer meta.Loader
 	var loadMetas bool
 	flags := tree.StatFlags(req.StatFlags)
 	if flags.Metas() {
 		loadMetas = true
-		metaStreamer = meta.NewStreamLoader(mainCtx, flags)
+		metaStreamer = meta.NewStreamLoader(ctx, flags)
 		defer metaStreamer.Close()
 	}
 
@@ -690,33 +676,30 @@ func (s *TreeServer) DeleteNode(ctx context.Context, req *tree.DeleteNodeRequest
 	return nil, errors.Forbidden("datasource.not.found", "Unknown datasource %s", dsName)
 }
 
-func (s *TreeServer) PublishChange(change *tree.NodeChangeEvent) {
+func (s *TreeServer) PublishChange(ctx context.Context, change *tree.NodeChangeEvent) {
 	defer func() {
 		if e := recover(); e != nil {
 			log.Logger(context.Background()).Error("Panic recovered in PublishChange", zap.Any("error", e))
 		}
 	}()
-	for _, l := range s.listeners {
+	po, _ := s.listenersPool.Get(ctx)
+	_ = po.Iterate(func(_ string, val interface{}) {
+		l := val.(*changesListener)
 		if !l.closing {
 			l.in <- change
 		}
-	}
+	})
 }
 
 func (s *TreeServer) StreamChanges(req *tree.StreamChangesRequest, streamer tree.NodeChangesStreamer_StreamChangesServer) error {
 
+	ctx := streamer.Context()
+	po, _ := s.listenersPool.Get(ctx)
 	li := newListener()
-	s.listeners = append(s.listeners, li)
+	_ = po.Set(li.id, li)
 	defer func() {
-		var cleared []*changesListener
-		for _, l := range s.listeners {
-			if l == li {
-				l.stop()
-			} else {
-				cleared = append(cleared, l)
-			}
-		}
-		s.listeners = cleared
+		li.stop()
+		_ = po.Delete(li.id)
 	}()
 
 	filterPath := strings.Trim(req.RootPath, "/") + "/"
@@ -750,14 +733,6 @@ loop:
 				newEvent.Target = nil
 			}
 
-			/*
-				if newEvent.Target != nil {
-					//newEvent.Target.Path = strings.TrimPrefix(newEvent.Target.Path, filterPath)
-				}
-				if newEvent.Source != nil {
-					//newEvent.Source.Path = strings.TrimPrefix(newEvent.Source.Path, filterPath)
-				}
-			*/
 			if newEvent.Metadata != nil {
 				// Do not forward this metadata to clients
 				delete(newEvent.Metadata, common.XPydioSessionUuid)
