@@ -5,7 +5,10 @@ import (
 	"strconv"
 	"strings"
 
+	servercontext "github.com/pydio/cells/v4/common/server/context"
 	"github.com/pydio/cells/v4/common/storage"
+	"github.com/pydio/cells/v4/common/storage/indexer"
+	"github.com/pydio/cells/v4/common/utils/configx"
 	"github.com/pydio/cells/v4/common/utils/openurl"
 	"github.com/pydio/cells/v4/common/utils/uuid"
 )
@@ -66,8 +69,8 @@ func (s *bleveStorage) Register(conn any, tenant string, service string) {
 }
 
 func (s *bleveStorage) Get(ctx context.Context, out interface{}) bool {
-	if v, ok := out.(**Indexer); ok {
-
+	switch v := out.(type) {
+	case **Indexer:
 		u, err := s.template.ResolveURL(ctx)
 		if err != nil {
 			return false
@@ -118,6 +121,76 @@ func (s *bleveStorage) Get(ctx context.Context, out interface{}) bool {
 		})
 		if err != nil {
 			return false
+		}
+
+		index.serviceConfigs = servercontext.GetConfig(ctx).Val()
+
+		*v = index
+
+		s.dbs = append(s.dbs, &blevedb{
+			db:   index,
+			path: path,
+		})
+
+		return true
+
+	case *indexer.Indexer:
+		u, err := s.template.ResolveURL(ctx)
+		if err != nil {
+			return false
+		}
+		path := u.String()
+
+		for _, db := range s.dbs {
+			if path == db.path {
+				*v = db.db
+				return true
+			}
+		}
+
+		// Not found, opening
+
+		q := u.Query()
+
+		rotationSize := DefaultRotationSize
+		if q.Has("rotationSize") {
+			if size, err := strconv.ParseInt(q.Get("rotationSize"), 10, 0); err != nil {
+				return false
+			} else {
+				rotationSize = size
+			}
+		}
+
+		batchSize := DefaultBatchSize
+		if q.Has("batchSize") {
+			if size, err := strconv.ParseInt(q.Get("batchSize"), 10, 0); err != nil {
+				return false
+			} else {
+				batchSize = size
+			}
+		}
+
+		mappingName := DefaultMappingName
+		if q.Has("mapping") {
+			if mn := q.Get("mapping"); mn != "" {
+				mappingName = mn
+			}
+		}
+
+		index, err := newBleveIndexer(&BleveConfig{
+			BlevePath:    u.Path,
+			RotationSize: rotationSize,
+			BatchSize:    batchSize,
+			MappingName:  mappingName,
+		})
+		if err != nil {
+			return false
+		}
+
+		if cfg := servercontext.GetConfig(ctx); cfg == nil {
+			index.serviceConfigs = configx.New()
+		} else {
+			index.serviceConfigs = cfg.Val()
 		}
 
 		*v = index

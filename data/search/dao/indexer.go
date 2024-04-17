@@ -23,6 +23,7 @@ package dao
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"time"
 
@@ -37,6 +38,7 @@ import (
 	servercontext "github.com/pydio/cells/v4/common/server/context"
 	"github.com/pydio/cells/v4/common/storage/indexer"
 	"github.com/pydio/cells/v4/common/utils/configx"
+	bleve2 "github.com/pydio/cells/v4/data/search/dao/bleve"
 )
 
 var (
@@ -52,37 +54,45 @@ type Server struct {
 	confChan chan configx.Values
 }
 
-//func NewBleveEngine(ctx context.Context, idx *bleve.bleveIndexer) (*Server, error) {
-//	return newEngine(ctx, idx)
-//}
-//
-//func newEngine(ctx context.Context, idx indexer.Indexer) (*Server, error) {
-//
-//	// idx.SetCodex(&bleve2.Codec{})
-//
-//	server := &Server{
-//		Engine: idx,
-//		DAO:    indexer.NewDAO(idx),
-//
-//		inserts:  make(chan *tree.IndexableNode),
-//		deletes:  make(chan string),
-//		done:     make(chan bool, 1),
-//		confChan: make(chan configx.Values),
-//	}
-//
-//	idx.Open(ctx)
-//
-//	go server.watchOperations(ctx)
-//	go server.watchConfigs(ctx)
-//
-//	return server, nil
-//}
+func NewEngine(ctx context.Context, idx indexer.Indexer) (*Server, error) {
+	return newEngine(ctx, idx)
+}
+
+func newEngine(ctx context.Context, idx indexer.Indexer) (*Server, error) {
+
+	if idx == nil {
+		return nil, errors.New("empty indexer")
+	}
+	idx.SetCodex(&bleve2.Codec{})
+
+	server := &Server{
+		Indexer: idx,
+
+		inserts:  make(chan *tree.IndexableNode),
+		deletes:  make(chan string),
+		done:     make(chan bool, 1),
+		confChan: make(chan configx.Values),
+	}
+
+	// idx.Open(ctx)
+
+	go server.watchOperations(ctx)
+	go server.watchConfigs(ctx)
+
+	return server, nil
+}
 
 func (s *Server) watchOperations(ctx context.Context) {
 	nsProvider := meta.NewNsProvider(ctx)
-	conf := servercontext.GetConfig(ctx)
 
-	batch := NewBatch(ctx, nsProvider, BatchOptions{config: conf.Val()})
+	options := BatchOptions{}
+	if conf := servercontext.GetConfig(ctx); conf == nil {
+		options.config = configx.New()
+	} else {
+		options.config = conf.Val()
+	}
+
+	batch := NewBatch(ctx, nsProvider, options)
 	debounce := 1 * time.Second
 	timer := time.NewTimer(debounce)
 	defer func() {

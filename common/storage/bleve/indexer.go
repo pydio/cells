@@ -502,6 +502,14 @@ func (s *Indexer) getSearchIndex(ctx context.Context) (bleve.Index, error) {
 		}
 	}
 
+	if len(indexes) == 0 {
+		if err := s.rotate(ctx); err != nil {
+			return nil, err
+		}
+
+		return s.getSearchIndex(ctx)
+	}
+
 	return bleve.NewIndexAlias(indexes...), nil
 }
 

@@ -468,12 +468,13 @@ func (r *serverRegistrar) GetServiceInfo() map[string]grpc.ServiceInfo {
 		svcInfo, ok := info[service]
 		if !ok {
 			svcInfo = grpc.ServiceInfo{}
-			info[service] = svcInfo
 		}
 
 		svcInfo.Methods = append(svcInfo.Methods, grpc.MethodInfo{
 			Name: method,
 		})
+
+		info[service] = svcInfo
 	}
 
 	return info
