@@ -41,17 +41,19 @@ import (
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/log"
 	"github.com/pydio/cells/v4/common/runtime"
-	"github.com/pydio/cells/v4/common/server"
 	serverhttp "github.com/pydio/cells/v4/common/server/http"
+	"github.com/pydio/cells/v4/common/server/http/routes"
 	"github.com/pydio/cells/v4/common/server/middleware"
 	"github.com/pydio/cells/v4/common/service"
 	"github.com/pydio/cells/v4/common/utils/net"
-	_ "github.com/pydio/cells/v4/gateway/data/gw"
 	pydio "github.com/pydio/cells/v4/gateway/data/gw"
 	"github.com/pydio/cells/v4/gateway/data/hooks"
+
+	_ "github.com/pydio/cells/v4/gateway/data/gw"
 )
 
-func patchListBucketRequest(route string, request *http.Request) {
+func patchListBucketRequest(request *http.Request) {
+	route := routes.ResolvedURIFromContext(request.Context())
 	testURI := strings.Replace(request.RequestURI, "?x-id=ListBuckets", "", 1)
 	if testURI == route || testURI == route+"/" {
 		request.RequestURI = "/"
@@ -62,22 +64,29 @@ func patchListBucketRequest(route string, request *http.Request) {
 	}
 }
 
+const (
+	BucketIO   = "io"
+	BucketData = "data"
+)
+
 var (
 	srv *gatewayDataServer
 )
 
 func init() {
 
+	routes.DeclareRoute(BucketIO, "Main I/O bucket for transferring data", "/io")
+	routes.DeclareRoute(BucketData, "Secondary I/O bucket with name longer than 3 characters, may be required by some AWS clients", "/data")
+
 	runtime.Register("main", func(ctx context.Context) {
 
 		port := net.GetAvailablePort()
-
 		service.NewService(
 			service.Name(common.ServiceGatewayData),
 			service.Context(ctx),
 			service.Tag(common.ServiceTagGateway),
 			service.Description("S3 Gateway to tree service"),
-			service.WithHTTP(func(c context.Context, mux server.HttpMux) error {
+			service.WithHTTP(func(c context.Context, mux routes.RouteRegistrar) error {
 
 				console.Printf = func(format string, data ...interface{}) {
 					if strings.HasPrefix(format, "WARNING: ") {
@@ -108,14 +117,15 @@ func init() {
 
 				u, _ := url.Parse(fmt.Sprintf("http://localhost:%d", port))
 				proxy := httputil.NewSingleHostReverseProxy(u)
-				mux.HandleFunc("/io/", func(writer http.ResponseWriter, request *http.Request) {
-					patchListBucketRequest("/io", request)
+
+				mux.Route(BucketIO).Handle("/", http.HandlerFunc(func(writer http.ResponseWriter, request *http.Request) {
+					patchListBucketRequest(request)
 					proxy.ServeHTTP(writer, request)
-				})
-				mux.HandleFunc("/data/", func(writer http.ResponseWriter, request *http.Request) {
-					patchListBucketRequest("/data", request)
+				}))
+				mux.Route(BucketData).Handle("/", http.HandlerFunc(func(writer http.ResponseWriter, request *http.Request) {
+					patchListBucketRequest(request)
 					proxy.ServeHTTP(writer, request)
-				})
+				}))
 
 				if srv == nil {
 					var certFile, keyFile string
@@ -135,11 +145,9 @@ func init() {
 
 				return nil
 			}),
-			service.WithHTTPStop(func(ctx context.Context, mux server.HttpMux) error {
-				if m, ok := mux.(server.PatternsProvider); ok {
-					m.DeregisterPattern("/io/")
-					m.DeregisterPattern("/data/")
-				}
+			service.WithHTTPStop(func(ctx context.Context, mux routes.RouteRegistrar) error {
+				mux.DeregisterPattern("/io")
+				mux.DeregisterPattern("/data")
 				return nil
 			}),
 		)

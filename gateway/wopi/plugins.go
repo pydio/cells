@@ -28,7 +28,7 @@ import (
 	"github.com/pydio/cells/v4/common/nodes"
 	"github.com/pydio/cells/v4/common/nodes/compose"
 	"github.com/pydio/cells/v4/common/runtime"
-	"github.com/pydio/cells/v4/common/server"
+	routes "github.com/pydio/cells/v4/common/server/http/routes"
 	"github.com/pydio/cells/v4/common/service"
 )
 
@@ -36,24 +36,31 @@ var (
 	client nodes.Client
 )
 
+const (
+	RouteWOPI = "wopi"
+)
+
 func init() {
+	routes.DeclareRoute(RouteWOPI, "WOPI API service", "/wopi")
+
 	runtime.Register("main", func(ctx context.Context) {
+		//RegisterMainAPIEndpoint(ctx ... "a" ... "/api/")
 		service.NewService(
 			service.Name(common.ServiceGatewayWopi),
 			service.Context(ctx),
 			service.Tag(common.ServiceTagGateway),
 			service.Description("WOPI REST Gateway to tree service"),
 			//service.RouterDependencies(),
-			service.WithHTTP(func(ctx context.Context, mux server.HttpMux) error {
+			service.WithHTTP(func(ctx context.Context, mux routes.RouteRegistrar) error {
 				client = compose.UuidClient(ctx, nodes.WithAuditEventsLogging())
 				wopiRouter := NewRouter()
-				mux.Handle("/wopi/", wopiRouter)
+				//mux.Main("wopi", "WOPI API ... ")
+				mux.Route(RouteWOPI).HandleStripPrefix("/", wopiRouter)
 				return nil
 			}),
-			service.WithHTTPStop(func(ctx context.Context, mux server.HttpMux) error {
-				if m, ok := mux.(server.PatternsProvider); ok {
-					m.DeregisterPattern("/wopi/")
-				}
+			service.WithHTTPStop(func(ctx context.Context, mux routes.RouteRegistrar) error {
+				// TODO
+				//mux.DeregisterPattern("/wopi/")
 				return nil
 			}),
 		)

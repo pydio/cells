@@ -37,7 +37,7 @@ import (
 	"github.com/pydio/cells/v4/common/proto/jobs"
 	"github.com/pydio/cells/v4/common/proto/tree"
 	"github.com/pydio/cells/v4/common/runtime"
-	"github.com/pydio/cells/v4/common/server"
+	"github.com/pydio/cells/v4/common/server/http/routes"
 	"github.com/pydio/cells/v4/common/service"
 	servicecontext "github.com/pydio/cells/v4/common/service/context"
 	"github.com/pydio/cells/v4/gateway/websocket"
@@ -46,7 +46,11 @@ import (
 var (
 	ws   *websocket.WebsocketHandler
 	chat *websocket.ChatHandler
-	name = common.ServiceGatewayNamespace_ + common.ServiceWebSocket
+)
+
+const (
+	name           = common.ServiceGatewayNamespace_ + common.ServiceWebSocket
+	RouteWebsocket = "websocket"
 )
 
 func wrap(ctx context.Context) context.Context {
@@ -55,30 +59,31 @@ func wrap(ctx context.Context) context.Context {
 
 func init() {
 
+	routes.DeclareRoute(RouteWebsocket, "Websocket Endpoint", "/ws")
+
 	runtime.Register("main", func(ctx context.Context) {
 		service.NewService(
 			service.Name(name),
 			service.Context(ctx),
 			service.Tag(common.ServiceTagGateway),
 			service.Description("WebSocket server pushing event to the clients"),
-			service.WithHTTPStop(func(ctx context.Context, mux server.HttpMux) error {
-				if m, ok := mux.(server.PatternsProvider); ok {
-					m.DeregisterPattern("/ws/event")
-					m.DeregisterPattern("/ws/chat")
-				}
+			service.WithHTTPStop(func(ctx context.Context, mux routes.RouteRegistrar) error {
+				mux.DeregisterPattern("/ws/event")
+				mux.DeregisterPattern("/ws/chat")
 				return nil
 			}),
-			service.WithHTTP(func(ctx context.Context, mux server.HttpMux) error {
+			service.WithHTTP(func(ctx context.Context, mux routes.RouteRegistrar) error {
 				ws = websocket.NewWebSocketHandler(ctx)
 				chat = websocket.NewChatHandler(ctx)
 				ws.EventRouter = compose.ReverseClient(ctx)
 
-				mux.HandleFunc("/ws/event", func(w http.ResponseWriter, r *http.Request) {
+				sub := mux.Route(RouteWebsocket)
+				sub.Handle("/event", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 					ws.Websocket.HandleRequest(w, r)
-				})
-				mux.HandleFunc("/ws/chat", func(w http.ResponseWriter, r *http.Request) {
+				}))
+				sub.Handle("/chat", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 					chat.Websocket.HandleRequest(w, r)
-				})
+				}))
 				//q1, _ := queue.OpenQueue(ctx, runtime.QueueURL("debounce", "1s", "idle", "10s", "max", "10000"))
 				//q2, _ := queue.OpenQueue(ctx, runtime.QueueURL("debounce", "1s", "idle", "10s", "max", "10000"))
 				counterName := broker.WithCounterName("websocket")

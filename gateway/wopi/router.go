@@ -34,7 +34,7 @@ type route struct {
 	handlerFunc http.HandlerFunc
 }
 
-type routes []route
+type wopiRoutes []route
 
 // NewRouter creates and configures a new mux router to serve wopi REST requests and enable integration with WOPI clients.
 func NewRouter() *mux.Router {
@@ -46,7 +46,7 @@ func NewRouter() *mux.Router {
 		handler = auth(handler)
 
 		router.
-			PathPrefix("/wopi").
+			//PathPrefix("/wopi").
 			Methods(route.method).
 			Path(route.pattern).
 			Name(route.name).
@@ -60,7 +60,7 @@ func index(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, "Not accessible")
 }
 
-var myRoutes = routes{
+var myRoutes = wopiRoutes{
 	route{
 		"Index",
 		"GET",

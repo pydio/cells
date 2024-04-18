@@ -23,8 +23,6 @@ package server
 import (
 	"context"
 	"fmt"
-	servicecontext "github.com/pydio/cells/v4/common/service/context"
-	"github.com/pydio/cells/v4/common/utils/std"
 
 	"github.com/pkg/errors"
 	"golang.org/x/exp/maps"
@@ -32,6 +30,8 @@ import (
 
 	"github.com/pydio/cells/v4/common/registry"
 	servercontext "github.com/pydio/cells/v4/common/server/context"
+	servicecontext "github.com/pydio/cells/v4/common/service/context"
+	"github.com/pydio/cells/v4/common/utils/std"
 )
 
 type CoreServer interface {
@@ -136,6 +136,7 @@ func (s *server) Serve(oo ...ServeOption) (outErr error) {
 
 	ii, err := s.S.RawServe(opt)
 	if err != nil {
+		fmt.Println("Cannot RawServe", err)
 		return err
 	}
 

@@ -4,16 +4,17 @@ import (
 	"context"
 	"crypto/tls"
 	"fmt"
-	"go.uber.org/zap"
 	"net/http"
 	"net/http/httputil"
 	"net/url"
+
+	"go.uber.org/zap"
 
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/config"
 	"github.com/pydio/cells/v4/common/log"
 	"github.com/pydio/cells/v4/common/runtime"
-	"github.com/pydio/cells/v4/common/server"
+	"github.com/pydio/cells/v4/common/server/http/routes"
 	"github.com/pydio/cells/v4/common/service"
 )
 
@@ -21,6 +22,12 @@ const LibreOffice = "libreoffice"
 
 var (
 	registeredPatterns []string
+)
+
+const (
+	RouteMain      = "collabora-main"
+	RouteWs        = "collabora-websocket"
+	RouteDiscovery = "collabora-discovery"
 )
 
 func init() {
@@ -33,6 +40,26 @@ func init() {
 		return s.Val(pa...).Set(val)
 	}))
 
+	routes.DeclareRoute(RouteMain, "Collabora Leaflet API", "/leaflet", routes.WithCustomResolver(func(ctx context.Context) string {
+		version := config.Get("frontend", "plugin", "editor.libreoffice").Val("LIBREOFFICE_CODE_VERSION").Default("v6").String()
+		if version != "v6" {
+			return "/browser"
+		} else {
+			return "/leaflet"
+		}
+	}))
+
+	routes.DeclareRoute(RouteWs, "Collabora Websocket API", "/lool", routes.WithCustomResolver(func(ctx context.Context) string {
+		version := config.Get("frontend", "plugin", "editor.libreoffice").Val("LIBREOFFICE_CODE_VERSION").Default("v6").String()
+		if version != "v6" {
+			return "/cool"
+		} else {
+			return "/lool"
+		}
+	}))
+
+	routes.DeclareRoute(RouteDiscovery, "Collabora Discovery API", "/hosting/discovery")
+
 	runtime.Register("main", func(ctx context.Context) {
 		service.NewService(
 			service.Name(common.ServiceWebNamespace_+LibreOffice),
@@ -40,7 +67,7 @@ func init() {
 			service.Tag(common.ServiceTagFrontend),
 			service.AutoRestart(true),
 			service.Description("Grpc service for internal requests about frontend manifest"),
-			service.WithHTTP(func(ctx context.Context, mux server.HttpMux) error {
+			service.WithHTTP(func(ctx context.Context, mux routes.RouteRegistrar) error {
 				pconf := config.Get("frontend", "plugin", "editor.libreoffice")
 				enabled := pconf.Val(config.KeyFrontPluginEnabled).Default(false).Bool()
 				if !enabled {
@@ -53,14 +80,6 @@ func init() {
 				skipVerify := pconf.Val("LIBREOFFICE_SSL_SKIP_VERIFY").Default(true).Bool()
 				host := pconf.Val("LIBREOFFICE_HOST").Default("localhost").String()
 				port := pconf.Val("LIBREOFFICE_PORT").Default("9980").String()
-				version := pconf.Val("LIBREOFFICE_CODE_VERSION").Default("v6").String()
-
-				LeafletURI := "leaflet"
-				WebsocketURI := "lool"
-				if version != "v6" {
-					LeafletURI = "browser"
-					WebsocketURI = "cool"
-				}
 
 				scheme := "http"
 				if useTls {
@@ -80,28 +99,18 @@ func init() {
 				if useTls && skipVerify {
 					proxy.Transport = &http.Transport{TLSClientConfig: &tls.Config{InsecureSkipVerify: true}}
 				}
-				mux.HandleFunc("/"+LeafletURI+"/", func(writer http.ResponseWriter, request *http.Request) {
-					proxy.ServeHTTP(writer, request)
-				})
-				mux.HandleFunc("/"+WebsocketURI+"/", func(writer http.ResponseWriter, request *http.Request) {
-					proxy.ServeHTTP(writer, request)
-				})
-				mux.HandleFunc("/hosting/discovery/", func(writer http.ResponseWriter, request *http.Request) {
-					proxy.ServeHTTP(writer, request)
-				})
+				mux.Route(RouteMain).Handle("/", proxy)
+				mux.Route(RouteWs).Handle("/", proxy)
+				mux.Route(RouteDiscovery).Handle("/", proxy)
 
-				registeredPatterns = append(registeredPatterns, "/"+LeafletURI+"/", "/"+WebsocketURI+"/", "/hosting/discovery/")
+				registeredPatterns = append(registeredPatterns, RouteMain, RouteWs, RouteDiscovery)
 
 				return nil
 			}),
-			service.WithHTTPStop(func(ctx context.Context, mux server.HttpMux) error {
-				pp, ok := mux.(server.PatternsProvider)
-				if !ok {
-					return nil
-				}
+			service.WithHTTPStop(func(ctx context.Context, mux routes.RouteRegistrar) error {
 				for _, p := range registeredPatterns {
 					log.Logger(ctx).Info("Deregistering pattern " + p + " while stopping service")
-					pp.DeregisterPattern(p)
+					mux.DeregisterPattern(p)
 				}
 				registeredPatterns = []string{}
 				return nil

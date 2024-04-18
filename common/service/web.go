@@ -26,6 +26,7 @@ import (
 	"fmt"
 	"net/http"
 	"os"
+	"path"
 	"reflect"
 	"strconv"
 	"strings"
@@ -45,9 +46,14 @@ import (
 	"github.com/pydio/cells/v4/common/proto/rest"
 	"github.com/pydio/cells/v4/common/runtime"
 	"github.com/pydio/cells/v4/common/server"
+	"github.com/pydio/cells/v4/common/server/http/routes"
 	"github.com/pydio/cells/v4/common/server/middleware"
 	servicecontext "github.com/pydio/cells/v4/common/service/context"
 	"github.com/pydio/cells/v4/common/service/frontend"
+)
+
+const (
+	APIRoute = "api"
 )
 
 var (
@@ -67,6 +73,7 @@ func RegisterSwaggerJSON(json string) {
 
 func init() {
 	// Instanciate restful framework
+	routes.DeclareRoute(APIRoute, "Main REST API Endpoint", common.DefaultRouteREST)
 	runtime.RegisterEnvVariable("CELLS_WEB_RATE_LIMIT", "0", "Http API rate-limiter, as a number of token allowed per seconds. 0 means no limit.")
 	restful.RegisterEntityAccessor("application/json", new(ProtoEntityReaderWriter))
 }
@@ -102,22 +109,24 @@ func WithWeb(handler func(ctx context.Context) WebHandler) ServiceOption {
 
 	return func(o *ServiceOptions) {
 
-		rootPath := "/a/" + strings.TrimPrefix(o.Name, common.ServiceRestNamespace_)
+		mainRoute := common.DefaultRouteREST
+		serviceRoute := strings.TrimPrefix(o.Name, common.ServiceRestNamespace_)
+		fullPath := path.Join(mainRoute, serviceRoute)
 
 		o.serverType = server.TypeHttp
 		o.serverStart = func(ctx context.Context) error {
-			var mux server.HttpMux
+			var mux routes.RouteRegistrar
 			if !o.Server.As(&mux) {
 				return fmt.Errorf("server %s is not a mux", o.Name)
 			}
 
 			//ctx := o.Context
-			log.Logger(ctx).Info("starting", zap.String("service", o.Name), zap.String("hook router to", rootPath))
+			log.Logger(ctx).Info("starting", zap.String("service", o.Name), zap.String("hook router to", fullPath))
 
 			ws := new(restful.WebService)
 			ws.Consumes(restful.MIME_JSON, "application/x-www-form-urlencoded", "multipart/form-data")
 			ws.Produces(restful.MIME_JSON, restful.MIME_OCTET, restful.MIME_XML)
-			ws.Path(rootPath)
+			ws.Path(fullPath)
 
 			h := handler(ctx)
 			swaggerTags := h.SwaggerTags()
@@ -127,37 +136,37 @@ func WithWeb(handler func(ctx context.Context) WebHandler) ServiceOption {
 
 			for path, pathItem := range SwaggerSpec().Spec().Paths.Paths {
 				if pathItem.Get != nil {
-					shortPath, method := operationToRoute(rootPath, swaggerTags, path, pathItem.Get, filter, f)
+					shortPath, method := operationToRoute(fullPath, swaggerTags, path, pathItem.Get, filter, f)
 					if shortPath != "" {
 						ws.Route(ws.GET(shortPath).To(method))
 					}
 				}
 				if pathItem.Delete != nil {
-					shortPath, method := operationToRoute(rootPath, swaggerTags, path, pathItem.Delete, filter, f)
+					shortPath, method := operationToRoute(fullPath, swaggerTags, path, pathItem.Delete, filter, f)
 					if shortPath != "" {
 						ws.Route(ws.DELETE(shortPath).To(method))
 					}
 				}
 				if pathItem.Put != nil {
-					shortPath, method := operationToRoute(rootPath, swaggerTags, path, pathItem.Put, filter, f)
+					shortPath, method := operationToRoute(fullPath, swaggerTags, path, pathItem.Put, filter, f)
 					if shortPath != "" {
 						ws.Route(ws.PUT(shortPath).To(method))
 					}
 				}
 				if pathItem.Patch != nil {
-					shortPath, method := operationToRoute(rootPath, swaggerTags, path, pathItem.Patch, filter, f)
+					shortPath, method := operationToRoute(fullPath, swaggerTags, path, pathItem.Patch, filter, f)
 					if shortPath != "" {
 						ws.Route(ws.PATCH(shortPath).To(method))
 					}
 				}
 				if pathItem.Head != nil {
-					shortPath, method := operationToRoute(rootPath, swaggerTags, path, pathItem.Head, filter, f)
+					shortPath, method := operationToRoute(fullPath, swaggerTags, path, pathItem.Head, filter, f)
 					if shortPath != "" {
 						ws.Route(ws.HEAD(shortPath).To(method))
 					}
 				}
 				if pathItem.Post != nil {
-					shortPath, method := operationToRoute(rootPath, swaggerTags, path, pathItem.Post, filter, f)
+					shortPath, method := operationToRoute(fullPath, swaggerTags, path, pathItem.Post, filter, f)
 					if shortPath != "" {
 						ws.Route(ws.POST(shortPath).To(method))
 					}
@@ -246,20 +255,21 @@ func WithWeb(handler func(ctx context.Context) WebHandler) ServiceOption {
 				})
 			}(wrapped, o)
 
-			mux.Handle(ws.RootPath(), wrapped)
-			mux.Handle(ws.RootPath()+"/", wrapped)
+			sub := mux.Route(APIRoute)
+			sub.Handle(serviceRoute, wrapped)
+			sub.Handle(serviceRoute+"/", wrapped)
 
 			return nil
 		}
 
 		o.serverStop = func(c context.Context) error {
-			var mux server.PatternsProvider
+			var mux routes.RouteRegistrar
 			if !o.Server.As(&mux) {
 				return fmt.Errorf("server %s is not a mux", o.Name)
 			}
-			o.Logger().Info("Deregistering pattern " + rootPath)
-			mux.DeregisterPattern(rootPath)
-			mux.DeregisterPattern(rootPath + "/")
+			o.Logger().Info("Deregistering pattern " + fullPath)
+			mux.DeregisterPattern(fullPath)
+			mux.DeregisterPattern(fullPath + "/")
 			return nil
 		}
 

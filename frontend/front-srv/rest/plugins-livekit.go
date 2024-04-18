@@ -2,7 +2,6 @@ package rest
 
 import (
 	"context"
-	"net/http"
 	"net/http/httputil"
 	"net/url"
 	"os"
@@ -11,7 +10,7 @@ import (
 	"github.com/pydio/cells/v4/common/config"
 	"github.com/pydio/cells/v4/common/log"
 	"github.com/pydio/cells/v4/common/runtime"
-	"github.com/pydio/cells/v4/common/server"
+	"github.com/pydio/cells/v4/common/server/http/routes"
 	"github.com/pydio/cells/v4/common/service"
 )
 
@@ -32,6 +31,8 @@ func init() {
 		return s.Val(pa...).Set(val)
 	}))
 
+	routes.DeclareRoute("livekit", "Livekit Plugin for video calls", "/rtc")
+
 	runtime.Register("main", func(ctx context.Context) {
 		service.NewService(
 			service.Name(common.ServiceWebNamespace_+LiveKit),
@@ -39,7 +40,7 @@ func init() {
 			service.Tag(common.ServiceTagFrontend),
 			service.AutoRestart(true),
 			service.Description("Grpc service for internal requests about frontend manifest"),
-			service.WithHTTP(func(ctx context.Context, mux server.HttpMux) error {
+			service.WithHTTP(func(ctx context.Context, mux routes.RouteRegistrar) error {
 
 				enabled := config.Get("frontend", "plugin", "action.livekit", config.KeyFrontPluginEnabled).Bool()
 				lkUrl := config.Get("frontend", "plugin", "action.livekit", "LK_WS_URL").String()
@@ -54,17 +55,13 @@ func init() {
 				log.Logger(ctx).Info("Starting Livekit proxy")
 				// Setup a reverse proxy
 				proxy := httputil.NewSingleHostReverseProxy(u)
-				mux.HandleFunc("/rtc", func(writer http.ResponseWriter, request *http.Request) {
-					proxy.ServeHTTP(writer, request)
-				})
+				mux.Route("livekit").Handle("/", proxy)
 
 				return nil
 			}),
-			service.WithHTTPStop(func(ctx context.Context, mux server.HttpMux) error {
-				if pp, ok := mux.(server.PatternsProvider); ok {
-					log.Logger(ctx).Info("Deregistering pattern /rtc on stop")
-					pp.DeregisterPattern("/rtc")
-				}
+			service.WithHTTPStop(func(ctx context.Context, mux routes.RouteRegistrar) error {
+				log.Logger(ctx).Info("Deregistering pattern /rtc on stop")
+				mux.DeregisterPattern("/rtc")
 				return nil
 			}),
 		)

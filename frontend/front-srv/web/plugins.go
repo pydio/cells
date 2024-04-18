@@ -38,21 +38,29 @@ import (
 	"github.com/pydio/cells/v4/common/log"
 	"github.com/pydio/cells/v4/common/proto/front"
 	"github.com/pydio/cells/v4/common/runtime"
-	"github.com/pydio/cells/v4/common/server"
+	"github.com/pydio/cells/v4/common/server/http/routes"
 	"github.com/pydio/cells/v4/common/service"
 	servicecontext "github.com/pydio/cells/v4/common/service/context"
 	"github.com/pydio/cells/v4/common/service/frontend"
 	"github.com/pydio/cells/v4/frontend/front-srv/web/index"
 )
 
-var (
+const (
 	Name         = common.ServiceWebNamespace_ + common.ServiceFrontStatics
 	RobotsString = `User-agent: *
 Disallow: /`
 	ResetPasswordPath = "/user/reset-password/"
+
+	RouteFrontend = "frontend"
+	RoutePublic   = "public"
 )
 
 func init() {
+
+	routes.DeclareRoute(RouteFrontend, "Main Frontend", "/")
+	routes.DeclareRoute(RoutePublic, "Public links access", "/public", routes.WithCustomResolver(func(ctx context.Context) string {
+		return config.GetPublicBaseUri()
+	}))
 
 	runtime.Register("main", func(ctx context.Context) {
 		service.NewService(
@@ -77,7 +85,7 @@ func init() {
 					Up:            DropLegacyStatics,
 				},
 			}),
-			service.WithHTTP(func(ctx context.Context, mux server.HttpMux) error {
+			service.WithHTTP(func(ctx context.Context, mux routes.RouteRegistrar) error {
 				httpFs := http.FS(frontend.GetPluginsFS())
 
 				fs := gzipped.FileServer(httpFs)
@@ -86,24 +94,25 @@ func init() {
 				}
 				fs = timeoutWrap(fs)
 
-				mux.Handle("/index.json", fs)
-				mux.Handle("/plug/", http.StripPrefix("/plug/", fs))
+				m := mux.Route(RouteFrontend)
+				m.Handle("index.json", fs)
+				m.HandleStripPrefix("plug/", fs)
 				indexHandler := index.NewIndexHandler(ctx, ResetPasswordPath)
-				mux.HandleFunc("/robots.txt", func(w http.ResponseWriter, r *http.Request) {
+				m.Handle("robots.txt", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 					w.WriteHeader(200)
 					w.Header().Set("Content-Type", "text/plain")
 					w.Write([]byte(RobotsString))
-				})
-				mux.Handle("/", indexHandler)
-				mux.Handle(ResetPasswordPath, indexHandler)
+				}))
+				m.Handle("/", indexHandler)
+				m.Handle(ResetPasswordPath, indexHandler)
 
 				// /public endpoint : special handler for index, redirect to /plug/ for the rest
 				ph := index.NewPublicHandler(ctx)
 				handler := servicecontext.HttpWrapperMeta(ctx, ph)
-				//handler = http.StripPrefix(config.GetPublicBaseUri()+"/", handler)
 				handler = timeoutWrap(handler)
-				mux.Handle(config.GetPublicBaseUri()+"/", handler)
-				mux.Handle(config.GetPublicBaseUri()+"/plug/", http.StripPrefix(config.GetPublicBaseUri()+"/plug/", fs))
+				pub := mux.Route(RoutePublic)
+				pub.Handle("/", handler)
+				pub.HandleStripPrefix("plug/", fs)
 
 				// Adding subscriber
 				_ = broker.SubscribeCancellable(ctx, common.TopicReloadAssets, func(_ context.Context, message broker.Message) error {
@@ -115,16 +124,14 @@ func init() {
 
 				return nil
 			}),
-			service.WithHTTPStop(func(ctx context.Context, mux server.HttpMux) error {
-				if m, ok := mux.(server.PatternsProvider); ok {
-					m.DeregisterPattern("/index.json")
-					m.DeregisterPattern("/plug/")
-					m.DeregisterPattern("/robots.txt")
-					m.DeregisterPattern("/")
-					m.DeregisterPattern("/user/reset-password/")
-					m.DeregisterPattern(config.GetPublicBaseUri() + "/")
-					m.DeregisterPattern(config.GetPublicBaseUri() + "/plug/")
-				}
+			service.WithHTTPStop(func(ctx context.Context, reg routes.RouteRegistrar) error {
+				reg.DeregisterPattern("/index.json")
+				reg.DeregisterPattern("/plug/")
+				reg.DeregisterPattern("/robots.txt")
+				reg.DeregisterPattern("/")
+				reg.DeregisterPattern("/user/reset-password/")
+				reg.DeregisterPattern(config.GetPublicBaseUri() + "/")
+				reg.DeregisterPattern(config.GetPublicBaseUri() + "/plug/")
 				return nil
 			}),
 		)

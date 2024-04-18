@@ -34,26 +34,33 @@ import (
 	"github.com/ory/hydra/v2/jwk"
 	"github.com/ory/hydra/v2/oauth2"
 	"github.com/ory/hydra/v2/x"
-	"github.com/pydio/cells/v4/common/log"
 	"github.com/rs/cors"
 
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/auth"
 	"github.com/pydio/cells/v4/common/config"
+	"github.com/pydio/cells/v4/common/log"
 	"github.com/pydio/cells/v4/common/runtime"
-	"github.com/pydio/cells/v4/common/server"
+	"github.com/pydio/cells/v4/common/server/http/routes"
 	"github.com/pydio/cells/v4/common/service"
 	servicecontext "github.com/pydio/cells/v4/common/service/context"
 )
 
+const (
+	RouteOIDC = "oidc"
+)
+
 func init() {
+
+	routes.DeclareRoute(RouteOIDC, "OpenID Connect service", "/oidc")
+
 	runtime.Register("main", func(ctx context.Context) {
 		service.NewService(
 			service.Name(common.ServiceWebNamespace_+common.ServiceOAuth),
 			service.Context(ctx),
 			service.Tag(common.ServiceTagIdm),
 			service.Description("OAuth Provider"),
-			service.WithHTTP(func(ctx context.Context, serveMux server.HttpMux) error {
+			service.WithHTTP(func(ctx context.Context, serveMux routes.RouteRegistrar) error {
 				router := mux.NewRouter()
 				hh := config.GetSitesAllowedURLs()
 				for _, u := range hh {
@@ -94,26 +101,18 @@ func init() {
 					subRouter.Handler(servicecontext.HttpWrapperMeta(ctx, TokenMethodWrapper(ctx, public)))
 				}
 
-				serveMux.Handle("/oidc/", http.StripPrefix("/oidc", cors.New(cors.Options{
+				serveMux.Route(RouteOIDC).HandleStripPrefix("/", cors.New(cors.Options{
 					AllowedMethods:   []string{"GET", "POST", "PUT", "PATCH", "DELETE"},
 					AllowedHeaders:   []string{"Authorization", "Content-Type"},
 					ExposedHeaders:   []string{"Content-Type"},
 					AllowCredentials: true,
-				}).Handler(router)))
+				}).Handler(router))
 				return nil
 			}),
-			service.WithHTTPStop(func(ctx context.Context, mux server.HttpMux) error {
-				if m, ok := mux.(server.PatternsProvider); ok {
-					m.DeregisterPattern("/oidc/")
-				}
+			service.WithHTTPStop(func(ctx context.Context, mux routes.RouteRegistrar) error {
+				mux.DeregisterPattern("/oidc/")
 				return nil
 			}),
-			/*
-				// TODO v4 : Still required ?
-				service.WatchPath("services/"+common.ServiceWebNamespace_+common.ServiceOAuth, func(_ service.Service, c configx.Values) {
-					auth.InitConfiguration(config.Get("services", common.ServiceWebNamespace_+common.ServiceOAuth))
-				}),
-			*/
 		)
 	})
 }

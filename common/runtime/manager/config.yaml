@@ -100,7 +100,7 @@ processes:
       search:
         uri: bleve:///Users/ghecquet/Library/Application Support/Pydio/cells/search
       config:
-        uri: file:///Users/ghecquet/Library/Application Support/Pydio/cells/pydio.json
+        uri: file:///Users/charles/Library/Application Support/Pydio/cells5/pydio.json
       registry:
         uri: mem://?cache=shared
       broker:

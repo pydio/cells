@@ -37,7 +37,7 @@ const pprofTpl = `
 <ul>
 Available Profiles:
 {{range .Processes}}
-	<li><a href="/{{.PID}}/debug/pprof/">{{.PID}}</a> ({{.start}})</li>
+	<li><a href="./{{.PID}}/debug/pprof/">{{.PID}}</a> ({{.start}})</li>
 {{end}}
 </ul>
 </body>

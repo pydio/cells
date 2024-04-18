@@ -24,7 +24,6 @@ import (
 	"bytes"
 	"context"
 	"fmt"
-	"golang.org/x/exp/maps"
 	"net"
 	"net/url"
 	"os"
@@ -36,21 +35,24 @@ import (
 	caddy "github.com/caddyserver/caddy/v2"
 	"github.com/caddyserver/caddy/v2/caddyconfig"
 	"github.com/caddyserver/caddy/v2/caddyconfig/caddyfile"
-	_ "github.com/caddyserver/caddy/v2/modules/standard"
 	"github.com/pydio/caddyvault"
-	"github.com/pydio/cells/v4/common/crypto/storage"
 	"go.uber.org/zap"
+	"golang.org/x/exp/maps"
 
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/config"
 	"github.com/pydio/cells/v4/common/crypto/providers"
+	"github.com/pydio/cells/v4/common/crypto/storage"
 	"github.com/pydio/cells/v4/common/log"
 	"github.com/pydio/cells/v4/common/registry"
 	"github.com/pydio/cells/v4/common/registry/util"
 	"github.com/pydio/cells/v4/common/runtime"
 	"github.com/pydio/cells/v4/common/server"
 	"github.com/pydio/cells/v4/common/server/caddy/mux"
+	"github.com/pydio/cells/v4/common/server/http/routes"
 	"github.com/pydio/cells/v4/common/utils/uuid"
+
+	_ "github.com/caddyserver/caddy/v2/modules/standard"
 )
 
 const (
@@ -101,13 +103,10 @@ const (
 		{{end}}	
 
 		# Special rewrite for s3 list buckets (always sent on root path)
+		# TODO - this URI must be resolved from routes, based on context, not hardcoded
 		rewrite @list_buckets /io{path}
 
 		# Apply mux
-		mux
-
-		# If mux did not find endpoint, redirect all to root and re-apply mux
-		rewrite /* /
 		mux
 	}
 
@@ -147,7 +146,7 @@ func (o *Opener) OpenURL(ctx context.Context, u *url.URL) (server.Server, error)
 }
 
 type Server struct {
-	*server.ListableMux
+	routes.RouteRegistrar
 	id   string
 	name string
 	meta map[string]string
@@ -166,7 +165,7 @@ func New(ctx context.Context, dir string) (server.Server, error) {
 		providers.Logger = log.Logger(ct)
 	})
 
-	srvMUX := server.NewListableMux()
+	srvMUX := routes.NewRouteRegistrar()
 	srvID := "caddy-" + uuid.New()
 	mux.RegisterServerMux(ctx, srvID, srvMUX)
 
@@ -182,9 +181,9 @@ func New(ctx context.Context, dir string) (server.Server, error) {
 		name: "caddy",
 		meta: make(map[string]string),
 
-		rootCtx:     ctx,
-		serveDir:    dir,
-		ListableMux: srvMUX,
+		rootCtx:        ctx,
+		serveDir:       dir,
+		RouteRegistrar: srvMUX,
 	}
 
 	return server.NewServer(ctx, srv), nil
@@ -204,7 +203,7 @@ func (s *Server) RawServe(*server.ServeOptions) (ii []registry.Item, er error) {
 		ii = append(ii, util.CreateAddress(a, nil))
 	}
 
-	for _, e := range s.ListableMux.Patterns() {
+	for _, e := range s.RouteRegistrar.Patterns() {
 		ii = append(ii, util.CreateEndpoint(e, nil, nil))
 	}
 
@@ -310,7 +309,7 @@ func (s *Server) Stop() error {
 }
 
 func (s *Server) Endpoints() []string {
-	return s.ListableMux.Patterns()
+	return s.RouteRegistrar.Patterns()
 }
 
 func (s *Server) ID() string {
@@ -339,12 +338,8 @@ func (s *Server) Clone() interface{} {
 }
 
 func (s *Server) As(i interface{}) bool {
-	if v, ok := i.(*server.HttpMux); ok {
-		*v = s.ListableMux
-		return true
-	}
-	if v, ok := i.(*server.PatternsProvider); ok {
-		*v = s.ListableMux
+	if v, ok := i.(*routes.RouteRegistrar); ok {
+		*v = s.RouteRegistrar
 		return true
 	}
 	return false

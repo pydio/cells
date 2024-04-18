@@ -26,16 +26,18 @@ import (
 	"fmt"
 	"net/http"
 	"net/http/pprof"
+	"os"
+	"strconv"
 	"sync"
 
 	"github.com/gorilla/mux"
-	"github.com/uber-go/tally/v4"
+	tally "github.com/uber-go/tally/v4"
 	prom "github.com/uber-go/tally/v4/prometheus"
 
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/runtime"
-	"github.com/pydio/cells/v4/common/server"
 	"github.com/pydio/cells/v4/common/server/generic"
+	"github.com/pydio/cells/v4/common/server/http/routes"
 	"github.com/pydio/cells/v4/common/service"
 	"github.com/pydio/cells/v4/common/service/metrics"
 	"github.com/pydio/cells/v4/gateway/metrics/prometheus"
@@ -45,6 +47,8 @@ const (
 	serviceName      = common.ServiceGatewayNamespace_ + common.ServiceMetrics
 	pprofServiceName = common.ServiceWebNamespace_ + common.ServicePprof
 	promServiceName  = common.ServiceWebNamespace_ + common.ServiceMetrics
+	RouteMetrics     = "metrics"
+	RoutePPROFS      = "debug"
 )
 
 type bau struct {
@@ -62,7 +66,7 @@ func (b *bau) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte("Unauthorized.\n"))
 }
 
-func newPromHttpService(ctx context.Context, pure bool, with, stop func(ctx context.Context, mux server.HttpMux) error) {
+func newPromHttpService(ctx context.Context, pure bool, with, stop func(ctx context.Context, mux routes.RouteRegistrar) error) {
 
 	var opts []service.ServiceOption
 	opts = append(opts,
@@ -89,6 +93,9 @@ var (
 
 func init() {
 
+	routes.DeclareRoute(RouteMetrics, "Prometheus metrics API", "/metrics")
+	routes.DeclareRoute(RoutePPROFS, "Expose golang internal profiling endpoints", "/debug")
+
 	runtime.Register("main", func(ctx context.Context) {
 
 		if runtime.MetricsEnabled() {
@@ -104,30 +111,32 @@ func init() {
 				metrics.RegisterRootScope(options)
 			})
 
-			pattern := fmt.Sprintf("/metrics/%s", runtime.ProcessRootID())
+			pattern := fmt.Sprintf("/%s", runtime.ProcessRootID())
 
 			if use, login, pwd := runtime.MetricsRemoteEnabled(); use {
 
 				newPromHttpService(
 					ctx,
 					false,
-					func(ctx context.Context, mux server.HttpMux) error {
+					func(ctx context.Context, mux routes.RouteRegistrar) error {
 						h := prometheus.NewHandler(reporter)
-						mux.Handle(pattern, &bau{inner: h.HTTPHandler(), login: []byte(login), pwd: []byte(pwd)})
+						router := mux.Route(RouteMetrics)
+						router.Handle(pattern, &bau{inner: h.HTTPHandler(), login: []byte(login), pwd: []byte(pwd)})
 						/// For main process, also add the central index
 						if !runtime.IsFork() {
 							index := prometheus.NewIndex(ctx)
-							mux.Handle("/metrics/sd", &bau{inner: index, login: []byte(login), pwd: []byte(pwd)})
+							router.Handle("/sd", &bau{inner: index, login: []byte(login), pwd: []byte(pwd)})
 						}
 						return nil
 					},
-					func(ctx context.Context, mux server.HttpMux) error {
-						if p, ok := mux.(server.PatternsProvider); ok {
-							p.DeregisterPattern(pattern)
+					func(ctx context.Context, mux routes.RouteRegistrar) error {
+						// TODO
+						/*
+							mux.DeregisterPattern(mainRoute + pattern)
 							if !runtime.IsFork() {
-								p.DeregisterPattern("/metrics/sd")
+								mux.DeregisterPattern(mainRoute + "/sd")
 							}
-						}
+						*/
 						return nil
 					})
 
@@ -144,15 +153,14 @@ func init() {
 						}),
 					)
 				}
-				with := func(ctx context.Context, mux server.HttpMux) error {
+				with := func(ctx context.Context, mux routes.RouteRegistrar) error {
 					h := prometheus.NewHandler(reporter)
-					mux.Handle(pattern, h.HTTPHandler())
+					mux.Route(RouteMetrics).Handle(pattern, h.HTTPHandler())
 					return nil
 				}
-				stop := func(ctx context.Context, mux server.HttpMux) error {
-					if p, ok := mux.(server.PatternsProvider); ok {
-						p.DeregisterPattern(pattern)
-					}
+				stop := func(ctx context.Context, mux routes.RouteRegistrar) error {
+					// TODO
+					//mux.DeregisterPattern(mainRoute + pattern)
 					return nil
 				}
 				newPromHttpService(ctx, !runtime.IsFork(), with, stop)
@@ -160,39 +168,35 @@ func init() {
 		}
 
 		if runtime.PprofEnabled() {
-			prefix := "/" + runtime.ProcessRootID()
+			prefix := "/" + strconv.Itoa(os.Getpid())
 			service.NewService(
 				service.Name(pprofServiceName),
 				service.Context(ctx),
 				service.ForceRegister(true),
 				service.Tag(common.ServiceTagGateway),
 				service.Description("Expose pprof data as an HTTP endpoint"),
-				service.WithHTTP(func(ctx context.Context, mu server.HttpMux) error {
-					subRouter := mux.NewRouter()
-					subRouter.HandleFunc("/debug/pprof/", pprof.Index)
-					subRouter.HandleFunc("/debug/pprof/allocs", pprof.Index)
-					subRouter.HandleFunc("/debug/pprof/blocks", pprof.Index)
-					subRouter.HandleFunc("/debug/pprof/heap", pprof.Index)
-					subRouter.HandleFunc("/debug/pprof/mutex", pprof.Index)
-					subRouter.HandleFunc("/debug/pprof/threadcreate", pprof.Index)
-					subRouter.HandleFunc("/debug/pprof/goroutine", pprof.Index)
-					subRouter.HandleFunc("/debug/pprof/cmdline", pprof.Cmdline)
-					subRouter.HandleFunc("/debug/pprof/profile", pprof.Profile)
-					subRouter.HandleFunc("/debug/pprof/symbol", pprof.Symbol)
-					subRouter.HandleFunc("/debug/pprof/trace", pprof.Trace)
-					mu.Handle(prefix+"/", http.StripPrefix(prefix, subRouter))
+				service.WithHTTP(func(ctx context.Context, mu routes.RouteRegistrar) error {
+					router := mux.NewRouter().SkipClean(true).StrictSlash(true)
+					router.HandleFunc("/debug/pprof/", pprof.Index)
+					router.HandleFunc("/debug/pprof/allocs", pprof.Index)
+					router.HandleFunc("/debug/pprof/blocks", pprof.Index)
+					router.HandleFunc("/debug/pprof/heap", pprof.Index)
+					router.HandleFunc("/debug/pprof/mutex", pprof.Index)
+					router.HandleFunc("/debug/pprof/threadcreate", pprof.Index)
+					router.HandleFunc("/debug/pprof/goroutine", pprof.Index)
+					router.HandleFunc("/debug/pprof/cmdline", pprof.Cmdline)
+					router.HandleFunc("/debug/pprof/profile", pprof.Profile)
+					router.HandleFunc("/debug/pprof/symbol", pprof.Symbol)
+					router.HandleFunc("/debug/pprof/trace", pprof.Trace)
+					sub := mu.Route(RoutePPROFS)
+					sub.HandleStripPrefix(prefix+"/", router)
 					if runtime.HttpServerType() == runtime.HttpServerCaddy {
-						mu.Handle("/pprofs/", &pprofHandler{ctx: ctx})
+						sub.Handle("/", &pprofHandler{ctx: ctx})
 					}
 					return nil
 				}),
-				service.WithHTTPStop(func(ctx context.Context, mux server.HttpMux) error {
-					if p, o := mux.(server.PatternsProvider); o {
-						p.DeregisterPattern(prefix + "/")
-						if runtime.HttpServerType() == runtime.HttpServerCaddy {
-							p.DeregisterPattern("/pprofs/")
-						}
-					}
+				service.WithHTTPStop(func(ctx context.Context, mux routes.RouteRegistrar) error {
+					//mux.DeregisterPattern(dbgRoute)
 					return nil
 				}),
 			)

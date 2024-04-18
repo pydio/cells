@@ -4,10 +4,10 @@ import (
 	"context"
 	"crypto/tls"
 	"fmt"
-	"github.com/pydio/cells/v4/common/service/context/metadata"
-	"google.golang.org/grpc"
 	"net/http"
 	"strings"
+
+	"google.golang.org/grpc"
 
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/client"
@@ -18,9 +18,10 @@ import (
 	"github.com/pydio/cells/v4/common/proto/rest"
 	"github.com/pydio/cells/v4/common/registry"
 	"github.com/pydio/cells/v4/common/runtime"
-	"github.com/pydio/cells/v4/common/server"
 	"github.com/pydio/cells/v4/common/server/caddy/maintenance"
 	servercontext "github.com/pydio/cells/v4/common/server/context"
+	"github.com/pydio/cells/v4/common/server/http/routes"
+	"github.com/pydio/cells/v4/common/service/context/metadata"
 	json "github.com/pydio/cells/v4/common/utils/jsonx"
 )
 
@@ -31,26 +32,32 @@ var grpcTransport = &http.Transport{
 
 type Resolver interface {
 	ServeHTTP(w http.ResponseWriter, r *http.Request) (bool, error)
-	Init(ctx context.Context, serverID string, s server.HttpMux)
+	Init(ctx context.Context, serverID string, rr routes.RouteRegistrar)
 	Stop()
 }
 
-func NewResolver() Resolver {
-	return &resolver{}
+// NewResolver creates an http resolver; If rootOnNotFound is set, non-matching patterns
+// will be rewritten to base path and resolver will be run against it
+func NewResolver(rootOnNotFound bool) Resolver {
+	return &resolver{
+		rootOnNotFound: rootOnNotFound,
+	}
 }
 
 type resolver struct {
-	c            grpc.ClientConnInterface
-	r            registry.Registry
-	s            server.HttpMux
-	b            Balancer
-	rc           client.ResolverCallback
-	monitorOAuth grpc2.HealthMonitor
-	monitorUser  grpc2.HealthMonitor
-	userReady    bool
+	c              grpc.ClientConnInterface
+	r              registry.Registry
+	rr             routes.RouteRegistrar
+	s              routes.HttpMux
+	b              Balancer
+	rc             client.ResolverCallback
+	monitorOAuth   grpc2.HealthMonitor
+	monitorUser    grpc2.HealthMonitor
+	userReady      bool
+	rootOnNotFound bool
 }
 
-func (m *resolver) Init(ctx context.Context, serverID string, s server.HttpMux) {
+func (m *resolver) Init(ctx context.Context, serverID string, rr routes.RouteRegistrar) {
 
 	conn := clientcontext.GetClientConn(ctx)
 	reg := servercontext.GetRegistry(ctx)
@@ -61,7 +68,7 @@ func (m *resolver) Init(ctx context.Context, serverID string, s server.HttpMux) 
 	m.c = conn
 	m.rc = rc
 	m.r = reg
-	m.s = s
+	m.rr = rr
 	m.b = bal
 
 	/*if runtime.LastInitType() != "install" {
@@ -148,12 +155,19 @@ func (m *resolver) ServeHTTP(w http.ResponseWriter, r *http.Request) (bool, erro
 	}
 
 	// try to find it in the current mux
-	_, pattern := m.s.Handler(r)
-	if len(pattern) > 0 && (pattern != "/" || r.URL.Path == "/") {
-		ctx = clientcontext.WithClientConn(ctx, m.c)
-		ctx = servercontext.WithRegistry(ctx, m.r)
-
-		m.s.ServeHTTP(w, r.WithContext(ctx))
+	ctx = clientcontext.WithClientConn(ctx, m.c)
+	ctx = servercontext.WithRegistry(ctx, m.r)
+	if m.s == nil {
+		var er error
+		m.s, er = m.rr.ResolveMux(ctx)
+		if er != nil {
+			http.NotFound(w, r)
+			return false, fmt.Errorf("cannot resolve MUX")
+		}
+	}
+	// Try to match pattern - Custom check for "/" : must be exactly /
+	if h, pattern := m.s.Handler(r); len(pattern) > 0 && (pattern != "/" || r.URL.Path == "/") {
+		h.ServeHTTP(w, r.WithContext(ctx))
 		return true, nil
 	}
 
@@ -162,7 +176,23 @@ func (m *resolver) ServeHTTP(w http.ResponseWriter, r *http.Request) (bool, erro
 		proxy.ServeHTTP(w, r.WithContext(ctx))
 		return true, nil
 	}
+
+	if m.rootOnNotFound && r.URL.Path != "/" {
+		// Rewrite to root and re-apply MUX
+		m.rewriteToRoot(r)
+		if h, pattern := m.s.Handler(r); len(pattern) > 0 {
+			h.ServeHTTP(w, r.WithContext(ctx))
+			return true, nil
+		}
+	}
+
 	return false, nil
+}
+
+func (m *resolver) rewriteToRoot(r *http.Request) {
+	r.URL.Path = "/"
+	r.URL.RawPath = "/"
+	r.RequestURI = r.URL.RequestURI()
 }
 
 func (m *resolver) userServiceReady() bool {

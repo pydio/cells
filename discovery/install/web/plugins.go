@@ -26,22 +26,23 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/pydio/cells/v4/discovery/install/assets"
-
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/runtime"
-	"github.com/pydio/cells/v4/common/server"
+	"github.com/pydio/cells/v4/common/server/http/routes"
 	"github.com/pydio/cells/v4/common/service"
+	"github.com/pydio/cells/v4/discovery/install/assets"
 )
 
 func init() {
+	routes.DeclareRoute("install", "Installation Frontend", "/")
+
 	runtime.Register("install", func(ctx context.Context) {
 		service.NewService(
 			service.Name(common.ServiceWebNamespace_+common.ServiceInstall),
 			service.Context(ctx),
 			service.Tag(common.ServiceTagDiscovery),
 			service.Description("WEB Installation server"),
-			service.WithHTTP(func(ctx context.Context, mux server.HttpMux) error {
+			service.WithHTTP(func(ctx context.Context, mux routes.RouteRegistrar) error {
 				httpFs := http.FS(assets.PydioInstallBox)
 
 				fs := http.FileServer(httpFs)
@@ -50,16 +51,15 @@ func init() {
 				}
 				fs = wrap(fs)
 
-				mux.Handle("/res/", fs)
-				mux.Handle("/", fs)
+				root := mux.Route("install")
+				root.Handle("/res/", fs)
+				root.Handle("/", fs)
 
 				return nil
 			}),
-			service.WithHTTPStop(func(ctx context.Context, mux server.HttpMux) error {
-				if m, ok := mux.(server.PatternsProvider); ok {
-					m.DeregisterPattern("/res/")
-					m.DeregisterPattern("/")
-				}
+			service.WithHTTPStop(func(ctx context.Context, mux routes.RouteRegistrar) error {
+				mux.DeregisterPattern("/res/")
+				mux.DeregisterPattern("/")
 				return nil
 			}),
 		)
