@@ -21,7 +21,7 @@ import (
 const LibreOffice = "libreoffice"
 
 var (
-	registeredPatterns []string
+	registeredRoutes []string
 )
 
 const (
@@ -103,16 +103,15 @@ func init() {
 				mux.Route(RouteWs).Handle("/", proxy)
 				mux.Route(RouteDiscovery).Handle("/", proxy)
 
-				registeredPatterns = append(registeredPatterns, RouteMain, RouteWs, RouteDiscovery)
+				registeredRoutes = append(registeredRoutes, RouteMain, RouteWs, RouteDiscovery)
 
 				return nil
 			}),
 			service.WithHTTPStop(func(ctx context.Context, mux routes.RouteRegistrar) error {
-				for _, p := range registeredPatterns {
-					log.Logger(ctx).Info("Deregistering pattern " + p + " while stopping service")
-					mux.DeregisterPattern(p)
+				for _, p := range registeredRoutes {
+					mux.DeregisterRoute(p)
 				}
-				registeredPatterns = []string{}
+				registeredRoutes = []string{}
 				return nil
 			}),
 		)

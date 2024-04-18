@@ -146,8 +146,8 @@ func init() {
 				return nil
 			}),
 			service.WithHTTPStop(func(ctx context.Context, mux routes.RouteRegistrar) error {
-				mux.DeregisterPattern("/io")
-				mux.DeregisterPattern("/data")
+				mux.DeregisterRoute(BucketIO)
+				mux.DeregisterRoute(BucketData)
 				return nil
 			}),
 		)

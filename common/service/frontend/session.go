@@ -24,12 +24,8 @@ import (
 	"net/http"
 	"strings"
 
-	"go.uber.org/zap"
-
 	"github.com/pydio/cells/v4/common/auth"
 	"github.com/pydio/cells/v4/common/log"
-	servicecontext "github.com/pydio/cells/v4/common/service/context"
-	"github.com/pydio/cells/v4/common/service/frontend/sessions"
 )
 
 // NewSessionWrapper creates a Http middleware checking if a cookie is passed
@@ -52,21 +48,26 @@ func NewSessionWrapper(h http.Handler, excludes ...string) http.Handler {
 			}
 		}
 
-		dao := servicecontext.GetDAO[sessions.DAO](r.Context())
+		_ = jwtVerifier
+		/*
+			TODO V5 - breaking for now
+			dao := servicecontext.GetDAO[sessions.DAO](r.Context())
 
-		session, err := dao.GetSession(r)
-		if err != nil && !strings.Contains(err.Error(), "securecookie: the value is not valid") {
-			log.Logger(r.Context()).Error("Cannot retrieve session", zap.Error(err))
-		}
-
-		if value, ok := session.Values["access_token"]; ok {
-			ctx := r.Context()
-			if ctx, _, err = jwtVerifier.Verify(ctx, value.(string)); err == nil {
-				// Update context
-				log.Logger(ctx).Debug("Found token in session " + session.Name())
-				r = r.WithContext(ctx)
+			session, err := dao.GetSession(r)
+			if err != nil && !strings.Contains(err.Error(), "securecookie: the value is not valid") {
+				log.Logger(r.Context()).Error("Cannot retrieve session", zap.Error(err))
 			}
-		}
+
+			if value, ok := session.Values["access_token"]; ok {
+				ctx := r.Context()
+				if ctx, _, err = jwtVerifier.Verify(ctx, value.(string)); err == nil {
+					// Update context
+					log.Logger(ctx).Debug("Found token in session " + session.Name())
+					r = r.WithContext(ctx)
+				}
+			}
+
+		*/
 		h.ServeHTTP(w, r)
 	})
 }

@@ -130,13 +130,7 @@ func init() {
 						return nil
 					},
 					func(ctx context.Context, mux routes.RouteRegistrar) error {
-						// TODO
-						/*
-							mux.DeregisterPattern(mainRoute + pattern)
-							if !runtime.IsFork() {
-								mux.DeregisterPattern(mainRoute + "/sd")
-							}
-						*/
+						mux.DeregisterRoute(RouteMetrics)
 						return nil
 					})
 
@@ -159,8 +153,7 @@ func init() {
 					return nil
 				}
 				stop := func(ctx context.Context, mux routes.RouteRegistrar) error {
-					// TODO
-					//mux.DeregisterPattern(mainRoute + pattern)
+					mux.DeregisterRoute(RouteMetrics)
 					return nil
 				}
 				newPromHttpService(ctx, !runtime.IsFork(), with, stop)
@@ -189,14 +182,14 @@ func init() {
 					router.HandleFunc("/debug/pprof/symbol", pprof.Symbol)
 					router.HandleFunc("/debug/pprof/trace", pprof.Trace)
 					sub := mu.Route(RoutePPROFS)
-					sub.HandleStripPrefix(prefix+"/", router)
+					sub.Handle(prefix+"/", router, routes.WithStripPrefix())
 					if runtime.HttpServerType() == runtime.HttpServerCaddy {
 						sub.Handle("/", &pprofHandler{ctx: ctx})
 					}
 					return nil
 				}),
 				service.WithHTTPStop(func(ctx context.Context, mux routes.RouteRegistrar) error {
-					//mux.DeregisterPattern(dbgRoute)
+					mux.DeregisterRoute(RoutePPROFS)
 					return nil
 				}),
 			)

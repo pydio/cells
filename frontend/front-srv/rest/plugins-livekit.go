@@ -60,8 +60,7 @@ func init() {
 				return nil
 			}),
 			service.WithHTTPStop(func(ctx context.Context, mux routes.RouteRegistrar) error {
-				log.Logger(ctx).Info("Deregistering pattern /rtc on stop")
-				mux.DeregisterPattern("/rtc")
+				mux.DeregisterRoute("livekit")
 				return nil
 			}),
 		)

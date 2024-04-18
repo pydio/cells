@@ -26,7 +26,6 @@ import (
 	"fmt"
 	"net/http"
 	"os"
-	"path"
 	"reflect"
 	"strconv"
 	"strings"
@@ -109,9 +108,7 @@ func WithWeb(handler func(ctx context.Context) WebHandler) ServiceOption {
 
 	return func(o *ServiceOptions) {
 
-		mainRoute := common.DefaultRouteREST
-		serviceRoute := strings.TrimPrefix(o.Name, common.ServiceRestNamespace_)
-		fullPath := path.Join(mainRoute, serviceRoute)
+		serviceRoute := "/" + strings.TrimPrefix(o.Name, common.ServiceRestNamespace_)
 
 		o.serverType = server.TypeHttp
 		o.serverStart = func(ctx context.Context) error {
@@ -121,12 +118,12 @@ func WithWeb(handler func(ctx context.Context) WebHandler) ServiceOption {
 			}
 
 			//ctx := o.Context
-			log.Logger(ctx).Info("starting", zap.String("service", o.Name), zap.String("hook router to", fullPath))
+			log.Logger(ctx).Info("starting", zap.String("service", o.Name), zap.String("hook router to", serviceRoute))
 
 			ws := new(restful.WebService)
 			ws.Consumes(restful.MIME_JSON, "application/x-www-form-urlencoded", "multipart/form-data")
 			ws.Produces(restful.MIME_JSON, restful.MIME_OCTET, restful.MIME_XML)
-			ws.Path(fullPath)
+			ws.Path("/")
 
 			h := handler(ctx)
 			swaggerTags := h.SwaggerTags()
@@ -136,37 +133,38 @@ func WithWeb(handler func(ctx context.Context) WebHandler) ServiceOption {
 
 			for path, pathItem := range SwaggerSpec().Spec().Paths.Paths {
 				if pathItem.Get != nil {
-					shortPath, method := operationToRoute(fullPath, swaggerTags, path, pathItem.Get, filter, f)
+					shortPath, method := operationToRoute(serviceRoute, swaggerTags, path, pathItem.Get, filter, f)
 					if shortPath != "" {
+						fmt.Println(shortPath)
 						ws.Route(ws.GET(shortPath).To(method))
 					}
 				}
 				if pathItem.Delete != nil {
-					shortPath, method := operationToRoute(fullPath, swaggerTags, path, pathItem.Delete, filter, f)
+					shortPath, method := operationToRoute(serviceRoute, swaggerTags, path, pathItem.Delete, filter, f)
 					if shortPath != "" {
 						ws.Route(ws.DELETE(shortPath).To(method))
 					}
 				}
 				if pathItem.Put != nil {
-					shortPath, method := operationToRoute(fullPath, swaggerTags, path, pathItem.Put, filter, f)
+					shortPath, method := operationToRoute(serviceRoute, swaggerTags, path, pathItem.Put, filter, f)
 					if shortPath != "" {
 						ws.Route(ws.PUT(shortPath).To(method))
 					}
 				}
 				if pathItem.Patch != nil {
-					shortPath, method := operationToRoute(fullPath, swaggerTags, path, pathItem.Patch, filter, f)
+					shortPath, method := operationToRoute(serviceRoute, swaggerTags, path, pathItem.Patch, filter, f)
 					if shortPath != "" {
 						ws.Route(ws.PATCH(shortPath).To(method))
 					}
 				}
 				if pathItem.Head != nil {
-					shortPath, method := operationToRoute(fullPath, swaggerTags, path, pathItem.Head, filter, f)
+					shortPath, method := operationToRoute(serviceRoute, swaggerTags, path, pathItem.Head, filter, f)
 					if shortPath != "" {
 						ws.Route(ws.HEAD(shortPath).To(method))
 					}
 				}
 				if pathItem.Post != nil {
-					shortPath, method := operationToRoute(fullPath, swaggerTags, path, pathItem.Post, filter, f)
+					shortPath, method := operationToRoute(serviceRoute, swaggerTags, path, pathItem.Post, filter, f)
 					if shortPath != "" {
 						ws.Route(ws.POST(shortPath).To(method))
 					}
@@ -218,47 +216,12 @@ func WithWeb(handler func(ctx context.Context) WebHandler) ServiceOption {
 
 			wrapped = func(h http.Handler, o *ServiceOptions) http.Handler {
 				return http.HandlerFunc(func(rw http.ResponseWriter, req *http.Request) {
-					//// Inject dao in handler
-					//for _, store := range o.Storages {
-					//	if store.Default || len(o.Storages) == 1 {
-					//		handlerV := reflect.ValueOf(store.Handler)
-					//		handlerT := reflect.TypeOf(store.Handler)
-					//		//if handlerV.Kind() != reflect.Func {
-					//		//	return nil, errors.New("storage handler is not a function")
-					//		//}
-					//
-					//		//if handlerT.NumIn() > 1 {
-					//		//	return nil, errors.New("storage handler should have max 1 argument")
-					//		//}
-					//
-					//		var dao []reflect.Value
-					//		if handlerT.NumIn() == 1 {
-					//			db := reflect.New(handlerT.In(0))
-					//			storage.Get(ctx, db.Interface())
-					//
-					//			// Checking all migrations
-					//			err := UpdateServiceVersion(ctx, config.Main(), o)
-					//			if err != nil {
-					//				// return nil, err
-					//			}
-					//
-					//			dao = handlerV.Call([]reflect.Value{db.Elem()})
-					//		} else {
-					//			dao = handlerV.Call([]reflect.Value{})
-					//		}
-					//
-					//		ctx = servicecontext.WithDAO(ctx, dao[0].Interface())
-					//	}
-					//}
-
 					h.ServeHTTP(rw, req.WithContext(ctx))
 				})
 			}(wrapped, o)
 
 			sub := mux.Route(APIRoute)
-			sub.Handle(serviceRoute, wrapped)
-			sub.Handle(serviceRoute+"/", wrapped)
-
+			sub.Handle(serviceRoute, wrapped, routes.WithStripPrefix(), routes.WithEnsureTrailing())
 			return nil
 		}
 
@@ -267,9 +230,7 @@ func WithWeb(handler func(ctx context.Context) WebHandler) ServiceOption {
 			if !o.Server.As(&mux) {
 				return fmt.Errorf("server %s is not a mux", o.Name)
 			}
-			o.Logger().Info("Deregistering pattern " + fullPath)
-			mux.DeregisterPattern(fullPath)
-			mux.DeregisterPattern(fullPath + "/")
+			mux.Route(APIRoute).Deregister(serviceRoute)
 			return nil
 		}
 
@@ -296,7 +257,7 @@ func operationToRoute(rootPath string, swaggerTags []string, path string, operat
 	method := handlerValue.MethodByName(operation.ID)
 	if method.IsValid() {
 		casted := method.Interface().(func(req *restful.Request, rsp *restful.Response))
-		shortPath := strings.TrimPrefix(common.DefaultRouteREST+path, rootPath)
+		shortPath := strings.TrimPrefix(path, rootPath)
 		if shortPath == "" {
 			shortPath = "/"
 		}

@@ -54,13 +54,11 @@ func init() {
 			service.WithHTTP(func(ctx context.Context, mux routes.RouteRegistrar) error {
 				client = compose.UuidClient(ctx, nodes.WithAuditEventsLogging())
 				wopiRouter := NewRouter()
-				//mux.Main("wopi", "WOPI API ... ")
-				mux.Route(RouteWOPI).HandleStripPrefix("/", wopiRouter)
+				mux.Route(RouteWOPI).Handle("/", wopiRouter, routes.WithStripPrefix())
 				return nil
 			}),
 			service.WithHTTPStop(func(ctx context.Context, mux routes.RouteRegistrar) error {
-				// TODO
-				//mux.DeregisterPattern("/wopi/")
+				mux.DeregisterRoute(RouteWOPI)
 				return nil
 			}),
 		)

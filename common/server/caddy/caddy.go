@@ -90,6 +90,7 @@ const (
 		{{if $ExternalHost}}request_header Host {{$ExternalHost}}{{end}}
 		request_header X-Real-IP {http.request.remote}
 		request_header X-Forwarded-Proto {http.request.scheme}
+		request_header X-Cells-Site SiteID
 
 		{{if $Maintenance}}
 		# Special redir for maintenance mode

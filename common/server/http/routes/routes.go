@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2022. Abstrium SAS <team (at) pydio.com>
+ * Copyright (c) 2019-2024. Abstrium SAS <team (at) pydio.com>
  * This file is part of Pydio Cells.
  *
  * Pydio Cells is free software: you can redistribute it and/or modify
@@ -38,20 +38,46 @@ var (
 
 type ctxResolvedRouteURI struct{}
 
+// HttpMux wraps a standard MUX as an interface
+type HttpMux interface {
+	Handler(r *http.Request) (h http.Handler, pattern string)
+	ServeHTTP(w http.ResponseWriter, r *http.Request)
+}
+
+// RouteRegistrar is used to declare routes and their patterns
+type RouteRegistrar interface {
+	Route(id string) Route
+	DeregisterRoute(id string)
+	Patterns() []string
+	ResolveMux(ctx context.Context) (HttpMux, error)
+}
+
+// Route can be seen as a Router for a given route ID
+type Route interface {
+	// Handle registers a handler
+	Handle(pattern string, handler http.Handler, opts ...HandleOption)
+	// Deregister a specific pattern from the current route
+	Deregister(pattern string)
+}
+
+// RouteOptions are used to pass options to the route declaration
 type RouteOptions struct {
 	DefaultURI     string
 	CustomResolver func(ctx context.Context) string
 	NoSubPath      bool
 }
 
+// RouteOption is the functional access to RouteOptions
 type RouteOption func(o *RouteOptions)
 
+// WithCustomResolver sets a dynamic resolver to compute default URI value
 func WithCustomResolver(r func(ctx context.Context) string) RouteOption {
 	return func(o *RouteOptions) {
 		o.CustomResolver = r
 	}
 }
 
+// WithoutSubPathSupport declares this route as not being able to be served on a sub-folder URI
 func WithoutSubPathSupport() RouteOption {
 	return func(o *RouteOptions) {
 		o.NoSubPath = true
@@ -63,6 +89,7 @@ func ResolvedURIFromContext(ctx context.Context) string {
 	return ctx.Value(ctxResolvedRouteURI{}).(string)
 }
 
+// DeclareRoute registers a generic route by a unique ID, which URI will be resolved at runtime
 func DeclareRoute(id, description, defaultURI string, opts ...RouteOption) {
 	opt := &RouteOptions{}
 	for _, o := range opts {
@@ -77,27 +104,32 @@ func DeclareRoute(id, description, defaultURI string, opts ...RouteOption) {
 	})
 }
 
-type HttpMux interface {
-	Handler(r *http.Request) (h http.Handler, pattern string)
-	ServeHTTP(w http.ResponseWriter, r *http.Request)
+// HandleOptions can be used to pass options to the Handle method
+type HandleOptions struct {
+	StripPrefix         bool
+	EnsureTrailingSlash bool
 }
 
-type RouteRegistrar interface {
-	Route(uri string) Route
-	Patterns() []string
-	DeregisterPattern(pattern string)
-	ResolveMux(ctx context.Context) (HttpMux, error)
+// HandleOption provides functional access for HandleOptions
+type HandleOption func(o *HandleOptions)
+
+// WithStripPrefix will wrap the handler **at runtime** with a http.StripPrefix middleware and the resolved URI
+func WithStripPrefix() HandleOption {
+	return func(o *HandleOptions) {
+		o.StripPrefix = true
+	}
 }
 
-type Route interface {
-	// Handle registers a handler
-	Handle(pattern string, handler http.Handler)
-	// HandleStripPrefix registers a handler wrapped in http.StripPrefix (full URI)
-	HandleStripPrefix(pattern string, handler http.Handler)
+// WithEnsureTrailing will double registration to pattern and pattern+"/" to make sure
+func WithEnsureTrailing() HandleOption {
+	return func(o *HandleOptions) {
+		o.EnsureTrailingSlash = true
+	}
 }
 
 type RequestRewriter func(r *http.Request)
 
+// NewRouteRegistrar creates a RouteRegistrar interface implementation
 func NewRouteRegistrar() RouteRegistrar {
 	return &registrar{}
 }
@@ -106,6 +138,7 @@ type registrar struct {
 	routes []*subRoute
 }
 
+// ResolveMux uses context to computes all final endpoints that must be registered to a Mux
 func (h *registrar) ResolveMux(ctx context.Context) (HttpMux, error) {
 	mu := http.NewServeMux()
 	logCtx := servicecontext.WithServiceName(ctx, "pydio.web.mux")
@@ -126,6 +159,7 @@ func (h *registrar) ResolveMux(ctx context.Context) (HttpMux, error) {
 	return mu, nil
 }
 
+// Patterns lists all registered patterns
 func (h *registrar) Patterns() (patterns []string) {
 	for _, r := range h.routes {
 		r.patternsMutex.RLock()
@@ -138,14 +172,7 @@ func (h *registrar) Patterns() (patterns []string) {
 	return
 }
 
-func (h *registrar) DeregisterPattern(pattern string) {
-
-	// TODO - GO THROUGH ROUTE - DEBOUNCE & TRIGGER HTTP SERVER RESTART?
-	//	h.patternsMutex.Lock()
-	//	defer h.patternsMutex.Unlock()
-	//	delete(h.patternsCache, pattern)
-}
-
+// Route gets or creates a route by ID
 func (h *registrar) Route(id string) Route {
 	for _, r := range h.routes {
 		if r.id == id {
@@ -169,6 +196,17 @@ func (h *registrar) Route(id string) Route {
 	panic(fmt.Sprintf("Using a route id %s that was not previously declared", id))
 }
 
+// DeregisterRoute fully removes a Route
+func (h *registrar) DeregisterRoute(id string) {
+	var rr []*subRoute
+	for _, v := range h.routes {
+		if v.id != id {
+			rr = append(rr, v)
+		}
+	}
+	h.routes = rr
+}
+
 type subRoute struct {
 	id             string
 	uri            string
@@ -182,17 +220,30 @@ type subRoute struct {
 }
 
 // Handle registers a handler
-func (s *subRoute) Handle(pattern string, handler http.Handler) {
+func (s *subRoute) Handle(pattern string, handler http.Handler, opts ...HandleOption) {
+	opt := &HandleOptions{}
+	for _, o := range opts {
+		o(opt)
+	}
 	s.patternsMutex.Lock()
-	s.patternsCache[pattern] = &registeredHandler{Handler: handler}
-	s.patternsMutex.Unlock()
+	defer s.patternsMutex.Unlock()
+	rh := &registeredHandler{Handler: handler, stripPrefix: opt.StripPrefix}
+	s.patternsCache[pattern] = rh
+	if opt.EnsureTrailingSlash && !strings.HasSuffix(pattern, "/") {
+		s.patternsCache[pattern+"/"] = rh
+	}
 }
 
-// HandleStripPrefix registers a handler wrapped in http.StripPrefix (full URI)
-func (s *subRoute) HandleStripPrefix(pattern string, handler http.Handler) {
+// Deregister fully removes a given pattern from a route
+func (s *subRoute) Deregister(pattern string) {
+
 	s.patternsMutex.Lock()
-	s.patternsCache[pattern] = &registeredHandler{Handler: handler, stripPrefix: true}
-	s.patternsMutex.Unlock()
+	defer s.patternsMutex.Unlock()
+	delete(s.patternsCache, pattern)
+	if _, ok := s.patternsCache[pattern+"/"]; ok {
+		delete(s.patternsCache, pattern+"/")
+	}
+
 }
 
 // URI returns resolved uri - TODO default should be read from config or XDS ?

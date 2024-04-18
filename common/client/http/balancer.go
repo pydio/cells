@@ -103,6 +103,7 @@ func (b *balancer) Build(reg registry.Registry) error {
 			registry.WithAdjacentSourceItems([]registry.Item{srv}),
 			registry.WithAdjacentTargetOptions(registry.WithType(pb.ItemType_ADDRESS)),
 		)
+
 		for _, addr := range addrs {
 			addr := addr.Name()
 			usedAddr[addr] = struct{}{}

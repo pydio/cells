@@ -68,8 +68,7 @@ func init() {
 			service.Tag(common.ServiceTagGateway),
 			service.Description("WebSocket server pushing event to the clients"),
 			service.WithHTTPStop(func(ctx context.Context, mux routes.RouteRegistrar) error {
-				mux.DeregisterPattern("/ws/event")
-				mux.DeregisterPattern("/ws/chat")
+				mux.DeregisterRoute(RouteWebsocket)
 				return nil
 			}),
 			service.WithHTTP(func(ctx context.Context, mux routes.RouteRegistrar) error {
@@ -79,10 +78,10 @@ func init() {
 
 				sub := mux.Route(RouteWebsocket)
 				sub.Handle("/event", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-					ws.Websocket.HandleRequest(w, r)
+					_ = ws.Websocket.HandleRequest(w, r)
 				}))
 				sub.Handle("/chat", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-					chat.Websocket.HandleRequest(w, r)
+					_ = chat.Websocket.HandleRequest(w, r)
 				}))
 				//q1, _ := queue.OpenQueue(ctx, runtime.QueueURL("debounce", "1s", "idle", "10s", "max", "10000"))
 				//q2, _ := queue.OpenQueue(ctx, runtime.QueueURL("debounce", "1s", "idle", "10s", "max", "10000"))
@@ -90,7 +89,7 @@ func init() {
 
 				_ = broker.SubscribeCancellable(ctx, common.TopicTreeChanges, func(_ context.Context, message broker.Message) error {
 					event := &tree.NodeChangeEvent{}
-					if e := message.Unmarshal(event); e == nil {
+					if _, e := message.Unmarshal(ctx, event); e == nil {
 						if er := ws.HandleNodeChangeEvent(ctx, event); er != nil {
 							log.Logger(ctx).Error("Cannot handle event", zap.Any("event", event), zap.Error(er))
 						}
@@ -99,9 +98,9 @@ func init() {
 						return e
 					}
 				}, /*broker.WithLocalQueue(q1),*/ counterName)
-				_ = broker.SubscribeCancellable(ctx, common.TopicMetaChanges, func(message broker.Message) error {
+				_ = broker.SubscribeCancellable(ctx, common.TopicMetaChanges, func(ctx context.Context, message broker.Message) error {
 					event := &tree.NodeChangeEvent{}
-					if e := message.Unmarshal(event); e == nil {
+					if _, e := message.Unmarshal(ctx, event); e == nil {
 						if er := ws.HandleNodeChangeEvent(ctx, event); er != nil {
 							log.Logger(ctx).Error("Cannot handle event", zap.Any("event", event), zap.Error(er))
 						}
@@ -110,9 +109,9 @@ func init() {
 						return e
 					}
 				}, /*broker.WithLocalQueue(q2),*/ counterName)
-				_ = broker.SubscribeCancellable(ctx, common.TopicJobTaskEvent, func(message broker.Message) error {
+				_ = broker.SubscribeCancellable(ctx, common.TopicJobTaskEvent, func(ctx context.Context, message broker.Message) error {
 					event := &jobs.TaskChangeEvent{}
-					if e := message.Unmarshal(event); e == nil {
+					if _, e := message.Unmarshal(ctx, event); e == nil {
 						if er := ws.BroadcastTaskChangeEvent(ctx, event); er != nil {
 							log.Logger(ctx).Error("Cannot handle event", zap.Any("event", event), zap.Error(er))
 						}
@@ -123,7 +122,7 @@ func init() {
 				})
 				_ = broker.SubscribeCancellable(ctx, common.TopicIdmEvent, func(ctx context.Context, message broker.Message) error {
 					event := &idm.ChangeEvent{}
-					if e := message.Unmarshal(event); e == nil {
+					if _, e := message.Unmarshal(ctx, event); e == nil {
 						if er := ws.BroadcastIDMChangeEvent(ctx, event); er != nil {
 							log.Logger(ctx).Error("Cannot handle event", zap.Any("event", event), zap.Error(er))
 						}
@@ -134,7 +133,7 @@ func init() {
 				}, counterName)
 				_ = broker.SubscribeCancellable(ctx, common.TopicActivityEvent, func(ctx context.Context, message broker.Message) error {
 					event := &activity.PostActivityEvent{}
-					if e := message.Unmarshal(event); e == nil {
+					if _, e := message.Unmarshal(ctx, event); e == nil {
 						if er := ws.BroadcastActivityEvent(ctx, event); er != nil {
 							log.Logger(ctx).Error("Cannot handle event", zap.Any("event", event), zap.Error(er))
 						}
@@ -145,7 +144,7 @@ func init() {
 				}, counterName)
 				_ = broker.SubscribeCancellable(ctx, common.TopicChatEvent, func(ctx context.Context, message broker.Message) error {
 					event := &chat2.ChatEvent{}
-					if e := message.Unmarshal(event); e == nil {
+					if _, e := message.Unmarshal(ctx, event); e == nil {
 						if er := chat.BroadcastChatMessage(ctx, event); er != nil {
 							log.Logger(ctx).Error("Cannot handle event", zap.Any("event", event), zap.Error(er))
 						}

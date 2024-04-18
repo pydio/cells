@@ -101,16 +101,16 @@ func init() {
 					subRouter.Handler(servicecontext.HttpWrapperMeta(ctx, TokenMethodWrapper(ctx, public)))
 				}
 
-				serveMux.Route(RouteOIDC).HandleStripPrefix("/", cors.New(cors.Options{
+				serveMux.Route(RouteOIDC).Handle("/", cors.New(cors.Options{
 					AllowedMethods:   []string{"GET", "POST", "PUT", "PATCH", "DELETE"},
 					AllowedHeaders:   []string{"Authorization", "Content-Type"},
 					ExposedHeaders:   []string{"Content-Type"},
 					AllowCredentials: true,
-				}).Handler(router))
+				}).Handler(router), routes.WithStripPrefix())
 				return nil
 			}),
 			service.WithHTTPStop(func(ctx context.Context, mux routes.RouteRegistrar) error {
-				mux.DeregisterPattern("/oidc/")
+				mux.DeregisterRoute(RouteOIDC)
 				return nil
 			}),
 		)

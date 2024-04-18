@@ -58,8 +58,7 @@ func init() {
 				return nil
 			}),
 			service.WithHTTPStop(func(ctx context.Context, mux routes.RouteRegistrar) error {
-				mux.DeregisterPattern("/res/")
-				mux.DeregisterPattern("/")
+				mux.DeregisterRoute("install")
 				return nil
 			}),
 		)

@@ -78,11 +78,11 @@ func init() {
 			service.WithHTTP(func(runtimeCtx context.Context, mux routes.RouteRegistrar) error {
 				// TODO CHECK PREFIX MANAGEMENT
 				handler := newHandler(runtimeCtx, "", RouterWithOptionalPrefix(ctx), "Cells DAV")
-				mux.Route(RouteDAV).HandleStripPrefix("/", handler)
+				mux.Route(RouteDAV).Handle("/", handler, routes.WithStripPrefix())
 				return nil
 			}),
 			service.WithHTTPStop(func(ctx context.Context, mux routes.RouteRegistrar) error {
-				mux.DeregisterPattern("/dav/")
+				mux.DeregisterRoute(RouteDAV)
 				return nil
 			}),
 		)

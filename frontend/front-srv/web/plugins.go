@@ -96,7 +96,7 @@ func init() {
 
 				m := mux.Route(RouteFrontend)
 				m.Handle("index.json", fs)
-				m.HandleStripPrefix("plug/", fs)
+				m.Handle("plug/", fs, routes.WithStripPrefix())
 				indexHandler := index.NewIndexHandler(ctx, ResetPasswordPath)
 				m.Handle("robots.txt", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 					w.WriteHeader(200)
@@ -112,7 +112,7 @@ func init() {
 				handler = timeoutWrap(handler)
 				pub := mux.Route(RoutePublic)
 				pub.Handle("/", handler)
-				pub.HandleStripPrefix("plug/", fs)
+				pub.Handle("plug/", fs, routes.WithStripPrefix())
 
 				// Adding subscriber
 				_ = broker.SubscribeCancellable(ctx, common.TopicReloadAssets, func(_ context.Context, message broker.Message) error {
@@ -125,13 +125,8 @@ func init() {
 				return nil
 			}),
 			service.WithHTTPStop(func(ctx context.Context, reg routes.RouteRegistrar) error {
-				reg.DeregisterPattern("/index.json")
-				reg.DeregisterPattern("/plug/")
-				reg.DeregisterPattern("/robots.txt")
-				reg.DeregisterPattern("/")
-				reg.DeregisterPattern("/user/reset-password/")
-				reg.DeregisterPattern(config.GetPublicBaseUri() + "/")
-				reg.DeregisterPattern(config.GetPublicBaseUri() + "/plug/")
+				reg.DeregisterRoute(RouteFrontend)
+				reg.DeregisterRoute(RoutePublic)
 				return nil
 			}),
 		)
