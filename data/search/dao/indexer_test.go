@@ -29,18 +29,16 @@ import (
 	"testing"
 	"time"
 
-	. "github.com/smartystreets/goconvey/convey"
-
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/config/mock"
-	"github.com/pydio/cells/v4/common/dao"
-	"github.com/pydio/cells/v4/common/dao/bleve"
-	"github.com/pydio/cells/v4/common/dao/test"
 	"github.com/pydio/cells/v4/common/nodes/meta"
 	"github.com/pydio/cells/v4/common/proto/tree"
+	"github.com/pydio/cells/v4/common/storage"
+	"github.com/pydio/cells/v4/common/storage/indexer"
 	"github.com/pydio/cells/v4/common/utils/configx"
 	"github.com/pydio/cells/v4/common/utils/uuid"
-	bleve2 "github.com/pydio/cells/v4/data/search/dao/bleve"
+
+	. "github.com/smartystreets/goconvey/convey"
 )
 
 func init() {
@@ -49,11 +47,12 @@ func init() {
 
 func getTmpIndex(createNodes bool) (s *Server, closer func()) {
 
-	idx, closer, err := test.OnFileTestDAO("bleve", filepath.Join(os.TempDir(), "data_search_tests"+uuid.New()+".bleve")+"?mapping=node", "", "data_search_tests", true, NewDAO)
-	if err != nil {
-		panic(err)
-	}
-	server, err := NewEngine(context.Background(), idx.(dao.IndexDAO), meta.NewNsProvider(context.Background()), configx.New())
+	st, err := storage.OpenStorage(context.TODO(), "bleve://"+filepath.Join(os.TempDir(), "data_search_tests"+uuid.New()+".bleve")+"?mapping=node")
+
+	var idx indexer.Indexer
+	st.Get(context.TODO(), &idx)
+
+	server, err := NewEngine(context.Background(), idx)
 	if err != nil {
 		panic(err)
 	}
@@ -96,7 +95,7 @@ func getTmpIndex(createNodes bool) (s *Server, closer func()) {
 			log.Println("Error while indexing node", e)
 		}
 
-		_ = server.Engine.Flush(ctx)
+		_ = server.Indexer.Flush(ctx)
 		<-time.After(7 * time.Second)
 	}
 
@@ -140,25 +139,23 @@ func TestNewBleveEngine(t *testing.T) {
 
 	Convey("Test create bleve engine then reopen it", t, func() {
 
-		cfg := configx.New()
-		ctx := context.Background()
-		dao, _ := bleve.NewDAO(ctx, "bleve", filepath.Join(os.TempDir(), "data_search_tests"+uuid.New()+".bleve")+"?mapping=node", "")
-		idx, _ := bleve.NewIndexer(ctx, dao)
-		idx.SetCodex(&bleve2.Codec{})
-		idx.Init(ctx, cfg)
+		st, err := storage.OpenStorage(context.TODO(), "bleve://"+filepath.Join(os.TempDir(), "data_search_tests"+uuid.New()+".bleve")+"?mapping=node")
 
-		server, err := NewEngine(context.Background(), idx, meta.NewNsProvider(context.Background()), cfg)
+		var idx indexer.Indexer
+		st.Get(context.TODO(), &idx)
+
+		server, err := NewEngine(context.Background(), idx)
 		So(err, ShouldBeNil)
 		So(server, ShouldNotBeNil)
 
-		e := server.Close()
+		e := server.Close(context.TODO())
 		So(e, ShouldBeNil)
 
-		server, err = NewEngine(context.Background(), idx, meta.NewNsProvider(context.Background()), cfg)
+		server, err = NewEngine(context.Background(), idx)
 		So(err, ShouldBeNil)
 		So(server, ShouldNotBeNil)
 
-		e = server.Close()
+		e = server.Close(context.TODO())
 		So(e, ShouldBeNil)
 	})
 
@@ -209,7 +206,7 @@ func TestIndexNode(t *testing.T) {
 		}
 		ctx := context.Background()
 		e := server.IndexNode(ctx, node, false, nil)
-		So(server.Engine.Flush(ctx), ShouldBeNil)
+		So(server.Indexer.Flush(ctx), ShouldBeNil)
 
 		So(e, ShouldBeNil)
 	})
@@ -228,7 +225,7 @@ func TestIndexNode(t *testing.T) {
 		}
 		ctx := context.Background()
 		e := server.IndexNode(ctx, node, false, nil)
-		So(server.Engine.Flush(ctx), ShouldBeNil)
+		So(server.Indexer.Flush(ctx), ShouldBeNil)
 
 		So(e, ShouldNotBeNil)
 	})
@@ -290,7 +287,7 @@ func TestSearchNode(t *testing.T) {
 
 		// Remove now
 		So(server.DeleteNode(ctx, &tree.Node{Uuid: "node-with-uppercase-extension"}), ShouldBeNil)
-		So(server.Engine.Flush(ctx), ShouldBeNil)
+		So(server.Indexer.Flush(ctx), ShouldBeNil)
 		<-time.After(7 * time.Second)
 	})
 
@@ -573,7 +570,7 @@ func TestSearchByUuidsMatch(t *testing.T) {
 
 		e = server.IndexNode(ctx, node4, false, nil)
 		So(e, ShouldBeNil)
-		_ = server.Engine.Flush(ctx)
+		_ = server.Flush(ctx)
 		<-time.After(7 * time.Second)
 
 		queryObject := &tree.Query{

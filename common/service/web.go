@@ -75,7 +75,7 @@ func init() {
 	// Instanciate restful framework
 	routes.DeclareRoute(APIRoute, "Main REST API Endpoint", common.DefaultRouteREST)
 	runtime.RegisterEnvVariable("CELLS_WEB_RATE_LIMIT", "0", "Http API rate-limiter, as a number of token allowed per seconds. 0 means no limit.")
-	restful.RegisterEntityAccessor("application/json", new(ProtoEntityReaderWriter))
+	// restful.RegisterEntityAccessor("application/json", new(ProtoEntityReaderWriter))
 }
 
 // WebHandler defines what functions a web handler must answer to

@@ -18,7 +18,6 @@ connections: &connections
     uri: xds://default.cells.com/cells
 
 
-
 #--------------------------------------------
 # Default servers configuration
 #--------------------------------------------
@@ -212,7 +211,7 @@ storages: &storages
   sql:
     uri: "sqlite3-extended://:memory:"
   search:
-    uri: bleve://tmp/search/search
+    uri: bleve:///tmp/search/search
   nosql:
     uri: bleve://tmp/{{ .Value service }}
   bolt:
@@ -223,8 +222,6 @@ storages: &storages
     uri: mysql://tcp(localhost:3306)/cells-{{ .Value tenant }}?prefix={{ .Value prefix }}&shardedBy=name
   redis-cache:
     uri: redis://:53535/{{tenant}}
-
-
 
 #------------------------------------
 # All services
