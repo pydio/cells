@@ -82,9 +82,9 @@ const (
 		header Authorization *AWS4-HMAC-SHA256*
 	}
 
-    tracing {
-		span example
-	}
+#    tracing {
+#		span example
+#	}
 
 	route /* {
 		{{if $ExternalHost}}request_header Host {{$ExternalHost}}{{end}}
