@@ -31,6 +31,7 @@ import (
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/client/commons/docstorec"
 	"github.com/pydio/cells/v4/common/config"
+	"github.com/pydio/cells/v4/common/config/routing"
 	"github.com/pydio/cells/v4/common/proto/docstore"
 	"github.com/pydio/cells/v4/common/proto/idm"
 	"github.com/pydio/cells/v4/common/proto/rest"
@@ -182,10 +183,10 @@ func (sc *Client) LoadHashDocumentData(ctx context.Context, shareLink *rest.Shar
 		}
 	}
 
-	shareLink.LinkUrl = path.Join(config.GetPublicBaseUri(), shareLink.LinkHash)
+	shareLink.LinkUrl = path.Join(routing.GetPublicBaseUri(), shareLink.LinkHash)
 	if configBase := config.Get("services", common.ServiceRestNamespace_+common.ServiceShare, "url").String(); configBase != "" {
 		if cfu, e := url.Parse(configBase); e == nil {
-			cfu.Path = path.Join(config.GetPublicBaseUri(), shareLink.LinkHash)
+			cfu.Path = path.Join(routing.GetPublicBaseUri(), shareLink.LinkHash)
 			shareLink.LinkUrl = cfu.String()
 		}
 	}

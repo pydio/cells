@@ -2,7 +2,7 @@ syntax = "proto3";
 
 package install;
 
-option go_package="github.com/pydio/cells/common/proto/install";
+option go_package="github.com/pydio/cells/v4/common/proto/install";
 
 message InstallConfig {
     string internalUrl = 32;
@@ -52,6 +52,22 @@ message InstallConfig {
     ProxyConfig ProxyConfig = 34;
 }
 
+enum RuleEffect {
+    DENY = 0;
+    ACCEPT= 1;
+}
+
+message Rule {
+    // Matcher matches one or more routes or *
+    string Matcher = 1;
+    // Effect accepts or denies
+    RuleEffect Effect = 2;
+    // Action can be Rewrite, Redirect, etc...
+    string Action = 3;
+    // Value may add additional parameters to the action
+    string Value = 4;
+}
+
 // ProxyConfig gives necessary URL and TLS configurations to start proxy
 message ProxyConfig {
     // A list of [host]:port to bind to
@@ -71,6 +87,11 @@ message ProxyConfig {
     bool Maintenance = 7;
     // Append caddy directive to restrict maintenance mode
     repeated string MaintenanceConditions = 8;
+    // Optional matching rules for main routes - special empty case means Match All, but if any routes are defined
+    // they are evaluated with a Deny-by-default and ExplicitDeny-wins approach
+    repeated Rule Routing = 9;
+    // Hash dynamically computed from Binds and ReverseProxyURL
+    string ComputedHash = 10;
 }
 
 // TLSSelfSigned generates a selfsigned certificate

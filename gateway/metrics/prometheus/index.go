@@ -25,7 +25,7 @@ import (
 	"net/http"
 	"net/url"
 
-	"github.com/pydio/cells/v4/common/config"
+	"github.com/pydio/cells/v4/common/config/routing"
 	servercontext "github.com/pydio/cells/v4/common/server/context"
 )
 
@@ -40,7 +40,7 @@ type indexHandler struct {
 func (p *indexHandler) ServeHTTP(writer http.ResponseWriter, request *http.Request) {
 	reg := servercontext.GetRegistry(p.ctx)
 
-	externalURL := config.GetDefaultSiteURL()
+	externalURL := routing.GetDefaultSiteURL()
 	u, _ := url.Parse(externalURL)
 	targets := ProcessesAsTargets(p.ctx, reg, true, u.Host)
 	writer.Header().Set("Content-Type", "application/json")

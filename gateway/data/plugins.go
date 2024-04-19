@@ -28,6 +28,7 @@ import (
 	"net/http/httputil"
 	"net/url"
 	"os"
+	"path"
 	"strconv"
 	"strings"
 	"time"
@@ -39,10 +40,10 @@ import (
 	"go.uber.org/zap"
 
 	"github.com/pydio/cells/v4/common"
+	"github.com/pydio/cells/v4/common/config/routing"
 	"github.com/pydio/cells/v4/common/log"
 	"github.com/pydio/cells/v4/common/runtime"
 	serverhttp "github.com/pydio/cells/v4/common/server/http"
-	"github.com/pydio/cells/v4/common/server/http/routes"
 	"github.com/pydio/cells/v4/common/server/middleware"
 	"github.com/pydio/cells/v4/common/service"
 	"github.com/pydio/cells/v4/common/utils/net"
@@ -53,14 +54,30 @@ import (
 )
 
 func patchListBucketRequest(request *http.Request) {
-	route := routes.ResolvedURIFromContext(request.Context())
+	route := routing.ResolvedURIFromContext(request.Context())
 	testURI := strings.Replace(request.RequestURI, "?x-id=ListBuckets", "", 1)
 	if testURI == route || testURI == route+"/" {
 		request.RequestURI = "/"
 		request.URL.Path = "/"
-	} else if strings.HasPrefix(request.RequestURI, route+"/probe-bucket-sign*") {
+	} else if strings.HasPrefix(request.RequestURI, route+"/probe-bucket-sign") {
 		request.RequestURI = strings.TrimPrefix(request.RequestURI, route)
 		request.URL.Path = request.RequestURI
+	}
+}
+
+func rewriteListBucketRequest(request *http.Request, registrar routing.RouteRegistrar) {
+	pa := request.URL.Path
+	auth := request.Header.Get("Authorization")
+	ctx := request.Context()
+	if strings.Contains(auth, "AWS4-HMAC-SHA256") && (pa == "/" || strings.HasPrefix(pa, "/probe-bucket-sign")) {
+		// Find resolved pattern for main bucket (.e.g /io)
+		if pp := registrar.Patterns(BucketIO); len(pp) > 0 {
+			resolvedPattern := pp[0]
+			log.Logger(ctx).Info("S3 - Recognized ListBucket request on root, re-attach to correct endpoint " + resolvedPattern)
+			request.URL.Path = path.Join(resolvedPattern, pa)
+			request.URL.RawPath = path.Join(resolvedPattern, pa)
+			request.RequestURI = request.URL.RequestURI()
+		}
 	}
 }
 
@@ -75,8 +92,8 @@ var (
 
 func init() {
 
-	routes.DeclareRoute(BucketIO, "Main I/O bucket for transferring data", "/io")
-	routes.DeclareRoute(BucketData, "Secondary I/O bucket with name longer than 3 characters, may be required by some AWS clients", "/data")
+	routing.RegisterRoute(BucketIO, "Main I/O bucket for transferring data", "/io")
+	routing.RegisterRoute(BucketData, "Secondary I/O bucket with name longer than 3 characters, may be required by some AWS clients", "/data")
 
 	runtime.Register("main", func(ctx context.Context) {
 
@@ -86,7 +103,7 @@ func init() {
 			service.Context(ctx),
 			service.Tag(common.ServiceTagGateway),
 			service.Description("S3 Gateway to tree service"),
-			service.WithHTTP(func(c context.Context, mux routes.RouteRegistrar) error {
+			service.WithHTTP(func(c context.Context, mux routing.RouteRegistrar) error {
 
 				console.Printf = func(format string, data ...interface{}) {
 					if strings.HasPrefix(format, "WARNING: ") {
@@ -126,6 +143,7 @@ func init() {
 					patchListBucketRequest(request)
 					proxy.ServeHTTP(writer, request)
 				}))
+				mux.RegisterRewrite("ListBucket", rewriteListBucketRequest)
 
 				if srv == nil {
 					var certFile, keyFile string
@@ -145,9 +163,10 @@ func init() {
 
 				return nil
 			}),
-			service.WithHTTPStop(func(ctx context.Context, mux routes.RouteRegistrar) error {
+			service.WithHTTPStop(func(ctx context.Context, mux routing.RouteRegistrar) error {
 				mux.DeregisterRoute(BucketIO)
 				mux.DeregisterRoute(BucketData)
+				mux.DeregisterRewrite("ListBucket")
 				return nil
 			}),
 		)

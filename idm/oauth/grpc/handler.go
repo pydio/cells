@@ -25,8 +25,6 @@ import (
 	"crypto/sha256"
 	"encoding/base64"
 	"fmt"
-	"github.com/pydio/cells/v4/common/auth/hydra"
-	"github.com/twmb/murmur3"
 	"net/http"
 	"net/url"
 	"strings"
@@ -41,10 +39,13 @@ import (
 	"github.com/ory/x/sqlxx"
 	"github.com/ory/x/urlx"
 	"github.com/pkg/errors"
+	"github.com/twmb/murmur3"
 	"go.uber.org/zap"
 
 	"github.com/pydio/cells/v4/common/auth"
+	"github.com/pydio/cells/v4/common/auth/hydra"
 	"github.com/pydio/cells/v4/common/config"
+	"github.com/pydio/cells/v4/common/config/routing"
 	"github.com/pydio/cells/v4/common/log"
 	pauth "github.com/pydio/cells/v4/common/proto/auth"
 	servicecontext "github.com/pydio/cells/v4/common/service/context"
@@ -751,7 +752,7 @@ func (h *Handler) Exchange(ctx context.Context, in *pauth.ExchangeRequest) (*pau
 	values.Set("grant_type", "authorization_code")
 	values.Set("code", in.Code)
 	values.Set("code_verifier", in.CodeVerifier)
-	values.Set("redirect_uri", config.GetDefaultSiteURL()+"/auth/callback")
+	values.Set("redirect_uri", routing.GetDefaultSiteURL()+"/auth/callback")
 
 	req, err := http.NewRequest("POST", "", strings.NewReader(values.Encode()))
 	if err != nil {
@@ -787,7 +788,7 @@ func (h *Handler) Refresh(ctx context.Context, in *pauth.RefreshTokenRequest) (*
 	values.Set("grant_type", "refresh_token")
 	values.Set("refresh_token", in.RefreshToken)
 	values.Set("response_type", "id_token token")
-	values.Set("redirect_uri", config.GetDefaultSiteURL()+"/auth/callback")
+	values.Set("redirect_uri", routing.GetDefaultSiteURL()+"/auth/callback")
 
 	req, err := http.NewRequest("POST", "", strings.NewReader(values.Encode()))
 	if err != nil {

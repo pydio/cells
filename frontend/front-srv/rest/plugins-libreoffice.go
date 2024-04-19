@@ -12,9 +12,9 @@ import (
 
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/config"
+	"github.com/pydio/cells/v4/common/config/routing"
 	"github.com/pydio/cells/v4/common/log"
 	"github.com/pydio/cells/v4/common/runtime"
-	"github.com/pydio/cells/v4/common/server/http/routes"
 	"github.com/pydio/cells/v4/common/service"
 )
 
@@ -40,7 +40,7 @@ func init() {
 		return s.Val(pa...).Set(val)
 	}))
 
-	routes.DeclareRoute(RouteMain, "Collabora Leaflet API", "/leaflet", routes.WithCustomResolver(func(ctx context.Context) string {
+	routing.RegisterRoute(RouteMain, "Collabora Leaflet API", "/leaflet", routing.WithCustomResolver(func(ctx context.Context) string {
 		version := config.Get("frontend", "plugin", "editor.libreoffice").Val("LIBREOFFICE_CODE_VERSION").Default("v6").String()
 		if version != "v6" {
 			return "/browser"
@@ -49,7 +49,7 @@ func init() {
 		}
 	}))
 
-	routes.DeclareRoute(RouteWs, "Collabora Websocket API", "/lool", routes.WithCustomResolver(func(ctx context.Context) string {
+	routing.RegisterRoute(RouteWs, "Collabora Websocket API", "/lool", routing.WithCustomResolver(func(ctx context.Context) string {
 		version := config.Get("frontend", "plugin", "editor.libreoffice").Val("LIBREOFFICE_CODE_VERSION").Default("v6").String()
 		if version != "v6" {
 			return "/cool"
@@ -58,7 +58,7 @@ func init() {
 		}
 	}))
 
-	routes.DeclareRoute(RouteDiscovery, "Collabora Discovery API", "/hosting/discovery")
+	routing.RegisterRoute(RouteDiscovery, "Collabora Discovery API", "/hosting/discovery")
 
 	runtime.Register("main", func(ctx context.Context) {
 		service.NewService(
@@ -67,7 +67,7 @@ func init() {
 			service.Tag(common.ServiceTagFrontend),
 			service.AutoRestart(true),
 			service.Description("Grpc service for internal requests about frontend manifest"),
-			service.WithHTTP(func(ctx context.Context, mux routes.RouteRegistrar) error {
+			service.WithHTTP(func(ctx context.Context, mux routing.RouteRegistrar) error {
 				pconf := config.Get("frontend", "plugin", "editor.libreoffice")
 				enabled := pconf.Val(config.KeyFrontPluginEnabled).Default(false).Bool()
 				if !enabled {
@@ -107,7 +107,7 @@ func init() {
 
 				return nil
 			}),
-			service.WithHTTPStop(func(ctx context.Context, mux routes.RouteRegistrar) error {
+			service.WithHTTPStop(func(ctx context.Context, mux routing.RouteRegistrar) error {
 				for _, p := range registeredRoutes {
 					mux.DeregisterRoute(p)
 				}

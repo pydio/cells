@@ -25,10 +25,10 @@ import (
 	"context"
 
 	"github.com/pydio/cells/v4/common"
+	"github.com/pydio/cells/v4/common/config/routing"
 	"github.com/pydio/cells/v4/common/nodes"
 	"github.com/pydio/cells/v4/common/nodes/compose"
 	"github.com/pydio/cells/v4/common/runtime"
-	routes "github.com/pydio/cells/v4/common/server/http/routes"
 	"github.com/pydio/cells/v4/common/service"
 )
 
@@ -41,7 +41,7 @@ const (
 )
 
 func init() {
-	routes.DeclareRoute(RouteWOPI, "WOPI API service", "/wopi")
+	routing.RegisterRoute(RouteWOPI, "WOPI API service", "/wopi")
 
 	runtime.Register("main", func(ctx context.Context) {
 		//RegisterMainAPIEndpoint(ctx ... "a" ... "/api/")
@@ -51,13 +51,13 @@ func init() {
 			service.Tag(common.ServiceTagGateway),
 			service.Description("WOPI REST Gateway to tree service"),
 			//service.RouterDependencies(),
-			service.WithHTTP(func(ctx context.Context, mux routes.RouteRegistrar) error {
+			service.WithHTTP(func(ctx context.Context, mux routing.RouteRegistrar) error {
 				client = compose.UuidClient(ctx, nodes.WithAuditEventsLogging())
 				wopiRouter := NewRouter()
-				mux.Route(RouteWOPI).Handle("/", wopiRouter, routes.WithStripPrefix())
+				mux.Route(RouteWOPI).Handle("/", wopiRouter, routing.WithStripPrefix())
 				return nil
 			}),
-			service.WithHTTPStop(func(ctx context.Context, mux routes.RouteRegistrar) error {
+			service.WithHTTPStop(func(ctx context.Context, mux routing.RouteRegistrar) error {
 				mux.DeregisterRoute(RouteWOPI)
 				return nil
 			}),

@@ -28,6 +28,7 @@ import (
 
 	"github.com/pydio/cells/v4/broker/mailer/lang"
 	"github.com/pydio/cells/v4/common/config"
+	"github.com/pydio/cells/v4/common/config/routing"
 )
 
 var templateFilters []FilterFunc
@@ -58,7 +59,7 @@ type ApplicationConfigs struct {
 func GetApplicationConfig(languages ...string) ApplicationConfigs {
 	T := lang.Bundle().GetTranslationFunc(languages...)
 
-	url := config.Get("services", "pydio.grpc.mailer", "url").Default(config.GetDefaultSiteURL()).String()
+	url := config.Get("services", "pydio.grpc.mailer", "url").Default(routing.GetDefaultSiteURL()).String()
 	linkUrl := config.Get("services", "pydio.rest.share", "url").Default(url).String()
 
 	from := config.Get("services", "pydio.grpc.mailer", "from").Default("do-not-reply@pydio.com").String()

@@ -41,11 +41,11 @@ import (
 	"go.uber.org/zap"
 
 	"github.com/pydio/cells/v4/common"
+	"github.com/pydio/cells/v4/common/config/routing"
 	"github.com/pydio/cells/v4/common/log"
 	"github.com/pydio/cells/v4/common/proto/rest"
 	"github.com/pydio/cells/v4/common/runtime"
 	"github.com/pydio/cells/v4/common/server"
-	"github.com/pydio/cells/v4/common/server/http/routes"
 	"github.com/pydio/cells/v4/common/server/middleware"
 	servicecontext "github.com/pydio/cells/v4/common/service/context"
 	"github.com/pydio/cells/v4/common/service/frontend"
@@ -72,7 +72,7 @@ func RegisterSwaggerJSON(json string) {
 
 func init() {
 	// Instanciate restful framework
-	routes.DeclareRoute(APIRoute, "Main REST API Endpoint", common.DefaultRouteREST)
+	routing.RegisterRoute(APIRoute, "Main REST API Endpoint", common.DefaultRouteREST)
 	runtime.RegisterEnvVariable("CELLS_WEB_RATE_LIMIT", "0", "Http API rate-limiter, as a number of token allowed per seconds. 0 means no limit.")
 	// restful.RegisterEntityAccessor("application/json", new(ProtoEntityReaderWriter))
 }
@@ -112,7 +112,7 @@ func WithWeb(handler func(ctx context.Context) WebHandler) ServiceOption {
 
 		o.serverType = server.TypeHttp
 		o.serverStart = func(ctx context.Context) error {
-			var mux routes.RouteRegistrar
+			var mux routing.RouteRegistrar
 			if !o.Server.As(&mux) {
 				return fmt.Errorf("server %s is not a mux", o.Name)
 			}
@@ -135,7 +135,6 @@ func WithWeb(handler func(ctx context.Context) WebHandler) ServiceOption {
 				if pathItem.Get != nil {
 					shortPath, method := operationToRoute(serviceRoute, swaggerTags, path, pathItem.Get, filter, f)
 					if shortPath != "" {
-						fmt.Println(shortPath)
 						ws.Route(ws.GET(shortPath).To(method))
 					}
 				}
@@ -221,12 +220,12 @@ func WithWeb(handler func(ctx context.Context) WebHandler) ServiceOption {
 			}(wrapped, o)
 
 			sub := mux.Route(APIRoute)
-			sub.Handle(serviceRoute, wrapped, routes.WithStripPrefix(), routes.WithEnsureTrailing())
+			sub.Handle(serviceRoute, wrapped, routing.WithStripPrefix(), routing.WithEnsureTrailing())
 			return nil
 		}
 
 		o.serverStop = func(c context.Context) error {
-			var mux routes.RouteRegistrar
+			var mux routing.RouteRegistrar
 			if !o.Server.As(&mux) {
 				return fmt.Errorf("server %s is not a mux", o.Name)
 			}

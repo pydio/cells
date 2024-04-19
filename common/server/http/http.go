@@ -30,13 +30,13 @@ import (
 	"go.uber.org/zap"
 	"golang.org/x/exp/maps"
 
+	"github.com/pydio/cells/v4/common/config/routing"
 	"github.com/pydio/cells/v4/common/log"
 	"github.com/pydio/cells/v4/common/registry"
 	"github.com/pydio/cells/v4/common/registry/util"
 	"github.com/pydio/cells/v4/common/runtime"
 	"github.com/pydio/cells/v4/common/server"
 	"github.com/pydio/cells/v4/common/server/http/mux"
-	"github.com/pydio/cells/v4/common/server/http/routes"
 	"github.com/pydio/cells/v4/common/server/middleware"
 	"github.com/pydio/cells/v4/common/utils/uuid"
 )
@@ -58,12 +58,12 @@ type Server struct {
 
 	cancel context.CancelFunc
 	net.Listener
-	routes.RouteRegistrar
+	routing.RouteRegistrar
 	*http.Server
 }
 
 func New(ctx context.Context) server.Server {
-	lMux := routes.NewRouteRegistrar()
+	lMux := routing.NewRouteRegistrar()
 
 	srv := &http.Server{}
 	srvID := "http-" + uuid.New()
@@ -146,7 +146,7 @@ func (s *Server) SetMetadata(meta map[string]string) {
 }
 
 func (s *Server) As(i interface{}) bool {
-	if v, ok := i.(*routes.RouteRegistrar); ok {
+	if v, ok := i.(*routing.RouteRegistrar); ok {
 		*v = s.RouteRegistrar
 		return true
 	}

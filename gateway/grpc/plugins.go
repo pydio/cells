@@ -12,7 +12,7 @@ import (
 
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/auth"
-	"github.com/pydio/cells/v4/common/config"
+	"github.com/pydio/cells/v4/common/config/routing"
 	"github.com/pydio/cells/v4/common/crypto/providers"
 	"github.com/pydio/cells/v4/common/log"
 	"github.com/pydio/cells/v4/common/proto/install"
@@ -68,7 +68,7 @@ func init() {
 	)
 	runtime.Register("main", func(ctx context.Context) {
 
-		ss, _ := config.LoadSites()
+		ss, _ := routing.LoadSites()
 		var hasClear, hasTls bool
 		for _, s := range ss {
 			if s.HasTLS() {

@@ -31,20 +31,20 @@ import (
 	"github.com/caddyserver/caddy/v2/modules/caddyhttp"
 
 	clienthttp "github.com/pydio/cells/v4/common/client/http"
-	"github.com/pydio/cells/v4/common/server/http/routes"
+	"github.com/pydio/cells/v4/common/config/routing"
 )
 
 var (
 	module *Middleware
 )
 
-func RegisterServerMux(ctx context.Context, serverID string, r routes.RouteRegistrar) {
+func RegisterServerMux(ctx context.Context, serverID string, r routing.RouteRegistrar) {
 	if module != nil {
 		module.Stop()
 		module.Init(ctx, serverID, r)
 		return
 	}
-	module = &Middleware{Resolver: clienthttp.NewResolver(true)}
+	module = &Middleware{Resolver: clienthttp.NewResolver()}
 	module.Init(ctx, serverID, r)
 	caddy.RegisterModule(module)
 	httpcaddyfile.RegisterHandlerDirective("mux", parseCaddyfile)
@@ -54,7 +54,7 @@ type Middleware struct {
 	clienthttp.Resolver
 }
 
-func (m *Middleware) Init(ctx context.Context, serverID string, r routes.RouteRegistrar) {
+func (m *Middleware) Init(ctx context.Context, serverID string, r routing.RouteRegistrar) {
 	m.Resolver.Init(ctx, serverID, r)
 }
 

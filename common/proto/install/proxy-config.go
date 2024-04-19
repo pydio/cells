@@ -21,6 +21,8 @@
 package install
 
 import (
+	"crypto/md5"
+	"encoding/hex"
 	"fmt"
 	"net/url"
 	"strings"
@@ -29,6 +31,27 @@ import (
 	"github.com/pydio/cells/v4/common/utils/net"
 )
 
+func (r *Rule) Accept() bool {
+	return r.Effect == RuleEffect_ACCEPT
+}
+
+// Hash computes a unique hash for this site and keep it in cache
+func (m *ProxyConfig) Hash() string {
+	if m.ComputedHash == "" {
+		var ids []string
+		ids = append(ids, m.GetBindURLs()...)
+		if m.ReverseProxyURL != "" {
+			ids = append(ids, m.ReverseProxyURL)
+		}
+		s := strings.Join(ids, ",")
+		hash := md5.New()
+		hash.Write([]byte(s))
+		m.ComputedHash = hex.EncodeToString(hash.Sum(nil))
+	}
+	return m.ComputedHash
+}
+
+// GetDefaultBindURL builds a full http[s] URL from the first Binds value
 func (m *ProxyConfig) GetDefaultBindURL() string {
 	scheme := "http"
 	if m.TLSConfig != nil {
@@ -37,6 +60,7 @@ func (m *ProxyConfig) GetDefaultBindURL() string {
 	return fmt.Sprintf("%s://%s", scheme, m.Binds[0])
 }
 
+// GetBindURLs builds full http[s] URL from Binds, eventually resolving ":port" to "localhost:port"
 func (m *ProxyConfig) GetBindURLs() (addresses []string) {
 	scheme := "http"
 	if m.HasTLS() {
@@ -50,6 +74,73 @@ func (m *ProxyConfig) GetBindURLs() (addresses []string) {
 		addresses = append(addresses, fmt.Sprintf("%s://%s", scheme, host))
 	}
 	return
+}
+
+// HasRouting returns if there is a need for writing a specific routing table
+func (m *ProxyConfig) HasRouting() bool {
+	// Nothing defined - special case for compatibility
+	if len(m.Routing) == 0 {
+		return false
+	}
+	// Only one route with "*" => Accept
+	if len(m.Routing) == 1 && m.Routing[0].Matcher == "*" && m.Routing[0].Effect == RuleEffect_ACCEPT {
+		return false
+	}
+	return true
+}
+
+func (m *ProxyConfig) DefaultRouting() (all *Rule, other []*Rule) {
+	if !m.HasRouting() {
+		all = &Rule{Matcher: "*", Effect: RuleEffect_ACCEPT}
+	}
+	all = &Rule{Effect: RuleEffect_DENY}
+	// Detect a default rule and stack other rules
+	for _, r := range m.Routing {
+		if r.Matcher == "*" {
+			if r.Effect == RuleEffect_ACCEPT {
+				all.Effect = RuleEffect_ACCEPT
+			}
+			continue
+		}
+		other = append(other, r)
+	}
+	return
+}
+
+// FindRouteRule resolves a final rule for a given route id
+func (m *ProxyConfig) FindRouteRule(routeID string) *Rule {
+	finalRule, matchRoutes := m.DefaultRouting()
+	// Match against specific rules
+	for _, r := range matchRoutes {
+		if r.Matcher == routeID {
+			finalRule = r
+			break
+		}
+	}
+	return finalRule
+}
+
+// GetExternalUrls computes external URLs from reverse proxy and from Binds Hostname
+func (m *ProxyConfig) GetExternalUrls() map[string]*url.URL {
+	uniques := make(map[string]*url.URL)
+	if ext := m.GetReverseProxyURL(); ext != "" {
+		if u, e := m.canonicalUrl(ext); e == nil {
+			uniques[u.Host] = u
+		}
+	}
+	for _, b := range m.GetBindURLs() {
+		u, e := m.canonicalUrl(b)
+		if e != nil {
+			continue
+		}
+		uniques[u.Host] = u
+		if u.Hostname() == "0.0.0.0" {
+			for _, exp := range m.expandBindAll(u) {
+				uniques[exp.Host] = exp
+			}
+		}
+	}
+	return uniques
 }
 
 func (m *ProxyConfig) canonicalUrl(s string) (*url.URL, error) {
@@ -78,28 +169,6 @@ func (m *ProxyConfig) expandBindAll(u *url.URL) []*url.URL {
 		}
 	}
 	return out
-}
-
-func (m *ProxyConfig) GetExternalUrls() map[string]*url.URL {
-	uniques := make(map[string]*url.URL)
-	if ext := m.GetReverseProxyURL(); ext != "" {
-		if u, e := m.canonicalUrl(ext); e == nil {
-			uniques[u.Host] = u
-		}
-	}
-	for _, b := range m.GetBindURLs() {
-		u, e := m.canonicalUrl(b)
-		if e != nil {
-			continue
-		}
-		uniques[u.Host] = u
-		if u.Hostname() == "0.0.0.0" {
-			for _, exp := range m.expandBindAll(u) {
-				uniques[exp.Host] = exp
-			}
-		}
-	}
-	return uniques
 }
 
 func (m *ProxyConfig) HasTLS() bool {
@@ -142,6 +211,22 @@ func (m *ProxyConfig) UnmarshalFromMap(data map[string]interface{}, getKey func(
 			}
 		} else {
 			return fmt.Errorf("unexpected type for Binds (expected array)")
+		}
+	}
+	if u, o := data[getKey("Routing")]; o {
+		if s, o := u.([]interface{}); o {
+			for _, v := range s {
+				// Remarshal and unmarshal as Route
+				mm, _ := json.Marshal(v)
+				rule := &Rule{}
+				if er := json.Unmarshal(mm, rule); er == nil {
+					m.Routing = append(m.Routing, rule)
+				} else {
+					return fmt.Errorf("unexpected type for Routes item (expected Route type)")
+				}
+			}
+		} else {
+			return fmt.Errorf("unexpected type for Routes (expected array)")
 		}
 	}
 	if u, o := data[getKey("SSLRedirect")]; o {

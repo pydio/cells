@@ -28,7 +28,8 @@ import (
 	hconf "github.com/ory/hydra/v2/driver/config"
 	hconfx "github.com/ory/x/configx"
 	"github.com/ory/x/logrusx"
-	"github.com/pydio/cells/v4/common/config"
+
+	"github.com/pydio/cells/v4/common/config/routing"
 	"github.com/pydio/cells/v4/common/utils/configx"
 )
 
@@ -62,7 +63,7 @@ func InitConfiguration(values configx.Values) {
 	confMutex.Lock()
 	defer confMutex.Unlock()
 	initConnector := false
-	for _, rootUrl := range config.GetSitesAllowedURLs() {
+	for _, rootUrl := range routing.GetSitesAllowedURLs() {
 		p := NewProvider(rootUrl.String(), values)
 		if !initConnector {
 			// Use first conf as default
@@ -128,7 +129,7 @@ func NewProvider(rootURL string, values configx.Values) ConfigurationProvider {
 	_ = val.Val("log.leak_sensitive_values").Set(true)
 
 	rr := values.Val("insecureRedirects").StringArray()
-	sites, _ := config.LoadSites()
+	sites, _ := routing.LoadSites()
 	var out []string
 	for _, r := range rr {
 		out = append(out, varsFromStr(r, sites)...)

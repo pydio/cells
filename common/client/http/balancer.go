@@ -103,6 +103,8 @@ func (b *balancer) Build(reg registry.Registry) error {
 			registry.WithAdjacentSourceItems([]registry.Item{srv}),
 			registry.WithAdjacentTargetOptions(registry.WithType(pb.ItemType_ADDRESS)),
 		)
+		var services, endpoints []registry.Item
+		var loaded bool
 
 		for _, addr := range addrs {
 			addr := addr.Name()
@@ -118,16 +120,20 @@ func (b *balancer) Build(reg registry.Registry) error {
 				if err != nil {
 					return err
 				}
-				proxy = &reverseProxy{
-					ReverseProxy: httputil.NewSingleHostReverseProxy(u),
-					services: reg.ListAdjacentItems(
+				if !loaded {
+					services = reg.ListAdjacentItems(
 						registry.WithAdjacentSourceItems([]registry.Item{srv}),
 						registry.WithAdjacentTargetOptions(registry.WithType(pb.ItemType_SERVICE)),
-					),
-					endpoints: reg.ListAdjacentItems(
+					)
+					endpoints = reg.ListAdjacentItems(
 						registry.WithAdjacentSourceItems([]registry.Item{srv}),
 						registry.WithAdjacentTargetOptions(registry.WithType(pb.ItemType_ENDPOINT)),
-					),
+					)
+				}
+				proxy = &reverseProxy{
+					ReverseProxy: httputil.NewSingleHostReverseProxy(u),
+					services:     services,
+					endpoints:    endpoints,
 				}
 				proxy.ErrorHandler = func(writer http.ResponseWriter, request *http.Request, err error) {
 					if err.Error() == "context canceled" {

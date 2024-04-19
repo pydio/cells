@@ -21,6 +21,7 @@
 package caddy
 
 import (
+	"fmt"
 	"net/url"
 	"path/filepath"
 	"strings"
@@ -28,14 +29,22 @@ import (
 	"google.golang.org/protobuf/proto"
 
 	"github.com/pydio/cells/v4/common"
+	"github.com/pydio/cells/v4/common/config/routing"
 	"github.com/pydio/cells/v4/common/crypto/providers"
 	"github.com/pydio/cells/v4/common/proto/install"
 	"github.com/pydio/cells/v4/common/runtime"
 	"github.com/pydio/cells/v4/common/utils/uuid"
 )
 
+type CaddyRoute struct {
+	Path         string
+	RewriteRules []string
+}
+
 type SiteConf struct {
 	*install.ProxyConfig
+	Routes []CaddyRoute
+
 	// Parsed values from proto oneOf
 	TLS     string
 	TLSCert string
@@ -143,5 +152,31 @@ func computeSiteConf(pc *install.ProxyConfig) (SiteConf, error) {
 			bc.LogLevel = "ERROR"
 		}
 	}
+
+	bc.Routes = []CaddyRoute{{Path: "/*"}}
+	if bc.HasRouting() {
+		bc.Routes = []CaddyRoute{}
+		for _, route := range routing.ListRoutes() {
+			rule := bc.FindRouteRule(route.GetID())
+			if rule.Accept() {
+				cr := CaddyRoute{Path: route.GetURI() + "*"}
+				if rule.Action == "Rewrite" {
+					inputURI := rule.Value
+
+					realTarget := route.GetURI()
+					if realTarget == "/" {
+						cr.Path = inputURI + "*"
+						cr.RewriteRules = append(cr.RewriteRules, fmt.Sprintf("uri %s* strip_prefix %s", inputURI, inputURI))
+					} else {
+						cr.Path = inputURI + "/*"
+						cr.RewriteRules = append(cr.RewriteRules, fmt.Sprintf("uri %s/* replace %s/ %s/ 1", inputURI, inputURI, realTarget))
+					}
+					cr.RewriteRules = append(cr.RewriteRules, fmt.Sprintf("request_header X-Pydio-Site-RouteURI %s", inputURI))
+				}
+				bc.Routes = append(bc.Routes, cr)
+			}
+		}
+	}
+
 	return bc, nil
 }

@@ -24,16 +24,16 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/pydio/cells/v4/common/config/routing"
 	"github.com/pydio/cells/v4/common/server"
-	"github.com/pydio/cells/v4/common/server/http/routes"
 )
 
 // WithHTTP adds a http micro service handler to the current service
-func WithHTTP(f func(context.Context, routes.RouteRegistrar) error) ServiceOption {
+func WithHTTP(f func(context.Context, routing.RouteRegistrar) error) ServiceOption {
 	return func(o *ServiceOptions) {
 		o.serverType = server.TypeHttp
 		o.serverStart = func(c context.Context) error {
-			var mux routes.RouteRegistrar
+			var mux routing.RouteRegistrar
 			if !o.Server.As(&mux) {
 				return fmt.Errorf("server %s is not a mux ", o.Name)
 			}
@@ -43,10 +43,10 @@ func WithHTTP(f func(context.Context, routes.RouteRegistrar) error) ServiceOptio
 	}
 }
 
-func WithHTTPStop(f func(context.Context, routes.RouteRegistrar) error) ServiceOption {
+func WithHTTPStop(f func(context.Context, routing.RouteRegistrar) error) ServiceOption {
 	return func(o *ServiceOptions) {
 		o.serverStop = func(c context.Context) error {
-			var mux routes.RouteRegistrar
+			var mux routing.RouteRegistrar
 			o.Server.As(&mux)
 			return f(c, mux)
 		}
@@ -54,11 +54,11 @@ func WithHTTPStop(f func(context.Context, routes.RouteRegistrar) error) ServiceO
 }
 
 // WithPureHTTP adds a http micro service handler to the current service
-func WithPureHTTP(f func(context.Context, routes.RouteRegistrar) error) ServiceOption {
+func WithPureHTTP(f func(context.Context, routing.RouteRegistrar) error) ServiceOption {
 	return func(o *ServiceOptions) {
 		o.serverType = server.TypeHttpPure
 		o.serverStart = func(c context.Context) error {
-			var mux routes.RouteRegistrar
+			var mux routing.RouteRegistrar
 			if !o.Server.As(&mux) {
 				return fmt.Errorf("server %s is not a mux ", o.Name)
 			}

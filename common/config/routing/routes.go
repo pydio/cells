@@ -18,13 +18,14 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-package routes
+package routing
 
 import (
 	"context"
 	"fmt"
 	"net/http"
 	"path"
+	"slices"
 	"strings"
 	"sync"
 
@@ -38,22 +39,60 @@ var (
 
 type ctxResolvedRouteURI struct{}
 
-// HttpMux wraps a standard MUX as an interface
-type HttpMux interface {
-	Handler(r *http.Request) (h http.Handler, pattern string)
-	ServeHTTP(w http.ResponseWriter, r *http.Request)
+type Rewriter func(req *http.Request, currentRegistrar RouteRegistrar)
+
+// RegisterRoute registers a generic route by a unique ID, which URI will be resolved at runtime
+func RegisterRoute(id, description, defaultURI string, opts ...RouteOption) {
+	opt := &RouteOptions{}
+	for _, o := range opts {
+		o(opt)
+	}
+	declaredRoutes = append(declaredRoutes, &subRoute{
+		id:             id,
+		description:    description,
+		uri:            defaultURI,
+		customResolver: opt.CustomResolver,
+		subPathSupport: !opt.NoSubPath,
+	})
+}
+
+// ListRoutes returns all declared routes
+func ListRoutes() []Route {
+	var rr []Route
+	for _, sr := range declaredRoutes {
+		rr = append(rr, sr)
+	}
+	return rr
+}
+
+// RouteById finds a route by its ID
+func RouteById(id string) (Route, bool) {
+	for _, sr := range declaredRoutes {
+		if sr.id == id {
+			return sr, true
+		}
+	}
+	return nil, false
 }
 
 // RouteRegistrar is used to declare routes and their patterns
 type RouteRegistrar interface {
 	Route(id string) Route
 	DeregisterRoute(id string)
-	Patterns() []string
-	ResolveMux(ctx context.Context) (HttpMux, error)
+	RegisterRewrite(id string, rewriter Rewriter)
+	DeregisterRewrite(id string)
+	Patterns(routeIDs ...string) []string
+	ApplyRewrites(req *http.Request)
+	CanRewriteAndCatchAll(req *http.Request) (b bool)
+	IteratePatterns(func(pattern string, handler http.Handler))
 }
 
 // Route can be seen as a Router for a given route ID
 type Route interface {
+	GetID() string
+	GetDescription() string
+	GetURI() string
+	SupportSubPath() bool
 	// Handle registers a handler
 	Handle(pattern string, handler http.Handler, opts ...HandleOption)
 	// Deregister a specific pattern from the current route
@@ -89,25 +128,11 @@ func ResolvedURIFromContext(ctx context.Context) string {
 	return ctx.Value(ctxResolvedRouteURI{}).(string)
 }
 
-// DeclareRoute registers a generic route by a unique ID, which URI will be resolved at runtime
-func DeclareRoute(id, description, defaultURI string, opts ...RouteOption) {
-	opt := &RouteOptions{}
-	for _, o := range opts {
-		o(opt)
-	}
-	declaredRoutes = append(declaredRoutes, &subRoute{
-		id:             id,
-		description:    description,
-		uri:            defaultURI,
-		customResolver: opt.CustomResolver,
-		subPathSupport: !opt.NoSubPath,
-	})
-}
-
 // HandleOptions can be used to pass options to the Handle method
 type HandleOptions struct {
 	StripPrefix         bool
 	EnsureTrailingSlash bool
+	RewriteCatchAll     bool
 }
 
 // HandleOption provides functional access for HandleOptions
@@ -127,6 +152,14 @@ func WithEnsureTrailing() HandleOption {
 	}
 }
 
+// WithRewriteCatchAll points this handler as catch-all - If request was not handled before, it can be rewritten
+// to this handler resolved pattern and applied
+func WithRewriteCatchAll() HandleOption {
+	return func(o *HandleOptions) {
+		o.RewriteCatchAll = true
+	}
+}
+
 type RequestRewriter func(r *http.Request)
 
 // NewRouteRegistrar creates a RouteRegistrar interface implementation
@@ -135,39 +168,64 @@ func NewRouteRegistrar() RouteRegistrar {
 }
 
 type registrar struct {
-	routes []*subRoute
+	routes   []*subRoute
+	rewrites map[string]Rewriter
+	rewLock  sync.RWMutex
 }
 
-// ResolveMux uses context to computes all final endpoints that must be registered to a Mux
-func (h *registrar) ResolveMux(ctx context.Context) (HttpMux, error) {
-	mu := http.NewServeMux()
-	logCtx := servicecontext.WithServiceName(ctx, "pydio.web.mux")
+// IteratePatterns performs a callback on all actual patterns and their corresponding handler
+func (h *registrar) IteratePatterns(it func(pattern string, handler http.Handler)) {
+	logCtx := servicecontext.WithServiceName(context.Background(), "pydio.web.mux")
 	for _, r := range h.routes {
 		log.Logger(logCtx).Info("ROUTE " + r.id)
 		r.patternsMutex.RLock()
 		for routePattern, registered := range r.patternsCache {
-			pattern, handler, prefix := registered.attach(r.URI(ctx), routePattern)
+			pattern, handler, prefix := registered.attach(r.uri, routePattern)
 			if prefix != "" {
 				log.Logger(logCtx).Info(" - attach " + pattern + " (strip prefix " + prefix + ")")
 			} else {
 				log.Logger(logCtx).Info(" - attach " + pattern)
 			}
-			mu.Handle(pattern, handler)
+			it(pattern, handler)
 		}
 		r.patternsMutex.RUnlock()
 	}
-	return mu, nil
 }
 
-// Patterns lists all registered patterns
-func (h *registrar) Patterns() (patterns []string) {
+// Patterns lists all registered patterns (or restricted to some given routes)
+func (h *registrar) Patterns(routeIDs ...string) (patterns []string) {
+
 	for _, r := range h.routes {
+		if len(routeIDs) > 0 && !slices.Contains(routeIDs, r.id) {
+			continue
+		}
 		r.patternsMutex.RLock()
 		for p, reg := range r.patternsCache {
 			pattern, _, _ := reg.attach(r.uri, p)
 			patterns = append(patterns, pattern)
 		}
 		r.patternsMutex.RUnlock()
+	}
+	return
+}
+
+func (h *registrar) CanRewriteAndCatchAll(req *http.Request) (b bool) {
+	var rewriteTo string
+	for _, r := range h.routes {
+		r.patternsMutex.RLock()
+		for p, reg := range r.patternsCache {
+			if reg.catchAll {
+				b = true
+				rewriteTo, _, _ = reg.attach(r.uri, p)
+				break
+			}
+		}
+		r.patternsMutex.RUnlock()
+	}
+	if b {
+		req.URL.Path = rewriteTo
+		req.URL.RawPath = rewriteTo
+		req.RequestURI = req.URL.RequestURI()
 	}
 	return
 }
@@ -207,6 +265,29 @@ func (h *registrar) DeregisterRoute(id string) {
 	h.routes = rr
 }
 
+func (h *registrar) RegisterRewrite(id string, rw Rewriter) {
+	h.rewLock.Lock()
+	defer h.rewLock.Unlock()
+	if h.rewrites == nil {
+		h.rewrites = make(map[string]Rewriter)
+	}
+	h.rewrites[id] = rw
+}
+
+func (h *registrar) DeregisterRewrite(id string) {
+	h.rewLock.Lock()
+	defer h.rewLock.Unlock()
+	delete(h.rewrites, id)
+}
+
+func (h *registrar) ApplyRewrites(req *http.Request) {
+	h.rewLock.RLock()
+	defer h.rewLock.RUnlock()
+	for _, rw := range h.rewrites {
+		rw(req, h)
+	}
+}
+
 type subRoute struct {
 	id             string
 	uri            string
@@ -219,6 +300,22 @@ type subRoute struct {
 	registrar     *registrar
 }
 
+func (s *subRoute) GetID() string {
+	return s.id
+}
+
+func (s *subRoute) GetDescription() string {
+	return s.description
+}
+
+func (s *subRoute) GetURI() string {
+	return s.uri
+}
+
+func (s *subRoute) SupportSubPath() bool {
+	return s.subPathSupport
+}
+
 // Handle registers a handler
 func (s *subRoute) Handle(pattern string, handler http.Handler, opts ...HandleOption) {
 	opt := &HandleOptions{}
@@ -227,7 +324,11 @@ func (s *subRoute) Handle(pattern string, handler http.Handler, opts ...HandleOp
 	}
 	s.patternsMutex.Lock()
 	defer s.patternsMutex.Unlock()
-	rh := &registeredHandler{Handler: handler, stripPrefix: opt.StripPrefix}
+	rh := &registeredHandler{
+		Handler:     handler,
+		stripPrefix: opt.StripPrefix,
+		catchAll:    opt.RewriteCatchAll,
+	}
 	s.patternsCache[pattern] = rh
 	if opt.EnsureTrailingSlash && !strings.HasSuffix(pattern, "/") {
 		s.patternsCache[pattern+"/"] = rh
@@ -257,6 +358,7 @@ func (s *subRoute) URI(ctx context.Context) string {
 type registeredHandler struct {
 	http.Handler
 	stripPrefix bool
+	catchAll    bool
 }
 
 func (r *registeredHandler) attach(resolvedRouteURI string, subPattern string) (pattern string, handler http.Handler, prefix string) {

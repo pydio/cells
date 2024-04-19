@@ -22,16 +22,18 @@ package fork
 
 import (
 	"context"
-	pb "github.com/pydio/cells/v4/common/proto/registry"
-	servicecontext "github.com/pydio/cells/v4/common/service/context"
-	"golang.org/x/exp/maps"
 	"net/url"
 
+	"golang.org/x/exp/maps"
+
 	"github.com/pydio/cells/v4/common/config"
+	"github.com/pydio/cells/v4/common/config/routing"
+	pb "github.com/pydio/cells/v4/common/proto/registry"
 	"github.com/pydio/cells/v4/common/registry"
 	"github.com/pydio/cells/v4/common/registry/util"
 	"github.com/pydio/cells/v4/common/runtime"
 	"github.com/pydio/cells/v4/common/server"
+	servicecontext "github.com/pydio/cells/v4/common/service/context"
 	"github.com/pydio/cells/v4/common/utils/fork"
 	"github.com/pydio/cells/v4/common/utils/uuid"
 )
@@ -76,8 +78,8 @@ func (s *Server) RawServe(*server.ServeOptions) (ii []registry.Item, e error) {
 	if config.Get("services", s.s.name, "debugFork").Bool() {
 		opts = append(opts, fork.WithDebug())
 	}
-	if len(config.DefaultBindOverrideToFlags()) > 0 {
-		opts = append(opts, fork.WithCustomFlags(config.DefaultBindOverrideToFlags()...))
+	if len(routing.DefaultBindOverrideToFlags()) > 0 {
+		opts = append(opts, fork.WithCustomFlags(routing.DefaultBindOverrideToFlags()...))
 	}
 	opts = append(opts, fork.WithRetries(3))
 	s.process = fork.NewProcess(s.ctx, []string{s.s.name}, opts...)

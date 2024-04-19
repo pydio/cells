@@ -18,15 +18,19 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-package config
+package routing
 
 import (
+	"context"
 	"net/url"
 
 	"github.com/pkg/errors"
 
+	"github.com/pydio/cells/v4/common"
+	"github.com/pydio/cells/v4/common/config"
 	"github.com/pydio/cells/v4/common/proto/install"
 	"github.com/pydio/cells/v4/common/runtime"
+	"github.com/pydio/cells/v4/common/service/context/metadata"
 	"github.com/pydio/cells/v4/common/utils/configx"
 	"github.com/pydio/cells/v4/common/utils/slug"
 )
@@ -71,6 +75,27 @@ func GetSitesAllowedURLs() map[string]*url.URL {
 	return hh
 }
 
+// SiteFromContext lookups for siteHash in the context
+func SiteFromContext(ctx context.Context) (*install.ProxyConfig, bool) {
+	meta, ok := metadata.FromContextRead(ctx)
+	if !ok {
+		return nil, false
+	}
+	siteHash, ok2 := meta[common.XPydioSiteHash]
+	if !ok2 || len(siteHash) == 0 {
+		return nil, false
+	}
+	ss, _ := LoadSites()
+	var found *install.ProxyConfig
+	for _, site := range ss {
+		if site.Hash() == siteHash {
+			found = site
+			break
+		}
+	}
+	return found, found != nil
+}
+
 // LoadSites returns all sites defined by order of preference :
 // - ENV VARS
 // - YAML CONFIG
@@ -80,7 +105,7 @@ func GetSitesAllowedURLs() map[string]*url.URL {
 func LoadSites(configOnly ...bool) ([]*install.ProxyConfig, error) {
 
 	var sites []*install.ProxyConfig
-	if e := Get(configx.FormatPath("defaults", "sites")).Scan(&sites); e != nil {
+	if e := config.Get(configx.FormatPath("defaults", "sites")).Scan(&sites); e != nil {
 		return nil, errors.WithMessage(e, "error while parsing sites from config ")
 	}
 	if len(configOnly) > 0 && configOnly[0] {
@@ -102,10 +127,10 @@ func LoadSites(configOnly ...bool) ([]*install.ProxyConfig, error) {
 // SaveSites saves a list of sites inside configuration
 func SaveSites(sites []*install.ProxyConfig, user, msg string) error {
 
-	if e := Set(sites, configx.FormatPath("defaults", "sites")); e != nil {
+	if e := config.Set(sites, configx.FormatPath("defaults", "sites")); e != nil {
 		return e
 	}
-	if e := Save(user, msg); e != nil {
+	if e := config.Save(user, msg); e != nil {
 		return e
 	}
 	return nil
@@ -114,12 +139,12 @@ func SaveSites(sites []*install.ProxyConfig, user, msg string) error {
 
 // GetPublicBaseUri returns the default public uri
 func GetPublicBaseUri() string {
-	return "/" + slug.Make(Get(configx.FormatPath("frontend", "plugin", "action.share", "LINK_PUBLIC_URI_BASE")).Default("public").String())
+	return "/" + slug.Make(config.Get(configx.FormatPath("frontend", "plugin", "action.share", "LINK_PUBLIC_URI_BASE")).Default("public").String())
 }
 
 // GetPublicBaseDavSegment returns the segment used to exposed minisites through DAV
 func GetPublicBaseDavSegment() string {
-	return slug.Make(Get(configx.FormatPath("frontend", "plugin", "action.share", "LINK_PUBLIC_URI_DAV_SEGMENT")).Default("dav").String())
+	return slug.Make(config.Get(configx.FormatPath("frontend", "plugin", "action.share", "LINK_PUBLIC_URI_DAV_SEGMENT")).Default("dav").String())
 }
 
 func EnvOverrideDefaultBind() bool {

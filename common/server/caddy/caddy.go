@@ -40,7 +40,7 @@ import (
 	"golang.org/x/exp/maps"
 
 	"github.com/pydio/cells/v4/common"
-	"github.com/pydio/cells/v4/common/config"
+	"github.com/pydio/cells/v4/common/config/routing"
 	"github.com/pydio/cells/v4/common/crypto/providers"
 	"github.com/pydio/cells/v4/common/crypto/storage"
 	"github.com/pydio/cells/v4/common/log"
@@ -49,7 +49,6 @@ import (
 	"github.com/pydio/cells/v4/common/runtime"
 	"github.com/pydio/cells/v4/common/server"
 	"github.com/pydio/cells/v4/common/server/caddy/mux"
-	"github.com/pydio/cells/v4/common/server/http/routes"
 	"github.com/pydio/cells/v4/common/utils/uuid"
 
 	_ "github.com/caddyserver/caddy/v2/modules/standard"
@@ -69,6 +68,7 @@ const (
 
 
 {{range .Sites}}
+{{$SiteHash := .Hash}}
 {{$SiteWebRoot := .WebRoot}}
 {{$ExternalHost := .ExternalHost}}
 {{$Maintenance := .Maintenance}}
@@ -77,20 +77,15 @@ const (
 
 	root * "{{if $SiteWebRoot}}{{$SiteWebRoot}}{{else}}{{$.WebRoot}}{{end}}"
 
-	@list_buckets {
-		path / /probe-bucket-sign*
-		header Authorization *AWS4-HMAC-SHA256*
-	}
-
 #    tracing {
 #		span example
 #	}
-
-	route /* {
+	{{range .Routes}}
+	route {{.Path}} {
 		{{if $ExternalHost}}request_header Host {{$ExternalHost}}{{end}}
 		request_header X-Real-IP {http.request.remote}
 		request_header X-Forwarded-Proto {http.request.scheme}
-		request_header X-Cells-Site SiteID
+		request_header X-Pydio-Site-Hash {{ $SiteHash }}
 
 		{{if $Maintenance}}
 		# Special redir for maintenance mode
@@ -101,15 +96,14 @@ const (
 		}
 		request_header X-Maintenance-Redirect "true"
 		redir @rmatcher /maintenance.html
-		{{end}}	
+		{{end}}		
 
-		# Special rewrite for s3 list buckets (always sent on root path)
-		# TODO - this URI must be resolved from routes, based on context, not hardcoded
-		rewrite @list_buckets /io{path}
-
+		{{range .RewriteRules}}{{.}}
+		{{end}}
 		# Apply mux
 		mux
 	}
+	{{end}}
 
 	{{if .Log}}
 	log {
@@ -147,7 +141,7 @@ func (o *Opener) OpenURL(ctx context.Context, u *url.URL) (server.Server, error)
 }
 
 type Server struct {
-	routes.RouteRegistrar
+	routing.RouteRegistrar
 	id   string
 	name string
 	meta map[string]string
@@ -166,7 +160,7 @@ func New(ctx context.Context, dir string) (server.Server, error) {
 		providers.Logger = log.Logger(ct)
 	})
 
-	srvMUX := routes.NewRouteRegistrar()
+	srvMUX := routing.NewRouteRegistrar()
 	srvID := "caddy-" + uuid.New()
 	mux.RegisterServerMux(ctx, srvID, srvMUX)
 
@@ -213,7 +207,7 @@ func (s *Server) RawServe(*server.ServeOptions) (ii []registry.Item, er error) {
 
 func (s *Server) ComputeConfs() ([]string, error) {
 	// Creating temporary caddy file
-	sites, err := config.LoadSites()
+	sites, err := routing.LoadSites()
 	if err != nil {
 		return nil, err
 	}
@@ -263,7 +257,7 @@ func (s *Server) ComputeConfs() ([]string, error) {
 	b := buf.Bytes()
 	b = caddyfile.Format(b)
 
-	if common.LogLevel == zap.DebugLevel {
+	if common.LogLevel == zap.InfoLevel {
 		fmt.Println(string(b))
 	}
 
@@ -339,7 +333,7 @@ func (s *Server) Clone() interface{} {
 }
 
 func (s *Server) As(i interface{}) bool {
-	if v, ok := i.(*routes.RouteRegistrar); ok {
+	if v, ok := i.(*routing.RouteRegistrar); ok {
 		*v = s.RouteRegistrar
 		return true
 	}

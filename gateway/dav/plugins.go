@@ -26,11 +26,11 @@ import (
 	"net/http"
 
 	"github.com/pydio/cells/v4/common"
+	"github.com/pydio/cells/v4/common/config/routing"
 	"github.com/pydio/cells/v4/common/nodes"
 	"github.com/pydio/cells/v4/common/nodes/compose"
 	"github.com/pydio/cells/v4/common/nodes/path"
 	"github.com/pydio/cells/v4/common/runtime"
-	"github.com/pydio/cells/v4/common/server/http/routes"
 	"github.com/pydio/cells/v4/common/service"
 )
 
@@ -67,7 +67,7 @@ func GetHandler(ctx context.Context, davPrefix, routerPrefix string) (http.Handl
 
 func init() {
 
-	routes.DeclareRoute(RouteDAV, "WebDAV API", "/dav")
+	routing.RegisterRoute(RouteDAV, "WebDAV API", "/dav")
 
 	runtime.Register("main", func(ctx context.Context) {
 		service.NewService(
@@ -75,13 +75,13 @@ func init() {
 			service.Context(ctx),
 			service.Tag(common.ServiceTagGateway),
 			service.Description("DAV Gateway to tree service"),
-			service.WithHTTP(func(runtimeCtx context.Context, mux routes.RouteRegistrar) error {
+			service.WithHTTP(func(runtimeCtx context.Context, mux routing.RouteRegistrar) error {
 				// TODO CHECK PREFIX MANAGEMENT
 				handler := newHandler(runtimeCtx, "", RouterWithOptionalPrefix(ctx), "Cells DAV")
-				mux.Route(RouteDAV).Handle("/", handler, routes.WithStripPrefix())
+				mux.Route(RouteDAV).Handle("/", handler, routing.WithStripPrefix())
 				return nil
 			}),
-			service.WithHTTPStop(func(ctx context.Context, mux routes.RouteRegistrar) error {
+			service.WithHTTPStop(func(ctx context.Context, mux routing.RouteRegistrar) error {
 				mux.DeregisterRoute(RouteDAV)
 				return nil
 			}),

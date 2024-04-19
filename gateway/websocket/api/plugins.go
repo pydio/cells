@@ -29,6 +29,7 @@ import (
 
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/broker"
+	"github.com/pydio/cells/v4/common/config/routing"
 	"github.com/pydio/cells/v4/common/log"
 	"github.com/pydio/cells/v4/common/nodes/compose"
 	"github.com/pydio/cells/v4/common/proto/activity"
@@ -37,7 +38,6 @@ import (
 	"github.com/pydio/cells/v4/common/proto/jobs"
 	"github.com/pydio/cells/v4/common/proto/tree"
 	"github.com/pydio/cells/v4/common/runtime"
-	"github.com/pydio/cells/v4/common/server/http/routes"
 	"github.com/pydio/cells/v4/common/service"
 	servicecontext "github.com/pydio/cells/v4/common/service/context"
 	"github.com/pydio/cells/v4/gateway/websocket"
@@ -59,7 +59,7 @@ func wrap(ctx context.Context) context.Context {
 
 func init() {
 
-	routes.DeclareRoute(RouteWebsocket, "Websocket Endpoint", "/ws")
+	routing.RegisterRoute(RouteWebsocket, "Websocket Endpoint", "/ws")
 
 	runtime.Register("main", func(ctx context.Context) {
 		service.NewService(
@@ -67,11 +67,11 @@ func init() {
 			service.Context(ctx),
 			service.Tag(common.ServiceTagGateway),
 			service.Description("WebSocket server pushing event to the clients"),
-			service.WithHTTPStop(func(ctx context.Context, mux routes.RouteRegistrar) error {
+			service.WithHTTPStop(func(ctx context.Context, mux routing.RouteRegistrar) error {
 				mux.DeregisterRoute(RouteWebsocket)
 				return nil
 			}),
-			service.WithHTTP(func(ctx context.Context, mux routes.RouteRegistrar) error {
+			service.WithHTTP(func(ctx context.Context, mux routing.RouteRegistrar) error {
 				ws = websocket.NewWebSocketHandler(ctx)
 				chat = websocket.NewChatHandler(ctx)
 				ws.EventRouter = compose.ReverseClient(ctx)

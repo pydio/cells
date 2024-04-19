@@ -38,10 +38,9 @@ import (
 
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/auth"
-	"github.com/pydio/cells/v4/common/config"
+	"github.com/pydio/cells/v4/common/config/routing"
 	"github.com/pydio/cells/v4/common/log"
 	"github.com/pydio/cells/v4/common/runtime"
-	"github.com/pydio/cells/v4/common/server/http/routes"
 	"github.com/pydio/cells/v4/common/service"
 	servicecontext "github.com/pydio/cells/v4/common/service/context"
 )
@@ -52,7 +51,7 @@ const (
 
 func init() {
 
-	routes.DeclareRoute(RouteOIDC, "OpenID Connect service", "/oidc")
+	routing.RegisterRoute(RouteOIDC, "OpenID Connect service", "/oidc")
 
 	runtime.Register("main", func(ctx context.Context) {
 		service.NewService(
@@ -60,9 +59,9 @@ func init() {
 			service.Context(ctx),
 			service.Tag(common.ServiceTagIdm),
 			service.Description("OAuth Provider"),
-			service.WithHTTP(func(ctx context.Context, serveMux routes.RouteRegistrar) error {
+			service.WithHTTP(func(ctx context.Context, serveMux routing.RouteRegistrar) error {
 				router := mux.NewRouter()
-				hh := config.GetSitesAllowedURLs()
+				hh := routing.GetSitesAllowedURLs()
 				for _, u := range hh {
 					// fmt.Println("Registering router for host", u.String())
 					// Two-level check : Host() is regexp based, fast, but only on Hostname
@@ -106,10 +105,10 @@ func init() {
 					AllowedHeaders:   []string{"Authorization", "Content-Type"},
 					ExposedHeaders:   []string{"Content-Type"},
 					AllowCredentials: true,
-				}).Handler(router), routes.WithStripPrefix())
+				}).Handler(router), routing.WithStripPrefix())
 				return nil
 			}),
-			service.WithHTTPStop(func(ctx context.Context, mux routes.RouteRegistrar) error {
+			service.WithHTTPStop(func(ctx context.Context, mux routing.RouteRegistrar) error {
 				mux.DeregisterRoute(RouteOIDC)
 				return nil
 			}),

@@ -35,9 +35,9 @@ import (
 	prom "github.com/uber-go/tally/v4/prometheus"
 
 	"github.com/pydio/cells/v4/common"
+	"github.com/pydio/cells/v4/common/config/routing"
 	"github.com/pydio/cells/v4/common/runtime"
 	"github.com/pydio/cells/v4/common/server/generic"
-	"github.com/pydio/cells/v4/common/server/http/routes"
 	"github.com/pydio/cells/v4/common/service"
 	"github.com/pydio/cells/v4/common/service/metrics"
 	"github.com/pydio/cells/v4/gateway/metrics/prometheus"
@@ -66,7 +66,7 @@ func (b *bau) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte("Unauthorized.\n"))
 }
 
-func newPromHttpService(ctx context.Context, pure bool, with, stop func(ctx context.Context, mux routes.RouteRegistrar) error) {
+func newPromHttpService(ctx context.Context, pure bool, with, stop func(ctx context.Context, mux routing.RouteRegistrar) error) {
 
 	var opts []service.ServiceOption
 	opts = append(opts,
@@ -93,8 +93,8 @@ var (
 
 func init() {
 
-	routes.DeclareRoute(RouteMetrics, "Prometheus metrics API", "/metrics")
-	routes.DeclareRoute(RoutePPROFS, "Expose golang internal profiling endpoints", "/debug")
+	routing.RegisterRoute(RouteMetrics, "Prometheus metrics API", "/metrics")
+	routing.RegisterRoute(RoutePPROFS, "Expose golang internal profiling endpoints", "/debug")
 
 	runtime.Register("main", func(ctx context.Context) {
 
@@ -118,7 +118,7 @@ func init() {
 				newPromHttpService(
 					ctx,
 					false,
-					func(ctx context.Context, mux routes.RouteRegistrar) error {
+					func(ctx context.Context, mux routing.RouteRegistrar) error {
 						h := prometheus.NewHandler(reporter)
 						router := mux.Route(RouteMetrics)
 						router.Handle(pattern, &bau{inner: h.HTTPHandler(), login: []byte(login), pwd: []byte(pwd)})
@@ -129,7 +129,7 @@ func init() {
 						}
 						return nil
 					},
-					func(ctx context.Context, mux routes.RouteRegistrar) error {
+					func(ctx context.Context, mux routing.RouteRegistrar) error {
 						mux.DeregisterRoute(RouteMetrics)
 						return nil
 					})
@@ -147,12 +147,12 @@ func init() {
 						}),
 					)
 				}
-				with := func(ctx context.Context, mux routes.RouteRegistrar) error {
+				with := func(ctx context.Context, mux routing.RouteRegistrar) error {
 					h := prometheus.NewHandler(reporter)
 					mux.Route(RouteMetrics).Handle(pattern, h.HTTPHandler())
 					return nil
 				}
-				stop := func(ctx context.Context, mux routes.RouteRegistrar) error {
+				stop := func(ctx context.Context, mux routing.RouteRegistrar) error {
 					mux.DeregisterRoute(RouteMetrics)
 					return nil
 				}
@@ -168,7 +168,7 @@ func init() {
 				service.ForceRegister(true),
 				service.Tag(common.ServiceTagGateway),
 				service.Description("Expose pprof data as an HTTP endpoint"),
-				service.WithHTTP(func(ctx context.Context, mu routes.RouteRegistrar) error {
+				service.WithHTTP(func(ctx context.Context, mu routing.RouteRegistrar) error {
 					router := mux.NewRouter().SkipClean(true).StrictSlash(true)
 					router.HandleFunc("/debug/pprof/", pprof.Index)
 					router.HandleFunc("/debug/pprof/allocs", pprof.Index)
@@ -182,13 +182,13 @@ func init() {
 					router.HandleFunc("/debug/pprof/symbol", pprof.Symbol)
 					router.HandleFunc("/debug/pprof/trace", pprof.Trace)
 					sub := mu.Route(RoutePPROFS)
-					sub.Handle(prefix+"/", router, routes.WithStripPrefix())
+					sub.Handle(prefix+"/", router, routing.WithStripPrefix())
 					if runtime.HttpServerType() == runtime.HttpServerCaddy {
 						sub.Handle("/", &pprofHandler{ctx: ctx})
 					}
 					return nil
 				}),
-				service.WithHTTPStop(func(ctx context.Context, mux routes.RouteRegistrar) error {
+				service.WithHTTPStop(func(ctx context.Context, mux routing.RouteRegistrar) error {
 					mux.DeregisterRoute(RoutePPROFS)
 					return nil
 				}),

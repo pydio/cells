@@ -35,10 +35,10 @@ import (
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/broker"
 	"github.com/pydio/cells/v4/common/config"
+	"github.com/pydio/cells/v4/common/config/routing"
 	"github.com/pydio/cells/v4/common/log"
 	"github.com/pydio/cells/v4/common/proto/front"
 	"github.com/pydio/cells/v4/common/runtime"
-	"github.com/pydio/cells/v4/common/server/http/routes"
 	"github.com/pydio/cells/v4/common/service"
 	servicecontext "github.com/pydio/cells/v4/common/service/context"
 	"github.com/pydio/cells/v4/common/service/frontend"
@@ -57,9 +57,9 @@ Disallow: /`
 
 func init() {
 
-	routes.DeclareRoute(RouteFrontend, "Main Frontend", "/")
-	routes.DeclareRoute(RoutePublic, "Public links access", "/public", routes.WithCustomResolver(func(ctx context.Context) string {
-		return config.GetPublicBaseUri()
+	routing.RegisterRoute(RouteFrontend, "Main Frontend", "/")
+	routing.RegisterRoute(RoutePublic, "Public links access", "/public", routing.WithCustomResolver(func(ctx context.Context) string {
+		return routing.GetPublicBaseUri()
 	}))
 
 	runtime.Register("main", func(ctx context.Context) {
@@ -85,7 +85,7 @@ func init() {
 					Up:            DropLegacyStatics,
 				},
 			}),
-			service.WithHTTP(func(ctx context.Context, mux routes.RouteRegistrar) error {
+			service.WithHTTP(func(ctx context.Context, mux routing.RouteRegistrar) error {
 				httpFs := http.FS(frontend.GetPluginsFS())
 
 				fs := gzipped.FileServer(httpFs)
@@ -96,14 +96,14 @@ func init() {
 
 				m := mux.Route(RouteFrontend)
 				m.Handle("index.json", fs)
-				m.Handle("plug/", fs, routes.WithStripPrefix())
+				m.Handle("plug/", fs, routing.WithStripPrefix())
 				indexHandler := index.NewIndexHandler(ctx, ResetPasswordPath)
 				m.Handle("robots.txt", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 					w.WriteHeader(200)
 					w.Header().Set("Content-Type", "text/plain")
 					w.Write([]byte(RobotsString))
 				}))
-				m.Handle("/", indexHandler)
+				m.Handle("/", indexHandler, routing.WithRewriteCatchAll())
 				m.Handle(ResetPasswordPath, indexHandler)
 
 				// /public endpoint : special handler for index, redirect to /plug/ for the rest
@@ -112,7 +112,7 @@ func init() {
 				handler = timeoutWrap(handler)
 				pub := mux.Route(RoutePublic)
 				pub.Handle("/", handler)
-				pub.Handle("plug/", fs, routes.WithStripPrefix())
+				pub.Handle("plug/", fs, routing.WithStripPrefix())
 
 				// Adding subscriber
 				_ = broker.SubscribeCancellable(ctx, common.TopicReloadAssets, func(_ context.Context, message broker.Message) error {
@@ -124,7 +124,7 @@ func init() {
 
 				return nil
 			}),
-			service.WithHTTPStop(func(ctx context.Context, reg routes.RouteRegistrar) error {
+			service.WithHTTPStop(func(ctx context.Context, reg routing.RouteRegistrar) error {
 				reg.DeregisterRoute(RouteFrontend)
 				reg.DeregisterRoute(RoutePublic)
 				return nil

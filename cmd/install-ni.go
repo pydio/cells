@@ -32,7 +32,7 @@ import (
 	"time"
 
 	"github.com/spf13/cobra"
-	"gopkg.in/yaml.v2"
+	yaml "gopkg.in/yaml.v2"
 
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/config"
@@ -75,14 +75,14 @@ func proxyConfigFromArgs() (*install.ProxyConfig, error) {
 	}
 
 	if niBindUrl == "default" {
-		def := *config.DefaultBindingSite
+		def := *routing.DefaultBindingSite
 		proxyConfig = &def
 	} else if p := strings.Split(niBindUrl, ":"); len(p) != 2 {
 		return nil, fmt.Errorf("Bind URL %s is not valid. Please correct to use an [IP|DOMAIN]:[PORT] string", niBindUrl)
 	} else {
 		if p[0] == "" {
 			// Only port is set - use DefaultBindSite host
-			pp := strings.Split(config.DefaultBindingSite.Binds[0], ":")
+			pp := strings.Split(routing.DefaultBindingSite.Binds[0], ":")
 			niBindUrl = pp[0] + ":" + p[1]
 		}
 		proxyConfig.Binds = []string{niBindUrl}
@@ -155,7 +155,7 @@ func installFromConf() (*install.InstallConfig, error) {
 		}
 	}
 	if installConf.ProxyConfig == nil {
-		installConf.ProxyConfig = config.DefaultBindingSite
+		installConf.ProxyConfig = routing.DefaultBindingSite
 		updateMultiple = true
 	}
 

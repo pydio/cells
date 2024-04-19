@@ -35,7 +35,6 @@ import (
 	"github.com/spf13/cobra"
 
 	"github.com/pydio/cells/v4/common"
-	"github.com/pydio/cells/v4/common/config"
 	"github.com/pydio/cells/v4/common/proto/install"
 )
 
@@ -89,11 +88,11 @@ EXAMPLES
 		return er
 	},
 	Run: func(cmd *cobra.Command, args []string) {
-		sites, e := config.LoadSites(true)
+		sites, e := routing.LoadSites(true)
 		fatalIfError(cmd, e)
 		if len(sites) == 0 {
 			fmt.Println("No site is currently configured. Cells exposes automatically the following URLs : ")
-			ss, _ := config.LoadSites()
+			ss, _ := routing.LoadSites()
 			autoSite := ss[0]
 			for _, u := range autoSite.GetBindURLs() {
 				fmt.Println("   - " + u)
@@ -239,7 +238,7 @@ func listSites(cmd *cobra.Command, sites []*install.ProxyConfig) {
 func confirmAndSave(cmd *cobra.Command, args []string, sites []*install.ProxyConfig) error {
 
 	if len(args) > 0 && args[0] == "skipConfirm" {
-		e := config.SaveSites(sites, common.PydioSystemUsername, "Updating config sites")
+		e := routing.SaveSites(sites, common.PydioSystemUsername, "Updating config sites")
 		<-time.After(1 * time.Second)
 		return e
 	}
@@ -277,7 +276,7 @@ func confirmAndSave(cmd *cobra.Command, args []string, sites []*install.ProxyCon
 	}
 	confirm := promptui.Prompt{Label: "Do you want to save this configuration", IsConfirm: true}
 	if _, e := confirm.Run(); e == nil {
-		e = config.SaveSites(sites, common.PydioSystemUsername, "Updating config sites")
+		e = routing.SaveSites(sites, common.PydioSystemUsername, "Updating config sites")
 		if e != nil {
 			cmd.Println("***********************************************")
 			cmd.Println("[ERROR] Could not save config : " + e.Error())

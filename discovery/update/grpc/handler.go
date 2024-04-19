@@ -33,6 +33,7 @@ import (
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/broker"
 	"github.com/pydio/cells/v4/common/config"
+	"github.com/pydio/cells/v4/common/config/routing"
 	"github.com/pydio/cells/v4/common/log"
 	"github.com/pydio/cells/v4/common/proto/jobs"
 	"github.com/pydio/cells/v4/common/proto/update"
@@ -144,7 +145,7 @@ func (h *Handler) ApplyUpdate(ctx context.Context, request *update.ApplyUpdateRe
 				task.StatusMessage = "Binary package has been successfully verified, you can now restart Cells.\n"
 				// Double check if we are on a protected port and log a hint in such case.
 				hasProtectedPort := false
-				sites, _ := config.LoadSites()
+				sites, _ := routing.LoadSites()
 				for _, si := range sites {
 					for _, a := range si.GetBindURLs() {
 						u, _ := url.Parse(a)

@@ -44,6 +44,7 @@ import (
 	"github.com/pydio/cells/v4/common/auth"
 	"github.com/pydio/cells/v4/common/client/commons/docstorec"
 	"github.com/pydio/cells/v4/common/config"
+	"github.com/pydio/cells/v4/common/config/routing"
 	"github.com/pydio/cells/v4/common/log"
 	"github.com/pydio/cells/v4/common/nodes"
 	"github.com/pydio/cells/v4/common/nodes/abstract"
@@ -277,7 +278,7 @@ func (h *PublicHandler) ServeDAV(w http.ResponseWriter, r *http.Request, linkId 
 		return fmt.Errorf("[404] cannot find dav path")
 	}
 
-	davPrefix := path.Join(config.GetPublicBaseUri(), linkId, config.GetPublicBaseDavSegment())
+	davPrefix := path.Join(routing.GetPublicBaseUri(), linkId, routing.GetPublicBaseDavSegment())
 	log.Logger(ctx).Debug("processing dav request on public link", zap.String("inputPath", inputPath), zap.String("davPrefix", davPrefix), zap.String("routerPrefix", innerPrefix), zap.String("davPath", davPath))
 	davHandler, prefixRouter := dav.GetHandler(h.runtimeContext, davPrefix, innerPrefix)
 
@@ -300,9 +301,9 @@ func (h *PublicHandler) ServeDAV(w http.ResponseWriter, r *http.Request, linkId 
 }
 
 func (h *PublicHandler) parseLinkId(r *http.Request) (linkId, davPath string) {
-	linkId = strings.Trim(strings.TrimPrefix(r.URL.Path, config.GetPublicBaseUri()), "/")
+	linkId = strings.Trim(strings.TrimPrefix(r.URL.Path, routing.GetPublicBaseUri()), "/")
 	parts := strings.Split(linkId, "/")
-	davSegment := config.GetPublicBaseDavSegment()
+	davSegment := routing.GetPublicBaseDavSegment()
 	if len(parts) > 1 && parts[1] == davSegment {
 		linkId = parts[0]
 		if len(parts) > 2 {

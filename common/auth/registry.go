@@ -41,7 +41,7 @@ import (
 	"github.com/ory/x/networkx"
 	"github.com/ory/x/otelx"
 	"github.com/ory/x/popx"
-
+	"github.com/pydio/cells/v4/common/config/routing"
 	servercontext "github.com/pydio/cells/v4/common/server/context"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
@@ -793,7 +793,7 @@ func varsFromStr(s string, sites []*install.ProxyConfig) []string {
 	var res []string
 	defaultBind := ""
 	if len(sites) > 0 {
-		defaultBind = config.GetDefaultSiteURL(sites...)
+		defaultBind = routing.GetDefaultSiteURL(sites...)
 	}
 	if strings.Contains(s, "#default_bind#") {
 

@@ -27,14 +27,14 @@ import (
 	"time"
 
 	"github.com/pydio/cells/v4/common"
+	"github.com/pydio/cells/v4/common/config/routing"
 	"github.com/pydio/cells/v4/common/runtime"
-	"github.com/pydio/cells/v4/common/server/http/routes"
 	"github.com/pydio/cells/v4/common/service"
 	"github.com/pydio/cells/v4/discovery/install/assets"
 )
 
 func init() {
-	routes.DeclareRoute("install", "Installation Frontend", "/")
+	routing.RegisterRoute("install", "Installation Frontend", "/")
 
 	runtime.Register("install", func(ctx context.Context) {
 		service.NewService(
@@ -42,7 +42,7 @@ func init() {
 			service.Context(ctx),
 			service.Tag(common.ServiceTagDiscovery),
 			service.Description("WEB Installation server"),
-			service.WithHTTP(func(ctx context.Context, mux routes.RouteRegistrar) error {
+			service.WithHTTP(func(ctx context.Context, mux routing.RouteRegistrar) error {
 				httpFs := http.FS(assets.PydioInstallBox)
 
 				fs := http.FileServer(httpFs)
@@ -57,7 +57,7 @@ func init() {
 
 				return nil
 			}),
-			service.WithHTTPStop(func(ctx context.Context, mux routes.RouteRegistrar) error {
+			service.WithHTTPStop(func(ctx context.Context, mux routing.RouteRegistrar) error {
 				mux.DeregisterRoute("install")
 				return nil
 			}),

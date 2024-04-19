@@ -1,10 +1,8 @@
 version: v1
 plugins:
   - name: go
+    opt: module=github.com/pydio/cells/v4/common/proto/install
     out: .
   - name: go-grpc
-    out: .
-  - name: go-enhanced-grpc
-    out: .
-  - name: govalidators
+    opt: module=github.com/pydio/cells/v4/common/proto/install
     out: .

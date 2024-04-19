@@ -193,6 +193,7 @@ const (
 	XPydioFrontendSessionUuid   = "X-Pydio-Frontend-Session"
 	XPydioMoveUuid              = "X-Pydio-Move"
 	XPydioTenantUuid            = "X-Pydio-Tenant"
+	XPydioSiteHash              = "X-Pydio-Site-Hash"
 	XContentType                = "Content-Type"
 	SyncSessionClose_           = "close-"
 	SyncSessionPrefixCopy       = "copy-"

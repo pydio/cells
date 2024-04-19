@@ -35,6 +35,7 @@ import (
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/auth/claim"
 	"github.com/pydio/cells/v4/common/config"
+	"github.com/pydio/cells/v4/common/config/routing"
 	"github.com/pydio/cells/v4/common/forms"
 	"github.com/pydio/cells/v4/common/forms/protos"
 	"github.com/pydio/cells/v4/common/log"
@@ -418,7 +419,7 @@ func (s *Handler) SchedulerActionFormDiscovery(req *restful.Request, rsp *restfu
 func (s *Handler) ListSites(req *restful.Request, rsp *restful.Response) {
 	// There is an optional Filter string on req
 
-	ss, err := config.LoadSites()
+	ss, err := routing.LoadSites()
 	if err != nil {
 		service.RestError500(req, rsp, err)
 		return

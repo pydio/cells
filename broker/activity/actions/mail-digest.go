@@ -32,6 +32,7 @@ import (
 	"github.com/pydio/cells/v4/common/auth"
 	"github.com/pydio/cells/v4/common/client/grpc"
 	"github.com/pydio/cells/v4/common/config"
+	"github.com/pydio/cells/v4/common/config/routing"
 	"github.com/pydio/cells/v4/common/forms"
 	"github.com/pydio/cells/v4/common/log"
 	"github.com/pydio/cells/v4/common/proto/activity"
@@ -159,7 +160,7 @@ func (m *MailDigestAction) Run(ctx context.Context, channels *actions.RunnableCh
 	}
 
 	links := render.NewServerLinks()
-	url := config.Get("services", "pydio.grpc.mailer", "url").Default(config.GetDefaultSiteURL()).String()
+	url := config.Get("services", "pydio.grpc.mailer", "url").Default(routing.GetDefaultSiteURL()).String()
 	linkUrl := config.Get("services", "pydio.rest.share", "url").Default(url).String()
 	if linkUrl != "" {
 		links.UrlFuncs[render.ServerUrlTypeDocs] = func(object *activity.Object, label string) string {

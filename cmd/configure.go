@@ -39,7 +39,6 @@ import (
 
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/broker"
-	"github.com/pydio/cells/v4/common/config"
 	"github.com/pydio/cells/v4/common/crypto"
 	"github.com/pydio/cells/v4/common/log"
 	"github.com/pydio/cells/v4/common/proto/install"
@@ -221,7 +220,7 @@ ENVIRONMENT
 			fatalIfError(cmd, er)
 
 			// Gather proxy information
-			sites, err := config.LoadSites()
+			sites, err := routing.LoadSites()
 			fatalIfError(cmd, err)
 			proxyConf = sites[0]
 
@@ -272,18 +271,18 @@ ENVIRONMENT
 }
 
 func switchDefaultTls(cmd *cobra.Command, proxyConf *install.ProxyConfig, disableTls bool) (*install.ProxyConfig, error) {
-	if proxyConf == config.DefaultBindingSite && disableTls {
+	if proxyConf == routing.DefaultBindingSite && disableTls {
 		// Create a siteConf without TLS
 		noTlsConf := *proxyConf
 		noTlsConf.TLSConfig = nil
 		proxyConf = &noTlsConf
-		return proxyConf, config.SaveSites([]*install.ProxyConfig{proxyConf}, common.PydioSystemUsername, "Binding to http (no tls)")
+		return proxyConf, routing.SaveSites([]*install.ProxyConfig{proxyConf}, common.PydioSystemUsername, "Binding to http (no tls)")
 	}
 	return proxyConf, nil
 }
 
 func checkDefaultBusy(cmd *cobra.Command, proxyConf *install.ProxyConfig, pickOne bool) (*install.ProxyConfig, string, error) {
-	if proxyConf != config.DefaultBindingSite {
+	if proxyConf != routing.DefaultBindingSite {
 		return proxyConf, "", nil
 	}
 	var msg string
@@ -306,7 +305,7 @@ func checkDefaultBusy(cmd *cobra.Command, proxyConf *install.ProxyConfig, pickOn
 
 	var err error
 	if msg != "" {
-		err = config.SaveSites([]*install.ProxyConfig{proxyConf}, common.PydioSystemUsername, msg)
+		err = routing.SaveSites([]*install.ProxyConfig{proxyConf}, common.PydioSystemUsername, msg)
 	}
 	return proxyConf, msg, err
 }

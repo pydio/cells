@@ -13,6 +13,7 @@ import (
 	"github.com/pydio/cells/v4/common/client"
 	clientcontext "github.com/pydio/cells/v4/common/client/context"
 	grpc2 "github.com/pydio/cells/v4/common/client/grpc"
+	"github.com/pydio/cells/v4/common/config/routing"
 	"github.com/pydio/cells/v4/common/log"
 	pb "github.com/pydio/cells/v4/common/proto/registry"
 	"github.com/pydio/cells/v4/common/proto/rest"
@@ -20,7 +21,6 @@ import (
 	"github.com/pydio/cells/v4/common/runtime"
 	"github.com/pydio/cells/v4/common/server/caddy/maintenance"
 	servercontext "github.com/pydio/cells/v4/common/server/context"
-	"github.com/pydio/cells/v4/common/server/http/routes"
 	"github.com/pydio/cells/v4/common/service/context/metadata"
 	json "github.com/pydio/cells/v4/common/utils/jsonx"
 )
@@ -32,32 +32,35 @@ var grpcTransport = &http.Transport{
 
 type Resolver interface {
 	ServeHTTP(w http.ResponseWriter, r *http.Request) (bool, error)
-	Init(ctx context.Context, serverID string, rr routes.RouteRegistrar)
+	Init(ctx context.Context, serverID string, rr routing.RouteRegistrar)
 	Stop()
+}
+
+// Mux wraps a standard MUX as an interface
+type Mux interface {
+	Handler(r *http.Request) (h http.Handler, pattern string)
+	ServeHTTP(w http.ResponseWriter, r *http.Request)
 }
 
 // NewResolver creates an http resolver; If rootOnNotFound is set, non-matching patterns
 // will be rewritten to base path and resolver will be run against it
-func NewResolver(rootOnNotFound bool) Resolver {
-	return &resolver{
-		rootOnNotFound: rootOnNotFound,
-	}
+func NewResolver() Resolver {
+	return &resolver{}
 }
 
 type resolver struct {
-	c              grpc.ClientConnInterface
-	r              registry.Registry
-	rr             routes.RouteRegistrar
-	s              routes.HttpMux
-	b              Balancer
-	rc             client.ResolverCallback
-	monitorOAuth   grpc2.HealthMonitor
-	monitorUser    grpc2.HealthMonitor
-	userReady      bool
-	rootOnNotFound bool
+	c            grpc.ClientConnInterface
+	r            registry.Registry
+	rr           routing.RouteRegistrar
+	s            Mux
+	b            Balancer
+	rc           client.ResolverCallback
+	monitorOAuth grpc2.HealthMonitor
+	monitorUser  grpc2.HealthMonitor
+	userReady    bool
 }
 
-func (m *resolver) Init(ctx context.Context, serverID string, rr routes.RouteRegistrar) {
+func (m *resolver) Init(ctx context.Context, serverID string, rr routing.RouteRegistrar) {
 
 	conn := clientcontext.GetClientConn(ctx)
 	reg := servercontext.GetRegistry(ctx)
@@ -101,7 +104,14 @@ func (m *resolver) ServeHTTP(w http.ResponseWriter, r *http.Request) (bool, erro
 		r.Header.Set(common.XPydioTenantUuid, runtime.Cluster())
 	}
 
-	ctx := metadata.WithAdditionalMetadata(r.Context(), map[string]string{common.XPydioTenantUuid: r.Header.Get(common.XPydioTenantUuid)})
+	ctx := metadata.WithAdditionalMetadata(r.Context(), map[string]string{
+		common.XPydioTenantUuid: r.Header.Get(common.XPydioTenantUuid),
+		common.XPydioSiteHash:   r.Header.Get(common.XPydioSiteHash),
+	})
+
+	r = r.WithContext(ctx)
+	// This may rewrite the request, by resolving the underlying endpoints
+	m.rr.ApplyRewrites(r)
 
 	// Special case for application/grpc
 	if strings.Contains(r.Header.Get("Content-Type"), "application/grpc") {
@@ -157,14 +167,15 @@ func (m *resolver) ServeHTTP(w http.ResponseWriter, r *http.Request) (bool, erro
 	// try to find it in the current mux
 	ctx = clientcontext.WithClientConn(ctx, m.c)
 	ctx = servercontext.WithRegistry(ctx, m.r)
+
 	if m.s == nil {
-		var er error
-		m.s, er = m.rr.ResolveMux(ctx)
-		if er != nil {
-			http.NotFound(w, r)
-			return false, fmt.Errorf("cannot resolve MUX")
-		}
+		mu := http.NewServeMux()
+		m.rr.IteratePatterns(func(pattern string, handler http.Handler) {
+			mu.Handle(pattern, handler)
+		})
+		m.s = mu
 	}
+	fmt.Println(r.URL.Path, r.RequestURI)
 	// Try to match pattern - Custom check for "/" : must be exactly /
 	if h, pattern := m.s.Handler(r); len(pattern) > 0 && (pattern != "/" || r.URL.Path == "/") {
 		h.ServeHTTP(w, r.WithContext(ctx))
@@ -177,11 +188,9 @@ func (m *resolver) ServeHTTP(w http.ResponseWriter, r *http.Request) (bool, erro
 		return true, nil
 	}
 
-	if m.rootOnNotFound && r.URL.Path != "/" {
-		// Rewrite to root and re-apply MUX
-		m.rewriteToRoot(r)
-		if h, pattern := m.s.Handler(r); len(pattern) > 0 {
-			h.ServeHTTP(w, r.WithContext(ctx))
+	if m.rr.CanRewriteAndCatchAll(r) {
+		if h, pat := m.s.Handler(r); len(pat) > 0 {
+			h.ServeHTTP(w, r)
 			return true, nil
 		}
 	}

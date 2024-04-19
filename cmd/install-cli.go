@@ -35,7 +35,6 @@ import (
 	p "github.com/manifoldco/promptui"
 	"github.com/spf13/cobra"
 
-	"github.com/pydio/cells/v4/common/config"
 	"github.com/pydio/cells/v4/common/proto/install"
 	"github.com/pydio/cells/v4/common/runtime"
 	json "github.com/pydio/cells/v4/common/utils/jsonx"
@@ -128,7 +127,7 @@ func cliInstall(cmd *cobra.Command, proxyConfig *install.ProxyConfig) (*install.
 	fmt.Println("\n\033[1m## Software is ready to run!\033[0m")
 
 	fmt.Println(p.Styler(p.FGFaint)("Cells will be accessible through the following URLs:"))
-	ss, _ := config.LoadSites()
+	ss, _ := routing.LoadSites()
 	var urls []string
 	for _, s := range ss {
 		for _, u := range s.GetExternalUrls() {

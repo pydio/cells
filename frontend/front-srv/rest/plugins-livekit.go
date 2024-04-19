@@ -8,9 +8,9 @@ import (
 
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/config"
+	"github.com/pydio/cells/v4/common/config/routing"
 	"github.com/pydio/cells/v4/common/log"
 	"github.com/pydio/cells/v4/common/runtime"
-	"github.com/pydio/cells/v4/common/server/http/routes"
 	"github.com/pydio/cells/v4/common/service"
 )
 
@@ -31,7 +31,7 @@ func init() {
 		return s.Val(pa...).Set(val)
 	}))
 
-	routes.DeclareRoute("livekit", "Livekit Plugin for video calls", "/rtc")
+	routing.RegisterRoute("livekit", "Livekit Plugin for video calls", "/rtc")
 
 	runtime.Register("main", func(ctx context.Context) {
 		service.NewService(
@@ -40,7 +40,7 @@ func init() {
 			service.Tag(common.ServiceTagFrontend),
 			service.AutoRestart(true),
 			service.Description("Grpc service for internal requests about frontend manifest"),
-			service.WithHTTP(func(ctx context.Context, mux routes.RouteRegistrar) error {
+			service.WithHTTP(func(ctx context.Context, mux routing.RouteRegistrar) error {
 
 				enabled := config.Get("frontend", "plugin", "action.livekit", config.KeyFrontPluginEnabled).Bool()
 				lkUrl := config.Get("frontend", "plugin", "action.livekit", "LK_WS_URL").String()
@@ -59,7 +59,7 @@ func init() {
 
 				return nil
 			}),
-			service.WithHTTPStop(func(ctx context.Context, mux routes.RouteRegistrar) error {
+			service.WithHTTPStop(func(ctx context.Context, mux routing.RouteRegistrar) error {
 				mux.DeregisterRoute("livekit")
 				return nil
 			}),

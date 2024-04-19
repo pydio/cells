@@ -31,7 +31,6 @@ import (
 	p "github.com/manifoldco/promptui"
 	"github.com/spf13/cobra"
 
-	"github.com/pydio/cells/v4/common/config"
 	"github.com/pydio/cells/v4/common/proto/install"
 	"github.com/pydio/cells/v4/common/utils/net"
 )
@@ -47,7 +46,7 @@ DESCRIPTION
 `,
 	Run: func(cmd *cobra.Command, args []string) {
 
-		sites, _ := config.LoadSites(true)
+		sites, _ := routing.LoadSites(true)
 
 		newSite := &install.ProxyConfig{}
 
@@ -147,7 +146,7 @@ func promptMaintenanceMode(site *install.ProxyConfig) (e error) {
 func promptBindURLs(site *install.ProxyConfig, resolveHosts bool, bindingPort string) (e error) {
 
 	if bindingPort == "" {
-		def := strings.Split(config.DefaultBindingSite.Binds[0], ":")[1]
+		def := strings.Split(routing.DefaultBindingSite.Binds[0], ":")[1]
 		portPrompt := &p.Prompt{
 			Label:     "Binding Port",
 			Validate:  validPortNumber,
