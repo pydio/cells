@@ -46,7 +46,6 @@ import (
 	"github.com/pydio/cells/v4/common/proto/rest"
 	"github.com/pydio/cells/v4/common/runtime"
 	"github.com/pydio/cells/v4/common/server"
-	"github.com/pydio/cells/v4/common/server/middleware"
 	servicecontext "github.com/pydio/cells/v4/common/service/context"
 	"github.com/pydio/cells/v4/common/service/frontend"
 )
@@ -87,8 +86,8 @@ func getWebMiddlewares(serviceName string) []func(ctx context.Context, handler h
 	wmOnce.Do(func() {
 		wm = append(wm,
 			servicecontext.HttpWrapperMetrics,
-			middleware.HttpWrapperPolicy,
-			middleware.HttpWrapperJWT,
+			//			middleware.HttpWrapperPolicy,
+			//			middleware.HttpWrapperJWT,
 			servicecontext.HttpWrapperSpan,
 			servicecontext.HttpWrapperMeta,
 		)
@@ -213,11 +212,14 @@ func WithWeb(handler func(ctx context.Context) WebHandler) ServiceOption {
 
 			wrapped = UpdateServiceVersionWrapper(wrapped, o)
 
-			wrapped = func(h http.Handler, o *ServiceOptions) http.Handler {
-				return http.HandlerFunc(func(rw http.ResponseWriter, req *http.Request) {
-					h.ServeHTTP(rw, req.WithContext(ctx))
-				})
-			}(wrapped, o)
+			/*
+				wrapped = func(h http.Handler, o *ServiceOptions) http.Handler {
+					return http.HandlerFunc(func(rw http.ResponseWriter, req *http.Request) {
+						h.ServeHTTP(rw, req.WithContext(ctx))
+					})
+				}(wrapped, o)
+
+			*/
 
 			sub := mux.Route(APIRoute)
 			sub.Handle(serviceRoute, wrapped, routing.WithStripPrefix(), routing.WithEnsureTrailing())

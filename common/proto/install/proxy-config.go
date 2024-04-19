@@ -35,6 +35,14 @@ func (r *Rule) Accept() bool {
 	return r.Effect == RuleEffect_ACCEPT
 }
 
+func (r *Rule) IngressURI(routeDefault string) string {
+	if r.GetAction() == "Rewrite" {
+		return r.GetValue()
+	} else {
+		return routeDefault
+	}
+}
+
 // Hash computes a unique hash for this site and keep it in cache
 func (m *ProxyConfig) Hash() string {
 	if m.ComputedHash == "" {

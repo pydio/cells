@@ -4,6 +4,8 @@ package install;
 
 option go_package="github.com/pydio/cells/v4/common/proto/install";
 
+import "cells-setter.proto";
+
 message InstallConfig {
     string internalUrl = 32;
 
@@ -58,6 +60,7 @@ enum RuleEffect {
 }
 
 message Rule {
+    option (setter.all_fields) = true;
     // Matcher matches one or more routes or *
     string Matcher = 1;
     // Effect accepts or denies
@@ -70,6 +73,8 @@ message Rule {
 
 // ProxyConfig gives necessary URL and TLS configurations to start proxy
 message ProxyConfig {
+    option (setter.all_fields) = true;
+
     // A list of [host]:port to bind to
     repeated string Binds = 1;
     // Optional URL of reverse proxy exposing this site

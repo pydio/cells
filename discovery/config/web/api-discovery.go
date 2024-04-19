@@ -109,6 +109,16 @@ func (s *Handler) EndpointsDiscovery(req *restful.Request, resp *restful.Respons
 	endpointResponse.Endpoints["websocket"] = withScheme(withPath(urlParsed, "/ws/event"), wsProtocol).String()
 	endpointResponse.Endpoints["frontend"] = withPath(urlParsed, "").String()
 
+	if routes, er := routing.SiteContextDiscoveryRoutes(req.Request.Context(), true); er == nil {
+		for id, urls := range routes {
+			var all []string
+			for _, u := range urls {
+				all = append(all, u.String())
+			}
+			endpointResponse.Endpoints["route-"+id] = strings.Join(all, ",")
+		}
+	}
+
 	if urlParsed.Scheme == "http" {
 		if external := runtime.GrpcExternalPort(); external != "" {
 			endpointResponse.Endpoints["grpc"] = external

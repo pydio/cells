@@ -374,6 +374,7 @@ func (r *registeredHandler) attach(resolvedRouteURI string, subPattern string) (
 	}
 	// Wrap handler to inject resolvedRouteURI inside the context
 	handler = http.HandlerFunc(func(writer http.ResponseWriter, request *http.Request) {
+		// Todo : read resolved from request header
 		req := request.WithContext(context.WithValue(request.Context(), ctxResolvedRouteURI{}, resolvedRouteURI))
 		ha.ServeHTTP(writer, req)
 	})
