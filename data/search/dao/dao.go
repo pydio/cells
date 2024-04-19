@@ -43,7 +43,8 @@ type SearchEngine interface {
 
 func NewBleveDAO(v *bleve.Indexer) SearchEngine {
 	v.SetCodex(&bleve2.Codec{})
-	return &Server{Indexer: v}
+
+	return &Server{}
 }
 
 //

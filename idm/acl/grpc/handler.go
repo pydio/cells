@@ -31,7 +31,6 @@ import (
 	pbservice "github.com/pydio/cells/v4/common/proto/service"
 	"github.com/pydio/cells/v4/common/proto/tree"
 	"github.com/pydio/cells/v4/common/runtime/manager"
-	servicecontext "github.com/pydio/cells/v4/common/service/context"
 	"github.com/pydio/cells/v4/common/service/errors"
 	"github.com/pydio/cells/v4/idm/acl"
 )
@@ -75,12 +74,10 @@ func (h *Handler) ExpireACL(ctx context.Context, req *idm.ExpireACLRequest) (*id
 
 	resp := &idm.ExpireACLResponse{}
 
-	dao := servicecontext.GetDAO[acl.DAO](ctx)
-
-	if dao == nil {
-		return nil, errMissingDAO
+	dao, err := manager.Resolve[acl.DAO](ctx)
+	if err != nil {
+		return nil, err
 	}
-
 	numRows, err := dao.SetExpiry(ctx, req.Query, time.Unix(req.Timestamp, 0), nil)
 	if err != nil {
 		return nil, err
@@ -96,10 +93,9 @@ func (h *Handler) RestoreACL(ctx context.Context, req *idm.RestoreACLRequest) (*
 
 	resp := &idm.RestoreACLResponse{}
 
-	dao := servicecontext.GetDAO[acl.DAO](ctx)
-
-	if dao == nil {
-		return nil, errMissingDAO
+	dao, err := manager.Resolve[acl.DAO](ctx)
+	if err != nil {
+		return nil, err
 	}
 
 	// Set zeroTime to restore
@@ -124,10 +120,9 @@ func (h *Handler) DeleteACL(ctx context.Context, req *idm.DeleteACLRequest) (*id
 	response := &idm.DeleteACLResponse{}
 	acls := new([]interface{})
 
-	dao := servicecontext.GetDAO[acl.DAO](ctx)
-
-	if dao == nil {
-		return nil, errMissingDAO
+	dao, err := manager.Resolve[acl.DAO](ctx)
+	if err != nil {
+		return nil, err
 	}
 
 	if err := dao.Search(ctx, req.Query, acls, period); err != nil {

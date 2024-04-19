@@ -36,7 +36,6 @@ type IndexIDProvider interface {
 type Indexer interface {
 	InsertOne(ctx context.Context, data interface{}) error
 	DeleteOne(ctx context.Context, data interface{}) error
-	Flush(ctx context.Context) error
 	DeleteMany(ctx context.Context, query interface{}) (int32, error)
 	FindMany(ctx context.Context, query interface{}, offset, limit int32, sortFields string, sortDesc bool, customCodex IndexCodex) (chan interface{}, error)
 
@@ -48,6 +47,8 @@ type Indexer interface {
 	Resync(ctx context.Context, logger func(string)) error
 	// Truncate should free some disk space. Used by bleve implementation in conjunction with rotationSize parameter.
 	Truncate(ctx context.Context, max int64, logger func(string)) error
+
+	NewBatch(ctx context.Context, options ...BatchOption) (Batch, error)
 
 	Open(ctx context.Context) error
 	// Close closes the index connection

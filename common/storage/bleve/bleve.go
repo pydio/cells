@@ -8,7 +8,6 @@ import (
 	servercontext "github.com/pydio/cells/v4/common/server/context"
 	"github.com/pydio/cells/v4/common/storage"
 	"github.com/pydio/cells/v4/common/storage/indexer"
-	"github.com/pydio/cells/v4/common/utils/configx"
 	"github.com/pydio/cells/v4/common/utils/openurl"
 	"github.com/pydio/cells/v4/common/utils/uuid"
 )
@@ -123,7 +122,7 @@ func (s *bleveStorage) Get(ctx context.Context, out interface{}) bool {
 			return false
 		}
 
-		index.serviceConfigs = servercontext.GetConfig(ctx).Val()
+		index.serviceConfigs = servercontext.GetConfig(ctx)
 
 		*v = index
 
@@ -187,11 +186,7 @@ func (s *bleveStorage) Get(ctx context.Context, out interface{}) bool {
 			return false
 		}
 
-		if cfg := servercontext.GetConfig(ctx); cfg == nil {
-			index.serviceConfigs = configx.New()
-		} else {
-			index.serviceConfigs = cfg.Val()
-		}
+		index.serviceConfigs = servercontext.GetConfig(ctx)
 
 		*v = index
 
