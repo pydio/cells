@@ -127,12 +127,13 @@ processes:
   gateway:
     connections:
       <<: *connections
+    env: *env
     services:
       gateway:
     servers:
       http:
         type: http
-        port: 8100
+        port: 0
 
 
       #  data:
