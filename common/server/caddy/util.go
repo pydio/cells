@@ -105,59 +105,59 @@ func SitesToCaddyConfigs(sites []*install.ProxyConfig) (caddySites []SiteConf, e
 }
 
 func computeSiteConf(pc *install.ProxyConfig) (SiteConf, error) {
-	bc := SiteConf{
+	site := SiteConf{
 		ProxyConfig: proto.Clone(pc).(*install.ProxyConfig),
 	}
 	if pc.ReverseProxyURL != "" {
 		if u, e := url.Parse(pc.ReverseProxyURL); e == nil {
-			bc.ExternalHost = u.Host
+			site.ExternalHost = u.Host
 		}
 	}
-	if bc.TLSConfig == nil {
-		for i, b := range bc.Binds {
-			bc.Binds[i] = "http://" + strings.Replace(b, "0.0.0.0", "", 1)
+	if site.TLSConfig == nil {
+		for i, b := range site.Binds {
+			site.Binds[i] = "http://" + strings.Replace(b, "0.0.0.0", "", 1)
 		}
 	} else {
-		for i, b := range bc.Binds {
-			bc.Binds[i] = strings.Replace(b, "0.0.0.0", "", 1)
+		for i, b := range site.Binds {
+			site.Binds[i] = strings.Replace(b, "0.0.0.0", "", 1)
 		}
-		switch v := bc.TLSConfig.(type) {
+		switch v := site.TLSConfig.(type) {
 		case *install.ProxyConfig_Certificate, *install.ProxyConfig_SelfSigned:
 			certFile, keyFile, err := providers.LoadCertificates(pc, runtime.CertsStoreURL())
 			if err != nil {
-				return bc, err
+				return site, err
 			}
-			bc.TLSCert = certFile
-			bc.TLSKey = keyFile
+			site.TLSCert = certFile
+			site.TLSKey = keyFile
 		case *install.ProxyConfig_LetsEncrypt:
 			caUrl := common.DefaultCaUrl
 			if v.LetsEncrypt.StagingCA {
 				caUrl = common.DefaultCaStagingUrl
 			}
-			bc.TLS = v.LetsEncrypt.Email + ` {
+			site.TLS = v.LetsEncrypt.Email + ` {
 				ca ` + caUrl + `
 			}`
 		}
 	}
-	bc.WebRoot = uuid.New()
+	site.WebRoot = uuid.New()
 
 	// Translating log level to caddy
 	logLevel := runtime.LogLevel()
 	if logLevel != "warn" {
 		if logLevel == "debug" {
-			bc.Log = filepath.Join(runtime.ApplicationWorkingDir(runtime.ApplicationDirLogs), "caddy_access.log")
-			bc.LogLevel = "INFO"
+			site.Log = filepath.Join(runtime.ApplicationWorkingDir(runtime.ApplicationDirLogs), "caddy_access.log")
+			site.LogLevel = "INFO"
 		} else {
-			bc.Log = filepath.Join(runtime.ApplicationWorkingDir(runtime.ApplicationDirLogs), "caddy_errors.log")
-			bc.LogLevel = "ERROR"
+			site.Log = filepath.Join(runtime.ApplicationWorkingDir(runtime.ApplicationDirLogs), "caddy_errors.log")
+			site.LogLevel = "ERROR"
 		}
 	}
 
-	bc.Routes = []CaddyRoute{{Path: "/*"}}
-	if bc.HasRouting() {
-		bc.Routes = []CaddyRoute{}
+	site.Routes = []CaddyRoute{{Path: "/*"}}
+	if site.HasRouting() {
+		site.Routes = []CaddyRoute{}
 		for _, route := range routing.ListRoutes() {
-			rule := bc.FindRouteRule(route.GetID())
+			rule := site.FindRouteRule(route.GetID())
 			if rule.Accept() {
 				cr := CaddyRoute{Path: route.GetURI() + "*"}
 				if rule.Action == "Rewrite" {
@@ -166,6 +166,7 @@ func computeSiteConf(pc *install.ProxyConfig) (SiteConf, error) {
 					realTarget := route.GetURI()
 					if realTarget == "/" {
 						cr.Path = inputURI + "*"
+						cr.RewriteRules = append(cr.RewriteRules, fmt.Sprintf("redir %s %s/", inputURI, inputURI))
 						cr.RewriteRules = append(cr.RewriteRules, fmt.Sprintf("uri %s* strip_prefix %s", inputURI, inputURI))
 					} else {
 						cr.Path = inputURI + "/*"
@@ -173,10 +174,10 @@ func computeSiteConf(pc *install.ProxyConfig) (SiteConf, error) {
 					}
 					cr.RewriteRules = append(cr.RewriteRules, fmt.Sprintf("request_header X-Pydio-Site-RouteURI %s", inputURI))
 				}
-				bc.Routes = append(bc.Routes, cr)
+				site.Routes = append(site.Routes, cr)
 			}
 		}
 	}
 
-	return bc, nil
+	return site, nil
 }
