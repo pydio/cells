@@ -25,19 +25,12 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"time"
 
-	"go.uber.org/zap"
-
-	"github.com/pydio/cells/v4/common"
-	"github.com/pydio/cells/v4/common/config"
 	"github.com/pydio/cells/v4/common/log"
 	"github.com/pydio/cells/v4/common/nodes/meta"
 	"github.com/pydio/cells/v4/common/proto/tree"
-	"github.com/pydio/cells/v4/common/runtime/manager"
 	servercontext "github.com/pydio/cells/v4/common/server/context"
 	"github.com/pydio/cells/v4/common/storage/indexer"
-	"github.com/pydio/cells/v4/common/utils/configx"
 	bleve2 "github.com/pydio/cells/v4/data/search/dao/bleve"
 )
 
@@ -48,10 +41,7 @@ var (
 type Server struct {
 	indexer.Indexer
 
-	inserts  chan *tree.IndexableNode
-	deletes  chan string
-	done     chan bool
-	confChan chan configx.Values
+	batch indexer.Batch
 }
 
 func NewEngine(ctx context.Context, idx indexer.Indexer) (*Server, error) {
@@ -65,104 +55,43 @@ func newEngine(ctx context.Context, idx indexer.Indexer) (*Server, error) {
 	}
 	idx.SetCodex(&bleve2.Codec{})
 
-	server := &Server{
-		Indexer: idx,
+	server := &Server{}
+	server.Indexer = idx
 
-		inserts:  make(chan *tree.IndexableNode),
-		deletes:  make(chan string),
-		done:     make(chan bool, 1),
-		confChan: make(chan configx.Values),
-	}
+	server.batch = NewBatch(ctx, idx, meta.NewNsProvider(ctx), BatchOptions{})
 
-	// idx.Open(ctx)
-
-	go server.watchOperations(ctx)
-	go server.watchConfigs(ctx)
+	//go server.watchConfigs(ctx)
 
 	return server, nil
 }
 
-func (s *Server) watchOperations(ctx context.Context) {
-	nsProvider := meta.NewNsProvider(ctx)
-
-	options := BatchOptions{}
-	if conf := servercontext.GetConfig(ctx); conf == nil {
-		options.config = configx.New()
-	} else {
-		options.config = conf.Val()
-	}
-
-	batch := NewBatch(ctx, nsProvider, options)
-	debounce := 1 * time.Second
-	timer := time.NewTimer(debounce)
-	defer func() {
-		timer.Stop()
-	}()
-	for {
-		select {
-		case n := <-s.inserts:
-			timer.Stop() // Call stop and create new one instead of Reset
-			timer = time.NewTimer(debounce)
-			batch.Index(n)
-			if batch.Size() >= BatchSize {
-				batch.Flush(s)
-			}
-		case d := <-s.deletes:
-			timer.Stop()
-			timer = time.NewTimer(debounce)
-			batch.Delete(d)
-			if batch.Size() >= BatchSize {
-				batch.Flush(s)
-			}
-		case <-timer.C:
-			batch.Flush(s)
-		case cf := <-s.confChan:
-			// s.configs = cf
-			batch.options.config = cf
-			log.Logger(ctx).Info("Changing search engine content indexation status", zap.Bool("i", cf.Val("indexContent").Bool()))
-		//case <-ctx.Done():
-		//	batch.Flush(s.Engine)
-		//	s.Engine.Close(ctx)
-		//	close(s.done)
-		//	return
-		case <-s.done:
-			batch.Flush(s)
-			s.Close(ctx)
-			return
-		}
-	}
-}
-
-func (s *Server) watchConfigs(ctx context.Context) {
-	serviceName := common.ServiceGrpcNamespace_ + common.ServiceSearch
-
-	watcher, e := config.Watch(configx.WithPath("services", serviceName))
-	if e != nil {
-		return
-	}
-	for {
-		_, err := watcher.Next()
-		if err != nil {
-			break
-		}
-
-		s.confChan <- config.Get("services", serviceName)
-	}
-
-	watcher.Stop()
-}
+//func (s *Server) watchConfigs(ctx context.Context) {
+//	serviceName := common.ServiceGrpcNamespace_ + common.ServiceSearch
+//
+//	watcher, e := config.Watch(configx.WithPath("services", serviceName))
+//	if e != nil {
+//		return
+//	}
+//	for {
+//		_, err := watcher.Next()
+//		if err != nil {
+//			break
+//		}
+//
+//		s.confChan <- config.Get("services", serviceName)
+//	}
+//
+//	watcher.Stop()
+//}
 
 func (s *Server) Close(ctx context.Context) error {
-	close(s.done)
+	if err := s.batch.Close(); err != nil {
+		return err
+	}
 	return s.Indexer.Close(ctx)
 }
 
 func (s *Server) IndexNode(c context.Context, n *tree.Node, reloadCore bool, excludes map[string]struct{}) error {
-	dao, err := manager.Resolve[indexer.Indexer](c)
-	if err != nil {
-		return err
-	}
-
 	if n.GetUuid() == "" {
 		return fmt.Errorf("missing uuid")
 	}
@@ -172,39 +101,32 @@ func (s *Server) IndexNode(c context.Context, n *tree.Node, reloadCore bool, exc
 		forceCore = true
 	}
 
-	iNode := &tree.IndexableNode{
+	indexNode := &tree.IndexableNode{
 		Node:       *n,
 		ReloadCore: reloadCore || forceCore,
 		ReloadNs:   !reloadCore,
 	}
 
-	return dao.InsertOne(c, iNode)
+	return s.batch.Insert(indexNode)
 }
 
 func (s *Server) DeleteNode(c context.Context, n *tree.Node) error {
-	s.deletes <- n.GetUuid()
-	return nil
-
+	return s.batch.Delete(n.GetUuid())
 }
 
 func (s *Server) ClearIndex(ctx context.Context) error {
-	return s.Truncate(ctx, 0, func(s string) {
+	return s.Indexer.Truncate(ctx, 0, func(s string) {
 		log.Logger(ctx).Info(s)
 	})
 }
 
 func (s *Server) SearchNodes(ctx context.Context, queryObject *tree.Query, from int32, size int32, sortField string, sortDesc bool, resultChan chan *tree.Node, facets chan *tree.SearchFacet, doneChan chan bool) error {
-	dao, err := manager.Resolve[indexer.Indexer](ctx)
-	if err != nil {
-		return err
-	}
 
 	nsProvider := meta.NewNsProvider(ctx)
-	conf := servercontext.GetConfig(ctx)
 
-	accu := NewQueryCodec(s.Indexer, conf.Val(), nsProvider)
+	accu := NewQueryCodec(s.Indexer, servercontext.GetConfig(ctx).Val(), nsProvider)
 
-	searchResult, err := dao.FindMany(ctx, queryObject, from, size, sortField, sortDesc, accu)
+	searchResult, err := s.Indexer.FindMany(ctx, queryObject, from, size, sortField, sortDesc, accu)
 	if err != nil {
 		doneChan <- true
 		return err

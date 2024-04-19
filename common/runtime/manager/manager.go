@@ -71,6 +71,7 @@ var (
 )
 
 type Manager interface {
+	Context() context.Context
 	Registry() registry.Registry
 	ServeAll(...server.ServeOption) error
 	StopAll()
@@ -106,11 +107,17 @@ func NewManager(ctx context.Context, namespace string, logger log.ZapLogger) (Ma
 		return nil, err
 	}
 
+	clusterReg, err := registry.OpenRegistry(ctx, runtime.RegistryURL())
+	if err != nil {
+		return nil, err
+	}
+
 	m := &manager{
 		ctx: ctx,
 		ns:  namespace,
 
-		localRegistry: reg,
+		localRegistry:   reg,
+		clusterRegistry: clusterReg,
 
 		//processes: make(map[string]registry),
 		//servers:  make(map[string]server.Server),
@@ -126,6 +133,15 @@ func NewManager(ctx context.Context, namespace string, logger log.ZapLogger) (Ma
 			meta[runtime.NodeRootID] = m.root.ID()
 		}
 	}, registry.WithType(pb.ItemType_SERVER), registry.WithType(pb.ItemType_SERVICE), registry.WithType(pb.ItemType_NODE))
+
+	reg = registry.NewFuncWrapper(reg,
+		// Adding to cluster registry
+		registry.OnRegister(func(item *registry.Item, opts *[]registry.RegisterOption) {
+			if m.clusterRegistry != nil {
+				m.clusterRegistry.Register(*item, *opts...)
+			}
+		}),
+	)
 
 	reg.Register(m.root)
 
@@ -155,6 +171,8 @@ func NewManager(ctx context.Context, namespace string, logger log.ZapLogger) (Ma
 			}
 		}),
 	)
+
+	m.localRegistry = reg
 
 	// Detect a parent root
 	var current registry.Item
@@ -245,6 +263,10 @@ func reset(conf config.Store, store config.Store) error {
 	}
 
 	return nil
+}
+
+func (m *manager) Context() context.Context {
+	return m.ctx
 }
 
 func (m *manager) Registry() registry.Registry {

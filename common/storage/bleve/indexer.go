@@ -39,8 +39,8 @@ import (
 	"github.com/blevesearch/bleve/v2/search/query"
 	"github.com/rs/xid"
 
+	"github.com/pydio/cells/v4/common/config"
 	"github.com/pydio/cells/v4/common/storage/indexer"
-	"github.com/pydio/cells/v4/common/utils/configx"
 	"github.com/pydio/cells/v4/common/utils/uuid"
 )
 
@@ -63,7 +63,7 @@ type Indexer struct {
 	insertsDone chan bool
 
 	codec          indexer.IndexCodex
-	serviceConfigs configx.Values
+	serviceConfigs config.Store
 
 	opened bool
 
@@ -796,9 +796,11 @@ func (s *Indexer) openOneIndex(bleveIndexPath string, mappingName string) (bleve
 	if err != nil {
 		indexMapping := bleve.NewIndexMapping()
 		if s.codec != nil {
-			if model, ok := s.codec.GetModel(s.serviceConfigs); ok {
-				if docMapping, ok := model.(*mapping.DocumentMapping); ok {
-					indexMapping.AddDocumentMapping(mappingName, docMapping)
+			if s.serviceConfigs != nil {
+				if model, ok := s.codec.GetModel(s.serviceConfigs.Val()); ok {
+					if docMapping, ok := model.(*mapping.DocumentMapping); ok {
+						indexMapping.AddDocumentMapping(mappingName, docMapping)
+					}
 				}
 			}
 		}
@@ -817,30 +819,47 @@ func (s *Indexer) openOneIndex(bleveIndexPath string, mappingName string) (bleve
 	return index, nil
 }
 
-type Batch interface {
-	Insert(data any) error
-	Delete(data any) error
-	Flush() error
-	Close() error
-}
-
-func (s *Indexer) NewBatch(ctx context.Context) (Batch, error) {
+func (s *Indexer) NewBatch(ctx context.Context, opts ...indexer.BatchOption) (indexer.Batch, error) {
 	index, err := s.getWriteIndex(ctx)
 	if err != nil {
 		return nil, err
 	}
 
 	indexAlias := bleve.NewIndexAlias(index)
+	batch := indexAlias.NewBatch()
 
-	b := &bleveBatch{
-		indexAlias: indexAlias,
-		batch:      indexAlias.NewBatch(),
-		batchSize:  s.conf.BatchSize,
-		flushLock:  &sync.Mutex{},
-		inserts:    make(chan interface{}),
-		deletes:    make(chan interface{}),
-		forceFlush: make(chan bool),
-		flushCallback: func() error {
+	// Check if the index need to be rotated once we flushed the operations
+	opts = append(opts,
+		indexer.WithFlushCondition(func() bool {
+			return batch.Size() > int(s.conf.BatchSize)
+		}),
+		indexer.WithInsertCallback(func(msg any) error {
+			var id string
+			if provider, ok := msg.(indexer.IndexIDProvider); ok {
+				id = provider.IndexID()
+			} else {
+				id = xid.New().String()
+			}
+
+			if err := batch.Index(id, msg); err != nil {
+				return err
+			}
+
+			batch.Reset()
+
+			return nil
+		}),
+		indexer.WithDeleteCallback(func(msg any) error {
+			id, ok := msg.(string)
+			if !ok {
+				return errors.New("not a string")
+			}
+
+			batch.Delete(id)
+
+			return nil
+		}),
+		indexer.WithFlushCallback(func() error {
 			if s.checkRotate(ctx) {
 				s.rotate(ctx)
 			}
@@ -854,13 +873,14 @@ func (s *Indexer) NewBatch(ctx context.Context) (Batch, error) {
 			index = newIndex
 
 			return nil
-		},
-		done: make(chan bool),
+		}))
+
+	o := &indexer.BatchOptions{}
+	for _, opt := range opts {
+		opt(o)
 	}
 
-	go b.watchInserts()
-
-	return b, nil
+	return indexer.NewBatch(ctx, opts...), nil
 }
 
 // indexDiskUsage is a simple implementation for computing directory size

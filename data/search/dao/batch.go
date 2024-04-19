@@ -23,6 +23,7 @@ package dao
 import (
 	"compress/gzip"
 	"context"
+	"errors"
 	"fmt"
 	"io"
 	"path/filepath"
@@ -64,69 +65,79 @@ type BatchOptions struct {
 	//IndexContent bool
 }
 
-func NewBatch(ctx context.Context, nsProvider *meta.NsProvider, options BatchOptions) *Batch {
-	b := &Batch{
+func NewBatch(ctx context.Context, idx indexer.Indexer, nsProvider *meta.NsProvider, options BatchOptions) indexer.Batch {
+	wrapper := &Batch{
 		options:    options,
 		inserts:    make(map[string]*tree.IndexableNode),
 		deletes:    make(map[string]struct{}),
 		nsProvider: nsProvider,
 	}
-	b.ctx = b.createBackgroundContext(ctx)
-	return b
-}
 
-func (b *Batch) Index(i *tree.IndexableNode) {
-	b.Lock()
-	b.inserts[i.GetUuid()] = i
-	delete(b.deletes, i.GetUuid())
-	b.Unlock()
-}
+	wrapper.ctx = wrapper.createBackgroundContext(ctx)
 
-func (b *Batch) Delete(uuid string) {
-	b.Lock()
-	b.deletes[uuid] = struct{}{}
-	delete(b.inserts, uuid)
-	b.Unlock()
-}
+	batch, _ := idx.NewBatch(ctx)
 
-func (b *Batch) Size() int {
-	b.Lock()
-	l := len(b.inserts) + len(b.deletes)
-	b.Unlock()
-	return l
-}
+	return indexer.NewBatch(ctx,
+		indexer.WithFlushCondition(func() bool {
+			return len(wrapper.inserts)+len(wrapper.deletes) > BatchSize
+		}),
+		indexer.WithInsertCallback(func(msg any) error {
+			i, ok := msg.(*tree.IndexableNode)
+			if !ok {
+				return errors.New("wrong message in batch insert")
+			}
 
-func (b *Batch) Flush(indexer indexer.Indexer) error {
-	b.Lock()
-	l := len(b.inserts) + len(b.deletes)
-	if l == 0 {
-		b.Unlock()
-		return nil
-	}
-	log.Logger(b.ctx).Info("Flushing search batch", zap.Int("size", l))
-	excludes := b.nsProvider.ExcludeIndexes()
-	var nodes []*tree.IndexableNode
-	b.nsProvider.InitStreamers(b.ctx)
-	for uuid, node := range b.inserts {
-		if e := b.LoadIndexableNode(node, excludes); e == nil {
-			nodes = append(nodes, node)
-		}
-		delete(b.inserts, uuid)
-	}
-	b.nsProvider.CloseStreamers()
-	for _, n := range nodes {
-		if er := indexer.InsertOne(b.ctx, n); er != nil {
-			fmt.Println("Search batch - InsertOne error", er.Error())
-		}
-	}
-	for uuid := range b.deletes {
-		if er := indexer.DeleteOne(b.ctx, uuid); er != nil {
-			fmt.Println("Search batch - DeleteOne error", er.Error())
-		}
-		delete(b.deletes, uuid)
-	}
-	b.Unlock()
-	return indexer.Flush(b.ctx)
+			wrapper.Lock()
+			wrapper.inserts[i.GetUuid()] = i
+			delete(wrapper.deletes, i.GetUuid())
+			wrapper.Unlock()
+			return nil
+		}),
+		indexer.WithDeleteCallback(func(msg any) error {
+			uuid, ok := msg.(string)
+			if !ok {
+				return errors.New("wrong message in batch delete")
+			}
+
+			wrapper.Lock()
+			wrapper.deletes[uuid] = struct{}{}
+			delete(wrapper.inserts, uuid)
+			wrapper.Unlock()
+			return nil
+		}),
+		indexer.WithFlushCallback(func() error {
+			wrapper.Lock()
+			l := len(wrapper.inserts) + len(wrapper.deletes)
+			if l == 0 {
+				wrapper.Unlock()
+				return nil
+			}
+			log.Logger(wrapper.ctx).Info("Flushing search batch", zap.Int("size", l))
+			excludes := wrapper.nsProvider.ExcludeIndexes()
+			var nodes []*tree.IndexableNode
+			wrapper.nsProvider.InitStreamers(wrapper.ctx)
+			for uuid, node := range wrapper.inserts {
+				if e := wrapper.LoadIndexableNode(node, excludes); e == nil {
+					nodes = append(nodes, node)
+				}
+				delete(wrapper.inserts, uuid)
+			}
+			wrapper.nsProvider.CloseStreamers()
+			for _, n := range nodes {
+				if er := batch.Insert(n); er != nil {
+					fmt.Println("Search batch - InsertOne error", er.Error())
+				}
+			}
+			for uuid := range wrapper.deletes {
+				if er := batch.Delete(uuid); er != nil {
+					fmt.Println("Search batch - DeleteOne error", er.Error())
+				}
+				delete(wrapper.deletes, uuid)
+			}
+			wrapper.Unlock()
+			return nil
+		}),
+	)
 }
 
 func (b *Batch) LoadIndexableNode(indexNode *tree.IndexableNode, excludes map[string]struct{}) error {
@@ -170,7 +181,7 @@ func (b *Batch) LoadIndexableNode(indexNode *tree.IndexableNode, excludes map[st
 	}
 
 	// Index Contents?
-	if b.options.config.Val("indexContent").Bool() && indexNode.IsLeaf() {
+	if b.options.config != nil && b.options.config.Val("indexContent").Bool() && indexNode.IsLeaf() {
 		cRef := b.options.config.Val("contentRef").Default("pydio:ContentRef").String()
 		exts := strings.Split(strings.TrimSpace(b.options.config.Val("plainTextExtensions").String()), ",")
 		legacyContentRef := "ContentRef"

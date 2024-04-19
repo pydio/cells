@@ -439,6 +439,10 @@ func (b *Codec) extractConfigs(cfg configx.Values) (basenameAnalyzer, contentAna
 	basenameAnalyzer = defaultBasenameAnalyzer
 	contentAnalyzer = defaultContentAnalyzer
 
+	if cfg == nil {
+		return
+	}
+
 	_, tt := registry.AnalyzerTypesAndInstances()
 
 	if bA := cfg.Val("BasenameAnalyzer").String(); bA != "" {
