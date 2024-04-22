@@ -86,6 +86,7 @@ const (
 	KeyMetricsBasicAuth = "metrics_basic_auth"
 	KeyEnablePprof      = "enable_pprof"
 
+	KeyHttpProxyURL  = "http_proxy"
 	KeyHttpServer    = "http"
 	HttpServerCaddy  = "caddy"
 	HttpServerNative = "http"

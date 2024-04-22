@@ -37,8 +37,9 @@ import (
 )
 
 type CaddyRoute struct {
-	Path         string
-	RewriteRules []string
+	Path           string
+	RewriteRules   []string
+	FinalDirective string
 }
 
 type SiteConf struct {
@@ -91,11 +92,13 @@ func (s SiteConf) Redirects() map[string]string {
 	return rr
 }
 
+type UpstreamResolver func(string) ([]*url.URL, error)
+
 // SitesToCaddyConfigs computes all SiteConf from all *install.ProxyConfig by analyzing
 // TLSConfig, ReverseProxyURL and Maintenance fields values
-func SitesToCaddyConfigs(sites []*install.ProxyConfig) (caddySites []SiteConf, er error) {
+func SitesToCaddyConfigs(sites []*install.ProxyConfig, upstreamResolver UpstreamResolver) (caddySites []SiteConf, er error) {
 	for _, proxyConfig := range sites {
-		if bc, er := computeSiteConf(proxyConfig); er == nil {
+		if bc, er := computeSiteConf(proxyConfig, upstreamResolver); er == nil {
 			caddySites = append(caddySites, bc)
 		} else {
 			return caddySites, er
@@ -104,7 +107,7 @@ func SitesToCaddyConfigs(sites []*install.ProxyConfig) (caddySites []SiteConf, e
 	return caddySites, nil
 }
 
-func computeSiteConf(pc *install.ProxyConfig) (SiteConf, error) {
+func computeSiteConf(pc *install.ProxyConfig, upstreamResolver UpstreamResolver) (SiteConf, error) {
 	site := SiteConf{
 		ProxyConfig: proto.Clone(pc).(*install.ProxyConfig),
 	}
@@ -153,29 +156,45 @@ func computeSiteConf(pc *install.ProxyConfig) (SiteConf, error) {
 		}
 	}
 
-	site.Routes = []CaddyRoute{{Path: "/*"}}
-	if site.HasRouting() {
-		site.Routes = []CaddyRoute{}
-		for _, route := range routing.ListRoutes() {
-			rule := site.FindRouteRule(route.GetID())
-			if rule.Accept() {
-				cr := CaddyRoute{Path: route.GetURI() + "*"}
-				if rule.Action == "Rewrite" {
-					inputURI := rule.Value
+	site.Routes = []CaddyRoute{}
+	for _, route := range routing.ListRoutes() {
+		rule := site.FindRouteRule(route.GetID())
+		if !site.HasRouting() || rule.Accept() {
+			cr := CaddyRoute{Path: route.GetURI() + "*"}
+			if rule.Action == "Rewrite" {
+				inputURI := rule.Value
 
-					realTarget := route.GetURI()
-					if realTarget == "/" {
-						cr.Path = inputURI + "*"
-						cr.RewriteRules = append(cr.RewriteRules, fmt.Sprintf("redir %s %s/", inputURI, inputURI))
-						cr.RewriteRules = append(cr.RewriteRules, fmt.Sprintf("uri %s* strip_prefix %s", inputURI, inputURI))
-					} else {
-						cr.Path = inputURI + "/*"
-						cr.RewriteRules = append(cr.RewriteRules, fmt.Sprintf("uri %s/* replace %s/ %s/ 1", inputURI, inputURI, realTarget))
-					}
-					cr.RewriteRules = append(cr.RewriteRules, fmt.Sprintf("request_header X-Pydio-Site-RouteURI %s", inputURI))
+				realTarget := route.GetURI()
+				if realTarget == "/" {
+					cr.Path = inputURI + "*"
+					cr.RewriteRules = append(cr.RewriteRules, fmt.Sprintf("redir %s %s/", inputURI, inputURI))
+					cr.RewriteRules = append(cr.RewriteRules, fmt.Sprintf("uri %s* strip_prefix %s", inputURI, inputURI))
+				} else {
+					cr.Path = inputURI + "/*"
+					cr.RewriteRules = append(cr.RewriteRules, fmt.Sprintf("uri %s/* replace %s/ %s/ 1", inputURI, inputURI, realTarget))
 				}
-				site.Routes = append(site.Routes, cr)
+				cr.RewriteRules = append(cr.RewriteRules, fmt.Sprintf("request_header X-Pydio-Site-RouteURI %s", inputURI))
 			}
+			if upstreamResolver != nil {
+				endpoint := route.GetURI() + "/"
+				if route.GetURI() == "/" {
+					endpoint = "/"
+				}
+				//if tt, er := s.balancer.ListEndpointTargets(endpoint, true); er == nil {
+				if tt, er := upstreamResolver(endpoint); er == nil {
+					var upstreams []string
+					for _, t := range tt {
+						upstreams = append(upstreams, t.String())
+					}
+					cr.FinalDirective = "reverse_proxy " + strings.Join(upstreams, " ")
+				} else {
+					fmt.Println("Skip registering route " + route.GetURI() + " as no target is found")
+					continue
+				}
+			} else {
+				cr.FinalDirective = "mux"
+			}
+			site.Routes = append(site.Routes, cr)
 		}
 	}
 

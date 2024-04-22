@@ -70,6 +70,8 @@ func (mux *URLMux) OpenServer(ctx context.Context, urlstr string) (Server, error
 
 var defaultURLMux = &URLMux{}
 
+var proxyURLMux = &URLMux{}
+
 // DefaultURLMux returns the URLMux used by OpenTopic and OpenSubscription.
 //
 // Driver packages can use this to register their TopicURLOpener and/or
@@ -78,10 +80,22 @@ func DefaultURLMux() *URLMux {
 	return defaultURLMux
 }
 
+// ProxyURLMux returns the URLMux used by OpenTopic and OpenSubscription.
+//
+// Driver packages can use this to register their TopicURLOpener and/or
+// SubscriptionURLOpener on the mux.
+func ProxyURLMux() *URLMux {
+	return proxyURLMux
+}
+
 // OpenServer opens the Registry identified by the URL given.
 // See the URLOpener documentation in driver subpackages for
 // details on supported URL formats, and https://gocloud.dev/concepts/urls
 // for more information.
 func OpenServer(ctx context.Context, urlstr string) (Server, error) {
 	return defaultURLMux.OpenServer(ctx, urlstr)
+}
+
+func OpenProxy(ctx context.Context, urlstr string) (Server, error) {
+	return proxyURLMux.OpenServer(ctx, urlstr)
 }

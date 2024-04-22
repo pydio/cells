@@ -93,6 +93,7 @@ type Route interface {
 	GetDescription() string
 	GetURI() string
 	SupportSubPath() bool
+	Endpoint(pattern string) string
 	// Handle registers a handler
 	Handle(pattern string, handler http.Handler, opts ...HandleOption)
 	// Deregister a specific pattern from the current route
@@ -180,7 +181,7 @@ func (h *registrar) IteratePatterns(it func(pattern string, handler http.Handler
 		log.Logger(logCtx).Info("ROUTE " + r.id)
 		r.patternsMutex.RLock()
 		for routePattern, registered := range r.patternsCache {
-			pattern, handler, prefix := registered.attach(r.uri, routePattern)
+			pattern, handler, prefix := registered.attach(r, routePattern)
 			if prefix != "" {
 				log.Logger(logCtx).Info(" - attach " + pattern + " (strip prefix " + prefix + ")")
 			} else {
@@ -201,7 +202,7 @@ func (h *registrar) Patterns(routeIDs ...string) (patterns []string) {
 		}
 		r.patternsMutex.RLock()
 		for p, reg := range r.patternsCache {
-			pattern, _, _ := reg.attach(r.uri, p)
+			pattern, _, _ := reg.attach(r, p)
 			patterns = append(patterns, pattern)
 		}
 		r.patternsMutex.RUnlock()
@@ -216,7 +217,7 @@ func (h *registrar) CanRewriteAndCatchAll(req *http.Request) (b bool) {
 		for p, reg := range r.patternsCache {
 			if reg.catchAll {
 				b = true
-				rewriteTo, _, _ = reg.attach(r.uri, p)
+				rewriteTo, _, _ = reg.attach(r, p)
 				break
 			}
 		}
@@ -316,6 +317,15 @@ func (s *subRoute) SupportSubPath() bool {
 	return s.subPathSupport
 }
 
+func (s *subRoute) Endpoint(pattern string) string {
+	fullPattern := path.Join(s.uri, pattern)
+	// Re-add trailing slash as Join may remove it
+	if strings.HasSuffix(pattern, "/") && !strings.HasSuffix(fullPattern, "/") {
+		fullPattern += "/"
+	}
+	return fullPattern
+}
+
 // Handle registers a handler
 func (s *subRoute) Handle(pattern string, handler http.Handler, opts ...HandleOption) {
 	opt := &HandleOptions{}
@@ -361,21 +371,17 @@ type registeredHandler struct {
 	catchAll    bool
 }
 
-func (r *registeredHandler) attach(resolvedRouteURI string, subPattern string) (pattern string, handler http.Handler, prefix string) {
-	pattern = path.Join(resolvedRouteURI, subPattern)
+func (r *registeredHandler) attach(route *subRoute, subPattern string) (pattern string, handler http.Handler, prefix string) {
+	pattern = route.Endpoint(subPattern)
 	ha := r.Handler
-	// Re-add trailing slash as Join may remove it
-	if strings.HasSuffix(subPattern, "/") && !strings.HasSuffix(pattern, "/") {
-		pattern += "/"
-	}
 	if r.stripPrefix {
-		prefix = path.Join(resolvedRouteURI, subPattern) // NO trailing slash
+		prefix = strings.TrimSuffix(pattern, "/") // NO trailing slash
 		ha = http.StripPrefix(prefix, r.Handler)
 	}
 	// Wrap handler to inject resolvedRouteURI inside the context
 	handler = http.HandlerFunc(func(writer http.ResponseWriter, request *http.Request) {
 		// Todo : read resolved from request header
-		req := request.WithContext(context.WithValue(request.Context(), ctxResolvedRouteURI{}, resolvedRouteURI))
+		req := request.WithContext(context.WithValue(request.Context(), ctxResolvedRouteURI{}, route.uri))
 		ha.ServeHTTP(writer, req)
 	})
 	return

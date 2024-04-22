@@ -4,7 +4,10 @@ import (
 	"context"
 	"crypto/tls"
 	"fmt"
+	"go.uber.org/zap"
 	"net/http"
+	"net/http/httputil"
+	"net/url"
 	"strings"
 
 	"google.golang.org/grpc"
@@ -48,6 +51,11 @@ func NewResolver() Resolver {
 	return &resolver{}
 }
 
+type cachedProxy struct {
+	target string
+	*httputil.ReverseProxy
+}
+
 type resolver struct {
 	c            grpc.ClientConnInterface
 	r            registry.Registry
@@ -58,6 +66,8 @@ type resolver struct {
 	monitorOAuth grpc2.HealthMonitor
 	monitorUser  grpc2.HealthMonitor
 	userReady    bool
+
+	proxiesCache []*cachedProxy
 }
 
 func (m *resolver) Init(ctx context.Context, serverID string, rr routing.RouteRegistrar) {
@@ -115,11 +125,12 @@ func (m *resolver) ServeHTTP(w http.ResponseWriter, r *http.Request) (bool, erro
 
 	// Special case for application/grpc
 	if strings.Contains(r.Header.Get("Content-Type"), "application/grpc") {
-		proxy, e := m.b.PickService(common.ServiceGatewayGrpc)
+		proxyTarget, e := m.b.PickService(common.ServiceGatewayGrpc)
 		if e != nil {
 			http.NotFound(w, r)
 			return false, fmt.Errorf("cannot find grpc gateway")
 		}
+		proxy := m.getProxy(proxyTarget)
 		// We assume that internally, the GRPCs service is serving self-signed
 		proxy.Transport = grpcTransport
 		// Wrap context and server request
@@ -182,9 +193,9 @@ func (m *resolver) ServeHTTP(w http.ResponseWriter, r *http.Request) (bool, erro
 		return true, nil
 	}
 
-	proxy, e := m.b.PickEndpoint(r.URL.Path)
+	proxyTarget, e := m.b.PickEndpoint(r.URL.Path)
 	if e == nil {
-		proxy.ServeHTTP(w, r.WithContext(ctx))
+		m.getProxy(proxyTarget).ServeHTTP(w, r.WithContext(ctx))
 		return true, nil
 	}
 
@@ -196,6 +207,24 @@ func (m *resolver) ServeHTTP(w http.ResponseWriter, r *http.Request) (bool, erro
 	}
 
 	return false, nil
+}
+
+func (m *resolver) getProxy(url *url.URL) *httputil.ReverseProxy {
+	for _, p := range m.proxiesCache {
+		if p.target == url.String() {
+			return p.ReverseProxy
+		}
+	}
+	proxy := httputil.NewSingleHostReverseProxy(url)
+	proxy.ErrorHandler = func(writer http.ResponseWriter, request *http.Request, err error) {
+		if err.Error() == "context canceled" {
+			return
+		}
+		log.Logger(request.Context()).Error("Proxy Error :"+err.Error(), zap.Error(err))
+		writer.WriteHeader(http.StatusBadGateway)
+	}
+	m.proxiesCache = append(m.proxiesCache, &cachedProxy{target: url.String(), ReverseProxy: proxy})
+	return proxy
 }
 
 func (m *resolver) rewriteToRoot(r *http.Request) {

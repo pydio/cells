@@ -75,6 +75,7 @@ import (
 	//_ "github.com/pydio/cells/v4/gateway/grpc"
 	_ "github.com/pydio/cells/v4/gateway/metrics"
 	//_ "github.com/pydio/cells/v4/gateway/websocket/api"
+	_ "github.com/pydio/cells/v4/gateway/sites"
 	_ "github.com/pydio/cells/v4/gateway/wopi"
 
 	// IDM
@@ -132,7 +133,8 @@ import (
 	_ "github.com/pydio/cells/v4/common/dao/mysql"
 
 	// Servers
-	_ "github.com/pydio/cells/v4/common/server/caddy"
+	_ "github.com/pydio/cells/v4/common/server/caddy/api"
+	_ "github.com/pydio/cells/v4/common/server/caddy/embed"
 	_ "github.com/pydio/cells/v4/common/server/fork"
 	_ "github.com/pydio/cells/v4/common/server/generic"
 	_ "github.com/pydio/cells/v4/common/server/grpc"

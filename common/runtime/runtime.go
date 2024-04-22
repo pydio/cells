@@ -228,6 +228,14 @@ func PersistingQueueURL(queryPairs ...string) string {
 	return u.String()
 }
 
+// ProxyServerURL defines which proxy to use for serving Sites
+func ProxyServerURL() string {
+	if HttpServerType() == HttpServerCaddy {
+		return ""
+	}
+	return r.GetString(KeyHttpProxyURL)
+}
+
 func pairsToQuery(u *url.URL, queryPairs ...string) {
 	if len(queryPairs) > 0 && len(queryPairs)%2 == 0 {
 		q := u.Query()

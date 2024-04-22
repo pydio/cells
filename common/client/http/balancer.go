@@ -23,25 +23,22 @@ package http
 import (
 	"fmt"
 	"math/rand"
-	"net/http"
-	"net/http/httputil"
 	"net/url"
 	"strings"
 
-	"go.uber.org/zap"
 	"google.golang.org/grpc/attributes"
 
 	"github.com/pydio/cells/v4/common/client"
 	"github.com/pydio/cells/v4/common/config"
-	"github.com/pydio/cells/v4/common/log"
 	pb "github.com/pydio/cells/v4/common/proto/registry"
 	"github.com/pydio/cells/v4/common/registry"
 )
 
 type Balancer interface {
 	Build(m registry.Registry) error
-	PickService(name string) (*httputil.ReverseProxy, error)
-	PickEndpoint(path string) (*httputil.ReverseProxy, error)
+	PickService(name string) (*url.URL, error)
+	PickEndpoint(path string) (*url.URL, error)
+	ListEndpointTargets(path string, reverse ...bool) ([]*url.URL, error)
 }
 
 func NewBalancer(excludeId string) Balancer {
@@ -67,7 +64,7 @@ type balancer struct {
 }
 
 type reverseProxy struct {
-	*httputil.ReverseProxy
+	*url.URL
 	services  []registry.Item
 	endpoints []registry.Item
 }
@@ -131,16 +128,9 @@ func (b *balancer) Build(reg registry.Registry) error {
 					)
 				}
 				proxy = &reverseProxy{
-					ReverseProxy: httputil.NewSingleHostReverseProxy(u),
-					services:     services,
-					endpoints:    endpoints,
-				}
-				proxy.ErrorHandler = func(writer http.ResponseWriter, request *http.Request, err error) {
-					if err.Error() == "context canceled" {
-						return
-					}
-					log.Logger(request.Context()).Error("Proxy Error :"+err.Error(), zap.Error(err))
-					writer.WriteHeader(http.StatusBadGateway)
+					URL:       u,
+					services:  services,
+					endpoints: endpoints,
 				}
 				b.readyProxies[addr] = proxy
 			}
@@ -154,7 +144,7 @@ func (b *balancer) Build(reg registry.Registry) error {
 	return nil
 }
 
-func (b *balancer) PickService(name string) (*httputil.ReverseProxy, error) {
+func (b *balancer) PickService(name string) (*url.URL, error) {
 	var targets []*proxyBalancerTarget
 	for addr, proxy := range b.readyProxies {
 		for _, svc := range proxy.services {
@@ -186,33 +176,46 @@ func (b *balancer) PickService(name string) (*httputil.ReverseProxy, error) {
 		}
 		if len(priorityTargets) > 0 {
 			fmt.Println("Selecting targets from priority targets")
-			return priorityTargets[rand.Intn(len(priorityTargets))].proxy.ReverseProxy, nil
+			return priorityTargets[rand.Intn(len(priorityTargets))].proxy.URL, nil
 		}
 	}
-	return targets[rand.Intn(len(targets))].proxy.ReverseProxy, nil
+	return targets[rand.Intn(len(targets))].proxy.URL, nil
 
 }
 
-func (b *balancer) PickEndpoint(path string) (*httputil.ReverseProxy, error) {
-	var targets []*proxyBalancerTarget
+// ListEndpointTargets finds all corresponding upstream for a given path
+func (b *balancer) ListEndpointTargets(path string, reverse ...bool) ([]*url.URL, error) {
+	resolveReverse := len(reverse) > 0 && reverse[0]
+	uniques := map[string]*proxyBalancerTarget{}
 	for addr, proxy := range b.readyProxies {
 		endpoints := proxy.endpoints
 		for _, endpoint := range endpoints {
-			if endpoint.Name() == "/" {
-				continue
+			include := false
+			if resolveReverse {
+				if path == "/" {
+					include = endpoint.Name() == "/"
+				} else {
+					include = strings.HasPrefix(endpoint.Name(), path)
+				}
+			} else {
+				include = endpoint.Name() != "/" && strings.HasPrefix(path, endpoint.Name())
 			}
-
-			if strings.HasPrefix(path, endpoint.Name()) {
-				targets = append(targets, &proxyBalancerTarget{
+			if include {
+				uniques[addr] = &proxyBalancerTarget{
 					proxy:   proxy,
 					address: addr,
-				})
+				}
 			}
 		}
 	}
-	if len(targets) == 0 {
+	if len(uniques) == 0 {
 		return nil, fmt.Errorf("no proxy found for endpoint %s", path)
 	}
+	var targets []*proxyBalancerTarget
+	for _, t := range uniques {
+		targets = append(targets, t)
+	}
+
 	if b.options != nil && len(b.options.Filters) > 0 {
 		for _, f := range b.options.Filters {
 			targets = b.applyFilter(f, targets)
@@ -221,7 +224,20 @@ func (b *balancer) PickEndpoint(path string) (*httputil.ReverseProxy, error) {
 			return nil, fmt.Errorf("no proxy found for endpoint %s matching filters", path)
 		}
 	}
-	return targets[rand.Intn(len(targets))].proxy.ReverseProxy, nil
+	var output []*url.URL
+	for _, t := range targets {
+		output = append(output, t.proxy.URL)
+	}
+	return output, nil
+}
+
+// PickEndpoint lists all possible targets and returns a random one
+func (b *balancer) PickEndpoint(path string) (*url.URL, error) {
+	targets, er := b.ListEndpointTargets(path)
+	if er != nil {
+		return nil, er
+	}
+	return targets[rand.Intn(len(targets))], nil
 }
 
 func (b *balancer) applyFilter(f client.BalancerTargetFilter, tg []*proxyBalancerTarget) []*proxyBalancerTarget {

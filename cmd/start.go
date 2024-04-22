@@ -220,7 +220,8 @@ func init() {
 	StartCmd.Flags().String(runtime.KeyGrpcDiscoveryPort, runtime.DefaultDiscoveryPort, "Default discovery gRPC server port (registry, broker, config, and log services).")
 	StartCmd.Flags().String(runtime.KeyGrpcExternal, "", "Fix the gRPC Gateway public port, not necessary unless a reverse-proxy does not support HTTP/2 protocol.")
 
-	StartCmd.Flags().String(runtime.KeyHttpServer, "caddy", "HTTP Server Type")
+	StartCmd.Flags().String(runtime.KeyHttpServer, "http", "HTTP Server Type")
+	StartCmd.Flags().String(runtime.KeyHttpProxyURL, "caddy://", "Default Proxy Type")
 	StartCmd.Flags().String(runtime.KeyHttpPort, runtime.DefaultHttpPort, "HTTP Server Port")
 	StartCmd.Flags().Bool(runtime.KeyFork, false, "Used internally by application when forking processes")
 	StartCmd.Flags().StringArray(runtime.KeyNodeCapacity, []string{}, "Node capacity declares externally supported features for this node")

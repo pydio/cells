@@ -63,10 +63,10 @@ type Server struct {
 }
 
 func New(ctx context.Context) server.Server {
-	lMux := routing.NewRouteRegistrar()
+	srvID := "http-" + uuid.New()
+	lMux := NewRegistrar(ctx, srvID)
 
 	srv := &http.Server{}
-	srvID := "http-" + uuid.New()
 	srv.Handler = mux.NewMiddleware(ctx, srvID, lMux)
 	srv.Handler = ContextMiddlewareHandler(middleware.ClientConnIncomingContext(ctx))(srv.Handler)
 	srv.Handler = ContextMiddlewareHandler(middleware.RegistryIncomingContext(ctx))(srv.Handler)
@@ -108,9 +108,6 @@ func (s *Server) RawServe(opts *server.ServeOptions) (ii []registry.Item, e erro
 	}()
 
 	ii = append(ii, util.CreateAddress(s.Listener.Addr().String(), nil))
-	for _, endpoint := range s.RouteRegistrar.Patterns() {
-		ii = append(ii, util.CreateEndpoint(endpoint, nil, nil))
-	}
 	return
 }
 
