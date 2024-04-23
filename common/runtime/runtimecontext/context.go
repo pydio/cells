@@ -2,8 +2,6 @@ package runtimecontext
 
 import (
 	"context"
-
-	"github.com/pydio/cells/v4/common/utils/configx"
 )
 
 type ContextInjector func(ctx, parent context.Context) context.Context
@@ -31,28 +29,6 @@ const (
 	configKey contextType = iota
 	managerKey
 )
-
-func WithConfig(ctx context.Context, c configx.Values) context.Context {
-	return context.WithValue(ctx, configKey, c)
-}
-
-func GetConfig(ctx context.Context) configx.Values {
-	if ctx == nil {
-		return nil
-	}
-
-	i := ctx.Value(configKey)
-	if i == nil {
-		return nil
-	}
-
-	c, ok := i.(configx.Values)
-	if !ok {
-		return nil
-	}
-
-	return c
-}
 
 func With[T any](ctx context.Context, key string, t T) context.Context {
 	return context.WithValue(ctx, key, t)

@@ -29,84 +29,89 @@ import (
 	"testing"
 	"time"
 
+	"github.com/spf13/viper"
+
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/config/mock"
 	"github.com/pydio/cells/v4/common/proto/tree"
+	"github.com/pydio/cells/v4/common/runtime"
 	"github.com/pydio/cells/v4/common/runtime/manager"
 	"github.com/pydio/cells/v4/common/storage"
-	"github.com/pydio/cells/v4/common/storage/indexer"
+	"github.com/pydio/cells/v4/common/storage/bleve"
+	"github.com/pydio/cells/v4/common/utils/test"
 	"github.com/pydio/cells/v4/common/utils/uuid"
 
 	_ "github.com/pydio/cells/v4/common/registry/config"
+	_ "github.com/pydio/cells/v4/common/storage/config"
 
 	. "github.com/smartystreets/goconvey/convey"
 )
 
-var mgr manager.Manager
+var (
+	mgr       manager.Manager
+	testcases = []test.StorageTestCase{
+		{"bleve://" + filepath.Join(os.TempDir(), "data_search_tests"+uuid.New()+".bleve") + "?mapping=node", true, NewBleveDAO},
+		{os.Getenv("CELLS_TEST_MONGODB_DSN") + "?collection=index", os.Getenv("CELLS_TEST_MONGODB_DSN") != "", NewMongoDAO},
+	}
+)
 
 func init() {
-	mgr, _ = manager.NewManager(context.Background(), "test", nil)
-
-	_ = mock.RegisterMockConfig()
-}
-
-func getTmpIndex(createNodes bool) (s *Server, closer func()) {
-
-	st, err := storage.OpenStorage(mgr.Context(), "bleve://"+filepath.Join(os.TempDir(), "data_search_tests"+uuid.New()+".bleve")+"?mapping=node")
-
-	var idx indexer.Indexer
-	st.Get(context.TODO(), &idx)
-
-	server, err := NewEngine(context.Background(), idx)
+	var err error
+	v := viper.New()
+	v.Set(runtime.KeyConfig, "mem://")
+	runtime.SetRuntime(v)
+	mgr, err = manager.NewManager(context.Background(), "test", nil)
 	if err != nil {
 		panic(err)
 	}
 
-	if createNodes {
-
-		ctx := context.Background()
-
-		node := &tree.Node{
-			Uuid:  "docID1",
-			Path:  "/path/to/node.txt",
-			MTime: time.Now().Unix(),
-			Type:  1,
-			Size:  24,
-		}
-		node.MustSetMeta("name", "node.txt")
-		node.MustSetMeta("FreeMeta", "FreeMetaValue")
-		node.MustSetMeta("StarsMeta", 5)
-		node.MustSetMeta(common.MetaNamespaceGeoLocation, map[string]float64{
-			"lat": 47.10358888888889,
-			"lon": 8.372777777777777,
-		})
-
-		e := server.IndexNode(ctx, node, false, nil)
-		if e != nil {
-			log.Println("Error while indexing node", e)
-		}
-
-		node2 := &tree.Node{
-			Uuid:  "docID2",
-			Path:  "/a/folder",
-			MTime: time.Now().Unix(),
-			Type:  2,
-			Size:  36,
-		}
-		node2.MustSetMeta("name", "folder")
-
-		e = server.IndexNode(ctx, node2, false, nil)
-		if e != nil {
-			log.Println("Error while indexing node", e)
-		}
-
-		<-time.After(7 * time.Second)
-	}
-
-	return server, func() {}
+	_ = mock.RegisterMockConfig()
 }
 
-func search(ctx context.Context, index *Server, queryObject *tree.Query) ([]*tree.Node, error) {
+func createNodes(s SearchEngine) {
+
+	ctx := context.Background()
+
+	b, _ := s.NewBatch(ctx)
+
+	node := &tree.Node{
+		Uuid:  "docID1",
+		Path:  "/path/to/node.txt",
+		MTime: time.Now().Unix(),
+		Type:  1,
+		Size:  24,
+	}
+	node.MustSetMeta("name", "node.txt")
+	node.MustSetMeta("FreeMeta", "FreeMetaValue")
+	node.MustSetMeta("StarsMeta", 5)
+	node.MustSetMeta(common.MetaNamespaceGeoLocation, map[string]float64{
+		"lat": 47.10358888888889,
+		"lon": 8.372777777777777,
+	})
+
+	e := b.Insert(node)
+	if e != nil {
+		log.Println("Error while indexing node", e)
+	}
+
+	node2 := &tree.Node{
+		Uuid:  "docID2",
+		Path:  "/a/folder",
+		MTime: time.Now().Unix(),
+		Type:  2,
+		Size:  36,
+	}
+	node2.MustSetMeta("name", "folder")
+
+	e = b.Insert(node2)
+	if e != nil {
+		log.Println("Error while indexing node", e)
+	}
+
+	b.Flush()
+}
+
+func search(ctx context.Context, index SearchEngine, queryObject *tree.Query) ([]*tree.Node, error) {
 
 	resultsChan := make(chan *tree.Node)
 	facetsChan := make(chan *tree.SearchFacet)
@@ -144,19 +149,18 @@ func TestNewBleveEngine(t *testing.T) {
 	Convey("Test create bleve engine then reopen it", t, func() {
 
 		st, err := storage.OpenStorage(mgr.Context(), "bleve://"+filepath.Join(os.TempDir(), "data_search_tests"+uuid.New()+".bleve")+"?mapping=node")
+		So(err, ShouldBeNil)
 
-		var idx indexer.Indexer
+		var idx *bleve.Indexer
 		st.Get(context.TODO(), &idx)
 
-		server, err := NewEngine(context.Background(), idx)
-		So(err, ShouldBeNil)
+		server := NewBleveDAO(context.Background(), idx)
 		So(server, ShouldNotBeNil)
 
 		e := server.Close(context.TODO())
 		So(e, ShouldBeNil)
 
-		server, err = NewEngine(context.Background(), idx)
-		So(err, ShouldBeNil)
+		server = NewBleveDAO(context.Background(), idx)
 		So(server, ShouldNotBeNil)
 
 		e = server.Close(context.TODO())
@@ -194,422 +198,416 @@ func TestNewBleveEngine(t *testing.T) {
 //}
 
 func TestIndexNode(t *testing.T) {
-
 	ctx := mgr.Context()
 
-	Convey("Index Node", t, func() {
+	test.RunStorageTests(ctx, testcases, func(server SearchEngine) {
 
-		server, closer := getTmpIndex(false)
-		defer closer()
+		Convey("Index Node", t, func() {
+			mtime := time.Now().Unix()
+			node := &tree.Node{
+				Uuid:      "docID1",
+				Path:      "/path/to/node.txt",
+				MTime:     mtime,
+				Type:      1,
+				MetaStore: make(map[string]string),
+			}
 
-		mtime := time.Now().Unix()
-		node := &tree.Node{
-			Uuid:      "docID1",
-			Path:      "/path/to/node.txt",
-			MTime:     mtime,
-			Type:      1,
-			MetaStore: make(map[string]string),
-		}
+			e := server.IndexNode(ctx, node, false, nil)
 
-		e := server.IndexNode(ctx, node, false, nil)
+			So(e, ShouldBeNil)
+		})
 
-		So(e, ShouldBeNil)
+		Convey("Index Node Without Uuid", t, func() {
+			mtime := time.Now().Unix()
+			node := &tree.Node{
+				Path:      "/path/to/node.txt",
+				MTime:     mtime,
+				Type:      1,
+				MetaStore: make(map[string]string),
+			}
+			ctx := context.Background()
+			e := server.IndexNode(ctx, node, false, nil)
+
+			So(e, ShouldNotBeNil)
+		})
 	})
-
-	Convey("Index Node Without Uuid", t, func() {
-
-		server, closer := getTmpIndex(false)
-		defer closer()
-
-		mtime := time.Now().Unix()
-		node := &tree.Node{
-			Path:      "/path/to/node.txt",
-			MTime:     mtime,
-			Type:      1,
-			MetaStore: make(map[string]string),
-		}
-		ctx := context.Background()
-		e := server.IndexNode(ctx, node, false, nil)
-
-		So(e, ShouldNotBeNil)
-	})
-
 }
 
 func TestSearchNode(t *testing.T) {
+	ctx := mgr.Context()
 
-	server, closer := getTmpIndex(true)
-	defer closer()
-	ctx := context.Background()
+	test.RunStorageTests(ctx, testcases, func(server SearchEngine) {
+		createNodes(server)
 
-	Convey("Search Node by name", t, func() {
+		Convey("Search Node by name", t, func() {
 
-		queryObject := &tree.Query{
-			FileName: "node",
-		}
+			queryObject := &tree.Query{
+				FileName: "node",
+			}
 
-		results, e := search(ctx, server, queryObject)
-		So(e, ShouldBeNil)
-		So(results, ShouldHaveLength, 1)
+			results, e := search(ctx, server, queryObject)
+			So(e, ShouldBeNil)
+			So(results, ShouldHaveLength, 1)
 
-		queryObject = &tree.Query{
-			FileName: "folder",
-		}
+			queryObject = &tree.Query{
+				FileName: "folder",
+			}
 
-		results, e = search(ctx, server, queryObject)
-		So(e, ShouldBeNil)
-		So(results, ShouldHaveLength, 1)
+			results, e = search(ctx, server, queryObject)
+			So(e, ShouldBeNil)
+			So(results, ShouldHaveLength, 1)
 
+		})
+
+		Convey("Search Node by extension", t, func() {
+
+			queryObject := &tree.Query{
+				Extension: "txt",
+			}
+
+			results, e := search(ctx, server, queryObject)
+			So(e, ShouldBeNil)
+			So(results, ShouldHaveLength, 1)
+
+			// Check extension is case-insensitive
+			e = server.IndexNode(ctx, &tree.Node{
+				Uuid:      "node-with-uppercase-extension",
+				Type:      tree.NodeType_LEAF,
+				Path:      "/toto.PNG",
+				MetaStore: map[string]string{"name": `"toto.PNG"`},
+			}, false, nil)
+			So(e, ShouldBeNil)
+			<-time.After(7 * time.Second)
+
+			queryObject = &tree.Query{
+				Extension: "png",
+			}
+			results, e = search(ctx, server, queryObject)
+			So(e, ShouldBeNil)
+			So(results, ShouldHaveLength, 1)
+
+			// Remove now
+			So(server.DeleteNode(ctx, &tree.Node{Uuid: "node-with-uppercase-extension"}), ShouldBeNil)
+			<-time.After(7 * time.Second)
+		})
+
+		Convey("Search Node by size", t, func() {
+
+			// Min & Max
+			queryObject := &tree.Query{
+				MinSize: 20,
+				MaxSize: 30,
+			}
+
+			results, e := search(ctx, server, queryObject)
+			So(e, ShouldBeNil)
+			So(results, ShouldHaveLength, 1)
+
+			// Min Only
+			queryObject = &tree.Query{
+				MinSize: 20,
+			}
+
+			results, e = search(ctx, server, queryObject)
+			So(e, ShouldBeNil)
+			So(results, ShouldHaveLength, 2)
+
+			// Out of range
+			queryObject = &tree.Query{
+				MinSize: 40,
+			}
+
+			results, e = search(ctx, server, queryObject)
+			So(e, ShouldBeNil)
+			So(results, ShouldHaveLength, 0)
+
+		})
+
+		Convey("Search Node by MTime", t, func() {
+
+			mtime := time.Now().Unix()
+			// Min & Max
+			queryObject := &tree.Query{
+				MinDate: mtime - 100,
+				MaxDate: mtime + 100,
+			}
+
+			results, e := search(ctx, server, queryObject)
+			So(e, ShouldBeNil)
+			So(results, ShouldHaveLength, 2)
+
+			// Min Only
+			queryObject = &tree.Query{
+				MinDate: mtime - 100,
+			}
+
+			results, e = search(ctx, server, queryObject)
+			So(e, ShouldBeNil)
+			So(results, ShouldHaveLength, 2)
+
+		})
+
+		Convey("Search Node with FreeString", t, func() {
+
+			queryObject := &tree.Query{
+				FreeString: "+Meta.FreeMeta:FreeMetaValue",
+			}
+
+			results, e := search(ctx, server, queryObject)
+			So(e, ShouldBeNil)
+			So(results, ShouldHaveLength, 1)
+		})
+
+		Convey("Search Node with FreeString (integer)", t, func() {
+
+			queryObject := &tree.Query{
+				FreeString: "+Meta.StarsMeta:5",
+			}
+
+			results, e := search(ctx, server, queryObject)
+			So(e, ShouldBeNil)
+			So(results, ShouldHaveLength, 1)
+		})
+
+		Convey("Search Node with Basename and FreeString (integer)", t, func() {
+
+			queryObject := &tree.Query{
+				FreeString: "+Basename:node.txt +Meta.StarsMeta:5",
+			}
+
+			results, e := search(ctx, server, queryObject)
+			So(e, ShouldBeNil)
+			So(results, ShouldHaveLength, 1)
+		})
+
+		Convey("Search Node by Type", t, func() {
+
+			queryObject := &tree.Query{
+				Type: 1,
+			}
+
+			results, e := search(ctx, server, queryObject)
+			So(e, ShouldBeNil)
+			So(results, ShouldHaveLength, 1)
+			So(results[0].GetUuid(), ShouldEqual, "docID1")
+
+			queryObject = &tree.Query{
+				Type: 2,
+			}
+
+			results, e = search(ctx, server, queryObject)
+			So(e, ShouldBeNil)
+			So(results, ShouldHaveLength, 1)
+			So(results[0].GetUuid(), ShouldEqual, "docID2")
+
+		})
+
+		Convey("Search Node by name with Exact Path", t, func() {
+
+			queryObject := &tree.Query{
+				Paths: []string{"/path/to"},
+			}
+			results, e := search(ctx, server, queryObject)
+			So(e, ShouldBeNil)
+			So(results, ShouldHaveLength, 0)
+
+			queryObject = &tree.Query{
+				Paths: []string{"/path/to/node.txt2"},
+			}
+			results, e = search(ctx, server, queryObject)
+			So(e, ShouldBeNil)
+			So(results, ShouldHaveLength, 0)
+
+			queryObject = &tree.Query{
+				Paths: []string{"/path/to/node.txt"},
+			}
+
+			results, e = search(ctx, server, queryObject)
+			So(e, ShouldBeNil)
+			So(results, ShouldHaveLength, 1)
+
+		})
+
+		Convey("Search Node by name with Path Prefix", t, func() {
+
+			queryObject := &tree.Query{
+				FileName:   "node",
+				PathPrefix: []string{"/path/to"},
+			}
+
+			results, e := search(ctx, server, queryObject)
+			So(e, ShouldBeNil)
+			So(results, ShouldHaveLength, 1)
+
+			queryObject = &tree.Query{
+				FileName:   "node",
+				PathPrefix: []string{"/wrong/path"},
+			}
+
+			results, e = search(ctx, server, queryObject)
+			So(e, ShouldBeNil)
+			So(results, ShouldHaveLength, 0)
+
+		})
 	})
-
-	Convey("Search Node by extension", t, func() {
-
-		queryObject := &tree.Query{
-			Extension: "txt",
-		}
-
-		results, e := search(ctx, server, queryObject)
-		So(e, ShouldBeNil)
-		So(results, ShouldHaveLength, 1)
-
-		// Check extension is case-insensitive
-		e = server.IndexNode(ctx, &tree.Node{
-			Uuid:      "node-with-uppercase-extension",
-			Type:      tree.NodeType_LEAF,
-			Path:      "/toto.PNG",
-			MetaStore: map[string]string{"name": `"toto.PNG"`},
-		}, false, nil)
-		So(e, ShouldBeNil)
-		<-time.After(5 * time.Second)
-
-		queryObject = &tree.Query{
-			Extension: "png",
-		}
-		results, e = search(ctx, server, queryObject)
-		So(e, ShouldBeNil)
-		So(results, ShouldHaveLength, 1)
-
-		// Remove now
-		So(server.DeleteNode(ctx, &tree.Node{Uuid: "node-with-uppercase-extension"}), ShouldBeNil)
-		<-time.After(7 * time.Second)
-	})
-
-	Convey("Search Node by size", t, func() {
-
-		// Min & Max
-		queryObject := &tree.Query{
-			MinSize: 20,
-			MaxSize: 30,
-		}
-
-		results, e := search(ctx, server, queryObject)
-		So(e, ShouldBeNil)
-		So(results, ShouldHaveLength, 1)
-
-		// Min Only
-		queryObject = &tree.Query{
-			MinSize: 20,
-		}
-
-		results, e = search(ctx, server, queryObject)
-		So(e, ShouldBeNil)
-		So(results, ShouldHaveLength, 2)
-
-		// Out of range
-		queryObject = &tree.Query{
-			MinSize: 40,
-		}
-
-		results, e = search(ctx, server, queryObject)
-		So(e, ShouldBeNil)
-		So(results, ShouldHaveLength, 0)
-
-	})
-
-	Convey("Search Node by MTime", t, func() {
-
-		mtime := time.Now().Unix()
-		// Min & Max
-		queryObject := &tree.Query{
-			MinDate: mtime - 100,
-			MaxDate: mtime + 100,
-		}
-
-		results, e := search(ctx, server, queryObject)
-		So(e, ShouldBeNil)
-		So(results, ShouldHaveLength, 2)
-
-		// Min Only
-		queryObject = &tree.Query{
-			MinDate: mtime - 100,
-		}
-
-		results, e = search(ctx, server, queryObject)
-		So(e, ShouldBeNil)
-		So(results, ShouldHaveLength, 2)
-
-	})
-
-	Convey("Search Node with FreeString", t, func() {
-
-		queryObject := &tree.Query{
-			FreeString: "+Meta.FreeMeta:FreeMetaValue",
-		}
-
-		results, e := search(ctx, server, queryObject)
-		So(e, ShouldBeNil)
-		So(results, ShouldHaveLength, 1)
-	})
-
-	Convey("Search Node with FreeString (integer)", t, func() {
-
-		queryObject := &tree.Query{
-			FreeString: "+Meta.StarsMeta:5",
-		}
-
-		results, e := search(ctx, server, queryObject)
-		So(e, ShouldBeNil)
-		So(results, ShouldHaveLength, 1)
-	})
-
-	Convey("Search Node with Basename and FreeString (integer)", t, func() {
-
-		queryObject := &tree.Query{
-			FreeString: "+Basename:node.txt +Meta.StarsMeta:5",
-		}
-
-		results, e := search(ctx, server, queryObject)
-		So(e, ShouldBeNil)
-		So(results, ShouldHaveLength, 1)
-	})
-
-	Convey("Search Node by Type", t, func() {
-
-		queryObject := &tree.Query{
-			Type: 1,
-		}
-
-		results, e := search(ctx, server, queryObject)
-		So(e, ShouldBeNil)
-		So(results, ShouldHaveLength, 1)
-		So(results[0].GetUuid(), ShouldEqual, "docID1")
-
-		queryObject = &tree.Query{
-			Type: 2,
-		}
-
-		results, e = search(ctx, server, queryObject)
-		So(e, ShouldBeNil)
-		So(results, ShouldHaveLength, 1)
-		So(results[0].GetUuid(), ShouldEqual, "docID2")
-
-	})
-
-	Convey("Search Node by name with Exact Path", t, func() {
-
-		queryObject := &tree.Query{
-			Paths: []string{"/path/to"},
-		}
-		results, e := search(ctx, server, queryObject)
-		So(e, ShouldBeNil)
-		So(results, ShouldHaveLength, 0)
-
-		queryObject = &tree.Query{
-			Paths: []string{"/path/to/node.txt2"},
-		}
-		results, e = search(ctx, server, queryObject)
-		So(e, ShouldBeNil)
-		So(results, ShouldHaveLength, 0)
-
-		queryObject = &tree.Query{
-			Paths: []string{"/path/to/node.txt"},
-		}
-
-		results, e = search(ctx, server, queryObject)
-		So(e, ShouldBeNil)
-		So(results, ShouldHaveLength, 1)
-
-	})
-
-	Convey("Search Node by name with Path Prefix", t, func() {
-
-		queryObject := &tree.Query{
-			FileName:   "node",
-			PathPrefix: []string{"/path/to"},
-		}
-
-		results, e := search(ctx, server, queryObject)
-		So(e, ShouldBeNil)
-		So(results, ShouldHaveLength, 1)
-
-		queryObject = &tree.Query{
-			FileName:   "node",
-			PathPrefix: []string{"/wrong/path"},
-		}
-
-		results, e = search(ctx, server, queryObject)
-		So(e, ShouldBeNil)
-		So(results, ShouldHaveLength, 0)
-
-	})
-
 }
 
 func TestSearchByGeolocation(t *testing.T) {
+	test.RunStorageTests(ctx, testcases, func(server SearchEngine) {
 
-	server, closer := getTmpIndex(true)
-	defer closer()
-	ctx := context.Background()
+		ctx := mgr.Context()
 
-	Convey("Search Node by GeoLocation", t, func() {
+		createNodes(server)
 
-		queryObject := &tree.Query{
-			GeoQuery: &tree.GeoQuery{
-				Center: &tree.GeoPoint{
-					Lon: 8.372777777777777,
-					Lat: 47.10358888888889,
+		Convey("Search Node by GeoLocation", t, func() {
+
+			queryObject := &tree.Query{
+				GeoQuery: &tree.GeoQuery{
+					Center: &tree.GeoPoint{
+						Lon: 8.372777777777777,
+						Lat: 47.10358888888889,
+					},
+					Distance: "1meters",
 				},
-				Distance: "1meters",
-			},
-		}
+			}
 
-		results, e := search(ctx, server, queryObject)
-		So(e, ShouldBeNil)
-		So(results, ShouldHaveLength, 1)
+			results, e := search(ctx, server, queryObject)
+			So(e, ShouldBeNil)
+			So(results, ShouldHaveLength, 1)
 
-		queryObject = &tree.Query{
-			GeoQuery: &tree.GeoQuery{
-				TopLeft: &tree.GeoPoint{
-					Lon: 8.372777777777776,
-					Lat: 47.10358888888888,
+			queryObject = &tree.Query{
+				GeoQuery: &tree.GeoQuery{
+					TopLeft: &tree.GeoPoint{
+						Lon: 8.372777777777776,
+						Lat: 47.10358888888888,
+					},
+					BottomRight: &tree.GeoPoint{
+						Lon: 8.372777777777778,
+						Lat: 47.10358888888890,
+					},
 				},
-				BottomRight: &tree.GeoPoint{
-					Lon: 8.372777777777778,
-					Lat: 47.10358888888890,
-				},
-			},
-		}
+			}
 
-		results, e = search(ctx, server, queryObject)
-		So(e, ShouldBeNil)
-		So(results, ShouldHaveLength, 1)
+			results, e = search(ctx, server, queryObject)
+			So(e, ShouldBeNil)
+			So(results, ShouldHaveLength, 1)
 
+		})
 	})
 
 }
 
 func TestDeleteNode(t *testing.T) {
+	ctx := mgr.Context()
+	test.RunStorageTests(ctx, testcases, func(server SearchEngine) {
+		createNodes(server)
 
-	Convey("Delete Node", t, func() {
+		Convey("Delete Node", t, func() {
 
-		server, closer := getTmpIndex(true)
-		defer closer()
-		ctx := context.Background()
+			So(server.DeleteNode(ctx, &tree.Node{Uuid: "docID1"}), ShouldBeNil)
+			<-time.After(4 * time.Second)
 
-		So(server.DeleteNode(ctx, &tree.Node{Uuid: "docID1"}), ShouldBeNil)
-		<-time.After(4 * time.Second)
+			queryObject := &tree.Query{
+				FileName: "node",
+			}
 
-		queryObject := &tree.Query{
-			FileName: "node",
-		}
-
-		results, e := search(ctx, server, queryObject)
-		So(e, ShouldBeNil)
-		So(results, ShouldHaveLength, 0)
+			results, e := search(ctx, server, queryObject)
+			So(e, ShouldBeNil)
+			So(results, ShouldHaveLength, 0)
+		})
 	})
-
 }
 
 func TestClearIndex(t *testing.T) {
+	ctx := mgr.Context()
 
-	Convey("Clear Index", t, func() {
+	test.RunStorageTests(ctx, testcases, func(server SearchEngine) {
+		Convey("Clear Index", t, func() {
 
-		server, closer := getTmpIndex(true)
-		defer closer()
-		ctx := context.Background()
+			createNodes(server)
 
-		e := server.ClearIndex(ctx)
-		So(e, ShouldBeNil)
+			e := server.ClearIndex(ctx)
+			So(e, ShouldBeNil)
 
-		queryObject := &tree.Query{
-			FileName: "node",
-		}
+			queryObject := &tree.Query{
+				FileName: "node",
+			}
 
-		results, e := search(ctx, server, queryObject)
-		So(e, ShouldBeNil)
-		So(results, ShouldHaveLength, 0)
+			results, e := search(ctx, server, queryObject)
+			So(e, ShouldBeNil)
+			So(results, ShouldHaveLength, 0)
+		})
 	})
-
 }
 
 func TestSearchByUuidsMatch(t *testing.T) {
+	ctx := mgr.Context()
+	test.RunStorageTests(ctx, testcases, func(server SearchEngine) {
+		Convey("Search Node by UUID(s)", t, func() {
 
-	Convey("Search Node by UUID(s)", t, func() {
+			createNodes(server)
 
-		server, closer := getTmpIndex(true)
-		defer closer()
-		ctx := context.Background()
+			node3 := &tree.Node{
+				Uuid:  "uuidpart1-uuidpart2",
+				Path:  "/a/folder",
+				MTime: time.Now().Unix(),
+				Type:  2,
+				Size:  36,
+			}
+			node3.MustSetMeta("name", "folder")
 
-		node3 := &tree.Node{
-			Uuid:  "uuidpart1-uuidpart2",
-			Path:  "/a/folder",
-			MTime: time.Now().Unix(),
-			Type:  2,
-			Size:  36,
-		}
-		node3.MustSetMeta("name", "folder")
+			e := server.IndexNode(ctx, node3, false, nil)
+			So(e, ShouldBeNil)
 
-		e := server.IndexNode(ctx, node3, false, nil)
-		So(e, ShouldBeNil)
+			node4 := &tree.Node{
+				Uuid:  "uuidpart1-uuidpart3",
+				Path:  "/a/folder2",
+				MTime: time.Now().Unix(),
+				Type:  2,
+				Size:  36,
+			}
+			node4.MustSetMeta("name", "folder2")
 
-		node4 := &tree.Node{
-			Uuid:  "uuidpart1-uuidpart3",
-			Path:  "/a/folder2",
-			MTime: time.Now().Unix(),
-			Type:  2,
-			Size:  36,
-		}
-		node4.MustSetMeta("name", "folder2")
+			e = server.IndexNode(ctx, node4, false, nil)
+			So(e, ShouldBeNil)
+			<-time.After(7 * time.Second)
 
-		e = server.IndexNode(ctx, node4, false, nil)
-		So(e, ShouldBeNil)
-		<-time.After(7 * time.Second)
+			queryObject := &tree.Query{
+				UUIDs: []string{"randomUUID"},
+			}
+			results, e := search(ctx, server, queryObject)
+			So(e, ShouldBeNil)
+			So(results, ShouldHaveLength, 0)
 
-		queryObject := &tree.Query{
-			UUIDs: []string{"randomUUID"},
-		}
-		results, e := search(ctx, server, queryObject)
-		So(e, ShouldBeNil)
-		So(results, ShouldHaveLength, 0)
+			queryObject = &tree.Query{
+				UUIDs: []string{"docID1"},
+			}
+			results, e = search(ctx, server, queryObject)
+			So(e, ShouldBeNil)
+			So(results, ShouldHaveLength, 1)
 
-		queryObject = &tree.Query{
-			UUIDs: []string{"docID1"},
-		}
-		results, e = search(ctx, server, queryObject)
-		So(e, ShouldBeNil)
-		So(results, ShouldHaveLength, 1)
+			queryObject = &tree.Query{
+				UUIDs: []string{"uuidpart1-uuidpart3"},
+			}
+			results, e = search(ctx, server, queryObject)
+			So(e, ShouldBeNil)
+			So(results, ShouldHaveLength, 1)
 
-		queryObject = &tree.Query{
-			UUIDs: []string{"uuidpart1-uuidpart3"},
-		}
-		results, e = search(ctx, server, queryObject)
-		So(e, ShouldBeNil)
-		So(results, ShouldHaveLength, 1)
+			queryObject = &tree.Query{
+				UUIDs: []string{"docID1", "docID2"},
+			}
+			results, e = search(ctx, server, queryObject)
+			So(e, ShouldBeNil)
+			So(results, ShouldHaveLength, 2)
 
-		queryObject = &tree.Query{
-			UUIDs: []string{"docID1", "docID2"},
-		}
-		results, e = search(ctx, server, queryObject)
-		So(e, ShouldBeNil)
-		So(results, ShouldHaveLength, 2)
+			queryObject = &tree.Query{
+				FreeString: "+Uuid:\"docID1\"",
+			}
+			results, e = search(ctx, server, queryObject)
+			So(e, ShouldBeNil)
+			So(results, ShouldHaveLength, 1)
 
-		queryObject = &tree.Query{
-			FreeString: "+Uuid:\"docID1\"",
-		}
-		results, e = search(ctx, server, queryObject)
-		So(e, ShouldBeNil)
-		So(results, ShouldHaveLength, 1)
-
+		})
 	})
 
 }

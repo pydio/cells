@@ -2,6 +2,7 @@ package indexer
 
 import (
 	"context"
+	"fmt"
 	"sync"
 	"time"
 )
@@ -108,6 +109,7 @@ func (b *batch) watchInserts() {
 			}
 
 			if b.opts.FlushCondition != nil && b.opts.FlushCondition() {
+				fmt.Println("Flushing")
 				b.flush()
 			}
 

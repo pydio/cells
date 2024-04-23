@@ -23,7 +23,6 @@ package mongo
 import (
 	"context"
 	"fmt"
-	"github.com/pydio/cells/v4/common/dao/mongodb"
 	"time"
 
 	"go.mongodb.org/mongo-driver/bson"
@@ -32,19 +31,19 @@ import (
 	"go.uber.org/zap"
 
 	"github.com/pydio/cells/v4/common/dao"
+	"github.com/pydio/cells/v4/common/dao/mongodb"
 	"github.com/pydio/cells/v4/common/log"
 	"github.com/pydio/cells/v4/common/storage/indexer"
 	"github.com/pydio/cells/v4/common/utils/configx"
 )
 
 type IndexDAO interface {
-	mongodb.DAO
 	dao.IndexDAO
 	SetCollection(string)
 }
 
 type Indexer struct {
-	mongodb.DAO
+	*mongo.Database
 	collection      string
 	collectionModel mongodb.Collection
 	codec           dao.IndexCodex
@@ -68,6 +67,7 @@ func (i *Indexer) Open(ctx context.Context) error {
 
 func NewIndexer(db *mongo.Database) *Indexer {
 	i := &Indexer{
+		Database:   db,
 		bufferSize: 2000,
 		tick:       make(chan bool),
 		flush:      make(chan bool, 1),
@@ -125,7 +125,8 @@ func (i *Indexer) Init(ctx context.Context, cfg configx.Values) error {
 			}
 		}
 	}
-	return i.DAO.Init(ctx, cfg)
+
+	return nil
 }
 
 func (i *Indexer) InsertOne(ctx context.Context, data interface{}) error {
@@ -265,7 +266,7 @@ type CollStats struct {
 
 func (i *Indexer) collectionStats(ctx context.Context) (*CollStats, error) {
 	directName := i.Collection(i.collection).Name()
-	res := i.DB().RunCommand(ctx, bson.M{"collStats": directName})
+	res := i.RunCommand(ctx, bson.M{"collStats": directName})
 	if er := res.Err(); er != nil {
 		return nil, er
 	}
@@ -345,7 +346,7 @@ func (i *Indexer) Truncate(ctx context.Context, max int64, logger func(string)) 
 
 func (i *Indexer) Close(ctx context.Context) error {
 	close(i.done)
-	return i.CloseConn(ctx)
+	return i.Client().Disconnect(ctx)
 }
 
 func (i *Indexer) Flush(ctx context.Context) error {
@@ -390,6 +391,103 @@ func (i *Indexer) Flush(ctx context.Context) error {
 	return nil
 }
 
+func (i *Indexer) NewBatch(ctx context.Context, opts ...indexer.BatchOption) (indexer.Batch, error) {
+	var (
+		inserts []interface{}
+		deletes []string
+	)
+
+	// Check if the index need to be rotated once we flushed the operations
+	opts = append(opts,
+		indexer.WithFlushCondition(func() bool {
+			return len(inserts) > i.bufferSize || len(deletes) > i.bufferSize
+		}),
+		indexer.WithInsertCallback(func(msg any) error {
+			if m, e := i.codec.Marshal(msg); e == nil {
+				inserts = append(inserts, m)
+				i.mustTick()
+				return nil
+			} else {
+				return e
+			}
+
+			return nil
+		}),
+		indexer.WithDeleteCallback(func(msg any) error {
+			var indexId string
+			if id, ok := msg.(string); ok {
+				indexId = id
+			} else if p, o := msg.(dao.IndexIDProvider); o {
+				indexId = p.IndexID()
+			}
+			if indexId == "" {
+				return fmt.Errorf("data must be a string or an IndexIDProvider")
+			}
+			deletes = append(deletes, indexId)
+			i.mustTick()
+
+			return nil
+		}),
+		indexer.WithFlushCallback(func() error {
+			conn := i.Collection(i.collection)
+
+			if len(inserts) > 0 {
+				if i.collectionModel.IDName != "" {
+					// First remove all entries with given ID
+					var ors bson.A
+					for _, insert := range inserts {
+						if p, o := insert.(dao.IndexIDProvider); o {
+							ors = append(ors, bson.M{i.collectionModel.IDName: p.IndexID()})
+						}
+					}
+					if _, e := conn.DeleteMany(ctx, bson.M{"$or": ors}); e != nil {
+						log.Logger(ctx).Error("error while flushing pre-deletes:" + e.Error())
+						return e
+					}
+				}
+				if _, e := conn.InsertMany(ctx, inserts); e != nil {
+					log.Logger(ctx).Error("error while flushing index to db" + e.Error())
+					return e
+				} else {
+					//fmt.Println("flushed index to db", len(res.InsertedIDs))
+				}
+				inserts = []interface{}{}
+			}
+
+			if len(deletes) > 0 && i.collectionModel.IDName != "" {
+				var ors bson.A
+				for _, d := range deletes {
+					ors = append(ors, bson.M{i.collectionModel.IDName: d})
+				}
+				if _, e := conn.DeleteMany(context.Background(), bson.M{"$or": ors}); e != nil {
+					log.Logger(ctx).Error("error while flushing deletes to index" + e.Error())
+					return e
+				} else {
+					//fmt.Println("flushed index, deleted", res.DeletedCount)
+				}
+				deletes = []string{}
+			}
+			return nil
+		}))
+
+	o := &indexer.BatchOptions{}
+	for _, opt := range opts {
+		opt(o)
+	}
+
+	return indexer.NewBatch(ctx, opts...), nil
+}
+
 func (i *Indexer) SetCodex(c indexer.IndexCodex) {
 	i.codec = c
+
+	if mo, ok := i.codec.GetModel(nil); ok {
+		if model, ok := mo.(mongodb.Model); ok {
+			for _, coll := range model.Collections {
+				if coll.Name == i.collection {
+					i.collectionModel = coll
+				}
+			}
+		}
+	}
 }

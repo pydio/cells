@@ -29,8 +29,10 @@ import (
 	"github.com/pydio/cells/v4/common/proto/tree"
 	"github.com/pydio/cells/v4/common/storage/bleve"
 	"github.com/pydio/cells/v4/common/storage/indexer"
+	"github.com/pydio/cells/v4/common/storage/mongo"
 	"github.com/pydio/cells/v4/common/utils/configx"
 	bleve2 "github.com/pydio/cells/v4/data/search/dao/bleve"
+	mongo2 "github.com/pydio/cells/v4/data/search/dao/mongo"
 )
 
 type SearchEngine interface {
@@ -41,28 +43,28 @@ type SearchEngine interface {
 	ClearIndex(ctx context.Context) error
 }
 
-func NewBleveDAO(v *bleve.Indexer) SearchEngine {
+func NewBleveDAO(ctx context.Context, v *bleve.Indexer) SearchEngine {
 	v.SetCodex(&bleve2.Codec{})
 
-	return &Server{}
+	return newEngine(ctx, v)
 }
 
-//
-//func NewMongoDAO(v *mongo2.Indexer) indexer.Indexer {
-//	v.SetCollection(mongo.Collection)
-//	v.SetCodex(&mongo.Codex{})
-//	return v
-//}
+func NewMongoDAO(ctx context.Context, v *mongo.Indexer) SearchEngine {
+	v.SetCollection(mongo2.Collection)
+	v.SetCodex(&mongo2.Codex{})
+
+	return newEngine(ctx, v)
+}
 
 func NewQueryCodec(indexDAO indexer.Indexer, values configx.Values, metaProvider *meta.NsProvider) dao.IndexCodex {
 	switch indexDAO.(type) {
 	case *bleve.Indexer:
 		return bleve2.NewQueryCodec(values, metaProvider)
-		//case *mongodb.bleveIndexer:
-		//	return &mongo.Codex{
-		//		QueryConfigs:    values,
-		//		QueryNsProvider: metaProvider,
-		//	}
+	case *mongo.Indexer:
+		return &mongo2.Codex{
+			QueryConfigs:    values,
+			QueryNsProvider: metaProvider,
+		}
 	}
 	return nil
 }

@@ -78,6 +78,7 @@ type Manager interface {
 	SetServeOptions(...server.ServeOption)
 	WatchServicesConfigs()
 	WatchBroker(ctx context.Context, br broker.Broker) error
+	GetConfig(ctx context.Context) config.Store
 	GetStorage(ctx context.Context, name string, out any) error
 }
 
@@ -97,6 +98,9 @@ type manager struct {
 	servers  map[string]server.Server
 	services map[string]service.Service
 
+	// controllers
+	config storage.Storage
+
 	logger log.ZapLogger
 }
 
@@ -107,23 +111,24 @@ func NewManager(ctx context.Context, namespace string, logger log.ZapLogger) (Ma
 		return nil, err
 	}
 
-	clusterReg, err := registry.OpenRegistry(ctx, runtime.RegistryURL())
-	if err != nil {
-		return nil, err
-	}
-
 	m := &manager{
 		ctx: ctx,
 		ns:  namespace,
 
-		localRegistry:   reg,
-		clusterRegistry: clusterReg,
+		localRegistry: reg,
 
-		//processes: make(map[string]registry),
-		//servers:  make(map[string]server.Server),
-		//services: make(map[string]service.Service),
 		logger: logger,
 		root:   node,
+		// config: controller.NewController[config.Store](ctx),
+	}
+
+	if clusterRegistryURL := runtime.RegistryURL(); clusterRegistryURL != "" {
+		clusterRegistry, err := registry.OpenRegistry(ctx, clusterRegistryURL)
+		if err != nil {
+			return nil, err
+		}
+
+		m.clusterRegistry = clusterRegistry
 	}
 
 	reg = registry.NewTransientWrapper(reg, registry.WithType(pb.ItemType_SERVICE))
@@ -144,6 +149,14 @@ func NewManager(ctx context.Context, namespace string, logger log.ZapLogger) (Ma
 	)
 
 	reg.Register(m.root)
+
+	// Initing config
+	conf, err := storage.OpenStorage(ctx, runtime.ConfigURL())
+	if err != nil {
+		return nil, err
+	}
+
+	m.config = conf
 
 	// Initialising default connections
 	if err := m.initConnections(); err != nil {
@@ -271,6 +284,11 @@ func (m *manager) Context() context.Context {
 
 func (m *manager) Registry() registry.Registry {
 	return m.localRegistry
+}
+
+func (m *manager) GetConfig(ctx context.Context) (out config.Store) {
+	m.config.Get(ctx, &out)
+	return
 }
 
 func (m *manager) GetStorage(ctx context.Context, name string, out any) error {
@@ -1106,6 +1124,12 @@ func (m *manager) WatchServerUniques(srv server.Server, ss []service.Service, co
 	}
 }
 
+func (m *manager) MustGetConfig(ctx context.Context) (out config.Store) {
+	m.config.Get(ctx, &out)
+
+	return
+}
+
 func Resolve[T any](ctx context.Context) (T, error) {
 
 	var t T
@@ -1158,4 +1182,15 @@ func Resolve[T any](ctx context.Context) (T, error) {
 	}
 
 	return t, nil
+}
+
+func MustGetConfig(ctx context.Context) config.Store {
+	var manager Manager
+	runtimecontext.Get(ctx, "manager", &manager)
+
+	if manager == nil {
+		panic("manager must be set")
+	}
+
+	return manager.GetConfig(ctx)
 }

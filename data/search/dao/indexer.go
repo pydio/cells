@@ -23,13 +23,12 @@ package dao
 
 import (
 	"context"
-	"errors"
 	"fmt"
 
 	"github.com/pydio/cells/v4/common/log"
 	"github.com/pydio/cells/v4/common/nodes/meta"
 	"github.com/pydio/cells/v4/common/proto/tree"
-	servercontext "github.com/pydio/cells/v4/common/server/context"
+	"github.com/pydio/cells/v4/common/runtime/manager"
 	"github.com/pydio/cells/v4/common/storage/indexer"
 	bleve2 "github.com/pydio/cells/v4/data/search/dao/bleve"
 )
@@ -44,15 +43,8 @@ type Server struct {
 	batch indexer.Batch
 }
 
-func NewEngine(ctx context.Context, idx indexer.Indexer) (*Server, error) {
-	return newEngine(ctx, idx)
-}
+func newEngine(ctx context.Context, idx indexer.Indexer) *Server {
 
-func newEngine(ctx context.Context, idx indexer.Indexer) (*Server, error) {
-
-	if idx == nil {
-		return nil, errors.New("empty indexer")
-	}
 	idx.SetCodex(&bleve2.Codec{})
 
 	server := &Server{}
@@ -62,7 +54,7 @@ func newEngine(ctx context.Context, idx indexer.Indexer) (*Server, error) {
 
 	//go server.watchConfigs(ctx)
 
-	return server, nil
+	return server
 }
 
 //func (s *Server) watchConfigs(ctx context.Context) {
@@ -124,7 +116,7 @@ func (s *Server) SearchNodes(ctx context.Context, queryObject *tree.Query, from 
 
 	nsProvider := meta.NewNsProvider(ctx)
 
-	accu := NewQueryCodec(s.Indexer, servercontext.GetConfig(ctx).Val(), nsProvider)
+	accu := NewQueryCodec(s.Indexer, manager.MustGetConfig(ctx).Val(), nsProvider)
 
 	searchResult, err := s.Indexer.FindMany(ctx, queryObject, from, size, sortField, sortDesc, accu)
 	if err != nil {

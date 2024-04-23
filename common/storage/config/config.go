@@ -2,15 +2,10 @@ package config
 
 import (
 	"context"
-	"net/url"
-	"sync"
-
-	"go.etcd.io/bbolt"
 
 	"github.com/pydio/cells/v4/common/config"
-	servercontext "github.com/pydio/cells/v4/common/server/context"
-	servicecontext "github.com/pydio/cells/v4/common/service/context"
 	"github.com/pydio/cells/v4/common/storage"
+	"github.com/pydio/cells/v4/common/utils/openurl"
 )
 
 var (
@@ -25,38 +20,24 @@ func init() {
 }
 
 type configStorage struct {
-	stores map[string]configStore
-	once   sync.Once
+	template openurl.Template
+	dbs      []*storedb
 }
 
-func (o *configStorage) init() {
-	o.once.Do(func() {
-		o.stores = make(map[string]configStore)
-	})
+type storedb struct {
+	path string
+	db   config.Store
 }
 
-func (o *configStorage) OpenURL(ctx context.Context, u *url.URL) (storage.Storage, error) {
-	o.init()
-
-	// First we check if the connection is already used somewhere
-	if store, ok := o.stores[u.Path]; ok {
-		o.stores[u.Path] = configStore{
-			store:   store.store,
-			service: "",
-			tenant:  "",
-		}
-	}
-
-	conn, err := config.OpenStore(ctx, u.String())
+func (o *configStorage) OpenURL(ctx context.Context, urlstr string) (storage.Storage, error) {
+	t, err := openurl.URLTemplate(urlstr)
 	if err != nil {
 		return nil, err
 	}
 
-	o.stores[u.Path] = configStore{
-		store: conn.(config.Store),
-	}
-
-	return o, nil
+	return &configStorage{
+		template: t,
+	}, nil
 }
 
 type configStore struct {
@@ -66,7 +47,7 @@ type configStore struct {
 }
 
 func (s *configStorage) Provides(conn any) bool {
-	if _, ok := conn.(*bbolt.DB); ok {
+	if _, ok := conn.(*config.Store); ok {
 		return true
 	}
 
@@ -74,18 +55,6 @@ func (s *configStorage) Provides(conn any) bool {
 }
 
 func (s *configStorage) GetConn(str string) (storage.Conn, error) {
-	//if strings.HasPrefix(str, "boltdb") {
-	//	options := bbolt.DefaultOptions
-	//	options.Timeout = 5 * time.Second
-	//
-	//	conn, err := bbolt.Open(strings.TrimPrefix(str, "boltdb://"), 0644, options)
-	//	if err != nil {
-	//		return nil, err
-	//	}
-	//
-	//	return nil, nil
-	//}
-
 	return nil, nil
 }
 
@@ -95,12 +64,32 @@ func (s *configStorage) Register(conn any, tenant string, service string) {
 
 func (s *configStorage) Get(ctx context.Context, out interface{}) bool {
 	if v, ok := out.(*config.Store); ok {
-		for _, db := range s.stores {
-			if db.tenant == servercontext.GetTenant(ctx) && db.service == servicecontext.GetServiceName(ctx) {
-				*v = db.store
+		u, err := s.template.ResolveURL(ctx)
+		if err != nil {
+			return false
+		}
+		path := u.String()
+
+		for _, db := range s.dbs {
+			if path == db.path {
+				*v = db.db
 				return true
 			}
 		}
+
+		// Not found, opening
+		db, err := config.OpenStore(ctx, path)
+		if err != nil {
+			return false
+		}
+
+		*v = db
+
+		s.dbs = append(s.dbs, &storedb{
+			db:   db,
+			path: path,
+		})
+
 	}
 
 	return false

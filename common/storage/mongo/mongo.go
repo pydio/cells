@@ -9,11 +9,12 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 
 	"github.com/pydio/cells/v4/common/storage"
+	"github.com/pydio/cells/v4/common/storage/indexer"
 	"github.com/pydio/cells/v4/common/utils/openurl"
 )
 
 var (
-	mongoTypes = []string{"mongo"}
+	mongoTypes = []string{"mongodb"}
 
 	_ storage.Storage = (*mongoStorage)(nil)
 )
@@ -69,30 +70,52 @@ func (s *mongoStorage) GetConn(str string) (storage.Conn, error) {
 }
 
 func (s *mongoStorage) Get(ctx context.Context, out interface{}) bool {
-	if v, ok := out.(**mongo.Database); ok {
-		u, err := s.template.ResolveURL(ctx)
+	switch out.(type) {
+	case **mongo.Database:
+	case **Indexer:
+	case *indexer.Indexer:
+	default:
+		return false
+	}
+
+	u, err := s.template.ResolveURL(ctx)
+	if err != nil {
+		return false
+	}
+	path := u.String()
+
+	var db *mongo.Database
+	if cli, ok := s.clients[path]; ok {
+		db = cli.Database(u.Path)
+	} else {
+		cli, err := mongo.Connect(context.TODO(), options.Client().ApplyURI(path))
 		if err != nil {
 			return false
 		}
-		path := u.String()
 
-		if cli, ok := s.clients[path]; ok {
-			*v = cli.Database(u.Path)
-		} else {
-			cli, err := mongo.Connect(context.TODO(), options.Client().ApplyURI(path))
-			if err != nil {
-				return false
-			}
+		db = cli.Database(strings.Trim(u.Path, "/"))
 
-			*v = cli.Database(u.Path)
-
-			s.clients[path] = cli
-		}
-
-		return true
+		s.clients[path] = cli
 	}
 
-	return false
+	switch v := out.(type) {
+	case **mongo.Database:
+		*v = db
+	case **Indexer:
+		idx := NewIndexer(db)
+		idx.SetCollection(u.Query().Get("collection"))
+
+		*v = idx
+	case *indexer.Indexer:
+		idx := NewIndexer(db)
+		idx.SetCollection(u.Query().Get("collection"))
+
+		*v = idx
+	default:
+		return false
+	}
+
+	return true
 }
 
 type mongoItem mongo.Client

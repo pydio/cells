@@ -7,7 +7,6 @@
 package rest
 
 import (
-	_ "github.com/mwitkow/go-proto-validators"
 	idm "github.com/pydio/cells/v4/common/proto/idm"
 	service "github.com/pydio/cells/v4/common/proto/service"
 	tree "github.com/pydio/cells/v4/common/proto/tree"

@@ -72,21 +72,6 @@ type Indexer struct {
 	metricsName string
 }
 
-func (s *Indexer) Flush(ctx context.Context) error {
-	//TODO implement me
-	panic("implement me")
-}
-
-func (s *Indexer) Resync(ctx context.Context, logger func(string)) error {
-	//TODO implement me
-	panic("implement me")
-}
-
-func (s *Indexer) Truncate(ctx context.Context, max int64, logger func(string)) error {
-	//TODO implement me
-	panic("implement me")
-}
-
 func (s *Indexer) Open(ctx context.Context) error {
 	//TODO implement me
 	panic("implement me")
@@ -513,67 +498,6 @@ func (s *Indexer) getSearchIndex(ctx context.Context) (bleve.Index, error) {
 	return bleve.NewIndexAlias(indexes...), nil
 }
 
-//func (s *Indexer) watchInserts() {
-//	bc := s.MustBleveConfig(context.Background())
-//	batchSize := int(bc.BatchSize)
-//	for {
-//		select {
-//		case msg := <-s.inserts:
-//			if s.codec != nil {
-//				if m, err := s.codec.Marshal(msg); err != nil {
-//					break
-//				} else {
-//					msg = m
-//				}
-//			}
-//			s.flushLock.Lock()
-//			if s.crtBatch == nil {
-//				s.crtBatch = s.GetSearchIndex().NewBatch()
-//			}
-//			var id string
-//			if provider, ok := msg.(indexer.IndexIDProvider); ok {
-//				id = provider.IndexID()
-//			} else {
-//				id = xid.New().String()
-//			}
-//			s.crtBatch.Index(id, msg)
-//			if s.crtBatch.Size() >= batchSize {
-//				s.flush()
-//			}
-//			s.flushLock.Unlock()
-//		case del := <-s.deletes:
-//			if id, o := del.(string); o {
-//				s.flushLock.Lock()
-//				if s.crtBatch == nil {
-//					s.crtBatch = s.GetWriteIndex().NewBatch()
-//				}
-//				s.crtBatch.Delete(id)
-//				if s.crtBatch.Size() >= batchSize {
-//					s.flush()
-//				}
-//				s.flushLock.Unlock()
-//			}
-//		case <-s.forceFlush:
-//			s.flushLock.Lock()
-//			s.flush()
-//			s.flushLock.Unlock()
-//		case <-time.After(3 * time.Second):
-//			s.flushLock.Lock()
-//			s.flush()
-//			s.flushLock.Unlock()
-//		case <-s.insertsDone:
-//			s.flushLock.Lock()
-//			s.flush()
-//			s.flushLock.Unlock()
-//			s.searchIndex.Close()
-//			for _, i := range s.indexes {
-//				i.Close()
-//			}
-//			return
-//		}
-//	}
-//}
-
 func (s *Indexer) getNextRotationID(prefix string) string {
 	count := 0
 	for _, idx := range s.indexes {
@@ -597,163 +521,175 @@ func (s *Indexer) getRotationID(prefix string) string {
 }
 
 // Resync creates a copy of current index. It has been originally used for switching analyze format from bleve to scorch.
-//func (s *Indexer) Resync(ctx context.Context, logger func(string)) error {
-//
-//	copyDir := filepath.Join(filepath.Dir(s.conf.BlevePath), uuid.New())
-//	e := os.Mkdir(copyDir, 0777)
-//	if e != nil {
-//		return e
-//	}
-//	defer func() {
-//		os.RemoveAll(copyDir)
-//	}()
-//	copyPath := filepath.Join(copyDir, filepath.Base(s.indexPath))
-//
-//	var conf *BleveConfig
-//	*conf = *s.conf
-//
-//	conf.BlevePath = copyPath
-//
-//	dup := &Indexer{
-//		conf: conf,
-//	}
-//	dup.SetCodex(s.codec)
-//	if UnitTestEnv {
-//		dup.inserts = make(chan interface{})
-//	} else {
-//		dup.inserts = make(chan interface{}, BufferedChanSize)
-//	}
-//	er := dup.Open(ctx)
-//	if er != nil {
-//		return er
-//	}
-//	logger("Listing Index inside new one")
-//
-//	q := bleve.NewMatchAllQuery()
-//	req := bleve.NewSearchRequest(q)
-//	req.Size = 5000
-//	page := 0
-//
-//	for {
-//
-//		logger(fmt.Sprintf("Reindexing logs from page %d\n", page))
-//		req.From = page * req.Size
-//		req.Fields = []string{"*"}
-//		sr, err := s.searchIndex.SearchInContext(ctx, req)
-//		if err != nil {
-//			fmt.Println(err)
-//			return err
-//		}
-//		for _, hit := range sr.Hits {
-//			um, e := s.codec.Unmarshal(hit)
-//			if e != nil {
-//				fmt.Println(e)
-//				continue
-//			}
-//			mu, e := s.codec.Marshal(um)
-//			if e != nil {
-//				fmt.Println(e)
-//				continue
-//			}
-//			dup.inserts <- mu
-//		}
-//		if sr.Total <= uint64((page+1)*req.Size) {
-//			break
-//		}
-//		page++
-//
-//	}
-//	if er := dup.Flush(); er != nil {
-//		return er
-//	}
-//	if er := s.Close(ctx); er != nil {
-//		return er
-//	}
-//	if er := dup.Close(ctx); er != nil {
-//		return er
-//	}
-//	<-time.After(5 * time.Second) // Make sure original is closed
-//
-//	logger("Removing old indexes")
-//	for _, ip := range s.listIndexes() {
-//		if err := os.RemoveAll(filepath.Join(filepath.Dir(s.indexPath), ip)); err != nil {
-//			return err
-//		}
-//	}
-//	logger("Moving new indexes")
-//	for _, ip := range dup.listIndexes() {
-//		src := filepath.Join(copyDir, ip)
-//		target := filepath.Join(filepath.Join(filepath.Dir(s.indexPath), ip))
-//		if err := os.Rename(src, target); err != nil {
-//			return err
-//		}
-//	}
-//	logger("Restarting new mr")
-//	if err := s.Open(ctx); err != nil {
-//		return err
-//	}
-//	logger("Resync operation done")
-//
-//	s.updateStatus()
-//
-//	return nil
-//
-//}
+func (s *Indexer) Resync(ctx context.Context, logger func(string)) error {
+
+	//path := s.getPath(ctx)
+	//prefix := s.getPrefix(ctx)
+	// fullPath := s.getFullPath(path, prefix, "")
+
+	copyDir := filepath.Join(filepath.Dir(s.conf.BlevePath), uuid.New())
+	e := os.Mkdir(copyDir, 0777)
+	if e != nil {
+		return e
+	}
+	defer func() {
+		os.RemoveAll(copyDir)
+	}()
+	copyPath := filepath.Join(copyDir, filepath.Base(s.conf.BlevePath))
+
+	var conf *BleveConfig
+	*conf = *s.conf
+
+	conf.BlevePath = copyPath
+
+	dup := &Indexer{
+		conf: conf,
+	}
+	dup.SetCodex(s.codec)
+	dup.inserts = make(chan interface{}, BufferedChanSize)
+
+	//er := dup.Open(ctx)
+	//if er != nil {
+	//	return er
+	//}
+	logger("Listing Index inside new one")
+
+	q := bleve.NewMatchAllQuery()
+	req := bleve.NewSearchRequest(q)
+	req.Size = 5000
+	page := 0
+
+	b, err := dup.NewBatch(ctx)
+	if err != nil {
+		return err
+	}
+
+	for {
+
+		logger(fmt.Sprintf("Reindexing logs from page %d\n", page))
+		req.From = page * req.Size
+		req.Fields = []string{"*"}
+		idx, err := s.getSearchIndex(ctx)
+		if err != nil {
+			return err
+		}
+		sr, err := idx.SearchInContext(ctx, req)
+		if err != nil {
+			fmt.Println(err)
+			return err
+		}
+		for _, hit := range sr.Hits {
+			um, e := s.codec.Unmarshal(hit)
+			if e != nil {
+				fmt.Println(e)
+				continue
+			}
+			mu, e := s.codec.Marshal(um)
+			if e != nil {
+				fmt.Println(e)
+				continue
+			}
+			b.Insert(mu)
+		}
+		if sr.Total <= uint64((page+1)*req.Size) {
+			break
+		}
+		page++
+
+	}
+	if er := b.Flush(); er != nil {
+		return er
+	}
+	if er := s.Close(ctx); er != nil {
+		return er
+	}
+	if er := dup.Close(ctx); er != nil {
+		return er
+	}
+	// <-time.After(5 * time.Second) // Make sure original is closed
+
+	//logger("Removing old indexes")
+	//for _, ip := range s.listIndexes() {
+	//	if err := os.RemoveAll(filepath.Join(filepath.Dir(s.indexPath), ip)); err != nil {
+	//		return err
+	//	}
+	//}
+	//logger("Moving new indexes")
+	//for _, ip := range dup.listIndexes() {
+	//	src := filepath.Join(copyDir, ip)
+	//	target := filepath.Join(filepath.Join(filepath.Dir(s.indexPath), ip))
+	//	if err := os.Rename(src, target); err != nil {
+	//		return err
+	//	}
+	//}
+
+	//logger("Restarting new mr")
+	//if err := s.Open(ctx); err != nil {
+	//	return err
+	//}
+	//logger("Resync operation done")
+
+	//s.updateStatus()
+
+	return nil
+
+}
 
 // Truncate gathers size of existing indexes, starting from last. When max is reached
 // it starts deleting all previous indexes.
-//func (s *Indexer) Truncate(ctx context.Context, max int64, logger func(string)) error {
-//	logger("Closing log server, waiting for five seconds")
-//	dir := filepath.Dir(s.indexPath)
-//	if er := s.Close(ctx); er != nil {
-//		return er
-//	}
-//	<-time.After(5 * time.Second)
-//
-//	if max == 0 {
-//		logger("Truncate index to 0: remove and recreate")
-//		for _, idxName := range s.listIndexes() {
-//			logger(" - Remove " + filepath.Join(dir, idxName))
-//			if er := os.RemoveAll(filepath.Join(dir, idxName)); er != nil {
-//				return er
-//			}
-//		}
-//		logger("Re-opening indexer")
-//		if er := s.Open(ctx); er != nil {
-//			return er
-//		}
-//		logger("Server opened")
-//		return nil
-//	}
-//
-//	logger("Start purging old files")
-//	indexes := s.listIndexes()
-//	var i int
-//	var total int64
-//	var remove bool
-//	for i = len(indexes) - 1; i >= 0; i-- {
-//		if remove {
-//			e := os.RemoveAll(filepath.Join(dir, indexes[i]))
-//			if e != nil {
-//				logger(fmt.Sprintf("cannot remove index %s", indexes[i]))
-//			}
-//		} else if u, e := indexDiskUsage(filepath.Join(dir, indexes[i])); e == nil {
-//			total += u
-//			remove = total > max
-//		}
-//	}
-//
-//	// Now restart - it will renumber files
-//	logger("Re-opening log server")
-//	if er := s.Open(ctx); er != nil {
-//		return er
-//	}
-//	logger("Truncate operation done")
-//
-//	s.updateStatus()
-//
-//	return nil
-//}
+func (s *Indexer) Truncate(ctx context.Context, max int64, logger func(string)) error {
+	if max == 0 {
+		path := s.getPath(ctx)
+		prefix := s.getPrefix(ctx)
+		fullPath := s.getFullPath(path, prefix, "")
+
+		for _, index := range s.indexes {
+			if strings.HasPrefix(index.Name(), fullPath) {
+				logger(" - Remove " + index.Name())
+				if er := os.RemoveAll(index.Name()); er != nil {
+					return er
+				}
+			}
+		}
+
+		return nil
+	}
+
+	path := s.getPath(ctx)
+	prefix := s.getPrefix(ctx)
+	fullPath := s.getFullPath(path, prefix, "")
+
+	var total int64
+	var remove bool
+
+	logger("Start purging old files")
+	for _, index := range s.indexes {
+		if strings.HasPrefix(index.Name(), fullPath) {
+			if remove {
+				e := os.RemoveAll(index.Name())
+				if e != nil {
+					logger(fmt.Sprintf("cannot remove index %s", index.Name()))
+				}
+			} else if u, e := indexDiskUsage(index.Name()); e == nil {
+				total += u
+				remove = total > max
+			}
+		}
+	}
+
+	// Now restart - it will renumber files
+	s.rotate(ctx)
+
+	//logger("Re-opening log server")
+	//if er := s.Open(ctx); er != nil {
+	//	return er
+	//}
+	//logger("Truncate operation done")
+
+	//s.updateStatus()
+
+	return nil
+}
 
 func (s *Indexer) listIndexes(path string) (paths []string) {
 	files, err := os.ReadDir(path)
@@ -845,8 +781,6 @@ func (s *Indexer) NewBatch(ctx context.Context, opts ...indexer.BatchOption) (in
 				return err
 			}
 
-			batch.Reset()
-
 			return nil
 		}),
 		indexer.WithDeleteCallback(func(msg any) error {
@@ -860,17 +794,24 @@ func (s *Indexer) NewBatch(ctx context.Context, opts ...indexer.BatchOption) (in
 			return nil
 		}),
 		indexer.WithFlushCallback(func() error {
-			if s.checkRotate(ctx) {
-				s.rotate(ctx)
-			}
 
-			newIndex, err := s.getWriteIndex(ctx)
-			if err != nil {
+			if err := index.Batch(batch); err != nil {
 				return err
 			}
 
-			indexAlias.Swap([]bleve.Index{newIndex}, []bleve.Index{index})
-			index = newIndex
+			batch.Reset()
+
+			if s.checkRotate(ctx) {
+				s.rotate(ctx)
+
+				newIndex, err := s.getWriteIndex(ctx)
+				if err != nil {
+					return err
+				}
+
+				indexAlias.Swap([]bleve.Index{newIndex}, []bleve.Index{index})
+				index = newIndex
+			}
 
 			return nil
 		}))

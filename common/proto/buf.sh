@@ -33,7 +33,6 @@ then
   go install github.com/pydio/cells/cmd/protoc-gen-go-setter
   go install github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-grpc-gateway
   go install github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-openapiv2
-  go install github.com/mwitkow/go-proto-validators/protoc-gen-govalidators
 else
   export GOBIN=$PWD/bin
   export PATH=$GOBIN:$PATH

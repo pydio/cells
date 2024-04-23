@@ -222,7 +222,7 @@ storages: &storages
   sql:
     uri: "sqlite3-extended://:memory:"
   search:
-    uri: bleve:///tmp/search/search
+    uri: mongo+indexer://localhost:24017/search
   nosql:
     uri: bleve://tmp/{{ .Value service }}
   bolt:
