@@ -29,12 +29,9 @@ import (
 	"testing"
 	"time"
 
-	"github.com/spf13/viper"
-
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/config/mock"
 	"github.com/pydio/cells/v4/common/proto/tree"
-	"github.com/pydio/cells/v4/common/runtime"
 	"github.com/pydio/cells/v4/common/runtime/manager"
 	"github.com/pydio/cells/v4/common/storage"
 	"github.com/pydio/cells/v4/common/storage/bleve"
@@ -56,15 +53,6 @@ var (
 )
 
 func init() {
-	var err error
-	v := viper.New()
-	v.Set(runtime.KeyConfig, "mem://")
-	runtime.SetRuntime(v)
-	mgr, err = manager.NewManager(context.Background(), "test", nil)
-	if err != nil {
-		panic(err)
-	}
-
 	_ = mock.RegisterMockConfig()
 }
 
@@ -198,9 +186,7 @@ func TestNewBleveEngine(t *testing.T) {
 //}
 
 func TestIndexNode(t *testing.T) {
-	ctx := mgr.Context()
-
-	test.RunStorageTests(ctx, testcases, func(server SearchEngine) {
+	test.RunStorageTests(testcases, func(ctx context.Context, server SearchEngine) {
 
 		Convey("Index Node", t, func() {
 			mtime := time.Now().Unix()
@@ -234,9 +220,7 @@ func TestIndexNode(t *testing.T) {
 }
 
 func TestSearchNode(t *testing.T) {
-	ctx := mgr.Context()
-
-	test.RunStorageTests(ctx, testcases, func(server SearchEngine) {
+	test.RunStorageTests(testcases, func(ctx context.Context, server SearchEngine) {
 		createNodes(server)
 
 		Convey("Search Node by name", t, func() {
@@ -453,8 +437,7 @@ func TestSearchNode(t *testing.T) {
 }
 
 func TestSearchByGeolocation(t *testing.T) {
-	ctx := mgr.Context()
-	test.RunStorageTests(ctx, testcases, func(server SearchEngine) {
+	test.RunStorageTests(testcases, func(ctx context.Context, server SearchEngine) {
 
 		createNodes(server)
 
@@ -497,8 +480,7 @@ func TestSearchByGeolocation(t *testing.T) {
 }
 
 func TestDeleteNode(t *testing.T) {
-	ctx := mgr.Context()
-	test.RunStorageTests(ctx, testcases, func(server SearchEngine) {
+	test.RunStorageTests(testcases, func(ctx context.Context, server SearchEngine) {
 		createNodes(server)
 
 		Convey("Delete Node", t, func() {
@@ -518,9 +500,7 @@ func TestDeleteNode(t *testing.T) {
 }
 
 func TestClearIndex(t *testing.T) {
-	ctx := mgr.Context()
-
-	test.RunStorageTests(ctx, testcases, func(server SearchEngine) {
+	test.RunStorageTests(testcases, func(ctx context.Context, server SearchEngine) {
 		Convey("Clear Index", t, func() {
 
 			createNodes(server)
@@ -540,8 +520,7 @@ func TestClearIndex(t *testing.T) {
 }
 
 func TestSearchByUuidsMatch(t *testing.T) {
-	ctx := mgr.Context()
-	test.RunStorageTests(ctx, testcases, func(server SearchEngine) {
+	test.RunStorageTests(testcases, func(ctx context.Context, server SearchEngine) {
 		Convey("Search Node by UUID(s)", t, func() {
 
 			createNodes(server)

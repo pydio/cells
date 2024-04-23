@@ -5,6 +5,10 @@ import (
 	"fmt"
 	"reflect"
 
+	"github.com/spf13/viper"
+
+	"github.com/pydio/cells/v4/common/runtime"
+	"github.com/pydio/cells/v4/common/runtime/manager"
 	"github.com/pydio/cells/v4/common/storage"
 )
 
@@ -14,7 +18,20 @@ type StorageTestCase struct {
 	DAO       any
 }
 
-func RunStorageTests(ctx context.Context, testCases []StorageTestCase, f any) {
+func RunStorageTests(testCases []StorageTestCase, f any) {
+
+	v := viper.New()
+	v.Set(runtime.KeyConfig, "mem://")
+
+	runtime.SetRuntime(v)
+
+	mgr, err := manager.NewManager(context.Background(), "test", nil)
+	if err != nil {
+		panic(err)
+	}
+
+	ctx := mgr.Context()
+
 	funcTestType := reflect.TypeOf(f)
 	if funcTestType.Kind() != reflect.Func {
 		fmt.Println("wrong test format")
@@ -51,7 +68,7 @@ func RunStorageTests(ctx context.Context, testCases []StorageTestCase, f any) {
 
 			out := reflect.ValueOf(tc.DAO).Call(in)
 
-			reflect.ValueOf(f).Call(out)
+			reflect.ValueOf(f).Call(append([]reflect.Value{reflect.ValueOf(ctx)}, out...))
 		} else {
 			panic("wrong type")
 		}
