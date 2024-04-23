@@ -453,9 +453,8 @@ func TestSearchNode(t *testing.T) {
 }
 
 func TestSearchByGeolocation(t *testing.T) {
+	ctx := mgr.Context()
 	test.RunStorageTests(ctx, testcases, func(server SearchEngine) {
-
-		ctx := mgr.Context()
 
 		createNodes(server)
 
