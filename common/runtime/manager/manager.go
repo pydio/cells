@@ -239,15 +239,16 @@ func reset(conf config.Store, store config.Store) error {
 
 	r := runtime.GetRuntime()
 	if err := t.Execute(&b, struct {
-		ConfigURL     string
-		RegistryURL   string
-		BrokerURL     string
-		CacheURL      string
-		BindHost      string
-		AdvertiseHost string
-		DiscoveryPort string
-		FrontendPort  string
-		Config        config.Store
+		ConfigURL             string
+		RegistryURL           string
+		BrokerURL             string
+		CacheURL              string
+		BindHost              string
+		AdvertiseHost         string
+		DiscoveryPort         string
+		FrontendPort          string
+		ApplicationWorkingDir string
+		Config                config.Store
 	}{
 		runtime.ConfigURL(),
 		runtime.RegistryURL(),
@@ -257,6 +258,7 @@ func reset(conf config.Store, store config.Store) error {
 		r.GetString(runtime.KeyBindHost),
 		r.GetString(runtime.KeyGrpcDiscoveryPort),
 		r.GetString(runtime.KeyHttpPort),
+		runtime.ApplicationWorkingDir(),
 		conf,
 	}); err != nil {
 		return err

@@ -97,9 +97,9 @@ processes:
     connections:
       <<: *connections
       search:
-        uri: bleve:///Users/ghecquet/Library/Application Support/Pydio/cells/search
+        uri: bleve://{{{{ .ApplicationWorkingDir }}}}/search
       config:
-        uri: file:///Users/ghecquet/Library/Application Support/Pydio/cells/pydio.json
+        uri: file://{{{{ .ApplicationWorkingDir }}}}/pydio.json
       registry:
         uri: mem://?cache=shared
       broker:
