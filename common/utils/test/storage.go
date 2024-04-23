@@ -74,7 +74,8 @@ func RunStorageTests(testCases []StorageTestCase, f any) {
 			in = append(in, dao.Elem())
 
 			out := reflect.ValueOf(tc.DAO).Call(in)
-
+			finalDAO := out[0]
+			ctx = context.WithValue(ctx, "resolved-dao", finalDAO.Interface())
 			reflect.ValueOf(f).Call(append([]reflect.Value{reflect.ValueOf(ctx)}, out[0]))
 		} else {
 			panic("wrong type")

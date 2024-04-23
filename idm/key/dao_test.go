@@ -23,94 +23,74 @@ package key
 import (
 	"context"
 	"encoding/base64"
-	"log"
 	"testing"
 	"time"
 
 	"github.com/smartystreets/goconvey/convey"
 
-	"github.com/pydio/cells/v4/common"
-	"github.com/pydio/cells/v4/common/crypto"
-	"github.com/pydio/cells/v4/common/dao"
 	"github.com/pydio/cells/v4/common/dao/sqlite"
 	"github.com/pydio/cells/v4/common/proto/encryption"
-	"github.com/pydio/cells/v4/common/utils/configx"
+	"github.com/pydio/cells/v4/common/utils/test"
 )
 
 var (
-	mockDAO DAO
-	ctx     = context.Background()
+	testcases = []test.StorageTestCase{
+		{sqlite.Driver + "://" + sqlite.SharedMemDSN, true, NewDAO},
+	}
 )
 
-func GetDAO(t *testing.T) DAO {
-	if mockDAO != nil {
-		return mockDAO
-	}
-
-	err := crypto.DeleteKeyringPassword(common.ServiceGrpcNamespace_+common.ServiceUserKey, common.KeyringMasterKey)
-	if err != nil {
-		log.Println(err)
-	}
-
-	var options = configx.New()
-	if d, e := dao.InitDAO(ctx, sqlite.Driver, sqlite.SharedMemDSN, "idm_key_test", NewDAO, options); e != nil {
-		panic(e)
-	} else {
-		mockDAO = d.(DAO)
-	}
-	return mockDAO
-}
-
 func TestDAOPut(t *testing.T) {
-	dao := GetDAO(t).(*sqlimpl)
 
-	convey.Convey("Test PUT key", t, func() {
-		err := dao.SaveKey(&encryption.Key{
-			Owner:        "pydio",
-			ID:           "test",
-			Label:        "Test",
-			Content:      base64.StdEncoding.EncodeToString([]byte("return to senderreturn to sender")),
-			CreationDate: 0,
+	test.RunStorageTests(testcases, func(ctx context.Context, dao DAO) {
+
+		convey.Convey("Test PUT key", t, func() {
+			err := dao.SaveKey(ctx, &encryption.Key{
+				Owner:        "pydio",
+				ID:           "test",
+				Label:        "Test",
+				Content:      base64.StdEncoding.EncodeToString([]byte("return to senderreturn to sender")),
+				CreationDate: 0,
+			})
+			convey.So(err, convey.ShouldBeNil)
 		})
-		convey.So(err, convey.ShouldBeNil)
-	})
-	convey.Convey("Test UPDATE key", t, func() {
+		convey.Convey("Test UPDATE key", t, func() {
 
-		err := dao.SaveKey(&encryption.Key{
-			Owner:        "pydio",
-			ID:           "test",
-			Label:        "Test",
-			Content:      base64.StdEncoding.EncodeToString([]byte("return to senderreturn to sender")),
-			CreationDate: int32(time.Now().Unix()),
-			Info: &encryption.KeyInfo{
-				Imports: []*encryption.Import{
-					&encryption.Import{
-						By:   "test",
-						Date: int32(time.Now().Unix()),
+			err := dao.SaveKey(ctx, &encryption.Key{
+				Owner:        "pydio",
+				ID:           "test",
+				Label:        "Test",
+				Content:      base64.StdEncoding.EncodeToString([]byte("return to senderreturn to sender")),
+				CreationDate: int32(time.Now().Unix()),
+				Info: &encryption.KeyInfo{
+					Imports: []*encryption.Import{
+						&encryption.Import{
+							By:   "test",
+							Date: int32(time.Now().Unix()),
+						},
 					},
 				},
-			},
+			})
+			convey.So(err, convey.ShouldBeNil)
 		})
-		convey.So(err, convey.ShouldBeNil)
-	})
-	convey.Convey("Test GET key", t, func() {
-		k, v, err := dao.GetKey("pydio", "test")
-		convey.So(err, convey.ShouldBeNil)
-		convey.So(k, convey.ShouldNotBeNil)
-		convey.So(v, convey.ShouldEqual, 4)
-	})
-	convey.Convey("Test LIST key", t, func() {
-		k, err := dao.ListKeys("pydio")
-		convey.So(err, convey.ShouldBeNil)
-		convey.So(k, convey.ShouldNotBeNil)
-		convey.So(len(k), convey.ShouldEqual, 1)
-	})
-	convey.Convey("Test DELETE key", t, func() {
-		err := dao.DeleteKey("pydio", "test")
-		convey.So(err, convey.ShouldBeNil)
+		convey.Convey("Test GET key", t, func() {
+			k, v, err := dao.GetKey(ctx, "pydio", "test")
+			convey.So(err, convey.ShouldBeNil)
+			convey.So(k, convey.ShouldNotBeNil)
+			convey.So(v, convey.ShouldEqual, 4)
+		})
+		convey.Convey("Test LIST key", t, func() {
+			k, err := dao.ListKeys(ctx, "pydio")
+			convey.So(err, convey.ShouldBeNil)
+			convey.So(k, convey.ShouldNotBeNil)
+			convey.So(len(k), convey.ShouldEqual, 1)
+		})
+		convey.Convey("Test DELETE key", t, func() {
+			err := dao.DeleteKey(ctx, "pydio", "test")
+			convey.So(err, convey.ShouldBeNil)
 
-		k, err := dao.ListKeys("jabar")
-		convey.So(err, convey.ShouldBeNil)
-		convey.So(k, convey.ShouldBeEmpty)
+			k, err := dao.ListKeys(ctx, "jabar")
+			convey.So(err, convey.ShouldBeNil)
+			convey.So(k, convey.ShouldBeEmpty)
+		})
 	})
 }

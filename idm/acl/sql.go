@@ -22,7 +22,6 @@ package acl
 
 import (
 	"context"
-	"embed"
 	"errors"
 	"strconv"
 	"sync"
@@ -37,25 +36,6 @@ import (
 	"github.com/pydio/cells/v4/common/proto/idm"
 	"github.com/pydio/cells/v4/common/sql"
 	"github.com/pydio/cells/v4/common/utils/configx"
-)
-
-var (
-	//go:embed migrations/*
-	migrationsFS embed.FS
-
-	queries = map[string]string{
-		"AddACL":                  `insert into idm_acls (action_name, action_value, role_id, workspace_id, node_id) values (?, ?, ?, ?, ?)`,
-		"AddACLNode":              `insert into idm_acl_nodes (uuid) values (?)`,
-		"AddACLRole":              `insert into idm_acl_roles (uuid) values (?)`,
-		"AddACLWorkspace":         `insert into idm_acl_workspaces (name) values (?)`,
-		"GetACLNode":              `select id from idm_acl_nodes where uuid = ?`,
-		"GetACLRole":              `select id from idm_acl_roles where uuid = ?`,
-		"GetACLWorkspace":         `select id from idm_acl_workspaces where name = ?`,
-		"CleanWorkspaces":         `DELETE FROM idm_acl_workspaces WHERE id != -1 and id NOT IN (select distinct(workspace_id) from idm_acls)`,
-		"CleanRoles":              `DELETE FROM idm_acl_roles WHERE id != -1 and id NOT IN (select distinct(role_id) from idm_acls)`,
-		"CleanNodes":              `DELETE FROM idm_acl_nodes WHERE id != -1 and id NOT IN (select distinct(node_id) from idm_acls)`,
-		"CleanDuplicateIfExpired": `DELETE FROM idm_acls WHERE action_name=? AND role_id=? AND workspace_id=? AND node_id=? AND expires_at IS NOT NULL AND expires_at < ?`,
-	}
 )
 
 type ACL struct {

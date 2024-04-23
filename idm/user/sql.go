@@ -22,7 +22,6 @@ package user
 
 import (
 	"context"
-	"embed"
 	"fmt"
 	"strings"
 	"sync"
@@ -53,9 +52,6 @@ const (
 )
 
 var (
-	//go:embed migrations/*
-	migrationsFS embed.FS
-
 	queries = map[string]string{
 		"AddAttribute":            `replace into idm_user_attributes (uuid, name, value) values (?, ?, ?)`,
 		"GetAttributes":           `select name, value from idm_user_attributes where uuid = ?`,

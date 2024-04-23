@@ -22,7 +22,6 @@ package workspace
 
 import (
 	"context"
-	"embed"
 	"gorm.io/gorm"
 	"sync"
 	"time"
@@ -36,18 +35,6 @@ import (
 	"github.com/pydio/cells/v4/common/service/errors"
 	"github.com/pydio/cells/v4/common/sql"
 	"github.com/pydio/cells/v4/common/sql/resources"
-)
-
-var (
-	//go:embed migrations/*
-	migrationsFS embed.FS
-
-	queries = map[string]string{
-		"AddWorkspace":            `replace into idm_workspaces (uuid, label, description, attributes, slug, scope, last_updated) values (?, ?, ?, ?, ?, ?, ?)`,
-		"GetWorkspace":            `select uuid from idm_workspaces where uuid = ?`,
-		"ExistsWorkspace":         `select uuid, slug from idm_workspaces where uuid = ?`,
-		"ExistsWorkspaceWithSlug": `select count(uuid) from idm_workspaces where slug = ?`,
-	}
 )
 
 type resourcesDAO resources.DAO

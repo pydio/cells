@@ -22,26 +22,14 @@ package key
 
 import (
 	"context"
-	"embed"
-	"github.com/pydio/cells/v4/common/proto/encryption"
-	"github.com/pydio/cells/v4/common/service/errors"
+	"sync"
+
 	"google.golang.org/protobuf/proto"
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
-	"sync"
-)
 
-var (
-	//go:embed migrations/*
-	migrationsFS embed.FS
-
-	queries = map[string]string{
-		"insert": `INSERT INTO idm_user_keys VALUES (?,?,?,?,?,?,?);`,
-		"update": `UPDATE idm_user_keys SET key_data=?,key_info=?,version=? WHERE owner=? AND key_id=?;`,
-		"get":    `SELECT * FROM idm_user_keys WHERE owner=? AND key_id=?;`,
-		"list":   `SELECT * FROM idm_user_keys WHERE owner=?;`,
-		"delete": `DELETE FROM idm_user_keys WHERE owner=? AND key_id=?;`,
-	}
+	"github.com/pydio/cells/v4/common/proto/encryption"
+	"github.com/pydio/cells/v4/common/service/errors"
 )
 
 type UserKey struct {

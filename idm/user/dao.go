@@ -57,12 +57,12 @@ type DAO interface {
 
 // NewDAO wraps passed DAO with specific Pydio implementation of User DAO and returns it.
 func NewDAO(db *gorm.DB) DAO {
-	resourcesDAO := resources.NewDAO(db)
-	indexDAO := index.NewDAO[*user_model.User](db)
+	resDAO := resources.NewDAO(db)
+	idxDAO := index.NewDAO[*user_model.User](db)
 
 	return &sqlimpl{
 		db:           db,
-		resourcesDAO: resourcesDAO,
-		indexDAO:     indexDAO,
+		resourcesDAO: resDAO,
+		indexDAO:     idxDAO,
 	}
 }

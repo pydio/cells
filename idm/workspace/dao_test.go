@@ -22,210 +22,198 @@ package workspace
 
 import (
 	"context"
-	"sync"
 	"testing"
 
-	. "github.com/smartystreets/goconvey/convey"
 	"google.golang.org/protobuf/types/known/anypb"
 
-	"github.com/pydio/cells/v4/common/dao"
 	"github.com/pydio/cells/v4/common/dao/sqlite"
 	"github.com/pydio/cells/v4/common/proto/idm"
 	service "github.com/pydio/cells/v4/common/proto/service"
-	"github.com/pydio/cells/v4/common/utils/configx"
+	"github.com/pydio/cells/v4/common/utils/test"
+
+	. "github.com/smartystreets/goconvey/convey"
 )
 
 var (
-	mockDAO DAO
-
-	wg sync.WaitGroup
-)
-
-func TestMain(m *testing.M) {
-
-	var options = configx.New()
-	ctx := context.Background()
-
-	if d, e := dao.InitDAO(ctx, sqlite.Driver, sqlite.SharedMemDSN, "workspaces", NewDAO, options); e != nil {
-		panic(e)
-	} else {
-		mockDAO = d.(DAO)
+	testcases = []test.StorageTestCase{
+		{sqlite.Driver + "://" + sqlite.SharedMemDSN, true, NewDAO},
 	}
-
-	m.Run()
-	wg.Wait()
-}
+)
 
 func TestUniqueSlug(t *testing.T) {
 
-	Convey("Test Unique Slug", t, func() {
+	test.RunStorageTests(testcases, func(ctx context.Context, mockDAO DAO) {
+		Convey("Test Unique Slug", t, func() {
 
-		ws := &idm.Workspace{
-			UUID:        "id1",
-			Slug:        "my-slug",
-			Label:       "label",
-			Description: "description",
-			Attributes:  "",
-			Scope:       0,
-		}
+			ws := &idm.Workspace{
+				UUID:        "id1",
+				Slug:        "my-slug",
+				Label:       "label",
+				Description: "description",
+				Attributes:  "",
+				Scope:       0,
+			}
 
-		update, err := mockDAO.Add(ws)
-		So(update, ShouldBeFalse)
-		So(err, ShouldBeNil)
+			update, err := mockDAO.Add(ctx, ws)
+			So(update, ShouldBeFalse)
+			So(err, ShouldBeNil)
 
-		ws2 := &idm.Workspace{
-			UUID:        "id2",
-			Slug:        "my-slug",
-			Label:       "label",
-			Description: "description 2",
-			Attributes:  "",
-			Scope:       0,
-		}
+			ws2 := &idm.Workspace{
+				UUID:        "id2",
+				Slug:        "my-slug",
+				Label:       "label",
+				Description: "description 2",
+				Attributes:  "",
+				Scope:       0,
+			}
 
-		update, err = mockDAO.Add(ws2)
-		So(update, ShouldBeFalse)
-		So(err, ShouldBeNil)
-		So(ws2.Slug, ShouldEqual, "my-slug-1")
+			update, err = mockDAO.Add(ctx, ws2)
+			So(update, ShouldBeFalse)
+			So(err, ShouldBeNil)
+			So(ws2.Slug, ShouldEqual, "my-slug-1")
 
-		ws3 := &idm.Workspace{
-			UUID:        "id3",
-			Slug:        "my-slug",
-			Label:       "label",
-			Description: "description 3",
-			Attributes:  "",
-			Scope:       0,
-		}
+			ws3 := &idm.Workspace{
+				UUID:        "id3",
+				Slug:        "my-slug",
+				Label:       "label",
+				Description: "description 3",
+				Attributes:  "",
+				Scope:       0,
+			}
 
-		update, err = mockDAO.Add(ws3)
-		So(update, ShouldBeFalse)
-		So(err, ShouldBeNil)
-		So(ws3.Slug, ShouldEqual, "my-slug-2")
+			update, err = mockDAO.Add(ctx, ws3)
+			So(update, ShouldBeFalse)
+			So(err, ShouldBeNil)
+			So(ws3.Slug, ShouldEqual, "my-slug-2")
 
-		q, _ := anypb.New(&idm.WorkspaceSingleQuery{
-			Uuid: "id2",
+			q, _ := anypb.New(&idm.WorkspaceSingleQuery{
+				Uuid: "id2",
+			})
+			workspaces := new([]interface{})
+			mockDAO.Search(ctx, &service.Query{
+				SubQueries: []*anypb.Any{q},
+			}, workspaces)
+			So(workspaces, ShouldHaveLength, 1)
+			for _, w := range *workspaces {
+				result := w.(*idm.Workspace)
+				So(result.UUID, ShouldEqual, "id2")
+				So(result.Label, ShouldEqual, "label")
+				So(result.Slug, ShouldEqual, "my-slug-1")
+			}
 		})
-		workspaces := new([]interface{})
-		mockDAO.Search(&service.Query{
-			SubQueries: []*anypb.Any{q},
-		}, workspaces)
-		So(workspaces, ShouldHaveLength, 1)
-		for _, w := range *workspaces {
-			result := w.(*idm.Workspace)
-			So(result.UUID, ShouldEqual, "id2")
-			So(result.Label, ShouldEqual, "label")
-			So(result.Slug, ShouldEqual, "my-slug-1")
-		}
 	})
 }
 
 func TestSearch(t *testing.T) {
 
-	Convey("Query Builder", t, func() {
+	test.RunStorageTests(testcases, func(ctx context.Context, mockDAO DAO) {
+		Convey("Query Builder", t, func() {
 
-		workspaces := []*idm.Workspace{
-			&idm.Workspace{
-				UUID:        "ws1",
-				Slug:        "admin-files",
-				Label:       "Admin Files",
-				Attributes:  "{}",
-				Description: "Reserved for admin",
-				Scope:       idm.WorkspaceScope_ADMIN,
-			},
+			workspaces := []*idm.Workspace{
+				&idm.Workspace{
+					UUID:        "ws1",
+					Slug:        "admin-files",
+					Label:       "Admin Files",
+					Attributes:  "{}",
+					Description: "Reserved for admin",
+					Scope:       idm.WorkspaceScope_ADMIN,
+				},
 
-			&idm.Workspace{
-				UUID:        "ws2",
-				Slug:        "common",
-				Label:       "Common",
-				Attributes:  "{}",
-				Description: "Shared files",
-				Scope:       idm.WorkspaceScope_ROOM,
-			},
+				&idm.Workspace{
+					UUID:        "ws2",
+					Slug:        "common",
+					Label:       "Common",
+					Attributes:  "{}",
+					Description: "Shared files",
+					Scope:       idm.WorkspaceScope_ROOM,
+				},
 
-			&idm.Workspace{
-				UUID:        "ws3",
-				Slug:        "admins-share",
-				Label:       "Admin shared files",
-				Attributes:  "{}",
-				Description: "Shared files for admin ",
-				Scope:       idm.WorkspaceScope_ADMIN,
-			},
+				&idm.Workspace{
+					UUID:        "ws3",
+					Slug:        "admins-share",
+					Label:       "Admin shared files",
+					Attributes:  "{}",
+					Description: "Shared files for admin ",
+					Scope:       idm.WorkspaceScope_ADMIN,
+				},
 
-			&idm.Workspace{
-				UUID:        "ws4",
-				Slug:        "public",
-				Label:       "Public",
-				Attributes:  "{}",
-				Description: "Public access files",
-				Scope:       idm.WorkspaceScope_ANY,
-			},
-		}
+				&idm.Workspace{
+					UUID:        "ws4",
+					Slug:        "public",
+					Label:       "Public",
+					Attributes:  "{}",
+					Description: "Public access files",
+					Scope:       idm.WorkspaceScope_ANY,
+				},
+			}
 
-		for _, ws := range workspaces {
-			_, err := mockDAO.Add(ws)
+			for _, ws := range workspaces {
+				_, err := mockDAO.Add(ctx, ws)
+				So(err, ShouldBeNil)
+			}
+
+			// Asked for worspace - with ROOM Scope
+			singleq := new(idm.WorkspaceSingleQuery)
+			singleq.Scope = idm.WorkspaceScope_ROOM
+			a, err := anypb.New(singleq)
 			So(err, ShouldBeNil)
-		}
 
-		// Asked for worspace - with ROOM Scope
-		singleq := new(idm.WorkspaceSingleQuery)
-		singleq.Scope = idm.WorkspaceScope_ROOM
-		a, err := anypb.New(singleq)
-		So(err, ShouldBeNil)
-
-		composedQuery := &service.Query{
-			SubQueries: []*anypb.Any{a},
-			Offset:     0,
-			Limit:      10,
-			Operation:  service.OperationType_AND,
-		}
-
-		var result []interface{}
-		wdao := mockDAO.(*sqlimpl)
-		err = wdao.Search(composedQuery, &result)
-		So(err, ShouldBeNil)
-		So(len(result), ShouldBeGreaterThan, 0)
-
-		for _, wsi := range result {
-			if ws, ok := wsi.(*idm.Workspace); ok {
-				So(ws.Slug, ShouldBeIn, []string{"common"})
+			composedQuery := &service.Query{
+				SubQueries: []*anypb.Any{a},
+				Offset:     0,
+				Limit:      10,
+				Operation:  service.OperationType_AND,
 			}
-		}
 
-		result = []interface{}{}
-		mockDAO.Search(composedQuery, &result)
-		So(err, ShouldBeNil)
-		So(len(result), ShouldBeGreaterThan, 0)
-		for _, wsi := range result {
-			if ws, ok := wsi.(*idm.Workspace); ok {
-				So(ws.Slug, ShouldBeIn, []string{"common"})
+			var result []interface{}
+			wdao := mockDAO.(*sqlimpl)
+			err = wdao.Search(ctx, composedQuery, &result)
+			So(err, ShouldBeNil)
+			So(len(result), ShouldBeGreaterThan, 0)
+
+			for _, wsi := range result {
+				if ws, ok := wsi.(*idm.Workspace); ok {
+					So(ws.Slug, ShouldBeIn, []string{"common"})
+				}
 			}
-		}
 
-		// Get any workspaces that relates to admins
-		singleq.Scope = idm.WorkspaceScope_ADMIN
-		singleq.Label = "*admin*"
-
-		a, err = anypb.New(singleq)
-		So(err, ShouldBeNil)
-		composedQuery.SubQueries = []*anypb.Any{a}
-
-		result = []interface{}{}
-		err = wdao.Search(composedQuery, &result)
-		So(err, ShouldBeNil)
-		So(len(result), ShouldBeGreaterThan, 0)
-		for _, wsi := range result {
-			if ws, ok := wsi.(*idm.Workspace); ok {
-				So(ws.Slug, ShouldBeIn, []string{"admin-files", "admins-share"})
+			result = []interface{}{}
+			err = mockDAO.Search(ctx, composedQuery, &result)
+			So(err, ShouldBeNil)
+			So(len(result), ShouldBeGreaterThan, 0)
+			for _, wsi := range result {
+				if ws, ok := wsi.(*idm.Workspace); ok {
+					So(ws.Slug, ShouldBeIn, []string{"common"})
+				}
 			}
-		}
 
-		result = []interface{}{}
-		mockDAO.Search(composedQuery, &result)
-		So(err, ShouldBeNil)
-		So(len(result), ShouldBeGreaterThan, 0)
-		for _, wsi := range result {
-			if ws, ok := wsi.(*idm.Workspace); ok {
-				So(ws.Slug, ShouldBeIn, []string{"admin-files", "admins-share"})
+			// Get any workspaces that relates to admins
+			singleq.Scope = idm.WorkspaceScope_ADMIN
+			singleq.Label = "*admin*"
+
+			a, err = anypb.New(singleq)
+			So(err, ShouldBeNil)
+			composedQuery.SubQueries = []*anypb.Any{a}
+
+			result = []interface{}{}
+			err = wdao.Search(ctx, composedQuery, &result)
+			So(err, ShouldBeNil)
+			So(len(result), ShouldBeGreaterThan, 0)
+			for _, wsi := range result {
+				if ws, ok := wsi.(*idm.Workspace); ok {
+					So(ws.Slug, ShouldBeIn, []string{"admin-files", "admins-share"})
+				}
 			}
-		}
+
+			result = []interface{}{}
+			err = mockDAO.Search(ctx, composedQuery, &result)
+			So(err, ShouldBeNil)
+			So(len(result), ShouldBeGreaterThan, 0)
+			for _, wsi := range result {
+				if ws, ok := wsi.(*idm.Workspace); ok {
+					So(ws.Slug, ShouldBeIn, []string{"admin-files", "admins-share"})
+				}
+			}
+		})
 	})
 }

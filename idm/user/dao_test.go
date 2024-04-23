@@ -22,681 +22,664 @@ package user
 
 import (
 	"context"
-	"github.com/pydio/cells/v4/common/proto/tree"
-	"github.com/pydio/cells/v4/common/storage"
-	user_model "github.com/pydio/cells/v4/idm/user/model"
-	"gorm.io/gorm"
 	"log"
-	"sync"
 	"testing"
 
-	. "github.com/smartystreets/goconvey/convey"
-	"github.com/spf13/viper"
 	"google.golang.org/protobuf/types/known/anypb"
+	"gorm.io/gorm"
 
 	"github.com/pydio/cells/v4/common/dao/sqlite"
 	"github.com/pydio/cells/v4/common/proto/idm"
 	"github.com/pydio/cells/v4/common/proto/service"
-	"github.com/pydio/cells/v4/common/runtime"
+	"github.com/pydio/cells/v4/common/proto/tree"
 	"github.com/pydio/cells/v4/common/service/errors"
 	"github.com/pydio/cells/v4/common/sql"
+	"github.com/pydio/cells/v4/common/storage"
+	"github.com/pydio/cells/v4/common/utils/test"
+	user_model "github.com/pydio/cells/v4/idm/user/model"
+
 	_ "github.com/pydio/cells/v4/common/utils/cache/gocache"
-	"github.com/pydio/cells/v4/common/utils/configx"
+
+	. "github.com/smartystreets/goconvey/convey"
 )
 
 var (
-	mockDAO DAO
-
-	wg sync.WaitGroup
+	testcases = []test.StorageTestCase{
+		{sqlite.Driver + "://" + sqlite.SharedMemDSN, true, NewDAO},
+	}
 )
 
 type server struct{}
 
-func TestMain(m *testing.M) {
-	v := viper.New()
-	v.SetDefault(runtime.KeyCache, "pm://")
-	v.SetDefault(runtime.KeyShortCache, "pm://")
-	runtime.SetRuntime(v)
-
-	if d, err := NewDAO(context.TODO(), storage.New("test", sqlite.Driver, "test.db")); err != nil {
-		panic(err)
-	} else {
-		mockDAO = d.(DAO)
-	}
-
-	mockDAO.Init(context.TODO(), configx.New())
-
-	m.Run()
-	wg.Wait()
-}
-
 func TestQueryBuilder(t *testing.T) {
 
-	sqliteDao := mockDAO.(*sqlimpl)
-	converter := &queryConverter{
-		treeDao: sqliteDao.indexDAO,
-	}
-
-	Convey("Query Builder", t, func() {
-
-		singleQ1, singleQ2 := new(idm.UserSingleQuery), new(idm.UserSingleQuery)
-
-		singleQ1.Login = "user1"
-		singleQ1.Password = "passwordUser1"
-
-		singleQ2.Login = "user2"
-		singleQ2.Password = "passwordUser2"
-
-		singleQ1Any, err := anypb.New(singleQ1)
-		So(err, ShouldBeNil)
-
-		singleQ2Any, err := anypb.New(singleQ2)
-		So(err, ShouldBeNil)
-
-		var singleQueries []*anypb.Any
-		singleQueries = append(singleQueries, singleQ1Any)
-		singleQueries = append(singleQueries, singleQ2Any)
-
-		simpleQuery := &service.Query{
-			SubQueries: singleQueries,
-			Operation:  service.OperationType_OR,
-			Offset:     0,
-			Limit:      10,
+	test.RunStorageTests(testcases, func(ctx context.Context, mockDAO DAO) {
+		sqliteDao := mockDAO.(*sqlimpl)
+		converter := &queryConverter{
+			treeDao: sqliteDao.indexDAO,
 		}
 
-		var tx *gorm.DB
-		storage.Get(&tx)
-		tx = tx.Session(&gorm.Session{})
+		Convey("Query Builder", t, func() {
 
-		s := sql.NewGormQueryBuilder(simpleQuery, converter).Build(tx)
-		So(s, ShouldNotBeNil)
+			singleQ1, singleQ2 := new(idm.UserSingleQuery), new(idm.UserSingleQuery)
 
-	})
+			singleQ1.Login = "user1"
+			singleQ1.Password = "passwordUser1"
 
-	Convey("Query Builder with join fields", t, func() {
+			singleQ2.Login = "user2"
+			singleQ2.Password = "passwordUser2"
 
-		_, _, e := mockDAO.Add(context.TODO(), &idm.User{
-			Login:     "username",
-			Password:  "xxxxxxx",
-			GroupPath: "/path/to/group",
-		})
-		So(e, ShouldBeNil)
+			singleQ1Any, err := anypb.New(singleQ1)
+			So(err, ShouldBeNil)
 
-		singleQ1, singleQ2 := new(idm.UserSingleQuery), new(idm.UserSingleQuery)
-		singleQ1.GroupPath = "/path/to/group"
-		singleQ1.HasRole = "a_role_name"
+			singleQ2Any, err := anypb.New(singleQ2)
+			So(err, ShouldBeNil)
 
-		singleQ2.AttributeName = idm.UserAttrHidden
-		singleQ2.AttributeAnyValue = true
-		//		singleQ2.Not = true
+			var singleQueries []*anypb.Any
+			singleQueries = append(singleQueries, singleQ1Any)
+			singleQueries = append(singleQueries, singleQ2Any)
 
-		singleQ1Any, err := anypb.New(singleQ1)
-		So(err, ShouldBeNil)
+			simpleQuery := &service.Query{
+				SubQueries: singleQueries,
+				Operation:  service.OperationType_OR,
+				Offset:     0,
+				Limit:      10,
+			}
 
-		singleQ2Any, err := anypb.New(singleQ2)
-		So(err, ShouldBeNil)
+			tx := mockDAO.(*sqlimpl).db
+			tx = tx.Session(&gorm.Session{})
 
-		var singleQueries []*anypb.Any
-		singleQueries = append(singleQueries, singleQ1Any)
-		singleQueries = append(singleQueries, singleQ2Any)
+			s := sql.NewGormQueryBuilder(simpleQuery, converter).Build(ctx, tx)
+			So(s, ShouldNotBeNil)
 
-		simpleQuery := &service.Query{
-			SubQueries: singleQueries,
-			Operation:  service.OperationType_AND,
-			Offset:     0,
-			Limit:      10,
-		}
-
-		var tx *gorm.DB
-		storage.Get(&tx)
-		tx = tx.Session(&gorm.Session{})
-
-		s := sql.NewGormQueryBuilder(simpleQuery, converter).Build(tx)
-		So(s, ShouldNotBeNil)
-
-	})
-
-	Convey("Test DAO", t, func() {
-
-		_, _, fail := mockDAO.Add(context.TODO(), map[string]string{})
-		So(fail, ShouldNotBeNil)
-
-		_, _, err := mockDAO.Add(context.TODO(), &idm.User{
-			Login:     "username",
-			Password:  "xxxxxxx",
-			GroupPath: "/path/to/group",
-			Attributes: map[string]string{
-				idm.UserAttrDisplayName: "John Doe",
-				idm.UserAttrHidden:      "false",
-				"active":                "true",
-			},
-			Roles: []*idm.Role{
-				{Uuid: "1", Label: "Role1"},
-				{Uuid: "2", Label: "Role2"},
-			},
 		})
 
-		So(err, ShouldBeNil)
+		Convey("Query Builder with join fields", t, func() {
 
-		{
-			users := new([]interface{})
-			e := mockDAO.Search(context.TODO(), &service.Query{Limit: -1}, users)
-			So(e, ShouldBeNil)
-			So(users, ShouldHaveLength, 5)
-		}
-
-		{
-			res, e := mockDAO.Count(context.TODO(), &service.Query{Limit: -1})
-			So(e, ShouldBeNil)
-			So(res, ShouldEqual, 5)
-		}
-
-		{
-			users := new([]interface{})
-			e := mockDAO.Search(context.TODO(), &service.Query{Offset: 1, Limit: 2}, users)
-			So(e, ShouldBeNil)
-			So(users, ShouldHaveLength, 2)
-		}
-
-		{
-			users := new([]interface{})
-			e := mockDAO.Search(context.TODO(), &service.Query{Offset: 4, Limit: 10}, users)
-			So(e, ShouldBeNil)
-			So(users, ShouldHaveLength, 1)
-		}
-
-		{
-			u, e := mockDAO.Bind(context.TODO(), "username", "xxxxxxx")
-			So(e, ShouldBeNil)
-			So(u, ShouldNotBeNil)
-		}
-
-		{
-			u, e := mockDAO.Bind(context.TODO(), "usernameXX", "xxxxxxx")
-			So(u, ShouldBeNil)
-			So(e, ShouldNotBeNil)
-			So(errors.FromError(e).Code, ShouldEqual, 404)
-		}
-
-		{
-			u, e := mockDAO.Bind(context.TODO(), "username", "xxxxxxxYY")
-			So(u, ShouldBeNil)
-			So(e, ShouldNotBeNil)
-			So(errors.FromError(e).Code, ShouldEqual, 403)
-		}
-
-		{
-			users := new([]interface{})
-			userQuery := &idm.UserSingleQuery{
-				Login: "user1",
-			}
-			userQueryAny, _ := anypb.New(userQuery)
-
-			e := mockDAO.Search(context.TODO(), &service.Query{SubQueries: []*anypb.Any{userQueryAny}}, users)
-			So(e, ShouldBeNil)
-			So(users, ShouldHaveLength, 0)
-		}
-
-		{
-			users := new([]interface{})
-			userQuery := &idm.UserSingleQuery{
-				Login: "username",
-			}
-			userQueryAny, _ := anypb.New(userQuery)
-
-			e := mockDAO.Search(context.TODO(), &service.Query{SubQueries: []*anypb.Any{userQueryAny}}, users)
-			So(e, ShouldBeNil)
-			So(users, ShouldHaveLength, 1)
-		}
-
-		{
-			users := new([]interface{})
-			userQuery := &idm.UserSingleQuery{
-				Login:    "username",
-				NodeType: idm.NodeType_USER,
-			}
-			userQueryAny, _ := anypb.New(userQuery)
-
-			e := mockDAO.Search(context.TODO(), &service.Query{SubQueries: []*anypb.Any{userQueryAny}}, users)
-			So(e, ShouldBeNil)
-			So(users, ShouldHaveLength, 1)
-		}
-
-		{
-			users := new([]interface{})
-			userQuery := &idm.UserSingleQuery{
-				Login:    "username",
-				NodeType: idm.NodeType_GROUP,
-			}
-			userQueryAny, _ := anypb.New(userQuery)
-
-			e := mockDAO.Search(context.TODO(), &service.Query{SubQueries: []*anypb.Any{userQueryAny}}, users)
-			So(e, ShouldBeNil)
-			So(users, ShouldHaveLength, 0)
-		}
-
-		{
-			users := new([]interface{})
-			userQuery := &idm.UserSingleQuery{
+			_, _, e := mockDAO.Add(context.TODO(), &idm.User{
+				Login:     "username",
+				Password:  "xxxxxxx",
 				GroupPath: "/path/to/group",
-			}
-			userQueryAny, _ := anypb.New(userQuery)
-
-			e := mockDAO.Search(context.TODO(), &service.Query{SubQueries: []*anypb.Any{userQueryAny}}, users)
+			})
 			So(e, ShouldBeNil)
-			So(users, ShouldHaveLength, 1)
-		}
 
-		_, _, err2 := mockDAO.Add(context.TODO(), &idm.User{
-			IsGroup:   true,
-			GroupPath: "/path/to/anotherGroup",
-			Attributes: map[string]string{
-				"displayName": "Group Display Name",
-			},
+			singleQ1, singleQ2 := new(idm.UserSingleQuery), new(idm.UserSingleQuery)
+			singleQ1.GroupPath = "/path/to/group"
+			singleQ1.HasRole = "a_role_name"
+
+			singleQ2.AttributeName = idm.UserAttrHidden
+			singleQ2.AttributeAnyValue = true
+			//		singleQ2.Not = true
+
+			singleQ1Any, err := anypb.New(singleQ1)
+			So(err, ShouldBeNil)
+
+			singleQ2Any, err := anypb.New(singleQ2)
+			So(err, ShouldBeNil)
+
+			var singleQueries []*anypb.Any
+			singleQueries = append(singleQueries, singleQ1Any)
+			singleQueries = append(singleQueries, singleQ2Any)
+
+			simpleQuery := &service.Query{
+				SubQueries: singleQueries,
+				Operation:  service.OperationType_AND,
+				Offset:     0,
+				Limit:      10,
+			}
+
+			var tx *gorm.DB
+			storage.Get(ctx, &tx)
+			tx = tx.Session(&gorm.Session{})
+
+			s := sql.NewGormQueryBuilder(simpleQuery, converter).Build(ctx, tx)
+			So(s, ShouldNotBeNil)
+
 		})
 
-		So(err2, ShouldBeNil)
+		Convey("Test DAO", t, func() {
 
-		{
-			users := new([]interface{})
-			userQuery := &idm.UserSingleQuery{
-				FullPath: "/path/to/group",
-			}
-			userQueryAny, _ := anypb.New(userQuery)
+			_, _, fail := mockDAO.Add(context.TODO(), map[string]string{})
+			So(fail, ShouldNotBeNil)
 
-			e := mockDAO.Search(context.TODO(), &service.Query{SubQueries: []*anypb.Any{userQueryAny}}, users)
-			So(e, ShouldBeNil)
-			So(users, ShouldHaveLength, 1)
-			object := (*users)[0]
-			group, ok := object.(*idm.User)
-			So(ok, ShouldBeTrue)
-			So(group.GroupLabel, ShouldEqual, "group")
-			So(group.GroupPath, ShouldEqual, "/path/to")
-			So(group.IsGroup, ShouldBeTrue)
-
-		}
-
-		{
-			users := new([]interface{})
-			userQuery := &idm.UserSingleQuery{
-				FullPath: "/path/to/anotherGroup",
-			}
-			userQueryAny, _ := anypb.New(userQuery)
-
-			e := mockDAO.Search(context.TODO(), &service.Query{SubQueries: []*anypb.Any{userQueryAny}}, users)
-			So(e, ShouldBeNil)
-			So(users, ShouldHaveLength, 1)
-			object := (*users)[0]
-			group, ok := object.(*idm.User)
-			So(ok, ShouldBeTrue)
-			So(group.GroupLabel, ShouldEqual, "anotherGroup")
-			So(group.GroupPath, ShouldEqual, "/path/to")
-			So(group.IsGroup, ShouldBeTrue)
-			So(group.Attributes, ShouldResemble, map[string]string{"displayName": "Group Display Name", "pydio:labelLike": "group display name"})
-
-		}
-
-		{
-			users := new([]interface{})
-			userQuery := &idm.UserSingleQuery{
-				AttributeName:  "displayName",
-				AttributeValue: "John*",
-			}
-			userQueryAny, _ := anypb.New(userQuery)
-			userQuery2 := &idm.UserSingleQuery{
-				AttributeName:  "active",
-				AttributeValue: "true",
-			}
-			userQueryAny2, _ := anypb.New(userQuery2)
-			userQuery3 := &idm.UserSingleQuery{
-				AttributeName:  idm.UserAttrHidden,
-				AttributeValue: "false",
-			}
-			userQueryAny3, _ := anypb.New(userQuery3)
-
-			total, e1 := mockDAO.Count(context.TODO(), &service.Query{
-				SubQueries: []*anypb.Any{
-					userQueryAny,
-					userQueryAny2,
-					userQueryAny3,
+			_, _, err := mockDAO.Add(context.TODO(), &idm.User{
+				Login:     "username",
+				Password:  "xxxxxxx",
+				GroupPath: "/path/to/group",
+				Attributes: map[string]string{
+					idm.UserAttrDisplayName: "John Doe",
+					idm.UserAttrHidden:      "false",
+					"active":                "true",
 				},
-				Operation: service.OperationType_AND,
+				Roles: []*idm.Role{
+					{Uuid: "1", Label: "Role1"},
+					{Uuid: "2", Label: "Role2"},
+				},
 			})
-			So(e1, ShouldBeNil)
-			So(total, ShouldEqual, 1)
 
-			e := mockDAO.Search(context.TODO(), &service.Query{
-				SubQueries: []*anypb.Any{
-					userQueryAny,
-					userQueryAny2,
-					userQueryAny3,
-				},
-				Operation: service.OperationType_AND,
-			}, users)
-			So(e, ShouldBeNil)
-			So(users, ShouldHaveLength, 1)
-		}
+			So(err, ShouldBeNil)
 
-		_, _, err3 := mockDAO.Add(context.TODO(), &idm.User{
-			Login:     "admin",
-			Password:  "xxxxxxx",
-			GroupPath: "/path/to/group",
-			Attributes: map[string]string{
-				idm.UserAttrDisplayName: "Administrator",
-				idm.UserAttrHidden:      "false",
-				"active":                "true",
-			},
-			Roles: []*idm.Role{
-				{Uuid: "1", Label: "Role1"},
-				{Uuid: "4", Label: "Role4"},
-			},
-		})
-
-		So(err3, ShouldBeNil)
-
-		{
-			users := new([]interface{})
-			userQuery := &idm.UserSingleQuery{
-				HasRole: "1",
-			}
-			userQueryAny, _ := anypb.New(userQuery)
-
-			e := mockDAO.Search(context.TODO(), &service.Query{SubQueries: []*anypb.Any{userQueryAny}}, users)
-			So(e, ShouldBeNil)
-			So(users, ShouldHaveLength, 2)
-
-			total, e2 := mockDAO.Count(context.TODO(), &service.Query{SubQueries: []*anypb.Any{userQueryAny}})
-			So(e2, ShouldBeNil)
-			So(total, ShouldEqual, 2)
-
-		}
-
-		{
-			users := new([]interface{})
-			userQuery := &idm.UserSingleQuery{
-				HasRole: "1",
-			}
-			userQueryAny, _ := anypb.New(userQuery)
-
-			userQuery2 := &idm.UserSingleQuery{
-				HasRole: "2",
-				Not:     true,
-			}
-			userQueryAny2, _ := anypb.New(userQuery2)
-
-			e := mockDAO.Search(context.TODO(), &service.Query{
-				SubQueries: []*anypb.Any{
-					userQueryAny,
-					userQueryAny2,
-				},
-				Operation: service.OperationType_AND,
-			}, users)
-			So(e, ShouldBeNil)
-			So(users, ShouldHaveLength, 1)
-			for _, user := range *users {
-				So((user.(*idm.User)).Login, ShouldEqual, "admin")
-				break
+			{
+				users := new([]interface{})
+				e := mockDAO.Search(context.TODO(), &service.Query{Limit: -1}, users)
+				So(e, ShouldBeNil)
+				So(users, ShouldHaveLength, 5)
 			}
 
-		}
+			{
+				res, e := mockDAO.Count(context.TODO(), &service.Query{Limit: -1})
+				So(e, ShouldBeNil)
+				So(res, ShouldEqual, 5)
+			}
 
-		{
-			users := new([]interface{})
-			userQueryAny, _ := anypb.New(&idm.UserSingleQuery{
-				GroupPath: "/",
-				Recursive: true,
-			})
-			e := mockDAO.Search(context.TODO(), &service.Query{
-				SubQueries: []*anypb.Any{userQueryAny},
-			}, users)
-			So(e, ShouldBeNil)
-			So(users, ShouldHaveLength, 6)
-			log.Print(users)
-			allGroups := []*idm.User{}
-			allUsers := []*idm.User{}
-			for _, u := range *users {
-				obj := u.(*idm.User)
-				if obj.IsGroup {
-					allGroups = append(allGroups, obj)
-				} else {
-					allUsers = append(allUsers, obj)
+			{
+				users := new([]interface{})
+				e := mockDAO.Search(context.TODO(), &service.Query{Offset: 1, Limit: 2}, users)
+				So(e, ShouldBeNil)
+				So(users, ShouldHaveLength, 2)
+			}
+
+			{
+				users := new([]interface{})
+				e := mockDAO.Search(context.TODO(), &service.Query{Offset: 4, Limit: 10}, users)
+				So(e, ShouldBeNil)
+				So(users, ShouldHaveLength, 1)
+			}
+
+			{
+				u, e := mockDAO.Bind(context.TODO(), "username", "xxxxxxx")
+				So(e, ShouldBeNil)
+				So(u, ShouldNotBeNil)
+			}
+
+			{
+				u, e := mockDAO.Bind(context.TODO(), "usernameXX", "xxxxxxx")
+				So(u, ShouldBeNil)
+				So(e, ShouldNotBeNil)
+				So(errors.FromError(e).Code, ShouldEqual, 404)
+			}
+
+			{
+				u, e := mockDAO.Bind(context.TODO(), "username", "xxxxxxxYY")
+				So(u, ShouldBeNil)
+				So(e, ShouldNotBeNil)
+				So(errors.FromError(e).Code, ShouldEqual, 403)
+			}
+
+			{
+				users := new([]interface{})
+				userQuery := &idm.UserSingleQuery{
+					Login: "user1",
 				}
-			}
-			So(allGroups, ShouldHaveLength, 4)
-			So(allUsers, ShouldHaveLength, 2)
-		}
+				userQueryAny, _ := anypb.New(userQuery)
 
-		{
-			users := new([]interface{})
-			userQuery := &idm.UserSingleQuery{
-				Login: "username",
+				e := mockDAO.Search(context.TODO(), &service.Query{SubQueries: []*anypb.Any{userQueryAny}}, users)
+				So(e, ShouldBeNil)
+				So(users, ShouldHaveLength, 0)
 			}
-			userQueryAny, _ := anypb.New(userQuery)
-			mockDAO.Search(context.TODO(), &service.Query{SubQueries: []*anypb.Any{userQueryAny}}, users)
-			u := (*users)[0].(*idm.User)
-			So(u, ShouldNotBeNil)
-			// Change groupPath
-			So(u.GroupPath, ShouldEqual, "/path/to/group")
-			// Move User
-			u.GroupPath = "/path/to/anotherGroup"
-			addedUser, _, e := mockDAO.Add(context.TODO(), u)
-			So(e, ShouldBeNil)
-			So(addedUser.(*idm.User).GroupPath, ShouldEqual, "/path/to/anotherGroup")
-			So(addedUser.(*idm.User).Login, ShouldEqual, "username")
 
-			users2 := new([]interface{})
-			userQueryAny2, _ := anypb.New(&idm.UserSingleQuery{
+			{
+				users := new([]interface{})
+				userQuery := &idm.UserSingleQuery{
+					Login: "username",
+				}
+				userQueryAny, _ := anypb.New(userQuery)
+
+				e := mockDAO.Search(context.TODO(), &service.Query{SubQueries: []*anypb.Any{userQueryAny}}, users)
+				So(e, ShouldBeNil)
+				So(users, ShouldHaveLength, 1)
+			}
+
+			{
+				users := new([]interface{})
+				userQuery := &idm.UserSingleQuery{
+					Login:    "username",
+					NodeType: idm.NodeType_USER,
+				}
+				userQueryAny, _ := anypb.New(userQuery)
+
+				e := mockDAO.Search(context.TODO(), &service.Query{SubQueries: []*anypb.Any{userQueryAny}}, users)
+				So(e, ShouldBeNil)
+				So(users, ShouldHaveLength, 1)
+			}
+
+			{
+				users := new([]interface{})
+				userQuery := &idm.UserSingleQuery{
+					Login:    "username",
+					NodeType: idm.NodeType_GROUP,
+				}
+				userQueryAny, _ := anypb.New(userQuery)
+
+				e := mockDAO.Search(context.TODO(), &service.Query{SubQueries: []*anypb.Any{userQueryAny}}, users)
+				So(e, ShouldBeNil)
+				So(users, ShouldHaveLength, 0)
+			}
+
+			{
+				users := new([]interface{})
+				userQuery := &idm.UserSingleQuery{
+					GroupPath: "/path/to/group",
+				}
+				userQueryAny, _ := anypb.New(userQuery)
+
+				e := mockDAO.Search(context.TODO(), &service.Query{SubQueries: []*anypb.Any{userQueryAny}}, users)
+				So(e, ShouldBeNil)
+				So(users, ShouldHaveLength, 1)
+			}
+
+			_, _, err2 := mockDAO.Add(context.TODO(), &idm.User{
+				IsGroup:   true,
 				GroupPath: "/path/to/anotherGroup",
+				Attributes: map[string]string{
+					"displayName": "Group Display Name",
+				},
 			})
-			e2 := mockDAO.Search(context.TODO(), &service.Query{
-				SubQueries: []*anypb.Any{userQueryAny2},
-			}, users2)
-			So(e2, ShouldBeNil)
-			So(users2, ShouldHaveLength, 1)
 
-			users3 := new([]interface{})
-			userQueryAny3, _ := anypb.New(&idm.UserSingleQuery{
-				GroupPath: "/path/to/group",
-			})
-			e3 := mockDAO.Search(context.TODO(), &service.Query{
-				SubQueries: []*anypb.Any{userQueryAny3},
-			}, users3)
-			So(e3, ShouldBeNil)
-			So(users3, ShouldHaveLength, 1)
-		}
+			So(err2, ShouldBeNil)
 
-		{
-			users := new([]interface{})
-			userQuery := &idm.UserSingleQuery{
-				FullPath: "/path/to/anotherGroup",
+			{
+				users := new([]interface{})
+				userQuery := &idm.UserSingleQuery{
+					FullPath: "/path/to/group",
+				}
+				userQueryAny, _ := anypb.New(userQuery)
+
+				e := mockDAO.Search(context.TODO(), &service.Query{SubQueries: []*anypb.Any{userQueryAny}}, users)
+				So(e, ShouldBeNil)
+				So(users, ShouldHaveLength, 1)
+				object := (*users)[0]
+				group, ok := object.(*idm.User)
+				So(ok, ShouldBeTrue)
+				So(group.GroupLabel, ShouldEqual, "group")
+				So(group.GroupPath, ShouldEqual, "/path/to")
+				So(group.IsGroup, ShouldBeTrue)
+
 			}
-			userQueryAny, _ := anypb.New(userQuery)
-			mockDAO.Search(context.TODO(), &service.Query{SubQueries: []*anypb.Any{userQueryAny}}, users)
-			u := (*users)[0].(*idm.User)
-			So(u, ShouldNotBeNil)
-			// Change groupPath
-			So(u.IsGroup, ShouldBeTrue)
-			// Move Group
-			u.GroupPath = "/anotherGroup"
-			addedGroup, _, e := mockDAO.Add(context.TODO(), u)
-			So(e, ShouldBeNil)
-			So(addedGroup.(*idm.User).GroupPath, ShouldEqual, "/anotherGroup")
 
-			users2 := new([]interface{})
-			userQueryAny2, _ := anypb.New(&idm.UserSingleQuery{
-				GroupPath: "/path/to/anotherGroup",
-			})
-			e2 := mockDAO.Search(context.TODO(), &service.Query{
-				SubQueries: []*anypb.Any{userQueryAny2},
-			}, users2)
-			So(e2, ShouldBeNil)
-			So(users2, ShouldHaveLength, 0)
+			{
+				users := new([]interface{})
+				userQuery := &idm.UserSingleQuery{
+					FullPath: "/path/to/anotherGroup",
+				}
+				userQueryAny, _ := anypb.New(userQuery)
 
-			users3 := new([]interface{})
-			userQueryAny3, _ := anypb.New(&idm.UserSingleQuery{
-				GroupPath: "/anotherGroup",
-			})
-			e3 := mockDAO.Search(context.TODO(), &service.Query{
-				SubQueries: []*anypb.Any{userQueryAny3},
-			}, users3)
-			So(e3, ShouldBeNil)
-			So(users3, ShouldHaveLength, 1)
+				e := mockDAO.Search(context.TODO(), &service.Query{SubQueries: []*anypb.Any{userQueryAny}}, users)
+				So(e, ShouldBeNil)
+				So(users, ShouldHaveLength, 1)
+				object := (*users)[0]
+				group, ok := object.(*idm.User)
+				So(ok, ShouldBeTrue)
+				So(group.GroupLabel, ShouldEqual, "anotherGroup")
+				So(group.GroupPath, ShouldEqual, "/path/to")
+				So(group.IsGroup, ShouldBeTrue)
+				So(group.Attributes, ShouldResemble, map[string]string{"displayName": "Group Display Name", "pydio:labelLike": "group display name"})
 
-		}
-
-		{
-			users := new([]interface{})
-			userQuery := &idm.UserSingleQuery{
-				GroupPath: "/",
-				Recursive: false,
 			}
-			userQueryAny, _ := anypb.New(userQuery)
 
-			e := mockDAO.Search(context.TODO(), &service.Query{SubQueries: []*anypb.Any{userQueryAny}}, users)
-			So(e, ShouldBeNil)
-			for _, u := range *users {
-				log.Print(u)
+			{
+				users := new([]interface{})
+				userQuery := &idm.UserSingleQuery{
+					AttributeName:  "displayName",
+					AttributeValue: "John*",
+				}
+				userQueryAny, _ := anypb.New(userQuery)
+				userQuery2 := &idm.UserSingleQuery{
+					AttributeName:  "active",
+					AttributeValue: "true",
+				}
+				userQueryAny2, _ := anypb.New(userQuery2)
+				userQuery3 := &idm.UserSingleQuery{
+					AttributeName:  idm.UserAttrHidden,
+					AttributeValue: "false",
+				}
+				userQueryAny3, _ := anypb.New(userQuery3)
+
+				total, e1 := mockDAO.Count(context.TODO(), &service.Query{
+					SubQueries: []*anypb.Any{
+						userQueryAny,
+						userQueryAny2,
+						userQueryAny3,
+					},
+					Operation: service.OperationType_AND,
+				})
+				So(e1, ShouldBeNil)
+				So(total, ShouldEqual, 1)
+
+				e := mockDAO.Search(context.TODO(), &service.Query{
+					SubQueries: []*anypb.Any{
+						userQueryAny,
+						userQueryAny2,
+						userQueryAny3,
+					},
+					Operation: service.OperationType_AND,
+				}, users)
+				So(e, ShouldBeNil)
+				So(users, ShouldHaveLength, 1)
 			}
-			So(users, ShouldHaveLength, 2)
-		}
 
-		{
-			// Delete a group
-			userQueryAny3, _ := anypb.New(&idm.UserSingleQuery{
-				GroupPath: "/anotherGroup",
-			})
-			num, e3 := mockDAO.Del(context.TODO(), &service.Query{SubQueries: []*anypb.Any{userQueryAny3}}, make(chan *idm.User, 100))
-			So(e3, ShouldBeNil)
-			So(num, ShouldEqual, 2)
-		}
-
-		{
-			// Delete all should be prevented
-			_, e3 := mockDAO.Del(context.TODO(), &service.Query{}, make(chan *idm.User, 100))
-			So(e3, ShouldNotBeNil)
-		}
-
-		{
-			// Delete a user
-			userQueryAny3, _ := anypb.New(&idm.UserSingleQuery{
-				GroupPath: "/path/to/group/",
+			_, _, err3 := mockDAO.Add(context.TODO(), &idm.User{
 				Login:     "admin",
+				Password:  "xxxxxxx",
+				GroupPath: "/path/to/group",
+				Attributes: map[string]string{
+					idm.UserAttrDisplayName: "Administrator",
+					idm.UserAttrHidden:      "false",
+					"active":                "true",
+				},
+				Roles: []*idm.Role{
+					{Uuid: "1", Label: "Role1"},
+					{Uuid: "4", Label: "Role4"},
+				},
 			})
-			num, e3 := mockDAO.Del(context.TODO(), &service.Query{SubQueries: []*anypb.Any{userQueryAny3}}, make(chan *idm.User, 100))
-			So(e3, ShouldBeNil)
-			So(num, ShouldEqual, 1)
-		}
 
-	})
+			So(err3, ShouldBeNil)
 
-	Convey("Query Builder W/ subquery", t, func() {
+			{
+				users := new([]interface{})
+				userQuery := &idm.UserSingleQuery{
+					HasRole: "1",
+				}
+				userQueryAny, _ := anypb.New(userQuery)
 
-		singleQ1, singleQ2, singleQ3 := new(idm.UserSingleQuery), new(idm.UserSingleQuery), new(idm.UserSingleQuery)
+				e := mockDAO.Search(context.TODO(), &service.Query{SubQueries: []*anypb.Any{userQueryAny}}, users)
+				So(e, ShouldBeNil)
+				So(users, ShouldHaveLength, 2)
 
-		singleQ1.Login = "user1"
-		singleQ2.Login = "user2"
-		singleQ3.Login = "user3"
+				total, e2 := mockDAO.Count(context.TODO(), &service.Query{SubQueries: []*anypb.Any{userQueryAny}})
+				So(e2, ShouldBeNil)
+				So(total, ShouldEqual, 2)
 
-		singleQ1Any, err := anypb.New(singleQ1)
-		So(err, ShouldBeNil)
+			}
 
-		singleQ2Any, err := anypb.New(singleQ2)
-		So(err, ShouldBeNil)
+			{
+				users := new([]interface{})
+				userQuery := &idm.UserSingleQuery{
+					HasRole: "1",
+				}
+				userQueryAny, _ := anypb.New(userQuery)
 
-		singleQ3Any, err := anypb.New(singleQ3)
-		So(err, ShouldBeNil)
+				userQuery2 := &idm.UserSingleQuery{
+					HasRole: "2",
+					Not:     true,
+				}
+				userQueryAny2, _ := anypb.New(userQuery2)
 
-		subQuery1 := &service.Query{
-			SubQueries: []*anypb.Any{singleQ1Any, singleQ2Any},
-			Operation:  service.OperationType_OR,
-		}
+				e := mockDAO.Search(context.TODO(), &service.Query{
+					SubQueries: []*anypb.Any{
+						userQueryAny,
+						userQueryAny2,
+					},
+					Operation: service.OperationType_AND,
+				}, users)
+				So(e, ShouldBeNil)
+				So(users, ShouldHaveLength, 1)
+				for _, user := range *users {
+					So((user.(*idm.User)).Login, ShouldEqual, "admin")
+					break
+				}
 
-		subQuery2 := &service.Query{
-			SubQueries: []*anypb.Any{singleQ3Any},
-		}
+			}
 
-		subQuery1Any, err := anypb.New(subQuery1)
-		So(err, ShouldBeNil)
-		test := subQuery1Any.MessageIs(new(service.Query))
-		So(test, ShouldBeTrue)
+			{
+				users := new([]interface{})
+				userQueryAny, _ := anypb.New(&idm.UserSingleQuery{
+					GroupPath: "/",
+					Recursive: true,
+				})
+				e := mockDAO.Search(context.TODO(), &service.Query{
+					SubQueries: []*anypb.Any{userQueryAny},
+				}, users)
+				So(e, ShouldBeNil)
+				So(users, ShouldHaveLength, 6)
+				log.Print(users)
+				allGroups := []*idm.User{}
+				allUsers := []*idm.User{}
+				for _, u := range *users {
+					obj := u.(*idm.User)
+					if obj.IsGroup {
+						allGroups = append(allGroups, obj)
+					} else {
+						allUsers = append(allUsers, obj)
+					}
+				}
+				So(allGroups, ShouldHaveLength, 4)
+				So(allUsers, ShouldHaveLength, 2)
+			}
 
-		subQuery2Any, err := anypb.New(subQuery2)
-		So(err, ShouldBeNil)
+			{
+				users := new([]interface{})
+				userQuery := &idm.UserSingleQuery{
+					Login: "username",
+				}
+				userQueryAny, _ := anypb.New(userQuery)
+				mockDAO.Search(context.TODO(), &service.Query{SubQueries: []*anypb.Any{userQueryAny}}, users)
+				u := (*users)[0].(*idm.User)
+				So(u, ShouldNotBeNil)
+				// Change groupPath
+				So(u.GroupPath, ShouldEqual, "/path/to/group")
+				// Move User
+				u.GroupPath = "/path/to/anotherGroup"
+				addedUser, _, e := mockDAO.Add(context.TODO(), u)
+				So(e, ShouldBeNil)
+				So(addedUser.(*idm.User).GroupPath, ShouldEqual, "/path/to/anotherGroup")
+				So(addedUser.(*idm.User).Login, ShouldEqual, "username")
 
-		composedQuery := &service.Query{
-			SubQueries: []*anypb.Any{
-				subQuery1Any,
-				subQuery2Any,
-			},
-			Offset:    0,
-			Limit:     10,
-			Operation: service.OperationType_AND,
-		}
+				users2 := new([]interface{})
+				userQueryAny2, _ := anypb.New(&idm.UserSingleQuery{
+					GroupPath: "/path/to/anotherGroup",
+				})
+				e2 := mockDAO.Search(context.TODO(), &service.Query{
+					SubQueries: []*anypb.Any{userQueryAny2},
+				}, users2)
+				So(e2, ShouldBeNil)
+				So(users2, ShouldHaveLength, 1)
 
-		var tx *gorm.DB
-		storage.Get(&tx)
-		tx = tx.Session(&gorm.Session{})
+				users3 := new([]interface{})
+				userQueryAny3, _ := anypb.New(&idm.UserSingleQuery{
+					GroupPath: "/path/to/group",
+				})
+				e3 := mockDAO.Search(context.TODO(), &service.Query{
+					SubQueries: []*anypb.Any{userQueryAny3},
+				}, users3)
+				So(e3, ShouldBeNil)
+				So(users3, ShouldHaveLength, 1)
+			}
 
-		s := sql.NewGormQueryBuilder(composedQuery, converter).Build(tx)
-		So(s, ShouldNotBeNil)
-		//So(s, ShouldEqual, "((t.uuid = n.uuid and (n.name='user1' and n.leaf = 1)) OR (t.uuid = n.uuid and (n.name='user2' and n.leaf = 1))) AND (t.uuid = n.uuid and (n.name='user3' and n.leaf = 1))")
+			{
+				users := new([]interface{})
+				userQuery := &idm.UserSingleQuery{
+					FullPath: "/path/to/anotherGroup",
+				}
+				userQueryAny, _ := anypb.New(userQuery)
+				mockDAO.Search(context.TODO(), &service.Query{SubQueries: []*anypb.Any{userQueryAny}}, users)
+				u := (*users)[0].(*idm.User)
+				So(u, ShouldNotBeNil)
+				// Change groupPath
+				So(u.IsGroup, ShouldBeTrue)
+				// Move Group
+				u.GroupPath = "/anotherGroup"
+				addedGroup, _, e := mockDAO.Add(context.TODO(), u)
+				So(e, ShouldBeNil)
+				So(addedGroup.(*idm.User).GroupPath, ShouldEqual, "/anotherGroup")
+
+				users2 := new([]interface{})
+				userQueryAny2, _ := anypb.New(&idm.UserSingleQuery{
+					GroupPath: "/path/to/anotherGroup",
+				})
+				e2 := mockDAO.Search(context.TODO(), &service.Query{
+					SubQueries: []*anypb.Any{userQueryAny2},
+				}, users2)
+				So(e2, ShouldBeNil)
+				So(users2, ShouldHaveLength, 0)
+
+				users3 := new([]interface{})
+				userQueryAny3, _ := anypb.New(&idm.UserSingleQuery{
+					GroupPath: "/anotherGroup",
+				})
+				e3 := mockDAO.Search(context.TODO(), &service.Query{
+					SubQueries: []*anypb.Any{userQueryAny3},
+				}, users3)
+				So(e3, ShouldBeNil)
+				So(users3, ShouldHaveLength, 1)
+
+			}
+
+			{
+				users := new([]interface{})
+				userQuery := &idm.UserSingleQuery{
+					GroupPath: "/",
+					Recursive: false,
+				}
+				userQueryAny, _ := anypb.New(userQuery)
+
+				e := mockDAO.Search(context.TODO(), &service.Query{SubQueries: []*anypb.Any{userQueryAny}}, users)
+				So(e, ShouldBeNil)
+				for _, u := range *users {
+					log.Print(u)
+				}
+				So(users, ShouldHaveLength, 2)
+			}
+
+			{
+				// Delete a group
+				userQueryAny3, _ := anypb.New(&idm.UserSingleQuery{
+					GroupPath: "/anotherGroup",
+				})
+				num, e3 := mockDAO.Del(context.TODO(), &service.Query{SubQueries: []*anypb.Any{userQueryAny3}}, make(chan *idm.User, 100))
+				So(e3, ShouldBeNil)
+				So(num, ShouldEqual, 2)
+			}
+
+			{
+				// Delete all should be prevented
+				_, e3 := mockDAO.Del(context.TODO(), &service.Query{}, make(chan *idm.User, 100))
+				So(e3, ShouldNotBeNil)
+			}
+
+			{
+				// Delete a user
+				userQueryAny3, _ := anypb.New(&idm.UserSingleQuery{
+					GroupPath: "/path/to/group/",
+					Login:     "admin",
+				})
+				num, e3 := mockDAO.Del(context.TODO(), &service.Query{SubQueries: []*anypb.Any{userQueryAny3}}, make(chan *idm.User, 100))
+				So(e3, ShouldBeNil)
+				So(num, ShouldEqual, 1)
+			}
+
+		})
+
+		Convey("Query Builder W/ subquery", t, func() {
+
+			singleQ1, singleQ2, singleQ3 := new(idm.UserSingleQuery), new(idm.UserSingleQuery), new(idm.UserSingleQuery)
+
+			singleQ1.Login = "user1"
+			singleQ2.Login = "user2"
+			singleQ3.Login = "user3"
+
+			singleQ1Any, err := anypb.New(singleQ1)
+			So(err, ShouldBeNil)
+
+			singleQ2Any, err := anypb.New(singleQ2)
+			So(err, ShouldBeNil)
+
+			singleQ3Any, err := anypb.New(singleQ3)
+			So(err, ShouldBeNil)
+
+			subQuery1 := &service.Query{
+				SubQueries: []*anypb.Any{singleQ1Any, singleQ2Any},
+				Operation:  service.OperationType_OR,
+			}
+
+			subQuery2 := &service.Query{
+				SubQueries: []*anypb.Any{singleQ3Any},
+			}
+
+			subQuery1Any, err := anypb.New(subQuery1)
+			So(err, ShouldBeNil)
+			test := subQuery1Any.MessageIs(new(service.Query))
+			So(test, ShouldBeTrue)
+
+			subQuery2Any, err := anypb.New(subQuery2)
+			So(err, ShouldBeNil)
+
+			composedQuery := &service.Query{
+				SubQueries: []*anypb.Any{
+					subQuery1Any,
+					subQuery2Any,
+				},
+				Offset:    0,
+				Limit:     10,
+				Operation: service.OperationType_AND,
+			}
+
+			var tx *gorm.DB
+			storage.Get(ctx, &tx)
+			tx = tx.Session(&gorm.Session{})
+
+			s := sql.NewGormQueryBuilder(composedQuery, converter).Build(ctx, tx)
+			So(s, ShouldNotBeNil)
+			//So(s, ShouldEqual, "((t.uuid = n.uuid and (n.name='user1' and n.leaf = 1)) OR (t.uuid = n.uuid and (n.name='user2' and n.leaf = 1))) AND (t.uuid = n.uuid and (n.name='user3' and n.leaf = 1))")
+		})
 	})
 }
 
 func TestDestructiveCreateUser(t *testing.T) {
+	test.RunStorageTests(testcases, func(ctx context.Context, mockDAO DAO) {
+		Convey("Test bug with create user", t, func() {
 
-	Convey("Test bug with create user", t, func() {
+			_, _, err := mockDAO.Add(context.TODO(), &idm.User{
+				Login:     "username",
+				Password:  "xxxxxxx",
+				GroupPath: "/path/to/group",
+				Attributes: map[string]string{
+					idm.UserAttrDisplayName: "John Doe",
+					idm.UserAttrHidden:      "false",
+					"active":                "true",
+				},
+				Roles: []*idm.Role{
+					{Uuid: "1", Label: "Role1"},
+					{Uuid: "2", Label: "Role2"},
+				},
+			})
 
-		_, _, err := mockDAO.Add(context.TODO(), &idm.User{
-			Login:     "username",
-			Password:  "xxxxxxx",
-			GroupPath: "/path/to/group",
-			Attributes: map[string]string{
-				idm.UserAttrDisplayName: "John Doe",
-				idm.UserAttrHidden:      "false",
-				"active":                "true",
-			},
-			Roles: []*idm.Role{
-				{Uuid: "1", Label: "Role1"},
-				{Uuid: "2", Label: "Role2"},
-			},
+			So(err, ShouldBeNil)
+
+			_, _, err = mockDAO.Add(context.TODO(), &idm.User{
+				Uuid:     "fixed-uuid",
+				Login:    "",
+				Password: "hashed",
+			})
+
+			So(err, ShouldNotBeNil)
+
+			var target []interface{}
+			ch := mockDAO.GetNodeTree(context.Background(), tree.NewMPath(1))
+			for n := range ch {
+				tn := n.(*user_model.User)
+				t.Logf("Got node %s (%s)", tn.MPath.ToString(), tn.GetName())
+				target = append(target, n)
+			}
+			So(target, ShouldNotBeEmpty)
+
+			_, _, err = mockDAO.Add(context.TODO(), &idm.User{
+				Uuid:     "fixed-uuid",
+				Login:    "",
+				Password: "hashed",
+			})
+
+			//So(err, ShouldNotBeNil)
+
+			var target2 []interface{}
+			ch2 := mockDAO.GetNodeTree(context.Background(), tree.NewMPath(1))
+			for n := range ch2 {
+				tn := n.(*user_model.User)
+				t.Logf("Got node %s (%s)", tn.MPath.ToString(), tn.GetName())
+				target2 = append(target2, n)
+			}
+			So(target2, ShouldNotBeEmpty)
+
 		})
-
-		So(err, ShouldBeNil)
-
-		_, _, err = mockDAO.Add(context.TODO(), &idm.User{
-			Uuid:     "fixed-uuid",
-			Login:    "",
-			Password: "hashed",
-		})
-
-		So(err, ShouldNotBeNil)
-
-		var target []interface{}
-		ch := mockDAO.GetNodeTree(context.Background(), tree.NewMPath(1))
-		for n := range ch {
-			tn := n.(*user_model.User)
-			t.Logf("Got node %s (%s)", tn.MPath.ToString(), tn.GetName())
-			target = append(target, n)
-		}
-		So(target, ShouldNotBeEmpty)
-
-		_, _, err = mockDAO.Add(context.TODO(), &idm.User{
-			Uuid:     "fixed-uuid",
-			Login:    "",
-			Password: "hashed",
-		})
-
-		//So(err, ShouldNotBeNil)
-
-		var target2 []interface{}
-		ch2 := mockDAO.GetNodeTree(context.Background(), tree.NewMPath(1))
-		for n := range ch2 {
-			tn := n.(*user_model.User)
-			t.Logf("Got node %s (%s)", tn.MPath.ToString(), tn.GetName())
-			target2 = append(target2, n)
-		}
-		So(target2, ShouldNotBeEmpty)
-
 	})
 }

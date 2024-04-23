@@ -22,32 +22,18 @@ package acl
 
 import (
 	"context"
-	"os"
-	"path/filepath"
-	"sync"
 	"testing"
 
 	"google.golang.org/protobuf/types/known/anypb"
-	gsqlite "gorm.io/driver/sqlite"
 	"gorm.io/gorm"
-	"gorm.io/gorm/logger"
 
-	"github.com/pydio/cells/v4/common/dao"
 	"github.com/pydio/cells/v4/common/dao/sqlite"
 	"github.com/pydio/cells/v4/common/proto/idm"
 	service "github.com/pydio/cells/v4/common/proto/service"
-	"github.com/pydio/cells/v4/common/runtime/manager"
 	"github.com/pydio/cells/v4/common/sql"
-	"github.com/pydio/cells/v4/common/utils/configx"
 	"github.com/pydio/cells/v4/common/utils/test"
 
 	. "github.com/smartystreets/goconvey/convey"
-)
-
-var (
-	mockDAO DAO
-	mockDB  *gorm.DB
-	wg      sync.WaitGroup
 )
 
 var (
@@ -79,6 +65,8 @@ var (
 func TestQueryBuilder(t *testing.T) {
 	test.RunStorageTests(testcases, func(ctx context.Context, dao DAO) {
 
+		mockDB := dao.(*sqlimpl).DB
+
 		Convey("Query Builder", t, func() {
 
 			singleQ1, singleQ2 := new(idm.ACLSingleQuery), new(idm.ACLSingleQuery)
@@ -103,9 +91,7 @@ func TestQueryBuilder(t *testing.T) {
 				Limit:      10,
 			}
 
-			dao.Search
-
-			s := sql.NewGormQueryBuilder(simpleQuery, new(queryConverter)).Build(mockDB)
+			s := sql.NewGormQueryBuilder(simpleQuery, new(queryConverter)).Build(ctx, mockDB)
 			So(s, ShouldNotBeNil)
 			s.(*gorm.DB).Find(&[]ACL{})
 			//So(s, ShouldEqual, `(role_id in (select id from idm_acl_roles where uuid in ("role1"))) OR (role_id in (select id from idm_acl_roles where uuid in ("role2")))`)
@@ -153,7 +139,7 @@ func TestQueryBuilder(t *testing.T) {
 				Operation: service.OperationType_AND,
 			}
 
-			s := sql.NewGormQueryBuilder(composedQuery, new(queryConverter)).Build(mockDB)
+			s := sql.NewGormQueryBuilder(composedQuery, new(queryConverter)).Build(ctx, mockDB)
 			So(s, ShouldNotBeNil)
 			//So(s, ShouldEqual, `((role_id in (select id from idm_acl_roles where uuid in ("role1"))) OR (role_id in (select id from idm_acl_roles where uuid in ("role2")))) AND (role_id in (select id from idm_acl_roles where uuid in ("role3_1","role3_2","role3_3")))`)
 		})
@@ -176,7 +162,7 @@ func TestQueryBuilder(t *testing.T) {
 				Operation: service.OperationType_AND,
 			}
 
-			s := sql.NewGormQueryBuilder(composedQuery, new(queryConverter)).Build(mockDB)
+			s := sql.NewGormQueryBuilder(composedQuery, new(queryConverter)).Build(ctx, mockDB)
 			So(s, ShouldNotBeNil)
 			//So(s, ShouldEqual, `((action_name='read' AND action_value='read_val') OR (action_name='write' AND action_value='write_val'))`)
 		})
@@ -207,7 +193,7 @@ func TestQueryBuilder(t *testing.T) {
 				Operation: service.OperationType_AND,
 			}
 
-			s := sql.NewGormQueryBuilder(composedQuery, new(queryConverter)).Build(mockDB)
+			s := sql.NewGormQueryBuilder(composedQuery, new(queryConverter)).Build(ctx, mockDB)
 			So(s, ShouldNotBeNil)
 			//So(s, ShouldEqual, `((action_name='read' OR action_name='write')) AND (role_id in (select id from idm_acl_roles where uuid in ("role1","role2"))) AND (node_id in (select id from idm_acl_nodes where uuid in ("node1")))`)
 		})

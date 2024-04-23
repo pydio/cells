@@ -22,36 +22,22 @@ package meta
 
 import (
 	"context"
-	"embed"
-	"github.com/pydio/cells/v4/common/utils/uuid"
-	"google.golang.org/protobuf/proto"
-	"google.golang.org/protobuf/types/known/anypb"
-	"gorm.io/gorm"
-	"gorm.io/gorm/clause"
 	"sync"
 	"time"
 
 	"go.uber.org/zap"
+	"google.golang.org/protobuf/proto"
+	"google.golang.org/protobuf/types/known/anypb"
+	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
 
 	"github.com/pydio/cells/v4/common/log"
 	"github.com/pydio/cells/v4/common/proto/idm"
 	service "github.com/pydio/cells/v4/common/proto/service"
 	"github.com/pydio/cells/v4/common/sql"
 	"github.com/pydio/cells/v4/common/sql/resources"
+	"github.com/pydio/cells/v4/common/utils/uuid"
 	"github.com/pydio/cells/v4/idm/meta/namespace"
-)
-
-var (
-	//go:embed migrations/*
-	migrationsFS embed.FS
-
-	queries = map[string]string{
-		"AddMeta":      `insert into idm_usr_meta (uuid, node_uuid, namespace, owner, timestamp, format, data) values (?, ?,?,?,?,?,?)`,
-		"UpdateMeta":   `update idm_usr_meta set node_uuid=?, namespace=?, owner=?, timestamp=?, format=?, data=? WHERE uuid=?`,
-		"Exists":       `select uuid, data from idm_usr_meta where node_uuid=? and namespace=? and owner=?`,
-		"ExistsByUuid": `select data from idm_usr_meta where uuid=?`,
-		"DeleteMeta":   `delete from idm_usr_meta where uuid=?`,
-	}
 )
 
 type resourcesDAO resources.DAO

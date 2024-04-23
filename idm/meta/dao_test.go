@@ -22,203 +22,190 @@ package meta
 
 import (
 	"context"
-	"github.com/pydio/cells/v4/common/storage"
-	"google.golang.org/protobuf/types/known/anypb"
 	"testing"
 
-	. "github.com/smartystreets/goconvey/convey"
-	"github.com/spf13/viper"
+	"google.golang.org/protobuf/types/known/anypb"
 
 	"github.com/pydio/cells/v4/common/dao/sqlite"
 	"github.com/pydio/cells/v4/common/proto/idm"
 	service "github.com/pydio/cells/v4/common/proto/service"
-	"github.com/pydio/cells/v4/common/runtime"
+	"github.com/pydio/cells/v4/common/utils/test"
+
 	_ "github.com/pydio/cells/v4/common/utils/cache/gocache"
-	"github.com/pydio/cells/v4/common/utils/configx"
+
+	. "github.com/smartystreets/goconvey/convey"
 )
 
 var (
-	mockDAO DAO
-	ctx     = context.Background()
+	testcases = []test.StorageTestCase{
+		{sqlite.Driver + "://" + sqlite.SharedMemDSN, true, NewDAO},
+	}
 )
-
-func TestMain(m *testing.M) {
-	v := viper.New()
-	v.SetDefault(runtime.KeyCache, "pm://")
-	v.SetDefault(runtime.KeyShortCache, "pm://")
-	runtime.SetRuntime(v)
-
-	storage.Main.Register(sqlite.Driver, sqlite.SharedMemDSN, "", "")
-
-	dao, _ := NewDAO(ctx, storage.Main)
-
-	dao.Init(context.TODO(), configx.New())
-
-	mockDAO = dao.(DAO)
-
-	m.Run()
-}
 
 func TestCrud(t *testing.T) {
 
-	Convey("Create Meta", t, func() {
-		// Insert a meta
-		metaWithId, _, err := mockDAO.Set(&idm.UserMeta{
-			NodeUuid:  "node-uuid",
-			Namespace: "namespace",
-			JsonValue: "stringvalue",
-			Policies: []*service.ResourcePolicy{
-				{Subject: "user:owner", Action: service.ResourcePolicyAction_OWNER},
-			},
+	test.RunStorageTests(testcases, func(ctx context.Context, mockDAO DAO) {
+		Convey("Create Meta", t, func() {
+			// Insert a meta
+			metaWithId, _, err := mockDAO.Set(ctx, &idm.UserMeta{
+				NodeUuid:  "node-uuid",
+				Namespace: "namespace",
+				JsonValue: "stringvalue",
+				Policies: []*service.ResourcePolicy{
+					{Subject: "user:owner", Action: service.ResourcePolicyAction_OWNER},
+				},
+			})
+			So(err, ShouldBeNil)
+			So(metaWithId.Uuid, ShouldNotBeEmpty)
+
+			// Insert a similar meta with another user
+			_, _, err = mockDAO.Set(ctx, &idm.UserMeta{
+				NodeUuid:  "node-uuid",
+				Namespace: "namespace",
+				JsonValue: "stringvalue",
+				Policies: []*service.ResourcePolicy{
+					{Subject: "user:owner2", Action: service.ResourcePolicyAction_OWNER},
+				},
+			})
+			So(err, ShouldBeNil)
+
+			// Update the first meta
+			_, _, err = mockDAO.Set(ctx, &idm.UserMeta{
+				NodeUuid:  "node-uuid",
+				Namespace: "namespace",
+				JsonValue: "newvalue",
+				Policies: []*service.ResourcePolicy{
+					{Subject: "user:owner", Action: service.ResourcePolicyAction_OWNER},
+				},
+			})
+			So(err, ShouldBeNil)
+
+			// List meta for the node
+			subQA, _ := anypb.New(&idm.SearchUserMetaRequest{
+				NodeUuids: []string{"node-uuid"},
+			})
+			queryA := &service.Query{
+				SubQueries: []*anypb.Any{subQA},
+			}
+			result, er := mockDAO.Search(ctx, queryA)
+			So(er, ShouldBeNil)
+			So(result, ShouldHaveLength, 2)
+
+			// List meta for the node, restricting by owner
+			subQB, _ := anypb.New(&idm.SearchUserMetaRequest{
+				NodeUuids:            []string{"node-uuid"},
+				ResourceSubjectOwner: "user:owner",
+			})
+			queryB := &service.Query{
+				SubQueries: []*anypb.Any{subQB},
+			}
+			result, er = mockDAO.Search(ctx, queryB)
+			So(er, ShouldBeNil)
+			So(result, ShouldHaveLength, 1)
+
+			_, e := mockDAO.Del(ctx, &idm.UserMeta{Uuid: metaWithId.Uuid})
+			So(e, ShouldBeNil)
+
+			// List meta for the node
+			result, er = mockDAO.Search(ctx, queryA)
+			So(er, ShouldBeNil)
+			So(result, ShouldHaveLength, 1)
 		})
-		So(err, ShouldBeNil)
-		So(metaWithId.Uuid, ShouldNotBeEmpty)
 
-		// Insert a similar meta with another user
-		_, _, err = mockDAO.Set(&idm.UserMeta{
-			NodeUuid:  "node-uuid",
-			Namespace: "namespace",
-			JsonValue: "stringvalue",
-			Policies: []*service.ResourcePolicy{
-				{Subject: "user:owner2", Action: service.ResourcePolicyAction_OWNER},
-			},
+		Convey("Test Meta and Policies", t, func() {
+
+			// Insert a meta
+			metaWithId, _, err := mockDAO.Set(ctx, &idm.UserMeta{
+				NodeUuid:  "node-policy",
+				Namespace: "namespace",
+				JsonValue: "stringvalue",
+				Policies: []*service.ResourcePolicy{
+					{Subject: "user:owner", Action: service.ResourcePolicyAction_OWNER, Effect: service.ResourcePolicy_allow},
+					{Subject: "user:owner", Action: service.ResourcePolicyAction_READ, Effect: service.ResourcePolicy_allow},
+				},
+			})
+			So(err, ShouldBeNil)
+			So(metaWithId.Uuid, ShouldNotBeEmpty)
+
+			// Insert a similar meta with another user
+			otherMeta, _, err := mockDAO.Set(ctx, &idm.UserMeta{
+				NodeUuid:  "node-policy",
+				Namespace: "namespace",
+				JsonValue: "stringvalue",
+				Policies: []*service.ResourcePolicy{
+					{Subject: "user:owner2", Action: service.ResourcePolicyAction_OWNER, Effect: service.ResourcePolicy_allow},
+					{Subject: "user:owner2", Action: service.ResourcePolicyAction_READ, Effect: service.ResourcePolicy_allow},
+				},
+			})
+			So(err, ShouldBeNil)
+			So(otherMeta.Uuid, ShouldNotBeEmpty)
+			So(otherMeta.Uuid, ShouldNotEqual, metaWithId.Uuid)
+
+			// List meta for the node, restricting by owner
+			// List meta for the node
+			subQA, _ := anypb.New(&idm.SearchUserMetaRequest{
+				Namespace: "namespace",
+			})
+			subQB, _ := anypb.New(&service.ResourcePolicyQuery{
+				Subjects: []string{"user:owner"},
+			})
+			queryA := &service.Query{
+				SubQueries: []*anypb.Any{subQA, subQB},
+				Operation:  service.OperationType_AND,
+			}
+
+			result, er := mockDAO.Search(ctx, queryA)
+			//result, er = mockDAO.Search([]string{}, []string{"node-policy"}, "namespace", "", nil)
+			So(er, ShouldBeNil)
+			So(result[0].GetPolicies(), ShouldHaveLength, 2)
 		})
-		So(err, ShouldBeNil)
-
-		// Update the first meta
-		_, _, err = mockDAO.Set(&idm.UserMeta{
-			NodeUuid:  "node-uuid",
-			Namespace: "namespace",
-			JsonValue: "newvalue",
-			Policies: []*service.ResourcePolicy{
-				{Subject: "user:owner", Action: service.ResourcePolicyAction_OWNER},
-			},
-		})
-		So(err, ShouldBeNil)
-
-		// List meta for the node
-		subQA, _ := anypb.New(&idm.SearchUserMetaRequest{
-			NodeUuids: []string{"node-uuid"},
-		})
-		queryA := &service.Query{
-			SubQueries: []*anypb.Any{subQA},
-		}
-		result, er := mockDAO.Search(queryA)
-		So(er, ShouldBeNil)
-		So(result, ShouldHaveLength, 2)
-
-		// List meta for the node, restricting by owner
-		subQB, _ := anypb.New(&idm.SearchUserMetaRequest{
-			NodeUuids:            []string{"node-uuid"},
-			ResourceSubjectOwner: "user:owner",
-		})
-		queryB := &service.Query{
-			SubQueries: []*anypb.Any{subQB},
-		}
-		result, er = mockDAO.Search(queryB)
-		So(er, ShouldBeNil)
-		So(result, ShouldHaveLength, 1)
-
-		_, e := mockDAO.Del(&idm.UserMeta{Uuid: metaWithId.Uuid})
-		So(e, ShouldBeNil)
-
-		// List meta for the node
-		result, er = mockDAO.Search(queryA)
-		So(er, ShouldBeNil)
-		So(result, ShouldHaveLength, 1)
-	})
-
-	Convey("Test Meta and Policies", t, func() {
-
-		// Insert a meta
-		metaWithId, _, err := mockDAO.Set(&idm.UserMeta{
-			NodeUuid:  "node-policy",
-			Namespace: "namespace",
-			JsonValue: "stringvalue",
-			Policies: []*service.ResourcePolicy{
-				{Subject: "user:owner", Action: service.ResourcePolicyAction_OWNER, Effect: service.ResourcePolicy_allow},
-				{Subject: "user:owner", Action: service.ResourcePolicyAction_READ, Effect: service.ResourcePolicy_allow},
-			},
-		})
-		So(err, ShouldBeNil)
-		So(metaWithId.Uuid, ShouldNotBeEmpty)
-
-		// Insert a similar meta with another user
-		otherMeta, _, err := mockDAO.Set(&idm.UserMeta{
-			NodeUuid:  "node-policy",
-			Namespace: "namespace",
-			JsonValue: "stringvalue",
-			Policies: []*service.ResourcePolicy{
-				{Subject: "user:owner2", Action: service.ResourcePolicyAction_OWNER, Effect: service.ResourcePolicy_allow},
-				{Subject: "user:owner2", Action: service.ResourcePolicyAction_READ, Effect: service.ResourcePolicy_allow},
-			},
-		})
-		So(err, ShouldBeNil)
-		So(otherMeta.Uuid, ShouldNotBeEmpty)
-		So(otherMeta.Uuid, ShouldNotEqual, metaWithId.Uuid)
-
-		// List meta for the node, restricting by owner
-		// List meta for the node
-		subQA, _ := anypb.New(&idm.SearchUserMetaRequest{
-			Namespace: "namespace",
-		})
-		subQB, _ := anypb.New(&service.ResourcePolicyQuery{
-			Subjects: []string{"user:owner"},
-		})
-		queryA := &service.Query{
-			SubQueries: []*anypb.Any{subQA, subQB},
-			Operation:  service.OperationType_AND,
-		}
-
-		result, er := mockDAO.Search(queryA)
-		//result, er = mockDAO.Search([]string{}, []string{"node-policy"}, "namespace", "", nil)
-		So(er, ShouldBeNil)
-		So(result[0].GetPolicies(), ShouldHaveLength, 2)
 	})
 }
 
 func TestResourceRules(t *testing.T) {
 
-	Convey("Test Add Rule", t, func() {
+	test.RunStorageTests(testcases, func(ctx context.Context, mockDAO DAO) {
+		Convey("Test Add Rule", t, func() {
 
-		err := mockDAO.AddPolicy("resource-id", &service.ResourcePolicy{Action: service.ResourcePolicyAction_READ, Subject: "subject1"})
-		So(err, ShouldBeNil)
+			err := mockDAO.AddPolicy(ctx, "resource-id", &service.ResourcePolicy{Action: service.ResourcePolicyAction_READ, Subject: "subject1"})
+			So(err, ShouldBeNil)
 
-	})
+		})
 
-	Convey("Select Rules", t, func() {
+		Convey("Select Rules", t, func() {
 
-		rules, err := mockDAO.GetPoliciesForResource("resource-id")
-		So(rules, ShouldHaveLength, 1)
-		So(err, ShouldBeNil)
+			rules, err := mockDAO.GetPoliciesForResource(ctx, "resource-id")
+			So(rules, ShouldHaveLength, 1)
+			So(err, ShouldBeNil)
 
-	})
+		})
 
-	Convey("Delete Rules", t, func() {
+		Convey("Delete Rules", t, func() {
 
-		err := mockDAO.DeletePoliciesForResource("resource-id")
-		So(err, ShouldBeNil)
+			err := mockDAO.DeletePoliciesForResource(ctx, "resource-id")
+			So(err, ShouldBeNil)
 
-		rules, err := mockDAO.GetPoliciesForResource("resource-id")
-		So(rules, ShouldHaveLength, 0)
-		So(err, ShouldBeNil)
+			rules, err := mockDAO.GetPoliciesForResource(ctx, "resource-id")
+			So(rules, ShouldHaveLength, 0)
+			So(err, ShouldBeNil)
 
-	})
+		})
 
-	Convey("Delete Rules For Action", t, func() {
+		Convey("Delete Rules For Action", t, func() {
 
-		mockDAO.AddPolicy("resource-id", &service.ResourcePolicy{Action: service.ResourcePolicyAction_READ, Subject: "subject1"})
-		mockDAO.AddPolicy("resource-id", &service.ResourcePolicy{Action: service.ResourcePolicyAction_WRITE, Subject: "subject1"})
+			mockDAO.AddPolicy(ctx, "resource-id", &service.ResourcePolicy{Action: service.ResourcePolicyAction_READ, Subject: "subject1"})
+			mockDAO.AddPolicy(ctx, "resource-id", &service.ResourcePolicy{Action: service.ResourcePolicyAction_WRITE, Subject: "subject1"})
 
-		rules, err := mockDAO.GetPoliciesForResource("resource-id")
-		So(rules, ShouldHaveLength, 2)
+			rules, err := mockDAO.GetPoliciesForResource(ctx, "resource-id")
+			So(rules, ShouldHaveLength, 2)
 
-		err = mockDAO.DeletePoliciesForResourceAndAction("resource-id", service.ResourcePolicyAction_READ)
-		So(err, ShouldBeNil)
+			err = mockDAO.DeletePoliciesForResourceAndAction(ctx, "resource-id", service.ResourcePolicyAction_READ)
+			So(err, ShouldBeNil)
 
-		rules, err = mockDAO.GetPoliciesForResource("resource-id")
-		So(rules, ShouldHaveLength, 1)
-		So(err, ShouldBeNil)
+			rules, err = mockDAO.GetPoliciesForResource(ctx, "resource-id")
+			So(rules, ShouldHaveLength, 1)
+			So(err, ShouldBeNil)
 
+		})
 	})
 }

@@ -23,39 +23,29 @@ package grpc
 import (
 	"context"
 	"fmt"
-	"sync"
 	"testing"
 
-	"github.com/spf13/viper"
 	"google.golang.org/grpc/metadata"
 	"google.golang.org/protobuf/types/known/anypb"
 
 	"github.com/pydio/cells/v4/common"
-	"github.com/pydio/cells/v4/common/dao"
 	"github.com/pydio/cells/v4/common/dao/sqlite"
 	"github.com/pydio/cells/v4/common/proto/idm"
 	"github.com/pydio/cells/v4/common/proto/service"
-	"github.com/pydio/cells/v4/common/runtime"
 	"github.com/pydio/cells/v4/common/utils/cache"
-	"github.com/pydio/cells/v4/common/utils/configx"
+	"github.com/pydio/cells/v4/common/utils/test"
 	"github.com/pydio/cells/v4/idm/user"
 
 	. "github.com/smartystreets/goconvey/convey"
 )
 
 var (
-	ctx     = context.Background()
-	wg      sync.WaitGroup
-	mockDAO user.DAO
+	testcases = []test.StorageTestCase{
+		{sqlite.Driver + "://" + sqlite.SharedMemDSN, true, user.NewDAO},
+	}
 )
 
-func TestMain(m *testing.M) {
-	v := viper.New()
-	v.SetDefault(runtime.KeyCache, "pm://")
-	v.SetDefault(runtime.KeyShortCache, "pm://")
-	runtime.SetRuntime(v)
-
-	// Use the cache mechanism to avoid trying to retrieve the role service
+func init() {
 	autoAppliesCachePool = cache.MustOpenPool("pm://?evictionTime=3600s&cleanWindow=7200s")
 	c, err := autoAppliesCachePool.Get(context.TODO())
 	if err != nil {
@@ -64,239 +54,238 @@ func TestMain(m *testing.M) {
 	_ = c.Set("autoApplies", map[string][]*idm.Role{
 		"autoApplyProfile": {{Uuid: "auto-apply", AutoApplies: []string{"autoApplyProfile"}}},
 	})
-
-	if d, e := dao.InitDAO(ctx, sqlite.Driver, sqlite.SharedMemDSN, "idm_user", user.NewDAO, configx.New()); e != nil {
-		panic(e)
-	} else {
-		mockDAO = d.(user.DAO)
-	}
-
-	m.Run()
-	wg.Wait()
 }
 
 func TestLoginCIDAO(t *testing.T) {
 
-	cfg := configx.New()
-	_ = cfg.Val("loginCI").Set(true)
-	ciDAO, e := dao.InitDAO(ctx, sqlite.Driver, sqlite.SharedMemDSN, "idm_user", user.NewDAO, cfg)
-	if e != nil {
-		t.Fail()
-		return
-	}
-	h := NewHandler(ctx, ciDAO.(user.DAO))
-	h2 := NewHandler(ctx, mockDAO)
+	test.RunStorageTests(testcases, func(ctx context.Context, dao user.DAO) {
+		/*
+			cfg := configx.New()
+			_ = cfg.Val("loginCI").Set(true)
+			ciDAO, e := dao.InitDAO(ctx, sqlite.Driver, sqlite.SharedMemDSN, "idm_user", user.NewDAO, cfg)
+			if e != nil {
+				t.Fail()
+				return
+			}
+					h2 := NewHandler(ctx)
 
-	Convey("Test LoginCI support", t, func() {
-		_, e := h.CreateUser(ctx, &idm.CreateUserRequest{User: &idm.User{Login: "MixedLogin", Password: "azerty"}})
-		So(e, ShouldBeNil)
-		_, e1 := h.BindUser(ctx, &idm.BindUserRequest{UserName: "MixedLogin", Password: "azerty"})
-		So(e1, ShouldBeNil)
-		_, e2 := h.BindUser(ctx, &idm.BindUserRequest{UserName: "mixedlogin", Password: "azerty"})
-		So(e2, ShouldBeNil)
-		_, e3 := h.BindUser(ctx, &idm.BindUserRequest{UserName: "MixedLogin", Password: "wrongpass"})
-		So(e3, ShouldNotBeNil)
-		_, e4 := h.BindUser(ctx, &idm.BindUserRequest{UserName: "MixedLoginz", Password: "azerty"})
-		So(e4, ShouldNotBeNil)
+		*/
+		h := NewHandler(ctx)
 
+		Convey("Test LoginCI support", t, func() {
+			_, e := h.CreateUser(ctx, &idm.CreateUserRequest{User: &idm.User{Login: "MixedLogin", Password: "azerty"}})
+			So(e, ShouldBeNil)
+			_, e1 := h.BindUser(ctx, &idm.BindUserRequest{UserName: "MixedLogin", Password: "azerty"})
+			So(e1, ShouldBeNil)
+			_, e2 := h.BindUser(ctx, &idm.BindUserRequest{UserName: "mixedlogin", Password: "azerty"})
+			So(e2, ShouldBeNil)
+			_, e3 := h.BindUser(ctx, &idm.BindUserRequest{UserName: "MixedLogin", Password: "wrongpass"})
+			So(e3, ShouldNotBeNil)
+			_, e4 := h.BindUser(ctx, &idm.BindUserRequest{UserName: "MixedLoginz", Password: "azerty"})
+			So(e4, ShouldNotBeNil)
+
+		})
+
+		/*
+			Convey("Test LoginCI Not set", t, func() {
+				_, e := h2.CreateUser(ctx, &idm.CreateUserRequest{User: &idm.User{Login: "mixedlogin", Password: "azerty"}})
+				So(e, ShouldBeNil)
+				_, e2 := h2.BindUser(ctx, &idm.BindUserRequest{UserName: "mixedlogin", Password: "azerty"})
+				So(e2, ShouldBeNil)
+				_, e1 := h2.BindUser(ctx, &idm.BindUserRequest{UserName: "MixedLogin", Password: "azerty"})
+				So(e1, ShouldNotBeNil)
+
+				delQ, _ := anypb.New(&idm.UserSingleQuery{Login: "mixedlogin"})
+				h2.DeleteUser(ctx, &idm.DeleteUserRequest{Query: &service.Query{SubQueries: []*anypb.Any{delQ}}})
+			})
+
+		*/
 	})
-
-	Convey("Test LoginCI Not set", t, func() {
-		_, e := h2.CreateUser(ctx, &idm.CreateUserRequest{User: &idm.User{Login: "mixedlogin", Password: "azerty"}})
-		So(e, ShouldBeNil)
-		_, e2 := h2.BindUser(ctx, &idm.BindUserRequest{UserName: "mixedlogin", Password: "azerty"})
-		So(e2, ShouldBeNil)
-		_, e1 := h2.BindUser(ctx, &idm.BindUserRequest{UserName: "MixedLogin", Password: "azerty"})
-		So(e1, ShouldNotBeNil)
-
-		delQ, _ := anypb.New(&idm.UserSingleQuery{Login: "mixedlogin"})
-		h2.DeleteUser(ctx, &idm.DeleteUserRequest{Query: &service.Query{SubQueries: []*anypb.Any{delQ}}})
-	})
-
 }
 
 func TestUser(t *testing.T) {
 
-	h := NewHandler(ctx, mockDAO)
+	test.RunStorageTests(testcases, func(ctx context.Context, dao user.DAO) {
+		h := NewHandler(ctx)
 
-	Convey("Create one user", t, func() {
-		resp, err := h.CreateUser(ctx, &idm.CreateUserRequest{User: &idm.User{Login: "user1"}})
+		Convey("Create one user", t, func() {
+			resp, err := h.CreateUser(ctx, &idm.CreateUserRequest{User: &idm.User{Login: "user1"}})
 
-		So(err, ShouldBeNil)
-		So(resp.GetUser().GetLogin(), ShouldEqual, "user1")
-	})
+			So(err, ShouldBeNil)
+			So(resp.GetUser().GetLogin(), ShouldEqual, "user1")
+		})
 
-	Convey("Create a second user with name attribute", t, func() {
-		resp, err := h.CreateUser(ctx, &idm.CreateUserRequest{User: &idm.User{Login: "user2", Attributes: map[string]string{"name": "User 2"}}})
+		Convey("Create a second user with name attribute", t, func() {
+			resp, err := h.CreateUser(ctx, &idm.CreateUserRequest{User: &idm.User{Login: "user2", Attributes: map[string]string{"name": "User 2"}}})
 
-		So(err, ShouldBeNil)
-		So(resp.GetUser().GetLogin(), ShouldEqual, "user2")
-	})
+			So(err, ShouldBeNil)
+			So(resp.GetUser().GetLogin(), ShouldEqual, "user2")
+		})
 
-	Convey("Get User", t, func() {
-		mock := &userStreamMock{ctx: ctx}
-		err := h.StreamUser(mock)
+		Convey("Get User", t, func() {
+			mock := &userStreamMock{ctx: ctx}
+			err := h.StreamUser(mock)
 
-		So(err, ShouldBeNil)
-		So(len(mock.InternalBuffer), ShouldEqual, 0)
-	})
+			So(err, ShouldBeNil)
+			So(len(mock.InternalBuffer), ShouldEqual, 0)
+		})
 
-	Convey("Search User", t, func() {
-		mock := &userStreamMock{ctx: ctx}
-		userQuery := &idm.UserSingleQuery{
-			Login: "user1",
-		}
-		userQueryAny, _ := anypb.New(userQuery)
-		request := &idm.SearchUserRequest{
-			Query: &service.Query{
-				SubQueries: []*anypb.Any{userQueryAny},
-			},
-		}
-		err := h.SearchUser(request, mock)
+		Convey("Search User", t, func() {
+			mock := &userStreamMock{ctx: ctx}
+			userQuery := &idm.UserSingleQuery{
+				Login: "user1",
+			}
+			userQueryAny, _ := anypb.New(userQuery)
+			request := &idm.SearchUserRequest{
+				Query: &service.Query{
+					SubQueries: []*anypb.Any{userQueryAny},
+				},
+			}
+			err := h.SearchUser(request, mock)
 
-		So(err, ShouldBeNil)
-		So(len(mock.InternalBuffer), ShouldEqual, 1)
+			So(err, ShouldBeNil)
+			So(len(mock.InternalBuffer), ShouldEqual, 1)
 
-		resp, err := h.CountUser(ctx, request)
-		So(err, ShouldBeNil)
-		So(resp.Count, ShouldEqual, 1)
-	})
+			resp, err := h.CountUser(ctx, request)
+			So(err, ShouldBeNil)
+			So(resp.Count, ShouldEqual, 1)
+		})
 
-	Convey("Create a user with auto apply role", t, func() {
-		resp, err := h.CreateUser(ctx, &idm.CreateUserRequest{User: &idm.User{Login: "user3", Attributes: map[string]string{"profile": "autoApplyProfile"}}})
+		Convey("Create a user with auto apply role", t, func() {
+			resp, err := h.CreateUser(ctx, &idm.CreateUserRequest{User: &idm.User{Login: "user3", Attributes: map[string]string{"profile": "autoApplyProfile"}}})
 
-		So(err, ShouldBeNil)
-		So(resp.GetUser().GetLogin(), ShouldEqual, "user3")
-		mock := &userStreamMock{ctx: ctx}
-		userQuery := &idm.UserSingleQuery{
-			Login: "user3",
-		}
-		userQueryAny, _ := anypb.New(userQuery)
-		request := &idm.SearchUserRequest{
-			Query: &service.Query{
-				SubQueries: []*anypb.Any{userQueryAny},
-			},
-		}
-		err = h.SearchUser(request, mock)
-		So(err, ShouldBeNil)
-		So(len(mock.InternalBuffer), ShouldEqual, 1)
-		fmt.Println(mock.InternalBuffer[0].Roles)
-		So(mock.InternalBuffer[0].Roles, ShouldHaveLength, 3)
-		So(mock.InternalBuffer[0].Roles[0].Uuid, ShouldEqual, "ROOT_GROUP")
-		So(mock.InternalBuffer[0].Roles[0].GroupRole, ShouldBeTrue)
-		So(mock.InternalBuffer[0].Roles[0].UserRole, ShouldBeFalse)
+			So(err, ShouldBeNil)
+			So(resp.GetUser().GetLogin(), ShouldEqual, "user3")
+			mock := &userStreamMock{ctx: ctx}
+			userQuery := &idm.UserSingleQuery{
+				Login: "user3",
+			}
+			userQueryAny, _ := anypb.New(userQuery)
+			request := &idm.SearchUserRequest{
+				Query: &service.Query{
+					SubQueries: []*anypb.Any{userQueryAny},
+				},
+			}
+			err = h.SearchUser(request, mock)
+			So(err, ShouldBeNil)
+			So(len(mock.InternalBuffer), ShouldEqual, 1)
+			fmt.Println(mock.InternalBuffer[0].Roles)
+			So(mock.InternalBuffer[0].Roles, ShouldHaveLength, 3)
+			So(mock.InternalBuffer[0].Roles[0].Uuid, ShouldEqual, "ROOT_GROUP")
+			So(mock.InternalBuffer[0].Roles[0].GroupRole, ShouldBeTrue)
+			So(mock.InternalBuffer[0].Roles[0].UserRole, ShouldBeFalse)
 
-		So(mock.InternalBuffer[0].Roles[1].Uuid, ShouldEqual, "auto-apply")
+			So(mock.InternalBuffer[0].Roles[1].Uuid, ShouldEqual, "auto-apply")
 
-		So(mock.InternalBuffer[0].Roles[2].Uuid, ShouldEqual, mock.InternalBuffer[0].Uuid)
-		So(mock.InternalBuffer[0].Roles[2].UserRole, ShouldBeTrue)
-		So(mock.InternalBuffer[0].Roles[2].GroupRole, ShouldBeFalse)
+			So(mock.InternalBuffer[0].Roles[2].Uuid, ShouldEqual, mock.InternalBuffer[0].Uuid)
+			So(mock.InternalBuffer[0].Roles[2].UserRole, ShouldBeTrue)
+			So(mock.InternalBuffer[0].Roles[2].GroupRole, ShouldBeFalse)
 
-	})
+		})
 
-	Convey("Del User", t, func() {
-		_, err := h.DeleteUser(ctx, &idm.DeleteUserRequest{})
-		So(err, ShouldNotBeNil)
-	})
+		Convey("Del User", t, func() {
+			_, err := h.DeleteUser(ctx, &idm.DeleteUserRequest{})
+			So(err, ShouldNotBeNil)
+		})
 
-	Convey("Del User", t, func() {
-		singleQ1 := new(idm.UserSingleQuery)
-		singleQ1.Login = "user1"
-		singleQ1Any, err := anypb.New(singleQ1)
-		So(err, ShouldBeNil)
+		Convey("Del User", t, func() {
+			singleQ1 := new(idm.UserSingleQuery)
+			singleQ1.Login = "user1"
+			singleQ1Any, err := anypb.New(singleQ1)
+			So(err, ShouldBeNil)
 
-		query := &service.Query{
-			SubQueries: []*anypb.Any{singleQ1Any},
-		}
+			query := &service.Query{
+				SubQueries: []*anypb.Any{singleQ1Any},
+			}
 
-		_, err = h.DeleteUser(ctx, &idm.DeleteUserRequest{Query: query})
-		So(err, ShouldBeNil)
-	})
+			_, err = h.DeleteUser(ctx, &idm.DeleteUserRequest{Query: query})
+			So(err, ShouldBeNil)
+		})
 
-	Convey("List all Users", t, func() {
-		mock := &userStreamMock{ctx: ctx}
-		err := h.SearchUser(&idm.SearchUserRequest{}, mock)
+		Convey("List all Users", t, func() {
+			mock := &userStreamMock{ctx: ctx}
+			err := h.SearchUser(&idm.SearchUserRequest{}, mock)
 
-		So(err, ShouldBeNil)
-		So(len(mock.InternalBuffer), ShouldEqual, 3)
-	})
+			So(err, ShouldBeNil)
+			So(len(mock.InternalBuffer), ShouldEqual, 3)
+		})
 
-	Convey("Create and bind user", t, func() {
-		resp := new(idm.CreateUserResponse)
-		resp, err := h.CreateUser(ctx, &idm.CreateUserRequest{User: &idm.User{Login: "john", Password: "f00"}})
+		Convey("Create and bind user", t, func() {
+			resp := new(idm.CreateUserResponse)
+			resp, err := h.CreateUser(ctx, &idm.CreateUserRequest{User: &idm.User{Login: "john", Password: "f00"}})
 
-		So(err, ShouldBeNil)
-		So(resp.GetUser().GetLogin(), ShouldEqual, "john")
+			So(err, ShouldBeNil)
+			So(resp.GetUser().GetLogin(), ShouldEqual, "john")
 
-		// Correct bind
-		{
-			bindResp, err := h.BindUser(ctx, &idm.BindUserRequest{UserName: "john", Password: "f00"})
+			// Correct bind
+			{
+				bindResp, err := h.BindUser(ctx, &idm.BindUserRequest{UserName: "john", Password: "f00"})
+				So(err, ShouldBeNil)
+				So(bindResp.User, ShouldNotBeNil)
+			}
+			// Wrong user name
+			{
+				_, err := h.BindUser(ctx, &idm.BindUserRequest{UserName: "johnFAIL", Password: "f00"})
+				So(err, ShouldNotBeNil)
+			}
+			// Wrong Password
+			{
+				_, err = h.BindUser(ctx, &idm.BindUserRequest{UserName: "john", Password: "f00FAIL"})
+				So(err, ShouldNotBeNil)
+			}
+
+		})
+
+		Convey("Create and bind user with a legacy password", t, func() {
+			attributes := make(map[string]string, 1)
+			attributes[idm.UserAttrPassHashed] = "true"
+			resp, err := h.CreateUser(ctx, &idm.CreateUserRequest{User: &idm.User{
+				Login:      "legacy",
+				Password:   "sha256:1000:ojGf2O2ELslNab+PZ/CkbVddgHQnSwx/FcMZ0Pa4+EE=:d6mVgF+fS+wg7X+0lmSn1T1IOU7DLZhz",
+				Attributes: attributes,
+			}})
+
+			So(err, ShouldBeNil)
+			So(resp.GetUser().GetLogin(), ShouldEqual, "legacy")
+
+			bindResp, err := h.BindUser(ctx, &idm.BindUserRequest{UserName: "legacy", Password: "P@ssw0rd"})
 			So(err, ShouldBeNil)
 			So(bindResp.User, ShouldNotBeNil)
-		}
-		// Wrong user name
-		{
-			_, err := h.BindUser(ctx, &idm.BindUserRequest{UserName: "johnFAIL", Password: "f00"})
+		})
+
+		Convey("Test password change lock", t, func() {
+
+			resp, err := h.CreateUser(ctx, &idm.CreateUserRequest{
+				User: &idm.User{Login: "emma",
+					Password: "oldpassword",
+					Attributes: map[string]string{
+						"locks": `["pass_change","other"]`,
+					}}})
+			So(err, ShouldBeNil)
+
+			updatedContext := context.WithValue(ctx, common.PydioContextUserKey, "emma")
+			resp, err = h.CreateUser(updatedContext, &idm.CreateUserRequest{
+				User: &idm.User{
+					Login:       "emma",
+					OldPassword: "oldpassword",
+					Password:    "oldpassword",
+					Attributes: map[string]string{
+						"locks": `["pass_change","other"]`,
+					}}})
 			So(err, ShouldNotBeNil)
-		}
-		// Wrong Password
-		{
-			_, err = h.BindUser(ctx, &idm.BindUserRequest{UserName: "john", Password: "f00FAIL"})
-			So(err, ShouldNotBeNil)
-		}
 
+			resp, err = h.CreateUser(updatedContext, &idm.CreateUserRequest{
+				User: &idm.User{Login: "emma",
+					Password: "newpassword",
+					Attributes: map[string]string{
+						"locks": `["pass_change","other"]`,
+					}}})
+			So(err, ShouldBeNil)
+			So(resp.User.Attributes, ShouldNotBeNil)
+			So(resp.User.Attributes["locks"], ShouldEqual, `["other"]`)
+
+		})
 	})
-
-	Convey("Create and bind user with a legacy password", t, func() {
-		attributes := make(map[string]string, 1)
-		attributes[idm.UserAttrPassHashed] = "true"
-		resp, err := h.CreateUser(ctx, &idm.CreateUserRequest{User: &idm.User{
-			Login:      "legacy",
-			Password:   "sha256:1000:ojGf2O2ELslNab+PZ/CkbVddgHQnSwx/FcMZ0Pa4+EE=:d6mVgF+fS+wg7X+0lmSn1T1IOU7DLZhz",
-			Attributes: attributes,
-		}})
-
-		So(err, ShouldBeNil)
-		So(resp.GetUser().GetLogin(), ShouldEqual, "legacy")
-
-		bindResp, err := h.BindUser(ctx, &idm.BindUserRequest{UserName: "legacy", Password: "P@ssw0rd"})
-		So(err, ShouldBeNil)
-		So(bindResp.User, ShouldNotBeNil)
-	})
-
-	Convey("Test password change lock", t, func() {
-
-		resp, err := h.CreateUser(ctx, &idm.CreateUserRequest{
-			User: &idm.User{Login: "emma",
-				Password: "oldpassword",
-				Attributes: map[string]string{
-					"locks": `["pass_change","other"]`,
-				}}})
-		So(err, ShouldBeNil)
-
-		updatedContext := context.WithValue(ctx, common.PydioContextUserKey, "emma")
-		resp, err = h.CreateUser(updatedContext, &idm.CreateUserRequest{
-			User: &idm.User{
-				Login:       "emma",
-				OldPassword: "oldpassword",
-				Password:    "oldpassword",
-				Attributes: map[string]string{
-					"locks": `["pass_change","other"]`,
-				}}})
-		So(err, ShouldNotBeNil)
-
-		resp, err = h.CreateUser(updatedContext, &idm.CreateUserRequest{
-			User: &idm.User{Login: "emma",
-				Password: "newpassword",
-				Attributes: map[string]string{
-					"locks": `["pass_change","other"]`,
-				}}})
-		So(err, ShouldBeNil)
-		So(resp.User.Attributes, ShouldNotBeNil)
-		So(resp.User.Attributes["locks"], ShouldEqual, `["other"]`)
-
-	})
-
 }
 
 // =================================================

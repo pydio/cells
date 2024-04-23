@@ -22,7 +22,6 @@ package role
 
 import (
 	"context"
-	"embed"
 	"strings"
 	"sync"
 	"time"
@@ -37,19 +36,6 @@ import (
 	"github.com/pydio/cells/v4/common/service/errors"
 	"github.com/pydio/cells/v4/common/sql"
 	"github.com/pydio/cells/v4/common/sql/resources"
-)
-
-var (
-	//go:embed migrations/*
-	migrationsFS embed.FS
-
-	queries = map[string]string{
-		"AddRole":    `insert into idm_roles (uuid, label, team_role, group_role, user_role, last_updated, auto_applies, override) values (?,?,?,?,?,?,?,?)`,
-		"UpdateRole": `update idm_roles set label=?, team_role=?, group_role=?, user_role=?, last_updated=?, auto_applies=?, override=? where uuid= ?`,
-		"GetRole":    `select * from idm_roles where uuid = ?`,
-		"Exists":     `select count(uuid) from idm_roles where uuid = ?`,
-		"DeleteRole": `delete from idm_roles where uuid = ?`,
-	}
 )
 
 type resourcesDAO resources.DAO

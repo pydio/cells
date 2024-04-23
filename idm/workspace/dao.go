@@ -25,6 +25,9 @@ package workspace
 
 import (
 	"context"
+
+	"gorm.io/gorm"
+
 	"github.com/pydio/cells/v4/common/sql"
 	"github.com/pydio/cells/v4/common/sql/resources"
 )
@@ -40,6 +43,10 @@ type DAO interface {
 	Search(context.Context, sql.Enquirer, *[]interface{}) error
 }
 
-func NewDAO(ctx context.Context) DAO {
-	return &sqlimpl{}
+func NewDAO(db *gorm.DB) DAO {
+	resDAO := resources.NewDAO(db)
+	return &sqlimpl{
+		db:           db,
+		resourcesDAO: resDAO,
+	}
 }

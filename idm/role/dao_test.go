@@ -49,39 +49,6 @@ var (
 	}
 )
 
-//
-//func TestMain(m *testing.M) {
-//	v := viper.New()
-//
-//	runtime.SetRuntime(v)
-//
-//	var options = configx.New()
-//
-//	dialector := gsqlite.Open(sqlite.SharedMemDSN)
-//	mockDB, _ = gorm.Open(dialector, &gorm.Config{
-//		//DisableForeignKeyConstraintWhenMigrating: true,
-//		FullSaveAssociations: true,
-//		Logger:               logger.Default.LogMode(logger.Info),
-//	})
-//
-//	//if d, e := dao.InitDAO(ctx, sqlite.Driver, sqlite.SharedMemDSN, "role", NewDAO, options); e != nil {
-//	//	panic(e)
-//	//} else {
-//	//	mockDAO = d.(DAO)
-//	//}
-//
-//	if d, e := dao.InitDAO(ctx, sqlite.Driver, sqlite.SharedMemDSN, "role", NewDAO, options); e != nil {
-//		panic(e)
-//	} else {
-//		mockDAO = d.(DAO)
-//	}
-//
-//	mockDB.AutoMigrate(&idm.RoleORM{})
-//
-//	m.Run()
-//	wg.Wait()
-//}
-
 func TestCrud(t *testing.T) {
 
 	test.RunStorageTests(testcases, func(ctx context.Context, mockDAO DAO) {

@@ -1131,6 +1131,13 @@ func Resolve[T any](ctx context.Context) (T, error) {
 
 	var t T
 
+	// Check if DAO is directly resolved in context
+	if resolved := ctx.Value("resolved-dao"); resolved != nil {
+		if r, o := resolved.(T); o {
+			return r, nil
+		}
+	}
+
 	// First we get the contextualized manager
 	reg := servercontext.GetRegistry(ctx)
 
