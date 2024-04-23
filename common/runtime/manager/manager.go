@@ -44,6 +44,7 @@ import (
 	"github.com/pydio/cells/v4/common/registry"
 	"github.com/pydio/cells/v4/common/registry/util"
 	"github.com/pydio/cells/v4/common/runtime"
+	"github.com/pydio/cells/v4/common/runtime/controller"
 	"github.com/pydio/cells/v4/common/runtime/runtimecontext"
 	"github.com/pydio/cells/v4/common/server"
 	servercontext "github.com/pydio/cells/v4/common/server/context"
@@ -99,7 +100,7 @@ type manager struct {
 	services map[string]service.Service
 
 	// controllers
-	config storage.Storage
+	config controller.Controller[config.Store]
 
 	logger log.ZapLogger
 }
@@ -124,11 +125,10 @@ func NewManager(ctx context.Context, namespace string, logger log.ZapLogger) (Ma
 
 	if clusterRegistryURL := runtime.RegistryURL(); clusterRegistryURL != "" {
 		clusterRegistry, err := registry.OpenRegistry(ctx, clusterRegistryURL)
-		if err != nil {
-			return nil, err
+		if err == nil {
+			m.clusterRegistry = clusterRegistry
+			//return nil, err
 		}
-
-		m.clusterRegistry = clusterRegistry
 	}
 
 	reg = registry.NewTransientWrapper(reg, registry.WithType(pb.ItemType_SERVICE))
@@ -151,10 +151,7 @@ func NewManager(ctx context.Context, namespace string, logger log.ZapLogger) (Ma
 	reg.Register(m.root)
 
 	// Initing config
-	conf, err := storage.OpenStorage(ctx, runtime.ConfigURL())
-	if err != nil {
-		return nil, err
-	}
+	conf, err := controller.NewController[config.Store](ctx, runtime.ConfigURL(), config.OpenStore)
 
 	m.config = conf
 

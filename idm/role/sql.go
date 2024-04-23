@@ -23,14 +23,14 @@ package role
 import (
 	"context"
 	"embed"
-	"gorm.io/gorm"
-	"gorm.io/gorm/clause"
 	"strings"
 	"sync"
 	"time"
 
 	"google.golang.org/protobuf/proto"
 	"google.golang.org/protobuf/types/known/anypb"
+	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
 
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/proto/idm"
@@ -149,7 +149,7 @@ func (s *sqlimpl) Count(ctx context.Context, query sql.Enquirer) (int32, error) 
 
 	var count int64
 
-	tx := db.Count(&count)
+	tx := db.Model(&idm.Role{}).Count(&count)
 	if tx.Error != nil {
 		return 0, tx.Error
 	}
@@ -163,7 +163,7 @@ func (s *sqlimpl) Search(ctx context.Context, query sql.Enquirer, roles *[]*idm.
 
 	var roleORMs []*idm.Role
 
-	tx := db.Find(&roleORMs)
+	tx := db.Model(&idm.Role{}).Find(&roleORMs)
 	if tx.Error != nil {
 		return tx.Error
 	}
@@ -179,7 +179,7 @@ func (s *sqlimpl) Search(ctx context.Context, query sql.Enquirer, roles *[]*idm.
 func (s *sqlimpl) Delete(ctx context.Context, query sql.Enquirer) (int64, error) {
 	db := sql.NewGormQueryBuilder(query, new(queryBuilder)).Build(ctx, s.instance(ctx)).(*gorm.DB)
 
-	tx := db.Delete(&idm.Role{})
+	tx := db.Model(&idm.Role{}).Delete(&idm.Role{})
 	if tx.Error != nil {
 		return 0, tx.Error
 	}

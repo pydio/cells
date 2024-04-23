@@ -140,16 +140,16 @@ func RegistryURL() string {
 		return r.GetString(KeyDiscovery)
 	}
 
-	if r.IsSet(KeyRegistry) {
-		str := r.GetString(KeyRegistry)
-		u, _ := url.Parse(str)
-		if u.Path == "" {
-			u.Path = DefaultRegistrySuffix
-		}
-		return u.String()
+	// if r.IsSet(KeyRegistry) {
+	str := r.GetString(KeyRegistry)
+	u, _ := url.Parse(str)
+	if u.Path == "" {
+		u.Path = DefaultRegistrySuffix
 	}
-
-	return ""
+	return u.String()
+	//}
+	//
+	//return ""
 }
 
 // BrokerURL returns the scheme://address url for Broker

@@ -10,6 +10,11 @@ import (
 	"github.com/pydio/cells/v4/common/runtime"
 	"github.com/pydio/cells/v4/common/runtime/manager"
 	"github.com/pydio/cells/v4/common/storage"
+
+	_ "github.com/pydio/cells/v4/common/registry/config"
+	_ "github.com/pydio/cells/v4/common/storage/config"
+	_ "github.com/pydio/cells/v4/common/storage/sql"
+	_ "github.com/pydio/cells/v4/common/utils/cache/gocache"
 )
 
 type StorageTestCase struct {
@@ -22,6 +27,8 @@ func RunStorageTests(testCases []StorageTestCase, f any) {
 
 	v := viper.New()
 	v.Set(runtime.KeyConfig, "mem://")
+	v.SetDefault(runtime.KeyCache, "pm://")
+	v.SetDefault(runtime.KeyShortCache, "pm://")
 
 	runtime.SetRuntime(v)
 
@@ -68,7 +75,7 @@ func RunStorageTests(testCases []StorageTestCase, f any) {
 
 			out := reflect.ValueOf(tc.DAO).Call(in)
 
-			reflect.ValueOf(f).Call(append([]reflect.Value{reflect.ValueOf(ctx)}, out...))
+			reflect.ValueOf(f).Call(append([]reflect.Value{reflect.ValueOf(ctx)}, out[0]))
 		} else {
 			panic("wrong type")
 		}

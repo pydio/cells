@@ -45,7 +45,6 @@ import (
 )
 
 var (
-	mgr       manager.Manager
 	testcases = []test.StorageTestCase{
 		{"bleve://" + filepath.Join(os.TempDir(), "data_search_tests"+uuid.New()+".bleve") + "?mapping=node", true, NewBleveDAO},
 		{os.Getenv("CELLS_TEST_MONGODB_DSN") + "?collection=index", os.Getenv("CELLS_TEST_MONGODB_DSN") != "", NewMongoDAO},

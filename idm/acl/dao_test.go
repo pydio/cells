@@ -22,21 +22,26 @@ package acl
 
 import (
 	"context"
-	"gorm.io/gorm/logger"
+	"os"
+	"path/filepath"
 	"sync"
 	"testing"
 
-	. "github.com/smartystreets/goconvey/convey"
 	"google.golang.org/protobuf/types/known/anypb"
 	gsqlite "gorm.io/driver/sqlite"
 	"gorm.io/gorm"
+	"gorm.io/gorm/logger"
 
 	"github.com/pydio/cells/v4/common/dao"
 	"github.com/pydio/cells/v4/common/dao/sqlite"
 	"github.com/pydio/cells/v4/common/proto/idm"
 	service "github.com/pydio/cells/v4/common/proto/service"
+	"github.com/pydio/cells/v4/common/runtime/manager"
 	"github.com/pydio/cells/v4/common/sql"
 	"github.com/pydio/cells/v4/common/utils/configx"
+	"github.com/pydio/cells/v4/common/utils/test"
+
+	. "github.com/smartystreets/goconvey/convey"
 )
 
 var (
@@ -45,156 +50,166 @@ var (
 	wg      sync.WaitGroup
 )
 
-func TestMain(m *testing.M) {
-	var options = configx.New()
-
-	dialector := gsqlite.Open(sqlite.SharedMemDSN)
-	mockDB, _ = gorm.Open(dialector, &gorm.Config{
-		//DisableForeignKeyConstraintWhenMigrating: true,
-		FullSaveAssociations: true,
-		Logger:               logger.Default.LogMode(logger.Info),
-	})
-
-	if d, e := dao.InitDAO(context.TODO(), sqlite.Driver, sqlite.SharedMemDSN, "role", NewDAO, options); e != nil {
-		panic(e)
-	} else {
-		mockDAO = d.(DAO)
+var (
+	testcases = []test.StorageTestCase{
+		{sqlite.Driver + "://" + sqlite.SharedMemDSN, true, NewDAO},
 	}
+)
 
-	m.Run()
-	wg.Wait()
-}
+//func TestMain(m *testing.M) {
+//	var options = configx.New()
+//
+//	dialector := gsqlite.Open(sqlite.SharedMemDSN)
+//	mockDB, _ = gorm.Open(dialector, &gorm.Config{
+//		//DisableForeignKeyConstraintWhenMigrating: true,
+//		FullSaveAssociations: true,
+//		Logger:               logger.Default.LogMode(logger.Info),
+//	})
+//
+//	if d, e := dao.InitDAO(context.TODO(), sqlite.Driver, sqlite.SharedMemDSN, "role", NewDAO, options); e != nil {
+//		panic(e)
+//	} else {
+//		mockDAO = d.(DAO)
+//	}
+//
+//	m.Run()
+//	wg.Wait()
+//}
 
 func TestQueryBuilder(t *testing.T) {
+	test.RunStorageTests(testcases, func(ctx context.Context, dao DAO) {
 
-	Convey("Query Builder", t, func() {
+		Convey("Query Builder", t, func() {
 
-		singleQ1, singleQ2 := new(idm.ACLSingleQuery), new(idm.ACLSingleQuery)
+			singleQ1, singleQ2 := new(idm.ACLSingleQuery), new(idm.ACLSingleQuery)
 
-		singleQ1.RoleIDs = []string{"role1"}
-		singleQ2.RoleIDs = []string{"role2"}
+			singleQ1.RoleIDs = []string{"role1"}
+			singleQ2.RoleIDs = []string{"role2"}
 
-		singleQ1Any, err := anypb.New(singleQ1)
-		So(err, ShouldBeNil)
+			singleQ1Any, err := anypb.New(singleQ1)
+			So(err, ShouldBeNil)
 
-		singleQ2Any, err := anypb.New(singleQ2)
-		So(err, ShouldBeNil)
+			singleQ2Any, err := anypb.New(singleQ2)
+			So(err, ShouldBeNil)
 
-		var singleQueries []*anypb.Any
-		singleQueries = append(singleQueries, singleQ1Any)
-		singleQueries = append(singleQueries, singleQ2Any)
+			var singleQueries []*anypb.Any
+			singleQueries = append(singleQueries, singleQ1Any)
+			singleQueries = append(singleQueries, singleQ2Any)
 
-		simpleQuery := &service.Query{
-			SubQueries: singleQueries,
-			Operation:  service.OperationType_OR,
-			Offset:     0,
-			Limit:      10,
-		}
+			simpleQuery := &service.Query{
+				SubQueries: singleQueries,
+				Operation:  service.OperationType_OR,
+				Offset:     0,
+				Limit:      10,
+			}
 
-		s := sql.NewGormQueryBuilder(simpleQuery, new(queryConverter)).Build(mockDB)
-		So(s, ShouldNotBeNil)
-		s.(*gorm.DB).Find(&[]ACL{})
-		//So(s, ShouldEqual, `(role_id in (select id from idm_acl_roles where uuid in ("role1"))) OR (role_id in (select id from idm_acl_roles where uuid in ("role2")))`)
-	})
+			dao.Search
 
-	Convey("Query Builder W/ subquery", t, func() {
+			s := sql.NewGormQueryBuilder(simpleQuery, new(queryConverter)).Build(mockDB)
+			So(s, ShouldNotBeNil)
+			s.(*gorm.DB).Find(&[]ACL{})
+			//So(s, ShouldEqual, `(role_id in (select id from idm_acl_roles where uuid in ("role1"))) OR (role_id in (select id from idm_acl_roles where uuid in ("role2")))`)
+		})
 
-		singleQ1, singleQ2, singleQ3 := new(idm.ACLSingleQuery), new(idm.ACLSingleQuery), new(idm.ACLSingleQuery)
+		Convey("Query Builder W/ subquery", t, func() {
 
-		singleQ1.RoleIDs = []string{"role1"}
-		singleQ2.RoleIDs = []string{"role2"}
-		singleQ3.RoleIDs = []string{"role3_1", "role3_2", "role3_3"}
+			singleQ1, singleQ2, singleQ3 := new(idm.ACLSingleQuery), new(idm.ACLSingleQuery), new(idm.ACLSingleQuery)
 
-		singleQ1Any, err := anypb.New(singleQ1)
-		So(err, ShouldBeNil)
+			singleQ1.RoleIDs = []string{"role1"}
+			singleQ2.RoleIDs = []string{"role2"}
+			singleQ3.RoleIDs = []string{"role3_1", "role3_2", "role3_3"}
 
-		singleQ2Any, err := anypb.New(singleQ2)
-		So(err, ShouldBeNil)
+			singleQ1Any, err := anypb.New(singleQ1)
+			So(err, ShouldBeNil)
 
-		singleQ3Any, err := anypb.New(singleQ3)
-		So(err, ShouldBeNil)
+			singleQ2Any, err := anypb.New(singleQ2)
+			So(err, ShouldBeNil)
 
-		subQuery1 := &service.Query{
-			SubQueries: []*anypb.Any{singleQ1Any, singleQ2Any},
-			Operation:  service.OperationType_OR,
-		}
+			singleQ3Any, err := anypb.New(singleQ3)
+			So(err, ShouldBeNil)
 
-		subQuery2 := &service.Query{
-			SubQueries: []*anypb.Any{singleQ3Any},
-		}
+			subQuery1 := &service.Query{
+				SubQueries: []*anypb.Any{singleQ1Any, singleQ2Any},
+				Operation:  service.OperationType_OR,
+			}
 
-		subQuery1Any, err := anypb.New(subQuery1)
-		So(err, ShouldBeNil)
+			subQuery2 := &service.Query{
+				SubQueries: []*anypb.Any{singleQ3Any},
+			}
 
-		subQuery2Any, err := anypb.New(subQuery2)
-		So(err, ShouldBeNil)
+			subQuery1Any, err := anypb.New(subQuery1)
+			So(err, ShouldBeNil)
 
-		composedQuery := &service.Query{
-			SubQueries: []*anypb.Any{
-				subQuery1Any,
-				subQuery2Any,
-			},
-			Offset:    0,
-			Limit:     10,
-			Operation: service.OperationType_AND,
-		}
+			subQuery2Any, err := anypb.New(subQuery2)
+			So(err, ShouldBeNil)
 
-		s := sql.NewGormQueryBuilder(composedQuery, new(queryConverter)).Build(mockDB)
-		So(s, ShouldNotBeNil)
-		//So(s, ShouldEqual, `((role_id in (select id from idm_acl_roles where uuid in ("role1"))) OR (role_id in (select id from idm_acl_roles where uuid in ("role2")))) AND (role_id in (select id from idm_acl_roles where uuid in ("role3_1","role3_2","role3_3")))`)
-	})
+			composedQuery := &service.Query{
+				SubQueries: []*anypb.Any{
+					subQuery1Any,
+					subQuery2Any,
+				},
+				Offset:    0,
+				Limit:     10,
+				Operation: service.OperationType_AND,
+			}
 
-	Convey("Query Builder W/ subquery", t, func() {
+			s := sql.NewGormQueryBuilder(composedQuery, new(queryConverter)).Build(mockDB)
+			So(s, ShouldNotBeNil)
+			//So(s, ShouldEqual, `((role_id in (select id from idm_acl_roles where uuid in ("role1"))) OR (role_id in (select id from idm_acl_roles where uuid in ("role2")))) AND (role_id in (select id from idm_acl_roles where uuid in ("role3_1","role3_2","role3_3")))`)
+		})
 
-		singleQ1 := new(idm.ACLSingleQuery)
+		Convey("Query Builder W/ subquery", t, func() {
 
-		singleQ1.Actions = []*idm.ACLAction{&idm.ACLAction{Name: "read", Value: "read_val"}, &idm.ACLAction{Name: "write", Value: "write_val"}}
+			singleQ1 := new(idm.ACLSingleQuery)
 
-		singleQ1Any, err := anypb.New(singleQ1)
-		So(err, ShouldBeNil)
+			singleQ1.Actions = []*idm.ACLAction{&idm.ACLAction{Name: "read", Value: "read_val"}, &idm.ACLAction{Name: "write", Value: "write_val"}}
 
-		composedQuery := &service.Query{
-			SubQueries: []*anypb.Any{
-				singleQ1Any,
-			},
-			Offset:    0,
-			Limit:     10,
-			Operation: service.OperationType_AND,
-		}
+			singleQ1Any, err := anypb.New(singleQ1)
+			So(err, ShouldBeNil)
 
-		s := sql.NewGormQueryBuilder(composedQuery, new(queryConverter)).Build(mockDB)
-		So(s, ShouldNotBeNil)
-		//So(s, ShouldEqual, `((action_name='read' AND action_value='read_val') OR (action_name='write' AND action_value='write_val'))`)
-	})
+			composedQuery := &service.Query{
+				SubQueries: []*anypb.Any{
+					singleQ1Any,
+				},
+				Offset:    0,
+				Limit:     10,
+				Operation: service.OperationType_AND,
+			}
 
-	Convey("Query Builder W/ subquery", t, func() {
+			s := sql.NewGormQueryBuilder(composedQuery, new(queryConverter)).Build(mockDB)
+			So(s, ShouldNotBeNil)
+			//So(s, ShouldEqual, `((action_name='read' AND action_value='read_val') OR (action_name='write' AND action_value='write_val'))`)
+		})
 
-		singleQ1, singleQ2, singleQ3 := new(idm.ACLSingleQuery), new(idm.ACLSingleQuery), new(idm.ACLSingleQuery)
+		Convey("Query Builder W/ subquery", t, func() {
 
-		singleQ1.Actions = []*idm.ACLAction{&idm.ACLAction{Name: "read"}, &idm.ACLAction{Name: "write"}}
-		singleQ2.RoleIDs = []string{"role1", "role2"}
-		singleQ3.NodeIDs = []string{"node1"}
+			singleQ1, singleQ2, singleQ3 := new(idm.ACLSingleQuery), new(idm.ACLSingleQuery), new(idm.ACLSingleQuery)
 
-		singleQ1Any, err := anypb.New(singleQ1)
-		So(err, ShouldBeNil)
+			singleQ1.Actions = []*idm.ACLAction{&idm.ACLAction{Name: "read"}, &idm.ACLAction{Name: "write"}}
+			singleQ2.RoleIDs = []string{"role1", "role2"}
+			singleQ3.NodeIDs = []string{"node1"}
 
-		singleQ2Any, err := anypb.New(singleQ2)
-		So(err, ShouldBeNil)
+			singleQ1Any, err := anypb.New(singleQ1)
+			So(err, ShouldBeNil)
 
-		singleQ3Any, err := anypb.New(singleQ3)
-		So(err, ShouldBeNil)
+			singleQ2Any, err := anypb.New(singleQ2)
+			So(err, ShouldBeNil)
 
-		composedQuery := &service.Query{
-			SubQueries: []*anypb.Any{
-				singleQ1Any, singleQ2Any, singleQ3Any,
-			},
-			Offset:    0,
-			Limit:     10,
-			Operation: service.OperationType_AND,
-		}
+			singleQ3Any, err := anypb.New(singleQ3)
+			So(err, ShouldBeNil)
 
-		s := sql.NewGormQueryBuilder(composedQuery, new(queryConverter)).Build(mockDB)
-		So(s, ShouldNotBeNil)
-		//So(s, ShouldEqual, `((action_name='read' OR action_name='write')) AND (role_id in (select id from idm_acl_roles where uuid in ("role1","role2"))) AND (node_id in (select id from idm_acl_nodes where uuid in ("node1")))`)
+			composedQuery := &service.Query{
+				SubQueries: []*anypb.Any{
+					singleQ1Any, singleQ2Any, singleQ3Any,
+				},
+				Offset:    0,
+				Limit:     10,
+				Operation: service.OperationType_AND,
+			}
+
+			s := sql.NewGormQueryBuilder(composedQuery, new(queryConverter)).Build(mockDB)
+			So(s, ShouldNotBeNil)
+			//So(s, ShouldEqual, `((action_name='read' OR action_name='write')) AND (role_id in (select id from idm_acl_roles where uuid in ("role1","role2"))) AND (node_id in (select id from idm_acl_nodes where uuid in ("node1")))`)
+		})
 	})
 }
