@@ -116,15 +116,19 @@ func ResolveSites(ctx context.Context, resolver routing.UpstreamsResolver, exter
 func sitesToCaddySites(sites []*install.ProxyConfig, upstreamResolver routing.UpstreamsResolver) (caddySites []*ActiveSite, er error) {
 
 	rewriteResolver := func(cr *routing.ActiveRoute, route routing.Route, rule *install.Rule) {
-		inputURI := rule.Value
-		realTarget := route.GetURI()
-		if realTarget == "/" {
-			cr.Path = inputURI + "*"
-			cr.RewriteRules = append(cr.RewriteRules, fmt.Sprintf("redir %s %s/", inputURI, inputURI))
-			cr.RewriteRules = append(cr.RewriteRules, fmt.Sprintf("uri %s* strip_prefix %s", inputURI, inputURI))
-		} else {
-			cr.Path = inputURI + "/*"
-			cr.RewriteRules = append(cr.RewriteRules, fmt.Sprintf("uri %s/* replace %s/ %s/ 1", inputURI, inputURI, realTarget))
+		cr.RequestHeaderSet["X-Real-IP"] = "{http.request.remote}"
+		cr.RequestHeaderSet["X-Forwarded-Proto"] = "{http.request.scheme}"
+		if rule.Action == "Rewrite" {
+			inputURI := rule.Value
+			realTarget := route.GetURI()
+			if realTarget == "/" {
+				cr.Path = inputURI + "*"
+				cr.RewriteRules = append(cr.RewriteRules, fmt.Sprintf("redir %s %s/", inputURI, inputURI))
+				cr.RewriteRules = append(cr.RewriteRules, fmt.Sprintf("uri %s* strip_prefix %s", inputURI, inputURI))
+			} else {
+				cr.Path = inputURI + "/*"
+				cr.RewriteRules = append(cr.RewriteRules, fmt.Sprintf("uri %s/* replace %s/ %s/ 1", inputURI, inputURI, realTarget))
+			}
 		}
 	}
 

@@ -24,6 +24,7 @@ import (
 	"bytes"
 	"context"
 	"fmt"
+	"net/url"
 	"strings"
 	"sync"
 	"text/template"
@@ -60,8 +61,6 @@ const (
 
 	{{range .Routes}}
 	route {{.Path}} {
-		request_header X-Real-IP {http.request.remote}
-		request_header X-Forwarded-Proto {http.request.scheme}
 		{{range $k,$v := .RequestHeaderSet}}
 		request_header {{$k}} {{$v}}{{end}}
 
@@ -82,7 +81,7 @@ const (
 		# Apply mux
 		mux
 		{{else}}
-		reverse_proxy {{join .Upstreams " "}}
+		reverse_proxy {{joinUpstreams .Upstreams " "}}
 		{{end}}
 	}
 	{{end}}
@@ -122,10 +121,22 @@ var (
 	parsedOnce sync.Once
 )
 
+func joinUpstreams(uu []any, sep string) string {
+	var addr []string
+	for _, u := range uu {
+		if s, o := u.(string); o {
+			addr = append(addr, s)
+		} else if ur, o2 := u.(*url.URL); o2 {
+			addr = append(addr, ur.String())
+		}
+	}
+	return strings.Join(addr, sep)
+}
+
 func FromTemplate(ctx context.Context, tplData TplData) ([]byte, error) {
 	var err error
 	parsedOnce.Do(func() {
-		parsedTpl, err = template.New("pydiocaddy").Funcs(template.FuncMap{"join": strings.Join}).Parse(caddytemplate)
+		parsedTpl, err = template.New("pydiocaddy").Funcs(template.FuncMap{"joinUpstreams": joinUpstreams}).Parse(caddytemplate)
 	})
 	if err != nil {
 		return nil, err

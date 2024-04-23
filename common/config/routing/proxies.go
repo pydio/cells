@@ -32,8 +32,8 @@ import (
 type ActiveRoute struct {
 	Path             string
 	RequestHeaderSet map[string]string
-	RewriteRules     []string
-	Upstreams        []string
+	RewriteRules     []any
+	Upstreams        []any
 }
 
 type ActiveProxy struct {
@@ -100,8 +100,10 @@ func ResolveProxy(proxyConfig *install.ProxyConfig, tlsResolver TLSResolver, rew
 		}
 	}
 
-	if er := tlsResolver(site); er != nil {
-		return nil, er
+	if tlsResolver != nil {
+		if er := tlsResolver(site); er != nil {
+			return nil, er
+		}
 	}
 
 	site.Routes = []*ActiveRoute{}
@@ -118,8 +120,8 @@ func ResolveProxy(proxyConfig *install.ProxyConfig, tlsResolver TLSResolver, rew
 			}
 			if rule.Action == "Rewrite" {
 				cr.RequestHeaderSet["X-Pydio-Site-RouteURI"] = rule.Value
-				rewriteResolver(cr, route, rule)
 			}
+			rewriteResolver(cr, route, rule)
 			if upstreamResolver != nil {
 				endpoint := route.GetURI() + "/"
 				if route.GetURI() == "/" {
@@ -127,7 +129,7 @@ func ResolveProxy(proxyConfig *install.ProxyConfig, tlsResolver TLSResolver, rew
 				}
 				if tt, er := upstreamResolver(endpoint); er == nil {
 					for _, t := range tt {
-						cr.Upstreams = append(cr.Upstreams, t.String())
+						cr.Upstreams = append(cr.Upstreams, t)
 					}
 				} else {
 					//fmt.Println("Skip registering route " + route.GetURI() + " as no target is found")
