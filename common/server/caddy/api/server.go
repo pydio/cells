@@ -1,3 +1,23 @@
+/*
+ * Copyright (c) 2024. Abstrium SAS <team (at) pydio.com>
+ * This file is part of Pydio Cells.
+ *
+ * Pydio Cells is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Pydio Cells is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with Pydio Cells.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ * The latest code can be found at <https://pydio.com>.
+ */
+
 package api
 
 import (
@@ -75,7 +95,7 @@ func (s *Server) ReloadProxy(reg registry.Registry) error {
 	if er != nil {
 		return er
 	}
-	caddyConfig, _, er := s.CaddyConfFromRoutes(func(endpoint string) ([]*url.URL, error) {
+	caddyConfig, _, er := caddy.ResolveSites(s.RootContext(), func(endpoint string) ([]*url.URL, error) {
 		return s.balancer.ListEndpointTargets(endpoint, true)
 	}, true)
 	if er != nil {
@@ -92,6 +112,11 @@ func (s *Server) ReloadProxy(reg registry.Registry) error {
 	}
 	return nil
 
+}
+
+func (s *Server) Stop() error {
+	// Todo - shall we post an empty config to the remote
+	return nil
 }
 
 func (s *Server) Clone() interface{} {

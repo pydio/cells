@@ -1,3 +1,23 @@
+/*
+ * Copyright (c) 2024. Abstrium SAS <team (at) pydio.com>
+ * This file is part of Pydio Cells.
+ *
+ * Pydio Cells is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Pydio Cells is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with Pydio Cells.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ * The latest code can be found at <https://pydio.com>.
+ */
+
 package embed
 
 import (
@@ -82,6 +102,7 @@ func New(ctx context.Context, asProxy bool) (server.Server, error) {
 func (s *Server) RawServe(*server.ServeOptions) (ii []registry.Item, er error) {
 
 	if s.reverseProxy {
+
 		reg := servicecontext.GetRegistry(s.RootContext())
 		rc, _ := client.NewResolverCallback(reg)
 		s.balancer = clienthttp.NewBalancer(s.ID())
@@ -89,7 +110,8 @@ func (s *Server) RawServe(*server.ServeOptions) (ii []registry.Item, er error) {
 		return nil, s.ReloadProxy(reg)
 
 	} else {
-		caddyFile, aa, err := s.CaddyConfFromRoutes(nil, false)
+
+		caddyFile, aa, err := caddy.ResolveSites(s.RootContext(), nil, false)
 		if err != nil {
 			return nil, err
 		}
@@ -110,13 +132,17 @@ func (s *Server) ReloadProxy(reg registry.Registry) error {
 	if er != nil {
 		return er
 	}
-	caddyConfig, _, er := s.CaddyConfFromRoutes(func(endpoint string) ([]*url.URL, error) {
+	caddyConfig, _, er := caddy.ResolveSites(s.RootContext(), func(endpoint string) ([]*url.URL, error) {
 		return s.balancer.ListEndpointTargets(endpoint, true)
 	}, false)
 	if er != nil {
 		return er
 	}
 	return caddyv2.Load(caddyConfig, true)
+}
+
+func (s *Server) Stop() error {
+	return caddyv2.Stop()
 }
 
 func (s *Server) Clone() interface{} {

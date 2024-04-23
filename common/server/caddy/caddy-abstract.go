@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2022. Abstrium SAS <team (at) pydio.com>
+ * Copyright (c) 2024. Abstrium SAS <team (at) pydio.com>
  * This file is part of Pydio Cells.
  *
  * Pydio Cells is free software: you can redistribute it and/or modify
@@ -22,19 +22,14 @@ package caddy
 
 import (
 	"context"
-	"net"
-	"strings"
 
-	caddy "github.com/caddyserver/caddy/v2"
 	"golang.org/x/exp/maps"
 
 	"github.com/pydio/cells/v4/common/config/routing"
-	"github.com/pydio/cells/v4/common/runtime"
 	"github.com/pydio/cells/v4/common/server"
-
-	_ "github.com/caddyserver/caddy/v2/modules/standard"
 )
 
+// RawServer partially implements server.RawServer interface to be used by various caddy implementations
 type RawServer struct {
 	routing.RouteRegistrar
 
@@ -62,52 +57,8 @@ func (s *RawServer) RootContext() context.Context {
 	return s.rootCtx
 }
 
-func (s *RawServer) CaddyConfFromRoutes(resolver UpstreamResolver, external bool) ([]byte, []string, error) {
-	// Creating temporary caddy file
-	sites, err := routing.LoadSites()
-	if err != nil {
-		return nil, nil, err
-	}
-
-	caddySites, err := SitesToCaddyConfigs(sites, resolver)
-	if err != nil {
-		return nil, nil, err
-	}
-
-	caddyFile, err := FromTemplate(s.RootContext(), caddySites, external)
-	if err != nil {
-		return nil, nil, err
-	}
-
-	var addresses []string
-	for _, site := range caddySites {
-		for _, bind := range site.GetBinds() {
-			//s.addresses = append(s.addresses, bind)
-
-			bind = strings.TrimPrefix(bind, "http://")
-			bind = strings.TrimPrefix(bind, "https://")
-
-			host, port, err := net.SplitHostPort(bind)
-			if err != nil {
-				continue
-			}
-			ip := net.ParseIP(host)
-			if ip == nil || ip.IsUnspecified() {
-				addresses = append(addresses, net.JoinHostPort(runtime.DefaultAdvertiseAddress(), port))
-			} else {
-				addresses = append(addresses, bind)
-			}
-		}
-	}
-	return caddyFile, addresses, nil
-}
-
 func (s *RawServer) Type() server.Type {
 	return server.TypeHttp
-}
-
-func (s *RawServer) Stop() error {
-	return caddy.Stop()
 }
 
 func (s *RawServer) Endpoints() []string {

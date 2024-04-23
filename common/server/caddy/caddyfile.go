@@ -1,21 +1,39 @@
+/*
+ * Copyright (c) 2024. Abstrium SAS <team (at) pydio.com>
+ * This file is part of Pydio Cells.
+ *
+ * Pydio Cells is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Pydio Cells is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with Pydio Cells.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ * The latest code can be found at <https://pydio.com>.
+ */
+
 package caddy
 
 import (
 	"bytes"
 	"context"
 	"fmt"
+	"strings"
+	"sync"
 	"text/template"
 
 	"github.com/caddyserver/caddy/v2/caddyconfig"
 	"github.com/caddyserver/caddy/v2/caddyconfig/caddyfile"
-	"github.com/pydio/caddyvault"
 	"go.uber.org/zap"
 
 	"github.com/pydio/cells/v4/common"
-	"github.com/pydio/cells/v4/common/crypto/storage"
 	"github.com/pydio/cells/v4/common/log"
-	"github.com/pydio/cells/v4/common/runtime"
-	"github.com/pydio/cells/v4/common/utils/uuid"
 )
 
 const (
@@ -32,24 +50,20 @@ const (
 
 
 {{range .Sites}}
+{{$MuxMode := .MuxMode}}
 {{$SiteHash := .Hash}}
-{{$SiteWebRoot := .WebRoot}}
-{{$ExternalHost := .ExternalHost}}
 {{$Maintenance := .Maintenance}}
 {{$MaintenanceConditions := .MaintenanceConditions}}
 {{range .Binds}}{{.}} {{end}} {
 
-	root * "{{if $SiteWebRoot}}{{$SiteWebRoot}}{{else}}{{$.WebRoot}}{{end}}"
+	#root * "{{$SiteHash}}"
 
-#    tracing {
-#		span example
-#	}
 	{{range .Routes}}
 	route {{.Path}} {
-		{{if $ExternalHost}}request_header Host {{$ExternalHost}}{{end}}
 		request_header X-Real-IP {http.request.remote}
 		request_header X-Forwarded-Proto {http.request.scheme}
-		request_header X-Pydio-Site-Hash {{ $SiteHash }}
+		{{range $k,$v := .RequestHeaderSet}}
+		request_header {{$k}} {{$v}}{{end}}
 
 		{{if $Maintenance}}
 		# Special redir for maintenance mode
@@ -64,8 +78,12 @@ const (
 
 		{{range .RewriteRules}}{{.}}
 		{{end}}
+		{{if $MuxMode}}
 		# Apply mux
-		{{.FinalDirective}}
+		mux
+		{{else}}
+		reverse_proxy {{join .Upstreams " "}}
+		{{end}}
 	}
 	{{end}}
 
@@ -91,41 +109,30 @@ const (
 )
 
 type TplData struct {
-	Sites         []SiteConf
+	Sites         []*ActiveSite
 	WebRoot       string
 	Storage       string
+	MuxMode       bool
 	EnableMetrics bool
 	DisableAdmin  bool
 }
 
-func FromTemplate(ctx context.Context, caddySites []SiteConf, external bool) ([]byte, error) {
-	tmpl, err := template.New("pydiocaddy").Parse(caddytemplate)
+var (
+	parsedTpl  *template.Template
+	parsedOnce sync.Once
+)
+
+func FromTemplate(ctx context.Context, tplData TplData) ([]byte, error) {
+	var err error
+	parsedOnce.Do(func() {
+		parsedTpl, err = template.New("pydiocaddy").Funcs(template.FuncMap{"join": strings.Join}).Parse(caddytemplate)
+	})
 	if err != nil {
 		return nil, err
 	}
 
-	tplData := TplData{
-		Sites:         caddySites,
-		WebRoot:       uuid.New(), // non-existing path to make sure we don't statically serve local folder
-		EnableMetrics: runtime.MetricsEnabled(),
-		DisableAdmin:  !external,
-	}
-
-	k, e := storage.OpenStore(ctx, runtime.CertsStoreURL())
-	if e != nil {
-		return nil, e
-	}
-	// Special treatment for vault : append info to caddy
-	if vs, ok := k.(*caddyvault.VaultStorage); ok {
-		tplData.Storage = `vault {
-  address "` + vs.API + `"
-  token ` + vs.Token + `
-  prefix ` + vs.Prefix + `
-}`
-	}
-
 	buf := bytes.NewBuffer([]byte{})
-	if err := tmpl.Execute(buf, tplData); err != nil {
+	if err := parsedTpl.Execute(buf, tplData); err != nil {
 		return nil, err
 	}
 

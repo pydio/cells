@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2022. Abstrium SAS <team (at) pydio.com>
+ * Copyright (c) 2024. Abstrium SAS <team (at) pydio.com>
  * This file is part of Pydio Cells.
  *
  * Pydio Cells is free software: you can redistribute it and/or modify
@@ -21,182 +21,167 @@
 package caddy
 
 import (
+	"context"
 	"fmt"
-	"net/url"
+	"net"
 	"path/filepath"
 	"strings"
 
-	"google.golang.org/protobuf/proto"
+	"github.com/pydio/caddyvault"
 
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/config/routing"
 	"github.com/pydio/cells/v4/common/crypto/providers"
+	"github.com/pydio/cells/v4/common/crypto/storage"
 	"github.com/pydio/cells/v4/common/proto/install"
 	"github.com/pydio/cells/v4/common/runtime"
 	"github.com/pydio/cells/v4/common/utils/uuid"
 )
 
-type CaddyRoute struct {
-	Path           string
-	RewriteRules   []string
-	FinalDirective string
-}
-
-type SiteConf struct {
-	*install.ProxyConfig
-	Routes []CaddyRoute
-
-	// Parsed values from proto oneOf
-	TLS     string
-	TLSCert string
-	TLSKey  string
-	// Parsed External host if any
-	ExternalHost string
-	// Custom Root for this site
-	WebRoot string
+type ActiveSite struct {
+	*routing.ActiveProxy
+	// Final resolve with mux or reverse proxy
+	MuxMode bool
 	// LogFile for this site
 	Log string
 	// LogLevel for this site
 	LogLevel string
 }
 
-// Redirects compute required redirects if SSLRedirect is set
-func (s SiteConf) Redirects() map[string]string {
-	rr := make(map[string]string)
-	for _, bind := range s.GetBinds() {
-		parts := strings.Split(bind, ":")
-		var host, port string
-		if len(parts) == 2 {
-			host = parts[0]
-			port = parts[1]
-			if host == "" {
-				host = "0.0.0.0"
-			}
-		} else {
-			host = bind
-		}
-		targetHost := host
-		if host == "0.0.0.0" {
-			targetHost = "{host}"
-			host = ":80"
-		}
-		if port == "" || port == "443" {
-			rr["http://"+host] = "https://" + targetHost + "{uri} permanent"
-		} else if port == "80" {
-			continue
-		} else {
-			rr["http://"+host] = "https://" + targetHost + ":" + port + "{uri} permanent"
-		}
+// ResolveSites generates a Caddyfile using routing.ResolveProxy with custom resolvers
+func ResolveSites(ctx context.Context, resolver routing.UpstreamsResolver, external bool) ([]byte, []string, error) {
+	// Creating temporary caddy file
+	sites, err := routing.LoadSites()
+	if err != nil {
+		return nil, nil, err
 	}
 
-	return rr
-}
-
-type UpstreamResolver func(string) ([]*url.URL, error)
-
-// SitesToCaddyConfigs computes all SiteConf from all *install.ProxyConfig by analyzing
-// TLSConfig, ReverseProxyURL and Maintenance fields values
-func SitesToCaddyConfigs(sites []*install.ProxyConfig, upstreamResolver UpstreamResolver) (caddySites []SiteConf, er error) {
-	for _, proxyConfig := range sites {
-		if bc, er := computeSiteConf(proxyConfig, upstreamResolver); er == nil {
-			caddySites = append(caddySites, bc)
-		} else {
-			return caddySites, er
-		}
+	caddySites, err := sitesToCaddySites(sites, resolver)
+	if err != nil {
+		return nil, nil, err
 	}
-	return caddySites, nil
-}
 
-func computeSiteConf(pc *install.ProxyConfig, upstreamResolver UpstreamResolver) (SiteConf, error) {
-	site := SiteConf{
-		ProxyConfig: proto.Clone(pc).(*install.ProxyConfig),
+	tplData := TplData{
+		Sites:         caddySites,
+		WebRoot:       uuid.New(), // non-existing path to make sure we don't statically serve local folder
+		EnableMetrics: runtime.MetricsEnabled(),
+		DisableAdmin:  !external,
+		MuxMode:       resolver == nil,
 	}
-	if pc.ReverseProxyURL != "" {
-		if u, e := url.Parse(pc.ReverseProxyURL); e == nil {
-			site.ExternalHost = u.Host
-		}
+
+	k, e := storage.OpenStore(ctx, runtime.CertsStoreURL())
+	if e != nil {
+		return nil, nil, e
 	}
-	if site.TLSConfig == nil {
-		for i, b := range site.Binds {
-			site.Binds[i] = "http://" + strings.Replace(b, "0.0.0.0", "", 1)
-		}
-	} else {
-		for i, b := range site.Binds {
-			site.Binds[i] = strings.Replace(b, "0.0.0.0", "", 1)
-		}
-		switch v := site.TLSConfig.(type) {
-		case *install.ProxyConfig_Certificate, *install.ProxyConfig_SelfSigned:
-			certFile, keyFile, err := providers.LoadCertificates(pc, runtime.CertsStoreURL())
+	// Special treatment for vault : append info to caddy
+	if vs, ok := k.(*caddyvault.VaultStorage); ok {
+		tplData.Storage = `vault {
+  address "` + vs.API + `"
+  token ` + vs.Token + `
+  prefix ` + vs.Prefix + `
+}`
+	}
+
+	caddyFile, err := FromTemplate(ctx, tplData)
+	if err != nil {
+		fmt.Println("error eval template", err)
+		return nil, nil, err
+	}
+
+	var addresses []string
+	for _, site := range caddySites {
+		for _, bind := range site.GetBinds() {
+			//s.addresses = append(s.addresses, bind)
+
+			bind = strings.TrimPrefix(bind, "http://")
+			bind = strings.TrimPrefix(bind, "https://")
+
+			host, port, err := net.SplitHostPort(bind)
 			if err != nil {
-				return site, err
+				continue
 			}
-			site.TLSCert = certFile
-			site.TLSKey = keyFile
-		case *install.ProxyConfig_LetsEncrypt:
-			caUrl := common.DefaultCaUrl
-			if v.LetsEncrypt.StagingCA {
-				caUrl = common.DefaultCaStagingUrl
+			ip := net.ParseIP(host)
+			if ip == nil || ip.IsUnspecified() {
+				addresses = append(addresses, net.JoinHostPort(runtime.DefaultAdvertiseAddress(), port))
+			} else {
+				addresses = append(addresses, bind)
 			}
-			site.TLS = v.LetsEncrypt.Email + ` {
+		}
+	}
+	return caddyFile, addresses, nil
+}
+
+// sitesToCaddySites computes all SiteConf from all *install.ProxyConfig by analyzing
+// TLSConfig, ReverseProxyURL and Maintenance fields values
+func sitesToCaddySites(sites []*install.ProxyConfig, upstreamResolver routing.UpstreamsResolver) (caddySites []*ActiveSite, er error) {
+
+	rewriteResolver := func(cr *routing.ActiveRoute, route routing.Route, rule *install.Rule) {
+		inputURI := rule.Value
+		realTarget := route.GetURI()
+		if realTarget == "/" {
+			cr.Path = inputURI + "*"
+			cr.RewriteRules = append(cr.RewriteRules, fmt.Sprintf("redir %s %s/", inputURI, inputURI))
+			cr.RewriteRules = append(cr.RewriteRules, fmt.Sprintf("uri %s* strip_prefix %s", inputURI, inputURI))
+		} else {
+			cr.Path = inputURI + "/*"
+			cr.RewriteRules = append(cr.RewriteRules, fmt.Sprintf("uri %s/* replace %s/ %s/ 1", inputURI, inputURI, realTarget))
+		}
+	}
+
+	tlsResolver := func(site *routing.ActiveProxy) error {
+		if site.TLSConfig == nil {
+			for i, b := range site.Binds {
+				site.Binds[i] = "http://" + strings.Replace(b, "0.0.0.0", "", 1)
+			}
+		} else {
+			for i, b := range site.Binds {
+				site.Binds[i] = strings.Replace(b, "0.0.0.0", "", 1)
+			}
+			switch v := site.TLSConfig.(type) {
+			case *install.ProxyConfig_Certificate, *install.ProxyConfig_SelfSigned:
+				certFile, keyFile, err := providers.LoadCertificates(site.ProxyConfig, runtime.CertsStoreURL())
+				if err != nil {
+					return err
+				}
+				site.TLSCert = certFile
+				site.TLSKey = keyFile
+			case *install.ProxyConfig_LetsEncrypt:
+				caUrl := common.DefaultCaUrl
+				if v.LetsEncrypt.StagingCA {
+					caUrl = common.DefaultCaStagingUrl
+				}
+				site.TLS = v.LetsEncrypt.Email + ` {
 				ca ` + caUrl + `
 			}`
+			}
 		}
+		return nil
 	}
-	site.WebRoot = uuid.New()
 
-	// Translating log level to caddy
 	logLevel := runtime.LogLevel()
+	var caddyLogFile, caddyLogLevel string
 	if logLevel != "warn" {
 		if logLevel == "debug" {
-			site.Log = filepath.Join(runtime.ApplicationWorkingDir(runtime.ApplicationDirLogs), "caddy_access.log")
-			site.LogLevel = "INFO"
+			caddyLogFile = filepath.Join(runtime.ApplicationWorkingDir(runtime.ApplicationDirLogs), "caddy_access.log")
+			caddyLogLevel = "INFO"
 		} else {
-			site.Log = filepath.Join(runtime.ApplicationWorkingDir(runtime.ApplicationDirLogs), "caddy_errors.log")
-			site.LogLevel = "ERROR"
+			caddyLogFile = filepath.Join(runtime.ApplicationWorkingDir(runtime.ApplicationDirLogs), "caddy_errors.log")
+			caddyLogLevel = "ERROR"
 		}
 	}
 
-	site.Routes = []CaddyRoute{}
-	for _, route := range routing.ListRoutes() {
-		rule := site.FindRouteRule(route.GetID())
-		if !site.HasRouting() || rule.Accept() {
-			cr := CaddyRoute{Path: route.GetURI() + "*"}
-			if rule.Action == "Rewrite" {
-				inputURI := rule.Value
-
-				realTarget := route.GetURI()
-				if realTarget == "/" {
-					cr.Path = inputURI + "*"
-					cr.RewriteRules = append(cr.RewriteRules, fmt.Sprintf("redir %s %s/", inputURI, inputURI))
-					cr.RewriteRules = append(cr.RewriteRules, fmt.Sprintf("uri %s* strip_prefix %s", inputURI, inputURI))
-				} else {
-					cr.Path = inputURI + "/*"
-					cr.RewriteRules = append(cr.RewriteRules, fmt.Sprintf("uri %s/* replace %s/ %s/ 1", inputURI, inputURI, realTarget))
-				}
-				cr.RewriteRules = append(cr.RewriteRules, fmt.Sprintf("request_header X-Pydio-Site-RouteURI %s", inputURI))
-			}
-			if upstreamResolver != nil {
-				endpoint := route.GetURI() + "/"
-				if route.GetURI() == "/" {
-					endpoint = "/"
-				}
-				//if tt, er := s.balancer.ListEndpointTargets(endpoint, true); er == nil {
-				if tt, er := upstreamResolver(endpoint); er == nil {
-					var upstreams []string
-					for _, t := range tt {
-						upstreams = append(upstreams, t.String())
-					}
-					cr.FinalDirective = "reverse_proxy " + strings.Join(upstreams, " ")
-				} else {
-					fmt.Println("Skip registering route " + route.GetURI() + " as no target is found")
-					continue
-				}
-			} else {
-				cr.FinalDirective = "mux"
-			}
-			site.Routes = append(site.Routes, cr)
+	for _, site := range sites {
+		activeProxy, err := routing.ResolveProxy(site, tlsResolver, rewriteResolver, upstreamResolver)
+		if err != nil {
+			return nil, err
 		}
+		cs := &ActiveSite{
+			ActiveProxy: activeProxy,
+			MuxMode:     upstreamResolver == nil,
+			Log:         caddyLogFile,
+			LogLevel:    caddyLogLevel,
+		}
+		caddySites = append(caddySites, cs)
 	}
-
-	return site, nil
+	return caddySites, nil
 }
