@@ -18,8 +18,10 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
+import Pydio from 'pydio'
+
 const global = window;
-const {pydio} = global;
-const {MessageHash} = pydio;
+const pydio = Pydio.getInstance();
+const MessageHash = Pydio.getMessages();
 
 export {global, pydio, MessageHash}

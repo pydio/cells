@@ -21,9 +21,14 @@
 import {pydio} from '../globals'
 
 export default function(){
-
-    pydio.UI.openComponentInModal('PydioCoreActions', 'PasswordDialog', {
-        locked: (pydio.user && pydio.user.lock === 'pass_change')
-    });
+    const user = pydio.user
+    const locked = user && user.lock === 'pass_change'
+    if (locked) {
+        setTimeout(() => {
+            pydio.UI.openComponentInModal('PydioCoreActions', 'PasswordDialog', {locked});
+        }, 500)
+    } else {
+        pydio.UI.openComponentInModal('PydioCoreActions', 'PasswordDialog', {});
+    }
 
 }
