@@ -22,6 +22,7 @@ package user
 
 import (
 	"context"
+	databasesql "database/sql"
 	"embed"
 	"fmt"
 	"strconv"
@@ -29,7 +30,6 @@ import (
 	"time"
 	"unicode"
 
-	databasesql "database/sql"
 	migrate "github.com/rubenv/sql-migrate"
 	"go.uber.org/zap"
 	"golang.org/x/text/transform"
@@ -267,6 +267,10 @@ func (s *sqlimpl) Add(in interface{}) (interface{}, []tree.N, error) {
 		// This is an explicit password update
 		log.Logger(context.Background()).Debug("User update w/ password")
 		needsUpdate = true
+		if user.Attributes == nil {
+			user.Attributes = make(map[string]string)
+		}
+		user.Attributes[idm.UserAttrLastPassChanged] = fmt.Sprintf("%d", time.Now().Unix())
 	} else if !user.IsGroup && len(created) > 0 && user.Password == "" {
 		// User has been created with an empty password! Generate a random strong one now
 		log.Logger(context.Background()).Warn("Generating random password for new user")

@@ -64,8 +64,10 @@ var (
 // ByOverride implements sort.Interface for []Role based on the ForceOverride field.
 type ByOverride []*idm.Role
 
-func (a ByOverride) Len() int           { return len(a) }
-func (a ByOverride) Swap(i, j int)      { a[i], a[j] = a[j], a[i] }
+func (a ByOverride) Len() int { return len(a) }
+
+func (a ByOverride) Swap(i, j int) { a[i], a[j] = a[j], a[i] }
+
 func (a ByOverride) Less(i, j int) bool { return !a[i].ForceOverride && a[j].ForceOverride }
 
 // Handler definition
@@ -102,7 +104,7 @@ func (h *Handler) BindUser(ctx context.Context, req *idm.BindUserRequest) (*idm.
 // CreateUser adds or creates a user or a group in the underlying database.
 func (h *Handler) CreateUser(ctx context.Context, req *idm.CreateUserRequest) (*idm.CreateUserResponse, error) {
 
-	passChange := req.User.Password
+	passChange := req.User.Password != ""
 	// Create or update user
 	newUser, createdNodes, err := h.dao.Add(req.User)
 	if err != nil {
@@ -118,7 +120,7 @@ func (h *Handler) CreateUser(ctx context.Context, req *idm.CreateUserRequest) (*
 		delete(out.Attributes, "original_group")
 	}
 
-	if passChange != "" {
+	if passChange {
 		// Check if it is a "force pass change operation".
 		ctxLogin, _ := permissions.FindUserNameInContext(ctx)
 		if l, ok := out.Attributes["locks"]; ok && strings.Contains(l, "pass_change") && ctxLogin == out.Login {
@@ -140,6 +142,7 @@ func (h *Handler) CreateUser(ctx context.Context, req *idm.CreateUserRequest) (*
 		}
 	}
 	out.Password = ""
+	out.OldPassword = ""
 	resp.User = out
 	if len(req.User.Policies) == 0 {
 		var userPolicies []*service.ResourcePolicy
@@ -182,6 +185,9 @@ func (h *Handler) CreateUser(ctx context.Context, req *idm.CreateUserRequest) (*
 		}
 		if movedGroup != "" {
 			cEvent.Attributes["original_group"] = movedGroup
+		}
+		if passChange {
+			cEvent.Attributes["password_changed"] = "true"
 		}
 		if cu, _ := permissions.FindUserNameInContext(ctx); cu != "" {
 			cEvent.Attributes["ctx_username"] = cu

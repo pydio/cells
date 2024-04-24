@@ -28,10 +28,11 @@ import (
 )
 
 const (
-	UserAttrPrivatePrefix = "pydio:"
-	UserAttrPassHashed    = UserAttrPrivatePrefix + "password_hashed"
-	UserAttrLabelLike     = UserAttrPrivatePrefix + "labelLike"
-	UserAttrOrigin        = UserAttrPrivatePrefix + "origin"
+	UserAttrPrivatePrefix   = "pydio:"
+	UserAttrPassHashed      = UserAttrPrivatePrefix + "password_hashed"
+	UserAttrLabelLike       = UserAttrPrivatePrefix + "labelLike"
+	UserAttrOrigin          = UserAttrPrivatePrefix + "origin"
+	UserAttrLastPassChanged = UserAttrPrivatePrefix + "password_changed_at"
 
 	UserAttrDisplayName = "displayName"
 	UserAttrProfile     = "profile"
