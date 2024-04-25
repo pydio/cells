@@ -21,20 +21,29 @@
 package mailer
 
 import (
+	"context"
 	"fmt"
 	"os"
 	"path/filepath"
 	"testing"
 
-	"github.com/pydio/cells/v4/common/dao/test"
 	"github.com/pydio/cells/v4/common/proto/mailer"
 	"github.com/pydio/cells/v4/common/utils/configx"
+	"github.com/pydio/cells/v4/common/utils/test"
+	"github.com/pydio/cells/v4/common/utils/uuid"
+
+	_ "github.com/pydio/cells/v4/common/storage/boltdb"
+	_ "github.com/pydio/cells/v4/common/storage/mongo"
 
 	. "github.com/smartystreets/goconvey/convey"
 )
 
 var (
-	conf configx.Values
+	conf      configx.Values
+	testcases = []test.StorageTestCase{
+		{"boltdb://" + filepath.Join(os.TempDir(), "mailer_queue_"+uuid.New()+".db"), true, NewBoltDAO},
+		{os.Getenv("CELLS_TEST_MONGODB_DSN") + "?collection=mailer_queue", os.Getenv("CELLS_TEST_MONGODB_DSN") != "", NewMongoDAO},
+	}
 )
 
 func init() {
@@ -62,11 +71,11 @@ func testQueue(t *testing.T, queue Queue) {
 	*email2 = *email
 	email2.Subject = "Second email"
 
-	err := queue.Push(email)
+	err := queue.Push(nil, email)
 	So(err, ShouldBeNil)
 
 	var consumedMail *mailer.Mail
-	e := queue.Consume(func(email *mailer.Mail) error {
+	e := queue.Consume(nil, func(email *mailer.Mail) error {
 		consumedMail = email
 		return nil
 	})
@@ -74,12 +83,12 @@ func testQueue(t *testing.T, queue Queue) {
 	So(consumedMail, ShouldNotBeNil)
 	So(consumedMail.GetFrom().Name, ShouldEqual, "Sender")
 
-	err = queue.Push(email2)
+	err = queue.Push(nil, email2)
 	So(err, ShouldBeNil)
 
 	// We should only retrieve 2nd email
 	i := 0
-	e = queue.Consume(func(email *mailer.Mail) error {
+	e = queue.Consume(nil, func(email *mailer.Mail) error {
 		consumedMail = email
 		i++
 		return nil
@@ -90,20 +99,20 @@ func testQueue(t *testing.T, queue Queue) {
 	So(i, ShouldEqual, 1)
 
 	email2.Subject = "Test 3 With Fail"
-	err = queue.Push(email2)
+	err = queue.Push(nil, email2)
 	So(err, ShouldBeNil)
-	e = queue.Consume(func(email *mailer.Mail) error {
+	e = queue.Consume(nil, func(email *mailer.Mail) error {
 		return fmt.Errorf("Failed Sending Email - Should Update Retry")
 	})
 	So(e, ShouldNotBeNil)
 
-	e = queue.Consume(func(email *mailer.Mail) error {
+	e = queue.Consume(nil, func(email *mailer.Mail) error {
 		return fmt.Errorf("Failed Sending Email - Should Update Retry _ 2")
 	})
 	So(e, ShouldNotBeNil)
 
 	i = 0
-	e = queue.Consume(func(email *mailer.Mail) error {
+	e = queue.Consume(nil, func(email *mailer.Mail) error {
 		i++
 		consumedMail = email
 		return nil
@@ -118,47 +127,10 @@ func TestEnqueueMail(t *testing.T) {
 
 	Convey("Test Queue DAO", t, func() {
 
-		d, c, e := test.OnFileTestDAO("boltdb", filepath.Join(os.TempDir(), "test-mail-queue.db"), "", "mailqueue-test", false, NewBoltDAO)
-		So(e, ShouldBeNil)
-		queue := d.(Queue)
-		defer c()
-		testQueue(t, queue)
-
-	})
-
-	/*
-		Convey("Test push", t, func() {
-
-			bDir, e := os.CreateTemp(os.TempDir(), "bolt-queue-2-*")
-			So(e, ShouldBeNil)
-			bPath := filepath.Join(bDir, "bolt-test.db")
-
-			queue, e := NewBoltQueue(bPath, true)
-			So(e, ShouldBeNil)
-			defer queue.Close()
-
+		test.RunStorageTests(testcases, func(ctx context.Context, queue Queue) {
 			testQueue(t, queue)
-
 		})
 
-		mDsn := os.Getenv("CELLS_TEST_MONGODB_DSN")
-		if mDsn == "" {
-			return
-		}
-
-		Convey("Test Mongo if found in ENV", t, func() {
-
-			dao, _ := mongodb.NewDAO("mongodb", mDsn, "mailqueue-test")
-			queue, e := NewMongoQueue(dao.(mongodb.DAO), configx.New())
-			So(e, ShouldBeNil)
-			defer func() {
-				queue.(*mongoQueue).DB().Drop(context.Background())
-				queue.Close()
-
-			}()
-
-			testQueue(t, queue)
-
-		})*/
+	})
 
 }

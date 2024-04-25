@@ -16,8 +16,7 @@ import (
 )
 
 type mongoQueue struct {
-	db      *mongo.Database
-	runtime context.Context
+	db *mongo.Database
 }
 
 type StoredEmail struct {
@@ -45,19 +44,18 @@ func (m *mongoQueue) Init(ctx context.Context, conf configx.Values) error {
 	return model.Init(ctx, m.db)
 }
 
-func (m *mongoQueue) Push(email *mailer.Mail) error {
+func (m *mongoQueue) Push(ctx context.Context, email *mailer.Mail) error {
 	store := &StoredEmail{
 		Ts:    time.Now().UnixNano(),
 		ID:    uuid.New(),
 		Email: email,
 	}
-	_, e := m.db.Collection(collMailerQueue).InsertOne(m.runtime, store)
+	_, e := m.db.Collection(collMailerQueue).InsertOne(ctx, store)
 	return e
 }
 
-func (m *mongoQueue) Consume(f func(email *mailer.Mail) error) error {
+func (m *mongoQueue) Consume(ctx context.Context, f func(email *mailer.Mail) error) error {
 	coll := m.db.Collection(collMailerQueue)
-	ctx := m.runtime
 	cursor, e := coll.Find(ctx, bson.D{}, &options.FindOptions{Sort: bson.D{{"ts", 1}}})
 	if e != nil {
 		return e

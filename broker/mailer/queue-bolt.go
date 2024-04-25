@@ -30,7 +30,6 @@ import (
 	bolt "go.etcd.io/bbolt"
 
 	"github.com/pydio/cells/v4/common/proto/mailer"
-	"github.com/pydio/cells/v4/common/utils/configx"
 	json "github.com/pydio/cells/v4/common/utils/jsonx"
 )
 
@@ -49,7 +48,7 @@ type BoltQueue struct {
 	db *bolt.DB
 }
 
-func (b *BoltQueue) Init(ctx context.Context, cfg configx.Values) error {
+func (b *BoltQueue) Init(ctx context.Context) error {
 	return b.db.Update(func(tx *bolt.Tx) error {
 		_, e := tx.CreateBucketIfNotExists(bucketName)
 		return e
@@ -63,7 +62,7 @@ func (b *BoltQueue) Close(ctx context.Context) error {
 }
 
 // Push acquires the lock and add a mail to be sent in the queue.
-func (b *BoltQueue) Push(email *mailer.Mail) error {
+func (b *BoltQueue) Push(ctx context.Context, email *mailer.Mail) error {
 
 	return b.db.Update(func(tx *bolt.Tx) error {
 		// Retrieve the bucket.
@@ -86,7 +85,7 @@ func (b *BoltQueue) Push(email *mailer.Mail) error {
 
 // Consume acquires the lock and send mails that are in the queue by batches,
 // sending at most 100 mails by batch.
-func (b *BoltQueue) Consume(sendHandler func(email *mailer.Mail) error) error {
+func (b *BoltQueue) Consume(ctx context.Context, sendHandler func(email *mailer.Mail) error) error {
 
 	var output error
 

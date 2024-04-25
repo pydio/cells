@@ -23,7 +23,6 @@ package grpc
 
 import (
 	"context"
-	"path/filepath"
 
 	"go.uber.org/zap"
 	"google.golang.org/grpc"
@@ -32,8 +31,6 @@ import (
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/client/commons/jobsc"
 	"github.com/pydio/cells/v4/common/config"
-	"github.com/pydio/cells/v4/common/dao/boltdb"
-	"github.com/pydio/cells/v4/common/dao/mongodb"
 	"github.com/pydio/cells/v4/common/log"
 	"github.com/pydio/cells/v4/common/proto/jobs"
 	"github.com/pydio/cells/v4/common/proto/mailer"
@@ -64,14 +61,17 @@ func init() {
 					Up:            registerQueueJob,
 				},
 			}),
-			service.WithStorage(mailer2.NewQueueDAO,
-				service.WithStoragePrefix("mailer"),
-				service.WithStorageSupport(boltdb.Driver, mongodb.Driver),
-				service.WithStorageMigrator(mailer2.MigrateQueue),
-				service.WithStorageDefaultDriver(func() (string, string) {
-					return "boltdb", filepath.Join(runtime.MustServiceDataDir(Name), "queue.db")
-				}),
-			),
+			service.WithStorageDrivers(mailer2.NewBoltDAO, mailer2.NewMongoDAO),
+			service.WithStorageMigrator(mailer2.MigrateQueue),
+			/*
+				service.WithStorage(mailer2.NewQueueDAO,
+					service.WithStoragePrefix("mailer"),
+					service.WithStorageSupport(boltdb.Driver, mongodb.Driver),
+					service.WithStorageMigrator(mailer2.MigrateQueue),
+					service.WithStorageDefaultDriver(func() (string, string) {
+						return "boltdb", filepath.Join(runtime.MustServiceDataDir(Name), "queue.db")
+					}),
+				),*/
 			service.WithGRPC(func(c context.Context, server grpc.ServiceRegistrar) error {
 
 				conf := config.Get("services", Name)
@@ -82,7 +82,7 @@ func init() {
 				}
 				log.Logger(ctx).Debug("Init handler OK", zap.Any("h", handler))
 
-				mailer.RegisterMailerServiceEnhancedServer(server, handler)
+				mailer.RegisterMailerServiceServer(server, handler)
 
 				return nil
 			}),

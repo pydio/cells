@@ -34,7 +34,7 @@ import (
 	"github.com/pydio/cells/v4/common/config"
 	"github.com/pydio/cells/v4/common/log"
 	proto "github.com/pydio/cells/v4/common/proto/mailer"
-	servicecontext "github.com/pydio/cells/v4/common/service/context"
+	"github.com/pydio/cells/v4/common/runtime/manager"
 	"github.com/pydio/cells/v4/common/service/errors"
 	"github.com/pydio/cells/v4/common/utils/configx"
 	json "github.com/pydio/cells/v4/common/utils/jsonx"
@@ -42,7 +42,7 @@ import (
 
 type Handler struct {
 	proto.UnimplementedMailerServiceServer
-	dao mailer.Queue
+	//dao mailer.Queue
 
 	senderName   string
 	senderConfig configx.Values
@@ -51,10 +51,13 @@ type Handler struct {
 
 func NewHandler(serviceCtx context.Context, conf configx.Values) (*Handler, error) {
 	h := new(Handler)
-	h.dao = servicecontext.GetDAO(serviceCtx).(mailer.Queue)
-	if h.dao == nil {
-		return nil, fmt.Errorf("could not load queue DAO")
-	}
+	/*
+		h.dao = servicecontext.GetDAO(serviceCtx).(mailer.Queue)
+		if h.dao == nil {
+			return nil, fmt.Errorf("could not load queue DAO")
+		}
+
+	*/
 	if er := h.initFromConf(serviceCtx, conf, true); er != nil && h.senderName != "disabled" {
 		log.Logger(serviceCtx).Warn("Could not init mailer handler from config: "+er.Error(), zap.Error(er))
 	}
@@ -67,6 +70,12 @@ func (h *Handler) Name() string {
 
 // SendMail either queues or send a mail directly
 func (h *Handler) SendMail(ctx context.Context, req *proto.SendMailRequest) (*proto.SendMailResponse, error) {
+
+	dao, err := manager.Resolve[mailer.Queue](ctx)
+	if err != nil {
+		return nil, err
+	}
+
 	mail := req.Mail
 
 	// Sanity checks
@@ -161,7 +170,7 @@ func (h *Handler) SendMail(ctx context.Context, req *proto.SendMailRequest) (*pr
 		}
 		if req.InQueue {
 			log.Logger(ctx).Debug("SendMail: pushing email to queue", log.DangerouslyZapSmallSlice("to", tt), zap.Any("from", *m.From), zap.String("subject", m.Subject))
-			if e := h.dao.Push(m); e != nil {
+			if e := dao.Push(ctx, m); e != nil {
 				log.Logger(ctx).Error(fmt.Sprintf("cannot put mail in queue: %s", e.Error()), log.DangerouslyZapSmallSlice("to", tt), zap.Any("from", *m.From), zap.String("subject", m.Subject))
 				return nil, e
 			}
@@ -179,8 +188,9 @@ func (h *Handler) SendMail(ctx context.Context, req *proto.SendMailRequest) (*pr
 // ConsumeQueue browses current queue for emails to be sent
 func (h *Handler) ConsumeQueue(ctx context.Context, req *proto.ConsumeQueueRequest) (*proto.ConsumeQueueResponse, error) {
 
-	if h.dao == nil {
-		return nil, fmt.Errorf("queue not initialised")
+	dao, err := manager.Resolve[mailer.Queue](ctx)
+	if err != nil {
+		return nil, err
 	}
 
 	h.checkConfigChange(ctx, false)
@@ -195,7 +205,7 @@ func (h *Handler) ConsumeQueue(ctx context.Context, req *proto.ConsumeQueueReque
 		return h.sender.Send(em)
 	}
 
-	e := h.dao.Consume(c)
+	e := dao.Consume(ctx, c)
 	if e != nil {
 		return nil, e
 	}
