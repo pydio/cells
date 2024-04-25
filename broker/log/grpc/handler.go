@@ -36,6 +36,7 @@ import (
 	"github.com/pydio/cells/v4/common/proto/jobs"
 	proto "github.com/pydio/cells/v4/common/proto/log"
 	"github.com/pydio/cells/v4/common/proto/sync"
+	"github.com/pydio/cells/v4/common/runtime/manager"
 	servicecontext "github.com/pydio/cells/v4/common/service/context"
 	"github.com/pydio/cells/v4/common/service/errors"
 )
@@ -44,8 +45,8 @@ import (
 type Handler struct {
 	sync.UnimplementedSyncEndpointServer
 	proto.UnimplementedLogRecorderServer
-	RuntimeCtx  context.Context
-	Repo        log.MessageRepository
+	RuntimeCtx context.Context
+	//	Repo        log.MessageRepository
 	HandlerName string
 }
 
@@ -55,6 +56,12 @@ func (h *Handler) Name() string {
 
 // PutLog retrieves the log messages from the proto stream and stores them in the index.
 func (h *Handler) PutLog(stream proto.LogRecorder_PutLogServer) error {
+
+	ctx := stream.Context()
+	repo, err := manager.Resolve[log.MessageRepository](ctx)
+	if err != nil {
+		return err
+	}
 
 	var logCount int32
 	for {
@@ -68,7 +75,7 @@ func (h *Handler) PutLog(stream proto.LogRecorder_PutLogServer) error {
 		}
 		logCount++
 
-		h.Repo.PutLog(stream.Context(), line)
+		_ = repo.PutLog(stream.Context(), line)
 	}
 }
 
@@ -78,9 +85,13 @@ func (h *Handler) ListLogs(req *proto.ListLogRequest, stream proto.LogRecorder_L
 	q := req.GetQuery()
 	p := req.GetPage()
 	s := req.GetSize()
+	ctx := stream.Context()
+	repo, err := manager.Resolve[log.MessageRepository](ctx)
+	if err != nil {
+		return err
+	}
 
-	r, err := h.Repo.ListLogs(stream.Context(), q, p, s)
-
+	r, err := repo.ListLogs(stream.Context(), q, p, s)
 	if err != nil {
 		return err
 	}
@@ -96,7 +107,12 @@ func (h *Handler) ListLogs(req *proto.ListLogRequest, stream proto.LogRecorder_L
 // DeleteLogs removes logs based on a ListLogRequest
 func (h *Handler) DeleteLogs(ctx context.Context, req *proto.ListLogRequest) (*proto.DeleteLogsResponse, error) {
 
-	d, e := h.Repo.DeleteLogs(ctx, req.Query)
+	repo, err := manager.Resolve[log.MessageRepository](ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	d, e := repo.DeleteLogs(ctx, req.Query)
 	if e != nil {
 		return nil, e
 	}
@@ -114,6 +130,11 @@ func (h *Handler) AggregatedLogs(req *proto.TimeRangeRequest, stream proto.LogRe
 // TriggerResync uses the request.Path as parameter. If nothing is passed, it reads all the logs from index and
 // reconstructs a new index entirely. If truncate/{int64} is passed, it truncates the log to the given size (or closer)
 func (h *Handler) TriggerResync(ctx context.Context, request *sync.ResyncRequest) (*sync.ResyncResponse, error) {
+
+	repo, err := manager.Resolve[log.MessageRepository](ctx)
+	if err != nil {
+		return nil, err
+	}
 
 	var l log2.ZapLogger
 	var closeTask func(e error)
@@ -143,7 +164,7 @@ func (h *Handler) TriggerResync(ctx context.Context, request *sync.ResyncRequest
 		strSize := strings.TrimPrefix(request.Path, "truncate/")
 		var er error
 		if maxSize, e := strconv.ParseInt(strSize, 10, 64); e == nil {
-			er = h.Repo.Truncate(ctx, maxSize, l)
+			er = repo.Truncate(ctx, maxSize, l)
 		} else {
 			er = fmt.Errorf("wrong format for truncate (use bytesize)")
 		}
@@ -153,7 +174,7 @@ func (h *Handler) TriggerResync(ctx context.Context, request *sync.ResyncRequest
 
 	c := servicecontext.WithServiceName(context.Background(), servicecontext.GetServiceName(ctx))
 	go func() {
-		e := h.Repo.Resync(c, l)
+		e := repo.Resync(c, l)
 		if e != nil {
 			if l != nil {
 				l.Error("Error while resyncing: ", zap.Error(e))

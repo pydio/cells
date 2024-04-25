@@ -56,17 +56,8 @@ func init() {
 			service.WithStorageDrivers(dao.NewBleveDAO, dao.NewMongoDAO),
 			service.WithGRPC(func(c context.Context, server grpc.ServiceRegistrar) error {
 
-				//cfg := config.Get("services", Name)
-				//nsProvider := meta.NewNsProvider(c)
-				//indexer := servicecontext.GetIndexer(c).(dao2.IndexDAO)
-				//bleveEngine, err := dao.NewEngine(c, indexer, nsProvider, cfg)
-				//if err != nil {
-				//	return err
-				//}
-
 				searcher := &SearchServer{
 					RuntimeCtx: c,
-					// Engine:           bleveEngine,
 					// NsProvider:       nsProvider,
 					ReIndexThrottler: make(chan struct{}, 5),
 				}

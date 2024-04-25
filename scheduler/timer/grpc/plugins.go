@@ -45,14 +45,15 @@ func init() {
 			service.Description("Triggers events based on a scheduler pattern"),
 			service.Unique(true),
 			service.WithGeneric(func(c context.Context, server *generic.Server) error {
-				producer := timer.NewEventProducer(c)
+				// Todo - We should create one producer per Tenant
+				producer = timer.NewEventProducer(c)
 				subscriber := &timer.JobsEventsSubscriber{
 					Producer: producer,
 				}
 				if er := broker.SubscribeCancellable(c, common.TopicJobConfigEvent, func(ctx context.Context, message broker.Message) error {
 					msg := &jobs.JobChangeEvent{}
-					if e := message.Unmarshal(msg); e == nil {
-						return subscriber.Handle(ctx, msg)
+					if ct, e := message.Unmarshal(ctx, msg); e == nil {
+						return subscriber.Handle(ct, msg)
 					}
 					return nil
 				}, broker.WithCounterName("timer")); er != nil {

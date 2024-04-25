@@ -34,22 +34,31 @@ type MigratorStatus struct {
 	Total  int64
 	Count  int64
 }
-type MigratorFunc func(from DAO, to DAO, dryRun bool, status chan MigratorStatus) (map[string]int, error)
+
+type MigratorFunc func(from, to any, dryRun bool, status chan MigratorStatus) (map[string]int, error)
+
 type DriverProviderFunc func() (string, string)
 
 type DAOTodoProviderFunc[T any] func(ctx context.Context) T
 
 type ConnProviderFunc func(ctx context.Context, driver, dsn string) ConnDriver
+
 type DaoProviderFunc func(ctx context.Context, driver, dsn, prefix string) (DAO, error)
+
 type IndexerWrapperFunc func(context.Context, DAO) (IndexDAO, error)
+
 type Storer interface{}
+
 type DaoWrapperFunc[T Storer] func(context.Context) (T, error)
 
 type TODODaoWrapperFunc[T any] func(context.Context, T) (T, error)
 
 var daoConns map[string]ConnProviderFunc
+
 var daoDrivers map[string]DaoProviderFunc
+
 var daoShared map[string]bool
+
 var indexersDrivers map[string]IndexerWrapperFunc
 
 // DAO interface definition

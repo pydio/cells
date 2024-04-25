@@ -48,7 +48,7 @@ type SearchServer struct {
 	tree.UnimplementedSearcherServer
 	protosync.UnimplementedSyncEndpointServer
 	RuntimeCtx context.Context
-	// Engine           dao.SearchEngine
+
 	eventsChannel    chan *broker.TypeWithContext[*tree.NodeChangeEvent]
 	TreeClient       tree.NodeProviderClient
 	TreeClientStream tree.NodeProviderStreamerClient

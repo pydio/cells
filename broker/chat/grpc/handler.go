@@ -38,11 +38,14 @@ import (
 	"github.com/pydio/cells/v4/common/proto/activity"
 	"github.com/pydio/cells/v4/common/proto/chat"
 	"github.com/pydio/cells/v4/common/proto/tree"
-	servicecontext "github.com/pydio/cells/v4/common/service/context"
+	"github.com/pydio/cells/v4/common/runtime/manager"
 	"github.com/pydio/cells/v4/common/service/context/metadata"
 )
 
 func getMetaClient(ctx context.Context) tree.NodeReceiverClient {
+	if val := ctx.Value("resolved-meta-client"); val != nil {
+		return val.(tree.NodeReceiverClient)
+	}
 	return treec.ServiceNodeReceiverClient(ctx, common.ServiceMeta)
 }
 
@@ -56,7 +59,10 @@ func (c *ChatHandler) Name() string {
 }
 
 func (c *ChatHandler) PutRoom(ctx context.Context, req *chat.PutRoomRequest) (*chat.PutRoomResponse, error) {
-	dao := servicecontext.GetDAO[chat2.DAO](ctx)
+	dao, err := manager.Resolve[chat2.DAO](ctx)
+	if err != nil {
+		return nil, err
+	}
 
 	resp := &chat.PutRoomResponse{}
 	newRoom, err := dao.PutRoom(ctx, req.Room)
@@ -74,7 +80,10 @@ func (c *ChatHandler) PutRoom(ctx context.Context, req *chat.PutRoomRequest) (*c
 
 func (c *ChatHandler) DeleteRoom(ctx context.Context, req *chat.DeleteRoomRequest) (*chat.DeleteRoomResponse, error) {
 
-	dao := servicecontext.GetDAO[chat2.DAO](ctx)
+	dao, err := manager.Resolve[chat2.DAO](ctx)
+	if err != nil {
+		return nil, err
+	}
 
 	response := &chat.DeleteRoomResponse{}
 
@@ -100,7 +109,10 @@ func (c *ChatHandler) ListRooms(req *chat.ListRoomsRequest, streamer chat.ChatSe
 
 	ctx := streamer.Context()
 
-	dao := servicecontext.GetDAO[chat2.DAO](ctx)
+	dao, err := manager.Resolve[chat2.DAO](ctx)
+	if err != nil {
+		return err
+	}
 
 	log.Logger(ctx).Debug("List Rooms", zap.Any(common.KeyChatListRoomReq, req))
 
@@ -120,7 +132,10 @@ func (c *ChatHandler) ListMessages(req *chat.ListMessagesRequest, streamer chat.
 
 	ctx := streamer.Context()
 
-	dao := servicecontext.GetDAO[chat2.DAO](ctx)
+	dao, err := manager.Resolve[chat2.DAO](ctx)
+	if err != nil {
+		return err
+	}
 
 	log.Logger(ctx).Debug("List Messages", zap.Any(common.KeyChatListMsgReq, req))
 
@@ -137,7 +152,10 @@ func (c *ChatHandler) ListMessages(req *chat.ListMessagesRequest, streamer chat.
 
 func (c *ChatHandler) PostMessage(ctx context.Context, req *chat.PostMessageRequest) (*chat.PostMessageResponse, error) {
 
-	dao := servicecontext.GetDAO[chat2.DAO](ctx)
+	dao, err := manager.Resolve[chat2.DAO](ctx)
+	if err != nil {
+		return nil, err
+	}
 
 	resp := &chat.PostMessageResponse{}
 	type outMsg struct {
@@ -195,7 +213,7 @@ func (c *ChatHandler) PostMessage(ctx context.Context, req *chat.PostMessageRequ
 	}
 	go func() {
 		for _, m := range results {
-			kr, _ := c.knownRoomFromUuid(ctx, m.RoomUuid, krs)
+			kr, _ := c.knownRoomFromUuid(ctx, dao, m.RoomUuid, krs)
 			bgCtx := metadata.NewBackgroundWithUserKey(m.Author)
 			broker.MustPublish(bgCtx, common.TopicChatEvent, &chat.ChatEvent{
 				Message: m.ChatMessage,
@@ -211,7 +229,7 @@ func (c *ChatHandler) PostMessage(ctx context.Context, req *chat.PostMessageRequ
 						}},
 					})
 					if count, e := dao.CountMessages(bgCtx, room); e == nil {
-						getMetaClient(c.RuntimeCtx).UpdateNode(bgCtx, &tree.UpdateNodeRequest{To: &tree.Node{
+						getMetaClient(ctx).UpdateNode(bgCtx, &tree.UpdateNodeRequest{To: &tree.Node{
 							Uuid: room.RoomTypeObject,
 							MetaStore: map[string]string{
 								"has_comments": fmt.Sprintf("%d", count),
@@ -229,7 +247,10 @@ func (c *ChatHandler) DeleteMessage(ctx context.Context, req *chat.DeleteMessage
 
 	log.Logger(ctx).Debug("Delete Messages", zap.Any(common.KeyChatPostMsgReq, req))
 
-	dao := servicecontext.GetDAO[chat2.DAO](ctx)
+	dao, err := manager.Resolve[chat2.DAO](ctx)
+	if err != nil {
+		return nil, err
+	}
 
 	krs := req.GetKnownRooms()
 	if krs == nil {
@@ -240,7 +261,7 @@ func (c *ChatHandler) DeleteMessage(ctx context.Context, req *chat.DeleteMessage
 		if err != nil {
 			return nil, err
 		}
-		kr, _ := c.knownRoomFromUuid(ctx, m.RoomUuid, krs)
+		kr, _ := c.knownRoomFromUuid(ctx, dao, m.RoomUuid, krs)
 		broker.MustPublish(ctx, common.TopicChatEvent, &chat.ChatEvent{
 			Message: m,
 			Room:    kr,
@@ -256,7 +277,7 @@ func (c *ChatHandler) DeleteMessage(ctx context.Context, req *chat.DeleteMessage
 					if count > 0 {
 						meta = fmt.Sprintf("%d", count)
 					}
-					_, _ = getMetaClient(c.RuntimeCtx).UpdateNode(bgCtx, &tree.UpdateNodeRequest{To: &tree.Node{
+					_, _ = getMetaClient(ctx).UpdateNode(bgCtx, &tree.UpdateNodeRequest{To: &tree.Node{
 						Uuid: room.RoomTypeObject,
 						MetaStore: map[string]string{
 							"has_comments": meta,
@@ -270,8 +291,7 @@ func (c *ChatHandler) DeleteMessage(ctx context.Context, req *chat.DeleteMessage
 }
 
 // knownRoomFromUuid tries to find room in map, or look up in DAO
-func (c *ChatHandler) knownRoomFromUuid(ctx context.Context, roomUuid string, kr map[string]*chat.ChatRoom) (*chat.ChatRoom, error) {
-	dao := servicecontext.GetDAO[chat2.DAO](ctx)
+func (c *ChatHandler) knownRoomFromUuid(ctx context.Context, dao chat2.DAO, roomUuid string, kr map[string]*chat.ChatRoom) (*chat.ChatRoom, error) {
 
 	if r, ok := kr[roomUuid]; ok {
 		return r, nil

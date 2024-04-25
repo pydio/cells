@@ -31,6 +31,7 @@ import (
 	"go.etcd.io/bbolt"
 	"go.mongodb.org/mongo-driver/mongo"
 
+	"github.com/pydio/cells/v4/common/dao"
 	"github.com/pydio/cells/v4/common/proto/activity"
 )
 
@@ -108,51 +109,42 @@ func NewMongoDAO(database *mongo.Database) DAO {
 
 }
 
-//func Migrate(f dao.DAO, t dao.DAO, dryRun bool, status chan dao.MigratorStatus) (map[string]int, error) {
-//	ctx := context.Background()
-//	out := map[string]int{
-//		"Activities":    0,
-//		"Subscriptions": 0,
-//	}
-//	testEnv = true // Disable cache
-//	var from, to DAO
-//	if df, e := NewDAO(ctx, f); e == nil {
-//		from = df.(DAO)
-//	} else {
-//		return out, e
-//	}
-//	if dt, e := NewDAO(ctx, t); e == nil {
-//		to = dt.(DAO)
-//	} else {
-//		return out, e
-//	}
-//	aa, total, er := from.allActivities(ctx)
-//	if er != nil {
-//		return nil, er
-//	}
-//	for a := range aa {
-//		if dryRun {
-//			out["Activities"]++
-//		} else if er := to.PostActivity(ctx, activity.OwnerType(a.OwnerType), a.OwnerId, BoxName(a.BoxName), a.Object, false); er == nil {
-//			out["Activities"]++
-//		}
-//		if total > 0 {
-//			status <- dao.MigratorStatus{Total: int64(total), Count: int64(out["Activities"])}
-//		}
-//	}
-//	ss, sTotal, er := from.allSubscriptions(ctx)
-//	if er != nil {
-//		return out, er
-//	}
-//	for s := range ss {
-//		if dryRun {
-//			out["Subscriptions"]++
-//		} else if er := to.UpdateSubscription(ctx, s); er == nil {
-//			out["Subscriptions"]++
-//		}
-//		if sTotal > 0 {
-//			status <- dao.MigratorStatus{Total: int64(sTotal), Count: int64(out["Subscriptions"])}
-//		}
-//	}
-//	return out, nil
-//}
+func Migrate(f, t any, dryRun bool, status chan dao.MigratorStatus) (map[string]int, error) {
+	ctx := context.Background()
+	out := map[string]int{
+		"Activities":    0,
+		"Subscriptions": 0,
+	}
+	testEnv = true // Disable cache
+	from := f.(DAO)
+	to := t.(DAO)
+	aa, total, er := from.allActivities(ctx)
+	if er != nil {
+		return nil, er
+	}
+	for a := range aa {
+		if dryRun {
+			out["Activities"]++
+		} else if er := to.PostActivity(ctx, activity.OwnerType(a.OwnerType), a.OwnerId, BoxName(a.BoxName), a.Object, false); er == nil {
+			out["Activities"]++
+		}
+		if total > 0 {
+			status <- dao.MigratorStatus{Total: int64(total), Count: int64(out["Activities"])}
+		}
+	}
+	ss, sTotal, er := from.allSubscriptions(ctx)
+	if er != nil {
+		return out, er
+	}
+	for s := range ss {
+		if dryRun {
+			out["Subscriptions"]++
+		} else if er := to.UpdateSubscription(ctx, s); er == nil {
+			out["Subscriptions"]++
+		}
+		if sTotal > 0 {
+			status <- dao.MigratorStatus{Total: int64(sTotal), Count: int64(out["Subscriptions"])}
+		}
+	}
+	return out, nil
+}

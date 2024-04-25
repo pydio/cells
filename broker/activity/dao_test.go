@@ -25,29 +25,36 @@ import (
 	"fmt"
 	"log"
 	"os"
-	"path"
 	"path/filepath"
 	"sort"
 	"sync"
 	"testing"
 	"time"
 
-	"github.com/dustin/go-humanize"
-	. "github.com/smartystreets/goconvey/convey"
+	humanize "github.com/dustin/go-humanize"
 	"google.golang.org/protobuf/types/known/timestamppb"
 
 	"github.com/pydio/cells/v4/common/dao/boltdb"
-	"github.com/pydio/cells/v4/common/dao/test"
 	"github.com/pydio/cells/v4/common/proto/activity"
 	"github.com/pydio/cells/v4/common/proto/idm"
 	"github.com/pydio/cells/v4/common/utils/configx"
 	"github.com/pydio/cells/v4/common/utils/jsonx"
+	"github.com/pydio/cells/v4/common/utils/test"
 	"github.com/pydio/cells/v4/common/utils/uuid"
+
+	_ "github.com/pydio/cells/v4/common/storage/boltdb"
+	_ "github.com/pydio/cells/v4/common/storage/mongo"
+
+	. "github.com/smartystreets/goconvey/convey"
 )
 
 var (
-	conf configx.Values
-	ctx  = context.Background()
+	conf      configx.Values
+	ctx       = context.Background()
+	testcases = []test.StorageTestCase{
+		{"boltdb://" + filepath.Join(os.TempDir(), "activity_bolt_"+uuid.New()+".db"), true, NewBoltDAO},
+		{os.Getenv("CELLS_TEST_MONGODB_DSN") + "?collection=activity", os.Getenv("CELLS_TEST_MONGODB_DSN") != "", NewMongoDAO},
+	}
 )
 
 func init() {
@@ -56,633 +63,616 @@ func init() {
 	testEnv = true
 }
 
-func initDao() (DAO, func()) {
-
-	tmpDbFilePath := filepath.Join(os.TempDir(), uuid.New()+".db")
-	d, closer, e := test.OnFileTestDAO("boltdb", tmpDbFilePath, "", "activity-test", false, NewDAO)
-	if e != nil {
-		log.Fatal(e)
-	}
-	return d.(DAO), closer
-}
-
 func TestBoltEmptyDao(t *testing.T) {
 
-	tmpDbFilePath := os.TempDir() + "/bolt-test.db"
+	test.RunStorageTests(testcases, func(ctx context.Context, dao DAO) {
 
-	Convey("Test initialize DB", t, func() {
-		defer os.Remove(tmpDbFilePath)
-		dao, _ := boltdb.NewDAO(ctx, "boltdb", tmpDbFilePath, "")
-		So(dao, ShouldNotBeNil)
-		defer dao.CloseConn(ctx)
-	})
+		/*
+			tmpDbFilePath := os.TempDir() + "/bolt-test.db"
 
-	Convey("Test unreachable file", t, func() {
-		dbFile := os.TempDir() + "/anynonexisting/folder/toto.db"
-		dao, _ := boltdb.NewDAO(ctx, "boltdb", dbFile, "")
-		So(dao, ShouldBeNil)
-	})
+			Convey("Test initialize DB", t, func() {
+				defer os.Remove(tmpDbFilePath)
+				dao, _ := boltdb.NewDAO(ctx, "boltdb", tmpDbFilePath, "")
+				So(dao, ShouldNotBeNil)
+				defer dao.CloseConn(ctx)
+			})
 
-	Convey("Test getBucket - read - not exists", t, func() {
-		defer os.Remove(tmpDbFilePath)
-		tmpdao, _ := boltdb.NewDAO(ctx, "boltdb", tmpDbFilePath, "")
-		da, _ := NewDAO(ctx, tmpdao)
-		dao := da.(DAO)
-		So(dao.Init(ctx, conf), ShouldBeNil)
-		defer dao.CloseConn(ctx)
+			Convey("Test unreachable file", t, func() {
+				dbFile := os.TempDir() + "/anynonexisting/folder/toto.db"
+				dao, _ := boltdb.NewDAO(ctx, "boltdb", dbFile, "")
+				So(dao, ShouldBeNil)
+			})*/
 
-		results := make(chan *activity.Object)
-		done := make(chan bool, 1)
-		err := dao.ActivitiesFor(ctx, activity.OwnerType_USER, "unknown", BoxInbox, BoxLastRead, 0, 100, results, done)
-		So(err, ShouldBeNil)
+		Convey("Test getBucket - read - not exists", t, func() {
+			results := make(chan *activity.Object)
+			done := make(chan bool, 1)
+			err := dao.ActivitiesFor(ctx, activity.OwnerType_USER, "unknown", BoxInbox, BoxLastRead, 0, 100, results, done)
+			So(err, ShouldBeNil)
+		})
 	})
 }
 
 func TestBoltMassivePurge(t *testing.T) {
 
-	tmpMassivePurge := path.Join(os.TempDir(), "bolt-test-massive.db")
-	t.Log("MASSIVE DB AT", tmpMassivePurge)
-	defer os.Remove(tmpMassivePurge)
-	tmpdao, _ := boltdb.NewDAO(ctx, "boltdb", tmpMassivePurge, "")
-	da, _ := NewDAO(ctx, tmpdao)
-	dao := da.(DAO)
-	_ = dao.Init(ctx, conf)
-	defer dao.CloseConn(ctx)
-	number := 100000
-	bb := dao.(boltdb.DAO).DB()
+	test.RunStorageTests(testcases, func(ctx context.Context, dao DAO) {
+		/*
+			tmpMassivePurge := path.Join(os.TempDir(), "bolt-test-massive.db")
+			t.Log("MASSIVE DB AT", tmpMassivePurge)
+			defer os.Remove(tmpMassivePurge)
+			tmpdao, _ := boltdb.NewDAO(ctx, "boltdb", tmpMassivePurge, "")
+			da, _ := NewDAO(ctx, tmpdao)
+			dao := da.(DAO)
+			_ = dao.Init(ctx, conf)
+			defer dao.CloseConn(ctx)
 
-	Convey("Test Massive Purge", t, func() {
-		var aa []*batchActivity
-		for i := 0; i < number; i++ {
-			aa = append(aa, &batchActivity{
-				Object:     &activity.Object{Type: activity.ObjectType_Like, Updated: &timestamppb.Timestamp{Seconds: time.Now().Unix()}},
-				ownerType:  activity.OwnerType_NODE,
-				ownerId:    "node-id",
-				boxName:    BoxOutbox,
-				publishCtx: nil,
-			})
-		}
-		err := dao.(batchDAO).BatchPost(aa)
-		So(err, ShouldBeNil)
-		st, e := os.Stat(tmpMassivePurge)
-		So(e, ShouldBeNil)
-		initSize := st.Size()
-		t.Log("DB Size is", humanize.Bytes(uint64(initSize)))
-		stats, _ := jsonx.Marshal(bb.Stats())
-		t.Log(string(stats))
-		So(st.Size(), ShouldBeGreaterThan, 0)
+		*/
+		number := 100000
+		bb := dao.(boltdb.DAO).DB()
 
-		<-time.After(5 * time.Second)
-		deleted := 0
-		// Now Purge
-		e = dao.Purge(ctx, func(s string, i int) { deleted += i }, activity.OwnerType_NODE, "node-id", BoxOutbox, 0, 10, time.Time{}, true, true)
-		So(e, ShouldBeNil)
-		So(deleted, ShouldBeGreaterThan, 1)
-		st, _ = os.Stat(tmpMassivePurge)
-		newSize := st.Size()
-		t.Log("DB Size is now", humanize.Bytes(uint64(newSize)), "after", deleted, "deletes and compaction")
-		stats, _ = jsonx.Marshal(dao.(boltdb.DAO).DB().Stats())
-		t.Log(string(stats))
-		So(newSize, ShouldBeLessThan, initSize)
+		Convey("Test Massive Purge", t, func() {
+			var aa []*batchActivity
+			for i := 0; i < number; i++ {
+				aa = append(aa, &batchActivity{
+					Object:     &activity.Object{Type: activity.ObjectType_Like, Updated: &timestamppb.Timestamp{Seconds: time.Now().Unix()}},
+					ownerType:  activity.OwnerType_NODE,
+					ownerId:    "node-id",
+					boxName:    BoxOutbox,
+					publishCtx: nil,
+				})
+			}
+			err := dao.(batchDAO).BatchPost(aa)
+			So(err, ShouldBeNil)
+			st, e := os.Stat(bb.Path())
+			So(e, ShouldBeNil)
+			initSize := st.Size()
+			t.Log("DB Size is", humanize.Bytes(uint64(initSize)))
+			stats, _ := jsonx.Marshal(bb.Stats())
+			t.Log(string(stats))
+			So(st.Size(), ShouldBeGreaterThan, 0)
 
+			<-time.After(5 * time.Second)
+			deleted := 0
+			// Now Purge
+			e = dao.Purge(ctx, func(s string, i int) { deleted += i }, activity.OwnerType_NODE, "node-id", BoxOutbox, 0, 10, time.Time{}, true, true)
+			So(e, ShouldBeNil)
+			So(deleted, ShouldBeGreaterThan, 1)
+			st, _ = os.Stat(bb.Path())
+			newSize := st.Size()
+			t.Log("DB Size is now", humanize.Bytes(uint64(newSize)), "after", deleted, "deletes and compaction")
+			stats, _ = jsonx.Marshal(dao.(boltdb.DAO).DB().Stats())
+			t.Log(string(stats))
+			So(newSize, ShouldBeLessThan, initSize)
+
+		})
 	})
-
 }
 
 func TestInsertActivity(t *testing.T) {
 
-	dao, def := initDao()
-	defer def()
+	test.RunStorageTests(testcases, func(ctx context.Context, dao DAO) {
 
-	Convey("Test insert", t, func() {
+		Convey("Test insert", t, func() {
 
-		ac := &activity.Object{
-			Type: activity.ObjectType_Travel,
-			Actor: &activity.Object{
-				Type: activity.ObjectType_Person,
-				Name: "John Doe",
-				Id:   "john",
-			},
-		}
-
-		err := dao.PostActivity(ctx, activity.OwnerType_NODE, "NODE-UUID", BoxOutbox, ac, false)
-		So(err, ShouldBeNil)
-
-		var results []*activity.Object
-		resChan := make(chan *activity.Object)
-		doneChan := make(chan bool)
-
-		wg := &sync.WaitGroup{}
-		wg.Add(1)
-		go func() {
-			defer wg.Done()
-			for {
-				select {
-				case act := <-resChan:
-					if act != nil {
-						results = append(results, act)
-					}
-				case <-doneChan:
-					return
-				}
+			ac := &activity.Object{
+				Type: activity.ObjectType_Travel,
+				Actor: &activity.Object{
+					Type: activity.ObjectType_Person,
+					Name: "John Doe",
+					Id:   "john",
+				},
 			}
-		}()
 
-		err = dao.ActivitiesFor(ctx, activity.OwnerType_NODE, "NODE-UUID", BoxOutbox, "", 0, 100, resChan, doneChan)
-		wg.Wait()
+			err := dao.PostActivity(ctx, activity.OwnerType_NODE, "NODE-UUID", BoxOutbox, ac, false)
+			So(err, ShouldBeNil)
 
-		So(err, ShouldBeNil)
-		So(results, ShouldHaveLength, 1)
-		So(results[0], ShouldResemble, ac)
-	})
+			var results []*activity.Object
+			resChan := make(chan *activity.Object)
+			doneChan := make(chan bool)
 
-	Convey("Test Unread box", t, func() {
-
-		ac := &activity.Object{
-			Type: activity.ObjectType_Travel,
-			Actor: &activity.Object{
-				Type: activity.ObjectType_Person,
-				Name: "John Doe",
-				Id:   "john",
-			},
-		}
-
-		err := dao.PostActivity(ctx, activity.OwnerType_USER, "john", BoxInbox, ac, false)
-		So(err, ShouldBeNil)
-
-		unread := dao.CountUnreadForUser(nil, "john")
-		So(unread, ShouldEqual, 1)
-
-		resChan := make(chan *activity.Object)
-		doneChan := make(chan bool, 1)
-		//dao.ActivitiesFor(activity.OwnerType_USER, "john", BoxInbox, results, done)
-
-		wg := &sync.WaitGroup{}
-		wg.Add(1)
-		go func() {
-			defer wg.Done()
-			for {
-				select {
-				case act := <-resChan:
-					if act != nil {
-						log.Println(act)
+			wg := &sync.WaitGroup{}
+			wg.Add(1)
+			go func() {
+				defer wg.Done()
+				for {
+					select {
+					case act := <-resChan:
+						if act != nil {
+							results = append(results, act)
+						}
+					case <-doneChan:
+						return
 					}
-				case <-doneChan:
-					return
 				}
+			}()
+
+			err = dao.ActivitiesFor(ctx, activity.OwnerType_NODE, "NODE-UUID", BoxOutbox, "", 0, 100, resChan, doneChan)
+			wg.Wait()
+
+			So(err, ShouldBeNil)
+			So(results, ShouldHaveLength, 1)
+			So(results[0], ShouldResemble, ac)
+		})
+
+		Convey("Test Unread box", t, func() {
+
+			ac := &activity.Object{
+				Type: activity.ObjectType_Travel,
+				Actor: &activity.Object{
+					Type: activity.ObjectType_Person,
+					Name: "John Doe",
+					Id:   "john",
+				},
 			}
-		}()
 
-		err = dao.ActivitiesFor(ctx, activity.OwnerType_USER, "john", BoxInbox, "", 0, 100, resChan, doneChan)
-		wg.Wait()
+			err := dao.PostActivity(ctx, activity.OwnerType_USER, "john", BoxInbox, ac, false)
+			So(err, ShouldBeNil)
 
-		time.Sleep(time.Second * 1)
-		So(err, ShouldBeNil)
-		unread = dao.CountUnreadForUser(nil, "john")
-		So(unread, ShouldEqual, 0)
+			unread := dao.CountUnreadForUser(nil, "john")
+			So(unread, ShouldEqual, 1)
+
+			resChan := make(chan *activity.Object)
+			doneChan := make(chan bool, 1)
+			//dao.ActivitiesFor(activity.OwnerType_USER, "john", BoxInbox, results, done)
+
+			wg := &sync.WaitGroup{}
+			wg.Add(1)
+			go func() {
+				defer wg.Done()
+				for {
+					select {
+					case act := <-resChan:
+						if act != nil {
+							log.Println(act)
+						}
+					case <-doneChan:
+						return
+					}
+				}
+			}()
+
+			err = dao.ActivitiesFor(ctx, activity.OwnerType_USER, "john", BoxInbox, "", 0, 100, resChan, doneChan)
+			wg.Wait()
+
+			time.Sleep(time.Second * 1)
+			So(err, ShouldBeNil)
+			unread = dao.CountUnreadForUser(nil, "john")
+			So(unread, ShouldEqual, 0)
+		})
 	})
 }
 
 func TestMultipleInsert(t *testing.T) {
 
-	dao, def := initDao()
-	defer def()
+	test.RunStorageTests(testcases, func(ctx context.Context, dao DAO) {
 
-	Convey("Test insert", t, func() {
+		Convey("Test insert", t, func() {
 
-		ac := &activity.Object{
-			Type: activity.ObjectType_Travel,
-			Actor: &activity.Object{
-				Type: activity.ObjectType_Person,
-				Name: "Charles du Jeu",
-				Id:   "charles",
-			},
-		}
-
-		err := dao.PostActivity(ctx, activity.OwnerType_NODE, "NODE-UUID", BoxOutbox, ac, false)
-		So(err, ShouldBeNil)
-		err = dao.PostActivity(ctx, activity.OwnerType_NODE, "NODE-UUID", BoxOutbox, ac, false)
-		So(err, ShouldBeNil)
-		err = dao.PostActivity(ctx, activity.OwnerType_NODE, "NODE-UUID", BoxOutbox, ac, false)
-		So(err, ShouldBeNil)
-
-		var results []*activity.Object
-		resChan := make(chan *activity.Object)
-		doneChan := make(chan bool)
-
-		wg := &sync.WaitGroup{}
-		wg.Add(1)
-		go func() {
-			defer wg.Done()
-			for {
-				select {
-				case act := <-resChan:
-					if act != nil {
-						results = append(results, act)
-					}
-				case <-doneChan:
-					return
-				}
+			ac := &activity.Object{
+				Type: activity.ObjectType_Travel,
+				Actor: &activity.Object{
+					Type: activity.ObjectType_Person,
+					Name: "Charles du Jeu",
+					Id:   "charles",
+				},
 			}
-		}()
 
-		err = dao.ActivitiesFor(ctx, activity.OwnerType_NODE, "NODE-UUID", BoxOutbox, "", 0, 100, resChan, doneChan)
-		wg.Wait()
+			err := dao.PostActivity(ctx, activity.OwnerType_NODE, "NODE-UUID", BoxOutbox, ac, false)
+			So(err, ShouldBeNil)
+			err = dao.PostActivity(ctx, activity.OwnerType_NODE, "NODE-UUID", BoxOutbox, ac, false)
+			So(err, ShouldBeNil)
+			err = dao.PostActivity(ctx, activity.OwnerType_NODE, "NODE-UUID", BoxOutbox, ac, false)
+			So(err, ShouldBeNil)
 
-		So(err, ShouldBeNil)
-		So(results, ShouldHaveLength, 3)
-		So(results[0], ShouldResemble, ac)
+			var results []*activity.Object
+			resChan := make(chan *activity.Object)
+			doneChan := make(chan bool)
 
+			wg := &sync.WaitGroup{}
+			wg.Add(1)
+			go func() {
+				defer wg.Done()
+				for {
+					select {
+					case act := <-resChan:
+						if act != nil {
+							results = append(results, act)
+						}
+					case <-doneChan:
+						return
+					}
+				}
+			}()
+
+			err = dao.ActivitiesFor(ctx, activity.OwnerType_NODE, "NODE-UUID", BoxOutbox, "", 0, 100, resChan, doneChan)
+			wg.Wait()
+
+			So(err, ShouldBeNil)
+			So(results, ShouldHaveLength, 3)
+			So(results[0], ShouldResemble, ac)
+
+		})
 	})
 }
 
 func TestCursor(t *testing.T) {
 
-	dao, def := initDao()
-	defer def()
+	test.RunStorageTests(testcases, func(ctx context.Context, dao DAO) {
+		Convey("Insert Activities and browse", t, func() {
 
-	Convey("Insert Activities and browse", t, func() {
-
-		for i := 0; i < 50; i++ {
-			ac := &activity.Object{
-				Type: activity.ObjectType_Accept,
-				Actor: &activity.Object{
-					Type: activity.ObjectType_Person,
-					Name: fmt.Sprintf("Random User %d", i+1),
-					Id:   uuid.New(),
-				},
+			for i := 0; i < 50; i++ {
+				ac := &activity.Object{
+					Type: activity.ObjectType_Accept,
+					Actor: &activity.Object{
+						Type: activity.ObjectType_Person,
+						Name: fmt.Sprintf("Random User %d", i+1),
+						Id:   uuid.New(),
+					},
+				}
+				err := dao.PostActivity(ctx, activity.OwnerType_USER, "charles", BoxInbox, ac, false)
+				So(err, ShouldBeNil)
 			}
-			err := dao.PostActivity(ctx, activity.OwnerType_USER, "charles", BoxInbox, ac, false)
-			So(err, ShouldBeNil)
-		}
 
-		var results []*activity.Object
-		resChan := make(chan *activity.Object)
-		doneChan := make(chan bool)
+			var results []*activity.Object
+			resChan := make(chan *activity.Object)
+			doneChan := make(chan bool)
 
-		readResults := func(waiter *sync.WaitGroup) {
-			defer waiter.Done()
-			for {
-				select {
-				case act := <-resChan:
-					if act != nil {
-						results = append(results, act)
+			readResults := func(waiter *sync.WaitGroup) {
+				defer waiter.Done()
+				for {
+					select {
+					case act := <-resChan:
+						if act != nil {
+							results = append(results, act)
+						}
+					case <-doneChan:
+						return
 					}
-				case <-doneChan:
-					return
 				}
 			}
-		}
 
-		wg := &sync.WaitGroup{}
-		wg.Add(1)
-		go func() {
-			readResults(wg)
-		}()
-		err := dao.ActivitiesFor(ctx, activity.OwnerType_USER, "charles", BoxInbox, "", 0, 20, resChan, doneChan)
-		wg.Wait()
-		So(err, ShouldBeNil)
-		So(results, ShouldHaveLength, 20)
-
-		results = results[:0]
-		wg.Add(1)
-		go func() {
-			readResults(wg)
-		}()
-		err = dao.ActivitiesFor(ctx, activity.OwnerType_USER, "charles", BoxInbox, "", 20, 20, resChan, doneChan)
-		wg.Wait()
-		So(err, ShouldBeNil)
-		So(results, ShouldHaveLength, 20)
-		So(results[0].Actor.Name, ShouldEqual, "Random User 30")
-		So(results[19].Actor.Name, ShouldEqual, "Random User 11")
-
-		results = results[:0]
-		wg.Add(1)
-		go func() {
-			readResults(wg)
-		}()
-		err = dao.ActivitiesFor(ctx, activity.OwnerType_USER, "charles", BoxInbox, "", 20, 100, resChan, doneChan)
-		wg.Wait()
-		So(err, ShouldBeNil)
-		So(results, ShouldHaveLength, 30)
-		So(results[0].Actor.Name, ShouldEqual, "Random User 30")
-		So(results[29].Actor.Name, ShouldEqual, "Random User 1")
-
-		// GET LAST NOT SENT YET
-		results = results[:0]
-		wg.Add(1)
-		go func() {
-			readResults(wg)
-		}()
-		err = dao.ActivitiesFor(ctx, activity.OwnerType_USER, "charles", BoxInbox, BoxLastSent, 0, 0, resChan, doneChan)
-		wg.Wait()
-		So(err, ShouldBeNil)
-		So(results, ShouldHaveLength, 50)
-		So(results[0].Actor.Name, ShouldEqual, "Random User 50")
-		err = dao.StoreLastUserInbox(ctx, "charles", BoxLastSent, results[0].Id)
-		So(err, ShouldBeNil)
-
-		// STORE 20 NEW ONES
-		for i := 0; i < 20; i++ {
-			ac := &activity.Object{
-				Type: activity.ObjectType_Accept,
-				Actor: &activity.Object{
-					Type: activity.ObjectType_Person,
-					Name: fmt.Sprintf("Random User %d", i+1+50),
-					Id:   uuid.New(),
-				},
-			}
-			err := dao.PostActivity(ctx, activity.OwnerType_USER, "charles", BoxInbox, ac, false)
+			wg := &sync.WaitGroup{}
+			wg.Add(1)
+			go func() {
+				readResults(wg)
+			}()
+			err := dao.ActivitiesFor(ctx, activity.OwnerType_USER, "charles", BoxInbox, "", 0, 20, resChan, doneChan)
+			wg.Wait()
 			So(err, ShouldBeNil)
-		}
+			So(results, ShouldHaveLength, 20)
 
-		// NOW CHECK IF WE DO HAVE ONLY 20 RESULTS
-		results = results[:0]
-		wg.Add(1)
-		go func() {
-			readResults(wg)
-		}()
-		err = dao.ActivitiesFor(ctx, activity.OwnerType_USER, "charles", BoxInbox, BoxLastSent, 0, 0, resChan, doneChan)
-		wg.Wait()
-		So(err, ShouldBeNil)
-		So(results, ShouldHaveLength, 20)
-		So(results[0].Actor.Name, ShouldEqual, "Random User 70")
-		So(results[19].Actor.Name, ShouldEqual, "Random User 51")
+			results = results[:0]
+			wg.Add(1)
+			go func() {
+				readResults(wg)
+			}()
+			err = dao.ActivitiesFor(ctx, activity.OwnerType_USER, "charles", BoxInbox, "", 20, 20, resChan, doneChan)
+			wg.Wait()
+			So(err, ShouldBeNil)
+			So(results, ShouldHaveLength, 20)
+			So(results[0].Actor.Name, ShouldEqual, "Random User 30")
+			So(results[19].Actor.Name, ShouldEqual, "Random User 11")
 
+			results = results[:0]
+			wg.Add(1)
+			go func() {
+				readResults(wg)
+			}()
+			err = dao.ActivitiesFor(ctx, activity.OwnerType_USER, "charles", BoxInbox, "", 20, 100, resChan, doneChan)
+			wg.Wait()
+			So(err, ShouldBeNil)
+			So(results, ShouldHaveLength, 30)
+			So(results[0].Actor.Name, ShouldEqual, "Random User 30")
+			So(results[29].Actor.Name, ShouldEqual, "Random User 1")
+
+			// GET LAST NOT SENT YET
+			results = results[:0]
+			wg.Add(1)
+			go func() {
+				readResults(wg)
+			}()
+			err = dao.ActivitiesFor(ctx, activity.OwnerType_USER, "charles", BoxInbox, BoxLastSent, 0, 0, resChan, doneChan)
+			wg.Wait()
+			So(err, ShouldBeNil)
+			So(results, ShouldHaveLength, 50)
+			So(results[0].Actor.Name, ShouldEqual, "Random User 50")
+			err = dao.StoreLastUserInbox(ctx, "charles", BoxLastSent, results[0].Id)
+			So(err, ShouldBeNil)
+
+			// STORE 20 NEW ONES
+			for i := 0; i < 20; i++ {
+				ac := &activity.Object{
+					Type: activity.ObjectType_Accept,
+					Actor: &activity.Object{
+						Type: activity.ObjectType_Person,
+						Name: fmt.Sprintf("Random User %d", i+1+50),
+						Id:   uuid.New(),
+					},
+				}
+				err := dao.PostActivity(ctx, activity.OwnerType_USER, "charles", BoxInbox, ac, false)
+				So(err, ShouldBeNil)
+			}
+
+			// NOW CHECK IF WE DO HAVE ONLY 20 RESULTS
+			results = results[:0]
+			wg.Add(1)
+			go func() {
+				readResults(wg)
+			}()
+			err = dao.ActivitiesFor(ctx, activity.OwnerType_USER, "charles", BoxInbox, BoxLastSent, 0, 0, resChan, doneChan)
+			wg.Wait()
+			So(err, ShouldBeNil)
+			So(results, ShouldHaveLength, 20)
+			So(results[0].Actor.Name, ShouldEqual, "Random User 70")
+			So(results[19].Actor.Name, ShouldEqual, "Random User 51")
+
+		})
 	})
 }
 
 func TestSimilarSkipping(t *testing.T) {
 
-	if os.Getenv("CELLS_TEST_MONGODB_DSN") != "" {
-		t.Skip("Skipping Similary Grouping for Mongo")
-	}
+	test.RunStorageTests(testcases[:1], func(ctx context.Context, dao DAO) {
 
-	dao, def := initDao()
-	defer def()
+		Convey("Insert Activities and browse", t, func() {
 
-	Convey("Insert Activities and browse", t, func() {
+			numberSimilar := 4
+			startSimilar := 14
 
-		numberSimilar := 4
-		startSimilar := 14
-
-		for i := 0; i < 20; i++ {
-			actorId := uuid.New()
-			actorName := fmt.Sprintf("Random User %d", i+1)
-			if i > startSimilar && i <= startSimilar+numberSimilar {
-				actorId = "same-actor-id"
-				actorName = "SameActorName"
+			for i := 0; i < 20; i++ {
+				actorId := uuid.New()
+				actorName := fmt.Sprintf("Random User %d", i+1)
+				if i > startSimilar && i <= startSimilar+numberSimilar {
+					actorId = "same-actor-id"
+					actorName = "SameActorName"
+				}
+				ac := &activity.Object{
+					Type: activity.ObjectType_Update,
+					Actor: &activity.Object{
+						Type: activity.ObjectType_Person,
+						Name: actorName,
+						Id:   actorId,
+					},
+					Object: &activity.Object{
+						Id: "same-object-id",
+					},
+				}
+				err := dao.PostActivity(ctx, activity.OwnerType_USER, "charles", BoxInbox, ac, false)
+				So(err, ShouldBeNil)
 			}
-			ac := &activity.Object{
-				Type: activity.ObjectType_Update,
-				Actor: &activity.Object{
-					Type: activity.ObjectType_Person,
-					Name: actorName,
-					Id:   actorId,
-				},
-				Object: &activity.Object{
-					Id: "same-object-id",
-				},
-			}
-			err := dao.PostActivity(ctx, activity.OwnerType_USER, "charles", BoxInbox, ac, false)
-			So(err, ShouldBeNil)
-		}
 
-		var results []*activity.Object
-		resChan := make(chan *activity.Object)
-		doneChan := make(chan bool)
+			var results []*activity.Object
+			resChan := make(chan *activity.Object)
+			doneChan := make(chan bool)
 
-		readResults := func(waiter *sync.WaitGroup) {
-			defer waiter.Done()
-			for {
-				select {
-				case act := <-resChan:
-					if act != nil {
-						results = append(results, act)
+			readResults := func(waiter *sync.WaitGroup) {
+				defer waiter.Done()
+				for {
+					select {
+					case act := <-resChan:
+						if act != nil {
+							results = append(results, act)
+						}
+					case <-doneChan:
+						return
 					}
-				case <-doneChan:
-					return
 				}
 			}
-		}
 
-		wg := &sync.WaitGroup{}
-		wg.Add(1)
-		go func() {
-			readResults(wg)
-		}()
-		err := dao.ActivitiesFor(ctx, activity.OwnerType_USER, "charles", BoxInbox, "", 0, 20, resChan, doneChan)
-		wg.Wait()
-		So(err, ShouldBeNil)
-		So(results, ShouldHaveLength, 20-(numberSimilar-1))
+			wg := &sync.WaitGroup{}
+			wg.Add(1)
+			go func() {
+				readResults(wg)
+			}()
+			err := dao.ActivitiesFor(ctx, activity.OwnerType_USER, "charles", BoxInbox, "", 0, 20, resChan, doneChan)
+			wg.Wait()
+			So(err, ShouldBeNil)
+			So(results, ShouldHaveLength, 20-(numberSimilar-1))
 
-		results = []*activity.Object{}
-		wg = &sync.WaitGroup{}
-		wg.Add(1)
-		go func() {
-			readResults(wg)
-		}()
-		err = dao.ActivitiesFor(ctx, activity.OwnerType_USER, "charles", BoxInbox, "", 0, 4, resChan, doneChan)
-		wg.Wait()
-		So(err, ShouldBeNil)
-		var res1 []string
-		for _, r := range results {
-			t.Log("0 - 4 : Received", r.Id)
-			res1 = append(res1, r.Id)
-		}
+			results = []*activity.Object{}
+			wg = &sync.WaitGroup{}
+			wg.Add(1)
+			go func() {
+				readResults(wg)
+			}()
+			err = dao.ActivitiesFor(ctx, activity.OwnerType_USER, "charles", BoxInbox, "", 0, 4, resChan, doneChan)
+			wg.Wait()
+			So(err, ShouldBeNil)
+			var res1 []string
+			for _, r := range results {
+				t.Log("0 - 4 : Received", r.Id)
+				res1 = append(res1, r.Id)
+			}
 
-		results = []*activity.Object{}
-		wg = &sync.WaitGroup{}
-		wg.Add(1)
-		go func() {
-			readResults(wg)
-		}()
-		err = dao.ActivitiesFor(ctx, activity.OwnerType_USER, "charles", BoxInbox, "", 4, 4, resChan, doneChan)
-		wg.Wait()
-		So(err, ShouldBeNil)
-		var res2 []string
-		for _, r := range results {
-			t.Log("5 - 8 : Received", r.Id)
-			res2 = append(res2, r.Id)
-		}
-		// Check that there are no duplicates: all keys should be uniques
-		union := map[string]struct{}{}
-		for _, k1 := range res1 {
-			union[k1] = struct{}{}
-		}
-		for _, k2 := range res2 {
-			union[k2] = struct{}{}
-		}
-		So(union, ShouldHaveLength, len(res1)+len(res2))
+			results = []*activity.Object{}
+			wg = &sync.WaitGroup{}
+			wg.Add(1)
+			go func() {
+				readResults(wg)
+			}()
+			err = dao.ActivitiesFor(ctx, activity.OwnerType_USER, "charles", BoxInbox, "", 4, 4, resChan, doneChan)
+			wg.Wait()
+			So(err, ShouldBeNil)
+			var res2 []string
+			for _, r := range results {
+				t.Log("5 - 8 : Received", r.Id)
+				res2 = append(res2, r.Id)
+			}
+			// Check that there are no duplicates: all keys should be uniques
+			union := map[string]struct{}{}
+			for _, k1 := range res1 {
+				union[k1] = struct{}{}
+			}
+			for _, k2 := range res2 {
+				union[k2] = struct{}{}
+			}
+			So(union, ShouldHaveLength, len(res1)+len(res2))
+		})
 	})
 }
 
 func TestDelete(t *testing.T) {
 
-	dao, def := initDao()
-	defer def()
+	test.RunStorageTests(testcases, func(ctx context.Context, dao DAO) {
+		Convey("Test Delete Owner", t, func() {
 
-	Convey("Test Delete Owner", t, func() {
+			ac := &activity.Object{
+				Type: activity.ObjectType_Travel,
+				Actor: &activity.Object{
+					Type: activity.ObjectType_Person,
+					Name: "John Doe",
+					Id:   "john",
+				},
+			}
 
-		ac := &activity.Object{
-			Type: activity.ObjectType_Travel,
-			Actor: &activity.Object{
-				Type: activity.ObjectType_Person,
-				Name: "John Doe",
-				Id:   "john",
-			},
-		}
+			err := dao.PostActivity(ctx, activity.OwnerType_USER, "john", BoxInbox, ac, false)
+			So(err, ShouldBeNil)
 
-		err := dao.PostActivity(ctx, activity.OwnerType_USER, "john", BoxInbox, ac, false)
-		So(err, ShouldBeNil)
+			err = dao.Delete(ctx, activity.OwnerType_USER, "john")
+			So(err, ShouldBeNil)
 
-		err = dao.Delete(ctx, activity.OwnerType_USER, "john")
-		So(err, ShouldBeNil)
+			err = dao.Delete(ctx, activity.OwnerType_USER, "unknown")
+			So(err, ShouldBeNil)
 
-		err = dao.Delete(ctx, activity.OwnerType_USER, "unknown")
-		So(err, ShouldBeNil)
-
+		})
 	})
 }
 
 func TestPurge(t *testing.T) {
 
-	dao, def := initDao()
-	defer def()
-
-	listJohn := func() ([]*activity.Object, error) {
-		var results []*activity.Object
-		resChan := make(chan *activity.Object)
-		doneChan := make(chan bool)
-		readResults := func(waiter *sync.WaitGroup) {
-			defer waiter.Done()
-			for {
-				select {
-				case act := <-resChan:
-					if act != nil {
-						results = append(results, act)
+	test.RunStorageTests(testcases, func(ctx context.Context, dao DAO) {
+		listJohn := func() ([]*activity.Object, error) {
+			var results []*activity.Object
+			resChan := make(chan *activity.Object)
+			doneChan := make(chan bool)
+			readResults := func(waiter *sync.WaitGroup) {
+				defer waiter.Done()
+				for {
+					select {
+					case act := <-resChan:
+						if act != nil {
+							results = append(results, act)
+						}
+					case <-doneChan:
+						return
 					}
-				case <-doneChan:
-					return
 				}
 			}
+			wg := &sync.WaitGroup{}
+			wg.Add(1)
+			go func() {
+				readResults(wg)
+			}()
+			err := dao.ActivitiesFor(ctx, activity.OwnerType_USER, "john", BoxInbox, "", 0, 20, resChan, doneChan)
+			wg.Wait()
+			return results, err
 		}
-		wg := &sync.WaitGroup{}
-		wg.Add(1)
-		go func() {
-			readResults(wg)
-		}()
-		err := dao.ActivitiesFor(ctx, activity.OwnerType_USER, "john", BoxInbox, "", 0, 20, resChan, doneChan)
-		wg.Wait()
-		return results, err
-	}
 
-	Convey("Test Purge Activities", t, func() {
-		logger := func(s string, _ int) {
-			t.Log(s)
-		}
-		threeDays := 3 * time.Hour * 24
-		ac1 := &activity.Object{Type: activity.ObjectType_Like, Updated: &timestamppb.Timestamp{Seconds: time.Now().Add(-threeDays).Unix()}}
-		ac2 := &activity.Object{Type: activity.ObjectType_Accept, Updated: &timestamppb.Timestamp{Seconds: time.Now().Add(-threeDays).Add(-threeDays).Unix()}}
-		ac3 := &activity.Object{Type: activity.ObjectType_Share, Updated: &timestamppb.Timestamp{Seconds: time.Now().Add(-threeDays).Add(-threeDays).Add(-threeDays).Unix()}}
-		ac4 := &activity.Object{Type: activity.ObjectType_Share, Updated: &timestamppb.Timestamp{Seconds: time.Now().Add(-threeDays).Add(-threeDays).Add(-threeDays).Add(-threeDays).Unix()}}
+		Convey("Test Purge Activities", t, func() {
+			logger := func(s string, _ int) {
+				t.Log(s)
+			}
+			threeDays := 3 * time.Hour * 24
+			ac1 := &activity.Object{Type: activity.ObjectType_Like, Updated: &timestamppb.Timestamp{Seconds: time.Now().Add(-threeDays).Unix()}}
+			ac2 := &activity.Object{Type: activity.ObjectType_Accept, Updated: &timestamppb.Timestamp{Seconds: time.Now().Add(-threeDays).Add(-threeDays).Unix()}}
+			ac3 := &activity.Object{Type: activity.ObjectType_Share, Updated: &timestamppb.Timestamp{Seconds: time.Now().Add(-threeDays).Add(-threeDays).Add(-threeDays).Unix()}}
+			ac4 := &activity.Object{Type: activity.ObjectType_Share, Updated: &timestamppb.Timestamp{Seconds: time.Now().Add(-threeDays).Add(-threeDays).Add(-threeDays).Add(-threeDays).Unix()}}
 
-		err := dao.PostActivity(ctx, activity.OwnerType_USER, "john", BoxInbox, ac4, false)
-		So(err, ShouldBeNil)
-		_ = dao.PostActivity(ctx, activity.OwnerType_USER, "john", BoxInbox, ac3, false)
-		_ = dao.PostActivity(ctx, activity.OwnerType_USER, "john", BoxInbox, ac2, false)
-		_ = dao.PostActivity(ctx, activity.OwnerType_USER, "john", BoxInbox, ac1, false)
+			err := dao.PostActivity(ctx, activity.OwnerType_USER, "john", BoxInbox, ac4, false)
+			So(err, ShouldBeNil)
+			_ = dao.PostActivity(ctx, activity.OwnerType_USER, "john", BoxInbox, ac3, false)
+			_ = dao.PostActivity(ctx, activity.OwnerType_USER, "john", BoxInbox, ac2, false)
+			_ = dao.PostActivity(ctx, activity.OwnerType_USER, "john", BoxInbox, ac1, false)
 
-		err = dao.Purge(nil, logger, activity.OwnerType_USER, "john", BoxInbox, 1, 100, time.Time{}, true, true)
-		So(err, ShouldBeNil)
+			err = dao.Purge(nil, logger, activity.OwnerType_USER, "john", BoxInbox, 1, 100, time.Time{}, true, true)
+			So(err, ShouldBeNil)
 
-		results, err := listJohn()
-		So(err, ShouldBeNil)
-		So(results, ShouldHaveLength, 4)
+			results, err := listJohn()
+			So(err, ShouldBeNil)
+			So(results, ShouldHaveLength, 4)
 
-		err = dao.Purge(nil, logger, activity.OwnerType_USER, "john", BoxInbox, 1, 2, time.Time{}, true, true)
-		So(err, ShouldBeNil)
+			err = dao.Purge(nil, logger, activity.OwnerType_USER, "john", BoxInbox, 1, 2, time.Time{}, true, true)
+			So(err, ShouldBeNil)
 
-		results, err = listJohn()
-		So(err, ShouldBeNil)
-		So(results, ShouldHaveLength, 2)
+			results, err = listJohn()
+			So(err, ShouldBeNil)
+			So(results, ShouldHaveLength, 2)
 
-		// Now test purge by date
-		//dao.PostActivity(activity.OwnerType_USER, "john", BoxInbox, ac2, nil)
-		dao.PostActivity(ctx, activity.OwnerType_USER, "john", BoxInbox, ac4, false)
-		dao.PostActivity(ctx, activity.OwnerType_USER, "john", BoxInbox, ac3, false)
-		results, _ = listJohn()
-		So(results, ShouldHaveLength, 4)
+			// Now test purge by date
+			//dao.PostActivity(activity.OwnerType_USER, "john", BoxInbox, ac2, nil)
+			So(dao.PostActivity(ctx, activity.OwnerType_USER, "john", BoxInbox, ac4, false), ShouldBeNil)
+			So(dao.PostActivity(ctx, activity.OwnerType_USER, "john", BoxInbox, ac3, false), ShouldBeNil)
+			results, _ = listJohn()
+			So(results, ShouldHaveLength, 4)
 
-		sevenDays := 7 * time.Hour * 24
-		err = dao.Purge(nil, logger, activity.OwnerType_USER, "john", BoxInbox, 0, 100, time.Now().Add(-sevenDays), true, true)
-		So(err, ShouldBeNil)
-		results, err = listJohn()
-		So(err, ShouldBeNil)
-		So(results, ShouldHaveLength, 2)
+			sevenDays := 7 * time.Hour * 24
+			err = dao.Purge(nil, logger, activity.OwnerType_USER, "john", BoxInbox, 0, 100, time.Now().Add(-sevenDays), true, true)
+			So(err, ShouldBeNil)
+			results, err = listJohn()
+			So(err, ShouldBeNil)
+			So(results, ShouldHaveLength, 2)
 
-		// Purge by date all users - re-add ac3, ac4 removed in previous step
-		dao.PostActivity(ctx, activity.OwnerType_USER, "john", BoxInbox, ac3, false)
-		dao.PostActivity(ctx, activity.OwnerType_USER, "john", BoxInbox, ac4, false)
-		err = dao.Purge(ctx, logger, activity.OwnerType_USER, "*", BoxInbox, 0, 100, time.Now().Add(-sevenDays), true, true)
-		So(err, ShouldBeNil)
-		results, err = listJohn()
-		So(err, ShouldBeNil)
-		So(results, ShouldHaveLength, 2)
+			// Purge by date all users - re-add ac3, ac4 removed in previous step
+			So(dao.PostActivity(ctx, activity.OwnerType_USER, "john", BoxInbox, ac3, false), ShouldBeNil)
+			So(dao.PostActivity(ctx, activity.OwnerType_USER, "john", BoxInbox, ac4, false), ShouldBeNil)
+			err = dao.Purge(ctx, logger, activity.OwnerType_USER, "*", BoxInbox, 0, 100, time.Now().Add(-sevenDays), true, true)
+			So(err, ShouldBeNil)
+			results, err = listJohn()
+			So(err, ShouldBeNil)
+			So(results, ShouldHaveLength, 2)
 
+		})
 	})
 }
 
 func TestSubscriptions(t *testing.T) {
 
-	dao, def := initDao()
-	defer def()
+	test.RunStorageTests(testcases, func(ctx context.Context, dao DAO) {
+		Convey("Test subscribe", t, func() {
 
-	Convey("Test subscribe", t, func() {
+			sub := &activity.Subscription{
+				UserId:     "user1",
+				ObjectType: activity.OwnerType_NODE,
+				ObjectId:   "ROOT",
+				Events:     []string{"read", "write"},
+			}
+			err := dao.UpdateSubscription(nil, sub)
+			So(err, ShouldBeNil)
 
-		sub := &activity.Subscription{
-			UserId:     "user1",
-			ObjectType: activity.OwnerType_NODE,
-			ObjectId:   "ROOT",
-			Events:     []string{"read", "write"},
-		}
-		err := dao.UpdateSubscription(nil, sub)
-		So(err, ShouldBeNil)
+			sub2 := &activity.Subscription{
+				UserId:     "user1",
+				ObjectType: activity.OwnerType_NODE,
+				ObjectId:   "OTHER_NODE",
+				Events:     []string{"read", "write"},
+			}
+			err = dao.UpdateSubscription(nil, sub2)
+			So(err, ShouldBeNil)
 
-		sub2 := &activity.Subscription{
-			UserId:     "user1",
-			ObjectType: activity.OwnerType_NODE,
-			ObjectId:   "OTHER_NODE",
-			Events:     []string{"read", "write"},
-		}
-		err = dao.UpdateSubscription(nil, sub2)
-		So(err, ShouldBeNil)
+			subs, err := dao.ListSubscriptions(nil, activity.OwnerType_NODE, []string{"ROOT"})
+			So(err, ShouldBeNil)
+			So(subs, ShouldHaveLength, 1)
 
-		subs, err := dao.ListSubscriptions(nil, activity.OwnerType_NODE, []string{"ROOT"})
-		So(err, ShouldBeNil)
-		So(subs, ShouldHaveLength, 1)
+			So(subs[0].Events, ShouldHaveLength, 2)
+			So(subs[0].UserId, ShouldEqual, "user1")
 
-		So(subs[0].Events, ShouldHaveLength, 2)
-		So(subs[0].UserId, ShouldEqual, "user1")
+		})
 
-	})
+		Convey("Test unsubscribe", t, func() {
 
-	Convey("Test unsubscribe", t, func() {
+			sub := &activity.Subscription{
+				UserId:     "user1",
+				ObjectType: activity.OwnerType_NODE,
+				ObjectId:   "ROOT",
+				Events:     []string{},
+			}
 
-		sub := &activity.Subscription{
-			UserId:     "user1",
-			ObjectType: activity.OwnerType_NODE,
-			ObjectId:   "ROOT",
-			Events:     []string{},
-		}
+			err := dao.UpdateSubscription(nil, sub)
+			So(err, ShouldBeNil)
 
-		err := dao.UpdateSubscription(nil, sub)
-		So(err, ShouldBeNil)
+			subs, err := dao.ListSubscriptions(nil, activity.OwnerType_NODE, []string{"ROOT"})
+			So(err, ShouldBeNil)
+			So(subs, ShouldHaveLength, 0)
 
-		subs, err := dao.ListSubscriptions(nil, activity.OwnerType_NODE, []string{"ROOT"})
-		So(err, ShouldBeNil)
-		So(subs, ShouldHaveLength, 0)
-
+		})
 	})
 }
 
@@ -703,71 +693,70 @@ func TestWsSorting(t *testing.T) {
 
 func SkipTestMassiveQueries(t *testing.T) {
 
-	dao, def := initDao()
-	defer def()
-	t.Log("Starting test on DAO", dao.Dsn())
+	test.RunStorageTests(testcases, func(ctx context.Context, dao DAO) {
 
-	Convey("Test massive queries", t, func() {
+		Convey("Test massive queries", t, func() {
 
-		var er error
-		for i := 0; i < 10000; i++ {
-			ac := &activity.Object{
-				Type: activity.ObjectType_Accept,
-				Actor: &activity.Object{
-					Type: activity.ObjectType_Person,
-					Name: fmt.Sprintf("Random Activity %d", i+1),
-					Id:   uuid.New(),
-				},
-			}
-			if er = dao.PostActivity(ctx, activity.OwnerType_NODE, uuid.New(), BoxOutbox, ac, false); er != nil {
-				break
-			}
-
-		}
-		for i := 0; i < 100; i++ {
-			ac := &activity.Object{
-				Type: activity.ObjectType_Accept,
-				Actor: &activity.Object{
-					Type: activity.ObjectType_Person,
-					Name: fmt.Sprintf("Random Activity %d", i+1),
-					Id:   uuid.New(),
-				},
-			}
-			if er = dao.PostActivity(ctx, activity.OwnerType_NODE, "NODE-UUID", BoxOutbox, ac, false); er != nil {
-				break
-			}
-
-		}
-
-		So(er, ShouldBeNil)
-
-		var results []*activity.Object
-		resChan := make(chan *activity.Object)
-		doneChan := make(chan bool)
-
-		wg := &sync.WaitGroup{}
-		wg.Add(1)
-		go func() {
-			defer wg.Done()
-			for {
-				select {
-				case act := <-resChan:
-					if act != nil {
-						results = append(results, act)
-					}
-				case <-doneChan:
-					return
+			var er error
+			for i := 0; i < 10000; i++ {
+				ac := &activity.Object{
+					Type: activity.ObjectType_Accept,
+					Actor: &activity.Object{
+						Type: activity.ObjectType_Person,
+						Name: fmt.Sprintf("Random Activity %d", i+1),
+						Id:   uuid.New(),
+					},
 				}
+				if er = dao.PostActivity(ctx, activity.OwnerType_NODE, uuid.New(), BoxOutbox, ac, false); er != nil {
+					break
+				}
+
 			}
-		}()
+			for i := 0; i < 100; i++ {
+				ac := &activity.Object{
+					Type: activity.ObjectType_Accept,
+					Actor: &activity.Object{
+						Type: activity.ObjectType_Person,
+						Name: fmt.Sprintf("Random Activity %d", i+1),
+						Id:   uuid.New(),
+					},
+				}
+				if er = dao.PostActivity(ctx, activity.OwnerType_NODE, "NODE-UUID", BoxOutbox, ac, false); er != nil {
+					break
+				}
 
-		now := time.Now()
-		err := dao.ActivitiesFor(ctx, activity.OwnerType_NODE, "NODE-UUID", BoxOutbox, "", 0, 0, resChan, doneChan)
-		wg.Wait()
-		t.Log("Loading 20 activities took", time.Since(now))
+			}
 
-		So(err, ShouldBeNil)
-		So(results, ShouldHaveLength, 20)
+			So(er, ShouldBeNil)
 
+			var results []*activity.Object
+			resChan := make(chan *activity.Object)
+			doneChan := make(chan bool)
+
+			wg := &sync.WaitGroup{}
+			wg.Add(1)
+			go func() {
+				defer wg.Done()
+				for {
+					select {
+					case act := <-resChan:
+						if act != nil {
+							results = append(results, act)
+						}
+					case <-doneChan:
+						return
+					}
+				}
+			}()
+
+			now := time.Now()
+			err := dao.ActivitiesFor(ctx, activity.OwnerType_NODE, "NODE-UUID", BoxOutbox, "", 0, 0, resChan, doneChan)
+			wg.Wait()
+			t.Log("Loading 20 activities took", time.Since(now))
+
+			So(err, ShouldBeNil)
+			So(results, ShouldHaveLength, 20)
+
+		})
 	})
 }

@@ -109,3 +109,7 @@ func MustOpenPool(u string, opt ...openurl.PoolOption) *openurl.Pool[Cache] {
 		return p
 	}
 }
+
+func MustOpenNonExpirableMemory() *openurl.Pool[Cache] {
+	return MustOpenPool("pm://?evictionTime=-1&tenant={{ .Value \"tenant\" }}")
+}

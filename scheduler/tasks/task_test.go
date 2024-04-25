@@ -25,26 +25,26 @@ import (
 	"testing"
 	"time"
 
-	"github.com/cskr/pubsub"
-	. "github.com/smartystreets/goconvey/convey"
 	"google.golang.org/protobuf/types/known/anypb"
 
 	"github.com/pydio/cells/v4/common/proto/jobs"
 	"github.com/pydio/cells/v4/common/proto/tree"
-	"github.com/pydio/cells/v4/common/service/context"
+	servercontext "github.com/pydio/cells/v4/common/server/context"
+	servicecontext "github.com/pydio/cells/v4/common/service/context"
 	"github.com/pydio/cells/v4/common/service/context/metadata"
 
-	// registered default scheduler actions
 	_ "github.com/pydio/cells/v4/scheduler/actions/scheduler"
+
+	. "github.com/smartystreets/goconvey/convey"
 )
 
 func TestMain(m *testing.M) {
-	PubSub = pubsub.New(1)
+	TestDisableTaskClient = true
 	m.Run()
 }
 
 var (
-	runtimeCtx = context.Background()
+	runtimeCtx = servercontext.WithTenant(context.Background(), "test")
 )
 
 func TestNewTaskFromEvent(t *testing.T) {
@@ -182,13 +182,13 @@ func TestTask_Save(t *testing.T) {
 
 		event := &jobs.JobTriggerEvent{JobID: "ajob"}
 		task := NewTaskFromEvent(runtimeCtx, context.Background(), &jobs.Job{ID: "ajob"}, event)
-		ch := PubSub.Sub(PubSubTopicTaskStatuses)
+		ch := GetBus(runtimeCtx).Sub(PubSubTopicTaskStatuses)
 		task.Save()
 		read := <-ch
 		rt, o := read.(*jobs.Task)
 		So(o, ShouldBeTrue)
 		So(rt.ID, ShouldEqual, task.task.ID)
-		PubSub.Unsub(ch, PubSubTopicTaskStatuses)
+		GetBus(runtimeCtx).Unsub(ch, PubSubTopicTaskStatuses)
 
 	})
 
@@ -196,7 +196,7 @@ func TestTask_Save(t *testing.T) {
 
 		event := &jobs.JobTriggerEvent{JobID: "ajob"}
 		task := NewTaskFromEvent(runtimeCtx, context.Background(), &jobs.Job{ID: "ajob"}, event)
-		ch := PubSub.Sub(PubSubTopicTaskStatuses)
+		ch := GetBus(runtimeCtx).Sub(PubSubTopicTaskStatuses)
 		runnableCtx := metadata.WithAdditionalMetadata(runtimeCtx, map[string]string{servicecontext.ContextMetaTaskActionPath: "action-path"})
 		task.SaveStatus(runnableCtx, jobs.TaskStatus_Running)
 		read := <-ch
@@ -205,7 +205,7 @@ func TestTask_Save(t *testing.T) {
 		So(rt.ID, ShouldEqual, task.task.ID)
 		So(rt.RunnableContext, ShouldNotBeNil)
 		So(rt.RunnableStatus, ShouldEqual, jobs.TaskStatus_Running)
-		PubSub.Unsub(ch, PubSubTopicTaskStatuses)
+		GetBus(runtimeCtx).Unsub(ch, PubSubTopicTaskStatuses)
 
 	})
 }
@@ -214,7 +214,7 @@ func TestTask_EnqueueRunnables(t *testing.T) {
 
 	Convey("Test Enqueue Runnables", t, func(c C) {
 
-		saveChannel := PubSub.Sub(PubSubTopicTaskStatuses)
+		saveChannel := GetBus(runtimeCtx).Sub(PubSubTopicTaskStatuses)
 		output := make(chan RunnerFunc, 1)
 		event := &jobs.JobTriggerEvent{JobID: "ajob"}
 		task := NewTaskFromEvent(runtimeCtx, context.Background(), &jobs.Job{
@@ -240,7 +240,7 @@ func TestTask_EnqueueRunnables(t *testing.T) {
 		So(o, ShouldBeTrue)
 		So(rt.ID, ShouldEqual, task.task.ID)
 
-		PubSub.Unsub(saveChannel, PubSubTopicTaskStatuses)
+		GetBus(runtimeCtx).Unsub(saveChannel, PubSubTopicTaskStatuses)
 
 	})
 

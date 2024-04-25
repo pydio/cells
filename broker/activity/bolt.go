@@ -46,8 +46,8 @@ type boltdbimpl struct {
 // Init the storage
 func (dao *boltdbimpl) Init(ctx context.Context, options configx.Values) error {
 
-	// Update defaut inbox max size if set in the config
-	dao.InboxMaxSize = options.Val("InboxMaxSize").Default(dao.InboxMaxSize).Int64()
+	// Update defaut inbox max size if set in the config - TODO
+	// dao.InboxMaxSize = options.Val("InboxMaxSize").Default(dao.InboxMaxSize).Int64()
 
 	dao.DB.Update(func(tx *bolt.Tx) error {
 		_, err := tx.CreateBucketIfNotExists([]byte(activity.OwnerType_USER.String()))

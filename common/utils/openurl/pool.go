@@ -110,7 +110,7 @@ func (m *Pool[T]) Get(ctx context.Context, resolutionData ...map[string]interfac
 }
 
 // Close closes all underlying resources
-func (m *Pool[T]) Close(ctx context.Context) error {
+func (m *Pool[T]) Close(ctx context.Context, iterate ...func(key string, res T) error) error {
 	if m.stopJanitor != nil {
 		m.stopJanitor()
 	}
@@ -120,6 +120,11 @@ func (m *Pool[T]) Close(ctx context.Context) error {
 	for key, res := range m.pool {
 		if er := res.t.Close(ctx); er != nil {
 			errString = append(errString, er.Error())
+		}
+		for _, it := range iterate {
+			if er := it(key, res.t); er != nil {
+				errString = append(errString, er.Error())
+			}
 		}
 		delete(m.pool, key)
 	}

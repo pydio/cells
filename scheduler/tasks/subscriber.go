@@ -24,10 +24,7 @@ import (
 	"context"
 	"fmt"
 	"strings"
-	"sync"
-	"time"
 
-	"github.com/cskr/pubsub"
 	"go.uber.org/zap"
 	"google.golang.org/protobuf/proto"
 	"google.golang.org/protobuf/types/known/anypb"
@@ -46,6 +43,8 @@ import (
 	runtimecontext "github.com/pydio/cells/v4/common/runtime/runtimecontext"
 	servicecontext "github.com/pydio/cells/v4/common/service/context"
 	"github.com/pydio/cells/v4/common/service/context/metadata"
+	"github.com/pydio/cells/v4/common/utils/cache"
+	"github.com/pydio/cells/v4/common/utils/openurl"
 	"github.com/pydio/cells/v4/common/utils/permissions"
 	"github.com/pydio/cells/v4/common/utils/std"
 )
@@ -55,28 +54,6 @@ const (
 	PubSubTopicControl      = "control"
 )
 
-var (
-	PubSub *pubsub.PubSub
-)
-
-// UnSubWithFlush wraps PubSub.Unsub with a select to make sure all messages are consumed before unsubscribing.
-func UnSubWithFlush(ch chan interface{}, topics ...string) {
-consume:
-	for {
-		select {
-		case _, ok := <-ch:
-			if !ok {
-				break consume
-			}
-			//fmt.Println("Unsub", topics, "there was still something to consume...")
-		case <-time.After(3 * time.Second):
-			//fmt.Println("Unsub", topics, "Break loop...")
-			break consume
-		}
-	}
-	PubSub.Unsub(ch, topics...)
-}
-
 type ContextJobParametersKey struct{}
 
 // Subscriber handles incoming events, applies selectors if any
@@ -84,11 +61,14 @@ type ContextJobParametersKey struct{}
 type Subscriber struct {
 	rootCtx context.Context
 
-	sync.RWMutex
-	definitions map[string]*jobs.Job
+	//sync.RWMutex
+	//definitions map[string]*jobs.Job
 
-	dispatcherLock sync.Mutex
-	dispatchers    map[string]*Dispatcher
+	definitionsPool *openurl.Pool[cache.Cache]
+	dispatchersPool *openurl.Pool[cache.Cache]
+
+	//	dispatcherLock sync.Mutex
+	//	dispatchers    map[string]*Dispatcher
 }
 
 // NewSubscriber creates a multiplexer for tasks managements and messages
@@ -96,12 +76,12 @@ type Subscriber struct {
 func NewSubscriber(parentContext context.Context) *Subscriber {
 
 	s := &Subscriber{
-		definitions: make(map[string]*jobs.Job),
+		definitionsPool: cache.MustOpenNonExpirableMemory(),
+		dispatchersPool: cache.MustOpenNonExpirableMemory(),
+		//definitions: make(map[string]*jobs.Job),
 		//queue:       make(chan Runnable),
-		dispatchers: make(map[string]*Dispatcher),
+		//dispatchers: make(map[string]*Dispatcher),
 	}
-
-	PubSub = pubsub.New(0)
 
 	s.rootCtx = context.WithValue(parentContext, common.PydioContextUserKey, common.PydioSystemUsername)
 
@@ -128,8 +108,7 @@ func NewSubscriber(parentContext context.Context) *Subscriber {
 			if event.Type == tree.NodeChangeEvent_DELETE && event.Source.HasMetaKey(common.MetaNamespaceDatasourceInternal) {
 				return nil
 			}
-			s.processNodeEvent(metadata.NewContext(s.rootCtx, md), event)
-			return nil
+			return s.processNodeEvent(metadata.NewContext(s.rootCtx, md), event)
 		} else {
 			return e
 		}
@@ -155,7 +134,7 @@ func NewSubscriber(parentContext context.Context) *Subscriber {
 		target := &tree.NodeChangeEvent{}
 		md, bb := message.RawData()
 		if e := proto.Unmarshal(bb, target); e == nil && (target.Type == tree.NodeChangeEvent_UPDATE_META || target.Type == tree.NodeChangeEvent_UPDATE_USER_META) {
-			s.processNodeEvent(metadata.NewContext(s.rootCtx, md), target)
+			return s.processNodeEvent(metadata.NewContext(s.rootCtx, md), target)
 		}
 		return nil
 	}, queueOpt, broker.WithAsyncSubscriberInterceptor(mpq, mpqFallback), counterOpt)
@@ -168,12 +147,11 @@ func NewSubscriber(parentContext context.Context) *Subscriber {
 		return nil
 	}, queueOpt, counterOpt)
 
-	s.taskChannelSubscription()
-
 	return s
 }
 
-// Init subscriber with current list of jobs from Jobs service
+// Init subscriber with current list of jobs from Jobs service **for a given Tenant context**
+// Todo: trigger for each tenant....
 func (s *Subscriber) Init(ctx context.Context) error {
 
 	// Load Jobs Definitions
@@ -182,10 +160,7 @@ func (s *Subscriber) Init(ctx context.Context) error {
 	if e != nil {
 		return e
 	}
-	s.Lock()
-	s.dispatcherLock.Lock()
-	defer s.Unlock()
-	defer s.dispatcherLock.Unlock()
+	defCache, _ := s.definitionsPool.Get(ctx)
 	for {
 		resp, er := streamer.Recv()
 		if er != nil {
@@ -197,8 +172,9 @@ func (s *Subscriber) Init(ctx context.Context) error {
 		if resp.Job.Inactive {
 			continue
 		}
-		s.definitions[resp.Job.ID] = resp.Job
-		s.getDispatcherForJob(resp.Job, false)
+		_ = defCache.Set(resp.Job.ID, resp.Job)
+		//s.definitions[resp.Job.ID] = resp.Job
+		s.getDispatcherForJob(ctx, resp.Job)
 	}
 
 	return nil
@@ -207,15 +183,18 @@ func (s *Subscriber) Init(ctx context.Context) error {
 
 // Stop closes internal EventsBatcher
 func (s *Subscriber) Stop() {
-	s.dispatcherLock.Lock()
-	for _, d := range s.dispatchers {
-		d.Stop()
-	}
-	s.dispatcherLock.Unlock()
+	// Range over all caches and stop all dispatchers
+	_ = s.dispatchersPool.Close(s.rootCtx, func(key string, res cache.Cache) error {
+		return res.Iterate(func(_ string, val interface{}) {
+			if d, o := val.(*Dispatcher); o {
+				d.Stop()
+			}
+		})
+	})
 }
 
 func (s *Subscriber) enqueue(ctx context.Context, job *jobs.Job, event proto.Message) {
-	dispatcher := s.getDispatcherForJob(job, true)
+	dispatcher := s.getDispatcherForJob(ctx, job)
 	if dispatcher.fifo != nil {
 		_ = dispatcher.fifo.Push(ctx, event)
 	} else {
@@ -224,22 +203,11 @@ func (s *Subscriber) enqueue(ctx context.Context, job *jobs.Job, event proto.Mes
 	}
 }
 
-// taskChannelSubscription uses PubSub library to receive update messages from tasks
-func (s *Subscriber) taskChannelSubscription() {
-	ch := PubSub.Sub(PubSubTopicTaskStatuses)
-	cli := NewTaskReconnectingClient(s.rootCtx)
-	cli.StartListening(ch)
-}
-
 // getDispatcherForJob creates a new dispatcher for a job
-func (s *Subscriber) getDispatcherForJob(job *jobs.Job, lock bool) *Dispatcher {
-
-	if lock {
-		s.dispatcherLock.Lock()
-		defer s.dispatcherLock.Unlock()
-	}
-
-	if d, exists := s.dispatchers[job.ID]; exists {
+func (s *Subscriber) getDispatcherForJob(ctx context.Context, job *jobs.Job) *Dispatcher {
+	dispCache, _ := s.dispatchersPool.Get(ctx)
+	var d *Dispatcher
+	if exists := dispCache.Get(job.ID, d); exists {
 		return d
 	}
 	maxWorkers := DefaultMaximumWorkers
@@ -251,35 +219,40 @@ func (s *Subscriber) getDispatcherForJob(job *jobs.Job, lock bool) *Dispatcher {
 		"jobID":   job.ID,
 	}
 	dispatcher := NewDispatcher(s.rootCtx, maxWorkers, job, tags)
-	s.dispatchers[job.ID] = dispatcher
+	_ = dispCache.Set(job.ID, dispatcher)
 	dispatcher.Run()
 	return dispatcher
 }
 
 // Job Configuration was updated, react accordingly
 func (s *Subscriber) jobsChangeEvent(ctx context.Context, msg *jobs.JobChangeEvent) error {
-	s.Lock()
-	s.dispatcherLock.Lock()
+	defCache, _ := s.definitionsPool.Get(ctx)
+	dispCache, _ := s.dispatchersPool.Get(ctx)
+	//s.Lock()
+	//s.dispatcherLock.Lock()
 	// Update config
 	if msg.JobRemoved != "" {
-		delete(s.definitions, msg.JobRemoved)
-		if dispatcher, ok := s.dispatchers[msg.JobRemoved]; ok {
-			dispatcher.Stop()
-			delete(s.dispatchers, msg.JobRemoved)
+		_ = defCache.Delete(msg.JobRemoved)
+		var disp *Dispatcher
+		if ok := dispCache.Get(msg.JobRemoved, disp); ok {
+			disp.Stop()
+			_ = dispCache.Delete(msg.JobRemoved)
 		}
 	}
 	if msg.JobUpdated != nil {
-		s.definitions[msg.JobUpdated.ID] = msg.JobUpdated
-		if dispatcher, ok := s.dispatchers[msg.JobUpdated.ID]; ok {
-			dispatcher.Stop()
-			delete(s.dispatchers, msg.JobUpdated.ID)
+		_ = defCache.Set(msg.JobUpdated.ID, msg.JobUpdated)
+		//s.definitions[msg.JobUpdated.ID] = msg.JobUpdated
+		var disp *Dispatcher
+		if ok := dispCache.Get(msg.JobRemoved, disp); ok {
+			disp.Stop()
+			_ = dispCache.Delete(msg.JobRemoved)
 			if !msg.JobUpdated.Inactive {
-				s.getDispatcherForJob(msg.JobUpdated, false)
+				s.getDispatcherForJob(ctx, msg.JobUpdated)
 			}
 		}
 	}
-	s.dispatcherLock.Unlock()
-	s.Unlock()
+	//s.dispatcherLock.Unlock()
+	//s.Unlock()
 	// AutoStart if required
 	if msg.JobUpdated != nil && !msg.JobUpdated.Inactive && msg.JobUpdated.AutoStart {
 		if e := s.timerEvent(ctx, &jobs.JobTriggerEvent{JobID: msg.JobUpdated.ID, RunNow: true}); e != nil {
@@ -333,17 +306,18 @@ func (s *Subscriber) prepareTaskContext(ctx context.Context, job *jobs.Job, addS
 func (s *Subscriber) timerEvent(ctx context.Context, event *jobs.JobTriggerEvent) error {
 	jobId := event.JobID
 	// Load Job Data, build selectors
-	s.Lock()
-	defer s.Unlock()
-	j, ok := s.definitions[jobId]
-	if !ok {
-		// Try to load definition directly for JobsService
+	defCache, _ := s.definitionsPool.Get(ctx)
+	var j *jobs.Job
+	if ok := defCache.Get(jobId, j); !ok {
+		// Not in cache, load definition directly for JobsService
 		jobClients := jobs.NewJobServiceClient(grpc.ResolveConn(s.rootCtx, common.ServiceJobs))
 		resp, e := jobClients.GetJob(ctx, &jobs.GetJobRequest{JobID: jobId})
 		if e != nil || resp.Job == nil {
-			return nil
+			return e
 		}
 		j = resp.Job
+		// Store in cache?
+		_ = defCache.Set(jobId, j)
 		// Shall we prepare dispatcher  ?
 		// s.getDispatcherForJob(j, false)
 	}
@@ -368,33 +342,14 @@ func (s *Subscriber) timerEvent(ctx context.Context, event *jobs.JobTriggerEvent
 	return nil
 }
 
-// nodeEvent reacts to a trigger linked to a nodeChange event.
-func (s *Subscriber) nodeEvent(ctx context.Context, event *tree.NodeChangeEvent) error {
-
-	if event.Optimistic {
-		return nil
-	}
-
-	// Always ignore events on Temporary nodes and internal nodes
-	if event.Target != nil && (event.Target.Etag == common.NodeFlagEtagTemporary || event.Target.HasMetaKey(common.MetaNamespaceDatasourceInternal)) {
-		return nil
-	}
-	if event.Type == tree.NodeChangeEvent_DELETE && event.Source.HasMetaKey(common.MetaNamespaceDatasourceInternal) {
-		return nil
-	}
-
-	return nil
-}
-
 // processNodeEvent actually process batched events
-func (s *Subscriber) processNodeEvent(ctx context.Context, event *tree.NodeChangeEvent) {
+func (s *Subscriber) processNodeEvent(ctx context.Context, event *tree.NodeChangeEvent) error {
 
-	s.Lock()
-	defer s.Unlock()
-
-	for jobId, jobData := range s.definitions {
-		if jobData.Inactive {
-			continue
+	defCache, _ := s.definitionsPool.Get(ctx)
+	return defCache.Iterate(func(jobId string, val interface{}) {
+		jobData, ok := val.(*jobs.Job)
+		if !ok || jobData.Inactive {
+			return
 		}
 		sameJobUuid := s.contextJobSameUuid(ctx, jobId)
 		tCtx := s.prepareTaskContext(ctx, jobData, false)
@@ -412,47 +367,49 @@ func (s *Subscriber) processNodeEvent(ctx context.Context, event *tree.NodeChang
 			}
 		}
 		if eventMatch == "" {
-			continue
+			return
 		}
 		if err := s.requiresUnsupportedCapacity(ctx, jobData); err != nil {
-			continue
+			return
 		}
 		if jobData.ContextMetaFilter != nil && !s.jobLevelContextFilterPass(tCtx, jobData.ContextMetaFilter) {
-			continue
+			return
 		}
 		if jobData.NodeEventFilter != nil && !s.jobLevelFilterPass(tCtx, event, jobData.NodeEventFilter) {
-			continue
+			return
 		}
 		if jobData.IdmFilter != nil && !s.jobLevelIdmFilterPass(tCtx, createMessageFromEvent(event), jobData.IdmFilter) {
-			continue
+			return
 		}
 		if jobData.DataSourceFilter != nil && !s.jobLevelDataSourceFilterPass(ctx, event, jobData.DataSourceFilter) {
-			continue
+			return
 		}
 
 		log.Logger(tCtx).Debug("Run Job " + jobId + " on event " + eventMatch)
 		s.enqueue(tCtx, jobData, event)
-	}
+	})
 
 }
 
 // idmEvent Reacts to a trigger linked to a nodeChange event.
 func (s *Subscriber) idmEvent(ctx context.Context, event *idm.ChangeEvent) error {
 
-	s.Lock()
-	defer s.Unlock()
-
-	for jobId, jobData := range s.definitions {
+	defCache, _ := s.definitionsPool.Get(ctx)
+	return defCache.Iterate(func(jobId string, val interface{}) {
+		jobData, ok := val.(*jobs.Job)
+		if !ok || jobData.Inactive {
+			return
+		}
 		if jobData.Inactive {
-			continue
+			return
 		}
 		sameJob := s.contextJobSameUuid(ctx, jobId)
 		tCtx := s.prepareTaskContext(ctx, jobData, true)
 		if jobData.ContextMetaFilter != nil && !s.jobLevelContextFilterPass(tCtx, jobData.ContextMetaFilter) {
-			continue
+			return
 		}
 		if jobData.IdmFilter != nil && !s.jobLevelIdmFilterPass(tCtx, createMessageFromEvent(event), jobData.IdmFilter) {
-			continue
+			return
 		}
 		for _, eName := range jobData.EventNames {
 			if jobs.MatchesIdmChangeEvent(eName, event) {
@@ -467,8 +424,7 @@ func (s *Subscriber) idmEvent(ctx context.Context, event *idm.ChangeEvent) error
 				s.enqueue(tCtx, jobData, event)
 			}
 		}
-	}
-	return nil
+	})
 }
 
 // jobLevelFilterPass checks if a node must go through jobs at all (if there is a NodesSelector on the job level)

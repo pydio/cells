@@ -70,16 +70,14 @@ func init() {
 					Up:            registerDigestJob,
 				},
 			}),
-			service.WithStorageDrivers(activity.NewBoltDAO),
-			//service.WithDefaultStorageConn("bolt"), >> CONFIG.YAML : bolt + le chemin par défaut
+			service.WithStorageDrivers(activity.NewBoltDAO, activity.NewMongoDAO),
+			service.WithStorageMigrator(activity.Migrate),
 			/*
 				service.WithStorage("bolt", activity.NewBoltDAO,
 					service.WithStoragePrefix("activity"),
-					//				service.WithStorageSupport(boltdb.Driver, mongodb.Driver),
-					//				service.WithStorageMigrator(activity.Migrate),
-					//				service.WithStorageDefaultDriver(func() (string, string) {
-					//					return boltdb.Driver, filepath.Join(runtime.MustServiceDataDir(Name), "activities.db")
-					//				}),
+					service.WithStorageDefaultDriver(func() (string, string) {
+						return boltdb.Driver, filepath.Join(runtime.MustServiceDataDir(Name), "activities.db")
+					}),
 				),
 			*/
 			service.WithGRPC(func(c context.Context, srv grpc.ServiceRegistrar) error {

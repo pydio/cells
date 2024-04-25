@@ -112,14 +112,11 @@ func init() {
 
 				index := servicecontext.GetIndexer(c).(dao.IndexDAO)
 
-				logStore, err := log.NewIndexService()
-				if err != nil {
-					return err
-				}
+				logStore := log.NewIndexRepository(index)
 				handler := NewJobsHandler(c, logStore)
-				proto.RegisterJobServiceEnhancedServer(server, handler)
-				log2.RegisterLogRecorderEnhancedServer(server, handler)
-				sync.RegisterSyncEndpointEnhancedServer(server, handler)
+				proto.RegisterJobServiceServer(server, handler)
+				log2.RegisterLogRecorderServer(server, handler)
+				sync.RegisterSyncEndpointServer(server, handler)
 				logger := log3.Logger(c)
 
 				for _, j := range defaults {

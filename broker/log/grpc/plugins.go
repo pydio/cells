@@ -23,22 +23,15 @@ package grpc
 
 import (
 	"context"
-	json "github.com/pydio/cells/v4/common/utils/jsonx"
-	"path/filepath"
-	"time"
 
 	"google.golang.org/grpc"
 
 	"github.com/pydio/cells/v4/broker/log"
 	"github.com/pydio/cells/v4/common"
-	"github.com/pydio/cells/v4/common/dao"
-	"github.com/pydio/cells/v4/common/dao/bleve"
-	"github.com/pydio/cells/v4/common/dao/mongodb"
 	proto "github.com/pydio/cells/v4/common/proto/log"
 	"github.com/pydio/cells/v4/common/proto/sync"
 	"github.com/pydio/cells/v4/common/runtime"
 	"github.com/pydio/cells/v4/common/service"
-	servicecontext "github.com/pydio/cells/v4/common/service/context"
 )
 
 const (
@@ -52,21 +45,23 @@ func init() {
 			service.Context(ctx),
 			service.Tag(common.ServiceTagBroker),
 			service.Description("Syslog index store"),
-			service.WithIndexer(log.NewDAO,
-				service.WithStoragePrefix("syslog"),
-				service.WithStorageMigrator(log.Migrate),
-				service.WithStorageSupport(bleve.Driver, mongodb.Driver),
-				service.WithStorageDefaultDriver(func() (string, string) {
-					return bleve.Driver, filepath.Join(runtime.MustServiceDataDir(ServiceName), "syslog.bleve?mapping=log")
-				}),
-			),
-			service.WithGRPC(func(c context.Context, server grpc.ServiceRegistrar) error {
-				indexDAO := servicecontext.GetIndexer(c).(dao.IndexDAO)
-				repo, err := log.NewIndexService(indexDAO)
-				if err != nil {
-					return err
-				}
+			service.WithStorageDrivers(log.NewBleveDAO, log.NewMongoDAO),
+			service.WithStorageMigrator(log.Migrate),
+			/*
+				service.WithIndexer(log.NewDAO,
+					service.WithStoragePrefix("syslog"),
+					service.WithStorageMigrator(log.Migrate),
+					service.WithStorageSupport(bleve.Driver, mongodb.Driver),
+					service.WithStorageDefaultDriver(func() (string, string) {
+						return bleve.Driver, filepath.Join(runtime.MustServiceDataDir(ServiceName), "syslog.bleve?mapping=log")
+					}),
+				),
 
+			*/
+			service.WithGRPC(func(c context.Context, server grpc.ServiceRegistrar) error {
+
+				/**
+				// TODO - Loop on Tenants Repos
 				cv := common.MakeCellsVersion()
 				m := map[string]string{
 					"logger":       common.ServiceGrpcNamespace_ + common.ServiceLog,
@@ -86,18 +81,13 @@ func init() {
 					Nano:    int32(time.Now().UnixNano()),
 					Message: data,
 				})
+				*/
 
 				handler := &Handler{
-					Repo:        repo,
 					HandlerName: common.ServiceGrpcNamespace_ + common.ServiceLog,
 				}
-				proto.RegisterLogRecorderEnhancedServer(server, handler)
-				sync.RegisterSyncEndpointEnhancedServer(server, handler)
-
-				go func() {
-					<-c.Done()
-					repo.Close(c)
-				}()
+				proto.RegisterLogRecorderServer(server, handler)
+				sync.RegisterSyncEndpointServer(server, handler)
 
 				return nil
 			}),

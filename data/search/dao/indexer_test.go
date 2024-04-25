@@ -32,7 +32,6 @@ import (
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/config/mock"
 	"github.com/pydio/cells/v4/common/proto/tree"
-	"github.com/pydio/cells/v4/common/runtime/manager"
 	"github.com/pydio/cells/v4/common/storage"
 	"github.com/pydio/cells/v4/common/storage/bleve"
 	"github.com/pydio/cells/v4/common/utils/test"
@@ -135,7 +134,7 @@ func TestNewBleveEngine(t *testing.T) {
 
 	Convey("Test create bleve engine then reopen it", t, func() {
 
-		st, err := storage.OpenStorage(mgr.Context(), "bleve://"+filepath.Join(os.TempDir(), "data_search_tests"+uuid.New()+".bleve")+"?mapping=node")
+		st, err := storage.OpenStorage(context.Background(), "bleve://"+filepath.Join(os.TempDir(), "data_search_tests"+uuid.New()+".bleve")+"?mapping=node")
 		So(err, ShouldBeNil)
 
 		var idx *bleve.Indexer

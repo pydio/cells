@@ -22,13 +22,14 @@ package tasks
 
 import (
 	"context"
-	"google.golang.org/protobuf/encoding/protojson"
 	"sync/atomic"
 	"time"
 
+	"google.golang.org/protobuf/encoding/protojson"
+
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/proto/jobs"
-	"github.com/pydio/cells/v4/common/service/context"
+	servicecontext "github.com/pydio/cells/v4/common/service/context"
 	"github.com/pydio/cells/v4/common/utils/permissions"
 	"github.com/pydio/cells/v4/common/utils/uuid"
 	"github.com/pydio/cells/v4/scheduler/actions"
@@ -120,10 +121,11 @@ func (t *Task) Queue(queue ...chan RunnerFunc) {
 	jobId := t.Job.ID
 	taskId := t.runID
 
-	ch := PubSub.Sub(PubSubTopicControl)
+	bus := GetBus(t.context)
+	ch := bus.Sub(PubSubTopicControl)
 	go func() {
 		defer func() {
-			UnSubWithFlush(ch, PubSubTopicControl)
+			bus.UnSubWithFlush(ch, PubSubTopicControl)
 		}()
 		for {
 			select {
@@ -201,7 +203,7 @@ func (t *Task) Save() {
 	t.SaveStatus(nil, 0)
 }
 
-// SaveStatus publish task to PubSub topic, including Runnable context if passed
+// SaveStatus publish task to Bus topic, including Runnable context if passed
 func (t *Task) SaveStatus(runnableContext context.Context, runnableStatus jobs.TaskStatus) {
 	if t.lastStatus == jobs.TaskStatus_Unknown || t.taskChanged() {
 		cl := t.Clone()
@@ -211,13 +213,13 @@ func (t *Task) SaveStatus(runnableContext context.Context, runnableStatus jobs.T
 		t.lastCanPause = cl.CanPause
 		t.lastProgress = cl.Progress
 		if runnableContext != nil {
-			PubSub.Pub(&TaskStatusUpdate{
+			GetBus(t.context).Pub(&TaskStatusUpdate{
 				Task:            cl,
 				RunnableContext: runnableContext,
 				RunnableStatus:  runnableStatus,
 			}, PubSubTopicTaskStatuses)
 		} else {
-			PubSub.Pub(cl, PubSubTopicTaskStatuses)
+			GetBus(t.context).Pub(cl, PubSubTopicTaskStatuses)
 		}
 	}
 }
@@ -342,12 +344,13 @@ func (t *Task) createControlChannels(done chan bool) (pause chan interface{}, re
 	jobId := t.Job.ID
 	taskId := t.task.ID
 
-	ch := PubSub.Sub(PubSubTopicControl)
+	bus := GetBus(t.context)
+	ch := bus.Sub(PubSubTopicControl)
 	go func() {
 		defer func() {
 			close(pause)
 			close(resume)
-			UnSubWithFlush(ch, PubSubTopicControl)
+			bus.UnSubWithFlush(ch, PubSubTopicControl)
 		}()
 		for {
 			select {

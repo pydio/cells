@@ -3,30 +3,31 @@ package log
 import (
 	"context"
 	"fmt"
-	"github.com/pydio/cells/v4/common/dao"
+
 	log2 "github.com/pydio/cells/v4/common/log"
 	"github.com/pydio/cells/v4/common/proto/log"
+	"github.com/pydio/cells/v4/common/storage/indexer"
 )
 
-type IndexService struct {
-	dao dao.IndexDAO
+type IndexRepository struct {
+	indexer.Indexer
 }
 
-func NewIndexService(dao dao.IndexDAO) (MessageRepository, error) {
-	is := &IndexService{dao: dao}
-	return is, nil
+func NewIndexRepository(idx indexer.Indexer) MessageRepository {
+	is := &IndexRepository{Indexer: idx}
+	return is
 }
 
 // PutLog  adds a new LogMessage in the syslog index.
-func (s *IndexService) PutLog(ctx context.Context, line *log.Log) error {
-	return s.dao.InsertOne(ctx, line)
+func (s *IndexRepository) PutLog(ctx context.Context, line *log.Log) error {
+	return s.InsertOne(ctx, line)
 }
 
 // ListLogs performs a query in the bleve index, based on the passed query string.
 // It returns results as a stream of log.ListLogResponse for each corresponding hit.
 // Results are ordered by descending timestamp rather than by score.
-func (s *IndexService) ListLogs(ctx context.Context, str string, page int32, size int32) (chan log.ListLogResponse, error) {
-	ch, er := s.dao.FindMany(ctx, str, page*size, size, "", false, nil)
+func (s *IndexRepository) ListLogs(ctx context.Context, str string, page int32, size int32) (chan log.ListLogResponse, error) {
+	ch, er := s.FindMany(ctx, str, page*size, size, "", false, nil)
 	if er != nil {
 		return nil, er
 	}
@@ -41,8 +42,8 @@ func (s *IndexService) ListLogs(ctx context.Context, str string, page int32, siz
 }
 
 // DeleteLogs truncate logs based on a search query
-func (s *IndexService) DeleteLogs(ctx context.Context, query string) (int64, error) {
-	c, er := s.dao.DeleteMany(ctx, query)
+func (s *IndexRepository) DeleteLogs(ctx context.Context, query string) (int64, error) {
+	c, er := s.DeleteMany(ctx, query)
 	if er == nil {
 		return int64(c), nil
 	} else {
@@ -51,24 +52,20 @@ func (s *IndexService) DeleteLogs(ctx context.Context, query string) (int64, err
 }
 
 // AggregatedLogs performs a faceted query in the syslog repository. UNIMPLEMENTED.
-func (s *IndexService) AggregatedLogs(_ context.Context, _ string, _ string, _ int32) (chan log.TimeRangeResponse, error) {
+func (s *IndexRepository) AggregatedLogs(_ context.Context, _ string, _ string, _ int32) (chan log.TimeRangeResponse, error) {
 	return nil, fmt.Errorf("unimplemented method")
 }
 
-func (s *IndexService) Resync(ctx context.Context, logger log2.ZapLogger) error {
-	return s.dao.Resync(ctx, func(s string) {
+func (s *IndexRepository) Resync(ctx context.Context, logger log2.ZapLogger) error {
+	return s.Indexer.Resync(ctx, func(s string) {
 		logTaskInfo(logger, s, "info")
 	})
 }
 
-func (s *IndexService) Truncate(ctx context.Context, max int64, logger log2.ZapLogger) error {
-	return s.dao.Truncate(ctx, max, func(s string) {
+func (s *IndexRepository) Truncate(ctx context.Context, max int64, logger log2.ZapLogger) error {
+	return s.Indexer.Truncate(ctx, max, func(s string) {
 		logTaskInfo(logger, s, "info")
 	})
-}
-
-func (s *IndexService) Close(ctx context.Context) error {
-	return s.dao.Close(ctx)
 }
 
 func logTaskInfo(l log2.ZapLogger, msg string, level string) {

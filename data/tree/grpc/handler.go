@@ -121,8 +121,8 @@ type TreeServer struct {
 func NewTreeServer(ctx context.Context, name string) *TreeServer {
 	return &TreeServer{
 		name:          name,
-		sourcesCaches: cache.MustOpenPool("pm://?evictionTime=-1"), // Create in-memory, non-expirable cache
-		listenersPool: cache.MustOpenPool("pm://?evictionTime=-1"), // Create in-memory, non-expirable cache
+		sourcesCaches: cache.MustOpenNonExpirableMemory(),
+		listenersPool: cache.MustOpenNonExpirableMemory(),
 	}
 }
 

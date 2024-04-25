@@ -39,7 +39,7 @@ func (h *Handler) Name() string {
 // Control publishes the passed command
 func (h *Handler) Control(ctx context.Context, command *jobs.CtrlCommand) (*jobs.CtrlCommandResponse, error) {
 
-	tasks.PubSub.Pub(command, tasks.PubSubTopicControl)
+	tasks.GetBus(ctx).Pub(command, tasks.PubSubTopicControl)
 	return &jobs.CtrlCommandResponse{Msg: "Published"}, nil
 
 }
