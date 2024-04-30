@@ -64,7 +64,7 @@ func ListServicesWithStorage() (ss []service.Service, e error) {
 	for _, i := range items {
 		var srv service.Service
 		if i.As(&srv) {
-			if len(srv.Options().Storages) > 0 {
+			if len(srv.Options().StorageOptions.SupportedDrivers) > 0 {
 				ss = append(ss, srv)
 			}
 		} else {

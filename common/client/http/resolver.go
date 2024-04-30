@@ -4,12 +4,12 @@ import (
 	"context"
 	"crypto/tls"
 	"fmt"
-	"go.uber.org/zap"
 	"net/http"
 	"net/http/httputil"
 	"net/url"
 	"strings"
 
+	"go.uber.org/zap"
 	"google.golang.org/grpc"
 
 	"github.com/pydio/cells/v4/common"
@@ -84,6 +84,7 @@ func (m *resolver) Init(ctx context.Context, serverID string, rr routing.RouteRe
 	m.rr = rr
 	m.b = bal
 
+	// todo
 	/*if runtime.LastInitType() != "install" {
 		monitorOAuth := grpc2.NewHealthChecker(ctx)
 		go monitorOAuth.Monitor(common.ServiceOAuth)

@@ -24,19 +24,27 @@ package grpc
 import (
 	"context"
 	"fmt"
+	"sync"
 
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/broker"
+	"github.com/pydio/cells/v4/common/config"
 	"github.com/pydio/cells/v4/common/proto/jobs"
 	"github.com/pydio/cells/v4/common/runtime"
+	servercontext "github.com/pydio/cells/v4/common/server/context"
 	"github.com/pydio/cells/v4/common/server/generic"
 	"github.com/pydio/cells/v4/common/service"
 	"github.com/pydio/cells/v4/scheduler/timer"
 )
 
+var (
+	producers map[string]*timer.EventProducer
+	pLocks    sync.RWMutex
+)
+
 func init() {
+	producers = make(map[string]*timer.EventProducer)
 	runtime.Register("main", func(ctx context.Context) {
-		var producer *timer.EventProducer
 
 		service.NewService(
 			service.Name(common.ServiceGenericNamespace_+common.ServiceTimer),
@@ -45,30 +53,54 @@ func init() {
 			service.Description("Triggers events based on a scheduler pattern"),
 			service.Unique(true),
 			service.WithGeneric(func(c context.Context, server *generic.Server) error {
-				// Todo - We should create one producer per Tenant
-				producer = timer.NewEventProducer(c)
-				subscriber := &timer.JobsEventsSubscriber{
-					Producer: producer,
+
+				tm := config.GetTenantsManager()
+
+				pLocks.Lock()
+				for _, t := range tm.ListTenants() {
+					tp := timer.NewEventProducer(servercontext.WithTenant(c, t.ID()))
+					go tp.Start()
+					producers[t.ID()] = tp
 				}
+				pLocks.Unlock()
+
+				_ = tm.Subscribe(func(event config.TenantWatchEvent) {
+					pLocks.Lock()
+					defer pLocks.Unlock()
+					tenantID := event.Tenant().ID()
+					if event.Action() == "add" {
+						tp := timer.NewEventProducer(servercontext.WithTenant(c, tenantID))
+						go tp.Start()
+						producers[tenantID] = tp
+					} else if event.Action() == "delete" {
+						delete(producers, tenantID)
+					}
+				})
+
 				if er := broker.SubscribeCancellable(c, common.TopicJobConfigEvent, func(ctx context.Context, message broker.Message) error {
 					msg := &jobs.JobChangeEvent{}
 					if ct, e := message.Unmarshal(ctx, msg); e == nil {
-						return subscriber.Handle(ct, msg)
+						pLocks.RLock()
+						defer pLocks.RUnlock()
+						if producer, ok := producers[servercontext.GetTenant(ctx)]; ok {
+							return producer.Handle(ct, msg)
+						}
+						return fmt.Errorf("cannot find timer.Producer for corresponding tenant")
 					}
 					return nil
 				}, broker.WithCounterName("timer")); er != nil {
 					return fmt.Errorf("cannot subscribe on JobConfigEvent topic %v", er)
 				}
 
-				go producer.Start()
 				return nil
 
 			}),
 			service.WithGenericStop(func(c context.Context, server *generic.Server) error {
-				if producer != nil {
-					producer.StopAll()
+				pLocks.RLock()
+				defer pLocks.RUnlock()
+				for _, p := range producers {
+					p.StopAll()
 				}
-
 				return nil
 			}),
 		)
