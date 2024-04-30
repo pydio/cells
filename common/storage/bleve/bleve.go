@@ -2,8 +2,13 @@ package bleve
 
 import (
 	"context"
+	"os"
 	"strconv"
 	"strings"
+
+	bleve "github.com/blevesearch/bleve/v2"
+	"github.com/blevesearch/bleve/v2/index/scorch"
+	"github.com/blevesearch/bleve/v2/index/upsidedown/store/boltdb"
 
 	servercontext "github.com/pydio/cells/v4/common/server/context"
 	"github.com/pydio/cells/v4/common/storage"
@@ -38,7 +43,7 @@ func (o *bleveStorage) OpenURL(ctx context.Context, urlstr string) (storage.Stor
 
 type blevedb struct {
 	path string
-	db   *Indexer
+	db   any
 }
 
 func (s *bleveStorage) Provides(conn any) bool {
@@ -78,7 +83,7 @@ func (s *bleveStorage) Get(ctx context.Context, out interface{}) bool {
 
 		for _, db := range s.dbs {
 			if path == db.path {
-				*v = db.db
+				*v = db.db.(*Indexer)
 				return true
 			}
 		}
@@ -142,7 +147,7 @@ func (s *bleveStorage) Get(ctx context.Context, out interface{}) bool {
 
 		for _, db := range s.dbs {
 			if path == db.path {
-				*v = db.db
+				*v = db.db.(indexer.Indexer)
 				return true
 			}
 		}
@@ -187,6 +192,40 @@ func (s *bleveStorage) Get(ctx context.Context, out interface{}) bool {
 		}
 
 		index.serviceConfigs = servercontext.GetConfig(ctx)
+
+		*v = index
+
+		s.dbs = append(s.dbs, &blevedb{
+			db:   index,
+			path: path,
+		})
+
+		return true
+	case *bleve.Index:
+		u, err := s.template.ResolveURL(ctx)
+		if err != nil {
+			return false
+		}
+		path := u.String()
+
+		for _, db := range s.dbs {
+			if path == db.path {
+				*v = db.db.(bleve.Index)
+				return true
+			}
+		}
+
+		_, e := os.Stat(u.Path)
+		var index bleve.Index
+		if e == nil {
+			index, err = bleve.Open(u.Path)
+		} else {
+			index, err = bleve.NewUsing(u.Path, bleve.NewIndexMapping(), scorch.Name, boltdb.Name, nil)
+		}
+
+		if err != nil {
+			return false
+		}
 
 		*v = index
 

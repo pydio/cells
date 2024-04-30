@@ -28,6 +28,7 @@ import (
 	"time"
 
 	"github.com/pydio/cells/v4/common/proto/chat"
+	"github.com/pydio/cells/v4/common/runtime/manager"
 	"github.com/pydio/cells/v4/common/utils/test"
 	"github.com/pydio/cells/v4/common/utils/uuid"
 
@@ -40,15 +41,19 @@ import (
 var (
 	ctx       = context.Background()
 	testcases = []test.StorageTestCase{
-		{"boltdb://" + filepath.Join(os.TempDir(), "chat_bolt_"+uuid.New()+".db"), true, NewBoltDAO},
-		{os.Getenv("CELLS_TEST_MONGODB_DSN") + "?collection=index", os.Getenv("CELLS_TEST_MONGODB_DSN") != "", NewMongoDAO},
+		{[]string{"boltdb://" + filepath.Join(os.TempDir(), "chat_bolt_"+uuid.New()+".db")}, true, NewBoltDAO},
+		{[]string{os.Getenv("CELLS_TEST_MONGODB_DSN") + "?collection=index"}, os.Getenv("CELLS_TEST_MONGODB_DSN") != "", NewMongoDAO},
 	}
 )
 
 func TestDAO(t *testing.T) {
 
-	test.RunStorageTests(testcases, func(ctx context.Context, m DAO) {
+	test.RunStorageTests(testcases, func(ctx context.Context) {
 		Convey("Test connection init", t, func() {
+			m, err := manager.Resolve[DAO](ctx)
+			So(err, ShouldBeNil)
+			So(m, ShouldNotBeNil)
+
 			nodeUuid := uuid.New()
 			roomUuid := uuid.New()
 
@@ -108,6 +113,10 @@ func TestDAO(t *testing.T) {
 		})
 
 		Convey("Clean DB", t, func() {
+			m, err := manager.Resolve[DAO](ctx)
+			So(err, ShouldBeNil)
+			So(m, ShouldNotBeNil)
+
 			for i := 0; i < 4; i++ {
 				cc, e := m.ListRooms(ctx, &chat.ListRoomsRequest{ByType: chat.RoomType(i)})
 				So(e, ShouldBeNil)

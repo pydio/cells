@@ -30,6 +30,7 @@ import (
 	"github.com/pydio/cells/v4/common/dao/sqlite"
 	"github.com/pydio/cells/v4/common/proto/idm"
 	service "github.com/pydio/cells/v4/common/proto/service"
+	"github.com/pydio/cells/v4/common/runtime/manager"
 	"github.com/pydio/cells/v4/common/sql"
 	"github.com/pydio/cells/v4/common/utils/test"
 
@@ -38,7 +39,7 @@ import (
 
 var (
 	testcases = []test.StorageTestCase{
-		{sqlite.Driver + "://" + sqlite.SharedMemDSN, true, NewDAO},
+		{[]string{sqlite.Driver + "://" + sqlite.SharedMemDSN}, true, NewDAO},
 	}
 )
 
@@ -63,7 +64,12 @@ var (
 //}
 
 func TestQueryBuilder(t *testing.T) {
-	test.RunStorageTests(testcases, func(ctx context.Context, dao DAO) {
+	test.RunStorageTests(testcases, func(ctx context.Context) {
+
+		dao, err := manager.Resolve[DAO](ctx)
+		if err != nil {
+			panic(err)
+		}
 
 		mockDB := dao.(*sqlimpl).DB
 

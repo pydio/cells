@@ -25,7 +25,10 @@
 package docstore
 
 import (
+	"context"
+
 	bleve "github.com/blevesearch/bleve/v2"
+	"go.etcd.io/bbolt"
 	"go.mongodb.org/mongo-driver/mongo"
 
 	"github.com/pydio/cells/v4/common/proto/docstore"
@@ -33,20 +36,20 @@ import (
 
 type DAO interface {
 	// dao.DAO
-	PutDocument(storeID string, doc *docstore.Document) error
-	GetDocument(storeID string, docId string) (*docstore.Document, error)
-	DeleteDocument(storeID string, docID string) error
-	DeleteDocuments(storeID string, query *docstore.DocumentQuery) (int, error)
-	QueryDocuments(storeID string, query *docstore.DocumentQuery) (chan *docstore.Document, error)
-	CountDocuments(storeID string, query *docstore.DocumentQuery) (int, error)
-	ListStores() ([]string, error)
+	PutDocument(ctx context.Context, storeID string, doc *docstore.Document) error
+	GetDocument(ctx context.Context, storeID string, docId string) (*docstore.Document, error)
+	DeleteDocument(ctx context.Context, storeID string, docID string) error
+	DeleteDocuments(ctx context.Context, storeID string, query *docstore.DocumentQuery) (int, error)
+	QueryDocuments(ctx context.Context, storeID string, query *docstore.DocumentQuery) (chan *docstore.Document, error)
+	CountDocuments(ctx context.Context, storeID string, query *docstore.DocumentQuery) (int, error)
+	ListStores(ctx context.Context) ([]string, error)
 	Reset() error
 }
 
 var _ DAO = (*BleveServer)(nil)
 
-func NewBleveDAO(db bleve.Index) DAO {
-	//return NewBleveEngine(boltdb, bleveIndex)
+func NewBleveDAO(boltDB *bbolt.DB, bleveIndex bleve.Index) DAO {
+	return NewBleveEngine(boltDB, bleveIndex)
 }
 
 func NewMongoDAO(db *mongo.Database) DAO {

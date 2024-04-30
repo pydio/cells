@@ -30,18 +30,24 @@ import (
 
 	"github.com/pydio/cells/v4/common/dao/sqlite"
 	"github.com/pydio/cells/v4/common/proto/encryption"
+	"github.com/pydio/cells/v4/common/runtime/manager"
 	"github.com/pydio/cells/v4/common/utils/test"
 )
 
 var (
 	testcases = []test.StorageTestCase{
-		{sqlite.Driver + "://" + sqlite.SharedMemDSN, true, NewDAO},
+		{[]string{sqlite.Driver + "://" + sqlite.SharedMemDSN}, true, NewDAO},
 	}
 )
 
 func TestDAOPut(t *testing.T) {
 
-	test.RunStorageTests(testcases, func(ctx context.Context, dao DAO) {
+	test.RunStorageTests(testcases, func(ctx context.Context) {
+
+		dao, err := manager.Resolve[DAO](ctx)
+		if err != nil {
+			panic(err)
+		}
 
 		convey.Convey("Test PUT key", t, func() {
 			err := dao.SaveKey(ctx, &encryption.Key{

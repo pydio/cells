@@ -41,7 +41,7 @@ import (
 
 var (
 	testcases = []test.StorageTestCase{
-		{sqlite.Driver + "://" + sqlite.SharedMemDSN, true, user.NewDAO},
+		{[]string{sqlite.Driver + "://" + sqlite.SharedMemDSN}, true, user.NewDAO},
 	}
 )
 
@@ -58,7 +58,8 @@ func init() {
 
 func TestLoginCIDAO(t *testing.T) {
 
-	test.RunStorageTests(testcases, func(ctx context.Context, dao user.DAO) {
+	test.RunStorageTests(testcases, func(ctx context.Context) {
+
 		/*
 			cfg := configx.New()
 			_ = cfg.Val("loginCI").Set(true)
@@ -105,7 +106,7 @@ func TestLoginCIDAO(t *testing.T) {
 
 func TestUser(t *testing.T) {
 
-	test.RunStorageTests(testcases, func(ctx context.Context, dao user.DAO) {
+	test.RunStorageTests(testcases, func(ctx context.Context) {
 		h := NewHandler(ctx)
 
 		Convey("Create one user", t, func() {

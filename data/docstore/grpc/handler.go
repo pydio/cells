@@ -48,7 +48,7 @@ func (h *Handler) PutDocument(ctx context.Context, request *proto.PutDocumentReq
 		return nil, err
 	}
 
-	e := dao.PutDocument(request.StoreID, request.Document)
+	e := dao.PutDocument(ctx, request.StoreID, request.Document)
 	log.Logger(ctx).Debug("PutDocument", zap.String("store", request.StoreID), zap.String("docId", request.Document.ID))
 	if e != nil {
 		log.Logger(ctx).Error("PutDocument", zap.Error(e))
@@ -64,7 +64,7 @@ func (h *Handler) GetDocument(ctx context.Context, request *proto.GetDocumentReq
 	}
 
 	log.Logger(ctx).Debug("GetDocument", zap.String("store", request.StoreID), zap.String("docId", request.DocumentID))
-	doc, e := dao.GetDocument(request.StoreID, request.DocumentID)
+	doc, e := dao.GetDocument(ctx, request.StoreID, request.DocumentID)
 	if e != nil {
 		return nil, fmt.Errorf("document not found")
 	}
@@ -82,7 +82,7 @@ func (h *Handler) DeleteDocuments(ctx context.Context, request *proto.DeleteDocu
 
 	if request.Query != nil && request.Query.MetaQuery != "" {
 
-		count, er := dao.DeleteDocuments(request.StoreID, request.Query)
+		count, er := dao.DeleteDocuments(ctx, request.StoreID, request.Query)
 		if er != nil {
 			return nil, er
 		}
@@ -90,7 +90,7 @@ func (h *Handler) DeleteDocuments(ctx context.Context, request *proto.DeleteDocu
 
 	} else {
 
-		err := dao.DeleteDocument(request.StoreID, request.DocumentID)
+		err := dao.DeleteDocument(ctx, request.StoreID, request.DocumentID)
 		if err != nil {
 			return nil, err
 		}
@@ -113,7 +113,7 @@ func (h *Handler) CountDocuments(ctx context.Context, request *proto.ListDocumen
 	if request.Query == nil || request.Query.MetaQuery == "" {
 		return nil, fmt.Errorf("Please provide at least a meta query")
 	}
-	total, err := dao.CountDocuments(request.StoreID, request.Query)
+	total, err := dao.CountDocuments(ctx, request.StoreID, request.Query)
 	if err != nil {
 		return nil, err
 	}
@@ -132,7 +132,7 @@ func (h *Handler) ListDocuments(request *proto.ListDocumentsRequest, stream prot
 		return err
 	}
 
-	results, err := dao.QueryDocuments(request.StoreID, request.Query)
+	results, err := dao.QueryDocuments(ctx, request.StoreID, request.Query)
 	if err != nil {
 		return err
 	}

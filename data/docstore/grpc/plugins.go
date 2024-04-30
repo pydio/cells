@@ -49,8 +49,8 @@ func init() {
 			service.WithGRPC(func(ctx context.Context, srv grpc.ServiceRegistrar) error {
 				handler := &Handler{}
 
-				proto.RegisterDocStoreEnhancedServer(srv, handler)
-				sync.RegisterSyncEndpointEnhancedServer(srv, handler)
+				proto.RegisterDocStoreServer(srv, handler)
+				sync.RegisterSyncEndpointServer(srv, handler)
 
 				return nil
 			}),

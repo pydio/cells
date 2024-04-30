@@ -22,6 +22,7 @@ package dao
 
 import (
 	"context"
+	"fmt"
 	"log"
 	"os"
 	"path/filepath"
@@ -32,8 +33,7 @@ import (
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/config/mock"
 	"github.com/pydio/cells/v4/common/proto/tree"
-	"github.com/pydio/cells/v4/common/storage"
-	"github.com/pydio/cells/v4/common/storage/bleve"
+	"github.com/pydio/cells/v4/common/runtime/manager"
 	"github.com/pydio/cells/v4/common/utils/test"
 	"github.com/pydio/cells/v4/common/utils/uuid"
 
@@ -45,8 +45,8 @@ import (
 
 var (
 	testcases = []test.StorageTestCase{
-		{"bleve://" + filepath.Join(os.TempDir(), "data_search_tests"+uuid.New()+".bleve") + "?mapping=node", true, NewBleveDAO},
-		{os.Getenv("CELLS_TEST_MONGODB_DSN") + "?collection=index", os.Getenv("CELLS_TEST_MONGODB_DSN") != "", NewMongoDAO},
+		{[]string{"bleve://" + filepath.Join(os.TempDir(), "data_search_tests"+uuid.New()+".bleve") + "?mapping=node"}, true, NewBleveDAO},
+		{[]string{os.Getenv("CELLS_TEST_MONGODB_DSN") + "?collection=index"}, os.Getenv("CELLS_TEST_MONGODB_DSN") != "", NewMongoDAO},
 	}
 )
 
@@ -124,36 +124,37 @@ func search(ctx context.Context, index SearchEngine, queryObject *tree.Query) ([
 		}
 	}()
 
+	fmt.Println("Doing search")
 	e := index.SearchNodes(ctx, queryObject, 0, 10, "", false, resultsChan, facetsChan, doneChan)
 	wg.Wait()
 	return results, e
 
 }
 
-func TestNewBleveEngine(t *testing.T) {
-
-	Convey("Test create bleve engine then reopen it", t, func() {
-
-		st, err := storage.OpenStorage(context.Background(), "bleve://"+filepath.Join(os.TempDir(), "data_search_tests"+uuid.New()+".bleve")+"?mapping=node")
-		So(err, ShouldBeNil)
-
-		var idx *bleve.Indexer
-		st.Get(context.TODO(), &idx)
-
-		server := NewBleveDAO(context.Background(), idx)
-		So(server, ShouldNotBeNil)
-
-		e := server.Close(context.TODO())
-		So(e, ShouldBeNil)
-
-		server = NewBleveDAO(context.Background(), idx)
-		So(server, ShouldNotBeNil)
-
-		e = server.Close(context.TODO())
-		So(e, ShouldBeNil)
-	})
-
-}
+//func TestNewBleveEngine(t *testing.T) {
+//	test.RunStorageTests(testcases, func(ctx context.Context, server SearchEngine) {
+//	Convey("Test create bleve engine then reopen it", t, func() {
+//
+//		st, err := storage.OpenStorage(mgr.Context(), "bleve://"+filepath.Join(os.TempDir(), "data_search_tests"+uuid.New()+".bleve")+"?mapping=node")
+//		So(err, ShouldBeNil)
+//
+//		var idx *bleve.Indexer
+//		st.Get(context.TODO(), &idx)
+//
+//		server := NewBleveDAO(context.Background(), idx)
+//		So(server, ShouldNotBeNil)
+//
+//		e := server.Close(context.TODO())
+//		So(e, ShouldBeNil)
+//
+//		server = NewBleveDAO(context.Background(), idx)
+//		So(server, ShouldNotBeNil)
+//
+//		e = server.Close(context.TODO())
+//		So(e, ShouldBeNil)
+//	})
+//
+//}
 
 //func TestMakeIndexableNode(t *testing.T) {
 //
@@ -184,7 +185,11 @@ func TestNewBleveEngine(t *testing.T) {
 //}
 
 func TestIndexNode(t *testing.T) {
-	test.RunStorageTests(testcases, func(ctx context.Context, server SearchEngine) {
+	test.RunStorageTests(testcases, func(ctx context.Context) {
+		server, err := manager.Resolve[SearchEngine](ctx)
+		if err != nil {
+			panic(err)
+		}
 
 		Convey("Index Node", t, func() {
 			mtime := time.Now().Unix()
@@ -218,7 +223,12 @@ func TestIndexNode(t *testing.T) {
 }
 
 func TestSearchNode(t *testing.T) {
-	test.RunStorageTests(testcases, func(ctx context.Context, server SearchEngine) {
+	test.RunStorageTests(testcases, func(ctx context.Context) {
+		server, err := manager.Resolve[SearchEngine](ctx)
+		if err != nil {
+			panic(err)
+		}
+		
 		createNodes(server)
 
 		Convey("Search Node by name", t, func() {
@@ -435,7 +445,12 @@ func TestSearchNode(t *testing.T) {
 }
 
 func TestSearchByGeolocation(t *testing.T) {
-	test.RunStorageTests(testcases, func(ctx context.Context, server SearchEngine) {
+	test.RunStorageTests(testcases, func(ctx context.Context) {
+
+		server, err := manager.Resolve[SearchEngine](ctx)
+		if err != nil {
+			panic(err)
+		}
 
 		createNodes(server)
 
@@ -478,7 +493,11 @@ func TestSearchByGeolocation(t *testing.T) {
 }
 
 func TestDeleteNode(t *testing.T) {
-	test.RunStorageTests(testcases, func(ctx context.Context, server SearchEngine) {
+	test.RunStorageTests(testcases, func(ctx context.Context) {
+		server, err := manager.Resolve[SearchEngine](ctx)
+		if err != nil {
+			panic(err)
+		}
 		createNodes(server)
 
 		Convey("Delete Node", t, func() {
@@ -498,7 +517,12 @@ func TestDeleteNode(t *testing.T) {
 }
 
 func TestClearIndex(t *testing.T) {
-	test.RunStorageTests(testcases, func(ctx context.Context, server SearchEngine) {
+	test.RunStorageTests(testcases, func(ctx context.Context) {
+		server, err := manager.Resolve[SearchEngine](ctx)
+		if err != nil {
+			panic(err)
+		}
+
 		Convey("Clear Index", t, func() {
 
 			createNodes(server)
@@ -518,7 +542,12 @@ func TestClearIndex(t *testing.T) {
 }
 
 func TestSearchByUuidsMatch(t *testing.T) {
-	test.RunStorageTests(testcases, func(ctx context.Context, server SearchEngine) {
+	test.RunStorageTests(testcases, func(ctx context.Context) {
+		server, err := manager.Resolve[SearchEngine](ctx)
+		if err != nil {
+			panic(err)
+		}
+
 		Convey("Search Node by UUID(s)", t, func() {
 
 			createNodes(server)

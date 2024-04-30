@@ -26,6 +26,7 @@ import (
 
 	"github.com/pydio/cells/v4/common/dao/sqlite"
 	"github.com/pydio/cells/v4/common/proto/idm"
+	"github.com/pydio/cells/v4/common/runtime/manager"
 	"github.com/pydio/cells/v4/common/utils/test"
 	"github.com/pydio/cells/v4/idm/meta"
 
@@ -36,12 +37,17 @@ import (
 
 var (
 	testcases = []test.StorageTestCase{
-		{sqlite.Driver + "://" + sqlite.SharedMemDSN, true, meta.NewDAO},
+		{[]string{sqlite.Driver + "://" + sqlite.SharedMemDSN}, true, meta.NewDAO},
 	}
 )
 
 func TestRole(t *testing.T) {
-	test.RunStorageTests(testcases, func(ctx context.Context, dao meta.DAO) {
+	test.RunStorageTests(testcases, func(ctx context.Context) {
+
+		dao, err := manager.Resolve[meta.DAO](ctx)
+		if err != nil {
+			panic(err)
+		}
 
 		h := &Handler{}
 

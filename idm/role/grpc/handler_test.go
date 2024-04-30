@@ -30,6 +30,7 @@ import (
 	"github.com/pydio/cells/v4/common/dao/sqlite"
 	"github.com/pydio/cells/v4/common/proto/idm"
 	service "github.com/pydio/cells/v4/common/proto/service"
+	"github.com/pydio/cells/v4/common/runtime/manager"
 	"github.com/pydio/cells/v4/common/utils/test"
 	"github.com/pydio/cells/v4/idm/role"
 
@@ -40,14 +41,14 @@ import (
 
 var (
 	testcases = []test.StorageTestCase{
-		{sqlite.Driver + "://" + sqlite.SharedMemDSN, true, role.NewDAO},
+		{[]string{sqlite.Driver + "://" + sqlite.SharedMemDSN}, true, role.NewDAO},
 	}
 )
 
 func TestRole(t *testing.T) {
 
 	s := new(Handler)
-	test.RunStorageTests(testcases, func(ctx context.Context, dao role.DAO) {
+	test.RunStorageTests(testcases, func(ctx context.Context) {
 		Convey("Create Roles", t, func() {
 			resp, err := s.CreateRole(ctx, &idm.CreateRoleRequest{Role: &idm.Role{Uuid: "role1", Label: "Role 1"}})
 
@@ -119,7 +120,12 @@ func TestRoleWithRules(t *testing.T) {
 
 	s := new(Handler)
 
-	test.RunStorageTests(testcases, func(ctx context.Context, dao role.DAO) {
+	test.RunStorageTests(testcases, func(ctx context.Context) {
+		dao, err := manager.Resolve[role.DAO](ctx)
+		if err != nil {
+			panic(err)
+		}
+
 		Convey("Create Roles with Resource Rule", t, func() {
 
 			resp, err := s.CreateRole(ctx, &idm.CreateRoleRequest{Role: &idm.Role{Uuid: "role-res", Label: "Role 1"}})

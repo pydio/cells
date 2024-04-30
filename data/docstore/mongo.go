@@ -22,6 +22,7 @@ package docstore
 
 import (
 	"context"
+
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
@@ -70,8 +71,7 @@ func (m *mongoImpl) Init(ctx context.Context, conf configx.Values) error {
 	return nil
 }
 
-func (m *mongoImpl) PutDocument(storeID string, doc *docstore.Document) error {
-	ctx := context.Background()
+func (m *mongoImpl) PutDocument(ctx context.Context, storeID string, doc *docstore.Document) error {
 	mdoc := m.toMdoc(storeID, doc)
 	filter := bson.D{{"store_id", storeID}, {"doc_id", doc.ID}}
 	_, e := m.Collection(collDocuments).ReplaceOne(ctx, filter, mdoc, &options.ReplaceOptions{Upsert: &upsert})
@@ -82,8 +82,7 @@ func (m *mongoImpl) PutDocument(storeID string, doc *docstore.Document) error {
 	return nil
 }
 
-func (m *mongoImpl) GetDocument(storeID string, docId string) (*docstore.Document, error) {
-	ctx := context.Background()
+func (m *mongoImpl) GetDocument(ctx context.Context, storeID string, docId string) (*docstore.Document, error) {
 	filter := bson.D{{"store_id", storeID}, {"doc_id", docId}}
 	res := m.Collection(collDocuments).FindOne(ctx, filter)
 	if res.Err() != nil {
@@ -97,8 +96,7 @@ func (m *mongoImpl) GetDocument(storeID string, docId string) (*docstore.Documen
 	}
 }
 
-func (m *mongoImpl) QueryDocuments(storeID string, query *docstore.DocumentQuery) (chan *docstore.Document, error) {
-	ctx := context.Background()
+func (m *mongoImpl) QueryDocuments(ctx context.Context, storeID string, query *docstore.DocumentQuery) (chan *docstore.Document, error) {
 	filter, err := m.buildFilters(storeID, query)
 	if err != nil {
 		return nil, err
@@ -121,8 +119,7 @@ func (m *mongoImpl) QueryDocuments(storeID string, query *docstore.DocumentQuery
 	return res, nil
 }
 
-func (m *mongoImpl) ListStores() (ss []string, e error) {
-	ctx := context.Background()
+func (m *mongoImpl) ListStores(ctx context.Context) (ss []string, e error) {
 	ii, er := m.Collection(collDocuments).Distinct(ctx, "store_id", nil)
 	if er != nil {
 		e = er
@@ -134,8 +131,7 @@ func (m *mongoImpl) ListStores() (ss []string, e error) {
 	return
 }
 
-func (m *mongoImpl) DeleteDocument(storeID string, docID string) error {
-	ctx := context.Background()
+func (m *mongoImpl) DeleteDocument(ctx context.Context, storeID string, docID string) error {
 	filter := bson.D{{"store_id", storeID}, {"doc_id", docID}}
 	_, e := m.Collection(collDocuments).DeleteOne(ctx, filter)
 	if e != nil {
@@ -145,8 +141,7 @@ func (m *mongoImpl) DeleteDocument(storeID string, docID string) error {
 	return nil
 }
 
-func (m *mongoImpl) DeleteDocuments(storeID string, query *docstore.DocumentQuery) (int, error) {
-	ctx := context.Background()
+func (m *mongoImpl) DeleteDocuments(ctx context.Context, storeID string, query *docstore.DocumentQuery) (int, error) {
 	filter, err := m.buildFilters(storeID, query)
 	if err != nil {
 		return 0, err
@@ -158,8 +153,7 @@ func (m *mongoImpl) DeleteDocuments(storeID string, query *docstore.DocumentQuer
 	return int(r.DeletedCount), nil
 }
 
-func (m *mongoImpl) CountDocuments(storeID string, query *docstore.DocumentQuery) (int, error) {
-	ctx := context.Background()
+func (m *mongoImpl) CountDocuments(ctx context.Context, storeID string, query *docstore.DocumentQuery) (int, error) {
 	filter, err := m.buildFilters(storeID, query)
 	if err != nil {
 		return 0, err

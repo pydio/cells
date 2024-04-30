@@ -30,6 +30,7 @@ import (
 	"github.com/pydio/cells/v4/common/dao/sqlite"
 	"github.com/pydio/cells/v4/common/proto/idm"
 	"github.com/pydio/cells/v4/common/proto/service"
+	"github.com/pydio/cells/v4/common/runtime/manager"
 	"github.com/pydio/cells/v4/common/service/errors"
 	"github.com/pydio/cells/v4/common/utils/test"
 	"github.com/pydio/cells/v4/common/utils/uuid"
@@ -45,13 +46,18 @@ var (
 
 var (
 	testcases = []test.StorageTestCase{
-		{sqlite.Driver + "://" + sqlite.SharedMemDSN, true, NewDAO},
+		{[]string{sqlite.Driver + "://" + sqlite.SharedMemDSN}, true, NewDAO},
 	}
 )
 
 func TestCrud(t *testing.T) {
 
-	test.RunStorageTests(testcases, func(ctx context.Context, mockDAO DAO) {
+	test.RunStorageTests(testcases, func(ctx context.Context) {
+		mockDAO, err := manager.Resolve[DAO](ctx)
+		if err != nil {
+			panic(err)
+		}
+
 		Convey("Create Role", t, func() {
 			{
 				_, _, err := mockDAO.Add(ctx, &idm.Role{
@@ -379,7 +385,12 @@ func TestCrud(t *testing.T) {
 //}
 
 func TestResourceRules(t *testing.T) {
-	test.RunStorageTests(testcases, func(ctx context.Context, mockDAO DAO) {
+	test.RunStorageTests(testcases, func(ctx context.Context) {
+		mockDAO, err := manager.Resolve[DAO](ctx)
+		if err != nil {
+			panic(err)
+		}
+
 		Convey("Test Add Rule", t, func() {
 
 			err := mockDAO.AddPolicy(ctx, "resource-id", &service.ResourcePolicy{Action: service.ResourcePolicyAction_READ, Subject: "subject1"})

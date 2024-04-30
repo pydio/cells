@@ -333,6 +333,35 @@ func (m *manager) initConnections() error {
 		}
 	}
 
+	runtime.Register(m.ns, func(ctx context.Context) {
+		storages, err := m.localRegistry.List(registry.WithType(pb.ItemType_STORAGE))
+		if err != nil {
+			return
+		}
+
+		services, err := m.localRegistry.List(registry.WithType(pb.ItemType_SERVICE))
+		if err != nil {
+			return
+		}
+
+		for _, ss := range services {
+			// Find storage and link it
+			var stores []map[string]string
+			if err := store.Val("services", ss.Name(), "storages").Scan(&stores); err != nil {
+				return
+			}
+
+			for _, store := range stores {
+				for _, storage := range storages {
+					if store["type"] == storage.Name() {
+						edge, err := m.localRegistry.RegisterEdge(ss.ID(), storage.ID(), "storage", nil)
+						fmt.Println(edge, err)
+					}
+				}
+			}
+		}
+	})
+
 	return nil
 }
 
@@ -1160,19 +1189,18 @@ func Resolve[T any](ctx context.Context) (T, error) {
 			return t, errors.New("storage handler is not a function")
 		}
 
-		if handlerT.NumIn() != 1 {
-			return t, errors.New("storage handler should have only 1 argument")
-		}
+		var conns []reflect.Value
+		for idx, st := range storages {
+			conn := reflect.New(handlerT.In(idx))
 
-		db := reflect.New(handlerT.In(0))
-
-		for _, st := range storages {
 			var st1 storage.Storage
 			st.As(&st1)
 
-			if st1.Get(ctx, db.Interface()) {
-				break
+			if !st1.Get(ctx, conn.Interface()) {
+				return t, fmt.Errorf("database interface is not compatible %d", idx)
 			}
+
+			conns = append(conns, conn.Elem())
 		}
 
 		// Checking all migrations
@@ -1181,7 +1209,10 @@ func Resolve[T any](ctx context.Context) (T, error) {
 			return t, err
 		}
 
-		dao := handlerV.Call([]reflect.Value{db.Elem()})
+		if handlerT.NumIn() != len(conns) {
+			return t, errors.New("number of connections differs from what is requested")
+		}
+		dao := handlerV.Call(conns)
 		t = dao[0].Interface().(T)
 
 		return t, nil

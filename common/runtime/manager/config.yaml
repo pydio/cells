@@ -244,10 +244,9 @@ services:
         path: chat
   pydio.grpc.docstore:
     storages:
-      - type: redis-cache
-        target: core
       - type: bolt
-        name: core
+        prefix: docstore
+      - type: nosql
   pydio.grpc.role:
     storages:
       - type: sql

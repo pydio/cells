@@ -30,6 +30,7 @@ import (
 
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/proto/log"
+	"github.com/pydio/cells/v4/common/runtime/manager"
 	"github.com/pydio/cells/v4/common/utils/test"
 	"github.com/pydio/cells/v4/common/utils/uuid"
 
@@ -40,18 +41,22 @@ import (
 
 var (
 	testcases = []test.StorageTestCase{
-		{"bleve://" + filepath.Join(os.TempDir(), "logtest_"+uuid.New()+".bleve?mapping=log"), true, NewBleveDAO},
-		{os.Getenv("CELLS_TEST_MONGODB_DSN") + "?collection=logs_test", os.Getenv("CELLS_TEST_MONGODB_DSN") != "", NewMongoDAO},
+		{[]string{"bleve://" + filepath.Join(os.TempDir(), "logtest_"+uuid.New()+".bleve?mapping=log")}, true, NewBleveDAO},
+		{[]string{os.Getenv("CELLS_TEST_MONGODB_DSN") + "?collection=logs_test"}, os.Getenv("CELLS_TEST_MONGODB_DSN") != "", NewMongoDAO},
 	}
 )
 
 func TestMessageRepository(t *testing.T) {
 
-	test.RunStorageTests(testcases, func(ctx context.Context, server MessageRepository) {
+	test.RunStorageTests(testcases, func(ctx context.Context) {
 		bg := context.Background()
 
 		Convey("Test all property indexation:\n", t, func() {
-			err := server.PutLog(bg, &log.Log{Message: []byte(sampleSyslog), Nano: int32(time.Now().UnixNano())})
+			server, err := manager.Resolve[MessageRepository](ctx)
+			So(err, ShouldBeNil)
+			So(server, ShouldNotBeNil)
+
+			err = server.PutLog(bg, &log.Log{Message: []byte(sampleSyslog), Nano: int32(time.Now().UnixNano())})
 			So(err, ShouldBeNil)
 			// Wait for batch to be processed
 			<-time.After(4 * time.Second)
@@ -81,7 +86,11 @@ func TestMessageRepository(t *testing.T) {
 		})
 
 		Convey("Basic technical log index tests:\n", t, func() {
-			err := server.PutLog(bg, log2map("INFO", "this is the first test"))
+			server, err := manager.Resolve[MessageRepository](ctx)
+			So(err, ShouldBeNil)
+			So(server, ShouldNotBeNil)
+
+			err = server.PutLog(bg, log2map("INFO", "this is the first test"))
 			So(err, ShouldBeNil)
 
 			err2 := server.PutLog(bg, log2map("INFO", "this is another test 2"))
@@ -97,6 +106,10 @@ func TestMessageRepository(t *testing.T) {
 		})
 
 		Convey("Search a result", t, func() {
+			server, err := manager.Resolve[MessageRepository](ctx)
+			So(err, ShouldBeNil)
+			So(server, ShouldNotBeNil)
+
 			results, err := server.ListLogs(bg, fmt.Sprintf(
 				`+%s:*test* +%s:INFO +%s:>1142080000`, // ~01.01.2006
 				common.KeyMsg,

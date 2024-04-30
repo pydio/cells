@@ -32,6 +32,7 @@ import (
 	"github.com/pydio/cells/v4/common/proto/idm"
 	"github.com/pydio/cells/v4/common/proto/service"
 	"github.com/pydio/cells/v4/common/proto/tree"
+	"github.com/pydio/cells/v4/common/runtime/manager"
 	"github.com/pydio/cells/v4/common/service/errors"
 	"github.com/pydio/cells/v4/common/sql"
 	"github.com/pydio/cells/v4/common/storage"
@@ -45,7 +46,7 @@ import (
 
 var (
 	testcases = []test.StorageTestCase{
-		{sqlite.Driver + "://" + sqlite.SharedMemDSN, true, NewDAO},
+		{[]string{sqlite.Driver + "://" + sqlite.SharedMemDSN}, true, NewDAO},
 	}
 )
 
@@ -53,7 +54,12 @@ type server struct{}
 
 func TestQueryBuilder(t *testing.T) {
 
-	test.RunStorageTests(testcases, func(ctx context.Context, mockDAO DAO) {
+	test.RunStorageTests(testcases, func(ctx context.Context) {
+		mockDAO, err := manager.Resolve[DAO](ctx)
+		if err != nil {
+			panic(err)
+		}
+
 		sqliteDao := mockDAO.(*sqlimpl)
 		converter := &queryConverter{
 			treeDao: sqliteDao.indexDAO,
@@ -626,7 +632,12 @@ func TestQueryBuilder(t *testing.T) {
 }
 
 func TestDestructiveCreateUser(t *testing.T) {
-	test.RunStorageTests(testcases, func(ctx context.Context, mockDAO DAO) {
+	test.RunStorageTests(testcases, func(ctx context.Context) {
+		mockDAO, err := manager.Resolve[DAO](ctx)
+		if err != nil {
+			panic(err)
+		}
+
 		Convey("Test bug with create user", t, func() {
 
 			_, _, err := mockDAO.Add(context.TODO(), &idm.User{

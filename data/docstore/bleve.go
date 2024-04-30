@@ -23,10 +23,10 @@ package docstore
 import (
 	"context"
 	"fmt"
-	"go.etcd.io/bbolt"
 	"strings"
 
 	bleve "github.com/blevesearch/bleve/v2"
+	"go.etcd.io/bbolt"
 	"go.uber.org/zap"
 
 	"github.com/pydio/cells/v4/common/log"
@@ -41,19 +41,18 @@ type BleveServer struct {
 	Engine bleve.Index
 }
 
-func NewBleveEngine(db *bbolt.DB, index bleve.Index) (*BleveServer, error) {
-
+func NewBleveEngine(db *bbolt.DB, index bleve.Index) *BleveServer {
 	bStore := &BoltStore{db: db}
 
 	return &BleveServer{
 		BoltStore: bStore,
 		Engine:    index,
-	}, nil
+	}
 }
 
-func (s *BleveServer) PutDocument(storeID string, doc *docstore.Document) error {
+func (s *BleveServer) PutDocument(ctx context.Context, storeID string, doc *docstore.Document) error {
 
-	if er := s.BoltStore.PutDocument(storeID, doc); er != nil {
+	if er := s.BoltStore.PutDocument(ctx, storeID, doc); er != nil {
 		return er
 	}
 
@@ -78,7 +77,7 @@ func (s *BleveServer) PutDocument(storeID string, doc *docstore.Document) error 
 	return nil
 }
 
-func (s *BleveServer) DeleteDocument(storeID string, docID string) error {
+func (s *BleveServer) DeleteDocument(ctx context.Context, storeID string, docID string) error {
 
 	if er := s.BoltStore.DeleteDocument(storeID, docID); er != nil {
 		return er
@@ -88,14 +87,14 @@ func (s *BleveServer) DeleteDocument(storeID string, docID string) error {
 
 }
 
-func (s *BleveServer) DeleteDocuments(storeID string, query *docstore.DocumentQuery) (int, error) {
+func (s *BleveServer) DeleteDocuments(ctx context.Context, storeID string, query *docstore.DocumentQuery) (int, error) {
 	var count int
 	dd, _, e := s.search(storeID, query, false)
 	if e != nil {
 		return 0, e
 	}
 	for _, d := range dd {
-		if e := s.DeleteDocument(storeID, d); e != nil {
+		if e := s.DeleteDocument(ctx, storeID, d); e != nil {
 			return 0, e
 		}
 		count++
@@ -118,11 +117,11 @@ func (s *BleveServer) Reset() error {
 	return nil
 }
 
-func (s *BleveServer) CountDocuments(storeId string, query *docstore.DocumentQuery) (int, error) {
+func (s *BleveServer) CountDocuments(ctx context.Context, storeID string, query *docstore.DocumentQuery) (int, error) {
 	if query == nil || query.MetaQuery == "" {
 		return 0, fmt.Errorf("Provide a query for count")
 	}
-	docIds, _, err := s.search(storeId, query, true)
+	docIds, _, err := s.search(storeID, query, true)
 	if err != nil {
 		return 0, err
 	}
@@ -130,7 +129,7 @@ func (s *BleveServer) CountDocuments(storeId string, query *docstore.DocumentQue
 
 }
 
-func (s *BleveServer) QueryDocuments(storeID string, query *docstore.DocumentQuery) (chan *docstore.Document, error) {
+func (s *BleveServer) QueryDocuments(ctx context.Context, storeID string, query *docstore.DocumentQuery) (chan *docstore.Document, error) {
 
 	if query != nil && query.MetaQuery != "" {
 
@@ -141,7 +140,7 @@ func (s *BleveServer) QueryDocuments(storeID string, query *docstore.DocumentQue
 		res := make(chan *docstore.Document)
 		go func() {
 			for _, docId := range docIds {
-				if doc, e := s.BoltStore.GetDocument(storeID, docId); e == nil && doc != nil {
+				if doc, e := s.BoltStore.GetDocument(ctx, storeID, docId); e == nil && doc != nil {
 					doc.ID = docId
 					res <- doc
 				}

@@ -23,9 +23,6 @@ package service
 import (
 	"context"
 	"fmt"
-	"github.com/pydio/cells/v4/common/runtime"
-	servercontext "github.com/pydio/cells/v4/common/server/context"
-	"github.com/pydio/cells/v4/common/server/middleware"
 	"net/http"
 	"os"
 	"path/filepath"
@@ -37,6 +34,9 @@ import (
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/config"
 	"github.com/pydio/cells/v4/common/log"
+	"github.com/pydio/cells/v4/common/runtime"
+	servercontext "github.com/pydio/cells/v4/common/server/context"
+	"github.com/pydio/cells/v4/common/server/middleware"
 )
 
 // Migration defines a target version and functions to upgrade and/or downgrade.

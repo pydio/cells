@@ -37,6 +37,7 @@ import (
 	"github.com/pydio/cells/v4/common/dao/boltdb"
 	"github.com/pydio/cells/v4/common/proto/activity"
 	"github.com/pydio/cells/v4/common/proto/idm"
+	"github.com/pydio/cells/v4/common/runtime/manager"
 	"github.com/pydio/cells/v4/common/utils/configx"
 	"github.com/pydio/cells/v4/common/utils/jsonx"
 	"github.com/pydio/cells/v4/common/utils/test"
@@ -52,8 +53,8 @@ var (
 	conf      configx.Values
 	ctx       = context.Background()
 	testcases = []test.StorageTestCase{
-		{"boltdb://" + filepath.Join(os.TempDir(), "activity_bolt_"+uuid.New()+".db"), true, NewBoltDAO},
-		{os.Getenv("CELLS_TEST_MONGODB_DSN") + "?collection=activity", os.Getenv("CELLS_TEST_MONGODB_DSN") != "", NewMongoDAO},
+		{[]string{"boltdb://" + filepath.Join(os.TempDir(), "activity_bolt_"+uuid.New()+".db")}, true, NewBoltDAO},
+		{[]string{os.Getenv("CELLS_TEST_MONGODB_DSN") + "?collection=activity"}, os.Getenv("CELLS_TEST_MONGODB_DSN") != "", NewMongoDAO},
 	}
 )
 
@@ -65,28 +66,15 @@ func init() {
 
 func TestBoltEmptyDao(t *testing.T) {
 
-	test.RunStorageTests(testcases, func(ctx context.Context, dao DAO) {
-
-		/*
-			tmpDbFilePath := os.TempDir() + "/bolt-test.db"
-
-			Convey("Test initialize DB", t, func() {
-				defer os.Remove(tmpDbFilePath)
-				dao, _ := boltdb.NewDAO(ctx, "boltdb", tmpDbFilePath, "")
-				So(dao, ShouldNotBeNil)
-				defer dao.CloseConn(ctx)
-			})
-
-			Convey("Test unreachable file", t, func() {
-				dbFile := os.TempDir() + "/anynonexisting/folder/toto.db"
-				dao, _ := boltdb.NewDAO(ctx, "boltdb", dbFile, "")
-				So(dao, ShouldBeNil)
-			})*/
-
+	test.RunStorageTests(testcases, func(ctx context.Context) {
 		Convey("Test getBucket - read - not exists", t, func() {
+			dao, err := manager.Resolve[DAO](ctx)
+			So(err, ShouldBeNil)
+			So(dao, ShouldNotBeNil)
+
 			results := make(chan *activity.Object)
 			done := make(chan bool, 1)
-			err := dao.ActivitiesFor(ctx, activity.OwnerType_USER, "unknown", BoxInbox, BoxLastRead, 0, 100, results, done)
+			err = dao.ActivitiesFor(ctx, activity.OwnerType_USER, "unknown", BoxInbox, BoxLastRead, 0, 100, results, done)
 			So(err, ShouldBeNil)
 		})
 	})
@@ -94,7 +82,7 @@ func TestBoltEmptyDao(t *testing.T) {
 
 func TestBoltMassivePurge(t *testing.T) {
 
-	test.RunStorageTests(testcases, func(ctx context.Context, dao DAO) {
+	test.RunStorageTests(testcases, func(ctx context.Context) {
 		/*
 			tmpMassivePurge := path.Join(os.TempDir(), "bolt-test-massive.db")
 			t.Log("MASSIVE DB AT", tmpMassivePurge)
@@ -106,6 +94,11 @@ func TestBoltMassivePurge(t *testing.T) {
 			defer dao.CloseConn(ctx)
 
 		*/
+		dao, err := manager.Resolve[DAO](ctx)
+		if err != nil {
+			panic(err)
+		}
+
 		number := 100000
 		bb := dao.(boltdb.DAO).DB()
 
@@ -149,9 +142,13 @@ func TestBoltMassivePurge(t *testing.T) {
 
 func TestInsertActivity(t *testing.T) {
 
-	test.RunStorageTests(testcases, func(ctx context.Context, dao DAO) {
+	test.RunStorageTests(testcases, func(ctx context.Context) {
 
 		Convey("Test insert", t, func() {
+
+			dao, err := manager.Resolve[DAO](ctx)
+			So(err, ShouldBeNil)
+			So(dao, ShouldNotBeNil)
 
 			ac := &activity.Object{
 				Type: activity.ObjectType_Travel,
@@ -162,7 +159,7 @@ func TestInsertActivity(t *testing.T) {
 				},
 			}
 
-			err := dao.PostActivity(ctx, activity.OwnerType_NODE, "NODE-UUID", BoxOutbox, ac, false)
+			err = dao.PostActivity(ctx, activity.OwnerType_NODE, "NODE-UUID", BoxOutbox, ac, false)
 			So(err, ShouldBeNil)
 
 			var results []*activity.Object
@@ -195,6 +192,10 @@ func TestInsertActivity(t *testing.T) {
 
 		Convey("Test Unread box", t, func() {
 
+			dao, err := manager.Resolve[DAO](ctx)
+			So(err, ShouldBeNil)
+			So(dao, ShouldNotBeNil)
+
 			ac := &activity.Object{
 				Type: activity.ObjectType_Travel,
 				Actor: &activity.Object{
@@ -204,7 +205,7 @@ func TestInsertActivity(t *testing.T) {
 				},
 			}
 
-			err := dao.PostActivity(ctx, activity.OwnerType_USER, "john", BoxInbox, ac, false)
+			err = dao.PostActivity(ctx, activity.OwnerType_USER, "john", BoxInbox, ac, false)
 			So(err, ShouldBeNil)
 
 			unread := dao.CountUnreadForUser(nil, "john")
@@ -243,9 +244,12 @@ func TestInsertActivity(t *testing.T) {
 
 func TestMultipleInsert(t *testing.T) {
 
-	test.RunStorageTests(testcases, func(ctx context.Context, dao DAO) {
+	test.RunStorageTests(testcases, func(ctx context.Context) {
 
 		Convey("Test insert", t, func() {
+			dao, err := manager.Resolve[DAO](ctx)
+			So(err, ShouldBeNil)
+			So(dao, ShouldNotBeNil)
 
 			ac := &activity.Object{
 				Type: activity.ObjectType_Travel,
@@ -256,7 +260,7 @@ func TestMultipleInsert(t *testing.T) {
 				},
 			}
 
-			err := dao.PostActivity(ctx, activity.OwnerType_NODE, "NODE-UUID", BoxOutbox, ac, false)
+			err = dao.PostActivity(ctx, activity.OwnerType_NODE, "NODE-UUID", BoxOutbox, ac, false)
 			So(err, ShouldBeNil)
 			err = dao.PostActivity(ctx, activity.OwnerType_NODE, "NODE-UUID", BoxOutbox, ac, false)
 			So(err, ShouldBeNil)
@@ -296,8 +300,11 @@ func TestMultipleInsert(t *testing.T) {
 
 func TestCursor(t *testing.T) {
 
-	test.RunStorageTests(testcases, func(ctx context.Context, dao DAO) {
+	test.RunStorageTests(testcases, func(ctx context.Context) {
 		Convey("Insert Activities and browse", t, func() {
+			dao, err := manager.Resolve[DAO](ctx)
+			So(err, ShouldBeNil)
+			So(dao, ShouldNotBeNil)
 
 			for i := 0; i < 50; i++ {
 				ac := &activity.Object{
@@ -335,7 +342,7 @@ func TestCursor(t *testing.T) {
 			go func() {
 				readResults(wg)
 			}()
-			err := dao.ActivitiesFor(ctx, activity.OwnerType_USER, "charles", BoxInbox, "", 0, 20, resChan, doneChan)
+			err = dao.ActivitiesFor(ctx, activity.OwnerType_USER, "charles", BoxInbox, "", 0, 20, resChan, doneChan)
 			wg.Wait()
 			So(err, ShouldBeNil)
 			So(results, ShouldHaveLength, 20)
@@ -411,9 +418,12 @@ func TestCursor(t *testing.T) {
 
 func TestSimilarSkipping(t *testing.T) {
 
-	test.RunStorageTests(testcases[:1], func(ctx context.Context, dao DAO) {
+	test.RunStorageTests(testcases[:1], func(ctx context.Context) {
 
 		Convey("Insert Activities and browse", t, func() {
+			dao, err := manager.Resolve[DAO](ctx)
+			So(err, ShouldBeNil)
+			So(dao, ShouldNotBeNil)
 
 			numberSimilar := 4
 			startSimilar := 14
@@ -463,7 +473,7 @@ func TestSimilarSkipping(t *testing.T) {
 			go func() {
 				readResults(wg)
 			}()
-			err := dao.ActivitiesFor(ctx, activity.OwnerType_USER, "charles", BoxInbox, "", 0, 20, resChan, doneChan)
+			err = dao.ActivitiesFor(ctx, activity.OwnerType_USER, "charles", BoxInbox, "", 0, 20, resChan, doneChan)
 			wg.Wait()
 			So(err, ShouldBeNil)
 			So(results, ShouldHaveLength, 20-(numberSimilar-1))
@@ -512,8 +522,12 @@ func TestSimilarSkipping(t *testing.T) {
 
 func TestDelete(t *testing.T) {
 
-	test.RunStorageTests(testcases, func(ctx context.Context, dao DAO) {
+	test.RunStorageTests(testcases, func(ctx context.Context) {
 		Convey("Test Delete Owner", t, func() {
+
+			dao, err := manager.Resolve[DAO](ctx)
+			So(err, ShouldBeNil)
+			So(dao, ShouldNotBeNil)
 
 			ac := &activity.Object{
 				Type: activity.ObjectType_Travel,
@@ -524,7 +538,7 @@ func TestDelete(t *testing.T) {
 				},
 			}
 
-			err := dao.PostActivity(ctx, activity.OwnerType_USER, "john", BoxInbox, ac, false)
+			err = dao.PostActivity(ctx, activity.OwnerType_USER, "john", BoxInbox, ac, false)
 			So(err, ShouldBeNil)
 
 			err = dao.Delete(ctx, activity.OwnerType_USER, "john")
@@ -539,7 +553,13 @@ func TestDelete(t *testing.T) {
 
 func TestPurge(t *testing.T) {
 
-	test.RunStorageTests(testcases, func(ctx context.Context, dao DAO) {
+	test.RunStorageTests(testcases, func(ctx context.Context) {
+
+		dao, err := manager.Resolve[DAO](ctx)
+		if err != nil {
+			return
+		}
+
 		listJohn := func() ([]*activity.Object, error) {
 			var results []*activity.Object
 			resChan := make(chan *activity.Object)
@@ -626,8 +646,12 @@ func TestPurge(t *testing.T) {
 
 func TestSubscriptions(t *testing.T) {
 
-	test.RunStorageTests(testcases, func(ctx context.Context, dao DAO) {
+	test.RunStorageTests(testcases, func(ctx context.Context) {
+
 		Convey("Test subscribe", t, func() {
+			dao, err := manager.Resolve[DAO](ctx)
+			So(err, ShouldBeNil)
+			So(dao, ShouldNotBeNil)
 
 			sub := &activity.Subscription{
 				UserId:     "user1",
@@ -635,7 +659,7 @@ func TestSubscriptions(t *testing.T) {
 				ObjectId:   "ROOT",
 				Events:     []string{"read", "write"},
 			}
-			err := dao.UpdateSubscription(nil, sub)
+			err = dao.UpdateSubscription(nil, sub)
 			So(err, ShouldBeNil)
 
 			sub2 := &activity.Subscription{
@@ -658,6 +682,10 @@ func TestSubscriptions(t *testing.T) {
 
 		Convey("Test unsubscribe", t, func() {
 
+			dao, err := manager.Resolve[DAO](ctx)
+			So(err, ShouldBeNil)
+			So(dao, ShouldNotBeNil)
+
 			sub := &activity.Subscription{
 				UserId:     "user1",
 				ObjectType: activity.OwnerType_NODE,
@@ -665,7 +693,7 @@ func TestSubscriptions(t *testing.T) {
 				Events:     []string{},
 			}
 
-			err := dao.UpdateSubscription(nil, sub)
+			err = dao.UpdateSubscription(nil, sub)
 			So(err, ShouldBeNil)
 
 			subs, err := dao.ListSubscriptions(nil, activity.OwnerType_NODE, []string{"ROOT"})
@@ -693,9 +721,13 @@ func TestWsSorting(t *testing.T) {
 
 func SkipTestMassiveQueries(t *testing.T) {
 
-	test.RunStorageTests(testcases, func(ctx context.Context, dao DAO) {
+	test.RunStorageTests(testcases, func(ctx context.Context) {
 
 		Convey("Test massive queries", t, func() {
+
+			dao, err := manager.Resolve[DAO](ctx)
+			So(err, ShouldBeNil)
+			So(dao, ShouldNotBeNil)
 
 			var er error
 			for i := 0; i < 10000; i++ {
@@ -750,7 +782,7 @@ func SkipTestMassiveQueries(t *testing.T) {
 			}()
 
 			now := time.Now()
-			err := dao.ActivitiesFor(ctx, activity.OwnerType_NODE, "NODE-UUID", BoxOutbox, "", 0, 0, resChan, doneChan)
+			err = dao.ActivitiesFor(ctx, activity.OwnerType_NODE, "NODE-UUID", BoxOutbox, "", 0, 0, resChan, doneChan)
 			wg.Wait()
 			t.Log("Loading 20 activities took", time.Since(now))
 

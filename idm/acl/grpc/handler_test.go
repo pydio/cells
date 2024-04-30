@@ -45,12 +45,13 @@ var (
 
 var (
 	testcases = []test.StorageTestCase{
-		{sqlite.Driver + "://" + sqlite.SharedMemDSN, true, acl.NewDAO},
+		{[]string{sqlite.Driver + "://" + sqlite.SharedMemDSN}, true, acl.NewDAO},
 	}
 )
 
 func TestACL(t *testing.T) {
-	test.RunStorageTests(testcases, func(ctx context.Context, mockDAO acl.DAO) {
+	test.RunStorageTests(testcases, func(ctx context.Context) {
+
 		s := NewHandler(ctx)
 
 		Convey("Create ACLs", t, func() {

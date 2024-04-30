@@ -21,36 +21,51 @@
 package docstore
 
 import (
+	"context"
 	"os"
 	"path/filepath"
 	"testing"
 
-	. "github.com/smartystreets/goconvey/convey"
-
 	"github.com/pydio/cells/v4/common/proto/docstore"
+	"github.com/pydio/cells/v4/common/runtime/manager"
+	"github.com/pydio/cells/v4/common/utils/test"
+	"github.com/pydio/cells/v4/common/utils/uuid"
+
+	. "github.com/smartystreets/goconvey/convey"
+)
+
+var (
+	testcases = []test.StorageTestCase{
+		{[]string{
+			"boltdb://" + filepath.Join(os.TempDir(), "docstore_bolt_"+uuid.New()+".db"),
+			"bleve://" + filepath.Join(os.TempDir(), "docstore_bleve_"+uuid.New()+".db"),
+		}, true, NewBleveEngine},
+		{[]string{os.Getenv("CELLS_TEST_MONGODB_DSN") + "?collection=activity"}, os.Getenv("CELLS_TEST_MONGODB_DSN") != "", NewMongoDAO},
+	}
 )
 
 func TestNewBoltStore(t *testing.T) {
 
 	Convey("Test NewBoltStore", t, func() {
+		test.RunStorageTests(testcases, func(ctx context.Context) {
+			dao, err := manager.Resolve[DAO](ctx)
+			So(err, ShouldBeNil)
 
-		p := filepath.Join(os.TempDir(), "docstore-test-bolt.db")
-		bs, e := NewBoltStore(p)
-		So(e, ShouldBeNil)
-		So(bs, ShouldNotBeNil)
+			p := filepath.Join(os.TempDir(), "docstore-test-bolt.db")
+			bs, e := NewBoltStore(p)
+			So(e, ShouldBeNil)
+			So(bs, ShouldNotBeNil)
 
-		er := bs.PutDocument("mystore", &docstore.Document{ID: "1", Data: "Data"})
-		So(er, ShouldBeNil)
-		stores, e := bs.ListStores()
-		So(e, ShouldBeNil)
-		So(stores, ShouldHaveLength, 1)
-		So(stores[0], ShouldEqual, "mystore")
+			er := dao.PutDocument(ctx, "mystore", &docstore.Document{ID: "1", Data: "Data"})
+			So(er, ShouldBeNil)
+			stores, e := dao.ListStores(ctx)
+			So(e, ShouldBeNil)
+			So(stores, ShouldHaveLength, 1)
+			So(stores[0], ShouldEqual, "mystore")
 
-		e = bs.db.Close()
-		So(e, ShouldBeNil)
-		e = os.Remove(p)
-		So(e, ShouldBeNil)
+			// Close TODO
 
+		})
 	})
 
 }

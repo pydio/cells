@@ -31,6 +31,7 @@ import (
 	chat2 "github.com/pydio/cells/v4/broker/chat"
 	"github.com/pydio/cells/v4/common/nodes/mocks"
 	"github.com/pydio/cells/v4/common/proto/chat"
+	"github.com/pydio/cells/v4/common/runtime/manager"
 	"github.com/pydio/cells/v4/common/server/stubs"
 	"github.com/pydio/cells/v4/common/utils/test"
 	"github.com/pydio/cells/v4/common/utils/uuid"
@@ -43,8 +44,8 @@ import (
 
 var (
 	testcases = []test.StorageTestCase{
-		{"boltdb://" + filepath.Join(os.TempDir(), "chat_bolt_"+uuid.New()+".db"), true, chat2.NewBoltDAO},
-		{os.Getenv("CELLS_TEST_MONGODB_DSN") + "?collection=index", os.Getenv("CELLS_TEST_MONGODB_DSN") != "", chat2.NewMongoDAO},
+		{[]string{"boltdb://" + filepath.Join(os.TempDir(), "chat_bolt_"+uuid.New()+".db")}, true, chat2.NewBoltDAO},
+		{[]string{os.Getenv("CELLS_TEST_MONGODB_DSN") + "?collection=index"}, os.Getenv("CELLS_TEST_MONGODB_DSN") != "", chat2.NewMongoDAO},
 	}
 )
 
@@ -72,12 +73,16 @@ func TestChatHandler_PutRoom(t *testing.T) {
 
 	handler := &ChatHandler{}
 
-	test.RunStorageTests(testcases, func(ctx context.Context, cd chat2.DAO) {
+	test.RunStorageTests(testcases, func(ctx context.Context) {
 
 		roomUuid := uuid.New()
 		nodeUuid := uuid.New()
 
 		Convey("Test Chat DAO / CRUD ROOMS", t, func() {
+			cd, err := manager.Resolve[chat2.DAO](ctx)
+			So(err, ShouldBeNil)
+			So(cd, ShouldNotBeNil)
+
 			_, e := handler.PutRoom(ctx, &chat.PutRoomRequest{Room: &chat.ChatRoom{
 				Type:           chat.RoomType_NODE,
 				Uuid:           roomUuid,
@@ -134,11 +139,15 @@ func TestChatHandler_PutMessage(t *testing.T) {
 
 	handler := &ChatHandler{}
 
-	test.RunStorageTests(testcases, func(ctx context.Context, cd chat2.DAO) {
+	test.RunStorageTests(testcases, func(ctx context.Context) {
 
 		ctx = context.WithValue(ctx, "resolved-meta-client", &mocks.NodeReceiverClient{})
 
 		Convey("Test Chat DAO / CRUD MESSAGES", t, func() {
+			cd, err := manager.Resolve[chat2.DAO](ctx)
+			So(err, ShouldBeNil)
+			So(cd, ShouldNotBeNil)
+
 			_, e := handler.PutRoom(ctx, &chat.PutRoomRequest{Room: &chat.ChatRoom{
 				Type:           chat.RoomType_NODE,
 				Uuid:           "room",
@@ -215,11 +224,16 @@ func TestChatHandler_ListMessages(t *testing.T) {
 
 	handler := &ChatHandler{}
 
-	test.RunStorageTests(testcases, func(ctx context.Context, cd chat2.DAO) {
+	test.RunStorageTests(testcases, func(ctx context.Context) {
+
 		roomUuid := uuid.New()
 		ctx = context.WithValue(ctx, "resolved-meta-client", &mocks.NodeReceiverClient{})
 
 		Convey("Test Chat DAO / CRUD MESSAGES", t, func() {
+			cd, err := manager.Resolve[chat2.DAO](ctx)
+			So(err, ShouldBeNil)
+			So(cd, ShouldNotBeNil)
+
 			_, e := handler.PutRoom(ctx, &chat.PutRoomRequest{Room: &chat.ChatRoom{
 				Type:           chat.RoomType_NODE,
 				Uuid:           roomUuid,

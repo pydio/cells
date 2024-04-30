@@ -795,6 +795,7 @@ func (s *Indexer) NewBatch(ctx context.Context, opts ...indexer.BatchOption) (in
 		}),
 		indexer.WithFlushCallback(func() error {
 
+			fmt.Println("Dowing batch")
 			if err := index.Batch(batch); err != nil {
 				return err
 			}

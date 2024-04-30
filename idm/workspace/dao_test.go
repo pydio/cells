@@ -29,6 +29,7 @@ import (
 	"github.com/pydio/cells/v4/common/dao/sqlite"
 	"github.com/pydio/cells/v4/common/proto/idm"
 	service "github.com/pydio/cells/v4/common/proto/service"
+	"github.com/pydio/cells/v4/common/runtime/manager"
 	"github.com/pydio/cells/v4/common/utils/test"
 
 	. "github.com/smartystreets/goconvey/convey"
@@ -36,13 +37,18 @@ import (
 
 var (
 	testcases = []test.StorageTestCase{
-		{sqlite.Driver + "://" + sqlite.SharedMemDSN, true, NewDAO},
+		{[]string{sqlite.Driver + "://" + sqlite.SharedMemDSN}, true, NewDAO},
 	}
 )
 
 func TestUniqueSlug(t *testing.T) {
 
-	test.RunStorageTests(testcases, func(ctx context.Context, mockDAO DAO) {
+	test.RunStorageTests(testcases, func(ctx context.Context) {
+		mockDAO, err := manager.Resolve[DAO](ctx)
+		if err != nil {
+			panic(err)
+		}
+
 		Convey("Test Unique Slug", t, func() {
 
 			ws := &idm.Workspace{
@@ -106,7 +112,12 @@ func TestUniqueSlug(t *testing.T) {
 
 func TestSearch(t *testing.T) {
 
-	test.RunStorageTests(testcases, func(ctx context.Context, mockDAO DAO) {
+	test.RunStorageTests(testcases, func(ctx context.Context) {
+		mockDAO, err := manager.Resolve[DAO](ctx)
+		if err != nil {
+			panic(err)
+		}
+
 		Convey("Query Builder", t, func() {
 
 			workspaces := []*idm.Workspace{
