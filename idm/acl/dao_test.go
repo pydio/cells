@@ -97,9 +97,10 @@ func TestQueryBuilder(t *testing.T) {
 				Limit:      10,
 			}
 
-			s := sql.NewGormQueryBuilder(simpleQuery, new(queryConverter)).Build(ctx, mockDB)
+			s, er := sql.NewQueryBuilder[*gorm.DB](simpleQuery, new(queryConverter)).Build(ctx, mockDB)
+			So(er, ShouldBeNil)
 			So(s, ShouldNotBeNil)
-			s.(*gorm.DB).Find(&[]ACL{})
+			s.Find(&[]ACL{})
 			//So(s, ShouldEqual, `(role_id in (select id from idm_acl_roles where uuid in ("role1"))) OR (role_id in (select id from idm_acl_roles where uuid in ("role2")))`)
 		})
 
@@ -145,7 +146,8 @@ func TestQueryBuilder(t *testing.T) {
 				Operation: service.OperationType_AND,
 			}
 
-			s := sql.NewGormQueryBuilder(composedQuery, new(queryConverter)).Build(ctx, mockDB)
+			s, er := sql.NewQueryBuilder[*gorm.DB](composedQuery, new(queryConverter)).Build(ctx, mockDB)
+			So(er, ShouldBeNil)
 			So(s, ShouldNotBeNil)
 			//So(s, ShouldEqual, `((role_id in (select id from idm_acl_roles where uuid in ("role1"))) OR (role_id in (select id from idm_acl_roles where uuid in ("role2")))) AND (role_id in (select id from idm_acl_roles where uuid in ("role3_1","role3_2","role3_3")))`)
 		})
@@ -168,7 +170,8 @@ func TestQueryBuilder(t *testing.T) {
 				Operation: service.OperationType_AND,
 			}
 
-			s := sql.NewGormQueryBuilder(composedQuery, new(queryConverter)).Build(ctx, mockDB)
+			s, er := sql.NewQueryBuilder[*gorm.DB](composedQuery, new(queryConverter)).Build(ctx, mockDB)
+			So(er, ShouldBeNil)
 			So(s, ShouldNotBeNil)
 			//So(s, ShouldEqual, `((action_name='read' AND action_value='read_val') OR (action_name='write' AND action_value='write_val'))`)
 		})
@@ -199,7 +202,8 @@ func TestQueryBuilder(t *testing.T) {
 				Operation: service.OperationType_AND,
 			}
 
-			s := sql.NewGormQueryBuilder(composedQuery, new(queryConverter)).Build(ctx, mockDB)
+			s, er := sql.NewQueryBuilder[*gorm.DB](composedQuery, new(queryConverter)).Build(ctx, mockDB)
+			So(er, ShouldBeNil)
 			So(s, ShouldNotBeNil)
 			//So(s, ShouldEqual, `((action_name='read' OR action_name='write')) AND (role_id in (select id from idm_acl_roles where uuid in ("role1","role2"))) AND (node_id in (select id from idm_acl_nodes where uuid in ("node1")))`)
 		})

@@ -22,226 +22,125 @@ package sql
 
 import (
 	"context"
-	"fmt"
-	"github.com/doug-martin/goqu/v9/exp"
-	"gorm.io/gorm"
-	"strings"
 
-	goqu "github.com/doug-martin/goqu/v9"
-	_ "github.com/doug-martin/goqu/v9/dialect/mysql"
 	"google.golang.org/protobuf/proto"
 	"google.golang.org/protobuf/types/known/anypb"
 
 	"github.com/pydio/cells/v4/common/proto/service"
+
+	_ "github.com/doug-martin/goqu/v9/dialect/mysql"
 )
 
-type Builder interface {
-	Build(any, service.OperationType) (any, bool)
-	Convert(any, *anypb.Any) (any, bool)
+type Collector[T any] interface {
+	Or(query interface{}, args ...interface{}) T
+	Where(query interface{}, args ...interface{}) T
+	Offset(offset int) T
+	Limit(limit int) T
 }
 
-// Expressioner ...
-type Expressioner interface {
-	Build(ctx context.Context, in any) (out any)
-	Expression(driver string) goqu.Expression
+// Builder provides the Build function
+type Builder[T Collector[T]] interface {
+	Build(ctx context.Context, in T) (out T, e error)
 }
 
-type Converter interface {
-	Convert(ctx context.Context, sub *anypb.Any, in any) (out any, ok bool)
+// Converter passes the convert function
+type Converter[T Collector[T]] interface {
+	Convert(ctx context.Context, sub *anypb.Any, in T) (out T, ok bool, err error)
 }
 
-// ExpressionConverter ...
-type ExpressionConverter interface {
-	Convert(sub *anypb.Any, driver string) (goqu.Expression, bool)
+type queryBuilder[T Collector[T]] struct {
+	enquirer   Enquirer
+	converters []Converter[T]
+	isRoot     bool
 }
 
-type GormConverters interface {
-	Convert(sub *anypb.Any, db *gorm.DB) (*gorm.DB, bool)
-}
-
-type queryBuilder struct {
-	enquirer       Enquirer
-	converters     []ExpressionConverter
-	gormConverters []Converter
-	wheres         []goqu.Expression
-}
-
-// NewQueryBuilder generates SQL request from object
-func NewQueryBuilder(e Enquirer, c ...ExpressionConverter) Expressioner {
-	return &queryBuilder{
-		enquirer:   e,
-		converters: c,
-	}
-}
-
-// NewQueryBuilder generates SQL request from object
-func NewGormQueryBuilder(e Enquirer, c ...Converter) Expressioner {
-	return &queryBuilder{
+func subQueryBuilder[T Collector[T]](e Enquirer, c ...Converter[T]) Builder[T] {
+	return &queryBuilder[T]{
 		enquirer: e,
-		gormConverters: append(c, &gormConverter{
+		converters: append(c, &wrapConverter[T]{
 			enquirer:   e,
 			converters: c,
 		}),
 	}
 }
 
-type gormConverter struct {
-	enquirer   Enquirer
-	converters []Converter
+// NewQueryBuilder generates SQL request from object
+func NewQueryBuilder[T Collector[T]](e Enquirer, c ...Converter[T]) Builder[T] {
+	return &queryBuilder[T]{
+		isRoot:   true,
+		enquirer: e,
+		converters: append(c, &wrapConverter[T]{
+			enquirer:   e,
+			converters: c,
+		}),
+	}
 }
 
-func (gc *gormConverter) Convert(ctx context.Context, val *anypb.Any, in any) (out any, ok bool) {
-	out = in
+type wrapConverter[T Collector[T]] struct {
+	enquirer   Enquirer
+	converters []Converter[T]
+}
 
-	db, ok := in.(*gorm.DB)
-	if !ok {
-		return
-	}
+func (gc *wrapConverter[T]) Convert(ctx context.Context, val *anypb.Any, in T) (out T, ok bool, err error) {
+	out = in
 
 	sub := new(service.Query)
 
 	if e := anypb.UnmarshalTo(val, sub, proto.UnmarshalOptions{}); e == nil {
-		expression := NewGormQueryBuilder(sub, gc.converters...).Build(ctx, db)
-		if expression != nil {
+		if subQuery, er := subQueryBuilder(sub, gc.converters...).Build(ctx, in); er == nil {
 			if gc.enquirer.GetOperation() == service.OperationType_OR {
-				db = db.Or(expression)
+				out = out.Or(subQuery)
 			} else {
-				db = db.Where(expression)
+				out = out.Where(subQuery)
 			}
+		} else {
+			return in, false, er
 		}
 	}
-
-	out = db
 
 	return
 }
 
-func (qb *queryBuilder) Build(ctx context.Context, in any) (out any) {
-	db, _ := in.(*gorm.DB)
+func (qb *queryBuilder[T]) Build(ctx context.Context, in T) (out T, e error) {
 
-	var subDBs []*gorm.DB
+	var subDBs []Collector[T]
 	for _, subQ := range qb.enquirer.GetSubQueries() {
-		for _, converter := range qb.gormConverters {
-			out, ok := converter.Convert(ctx, subQ, db)
+		for _, converter := range qb.converters {
+			ou, ok, er := converter.Convert(ctx, subQ, in)
+			if er != nil {
+				return in, er
+			}
 			if ok {
-				subDBs = append(subDBs, out.(*gorm.DB))
+				subDBs = append(subDBs, ou)
 			}
 		}
 	}
 
+	out = in
 	for i, subDB := range subDBs {
 		if i > 0 && qb.enquirer.GetOperation() == service.OperationType_OR {
-			db = db.Or(subDB)
+			out = out.Or(subDB)
 		} else {
-			db = db.Where(subDB)
+			out = out.Where(subDB)
 		}
 	}
 
-	return db
-}
-
-// Expression recursively builds a goku.Expression using dedicated converters
-func (qb *queryBuilder) Expression(driver string) (ex goqu.Expression) {
-
-	for _, subQ := range qb.enquirer.GetSubQueries() {
-
-		sub := new(service.Query)
-
-		if e := anypb.UnmarshalTo(subQ, sub, proto.UnmarshalOptions{}); e == nil {
-
-			expression := NewQueryBuilder(sub, qb.converters...).Expression(driver)
-			if expression != nil {
-				qb.wheres = append(qb.wheres, expression)
-			}
-
-		} else {
-			for _, converter := range qb.converters {
-				if ex, ok := converter.Convert(subQ, driver); ok && ex != nil {
-					qb.wheres = append(qb.wheres, ex)
-				}
-			}
+	// Apply offset/limit on root builder only
+	if qb.isRoot {
+		if qb.enquirer.GetOffset() > 0 {
+			out = out.Offset(int(qb.enquirer.GetOffset()))
+		}
+		if qb.enquirer.GetLimit() > 0 {
+			out = out.Limit(int(qb.enquirer.GetLimit()))
 		}
 	}
 
-	if len(qb.wheres) == 0 {
-		return nil
-	}
-
-	if qb.enquirer.GetOperation() == service.OperationType_AND {
-		return goqu.And(qb.wheres...)
-	} else {
-		return goqu.Or(qb.wheres...)
-	}
-}
-
-// QueryStringFromExpression finally builds a full SELECT from a Goqu Expression
-func QueryStringFromExpression(tableName string, driver string, e Enquirer, ex goqu.Expression, resourceExpression goqu.Expression, limit int64) (string, []interface{}, error) {
-
-	db := goqu.New(driver, nil)
-
-	if resourceExpression != nil {
-		if ex != nil {
-			ex = goqu.And(ex, resourceExpression)
-		} else {
-			ex = resourceExpression
-		}
-	}
-	dataset := db.From(tableName).Prepared(true)
-	if ex != nil {
-		dataset = dataset.Where(ex)
-	}
-	if e.GetLimit() > 0 {
-		limit = e.GetLimit()
-	}
-	if limit > -1 {
-		offset := int64(0)
-		if e.GetOffset() > 0 {
-			offset = e.GetOffset()
-		}
-		dataset = dataset.Offset(uint(offset)).Limit(uint(limit))
-	}
-
-	queryString, args, err := dataset.ToSQL()
-	return queryString, args, err
-
-}
-
-// CountStringFromExpression finally builds a full SELECT count(*) from a Goqu Expression
-func CountStringFromExpression(tableName string, columnCount string, driver string, e Enquirer, ex goqu.Expression, resourceExpression goqu.Expression) (string, []interface{}, error) {
-
-	db := goqu.New(driver, nil)
-
-	if resourceExpression != nil {
-		if ex != nil {
-			ex = goqu.And(ex, resourceExpression)
-		} else {
-			ex = resourceExpression
-		}
-	}
-	dataset := db.From(tableName).Select(goqu.COUNT(columnCount))
-	if ex != nil {
-		dataset = dataset.Where(ex)
-	}
-
-	queryString, args, err := dataset.ToSQL()
-	return queryString, args, err
-
-}
-
-// DeleteStringFromExpression creates sql for DELETE FROM expression
-func DeleteStringFromExpression(tableName string, driver string, ex goqu.Expression) (string, []interface{}, error) {
-
-	if ex == nil {
-		return "", nil, fmt.Errorf("empty condition for delete, query is too broad")
-	}
-
-	db := goqu.New(driver, nil)
-	sql, args, e := db.From(tableName).Prepared(true).Where(ex).Delete().ToSQL()
-	return sql, args, e
-
+	return out, nil
 }
 
 // GetExpressionForString creates correct goqu.Expression for field + string value
+// TODO - NOT USED ANYMORE BUT **RECHECK THE WILDCARD MANAGEMENT** => ILIKE % IMPL
+/*
 func GetExpressionForString(neq bool, field interface{}, values ...string) (expression goqu.Expression) {
 
 	var gf exp.IdentifierExpression
@@ -295,3 +194,4 @@ func GetExpressionForString(neq bool, field interface{}, values ...string) (expr
 
 	return
 }
+*/

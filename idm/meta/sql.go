@@ -177,7 +177,10 @@ func (s *sqlimpl) Del(ctx context.Context, meta *idm.UserMeta) (previousValue st
 // func (s *sqlimpl) Search(metaIds []string, nodeUuids []string, namespace string, ownerSubject string, resourceQuery *service.ResourcePolicyQuery) ([]*idm.UserMeta, error) {
 func (s *sqlimpl) Search(ctx context.Context, query sql.Enquirer) ([]*idm.UserMeta, error) {
 
-	db := sql.NewGormQueryBuilder(query, new(queryBuilder), s.resourcesDAO.(sql.Converter)).Build(ctx, s.instance(ctx)).(*gorm.DB)
+	db, er := sql.NewQueryBuilder[*gorm.DB](query, new(queryBuilder), s.resourcesDAO.(sql.Converter[*gorm.DB])).Build(ctx, s.instance(ctx))
+	if er != nil {
+		return nil, er
+	}
 
 	var metas []*Meta
 
@@ -212,35 +215,32 @@ func extractOwner(policies []*service.ResourcePolicy) (owner string) {
 
 type queryBuilder idm.SearchUserMetaRequest
 
-func (c *queryBuilder) Convert(ctx context.Context, val *anypb.Any, in any) (out any, ok bool) {
-
-	db, ok := in.(*gorm.DB)
-	if !ok {
-		return in, false
-	}
+func (c *queryBuilder) Convert(ctx context.Context, val *anypb.Any, db *gorm.DB) (*gorm.DB, bool, error) {
 
 	db = db.Session(&gorm.Session{})
 
 	q := new(idm.SearchUserMetaRequest)
 	if err := anypb.UnmarshalTo(val, q, proto.UnmarshalOptions{}); err != nil {
-		return in, false
+		return db, false, nil
 	}
 
+	count := 0
 	if len(q.MetaUuids) > 0 {
+		count++
 		db = db.Where("uuid in ?", q.MetaUuids)
 	}
 	if len(q.NodeUuids) > 0 {
+		count++
 		db = db.Where("node_uuid in ?", q.NodeUuids)
 	}
 	if q.Namespace != "" {
+		count++
 		db = db.Where("namespace = ?", q.Namespace)
 	}
 	if q.ResourceSubjectOwner != "" {
+		count++
 		db = db.Where("owner = ?", q.ResourceSubjectOwner)
 	}
 
-	out = db
-	ok = true
-
-	return
+	return db, count > 0, nil
 }

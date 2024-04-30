@@ -22,17 +22,16 @@ package user
 
 import (
 	"context"
-	"gorm.io/gen/field"
-	"gorm.io/gorm"
-	"gorm.io/gorm/clause"
 	"path"
 	"strings"
 	"time"
 
-	"google.golang.org/protobuf/proto"
-
 	"go.uber.org/zap"
+	"google.golang.org/protobuf/proto"
 	"google.golang.org/protobuf/types/known/anypb"
+	"gorm.io/gen/field"
+	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
 
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/log"
@@ -48,11 +47,7 @@ type queryConverter struct {
 	loginCI       bool
 }
 
-func (c *queryConverter) Convert(ctx context.Context, val *anypb.Any, in any) (out any, ok bool) {
-	db, ok := in.(*gorm.DB)
-	if !ok {
-		return in, false
-	}
+func (c *queryConverter) Convert(ctx context.Context, val *anypb.Any, db *gorm.DB) (*gorm.DB, bool, error) {
 
 	query := user_model.Use(db)
 	u := query.User
@@ -64,12 +59,11 @@ func (c *queryConverter) Convert(ctx context.Context, val *anypb.Any, in any) (o
 	q := new(idm.UserSingleQuery)
 
 	if err := anypb.UnmarshalTo(val, q, proto.UnmarshalOptions{}); err != nil {
-		log.Logger(context.Background()).Error("Cannot unmarshal", zap.Any("v", val), zap.Error(err))
-		return nil, false
+		// This is not the expected val, just ignore
+		return nil, false, nil
 	}
 
 	var wheres []*gorm.DB
-	//var ors []*gorm.DB
 
 	if q.Uuid != "" {
 		if q.Not {
@@ -121,21 +115,20 @@ func (c *queryConverter) Convert(ctx context.Context, val *anypb.Any, in any) (o
 			Path: groupPath,
 		})
 		mpath, _, err := c.treeDao.Path(context.TODO(), user, tree.NewTreeNode(""), false)
-		if err != nil {
+		if err != nil && err.Error() != "not found" {
 			log.Logger(context.Background()).Error("Error while getting parent mpath", zap.Any("g", groupPath), zap.Error(err))
-			db = db.Where(false)
-			return db, true
+			return db, false, err
 		}
 		if mpath == nil {
-			log.Logger(context.Background()).Debug("Nil mpath for groupPath", zap.Any("g", groupPath))
+			//log.Logger(context.Background()).Debug("Nil mpath for groupPath", zap.Any("g", groupPath))
+			// We do return a Where clause that always resolves to FALSE
 			db = db.Where(false)
-			return db, true
+			return db, true, nil
 		}
 		parentNode, err := c.treeDao.GetNode(context.TODO(), mpath)
 		if err != nil {
 			log.Logger(context.Background()).Error("Error while getting parent node", zap.Any("g", groupPath), zap.Error(err))
-			db = db.Where(false)
-			return db, true
+			return db, false, err
 		}
 		if fullPath {
 			wheres = append(wheres, db.Where(getMPathEquals([]byte(parentNode.GetMPath().ToString()))))
@@ -233,10 +226,7 @@ func (c *queryConverter) Convert(ctx context.Context, val *anypb.Any, in any) (o
 		db = db.Where(where)
 	}
 
-	out = db
-	ok = true
-
-	return
+	return db, len(wheres) > 0, nil
 }
 
 func userToNode(u *idm.User) *user_model.User {

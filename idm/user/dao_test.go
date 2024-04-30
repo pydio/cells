@@ -35,7 +35,6 @@ import (
 	"github.com/pydio/cells/v4/common/runtime/manager"
 	"github.com/pydio/cells/v4/common/service/errors"
 	"github.com/pydio/cells/v4/common/sql"
-	"github.com/pydio/cells/v4/common/storage"
 	"github.com/pydio/cells/v4/common/utils/test"
 	user_model "github.com/pydio/cells/v4/idm/user/model"
 
@@ -95,7 +94,8 @@ func TestQueryBuilder(t *testing.T) {
 			tx := mockDAO.(*sqlimpl).db
 			tx = tx.Session(&gorm.Session{})
 
-			s := sql.NewGormQueryBuilder(simpleQuery, converter).Build(ctx, tx)
+			s, er := sql.NewQueryBuilder[*gorm.DB](simpleQuery, converter).Build(ctx, tx)
+			So(er, ShouldBeNil)
 			So(s, ShouldNotBeNil)
 
 		})
@@ -134,11 +134,11 @@ func TestQueryBuilder(t *testing.T) {
 				Limit:      10,
 			}
 
-			var tx *gorm.DB
-			storage.Get(ctx, &tx)
+			tx := mockDAO.(*sqlimpl).db
 			tx = tx.Session(&gorm.Session{})
 
-			s := sql.NewGormQueryBuilder(simpleQuery, converter).Build(ctx, tx)
+			s, er := sql.NewQueryBuilder[*gorm.DB](simpleQuery, converter).Build(ctx, tx)
+			So(er, ShouldBeNil)
 			So(s, ShouldNotBeNil)
 
 		})
@@ -498,7 +498,8 @@ func TestQueryBuilder(t *testing.T) {
 					FullPath: "/path/to/anotherGroup",
 				}
 				userQueryAny, _ := anypb.New(userQuery)
-				mockDAO.Search(context.TODO(), &service.Query{SubQueries: []*anypb.Any{userQueryAny}}, users)
+				e1 := mockDAO.Search(context.TODO(), &service.Query{SubQueries: []*anypb.Any{userQueryAny}}, users)
+				So(e1, ShouldBeNil)
 				u := (*users)[0].(*idm.User)
 				So(u, ShouldNotBeNil)
 				// Change groupPath
@@ -620,11 +621,11 @@ func TestQueryBuilder(t *testing.T) {
 				Operation: service.OperationType_AND,
 			}
 
-			var tx *gorm.DB
-			storage.Get(ctx, &tx)
+			tx := mockDAO.(*sqlimpl).db
 			tx = tx.Session(&gorm.Session{})
 
-			s := sql.NewGormQueryBuilder(composedQuery, converter).Build(ctx, tx)
+			s, er := sql.NewQueryBuilder[*gorm.DB](composedQuery, converter).Build(ctx, tx)
+			So(er, ShouldBeNil)
 			So(s, ShouldNotBeNil)
 			//So(s, ShouldEqual, "((t.uuid = n.uuid and (n.name='user1' and n.leaf = 1)) OR (t.uuid = n.uuid and (n.name='user2' and n.leaf = 1))) AND (t.uuid = n.uuid and (n.name='user3' and n.leaf = 1))")
 		})

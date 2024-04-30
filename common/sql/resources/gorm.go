@@ -22,11 +22,12 @@ package resources
 
 import (
 	"context"
+	"sync"
+	"time"
+
 	"google.golang.org/protobuf/proto"
 	"google.golang.org/protobuf/types/known/anypb"
 	"gorm.io/gorm"
-	"sync"
-	"time"
 
 	"github.com/pydio/cells/v4/common/proto/service"
 )
@@ -220,22 +221,18 @@ func (s *ResourcesGORM) BuildPolicyConditionForAction(ctx context.Context, q *se
 }
 
 // Convert a policy query to conditions from claims toward the associated resource table
-func (s *ResourcesGORM) Convert(ctx context.Context, val *anypb.Any, in any) (out any, ok bool) {
-	db, ok := in.(*gorm.DB)
-	if !ok {
-		return in, false
-	}
+func (s *ResourcesGORM) Convert(ctx context.Context, val *anypb.Any, db *gorm.DB) (*gorm.DB, bool, error) {
 
 	q := new(service.ResourcePolicyQuery)
 	if err := anypb.UnmarshalTo(val, q, proto.UnmarshalOptions{}); err != nil {
-		return in, false
+		return db, false, nil
 	}
-
+	count := 0
 	db = db.Session(&gorm.Session{})
 
 	if q.Empty {
 		subQuery := s.instance(ctx).Model(&service.ResourcePolicyORM{}).Select("resource").Where(&service.ResourcePolicyORM{Action: service.ResourcePolicyAction_ANY})
-
+		count++
 		db = db.Not("uuid IN(?)", subQuery)
 	} else {
 		subjects := q.GetSubjects()
@@ -253,12 +250,9 @@ func (s *ResourcesGORM) Convert(ctx context.Context, val *anypb.Any, in any) (ou
 
 			subQuery = subQuery.Where(&service.ResourcePolicyORM{Action: service.ResourcePolicyAction_ANY}).Where(subjectQuery)
 		}
-
+		count++
 		db = db.Where("uuid IN (?)", subQuery)
 	}
 
-	out = db
-	ok = true
-
-	return
+	return db, count > 0, nil
 }

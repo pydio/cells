@@ -22,13 +22,12 @@ package workspace
 
 import (
 	"context"
-	"gorm.io/gorm"
 	"sync"
 	"time"
 
-	goqu "github.com/doug-martin/goqu/v9"
 	"google.golang.org/protobuf/proto"
 	"google.golang.org/protobuf/types/known/anypb"
+	"gorm.io/gorm"
 
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/proto/idm"
@@ -115,7 +114,10 @@ func (s *sqlimpl) slugExists(ctx context.Context, slug string) bool {
 // Search searches
 func (s *sqlimpl) Search(ctx context.Context, query sql.Enquirer, workspaces *[]interface{}) error {
 
-	db := sql.NewGormQueryBuilder(query, new(queryBuilder), s.resourcesDAO.(sql.Converter)).Build(ctx, s.instance(ctx)).(*gorm.DB)
+	db, er := sql.NewQueryBuilder[*gorm.DB](query, new(queryBuilder), s.resourcesDAO.(sql.Converter[*gorm.DB])).Build(ctx, s.instance(ctx))
+	if er != nil {
+		return er
+	}
 
 	var workspaceORMs []*idm.Workspace
 
@@ -134,8 +136,10 @@ func (s *sqlimpl) Search(ctx context.Context, query sql.Enquirer, workspaces *[]
 // Del from the SQL DB
 func (s *sqlimpl) Del(ctx context.Context, query sql.Enquirer) (int64, error) {
 
-	db := sql.NewGormQueryBuilder(query, new(queryBuilder), s.resourcesDAO.(sql.Converter)).Build(ctx, s.instance(ctx)).(*gorm.DB)
-
+	db, er := sql.NewQueryBuilder[*gorm.DB](query, new(queryBuilder), s.resourcesDAO.(sql.Converter[*gorm.DB])).Build(ctx, s.instance(ctx))
+	if er != nil {
+		return 0, er
+	}
 	tx := db.Delete(&idm.Workspace{})
 
 	return tx.RowsAffected, tx.Error
@@ -143,20 +147,16 @@ func (s *sqlimpl) Del(ctx context.Context, query sql.Enquirer) (int64, error) {
 
 type queryBuilder idm.WorkspaceSingleQuery
 
-func (c *queryBuilder) Convert(ctx context.Context, val *anypb.Any, in any) (out any, ok bool) {
-	db, ok := in.(*gorm.DB)
-	if !ok {
-		return
-	}
+func (c *queryBuilder) Convert(ctx context.Context, val *anypb.Any, db *gorm.DB) (*gorm.DB, bool, error) {
 
 	q := new(idm.WorkspaceSingleQuery)
 	if err := anypb.UnmarshalTo(val, q, proto.UnmarshalOptions{}); err != nil {
-		return nil, false
+		return nil, false, nil
 	}
-
-	var expressions []goqu.Expression
+	count := 0
 
 	if len(q.Uuid) > 0 {
+		count++
 		if q.Not {
 			db.Not(map[string]interface{}{"uuid": q.Uuid})
 		} else {
@@ -165,6 +165,7 @@ func (c *queryBuilder) Convert(ctx context.Context, val *anypb.Any, in any) (out
 	}
 
 	if len(q.Slug) > 0 {
+		count++
 		if q.Not {
 			db.Not(map[string]interface{}{"slug": q.Slug})
 		} else {
@@ -173,6 +174,7 @@ func (c *queryBuilder) Convert(ctx context.Context, val *anypb.Any, in any) (out
 	}
 
 	if len(q.Label) > 0 {
+		count++
 		if q.Not {
 			db.Not(map[string]interface{}{"label": q.Label})
 		} else {
@@ -181,21 +183,30 @@ func (c *queryBuilder) Convert(ctx context.Context, val *anypb.Any, in any) (out
 	}
 
 	if q.Scope != idm.WorkspaceScope_ANY {
-		expressions = append(expressions, goqu.C("scope").Eq(q.Scope))
+		count++
+		if q.Not {
+			db.Not(map[string]interface{}{"scope": q.Scope})
+		} else {
+			db.Where(map[string]interface{}{"scope": q.Scope})
+		}
 	}
 
 	if q.LastUpdated != "" {
 		if lt, d, e := q.ParseLastUpdated(); e == nil {
 			ref := int32(time.Now().Add(-d).Unix())
+			count++
 			if lt || q.Not {
 				db.Where("last_updated < ?", ref)
 			} else {
 				db.Where("last_updated > ?", ref)
 			}
+		} else {
+			return db, false, e
 		}
 	}
 
 	if q.HasAttribute != "" {
+		count++
 		if q.Not {
 			db.Not("attributes LIKE ?", "%"+q.HasAttribute+":%")
 		} else {
@@ -203,6 +214,7 @@ func (c *queryBuilder) Convert(ctx context.Context, val *anypb.Any, in any) (out
 		}
 	}
 	if q.AttributeName != "" && q.AttributeValue != "" {
+		count++
 		if q.Not {
 			db.Not("attributes LIKE ?", "%"+q.AttributeName+":"+q.AttributeValue+":%")
 		} else {
@@ -210,9 +222,6 @@ func (c *queryBuilder) Convert(ctx context.Context, val *anypb.Any, in any) (out
 		}
 	}
 
-	if len(expressions) == 0 {
-		return nil, true
-	}
-	return goqu.And(expressions...), true
+	return db, count > 0, nil
 
 }

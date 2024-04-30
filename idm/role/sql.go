@@ -131,7 +131,10 @@ func (s *sqlimpl) Add(ctx context.Context, role *idm.Role) (*idm.Role, bool, err
 
 func (s *sqlimpl) Count(ctx context.Context, query sql.Enquirer) (int32, error) {
 
-	db := sql.NewGormQueryBuilder(query, new(queryBuilder), s.resourcesDAO.(sql.Converter)).Build(ctx, s.instance(ctx)).(*gorm.DB)
+	db, er := sql.NewQueryBuilder[*gorm.DB](query, new(queryBuilder), s.resourcesDAO.(sql.Converter[*gorm.DB])).Build(ctx, s.instance(ctx))
+	if er != nil {
+		return 0, er
+	}
 
 	var count int64
 
@@ -145,7 +148,10 @@ func (s *sqlimpl) Count(ctx context.Context, query sql.Enquirer) (int32, error) 
 
 // Search in the SQL DB.
 func (s *sqlimpl) Search(ctx context.Context, query sql.Enquirer, roles *[]*idm.Role) error {
-	db := sql.NewGormQueryBuilder(query, new(queryBuilder), s.resourcesDAO.(sql.Converter)).Build(ctx, s.instance(ctx)).(*gorm.DB)
+	db, er := sql.NewQueryBuilder[*gorm.DB](query, new(queryBuilder), s.resourcesDAO.(sql.Converter[*gorm.DB])).Build(ctx, s.instance(ctx))
+	if er != nil {
+		return er
+	}
 
 	var roleORMs []*idm.Role
 
@@ -163,7 +169,10 @@ func (s *sqlimpl) Search(ctx context.Context, query sql.Enquirer, roles *[]*idm.
 
 // Delete from the SQL DB
 func (s *sqlimpl) Delete(ctx context.Context, query sql.Enquirer) (int64, error) {
-	db := sql.NewGormQueryBuilder(query, new(queryBuilder)).Build(ctx, s.instance(ctx)).(*gorm.DB)
+	db, er := sql.NewQueryBuilder[*gorm.DB](query, new(queryBuilder)).Build(ctx, s.instance(ctx))
+	if er != nil {
+		return 0, er
+	}
 
 	tx := db.Model(&idm.Role{}).Delete(&idm.Role{})
 	if tx.Error != nil {
@@ -175,19 +184,16 @@ func (s *sqlimpl) Delete(ctx context.Context, query sql.Enquirer) (int64, error)
 
 type queryBuilder idm.RoleSingleQuery
 
-func (c *queryBuilder) Convert(ctx context.Context, val *anypb.Any, in any) (out any, ok bool) {
-
-	db, ok := in.(*gorm.DB)
-	if !ok {
-		return in, false
-	}
+func (c *queryBuilder) Convert(ctx context.Context, val *anypb.Any, db *gorm.DB) (*gorm.DB, bool, error) {
 
 	q := new(idm.RoleSingleQuery)
 	if err := anypb.UnmarshalTo(val, q, proto.UnmarshalOptions{}); err != nil {
-		return in, false
+		return db, false, nil
 	}
+	count := 0
 
 	if len(q.Uuid) > 0 {
+		count++
 		if q.Not {
 			db = db.Not(map[string]interface{}{"uuid": q.Uuid})
 		} else {
@@ -195,19 +201,21 @@ func (c *queryBuilder) Convert(ctx context.Context, val *anypb.Any, in any) (out
 		}
 	}
 	if len(q.Label) > 0 {
-		var c interface{}
+		count++
+		var cl interface{}
 		if strings.Contains(q.Label, "*") {
-			c = clause.Like{Column: "label", Value: strings.Replace(q.Label, "*", "%", -1)}
+			cl = clause.Like{Column: "label", Value: strings.Replace(q.Label, "*", "%", -1)}
 		} else {
-			c = clause.Eq{Column: "label", Value: q.Label}
+			cl = clause.Eq{Column: "label", Value: q.Label}
 		}
 		if q.Not {
-			db = db.Not(c)
+			db = db.Not(cl)
 		} else {
-			db = db.Where(c)
+			db = db.Where(cl)
 		}
 	}
 	if q.IsGroupRole {
+		count++
 		if q.Not {
 			db = db.Not(map[string]interface{}{"group_role": 1})
 		} else {
@@ -215,6 +223,7 @@ func (c *queryBuilder) Convert(ctx context.Context, val *anypb.Any, in any) (out
 		}
 	}
 	if q.IsUserRole {
+		count++
 		if q.Not {
 			db = db.Not(map[string]interface{}{"user_role": 1})
 		} else {
@@ -222,6 +231,7 @@ func (c *queryBuilder) Convert(ctx context.Context, val *anypb.Any, in any) (out
 		}
 	}
 	if q.IsTeam {
+		count++
 		if q.Not {
 			db = db.Not(map[string]interface{}{"team_role": 1})
 		} else {
@@ -229,6 +239,7 @@ func (c *queryBuilder) Convert(ctx context.Context, val *anypb.Any, in any) (out
 		}
 	}
 	if q.HasAutoApply {
+		count++
 		if q.Not {
 			db = db.Where(map[string]interface{}{"auto_applies": ""})
 		} else {
@@ -236,8 +247,5 @@ func (c *queryBuilder) Convert(ctx context.Context, val *anypb.Any, in any) (out
 		}
 	}
 
-	out = db
-	ok = true
-
-	return
+	return db, count > 0, nil
 }

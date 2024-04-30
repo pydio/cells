@@ -373,7 +373,10 @@ func (s *sqlimpl) Bind(ctx context.Context, userName string, password string) (u
 	qA, _ := anypb.New(q)
 
 	var results []interface{}
-	s.Search(ctx, &service.Query{SubQueries: []*anypb.Any{qA}}, &results)
+	er := s.Search(ctx, &service.Query{SubQueries: []*anypb.Any{qA}}, &results)
+	if er != nil {
+		return nil, er
+	}
 
 	if len(results) == 0 {
 		// The error code is actually very important
@@ -434,7 +437,10 @@ func (s *sqlimpl) Count(ctx context.Context, query sql.Enquirer, includeParents 
 	}
 
 	var total int64
-	db := sql.NewGormQueryBuilder(query, converter, s.resourcesDAO.(sql.Converter)).Build(ctx, s.instance(ctx).Model(&user_model.User{})).(*gorm.DB)
+	db, er := sql.NewQueryBuilder[*gorm.DB](query, converter, s.resourcesDAO.(sql.Converter[*gorm.DB])).Build(ctx, s.instance(ctx).Model(&user_model.User{}))
+	if er != nil {
+		return 0, er
+	}
 	tx := db.Count(&total)
 	if tx.Error != nil {
 		return 0, tx.Error
@@ -461,12 +467,9 @@ func (s *sqlimpl) Search(ctx context.Context, query sql.Enquirer, users *[]inter
 	defer cancel()
 
 	var rows []*user_model.User
-	db := sql.NewGormQueryBuilder(query, converter, s.resourcesDAO.(sql.Converter)).Build(ctx, s.instance(ctx)).(*gorm.DB)
-	if offset := query.GetOffset(); offset > 0 {
-		db = db.Offset(int(offset))
-	}
-	if limit := query.GetLimit(); limit > 0 {
-		db = db.Limit(int(limit))
+	db, er := sql.NewQueryBuilder[*gorm.DB](query, converter, s.resourcesDAO.(sql.Converter[*gorm.DB])).Build(ctx, s.instance(ctx))
+	if er != nil {
+		return er
 	}
 
 	tx := db.WithContext(ctx).Find(&rows)
@@ -530,7 +533,10 @@ func (s *sqlimpl) Del(ctx context.Context, query sql.Enquirer, users chan *idm.U
 		includeParent: true,
 		loginCI:       s.loginCI,
 	}
-	db := sql.NewGormQueryBuilder(query, converter, s.resourcesDAO.(sql.Converter)).Build(ctx, s.instance(ctx)).(*gorm.DB)
+	db, er := sql.NewQueryBuilder[*gorm.DB](query, converter, s.resourcesDAO.(sql.Converter[*gorm.DB])).Build(ctx, s.instance(ctx))
+	if er != nil {
+		return 0, er
+	}
 	if len(db.Statement.Clauses) == 0 {
 		return 0, fmt.Errorf("condition cannot be empty")
 	}

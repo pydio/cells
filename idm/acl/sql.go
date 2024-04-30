@@ -162,13 +162,9 @@ func (s *sqlimpl) addWithDupCheck(ctx context.Context, in interface{}, check boo
 
 // Search in the underlying SQL DB.
 func (s *sqlimpl) Search(ctx context.Context, query sql.Enquirer, out *[]interface{}, period *ExpirationPeriod) error {
-	db := sql.NewGormQueryBuilder(query, new(queryConverter)).Build(ctx, s.instance(ctx)).(*gorm.DB)
-
-	if query.GetOffset() > 0 {
-		db.Offset(int(query.GetOffset()))
-	}
-	if query.GetLimit() > 0 {
-		db.Limit(int(query.GetLimit()))
+	db, er := sql.NewQueryBuilder[*gorm.DB](query, new(queryConverter)).Build(ctx, s.instance(ctx))
+	if er != nil {
+		return er
 	}
 
 	var acls []ACL
@@ -200,7 +196,10 @@ func (s *sqlimpl) Search(ctx context.Context, query sql.Enquirer, out *[]interfa
 // SetExpiry sets an expiry timestamp on the acl
 func (s *sqlimpl) SetExpiry(ctx context.Context, query sql.Enquirer, t time.Time, period *ExpirationPeriod) (int64, error) {
 
-	db := sql.NewGormQueryBuilder(query, new(queryConverter)).Build(ctx, s.instance(ctx)).(*gorm.DB)
+	db, er := sql.NewQueryBuilder[*gorm.DB](query, new(queryConverter)).Build(ctx, s.instance(ctx))
+	if er != nil {
+		return 0, er
+	}
 
 	if period != nil {
 		if !period.End.IsZero() {
@@ -222,7 +221,10 @@ func (s *sqlimpl) SetExpiry(ctx context.Context, query sql.Enquirer, t time.Time
 // Del from the sql DB.
 func (s *sqlimpl) Del(ctx context.Context, query sql.Enquirer, period *ExpirationPeriod) (int64, error) {
 
-	db := sql.NewGormQueryBuilder(query, new(queryConverter)).Build(ctx, s.instance(ctx)).(*gorm.DB)
+	db, er := sql.NewQueryBuilder[*gorm.DB](query, new(queryConverter)).Build(ctx, s.instance(ctx))
+	if er != nil {
+		return 0, er
+	}
 
 	if period != nil {
 		if !period.End.IsZero() {
@@ -265,25 +267,27 @@ func (s *sqlimpl) Del(ctx context.Context, query sql.Enquirer, period *Expiratio
 
 type queryConverter idm.ACLSingleQuery
 
-func (c *queryConverter) Convert(ctx context.Context, val *anypb.Any, in any) (out any, ok bool) {
+func (c *queryConverter) Convert(ctx context.Context, val *anypb.Any, db *gorm.DB) (*gorm.DB, bool, error) {
 
 	q := new(idm.ACLSingleQuery)
 
 	if err := anypb.UnmarshalTo(val, q, proto.UnmarshalOptions{}); err != nil {
-		return nil, false
+		return nil, false, nil
 	}
-
-	db := in.(*gorm.DB)
+	count := 0
 
 	if len(q.RoleIDs) > 0 {
+		count++
 		db = db.Where("role_id in (?)", db.Model(&Role{}).Where("uuid IN ?", q.GetRoleIDs()))
 	}
 
 	if len(q.WorkspaceIDs) > 0 {
+		count++
 		db = db.Where("workspace_id IN ?", db.Model(&Workspace{}).Where("uuid IN ?", q.GetWorkspaceIDs()))
 	}
 
 	if len(q.NodeIDs) > 0 {
+		count++
 		db = db.Where("node_id IN ?", db.Model(&Node{}).Where("uuid IN ?", q.GetNodeIDs()))
 	}
 
@@ -295,8 +299,9 @@ func (c *queryConverter) Convert(ctx context.Context, val *anypb.Any, in any) (o
 			args = append(args, []interface{}{act.GetName(), act.GetValue()})
 		}
 
+		count++
 		db = db.Where("(action_name, action_value) IN ?", args)
 	}
 
-	return db, true
+	return db, count > 0, nil
 }
