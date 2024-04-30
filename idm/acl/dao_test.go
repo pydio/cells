@@ -100,8 +100,12 @@ func TestQueryBuilder(t *testing.T) {
 			s, er := sql.NewQueryBuilder[*gorm.DB](simpleQuery, new(queryConverter)).Build(ctx, mockDB)
 			So(er, ShouldBeNil)
 			So(s, ShouldNotBeNil)
-			s.Find(&[]ACL{})
-			//So(s, ShouldEqual, `(role_id in (select id from idm_acl_roles where uuid in ("role1"))) OR (role_id in (select id from idm_acl_roles where uuid in ("role2")))`)
+
+			sqlStr := s.ToSQL(func(tx *gorm.DB) *gorm.DB {
+				return tx.Find(&[]ACL{})
+			})
+
+			So(sqlStr, ShouldResemble, `SELECT * FROM idm_acls WHERE role_id IN (SELECT * FROM idm_acl_roles WHERE uuid IN ("role1")) OR role_id IN (SELECT * FROM idm_acl_roles WHERE uuid IN ("role2"))`)
 		})
 
 		Convey("Query Builder W/ subquery", t, func() {

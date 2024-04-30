@@ -278,7 +278,7 @@ func (c *queryConverter) Convert(ctx context.Context, val *anypb.Any, db *gorm.D
 
 	if len(q.RoleIDs) > 0 {
 		count++
-		db = db.Where("role_id in (?)", db.Model(&Role{}).Where("uuid IN ?", q.GetRoleIDs()))
+		db = db.Where("role_id IN (?)", db.Model(&Role{}).Where("uuid IN ?", q.GetRoleIDs()))
 	}
 
 	if len(q.WorkspaceIDs) > 0 {
