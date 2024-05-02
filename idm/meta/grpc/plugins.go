@@ -50,7 +50,7 @@ func init() {
 			service.Metadata(meta2.ServiceMetaNsProvider, "list"),
 			service.Metadata(meta2.ServiceMetaProviderRequired, "true"),
 			service.Description("User-defined Metadata"),
-			service.WithStorageDrivers("main", meta.NewDAO),
+			service.WithStorageDrivers(meta.NewDAO),
 			service.Unique(true),
 			service.WithGRPC(func(ctx context.Context, server grpc.ServiceRegistrar) error {
 

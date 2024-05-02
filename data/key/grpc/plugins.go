@@ -42,7 +42,7 @@ func init() {
 			service.Context(ctx),
 			service.Tag(common.ServiceTagData),
 			service.Description("Encryption Keys server"),
-			service.WithStorageDrivers("main", key.NewDAO),
+			service.WithStorageDrivers(key.NewDAO),
 			service.WithGRPC(func(c context.Context, srv grpc.ServiceRegistrar) error {
 				h := NewNodeKeyManagerHandler()
 				encryption.RegisterNodeKeyManagerServer(srv, h)

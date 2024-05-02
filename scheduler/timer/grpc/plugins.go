@@ -28,9 +28,9 @@ import (
 
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/broker"
-	"github.com/pydio/cells/v4/common/config"
 	"github.com/pydio/cells/v4/common/proto/jobs"
 	"github.com/pydio/cells/v4/common/runtime"
+	"github.com/pydio/cells/v4/common/runtime/manager"
 	servercontext "github.com/pydio/cells/v4/common/server/context"
 	"github.com/pydio/cells/v4/common/server/generic"
 	"github.com/pydio/cells/v4/common/service"
@@ -54,22 +54,23 @@ func init() {
 			service.Unique(true),
 			service.WithGeneric(func(c context.Context, server *generic.Server) error {
 
-				tm := config.GetTenantsManager()
+				tm := manager.GetTenantsManager()
 
 				pLocks.Lock()
-				for _, t := range tm.ListTenants() {
-					tp := timer.NewEventProducer(servercontext.WithTenant(c, t.ID()))
+				tm.Iterate(c, func(tenantContext context.Context, t manager.Tenant) error {
+					tp := timer.NewEventProducer(tenantContext)
 					go tp.Start()
 					producers[t.ID()] = tp
-				}
+					return nil
+				})
 				pLocks.Unlock()
 
-				_ = tm.Subscribe(func(event config.TenantWatchEvent) {
+				_ = tm.Subscribe(func(event manager.TenantWatchEvent) {
 					pLocks.Lock()
 					defer pLocks.Unlock()
 					tenantID := event.Tenant().ID()
 					if event.Action() == "add" {
-						tp := timer.NewEventProducer(servercontext.WithTenant(c, tenantID))
+						tp := timer.NewEventProducer(event.Context(c))
 						go tp.Start()
 						producers[tenantID] = tp
 					} else if event.Action() == "delete" {

@@ -18,18 +18,21 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-package config
+package manager
 
 import (
+	"context"
 	"fmt"
+
+	servercontext "github.com/pydio/cells/v4/common/server/context"
 )
 
 var (
 	tm TenantsManager = &basicManager{
 		tt: []Tenant{
 			&basicTenant{id: "default"},
-			&basicTenant{id: "tenant1"},
-			&basicTenant{id: "tenant2"},
+			//			&basicTenant{id: "tenant1"},
+			//			&basicTenant{id: "tenant2"},
 		},
 	}
 )
@@ -43,6 +46,7 @@ func GetTenantsManager() TenantsManager {
 }
 
 type Tenant interface {
+	Context(ctx context.Context) context.Context
 	ID() string
 }
 
@@ -50,6 +54,7 @@ type TenantsManager interface {
 	GetMaster() Tenant
 	IsMaster(Tenant) bool
 	ListTenants() []Tenant
+	Iterate(ct context.Context, f func(ctx context.Context, t Tenant) error) error
 	TenantByID(id string) (Tenant, error)
 	Subscribe(cb func(event TenantWatchEvent)) error
 }
@@ -57,6 +62,7 @@ type TenantsManager interface {
 type TenantWatchEvent interface {
 	Action() string
 	Tenant() Tenant
+	Context(ctx context.Context) context.Context
 }
 
 type basicTenant struct {
@@ -65,6 +71,10 @@ type basicTenant struct {
 
 func (b *basicTenant) ID() string {
 	return b.id
+}
+
+func (b *basicTenant) Context(ctx context.Context) context.Context {
+	return servercontext.WithTenant(ctx, b.ID())
 }
 
 type basicManager struct {
@@ -79,6 +89,15 @@ func (b *basicManager) GetMaster() Tenant {
 
 func (b *basicManager) IsMaster(t Tenant) bool {
 	return t.ID() == "master"
+}
+
+func (b *basicManager) Iterate(c context.Context, f func(ctx context.Context, t Tenant) error) error {
+	for _, t := range b.tt {
+		if e := f(t.Context(c), t); e != nil {
+			return e
+		}
+	}
+	return nil
 }
 
 func (b *basicManager) ListTenants() []Tenant {

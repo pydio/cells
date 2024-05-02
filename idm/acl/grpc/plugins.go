@@ -47,7 +47,7 @@ func init() {
 			service.Context(ctx),
 			service.Tag(common.ServiceTagIdm),
 			service.Description("Access Control List service"),
-			service.WithStorageDrivers("main", acl.NewDAO),
+			service.WithStorageDrivers(acl.NewDAO),
 			service.Migrations([]*service.Migration{
 				{
 					TargetVersion: service.ValidVersion("1.2.0"),

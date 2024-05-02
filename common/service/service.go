@@ -35,6 +35,7 @@ import (
 	"github.com/pydio/cells/v4/common/registry"
 	"github.com/pydio/cells/v4/common/registry/util"
 	"github.com/pydio/cells/v4/common/runtime"
+	"github.com/pydio/cells/v4/common/runtime/runtimecontext"
 	"github.com/pydio/cells/v4/common/server"
 	servicecontext "github.com/pydio/cells/v4/common/service/context"
 	json "github.com/pydio/cells/v4/common/utils/jsonx"
@@ -221,6 +222,7 @@ func (s *service) Start(oo ...registry.RegisterOption) (er error) {
 	s.updateRegister(registry.StatusStarting)
 
 	s.Opts.runtimeCtx, s.Opts.runtimeCancel = context.WithCancel(s.Opts.rootContext)
+	s.Opts.runtimeCtx = runtimecontext.With(s.Opts.runtimeCtx, "service", s)
 
 	for _, before := range s.Opts.BeforeStart {
 		var err error

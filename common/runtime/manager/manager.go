@@ -320,8 +320,10 @@ func (m *manager) initConnections() error {
 
 	storages := store.Val("storages")
 	for k := range storages.Map() {
-		conn, err := storage.OpenStorage(m.ctx, storages.Val(k, "uri").String())
+		uri := storages.Val(k, "uri").String()
+		conn, err := storage.OpenStorage(m.ctx, uri)
 		if err != nil {
+			fmt.Println("initConnections - cannot open storage with uri "+uri, err)
 			continue
 		}
 
@@ -356,7 +358,7 @@ func (m *manager) initConnections() error {
 					for _, storage := range storages {
 						if store["type"] == storage.Name() {
 							edge, err := m.localRegistry.RegisterEdge(ss.ID(), storage.ID(), "storage", map[string]string{"name": name})
-							fmt.Println(edge, err)
+							fmt.Println("Edge: ", ss.Name(), name, edge, err)
 						}
 					}
 				}
@@ -1167,7 +1169,9 @@ func Resolve[T any](ctx context.Context, opts ...ResolveOption) (T, error) {
 
 	// First we get the service from the context
 	var svc service.Service
-	runtimecontext.Get(ctx, "service", &svc)
+	if !runtimecontext.Get(ctx, "service", &svc) {
+		return t, fmt.Errorf("resolve cannot find service &svc in context")
+	}
 
 	storages := reg.ListAdjacentItems(
 		registry.WithAdjacentSourceItems([]registry.Item{svc}),
@@ -1204,7 +1208,7 @@ func Resolve[T any](ctx context.Context, opts ...ResolveOption) (T, error) {
 		}
 
 		if handlerT.NumIn() != len(conns) {
-			return t, errors.New("number of connections differs from what is requested")
+			return t, fmt.Errorf("number of connections differs from what is requested handler %d, len %d", handlerT.NumIn(), len(conns))
 		}
 		dao := handlerV.Call(conns)
 		t = dao[0].Interface().(T)

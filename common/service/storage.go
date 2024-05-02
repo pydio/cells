@@ -79,8 +79,8 @@ func WithStorageMigrator(d dao.MigratorFunc) ServiceOption {
 	}
 }
 
-// WithStorageDrivers adds a storage handler to the current service
-func WithStorageDrivers(name string, f ...any) ServiceOption {
+// WithNamedStorageDrivers allows supporting multiple set of drivers
+func WithNamedStorageDrivers(name string, f ...any) ServiceOption {
 	return func(o *ServiceOptions) {
 		m := o.StorageOptions.SupportedDrivers
 		if m == nil {
@@ -89,4 +89,9 @@ func WithStorageDrivers(name string, f ...any) ServiceOption {
 		m[name] = f
 		o.StorageOptions.SupportedDrivers = m
 	}
+}
+
+// WithStorageDrivers adds a storage handler to the current service
+func WithStorageDrivers(f ...any) ServiceOption {
+	return WithNamedStorageDrivers("main", f...)
 }

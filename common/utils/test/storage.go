@@ -84,7 +84,7 @@ func RunStorageTests(testCases []StorageTestCase, f func(context.Context)) {
 			svc = service.NewService(
 				service.Name("test"),
 				service.Context(ctx),
-				service.WithStorageDrivers("main", tc.DAO),
+				service.WithStorageDrivers(tc.DAO),
 			)
 		})
 

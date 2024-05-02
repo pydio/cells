@@ -150,7 +150,7 @@ func FromTemplate(ctx context.Context, tplData TplData) ([]byte, error) {
 	b := buf.Bytes()
 	b = caddyfile.Format(b)
 
-	if common.LogLevel == zap.InfoLevel {
+	if common.LogLevel == zap.DebugLevel {
 		fmt.Println(string(b))
 	}
 

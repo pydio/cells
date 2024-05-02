@@ -65,7 +65,7 @@ func init() {
 				},
 			}),
 			// service.WithStorageMigrator(versions.Migrate),
-			service.WithStorageDrivers("main", versions.NewBoltDAO, versions.NewMongoDAO),
+			service.WithStorageDrivers(versions.NewBoltDAO, versions.NewMongoDAO),
 			service.AfterServe(func(ctx context.Context) error {
 				// return std.Retry(ctx, func() error {
 				bg := runtimecontext.ForkContext(context.Background(), ctx)

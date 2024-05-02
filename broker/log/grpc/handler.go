@@ -45,13 +45,21 @@ import (
 type Handler struct {
 	sync.UnimplementedSyncEndpointServer
 	proto.UnimplementedLogRecorderServer
-	RuntimeCtx context.Context
+	// RuntimeCtx context.Context
 	//	Repo        log.MessageRepository
 	HandlerName string
 }
 
 func (h *Handler) Name() string {
 	return h.HandlerName
+}
+
+func (h *Handler) OneLog(ctx context.Context, line *proto.Log) error {
+	repo, err := manager.Resolve[log.MessageRepository](ctx, manager.WithName("logs"))
+	if err != nil {
+		return err
+	}
+	return repo.PutLog(ctx, line)
 }
 
 // PutLog retrieves the log messages from the proto stream and stores them in the index.

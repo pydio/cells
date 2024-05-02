@@ -36,6 +36,7 @@ import (
 	log2 "github.com/pydio/cells/v4/common/proto/log"
 	"github.com/pydio/cells/v4/common/proto/sync"
 	"github.com/pydio/cells/v4/common/runtime"
+	"github.com/pydio/cells/v4/common/runtime/manager"
 	"github.com/pydio/cells/v4/common/service"
 	"github.com/pydio/cells/v4/scheduler/jobs"
 )
@@ -47,11 +48,6 @@ var (
 )
 
 const ServiceName = common.ServiceGrpcNamespace_ + common.ServiceJobs
-
-type DAO interface {
-	jobs.DAO
-	log.MessageRepository
-}
 
 func init() {
 	defaults := getDefaultJobs()
@@ -65,8 +61,8 @@ func init() {
 			service.Context(ctx),
 			service.Tag(common.ServiceTagScheduler),
 			service.Description("Store for scheduler jobs description"),
-			service.WithStorageDrivers("main", jobs.NewBoltDAO, jobs.NewMongoDAO),
-			service.WithStorageDrivers("logs", log.NewBleveDAO, log.NewMongoDAO),
+			service.WithNamedStorageDrivers("main", jobs.NewBoltDAO, jobs.NewMongoDAO),
+			service.WithNamedStorageDrivers("logs", log.NewBleveDAO, log.NewMongoDAO),
 			service.Migrations([]*service.Migration{
 				{
 					TargetVersion: service.ValidVersion("1.4.0"),
@@ -93,94 +89,105 @@ func init() {
 					},
 				},
 			}),
-			service.WithGRPC(func(c context.Context, server grpc.ServiceRegistrar) error {
+			service.WithGRPC(func(ctx context.Context, server grpc.ServiceRegistrar) error {
 
-				handler := NewJobsHandler(c)
+				handler := NewJobsHandler(ctx)
 				proto.RegisterJobServiceServer(server, handler)
 				log2.RegisterLogRecorderServer(server, handler)
 				sync.RegisterSyncEndpointServer(server, handler)
-				logger := log3.Logger(c)
+				logger := log3.Logger(ctx)
 
-				for _, j := range defaults {
-					if _, e := handler.GetJob(c, &proto.GetJobRequest{JobID: j.ID}); e != nil {
-						_, _ = handler.PutJob(c, &proto.PutJobRequest{Job: j})
-					}
-					// Force re-adding thumbs job
-					if Migration230 && j.ID == "thumbs-job" {
-						_, _ = handler.PutJob(c, &proto.PutJobRequest{Job: j})
-					}
-				}
-				// Clean tasks stuck in "Running" status
-				if _, er := handler.CleanStuckTasks(c, true, logger); er != nil {
-					logger.Warn("Could not run CleanStuckTasks: "+er.Error(), zap.Error(er))
-				}
+				autoStarts := make(map[context.Context][]*proto.Job)
 
-				// Clean user-jobs (AutoStart+AutoClean) without any tasks
-				if er := handler.CleanDeadUserJobs(c); er != nil {
-					logger.Warn("Could not run CleanDeadUserJobs: "+er.Error(), zap.Error(er))
-				}
+				_ = manager.GetTenantsManager().Iterate(ctx, func(c context.Context, t manager.Tenant) error {
+					for _, j := range defaults {
+						if _, e := handler.GetJob(c, &proto.GetJobRequest{JobID: j.ID}); e != nil {
+							_, _ = handler.PutJob(c, &proto.PutJobRequest{Job: j})
+						}
+						// Force re-adding thumbs job
+						if Migration230 && j.ID == "thumbs-job" {
+							_, _ = handler.PutJob(c, &proto.PutJobRequest{Job: j})
+						}
+					}
+					// Clean tasks stuck in "Running" status
+					if _, er := handler.CleanStuckTasks(c, true, logger); er != nil {
+						logger.Warn("Could not run CleanStuckTasks: "+er.Error(), zap.Error(er))
+					}
 
-				if Migration140 {
-					if resp, e := handler.DeleteTasks(c, &proto.DeleteTasksRequest{
-						JobId:      "users-activity-digest",
-						Status:     []proto.TaskStatus{proto.TaskStatus_Any},
-						PruneLimit: 1,
-					}); e == nil {
-						logger.Info("Migration 1.4.0: removed tasks on job users-activity-digest that could fill up the scheduler", zap.Int("number", len(resp.Deleted)))
-					} else {
-						logger.Error("Error while trying to prune tasks for job users-activity-digest", zap.Error(e))
+					// Clean user-jobs (AutoStart+AutoClean) without any tasks
+					if er := handler.CleanDeadUserJobs(c); er != nil {
+						logger.Warn("Could not run CleanDeadUserJobs: "+er.Error(), zap.Error(er))
 					}
-					if resp, e := handler.DeleteTasks(c, &proto.DeleteTasksRequest{
-						JobId:      "resync-changes-job",
-						Status:     []proto.TaskStatus{proto.TaskStatus_Any},
-						PruneLimit: 1,
-					}); e == nil {
-						logger.Info("Migration 1.4.0: removed tasks on job resync-changes-job that could fill up the scheduler", zap.Int("number", len(resp.Deleted)))
-					} else {
-						logger.Error("Error while trying to prune tasks for job resync-changes-job", zap.Error(e))
-					}
-				}
-				if Migration150 {
-					// Remove archive-changes-job
-					if _, e := handler.DeleteJob(c, &proto.DeleteJobRequest{JobID: "archive-changes-job"}); e != nil {
-						logger.Error("Could not remove archive-changes-job", zap.Error(e))
-					} else {
-						logger.Info("[Migration] Removed archive-changes-job")
-					}
-					// Remove resync-changes-job
-					if _, e := handler.DeleteJob(c, &proto.DeleteJobRequest{JobID: "resync-changes-job"}); e != nil {
-						logger.Error("Could not remove resync-changes-job", zap.Error(e))
-					} else {
-						logger.Info("[Migration] Removed resync-changes-job")
-					}
-				}
-				if Migration230 {
-					// Remove clean thumbs job and re-insert thumbs job
-					if _, e := handler.DeleteJob(c, &proto.DeleteJobRequest{JobID: "clean-thumbs-job"}); e != nil {
-						logger.Error("Could not remove clean-thumbs-job", zap.Error(e))
-					} else {
-						logger.Info("[Migration] Removed clean-thumbs-job")
-					}
-				}
 
+					if Migration140 {
+						if resp, e := handler.DeleteTasks(c, &proto.DeleteTasksRequest{
+							JobId:      "users-activity-digest",
+							Status:     []proto.TaskStatus{proto.TaskStatus_Any},
+							PruneLimit: 1,
+						}); e == nil {
+							logger.Info("Migration 1.4.0: removed tasks on job users-activity-digest that could fill up the scheduler", zap.Int("number", len(resp.Deleted)))
+						} else {
+							logger.Error("Error while trying to prune tasks for job users-activity-digest", zap.Error(e))
+						}
+						if resp, e := handler.DeleteTasks(c, &proto.DeleteTasksRequest{
+							JobId:      "resync-changes-job",
+							Status:     []proto.TaskStatus{proto.TaskStatus_Any},
+							PruneLimit: 1,
+						}); e == nil {
+							logger.Info("Migration 1.4.0: removed tasks on job resync-changes-job that could fill up the scheduler", zap.Int("number", len(resp.Deleted)))
+						} else {
+							logger.Error("Error while trying to prune tasks for job resync-changes-job", zap.Error(e))
+						}
+					}
+					if Migration150 {
+						// Remove archive-changes-job
+						if _, e := handler.DeleteJob(c, &proto.DeleteJobRequest{JobID: "archive-changes-job"}); e != nil {
+							logger.Error("Could not remove archive-changes-job", zap.Error(e))
+						} else {
+							logger.Info("[Migration] Removed archive-changes-job")
+						}
+						// Remove resync-changes-job
+						if _, e := handler.DeleteJob(c, &proto.DeleteJobRequest{JobID: "resync-changes-job"}); e != nil {
+							logger.Error("Could not remove resync-changes-job", zap.Error(e))
+						} else {
+							logger.Info("[Migration] Removed resync-changes-job")
+						}
+					}
+					if Migration230 {
+						// Remove clean thumbs job and re-insert thumbs job
+						if _, e := handler.DeleteJob(c, &proto.DeleteJobRequest{JobID: "clean-thumbs-job"}); e != nil {
+							logger.Error("Could not remove clean-thumbs-job", zap.Error(e))
+						} else {
+							logger.Info("[Migration] Removed clean-thumbs-job")
+						}
+					}
+
+					if jj, e := handler.ListAutoRestartJobs(c); e == nil && len(jj) > 0 {
+						autoStarts[c] = jj
+					}
+					return nil
+				})
+
+				// We should wait for service task to be started, then start jobs
 				var hc grpc2.HealthMonitor
-				if jj, e := handler.ListAutoRestartJobs(ctx); e == nil && len(jj) > 0 {
-					// We should wait for service task to be started, then start jobs
+				if len(autoStarts) > 0 {
 					hc = grpc2.NewHealthChecker(ctx)
 					go func() {
 						hc.Monitor(common.ServiceTasks)
-						for _, j := range jj {
-							logger.Info("Sending a start event for job '" + j.Label + "'")
-							_ = broker.Publish(c, common.TopicTimerEvent, &proto.JobTriggerEvent{
-								JobID:  j.ID,
-								RunNow: true,
-							})
+						for tc, jj := range autoStarts {
+							for _, j := range jj {
+								logger.Info("Sending a start event for job '" + j.Label + "'")
+								_ = broker.Publish(tc, common.TopicTimerEvent, &proto.JobTriggerEvent{
+									JobID:  j.ID,
+									RunNow: true,
+								})
+							}
 						}
 					}()
 				}
 
 				go func() {
-					<-c.Done()
+					<-ctx.Done()
 					handler.Close()
 					if hc != nil {
 						hc.Stop()

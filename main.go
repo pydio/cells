@@ -100,9 +100,9 @@ import (
 
 	// Scheduler
 	_ "github.com/pydio/cells/v4/scheduler/jobs/grpc"
-	//_ "github.com/pydio/cells/v4/scheduler/jobs/rest"
-	//_ "github.com/pydio/cells/v4/scheduler/tasks/grpc"
-	//_ "github.com/pydio/cells/v4/scheduler/timer/grpc"
+	_ "github.com/pydio/cells/v4/scheduler/jobs/rest"
+	_ "github.com/pydio/cells/v4/scheduler/tasks/grpc"
+	_ "github.com/pydio/cells/v4/scheduler/timer/grpc"
 
 	// Scheduler Actions
 	//_ "github.com/pydio/cells/v4/broker/activity/actions"

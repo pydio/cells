@@ -62,7 +62,7 @@ func init() {
 			//		Up:            InitDefaults,
 			//	},
 			//}),
-			service.WithStorageDrivers("main", user.NewDAO),
+			service.WithStorageDrivers(user.NewDAO),
 			service.WithGRPC(func(ctx context.Context, server grpc.ServiceRegistrar) error {
 
 				handler := NewHandler(ctx)

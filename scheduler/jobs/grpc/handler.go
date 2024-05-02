@@ -53,9 +53,9 @@ type JobsHandler struct {
 	proto.UnimplementedTaskServiceServer
 	logcore.Handler
 
-	//putTaskChan       chan *proto.Task
-	//putTaskBuff       map[string]map[string]*proto.Task
-	//putTaskBuffLength int
+	// TODO - SHOULD NOT MAINTAIN THIS
+	RuntimeCtx context.Context
+
 	jobsBuff     map[string]*proto.Job
 	jobsBuffLock *sync.Mutex
 	stop         chan bool
