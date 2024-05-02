@@ -625,11 +625,6 @@ func (m *manager) ServeAll(oo ...server.ServeOption) error {
 			return err
 		}
 
-		storages, err := m.localRegistry.List(registry.WithType(pb.ItemType_STORAGE))
-		if err != nil {
-			return err
-		}
-
 		for _, ss := range services {
 			var s service.Service
 			if !ss.As(&s) {
@@ -662,22 +657,6 @@ func (m *manager) ServeAll(oo ...server.ServeOption) error {
 
 			if mustFork {
 				continue // Do not register here
-			}
-
-			// Find storage and link it
-			var stores []map[string]string
-			if err := store.Val("services", ss.Name(), "storages").Scan(&stores); err != nil {
-				fmt.Println(err)
-				return err
-			}
-
-			for _, store := range stores {
-				for _, storage := range storages {
-					if store["type"] == storage.Name() {
-						edge, err := m.localRegistry.RegisterEdge(s.ID(), storage.ID(), "storage", nil)
-						fmt.Println(edge, err)
-					}
-				}
 			}
 
 			m.services[s.ID()] = s
