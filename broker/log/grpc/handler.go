@@ -45,9 +45,8 @@ import (
 type Handler struct {
 	sync.UnimplementedSyncEndpointServer
 	proto.UnimplementedLogRecorderServer
-	// RuntimeCtx context.Context
-	//	Repo        log.MessageRepository
-	HandlerName string
+	HandlerName    string
+	ResolveOptions []manager.ResolveOption
 }
 
 func (h *Handler) Name() string {
@@ -55,7 +54,7 @@ func (h *Handler) Name() string {
 }
 
 func (h *Handler) OneLog(ctx context.Context, line *proto.Log) error {
-	repo, err := manager.Resolve[log.MessageRepository](ctx, manager.WithName("logs"))
+	repo, err := manager.Resolve[log.MessageRepository](ctx, h.ResolveOptions...)
 	if err != nil {
 		return err
 	}
@@ -67,7 +66,7 @@ func (h *Handler) PutLog(stream proto.LogRecorder_PutLogServer) error {
 
 	ctx := stream.Context()
 
-	repo, err := manager.Resolve[log.MessageRepository](ctx, manager.WithName("logs"))
+	repo, err := manager.Resolve[log.MessageRepository](ctx, h.ResolveOptions...)
 	if err != nil {
 		return err
 	}
@@ -96,7 +95,7 @@ func (h *Handler) ListLogs(req *proto.ListLogRequest, stream proto.LogRecorder_L
 	s := req.GetSize()
 	ctx := stream.Context()
 
-	repo, err := manager.Resolve[log.MessageRepository](ctx, manager.WithName("logs"))
+	repo, err := manager.Resolve[log.MessageRepository](ctx, h.ResolveOptions...)
 	if err != nil {
 		return err
 	}
@@ -117,7 +116,7 @@ func (h *Handler) ListLogs(req *proto.ListLogRequest, stream proto.LogRecorder_L
 // DeleteLogs removes logs based on a ListLogRequest
 func (h *Handler) DeleteLogs(ctx context.Context, req *proto.ListLogRequest) (*proto.DeleteLogsResponse, error) {
 
-	repo, err := manager.Resolve[log.MessageRepository](ctx, manager.WithName("logs"))
+	repo, err := manager.Resolve[log.MessageRepository](ctx, h.ResolveOptions...)
 	if err != nil {
 		return nil, err
 	}
@@ -141,7 +140,7 @@ func (h *Handler) AggregatedLogs(req *proto.TimeRangeRequest, stream proto.LogRe
 // reconstructs a new index entirely. If truncate/{int64} is passed, it truncates the log to the given size (or closer)
 func (h *Handler) TriggerResync(ctx context.Context, request *sync.ResyncRequest) (*sync.ResyncResponse, error) {
 
-	repo, err := manager.Resolve[log.MessageRepository](ctx, manager.WithName("logs"))
+	repo, err := manager.Resolve[log.MessageRepository](ctx, h.ResolveOptions...)
 	if err != nil {
 		return nil, err
 	}

@@ -92,6 +92,9 @@ func init() {
 			service.WithGRPC(func(ctx context.Context, server grpc.ServiceRegistrar) error {
 
 				handler := NewJobsHandler(ctx)
+				// Used by the upper-level logcore.Handler to resolve the storage driver
+				handler.ResolveOptions = append(handler.ResolveOptions, manager.WithName("logs"))
+
 				proto.RegisterJobServiceServer(server, handler)
 				log2.RegisterLogRecorderServer(server, handler)
 				sync.RegisterSyncEndpointServer(server, handler)
