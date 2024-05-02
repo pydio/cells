@@ -26,7 +26,7 @@ import (
 )
 
 type StorageOptions struct {
-	SupportedDrivers []any
+	SupportedDrivers map[string][]any
 	Handler          any
 	Migrator         dao.MigratorFunc
 	prefix           interface{}
@@ -80,8 +80,13 @@ func WithStorageMigrator(d dao.MigratorFunc) ServiceOption {
 }
 
 // WithStorageDrivers adds a storage handler to the current service
-func WithStorageDrivers(f ...any) ServiceOption {
+func WithStorageDrivers(name string, f ...any) ServiceOption {
 	return func(o *ServiceOptions) {
-		o.StorageOptions.SupportedDrivers = append(o.StorageOptions.SupportedDrivers, f...)
+		m := o.StorageOptions.SupportedDrivers
+		if m == nil {
+			m = make(map[string][]any)
+		}
+		m[name] = f
+		o.StorageOptions.SupportedDrivers = m
 	}
 }

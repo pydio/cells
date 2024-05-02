@@ -49,13 +49,13 @@ type MessageRepository interface {
 
 func NewBleveDAO(_ context.Context, v *bleve.Indexer) MessageRepository {
 	v.SetCodex(&BleveCodec{})
-	return NewIndexRepository(v)
+	return NewIndexRepository()
 }
 
 func NewMongoDAO(_ context.Context, m *mongo.Indexer) MessageRepository {
 	m.SetCollection(mongoCollection)
 	m.SetCodex(&MongoCodec{})
-	return NewIndexRepository(m)
+	return NewIndexRepository()
 }
 
 func Migrate(f, t any, dryRun bool, status chan dao.MigratorStatus) (map[string]int, error) {

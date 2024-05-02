@@ -6,28 +6,38 @@ import (
 
 	log2 "github.com/pydio/cells/v4/common/log"
 	"github.com/pydio/cells/v4/common/proto/log"
+	"github.com/pydio/cells/v4/common/runtime/manager"
 	"github.com/pydio/cells/v4/common/storage/indexer"
 )
 
 type IndexRepository struct {
-	indexer.Indexer
+	name string
 }
 
-func NewIndexRepository(idx indexer.Indexer) MessageRepository {
-	is := &IndexRepository{Indexer: idx}
-	return is
+func NewIndexRepository(name string) MessageRepository {
+	return &IndexRepository{
+		name: name,
+	}
 }
 
 // PutLog  adds a new LogMessage in the syslog index.
 func (s *IndexRepository) PutLog(ctx context.Context, line *log.Log) error {
-	return s.InsertOne(ctx, line)
+	idx, err := manager.Resolve[indexer.Indexer](ctx, manager.WithName("logs"))
+	if err != nil {
+		return err
+	}
+	return idx.InsertOne(ctx, line)
 }
 
 // ListLogs performs a query in the bleve index, based on the passed query string.
 // It returns results as a stream of log.ListLogResponse for each corresponding hit.
 // Results are ordered by descending timestamp rather than by score.
 func (s *IndexRepository) ListLogs(ctx context.Context, str string, page int32, size int32) (chan log.ListLogResponse, error) {
-	ch, er := s.FindMany(ctx, str, page*size, size, "", false, nil)
+	idx, err := manager.Resolve[indexer.Indexer](ctx, manager.WithName(s.name))
+	if err != nil {
+		return nil, err
+	}
+	ch, er := idx.FindMany(ctx, str, page*size, size, "", false, nil)
 	if er != nil {
 		return nil, er
 	}
@@ -43,7 +53,12 @@ func (s *IndexRepository) ListLogs(ctx context.Context, str string, page int32, 
 
 // DeleteLogs truncate logs based on a search query
 func (s *IndexRepository) DeleteLogs(ctx context.Context, query string) (int64, error) {
-	c, er := s.DeleteMany(ctx, query)
+	idx, err := manager.Resolve[indexer.Indexer](ctx, manager.WithName("logs"))
+	if err != nil {
+		return 0, err
+	}
+
+	c, er := idx.DeleteMany(ctx, query)
 	if er == nil {
 		return int64(c), nil
 	} else {
@@ -57,15 +72,34 @@ func (s *IndexRepository) AggregatedLogs(_ context.Context, _ string, _ string, 
 }
 
 func (s *IndexRepository) Resync(ctx context.Context, logger log2.ZapLogger) error {
-	return s.Indexer.Resync(ctx, func(s string) {
+	idx, err := manager.Resolve[indexer.Indexer](ctx, manager.WithName(s.name))
+	if err != nil {
+		return err
+	}
+
+	return idx.Resync(ctx, func(s string) {
 		logTaskInfo(logger, s, "info")
 	})
 }
 
 func (s *IndexRepository) Truncate(ctx context.Context, max int64, logger log2.ZapLogger) error {
-	return s.Indexer.Truncate(ctx, max, func(s string) {
+	idx, err := manager.Resolve[indexer.Indexer](ctx, manager.WithName(s.name))
+	if err != nil {
+		return err
+	}
+
+	return idx.Truncate(ctx, max, func(s string) {
 		logTaskInfo(logger, s, "info")
 	})
+}
+
+func (s *IndexRepository) Close(ctx context.Context) error {
+	idx, err := manager.Resolve[indexer.Indexer](ctx, manager.WithName(s.name))
+	if err != nil {
+		return err
+	}
+
+	return idx.Close(ctx)
 }
 
 func logTaskInfo(l log2.ZapLogger, msg string, level string) {

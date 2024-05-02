@@ -61,7 +61,7 @@ func init() {
 					Up:            registerQueueJob,
 				},
 			}),
-			service.WithStorageDrivers(mailer2.NewBoltDAO, mailer2.NewMongoDAO),
+			service.WithStorageDrivers("main", mailer2.NewBoltDAO, mailer2.NewMongoDAO),
 			service.WithStorageMigrator(mailer2.MigrateQueue),
 			/*
 				service.WithStorage(mailer2.NewQueueDAO,

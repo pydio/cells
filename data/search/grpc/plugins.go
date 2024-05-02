@@ -53,7 +53,7 @@ func init() {
 			service.Tag(common.ServiceTagData),
 			service.Description("Search Engine"),
 			// service.Fork(true),
-			service.WithStorageDrivers(dao.NewBleveDAO, dao.NewMongoDAO),
+			service.WithStorageDrivers("main", dao.NewBleveDAO, dao.NewMongoDAO),
 			service.WithGRPC(func(c context.Context, server grpc.ServiceRegistrar) error {
 
 				searcher := &SearchServer{

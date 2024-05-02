@@ -50,6 +50,15 @@ type DAO interface {
 	BuildOrphanLogsQuery(time.Duration, []string) string
 }
 
+func NewBoltDAO(db *bbolt.DB) DAO {
+	dao, _ := newBoltStore(db)
+	return dao
+}
+
+func NewMongoDAO(db *mongo.Database) DAO {
+	return &mongoImpl{Database: db}
+}
+
 func NewDAO(ctx context.Context) (DAO, error) {
 	var boltdb *bbolt.DB
 	if storage.Get(ctx, &boltdb) {

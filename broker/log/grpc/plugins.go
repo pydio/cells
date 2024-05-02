@@ -45,7 +45,7 @@ func init() {
 			service.Context(ctx),
 			service.Tag(common.ServiceTagBroker),
 			service.Description("Syslog index store"),
-			service.WithStorageDrivers(log.NewBleveDAO, log.NewMongoDAO),
+			service.WithStorageDrivers("main", log.NewBleveDAO, log.NewMongoDAO),
 			service.WithStorageMigrator(log.Migrate),
 			/*
 				service.WithIndexer(log.NewDAO,

@@ -32,9 +32,10 @@ storages:
 services:
   test:
     storages:
-	  {{- range $idx, $dsn := . }}
-      - type: storage{{ $idx }}
-	  {{- end }}
+      main:
+	    {{- range $idx, $dsn := . }}
+        - type: storage{{ $idx }}
+	    {{- end }}
 `
 
 	tmpl *template.Template
@@ -83,7 +84,7 @@ func RunStorageTests(testCases []StorageTestCase, f func(context.Context)) {
 			svc = service.NewService(
 				service.Name("test"),
 				service.Context(ctx),
-				service.WithStorageDrivers(tc.DAO),
+				service.WithStorageDrivers("main", tc.DAO),
 			)
 		})
 

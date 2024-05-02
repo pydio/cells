@@ -58,7 +58,8 @@ func (h *Handler) Name() string {
 func (h *Handler) PutLog(stream proto.LogRecorder_PutLogServer) error {
 
 	ctx := stream.Context()
-	repo, err := manager.Resolve[log.MessageRepository](ctx)
+
+	repo, err := manager.Resolve[log.MessageRepository](ctx, manager.WithName("logs"))
 	if err != nil {
 		return err
 	}
@@ -86,7 +87,8 @@ func (h *Handler) ListLogs(req *proto.ListLogRequest, stream proto.LogRecorder_L
 	p := req.GetPage()
 	s := req.GetSize()
 	ctx := stream.Context()
-	repo, err := manager.Resolve[log.MessageRepository](ctx)
+
+	repo, err := manager.Resolve[log.MessageRepository](ctx, manager.WithName("logs"))
 	if err != nil {
 		return err
 	}
@@ -107,7 +109,7 @@ func (h *Handler) ListLogs(req *proto.ListLogRequest, stream proto.LogRecorder_L
 // DeleteLogs removes logs based on a ListLogRequest
 func (h *Handler) DeleteLogs(ctx context.Context, req *proto.ListLogRequest) (*proto.DeleteLogsResponse, error) {
 
-	repo, err := manager.Resolve[log.MessageRepository](ctx)
+	repo, err := manager.Resolve[log.MessageRepository](ctx, manager.WithName("logs"))
 	if err != nil {
 		return nil, err
 	}
@@ -131,7 +133,7 @@ func (h *Handler) AggregatedLogs(req *proto.TimeRangeRequest, stream proto.LogRe
 // reconstructs a new index entirely. If truncate/{int64} is passed, it truncates the log to the given size (or closer)
 func (h *Handler) TriggerResync(ctx context.Context, request *sync.ResyncRequest) (*sync.ResyncResponse, error) {
 
-	repo, err := manager.Resolve[log.MessageRepository](ctx)
+	repo, err := manager.Resolve[log.MessageRepository](ctx, manager.WithName("logs"))
 	if err != nil {
 		return nil, err
 	}

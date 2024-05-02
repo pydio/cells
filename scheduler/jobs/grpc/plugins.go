@@ -23,8 +23,8 @@ package grpc
 
 import (
 	"context"
-	"path/filepath"
 
+	"go.etcd.io/bbolt"
 	"go.uber.org/zap"
 	"google.golang.org/grpc"
 
@@ -32,17 +32,13 @@ import (
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/broker"
 	grpc2 "github.com/pydio/cells/v4/common/client/grpc"
-	"github.com/pydio/cells/v4/common/dao"
 	"github.com/pydio/cells/v4/common/dao/bleve"
-	"github.com/pydio/cells/v4/common/dao/boltdb"
-	"github.com/pydio/cells/v4/common/dao/mongodb"
 	log3 "github.com/pydio/cells/v4/common/log"
 	proto "github.com/pydio/cells/v4/common/proto/jobs"
 	log2 "github.com/pydio/cells/v4/common/proto/log"
 	"github.com/pydio/cells/v4/common/proto/sync"
 	"github.com/pydio/cells/v4/common/runtime"
 	"github.com/pydio/cells/v4/common/service"
-	servicecontext "github.com/pydio/cells/v4/common/service/context"
 	"github.com/pydio/cells/v4/scheduler/jobs"
 )
 
@@ -53,6 +49,15 @@ var (
 )
 
 const ServiceName = common.ServiceGrpcNamespace_ + common.ServiceJobs
+
+type DAO interface {
+	jobs.DAO
+	log.DAO
+}
+
+func NewDAO(*bbolt.DB, bleve.Indexer) DAO {
+
+}
 
 func init() {
 	defaults := getDefaultJobs()
@@ -66,22 +71,8 @@ func init() {
 			service.Context(ctx),
 			service.Tag(common.ServiceTagScheduler),
 			service.Description("Store for scheduler jobs description"),
-			service.WithStorage(jobs.NewDAO,
-				service.WithStoragePrefix("jobs"),
-				service.WithStorageMigrator(jobs.Migrate),
-				service.WithStorageSupport(boltdb.Driver, mongodb.Driver),
-				service.WithStorageDefaultDriver(func() (string, string) {
-					return boltdb.Driver, filepath.Join(runtime.MustServiceDataDir(ServiceName), "jobs.db")
-				}),
-			),
-			service.WithIndexer(log.NewDAO,
-				service.WithStoragePrefix("tasklogs"),
-				service.WithStorageMigrator(log.Migrate),
-				service.WithStorageSupport(bleve.Driver, mongodb.Driver),
-				service.WithStorageDefaultDriver(func() (string, string) {
-					return bleve.Driver, filepath.Join(runtime.MustServiceDataDir(ServiceName), "tasklogs.bleve?mapping=log&rotationSize=-1")
-				}),
-			),
+			service.WithStorageDrivers("main", jobs.NewDAO),
+			service.WithStorageDrivers("logs", log.NewBleveDAO, log.NewMongoDAO),
 			service.Migrations([]*service.Migration{
 				{
 					TargetVersion: service.ValidVersion("1.4.0"),
@@ -110,10 +101,7 @@ func init() {
 			}),
 			service.WithGRPC(func(c context.Context, server grpc.ServiceRegistrar) error {
 
-				index := servicecontext.GetIndexer(c).(dao.IndexDAO)
-
-				logStore := log.NewIndexRepository(index)
-				handler := NewJobsHandler(c, logStore)
+				handler := NewJobsHandler(c)
 				proto.RegisterJobServiceServer(server, handler)
 				log2.RegisterLogRecorderServer(server, handler)
 				sync.RegisterSyncEndpointServer(server, handler)

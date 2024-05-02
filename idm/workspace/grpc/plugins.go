@@ -48,7 +48,7 @@ func init() {
 			service.Context(ctx),
 			service.Tag(common.ServiceTagIdm),
 			service.Description("Workspaces Service"),
-			service.WithStorageDrivers(workspace.NewDAO),
+			service.WithStorageDrivers("main", workspace.NewDAO),
 			service.WithGRPC(func(ctx context.Context, srv grpc.ServiceRegistrar) error {
 				h := NewHandler()
 				idm.RegisterWorkspaceServiceServer(srv, h)

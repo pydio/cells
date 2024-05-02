@@ -226,7 +226,9 @@ storages: &storages
   nosql:
     uri: bleve://tmp/{{ .Value service }}
   bolt:
-    uri: boltdb:///tmp/{{ .Value tenant }}/{{ .Value prefix }}.db
+    uri: boltdb:///{{ TODOMustServiceDataDir .Value service }}/{{ .Value tenant }}/{{ .Value prefix }}.db
+  bleve:
+    uri: bleve:///tmp/{{ TODOMustServiceDataDir .Value service }}.bleve?mapping={{ .Value mapping }}&rotationSize={{ .Value rotationSize }}
   fifo:
     uri: goq:///tmp/{{ .Value tenant }}/fifo/{{ .Value prefix }}?evictionTime={{ .evictionTime }}
   user:
@@ -240,39 +242,59 @@ storages: &storages
 services:
   pydio.grpc.search:
     storages:
-      - type: search
-        path: chat
+      main:
+        - type: search
+          path: chat
   pydio.grpc.docstore:
     storages:
-      - type: bolt
-        prefix: docstore
-      - type: nosql
+      main:
+        - type: bolt
+          prefix: docstore
+        - type: nosql
   pydio.grpc.role:
     storages:
-      - type: sql
-        prefix: idm_role_
+      main:
+        - type: sql
+          prefix: idm_role_
   pydio.grpc.acl:
     storages:
-      - type: sql
-        prefix: idm_acl_
+      main:
+        - type: sql
+          prefix: idm_acl_
   pydio.grpc.user:
     storages:
-      - type: sql
-        prefix: idm_user_
+      main:
+        - type: sql
+          prefix: idm_user_
   pydio.grpc.key:
     storages:
-      - type: sql
-        prefix: idm_key_
+      main:
+        - type: sql
+          prefix: idm_key_
   pydio.grpc.workspace:
     storages:
-      - type: sql
-        prefix: idm_workspace_
+      main:
+        - type: sql
+          prefix: idm_workspace_
   pydio.grpc.meta:
     storages:
-      - type: sql
-        prefix: idm_meta_
+      main:
+        - type: sql
+          prefix: idm_meta_
   pydio.grpc.policy:
     storages:
-      - type: sql
-        prefix: idm_policy_
+      main:
+        - type: sql
+          prefix: idm_policy_
+  pydio.grpc.jobs:
+    storages:
+      main:
+        - type: bolt
+          prefix: jobs
+      logs:
+        - type: bleve
+          prefix: tasklogs
+          mapping: log
+          rotationSize: -1
+
 

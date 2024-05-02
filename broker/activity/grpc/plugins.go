@@ -70,7 +70,7 @@ func init() {
 					Up:            registerDigestJob,
 				},
 			}),
-			service.WithStorageDrivers(activity.NewBoltDAO, activity.NewMongoDAO),
+			service.WithStorageDrivers("main", activity.NewBoltDAO, activity.NewMongoDAO),
 			service.WithStorageMigrator(activity.Migrate),
 			/*
 				service.WithStorage("bolt", activity.NewBoltDAO,

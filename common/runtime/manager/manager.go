@@ -346,16 +346,18 @@ func (m *manager) initConnections() error {
 
 		for _, ss := range services {
 			// Find storage and link it
-			var stores []map[string]string
-			if err := store.Val("services", ss.Name(), "storages").Scan(&stores); err != nil {
+			var namedStores map[string][]map[string]string
+			if err := store.Val("services", ss.Name(), "storages").Scan(&namedStores); err != nil {
 				return
 			}
 
-			for _, store := range stores {
-				for _, storage := range storages {
-					if store["type"] == storage.Name() {
-						edge, err := m.localRegistry.RegisterEdge(ss.ID(), storage.ID(), "storage", nil)
-						fmt.Println(edge, err)
+			for name, stores := range namedStores {
+				for _, store := range stores {
+					for _, storage := range storages {
+						if store["type"] == storage.Name() {
+							edge, err := m.localRegistry.RegisterEdge(ss.ID(), storage.ID(), "storage", map[string]string{"name": name})
+							fmt.Println(edge, err)
+						}
 					}
 				}
 			}
@@ -1158,16 +1160,28 @@ func (m *manager) MustGetConfig(ctx context.Context) (out config.Store) {
 	return
 }
 
-func Resolve[T any](ctx context.Context) (T, error) {
+type ResolveOptions struct {
+	Name string
+}
+
+type ResolveOption func(*ResolveOptions)
+
+func WithName(name string) ResolveOption {
+	return func(o *ResolveOptions) {
+		o.Name = name
+	}
+}
+
+func Resolve[T any](ctx context.Context, opts ...ResolveOption) (T, error) {
+	o := ResolveOptions{
+		Name: "main",
+	}
+
+	for _, opt := range opts {
+		opt(&o)
+	}
 
 	var t T
-
-	// Check if DAO is directly resolved in context
-	if resolved := ctx.Value("resolved-dao"); resolved != nil {
-		if r, o := resolved.(T); o {
-			return r, nil
-		}
-	}
 
 	// First we get the contextualized manager
 	reg := servercontext.GetRegistry(ctx)
@@ -1179,10 +1193,11 @@ func Resolve[T any](ctx context.Context) (T, error) {
 	storages := reg.ListAdjacentItems(
 		registry.WithAdjacentSourceItems([]registry.Item{svc}),
 		registry.WithAdjacentTargetOptions(registry.WithType(pb.ItemType_STORAGE)),
+		registry.WithAdjacentEdgeOptions(registry.WithMeta("name", o.Name)),
 	)
 
 	// Inject dao in handler
-	for _, handler := range svc.Options().StorageOptions.SupportedDrivers {
+	for _, handler := range svc.Options().StorageOptions.SupportedDrivers[o.Name] {
 		handlerV := reflect.ValueOf(handler)
 		handlerT := reflect.TypeOf(handler)
 		if handlerV.Kind() != reflect.Func {

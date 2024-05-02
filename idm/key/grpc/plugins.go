@@ -42,7 +42,7 @@ func init() {
 			service.Context(ctx),
 			service.Tag(common.ServiceTagIdm),
 			service.Description("Encryption Keys server"),
-			service.WithStorageDrivers(key.NewDAO),
+			service.WithStorageDrivers("main", key.NewDAO),
 			service.WithGRPC(func(ctx context.Context, server grpc.ServiceRegistrar) error {
 				h, e := NewUserKeyStore(ctx)
 				if e != nil {

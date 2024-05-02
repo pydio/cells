@@ -52,7 +52,7 @@ func init() {
 				service.Tag(common.ServiceTagDatasource),
 				service.Description("Datasource indexation service"),
 				service.Source(source),
-				service.WithStorageDrivers(index.NewDAO),
+				service.WithStorageDrivers("main", index.NewDAO),
 				service.WithGRPC(func(ctx context.Context, srv grpc.ServiceRegistrar) error {
 					dsObject, e := config.GetSourceInfoByName(name)
 					if e != nil {

@@ -42,7 +42,7 @@ func init() {
 			service.Context(ctx),
 			service.Tag(common.ServiceTagIdm),
 			service.Description("Policy Engine Service"),
-			service.WithStorageDrivers(policy.NewDAO),
+			service.WithStorageDrivers("main", policy.NewDAO),
 			service.Migrations([]*service.Migration{
 				{
 					TargetVersion: service.FirstRun(),

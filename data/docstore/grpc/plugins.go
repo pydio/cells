@@ -45,7 +45,7 @@ func init() {
 			service.Context(ctx),
 			service.Tag(common.ServiceTagData),
 			service.Description("Generic document store"),
-			service.WithStorageDrivers(docstore.NewBleveDAO, docstore.NewMongoDAO),
+			service.WithStorageDrivers("main", docstore.NewBleveDAO, docstore.NewMongoDAO),
 			service.WithGRPC(func(ctx context.Context, srv grpc.ServiceRegistrar) error {
 				handler := &Handler{}
 
