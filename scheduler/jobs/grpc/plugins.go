@@ -24,7 +24,6 @@ package grpc
 import (
 	"context"
 
-	"go.etcd.io/bbolt"
 	"go.uber.org/zap"
 	"google.golang.org/grpc"
 
@@ -32,7 +31,6 @@ import (
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/broker"
 	grpc2 "github.com/pydio/cells/v4/common/client/grpc"
-	"github.com/pydio/cells/v4/common/dao/bleve"
 	log3 "github.com/pydio/cells/v4/common/log"
 	proto "github.com/pydio/cells/v4/common/proto/jobs"
 	log2 "github.com/pydio/cells/v4/common/proto/log"
@@ -52,11 +50,7 @@ const ServiceName = common.ServiceGrpcNamespace_ + common.ServiceJobs
 
 type DAO interface {
 	jobs.DAO
-	log.DAO
-}
-
-func NewDAO(*bbolt.DB, bleve.Indexer) DAO {
-
+	log.MessageRepository
 }
 
 func init() {
@@ -71,7 +65,7 @@ func init() {
 			service.Context(ctx),
 			service.Tag(common.ServiceTagScheduler),
 			service.Description("Store for scheduler jobs description"),
-			service.WithStorageDrivers("main", jobs.NewDAO),
+			service.WithStorageDrivers("main", jobs.NewBoltDAO, jobs.NewMongoDAO),
 			service.WithStorageDrivers("logs", log.NewBleveDAO, log.NewMongoDAO),
 			service.Migrations([]*service.Migration{
 				{
@@ -188,7 +182,6 @@ func init() {
 				go func() {
 					<-c.Done()
 					handler.Close()
-					logStore.Close(c)
 					if hc != nil {
 						hc.Stop()
 					}

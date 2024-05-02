@@ -47,15 +47,19 @@ type MessageRepository interface {
 	Truncate(context.Context, int64, log2.ZapLogger) error
 }
 
-func NewBleveDAO(_ context.Context, v *bleve.Indexer) MessageRepository {
-	v.SetCodex(&BleveCodec{})
-	return NewIndexRepository()
+func NewBleveDAO(name string) func(context.Context, *bleve.Indexer) MessageRepository {
+	return func(_ context.Context, v *bleve.Indexer) MessageRepository {
+		v.SetCodex(&BleveCodec{})
+		return NewIndexRepository(name)
+	}
 }
 
-func NewMongoDAO(_ context.Context, m *mongo.Indexer) MessageRepository {
-	m.SetCollection(mongoCollection)
-	m.SetCodex(&MongoCodec{})
-	return NewIndexRepository()
+func NewMongoDAO(name string) func(context.Context, *mongo.Indexer) MessageRepository {
+	return func(_ context.Context, m *mongo.Indexer) MessageRepository {
+		m.SetCollection(mongoCollection)
+		m.SetCodex(&MongoCodec{})
+		return NewIndexRepository(name)
+	}
 }
 
 func Migrate(f, t any, dryRun bool, status chan dao.MigratorStatus) (map[string]int, error) {
