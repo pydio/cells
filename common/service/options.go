@@ -101,13 +101,13 @@ func (o *ServiceOptions) Logger() log.ZapLogger {
 // GetRegistry returns the context registry
 func (o *ServiceOptions) GetRegistry() registry.Registry {
 	var reg registry.Registry
-	runtimecontext.Get(o.rootContext, runtimecontext.RegistryKey, &reg)
+	runtimecontext.Get(o.rootContext, registry.ContextKey, &reg)
 	return reg
 }
 
 // SetRegistry sets the registry in the root context
 func (o *ServiceOptions) SetRegistry(r registry.Registry) {
-	o.rootContext = runtimecontext.With(o.rootContext, runtimecontext.RegistryKey, r)
+	o.rootContext = runtimecontext.With(o.rootContext, registry.ContextKey, r)
 }
 
 // ID option for a service

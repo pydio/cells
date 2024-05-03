@@ -6,15 +6,12 @@ import (
 	"testing"
 	"time"
 
-	. "github.com/smartystreets/goconvey/convey"
-
-	"github.com/pydio/cells/v4/common/dao"
-	"github.com/pydio/cells/v4/common/dao/sqlite"
 	"github.com/pydio/cells/v4/common/proto/auth"
-	servicecontext "github.com/pydio/cells/v4/common/service/context"
 	"github.com/pydio/cells/v4/common/service/errors"
 	"github.com/pydio/cells/v4/common/utils/configx"
 	"github.com/pydio/cells/v4/idm/oauth"
+
+	. "github.com/smartystreets/goconvey/convey"
 )
 
 func init() {
@@ -29,15 +26,16 @@ var (
 )
 
 func TestMain(m *testing.M) {
-
-	ctx = context.Background()
-	if d, e := dao.InitDAO(ctx, sqlite.Driver, sqlite.SharedMemDSN, "test", oauth.NewDAO, options); e != nil {
-		panic(e)
-	} else {
-		mockDAO = d.(oauth.DAO)
-	}
-	ctx = servicecontext.WithDAO(ctx, mockDAO)
-
+	/*
+		// Todo ?
+			ctx = context.Background()
+			if d, e := dao.InitDAO(ctx, sqlite.Driver, sqlite.SharedMemDSN, "test", oauth.NewDAO, options); e != nil {
+				panic(e)
+			} else {
+				mockDAO = d.(oauth.DAO)
+			}
+			ctx = servicecontext.WithDAO(ctx, mockDAO)
+	*/
 	m.Run()
 	wg.Wait()
 }
@@ -87,6 +85,7 @@ func TestPatHandler_Generate(t *testing.T) {
 	})
 
 }
+
 func TestPatHandler_AutoRefresh(t *testing.T) {
 	Convey("Test AutoRefresh Access Tokens", t, func() {
 		pat := &PATHandler{dao: mockDAO}

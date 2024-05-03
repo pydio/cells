@@ -15,6 +15,17 @@ func RegisterContextInjector(injector ContextInjector) {
 	contextInjectors = append(contextInjectors, injector)
 }
 
+// RegisterGenericInjector creates a context injector that copies the type T from parent to child context
+func RegisterGenericInjector[T any](key any) {
+	contextInjectors = append(contextInjectors, func(ctx, parent context.Context) context.Context {
+		var obj T
+		if Get(parent, key, &obj) {
+			return With(ctx, key, obj)
+		}
+		return ctx
+	})
+}
+
 // ForkContext copies all necessary dependencies using the internal ContextInjector registry
 func ForkContext(ctx, parent context.Context) context.Context {
 	for _, i := range contextInjectors {
@@ -23,28 +34,19 @@ func ForkContext(ctx, parent context.Context) context.Context {
 	return ctx
 }
 
-type serviceKey struct{}
+func ForkOneKey(key any, child, parent context.Context) context.Context {
+	if v := parent.Value(key); v != nil {
+		return context.WithValue(child, key, v)
+	}
+	return child
+}
 
-type managerKey struct{}
-
-type configKey struct{}
-
-type registryKey struct{}
-
-type tenantKey struct{}
-
-var (
-	ServiceKey  = serviceKey{}
-	ManagerKey  = managerKey{}
-	RegistryKey = registryKey{}
-	ConfigKey   = configKey{}
-	TenantKey   = tenantKey{}
-)
-
+// With is a generic context-setter
 func With[T any](ctx context.Context, key any, t T) context.Context {
 	return context.WithValue(ctx, key, t)
 }
 
+// Get is a generic context-getter to an expected type
 func Get[T any](ctx context.Context, key any, out *T) bool {
 	if ctx == nil {
 		return false

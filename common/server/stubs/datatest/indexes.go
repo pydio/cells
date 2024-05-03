@@ -26,14 +26,9 @@ import (
 	"google.golang.org/grpc"
 
 	"github.com/pydio/cells/v4/common"
-	"github.com/pydio/cells/v4/common/dao"
-	"github.com/pydio/cells/v4/common/dao/sqlite"
 	"github.com/pydio/cells/v4/common/proto/object"
 	"github.com/pydio/cells/v4/common/proto/tree"
 	"github.com/pydio/cells/v4/common/server/stubs"
-	servicecontext "github.com/pydio/cells/v4/common/service/context"
-	"github.com/pydio/cells/v4/common/utils/configx"
-	"github.com/pydio/cells/v4/data/source/index"
 	srv "github.com/pydio/cells/v4/data/source/index/grpc"
 )
 
@@ -41,12 +36,16 @@ func NewIndexService(dsName string, nodes ...*tree.Node) (grpc.ClientConnInterfa
 
 	ctx := context.Background()
 
-	mockDAO, er := dao.InitDAO(ctx, sqlite.Driver, sqlite.SharedMemDSN, "data_index_"+dsName, index.NewDAO, configx.New())
-	if er != nil {
-		return nil, er
-	}
+	/*
+		TODO
+		mockDAO, er := dao.InitDAO(ctx, sqlite.Driver, sqlite.SharedMemDSN, "data_index_"+dsName, index.NewDAO, configx.New())
+		if er != nil {
+			return nil, er
+		}
+			ctx = servicecontext.WithDAO(ctx, mockDAO)
+	*/
 
-	ts := srv.NewTreeServer(&object.DataSource{Name: dsName}, common.ServiceGrpcNamespace_+common.ServiceTree, mockDAO.(index.DAO))
+	ts := srv.NewTreeServer(&object.DataSource{Name: dsName}, common.ServiceGrpcNamespace_+common.ServiceTree)
 
 	srv1 := &tree.NodeProviderStub{}
 	srv1.NodeProviderServer = ts
@@ -57,7 +56,6 @@ func NewIndexService(dsName string, nodes ...*tree.Node) (grpc.ClientConnInterfa
 	serv.Register("tree.NodeProvider", srv1)
 	serv.Register("tree.NodeReceiver", srv2)
 
-	ctx = servicecontext.WithDAO(ctx, mockDAO)
 	for _, u := range nodes {
 		_, er := ts.CreateNode(ctx, &tree.CreateNodeRequest{Node: u})
 		if er != nil {

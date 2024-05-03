@@ -68,7 +68,7 @@ func UpdateServiceVersionWrapper(h http.Handler, o *ServiceOptions) http.Handler
 		ctx := req.Context()
 		ctx, _, _ = middleware.TenantIncomingContext(nil)(ctx)
 		var cfg config.Store
-		runtimecontext.Get(ctx, runtimecontext.ConfigKey, &cfg)
+		runtimecontext.Get(ctx, config.ContextKey, &cfg)
 		err := UpdateServiceVersion(ctx, cfg, o)
 		if err != nil {
 			fmt.Println("Failed to run service version update")

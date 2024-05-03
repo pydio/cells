@@ -22,34 +22,33 @@ package datatest
 
 import (
 	"context"
-	"fmt"
 
 	"google.golang.org/grpc"
 
 	"github.com/pydio/cells/v4/common/proto/tree"
 	"github.com/pydio/cells/v4/common/server/stubs"
-	servicecontext "github.com/pydio/cells/v4/common/service/context"
-	"github.com/pydio/cells/v4/common/sql"
-	"github.com/pydio/cells/v4/common/utils/configx"
-	"github.com/pydio/cells/v4/data/meta"
 	srv "github.com/pydio/cells/v4/data/meta/grpc"
 )
 
 func NewMetaService(nodes ...*tree.Node) (grpc.ClientConnInterface, error) {
 	ctx := context.Background()
 
-	sqlDao, er := sql.NewDAO(ctx, "sqlite3", "file::memory:?mode=memory&cache=shared", "data_meta_")
-	if er != nil {
-		return nil, er
-	}
+	/*
+		// TODO
+		sqlDao, er := sql.NewDAO(ctx, "sqlite3", "file::memory:?mode=memory&cache=shared", "data_meta_")
+		if er != nil {
+			return nil, er
+		}
+		mockDAO, _ := meta.NewDAO(ctx, sqlDao)
+		var options = configx.New()
+		if err := mockDAO.Init(ctx, options); err != nil {
+			return nil, fmt.Errorf("could not start test: unable to initialise index DAO, error: %v", err)
+		}
+		ctx = servicecontext.WithDAO(ctx, mockDAO)
 
-	mockDAO, _ := meta.NewDAO(ctx, sqlDao)
-	var options = configx.New()
-	if err := mockDAO.Init(ctx, options); err != nil {
-		return nil, fmt.Errorf("could not start test: unable to initialise index DAO, error: %v", err)
-	}
+	*/
 
-	ts := srv.NewMetaServer(context.Background(), mockDAO.(meta.DAO))
+	ts := srv.NewMetaServer(context.Background())
 
 	srv1 := &tree.NodeProviderStub{}
 	srv1.NodeProviderServer = ts
@@ -63,7 +62,6 @@ func NewMetaService(nodes ...*tree.Node) (grpc.ClientConnInterface, error) {
 	mux.Register("tree.NodeReceiver", srv2)
 	mux.Register("tree.NodeProviderStreamer", srv3)
 
-	ctx = servicecontext.WithDAO(ctx, mockDAO)
 	for _, u := range nodes {
 		_, er := ts.CreateNode(ctx, &tree.CreateNodeRequest{Node: u})
 		if er != nil {

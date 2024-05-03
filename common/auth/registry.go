@@ -491,7 +491,7 @@ func (*cellsdriverContextualizer) Config(ctx context.Context, cfg *configx.Provi
 	host, _ := servicecontext.HttpMetaFromGrpcContext(ctx, servicecontext.HttpMetaHost)
 	rootURL := "https://" + host
 	var conf config.Store
-	runtimecontext.Get(ctx, runtimecontext.ConfigKey, &conf)
+	runtimecontext.Get(ctx, config.ContextKey, &conf)
 	values := conf.Val("services", "pydio.web.oauth")
 
 	m := values.Map()
@@ -589,7 +589,7 @@ func InitRegistry(ctx context.Context, dbServiceName string) (e error) {
 
 	logger := log.Logger(ctx)
 	var rg registry.Registry
-	if runtimecontext.Get(ctx, runtimecontext.RegistryKey, &rg) {
+	if runtimecontext.Get(ctx, registry.ContextKey, &rg) {
 		if locker := rg.NewLocker("oauthinit"); locker != nil {
 			locker.Lock()
 			defer locker.Unlock()
@@ -627,7 +627,7 @@ func OnRegistryInit(f func()) {
 
 func getLogrusLogger(serviceName string) *logrus.Logger {
 	logrusOnce.Do(func() {
-		logCtx := servicecontext.WithServiceName(context.Background(), serviceName)
+		logCtx := runtimecontext.WithServiceName(context.Background(), serviceName)
 		r, w, _ := os.Pipe()
 		go func() {
 			scanner := bufio.NewScanner(r)

@@ -43,7 +43,7 @@ func WithGRPC(f func(context.Context, grpc.ServiceRegistrar) error) ServiceOptio
 			var registrar grpc.ServiceRegistrar
 			o.Server.As(&registrar)
 			var reg registry.Registry
-			runtimecontext.Get(ctx, runtimecontext.RegistryKey, &reg)
+			runtimecontext.Get(ctx, registry.ContextKey, &reg)
 
 			return f(ctx, &serviceRegistrar{
 				ServiceRegistrar: registrar,

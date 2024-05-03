@@ -33,13 +33,13 @@ import (
 	clientcontext "github.com/pydio/cells/v4/common/client/context"
 	clientgrpc "github.com/pydio/cells/v4/common/client/grpc"
 	"github.com/pydio/cells/v4/common/config"
+	"github.com/pydio/cells/v4/common/crypto"
 	"github.com/pydio/cells/v4/common/log"
 	"github.com/pydio/cells/v4/common/registry"
 	"github.com/pydio/cells/v4/common/runtime"
 	"github.com/pydio/cells/v4/common/runtime/manager"
 	"github.com/pydio/cells/v4/common/runtime/runtimecontext"
 	"github.com/pydio/cells/v4/common/server"
-	servicecontext "github.com/pydio/cells/v4/common/service/context"
 	"github.com/pydio/cells/v4/common/utils/filex"
 
 	_ "embed"
@@ -159,7 +159,7 @@ ENVIRONMENT
 			//	"Do you want to reset the initial configuration", cmd, args)
 		}
 
-		ctx = servicecontext.WithKeyring(ctx, keyring)
+		ctx = runtimecontext.With(ctx, crypto.KeyringContextKey, keyring)
 		for _, cc := range configChecks {
 			if e := cc(ctx); e != nil {
 				return e
@@ -171,8 +171,8 @@ ENVIRONMENT
 		if err != nil {
 			return err
 		}
-		ctx = runtimecontext.With(ctx, runtimecontext.RegistryKey, reg)
-		ctx = runtimecontext.With(ctx, runtimecontext.ConfigKey, config.Main())
+		ctx = runtimecontext.With(ctx, registry.ContextKey, reg)
+		ctx = runtimecontext.With(ctx, config.ContextKey, config.Main())
 
 		clientgrpc.WarnMissingConnInContext = true
 		conn, err := grpc.Dial("xds://"+runtime.Cluster()+".cells.com/cells", clientgrpc.DialOptionsForRegistry(reg)...)
@@ -186,7 +186,7 @@ ENVIRONMENT
 		// Init broker
 		broker.Register(broker.NewBroker(runtime.BrokerURL(), broker.WithContext(ctx)))
 
-		m, err := manager.NewManager(ctx, "main", log.Logger(servicecontext.WithServiceName(ctx, "pydio.server.manager")))
+		m, err := manager.NewManager(ctx, "main", log.Logger(runtimecontext.WithServiceName(ctx, "pydio.server.manager")))
 		if err != nil {
 			return err
 		}

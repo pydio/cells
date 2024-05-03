@@ -103,6 +103,10 @@ type manager struct {
 	logger log.ZapLogger
 }
 
+type managerKey struct{}
+
+var contextKey = managerKey{}
+
 func NewManager(ctx context.Context, namespace string, logger log.ZapLogger) (Manager, error) {
 
 	reg, err := registry.OpenRegistry(ctx, "mem:///?cache="+namespace)
@@ -196,8 +200,8 @@ func NewManager(ctx context.Context, namespace string, logger log.ZapLogger) (Ma
 		m.root = current
 	}
 
-	ctx = runtimecontext.With(ctx, runtimecontext.RegistryKey, reg)
-	ctx = runtimecontext.With(ctx, runtimecontext.ManagerKey, m)
+	ctx = runtimecontext.With(ctx, registry.ContextKey, reg)
+	ctx = runtimecontext.With(ctx, contextKey, m)
 
 	runtime.Init(ctx, "discovery")
 	runtime.Init(ctx, m.ns)
@@ -1163,11 +1167,11 @@ func Resolve[T any](ctx context.Context, opts ...ResolveOption) (T, error) {
 
 	// First we get the contextualized registry
 	var reg registry.Registry
-	runtimecontext.Get(ctx, runtimecontext.RegistryKey, &reg)
+	runtimecontext.Get(ctx, registry.ContextKey, &reg)
 
 	// Then we get the service from the context
 	var svc service.Service
-	if !runtimecontext.Get(ctx, runtimecontext.ServiceKey, &svc) {
+	if !runtimecontext.Get(ctx, service.ContextKey, &svc) {
 		return t, fmt.Errorf("resolve cannot find service &svc in context")
 	}
 
@@ -1219,7 +1223,7 @@ func Resolve[T any](ctx context.Context, opts ...ResolveOption) (T, error) {
 
 func MustGetConfig(ctx context.Context) config.Store {
 	var mg Manager
-	runtimecontext.Get(ctx, runtimecontext.ManagerKey, &mg)
+	runtimecontext.Get(ctx, contextKey, &mg)
 
 	if mg == nil {
 		panic("manager must be set")

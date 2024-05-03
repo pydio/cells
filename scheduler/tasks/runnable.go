@@ -32,7 +32,7 @@ import (
 
 	"github.com/pydio/cells/v4/common/log"
 	"github.com/pydio/cells/v4/common/proto/jobs"
-	servicecontext "github.com/pydio/cells/v4/common/service/context"
+	"github.com/pydio/cells/v4/common/runtime/runtimecontext"
 	"github.com/pydio/cells/v4/common/service/context/metadata"
 	"github.com/pydio/cells/v4/common/service/errors"
 	"github.com/pydio/cells/v4/scheduler/actions"
@@ -64,10 +64,10 @@ func itemTimeout(ctx context.Context, to string) (time.Duration, bool) {
 
 func RootRunnable(ctx context.Context, task *Task) Runnable {
 	ctx = metadata.WithAdditionalMetadata(ctx, map[string]string{
-		servicecontext.ContextMetaJobUuid:        task.Job.ID,
-		servicecontext.ContextMetaTaskUuid:       task.GetRunUUID(),
-		servicecontext.ContextMetaTaskActionPath: "ROOT",
-		servicecontext.ContextMetaTaskActionTags: "",
+		runtimecontext.ContextMetaJobUuid:        task.Job.ID,
+		runtimecontext.ContextMetaTaskUuid:       task.GetRunUUID(),
+		runtimecontext.ContextMetaTaskActionPath: "ROOT",
+		runtimecontext.ContextMetaTaskActionTags: "",
 	})
 	return Runnable{
 		Context:    ctx,
@@ -345,9 +345,9 @@ func (r *Runnable) RunAction(queue chan RunnerFunc) {
 
 func failedContextPath(ctx context.Context, actionId string, chainIndex int) (string, context.Context) {
 	if mm, ok := metadata.FromContextRead(ctx); ok {
-		if p, o := mm[servicecontext.ContextMetaTaskActionPath]; o {
+		if p, o := mm[runtimecontext.ContextMetaTaskActionPath]; o {
 			newPath := path.Join(p, fmt.Sprintf("%s$%d$FAIL", actionId, chainIndex))
-			ctx = metadata.WithAdditionalMetadata(ctx, map[string]string{servicecontext.ContextMetaTaskActionPath: newPath})
+			ctx = metadata.WithAdditionalMetadata(ctx, map[string]string{runtimecontext.ContextMetaTaskActionPath: newPath})
 			return newPath, ctx
 		}
 	}

@@ -25,7 +25,13 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/zalando/go-keyring"
+	keyring "github.com/zalando/go-keyring"
+)
+
+type keyringKey struct{}
+
+var (
+	KeyringContextKey = keyringKey{}
 )
 
 type Keyring interface {

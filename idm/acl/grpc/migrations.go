@@ -15,7 +15,7 @@ import (
 	"github.com/pydio/cells/v4/common/proto/idm"
 	service "github.com/pydio/cells/v4/common/proto/service"
 	"github.com/pydio/cells/v4/common/proto/tree"
-	servicecontext "github.com/pydio/cells/v4/common/service/context"
+	"github.com/pydio/cells/v4/common/runtime/manager"
 	"github.com/pydio/cells/v4/common/utils/permissions"
 	"github.com/pydio/cells/v4/common/utils/std"
 	"github.com/pydio/cells/v4/idm/acl"
@@ -25,7 +25,10 @@ import (
 func UpgradeTo120(ctx context.Context) error {
 
 	fmt.Println("Upgrade to 120 ?")
-	dao := servicecontext.GetDAO[acl.DAO](ctx)
+	dao, er := manager.Resolve[acl.DAO](ctx)
+	if er != nil {
+		return er
+	}
 
 	// REMOVE pydiogateway ACLs
 	log.Logger(ctx).Info("ACLS: remove pydiogateway ACLs")

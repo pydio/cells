@@ -44,7 +44,7 @@ import (
 	"github.com/pydio/cells/v4/common/proto/tree"
 	"github.com/pydio/cells/v4/common/runtime"
 	"github.com/pydio/cells/v4/common/runtime/manager"
-	servicecontext "github.com/pydio/cells/v4/common/service/context"
+	"github.com/pydio/cells/v4/common/runtime/runtimecontext"
 	"github.com/pydio/cells/v4/common/service/context/metadata"
 	"github.com/pydio/cells/v4/common/service/errors"
 	"github.com/pydio/cells/v4/common/utils/cache"
@@ -94,7 +94,10 @@ func (e *MicroEventsSubscriber) ignoreForInternal(node *tree.Node) bool {
 // HandleNodeChange processes the received events and sends them to the subscriber
 func (e *MicroEventsSubscriber) HandleNodeChange(ctx context.Context, msg *tree.NodeChangeEvent) error {
 
-	dao := servicecontext.GetDAO[activity.DAO](ctx)
+	dao, er := manager.Resolve[activity.DAO](ctx)
+	if er != nil {
+		return er
+	}
 
 	author := common.PydioSystemUsername
 	if u, o := metadata.CanonicalMeta(ctx, common.PydioContextUserKey); o {
@@ -233,7 +236,7 @@ func (e *MicroEventsSubscriber) HandleIdmChange(ctx context.Context, msg *idm.Ch
 		return q.Push(ctx, msg)
 	} else if msg.User != nil && msg.Type == idm.ChangeEventType_DELETE && msg.User.Login != "" {
 		// Clear activity for deleted user
-		ctx = servicecontext.WithServiceName(ctx, Name)
+		ctx = runtimecontext.WithServiceName(ctx, Name)
 		log.Logger(ctx).Debug("Clearing activities for user", msg.User.ZapLogin())
 		go func() {
 			if er := dao.Delete(e.RuntimeCtx, activity2.OwnerType_USER, msg.User.Login); er != nil {

@@ -29,7 +29,7 @@ import (
 
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/proto/jobs"
-	servicecontext "github.com/pydio/cells/v4/common/service/context"
+	"github.com/pydio/cells/v4/common/runtime/runtimecontext"
 	"github.com/pydio/cells/v4/common/utils/permissions"
 	"github.com/pydio/cells/v4/common/utils/uuid"
 	"github.com/pydio/cells/v4/scheduler/actions"
@@ -68,7 +68,7 @@ func NewTaskFromEvent(runtime, ctx context.Context, job *jobs.Job, event interfa
 		taskID = trigger.RunTaskId
 	}
 	operationID := job.ID + "-" + taskID[0:8]
-	c := servicecontext.WithOperationID(ctx, operationID)
+	c := runtimecontext.WithOperationID(ctx, operationID)
 
 	// Inject evaluated job parameters if it's not already here
 	if len(job.Parameters) > 0 && c.Value(ContextJobParametersKey{}) == nil {

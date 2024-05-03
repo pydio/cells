@@ -23,7 +23,6 @@ package jobs
 import (
 	"context"
 	"fmt"
-	json "github.com/pydio/cells/v4/common/utils/jsonx"
 	"path"
 	"strings"
 	"sync"
@@ -38,8 +37,9 @@ import (
 	"github.com/pydio/cells/v4/common/proto/idm"
 	"github.com/pydio/cells/v4/common/proto/object"
 	"github.com/pydio/cells/v4/common/proto/tree"
-	servicecontext "github.com/pydio/cells/v4/common/service/context"
+	"github.com/pydio/cells/v4/common/runtime/runtimecontext"
 	"github.com/pydio/cells/v4/common/service/context/metadata"
+	json "github.com/pydio/cells/v4/common/utils/jsonx"
 )
 
 const (
@@ -368,10 +368,10 @@ func (a *Action) BuildTaskActionPath(ctx context.Context, suffix string, indexTa
 	pPath := "ROOT"
 	var tags []string
 	if mm, ok := metadata.FromContextRead(ctx); ok {
-		if p, o := mm[servicecontext.ContextMetaTaskActionPath]; o {
+		if p, o := mm[runtimecontext.ContextMetaTaskActionPath]; o {
 			pPath = p
 		}
-		if t, o := mm[servicecontext.ContextMetaTaskActionTags]; o {
+		if t, o := mm[runtimecontext.ContextMetaTaskActionTags]; o {
 			tags = strings.Split(t, ",")
 		}
 	}
@@ -389,11 +389,11 @@ func (a *Action) BuildTaskActionPath(ctx context.Context, suffix string, indexTa
 	}
 	newPath := path.Join(pPath, fmt.Sprintf("%s$%d%s", id, chainIndex, sx))
 	newMeta := map[string]string{
-		servicecontext.ContextMetaTaskActionPath: newPath,
+		runtimecontext.ContextMetaTaskActionPath: newPath,
 	}
 	if len(indexTag) > 0 && indexTag[0] > 0 {
 		tags = append(tags, fmt.Sprintf("%s:%d", newPath, indexTag[0]))
-		newMeta[servicecontext.ContextMetaTaskActionTags] = strings.Join(tags, ",")
+		newMeta[runtimecontext.ContextMetaTaskActionTags] = strings.Join(tags, ",")
 	}
 	ctx = metadata.WithAdditionalMetadata(ctx, newMeta)
 	return newPath, ctx

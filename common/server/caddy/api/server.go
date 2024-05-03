@@ -83,7 +83,7 @@ func New(ctx context.Context, caddyApi string) (server.Server, error) {
 func (s *Server) RawServe(*server.ServeOptions) (ii []registry.Item, er error) {
 
 	var reg registry.Registry
-	runtimecontext.Get(s.RootContext(), runtimecontext.RegistryKey, &reg)
+	runtimecontext.Get(s.RootContext(), registry.ContextKey, &reg)
 
 	rc, _ := client.NewResolverCallback(reg)
 	s.balancer = clienthttp.NewBalancer(s.ID())

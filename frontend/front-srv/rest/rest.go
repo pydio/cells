@@ -45,8 +45,8 @@ import (
 	"github.com/pydio/cells/v4/common/proto/idm"
 	"github.com/pydio/cells/v4/common/proto/rest"
 	"github.com/pydio/cells/v4/common/proto/tree"
+	"github.com/pydio/cells/v4/common/runtime/manager"
 	"github.com/pydio/cells/v4/common/service"
-	servicecontext "github.com/pydio/cells/v4/common/service/context"
 	"github.com/pydio/cells/v4/common/service/context/metadata"
 	"github.com/pydio/cells/v4/common/service/frontend"
 	"github.com/pydio/cells/v4/common/service/frontend/sessions"
@@ -184,7 +184,11 @@ func (a *FrontendHandler) FrontPlugins(req *restful.Request, rsp *restful.Respon
 // FrontSessionGet loads a cookie-based session to get info about an access token
 func (a *FrontendHandler) FrontSessionGet(req *restful.Request, rsp *restful.Response) {
 
-	dao := servicecontext.GetDAO[sessions.DAO](req.Request.Context())
+	dao, er := manager.Resolve[sessions.DAO](req.Request.Context())
+	if er != nil {
+		service.RestError500(req, rsp, er)
+		return
+	}
 
 	session, err := dao.GetSession(req.Request)
 	if err != nil && session == nil {
@@ -207,7 +211,11 @@ func (a *FrontendHandler) FrontSessionGet(req *restful.Request, rsp *restful.Res
 // FrontSession initiate a cookie-based session based on a LoginRequest
 func (a *FrontendHandler) FrontSession(req *restful.Request, rsp *restful.Response) {
 
-	dao := servicecontext.GetDAO[sessions.DAO](req.Request.Context())
+	dao, er := manager.Resolve[sessions.DAO](req.Request.Context())
+	if er != nil {
+		service.RestError500(req, rsp, er)
+		return
+	}
 
 	var loginRequest rest.FrontSessionRequest
 	if e := req.ReadEntity(&loginRequest); e != nil {
@@ -280,7 +288,11 @@ func (a *FrontendHandler) FrontSession(req *restful.Request, rsp *restful.Respon
 // FrontSessionDel logs out user by clearing the associated cookie session.
 func (a *FrontendHandler) FrontSessionDel(req *restful.Request, rsp *restful.Response) {
 
-	dao := servicecontext.GetDAO[sessions.DAO](req.Request.Context())
+	dao, er := manager.Resolve[sessions.DAO](req.Request.Context())
+	if er != nil {
+		service.RestError500(req, rsp, er)
+		return
+	}
 
 	session, err := dao.GetSession(req.Request)
 	if err != nil && session == nil {

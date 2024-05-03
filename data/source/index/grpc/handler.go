@@ -37,7 +37,7 @@ import (
 	"github.com/pydio/cells/v4/common/proto/sync"
 	"github.com/pydio/cells/v4/common/proto/tree"
 	"github.com/pydio/cells/v4/common/runtime/manager"
-	servicecontext "github.com/pydio/cells/v4/common/service/context"
+	"github.com/pydio/cells/v4/common/runtime/runtimecontext"
 	"github.com/pydio/cells/v4/common/service/context/metadata"
 	"github.com/pydio/cells/v4/common/service/errors"
 	cindex "github.com/pydio/cells/v4/common/sql/indexgorm"
@@ -146,7 +146,7 @@ func (s *TreeServer) CreateNode(ctx context.Context, req *tree.CreateNodeRequest
 		return nil, err
 	}
 
-	name := servicecontext.GetServiceName(ctx)
+	name := runtimecontext.GetServiceName(ctx)
 
 	var node tree.ITreeNode
 	var previousEtag string
@@ -278,7 +278,7 @@ func (s *TreeServer) ReadNode(ctx context.Context, req *tree.ReadNodeRequest) (r
 		return nil, err
 	}
 
-	name := servicecontext.GetServiceName(ctx)
+	name := runtimecontext.GetServiceName(ctx)
 
 	var node tree.ITreeNode
 
@@ -344,7 +344,7 @@ func (s *TreeServer) ListNodes(req *tree.ListNodesRequest, resp tree.NodeProvide
 		return err
 	}
 
-	name := servicecontext.GetServiceName(ctx)
+	name := runtimecontext.GetServiceName(ctx)
 
 	if req.Ancestors && req.Recursive {
 		return errors.InternalServerError(name, "Please use either Recursive (children) or Ancestors (parents) flag, but not both.")
@@ -543,7 +543,7 @@ func (s *TreeServer) UpdateNode(ctx context.Context, req *tree.UpdateNodeRequest
 	if err != nil {
 		return nil, err
 	}
-	name := servicecontext.GetServiceName(ctx)
+	name := runtimecontext.GetServiceName(ctx)
 
 	reqFromPath := safePath(req.GetFrom().GetPath())
 	reqToPath := safePath(req.GetTo().GetPath())
@@ -627,7 +627,7 @@ func (s *TreeServer) DeleteNode(ctx context.Context, req *tree.DeleteNodeRequest
 	if err != nil {
 		return nil, err
 	}
-	name := servicecontext.GetServiceName(ctx)
+	name := runtimecontext.GetServiceName(ctx)
 
 	reqPath := safePath(req.GetNode().GetPath())
 

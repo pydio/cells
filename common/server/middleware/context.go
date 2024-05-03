@@ -53,9 +53,9 @@ func ClientConnIncomingContext(serverRuntimeContext context.Context) func(ctx co
 // RegistryIncomingContext injects the registry in context
 func RegistryIncomingContext(serverRuntimeContext context.Context) func(ctx context.Context) (context.Context, bool, error) {
 	var reg registry.Registry
-	runtimecontext.Get(serverRuntimeContext, runtimecontext.RegistryKey, &reg)
+	runtimecontext.Get(serverRuntimeContext, registry.ContextKey, &reg)
 	return func(ctx context.Context) (context.Context, bool, error) {
-		return runtimecontext.With(ctx, runtimecontext.RegistryKey, reg), true, nil
+		return runtimecontext.With(ctx, registry.ContextKey, reg), true, nil
 	}
 }
 
@@ -64,7 +64,7 @@ func TargetNameToServiceNameContext(serverRuntimeContext context.Context) func(c
 	return func(ctx context.Context) (context.Context, bool, error) {
 		if md, ok := metadata.FromIncomingContext(ctx); ok {
 			if tName := md.Get(ckeys.TargetServiceName); strings.Join(tName, "") != "" {
-				return servicecontext.WithServiceName(ctx, strings.Join(tName, "")), true, nil
+				return runtimecontext.WithServiceName(ctx, strings.Join(tName, "")), true, nil
 			}
 		}
 		return ctx, false, nil
@@ -132,8 +132,8 @@ func setContextForTenant(ctx context.Context) (context.Context, error) {
 		configStore[tenantID] = cfg
 	}
 
-	ctx = runtimecontext.With(ctx, runtimecontext.ConfigKey, cfg)
-	ctx = runtimecontext.With(ctx, runtimecontext.TenantKey, tenant)
+	ctx = runtimecontext.With(ctx, config.ContextKey, cfg)
+	ctx = runtimecontext.With(ctx, tenant2.ContextKey, tenant)
 
 	return ctx, nil
 }
@@ -157,8 +157,7 @@ func setContextForService(ctx context.Context) context.Context {
 	//c := servercontext.GetConfig(ctx)
 
 	//ctx = context2.WithConfig(ctx, c.Val("services", service))
-	ctx = servicecontext.WithServiceName(ctx, service)
-
+	ctx = runtimecontext.WithServiceName(ctx, service)
 	return ctx
 }
 

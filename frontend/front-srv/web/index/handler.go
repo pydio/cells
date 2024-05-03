@@ -156,7 +156,7 @@ func (h *IndexHandler) detectFrontendService() bool {
 		return true
 	}
 	var reg registry.Registry
-	runtimecontext.Get(h.runtimeCtx, runtimecontext.RegistryKey, &reg)
+	runtimecontext.Get(h.runtimeCtx, registry.ContextKey, &reg)
 
 	if ss, e := reg.List(registry.WithName(common.ServiceRestNamespace_+common.ServiceFrontend), registry.WithType(pb.ItemType_SERVICE)); e == nil && len(ss) > 0 {
 		h.frontendDetected = true

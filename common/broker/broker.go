@@ -36,9 +36,12 @@ import (
 	"github.com/pydio/cells/v4/common/utils/openurl"
 )
 
+type brokerKey struct{}
+
 var (
 	std           = NewBroker("mem://")
 	topicReplacer = strings.NewReplacer("-", "_", ".", "_")
+	ContextKey    = brokerKey{}
 )
 
 func Register(b Broker) {

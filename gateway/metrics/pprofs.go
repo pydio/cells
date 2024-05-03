@@ -50,7 +50,7 @@ type pprofHandler struct {
 
 func (p *pprofHandler) ServeHTTP(writer http.ResponseWriter, request *http.Request) {
 	var reg registry.Registry
-	if !runtimecontext.Get(p.ctx, runtimecontext.RegistryKey, &reg) {
+	if !runtimecontext.Get(p.ctx, registry.ContextKey, &reg) {
 		writer.WriteHeader(http.StatusInternalServerError)
 		return
 	}

@@ -2,7 +2,6 @@ package manager
 
 import (
 	"context"
-	"fmt"
 	"testing"
 
 	"github.com/spf13/viper"
@@ -10,6 +9,7 @@ import (
 	"go.mongodb.org/mongo-driver/mongo"
 	"gorm.io/gorm"
 
+	"github.com/pydio/cells/v4/common/registry"
 	"github.com/pydio/cells/v4/common/runtime"
 	"github.com/pydio/cells/v4/common/runtime/runtimecontext"
 	"github.com/pydio/cells/v4/common/server/generic"
@@ -46,7 +46,7 @@ func TestManager(t *testing.T) {
 		return
 	}
 
-	ctx = runtimecontext.With(ctx, runtimecontext.RegistryKey, mg.Registry())
+	ctx = runtimecontext.With(ctx, registry.ContextKey, mg.Registry())
 
 	Convey("Testing the manager connections", t, func() {
 		Convey("SQLite", func() {
@@ -98,9 +98,11 @@ func TestManager(t *testing.T) {
 	svc := service.NewService(
 		service.Name("service.test"),
 		service.Context(ctx),
-		service.WithStorage("sqlite", func(db *gorm.DB) {
-			fmt.Println("db")
-		}),
+		/*
+			service.WithStorage("sqlite", func(db *gorm.DB) {
+				fmt.Println("db")
+			}),
+		*/
 		service.WithGeneric(func(c context.Context, srv *generic.Server) error {
 			return nil
 		}),

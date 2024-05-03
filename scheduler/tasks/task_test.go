@@ -30,7 +30,7 @@ import (
 	"github.com/pydio/cells/v4/common/proto/jobs"
 	"github.com/pydio/cells/v4/common/proto/tree"
 	"github.com/pydio/cells/v4/common/runtime/runtimecontext"
-	servicecontext "github.com/pydio/cells/v4/common/service/context"
+	"github.com/pydio/cells/v4/common/runtime/tenant"
 	"github.com/pydio/cells/v4/common/service/context/metadata"
 
 	_ "github.com/pydio/cells/v4/scheduler/actions/scheduler"
@@ -54,7 +54,7 @@ func (t *testTenant) ID() string {
 }
 
 var (
-	runtimeCtx = runtimecontext.With(context.Background(), runtimecontext.TenantKey, &testTenant{})
+	runtimeCtx = runtimecontext.With(context.Background(), tenant.ContextKey, &testTenant{})
 )
 
 func TestNewTaskFromEvent(t *testing.T) {
@@ -66,7 +66,7 @@ func TestNewTaskFromEvent(t *testing.T) {
 		So(task.task, ShouldNotBeNil)
 		So(task.task.Status, ShouldEqual, jobs.TaskStatus_Queued)
 		So(task.task.StatusMessage, ShouldEqual, "Pending")
-		opId, _ := servicecontext.GetOperationID(task.context)
+		opId, _ := runtimecontext.GetOperationID(task.context)
 		So(opId, ShouldEqual, "ajob-"+task.task.ID[0:8])
 	})
 }
@@ -207,7 +207,7 @@ func TestTask_Save(t *testing.T) {
 		event := &jobs.JobTriggerEvent{JobID: "ajob"}
 		task := NewTaskFromEvent(runtimeCtx, context.Background(), &jobs.Job{ID: "ajob"}, event)
 		ch := GetBus(runtimeCtx).Sub(PubSubTopicTaskStatuses)
-		runnableCtx := metadata.WithAdditionalMetadata(runtimeCtx, map[string]string{servicecontext.ContextMetaTaskActionPath: "action-path"})
+		runnableCtx := metadata.WithAdditionalMetadata(runtimeCtx, map[string]string{runtimecontext.ContextMetaTaskActionPath: "action-path"})
 		task.SaveStatus(runnableCtx, jobs.TaskStatus_Running)
 		read := <-ch
 		rt, o := read.(*TaskStatusUpdate)

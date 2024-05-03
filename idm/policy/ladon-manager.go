@@ -36,7 +36,7 @@ import (
 	"gorm.io/gorm/clause"
 )
 
-var _ ladon.Manager = (*manager)(nil)
+var _ ladon.Manager = (*gormManager)(nil)
 
 var _ ladon.Manager = (*managerWithContext)(nil)
 
@@ -47,13 +47,13 @@ type Manager interface {
 }
 
 // Manager is a gorm implementation for Manager to store policies persistently.
-type manager struct {
+type gormManager struct {
 	db   *gorm.DB
 	once *sync.Once
 }
 
 type managerWithContext struct {
-	*manager
+	*gormManager
 	ctx context.Context
 }
 
@@ -200,53 +200,53 @@ func (u *Policy) From(res ladon.Policy) *Policy {
 
 // NewManager initializes a new SQLManager for given db instance.
 func NewManager(db *gorm.DB) Manager {
-	m := &manager{
+	m := &gormManager{
 		db: db,
 	}
 
 	return m
 }
 
-func (m *manager) WithContext(ctx context.Context) ladon.Manager {
+func (m *gormManager) WithContext(ctx context.Context) ladon.Manager {
 	return &managerWithContext{
-		manager: m,
-		ctx:     ctx,
+		gormManager: m,
+		ctx:         ctx,
 	}
 }
 
-func (m *manager) Create(policy ladon.Policy) error {
+func (m *gormManager) Create(policy ladon.Policy) error {
 	panic("manager should be be called without context")
 }
 
-func (m *manager) Update(policy ladon.Policy) error {
+func (m *gormManager) Update(policy ladon.Policy) error {
 	panic("manager should be be called without context")
 }
 
-func (m *manager) Get(id string) (ladon.Policy, error) {
+func (m *gormManager) Get(id string) (ladon.Policy, error) {
 	panic("manager should be be called without context")
 }
 
-func (m *manager) Delete(id string) error {
+func (m *gormManager) Delete(id string) error {
 	panic("manager should be be called without context")
 }
 
-func (m *manager) GetAll(limit, offset int64) (ladon.Policies, error) {
+func (m *gormManager) GetAll(limit, offset int64) (ladon.Policies, error) {
 	panic("manager should be be called without context")
 }
 
-func (m *manager) FindRequestCandidates(r *ladon.Request) (ladon.Policies, error) {
+func (m *gormManager) FindRequestCandidates(r *ladon.Request) (ladon.Policies, error) {
 	panic("manager should be be called without context")
 }
 
-func (m *manager) FindPoliciesForSubject(subject string) (ladon.Policies, error) {
+func (m *gormManager) FindPoliciesForSubject(subject string) (ladon.Policies, error) {
 	panic("manager should be be called without context")
 }
 
-func (m *manager) FindPoliciesForResource(resource string) (ladon.Policies, error) {
+func (m *gormManager) FindPoliciesForResource(resource string) (ladon.Policies, error) {
 	panic("manager should be be called without context")
 }
 
-func (m *manager) IsAllowed(r *ladon.Request) error {
+func (m *gormManager) IsAllowed(r *ladon.Request) error {
 	panic("manager is not allowed")
 }
 

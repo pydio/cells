@@ -74,7 +74,7 @@ func (b *basicTenant) ID() string {
 }
 
 func (b *basicTenant) Context(ctx context.Context) context.Context {
-	return runtimecontext.With(ctx, runtimecontext.TenantKey, b)
+	return runtimecontext.With(ctx, ContextKey, b)
 }
 
 type basicManager struct {

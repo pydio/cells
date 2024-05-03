@@ -60,7 +60,7 @@ func setContextForTenant(ctx context.Context, tenant string) context.Context {
 		cfg, _ = config.OpenStore(ctx, "xds://"+tenant+".cells.com/cells")
 		configStore[tenant] = cfg
 	}
-	return runtimecontext.With(ctx, runtimecontext.ConfigKey, cfg)
+	return runtimecontext.With(ctx, config.ContextKey, cfg)
 }
 
 func HeaderInjectorInterceptor() SubscriberInterceptor {

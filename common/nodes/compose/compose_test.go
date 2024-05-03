@@ -96,7 +96,7 @@ func TestPersonalResolution(t *testing.T) {
 
 	ctx := context.Background()
 	reg, _ := registry.OpenRegistry(ctx, "mem:///")
-	ctx = runtimecontext.With(ctx, runtimecontext.RegistryKey, reg)
+	ctx = runtimecontext.With(ctx, registry.ContextKey, reg)
 	ctx = nodescontext.WithSourcesPool(ctx, nodes.NewTestPool(ctx))
 	client := compose.PathClient(ctx)
 

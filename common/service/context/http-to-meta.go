@@ -18,6 +18,7 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
+// Package servicecontext performs context values read/write, generally through server or client wrappers
 package servicecontext
 
 import (

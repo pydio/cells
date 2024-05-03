@@ -40,7 +40,7 @@ type indexHandler struct {
 
 func (p *indexHandler) ServeHTTP(writer http.ResponseWriter, request *http.Request) {
 	var reg registry.Registry
-	runtimecontext.Get(p.ctx, runtimecontext.RegistryKey, &reg)
+	runtimecontext.Get(p.ctx, registry.ContextKey, &reg)
 
 	externalURL := routing.GetDefaultSiteURL()
 	u, _ := url.Parse(externalURL)

@@ -38,7 +38,7 @@ import (
 	"github.com/pydio/cells/v4/common/proto/encryption"
 	"github.com/pydio/cells/v4/common/proto/object"
 	"github.com/pydio/cells/v4/common/proto/tree"
-	servicecontext "github.com/pydio/cells/v4/common/service/context"
+	"github.com/pydio/cells/v4/common/runtime/manager"
 	"github.com/pydio/cells/v4/common/service/context/metadata"
 	"github.com/pydio/cells/v4/common/sync/endpoints/index"
 	"github.com/pydio/cells/v4/common/sync/endpoints/s3"
@@ -205,9 +205,12 @@ func InitEndpoints(ctx context.Context, syncConfig *object.DataSource, clientRea
 			multiClient.SetPlainSizeComputer(computer)
 		}
 
-		if dao := servicecontext.GetDAO[s3.ChecksumMapper](ctx); dao != nil {
+		if dao, er := manager.Resolve[s3.ChecksumMapper](ctx); er == nil {
 			multiClient.SetChecksumMapper(dao)
+		} else {
+			log.Logger(ctx).Warn("No specific ChecksumMapper found as DAO")
 		}
+
 		if keepNativeEtags {
 			multiClient.SkipRecomputeEtagByCopy()
 		}
@@ -225,9 +228,12 @@ func InitEndpoints(ctx context.Context, syncConfig *object.DataSource, clientRea
 		if /*syncConfig.StorageType == object.StorageType_GCS ||*/ keepNativeEtags {
 			s3client.SkipRecomputeEtagByCopy()
 		}
-		if dao := servicecontext.GetDAO[s3.ChecksumMapper](ctx); dao != nil {
+		if dao, er := manager.Resolve[s3.ChecksumMapper](ctx); er == nil {
 			s3client.SetChecksumMapper(dao, true)
+		} else {
+			log.Logger(ctx).Warn("No specific ChecksumMapper found as DAO")
 		}
+
 		source = s3client
 	}
 

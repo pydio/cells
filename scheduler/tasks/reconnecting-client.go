@@ -10,7 +10,7 @@ import (
 	cgrpc "github.com/pydio/cells/v4/common/client/grpc"
 	"github.com/pydio/cells/v4/common/log"
 	"github.com/pydio/cells/v4/common/proto/jobs"
-	servicecontext "github.com/pydio/cells/v4/common/service/context"
+	"github.com/pydio/cells/v4/common/runtime/runtimecontext"
 	"github.com/pydio/cells/v4/common/service/context/metadata"
 )
 
@@ -83,11 +83,11 @@ func (s *ReconnectingClient) chanToStream(ch chan interface{}) {
 					if ts.RunnableContext != nil {
 						request.StatusMeta = map[string]string{}
 						if mm, has := metadata.FromContextRead(ts.RunnableContext); has {
-							if p, o := mm[servicecontext.ContextMetaTaskActionPath]; o {
-								request.StatusMeta[servicecontext.ContextMetaTaskActionPath] = p
+							if p, o := mm[runtimecontext.ContextMetaTaskActionPath]; o {
+								request.StatusMeta[runtimecontext.ContextMetaTaskActionPath] = p
 							}
-							if tags, o := mm[servicecontext.ContextMetaTaskActionTags]; o {
-								request.StatusMeta[servicecontext.ContextMetaTaskActionTags] = tags
+							if tags, o := mm[runtimecontext.ContextMetaTaskActionTags]; o {
+								request.StatusMeta[runtimecontext.ContextMetaTaskActionTags] = tags
 							}
 						}
 						request.StatusMeta["X-Pydio-Task-Action-Status"] = ts.RunnableStatus.String()

@@ -44,7 +44,7 @@ import (
 	"github.com/pydio/cells/v4/common/proto/tree"
 	"github.com/pydio/cells/v4/common/runtime"
 	"github.com/pydio/cells/v4/common/runtime/manager"
-	servicecontext "github.com/pydio/cells/v4/common/service/context"
+	"github.com/pydio/cells/v4/common/runtime/runtimecontext"
 	"github.com/pydio/cells/v4/common/service/context/metadata"
 	"github.com/pydio/cells/v4/common/service/errors"
 	"github.com/pydio/cells/v4/common/sql/resources"
@@ -244,8 +244,8 @@ func (h *Handler) DeleteUser(ctx context.Context, req *idm.DeleteUserRequest) (*
 	var task *jobs.Task
 	var taskChan chan interface{}
 	uName, _ := permissions.FindUserNameInContext(ctx)
-	if tU, ok := metadata.CanonicalMeta(ctx, servicecontext.ContextMetaTaskUuid); ok {
-		jU, _ := metadata.CanonicalMeta(ctx, servicecontext.ContextMetaJobUuid)
+	if tU, ok := metadata.CanonicalMeta(ctx, runtimecontext.ContextMetaTaskUuid); ok {
+		jU, _ := metadata.CanonicalMeta(ctx, runtimecontext.ContextMetaJobUuid)
 		task = &jobs.Task{
 			JobID:        jU,
 			ID:           tU,

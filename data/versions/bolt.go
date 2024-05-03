@@ -23,6 +23,7 @@ package versions
 import (
 	"context"
 	"encoding/binary"
+
 	bolt "go.etcd.io/bbolt"
 	"go.uber.org/zap"
 	"google.golang.org/protobuf/proto"
@@ -30,7 +31,7 @@ import (
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/log"
 	"github.com/pydio/cells/v4/common/proto/tree"
-	servicecontext "github.com/pydio/cells/v4/common/service/context"
+	"github.com/pydio/cells/v4/common/runtime/runtimecontext"
 	"github.com/pydio/cells/v4/common/service/errors"
 )
 
@@ -123,7 +124,7 @@ func (b *BoltStore) GetVersions(nodeUuid string) (chan *tree.ChangeLog, error) {
 			return nil
 		})
 		if e != nil {
-			log.Logger(servicecontext.WithServiceName(context.Background(), common.ServiceGrpcNamespace_+common.ServiceVersions)).Warn("ListVersions", zap.Error(e))
+			log.Logger(runtimecontext.WithServiceName(context.Background(), common.ServiceGrpcNamespace_+common.ServiceVersions)).Warn("ListVersions", zap.Error(e))
 		}
 
 	}()

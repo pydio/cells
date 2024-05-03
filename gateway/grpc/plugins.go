@@ -139,10 +139,10 @@ func createServer(ctx context.Context, tls bool) (server.Server, error) {
 		if port := runtime.GrpcExternalPort(); port != "" {
 			addr = ":" + port
 		}
-		logCtx := servicecontext.WithServiceName(ctx, common.ServiceGatewayGrpcClear)
+		logCtx := runtimecontext.WithServiceName(ctx, common.ServiceGatewayGrpcClear)
 		log.Logger(logCtx).Info("Configuring HTTP only gRPC gateway. Will be accessed directly through " + addr)
 	} else {
-		logCtx := servicecontext.WithServiceName(ctx, common.ServiceGatewayGrpc)
+		logCtx := runtimecontext.WithServiceName(ctx, common.ServiceGatewayGrpc)
 		log.Logger(logCtx).Info("Configuring self-signed configuration for gRPC gateway to allow full TLS chain.")
 	}
 

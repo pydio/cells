@@ -82,7 +82,7 @@ func init() {
 					msg := &jobs.JobChangeEvent{}
 					if ct, e := message.Unmarshal(ctx, msg); e == nil {
 						var ten tenant.Tenant
-						if runtimecontext.Get(ctx, runtimecontext.TenantKey, &ten) {
+						if runtimecontext.Get(ctx, tenant.ContextKey, &ten) {
 							pLocks.RLock()
 							defer pLocks.RUnlock()
 							if producer, ok := producers[ten.ID()]; ok {

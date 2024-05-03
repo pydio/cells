@@ -41,7 +41,6 @@ import (
 	"github.com/pydio/cells/v4/common/proto/tree"
 	"github.com/pydio/cells/v4/common/runtime"
 	runtimecontext "github.com/pydio/cells/v4/common/runtime/runtimecontext"
-	servicecontext "github.com/pydio/cells/v4/common/service/context"
 	"github.com/pydio/cells/v4/common/service/context/metadata"
 	"github.com/pydio/cells/v4/common/utils/cache"
 	"github.com/pydio/cells/v4/common/utils/openurl"
@@ -489,10 +488,10 @@ func (s *Subscriber) jobLevelDataSourceFilterPass(ctx context.Context, event *tr
 // contextJobSameUuid checks if JobUuid can already be found in context and detects if it is the same
 func (s *Subscriber) contextJobSameUuid(ctx context.Context, jobId string) bool {
 	if mm, o := metadata.FromContextRead(ctx); o {
-		if knownJob, ok := mm[strings.ToLower(servicecontext.ContextMetaJobUuid)]; ok && knownJob == jobId {
+		if knownJob, ok := mm[strings.ToLower(runtimecontext.ContextMetaJobUuid)]; ok && knownJob == jobId {
 			return true
 		}
-		if knownJob, ok := mm[servicecontext.ContextMetaJobUuid]; ok && knownJob == jobId {
+		if knownJob, ok := mm[runtimecontext.ContextMetaJobUuid]; ok && knownJob == jobId {
 			return true
 		}
 	}

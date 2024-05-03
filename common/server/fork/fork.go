@@ -90,7 +90,7 @@ func (s *Server) RawServe(*server.ServeOptions) (ii []registry.Item, e error) {
 		if pid, ok := s.process.GetPID(); ok {
 			defer func() {
 				var reg registry.Registry
-				runtimecontext.Get(s.ctx, runtimecontext.RegistryKey, &reg)
+				runtimecontext.Get(s.ctx, registry.ContextKey, &reg)
 
 				processes, _ := reg.List(
 					registry.WithType(pb.ItemType_SERVER),

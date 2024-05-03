@@ -1,12 +1,5 @@
 package service
 
-import (
-	"context"
-
-	"github.com/pydio/cells/v4/common/crypto"
-	servicecontext "github.com/pydio/cells/v4/common/service/context"
-)
-
 //type ServiceDAOProvider[T dao.DAO] func(ctx context.Context) T
 //
 //type ServiceDAO[T dao.DAO] interface {
@@ -84,6 +77,3 @@ import (
 //
 //		return c.(T)
 //	}
-func KeyringFromContext(ctx context.Context) crypto.Keyring {
-	return servicecontext.GetKeyring(ctx)
-}

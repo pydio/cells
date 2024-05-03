@@ -38,6 +38,7 @@ import (
 	"github.com/pydio/cells/v4/common/nodes/abstract"
 	"github.com/pydio/cells/v4/common/proto/idm"
 	"github.com/pydio/cells/v4/common/proto/tree"
+	"github.com/pydio/cells/v4/common/runtime/runtimecontext"
 	servicecontext "github.com/pydio/cells/v4/common/service/context"
 	"github.com/pydio/cells/v4/common/service/context/metadata"
 	"github.com/pydio/cells/v4/common/utils/permissions"
@@ -57,6 +58,7 @@ const (
 )
 
 const LimiterRate = 30
+
 const LimiterBurst = 20
 
 func updateSessionFromClaims(ctx context.Context, session *melody.Session, claims claim.Claims, pool nodes.SourcesPool) {
@@ -132,7 +134,7 @@ func prepareRemoteContext(parent context.Context, session *melody.Session) (cont
 		return nil, fmt.Errorf("unexpected error: websocket session has no claims")
 	}
 	metaCtx := auth.ContextFromClaims(parent, cc)
-	metaCtx = servicecontext.WithServiceName(metaCtx, common.ServiceGatewayNamespace_+common.ServiceWebSocket)
+	metaCtx = runtimecontext.WithServiceName(metaCtx, common.ServiceGatewayNamespace_+common.ServiceWebSocket)
 	if md, o := session.Get(SessionMetaContext); o {
 		if meta, ok := md.(metadata.Metadata); ok {
 			metaCtx = metadata.WithAdditionalMetadata(metaCtx, meta)

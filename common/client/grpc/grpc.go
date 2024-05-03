@@ -97,7 +97,7 @@ func ResolveConn(ctx context.Context, serviceName string, opt ...Option) grpc.Cl
 		debug.PrintStack()
 	}
 	var reg registry.Registry
-	runtimecontext.Get(ctx, runtimecontext.RegistryKey, &reg)
+	runtimecontext.Get(ctx, registry.ContextKey, &reg)
 	opt = append(opt, WithClientConn(conn))
 	opt = append(opt, WithRegistry(reg))
 

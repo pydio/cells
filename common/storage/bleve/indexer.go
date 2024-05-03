@@ -262,18 +262,21 @@ func (s *Indexer) Close(ctx context.Context) error {
 }
 
 func (s *Indexer) InsertOne(ctx context.Context, data interface{}) error {
+	msg, er := s.codec.Marshal(data)
+	if er != nil {
+		return er
+	}
 	index, err := s.getWriteIndex(ctx)
 	if err != nil {
 		return err
 	}
-
 	var id string
 	if provider, ok := data.(indexer.IndexIDProvider); ok {
 		id = provider.IndexID()
 	} else {
 		id = xid.New().String()
 	}
-	return index.Index(id, data)
+	return index.Index(id, msg)
 }
 
 func (s *Indexer) DeleteOne(ctx context.Context, data interface{}) error {
@@ -453,6 +456,7 @@ func (s *Indexer) getWriteIndex(ctx context.Context) (bleve.Index, error) {
 	prefix := s.getPrefix(ctx)
 	rotationID := s.getRotationID(path + "/" + prefix)
 	fullPath := s.getFullPath(path, prefix, rotationID)
+	fmt.Println("Write", fullPath)
 
 	var indexes []bleve.Index
 	for _, index := range s.indexes {
@@ -479,6 +483,7 @@ func (s *Indexer) getSearchIndex(ctx context.Context) (bleve.Index, error) {
 	path := s.getPath(ctx)
 	prefix := s.getPrefix(ctx)
 	fullPath := s.getFullPath(path, prefix, "")
+	fmt.Println("Search", fullPath)
 
 	var indexes []bleve.Index
 	for _, index := range s.indexes {

@@ -41,6 +41,7 @@ import (
 	"github.com/pydio/cells/v4/common/proto/object"
 	protosync "github.com/pydio/cells/v4/common/proto/sync"
 	"github.com/pydio/cells/v4/common/proto/tree"
+	"github.com/pydio/cells/v4/common/runtime/manager"
 	runtimecontext "github.com/pydio/cells/v4/common/runtime/runtimecontext"
 	servicecontext "github.com/pydio/cells/v4/common/service/context"
 	"github.com/pydio/cells/v4/common/service/context/metadata"
@@ -403,7 +404,7 @@ func (s *Handler) watchDisconnection() {
 			s.stMux.Unlock()
 			<-time.After(3 * time.Second)
 			var syncConfig *object.DataSource
-			sName := servicecontext.GetServiceName(s.globalCtx)
+			sName := runtimecontext.GetServiceName(s.globalCtx)
 			if err := config.Get("services", sName).Scan(&syncConfig); err != nil {
 				log.Logger(s.globalCtx).Error("Cannot read config to reinitialize sync")
 			}
@@ -593,7 +594,7 @@ func (s *Handler) TriggerResync(c context.Context, req *protosync.ResyncRequest)
 	// Context extends request Context, which allows sync.Run cancellation from within the scheduler.
 	// Internal context used for SessionData is re-extended from context.Background
 	bg := metadata.WithUserNameMetadata(c, common.PydioSystemUsername)
-	bg = servicecontext.WithServiceName(bg, servicecontext.GetServiceName(c))
+	bg = runtimecontext.ForkOneKey(runtimecontext.ServiceNameKey, bg, c)
 	if s, o := servicecontext.SpanFromContext(c); o {
 		bg = servicecontext.WithSpan(bg, s)
 	}
@@ -678,18 +679,15 @@ func (s *Handler) CleanResourcesBeforeDelete(ctx context.Context, request *objec
 	var mm []string
 	var ee []string
 
-	if dao := servicecontext.GetDAO(ctx); dao != nil {
-		if d, o := dao.(sync.DAO); o {
-			if m, e := d.CleanResourcesOnDeletion(); e != nil {
-				ee = append(ee, e.Error())
-			} else {
-				mm = append(mm, m)
-			}
-
+	if dao, er := manager.Resolve[sync.DAO](ctx); er == nil {
+		if m, e := dao.CleanResourcesOnDeletion(); e != nil {
+			ee = append(ee, e.Error())
+		} else {
+			mm = append(mm, m)
 		}
 	}
 
-	serviceName := servicecontext.GetServiceName(ctx)
+	serviceName := runtimecontext.GetServiceName(ctx)
 	dsName := strings.TrimPrefix(serviceName, common.ServiceGrpcNamespace_+common.ServiceDataSync_)
 	taskClient := jobsc.JobServiceClient(ctx)
 	log.Logger(ctx).Info("Removing job for datasource " + dsName)

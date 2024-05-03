@@ -91,7 +91,7 @@ func NewServer(ctx context.Context, s RawServer) Server {
 	servers = append(servers, srv)
 
 	var reg registry.Registry
-	if runtimecontext.Get(ctx, runtimecontext.RegistryKey, &reg) {
+	if runtimecontext.Get(ctx, registry.ContextKey, &reg) {
 		if err := reg.Register(srv); err != nil {
 			fmt.Println("[ERROR] Cannot register Server " + err.Error())
 		}
@@ -143,7 +143,7 @@ func (s *server) Serve(oo ...ServeOption) (outErr error) {
 
 	// Making sure we register the endpoints
 	var reg registry.Registry
-	if runtimecontext.Get(s.Opts.Context, runtimecontext.RegistryKey, &reg) {
+	if runtimecontext.Get(s.Opts.Context, registry.ContextKey, &reg) {
 		for _, item := range ii {
 			if err := reg.Register(item, registry.WithEdgeTo(s.ID(), "instance", nil)); err != nil {
 				return err
@@ -181,7 +181,7 @@ func (s *server) Stop(oo ...registry.RegisterOption) error {
 
 	// We deregister the endpoints to clear links and re-register as stopped
 	var reg registry.Registry
-	if runtimecontext.Get(s.Opts.Context, runtimecontext.RegistryKey, &reg) {
+	if runtimecontext.Get(s.Opts.Context, registry.ContextKey, &reg) {
 		for _, i := range s.links {
 			_ = reg.Deregister(i, registry.WithRegisterFailFast())
 		}

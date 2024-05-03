@@ -56,7 +56,7 @@ func (m *mock) SayHello(ctx context.Context, req *helloworld.HelloRequest) (*hel
 
 func createApp1(reg registry.Registry) *bufconn.Listener {
 	ctx := context.Background()
-	ctx = runtimecontext.With(ctx, runtimecontext.RegistryKey, reg)
+	ctx = runtimecontext.With(ctx, registry.ContextKey, reg)
 
 	listener := bufconn.Listen(1024 * 1024)
 	srv := New(ctx, WithListener(listener))
@@ -98,7 +98,7 @@ func createApp1(reg registry.Registry) *bufconn.Listener {
 
 func createApp2(reg registry.Registry) {
 	ctx := context.Background()
-	ctx = runtimecontext.With(ctx, runtimecontext.RegistryKey, reg)
+	ctx = runtimecontext.With(ctx, registry.ContextKey, reg)
 
 	listener := bufconn.Listen(1024 * 1024)
 	srv := New(ctx, WithListener(listener))

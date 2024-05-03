@@ -22,30 +22,29 @@ package idmtest
 
 import (
 	"context"
+
 	"google.golang.org/grpc"
 
-	"github.com/pydio/cells/v4/common/dao"
-	"github.com/pydio/cells/v4/common/dao/sqlite"
 	"github.com/pydio/cells/v4/common/proto/idm"
-	servicecontext "github.com/pydio/cells/v4/common/service/context"
-	"github.com/pydio/cells/v4/common/utils/configx"
-	"github.com/pydio/cells/v4/idm/acl"
 	srv "github.com/pydio/cells/v4/idm/acl/grpc"
 )
 
 func NewACLService(acls ...*idm.ACL) (grpc.ClientConnInterface, error) {
 
-	ctx := context.Background()
-	mockDAO, e := dao.InitDAO(ctx, sqlite.Driver, sqlite.SharedMemDSN, "idm_acl", acl.NewDAO, configx.New())
-	if e != nil {
-		return nil, e
-	}
+	/*
+		// todo
+				mockDAO, e := dao.InitDAO(ctx, sqlite.Driver, sqlite.SharedMemDSN, "idm_acl", acl.NewDAO, configx.New())
+				if e != nil {
+					return nil, e
+				}
+			ctx = servicecontext.WithDAO(ctx, mockDAO)
 
-	h := srv.NewHandler(nil, nil)
+	*/
+	ctx := context.Background()
+	h := srv.NewHandler(nil)
 	serv := &idm.ACLServiceStub{
 		ACLServiceServer: h,
 	}
-	ctx = servicecontext.WithDAO(ctx, mockDAO)
 	for _, u := range acls {
 		_, er := serv.ACLServiceServer.CreateACL(ctx, &idm.CreateACLRequest{ACL: u})
 		if er != nil {

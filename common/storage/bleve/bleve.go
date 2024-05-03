@@ -129,7 +129,7 @@ func (s *bleveStorage) Get(ctx context.Context, out interface{}) bool {
 		}
 
 		var cfg config.Store
-		runtimecontext.Get(ctx, runtimecontext.ConfigKey, &cfg)
+		runtimecontext.Get(ctx, config.ContextKey, &cfg)
 		index.serviceConfigs = cfg
 
 		*v = index
@@ -195,7 +195,7 @@ func (s *bleveStorage) Get(ctx context.Context, out interface{}) bool {
 		}
 
 		var cfg config.Store
-		runtimecontext.Get(ctx, runtimecontext.ConfigKey, &cfg)
+		runtimecontext.Get(ctx, config.ContextKey, &cfg)
 		index.serviceConfigs = cfg
 
 		*v = index

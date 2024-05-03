@@ -33,7 +33,7 @@ import (
 	"github.com/pydio/cells/v4/common/log"
 	"github.com/pydio/cells/v4/common/proto/idm"
 	"github.com/pydio/cells/v4/common/runtime"
-	servicecontext "github.com/pydio/cells/v4/common/service/context"
+	"github.com/pydio/cells/v4/common/runtime/manager"
 	"github.com/pydio/cells/v4/common/utils/cache"
 	"github.com/pydio/cells/v4/common/utils/openurl"
 	"github.com/pydio/cells/v4/idm/policy"
@@ -52,7 +52,10 @@ func NewHandler() idm.PolicyEngineServiceServer {
 
 func (h *Handler) IsAllowed(ctx context.Context, request *idm.PolicyEngineRequest) (*idm.PolicyEngineResponse, error) {
 
-	dao := servicecontext.GetDAO[policy.DAO](ctx)
+	dao, er := manager.Resolve[policy.DAO](ctx)
+	if er != nil {
+		return nil, er
+	}
 
 	response := &idm.PolicyEngineResponse{}
 
@@ -118,7 +121,10 @@ func (h *Handler) StreamPolicyGroups(request *idm.ListPolicyGroupsRequest, strea
 
 func (h *Handler) ListPolicyGroups(ctx context.Context, request *idm.ListPolicyGroupsRequest) (*idm.ListPolicyGroupsResponse, error) {
 
-	dao := servicecontext.GetDAO[policy.DAO](ctx)
+	dao, er := manager.Resolve[policy.DAO](ctx)
+	if er != nil {
+		return nil, er
+	}
 
 	response := &idm.ListPolicyGroupsResponse{}
 
@@ -145,7 +151,10 @@ func (h *Handler) ListPolicyGroups(ctx context.Context, request *idm.ListPolicyG
 
 func (h *Handler) StorePolicyGroup(ctx context.Context, request *idm.StorePolicyGroupRequest) (*idm.StorePolicyGroupResponse, error) {
 
-	dao := servicecontext.GetDAO[policy.DAO](ctx)
+	dao, er := manager.Resolve[policy.DAO](ctx)
+	if er != nil {
+		return nil, er
+	}
 
 	if ka, er := h.groupsCachePool.Get(ctx); er == nil {
 		_ = ka.Delete("policyGroup")
@@ -171,7 +180,10 @@ func (h *Handler) StorePolicyGroup(ctx context.Context, request *idm.StorePolicy
 
 func (h *Handler) DeletePolicyGroup(ctx context.Context, request *idm.DeletePolicyGroupRequest) (*idm.DeletePolicyGroupResponse, error) {
 
-	dao := servicecontext.GetDAO[policy.DAO](ctx)
+	dao, er := manager.Resolve[policy.DAO](ctx)
+	if er != nil {
+		return nil, er
+	}
 
 	if ka, er := h.groupsCachePool.Get(ctx); er == nil {
 		_ = ka.Delete("policyGroup")

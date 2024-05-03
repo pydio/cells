@@ -38,7 +38,7 @@ import (
 	proto "github.com/pydio/cells/v4/common/proto/jobs"
 	log2 "github.com/pydio/cells/v4/common/proto/log"
 	"github.com/pydio/cells/v4/common/runtime/manager"
-	servicecontext "github.com/pydio/cells/v4/common/service/context"
+	"github.com/pydio/cells/v4/common/runtime/runtimecontext"
 	"github.com/pydio/cells/v4/common/service/context/metadata"
 	"github.com/pydio/cells/v4/common/service/errors"
 	"github.com/pydio/cells/v4/common/storage/indexer"
@@ -604,7 +604,7 @@ func (j *JobsHandler) cleanStuckByStatus(ctx context.Context, serverStart bool, 
 	shouldRetry := false
 	var currentTaskID string
 	if mm, ok := metadata.FromContextRead(ctx); ok {
-		currentTaskID = mm[servicecontext.ContextMetaTaskUuid]
+		currentTaskID = mm[runtimecontext.ContextMetaTaskUuid]
 	}
 	if !isRetry {
 		if len(duration) > 0 {

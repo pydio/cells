@@ -66,7 +66,7 @@ func init() {
 			service.Description("Grpc implementation of the registry"),
 			service.WithGRPC(func(ctx context.Context, srv grpc.ServiceRegistrar) error {
 				var reg registry.Registry
-				runtimecontext.Get(ctx, runtimecontext.RegistryKey, &reg)
+				runtimecontext.Get(ctx, registry.ContextKey, &reg)
 				handler := NewHandler(reg)
 				pbregistry.RegisterRegistryServer(srv, handler)
 

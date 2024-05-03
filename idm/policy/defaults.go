@@ -22,7 +22,6 @@ package policy
 
 import (
 	"context"
-	"fmt"
 	"strings"
 
 	"github.com/ory/ladon"
@@ -30,7 +29,7 @@ import (
 
 	"github.com/pydio/cells/v4/common/log"
 	"github.com/pydio/cells/v4/common/proto/idm"
-	servicecontext "github.com/pydio/cells/v4/common/service/context"
+	"github.com/pydio/cells/v4/common/runtime/manager"
 	"github.com/pydio/cells/v4/idm/policy/converter"
 )
 
@@ -223,9 +222,9 @@ var (
 
 // InitDefaults is called once at first launch to create default policy groups.
 func InitDefaults(ctx context.Context) error {
-	dao := servicecontext.GetDAO[DAO](ctx)
-	if dao == nil {
-		return fmt.Errorf("cannot find DAO for policies initialization")
+	dao, er := manager.Resolve[DAO](ctx)
+	if er != nil {
+		return er
 	}
 
 	for _, policyGroup := range DefaultPolicyGroups {
@@ -239,9 +238,9 @@ func InitDefaults(ctx context.Context) error {
 
 // Upgrade101 adapts policy dbs. It is called once at service launch when Cells version become >= 1.0.1.
 func Upgrade101(ctx context.Context) error {
-	dao := servicecontext.GetDAO[DAO](ctx)
-	if dao == nil {
-		return fmt.Errorf("cannot find DAO for policies initialization")
+	dao, er := manager.Resolve[DAO](ctx)
+	if er != nil {
+		return er
 	}
 
 	groups, e := dao.ListPolicyGroups(ctx, "")
@@ -279,9 +278,9 @@ func Upgrade101(ctx context.Context) error {
 
 // Upgrade103 adapts policy dbs. It is called once at service launch when Cells version become >= 1.0.3 .
 func Upgrade103(ctx context.Context) error {
-	dao := servicecontext.GetDAO[DAO](ctx)
-	if dao == nil {
-		return fmt.Errorf("cannot find DAO for policies initialization")
+	dao, er := manager.Resolve[DAO](ctx)
+	if er != nil {
+		return er
 	}
 	groups, e := dao.ListPolicyGroups(ctx, "")
 	if e != nil {
@@ -310,9 +309,9 @@ func Upgrade103(ctx context.Context) error {
 
 // Upgrade120 performs upgrade on policies starting at v1.2.0
 func Upgrade120(ctx context.Context) error {
-	dao := servicecontext.GetDAO[DAO](ctx)
-	if dao == nil {
-		return fmt.Errorf("cannot find DAO for policies initialization")
+	dao, er := manager.Resolve[DAO](ctx)
+	if er != nil {
+		return er
 	}
 	groups, e := dao.ListPolicyGroups(ctx, "")
 	if e != nil {
@@ -391,10 +390,9 @@ func Upgrade120(ctx context.Context) error {
 
 // Upgrade122 adapts policy dbs. It is called once at service launch when Cells version become >= 1.2.2.
 func Upgrade122(ctx context.Context) error {
-	dao := servicecontext.GetDAO[DAO](ctx)
-
-	if dao == nil {
-		return fmt.Errorf("cannot find DAO for policies initialization")
+	dao, er := manager.Resolve[DAO](ctx)
+	if er != nil {
+		return er
 	}
 	groups, e := dao.ListPolicyGroups(ctx, "")
 	if e != nil {
@@ -420,9 +418,9 @@ func Upgrade122(ctx context.Context) error {
 
 // Upgrade142 performs upgrade on policies starting at v1.4.2
 func Upgrade142(ctx context.Context) error {
-	dao := servicecontext.GetDAO[DAO](ctx)
-	if dao == nil {
-		return fmt.Errorf("cannot find DAO for policies initialization")
+	dao, er := manager.Resolve[DAO](ctx)
+	if er != nil {
+		return er
 	}
 	groups, e := dao.ListPolicyGroups(ctx, "")
 	if e != nil {
@@ -451,9 +449,9 @@ func Upgrade142(ctx context.Context) error {
 }
 
 func Upgrade202(ctx context.Context) error {
-	dao := servicecontext.GetDAO[DAO](ctx)
-	if dao == nil {
-		return fmt.Errorf("cannot find DAO for policies initialization")
+	dao, er := manager.Resolve[DAO](ctx)
+	if er != nil {
+		return er
 	}
 	groups, e := dao.ListPolicyGroups(ctx, "")
 	if e != nil {
@@ -492,9 +490,9 @@ func Upgrade202(ctx context.Context) error {
 }
 
 func Upgrade210(ctx context.Context) error {
-	dao := servicecontext.GetDAO[DAO](ctx)
-	if dao == nil {
-		return fmt.Errorf("cannot find DAO for policies initialization")
+	dao, er := manager.Resolve[DAO](ctx)
+	if er != nil {
+		return er
 	}
 	groups, e := dao.ListPolicyGroups(ctx, "")
 	if e != nil {
@@ -557,9 +555,9 @@ func Upgrade210(ctx context.Context) error {
 }
 
 func Upgrade220(ctx context.Context) error {
-	dao := servicecontext.GetDAO[DAO](ctx)
-	if dao == nil {
-		return fmt.Errorf("cannot find DAO for policies initialization")
+	dao, er := manager.Resolve[DAO](ctx)
+	if er != nil {
+		return er
 	}
 	groups, e := dao.ListPolicyGroups(ctx, "")
 	if e != nil {
@@ -583,9 +581,9 @@ func Upgrade220(ctx context.Context) error {
 }
 
 func Upgrade227(ctx context.Context) error {
-	dao := servicecontext.GetDAO[DAO](ctx)
-	if dao == nil {
-		return fmt.Errorf("cannot find DAO for policies initialization")
+	dao, er := manager.Resolve[DAO](ctx)
+	if er != nil {
+		return er
 	}
 	groups, e := dao.ListPolicyGroups(ctx, "")
 	if e != nil {
@@ -617,9 +615,9 @@ func Upgrade227(ctx context.Context) error {
 }
 
 func Upgrade399(ctx context.Context) error {
-	dao := servicecontext.GetDAO[DAO](ctx)
-	if dao == nil {
-		return fmt.Errorf("cannot find DAO for policies initialization")
+	dao, er := manager.Resolve[DAO](ctx)
+	if er != nil {
+		return er
 	}
 	groups, e := dao.ListPolicyGroups(ctx, "")
 	if e != nil {
@@ -643,9 +641,9 @@ func Upgrade399(ctx context.Context) error {
 }
 
 func Upgrade4199(ctx context.Context) error {
-	dao := servicecontext.GetDAO[DAO](ctx)
-	if dao == nil {
-		return fmt.Errorf("cannot find DAO for policies initialization")
+	dao, er := manager.Resolve[DAO](ctx)
+	if er != nil {
+		return er
 	}
 	groups, e := dao.ListPolicyGroups(ctx, "")
 	if e != nil {
@@ -669,9 +667,9 @@ func Upgrade4199(ctx context.Context) error {
 }
 
 func Upgrade4399(ctx context.Context) error {
-	dao := servicecontext.GetDAO[DAO](ctx)
-	if dao == nil {
-		return fmt.Errorf("cannot find DAO for policies initialization")
+	dao, er := manager.Resolve[DAO](ctx)
+	if er != nil {
+		return er
 	}
 	groups, e := dao.ListPolicyGroups(ctx, "")
 	if e != nil {

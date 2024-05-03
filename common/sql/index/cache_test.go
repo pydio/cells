@@ -25,23 +25,23 @@ import (
 	"encoding/hex"
 	"fmt"
 	"log"
-	"math/rand"
 	osruntime "runtime"
 	"strconv"
 	"strings"
 	"sync"
 	"testing"
 
-	. "github.com/smartystreets/goconvey/convey"
 	"github.com/spf13/viper"
 
 	"github.com/pydio/cells/v4/common/dao"
 	"github.com/pydio/cells/v4/common/dao/sqlite"
 	"github.com/pydio/cells/v4/common/proto/tree"
 	"github.com/pydio/cells/v4/common/runtime"
-	servicecontext "github.com/pydio/cells/v4/common/service/context"
-	_ "github.com/pydio/cells/v4/common/utils/cache/gocache"
 	"github.com/pydio/cells/v4/common/utils/mtree"
+
+	_ "github.com/pydio/cells/v4/common/utils/cache/gocache"
+
+	. "github.com/smartystreets/goconvey/convey"
 )
 
 var (
@@ -66,7 +66,8 @@ func TestMain(m *testing.M) {
 }
 
 func newSession() {
-	ctxWithCache = servicecontext.WithDAO(context.Background(), NewDAOCache(fmt.Sprintf("%s-%d", "test", rand.Intn(1000)), baseCacheDAO.(DAO)).(dao.DAO))
+	//TODO?
+	//ctxWithCache = servicecontext.WithDAO(context.Background(), NewDAOCache(fmt.Sprintf("%s-%d", "test", rand.Intn(1000)), baseCacheDAO.(DAO)).(dao.DAO))
 }
 
 // PrintMemUsage outputs the current, total and OS memory being used. As well as the number

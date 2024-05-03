@@ -45,6 +45,7 @@ import (
 	"github.com/pydio/cells/v4/common/log"
 	"github.com/pydio/cells/v4/common/proto/rest"
 	"github.com/pydio/cells/v4/common/runtime"
+	"github.com/pydio/cells/v4/common/runtime/runtimecontext"
 	"github.com/pydio/cells/v4/common/server"
 	servicecontext "github.com/pydio/cells/v4/common/service/context"
 	"github.com/pydio/cells/v4/common/service/frontend"
@@ -95,7 +96,7 @@ func getWebMiddlewares(serviceName string) []func(ctx context.Context, handler h
 	// Append dynamic wrapper to append service name to context
 	sw := func(ctx context.Context, handler http.Handler) http.Handler {
 		return http.HandlerFunc(func(writer http.ResponseWriter, request *http.Request) {
-			c := servicecontext.WithServiceName(request.Context(), serviceName)
+			c := runtimecontext.WithServiceName(request.Context(), serviceName)
 			handler.ServeHTTP(writer, request.WithContext(c))
 		})
 	}

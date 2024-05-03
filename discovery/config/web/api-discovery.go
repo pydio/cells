@@ -127,7 +127,7 @@ func (s *Handler) EndpointsDiscovery(req *restful.Request, resp *restful.Respons
 			// Pure HTTP and no grpc_external : detect GRPC_CLEAR Service Port
 			var grpcPorts []string
 			var reg registry.Registry
-			runtimecontext.Get(s.MainCtx, runtimecontext.RegistryKey, &reg)
+			runtimecontext.Get(s.MainCtx, registry.ContextKey, &reg)
 
 			if ss, e := reg.List(registry.WithName(common.ServiceGatewayGrpcClear), registry.WithType(pbregistry.ItemType_SERVICE)); e == nil && len(ss) > 0 {
 				for _, s := range ss {

@@ -21,7 +21,6 @@
 package config
 
 import (
-	"context"
 	"sync"
 
 	"github.com/pydio/cells/v4/common/runtime/runtimecontext"
@@ -37,14 +36,14 @@ func Register(store Store) {
 	std = store
 }
 
+type configKey struct{}
+
+var (
+	ContextKey = configKey{}
+)
+
 func init() {
-	runtimecontext.RegisterContextInjector(func(ctx, parent context.Context) context.Context {
-		var cfg Store
-		if runtimecontext.Get(parent, runtimecontext.ConfigKey, &cfg) {
-			return runtimecontext.With(ctx, runtimecontext.ConfigKey, cfg)
-		}
-		return ctx
-	})
+	runtimecontext.RegisterGenericInjector[Store](ContextKey)
 }
 
 // Store defines the functionality a config must provide

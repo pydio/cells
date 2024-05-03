@@ -80,7 +80,7 @@ func WatchTargets(ctx context.Context, serviceName string) error {
 		return os.WriteFile(file, empty, 0755)
 	}
 	var reg registry.Registry
-	if !runtimecontext.Get(ctx, runtimecontext.RegistryKey, &reg) {
+	if !runtimecontext.Get(ctx, registry.ContextKey, &reg) {
 		return fmt.Errorf("cannot find registry in context")
 	}
 

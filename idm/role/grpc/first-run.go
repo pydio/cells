@@ -35,7 +35,7 @@ import (
 	"github.com/pydio/cells/v4/common/log"
 	"github.com/pydio/cells/v4/common/proto/idm"
 	pbservice "github.com/pydio/cells/v4/common/proto/service"
-	servicecontext "github.com/pydio/cells/v4/common/service/context"
+	"github.com/pydio/cells/v4/common/runtime/manager"
 	json "github.com/pydio/cells/v4/common/utils/jsonx"
 	"github.com/pydio/cells/v4/common/utils/permissions"
 	"github.com/pydio/cells/v4/common/utils/std"
@@ -75,9 +75,9 @@ var (
 )
 
 func InitRoles(ctx context.Context) error {
-	dao := servicecontext.GetDAO[role.DAO](ctx)
-	if dao == nil {
-		return fmt.Errorf("cannot find DAO")
+	dao, er := manager.Resolve[role.DAO](ctx)
+	if er != nil {
+		return er
 	}
 
 	lang := config.Get("frontend", "plugin", "core.pydio", "DEFAULT_LANGUAGE").Default("en-us").String()
@@ -196,9 +196,9 @@ func InitRoles(ctx context.Context) error {
 
 func UpgradeTo12(ctx context.Context) error {
 
-	dao := servicecontext.GetDAO[role.DAO](ctx)
-	if dao == nil {
-		return fmt.Errorf("cannot find DAO")
+	dao, er := manager.Resolve[role.DAO](ctx)
+	if er != nil {
+		return er
 	}
 
 	scopeShared := permissions.FrontWsScopeShared

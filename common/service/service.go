@@ -37,7 +37,6 @@ import (
 	"github.com/pydio/cells/v4/common/runtime"
 	"github.com/pydio/cells/v4/common/runtime/runtimecontext"
 	"github.com/pydio/cells/v4/common/server"
-	servicecontext "github.com/pydio/cells/v4/common/service/context"
 	json "github.com/pydio/cells/v4/common/utils/jsonx"
 )
 
@@ -49,13 +48,21 @@ type service struct {
 	locker *sync.RWMutex
 }
 
+type serviceKey struct{}
+
 var _ registry.Service = (*service)(nil)
 
 var (
 	mandatoryOptions []ServiceOption
 
 	errNoServerAttached = errors.New("no server attached to the service")
+
+	ContextKey = serviceKey{}
 )
+
+func init() {
+	runtimecontext.RegisterGenericInjector[Service](ContextKey)
+}
 
 type Service interface {
 	Init(opts ...ServiceOption)
@@ -86,10 +93,10 @@ func NewService(opts ...ServiceOption) Service {
 
 	name := s.Opts.Name
 
-	s.Opts.rootContext = servicecontext.WithServiceName(s.Opts.rootContext, name)
+	s.Opts.rootContext = runtimecontext.WithServiceName(s.Opts.rootContext, name)
 
 	var reg registry.Registry
-	if runtimecontext.Get(s.Opts.rootContext, runtimecontext.RegistryKey, &reg) {
+	if runtimecontext.Get(s.Opts.rootContext, registry.ContextKey, &reg) {
 		if err := reg.Register(s); err != nil {
 			s.Opts.Logger().Warn("could not register", zap.Error(err))
 		}
@@ -223,7 +230,7 @@ func (s *service) Start(oo ...registry.RegisterOption) (er error) {
 	s.updateRegister(registry.StatusStarting)
 
 	s.Opts.runtimeCtx, s.Opts.runtimeCancel = context.WithCancel(s.Opts.rootContext)
-	s.Opts.runtimeCtx = runtimecontext.With(s.Opts.runtimeCtx, runtimecontext.ServiceKey, s)
+	s.Opts.runtimeCtx = runtimecontext.With(s.Opts.runtimeCtx, ContextKey, s)
 
 	for _, before := range s.Opts.BeforeStart {
 		var err error

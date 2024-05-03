@@ -780,7 +780,7 @@ loop:
 // ModifyLogin should detect TemplatePaths using the User.Name variable, resolve them and forward the request to the corresponding index
 func (s *TreeServer) ModifyLogin(ctx context.Context, req *service.ModifyLoginRequest) (*service.ModifyLoginResponse, error) {
 	var reg registry.Registry
-	runtimecontext.Get(ctx, runtimecontext.RegistryKey, &reg)
+	runtimecontext.Get(ctx, registry.ContextKey, &reg)
 	ctx = nodescontext.WithSourcesPool(ctx, nodes.NewPool(ctx, reg))
 	m := abstract.GetVirtualNodesManager(ctx)
 	resp := &service.ModifyLoginResponse{}

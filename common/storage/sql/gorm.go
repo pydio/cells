@@ -18,7 +18,6 @@ import (
 	cellssqlite "github.com/pydio/cells/v4/common/dao/sqlite"
 	"github.com/pydio/cells/v4/common/runtime/runtimecontext"
 	"github.com/pydio/cells/v4/common/runtime/tenant"
-	servicecontext "github.com/pydio/cells/v4/common/service/context"
 	"github.com/pydio/cells/v4/common/storage"
 	"github.com/pydio/cells/v4/common/storage/sql/dbresolver"
 	"github.com/pydio/cells/v4/common/utils/openurl"
@@ -153,7 +152,7 @@ func (gs *gormStorage) Get(ctx context.Context, out interface{}) bool {
 			return false
 		}
 		var ten tenant.Tenant
-		runtimecontext.Get(ctx, runtimecontext.TenantKey, &ten)
+		runtimecontext.Get(ctx, tenant.ContextKey, &ten)
 		if conn, ok := gs.conns[path]; !ok {
 			parts := strings.Split(path, "://")
 			if len(parts) < 2 {
@@ -162,11 +161,11 @@ func (gs *gormStorage) Get(ctx context.Context, out interface{}) bool {
 			if conn, err := sql.Open(parts[0], strings.Join(parts[1:], "")); err != nil {
 				return false
 			} else {
-				gs.Register(conn, ten.ID(), servicecontext.GetServiceName(ctx))
+				gs.Register(conn, ten.ID(), runtimecontext.GetServiceName(ctx))
 				gs.conns[path] = conn
 			}
 		} else {
-			gs.Register(conn, ten.ID(), servicecontext.GetServiceName(ctx))
+			gs.Register(conn, ten.ID(), runtimecontext.GetServiceName(ctx))
 		}
 
 		*v = gs.db

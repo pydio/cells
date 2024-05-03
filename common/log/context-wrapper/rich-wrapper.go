@@ -30,6 +30,7 @@ import (
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/auth/claim"
 	"github.com/pydio/cells/v4/common/log"
+	"github.com/pydio/cells/v4/common/runtime/runtimecontext"
 	servicecontext "github.com/pydio/cells/v4/common/service/context"
 	"github.com/pydio/cells/v4/common/service/context/metadata"
 )
@@ -54,22 +55,22 @@ func RichContext(ctx context.Context, logger log.ZapLogger, fields ...zapcore.Fi
 		}
 		fields = append(fields, zap.String(common.KeySpanUuid, span.SpanId))
 	}
-	if opId, opLabel := servicecontext.GetOperationID(ctx); opId != "" {
+	if opId, opLabel := runtimecontext.GetOperationID(ctx); opId != "" {
 		fields = append(fields, zap.String(common.KeyOperationUuid, opId))
 		if opLabel != "" {
 			fields = append(fields, zap.String(common.KeyOperationLabel, opLabel))
 		}
 	}
-	if jobId, has := metadata.CanonicalMeta(ctx, servicecontext.ContextMetaJobUuid); has {
+	if jobId, has := metadata.CanonicalMeta(ctx, runtimecontext.ContextMetaJobUuid); has {
 		fields = append(fields, zap.String(common.KeySchedulerJobId, jobId))
 	}
-	if taskUuid, has := metadata.CanonicalMeta(ctx, servicecontext.ContextMetaTaskUuid); has {
+	if taskUuid, has := metadata.CanonicalMeta(ctx, runtimecontext.ContextMetaTaskUuid); has {
 		fields = append(fields, zap.String(common.KeySchedulerTaskId, taskUuid))
 	}
-	if taskPath, has := metadata.CanonicalMeta(ctx, servicecontext.ContextMetaTaskActionPath); has {
+	if taskPath, has := metadata.CanonicalMeta(ctx, runtimecontext.ContextMetaTaskActionPath); has {
 		fields = append(fields, zap.String(common.KeySchedulerActionPath, taskPath))
 	}
-	if taskTags, has := metadata.CanonicalMeta(ctx, servicecontext.ContextMetaTaskActionTags); has {
+	if taskTags, has := metadata.CanonicalMeta(ctx, runtimecontext.ContextMetaTaskActionTags); has {
 		tt := strings.Split(taskTags, ",")
 		if len(tt) > 0 {
 			fields = append(fields, zap.Strings(common.KeySchedulerActionTags, tt))

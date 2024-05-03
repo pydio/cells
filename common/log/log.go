@@ -36,7 +36,7 @@ import (
 
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/runtime"
-	servicecontext "github.com/pydio/cells/v4/common/service/context"
+	"github.com/pydio/cells/v4/common/runtime/runtimecontext"
 )
 
 // WriteSyncer implements zapcore.WriteSyncer
@@ -151,7 +151,7 @@ func Init(logDir string, ww ...LogContextWrapper) {
 }
 
 func CaptureCaddyStdErr(serviceName string) context.Context {
-	ctx := servicecontext.WithServiceName(context.Background(), serviceName)
+	ctx := runtimecontext.WithServiceName(context.Background(), serviceName)
 	lg := Logger(ctx)
 	if traceFatalEnabled() {
 		return ctx
@@ -218,12 +218,15 @@ func SetLoggerInit(f func() *zap.Logger, globalConnInit func(ctx context.Context
 
 // Logger returns a zap logger with as much context as possible.
 func Logger(ctx context.Context) ZapLogger {
-	l := servicecontext.GetLogger(ctx)
-	if l != nil {
-		if lg, ok := l.(ZapLogger); ok {
-			return lg
+	/*
+		// Todo recheck - WithLogger was never used anywhere
+		l := runtimecontext.GetLogger(ctx)
+		if l != nil {
+			if lg, ok := l.(ZapLogger); ok {
+				return lg
+			}
 		}
-	}
+	*/
 	return contextWrapper(ctx, mainLogger.get())
 }
 

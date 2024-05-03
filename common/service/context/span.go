@@ -26,6 +26,7 @@ import (
 
 	"google.golang.org/grpc"
 
+	"github.com/pydio/cells/v4/common/runtime/runtimecontext"
 	"github.com/pydio/cells/v4/common/service/context/metadata"
 	"github.com/pydio/cells/v4/common/utils/uuid"
 )
@@ -115,7 +116,7 @@ func childOrNewSpan(ctx context.Context) context.Context {
 func ctxWithOpIdFromMeta(ctx context.Context) context.Context {
 	if md, ok := metadata.FromContextRead(ctx); ok {
 		if opId, o := md[OperationMetadataId]; o {
-			ctx = WithOperationID(ctx, opId)
+			ctx = runtimecontext.WithOperationID(ctx, opId)
 		}
 	}
 	return ctx
@@ -129,7 +130,7 @@ func SpanUnaryClientInterceptor() grpc.UnaryClientInterceptor {
 			s := NewSpan()
 			ctx = WithSpan(ctx, s)
 		}
-		if opID, _ := GetOperationID(ctx); opID != "" {
+		if opID, _ := runtimecontext.GetOperationID(ctx); opID != "" {
 			ctx = metadata.WithAdditionalMetadata(ctx, map[string]string{OperationMetadataId: opID})
 		}
 
@@ -145,7 +146,7 @@ func SpanStreamClientInterceptor() grpc.StreamClientInterceptor {
 			s := NewSpan()
 			ctx = WithSpan(ctx, s)
 		}
-		if opID, _ := GetOperationID(ctx); opID != "" {
+		if opID, _ := runtimecontext.GetOperationID(ctx); opID != "" {
 			ctx = metadata.WithAdditionalMetadata(ctx, map[string]string{OperationMetadataId: opID})
 		}
 

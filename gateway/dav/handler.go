@@ -37,6 +37,7 @@ import (
 	"github.com/pydio/cells/v4/common/auth/claim"
 	"github.com/pydio/cells/v4/common/log"
 	"github.com/pydio/cells/v4/common/nodes"
+	"github.com/pydio/cells/v4/common/runtime/runtimecontext"
 	servicecontext "github.com/pydio/cells/v4/common/service/context"
 )
 
@@ -50,7 +51,7 @@ type contextHeaderKey struct{}
 
 func logRequest(handler http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		c := servicecontext.WithServiceName(r.Context(), common.ServiceGatewayDav)
+		c := runtimecontext.WithServiceName(r.Context(), common.ServiceGatewayDav)
 		c = context.WithValue(c, contextHeaderKey{}, r.Header)
 		r = r.WithContext(c)
 		log.Logger(c).Debug("-- DAV ENTER", zap.String("Method", r.Method), zap.String("path", r.URL.Path))

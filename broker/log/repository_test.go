@@ -29,8 +29,10 @@ import (
 	"time"
 
 	"github.com/pydio/cells/v4/common"
+	"github.com/pydio/cells/v4/common/config"
 	"github.com/pydio/cells/v4/common/proto/log"
 	"github.com/pydio/cells/v4/common/runtime/manager"
+	"github.com/pydio/cells/v4/common/runtime/runtimecontext"
 	"github.com/pydio/cells/v4/common/utils/test"
 	"github.com/pydio/cells/v4/common/utils/uuid"
 
@@ -49,6 +51,8 @@ var (
 func TestMessageRepository(t *testing.T) {
 
 	test.RunStorageTests(testcases, func(ctx context.Context) {
+		mem, _ := config.OpenStore(ctx, "mem:///")
+		ctx = runtimecontext.With(ctx, config.ContextKey, mem)
 		Convey("Test all property indexation:\n", t, func() {
 			server, err := manager.Resolve[MessageRepository](ctx)
 			So(err, ShouldBeNil)

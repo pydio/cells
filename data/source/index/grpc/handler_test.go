@@ -27,23 +27,19 @@ import (
 	"sync"
 	"testing"
 
-	. "github.com/smartystreets/goconvey/convey"
 	"github.com/spf13/viper"
 	"google.golang.org/grpc/metadata"
 
-	// SQLite Driver
-	"github.com/pydio/cells/v4/common/dao"
-	"github.com/pydio/cells/v4/common/dao/sqlite"
 	"github.com/pydio/cells/v4/common/proto/object"
 	"github.com/pydio/cells/v4/common/proto/tree"
 	"github.com/pydio/cells/v4/common/runtime"
-	servicecontext "github.com/pydio/cells/v4/common/service/context"
-	_ "github.com/pydio/cells/v4/common/utils/cache/gocache"
-	"github.com/pydio/cells/v4/common/utils/configx"
 	json "github.com/pydio/cells/v4/common/utils/jsonx"
 	"github.com/pydio/cells/v4/data/source/index"
 
+	_ "github.com/pydio/cells/v4/common/utils/cache/gocache"
 	_ "gocloud.dev/pubsub/mempubsub"
+
+	. "github.com/smartystreets/goconvey/convey"
 )
 
 var (
@@ -118,15 +114,18 @@ func TestMain(m *testing.M) {
 	v.SetDefault(runtime.KeyShortCache, "pm://")
 	runtime.SetRuntime(v)
 
-	options := configx.New()
-	c := context.Background()
+	/*
+		// TODO?
+			options := configx.New()
+			c := context.Background()
+		if d, e := dao.InitDAO(c, sqlite.Driver, sqlite.SharedMemDSN, "test", index.NewDAO, options); e != nil {
+			panic(e)
+		} else {
+			indexDAO = d.(index.DAO)
+			ctx = servicecontext.WithDAO(context.Background(), d)
+		}
 
-	if d, e := dao.InitDAO(c, sqlite.Driver, sqlite.SharedMemDSN, "test", index.NewDAO, options); e != nil {
-		panic(e)
-	} else {
-		indexDAO = d.(index.DAO)
-		ctx = servicecontext.WithDAO(context.Background(), d)
-	}
+	*/
 
 	m.Run()
 	wg.Wait()

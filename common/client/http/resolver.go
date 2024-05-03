@@ -74,7 +74,7 @@ func (m *resolver) Init(ctx context.Context, serverID string, rr routing.RouteRe
 
 	conn := clientcontext.GetClientConn(ctx)
 	var reg registry.Registry
-	runtimecontext.Get(ctx, runtimecontext.RegistryKey, &reg)
+	runtimecontext.Get(ctx, registry.ContextKey, &reg)
 	rc, _ := client.NewResolverCallback(reg)
 	bal := NewBalancer(serverID)
 	rc.Add(bal.Build)
@@ -137,7 +137,7 @@ func (m *resolver) ServeHTTP(w http.ResponseWriter, r *http.Request) (bool, erro
 		proxy.Transport = grpcTransport
 		// Wrap context and server request
 		ctx = clientcontext.WithClientConn(ctx, m.c)
-		ctx = runtimecontext.With(ctx, runtimecontext.RegistryKey, m.r)
+		ctx = runtimecontext.With(ctx, registry.ContextKey, m.r)
 		proxy.ServeHTTP(w, r.WithContext(ctx))
 		return true, nil
 	}
@@ -179,7 +179,7 @@ func (m *resolver) ServeHTTP(w http.ResponseWriter, r *http.Request) (bool, erro
 
 	// try to find it in the current mux
 	ctx = clientcontext.WithClientConn(ctx, m.c)
-	ctx = runtimecontext.With(ctx, runtimecontext.RegistryKey, m.r)
+	ctx = runtimecontext.With(ctx, registry.ContextKey, m.r)
 
 	if m.s == nil {
 		mu := http.NewServeMux()

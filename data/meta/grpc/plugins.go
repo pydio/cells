@@ -30,8 +30,8 @@ import (
 	"github.com/pydio/cells/v4/common/broker"
 	"github.com/pydio/cells/v4/common/proto/tree"
 	"github.com/pydio/cells/v4/common/runtime"
+	"github.com/pydio/cells/v4/common/runtime/runtimecontext"
 	"github.com/pydio/cells/v4/common/service"
-	servicecontext "github.com/pydio/cells/v4/common/service/context"
 	"github.com/pydio/cells/v4/data/meta"
 )
 
@@ -63,7 +63,7 @@ func init() {
 						if msg.Optimistic {
 							return nil
 						}
-						ct = servicecontext.WithServiceName(ct, common.ServiceGrpcNamespace_+common.ServiceMeta)
+						ct = runtimecontext.WithServiceName(ct, common.ServiceGrpcNamespace_+common.ServiceMeta)
 						return engine.processEvent(ct, msg)
 					}
 					return nil

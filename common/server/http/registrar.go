@@ -13,7 +13,7 @@ import (
 // NewRegistrar creates a routing.RouteRegistrar wrapped with registry
 func NewRegistrar(ctx context.Context, serverID string) routing.RouteRegistrar {
 	var reg registry.Registry
-	runtimecontext.Get(ctx, runtimecontext.RegistryKey, &reg)
+	runtimecontext.Get(ctx, registry.ContextKey, &reg)
 	base := routing.NewRouteRegistrar()
 	return &regRegistrar{
 		RouteRegistrar: base,

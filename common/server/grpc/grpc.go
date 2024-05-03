@@ -143,12 +143,12 @@ func (s *Server) lazyGrpc(ctx context.Context) *grpc.Server {
 	)
 
 	var reg registry.Registry
-	runtimecontext.Get(ctx, runtimecontext.RegistryKey, &reg)
+	runtimecontext.Get(ctx, registry.ContextKey, &reg)
 
 	unaryInterceptors = append(unaryInterceptors,
 
 		func(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (interface{}, error) {
-			serviceName := servicecontext.GetServiceName(ctx)
+			serviceName := runtimecontext.GetServiceName(ctx)
 			if serviceName != "" {
 				endpoints := reg.ListAdjacentItems(
 					registry.WithAdjacentSourceItems([]registry.Item{s}),
@@ -175,7 +175,7 @@ func (s *Server) lazyGrpc(ctx context.Context) *grpc.Server {
 						continue
 					}
 
-					ctx = runtimecontext.With(ctx, runtimecontext.ServiceKey, svc)
+					ctx = runtimecontext.With(ctx, service.ContextKey, svc)
 
 					method := info.FullMethod[strings.LastIndex(info.FullMethod, "/")+1:]
 					outputs := reflect.ValueOf(ep.Handler()).MethodByName(method).Call([]reflect.Value{reflect.ValueOf(ctx), reflect.ValueOf(req)})
@@ -225,7 +225,7 @@ func (s *Server) lazyGrpc(ctx context.Context) *grpc.Server {
 		//	return handler(srv, ss)
 		//},
 		func(srv interface{}, ss grpc.ServerStream, info *grpc.StreamServerInfo, handler grpc.StreamHandler) error {
-			serviceName := servicecontext.GetServiceName(ss.Context())
+			serviceName := runtimecontext.GetServiceName(ss.Context())
 			if serviceName != "" {
 				endpoints := reg.ListAdjacentItems(
 					registry.WithAdjacentSourceItems([]registry.Item{s}),
@@ -253,7 +253,7 @@ func (s *Server) lazyGrpc(ctx context.Context) *grpc.Server {
 
 					ep := endpoint.(registry.Endpoint)
 
-					ctx = runtimecontext.With(ctx, runtimecontext.ServiceKey, svc)
+					ctx = runtimecontext.With(ctx, service.ContextKey, svc)
 
 					wrapped := grpc_middleware.WrapServerStream(ss)
 					wrapped.WrappedContext = ctx

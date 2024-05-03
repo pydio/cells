@@ -15,7 +15,8 @@ import (
 	"github.com/pydio/cells/v4/common/auth"
 	"github.com/pydio/cells/v4/common/auth/claim"
 	"github.com/pydio/cells/v4/common/log"
-	"github.com/pydio/cells/v4/common/service/context"
+	"github.com/pydio/cells/v4/common/runtime/runtimecontext"
+	servicecontext "github.com/pydio/cells/v4/common/service/context"
 	"github.com/pydio/cells/v4/common/service/context/metadata"
 	"github.com/pydio/cells/v4/common/utils/permissions"
 )
@@ -45,7 +46,7 @@ func (a pydioAuthHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	var userName string
 	ctx := r.Context()
 	ctx = servicecontext.HttpRequestInfoToMetadata(ctx, r)
-	ctx = servicecontext.WithServiceName(ctx, common.ServiceGatewayData)
+	ctx = runtimecontext.WithServiceName(ctx, common.ServiceGatewayData)
 
 	resignRequestV4 := false
 	resignRequestV4Presigned := false

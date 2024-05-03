@@ -38,8 +38,8 @@ import (
 	"github.com/pydio/cells/v4/common/proto/jobs"
 	"github.com/pydio/cells/v4/common/proto/tree"
 	"github.com/pydio/cells/v4/common/runtime"
+	"github.com/pydio/cells/v4/common/runtime/runtimecontext"
 	"github.com/pydio/cells/v4/common/service"
-	servicecontext "github.com/pydio/cells/v4/common/service/context"
 	"github.com/pydio/cells/v4/gateway/websocket"
 )
 
@@ -54,7 +54,7 @@ const (
 )
 
 func wrap(ctx context.Context) context.Context {
-	return servicecontext.WithServiceName(ctx, name)
+	return runtimecontext.WithServiceName(ctx, name)
 }
 
 func init() {

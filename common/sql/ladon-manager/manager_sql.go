@@ -29,15 +29,16 @@ import (
 	"strings"
 
 	"github.com/jmoiron/sqlx"
-	. "github.com/ory/ladon"
 	"github.com/ory/ladon/compiler"
 	"github.com/pkg/errors"
-	"github.com/rubenv/sql-migrate"
-	"gopkg.in/gorp.v1"
+	migrate "github.com/rubenv/sql-migrate"
+	gorp "gopkg.in/gorp.v1"
 
 	"github.com/pydio/cells/v4/common/log"
-	servicecontext "github.com/pydio/cells/v4/common/service/context"
+	"github.com/pydio/cells/v4/common/runtime/runtimecontext"
 	sql2 "github.com/pydio/cells/v4/common/sql"
+
+	. "github.com/ory/ladon"
 )
 
 // SQLManager is a postgres implementation for Manager to store policies persistently.
@@ -102,7 +103,7 @@ func (s *SQLManager) MigrateMigrationTable(tableName string) error {
 	}
 	del, _ := res.RowsAffected()
 	if del > 0 {
-		log.Logger(servicecontext.WithServiceName(context.Background(), "pydio.grpc.policy")).Info(fmt.Sprintf("Migrated %d rows from old gorp_migrations table to %s\n", del, tableName))
+		log.Logger(runtimecontext.WithServiceName(context.Background(), "pydio.grpc.policy")).Info(fmt.Sprintf("Migrated %d rows from old gorp_migrations table to %s\n", del, tableName))
 	}
 
 	return nil

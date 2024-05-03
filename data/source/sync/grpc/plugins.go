@@ -40,8 +40,8 @@ import (
 	protosync "github.com/pydio/cells/v4/common/proto/sync"
 	"github.com/pydio/cells/v4/common/proto/tree"
 	"github.com/pydio/cells/v4/common/runtime"
+	"github.com/pydio/cells/v4/common/runtime/runtimecontext"
 	"github.com/pydio/cells/v4/common/service"
-	servicecontext "github.com/pydio/cells/v4/common/service/context"
 	"github.com/pydio/cells/v4/common/service/context/metadata"
 	"github.com/pydio/cells/v4/common/service/errors"
 	commonsql "github.com/pydio/cells/v4/common/sql"
@@ -162,7 +162,7 @@ func newService(ctx context.Context, dsObject *object.DataSource) {
 					// Create an authenticated context for sync operations if any
 					bg := context.Background()
 					bg = metadata.WithUserNameMetadata(bg, common.PydioSystemUsername)
-					bg = servicecontext.WithServiceName(bg, servicecontext.GetServiceName(ctx))
+					bg = runtimecontext.ForkOneKey(runtimecontext.ServiceNameKey, bg, ctx)
 
 					if _, has := dsObject.StorageConfiguration[object.StorageKeyInitFromBucket]; has {
 						if _, e := syncHandler.FlatScanEmpty(bg, nil, nil); e != nil {

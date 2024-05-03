@@ -53,7 +53,7 @@ import (
 	"github.com/pydio/cells/v4/common/proto/docstore"
 	"github.com/pydio/cells/v4/common/proto/idm"
 	"github.com/pydio/cells/v4/common/proto/tree"
-	servicecontext "github.com/pydio/cells/v4/common/service/context"
+	"github.com/pydio/cells/v4/common/runtime/runtimecontext"
 	"github.com/pydio/cells/v4/common/service/errors"
 	"github.com/pydio/cells/v4/common/service/frontend"
 	"github.com/pydio/cells/v4/common/utils/cache"
@@ -161,7 +161,7 @@ func (h *PublicHandler) computeTplConf(req *http.Request, linkId string) (status
 		uField = linkData.PresetLogin
 	}
 	if uField != "" {
-		ctx = servicecontext.WithServiceName(ctx, common.ServiceWebNamespace_+common.ServiceFrontend)
+		ctx = runtimecontext.WithServiceName(ctx, common.ServiceWebNamespace_+common.ServiceFrontend)
 		log.Auditer(ctx).Info(
 			fmt.Sprintf("Public Link %s accessed", linkId),
 			log.GetAuditId(common.AuditLoginSucceed),
@@ -181,7 +181,7 @@ func (h *PublicHandler) computeTplConf(req *http.Request, linkId string) (status
 func (h *PublicHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	// Update context with service name
-	r = r.WithContext(servicecontext.WithServiceName(r.Context(), servicecontext.GetServiceName(h.runtimeContext)))
+	r = r.WithContext(runtimecontext.ForkOneKey(runtimecontext.ServiceNameKey, r.Context(), h.runtimeContext))
 
 	linkId, davPath := h.parseLinkId(r)
 	status, tplConf, linkData := h.computeTplConf(r, linkId)

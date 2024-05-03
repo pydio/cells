@@ -25,16 +25,17 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/uber-go/tally/v4"
+	tally "github.com/uber-go/tally/v4"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/metadata"
 
+	"github.com/pydio/cells/v4/common/runtime/runtimecontext"
 	"github.com/pydio/cells/v4/common/service/metrics"
 )
 
 func HttpWrapperMetrics(ctx context.Context, h http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		scope := metrics.GetMetricsForService(GetServiceName(r.Context()))
+		scope := metrics.GetMetricsForService(runtimecontext.GetServiceName(r.Context()))
 		if scope == tally.NoopScope {
 			h.ServeHTTP(w, r)
 			return

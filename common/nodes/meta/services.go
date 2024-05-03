@@ -13,7 +13,7 @@ import (
 func servicesWithMeta(ctx context.Context, metaName string, metaValue string) ([]registry.Service, error) {
 
 	var reg registry.Registry
-	if !runtimecontext.Get(ctx, runtimecontext.RegistryKey, &reg) {
+	if !runtimecontext.Get(ctx, registry.ContextKey, &reg) {
 		defaultReg, err := registry.OpenRegistry(context.Background(), runtime.RegistryURL())
 		if err != nil {
 			return nil, err

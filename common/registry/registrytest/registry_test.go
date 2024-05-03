@@ -227,7 +227,7 @@ func doTestAdd(t *testing.T, m registry.Registry) {
 		}()
 
 		ctx := context.Background()
-		ctx = runtimecontext.With(ctx, runtimecontext.RegistryKey, m)
+		ctx = runtimecontext.With(ctx, registry.ContextKey, m)
 
 		var nodeIds []string
 		var nodes []registry.Node

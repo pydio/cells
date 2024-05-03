@@ -22,29 +22,27 @@ package idmtest
 
 import (
 	"context"
+
 	"google.golang.org/grpc"
 
-	"github.com/pydio/cells/v4/common/dao"
-	"github.com/pydio/cells/v4/common/dao/sqlite"
 	"github.com/pydio/cells/v4/common/proto/idm"
-	servicecontext "github.com/pydio/cells/v4/common/service/context"
-	"github.com/pydio/cells/v4/common/utils/configx"
-	"github.com/pydio/cells/v4/idm/role"
 	srv "github.com/pydio/cells/v4/idm/role/grpc"
 )
 
 func NewRolesService(roles ...*idm.Role) (grpc.ClientConnInterface, error) {
 
 	ctx := context.Background()
-	mockRDAO, e := dao.InitDAO(ctx, sqlite.Driver, sqlite.SharedMemDSN, "idm_roles", role.NewDAO, configx.New())
-	if e != nil {
-		return nil, e
-	}
-
+	/*
+		// TODO
+		mockRDAO, e := dao.InitDAO(ctx, sqlite.Driver, sqlite.SharedMemDSN, "idm_roles", role.NewDAO, configx.New())
+		if e != nil {
+			return nil, e
+		}
+		ctx = servicecontext.WithDAO(ctx, mockRDAO)
+	*/
 	serv := &idm.RoleServiceStub{
-		RoleServiceServer: srv.NewHandler(nil, mockRDAO.(role.DAO)),
+		RoleServiceServer: srv.NewHandler(),
 	}
-	ctx = servicecontext.WithDAO(ctx, mockRDAO)
 	for _, r := range roles {
 		_, er := serv.RoleServiceServer.CreateRole(ctx, &idm.CreateRoleRequest{Role: r})
 		if er != nil {

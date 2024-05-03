@@ -25,27 +25,26 @@ import (
 
 	"google.golang.org/grpc"
 
-	"github.com/pydio/cells/v4/common/dao"
-	"github.com/pydio/cells/v4/common/dao/sqlite"
 	"github.com/pydio/cells/v4/common/proto/idm"
-	servicecontext "github.com/pydio/cells/v4/common/service/context"
-	"github.com/pydio/cells/v4/common/utils/configx"
-	"github.com/pydio/cells/v4/idm/user"
 	srv "github.com/pydio/cells/v4/idm/user/grpc"
 )
 
 func NewUsersService(users ...*idm.User) (grpc.ClientConnInterface, error) {
 	ctx := context.Background()
 
-	mockDAO, e := dao.InitDAO(ctx, sqlite.Driver, sqlite.SharedMemDSN, "idm_user", user.NewDAO, configx.New())
-	if e != nil {
-		return nil, e
-	}
+	/*
+		// TODO
+		mockDAO, e := dao.InitDAO(ctx, sqlite.Driver, sqlite.SharedMemDSN, "idm_user", user.NewDAO, configx.New())
+		if e != nil {
+			return nil, e
+		}
+		ctx = servicecontext.WithDAO(ctx, mockDAO)
+
+	*/
 
 	serv := &idm.UserServiceStub{
-		UserServiceServer: srv.NewHandler(nil, mockDAO.(user.DAO)),
+		UserServiceServer: srv.NewHandler(ctx),
 	}
-	ctx = servicecontext.WithDAO(ctx, mockDAO)
 	for _, u := range users {
 		_, er := serv.UserServiceServer.CreateUser(ctx, &idm.CreateUserRequest{User: u})
 		if er != nil {

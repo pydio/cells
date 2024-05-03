@@ -159,7 +159,7 @@ func (h *Handler) ListPeersAddresses(req *restful.Request, resp *restful.Respons
 		PeerAddresses: []string{},
 	}
 	var reg registry.Registry
-	runtimecontext.Get(req.Request.Context(), runtimecontext.RegistryKey, &reg)
+	runtimecontext.Get(req.Request.Context(), registry.ContextKey, &reg)
 	nodes, er := reg.List(registry.WithType(rpb.ItemType_SERVER))
 	if er != nil {
 		service.RestError500(req, resp, er)
@@ -264,7 +264,7 @@ func (h *Handler) ListProcesses(req *restful.Request, resp *restful.Response) {
 	out := &rest.ListProcessesResponse{}
 
 	var reg registry.Registry
-	runtimecontext.Get(req.Request.Context(), runtimecontext.RegistryKey, &reg)
+	runtimecontext.Get(req.Request.Context(), registry.ContextKey, &reg)
 	nodes, er := reg.List(registry.WithType(rpb.ItemType_SERVER))
 	if er != nil {
 		service.RestError500(req, resp, er)

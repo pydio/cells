@@ -38,7 +38,7 @@ import (
 
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/proto/tree"
-	servicecontext "github.com/pydio/cells/v4/common/service/context"
+	"github.com/pydio/cells/v4/common/runtime/runtimecontext"
 	"github.com/pydio/cells/v4/common/sync/endpoints/cells/transport"
 	"github.com/pydio/cells/v4/common/sync/endpoints/cells/transport/mc"
 	"github.com/pydio/cells/v4/common/sync/endpoints/cells/transport/oidc"
@@ -115,7 +115,7 @@ func NewRemote(config RemoteConfig, root string, options Options) *Remote {
 	}
 	c.Source = c
 	logCtx := context.Background()
-	logCtx = servicecontext.WithServiceName(logCtx, "endpoint.cells.remote")
+	logCtx = runtimecontext.WithServiceName(logCtx, "endpoint.cells.remote")
 	c.GlobalCtx = logCtx
 	return c
 }
