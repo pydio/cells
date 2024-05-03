@@ -46,8 +46,7 @@ type Writer struct {
 
 func (w *Writer) commonRoot(nodes []*tree.Node) string {
 
-	// TODO
-	// Assume nodes have same parent for now
+	// We assume nodes have same parent for now
 	if len(nodes) == 1 && !nodes[0].IsLeaf() {
 		return nodes[0].Path
 	} else {

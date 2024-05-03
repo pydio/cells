@@ -50,7 +50,6 @@ type Indexer interface {
 
 	NewBatch(ctx context.Context, options ...BatchOption) (Batch, error)
 
-	Open(ctx context.Context) error
 	// Close closes the index connection
 	Close(ctx context.Context) error
 }

@@ -53,9 +53,6 @@ type JobsHandler struct {
 	proto.UnimplementedTaskServiceServer
 	logcore.Handler
 
-	// TODO - SHOULD NOT MAINTAIN THIS
-	RuntimeCtx context.Context
-
 	jobsBuff     map[string]*proto.Job
 	jobsBuffLock *sync.Mutex
 	stop         chan bool
@@ -69,7 +66,6 @@ func NewJobsHandler(runtime context.Context) *JobsHandler {
 		jobsBuffLock: &sync.Mutex{},
 		stop:         make(chan bool),
 	}
-	j.RuntimeCtx = runtime
 	j.Handler.HandlerName = ServiceName
 	return j
 }
@@ -105,7 +101,7 @@ func (j *JobsHandler) PutJob(ctx context.Context, request *proto.PutJobRequest) 
 
 	response := &proto.PutJobResponse{}
 	response.Job = job
-	pubCtx := j.RuntimeCtx
+	pubCtx := runtimecontext.ForkContext(context.Background(), ctx)
 	if md, ok := metadata.FromContextCopy(ctx); ok {
 		pubCtx = metadata.NewContext(pubCtx, md)
 	}
@@ -145,11 +141,14 @@ func (j *JobsHandler) DeleteJob(ctx context.Context, request *proto.DeleteJobReq
 			response.Success = false
 			return nil, err
 		}
-		broker.MustPublish(j.RuntimeCtx, common.TopicJobConfigEvent, &proto.JobChangeEvent{
+		bg := runtimecontext.ForkContext(context.Background(), ctx)
+		broker.MustPublish(bg, common.TopicJobConfigEvent, &proto.JobChangeEvent{
 			JobRemoved: request.JobID,
 		})
 		go func() {
-			j.DeleteLogsFor(j.RuntimeCtx, request.JobID)
+			if _, er := j.DeleteLogsFor(bg, request.JobID); er != nil {
+				log.Logger(bg).Error("cannot delete logs for job "+request.JobID, zap.Error(er))
+			}
 		}()
 		response.Success = true
 
@@ -183,11 +182,14 @@ func (j *JobsHandler) DeleteJob(ctx context.Context, request *proto.DeleteJobReq
 			if e := store.DeleteJob(id); e == nil {
 				deleted++
 				log.Logger(ctx).Info("Deleting AutoClean Job " + id)
-				broker.MustPublish(j.RuntimeCtx, common.TopicJobConfigEvent, &proto.JobChangeEvent{
+				bg := runtimecontext.ForkContext(context.Background(), ctx)
+				broker.MustPublish(bg, common.TopicJobConfigEvent, &proto.JobChangeEvent{
 					JobRemoved: id,
 				})
 				go func() {
-					j.DeleteLogsFor(j.RuntimeCtx, id)
+					if _, er := j.DeleteLogsFor(bg, id); er != nil {
+						log.Logger(ctx).Error("Cannot background-delete logs for job "+id, zap.Error(er))
+					}
 				}()
 
 			}
@@ -247,7 +249,7 @@ func (j *JobsHandler) PutTask(ctx context.Context, request *proto.PutTaskRequest
 	T := lang.Bundle().GetTranslationFunc()
 	job.Label = T(job.Label)
 	if !job.TasksSilentUpdate {
-		broker.MustPublish(j.RuntimeCtx, common.TopicJobTaskEvent, &proto.TaskChangeEvent{
+		broker.MustPublish(runtimecontext.ForkContext(context.Background(), ctx), common.TopicJobTaskEvent, &proto.TaskChangeEvent{
 			TaskUpdated: request.Task,
 			Job:         job,
 			NanoStamp:   time.Now().UnixNano(),
@@ -341,7 +343,7 @@ func (j *JobsHandler) PutTaskStream(streamer proto.JobService_PutTaskStreamServe
 		T := lang.Bundle().GetTranslationFunc()
 		tJob.Label = T(tJob.Label)
 		if !tJob.TasksSilentUpdate {
-			broker.MustPublish(j.RuntimeCtx, common.TopicJobTaskEvent, &proto.TaskChangeEvent{
+			broker.MustPublish(runtimecontext.ForkContext(context.Background(), ctx), common.TopicJobTaskEvent, &proto.TaskChangeEvent{
 				TaskUpdated: request.Task,
 				Job:         tJob,
 				NanoStamp:   time.Now().UnixNano(),
@@ -427,8 +429,9 @@ func (j *JobsHandler) DeleteTasks(ctx context.Context, request *proto.DeleteTask
 				return nil, e
 			}
 			response.Deleted = append(response.Deleted, tasks...)
+			bg := runtimecontext.ForkContext(context.Background(), ctx)
 			go func(jI string, tt ...string) {
-				j.DeleteLogsFor(j.RuntimeCtx, jI, tt...)
+				j.DeleteLogsFor(bg, jI, tt...)
 			}(jId, tasks...)
 		}
 		return response, nil
@@ -437,8 +440,9 @@ func (j *JobsHandler) DeleteTasks(ctx context.Context, request *proto.DeleteTask
 
 		if e := store.DeleteTasks(request.JobId, request.TaskID); e == nil {
 			response.Deleted = append(response.Deleted, request.TaskID...)
+			bg := runtimecontext.ForkContext(context.Background(), ctx)
 			go func() {
-				j.DeleteLogsFor(j.RuntimeCtx, request.JobId, request.TaskID...)
+				j.DeleteLogsFor(bg, request.JobId, request.TaskID...)
 			}()
 			return response, nil
 		} else {

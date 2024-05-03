@@ -72,11 +72,6 @@ type Indexer struct {
 	metricsName string
 }
 
-func (s *Indexer) Open(ctx context.Context) error {
-	//TODO implement me
-	panic("implement me")
-}
-
 // NewIndexer creates and configures a default Bleve instance to store technical logs
 // Setting rotationSize to -1 fully disables rotation
 func newBleveIndexer(conf *BleveConfig) (*Indexer, error) {

@@ -60,11 +60,6 @@ func (i *Indexer) GetCodex() indexer.IndexCodex {
 	return i.codec
 }
 
-func (i *Indexer) Open(ctx context.Context) error {
-	//TODO implement me
-	panic("implement me")
-}
-
 func NewIndexer(db *mongo.Database) *Indexer {
 	i := &Indexer{
 		Database:   db,
