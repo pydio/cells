@@ -228,9 +228,9 @@ storages: &storages
   bolt:
 #    uri: boltdb:///{{ TODOMustServiceDataDir .Value service }}/{{ .Value tenant }}/{{ .Value prefix }}.db
     uri: boltdb:///tmp/{{ .Value "tenant" }}/{{ .Value "prefix" }}.db
-  bleve:
+  logs:
 #    uri: bleve:///tmp/{{ TODOMustServiceDataDir .Value service }}.bleve?mapping={{ .Value mapping }}&rotationSize={{ .Value rotationSize }}
-    uri: bleve:///tmp/{{ .Value "service" }}.bleve?mapping={{ .Value "mapping" }}&rotationSize={{ .Value "rotationSize" }}
+    uri: bleve:///tmp/test-logs.bleve?mapping=log
   fifo:
     uri: goq:///tmp/{{ .Value tenant }}/fifo/{{ .Value prefix }}?evictionTime={{ .evictionTime }}
   user:
@@ -291,7 +291,7 @@ services:
   pydio.grpc.log:
     storages:
       logs:
-        - type: bleve
+        - type: logs
           prefix: syslog
           mapping: log
           rotationSize: -1

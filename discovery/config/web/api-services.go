@@ -43,7 +43,7 @@ import (
 	"github.com/pydio/cells/v4/common/registry"
 	"github.com/pydio/cells/v4/common/registry/util"
 	"github.com/pydio/cells/v4/common/runtime"
-	servercontext "github.com/pydio/cells/v4/common/server/context"
+	"github.com/pydio/cells/v4/common/runtime/runtimecontext"
 	"github.com/pydio/cells/v4/common/service"
 	"github.com/pydio/cells/v4/common/service/errors"
 	"github.com/pydio/cells/v4/common/utils/uuid"
@@ -158,7 +158,8 @@ func (h *Handler) ListPeersAddresses(req *restful.Request, resp *restful.Respons
 	response := &rest.ListPeersAddressesResponse{
 		PeerAddresses: []string{},
 	}
-	reg := servercontext.GetRegistry(req.Request.Context())
+	var reg registry.Registry
+	runtimecontext.Get(req.Request.Context(), runtimecontext.RegistryKey, &reg)
 	nodes, er := reg.List(registry.WithType(rpb.ItemType_SERVER))
 	if er != nil {
 		service.RestError500(req, resp, er)
@@ -262,7 +263,8 @@ func (h *Handler) ListProcesses(req *restful.Request, resp *restful.Response) {
 
 	out := &rest.ListProcessesResponse{}
 
-	reg := servercontext.GetRegistry(req.Request.Context())
+	var reg registry.Registry
+	runtimecontext.Get(req.Request.Context(), runtimecontext.RegistryKey, &reg)
 	nodes, er := reg.List(registry.WithType(rpb.ItemType_SERVER))
 	if er != nil {
 		service.RestError500(req, resp, er)

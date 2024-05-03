@@ -11,7 +11,7 @@ import (
 	"gorm.io/gorm"
 
 	"github.com/pydio/cells/v4/common/runtime"
-	servercontext "github.com/pydio/cells/v4/common/server/context"
+	"github.com/pydio/cells/v4/common/runtime/runtimecontext"
 	"github.com/pydio/cells/v4/common/server/generic"
 	"github.com/pydio/cells/v4/common/service"
 	"github.com/pydio/cells/v4/common/storage/bleve"
@@ -39,19 +39,19 @@ func TestManager(t *testing.T) {
 
 	ctx := context.Background()
 
-	manager, err := NewManager(ctx, "main", nil)
+	mg, err := NewManager(ctx, "main", nil)
 	if err != nil {
 		t.Error("cannot run test", err)
 		t.Fail()
 		return
 	}
 
-	ctx = servercontext.WithRegistry(ctx, manager.Registry())
+	ctx = runtimecontext.With(ctx, runtimecontext.RegistryKey, mg.Registry())
 
 	Convey("Testing the manager connections", t, func() {
 		Convey("SQLite", func() {
 			var db *gorm.DB
-			err := manager.GetStorage(ctx, "sql", &db)
+			err := mg.GetStorage(ctx, "sql", &db)
 			So(err, ShouldBeNil)
 
 			type Test struct {
@@ -66,7 +66,7 @@ func TestManager(t *testing.T) {
 
 		Convey("Mongo", func() {
 			var cli *mongo.Database
-			err := manager.GetStorage(ctx, "mongo", &cli)
+			err := mg.GetStorage(ctx, "mongo", &cli)
 			So(err, ShouldBeNil)
 
 			cli.CreateCollection(ctx, "collection")
@@ -74,7 +74,7 @@ func TestManager(t *testing.T) {
 
 		Convey("Bolt", func() {
 			var cli *bbolt.DB
-			err := manager.GetStorage(ctx, "bolt", &cli)
+			err := mg.GetStorage(ctx, "bolt", &cli)
 			So(err, ShouldBeNil)
 
 			cli.Update(func(tx *bbolt.Tx) error {
@@ -85,7 +85,7 @@ func TestManager(t *testing.T) {
 
 		Convey("Bleve", func() {
 			var cli bleve.Indexer
-			err := manager.GetStorage(ctx, "bleve", &cli)
+			err := mg.GetStorage(ctx, "bleve", &cli)
 			So(err, ShouldBeNil)
 
 			err = cli.InsertOne(context.TODO(), "test")

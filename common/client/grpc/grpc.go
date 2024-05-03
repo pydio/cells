@@ -41,7 +41,7 @@ import (
 	"github.com/pydio/cells/v4/common/config"
 	"github.com/pydio/cells/v4/common/registry"
 	"github.com/pydio/cells/v4/common/runtime"
-	servercontext "github.com/pydio/cells/v4/common/server/context"
+	"github.com/pydio/cells/v4/common/runtime/runtimecontext"
 	servicecontext "github.com/pydio/cells/v4/common/service/context"
 	"github.com/pydio/cells/v4/common/service/context/ckeys"
 	metadata2 "github.com/pydio/cells/v4/common/service/context/metadata"
@@ -96,7 +96,8 @@ func ResolveConn(ctx context.Context, serviceName string, opt ...Option) grpc.Cl
 		fmt.Println("Warning, ResolveConn could not find conn, will create a new one")
 		debug.PrintStack()
 	}
-	reg := servercontext.GetRegistry(ctx)
+	var reg registry.Registry
+	runtimecontext.Get(ctx, runtimecontext.RegistryKey, &reg)
 	opt = append(opt, WithClientConn(conn))
 	opt = append(opt, WithRegistry(reg))
 

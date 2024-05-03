@@ -26,7 +26,8 @@ import (
 	"net/url"
 
 	"github.com/pydio/cells/v4/common/config/routing"
-	servercontext "github.com/pydio/cells/v4/common/server/context"
+	"github.com/pydio/cells/v4/common/registry"
+	"github.com/pydio/cells/v4/common/runtime/runtimecontext"
 )
 
 func NewIndex(c context.Context) http.Handler {
@@ -38,7 +39,8 @@ type indexHandler struct {
 }
 
 func (p *indexHandler) ServeHTTP(writer http.ResponseWriter, request *http.Request) {
-	reg := servercontext.GetRegistry(p.ctx)
+	var reg registry.Registry
+	runtimecontext.Get(p.ctx, runtimecontext.RegistryKey, &reg)
 
 	externalURL := routing.GetDefaultSiteURL()
 	u, _ := url.Parse(externalURL)

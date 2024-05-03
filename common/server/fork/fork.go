@@ -32,8 +32,8 @@ import (
 	"github.com/pydio/cells/v4/common/registry"
 	"github.com/pydio/cells/v4/common/registry/util"
 	"github.com/pydio/cells/v4/common/runtime"
+	"github.com/pydio/cells/v4/common/runtime/runtimecontext"
 	"github.com/pydio/cells/v4/common/server"
-	servicecontext "github.com/pydio/cells/v4/common/service/context"
 	"github.com/pydio/cells/v4/common/utils/fork"
 	"github.com/pydio/cells/v4/common/utils/uuid"
 )
@@ -89,7 +89,8 @@ func (s *Server) RawServe(*server.ServeOptions) (ii []registry.Item, e error) {
 
 		if pid, ok := s.process.GetPID(); ok {
 			defer func() {
-				reg := servicecontext.GetRegistry(s.ctx)
+				var reg registry.Registry
+				runtimecontext.Get(s.ctx, runtimecontext.RegistryKey, &reg)
 
 				processes, _ := reg.List(
 					registry.WithType(pb.ItemType_SERVER),

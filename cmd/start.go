@@ -37,8 +37,8 @@ import (
 	"github.com/pydio/cells/v4/common/registry"
 	"github.com/pydio/cells/v4/common/runtime"
 	"github.com/pydio/cells/v4/common/runtime/manager"
+	"github.com/pydio/cells/v4/common/runtime/runtimecontext"
 	"github.com/pydio/cells/v4/common/server"
-	servercontext "github.com/pydio/cells/v4/common/server/context"
 	servicecontext "github.com/pydio/cells/v4/common/service/context"
 	"github.com/pydio/cells/v4/common/utils/filex"
 
@@ -171,8 +171,8 @@ ENVIRONMENT
 		if err != nil {
 			return err
 		}
-		ctx = servercontext.WithRegistry(ctx, reg)
-		ctx = servercontext.WithConfig(ctx, config.Main())
+		ctx = runtimecontext.With(ctx, runtimecontext.RegistryKey, reg)
+		ctx = runtimecontext.With(ctx, runtimecontext.ConfigKey, config.Main())
 
 		clientgrpc.WarnMissingConnInContext = true
 		conn, err := grpc.Dial("xds://"+runtime.Cluster()+".cells.com/cells", clientgrpc.DialOptionsForRegistry(reg)...)

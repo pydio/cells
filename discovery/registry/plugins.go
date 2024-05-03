@@ -41,8 +41,8 @@ import (
 	pbregistry "github.com/pydio/cells/v4/common/proto/registry"
 	"github.com/pydio/cells/v4/common/registry"
 	"github.com/pydio/cells/v4/common/runtime"
+	"github.com/pydio/cells/v4/common/runtime/runtimecontext"
 	"github.com/pydio/cells/v4/common/service"
-	servicecontext "github.com/pydio/cells/v4/common/service/context"
 	"github.com/pydio/cells/v4/common/service/context/ckeys"
 )
 
@@ -65,7 +65,8 @@ func init() {
 			service.Tag(common.ServiceTagDiscovery),
 			service.Description("Grpc implementation of the registry"),
 			service.WithGRPC(func(ctx context.Context, srv grpc.ServiceRegistrar) error {
-				reg := servicecontext.GetRegistry(ctx)
+				var reg registry.Registry
+				runtimecontext.Get(ctx, runtimecontext.RegistryKey, &reg)
 				handler := NewHandler(reg)
 				pbregistry.RegisterRegistryServer(srv, handler)
 

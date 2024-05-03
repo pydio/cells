@@ -47,6 +47,7 @@ import (
 	"github.com/pydio/cells/v4/common/proto/tree"
 	"github.com/pydio/cells/v4/common/registry"
 	"github.com/pydio/cells/v4/common/runtime"
+	"github.com/pydio/cells/v4/common/runtime/runtimecontext"
 	"github.com/pydio/cells/v4/common/service"
 	servicecontext "github.com/pydio/cells/v4/common/service/context"
 	"github.com/pydio/cells/v4/common/service/errors"
@@ -125,7 +126,9 @@ func (s *Handler) EndpointsDiscovery(req *restful.Request, resp *restful.Respons
 		} else {
 			// Pure HTTP and no grpc_external : detect GRPC_CLEAR Service Port
 			var grpcPorts []string
-			reg := servicecontext.GetRegistry(s.MainCtx)
+			var reg registry.Registry
+			runtimecontext.Get(s.MainCtx, runtimecontext.RegistryKey, &reg)
+
 			if ss, e := reg.List(registry.WithName(common.ServiceGatewayGrpcClear), registry.WithType(pbregistry.ItemType_SERVICE)); e == nil && len(ss) > 0 {
 				for _, s := range ss {
 					for _, n := range reg.ListAdjacentItems(

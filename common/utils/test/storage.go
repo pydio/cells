@@ -94,7 +94,7 @@ func RunStorageTests(testCases []StorageTestCase, f func(context.Context)) {
 		}
 
 		ctx := mgr.Context()
-		ctx = runtimecontext.With(ctx, "service", svc)
+		ctx = runtimecontext.With(ctx, runtimecontext.ServiceKey, svc)
 
 		f(ctx)
 	}

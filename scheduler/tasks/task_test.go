@@ -29,7 +29,7 @@ import (
 
 	"github.com/pydio/cells/v4/common/proto/jobs"
 	"github.com/pydio/cells/v4/common/proto/tree"
-	servercontext "github.com/pydio/cells/v4/common/server/context"
+	"github.com/pydio/cells/v4/common/runtime/runtimecontext"
 	servicecontext "github.com/pydio/cells/v4/common/service/context"
 	"github.com/pydio/cells/v4/common/service/context/metadata"
 
@@ -43,8 +43,18 @@ func TestMain(m *testing.M) {
 	m.Run()
 }
 
+type testTenant struct{}
+
+func (t *testTenant) Context(ctx context.Context) context.Context {
+	return ctx
+}
+
+func (t *testTenant) ID() string {
+	return "test"
+}
+
 var (
-	runtimeCtx = servercontext.WithTenant(context.Background(), "test")
+	runtimeCtx = runtimecontext.With(context.Background(), runtimecontext.TenantKey, &testTenant{})
 )
 
 func TestNewTaskFromEvent(t *testing.T) {

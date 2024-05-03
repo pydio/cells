@@ -43,8 +43,8 @@ import (
 	"github.com/pydio/cells/v4/common/nodes/mocks"
 	"github.com/pydio/cells/v4/common/proto/service"
 	"github.com/pydio/cells/v4/common/proto/tree"
+	"github.com/pydio/cells/v4/common/registry"
 	"github.com/pydio/cells/v4/common/runtime/runtimecontext"
-	servicecontext "github.com/pydio/cells/v4/common/service/context"
 	"github.com/pydio/cells/v4/common/service/context/metadata"
 	"github.com/pydio/cells/v4/common/service/errors"
 	"github.com/pydio/cells/v4/common/utils/cache"
@@ -779,7 +779,8 @@ loop:
 
 // ModifyLogin should detect TemplatePaths using the User.Name variable, resolve them and forward the request to the corresponding index
 func (s *TreeServer) ModifyLogin(ctx context.Context, req *service.ModifyLoginRequest) (*service.ModifyLoginResponse, error) {
-	reg := servicecontext.GetRegistry(ctx)
+	var reg registry.Registry
+	runtimecontext.Get(ctx, runtimecontext.RegistryKey, &reg)
 	ctx = nodescontext.WithSourcesPool(ctx, nodes.NewPool(ctx, reg))
 	m := abstract.GetVirtualNodesManager(ctx)
 	resp := &service.ModifyLoginResponse{}

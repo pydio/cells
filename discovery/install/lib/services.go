@@ -33,8 +33,8 @@ import (
 	pb "github.com/pydio/cells/v4/common/proto/registry"
 	"github.com/pydio/cells/v4/common/registry"
 	"github.com/pydio/cells/v4/common/runtime"
+	"github.com/pydio/cells/v4/common/runtime/runtimecontext"
 	"github.com/pydio/cells/v4/common/service"
-	servicecontext "github.com/pydio/cells/v4/common/service/context"
 )
 
 var (
@@ -49,9 +49,9 @@ func ListServicesWithStorage() (ss []service.Service, e error) {
 		if err != nil {
 			e = err
 		}
-		creg := servicecontext.WithRegistry(ctx, reg)
-		runtime.Init(creg, "discovery")
-		runtime.Init(creg, "main")
+		ctx = runtimecontext.With(ctx, runtimecontext.RegistryKey, reg)
+		runtime.Init(ctx, "discovery")
+		runtime.Init(ctx, "main")
 		listRegistry = reg
 	})
 	if e != nil {

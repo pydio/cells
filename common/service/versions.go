@@ -35,7 +35,7 @@ import (
 	"github.com/pydio/cells/v4/common/config"
 	"github.com/pydio/cells/v4/common/log"
 	"github.com/pydio/cells/v4/common/runtime"
-	servercontext "github.com/pydio/cells/v4/common/server/context"
+	"github.com/pydio/cells/v4/common/runtime/runtimecontext"
 	"github.com/pydio/cells/v4/common/server/middleware"
 )
 
@@ -67,7 +67,9 @@ func UpdateServiceVersionWrapper(h http.Handler, o *ServiceOptions) http.Handler
 	return http.HandlerFunc(func(rw http.ResponseWriter, req *http.Request) {
 		ctx := req.Context()
 		ctx, _, _ = middleware.TenantIncomingContext(nil)(ctx)
-		err := UpdateServiceVersion(ctx, servercontext.GetConfig(ctx), o)
+		var cfg config.Store
+		runtimecontext.Get(ctx, runtimecontext.ConfigKey, &cfg)
+		err := UpdateServiceVersion(ctx, cfg, o)
 		if err != nil {
 			fmt.Println("Failed to run service version update")
 		}

@@ -34,7 +34,7 @@ import (
 	pb "github.com/pydio/cells/v4/common/proto/registry"
 	"github.com/pydio/cells/v4/common/registry"
 	"github.com/pydio/cells/v4/common/runtime"
-	servercontext "github.com/pydio/cells/v4/common/server/context"
+	"github.com/pydio/cells/v4/common/runtime/runtimecontext"
 	"github.com/pydio/cells/v4/common/service/metrics"
 	json "github.com/pydio/cells/v4/common/utils/jsonx"
 )
@@ -79,8 +79,8 @@ func WatchTargets(ctx context.Context, serviceName string) error {
 		empty, _ := json.Marshal([]interface{}{})
 		return os.WriteFile(file, empty, 0755)
 	}
-	reg := servercontext.GetRegistry(ctx)
-	if reg == nil {
+	var reg registry.Registry
+	if !runtimecontext.Get(ctx, runtimecontext.RegistryKey, &reg) {
 		return fmt.Errorf("cannot find registry in context")
 	}
 

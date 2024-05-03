@@ -2,18 +2,18 @@ package meta
 
 import (
 	"context"
-	"github.com/pydio/cells/v4/common/runtime"
-	servercontext "github.com/pydio/cells/v4/common/server/context"
 
 	"github.com/pydio/cells/v4/common/log"
 	pb "github.com/pydio/cells/v4/common/proto/registry"
 	"github.com/pydio/cells/v4/common/registry"
+	"github.com/pydio/cells/v4/common/runtime"
+	"github.com/pydio/cells/v4/common/runtime/runtimecontext"
 )
 
 func servicesWithMeta(ctx context.Context, metaName string, metaValue string) ([]registry.Service, error) {
 
-	reg := servercontext.GetRegistry(ctx)
-	if reg == nil {
+	var reg registry.Registry
+	if !runtimecontext.Get(ctx, runtimecontext.RegistryKey, &reg) {
 		defaultReg, err := registry.OpenRegistry(context.Background(), runtime.RegistryURL())
 		if err != nil {
 			return nil, err

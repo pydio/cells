@@ -48,7 +48,6 @@ import (
 	"github.com/pydio/cells/v4/common/registry"
 	"github.com/pydio/cells/v4/common/registry/util"
 	"github.com/pydio/cells/v4/common/runtime"
-	"github.com/pydio/cells/v4/common/runtime/manager"
 	"github.com/pydio/cells/v4/common/runtime/runtimecontext"
 	"github.com/pydio/cells/v4/common/server"
 	"github.com/pydio/cells/v4/common/server/middleware"
@@ -143,10 +142,8 @@ func (s *Server) lazyGrpc(ctx context.Context) *grpc.Server {
 		streamInterceptors []grpc.StreamServerInterceptor
 	)
 
-	var manager manager.Manager
-	runtimecontext.Get(ctx, "manager", &manager)
-
-	reg := servicecontext.GetRegistry(s.ctx)
+	var reg registry.Registry
+	runtimecontext.Get(ctx, runtimecontext.RegistryKey, &reg)
 
 	unaryInterceptors = append(unaryInterceptors,
 
@@ -178,7 +175,7 @@ func (s *Server) lazyGrpc(ctx context.Context) *grpc.Server {
 						continue
 					}
 
-					ctx = runtimecontext.With(ctx, "service", svc)
+					ctx = runtimecontext.With(ctx, runtimecontext.ServiceKey, svc)
 
 					method := info.FullMethod[strings.LastIndex(info.FullMethod, "/")+1:]
 					outputs := reflect.ValueOf(ep.Handler()).MethodByName(method).Call([]reflect.Value{reflect.ValueOf(ctx), reflect.ValueOf(req)})
@@ -256,7 +253,7 @@ func (s *Server) lazyGrpc(ctx context.Context) *grpc.Server {
 
 					ep := endpoint.(registry.Endpoint)
 
-					ctx = runtimecontext.With(ctx, "service", svc)
+					ctx = runtimecontext.With(ctx, runtimecontext.ServiceKey, svc)
 
 					wrapped := grpc_middleware.WrapServerStream(ss)
 					wrapped.WrappedContext = ctx
@@ -315,7 +312,7 @@ func (s *Server) lazyGrpc(ctx context.Context) *grpc.Server {
 		Server:             gs,
 		id:                 s.ID(),
 		name:               s.Name(),
-		reg:                servicecontext.GetRegistry(s.ctx),
+		reg:                reg,
 		unaryInterceptors:  &unaryInterceptors,
 		streamInterceptors: &streamInterceptors,
 		Mutex:              &sync.Mutex{},

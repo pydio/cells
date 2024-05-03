@@ -21,8 +21,10 @@
 package config
 
 import (
+	"context"
 	"sync"
 
+	"github.com/pydio/cells/v4/common/runtime/runtimecontext"
 	"github.com/pydio/cells/v4/common/utils/configx"
 )
 
@@ -33,6 +35,16 @@ var (
 // Register the default config store
 func Register(store Store) {
 	std = store
+}
+
+func init() {
+	runtimecontext.RegisterContextInjector(func(ctx, parent context.Context) context.Context {
+		var cfg Store
+		if runtimecontext.Get(parent, runtimecontext.ConfigKey, &cfg) {
+			return runtimecontext.With(ctx, runtimecontext.ConfigKey, cfg)
+		}
+		return ctx
+	})
 }
 
 // Store defines the functionality a config must provide

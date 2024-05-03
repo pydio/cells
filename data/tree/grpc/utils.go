@@ -33,7 +33,7 @@ import (
 	pb "github.com/pydio/cells/v4/common/proto/registry"
 	"github.com/pydio/cells/v4/common/proto/tree"
 	"github.com/pydio/cells/v4/common/registry"
-	servicecontext "github.com/pydio/cells/v4/common/service/context"
+	"github.com/pydio/cells/v4/common/runtime/runtimecontext"
 )
 
 var (
@@ -51,7 +51,9 @@ func updateServicesList(ctx context.Context, treeServer *TreeServer, retry int) 
 	_ = k.Reset()
 	initialLength := len(all)
 
-	reg := servicecontext.GetRegistry(ctx)
+	var reg registry.Registry
+	runtimecontext.Get(ctx, runtimecontext.RegistryKey, &reg)
+
 	items, err := reg.List(registry.WithType(pb.ItemType_SERVICE), registry.WithFilter(func(item registry.Item) bool {
 		return strings.HasPrefix(item.Name(), common.ServiceGrpcNamespace_+common.ServiceDataSync_) && item.Name() != common.ServiceGrpcNamespace_+common.ServiceDataSync_
 	}))
@@ -91,7 +93,8 @@ func updateServicesList(ctx context.Context, treeServer *TreeServer, retry int) 
 // TODO - should be using the resolver for this ?
 func watchRegistry(ctx context.Context, treeServer *TreeServer) {
 
-	reg := servicecontext.GetRegistry(ctx)
+	var reg registry.Registry
+	runtimecontext.Get(ctx, runtimecontext.RegistryKey, &reg)
 
 	w, err := reg.Watch(registry.WithType(pb.ItemType_SERVICE), registry.WithAction(pb.ActionType_FULL_DIFF))
 	if err != nil {

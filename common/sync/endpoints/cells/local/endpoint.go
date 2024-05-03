@@ -33,7 +33,8 @@ import (
 	"github.com/pydio/cells/v4/common/proto/tree"
 	"github.com/pydio/cells/v4/common/registry"
 	"github.com/pydio/cells/v4/common/runtime"
-	"github.com/pydio/cells/v4/common/service/context"
+	"github.com/pydio/cells/v4/common/runtime/runtimecontext"
+	servicecontext "github.com/pydio/cells/v4/common/service/context"
 	"github.com/pydio/cells/v4/common/sync/endpoints/cells"
 	"github.com/pydio/cells/v4/common/sync/model"
 	"github.com/pydio/cells/v4/common/utils/uuid"
@@ -68,7 +69,7 @@ func NewLocal(root string, options cells.Options) *Local {
 			if err != nil {
 				panic(err)
 			}
-			ctx = servicecontext.WithRegistry(ctx, reg)
+			ctx = runtimecontext.With(ctx, runtimecontext.RegistryKey, reg)
 		})
 	}
 	l := &Local{

@@ -3,19 +3,19 @@ package broker
 import (
 	"context"
 	"fmt"
-	"github.com/pydio/cells/v4/common/service/context/metadata"
-	"go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc"
 	"os"
 	"runtime/debug"
 	"time"
 
+	"go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 
 	"github.com/pydio/cells/v4/common"
 	clientcontext "github.com/pydio/cells/v4/common/client/context"
 	"github.com/pydio/cells/v4/common/config"
-	servercontext "github.com/pydio/cells/v4/common/server/context"
+	"github.com/pydio/cells/v4/common/runtime/runtimecontext"
+	"github.com/pydio/cells/v4/common/service/context/metadata"
 )
 
 func TimeoutSubscriberInterceptor() SubscriberInterceptor {
@@ -60,9 +60,7 @@ func setContextForTenant(ctx context.Context, tenant string) context.Context {
 		cfg, _ = config.OpenStore(ctx, "xds://"+tenant+".cells.com/cells")
 		configStore[tenant] = cfg
 	}
-	ctx = servercontext.WithConfig(ctx, cfg)
-
-	return ctx
+	return runtimecontext.With(ctx, runtimecontext.ConfigKey, cfg)
 }
 
 func HeaderInjectorInterceptor() SubscriberInterceptor {

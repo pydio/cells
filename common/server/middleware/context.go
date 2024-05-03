@@ -34,7 +34,9 @@ import (
 	clientcontext "github.com/pydio/cells/v4/common/client/context"
 	clientgrpc "github.com/pydio/cells/v4/common/client/grpc"
 	"github.com/pydio/cells/v4/common/config"
-	servercontext "github.com/pydio/cells/v4/common/server/context"
+	"github.com/pydio/cells/v4/common/registry"
+	"github.com/pydio/cells/v4/common/runtime/runtimecontext"
+	tenant2 "github.com/pydio/cells/v4/common/runtime/tenant"
 	servicecontext "github.com/pydio/cells/v4/common/service/context"
 	"github.com/pydio/cells/v4/common/service/context/ckeys"
 	metadata2 "github.com/pydio/cells/v4/common/service/context/metadata"
@@ -50,9 +52,10 @@ func ClientConnIncomingContext(serverRuntimeContext context.Context) func(ctx co
 
 // RegistryIncomingContext injects the registry in context
 func RegistryIncomingContext(serverRuntimeContext context.Context) func(ctx context.Context) (context.Context, bool, error) {
-	registry := servercontext.GetRegistry(serverRuntimeContext)
+	var reg registry.Registry
+	runtimecontext.Get(serverRuntimeContext, runtimecontext.RegistryKey, &reg)
 	return func(ctx context.Context) (context.Context, bool, error) {
-		return servercontext.WithRegistry(ctx, registry), true, nil
+		return runtimecontext.With(ctx, runtimecontext.RegistryKey, reg), true, nil
 	}
 }
 
@@ -73,23 +76,27 @@ var (
 	configStore = make(map[string]config.Store)
 )
 
-func setContextForTenant(ctx context.Context) context.Context {
-	tenant := "default"
+func setContextForTenant(ctx context.Context) (context.Context, error) {
+	tenantID := "default"
 	if md, ok := metadata.FromIncomingContext(ctx); ok {
 		if t := md.Get("tenant"); len(t) > 0 {
-			tenant = strings.Join(t, "")
+			tenantID = strings.Join(t, "")
 		}
 	}
 	if mm, ok := metadata2.FromContextRead(ctx); ok {
 		if p, ok := mm[common.XPydioTenantUuid]; ok {
-			tenant = p
+			tenantID = p
 		}
 	}
+	tenant, err := tenant2.GetManager().TenantByID(tenantID)
+	if err != nil {
+		return ctx, err
+	}
 
-	cc, ok := clientConns[tenant]
+	cc, ok := clientConns[tenantID]
 	if !ok {
 		var err error
-		cc, err = grpc.Dial("xds://"+tenant+".cells.com/cells",
+		cc, err = grpc.Dial("xds://"+tenantID+".cells.com/cells",
 			grpc.WithTransportCredentials(insecure.NewCredentials()),
 			// grpc.WithConnectParams(grpc.ConnectParams{MinConnectTimeout: 1 * time.Minute, Backoff: backoffConfig}),
 			grpc.WithChainUnaryInterceptor(
@@ -110,32 +117,32 @@ func setContextForTenant(ctx context.Context) context.Context {
 		if err != nil {
 			fmt.Println("And the error is ? ", err)
 		}
-		clientConns[tenant] = cc
+		clientConns[tenantID] = cc
 	}
 	ctx = clientcontext.WithClientConn(ctx, cc)
 
-	cfg, ok := configStore[tenant]
+	cfg, ok := configStore[tenantID]
 	if !ok {
-		if c, err := config.OpenStore(ctx, "xds://"+tenant+".cells.com/cells"); err == nil {
+		if c, err := config.OpenStore(ctx, "xds://"+tenantID+".cells.com/cells"); err == nil {
 			cfg = c
 		} else {
 			cfg = config.Main()
 		}
 
-		configStore[tenant] = cfg
+		configStore[tenantID] = cfg
 	}
 
-	ctx = servercontext.WithConfig(ctx, cfg)
-	ctx = servercontext.WithTenant(ctx, tenant)
+	ctx = runtimecontext.With(ctx, runtimecontext.ConfigKey, cfg)
+	ctx = runtimecontext.With(ctx, runtimecontext.TenantKey, tenant)
 
-	return ctx
+	return ctx, nil
 }
 
 func TenantIncomingContext(serverRuntimeContext context.Context) func(ctx context.Context) (context.Context, bool, error) {
 	return func(ctx context.Context) (context.Context, bool, error) {
-		ctx = setContextForTenant(ctx)
-
-		return ctx, true, nil
+		var err error
+		ctx, err = setContextForTenant(ctx)
+		return ctx, true, err
 	}
 }
 
@@ -165,8 +172,8 @@ func ServiceIncomingContext(serverRuntimeContext context.Context) func(ctx conte
 
 func HandlerInterceptor() func(ctx context.Context) (context.Context, bool, error) {
 	return func(ctx context.Context) (context.Context, bool, error) {
-		ctx = setContextForTenant(ctx)
-
-		return ctx, true, nil
+		var err error
+		ctx, err = setContextForTenant(ctx)
+		return ctx, true, err
 	}
 }

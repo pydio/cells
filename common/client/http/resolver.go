@@ -22,8 +22,8 @@ import (
 	"github.com/pydio/cells/v4/common/proto/rest"
 	"github.com/pydio/cells/v4/common/registry"
 	"github.com/pydio/cells/v4/common/runtime"
+	"github.com/pydio/cells/v4/common/runtime/runtimecontext"
 	"github.com/pydio/cells/v4/common/server/caddy/maintenance"
-	servercontext "github.com/pydio/cells/v4/common/server/context"
 	"github.com/pydio/cells/v4/common/service/context/metadata"
 	json "github.com/pydio/cells/v4/common/utils/jsonx"
 )
@@ -73,7 +73,8 @@ type resolver struct {
 func (m *resolver) Init(ctx context.Context, serverID string, rr routing.RouteRegistrar) {
 
 	conn := clientcontext.GetClientConn(ctx)
-	reg := servercontext.GetRegistry(ctx)
+	var reg registry.Registry
+	runtimecontext.Get(ctx, runtimecontext.RegistryKey, &reg)
 	rc, _ := client.NewResolverCallback(reg)
 	bal := NewBalancer(serverID)
 	rc.Add(bal.Build)
@@ -136,7 +137,7 @@ func (m *resolver) ServeHTTP(w http.ResponseWriter, r *http.Request) (bool, erro
 		proxy.Transport = grpcTransport
 		// Wrap context and server request
 		ctx = clientcontext.WithClientConn(ctx, m.c)
-		ctx = servercontext.WithRegistry(ctx, m.r)
+		ctx = runtimecontext.With(ctx, runtimecontext.RegistryKey, m.r)
 		proxy.ServeHTTP(w, r.WithContext(ctx))
 		return true, nil
 	}
@@ -178,7 +179,7 @@ func (m *resolver) ServeHTTP(w http.ResponseWriter, r *http.Request) (bool, erro
 
 	// try to find it in the current mux
 	ctx = clientcontext.WithClientConn(ctx, m.c)
-	ctx = servercontext.WithRegistry(ctx, m.r)
+	ctx = runtimecontext.With(ctx, runtimecontext.RegistryKey, m.r)
 
 	if m.s == nil {
 		mu := http.NewServeMux()

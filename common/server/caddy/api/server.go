@@ -31,9 +31,9 @@ import (
 	clienthttp "github.com/pydio/cells/v4/common/client/http"
 	"github.com/pydio/cells/v4/common/config/routing"
 	"github.com/pydio/cells/v4/common/registry"
+	"github.com/pydio/cells/v4/common/runtime/runtimecontext"
 	"github.com/pydio/cells/v4/common/server"
 	"github.com/pydio/cells/v4/common/server/caddy"
-	servicecontext "github.com/pydio/cells/v4/common/service/context"
 	"github.com/pydio/cells/v4/common/utils/uuid"
 )
 
@@ -82,7 +82,9 @@ func New(ctx context.Context, caddyApi string) (server.Server, error) {
 
 func (s *Server) RawServe(*server.ServeOptions) (ii []registry.Item, er error) {
 
-	reg := servicecontext.GetRegistry(s.RootContext())
+	var reg registry.Registry
+	runtimecontext.Get(s.RootContext(), runtimecontext.RegistryKey, &reg)
+
 	rc, _ := client.NewResolverCallback(reg)
 	s.balancer = clienthttp.NewBalancer(s.ID())
 	rc.Add(s.ReloadProxy)

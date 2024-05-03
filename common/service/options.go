@@ -27,8 +27,8 @@ import (
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/log"
 	"github.com/pydio/cells/v4/common/registry"
+	"github.com/pydio/cells/v4/common/runtime/runtimecontext"
 	"github.com/pydio/cells/v4/common/server"
-	servicecontext "github.com/pydio/cells/v4/common/service/context"
 	"github.com/pydio/cells/v4/common/service/frontend"
 	"github.com/pydio/cells/v4/common/utils/uuid"
 )
@@ -100,12 +100,14 @@ func (o *ServiceOptions) Logger() log.ZapLogger {
 
 // GetRegistry returns the context registry
 func (o *ServiceOptions) GetRegistry() registry.Registry {
-	return servicecontext.GetRegistry(o.rootContext)
+	var reg registry.Registry
+	runtimecontext.Get(o.rootContext, runtimecontext.RegistryKey, &reg)
+	return reg
 }
 
 // SetRegistry sets the registry in the root context
 func (o *ServiceOptions) SetRegistry(r registry.Registry) {
-	o.rootContext = servicecontext.WithRegistry(o.rootContext, r)
+	o.rootContext = runtimecontext.With(o.rootContext, runtimecontext.RegistryKey, r)
 }
 
 // ID option for a service

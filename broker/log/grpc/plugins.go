@@ -34,7 +34,7 @@ import (
 	proto "github.com/pydio/cells/v4/common/proto/log"
 	"github.com/pydio/cells/v4/common/proto/sync"
 	"github.com/pydio/cells/v4/common/runtime"
-	"github.com/pydio/cells/v4/common/runtime/manager"
+	"github.com/pydio/cells/v4/common/runtime/tenant"
 	"github.com/pydio/cells/v4/common/service"
 	json "github.com/pydio/cells/v4/common/utils/jsonx"
 )
@@ -50,6 +50,14 @@ func init() {
 			service.Context(ctx),
 			service.Tag(common.ServiceTagBroker),
 			service.Description("Syslog index store"),
+			/*
+				service.WithStorage(
+					service.WithName("logs"),
+					service.WithDriver(log.NewBleveDAO),
+					service.WithDriver(log.NewMongoDAO),
+					service.WithMigrator(log.Migrate),
+				),
+			*/
 			service.WithStorageDrivers(log.NewBleveDAO, log.NewMongoDAO),
 			service.WithStorageMigrator(log.Migrate),
 			/*
@@ -69,7 +77,7 @@ func init() {
 					HandlerName: common.ServiceGrpcNamespace_ + common.ServiceLog,
 				}
 
-				_ = manager.GetTenantsManager().Iterate(c, func(ctx context.Context, t manager.Tenant) error {
+				_ = tenant.GetManager().Iterate(c, func(ctx context.Context, t tenant.Tenant) error {
 					cv := common.MakeCellsVersion()
 					m := map[string]string{
 						"logger":       common.ServiceGrpcNamespace_ + common.ServiceLog,

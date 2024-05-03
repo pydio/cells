@@ -47,9 +47,7 @@ import (
 	"github.com/pydio/cells/v4/common/runtime/controller"
 	"github.com/pydio/cells/v4/common/runtime/runtimecontext"
 	"github.com/pydio/cells/v4/common/server"
-	servercontext "github.com/pydio/cells/v4/common/server/context"
 	"github.com/pydio/cells/v4/common/service"
-	servicecontext "github.com/pydio/cells/v4/common/service/context"
 	"github.com/pydio/cells/v4/common/storage"
 	"github.com/pydio/cells/v4/common/utils/configx"
 	"github.com/pydio/cells/v4/common/utils/fork"
@@ -198,9 +196,8 @@ func NewManager(ctx context.Context, namespace string, logger log.ZapLogger) (Ma
 		m.root = current
 	}
 
-	ctx = servercontext.WithRegistry(ctx, reg)
-	ctx = servicecontext.WithRegistry(ctx, reg)
-	ctx = runtimecontext.With(ctx, "manager", m)
+	ctx = runtimecontext.With(ctx, runtimecontext.RegistryKey, reg)
+	ctx = runtimecontext.With(ctx, runtimecontext.ManagerKey, m)
 
 	runtime.Init(ctx, "discovery")
 	runtime.Init(ctx, m.ns)
@@ -1164,12 +1161,13 @@ func Resolve[T any](ctx context.Context, opts ...ResolveOption) (T, error) {
 
 	var t T
 
-	// First we get the contextualized manager
-	reg := servercontext.GetRegistry(ctx)
+	// First we get the contextualized registry
+	var reg registry.Registry
+	runtimecontext.Get(ctx, runtimecontext.RegistryKey, &reg)
 
-	// First we get the service from the context
+	// Then we get the service from the context
 	var svc service.Service
-	if !runtimecontext.Get(ctx, "service", &svc) {
+	if !runtimecontext.Get(ctx, runtimecontext.ServiceKey, &svc) {
 		return t, fmt.Errorf("resolve cannot find service &svc in context")
 	}
 
@@ -1220,12 +1218,12 @@ func Resolve[T any](ctx context.Context, opts ...ResolveOption) (T, error) {
 }
 
 func MustGetConfig(ctx context.Context) config.Store {
-	var manager Manager
-	runtimecontext.Get(ctx, "manager", &manager)
+	var mg Manager
+	runtimecontext.Get(ctx, runtimecontext.ManagerKey, &mg)
 
-	if manager == nil {
+	if mg == nil {
 		panic("manager must be set")
 	}
 
-	return manager.GetConfig(ctx)
+	return mg.GetConfig(ctx)
 }

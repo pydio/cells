@@ -30,8 +30,8 @@ import (
 	"github.com/pydio/cells/v4/common/broker"
 	"github.com/pydio/cells/v4/common/proto/jobs"
 	"github.com/pydio/cells/v4/common/runtime"
-	"github.com/pydio/cells/v4/common/runtime/manager"
-	servercontext "github.com/pydio/cells/v4/common/server/context"
+	"github.com/pydio/cells/v4/common/runtime/runtimecontext"
+	"github.com/pydio/cells/v4/common/runtime/tenant"
 	"github.com/pydio/cells/v4/common/server/generic"
 	"github.com/pydio/cells/v4/common/service"
 	"github.com/pydio/cells/v4/scheduler/timer"
@@ -54,10 +54,10 @@ func init() {
 			service.Unique(true),
 			service.WithGeneric(func(c context.Context, server *generic.Server) error {
 
-				tm := manager.GetTenantsManager()
+				tm := tenant.GetManager()
 
 				pLocks.Lock()
-				tm.Iterate(c, func(tenantContext context.Context, t manager.Tenant) error {
+				tm.Iterate(c, func(tenantContext context.Context, t tenant.Tenant) error {
 					tp := timer.NewEventProducer(tenantContext)
 					go tp.Start()
 					producers[t.ID()] = tp
@@ -65,7 +65,7 @@ func init() {
 				})
 				pLocks.Unlock()
 
-				_ = tm.Subscribe(func(event manager.TenantWatchEvent) {
+				_ = tm.Subscribe(func(event tenant.WatchEvent) {
 					pLocks.Lock()
 					defer pLocks.Unlock()
 					tenantID := event.Tenant().ID()
@@ -81,12 +81,17 @@ func init() {
 				if er := broker.SubscribeCancellable(c, common.TopicJobConfigEvent, func(ctx context.Context, message broker.Message) error {
 					msg := &jobs.JobChangeEvent{}
 					if ct, e := message.Unmarshal(ctx, msg); e == nil {
-						pLocks.RLock()
-						defer pLocks.RUnlock()
-						if producer, ok := producers[servercontext.GetTenant(ctx)]; ok {
-							return producer.Handle(ct, msg)
+						var ten tenant.Tenant
+						if runtimecontext.Get(ctx, runtimecontext.TenantKey, &ten) {
+							pLocks.RLock()
+							defer pLocks.RUnlock()
+							if producer, ok := producers[ten.ID()]; ok {
+								return producer.Handle(ct, msg)
+							}
+							return fmt.Errorf("cannot find timer.Producer for corresponding tenant")
+						} else {
+							return fmt.Errorf("cannot find tenant in broker event context")
 						}
-						return fmt.Errorf("cannot find timer.Producer for corresponding tenant")
 					}
 					return nil
 				}, broker.WithCounterName("timer")); er != nil {

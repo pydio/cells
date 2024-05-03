@@ -16,7 +16,8 @@ import (
 	cellsmysql "github.com/pydio/cells/v4/common/dao/mysql"
 	cellspostgres "github.com/pydio/cells/v4/common/dao/pgsql"
 	cellssqlite "github.com/pydio/cells/v4/common/dao/sqlite"
-	servercontext "github.com/pydio/cells/v4/common/server/context"
+	"github.com/pydio/cells/v4/common/runtime/runtimecontext"
+	"github.com/pydio/cells/v4/common/runtime/tenant"
 	servicecontext "github.com/pydio/cells/v4/common/service/context"
 	"github.com/pydio/cells/v4/common/storage"
 	"github.com/pydio/cells/v4/common/storage/sql/dbresolver"
@@ -151,20 +152,21 @@ func (gs *gormStorage) Get(ctx context.Context, out interface{}) bool {
 		if err != nil {
 			return false
 		}
+		var ten tenant.Tenant
+		runtimecontext.Get(ctx, runtimecontext.TenantKey, &ten)
 		if conn, ok := gs.conns[path]; !ok {
 			parts := strings.Split(path, "://")
 			if len(parts) < 2 {
 				return false
 			}
-
 			if conn, err := sql.Open(parts[0], strings.Join(parts[1:], "")); err != nil {
 				return false
 			} else {
-				gs.Register(conn, servercontext.GetTenant(ctx), servicecontext.GetServiceName(ctx))
+				gs.Register(conn, ten.ID(), servicecontext.GetServiceName(ctx))
 				gs.conns[path] = conn
 			}
 		} else {
-			gs.Register(conn, servercontext.GetTenant(ctx), servicecontext.GetServiceName(ctx))
+			gs.Register(conn, ten.ID(), servicecontext.GetServiceName(ctx))
 		}
 
 		*v = gs.db

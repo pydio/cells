@@ -35,11 +35,11 @@ import (
 	pb "github.com/pydio/cells/v4/common/proto/registry"
 	"github.com/pydio/cells/v4/common/registry"
 	"github.com/pydio/cells/v4/common/registry/util"
+	"github.com/pydio/cells/v4/common/runtime/runtimecontext"
 	"github.com/pydio/cells/v4/common/server"
 	"github.com/pydio/cells/v4/common/server/grpc"
 	"github.com/pydio/cells/v4/common/server/stubs/discoverytest"
 	"github.com/pydio/cells/v4/common/service"
-	servicecontext "github.com/pydio/cells/v4/common/service/context"
 
 	_ "github.com/pydio/cells/v4/common/registry/config"
 	_ "github.com/pydio/cells/v4/common/registry/service"
@@ -227,7 +227,7 @@ func doTestAdd(t *testing.T, m registry.Registry) {
 		}()
 
 		ctx := context.Background()
-		ctx = servicecontext.WithRegistry(ctx, m)
+		ctx = runtimecontext.With(ctx, runtimecontext.RegistryKey, m)
 
 		var nodeIds []string
 		var nodes []registry.Node

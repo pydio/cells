@@ -24,27 +24,6 @@ import (
 	"bufio"
 	"context"
 	"crypto/sha256"
-	"github.com/gofrs/uuid"
-	"github.com/gorilla/sessions"
-	"github.com/hashicorp/go-retryablehttp"
-	"github.com/ory/fosite/compose"
-	"github.com/ory/fosite/handler/openid"
-	"github.com/ory/herodot"
-	"github.com/ory/hydra/v2/aead"
-	"github.com/ory/hydra/v2/fositex"
-	"github.com/ory/hydra/v2/hsm"
-	"github.com/ory/hydra/v2/persistence"
-	"github.com/ory/hydra/v2/persistence/sql"
-	"github.com/ory/hydra/v2/spec"
-	"github.com/ory/x/httpx"
-	"github.com/ory/x/logrusx"
-	"github.com/ory/x/networkx"
-	"github.com/ory/x/otelx"
-	"github.com/ory/x/popx"
-	"github.com/pydio/cells/v4/common/config/routing"
-	servercontext "github.com/pydio/cells/v4/common/server/context"
-	"gorm.io/driver/mysql"
-	"gorm.io/gorm"
 	"net/url"
 	"os"
 	"regexp"
@@ -55,27 +34,48 @@ import (
 	"time"
 
 	tools "github.com/go-sql-driver/mysql"
-	"github.com/gobuffalo/pop/v6"
+	pop "github.com/gobuffalo/pop/v6"
+	"github.com/gofrs/uuid"
+	"github.com/gorilla/sessions"
+	retryablehttp "github.com/hashicorp/go-retryablehttp"
 	"github.com/ory/fosite"
+	"github.com/ory/fosite/compose"
 	foauth2 "github.com/ory/fosite/handler/oauth2"
+	"github.com/ory/fosite/handler/openid"
+	"github.com/ory/herodot"
+	"github.com/ory/hydra/v2/aead"
 	"github.com/ory/hydra/v2/client"
-
 	"github.com/ory/hydra/v2/consent"
 	hconfig "github.com/ory/hydra/v2/driver/config"
+	"github.com/ory/hydra/v2/fositex"
+	"github.com/ory/hydra/v2/hsm"
 	"github.com/ory/hydra/v2/jwk"
 	"github.com/ory/hydra/v2/oauth2"
 	"github.com/ory/hydra/v2/oauth2/trust"
+	"github.com/ory/hydra/v2/persistence"
+	"github.com/ory/hydra/v2/persistence/sql"
+	"github.com/ory/hydra/v2/spec"
 	"github.com/ory/hydra/v2/x"
 	"github.com/ory/x/configx"
 	"github.com/ory/x/contextx"
 	"github.com/ory/x/dbal"
+	"github.com/ory/x/httpx"
+	"github.com/ory/x/logrusx"
+	"github.com/ory/x/networkx"
+	"github.com/ory/x/otelx"
+	"github.com/ory/x/popx"
 	"github.com/sirupsen/logrus"
 	"go.uber.org/zap"
+	"gorm.io/driver/mysql"
+	"gorm.io/gorm"
 
 	"github.com/pydio/cells/v4/common/config"
+	"github.com/pydio/cells/v4/common/config/routing"
 	"github.com/pydio/cells/v4/common/crypto"
 	"github.com/pydio/cells/v4/common/log"
 	"github.com/pydio/cells/v4/common/proto/install"
+	"github.com/pydio/cells/v4/common/registry"
+	"github.com/pydio/cells/v4/common/runtime/runtimecontext"
 	servicecontext "github.com/pydio/cells/v4/common/service/context"
 	json "github.com/pydio/cells/v4/common/utils/jsonx"
 )
@@ -490,7 +490,9 @@ func (*cellsdriverContextualizer) Config(ctx context.Context, cfg *configx.Provi
 
 	host, _ := servicecontext.HttpMetaFromGrpcContext(ctx, servicecontext.HttpMetaHost)
 	rootURL := "https://" + host
-	values := servercontext.GetConfig(ctx).Val("services", "pydio.web.oauth")
+	var conf config.Store
+	runtimecontext.Get(ctx, runtimecontext.ConfigKey, &conf)
+	values := conf.Val("services", "pydio.web.oauth")
 
 	m := values.Map()
 
@@ -586,10 +588,12 @@ func CheckCollation(conn *pop.Connection, dbName string) (bool, error) {
 func InitRegistry(ctx context.Context, dbServiceName string) (e error) {
 
 	logger := log.Logger(ctx)
-
-	if locker := servicecontext.GetRegistry(ctx).NewLocker("oauthinit"); locker != nil {
-		locker.Lock()
-		defer locker.Unlock()
+	var rg registry.Registry
+	if runtimecontext.Get(ctx, runtimecontext.RegistryKey, &rg) {
+		if locker := rg.NewLocker("oauthinit"); locker != nil {
+			locker.Lock()
+			defer locker.Unlock()
+		}
 	}
 
 	//clients := defaultConf.Clients()

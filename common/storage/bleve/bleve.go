@@ -10,7 +10,8 @@ import (
 	"github.com/blevesearch/bleve/v2/index/scorch"
 	"github.com/blevesearch/bleve/v2/index/upsidedown/store/boltdb"
 
-	servercontext "github.com/pydio/cells/v4/common/server/context"
+	"github.com/pydio/cells/v4/common/config"
+	"github.com/pydio/cells/v4/common/runtime/runtimecontext"
 	"github.com/pydio/cells/v4/common/storage"
 	"github.com/pydio/cells/v4/common/storage/indexer"
 	"github.com/pydio/cells/v4/common/utils/openurl"
@@ -127,7 +128,9 @@ func (s *bleveStorage) Get(ctx context.Context, out interface{}) bool {
 			return false
 		}
 
-		index.serviceConfigs = servercontext.GetConfig(ctx)
+		var cfg config.Store
+		runtimecontext.Get(ctx, runtimecontext.ConfigKey, &cfg)
+		index.serviceConfigs = cfg
 
 		*v = index
 
@@ -191,7 +194,9 @@ func (s *bleveStorage) Get(ctx context.Context, out interface{}) bool {
 			return false
 		}
 
-		index.serviceConfigs = servercontext.GetConfig(ctx)
+		var cfg config.Store
+		runtimecontext.Get(ctx, runtimecontext.ConfigKey, &cfg)
+		index.serviceConfigs = cfg
 
 		*v = index
 

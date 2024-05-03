@@ -22,11 +22,13 @@ package service
 
 import (
 	"context"
+
+	"google.golang.org/grpc"
+
 	"github.com/pydio/cells/v4/common/registry"
 	"github.com/pydio/cells/v4/common/registry/util"
+	"github.com/pydio/cells/v4/common/runtime/runtimecontext"
 	"github.com/pydio/cells/v4/common/server"
-	servercontext "github.com/pydio/cells/v4/common/server/context"
-	"google.golang.org/grpc"
 )
 
 // WithGRPC adds a GRPC service handler to the current service
@@ -40,12 +42,14 @@ func WithGRPC(f func(context.Context, grpc.ServiceRegistrar) error) ServiceOptio
 
 			var registrar grpc.ServiceRegistrar
 			o.Server.As(&registrar)
+			var reg registry.Registry
+			runtimecontext.Get(ctx, runtimecontext.RegistryKey, &reg)
 
 			return f(ctx, &serviceRegistrar{
 				ServiceRegistrar: registrar,
 				id:               o.ID,
 				name:             o.Name,
-				reg:              servercontext.GetRegistry(o.rootContext),
+				reg:              reg,
 			})
 		}
 	}
@@ -54,6 +58,7 @@ func WithGRPC(f func(context.Context, grpc.ServiceRegistrar) error) ServiceOptio
 type IDable interface {
 	ID() string
 }
+
 type Convertible interface {
 	As(interface{}) bool
 }

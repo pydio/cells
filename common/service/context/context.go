@@ -27,7 +27,6 @@ import (
 	"github.com/pydio/cells/v4/common/broker"
 	"github.com/pydio/cells/v4/common/crypto"
 	"github.com/pydio/cells/v4/common/dao"
-	"github.com/pydio/cells/v4/common/registry"
 )
 
 type contextType int
@@ -97,11 +96,6 @@ func WithBroker(ctx context.Context, bkr broker.Broker) context.Context {
 	return context.WithValue(ctx, brokerKey, bkr)
 }
 
-// WithRegistry links a registry to the context
-func WithRegistry(ctx context.Context, reg registry.Registry) context.Context {
-	return context.WithValue(ctx, registryKey, reg)
-}
-
 // GetServiceName returns the service name associated to this context
 func GetServiceName(ctx context.Context) string {
 	if ctx == nil {
@@ -156,14 +150,6 @@ func GetLogger(ctx context.Context) interface{} {
 // GetBroker returns the broker from the context in argument
 func GetBroker(ctx context.Context) broker.Broker {
 	if conf, ok := ctx.Value(brokerKey).(broker.Broker); ok {
-		return conf
-	}
-	return nil
-}
-
-// GetRegistry returns the registry from the context in argument
-func GetRegistry(ctx context.Context) registry.Registry {
-	if conf, ok := ctx.Value(registryKey).(registry.Registry); ok {
 		return conf
 	}
 	return nil

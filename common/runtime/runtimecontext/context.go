@@ -23,18 +23,29 @@ func ForkContext(ctx, parent context.Context) context.Context {
 	return ctx
 }
 
-type contextType int
+type serviceKey struct{}
 
-const (
-	configKey contextType = iota
-	managerKey
+type managerKey struct{}
+
+type configKey struct{}
+
+type registryKey struct{}
+
+type tenantKey struct{}
+
+var (
+	ServiceKey  = serviceKey{}
+	ManagerKey  = managerKey{}
+	RegistryKey = registryKey{}
+	ConfigKey   = configKey{}
+	TenantKey   = tenantKey{}
 )
 
-func With[T any](ctx context.Context, key string, t T) context.Context {
+func With[T any](ctx context.Context, key any, t T) context.Context {
 	return context.WithValue(ctx, key, t)
 }
 
-func Get[T any](ctx context.Context, key string, out *T) bool {
+func Get[T any](ctx context.Context, key any, out *T) bool {
 	if ctx == nil {
 		return false
 	}

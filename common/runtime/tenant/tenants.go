@@ -18,17 +18,17 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-package manager
+package tenant
 
 import (
 	"context"
 	"fmt"
 
-	servercontext "github.com/pydio/cells/v4/common/server/context"
+	"github.com/pydio/cells/v4/common/runtime/runtimecontext"
 )
 
 var (
-	tm TenantsManager = &basicManager{
+	tm Manager = &basicManager{
 		tt: []Tenant{
 			&basicTenant{id: "default"},
 			//			&basicTenant{id: "tenant1"},
@@ -37,11 +37,11 @@ var (
 	}
 )
 
-func RegisterTenantsManager(m TenantsManager) {
+func RegisterManager(m Manager) {
 	tm = m
 }
 
-func GetTenantsManager() TenantsManager {
+func GetManager() Manager {
 	return tm
 }
 
@@ -50,16 +50,16 @@ type Tenant interface {
 	ID() string
 }
 
-type TenantsManager interface {
+type Manager interface {
 	GetMaster() Tenant
 	IsMaster(Tenant) bool
 	ListTenants() []Tenant
 	Iterate(ct context.Context, f func(ctx context.Context, t Tenant) error) error
 	TenantByID(id string) (Tenant, error)
-	Subscribe(cb func(event TenantWatchEvent)) error
+	Subscribe(cb func(event WatchEvent)) error
 }
 
-type TenantWatchEvent interface {
+type WatchEvent interface {
 	Action() string
 	Tenant() Tenant
 	Context(ctx context.Context) context.Context
@@ -74,7 +74,7 @@ func (b *basicTenant) ID() string {
 }
 
 func (b *basicTenant) Context(ctx context.Context) context.Context {
-	return servercontext.WithTenant(ctx, b.ID())
+	return runtimecontext.With(ctx, runtimecontext.TenantKey, b)
 }
 
 type basicManager struct {
@@ -113,6 +113,6 @@ func (b *basicManager) TenantByID(id string) (Tenant, error) {
 	return nil, fmt.Errorf("not found")
 }
 
-func (b *basicManager) Subscribe(cb func(event TenantWatchEvent)) error {
+func (b *basicManager) Subscribe(cb func(event WatchEvent)) error {
 	return nil
 }

@@ -26,6 +26,8 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/spf13/viper"
+
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/auth"
 	"github.com/pydio/cells/v4/common/client/grpc"
@@ -38,17 +40,17 @@ import (
 	"github.com/pydio/cells/v4/common/proto/tree"
 	"github.com/pydio/cells/v4/common/registry"
 	"github.com/pydio/cells/v4/common/runtime"
+	"github.com/pydio/cells/v4/common/runtime/runtimecontext"
 	"github.com/pydio/cells/v4/common/server/stubs/datatest"
 	"github.com/pydio/cells/v4/common/server/stubs/idmtest"
-	servicecontext "github.com/pydio/cells/v4/common/service/context"
-	_ "github.com/pydio/cells/v4/common/utils/cache/gocache"
 	"github.com/pydio/cells/v4/common/utils/configx"
 	"github.com/pydio/cells/v4/common/utils/permissions"
 
 	_ "github.com/mattn/go-sqlite3"
-	. "github.com/smartystreets/goconvey/convey"
-	"github.com/spf13/viper"
+	_ "github.com/pydio/cells/v4/common/utils/cache/gocache"
 	_ "gocloud.dev/pubsub/mempubsub"
+
+	. "github.com/smartystreets/goconvey/convey"
 )
 
 func TestMain(m *testing.M) {
@@ -94,7 +96,7 @@ func TestPersonalResolution(t *testing.T) {
 
 	ctx := context.Background()
 	reg, _ := registry.OpenRegistry(ctx, "mem:///")
-	ctx = servicecontext.WithRegistry(ctx, reg)
+	ctx = runtimecontext.With(ctx, runtimecontext.RegistryKey, reg)
 	ctx = nodescontext.WithSourcesPool(ctx, nodes.NewTestPool(ctx))
 	client := compose.PathClient(ctx)
 

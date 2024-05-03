@@ -88,7 +88,8 @@ func NewService(opts ...ServiceOption) Service {
 
 	s.Opts.rootContext = servicecontext.WithServiceName(s.Opts.rootContext, name)
 
-	if reg := servicecontext.GetRegistry(s.Opts.rootContext); reg != nil {
+	var reg registry.Registry
+	if runtimecontext.Get(s.Opts.rootContext, runtimecontext.RegistryKey, &reg) {
 		if err := reg.Register(s); err != nil {
 			s.Opts.Logger().Warn("could not register", zap.Error(err))
 		}
@@ -222,7 +223,7 @@ func (s *service) Start(oo ...registry.RegisterOption) (er error) {
 	s.updateRegister(registry.StatusStarting)
 
 	s.Opts.runtimeCtx, s.Opts.runtimeCancel = context.WithCancel(s.Opts.rootContext)
-	s.Opts.runtimeCtx = runtimecontext.With(s.Opts.runtimeCtx, "service", s)
+	s.Opts.runtimeCtx = runtimecontext.With(s.Opts.runtimeCtx, runtimecontext.ServiceKey, s)
 
 	for _, before := range s.Opts.BeforeStart {
 		var err error

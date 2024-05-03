@@ -29,7 +29,7 @@ import (
 	"golang.org/x/sync/errgroup"
 
 	"github.com/pydio/cells/v4/common/registry"
-	servercontext "github.com/pydio/cells/v4/common/server/context"
+	"github.com/pydio/cells/v4/common/runtime/runtimecontext"
 	servicecontext "github.com/pydio/cells/v4/common/service/context"
 	"github.com/pydio/cells/v4/common/utils/std"
 )
@@ -90,7 +90,8 @@ func NewServer(ctx context.Context, s RawServer) Server {
 
 	servers = append(servers, srv)
 
-	if reg := servercontext.GetRegistry(ctx); reg != nil {
+	var reg registry.Registry
+	if runtimecontext.Get(ctx, runtimecontext.RegistryKey, &reg) {
 		if err := reg.Register(srv); err != nil {
 			fmt.Println("[ERROR] Cannot register Server " + err.Error())
 		}
@@ -141,7 +142,8 @@ func (s *server) Serve(oo ...ServeOption) (outErr error) {
 	}
 
 	// Making sure we register the endpoints
-	if reg := servercontext.GetRegistry(s.Opts.Context); reg != nil {
+	var reg registry.Registry
+	if runtimecontext.Get(s.Opts.Context, runtimecontext.RegistryKey, &reg) {
 		for _, item := range ii {
 			if err := reg.Register(item, registry.WithEdgeTo(s.ID(), "instance", nil)); err != nil {
 				return err
@@ -178,7 +180,8 @@ func (s *server) Stop(oo ...registry.RegisterOption) error {
 	}
 
 	// We deregister the endpoints to clear links and re-register as stopped
-	if reg := servercontext.GetRegistry(s.Opts.Context); reg != nil {
+	var reg registry.Registry
+	if runtimecontext.Get(s.Opts.Context, runtimecontext.RegistryKey, &reg) {
 		for _, i := range s.links {
 			_ = reg.Deregister(i, registry.WithRegisterFailFast())
 		}
