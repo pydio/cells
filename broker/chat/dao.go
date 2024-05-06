@@ -34,7 +34,6 @@ import (
 type MessageMatcher func(msg *chat.ChatMessage) (matches bool, filtered *chat.ChatMessage, err error)
 
 type DAO interface {
-	//dao.DAO
 	// PutRoom creates a new ChatRoom
 	PutRoom(ctx context.Context, room *chat.ChatRoom) (*chat.ChatRoom, error)
 	// DeleteRoom deletes a whole ChatRoom
@@ -56,21 +55,11 @@ type DAO interface {
 }
 
 func NewBoltDAO(db *bbolt.DB) DAO {
-	dao := &boltdbimpl{db: db, HistorySize: 1000}
-
-	// TODO - use interface
-	dao.Init(nil, nil)
-
-	return dao
+	return &boltdbimpl{db: db, HistorySize: 1000}
 }
 
 func NewMongoDAO(db *mongo.Database) DAO {
-	dao := &mongoImpl{db: db}
-
-	// TODO - use interface
-	dao.Init(nil, nil)
-
-	return dao
+	return &mongoImpl{db: db}
 }
 
 func Migrate(f, t any, dryRun bool, status chan dao.MigratorStatus) (map[string]int, error) {

@@ -48,8 +48,6 @@ const (
 )
 
 type DAO interface {
-	// dao.DAO
-
 	// PostActivity posts an activity to target inbox.
 	PostActivity(ctx context.Context, ownerType activity.OwnerType, ownerId string, boxName BoxName, object *activity.Object, publish bool) error
 
@@ -96,12 +94,8 @@ type batchDAO interface {
 }
 
 func NewBoltDAO(db *bbolt.DB) DAO {
-	dao := &boltdbimpl{DB: db, InboxMaxSize: 1000}
-
-	// TODO - use interface
-	dao.Init(nil, nil)
-
-	return WithCache(dao)
+	d := &boltdbimpl{DB: db, InboxMaxSize: 1000}
+	return WithCache(d, 5*time.Second)
 }
 
 func NewMongoDAO(database *mongo.Database) DAO {

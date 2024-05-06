@@ -41,7 +41,6 @@ import (
 
 type Handler struct {
 	proto.UnimplementedActivityServiceServer
-	RuntimeCtx context.Context
 }
 
 func (h *Handler) Name() string {

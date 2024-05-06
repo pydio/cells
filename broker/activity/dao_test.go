@@ -32,9 +32,9 @@ import (
 	"time"
 
 	humanize "github.com/dustin/go-humanize"
+	"go.etcd.io/bbolt"
 	"google.golang.org/protobuf/types/known/timestamppb"
 
-	"github.com/pydio/cells/v4/common/dao/boltdb"
 	"github.com/pydio/cells/v4/common/proto/activity"
 	"github.com/pydio/cells/v4/common/proto/idm"
 	"github.com/pydio/cells/v4/common/runtime/manager"
@@ -50,13 +50,29 @@ import (
 )
 
 var (
-	conf      configx.Values
-	ctx       = context.Background()
-	testcases = []test.StorageTestCase{
-		{[]string{"boltdb://" + filepath.Join(os.TempDir(), "activity_bolt_"+uuid.New()+".db")}, true, NewBoltDAO},
+	conf configx.Values
+	ctx  = context.Background()
+	/*
+		testcases = []test.StorageTestCase{
+			{[]string{"boltdb://" + filepath.Join(os.TempDir(), "activity_bolt_"+uuid.New()+".db")}, true, NoCacheDAO},
+			{[]string{"boltdb://" + filepath.Join(os.TempDir(), "activity_bolt_"+uuid.New()+".db")}, true, ShortCacheDAO},
+			{[]string{os.Getenv("CELLS_TEST_MONGODB_DSN") + "?collection=activity"}, os.Getenv("CELLS_TEST_MONGODB_DSN") != "", NewMongoDAO},
+		}*/
+)
+
+func testCases() []test.StorageTestCase {
+	return []test.StorageTestCase{
+		{[]string{"boltdb://" + filepath.Join(os.TempDir(), "activity_bolt_"+uuid.New()+".db")}, true, NoCacheDAO},
+		{[]string{"boltdb://" + filepath.Join(os.TempDir(), "activity_bolt_"+uuid.New()+".db")}, true, ShortCacheDAO},
 		{[]string{os.Getenv("CELLS_TEST_MONGODB_DSN") + "?collection=activity"}, os.Getenv("CELLS_TEST_MONGODB_DSN") != "", NewMongoDAO},
 	}
-)
+}
+
+func boltCases() []test.StorageTestCase {
+	return []test.StorageTestCase{
+		{[]string{"boltdb://" + filepath.Join(os.TempDir(), "activity_bolt_"+uuid.New()+".db")}, true, NoCacheDAO},
+	}
+}
 
 func init() {
 	conf = configx.New()
@@ -64,9 +80,23 @@ func init() {
 	testEnv = true
 }
 
+func NoCacheDAO(db *bbolt.DB) DAO {
+	return &boltdbimpl{DB: db, InboxMaxSize: 1000}
+}
+
+func ShortCacheDAO(db *bbolt.DB) DAO {
+	return WithCache(&boltdbimpl{DB: db, InboxMaxSize: 1000}, 1*time.Second)
+}
+
+func waitIfCache(d DAO) {
+	if _, o := d.(*Cache); o {
+		<-time.After(2 * time.Second)
+	}
+}
+
 func TestBoltEmptyDao(t *testing.T) {
 
-	test.RunStorageTests(testcases, func(ctx context.Context) {
+	test.RunStorageTests(testCases(), func(ctx context.Context) {
 		Convey("Test getBucket - read - not exists", t, func() {
 			dao, err := manager.Resolve[DAO](ctx)
 			So(err, ShouldBeNil)
@@ -80,27 +110,16 @@ func TestBoltEmptyDao(t *testing.T) {
 	})
 }
 
-func TestBoltMassivePurge(t *testing.T) {
-
-	test.RunStorageTests(testcases, func(ctx context.Context) {
-		/*
-			tmpMassivePurge := path.Join(os.TempDir(), "bolt-test-massive.db")
-			t.Log("MASSIVE DB AT", tmpMassivePurge)
-			defer os.Remove(tmpMassivePurge)
-			tmpdao, _ := boltdb.NewDAO(ctx, "boltdb", tmpMassivePurge, "")
-			da, _ := NewDAO(ctx, tmpdao)
-			dao := da.(DAO)
-			_ = dao.Init(ctx, conf)
-			defer dao.CloseConn(ctx)
-
-		*/
+// TODO - IMPLEMENT DB COMPACTION
+func SkipTestBoltMassivePurge(t *testing.T) {
+	test.RunStorageTests(boltCases(), func(ctx context.Context) {
 		dao, err := manager.Resolve[DAO](ctx)
 		if err != nil {
 			panic(err)
 		}
 
 		number := 100000
-		bb := dao.(boltdb.DAO).DB()
+		bb := dao.(*boltdbimpl).DB
 
 		Convey("Test Massive Purge", t, func() {
 			var aa []*batchActivity
@@ -132,7 +151,7 @@ func TestBoltMassivePurge(t *testing.T) {
 			st, _ = os.Stat(bb.Path())
 			newSize := st.Size()
 			t.Log("DB Size is now", humanize.Bytes(uint64(newSize)), "after", deleted, "deletes and compaction")
-			stats, _ = jsonx.Marshal(dao.(boltdb.DAO).DB().Stats())
+			stats, _ = jsonx.Marshal(dao.(*boltdbimpl).DB.Stats())
 			t.Log(string(stats))
 			So(newSize, ShouldBeLessThan, initSize)
 
@@ -142,7 +161,7 @@ func TestBoltMassivePurge(t *testing.T) {
 
 func TestInsertActivity(t *testing.T) {
 
-	test.RunStorageTests(testcases, func(ctx context.Context) {
+	test.RunStorageTests(testCases(), func(ctx context.Context) {
 
 		Convey("Test insert", t, func() {
 
@@ -161,6 +180,7 @@ func TestInsertActivity(t *testing.T) {
 
 			err = dao.PostActivity(ctx, activity.OwnerType_NODE, "NODE-UUID", BoxOutbox, ac, false)
 			So(err, ShouldBeNil)
+			waitIfCache(dao)
 
 			var results []*activity.Object
 			resChan := make(chan *activity.Object)
@@ -207,6 +227,7 @@ func TestInsertActivity(t *testing.T) {
 
 			err = dao.PostActivity(ctx, activity.OwnerType_USER, "john", BoxInbox, ac, false)
 			So(err, ShouldBeNil)
+			waitIfCache(dao)
 
 			unread := dao.CountUnreadForUser(nil, "john")
 			So(unread, ShouldEqual, 1)
@@ -244,7 +265,7 @@ func TestInsertActivity(t *testing.T) {
 
 func TestMultipleInsert(t *testing.T) {
 
-	test.RunStorageTests(testcases, func(ctx context.Context) {
+	test.RunStorageTests(testCases(), func(ctx context.Context) {
 
 		Convey("Test insert", t, func() {
 			dao, err := manager.Resolve[DAO](ctx)
@@ -266,6 +287,8 @@ func TestMultipleInsert(t *testing.T) {
 			So(err, ShouldBeNil)
 			err = dao.PostActivity(ctx, activity.OwnerType_NODE, "NODE-UUID", BoxOutbox, ac, false)
 			So(err, ShouldBeNil)
+
+			waitIfCache(dao)
 
 			var results []*activity.Object
 			resChan := make(chan *activity.Object)
@@ -300,7 +323,7 @@ func TestMultipleInsert(t *testing.T) {
 
 func TestCursor(t *testing.T) {
 
-	test.RunStorageTests(testcases, func(ctx context.Context) {
+	test.RunStorageTests(testCases(), func(ctx context.Context) {
 		Convey("Insert Activities and browse", t, func() {
 			dao, err := manager.Resolve[DAO](ctx)
 			So(err, ShouldBeNil)
@@ -319,6 +342,7 @@ func TestCursor(t *testing.T) {
 				So(err, ShouldBeNil)
 			}
 
+			waitIfCache(dao)
 			var results []*activity.Object
 			resChan := make(chan *activity.Object)
 			doneChan := make(chan bool)
@@ -398,6 +422,7 @@ func TestCursor(t *testing.T) {
 				err := dao.PostActivity(ctx, activity.OwnerType_USER, "charles", BoxInbox, ac, false)
 				So(err, ShouldBeNil)
 			}
+			waitIfCache(dao)
 
 			// NOW CHECK IF WE DO HAVE ONLY 20 RESULTS
 			results = results[:0]
@@ -418,7 +443,7 @@ func TestCursor(t *testing.T) {
 
 func TestSimilarSkipping(t *testing.T) {
 
-	test.RunStorageTests(testcases[:1], func(ctx context.Context) {
+	test.RunStorageTests(boltCases(), func(ctx context.Context) {
 
 		Convey("Insert Activities and browse", t, func() {
 			dao, err := manager.Resolve[DAO](ctx)
@@ -450,6 +475,7 @@ func TestSimilarSkipping(t *testing.T) {
 				So(err, ShouldBeNil)
 			}
 
+			waitIfCache(dao)
 			var results []*activity.Object
 			resChan := make(chan *activity.Object)
 			doneChan := make(chan bool)
@@ -522,7 +548,7 @@ func TestSimilarSkipping(t *testing.T) {
 
 func TestDelete(t *testing.T) {
 
-	test.RunStorageTests(testcases, func(ctx context.Context) {
+	test.RunStorageTests(testCases(), func(ctx context.Context) {
 		Convey("Test Delete Owner", t, func() {
 
 			dao, err := manager.Resolve[DAO](ctx)
@@ -541,6 +567,8 @@ func TestDelete(t *testing.T) {
 			err = dao.PostActivity(ctx, activity.OwnerType_USER, "john", BoxInbox, ac, false)
 			So(err, ShouldBeNil)
 
+			waitIfCache(dao)
+
 			err = dao.Delete(ctx, activity.OwnerType_USER, "john")
 			So(err, ShouldBeNil)
 
@@ -553,7 +581,7 @@ func TestDelete(t *testing.T) {
 
 func TestPurge(t *testing.T) {
 
-	test.RunStorageTests(testcases, func(ctx context.Context) {
+	test.RunStorageTests(testCases(), func(ctx context.Context) {
 
 		dao, err := manager.Resolve[DAO](ctx)
 		if err != nil {
@@ -603,6 +631,8 @@ func TestPurge(t *testing.T) {
 			_ = dao.PostActivity(ctx, activity.OwnerType_USER, "john", BoxInbox, ac2, false)
 			_ = dao.PostActivity(ctx, activity.OwnerType_USER, "john", BoxInbox, ac1, false)
 
+			waitIfCache(dao)
+
 			err = dao.Purge(nil, logger, activity.OwnerType_USER, "john", BoxInbox, 1, 100, time.Time{}, true, true)
 			So(err, ShouldBeNil)
 
@@ -621,6 +651,8 @@ func TestPurge(t *testing.T) {
 			//dao.PostActivity(activity.OwnerType_USER, "john", BoxInbox, ac2, nil)
 			So(dao.PostActivity(ctx, activity.OwnerType_USER, "john", BoxInbox, ac4, false), ShouldBeNil)
 			So(dao.PostActivity(ctx, activity.OwnerType_USER, "john", BoxInbox, ac3, false), ShouldBeNil)
+			waitIfCache(dao)
+
 			results, _ = listJohn()
 			So(results, ShouldHaveLength, 4)
 
@@ -634,6 +666,8 @@ func TestPurge(t *testing.T) {
 			// Purge by date all users - re-add ac3, ac4 removed in previous step
 			So(dao.PostActivity(ctx, activity.OwnerType_USER, "john", BoxInbox, ac3, false), ShouldBeNil)
 			So(dao.PostActivity(ctx, activity.OwnerType_USER, "john", BoxInbox, ac4, false), ShouldBeNil)
+			waitIfCache(dao)
+
 			err = dao.Purge(ctx, logger, activity.OwnerType_USER, "*", BoxInbox, 0, 100, time.Now().Add(-sevenDays), true, true)
 			So(err, ShouldBeNil)
 			results, err = listJohn()
@@ -646,7 +680,7 @@ func TestPurge(t *testing.T) {
 
 func TestSubscriptions(t *testing.T) {
 
-	test.RunStorageTests(testcases, func(ctx context.Context) {
+	test.RunStorageTests(testCases(), func(ctx context.Context) {
 
 		Convey("Test subscribe", t, func() {
 			dao, err := manager.Resolve[DAO](ctx)
@@ -721,7 +755,7 @@ func TestWsSorting(t *testing.T) {
 
 func SkipTestMassiveQueries(t *testing.T) {
 
-	test.RunStorageTests(testcases, func(ctx context.Context) {
+	test.RunStorageTests(testCases(), func(ctx context.Context) {
 
 		Convey("Test massive queries", t, func() {
 

@@ -67,7 +67,6 @@ func RunStorageTests(testCases []StorageTestCase, f func(context.Context)) {
 		if err != nil {
 			panic(err)
 		}
-
 		v := viper.New()
 		v.Set(runtime.KeyConfig, "mem://")
 		v.SetDefault(runtime.KeyCache, "pm://")
@@ -75,11 +74,14 @@ func RunStorageTests(testCases []StorageTestCase, f func(context.Context)) {
 		v.Set("yaml", b.String())
 
 		// TODO - this should be handled by the controller
-		store, err := config.OpenStore(context.Background(), "mem://")
+		store, er := config.OpenStore(context.Background(), "mem://")
+		if er != nil {
+			panic(er)
+		}
 		config.Register(store)
+		runtime.SetRuntime(v)
 
 		var svc service.Service
-		runtime.SetRuntime(v)
 		runtime.Register("test", func(ctx context.Context) {
 			svc = service.NewService(
 				service.Name("test"),

@@ -146,8 +146,8 @@ func init() {
 					return e
 				}
 
-				acproto.RegisterActivityServiceServer(srv, &Handler{RuntimeCtx: ctx})
-				tree.RegisterNodeProviderStreamerServer(srv, &MetaProvider{RuntimeCtx: ctx})
+				acproto.RegisterActivityServiceServer(srv, &Handler{})
+				tree.RegisterNodeProviderStreamerServer(srv, &MetaProvider{})
 
 				return nil
 			}),

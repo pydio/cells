@@ -26,6 +26,7 @@ import (
 
 	"github.com/pydio/cells/v4/common/proto/activity"
 	"github.com/pydio/cells/v4/common/runtime"
+	"github.com/pydio/cells/v4/common/runtime/manager"
 	runtimecontext "github.com/pydio/cells/v4/common/runtime/runtimecontext"
 	"github.com/pydio/cells/v4/common/utils/cache"
 	"github.com/pydio/cells/v4/common/utils/configx"
@@ -33,16 +34,17 @@ import (
 	"github.com/pydio/cells/v4/common/utils/openurl"
 )
 
-func WithCache(dao DAO) DAO {
+func WithCache(dao DAO, batchTimeout time.Duration) DAO {
 	useBatch := false
 	if _, o := dao.(batchDAO); o {
 		useBatch = true
 	}
 	c, _ := cache.OpenPool(runtime.CacheURL("activities", "evictionTime", "5m"))
 	return &Cache{
-		DAO:       dao,
-		cachePool: c,
-		useBatch:  useBatch,
+		DAO:          dao,
+		cachePool:    c,
+		useBatch:     useBatch,
+		batchTimeout: batchTimeout,
 	}
 }
 
@@ -50,10 +52,11 @@ type Cache struct {
 	DAO
 	cachePool *openurl.Pool[cache.Cache]
 
-	useBatch bool
-	done     chan bool
-	input    chan *batchActivity
-	inner    []*batchActivity
+	useBatch     bool
+	done         chan bool
+	input        chan *batchActivity
+	inner        []*batchActivity
+	batchTimeout time.Duration
 
 	closed bool
 }
@@ -65,8 +68,11 @@ func (c *Cache) Init(ctx context.Context, values configx.Values) error {
 		c.inner = make([]*batchActivity, 0, 500)
 		go c.startBatching()
 	}
-	// return c.DAO.Init(ctx, values)
-	return nil
+	if provider, ok := c.DAO.(manager.InitProvider); ok {
+		return provider.Init(ctx, values)
+	} else {
+		return nil
+	}
 }
 
 func (c *Cache) startBatching() {
@@ -81,7 +87,7 @@ func (c *Cache) startBatching() {
 			if len(c.inner) >= 500 {
 				c.flushBatch()
 			}
-		case <-time.After(5 * time.Second):
+		case <-time.After(c.batchTimeout):
 			c.flushBatch()
 		case <-c.done:
 			c.flushBatch()

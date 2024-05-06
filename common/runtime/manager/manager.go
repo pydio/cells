@@ -25,7 +25,6 @@ import (
 	"fmt"
 	"io"
 	"os"
-	"reflect"
 	"strconv"
 	"strings"
 	"text/template"
@@ -1140,94 +1139,4 @@ func (m *manager) MustGetConfig(ctx context.Context) (out config.Store) {
 	m.config.Get(ctx, &out)
 
 	return
-}
-
-type ResolveOptions struct {
-	Name string
-}
-
-type ResolveOption func(*ResolveOptions)
-
-func WithName(name string) ResolveOption {
-	return func(o *ResolveOptions) {
-		o.Name = name
-	}
-}
-
-func Resolve[T any](ctx context.Context, opts ...ResolveOption) (T, error) {
-	o := ResolveOptions{
-		Name: "main",
-	}
-
-	for _, opt := range opts {
-		opt(&o)
-	}
-
-	var t T
-
-	// First we get the contextualized registry
-	var reg registry.Registry
-	runtimecontext.Get(ctx, registry.ContextKey, &reg)
-
-	// Then we get the service from the context
-	var svc service.Service
-	if !runtimecontext.Get(ctx, service.ContextKey, &svc) {
-		return t, fmt.Errorf("resolve cannot find service &svc in context")
-	}
-
-	storages := reg.ListAdjacentItems(
-		registry.WithAdjacentSourceItems([]registry.Item{svc}),
-		registry.WithAdjacentTargetOptions(registry.WithType(pb.ItemType_STORAGE)),
-		registry.WithAdjacentEdgeOptions(registry.WithMeta("name", o.Name)),
-	)
-
-	// Inject dao in handler
-	for _, handler := range svc.Options().StorageOptions.SupportedDrivers[o.Name] {
-		handlerV := reflect.ValueOf(handler)
-		handlerT := reflect.TypeOf(handler)
-		if handlerV.Kind() != reflect.Func {
-			return t, errors.New("storage handler is not a function")
-		}
-
-		var conns []reflect.Value
-		for idx, st := range storages {
-			conn := reflect.New(handlerT.In(idx))
-
-			var st1 storage.Storage
-			st.As(&st1)
-
-			if !st1.Get(ctx, conn.Interface()) {
-				return t, fmt.Errorf("database interface is not compatible %d", idx)
-			}
-
-			conns = append(conns, conn.Elem())
-		}
-
-		// Checking all migrations
-		err := service.UpdateServiceVersion(ctx, config.Main(), svc.Options())
-		if err != nil {
-			return t, err
-		}
-
-		if handlerT.NumIn() != len(conns) {
-			return t, fmt.Errorf("number of connections differs from what is requested handler %d, len %d", handlerT.NumIn(), len(conns))
-		}
-		dao := handlerV.Call(conns)
-		t = dao[0].Interface().(T)
-
-		return t, nil
-	}
-
-	return t, nil
-}
-
-func MustGetConfig(ctx context.Context) config.Store {
-	var mg Manager
-	runtimecontext.Get(ctx, contextKey, &mg)
-
-	if mg == nil {
-		panic("manager must be set")
-	}
-
-	return mg.GetConfig(ctx)
 }
