@@ -2,6 +2,7 @@ package boltdb
 
 import (
 	"context"
+	"fmt"
 	"strings"
 	"time"
 
@@ -25,7 +26,7 @@ type boltdbStorage struct {
 	dbs      []*boltdb
 }
 
-func (o *boltdbStorage) OpenURL(ctx context.Context, urlstr string) (storage.Storage, error) {
+func (s *boltdbStorage) OpenURL(ctx context.Context, urlstr string) (storage.Storage, error) {
 	t, err := openurl.URLTemplate(urlstr)
 	if err != nil {
 		return nil, err
@@ -68,19 +69,19 @@ func (s *boltdbStorage) GetConn(str string) (storage.Conn, error) {
 func (s *boltdbStorage) Register(conn any, tenant string, service string) {
 }
 
-func (s *boltdbStorage) Get(ctx context.Context, out interface{}) bool {
+func (s *boltdbStorage) Get(ctx context.Context, out interface{}) (bool, error) {
 	if v, ok := out.(**bbolt.DB); ok {
 
 		u, err := s.template.ResolveURL(ctx)
 		if err != nil {
-			return false
+			return true, err
 		}
 		path := u.String()
 
 		for _, db := range s.dbs {
 			if db.path == path {
 				*v = db.db
-				return true
+				return true, nil
 			}
 		}
 
@@ -97,7 +98,7 @@ func (s *boltdbStorage) Get(ctx context.Context, out interface{}) bool {
 
 		conn, err := bbolt.Open(strings.TrimPrefix(path, "boltdb://"), 0644, options)
 		if err != nil {
-			return false
+			return true, err
 		}
 
 		*v = conn
@@ -107,11 +108,21 @@ func (s *boltdbStorage) Get(ctx context.Context, out interface{}) bool {
 			path: path,
 		})
 
-		return true
+		return true, nil
 
 	}
 
-	return false
+	return false, nil
+}
+
+func (s *boltdbStorage) CloseConns(ctx context.Context) (er error) {
+	for _, db := range s.dbs {
+		fmt.Println("closing " + db.path)
+		if er := db.db.Close(); er != nil {
+			return er
+		}
+	}
+	return nil
 }
 
 type boltItem bbolt.DB
@@ -129,6 +140,7 @@ func (i *boltItem) Metadata() map[string]string {
 }
 
 func (i *boltItem) As(i2 interface{}) bool {
+
 	return false
 }
 

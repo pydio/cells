@@ -82,11 +82,12 @@ func Resolve[T any](ctx context.Context, opts ...ResolveOption) (T, error) {
 		return t, fmt.Errorf("resolve cannot find manager to load configs")
 	}
 
-	storages := reg.ListAdjacentItems(
+	ss := reg.ListAdjacentItems(
 		registry.WithAdjacentSourceItems([]registry.Item{svc}),
 		registry.WithAdjacentTargetOptions(registry.WithType(registry2.ItemType_STORAGE)),
 		registry.WithAdjacentEdgeOptions(registry.WithMeta("name", o.Name)),
 	)
+	storages := registry.ItemsAs[storage.Storage](ss)
 
 	// Inject dao in handler
 	for _, handler := range svc.Options().StorageOptions.SupportedDrivers[o.Name] {
@@ -108,25 +109,22 @@ func Resolve[T any](ctx context.Context, opts ...ResolveOption) (T, error) {
 
 			argPos := len(args)
 			conn := reflect.New(handlerT.In(argPos))
-
-			var st1 storage.Storage
-			st.As(&st1)
-
-			if !st1.Get(ctx, conn.Interface()) {
+			if isCompat, err := st.Get(ctx, conn.Interface()); !isCompat {
 				return t, fmt.Errorf("database interface is not compatible for parameter %d", argPos)
+			} else if err != nil {
+				return t, err
 			}
 
 			args = append(args, conn.Elem())
 		}
 
 		// Checking all migrations
-		err := service.UpdateServiceVersion(ctx, cfg, svc.Options())
-		if err != nil {
+		if err := service.UpdateServiceVersion(ctx, cfg, svc.Options()); err != nil {
 			return t, err
 		}
 
 		if handlerT.NumIn() != len(args) {
-			return t, fmt.Errorf("number of connections differs from what is requested handler %d, len %d", handlerT.NumIn(), len(args))
+			return t, fmt.Errorf("number of connections (%d) differs from what is requested by handler (%d)", handlerT.NumIn(), len(args))
 		}
 		dao := handlerV.Call(args)[0].Interface()
 
@@ -141,6 +139,40 @@ func Resolve[T any](ctx context.Context, opts ...ResolveOption) (T, error) {
 	}
 
 	return t, nil
+}
+
+func CloseStoragesForContext(ctx context.Context, opts ...ResolveOption) error {
+	o := ResolveOptions{
+		Name: "main",
+	}
+
+	for _, opt := range opts {
+		opt(&o)
+	}
+
+	// First we get the contextualized registry
+	var reg registry.Registry
+	runtimecontext.Get(ctx, registry.ContextKey, &reg)
+
+	// Then we get the service from the context
+	var svc service.Service
+	if !runtimecontext.Get(ctx, service.ContextKey, &svc) {
+		return fmt.Errorf("resolve cannot find service &svc in context")
+	}
+
+	ss := reg.ListAdjacentItems(
+		registry.WithAdjacentSourceItems([]registry.Item{svc}),
+		registry.WithAdjacentTargetOptions(registry.WithType(registry2.ItemType_STORAGE)),
+		registry.WithAdjacentEdgeOptions(registry.WithMeta("name", o.Name)),
+	)
+
+	for _, s := range registry.ItemsAs[storage.Storage](ss) {
+		if er := s.CloseConns(ctx); er != nil {
+			return er
+		}
+	}
+
+	return nil
 }
 
 func MustGetConfig(ctx context.Context) config.Store {

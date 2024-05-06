@@ -51,7 +51,13 @@ func (s *mongoStorage) Provides(conn any) bool {
 	return false
 }
 
-func (s *mongoStorage) Register(conn any, tenant string, service string) {
+func (s *mongoStorage) CloseConns(ctx context.Context) error {
+	for _, db := range s.clients {
+		if er := db.Disconnect(ctx); er != nil {
+			return er
+		}
+	}
+	return nil
 }
 
 func (s *mongoStorage) GetConn(str string) (storage.Conn, error) {
@@ -69,18 +75,18 @@ func (s *mongoStorage) GetConn(str string) (storage.Conn, error) {
 	return nil, nil
 }
 
-func (s *mongoStorage) Get(ctx context.Context, out interface{}) bool {
+func (s *mongoStorage) Get(ctx context.Context, out interface{}) (bool, error) {
 	switch out.(type) {
 	case **mongo.Database:
 	case **Indexer:
 	case *indexer.Indexer:
 	default:
-		return false
+		return false, nil
 	}
 
 	u, err := s.template.ResolveURL(ctx)
 	if err != nil {
-		return false
+		return true, err
 	}
 	path := u.String()
 
@@ -88,14 +94,14 @@ func (s *mongoStorage) Get(ctx context.Context, out interface{}) bool {
 	if cli, ok := s.clients[path]; ok {
 		db = cli.Database(u.Path)
 	} else {
-		cli, err := mongo.Connect(context.TODO(), options.Client().ApplyURI(path))
+		mgClient, err := mongo.Connect(context.TODO(), options.Client().ApplyURI(path))
 		if err != nil {
-			return false
+			return true, err
 		}
 
-		db = cli.Database(strings.Trim(u.Path, "/"))
+		db = mgClient.Database(strings.Trim(u.Path, "/"))
 
-		s.clients[path] = cli
+		s.clients[path] = mgClient
 	}
 
 	switch v := out.(type) {
@@ -112,10 +118,10 @@ func (s *mongoStorage) Get(ctx context.Context, out interface{}) bool {
 
 		*v = idx
 	default:
-		return false
+		return false, nil
 	}
 
-	return true
+	return true, nil
 }
 
 type mongoItem mongo.Client

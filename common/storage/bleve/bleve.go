@@ -31,7 +31,7 @@ type bleveStorage struct {
 	dbs      []*blevedb
 }
 
-func (o *bleveStorage) OpenURL(ctx context.Context, urlstr string) (storage.Storage, error) {
+func (s *bleveStorage) OpenURL(ctx context.Context, urlstr string) (storage.Storage, error) {
 	t, err := openurl.URLTemplate(urlstr)
 	if err != nil {
 		return nil, err
@@ -73,19 +73,40 @@ func (s *bleveStorage) Register(conn any, tenant string, service string) {
 
 }
 
-func (s *bleveStorage) Get(ctx context.Context, out interface{}) bool {
+func (s *bleveStorage) CloseConns(ctx context.Context) error {
+
+	for _, db := range s.dbs {
+		switch base := db.db.(type) {
+		case bleve.Index:
+			if er := base.Close(); er != nil {
+				return er
+			}
+		case *indexer.Indexer:
+			if er := (*base).Close(ctx); er != nil {
+				return er
+			}
+		case **Indexer:
+			if er := (*base).Close(ctx); er != nil {
+				return er
+			}
+		}
+	}
+	return nil
+}
+
+func (s *bleveStorage) Get(ctx context.Context, out interface{}) (bool, error) {
 	switch v := out.(type) {
 	case **Indexer:
 		u, err := s.template.ResolveURL(ctx)
 		if err != nil {
-			return false
+			return true, err
 		}
 		path := u.String()
 
 		for _, db := range s.dbs {
 			if path == db.path {
 				*v = db.db.(*Indexer)
-				return true
+				return true, nil
 			}
 		}
 
@@ -96,7 +117,7 @@ func (s *bleveStorage) Get(ctx context.Context, out interface{}) bool {
 		rotationSize := DefaultRotationSize
 		if q.Has("rotationSize") {
 			if size, err := strconv.ParseInt(q.Get("rotationSize"), 10, 0); err != nil {
-				return false
+				return false, nil
 			} else {
 				rotationSize = size
 			}
@@ -105,7 +126,7 @@ func (s *bleveStorage) Get(ctx context.Context, out interface{}) bool {
 		batchSize := DefaultBatchSize
 		if q.Has("batchSize") {
 			if size, err := strconv.ParseInt(q.Get("batchSize"), 10, 0); err != nil {
-				return false
+				return false, nil
 			} else {
 				batchSize = size
 			}
@@ -125,7 +146,7 @@ func (s *bleveStorage) Get(ctx context.Context, out interface{}) bool {
 			MappingName:  mappingName,
 		})
 		if err != nil {
-			return false
+			return true, err
 		}
 
 		var cfg config.Store
@@ -139,19 +160,19 @@ func (s *bleveStorage) Get(ctx context.Context, out interface{}) bool {
 			path: path,
 		})
 
-		return true
+		return true, nil
 
 	case *indexer.Indexer:
 		u, err := s.template.ResolveURL(ctx)
 		if err != nil {
-			return false
+			return true, err
 		}
 		path := u.String()
 
 		for _, db := range s.dbs {
 			if path == db.path {
 				*v = db.db.(indexer.Indexer)
-				return true
+				return true, nil
 			}
 		}
 
@@ -162,7 +183,7 @@ func (s *bleveStorage) Get(ctx context.Context, out interface{}) bool {
 		rotationSize := DefaultRotationSize
 		if q.Has("rotationSize") {
 			if size, err := strconv.ParseInt(q.Get("rotationSize"), 10, 0); err != nil {
-				return false
+				return false, nil
 			} else {
 				rotationSize = size
 			}
@@ -171,7 +192,7 @@ func (s *bleveStorage) Get(ctx context.Context, out interface{}) bool {
 		batchSize := DefaultBatchSize
 		if q.Has("batchSize") {
 			if size, err := strconv.ParseInt(q.Get("batchSize"), 10, 0); err != nil {
-				return false
+				return false, nil
 			} else {
 				batchSize = size
 			}
@@ -191,7 +212,7 @@ func (s *bleveStorage) Get(ctx context.Context, out interface{}) bool {
 			MappingName:  mappingName,
 		})
 		if err != nil {
-			return false
+			return true, err
 		}
 
 		var cfg config.Store
@@ -205,18 +226,18 @@ func (s *bleveStorage) Get(ctx context.Context, out interface{}) bool {
 			path: path,
 		})
 
-		return true
+		return true, nil
 	case *bleve.Index:
 		u, err := s.template.ResolveURL(ctx)
 		if err != nil {
-			return false
+			return true, err
 		}
 		path := u.String()
 
 		for _, db := range s.dbs {
 			if path == db.path {
 				*v = db.db.(bleve.Index)
-				return true
+				return true, nil
 			}
 		}
 
@@ -229,7 +250,7 @@ func (s *bleveStorage) Get(ctx context.Context, out interface{}) bool {
 		}
 
 		if err != nil {
-			return false
+			return true, err
 		}
 
 		*v = index
@@ -239,10 +260,10 @@ func (s *bleveStorage) Get(ctx context.Context, out interface{}) bool {
 			path: path,
 		})
 
-		return true
+		return true, nil
 	}
 
-	return false
+	return false, nil
 }
 
 type bleveItem Indexer

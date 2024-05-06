@@ -99,5 +99,7 @@ func RunStorageTests(testCases []StorageTestCase, f func(context.Context)) {
 		ctx = runtimecontext.With(ctx, service.ContextKey, svc)
 
 		f(ctx)
+
+		_ = manager.CloseStoragesForContext(ctx)
 	}
 }

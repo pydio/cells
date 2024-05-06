@@ -145,21 +145,21 @@ func (gs *gormStorage) Register(conn any, tenant string, service string) {
 	})
 }
 
-func (gs *gormStorage) Get(ctx context.Context, out interface{}) bool {
+func (gs *gormStorage) Get(ctx context.Context, out interface{}) (bool, error) {
 	if v, ok := out.(**gorm.DB); ok {
 		path, err := gs.template.Resolve(ctx)
 		if err != nil {
-			return false
+			return true, err
 		}
 		var ten tenant.Tenant
 		runtimecontext.Get(ctx, tenant.ContextKey, &ten)
 		if conn, ok := gs.conns[path]; !ok {
 			parts := strings.Split(path, "://")
 			if len(parts) < 2 {
-				return false
+				return false, nil
 			}
 			if conn, err := sql.Open(parts[0], strings.Join(parts[1:], "")); err != nil {
-				return false
+				return true, err
 			} else {
 				gs.Register(conn, ten.ID(), runtimecontext.GetServiceName(ctx))
 				gs.conns[path] = conn
@@ -169,10 +169,14 @@ func (gs *gormStorage) Get(ctx context.Context, out interface{}) bool {
 		}
 
 		*v = gs.db
-		return true
+		return true, nil
 	}
 
-	return false
+	return false, nil
+}
+
+func (gs *gormStorage) CloseConns(ctx context.Context) error {
+	return nil
 }
 
 type Dialector struct {

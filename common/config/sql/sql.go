@@ -25,18 +25,19 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"github.com/pydio/cells/v4/common/storage"
-	"github.com/pydio/cells/v4/common/utils/openurl"
-	"gorm.io/gorm"
 	"net/url"
 	"os"
 	"strconv"
 	"strings"
 	"time"
 
+	"gorm.io/gorm"
+
 	"github.com/pydio/cells/v4/common/config"
+	"github.com/pydio/cells/v4/common/storage"
 	"github.com/pydio/cells/v4/common/utils/configx"
 	json "github.com/pydio/cells/v4/common/utils/jsonx"
+	"github.com/pydio/cells/v4/common/utils/openurl"
 )
 
 var (
@@ -129,7 +130,10 @@ type SQL struct {
 func New(ctx context.Context, driver string, dsn string, prefix string) (config.Store, error) {
 	var db *gorm.DB
 
-	storage.Get(ctx, &db)
+	o, er := storage.Get(ctx, &db)
+	if o && er != nil {
+		return nil, er
+	}
 
 	d := NewDAO(db)
 

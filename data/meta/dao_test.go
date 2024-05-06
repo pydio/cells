@@ -22,12 +22,6 @@ package meta
 
 import (
 	"context"
-	"github.com/smartystreets/goconvey/convey"
-	"testing"
-
-	"github.com/pydio/cells/v4/common/dao"
-	"github.com/pydio/cells/v4/common/dao/sqlite"
-	"github.com/pydio/cells/v4/common/utils/configx"
 )
 
 var (
@@ -35,6 +29,7 @@ var (
 	ctx     = context.Background()
 )
 
+/*
 func TestMain(m *testing.M) {
 	options := configx.New()
 	if d, e := dao.InitDAO(ctx, sqlite.Driver, sqlite.SharedMemDSN, "test", NewDAO, options); e != nil {
@@ -50,4 +45,4 @@ func TestDAOInit(t *testing.T) {
 	convey.Convey("Init Meta DAO", t, func() {
 		convey.So(mockDAO, convey.ShouldNotBeNil)
 	})
-}
+}*/

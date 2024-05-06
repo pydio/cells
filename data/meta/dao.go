@@ -22,29 +22,15 @@
 package meta
 
 import (
-	"context"
-	"github.com/pydio/cells/v4/common/storage"
 	"gorm.io/gorm"
-
-	"github.com/pydio/cells/v4/common/dao"
 )
 
 type DAO interface {
-	dao.DAO
-
 	SetMetadata(nodeId string, author string, metadata map[string]string) (err error)
 	GetMetadata(nodeId string) (metadata map[string]string, err error)
 	ListMetadata(query string) (metadataByUuid map[string]map[string]string, err error)
 }
 
-func NewDAO(ctx context.Context) (DAO, error) {
-	var db *gorm.DB
-
-	if storage.Get(ctx, &db) {
-		return &sqlImpl{
-			db: db,
-		}, nil
-	}
-
-	return nil, storage.NotFound
+func NewGormDAO(db *gorm.DB) DAO {
+	return &sqlImpl{db: db}
 }

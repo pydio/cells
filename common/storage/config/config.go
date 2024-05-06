@@ -54,33 +54,34 @@ func (s *configStorage) Provides(conn any) bool {
 	return false
 }
 
-func (s *configStorage) GetConn(str string) (storage.Conn, error) {
-	return nil, nil
+func (s *configStorage) CloseConns(ctx context.Context) error {
+	for _, db := range s.dbs {
+		if er := db.db.Close(); er != nil {
+			return er
+		}
+	}
+	return nil
 }
 
-func (s *configStorage) Register(conn any, tenant string, service string) {
-
-}
-
-func (s *configStorage) Get(ctx context.Context, out interface{}) bool {
+func (s *configStorage) Get(ctx context.Context, out interface{}) (bool, error) {
 	if v, ok := out.(*config.Store); ok {
 		u, err := s.template.ResolveURL(ctx)
 		if err != nil {
-			return false
+			return true, err
 		}
 		path := u.String()
 
 		for _, db := range s.dbs {
 			if path == db.path {
 				*v = db.db
-				return true
+				return true, nil
 			}
 		}
 
 		// Not found, opening
 		db, err := config.OpenStore(ctx, path)
 		if err != nil {
-			return false
+			return true, err
 		}
 
 		*v = db
@@ -90,9 +91,10 @@ func (s *configStorage) Get(ctx context.Context, out interface{}) bool {
 			path: path,
 		})
 
+		return true, nil
 	}
 
-	return false
+	return false, nil
 }
 
 //type configItem config.Store

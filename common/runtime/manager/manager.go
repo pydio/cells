@@ -301,7 +301,7 @@ func (m *manager) GetStorage(ctx context.Context, name string, out any) error {
 		return errors.New("wrong item format")
 	}
 
-	if done := store.Get(ctx, out); !done {
+	if done, _ := store.Get(ctx, out); !done {
 		return errors.New("wrong out format")
 	}
 

@@ -47,7 +47,7 @@ func init() {
 			service.Tag(common.ServiceTagData),
 			service.Description("Metadata server for tree nodes"),
 			service.Unique(true),
-			service.WithStorageDrivers(meta.NewDAO),
+			service.WithStorageDrivers(meta.NewGormDAO),
 			service.WithGRPC(func(ctx context.Context, srv grpc.ServiceRegistrar) error {
 				engine := NewMetaServer(ctx)
 

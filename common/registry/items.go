@@ -30,6 +30,15 @@ type Item interface {
 	As(interface{}) bool
 }
 
+func ItemsAs[T any](ii []Item) (converted []T) {
+	for _, it := range ii {
+		var ty T
+		it.As(&ty)
+		converted = append(converted, ty)
+	}
+	return
+}
+
 type StatusReporter interface {
 	WatchStatus() (StatusWatcher, error)
 }

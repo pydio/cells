@@ -21,7 +21,6 @@
 package jobs
 
 import (
-	"context"
 	"time"
 
 	"go.etcd.io/bbolt"
@@ -31,7 +30,6 @@ import (
 	"github.com/pydio/cells/v4/common/proto/idm"
 	"github.com/pydio/cells/v4/common/proto/jobs"
 	"github.com/pydio/cells/v4/common/proto/tree"
-	"github.com/pydio/cells/v4/common/storage"
 )
 
 // DAO provides method interface to access the store for scheduler job and task definitions.
@@ -57,20 +55,6 @@ func NewBoltDAO(db *bbolt.DB) DAO {
 
 func NewMongoDAO(db *mongo.Database) DAO {
 	return &mongoImpl{Database: db}
-}
-
-func NewDAO(ctx context.Context) (DAO, error) {
-	var boltdb *bbolt.DB
-	if storage.Get(ctx, &boltdb) {
-		return newBoltStore(boltdb)
-	}
-
-	var cli *mongo.Client
-	if storage.Get(ctx, &cli) {
-		return &mongoImpl{Database: cli.Database("test")}, nil
-	}
-
-	return nil, storage.NotFound
 }
 
 // stripTaskData removes unnecessary data from the task log
