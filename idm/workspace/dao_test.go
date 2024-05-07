@@ -64,6 +64,11 @@ func TestUniqueSlug(t *testing.T) {
 			So(update, ShouldBeFalse)
 			So(err, ShouldBeNil)
 
+			ws.Description = "description updated"
+			update, err = mockDAO.Add(ctx, ws)
+			So(update, ShouldBeTrue)
+			So(err, ShouldBeNil)
+
 			ws2 := &idm.Workspace{
 				UUID:        "id2",
 				Slug:        "my-slug",
@@ -96,9 +101,10 @@ func TestUniqueSlug(t *testing.T) {
 				Uuid: "id2",
 			})
 			workspaces := new([]interface{})
-			mockDAO.Search(ctx, &service.Query{
+			er := mockDAO.Search(ctx, &service.Query{
 				SubQueries: []*anypb.Any{q},
 			}, workspaces)
+			So(er, ShouldBeNil)
 			So(workspaces, ShouldHaveLength, 1)
 			for _, w := range *workspaces {
 				result := w.(*idm.Workspace)

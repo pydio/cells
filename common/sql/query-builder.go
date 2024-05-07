@@ -93,6 +93,7 @@ func (gc *wrapConverter[T]) Convert(ctx context.Context, val *anypb.Any, in T) (
 			} else {
 				out = out.Where(subQuery)
 			}
+			ok = true
 		} else {
 			return in, false, er
 		}

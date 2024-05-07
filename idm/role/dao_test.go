@@ -26,12 +26,14 @@ import (
 	"time"
 
 	"google.golang.org/protobuf/types/known/anypb"
+	"gorm.io/gorm"
 
 	"github.com/pydio/cells/v4/common/dao/sqlite"
 	"github.com/pydio/cells/v4/common/proto/idm"
 	"github.com/pydio/cells/v4/common/proto/service"
 	"github.com/pydio/cells/v4/common/runtime/manager"
 	"github.com/pydio/cells/v4/common/service/errors"
+	"github.com/pydio/cells/v4/common/sql"
 	"github.com/pydio/cells/v4/common/utils/test"
 	"github.com/pydio/cells/v4/common/utils/uuid"
 
@@ -300,89 +302,106 @@ func TestCrud(t *testing.T) {
 
 }
 
-//func TestQueryBuilder(t *testing.T) {
-//
-//	Convey("Query Builder", t, func() {
-//
-//		singleQ1, singleQ2 := new(idm.RoleSingleQuery), new(idm.RoleSingleQuery)
-//
-//		singleQ1.Uuid = []string{"role1"}
-//		singleQ2.Uuid = []string{"role2"}
-//
-//		singleQ1Any, err := anypb.New(singleQ1)
-//		So(err, ShouldBeNil)
-//
-//		singleQ2Any, err := anypb.New(singleQ2)
-//		So(err, ShouldBeNil)
-//
-//		var singleQueries []*anypb.Any
-//		singleQueries = append(singleQueries, singleQ1Any)
-//		singleQueries = append(singleQueries, singleQ2Any)
-//
-//		simpleQuery := &service.Query{
-//			SubQueries: singleQueries,
-//			Operation:  service.OperationType_OR,
-//			Offset:     0,
-//			Limit:      10,
-//		}
-//
-//		tx := mockDB.Session(&gorm.Session{})
-//		s := sql.NewGormQueryBuilder(simpleQuery, new(queryBuilder)).Build(tx)
-//		So(s, ShouldNotBeNil)
-//		s.(*gorm.DB).Find(&idm.RoleORM{})
-//		//So(s, ShouldEqual, "(uuid='role1') OR (uuid='role2')")
-//
-//	})
-//
-//	Convey("Query Builder W/ subquery", t, func() {
-//
-//		singleQ1, singleQ2, singleQ3 := new(idm.RoleSingleQuery), new(idm.RoleSingleQuery), new(idm.RoleSingleQuery)
-//
-//		singleQ1.Uuid = []string{"role1"}
-//		singleQ2.Uuid = []string{"role2"}
-//		singleQ3.Uuid = []string{"role3_1", "role3_2", "role3_3"}
-//
-//		singleQ1Any, err := anypb.New(singleQ1)
-//		So(err, ShouldBeNil)
-//
-//		singleQ2Any, err := anypb.New(singleQ2)
-//		So(err, ShouldBeNil)
-//
-//		singleQ3Any, err := anypb.New(singleQ3)
-//		So(err, ShouldBeNil)
-//
-//		subQuery1 := &service.Query{
-//			SubQueries: []*anypb.Any{singleQ1Any, singleQ2Any},
-//			Operation:  service.OperationType_OR,
-//		}
-//
-//		subQuery2 := &service.Query{
-//			SubQueries: []*anypb.Any{singleQ3Any},
-//		}
-//
-//		subQuery1Any, err := anypb.New(subQuery1)
-//		So(err, ShouldBeNil)
-//
-//		subQuery2Any, err := anypb.New(subQuery2)
-//		So(err, ShouldBeNil)
-//
-//		composedQuery := &service.Query{
-//			SubQueries: []*anypb.Any{
-//				subQuery1Any,
-//				subQuery2Any,
-//			},
-//			Offset:    0,
-//			Limit:     10,
-//			Operation: service.OperationType_AND,
-//		}
-//
-//		s := sql.NewGormQueryBuilder(composedQuery, new(queryBuilder)).Build(mockDB)
-//		So(s, ShouldNotBeNil)
-//		//So(s, ShouldEqual, "((uuid='role1') OR (uuid='role2')) AND ((uuid in ('role3_1','role3_2','role3_3')))")
-//
-//	})
-//
-//}
+func TestQueryBuilder(t *testing.T) {
+
+	test.RunStorageTests(testcases, func(ctx context.Context) {
+
+		dao, err := manager.Resolve[DAO](ctx)
+		if err != nil {
+			panic(err)
+		}
+
+		mockDB := dao.(*sqlimpl).db
+
+		Convey("Query Builder", t, func() {
+
+			singleQ1, singleQ2 := new(idm.RoleSingleQuery), new(idm.RoleSingleQuery)
+
+			singleQ1.Uuid = []string{"role1"}
+			singleQ2.Uuid = []string{"role2"}
+
+			singleQ1Any, err := anypb.New(singleQ1)
+			So(err, ShouldBeNil)
+
+			singleQ2Any, err := anypb.New(singleQ2)
+			So(err, ShouldBeNil)
+
+			var singleQueries []*anypb.Any
+			singleQueries = append(singleQueries, singleQ1Any)
+			singleQueries = append(singleQueries, singleQ2Any)
+
+			simpleQuery := &service.Query{
+				SubQueries: singleQueries,
+				Operation:  service.OperationType_OR,
+				Offset:     0,
+				Limit:      10,
+			}
+
+			s, er := sql.NewQueryBuilder[*gorm.DB](simpleQuery, new(queryBuilder)).Build(ctx, mockDB)
+			So(er, ShouldBeNil)
+			So(s, ShouldNotBeNil)
+
+			sqlStr := s.ToSQL(func(tx *gorm.DB) *gorm.DB {
+				return tx.Find(&[]idm.Role{})
+			})
+			So(sqlStr, ShouldEqual, "SELECT * FROM `roles` WHERE `uuid` = \"role1\" OR `uuid` = \"role2\" LIMIT 10")
+
+		})
+
+		Convey("Query Builder W/ subquery", t, func() {
+
+			singleQ1, singleQ2, singleQ3 := new(idm.RoleSingleQuery), new(idm.RoleSingleQuery), new(idm.RoleSingleQuery)
+
+			singleQ1.Uuid = []string{"role1"}
+			singleQ2.Uuid = []string{"role2"}
+			singleQ3.Uuid = []string{"role3_1", "role3_2", "role3_3"}
+
+			singleQ1Any, err := anypb.New(singleQ1)
+			So(err, ShouldBeNil)
+
+			singleQ2Any, err := anypb.New(singleQ2)
+			So(err, ShouldBeNil)
+
+			singleQ3Any, err := anypb.New(singleQ3)
+			So(err, ShouldBeNil)
+
+			subQuery1 := &service.Query{
+				SubQueries: []*anypb.Any{singleQ1Any, singleQ2Any},
+				Operation:  service.OperationType_OR,
+			}
+
+			subQuery2 := &service.Query{
+				SubQueries: []*anypb.Any{singleQ3Any},
+			}
+
+			subQuery1Any, err := anypb.New(subQuery1)
+			So(err, ShouldBeNil)
+
+			subQuery2Any, err := anypb.New(subQuery2)
+			So(err, ShouldBeNil)
+
+			composedQuery := &service.Query{
+				SubQueries: []*anypb.Any{
+					subQuery1Any,
+					subQuery2Any,
+				},
+				Offset:    0,
+				Limit:     10,
+				Operation: service.OperationType_AND,
+			}
+
+			s, er := sql.NewQueryBuilder[*gorm.DB](composedQuery, new(queryBuilder)).Build(ctx, mockDB)
+			So(er, ShouldBeNil)
+			So(s, ShouldNotBeNil)
+			sqlStr := s.ToSQL(func(tx *gorm.DB) *gorm.DB {
+				return tx.Find(&[]idm.Role{})
+			})
+
+			So(sqlStr, ShouldEqual, "SELECT * FROM `roles` WHERE (`uuid` = \"role1\" OR `uuid` = \"role2\") AND `uuid` IN (\"role3_1\",\"role3_2\",\"role3_3\") LIMIT 10")
+
+		})
+	})
+}
 
 func TestResourceRules(t *testing.T) {
 	test.RunStorageTests(testcases, func(ctx context.Context) {

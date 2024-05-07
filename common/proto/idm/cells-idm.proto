@@ -57,7 +57,7 @@ message Role {
     option (orm.ormPolicy).enabled = true;
 
     // Unique identifier of this role
-    string Uuid = 1                 [(orm.orm).gorm = {column: "uuid";}];
+    string Uuid = 1                 [(orm.orm).gorm = {column: "uuid"; primaryKey: true;}];
     // Label of this role
     string Label = 2                [(orm.orm).gorm = {column: "label";}];
     // Whether this role represents a user team or not
@@ -279,7 +279,7 @@ message Workspace {
     option (orm.ormPolicy).enabled = true;
 
     // Unique identifier of the workspace
-    string UUID = 1                               [(orm.orm).gorm = {column: "uuid";}];
+    string UUID = 1                               [(orm.orm).gorm = {column: "uuid"; primaryKey: true;}];
     // Label of the workspace (max length 500)
     string Label = 2                              [(orm.orm).gorm = {column: "label";}, (buf.validate.field).string.max_len = 500];
     // Description of the workspace (max length 1000)
@@ -445,7 +445,7 @@ message UserMeta {
     option (orm.ormPolicy).enabled = true;
 
     // Unique identifier of the metadata
-    string Uuid = 1     [(orm.orm).gorm = {column: "uuid";}];
+    string Uuid = 1     [(orm.orm).gorm = {column: "uuid";  primaryKey: true;}];
     // Unique identifier of the node to which meta is attached
     string NodeUuid = 2 [(orm.orm).gorm = {column: "uuid";}];
     // Namespace for the metadata

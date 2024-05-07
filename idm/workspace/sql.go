@@ -22,6 +22,7 @@ package workspace
 
 import (
 	"context"
+	"fmt"
 	"sync"
 	"time"
 
@@ -89,12 +90,31 @@ func (s *sqlimpl) Add(ctx context.Context, in interface{}) (bool, error) {
 		return false, errors.BadRequest(common.ServiceWorkspace, "Wrong type")
 	}
 
+	var exSlug string
+	exist := &idm.Workspace{UUID: workspace.UUID}
+	if tx := s.instance(ctx).First(exist); tx.Error == nil {
+		exSlug = exist.Slug
+	}
+	if (exSlug == "" || exSlug != workspace.Slug) && s.slugExists(ctx, workspace.Slug) {
+		index := 1
+		baseSlug := workspace.Slug
+		testSlug := fmt.Sprintf("%s-%v", baseSlug, index)
+		for {
+			if !s.slugExists(ctx, testSlug) {
+				break
+			}
+			index++
+			testSlug = fmt.Sprintf("%s-%v", baseSlug, index)
+		}
+		workspace.Slug = testSlug
+	}
+
 	tx := s.instance(ctx).FirstOrCreate(workspace)
 	if err := tx.Error; err != nil {
 		return false, err
 	}
 
-	return tx.RowsAffected > 0, nil
+	return tx.RowsAffected == 0, nil
 }
 
 // slugExists check in the DB if the slug already exists.
@@ -105,10 +125,9 @@ func (s *sqlimpl) slugExists(ctx context.Context, slug string) bool {
 	if common.IsReservedIdmWorkspaceSlug(slug) {
 		return true
 	}
-
-	tx := s.instance(ctx).First(&idm.Workspace{Slug: slug})
-
-	return tx.RowsAffected > 0
+	var count int64
+	s.instance(ctx).Model(idm.Workspace{}).Where("slug = ?", slug).Count(&count)
+	return count > 0
 }
 
 // Search searches

@@ -38,7 +38,7 @@ func TestBleve(t *testing.T) {
 		storage.Get(ctx, storage.WithName("test"))
 
 		indexer := &Indexer{}
-		conn.As(&indexer)
+		conn.Get(ctx, &indexer)
 
 		batch, err := indexer.NewBatch(contexts[0])
 		if err != nil {
@@ -62,13 +62,13 @@ func TestBleve(t *testing.T) {
 
 		<-time.After(5 * time.Second)
 
-		res, err := indexer.FindMany(contexts[0], "testing", 0, 10, nil)
+		res, err := indexer.FindMany(contexts[0], "testing", 0, 10, "", false, nil)
 		So(err, ShouldBeNil)
 		for r := range res {
 			fmt.Println(r.(*search.DocumentMatch).String())
 		}
 
-		res2, err := indexer.FindMany(contexts[1], "testing", 0, 10, nil)
+		res2, err := indexer.FindMany(contexts[1], "testing", 0, 10, "nil", false, nil)
 		So(err, ShouldBeNil)
 		for r := range res2 {
 			fmt.Println(r.(*search.DocumentMatch).Expl.String())
