@@ -7,10 +7,12 @@ import (
 	"sync"
 
 	"github.com/gorilla/sessions"
+	"gorm.io/gorm"
 
 	"github.com/pydio/cells/v4/common/config"
 	"github.com/pydio/cells/v4/common/dao"
 	"github.com/pydio/cells/v4/common/log"
+	"github.com/pydio/cells/v4/common/service/frontend/sessions/sqlsessions"
 	"github.com/pydio/cells/v4/common/service/frontend/sessions/utils"
 	"github.com/pydio/cells/v4/common/utils/configx"
 )
@@ -47,19 +49,23 @@ func NewCookieDAO() DAO {
 	return ci
 }
 
-//func NewSQLDAO(db *gorm.DB) DAO {
-//	timeout := config.Get("frontend", "plugin", "gui.ajax", "SESSION_TIMEOUT").Default(60).Int()
-//	defaultOptions := &sessions.Options{
-//		Path:     "/a/frontend",
-//		MaxAge:   60 * timeout,
-//		HttpOnly: true,
-//	}
-//
-//	return &sqlsessions.Impl{
-//		DB:      db,
-//		Options: defaultOptions,
-//	}
-//}
+func NewSQLDAO(db *gorm.DB) DAO {
+	timeout := config.Get("frontend", "plugin", "gui.ajax", "SESSION_TIMEOUT").Default(60).Int()
+	defaultOptions := &sessions.Options{
+		Path:     "/a/frontend",
+		MaxAge:   60 * timeout,
+		HttpOnly: true,
+	}
+
+	i := &sqlsessions.Impl{
+		DB:      db,
+		Options: defaultOptions,
+	}
+
+	db.AutoMigrate(&sqlsessions.SessionRow{})
+
+	return i
+}
 
 type DAO interface {
 	GetSession(r *http.Request) (*sessions.Session, error)

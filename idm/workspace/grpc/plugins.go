@@ -27,13 +27,10 @@ import (
 	"google.golang.org/grpc"
 
 	"github.com/pydio/cells/v4/common"
-	"github.com/pydio/cells/v4/common/broker"
 	"github.com/pydio/cells/v4/common/proto/idm"
 	service2 "github.com/pydio/cells/v4/common/proto/service"
 	"github.com/pydio/cells/v4/common/runtime"
-	"github.com/pydio/cells/v4/common/runtime/manager"
 	"github.com/pydio/cells/v4/common/service"
-	"github.com/pydio/cells/v4/common/service/resources"
 	"github.com/pydio/cells/v4/idm/workspace"
 )
 
@@ -54,30 +51,30 @@ func init() {
 				idm.RegisterWorkspaceServiceServer(srv, h)
 				service2.RegisterLoginModifierServer(srv, h)
 
-				// Register a cleaner for removing a workspace when there are no more ACLs on it.
-				wsCleaner := NewWsCleaner(ctx, h)
-				cleaner := &resources.PoliciesCleaner{
-					Options: resources.PoliciesCleanerOptions{
-						SubscribeRoles: true,
-						SubscribeUsers: true,
-					},
-					LogCtx: ctx,
-				}
+				//// Register a cleaner for removing a workspace when there are no more ACLs on it.
+				//wsCleaner := NewWsCleaner(ctx, h)
+				//cleaner := &resources.PoliciesCleaner{
+				//	Options: resources.PoliciesCleanerOptions{
+				//		SubscribeRoles: true,
+				//		SubscribeUsers: true,
+				//	},
+				//	LogCtx: ctx,
+				//}
 
-				if e := broker.SubscribeCancellable(ctx, common.TopicIdmEvent, func(ctx context.Context, message broker.Message) error {
-					ev := &idm.ChangeEvent{}
-					if ct, e := message.Unmarshal(ctx, ev); e == nil {
-						dao, err := manager.Resolve[workspace.DAO](ct)
-						if err != nil {
-							return err
-						}
-						_ = wsCleaner.Handle(ct, ev)
-						return cleaner.Handle(ct, dao, ev)
-					}
-					return nil
-				}); e != nil {
-					return e
-				}
+				//if e := broker.SubscribeCancellable(ctx, common.TopicIdmEvent, func(ctx context.Context, message broker.Message) error {
+				//	ev := &idm.ChangeEvent{}
+				//	if ct, e := message.Unmarshal(ctx, ev); e == nil {
+				//		dao, err := manager.Resolve[workspace.DAO](ct)
+				//		if err != nil {
+				//			return err
+				//		}
+				//		_ = wsCleaner.Handle(ct, ev)
+				//		return cleaner.Handle(ct, dao, ev)
+				//	}
+				//	return nil
+				//}); e != nil {
+				//	return e
+				//}
 				return nil
 			}),
 		)

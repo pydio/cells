@@ -24,6 +24,7 @@ package web
 import (
 	"context"
 	"encoding/base64"
+	"github.com/pydio/cells/v4/idm/oauth"
 	"net"
 	"net/http"
 	"strings"
@@ -76,7 +77,7 @@ func init() {
 					}
 
 					conf := auth.GetConfigurationProvider(host)
-					reg, e := auth.DuplicateRegistryForConf(common.ServiceGrpcNamespace_+common.ServiceOAuth, conf)
+					reg, e := oauth.DuplicateRegistryForConf(common.ServiceGrpcNamespace_+common.ServiceOAuth, conf)
 					if e != nil {
 						return e
 					}
@@ -137,7 +138,7 @@ func TokenMethodWrapper(ctx context.Context, handler http.Handler) http.Handler 
 			}
 
 			if clientId != "" {
-				if cli, er := auth.GetRegistry().OAuth2Storage().GetClient(ctx, clientId); er == nil {
+				if cli, er := oauth.GetRegistry().OAuth2Storage().GetClient(ctx, clientId); er == nil {
 					if oidcClient, ok := cli.(fosite.OpenIDConnectClient); ok {
 						if oidcClient.GetTokenEndpointAuthMethod() == "none" && r.Header != nil {
 							log.Logger(ctx).Debug("[/oidc/oauth2/token] Removing Basic Auth for public client")

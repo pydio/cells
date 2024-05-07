@@ -1,5 +1,3 @@
-//go:build exclude
-
 /*
  * Copyright (c) 2019-2021. Abstrium SAS <team (at) pydio.com>
  * This file is part of Pydio Cells.
@@ -163,4 +161,11 @@ func init() {
 	userCreateCmd.Flags().StringVarP(&userCreatePassword, "password", "p", "", "Password of the new user")
 
 	UserCmd.AddCommand(userCreateCmd)
+}
+
+func notEmpty(input string) error {
+	if len(input) == 0 {
+		return fmt.Errorf("Field cannot be empty!")
+	}
+	return nil
 }

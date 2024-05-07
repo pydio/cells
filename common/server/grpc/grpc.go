@@ -129,7 +129,7 @@ func NewWithServer(ctx context.Context, name string, s *grpc.Server, listen stri
 	})
 }
 
-func (s *Server) lazyGrpc(ctx context.Context) *grpc.Server {
+func (s *Server) lazyGrpc(rootContext context.Context) *grpc.Server {
 	s.Lock()
 	defer s.Unlock()
 
@@ -143,11 +143,13 @@ func (s *Server) lazyGrpc(ctx context.Context) *grpc.Server {
 	)
 
 	var reg registry.Registry
-	runtimecontext.Get(ctx, registry.ContextKey, &reg)
+	runtimecontext.Get(rootContext, registry.ContextKey, &reg)
 
 	unaryInterceptors = append(unaryInterceptors,
 
 		func(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (interface{}, error) {
+			ctx = runtimecontext.ForkContext(ctx, rootContext)
+
 			serviceName := runtimecontext.GetServiceName(ctx)
 			if serviceName != "" {
 				endpoints := reg.ListAdjacentItems(
@@ -225,7 +227,9 @@ func (s *Server) lazyGrpc(ctx context.Context) *grpc.Server {
 		//	return handler(srv, ss)
 		//},
 		func(srv interface{}, ss grpc.ServerStream, info *grpc.StreamServerInfo, handler grpc.StreamHandler) error {
-			serviceName := runtimecontext.GetServiceName(ss.Context())
+			ctx := runtimecontext.ForkContext(ss.Context(), rootContext)
+
+			serviceName := runtimecontext.GetServiceName(ctx)
 			if serviceName != "" {
 				endpoints := reg.ListAdjacentItems(
 					registry.WithAdjacentSourceItems([]registry.Item{s}),
@@ -284,11 +288,11 @@ func (s *Server) lazyGrpc(ctx context.Context) *grpc.Server {
 			servicecontext.MetricsUnaryServerInterceptor(),
 			servicecontext.ContextUnaryServerInterceptor(servicecontext.MetaIncomingContext),
 			servicecontext.ContextUnaryServerInterceptor(servicecontext.SpanIncomingContext),
-			servicecontext.ContextUnaryServerInterceptor(middleware.TargetNameToServiceNameContext(ctx)),
-			servicecontext.ContextUnaryServerInterceptor(middleware.ClientConnIncomingContext(ctx)),
-			servicecontext.ContextUnaryServerInterceptor(middleware.RegistryIncomingContext(ctx)),
-			servicecontext.ContextUnaryServerInterceptor(middleware.TenantIncomingContext(ctx)),
-			servicecontext.ContextUnaryServerInterceptor(middleware.ServiceIncomingContext(ctx)),
+			servicecontext.ContextUnaryServerInterceptor(middleware.TargetNameToServiceNameContext(rootContext)),
+			servicecontext.ContextUnaryServerInterceptor(middleware.ClientConnIncomingContext(rootContext)),
+			servicecontext.ContextUnaryServerInterceptor(middleware.RegistryIncomingContext(rootContext)),
+			servicecontext.ContextUnaryServerInterceptor(middleware.TenantIncomingContext(rootContext)),
+			servicecontext.ContextUnaryServerInterceptor(middleware.ServiceIncomingContext(rootContext)),
 			HandlerUnaryInterceptor(&unaryInterceptors),
 			otelgrpc.UnaryServerInterceptor(),
 		),
@@ -298,11 +302,11 @@ func (s *Server) lazyGrpc(ctx context.Context) *grpc.Server {
 			servicecontext.MetricsStreamServerInterceptor(),
 			servicecontext.ContextStreamServerInterceptor(servicecontext.MetaIncomingContext),
 			servicecontext.ContextStreamServerInterceptor(servicecontext.SpanIncomingContext),
-			servicecontext.ContextStreamServerInterceptor(middleware.TargetNameToServiceNameContext(ctx)),
-			servicecontext.ContextStreamServerInterceptor(middleware.ClientConnIncomingContext(ctx)),
-			servicecontext.ContextStreamServerInterceptor(middleware.RegistryIncomingContext(ctx)),
-			servicecontext.ContextStreamServerInterceptor(middleware.TenantIncomingContext(ctx)),
-			servicecontext.ContextStreamServerInterceptor(middleware.ServiceIncomingContext(ctx)),
+			servicecontext.ContextStreamServerInterceptor(middleware.TargetNameToServiceNameContext(rootContext)),
+			servicecontext.ContextStreamServerInterceptor(middleware.ClientConnIncomingContext(rootContext)),
+			servicecontext.ContextStreamServerInterceptor(middleware.RegistryIncomingContext(rootContext)),
+			servicecontext.ContextStreamServerInterceptor(middleware.TenantIncomingContext(rootContext)),
+			servicecontext.ContextStreamServerInterceptor(middleware.ServiceIncomingContext(rootContext)),
 			HandlerStreamInterceptor(&streamInterceptors),
 			otelgrpc.StreamServerInterceptor(),
 		),

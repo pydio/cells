@@ -36,6 +36,16 @@ import (
 	"github.com/pydio/cells/v4/common/utils/configx"
 )
 
+func init() {
+	runtimecontext.RegisterContextInjector(func(ctx, parent context.Context) context.Context {
+		var mg Manager
+		if runtimecontext.Get(parent, managerKey{}, &mg) {
+			return runtimecontext.With(ctx, managerKey{}, mg)
+		}
+		return ctx
+	})
+}
+
 type InitProvider interface {
 	Init(ctx context.Context, store configx.Values) error
 }

@@ -184,9 +184,9 @@ func (a *FrontendHandler) FrontPlugins(req *restful.Request, rsp *restful.Respon
 // FrontSessionGet loads a cookie-based session to get info about an access token
 func (a *FrontendHandler) FrontSessionGet(req *restful.Request, rsp *restful.Response) {
 
-	dao, er := manager.Resolve[sessions.DAO](req.Request.Context())
-	if er != nil {
-		service.RestError500(req, rsp, er)
+	dao, err := manager.Resolve[sessions.DAO](req.Request.Context())
+	if err != nil {
+		service.RestError500(req, rsp, fmt.Errorf("could not retrieve dao: %s", err))
 		return
 	}
 
@@ -210,10 +210,9 @@ func (a *FrontendHandler) FrontSessionGet(req *restful.Request, rsp *restful.Res
 
 // FrontSession initiate a cookie-based session based on a LoginRequest
 func (a *FrontendHandler) FrontSession(req *restful.Request, rsp *restful.Response) {
-
-	dao, er := manager.Resolve[sessions.DAO](req.Request.Context())
-	if er != nil {
-		service.RestError500(req, rsp, er)
+	dao, err := manager.Resolve[sessions.DAO](req.Request.Context())
+	if err != nil {
+		service.RestError500(req, rsp, fmt.Errorf("could not retrieve dao: %s", err))
 		return
 	}
 
@@ -288,9 +287,9 @@ func (a *FrontendHandler) FrontSession(req *restful.Request, rsp *restful.Respon
 // FrontSessionDel logs out user by clearing the associated cookie session.
 func (a *FrontendHandler) FrontSessionDel(req *restful.Request, rsp *restful.Response) {
 
-	dao, er := manager.Resolve[sessions.DAO](req.Request.Context())
-	if er != nil {
-		service.RestError500(req, rsp, er)
+	dao, err := manager.Resolve[sessions.DAO](req.Request.Context())
+	if err != nil {
+		service.RestError500(req, rsp, fmt.Errorf("could not retrieve dao: %s", err))
 		return
 	}
 

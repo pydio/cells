@@ -18,12 +18,13 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-package auth
+package oauth
 
 import (
 	"bufio"
 	"context"
 	"crypto/sha256"
+	"github.com/pydio/cells/v4/common/auth"
 	"net/url"
 	"os"
 	"regexp"
@@ -74,7 +75,6 @@ import (
 	"github.com/pydio/cells/v4/common/crypto"
 	"github.com/pydio/cells/v4/common/log"
 	"github.com/pydio/cells/v4/common/proto/install"
-	"github.com/pydio/cells/v4/common/registry"
 	"github.com/pydio/cells/v4/common/runtime/runtimecontext"
 	servicecontext "github.com/pydio/cells/v4/common/service/context"
 	json "github.com/pydio/cells/v4/common/utils/jsonx"
@@ -195,6 +195,17 @@ type cellsdriver struct {
 	sql.Dependencies
 	db  *gorm.DB
 	cfg *hconfig.DefaultProvider
+}
+
+func NewRegistryDAO(db *gorm.DB) Registry {
+	c := &cellsdriver{
+		db: db,
+	}
+
+	// TODO
+	c.Persister().MigrateUp(context.TODO())
+
+	return c
 }
 
 func NewRegistrySQL() *cellsdriver {
@@ -585,41 +596,41 @@ func CheckCollation(conn *pop.Connection, dbName string) (bool, error) {
 	return c > 0, err
 }
 
-func InitRegistry(ctx context.Context, dbServiceName string) (e error) {
-
-	logger := log.Logger(ctx)
-	var rg registry.Registry
-	if runtimecontext.Get(ctx, registry.ContextKey, &rg) {
-		if locker := rg.NewLocker("oauthinit"); locker != nil {
-			locker.Lock()
-			defer locker.Unlock()
-		}
-	}
-
-	//clients := defaultConf.Clients()
-
-	once.Do(func() {
-		//var dbName string
-		reg, _, e = createSqlRegistryForConf(dbServiceName, defaultConf)
-		if e != nil {
-			logger.Error("Cannot init registryFromDSN", zap.Error(e))
-		}
-
-		reg.Init(ctx, true, true, nil)
-
-		RegisterOryProvider(reg.OAuth2Provider())
-	})
-
-	if e != nil {
-		return
-	}
-
-	for _, onRegistryInit := range onRegistryInits {
-		onRegistryInit()
-	}
-
-	return nil
-}
+//func InitRegistry(ctx context.Context, dbServiceName string) (e error) {
+//
+//	logger := log.Logger(ctx)
+//	var rg registry.Registry
+//	if runtimecontext.Get(ctx, registry.ContextKey, &rg) {
+//		if locker := rg.NewLocker("oauthinit"); locker != nil {
+//			locker.Lock()
+//			defer locker.Unlock()
+//		}
+//	}
+//
+//	//clients := defaultConf.Clients()
+//
+//	once.Do(func() {
+//		//var dbName string
+//		reg, _, e = createSqlRegistryForConf(dbServiceName, defaultConf)
+//		if e != nil {
+//			logger.Error("Cannot init registryFromDSN", zap.Error(e))
+//		}
+//
+//		reg.Init(ctx, true, true, nil)
+//
+//		auth.RegisterOryProvider(reg.OAuth2Provider())
+//	})
+//
+//	if e != nil {
+//		return
+//	}
+//
+//	for _, onRegistryInit := range onRegistryInits {
+//		onRegistryInit()
+//	}
+//
+//	return nil
+//}
 
 func OnRegistryInit(f func()) {
 	onRegistryInits = append(onRegistryInits, f)
@@ -690,7 +701,7 @@ func getLogrusLogger(serviceName string) *logrus.Logger {
 	return logrusLogger
 }
 
-func createSqlRegistryForConf(serviceName string, conf ConfigurationProvider) (Registry, string, error) {
+func createSqlRegistryForConf(serviceName string, conf auth.ConfigurationProvider) (Registry, string, error) {
 
 	//lx := logrusx.New(
 	//	serviceName,
@@ -751,7 +762,7 @@ func GetRegistry() Registry {
 	return reg
 }
 
-func DuplicateRegistryForConf(refService string, c ConfigurationProvider) (Registry, error) {
+func DuplicateRegistryForConf(refService string, c auth.ConfigurationProvider) (Registry, error) {
 	r, _, e := createSqlRegistryForConf(refService, c)
 	return r, e
 }

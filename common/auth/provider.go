@@ -128,15 +128,15 @@ func NewProvider(rootURL string, values configx.Values) ConfigurationProvider {
 	_ = val.Val(hconf.KeyLogLevel).Set("trace")
 	_ = val.Val("log.leak_sensitive_values").Set(true)
 
-	rr := values.Val("insecureRedirects").StringArray()
-	sites, _ := routing.LoadSites()
-	var out []string
-	for _, r := range rr {
-		out = append(out, varsFromStr(r, sites)...)
-	}
-	if len(out) > 0 {
-		_ = val.Val("dangerous-allow-insecure-redirect-urls").Set(out)
-	}
+	//rr := values.Val("insecureRedirects").StringArray()
+	//sites, _ := routing.LoadSites()
+	//var out []string
+	//for _, r := range rr {
+	//	out = append(out, oauth.varsFromStr(r, sites)...)
+	//}
+	//if len(out) > 0 {
+	//	_ = val.Val("dangerous-allow-insecure-redirect-urls").Set(out)
+	//}
 
 	provider, err := hconf.New(context.TODO(), logrusx.New("test", "test"), hconfx.WithValues(val.Map()))
 	if err != nil {

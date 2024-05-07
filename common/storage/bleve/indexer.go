@@ -41,6 +41,7 @@ import (
 
 	"github.com/pydio/cells/v4/common/config"
 	"github.com/pydio/cells/v4/common/storage/indexer"
+	"github.com/pydio/cells/v4/common/utils/configx"
 	"github.com/pydio/cells/v4/common/utils/uuid"
 )
 
@@ -732,11 +733,13 @@ func (s *Indexer) openOneIndex(bleveIndexPath string, mappingName string) (bleve
 	if err != nil {
 		indexMapping := bleve.NewIndexMapping()
 		if s.codec != nil {
+			var val configx.Values
 			if s.serviceConfigs != nil {
-				if model, ok := s.codec.GetModel(s.serviceConfigs.Val()); ok {
-					if docMapping, ok := model.(*mapping.DocumentMapping); ok {
-						indexMapping.AddDocumentMapping(mappingName, docMapping)
-					}
+				val = s.serviceConfigs.Val()
+			}
+			if model, ok := s.codec.GetModel(val); ok {
+				if docMapping, ok := model.(*mapping.DocumentMapping); ok {
+					indexMapping.AddDocumentMapping(mappingName, docMapping)
 				}
 			}
 		}
@@ -794,8 +797,6 @@ func (s *Indexer) NewBatch(ctx context.Context, opts ...indexer.BatchOption) (in
 			return nil
 		}),
 		indexer.WithFlushCallback(func() error {
-
-			fmt.Println("Dowing batch")
 			if err := index.Batch(batch); err != nil {
 				return err
 			}

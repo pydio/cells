@@ -14,8 +14,8 @@ import (
 	"github.com/gorilla/sessions"
 	"go.uber.org/zap"
 	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
 
-	"github.com/pydio/cells/v4/common/dao"
 	"github.com/pydio/cells/v4/common/log"
 	"github.com/pydio/cells/v4/common/service/frontend/sessions/utils"
 	"github.com/pydio/cells/v4/common/utils/configx"
@@ -33,12 +33,13 @@ var (
 	}
 )
 
-type sessionRow struct {
-	id         string
-	data       string
-	createdOn  time.Time
-	modifiedOn time.Time
-	expiresOn  time.Time
+type SessionRow struct {
+	ID         string    `gorm:"primaryKey; column:id"`
+	Data       string    `gorm:"column:session_data"`
+	URL        string    `gorm:"column:session_url"`
+	CreatedOn  time.Time `gorm:"column:created_on"`
+	ModifiedOn time.Time `gorm:"column:modified_on"`
+	ExpiresOn  time.Time `gorm:"column:expires_on"`
 }
 
 func init() {
@@ -46,7 +47,6 @@ func init() {
 }
 
 type Impl struct {
-	dao.DAO
 	DB      *gorm.DB
 	Codecs  []securecookie.Codec
 	Options *sessions.Options
@@ -59,38 +59,11 @@ func (h *Impl) GetSession(r *http.Request) (*sessions.Session, error) {
 
 // Init handler for the SQL DAO
 func (h *Impl) Init(ctx context.Context, options configx.Values) error {
-
-	// super
-	if e := h.DAO.Init(ctx, options); e != nil {
-		return e
-	}
-
 	keys, er := utils.LoadKey()
 	if er != nil {
 		return er
 	}
 	h.Codecs = securecookie.CodecsFromPairs(keys)
-
-	// Doing the database migrations
-	//migrations := &sql.FSMigrationSource{
-	//	Box:         statics.AsFS(migrationsFS, "migrations"),
-	//	Dir:         h.Driver(),
-	//	TablePrefix: h.Prefix(),
-	//}
-
-	//_, err := sql.ExecMigration(h.DB(), h.Driver(), migrations, migrate.Up, "idm_frontend")
-	//if err != nil {
-	//	return err
-	//}
-	//
-	//// Preparing the db statements
-	//if options.Val("prepare").Default(true).Bool() {
-	//	for key, query := range queries {
-	//		if err := h.Prepare(key, query); err != nil {
-	//			return err
-	//		}
-	//	}
-	//}
 
 	return nil
 }
@@ -144,15 +117,18 @@ func (h *Impl) Save(r *http.Request, w http.ResponseWriter, session *sessions.Se
 }
 
 func (h *Impl) insert(u *url.URL, session *sessions.Session) error {
+
 	var createdOn time.Time
 	var modifiedOn time.Time
 	var expiresOn time.Time
+
 	crOn := session.Values["created_on"]
 	if crOn == nil {
 		createdOn = time.Now()
 	} else {
 		createdOn = crOn.(time.Time)
 	}
+
 	modifiedOn = createdOn
 	exOn := session.Values["expires_on"]
 	if exOn == nil {
@@ -168,20 +144,21 @@ func (h *Impl) insert(u *url.URL, session *sessions.Session) error {
 	if encErr != nil {
 		return encErr
 	}
-	stmt, e := h.GetStmt("insert")
-	if e != nil {
-		return fmt.Errorf("cannot get dao statement")
+
+	row := &SessionRow{
+		Data:       encoded,
+		URL:        fmt.Sprintf("%s://%s", u.Scheme, u.Host),
+		CreatedOn:  createdOn,
+		ModifiedOn: modifiedOn,
+		ExpiresOn:  expiresOn,
 	}
-	sU := fmt.Sprintf("%s://%s", u.Scheme, u.Host)
-	res, insErr := stmt.Exec(encoded, sU, createdOn, modifiedOn, expiresOn)
-	if insErr != nil {
-		return insErr
+	tx := h.DB.Create(row)
+	if err := tx.Error; err != nil {
+		return err
 	}
-	lastInserted, lInsErr := res.LastInsertId()
-	if lInsErr != nil {
-		return lInsErr
-	}
-	session.ID = fmt.Sprintf("%d", lastInserted)
+
+	session.ID = row.ID
+
 	return nil
 }
 
@@ -196,14 +173,11 @@ func (h *Impl) Delete(r *http.Request, w http.ResponseWriter, session *sessions.
 		delete(session.Values, k)
 	}
 
-	stmt, e := h.GetStmt("delete")
-	if e != nil {
-		return fmt.Errorf("cannot load dao statement")
+	tx := h.DB.Delete(&SessionRow{ID: session.ID})
+	if err := tx.Error; err != nil {
+		return err
 	}
-	_, delErr := stmt.Exec(session.ID)
-	if delErr != nil {
-		return delErr
-	}
+
 	return nil
 }
 
@@ -227,15 +201,12 @@ func (h *Impl) DeleteExpired(ctx context.Context, logger log.ZapLogger) {
 }
 
 func (h *Impl) deleteExpired() (int64, error) {
-	stmt, e := h.GetStmt("clean")
-	if e != nil {
-		return 0, e
+	tx := h.DB.Where(clause.Lt{Column: "expires_on", Value: time.Now()}).Delete(&SessionRow{})
+	if err := tx.Error; err != nil {
+		return 0, err
 	}
-	res, e := stmt.Exec()
-	if e != nil {
-		return 0, e
-	}
-	return res.RowsAffected()
+
+	return tx.RowsAffected, nil
 }
 
 func (h *Impl) update(u *url.URL, session *sessions.Session) error {
@@ -269,39 +240,38 @@ func (h *Impl) update(u *url.URL, session *sessions.Session) error {
 		return encErr
 	}
 
-	stmt, e := h.GetStmt("update")
-	if e != nil {
-		return fmt.Errorf("cannot load dao statement")
-	}
-	_, updErr := stmt.Exec(encoded, createdOn, expiresOn, session.ID)
-	if updErr != nil {
-		return updErr
+	tx := h.DB.Where(&SessionRow{ID: session.ID}).Updates(&SessionRow{
+		Data:       encoded,
+		URL:        fmt.Sprintf("%s://%s", u.Scheme, u.Host),
+		CreatedOn:  createdOn,
+		ModifiedOn: time.Now(),
+		ExpiresOn:  expiresOn,
+	})
+	if err := tx.Error; err != nil {
+		return err
 	}
 	return nil
 }
 
 func (h *Impl) load(session *sessions.Session) error {
-	stmt, e := h.GetStmt("select")
-	if e != nil {
-		return fmt.Errorf("cannot load dao statement")
+
+	var sess SessionRow
+	tx := h.DB.Where(&SessionRow{ID: session.ID}).First(&sess)
+	if err := tx.Error; err != nil {
+		return err
 	}
 
-	row := stmt.QueryRow(session.ID)
-	sess := sessionRow{}
-	scanErr := row.Scan(&sess.id, &sess.data, &sess.createdOn, &sess.modifiedOn, &sess.expiresOn)
-	if scanErr != nil {
-		return scanErr
-	}
-	if sess.expiresOn.Sub(time.Now()) < 0 {
-		log.Logger(context.Background()).Info(fmt.Sprintf("Session expired on %s, but it is %s now.", sess.expiresOn, time.Now()))
+	if sess.ExpiresOn.Sub(time.Now()) < 0 {
+		log.Logger(context.Background()).Info(fmt.Sprintf("Session expired on %s, but it is %s now.", sess.ExpiresOn, time.Now()))
 		return errors.New("Session expired")
 	}
-	err := securecookie.DecodeMulti(session.Name(), sess.data, &session.Values, h.Codecs...)
+
+	err := securecookie.DecodeMulti(session.Name(), sess.Data, &session.Values, h.Codecs...)
 	if err != nil {
 		return err
 	}
-	session.Values["created_on"] = sess.createdOn
-	session.Values["modified_on"] = sess.modifiedOn
-	session.Values["expires_on"] = sess.expiresOn
+	session.Values["created_on"] = sess.CreatedOn
+	session.Values["modified_on"] = sess.ModifiedOn
+	session.Values["expires_on"] = sess.ExpiresOn
 	return nil
 }

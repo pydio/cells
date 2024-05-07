@@ -1,13 +1,17 @@
-package auth
+package oauth
 
 import (
 	"context"
+	"time"
+
 	"github.com/ory/hydra/v2/client"
 	"github.com/ory/hydra/v2/consent"
 	"github.com/ory/hydra/v2/flow"
+	"github.com/ory/hydra/v2/oauth2/flowctx"
 	"github.com/ory/x/sqlxx"
 	"gorm.io/gorm"
-	"time"
+
+	"github.com/pydio/cells/v4/common/runtime/manager"
 )
 
 type consentDriver struct {
@@ -23,65 +27,55 @@ func (c *consentDriver) AutoMigrate() {
 }
 
 func (c *consentDriver) CreateConsentRequest(ctx context.Context, f *flow.Flow, req *flow.OAuth2ConsentRequest) error {
-	if tx := c.db.First(&f, "id=?", req.LoginChallenge); tx.Error != nil {
-		return tx.Error
-	}
-
-	if cli, err := c.r.ClientManager().GetConcreteClient(ctx, f.ClientID); err != nil {
-		return err
-	} else {
-		f.Client = cli
-	}
-
-	if tx := c.db.Model(f).Omit("Client").Updates(map[string]interface{}{
-		"state":                flow.FlowStateConsentInitialized,
-		"consent_challenge_id": req.ID,
-		"consent_skip":         req.Skip,
-		"consent_verifier":     req.Verifier,
-		"consent_csrf":         req.CSRF,
-	}); tx.Error != nil {
-		return tx.Error
-	}
+	f.State = flow.FlowStateConsentInitialized
+	f.ConsentChallengeID = sqlxx.NullString(req.ID)
+	f.ConsentSkip = req.Skip
+	f.ConsentVerifier = sqlxx.NullString(req.Verifier)
+	f.ConsentCSRF = sqlxx.NullString(req.CSRF)
 
 	return nil
 }
 
 func (c *consentDriver) GetConsentRequest(ctx context.Context, challenge string) (req *flow.OAuth2ConsentRequest, err error) {
 
-	var f *flow.Flow
-
-	if tx := c.db.First(&f, "consent_challenge_id=?", challenge); tx.Error != nil {
-		return nil, tx.Error
-	}
-
-	if cli, err := c.r.ClientManager().GetConcreteClient(ctx, f.ClientID); err != nil {
+	reg, err := manager.Resolve[Registry](ctx)
+	if err != nil {
 		return nil, err
-	} else {
-		f.Client = cli
 	}
+
+	f, err := flowctx.Decode[flow.Flow](ctx, reg.FlowCipher(), challenge, flowctx.AsConsentChallenge)
+	if err != nil {
+		return nil, err
+	}
+
+	f.ConsentChallengeID = sqlxx.NullString(challenge)
 
 	return ((*flow.Flow)(f)).GetConsentRequest(), nil
 }
 
 func (c *consentDriver) HandleConsentRequest(ctx context.Context, f *flow.Flow, r *flow.AcceptOAuth2ConsentRequest) (*flow.OAuth2ConsentRequest, error) {
 
-	if tx := c.db.First(&f, "consent_challenge_id=?", r.ID); tx.Error != nil {
-		return nil, tx.Error
-	}
+	//if tx := c.db.First(&f, "consent_challenge_id=?", r.ID); tx.Error != nil {
+	//	return nil, tx.Error
+	//}
 
-	if cli, err := c.r.ClientManager().GetConcreteClient(ctx, f.ClientID); err != nil {
-		return nil, err
-	} else {
-		f.Client = cli
-	}
+	//if cli, err := c.r.ClientManager().GetConcreteClient(ctx, f.ClientID); err != nil {
+	//	return nil, err
+	//} else {
+	//	f.Client = cli
+	//}
+
+	// Restore the short challenge ID, which was previously sent to the encoded flow,
+	// to make sure that the challenge ID in the returned flow matches the param.
+	r.ID = f.ConsentChallengeID.String()
 
 	if err := ((*flow.Flow)(f)).HandleConsentRequest(r); err != nil {
 		return nil, err
 	}
 
-	if tx := c.db.Omit("Client").Save(&f); tx.Error != nil {
-		return nil, tx.Error
-	}
+	//if tx := c.db.Omit("Client").Save(&f); tx.Error != nil {
+	//	return nil, tx.Error
+	//}
 
 	return ((*flow.Flow)(f)).GetConsentRequest(), nil
 }
@@ -95,24 +89,32 @@ func (c *consentDriver) RevokeSubjectClientConsentSession(ctx context.Context, u
 }
 
 func (c *consentDriver) VerifyAndInvalidateConsentRequest(ctx context.Context, verifier string) (*flow.AcceptOAuth2ConsentRequest, error) {
-	var f *Flow
-
-	tx := c.db.First(&f, "consent_verifier=?", verifier)
-	if tx.Error != nil {
-		return nil, tx.Error
-	}
-
-	if cli, err := c.r.ClientManager().GetConcreteClient(ctx, f.ClientID); err != nil {
+	reg, err := manager.Resolve[Registry](ctx)
+	if err != nil {
 		return nil, err
-	} else {
-		f.Client = cli
 	}
+
+	f, err := flowctx.Decode[flow.Flow](ctx, reg.FlowCipher(), verifier, flowctx.AsConsentVerifier)
+	if err != nil {
+		return nil, err
+	}
+
+	//tx := c.db.First(&f, "consent_verifier=?", verifier)
+	//if tx.Error != nil {
+	//	return nil, tx.Error
+	//}
+	//
+	//if cli, err := c.r.ClientManager().GetConcreteClient(ctx, f.ClientID); err != nil {
+	//	return nil, err
+	//} else {
+	//	f.Client = cli
+	//}
 
 	if err := ((*flow.Flow)(f)).InvalidateConsentRequest(); err != nil {
 		return nil, err
 	}
 
-	if tx := c.db.Omit("Client").Save(f); tx.Error != nil {
+	if tx := c.db.Omit("Client").Create(f); tx.Error != nil {
 		return nil, tx.Error
 	}
 
@@ -149,12 +151,15 @@ func (c *consentDriver) CreateLoginSession(ctx context.Context, session *flow.Lo
 
 	return nil
 }
+
 func (c *consentDriver) DeleteLoginSession(ctx context.Context, id string) (deletedSession *flow.LoginSession, err error) {
 	return
 }
+
 func (c *consentDriver) RevokeSubjectLoginSession(ctx context.Context, user string) error {
 	return nil
 }
+
 func (c *consentDriver) ConfirmLoginSession(ctx context.Context, loginSession *flow.LoginSession) error {
 	return nil
 }
@@ -168,66 +173,90 @@ func (c *consentDriver) CreateLoginRequest(ctx context.Context, req *flow.LoginR
 }
 
 func (c *consentDriver) GetLoginRequest(ctx context.Context, challenge string) (*flow.LoginRequest, error) {
-	var f *Flow
 
-	tx := c.db.First(&f, "id=?", challenge)
-	if tx.Error != nil {
-		return nil, tx.Error
-	}
-
-	if cli, err := c.r.ClientManager().GetConcreteClient(ctx, f.ClientID); err != nil {
+	reg, err := manager.Resolve[Registry](ctx)
+	if err != nil {
 		return nil, err
-	} else {
-		f.Client = cli
 	}
 
-	return ((*flow.Flow)(f)).GetLoginRequest(), nil
+	f, err := flowctx.Decode[flow.Flow](ctx, reg.FlowCipher(), challenge, flowctx.AsLoginChallenge)
+	if err != nil {
+		return nil, err
+	}
+
+	// TODO Max Age
+
+	//tx := c.db.First(&f, "id=?", challenge)
+	//if tx.Error != nil {
+	//	return nil, tx.Error
+	//}
+	//
+	//if cli, err := c.r.ClientManager().GetConcreteClient(ctx, f.ClientID); err != nil {
+	//	return nil, err
+	//} else {
+	//	f.Client = cli
+	//}
+
+	lr := f.GetLoginRequest()
+	lr.ID = challenge
+
+	return f.GetLoginRequest(), nil
 }
 
 func (c *consentDriver) HandleLoginRequest(ctx context.Context, f *flow.Flow, challenge string, r *flow.HandledLoginRequest) (*flow.LoginRequest, error) {
 
-	if tx := c.db.First(&f, "id=?", challenge); tx.Error != nil {
-		return nil, tx.Error
-	}
+	//if tx := c.db.First(&f, "id=?", challenge); tx.Error != nil {
+	//	return nil, tx.Error
+	//}
 
-	if cli, err := c.r.ClientManager().GetConcreteClient(ctx, f.ClientID); err != nil {
-		return nil, err
-	} else {
-		f.Client = cli
-	}
+	//if cli, err := c.r.ClientManager().GetConcreteClient(ctx, f.ClientID); err != nil {
+	//	return nil, err
+	//} else {
+	//	f.Client = cli
+	//}
+
+	r.ID = f.ID
 
 	if err := ((*flow.Flow)(f)).HandleLoginRequest(r); err != nil {
 		return nil, err
 	}
 
-	if tx := c.db.Omit("Client").Save(f); tx.Error != nil {
-		return nil, tx.Error
-	}
+	//if tx := c.db.Omit("Client").Save(f); tx.Error != nil {
+	//	return nil, tx.Error
+	//}
 
 	return ((*flow.Flow)(f)).GetLoginRequest(), nil
 }
 
 func (c *consentDriver) VerifyAndInvalidateLoginRequest(ctx context.Context, verifier string) (*flow.HandledLoginRequest, error) {
-	var f *Flow
-
-	tx := c.db.First(&f, "login_verifier=?", verifier)
-	if tx.Error != nil {
-		return nil, tx.Error
-	}
-
-	if cli, err := c.r.ClientManager().GetConcreteClient(ctx, f.ClientID); err != nil {
+	reg, err := manager.Resolve[Registry](ctx)
+	if err != nil {
 		return nil, err
-	} else {
-		f.Client = cli
 	}
+
+	f, err := flowctx.Decode[flow.Flow](ctx, reg.FlowCipher(), verifier, flowctx.AsLoginVerifier)
+	if err != nil {
+		return nil, err
+	}
+
+	//tx := c.db.First(&f, "login_verifier=?", verifier)
+	//if tx.Error != nil {
+	//	return nil, tx.Error
+	//}
+	//
+	//if cli, err := c.r.ClientManager().GetConcreteClient(ctx, f.ClientID); err != nil {
+	//	return nil, err
+	//} else {
+	//	f.Client = cli
+	//}
 
 	if err := ((*flow.Flow)(f)).InvalidateLoginRequest(); err != nil {
 		return nil, err
 	}
 
-	if tx := c.db.Omit("Client").Save(f); tx.Error != nil {
-		return nil, tx.Error
-	}
+	//if tx := c.db.Omit("Client").Save(f); tx.Error != nil {
+	//	return nil, tx.Error
+	//}
 
 	var d flow.HandledLoginRequest
 	d = ((*flow.Flow)(f)).GetHandledLoginRequest()

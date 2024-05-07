@@ -220,7 +220,7 @@ processes:
 # Storages
 storages: &storages
   sql:
-    uri: "sqlite3-extended://:memory:"
+    uri: "sqlite3-extended://test.db"
 #  search:
 #    uri: mongo+indexer://localhost:24017/search
   nosql:
@@ -242,6 +242,16 @@ storages: &storages
 # All services
 #------------------------------------
 services:
+  pydio.grpc.oauth:
+    storages:
+      main:
+        - type: sql
+          prefix: idm_oauth_
+  pydio.rest.frontend:
+    storages:
+      main:
+        - type: sql
+          prefix: idm_sessions_
   pydio.grpc.search:
     storages:
       main:

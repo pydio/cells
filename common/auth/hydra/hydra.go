@@ -103,14 +103,14 @@ func AcceptLogin(ctx context.Context, challenge string, subject string) (*Redire
 
 func CreateConsent(ctx context.Context, loginChallenge string) (*auth.ID, error) {
 
-	login, err := GetLogin(ctx, loginChallenge)
-	if err != nil {
-		return nil, err
-	}
+	//login, err := GetLogin(ctx, loginChallenge)
+	//if err != nil {
+	//	return nil, err
+	//}
 
 	c := auth.NewConsentProviderClient(OAuthConn(ctx))
 	resp, err := c.CreateConsent(ctx, &auth.CreateConsentRequest{
-		LoginChallenge: login.Challenge,
+		LoginChallenge: loginChallenge,
 	})
 	if err != nil {
 		return nil, err

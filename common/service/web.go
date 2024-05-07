@@ -43,10 +43,14 @@ import (
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/config/routing"
 	"github.com/pydio/cells/v4/common/log"
+	pb "github.com/pydio/cells/v4/common/proto/registry"
 	"github.com/pydio/cells/v4/common/proto/rest"
+	"github.com/pydio/cells/v4/common/registry"
+	"github.com/pydio/cells/v4/common/registry/util"
 	"github.com/pydio/cells/v4/common/runtime"
 	"github.com/pydio/cells/v4/common/runtime/runtimecontext"
 	"github.com/pydio/cells/v4/common/server"
+	"github.com/pydio/cells/v4/common/server/middleware"
 	servicecontext "github.com/pydio/cells/v4/common/service/context"
 	"github.com/pydio/cells/v4/common/service/frontend"
 )
@@ -117,7 +121,13 @@ func WithWeb(handler func(ctx context.Context) WebHandler) ServiceOption {
 				return fmt.Errorf("server %s is not a mux", o.Name)
 			}
 
-			//ctx := o.Context
+			mux = &httpServiceRegistrar{
+				RouteRegistrar: mux,
+				reg:            o.GetRegistry(),
+				srvId:          o.Server.ID(),
+				svcId:          o.ID,
+			}
+
 			log.Logger(ctx).Info("starting", zap.String("service", o.Name), zap.String("hook router to", serviceRoute))
 
 			ws := new(restful.WebService)
@@ -187,9 +197,11 @@ func WithWeb(handler func(ctx context.Context) WebHandler) ServiceOption {
 					wrapped = wrap(ctx, wrapped)
 				}
 			}
+
 			if o.UseWebSession {
 				wrapped = frontend.NewSessionWrapper(wrapped, o.WebSessionExcludes...)
 			}
+
 			wrapped = cors.Default().Handler(wrapped)
 
 			if rateLimit, err := strconv.Atoi(os.Getenv("CELLS_WEB_RATE_LIMIT")); err == nil {
@@ -211,7 +223,41 @@ func WithWeb(handler func(ctx context.Context) WebHandler) ServiceOption {
 				}
 			}
 
+			testServiceContext := func(h http.Handler, o *ServiceOptions) http.Handler {
+				return http.HandlerFunc(func(rw http.ResponseWriter, req *http.Request) {
+					ctx := runtimecontext.ForkContext(req.Context(), ctx)
+
+					var reg registry.Registry
+					runtimecontext.Get(ctx, registry.ContextKey, &reg)
+
+					path := strings.TrimSuffix(req.RequestURI, req.URL.Path)
+
+					endpoints := reg.ListAdjacentItems(
+						registry.WithAdjacentSourceItems([]registry.Item{o.Server}),
+						registry.WithAdjacentTargetOptions(registry.WithName(path), registry.WithType(pb.ItemType_ENDPOINT)),
+					)
+
+					for _, endpoint := range endpoints {
+						services := reg.ListAdjacentItems(
+							registry.WithAdjacentSourceItems([]registry.Item{endpoint}),
+							registry.WithAdjacentTargetOptions(registry.WithType(pb.ItemType_SERVICE)),
+						)
+
+						if len(services) != 1 {
+							continue
+						}
+
+						ctx = runtimecontext.With(ctx, ContextKey, services[0])
+					}
+
+					ctx, _, _ = middleware.TenantIncomingContext(nil)(ctx)
+
+					h.ServeHTTP(rw, req.WithContext(ctx))
+				})
+			}
+
 			wrapped = UpdateServiceVersionWrapper(wrapped, o)
+			wrapped = testServiceContext(wrapped, o)
 
 			/*
 				wrapped = func(h http.Handler, o *ServiceOptions) http.Handler {
@@ -346,4 +392,51 @@ func SwaggerSpec() *loads.Document {
 	}
 
 	return swaggerMergedDocument
+}
+
+type httpServiceRegistrar struct {
+	routing.RouteRegistrar
+	reg   registry.Registry
+	srvId string
+	svcId string
+}
+
+type regRoute struct {
+	routing.Route
+	reg   registry.Registry
+	svcId string
+	srvId string
+}
+
+// Route overrides parent to wrap Route
+func (r *httpServiceRegistrar) Route(id string) routing.Route {
+
+	route := r.RouteRegistrar.Route(id)
+
+	return &regRoute{
+		Route: route,
+		svcId: r.svcId,
+		srvId: r.srvId,
+		reg:   r.reg,
+	}
+}
+
+func (r *regRoute) Handle(pattern string, handler http.Handler, opts ...routing.HandleOption) {
+	r.Route.Handle(pattern, handler, opts...)
+
+	name := r.Route.Endpoint(pattern)
+
+	eps := r.reg.ListAdjacentItems(
+		registry.WithAdjacentSourceOptions(registry.WithID(r.srvId), registry.WithType(pb.ItemType_SERVER)),
+		registry.WithAdjacentTargetOptions(registry.WithName(name), registry.WithType(pb.ItemType_ENDPOINT)),
+	)
+
+	var ep registry.Item
+	if len(eps) == 1 {
+		ep = eps[0]
+	} else {
+		ep = util.CreateEndpoint(r.Route.Endpoint(pattern), handler, map[string]string{"type": "http"})
+	}
+
+	_ = r.reg.Register(ep, registry.WithEdgeTo(r.svcId, "handler", map[string]string{}))
 }

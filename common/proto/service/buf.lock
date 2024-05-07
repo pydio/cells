@@ -4,12 +4,15 @@ deps:
   - remote: buf.build
     owner: googleapis
     repository: googleapis
-    commit: 75b4300737fb4efca0831636be94e517
+    commit: 14bdc09318b24694992b8c84f63e3681
+    digest: shake256:7149cf5e9955c692d381e557830555d4e93f205a0f1b8e2dfdae46d029369aa3fc1980e35df0d310f7cc3b622f93e19ad276769a283a967dd3065ddfd3a40e13
   - remote: buf.build
     owner: grpc-ecosystem
     repository: grpc-gateway
-    commit: ff83506eb9cc4cf8972f49ce87e6ed3e
+    commit: 3a0a5baf4a92480691b031fba9530673
+    digest: shake256:67b115260e12cb2d6c5d5ce8dbbf3a095c86f0e52b84f9dbd16dec9433b218f8694bc9aadb1d45eb6fd52f5a7029977d460e2d58afb3208ab6c680e7b21c80e4
   - remote: buf.build
     owner: torq
     repository: go-proto-validators
     commit: a742bf388e99484c90d68761ea610c0e
+    digest: shake256:2fc30d8fcbc95ba9d0d8549a61614b469d3afbb9e7491ee0ba00eba9734d8b2d0db56c8dfab982f748daca30e7745e2792c3e253369bcfe5acf71aef9f84f5e4

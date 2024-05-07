@@ -64,7 +64,7 @@ func (s *ResourcesGORM) instance(ctx context.Context) *gorm.DB {
 	db := s.DB.Session(&gorm.Session{SkipDefaultTransaction: true}).WithContext(ctx)
 
 	s.once.Do(func() {
-		db.AutoMigrate(&service.ResourcePolicyORM{})
+		db.AutoMigrate(&service.ResourcePolicy{})
 	})
 
 	return db
@@ -77,7 +77,7 @@ func (s *ResourcesGORM) AddPolicy(ctx context.Context, resourceId string, policy
 
 	policy.Resource = resourceId
 
-	return s.instance(ctx).Create((*service.ResourcePolicyORM)(policy)).Error
+	return s.instance(ctx).Create((*service.ResourcePolicy)(policy)).Error
 }
 
 // AddPolicies persists a set of policies. If update is true, it replace them by deleting existing ones
@@ -87,14 +87,14 @@ func (s *ResourcesGORM) AddPolicies(ctx context.Context, update bool, resourceId
 
 	return s.instance(ctx).Transaction(func(tx *gorm.DB) error {
 		if update {
-			if err := tx.Where(&service.ResourcePolicyORM{Resource: resourceId}).Delete(&service.ResourcePolicyORM{}).Error; err != nil {
+			if err := tx.Where(&service.ResourcePolicy{Resource: resourceId}).Delete(&service.ResourcePolicy{}).Error; err != nil {
 				return err
 			}
 		}
 
 		for _, policy := range policies {
 			policy.Resource = resourceId
-			if err := tx.Create((*service.ResourcePolicyORM)(policy)).Error; err != nil {
+			if err := tx.Create((*service.ResourcePolicy)(policy)).Error; err != nil {
 				return err
 			}
 		}
@@ -116,7 +116,7 @@ func (s *ResourcesGORM) GetPoliciesForResource(ctx context.Context, resourceId s
 	timeout, cancel := context.WithTimeout(context.Background(), 50*time.Second)
 	defer cancel()
 
-	if err := s.instance(ctx).WithContext(timeout).Find(&res, &service.ResourcePolicyORM{Resource: resourceId}).Error; err != nil {
+	if err := s.instance(ctx).WithContext(timeout).Find(&res, &service.ResourcePolicy{Resource: resourceId}).Error; err != nil {
 		return nil, err
 	}
 
@@ -130,7 +130,7 @@ func (s *ResourcesGORM) DeletePoliciesForResource(ctx context.Context, resourceI
 
 	//s.cache.Delete(resourceId)
 
-	return s.instance(ctx).Delete(&service.ResourcePolicyORM{}, &service.ResourcePolicyORM{Resource: resourceId}).Error
+	return s.instance(ctx).Delete(&service.ResourcePolicy{}, &service.ResourcePolicy{Resource: resourceId}).Error
 }
 
 // GetPoliciesForSubject finds all policies with a given subject
@@ -140,7 +140,7 @@ func (s *ResourcesGORM) GetPoliciesForSubject(ctx context.Context, subject strin
 	timeout, cancel := context.WithTimeout(context.Background(), 50*time.Second)
 	defer cancel()
 
-	if err := s.instance(ctx).WithContext(timeout).Find(&res, &service.ResourcePolicyORM{Subject: subject}).Error; err != nil {
+	if err := s.instance(ctx).WithContext(timeout).Find(&res, &service.ResourcePolicy{Subject: subject}).Error; err != nil {
 		return nil, err
 	}
 
@@ -153,7 +153,7 @@ func (s *ResourcesGORM) ReplacePoliciesSubject(ctx context.Context, oldSubject, 
 	timeout, cancel := context.WithTimeout(context.Background(), 50*time.Second)
 	defer cancel()
 
-	tx := s.instance(ctx).WithContext(timeout).Where(&service.ResourcePolicyORM{Subject: oldSubject}).Updates(&service.ResourcePolicyORM{Subject: newSubject})
+	tx := s.instance(ctx).WithContext(timeout).Where(&service.ResourcePolicy{Subject: oldSubject}).Updates(&service.ResourcePolicy{Subject: newSubject})
 	if err := tx.Error; err != nil {
 		return 0, err
 	}
@@ -177,7 +177,7 @@ func (s *ResourcesGORM) DeletePoliciesBySubject(ctx context.Context, subject str
 	//	}
 	//})
 
-	return s.instance(ctx).Delete(&service.ResourcePolicyORM{}, &service.ResourcePolicyORM{Subject: subject}).Error
+	return s.instance(ctx).Delete(&service.ResourcePolicy{}, &service.ResourcePolicy{Subject: subject}).Error
 }
 
 // DeletePoliciesForResourceAndAction removes policies for a given resource only if they have the corresponding action
@@ -185,7 +185,7 @@ func (s *ResourcesGORM) DeletePoliciesForResourceAndAction(ctx context.Context, 
 
 	//s.cache.Delete(resourceId)
 
-	return s.instance(ctx).Delete(&service.ResourcePolicyORM{}, &service.ResourcePolicyORM{Resource: resourceId, Action: action}).Error
+	return s.instance(ctx).Delete(&service.ResourcePolicy{}, &service.ResourcePolicy{Resource: resourceId, Action: action}).Error
 
 }
 
@@ -199,16 +199,16 @@ func (s *ResourcesGORM) BuildPolicyConditionForAction(ctx context.Context, q *se
 	subjects := q.GetSubjects()
 
 	if q.Empty {
-		subQuery := s.instance(ctx).Model(&service.ResourcePolicyORM{}).Select("1").Where(&service.ResourcePolicyORM{Resource: leftIdentifier, Action: action})
+		subQuery := s.instance(ctx).Model(&service.ResourcePolicy{}).Select("1").Where(&service.ResourcePolicy{Resource: leftIdentifier, Action: action})
 
 		return s.instance(ctx).Not("EXISTS(?)", subQuery), nil
 
 	} else {
-		subQuery := s.DB.Model(&service.ResourcePolicyORM{}).Select("1").Where(&service.ResourcePolicyORM{Resource: leftIdentifier, Action: action})
+		subQuery := s.DB.Model(&service.ResourcePolicy{}).Select("1").Where(&service.ResourcePolicy{Resource: leftIdentifier, Action: action})
 		if len(subjects) > 0 {
 			subjectQuery := s.DB
 			for _, subject := range subjects {
-				subjectQuery = subjectQuery.Or(&service.ResourcePolicyORM{Subject: subject})
+				subjectQuery = subjectQuery.Or(&service.ResourcePolicy{Subject: subject})
 			}
 
 			subQuery.Where(subjectQuery)
@@ -231,24 +231,24 @@ func (s *ResourcesGORM) Convert(ctx context.Context, val *anypb.Any, db *gorm.DB
 	db = db.Session(&gorm.Session{})
 
 	if q.Empty {
-		subQuery := s.instance(ctx).Model(&service.ResourcePolicyORM{}).Select("resource").Where(&service.ResourcePolicyORM{Action: service.ResourcePolicyAction_ANY})
+		subQuery := s.instance(ctx).Model(&service.ResourcePolicy{}).Select("resource").Where(&service.ResourcePolicy{Action: service.ResourcePolicyAction_ANY})
 		count++
 		db = db.Not("uuid IN(?)", subQuery)
 	} else {
 		subjects := q.GetSubjects()
 
-		subQuery := s.instance(ctx).Model(&service.ResourcePolicyORM{}).Select("resource")
+		subQuery := s.instance(ctx).Model(&service.ResourcePolicy{}).Select("resource")
 		if len(subjects) > 0 {
 			subjectQuery := s.instance(ctx)
 			for i, subject := range subjects {
 				if i == 0 {
-					subjectQuery = subjectQuery.Where(&service.ResourcePolicyORM{Subject: subject})
+					subjectQuery = subjectQuery.Where(&service.ResourcePolicy{Subject: subject})
 				} else {
-					subjectQuery = subjectQuery.Or(&service.ResourcePolicyORM{Subject: subject})
+					subjectQuery = subjectQuery.Or(&service.ResourcePolicy{Subject: subject})
 				}
 			}
 
-			subQuery = subQuery.Where(&service.ResourcePolicyORM{Action: service.ResourcePolicyAction_ANY}).Where(subjectQuery)
+			subQuery = subQuery.Where(&service.ResourcePolicy{Action: service.ResourcePolicyAction_ANY}).Where(subjectQuery)
 		}
 		count++
 		db = db.Where("uuid IN (?)", subQuery)

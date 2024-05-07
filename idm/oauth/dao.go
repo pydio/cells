@@ -22,8 +22,6 @@
 package oauth
 
 import (
-	"context"
-	"github.com/pydio/cells/v4/common/storage"
 	"gorm.io/gorm"
 
 	"github.com/pydio/cells/v4/common/dao"
@@ -46,12 +44,6 @@ type DAO interface {
 }
 
 // NewDAO creates a new DAO interface implementation. Only SQL is supported.
-func NewDAO(ctx context.Context) (dao.DAO, error) {
-	var db *gorm.DB
-
-	if storage.Get(ctx, &db) {
-		return &sqlImpl{db: db}, nil
-	}
-
-	return nil, storage.NotFound
+func NewDAO(db *gorm.DB) dao.DAO {
+	return &sqlImpl{db: db}
 }

@@ -31,6 +31,7 @@ import (
 	"github.com/pydio/cells/v4/common/runtime"
 	"github.com/pydio/cells/v4/common/service"
 	"github.com/pydio/cells/v4/common/service/frontend"
+	"github.com/pydio/cells/v4/common/service/frontend/sessions"
 	front_srv "github.com/pydio/cells/v4/frontend/front-srv"
 	"github.com/pydio/cells/v4/frontend/front-srv/rest/modifiers"
 )
@@ -112,18 +113,7 @@ func init() {
 			service.Tag(common.ServiceTagFrontend),
 			service.Description("REST service for serving specific requests directly to frontend"),
 			service.PluginBoxes(BasePluginsBox),
-			// TODO - SESSION MANAGEMENT AS DAO
-			//service.WithStorage(
-			//	"DAO",
-			//	sessions.NewCookieDAO,
-			//	service.Default(true),
-			//	service.WithStoragePrefix("idm_frontend_"),
-			//),
-			//service.WithStorage(
-			//	"DAO",
-			//	sessions.NewSQLDAO,
-			//	service.WithStoragePrefix("idm_frontend_"),
-			//),
+			service.WithStorageDrivers(sessions.NewSQLDAO),
 			service.WithWebSession("POST:/frontend/binaries"),
 			service.WithWeb(func(c context.Context) service.WebHandler {
 				//dao := servicecontext.GetDAO(c)

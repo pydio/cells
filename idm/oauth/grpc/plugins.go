@@ -31,14 +31,12 @@ import (
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/auth"
 	"github.com/pydio/cells/v4/common/client/commons/jobsc"
-	grpc2 "github.com/pydio/cells/v4/common/client/grpc"
 	"github.com/pydio/cells/v4/common/config"
 	log2 "github.com/pydio/cells/v4/common/log"
 	auth2 "github.com/pydio/cells/v4/common/proto/auth"
 	"github.com/pydio/cells/v4/common/proto/jobs"
 	"github.com/pydio/cells/v4/common/runtime"
 	"github.com/pydio/cells/v4/common/service"
-	servicecontext "github.com/pydio/cells/v4/common/service/context"
 	"github.com/pydio/cells/v4/common/service/errors"
 	"github.com/pydio/cells/v4/common/utils/configx"
 	"github.com/pydio/cells/v4/common/utils/i18n"
@@ -49,6 +47,61 @@ import (
 var (
 	Name = common.ServiceGrpcNamespace_ + common.ServiceOAuth
 )
+
+//func NewAuthRegistry(db *gorm.DB) (auth.Registry, error) {
+//	//if strings.HasPrefix(path, "mysql") {
+//	//	mysqlConfig, err := tools.ParseDSN(path)
+//	//	if err != nil {
+//	//		return nil, err
+//	//	}
+//	//	if ssl, ok := mysqlConfig.Params["ssl"]; ok && ssl == "true" {
+//	//		u := &url.URL{}
+//	//		q := u.Query()
+//	//		q.Add(crypto.KeyCertStoreName, mysqlConfig.Params[crypto.KeyCertStoreName])
+//	//		q.Add(crypto.KeyCertInsecureHost, mysqlConfig.Params[crypto.KeyCertInsecureHost])
+//	//		q.Add(crypto.KeyCertUUID, mysqlConfig.Params[crypto.KeyCertUUID])
+//	//		q.Add(crypto.KeyCertKeyUUID, mysqlConfig.Params[crypto.KeyCertKeyUUID])
+//	//		q.Add(crypto.KeyCertCAUUID, mysqlConfig.Params[crypto.KeyCertCAUUID])
+//	//		u.RawQuery = q.Encode()
+//	//
+//	//		tlsConfig, err := crypto.TLSConfigFromURL(u)
+//	//		if err != nil {
+//	//			return nil, err
+//	//		}
+//	//		if tlsConfig != nil {
+//	//			delete(mysqlConfig.Params, "ssl")
+//	//			delete(mysqlConfig.Params, crypto.KeyCertStoreName)
+//	//			delete(mysqlConfig.Params, crypto.KeyCertInsecureHost)
+//	//			delete(mysqlConfig.Params, crypto.KeyCertUUID)
+//	//			delete(mysqlConfig.Params, crypto.KeyCertKeyUUID)
+//	//			delete(mysqlConfig.Params, crypto.KeyCertCAUUID)
+//	//
+//	//			tools.RegisterTLSConfig("cells", tlsConfig)
+//	//			mysqlConfig.TLSConfig = "cells"
+//	//			path = mysqlConfig.FormatDSN()
+//	//		}
+//	//	}
+//	//
+//	//	// dbName = mysqlConfig.DBName
+//	//}
+//
+//	sqlDB, err := db.DB()
+//	if err != nil {
+//		return nil, err
+//	}
+//
+//	driver, err := dbal.GetDriverFor(sqlDB.Conn())
+//	if err != nil {
+//		return nil, err
+//	}
+//
+//	reg := driver.(auth.Registry)
+//	reg.Init(ctx, true, true, nil)
+//
+//	auth.RegisterOryProvider(reg.OAuth2Provider())
+//
+//	return reg, err
+//}
 
 func init() {
 	jobs.RegisterDefault(pruningJob("en-us"), Name)
@@ -65,19 +118,20 @@ func init() {
 					Up:            insertPruningJob,
 				},
 			}),
+			service.WithStorageDrivers(oauth.NewRegistryDAO),
 			service.WithGRPC(func(ctx context.Context, server grpc.ServiceRegistrar) error {
 				h := &Handler{name: Name}
 
-				auth2.RegisterAuthTokenVerifierEnhancedServer(server, h)
-				auth2.RegisterLoginProviderEnhancedServer(server, h)
-				auth2.RegisterConsentProviderEnhancedServer(server, h)
-				auth2.RegisterLogoutProviderEnhancedServer(server, h)
-				auth2.RegisterAuthCodeProviderEnhancedServer(server, h)
-				auth2.RegisterAuthCodeExchangerEnhancedServer(server, h)
-				auth2.RegisterAuthTokenRefresherEnhancedServer(server, h)
-				auth2.RegisterAuthTokenRevokerEnhancedServer(server, h)
-				auth2.RegisterAuthTokenPrunerEnhancedServer(server, h)
-				auth2.RegisterPasswordCredentialsTokenEnhancedServer(server, h)
+				auth2.RegisterAuthTokenVerifierServer(server, h)
+				auth2.RegisterLoginProviderServer(server, h)
+				auth2.RegisterConsentProviderServer(server, h)
+				auth2.RegisterLogoutProviderServer(server, h)
+				auth2.RegisterAuthCodeProviderServer(server, h)
+				auth2.RegisterAuthCodeExchangerServer(server, h)
+				auth2.RegisterAuthTokenRefresherServer(server, h)
+				auth2.RegisterAuthTokenRevokerServer(server, h)
+				auth2.RegisterAuthTokenPrunerServer(server, h)
+				auth2.RegisterPasswordCredentialsTokenServer(server, h)
 
 				watcher, _ := config.Watch(configx.WithPath("services", common.ServiceWebNamespace_+common.ServiceOAuth))
 				go func() {
@@ -91,15 +145,16 @@ func init() {
 					}
 				}()
 
+				return nil
 				// Registry initialization
 				// Blocking on purpose, as it should block login
-				er := auth.InitRegistry(ctx, Name)
-				if er == nil {
-					log2.Logger(ctx).Info("Finished auth.InitRegistry")
-				} else {
-					log2.Logger(ctx).Info("Error while applying auth.InitRegistry", zap.Error(er))
-				}
-				return er
+				//er := auth.InitRegistry(ctx, Name)
+				//if er == nil {
+				//	log2.Logger(ctx).Info("Finished auth.InitRegistry")
+				//} else {
+				//	log2.Logger(ctx).Info("Error while applying auth.InitRegistry", zap.Error(er))
+				//}
+				//return er
 			}),
 		)
 
@@ -108,15 +163,14 @@ func init() {
 			service.Context(ctx),
 			service.Tag(common.ServiceTagIdm),
 			service.Description("Personal Access Token Provider"),
-			service.WithStorage(oauth.NewDAO, service.WithStoragePrefix("idm_oauth_")),
+			service.WithStorageDrivers(oauth.NewDAO),
 			service.WithGRPC(func(ctx context.Context, server grpc.ServiceRegistrar) error {
-				pat := &PatHandler{
+				pat := &PATHandler{
 					name: common.ServiceGrpcNamespace_ + common.ServiceToken,
-					dao:  servicecontext.GetDAO(ctx).(oauth.DAO),
 				}
-				auth2.RegisterPersonalAccessTokenServiceEnhancedServer(server, pat)
-				auth2.RegisterAuthTokenVerifierEnhancedServer(server, pat)
-				auth2.RegisterAuthTokenPrunerEnhancedServer(server, pat)
+				auth2.RegisterPersonalAccessTokenServiceServer(server, pat)
+				auth2.RegisterAuthTokenVerifierServer(server, pat)
+				auth2.RegisterAuthTokenPrunerServer(server, pat)
 				return nil
 			}),
 		)
