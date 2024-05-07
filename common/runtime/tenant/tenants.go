@@ -83,12 +83,12 @@ type basicManager struct {
 }
 
 func (b *basicManager) GetMaster() Tenant {
-	m, _ := b.TenantByID("master")
+	m, _ := b.TenantByID("default")
 	return m
 }
 
 func (b *basicManager) IsMaster(t Tenant) bool {
-	return t.ID() == "master"
+	return t.ID() == "default"
 }
 
 func (b *basicManager) Iterate(c context.Context, f func(ctx context.Context, t Tenant) error) error {
