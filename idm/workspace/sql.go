@@ -176,37 +176,25 @@ func (c *queryBuilder) Convert(ctx context.Context, val *anypb.Any, db *gorm.DB)
 
 	if len(q.Uuid) > 0 {
 		count++
-		if q.Not {
-			db.Not(map[string]interface{}{"uuid": q.Uuid})
-		} else {
-			db.Where(map[string]interface{}{"uuid": q.Uuid})
-		}
+		db = sql.GormConvertString(db, q.Not, "uuid", q.Uuid)
 	}
 
 	if len(q.Slug) > 0 {
 		count++
-		if q.Not {
-			db.Not(map[string]interface{}{"slug": q.Slug})
-		} else {
-			db.Where(map[string]interface{}{"slug": q.Slug})
-		}
+		db = sql.GormConvertString(db, q.Not, "slug", q.Slug)
 	}
 
 	if len(q.Label) > 0 {
 		count++
-		if q.Not {
-			db.Not(map[string]interface{}{"label": q.Label})
-		} else {
-			db.Where(map[string]interface{}{"label": q.Label})
-		}
+		db = sql.GormConvertString(db, q.Not, "label", q.Label)
 	}
 
 	if q.Scope != idm.WorkspaceScope_ANY {
 		count++
 		if q.Not {
-			db.Not(map[string]interface{}{"scope": q.Scope})
+			db = db.Not(map[string]interface{}{"scope": q.Scope})
 		} else {
-			db.Where(map[string]interface{}{"scope": q.Scope})
+			db = db.Where(map[string]interface{}{"scope": q.Scope})
 		}
 	}
 
@@ -215,9 +203,9 @@ func (c *queryBuilder) Convert(ctx context.Context, val *anypb.Any, db *gorm.DB)
 			ref := int32(time.Now().Add(-d).Unix())
 			count++
 			if lt || q.Not {
-				db.Where("last_updated < ?", ref)
+				db = db.Where("last_updated < ?", ref)
 			} else {
-				db.Where("last_updated > ?", ref)
+				db = db.Where("last_updated > ?", ref)
 			}
 		} else {
 			return db, false, e
@@ -226,19 +214,11 @@ func (c *queryBuilder) Convert(ctx context.Context, val *anypb.Any, db *gorm.DB)
 
 	if q.HasAttribute != "" {
 		count++
-		if q.Not {
-			db.Not("attributes LIKE ?", "%"+q.HasAttribute+":%")
-		} else {
-			db.Where("attributes LIKE ?", "%"+q.HasAttribute+":%")
-		}
+		db = sql.GormConvertString(db, q.Not, "attributes", "*"+q.HasAttribute+":*")
 	}
 	if q.AttributeName != "" && q.AttributeValue != "" {
 		count++
-		if q.Not {
-			db.Not("attributes LIKE ?", "%"+q.AttributeName+":"+q.AttributeValue+":%")
-		} else {
-			db.Where("attributes LIKE ?", "%"+q.AttributeName+":"+q.AttributeValue+":%")
-		}
+		db = sql.GormConvertString(db, q.Not, "attributes", "*"+q.AttributeName+":"+q.AttributeValue+":*")
 	}
 
 	return db, count > 0, nil

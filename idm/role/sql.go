@@ -22,20 +22,19 @@ package role
 
 import (
 	"context"
-	"strings"
 	"sync"
 	"time"
 
 	"google.golang.org/protobuf/proto"
 	"google.golang.org/protobuf/types/known/anypb"
 	"gorm.io/gorm"
-	"gorm.io/gorm/clause"
 
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/proto/idm"
 	"github.com/pydio/cells/v4/common/service/errors"
 	"github.com/pydio/cells/v4/common/sql"
 	"github.com/pydio/cells/v4/common/sql/resources"
+	"github.com/pydio/cells/v4/common/utils/uuid"
 )
 
 type resourcesDAO resources.DAO
@@ -119,14 +118,24 @@ func (s *sqlimpl) Add(ctx context.Context, role *idm.Role) (*idm.Role, bool, err
 		role.LastUpdated = int32(time.Now().Unix())
 	}
 
-	tx := s.instance(ctx).FirstOrCreate((*idm.Role)(role), (*idm.Role)(role))
-	if tx.Error != nil {
-		return nil, false, tx.Error
+	if role.Uuid == "" {
+		role.Uuid = uuid.New()
 	}
 
-	update := tx.RowsAffected > 0
-
-	return role, update, nil
+	var update bool
+	exist := &idm.Role{Uuid: role.Uuid}
+	var er error
+	if t := s.instance(ctx).First(exist); t.Error == nil {
+		update = true
+		if tx := s.instance(ctx).Updates(role); tx.Error != nil {
+			er = tx.Error
+		}
+	} else {
+		if tx := s.instance(ctx).Create(role); tx.Error != nil {
+			er = tx.Error
+		}
+	}
+	return role, update, er
 }
 
 func (s *sqlimpl) Count(ctx context.Context, query sql.Enquirer) (int32, error) {
@@ -194,25 +203,11 @@ func (c *queryBuilder) Convert(ctx context.Context, val *anypb.Any, db *gorm.DB)
 
 	if len(q.Uuid) > 0 {
 		count++
-		if q.Not {
-			db = db.Not(map[string]interface{}{"uuid": q.Uuid})
-		} else {
-			db = db.Where(map[string]interface{}{"uuid": q.Uuid})
-		}
+		db = sql.GormConvertString(db, q.Not, "uuid", q.Uuid...)
 	}
 	if len(q.Label) > 0 {
 		count++
-		var cl interface{}
-		if strings.Contains(q.Label, "*") {
-			cl = clause.Like{Column: "label", Value: strings.Replace(q.Label, "*", "%", -1)}
-		} else {
-			cl = clause.Eq{Column: "label", Value: q.Label}
-		}
-		if q.Not {
-			db = db.Not(cl)
-		} else {
-			db = db.Where(cl)
-		}
+		db = sql.GormConvertString(db, q.Not, "label", q.Label)
 	}
 	if q.IsGroupRole {
 		count++

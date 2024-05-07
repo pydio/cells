@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2021. Abstrium SAS <team (at) pydio.com>
+ * Copyright (c) 2024. Abstrium SAS <team (at) pydio.com>
  * This file is part of Pydio Cells.
  *
  * Pydio Cells is free software: you can redistribute it and/or modify
@@ -138,61 +138,3 @@ func (qb *queryBuilder[T]) Build(ctx context.Context, in T) (out T, e error) {
 
 	return out, nil
 }
-
-// GetExpressionForString creates correct goqu.Expression for field + string value
-// TODO - NOT USED ANYMORE BUT **RECHECK THE WILDCARD MANAGEMENT** => ILIKE % IMPL
-/*
-func GetExpressionForString(neq bool, field interface{}, values ...string) (expression goqu.Expression) {
-
-	var gf exp.IdentifierExpression
-	if i, o := field.(exp.IdentifierExpression); o {
-		gf = i
-	} else {
-		gf = goqu.C(field.(string))
-	}
-	if len(values) > 1 {
-		var dedup []string
-		already := make(map[string]struct{})
-
-		for _, s := range values {
-			if _, f := already[s]; f {
-				continue
-			}
-			dedup = append(dedup, s)
-			already[s] = struct{}{}
-		}
-
-		if len(dedup) == 1 {
-			if neq {
-				expression = gf.Neq(dedup[0])
-			} else {
-				expression = gf.Eq(dedup[0])
-			}
-		} else {
-			if neq {
-				expression = gf.NotIn(dedup)
-			} else {
-				expression = gf.In(dedup)
-			}
-		}
-
-	} else if len(values) == 1 {
-		v := values[0]
-		if strings.Contains(v, "*") {
-			if neq {
-				expression = gf.NotILike(strings.Replace(v, "*", "%", -1))
-			} else {
-				expression = gf.ILike(strings.Replace(v, "*", "%", -1))
-			}
-		} else {
-			if neq {
-				expression = gf.Neq(v)
-			} else {
-				expression = gf.Eq(v)
-			}
-		}
-	}
-
-	return
-}
-*/
