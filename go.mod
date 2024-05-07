@@ -16,7 +16,6 @@ require (
 	github.com/caddyserver/certmagic v0.20.0
 	github.com/cskr/pubsub v1.0.2
 	github.com/disintegration/imaging v1.6.2
-	github.com/doug-martin/goqu/v9 v9.18.0
 	github.com/dsoprea/go-exif/v3 v3.0.1
 	github.com/dsoprea/go-jpeg-image-structure v0.0.0-20221012074422-4f3f7e934102
 	github.com/dsoprea/go-png-image-structure v0.0.0-20210512210324-29b889a6093d
@@ -115,7 +114,6 @@ require (
 	github.com/stretchr/testify v1.8.4
 	github.com/tidwall/gjson v1.17.0
 	github.com/tomwright/dasel v1.24.1
-	github.com/twmb/murmur3 v1.1.8
 	github.com/uber-go/tally/v4 v4.1.1
 	github.com/yudai/gojsondiff v1.0.0
 	github.com/yvasiyarov/php_session_decoder v0.0.0-20180803065642-a065a3b0b7d1
@@ -448,6 +446,7 @@ require (
 	github.com/tinylib/msgp v1.1.7-0.20211026165309-e818a1881b0e // indirect
 	github.com/tklauser/go-sysconf v0.3.10 // indirect
 	github.com/tklauser/numcpus v0.4.0 // indirect
+	github.com/twmb/murmur3 v1.1.8 // indirect
 	github.com/urfave/cli v1.22.14 // indirect
 	github.com/urfave/negroni v1.0.0 // indirect
 	github.com/valyala/tcplisten v1.0.0 // indirect

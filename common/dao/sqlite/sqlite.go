@@ -24,7 +24,6 @@ import (
 	"context"
 	"database/sql"
 
-	_ "github.com/doug-martin/goqu/v9/dialect/sqlite3"
 	sqlite3 "github.com/mattn/go-sqlite3"
 
 	"github.com/pydio/cells/v4/common/dao"

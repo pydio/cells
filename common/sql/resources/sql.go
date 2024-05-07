@@ -24,13 +24,12 @@ import (
 	"context"
 	"embed"
 	"fmt"
-	"github.com/pydio/cells/v4/common/runtime"
 	"time"
 
-	goqu "github.com/doug-martin/goqu/v9"
 	migrate "github.com/rubenv/sql-migrate"
 
 	"github.com/pydio/cells/v4/common/proto/service"
+	"github.com/pydio/cells/v4/common/runtime"
 	"github.com/pydio/cells/v4/common/sql"
 	"github.com/pydio/cells/v4/common/utils/cache"
 	"github.com/pydio/cells/v4/common/utils/configx"
@@ -300,6 +299,8 @@ func (s *ResourcesSQL) DeletePoliciesForResourceAndAction(resourceId string, act
 }
 
 // BuildPolicyConditionForAction builds an ResourcesSQL condition from claims toward the associated resource table
+// TODO IS IT STILL TODO ?
+/*
 func (s *ResourcesSQL) BuildPolicyConditionForAction(q *service.ResourcePolicyQuery, action service.ResourcePolicyAction) (expr goqu.Expression, e error) {
 
 	if q == nil || q.Any {
@@ -356,3 +357,4 @@ func (s *ResourcesSQL) BuildPolicyConditionForAction(q *service.ResourcePolicyQu
 
 	}
 }
+*/

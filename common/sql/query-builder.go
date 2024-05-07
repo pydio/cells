@@ -27,8 +27,6 @@ import (
 	"google.golang.org/protobuf/types/known/anypb"
 
 	"github.com/pydio/cells/v4/common/proto/service"
-
-	_ "github.com/doug-martin/goqu/v9/dialect/mysql"
 )
 
 type Collector[T any] interface {
