@@ -28,7 +28,6 @@ import (
 	"google.golang.org/protobuf/types/known/anypb"
 	"gorm.io/gorm"
 
-	"github.com/pydio/cells/v4/common/dao/sqlite"
 	"github.com/pydio/cells/v4/common/proto/idm"
 	"github.com/pydio/cells/v4/common/proto/service"
 	"github.com/pydio/cells/v4/common/proto/tree"
@@ -44,9 +43,7 @@ import (
 )
 
 var (
-	testcases = []test.StorageTestCase{
-		{[]string{sqlite.Driver + "://" + sqlite.SharedMemDSN}, true, NewDAO},
-	}
+	testcases = test.TemplateSharedSQLITE(NewDAO)
 )
 
 type server struct{}

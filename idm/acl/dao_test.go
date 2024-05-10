@@ -27,7 +27,6 @@ import (
 	"google.golang.org/protobuf/types/known/anypb"
 	"gorm.io/gorm"
 
-	"github.com/pydio/cells/v4/common/dao/sqlite"
 	"github.com/pydio/cells/v4/common/proto/idm"
 	service "github.com/pydio/cells/v4/common/proto/service"
 	"github.com/pydio/cells/v4/common/runtime/manager"
@@ -38,30 +37,8 @@ import (
 )
 
 var (
-	testcases = []test.StorageTestCase{
-		{[]string{sqlite.Driver + "://" + sqlite.SharedMemDSN}, true, NewDAO},
-	}
+	testcases = test.TemplateSharedSQLITE(NewDAO)
 )
-
-//func TestMain(m *testing.M) {
-//	var options = configx.New()
-//
-//	dialector := gsqlite.Open(sqlite.SharedMemDSN)
-//	mockDB, _ = gorm.Open(dialector, &gorm.Config{
-//		//DisableForeignKeyConstraintWhenMigrating: true,
-//		FullSaveAssociations: true,
-//		Logger:               logger.Default.LogMode(logger.Info),
-//	})
-//
-//	if d, e := dao.InitDAO(context.TODO(), sqlite.Driver, sqlite.SharedMemDSN, "role", NewDAO, options); e != nil {
-//		panic(e)
-//	} else {
-//		mockDAO = d.(DAO)
-//	}
-//
-//	m.Run()
-//	wg.Wait()
-//}
 
 func TestQueryBuilder(t *testing.T) {
 	test.RunStorageTests(testcases, func(ctx context.Context) {
@@ -105,7 +82,7 @@ func TestQueryBuilder(t *testing.T) {
 				return tx.Find(&[]ACL{})
 			})
 
-			So(sqlStr, ShouldResemble, `SELECT * FROM idm_acls WHERE role_id IN (SELECT * FROM idm_acl_roles WHERE uuid IN ("role1")) OR role_id IN (SELECT * FROM idm_acl_roles WHERE uuid IN ("role2"))`)
+			So(sqlStr, ShouldResemble, "SELECT * FROM `acls` WHERE role_id IN (SELECT * FROM `roles` WHERE uuid IN (\"role1\")) OR role_id IN (SELECT * FROM `roles` WHERE uuid IN (\"role2\")) LIMIT 10")
 		})
 
 		Convey("Query Builder W/ subquery", t, func() {

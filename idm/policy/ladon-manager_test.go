@@ -1,45 +1,39 @@
 package policy
 
 import (
+	"context"
 	"fmt"
+	"testing"
+
 	"github.com/ory/ladon"
 	"github.com/pkg/errors"
-	"github.com/pydio/cells/v4/common/dao/sqlite"
+
+	"github.com/pydio/cells/v4/common/runtime/manager"
+	"github.com/pydio/cells/v4/common/utils/test"
 	"github.com/pydio/cells/v4/common/utils/uuid"
-	gsqlite "gorm.io/driver/sqlite"
-	"gorm.io/gorm"
-	"testing"
 
 	. "github.com/smartystreets/goconvey/convey"
 )
 
-var manager ladon.Manager
-
-func TestMain(m *testing.M) {
-	connectMEM()
-
-	m.Run()
-}
-
-func connectMEM() {
-	dialector := gsqlite.Dialector{DriverName: sqlite.Driver, DSN: sqlite.SharedMemDSN}
-	// dialector := gsqlite.Dialector{DriverName: sqlite.Driver, DSN: "test.db"}
-	mockDB, _ := gorm.Open(dialector, &gorm.Config{
-		//DisableForeignKeyConstraintWhenMigrating: true,
-		FullSaveAssociations: true,
-		// Logger:               logger.Default.LogMode(logger.Info),
-	})
-
-	manager = NewManager(mockDB)
-}
+var (
+	testcases = test.TemplateSharedSQLITE(NewDAO)
+)
 
 func TestManager(t *testing.T) {
-	t.Run("type=get errors", HelperTestGetErrors(manager))
 
-	t.Run("type=CRUD", HelperTestCreateGetDelete(manager))
+	test.RunStorageTests(testcases, func(ctx context.Context) {
+		dao, er := manager.Resolve[DAO](ctx)
+		if er != nil {
+			panic(er)
+		}
+		sqlDAO := dao.(*sqlimpl)
+		lm := NewManager(sqlDAO.DB).WithContext(ctx)
 
-	t.Run("type=find", HelperTestFindPoliciesForSubject(manager))
-	// t.Run("type=find", HelperTestFindPoliciesForResource(manager))
+		t.Run("type=get errors", HelperTestGetErrors(lm))
+		t.Run("type=CRUD", HelperTestCreateGetDelete(lm))
+		t.Run("type=find-subject", HelperTestFindPoliciesForSubject(lm))
+		t.Run("type=find-resource", HelperTestFindPoliciesForResource(lm))
+	})
 }
 
 var TestManagerPolicies = []*ladon.DefaultPolicy{
@@ -277,6 +271,10 @@ func HelperTestFindPoliciesForSubject(s ladon.Manager) func(t *testing.T) {
 				So(s.Create(c), ShouldBeNil)
 			}
 
+			r, e := s.FindPoliciesForSubject("some")
+			So(e, ShouldBeNil)
+			So(len(r), ShouldEqual, 1)
+
 			res, err := s.FindRequestCandidates(&ladon.Request{
 				Subject:  "sqlmatch",
 				Resource: "article",
@@ -326,7 +324,6 @@ func HelperTestFindPoliciesForResource(s ladon.Manager) func(t *testing.T) {
 			}
 
 			res, err = s.FindPoliciesForResource("sqlamatch_resource")
-
 			So(err, ShouldBeNil)
 			So(len(res), ShouldEqual, 1)
 			AssertPolicyEqual(t, testPolicies[len(testPolicies)-1], res[0])

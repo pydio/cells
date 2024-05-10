@@ -293,16 +293,52 @@ func (s *managerWithContext) FindRequestCandidates(r *ladon.Request) (ladon.Poli
 
 	db := s.instance(s.ctx)
 
-	query1 := db.Model(&PolicySubjectRel{}).Select("policy as rel_policy_id, subject as rel_subject_id")
-	query2 := db.Model(&Subject{}).Select("id as subject_id, has_regex as subject_regex, template as subject_template, compiled as subject_compiled")
-	tx := db.Model(&Policy{}).
-		Preload("Actions").Preload("Resources").Preload("Subjects").
-		InnerJoins("inner join(?) q1 on id = q1.rel_policy_id", query1).
-		InnerJoins("inner join(?) q2 on q1.rel_subject_id = q2.subject_id", query2).
-		Where("q2.subject_regex = false and q2.subject_template = ?", r.Subject).
-		Or("q2.subject_regex = true and REGEXP_LIKE(?, q2.subject_compiled)", r.Subject).
-		Find(&policies)
+	tx := db.Model(&Policy{}).Preload("Actions").Preload("Resources").Preload("Subjects")
 
+	if r.Subject != "" {
+		qs1 := db.Model(&PolicySubjectRel{}).Select("policy as rel_policy_id, subject as rel_subject_id")
+		qs2 := db.Model(&Subject{}).Select("id as subject_id, has_regex as subject_regex, template as subject_template, compiled as subject_compiled")
+		tx = tx.
+			InnerJoins("inner join(?) qs1 on id = qs1.rel_policy_id", qs1).
+			InnerJoins("inner join(?) qs2 on qs1.rel_subject_id = qs2.subject_id", qs2)
+	}
+
+	if r.Resource != "" {
+		qr1 := db.Model(&PolicyResourceRel{}).Select("policy as rel_policy_id, resource as rel_resource_id")
+		qr2 := db.Model(&Resource{}).Select("id as resource_id, has_regex as resource_regex, template as resource_template, compiled as resource_compiled")
+		tx = tx.
+			InnerJoins("inner join(?) qr1 on id = qr1.rel_policy_id", qr1).
+			InnerJoins("inner join(?) qr2 on qr1.rel_resource_id = qr2.resource_id", qr2) //.
+	}
+
+	if r.Action != "" {
+		qa1 := db.Model(&PolicyActionRel{}).Select("policy as rel_policy_id, action as rel_action_id")
+		qa2 := db.Model(&Action{}).Select("id as action_id, has_regex as action_regex, template as action_template, compiled as action_compiled")
+		tx = tx.
+			InnerJoins("inner join(?) qa1 on id = qa1.rel_policy_id", qa1).
+			InnerJoins("inner join(?) qa2 on qa1.rel_action_id = qa2.action_id", qa2) //.
+	}
+
+	if r.Subject != "" {
+		// This is required to force AND (a OR b) AND (c OR d), etc...
+		tx1 := tx.Session(&gorm.Session{NewDB: true})
+		tx = tx.Where(
+			tx1.Where("qs2.subject_regex = false and qs2.subject_template = ?", r.Subject).
+				Or("qs2.subject_regex = true and REGEXP_LIKE(?, qs2.subject_compiled)", r.Subject))
+	}
+	if r.Resource != "" {
+		tx2 := tx.Session(&gorm.Session{NewDB: true})
+		tx = tx.Where(
+			tx2.Where("qr2.resource_regex = false and qr2.resource_template = ?", r.Resource).
+				Or("qr2.resource_regex = true and REGEXP_LIKE(?, qr2.resource_compiled)", r.Resource))
+	}
+	if r.Action != "" {
+		tx3 := tx.Session(&gorm.Session{NewDB: true})
+		tx = tx.Where(
+			tx3.Where("qa2.action_regex = false and qa2.action_template = ?", r.Action).
+				Or("qa2.action_regex = true and REGEXP_LIKE(?, qa2.action_compiled)", r.Action))
+	}
+	tx = tx.Find(&policies)
 	if tx.Error != nil {
 		return nil, tx.Error
 	}
@@ -316,11 +352,11 @@ func (s *managerWithContext) FindRequestCandidates(r *ladon.Request) (ladon.Poli
 }
 
 func (s *managerWithContext) FindPoliciesForResource(resource string) (ladon.Policies, error) {
-	return nil, fmt.Errorf("FindPoliciesForResource not implemented inside common/sql/ladon-manager/SQLManager as Ladon manager interface")
+	return s.FindRequestCandidates(&ladon.Request{Resource: resource})
 }
 
 func (s *managerWithContext) FindPoliciesForSubject(subject string) (ladon.Policies, error) {
-	return nil, fmt.Errorf("FindPoliciesForSubject not implemented inside common/sql/ladon-manager/SQLManager as Ladon manager interface")
+	return s.FindRequestCandidates(&ladon.Request{Subject: subject})
 }
 
 // GetAll returns all policies

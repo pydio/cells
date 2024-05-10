@@ -8,6 +8,7 @@ import (
 	"github.com/spf13/viper"
 
 	"github.com/pydio/cells/v4/common/config"
+	"github.com/pydio/cells/v4/common/dao/sqlite"
 	"github.com/pydio/cells/v4/common/runtime"
 	"github.com/pydio/cells/v4/common/runtime/manager"
 	"github.com/pydio/cells/v4/common/runtime/runtimecontext"
@@ -56,6 +57,14 @@ func init() {
 	}
 }
 
+// TemplateSharedSQLITE returns a single SQL test case with the provided DAO func
+func TemplateSharedSQLITE(daoFunc any) []StorageTestCase {
+	return []StorageTestCase{
+		{[]string{sqlite.Driver + "://" + sqlite.SharedMemDSN}, true, daoFunc},
+	}
+}
+
+// RunStorageTests initialize a runtime and run the tests cases with correct DAOs in context
 func RunStorageTests(testCases []StorageTestCase, f func(context.Context)) {
 	for _, tc := range testCases {
 		if !tc.Condition {

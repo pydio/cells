@@ -21,14 +21,12 @@ package role
 
 import (
 	"context"
-	"sync"
 	"testing"
 	"time"
 
 	"google.golang.org/protobuf/types/known/anypb"
 	"gorm.io/gorm"
 
-	"github.com/pydio/cells/v4/common/dao/sqlite"
 	"github.com/pydio/cells/v4/common/proto/idm"
 	"github.com/pydio/cells/v4/common/proto/service"
 	"github.com/pydio/cells/v4/common/runtime/manager"
@@ -43,13 +41,7 @@ import (
 )
 
 var (
-	wg sync.WaitGroup
-)
-
-var (
-	testcases = []test.StorageTestCase{
-		{[]string{sqlite.Driver + "://" + sqlite.SharedMemDSN}, true, NewDAO},
-	}
+	testcases = test.TemplateSharedSQLITE(NewDAO)
 )
 
 func TestCrud(t *testing.T) {
@@ -242,39 +234,6 @@ func TestCrud(t *testing.T) {
 				So(roles, ShouldHaveLength, 1)
 				So(roles[0].ForceOverride, ShouldBeTrue)
 			}
-
-			// {
-			// 	singleQA, _ := anypb.New(&idm.RoleSingleQuery{})
-			// 	query := &service.Query{
-			// 		SubQueries: []*anypb.Any{singleQA},
-			// 	}
-			// 	c, e := mockDAO.Count(query)
-			// 	So(e, ShouldBeNil)
-			// 	So(c, ShouldEqual, 1)
-			// }
-
-			// {
-			// 	singleQA, _ := anypb.New(&idm.RoleSingleQuery{})
-			// 	query := &service.Query{
-			// 		SubQueries: []*anypb.Any{singleQA},
-			// 	}
-			// 	c, e := mockDAO.Count(query)
-			// 	So(e, ShouldBeNil)
-			// 	So(c, ShouldEqual, 1)
-			// }
-
-			// {
-			// 	singleQA, _ := anypb.New(&idm.RoleSingleQuery{
-			// 		Not: true,
-			// 	})
-			// 	query := &service.Query{
-			// 		SubQueries: []*anypb.Any{singleQA},
-			// 	}
-			// 	c, e := mockDAO.Count(query)
-			// 	So(e, ShouldBeNil)
-			// 	So(c, ShouldEqual, 3)
-			// }
-
 			{
 				singleQA, _ := anypb.New(&idm.RoleSingleQuery{
 					Label: "Create*",

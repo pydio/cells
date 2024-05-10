@@ -26,7 +26,6 @@ import (
 
 	"google.golang.org/protobuf/types/known/anypb"
 
-	"github.com/pydio/cells/v4/common/dao/sqlite"
 	"github.com/pydio/cells/v4/common/proto/idm"
 	service "github.com/pydio/cells/v4/common/proto/service"
 	"github.com/pydio/cells/v4/common/runtime/manager"
@@ -36,9 +35,7 @@ import (
 )
 
 var (
-	testcases = []test.StorageTestCase{
-		{[]string{sqlite.Driver + "://" + sqlite.SharedMemDSN}, true, NewDAO},
-	}
+	testcases = test.TemplateSharedSQLITE(NewDAO)
 )
 
 func TestUniqueSlug(t *testing.T) {
