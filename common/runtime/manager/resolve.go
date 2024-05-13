@@ -115,24 +115,30 @@ func Resolve[T any](ctx context.Context, opts ...ResolveOption) (T, error) {
 		}
 
 		var args []reflect.Value
+		var pos int
 
 		// Check if first expected parameter is a context, if so, use the input context
 		if handlerT.In(0).Implements(reflect.TypeOf((*context.Context)(nil)).Elem()) {
 			args = append(args, reflect.ValueOf(ctx))
+			pos++
 		}
 
-		// Retrieved storages must fit the next expected parameters in the same order
-		for _, st := range storages {
-
-			argPos := len(args)
-			conn := reflect.New(handlerT.In(argPos))
-			if isCompat, err := st.Get(ctx, conn.Interface()); !isCompat {
-				return t, fmt.Errorf("database interface is not compatible for parameter %d", argPos)
-			} else if err != nil {
-				return t, err
+		for pos = len(args); pos < handlerT.NumIn(); pos++ {
+			found := false
+			// Try to fit Input parameter type and Storage types
+			for _, st := range storages {
+				conn := reflect.New(handlerT.In(pos))
+				if isCompat, err := st.Get(ctx, conn.Interface()); !isCompat {
+					continue
+				} else if err != nil {
+					return t, err
+				}
+				found = true
+				args = append(args, conn.Elem())
 			}
-
-			args = append(args, conn.Elem())
+			if !found {
+				return t, fmt.Errorf("could not find compatible storage for DAO parameter %d", pos)
+			}
 		}
 
 		// Checking all migrations
