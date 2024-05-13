@@ -99,6 +99,10 @@ func newBleveIndexer(conf *BleveConfig) (*Indexer, error) {
 	return indexer, nil
 }
 
+func (s *Indexer) Init(ctx context.Context, conf configx.Values) error {
+	return nil
+}
+
 func (s *Indexer) Name() string {
 	return "bleve"
 }

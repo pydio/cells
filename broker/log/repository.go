@@ -7,10 +7,15 @@ import (
 	log2 "github.com/pydio/cells/v4/common/log"
 	"github.com/pydio/cells/v4/common/proto/log"
 	"github.com/pydio/cells/v4/common/storage/indexer"
+	"github.com/pydio/cells/v4/common/utils/configx"
 )
 
 type IndexRepository struct {
 	idx indexer.Indexer
+}
+
+func (s *IndexRepository) Init(ctx context.Context, conf configx.Values) error {
+	return s.idx.Init(ctx, conf)
 }
 
 func NewIndexRepository(idx indexer.Indexer) MessageRepository {

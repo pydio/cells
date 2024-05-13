@@ -2,6 +2,7 @@ package config
 
 import (
 	"context"
+	"os"
 
 	"github.com/pydio/cells/v4/common/config"
 	"github.com/pydio/cells/v4/common/storage"
@@ -54,10 +55,15 @@ func (s *configStorage) Provides(conn any) bool {
 	return false
 }
 
-func (s *configStorage) CloseConns(ctx context.Context) error {
+func (s *configStorage) CloseConns(ctx context.Context, clean ...bool) error {
 	for _, db := range s.dbs {
 		if er := db.db.Close(); er != nil {
 			return er
+		}
+		if len(clean) > 0 && clean[0] {
+			if e := os.RemoveAll(db.path); e != nil {
+				return e
+			}
 		}
 	}
 	return nil

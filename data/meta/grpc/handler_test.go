@@ -25,220 +25,206 @@ import (
 	"testing"
 	"time"
 
-	"github.com/pydio/cells/v4/common/dao"
-	"github.com/pydio/cells/v4/common/dao/sqlite"
 	common "github.com/pydio/cells/v4/common/proto/tree"
 	"github.com/pydio/cells/v4/common/service/errors"
-	"github.com/pydio/cells/v4/common/utils/configx"
+	"github.com/pydio/cells/v4/common/utils/test"
 	"github.com/pydio/cells/v4/data/meta"
 
 	. "github.com/smartystreets/goconvey/convey"
 )
 
 var (
-	mockDAO meta.DAO
-	ctx     = context.Background()
+	testcases = test.TemplateSharedSQLITE(meta.NewGormDAO)
 )
-
-func TestMain(m *testing.M) {
-	options := configx.New()
-
-	if d, e := dao.InitDAO(ctx, sqlite.Driver, sqlite.SharedMemDSN, "test", meta.NewDAO, options); e != nil {
-		panic(e)
-	} else {
-		mockDAO = d.(meta.DAO)
-	}
-
-	m.Run()
-}
 
 func TestMeta(t *testing.T) {
 
-	s := &MetaServer{dao: func(ctx context.Context) meta.DAO { return mockDAO }}
-	var e error
-	ctx := context.Background()
+	s := NewMetaServer(context.Background())
 
-	Convey("Simple GET from stubbed implementation", t, func() {
+	test.RunStorageTests(testcases, func(ctx context.Context) {
 
-		//respObject := &common.ReadNodeResponse{}
+		Convey("Simple GET from stubbed implementation", t, func() {
 
-		_, e = s.ReadNode(ctx, &common.ReadNodeRequest{
-			Node: &common.Node{
-				Uuid: "test",
-			},
-		})
-
-		// Should Be Not Found
-		So(errors.FromError(e).Code, ShouldEqual, 404)
-	})
-
-	Convey("Simple SET to stub implementation", t, func() {
-
-		respObject, e := s.UpdateNode(ctx, &common.UpdateNodeRequest{
-			From: &common.Node{
-				Uuid: "test",
-			},
-			To: &common.Node{
-				Uuid: "test",
-				MetaStore: map[string]string{
-					"Namespace": "\"Serialized Metadata Value\"",
+			_, e := s.ReadNode(ctx, &common.ReadNodeRequest{
+				Node: &common.Node{
+					Uuid: "test",
 				},
-			},
+			})
+
+			// Should Be Not Found
+			So(errors.FromError(e).Code, ShouldEqual, 404)
 		})
 
-		So(e, ShouldBeNil)
-		So(respObject.Success, ShouldBeTrue)
+		Convey("Simple SET to stub implementation", t, func() {
 
-		resp, e1 := s.ReadNode(ctx, &common.ReadNodeRequest{
-			Node: &common.Node{
-				Uuid: "test",
-			},
-		})
-		So(e1, ShouldBeNil)
-		So(resp.Node.Uuid, ShouldEqual, "test")
-		So(resp.Node.MetaStore, ShouldNotBeNil)
-		var name string
-		resp.Node.GetMeta("Namespace", &name)
-		So(name, ShouldEqual, "Serialized Metadata Value")
-
-	})
-
-	Convey("Delete metadata by setting to empty map", t, func() {
-
-		respObject, e := s.UpdateNode(ctx, &common.UpdateNodeRequest{
-			From: &common.Node{
-				Uuid: "test",
-			},
-			To: &common.Node{
-				Uuid: "test",
-				MetaStore: map[string]string{
-					"Namespace": "\"Serialized Metadata Value\"",
+			respObject, e := s.UpdateNode(ctx, &common.UpdateNodeRequest{
+				From: &common.Node{
+					Uuid: "test",
 				},
-			},
+				To: &common.Node{
+					Uuid: "test",
+					MetaStore: map[string]string{
+						"Namespace": "\"Serialized Metadata Value\"",
+					},
+				},
+			})
+
+			So(e, ShouldBeNil)
+			So(respObject.Success, ShouldBeTrue)
+
+			resp, e1 := s.ReadNode(ctx, &common.ReadNodeRequest{
+				Node: &common.Node{
+					Uuid: "test",
+				},
+			})
+			So(e1, ShouldBeNil)
+			So(resp.Node.Uuid, ShouldEqual, "test")
+			So(resp.Node.MetaStore, ShouldNotBeNil)
+			var name string
+			resp.Node.GetMeta("Namespace", &name)
+			So(name, ShouldEqual, "Serialized Metadata Value")
+
 		})
 
-		So(e, ShouldBeNil)
-		So(respObject.Success, ShouldBeTrue)
+		Convey("Delete metadata by setting to empty map", t, func() {
 
-		s.UpdateNode(ctx, &common.UpdateNodeRequest{
-			To: &common.Node{
-				Uuid:      "test",
-				MetaStore: map[string]string{},
-			},
-		})
+			respObject, e := s.UpdateNode(ctx, &common.UpdateNodeRequest{
+				From: &common.Node{
+					Uuid: "test",
+				},
+				To: &common.Node{
+					Uuid: "test",
+					MetaStore: map[string]string{
+						"Namespace": "\"Serialized Metadata Value\"",
+					},
+				},
+			})
 
-		_, e1 := s.ReadNode(ctx, &common.ReadNodeRequest{
-			Node: &common.Node{
-				Uuid: "test",
-			},
+			So(e, ShouldBeNil)
+			So(respObject.Success, ShouldBeTrue)
+
+			s.UpdateNode(ctx, &common.UpdateNodeRequest{
+				To: &common.Node{
+					Uuid:      "test",
+					MetaStore: map[string]string{},
+				},
+			})
+
+			_, e1 := s.ReadNode(ctx, &common.ReadNodeRequest{
+				Node: &common.Node{
+					Uuid: "test",
+				},
+			})
+			So(e1, ShouldNotBeNil)
+			e2 := errors.FromError(e1)
+			So(e2.Code, ShouldEqual, 404)
+
 		})
-		So(e1, ShouldNotBeNil)
-		e2 := errors.FromError(e1)
-		So(e2.Code, ShouldEqual, 404)
 
 	})
-
 }
 
 func TestSubscriber(t *testing.T) {
 
-	server := &MetaServer{dao: func(ctx context.Context) meta.DAO { return mockDAO }}
-	ctx := context.Background()
+	server := NewMetaServer(context.Background())
 
-	Convey("Test Create Event to Subscriber", t, func() {
+	test.RunStorageTests(testcases, func(ctx context.Context) {
 
-		server.processEvent(ctx, &common.NodeChangeEvent{
-			Type: common.NodeChangeEvent_CREATE,
-			Target: &common.Node{
-				Uuid: "event-node-uid",
-				MetaStore: map[string]string{
-					"Meta1": "\"Test\"",
-					"Meta2": "\"Test\"",
+		Convey("Test Create Event to Subscriber", t, func() {
+
+			So(server.processEvent(ctx, &common.NodeChangeEvent{
+				Type: common.NodeChangeEvent_CREATE,
+				Target: &common.Node{
+					Uuid: "event-node-uid",
+					MetaStore: map[string]string{
+						"Meta1": "\"Test\"",
+						"Meta2": "\"Test\"",
+					},
 				},
-			},
-		})
+			}), ShouldBeNil)
 
-		time.Sleep(100 * time.Millisecond)
-		respObject, readErr := server.ReadNode(ctx, &common.ReadNodeRequest{
-			Node: &common.Node{
-				Uuid: "event-node-uid",
-			},
-		})
-		So(readErr, ShouldBeNil)
-		So(respObject.Node.MetaStore, ShouldResemble, map[string]string{
-			"Meta1": "\"Test\"",
-			"Meta2": "\"Test\"",
-		})
-	})
-
-	Convey("Test Update Event to Subscriber", t, func() {
-
-		ctx := ctx
-		server.UpdateNode(ctx, &common.UpdateNodeRequest{
-			To: &common.Node{
-				Uuid: "event-node-uid",
-				MetaStore: map[string]string{
-					"Meta1": "\"FirstValue\"",
+			time.Sleep(100 * time.Millisecond)
+			respObject, readErr := server.ReadNode(ctx, &common.ReadNodeRequest{
+				Node: &common.Node{
+					Uuid: "event-node-uid",
 				},
-			},
+			})
+			So(readErr, ShouldBeNil)
+			So(respObject.Node.MetaStore, ShouldResemble, map[string]string{
+				"Meta1": "\"Test\"",
+				"Meta2": "\"Test\"",
+			})
 		})
 
-		server.processEvent(ctx, &common.NodeChangeEvent{
-			Type: common.NodeChangeEvent_UPDATE_META,
-			Target: &common.Node{
-				Uuid: "event-node-uid",
-				MetaStore: map[string]string{
-					"Meta1": "\"NewValue\"",
-					"Meta2": "\"Test\"",
+		Convey("Test Update Event to Subscriber", t, func() {
+
+			_, er := server.UpdateNode(ctx, &common.UpdateNodeRequest{
+				To: &common.Node{
+					Uuid: "event-node-uid",
+					MetaStore: map[string]string{
+						"Meta1": "\"FirstValue\"",
+					},
 				},
-			},
-		})
+			})
+			So(er, ShouldBeNil)
 
-		time.Sleep(100 * time.Millisecond)
-
-		respObject, readErr := server.ReadNode(ctx, &common.ReadNodeRequest{
-			Node: &common.Node{
-				Uuid: "event-node-uid",
-			},
-		})
-		So(readErr, ShouldBeNil)
-		So(respObject.Node.MetaStore, ShouldResemble, map[string]string{
-			"Meta1": "\"NewValue\"",
-			"Meta2": "\"Test\"",
-		})
-	})
-
-	Convey("Test Delete Event to Subscriber", t, func() {
-
-		ctx := ctx
-		server.UpdateNode(ctx, &common.UpdateNodeRequest{
-			To: &common.Node{
-				Uuid: "event-node-uid",
-				MetaStore: map[string]string{
-					"Meta1": "\"FirstValue\"",
+			So(server.processEvent(ctx, &common.NodeChangeEvent{
+				Type: common.NodeChangeEvent_UPDATE_META,
+				Target: &common.Node{
+					Uuid: "event-node-uid",
+					MetaStore: map[string]string{
+						"Meta1": "\"NewValue\"",
+						"Meta2": "\"Test\"",
+					},
 				},
-			},
+			}), ShouldBeNil)
+
+			time.Sleep(100 * time.Millisecond)
+
+			respObject, readErr := server.ReadNode(ctx, &common.ReadNodeRequest{
+				Node: &common.Node{
+					Uuid: "event-node-uid",
+				},
+			})
+			So(readErr, ShouldBeNil)
+			So(respObject.Node.MetaStore, ShouldResemble, map[string]string{
+				"Meta1": "\"NewValue\"",
+				"Meta2": "\"Test\"",
+			})
 		})
 
-		server.processEvent(ctx, &common.NodeChangeEvent{
-			Type: common.NodeChangeEvent_DELETE,
-			Source: &common.Node{
-				Uuid: "event-node-uid",
-			},
+		Convey("Test Delete Event to Subscriber", t, func() {
+
+			ctx := ctx
+			server.UpdateNode(ctx, &common.UpdateNodeRequest{
+				To: &common.Node{
+					Uuid: "event-node-uid",
+					MetaStore: map[string]string{
+						"Meta1": "\"FirstValue\"",
+					},
+				},
+			})
+
+			server.processEvent(ctx, &common.NodeChangeEvent{
+				Type: common.NodeChangeEvent_DELETE,
+				Source: &common.Node{
+					Uuid: "event-node-uid",
+				},
+			})
+
+			time.Sleep(100 * time.Millisecond)
+
+			_, readErr := server.ReadNode(ctx, &common.ReadNodeRequest{
+				Node: &common.Node{
+					Uuid: "event-node-uid",
+				},
+			})
+
+			So(readErr, ShouldNotBeNil)
+			e2 := errors.FromError(readErr)
+			So(e2.Code, ShouldEqual, 404)
+
 		})
-
-		time.Sleep(100 * time.Millisecond)
-
-		_, readErr := server.ReadNode(ctx, &common.ReadNodeRequest{
-			Node: &common.Node{
-				Uuid: "event-node-uid",
-			},
-		})
-
-		So(readErr, ShouldNotBeNil)
-		e2 := errors.FromError(readErr)
-		So(e2.Code, ShouldEqual, 404)
-
 	})
 
 }

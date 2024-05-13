@@ -22,37 +22,24 @@ package meta
 
 import (
 	"context"
-	"embed"
+	"sync"
+	"time"
+
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
-	"time"
 
 	"github.com/pydio/cells/v4/common/service/errors"
 	"github.com/pydio/cells/v4/common/sql"
 	"github.com/pydio/cells/v4/common/utils/configx"
 )
 
-var (
-	//go:embed migrations/*
-	migrationsFS embed.FS
-
-	queries = map[string]string{
-		"upsert":        `INSERT INTO data_meta (node_id,namespace,data,author,timestamp,format) VALUES (?,?,?,?,?,?) ON DUPLICATE KEY UPDATE data=?,author=?,timestamp=?,format=?`,
-		"upsert-sqlite": `INSERT INTO data_meta (node_id,namespace,data,author,timestamp,format) VALUES (?,?,?,?,?,?) ON CONFLICT(node_id,namespace) DO UPDATE SET data=?,author=?,timestamp=?,format=?`,
-		"deleteNS":      `DELETE FROM data_meta WHERE namespace=?`,
-		"deleteUuid":    `DELETE FROM data_meta WHERE node_id=?`,
-		"select":        `SELECT * FROM data_meta WHERE node_id=?`,
-		"selectAll":     `SELECT * FROM data_meta LIMIT 0, 500`,
-	}
-)
-
 type Meta struct {
 	NodeId    string `gorm:"primaryKey; column:node_id"`
 	Namespace string `gorm:"primaryKey; column:namespace"`
-	Data      string `gorm:"primaryKey; column:data"`
-	Author    string `gorm:"primaryKey; column:author"`
-	Timestamp int64  `gorm:"primaryKey; column:timestamp"`
-	Format    string `gorm:"primaryKey; column:format"`
+	Data      string `gorm:"column:data"`
+	Author    string `gorm:"column:author"`
+	Timestamp int64  `gorm:"column:timestamp"`
+	Format    string `gorm:"column:format"`
 }
 
 func (*Meta) TableName() string { return "data_meta" }
@@ -61,36 +48,51 @@ func (*Meta) TableName() string { return "data_meta" }
 type sqlImpl struct {
 	sql.DAO
 
-	db       *gorm.DB
-	instance func() *gorm.DB
+	db   *gorm.DB
+	once *sync.Once
 }
 
 // Init handler for the SQL DAO
 func (s *sqlImpl) Init(ctx context.Context, options configx.Values) error {
 
-	s.instance = func() *gorm.DB { return s.db.Session(&gorm.Session{SkipDefaultTransaction: true}) }
+	// Trigger automigrate
+	s.instance(ctx)
 
 	return nil
 }
 
+func (s *sqlImpl) instance(ctx context.Context) *gorm.DB {
+	if s.once == nil {
+		s.once = &sync.Once{}
+	}
+
+	db := s.db.Session(&gorm.Session{SkipDefaultTransaction: true}).WithContext(ctx)
+
+	s.once.Do(func() {
+		_ = db.AutoMigrate(&Meta{})
+	})
+
+	return db
+}
+
 // SetMetadata creates or updates metadata for a node
-func (s *sqlImpl) SetMetadata(nodeId string, author string, metadata map[string]string) (err error) {
+func (s *sqlImpl) SetMetadata(ctx context.Context, nodeId string, author string, metadata map[string]string) (err error) {
 
 	if len(metadata) == 0 {
-		tx := s.instance().Where(&Meta{NodeId: nodeId}).Delete(&Meta{})
+		tx := s.instance(ctx).Where(&Meta{NodeId: nodeId}).Delete(&Meta{})
 
 		return tx.Error
 	}
 
 	for namespace, data := range metadata {
 		if data == "" {
-			tx := s.instance().Where(&Meta{Namespace: namespace}).Delete(&Meta{})
+			tx := s.instance(ctx).Where(&Meta{Namespace: namespace}).Delete(&Meta{})
 			if tx.Error != nil {
 				return tx.Error
 			}
 		} else {
 			// Insert or update namespace
-			tx := s.instance().Clauses(clause.OnConflict{UpdateAll: true}).Create(&Meta{
+			tx := s.instance(ctx).Clauses(clause.OnConflict{UpdateAll: true}).Create(&Meta{
 				NodeId:    nodeId,
 				Namespace: namespace,
 				Data:      data,
@@ -109,9 +111,10 @@ func (s *sqlImpl) SetMetadata(nodeId string, author string, metadata map[string]
 }
 
 // GetMetadata loads metadata for a node
-func (s *sqlImpl) GetMetadata(nodeId string) (metadata map[string]string, err error) {
+func (s *sqlImpl) GetMetadata(ctx context.Context, nodeId string) (metadata map[string]string, err error) {
+
 	var rows []*Meta
-	tx := s.instance().Where(&Meta{NodeId: nodeId}).Find(&rows)
+	tx := s.instance(ctx).Where(&Meta{NodeId: nodeId}).Find(&rows)
 	if tx.Error != nil {
 		return nil, tx.Error
 	}
@@ -120,6 +123,7 @@ func (s *sqlImpl) GetMetadata(nodeId string) (metadata map[string]string, err er
 		return nil, errors.NotFound("metadata-not-found", "Cannot find metadata for node "+nodeId)
 	}
 
+	metadata = make(map[string]string, len(rows))
 	for _, row := range rows {
 		metadata[row.Namespace] = row.Data
 	}
@@ -128,10 +132,10 @@ func (s *sqlImpl) GetMetadata(nodeId string) (metadata map[string]string, err er
 }
 
 // ListMetadata lists all metadata by query
-func (s *sqlImpl) ListMetadata(query string) (metaByUuid map[string]map[string]string, err error) {
+func (s *sqlImpl) ListMetadata(ctx context.Context, query string) (metaByUuid map[string]map[string]string, err error) {
 
 	var rows []*Meta
-	tx := s.instance().Find(&rows).Limit(500)
+	tx := s.instance(ctx).Find(&rows).Limit(500)
 	if tx.Error != nil {
 		return nil, tx.Error
 	}

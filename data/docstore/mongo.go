@@ -65,7 +65,7 @@ type mongoImpl struct {
 }
 
 func (m *mongoImpl) Init(ctx context.Context, conf configx.Values) error {
-	if e := model.Init(context.Background(), m.Database); e != nil {
+	if e := model.Init(ctx, m.Database); e != nil {
 		return e
 	}
 	return nil
@@ -120,7 +120,7 @@ func (m *mongoImpl) QueryDocuments(ctx context.Context, storeID string, query *d
 }
 
 func (m *mongoImpl) ListStores(ctx context.Context) (ss []string, e error) {
-	ii, er := m.Collection(collDocuments).Distinct(ctx, "store_id", nil)
+	ii, er := m.Collection(collDocuments).Distinct(ctx, "store_id", bson.D{})
 	if er != nil {
 		e = er
 		return

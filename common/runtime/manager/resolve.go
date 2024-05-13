@@ -51,7 +51,8 @@ type InitProvider interface {
 }
 
 type ResolveOptions struct {
-	Name string
+	Name             string
+	CleanBeforeClose bool
 }
 
 type ResolveOption func(*ResolveOptions)
@@ -59,6 +60,12 @@ type ResolveOption func(*ResolveOptions)
 func WithName(name string) ResolveOption {
 	return func(o *ResolveOptions) {
 		o.Name = name
+	}
+}
+
+func WithCleanBeforeClose() ResolveOption {
+	return func(o *ResolveOptions) {
+		o.CleanBeforeClose = true
 	}
 }
 
@@ -177,8 +184,14 @@ func CloseStoragesForContext(ctx context.Context, opts ...ResolveOption) error {
 	)
 
 	for _, s := range registry.ItemsAs[storage.Storage](ss) {
-		if er := s.CloseConns(ctx); er != nil {
-			return er
+		if o.CleanBeforeClose {
+			if er := s.CloseConns(ctx, true); er != nil {
+				return er
+			}
+		} else {
+			if er := s.CloseConns(ctx); er != nil {
+				return er
+			}
 		}
 	}
 

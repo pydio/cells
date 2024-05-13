@@ -23,8 +23,6 @@ package log
 import (
 	"context"
 	"fmt"
-	"os"
-	"path/filepath"
 	"testing"
 	"time"
 
@@ -34,7 +32,6 @@ import (
 	"github.com/pydio/cells/v4/common/runtime/manager"
 	"github.com/pydio/cells/v4/common/runtime/runtimecontext"
 	"github.com/pydio/cells/v4/common/utils/test"
-	"github.com/pydio/cells/v4/common/utils/uuid"
 
 	_ "github.com/pydio/cells/v4/common/storage/bleve"
 
@@ -43,8 +40,8 @@ import (
 
 var (
 	testcases = []test.StorageTestCase{
-		{[]string{"bleve://" + filepath.Join(os.TempDir(), "logtest_"+uuid.New()+".bleve?mapping=log")}, true, NewBleveDAO},
-		{[]string{os.Getenv("CELLS_TEST_MONGODB_DSN") + "?collection=logs_test"}, os.Getenv("CELLS_TEST_MONGODB_DSN") != "", NewMongoDAO},
+		test.TemplateBleveWithPrefix(NewBleveDAO, "logs_test_"),
+		test.TemplateMongoEnvWithPrefix(NewMongoDAO, "broker_"),
 	}
 )
 

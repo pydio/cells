@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2021. Abstrium SAS <team (at) pydio.com>
+ * Copyright (c) 2024. Abstrium SAS <team (at) pydio.com>
  * This file is part of Pydio Cells.
  *
  * Pydio Cells is free software: you can redistribute it and/or modify
@@ -18,21 +18,35 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-// Package meta provides storage for files and folders metadata.
-package meta
+package sql
 
 import (
-	"context"
-
 	"gorm.io/gorm"
 )
 
-type DAO interface {
-	SetMetadata(ctx context.Context, nodeId string, author string, metadata map[string]string) (err error)
-	GetMetadata(ctx context.Context, nodeId string) (metadata map[string]string, err error)
-	ListMetadata(ctx context.Context, query string) (metadataByUuid map[string]map[string]string, err error)
+var (
+	createdTables = map[string]bool{}
+	hooksRegister = map[string]func(*gorm.DB){}
+	cleaners      []func(*gorm.DB) error
+)
+
+func init() {
+	hooksRegister["cleanTables"] = func(db *gorm.DB) {
+		_ = db.Callback().Create().After("gorm:after_create").Register("created_tables", hookCreate)
+		cleaners = append(cleaners, func(d *gorm.DB) error {
+			for t := range createdTables {
+				if er := d.Migrator().DropTable(t); er != nil {
+					return er
+				}
+			}
+			return nil
+		})
+	}
 }
 
-func NewGormDAO(db *gorm.DB) DAO {
-	return &sqlImpl{db: db}
+func hookCreate(db *gorm.DB) {
+	st := db.Statement
+	if st.Table != "" {
+		createdTables[st.Table] = true
+	}
 }

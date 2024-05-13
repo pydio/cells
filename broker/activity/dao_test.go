@@ -52,19 +52,13 @@ import (
 var (
 	conf configx.Values
 	ctx  = context.Background()
-	/*
-		testcases = []test.StorageTestCase{
-			{[]string{"boltdb://" + filepath.Join(os.TempDir(), "activity_bolt_"+uuid.New()+".db")}, true, NoCacheDAO},
-			{[]string{"boltdb://" + filepath.Join(os.TempDir(), "activity_bolt_"+uuid.New()+".db")}, true, ShortCacheDAO},
-			{[]string{os.Getenv("CELLS_TEST_MONGODB_DSN") + "?collection=activity"}, os.Getenv("CELLS_TEST_MONGODB_DSN") != "", NewMongoDAO},
-		}*/
 )
 
 func testCases() []test.StorageTestCase {
 	return []test.StorageTestCase{
 		{[]string{"boltdb://" + filepath.Join(os.TempDir(), "activity_bolt_"+uuid.New()+".db")}, true, NoCacheDAO},
 		{[]string{"boltdb://" + filepath.Join(os.TempDir(), "activity_bolt_"+uuid.New()+".db")}, true, ShortCacheDAO},
-		{[]string{os.Getenv("CELLS_TEST_MONGODB_DSN") + "?collection=activity"}, os.Getenv("CELLS_TEST_MONGODB_DSN") != "", NewMongoDAO},
+		test.TemplateMongoEnvWithPrefix(NewMongoDAO, "broker_"),
 	}
 }
 

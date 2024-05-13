@@ -2,6 +2,8 @@ package test
 
 import (
 	"context"
+	"os"
+	"path/filepath"
 	"strings"
 	"text/template"
 
@@ -14,6 +16,7 @@ import (
 	"github.com/pydio/cells/v4/common/runtime/runtimecontext"
 	"github.com/pydio/cells/v4/common/runtime/tenant"
 	"github.com/pydio/cells/v4/common/service"
+	"github.com/pydio/cells/v4/common/utils/uuid"
 
 	_ "github.com/pydio/cells/v4/common/registry/config"
 	_ "github.com/pydio/cells/v4/common/storage/bleve"
@@ -60,7 +63,34 @@ func init() {
 // TemplateSharedSQLITE returns a single SQL test case with the provided DAO func
 func TemplateSharedSQLITE(daoFunc any) []StorageTestCase {
 	return []StorageTestCase{
-		{[]string{sqlite.Driver + "://" + sqlite.SharedMemDSN}, true, daoFunc},
+		{[]string{sqlite.Driver + "://" + sqlite.SharedMemDSN + "&hookNames=cleanTables"}, true, daoFunc},
+	}
+}
+
+// TemplateMongoEnvWithPrefix creates a StorageTestCase for MongoDB
+func TemplateMongoEnvWithPrefix(daoFunc any, prefix string) StorageTestCase {
+	return StorageTestCase{
+		DSN:       []string{os.Getenv("CELLS_TEST_MONGODB_DSN") + "?hookNames=cleanCollections&prefix=" + prefix},
+		Condition: os.Getenv("CELLS_TEST_MONGODB_DSN") != "",
+		DAO:       daoFunc,
+	}
+}
+
+// TemplateBoltWithPrefix creates a StorageTestCase for BoltDB
+func TemplateBoltWithPrefix(daoFunc any, prefix string) StorageTestCase {
+	return StorageTestCase{
+		DSN:       []string{"boltdb://" + filepath.Join(os.TempDir(), prefix+uuid.New()+".db")},
+		Condition: true,
+		DAO:       daoFunc,
+	}
+}
+
+// TemplateBleveWithPrefix creates a StorageTestCase for BleveDB
+func TemplateBleveWithPrefix(daoFunc any, prefix string) StorageTestCase {
+	return StorageTestCase{
+		DSN:       []string{"bleve://" + filepath.Join(os.TempDir(), prefix+uuid.New()+".db")},
+		Condition: true,
+		DAO:       daoFunc,
 	}
 }
 
@@ -111,6 +141,6 @@ func RunStorageTests(testCases []StorageTestCase, f func(context.Context)) {
 
 		f(ctx)
 
-		_ = manager.CloseStoragesForContext(ctx)
+		_ = manager.CloseStoragesForContext(ctx, manager.WithCleanBeforeClose())
 	}
 }

@@ -83,7 +83,7 @@ func (gs *gormStorage) GetConn(str string) (storage.Conn, error) {
 	return nil, nil
 }
 
-func (gs *gormStorage) Register(conn any, tenant string, service string) {
+func (gs *gormStorage) Register(conn any, tenant string, service string, hooks ...string) {
 
 	db := conn.(*sql.DB)
 
@@ -113,11 +113,6 @@ func (gs *gormStorage) Register(conn any, tenant string, service string) {
 		Helper:    helper,
 	}
 
-	dialect = &Dialector{
-		Dialector: dialect,
-		Helper:    helper,
-	}
-
 	if gs.once == nil {
 		gs.once = &sync.Once{}
 	}
@@ -132,7 +127,12 @@ func (gs *gormStorage) Register(conn any, tenant string, service string) {
 
 		dr := dbresolver.New()
 
-		db.Use(dr)
+		_ = db.Use(dr)
+		for _, hook := range hooks {
+			if reg, ok := hooksRegister[hook]; ok {
+				reg(db)
+			}
+		}
 
 		gs.db = db
 		gs.dr = dr
@@ -147,12 +147,17 @@ func (gs *gormStorage) Register(conn any, tenant string, service string) {
 
 func (gs *gormStorage) Get(ctx context.Context, out interface{}) (bool, error) {
 	if v, ok := out.(**gorm.DB); ok {
-		path, err := gs.template.Resolve(ctx)
+		u, err := gs.template.ResolveURL(ctx)
 		if err != nil {
 			return true, err
 		}
+		hookNames, _ := storage.DetectHooksAndRemoveFromURL(u)
+
+		path := u.String()
 		var ten tenant.Tenant
 		runtimecontext.Get(ctx, tenant.ContextKey, &ten)
+		// Todo : why the two levels of register (.conns[path] and then Register below) ?
+		// Could the Dbresolver directly handle the path, including ServiceName & TenantID ?
 		if conn, ok := gs.conns[path]; !ok {
 			parts := strings.Split(path, "://")
 			if len(parts) < 2 {
@@ -161,11 +166,11 @@ func (gs *gormStorage) Get(ctx context.Context, out interface{}) (bool, error) {
 			if conn, err := sql.Open(parts[0], strings.Join(parts[1:], "")); err != nil {
 				return true, err
 			} else {
-				gs.Register(conn, ten.ID(), runtimecontext.GetServiceName(ctx))
+				gs.Register(conn, ten.ID(), runtimecontext.GetServiceName(ctx), hookNames...)
 				gs.conns[path] = conn
 			}
 		} else {
-			gs.Register(conn, ten.ID(), runtimecontext.GetServiceName(ctx))
+			gs.Register(conn, ten.ID(), runtimecontext.GetServiceName(ctx), hookNames...)
 		}
 
 		*v = gs.db
@@ -175,8 +180,20 @@ func (gs *gormStorage) Get(ctx context.Context, out interface{}) (bool, error) {
 	return false, nil
 }
 
-func (gs *gormStorage) CloseConns(ctx context.Context) error {
-	return nil
+func (gs *gormStorage) CloseConns(ctx context.Context, clean ...bool) (e error) {
+	for _, db := range gs.conns {
+		if len(clean) > 0 && len(cleaners) > 0 {
+			for _, c := range cleaners {
+				if er := c(gs.db); er != nil {
+					return er
+				}
+			}
+		}
+		if e = db.Close(); e != nil {
+			return e
+		}
+	}
+	return
 }
 
 type Dialector struct {

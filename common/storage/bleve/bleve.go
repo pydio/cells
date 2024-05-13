@@ -2,6 +2,7 @@ package bleve
 
 import (
 	"context"
+	"fmt"
 	"os"
 	"strconv"
 	"strings"
@@ -43,8 +44,9 @@ func (s *bleveStorage) OpenURL(ctx context.Context, urlstr string) (storage.Stor
 }
 
 type blevedb struct {
-	path string
-	db   any
+	path   string
+	fsPath string
+	db     any
 }
 
 func (s *bleveStorage) Provides(conn any) bool {
@@ -73,7 +75,7 @@ func (s *bleveStorage) Register(conn any, tenant string, service string) {
 
 }
 
-func (s *bleveStorage) CloseConns(ctx context.Context) error {
+func (s *bleveStorage) CloseConns(ctx context.Context, clean ...bool) error {
 
 	for _, db := range s.dbs {
 		switch base := db.db.(type) {
@@ -87,6 +89,12 @@ func (s *bleveStorage) CloseConns(ctx context.Context) error {
 			}
 		case **Indexer:
 			if er := (*base).Close(ctx); er != nil {
+				return er
+			}
+		}
+		if len(clean) > 0 && clean[0] {
+			fmt.Println("removing", db.fsPath)
+			if er := os.RemoveAll(db.fsPath); er != nil {
 				return er
 			}
 		}
@@ -156,8 +164,9 @@ func (s *bleveStorage) Get(ctx context.Context, out interface{}) (bool, error) {
 		*v = index
 
 		s.dbs = append(s.dbs, &blevedb{
-			db:   index,
-			path: path,
+			db:     index,
+			path:   path,
+			fsPath: u.Path,
 		})
 
 		return true, nil
@@ -222,8 +231,9 @@ func (s *bleveStorage) Get(ctx context.Context, out interface{}) (bool, error) {
 		*v = index
 
 		s.dbs = append(s.dbs, &blevedb{
-			db:   index,
-			path: path,
+			db:     index,
+			path:   path,
+			fsPath: u.Path,
 		})
 
 		return true, nil
@@ -256,8 +266,9 @@ func (s *bleveStorage) Get(ctx context.Context, out interface{}) (bool, error) {
 		*v = index
 
 		s.dbs = append(s.dbs, &blevedb{
-			db:   index,
-			path: path,
+			db:     index,
+			path:   path,
+			fsPath: u.Path,
 		})
 
 		return true, nil

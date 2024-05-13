@@ -61,7 +61,7 @@ type mongoImpl struct {
 }
 
 func (m *mongoImpl) Init(ctx context.Context, values configx.Values) error {
-	if e := mongoModel.Init(context.Background(), m.db); e != nil {
+	if e := mongoModel.Init(ctx, m.db); e != nil {
 		return e
 	}
 	return nil

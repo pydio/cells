@@ -1,3 +1,23 @@
+/*
+ * Copyright (c) 2024. Abstrium SAS <team (at) pydio.com>
+ * This file is part of Pydio Cells.
+ *
+ * Pydio Cells is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Pydio Cells is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with Pydio Cells.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ * The latest code can be found at <https://pydio.com>.
+ */
+
 package mongo
 
 import (
@@ -51,8 +71,13 @@ func (s *mongoStorage) Provides(conn any) bool {
 	return false
 }
 
-func (s *mongoStorage) CloseConns(ctx context.Context) error {
+func (s *mongoStorage) CloseConns(ctx context.Context, clean ...bool) error {
 	for _, db := range s.clients {
+		for _, cl := range cleaners {
+			if er := cl(ctx, db); er != nil {
+				return er
+			}
+		}
 		if er := db.Disconnect(ctx); er != nil {
 			return er
 		}
@@ -88,18 +113,28 @@ func (s *mongoStorage) Get(ctx context.Context, out interface{}) (bool, error) {
 	if err != nil {
 		return true, err
 	}
+
+	hookNames, _ := storage.DetectHooksAndRemoveFromURL(u)
+
 	path := u.String()
+	dbName := strings.Trim(u.Path, "/")
 
 	var db *mongo.Database
 	if cli, ok := s.clients[path]; ok {
-		db = cli.Database(u.Path)
+		db = cli.Database(dbName)
 	} else {
-		mgClient, err := mongo.Connect(context.TODO(), options.Client().ApplyURI(path))
+		clOption := options.Client().ApplyURI(path)
+		for _, h := range hookNames {
+			if hook, o := hooksRegister[h]; o {
+				clOption = hook(clOption)
+			}
+		}
+		mgClient, err := mongo.Connect(context.TODO(), clOption)
 		if err != nil {
 			return true, err
 		}
 
-		db = mgClient.Database(strings.Trim(u.Path, "/"))
+		db = mgClient.Database(dbName)
 
 		s.clients[path] = mgClient
 	}

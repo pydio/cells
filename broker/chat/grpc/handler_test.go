@@ -23,8 +23,6 @@ package grpc
 import (
 	"context"
 	"fmt"
-	"os"
-	"path/filepath"
 	"testing"
 	"time"
 
@@ -44,8 +42,8 @@ import (
 
 var (
 	testcases = []test.StorageTestCase{
-		{[]string{"boltdb://" + filepath.Join(os.TempDir(), "chat_bolt_"+uuid.New()+".db")}, true, chat2.NewBoltDAO},
-		{[]string{os.Getenv("CELLS_TEST_MONGODB_DSN") + "?collection=index"}, os.Getenv("CELLS_TEST_MONGODB_DSN") != "", chat2.NewMongoDAO},
+		test.TemplateBoltWithPrefix(chat2.NewBoltDAO, "chat_bolt_"),
+		test.TemplateMongoEnvWithPrefix(chat2.NewMongoDAO, "broker_"),
 	}
 )
 

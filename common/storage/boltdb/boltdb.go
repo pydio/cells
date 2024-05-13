@@ -3,6 +3,7 @@ package boltdb
 import (
 	"context"
 	"fmt"
+	"os"
 	"strings"
 	"time"
 
@@ -115,11 +116,18 @@ func (s *boltdbStorage) Get(ctx context.Context, out interface{}) (bool, error) 
 	return false, nil
 }
 
-func (s *boltdbStorage) CloseConns(ctx context.Context) (er error) {
+func (s *boltdbStorage) CloseConns(ctx context.Context, clean ...bool) (er error) {
 	for _, db := range s.dbs {
+		fsPath := db.db.Path()
 		fmt.Println("closing " + db.path)
 		if er := db.db.Close(); er != nil {
 			return er
+		}
+		if len(clean) > 0 && clean[0] {
+			fmt.Println("removing " + fsPath)
+			if e := os.RemoveAll(db.db.Path()); e != nil {
+				return e
+			}
 		}
 	}
 	return nil

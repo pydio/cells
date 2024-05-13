@@ -46,7 +46,7 @@ import (
 var (
 	testcases = []test.StorageTestCase{
 		{[]string{"bleve://" + filepath.Join(os.TempDir(), "data_search_tests"+uuid.New()+".bleve") + "?mapping=node"}, true, NewBleveDAO},
-		{[]string{os.Getenv("CELLS_TEST_MONGODB_DSN") + "?collection=index"}, os.Getenv("CELLS_TEST_MONGODB_DSN") != "", NewMongoDAO},
+		test.TemplateMongoEnvWithPrefix(NewMongoDAO, "search_tests_"),
 	}
 )
 
@@ -228,7 +228,7 @@ func TestSearchNode(t *testing.T) {
 		if err != nil {
 			panic(err)
 		}
-		
+
 		createNodes(server)
 
 		Convey("Search Node by name", t, func() {

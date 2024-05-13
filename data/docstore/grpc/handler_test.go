@@ -22,18 +22,17 @@ package grpc
 
 import (
 	"context"
-	"fmt"
-	"github.com/pydio/cells/v4/common/dao/test"
-	"log"
 	"os"
 	"path/filepath"
-	"strings"
 	"testing"
 
 	"google.golang.org/grpc/metadata"
 
 	proto "github.com/pydio/cells/v4/common/proto/docstore"
+	"github.com/pydio/cells/v4/common/utils/test"
+	"github.com/pydio/cells/v4/common/utils/uuid"
 	"github.com/pydio/cells/v4/data/docstore"
+
 	. "github.com/smartystreets/goconvey/convey"
 )
 
@@ -79,278 +78,244 @@ func (l *listDocsTestStreamer) Send(r *proto.ListDocumentsResponse) error {
 	return nil
 }
 
-func createTestHandler(suffix string) (*Handler, func()) {
-
-	var closer func()
-	d, c, e := test.OnFileTestDAO("boltdb", newPath("docstore"+suffix+".db"), "", "docstore-test", false, docstore.NewDAO)
-	if e != nil {
-		log.Fatal(e)
+var (
+	testcases = []test.StorageTestCase{
+		{[]string{
+			"boltdb://" + filepath.Join(os.TempDir(), "docstore_bolt_"+uuid.New()+".db"),
+			"bleve://" + filepath.Join(os.TempDir(), "docstore_bleve_"+uuid.New()+".bleve"),
+		}, true, docstore.NewBleveEngine},
+		test.TemplateMongoEnvWithPrefix(docstore.NewMongoDAO, "test_docstore_"),
 	}
-	if bs, o := d.(*docstore.BleveServer); o {
-		bPath := strings.ReplaceAll(bs.DAO.DB().Path(), "docstore"+suffix+".db", "docstore"+suffix+".bleve")
-		closer = func() {
-			c()
-			fmt.Println("dropping on-file bleve" + bPath)
-			_ = os.RemoveAll(bPath)
-		}
-	} else {
-		closer = c
-	}
-	return &Handler{DAO: d.(docstore.DAO)}, closer
-}
-
-func TestHandler_CloseBolt(t *testing.T) {
-
-	Convey("Test init/close handler", t, func() {
-
-		pBolt := newPath("docstoreT.db")
-		pBleve := strings.ReplaceAll(pBolt, "docstoreT.db", "docstoreT.bleve")
-		d, closer, e := test.OnFileTestDAO("boltdb", pBolt, "", "docstore-test1", false, docstore.NewDAO)
-		So(e, ShouldBeNil)
-
-		bs, ok := d.(*docstore.BleveServer)
-		So(ok, ShouldBeTrue)
-		bs.DeleteOnClose = true
-
-		closer()
-
-		s1, _ := os.Stat(pBolt)
-		s2, _ := os.Stat(pBleve)
-		So(s1, ShouldBeNil)
-		So(s2, ShouldBeNil)
-
-	})
-
-}
+)
 
 func TestHandler_CRUD(t *testing.T) {
 
-	ctx := context.Background()
-	Convey("Test Document GET/PUT/DELETE", t, func() {
+	h := &Handler{}
+	test.RunStorageTests(testcases, func(ctx context.Context) {
 
-		h, closer := createTestHandler("crud")
-		defer closer()
+		Convey("Test Document GET/PUT/DELETE", t, func() {
 
-		_, e := h.PutDocument(ctx, &proto.PutDocumentRequest{
-			StoreID: "any-store",
-			Document: &proto.Document{
-				Type:          proto.DocumentType_JSON,
-				ID:            "my-doc-id",
-				Owner:         "admin",
-				Data:          `{"key1":"value1"}`,
-				IndexableMeta: `{"key1":"value1"}`,
-			},
+			_, e := h.PutDocument(ctx, &proto.PutDocumentRequest{
+				StoreID: "any-store",
+				Document: &proto.Document{
+					Type:          proto.DocumentType_JSON,
+					ID:            "my-doc-id",
+					Owner:         "admin",
+					Data:          `{"key1":"value1"}`,
+					IndexableMeta: `{"key1":"value1"}`,
+				},
+			})
+			So(e, ShouldBeNil)
+
+			getDocResp, e2 := h.GetDocument(ctx, &proto.GetDocumentRequest{
+				StoreID:    "any-store",
+				DocumentID: "my-doc-id",
+			})
+			So(e2, ShouldBeNil)
+			So(getDocResp.Document.Data, ShouldResemble, `{"key1":"value1"}`)
+
+			delDocResp, e3 := h.DeleteDocuments(ctx, &proto.DeleteDocumentsRequest{
+				StoreID:    "any-store",
+				DocumentID: "my-doc-id",
+			})
+			So(e3, ShouldBeNil)
+			So(delDocResp.Success, ShouldBeTrue)
+			So(delDocResp.DeletionCount, ShouldEqual, 1)
+
+			// Try to get deleted doc
+			getDocResp2, e4 := h.GetDocument(ctx, &proto.GetDocumentRequest{
+				StoreID:    "any-store",
+				DocumentID: "my-doc-id",
+			})
+			So(e4, ShouldNotBeNil)
+			So(getDocResp2, ShouldBeNil)
+
+			_, e = h.PutDocument(ctx, &proto.PutDocumentRequest{
+				StoreID: "any-store",
+				Document: &proto.Document{
+					Type:  proto.DocumentType_JSON,
+					ID:    "my-doc-id",
+					Owner: "admin",
+					Data:  `{"key1":"value1","key2":{"Sub_key":"Sub_value"},"key3":[{"array_key":"array_value"}]}`,
+				},
+			})
+			So(e, ShouldBeNil)
+
+			getDocResp3, e3 := h.GetDocument(ctx, &proto.GetDocumentRequest{
+				StoreID:    "any-store",
+				DocumentID: "my-doc-id",
+			})
+			So(e3, ShouldBeNil)
+			So(getDocResp3.Document.Data, ShouldEqual, `{"key1":"value1","key2":{"Sub_key":"Sub_value"},"key3":[{"array_key":"array_value"}]}`)
+
+			_, e = h.PutDocument(ctx, &proto.PutDocumentRequest{
+				StoreID: "any-store",
+				Document: &proto.Document{
+					Type:  proto.DocumentType_JSON,
+					ID:    "my-doc-id2",
+					Owner: "admin",
+					Data:  `{"key1":0.0}`,
+				},
+			})
+			So(e, ShouldBeNil)
+
+			getDocResp3, e3 = h.GetDocument(ctx, &proto.GetDocumentRequest{
+				StoreID:    "any-store",
+				DocumentID: "my-doc-id2",
+			})
+			So(e3, ShouldBeNil)
+			So(getDocResp3.Document.Data, ShouldEqual, `{"key1":0.0}`)
+
+			delDocResp, e3 = h.DeleteDocuments(ctx, &proto.DeleteDocumentsRequest{
+				StoreID:    "any-store",
+				DocumentID: "my-doc-id",
+			})
+			So(e3, ShouldBeNil)
+			So(delDocResp.Success, ShouldBeTrue)
+			So(delDocResp.DeletionCount, ShouldEqual, 1)
+
+			_, e3 = h.DeleteDocuments(ctx, &proto.DeleteDocumentsRequest{
+				StoreID:    "any-store",
+				DocumentID: "my-doc-id2",
+			})
+			So(e3, ShouldBeNil)
+
 		})
-		So(e, ShouldBeNil)
-
-		getDocResp, e2 := h.GetDocument(ctx, &proto.GetDocumentRequest{
-			StoreID:    "any-store",
-			DocumentID: "my-doc-id",
-		})
-		So(e2, ShouldBeNil)
-		So(getDocResp.Document.Data, ShouldResemble, `{"key1":"value1"}`)
-
-		delDocResp, e3 := h.DeleteDocuments(ctx, &proto.DeleteDocumentsRequest{
-			StoreID:    "any-store",
-			DocumentID: "my-doc-id",
-		})
-		So(e3, ShouldBeNil)
-		So(delDocResp.Success, ShouldBeTrue)
-		So(delDocResp.DeletionCount, ShouldEqual, 1)
-
-		// Try to get deleted doc
-		getDocResp2, e4 := h.GetDocument(ctx, &proto.GetDocumentRequest{
-			StoreID:    "any-store",
-			DocumentID: "my-doc-id",
-		})
-		So(e4, ShouldNotBeNil)
-		So(getDocResp2, ShouldBeNil)
-
-		_, e = h.PutDocument(ctx, &proto.PutDocumentRequest{
-			StoreID: "any-store",
-			Document: &proto.Document{
-				Type:  proto.DocumentType_JSON,
-				ID:    "my-doc-id",
-				Owner: "admin",
-				Data:  `{"key1":"value1","key2":{"Sub_key":"Sub_value"},"key3":[{"array_key":"array_value"}]}`,
-			},
-		})
-		So(e, ShouldBeNil)
-
-		getDocResp3, e3 := h.GetDocument(ctx, &proto.GetDocumentRequest{
-			StoreID:    "any-store",
-			DocumentID: "my-doc-id",
-		})
-		So(e3, ShouldBeNil)
-		So(getDocResp3.Document.Data, ShouldEqual, `{"key1":"value1","key2":{"Sub_key":"Sub_value"},"key3":[{"array_key":"array_value"}]}`)
-
-		_, e = h.PutDocument(ctx, &proto.PutDocumentRequest{
-			StoreID: "any-store",
-			Document: &proto.Document{
-				Type:  proto.DocumentType_JSON,
-				ID:    "my-doc-id2",
-				Owner: "admin",
-				Data:  `{"key1":0.0}`,
-			},
-		})
-		So(e, ShouldBeNil)
-
-		getDocResp3, e3 = h.GetDocument(ctx, &proto.GetDocumentRequest{
-			StoreID:    "any-store",
-			DocumentID: "my-doc-id2",
-		})
-		So(e3, ShouldBeNil)
-		So(getDocResp3.Document.Data, ShouldEqual, `{"key1":0.0}`)
-
-		delDocResp, e3 = h.DeleteDocuments(ctx, &proto.DeleteDocumentsRequest{
-			StoreID:    "any-store",
-			DocumentID: "my-doc-id",
-		})
-		So(e3, ShouldBeNil)
-		So(delDocResp.Success, ShouldBeTrue)
-		So(delDocResp.DeletionCount, ShouldEqual, 1)
-
-		_, e3 = h.DeleteDocuments(ctx, &proto.DeleteDocumentsRequest{
-			StoreID:    "any-store",
-			DocumentID: "my-doc-id2",
-		})
-		So(e3, ShouldBeNil)
-
 	})
 
 }
 
 func TestHandler_Search(t *testing.T) {
 
-	ctx := context.Background()
-	Convey("Test Document LIST/SEARCH", t, func() {
+	h := &Handler{}
+	test.RunStorageTests(testcases, func(ctx context.Context) {
 
-		h, closer := createTestHandler("list")
-		defer closer()
+		Convey("Test Document LIST/SEARCH", t, func() {
 
-		_, e := h.PutDocument(ctx, &proto.PutDocumentRequest{
-			StoreID: "any-store",
-			Document: &proto.Document{
-				Type:          proto.DocumentType_JSON,
-				ID:            "my-doc-id-1",
-				Owner:         "admin",
-				Data:          `{"key":"value", "key2":"value2", "key3":45, "KEY4":"other4", "key5":{"keySub":"value"}}`,
-				IndexableMeta: `{"key":"value", "key2":"value2", "key3":45, "KEY4":"other4", "key5":{"keySub":"value"}}`,
-			},
+			_, e := h.PutDocument(ctx, &proto.PutDocumentRequest{
+				StoreID: "any-store",
+				Document: &proto.Document{
+					Type:          proto.DocumentType_JSON,
+					ID:            "my-doc-id-1",
+					Owner:         "admin",
+					Data:          `{"key":"value", "key2":"value2", "key3":45, "KEY4":"other4", "key5":{"keySub":"value"}}`,
+					IndexableMeta: `{"key":"value", "key2":"value2", "key3":45, "KEY4":"other4", "key5":{"keySub":"value"}}`,
+				},
+			})
+			So(e, ShouldBeNil)
+
+			_, e = h.PutDocument(ctx, &proto.PutDocumentRequest{
+				StoreID: "any-store",
+				Document: &proto.Document{
+					Type:          proto.DocumentType_JSON,
+					ID:            "my-doc-id-2",
+					Owner:         "charles",
+					Data:          `{"key":"value", "key2":"other", "key3":50}`,
+					IndexableMeta: `{"key":"value", "key2":"other", "key3":50}`,
+				},
+			})
+			So(e, ShouldBeNil)
+
+			streamer := &listDocsTestStreamer{Ctx: ctx}
+			e1 := h.ListDocuments(&proto.ListDocumentsRequest{
+				StoreID: "any-store",
+				Query: &proto.DocumentQuery{
+					Owner: "admin",
+				},
+			}, streamer)
+			So(e1, ShouldBeNil)
+			So(streamer.Docs, ShouldHaveLength, 1)
+
+			streamer = &listDocsTestStreamer{Ctx: ctx}
+			e1 = h.ListDocuments(&proto.ListDocumentsRequest{
+				StoreID: "any-store",
+				Query: &proto.DocumentQuery{
+					Owner: "unknwown",
+				},
+			}, streamer)
+			So(e1, ShouldBeNil)
+			So(streamer.Docs, ShouldHaveLength, 0)
+
+			streamer = &listDocsTestStreamer{Ctx: ctx}
+			e1 = h.ListDocuments(&proto.ListDocumentsRequest{
+				StoreID: "any-store",
+				Query: &proto.DocumentQuery{
+					MetaQuery: "+key:value",
+				},
+			}, streamer)
+			So(e1, ShouldBeNil)
+			So(streamer.Docs, ShouldHaveLength, 2)
+
+			streamer = &listDocsTestStreamer{Ctx: ctx}
+			e1 = h.ListDocuments(&proto.ListDocumentsRequest{
+				StoreID: "any-store",
+				Query: &proto.DocumentQuery{
+					MetaQuery: "+key2:value2",
+				},
+			}, streamer)
+			So(e1, ShouldBeNil)
+			So(streamer.Docs, ShouldHaveLength, 1)
+
+			streamer = &listDocsTestStreamer{Ctx: ctx}
+			e1 = h.ListDocuments(&proto.ListDocumentsRequest{
+				StoreID: "any-store",
+				Query: &proto.DocumentQuery{
+					MetaQuery: "+key3:<49",
+				},
+			}, streamer)
+			So(e1, ShouldBeNil)
+			So(streamer.Docs, ShouldHaveLength, 1)
+
+			streamer = &listDocsTestStreamer{Ctx: ctx}
+			e1 = h.ListDocuments(&proto.ListDocumentsRequest{
+				StoreID: "any-store",
+				Query: &proto.DocumentQuery{
+					MetaQuery: "+key3:<45",
+				},
+			}, streamer)
+			So(e1, ShouldBeNil)
+			So(streamer.Docs, ShouldHaveLength, 0)
+
+			streamer = &listDocsTestStreamer{Ctx: ctx}
+			e1 = h.ListDocuments(&proto.ListDocumentsRequest{
+				StoreID: "any-store",
+				Query: &proto.DocumentQuery{
+					MetaQuery: "+key3:>45 +key2:value2",
+				},
+			}, streamer)
+			So(e1, ShouldBeNil)
+			So(streamer.Docs, ShouldHaveLength, 0)
+
+			streamer = &listDocsTestStreamer{Ctx: ctx}
+			e1 = h.ListDocuments(&proto.ListDocumentsRequest{
+				StoreID: "any-store",
+				Query: &proto.DocumentQuery{
+					MetaQuery: "+KEY4:other4",
+				},
+			}, streamer)
+			So(e1, ShouldBeNil)
+			So(streamer.Docs, ShouldHaveLength, 1)
+
+			streamer = &listDocsTestStreamer{Ctx: ctx}
+			e1 = h.ListDocuments(&proto.ListDocumentsRequest{
+				StoreID: "any-store",
+				Query: &proto.DocumentQuery{
+					MetaQuery: "+key5.keySub:val*",
+				},
+			}, streamer)
+			So(e1, ShouldBeNil)
+			So(streamer.Docs, ShouldHaveLength, 1)
+
+			// NOW DELETE DOCS
+			delDocs, e1 := h.DeleteDocuments(ctx, &proto.DeleteDocumentsRequest{
+				StoreID: "any-store",
+				Query: &proto.DocumentQuery{
+					MetaQuery: "+key:value",
+				},
+			})
+			So(e1, ShouldBeNil)
+			So(delDocs.DeletionCount, ShouldEqual, 2)
+
 		})
-		So(e, ShouldBeNil)
-
-		_, e = h.PutDocument(ctx, &proto.PutDocumentRequest{
-			StoreID: "any-store",
-			Document: &proto.Document{
-				Type:          proto.DocumentType_JSON,
-				ID:            "my-doc-id-2",
-				Owner:         "charles",
-				Data:          `{"key":"value", "key2":"other", "key3":50}`,
-				IndexableMeta: `{"key":"value", "key2":"other", "key3":50}`,
-			},
-		})
-		So(e, ShouldBeNil)
-
-		streamer := &listDocsTestStreamer{Ctx: ctx}
-		e1 := h.ListDocuments(&proto.ListDocumentsRequest{
-			StoreID: "any-store",
-			Query: &proto.DocumentQuery{
-				Owner: "admin",
-			},
-		}, streamer)
-		So(e1, ShouldBeNil)
-		So(streamer.Docs, ShouldHaveLength, 1)
-
-		streamer = &listDocsTestStreamer{Ctx: ctx}
-		e1 = h.ListDocuments(&proto.ListDocumentsRequest{
-			StoreID: "any-store",
-			Query: &proto.DocumentQuery{
-				Owner: "unknwown",
-			},
-		}, streamer)
-		So(e1, ShouldBeNil)
-		So(streamer.Docs, ShouldHaveLength, 0)
-
-		streamer = &listDocsTestStreamer{Ctx: ctx}
-		e1 = h.ListDocuments(&proto.ListDocumentsRequest{
-			StoreID: "any-store",
-			Query: &proto.DocumentQuery{
-				MetaQuery: "+key:value",
-			},
-		}, streamer)
-		So(e1, ShouldBeNil)
-		So(streamer.Docs, ShouldHaveLength, 2)
-
-		streamer = &listDocsTestStreamer{Ctx: ctx}
-		e1 = h.ListDocuments(&proto.ListDocumentsRequest{
-			StoreID: "any-store",
-			Query: &proto.DocumentQuery{
-				MetaQuery: "+key2:value2",
-			},
-		}, streamer)
-		So(e1, ShouldBeNil)
-		So(streamer.Docs, ShouldHaveLength, 1)
-
-		streamer = &listDocsTestStreamer{Ctx: ctx}
-		e1 = h.ListDocuments(&proto.ListDocumentsRequest{
-			StoreID: "any-store",
-			Query: &proto.DocumentQuery{
-				MetaQuery: "+key3:<49",
-			},
-		}, streamer)
-		So(e1, ShouldBeNil)
-		So(streamer.Docs, ShouldHaveLength, 1)
-
-		streamer = &listDocsTestStreamer{Ctx: ctx}
-		e1 = h.ListDocuments(&proto.ListDocumentsRequest{
-			StoreID: "any-store",
-			Query: &proto.DocumentQuery{
-				MetaQuery: "+key3:<45",
-			},
-		}, streamer)
-		So(e1, ShouldBeNil)
-		So(streamer.Docs, ShouldHaveLength, 0)
-
-		streamer = &listDocsTestStreamer{Ctx: ctx}
-		e1 = h.ListDocuments(&proto.ListDocumentsRequest{
-			StoreID: "any-store",
-			Query: &proto.DocumentQuery{
-				MetaQuery: "+key3:>45 +key2:value2",
-			},
-		}, streamer)
-		So(e1, ShouldBeNil)
-		So(streamer.Docs, ShouldHaveLength, 0)
-
-		streamer = &listDocsTestStreamer{Ctx: ctx}
-		e1 = h.ListDocuments(&proto.ListDocumentsRequest{
-			StoreID: "any-store",
-			Query: &proto.DocumentQuery{
-				MetaQuery: "+KEY4:other4",
-			},
-		}, streamer)
-		So(e1, ShouldBeNil)
-		So(streamer.Docs, ShouldHaveLength, 1)
-
-		streamer = &listDocsTestStreamer{Ctx: ctx}
-		e1 = h.ListDocuments(&proto.ListDocumentsRequest{
-			StoreID: "any-store",
-			Query: &proto.DocumentQuery{
-				MetaQuery: "+key5.keySub:val*",
-			},
-		}, streamer)
-		So(e1, ShouldBeNil)
-		So(streamer.Docs, ShouldHaveLength, 1)
-
-		// NOW DELETE DOCS
-		delDocs, e1 := h.DeleteDocuments(ctx, &proto.DeleteDocumentsRequest{
-			StoreID: "any-store",
-			Query: &proto.DocumentQuery{
-				MetaQuery: "+key:value",
-			},
-		})
-		So(e1, ShouldBeNil)
-		So(delDocs.DeletionCount, ShouldEqual, 2)
-
 	})
 }

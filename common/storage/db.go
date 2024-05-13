@@ -8,7 +8,7 @@ import (
 
 type Storage interface {
 	Get(ctx context.Context, out interface{}) (provides bool, er error)
-	CloseConns(ctx context.Context) (er error)
+	CloseConns(ctx context.Context, clean ...bool) (er error)
 }
 
 type Conn interface {

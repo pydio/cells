@@ -3,6 +3,7 @@ package mailer
 import (
 	"context"
 	"fmt"
+	"strings"
 	"time"
 
 	"go.mongodb.org/mongo-driver/bson"
@@ -60,24 +61,33 @@ func (m *mongoQueue) Consume(ctx context.Context, f func(email *mailer.Mail) err
 	if e != nil {
 		return e
 	}
+	var errStack []string
+	var i int
 	for cursor.Next(ctx) {
 		mail := &StoredEmail{}
-		if e := cursor.Decode(mail); e == nil {
-			if e := f(mail.Email); e == nil || mail.Email.Retries > MaxSendRetries {
-				if _, e := coll.DeleteOne(ctx, bson.D{{"id", mail.ID}}); e != nil {
-					fmt.Println("Could not delete email after send", e)
+		if de := cursor.Decode(mail); de == nil {
+			i++
+			if err := f(mail.Email); err == nil || mail.Email.Retries > MaxSendRetries {
+				if _, delE := coll.DeleteOne(ctx, bson.D{{"id", mail.ID}}); delE != nil {
+					fmt.Println("Could not delete email after send", delE)
+					errStack = append(errStack, delE.Error())
 				} else {
 					fmt.Println("Deleted email after send (or max retries reached)")
 				}
 			} else {
 				mail.Email.Retries += 1
-				if _, e := coll.ReplaceOne(ctx, bson.D{{Key: "id", Value: mail.ID}}, mail); e != nil {
-					fmt.Println("Could not update retry after send failed", e)
-				} else {
+				if _, ue := coll.ReplaceOne(ctx, bson.D{{Key: "id", Value: mail.ID}}, mail); ue != nil {
+					fmt.Println("Could not update retry after send failed", ue)
+					errStack = append(errStack, ue.Error())
+				} else if err != nil {
 					fmt.Println("Send failed, updated retry count")
+					errStack = append(errStack, err.Error())
 				}
 			}
 		}
+	}
+	if len(errStack) > 0 {
+		return fmt.Errorf("batch sent %d mails and failed %d times, errors were: %s", i, len(errStack), strings.Join(errStack, ", "))
 	}
 	return nil
 }

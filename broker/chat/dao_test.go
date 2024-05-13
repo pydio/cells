@@ -22,8 +22,6 @@ package chat
 
 import (
 	"context"
-	"os"
-	"path/filepath"
 	"testing"
 	"time"
 
@@ -41,8 +39,8 @@ import (
 var (
 	ctx       = context.Background()
 	testcases = []test.StorageTestCase{
-		{[]string{"boltdb://" + filepath.Join(os.TempDir(), "chat_bolt_"+uuid.New()+".db")}, true, NewBoltDAO},
-		{[]string{os.Getenv("CELLS_TEST_MONGODB_DSN") + "?collection=index"}, os.Getenv("CELLS_TEST_MONGODB_DSN") != "", NewMongoDAO},
+		test.TemplateBoltWithPrefix(NewBoltDAO, "chat_bolt_"),
+		test.TemplateMongoEnvWithPrefix(NewMongoDAO, "broker_"),
 	}
 )
 

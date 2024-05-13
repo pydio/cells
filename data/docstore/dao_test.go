@@ -40,21 +40,16 @@ var (
 			"boltdb://" + filepath.Join(os.TempDir(), "docstore_bolt_"+uuid.New()+".db"),
 			"bleve://" + filepath.Join(os.TempDir(), "docstore_bleve_"+uuid.New()+".db"),
 		}, true, NewBleveEngine},
-		{[]string{os.Getenv("CELLS_TEST_MONGODB_DSN") + "?collection=activity"}, os.Getenv("CELLS_TEST_MONGODB_DSN") != "", NewMongoDAO},
+		test.TemplateMongoEnvWithPrefix(NewMongoDAO, "test_docstore_"),
 	}
 )
 
-func TestNewBoltStore(t *testing.T) {
+func TestDocStore(t *testing.T) {
 
-	Convey("Test NewBoltStore", t, func() {
+	Convey("Test PUT / LIST DocStore - more tests in grpc/handler_test.go", t, func() {
 		test.RunStorageTests(testcases, func(ctx context.Context) {
 			dao, err := manager.Resolve[DAO](ctx)
 			So(err, ShouldBeNil)
-
-			p := filepath.Join(os.TempDir(), "docstore-test-bolt.db")
-			bs, e := NewBoltStore(p)
-			So(e, ShouldBeNil)
-			So(bs, ShouldNotBeNil)
 
 			er := dao.PutDocument(ctx, "mystore", &docstore.Document{ID: "1", Data: "Data"})
 			So(er, ShouldBeNil)
@@ -63,7 +58,13 @@ func TestNewBoltStore(t *testing.T) {
 			So(stores, ShouldHaveLength, 1)
 			So(stores[0], ShouldEqual, "mystore")
 
-			// Close TODO
+			byId, er := dao.QueryDocuments(ctx, "mystore", &docstore.DocumentQuery{
+				ID: "1",
+			})
+			So(er, ShouldBeNil)
+			for doc := range byId {
+				So(doc.Data, ShouldEqual, "Data")
+			}
 
 		})
 	})

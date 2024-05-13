@@ -23,15 +23,14 @@ package mailer
 import (
 	"context"
 	"fmt"
-	"os"
-	"path/filepath"
 	"testing"
+
+	"google.golang.org/protobuf/proto"
 
 	"github.com/pydio/cells/v4/common/proto/mailer"
 	"github.com/pydio/cells/v4/common/runtime/manager"
 	"github.com/pydio/cells/v4/common/utils/configx"
 	"github.com/pydio/cells/v4/common/utils/test"
-	"github.com/pydio/cells/v4/common/utils/uuid"
 
 	_ "github.com/pydio/cells/v4/common/storage/boltdb"
 	_ "github.com/pydio/cells/v4/common/storage/mongo"
@@ -42,8 +41,8 @@ import (
 var (
 	conf      configx.Values
 	testcases = []test.StorageTestCase{
-		{[]string{"boltdb://" + filepath.Join(os.TempDir(), "mailer_queue_"+uuid.New()+".db")}, true, NewBoltDAO},
-		{[]string{os.Getenv("CELLS_TEST_MONGODB_DSN") + "?collection=mailer_queue"}, os.Getenv("CELLS_TEST_MONGODB_DSN") != "", NewMongoDAO},
+		test.TemplateBoltWithPrefix(NewBoltDAO, "test_mailer"),
+		test.TemplateMongoEnvWithPrefix(NewMongoDAO, "broker_"),
 	}
 )
 
@@ -68,8 +67,7 @@ func testQueue(t *testing.T, queue Queue) {
 		ContentPlain: "This is a test",
 	}
 
-	email2 := &mailer.Mail{}
-	*email2 = *email
+	email2 := proto.Clone(email).(*mailer.Mail)
 	email2.Subject = "Second email"
 
 	err := queue.Push(nil, email)

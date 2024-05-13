@@ -24,109 +24,132 @@ import (
 	"context"
 	"testing"
 
-	"github.com/smartystreets/goconvey/convey"
-
-	"github.com/pydio/cells/v4/common/dao"
-	"github.com/pydio/cells/v4/common/dao/sqlite"
 	"github.com/pydio/cells/v4/common/proto/encryption"
-	"github.com/pydio/cells/v4/common/utils/configx"
+	"github.com/pydio/cells/v4/common/runtime/manager"
+	"github.com/pydio/cells/v4/common/utils/test"
+	"github.com/pydio/cells/v4/data/meta"
+
+	. "github.com/smartystreets/goconvey/convey"
 )
 
 var (
-	mockDAO DAO
-	ctx     = context.Background()
+	testcases = test.TemplateSharedSQLITE(meta.NewGormDAO)
 )
 
-func TestMain(m *testing.M) {
-	options := configx.New()
-
-	if d, e := dao.InitDAO(ctx, sqlite.Driver, sqlite.SharedMemDSN, "test", NewDAO, options); e != nil {
-		panic(e)
-	} else {
-		mockDAO = d.(DAO)
-	}
-
-	m.Run()
-}
-
 func TestSqlimpl_InsertNode(t *testing.T) {
-	convey.Convey("Test Put key", t, func() {
-		err := mockDAO.SaveNode(&encryption.Node{
-			NodeId: "node_id",
-			Legacy: false,
+	test.RunStorageTests(testcases, func(ctx context.Context) {
+		Convey("Test Put key", t, func() {
+			mockDAO, er := manager.Resolve[DAO](ctx)
+			So(er, ShouldBeNil)
+			err := mockDAO.SaveNode(ctx, &encryption.Node{
+				NodeId: "node_id",
+				Legacy: false,
+			})
+			So(err, ShouldBeNil)
 		})
-		convey.So(err, convey.ShouldBeNil)
 	})
 }
 
 func TestSqlimpl_SetNodeKey(t *testing.T) {
-	convey.Convey("Set node key", t, func() {
-		err := mockDAO.SaveNodeKey(&encryption.NodeKey{
-			NodeId:  "node_id",
-			UserId:  "pydio",
-			OwnerId: "pydio",
-			KeyData: []byte("key"),
+	test.RunStorageTests(testcases, func(ctx context.Context) {
+		Convey("Set node key", t, func() {
+			mockDAO, er := manager.Resolve[DAO](ctx)
+			So(er, ShouldBeNil)
+			err := mockDAO.SaveNodeKey(ctx, &encryption.NodeKey{
+				NodeId:  "node_id",
+				UserId:  "pydio",
+				OwnerId: "pydio",
+				KeyData: []byte("key"),
+			})
+			So(err, ShouldBeNil)
 		})
-		convey.So(err, convey.ShouldBeNil)
 	})
 }
 
 func TestSqlimpl_SetNodeKey2(t *testing.T) {
-	convey.Convey("Set node share key 1", t, func() {
-		err := mockDAO.SaveNodeKey(&encryption.NodeKey{
-			NodeId:  "node_id",
-			UserId:  "pydio",
-			OwnerId: "user-1",
-			KeyData: []byte("key"),
+	test.RunStorageTests(testcases, func(ctx context.Context) {
+		Convey("Set node share key 1", t, func() {
+
+			mockDAO, er := manager.Resolve[DAO](ctx)
+			So(er, ShouldBeNil)
+			err := mockDAO.SaveNodeKey(ctx, &encryption.NodeKey{
+				NodeId:  "node_id",
+				UserId:  "pydio",
+				OwnerId: "user-1",
+				KeyData: []byte("key"),
+			})
+			So(err, ShouldBeNil)
 		})
-		convey.So(err, convey.ShouldBeNil)
 	})
 }
 
 func TestSqlimpl_SetNodeKey3(t *testing.T) {
-	convey.Convey("Set node share key 2", t, func() {
-		err := mockDAO.SaveNodeKey(&encryption.NodeKey{
-			NodeId:  "node_id",
-			UserId:  "pydio",
-			OwnerId: "user-2",
-			KeyData: []byte("key"),
+	test.RunStorageTests(testcases, func(ctx context.Context) {
+
+		Convey("Set node share key 2", t, func() {
+			mockDAO, er := manager.Resolve[DAO](ctx)
+			So(er, ShouldBeNil)
+
+			err := mockDAO.SaveNodeKey(ctx, &encryption.NodeKey{
+				NodeId:  "node_id",
+				UserId:  "pydio",
+				OwnerId: "user-2",
+				KeyData: []byte("key"),
+			})
+			So(err, ShouldBeNil)
 		})
-		convey.So(err, convey.ShouldBeNil)
 	})
 }
 
 func TestSqlimpl_GetNodeKey(t *testing.T) {
-	convey.Convey("Get node key", t, func() {
-		k, err := mockDAO.GetNodeKey("node_id", "pydio")
-		convey.So(err, convey.ShouldBeNil)
-		convey.So(k, convey.ShouldNotBeNil)
+	test.RunStorageTests(testcases, func(ctx context.Context) {
+		Convey("Get node key", t, func() {
+			mockDAO, er := manager.Resolve[DAO](ctx)
+			So(er, ShouldBeNil)
+
+			k, err := mockDAO.GetNodeKey(ctx, "node_id", "pydio")
+			So(err, ShouldBeNil)
+			So(k, ShouldNotBeNil)
+		})
 	})
 }
 
 func TestSqlimpl_DeleteNodeSharedKey(t *testing.T) {
-	convey.Convey("Get node key", t, func() {
-		err := mockDAO.DeleteNodeKey(&encryption.NodeKey{
-			NodeId:  "node_id",
-			OwnerId: "pydio",
-			UserId:  "user-1",
+	test.RunStorageTests(testcases, func(ctx context.Context) {
+		Convey("Get node key", t, func() {
+			mockDAO, er := manager.Resolve[DAO](ctx)
+			So(er, ShouldBeNil)
+			err := mockDAO.DeleteNodeKey(ctx, &encryption.NodeKey{
+				NodeId:  "node_id",
+				OwnerId: "pydio",
+				UserId:  "user-1",
+			})
+			So(err, ShouldBeNil)
 		})
-		convey.So(err, convey.ShouldBeNil)
 	})
 }
 
 func TestSqlimpl_DeleteNodeAllSharedKey(t *testing.T) {
-	convey.Convey("Get node key", t, func() {
-		err := mockDAO.DeleteNodeKey(&encryption.NodeKey{
-			NodeId:  "node_id",
-			OwnerId: "pydio",
+	test.RunStorageTests(testcases, func(ctx context.Context) {
+		Convey("Get node key", t, func() {
+			mockDAO, er := manager.Resolve[DAO](ctx)
+			So(er, ShouldBeNil)
+			err := mockDAO.DeleteNodeKey(ctx, &encryption.NodeKey{
+				NodeId:  "node_id",
+				OwnerId: "pydio",
+			})
+			So(err, ShouldBeNil)
 		})
-		convey.So(err, convey.ShouldBeNil)
 	})
 }
 
 func TestSqlimpl_DeleteNode(t *testing.T) {
-	convey.Convey("Get node key", t, func() {
-		err := mockDAO.DeleteNode("pydio")
-		convey.So(err, convey.ShouldBeNil)
+	test.RunStorageTests(testcases, func(ctx context.Context) {
+		Convey("Get node key", t, func() {
+			mockDAO, er := manager.Resolve[DAO](ctx)
+			So(er, ShouldBeNil)
+			err := mockDAO.DeleteNode(ctx, "pydio")
+			So(err, ShouldBeNil)
+		})
 	})
 }

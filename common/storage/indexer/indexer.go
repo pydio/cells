@@ -50,6 +50,8 @@ type Indexer interface {
 
 	NewBatch(ctx context.Context, options ...BatchOption) (Batch, error)
 
+	// Init the underlying model
+	Init(ctx context.Context, conf configx.Values) error
 	// Close closes the index connection
 	Close(ctx context.Context) error
 }

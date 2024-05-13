@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2022. Abstrium SAS <team (at) pydio.com>
+ * Copyright (c) 2024. Abstrium SAS <team (at) pydio.com>
  * This file is part of Pydio Cells.
  *
  * Pydio Cells is free software: you can redistribute it and/or modify
@@ -110,9 +110,9 @@ func (i *Indexer) Init(ctx context.Context, cfg configx.Values) error {
 	if i.codec != nil {
 		if mo, ok := i.codec.GetModel(cfg); ok {
 			model := mo.(mongodb.Model)
-			//if er := model.Init(context.Background(), i.DAO); er != nil {
-			//	return er
-			//}
+			if er := model.Init(ctx, i.Database); er != nil {
+				return er
+			}
 			for _, coll := range model.Collections {
 				if coll.Name == i.collection {
 					i.collectionModel = coll
