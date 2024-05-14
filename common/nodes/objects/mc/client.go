@@ -70,14 +70,10 @@ func New(endpoint, accessKey, secretKey, signatureVersion string, secure bool, c
 	}
 	var raw string
 	if secure {
-		if strings.HasSuffix(endpoint, ":443") {
-			endpoint = strings.TrimSuffix(endpoint, ":443")
-		}
+		endpoint = strings.TrimSuffix(endpoint, ":443")
 		raw = "https://" + endpoint
 	} else {
-		if strings.HasSuffix(endpoint, ":80") {
-			endpoint = strings.TrimSuffix(endpoint, ":80")
-		}
+		endpoint = strings.TrimSuffix(endpoint, ":80")
 		raw = "http://" + endpoint
 	}
 	u, e := url.Parse(raw)
