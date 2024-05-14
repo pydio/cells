@@ -1,3 +1,6 @@
+//go:build exclude
+// +build exclude
+
 /*
  * Copyright (c) 2019-2022. Abstrium SAS <team (at) pydio.com>
  * This file is part of Pydio Cells.
@@ -24,8 +27,6 @@ import (
 	"context"
 	"database/sql"
 
-	sqlite3 "github.com/mattn/go-sqlite3"
-
 	"github.com/pydio/cells/v4/common/dao"
 	commonsql "github.com/pydio/cells/v4/common/sql"
 )
@@ -50,10 +51,4 @@ func (s *conn) GetConn(ctx context.Context) (dao.Conn, error) {
 
 func (s *conn) SetMaxConnectionsForWeight(num int) {
 	// Not implemented
-}
-
-func IsSQLiteConn(conn any) bool {
-	_, ok := conn.(*sqlite3.SQLiteDriver)
-
-	return ok
 }

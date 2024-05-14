@@ -25,9 +25,6 @@ import (
 	"crypto/md5"
 	"encoding/hex"
 	"fmt"
-	"github.com/pydio/cells/v4/common/dao/mysql"
-	"github.com/pydio/cells/v4/common/storage"
-	"github.com/pydio/cells/v4/common/utils/configx"
 	"math/rand"
 	"os"
 	osruntime "runtime"
@@ -35,18 +32,22 @@ import (
 	"testing"
 	"time"
 
-	. "github.com/smartystreets/goconvey/convey"
 	"github.com/spf13/viper"
 	"gorm.io/gorm"
 
 	"github.com/pydio/cells/v4/common/dao"
-	cellssqlite "github.com/pydio/cells/v4/common/dao/sqlite"
 	"github.com/pydio/cells/v4/common/proto/tree"
 	"github.com/pydio/cells/v4/common/runtime"
+	"github.com/pydio/cells/v4/common/sql"
+	"github.com/pydio/cells/v4/common/storage"
+	"github.com/pydio/cells/v4/common/utils/configx"
+	"github.com/pydio/cells/v4/common/utils/mtree"
+
 	_ "github.com/pydio/cells/v4/common/utils/cache/bigcache"
 	_ "github.com/pydio/cells/v4/common/utils/cache/gocache"
 	_ "github.com/pydio/cells/v4/common/utils/cache/redis"
-	"github.com/pydio/cells/v4/common/utils/mtree"
+
+	. "github.com/smartystreets/goconvey/convey"
 )
 
 var (
@@ -79,7 +80,7 @@ func testAll(t *testing.T, f func(dao testdao) func(*testing.T)) {
 	}{
 		{
 			"SQLite",
-			cellssqlite.Driver,
+			sql.SqliteDriver,
 			//cellssqlite.SharedMemDSN,
 			"test.db",
 			"test_nocache",
@@ -94,7 +95,7 @@ func testAll(t *testing.T, f func(dao testdao) func(*testing.T)) {
 		},
 		{
 			"SQLite W/ Standard Cache",
-			cellssqlite.Driver,
+			sql.SqliteDriver,
 			"test.db",
 			//"file::memcache:?mode=memory&cache=shared",
 			"test_cache",
@@ -111,7 +112,7 @@ func testAll(t *testing.T, f func(dao testdao) func(*testing.T)) {
 		},
 		{
 			"MySQL",
-			mysql.Driver,
+			sql.MySQLDriver,
 			"root:P@ssw0rd@tcp(localhost:3306)/cellstest?parseTime=true",
 			"test_mysql_nocache",
 			func(store storage.Storage) dao.DAO {
@@ -125,7 +126,7 @@ func testAll(t *testing.T, f func(dao testdao) func(*testing.T)) {
 		},
 		//{
 		//	"MySQL W/ Standard Cache",
-		//	mysql.Driver,
+		//	mysql.MySQLDriver,
 		//	"root:P@ssw0rd@tcp(localhost:3306)/cellstest?parseTime=true",
 		//	"test_mysql_cache",
 		//	func(store storage.Storage) dao.DAO {
@@ -139,7 +140,7 @@ func testAll(t *testing.T, f func(dao testdao) func(*testing.T)) {
 		//},
 		//{
 		//	"PostGreSQL",
-		//	pgsql.Driver,
+		//	pgsql.MySQLDriver,
 		//	"host=localhost port=5432 dbname=testdb user=root password=mysecretpassword sslmode=disable",
 		//	"test_postgres_nocache",
 		//	func(store storage.Storage) dao.DAO {
@@ -153,7 +154,7 @@ func testAll(t *testing.T, f func(dao testdao) func(*testing.T)) {
 		//},
 		//{
 		//	"PostGreSQL W/ Standard Cache",
-		//	pgsql.Driver,
+		//	pgsql.MySQLDriver,
 		//	"host=localhost port=5432 dbname=testdb user=root password=mysecretpassword sslmode=disable",
 		//	"test_postgres_cache",
 		//	func(db *gorm.DB) dao.DaoWrapperFunc {
@@ -204,7 +205,7 @@ func testAllCache(t *testing.T, f func(dao testdao) func(*testing.T)) {
 	}{
 		//{
 		//	"SQLite with Standard Cache",
-		//	cellssqlite.Driver,
+		//	cellssqlite.MySQLDriver,
 		//	"file::memcache:?mode=memory&cache=shared",
 		//	"test_cache",
 		//	func(db *gorm.DB) dao.DaoWrapperFunc {
@@ -219,7 +220,7 @@ func testAllCache(t *testing.T, f func(dao testdao) func(*testing.T)) {
 		//},
 		//{
 		//	"MySQL",
-		//	mysql.Driver,
+		//	mysql.MySQLDriver,
 		//	"root:P@ssw0rd@tcp(localhost:3306)/cellstest?parseTime=true",
 		//	"test_cache_",
 		//	func(db *gorm.DB) dao.DaoWrapperFunc {
@@ -234,7 +235,7 @@ func testAllCache(t *testing.T, f func(dao testdao) func(*testing.T)) {
 		//},
 		//{
 		//	"PostGreSQL",
-		//	pgsql.Driver,
+		//	pgsql.MySQLDriver,
 		//	"host=localhost port=5432 dbname=testdb user=root password=mysecretpassword sslmode=disable",
 		//	"test_cache",
 		//	func(db *gorm.DB) dao.DaoWrapperFunc {
@@ -1117,9 +1118,9 @@ func TestUnderscoreIssue(t *testing.T) {
 }
 
 //func TestDBInit(t *testing.T) {
-//	st := storage.New("test", cellssqlite.Driver, cellssqlite.SharedMemDSN)
-//	st.Register(cellssqlite.Driver, "test.db", "firsttenant", "")
-//	st.Register(cellssqlite.Driver, "test2.db", "secondtenant", "")
+//	st := storage.New("test", cellssqlite.MySQLDriver, cellssqlite.SharedMemDSN)
+//	st.Register(cellssqlite.MySQLDriver, "test.db", "firsttenant", "")
+//	st.Register(cellssqlite.MySQLDriver, "test2.db", "secondtenant", "")
 //
 //	ctxWithFirstTenant := context.WithValue(context.TODO(), "tenant", "firsttenant")
 //	ctxWithSecondTenant := context.WithValue(context.TODO(), "tenant", "secondtenant")

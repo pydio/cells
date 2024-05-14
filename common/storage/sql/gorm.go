@@ -13,9 +13,6 @@ import (
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
 
-	cellsmysql "github.com/pydio/cells/v4/common/dao/mysql"
-	cellspostgres "github.com/pydio/cells/v4/common/dao/pgsql"
-	cellssqlite "github.com/pydio/cells/v4/common/dao/sqlite"
 	"github.com/pydio/cells/v4/common/runtime/runtimecontext"
 	"github.com/pydio/cells/v4/common/runtime/tenant"
 	"github.com/pydio/cells/v4/common/storage"
@@ -24,7 +21,7 @@ import (
 )
 
 var (
-	Drivers = []string{cellsmysql.Driver, cellspostgres.Driver, cellssqlite.Driver}
+	Drivers = []string{MySQLDriver, PostgreDriver, SqliteDriver}
 
 	_ storage.Storage = (*gormStorage)(nil)
 )
@@ -89,21 +86,21 @@ func (gs *gormStorage) Register(conn any, tenant string, service string, hooks .
 
 	var dialect gorm.Dialector
 	var driver string
-	if cellsmysql.IsMysqlConn(db.Driver()) {
+	if IsMysqlConn(db.Driver()) {
 		dialect = mysql.New(mysql.Config{
 			Conn: db,
 		})
-		driver = cellsmysql.Driver
-	} else if cellspostgres.IsPostGreConn(db.Driver()) {
+		driver = MySQLDriver
+	} else if IsPostGreConn(db.Driver()) {
 		dialect = postgres.New(postgres.Config{
 			Conn: db,
 		})
-		driver = cellspostgres.Driver
-	} else if cellssqlite.IsSQLiteConn(db.Driver()) {
+		driver = PostgreDriver
+	} else if IsSQLiteConn(db.Driver()) {
 		dialect = &sqlite.Dialector{
 			Conn: db,
 		}
-		driver = cellssqlite.Driver
+		driver = SqliteDriver
 	}
 
 	helper, _ := newHelper(driver)
@@ -147,19 +144,20 @@ func (gs *gormStorage) Register(conn any, tenant string, service string, hooks .
 
 func (gs *gormStorage) Get(ctx context.Context, out interface{}) (bool, error) {
 	if v, ok := out.(**gorm.DB); ok {
-		u, err := gs.template.ResolveURL(ctx)
+		dsn, err := gs.template.Resolve(ctx) // cannot use ResolveURL here as it may be a mysql DSN (invalid URL)
 		if err != nil {
 			return true, err
 		}
-		hookNames, _ := storage.DetectHooksAndRemoveFromURL(u)
 
-		path := u.String()
+		var hookNames []string
+		hookNames, dsn = DetectHooksAndRemoveFromDSN(dsn)
+
 		var ten tenant.Tenant
 		runtimecontext.Get(ctx, tenant.ContextKey, &ten)
-		// Todo : why the two levels of register (.conns[path] and then Register below) ?
-		// Could the Dbresolver directly handle the path, including ServiceName & TenantID ?
-		if conn, ok := gs.conns[path]; !ok {
-			parts := strings.Split(path, "://")
+		// Todo : why the two levels of register (.conns[dsn] and then Register below) ?
+		// Could the Dbresolver directly handle the dsn, including ServiceName & TenantID ?
+		if conn, ok := gs.conns[dsn]; !ok {
+			parts := strings.Split(dsn, "://")
 			if len(parts) < 2 {
 				return false, nil
 			}
@@ -167,7 +165,7 @@ func (gs *gormStorage) Get(ctx context.Context, out interface{}) (bool, error) {
 				return true, err
 			} else {
 				gs.Register(conn, ten.ID(), runtimecontext.GetServiceName(ctx), hookNames...)
-				gs.conns[path] = conn
+				gs.conns[dsn] = conn
 			}
 		} else {
 			gs.Register(conn, ten.ID(), runtimecontext.GetServiceName(ctx), hookNames...)

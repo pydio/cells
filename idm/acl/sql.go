@@ -39,10 +39,10 @@ import (
 )
 
 type ACL struct {
-	ID          int       `gorm:"primaryKey; column:id; autoIncrement;"`
-	ActionName  string    `gorm:"column:action_name"`
-	ActionValue string    `gorm:"column:action_value"`
-	RoleID      int       `gorm:"column:role_id; default: -1"`
+	ID          int       `gorm:"primaryKey;column:id;autoIncrement;type:bigint;notNull"`
+	ActionName  string    `gorm:"column:action_name;type:varchar(500)"`
+	ActionValue string    `gorm:"column:action_value;type:varchar(500)"`
+	RoleID      int       `gorm:"column:role_id;default:-1;"`
 	WorkspaceID int       `gorm:"column:workspace_id; default: -1"`
 	NodeID      int       `gorm:"column:node_id; default: -1"`
 	Role        Role      `gorm:"foreignKey:RoleID"`
@@ -75,7 +75,7 @@ type sqlimpl struct {
 // Init handler for the SQL DAO
 func (s *sqlimpl) Init(ctx context.Context, options configx.Values) error {
 
-	s.instance(ctx).AutoMigrate(&ACL{}, &Role{}, &Workspace{}, &Node{})
+	s.instance(ctx) //.AutoMigrate(&ACL{}, &Role{}, &Workspace{}, &Node{})
 
 	return nil
 }
@@ -278,17 +278,17 @@ func (c *queryConverter) Convert(ctx context.Context, val *anypb.Any, db *gorm.D
 
 	if len(q.RoleIDs) > 0 {
 		count++
-		db = db.Where("role_id IN (?)", db.Model(&Role{}).Where("uuid IN ?", q.GetRoleIDs()))
+		db = db.Where("role_id IN (?)", db.Model(&Role{}).Select("id").Where("uuid IN ?", q.GetRoleIDs()))
 	}
 
 	if len(q.WorkspaceIDs) > 0 {
 		count++
-		db = db.Where("workspace_id IN ?", db.Model(&Workspace{}).Where("uuid IN ?", q.GetWorkspaceIDs()))
+		db = db.Where("workspace_id IN (?)", db.Model(&Workspace{}).Select("id").Where("uuid IN ?", q.GetWorkspaceIDs()))
 	}
 
 	if len(q.NodeIDs) > 0 {
 		count++
-		db = db.Where("node_id IN ?", db.Model(&Node{}).Where("uuid IN ?", q.GetNodeIDs()))
+		db = db.Where("node_id IN (?)", db.Model(&Node{}).Select("id").Where("uuid IN ?", q.GetNodeIDs()))
 	}
 
 	// Special case for Actions
@@ -300,7 +300,7 @@ func (c *queryConverter) Convert(ctx context.Context, val *anypb.Any, db *gorm.D
 		}
 
 		count++
-		db = db.Where("(action_name, action_value) IN ?", args)
+		db = db.Where("(action_name, action_value) IN (?)", args)
 	}
 
 	return db, count > 0, nil

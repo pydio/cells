@@ -1,3 +1,6 @@
+//go:build exclude
+// +build exclude
+
 /*
  * Copyright (c) 2019-2022. Abstrium SAS <team (at) pydio.com>
  * This file is part of Pydio Cells.
@@ -23,7 +26,6 @@ package pgsql
 import (
 	"context"
 	"database/sql"
-	"github.com/lib/pq"
 	"sync"
 
 	"github.com/pydio/cells/v4/common/dao"
@@ -47,14 +49,14 @@ func (m *conn) Open(c context.Context, dsn string) (dao.Conn, error) {
 		err error
 	)
 
-	if db, err = commonsql.GetSqlConnection(c, Driver, dsn); err != nil {
+	if db, err = commonsql.GetSqlConnection(c, commonsql.PostgreDriver, dsn); err != nil {
 		return nil, err
 	}
 	//if _, err = db.Exec(fmt.Sprintf("create database if not exists `%s`", dbName)); err != nil {
 	//	return nil, err
 	//}
 	//
-	//if db, err = commonsql.GetSqlConnection(c, Driver, dsn); err != nil {
+	//if db, err = commonsql.GetSqlConnection(c, MySQLDriver, dsn); err != nil {
 	//	return nil, err
 	//}
 
@@ -89,9 +91,4 @@ func (m *conn) SetMaxConnectionsForWeight(num int) {
 
 	m.conn.SetMaxOpenConns(maxConns)
 	m.conn.SetMaxIdleConns(maxIdleConns)
-}
-
-func IsPostGreConn(conn any) bool {
-	_, ok := conn.(*pq.Driver)
-	return ok
 }

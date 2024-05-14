@@ -22,6 +22,8 @@ package sql
 
 import (
 	"strings"
+
+	mysql2 "github.com/go-sql-driver/mysql"
 )
 
 type mysqlHelper struct{}
@@ -41,4 +43,13 @@ func (m *mysqlHelper) Hash(s ...string) string {
 func (m *mysqlHelper) HashParent(name string, s ...string) string {
 	pmpath := `SUBSTRING_INDEX(` + m.Concat(s...) + `, '.', level-1)`
 	return m.Hash(name, "'__###PARENT_HASH###__'", pmpath)
+}
+
+const (
+	MySQLDriver = "mysql"
+)
+
+func IsMysqlConn(conn any) bool {
+	_, ok := conn.(*mysql2.MySQLDriver)
+	return ok
 }

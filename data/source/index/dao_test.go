@@ -25,24 +25,24 @@ import (
 	"crypto/md5"
 	"encoding/hex"
 	"fmt"
-	"github.com/pydio/cells/v4/common/dao/mysql"
-	"github.com/pydio/cells/v4/common/runtime"
-	"github.com/pydio/cells/v4/common/storage"
-	"github.com/spf13/viper"
-	"gorm.io/gorm"
 	"log"
 	"regexp"
 	"testing"
 
-	. "github.com/smartystreets/goconvey/convey"
+	"github.com/spf13/viper"
+	"gorm.io/gorm"
 
 	"github.com/pydio/cells/v4/common/dao"
-	cellssqlite "github.com/pydio/cells/v4/common/dao/sqlite"
 	"github.com/pydio/cells/v4/common/proto/tree"
+	"github.com/pydio/cells/v4/common/runtime"
 	servicecontext "github.com/pydio/cells/v4/common/service/context"
 	"github.com/pydio/cells/v4/common/sql"
-	_ "github.com/pydio/cells/v4/common/utils/cache/gocache"
+	"github.com/pydio/cells/v4/common/storage"
 	"github.com/pydio/cells/v4/common/utils/configx"
+
+	_ "github.com/pydio/cells/v4/common/utils/cache/gocache"
+
+	. "github.com/smartystreets/goconvey/convey"
 )
 
 // FIXME: FAILING TEST
@@ -143,7 +143,7 @@ func testAll(t *testing.T, f func(dao DAO) func(*testing.T)) {
 	}{
 		{
 			"SQLite",
-			cellssqlite.Driver,
+			sql.SqliteDriver,
 			//cellssqlite.SharedMemDSN,
 			"test.db",
 			"test_nocache",
@@ -158,7 +158,7 @@ func testAll(t *testing.T, f func(dao DAO) func(*testing.T)) {
 		},
 		//{
 		//	"SQLite W/ Standard Cache",
-		//	cellssqlite.Driver,
+		//	cellssqlite.MySQLDriver,
 		//	"test.db",
 		//	//"file::memcache:?mode=memory&cache=shared",
 		//	"test_cache",
@@ -175,7 +175,7 @@ func testAll(t *testing.T, f func(dao DAO) func(*testing.T)) {
 		//},
 		{
 			"MySQL",
-			mysql.Driver,
+			sql.MySQLDriver,
 			"root:P@ssw0rd@tcp(localhost:3306)/cellstest?parseTime=true",
 			"test_mysql_nocache",
 			func(store storage.Storage) dao.DAO {
@@ -189,7 +189,7 @@ func testAll(t *testing.T, f func(dao DAO) func(*testing.T)) {
 		},
 		//{
 		//	"MySQL W/ Standard Cache",
-		//	mysql.Driver,
+		//	mysql.MySQLDriver,
 		//	"root:P@ssw0rd@tcp(localhost:3306)/cellstest?parseTime=true",
 		//	"test_mysql_cache",
 		//	func(store storage.Storage) dao.DAO {
@@ -203,7 +203,7 @@ func testAll(t *testing.T, f func(dao DAO) func(*testing.T)) {
 		//},
 		//{
 		//	"PostGreSQL",
-		//	pgsql.Driver,
+		//	pgsql.MySQLDriver,
 		//	"host=localhost port=5432 dbname=testdb user=root password=mysecretpassword sslmode=disable",
 		//	"test_postgres_nocache",
 		//	func(store storage.Storage) dao.DAO {
@@ -217,7 +217,7 @@ func testAll(t *testing.T, f func(dao DAO) func(*testing.T)) {
 		//},
 		//{
 		//	"PostGreSQL W/ Standard Cache",
-		//	pgsql.Driver,
+		//	pgsql.MySQLDriver,
 		//	"host=localhost port=5432 dbname=testdb user=root password=mysecretpassword sslmode=disable",
 		//	"test_postgres_cache",
 		//	func(db *gorm.DB) dao.DaoWrapperFunc {

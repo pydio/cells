@@ -43,7 +43,7 @@ import (
 )
 
 var (
-	testcases = test.TemplateSharedSQLITE(NewDAO)
+	testcases = test.TemplateSQL(NewDAO)
 )
 
 type server struct{}

@@ -22,7 +22,6 @@ package policy
 
 import (
 	"context"
-	"embed"
 	"fmt"
 	"strings"
 	"sync"
@@ -49,9 +48,7 @@ type sqlimpl struct {
 }
 
 var (
-	//go:embed migrations/*
-	migrationsFS embed.FS
-
+/*
 	queries = map[string]string{
 		"upsertPolicyGroup": `INSERT INTO idm_policy_group (uuid,name,description,owner_uuid,resource_group,last_updated) VALUES (?,?,?,?,?,?) ON DUPLICATE KEY UPDATE name=?,description=?,owner_uuid=?,resource_group=?,last_updated=?`,
 		"deletePolicyGroup": `DELETE FROM idm_policy_group WHERE uuid=?`,
@@ -63,22 +60,23 @@ var (
 		"listJoinedRes":     `SELECT p.uuid,p.name,p.description,p.owner_uuid,p.resource_group,p.last_updated,r.policy_id FROM idm_policy_group as p,idm_policy_rel as r WHERE r.group_uuid=p.uuid AND p.resource_group=?`,
 		"listRelPolicies":   `SELECT policy_id FROM idm_policy_rel WHERE group_uuid=?`,
 	}
+*/
 )
 
 type PolicyGroup struct {
 	UUID          string                  `gorm:"column:uuid;primaryKey"`
-	Name          string                  `gorm:"column:name"`           // VARCHAR(500) NOT NULL,
-	Description   string                  `gorm:"column:description"`    // VARCHAR(500) NOT NULL,
-	OwnerUUID     string                  `gorm:"column:owner_uuid"`     // VARCHAR(255) NULL,
-	ResourceGroup idm.PolicyResourceGroup `gorm:"column:resource_group"` // INT,
-	LastUpdated   int                     `gorm:"column:last_updated"`
+	Name          string                  `gorm:"column:name;type:varchar(500);notNull;"`        // VARCHAR(500) NOT NULL,
+	Description   string                  `gorm:"column:description;type:varchar(500);notNull;"` // VARCHAR(500) NOT NULL,
+	OwnerUUID     string                  `gorm:"column:owner_uuid;type:varchar(500);null;"`     // VARCHAR(255) NULL,
+	ResourceGroup idm.PolicyResourceGroup `gorm:"column:resource_group;type:int;"`               // INT,
+	LastUpdated   int                     `gorm:"column:last_updated;type:int;"`
 	Policies      []Policy                `gorm:"many2many:policy_rel;foreignKey:UUID;joinForeignKey:GroupUUID;References:ID;joinReferences:PolicyID;"`
 }
 
 type PolicyRel struct {
-	ID        int    `gorm:"column:id;primaryKey"'` // BIGINT NOT NULL AUTO_INCREMENT,
-	GroupUUID string `gorm:"column:group_uuid"`     // VARCHAR(255) NOT NULL,
-	PolicyID  string `gorm:"policy_id"`             //  VARCHAR(255) NOT NULL,
+	ID        int    `gorm:"column:id;primaryKey;type:bigint;notNull;autoIncrement;"` // BIGINT NOT NULL AUTO_INCREMENT,
+	GroupUUID string `gorm:"column:group_uuid;type:varchar(255);notNull;"`            // VARCHAR(255) NOT NULL,
+	PolicyID  string `gorm:"colum:policy_id;type:varchar(255);notNull;"`              //  VARCHAR(255) NOT NULL,
 }
 
 func (s *sqlimpl) instance(ctx context.Context) *gorm.DB {

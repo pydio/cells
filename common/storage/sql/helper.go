@@ -22,10 +22,6 @@ package sql
 
 import (
 	"fmt"
-
-	cellsmysql "github.com/pydio/cells/v4/common/dao/mysql"
-	cellspostgres "github.com/pydio/cells/v4/common/dao/pgsql"
-	cellssqlite "github.com/pydio/cells/v4/common/dao/sqlite"
 )
 
 type Helper interface {
@@ -36,11 +32,11 @@ type Helper interface {
 
 func newHelper(d string) (Helper, error) {
 	switch d {
-	case cellsmysql.Driver:
+	case MySQLDriver:
 		return new(mysqlHelper), nil
-	case cellspostgres.Driver:
+	case PostgreDriver:
 		return new(postgresHelper), nil
-	case cellssqlite.Driver:
+	case SqliteDriver:
 		return new(sqliteHelper), nil
 	default:
 		return nil, fmt.Errorf("wrong driver")

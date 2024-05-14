@@ -1,3 +1,6 @@
+//go:build exclude
+// +build exclude
+
 /*
  * Copyright (c) 2019-2021. Abstrium SAS <team (at) pydio.com>
  * This file is part of Pydio Cells.
@@ -27,9 +30,10 @@ import (
 	"log"
 
 	"github.com/jmoiron/sqlx"
-	. "github.com/ory/ladon"
 	"github.com/ory/ladon/compiler"
 	"github.com/pkg/errors"
+
+	. "github.com/ory/ladon"
 )
 
 type SQLManagerMigrateFromMajor0Minor6ToMajor0Minor7 struct {

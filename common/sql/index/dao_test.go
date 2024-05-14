@@ -24,6 +24,7 @@ import (
 	"crypto/md5"
 	"encoding/hex"
 	"fmt"
+	"github.com/pydio/cells/v4/common/sql"
 	"log"
 	"strconv"
 	"strings"
@@ -34,7 +35,6 @@ import (
 	"github.com/spf13/viper"
 
 	"github.com/pydio/cells/v4/common/dao"
-	"github.com/pydio/cells/v4/common/dao/sqlite"
 	"github.com/pydio/cells/v4/common/proto/tree"
 	"github.com/pydio/cells/v4/common/runtime"
 	"github.com/pydio/cells/v4/common/utils/mtree"
@@ -81,7 +81,7 @@ func makeDAO() dao.DAO {
 	v.SetDefault(runtime.KeyCache, "discard://")
 	v.SetDefault(runtime.KeyShortCache, "discard://")
 	runtime.SetRuntime(v)
-	d, er := dao.InitDAO(ctx, sqlite.Driver, "file::memnocache:?mode=memory&cache=shared", "test2", wrapper, options)
+	d, er := dao.InitDAO(ctx, sql.SqliteDriver, "file::memnocache:?mode=memory&cache=shared", "test2", wrapper, options)
 	if er != nil {
 		panic(er)
 	}

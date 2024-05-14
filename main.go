@@ -3,7 +3,11 @@ package main
 import (
 	"github.com/pydio/cells/v4/common"
 
+	// Register storage drivers
+	_ "github.com/pydio/cells/v4/common/storage/bleve"
 	_ "github.com/pydio/cells/v4/common/storage/boltdb"
+	_ "github.com/pydio/cells/v4/common/storage/config"
+	_ "github.com/pydio/cells/v4/common/storage/mongo"
 	_ "github.com/pydio/cells/v4/common/storage/sql"
 
 	// Register minio client for objects storage
@@ -52,13 +56,13 @@ import (
 	_ "github.com/pydio/cells/v4/common/registry/service"
 
 	// Broker
-	//_ "github.com/pydio/cells/v4/broker/activity/grpc"
-	//_ "github.com/pydio/cells/v4/broker/activity/rest"
+	_ "github.com/pydio/cells/v4/broker/activity/grpc"
+	_ "github.com/pydio/cells/v4/broker/activity/rest"
 	_ "github.com/pydio/cells/v4/broker/chat/grpc"
-	//_ "github.com/pydio/cells/v4/broker/log/grpc"
-	//_ "github.com/pydio/cells/v4/broker/log/rest"
-	//_ "github.com/pydio/cells/v4/broker/mailer/grpc"
-	//_ "github.com/pydio/cells/v4/broker/mailer/rest"
+	_ "github.com/pydio/cells/v4/broker/log/grpc"
+	_ "github.com/pydio/cells/v4/broker/log/rest"
+	_ "github.com/pydio/cells/v4/broker/mailer/grpc"
+	_ "github.com/pydio/cells/v4/broker/mailer/rest"
 
 	// Cache
 	_ "github.com/pydio/cells/v4/common/broker/debounce"
@@ -125,12 +129,6 @@ import (
 
 	// Config drivers
 	_ "github.com/pydio/cells/v4/common/config/sql"
-
-	// DAO Drivers
-	_ "github.com/pydio/cells/v4/common/dao/bleve"
-	_ "github.com/pydio/cells/v4/common/dao/boltdb"
-	_ "github.com/pydio/cells/v4/common/dao/mongodb"
-	_ "github.com/pydio/cells/v4/common/dao/mysql"
 
 	// Servers
 	_ "github.com/pydio/cells/v4/common/server/caddy/api"

@@ -41,7 +41,7 @@ import (
 )
 
 var (
-	testcases = test.TemplateSharedSQLITE(NewDAO)
+	testcases = test.TemplateSQL(NewDAO)
 )
 
 func TestCrud(t *testing.T) {

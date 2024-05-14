@@ -33,7 +33,7 @@ import (
 )
 
 var (
-	testcases = test.TemplateSharedSQLITE(meta.NewGormDAO)
+	testcases = test.TemplateSQL(meta.NewGormDAO)
 )
 
 func TestSqlimpl_InsertNode(t *testing.T) {

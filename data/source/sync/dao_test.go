@@ -22,12 +22,12 @@ package sync
 
 import (
 	"context"
+	"github.com/pydio/cells/v4/common/sql"
 	"testing"
 
 	. "github.com/smartystreets/goconvey/convey"
 
 	"github.com/pydio/cells/v4/common/dao"
-	"github.com/pydio/cells/v4/common/dao/sqlite"
 	"github.com/pydio/cells/v4/common/utils/configx"
 )
 
@@ -37,7 +37,7 @@ var (
 
 func TestMain(m *testing.M) {
 	ctx := context.Background()
-	if d, e := dao.InitDAO(ctx, sqlite.Driver, sqlite.SharedMemDSN, "test", NewDAO, configx.New()); e != nil {
+	if d, e := dao.InitDAO(ctx, sql.SqliteDriver, sql.SharedMemDSN, "test", NewDAO, configx.New()); e != nil {
 		panic(e)
 	} else {
 		mockDAO = d.(DAO)

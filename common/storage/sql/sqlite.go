@@ -21,8 +21,44 @@
 package sql
 
 import (
+	"database/sql"
+	"regexp"
 	"strings"
+
+	sqlite3 "github.com/mattn/go-sqlite3"
 )
+
+const (
+	SqliteDriver = "sqlite3-extended"
+	SharedMemDSN = "file::memory:?mode=memory&cache=shared"
+)
+
+func IsSQLiteConn(conn any) bool {
+	_, ok := conn.(*sqlite3.SQLiteDriver)
+
+	return ok
+}
+
+func init() {
+
+	regex := func(s, re string) (bool, error) {
+		return regexp.MatchString(re, s)
+	}
+	sql.Register(SqliteDriver,
+		&sqlite3.SQLiteDriver{
+			ConnectHook: func(conn *sqlite3.SQLiteConn) error {
+				if err := conn.RegisterFunc("regexp_like", regex, true); err != nil {
+					return err
+				}
+				if err := conn.RegisterFunc("REGEXP_LIKE", regex, true); err != nil {
+					return err
+				}
+
+				return nil
+			},
+		})
+
+}
 
 type sqliteHelper struct{}
 

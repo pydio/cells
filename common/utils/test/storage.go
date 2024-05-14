@@ -10,12 +10,12 @@ import (
 	"github.com/spf13/viper"
 
 	"github.com/pydio/cells/v4/common/config"
-	"github.com/pydio/cells/v4/common/dao/sqlite"
 	"github.com/pydio/cells/v4/common/runtime"
 	"github.com/pydio/cells/v4/common/runtime/manager"
 	"github.com/pydio/cells/v4/common/runtime/runtimecontext"
 	"github.com/pydio/cells/v4/common/runtime/tenant"
 	"github.com/pydio/cells/v4/common/service"
+	"github.com/pydio/cells/v4/common/storage/sql"
 	"github.com/pydio/cells/v4/common/utils/uuid"
 
 	_ "github.com/pydio/cells/v4/common/registry/config"
@@ -23,7 +23,6 @@ import (
 	_ "github.com/pydio/cells/v4/common/storage/boltdb"
 	_ "github.com/pydio/cells/v4/common/storage/config"
 	_ "github.com/pydio/cells/v4/common/storage/mongo"
-	_ "github.com/pydio/cells/v4/common/storage/sql"
 	_ "github.com/pydio/cells/v4/common/utils/cache/gocache"
 )
 
@@ -60,10 +59,19 @@ func init() {
 	}
 }
 
-// TemplateSharedSQLITE returns a single SQL test case with the provided DAO func
-func TemplateSharedSQLITE(daoFunc any) []StorageTestCase {
+// TemplateSQL returns a single SQL test case with the provided DAO func
+func TemplateSQL(daoFunc any) []StorageTestCase {
 	return []StorageTestCase{
-		{[]string{sqlite.Driver + "://" + sqlite.SharedMemDSN + "&hookNames=cleanTables"}, true, daoFunc},
+		{
+			DSN:       []string{sql.SqliteDriver + "://" + sql.SharedMemDSN + "&hookNames=cleanTables"},
+			Condition: true,
+			DAO:       daoFunc,
+		},
+		{
+			DSN:       []string{sql.MySQLDriver + "://root@tcp(127.0.0.1:3306)/cellst?hookNames=cleanTables"},
+			Condition: false,
+			DAO:       daoFunc,
+		},
 	}
 }
 

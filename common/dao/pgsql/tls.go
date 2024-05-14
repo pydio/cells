@@ -1,13 +1,12 @@
+//go:build exclude
+// +build exclude
+
 package pgsql
 
 import (
 	"database/sql"
-	"database/sql/driver"
-	"net/url"
 
 	tools "github.com/go-sql-driver/mysql"
-
-	"github.com/pydio/cells/v4/common/crypto"
 )
 
 func init() {

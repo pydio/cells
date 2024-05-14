@@ -87,11 +87,11 @@ func (s *sqlimpl) instance(ctx context.Context) *gorm.DB {
 //	// Doing the database migrations
 //	migrations := &sql.FSMigrationSource{
 //		Box:         statics.AsFS(migrationsFS, "migrations"),
-//		Dir:         s.Driver(),
+//		Dir:         s.MySQLDriver(),
 //		TablePrefix: s.Prefix(),
 //	}
 //
-//	_, err := sql.ExecMigration(s.DB(), s.Driver(), migrations, migrate.Up, "idm_role_")
+//	_, err := sql.ExecMigration(s.DB(), s.MySQLDriver(), migrations, migrate.Up, "idm_role_")
 //	if err != nil {
 //		return err
 //	}

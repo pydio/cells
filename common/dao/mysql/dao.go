@@ -1,3 +1,6 @@
+//go:build exclude
+// +build exclude
+
 /*
  * Copyright (c) 2019-2022. Abstrium SAS <team (at) pydio.com>
  * This file is part of Pydio Cells.
@@ -20,22 +23,8 @@
 
 package mysql
 
-import (
-	"context"
-	"github.com/pydio/cells/v4/common/dao"
-	commonsql "github.com/pydio/cells/v4/common/sql"
-)
-
-const (
-	Driver = "mysql"
-)
-
 func init() {
-	dao.RegisterSharedDAODriver(Driver, commonsql.NewDAO, func(c context.Context, driver, dsn string) dao.ConnDriver {
-		return &conn{}
-	})
-
-	dao.RegisterSharedDAODriver(Driver, commonsql.NewDAO, func(c context.Context, driver, dsn string) dao.ConnDriver {
-		return &conn{}
-	})
+	//dao.RegisterSharedDAODriver(commonsql.MySQLDriver, commonsql.NewDAO, func(c context.Context, driver, dsn string) dao.ConnDriver {
+	//	return &conn{}
+	//})
 }

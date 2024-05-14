@@ -32,8 +32,6 @@ import (
 	"github.com/pydio/cells/v4/common/broker"
 	"github.com/pydio/cells/v4/common/client/commons/jobsc"
 	"github.com/pydio/cells/v4/common/config"
-	"github.com/pydio/cells/v4/common/dao/mysql"
-	"github.com/pydio/cells/v4/common/dao/sqlite"
 	"github.com/pydio/cells/v4/common/log"
 	"github.com/pydio/cells/v4/common/proto/jobs"
 	"github.com/pydio/cells/v4/common/proto/object"
@@ -230,7 +228,7 @@ func WithStorage(source string) service.ServiceOption {
 	mapperType := config.Get("services", common.ServiceGrpcNamespace_+common.ServiceDataSync_+source, "StorageConfiguration", "checksumMapper").String()
 	switch mapperType {
 	case "dao":
-		return service.WithTODOStorage(sync.NewDAO, commonsql.NewDAO, service.WithStoragePrefix("data_sync_"+source), service.WithStorageSupport(mysql.Driver, sqlite.Driver))
+		return service.WithTODOStorage(sync.NewDAO, commonsql.NewDAO, service.WithStoragePrefix("data_sync_"+source), service.WithStorageSupport(commonsql.MySQLDriver, commonsql.SqliteDriver))
 	}
 	return nil
 }

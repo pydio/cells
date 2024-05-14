@@ -316,7 +316,7 @@ func (s *ResourcesSQL) BuildPolicyConditionForAction(q *service.ResourcePolicyQu
 	if q.Empty {
 		join := grt.Col("resource").Eq(gli)
 		actionQ := grt.Col("action").Eq(action.String())
-		str, args, e := goqu.New(s.Driver(), s.DB()).
+		str, args, e := goqu.New(s.MySQLDriver(), s.DB()).
 			From(resourcesTableName).
 			Prepared(true).
 			Select(goqu.L("1")).
@@ -343,7 +343,7 @@ func (s *ResourcesSQL) BuildPolicyConditionForAction(q *service.ResourcePolicyQu
 
 		ands = append(ands, grt.Col("resource").Eq(gli)) // Join
 		ands = append(ands, grt.Col("action").Eq(action.String()))
-		str, args, e := goqu.New(s.Driver(), s.DB()).
+		str, args, e := goqu.New(s.MySQLDriver(), s.DB()).
 			From(resourcesTableName).
 			Prepared(true).
 			Select(goqu.L("1")).

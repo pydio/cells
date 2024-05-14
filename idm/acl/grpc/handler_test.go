@@ -22,13 +22,13 @@ package grpc
 
 import (
 	"context"
+	"github.com/pydio/cells/v4/common/sql"
 	"testing"
 	"time"
 
 	"google.golang.org/grpc/metadata"
 	"google.golang.org/protobuf/types/known/anypb"
 
-	"github.com/pydio/cells/v4/common/dao/sqlite"
 	"github.com/pydio/cells/v4/common/proto/idm"
 	service "github.com/pydio/cells/v4/common/proto/service"
 	"github.com/pydio/cells/v4/common/utils/configx"
@@ -45,7 +45,7 @@ var (
 
 var (
 	testcases = []test.StorageTestCase{
-		{[]string{sqlite.Driver + "://" + sqlite.SharedMemDSN}, true, acl.NewDAO},
+		{[]string{sql.SqliteDriver + "://" + sql.SharedMemDSN}, true, acl.NewDAO},
 	}
 )
 

@@ -2,6 +2,8 @@ package sql
 
 import (
 	"strings"
+
+	"github.com/lib/pq"
 )
 
 type postgresHelper struct{}
@@ -22,3 +24,12 @@ func (p *postgresHelper) HashParent(name string, s ...string) string {
 	pmpath := `SPLIT_PART(` + p.Concat(s...) + `, '.', level-1)`
 	return p.Hash(name, "'__###PARENT_HASH###__'", pmpath)
 }
+
+func IsPostGreConn(conn any) bool {
+	_, ok := conn.(*pq.Driver)
+	return ok
+}
+
+const (
+	PostgreDriver = "postgres"
+)

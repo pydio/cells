@@ -58,31 +58,31 @@ type managerWithContext struct {
 }
 
 type Policy struct {
-	ID          string     `gorm:"column:id;primaryKey;"`
+	ID          string     `gorm:"column:id;type:varchar(255);primaryKey;notNull"`
 	Description string     `gorm:"column:description;"`
 	Effect      string     `gorm:"column:effect;"`
 	Conditions  string     `gorm:"column:conditions;"`
-	Actions     []Action   `gorm:"many2many:policy_action_rel;foreignKey:ID;joinForeignKey:Policy;References:ID;joinReferences:Action;"`
-	Resources   []Resource `gorm:"many2many:policy_resource_rel;foreignKey:ID;joinForeignKey:Policy;References:ID;joinReferences:Resource;"`
-	Subjects    []Subject  `gorm:"many2many:policy_subject_rel;foreignKey:ID;joinForeignKey:Policy;References:ID;joinReferences:Subject;"`
+	Actions     []Action   `gorm:"many2many:policy_action_rel;foreignKey:ID;joinForeignKey:Policy;References:ID;joinReferences:Action;constraint:OnDelete:CASCADE;"`
+	Resources   []Resource `gorm:"many2many:policy_resource_rel;foreignKey:ID;joinForeignKey:Policy;References:ID;joinReferences:Resource;constraint:OnDelete:CASCADE;"`
+	Subjects    []Subject  `gorm:"many2many:policy_subject_rel;foreignKey:ID;joinForeignKey:Policy;References:ID;joinReferences:Subject;constraint:OnDelete:CASCADE;"`
 }
 
 type Resource struct {
-	ID       string `gorm:"column:id; primaryKey"`
+	ID       string `gorm:"column:id;type:varchar(64);primaryKey;notNull"`
 	HasRegex bool   `gorm:"column:has_regex;"`
 	Compiled string `gorm:"column:compiled; unique"`
 	Template string `gorm:"column:template; unique"`
 }
 
 type Subject struct {
-	ID       string `gorm:"column:id; primaryKey"`
+	ID       string `gorm:"column:id;type:varchar(64);primaryKey;notNull"`
 	HasRegex bool   `gorm:"column:has_regex;"`
 	Compiled string `gorm:"column:compiled; unique"`
 	Template string `gorm:"column:template; unique"`
 }
 
 type Action struct {
-	ID       string `gorm:"column:id; primaryKey"`
+	ID       string `gorm:"column:id;type:varchar(64);primaryKey;notNull"`
 	HasRegex bool   `gorm:"column:has_regex;"`
 	Compiled string `gorm:"column:compiled; unique"`
 	Template string `gorm:"column:template; unique"`
@@ -319,24 +319,34 @@ func (s *managerWithContext) FindRequestCandidates(r *ladon.Request) (ladon.Poli
 			InnerJoins("inner join(?) qa2 on qa1.rel_action_id = qa2.action_id", qa2) //.
 	}
 
+	regexpBuilder := func(table, key string) string {
+		return fmt.Sprintf("%s = true and CAST(? AS BINARY) REGEXP BINARY %s", table+"."+key+"_regex", table+"."+key+"_compiled")
+	}
+	if db.Name() == "sqlite" {
+		// Warning, this requires sqlite3-extended driver with injected function REGEXP_LIKE
+		regexpBuilder = func(table, key string) string {
+			return fmt.Sprintf("%s = true and REGEXP_LIKE(?, %s)", table+"."+key+"_regex", table+"."+key+"_compiled")
+		}
+	}
+
 	if r.Subject != "" {
 		// This is required to force AND (a OR b) AND (c OR d), etc...
 		tx1 := tx.Session(&gorm.Session{NewDB: true})
 		tx = tx.Where(
 			tx1.Where("qs2.subject_regex = false and qs2.subject_template = ?", r.Subject).
-				Or("qs2.subject_regex = true and REGEXP_LIKE(?, qs2.subject_compiled)", r.Subject))
+				Or(regexpBuilder("qs2", "subject"), r.Subject))
 	}
 	if r.Resource != "" {
 		tx2 := tx.Session(&gorm.Session{NewDB: true})
 		tx = tx.Where(
 			tx2.Where("qr2.resource_regex = false and qr2.resource_template = ?", r.Resource).
-				Or("qr2.resource_regex = true and REGEXP_LIKE(?, qr2.resource_compiled)", r.Resource))
+				Or(regexpBuilder("qr2", "resource"), r.Resource))
 	}
 	if r.Action != "" {
 		tx3 := tx.Session(&gorm.Session{NewDB: true})
 		tx = tx.Where(
 			tx3.Where("qa2.action_regex = false and qa2.action_template = ?", r.Action).
-				Or("qa2.action_regex = true and REGEXP_LIKE(?, qa2.action_compiled)", r.Action))
+				Or(regexpBuilder("qa2", "action"), r.Action))
 	}
 	tx = tx.Find(&policies)
 	if tx.Error != nil {

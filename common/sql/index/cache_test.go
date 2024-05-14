@@ -24,6 +24,7 @@ import (
 	"crypto/md5"
 	"encoding/hex"
 	"fmt"
+	"github.com/pydio/cells/v4/common/sql"
 	"log"
 	osruntime "runtime"
 	"strconv"
@@ -34,7 +35,6 @@ import (
 	"github.com/spf13/viper"
 
 	"github.com/pydio/cells/v4/common/dao"
-	"github.com/pydio/cells/v4/common/dao/sqlite"
 	"github.com/pydio/cells/v4/common/proto/tree"
 	"github.com/pydio/cells/v4/common/runtime"
 	"github.com/pydio/cells/v4/common/utils/mtree"
@@ -59,7 +59,7 @@ func TestMain(m *testing.M) {
 		return NewDAO(d, "ROOT"), nil
 	}
 	var e error
-	if baseCacheDAO, e = dao.InitDAO(context.Background(), sqlite.Driver, sqlite.SharedMemDSN, "test", wrapper, options); e != nil {
+	if baseCacheDAO, e = dao.InitDAO(context.Background(), sql.SqliteDriver, sql.SharedMemDSN, "test", wrapper, options); e != nil {
 		panic(e)
 	}
 	m.Run()

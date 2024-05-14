@@ -16,7 +16,7 @@ import (
 )
 
 var (
-	testcases = test.TemplateSharedSQLITE(NewDAO)
+	testcases = test.TemplateSQL(NewDAO)
 )
 
 func TestManager(t *testing.T) {

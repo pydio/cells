@@ -34,7 +34,7 @@ import (
 )
 
 var (
-	testcases = test.TemplateSharedSQLITE(meta.NewGormDAO)
+	testcases = test.TemplateSQL(meta.NewGormDAO)
 )
 
 func TestMeta(t *testing.T) {
