@@ -140,7 +140,8 @@ func (h *Handler) CreateLogin(ctx context.Context, in *pauth.CreateLoginRequest)
 	}
 
 	// Checking the client exists
-	if _, err := reg.ClientManager().GetConcreteClient(ctx, in.GetClientID()); err != nil {
+	cl, err := reg.ClientManager().GetConcreteClient(ctx, in.GetClientID())
+	if err != nil {
 		return nil, err
 	}
 
@@ -156,6 +157,7 @@ func (h *Handler) CreateLogin(ctx context.Context, in *pauth.CreateLoginRequest)
 			RequestedAudience: in.GetAudiences(),
 			Subject:           "",
 			ClientID:          in.GetClientID(),
+			Client:            cl,
 			RequestURL:        iu.String(),
 			AuthenticatedAt:   sqlxx.NullTime{},
 			RequestedAt:       time.Now().UTC(),
@@ -202,7 +204,14 @@ func (h *Handler) AcceptLogin(ctx context.Context, in *pauth.AcceptLoginRequest)
 		return nil, err
 	}
 
-	return &pauth.AcceptLoginResponse{}, nil
+	challenge, err := f.ToLoginVerifier(ctx, reg)
+	if err != nil {
+		return nil, err
+	}
+
+	return &pauth.AcceptLoginResponse{
+		Challenge: challenge,
+	}, nil
 }
 
 func (h *Handler) GetConsent(ctx context.Context, in *pauth.GetConsentRequest) (*pauth.GetConsentResponse, error) {
@@ -327,7 +336,7 @@ func (h *Handler) AcceptConsent(ctx context.Context, in *pauth.AcceptConsentRequ
 	var p flow.AcceptOAuth2ConsentRequest
 
 	// We decode the flow here once again because VerifyAndInvalidateConsentRequest does not return the flow
-	f, err := flowctx.Decode[flow.Flow](ctx, reg.FlowCipher(), in.GetVerifier(), flowctx.AsLoginChallenge)
+	f, err := flowctx.Decode[flow.Flow](ctx, reg.FlowCipher(), in.GetChallenge(), flowctx.AsConsentChallenge)
 	if err != nil {
 		return nil, errorsx.WithStack(fosite.ErrAccessDenied.WithHint("The consent verifier has already been used, has not been granted, or is invalid."))
 	}
@@ -357,7 +366,13 @@ func (h *Handler) AcceptConsent(ctx context.Context, in *pauth.AcceptConsentRequ
 		return nil, err
 	}
 
-	return &pauth.AcceptConsentResponse{}, nil
+	challenge, err := f.ToConsentVerifier(ctx, reg)
+	if err != nil {
+		return nil, err
+	}
+	return &pauth.AcceptConsentResponse{
+		Challenge: challenge,
+	}, nil
 }
 
 func (h *Handler) CreateAuthCode(ctx context.Context, in *pauth.CreateAuthCodeRequest) (*pauth.CreateAuthCodeResponse, error) {
@@ -373,16 +388,23 @@ func (h *Handler) CreateAuthCode(ctx context.Context, in *pauth.CreateAuthCodeRe
 	values.Set("client_id", in.GetClientID())
 	values.Set("redirect_uri", in.GetRedirectURI())
 	values.Set("response_type", "code")
-	values.Set("consent_verifier", in.GetConsent().GetVerifier())
-	values.Set("code_challenge", in.GetCodeChallenge())
-	values.Set("code_challenge_method", in.GetCodeChallengeMethod())
-
+	values.Set("consent_verifier", in.GetConsent().GetChallenge())
 	values.Set("state", uuid.New())
 
 	req, err := http.NewRequestWithContext(ctx, "POST", "http://"+host, strings.NewReader(values.Encode()))
 	if err != nil {
 		return nil, err
 	}
+
+	query := req.URL.Query()
+	query.Set("client_id", in.GetClientID())
+	query.Set("redirect_uri", in.GetRedirectURI())
+	query.Set("response_type", "code")
+	query.Set("consent_verifier", in.GetConsent().GetChallenge())
+	query.Set("state", uuid.New())
+
+	req.URL.RawQuery = query.Encode()
+
 	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 
 	ar, err := reg.OAuth2Provider().NewAuthorizeRequest(ctx, req)
@@ -631,13 +653,14 @@ func (h *Handler) PasswordCredentialsCode(ctx context.Context, in *pauth.Passwor
 	}
 
 	// Accepting login challenge
-	if _, err := hydra.AcceptLogin(ctx, challenge, identity.UserID); err != nil {
+	acceptLogin, err := hydra.AcceptLogin(ctx, challenge, identity.UserID)
+	if err != nil {
 		log.Logger(ctx).Error("Failed to accept login ", zap.Error(err))
 		return nil, err
 	}
 
 	// Creating consent
-	consent, err := hydra.CreateConsent(ctx, challenge)
+	consent, err := hydra.CreateConsent(ctx, acceptLogin.Challenge)
 	if err != nil {
 		log.Logger(ctx).Error("Failed to create consent ", zap.Error(err))
 		return nil, err
@@ -750,20 +773,21 @@ func (h *Handler) PasswordCredentialsToken(ctx context.Context, in *pauth.Passwo
 	}
 
 	// Accepting login challenge
-	if _, err := hydra.AcceptLogin(ctx, challenge, identity.UserID); err != nil {
+	verifyLogin, err := hydra.AcceptLogin(ctx, challenge, identity.UserID)
+	if err != nil {
 		log.Logger(ctx).Error("Failed to accept login ", zap.Error(err))
 		return nil, err
 	}
 
 	// Creating consent
-	consent, err := hydra.CreateConsent(ctx, challenge)
+	consent, err := hydra.CreateConsent(ctx, verifyLogin.Challenge)
 	if err != nil {
 		log.Logger(ctx).Error("Failed to create consent ", zap.Error(err))
 		return nil, err
 	}
 
 	// Accepting consent
-	if _, err := hydra.AcceptConsent(
+	verifyConsent, err := hydra.AcceptConsent(
 		ctx,
 		consent.Challenge,
 		login.GetRequestedScope(),
@@ -774,10 +798,13 @@ func (h *Handler) PasswordCredentialsToken(ctx context.Context, in *pauth.Passwo
 			"email":      identity.Email,
 			"authSource": source,
 		},
-	); err != nil {
+	)
+	if err != nil {
 		log.Logger(ctx).Error("Failed to accept consent ", zap.Error(err))
 		return nil, err
 	}
+
+	consent.Challenge = verifyConsent.Challenge
 
 	requestURL, err := url.Parse(login.GetRequestURL())
 	if err != nil {
@@ -791,7 +818,7 @@ func (h *Handler) PasswordCredentialsToken(ctx context.Context, in *pauth.Passwo
 		return nil, err
 	}
 
-	verifier := consent.Challenge + consent.Challenge // Must be > 43 characters
+	verifier := consent.Challenge // Must be > 43 characters
 	hash := sha256.New()
 	if _, err := hash.Write([]byte(verifier)); err != nil {
 		return nil, err
@@ -840,7 +867,7 @@ func (h *Handler) Exchange(ctx context.Context, in *pauth.ExchangeRequest) (*pau
 	values.Set("client_id", config.DefaultOAuthClientID)
 	values.Set("grant_type", "authorization_code")
 	values.Set("code", in.Code)
-	values.Set("code_verifier", in.CodeVerifier)
+	values.Set("code_verifier", "")
 	values.Set("redirect_uri", routing.GetDefaultSiteURL()+"/auth/callback")
 
 	req, err := http.NewRequest("POST", "", strings.NewReader(values.Encode()))

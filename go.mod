@@ -39,6 +39,7 @@ require (
 	github.com/gobuffalo/pop/v6 v6.1.2-0.20230318123913-c85387acc9a0
 	github.com/gobwas/glob v0.2.3
 	github.com/gofrs/uuid v4.4.0+incompatible
+	github.com/golang/protobuf v1.5.4
 	github.com/google/go-cmp v0.6.0
 	github.com/google/uuid v1.6.0
 	github.com/gorilla/mux v1.8.1
@@ -173,7 +174,6 @@ require (
 	github.com/PuerkitoBio/goquery v1.8.1 // indirect
 	github.com/RoaringBitmap/roaring v0.9.4 // indirect
 	github.com/Shopify/sarama v1.37.2 // indirect
-	github.com/ThalesIgnite/crypto11 v1.2.5 // indirect
 	github.com/VividCortex/ewma v1.1.1 // indirect
 	github.com/alecthomas/assert/v2 v2.2.2 // indirect
 	github.com/alecthomas/chroma v0.10.0 // indirect
@@ -285,7 +285,6 @@ require (
 	github.com/golang/glog v1.1.2 // indirect
 	github.com/golang/groupcache v0.0.0-20210331224755-41bb18bfe9da // indirect
 	github.com/golang/mock v1.6.0 // indirect
-	github.com/golang/protobuf v1.5.4 // indirect
 	github.com/golang/snappy v0.0.4 // indirect
 	github.com/gomodule/redigo v1.8.8 // indirect
 	github.com/google/cel-go v0.16.0 // indirect
@@ -363,7 +362,6 @@ require (
 	github.com/mholt/acmez v1.2.0 // indirect
 	github.com/micromdm/scep/v2 v2.1.0 // indirect
 	github.com/miekg/dns v1.1.55 // indirect
-	github.com/miekg/pkcs11 v1.1.1 // indirect
 	github.com/minio/highwayhash v1.0.2 // indirect
 	github.com/minio/selfupdate v0.4.0 // indirect
 	github.com/minio/sha256-simd v1.0.1 // indirect
@@ -439,7 +437,6 @@ require (
 	github.com/subosito/gotenv v1.4.2 // indirect
 	github.com/syndtr/goleveldb v1.0.0 // indirect
 	github.com/tailscale/tscert v0.0.0-20230806124524-28a91b69a046 // indirect
-	github.com/thales-e-security/pool v0.0.2 // indirect
 	github.com/tidwall/match v1.1.1 // indirect
 	github.com/tidwall/pretty v1.2.1 // indirect
 	github.com/tidwall/sjson v1.2.5 // indirect

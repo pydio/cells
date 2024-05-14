@@ -19,6 +19,7 @@ import (
 	"github.com/pydio/cells/v4/common/log"
 	"github.com/pydio/cells/v4/common/service/frontend/sessions/utils"
 	"github.com/pydio/cells/v4/common/utils/configx"
+	"github.com/pydio/cells/v4/common/utils/uuid"
 )
 
 var (
@@ -40,6 +41,11 @@ type SessionRow struct {
 	CreatedOn  time.Time `gorm:"column:created_on"`
 	ModifiedOn time.Time `gorm:"column:modified_on"`
 	ExpiresOn  time.Time `gorm:"column:expires_on"`
+}
+
+func (r *SessionRow) BeforeCreate(db *gorm.DB) error {
+	r.ID = uuid.New()
+	return nil
 }
 
 func init() {
