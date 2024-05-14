@@ -291,7 +291,7 @@ func (c *queryConverter) Convert(ctx context.Context, val *anypb.Any, db *gorm.D
 		db = db.Where("node_id IN (?)", db.Model(&Node{}).Select("id").Where("uuid IN ?", q.GetNodeIDs()))
 	}
 
-	// Special case for Actions
+	// Special case for Actions - Todo do this handle a case when we look only for an action name?
 	if len(q.Actions) > 0 {
 		var args [][]interface{}
 

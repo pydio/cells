@@ -221,6 +221,10 @@ func TestQueryBuilder(t *testing.T) {
 			s, er := sql.NewQueryBuilder[*gorm.DB](composedQuery, new(queryConverter)).Build(ctx, mockDB)
 			So(er, ShouldBeNil)
 			So(s, ShouldNotBeNil)
+			sqlStr := s.ToSQL(func(tx *gorm.DB) *gorm.DB {
+				return tx.Find(&[]ACL{})
+			})
+			So(sqlStr, ShouldNotBeEmpty)
 			//So(s, ShouldEqual, `((action_name='read' OR action_name='write')) AND (role_id in (select id from idm_acl_roles where uuid in ("role1","role2"))) AND (node_id in (select id from idm_acl_nodes where uuid in ("node1")))`)
 		})
 	})
