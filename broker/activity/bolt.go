@@ -472,6 +472,7 @@ func (dao *boltdbimpl) Purge(ctx context.Context, logger func(string, int), owne
 		return e
 	}
 
+	//todo
 	//if compactDB {
 	//	old, newSize, er := dao.Compact(ctx, map[string]interface{}{"ClearBackup": clearBackup})
 	//	if er == nil {

@@ -37,7 +37,6 @@ import (
 )
 
 var (
-	ctx       = context.Background()
 	testcases = []test.StorageTestCase{
 		test.TemplateBoltWithPrefix(NewBoltDAO, "chat_bolt_"),
 		test.TemplateMongoEnvWithPrefix(NewMongoDAO, "broker_"),

@@ -22,6 +22,7 @@
 package versions
 
 import (
+	"github.com/pydio/cells/v4/common/dao"
 	"go.etcd.io/bbolt"
 	"go.mongodb.org/mongo-driver/mongo"
 
@@ -47,44 +48,34 @@ func NewMongoDAO(db *mongo.Database) DAO {
 	return &mongoStore{Database: db}
 }
 
-//func Migrate(f dao.DAO, t dao.DAO, dryRun bool, status chan dao.MigratorStatus) (map[string]int, error) {
-//	ctx := context.Background()
-//	out := map[string]int{
-//		"Versions": 0,
-//	}
-//	var from, to DAO
-//	if df, e := NewDAO(ctx, f); e == nil {
-//		from = df.(DAO)
-//	} else {
-//		return out, e
-//	}
-//	if dt, e := NewDAO(ctx, t); e == nil {
-//		to = dt.(DAO)
-//	} else {
-//		return out, e
-//	}
-//	uuids, done, errs := from.ListAllVersionedNodesUuids()
-//	var e error
-//loop1:
-//	for {
-//		select {
-//		case id := <-uuids:
-//			versions, _ := from.GetVersions(id)
-//			for version := range versions {
-//				if dryRun {
-//					out["Versions"]++
-//				} else if er := to.StoreVersion(id, version); er == nil {
-//					out["Versions"]++
-//				} else {
-//					continue
-//				}
-//			}
-//			break loop1
-//		case e = <-errs:
-//			break loop1
-//		case <-done:
-//			break loop1
-//		}
-//	}
-//	return out, e
-//}
+func Migrate(f any, t any, dryRun bool, status chan dao.MigratorStatus) (map[string]int, error) {
+	out := map[string]int{
+		"Versions": 0,
+	}
+	from := f.(DAO)
+	to := t.(DAO)
+	uuids, done, errs := from.ListAllVersionedNodesUuids()
+	var e error
+loop1:
+	for {
+		select {
+		case id := <-uuids:
+			versions, _ := from.GetVersions(id)
+			for version := range versions {
+				if dryRun {
+					out["Versions"]++
+				} else if er := to.StoreVersion(id, version); er == nil {
+					out["Versions"]++
+				} else {
+					continue
+				}
+			}
+			break loop1
+		case e = <-errs:
+			break loop1
+		case <-done:
+			break loop1
+		}
+	}
+	return out, e
+}

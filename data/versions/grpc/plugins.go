@@ -64,7 +64,7 @@ func init() {
 					Up:            InitDefaults,
 				},
 			}),
-			// service.WithStorageMigrator(versions.Migrate),
+			service.WithStorageMigrator(versions.Migrate),
 			service.WithStorageDrivers(versions.NewBoltDAO, versions.NewMongoDAO),
 			service.AfterServe(func(ctx context.Context) error {
 				// return std.Retry(ctx, func() error {

@@ -20,29 +20,4 @@
 
 package meta
 
-import (
-	"context"
-)
-
-var (
-	mockDAO DAO
-	ctx     = context.Background()
-)
-
-/*
-func TestMain(m *testing.M) {
-	options := configx.New()
-	if d, e := dao.InitDAO(ctx, sqlite.Driver, sqlite.SharedMemDSN, "test", NewDAO, options); e != nil {
-		panic(e)
-	} else {
-		mockDAO = d.(DAO)
-	}
-
-	m.Run()
-}
-
-func TestDAOInit(t *testing.T) {
-	convey.Convey("Init Meta DAO", t, func() {
-		convey.So(mockDAO, convey.ShouldNotBeNil)
-	})
-}*/
+// SEE grpc/handler_test that already fully covers the DAO
