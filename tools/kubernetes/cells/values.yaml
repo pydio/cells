@@ -178,6 +178,16 @@ ingress:
   ##             name: http
   ##
   extraRules: []
+  clusterissuer:
+    ## @param ingress.clusterissuer.enabled Enable clusterissuer resource for Cells
+    ##
+    enabled: false
+    ## @param ingress.clusterissuer.server Default server for the clusterissuer resource
+    ##
+    server: "https://acme-staging-v02.api.letsencrypt.org/directory"
+    ## @param ingress.clusterissuer.email Email for the clusterissuer resource
+    ##
+    email: test@cells.com
 
 ingress-nginx:
   controller:
@@ -220,34 +230,57 @@ affinity: {}
 #------------------------------
 # Dependency settings
 #------------------------------
-mariadb:
+cert-manager:
   enabled: true
+  useNewInstallation: false # Set to true to use cert-manager chart
+
+nginx:
+  enabled: false
+  useNewInstallation: false # Set to true to use nginx chart
+
+mariadb:
+  useNewInstallation: false # Set to true to use MariaDB chart
+  galera:
+    enabled: false # Set to true to enable MariaDB Galera
+    useNewInstallation: false # Set to true to use MariaDB chart
+  host: mariadb-mariadb-galera.database.svc.cluster.local  # Provide the existing MariaDB host if mariadb.enabled is false
+  port: 3306        # Provide the existing MariaDB port if mariadb.enabled is false
+  database: cells   # Provide the existing database name if mariadb.enabled is false
+  username: pydio    # Provide the existing database username if mariadb.enabled is false
+  password: password         # Provide the existing database password if mariadb.enabled is false
   volumePermissions:
     enabled: true
   tls:
     enabled: false
 
-mariadbgalera:
-  enabled: false
-  volumePermissions:
-    enabled: true
-
 redis:
-  enabled: true
+  enabled: false # Set to true to enable Redis
+  useNewInstallation: false  # Set to true to use Redis chart
+  host: localhost   # Provide the existing redis host if redis.enabled is false
+  port: 6379 # Provide the existing redis port if redis.enabled is false
+  password: # Provide the existing redis password if redis.enabled is false
   volumePermissions:
     enabled: true
   auth:
     enabled: false
 
 nats:
-  enabled: true
+  enabled: false # Set to true to enable nats
+  useNewInstallation: false  # Set to true to use nats chart
   auth:
     enabled: false
   volumePermissions:
     enabled: true
 
 etcd:
-  enabled: true
+  enabled: false # Set to true to enable etcd
+  useNewInstallation: false  # Set to true to use etcd chart
+  host:
+  service:
+    ports:
+      client:
+      peer:
+
   commonAnnotations: {
     "helm.sh/hook": "pre-install",
     "helm.sh/hook-weight": "-2"
@@ -270,21 +303,26 @@ etcd:
     enabled: true
 
 minio:
-  enabled: true
+  enabled: false # Set to true to enable minio
+  useNewInstallation: false  # Set to true to use minio chart
   defaultBuckets: "thumbnails pydiods1 personal versions cellsdata binaries"
 
   volumePermissions:
     enabled: true
 
 mongodb:
-  enabled: true
-  auth: 
+  enabled: false # Set to true to enable mongodb
+  useNewInstallation: false  # Set to true to use mongodb chart
+  host: localhost   # Provide the existing mongodb host if mongodb.enabled is false
+  port: 27017 # Provide the existing mongodb port if mongodb.enabled is false
+  auth:
     enabled: false
   volumePermissions:
     enabled: true
 
 vault:
-  enabled: true
+  enabled: false # Set to true to enable vault
+  useNewInstallation: false  # Set to true to use vault chart
   injector:
     annotations: {
       "helm.sh/hook": "pre-install",

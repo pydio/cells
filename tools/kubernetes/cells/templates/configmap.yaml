@@ -22,36 +22,28 @@ data:
         tlsconfig:
           {{ toYaml .Values.service.tlsconfig | nindent 10 }}
       {{- end }}
-    
+
     customconfigs:
       {{ toYaml .Values.service.customconfigs | nindent 6 }}
 
-    {{- if .Values.mariadb.enabled}}
     dbmanualdsn: {{ include "cells.mariadbURL" . }}
     dbconnectiontype: tcp
     dbtcphostname: {{ include "cells.mariadbHost" . }}
     dbtcpport: {{ include "cells.mariadbPort" . }}
-    dbtcpname: cells
-    dbtcpuser: root
-    dbtcppassword: {$MARIADB_ROOT_PASSWORD}
-    {{- end }}
-    
-    {{- if (index .Values "mariadb-galera" "enabled") }}
-    dbconnectiontype: tcp
-    dbtcphostname: {{ include "cells.mariadbGaleraHost" . }}
-    dbtcpport: {{ include "cells.mariadbGaleraPort" . }}
-    dbtcpname: cells
-    dbtcpuser: root
-    dbtcppassword: {$MARIADB_ROOT_PASSWORD}
-    {{- end }}
+    dbtcpname: {{ include "cells.mariadbName" . }}
+    dbtcpuser: {{ include "cells.mariadbUser" . }}
+    dbtcppassword: {{ include "cells.mariadbPassword" . }}
 
+    {{- if (index .Values "mongodb" "enabled") }}
     documentsdsn: {{ include "cells.mongodbURL" . }}/cells
     usedocumentsdsn: true
+    {{- end }}
 
     # Defined in .env file
     frontendlogin: admin
     frontendpassword: P@ssw0rd
 
+    {{- if (index .Values "minio" "enabled") }}
     dstype: S3
     dss3custom: {{ include "cells.minioURL" . }}
     dss3apikey: {$MINIO_ROOT_USER}
@@ -62,7 +54,9 @@ data:
     dss3bucketbinaries: binaries
     dss3bucketthumbs: thumbnails
     dss3bucketversions: versions
+    {{- end }}
 ---
+{{- if (index .Values "vault" "enabled") }}
 apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -87,23 +81,23 @@ data:
     vault secrets enable -version=2 -path=secret kv
     vault secrets enable -version=2 -path=caddycerts kv
     vault secrets enable pki
-    
+
     vault write pki/root/generate/internal \
       common_name={{ include "cells.serviceDomain" . }} \
       ttl=8760h
-    
+
     vault write pki/config/urls \
       issuing_certificates="{{ include "cells.vaultURL" . }}/v1/pki/ca" \
       crl_distribution_points="{{ include "cells.vaultURL" . }}/v1/pki/crl"
-    
+
     vault secrets tune -max-lease-ttl=8760h pki
-    
+
     vault write pki/roles/application \
       allowed_domains=*.{{ include "cells.serviceDomain" . }} \
       allow_any_name=true \
       allow_subdomains=true \
       max_ttl=72h
-    
+
     vault policy write pki /vault/userconfig/cells-vault/pki-policy.hcl
 
     vault auth enable kubernetes
@@ -140,6 +134,7 @@ data:
     }
 
   pki-policy.hcl: |
-    path "pki*"                    { capabilities = ["read", "list"] } 
+    path "pki*"                    { capabilities = ["read", "list"] }
     path "pki/sign/application"    { capabilities = ["create", "update"] }
     path "pki/issue/application"   { capabilities = ["create"] }
+{{- end }}
