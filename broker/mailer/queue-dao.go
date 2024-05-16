@@ -2,12 +2,11 @@ package mailer
 
 import (
 	"context"
-
-	bolt "go.etcd.io/bbolt"
-	"go.mongodb.org/mongo-driver/mongo"
+	"github.com/pydio/cells/v4/common/storage/mongodb"
 
 	"github.com/pydio/cells/v4/common/dao"
 	"github.com/pydio/cells/v4/common/proto/mailer"
+	bolt "go.etcd.io/bbolt"
 )
 
 type Queue interface {
@@ -22,7 +21,7 @@ func NewBoltDAO(db *bolt.DB) Queue {
 	return bq
 }
 
-func NewMongoDAO(db *mongo.Database) Queue {
+func NewMongoDAO(db *mongodb.Database) Queue {
 	return &mongoQueue{db: db}
 }
 

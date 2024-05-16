@@ -24,7 +24,7 @@ import (
 	"context"
 	"strings"
 
-	"github.com/blevesearch/bleve/v2"
+	bleve "github.com/blevesearch/bleve/v2"
 	"github.com/blevesearch/bleve/v2/search/query"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -49,7 +49,7 @@ type Model struct {
 	Collections []Collection
 }
 
-func (m Model) Init(ctx context.Context, db *mongo.Database) error {
+func (m Model) Init(ctx context.Context, db *Database) error {
 	for _, col := range m.Collections {
 		opts := &options.CreateCollectionOptions{}
 		if col.DefaultCollation.Locale != "" {
@@ -59,9 +59,6 @@ func (m Model) Init(ctx context.Context, db *mongo.Database) error {
 			}
 		}
 		name := col.Name
-		//if dao.Prefix() != "" {
-		//	name = dao.Prefix() + "_" + name
-		//}
 		if e := db.CreateCollection(ctx, name, opts); e != nil {
 			if _, ok := e.(mongo.CommandError); !ok {
 				return e

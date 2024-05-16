@@ -18,13 +18,13 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-package mongo
+package mongodb
 
 import (
 	"context"
+	"fmt"
 	"strings"
 
-	"github.com/pborman/uuid"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 
@@ -46,6 +46,28 @@ func init() {
 	}
 }
 
+// Database type wraps the *mongo.Database to prepend prefix to collection names
+type Database struct {
+	*mongo.Database
+	prefix string
+}
+
+// Collection overrides collection name by appending prefix
+func (d *Database) Collection(name string, opts ...*options.CollectionOptions) *mongo.Collection {
+	if d.prefix != "" {
+		name = d.prefix + name
+	}
+	return d.Database.Collection(name, opts...)
+}
+
+// CreateCollection overrides name by appending prefix
+func (d *Database) CreateCollection(ctx context.Context, name string, opts ...*options.CreateCollectionOptions) error {
+	if d.prefix != "" {
+		name = d.prefix + name
+	}
+	return d.Database.CreateCollection(ctx, name, opts...)
+}
+
 type mongoStorage struct {
 	template openurl.Template
 	clients  map[string]*mongo.Client
@@ -63,19 +85,13 @@ func (o *mongoStorage) OpenURL(ctx context.Context, urlstr string) (storage.Stor
 	}, nil
 }
 
-func (s *mongoStorage) Provides(conn any) bool {
-	if _, ok := conn.(*mongo.Client); ok {
-		return true
-	}
-
-	return false
-}
-
 func (s *mongoStorage) CloseConns(ctx context.Context, clean ...bool) error {
 	for _, db := range s.clients {
-		for _, cl := range cleaners {
-			if er := cl(ctx, db); er != nil {
-				return er
+		if len(clean) > 0 && clean[0] {
+			for _, cl := range cleaners {
+				if er := cl(ctx, db); er != nil {
+					return er
+				}
 			}
 		}
 		if er := db.Disconnect(ctx); er != nil {
@@ -85,24 +101,9 @@ func (s *mongoStorage) CloseConns(ctx context.Context, clean ...bool) error {
 	return nil
 }
 
-func (s *mongoStorage) GetConn(str string) (storage.Conn, error) {
-	for _, mongoType := range mongoTypes {
-		if strings.HasPrefix(str, mongoType) {
-			client, err := mongo.Connect(context.TODO(), options.Client().ApplyURI(str))
-			if err != nil {
-				return nil, err
-			}
-
-			return (*mongoItem)(client), nil
-		}
-	}
-
-	return nil, nil
-}
-
 func (s *mongoStorage) Get(ctx context.Context, out interface{}) (bool, error) {
 	switch out.(type) {
-	case **mongo.Database:
+	case **Database:
 	case **Indexer:
 	case *indexer.Indexer:
 	default:
@@ -139,48 +140,30 @@ func (s *mongoStorage) Get(ctx context.Context, out interface{}) (bool, error) {
 		s.clients[path] = mgClient
 	}
 
-	switch v := out.(type) {
-	case **mongo.Database:
-		*v = db
-	case **Indexer:
-		idx := NewIndexer(db)
-		idx.SetCollection(u.Query().Get("collection"))
+	prefix := u.Query().Get("prefix")
+	prefixed := &Database{
+		prefix:   prefix,
+		Database: db,
+	}
 
+	switch v := out.(type) {
+	case **Database:
+		*v = prefixed
+	case **Indexer:
+		if !u.Query().Has("collection") {
+			return true, fmt.Errorf("no collection found in URL for indexer")
+		}
+		idx := newIndexer(prefixed, u.Query().Get("collection"))
 		*v = idx
 	case *indexer.Indexer:
-		idx := NewIndexer(db)
-		idx.SetCollection(u.Query().Get("collection"))
-
+		if !u.Query().Has("collection") {
+			return true, fmt.Errorf("no collection found in URL for indexer")
+		}
+		idx := newIndexer(prefixed, u.Query().Get("collection"))
 		*v = idx
 	default:
 		return false, nil
 	}
 
 	return true, nil
-}
-
-type mongoItem mongo.Client
-
-func (i *mongoItem) Name() string {
-	return "mongo"
-}
-
-func (i *mongoItem) ID() string {
-	return uuid.New()
-}
-
-func (i *mongoItem) Metadata() map[string]string {
-	return map[string]string{}
-}
-
-func (i *mongoItem) As(i2 interface{}) bool {
-	return false
-}
-
-func (i *mongoItem) Driver() string {
-	return "mongo"
-}
-
-func (i *mongoItem) DSN() string {
-	return "TODO"
 }

@@ -22,7 +22,7 @@ import (
 	_ "github.com/pydio/cells/v4/common/storage/bleve"
 	_ "github.com/pydio/cells/v4/common/storage/boltdb"
 	_ "github.com/pydio/cells/v4/common/storage/config"
-	_ "github.com/pydio/cells/v4/common/storage/mongo"
+	_ "github.com/pydio/cells/v4/common/storage/mongodb"
 	_ "github.com/pydio/cells/v4/common/utils/cache/gocache"
 )
 
@@ -79,6 +79,15 @@ func TemplateSQL(daoFunc any) []StorageTestCase {
 func TemplateMongoEnvWithPrefix(daoFunc any, prefix string) StorageTestCase {
 	return StorageTestCase{
 		DSN:       []string{os.Getenv("CELLS_TEST_MONGODB_DSN") + "?hookNames=cleanCollections&prefix=" + prefix},
+		Condition: os.Getenv("CELLS_TEST_MONGODB_DSN") != "",
+		DAO:       daoFunc,
+	}
+}
+
+// TemplateMongoEnvWithPrefixAndIndexerCollection creates a StorageTestCase for MongoDB
+func TemplateMongoEnvWithPrefixAndIndexerCollection(daoFunc any, prefix, collection string) StorageTestCase {
+	return StorageTestCase{
+		DSN:       []string{os.Getenv("CELLS_TEST_MONGODB_DSN") + "?hookNames=cleanCollections&prefix=" + prefix + "&collection=" + collection},
 		Condition: os.Getenv("CELLS_TEST_MONGODB_DSN") != "",
 		DAO:       daoFunc,
 	}

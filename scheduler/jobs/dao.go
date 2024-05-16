@@ -24,12 +24,12 @@ import (
 	"time"
 
 	"go.etcd.io/bbolt"
-	"go.mongodb.org/mongo-driver/mongo"
 
 	"github.com/pydio/cells/v4/common/proto/activity"
 	"github.com/pydio/cells/v4/common/proto/idm"
 	"github.com/pydio/cells/v4/common/proto/jobs"
 	"github.com/pydio/cells/v4/common/proto/tree"
+	"github.com/pydio/cells/v4/common/storage/mongodb"
 )
 
 // DAO provides method interface to access the store for scheduler job and task definitions.
@@ -53,7 +53,7 @@ func NewBoltDAO(db *bbolt.DB) DAO {
 	return dao
 }
 
-func NewMongoDAO(db *mongo.Database) DAO {
+func NewMongoDAO(db *mongodb.Database) DAO {
 	return &mongoImpl{Database: db}
 }
 

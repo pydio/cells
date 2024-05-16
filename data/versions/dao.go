@@ -22,11 +22,11 @@
 package versions
 
 import (
-	"github.com/pydio/cells/v4/common/dao"
 	"go.etcd.io/bbolt"
-	"go.mongodb.org/mongo-driver/mongo"
 
+	"github.com/pydio/cells/v4/common/dao"
 	"github.com/pydio/cells/v4/common/proto/tree"
+	"github.com/pydio/cells/v4/common/storage/mongodb"
 )
 
 type DAO interface {
@@ -44,7 +44,7 @@ func NewBoltDAO(db *bbolt.DB) (DAO, error) {
 	return NewBoltStore(db)
 }
 
-func NewMongoDAO(db *mongo.Database) DAO {
+func NewMongoDAO(db *mongodb.Database) DAO {
 	return &mongoStore{Database: db}
 }
 

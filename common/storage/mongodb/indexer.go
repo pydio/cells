@@ -18,7 +18,7 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-package mongo
+package mongodb
 
 import (
 	"context"
@@ -31,7 +31,6 @@ import (
 	"go.uber.org/zap"
 
 	"github.com/pydio/cells/v4/common/dao"
-	"github.com/pydio/cells/v4/common/dao/mongodb"
 	"github.com/pydio/cells/v4/common/log"
 	"github.com/pydio/cells/v4/common/storage/indexer"
 	"github.com/pydio/cells/v4/common/utils/configx"
@@ -43,9 +42,9 @@ type IndexDAO interface {
 }
 
 type Indexer struct {
-	*mongo.Database
+	*Database
 	collection      string
-	collectionModel mongodb.Collection
+	collectionModel Collection
 	codec           dao.IndexCodex
 	inserts         []interface{}
 	deletes         []string
@@ -60,13 +59,14 @@ func (i *Indexer) GetCodex() indexer.IndexCodex {
 	return i.codec
 }
 
-func NewIndexer(db *mongo.Database) *Indexer {
+func newIndexer(db *Database, mainCollection string) *Indexer {
 	i := &Indexer{
 		Database:   db,
 		bufferSize: 2000,
 		tick:       make(chan bool),
 		flush:      make(chan bool, 1),
 		done:       make(chan bool, 1),
+		collection: mainCollection,
 	}
 	go i.watch()
 	return i
@@ -109,7 +109,7 @@ func (i *Indexer) Init(ctx context.Context, cfg configx.Values) error {
 	}
 	if i.codec != nil {
 		if mo, ok := i.codec.GetModel(cfg); ok {
-			model := mo.(mongodb.Model)
+			model := mo.(Model)
 			if er := model.Init(ctx, i.Database); er != nil {
 				return er
 			}
@@ -477,7 +477,7 @@ func (i *Indexer) SetCodex(c indexer.IndexCodex) {
 	i.codec = c
 
 	if mo, ok := i.codec.GetModel(nil); ok {
-		if model, ok := mo.(mongodb.Model); ok {
+		if model, ok := mo.(Model); ok {
 			for _, coll := range model.Collections {
 				if coll.Name == i.collection {
 					i.collectionModel = coll

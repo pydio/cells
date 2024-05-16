@@ -23,12 +23,11 @@ package chat
 
 import (
 	"context"
-
-	"go.etcd.io/bbolt"
-	"go.mongodb.org/mongo-driver/mongo"
+	"github.com/pydio/cells/v4/common/storage/mongodb"
 
 	"github.com/pydio/cells/v4/common/dao"
 	"github.com/pydio/cells/v4/common/proto/chat"
+	"go.etcd.io/bbolt"
 )
 
 type MessageMatcher func(msg *chat.ChatMessage) (matches bool, filtered *chat.ChatMessage, err error)
@@ -58,7 +57,7 @@ func NewBoltDAO(db *bbolt.DB) DAO {
 	return &boltdbimpl{db: db, HistorySize: 1000}
 }
 
-func NewMongoDAO(db *mongo.Database) DAO {
+func NewMongoDAO(db *mongodb.Database) DAO {
 	return &mongoImpl{db: db}
 }
 

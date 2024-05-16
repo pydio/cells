@@ -32,7 +32,7 @@ import (
 	log2 "github.com/pydio/cells/v4/common/log"
 	"github.com/pydio/cells/v4/common/proto/log"
 	"github.com/pydio/cells/v4/common/storage/bleve"
-	"github.com/pydio/cells/v4/common/storage/mongo"
+	"github.com/pydio/cells/v4/common/storage/mongodb"
 	json "github.com/pydio/cells/v4/common/utils/jsonx"
 )
 
@@ -52,7 +52,7 @@ func NewBleveDAO(v *bleve.Indexer) MessageRepository {
 	return NewIndexRepository(v)
 }
 
-func NewMongoDAO(m *mongo.Indexer) MessageRepository {
+func NewMongoDAO(m *mongodb.Indexer) MessageRepository {
 	m.SetCollection(mongoCollection)
 	m.SetCodex(&MongoCodec{})
 	return NewIndexRepository(m)

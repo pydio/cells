@@ -28,11 +28,10 @@ import (
 	"context"
 	"time"
 
-	"go.mongodb.org/mongo-driver/mongo"
-
 	"github.com/pydio/cells/v4/common/dao"
 	"github.com/pydio/cells/v4/common/proto/activity"
 	"github.com/pydio/cells/v4/common/storage/boltdb"
+	"github.com/pydio/cells/v4/common/storage/mongodb"
 )
 
 var testEnv bool
@@ -101,7 +100,7 @@ func NewBoltDAO(db *boltdb.Compacter) DAO {
 	return WithCache(d, 5*time.Second)
 }
 
-func NewMongoDAO(database *mongo.Database) DAO {
+func NewMongoDAO(database *mongodb.Database) DAO {
 	return &mongoimpl{Database: database}
 
 }

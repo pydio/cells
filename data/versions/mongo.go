@@ -23,15 +23,14 @@ package versions
 import (
 	"context"
 	"fmt"
-	"go.mongodb.org/mongo-driver/mongo"
 	"strings"
 	"time"
 
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo/options"
 
-	"github.com/pydio/cells/v4/common/dao/mongodb"
 	"github.com/pydio/cells/v4/common/proto/tree"
+	"github.com/pydio/cells/v4/common/storage/mongodb"
 )
 
 const (
@@ -59,7 +58,7 @@ type mVersion struct {
 }
 
 type mongoStore struct {
-	*mongo.Database
+	*mongodb.Database
 }
 
 //func (m *mongoStore) Init(ctx context.Context, values configx.Values) error {

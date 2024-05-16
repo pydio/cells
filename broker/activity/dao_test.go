@@ -44,7 +44,7 @@ import (
 	"github.com/pydio/cells/v4/common/utils/uuid"
 
 	_ "github.com/pydio/cells/v4/common/storage/boltdb"
-	_ "github.com/pydio/cells/v4/common/storage/mongo"
+	_ "github.com/pydio/cells/v4/common/storage/mongodb"
 
 	. "github.com/smartystreets/goconvey/convey"
 )
@@ -58,7 +58,7 @@ func testCases() []test.StorageTestCase {
 	return []test.StorageTestCase{
 		{[]string{"boltdb://" + filepath.Join(os.TempDir(), "activity_bolt_"+uuid.New()+".db")}, true, NoCacheDAO},
 		{[]string{"boltdb://" + filepath.Join(os.TempDir(), "activity_bolt_"+uuid.New()+".db")}, true, ShortCacheDAO},
-		test.TemplateMongoEnvWithPrefix(NewMongoDAO, "broker_"),
+		test.TemplateMongoEnvWithPrefix(NewMongoDAO, "unit_broker_"),
 	}
 }
 
@@ -88,7 +88,7 @@ func waitIfCache(d DAO) {
 	}
 }
 
-func TestBoltEmptyDao(t *testing.T) {
+func TestBasicEmptyDao(t *testing.T) {
 
 	test.RunStorageTests(testCases(), func(ctx context.Context) {
 		Convey("Test getBucket - read - not exists", t, func() {
@@ -104,7 +104,6 @@ func TestBoltEmptyDao(t *testing.T) {
 	})
 }
 
-// TODO - IMPLEMENT DB COMPACTION
 func TestBoltMassivePurge(t *testing.T) {
 	test.RunStorageTests(boltCases(), func(ctx context.Context) {
 		dao, err := manager.Resolve[DAO](ctx)
