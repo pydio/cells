@@ -32,12 +32,12 @@ import (
 	"time"
 
 	humanize "github.com/dustin/go-humanize"
-	"go.etcd.io/bbolt"
 	"google.golang.org/protobuf/types/known/timestamppb"
 
 	"github.com/pydio/cells/v4/common/proto/activity"
 	"github.com/pydio/cells/v4/common/proto/idm"
 	"github.com/pydio/cells/v4/common/runtime/manager"
+	"github.com/pydio/cells/v4/common/storage/boltdb"
 	"github.com/pydio/cells/v4/common/utils/configx"
 	"github.com/pydio/cells/v4/common/utils/jsonx"
 	"github.com/pydio/cells/v4/common/utils/test"
@@ -74,12 +74,12 @@ func init() {
 	testEnv = true
 }
 
-func NoCacheDAO(db *bbolt.DB) DAO {
-	return &boltdbimpl{DB: db, InboxMaxSize: 1000}
+func NoCacheDAO(db *boltdb.Compacter) DAO {
+	return &boltdbimpl{Compacter: db, InboxMaxSize: 1000}
 }
 
-func ShortCacheDAO(db *bbolt.DB) DAO {
-	return WithCache(&boltdbimpl{DB: db, InboxMaxSize: 1000}, 1*time.Second)
+func ShortCacheDAO(db *boltdb.Compacter) DAO {
+	return WithCache(&boltdbimpl{Compacter: db, InboxMaxSize: 1000}, 1*time.Second)
 }
 
 func waitIfCache(d DAO) {
@@ -105,7 +105,7 @@ func TestBoltEmptyDao(t *testing.T) {
 }
 
 // TODO - IMPLEMENT DB COMPACTION
-func SkipTestBoltMassivePurge(t *testing.T) {
+func TestBoltMassivePurge(t *testing.T) {
 	test.RunStorageTests(boltCases(), func(ctx context.Context) {
 		dao, err := manager.Resolve[DAO](ctx)
 		if err != nil {
@@ -142,10 +142,18 @@ func SkipTestBoltMassivePurge(t *testing.T) {
 			e = dao.Purge(ctx, func(s string, i int) { deleted += i }, activity.OwnerType_NODE, "node-id", BoxOutbox, 0, 10, time.Time{}, true, true)
 			So(e, ShouldBeNil)
 			So(deleted, ShouldBeGreaterThan, 1)
-			st, _ = os.Stat(bb.Path())
+
+			// Resolve DAO Again
+			dao2, err2 := manager.Resolve[DAO](ctx)
+			if err2 != nil {
+				panic(err2)
+			}
+			bb2 := dao2.(*boltdbimpl).DB
+
+			st, _ = os.Stat(bb2.Path())
 			newSize := st.Size()
 			t.Log("DB Size is now", humanize.Bytes(uint64(newSize)), "after", deleted, "deletes and compaction")
-			stats, _ = jsonx.Marshal(dao.(*boltdbimpl).DB.Stats())
+			stats, _ = jsonx.Marshal(bb2.Stats())
 			t.Log(string(stats))
 			So(newSize, ShouldBeLessThan, initSize)
 
@@ -629,12 +637,16 @@ func TestPurge(t *testing.T) {
 
 			err = dao.Purge(nil, logger, activity.OwnerType_USER, "john", BoxInbox, 1, 100, time.Time{}, true, true)
 			So(err, ShouldBeNil)
+			dao, err = manager.Resolve[DAO](ctx)
+			So(err, ShouldBeNil)
 
 			results, err := listJohn()
 			So(err, ShouldBeNil)
 			So(results, ShouldHaveLength, 4)
 
 			err = dao.Purge(nil, logger, activity.OwnerType_USER, "john", BoxInbox, 1, 2, time.Time{}, true, true)
+			So(err, ShouldBeNil)
+			dao, err = manager.Resolve[DAO](ctx)
 			So(err, ShouldBeNil)
 
 			results, err = listJohn()
@@ -653,6 +665,9 @@ func TestPurge(t *testing.T) {
 			sevenDays := 7 * time.Hour * 24
 			err = dao.Purge(nil, logger, activity.OwnerType_USER, "john", BoxInbox, 0, 100, time.Now().Add(-sevenDays), true, true)
 			So(err, ShouldBeNil)
+			dao, err = manager.Resolve[DAO](ctx)
+			So(err, ShouldBeNil)
+
 			results, err = listJohn()
 			So(err, ShouldBeNil)
 			So(results, ShouldHaveLength, 2)
@@ -663,6 +678,8 @@ func TestPurge(t *testing.T) {
 			waitIfCache(dao)
 
 			err = dao.Purge(ctx, logger, activity.OwnerType_USER, "*", BoxInbox, 0, 100, time.Now().Add(-sevenDays), true, true)
+			So(err, ShouldBeNil)
+			dao, err = manager.Resolve[DAO](ctx)
 			So(err, ShouldBeNil)
 			results, err = listJohn()
 			So(err, ShouldBeNil)

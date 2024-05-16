@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"os"
 	"strconv"
-	"strings"
 
 	bleve "github.com/blevesearch/bleve/v2"
 	"github.com/blevesearch/bleve/v2/index/scorch"
@@ -49,32 +48,6 @@ type blevedb struct {
 	db     any
 }
 
-func (s *bleveStorage) Provides(conn any) bool {
-	if _, ok := conn.(*Indexer); ok {
-		return true
-	}
-
-	return false
-}
-
-func (s *bleveStorage) GetConn(str string) (storage.Conn, error) {
-	index, err := newBleveIndexer(&BleveConfig{
-		BlevePath:    strings.TrimPrefix(str, "bleve://"),
-		RotationSize: DefaultRotationSize,
-		BatchSize:    DefaultBatchSize,
-	})
-
-	if err != nil {
-		return nil, err
-	}
-
-	return (*bleveItem)(index), nil
-}
-
-func (s *bleveStorage) Register(conn any, tenant string, service string) {
-
-}
-
 func (s *bleveStorage) CloseConns(ctx context.Context, clean ...bool) error {
 
 	for _, db := range s.dbs {
@@ -102,142 +75,90 @@ func (s *bleveStorage) CloseConns(ctx context.Context, clean ...bool) error {
 	return nil
 }
 
+func (s *bleveStorage) bleveIndexerFromCache(ctx context.Context) (*Indexer, error) {
+
+	u, err := s.template.ResolveURL(ctx)
+	if err != nil {
+		return nil, err
+	}
+	path := u.String()
+
+	for _, db := range s.dbs {
+		if path == db.path {
+			return db.db.(*Indexer), nil
+		}
+	}
+
+	q := u.Query()
+
+	rotationSize := DefaultRotationSize
+	if q.Has("rotationSize") {
+		if size, err := strconv.ParseInt(q.Get("rotationSize"), 10, 0); err != nil {
+			return nil, fmt.Errorf("cannot parse rotationSize %v", err)
+		} else {
+			rotationSize = size
+		}
+	}
+
+	batchSize := DefaultBatchSize
+	if q.Has("batchSize") {
+		if size, err := strconv.ParseInt(q.Get("batchSize"), 10, 0); err != nil {
+			return nil, fmt.Errorf("cannot parse batchSize %v", err)
+		} else {
+			batchSize = size
+		}
+	}
+
+	mappingName := DefaultMappingName
+	if q.Has("mapping") {
+		if mn := q.Get("mapping"); mn != "" {
+			mappingName = mn
+		}
+	}
+
+	index, err := newBleveIndexer(&BleveConfig{
+		BlevePath:    u.Path,
+		RotationSize: rotationSize,
+		BatchSize:    batchSize,
+		MappingName:  mappingName,
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	var cfg config.Store
+	runtimecontext.Get(ctx, config.ContextKey, &cfg)
+	index.serviceConfigs = cfg
+
+	s.dbs = append(s.dbs, &blevedb{
+		db:     index,
+		path:   path,
+		fsPath: u.Path,
+	})
+
+	return index, nil
+}
+
 func (s *bleveStorage) Get(ctx context.Context, out interface{}) (bool, error) {
 	switch v := out.(type) {
 	case **Indexer:
-		u, err := s.template.ResolveURL(ctx)
-		if err != nil {
-			return true, err
+		idx, er := s.bleveIndexerFromCache(ctx)
+		if er != nil {
+			return true, er
 		}
-		path := u.String()
-
-		for _, db := range s.dbs {
-			if path == db.path {
-				*v = db.db.(*Indexer)
-				return true, nil
-			}
-		}
-
-		// Not found, opening
-
-		q := u.Query()
-
-		rotationSize := DefaultRotationSize
-		if q.Has("rotationSize") {
-			if size, err := strconv.ParseInt(q.Get("rotationSize"), 10, 0); err != nil {
-				return false, nil
-			} else {
-				rotationSize = size
-			}
-		}
-
-		batchSize := DefaultBatchSize
-		if q.Has("batchSize") {
-			if size, err := strconv.ParseInt(q.Get("batchSize"), 10, 0); err != nil {
-				return false, nil
-			} else {
-				batchSize = size
-			}
-		}
-
-		mappingName := DefaultMappingName
-		if q.Has("mapping") {
-			if mn := q.Get("mapping"); mn != "" {
-				mappingName = mn
-			}
-		}
-
-		index, err := newBleveIndexer(&BleveConfig{
-			BlevePath:    u.Path,
-			RotationSize: rotationSize,
-			BatchSize:    batchSize,
-			MappingName:  mappingName,
-		})
-		if err != nil {
-			return true, err
-		}
-
-		var cfg config.Store
-		runtimecontext.Get(ctx, config.ContextKey, &cfg)
-		index.serviceConfigs = cfg
-
-		*v = index
-
-		s.dbs = append(s.dbs, &blevedb{
-			db:     index,
-			path:   path,
-			fsPath: u.Path,
-		})
-
+		*v = idx
 		return true, nil
 
 	case *indexer.Indexer:
-		u, err := s.template.ResolveURL(ctx)
-		if err != nil {
-			return true, err
+		idx, er := s.bleveIndexerFromCache(ctx)
+		if er != nil {
+			return true, er
 		}
-		path := u.String()
-
-		for _, db := range s.dbs {
-			if path == db.path {
-				*v = db.db.(indexer.Indexer)
-				return true, nil
-			}
-		}
-
-		// Not found, opening
-
-		q := u.Query()
-
-		rotationSize := DefaultRotationSize
-		if q.Has("rotationSize") {
-			if size, err := strconv.ParseInt(q.Get("rotationSize"), 10, 0); err != nil {
-				return false, nil
-			} else {
-				rotationSize = size
-			}
-		}
-
-		batchSize := DefaultBatchSize
-		if q.Has("batchSize") {
-			if size, err := strconv.ParseInt(q.Get("batchSize"), 10, 0); err != nil {
-				return false, nil
-			} else {
-				batchSize = size
-			}
-		}
-
-		mappingName := DefaultMappingName
-		if q.Has("mapping") {
-			if mn := q.Get("mapping"); mn != "" {
-				mappingName = mn
-			}
-		}
-
-		index, err := newBleveIndexer(&BleveConfig{
-			BlevePath:    u.Path,
-			RotationSize: rotationSize,
-			BatchSize:    batchSize,
-			MappingName:  mappingName,
-		})
-		if err != nil {
-			return true, err
-		}
-
-		var cfg config.Store
-		runtimecontext.Get(ctx, config.ContextKey, &cfg)
-		index.serviceConfigs = cfg
-
-		*v = index
-
-		s.dbs = append(s.dbs, &blevedb{
-			db:     index,
-			path:   path,
-			fsPath: u.Path,
-		})
-
+		*v = idx
 		return true, nil
+
 	case *bleve.Index:
+
 		u, err := s.template.ResolveURL(ctx)
 		if err != nil {
 			return true, err

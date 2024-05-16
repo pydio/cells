@@ -29,17 +29,19 @@ import (
 	"strings"
 	"time"
 
+	humanize "github.com/dustin/go-humanize"
 	bolt "go.etcd.io/bbolt"
 
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/broker"
 	"github.com/pydio/cells/v4/common/proto/activity"
+	"github.com/pydio/cells/v4/common/storage/boltdb"
 	"github.com/pydio/cells/v4/common/utils/configx"
 	json "github.com/pydio/cells/v4/common/utils/jsonx"
 )
 
 type boltdbimpl struct {
-	*bolt.DB
+	*boltdb.Compacter
 	InboxMaxSize int64
 }
 
@@ -423,6 +425,7 @@ func (dao *boltdbimpl) Delete(ctx context.Context, ownerType activity.OwnerType,
 
 // Purge removes records based on a maximum number of records and/or based on the activity update date
 // It keeps at least minCount record(s) - to see last activity - even if older than expected date
+// Warning, dao must be resolved again after calling this function if compact is set
 func (dao *boltdbimpl) Purge(ctx context.Context, logger func(string, int), ownerType activity.OwnerType, ownerId string, boxName BoxName, minCount, maxCount int, updatedBefore time.Time, compactDB, clearBackup bool) error {
 
 	purgeBucket := func(bucket *bolt.Bucket, owner string) {
@@ -439,14 +442,14 @@ func (dao *boltdbimpl) Purge(ctx context.Context, logger func(string, int), owne
 			acObject := &activity.Object{}
 			if err := json.Unmarshal(v, acObject); err != nil {
 				logger("Purging unknown format object", 1)
-				c.Delete()
+				_ = c.Delete()
 				continue
 			}
 			i++
 			stamp := acObject.GetUpdated()
 			if (maxCount > 0 && totalLeft >= int64(maxCount)) || (!updatedBefore.IsZero() && time.Unix(stamp.Seconds, 0).Before(updatedBefore)) {
 				logger(fmt.Sprintf("Purging activity %s for %s's %s", acObject.Id, owner, boxName), 1)
-				c.Delete()
+				_ = c.Delete()
 				continue
 			}
 			totalLeft++
@@ -456,7 +459,7 @@ func (dao *boltdbimpl) Purge(ctx context.Context, logger func(string, int), owne
 	e := dao.DB.Update(func(tx *bolt.Tx) error {
 		if ownerId == "*" {
 			mainBucket := tx.Bucket([]byte(ownerType.String()))
-			mainBucket.ForEach(func(k, v []byte) error {
+			_ = mainBucket.ForEach(func(k, v []byte) error {
 				b := mainBucket.Bucket(k).Bucket([]byte(boxName))
 				if b != nil {
 					purgeBucket(b, string(k))
@@ -472,14 +475,13 @@ func (dao *boltdbimpl) Purge(ctx context.Context, logger func(string, int), owne
 		return e
 	}
 
-	//todo
-	//if compactDB {
-	//	old, newSize, er := dao.Compact(ctx, map[string]interface{}{"ClearBackup": clearBackup})
-	//	if er == nil {
-	//		logger(fmt.Sprintf("Successfully compacted DB, from %s to %s", humanize.Bytes(uint64(old)), humanize.Bytes(uint64(newSize))), 0)
-	//	}
-	//	return er
-	//}
+	if compactDB {
+		old, newSize, er := dao.Compact(ctx, map[string]interface{}{"ClearBackup": clearBackup})
+		if er == nil {
+			logger(fmt.Sprintf("Successfully compacted DB, from %s to %s", humanize.Bytes(old), humanize.Bytes(newSize)), 0)
+		}
+		return er
+	}
 
 	return nil
 }

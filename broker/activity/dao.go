@@ -28,11 +28,11 @@ import (
 	"context"
 	"time"
 
-	"go.etcd.io/bbolt"
 	"go.mongodb.org/mongo-driver/mongo"
 
 	"github.com/pydio/cells/v4/common/dao"
 	"github.com/pydio/cells/v4/common/proto/activity"
+	"github.com/pydio/cells/v4/common/storage/boltdb"
 )
 
 var testEnv bool
@@ -93,8 +93,11 @@ type batchDAO interface {
 	BatchPost([]*batchActivity) error
 }
 
-func NewBoltDAO(db *bbolt.DB) DAO {
-	d := &boltdbimpl{DB: db, InboxMaxSize: 1000}
+func NewBoltDAO(db *boltdb.Compacter) DAO {
+	d := &boltdbimpl{
+		Compacter:    db,
+		InboxMaxSize: 1000,
+	}
 	return WithCache(d, 5*time.Second)
 }
 
