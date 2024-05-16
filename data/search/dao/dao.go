@@ -24,9 +24,9 @@ package dao
 import (
 	"context"
 
-	"github.com/pydio/cells/v4/common/dao"
 	"github.com/pydio/cells/v4/common/nodes/meta"
 	"github.com/pydio/cells/v4/common/proto/tree"
+	"github.com/pydio/cells/v4/common/storage"
 	"github.com/pydio/cells/v4/common/storage/bleve"
 	"github.com/pydio/cells/v4/common/storage/indexer"
 	"github.com/pydio/cells/v4/common/storage/mongodb"
@@ -56,7 +56,7 @@ func NewMongoDAO(ctx context.Context, v *mongodb.Indexer) SearchEngine {
 	return newEngine(ctx, v)
 }
 
-func NewQueryCodec(indexDAO indexer.Indexer, values configx.Values, metaProvider *meta.NsProvider) dao.IndexCodex {
+func NewQueryCodec(indexDAO indexer.Indexer, values configx.Values, metaProvider *meta.NsProvider) storage.IndexCodex {
 	switch indexDAO.(type) {
 	case *bleve.Indexer:
 		return bleve2.NewQueryCodec(values, metaProvider)

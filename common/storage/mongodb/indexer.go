@@ -30,14 +30,14 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 	"go.uber.org/zap"
 
-	"github.com/pydio/cells/v4/common/dao"
 	"github.com/pydio/cells/v4/common/log"
+	"github.com/pydio/cells/v4/common/storage"
 	"github.com/pydio/cells/v4/common/storage/indexer"
 	"github.com/pydio/cells/v4/common/utils/configx"
 )
 
 type IndexDAO interface {
-	dao.IndexDAO
+	storage.IndexDAO
 	SetCollection(string)
 }
 
@@ -45,7 +45,7 @@ type Indexer struct {
 	*Database
 	collection      string
 	collectionModel Collection
-	codec           dao.IndexCodex
+	codec           storage.IndexCodex
 	inserts         []interface{}
 	deletes         []string
 	tick            chan bool
@@ -138,7 +138,7 @@ func (i *Indexer) DeleteOne(ctx context.Context, data interface{}) error {
 	var indexId string
 	if id, ok := data.(string); ok {
 		indexId = id
-	} else if p, o := data.(dao.IndexIDProvider); o {
+	} else if p, o := data.(storage.IndexIDProvider); o {
 		indexId = p.IndexID()
 	}
 	if indexId == "" {
@@ -183,7 +183,7 @@ func (i *Indexer) FindMany(ctx context.Context, query interface{}, offset, limit
 		opts.Skip = &o64
 	}
 	// Eventually override options
-	if op, ok := i.codec.(dao.QueryOptionsProvider); ok {
+	if op, ok := i.codec.(storage.QueryOptionsProvider); ok {
 		if oo, e := op.BuildQueryOptions(query, offset, limit, sortFields, sortDesc); e == nil {
 			opts = oo.(*options.FindOptions)
 		}
@@ -221,7 +221,7 @@ func (i *Indexer) FindMany(ctx context.Context, query interface{}, offset, limit
 	}
 
 	res := make(chan interface{})
-	fp, _ := codec.(dao.FacetParser)
+	fp, _ := codec.(storage.FacetParser)
 	go func() {
 		defer close(res)
 		if searchCursor != nil {
@@ -352,7 +352,7 @@ func (i *Indexer) Flush(ctx context.Context) error {
 			// First remove all entries with given ID
 			var ors bson.A
 			for _, insert := range i.inserts {
-				if p, o := insert.(dao.IndexIDProvider); o {
+				if p, o := insert.(storage.IndexIDProvider); o {
 					ors = append(ors, bson.M{i.collectionModel.IDName: p.IndexID()})
 				}
 			}
@@ -412,7 +412,7 @@ func (i *Indexer) NewBatch(ctx context.Context, opts ...indexer.BatchOption) (in
 			var indexId string
 			if id, ok := msg.(string); ok {
 				indexId = id
-			} else if p, o := msg.(dao.IndexIDProvider); o {
+			} else if p, o := msg.(storage.IndexIDProvider); o {
 				indexId = p.IndexID()
 			}
 			if indexId == "" {
@@ -431,7 +431,7 @@ func (i *Indexer) NewBatch(ctx context.Context, opts ...indexer.BatchOption) (in
 					// First remove all entries with given ID
 					var ors bson.A
 					for _, insert := range inserts {
-						if p, o := insert.(dao.IndexIDProvider); o {
+						if p, o := insert.(storage.IndexIDProvider); o {
 							ors = append(ors, bson.M{i.collectionModel.IDName: p.IndexID()})
 						}
 					}

@@ -55,6 +55,7 @@ func (gs *gormStorage) OpenURL(ctx context.Context, dsn string) (storage.Storage
 	return gs, nil
 }
 
+/*
 func (gs *gormStorage) Provides(conn any) bool {
 	switch conn.(type) {
 	case *sql.DB:
@@ -79,6 +80,8 @@ func (gs *gormStorage) GetConn(str string) (storage.Conn, error) {
 
 	return nil, nil
 }
+
+*/
 
 func (gs *gormStorage) Register(conn any, tenant string, service string, hooks ...string) {
 

@@ -71,7 +71,6 @@ func boltCases() []test.StorageTestCase {
 func init() {
 	conf = configx.New()
 	conf.Val("InboxMaxSize").Set(int64(10))
-	testEnv = true
 }
 
 func NoCacheDAO(db *boltdb.Compacter) DAO {

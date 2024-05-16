@@ -2,11 +2,13 @@ package mailer
 
 import (
 	"context"
-	"github.com/pydio/cells/v4/common/storage/mongodb"
 
-	"github.com/pydio/cells/v4/common/dao"
-	"github.com/pydio/cells/v4/common/proto/mailer"
 	bolt "go.etcd.io/bbolt"
+
+	"github.com/pydio/cells/v4/common/proto/mailer"
+	"github.com/pydio/cells/v4/common/runtime/manager"
+	"github.com/pydio/cells/v4/common/service"
+	"github.com/pydio/cells/v4/common/storage/mongodb"
 )
 
 type Queue interface {
@@ -26,15 +28,21 @@ func NewMongoDAO(db *mongodb.Database) Queue {
 }
 
 // MigrateQueue is a MigratorFunc to move queued emails from one Queue to another.
-func MigrateQueue(from any, to any, dryRun bool, status chan dao.MigratorStatus) (map[string]int, error) {
+func MigrateQueue(mainCtx, fromCtx, toCtx context.Context, dryRun bool, status chan service.MigratorStatus) (map[string]int, error) {
 	out := map[string]int{
 		"Emails": 0,
 	}
-	bg := context.Background()
-	var queueFrom, queueTo Queue
-	queueFrom = from.(Queue)
-	queueTo = to.(Queue)
-	er := queueFrom.Consume(bg, func(email *mailer.Mail) error {
+
+	queueFrom, er := manager.Resolve[Queue](fromCtx)
+	if er != nil {
+		return nil, er
+	}
+	queueTo, er := manager.Resolve[Queue](toCtx)
+	if er != nil {
+		return nil, er
+	}
+
+	er = queueFrom.Consume(mainCtx, func(email *mailer.Mail) error {
 		out["Emails"]++
 		if dryRun {
 			return nil

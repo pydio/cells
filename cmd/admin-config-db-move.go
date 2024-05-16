@@ -1,5 +1,3 @@
-//go:build exclude
-
 /*
  * Copyright (c) 2019-2021. Abstrium SAS <team (at) pydio.com>
  * This file is part of Pydio Cells.
@@ -27,32 +25,54 @@ import (
 	"fmt"
 	"log"
 	"strings"
+	"text/template"
 	"time"
 
 	"github.com/manifoldco/promptui"
-	"github.com/schollz/progressbar/v3"
+	progressbar "github.com/schollz/progressbar/v3"
 	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
 
 	"github.com/pydio/cells/v4/common/config"
-	"github.com/pydio/cells/v4/common/dao"
-	"github.com/pydio/cells/v4/common/dao/bleve"
-	"github.com/pydio/cells/v4/common/dao/boltdb"
-	"github.com/pydio/cells/v4/common/dao/mongodb"
+	"github.com/pydio/cells/v4/common/runtime"
+	"github.com/pydio/cells/v4/common/runtime/manager"
+	"github.com/pydio/cells/v4/common/runtime/runtimecontext"
+	"github.com/pydio/cells/v4/common/runtime/tenant"
 	"github.com/pydio/cells/v4/common/service"
-	"github.com/pydio/cells/v4/common/utils/configx"
 	"github.com/pydio/cells/v4/discovery/install/lib"
 )
 
 var (
-	dbMoveDryRun bool
+	dbMoveDryRun  bool
+	dbMoveFromURL string
+	dbMoveToURL   string
+
+	yaml = `
+storages:
+  {{- range $idx, $dsn := . }}
+  storage{{ $idx }}: 
+    uri: {{ $dsn }}
+  {{- end }}
+services:
+  {{- range $idx, $dsn := . }}
+  {{$idx}}:
+    storages:
+      main:
+        - type: storage{{ $idx }}
+  {{- end }}
+`
+
+	tmpl *template.Template
 )
 
 type flatOptions struct {
-	*service.StorageOptions
+	service.StorageOptions
+	storageKey     string
 	serviceName    string
 	serviceOptions *service.ServiceOptions
 }
 
+/*
 func configDbMoveOne(cmd *cobra.Command, dry, promptConfig bool, migOption *flatOptions, from, to *configDatabase) error {
 	cmd.Printf("Migrate service %s from %s to %s\n", migOption.serviceName, from.driver, to.driver)
 	prefix := migOption.Prefix(migOption.serviceOptions)
@@ -101,6 +121,86 @@ func configDbMoveOne(cmd *cobra.Command, dry, promptConfig bool, migOption *flat
 	}
 	return nil
 }
+*/
+
+func configDbMoveOne(cmd *cobra.Command, dry, promptConfig bool, migOption *flatOptions, from, to string) error {
+
+	var err error
+	tmpl, err = template.New("test").Parse(yaml)
+	if err != nil {
+
+		return err
+	}
+
+	// read template
+	b := &strings.Builder{}
+	dsn := map[string]string{
+		"From": from,
+		"To":   to,
+	}
+	err = tmpl.Execute(b, dsn)
+	if err != nil {
+		panic(err)
+	}
+	v := viper.New()
+	v.Set(runtime.KeyConfig, "mem://")
+	v.SetDefault(runtime.KeyCache, "pm://")
+	v.SetDefault(runtime.KeyShortCache, "pm://")
+	v.Set("yaml", b.String())
+
+	// TODO - this should be handled by the controller
+	store, er := config.OpenStore(context.Background(), "mem://")
+	if er != nil {
+		panic(er)
+	}
+	config.Register(store)
+	runtime.SetRuntime(v)
+
+	var svcFrom service.Service
+	var svcTo service.Service
+	runtime.Register("test", func(ctx context.Context) {
+		svcFrom = service.NewService(
+			service.Name("From"),
+			service.Context(ctx),
+			service.WithStorageDrivers(migOption.SupportedDrivers[migOption.storageKey]...),
+		)
+		svcTo = service.NewService(
+			service.Name("To"),
+			service.Context(ctx),
+			service.WithStorageDrivers(migOption.SupportedDrivers[migOption.storageKey]...),
+		)
+	})
+	mgr, err := manager.NewManager(context.Background(), "test", nil)
+	if err != nil {
+		return err
+	}
+	ctx = mgr.Context()
+	ctx = runtimecontext.With(ctx, tenant.ContextKey, tenant.GetManager().GetMaster())
+
+	sChan := make(chan service.MigratorStatus, 1000)
+	var bar *progressbar.ProgressBar
+	go func() {
+		for status := range sChan {
+			if status.Total > 0 {
+				if bar == nil {
+					bar = progressbar.Default(status.Total)
+				}
+				_ = bar.Set64(status.Count)
+			}
+		}
+	}()
+
+	fromCtx := runtimecontext.With(ctx, service.ContextKey, svcFrom)
+	toCtx := runtimecontext.With(ctx, service.ContextKey, svcTo)
+	data, er := migOption.StorageOptions.Migrator(cmd.Context(), fromCtx, toCtx, dry, sChan)
+	if er == nil {
+		for k, info := range data {
+			fmt.Println("Migration INFO", k, info)
+		}
+	}
+
+	return nil
+}
 
 // configDatabaseListCmd lists all database connections.
 var configDatabaseMoveCmd = &cobra.Command{
@@ -127,10 +227,11 @@ DESCRIPTION
 		var migratorsOptions []*flatOptions
 
 		for _, s := range ss {
-			for _, sOpt := range s.Options().Storages {
-				if sOpt.Migrator != nil {
+			if s.Options().StorageOptions.Migrator != nil {
+				for key := range s.Options().StorageOptions.SupportedDrivers {
 					migratorsOptions = append(migratorsOptions, &flatOptions{
-						StorageOptions: sOpt,
+						StorageOptions: s.Options().StorageOptions,
+						storageKey:     key,
 						serviceName:    s.Name(),
 						serviceOptions: s.Options(),
 					})
@@ -140,67 +241,91 @@ DESCRIPTION
 
 		var services []string
 		for _, m := range migratorsOptions {
-			services = append(services, m.serviceName+" ("+m.StorageKey+")")
+			services = append(services, m.serviceName+" ("+m.storageKey+")")
 		}
 		pl := &promptui.Select{
 			Label: "Which service do you want to migrate?",
 			Items: services,
 		}
-		serviceIndex, serviceName, er := pl.Run()
+		serviceIndex, _, er := pl.Run()
 		if er != nil {
 			return er
 		}
 		selectedMig := migratorsOptions[serviceIndex]
 
-		// List all databases value
-		dd := configDatabaseList()
-		var driversItems []string
-		var drivers []*configDatabase
-		for _, driver := range dd {
-			supported := false
-			for _, s := range driver.services {
-				if s.serviceName == selectedMig.serviceName && s.storageKey == selectedMig.StorageKey {
-					supported = true
-					break
-				}
-			}
-			if supported {
-				drivers = append(drivers, driver)
-				driversItems = append(driversItems, fmt.Sprintf("%s - %s", driver.driver, driver.dsn))
-			}
-		}
-		dl := &promptui.Select{
-			Label: "Select storage source for " + serviceName,
-			Items: driversItems,
-		}
-		fromIndex, _, er := dl.Run()
+		fromURL, er := (&promptui.Prompt{
+			Label:    "Provide source URL",
+			Validate: notEmpty,
+			Default:  dbMoveFromURL,
+		}).Run()
 		if er != nil {
 			return er
 		}
-		from := drivers[fromIndex]
 
-		var toIndex int
-		var toIndexSet bool
-		if len(driversItems) == 2 {
-			toIndex = (fromIndex + 1) % 2
-			cmd.Println("Selecting other other storage for target:", drivers[toIndex].driver)
-			conf := &promptui.Prompt{Label: "Is this correct?", IsConfirm: true}
-			if _, e := conf.Run(); e == nil {
-				toIndexSet = true
-			}
+		toURL, er := (&promptui.Prompt{
+			Label:    "Provide target URL",
+			Validate: notEmpty,
+			Default:  dbMoveToURL,
+		}).Run()
+		if er != nil {
+			return er
 		}
 
-		if !toIndexSet {
-			dl.Label = "Select storage target for " + serviceName
-			toIndex, _, er = dl.Run()
+		return configDbMoveOne(cmd, dbMoveDryRun, true, selectedMig, fromURL, toURL)
+
+		/*
+			// List all databases value
+			dd := configDatabaseList()
+			var driversItems []string
+			var drivers []*configDatabase
+			for _, driver := range dd {
+				supported := false
+				for _, s := range driver.services {
+					if s.serviceName == selectedMig.serviceName && s.storageKey == selectedMig.StorageKey {
+						supported = true
+						break
+					}
+				}
+				if supported {
+					drivers = append(drivers, driver)
+					driversItems = append(driversItems, fmt.Sprintf("%s - %s", driver.driver, driver.dsn))
+				}
+			}
+			dl := &promptui.Select{
+				Label: "Select storage source for " + serviceName,
+				Items: driversItems,
+			}
+			fromIndex, _, er := dl.Run()
 			if er != nil {
 				return er
 			}
-		}
-		to := drivers[toIndex]
+			from := drivers[fromIndex]
 
-		sOptions := migratorsOptions[serviceIndex]
-		return configDbMoveOne(cmd, dbMoveDryRun, true, sOptions, from, to)
+			var toIndex int
+			var toIndexSet bool
+			if len(driversItems) == 2 {
+				toIndex = (fromIndex + 1) % 2
+				cmd.Println("Selecting other other storage for target:", drivers[toIndex].driver)
+				conf := &promptui.Prompt{Label: "Is this correct?", IsConfirm: true}
+				if _, e := conf.Run(); e == nil {
+					toIndexSet = true
+				}
+			}
+
+			if !toIndexSet {
+				dl.Label = "Select storage target for " + serviceName
+				toIndex, _, er = dl.Run()
+				if er != nil {
+					return er
+				}
+			}
+			to := drivers[toIndex]
+
+			sOptions := migratorsOptions[serviceIndex]
+
+			return configDbMoveOne(cmd, dbMoveDryRun, true, sOptions, from, to)
+
+		*/
 
 	},
 	PostRun: func(cmd *cobra.Command, args []string) {
@@ -209,6 +334,7 @@ DESCRIPTION
 	},
 }
 
+/*
 func initDAO(ctx context.Context, driver, dsn, prefix, storageKey string) (dao.DAO, error) {
 	var d dao.DAO
 	var e error
@@ -239,7 +365,12 @@ func initDAO(ctx context.Context, driver, dsn, prefix, storageKey string) (dao.D
 	return d, e
 }
 
+*/
+
 func init() {
 	configDatabaseMoveCmd.Flags().BoolVar(&dbMoveDryRun, "dry-run", true, "Enable/disable dry-run mode")
+	configDatabaseMoveCmd.Flags().StringVar(&dbMoveFromURL, "from", "", "From URL")
+	configDatabaseMoveCmd.Flags().StringVar(&dbMoveToURL, "to", "", "To URL")
+
 	configDatabaseCmd.AddCommand(configDatabaseMoveCmd)
 }

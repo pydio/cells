@@ -21,14 +21,15 @@
 package service
 
 import (
-	"github.com/pydio/cells/v4/common/dao"
+	"context"
+
 	json "github.com/pydio/cells/v4/common/utils/jsonx"
 )
 
 type StorageOptions struct {
 	SupportedDrivers map[string][]any
 	Handler          any
-	Migrator         dao.MigratorFunc
+	Migrator         MigratorFunc
 	prefix           interface{}
 
 	jsonMeta string
@@ -63,6 +64,14 @@ func (o *StorageOptions) ToMeta() string {
 	return o.jsonMeta
 }
 
+type MigratorStatus struct {
+	Status string
+	Total  int64
+	Count  int64
+}
+
+type MigratorFunc func(topCtx, fromCtx, toCtx context.Context, dryRun bool, status chan MigratorStatus) (map[string]int, error)
+
 type StorageOption func(options *StorageOptions)
 
 // WithStoragePrefix sets a prefix to be used differently depending on driver name
@@ -73,7 +82,7 @@ func WithStoragePrefix(i interface{}) StorageOption {
 }
 
 // WithStorageMigrator provides a Migrate function from one DAO to another
-func WithStorageMigrator(d dao.MigratorFunc) ServiceOption {
+func WithStorageMigrator(d MigratorFunc) ServiceOption {
 	return func(options *ServiceOptions) {
 		options.StorageOptions.Migrator = d
 	}

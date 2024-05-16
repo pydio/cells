@@ -23,11 +23,12 @@ package chat
 
 import (
 	"context"
-	"github.com/pydio/cells/v4/common/storage/mongodb"
 
-	"github.com/pydio/cells/v4/common/dao"
-	"github.com/pydio/cells/v4/common/proto/chat"
 	"go.etcd.io/bbolt"
+
+	"github.com/pydio/cells/v4/common/proto/chat"
+	"github.com/pydio/cells/v4/common/service"
+	"github.com/pydio/cells/v4/common/storage/mongodb"
 )
 
 type MessageMatcher func(msg *chat.ChatMessage) (matches bool, filtered *chat.ChatMessage, err error)
@@ -61,7 +62,7 @@ func NewMongoDAO(db *mongodb.Database) DAO {
 	return &mongoImpl{db: db}
 }
 
-func Migrate(f, t any, dryRun bool, status chan dao.MigratorStatus) (map[string]int, error) {
+func Migrate(f, t any, dryRun bool, status chan service.MigratorStatus) (map[string]int, error) {
 	ctx := context.Background()
 
 	res := map[string]int{

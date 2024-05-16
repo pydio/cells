@@ -22,10 +22,13 @@
 package versions
 
 import (
+	"context"
+
 	"go.etcd.io/bbolt"
 
-	"github.com/pydio/cells/v4/common/dao"
 	"github.com/pydio/cells/v4/common/proto/tree"
+	"github.com/pydio/cells/v4/common/runtime/manager"
+	"github.com/pydio/cells/v4/common/service"
 	"github.com/pydio/cells/v4/common/storage/mongodb"
 )
 
@@ -48,12 +51,18 @@ func NewMongoDAO(db *mongodb.Database) DAO {
 	return &mongoStore{Database: db}
 }
 
-func Migrate(f any, t any, dryRun bool, status chan dao.MigratorStatus) (map[string]int, error) {
+func Migrate(main, fromCtx, toCtx context.Context, dryRun bool, status chan service.MigratorStatus) (map[string]int, error) {
 	out := map[string]int{
 		"Versions": 0,
 	}
-	from := f.(DAO)
-	to := t.(DAO)
+	from, er := manager.Resolve[DAO](fromCtx)
+	if er != nil {
+		return nil, er
+	}
+	to, er := manager.Resolve[DAO](toCtx)
+	if er != nil {
+		return nil, er
+	}
 	uuids, done, errs := from.ListAllVersionedNodesUuids()
 	var e error
 loop1:

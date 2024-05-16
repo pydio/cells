@@ -31,13 +31,12 @@ import (
 	"strings"
 	"time"
 
-	uuid2 "github.com/pydio/cells/v4/common/utils/uuid"
-
 	"github.com/go-sql-driver/mysql"
 
 	"github.com/pydio/cells/v4/common/config"
 	"github.com/pydio/cells/v4/common/log"
 	"github.com/pydio/cells/v4/common/proto/install"
+	uuid2 "github.com/pydio/cells/v4/common/utils/uuid"
 )
 
 var (
@@ -100,30 +99,33 @@ func installDocumentDSN(c *install.InstallConfig) error {
 	if er := config.SetDatabase(dbKey, driver, dsn, setDefaultsKey); er != nil {
 		return er
 	}
-	if setDefaultsKey != "" {
-		ss, e := ListServicesWithStorage()
-		if e != nil {
-			return e
-		}
-		for _, s := range ss {
-			for _, storage := range s.Options().Storages {
-				var supports bool
-				for _, supported := range storage.SupportedDrivers {
-					if supported == driver {
-						supports = true
-						break
+	/*
+		if setDefaultsKey != "" {
+			ss, e := ListServicesWithStorage()
+			if e != nil {
+				return e
+			}
+			for _, s := range ss {
+				for _, storage := range s.Options().Storages {
+					var supports bool
+					for _, supported := range storage.SupportedDrivers {
+						if supported == driver {
+							supports = true
+							break
+						}
 					}
-				}
-				if supports {
-					if er := config.Set(dbKey, "services", s.Name(), storage.StorageKey); er != nil {
-						return er
-					} else {
-						fmt.Println("Assigning Document DSN to " + s.Name())
+					if supports {
+						if er := config.Set(dbKey, "services", s.Name(), storage.StorageKey); er != nil {
+							return er
+						} else {
+							fmt.Println("Assigning Document DSN to " + s.Name())
+						}
 					}
 				}
 			}
 		}
-	}
+
+	*/
 	return nil
 }
 

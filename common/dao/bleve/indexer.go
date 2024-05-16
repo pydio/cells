@@ -44,6 +44,7 @@ import (
 	"github.com/pydio/cells/v4/common/registry"
 	"github.com/pydio/cells/v4/common/registry/util"
 	"github.com/pydio/cells/v4/common/service/metrics"
+	"github.com/pydio/cells/v4/common/storage"
 	"github.com/pydio/cells/v4/common/utils/configx"
 	"github.com/pydio/cells/v4/common/utils/uuid"
 )
@@ -59,7 +60,7 @@ var (
 
 type IndexDAO interface {
 	DAO
-	dao.IndexDAO
+	storage.IndexDAO
 }
 
 // Indexer is the syslog specific implementation of the Log server
@@ -78,7 +79,7 @@ type Indexer struct {
 	crtBatch    *bleve.Batch
 	flushLock   *sync.Mutex
 
-	codec          dao.IndexCodex
+	codec          storage.IndexCodex
 	serviceConfigs configx.Values
 
 	statusInput chan map[string]interface{}
@@ -88,7 +89,7 @@ type Indexer struct {
 
 // NewIndexer creates and configures a default Bleve instance to store technical logs
 // Setting rotationSize to -1 fully disables rotation
-func NewIndexer(ctx context.Context, rd dao.DAO) (dao.IndexDAO, error) {
+func NewIndexer(ctx context.Context, rd dao.DAO) (storage.IndexDAO, error) {
 
 	d := rd.(DAO)
 	conf, er := d.BleveConfig(ctx)
@@ -326,7 +327,7 @@ func (s *Indexer) DeleteMany(ctx context.Context, qu interface{}) (int32, error)
 
 }
 
-func (s *Indexer) FindMany(ctx context.Context, query interface{}, offset, limit int32, sortFields string, sortDesc bool, customCodec dao.IndexCodex) (chan interface{}, error) {
+func (s *Indexer) FindMany(ctx context.Context, query interface{}, offset, limit int32, sortFields string, sortDesc bool, customCodec storage.IndexCodex) (chan interface{}, error) {
 	codec := s.codec
 	if customCodec != nil {
 		codec = customCodec
@@ -354,7 +355,7 @@ func (s *Indexer) FindMany(ctx context.Context, query interface{}, offset, limit
 			}
 		}
 		// Parse & send facets
-		if fParser, ok := codec.(dao.FacetParser); ok {
+		if fParser, ok := codec.(storage.FacetParser); ok {
 			for _, facet := range sr.Facets {
 				fParser.UnmarshalFacet(facet, cRes)
 			}
@@ -363,7 +364,7 @@ func (s *Indexer) FindMany(ctx context.Context, query interface{}, offset, limit
 	return cRes, nil
 }
 
-func (s *Indexer) SetCodex(c dao.IndexCodex) {
+func (s *Indexer) SetCodex(c storage.IndexCodex) {
 	s.codec = c
 }
 
@@ -440,7 +441,7 @@ func (s *Indexer) watchInserts() {
 				s.crtBatch = s.getWriteIndex().NewBatch()
 			}
 			var id string
-			if provider, ok := msg.(dao.IndexIDProvider); ok {
+			if provider, ok := msg.(storage.IndexIDProvider); ok {
 				id = provider.IndexID()
 			} else {
 				id = xid.New().String()

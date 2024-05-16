@@ -28,9 +28,10 @@ import (
 	"context"
 	"time"
 
-	"github.com/pydio/cells/v4/common/dao"
 	log2 "github.com/pydio/cells/v4/common/log"
 	"github.com/pydio/cells/v4/common/proto/log"
+	"github.com/pydio/cells/v4/common/runtime/manager"
+	"github.com/pydio/cells/v4/common/service"
 	"github.com/pydio/cells/v4/common/storage/bleve"
 	"github.com/pydio/cells/v4/common/storage/mongodb"
 	json "github.com/pydio/cells/v4/common/utils/jsonx"
@@ -58,14 +59,20 @@ func NewMongoDAO(m *mongodb.Indexer) MessageRepository {
 	return NewIndexRepository(m)
 }
 
-func Migrate(f, t any, dryRun bool, status chan dao.MigratorStatus) (map[string]int, error) {
+func Migrate(mainCtx, fromCtx, toCtx context.Context, dryRun bool, status chan service.MigratorStatus) (map[string]int, error) {
 	out := map[string]int{
 		"Message": 0,
 	}
-	from := f.(MessageRepository)
-	to := t.(MessageRepository)
+	from, er := manager.Resolve[MessageRepository](fromCtx)
+	if er != nil {
+		return nil, er
+	}
+	to, er := manager.Resolve[MessageRepository](toCtx)
+	if er != nil {
+		return nil, er
+	}
 
-	bg := context.Background()
+	bg := mainCtx
 
 	pageSize := int32(1000)
 	offset := int32(0)
