@@ -64,12 +64,12 @@ func TemplateSQL(daoFunc any) []StorageTestCase {
 	return []StorageTestCase{
 		{
 			DSN:       []string{sql.SqliteDriver + "://" + sql.SharedMemDSN + "&hookNames=cleanTables"},
-			Condition: true,
+			Condition: os.Getenv("CELLS_TEST_MYSQL_DSN") == "", // For now, do NOT run sqlite and MySQL at the same time
 			DAO:       daoFunc,
 		},
 		{
-			DSN:       []string{sql.MySQLDriver + "://root@tcp(127.0.0.1:3306)/cellst?hookNames=cleanTables"},
-			Condition: false,
+			DSN:       []string{os.Getenv("CELLS_TEST_MYSQL_DSN") + "?hookNames=cleanTables"},
+			Condition: os.Getenv("CELLS_TEST_MYSQL_DSN") != "",
 			DAO:       daoFunc,
 		},
 	}
