@@ -22,9 +22,10 @@ package registry
 
 import (
 	"context"
-	"github.com/pydio/cells/v4/common/utils/openurl"
 	"net/url"
 	"strings"
+
+	"github.com/pydio/cells/v4/common/utils/openurl"
 )
 
 // URLOpener represents types than can open Registries based on a URL.
@@ -58,15 +59,15 @@ func (mux *URLMux) Register(scheme string, opener URLOpener) {
 	mux.schemes.Register("registry", "Registry", scheme, opener)
 }
 
-// OpenTopic calls OpenTopicURL with the URL parsed from urlstr.
-// OpenTopic is safe to call from multiple goroutines.
+// OpenRegistry calls OpenTopicURL with the URL parsed from urlstr.
+// OpenRegistry is safe to call from multiple goroutines.
 func (mux *URLMux) OpenRegistry(ctx context.Context, urlstr string) (Registry, error) {
 	opener, u, err := mux.schemes.FromString("Registry", urlstr)
 	if err != nil {
 		return nil, err
 	}
 
-	// TODO - maybe do this with users ?
+	// TODO - maybe do this with users ? Explain
 	tenant := ""
 	if strings.Contains(u.Scheme, "+restricted") {
 		if u.Query().Has("tenant") {

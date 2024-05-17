@@ -37,8 +37,8 @@ type Meta struct {
 	NodeId    string `gorm:"primaryKey;column:node_id;type:varchar(255);notNull"`
 	Namespace string `gorm:"primaryKey; column:namespace;type:varchar(255);notNull"`
 	Author    string `gorm:"column:author;type:varchar(255);index;"`
-	Timestamp int64  `gorm:"column:timestamp;type:int(11);"`
-	Data      string `gorm:"column:data;type:blob;"`
+	Timestamp int64  `gorm:"column:timestamp;"`
+	Data      []byte `gorm:"column:data;"`
 	Format    string `gorm:"column:format;type:varchar(255);index;"`
 }
 
@@ -95,7 +95,7 @@ func (s *sqlImpl) SetMetadata(ctx context.Context, nodeId string, author string,
 			tx := s.instance(ctx).Clauses(clause.OnConflict{UpdateAll: true}).Create(&Meta{
 				NodeId:    nodeId,
 				Namespace: namespace,
-				Data:      data,
+				Data:      []byte(data),
 				Author:    author,
 				Timestamp: time.Now().Unix(),
 				Format:    "json",
@@ -125,7 +125,7 @@ func (s *sqlImpl) GetMetadata(ctx context.Context, nodeId string) (metadata map[
 
 	metadata = make(map[string]string, len(rows))
 	for _, row := range rows {
-		metadata[row.Namespace] = row.Data
+		metadata[row.Namespace] = string(row.Data)
 	}
 
 	return

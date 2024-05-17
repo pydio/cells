@@ -10,6 +10,7 @@ import (
 	"google.golang.org/protobuf/reflect/protoreflect"
 
 	"github.com/pydio/cells/v4/common"
+	json "github.com/pydio/cells/v4/common/utils/jsonx"
 	"github.com/pydio/cells/v4/common/utils/uuid"
 )
 
@@ -81,15 +82,16 @@ type lightNode struct {
 	childrenFoldersSet bool
 }
 
-func (l *lightNode) GetStringMeta(namespace string) string {
-	// TODO - do a meta helper
-	//var value string
-	//if e := l.GetMeta(namespace, &value); e != nil {
-	//	return ""
-	//}
-	//return value
-
-	return ""
+func (l *lightNode) GetStringMeta(namespace string) (value string) {
+	if l.rawMeta == nil {
+		return
+	}
+	ns, ok := l.rawMeta[namespace]
+	if !ok {
+		return
+	}
+	_ = json.Unmarshal([]byte(ns), &value)
+	return value
 }
 
 // LightNode create a lightNode

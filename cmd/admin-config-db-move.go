@@ -148,7 +148,6 @@ func configDbMoveOne(cmd *cobra.Command, dry, promptConfig bool, migOption *flat
 	v.SetDefault(runtime.KeyShortCache, "pm://")
 	v.Set("yaml", b.String())
 
-	// TODO - this should be handled by the controller
 	store, er := config.OpenStore(context.Background(), "mem://")
 	if er != nil {
 		panic(er)

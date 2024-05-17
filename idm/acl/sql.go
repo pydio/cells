@@ -156,6 +156,29 @@ func (s *sqlimpl) addWithDupCheck(ctx context.Context, in interface{}, check boo
 	val.ID = strconv.Itoa(acl.ID)
 
 	// TODO - duplicate
+	/*
+		OLD CODE WAS
+		res, err := stmt.Exec(val.Action.Name, val.Action.Value, roleID, workspaceID, nodeID)
+			if err != nil {
+				if mErr, ok := err.(*mysql.MySQLError); ok && mErr.Number == 1062 && check {
+					// fmt.Println("GOT DUPLICATE ERROR", mErr.Error(), mErr.Message)
+					// There is a duplicate : if it is expired, we can safely ignore it and replace it
+					deleteStmt, dE := dao.GetStmt("CleanDuplicateIfExpired")
+					if dE != nil {
+						return dE
+					}
+					delRes, drE := deleteStmt.Exec(val.Action.Name, roleID, workspaceID, nodeID, time.Now())
+					if drE != nil {
+						return drE
+					}
+					if affected, e := delRes.RowsAffected(); e == nil && affected == 1 {
+						// fmt.Println("[AddACL] Replacing one duplicate row that was in fact expired")
+						return dao.addWithDupCheck(in, false)
+					}
+				}
+				return err
+			}
+	*/
 
 	return nil
 }

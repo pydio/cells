@@ -26,7 +26,7 @@ import (
 	"path/filepath"
 	"testing"
 
-	"google.golang.org/grpc/metadata"
+	"google.golang.org/grpc"
 
 	proto "github.com/pydio/cells/v4/common/proto/docstore"
 	"github.com/pydio/cells/v4/common/utils/test"
@@ -37,40 +37,13 @@ import (
 )
 
 type listDocsTestStreamer struct {
+	grpc.ServerStream
 	Docs []*proto.ListDocumentsResponse
 	Ctx  context.Context
 }
 
-func (l *listDocsTestStreamer) SetHeader(md metadata.MD) error {
-	panic("implement me")
-}
-
-func (l *listDocsTestStreamer) SendHeader(md metadata.MD) error {
-	panic("implement me")
-}
-
-func (l *listDocsTestStreamer) SetTrailer(md metadata.MD) {
-	panic("implement me")
-}
-
 func (l *listDocsTestStreamer) Context() context.Context {
 	return l.Ctx
-}
-
-func newPath(tmpName string) string {
-	return filepath.Join(os.TempDir(), tmpName)
-}
-
-func (l *listDocsTestStreamer) SendMsg(interface{}) error {
-	return nil
-}
-
-func (l *listDocsTestStreamer) RecvMsg(interface{}) error {
-	return nil
-}
-
-func (l *listDocsTestStreamer) Close() error {
-	return nil
 }
 
 func (l *listDocsTestStreamer) Send(r *proto.ListDocumentsResponse) error {
