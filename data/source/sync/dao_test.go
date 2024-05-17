@@ -22,44 +22,38 @@ package sync
 
 import (
 	"context"
-	"github.com/pydio/cells/v4/common/sql"
 	"testing"
 
-	. "github.com/smartystreets/goconvey/convey"
+	"github.com/pydio/cells/v4/common/runtime/manager"
+	"github.com/pydio/cells/v4/common/utils/test"
 
-	"github.com/pydio/cells/v4/common/dao"
-	"github.com/pydio/cells/v4/common/utils/configx"
+	. "github.com/smartystreets/goconvey/convey"
 )
 
 var (
-	mockDAO DAO
+	testcases = test.TemplateSQL(NewSqlDAO)
 )
-
-func TestMain(m *testing.M) {
-	ctx := context.Background()
-	if d, e := dao.InitDAO(ctx, sql.SqliteDriver, sql.SharedMemDSN, "test", NewDAO, configx.New()); e != nil {
-		panic(e)
-	} else {
-		mockDAO = d.(DAO)
-	}
-	m.Run()
-}
 
 func TestNewMemChecksumMapper(t *testing.T) {
 	Convey("Test ChecksumMapper in memory", t, func() {
-		mockDAO.Set("eTag-1", "checksum")
-		v, o := mockDAO.Get("eTag-1")
-		So(v, ShouldEqual, "checksum")
-		So(o, ShouldBeTrue)
+		test.RunStorageTests(testcases, func(ctx context.Context) {
+			mockDAO, err := manager.Resolve[DAO](ctx)
+			So(err, ShouldBeNil)
 
-		v2, o2 := mockDAO.Get("eTag-2")
-		So(v2, ShouldBeEmpty)
-		So(o2, ShouldBeFalse)
+			mockDAO.Set("eTag-1", "checksum")
+			v, o := mockDAO.Get("eTag-1")
+			So(v, ShouldEqual, "checksum")
+			So(o, ShouldBeTrue)
 
-		c := mockDAO.Purge([]string{"eTag-1"})
-		So(c, ShouldEqual, 0)
+			v2, o2 := mockDAO.Get("eTag-2")
+			So(v2, ShouldBeEmpty)
+			So(o2, ShouldBeFalse)
 
-		c = mockDAO.Purge([]string{"eTag-other"})
-		So(c, ShouldEqual, 1)
+			c := mockDAO.Purge([]string{"eTag-1"})
+			So(c, ShouldEqual, 0)
+
+			c = mockDAO.Purge([]string{"eTag-other"})
+			So(c, ShouldEqual, 1)
+		})
 	})
 }

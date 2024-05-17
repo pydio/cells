@@ -57,56 +57,7 @@ type disconnecter interface {
 }
 
 func NewConn(ctx context.Context, d string, dsn string) (Conn, error) {
-	return getConn(ctx, d, dsn)
-}
-
-func addConn(ctx context.Context, d string, dsn string) (Conn, error) {
-
-	lock.Lock()
-	defer lock.Unlock()
-
-	var drv ConnDriver
-	if prov, ok := daoConns[d]; ok {
-		drv = prov(ctx, d, dsn)
-	} else {
-		return nil, fmt.Errorf("unknown connection driver name %s. Did you forget to import it?", d)
-	}
-
-	db, err := drv.Open(ctx, dsn)
-	if err != nil {
-		return nil, err
-	}
-
-	conns[d+":"+dsn] = &conn{
-		d:      drv,
-		weight: 1,
-	}
-
-	drv.SetMaxConnectionsForWeight(1)
-
-	return db, nil
-}
-
-func readConn(ctx context.Context, d string, dsn string) (Conn, error) {
-	lock.Lock()
-	defer lock.Unlock()
-
-	if conn, ok := conns[d+":"+dsn]; ok {
-		conn.weight = conn.weight + 1
-		conn.d.SetMaxConnectionsForWeight(conn.weight)
-		return conn.d.GetConn(ctx)
-	}
-
-	return nil, nil
-}
-
-func getConn(ctx context.Context, d string, dsn string) (Conn, error) {
-	if conn, er := readConn(ctx, d, dsn); er == nil && conn != nil {
-		return conn, nil
-	} else if er != nil {
-		return nil, er
-	}
-	return addConn(ctx, d, dsn)
+	return nil, fmt.Errorf("deprecated")
 }
 
 func closeConn(ctx context.Context, conn Conn) error {

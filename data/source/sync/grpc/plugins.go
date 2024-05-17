@@ -42,7 +42,6 @@ import (
 	"github.com/pydio/cells/v4/common/service"
 	"github.com/pydio/cells/v4/common/service/context/metadata"
 	"github.com/pydio/cells/v4/common/service/errors"
-	commonsql "github.com/pydio/cells/v4/common/sql"
 	"github.com/pydio/cells/v4/data/source/sync"
 	grpc_jobs "github.com/pydio/cells/v4/scheduler/jobs/grpc"
 )
@@ -89,9 +88,7 @@ func newService(ctx context.Context, dsObject *object.DataSource) {
 		//service.Unique(!dsObject.FlatStorage),
 		//service.AutoStart(false),
 		service.WithGRPC(func(ctx context.Context, srv grpc.ServiceRegistrar) error {
-			if e != nil {
-				return e
-			}
+			syncHandler := &Handler{}
 
 			_ = broker.SubscribeCancellable(ctx, common.TopicIndexEvent, func(syncHandler *Handler) func(context.Context, broker.Message) error {
 				return func(_ context.Context, message broker.Message) error {
@@ -99,7 +96,7 @@ func newService(ctx context.Context, dsObject *object.DataSource) {
 						return nil
 					}
 					event := &tree.IndexEvent{}
-					if e := message.Unmarshal(event); e == nil {
+					if _, e := message.Unmarshal(ctx, event); e == nil {
 						if event.SessionForceClose != "" {
 							syncHandler.BroadcastCloseSession(event.SessionForceClose)
 						}
@@ -228,7 +225,8 @@ func WithStorage(source string) service.ServiceOption {
 	mapperType := config.Get("services", common.ServiceGrpcNamespace_+common.ServiceDataSync_+source, "StorageConfiguration", "checksumMapper").String()
 	switch mapperType {
 	case "dao":
-		return service.WithTODOStorage(sync.NewDAO, commonsql.NewDAO, service.WithStoragePrefix("data_sync_"+source), service.WithStorageSupport(commonsql.MySQLDriver, commonsql.SqliteDriver))
+		// todo define prefix data_sync_{SOURCE}
+		return service.WithStorageDrivers(sync.NewSqlDAO)
 	}
 	return nil
 }

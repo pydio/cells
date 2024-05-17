@@ -66,7 +66,10 @@ func (s *boltdbStorage) boltFromCache(ctx context.Context) (*boltdb, error) {
 
 	// If not found, create one
 	options := bbolt.DefaultOptions
-	options.Timeout = 5 * time.Second
+	options.Timeout = 20 * time.Second
+	var defaultMode os.FileMode
+	// TODO Recheck : was 0600 in v4
+	defaultMode = 0644
 
 	q := u.Query()
 	if q.Has("timeout") {
@@ -75,7 +78,7 @@ func (s *boltdbStorage) boltFromCache(ctx context.Context) (*boltdb, error) {
 		}
 	}
 
-	conn, err := bbolt.Open(strings.TrimPrefix(path, "boltdb://"), 0644, options)
+	conn, err := bbolt.Open(strings.TrimPrefix(path, "boltdb://"), defaultMode, options)
 	if err != nil {
 		return nil, err
 	}

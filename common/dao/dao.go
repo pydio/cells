@@ -23,7 +23,6 @@ package dao
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/pydio/cells/v4/common/registry"
 	"github.com/pydio/cells/v4/common/storage"
@@ -48,12 +47,6 @@ type TODODaoWrapperFunc[T any] func(context.Context, T) (T, error)
 
 var daoConns map[string]ConnProviderFunc
 
-var daoDrivers map[string]DaoProviderFunc
-
-var daoShared map[string]bool
-
-var indexersDrivers map[string]IndexerWrapperFunc
-
 // DAO interface definition
 type DAO interface {
 	registry.Dao
@@ -74,89 +67,10 @@ type DAO interface {
 
 func init() {
 	daoConns = make(map[string]ConnProviderFunc)
-	daoDrivers = make(map[string]DaoProviderFunc)
-	daoShared = make(map[string]bool)
-	indexersDrivers = make(map[string]IndexerWrapperFunc)
-}
-
-// RegisterDAODriver registers factories for DAOs and Connections that are storing data on-file (cannot be shared across multiple nodes)
-func RegisterDAODriver(name string, daoF DaoProviderFunc, connF ConnProviderFunc) {
-	daoDrivers[name] = daoF
-	daoConns[name] = connF
-	daoShared[name] = false
 }
 
 // RegisterSharedDAODriver registers factories for DAOs and Connections that can be shared across multiple nodes
+// TODO : Did we use the "Shared" notion somewhere ( = remote DB )
 func RegisterSharedDAODriver(name string, daoF DaoProviderFunc, connF ConnProviderFunc) {
-	daoDrivers[name] = daoF
-	daoConns[name] = connF
-	daoShared[name] = true
-}
-
-// RegisterIndexerDriver registers factories for Indexers
-func RegisterIndexerDriver(name string, daoF IndexerWrapperFunc) {
-	indexersDrivers[name] = daoF
-}
-
-// InitDAO finalize DAO creation based on registered drivers
-//func InitDAO(ctx context.Context, driver, dsn, prefix string, wrapper DaoWrapperFunc, cfg ...configx.Values) (DAO, error) {
-//	f, ok := daoDrivers[driver]
-//	if !ok {
-//		return nil, UnknownDriverType(driver)
-//	}
-//	d, e := f(ctx, driver, dsn, prefix)
-//	if e != nil {
-//		return nil, e
-//	}
-//	if wrapper != nil {
-//		d, e = wrapper(ctx, d)
-//		if e != nil {
-//			return nil, e
-//		}
-//	}
-//	if len(cfg) > 0 {
-//		if er := d.Init(ctx, cfg[0]); er != nil {
-//			return nil, er
-//		}
-//	}
-//	return d, nil
-//}
-//
-//// InitIndexer looks up in the register to initialize a DAO and wrap it as an IndexDAO
-//func InitIndexer(ctx context.Context, driver, dsn, prefix string, wrapper DaoWrapperFunc, cfg ...configx.Values) (DAO, error) {
-//	d, e := InitDAO(ctx, driver, dsn, prefix, nil)
-//	if e != nil {
-//		return nil, e
-//	}
-//	i, ok := indexersDrivers[driver]
-//	if !ok {
-//		return nil, fmt.Errorf("cannot find indexer %s, maybe it was not properly registered", driver)
-//	}
-//	// Wrap DAO as Indexer
-//	if d, e = i(ctx, d); e != nil {
-//		return nil, e
-//	}
-//	// Wrap with input wrapper
-//	d, e = wrapper(ctx, d)
-//	if e != nil {
-//		return nil, e
-//	}
-//	if len(cfg) > 0 {
-//		if er := d.Init(ctx, cfg[0]); er != nil {
-//			return nil, er
-//		}
-//	}
-//	return d.(IndexDAO), nil
-//}
-
-// IsShared indicates if a DAO is shared across services or a locked to a local file
-func IsShared(driverName string) (bool, error) {
-	if daoShared == nil {
-		return false, nil
-	}
-	if shared, ok := daoShared[driverName]; ok {
-		return shared, nil
-	} else {
-		return false, fmt.Errorf("cannot find DAO with driver name %s", driverName)
-	}
+	return
 }

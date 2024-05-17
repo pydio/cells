@@ -1,3 +1,6 @@
+//go:build exclude
+// +build exclude
+
 /*
  * Copyright (c) 2019-2022. Abstrium SAS <team (at) pydio.com>
  * This file is part of Pydio Cells.
@@ -30,6 +33,7 @@ import (
 )
 
 const DefaultRotationSize = int64(200 * 1024 * 1024)
+
 const DefaultBatchSize = 2000
 
 type BleveConfig struct {

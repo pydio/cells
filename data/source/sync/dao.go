@@ -22,13 +22,9 @@
 package sync
 
 import (
-	"context"
-
-	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
 
 	"github.com/pydio/cells/v4/common/dao"
-	"github.com/pydio/cells/v4/common/sql"
 	"github.com/pydio/cells/v4/common/sync/endpoints/s3"
 )
 
@@ -39,17 +35,6 @@ type DAO interface {
 	CleanResourcesOnDeletion() (string, error)
 }
 
-func NewDAO(ctx context.Context, o dao.DAO) (dao.DAO, error) {
-	switch v := o.(type) {
-	case sql.DAO:
-		dialector := sqlite.Open(v.DSN())
-		db, err := gorm.Open(dialector, &gorm.Config{
-			FullSaveAssociations: true,
-		})
-		if err != nil {
-			return nil, err
-		}
-		return &sqlImpl{db: db}, nil
-	}
-	return nil, dao.UnsupportedDriver(o)
+func NewSqlDAO(db *gorm.DB) dao.DAO {
+	return &sqlImpl{db: db}
 }
