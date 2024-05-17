@@ -65,7 +65,7 @@ require (
 	github.com/krolaw/zipstream v0.0.0-20180621105154-0a2661891f94
 	github.com/kylelemons/godebug v1.1.0
 	github.com/lib/pq v1.10.9
-	github.com/livekit/protocol v0.11.11
+	github.com/livekit/protocol v1.16.0
 	github.com/lpar/gzipped v1.1.0
 	github.com/manifoldco/promptui v0.9.0
 	github.com/matcornic/hermes/v2 v2.1.0
@@ -369,7 +369,6 @@ require (
 	github.com/mattn/go-isatty v0.0.20 // indirect
 	github.com/mattn/go-runewidth v0.0.15 // indirect
 	github.com/mattn/goveralls v0.0.12 // indirect
-	github.com/matttproud/golang_protobuf_extensions v1.0.4 // indirect
 	github.com/mgutz/ansi v0.0.0-20200706080929-d51e80ef957d // indirect
 	github.com/mholt/acmez v1.2.0 // indirect
 	github.com/micromdm/scep/v2 v2.1.0 // indirect
@@ -414,10 +413,10 @@ require (
 	github.com/pierrec/lz4/v4 v4.1.17 // indirect
 	github.com/pmezard/go-difflib v1.0.1-0.20181226105442-5d4384ee4fb2 // indirect
 	github.com/power-devops/perfstat v0.0.0-20210106213030-5aafc221ea8c // indirect
-	github.com/prometheus/client_golang v1.16.0 // indirect
+	github.com/prometheus/client_golang v1.19.0 // indirect
 	github.com/prometheus/client_model v0.5.0 // indirect
-	github.com/prometheus/common v0.44.0 // indirect
-	github.com/prometheus/procfs v0.11.1 // indirect
+	github.com/prometheus/common v0.48.0 // indirect
+	github.com/prometheus/procfs v0.12.0 // indirect
 	github.com/quic-go/qpack v0.4.0 // indirect
 	github.com/quic-go/qtls-go1-20 v0.4.1 // indirect
 	github.com/quic-go/quic-go v0.40.1 // indirect
@@ -458,6 +457,7 @@ require (
 	github.com/tinylib/msgp v1.1.7-0.20211026165309-e818a1881b0e // indirect
 	github.com/tklauser/go-sysconf v0.3.10 // indirect
 	github.com/tklauser/numcpus v0.4.0 // indirect
+	github.com/twitchtv/twirp v8.1.3+incompatible // indirect
 	github.com/twmb/murmur3 v1.1.8 // indirect
 	github.com/urfave/cli v1.22.14 // indirect
 	github.com/urfave/negroni v1.0.0 // indirect
