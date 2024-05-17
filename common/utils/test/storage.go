@@ -61,6 +61,7 @@ func init() {
 
 // TemplateSQL returns a single SQL test case with the provided DAO func
 func TemplateSQL(daoFunc any) []StorageTestCase {
+	//_ = os.Setenv("CELLS_TEST_PGSQL_DSN", "postgres://pydio:cells@localhost:5432/testdb?sslmode=disable")
 	return []StorageTestCase{
 		{
 			DSN:       []string{sql.SqliteDriver + "://" + sql.SharedMemDSN + "&hookNames=cleanTables"},

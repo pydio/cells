@@ -1,6 +1,6 @@
 module github.com/pydio/cells/v4/cmd/protoc-gen-go-setter
 
-go 1.22
+go 1.22.0
 
 toolchain go1.22.3
 
@@ -14,7 +14,7 @@ require (
 require (
 	github.com/spf13/afero v1.11.0 // indirect
 	golang.org/x/mod v0.17.0 // indirect
-	golang.org/x/tools v0.20.0 // indirect
+	golang.org/x/tools v0.21.0 // indirect
 )
 
 replace github.com/pydio/cells/v4 => ../../
