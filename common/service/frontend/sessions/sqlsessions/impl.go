@@ -42,6 +42,10 @@ type SessionRow struct {
 	ExpiresOn  time.Time `gorm:"column:expires_on"`
 }
 
+func (s *SessionRow) TableName() string {
+	return "idm_frontend_sessions"
+}
+
 func init() {
 	gob.Register(time.Time{})
 }

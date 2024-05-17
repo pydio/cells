@@ -50,9 +50,14 @@ func NewSessionWrapper(h http.Handler, excludes ...string) http.Handler {
 
 		_ = jwtVerifier
 		/*
-			TODO V5 - breaking for now
-			dao := servicecontext.GetDAO[sessions.DAO](r.Context())
-
+			// This triggers an import cycle
+			dao, err := manager.Resolve[sessions.DAO](r.Context())
+			if err != nil {
+				log.Logger(r.Context()).Errorf("Cannot resolve DAO: %v", err)
+				w.WriteHeader(http.StatusUnauthorized)
+				_, _ = w.Write([]byte("Unauthorized (cannot find sessions.DAO)"))
+				return
+			}
 			session, err := dao.GetSession(r)
 			if err != nil && !strings.Contains(err.Error(), "securecookie: the value is not valid") {
 				log.Logger(r.Context()).Error("Cannot retrieve session", zap.Error(err))
@@ -66,6 +71,7 @@ func NewSessionWrapper(h http.Handler, excludes ...string) http.Handler {
 					r = r.WithContext(ctx)
 				}
 			}
+
 
 		*/
 		h.ServeHTTP(w, r)
