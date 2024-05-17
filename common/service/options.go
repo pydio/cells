@@ -49,8 +49,9 @@ type ServiceOptions struct {
 	runtimeCtx    context.Context
 	runtimeCancel context.CancelFunc
 
-	Migrations     []*Migration        `json:"-"`
-	TODOMigrations func() []*Migration `json:"-"`
+	// TODO - this should be done properly per tenant
+	migrateOnce bool
+	Migrations  []*Migration `json:"-"`
 
 	// Port      string
 	TLSConfig *tls.Config
@@ -218,12 +219,6 @@ func Unique(b bool) ServiceOption {
 func Migrations(migrations []*Migration) ServiceOption {
 	return func(o *ServiceOptions) {
 		o.Migrations = migrations
-	}
-}
-
-func TODOMigrations(migrations func() []*Migration) ServiceOption {
-	return func(o *ServiceOptions) {
-		o.TODOMigrations = migrations
 	}
 }
 
