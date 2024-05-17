@@ -81,7 +81,9 @@ message AcceptLoginRequest {
     string Subject = 3;
 }
 
-message AcceptLoginResponse {}
+message AcceptLoginResponse {
+    string Challenge = 1;
+}
 
 service ConsentProvider {
     rpc GetConsent    (GetConsentRequest) returns (GetConsentResponse) {};
@@ -119,6 +121,7 @@ message AcceptConsentRequest {
 }
 
 message AcceptConsentResponse {
+    string Challenge = 1;
 }
 
 service LogoutProvider {

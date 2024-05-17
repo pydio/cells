@@ -177,7 +177,6 @@ require (
 	github.com/PuerkitoBio/goquery v1.8.1 // indirect
 	github.com/RoaringBitmap/roaring v1.9.3 // indirect
 	github.com/Shopify/sarama v1.37.2 // indirect
-	github.com/ThalesIgnite/crypto11 v1.2.5 // indirect
 	github.com/VividCortex/ewma v1.1.1 // indirect
 	github.com/alecthomas/assert/v2 v2.2.2 // indirect
 	github.com/alecthomas/chroma v0.10.0 // indirect
@@ -373,7 +372,6 @@ require (
 	github.com/mholt/acmez v1.2.0 // indirect
 	github.com/micromdm/scep/v2 v2.1.0 // indirect
 	github.com/miekg/dns v1.1.55 // indirect
-	github.com/miekg/pkcs11 v1.1.1 // indirect
 	github.com/minio/highwayhash v1.0.2 // indirect
 	github.com/minio/selfupdate v0.4.0 // indirect
 	github.com/minio/sha256-simd v1.0.1 // indirect
@@ -431,7 +429,8 @@ require (
 	github.com/secure-io/sio-go v0.3.1 // indirect
 	github.com/sendgrid/rest v2.6.9+incompatible // indirect
 	github.com/sergi/go-diff v1.3.1 // indirect
-	github.com/shirou/gopsutil/v3 v3.22.6 // indirect
+	github.com/shirou/gopsutil/v3 v3.23.7 // indirect
+	github.com/shoenig/go-m1cpu v0.1.6 // indirect
 	github.com/shopspring/decimal v1.4.0 // indirect
 	github.com/shurcooL/sanitized_anchor_name v1.0.0 // indirect
 	github.com/slackhq/nebula v1.6.1 // indirect
@@ -450,14 +449,12 @@ require (
 	github.com/subosito/gotenv v1.6.0 // indirect
 	github.com/syndtr/goleveldb v1.0.0 // indirect
 	github.com/tailscale/tscert v0.0.0-20230806124524-28a91b69a046 // indirect
-	github.com/thales-e-security/pool v0.0.2 // indirect
 	github.com/tidwall/match v1.1.1 // indirect
 	github.com/tidwall/pretty v1.2.1 // indirect
 	github.com/tidwall/sjson v1.2.5 // indirect
 	github.com/tinylib/msgp v1.1.7-0.20211026165309-e818a1881b0e // indirect
-	github.com/tklauser/go-sysconf v0.3.10 // indirect
-	github.com/tklauser/numcpus v0.4.0 // indirect
-	github.com/twitchtv/twirp v8.1.3+incompatible // indirect
+	github.com/tklauser/go-sysconf v0.3.11 // indirect
+	github.com/tklauser/numcpus v0.6.0 // indirect
 	github.com/twmb/murmur3 v1.1.8 // indirect
 	github.com/urfave/cli v1.22.14 // indirect
 	github.com/urfave/negroni v1.0.0 // indirect
@@ -480,7 +477,7 @@ require (
 	github.com/yudai/pp v2.0.1+incompatible // indirect
 	github.com/yuin/goldmark v1.5.6 // indirect
 	github.com/yuin/goldmark-highlighting/v2 v2.0.0-20230729083705-37449abec8cc // indirect
-	github.com/yusufpapurcu/wmi v1.2.2 // indirect
+	github.com/yusufpapurcu/wmi v1.2.3 // indirect
 	github.com/zeebo/blake3 v0.2.3 // indirect
 	github.com/ziutek/mymysql v1.5.4 // indirect
 	go.etcd.io/etcd/client/pkg/v3 v3.5.13 // indirect

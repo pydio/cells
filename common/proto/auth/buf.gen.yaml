@@ -8,10 +8,10 @@ plugins:
   - name: go-grpc
     opt: module=github.com/pydio/cells/v4/common/proto/auth
     out: .
-  - name: govalidators
-    opt: module=github.com/pydio/cells/v4/common/proto/auth
-    out: .
-  - plugin: buf.build/grpc/python
-    out: github.com/pydio/cells/python
-  - plugin: buf.build/protocolbuffers/python
-    out: github.com/pydio/cells/python
+#  - name: govalidators
+#    opt: module=github.com/pydio/cells/v4/common/proto/auth
+#    out: .
+#  - plugin: buf.build/grpc/python
+#    out: github.com/pydio/cells/python
+#  - plugin: buf.build/protocolbuffers/python
+#    out: github.com/pydio/cells/python

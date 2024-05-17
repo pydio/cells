@@ -24,7 +24,6 @@ import (
 	"bufio"
 	"context"
 	"crypto/sha256"
-	"github.com/pydio/cells/v4/common/auth"
 	"net/url"
 	"os"
 	"regexp"
@@ -49,7 +48,6 @@ import (
 	"github.com/ory/hydra/v2/consent"
 	hconfig "github.com/ory/hydra/v2/driver/config"
 	"github.com/ory/hydra/v2/fositex"
-	"github.com/ory/hydra/v2/hsm"
 	"github.com/ory/hydra/v2/jwk"
 	"github.com/ory/hydra/v2/oauth2"
 	"github.com/ory/hydra/v2/oauth2/trust"
@@ -70,6 +68,7 @@ import (
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 
+	"github.com/pydio/cells/v4/common/auth"
 	"github.com/pydio/cells/v4/common/config"
 	"github.com/pydio/cells/v4/common/config/routing"
 	"github.com/pydio/cells/v4/common/crypto"
@@ -279,9 +278,9 @@ func (m *cellsdriver) OAuth2Storage() x.FositeStorer {
 }
 
 func (m *cellsdriver) KeyManager() jwk.Manager {
-	if m.Config().HSMEnabled() {
+	/*if m.Config().HSMEnabled() {
 		return hsm.NewKeyManager(hsm.NewContext(m.Config(), m.Logger()), m.Config())
-	}
+	}*/
 
 	return m.Persister()
 }

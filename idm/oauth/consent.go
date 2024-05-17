@@ -167,9 +167,9 @@ func (c *consentDriver) ConfirmLoginSession(ctx context.Context, loginSession *f
 func (c *consentDriver) CreateLoginRequest(ctx context.Context, req *flow.LoginRequest) (*flow.Flow, error) {
 	f := flow.NewFlow(req)
 
-	tx := c.db.Omit("Client").Create((*Flow)(f))
+	// tx := c.db.Omit("Client").Create((*Flow)(f))
 
-	return f, tx.Error
+	return f, nil
 }
 
 func (c *consentDriver) GetLoginRequest(ctx context.Context, challenge string) (*flow.LoginRequest, error) {

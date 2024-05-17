@@ -80,25 +80,33 @@ func UpdateServiceVersionWrapper(h http.Handler, o *ServiceOptions) http.Handler
 
 // UpdateServiceVersion applies migration(s) if necessary and stores new current version for future use.
 func UpdateServiceVersion(ctx context.Context, store config.Store, opts *ServiceOptions) error {
-	newVersion, _ := version.NewVersion(opts.Version)
-	lastVersion, e := lastKnownVersion(store, opts.Name)
-	if e != nil {
-		return fmt.Errorf("cannot update service version for %s (%v)", opts.Name, e)
-	}
+	var err error
 
-	if len(opts.Migrations) > 0 {
-		writeVersion, err := applyMigrations(ctx, lastVersion, newVersion, opts.Migrations)
-		if writeVersion != nil {
-			if e := updateVersion(store, opts.Name, writeVersion); e != nil {
-				log.Logger(ctx).Error("could not write version file", zap.Error(e))
+	if !opts.migrateOnce {
+		opts.migrateOnce = true
+
+		newVersion, _ := version.NewVersion(opts.Version)
+		lastVersion, e := lastKnownVersion(store, opts.Name)
+		if e != nil {
+			err = fmt.Errorf("cannot update service version for %s (%v)", opts.Name, e)
+			return err
+		}
+
+		if len(opts.Migrations) > 0 {
+			writeVersion, err := applyMigrations(ctx, lastVersion, newVersion, opts.Migrations)
+			if writeVersion != nil {
+				if e := updateVersion(store, opts.Name, writeVersion); e != nil {
+					log.Logger(ctx).Error("could not write version file", zap.Error(e))
+				}
+			}
+			if err != nil {
+				err = fmt.Errorf("cannot update service version for %s (%v)", opts.Name, err)
+				return err
 			}
 		}
-		if err != nil {
-			return fmt.Errorf("cannot update service version for %s (%v)", opts.Name, err)
-		}
 	}
 
-	return nil
+	return err
 }
 
 // legacyVersionFile points to the old workingdir/services/serviceName/version

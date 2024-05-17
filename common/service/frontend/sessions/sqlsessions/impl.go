@@ -19,6 +19,7 @@ import (
 	"github.com/pydio/cells/v4/common/log"
 	"github.com/pydio/cells/v4/common/service/frontend/sessions/utils"
 	"github.com/pydio/cells/v4/common/utils/configx"
+	"github.com/pydio/cells/v4/common/utils/uuid"
 )
 
 var (
@@ -44,6 +45,12 @@ type SessionRow struct {
 
 func (s *SessionRow) TableName() string {
 	return "idm_frontend_sessions"
+}
+
+
+func (r *SessionRow) BeforeCreate(db *gorm.DB) error {
+	r.ID = uuid.New()
+	return nil
 }
 
 func init() {

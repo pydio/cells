@@ -48,7 +48,7 @@ type LogoutResponse struct {
 }
 
 type RedirectResponse struct {
-	RedirectTo string `json:"redirect_to"`
+	Challenge string `json:"challenge"`
 }
 
 type TokenResponse struct {
@@ -90,7 +90,7 @@ func CreateLogin(ctx context.Context, clientID string, scopes, audiences []strin
 
 func AcceptLogin(ctx context.Context, challenge string, subject string) (*RedirectResponse, error) {
 	c := auth.NewLoginProviderClient(OAuthConn(ctx))
-	_, err := c.AcceptLogin(ctx, &auth.AcceptLoginRequest{
+	res, err := c.AcceptLogin(ctx, &auth.AcceptLoginRequest{
 		Challenge: challenge,
 		Subject:   subject,
 	})
@@ -98,7 +98,7 @@ func AcceptLogin(ctx context.Context, challenge string, subject string) (*Redire
 		return nil, err
 	}
 
-	return nil, nil
+	return &RedirectResponse{Challenge: res.GetChallenge()}, nil
 }
 
 func CreateConsent(ctx context.Context, loginChallenge string) (*auth.ID, error) {
@@ -121,7 +121,7 @@ func CreateConsent(ctx context.Context, loginChallenge string) (*auth.ID, error)
 
 func AcceptConsent(ctx context.Context, challenge string, scopes, audiences []string, accessToken, idToken map[string]string) (*RedirectResponse, error) {
 	c := auth.NewConsentProviderClient(OAuthConn(ctx))
-	_, err := c.AcceptConsent(ctx, &auth.AcceptConsentRequest{
+	res, err := c.AcceptConsent(ctx, &auth.AcceptConsentRequest{
 		Challenge:   challenge,
 		Scopes:      scopes,
 		Audiences:   audiences,
@@ -132,7 +132,7 @@ func AcceptConsent(ctx context.Context, challenge string, scopes, audiences []st
 		return nil, err
 	}
 
-	return nil, nil
+	return &RedirectResponse{Challenge: res.GetChallenge()}, nil
 }
 
 func CreateLogout(ctx context.Context, url, subject, sessionID string) (*auth.ID, error) {

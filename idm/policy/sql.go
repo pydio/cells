@@ -107,6 +107,15 @@ func (s *sqlimpl) StorePolicyGroup(ctx context.Context, group *idm.PolicyGroup) 
 		}
 	}
 
+	//var policies []*Policy
+	//for _, policy := range group.GetPolicies() {
+	//	policies = append(policies, &Policy{
+	//		ID:          policy.GetId(),
+	//		Description: policy.GetDescription(),
+	//		Effect:      policy.GetEffect(),
+	//	})
+	//}
+
 	// Insert or update Policies first
 	for _, policy := range group.Policies {
 		if policy.Id == "" { // must be a new policy
@@ -144,7 +153,9 @@ func (s *sqlimpl) StorePolicyGroup(ctx context.Context, group *idm.PolicyGroup) 
 		OwnerUUID:     group.OwnerUuid,
 		ResourceGroup: group.ResourceGroup,
 		LastUpdated:   int(time.Now().Unix()),
+
 		// TODO - add policies
+		// Policies: group.Policies,
 	})
 
 	return group, nil
