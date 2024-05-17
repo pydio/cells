@@ -152,7 +152,7 @@ func (s *TreeServer) ReadNodeStream(streamer tree.NodeProviderStreamer_ReadNodeS
 	// otherwise it can create a goroutine leak on linux.
 	ctx := metadata.NewBackgroundWithMetaCopy(streamer.Context())
 	// TODO RECHECK THAT
-	ctx = runtimecontext.ForkContext(ctx, ctx)
+	ctx = runtimecontext.ForkContext(ctx, streamer.Context())
 
 	var flags tree.Flags
 	if sf, o := metadata.CanonicalMeta(streamer.Context(), tree.StatFlagHeaderName); o {

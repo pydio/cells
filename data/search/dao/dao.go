@@ -24,15 +24,15 @@ package dao
 import (
 	"context"
 
-	"github.com/pydio/cells/v4/common/dao"
 	"github.com/pydio/cells/v4/common/nodes/meta"
 	"github.com/pydio/cells/v4/common/proto/tree"
+	"github.com/pydio/cells/v4/common/storage"
 	"github.com/pydio/cells/v4/common/storage/bleve"
 	"github.com/pydio/cells/v4/common/storage/indexer"
-	"github.com/pydio/cells/v4/common/storage/mongo"
+	"github.com/pydio/cells/v4/common/storage/mongodb"
 	"github.com/pydio/cells/v4/common/utils/configx"
 	bleve2 "github.com/pydio/cells/v4/data/search/dao/bleve"
-	mongo2 "github.com/pydio/cells/v4/data/search/dao/mongo"
+	"github.com/pydio/cells/v4/data/search/dao/mongo"
 )
 
 type SearchEngine interface {
@@ -49,19 +49,19 @@ func NewBleveDAO(ctx context.Context, v *bleve.Indexer) SearchEngine {
 	return newEngine(ctx, v)
 }
 
-func NewMongoDAO(ctx context.Context, v *mongo.Indexer) SearchEngine {
-	v.SetCollection(mongo2.Collection)
-	v.SetCodex(&mongo2.Codex{})
+func NewMongoDAO(ctx context.Context, v *mongodb.Indexer) SearchEngine {
+	v.SetCollection(mongo.Collection)
+	v.SetCodex(&mongo.Codex{})
 
 	return newEngine(ctx, v)
 }
 
-func NewQueryCodec(indexDAO indexer.Indexer, values configx.Values, metaProvider *meta.NsProvider) dao.IndexCodex {
+func NewQueryCodec(indexDAO indexer.Indexer, values configx.Values, metaProvider *meta.NsProvider) storage.IndexCodex {
 	switch indexDAO.(type) {
 	case *bleve.Indexer:
 		return bleve2.NewQueryCodec(values, metaProvider)
-	case *mongo.Indexer:
-		return &mongo2.Codex{
+	case *mongodb.Indexer:
+		return &mongo.Codex{
 			QueryConfigs:    values,
 			QueryNsProvider: metaProvider,
 		}

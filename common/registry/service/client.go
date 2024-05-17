@@ -22,7 +22,6 @@ package service
 
 import (
 	"context"
-	"github.com/pydio/cells/v4/common/runtime"
 	"net/url"
 	"os"
 	"sync"
@@ -38,6 +37,7 @@ import (
 	pb "github.com/pydio/cells/v4/common/proto/registry"
 	"github.com/pydio/cells/v4/common/registry"
 	"github.com/pydio/cells/v4/common/registry/util"
+	"github.com/pydio/cells/v4/common/runtime"
 )
 
 var schemes = []string{"grpc", "xds"}
@@ -119,7 +119,6 @@ func (s *serviceRegistry) callOpts() []grpc.CallOption {
 	}
 
 	// add retries
-	// TODO : charles' GUTS feeling :-)
 	// opts = append(opts, client.WithRetries(10))
 
 	return opts
@@ -359,6 +358,7 @@ func (s *serviceRegistryLock) Lock() {
 		}
 	}
 }
+
 func (s *serviceRegistryLock) Unlock() {
 	if s.stream != nil {
 		s.stream.SendMsg(&pb.NewLockerRequest{

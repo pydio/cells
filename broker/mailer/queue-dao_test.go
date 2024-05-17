@@ -33,7 +33,7 @@ import (
 	"github.com/pydio/cells/v4/common/utils/test"
 
 	_ "github.com/pydio/cells/v4/common/storage/boltdb"
-	_ "github.com/pydio/cells/v4/common/storage/mongo"
+	_ "github.com/pydio/cells/v4/common/storage/mongodb"
 
 	. "github.com/smartystreets/goconvey/convey"
 )

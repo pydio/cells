@@ -29,19 +29,15 @@ import (
 	"strings"
 	"testing"
 
-	. "github.com/smartystreets/goconvey/convey"
-
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/nodes"
 	"github.com/pydio/cells/v4/common/nodes/abstract"
 	"github.com/pydio/cells/v4/common/nodes/models"
 	"github.com/pydio/cells/v4/common/proto/object"
 	"github.com/pydio/cells/v4/common/proto/tree"
-)
 
-// TODO these tests are currently broken and should be repaired.
-// For the record, below lines where in errors and have been violently
-// commented out without further thinking.
+	. "github.com/smartystreets/goconvey/convey"
+)
 
 func TestHandler_GetObject(t *testing.T) {
 

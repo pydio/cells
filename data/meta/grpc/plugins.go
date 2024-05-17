@@ -54,7 +54,7 @@ func init() {
 				tree.RegisterNodeProviderServer(srv, engine)
 				tree.RegisterNodeProviderStreamerServer(srv, engine)
 				tree.RegisterNodeReceiverServer(srv, engine)
-				tree.RegisterSearcherServer(srv, engine)
+				//tree.RegisterSearcherServer(srv, engine)
 
 				// Register Subscriber
 				if e := broker.SubscribeCancellable(ctx, common.TopicTreeChanges, func(ctx context.Context, message broker.Message) error {

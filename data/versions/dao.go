@@ -22,10 +22,14 @@
 package versions
 
 import (
+	"context"
+
 	"go.etcd.io/bbolt"
-	"go.mongodb.org/mongo-driver/mongo"
 
 	"github.com/pydio/cells/v4/common/proto/tree"
+	"github.com/pydio/cells/v4/common/runtime/manager"
+	"github.com/pydio/cells/v4/common/service"
+	"github.com/pydio/cells/v4/common/storage/mongodb"
 )
 
 type DAO interface {
@@ -43,48 +47,44 @@ func NewBoltDAO(db *bbolt.DB) (DAO, error) {
 	return NewBoltStore(db)
 }
 
-func NewMongoDAO(db *mongo.Database) DAO {
+func NewMongoDAO(db *mongodb.Database) DAO {
 	return &mongoStore{Database: db}
 }
 
-//func Migrate(f dao.DAO, t dao.DAO, dryRun bool, status chan dao.MigratorStatus) (map[string]int, error) {
-//	ctx := context.Background()
-//	out := map[string]int{
-//		"Versions": 0,
-//	}
-//	var from, to DAO
-//	if df, e := NewDAO(ctx, f); e == nil {
-//		from = df.(DAO)
-//	} else {
-//		return out, e
-//	}
-//	if dt, e := NewDAO(ctx, t); e == nil {
-//		to = dt.(DAO)
-//	} else {
-//		return out, e
-//	}
-//	uuids, done, errs := from.ListAllVersionedNodesUuids()
-//	var e error
-//loop1:
-//	for {
-//		select {
-//		case id := <-uuids:
-//			versions, _ := from.GetVersions(id)
-//			for version := range versions {
-//				if dryRun {
-//					out["Versions"]++
-//				} else if er := to.StoreVersion(id, version); er == nil {
-//					out["Versions"]++
-//				} else {
-//					continue
-//				}
-//			}
-//			break loop1
-//		case e = <-errs:
-//			break loop1
-//		case <-done:
-//			break loop1
-//		}
-//	}
-//	return out, e
-//}
+func Migrate(main, fromCtx, toCtx context.Context, dryRun bool, status chan service.MigratorStatus) (map[string]int, error) {
+	out := map[string]int{
+		"Versions": 0,
+	}
+	from, er := manager.Resolve[DAO](fromCtx)
+	if er != nil {
+		return nil, er
+	}
+	to, er := manager.Resolve[DAO](toCtx)
+	if er != nil {
+		return nil, er
+	}
+	uuids, done, errs := from.ListAllVersionedNodesUuids()
+	var e error
+loop1:
+	for {
+		select {
+		case id := <-uuids:
+			versions, _ := from.GetVersions(id)
+			for version := range versions {
+				if dryRun {
+					out["Versions"]++
+				} else if er := to.StoreVersion(id, version); er == nil {
+					out["Versions"]++
+				} else {
+					continue
+				}
+			}
+			break loop1
+		case e = <-errs:
+			break loop1
+		case <-done:
+			break loop1
+		}
+	}
+	return out, e
+}

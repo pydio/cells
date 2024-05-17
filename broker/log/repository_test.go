@@ -41,7 +41,7 @@ import (
 var (
 	testcases = []test.StorageTestCase{
 		test.TemplateBleveWithPrefix(NewBleveDAO, "logs_test_"),
-		test.TemplateMongoEnvWithPrefix(NewMongoDAO, "broker_"),
+		test.TemplateMongoEnvWithPrefixAndIndexerCollection(NewMongoDAO, "test_broker_", "syslog"),
 	}
 )
 

@@ -22,23 +22,12 @@ package datatest
 
 import (
 	"context"
-	"github.com/pydio/cells/v4/common/dao/test"
-	"os"
-	"path/filepath"
-
-	"github.com/pydio/cells/v4/common"
 
 	"google.golang.org/grpc"
 
+	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/proto/docstore"
-	"github.com/pydio/cells/v4/common/utils/uuid"
-	docstore2 "github.com/pydio/cells/v4/data/docstore"
-	srv "github.com/pydio/cells/v4/data/docstore/grpc"
 )
-
-func newPath(tmpName string) string {
-	return filepath.Join(os.TempDir(), tmpName)
-}
 
 func defaults() map[string]string {
 
@@ -51,17 +40,18 @@ func defaults() map[string]string {
 
 func NewDocStoreService() (grpc.ClientConnInterface, error) {
 
-	pBolt := newPath("docstore" + uuid.New() + ".db")
-	d, _, e := test.OnFileTestDAO("boltdb", pBolt, "", "docstore-test1", false, docstore2.NewDAO)
-	if e != nil {
-		return nil, e
-	}
+	/*
+		pBolt := newPath("docstore" + uuid.New() + ".db")
+		d, _, e := test.OnFileTestDAO("boltdb", pBolt, "", "docstore-test1", false, docstore2.NewDAO)
+		if e != nil {
+			return nil, e
+		}
 
-	h := &srv.Handler{
-		DAO: d.(*docstore2.BleveServer),
-	}
+		h := &srv.Handler{
+			DAO: d.(*docstore2.BleveServer),
+		}*/
 	serv := &docstore.DocStoreStub{}
-	serv.DocStoreServer = h
+	//serv.DocStoreServer = h
 
 	for id, json := range defaults() {
 		_, er := serv.DocStoreServer.PutDocument(context.Background(), &docstore.PutDocumentRequest{

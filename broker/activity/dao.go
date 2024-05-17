@@ -28,14 +28,14 @@ import (
 	"context"
 	"time"
 
-	"go.etcd.io/bbolt"
-	"go.mongodb.org/mongo-driver/mongo"
-
-	"github.com/pydio/cells/v4/common/dao"
 	"github.com/pydio/cells/v4/common/proto/activity"
+	"github.com/pydio/cells/v4/common/runtime/manager"
+	"github.com/pydio/cells/v4/common/service"
+	"github.com/pydio/cells/v4/common/storage/boltdb"
+	"github.com/pydio/cells/v4/common/storage/mongodb"
 )
 
-var testEnv bool
+var noCache bool
 
 type BoxName string
 
@@ -93,25 +93,37 @@ type batchDAO interface {
 	BatchPost([]*batchActivity) error
 }
 
-func NewBoltDAO(db *bbolt.DB) DAO {
-	d := &boltdbimpl{DB: db, InboxMaxSize: 1000}
+func NewBoltDAO(db *boltdb.Compacter) DAO {
+	d := &boltdbimpl{
+		Compacter:    db,
+		InboxMaxSize: 1000,
+	}
+	if noCache {
+		return d
+	}
 	return WithCache(d, 5*time.Second)
 }
 
-func NewMongoDAO(database *mongo.Database) DAO {
+func NewMongoDAO(database *mongodb.Database) DAO {
 	return &mongoimpl{Database: database}
 
 }
 
-func Migrate(f, t any, dryRun bool, status chan dao.MigratorStatus) (map[string]int, error) {
+func Migrate(topCtx, fromCtx, toCtx context.Context, dryRun bool, status chan service.MigratorStatus) (map[string]int, error) {
 	ctx := context.Background()
 	out := map[string]int{
 		"Activities":    0,
 		"Subscriptions": 0,
 	}
-	testEnv = true // Disable cache
-	from := f.(DAO)
-	to := t.(DAO)
+	noCache = true // Disable cache
+	from, er := manager.Resolve[DAO](fromCtx)
+	if er != nil {
+		return nil, er
+	}
+	to, er := manager.Resolve[DAO](toCtx)
+	if er != nil {
+		return nil, er
+	}
 	aa, total, er := from.allActivities(ctx)
 	if er != nil {
 		return nil, er
@@ -123,7 +135,7 @@ func Migrate(f, t any, dryRun bool, status chan dao.MigratorStatus) (map[string]
 			out["Activities"]++
 		}
 		if total > 0 {
-			status <- dao.MigratorStatus{Total: int64(total), Count: int64(out["Activities"])}
+			status <- service.MigratorStatus{Total: int64(total), Count: int64(out["Activities"])}
 		}
 	}
 	ss, sTotal, er := from.allSubscriptions(ctx)
@@ -137,7 +149,7 @@ func Migrate(f, t any, dryRun bool, status chan dao.MigratorStatus) (map[string]
 			out["Subscriptions"]++
 		}
 		if sTotal > 0 {
-			status <- dao.MigratorStatus{Total: int64(sTotal), Count: int64(out["Subscriptions"])}
+			status <- service.MigratorStatus{Total: int64(sTotal), Count: int64(out["Subscriptions"])}
 		}
 	}
 	return out, nil

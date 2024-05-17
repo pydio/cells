@@ -26,16 +26,9 @@ import (
 	"fmt"
 
 	"github.com/pydio/cells/v4/common/registry"
+	"github.com/pydio/cells/v4/common/storage"
 	"github.com/pydio/cells/v4/common/utils/configx"
 )
-
-type MigratorStatus struct {
-	Status string
-	Total  int64
-	Count  int64
-}
-
-type MigratorFunc func(from, to any, dryRun bool, status chan MigratorStatus) (map[string]int, error)
 
 type DriverProviderFunc func() (string, string)
 
@@ -45,7 +38,7 @@ type ConnProviderFunc func(ctx context.Context, driver, dsn string) ConnDriver
 
 type DaoProviderFunc func(ctx context.Context, driver, dsn, prefix string) (DAO, error)
 
-type IndexerWrapperFunc func(context.Context, DAO) (IndexDAO, error)
+type IndexerWrapperFunc func(context.Context, DAO) (storage.IndexDAO, error)
 
 type Storer interface{}
 

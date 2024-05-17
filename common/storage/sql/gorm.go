@@ -55,6 +55,7 @@ func (gs *gormStorage) OpenURL(ctx context.Context, dsn string) (storage.Storage
 	return gs, nil
 }
 
+/*
 func (gs *gormStorage) Provides(conn any) bool {
 	switch conn.(type) {
 	case *sql.DB:
@@ -79,6 +80,8 @@ func (gs *gormStorage) GetConn(str string) (storage.Conn, error) {
 
 	return nil, nil
 }
+
+*/
 
 func (gs *gormStorage) Register(conn any, tenant string, service string, hooks ...string) {
 
@@ -161,7 +164,14 @@ func (gs *gormStorage) Get(ctx context.Context, out interface{}) (bool, error) {
 			if len(parts) < 2 {
 				return false, nil
 			}
-			if conn, err := sql.Open(parts[0], strings.Join(parts[1:], "")); err != nil {
+			driverName := parts[0]
+			databaseName := strings.Join(parts[1:], "")
+			if driverName == PostgreDriver {
+				// DSN must still contain the scheme, otherwise expected connection info
+				// must be in format "key=value key=value" etc
+				databaseName = dsn
+			}
+			if conn, err := sql.Open(driverName, databaseName); err != nil {
 				return true, err
 			} else {
 				gs.Register(conn, ten.ID(), runtimecontext.GetServiceName(ctx), hookNames...)

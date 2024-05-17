@@ -30,7 +30,6 @@ import (
 type DAO interface {
 	SetMetadata(ctx context.Context, nodeId string, author string, metadata map[string]string) (err error)
 	GetMetadata(ctx context.Context, nodeId string) (metadata map[string]string, err error)
-	ListMetadata(ctx context.Context, query string) (metadataByUuid map[string]map[string]string, err error)
 }
 
 func NewGormDAO(db *gorm.DB) DAO {

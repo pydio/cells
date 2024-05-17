@@ -175,7 +175,7 @@ func (s *BleveServer) search(storeID string, query *docstore.DocumentQuery, coun
 	log.Logger(context.Background()).Debug("SearchDocuments", zap.Any("query", qStringQuery))
 	searchRequest := bleve.NewSearchRequest(qStringQuery)
 
-	// TODO PASS CURSOR INFOS?
+	// TODO PASS CURSOR INFOS - THIS COULD CREATE BUG IF WE EXPECT MORE THAN 100 RESULTS !
 	if !countOnly {
 		searchRequest.Size = int(100)
 		searchRequest.From = int(0)

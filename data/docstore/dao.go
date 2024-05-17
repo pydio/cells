@@ -26,12 +26,11 @@ package docstore
 
 import (
 	"context"
+	"github.com/pydio/cells/v4/common/storage/mongodb"
 
 	bleve "github.com/blevesearch/bleve/v2"
-	"go.etcd.io/bbolt"
-	"go.mongodb.org/mongo-driver/mongo"
-
 	"github.com/pydio/cells/v4/common/proto/docstore"
+	"go.etcd.io/bbolt"
 )
 
 type DAO interface {
@@ -52,7 +51,7 @@ func NewBleveDAO(boltDB *bbolt.DB, bleveIndex bleve.Index) DAO {
 	return NewBleveEngine(boltDB, bleveIndex)
 }
 
-func NewMongoDAO(db *mongo.Database) DAO {
+func NewMongoDAO(db *mongodb.Database) DAO {
 	return &mongoImpl{Database: db}
 }
 

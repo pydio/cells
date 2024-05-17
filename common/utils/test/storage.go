@@ -22,7 +22,7 @@ import (
 	_ "github.com/pydio/cells/v4/common/storage/bleve"
 	_ "github.com/pydio/cells/v4/common/storage/boltdb"
 	_ "github.com/pydio/cells/v4/common/storage/config"
-	_ "github.com/pydio/cells/v4/common/storage/mongo"
+	_ "github.com/pydio/cells/v4/common/storage/mongodb"
 	_ "github.com/pydio/cells/v4/common/utils/cache/gocache"
 )
 
@@ -61,15 +61,21 @@ func init() {
 
 // TemplateSQL returns a single SQL test case with the provided DAO func
 func TemplateSQL(daoFunc any) []StorageTestCase {
+	//_ = os.Setenv("CELLS_TEST_PGSQL_DSN", "postgres://pydio:cells@localhost:5432/testdb?sslmode=disable")
 	return []StorageTestCase{
 		{
 			DSN:       []string{sql.SqliteDriver + "://" + sql.SharedMemDSN + "&hookNames=cleanTables"},
-			Condition: true,
+			Condition: os.Getenv("CELLS_TEST_MYSQL_DSN") == "" && os.Getenv("CELLS_TEST_PGSQL_DSN") == "", // For now, do NOT run sqlite and other at the same time
 			DAO:       daoFunc,
 		},
 		{
-			DSN:       []string{sql.MySQLDriver + "://root@tcp(127.0.0.1:3306)/cellst?hookNames=cleanTables"},
-			Condition: false,
+			DSN:       []string{os.Getenv("CELLS_TEST_MYSQL_DSN") + "?hookNames=cleanTables"},
+			Condition: os.Getenv("CELLS_TEST_MYSQL_DSN") != "",
+			DAO:       daoFunc,
+		},
+		{
+			DSN:       []string{os.Getenv("CELLS_TEST_PGSQL_DSN") + "&hookNames=cleanTables"},
+			Condition: os.Getenv("CELLS_TEST_PGSQL_DSN") != "",
 			DAO:       daoFunc,
 		},
 	}
@@ -79,6 +85,15 @@ func TemplateSQL(daoFunc any) []StorageTestCase {
 func TemplateMongoEnvWithPrefix(daoFunc any, prefix string) StorageTestCase {
 	return StorageTestCase{
 		DSN:       []string{os.Getenv("CELLS_TEST_MONGODB_DSN") + "?hookNames=cleanCollections&prefix=" + prefix},
+		Condition: os.Getenv("CELLS_TEST_MONGODB_DSN") != "",
+		DAO:       daoFunc,
+	}
+}
+
+// TemplateMongoEnvWithPrefixAndIndexerCollection creates a StorageTestCase for MongoDB
+func TemplateMongoEnvWithPrefixAndIndexerCollection(daoFunc any, prefix, collection string) StorageTestCase {
+	return StorageTestCase{
+		DSN:       []string{os.Getenv("CELLS_TEST_MONGODB_DSN") + "?hookNames=cleanCollections&prefix=" + prefix + "&collection=" + collection},
 		Condition: os.Getenv("CELLS_TEST_MONGODB_DSN") != "",
 		DAO:       daoFunc,
 	}

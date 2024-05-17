@@ -596,23 +596,44 @@ message PolicyCondition {
 }
 
 message Policy {
-    string id = 1 [json_name="id"];
-    string description = 2 [json_name="description"];
-    repeated string subjects = 3 [json_name="subjects"];
-    repeated string resources = 4 [json_name="resources"];
-    repeated string actions = 5 [json_name="actions"];
-    PolicyEffect effect = 6 [json_name="effect"];
-    map <string,PolicyCondition> conditions = 7 [json_name="conditions"];
+    option (orm.ormPolicy).enabled = true;
+
+    string ID = 1                               [json_name="id"];
+    string Description = 2                      [json_name="description"];
+    repeated PolicyItem Subjects = 3            [json_name="subjects"];
+    repeated PolicyItem resources = 4           [json_name="resources"];
+    repeated PolicyItem actions = 5             [json_name="actions"];
+    PolicyEffect Effect = 6                     [json_name="effect"];
+    map <string,PolicyCondition> Conditions = 7 [json_name="conditions"];
+}
+
+message PolicyItem {
+    option (orm.ormPolicy).enabled = true;
+
+    string ID = 1        [(orm.orm).gorm = {column:"id"; type: "varchar(64)"; primaryKey: true; notNull: true}];
+    bool HasRegex = 2    [(orm.orm).gorm = {column:"has_regex";}];
+    string Compiled = 3  [(orm.orm).gorm = {column:"compiled";}];
+    string Template = 4  [(orm.orm).gorm = {column:"compiled";}];
+}
+
+message PolicyResource {
+    option (orm.ormPolicy).enabled = true;
+}
+
+message PolicyAction {
+    option (orm.ormPolicy).enabled = true;
 }
 
 message PolicyGroup {
-    string Uuid = 1  [(buf.validate.field).required = true];
-    string Name = 2;
-    string Description = 3;
-    string OwnerUuid = 4;
-    PolicyResourceGroup ResourceGroup = 5;
-    int32 LastUpdated = 6;
-    repeated Policy Policies = 7;
+    option (orm.ormPolicy).enabled = true;
+
+    string UUID = 1                       [(orm.orm).gorm = {column: "uuid"; primaryKey: true}, (buf.validate.field).required = true];
+    string Name = 2                       [(orm.orm).gorm = {column: "name";}];
+    string Description = 3                [(orm.orm).gorm = {column: "description";}];;
+    string OwnerUUID = 4                  [(orm.orm).gorm = {column: "owner_uuid";}];;
+    PolicyResourceGroup ResourceGroup = 5 [(orm.orm).gorm = {column: "resource_group";}];;
+    int32 LastUpdated = 6                 [(orm.orm).gorm = {column: "last_updated";}];;
+    repeated Policy Policies = 7          [(orm.orm).gorm = {column: "policies"; many2many: "policy_rel"; foreignKey: "Uuid"; joinForeignKey: "GroupUUID"; References: "ID"; joinReferences: "PolicyID";}];;
 }
 
 // Request / Response Messages

@@ -47,7 +47,7 @@ type MetaServer struct {
 	tree.UnimplementedNodeProviderServer
 	tree.UnimplementedNodeProviderStreamerServer
 	tree.UnimplementedNodeReceiverServer
-	tree.UnimplementedSearcherServer
+	//tree.UnimplementedSearcherServer
 
 	cachePool *openurl.Pool[cache.Cache]
 
@@ -253,90 +253,69 @@ func (s *MetaServer) ListNodes(req *tree.ListNodesRequest, resp tree.NodeProvide
 	return errors.BadRequest("ListNodes", "Method not implemented")
 }
 
-// CreateNode metadata
-func (s *MetaServer) CreateNode(ctx context.Context, req *tree.CreateNodeRequest) (resp *tree.CreateNodeResponse, err error) {
-
-	resp = &tree.CreateNodeResponse{}
+func (s *MetaServer) saveNode(ctx context.Context, node *tree.Node, silent, reload bool) (*tree.Node, error) {
 	var author = ""
 	if value := ctx.Value(claim.ContextKey); value != nil {
 		claims := value.(claim.Claims)
 		author = claims.Name
 	}
 
-	ca, _ := s.cachePool.Get(ctx)
-	if ca != nil {
-		//s.cacheMutex.Lock(req.Node.Uuid)
-		//defer s.cacheMutex.Unlock(req.Node.Uuid)
-		//log.Logger(ctx).Info("META / Clearing cache for "+req.Node.Uuid, req.Node.Zap())
-		ca.Delete(req.Node.Uuid)
+	if ca, _ := s.cachePool.Get(ctx); ca != nil {
+		_ = ca.Delete(node.Uuid)
 	}
 
-	dao, err := manager.Resolve[meta.DAO](ctx)
-	if err != nil {
+	dao, er := manager.Resolve[meta.DAO](ctx)
+	if er != nil {
+		return nil, er
+	}
+
+	if err := dao.SetMetadata(ctx, node.Uuid, author, s.filterMetaToStore(ctx, node.MetaStore)); err != nil {
+		log.Logger(ctx).Error("failed to update meta node", zap.Any("error", err))
 		return nil, err
 	}
 
-	if err := dao.SetMetadata(ctx, req.Node.Uuid, author, s.filterMetaToStore(ctx, req.Node.MetaStore)); err != nil {
-		resp.Success = false
-		return resp, err
+	out := node.Clone()
+	if reload {
+		if metadata, err := dao.GetMetadata(ctx, node.Uuid); err == nil && metadata != nil && len(metadata) > 0 {
+			for k, v := range metadata {
+				out.MetaStore[k] = v
+			}
+		}
 	}
-
-	resp.Success = true
-
 	broker.MustPublish(ctx, common.TopicMetaChanges, &tree.NodeChangeEvent{
 		Type:   tree.NodeChangeEvent_UPDATE_META,
-		Target: req.Node,
-		Silent: req.Silent,
+		Target: out,
+		Silent: silent,
 	})
 
-	return resp, nil
+	return out, nil
+}
+
+// CreateNode metadata
+func (s *MetaServer) CreateNode(ctx context.Context, req *tree.CreateNodeRequest) (resp *tree.CreateNodeResponse, err error) {
+
+	if out, er := s.saveNode(ctx, req.Node, req.Silent, false); er != nil {
+		return nil, er
+	} else {
+		return &tree.CreateNodeResponse{
+			Success: true,
+			Node:    out,
+		}, nil
+	}
 }
 
 // UpdateNode metadata
 func (s *MetaServer) UpdateNode(ctx context.Context, req *tree.UpdateNodeRequest) (resp *tree.UpdateNodeResponse, err error) {
 
-	resp = &tree.UpdateNodeResponse{}
-
-	var author = ""
-	if value := ctx.Value(claim.ContextKey); value != nil {
-		claims := value.(claim.Claims)
-		author = claims.Name
+	if out, er := s.saveNode(ctx, req.To, req.Silent, true); er != nil {
+		return nil, er
+	} else {
+		return &tree.UpdateNodeResponse{
+			Success: true,
+			Node:    out,
+		}, nil
 	}
 
-	ca, _ := s.cachePool.Get(ctx)
-	if ca != nil {
-		//s.cacheMutex.Lock(req.To.Uuid)
-		//defer s.cacheMutex.Unlock(req.To.Uuid)
-		//log.Logger(ctx).Info("META / Clearing cache for "+req.To.Uuid, req.To.Zap())
-		ca.Delete(req.To.Uuid)
-	}
-
-	dao, err := manager.Resolve[meta.DAO](ctx)
-	if err != nil {
-		return nil, err
-	}
-
-	if err := dao.SetMetadata(ctx, req.To.Uuid, author, s.filterMetaToStore(ctx, req.To.MetaStore)); err != nil {
-		log.Logger(ctx).Error("failed to update meta node", zap.Any("error", err))
-		resp.Success = false
-		return resp, err
-	}
-
-	resp.Success = true
-
-	// Reload all merged meta now
-	if metadata, err := dao.GetMetadata(ctx, req.To.Uuid); err == nil && metadata != nil && len(metadata) > 0 {
-		for k, v := range metadata {
-			req.To.MetaStore[k] = v
-		}
-	}
-	broker.MustPublish(ctx, common.TopicMetaChanges, &tree.NodeChangeEvent{
-		Type:   tree.NodeChangeEvent_UPDATE_META,
-		Target: req.To,
-		Silent: req.Silent,
-	})
-
-	return resp, nil
 }
 
 // DeleteNode metadata (Not implemented)
@@ -344,10 +323,7 @@ func (s *MetaServer) DeleteNode(ctx context.Context, request *tree.DeleteNodeReq
 
 	ca, _ := s.cachePool.Get(ctx)
 	if ca != nil {
-		//log.Logger(ctx).Info("META / Clearing cache for " + request.Node.Uuid)
-		//s.cacheMutex.Lock(request.Node.Uuid)
-		//defer s.cacheMutex.Unlock(request.Node.Uuid)
-		ca.Delete(request.Node.Uuid)
+		_ = ca.Delete(request.Node.Uuid)
 	}
 
 	dao, err := manager.Resolve[meta.DAO](ctx)
@@ -372,6 +348,7 @@ func (s *MetaServer) DeleteNode(ctx context.Context, request *tree.DeleteNodeReq
 	return result, nil
 }
 
+/* THIS IS NEVER USED
 // Search a stream of nodes based on its metadata
 func (s *MetaServer) Search(request *tree.SearchRequest, result tree.Searcher_SearchServer) error {
 
@@ -398,6 +375,7 @@ func (s *MetaServer) Search(request *tree.SearchRequest, result tree.Searcher_Se
 
 	return nil
 }
+*/
 
 func (s *MetaServer) filterMetaToStore(ctx context.Context, metaStore map[string]string) map[string]string {
 

@@ -19,7 +19,7 @@ import (
 	_ "embed"
 	_ "github.com/pydio/cells/v4/common/registry/config"
 	_ "github.com/pydio/cells/v4/common/storage/boltdb"
-	_ "github.com/pydio/cells/v4/common/storage/mongo"
+	_ "github.com/pydio/cells/v4/common/storage/mongodb"
 	_ "github.com/pydio/cells/v4/common/storage/sql"
 
 	. "github.com/smartystreets/goconvey/convey"

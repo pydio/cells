@@ -30,9 +30,9 @@ import (
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 
-	"github.com/pydio/cells/v4/common/dao/mongodb"
 	"github.com/pydio/cells/v4/common/proto/jobs"
 	"github.com/pydio/cells/v4/common/service/errors"
+	"github.com/pydio/cells/v4/common/storage/mongodb"
 )
 
 const (
@@ -79,7 +79,7 @@ type mongoTask struct {
 }
 
 type mongoImpl struct {
-	*mongo.Database
+	*mongodb.Database
 }
 
 //func (m *mongoImpl) Init(ctx context.Context, values configx.Values) error {

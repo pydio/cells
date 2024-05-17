@@ -22,140 +22,114 @@ package versions
 
 import (
 	"context"
-	"log"
-	"os"
-	"path/filepath"
 	"testing"
 
-	. "github.com/smartystreets/goconvey/convey"
-
-	"github.com/pydio/cells/v4/common/dao/boltdb"
-	"github.com/pydio/cells/v4/common/dao/test"
 	"github.com/pydio/cells/v4/common/proto/tree"
-	"github.com/pydio/cells/v4/common/utils/uuid"
+	"github.com/pydio/cells/v4/common/runtime/manager"
+	"github.com/pydio/cells/v4/common/utils/test"
+
+	. "github.com/smartystreets/goconvey/convey"
 )
 
 var (
-	ctx = context.Background()
-)
-
-func TestNewBoltStore(t *testing.T) {
-
-	Convey("Test NewBoltStore", t, func() {
-		p := filepath.Join(os.TempDir(), "bolt-test1.db")
-		bd, _ := boltdb.NewDAO(ctx, "boltdb", p, "test")
-		bs, e := NewBoltStore(bd.(boltdb.DAO), p, true)
-		So(e, ShouldBeNil)
-		So(bs, ShouldNotBeNil)
-
-		e = bs.Close()
-		So(e, ShouldBeNil)
-		stat, _ := os.Stat(p)
-		So(stat, ShouldBeNil)
-
-	})
-
-}
-
-func initTestDAO(name string) (DAO, func()) {
-
-	d, c, e := test.OnFileTestDAO("boltdb", filepath.Join(os.TempDir(), name+".db"), "", "versions-test", false, NewDAO)
-	if e != nil {
-		log.Fatal(e)
+	testcases = []test.StorageTestCase{
+		test.TemplateBoltWithPrefix(NewBoltDAO, "versions_bolt_"),
+		test.TemplateMongoEnvWithPrefix(NewMongoDAO, "data_"),
 	}
-	return d.(DAO), c
-
-}
+)
 
 func TestDAO_CRUD(t *testing.T) {
 
 	Convey("Test CRUD", t, func() {
+		test.RunStorageTests(testcases, func(ctx context.Context) {
 
-		bs, closer := initTestDAO("versions-" + uuid.New())
-		So(bs, ShouldNotBeNil)
-		defer closer()
+			bs, err := manager.Resolve[DAO](ctx)
+			So(err, ShouldBeNil)
 
-		e := bs.StoreVersion("uuid", &tree.ChangeLog{Uuid: "version1", Data: []byte("etag1")})
-		So(e, ShouldBeNil)
-		e = bs.StoreVersion("uuid", &tree.ChangeLog{Uuid: "version2", Data: []byte("etag2")})
-		So(e, ShouldBeNil)
-		e = bs.StoreVersion("uuid", &tree.ChangeLog{Uuid: "version3", Data: []byte("etag3")})
-		So(e, ShouldBeNil)
+			e := bs.StoreVersion("uuid", &tree.ChangeLog{Uuid: "version1", Data: []byte("etag1")})
+			So(e, ShouldBeNil)
+			e = bs.StoreVersion("uuid", &tree.ChangeLog{Uuid: "version2", Data: []byte("etag2")})
+			So(e, ShouldBeNil)
+			e = bs.StoreVersion("uuid", &tree.ChangeLog{Uuid: "version3", Data: []byte("etag3")})
+			So(e, ShouldBeNil)
 
-		var results []*tree.ChangeLog
-		logs, _ := bs.GetVersions("uuid")
-		for log := range logs {
-			results = append(results, log)
-		}
-
-		So(results, ShouldHaveLength, 3)
-
-		var versionIds []string
-		versions, finish, errChan := bs.ListAllVersionedNodesUuids()
-	loop2:
-		for {
-			select {
-			case v := <-versions:
-				versionIds = append(versionIds, v)
-			case <-finish:
-				break loop2
-			case <-errChan:
-				break loop2
+			var results []*tree.ChangeLog
+			logs, _ := bs.GetVersions("uuid")
+			for log := range logs {
+				results = append(results, log)
 			}
-		}
 
-		So(versionIds, ShouldHaveLength, 1)
+			So(results, ShouldHaveLength, 3)
 
-		last, e := bs.GetLastVersion("uuid")
-		So(last.Uuid, ShouldEqual, "version3")
-		So(string(last.Data), ShouldEqual, "etag3")
+			var versionIds []string
+			versions, finish, errChan := bs.ListAllVersionedNodesUuids()
+		loop2:
+			for {
+				select {
+				case v := <-versions:
+					versionIds = append(versionIds, v)
+				case <-finish:
+					break loop2
+				case <-errChan:
+					break loop2
+				}
+			}
 
-		specific, e := bs.GetVersion("uuid", "version2")
-		So(specific.Uuid, ShouldEqual, "version2")
-		So(string(specific.Data), ShouldEqual, "etag2")
+			So(versionIds, ShouldHaveLength, 1)
 
-		nonExisting, e := bs.GetLastVersion("noid")
-		So(e, ShouldBeNil)
-		So(nonExisting, ShouldBeNil)
+			last, e := bs.GetLastVersion("uuid")
+			So(last.Uuid, ShouldEqual, "version3")
+			So(string(last.Data), ShouldEqual, "etag3")
 
-		nonExisting, e = bs.GetVersion("uuid", "wrongVersion")
-		So(e, ShouldBeNil)
-		So(nonExisting.Uuid, ShouldEqual, "")
+			specific, e := bs.GetVersion("uuid", "version2")
+			So(specific.Uuid, ShouldEqual, "version2")
+			So(string(specific.Data), ShouldEqual, "etag2")
 
-		ee := bs.DeleteVersionsForNode("uuid")
-		So(ee, ShouldBeNil)
+			nonExisting, e := bs.GetLastVersion("noid")
+			So(e, ShouldBeNil)
+			So(nonExisting, ShouldBeNil)
 
-		results = []*tree.ChangeLog{}
-		logs, _ = bs.GetVersions("uuid")
-		for log := range logs {
-			results = append(results, log)
-		}
-		So(results, ShouldHaveLength, 0)
+			nonExisting, e = bs.GetVersion("uuid", "wrongVersion")
+			So(e, ShouldBeNil)
+			So(nonExisting.Uuid, ShouldEqual, "")
+
+			ee := bs.DeleteVersionsForNode("uuid")
+			So(ee, ShouldBeNil)
+
+			results = []*tree.ChangeLog{}
+			logs, _ = bs.GetVersions("uuid")
+			for log := range logs {
+				results = append(results, log)
+			}
+			So(results, ShouldHaveLength, 0)
+		})
 
 	})
 
 	Convey("Test DeleteVersionsForNode", t, func() {
+		test.RunStorageTests(testcases, func(ctx context.Context) {
 
-		bs, closer := initTestDAO("versions-" + uuid.New())
-		So(bs, ShouldNotBeNil)
-		defer closer()
+			bs, err := manager.Resolve[DAO](ctx)
+			So(err, ShouldBeNil)
 
-		e := bs.StoreVersion("uuid", &tree.ChangeLog{Uuid: "version1", Data: []byte("etag1")})
-		So(e, ShouldBeNil)
-		e = bs.StoreVersion("uuid", &tree.ChangeLog{Uuid: "version2", Data: []byte("etag2")})
-		So(e, ShouldBeNil)
-		e = bs.StoreVersion("uuid", &tree.ChangeLog{Uuid: "version3", Data: []byte("etag3")})
-		So(e, ShouldBeNil)
+			e := bs.StoreVersion("uuid", &tree.ChangeLog{Uuid: "version1", Data: []byte("etag1")})
+			So(e, ShouldBeNil)
+			e = bs.StoreVersion("uuid", &tree.ChangeLog{Uuid: "version2", Data: []byte("etag2")})
+			So(e, ShouldBeNil)
+			e = bs.StoreVersion("uuid", &tree.ChangeLog{Uuid: "version3", Data: []byte("etag3")})
+			So(e, ShouldBeNil)
 
-		bs.DeleteVersionsForNode("uuid", &tree.ChangeLog{Uuid: "version2"})
+			err = bs.DeleteVersionsForNode("uuid", &tree.ChangeLog{Uuid: "version2"})
+			So(err, ShouldBeNil)
 
-		var results []*tree.ChangeLog
-		logs, _ := bs.GetVersions("uuid")
-		for log := range logs {
-			results = append(results, log)
-		}
-		So(results, ShouldHaveLength, 2)
+			var results []*tree.ChangeLog
+			logs, _ := bs.GetVersions("uuid")
+			for log := range logs {
+				results = append(results, log)
+			}
+			So(results, ShouldHaveLength, 2)
 
+		})
 	})
 
 }
