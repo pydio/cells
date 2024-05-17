@@ -24,6 +24,7 @@ package rest
 import (
 	"context"
 	"encoding/gob"
+	"net/http"
 	"os"
 
 	"github.com/pydio/cells/v4/common"
@@ -113,16 +114,11 @@ func init() {
 			service.Tag(common.ServiceTagFrontend),
 			service.Description("REST service for serving specific requests directly to frontend"),
 			service.PluginBoxes(BasePluginsBox),
-			service.WithStorageDrivers(sessions.NewSQLDAO),
-			service.WithWebSession("POST:/frontend/binaries"),
+			service.WithStorageDrivers(sessions.NewCookieDAO, sessions.NewSQLDAO),
+			service.WithWebMiddleware(func(h http.Handler) http.Handler {
+				return sessions.NewSessionWrapper(h, "POST:/frontend/binaries")
+			}),
 			service.WithWeb(func(c context.Context) service.WebHandler {
-				//dao := servicecontext.GetDAO(c)
-				//sessionDAO, ok := dao.(sessions.DAO)
-				//if !ok {
-				//	panic("Cannot get SessionDAO")
-				//}
-				// Depending on implementation, this will start a continuous background cleanup
-				//sessionDAO.DeleteExpired(c, log.Logger(c))
 				return NewFrontendHandler()
 			}),
 		)

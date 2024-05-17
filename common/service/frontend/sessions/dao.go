@@ -14,10 +14,12 @@ import (
 	"github.com/pydio/cells/v4/common/log"
 	"github.com/pydio/cells/v4/common/service/frontend/sessions/sqlsessions"
 	"github.com/pydio/cells/v4/common/service/frontend/sessions/utils"
+	"github.com/pydio/cells/v4/common/storage/sc"
 	"github.com/pydio/cells/v4/common/utils/configx"
 )
 
-func NewCookieDAO() DAO {
+// NewCookieDAO creates an encrypted cookies carried along with requests
+func NewCookieDAO(_ *sc.Conn) DAO {
 
 	timeout := config.Get("frontend", "plugin", "gui.ajax", "SESSION_TIMEOUT").Default(60).Int()
 	defaultOptions := &sessions.Options{
@@ -49,6 +51,7 @@ func NewCookieDAO() DAO {
 	return ci
 }
 
+// NewSQLDAO stores sessions in DB
 func NewSQLDAO(db *gorm.DB) DAO {
 	timeout := config.Get("frontend", "plugin", "gui.ajax", "SESSION_TIMEOUT").Default(60).Int()
 	defaultOptions := &sessions.Options{
@@ -62,7 +65,9 @@ func NewSQLDAO(db *gorm.DB) DAO {
 		Options: defaultOptions,
 	}
 
-	db.AutoMigrate(&sqlsessions.SessionRow{})
+	if er := db.AutoMigrate(&sqlsessions.SessionRow{}); er != nil {
+		log.Logger(context.Background()).Errorf("Cannot AutoMigrate sessions DB %v", er)
+	}
 
 	return i
 }

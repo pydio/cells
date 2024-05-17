@@ -52,7 +52,6 @@ import (
 	"github.com/pydio/cells/v4/common/server"
 	"github.com/pydio/cells/v4/common/server/middleware"
 	servicecontext "github.com/pydio/cells/v4/common/service/context"
-	"github.com/pydio/cells/v4/common/service/frontend"
 )
 
 const (
@@ -78,7 +77,7 @@ func init() {
 	// Instanciate restful framework
 	routing.RegisterRoute(APIRoute, "Main REST API Endpoint", common.DefaultRouteREST)
 	runtime.RegisterEnvVariable("CELLS_WEB_RATE_LIMIT", "0", "Http API rate-limiter, as a number of token allowed per seconds. 0 means no limit.")
-	// restful.RegisterEntityAccessor("application/json", new(ProtoEntityReaderWriter))
+	restful.RegisterEntityAccessor("application/json", new(ProtoEntityReaderWriter))
 }
 
 // WebHandler defines what functions a web handler must answer to
@@ -91,6 +90,7 @@ func getWebMiddlewares(serviceName string) []func(ctx context.Context, handler h
 	wmOnce.Do(func() {
 		wm = append(wm,
 			servicecontext.HttpWrapperMetrics,
+			// Todo - re-enable
 			//			middleware.HttpWrapperPolicy,
 			//			middleware.HttpWrapperJWT,
 			servicecontext.HttpWrapperSpan,
@@ -198,8 +198,8 @@ func WithWeb(handler func(ctx context.Context) WebHandler) ServiceOption {
 				}
 			}
 
-			if o.UseWebSession {
-				wrapped = frontend.NewSessionWrapper(wrapped, o.WebSessionExcludes...)
+			for _, m := range o.WebMiddlewares {
+				wrapped = m(wrapped)
 			}
 
 			wrapped = cors.Default().Handler(wrapped)

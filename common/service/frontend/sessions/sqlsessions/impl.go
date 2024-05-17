@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"net/http"
 	"net/url"
+	"sync"
 	"time"
 
 	"github.com/gorilla/securecookie"
@@ -47,9 +48,10 @@ func (s *SessionRow) TableName() string {
 	return "idm_frontend_sessions"
 }
 
-
 func (r *SessionRow) BeforeCreate(db *gorm.DB) error {
-	r.ID = uuid.New()
+	if r.ID == "" {
+		r.ID = uuid.New()
+	}
 	return nil
 }
 
@@ -58,13 +60,18 @@ func init() {
 }
 
 type Impl struct {
-	DB      *gorm.DB
-	Codecs  []securecookie.Codec
-	Options *sessions.Options
+	DB           *gorm.DB
+	Codecs       []securecookie.Codec
+	Options      *sessions.Options
+	startExpirer sync.Once
 }
 
 // GetSession implements the SessionDAO interface
 func (h *Impl) GetSession(r *http.Request) (*sessions.Session, error) {
+	// Auto start expirer - we should find a way to send a Done signal
+	h.startExpirer.Do(func() {
+		h.DeleteExpired(context.TODO(), log.Logger(r.Context()))
+	})
 	return h.Get(r, utils.SessionName(r))
 }
 
@@ -195,6 +202,7 @@ func (h *Impl) Delete(r *http.Request, w http.ResponseWriter, session *sessions.
 func (h *Impl) DeleteExpired(ctx context.Context, logger log.ZapLogger) {
 	ticker := time.NewTicker(5 * time.Minute)
 	go func() {
+		logger.Info("Starting monitor for expired sessions")
 		defer ticker.Stop()
 		for {
 			select {

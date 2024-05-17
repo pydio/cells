@@ -1,0 +1,36 @@
+package sc
+
+import (
+	"context"
+
+	"github.com/pydio/cells/v4/common/storage"
+)
+
+var (
+	_ storage.Storage = (*provider)(nil)
+)
+
+func init() {
+	storage.DefaultURLMux().Register("securecookie", &provider{})
+}
+
+type Conn struct{}
+
+type provider struct{}
+
+func (s *provider) OpenURL(ctx context.Context, dsn string) (storage.Storage, error) {
+	return s, nil
+}
+
+func (s *provider) Get(ctx context.Context, out interface{}) (provides bool, er error) {
+	switch v := out.(type) {
+	case **Conn:
+		*v = &Conn{}
+		return true, nil
+	}
+	return false, nil
+}
+
+func (s *provider) CloseConns(ctx context.Context, clean ...bool) (er error) {
+	return nil
+}

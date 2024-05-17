@@ -23,6 +23,7 @@ package service
 import (
 	"context"
 	"crypto/tls"
+	"net/http"
 
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/log"
@@ -75,8 +76,9 @@ type ServiceOptions struct {
 	BeforeRequest []func(context.Context) (context.Context, error) `json:"-"`
 	AfterServe    []func(context.Context) error                    `json:"-"`
 
-	UseWebSession      bool     `json:"-"`
-	WebSessionExcludes []string `json:"-"`
+	WebMiddlewares []func(h http.Handler) http.Handler
+	//	UseWebSession      bool     `json:"-"`
+	//	WebSessionExcludes []string `json:"-"`
 
 	StorageOptions StorageOptions `json:"-"`
 
@@ -236,10 +238,10 @@ func PluginBoxes(boxes ...frontend.PluginBox) ServiceOption {
 	}
 }
 
-func WithWebSession(excludes ...string) ServiceOption {
+// WithWebMiddleware appends additional middleware
+func WithWebMiddleware(middleware func(h http.Handler) http.Handler) ServiceOption {
 	return func(o *ServiceOptions) {
-		o.UseWebSession = true
-		o.WebSessionExcludes = excludes
+		o.WebMiddlewares = append(o.WebMiddlewares, middleware)
 	}
 }
 

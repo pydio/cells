@@ -36,6 +36,7 @@ func TestInsert(t *testing.T) {
 			So(er, ShouldBeNil)
 			So(s, ShouldNotBeNil)
 			So(s.IsNew, ShouldBeTrue)
+			//id := s.ID
 
 			// We must call registry.Save() to actual DB storage
 			reg := sessions.GetRegistry(req)

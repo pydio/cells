@@ -18,14 +18,17 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-package frontend
+package sessions
 
 import (
 	"net/http"
 	"strings"
 
+	"go.uber.org/zap"
+
 	"github.com/pydio/cells/v4/common/auth"
 	"github.com/pydio/cells/v4/common/log"
+	"github.com/pydio/cells/v4/common/runtime/manager"
 )
 
 // NewSessionWrapper creates a Http middleware checking if a cookie is passed
@@ -48,32 +51,28 @@ func NewSessionWrapper(h http.Handler, excludes ...string) http.Handler {
 			}
 		}
 
-		_ = jwtVerifier
-		/*
-			// This triggers an import cycle
-			dao, err := manager.Resolve[sessions.DAO](r.Context())
-			if err != nil {
-				log.Logger(r.Context()).Errorf("Cannot resolve DAO: %v", err)
-				w.WriteHeader(http.StatusUnauthorized)
-				_, _ = w.Write([]byte("Unauthorized (cannot find sessions.DAO)"))
-				return
-			}
-			session, err := dao.GetSession(r)
-			if err != nil && !strings.Contains(err.Error(), "securecookie: the value is not valid") {
-				log.Logger(r.Context()).Error("Cannot retrieve session", zap.Error(err))
-			}
+		// This triggers an import cycle
+		dao, err := manager.Resolve[DAO](r.Context())
+		if err != nil {
+			log.Logger(r.Context()).Errorf("Cannot resolve DAO: %v", err)
+			w.WriteHeader(http.StatusUnauthorized)
+			_, _ = w.Write([]byte("Unauthorized (cannot find sessions.DAO)"))
+			return
+		}
+		session, err := dao.GetSession(r)
+		if err != nil && !strings.Contains(err.Error(), "securecookie: the value is not valid") {
+			log.Logger(r.Context()).Error("Cannot retrieve session", zap.Error(err))
+		}
 
-			if value, ok := session.Values["access_token"]; ok {
-				ctx := r.Context()
-				if ctx, _, err = jwtVerifier.Verify(ctx, value.(string)); err == nil {
-					// Update context
-					log.Logger(ctx).Debug("Found token in session " + session.Name())
-					r = r.WithContext(ctx)
-				}
+		if value, ok := session.Values["access_token"]; ok {
+			ctx := r.Context()
+			if ctx, _, err = jwtVerifier.Verify(ctx, value.(string)); err == nil {
+				// Update context
+				log.Logger(ctx).Debug("Found token in session " + session.Name())
+				r = r.WithContext(ctx)
 			}
+		}
 
-
-		*/
 		h.ServeHTTP(w, r)
 	})
 }
