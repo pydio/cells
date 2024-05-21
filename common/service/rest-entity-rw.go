@@ -25,7 +25,6 @@ import (
 
 	protovalidate "github.com/bufbuild/protovalidate-go"
 	restful "github.com/emicklei/go-restful/v3"
-	validator "github.com/mwitkow/go-proto-validators"
 	"google.golang.org/protobuf/encoding/protojson"
 	"google.golang.org/protobuf/proto"
 )
@@ -47,13 +46,19 @@ func (e *ProtoEntityReaderWriter) Read(req *restful.Request, v interface{}) erro
 		return err
 	}
 
-	if err := e.validator.Validate(pb); err != nil {
+	validator, err := protovalidate.New()
+	if err != nil {
 		return err
 	}
 
-	if valid, ok := pb.(validator.Validator); ok {
-		return valid.Validate()
+	if err := validator.Validate(pb); err != nil {
+		return err
 	}
+
+	//if valid, ok := pb.(validator.Validator); ok {
+	//	return valid.Validate()
+	//}
+
 	return nil
 }
 

@@ -51,7 +51,7 @@ func (sc *Client) InheritPolicies(ctx context.Context, policyName string, read, 
 	// Create inherited flavours
 	if ro, er := sc.policyByName(ctx, polClient, policyName+"-"+suffix); er == nil && ro != nil {
 		// Already exist, just return
-		return ro.Uuid, nil
+		return ro.GetUUID(), nil
 	}
 	roPol, e := sc.derivePolicy(parent, read, write, suffix)
 	if e != nil {
@@ -61,7 +61,7 @@ func (sc *Client) InheritPolicies(ctx context.Context, policyName string, read, 
 		return "", e
 	}
 	permissions.ClearCachedPolicies(ctx, "acl")
-	return roPol.Uuid, nil
+	return roPol.GetUUID(), nil
 }
 
 func (sc *Client) derivePolicy(policy *idm.PolicyGroup, read, write bool, suffix string) (*idm.PolicyGroup, error) {
@@ -75,28 +75,28 @@ func (sc *Client) derivePolicy(policy *idm.PolicyGroup, read, write bool, suffix
 		label = "Write Only"
 	}
 	newG := &idm.PolicyGroup{
-		Uuid:          policy.Uuid + "-" + suffix,
+		UUID:          policy.GetUUID() + "-" + suffix,
 		Name:          policy.Name + " (" + label + ")",
 		Description:   policy.Description + " (generated for sharing)",
 		ResourceGroup: policy.ResourceGroup,
-		OwnerUuid:     policy.OwnerUuid,
+		OwnerUUID:     policy.GetOwnerUUID(),
 	}
 	var hasRead, hasWrite bool
 	var allowPol *idm.Policy
 	for _, p := range policy.Policies {
 		// Deny : append policy
 		if p.Effect == idm.PolicyEffect_deny {
-			p.Id = uuid.New()
-			p.Subjects = []string{"policy:" + newG.Uuid}
+			p.ID = uuid.New()
+			p.Subjects = []*idm.PolicySubject{{Template: "policy:" + newG.GetUUID()}}
 			newG.Policies = append(newG.Policies, p)
 			continue
 		}
 		// Allow : check action effect
 		allowPol = p
 		for _, a := range p.Actions {
-			if a == permissions.AclRead.Name {
+			if a.Template == permissions.AclRead.Name {
 				hasRead = true
-			} else if a == permissions.AclWrite.Name {
+			} else if a.Template == permissions.AclWrite.Name {
 				hasWrite = true
 			}
 		}
@@ -111,14 +111,14 @@ func (sc *Client) derivePolicy(policy *idm.PolicyGroup, read, write bool, suffix
 		return nil, fmt.Errorf("cannot assign write as parent policy does not provide write access")
 	}
 	// Reset actions
-	allowPol.Id = uuid.New()
-	allowPol.Subjects = []string{"policy:" + newG.Uuid}
-	allowPol.Actions = []string{}
+	allowPol.ID = uuid.New()
+	allowPol.Subjects = []*idm.PolicySubject{{Template: "policy:" + newG.GetUUID()}}
+	allowPol.Actions = []*idm.PolicyAction{}
 	if read {
-		allowPol.Actions = append(allowPol.Actions, permissions.AclRead.Name)
+		allowPol.Actions = append(allowPol.Actions, &idm.PolicyAction{Template: permissions.AclRead.Name})
 	}
 	if write {
-		allowPol.Actions = append(allowPol.Actions, permissions.AclWrite.Name)
+		allowPol.Actions = append(allowPol.Actions, &idm.PolicyAction{Template: permissions.AclWrite.Name})
 	}
 	newG.Policies = append(newG.Policies, allowPol)
 
@@ -151,9 +151,9 @@ func (sc *Client) InterpretInheritedPolicy(ctx context.Context, name string) (re
 		}
 		// Allow : check action effect
 		for _, a := range p.Actions {
-			if a == permissions.AclRead.Name {
+			if a.Template == permissions.AclRead.Name {
 				read = true
-			} else if a == permissions.AclWrite.Name {
+			} else if a.Template == permissions.AclWrite.Name {
 				write = true
 			}
 		}

@@ -77,7 +77,7 @@ func init() {
 						listenerName := fmt.Sprintf(listenerNameTemplate, runtime.Cluster())
 						routeConfigName := fmt.Sprintf(routeConfigNameTemplate, runtime.Cluster())
 						virtualHostName := fmt.Sprintf(virtualHostNameTemplate, runtime.Cluster())
-						domains := []string{listenerName}
+						domains := []string{listenerName, "cells"}
 
 						signal := make(chan struct{})
 						cache := cachev3.NewSnapshotCache(true, cachev3.IDHash{}, log.Logger(ctx))

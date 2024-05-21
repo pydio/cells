@@ -72,6 +72,22 @@ type sqlimpl struct {
 	once *sync.Once
 }
 
+func (*ACL) TableName() string {
+	return "acls"
+}
+
+func (*Role) TableName() string {
+	return "acl_roles"
+}
+
+func (*Workspace) TableName() string {
+	return "acl_workspaces"
+}
+
+func (*Node) TableName() string {
+	return "acl_nodes"
+}
+
 // Init handler for the SQL DAO
 func (s *sqlimpl) Init(ctx context.Context, options configx.Values) error {
 

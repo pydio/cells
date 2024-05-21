@@ -598,30 +598,68 @@ message PolicyCondition {
 message Policy {
     option (orm.ormPolicy).enabled = true;
 
-    string ID = 1                               [json_name="id"];
-    string Description = 2                      [json_name="description"];
-    repeated PolicyItem Subjects = 3            [json_name="subjects"];
-    repeated PolicyItem resources = 4           [json_name="resources"];
-    repeated PolicyItem actions = 5             [json_name="actions"];
-    PolicyEffect Effect = 6                     [json_name="effect"];
-    map <string,PolicyCondition> Conditions = 7 [json_name="conditions"];
+    string ID = 1                               [(orm.orm).gorm = {column:"id"; type: "varchar(255)"; primaryKey: true; notNull: true}, json_name="id"];
+    string Description = 2                      [(orm.orm).gorm = {column:"description";}, json_name="description"];
+    repeated PolicySubject Subjects = 3         [(orm.orm).gorm = {many2many:"policy_subject_rel"; foreignKey:"ID";joinForeignKey:"Policy";references:"ID";joinReferences:"Subject";constraint:"OnDelete:CASCADE";}, json_name="subjects"];
+    repeated PolicyResource Resources = 4       [(orm.orm).gorm = {many2many:"policy_resource_rel"; foreignKey:"ID";joinForeignKey:"Policy";references:"ID";joinReferences:"Resource";constraint:"OnDelete:CASCADE";}, json_name="resources"];
+    repeated PolicyAction Actions = 5           [(orm.orm).gorm = {many2many:"policy_action_rel"; foreignKey:"ID";joinForeignKey:"Policy";references:"ID";joinReferences:"Action";constraint:"OnDelete:CASCADE";}, json_name="actions"];
+    PolicyEffect Effect = 6                     [(orm.orm).gorm = {column:"effect";}, json_name="effect"];
+    map <string,PolicyCondition> Conditions = 7 [(orm.orm).gorm = {column:"conditions"; serializer:"json";}, json_name="conditions"];
 }
 
-message PolicyItem {
+message PolicySubject {
     option (orm.ormPolicy).enabled = true;
 
     string ID = 1        [(orm.orm).gorm = {column:"id"; type: "varchar(64)"; primaryKey: true; notNull: true}];
     bool HasRegex = 2    [(orm.orm).gorm = {column:"has_regex";}];
     string Compiled = 3  [(orm.orm).gorm = {column:"compiled";}];
-    string Template = 4  [(orm.orm).gorm = {column:"compiled";}];
+    string Template = 4  [(orm.orm).gorm = {column:"template";}];
 }
 
 message PolicyResource {
     option (orm.ormPolicy).enabled = true;
+
+    string ID = 1        [(orm.orm).gorm = {column:"id"; type: "varchar(64)"; primaryKey: true; notNull: true}];
+    bool HasRegex = 2    [(orm.orm).gorm = {column:"has_regex";}];
+    string Compiled = 3  [(orm.orm).gorm = {column:"compiled";}];
+    string Template = 4  [(orm.orm).gorm = {column:"template";}];
 }
 
 message PolicyAction {
     option (orm.ormPolicy).enabled = true;
+
+    string ID = 1        [(orm.orm).gorm = {column:"id"; type: "varchar(64)"; primaryKey: true; notNull: true}];
+    bool HasRegex = 2    [(orm.orm).gorm = {column:"has_regex";}];
+    string Compiled = 3  [(orm.orm).gorm = {column:"compiled";}];
+    string Template = 4  [(orm.orm).gorm = {column:"template";}];
+}
+
+message PolicyResourceRel {
+    option (orm.ormPolicy).enabled = true;
+    string Policy   = 1 [(orm.orm).gorm = {column:"policy"; primaryKey: true;}];
+    string Resource = 2 [(orm.orm).gorm = {column:"resource"; primaryKey: true;}];
+}
+
+message PolicySubjectRel {
+    option (orm.ormPolicy).enabled = true;
+
+    string Policy  = 1  [(orm.orm).gorm = {column:"policy"; primaryKey: true;}];
+    string Subject = 2  [(orm.orm).gorm = {column:"subject"; primaryKey: true;}];
+}
+
+message PolicyActionRel {
+    option (orm.ormPolicy).enabled = true;
+
+    string Policy = 1   [(orm.orm).gorm = {column:"policy"; primaryKey: true;}];
+    string Action = 2   [(orm.orm).gorm = {column:"action"; primaryKey: true;}];
+}
+
+message PolicyRel {
+    option (orm.ormPolicy).enabled = true;
+
+    int64 ID = 1          [(orm.orm).gorm = {column:"policy"; primaryKey: true; autoIncrement: true;}];
+    string GroupUUID = 2  [(orm.orm).gorm = {column:"group_uuid"; type:"varchar(255)"; notNull: true;}];
+    string PolicyID = 3   [(orm.orm).gorm = {column:"policy_id"; type:"varchar(255)"; notNull: true;}];
 }
 
 message PolicyGroup {
@@ -633,7 +671,7 @@ message PolicyGroup {
     string OwnerUUID = 4                  [(orm.orm).gorm = {column: "owner_uuid";}];;
     PolicyResourceGroup ResourceGroup = 5 [(orm.orm).gorm = {column: "resource_group";}];;
     int32 LastUpdated = 6                 [(orm.orm).gorm = {column: "last_updated";}];;
-    repeated Policy Policies = 7          [(orm.orm).gorm = {column: "policies"; many2many: "policy_rel"; foreignKey: "Uuid"; joinForeignKey: "GroupUUID"; References: "ID"; joinReferences: "PolicyID";}];;
+    repeated Policy Policies = 7          [(orm.orm).gorm = {many2many: "policy_rel"; foreignKey: "UUID"; joinForeignKey: "GroupUUID"; references: "ID"; joinReferences: "PolicyID";}];;
 }
 
 // Request / Response Messages

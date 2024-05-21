@@ -182,16 +182,16 @@ func loadPoliciesByResourcesType(ctx context.Context, resType string) ([]*idm.Po
 		}
 		for _, p := range g.Policies {
 			// THIS CHECK SHOULD BE UNNECESSARY NOW
-			isType := false
-			for _, res := range p.Resources {
-				if res == resType {
-					isType = true
-					break
-				}
-			}
-			if isType {
-				policies = append(policies, p)
-			}
+			//isType := false
+			//for _, res := range p.Resources {
+			//	if res.GetID() == resType {
+			//		isType = true
+			//		break
+			//	}
+			//}
+			//if isType {
+			policies = append(policies, p)
+			//}
 		}
 	}
 	return policies, nil

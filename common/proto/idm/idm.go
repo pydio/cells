@@ -101,11 +101,11 @@ POLICIES, ACLS
 
 // MarshalLogObject implements custom marshalling for logs
 func (pg *PolicyGroup) MarshalLogObject(encoder zapcore.ObjectEncoder) error {
-	encoder.AddString("Uuid", pg.Uuid)
-	encoder.AddString("Name", pg.Name)
-	encoder.AddString("Description", pg.Description)
-	encoder.AddString("OwnerUuid", pg.OwnerUuid)
-	encoder.AddString("ResourceGroup", pg.ResourceGroup.String())
+	encoder.AddString("Uuid", pg.GetUUID())
+	encoder.AddString("Name", pg.GetName())
+	encoder.AddString("Description", pg.GetDescription())
+	encoder.AddString("OwnerUuid", pg.GetOwnerUUID())
+	encoder.AddString("ResourceGroup", pg.GetResourceGroup().String())
 	if len(pg.Policies) > 100 {
 		encoder.AddInt("PoliciesNumber", len(pg.Policies))
 	} else if len(pg.Policies) > 0 {
@@ -120,17 +120,17 @@ func (pg *PolicyGroup) Zap() zapcore.Field { return zap.Object(common.KeyPolicyG
 
 // ZapUuid simply calls zap.String() with PolicyGroupUuid standard key and this policy group uuid
 func (pg *PolicyGroup) ZapUuid() zapcore.Field {
-	return zap.String(common.KeyPolicyGroupUuid, pg.GetUuid())
+	return zap.String(common.KeyPolicyGroupUuid, pg.GetUUID())
 }
 
 // MarshalLogObject implements custom marshalling for logs
 func (policy *Policy) MarshalLogObject(encoder zapcore.ObjectEncoder) error {
-	encoder.AddString("Id", policy.Id)
-	encoder.AddString("Description", policy.Description)
-	encoder.AddReflected("Resources", policy.Resources)
-	encoder.AddReflected("Actions", policy.Actions)
-	encoder.AddReflected("Subjects", policy.Subjects)
-	encoder.AddReflected("Conditions", policy.Conditions)
+	encoder.AddString("Id", policy.GetID())
+	encoder.AddString("Description", policy.GetDescription())
+	encoder.AddReflected("Resources", policy.GetResources())
+	encoder.AddReflected("Actions", policy.GetActions())
+	encoder.AddReflected("Subjects", policy.GetSubjects())
+	encoder.AddReflected("Conditions", policy.GetConditions())
 	return nil
 }
 
@@ -138,7 +138,7 @@ func (policy *Policy) MarshalLogObject(encoder zapcore.ObjectEncoder) error {
 func (policy *Policy) Zap() zapcore.Field { return zap.Object(common.KeyPolicy, policy) }
 
 // ZapId simply calls zap.String() with PolicyId standard key and this policy id
-func (policy *Policy) ZapId() zapcore.Field { return zap.String(common.KeyPolicyId, policy.GetId()) }
+func (policy *Policy) ZapId() zapcore.Field { return zap.String(common.KeyPolicyId, policy.GetID()) }
 
 // MarshalLogObject implements custom marshalling for logs
 func (acl *ACL) MarshalLogObject(encoder zapcore.ObjectEncoder) error {

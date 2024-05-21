@@ -107,6 +107,7 @@ func Resolve[T any](ctx context.Context, opts ...ResolveOption) (T, error) {
 	storages := registry.ItemsAs[storage.Storage](ss)
 
 	// Inject dao in handler
+supported:
 	for _, handler := range svc.Options().StorageOptions.SupportedDrivers[o.Name] {
 		handlerV := reflect.ValueOf(handler)
 		handlerT := reflect.TypeOf(handler)
@@ -124,20 +125,15 @@ func Resolve[T any](ctx context.Context, opts ...ResolveOption) (T, error) {
 		}
 
 		for pos = len(args); pos < handlerT.NumIn(); pos++ {
-			found := false
 			// Try to fit Input parameter type and Storage types
 			for _, st := range storages {
 				conn := reflect.New(handlerT.In(pos))
 				if isCompat, err := st.Get(ctx, conn.Interface()); !isCompat {
-					continue
+					continue supported
 				} else if err != nil {
 					return t, err
 				}
-				found = true
 				args = append(args, conn.Elem())
-			}
-			if !found {
-				return t, fmt.Errorf("could not find compatible storage for DAO parameter %d", pos)
 			}
 		}
 
@@ -149,6 +145,7 @@ func Resolve[T any](ctx context.Context, opts ...ResolveOption) (T, error) {
 		if handlerT.NumIn() != len(args) {
 			return t, fmt.Errorf("number of connections (%d) differs from what is requested by handler (%d)", handlerT.NumIn(), len(args))
 		}
+
 		dao := handlerV.Call(args)[0].Interface()
 
 		if initProvider, ok := dao.(InitProvider); ok {
@@ -161,7 +158,7 @@ func Resolve[T any](ctx context.Context, opts ...ResolveOption) (T, error) {
 		return dao.(T), nil
 	}
 
-	return t, nil
+	return t, errors.New("could not find compatible storage for DAO parameter")
 }
 
 func CloseStoragesForContext(ctx context.Context, opts ...ResolveOption) error {
