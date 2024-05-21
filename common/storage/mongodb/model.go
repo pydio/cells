@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2022. Abstrium SAS <team (at) pydio.com>
+ * Copyright (c) 2024. Abstrium SAS <team (at) pydio.com>
  * This file is part of Pydio Cells.
  *
  * Pydio Cells is free software: you can redistribute it and/or modify
@@ -22,10 +22,7 @@ package mongodb
 
 import (
 	"context"
-	"strings"
 
-	bleve "github.com/blevesearch/bleve/v2"
-	"github.com/blevesearch/bleve/v2/search/query"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -84,125 +81,4 @@ func (m Model) Init(ctx context.Context, db *Database) error {
 		}
 	}
 	return nil
-}
-
-// uniqueQueryToFilters recursively parses bleve queries to create mongo filters
-func uniqueQueryToFilters(m query.Query, fieldTransformer func(string) string, insensitive bool, not bool) (filters []bson.E) {
-	switch v := m.(type) {
-	case *query.ConjunctionQuery:
-		for _, sm := range v.Conjuncts {
-			sfilters := uniqueQueryToFilters(sm, fieldTransformer, insensitive, not)
-			filters = append(filters, sfilters...)
-		}
-	case *query.DisjunctionQuery:
-		ors := bson.A{}
-		for _, sm := range v.Disjuncts {
-			sfilters := uniqueQueryToFilters(sm, fieldTransformer, insensitive, not)
-			ors = append(ors, sfilters)
-		}
-		if len(ors) > 0 {
-			if not {
-				filters = append(filters, bson.E{Key: "$and", Value: ors})
-			} else {
-				filters = append(filters, bson.E{Key: "$or", Value: ors})
-			}
-		}
-	case *query.WildcardQuery:
-		wc := v.Wildcard
-		regexp := ""
-		if !strings.HasPrefix(wc, "*") {
-			regexp += "^"
-		}
-		regexp += strings.Trim(wc, "*")
-		if !strings.HasSuffix(wc, "*") {
-			regexp += "$"
-		}
-		if wc == "T*" { // Special case for boolean query
-			filters = append(filters, bson.E{Key: fieldTransformer(v.Field()), Value: true})
-		} else if insensitive {
-			filters = append(filters, bson.E{Key: fieldTransformer(v.Field()), Value: bson.M{"$regex": primitive.Regex{Pattern: regexp, Options: "i"}}})
-		} else {
-			filters = append(filters, bson.E{Key: fieldTransformer(v.Field()), Value: bson.M{"$regex": regexp}})
-		}
-	case *query.MatchQuery:
-		match := v.Match
-		fName := fieldTransformer(v.Field())
-		if strings.HasPrefix(match, "[") && strings.HasSuffix(match, "]") {
-			arr := strings.Split(strings.Trim(match, "[]"), ",")
-			vals := bson.A{}
-			for _, v := range arr {
-				vals = append(vals, v)
-			}
-			if not {
-				filters = append(filters, bson.E{Key: fName, Value: bson.M{"$nin": vals}})
-			} else {
-				filters = append(filters, bson.E{Key: fName, Value: bson.M{"$in": vals}})
-			}
-		} else {
-			if not {
-				filters = append(filters, bson.E{Key: fName, Value: bson.M{"$ne": v.Match}})
-			} else {
-				filters = append(filters, bson.E{Key: fName, Value: v.Match})
-			}
-		}
-	case *query.MatchPhraseQuery:
-		phrase := strings.Trim(v.MatchPhrase, "\"")
-		if strings.Contains(phrase, "*") {
-			regexp := ""
-			if !strings.HasPrefix(phrase, "*") {
-				regexp += "^"
-			}
-			regexp += strings.Trim(phrase, "*")
-			if !strings.HasSuffix(phrase, "*") {
-				regexp += "$"
-			}
-			if insensitive {
-				filters = append(filters, bson.E{Key: fieldTransformer(v.Field()), Value: bson.M{"$regex": primitive.Regex{Pattern: regexp, Options: "i"}}})
-			} else {
-				filters = append(filters, bson.E{Key: fieldTransformer(v.Field()), Value: bson.M{"$regex": regexp}})
-			}
-		} else {
-			filters = append(filters, bson.E{Key: fieldTransformer(v.Field()), Value: phrase})
-		}
-	case *query.NumericRangeQuery:
-		if v.Min != nil {
-			ref := "$gt"
-			if v.InclusiveMin != nil && *v.InclusiveMin {
-				ref = "$gte"
-			}
-			filters = append(filters, bson.E{Key: fieldTransformer(v.Field()), Value: bson.M{ref: v.Min}})
-		}
-		if v.Max != nil {
-			ref := "$lt"
-			if v.InclusiveMax != nil && *v.InclusiveMax {
-				ref = "$lte"
-			}
-			filters = append(filters, bson.E{Key: fieldTransformer(v.Field()), Value: bson.M{ref: v.Max}})
-		}
-	}
-	return
-}
-
-// BleveQueryToMongoFilters parses a Blevesearch query string to a slice of bson primitives
-func BleveQueryToMongoFilters(queryString string, insensitive bool, fieldTransformer func(string) string) (filters []bson.E, err error) {
-	q, e := bleve.NewQueryStringQuery(queryString).Parse()
-	if e != nil {
-		return nil, e
-	}
-	if bQ, o := q.(*query.BooleanQuery); o {
-		if cj := bQ.Must; cj != nil {
-			ff := uniqueQueryToFilters(cj, fieldTransformer, insensitive, false)
-			filters = append(filters, ff...)
-		}
-		if dj := bQ.Should; dj != nil {
-			ff := uniqueQueryToFilters(dj, fieldTransformer, insensitive, false)
-			filters = append(filters, ff...)
-		}
-		if mn := bQ.MustNot; mn != nil {
-			ff := uniqueQueryToFilters(mn, fieldTransformer, insensitive, true)
-			filters = append(filters, ff...)
-		}
-	}
-
-	return
 }

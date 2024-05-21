@@ -62,7 +62,7 @@ type DAO interface {
 	CountUnreadForUser(ctx context.Context, userId string) int
 
 	// ActivitiesFor loads activities for a given owner. Targets "outbox" by default.
-	ActivitiesFor(ctx context.Context, ownerType activity.OwnerType, ownerId string, boxName BoxName, refBoxOffset BoxName, reverseOffset int64, limit int64, result chan *activity.Object, done chan bool) error
+	ActivitiesFor(ctx context.Context, ownerType activity.OwnerType, ownerId string, boxName BoxName, refBoxOffset BoxName, reverseOffset int64, limit int64, streamFilter string, result chan *activity.Object, done chan bool) error
 
 	// StoreLastUserInbox stores the last read uint ID for a given box.
 	StoreLastUserInbox(ctx context.Context, userId string, boxName BoxName, activityId string) error
@@ -107,6 +107,22 @@ func NewBoltDAO(db *boltdb.Compacter) DAO {
 func NewMongoDAO(database *mongodb.Database) DAO {
 	return &mongoimpl{Database: database}
 
+}
+
+func QueryFieldsTransformer(s string) string {
+	switch s {
+	case "eventType":
+		return "type"
+	case "eventDate":
+		return "updated"
+	case "actorId":
+		return "actor.id"
+	case "actorName":
+		return "actor.name"
+	case "objectName":
+		return "object.name"
+	}
+	return s
 }
 
 func Migrate(topCtx, fromCtx, toCtx context.Context, dryRun bool, status chan service.MigratorStatus) (map[string]int, error) {

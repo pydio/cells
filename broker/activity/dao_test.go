@@ -97,7 +97,7 @@ func TestBasicEmptyDao(t *testing.T) {
 
 			results := make(chan *activity.Object)
 			done := make(chan bool, 1)
-			err = dao.ActivitiesFor(ctx, activity.OwnerType_USER, "unknown", BoxInbox, BoxLastRead, 0, 100, results, done)
+			err = dao.ActivitiesFor(ctx, activity.OwnerType_USER, "unknown", BoxInbox, BoxLastRead, 0, 100, "", results, done)
 			So(err, ShouldBeNil)
 		})
 	})
@@ -202,12 +202,12 @@ func TestInsertActivity(t *testing.T) {
 				}
 			}()
 
-			err = dao.ActivitiesFor(ctx, activity.OwnerType_NODE, "NODE-UUID", BoxOutbox, "", 0, 100, resChan, doneChan)
+			err = dao.ActivitiesFor(ctx, activity.OwnerType_NODE, "NODE-UUID", BoxOutbox, "", 0, 100, "", resChan, doneChan)
 			wg.Wait()
 
 			So(err, ShouldBeNil)
 			So(results, ShouldHaveLength, 1)
-			So(results[0], ShouldResemble, ac)
+			So(results[0].Actor.Id, ShouldEqual, "john")
 		})
 
 		Convey("Test Unread box", t, func() {
@@ -252,7 +252,7 @@ func TestInsertActivity(t *testing.T) {
 				}
 			}()
 
-			err = dao.ActivitiesFor(ctx, activity.OwnerType_USER, "john", BoxInbox, "", 0, 100, resChan, doneChan)
+			err = dao.ActivitiesFor(ctx, activity.OwnerType_USER, "john", BoxInbox, "", 0, 100, "", resChan, doneChan)
 			wg.Wait()
 
 			time.Sleep(time.Second * 1)
@@ -310,12 +310,12 @@ func TestMultipleInsert(t *testing.T) {
 				}
 			}()
 
-			err = dao.ActivitiesFor(ctx, activity.OwnerType_NODE, "NODE-UUID", BoxOutbox, "", 0, 100, resChan, doneChan)
+			err = dao.ActivitiesFor(ctx, activity.OwnerType_NODE, "NODE-UUID", BoxOutbox, "", 0, 100, "", resChan, doneChan)
 			wg.Wait()
 
 			So(err, ShouldBeNil)
 			So(results, ShouldHaveLength, 3)
-			So(results[0], ShouldResemble, ac)
+			So(results[0].Actor.Name, ShouldEqual, "Charles du Jeu")
 
 		})
 	})
@@ -366,7 +366,7 @@ func TestCursor(t *testing.T) {
 			go func() {
 				readResults(wg)
 			}()
-			err = dao.ActivitiesFor(ctx, activity.OwnerType_USER, "charles", BoxInbox, "", 0, 20, resChan, doneChan)
+			err = dao.ActivitiesFor(ctx, activity.OwnerType_USER, "charles", BoxInbox, "", 0, 20, "", resChan, doneChan)
 			wg.Wait()
 			So(err, ShouldBeNil)
 			So(results, ShouldHaveLength, 20)
@@ -376,7 +376,7 @@ func TestCursor(t *testing.T) {
 			go func() {
 				readResults(wg)
 			}()
-			err = dao.ActivitiesFor(ctx, activity.OwnerType_USER, "charles", BoxInbox, "", 20, 20, resChan, doneChan)
+			err = dao.ActivitiesFor(ctx, activity.OwnerType_USER, "charles", BoxInbox, "", 20, 20, "", resChan, doneChan)
 			wg.Wait()
 			So(err, ShouldBeNil)
 			So(results, ShouldHaveLength, 20)
@@ -388,7 +388,7 @@ func TestCursor(t *testing.T) {
 			go func() {
 				readResults(wg)
 			}()
-			err = dao.ActivitiesFor(ctx, activity.OwnerType_USER, "charles", BoxInbox, "", 20, 100, resChan, doneChan)
+			err = dao.ActivitiesFor(ctx, activity.OwnerType_USER, "charles", BoxInbox, "", 20, 100, "", resChan, doneChan)
 			wg.Wait()
 			So(err, ShouldBeNil)
 			So(results, ShouldHaveLength, 30)
@@ -401,7 +401,7 @@ func TestCursor(t *testing.T) {
 			go func() {
 				readResults(wg)
 			}()
-			err = dao.ActivitiesFor(ctx, activity.OwnerType_USER, "charles", BoxInbox, BoxLastSent, 0, 0, resChan, doneChan)
+			err = dao.ActivitiesFor(ctx, activity.OwnerType_USER, "charles", BoxInbox, BoxLastSent, 0, 0, "", resChan, doneChan)
 			wg.Wait()
 			So(err, ShouldBeNil)
 			So(results, ShouldHaveLength, 50)
@@ -430,7 +430,7 @@ func TestCursor(t *testing.T) {
 			go func() {
 				readResults(wg)
 			}()
-			err = dao.ActivitiesFor(ctx, activity.OwnerType_USER, "charles", BoxInbox, BoxLastSent, 0, 0, resChan, doneChan)
+			err = dao.ActivitiesFor(ctx, activity.OwnerType_USER, "charles", BoxInbox, BoxLastSent, 0, 0, "", resChan, doneChan)
 			wg.Wait()
 			So(err, ShouldBeNil)
 			So(results, ShouldHaveLength, 20)
@@ -438,6 +438,74 @@ func TestCursor(t *testing.T) {
 			So(results[19].Actor.Name, ShouldEqual, "Random User 51")
 
 		})
+	})
+}
+
+func TestStreamFilter(t *testing.T) {
+	test.RunStorageTests(testCases(), func(ctx context.Context) {
+
+		Convey("Test Filtering Stream", t, func() {
+
+			dao, err := manager.Resolve[DAO](ctx)
+			So(err, ShouldBeNil)
+			So(dao, ShouldNotBeNil)
+			searchUser := uuid.New()
+			for i := 0; i < 50; i++ {
+				userName := fmt.Sprintf("Random User %d", i+1)
+				userId := uuid.New()
+				if i%10 == 0 {
+					userId = searchUser
+					userName = "Search User"
+				}
+				fmt.Println("Insert", userName)
+				ac := &activity.Object{
+					Type: activity.ObjectType_Document,
+					Actor: &activity.Object{
+						Type: activity.ObjectType_Person,
+						Name: userName,
+						Id:   userId,
+					},
+					Object: &activity.Object{
+						Id:   uuid.New(), // Make sure they are not all similar
+						Name: fmt.Sprintf("Document-%d.pdf", i),
+					},
+				}
+				err := dao.PostActivity(ctx, activity.OwnerType_USER, "charles", BoxInbox, ac, false)
+				So(err, ShouldBeNil)
+			}
+
+			waitIfCache(dao)
+			var results []*activity.Object
+			resChan := make(chan *activity.Object)
+			doneChan := make(chan bool)
+
+			readResults := func(waiter *sync.WaitGroup) {
+				defer waiter.Done()
+				for {
+					select {
+					case act := <-resChan:
+						if act != nil {
+							results = append(results, act)
+						}
+					case <-doneChan:
+						return
+					}
+				}
+			}
+
+			wg := &sync.WaitGroup{}
+			wg.Add(1)
+			go func() {
+				readResults(wg)
+			}()
+			filter := "+actorId:" + searchUser
+			err = dao.ActivitiesFor(ctx, activity.OwnerType_USER, "charles", BoxInbox, "", 0, 20, filter, resChan, doneChan)
+			wg.Wait()
+
+			So(results, ShouldHaveLength, 5)
+
+		})
+
 	})
 }
 
@@ -499,7 +567,7 @@ func TestSimilarSkipping(t *testing.T) {
 			go func() {
 				readResults(wg)
 			}()
-			err = dao.ActivitiesFor(ctx, activity.OwnerType_USER, "charles", BoxInbox, "", 0, 20, resChan, doneChan)
+			err = dao.ActivitiesFor(ctx, activity.OwnerType_USER, "charles", BoxInbox, "", 0, 20, "", resChan, doneChan)
 			wg.Wait()
 			So(err, ShouldBeNil)
 			So(results, ShouldHaveLength, 20-(numberSimilar-1))
@@ -510,7 +578,7 @@ func TestSimilarSkipping(t *testing.T) {
 			go func() {
 				readResults(wg)
 			}()
-			err = dao.ActivitiesFor(ctx, activity.OwnerType_USER, "charles", BoxInbox, "", 0, 4, resChan, doneChan)
+			err = dao.ActivitiesFor(ctx, activity.OwnerType_USER, "charles", BoxInbox, "", 0, 4, "", resChan, doneChan)
 			wg.Wait()
 			So(err, ShouldBeNil)
 			var res1 []string
@@ -525,7 +593,7 @@ func TestSimilarSkipping(t *testing.T) {
 			go func() {
 				readResults(wg)
 			}()
-			err = dao.ActivitiesFor(ctx, activity.OwnerType_USER, "charles", BoxInbox, "", 4, 4, resChan, doneChan)
+			err = dao.ActivitiesFor(ctx, activity.OwnerType_USER, "charles", BoxInbox, "", 4, 4, "", resChan, doneChan)
 			wg.Wait()
 			So(err, ShouldBeNil)
 			var res2 []string
@@ -610,7 +678,7 @@ func TestPurge(t *testing.T) {
 			go func() {
 				readResults(wg)
 			}()
-			err := dao.ActivitiesFor(ctx, activity.OwnerType_USER, "john", BoxInbox, "", 0, 20, resChan, doneChan)
+			err := dao.ActivitiesFor(ctx, activity.OwnerType_USER, "john", BoxInbox, "", 0, 20, "", resChan, doneChan)
 			wg.Wait()
 			return results, err
 		}
@@ -825,7 +893,7 @@ func SkipTestMassiveQueries(t *testing.T) {
 			}()
 
 			now := time.Now()
-			err = dao.ActivitiesFor(ctx, activity.OwnerType_NODE, "NODE-UUID", BoxOutbox, "", 0, 0, resChan, doneChan)
+			err = dao.ActivitiesFor(ctx, activity.OwnerType_NODE, "NODE-UUID", BoxOutbox, "", 0, 0, "", resChan, doneChan)
 			wg.Wait()
 			t.Log("Loading 20 activities took", time.Since(now))
 

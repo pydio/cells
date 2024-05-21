@@ -178,7 +178,7 @@ func (m *mongoimpl) PostActivity(ctx context.Context, ownerType activity.OwnerTy
 	return er
 }
 
-func (m *mongoimpl) ActivitiesFor(ctx context.Context, ownerType activity.OwnerType, ownerId string, boxName BoxName, refBoxOffset BoxName, reverseOffset int64, limit int64, result chan *activity.Object, done chan bool) error {
+func (m *mongoimpl) ActivitiesFor(ctx context.Context, ownerType activity.OwnerType, ownerId string, boxName BoxName, refBoxOffset BoxName, reverseOffset int64, limit int64, streamFilter string, result chan *activity.Object, done chan bool) error {
 	defer func() {
 		done <- true
 	}()
@@ -189,6 +189,15 @@ func (m *mongoimpl) ActivitiesFor(ctx context.Context, ownerType activity.OwnerT
 		{"owner_type", int(ownerType)},
 		{"owner_id", ownerId},
 		{"box_name", string(boxName)},
+	}
+	if streamFilter != "" {
+		if additionalFilters, err := mongodb.BleveQueryToMongoFilters(streamFilter, true, func(s string) string {
+			return "object." + QueryFieldsTransformer(s)
+		}); err != nil {
+			return err
+		} else if len(additionalFilters) > 0 {
+			filter = append(filter, additionalFilters...)
+		}
 	}
 	if refBoxOffset != "" {
 		if lastRead := m.userLastMarker(ctx, ownerId, refBoxOffset); lastRead > 0 {

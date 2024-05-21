@@ -259,10 +259,12 @@ func FactorizeMinioServers(existingConfigs map[string]*object.MinioConfig, newSo
 			}
 			if updateCredsSecret {
 				if crtSecretId != "" {
-					DelSecret(crtSecretId)
+					_ = DelSecret(crtSecretId)
 				}
 				secretId := NewKeyForSecret()
-				SetSecret(secretId, creds)
+				if er := SetSecret(secretId, creds); er != nil {
+					return nil, fmt.Errorf("error while saving secret key %w", er)
+				}
 				config.GatewayConfiguration = map[string]string{object.StorageKeyJsonCredentials: secretId}
 				newSource.StorageConfiguration[object.StorageKeyJsonCredentials] = secretId
 			}
@@ -274,7 +276,9 @@ func FactorizeMinioServers(existingConfigs map[string]*object.MinioConfig, newSo
 			}
 			// Replace credentials by a secret Key
 			secretId := NewKeyForSecret()
-			SetSecret(secretId, creds)
+			if er := SetSecret(secretId, creds); er != nil {
+				return nil, fmt.Errorf("error while saving secrte key %w", er)
+			}
 			newSource.StorageConfiguration[object.StorageKeyJsonCredentials] = secretId
 			config = &object.MinioConfig{
 				Name:                 createConfigName(existingConfigs, object.StorageType_GCS),

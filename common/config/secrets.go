@@ -53,14 +53,19 @@ func GetSecret(uuid string) configx.Values {
 }
 
 // SetSecret set the value for a uuid in the vault
-// TODO error handling ?
-func SetSecret(uuid string, val string) {
-	stdvault.Val(uuid).Set(val)
-	stdvault.Save("system ", "saving "+uuid)
+func SetSecret(uuid string, val string) error {
+	if er := stdvault.Val(uuid).Set(val); er == nil {
+		return stdvault.Save("system ", "saving "+uuid)
+	} else {
+		return er
+	}
 }
 
 // DelSecret deletes the value of a uuid in the vault
-func DelSecret(uuid string) {
-	stdvault.Val(uuid).Del()
-	stdvault.Save("system", "deleting "+uuid)
+func DelSecret(uuid string) error {
+	if er := stdvault.Val(uuid).Del(); er == nil {
+		return stdvault.Save("system", "deleting "+uuid)
+	} else {
+		return er
+	}
 }

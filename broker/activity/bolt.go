@@ -29,8 +29,10 @@ import (
 	"strings"
 	"time"
 
+	"github.com/PaesslerAG/gval"
 	humanize "github.com/dustin/go-humanize"
 	bolt "go.etcd.io/bbolt"
+	"google.golang.org/protobuf/proto"
 
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/broker"
@@ -120,11 +122,11 @@ func (dao *boltdbimpl) BatchPost(aa []*batchActivity) error {
 			object := a.Object
 			object.Id = fmt.Sprintf("/activity-%v", objectKey)
 
-			jsonData, _ := json.Marshal(object)
+			protoData, _ := proto.Marshal(object)
 
 			k := make([]byte, 8)
 			binary.BigEndian.PutUint64(k, objectKey)
-			if err = bucket.Put(k, jsonData); err != nil {
+			if err = bucket.Put(k, protoData); err != nil {
 				return err
 			}
 			if a.publishCtx != nil {
@@ -151,11 +153,11 @@ func (dao *boltdbimpl) PostActivity(ctx context.Context, ownerType activity.Owne
 		objectKey, _ := bucket.NextSequence()
 		object.Id = fmt.Sprintf("/activity-%v", objectKey)
 
-		jsonData, _ := json.Marshal(object)
+		protoData, _ := proto.Marshal(object)
 
 		k := make([]byte, 8)
 		binary.BigEndian.PutUint64(k, objectKey)
-		return bucket.Put(k, jsonData)
+		return bucket.Put(k, protoData)
 
 	})
 	if err == nil && publish {
@@ -233,7 +235,7 @@ func (dao *boltdbimpl) ListSubscriptions(ctx context.Context, objectType activit
 	return subs, e
 }
 
-func (dao *boltdbimpl) ActivitiesFor(ctx context.Context, ownerType activity.OwnerType, ownerId string, boxName BoxName, refBoxOffset BoxName, reverseOffset int64, limit int64, result chan *activity.Object, done chan bool) error {
+func (dao *boltdbimpl) ActivitiesFor(ctx context.Context, ownerType activity.OwnerType, ownerId string, boxName BoxName, refBoxOffset BoxName, reverseOffset int64, limit int64, streamFilter string, result chan *activity.Object, done chan bool) error {
 
 	defer func() {
 		done <- true
@@ -250,8 +252,16 @@ func (dao *boltdbimpl) ActivitiesFor(ctx context.Context, ownerType activity.Own
 	if refBoxOffset != "" {
 		uintOffset = dao.ReadLastUserInbox(ownerId, refBoxOffset)
 	}
+	var evaluable gval.Evaluable
+	if streamFilter != "" {
+		var err error
+		evaluable, _, err = boltdb.BleveQueryToJSONPath(streamFilter, "$", true, QueryFieldsTransformer, true)
+		if err != nil {
+			return err
+		}
+	}
 
-	dao.DB.View(func(tx *bolt.Tx) error {
+	viewErr := dao.DB.View(func(tx *bolt.Tx) error {
 		// Assume bucket exists and has keys
 		bucket, _ := dao.getBucket(tx, false, ownerType, ownerId, boxName)
 		if bucket == nil {
@@ -261,6 +271,7 @@ func (dao *boltdbimpl) ActivitiesFor(ctx context.Context, ownerType activity.Own
 		c := bucket.Cursor()
 		i := int64(0)
 		total := int64(0)
+		stackCount := int32(1)
 		var prevObj *activity.Object
 		for k, v := c.Last(); k != nil; k, v = c.Prev() {
 			if uintOffset > 0 && dao.bytesToUint(k) <= uintOffset {
@@ -269,16 +280,33 @@ func (dao *boltdbimpl) ActivitiesFor(ctx context.Context, ownerType activity.Own
 			if len(lastRead) == 0 {
 				lastRead = k
 			}
-			acObject := &activity.Object{}
-			err := json.Unmarshal(v, acObject)
-			if prevObj != nil && dao.activitiesAreSimilar(prevObj, acObject) {
-				prevObj = acObject // Ignore similar events - TODO : add occurrence number?
-				continue
-			}
+			acObject, err := dao.UnmarshalActivity(v)
 			if err != nil {
 				return err
 			}
+			if evaluable != nil {
+				// Unmarshal as map[string]interface{} for evaluation
+				var search map[string]interface{}
+				bb, _ := json.Marshal(acObject)
+				_ = json.Unmarshal(bb, &search)
+				if match, er := evaluable.EvalInt(ctx, []interface{}{search}); er != nil {
+					return er
+				} else if match == 0 {
+					continue
+				}
+			}
+			// Ignore similar events. In that case increment occurrence number as TotalItems field
+			if prevObj != nil && dao.activitiesAreSimilar(prevObj, acObject) {
+				prevObj = acObject
+				stackCount++
+				continue
+			}
+			if stackCount > 1 {
+				acObject.TotalItems = stackCount
+			}
 			prevObj = acObject
+			// Reset
+			stackCount = 1
 			if reverseOffset > 0 && i < reverseOffset {
 				i++
 				continue
@@ -296,11 +324,11 @@ func (dao *boltdbimpl) ActivitiesFor(ctx context.Context, ownerType activity.Own
 	if refBoxOffset != BoxLastSent && ownerType == activity.OwnerType_USER && boxName == BoxInbox && len(lastRead) > 0 {
 		// Store last read in dedicated box
 		go func() {
-			dao.storeLastUserInbox(ownerId, BoxLastRead, lastRead)
+			_ = dao.storeLastUserInbox(ownerId, BoxLastRead, lastRead)
 		}()
 	}
 
-	return nil
+	return viewErr
 
 }
 
@@ -400,9 +428,9 @@ func (dao *boltdbimpl) Delete(ctx context.Context, ownerType activity.OwnerType,
 			}
 			if outbox := nodesBucket.Bucket(k).Bucket([]byte(BoxOutbox)); outbox != nil {
 				outbox.ForEach(func(k, v []byte) error {
-					var acObject activity.Object
-					if err := json.Unmarshal(v, &acObject); err == nil && acObject.Actor != nil && acObject.Actor.Id == ownerId {
-						outbox.Delete(k)
+					acObject, er := dao.UnmarshalActivity(v)
+					if er == nil && acObject.Actor != nil && acObject.Actor.Id == ownerId {
+						_ = outbox.Delete(k)
 					}
 					return nil
 				})
@@ -439,8 +467,9 @@ func (dao *boltdbimpl) Purge(ctx context.Context, logger func(string, int), owne
 				totalLeft++
 				continue
 			}
-			acObject := &activity.Object{}
-			if err := json.Unmarshal(v, acObject); err != nil {
+
+			acObject, err := dao.UnmarshalActivity(v)
+			if err != nil {
 				logger("Purging unknown format object", 1)
 				_ = c.Delete()
 				continue
@@ -494,8 +523,8 @@ func (dao *boltdbimpl) allActivities(ctx context.Context) (chan *docActivity, in
 	listBucket := func(bb *bolt.Bucket, ownerType int32, ownerId string, boxName BoxName) {
 		cursor := bb.Cursor()
 		for k, v := cursor.First(); k != nil; k, v = cursor.Next() {
-			acObject := &activity.Object{}
-			if err := json.Unmarshal(v, acObject); err == nil {
+			acObject, err := dao.UnmarshalActivity(v)
+			if err == nil {
 				out <- &docActivity{
 					Object:    acObject,
 					BoxName:   string(boxName),
@@ -615,4 +644,15 @@ func (dao *boltdbimpl) bytesToUint(by []byte) uint64 {
 	var num uint64
 	binary.Read(bytes.NewBuffer(by[:]), binary.BigEndian, &num)
 	return num
+}
+
+func (dao *boltdbimpl) UnmarshalActivity(bb []byte) (*activity.Object, error) {
+	acObject := &activity.Object{}
+	// try proto first
+	if err := proto.Unmarshal(bb, acObject); err == nil {
+		return acObject, err
+	}
+	// otherwise try JSON
+	err := json.Unmarshal(bb, acObject)
+	return acObject, err
 }

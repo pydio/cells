@@ -52,7 +52,6 @@ import (
 	"github.com/pydio/cells/v4/common/utils/configx"
 	"github.com/pydio/cells/v4/common/utils/filesystem"
 	"github.com/pydio/cells/v4/common/utils/permissions"
-	"github.com/pydio/cells/v4/common/utils/uuid"
 )
 
 /*********************
@@ -156,8 +155,11 @@ func (s *Handler) PutDataSource(req *restful.Request, resp *restful.Response) {
 	currentMinios[minioConfig.Name] = minioConfig
 	if ds.ApiSecret != "" {
 		if secretUuid == "" {
-			secretUuid = uuid.New()
-			config.SetSecret(secretUuid, ds.ApiSecret)
+			secretUuid = config.NewKeyForSecret()
+			if er := config.SetSecret(secretUuid, ds.ApiSecret); er != nil {
+				service.RestError500(req, resp, fmt.Errorf("cannot store secret key"))
+				return
+			}
 		}
 		ds.ApiSecret = secretUuid
 		minioConfig.ApiSecret = secretUuid
