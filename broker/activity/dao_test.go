@@ -450,6 +450,7 @@ func TestStreamFilter(t *testing.T) {
 			So(err, ShouldBeNil)
 			So(dao, ShouldNotBeNil)
 			searchUser := uuid.New()
+			startTime := time.Now()
 			for i := 0; i < 50; i++ {
 				userName := fmt.Sprintf("Random User %d", i+1)
 				userId := uuid.New()
@@ -457,7 +458,6 @@ func TestStreamFilter(t *testing.T) {
 					userId = searchUser
 					userName = "Search User"
 				}
-				fmt.Println("Insert", userName)
 				ac := &activity.Object{
 					Type: activity.ObjectType_Document,
 					Actor: &activity.Object{
@@ -469,44 +469,68 @@ func TestStreamFilter(t *testing.T) {
 						Id:   uuid.New(), // Make sure they are not all similar
 						Name: fmt.Sprintf("Document-%d.pdf", i),
 					},
+					Updated: &timestamppb.Timestamp{Seconds: time.Now().Unix()},
 				}
 				err := dao.PostActivity(ctx, activity.OwnerType_USER, "charles", BoxInbox, ac, false)
 				So(err, ShouldBeNil)
 			}
 
 			waitIfCache(dao)
-			var results []*activity.Object
-			resChan := make(chan *activity.Object)
-			doneChan := make(chan bool)
 
-			readResults := func(waiter *sync.WaitGroup) {
-				defer waiter.Done()
-				for {
-					select {
-					case act := <-resChan:
-						if act != nil {
-							results = append(results, act)
-						}
-					case <-doneChan:
-						return
-					}
-				}
-			}
+			filter := "+hackField:test"
+			_, er := recordStream(dao, ctx, activity.OwnerType_USER, "charles", BoxInbox, "", 0, 20, filter)
+			So(er, ShouldNotBeNil)
 
-			wg := &sync.WaitGroup{}
-			wg.Add(1)
-			go func() {
-				readResults(wg)
-			}()
-			filter := "+actorId:" + searchUser
-			err = dao.ActivitiesFor(ctx, activity.OwnerType_USER, "charles", BoxInbox, "", 0, 20, filter, resChan, doneChan)
-			wg.Wait()
+			filter = "+actorId:" + searchUser
+			results, err := recordStream(dao, ctx, activity.OwnerType_USER, "charles", BoxInbox, "", 0, 20, filter)
+			So(results, ShouldHaveLength, 5)
 
+			filter = fmt.Sprintf("+eventDate:>=%d", int32(startTime.Unix()))
+			results, err = recordStream(dao, ctx, activity.OwnerType_USER, "charles", BoxInbox, "", 0, 100, filter)
+			So(results, ShouldHaveLength, 50)
+
+			filter = fmt.Sprintf("+eventDate:<%d", int32(startTime.Unix()))
+			results, err = recordStream(dao, ctx, activity.OwnerType_USER, "charles", BoxInbox, "", 0, 10, filter)
+			So(results, ShouldHaveLength, 0)
+
+			// Combine
+			filter = fmt.Sprintf("+actorName:\"Search User\" +eventDate:>=%d +objectName:Document*", int32(startTime.Unix()))
+			results, err = recordStream(dao, ctx, activity.OwnerType_USER, "charles", BoxInbox, "", 0, 20, filter)
 			So(results, ShouldHaveLength, 5)
 
 		})
 
 	})
+}
+
+func recordStream(dao DAO, ctx context.Context, ownerType activity.OwnerType, ownerId string, boxName BoxName, refBoxOffset BoxName, reverseOffset int64, limit int64, streamFilter string) ([]*activity.Object, error) {
+	var results []*activity.Object
+	resChan := make(chan *activity.Object)
+	doneChan := make(chan bool)
+
+	readResults := func(waiter *sync.WaitGroup) {
+		defer waiter.Done()
+		for {
+			select {
+			case act := <-resChan:
+				if act != nil {
+					results = append(results, act)
+				}
+			case <-doneChan:
+				return
+			}
+		}
+	}
+
+	wg := &sync.WaitGroup{}
+	wg.Add(1)
+	go func() {
+		readResults(wg)
+	}()
+	err := dao.ActivitiesFor(ctx, ownerType, ownerId, boxName, refBoxOffset, reverseOffset, limit, streamFilter, resChan, doneChan)
+	wg.Wait()
+
+	return results, err
 }
 
 func TestSimilarSkipping(t *testing.T) {

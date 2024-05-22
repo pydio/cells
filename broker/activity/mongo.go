@@ -191,10 +191,20 @@ func (m *mongoimpl) ActivitiesFor(ctx context.Context, ownerType activity.OwnerT
 		{"box_name", string(boxName)},
 	}
 	if streamFilter != "" {
+		var fieldErs []error
 		if additionalFilters, err := mongodb.BleveQueryToMongoFilters(streamFilter, true, func(s string) string {
-			return "object." + QueryFieldsTransformer(s)
+			var fe error
+			if s, fe = queryFieldsTransformer(s); fe != nil {
+				fieldErs = append(fieldErs, fe)
+			}
+			if s == "updated" {
+				s = "updated.seconds"
+			}
+			return "object." + s
 		}); err != nil {
 			return err
+		} else if len(fieldErs) > 0 {
+			return fieldErs[0]
 		} else if len(additionalFilters) > 0 {
 			filter = append(filter, additionalFilters...)
 		}

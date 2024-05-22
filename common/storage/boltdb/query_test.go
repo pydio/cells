@@ -175,6 +175,17 @@ func TestBleveQueryToJSONPathOneField(t *testing.T) {
 			So(s, ShouldEqual, 1)
 		}
 
+		{
+			eval, p, er := BleveQueryToJSONPath("updatedTS:>=1715866720", "$", false, id, true)
+			t.Log(p)
+			So(er, ShouldBeNil)
+			So(eval, ShouldNotBeNil)
+			//So(jpath, ShouldEqual, "length($[?(@.id==\"/activity-13843\")])")
+			s, er := eval(context.Background(), []interface{}{acJson})
+			So(er, ShouldBeNil)
+			So(s, ShouldEqual, 1)
+		}
+
 	})
 
 }
@@ -192,6 +203,7 @@ var (
       "name": "File Event",
       "summary": "Répertoire [accounting-2019](doc://c6592312-d7c1-45fe-a283-93eee6e53e44) a été accédé par [guillaume](user://guillaume)",
       "updated": "2024-05-16T15:38:47Z",
+	  "updatedTS": 1715866728,
       "actor": {
         "type": "Person",
         "id": "guillaume",

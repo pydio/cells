@@ -26,6 +26,7 @@ package activity
 
 import (
 	"context"
+	"fmt"
 	"time"
 
 	"github.com/pydio/cells/v4/common/proto/activity"
@@ -109,20 +110,20 @@ func NewMongoDAO(database *mongodb.Database) DAO {
 
 }
 
-func QueryFieldsTransformer(s string) string {
+func queryFieldsTransformer(s string) (string, error) {
 	switch s {
 	case "eventType":
-		return "type"
+		return "type", nil
 	case "eventDate":
-		return "updated"
+		return "updated", nil
 	case "actorId":
-		return "actor.id"
+		return "actor.id", nil
 	case "actorName":
-		return "actor.name"
+		return "actor.name", nil
 	case "objectName":
-		return "object.name"
+		return "object.name", nil
 	}
-	return s
+	return s, fmt.Errorf("unrecognized field name for query")
 }
 
 func Migrate(topCtx, fromCtx, toCtx context.Context, dryRun bool, status chan service.MigratorStatus) (map[string]int, error) {
