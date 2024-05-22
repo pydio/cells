@@ -2,7 +2,7 @@ syntax="proto3";
 
 package docstore;
 
-option go_package="github.com/pydio/cells/common/proto/docstore";
+option go_package="github.com/pydio/cells/v4/common/proto/docstore";
 
 enum DocumentType{
     JSON = 0;
@@ -21,6 +21,8 @@ message DocumentQuery {
     string ID = 2;
     string Owner = 3;
     string MetaQuery = 4;
+    int64 Offset = 5;
+    int64 Limit = 6;
 }
 
 message PutDocumentRequest {
