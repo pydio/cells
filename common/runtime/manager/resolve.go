@@ -107,7 +107,7 @@ func Resolve[T any](ctx context.Context, opts ...ResolveOption) (T, error) {
 	storages := registry.ItemsAs[storage.Storage](ss)
 
 	// Inject dao in handler
-supported:
+supportedDriversLoop:
 	for _, handler := range svc.Options().StorageOptions.SupportedDrivers[o.Name] {
 		handlerV := reflect.ValueOf(handler)
 		handlerT := reflect.TypeOf(handler)
@@ -116,24 +116,30 @@ supported:
 		}
 
 		var args []reflect.Value
-		var pos int
 
 		// Check if first expected parameter is a context, if so, use the input context
 		if handlerT.In(0).Implements(reflect.TypeOf((*context.Context)(nil)).Elem()) {
 			args = append(args, reflect.ValueOf(ctx))
-			pos++
 		}
 
-		for pos = len(args); pos < handlerT.NumIn(); pos++ {
+		for pos := len(args); pos < handlerT.NumIn(); pos++ {
+			storageMatched := false
+
 			// Try to fit Input parameter type and Storage types
 			for _, st := range storages {
 				conn := reflect.New(handlerT.In(pos))
-				if isCompat, err := st.Get(ctx, conn.Interface()); !isCompat {
-					continue supported
+				if isCompatible, err := st.Get(ctx, conn.Interface()); !isCompatible {
+					continue
 				} else if err != nil {
 					return t, err
 				}
+
 				args = append(args, conn.Elem())
+				storageMatched = true
+			}
+
+			if !storageMatched {
+				continue supportedDriversLoop
 			}
 		}
 
