@@ -29,6 +29,8 @@ import { Document, Page } from 'react-pdf';
 
 const { EditorActions, withSelection } = Pydio.requireLib('hoc');
 
+const reactPDFOptions = {isEvalSupported: false}
+
 class InlineViewer extends React.Component {
 
     shouldComponentUpdate(nextProps, nextState, nextContext) {
@@ -57,6 +59,7 @@ class InlineViewer extends React.Component {
                 loading={infoBlock('Loading document...')}
                 noData={infoBlock('No data loaded!')}
                 error={infoBlock('Failed loading page')}
+                options={reactPDFOptions}
             >
                 <Page
                     pageNumber={pageNumber}
