@@ -28,6 +28,9 @@ import (
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 
+	"github.com/pydio/cells/v4/common/runtime"
+	"github.com/pydio/cells/v4/common/runtime/manager"
+	"github.com/pydio/cells/v4/common/runtime/runtimecontext"
 	"github.com/pydio/cells/v4/common/storage"
 	"github.com/pydio/cells/v4/common/storage/indexer"
 	"github.com/pydio/cells/v4/common/utils/openurl"
@@ -40,10 +43,18 @@ var (
 )
 
 func init() {
-	ms := &mongoStorage{}
-	for _, mongoType := range mongoTypes {
-		storage.DefaultURLMux().Register(mongoType, ms)
-	}
+	runtime.Register("discovery", func(ctx context.Context) {
+		var mgr manager.Manager
+		if runtimecontext.Get(ctx, manager.ContextKey, &mgr) {
+			return
+		}
+
+		ms := &mongoStorage{}
+		for _, mongoType := range mongoTypes {
+			mgr.RegisterStorage(mongoType, ms)
+		}
+	})
+
 }
 
 // Database type wraps the *mongo.Database to prepend prefix to collection names

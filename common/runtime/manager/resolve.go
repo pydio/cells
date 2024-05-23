@@ -209,7 +209,7 @@ func CloseStoragesForContext(ctx context.Context, opts ...ResolveOption) error {
 
 func MustGetConfig(ctx context.Context) config.Store {
 	var mg Manager
-	if !runtimecontext.Get(ctx, contextKey, &mg) {
+	if !runtimecontext.Get(ctx, ContextKey, &mg) {
 		panic("manager must be set")
 	}
 	return mg.GetConfig(ctx)

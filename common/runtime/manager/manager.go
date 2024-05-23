@@ -35,6 +35,7 @@ import (
 	"go.uber.org/zap"
 	"golang.org/x/sync/errgroup"
 
+	_ "embed"
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/broker"
 	"github.com/pydio/cells/v4/common/config"
@@ -51,8 +52,6 @@ import (
 	"github.com/pydio/cells/v4/common/utils/configx"
 	"github.com/pydio/cells/v4/common/utils/fork"
 	json "github.com/pydio/cells/v4/common/utils/jsonx"
-
-	_ "embed"
 )
 
 const (
@@ -77,6 +76,8 @@ type Manager interface {
 	WatchServicesConfigs()
 	WatchBroker(ctx context.Context, br broker.Broker) error
 	GetConfig(ctx context.Context) config.Store
+
+	RegisterStorage(scheme string, storage storage.URLOpener)
 	GetStorage(ctx context.Context, name string, out any) error
 }
 
@@ -97,14 +98,16 @@ type manager struct {
 	services map[string]service.Service
 
 	// controllers
-	config controller.Controller[config.Store]
+	storageMux *storage.URLMux
+	storage    controller.Controller[storage.Storage]
+	config     controller.Controller[config.Store]
 
 	logger log.ZapLogger
 }
 
 type managerKey struct{}
 
-var contextKey = managerKey{}
+var ContextKey = managerKey{}
 
 func NewManager(ctx context.Context, namespace string, logger log.ZapLogger) (Manager, error) {
 
@@ -121,8 +124,14 @@ func NewManager(ctx context.Context, namespace string, logger log.ZapLogger) (Ma
 
 		logger: logger,
 		root:   node,
+
+		storageMux: &storage.URLMux{},
 		// config: controller.NewController[config.Store](ctx),
 	}
+
+	ctx = runtimecontext.With(ctx, ContextKey, m)
+
+	runtime.Init(ctx, "discovery")
 
 	if clusterRegistryURL := runtime.RegistryURL(); clusterRegistryURL != "" {
 		clusterRegistry, err := registry.OpenRegistry(ctx, clusterRegistryURL)
@@ -151,7 +160,15 @@ func NewManager(ctx context.Context, namespace string, logger log.ZapLogger) (Ma
 
 	reg.Register(m.root)
 
-	// Initing config
+	// Storage controller
+	//storageController, err := controller.NewController(ctx, "", storage.OpenStorageTest)
+	//if err != nil {
+	//	return nil, err
+	//}
+	//
+	//m.storage = storageController
+
+	// Config controller
 	conf, err := controller.NewController[config.Store](ctx, runtime.ConfigURL(), config.OpenStore)
 
 	m.config = conf
@@ -200,9 +217,7 @@ func NewManager(ctx context.Context, namespace string, logger log.ZapLogger) (Ma
 	}
 
 	ctx = runtimecontext.With(ctx, registry.ContextKey, reg)
-	ctx = runtimecontext.With(ctx, contextKey, m)
 
-	runtime.Init(ctx, "discovery")
 	runtime.Init(ctx, m.ns)
 
 	m.ctx = ctx
@@ -290,6 +305,10 @@ func (m *manager) GetConfig(ctx context.Context) (out config.Store) {
 	return
 }
 
+func (m *manager) RegisterStorage(scheme string, st storage.URLOpener) {
+	m.storageMux.Register(scheme, st)
+}
+
 func (m *manager) GetStorage(ctx context.Context, name string, out any) error {
 	item, err := m.localRegistry.Get(name, registry.WithType(pb.ItemType_STORAGE))
 	if err != nil {
@@ -321,7 +340,7 @@ func (m *manager) initConnections() error {
 	storages := store.Val("storages")
 	for k := range storages.Map() {
 		uri := storages.Val(k, "uri").String()
-		conn, err := storage.OpenStorage(m.ctx, uri)
+		conn, err := m.storageMux.OpenStorage(m.ctx, uri)
 		if err != nil {
 			fmt.Println("initConnections - cannot open storage with uri "+uri, err)
 			continue
@@ -558,7 +577,7 @@ func (m *manager) ServeAll(oo ...server.ServeOption) error {
 
 				// Adding connections to the environment
 				for k := range connections.Map() {
-					conn, err := storage.OpenStorage(m.ctx, connections.Val(k, "uri").String())
+					conn, err := m.storageMux.OpenStorage(m.ctx, connections.Val(k, "uri").String())
 					if err != nil {
 						continue
 					}

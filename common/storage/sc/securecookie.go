@@ -3,6 +3,9 @@ package sc
 import (
 	"context"
 
+	"github.com/pydio/cells/v4/common/runtime"
+	"github.com/pydio/cells/v4/common/runtime/manager"
+	"github.com/pydio/cells/v4/common/runtime/runtimecontext"
 	"github.com/pydio/cells/v4/common/storage"
 )
 
@@ -11,7 +14,14 @@ var (
 )
 
 func init() {
-	storage.DefaultURLMux().Register("securecookie", &provider{})
+	runtime.Register("main", func(ctx context.Context) {
+		var mgr manager.Manager
+		if runtimecontext.Get(ctx, manager.ContextKey, &mgr) {
+			return
+		}
+
+		mgr.RegisterStorage("securecookie", &provider{})
+	})
 }
 
 type Conn struct{}

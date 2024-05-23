@@ -11,6 +11,8 @@ import (
 	"github.com/blevesearch/bleve/v2/index/upsidedown/store/boltdb"
 
 	"github.com/pydio/cells/v4/common/config"
+	"github.com/pydio/cells/v4/common/runtime"
+	"github.com/pydio/cells/v4/common/runtime/manager"
 	"github.com/pydio/cells/v4/common/runtime/runtimecontext"
 	"github.com/pydio/cells/v4/common/storage"
 	"github.com/pydio/cells/v4/common/storage/indexer"
@@ -23,7 +25,14 @@ var (
 )
 
 func init() {
-	storage.DefaultURLMux().Register("bleve", &bleveStorage{})
+	runtime.Register("discovery", func(ctx context.Context) {
+		var mgr manager.Manager
+		if runtimecontext.Get(ctx, manager.ContextKey, &mgr) {
+			return
+		}
+
+		mgr.RegisterStorage("bleve", &bleveStorage{})
+	})
 }
 
 type bleveStorage struct {

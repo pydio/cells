@@ -13,6 +13,8 @@ import (
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
 
+	"github.com/pydio/cells/v4/common/runtime"
+	"github.com/pydio/cells/v4/common/runtime/manager"
 	"github.com/pydio/cells/v4/common/runtime/runtimecontext"
 	"github.com/pydio/cells/v4/common/runtime/tenant"
 	"github.com/pydio/cells/v4/common/storage"
@@ -27,10 +29,17 @@ var (
 )
 
 func init() {
-	gs := &gormStorage{}
-	for _, gormType := range Drivers {
-		storage.DefaultURLMux().Register(gormType, gs)
-	}
+	runtime.Register("discovery", func(ctx context.Context) {
+		var mgr manager.Manager
+		if !runtimecontext.Get(ctx, manager.ContextKey, &mgr) {
+			return
+		}
+
+		gs := &gormStorage{}
+		for _, gormType := range Drivers {
+			mgr.RegisterStorage(gormType, gs)
+		}
+	})
 }
 
 type gormStorage struct {

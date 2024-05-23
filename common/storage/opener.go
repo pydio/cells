@@ -154,3 +154,7 @@ func DefaultURLMux() *URLMux {
 func OpenStorage(ctx context.Context, urlstr string, opt ...Option) (Storage, error) {
 	return defaultURLMux.OpenStorage(ctx, urlstr, opt...)
 }
+
+func OpenStorageTest(ctx context.Context, urlstr string) (Storage, error) {
+	return defaultURLMux.OpenStorage(ctx, urlstr)
+}
