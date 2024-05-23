@@ -23,7 +23,7 @@ package acl
 import (
 	"context"
 	"errors"
-	"strconv"
+	"fmt"
 	"sync"
 	"time"
 
@@ -39,7 +39,7 @@ import (
 )
 
 type ACL struct {
-	ID          int       `gorm:"primaryKey;column:id;autoIncrement;type:bigint;notNull"`
+	ID          int64     `gorm:"primaryKey;column:id;autoIncrement;"`
 	ActionName  string    `gorm:"column:action_name;type:varchar(500)"`
 	ActionValue string    `gorm:"column:action_value;type:varchar(500)"`
 	RoleID      int       `gorm:"column:role_id;default:-1;"`
@@ -169,7 +169,7 @@ func (s *sqlimpl) addWithDupCheck(ctx context.Context, in interface{}, check boo
 		return tx.Error
 	}
 
-	val.ID = strconv.Itoa(acl.ID)
+	val.ID = fmt.Sprintf("%v", acl.ID)
 
 	// TODO - duplicate
 	/*
@@ -217,7 +217,7 @@ func (s *sqlimpl) Search(ctx context.Context, query sql.Enquirer, out *[]interfa
 		val := new(idm.ACL)
 		action := new(idm.ACLAction)
 
-		val.ID = strconv.Itoa(acl.ID)
+		val.ID = fmt.Sprintf("%d", acl.ID)
 		val.NodeID = acl.Node.UUID
 		val.RoleID = acl.Role.UUID
 		val.WorkspaceID = acl.Workspace.UUID
@@ -242,10 +242,10 @@ func (s *sqlimpl) SetExpiry(ctx context.Context, query sql.Enquirer, t time.Time
 
 	if period != nil {
 		if !period.End.IsZero() {
-			db.Where("expiry_date < ?", period.End)
+			db = db.Where("expiry_date < ?", period.End)
 		}
 		if !period.Start.IsZero() {
-			db.Where("expiry_date > ?", period.Start)
+			db = db.Where("expiry_date > ?", period.Start)
 		}
 	}
 
@@ -267,10 +267,10 @@ func (s *sqlimpl) Del(ctx context.Context, query sql.Enquirer, period *Expiratio
 
 	if period != nil {
 		if !period.End.IsZero() {
-			db.Where("expiry_date < ?", period.End)
+			db = db.Where("expiry_date < ?", period.End)
 		}
 		if !period.Start.IsZero() {
-			db.Where("expiry_date > ?", period.Start)
+			db = db.Where("expiry_date > ?", period.Start)
 		}
 	}
 
@@ -317,29 +317,48 @@ func (c *queryConverter) Convert(ctx context.Context, val *anypb.Any, db *gorm.D
 
 	if len(q.RoleIDs) > 0 {
 		count++
-		db = db.Where("role_id IN (?)", db.Model(&Role{}).Select("id").Where("uuid IN ?", q.GetRoleIDs()))
+		subQuery := db.Session(&gorm.Session{NewDB: true}).Model(&Role{}).Select("id").Where("uuid IN (?)", q.GetRoleIDs())
+		db = db.Where("role_id IN (?)", subQuery)
 	}
 
 	if len(q.WorkspaceIDs) > 0 {
 		count++
-		db = db.Where("workspace_id IN (?)", db.Model(&Workspace{}).Select("id").Where("uuid IN ?", q.GetWorkspaceIDs()))
+		subQuery := db.Session(&gorm.Session{NewDB: true}).Model(&Workspace{}).Select("id").Where("uuid IN (?)", q.GetWorkspaceIDs())
+		db = db.Where("workspace_id IN (?)", subQuery)
 	}
 
 	if len(q.NodeIDs) > 0 {
 		count++
-		db = db.Where("node_id IN (?)", db.Model(&Node{}).Select("id").Where("uuid IN ?", q.GetNodeIDs()))
+		subQuery := db.Session(&gorm.Session{NewDB: true}).Model(&Node{}).Select("id").Where("uuid IN (?)", q.GetNodeIDs())
+		db = db.Where("node_id IN (?)", subQuery)
 	}
 
-	// Special case for Actions - Todo do this handle a case when we look only for an action name?
+	// Reproducing old code that was creating ORs for all actions, and handling case where Value can be empty or multiple
 	if len(q.Actions) > 0 {
-		var args [][]interface{}
-
+		actionsByName := make(map[string][]string) // actionName => actionValues
 		for _, act := range q.Actions {
-			args = append(args, []interface{}{act.GetName(), act.GetValue()})
+			values, exists := actionsByName[act.Name]
+			if !exists {
+				values = []string{}
+			}
+			if act.Value != "" {
+				values = append(values, act.Value)
+			}
+			actionsByName[act.Name] = values
 		}
-
-		count++
-		db = db.Where("(action_name, action_value) IN (?)", args)
+		for actName, actValues := range actionsByName {
+			if len(actValues) > 0 {
+				tx1 := db.Session(&gorm.Session{NewDB: true})
+				if len(actValues) == 1 {
+					db = db.Or(tx1.Where("action_name=?", actName).Where("action_value=?", actValues[0]))
+				} else {
+					db = db.Or(tx1.Where("action_name=?", actName).Where("action_value IN ?", actValues))
+				}
+			} else {
+				db = db.Or("action_name=?", actName)
+			}
+			count++
+		}
 	}
 
 	return db, count > 0, nil

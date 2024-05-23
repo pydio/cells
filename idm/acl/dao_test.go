@@ -41,6 +41,21 @@ var (
 	testcases = test.TemplateSQL(NewDAO)
 )
 
+func TestSimpleCrud(t *testing.T) {
+	test.RunStorageTests(testcases, func(ctx context.Context) {
+
+		dao, err := manager.Resolve[DAO](ctx)
+		if err != nil {
+			panic(err)
+		}
+
+		Convey("Simple CRUD", t, func() {
+			So(simpleCrud(t, ctx, dao, "node", "role", "workspace", "actionName", "actionValue"), ShouldBeNil)
+		})
+
+	})
+}
+
 func TestQueryBuilder(t *testing.T) {
 	test.RunStorageTests(testcases, func(ctx context.Context) {
 
@@ -87,7 +102,7 @@ func TestQueryBuilder(t *testing.T) {
 				return tx.Find(&[]ACL{})
 			})
 
-			So(sqlStr, ShouldResemble, "SELECT * FROM `acls` WHERE role_id IN (SELECT `id` FROM `roles` WHERE uuid IN (\"role1\")) OR role_id IN (SELECT `id` FROM `roles` WHERE uuid IN (\"role2\")) LIMIT 10")
+			So(sqlStr, ShouldResemble, "SELECT * FROM `acls` WHERE role_id IN (SELECT `id` FROM `acl_roles` WHERE uuid IN (\"role1\")) OR role_id IN (SELECT `id` FROM `acl_roles` WHERE uuid IN (\"role2\")) LIMIT 10")
 		})
 
 		Convey("Single Query Builder", t, func() {
@@ -117,7 +132,7 @@ func TestQueryBuilder(t *testing.T) {
 				return tx.Find(&[]ACL{})
 			})
 
-			So(sqlStr, ShouldResemble, "SELECT * FROM `acls` WHERE role_id IN (SELECT `id` FROM `roles` WHERE uuid IN (\"role1\")) LIMIT 10")
+			So(sqlStr, ShouldResemble, "SELECT * FROM `acls` WHERE role_id IN (SELECT `id` FROM `acl_roles` WHERE uuid IN (\"role1\")) LIMIT 10")
 		})
 
 		Convey("Query Builder W/ subquery", t, func() {
@@ -168,11 +183,16 @@ func TestQueryBuilder(t *testing.T) {
 			//So(s, ShouldEqual, `((role_id in (select id from idm_acl_roles where uuid in ("role1"))) OR (role_id in (select id from idm_acl_roles where uuid in ("role2")))) AND (role_id in (select id from idm_acl_roles where uuid in ("role3_1","role3_2","role3_3")))`)
 		})
 
-		Convey("Query Builder W/ subquery", t, func() {
+		Convey("Query Builder W/ multiple actions queries", t, func() {
 
 			singleQ1 := new(idm.ACLSingleQuery)
 
-			singleQ1.Actions = []*idm.ACLAction{&idm.ACLAction{Name: "read", Value: "read_val"}, &idm.ACLAction{Name: "write", Value: "write_val"}}
+			singleQ1.Actions = []*idm.ACLAction{
+				{Name: "read", Value: "read_val1"},
+				{Name: "read", Value: "read_val2"},
+				{Name: "write", Value: "write_val"},
+				{Name: "action_only"},
+			}
 
 			singleQ1Any, err := anypb.New(singleQ1)
 			So(err, ShouldBeNil)
@@ -189,7 +209,10 @@ func TestQueryBuilder(t *testing.T) {
 			s, er := sql.NewQueryBuilder[*gorm.DB](composedQuery, new(queryConverter)).Build(ctx, mockDB)
 			So(er, ShouldBeNil)
 			So(s, ShouldNotBeNil)
-			//So(s, ShouldEqual, `((action_name='read' AND action_value='read_val') OR (action_name='write' AND action_value='write_val'))`)
+			sqlStr := s.ToSQL(func(tx *gorm.DB) *gorm.DB {
+				return tx.Find(&[]ACL{})
+			})
+			So(sqlStr, ShouldEqual, "SELECT * FROM `acls` WHERE action_name=\"action_only\" OR (action_name=\"read\" AND action_value IN (\"read_val1\",\"read_val2\")) OR (action_name=\"write\" AND action_value=\"write_val\") LIMIT 10")
 		})
 
 		Convey("Query Builder W/ subquery", t, func() {
@@ -242,10 +265,10 @@ func simpleCrud(t *testing.T, ctx context.Context, dao DAO, nodeId, roleId, wsId
 	}
 	var res []interface{}
 	readQ, _ := anypb.New(&idm.ACLSingleQuery{
-		NodeIDs: []string{nodeId},
-		RoleIDs: []string{roleId},
-		//WorkspaceIDs: []string{wsId},
-		//Actions:      []*idm.ACLAction{{Name: actionName, Value: actionValue}},
+		NodeIDs:      []string{nodeId},
+		RoleIDs:      []string{roleId},
+		WorkspaceIDs: []string{wsId},
+		Actions:      []*idm.ACLAction{{Name: actionName, Value: actionValue}},
 	})
 	enquirer := &service.Query{SubQueries: []*anypb.Any{readQ}}
 	err := dao.Search(ctx, enquirer, &res, nil)

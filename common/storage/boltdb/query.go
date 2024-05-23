@@ -22,7 +22,6 @@ package boltdb
 
 import (
 	"fmt"
-	"regexp"
 	"strings"
 
 	"github.com/PaesslerAG/gval"
@@ -73,32 +72,11 @@ func BleveQueryToJSONPath(queryString string, rootSelector string, insensitive b
 		}
 	})
 
-	regexpMatch := gval.InfixOperator("=~", func(a, b interface{}) (interface{}, error) {
-		str, ok := a.(string)
-		if !ok {
-			return nil, fmt.Errorf("left operand must be a string")
-		}
-		pattern, ok := b.(string)
-		if !ok {
-			return nil, fmt.Errorf("right operand must be a string")
-		}
-		matched, err := regexp.MatchString(pattern, str)
-		if err != nil {
-			return nil, err
-		}
-		return matched, nil
-	})
 	// Create a Gval expression language with custom operators
 	language := gval.NewLanguage(
 		jsonpath.Language(),
+		gval.Full(),
 		lengthFunc,
-		regexpMatch,
-		gval.InfixOperator("&&", func(a, b interface{}) (interface{}, error) {
-			return a.(bool) && b.(bool), nil
-		}),
-		gval.InfixOperator("||", func(a, b interface{}) (interface{}, error) {
-			return a.(bool) || b.(bool), nil
-		}),
 	)
 	jp, er := language.NewEvaluable(out)
 	return jp, out, er
@@ -106,9 +84,11 @@ func BleveQueryToJSONPath(queryString string, rootSelector string, insensitive b
 
 func line(fieldName, comparator string, value any, not ...bool) string {
 	var zeline string
-	switch value.(type) {
-	case int64:
-		zeline = fmt.Sprintf("@.%s%s%v", fieldName, comparator, value)
+	switch v := value.(type) {
+	case int64, int, uint64, uint, uint32:
+		zeline = fmt.Sprintf("@.%s%s%d", fieldName, comparator, v.(int32))
+	case float32, float64:
+		zeline = fmt.Sprintf("@.%s%s%.f", fieldName, comparator, v)
 	default:
 		zeline = fmt.Sprintf("@.%s%s\"%v\"", fieldName, comparator, value)
 	}
@@ -144,13 +124,13 @@ func uniqueQueryToFilters(m query.Query, fieldTransformer func(string) string, i
 		}
 	case *query.WildcardQuery:
 		wc := v.Wildcard
-		regexp := ""
+		rx := ""
 		if !strings.HasPrefix(wc, "*") {
-			regexp += "^"
+			rx += "^"
 		}
-		regexp += strings.Trim(wc, "*")
+		rx += strings.Trim(wc, "*")
 		if !strings.HasSuffix(wc, "*") {
-			regexp += "$"
+			rx += "$"
 		}
 		fieldName := fieldTransformer(v.Field())
 		if wc == "T*" { // Special case for boolean query
@@ -160,9 +140,11 @@ func uniqueQueryToFilters(m query.Query, fieldTransformer func(string) string, i
 				filters = append(filters, line(fieldName, "=", "true"))
 			}
 		} else if insensitive {
-			filters = append(filters, line(fieldName, "=~", "/"+regexp+"/i", not))
+			// not working
+			//filters = append(filters, line(fieldName, "=~", "/"+rx+"/i", not))
+			filters = append(filters, line(fieldName, "=~", rx, not))
 		} else {
-			filters = append(filters, line(fieldName, "=~", regexp, not))
+			filters = append(filters, line(fieldName, "=~", rx, not))
 		}
 	case *query.MatchQuery:
 		match := v.Match
@@ -184,18 +166,19 @@ func uniqueQueryToFilters(m query.Query, fieldTransformer func(string) string, i
 		fieldName := fieldTransformer(v.Field())
 		phrase := strings.Trim(v.MatchPhrase, "\"")
 		if strings.Contains(phrase, "*") {
-			regexp := ""
+			rx := ""
 			if !strings.HasPrefix(phrase, "*") {
-				regexp += "^"
+				rx += "^"
 			}
-			regexp += strings.Trim(phrase, "*")
+			rx += strings.Trim(phrase, "*")
 			if !strings.HasSuffix(phrase, "*") {
-				regexp += "$"
+				rx += "$"
 			}
 			if insensitive {
-				filters = append(filters, line(fieldName, "=~", "/"+regexp+"/i", not))
+				//filters = append(filters, line(fieldName, "=~", "/"+rx+"/i", not))
+				filters = append(filters, line(fieldName, "=~", rx, not))
 			} else {
-				filters = append(filters, line(fieldName, "=~", regexp, not))
+				filters = append(filters, line(fieldName, "=~", rx, not))
 			}
 		} else {
 			if not {
@@ -206,18 +189,18 @@ func uniqueQueryToFilters(m query.Query, fieldTransformer func(string) string, i
 		}
 	case *query.NumericRangeQuery:
 		if v.Min != nil {
-			ref := ">"
+			ref := " > "
 			if v.InclusiveMin != nil && *v.InclusiveMin {
-				ref = ">="
+				ref = " >= "
 			}
-			filters = append(filters, line(fieldTransformer(v.Field()), ref, v.Min, not))
+			filters = append(filters, line(fieldTransformer(v.Field()), ref, *v.Min, not))
 		}
 		if v.Max != nil {
-			ref := "<"
+			ref := " < "
 			if v.InclusiveMax != nil && *v.InclusiveMax {
-				ref = "<="
+				ref = " <= "
 			}
-			filters = append(filters, line(fieldTransformer(v.Field()), ref, v.Max, not))
+			filters = append(filters, line(fieldTransformer(v.Field()), ref, *v.Max, not))
 		}
 	}
 	return

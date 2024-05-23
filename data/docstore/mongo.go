@@ -24,6 +24,7 @@ import (
 	"context"
 
 	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 
 	"github.com/pydio/cells/v4/common/proto/docstore"
@@ -96,13 +97,18 @@ func (m *mongoImpl) GetDocument(ctx context.Context, storeID string, docId strin
 }
 
 func (m *mongoImpl) QueryDocuments(ctx context.Context, storeID string, query *docstore.DocumentQuery) (chan *docstore.Document, error) {
-	filter, err := m.buildFilters(storeID, query)
+	filter, opts, err := m.buildFilters(storeID, query)
 	if err != nil {
 		return nil, err
 	}
-	cursor, e := m.Collection(collDocuments).Find(ctx, filter)
-	if e != nil {
-		return nil, e
+	var cursor *mongo.Cursor
+	if opts != nil {
+		cursor, err = m.Collection(collDocuments).Find(ctx, filter, opts)
+	} else {
+		cursor, err = m.Collection(collDocuments).Find(ctx, filter)
+	}
+	if err != nil {
+		return nil, err
 	}
 	res := make(chan *docstore.Document)
 	go func() {
@@ -141,7 +147,8 @@ func (m *mongoImpl) DeleteDocument(ctx context.Context, storeID string, docID st
 }
 
 func (m *mongoImpl) DeleteDocuments(ctx context.Context, storeID string, query *docstore.DocumentQuery) (int, error) {
-	filter, err := m.buildFilters(storeID, query)
+	// ignore cursor options
+	filter, _, err := m.buildFilters(storeID, query)
 	if err != nil {
 		return 0, err
 	}
@@ -153,7 +160,8 @@ func (m *mongoImpl) DeleteDocuments(ctx context.Context, storeID string, query *
 }
 
 func (m *mongoImpl) CountDocuments(ctx context.Context, storeID string, query *docstore.DocumentQuery) (int, error) {
-	filter, err := m.buildFilters(storeID, query)
+	// ignore cursor options
+	filter, _, err := m.buildFilters(storeID, query)
 	if err != nil {
 		return 0, err
 	}
@@ -194,13 +202,26 @@ func (m *mongoImpl) toDocument(doc *mDoc) *docstore.Document {
 	}
 }
 
-func (m *mongoImpl) buildFilters(storeID string, query *docstore.DocumentQuery) (interface{}, error) {
+func (m *mongoImpl) buildFilters(storeID string, query *docstore.DocumentQuery) (interface{}, *options.FindOptions, error) {
+
+	var o *options.FindOptions
+	if query.Offset > 0 || query.Limit > 0 {
+		o = &options.FindOptions{}
+		if query.Offset > 0 {
+			offset := query.Offset
+			o.Skip = &offset
+		}
+		if query.Limit > 0 {
+			limit := query.Limit
+			o.Limit = &limit
+		}
+	}
 
 	filter := bson.D{
 		{"store_id", storeID},
 	}
 	if query == nil {
-		return filter, nil
+		return filter, o, nil
 	}
 	if query.ID != "" {
 		filter = append(filter, bson.E{Key: "doc_id", Value: query.ID})
@@ -213,10 +234,10 @@ func (m *mongoImpl) buildFilters(storeID string, query *docstore.DocumentQuery) 
 			return "data." + s
 		})
 		if e != nil {
-			return nil, e
+			return nil, o, e
 		}
 		filter = append(filter, ff...)
 	}
 
-	return filter, nil
+	return filter, o, nil
 }

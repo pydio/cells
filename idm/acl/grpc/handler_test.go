@@ -22,11 +22,10 @@ package grpc
 
 import (
 	"context"
-	"github.com/pydio/cells/v4/common/sql"
 	"testing"
 	"time"
 
-	"google.golang.org/grpc/metadata"
+	"google.golang.org/grpc"
 	"google.golang.org/protobuf/types/known/anypb"
 
 	"github.com/pydio/cells/v4/common/proto/idm"
@@ -44,9 +43,7 @@ var (
 )
 
 var (
-	testcases = []test.StorageTestCase{
-		{[]string{sql.SqliteDriver + "://" + sql.SharedMemDSN}, true, acl.NewDAO},
-	}
+	testcases = test.TemplateSQL(acl.NewDAO)
 )
 
 func TestACL(t *testing.T) {
@@ -224,36 +221,13 @@ func TestACL(t *testing.T) {
 // =================================================
 
 type aclStreamMock struct {
+	grpc.ServerStream
 	ctx            context.Context
 	InternalBuffer []*idm.ACL
 }
 
-func (x *aclStreamMock) SetHeader(md metadata.MD) error {
-	panic("implement me")
-}
-
-func (x *aclStreamMock) SendHeader(md metadata.MD) error {
-	panic("implement me")
-}
-
-func (x *aclStreamMock) SetTrailer(md metadata.MD) {
-	panic("implement me")
-}
-
 func (x *aclStreamMock) Context() context.Context {
 	return x.ctx
-}
-
-func (x *aclStreamMock) Close() error {
-	return nil
-}
-
-func (x *aclStreamMock) SendMsg(m interface{}) error {
-	return nil
-}
-
-func (x *aclStreamMock) RecvMsg(m interface{}) error {
-	return nil
 }
 
 func (x *aclStreamMock) Recv() (*idm.SearchACLRequest, error) {

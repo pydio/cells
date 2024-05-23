@@ -255,7 +255,20 @@ func (dao *boltdbimpl) ActivitiesFor(ctx context.Context, ownerType activity.Own
 	var evaluable gval.Evaluable
 	if streamFilter != "" {
 		var err error
-		evaluable, _, err = boltdb.BleveQueryToJSONPath(streamFilter, "$", true, QueryFieldsTransformer, true)
+		var fieldErs []error
+		evaluable, _, err = boltdb.BleveQueryToJSONPath(streamFilter, "$", true, func(s string) string {
+			var fe error
+			if s, fe = queryFieldsTransformer(s); fe != nil {
+				fieldErs = append(fieldErs, fe)
+			}
+			if s == "updated" {
+				s = "updatedTS"
+			}
+			return s
+		}, true)
+		if len(fieldErs) > 0 {
+			return fieldErs[0]
+		}
 		if err != nil {
 			return err
 		}
@@ -289,6 +302,9 @@ func (dao *boltdbimpl) ActivitiesFor(ctx context.Context, ownerType activity.Own
 				var search map[string]interface{}
 				bb, _ := json.Marshal(acObject)
 				_ = json.Unmarshal(bb, &search)
+				if acObject.Updated != nil {
+					search["updatedTS"] = acObject.Updated.GetSeconds()
+				}
 				if match, er := evaluable.EvalInt(ctx, []interface{}{search}); er != nil {
 					return er
 				} else if match == 0 {
