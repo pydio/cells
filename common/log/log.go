@@ -30,6 +30,7 @@ import (
 	"strings"
 	"time"
 
+	bridge "github.com/odigos-io/opentelemetry-zap-bridge"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 	lumberjack "gopkg.in/natefinch/lumberjack.v2"
@@ -43,6 +44,10 @@ import (
 type WriteSyncer interface {
 	io.Writer
 	Sync() error
+}
+
+func init() {
+	runtime.RegisterEnvVariable("CELLS_OTLP_LOGS_EXPORTER", "OpenTelemetry Logs Exporter", "Register an OTLP endpoint to send logs to")
 }
 
 type LogContextWrapper func(ctx context.Context, logger ZapLogger, fields ...zapcore.Field) ZapLogger
@@ -70,7 +75,7 @@ func Init(logDir string, ww ...LogContextWrapper) {
 
 		StdOut = os.Stdout
 
-		var logger *zap.Logger
+		var zl *zap.Logger
 
 		serverCore := zapcore.NewNopCore()
 		if !skipServerSync && mainLogSyncerClient != nil {
@@ -113,7 +118,7 @@ func Init(logDir string, ww ...LogContextWrapper) {
 				getCoreLevel(),
 			)
 			core = zapcore.NewTee(core, serverCore)
-			logger = zap.New(core)
+			zl = zap.New(core)
 
 		} else {
 
@@ -126,20 +131,28 @@ func Init(logDir string, ww ...LogContextWrapper) {
 			)
 			core = zapcore.NewTee(core, serverCore)
 			if getCoreLevel() == zap.DebugLevel || traceFatalEnabled() {
-				logger = zap.New(core, zap.AddStacktrace(zap.ErrorLevel))
+				zl = zap.New(core, zap.AddStacktrace(zap.ErrorLevel))
 			} else {
-				logger = zap.New(core)
+				zl = zap.New(core)
 			}
 
 		}
 
 		if traceFatalEnabled() {
-			_, _ = zap.RedirectStdLogAt(logger, zap.ErrorLevel) // log anything at ErrorLevel with a stack trace
+			_, _ = zap.RedirectStdLogAt(zl, zap.ErrorLevel) // log anything at ErrorLevel with a stack trace
 		} else {
-			_, _ = zap.RedirectStdLogAt(logger, zap.DebugLevel)
+			_, _ = zap.RedirectStdLogAt(zl, zap.DebugLevel)
 		}
 
-		return logger
+		// Export logs to OTLP endpoint
+		if otlp := os.Getenv("CELLS_OTLP_LOGS_EXPORTER"); otlp != "" {
+			if err := os.Setenv("OTEL_EXPORTER_OTLP_ENDPOINT", otlp); err == nil {
+				_ = os.Setenv("OTEL_SERVICE_NAME", "cells")
+				zl = bridge.AttachToZapLogger(zl)
+			}
+		}
+
+		return zl
 	}, func(ctx context.Context) {
 		if !skipServerSync {
 			mainLogSyncerClient = NewLogSyncer(ctx, common.ServiceLog)
@@ -218,15 +231,6 @@ func SetLoggerInit(f func() *zap.Logger, globalConnInit func(ctx context.Context
 
 // Logger returns a zap logger with as much context as possible.
 func Logger(ctx context.Context) ZapLogger {
-	/*
-		// Todo recheck - WithLogger was never used anywhere
-		l := runtimecontext.GetLogger(ctx)
-		if l != nil {
-			if lg, ok := l.(ZapLogger); ok {
-				return lg
-			}
-		}
-	*/
 	return contextWrapper(ctx, mainLogger.get())
 }
 
