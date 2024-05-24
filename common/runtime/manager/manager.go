@@ -130,8 +130,7 @@ func NewManager(ctx context.Context, namespace string, logger log.ZapLogger) (Ma
 	}
 
 	ctx = runtimecontext.With(ctx, ContextKey, m)
-
-	runtime.Init(ctx, "discovery")
+	runtime.Init(ctx, "system")
 
 	if clusterRegistryURL := runtime.RegistryURL(); clusterRegistryURL != "" {
 		clusterRegistry, err := registry.OpenRegistry(ctx, clusterRegistryURL)
@@ -217,7 +216,7 @@ func NewManager(ctx context.Context, namespace string, logger log.ZapLogger) (Ma
 	}
 
 	ctx = runtimecontext.With(ctx, registry.ContextKey, reg)
-
+	runtime.Init(ctx, "discovery")
 	runtime.Init(ctx, m.ns)
 
 	m.ctx = ctx

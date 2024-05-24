@@ -43,7 +43,7 @@ var (
 )
 
 func init() {
-	runtime.Register("discovery", func(ctx context.Context) {
+	runtime.Register("system", func(ctx context.Context) {
 		var mgr manager.Manager
 		if runtimecontext.Get(ctx, manager.ContextKey, &mgr) {
 			return
