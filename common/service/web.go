@@ -90,11 +90,10 @@ func getWebMiddlewares(serviceName string) []func(ctx context.Context, handler h
 	wmOnce.Do(func() {
 		wm = append(wm,
 			servicecontext.HttpWrapperMetrics,
-			// Todo - re-enable
-			//			middleware.HttpWrapperPolicy,
-			//			middleware.HttpWrapperJWT,
-			servicecontext.HttpWrapperSpan,
+			middleware.HttpWrapperPolicy,
+			middleware.HttpWrapperJWT,
 			servicecontext.HttpWrapperMeta,
+			//servicecontext.HttpCtxWrapperOpenTelemetry, // should be directly integrated in httpResolver
 		)
 	})
 	// Append dynamic wrapper to append service name to context

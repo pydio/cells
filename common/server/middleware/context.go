@@ -102,17 +102,16 @@ func setContextForTenant(ctx context.Context) (context.Context, error) {
 			grpc.WithChainUnaryInterceptor(
 				clientgrpc.ErrorNoMatchedRouteRetryUnaryClientInterceptor(),
 				clientgrpc.ErrorFormatUnaryClientInterceptor(),
-				servicecontext.SpanUnaryClientInterceptor(),
+				servicecontext.OperationIdUnaryClientInterceptor(),
 				clientgrpc.MetaUnaryClientInterceptor(),
-				otelgrpc.UnaryClientInterceptor(),
 			),
 			grpc.WithChainStreamInterceptor(
 				clientgrpc.ErrorNoMatchedRouteRetryStreamClientInterceptor(),
 				clientgrpc.ErrorFormatStreamClientInterceptor(),
-				servicecontext.SpanStreamClientInterceptor(),
+				servicecontext.OperationIdStreamClientInterceptor(),
 				clientgrpc.MetaStreamClientInterceptor(),
-				otelgrpc.StreamClientInterceptor(),
 			),
+			grpc.WithStatsHandler(otelgrpc.NewClientHandler()),
 		)
 		if err != nil {
 			fmt.Println("And the error is ? ", err)

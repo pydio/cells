@@ -93,6 +93,7 @@ const (
 	KeyContext = "Context"
 
 	// Follow a given request between the various services
+	KeySpanOtel       = "SpanOtel"
 	KeySpanUuid       = "SpanUuid"
 	KeySpanParentUuid = "SpanParentUuid"
 	KeySpanRootUuid   = "SpanRootUuid"

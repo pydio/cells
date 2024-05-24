@@ -47,9 +47,9 @@ func setContextForTenant(ctx context.Context, tenant string) context.Context {
 	cc, ok := clientConns[tenant]
 	if !ok {
 		cc, _ = grpc.Dial("xds://"+tenant+".cells.com/cells",
-			grpc.WithChainUnaryInterceptor(otelgrpc.UnaryClientInterceptor()),
-			grpc.WithChainStreamInterceptor(otelgrpc.StreamClientInterceptor()),
-			grpc.WithTransportCredentials(insecure.NewCredentials()))
+			grpc.WithTransportCredentials(insecure.NewCredentials()),
+			grpc.WithStatsHandler(otelgrpc.NewClientHandler()),
+		)
 
 		clientConns[tenant] = cc
 	}

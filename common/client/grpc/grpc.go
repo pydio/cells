@@ -72,18 +72,16 @@ func DialOptionsForRegistry(reg registry.Registry, options ...grpc.DialOption) [
 		grpc.WithChainUnaryInterceptor(
 			ErrorNoMatchedRouteRetryUnaryClientInterceptor(),
 			ErrorFormatUnaryClientInterceptor(),
-			servicecontext.SpanUnaryClientInterceptor(),
+			servicecontext.OperationIdUnaryClientInterceptor(),
 			MetaUnaryClientInterceptor(),
-			otelgrpc.UnaryClientInterceptor(),
 		),
 		grpc.WithChainStreamInterceptor(
 			ErrorNoMatchedRouteRetryStreamClientInterceptor(),
 			ErrorFormatStreamClientInterceptor(),
-			servicecontext.SpanStreamClientInterceptor(),
+			servicecontext.OperationIdStreamClientInterceptor(),
 			MetaStreamClientInterceptor(),
-			otelgrpc.StreamClientInterceptor(),
 		),
-		// grpc.WithDisableRetry(),
+		grpc.WithStatsHandler(otelgrpc.NewClientHandler()),
 	}, options...)
 }
 

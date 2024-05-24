@@ -22,8 +22,9 @@ package tracing
 
 import (
 	"context"
-	"go.opentelemetry.io/otel/trace"
 	"net/url"
+
+	trace "go.opentelemetry.io/otel/sdk/trace"
 
 	"github.com/pydio/cells/v4/common/utils/openurl"
 )
@@ -34,7 +35,7 @@ import (
 //
 // This interface is generally implemented by types in driver packages.
 type URLOpener interface {
-	OpenURL(ctx context.Context, u *url.URL) (trace.TracerProvider, error)
+	OpenURL(ctx context.Context, u *url.URL) (trace.SpanExporter, error)
 }
 
 // URLMux is a URL opener multiplexer. It matches the scheme of the URLs
@@ -61,7 +62,7 @@ func (mux *URLMux) Register(scheme string, opener URLOpener) {
 
 // OpenServer calls OpenTopicURL with the URL parsed from urlstr.
 // OpenTopic is safe to call from multiple goroutines.
-func (mux *URLMux) OpenServer(ctx context.Context, urlstr string) (trace.TracerProvider, error) {
+func (mux *URLMux) OpenServer(ctx context.Context, urlstr string) (trace.SpanExporter, error) {
 	opener, u, err := mux.schemes.FromString("Server", urlstr)
 	if err != nil {
 		return nil, err
@@ -83,6 +84,6 @@ func DefaultURLMux() *URLMux {
 // See the URLOpener documentation in driver subpackages for
 // details on supported URL formats, and https://gocloud.dev/concepts/urls
 // for more information.
-func OpenTracing(ctx context.Context, urlstr string) (trace.TracerProvider, error) {
+func OpenTracing(ctx context.Context, urlstr string) (trace.SpanExporter, error) {
 	return defaultURLMux.OpenServer(ctx, urlstr)
 }

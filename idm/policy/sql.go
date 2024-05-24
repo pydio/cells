@@ -226,7 +226,8 @@ func (s *sqlimpl) DeletePolicyGroup(ctx context.Context, group *idm.PolicyGroup)
 	return nil
 }
 
-// DeletePolicyGroup deletes a policy group and all related policies.
+// IsAllowed implements API
 func (s *sqlimpl) IsAllowed(ctx context.Context, r *ladon.Request) error {
-	return (&ladon.Ladon{Manager: s.Manager.WithContext(ctx)}).IsAllowed(r)
+	mg := NewManager(s.instance(ctx)).WithContext(ctx)
+	return (&ladon.Ladon{Manager: mg}).IsAllowed(r)
 }

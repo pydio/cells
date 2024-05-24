@@ -43,7 +43,6 @@ import (
 	"github.com/pydio/cells/v4/common/proto/tree"
 	"github.com/pydio/cells/v4/common/runtime/manager"
 	runtimecontext "github.com/pydio/cells/v4/common/runtime/runtimecontext"
-	servicecontext "github.com/pydio/cells/v4/common/service/context"
 	"github.com/pydio/cells/v4/common/service/context/metadata"
 	"github.com/pydio/cells/v4/common/sync/endpoints/chanwatcher"
 	"github.com/pydio/cells/v4/common/sync/merger"
@@ -595,9 +594,11 @@ func (s *Handler) TriggerResync(c context.Context, req *protosync.ResyncRequest)
 	// Internal context used for SessionData is re-extended from context.Background
 	bg := metadata.WithUserNameMetadata(c, common.PydioSystemUsername)
 	bg = runtimecontext.ForkOneKey(runtimecontext.ServiceNameKey, bg, c)
-	if s, o := servicecontext.SpanFromContext(c); o {
-		bg = servicecontext.WithSpan(bg, s)
-	}
+	/*
+		if s, o := servicecontext.SpanFromContext(c); o {
+			bg = servicecontext.WithSpan(bg, s)
+		}
+	*/
 
 	var result model.Stater
 	var e error

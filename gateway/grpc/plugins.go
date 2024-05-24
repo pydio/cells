@@ -107,14 +107,14 @@ func createServer(ctx context.Context, tls bool) (server.Server, error) {
 	jwtModifier := createJwtCtxModifier(ctx)
 	grpcOptions := []grpc.ServerOption{
 		grpc.ChainUnaryInterceptor(
-			servicecontext.ContextUnaryServerInterceptor(servicecontext.SpanIncomingContext),
+			servicecontext.ContextUnaryServerInterceptor(servicecontext.OperationIdIncomingContext),
 			servicecontext.MetricsUnaryServerInterceptor(),
 			servicecontext.ContextUnaryServerInterceptor(servicecontext.MetaIncomingContext),
 			servicecontext.ContextUnaryServerInterceptor(jwtModifier),
 			servicecontext.ContextUnaryServerInterceptor(grpcMetaCtxModifier),
 		),
 		grpc.ChainStreamInterceptor(
-			servicecontext.ContextStreamServerInterceptor(servicecontext.SpanIncomingContext),
+			servicecontext.ContextStreamServerInterceptor(servicecontext.OperationIdIncomingContext),
 			servicecontext.MetricsStreamServerInterceptor(),
 			servicecontext.ContextStreamServerInterceptor(servicecontext.MetaIncomingContext),
 			servicecontext.ContextStreamServerInterceptor(jwtModifier),
@@ -192,7 +192,7 @@ func grpcMetaCtxModifier(ctx context.Context) (context.Context, bool, error) {
 			"user-agent":      servicecontext.HttpMetaUserAgent,
 			"content-type":    servicecontext.HttpMetaContentType,
 			"x-forwarded-for": servicecontext.HttpMetaRemoteAddress,
-			"x-pydio-span-id": servicecontext.SpanMetadataId,
+			//"x-pydio-span-id": servicecontext.SpanMetadataId,
 		}
 		for k, v := range existing {
 			if k == ":authority" { // Ignore grpc-specific meta

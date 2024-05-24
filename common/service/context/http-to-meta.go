@@ -90,9 +90,6 @@ func HttpRequestInfoToMetadata(ctx context.Context, req *http.Request) context.C
 	if h, ok := req.Header["Content-Type"]; ok {
 		meta[HttpMetaContentType] = strings.Join(h, "")
 	}
-	if h, ok := req.Header["X-Pydio-Span-Id"]; ok {
-		meta[SpanMetadataId] = strings.Join(h, "")
-	}
 	for _, key := range common.XSpecialPydioHeaders {
 		if h, ok := req.Header[key]; ok && len(h) > 0 {
 			meta[key] = h[0]

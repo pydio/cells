@@ -46,14 +46,17 @@ func RichContext(ctx context.Context, logger log.ZapLogger, fields ...zapcore.Fi
 	logger = log.BasicContextWrapper(ctx, logger, fields...)
 
 	// Compute all fields
-	if span, ok := servicecontext.SpanFromContext(ctx); ok {
-		if len(span.RootParentId) > 0 {
-			fields = append(fields, zap.String(common.KeySpanRootUuid, span.RootParentId))
-		}
-		if len(span.ParentId) > 0 {
-			fields = append(fields, zap.String(common.KeySpanParentUuid, span.RootParentId))
-		}
-		fields = append(fields, zap.String(common.KeySpanUuid, span.SpanId))
+
+	if span := servicecontext.SpanFromContext(ctx); span.HasSpanID() {
+		/*
+			if len(span.RootParentId) > 0 {
+				fields = append(fields, zap.String(common.KeySpanRootUuid, span.RootParentId))
+			}
+			if len(span.ParentId) > 0 {
+				fields = append(fields, zap.String(common.KeySpanParentUuid, span.RootParentId))
+			}
+		*/
+		fields = append(fields, zap.Any(common.KeySpanOtel, span))
 	}
 	if opId, opLabel := runtimecontext.GetOperationID(ctx); opId != "" {
 		fields = append(fields, zap.String(common.KeyOperationUuid, opId))

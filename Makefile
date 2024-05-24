@@ -59,7 +59,7 @@ dev:
 	 -ldflags "-X github.com/pydio/cells/v4/common.version=${DEV_VERSION}\
 	 -X github.com/pydio/cells/v4/common.BuildStamp=2022-01-01T00:00:00\
 	 -X github.com/pydio/cells/v4/common.BuildRevision=dev\
-	 -X github.com/pydio/cells/v4/common.LogFileDefaultValue=false\
+	 -X github.com/pydio/cells/v4/common.LogFileDefaultValue=true\
 	 -X google.golang.org/protobuf/reflect/protoregistry.conflictPolicy=warn"\
 	 -o cells\
 	 .

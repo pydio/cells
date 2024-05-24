@@ -12,6 +12,7 @@ import (
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
+	"gorm.io/plugin/opentelemetry/tracing"
 
 	"github.com/pydio/cells/v4/common/runtime"
 	"github.com/pydio/cells/v4/common/runtime/manager"
@@ -127,23 +128,25 @@ func (gs *gormStorage) Register(conn any, tenant string, service string, hooks .
 	}
 
 	gs.once.Do(func() {
-		db, _ := gorm.Open(dialect, &gorm.Config{
+		gdb, _ := gorm.Open(dialect, &gorm.Config{
 			//DisableForeignKeyConstraintWhenMigrating: true,
 			FullSaveAssociations: true,
 			TranslateError:       true,
 			Logger:               logger.Default.LogMode(logger.Info),
 		})
 
+		_ = gdb.Use(tracing.NewPlugin(tracing.WithoutMetrics()))
+
 		dr := dbresolver.New()
 
-		_ = db.Use(dr)
+		_ = gdb.Use(dr)
 		for _, hook := range hooks {
 			if reg, ok := hooksRegister[hook]; ok {
-				reg(db)
+				reg(gdb)
 			}
 		}
 
-		gs.db = db
+		gs.db = gdb
 		gs.dr = dr
 	})
 

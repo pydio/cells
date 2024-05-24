@@ -24,6 +24,7 @@ import (
 	"github.com/pydio/cells/v4/common/runtime"
 	"github.com/pydio/cells/v4/common/runtime/runtimecontext"
 	"github.com/pydio/cells/v4/common/server/caddy/maintenance"
+	servicecontext "github.com/pydio/cells/v4/common/service/context"
 	"github.com/pydio/cells/v4/common/service/context/metadata"
 	json "github.com/pydio/cells/v4/common/utils/jsonx"
 )
@@ -184,11 +185,13 @@ func (m *resolver) ServeHTTP(w http.ResponseWriter, r *http.Request) (bool, erro
 	if m.s == nil {
 		mu := http.NewServeMux()
 		m.rr.IteratePatterns(func(pattern string, handler http.Handler) {
-			mu.Handle(pattern, handler)
+			// Wrap handler in OTEL middleware
+			middleware := servicecontext.HttpMiddlewareOpenTelemetry(pattern)
+			mu.Handle(pattern, middleware(handler))
 		})
 		m.s = mu
 	}
-	fmt.Println(r.URL.Path, r.RequestURI)
+	// fmt.Println(r.URL.Path, r.RequestURI)
 	// Try to match pattern - Custom check for "/" : must be exactly /
 	if h, pattern := m.s.Handler(r); len(pattern) > 0 && (pattern != "/" || r.URL.Path == "/") {
 		h.ServeHTTP(w, r.WithContext(ctx))
