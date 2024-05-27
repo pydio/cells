@@ -18,16 +18,39 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-package log
+package service
 
 import (
 	"context"
+	"fmt"
+	"net/url"
 	"sync/atomic"
 	"time"
 
+	"go.uber.org/zap/zapcore"
+
 	"github.com/pydio/cells/v4/common/client/grpc"
+	log2 "github.com/pydio/cells/v4/common/log"
 	"github.com/pydio/cells/v4/common/proto/log"
 )
+
+type opener struct{}
+
+func (o *opener) OpenSync(ctx context.Context, u *url.URL) (zapcore.WriteSyncer, error) {
+	if log2.ReadyLogSyncerContext == nil {
+		return nil, fmt.Errorf("logSyncerContext not ready yet")
+	}
+	serviceName := u.Query().Get("service")
+	if serviceName == "" {
+		return nil, fmt.Errorf("logger service:// must provide a ?service query parameter")
+	}
+	fmt.Println("init LogSyncer on service", serviceName)
+	return NewLogSyncer(log2.ReadyLogSyncerContext, serviceName), nil
+}
+
+func init() {
+	log2.DefaultURLMux().RegisterSync("service", &opener{})
+}
 
 type LogSyncer struct {
 	serverServiceName string
@@ -105,6 +128,10 @@ func (syncer *LogSyncer) logSyncerWatch() {
 			}
 		}
 	}
+}
+
+func (syncer *LogSyncer) Sync() error {
+	return nil
 }
 
 // Write implements the io.Writer interface to be used as a Syncer by zap logging.

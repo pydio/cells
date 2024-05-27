@@ -3,6 +3,12 @@ package main
 import (
 	"github.com/pydio/cells/v4/common"
 
+	// Register log drivers
+	_ "github.com/pydio/cells/v4/common/log/file"
+	_ "github.com/pydio/cells/v4/common/log/otlp"
+	_ "github.com/pydio/cells/v4/common/log/service"
+	_ "github.com/pydio/cells/v4/common/log/stdout"
+
 	// Register storage drivers
 	_ "github.com/pydio/cells/v4/common/storage/bleve"
 	_ "github.com/pydio/cells/v4/common/storage/boltdb"

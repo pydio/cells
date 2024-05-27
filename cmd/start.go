@@ -175,13 +175,14 @@ ENVIRONMENT
 		ctx = runtimecontext.With(ctx, config.ContextKey, config.Main())
 
 		clientgrpc.WarnMissingConnInContext = true
-		conn, err := grpc.Dial("xds://"+runtime.Cluster()+".cells.com/cells", clientgrpc.DialOptionsForRegistry(reg)...)
+		conn, err := grpc.NewClient("xds://"+runtime.Cluster()+".cells.com/cells", clientgrpc.DialOptionsForRegistry(reg)...)
 		if err != nil {
 			return err
 		}
 
 		ctx = clientcontext.WithClientConn(ctx, conn)
 		// ctx = nodescontext.WithSourcesPool(ctx, nodes.NewPool(ctx, reg))
+		runtime.InitGlobalConnConsumers(ctx, "main")
 
 		// Init broker
 		broker.Register(broker.NewBroker(runtime.BrokerURL(), broker.WithContext(ctx)))

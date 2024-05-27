@@ -1,3 +1,4 @@
+//go:build ignore
 // +build ignore
 
 /*
@@ -25,6 +26,7 @@ package log
 import (
 	"context"
 	"fmt"
+	"github.com/pydio/cells/v4/common/log/service"
 	"log"
 	"testing"
 	"time"
@@ -51,7 +53,7 @@ func TestLogMassiveObject(t *testing.T) {
 		MaxBackups: 100,
 		MaxAge:     28, // days
 	}))
-	syncers = append(syncers, zapcore.AddSync(NewLogSyncer(ctx, common.ServiceGrpcNamespace_+common.ServiceLog)))
+	syncers = append(syncers, zapcore.AddSync(service.NewLogSyncer(ctx, common.ServiceGrpcNamespace_+common.ServiceLog)))
 
 	config := zap.NewProductionEncoderConfig()
 	config.EncodeTime = RFC3369TimeEncoder

@@ -7,22 +7,23 @@ import (
 
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
-	"gopkg.in/natefinch/lumberjack.v2"
+	lumberjack "gopkg.in/natefinch/lumberjack.v2"
 
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/log"
+	"github.com/pydio/cells/v4/common/log/service"
 	rt "github.com/pydio/cells/v4/common/runtime"
 )
 
 var (
 	logger    *zap.Logger
-	logSyncer *log.LogSyncer
+	logSyncer *service.LogSyncer
 )
 
 func init() {
 	rt.RegisterEnvVariable("CELLS_JOBS_LOG_LEVEL", "info", "Log level used for scheduler jobs - to be used carefully as it may produce a large volume of logs.")
 	log.SetTasksLoggerInit(initTasksLogger, func(ctx context.Context) {
-		logSyncer = log.NewLogSyncer(ctx, common.ServiceJobs)
+		logSyncer = service.NewLogSyncer(ctx, common.ServiceJobs)
 	})
 }
 

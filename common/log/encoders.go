@@ -25,6 +25,7 @@ import (
 	"slices"
 	"strings"
 
+	"go.uber.org/zap"
 	"go.uber.org/zap/buffer"
 	"go.uber.org/zap/zapcore"
 
@@ -37,6 +38,21 @@ const (
 	ConsoleColorGrpc  = 35
 	ConsoleColorOther = 36
 )
+
+var (
+	JSONEncoder    zapcore.Encoder
+	ConsoleEncoder zapcore.Encoder
+)
+
+func init() {
+	cfg := zap.NewProductionEncoderConfig()
+	cfg.EncodeTime = RFC3369TimeEncoder
+	JSONEncoder = zapcore.NewJSONEncoder(cfg)
+
+	cfg2 := zap.NewDevelopmentEncoderConfig()
+	cfg2.EncodeLevel = zapcore.CapitalColorLevelEncoder
+	ConsoleEncoder = newColorConsoleEncoder(cfg2)
+}
 
 func newColorConsoleEncoder(config zapcore.EncoderConfig) zapcore.Encoder {
 	return &colorConsoleEncoder{Encoder: zapcore.NewConsoleEncoder(config)}

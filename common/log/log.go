@@ -23,6 +23,7 @@ package log
 import (
 	"bufio"
 	"context"
+	"fmt"
 	"io"
 	"os"
 	"path/filepath"
@@ -30,10 +31,8 @@ import (
 	"strings"
 	"time"
 
-	bridge "github.com/odigos-io/opentelemetry-zap-bridge"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
-	lumberjack "gopkg.in/natefinch/lumberjack.v2"
 
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/runtime"
@@ -58,105 +57,146 @@ var (
 	tasksLogger    = newLogger()
 	contextWrapper = BasicContextWrapper
 
-	mainLogSyncerClient *LogSyncer
+	ReadyLogSyncerContext context.Context
 
 	StdOut *os.File
 
 	skipServerSync bool
 	customSyncers  []zapcore.WriteSyncer
 	// Parse log lines like below:
-	// 2022/04/21 07:53:46.226	[33mWARN[0m	tls	stapling OCSP	{"error": "no OCSP stapling for [charles-pydio.local kubernetes.docker.internal local.pydio local.pydio.com localhost localhost localpydio.com spnego.lab.py sub1.pydio sub2.pydio 127.0.0.1 192.168.10.101]: no OCSP server specified in certificate"}
+	// 2022/04/21 07:53:46.226	[33mWARN[0m	tls	stapling OCSP	{"error": "no OCSP stapling for [charles-pydio.local kubernetes.docker.internal local.pydio local.pydio.com localhost localhost localpydio.com spnego.lab.py sub1.pydio sub2.pydio 127.0.0.1 192.168.10.101]: no OCSP server specified in certificate"}
 	caddyInternals = regexp.MustCompile("^(?P<log_date>[^\t]+)\t(?P<log_level>[^\t]+)\t(?P<log_name>[^\t]+)\t(?P<log_message>[^\t]+)(\t)?(?P<log_fields>[^\t]+)$")
 )
 
 // Init for the log package - called by the main
 func Init(logDir string, ww ...LogContextWrapper) {
+
 	SetLoggerInit(func() *zap.Logger {
 
-		StdOut = os.Stdout
+		// TODO
+		// - Handle legacy common.LogToFile runtime flag, same for common.LogConfig presets (e.g. common.LogConfigProduction)
+		// - Are files logger really disabled on forks?
+		// - Check skipServerSync setting for external libs
+		// - Config for other loggers
 
-		var zl *zap.Logger
-
-		serverCore := zapcore.NewNopCore()
-		if !skipServerSync && mainLogSyncerClient != nil {
-			// Create core for internal indexing service
-			// It forwards logs to the pydio.grpc.logs service to store them
-			// Format is always JSON + ProductionEncoderConfig
-			srvConfig := zap.NewProductionEncoderConfig()
-			srvConfig.EncodeTime = RFC3369TimeEncoder
-			serverSync := zapcore.AddSync(mainLogSyncerClient)
-			serverCore = zapcore.NewCore(
-				zapcore.NewJSONEncoder(srvConfig),
-				serverSync,
-				getCoreLevel(),
-			)
+		cfg := Config{
+			{
+				Encoding: "json",
+				Level:    "info",
+				WritersURL: []string{
+					"file://" + filepath.Join(logDir, "pydio.log"),
+					"service:///?service=pydio.grpc.log",
+				},
+			},
+			{
+				Encoding: "json",
+				Level:    ">debug&<=warn",
+				WritersURL: []string{
+					"file://" + filepath.Join(logDir, "pydio_info.log"),
+				},
+			},
+			{
+				Encoding: "json",
+				Level:    "error",
+				WritersURL: []string{
+					"file://" + filepath.Join(logDir, "pydio_err.log"),
+				},
+			},
+			{
+				Encoding: "json",
+				Level:    "=debug",
+				Filters: map[string]string{
+					"logger": "pydio.grpc.jobs",
+				},
+				WritersURL: []string{
+					"file://" + filepath.Join(logDir, "pydio_debug.log"),
+				},
+			},
+			{
+				Encoding: "console",
+				Level:    "info",
+				WritersURL: []string{
+					"stdout:///",
+				},
+			},
+			/*
+				{
+					Encoding: "json",
+					Level:    "debug",
+					WritersURL: []string{
+						"otlp://localhost:4318",
+					},
+				},
+			*/
 		}
+		ctx := context.Background()
 
-		syncers := []zapcore.WriteSyncer{StdOut}
-		if common.LogToFile {
-			// Additional logger: stores messages in local file
-			// logDir := config.ApplicationWorkingDir(config.ApplicationDirLogs)
-			rotaterSync := zapcore.AddSync(&lumberjack.Logger{
-				Filename:   filepath.Join(logDir, "pydio.log"),
-				MaxSize:    10, // megabytes
-				MaxBackups: 100,
-				MaxAge:     28, // days
-			})
-			syncers = append(syncers, rotaterSync)
-		}
-		syncers = append(syncers, customSyncers...)
-		syncer := zapcore.NewMultiWriteSyncer(syncers...)
+		var cores []zapcore.Core
+		var hasDebug bool
+		for _, conf := range cfg {
+			var ss []zapcore.WriteSyncer
+			var presetCores []zapcore.Core
+			coreEncoder := conf.Encoder()
+			levelEnabler := conf.Enabler()
 
-		if common.LogConfig == common.LogConfigProduction {
-
-			// lumberjack.Logger is already safe for concurrent use, so we don't need to lock it.
-			cfg := zap.NewProductionEncoderConfig()
-			cfg.EncodeTime = RFC3369TimeEncoder
-			core := zapcore.NewCore(
-				zapcore.NewJSONEncoder(cfg),
-				syncer,
-				getCoreLevel(),
-			)
-			core = zapcore.NewTee(core, serverCore)
-			zl = zap.New(core)
-
-		} else {
-
-			cfg := zap.NewDevelopmentEncoderConfig()
-			cfg.EncodeLevel = zapcore.CapitalColorLevelEncoder
-			core := zapcore.NewCore(
-				newColorConsoleEncoder(cfg),
-				syncer,
-				getCoreLevel(),
-			)
-			core = zapcore.NewTee(core, serverCore)
-			if getCoreLevel() == zap.DebugLevel || traceFatalEnabled() {
-				zl = zap.New(core, zap.AddStacktrace(zap.ErrorLevel))
-			} else {
-				zl = zap.New(core)
+			if !hasDebug && levelEnabler.Enabled(zapcore.DebugLevel) {
+				hasDebug = true
 			}
 
+			for _, u := range conf.WritersURL {
+				if syncer, er := DefaultURLMux().OpenSync(ctx, u); er == nil {
+					ss = append(ss, syncer)
+				} else if custom, er2 := DefaultURLMux().OpenCore(ctx, u, coreEncoder, levelEnabler); er2 == nil {
+					if len(conf.Filters) > 0 {
+						custom = conf.Wrap(custom)
+					}
+					presetCores = append(presetCores, custom)
+				} else {
+					fmt.Println(er)
+				}
+			}
+			if len(ss) == 0 && len(presetCores) == 0 {
+				fmt.Println("ignoring logger as no cores or syncer were initialized")
+				continue
+			}
+			// Append precompiled cores
+			if len(presetCores) > 0 {
+				cores = append(cores, presetCores...)
+			}
+			// Create a core for syncers
+			if len(ss) > 0 {
+				var syncer zapcore.WriteSyncer
+				if len(ss) == 1 {
+					syncer = ss[0]
+				} else {
+					syncer = zapcore.NewMultiWriteSyncer(ss...)
+				}
+				// Create a core with proper encoder, syncers and levels
+				core := zapcore.NewCore(conf.Encoder(), syncer, conf.Enabler())
+				// Wrap a filtering core if Filters are defined.
+				if len(conf.Filters) > 0 {
+					core = conf.Wrap(core)
+				}
+				cores = append(cores, core)
+			}
 		}
 
+		var loggerOptions []zap.Option
+		if hasDebug || traceFatalEnabled() {
+			loggerOptions = append(loggerOptions, zap.AddStacktrace(zap.ErrorLevel))
+		}
+		core := zapcore.NewTee(cores...) // already handles a Noop case if empty
+		zl := zap.New(core, loggerOptions...)
 		if traceFatalEnabled() {
 			_, _ = zap.RedirectStdLogAt(zl, zap.ErrorLevel) // log anything at ErrorLevel with a stack trace
 		} else {
 			_, _ = zap.RedirectStdLogAt(zl, zap.DebugLevel)
 		}
 
-		// Export logs to OTLP endpoint
-		if otlp := os.Getenv("CELLS_OTLP_LOGS_EXPORTER"); otlp != "" {
-			if err := os.Setenv("OTEL_EXPORTER_OTLP_ENDPOINT", otlp); err == nil {
-				_ = os.Setenv("OTEL_SERVICE_NAME", "cells")
-				zl = bridge.AttachToZapLogger(zl)
-			}
-		}
-
 		return zl
+
 	}, func(ctx context.Context) {
-		if !skipServerSync {
-			mainLogSyncerClient = NewLogSyncer(ctx, common.ServiceLog)
-		}
+		ReadyLogSyncerContext = ctx
 	})
 	if len(ww) > 0 {
 		contextWrapper = ww[0]
@@ -210,7 +250,7 @@ func RegisterWriteSyncer(syncer WriteSyncer) {
 // SetSkipServerSync can disable the core syncing to cells service
 // Must be called before initialization
 func SetSkipServerSync() {
-	skipServerSync = true
+	panic("should be simply ignored by configuration or if grpc context is not initialized")
 }
 
 // initLogger sets the initializer and eventually registers a GlobalConnConsumer function.
