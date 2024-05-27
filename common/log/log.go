@@ -77,6 +77,13 @@ func Init(logDir string, ww ...ContextWrapper) {
 
 		cfg := Config{
 			{
+				Encoding: "console",
+				Level:    "info",
+				WritersURL: []string{
+					"stdout:///",
+				},
+			},
+			{
 				Encoding: "json",
 				Level:    "info",
 				WritersURL: []string{
@@ -84,13 +91,13 @@ func Init(logDir string, ww ...ContextWrapper) {
 					"service:///?service=pydio.grpc.log",
 				},
 			},
-			{
-				Encoding: "json",
-				Level:    ">debug&<=warn",
-				WritersURL: []string{
-					"file://" + filepath.Join(logDir, "pydio_info.log"),
-				},
-			},
+			//{
+			//	Encoding: "json",
+			//	Level:    ">debug&<=warn",
+			//	WritersURL: []string{
+			//		"file://" + filepath.Join(logDir, "pydio_info.log"),
+			//	},
+			//},
 			{
 				Encoding: "json",
 				Level:    "error",
@@ -108,20 +115,13 @@ func Init(logDir string, ww ...ContextWrapper) {
 					"file://" + filepath.Join(logDir, "pydio_sql_debug.log"),
 				},
 			},
-			{
-				Encoding: "console",
-				Level:    "debug",
-				WritersURL: []string{
-					"stdout:///",
-				},
-			},
-			{
-				Encoding: "json",
-				Level:    "debug",
-				WritersURL: []string{
-					"otlp://localhost:4318",
-				},
-			},
+			//{
+			//	Encoding: "json",
+			//	Level:    "debug",
+			//	WritersURL: []string{
+			//		"otlp://localhost:4318",
+			//	},
+			//},
 		}
 		ctx := context.Background()
 
