@@ -146,8 +146,8 @@ import (
 	_ "github.com/pydio/cells/v4/common/server/http"
 
 	// Tracing
-	_ "github.com/pydio/cells/v4/common/tracing/jaeger"
-	_ "github.com/pydio/cells/v4/common/tracing/stdout"
+	_ "github.com/pydio/cells/v4/common/log/tracing/jaeger"
+	_ "github.com/pydio/cells/v4/common/log/tracing/stdout"
 
 	// Import Command Package after all Mux Registers
 	"github.com/pydio/cells/v4/cmd"

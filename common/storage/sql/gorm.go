@@ -14,6 +14,7 @@ import (
 	"gorm.io/gorm/logger"
 	"gorm.io/plugin/opentelemetry/tracing"
 
+	"github.com/pydio/cells/v4/common/log"
 	"github.com/pydio/cells/v4/common/runtime"
 	"github.com/pydio/cells/v4/common/runtime/manager"
 	"github.com/pydio/cells/v4/common/runtime/runtimecontext"
@@ -128,11 +129,12 @@ func (gs *gormStorage) Register(conn any, tenant string, service string, hooks .
 	}
 
 	gs.once.Do(func() {
+		z := log.Logger(context.Background())
 		gdb, _ := gorm.Open(dialect, &gorm.Config{
 			//DisableForeignKeyConstraintWhenMigrating: true,
 			FullSaveAssociations: true,
 			TranslateError:       true,
-			Logger:               logger.Default.LogMode(logger.Info),
+			Logger:               NewLogger(z, DefaultConfig).LogMode(logger.Info),
 		})
 
 		_ = gdb.Use(tracing.NewPlugin(tracing.WithoutMetrics()))

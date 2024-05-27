@@ -45,11 +45,7 @@ type WriteSyncer interface {
 	Sync() error
 }
 
-func init() {
-	runtime.RegisterEnvVariable("CELLS_OTLP_LOGS_EXPORTER", "OpenTelemetry Logs Exporter", "Register an OTLP endpoint to send logs to")
-}
-
-type LogContextWrapper func(ctx context.Context, logger ZapLogger, fields ...zapcore.Field) ZapLogger
+type ContextWrapper func(ctx context.Context, logger ZapLogger, fields ...zapcore.Field) ZapLogger
 
 var (
 	mainLogger     = newLogger()
@@ -69,7 +65,7 @@ var (
 )
 
 // Init for the log package - called by the main
-func Init(logDir string, ww ...LogContextWrapper) {
+func Init(logDir string, ww ...ContextWrapper) {
 
 	SetLoggerInit(func() *zap.Logger {
 
@@ -103,31 +99,29 @@ func Init(logDir string, ww ...LogContextWrapper) {
 				},
 			},
 			{
-				Encoding: "json",
+				Encoding: "console",
 				Level:    "=debug",
 				Filters: map[string]string{
-					"logger": "pydio.grpc.jobs",
+					"layer": "sql",
 				},
 				WritersURL: []string{
-					"file://" + filepath.Join(logDir, "pydio_debug.log"),
+					"file://" + filepath.Join(logDir, "pydio_sql_debug.log"),
 				},
 			},
 			{
 				Encoding: "console",
-				Level:    "info",
+				Level:    "debug",
 				WritersURL: []string{
 					"stdout:///",
 				},
 			},
-			/*
-				{
-					Encoding: "json",
-					Level:    "debug",
-					WritersURL: []string{
-						"otlp://localhost:4318",
-					},
+			{
+				Encoding: "json",
+				Level:    "debug",
+				WritersURL: []string{
+					"otlp://localhost:4318",
 				},
-			*/
+			},
 		}
 		ctx := context.Background()
 

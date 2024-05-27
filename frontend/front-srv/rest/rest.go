@@ -109,7 +109,7 @@ func (a *FrontendHandler) FrontState(req *restful.Request, rsp *restful.Response
 	scopes := user.GetActiveScopes()
 
 	status := frontend.RequestStatus{
-		RuntimeCtx:    a.runtimeCtx,
+		RuntimeCtx:    ctx,
 		Config:        c,
 		AclParameters: aclParameters,
 		AclActions:    aclActions,

@@ -48,12 +48,6 @@ type URLMux struct {
 	schemes openurl.SchemeMap
 }
 
-// Schemes returns a sorted slice of the registered schemes.
-func (mux *URLMux) Schemes() []string { return mux.schemes.Schemes() }
-
-// ValidScheme returns true if scheme has been registered.
-func (mux *URLMux) ValidScheme(scheme string) bool { return mux.schemes.ValidScheme(scheme) }
-
 // Register registers the opener with the given scheme. If an opener
 // already exists for the scheme, Register panics.
 func (mux *URLMux) Register(scheme string, opener URLOpener) {
@@ -80,7 +74,7 @@ func DefaultURLMux() *URLMux {
 	return defaultURLMux
 }
 
-// OpenServer opens the Registry identified by the URL given.
+// OpenTracing opens the Registry identified by the URL given.
 // See the URLOpener documentation in driver subpackages for
 // details on supported URL formats, and https://gocloud.dev/concepts/urls
 // for more information.

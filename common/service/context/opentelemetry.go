@@ -36,8 +36,8 @@ import (
 	semconv "go.opentelemetry.io/otel/semconv/v1.20.0"
 	"go.opentelemetry.io/otel/trace"
 
+	"github.com/pydio/cells/v4/common/log/tracing"
 	"github.com/pydio/cells/v4/common/runtime"
-	"github.com/pydio/cells/v4/common/tracing"
 )
 
 var (
