@@ -27,8 +27,6 @@ import (
 	"sync/atomic"
 	"time"
 
-	"go.uber.org/zap/zapcore"
-
 	"github.com/pydio/cells/v4/common/client/grpc"
 	log2 "github.com/pydio/cells/v4/common/log"
 	"github.com/pydio/cells/v4/common/proto/log"
@@ -36,7 +34,7 @@ import (
 
 type opener struct{}
 
-func (o *opener) OpenSync(ctx context.Context, u *url.URL) (zapcore.WriteSyncer, error) {
+func (o *opener) OpenSync(ctx context.Context, u *url.URL) (log2.WriteSyncerCloser, error) {
 	if log2.ReadyLogSyncerContext == nil {
 		return nil, fmt.Errorf("logSyncerContext not ready yet")
 	}
@@ -60,6 +58,7 @@ type LogSyncer struct {
 	logSyncerMessages chan *log.Log
 	buf               []*log.Log
 	reconnecting      int32
+	closed            bool
 }
 
 func NewLogSyncer(ctx context.Context, serviceName string) *LogSyncer {
@@ -76,6 +75,10 @@ func NewLogSyncer(ctx context.Context, serviceName string) *LogSyncer {
 }
 
 func (syncer *LogSyncer) logSyncerClientReconnect() {
+	if syncer.closed {
+		return
+	}
+
 	atomic.StoreInt32(&syncer.reconnecting, 1)
 
 	conn := grpc.ResolveConn(syncer.ctx, syncer.serverServiceName)
@@ -134,10 +137,18 @@ func (syncer *LogSyncer) Sync() error {
 	return nil
 }
 
+func (syncer *LogSyncer) Close() error {
+	syncer.closed = true
+	close(syncer.logSyncerMessages)
+	return nil
+}
+
 // Write implements the io.Writer interface to be used as a Syncer by zap logging.
 // We must copy the []byte as a underlying buffer can mess up things if logs are called very quickly.
 func (syncer *LogSyncer) Write(p []byte) (n int, err error) {
-
+	if syncer.closed {
+		return 0, fmt.Errorf("log syncer is closed")
+	}
 	clone := make([]byte, len(p))
 	written := copy(clone, p)
 	select {

@@ -2,6 +2,7 @@ package log
 
 import (
 	"context"
+	"io"
 	"net/url"
 
 	"go.uber.org/zap/zapcore"
@@ -9,14 +10,24 @@ import (
 	"github.com/pydio/cells/v4/common/utils/openurl"
 )
 
-// CoreURLOpener represents types than can open Registries based on a URL.
-type CoreURLOpener interface {
-	OpenCore(ctx context.Context, u *url.URL, encoder zapcore.Encoder, level zapcore.LevelEnabler) (zapcore.Core, error)
+type CoreCloser interface {
+	zapcore.Core
+	io.Closer
 }
 
-// SyncURLOpener implements zapcore.WriteSyncer opener
+type WriteSyncerCloser interface {
+	zapcore.WriteSyncer
+	io.Closer
+}
+
+// CoreURLOpener represents types than can open Registries based on a URL.
+type CoreURLOpener interface {
+	OpenCore(ctx context.Context, u *url.URL, encoder zapcore.Encoder, level zapcore.LevelEnabler) (CoreCloser, error)
+}
+
+// SyncURLOpener implements WriteSyncerCloser opener
 type SyncURLOpener interface {
-	OpenSync(ctx context.Context, u *url.URL) (zapcore.WriteSyncer, error)
+	OpenSync(ctx context.Context, u *url.URL) (WriteSyncerCloser, error)
 }
 
 // URLMux is a URL opener multiplexer. It matches the scheme of the URLs
@@ -38,7 +49,7 @@ func (mux *URLMux) RegisterCore(scheme string, opener CoreURLOpener) {
 
 // OpenCore calls OpenURL with the URL parsed from urlstr.
 // OpenStore is safe to call from multiple goroutines.
-func (mux *URLMux) OpenCore(ctx context.Context, rawURL string, encoder zapcore.Encoder, level zapcore.LevelEnabler) (zapcore.Core, error) {
+func (mux *URLMux) OpenCore(ctx context.Context, rawURL string, encoder zapcore.Encoder, level zapcore.LevelEnabler) (CoreCloser, error) {
 	opener, u, err := mux.core.FromString("Log", rawURL)
 	if err != nil {
 		return nil, err
@@ -53,7 +64,7 @@ func (mux *URLMux) RegisterSync(scheme string, opener SyncURLOpener) {
 
 // OpenSync calls OpenURL with the URL parsed from urlstr.
 // OpenStore is safe to call from multiple goroutines.
-func (mux *URLMux) OpenSync(ctx context.Context, rawURL string) (zapcore.WriteSyncer, error) {
+func (mux *URLMux) OpenSync(ctx context.Context, rawURL string) (WriteSyncerCloser, error) {
 	opener, u, err := mux.sync.FromString("Sync", rawURL)
 	if err != nil {
 		return nil, err

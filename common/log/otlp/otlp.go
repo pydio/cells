@@ -17,12 +17,23 @@ func init() {
 
 type opener struct{}
 
-func (o *opener) OpenCore(ctx context.Context, u *url.URL, _ zapcore.Encoder, level zapcore.LevelEnabler) (zapcore.Core, error) {
+func (o *opener) OpenCore(ctx context.Context, u *url.URL, _ zapcore.Encoder, level zapcore.LevelEnabler) (log.CoreCloser, error) {
 	u.Scheme = "http"
 
 	if err := os.Setenv("OTEL_EXPORTER_OTLP_ENDPOINT", u.String()); err == nil {
 		_ = os.Setenv("OTEL_SERVICE_NAME", "cells")
 	}
+	if c, er := zapcore.NewIncreaseLevelCore(bridge.NewOtelZapCore(), level); er != nil {
+		return nil, er
+	} else {
+		return &wrapper{Core: c}, nil
+	}
+}
 
-	return zapcore.NewIncreaseLevelCore(bridge.NewOtelZapCore(), level)
+type wrapper struct {
+	zapcore.Core
+}
+
+func (w *wrapper) Close() error {
+	return nil
 }

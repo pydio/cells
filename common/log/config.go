@@ -1,7 +1,10 @@
 package log
 
 import (
+	"context"
 	"fmt"
+	"io"
+	"path/filepath"
 	"strings"
 
 	"github.com/manifoldco/promptui"
@@ -9,13 +12,84 @@ import (
 )
 
 type CfgLogger struct {
-	Encoding   string
-	Level      string
-	Filters    map[string]string
-	WritersURL []string
+	Level    string            `json:"level" yaml:"level"`
+	Encoding string            `json:"encoding" yaml:"encoding"`
+	Outputs  []string          `json:"writers" yaml:"writers"`
+	Filters  map[string]string `json:"filters" yaml:"filters"`
 }
 
 type Config []CfgLogger
+
+func DefaultLegacyConfig(level, encoding, logToDir string) Config {
+	outputs := []string{
+		"stdout:///",
+	}
+	if logToDir != "" {
+		outputs = append(outputs, "file://"+filepath.Join(logToDir, "pydio.log"))
+	}
+	return Config{{
+		Encoding: encoding,
+		Level:    level,
+		Outputs:  outputs,
+	}}
+}
+
+func (cfg Config) LoadCores(ctx context.Context) (cores []zapcore.Core, closers []io.Closer, hasDebug bool) {
+	closers = []io.Closer{}
+
+	for _, conf := range cfg {
+		var ss []zapcore.WriteSyncer
+		var presetCores []zapcore.Core
+		coreEncoder := conf.Encoder()
+		levelEnabler := conf.Enabler()
+
+		if !hasDebug && levelEnabler.Enabled(zapcore.DebugLevel) {
+			hasDebug = true
+		}
+
+		for _, u := range conf.Outputs {
+			if syncer, er := DefaultURLMux().OpenSync(ctx, u); er == nil {
+				ss = append(ss, syncer)
+				closers = append(closers, syncer)
+			} else if custom, er2 := DefaultURLMux().OpenCore(ctx, u, coreEncoder, levelEnabler); er2 == nil {
+				if len(conf.Filters) > 0 {
+					presetCores = append(presetCores, conf.Wrap(custom))
+				} else {
+					presetCores = append(presetCores, custom)
+				}
+				closers = append(closers, custom)
+			} else {
+				fmt.Println(er)
+			}
+		}
+		if len(ss) == 0 && len(presetCores) == 0 {
+			fmt.Println("ignoring logger as no cores or syncer were initialized")
+			continue
+		}
+		// Append precompiled cores
+		if len(presetCores) > 0 {
+			cores = append(cores, presetCores...)
+		}
+		// Create a core for syncers
+		if len(ss) > 0 {
+			var syncer zapcore.WriteSyncer
+			if len(ss) == 1 {
+				syncer = ss[0]
+			} else {
+				syncer = zapcore.NewMultiWriteSyncer(ss...)
+			}
+			// Create a core with proper encoder, syncers and levels
+			core := zapcore.NewCore(conf.Encoder(), syncer, conf.Enabler())
+			// Wrap a filtering core if Filters are defined.
+			if len(conf.Filters) > 0 {
+				core = conf.Wrap(core)
+			}
+			cores = append(cores, core)
+		}
+	}
+
+	return
+}
 
 // Encoder computes encoder based on textual Encoder key
 // Currently supported are "json" and "console"

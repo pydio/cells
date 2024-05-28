@@ -5,7 +5,6 @@ import (
 	"net/url"
 	"strconv"
 
-	"go.uber.org/zap/zapcore"
 	lumberjack "gopkg.in/natefinch/lumberjack.v2"
 
 	"github.com/pydio/cells/v4/common/log"
@@ -17,7 +16,7 @@ func init() {
 
 type op struct{}
 
-func (o *op) OpenSync(ctx context.Context, u *url.URL) (zapcore.WriteSyncer, error) {
+func (o *op) OpenSync(ctx context.Context, u *url.URL) (log.WriteSyncerCloser, error) {
 	lj := &lumberjack.Logger{
 		Filename:   u.Path,
 		MaxSize:    10, // megabytes
@@ -44,6 +43,14 @@ func (o *op) OpenSync(ctx context.Context, u *url.URL) (zapcore.WriteSyncer, err
 	if s := params.Get("compress"); s == "true" {
 		lj.Compress = true
 	}
-	return zapcore.AddSync(lj), nil
+	return &wrapper{Logger: lj}, nil
 
+}
+
+type wrapper struct {
+	*lumberjack.Logger
+}
+
+func (w *wrapper) Sync() (err error) {
+	return nil
 }

@@ -26,7 +26,6 @@ import (
 	"fmt"
 	"io"
 	"os"
-	"path/filepath"
 	"regexp"
 	"strings"
 	"time"
@@ -56,15 +55,19 @@ var (
 
 	StdOut *os.File
 
-	skipServerSync bool
-	customSyncers  []zapcore.WriteSyncer
+	currentConfig Config
+	mainClosers   []io.Closer
+	customSyncers []CfgLogger
+
 	// Parse log lines like below:
 	// 2022/04/21 07:53:46.226	[33mWARN[0m	tls	stapling OCSP	{"error": "no OCSP stapling for [charles-pydio.local kubernetes.docker.internal local.pydio local.pydio.com localhost localhost localpydio.com spnego.lab.py sub1.pydio sub2.pydio 127.0.0.1 192.168.10.101]: no OCSP server specified in certificate"}
 	caddyInternals = regexp.MustCompile("^(?P<log_date>[^\t]+)\t(?P<log_level>[^\t]+)\t(?P<log_name>[^\t]+)\t(?P<log_message>[^\t]+)(\t)?(?P<log_fields>[^\t]+)$")
 )
 
 // Init for the log package - called by the main
-func Init(logDir string, ww ...ContextWrapper) {
+func Init(conf Config, ww ...ContextWrapper) {
+
+	currentConfig = conf
 
 	SetLoggerInit(func() *zap.Logger {
 
@@ -74,112 +77,24 @@ func Init(logDir string, ww ...ContextWrapper) {
 		// - Check skipServerSync setting for external libs
 		// - Config for other loggers
 
-		cfg := Config{
-			{
-				Encoding: "console",
-				Level:    "info",
-				WritersURL: []string{
-					"stdout:///",
-				},
-			},
-			{
-				Encoding: "json",
-				Level:    "info",
-				WritersURL: []string{
-					"file://" + filepath.Join(logDir, "pydio.log"),
-					"service:///?service=pydio.grpc.log",
-				},
-			},
-			//{
-			//	Encoding: "json",
-			//	Level:    ">debug&<=warn",
-			//	WritersURL: []string{
-			//		"file://" + filepath.Join(logDir, "pydio_info.log"),
-			//	},
-			//},
-			{
-				Encoding: "json",
-				Level:    "error",
-				WritersURL: []string{
-					"file://" + filepath.Join(logDir, "pydio_err.log"),
-				},
-			},
-			{
-				Encoding: "console",
-				Level:    "=debug",
-				Filters: map[string]string{
-					common.XPydioDebugSession: "true",
-				},
-				WritersURL: []string{
-					"file://" + filepath.Join(logDir, "pydio_request_debug.log"),
-				},
-			},
-			//{
-			//	Encoding: "json",
-			//	Level:    "debug",
-			//	WritersURL: []string{
-			//		"otlp://localhost:4318",
-			//	},
-			//},
+		// Append custom configurations
+		fullConfig := append(currentConfig, customSyncers...)
+
+		for _, cl := range mainClosers {
+			if e := cl.Close(); e != nil {
+				fmt.Printf("Error while closing logger: %v\n", e)
+			}
 		}
+
 		ctx := context.Background()
-
-		var cores []zapcore.Core
-		var hasDebug bool
-		for _, conf := range cfg {
-			var ss []zapcore.WriteSyncer
-			var presetCores []zapcore.Core
-			coreEncoder := conf.Encoder()
-			levelEnabler := conf.Enabler()
-
-			if !hasDebug && levelEnabler.Enabled(zapcore.DebugLevel) {
-				hasDebug = true
-			}
-
-			for _, u := range conf.WritersURL {
-				if syncer, er := DefaultURLMux().OpenSync(ctx, u); er == nil {
-					ss = append(ss, syncer)
-				} else if custom, er2 := DefaultURLMux().OpenCore(ctx, u, coreEncoder, levelEnabler); er2 == nil {
-					if len(conf.Filters) > 0 {
-						custom = conf.Wrap(custom)
-					}
-					presetCores = append(presetCores, custom)
-				} else {
-					fmt.Println(er)
-				}
-			}
-			if len(ss) == 0 && len(presetCores) == 0 {
-				fmt.Println("ignoring logger as no cores or syncer were initialized")
-				continue
-			}
-			// Append precompiled cores
-			if len(presetCores) > 0 {
-				cores = append(cores, presetCores...)
-			}
-			// Create a core for syncers
-			if len(ss) > 0 {
-				var syncer zapcore.WriteSyncer
-				if len(ss) == 1 {
-					syncer = ss[0]
-				} else {
-					syncer = zapcore.NewMultiWriteSyncer(ss...)
-				}
-				// Create a core with proper encoder, syncers and levels
-				core := zapcore.NewCore(conf.Encoder(), syncer, conf.Enabler())
-				// Wrap a filtering core if Filters are defined.
-				if len(conf.Filters) > 0 {
-					core = conf.Wrap(core)
-				}
-				cores = append(cores, core)
-			}
-		}
+		cores, closers, hasDebug := fullConfig.LoadCores(ctx)
+		mainClosers = closers
 
 		var loggerOptions []zap.Option
 		if hasDebug || traceFatalEnabled() {
 			loggerOptions = append(loggerOptions, zap.AddStacktrace(zap.ErrorLevel))
 		}
-		core := zapcore.NewTee(cores...) // already handles a Noop case if empty
-		zl := zap.New(core, loggerOptions...)
+		zl := zap.New(zapcore.NewTee(cores...), loggerOptions...)
 		if traceFatalEnabled() {
 			_, _ = zap.RedirectStdLogAt(zl, zap.ErrorLevel) // log anything at ErrorLevel with a stack trace
 		} else {
@@ -194,6 +109,12 @@ func Init(logDir string, ww ...ContextWrapper) {
 	if len(ww) > 0 {
 		contextWrapper = ww[0]
 	}
+}
+
+// ReloadMainLogger passes an updated config and force logger reset
+func ReloadMainLogger(cfg Config) {
+	currentConfig = cfg
+	mainLogger.forceReset()
 }
 
 func CaptureCaddyStdErr(serviceName string) context.Context {
@@ -234,7 +155,7 @@ func CaptureCaddyStdErr(serviceName string) context.Context {
 }
 
 // RegisterWriteSyncer optional writers for logs
-func RegisterWriteSyncer(syncer WriteSyncer) {
+func RegisterWriteSyncer(syncer CfgLogger) {
 	customSyncers = append(customSyncers, syncer)
 
 	mainLogger.forceReset() // Will force reinit next time

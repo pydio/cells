@@ -24,14 +24,15 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"github.com/spf13/pflag"
 	"os"
+	"path/filepath"
 	"strconv"
 	"strings"
 	"time"
 
 	"github.com/manifoldco/promptui"
 	"github.com/spf13/cobra"
+	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
 	"go.uber.org/zap"
 
@@ -45,8 +46,8 @@ import (
 	cw "github.com/pydio/cells/v4/common/log/context-wrapper"
 	log2 "github.com/pydio/cells/v4/common/proto/log"
 	"github.com/pydio/cells/v4/common/runtime"
+	"github.com/pydio/cells/v4/common/utils/configx"
 
-	// Implicit available config types
 	_ "github.com/pydio/cells/v4/common/config/etcd"
 	_ "github.com/pydio/cells/v4/common/config/service"
 	_ "github.com/pydio/cells/v4/common/config/vault"
@@ -251,7 +252,7 @@ func initConfig(ctx context.Context, debounceVersions bool) (new bool, keyring c
 			var data interface{}
 			if err := json.Unmarshal([]byte(config.SampleConfig), &data); err == nil {
 				if err := config.Get().Set(data); err == nil {
-					config.Save(common.PydioSystemUsername, "Initialize with sample config")
+					_ = config.Save(common.PydioSystemUsername, "Initialize with sample config")
 				}
 			}
 		}
@@ -264,7 +265,87 @@ func initConfig(ctx context.Context, debounceVersions bool) (new bool, keyring c
 		}
 	}
 
+	go readLoggersAndWatchConfig()
+
 	return
+}
+
+func readLoggersAndWatchConfig() {
+
+	// This shows a sample log config that can be found in the pydio.json
+	logDir := runtime.ApplicationWorkingDir(runtime.ApplicationDirLogs)
+	_ = log.Config{
+		{
+			Encoding: "console",
+			Level:    "info",
+			Outputs: []string{
+				"stdout:///",
+			},
+		},
+		{
+			Encoding: "json",
+			Level:    "info",
+			Outputs: []string{
+				"file://" + filepath.Join(logDir, "pydio.log"),
+				"service:///?service=pydio.grpc.log",
+			},
+		},
+		{
+			Encoding: "json",
+			Level:    ">debug&<=warn",
+			Outputs: []string{
+				"file://" + filepath.Join(logDir, "pydio_info.log"),
+			},
+		},
+		{
+			Encoding: "json",
+			Level:    "error",
+			Outputs: []string{
+				"file://" + filepath.Join(logDir, "pydio_err.log"),
+			},
+		},
+		{
+			Encoding: "console",
+			Level:    "=debug",
+			Filters: map[string]string{
+				common.XPydioDebugSession: "true",
+			},
+			Outputs: []string{
+				"file://" + filepath.Join(logDir, "pydio_request_debug.log"),
+			},
+		},
+		{
+			Encoding: "json",
+			Level:    "debug",
+			Outputs: []string{
+				"otlp://localhost:4318",
+			},
+		},
+	}
+
+	cbl := log.Config{}
+	srvName := common.ServiceGrpcNamespace_ + common.ServiceLog
+	if err := config.Get(configx.FormatPath("services", srvName, "loggers")).Scan(&cbl); err == nil {
+		fmt.Println("Reloading", len(cbl), "loggers from configuration")
+		log.ReloadMainLogger(cbl)
+	}
+	watcher, err := config.Watch(configx.WithPath("services", srvName, "loggers"))
+	if err != nil {
+		return
+	}
+	for {
+		event, err := watcher.Next()
+		if err != nil {
+			break
+		}
+		cbl2 := log.Config{}
+		if event != nil && event.(configx.Values).Scan(&cbl2) == nil {
+			fmt.Println("Reloading", len(cbl), "loggers from configuration")
+			log.ReloadMainLogger(cbl2)
+		}
+	}
+	watcher.Stop()
+
 }
 
 func initLogLevel() {
@@ -289,11 +370,11 @@ func initLogLevel() {
 	}
 
 	// Making sure the log level is passed everywhere (fork processes for example)
-	os.Setenv("CELLS_LOG", logLevel)
-	os.Setenv("CELLS_LOG_TO_FILE", strconv.FormatBool(common.LogToFile))
+	_ = os.Setenv("CELLS_LOG", logLevel)
+	_ = os.Setenv("CELLS_LOG_TO_FILE", strconv.FormatBool(common.LogToFile))
 
 	if logJson {
-		os.Setenv("CELLS_LOG_JSON", "true")
+		_ = os.Setenv("CELLS_LOG_JSON", "true")
 		common.LogConfig = common.LogConfigProduction
 	} else {
 		common.LogConfig = common.LogConfigConsole
@@ -309,9 +390,18 @@ func initLogLevel() {
 		common.LogLevel = zap.ErrorLevel
 	}
 
-	log.Init(runtime.ApplicationWorkingDir(runtime.ApplicationDirLogs), cw.RichContext)
+	encoding := "console"
+	baseDir := ""
+	if logJson {
+		encoding = "json"
+	}
+	if common.LogToFile {
+		baseDir = runtime.ApplicationWorkingDir(runtime.ApplicationDirLogs)
+	}
+	log.Init(log.DefaultLegacyConfig(logLevel, encoding, baseDir), cw.RichContext)
 
 	// Using it once
+	// todo necessary?
 	log.Logger(context.Background())
 }
 
