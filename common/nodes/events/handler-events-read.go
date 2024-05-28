@@ -37,11 +37,10 @@ import (
 	"github.com/pydio/cells/v4/common/proto/docstore"
 	"github.com/pydio/cells/v4/common/proto/idm"
 	"github.com/pydio/cells/v4/common/proto/tree"
-	runtimecontext "github.com/pydio/cells/v4/common/runtime/runtimecontext"
-	"github.com/pydio/cells/v4/common/service/context/metadata"
 	"github.com/pydio/cells/v4/common/service/errors"
 	json "github.com/pydio/cells/v4/common/utils/jsonx"
 	"github.com/pydio/cells/v4/common/utils/permissions"
+	runtimecontext "github.com/pydio/cells/v4/common/utils/propagator"
 )
 
 func WithRead() nodes.Option {
@@ -85,7 +84,7 @@ func (h *HandlerRead) ListNodes(ctx context.Context, in *tree.ListNodesRequest, 
 			}
 		}
 		if node.Uuid != "" {
-			c := metadata.NewBackgroundWithMetaCopy(ctx)
+			c := runtimecontext.NewBackgroundWithMetaCopy(ctx)
 			go func() {
 				broker.MustPublish(c, common.TopicTreeChanges, &tree.NodeChangeEvent{
 					Type:   tree.NodeChangeEvent_READ,
@@ -129,7 +128,7 @@ func (h *HandlerRead) GetObject(ctx context.Context, node *tree.Node, requestDat
 				// Assume it's a file
 				eventNode.Type = tree.NodeType_LEAF
 			}
-			c := metadata.NewBackgroundWithMetaCopy(ctx)
+			c := runtimecontext.NewBackgroundWithMetaCopy(ctx)
 			go func() {
 				broker.MustPublish(c, common.TopicTreeChanges, &tree.NodeChangeEvent{
 					Type:   tree.NodeChangeEvent_READ,

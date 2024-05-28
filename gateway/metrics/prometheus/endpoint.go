@@ -34,9 +34,9 @@ import (
 	pb "github.com/pydio/cells/v4/common/proto/registry"
 	"github.com/pydio/cells/v4/common/registry"
 	"github.com/pydio/cells/v4/common/runtime"
-	"github.com/pydio/cells/v4/common/runtime/runtimecontext"
 	"github.com/pydio/cells/v4/common/service/metrics"
 	json "github.com/pydio/cells/v4/common/utils/jsonx"
+	"github.com/pydio/cells/v4/common/utils/propagator"
 )
 
 var (
@@ -80,7 +80,7 @@ func WatchTargets(ctx context.Context, serviceName string) error {
 		return os.WriteFile(file, empty, 0755)
 	}
 	var reg registry.Registry
-	if !runtimecontext.Get(ctx, registry.ContextKey, &reg) {
+	if !propagator.Get(ctx, registry.ContextKey, &reg) {
 		return fmt.Errorf("cannot find registry in context")
 	}
 

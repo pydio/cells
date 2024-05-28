@@ -1,7 +1,7 @@
 package tenant
 
 import (
-	"github.com/pydio/cells/v4/common/runtime/runtimecontext"
+	"github.com/pydio/cells/v4/common/utils/propagator"
 )
 
 type tenantKey struct{}
@@ -9,5 +9,5 @@ type tenantKey struct{}
 var ContextKey = tenantKey{}
 
 func init() {
-	runtimecontext.RegisterGenericInjector[Tenant](ContextKey)
+	propagator.RegisterKeyInjector[Tenant](ContextKey)
 }

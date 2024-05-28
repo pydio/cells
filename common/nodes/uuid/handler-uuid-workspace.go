@@ -29,15 +29,15 @@ import (
 	"google.golang.org/protobuf/proto"
 
 	"github.com/pydio/cells/v4/common/log"
+	"github.com/pydio/cells/v4/common/middleware"
 	"github.com/pydio/cells/v4/common/nodes"
 	"github.com/pydio/cells/v4/common/nodes/abstract"
 	"github.com/pydio/cells/v4/common/nodes/acl"
 	"github.com/pydio/cells/v4/common/proto/idm"
 	"github.com/pydio/cells/v4/common/proto/tree"
-	servicecontext "github.com/pydio/cells/v4/common/service/context"
-	"github.com/pydio/cells/v4/common/service/context/metadata"
 	"github.com/pydio/cells/v4/common/service/errors"
 	"github.com/pydio/cells/v4/common/utils/permissions"
+	"github.com/pydio/cells/v4/common/utils/propagator"
 )
 
 func WithWorkspace() nodes.Option {
@@ -108,9 +108,9 @@ func (h *WorkspaceHandler) updateInputBranch(ctx context.Context, node *tree.Nod
 		Workspace:     proto.Clone(workspaces[0]).(*idm.Workspace),
 	}
 	branchInfo.AncestorsList[node.Path] = parents
-	if _, ok := metadata.CanonicalMeta(ctx, servicecontext.CtxWorkspaceUuid); !ok {
-		ctx = metadata.WithAdditionalMetadata(ctx, map[string]string{
-			servicecontext.CtxWorkspaceUuid: branchInfo.Workspace.UUID,
+	if _, ok := propagator.CanonicalMeta(ctx, middleware.CtxWorkspaceUuid); !ok {
+		ctx = propagator.WithAdditionalMetadata(ctx, map[string]string{
+			middleware.CtxWorkspaceUuid: branchInfo.Workspace.UUID,
 		})
 	}
 	return nodes.WithBranchInfo(ctx, identifier, branchInfo), node, nil

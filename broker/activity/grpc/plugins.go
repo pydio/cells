@@ -45,9 +45,8 @@ import (
 	serviceproto "github.com/pydio/cells/v4/common/proto/service"
 	"github.com/pydio/cells/v4/common/proto/tree"
 	"github.com/pydio/cells/v4/common/runtime"
-	"github.com/pydio/cells/v4/common/runtime/runtimecontext"
 	"github.com/pydio/cells/v4/common/service"
-	"github.com/pydio/cells/v4/common/service/context/metadata"
+	"github.com/pydio/cells/v4/common/utils/propagator"
 )
 
 var (
@@ -98,7 +97,7 @@ func init() {
 
 				processOneWithTimeout := func(ct context.Context, event *tree.NodeChangeEvent) error {
 					var ca context.CancelFunc
-					ctx, ca = context.WithTimeout(runtimecontext.ForkContext(ct, c), 10*time.Second)
+					ctx, ca = context.WithTimeout(propagator.ForkContext(ct, c), 10*time.Second)
 					defer ca()
 					return subscriber.HandleNodeChange(ctx, event)
 				}
@@ -116,7 +115,7 @@ func init() {
 						if msg.Optimistic {
 							return nil
 						}
-						return processOneWithTimeout(metadata.NewContext(ctx, md), msg)
+						return processOneWithTimeout(propagator.NewContext(ctx, md), msg)
 					}
 					return nil
 				}, broker.WithAsyncSubscriberInterceptor(runtime.PersistingQueueURL("serviceName", common.ServiceGrpcNamespace_+common.ServiceActivity, "name", "changes")), counterName); e != nil {

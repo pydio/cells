@@ -32,7 +32,7 @@ import (
 
 	"github.com/pydio/cells/v4/common/log"
 	"github.com/pydio/cells/v4/common/nodes/models"
-	"github.com/pydio/cells/v4/common/service/context/metadata"
+	"github.com/pydio/cells/v4/common/utils/propagator"
 )
 
 // minPartSize - minimum part size 64MiB per object after which
@@ -66,7 +66,7 @@ func (c *Client) CopyObjectMultipartThreshold() int64 {
 func (c *Client) CopyObjectMultipart(ctx context.Context, srcObject models.ObjectInfo, srcBucket, srcPath, destBucket, destPath string, meta map[string]string, progress io.Reader) error {
 	log.Logger(ctx).Debug("Entering MultipartUpload for COPY")
 	if meta != nil {
-		ctx = metadata.WithAdditionalMetadata(ctx, meta)
+		ctx = propagator.WithAdditionalMetadata(ctx, meta)
 	}
 	// We have to use multipart copy
 	uploadID, err := c.mc.NewMultipartUpload(ctx, destBucket, destPath, minio.PutObjectOptions{UserMetadata: meta})

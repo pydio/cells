@@ -30,17 +30,17 @@ import (
 	"github.com/pydio/cells/v4/common/config"
 	registry2 "github.com/pydio/cells/v4/common/proto/registry"
 	"github.com/pydio/cells/v4/common/registry"
-	"github.com/pydio/cells/v4/common/runtime/runtimecontext"
 	"github.com/pydio/cells/v4/common/service"
 	"github.com/pydio/cells/v4/common/storage"
 	"github.com/pydio/cells/v4/common/utils/configx"
+	"github.com/pydio/cells/v4/common/utils/propagator"
 )
 
 func init() {
-	runtimecontext.RegisterContextInjector(func(ctx, parent context.Context) context.Context {
+	propagator.RegisterContextInjector(func(ctx, parent context.Context) context.Context {
 		var mg Manager
-		if runtimecontext.Get(parent, managerKey{}, &mg) {
-			return runtimecontext.With(ctx, managerKey{}, mg)
+		if propagator.Get(parent, managerKey{}, &mg) {
+			return propagator.With(ctx, managerKey{}, mg)
 		}
 		return ctx
 	})
@@ -82,18 +82,18 @@ func Resolve[T any](ctx context.Context, opts ...ResolveOption) (T, error) {
 
 	// First we get the contextualized registry
 	var reg registry.Registry
-	runtimecontext.Get(ctx, registry.ContextKey, &reg)
+	propagator.Get(ctx, registry.ContextKey, &reg)
 
 	// Then we get the service from the context
 	var svc service.Service
-	if !runtimecontext.Get(ctx, service.ContextKey, &svc) {
+	if !propagator.Get(ctx, service.ContextKey, &svc) {
 		return t, fmt.Errorf("resolve cannot find service &svc in context")
 	}
 
 	// And we load current config
 	var mg Manager
 	var cfg config.Store
-	if runtimecontext.Get(ctx, managerKey{}, &mg) {
+	if propagator.Get(ctx, managerKey{}, &mg) {
 		cfg = mg.GetConfig(ctx)
 	} else {
 		return t, fmt.Errorf("resolve cannot find manager to load configs")
@@ -178,11 +178,11 @@ func CloseStoragesForContext(ctx context.Context, opts ...ResolveOption) error {
 
 	// First we get the contextualized registry
 	var reg registry.Registry
-	runtimecontext.Get(ctx, registry.ContextKey, &reg)
+	propagator.Get(ctx, registry.ContextKey, &reg)
 
 	// Then we get the service from the context
 	var svc service.Service
-	if !runtimecontext.Get(ctx, service.ContextKey, &svc) {
+	if !propagator.Get(ctx, service.ContextKey, &svc) {
 		return fmt.Errorf("resolve cannot find service &svc in context")
 	}
 
@@ -209,7 +209,7 @@ func CloseStoragesForContext(ctx context.Context, opts ...ResolveOption) error {
 
 func MustGetConfig(ctx context.Context) config.Store {
 	var mg Manager
-	if !runtimecontext.Get(ctx, ContextKey, &mg) {
+	if !propagator.Get(ctx, ContextKey, &mg) {
 		panic("manager must be set")
 	}
 	return mg.GetConfig(ctx)

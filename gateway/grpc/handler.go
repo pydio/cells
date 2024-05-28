@@ -8,17 +8,17 @@ import (
 	"sync"
 	"time"
 
+	hashiversion "github.com/hashicorp/go-version"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 
-	hashiversion "github.com/hashicorp/go-version"
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/log"
 	"github.com/pydio/cells/v4/common/nodes"
 	"github.com/pydio/cells/v4/common/nodes/compose"
 	"github.com/pydio/cells/v4/common/proto/tree"
-	"github.com/pydio/cells/v4/common/service/context/metadata"
 	"github.com/pydio/cells/v4/common/service/errors"
+	"github.com/pydio/cells/v4/common/utils/propagator"
 )
 
 type TreeHandler struct {
@@ -50,7 +50,7 @@ func (t *TreeHandler) fixMode(n *tree.Node) {
 
 // syncAgentVersion tries to find User-Agent in context and parse a version like {appName}/X.X.X
 func (t *TreeHandler) syncAgentVersion(ctx context.Context, appName string) (*hashiversion.Version, bool) {
-	mm, o1 := metadata.FromContextRead(ctx)
+	mm, o1 := propagator.FromContextRead(ctx)
 	if !o1 {
 		return nil, false
 	}

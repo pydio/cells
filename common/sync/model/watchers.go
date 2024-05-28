@@ -25,7 +25,7 @@ import (
 	"time"
 
 	"github.com/pydio/cells/v4/common/proto/tree"
-	"github.com/pydio/cells/v4/common/service/context/metadata"
+	"github.com/pydio/cells/v4/common/utils/propagator"
 )
 
 // EventType represents the type of the event occurred.
@@ -78,7 +78,7 @@ func (e EventInfo) CreateContext(ctx context.Context) context.Context {
 	if e.Metadata == nil {
 		return ctx
 	} else {
-		return metadata.NewContext(ctx, e.Metadata)
+		return propagator.NewContext(ctx, e.Metadata)
 	}
 }
 
@@ -155,7 +155,7 @@ func NodeToEventInfo(ctx context.Context, path string, node tree.N, eventType Ev
 		Metadata:       make(map[string]string),
 	}
 	if ctx != nil {
-		if meta, ok := metadata.FromContextCopy(ctx); ok {
+		if meta, ok := propagator.FromContextCopy(ctx); ok {
 			eventInfo.Metadata = meta
 		}
 	}

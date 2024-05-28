@@ -36,7 +36,6 @@ import (
 
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/runtime"
-	"github.com/pydio/cells/v4/common/runtime/runtimecontext"
 )
 
 // WriteSyncer implements zapcore.WriteSyncer
@@ -109,10 +108,10 @@ func Init(logDir string, ww ...ContextWrapper) {
 				Encoding: "console",
 				Level:    "=debug",
 				Filters: map[string]string{
-					"layer": "sql",
+					common.XPydioDebugSession: "true",
 				},
 				WritersURL: []string{
-					"file://" + filepath.Join(logDir, "pydio_sql_debug.log"),
+					"file://" + filepath.Join(logDir, "pydio_request_debug.log"),
 				},
 			},
 			//{
@@ -198,7 +197,7 @@ func Init(logDir string, ww ...ContextWrapper) {
 }
 
 func CaptureCaddyStdErr(serviceName string) context.Context {
-	ctx := runtimecontext.WithServiceName(context.Background(), serviceName)
+	ctx := runtime.WithServiceName(context.Background(), serviceName)
 	lg := Logger(ctx)
 	if traceFatalEnabled() {
 		return ctx

@@ -17,11 +17,11 @@ import (
 	"github.com/pydio/cells/v4/common/log"
 	"github.com/pydio/cells/v4/common/runtime"
 	"github.com/pydio/cells/v4/common/runtime/manager"
-	"github.com/pydio/cells/v4/common/runtime/runtimecontext"
 	"github.com/pydio/cells/v4/common/runtime/tenant"
 	"github.com/pydio/cells/v4/common/storage"
 	"github.com/pydio/cells/v4/common/storage/sql/dbresolver"
 	"github.com/pydio/cells/v4/common/utils/openurl"
+	"github.com/pydio/cells/v4/common/utils/propagator"
 )
 
 var (
@@ -33,7 +33,7 @@ var (
 func init() {
 	runtime.Register("system", func(ctx context.Context) {
 		var mgr manager.Manager
-		if !runtimecontext.Get(ctx, manager.ContextKey, &mgr) {
+		if !propagator.Get(ctx, manager.ContextKey, &mgr) {
 			return
 		}
 
@@ -170,7 +170,7 @@ func (gs *gormStorage) Get(ctx context.Context, out interface{}) (bool, error) {
 		hookNames, dsn = DetectHooksAndRemoveFromDSN(dsn)
 
 		var ten tenant.Tenant
-		runtimecontext.Get(ctx, tenant.ContextKey, &ten)
+		propagator.Get(ctx, tenant.ContextKey, &ten)
 		// Todo : why the two levels of register (.conns[dsn] and then Register below) ?
 		// Could the Dbresolver directly handle the dsn, including ServiceName & TenantID ?
 		if conn, ok := gs.conns[dsn]; !ok {
@@ -188,11 +188,11 @@ func (gs *gormStorage) Get(ctx context.Context, out interface{}) (bool, error) {
 			if conn, err := sql.Open(driverName, databaseName); err != nil {
 				return true, err
 			} else {
-				gs.Register(conn, ten.ID(), runtimecontext.GetServiceName(ctx), hookNames...)
+				gs.Register(conn, ten.ID(), runtime.GetServiceName(ctx), hookNames...)
 				gs.conns[dsn] = conn
 			}
 		} else {
-			gs.Register(conn, ten.ID(), runtimecontext.GetServiceName(ctx), hookNames...)
+			gs.Register(conn, ten.ID(), runtime.GetServiceName(ctx), hookNames...)
 		}
 
 		*v = gs.db

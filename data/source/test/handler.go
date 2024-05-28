@@ -32,9 +32,6 @@ import (
 	"sync"
 	"time"
 
-	"github.com/pydio/cells/v4/common/nodes/compose"
-	"github.com/pydio/cells/v4/common/proto/tree"
-
 	minio "github.com/minio/minio-go/v7"
 	"github.com/minio/minio-go/v7/pkg/notification"
 
@@ -42,10 +39,12 @@ import (
 	"github.com/pydio/cells/v4/common/config"
 	"github.com/pydio/cells/v4/common/log"
 	"github.com/pydio/cells/v4/common/nodes"
+	"github.com/pydio/cells/v4/common/nodes/compose"
 	"github.com/pydio/cells/v4/common/nodes/models"
 	"github.com/pydio/cells/v4/common/proto/object"
 	"github.com/pydio/cells/v4/common/proto/test"
-	"github.com/pydio/cells/v4/common/service/context/metadata"
+	"github.com/pydio/cells/v4/common/proto/tree"
+	"github.com/pydio/cells/v4/common/utils/propagator"
 	"github.com/pydio/cells/v4/common/utils/std"
 	"github.com/pydio/cells/v4/common/utils/uuid"
 )
@@ -53,6 +52,7 @@ import (
 type Handler struct {
 	test.UnimplementedTesterServer
 }
+
 type runImpl func(ctx context.Context, oc nodes.StorageClient, req *test.RunTestsRequest, conf *object.DataSource) (*test.TestResult, error)
 
 func NewHandler() *Handler {
@@ -118,7 +118,7 @@ func (h *Handler) TestAuthorization(ctx context.Context, oc nodes.StorageClient,
 
 	emptyContext := context.Background()
 	authCtx := context.WithValue(emptyContext, common.PydioContextUserKey, common.PydioSystemUsername)
-	authCtx = metadata.NewContext(authCtx, map[string]string{common.PydioContextUserKey: common.PydioSystemUsername})
+	authCtx = propagator.NewContext(authCtx, map[string]string{common.PydioContextUserKey: common.PydioSystemUsername})
 
 	result := test.NewTestResult("Test Authorization Header is required")
 	key := uuid.New() + ".txt"
@@ -151,7 +151,7 @@ func (h *Handler) TestEtags(ctx context.Context, oc nodes.StorageClient, req *te
 
 	// Load File Info going through Object Service
 	opts := map[string]string{common.PydioContextUserKey: common.PydioSystemUsername}
-	authCtx := metadata.NewContext(context.Background(), map[string]string{common.PydioContextUserKey: common.PydioSystemUsername})
+	authCtx := propagator.NewContext(context.Background(), map[string]string{common.PydioContextUserKey: common.PydioSystemUsername})
 
 	var localFolder string
 	var ok bool
@@ -254,7 +254,7 @@ func (h *Handler) TestEvents(ctx context.Context, oc nodes.StorageClient, req *t
 	opts := minio.StatObjectOptions{}
 	opts.Set(common.PydioContextUserKey, common.PydioSystemUsername)
 	//authCtx := context.WithValue(context.Background(), common.PydioContextUserKey, common.PydioSystemUsername)
-	authCtx := metadata.NewContext(context.Background(), map[string]string{common.PydioContextUserKey: common.PydioSystemUsername})
+	authCtx := propagator.NewContext(context.Background(), map[string]string{common.PydioContextUserKey: common.PydioSystemUsername})
 	listenCtx, cancel := context.WithCancel(authCtx)
 	defer cancel()
 

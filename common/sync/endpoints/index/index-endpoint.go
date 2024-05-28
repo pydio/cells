@@ -35,10 +35,10 @@ import (
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/log"
 	"github.com/pydio/cells/v4/common/proto/tree"
-	"github.com/pydio/cells/v4/common/service/context/metadata"
 	"github.com/pydio/cells/v4/common/sync/endpoints/memory"
 	"github.com/pydio/cells/v4/common/sync/model"
 	"github.com/pydio/cells/v4/common/utils/permissions"
+	"github.com/pydio/cells/v4/common/utils/propagator"
 	"github.com/pydio/cells/v4/common/utils/uuid"
 )
 
@@ -122,7 +122,7 @@ func (i *Client) LoadNodeByUuid(ctx context.Context, uuid string) (node tree.N, 
 
 	log.Logger(ctx).Debug("LoadNode ByUuid " + uuid)
 	if i.indexationSession() != "" {
-		ctx = metadata.NewContext(ctx, map[string]string{"x-indexation-session": i.indexationSession()})
+		ctx = propagator.NewContext(ctx, map[string]string{"x-indexation-session": i.indexationSession()})
 	}
 	if resp, e := i.readerClient.ReadNode(ctx, &tree.ReadNodeRequest{
 		Node: &tree.Node{

@@ -24,7 +24,6 @@ package web
 import (
 	"context"
 	"encoding/base64"
-	"github.com/pydio/cells/v4/idm/oauth"
 	"net"
 	"net/http"
 	"strings"
@@ -41,9 +40,10 @@ import (
 	"github.com/pydio/cells/v4/common/auth"
 	"github.com/pydio/cells/v4/common/config/routing"
 	"github.com/pydio/cells/v4/common/log"
+	"github.com/pydio/cells/v4/common/middleware"
 	"github.com/pydio/cells/v4/common/runtime"
 	"github.com/pydio/cells/v4/common/service"
-	servicecontext "github.com/pydio/cells/v4/common/service/context"
+	"github.com/pydio/cells/v4/idm/oauth"
 )
 
 const (
@@ -98,7 +98,7 @@ func init() {
 						return handler
 					})
 
-					subRouter.Handler(servicecontext.HttpWrapperMeta(ctx, TokenMethodWrapper(ctx, public)))
+					subRouter.Handler(middleware.HttpWrapperMeta(ctx, TokenMethodWrapper(ctx, public)))
 				}
 
 				serveMux.Route(RouteOIDC).Handle("/", cors.New(cors.Options{

@@ -3,8 +3,8 @@ package log
 import (
 	"fmt"
 	"github.com/pydio/cells/v4/common"
+	servicecontext "github.com/pydio/cells/v4/common/middleware"
 	"github.com/pydio/cells/v4/common/proto/log"
-	servicecontext "github.com/pydio/cells/v4/common/service/context"
 	json "github.com/pydio/cells/v4/common/utils/jsonx"
 	"strings"
 	"time"

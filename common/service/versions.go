@@ -34,9 +34,9 @@ import (
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/config"
 	"github.com/pydio/cells/v4/common/log"
+	"github.com/pydio/cells/v4/common/middleware"
 	"github.com/pydio/cells/v4/common/runtime"
-	"github.com/pydio/cells/v4/common/runtime/runtimecontext"
-	"github.com/pydio/cells/v4/common/server/middleware"
+	"github.com/pydio/cells/v4/common/utils/propagator"
 )
 
 // Migration defines a target version and functions to upgrade and/or downgrade.
@@ -68,7 +68,7 @@ func UpdateServiceVersionWrapper(h http.Handler, o *ServiceOptions) http.Handler
 		ctx := req.Context()
 		ctx, _, _ = middleware.TenantIncomingContext(nil)(ctx)
 		var cfg config.Store
-		runtimecontext.Get(ctx, config.ContextKey, &cfg)
+		propagator.Get(ctx, config.ContextKey, &cfg)
 		err := UpdateServiceVersion(ctx, cfg, o)
 		if err != nil {
 			fmt.Println("Failed to run service version update")

@@ -7,13 +7,13 @@ import (
 	"github.com/pydio/cells/v4/common/config/routing"
 	"github.com/pydio/cells/v4/common/registry"
 	"github.com/pydio/cells/v4/common/registry/util"
-	"github.com/pydio/cells/v4/common/runtime/runtimecontext"
+	"github.com/pydio/cells/v4/common/utils/propagator"
 )
 
 // NewRegistrar creates a routing.RouteRegistrar wrapped with registry
 func NewRegistrar(ctx context.Context, serverID string) routing.RouteRegistrar {
 	var reg registry.Registry
-	runtimecontext.Get(ctx, registry.ContextKey, &reg)
+	propagator.Get(ctx, registry.ContextKey, &reg)
 	base := routing.NewRouteRegistrar()
 	return &regRegistrar{
 		RouteRegistrar: base,

@@ -44,14 +44,13 @@ import (
 	"github.com/pydio/cells/v4/common/proto/tree"
 	"github.com/pydio/cells/v4/common/runtime"
 	"github.com/pydio/cells/v4/common/runtime/manager"
-	"github.com/pydio/cells/v4/common/runtime/runtimecontext"
-	"github.com/pydio/cells/v4/common/service/context/metadata"
 	"github.com/pydio/cells/v4/common/service/errors"
 	"github.com/pydio/cells/v4/common/sql/resources"
 	"github.com/pydio/cells/v4/common/utils/cache"
 	json "github.com/pydio/cells/v4/common/utils/jsonx"
 	"github.com/pydio/cells/v4/common/utils/openurl"
 	"github.com/pydio/cells/v4/common/utils/permissions"
+	"github.com/pydio/cells/v4/common/utils/propagator"
 	"github.com/pydio/cells/v4/idm/user"
 	"github.com/pydio/cells/v4/scheduler/tasks"
 )
@@ -244,8 +243,8 @@ func (h *Handler) DeleteUser(ctx context.Context, req *idm.DeleteUserRequest) (*
 	var task *jobs.Task
 	var taskChan chan interface{}
 	uName, _ := permissions.FindUserNameInContext(ctx)
-	if tU, ok := metadata.CanonicalMeta(ctx, runtimecontext.ContextMetaTaskUuid); ok {
-		jU, _ := metadata.CanonicalMeta(ctx, runtimecontext.ContextMetaJobUuid)
+	if tU, ok := propagator.CanonicalMeta(ctx, common.CtxMetaTaskUuid); ok {
+		jU, _ := propagator.CanonicalMeta(ctx, common.CtxMetaJobUuid)
 		task = &jobs.Task{
 			JobID:        jU,
 			ID:           tU,

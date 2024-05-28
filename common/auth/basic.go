@@ -27,7 +27,7 @@ import (
 
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/auth/claim"
-	"github.com/pydio/cells/v4/common/service/context/metadata"
+	"github.com/pydio/cells/v4/common/utils/propagator"
 )
 
 func NewBasicAuthenticator(realm string, ttl time.Duration) *BasicAuthenticator {
@@ -61,7 +61,7 @@ func (b *BasicAuthenticator) Wrap(handler http.Handler) http.HandlerFunc {
 
 			if valid, vOk := b.cache[user]; vOk && time.Since(valid.Connexion) <= b.TTL && valid.Hash == pass {
 
-				ctx := metadata.WithAdditionalMetadata(ctx, map[string]string{common.PydioContextUserKey: valid.Claims.Name})
+				ctx := propagator.WithAdditionalMetadata(ctx, map[string]string{common.PydioContextUserKey: valid.Claims.Name})
 				r = r.WithContext(context.WithValue(ctx, claim.ContextKey, valid.Claims))
 
 				valid.Connexion = time.Now()

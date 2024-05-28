@@ -36,11 +36,11 @@ import (
 	"github.com/pydio/cells/v4/common/proto/object"
 	"github.com/pydio/cells/v4/common/proto/sync"
 	"github.com/pydio/cells/v4/common/proto/tree"
+	"github.com/pydio/cells/v4/common/runtime"
 	"github.com/pydio/cells/v4/common/runtime/manager"
-	"github.com/pydio/cells/v4/common/runtime/runtimecontext"
-	"github.com/pydio/cells/v4/common/service/context/metadata"
 	"github.com/pydio/cells/v4/common/service/errors"
 	cindex "github.com/pydio/cells/v4/common/sql/indexgorm"
+	"github.com/pydio/cells/v4/common/utils/propagator"
 	index "github.com/pydio/cells/v4/data/source/index"
 	"github.com/pydio/cells/v4/data/source/index/sessions"
 )
@@ -146,7 +146,7 @@ func (s *TreeServer) CreateNode(ctx context.Context, req *tree.CreateNodeRequest
 		return nil, err
 	}
 
-	name := runtimecontext.GetServiceName(ctx)
+	name := runtime.GetServiceName(ctx)
 
 	var node tree.ITreeNode
 	var previousEtag string
@@ -269,7 +269,7 @@ func (s *TreeServer) ReadNode(ctx context.Context, req *tree.ReadNodeRequest) (r
 	defer track(log.Logger(ctx), "ReadNode", time.Now(), req, resp)
 
 	var session = ""
-	if md, has := metadata.CanonicalMeta(ctx, "x-indexation-session"); has {
+	if md, has := propagator.CanonicalMeta(ctx, "x-indexation-session"); has {
 		session = md
 	}
 
@@ -278,7 +278,7 @@ func (s *TreeServer) ReadNode(ctx context.Context, req *tree.ReadNodeRequest) (r
 		return nil, err
 	}
 
-	name := runtimecontext.GetServiceName(ctx)
+	name := runtime.GetServiceName(ctx)
 
 	var node tree.ITreeNode
 
@@ -344,7 +344,7 @@ func (s *TreeServer) ListNodes(req *tree.ListNodesRequest, resp tree.NodeProvide
 		return err
 	}
 
-	name := runtimecontext.GetServiceName(ctx)
+	name := runtime.GetServiceName(ctx)
 
 	if req.Ancestors && req.Recursive {
 		return errors.InternalServerError(name, "Please use either Recursive (children) or Ancestors (parents) flag, but not both.")
@@ -543,7 +543,7 @@ func (s *TreeServer) UpdateNode(ctx context.Context, req *tree.UpdateNodeRequest
 	if err != nil {
 		return nil, err
 	}
-	name := runtimecontext.GetServiceName(ctx)
+	name := runtime.GetServiceName(ctx)
 
 	reqFromPath := safePath(req.GetFrom().GetPath())
 	reqToPath := safePath(req.GetTo().GetPath())
@@ -627,7 +627,7 @@ func (s *TreeServer) DeleteNode(ctx context.Context, req *tree.DeleteNodeRequest
 	if err != nil {
 		return nil, err
 	}
-	name := runtimecontext.GetServiceName(ctx)
+	name := runtime.GetServiceName(ctx)
 
 	reqPath := safePath(req.GetNode().GetPath())
 
@@ -837,7 +837,7 @@ func (s *TreeServer) UpdateParentsAndNotify(ctx context.Context, dao index.DAO, 
 	}
 
 	// Enrich Event Metadata field
-	if md, ok := metadata.FromContextRead(ctx); ok {
+	if md, ok := propagator.FromContextRead(ctx); ok {
 		if event.Metadata == nil {
 			event.Metadata = make(map[string]string, len(md))
 		}

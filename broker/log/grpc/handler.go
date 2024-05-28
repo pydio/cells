@@ -36,8 +36,8 @@ import (
 	"github.com/pydio/cells/v4/common/proto/jobs"
 	proto "github.com/pydio/cells/v4/common/proto/log"
 	"github.com/pydio/cells/v4/common/proto/sync"
+	"github.com/pydio/cells/v4/common/runtime"
 	"github.com/pydio/cells/v4/common/runtime/manager"
-	"github.com/pydio/cells/v4/common/runtime/runtimecontext"
 	"github.com/pydio/cells/v4/common/service/errors"
 )
 
@@ -181,7 +181,7 @@ func (h *Handler) TriggerResync(ctx context.Context, request *sync.ResyncRequest
 		return &sync.ResyncResponse{}, er
 	}
 
-	c := runtimecontext.WithServiceName(context.Background(), runtimecontext.GetServiceName(ctx))
+	c := runtime.WithServiceName(context.Background(), runtime.GetServiceName(ctx))
 	go func() {
 		e := repo.Resync(c, l)
 		if e != nil {

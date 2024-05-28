@@ -32,10 +32,10 @@ import (
 
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/log"
+	"github.com/pydio/cells/v4/common/middleware"
 	"github.com/pydio/cells/v4/common/proto/idm"
-	servicecontext "github.com/pydio/cells/v4/common/service/context"
-	"github.com/pydio/cells/v4/common/service/context/metadata"
 	"github.com/pydio/cells/v4/common/utils/permissions"
+	"github.com/pydio/cells/v4/common/utils/propagator"
 	"github.com/pydio/cells/v4/common/utils/uuid"
 	"github.com/pydio/cells/v4/idm/policy/converter"
 )
@@ -62,19 +62,19 @@ func (m *ContextMetaFilter) Filter(ctx context.Context, input *ActionMessage) (*
 func (m *ContextMetaFilter) filterPolicyQueries(ctx context.Context, input *ActionMessage) bool {
 
 	policyContext := make(map[string]interface{})
-	if ctxMeta, has := metadata.FromContextRead(ctx); has {
+	if ctxMeta, has := propagator.FromContextRead(ctx); has {
 		for _, key := range []string{
-			servicecontext.HttpMetaRemoteAddress,
-			servicecontext.HttpMetaRequestURI,
-			servicecontext.HttpMetaRequestMethod,
-			servicecontext.HttpMetaUserAgent,
-			servicecontext.HttpMetaContentType,
-			servicecontext.HttpMetaCookiesString,
-			servicecontext.HttpMetaProtocol,
-			servicecontext.HttpMetaHostname,
-			servicecontext.HttpMetaHost,
-			servicecontext.HttpMetaPort,
-			servicecontext.ServerTime,
+			middleware.HttpMetaRemoteAddress,
+			middleware.HttpMetaRequestURI,
+			middleware.HttpMetaRequestMethod,
+			middleware.HttpMetaUserAgent,
+			middleware.HttpMetaContentType,
+			middleware.HttpMetaCookiesString,
+			middleware.HttpMetaProtocol,
+			middleware.HttpMetaHostname,
+			middleware.HttpMetaHost,
+			middleware.HttpMetaPort,
+			middleware.ServerTime,
 		} {
 			if val, hasKey := ctxMeta[key]; hasKey {
 				policyContext[key] = val

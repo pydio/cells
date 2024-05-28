@@ -30,10 +30,10 @@ import (
 	"github.com/pydio/cells/v4/common/broker"
 	"github.com/pydio/cells/v4/common/proto/jobs"
 	"github.com/pydio/cells/v4/common/runtime"
-	"github.com/pydio/cells/v4/common/runtime/runtimecontext"
 	"github.com/pydio/cells/v4/common/runtime/tenant"
 	"github.com/pydio/cells/v4/common/server/generic"
 	"github.com/pydio/cells/v4/common/service"
+	"github.com/pydio/cells/v4/common/utils/propagator"
 	"github.com/pydio/cells/v4/scheduler/timer"
 )
 
@@ -82,7 +82,7 @@ func init() {
 					msg := &jobs.JobChangeEvent{}
 					if ct, e := message.Unmarshal(ctx, msg); e == nil {
 						var ten tenant.Tenant
-						if runtimecontext.Get(ctx, tenant.ContextKey, &ten) {
+						if propagator.Get(ctx, tenant.ContextKey, &ten) {
 							pLocks.RLock()
 							defer pLocks.RUnlock()
 							if producer, ok := producers[ten.ID()]; ok {

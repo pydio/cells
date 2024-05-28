@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2021. Abstrium SAS <team (at) pydio.com>
+ * Copyright (c) 2024. Abstrium SAS <team (at) pydio.com>
  * This file is part of Pydio Cells.
  *
  * Pydio Cells is free software: you can redistribute it and/or modify
@@ -18,8 +18,15 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-package ckeys
+package middleware
 
-const TargetServiceName = "service"
-const TargetTenantName = "tenant"
-const CellsMetaPrefix = "x-cells-"
+import (
+	"context"
+
+	"github.com/pydio/cells/v4/common"
+	"github.com/pydio/cells/v4/common/utils/propagator"
+)
+
+func CellsMetadataIncomingContext(ctx context.Context) (context.Context, bool, error) {
+	return propagator.MetaKeysIncomingContext(ctx, common.CtxCellsMetaPrefix)
+}

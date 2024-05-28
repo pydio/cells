@@ -27,11 +27,11 @@ import (
 
 	"google.golang.org/protobuf/types/known/anypb"
 
+	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/proto/jobs"
 	"github.com/pydio/cells/v4/common/proto/tree"
-	"github.com/pydio/cells/v4/common/runtime/runtimecontext"
 	"github.com/pydio/cells/v4/common/runtime/tenant"
-	"github.com/pydio/cells/v4/common/service/context/metadata"
+	"github.com/pydio/cells/v4/common/utils/propagator"
 
 	_ "github.com/pydio/cells/v4/scheduler/actions/scheduler"
 
@@ -54,7 +54,7 @@ func (t *testTenant) ID() string {
 }
 
 var (
-	runtimeCtx = runtimecontext.With(context.Background(), tenant.ContextKey, &testTenant{})
+	runtimeCtx = propagator.With(context.Background(), tenant.ContextKey, &testTenant{})
 )
 
 func TestNewTaskFromEvent(t *testing.T) {
@@ -66,7 +66,7 @@ func TestNewTaskFromEvent(t *testing.T) {
 		So(task.task, ShouldNotBeNil)
 		So(task.task.Status, ShouldEqual, jobs.TaskStatus_Queued)
 		So(task.task.StatusMessage, ShouldEqual, "Pending")
-		opId, _ := runtimecontext.GetOperationID(task.context)
+		opId, _ := propagator.CanonicalMeta(task.context, common.CtxSchedulerOperationId)
 		So(opId, ShouldEqual, "ajob-"+task.task.ID[0:8])
 	})
 }
@@ -207,7 +207,7 @@ func TestTask_Save(t *testing.T) {
 		event := &jobs.JobTriggerEvent{JobID: "ajob"}
 		task := NewTaskFromEvent(runtimeCtx, context.Background(), &jobs.Job{ID: "ajob"}, event)
 		ch := GetBus(runtimeCtx).Sub(PubSubTopicTaskStatuses)
-		runnableCtx := metadata.WithAdditionalMetadata(runtimeCtx, map[string]string{runtimecontext.ContextMetaTaskActionPath: "action-path"})
+		runnableCtx := propagator.WithAdditionalMetadata(runtimeCtx, map[string]string{common.CtxMetaTaskActionPath: "action-path"})
 		task.SaveStatus(runnableCtx, jobs.TaskStatus_Running)
 		read := <-ch
 		rt, o := read.(*TaskStatusUpdate)

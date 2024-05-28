@@ -15,10 +15,10 @@ import (
 	"github.com/pydio/cells/v4/common/auth"
 	"github.com/pydio/cells/v4/common/auth/claim"
 	"github.com/pydio/cells/v4/common/log"
-	"github.com/pydio/cells/v4/common/runtime/runtimecontext"
-	servicecontext "github.com/pydio/cells/v4/common/service/context"
-	"github.com/pydio/cells/v4/common/service/context/metadata"
+	"github.com/pydio/cells/v4/common/middleware"
+	"github.com/pydio/cells/v4/common/runtime"
 	"github.com/pydio/cells/v4/common/utils/permissions"
+	"github.com/pydio/cells/v4/common/utils/propagator"
 )
 
 // authHandler - handles all the incoming authorization headers and validates them if possible.
@@ -45,8 +45,8 @@ func (a pydioAuthHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	//var md map[string]string
 	var userName string
 	ctx := r.Context()
-	ctx = servicecontext.HttpRequestInfoToMetadata(ctx, r)
-	ctx = runtimecontext.WithServiceName(ctx, common.ServiceGatewayData)
+	ctx = middleware.HttpRequestInfoToMetadata(ctx, r)
+	ctx = runtime.WithServiceName(ctx, common.ServiceGatewayData)
 
 	resignRequestV4 := false
 	resignRequestV4Presigned := false
@@ -173,7 +173,7 @@ func (a pydioAuthHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	}
 
-	ctx = metadata.WithUserNameMetadata(ctx, userName)
+	ctx = propagator.WithUserNameMetadata(ctx, common.PydioContextUserKey, userName)
 	newRequest := r.WithContext(ctx)
 	a.handler.ServeHTTP(w, newRequest)
 

@@ -18,7 +18,7 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-package servicecontext
+package middleware
 
 import (
 	"context"
@@ -29,13 +29,13 @@ import (
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/metadata"
 
-	"github.com/pydio/cells/v4/common/runtime/runtimecontext"
+	"github.com/pydio/cells/v4/common/runtime"
 	"github.com/pydio/cells/v4/common/service/metrics"
 )
 
 func HttpWrapperMetrics(ctx context.Context, h http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		scope := metrics.GetMetricsForService(runtimecontext.GetServiceName(r.Context()))
+		scope := metrics.GetMetricsForService(runtime.GetServiceName(r.Context()))
 		if scope == tally.NoopScope {
 			h.ServeHTTP(w, r)
 			return

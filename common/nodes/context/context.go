@@ -4,7 +4,7 @@ import (
 	"context"
 
 	"github.com/pydio/cells/v4/common/nodes"
-	runtimecontext "github.com/pydio/cells/v4/common/runtime/runtimecontext"
+	"github.com/pydio/cells/v4/common/utils/propagator"
 )
 
 type contextType int
@@ -14,7 +14,7 @@ const (
 )
 
 func init() {
-	runtimecontext.RegisterContextInjector(func(ctx, parent context.Context) context.Context {
+	propagator.RegisterContextInjector(func(ctx, parent context.Context) context.Context {
 		if p := GetSourcesPool(parent); p != nil {
 			return WithSourcesPool(ctx, p)
 		}

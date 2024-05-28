@@ -25,7 +25,7 @@ import (
 
 	"google.golang.org/grpc"
 
-	"github.com/pydio/cells/v4/common/runtime/runtimecontext"
+	"github.com/pydio/cells/v4/common/utils/propagator"
 )
 
 type contextType int
@@ -35,7 +35,7 @@ const (
 )
 
 func init() {
-	runtimecontext.RegisterGenericInjector[grpc.ClientConnInterface](clientConnKey)
+	propagator.RegisterKeyInjector[grpc.ClientConnInterface](clientConnKey)
 }
 
 // WithClientConn links a client connection to the context

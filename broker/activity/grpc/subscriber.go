@@ -44,12 +44,11 @@ import (
 	"github.com/pydio/cells/v4/common/proto/tree"
 	"github.com/pydio/cells/v4/common/runtime"
 	"github.com/pydio/cells/v4/common/runtime/manager"
-	"github.com/pydio/cells/v4/common/runtime/runtimecontext"
-	"github.com/pydio/cells/v4/common/service/context/metadata"
 	"github.com/pydio/cells/v4/common/service/errors"
 	"github.com/pydio/cells/v4/common/utils/cache"
 	"github.com/pydio/cells/v4/common/utils/openurl"
 	"github.com/pydio/cells/v4/common/utils/permissions"
+	"github.com/pydio/cells/v4/common/utils/propagator"
 )
 
 type MicroEventsSubscriber struct {
@@ -100,7 +99,7 @@ func (e *MicroEventsSubscriber) HandleNodeChange(ctx context.Context, msg *tree.
 	}
 
 	author := common.PydioSystemUsername
-	if u, o := metadata.CanonicalMeta(ctx, common.PydioContextUserKey); o {
+	if u, o := propagator.CanonicalMeta(ctx, common.PydioContextUserKey); o {
 		author = u
 	}
 	if author == common.PydioSystemUsername {
@@ -236,7 +235,7 @@ func (e *MicroEventsSubscriber) HandleIdmChange(ctx context.Context, msg *idm.Ch
 		return q.Push(ctx, msg)
 	} else if msg.User != nil && msg.Type == idm.ChangeEventType_DELETE && msg.User.Login != "" {
 		// Clear activity for deleted user
-		ctx = runtimecontext.WithServiceName(ctx, Name)
+		ctx = runtime.WithServiceName(ctx, Name)
 		log.Logger(ctx).Debug("Clearing activities for user", msg.User.ZapLogin())
 		go func() {
 			if er := dao.Delete(e.RuntimeCtx, activity2.OwnerType_USER, msg.User.Login); er != nil {
@@ -362,7 +361,7 @@ func (e *MicroEventsSubscriber) ProcessIdmBatch(ctx context.Context, cE ...broke
 	}
 
 	// Load resources
-	ctx = metadata.WithUserNameMetadata(ctx, common.PydioSystemUsername)
+	ctx = propagator.WithUserNameMetadata(ctx, common.PydioContextUserKey, common.PydioSystemUsername)
 	if er := e.LoadResources(ctx, roles, users, workspaces); er != nil {
 		return
 	}

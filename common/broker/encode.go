@@ -30,14 +30,14 @@ import (
 	"google.golang.org/protobuf/types/known/anypb"
 
 	"github.com/pydio/cells/v4/common"
-	"github.com/pydio/cells/v4/common/service/context/metadata"
 	json "github.com/pydio/cells/v4/common/utils/jsonx"
+	"github.com/pydio/cells/v4/common/utils/propagator"
 )
 
 // EncodeProtoWithContext combines json-encoded context metadata and marshalled proto.Message into a unique []byte
 func EncodeProtoWithContext(ctx context.Context, msg proto.Message) []byte {
 	var hh []byte
-	if md, ok := metadata.FromContextCopy(ctx); ok {
+	if md, ok := propagator.FromContextCopy(ctx); ok {
 		hh, _ = json.Marshal(md)
 	}
 	a, _ := anypb.New(msg)
@@ -91,7 +91,7 @@ func (p *pulledMessage) Unmarshal(ctx context.Context, target proto.Message) (co
 		return ctx, e
 	}
 	if p.hh != nil {
-		ctx = metadata.NewContext(ctx, p.hh)
+		ctx = propagator.NewContext(ctx, p.hh)
 		// If X-Pydio-User found in meta, add it to context as well
 		if u, ok := p.hh[common.PydioContextUserKey]; ok {
 			ctx = context.WithValue(ctx, common.PydioContextUserKey, u)

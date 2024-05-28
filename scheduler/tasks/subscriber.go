@@ -40,11 +40,10 @@ import (
 	rpb "github.com/pydio/cells/v4/common/proto/registry"
 	"github.com/pydio/cells/v4/common/proto/tree"
 	"github.com/pydio/cells/v4/common/runtime"
-	runtimecontext "github.com/pydio/cells/v4/common/runtime/runtimecontext"
-	"github.com/pydio/cells/v4/common/service/context/metadata"
 	"github.com/pydio/cells/v4/common/utils/cache"
 	"github.com/pydio/cells/v4/common/utils/openurl"
 	"github.com/pydio/cells/v4/common/utils/permissions"
+	"github.com/pydio/cells/v4/common/utils/propagator"
 	"github.com/pydio/cells/v4/common/utils/std"
 )
 
@@ -107,7 +106,7 @@ func NewSubscriber(parentContext context.Context) *Subscriber {
 			if event.Type == tree.NodeChangeEvent_DELETE && event.Source.HasMetaKey(common.MetaNamespaceDatasourceInternal) {
 				return nil
 			}
-			return s.processNodeEvent(metadata.NewContext(s.rootCtx, md), event)
+			return s.processNodeEvent(propagator.NewContext(s.rootCtx, md), event)
 		} else {
 			return e
 		}
@@ -133,7 +132,7 @@ func NewSubscriber(parentContext context.Context) *Subscriber {
 		target := &tree.NodeChangeEvent{}
 		md, bb := message.RawData()
 		if e := proto.Unmarshal(bb, target); e == nil && (target.Type == tree.NodeChangeEvent_UPDATE_META || target.Type == tree.NodeChangeEvent_UPDATE_USER_META) {
-			return s.processNodeEvent(metadata.NewContext(s.rootCtx, md), target)
+			return s.processNodeEvent(propagator.NewContext(s.rootCtx, md), target)
 		}
 		return nil
 	}, queueOpt, broker.WithAsyncSubscriberInterceptor(mpq, mpqFallback), counterOpt)
@@ -270,15 +269,15 @@ func (s *Subscriber) prepareTaskContext(ctx context.Context, job *jobs.Job, addS
 	// Add System User if necessary
 	if addSystemUser {
 		if u, _ := permissions.FindUserNameInContext(ctx); u == "" {
-			ctx = metadata.WithAdditionalMetadata(ctx, map[string]string{common.PydioContextUserKey: common.PydioSystemUsername})
+			ctx = propagator.WithAdditionalMetadata(ctx, map[string]string{common.PydioContextUserKey: common.PydioSystemUsername})
 			ctx = context.WithValue(ctx, common.PydioContextUserKey, common.PydioSystemUsername)
 		}
 	}
 
-	md, ok := metadata.FromContextCopy(ctx)
-	ctx = runtimecontext.ForkContext(ctx, s.rootCtx)
+	md, ok := propagator.FromContextCopy(ctx)
+	ctx = propagator.ForkContext(ctx, s.rootCtx)
 	if ok {
-		ctx = metadata.NewContext(ctx, md)
+		ctx = propagator.NewContext(ctx, md)
 	}
 
 	// Inject evaluated job parameters
@@ -487,11 +486,11 @@ func (s *Subscriber) jobLevelDataSourceFilterPass(ctx context.Context, event *tr
 
 // contextJobSameUuid checks if JobUuid can already be found in context and detects if it is the same
 func (s *Subscriber) contextJobSameUuid(ctx context.Context, jobId string) bool {
-	if mm, o := metadata.FromContextRead(ctx); o {
-		if knownJob, ok := mm[strings.ToLower(runtimecontext.ContextMetaJobUuid)]; ok && knownJob == jobId {
+	if mm, o := propagator.FromContextRead(ctx); o {
+		if knownJob, ok := mm[strings.ToLower(common.CtxMetaJobUuid)]; ok && knownJob == jobId {
 			return true
 		}
-		if knownJob, ok := mm[runtimecontext.ContextMetaJobUuid]; ok && knownJob == jobId {
+		if knownJob, ok := mm[common.CtxMetaJobUuid]; ok && knownJob == jobId {
 			return true
 		}
 	}

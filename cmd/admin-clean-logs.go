@@ -32,7 +32,7 @@ import (
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/client/grpc"
 	"github.com/pydio/cells/v4/common/proto/sync"
-	"github.com/pydio/cells/v4/common/service/context/metadata"
+	"github.com/pydio/cells/v4/common/utils/propagator"
 )
 
 var (
@@ -79,7 +79,7 @@ EXAMPLES
 		cmd.Printf("Sending resync command to service %s with parameter TRUNCATE/%s\n", syncService, byteSize)
 
 		cli := sync.NewSyncEndpointClient(grpc.ResolveConn(ctx, cleanLogsService, longGrpcCallTimeout()))
-		c := metadata.WithUserNameMetadata(context.Background(), common.PydioSystemUsername)
+		c := propagator.WithUserNameMetadata(context.Background(), common.PydioContextUserKey, common.PydioSystemUsername)
 		resp, err := cli.TriggerResync(c, &sync.ResyncRequest{Path: "TRUNCATE/" + byteSize} /*, client.WithRetries(1)*/)
 		if err != nil {
 			cmd.Println("Truncate Failed: " + err.Error())

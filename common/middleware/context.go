@@ -35,11 +35,9 @@ import (
 	clientgrpc "github.com/pydio/cells/v4/common/client/grpc"
 	"github.com/pydio/cells/v4/common/config"
 	"github.com/pydio/cells/v4/common/registry"
-	"github.com/pydio/cells/v4/common/runtime/runtimecontext"
+	"github.com/pydio/cells/v4/common/runtime"
 	tenant2 "github.com/pydio/cells/v4/common/runtime/tenant"
-	servicecontext "github.com/pydio/cells/v4/common/service/context"
-	"github.com/pydio/cells/v4/common/service/context/ckeys"
-	metadata2 "github.com/pydio/cells/v4/common/service/context/metadata"
+	"github.com/pydio/cells/v4/common/utils/propagator"
 )
 
 // ClientConnIncomingContext adds the ClientConn to context
@@ -53,9 +51,9 @@ func ClientConnIncomingContext(serverRuntimeContext context.Context) func(ctx co
 // RegistryIncomingContext injects the registry in context
 func RegistryIncomingContext(serverRuntimeContext context.Context) func(ctx context.Context) (context.Context, bool, error) {
 	var reg registry.Registry
-	runtimecontext.Get(serverRuntimeContext, registry.ContextKey, &reg)
+	propagator.Get(serverRuntimeContext, registry.ContextKey, &reg)
 	return func(ctx context.Context) (context.Context, bool, error) {
-		return runtimecontext.With(ctx, registry.ContextKey, reg), true, nil
+		return propagator.With(ctx, registry.ContextKey, reg), true, nil
 	}
 }
 
@@ -63,8 +61,8 @@ func RegistryIncomingContext(serverRuntimeContext context.Context) func(ctx cont
 func TargetNameToServiceNameContext(serverRuntimeContext context.Context) func(ctx context.Context) (context.Context, bool, error) {
 	return func(ctx context.Context) (context.Context, bool, error) {
 		if md, ok := metadata.FromIncomingContext(ctx); ok {
-			if tName := md.Get(ckeys.TargetServiceName); strings.Join(tName, "") != "" {
-				return runtimecontext.WithServiceName(ctx, strings.Join(tName, "")), true, nil
+			if tName := md.Get(common.CtxTargetServiceName); strings.Join(tName, "") != "" {
+				return runtime.WithServiceName(ctx, strings.Join(tName, "")), true, nil
 			}
 		}
 		return ctx, false, nil
@@ -83,7 +81,7 @@ func setContextForTenant(ctx context.Context) (context.Context, error) {
 			tenantID = strings.Join(t, "")
 		}
 	}
-	if mm, ok := metadata2.FromContextRead(ctx); ok {
+	if mm, ok := propagator.FromContextRead(ctx); ok {
 		if p, ok := mm[common.XPydioTenantUuid]; ok {
 			tenantID = p
 		}
@@ -93,6 +91,7 @@ func setContextForTenant(ctx context.Context) (context.Context, error) {
 		return ctx, err
 	}
 
+	// TODO - Replace by pool
 	cc, ok := clientConns[tenantID]
 	if !ok {
 		var err error
@@ -102,14 +101,12 @@ func setContextForTenant(ctx context.Context) (context.Context, error) {
 			grpc.WithChainUnaryInterceptor(
 				clientgrpc.ErrorNoMatchedRouteRetryUnaryClientInterceptor(),
 				clientgrpc.ErrorFormatUnaryClientInterceptor(),
-				servicecontext.OperationIdUnaryClientInterceptor(),
-				clientgrpc.MetaUnaryClientInterceptor(),
+				propagator.MetaUnaryClientInterceptor(common.CtxCellsMetaPrefix),
 			),
 			grpc.WithChainStreamInterceptor(
 				clientgrpc.ErrorNoMatchedRouteRetryStreamClientInterceptor(),
 				clientgrpc.ErrorFormatStreamClientInterceptor(),
-				servicecontext.OperationIdStreamClientInterceptor(),
-				clientgrpc.MetaStreamClientInterceptor(),
+				propagator.MetaStreamClientInterceptor(common.CtxCellsMetaPrefix),
 			),
 			grpc.WithStatsHandler(otelgrpc.NewClientHandler()),
 		)
@@ -131,8 +128,8 @@ func setContextForTenant(ctx context.Context) (context.Context, error) {
 		configStore[tenantID] = cfg
 	}
 
-	ctx = runtimecontext.With(ctx, config.ContextKey, cfg)
-	ctx = runtimecontext.With(ctx, tenant2.ContextKey, tenant)
+	ctx = propagator.With(ctx, config.ContextKey, cfg)
+	ctx = propagator.With(ctx, tenant2.ContextKey, tenant)
 
 	return ctx, nil
 }
@@ -156,7 +153,7 @@ func setContextForService(ctx context.Context) context.Context {
 	//c := servercontext.GetConfig(ctx)
 
 	//ctx = context2.WithConfig(ctx, c.Val("services", service))
-	ctx = runtimecontext.WithServiceName(ctx, service)
+	ctx = runtime.WithServiceName(ctx, service)
 	return ctx
 }
 

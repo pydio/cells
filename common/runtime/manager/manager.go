@@ -35,7 +35,6 @@ import (
 	"go.uber.org/zap"
 	"golang.org/x/sync/errgroup"
 
-	_ "embed"
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/broker"
 	"github.com/pydio/cells/v4/common/config"
@@ -45,13 +44,15 @@ import (
 	"github.com/pydio/cells/v4/common/registry/util"
 	"github.com/pydio/cells/v4/common/runtime"
 	"github.com/pydio/cells/v4/common/runtime/controller"
-	"github.com/pydio/cells/v4/common/runtime/runtimecontext"
 	"github.com/pydio/cells/v4/common/server"
 	"github.com/pydio/cells/v4/common/service"
 	"github.com/pydio/cells/v4/common/storage"
 	"github.com/pydio/cells/v4/common/utils/configx"
 	"github.com/pydio/cells/v4/common/utils/fork"
 	json "github.com/pydio/cells/v4/common/utils/jsonx"
+	"github.com/pydio/cells/v4/common/utils/propagator"
+
+	_ "embed"
 )
 
 const (
@@ -129,7 +130,7 @@ func NewManager(ctx context.Context, namespace string, logger log.ZapLogger) (Ma
 		// config: controller.NewController[config.Store](ctx),
 	}
 
-	ctx = runtimecontext.With(ctx, ContextKey, m)
+	ctx = propagator.With(ctx, ContextKey, m)
 	runtime.Init(ctx, "system")
 
 	if clusterRegistryURL := runtime.RegistryURL(); clusterRegistryURL != "" {
@@ -215,7 +216,7 @@ func NewManager(ctx context.Context, namespace string, logger log.ZapLogger) (Ma
 		m.root = current
 	}
 
-	ctx = runtimecontext.With(ctx, registry.ContextKey, reg)
+	ctx = propagator.With(ctx, registry.ContextKey, reg)
 	runtime.Init(ctx, "discovery")
 	runtime.Init(ctx, m.ns)
 

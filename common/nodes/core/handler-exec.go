@@ -38,8 +38,8 @@ import (
 	"github.com/pydio/cells/v4/common/nodes/models"
 	"github.com/pydio/cells/v4/common/proto/object"
 	"github.com/pydio/cells/v4/common/proto/tree"
-	"github.com/pydio/cells/v4/common/service/context/metadata"
 	"github.com/pydio/cells/v4/common/service/errors"
+	"github.com/pydio/cells/v4/common/utils/propagator"
 )
 
 var (
@@ -128,7 +128,7 @@ func (e *Executor) DeleteNode(ctx context.Context, in *tree.DeleteNodeRequest, o
 	}
 
 	if session := in.IndexationSession; session != "" {
-		ctx = metadata.WithAdditionalMetadata(ctx, map[string]string{common.XPydioSessionUuid: session})
+		ctx = propagator.WithAdditionalMetadata(ctx, map[string]string{common.XPydioSessionUuid: session})
 	}
 	err = writer.RemoveObject(ctx, info.ObjectsBucket, s3Path)
 	if err != nil {
@@ -157,8 +157,8 @@ func (e *Executor) GetObject(ctx context.Context, node *tree.Node, requestData *
 	// Make sure the object exists
 	//var opts = minio.StatObjectOptions{}
 	newCtx := ctx
-	if meta, ok := metadata.MinioMetaFromContext(ctx); ok {
-		newCtx = metadata.NewContext(ctx, meta)
+	if meta, ok := propagator.MinioMetaFromContext(ctx, common.PydioContextUserKey); ok {
+		newCtx = propagator.NewContext(ctx, meta)
 	}
 	sObject, sErr := writer.StatObject(ctx, info.ObjectsBucket, s3Path, nil)
 	if sErr != nil {
@@ -230,7 +230,7 @@ func (e *Executor) CopyObject(ctx context.Context, from *tree.Node, to *tree.Nod
 	toPath := e.buildS3Path(destInfo, to)
 	cType := from.GetStringMeta(common.MetaNamespaceMime)
 
-	statMeta, _ := metadata.MinioMetaFromContext(ctx)
+	statMeta, _ := propagator.MinioMetaFromContext(ctx, common.PydioContextUserKey)
 
 	if requestData.Metadata == nil {
 		requestData.Metadata = make(map[string]string)
@@ -265,7 +265,7 @@ func (e *Executor) CopyObject(ctx context.Context, from *tree.Node, to *tree.Nod
 		var err error
 		if !destInfo.ServerIsMinio() && destClient.CopyObjectMultipartThreshold() > 0 && src.Size > destClient.CopyObjectMultipartThreshold() {
 			if dirOk {
-				ctx = metadata.WithAdditionalMetadata(ctx, map[string]string{common.XAmzMetaDirective: directive})
+				ctx = propagator.WithAdditionalMetadata(ctx, map[string]string{common.XAmzMetaDirective: directive})
 			}
 			err = destClient.CopyObjectMultipart(ctx, src, srcBucket, fromPath, destBucket, toPath, requestData.Metadata, requestData.Progress)
 		} else {
@@ -300,7 +300,7 @@ func (e *Executor) CopyObject(ctx context.Context, from *tree.Node, to *tree.Nod
 
 		// append metadata to the context as well, as it may switch to putObjectMultipart
 		ctxMeta := make(map[string]string)
-		if m, ok := metadata.MinioMetaFromContext(ctx); ok {
+		if m, ok := propagator.MinioMetaFromContext(ctx, common.PydioContextUserKey); ok {
 			ctxMeta = m
 		}
 		for k, v := range requestData.Metadata {
@@ -309,7 +309,7 @@ func (e *Executor) CopyObject(ctx context.Context, from *tree.Node, to *tree.Nod
 			}
 			ctxMeta[k] = v
 		}
-		ctx = metadata.NewContext(ctx, ctxMeta)
+		ctx = propagator.NewContext(ctx, ctxMeta)
 
 		log.Logger(ctx).Debug("HandlerExec: copy one DS to another", zap.Any("meta", srcStat), zap.Any("requestMeta", requestData.Metadata))
 		opts := e.putOptionsFromRequestMeta(destInfo, requestData.Metadata)

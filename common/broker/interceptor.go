@@ -14,8 +14,7 @@ import (
 	"github.com/pydio/cells/v4/common"
 	clientcontext "github.com/pydio/cells/v4/common/client/context"
 	"github.com/pydio/cells/v4/common/config"
-	"github.com/pydio/cells/v4/common/runtime/runtimecontext"
-	"github.com/pydio/cells/v4/common/service/context/metadata"
+	"github.com/pydio/cells/v4/common/utils/propagator"
 )
 
 func TimeoutSubscriberInterceptor() SubscriberInterceptor {
@@ -60,14 +59,14 @@ func setContextForTenant(ctx context.Context, tenant string) context.Context {
 		cfg, _ = config.OpenStore(ctx, "xds://"+tenant+".cells.com/cells")
 		configStore[tenant] = cfg
 	}
-	return runtimecontext.With(ctx, config.ContextKey, cfg)
+	return propagator.With(ctx, config.ContextKey, cfg)
 }
 
 func HeaderInjectorInterceptor() SubscriberInterceptor {
 	return func(ctx context.Context, m Message, handler SubscriberHandler) error {
 		header, _ := m.RawData()
 
-		return handler(metadata.WithAdditionalMetadata(ctx, header), m)
+		return handler(propagator.WithAdditionalMetadata(ctx, header), m)
 	}
 }
 

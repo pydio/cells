@@ -36,10 +36,10 @@ import (
 	"github.com/pydio/cells/v4/common/nodes/meta"
 	protosync "github.com/pydio/cells/v4/common/proto/sync"
 	"github.com/pydio/cells/v4/common/proto/tree"
+	"github.com/pydio/cells/v4/common/runtime"
 	"github.com/pydio/cells/v4/common/runtime/manager"
-	"github.com/pydio/cells/v4/common/runtime/runtimecontext"
-	"github.com/pydio/cells/v4/common/service/context/metadata"
 	"github.com/pydio/cells/v4/common/service/errors"
+	"github.com/pydio/cells/v4/common/utils/propagator"
 	"github.com/pydio/cells/v4/data/search/dao"
 )
 
@@ -78,7 +78,7 @@ func (s *SearchServer) initEventsChannel() {
 	s.eventsChannel = make(chan *broker.TypeWithContext[*tree.NodeChangeEvent])
 	go func() {
 		for eventWCtx := range s.eventsChannel {
-			ctx := runtimecontext.WithServiceName(eventWCtx.Ctx, common.ServiceGrpcNamespace_+common.ServiceSearch)
+			ctx := runtime.WithServiceName(eventWCtx.Ctx, common.ServiceGrpcNamespace_+common.ServiceSearch)
 			s.processEvent(ctx, eventWCtx.Original)
 		}
 	}()
@@ -181,7 +181,7 @@ func (s *SearchServer) Search(req *tree.SearchRequest, streamer tree.Searcher_Se
 						readReq := &tree.ReadNodeRequest{Node: &tree.Node{Uuid: node.Uuid}, StatFlags: req.GetStatFlags()}
 
 						if treeStreamer == nil {
-							readCtx := metadata.WithAdditionalMetadata(ctx, tree.StatFlags(req.StatFlags).AsMeta())
+							readCtx := propagator.WithAdditionalMetadata(ctx, tree.StatFlags(req.StatFlags).AsMeta())
 							if ts, er := s.newTreeStreamer(readCtx); er != nil {
 								log.Logger(ctx).Error("Cannot create streamer, fallback to simple reader", zap.Error(er))
 							} else {

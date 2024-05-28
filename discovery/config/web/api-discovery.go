@@ -39,6 +39,7 @@ import (
 	"github.com/pydio/cells/v4/common/forms"
 	"github.com/pydio/cells/v4/common/forms/protos"
 	"github.com/pydio/cells/v4/common/log"
+	"github.com/pydio/cells/v4/common/middleware"
 	"github.com/pydio/cells/v4/common/proto/idm"
 	"github.com/pydio/cells/v4/common/proto/jobs"
 	"github.com/pydio/cells/v4/common/proto/object"
@@ -47,12 +48,11 @@ import (
 	"github.com/pydio/cells/v4/common/proto/tree"
 	"github.com/pydio/cells/v4/common/registry"
 	"github.com/pydio/cells/v4/common/runtime"
-	"github.com/pydio/cells/v4/common/runtime/runtimecontext"
 	"github.com/pydio/cells/v4/common/service"
-	servicecontext "github.com/pydio/cells/v4/common/service/context"
 	"github.com/pydio/cells/v4/common/service/errors"
 	"github.com/pydio/cells/v4/common/utils/i18n"
 	"github.com/pydio/cells/v4/common/utils/net"
+	"github.com/pydio/cells/v4/common/utils/propagator"
 	"github.com/pydio/cells/v4/discovery/config/lang"
 	"github.com/pydio/cells/v4/scheduler/actions"
 )
@@ -127,7 +127,7 @@ func (s *Handler) EndpointsDiscovery(req *restful.Request, resp *restful.Respons
 			// Pure HTTP and no grpc_external : detect GRPC_CLEAR Service Port
 			var grpcPorts []string
 			var reg registry.Registry
-			runtimecontext.Get(s.MainCtx, registry.ContextKey, &reg)
+			propagator.Get(s.MainCtx, registry.ContextKey, &reg)
 
 			if ss, e := reg.List(registry.WithName(common.ServiceGatewayGrpcClear), registry.WithType(pbregistry.ItemType_SERVICE)); e == nil && len(ss) > 0 {
 				for _, s := range ss {
@@ -386,18 +386,18 @@ func (s *Handler) SchedulerActionFormDiscovery(req *restful.Request, rsp *restfu
 				// Build FieldName / Condition Form
 				form = protos.GenerateProtoToForm("contextMetaSingleQuery", &jobs.ContextMetaSingleQuery{}, asSwitch)
 				selectChoices := []map[string]string{
-					{servicecontext.HttpMetaRemoteAddress: "contextMetaField." + servicecontext.HttpMetaRemoteAddress},
-					{servicecontext.HttpMetaUserAgent: "contextMetaField." + servicecontext.HttpMetaUserAgent},
-					{servicecontext.HttpMetaContentType: "contextMetaField." + servicecontext.HttpMetaContentType},
-					{servicecontext.HttpMetaProtocol: "contextMetaField." + servicecontext.HttpMetaProtocol},
-					{servicecontext.HttpMetaHost: "contextMetaField." + servicecontext.HttpMetaHost},
-					{servicecontext.HttpMetaHostname: "contextMetaField." + servicecontext.HttpMetaHostname},
-					{servicecontext.HttpMetaPort: "contextMetaField." + servicecontext.HttpMetaPort},
-					{servicecontext.HttpMetaRequestMethod: "contextMetaField." + servicecontext.HttpMetaRequestMethod},
-					{servicecontext.HttpMetaRequestURI: "contextMetaField." + servicecontext.HttpMetaRequestURI},
-					{servicecontext.HttpMetaCookiesString: "contextMetaField." + servicecontext.HttpMetaCookiesString},
-					//{servicecontext.ClientTime: servicecontext.ClientTime},
-					{servicecontext.ServerTime: "contextMetaField." + servicecontext.ServerTime},
+					{middleware.HttpMetaRemoteAddress: "contextMetaField." + middleware.HttpMetaRemoteAddress},
+					{middleware.HttpMetaUserAgent: "contextMetaField." + middleware.HttpMetaUserAgent},
+					{middleware.HttpMetaContentType: "contextMetaField." + middleware.HttpMetaContentType},
+					{middleware.HttpMetaProtocol: "contextMetaField." + middleware.HttpMetaProtocol},
+					{middleware.HttpMetaHost: "contextMetaField." + middleware.HttpMetaHost},
+					{middleware.HttpMetaHostname: "contextMetaField." + middleware.HttpMetaHostname},
+					{middleware.HttpMetaPort: "contextMetaField." + middleware.HttpMetaPort},
+					{middleware.HttpMetaRequestMethod: "contextMetaField." + middleware.HttpMetaRequestMethod},
+					{middleware.HttpMetaRequestURI: "contextMetaField." + middleware.HttpMetaRequestURI},
+					{middleware.HttpMetaCookiesString: "contextMetaField." + middleware.HttpMetaCookiesString},
+					//{middleware.ClientTime: middleware.ClientTime},
+					{middleware.ServerTime: "contextMetaField." + middleware.ServerTime},
 				}
 				if asSwitch {
 					sw := form.Groups[0].Fields[0].(*forms.SwitchField)

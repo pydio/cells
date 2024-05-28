@@ -37,13 +37,13 @@ import (
 	"github.com/pydio/cells/v4/common/auth/claim"
 	"github.com/pydio/cells/v4/common/broker"
 	"github.com/pydio/cells/v4/common/client/grpc"
+	"github.com/pydio/cells/v4/common/middleware"
 	"github.com/pydio/cells/v4/common/proto/idm"
 	"github.com/pydio/cells/v4/common/proto/tree"
 	"github.com/pydio/cells/v4/common/runtime"
-	servicecontext "github.com/pydio/cells/v4/common/service/context"
-	"github.com/pydio/cells/v4/common/service/context/metadata"
 	"github.com/pydio/cells/v4/common/utils/cache"
 	"github.com/pydio/cells/v4/common/utils/openurl"
+	"github.com/pydio/cells/v4/common/utils/propagator"
 	"github.com/pydio/cells/v4/idm/policy/converter"
 )
 
@@ -113,17 +113,17 @@ func PolicyRequestSubjectsFromClaims(claims claim.Claims) []string {
 
 // PolicyContextFromMetadata extracts metadata directly from the context and enriches the passed policyContext.
 func PolicyContextFromMetadata(policyContext map[string]string, ctx context.Context) {
-	if ctxMeta, has := metadata.FromContextRead(ctx); has {
+	if ctxMeta, has := propagator.FromContextRead(ctx); has {
 		for _, key := range []string{
-			servicecontext.HttpMetaRemoteAddress,
-			servicecontext.HttpMetaUserAgent,
-			servicecontext.HttpMetaContentType,
-			servicecontext.HttpMetaProtocol,
-			servicecontext.HttpMetaHostname,
-			servicecontext.HttpMetaHost,
-			servicecontext.HttpMetaPort,
-			servicecontext.ClientTime,
-			servicecontext.ServerTime,
+			middleware.HttpMetaRemoteAddress,
+			middleware.HttpMetaUserAgent,
+			middleware.HttpMetaContentType,
+			middleware.HttpMetaProtocol,
+			middleware.HttpMetaHostname,
+			middleware.HttpMetaHost,
+			middleware.HttpMetaPort,
+			middleware.ClientTime,
+			middleware.ServerTime,
 		} {
 			if val, hasKey := ctxMeta[key]; hasKey {
 				policyContext[key] = val

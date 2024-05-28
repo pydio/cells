@@ -37,9 +37,8 @@ import (
 	"github.com/pydio/cells/v4/common/nodes/abstract"
 	"github.com/pydio/cells/v4/common/nodes/models"
 	"github.com/pydio/cells/v4/common/proto/tree"
-	runtimecontext "github.com/pydio/cells/v4/common/runtime/runtimecontext"
-	"github.com/pydio/cells/v4/common/service/context/metadata"
 	"github.com/pydio/cells/v4/common/service/errors"
+	runtimecontext "github.com/pydio/cells/v4/common/utils/propagator"
 	"github.com/pydio/cells/v4/common/utils/uuid"
 )
 
@@ -63,14 +62,14 @@ func (f *StructStorageHandler) publish(ctx context.Context, identifier string, e
 	bi, ok := nodes.GetBranchInfo(ctx, identifier)
 
 	// Fork context to de-intricate query and publication cancellation
-	ctx = runtimecontext.ForkContext(metadata.NewBackgroundWithMetaCopy(ctx), ctx)
+	ctx = runtimecontext.ForkContext(runtimecontext.NewBackgroundWithMetaCopy(ctx), ctx)
 
 	// Publish only for remote non-minio structured servers
 	if ok && bi.FlatStorage {
 		return
 	}
 	event := &tree.NodeChangeEvent{Type: eventType}
-	if mm, ok := metadata.MinioMetaFromContext(ctx, true); ok {
+	if mm, ok := runtimecontext.MinioMetaFromContext(ctx, common.PydioContextUserKey, true); ok {
 		event.Metadata = mm
 	}
 	switch eventType {
@@ -124,7 +123,7 @@ func (f *StructStorageHandler) CreateNode(ctx context.Context, in *tree.CreateNo
 		}
 		newNode.MustSetMeta(common.MetaNamespaceDatasourcePath, dsPath+"/"+common.PydioSyncHiddenFile)
 		if session := in.IndexationSession; session != "" {
-			ctx = metadata.WithAdditionalMetadata(ctx, map[string]string{common.XPydioSessionUuid: session})
+			ctx = runtimecontext.WithAdditionalMetadata(ctx, map[string]string{common.XPydioSessionUuid: session})
 		}
 		if !in.UpdateIfExists {
 			if read, er := f.GetObject(ctx, newNode, &models.GetRequestData{StartOffset: 0, Length: 36}); er == nil {
@@ -162,7 +161,7 @@ func (f *StructStorageHandler) DeleteNode(ctx context.Context, in *tree.DeleteNo
 	resp, e := f.Next.DeleteNode(ctx, in, opts...)
 	if e == nil {
 		if session := in.IndexationSession; session != "" {
-			ctx = metadata.WithAdditionalMetadata(ctx, map[string]string{common.XPydioSessionUuid: session})
+			ctx = runtimecontext.WithAdditionalMetadata(ctx, map[string]string{common.XPydioSessionUuid: session})
 		}
 		f.publish(ctx, "in", tree.NodeChangeEvent_DELETE, in.GetNode().Clone())
 	}

@@ -18,16 +18,19 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-package registry
+package propagator
 
-import (
-	"github.com/pydio/cells/v4/common/utils/propagator"
-)
+import "net/http"
 
-type registryKey struct{}
+func HttpContextMiddleware(modifier IncomingContextModifier) func(http.Handler) http.Handler {
+	return func(handler http.Handler) http.Handler {
+		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			ct, _, err := modifier(r.Context())
+			if err != nil {
+				return
+			}
 
-var ContextKey = registryKey{}
-
-func init() {
-	propagator.RegisterKeyInjector[Registry](ContextKey)
+			handler.ServeHTTP(w, r.WithContext(ct))
+		})
+	}
 }

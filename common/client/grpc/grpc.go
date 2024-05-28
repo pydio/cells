@@ -41,11 +41,8 @@ import (
 	"github.com/pydio/cells/v4/common/config"
 	"github.com/pydio/cells/v4/common/registry"
 	"github.com/pydio/cells/v4/common/runtime"
-	"github.com/pydio/cells/v4/common/runtime/runtimecontext"
-	servicecontext "github.com/pydio/cells/v4/common/service/context"
-	"github.com/pydio/cells/v4/common/service/context/ckeys"
-	metadata2 "github.com/pydio/cells/v4/common/service/context/metadata"
 	"github.com/pydio/cells/v4/common/service/metrics"
+	"github.com/pydio/cells/v4/common/utils/propagator"
 
 	_ "google.golang.org/grpc/xds"
 )
@@ -72,14 +69,12 @@ func DialOptionsForRegistry(reg registry.Registry, options ...grpc.DialOption) [
 		grpc.WithChainUnaryInterceptor(
 			ErrorNoMatchedRouteRetryUnaryClientInterceptor(),
 			ErrorFormatUnaryClientInterceptor(),
-			servicecontext.OperationIdUnaryClientInterceptor(),
-			MetaUnaryClientInterceptor(),
+			propagator.MetaUnaryClientInterceptor(common.CtxCellsMetaPrefix),
 		),
 		grpc.WithChainStreamInterceptor(
 			ErrorNoMatchedRouteRetryStreamClientInterceptor(),
 			ErrorFormatStreamClientInterceptor(),
-			servicecontext.OperationIdStreamClientInterceptor(),
-			MetaStreamClientInterceptor(),
+			propagator.MetaStreamClientInterceptor(common.CtxCellsMetaPrefix),
 		),
 		grpc.WithStatsHandler(otelgrpc.NewClientHandler()),
 	}, options...)
@@ -95,12 +90,12 @@ func ResolveConn(ctx context.Context, serviceName string, opt ...Option) grpc.Cl
 		debug.PrintStack()
 	}
 	var reg registry.Registry
-	runtimecontext.Get(ctx, registry.ContextKey, &reg)
+	propagator.Get(ctx, registry.ContextKey, &reg)
 	opt = append(opt, WithClientConn(conn))
 	opt = append(opt, WithRegistry(reg))
 
 	tenantName := "default"
-	if mm, ok := metadata2.FromContextRead(ctx); ok {
+	if mm, ok := propagator.FromContextRead(ctx); ok {
 		if p, o := mm[common.XPydioTenantUuid]; o {
 			tenantName = p
 		}
@@ -160,9 +155,9 @@ func (cc *clientConn) Invoke(ctx context.Context, method string, args interface{
 		grpc.WaitForReady(true),
 	}, opts...)
 
-	//if metadata.ValueFromIncomingContext(ctx, ckeys.TargetServiceName)
-	ctx = metadata.AppendToOutgoingContext(ctx, ckeys.TargetServiceName, cc.serviceName)
-	ctx = metadata.AppendToOutgoingContext(ctx, ckeys.TargetTenantName, cc.tenantName)
+	//if metadata.ValueFromIncomingContext(ctx, ckeys.CtxTargetServiceName)
+	ctx = metadata.AppendToOutgoingContext(ctx, common.CtxTargetServiceName, cc.serviceName)
+	ctx = metadata.AppendToOutgoingContext(ctx, common.CtxTargetTenantName, cc.tenantName)
 
 	var cancel context.CancelFunc
 	if cc.callTimeout > 0 {
@@ -189,8 +184,8 @@ func (cc *clientConn) NewStream(ctx context.Context, desc *grpc.StreamDesc, meth
 		grpc.WaitForReady(true),
 	}, opts...)
 
-	ctx = metadata.AppendToOutgoingContext(ctx, ckeys.TargetServiceName, cc.serviceName)
-	ctx = metadata.AppendToOutgoingContext(ctx, ckeys.TargetTenantName, cc.tenantName)
+	ctx = metadata.AppendToOutgoingContext(ctx, common.CtxTargetServiceName, cc.serviceName)
+	ctx = metadata.AppendToOutgoingContext(ctx, common.CtxTargetTenantName, cc.tenantName)
 
 	var cancel context.CancelFunc
 	if cc.callTimeout > 0 {

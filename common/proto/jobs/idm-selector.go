@@ -28,11 +28,11 @@ import (
 
 	"github.com/pydio/cells/v4/common/client/commons/idmc"
 	"github.com/pydio/cells/v4/common/log"
+	"github.com/pydio/cells/v4/common/middleware"
 	"github.com/pydio/cells/v4/common/proto/idm"
 	"github.com/pydio/cells/v4/common/proto/service"
-	servicecontext "github.com/pydio/cells/v4/common/service/context"
-	"github.com/pydio/cells/v4/common/service/context/metadata"
 	"github.com/pydio/cells/v4/common/utils/permissions"
+	"github.com/pydio/cells/v4/common/utils/propagator"
 )
 
 func (m *IdmSelector) MultipleSelection() bool {
@@ -397,7 +397,7 @@ func (m *IdmSelector) evaluate(ctx context.Context, input *ActionMessage, single
 // WorkspaceFromEventContext tries to find the CtxWorkspaceUuid key in the context metadata and if it is set,
 // lookup actual workspace by UUID.
 func (m *IdmSelector) WorkspaceFromEventContext(ctx context.Context) (*idm.Workspace, bool) {
-	wsUuid, o := metadata.CanonicalMeta(ctx, servicecontext.CtxWorkspaceUuid)
+	wsUuid, o := propagator.CanonicalMeta(ctx, middleware.CtxWorkspaceUuid)
 	if !o || wsUuid == "ROOT" {
 		return nil, false
 	}

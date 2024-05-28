@@ -31,14 +31,14 @@ import (
 
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/log"
+	"github.com/pydio/cells/v4/common/middleware"
 	"github.com/pydio/cells/v4/common/nodes"
 	"github.com/pydio/cells/v4/common/nodes/abstract"
 	"github.com/pydio/cells/v4/common/nodes/acl"
 	"github.com/pydio/cells/v4/common/proto/idm"
 	"github.com/pydio/cells/v4/common/proto/tree"
-	servicecontext "github.com/pydio/cells/v4/common/service/context"
-	"github.com/pydio/cells/v4/common/service/context/metadata"
 	"github.com/pydio/cells/v4/common/service/errors"
+	"github.com/pydio/cells/v4/common/utils/propagator"
 )
 
 func WithWorkspace() nodes.Option {
@@ -114,9 +114,9 @@ func (a *WorkspaceHandler) updateBranchInfo(ctx context.Context, node *tree.Node
 		return ctx, node, err
 	} else if ok {
 		branchInfo.Workspace = proto.Clone(ws).(*idm.Workspace)
-		if _, ok := metadata.CanonicalMeta(ctx, servicecontext.CtxWorkspaceUuid); !ok { // do not override if already set
-			ctx = metadata.WithAdditionalMetadata(ctx, map[string]string{
-				servicecontext.CtxWorkspaceUuid: ws.UUID,
+		if _, ok := propagator.CanonicalMeta(ctx, middleware.CtxWorkspaceUuid); !ok { // do not override if already set
+			ctx = propagator.WithAdditionalMetadata(ctx, map[string]string{
+				middleware.CtxWorkspaceUuid: ws.UUID,
 			})
 		}
 		return nodes.WithBranchInfo(ctx, identifier, branchInfo), out, nil

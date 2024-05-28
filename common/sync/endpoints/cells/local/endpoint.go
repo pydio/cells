@@ -33,9 +33,9 @@ import (
 	"github.com/pydio/cells/v4/common/proto/tree"
 	"github.com/pydio/cells/v4/common/registry"
 	"github.com/pydio/cells/v4/common/runtime"
-	"github.com/pydio/cells/v4/common/runtime/runtimecontext"
 	"github.com/pydio/cells/v4/common/sync/endpoints/cells"
 	"github.com/pydio/cells/v4/common/sync/model"
+	"github.com/pydio/cells/v4/common/utils/propagator"
 	"github.com/pydio/cells/v4/common/utils/uuid"
 )
 
@@ -68,7 +68,7 @@ func NewLocal(root string, options cells.Options) *Local {
 			if err != nil {
 				panic(err)
 			}
-			ctx = runtimecontext.With(ctx, registry.ContextKey, reg)
+			ctx = propagator.With(ctx, registry.ContextKey, reg)
 		})
 	}
 	l := &Local{
@@ -88,7 +88,7 @@ func NewLocal(root string, options cells.Options) *Local {
 		),
 	}
 	l.Source = l
-	l.GlobalCtx = runtimecontext.WithServiceName(l.GlobalCtx, "endpoint.cells.local")
+	l.GlobalCtx = runtime.WithServiceName(l.GlobalCtx, "endpoint.cells.local")
 	return l
 }
 

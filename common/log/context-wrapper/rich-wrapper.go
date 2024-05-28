@@ -30,9 +30,8 @@ import (
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/auth/claim"
 	"github.com/pydio/cells/v4/common/log"
-	"github.com/pydio/cells/v4/common/runtime/runtimecontext"
-	servicecontext "github.com/pydio/cells/v4/common/service/context"
-	"github.com/pydio/cells/v4/common/service/context/metadata"
+	"github.com/pydio/cells/v4/common/middleware"
+	"github.com/pydio/cells/v4/common/utils/propagator"
 )
 
 // RichContext enriches the passed logger with as much info as possible
@@ -47,44 +46,39 @@ func RichContext(ctx context.Context, logger log.ZapLogger, fields ...zapcore.Fi
 
 	// Compute all fields
 
-	if span := servicecontext.SpanFromContext(ctx); span.HasSpanID() {
-		/*
-			if len(span.RootParentId) > 0 {
-				fields = append(fields, zap.String(common.KeySpanRootUuid, span.RootParentId))
-			}
-			if len(span.ParentId) > 0 {
-				fields = append(fields, zap.String(common.KeySpanParentUuid, span.RootParentId))
-			}
-		*/
+	if span := middleware.SpanFromContext(ctx); span.HasSpanID() {
 		fields = append(fields, zap.Any(common.KeySpanOtel, span))
 	}
-	if opId, opLabel := runtimecontext.GetOperationID(ctx); opId != "" {
+	if opId, has := propagator.CanonicalMeta(ctx, common.CtxSchedulerOperationId); has {
 		fields = append(fields, zap.String(common.KeyOperationUuid, opId))
-		if opLabel != "" {
-			fields = append(fields, zap.String(common.KeyOperationLabel, opLabel))
-		}
 	}
-	if jobId, has := metadata.CanonicalMeta(ctx, runtimecontext.ContextMetaJobUuid); has {
+	if opLabel, has := propagator.CanonicalMeta(ctx, common.CtxSchedulerOperationLabel); has {
+		fields = append(fields, zap.String(common.KeyOperationLabel, opLabel))
+	}
+	if jobId, has := propagator.CanonicalMeta(ctx, common.CtxMetaJobUuid); has {
 		fields = append(fields, zap.String(common.KeySchedulerJobId, jobId))
 	}
-	if taskUuid, has := metadata.CanonicalMeta(ctx, runtimecontext.ContextMetaTaskUuid); has {
+	if taskUuid, has := propagator.CanonicalMeta(ctx, common.CtxMetaTaskUuid); has {
 		fields = append(fields, zap.String(common.KeySchedulerTaskId, taskUuid))
 	}
-	if taskPath, has := metadata.CanonicalMeta(ctx, runtimecontext.ContextMetaTaskActionPath); has {
+	if taskPath, has := propagator.CanonicalMeta(ctx, common.CtxMetaTaskActionPath); has {
 		fields = append(fields, zap.String(common.KeySchedulerActionPath, taskPath))
 	}
-	if taskTags, has := metadata.CanonicalMeta(ctx, runtimecontext.ContextMetaTaskActionTags); has {
+	if taskTags, has := propagator.CanonicalMeta(ctx, common.CtxMetaTaskActionTags); has {
 		tt := strings.Split(taskTags, ",")
 		if len(tt) > 0 {
 			fields = append(fields, zap.Strings(common.KeySchedulerActionTags, tt))
 		}
 	}
-	if ctxMeta, has := metadata.FromContextRead(ctx); has {
+	if debug, has := propagator.CanonicalMeta(ctx, common.XPydioDebugSession); has {
+		fields = append(fields, zap.String(common.XPydioDebugSession, debug))
+	}
+	if ctxMeta, has := propagator.FromContextRead(ctx); has {
 		for _, key := range []string{
-			servicecontext.HttpMetaRemoteAddress,
-			servicecontext.HttpMetaUserAgent,
-			servicecontext.HttpMetaContentType,
-			servicecontext.HttpMetaProtocol,
+			middleware.HttpMetaRemoteAddress,
+			middleware.HttpMetaUserAgent,
+			middleware.HttpMetaContentType,
+			middleware.HttpMetaProtocol,
 		} {
 			if val, hasKey := ctxMeta[key]; hasKey {
 				fields = append(fields, zap.String(key, val))

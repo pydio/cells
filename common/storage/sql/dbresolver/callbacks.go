@@ -5,8 +5,9 @@ import (
 
 	"gorm.io/gorm"
 
-	"github.com/pydio/cells/v4/common/runtime/runtimecontext"
+	"github.com/pydio/cells/v4/common/runtime"
 	"github.com/pydio/cells/v4/common/runtime/tenant"
+	"github.com/pydio/cells/v4/common/utils/propagator"
 )
 
 func (dr *DBResolver) registerCallbacks(db *gorm.DB) {
@@ -27,11 +28,11 @@ func (dr *DBResolver) registerCallbacks(db *gorm.DB) {
 
 func (dr *DBResolver) checkContext(db *gorm.DB) {
 	var t tenant.Tenant
-	if runtimecontext.Get(db.Statement.Context, tenant.ContextKey, &t) {
+	if propagator.Get(db.Statement.Context, tenant.ContextKey, &t) {
 		db.Clauses(UseTenant(t.ID()))
 	}
 
-	if service := runtimecontext.GetServiceName(db.Statement.Context); service != "" {
+	if service := runtime.GetServiceName(db.Statement.Context); service != "" {
 		db.Clauses(UseService(service))
 	}
 }

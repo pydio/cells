@@ -43,15 +43,14 @@ import (
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/config/routing"
 	"github.com/pydio/cells/v4/common/log"
+	"github.com/pydio/cells/v4/common/middleware"
 	pb "github.com/pydio/cells/v4/common/proto/registry"
 	"github.com/pydio/cells/v4/common/proto/rest"
 	"github.com/pydio/cells/v4/common/registry"
 	"github.com/pydio/cells/v4/common/registry/util"
 	"github.com/pydio/cells/v4/common/runtime"
-	"github.com/pydio/cells/v4/common/runtime/runtimecontext"
 	"github.com/pydio/cells/v4/common/server"
-	"github.com/pydio/cells/v4/common/server/middleware"
-	servicecontext "github.com/pydio/cells/v4/common/service/context"
+	"github.com/pydio/cells/v4/common/utils/propagator"
 )
 
 const (
@@ -89,17 +88,16 @@ type WebHandler interface {
 func getWebMiddlewares(serviceName string) []func(ctx context.Context, handler http.Handler) http.Handler {
 	wmOnce.Do(func() {
 		wm = append(wm,
-			servicecontext.HttpWrapperMetrics,
-			middleware.HttpWrapperPolicy,
-			middleware.HttpWrapperJWT,
-			servicecontext.HttpWrapperMeta,
-			//servicecontext.HttpCtxWrapperOpenTelemetry, // should be directly integrated in httpResolver
+			middleware.HttpWrapperMetrics,
+			HttpWrapperPolicy,
+			HttpWrapperJWT,
+			middleware.HttpWrapperMeta,
 		)
 	})
 	// Append dynamic wrapper to append service name to context
 	sw := func(ctx context.Context, handler http.Handler) http.Handler {
 		return http.HandlerFunc(func(writer http.ResponseWriter, request *http.Request) {
-			c := runtimecontext.WithServiceName(request.Context(), serviceName)
+			c := runtime.WithServiceName(request.Context(), serviceName)
 			handler.ServeHTTP(writer, request.WithContext(c))
 		})
 	}
@@ -224,10 +222,10 @@ func WithWeb(handler func(ctx context.Context) WebHandler) ServiceOption {
 
 			testServiceContext := func(h http.Handler, o *ServiceOptions) http.Handler {
 				return http.HandlerFunc(func(rw http.ResponseWriter, req *http.Request) {
-					ctx := runtimecontext.ForkContext(req.Context(), ctx)
+					ctx := propagator.ForkContext(req.Context(), ctx)
 
 					var reg registry.Registry
-					runtimecontext.Get(ctx, registry.ContextKey, &reg)
+					propagator.Get(ctx, registry.ContextKey, &reg)
 
 					path := strings.TrimSuffix(req.RequestURI, req.URL.Path)
 
@@ -246,7 +244,7 @@ func WithWeb(handler func(ctx context.Context) WebHandler) ServiceOption {
 							continue
 						}
 
-						ctx = runtimecontext.With(ctx, ContextKey, services[0])
+						ctx = propagator.With(ctx, ContextKey, services[0])
 					}
 
 					ctx, _, _ = middleware.TenantIncomingContext(nil)(ctx)
@@ -257,15 +255,6 @@ func WithWeb(handler func(ctx context.Context) WebHandler) ServiceOption {
 
 			wrapped = UpdateServiceVersionWrapper(wrapped, o)
 			wrapped = testServiceContext(wrapped, o)
-
-			/*
-				wrapped = func(h http.Handler, o *ServiceOptions) http.Handler {
-					return http.HandlerFunc(func(rw http.ResponseWriter, req *http.Request) {
-						h.ServeHTTP(rw, req.WithContext(ctx))
-					})
-				}(wrapped, o)
-
-			*/
 
 			sub := mux.Route(APIRoute)
 			sub.Handle(serviceRoute, wrapped, routing.WithStripPrefix(), routing.WithEnsureTrailing())

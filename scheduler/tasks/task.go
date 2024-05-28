@@ -29,8 +29,8 @@ import (
 
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/proto/jobs"
-	"github.com/pydio/cells/v4/common/runtime/runtimecontext"
 	"github.com/pydio/cells/v4/common/utils/permissions"
+	"github.com/pydio/cells/v4/common/utils/propagator"
 	"github.com/pydio/cells/v4/common/utils/uuid"
 	"github.com/pydio/cells/v4/scheduler/actions"
 )
@@ -68,7 +68,8 @@ func NewTaskFromEvent(runtime, ctx context.Context, job *jobs.Job, event interfa
 		taskID = trigger.RunTaskId
 	}
 	operationID := job.ID + "-" + taskID[0:8]
-	c := runtimecontext.WithOperationID(ctx, operationID)
+	//c := runtimecontext.WithOperationID(ctx, operationID)
+	c := propagator.WithAdditionalMetadata(ctx, map[string]string{common.CtxSchedulerOperationId: operationID})
 
 	// Inject evaluated job parameters if it's not already here
 	if len(job.Parameters) > 0 && c.Value(ContextJobParametersKey{}) == nil {

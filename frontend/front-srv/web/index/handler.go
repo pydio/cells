@@ -32,8 +32,8 @@ import (
 	"github.com/pydio/cells/v4/common/config"
 	pb "github.com/pydio/cells/v4/common/proto/registry"
 	"github.com/pydio/cells/v4/common/registry"
-	"github.com/pydio/cells/v4/common/runtime/runtimecontext"
 	"github.com/pydio/cells/v4/common/service/frontend"
+	"github.com/pydio/cells/v4/common/utils/propagator"
 )
 
 type IndexHandler struct {
@@ -156,7 +156,7 @@ func (h *IndexHandler) detectFrontendService() bool {
 		return true
 	}
 	var reg registry.Registry
-	runtimecontext.Get(h.runtimeCtx, registry.ContextKey, &reg)
+	propagator.Get(h.runtimeCtx, registry.ContextKey, &reg)
 
 	if ss, e := reg.List(registry.WithName(common.ServiceRestNamespace_+common.ServiceFrontend), registry.WithType(pb.ItemType_SERVICE)); e == nil && len(ss) > 0 {
 		h.frontendDetected = true

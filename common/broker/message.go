@@ -25,7 +25,7 @@ import (
 
 	"google.golang.org/protobuf/proto"
 
-	"github.com/pydio/cells/v4/common/service/context/metadata"
+	"github.com/pydio/cells/v4/common/utils/propagator"
 )
 
 type Message interface {
@@ -44,7 +44,7 @@ func (m *message) Unmarshal(ctx context.Context, target proto.Message) (context.
 	}
 
 	if m.header != nil {
-		ctx = metadata.NewContext(ctx, m.header)
+		ctx = propagator.NewContext(ctx, m.header)
 	}
 
 	return ctx, nil

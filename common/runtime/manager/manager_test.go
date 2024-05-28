@@ -1,4 +1,4 @@
-package manager
+package manager_test
 
 import (
 	"context"
@@ -11,10 +11,11 @@ import (
 
 	"github.com/pydio/cells/v4/common/registry"
 	"github.com/pydio/cells/v4/common/runtime"
-	"github.com/pydio/cells/v4/common/runtime/runtimecontext"
+	"github.com/pydio/cells/v4/common/runtime/manager"
 	"github.com/pydio/cells/v4/common/server/generic"
 	"github.com/pydio/cells/v4/common/service"
 	"github.com/pydio/cells/v4/common/storage/bleve"
+	"github.com/pydio/cells/v4/common/utils/propagator"
 
 	_ "embed"
 	_ "github.com/pydio/cells/v4/common/registry/config"
@@ -39,14 +40,14 @@ func TestManager(t *testing.T) {
 
 	ctx := context.Background()
 
-	mg, err := NewManager(ctx, "main", nil)
+	mg, err := manager.NewManager(ctx, "main", nil)
 	if err != nil {
 		t.Error("cannot run test", err)
 		t.Fail()
 		return
 	}
 
-	ctx = runtimecontext.With(ctx, registry.ContextKey, mg.Registry())
+	ctx = propagator.With(ctx, registry.ContextKey, mg.Registry())
 
 	Convey("Testing the manager connections", t, func() {
 		Convey("SQLite", func() {

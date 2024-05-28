@@ -18,7 +18,7 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-package servicecontext
+package middleware
 
 import (
 	"context"

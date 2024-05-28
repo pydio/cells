@@ -25,10 +25,11 @@ import (
 
 	"github.com/ory/ladon"
 	"github.com/ory/ladon/manager/memory"
-	. "github.com/smartystreets/goconvey/convey"
 	"github.com/stretchr/testify/require"
 
-	"github.com/pydio/cells/v4/common/service/context"
+	"github.com/pydio/cells/v4/common/middleware"
+
+	. "github.com/smartystreets/goconvey/convey"
 )
 
 func TestDateWithinPeriodCondition(t *testing.T) {
@@ -67,7 +68,7 @@ func TestDateWithinPeriodPolicy(t *testing.T) {
 			Actions:     []string{"write"},
 			Effect:      ladon.AllowAccess,
 			Conditions: ladon.Conditions{
-				servicecontext.ClientTime: &DateWithinPeriodCondition{
+				middleware.ClientTime: &DateWithinPeriodCondition{
 					DateBegin: "2006-01-02T15:04-0700",
 					DateEnd:   "2006-02-02T15:04-0700",
 				},

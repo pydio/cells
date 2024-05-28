@@ -30,7 +30,7 @@ import (
 	"go.uber.org/zap/zapcore"
 
 	"github.com/pydio/cells/v4/common"
-	servicecontext "github.com/pydio/cells/v4/common/service/context"
+	"github.com/pydio/cells/v4/common/middleware"
 )
 
 const (
@@ -75,10 +75,10 @@ var (
 		common.KeyProfile,
 		common.KeyRoles,
 		// HTTP Meta Keys
-		servicecontext.HttpMetaRemoteAddress,
-		servicecontext.HttpMetaUserAgent,
-		servicecontext.HttpMetaContentType,
-		servicecontext.HttpMetaProtocol,
+		middleware.HttpMetaRemoteAddress,
+		middleware.HttpMetaUserAgent,
+		middleware.HttpMetaContentType,
+		middleware.HttpMetaProtocol,
 	}
 
 	consoleNamedColors map[string]int

@@ -39,7 +39,7 @@ import (
 	"github.com/pydio/cells/v4/common/proto/chat"
 	"github.com/pydio/cells/v4/common/proto/tree"
 	"github.com/pydio/cells/v4/common/runtime/manager"
-	"github.com/pydio/cells/v4/common/service/context/metadata"
+	"github.com/pydio/cells/v4/common/utils/propagator"
 )
 
 func getMetaClient(ctx context.Context) tree.NodeReceiverClient {
@@ -214,7 +214,7 @@ func (c *ChatHandler) PostMessage(ctx context.Context, req *chat.PostMessageRequ
 	go func() {
 		for _, m := range results {
 			kr, _ := c.knownRoomFromUuid(ctx, dao, m.RoomUuid, krs)
-			bgCtx := metadata.NewBackgroundWithUserKey(m.Author)
+			bgCtx := propagator.NewBackgroundWithUserKey(common.PydioContextUserKey, m.Author)
 			broker.MustPublish(bgCtx, common.TopicChatEvent, &chat.ChatEvent{
 				Message: m.ChatMessage,
 				Room:    kr,
@@ -270,7 +270,7 @@ func (c *ChatHandler) DeleteMessage(ctx context.Context, req *chat.DeleteMessage
 	}
 	go func() {
 		for _, m := range req.Messages {
-			bgCtx := metadata.NewBackgroundWithUserKey(m.Author)
+			bgCtx := propagator.NewBackgroundWithUserKey(common.PydioContextUserKey, m.Author)
 			if room, err := dao.RoomByUuid(bgCtx, chat.RoomType_NODE, m.RoomUuid); err == nil {
 				if count, e := dao.CountMessages(bgCtx, room); e == nil {
 					var meta = ""

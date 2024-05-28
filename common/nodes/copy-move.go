@@ -30,17 +30,18 @@ import (
 	"sync"
 	"time"
 
+	"go.uber.org/zap"
+
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/broker"
 	"github.com/pydio/cells/v4/common/log"
 	"github.com/pydio/cells/v4/common/nodes/models"
 	"github.com/pydio/cells/v4/common/proto/tree"
-	"github.com/pydio/cells/v4/common/service/context/metadata"
 	"github.com/pydio/cells/v4/common/service/errors"
 	"github.com/pydio/cells/v4/common/utils/i18n"
 	"github.com/pydio/cells/v4/common/utils/permissions"
+	"github.com/pydio/cells/v4/common/utils/propagator"
 	"github.com/pydio/cells/v4/common/utils/uuid"
-	"go.uber.org/zap"
 )
 
 type (
@@ -215,7 +216,7 @@ func CopyMoveNodes(ctx context.Context, router Handler, sourceNode *tree.Node, t
 			tgt := ctx
 			if move {
 				tgtUuid = sourceNode.Uuid
-				tgt = metadata.WithAdditionalMetadata(tgt, map[string]string{common.XPydioMoveUuid: session})
+				tgt = propagator.WithAdditionalMetadata(tgt, map[string]string{common.XPydioMoveUuid: session})
 			}
 			if _, e := router.CreateNode(tgt, &tree.CreateNodeRequest{Node: &tree.Node{
 				Uuid:  tgtUuid,
@@ -302,7 +303,7 @@ func CopyMoveNodes(ctx context.Context, router Handler, sourceNode *tree.Node, t
 						log.Logger(ctx).Info("Sending session close on last folder")
 						sess = common.SyncSessionClose_ + session
 					}
-					createContext = metadata.WithAdditionalMetadata(createContext, map[string]string{
+					createContext = propagator.WithAdditionalMetadata(createContext, map[string]string{
 						common.XPydioMoveUuid: session,
 					})
 					folderNode.Uuid = childNode.Uuid
@@ -418,7 +419,7 @@ func CopyMoveNodes(ctx context.Context, router Handler, sourceNode *tree.Node, t
 		}
 		statusChan <- copyMoveStatusKey(sourceNode.Path, move, tFunc...)
 
-		_, e := router.CopyObject(metadata.WithAdditionalMetadata(ctx, copyCtxMeta), sourceNode, targetNode, &models.CopyRequestData{
+		_, e := router.CopyObject(propagator.WithAdditionalMetadata(ctx, copyCtxMeta), sourceNode, targetNode, &models.CopyRequestData{
 			Metadata: copyMeta,
 			Progress: &copyPgReader{offset: 0, total: sourceNode.Size, progressChan: progressChan},
 		})
@@ -429,7 +430,7 @@ func CopyMoveNodes(ctx context.Context, router Handler, sourceNode *tree.Node, t
 		}
 		// Remove Source N
 		if move {
-			ctx = metadata.WithAdditionalMetadata(ctx, deleteMeta)
+			ctx = propagator.WithAdditionalMetadata(ctx, deleteMeta)
 			_, moveErr := router.DeleteNode(ctx, &tree.DeleteNodeRequest{Node: sourceNode})
 			if moveErr != nil {
 				logger.Error("-- Delete Source Error / Reverting Copy", zap.Error(moveErr), sourceNode.Zap())
@@ -444,7 +445,7 @@ func CopyMoveNodes(ctx context.Context, router Handler, sourceNode *tree.Node, t
 			// Flat source : remove original folder
 			log.Logger(ctx).Info("Removing source folder after move")
 			// Manually create target folder
-			tgt := metadata.WithAdditionalMetadata(ctx, map[string]string{common.XPydioMoveUuid: session})
+			tgt := propagator.WithAdditionalMetadata(ctx, map[string]string{common.XPydioMoveUuid: session})
 			if _, e := router.DeleteNode(tgt, &tree.DeleteNodeRequest{Node: sourceNode}); e != nil {
 				return e
 			}
@@ -549,7 +550,7 @@ func processCopyMove(ctx context.Context, handler Handler, session string, move,
 				ctxMeta[common.XPydioMoveUuid] = session
 			}
 		}
-		_, e := handler.CopyObject(metadata.WithAdditionalMetadata(ctx, ctxMeta), childNode, targetNode, &models.CopyRequestData{
+		_, e := handler.CopyObject(propagator.WithAdditionalMetadata(ctx, ctxMeta), childNode, targetNode, &models.CopyRequestData{
 			Metadata: meta,
 			Progress: progress,
 		})
@@ -577,7 +578,7 @@ func processCopyMove(ctx context.Context, handler Handler, session string, move,
 		}
 		delCtx := ctx
 		if crossDs {
-			delCtx = metadata.WithAdditionalMetadata(ctx, map[string]string{common.XPydioMoveUuid: originalSession})
+			delCtx = propagator.WithAdditionalMetadata(ctx, map[string]string{common.XPydioMoveUuid: originalSession})
 		}
 		_, moveErr := handler.DeleteNode(delCtx, &tree.DeleteNodeRequest{Node: childNode, IndexationSession: session})
 		if moveErr != nil {

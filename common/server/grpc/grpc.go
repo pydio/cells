@@ -44,15 +44,14 @@ import (
 	"google.golang.org/protobuf/proto"
 
 	"github.com/pydio/cells/v4/common/log"
+	"github.com/pydio/cells/v4/common/middleware"
 	pb "github.com/pydio/cells/v4/common/proto/registry"
 	"github.com/pydio/cells/v4/common/registry"
 	"github.com/pydio/cells/v4/common/registry/util"
 	"github.com/pydio/cells/v4/common/runtime"
-	"github.com/pydio/cells/v4/common/runtime/runtimecontext"
 	"github.com/pydio/cells/v4/common/server"
-	"github.com/pydio/cells/v4/common/server/middleware"
 	"github.com/pydio/cells/v4/common/service"
-	servicecontext "github.com/pydio/cells/v4/common/service/context"
+	"github.com/pydio/cells/v4/common/utils/propagator"
 	"github.com/pydio/cells/v4/common/utils/uuid"
 
 	_ "google.golang.org/grpc/health"
@@ -143,14 +142,14 @@ func (s *Server) lazyGrpc(rootContext context.Context) *grpc.Server {
 	)
 
 	var reg registry.Registry
-	runtimecontext.Get(rootContext, registry.ContextKey, &reg)
+	propagator.Get(rootContext, registry.ContextKey, &reg)
 
 	unaryInterceptors = append(unaryInterceptors,
 
 		func(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (interface{}, error) {
-			ctx = runtimecontext.ForkContext(ctx, rootContext)
+			ctx = propagator.ForkContext(ctx, rootContext)
 
-			serviceName := runtimecontext.GetServiceName(ctx)
+			serviceName := runtime.GetServiceName(ctx)
 			if serviceName != "" {
 				endpoints := reg.ListAdjacentItems(
 					registry.WithAdjacentSourceItems([]registry.Item{s}),
@@ -177,7 +176,7 @@ func (s *Server) lazyGrpc(rootContext context.Context) *grpc.Server {
 						continue
 					}
 
-					ctx = runtimecontext.With(ctx, service.ContextKey, svc)
+					ctx = propagator.With(ctx, service.ContextKey, svc)
 
 					method := info.FullMethod[strings.LastIndex(info.FullMethod, "/")+1:]
 					outputs := reflect.ValueOf(ep.Handler()).MethodByName(method).Call([]reflect.Value{reflect.ValueOf(ctx), reflect.ValueOf(req)})
@@ -227,9 +226,9 @@ func (s *Server) lazyGrpc(rootContext context.Context) *grpc.Server {
 		//	return handler(srv, ss)
 		//},
 		func(srv interface{}, ss grpc.ServerStream, info *grpc.StreamServerInfo, handler grpc.StreamHandler) error {
-			ctx := runtimecontext.ForkContext(ss.Context(), rootContext)
+			ctx := propagator.ForkContext(ss.Context(), rootContext)
 
-			serviceName := runtimecontext.GetServiceName(ctx)
+			serviceName := runtime.GetServiceName(ctx)
 			if serviceName != "" {
 				endpoints := reg.ListAdjacentItems(
 					registry.WithAdjacentSourceItems([]registry.Item{s}),
@@ -257,7 +256,7 @@ func (s *Server) lazyGrpc(rootContext context.Context) *grpc.Server {
 
 					ep := endpoint.(registry.Endpoint)
 
-					ctx = runtimecontext.With(ctx, service.ContextKey, svc)
+					ctx = propagator.With(ctx, service.ContextKey, svc)
 
 					wrapped := grpc_middleware.WrapServerStream(ss)
 					wrapped.WrappedContext = ctx
@@ -285,27 +284,25 @@ func (s *Server) lazyGrpc(rootContext context.Context) *grpc.Server {
 		grpc.ChainUnaryInterceptor(
 			ErrorFormatUnaryInterceptor,
 			grpc_recovery.UnaryServerInterceptor(recoveryOpts...),
-			servicecontext.MetricsUnaryServerInterceptor(),
-			servicecontext.ContextUnaryServerInterceptor(servicecontext.MetaIncomingContext),
-			servicecontext.ContextUnaryServerInterceptor(servicecontext.OperationIdIncomingContext),
-			servicecontext.ContextUnaryServerInterceptor(middleware.TargetNameToServiceNameContext(rootContext)),
-			servicecontext.ContextUnaryServerInterceptor(middleware.ClientConnIncomingContext(rootContext)),
-			servicecontext.ContextUnaryServerInterceptor(middleware.RegistryIncomingContext(rootContext)),
-			servicecontext.ContextUnaryServerInterceptor(middleware.TenantIncomingContext(rootContext)),
-			servicecontext.ContextUnaryServerInterceptor(middleware.ServiceIncomingContext(rootContext)),
+			middleware.MetricsUnaryServerInterceptor(),
+			propagator.ContextUnaryServerInterceptor(middleware.CellsMetadataIncomingContext),
+			propagator.ContextUnaryServerInterceptor(middleware.TargetNameToServiceNameContext(rootContext)),
+			propagator.ContextUnaryServerInterceptor(middleware.ClientConnIncomingContext(rootContext)),
+			propagator.ContextUnaryServerInterceptor(middleware.RegistryIncomingContext(rootContext)),
+			propagator.ContextUnaryServerInterceptor(middleware.TenantIncomingContext(rootContext)),
+			propagator.ContextUnaryServerInterceptor(middleware.ServiceIncomingContext(rootContext)),
 			HandlerUnaryInterceptor(&unaryInterceptors),
 		),
 		grpc.ChainStreamInterceptor(
 			ErrorFormatStreamInterceptor,
 			grpc_recovery.StreamServerInterceptor(recoveryOpts...),
-			servicecontext.MetricsStreamServerInterceptor(),
-			servicecontext.ContextStreamServerInterceptor(servicecontext.MetaIncomingContext),
-			servicecontext.ContextStreamServerInterceptor(servicecontext.OperationIdIncomingContext),
-			servicecontext.ContextStreamServerInterceptor(middleware.TargetNameToServiceNameContext(rootContext)),
-			servicecontext.ContextStreamServerInterceptor(middleware.ClientConnIncomingContext(rootContext)),
-			servicecontext.ContextStreamServerInterceptor(middleware.RegistryIncomingContext(rootContext)),
-			servicecontext.ContextStreamServerInterceptor(middleware.TenantIncomingContext(rootContext)),
-			servicecontext.ContextStreamServerInterceptor(middleware.ServiceIncomingContext(rootContext)),
+			middleware.MetricsStreamServerInterceptor(),
+			propagator.ContextStreamServerInterceptor(middleware.CellsMetadataIncomingContext),
+			propagator.ContextStreamServerInterceptor(middleware.TargetNameToServiceNameContext(rootContext)),
+			propagator.ContextStreamServerInterceptor(middleware.ClientConnIncomingContext(rootContext)),
+			propagator.ContextStreamServerInterceptor(middleware.RegistryIncomingContext(rootContext)),
+			propagator.ContextStreamServerInterceptor(middleware.TenantIncomingContext(rootContext)),
+			propagator.ContextStreamServerInterceptor(middleware.ServiceIncomingContext(rootContext)),
 			HandlerStreamInterceptor(&streamInterceptors),
 		),
 		grpc.StatsHandler(otelgrpc.NewServerHandler()),

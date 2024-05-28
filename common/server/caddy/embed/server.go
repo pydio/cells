@@ -37,9 +37,9 @@ import (
 	"github.com/pydio/cells/v4/common/registry"
 	"github.com/pydio/cells/v4/common/registry/util"
 	"github.com/pydio/cells/v4/common/runtime"
-	"github.com/pydio/cells/v4/common/runtime/runtimecontext"
 	"github.com/pydio/cells/v4/common/server"
 	"github.com/pydio/cells/v4/common/server/caddy"
+	"github.com/pydio/cells/v4/common/utils/propagator"
 	"github.com/pydio/cells/v4/common/utils/uuid"
 
 	_ "github.com/caddyserver/caddy/v2/modules/standard"
@@ -104,7 +104,7 @@ func (s *Server) RawServe(*server.ServeOptions) (ii []registry.Item, er error) {
 	if s.reverseProxy {
 
 		var reg registry.Registry
-		runtimecontext.Get(s.RootContext(), registry.ContextKey, &reg)
+		propagator.Get(s.RootContext(), registry.ContextKey, &reg)
 		rc, _ := client.NewResolverCallback(reg)
 		s.balancer = clienthttp.NewBalancer(s.ID())
 		rc.Add(s.ReloadProxy)

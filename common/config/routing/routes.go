@@ -30,7 +30,7 @@ import (
 	"sync"
 
 	"github.com/pydio/cells/v4/common/log"
-	"github.com/pydio/cells/v4/common/runtime/runtimecontext"
+	"github.com/pydio/cells/v4/common/runtime"
 )
 
 var (
@@ -176,7 +176,7 @@ type registrar struct {
 
 // IteratePatterns performs a callback on all actual patterns and their corresponding handler
 func (h *registrar) IteratePatterns(it func(pattern string, handler http.Handler)) {
-	logCtx := runtimecontext.WithServiceName(context.Background(), "pydio.web.mux")
+	logCtx := runtime.WithServiceName(context.Background(), "pydio.web.mux")
 	for _, r := range h.routes {
 		log.Logger(logCtx).Info("ROUTE " + r.id)
 		r.patternsMutex.RLock()

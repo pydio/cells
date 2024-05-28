@@ -18,18 +18,19 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-package metadata
+package propagator
 
 import (
 	"context"
 	"strings"
 
 	"golang.org/x/net/http/httpguts"
-
-	"github.com/pydio/cells/v4/common"
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/metadata"
 )
 
 type metadataKey struct{}
+
 type Metadata map[string]string
 
 // FromContextCopy returns as COPY of the internal metadata, that can be subsequently modified
@@ -79,7 +80,7 @@ func NewContext(ctx context.Context, md map[string]string) context.Context {
 
 // MinioMetaFromContext prepares metadata for minio client. If forEvents is passed, it replies with the complete set
 // of metadata
-func MinioMetaFromContext(ctx context.Context, forEvents ...bool) (md map[string]string, ok bool) {
+func MinioMetaFromContext(ctx context.Context, userKey string, forEvents ...bool) (md map[string]string, ok bool) {
 
 	eventsHeaders := false
 	if len(forEvents) > 0 && forEvents[0] {
@@ -100,28 +101,28 @@ func MinioMetaFromContext(ctx context.Context, forEvents ...bool) (md map[string
 			}
 		}
 	}
-	if user := ctx.Value(common.PydioContextUserKey); user != nil && eventsHeaders {
-		md[common.PydioContextUserKey] = user.(string)
+	if user := ctx.Value(userKey); user != nil && eventsHeaders {
+		md[userKey] = user.(string)
 	}
 	return md, len(md) > 0
 }
 
 // WithUserNameMetadata appends a username to both the context metadata and as context key.
-func WithUserNameMetadata(ctx context.Context, userName string) context.Context {
+func WithUserNameMetadata(ctx context.Context, userKey string, userName string) context.Context {
 	md := make(map[string]string)
 	if meta, ok := fromContext(ctx); ok {
 		for k, v := range meta {
 			//k = strings.Title(k)
-			if strings.EqualFold(k, common.PydioContextUserKey) {
+			if strings.EqualFold(k, userKey) {
 				continue
 			}
 			md[k] = v
 		}
 	}
-	md[common.PydioContextUserKey] = userName
+	md[userKey] = userName
 	ctx = NewContext(ctx, md)
 	// Add it as value for easier use inside the gateway, but this will not be transmitted
-	ctx = context.WithValue(ctx, common.PydioContextUserKey, userName)
+	ctx = context.WithValue(ctx, userKey, userName)
 	return ctx
 }
 
@@ -160,9 +161,9 @@ func WithAdditionalMetadata(ctx context.Context, meta map[string]string) context
 	return NewContext(ctx, md)
 }
 
-func NewBackgroundWithUserKey(userName string) context.Context {
+func NewBackgroundWithUserKey(contextKey string, userName string) context.Context {
 	return NewContext(context.Background(), map[string]string{
-		common.PydioContextUserKey: userName,
+		contextKey: userName,
 	})
 }
 
@@ -172,4 +173,50 @@ func NewBackgroundWithMetaCopy(ctx context.Context) context.Context {
 		bgCtx = NewContext(bgCtx, ctxMeta)
 	}
 	return bgCtx
+}
+
+func cellsMetaToOutgoingMeta(ctx context.Context, prefix string) context.Context {
+	md := metadata.MD{}
+	if m, ok := metadata.FromOutgoingContext(ctx); ok {
+		md = m
+	}
+	if lmd, ok := FromContextRead(ctx); ok {
+		for k, v := range lmd {
+			if strings.HasPrefix(k, ":") {
+				continue
+			}
+			md.Set(prefix+k, v)
+		}
+	}
+	return metadata.NewOutgoingContext(ctx, md)
+}
+
+func MetaUnaryClientInterceptor(prefix string) grpc.UnaryClientInterceptor {
+	return ContextUnaryClientInterceptor(func(ctx context.Context) context.Context {
+		return cellsMetaToOutgoingMeta(ctx, prefix)
+	})
+}
+
+func MetaStreamClientInterceptor(prefix string) grpc.StreamClientInterceptor {
+	return ContextStreamClientInterceptor(func(ctx context.Context) context.Context {
+		return cellsMetaToOutgoingMeta(ctx, prefix)
+	})
+}
+
+// MetaKeysIncomingContext looks up for keys in grpc metadata IncomingContext and
+// set them in standard metadata map. Keys can be exact matches or prefixes like "something*"
+func MetaKeysIncomingContext(ctx context.Context, prefix string) (context.Context, bool, error) {
+	if md, ok := metadata.FromIncomingContext(ctx); ok {
+		cellsMeta := make(map[string]string)
+		for k, v := range md {
+			if strings.HasPrefix(k, prefix) {
+				cellsMeta[strings.TrimPrefix(k, prefix)] = strings.Join(v, "")
+			}
+		}
+		if len(cellsMeta) > 0 {
+			ctx = NewContext(ctx, cellsMeta)
+			return ctx, true, nil
+		}
+	}
+	return ctx, false, nil
 }

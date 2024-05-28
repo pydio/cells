@@ -29,8 +29,7 @@ import (
 	"golang.org/x/sync/errgroup"
 
 	"github.com/pydio/cells/v4/common/registry"
-	"github.com/pydio/cells/v4/common/runtime/runtimecontext"
-	servicecontext "github.com/pydio/cells/v4/common/service/context"
+	"github.com/pydio/cells/v4/common/utils/propagator"
 	"github.com/pydio/cells/v4/common/utils/std"
 )
 
@@ -56,7 +55,7 @@ type Server interface {
 	NeedsRestart() bool
 	Metadata() map[string]string
 
-	RegisterContextInterceptor(interceptor servicecontext.IncomingContextModifier)
+	RegisterContextInterceptor(interceptor propagator.IncomingContextModifier)
 }
 
 type Type int8
@@ -91,7 +90,7 @@ func NewServer(ctx context.Context, s RawServer) Server {
 	servers = append(servers, srv)
 
 	var reg registry.Registry
-	if runtimecontext.Get(ctx, registry.ContextKey, &reg) {
+	if propagator.Get(ctx, registry.ContextKey, &reg) {
 		if err := reg.Register(srv); err != nil {
 			fmt.Println("[ERROR] Cannot register Server " + err.Error())
 		}
@@ -143,7 +142,7 @@ func (s *server) Serve(oo ...ServeOption) (outErr error) {
 
 	// Making sure we register the endpoints
 	var reg registry.Registry
-	if runtimecontext.Get(s.Opts.Context, registry.ContextKey, &reg) {
+	if propagator.Get(s.Opts.Context, registry.ContextKey, &reg) {
 		for _, item := range ii {
 			if err := reg.Register(item, registry.WithEdgeTo(s.ID(), "instance", nil)); err != nil {
 				return err
@@ -181,7 +180,7 @@ func (s *server) Stop(oo ...registry.RegisterOption) error {
 
 	// We deregister the endpoints to clear links and re-register as stopped
 	var reg registry.Registry
-	if runtimecontext.Get(s.Opts.Context, registry.ContextKey, &reg) {
+	if propagator.Get(s.Opts.Context, registry.ContextKey, &reg) {
 		for _, i := range s.links {
 			_ = reg.Deregister(i, registry.WithRegisterFailFast())
 		}
@@ -249,6 +248,6 @@ func (s *server) Clone() interface{} {
 	return clone
 }
 
-func (s *server) RegisterContextInterceptor(interceptor servicecontext.IncomingContextModifier) {
+func (s *server) RegisterContextInterceptor(interceptor propagator.IncomingContextModifier) {
 	*s.Opts.interceptors = append(*s.Opts.interceptors, interceptor)
 }

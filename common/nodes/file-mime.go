@@ -31,8 +31,7 @@ import (
 
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/proto/tree"
-	"github.com/pydio/cells/v4/common/runtime/runtimecontext"
-	"github.com/pydio/cells/v4/common/service/context/metadata"
+	"github.com/pydio/cells/v4/common/utils/propagator"
 )
 
 const (
@@ -141,8 +140,8 @@ func WrapReaderForMime(ctx context.Context, clone *tree.Node, reader io.Reader) 
 	if IsUnitTestEnv {
 		return reader
 	}
-	bgCtx := metadata.NewBackgroundWithMetaCopy(ctx)
-	bgCtx = runtimecontext.ForkContext(bgCtx, ctx)
+	bgCtx := propagator.NewBackgroundWithMetaCopy(ctx)
+	bgCtx = propagator.ForkContext(bgCtx, ctx)
 	return NewTeeMimeReader(reader, func(result *MimeResult) {
 		mime := "application/octet-stream"
 		if result.GetError() == nil && result.GetMime() != "" {

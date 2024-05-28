@@ -31,7 +31,7 @@ import (
 	activity2 "github.com/pydio/cells/v4/common/proto/activity"
 	"github.com/pydio/cells/v4/common/proto/tree"
 	"github.com/pydio/cells/v4/common/runtime/manager"
-	"github.com/pydio/cells/v4/common/service/context/metadata"
+	"github.com/pydio/cells/v4/common/utils/propagator"
 )
 
 type MetaProvider struct {
@@ -52,7 +52,7 @@ func (m *MetaProvider) ReadNodeStream(streamer tree.NodeProviderStreamer_ReadNod
 
 	// Extract current user Id from X-Pydio-User key
 	var userId string
-	if u, o := metadata.CanonicalMeta(ctx, common.PydioContextUserKey); o {
+	if u, o := propagator.CanonicalMeta(ctx, common.PydioContextUserKey); o {
 		userId = u
 	}
 

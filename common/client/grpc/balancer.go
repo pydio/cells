@@ -27,15 +27,15 @@ import (
 	"strings"
 	"sync"
 
-	_ "google.golang.org/grpc/balancer/grpclb"
-
 	"google.golang.org/grpc/attributes"
-
-	"github.com/pydio/cells/v4/common/client"
-	"github.com/pydio/cells/v4/common/service/context/ckeys"
 	"google.golang.org/grpc/balancer"
 	"google.golang.org/grpc/balancer/base"
 	"google.golang.org/grpc/metadata"
+
+	"github.com/pydio/cells/v4/common"
+	"github.com/pydio/cells/v4/common/client"
+
+	_ "google.golang.org/grpc/balancer/grpclb"
 )
 
 var (
@@ -111,7 +111,7 @@ func (r *rrPickerSubConn) Attributes() *attributes.Attributes {
 func (p *rrPicker) Pick(i balancer.PickInfo) (balancer.PickResult, error) {
 	var serviceName string
 	if md, o := metadata.FromOutgoingContext(i.Ctx); o {
-		serviceName = strings.Join(md.Get(ckeys.TargetServiceName), "")
+		serviceName = strings.Join(md.Get(common.CtxTargetServiceName), "")
 	}
 	if serviceName == "" {
 		return balancer.PickResult{}, fmt.Errorf("cannot find targetName in context")

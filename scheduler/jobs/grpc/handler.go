@@ -38,10 +38,9 @@ import (
 	proto "github.com/pydio/cells/v4/common/proto/jobs"
 	log2 "github.com/pydio/cells/v4/common/proto/log"
 	"github.com/pydio/cells/v4/common/runtime/manager"
-	"github.com/pydio/cells/v4/common/runtime/runtimecontext"
-	"github.com/pydio/cells/v4/common/service/context/metadata"
 	"github.com/pydio/cells/v4/common/service/errors"
 	"github.com/pydio/cells/v4/common/storage/indexer"
+	"github.com/pydio/cells/v4/common/utils/propagator"
 	"github.com/pydio/cells/v4/common/utils/uuid"
 	"github.com/pydio/cells/v4/scheduler/jobs"
 	"github.com/pydio/cells/v4/scheduler/lang"
@@ -101,9 +100,9 @@ func (j *JobsHandler) PutJob(ctx context.Context, request *proto.PutJobRequest) 
 
 	response := &proto.PutJobResponse{}
 	response.Job = job
-	pubCtx := runtimecontext.ForkContext(context.Background(), ctx)
-	if md, ok := metadata.FromContextCopy(ctx); ok {
-		pubCtx = metadata.NewContext(pubCtx, md)
+	pubCtx := propagator.ForkContext(context.Background(), ctx)
+	if md, ok := propagator.FromContextCopy(ctx); ok {
+		pubCtx = propagator.NewContext(pubCtx, md)
 	}
 	broker.MustPublish(pubCtx, common.TopicJobConfigEvent, &proto.JobChangeEvent{
 		JobUpdated: job,
@@ -141,7 +140,7 @@ func (j *JobsHandler) DeleteJob(ctx context.Context, request *proto.DeleteJobReq
 			response.Success = false
 			return nil, err
 		}
-		bg := runtimecontext.ForkContext(context.Background(), ctx)
+		bg := propagator.ForkContext(context.Background(), ctx)
 		broker.MustPublish(bg, common.TopicJobConfigEvent, &proto.JobChangeEvent{
 			JobRemoved: request.JobID,
 		})
@@ -182,7 +181,7 @@ func (j *JobsHandler) DeleteJob(ctx context.Context, request *proto.DeleteJobReq
 			if e := store.DeleteJob(id); e == nil {
 				deleted++
 				log.Logger(ctx).Info("Deleting AutoClean Job " + id)
-				bg := runtimecontext.ForkContext(context.Background(), ctx)
+				bg := propagator.ForkContext(context.Background(), ctx)
 				broker.MustPublish(bg, common.TopicJobConfigEvent, &proto.JobChangeEvent{
 					JobRemoved: id,
 				})
@@ -249,7 +248,7 @@ func (j *JobsHandler) PutTask(ctx context.Context, request *proto.PutTaskRequest
 	T := lang.Bundle().GetTranslationFunc()
 	job.Label = T(job.Label)
 	if !job.TasksSilentUpdate {
-		broker.MustPublish(runtimecontext.ForkContext(context.Background(), ctx), common.TopicJobTaskEvent, &proto.TaskChangeEvent{
+		broker.MustPublish(propagator.ForkContext(context.Background(), ctx), common.TopicJobTaskEvent, &proto.TaskChangeEvent{
 			TaskUpdated: request.Task,
 			Job:         job,
 			NanoStamp:   time.Now().UnixNano(),
@@ -343,7 +342,7 @@ func (j *JobsHandler) PutTaskStream(streamer proto.JobService_PutTaskStreamServe
 		T := lang.Bundle().GetTranslationFunc()
 		tJob.Label = T(tJob.Label)
 		if !tJob.TasksSilentUpdate {
-			broker.MustPublish(runtimecontext.ForkContext(context.Background(), ctx), common.TopicJobTaskEvent, &proto.TaskChangeEvent{
+			broker.MustPublish(propagator.ForkContext(context.Background(), ctx), common.TopicJobTaskEvent, &proto.TaskChangeEvent{
 				TaskUpdated: request.Task,
 				Job:         tJob,
 				NanoStamp:   time.Now().UnixNano(),
@@ -429,7 +428,7 @@ func (j *JobsHandler) DeleteTasks(ctx context.Context, request *proto.DeleteTask
 				return nil, e
 			}
 			response.Deleted = append(response.Deleted, tasks...)
-			bg := runtimecontext.ForkContext(context.Background(), ctx)
+			bg := propagator.ForkContext(context.Background(), ctx)
 			go func(jI string, tt ...string) {
 				j.DeleteLogsFor(bg, jI, tt...)
 			}(jId, tasks...)
@@ -440,7 +439,7 @@ func (j *JobsHandler) DeleteTasks(ctx context.Context, request *proto.DeleteTask
 
 		if e := store.DeleteTasks(request.JobId, request.TaskID); e == nil {
 			response.Deleted = append(response.Deleted, request.TaskID...)
-			bg := runtimecontext.ForkContext(context.Background(), ctx)
+			bg := propagator.ForkContext(context.Background(), ctx)
 			go func() {
 				j.DeleteLogsFor(bg, request.JobId, request.TaskID...)
 			}()
@@ -607,8 +606,8 @@ func (j *JobsHandler) cleanStuckByStatus(ctx context.Context, serverStart bool, 
 	tcli := proto.NewTaskServiceClient(grpc.ResolveConn(ctx, common.ServiceTasks))
 	shouldRetry := false
 	var currentTaskID string
-	if mm, ok := metadata.FromContextRead(ctx); ok {
-		currentTaskID = mm[runtimecontext.ContextMetaTaskUuid]
+	if mm, ok := propagator.FromContextRead(ctx); ok {
+		currentTaskID = mm[common.CtxMetaTaskUuid]
 	}
 	if !isRetry {
 		if len(duration) > 0 {

@@ -30,7 +30,7 @@ import (
 	"github.com/pydio/cells/v4/common/nodes"
 	"github.com/pydio/cells/v4/common/nodes/compose"
 	"github.com/pydio/cells/v4/common/proto/tree"
-	"github.com/pydio/cells/v4/common/service/context/metadata"
+	"github.com/pydio/cells/v4/common/utils/propagator"
 	"github.com/pydio/cells/v4/scheduler/actions"
 )
 
@@ -70,6 +70,6 @@ func getThumbLocation(r nodes.Client, ctx context.Context, keyName string) (c co
 		Path:  path.Join(source.Name, keyName),
 		MTime: time.Now().Unix(),
 	}
-	c = metadata.WithUserNameMetadata(ctx, common.PydioSystemUsername)
+	c = propagator.WithUserNameMetadata(ctx, common.PydioContextUserKey, common.PydioSystemUsername)
 	return
 }

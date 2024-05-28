@@ -27,14 +27,15 @@ import (
 	"testing"
 
 	"github.com/ory/ladon"
-	. "github.com/smartystreets/goconvey/convey"
 
 	"github.com/pydio/cells/v4/common/forms"
+	"github.com/pydio/cells/v4/common/middleware"
 	"github.com/pydio/cells/v4/common/proto/idm"
 	"github.com/pydio/cells/v4/common/proto/jobs"
 	"github.com/pydio/cells/v4/common/proto/tree"
-	servicecontext "github.com/pydio/cells/v4/common/service/context"
 	json "github.com/pydio/cells/v4/common/utils/jsonx"
+
+	. "github.com/smartystreets/goconvey/convey"
 )
 
 func TestGenerateProtoToForm(t *testing.T) {
@@ -98,17 +99,17 @@ func SkipTestGenerateJsonLanguagesFiles(t *testing.T) {
 		GenerateProtoToForm("contextMetaSingleQuery", &jobs.ContextMetaSingleQuery{}, false, keys)
 
 		ctxMeta := []string{
-			servicecontext.HttpMetaRemoteAddress,
-			servicecontext.HttpMetaUserAgent,
-			servicecontext.HttpMetaContentType,
-			servicecontext.HttpMetaProtocol,
-			servicecontext.HttpMetaHost,
-			servicecontext.HttpMetaPort,
-			servicecontext.HttpMetaHostname,
-			servicecontext.HttpMetaRequestMethod,
-			servicecontext.HttpMetaRequestURI,
-			servicecontext.HttpMetaCookiesString,
-			servicecontext.ServerTime,
+			middleware.HttpMetaRemoteAddress,
+			middleware.HttpMetaUserAgent,
+			middleware.HttpMetaContentType,
+			middleware.HttpMetaProtocol,
+			middleware.HttpMetaHost,
+			middleware.HttpMetaPort,
+			middleware.HttpMetaHostname,
+			middleware.HttpMetaRequestMethod,
+			middleware.HttpMetaRequestURI,
+			middleware.HttpMetaCookiesString,
+			middleware.ServerTime,
 		}
 		for _, k := range ctxMeta {
 			keys["contextMetaField."+k] = k

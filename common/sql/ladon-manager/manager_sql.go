@@ -38,7 +38,7 @@ import (
 	gorp "gopkg.in/gorp.v1"
 
 	"github.com/pydio/cells/v4/common/log"
-	"github.com/pydio/cells/v4/common/runtime/runtimecontext"
+	"github.com/pydio/cells/v4/common/runtime"
 	sql2 "github.com/pydio/cells/v4/common/sql"
 
 	. "github.com/ory/ladon"
@@ -106,7 +106,7 @@ func (s *SQLManager) MigrateMigrationTable(tableName string) error {
 	}
 	del, _ := res.RowsAffected()
 	if del > 0 {
-		log.Logger(runtimecontext.WithServiceName(context.Background(), "pydio.grpc.policy")).Info(fmt.Sprintf("Migrated %d rows from old gorp_migrations table to %s\n", del, tableName))
+		log.Logger(runtime.WithServiceName(context.Background(), "pydio.grpc.policy")).Info(fmt.Sprintf("Migrated %d rows from old gorp_migrations table to %s\n", del, tableName))
 	}
 
 	return nil

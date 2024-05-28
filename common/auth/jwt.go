@@ -34,9 +34,9 @@ import (
 	"github.com/pydio/cells/v4/common/auth/claim"
 	"github.com/pydio/cells/v4/common/log"
 	"github.com/pydio/cells/v4/common/proto/idm"
-	"github.com/pydio/cells/v4/common/service/context/metadata"
 	errors2 "github.com/pydio/cells/v4/common/service/errors"
 	"github.com/pydio/cells/v4/common/utils/permissions"
+	"github.com/pydio/cells/v4/common/utils/propagator"
 )
 
 type ProviderType int
@@ -412,7 +412,7 @@ func WithImpersonate(ctx context.Context, user *idm.User) context.Context {
 			c.DisplayName = dn
 		}
 	}
-	ctx = metadata.WithAdditionalMetadata(ctx, map[string]string{common.PydioContextUserKey: user.Login})
+	ctx = propagator.WithAdditionalMetadata(ctx, map[string]string{common.PydioContextUserKey: user.Login})
 	return context.WithValue(ctx, claim.ContextKey, c)
 }
 

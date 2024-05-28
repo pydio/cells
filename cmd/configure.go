@@ -45,9 +45,9 @@ import (
 	"github.com/pydio/cells/v4/common/registry"
 	cruntime "github.com/pydio/cells/v4/common/runtime"
 	"github.com/pydio/cells/v4/common/runtime/manager"
-	"github.com/pydio/cells/v4/common/runtime/runtimecontext"
 	"github.com/pydio/cells/v4/common/server"
 	unet "github.com/pydio/cells/v4/common/utils/net"
+	"github.com/pydio/cells/v4/common/utils/propagator"
 )
 
 func init() {
@@ -245,7 +245,7 @@ ENVIRONMENT
 			fatalIfError(cmd, err)
 		} else {
 			// Prepare Context and run browser install
-			ctx = runtimecontext.With(ctx, crypto.KeyringContextKey, kr)
+			ctx = propagator.With(ctx, crypto.KeyringContextKey, kr)
 			performBrowserInstall(cmd, ctx, proxyConf)
 		}
 
@@ -323,11 +323,11 @@ func performBrowserInstall(cmd *cobra.Command, ctx context.Context, proxyConf *i
 	}
 	cruntime.SetDefault(cruntime.KeyHttpServer, cruntime.HttpServerCaddy)
 
-	managerLogger := log.Logger(runtimecontext.WithServiceName(ctx, "pydio.server.manager"))
+	managerLogger := log.Logger(cruntime.WithServiceName(ctx, "pydio.server.manager"))
 	m := manager.NewManager(ctx, reg, "mem:///", "install", managerLogger)
 
 	bkr := broker.NewBroker(cruntime.BrokerURL())
-	ctx = runtimecontext.With(broker.ContextKey, bkr)
+	ctx = propagator.With(broker.ContextKey, bkr)
 
 	openURL := proxyConf.GetDefaultBindURL()
 	if runtime.GOOS == "windows" {

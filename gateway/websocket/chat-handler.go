@@ -38,14 +38,14 @@ import (
 	"github.com/pydio/cells/v4/common/client/grpc"
 	"github.com/pydio/cells/v4/common/config"
 	"github.com/pydio/cells/v4/common/log"
+	"github.com/pydio/cells/v4/common/middleware"
 	"github.com/pydio/cells/v4/common/nodes"
 	"github.com/pydio/cells/v4/common/nodes/compose"
 	nodescontext "github.com/pydio/cells/v4/common/nodes/context"
 	"github.com/pydio/cells/v4/common/proto/chat"
 	"github.com/pydio/cells/v4/common/proto/tree"
-	servicecontext "github.com/pydio/cells/v4/common/service/context"
-	"github.com/pydio/cells/v4/common/service/context/metadata"
 	json "github.com/pydio/cells/v4/common/utils/jsonx"
+	"github.com/pydio/cells/v4/common/utils/propagator"
 )
 
 const (
@@ -502,8 +502,8 @@ func (c *ChatHandler) sendVideoInfoIfSupported(ctx context.Context, roomUuid str
 	}
 	var lkUrl string
 	if mc, ok := session.Get(SessionMetaContext); ok {
-		meta := mc.(metadata.Metadata)
-		if host, o := meta[servicecontext.HttpMetaHost]; o && host != "" {
+		meta := mc.(propagator.Metadata)
+		if host, o := meta[middleware.HttpMetaHost]; o && host != "" {
 			lkUrl = "wss://" + host
 		}
 	}

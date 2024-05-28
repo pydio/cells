@@ -26,7 +26,7 @@ import (
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 
-	"github.com/pydio/cells/v4/common/runtime/runtimecontext"
+	"github.com/pydio/cells/v4/common/runtime"
 )
 
 // BasicContextWrapper creates a Named logger from serviceName found in context
@@ -34,7 +34,7 @@ func BasicContextWrapper(ctx context.Context, logger ZapLogger, fields ...zapcor
 	if ctx == nil {
 		return logger
 	}
-	if serviceName := runtimecontext.GetServiceName(ctx); serviceName != "" {
+	if serviceName := runtime.GetServiceName(ctx); serviceName != "" {
 		logger = logger.Named(serviceName)
 		if mustIncrease(serviceName) {
 			logger = logger.WithOptions(zap.IncreaseLevel(zap.InfoLevel))

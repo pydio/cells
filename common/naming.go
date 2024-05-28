@@ -194,6 +194,7 @@ const (
 	XPydioMoveUuid              = "X-Pydio-Move"
 	XPydioTenantUuid            = "X-Pydio-Tenant"
 	XPydioSiteHash              = "X-Pydio-Site-Hash"
+	XPydioDebugSession          = "X-Pydio-Debug-Session"
 	XContentType                = "Content-Type"
 	SyncSessionClose_           = "close-"
 	SyncSessionPrefixCopy       = "copy-"
@@ -203,6 +204,16 @@ const (
 	PydioProfileStandard = "standard"
 	PydioProfileShared   = "shared"
 	PydioProfileAnon     = "anon"
+
+	CtxTargetServiceName       = "service"
+	CtxTargetTenantName        = "tenant"
+	CtxCellsMetaPrefix         = "x-cells-"
+	CtxSchedulerOperationId    = "Scheduler-Operation-Id"
+	CtxSchedulerOperationLabel = "Scheduler-Operation-Label"
+	CtxMetaJobUuid             = "X-Pydio-Job-Uuid"
+	CtxMetaTaskUuid            = "X-Pydio-Task-Uuid"
+	CtxMetaTaskActionPath      = "X-Pydio-Task-Action-Path"
+	CtxMetaTaskActionTags      = "X-Pydio-Task-Action-Tags"
 
 	KeyringMasterKey             = "keyring.master"
 	MetaFlagReadonly             = "node_readonly"
@@ -253,6 +264,7 @@ var (
 		XPydioIndexationSessionUuid,
 		XPydioFrontendSessionUuid,
 		XPydioMoveUuid,
+		XPydioDebugSession,
 	}
 
 	IdmWsInternalReservedSlugs = map[string]string{

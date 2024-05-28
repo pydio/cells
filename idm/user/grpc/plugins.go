@@ -38,9 +38,9 @@ import (
 	service2 "github.com/pydio/cells/v4/common/proto/service"
 	"github.com/pydio/cells/v4/common/runtime"
 	"github.com/pydio/cells/v4/common/runtime/manager"
-	"github.com/pydio/cells/v4/common/runtime/runtimecontext"
 	"github.com/pydio/cells/v4/common/service"
 	"github.com/pydio/cells/v4/common/service/errors"
+	"github.com/pydio/cells/v4/common/utils/propagator"
 	"github.com/pydio/cells/v4/idm/user"
 	"github.com/pydio/cells/v4/scheduler/actions"
 )
@@ -100,7 +100,7 @@ func InitDefaults(ctx context.Context) error {
 	var cfg config.Store
 
 	dao, err := manager.Resolve[user.DAO](ctx)
-	if !runtimecontext.Get(ctx, config.ContextKey, &cfg) {
+	if !propagator.Get(ctx, config.ContextKey, &cfg) {
 		return fmt.Errorf("no config")
 	}
 

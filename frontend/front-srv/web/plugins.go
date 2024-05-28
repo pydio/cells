@@ -37,10 +37,10 @@ import (
 	"github.com/pydio/cells/v4/common/config"
 	"github.com/pydio/cells/v4/common/config/routing"
 	"github.com/pydio/cells/v4/common/log"
+	"github.com/pydio/cells/v4/common/middleware"
 	"github.com/pydio/cells/v4/common/proto/front"
 	"github.com/pydio/cells/v4/common/runtime"
 	"github.com/pydio/cells/v4/common/service"
-	servicecontext "github.com/pydio/cells/v4/common/service/context"
 	"github.com/pydio/cells/v4/common/service/frontend"
 	"github.com/pydio/cells/v4/frontend/front-srv/web/index"
 )
@@ -108,7 +108,7 @@ func init() {
 
 				// /public endpoint : special handler for index, redirect to /plug/ for the rest
 				ph := index.NewPublicHandler(ctx)
-				handler := servicecontext.HttpWrapperMeta(ctx, ph)
+				handler := middleware.HttpWrapperMeta(ctx, ph)
 				handler = timeoutWrap(handler)
 				pub := mux.Route(RoutePublic)
 				pub.Handle("/", handler)

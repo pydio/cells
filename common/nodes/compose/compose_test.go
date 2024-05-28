@@ -40,11 +40,11 @@ import (
 	"github.com/pydio/cells/v4/common/proto/tree"
 	"github.com/pydio/cells/v4/common/registry"
 	"github.com/pydio/cells/v4/common/runtime"
-	"github.com/pydio/cells/v4/common/runtime/runtimecontext"
 	"github.com/pydio/cells/v4/common/server/stubs/datatest"
 	"github.com/pydio/cells/v4/common/server/stubs/idmtest"
 	"github.com/pydio/cells/v4/common/utils/configx"
 	"github.com/pydio/cells/v4/common/utils/permissions"
+	"github.com/pydio/cells/v4/common/utils/propagator"
 
 	_ "github.com/mattn/go-sqlite3"
 	_ "github.com/pydio/cells/v4/common/utils/cache/gocache"
@@ -96,7 +96,7 @@ func TestPersonalResolution(t *testing.T) {
 
 	ctx := context.Background()
 	reg, _ := registry.OpenRegistry(ctx, "mem:///")
-	ctx = runtimecontext.With(ctx, registry.ContextKey, reg)
+	ctx = propagator.With(ctx, registry.ContextKey, reg)
 	ctx = nodescontext.WithSourcesPool(ctx, nodes.NewTestPool(ctx))
 	client := compose.PathClient(ctx)
 

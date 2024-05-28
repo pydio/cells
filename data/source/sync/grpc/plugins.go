@@ -38,10 +38,9 @@ import (
 	protosync "github.com/pydio/cells/v4/common/proto/sync"
 	"github.com/pydio/cells/v4/common/proto/tree"
 	"github.com/pydio/cells/v4/common/runtime"
-	"github.com/pydio/cells/v4/common/runtime/runtimecontext"
 	"github.com/pydio/cells/v4/common/service"
-	"github.com/pydio/cells/v4/common/service/context/metadata"
 	"github.com/pydio/cells/v4/common/service/errors"
+	"github.com/pydio/cells/v4/common/utils/propagator"
 	"github.com/pydio/cells/v4/data/source/sync"
 	grpc_jobs "github.com/pydio/cells/v4/scheduler/jobs/grpc"
 )
@@ -123,7 +122,7 @@ func newService(ctx context.Context, dsObject *object.DataSource) {
 
 				md := make(map[string]string)
 				md[common.PydioContextUserKey] = common.PydioSystemUsername
-				jobCtx := metadata.NewContext(ctx, md)
+				jobCtx := propagator.NewContext(ctx, md)
 				jobsClient := jobsc.JobServiceClient(ctx)
 				serviceName := common.ServiceGrpcNamespace_ + common.ServiceDataSync_ + datasource
 
@@ -156,8 +155,8 @@ func newService(ctx context.Context, dsObject *object.DataSource) {
 
 					// Create an authenticated context for sync operations if any
 					bg := context.Background()
-					bg = metadata.WithUserNameMetadata(bg, common.PydioSystemUsername)
-					bg = runtimecontext.ForkOneKey(runtimecontext.ServiceNameKey, bg, ctx)
+					bg = propagator.WithUserNameMetadata(bg, common.PydioContextUserKey, common.PydioSystemUsername)
+					bg = propagator.ForkOneKey(runtime.ServiceNameKey, bg, ctx)
 
 					if _, has := dsObject.StorageConfiguration[object.StorageKeyInitFromBucket]; has {
 						if _, e := syncHandler.FlatScanEmpty(bg, nil, nil); e != nil {

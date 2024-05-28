@@ -39,6 +39,7 @@ import (
 	"github.com/pydio/cells/v4/common/client/commons/treec"
 	"github.com/pydio/cells/v4/common/config"
 	"github.com/pydio/cells/v4/common/log"
+	"github.com/pydio/cells/v4/common/middleware"
 	"github.com/pydio/cells/v4/common/nodes"
 	"github.com/pydio/cells/v4/common/nodes/acl"
 	"github.com/pydio/cells/v4/common/nodes/compose"
@@ -49,13 +50,12 @@ import (
 	service2 "github.com/pydio/cells/v4/common/proto/service"
 	"github.com/pydio/cells/v4/common/proto/tree"
 	"github.com/pydio/cells/v4/common/service"
-	servicecontext "github.com/pydio/cells/v4/common/service/context"
-	"github.com/pydio/cells/v4/common/service/context/metadata"
 	"github.com/pydio/cells/v4/common/service/errors"
 	"github.com/pydio/cells/v4/common/utils/i18n"
 	json "github.com/pydio/cells/v4/common/utils/jsonx"
 	"github.com/pydio/cells/v4/common/utils/mtree"
 	"github.com/pydio/cells/v4/common/utils/permissions"
+	"github.com/pydio/cells/v4/common/utils/propagator"
 	"github.com/pydio/cells/v4/common/utils/std"
 	"github.com/pydio/cells/v4/common/utils/uuid"
 	rest_meta "github.com/pydio/cells/v4/data/meta/rest"
@@ -402,8 +402,8 @@ func (h *Handler) DeleteNodes(req *restful.Request, resp *restful.Response) {
 				},
 			},
 		}
-		ctx = metadata.WithAdditionalMetadata(ctx, map[string]string{
-			servicecontext.CtxWorkspaceUuid: rMoves.workspace.UUID,
+		ctx = propagator.WithAdditionalMetadata(ctx, map[string]string{
+			middleware.CtxWorkspaceUuid: rMoves.workspace.UUID,
 		})
 		if _, er := cli.PutJob(ctx, &jobs.PutJobRequest{Job: job}); er != nil {
 			service.RestError500(req, resp, er)
@@ -585,8 +585,8 @@ func (h *Handler) RestoreNodes(req *restful.Request, resp *restful.Response) {
 					},
 				},
 			}
-			ctx = metadata.WithAdditionalMetadata(ctx, map[string]string{
-				servicecontext.CtxWorkspaceUuid: bi.Workspace.GetUUID(),
+			ctx = propagator.WithAdditionalMetadata(ctx, map[string]string{
+				middleware.CtxWorkspaceUuid: bi.Workspace.GetUUID(),
 			})
 			if _, er := cli.PutJob(ctx, &jobs.PutJobRequest{Job: job}); er != nil {
 				return er

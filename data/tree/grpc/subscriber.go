@@ -31,10 +31,10 @@ import (
 	"github.com/pydio/cells/v4/common/log"
 	"github.com/pydio/cells/v4/common/proto/tree"
 	"github.com/pydio/cells/v4/common/runtime"
-	"github.com/pydio/cells/v4/common/service/context/metadata"
 	"github.com/pydio/cells/v4/common/utils/cache"
 	json "github.com/pydio/cells/v4/common/utils/jsonx"
 	"github.com/pydio/cells/v4/common/utils/openurl"
+	"github.com/pydio/cells/v4/common/utils/propagator"
 )
 
 type EventSubscriber struct {
@@ -107,7 +107,7 @@ func (s *EventSubscriber) enqueueInCache(ctx context.Context, moveUuid string, e
 // are enqueued in a cache to re-create CREATE+DELETE pairs across datasources.
 func (s *EventSubscriber) Handle(ctx context.Context, msg *tree.NodeChangeEvent) error {
 	source, target := msg.Source, msg.Target
-	if meta, ok := metadata.FromContextRead(ctx); ok && (msg.Type == tree.NodeChangeEvent_CREATE || msg.Type == tree.NodeChangeEvent_DELETE) {
+	if meta, ok := propagator.FromContextRead(ctx); ok && (msg.Type == tree.NodeChangeEvent_CREATE || msg.Type == tree.NodeChangeEvent_DELETE) {
 		if moveSess, o := meta[common.XPydioMoveUuid]; o {
 			var uuid string
 			if source != nil {

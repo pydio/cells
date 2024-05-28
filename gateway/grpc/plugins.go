@@ -15,15 +15,14 @@ import (
 	"github.com/pydio/cells/v4/common/config/routing"
 	"github.com/pydio/cells/v4/common/crypto/providers"
 	"github.com/pydio/cells/v4/common/log"
+	"github.com/pydio/cells/v4/common/middleware"
 	"github.com/pydio/cells/v4/common/proto/install"
 	"github.com/pydio/cells/v4/common/proto/tree"
 	"github.com/pydio/cells/v4/common/runtime"
-	"github.com/pydio/cells/v4/common/runtime/runtimecontext"
 	"github.com/pydio/cells/v4/common/server"
 	grpc2 "github.com/pydio/cells/v4/common/server/grpc"
 	"github.com/pydio/cells/v4/common/service"
-	servicecontext "github.com/pydio/cells/v4/common/service/context"
-	"github.com/pydio/cells/v4/common/service/context/metadata"
+	"github.com/pydio/cells/v4/common/utils/propagator"
 )
 
 func init() {
@@ -107,18 +106,18 @@ func createServer(ctx context.Context, tls bool) (server.Server, error) {
 	jwtModifier := createJwtCtxModifier(ctx)
 	grpcOptions := []grpc.ServerOption{
 		grpc.ChainUnaryInterceptor(
-			servicecontext.ContextUnaryServerInterceptor(servicecontext.OperationIdIncomingContext),
-			servicecontext.MetricsUnaryServerInterceptor(),
-			servicecontext.ContextUnaryServerInterceptor(servicecontext.MetaIncomingContext),
-			servicecontext.ContextUnaryServerInterceptor(jwtModifier),
-			servicecontext.ContextUnaryServerInterceptor(grpcMetaCtxModifier),
+			//propagator.ContextUnaryServerInterceptor(servicecontext.OperationIdIncomingContext),
+			middleware.MetricsUnaryServerInterceptor(),
+			propagator.ContextUnaryServerInterceptor(middleware.CellsMetadataIncomingContext),
+			propagator.ContextUnaryServerInterceptor(jwtModifier),
+			propagator.ContextUnaryServerInterceptor(grpcMetaCtxModifier),
 		),
 		grpc.ChainStreamInterceptor(
-			servicecontext.ContextStreamServerInterceptor(servicecontext.OperationIdIncomingContext),
-			servicecontext.MetricsStreamServerInterceptor(),
-			servicecontext.ContextStreamServerInterceptor(servicecontext.MetaIncomingContext),
-			servicecontext.ContextStreamServerInterceptor(jwtModifier),
-			servicecontext.ContextStreamServerInterceptor(grpcMetaCtxModifier),
+			//propagator.ContextStreamServerInterceptor(servicecontext.OperationIdIncomingContext),
+			middleware.MetricsStreamServerInterceptor(),
+			propagator.ContextStreamServerInterceptor(middleware.CellsMetadataIncomingContext),
+			propagator.ContextStreamServerInterceptor(jwtModifier),
+			propagator.ContextStreamServerInterceptor(grpcMetaCtxModifier),
 		),
 	}
 	if tls {
@@ -139,10 +138,10 @@ func createServer(ctx context.Context, tls bool) (server.Server, error) {
 		if port := runtime.GrpcExternalPort(); port != "" {
 			addr = ":" + port
 		}
-		logCtx := runtimecontext.WithServiceName(ctx, common.ServiceGatewayGrpcClear)
+		logCtx := runtime.WithServiceName(ctx, common.ServiceGatewayGrpcClear)
 		log.Logger(logCtx).Info("Configuring HTTP only gRPC gateway. Will be accessed directly through " + addr)
 	} else {
-		logCtx := runtimecontext.WithServiceName(ctx, common.ServiceGatewayGrpc)
+		logCtx := runtime.WithServiceName(ctx, common.ServiceGatewayGrpc)
 		log.Logger(logCtx).Info("Configuring self-signed configuration for gRPC gateway to allow full TLS chain.")
 	}
 
@@ -153,11 +152,11 @@ func createServer(ctx context.Context, tls bool) (server.Server, error) {
 }
 
 // jwtCtxModifier extracts x-pydio-bearer metadata to validate authentication
-func createJwtCtxModifier(runtimeCtx context.Context) servicecontext.IncomingContextModifier {
+func createJwtCtxModifier(runtimeCtx context.Context) propagator.IncomingContextModifier {
 
 	return func(ctx context.Context) (context.Context, bool, error) {
 
-		ctx = runtimecontext.ForkContext(ctx, runtimeCtx)
+		ctx = propagator.ForkContext(ctx, runtimeCtx)
 
 		jwtVerifier := auth.DefaultJWTVerifier()
 		meta, ok := metadata2.FromIncomingContext(ctx)
@@ -189,9 +188,9 @@ func grpcMetaCtxModifier(ctx context.Context) (context.Context, bool, error) {
 	meta := map[string]string{}
 	if existing, ok := metadata2.FromIncomingContext(ctx); ok {
 		translate := map[string]string{
-			"user-agent":      servicecontext.HttpMetaUserAgent,
-			"content-type":    servicecontext.HttpMetaContentType,
-			"x-forwarded-for": servicecontext.HttpMetaRemoteAddress,
+			"user-agent":      middleware.HttpMetaUserAgent,
+			"content-type":    middleware.HttpMetaContentType,
+			"x-forwarded-for": middleware.HttpMetaRemoteAddress,
 			//"x-pydio-span-id": servicecontext.SpanMetadataId,
 		}
 		for k, v := range existing {
@@ -206,15 +205,15 @@ func grpcMetaCtxModifier(ctx context.Context) (context.Context, bool, error) {
 		}
 		// Override with specific header
 		if ua, ok := existing["x-pydio-grpc-user-agent"]; ok {
-			meta[servicecontext.HttpMetaUserAgent] = strings.Join(ua, "")
+			meta[middleware.HttpMetaUserAgent] = strings.Join(ua, "")
 		}
 	}
-	meta[servicecontext.HttpMetaExtracted] = servicecontext.HttpMetaExtracted
+	meta[middleware.HttpMetaExtracted] = middleware.HttpMetaExtracted
 	layout := "2006-01-02T15:04-0700"
 	t := time.Now()
-	meta[servicecontext.ServerTime] = t.Format(layout)
+	meta[middleware.ServerTime] = t.Format(layout)
 	// We currently use server time instead of client time. TODO: Retrieve client time and locale and set it here.
-	meta[servicecontext.ClientTime] = t.Format(layout)
+	meta[middleware.ClientTime] = t.Format(layout)
 
-	return metadata.NewContext(ctx, meta), true, nil
+	return propagator.NewContext(ctx, meta), true, nil
 }

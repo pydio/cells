@@ -47,11 +47,11 @@ import (
 	"github.com/pydio/cells/v4/common/proto/tree"
 	"github.com/pydio/cells/v4/common/runtime/manager"
 	"github.com/pydio/cells/v4/common/service"
-	"github.com/pydio/cells/v4/common/service/context/metadata"
 	"github.com/pydio/cells/v4/common/service/frontend"
 	"github.com/pydio/cells/v4/common/service/frontend/sessions"
 	"github.com/pydio/cells/v4/common/service/resources"
 	"github.com/pydio/cells/v4/common/utils/permissions"
+	"github.com/pydio/cells/v4/common/utils/propagator"
 	"github.com/pydio/cells/v4/common/utils/uuid"
 )
 
@@ -325,14 +325,14 @@ func (a *FrontendHandler) FrontMessages(req *restful.Request, rsp *restful.Respo
 // Strip Cookies Metadata from context to avoid s3 too-long-header error
 func ctxWithoutCookies(ctx context.Context) context.Context {
 
-	if meta, ok := metadata.FromContextRead(ctx); ok {
+	if meta, ok := propagator.FromContextRead(ctx); ok {
 		newMeta := map[string]string{}
 		for k, v := range meta {
 			if k != "CookiesString" {
 				newMeta[k] = v
 			}
 		}
-		return metadata.NewContext(ctx, newMeta)
+		return propagator.NewContext(ctx, newMeta)
 	} else {
 		return ctx
 	}

@@ -36,9 +36,9 @@ import (
 	"github.com/pydio/cells/v4/common/config"
 	"github.com/pydio/cells/v4/common/runtime"
 	"github.com/pydio/cells/v4/common/runtime/manager"
-	"github.com/pydio/cells/v4/common/runtime/runtimecontext"
 	"github.com/pydio/cells/v4/common/runtime/tenant"
 	"github.com/pydio/cells/v4/common/service"
+	"github.com/pydio/cells/v4/common/utils/propagator"
 	"github.com/pydio/cells/v4/discovery/install/lib"
 )
 
@@ -174,7 +174,7 @@ func configDbMoveOne(cmd *cobra.Command, dry, promptConfig bool, migOption *flat
 		return err
 	}
 	ctx = mgr.Context()
-	ctx = runtimecontext.With(ctx, tenant.ContextKey, tenant.GetManager().GetMaster())
+	ctx = propagator.With(ctx, tenant.ContextKey, tenant.GetManager().GetMaster())
 
 	sChan := make(chan service.MigratorStatus, 1000)
 	var bar *progressbar.ProgressBar
@@ -189,8 +189,8 @@ func configDbMoveOne(cmd *cobra.Command, dry, promptConfig bool, migOption *flat
 		}
 	}()
 
-	fromCtx := runtimecontext.With(ctx, service.ContextKey, svcFrom)
-	toCtx := runtimecontext.With(ctx, service.ContextKey, svcTo)
+	fromCtx := propagator.With(ctx, service.ContextKey, svcFrom)
+	toCtx := propagator.With(ctx, service.ContextKey, svcTo)
 	data, er := migOption.StorageOptions.Migrator(cmd.Context(), fromCtx, toCtx, dry, sChan)
 	if er == nil {
 		for k, info := range data {

@@ -41,15 +41,15 @@ import (
 	"github.com/pydio/cells/v4/common/proto/object"
 	protosync "github.com/pydio/cells/v4/common/proto/sync"
 	"github.com/pydio/cells/v4/common/proto/tree"
+	"github.com/pydio/cells/v4/common/runtime"
 	"github.com/pydio/cells/v4/common/runtime/manager"
-	runtimecontext "github.com/pydio/cells/v4/common/runtime/runtimecontext"
-	"github.com/pydio/cells/v4/common/service/context/metadata"
 	"github.com/pydio/cells/v4/common/sync/endpoints/chanwatcher"
 	"github.com/pydio/cells/v4/common/sync/merger"
 	"github.com/pydio/cells/v4/common/sync/model"
 	"github.com/pydio/cells/v4/common/sync/task"
 	"github.com/pydio/cells/v4/common/utils/configx"
 	json "github.com/pydio/cells/v4/common/utils/jsonx"
+	"github.com/pydio/cells/v4/common/utils/propagator"
 	"github.com/pydio/cells/v4/data/source/sync"
 	"github.com/pydio/cells/v4/data/source/sync/clients"
 	"github.com/pydio/cells/v4/scheduler/tasks"
@@ -403,7 +403,7 @@ func (s *Handler) watchDisconnection() {
 			s.stMux.Unlock()
 			<-time.After(3 * time.Second)
 			var syncConfig *object.DataSource
-			sName := runtimecontext.GetServiceName(s.globalCtx)
+			sName := runtime.GetServiceName(s.globalCtx)
 			if err := config.Get("services", sName).Scan(&syncConfig); err != nil {
 				log.Logger(s.globalCtx).Error("Cannot read config to reinitialize sync")
 			}
@@ -447,7 +447,7 @@ func (s *Handler) watchErrors() {
 				branch = ""
 				md := make(map[string]string)
 				md[common.PydioContextUserKey] = common.PydioSystemUsername
-				ctx := metadata.NewContext(context.Background(), md)
+				ctx := propagator.NewContext(context.Background(), md)
 				broker.MustPublish(ctx, common.TopicTimerEvent, &jobs.JobTriggerEvent{
 					JobID:  "resync-ds-" + s.dsName,
 					RunNow: true,
@@ -515,8 +515,8 @@ func (s *Handler) TriggerResync(c context.Context, req *protosync.ResyncRequest)
 		statusChan = make(chan model.Status)
 		doneChan = make(chan interface{})
 
-		subCtx := metadata.WithUserNameMetadata(context.Background(), common.PydioSystemUsername)
-		subCtx = runtimecontext.ForkContext(subCtx, c)
+		subCtx := propagator.WithUserNameMetadata(context.Background(), common.PydioContextUserKey, common.PydioSystemUsername)
+		subCtx = propagator.ForkContext(subCtx, c)
 
 		theTask := req.Task
 		autoClient := tasks.NewTaskReconnectingClient(subCtx)
@@ -592,8 +592,8 @@ func (s *Handler) TriggerResync(c context.Context, req *protosync.ResyncRequest)
 
 	// Context extends request Context, which allows sync.Run cancellation from within the scheduler.
 	// Internal context used for SessionData is re-extended from context.Background
-	bg := metadata.WithUserNameMetadata(c, common.PydioSystemUsername)
-	bg = runtimecontext.ForkOneKey(runtimecontext.ServiceNameKey, bg, c)
+	bg := propagator.WithUserNameMetadata(c, common.PydioContextUserKey, common.PydioSystemUsername)
+	bg = propagator.ForkOneKey(runtime.ServiceNameKey, bg, c)
 	/*
 		if s, o := servicecontext.SpanFromContext(c); o {
 			bg = servicecontext.WithSpan(bg, s)
@@ -688,7 +688,7 @@ func (s *Handler) CleanResourcesBeforeDelete(ctx context.Context, request *objec
 		}
 	}
 
-	serviceName := runtimecontext.GetServiceName(ctx)
+	serviceName := runtime.GetServiceName(ctx)
 	dsName := strings.TrimPrefix(serviceName, common.ServiceGrpcNamespace_+common.ServiceDataSync_)
 	taskClient := jobsc.JobServiceClient(ctx)
 	log.Logger(ctx).Info("Removing job for datasource " + dsName)

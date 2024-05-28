@@ -33,9 +33,9 @@ import (
 	"go.uber.org/zap"
 
 	"github.com/pydio/cells/v4/common/log"
-	"github.com/pydio/cells/v4/common/service/context/metadata"
 	"github.com/pydio/cells/v4/common/sync/merger"
 	"github.com/pydio/cells/v4/common/sync/model"
+	"github.com/pydio/cells/v4/common/utils/propagator"
 )
 
 func (s *Sync) run(ctx context.Context, dryRun bool, force bool) (model.Stater, error) {
@@ -48,8 +48,8 @@ func (s *Sync) run(ctx context.Context, dryRun bool, force bool) (model.Stater, 
 
 	// Create a background-based context as sessionContext will be used inside the patch processor.
 	sessionCtx := context.Background()
-	if mm, ok := metadata.FromContextCopy(ctx); ok {
-		sessionCtx = metadata.NewContext(sessionCtx, mm)
+	if mm, ok := propagator.FromContextCopy(ctx); ok {
+		sessionCtx = propagator.NewContext(sessionCtx, mm)
 	}
 
 	if s.Direction == model.DirectionBi {

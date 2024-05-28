@@ -36,10 +36,10 @@ import (
 	"github.com/pydio/cells/v4/common/proto/jobs"
 	"github.com/pydio/cells/v4/common/proto/tree"
 	"github.com/pydio/cells/v4/common/runtime"
-	"github.com/pydio/cells/v4/common/runtime/runtimecontext"
 	"github.com/pydio/cells/v4/common/service"
 	"github.com/pydio/cells/v4/common/utils/i18n"
 	json "github.com/pydio/cells/v4/common/utils/jsonx"
+	"github.com/pydio/cells/v4/common/utils/propagator"
 	"github.com/pydio/cells/v4/data/versions"
 )
 
@@ -68,7 +68,7 @@ func init() {
 			service.WithStorageDrivers(versions.NewBoltDAO, versions.NewMongoDAO),
 			service.AfterServe(func(ctx context.Context) error {
 				// return std.Retry(ctx, func() error {
-				bg := runtimecontext.ForkContext(context.Background(), ctx)
+				bg := propagator.ForkContext(context.Background(), ctx)
 				go func() {
 					jobsClient := jobsc.JobServiceClient(bg)
 

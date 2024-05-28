@@ -29,8 +29,8 @@ import (
 	"github.com/pydio/cells/v4/common/log"
 	"github.com/pydio/cells/v4/common/proto/idm"
 	pbservice "github.com/pydio/cells/v4/common/proto/service"
+	"github.com/pydio/cells/v4/common/runtime"
 	"github.com/pydio/cells/v4/common/runtime/manager"
-	"github.com/pydio/cells/v4/common/runtime/runtimecontext"
 	"github.com/pydio/cells/v4/idm/meta"
 	"github.com/pydio/cells/v4/idm/meta/namespace"
 )
@@ -68,7 +68,7 @@ func HandleClean(ctx context.Context, msg *idm.ChangeEvent) error {
 		if e != nil || len(metas) == 0 {
 			return
 		}
-		ctx = runtimecontext.WithServiceName(ctx, Name)
+		ctx = runtime.WithServiceName(ctx, Name)
 		log.Logger(ctx).Info(fmt.Sprintf("Cleaning %d bookmarks for user %s", len(metas), msg.User.Login))
 		for _, m := range metas {
 			dao.Del(ctx, m)

@@ -26,12 +26,12 @@ import (
 
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/proto/install"
-	"github.com/pydio/cells/v4/common/service/context/metadata"
+	"github.com/pydio/cells/v4/common/utils/propagator"
 )
 
 // SiteFromContext lookups for siteHash in the context
 func SiteFromContext(ctx context.Context, ss []*install.ProxyConfig) (*install.ProxyConfig, bool) {
-	meta, ok := metadata.FromContextRead(ctx)
+	meta, ok := propagator.FromContextRead(ctx)
 	if !ok {
 		return nil, false
 	}

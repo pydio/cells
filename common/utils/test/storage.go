@@ -12,10 +12,10 @@ import (
 	"github.com/pydio/cells/v4/common/config"
 	"github.com/pydio/cells/v4/common/runtime"
 	"github.com/pydio/cells/v4/common/runtime/manager"
-	"github.com/pydio/cells/v4/common/runtime/runtimecontext"
 	"github.com/pydio/cells/v4/common/runtime/tenant"
 	"github.com/pydio/cells/v4/common/service"
 	"github.com/pydio/cells/v4/common/storage/sql"
+	"github.com/pydio/cells/v4/common/utils/propagator"
 	"github.com/pydio/cells/v4/common/utils/uuid"
 
 	_ "github.com/pydio/cells/v4/common/registry/config"
@@ -159,8 +159,8 @@ func RunStorageTests(testCases []StorageTestCase, f func(context.Context)) {
 		}
 
 		ctx := mgr.Context()
-		ctx = runtimecontext.With(ctx, service.ContextKey, svc)
-		ctx = runtimecontext.With(ctx, tenant.ContextKey, tenant.GetManager().GetMaster())
+		ctx = propagator.With(ctx, service.ContextKey, svc)
+		ctx = propagator.With(ctx, tenant.ContextKey, tenant.GetManager().GetMaster())
 
 		f(ctx)
 

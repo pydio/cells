@@ -39,7 +39,6 @@ import (
 	"github.com/pydio/cells/v4/common/nodes/models"
 	"github.com/pydio/cells/v4/common/proto/tree"
 	"github.com/pydio/cells/v4/common/runtime"
-	"github.com/pydio/cells/v4/common/runtime/runtimecontext"
 	"github.com/pydio/cells/v4/common/service/errors"
 	"github.com/pydio/cells/v4/common/utils/cache"
 	json "github.com/pydio/cells/v4/common/utils/jsonx"
@@ -91,7 +90,7 @@ func newCacheHandler() *CacheHandler {
 			var event tree.NodeChangeEvent
 			if ctx, e := publication.Unmarshal(ctx, &event); e == nil && !event.Optimistic {
 				if event.Type == tree.NodeChangeEvent_CREATE || event.Type == tree.NodeChangeEvent_UPDATE_PATH || event.Type == tree.NodeChangeEvent_DELETE {
-					ctx = runtimecontext.WithServiceName(ctx, nodes.ViewsLibraryName)
+					ctx = runtime.WithServiceName(ctx, nodes.ViewsLibraryName)
 					s.cacheEvent(ctx, &event)
 				}
 			}

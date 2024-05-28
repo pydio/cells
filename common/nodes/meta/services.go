@@ -7,13 +7,13 @@ import (
 	pb "github.com/pydio/cells/v4/common/proto/registry"
 	"github.com/pydio/cells/v4/common/registry"
 	"github.com/pydio/cells/v4/common/runtime"
-	"github.com/pydio/cells/v4/common/runtime/runtimecontext"
+	"github.com/pydio/cells/v4/common/utils/propagator"
 )
 
 func servicesWithMeta(ctx context.Context, metaName string, metaValue string) ([]registry.Service, error) {
 
 	var reg registry.Registry
-	if !runtimecontext.Get(ctx, registry.ContextKey, &reg) {
+	if !propagator.Get(ctx, registry.ContextKey, &reg) {
 		defaultReg, err := registry.OpenRegistry(context.Background(), runtime.RegistryURL())
 		if err != nil {
 			return nil, err

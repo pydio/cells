@@ -10,8 +10,7 @@ import (
 	cgrpc "github.com/pydio/cells/v4/common/client/grpc"
 	"github.com/pydio/cells/v4/common/log"
 	"github.com/pydio/cells/v4/common/proto/jobs"
-	"github.com/pydio/cells/v4/common/runtime/runtimecontext"
-	"github.com/pydio/cells/v4/common/service/context/metadata"
+	"github.com/pydio/cells/v4/common/utils/propagator"
 )
 
 type ReconnectingClient struct {
@@ -82,12 +81,12 @@ func (s *ReconnectingClient) chanToStream(ch chan interface{}) {
 					}
 					if ts.RunnableContext != nil {
 						request.StatusMeta = map[string]string{}
-						if mm, has := metadata.FromContextRead(ts.RunnableContext); has {
-							if p, o := mm[runtimecontext.ContextMetaTaskActionPath]; o {
-								request.StatusMeta[runtimecontext.ContextMetaTaskActionPath] = p
+						if mm, has := propagator.FromContextRead(ts.RunnableContext); has {
+							if p, o := mm[common.CtxMetaTaskActionPath]; o {
+								request.StatusMeta[common.CtxMetaTaskActionPath] = p
 							}
-							if tags, o := mm[runtimecontext.ContextMetaTaskActionTags]; o {
-								request.StatusMeta[runtimecontext.ContextMetaTaskActionTags] = tags
+							if tags, o := mm[common.CtxMetaTaskActionTags]; o {
+								request.StatusMeta[common.CtxMetaTaskActionTags] = tags
 							}
 						}
 						request.StatusMeta["X-Pydio-Task-Action-Status"] = ts.RunnableStatus.String()

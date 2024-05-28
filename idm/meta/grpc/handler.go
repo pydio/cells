@@ -31,18 +31,17 @@ import (
 	"github.com/pydio/cells/v4/common/auth"
 	"github.com/pydio/cells/v4/common/broker"
 	"github.com/pydio/cells/v4/common/log"
+	"github.com/pydio/cells/v4/common/middleware"
 	"github.com/pydio/cells/v4/common/proto/idm"
 	pbservice "github.com/pydio/cells/v4/common/proto/service"
 	"github.com/pydio/cells/v4/common/proto/tree"
 	"github.com/pydio/cells/v4/common/runtime"
 	"github.com/pydio/cells/v4/common/runtime/manager"
-	"github.com/pydio/cells/v4/common/runtime/runtimecontext"
-	servicecontext "github.com/pydio/cells/v4/common/service/context"
-	"github.com/pydio/cells/v4/common/service/context/metadata"
 	"github.com/pydio/cells/v4/common/sql/resources"
 	"github.com/pydio/cells/v4/common/utils/cache"
 	json "github.com/pydio/cells/v4/common/utils/jsonx"
 	"github.com/pydio/cells/v4/common/utils/openurl"
+	"github.com/pydio/cells/v4/common/utils/propagator"
 	"github.com/pydio/cells/v4/idm/meta"
 )
 
@@ -128,8 +127,8 @@ func (h *Handler) UpdateUserMeta(ctx context.Context, request *idm.UpdateUserMet
 	}
 
 	go func() {
-		bgCtx := metadata.NewBackgroundWithMetaCopy(ctx)
-		bgCtx = runtimecontext.ForkContext(bgCtx, ctx)
+		bgCtx := propagator.NewBackgroundWithMetaCopy(ctx)
+		bgCtx = propagator.ForkContext(bgCtx, ctx)
 		subjects, _ := auth.SubjectsForResourcePolicyQuery(bgCtx, nil)
 
 		for nodeId, source := range sources {
@@ -140,8 +139,8 @@ func (h *Handler) UpdateUserMeta(ctx context.Context, request *idm.UpdateUserMet
 			if resolved, ok := nodes[nodeId]; ok {
 				target = resolved
 				if len(resolved.AppearsIn) > 0 {
-					nCtx = metadata.WithAdditionalMetadata(bgCtx, map[string]string{
-						servicecontext.CtxWorkspaceUuid: resolved.AppearsIn[0].WsUuid,
+					nCtx = propagator.WithAdditionalMetadata(bgCtx, map[string]string{
+						middleware.CtxWorkspaceUuid: resolved.AppearsIn[0].WsUuid,
 					})
 				}
 			}
@@ -238,10 +237,10 @@ func (h *Handler) ReadNodeStream(stream tree.NodeProviderStreamer_ReadNodeStream
 		return err
 	}
 
-	bgCtx := metadata.NewBackgroundWithMetaCopy(ctx)
+	bgCtx := propagator.NewBackgroundWithMetaCopy(ctx)
 	//bgCtx = clientcontext.WithClientConn(bgCtx, clientcontext.GetClientConn(ctx))
-	//bgCtx = servicecontext.WithRegistry(bgCtx, servicecontext.GetRegistry(ctx))
-	bgCtx = runtimecontext.ForkContext(bgCtx, ctx)
+	//bgCtx = middleware.WithRegistry(bgCtx, middleware.GetRegistry(ctx))
+	bgCtx = propagator.ForkContext(bgCtx, ctx)
 	subjects, e := auth.SubjectsForResourcePolicyQuery(bgCtx, nil)
 	if e != nil {
 		return e

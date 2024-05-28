@@ -37,9 +37,8 @@ import (
 	"github.com/pydio/cells/v4/common/proto/idm"
 	"github.com/pydio/cells/v4/common/proto/object"
 	"github.com/pydio/cells/v4/common/proto/tree"
-	"github.com/pydio/cells/v4/common/runtime/runtimecontext"
-	"github.com/pydio/cells/v4/common/service/context/metadata"
 	json "github.com/pydio/cells/v4/common/utils/jsonx"
+	"github.com/pydio/cells/v4/common/utils/propagator"
 )
 
 const (
@@ -367,11 +366,11 @@ func (a *Action) CollectSelector(ctx context.Context, selector InputSelector, in
 func (a *Action) BuildTaskActionPath(ctx context.Context, suffix string, indexTag ...int) (string, context.Context) {
 	pPath := "ROOT"
 	var tags []string
-	if mm, ok := metadata.FromContextRead(ctx); ok {
-		if p, o := mm[runtimecontext.ContextMetaTaskActionPath]; o {
+	if mm, ok := propagator.FromContextRead(ctx); ok {
+		if p, o := mm[common.CtxMetaTaskActionPath]; o {
 			pPath = p
 		}
-		if t, o := mm[runtimecontext.ContextMetaTaskActionTags]; o {
+		if t, o := mm[common.CtxMetaTaskActionTags]; o {
 			tags = strings.Split(t, ",")
 		}
 	}
@@ -389,13 +388,13 @@ func (a *Action) BuildTaskActionPath(ctx context.Context, suffix string, indexTa
 	}
 	newPath := path.Join(pPath, fmt.Sprintf("%s$%d%s", id, chainIndex, sx))
 	newMeta := map[string]string{
-		runtimecontext.ContextMetaTaskActionPath: newPath,
+		common.CtxMetaTaskActionPath: newPath,
 	}
 	if len(indexTag) > 0 && indexTag[0] > 0 {
 		tags = append(tags, fmt.Sprintf("%s:%d", newPath, indexTag[0]))
-		newMeta[runtimecontext.ContextMetaTaskActionTags] = strings.Join(tags, ",")
+		newMeta[common.CtxMetaTaskActionTags] = strings.Join(tags, ",")
 	}
-	ctx = metadata.WithAdditionalMetadata(ctx, newMeta)
+	ctx = propagator.WithAdditionalMetadata(ctx, newMeta)
 	return newPath, ctx
 }
 

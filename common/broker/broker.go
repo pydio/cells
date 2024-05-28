@@ -30,10 +30,10 @@ import (
 	"gocloud.dev/pubsub"
 	"google.golang.org/protobuf/proto"
 
-	"github.com/pydio/cells/v4/common/service/context/metadata"
 	"github.com/pydio/cells/v4/common/service/errors"
 	"github.com/pydio/cells/v4/common/service/metrics"
 	"github.com/pydio/cells/v4/common/utils/openurl"
+	"github.com/pydio/cells/v4/common/utils/propagator"
 )
 
 type brokerKey struct{}
@@ -268,7 +268,7 @@ func (b *broker) Publish(ctx context.Context, topic string, message proto.Messag
 	}
 
 	header := make(map[string]string)
-	if hh, ok := metadata.FromContextRead(ctx); ok {
+	if hh, ok := propagator.FromContextRead(ctx); ok {
 		for k, v := range hh {
 			header[k] = v
 		}

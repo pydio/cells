@@ -41,9 +41,8 @@ import (
 	pbregistry "github.com/pydio/cells/v4/common/proto/registry"
 	"github.com/pydio/cells/v4/common/registry"
 	"github.com/pydio/cells/v4/common/runtime"
-	"github.com/pydio/cells/v4/common/runtime/runtimecontext"
 	"github.com/pydio/cells/v4/common/service"
-	"github.com/pydio/cells/v4/common/service/context/ckeys"
+	"github.com/pydio/cells/v4/common/utils/propagator"
 )
 
 type Convertible interface {
@@ -66,7 +65,7 @@ func init() {
 			service.Description("Grpc implementation of the registry"),
 			service.WithGRPC(func(ctx context.Context, srv grpc.ServiceRegistrar) error {
 				var reg registry.Registry
-				runtimecontext.Get(ctx, registry.ContextKey, &reg)
+				propagator.Get(ctx, registry.ContextKey, &reg)
 				handler := NewHandler(reg)
 				pbregistry.RegisterRegistryServer(srv, handler)
 
@@ -267,7 +266,7 @@ func init() {
 														Path: endpointItem.Name(),
 													},
 													Headers: []*route.HeaderMatcher{{
-														Name: ckeys.TargetServiceName,
+														Name: common.CtxTargetServiceName,
 														HeaderMatchSpecifier: &route.HeaderMatcher_StringMatch{
 															StringMatch: &matcherv3.StringMatcher{MatchPattern: &matcherv3.StringMatcher_Exact{Exact: svcItem.Name()}},
 														},

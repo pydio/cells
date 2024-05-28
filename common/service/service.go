@@ -35,9 +35,9 @@ import (
 	"github.com/pydio/cells/v4/common/registry"
 	"github.com/pydio/cells/v4/common/registry/util"
 	"github.com/pydio/cells/v4/common/runtime"
-	"github.com/pydio/cells/v4/common/runtime/runtimecontext"
 	"github.com/pydio/cells/v4/common/server"
 	json "github.com/pydio/cells/v4/common/utils/jsonx"
+	"github.com/pydio/cells/v4/common/utils/propagator"
 )
 
 // Service for the pydio app
@@ -61,7 +61,7 @@ var (
 )
 
 func init() {
-	runtimecontext.RegisterGenericInjector[Service](ContextKey)
+	propagator.RegisterKeyInjector[Service](ContextKey)
 }
 
 type Service interface {
@@ -93,10 +93,10 @@ func NewService(opts ...ServiceOption) Service {
 
 	name := s.Opts.Name
 
-	s.Opts.rootContext = runtimecontext.WithServiceName(s.Opts.rootContext, name)
+	s.Opts.rootContext = runtime.WithServiceName(s.Opts.rootContext, name)
 
 	var reg registry.Registry
-	if runtimecontext.Get(s.Opts.rootContext, registry.ContextKey, &reg) {
+	if propagator.Get(s.Opts.rootContext, registry.ContextKey, &reg) {
 		if err := reg.Register(s); err != nil {
 			s.Opts.Logger().Warn("could not register", zap.Error(err))
 		}
@@ -230,7 +230,7 @@ func (s *service) Start(oo ...registry.RegisterOption) (er error) {
 	s.updateRegister(registry.StatusStarting)
 
 	s.Opts.runtimeCtx, s.Opts.runtimeCancel = context.WithCancel(s.Opts.rootContext)
-	s.Opts.runtimeCtx = runtimecontext.With(s.Opts.runtimeCtx, ContextKey, s)
+	s.Opts.runtimeCtx = propagator.With(s.Opts.runtimeCtx, ContextKey, s)
 
 	for _, before := range s.Opts.BeforeStart {
 		var err error

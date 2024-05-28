@@ -19,7 +19,7 @@
  */
 
 // Package servicecontext performs context values read/write, generally through server or client wrappers
-package servicecontext
+package middleware
 
 import (
 	"context"
@@ -29,7 +29,7 @@ import (
 	"time"
 
 	"github.com/pydio/cells/v4/common"
-	"github.com/pydio/cells/v4/common/service/context/metadata"
+	"github.com/pydio/cells/v4/common/utils/propagator"
 )
 
 const (
@@ -53,7 +53,7 @@ const (
 func HttpRequestInfoToMetadata(ctx context.Context, req *http.Request) context.Context {
 
 	meta := map[string]string{}
-	if existing, ok := metadata.FromContextRead(ctx); ok {
+	if existing, ok := propagator.FromContextRead(ctx); ok {
 		if _, already := existing[HttpMetaExtracted]; already {
 			return ctx
 		}
@@ -114,7 +114,7 @@ func HttpRequestInfoToMetadata(ctx context.Context, req *http.Request) context.C
 		meta[HttpMetaCookiesString] = strings.Join(cString, "//")
 	}
 
-	return metadata.NewContext(ctx, meta)
+	return propagator.NewContext(ctx, meta)
 }
 
 // HttpWrapperMeta extracts data from the request and puts it in a context Metadata field.
@@ -128,7 +128,7 @@ func HttpWrapperMeta(ctx context.Context, h http.Handler) http.Handler {
 // HttpMetaFromGrpcContext extracts metadata from context that may have been
 // passed along across services (meta name may be lowered cased)
 func HttpMetaFromGrpcContext(ctx context.Context, name string) (string, bool) {
-	if md, ok := metadata.FromContextRead(ctx); ok {
+	if md, ok := propagator.FromContextRead(ctx); ok {
 		if v, o := md[name]; o {
 			return v, true
 		} else if vs, os := md[strings.ToLower(name)]; os {

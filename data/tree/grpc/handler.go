@@ -44,12 +44,11 @@ import (
 	"github.com/pydio/cells/v4/common/proto/service"
 	"github.com/pydio/cells/v4/common/proto/tree"
 	"github.com/pydio/cells/v4/common/registry"
-	"github.com/pydio/cells/v4/common/runtime/runtimecontext"
-	"github.com/pydio/cells/v4/common/service/context/metadata"
 	"github.com/pydio/cells/v4/common/service/errors"
 	"github.com/pydio/cells/v4/common/utils/cache"
 	"github.com/pydio/cells/v4/common/utils/openurl"
 	"github.com/pydio/cells/v4/common/utils/permissions"
+	"github.com/pydio/cells/v4/common/utils/propagator"
 	"github.com/pydio/cells/v4/common/utils/uuid"
 )
 
@@ -150,12 +149,12 @@ func (s *TreeServer) ReadNodeStream(streamer tree.NodeProviderStreamer_ReadNodeS
 	// In some cases, initial ctx could be canceled _before_ this function is called
 	// We must make sure that metaStreamers are using a proper context at creation
 	// otherwise it can create a goroutine leak on linux.
-	ctx := metadata.NewBackgroundWithMetaCopy(streamer.Context())
+	ctx := propagator.NewBackgroundWithMetaCopy(streamer.Context())
 	// TODO RECHECK THAT
-	ctx = runtimecontext.ForkContext(ctx, streamer.Context())
+	ctx = propagator.ForkContext(ctx, streamer.Context())
 
 	var flags tree.Flags
-	if sf, o := metadata.CanonicalMeta(streamer.Context(), tree.StatFlagHeaderName); o {
+	if sf, o := propagator.CanonicalMeta(streamer.Context(), tree.StatFlagHeaderName); o {
 		flags = tree.StatFlagsFromString(sf)
 	}
 
@@ -780,7 +779,7 @@ loop:
 // ModifyLogin should detect TemplatePaths using the User.Name variable, resolve them and forward the request to the corresponding index
 func (s *TreeServer) ModifyLogin(ctx context.Context, req *service.ModifyLoginRequest) (*service.ModifyLoginResponse, error) {
 	var reg registry.Registry
-	runtimecontext.Get(ctx, registry.ContextKey, &reg)
+	propagator.Get(ctx, registry.ContextKey, &reg)
 	ctx = nodescontext.WithSourcesPool(ctx, nodes.NewPool(ctx, reg))
 	m := abstract.GetVirtualNodesManager(ctx)
 	resp := &service.ModifyLoginResponse{}

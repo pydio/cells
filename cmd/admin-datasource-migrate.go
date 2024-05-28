@@ -46,8 +46,8 @@ import (
 	"github.com/pydio/cells/v4/common/proto/tree"
 	"github.com/pydio/cells/v4/common/registry"
 	"github.com/pydio/cells/v4/common/runtime"
-	"github.com/pydio/cells/v4/common/service/context/metadata"
 	"github.com/pydio/cells/v4/common/utils/configx"
+	"github.com/pydio/cells/v4/common/utils/propagator"
 	"github.com/pydio/cells/v4/common/utils/uuid"
 )
 
@@ -342,7 +342,7 @@ func migratePerformMigration(ctx context.Context, ds *object.DataSource, mc node
 		return out, e
 	}
 	mm := map[string]string{}
-	if meta, ok := metadata.MinioMetaFromContext(ctx); ok {
+	if meta, ok := propagator.MinioMetaFromContext(ctx, common.PydioContextUserKey); ok {
 		for k, v := range meta {
 			mm[k] = v
 		}

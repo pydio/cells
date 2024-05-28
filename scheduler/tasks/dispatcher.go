@@ -35,8 +35,8 @@ import (
 	"github.com/pydio/cells/v4/common/proto/jobs"
 	"github.com/pydio/cells/v4/common/proto/tree"
 	"github.com/pydio/cells/v4/common/runtime"
-	runtimecontext "github.com/pydio/cells/v4/common/runtime/runtimecontext"
 	"github.com/pydio/cells/v4/common/service/metrics"
+	"github.com/pydio/cells/v4/common/utils/propagator"
 )
 
 const (
@@ -81,7 +81,7 @@ func NewDispatcher(rootCtx context.Context, maxWorkers int, job *jobs.Job, tags 
 				var event interface{}
 
 				eventContext := context.Background()
-				eventCtx := runtimecontext.ForkContext(eventContext, rootCtx)
+				eventCtx := propagator.ForkContext(eventContext, rootCtx)
 
 				tce := &tree.NodeChangeEvent{}
 				ice := &idm.ChangeEvent{}

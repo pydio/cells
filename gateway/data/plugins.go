@@ -42,12 +42,11 @@ import (
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/config/routing"
 	"github.com/pydio/cells/v4/common/log"
+	"github.com/pydio/cells/v4/common/middleware"
 	"github.com/pydio/cells/v4/common/runtime"
-	serverhttp "github.com/pydio/cells/v4/common/server/http"
-	"github.com/pydio/cells/v4/common/server/middleware"
 	"github.com/pydio/cells/v4/common/service"
-	servicecontext "github.com/pydio/cells/v4/common/service/context"
 	"github.com/pydio/cells/v4/common/utils/net"
+	"github.com/pydio/cells/v4/common/utils/propagator"
 	pydio "github.com/pydio/cells/v4/gateway/data/gw"
 	"github.com/pydio/cells/v4/gateway/data/hooks"
 
@@ -206,9 +205,9 @@ func (g *gatewayDataServer) Start(ctx context.Context) error {
 		}
 	}
 
-	minio.HookRegisterGlobalHandler(servicecontext.HttpMiddlewareOpenTelemetry("minio"))
-	minio.HookRegisterGlobalHandler(serverhttp.ContextMiddlewareHandler(middleware.ClientConnIncomingContext(ctx)))
-	minio.HookRegisterGlobalHandler(serverhttp.ContextMiddlewareHandler(middleware.RegistryIncomingContext(ctx)))
+	minio.HookRegisterGlobalHandler(middleware.HttpMiddlewareOpenTelemetry("minio"))
+	minio.HookRegisterGlobalHandler(propagator.HttpContextMiddleware(middleware.ClientConnIncomingContext(ctx)))
+	minio.HookRegisterGlobalHandler(propagator.HttpContextMiddleware(middleware.RegistryIncomingContext(ctx)))
 	minio.HookRegisterGlobalHandler(hooks.GetPydioAuthHandlerFunc("gateway"))
 	pydio.PydioGateway = &pydio.Pydio{
 		RuntimeCtx: ctx,

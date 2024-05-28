@@ -36,9 +36,9 @@ import (
 	mock2 "github.com/pydio/cells/v4/common/config/mock"
 	pbregistry "github.com/pydio/cells/v4/common/proto/registry"
 	"github.com/pydio/cells/v4/common/registry"
-	"github.com/pydio/cells/v4/common/runtime/runtimecontext"
 	"github.com/pydio/cells/v4/common/server"
 	"github.com/pydio/cells/v4/common/service"
+	"github.com/pydio/cells/v4/common/utils/propagator"
 	discoveryregistry "github.com/pydio/cells/v4/discovery/registry"
 
 	_ "github.com/pydio/cells/v4/common/registry/config"
@@ -56,7 +56,7 @@ func (m *mock) SayHello(ctx context.Context, req *helloworld.HelloRequest) (*hel
 
 func createApp1(reg registry.Registry) *bufconn.Listener {
 	ctx := context.Background()
-	ctx = runtimecontext.With(ctx, registry.ContextKey, reg)
+	ctx = propagator.With(ctx, registry.ContextKey, reg)
 
 	listener := bufconn.Listen(1024 * 1024)
 	srv := New(ctx, WithListener(listener))
@@ -98,7 +98,7 @@ func createApp1(reg registry.Registry) *bufconn.Listener {
 
 func createApp2(reg registry.Registry) {
 	ctx := context.Background()
-	ctx = runtimecontext.With(ctx, registry.ContextKey, reg)
+	ctx = propagator.With(ctx, registry.ContextKey, reg)
 
 	listener := bufconn.Listen(1024 * 1024)
 	srv := New(ctx, WithListener(listener))

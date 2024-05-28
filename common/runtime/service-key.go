@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2022. Abstrium SAS <team (at) pydio.com>
+ * Copyright (c) 2019-2021. Abstrium SAS <team (at) pydio.com>
  * This file is part of Pydio Cells.
  *
  * Pydio Cells is free software: you can redistribute it and/or modify
@@ -18,25 +18,39 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-package http
+package runtime
 
 import (
 	"context"
-	"net/http"
+
+	"github.com/pydio/cells/v4/common/utils/propagator"
 )
 
-// IncomingContextModifier modifies context and returns a new context, true if context was modified, or an error
-type IncomingContextModifier func(ctx context.Context) (context.Context, bool, error)
+type serviceNameKey struct{}
 
-func ContextMiddlewareHandler(modifier IncomingContextModifier) func(http.Handler) http.Handler {
-	return func(handler http.Handler) http.Handler {
-		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			ct, _, err := modifier(r.Context())
-			if err != nil {
-				return
-			}
+var (
+	ServiceNameKey = serviceNameKey{}
+)
 
-			handler.ServeHTTP(w, r.WithContext(ct))
-		})
+func init() {
+	propagator.RegisterKeyInjector[string](ServiceNameKey)
+}
+
+// WithServiceName returns a context which knows its service name
+func WithServiceName(ctx context.Context, serviceName string) context.Context {
+	return context.WithValue(ctx, ServiceNameKey, serviceName)
+}
+
+// GetServiceName returns the service name associated to this context
+func GetServiceName(ctx context.Context) string {
+	if ctx == nil {
+		return ""
+	}
+	if v := ctx.Value(ServiceNameKey); v == nil {
+		return ""
+	} else if name, ok := v.(string); ok {
+		return name
+	} else {
+		return ""
 	}
 }

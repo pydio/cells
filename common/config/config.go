@@ -23,8 +23,8 @@ package config
 import (
 	"sync"
 
-	"github.com/pydio/cells/v4/common/runtime/runtimecontext"
 	"github.com/pydio/cells/v4/common/utils/configx"
+	"github.com/pydio/cells/v4/common/utils/propagator"
 )
 
 var (
@@ -43,7 +43,7 @@ var (
 )
 
 func init() {
-	runtimecontext.RegisterGenericInjector[Store](ContextKey)
+	propagator.RegisterKeyInjector[Store](ContextKey)
 }
 
 // Store defines the functionality a config must provide

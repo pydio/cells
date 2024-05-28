@@ -39,10 +39,10 @@ import (
 	"github.com/pydio/cells/v4/common/proto/object"
 	"github.com/pydio/cells/v4/common/proto/tree"
 	"github.com/pydio/cells/v4/common/runtime/manager"
-	"github.com/pydio/cells/v4/common/service/context/metadata"
 	"github.com/pydio/cells/v4/common/sync/endpoints/index"
 	"github.com/pydio/cells/v4/common/sync/endpoints/s3"
 	"github.com/pydio/cells/v4/common/sync/model"
+	"github.com/pydio/cells/v4/common/utils/propagator"
 	"github.com/pydio/cells/v4/common/utils/std"
 )
 
@@ -103,7 +103,7 @@ func InitEndpoints(ctx context.Context, syncConfig *object.DataSource, clientRea
 				log.Logger(ctx).Error("Cannot create objects client "+e.Error(), zap.Error(e))
 				return e
 			}
-			testCtx := metadata.NewContext(ctx, map[string]string{common.PydioContextUserKey: common.PydioSystemUsername})
+			testCtx := propagator.NewContext(ctx, map[string]string{common.PydioContextUserKey: common.PydioSystemUsername})
 			if syncConfig.ObjectsBucket == "" {
 				log.Logger(ctx).Debug("Sending ListBuckets", zap.Any("config", syncConfig))
 				_, err = oc.ListBuckets(testCtx)

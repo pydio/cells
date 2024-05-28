@@ -24,7 +24,7 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/pydio/cells/v4/common/runtime/runtimecontext"
+	"github.com/pydio/cells/v4/common/utils/propagator"
 )
 
 var (
@@ -74,7 +74,7 @@ func (b *basicTenant) ID() string {
 }
 
 func (b *basicTenant) Context(ctx context.Context) context.Context {
-	return runtimecontext.With(ctx, ContextKey, b)
+	return propagator.With(ctx, ContextKey, b)
 }
 
 type basicManager struct {

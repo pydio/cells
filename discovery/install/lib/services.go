@@ -33,8 +33,8 @@ import (
 	pb "github.com/pydio/cells/v4/common/proto/registry"
 	"github.com/pydio/cells/v4/common/registry"
 	"github.com/pydio/cells/v4/common/runtime"
-	"github.com/pydio/cells/v4/common/runtime/runtimecontext"
 	"github.com/pydio/cells/v4/common/service"
+	"github.com/pydio/cells/v4/common/utils/propagator"
 )
 
 var (
@@ -49,7 +49,7 @@ func ListServicesWithStorage() (ss []service.Service, e error) {
 		if err != nil {
 			e = err
 		}
-		ctx = runtimecontext.With(ctx, registry.ContextKey, reg)
+		ctx = propagator.With(ctx, registry.ContextKey, reg)
 		runtime.Init(ctx, "discovery")
 		runtime.Init(ctx, "main")
 		listRegistry = reg

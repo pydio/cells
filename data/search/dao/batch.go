@@ -43,9 +43,9 @@ import (
 	"github.com/pydio/cells/v4/common/nodes/meta"
 	"github.com/pydio/cells/v4/common/nodes/models"
 	"github.com/pydio/cells/v4/common/proto/tree"
-	runtimecontext "github.com/pydio/cells/v4/common/runtime/runtimecontext"
 	"github.com/pydio/cells/v4/common/storage/indexer"
 	"github.com/pydio/cells/v4/common/utils/configx"
+	"github.com/pydio/cells/v4/common/utils/propagator"
 )
 
 // Batch avoids overflowing bleve index by batching indexation events (index/delete)
@@ -228,7 +228,7 @@ func (b *Batch) createBackgroundContext(parent context.Context) context.Context 
 		Profile:   common.PydioProfileAdmin,
 		GroupPath: "/",
 	})
-	return runtimecontext.ForkContext(ctx, parent)
+	return propagator.ForkContext(ctx, parent)
 }
 
 func (b *Batch) getUuidRouter() nodes.Handler {

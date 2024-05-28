@@ -7,6 +7,8 @@ toolchain go1.22.3
 require (
 	buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go v1.32.0-20231115204500-e097f827e652.1
 	github.com/Masterminds/sprig/v3 v3.2.3
+	github.com/PaesslerAG/gval v1.2.2
+	github.com/PaesslerAG/jsonpath v0.1.1
 	github.com/ajvb/kala v0.8.4
 	github.com/allegro/bigcache/v3 v3.1.0
 	github.com/beeker1121/goque v2.1.0+incompatible
@@ -77,9 +79,9 @@ require (
 	github.com/minio/minio-go/v7 v7.0.70
 	github.com/mitchellh/mapstructure v1.5.0
 	github.com/mssola/user_agent v0.6.0
-	github.com/mwitkow/go-proto-validators v0.3.2
 	github.com/nats-io/nats.go v1.34.1
 	github.com/nicksnyder/go-i18n/v2 v2.4.0
+	github.com/odigos-io/opentelemetry-zap-bridge v0.0.5
 	github.com/olekukonko/tablewriter v0.0.5
 	github.com/ory/fosite v0.44.1-0.20231218095112-ac9ae4bd99d7
 	github.com/ory/herodot v0.10.3-0.20230626083119-d7e5192f0d88
@@ -125,8 +127,10 @@ require (
 	go.etcd.io/etcd/client/v3 v3.5.13
 	go.mongodb.org/mongo-driver v1.15.0
 	go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc v0.51.0
+	go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp v0.49.0
 	go.opentelemetry.io/otel v1.27.0
 	go.opentelemetry.io/otel/exporters/jaeger v1.17.0
+	go.opentelemetry.io/otel/exporters/stdout/stdouttrace v1.27.0
 	go.opentelemetry.io/otel/sdk v1.27.0
 	go.opentelemetry.io/otel/trace v1.27.0
 	go.uber.org/zap v1.27.0
@@ -155,6 +159,7 @@ require (
 	gorm.io/gen v0.3.26
 	gorm.io/gorm v1.25.10
 	gorm.io/plugin/dbresolver v1.5.1
+	gorm.io/plugin/opentelemetry v0.1.4
 	k8s.io/apimachinery v0.30.1
 )
 
@@ -174,13 +179,10 @@ require (
 	github.com/Masterminds/semver/v3 v3.2.1 // indirect
 	github.com/Masterminds/sprig v2.22.0+incompatible // indirect
 	github.com/Microsoft/go-winio v0.6.1 // indirect
-	github.com/PaesslerAG/gval v1.2.2 // indirect
-	github.com/PaesslerAG/jsonpath v0.1.1 // indirect
 	github.com/PuerkitoBio/goquery v1.8.1 // indirect
 	github.com/RoaringBitmap/roaring v1.9.3 // indirect
 	github.com/Shopify/sarama v1.37.2 // indirect
 	github.com/VividCortex/ewma v1.1.1 // indirect
-	github.com/agoda-com/opentelemetry-go/otelzap v0.2.3 // indirect
 	github.com/agoda-com/opentelemetry-logs-go v0.5.0 // indirect
 	github.com/alecthomas/assert/v2 v2.2.2 // indirect
 	github.com/alecthomas/chroma v0.10.0 // indirect
@@ -396,7 +398,6 @@ require (
 	github.com/ncw/directio v1.0.5 // indirect
 	github.com/nsqio/go-nsq v1.0.8 // indirect
 	github.com/nyaruka/phonenumbers v1.1.7 // indirect
-	github.com/odigos-io/opentelemetry-zap-bridge v0.0.5 // indirect
 	github.com/oklog/ulid v1.3.1 // indirect
 	github.com/oleiade/reflections v1.0.1 // indirect
 	github.com/olivere/elastic/v7 v7.0.22 // indirect
@@ -460,6 +461,7 @@ require (
 	github.com/tinylib/msgp v1.1.7-0.20211026165309-e818a1881b0e // indirect
 	github.com/tklauser/go-sysconf v0.3.11 // indirect
 	github.com/tklauser/numcpus v0.6.0 // indirect
+	github.com/twitchtv/twirp v8.1.3+incompatible // indirect
 	github.com/twmb/murmur3 v1.1.8 // indirect
 	github.com/urfave/cli v1.22.14 // indirect
 	github.com/urfave/negroni v1.0.0 // indirect
@@ -489,7 +491,6 @@ require (
 	go.mozilla.org/pkcs7 v0.0.0-20210826202110-33d05740a352 // indirect
 	go.opencensus.io v0.24.0 // indirect
 	go.opentelemetry.io/contrib/instrumentation/net/http/httptrace/otelhttptrace v0.46.1 // indirect
-	go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp v0.49.0 // indirect
 	go.opentelemetry.io/contrib/propagators/autoprop v0.42.0 // indirect
 	go.opentelemetry.io/contrib/propagators/aws v1.17.0 // indirect
 	go.opentelemetry.io/contrib/propagators/b3 v1.21.0 // indirect
@@ -499,7 +500,6 @@ require (
 	go.opentelemetry.io/otel/exporters/otlp/otlptrace v1.21.0 // indirect
 	go.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracegrpc v1.21.0 // indirect
 	go.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracehttp v1.21.0 // indirect
-	go.opentelemetry.io/otel/exporters/stdout/stdouttrace v1.27.0 // indirect
 	go.opentelemetry.io/otel/exporters/zipkin v1.21.0 // indirect
 	go.opentelemetry.io/otel/metric v1.27.0 // indirect
 	go.opentelemetry.io/proto/otlp v1.2.0 // indirect
@@ -524,7 +524,6 @@ require (
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 	gorm.io/datatypes v1.2.0 // indirect
 	gorm.io/hints v1.1.2 // indirect
-	gorm.io/plugin/opentelemetry v0.1.4 // indirect
 	howett.net/plist v1.0.0 // indirect
 	k8s.io/klog/v2 v2.120.1 // indirect
 	k8s.io/utils v0.0.0-20230726121419-3b25d923346b // indirect

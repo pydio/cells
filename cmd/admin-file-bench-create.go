@@ -38,7 +38,7 @@ import (
 	"github.com/pydio/cells/v4/common/proto/idm"
 	"github.com/pydio/cells/v4/common/proto/tree"
 	"github.com/pydio/cells/v4/common/registry"
-	"github.com/pydio/cells/v4/common/runtime/runtimecontext"
+	"github.com/pydio/cells/v4/common/utils/propagator"
 	"github.com/pydio/cells/v4/common/utils/uuid"
 )
 
@@ -72,7 +72,7 @@ EXAMPLE
 			return
 		}
 		var reg registry.Registry
-		runtimecontext.Get(ctx, registry.ContextKey, &reg)
+		propagator.Get(ctx, registry.ContextKey, &reg)
 		router := compose.PathClientAdmin(nodescontext.WithSourcesPool(ctx, nodes.NewPool(ctx, reg)))
 		c := auth.WithImpersonate(cmd.Context(), &idm.User{Login: benchUser})
 		bar := progressbar.Default(int64(benchNumber), "# files created")

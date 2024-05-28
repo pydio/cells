@@ -73,10 +73,11 @@ import (
 	"github.com/pydio/cells/v4/common/config/routing"
 	"github.com/pydio/cells/v4/common/crypto"
 	"github.com/pydio/cells/v4/common/log"
+	"github.com/pydio/cells/v4/common/middleware"
 	"github.com/pydio/cells/v4/common/proto/install"
-	"github.com/pydio/cells/v4/common/runtime/runtimecontext"
-	servicecontext "github.com/pydio/cells/v4/common/service/context"
+	runtime2 "github.com/pydio/cells/v4/common/runtime"
 	json "github.com/pydio/cells/v4/common/utils/jsonx"
+	"github.com/pydio/cells/v4/common/utils/propagator"
 )
 
 var _ Registry = new(cellsdriver)
@@ -498,10 +499,10 @@ func (*cellsdriverContextualizer) Network(ctx context.Context, network uuid.UUID
 
 func (*cellsdriverContextualizer) Config(ctx context.Context, cfg *configx.Provider) *configx.Provider {
 
-	host, _ := servicecontext.HttpMetaFromGrpcContext(ctx, servicecontext.HttpMetaHost)
+	host, _ := middleware.HttpMetaFromGrpcContext(ctx, middleware.HttpMetaHost)
 	rootURL := "https://" + host
 	var conf config.Store
-	runtimecontext.Get(ctx, config.ContextKey, &conf)
+	propagator.Get(ctx, config.ContextKey, &conf)
 	values := conf.Val("services", "pydio.web.oauth")
 
 	m := values.Map()
@@ -637,7 +638,7 @@ func OnRegistryInit(f func()) {
 
 func getLogrusLogger(serviceName string) *logrus.Logger {
 	logrusOnce.Do(func() {
-		logCtx := runtimecontext.WithServiceName(context.Background(), serviceName)
+		logCtx := runtime2.WithServiceName(context.Background(), serviceName)
 		r, w, _ := os.Pipe()
 		go func() {
 			scanner := bufio.NewScanner(r)

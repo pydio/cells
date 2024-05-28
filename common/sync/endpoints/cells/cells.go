@@ -38,10 +38,10 @@ import (
 	"github.com/pydio/cells/v4/common/log"
 	"github.com/pydio/cells/v4/common/nodes/models"
 	"github.com/pydio/cells/v4/common/proto/tree"
-	"github.com/pydio/cells/v4/common/service/context/metadata"
 	"github.com/pydio/cells/v4/common/service/errors"
 	"github.com/pydio/cells/v4/common/sync/endpoints/memory"
 	"github.com/pydio/cells/v4/common/sync/model"
+	"github.com/pydio/cells/v4/common/utils/propagator"
 )
 
 type ObjectsClient interface {
@@ -488,7 +488,7 @@ func (c *Abstract) GetWriterOn(cancel context.Context, p string, targetSize int6
 		return nil, writeDone, writeErr, err
 	}
 	meta := make(map[string]string)
-	if md, ok := metadata.FromContextRead(ctx); ok {
+	if md, ok := propagator.FromContextRead(ctx); ok {
 		for k, v := range md {
 			meta[k] = v
 		}
@@ -589,7 +589,7 @@ func (c *Abstract) getContext(ctx ...context.Context) context.Context {
 	} else {
 		ct = context.Background()
 	}
-	ct = metadata.WithAdditionalMetadata(ct, map[string]string{
+	ct = propagator.WithAdditionalMetadata(ct, map[string]string{
 		common.XPydioClientUuid: c.ClientUUID,
 	})
 	return ct

@@ -28,7 +28,7 @@ import (
 	pb "github.com/pydio/cells/v4/common/proto/registry"
 	"github.com/pydio/cells/v4/common/registry"
 	"github.com/pydio/cells/v4/common/runtime"
-	"github.com/pydio/cells/v4/common/runtime/runtimecontext"
+	"github.com/pydio/cells/v4/common/utils/propagator"
 )
 
 const pprofTpl = `
@@ -50,7 +50,7 @@ type pprofHandler struct {
 
 func (p *pprofHandler) ServeHTTP(writer http.ResponseWriter, request *http.Request) {
 	var reg registry.Registry
-	if !runtimecontext.Get(p.ctx, registry.ContextKey, &reg) {
+	if !propagator.Get(p.ctx, registry.ContextKey, &reg) {
 		writer.WriteHeader(http.StatusInternalServerError)
 		return
 	}

@@ -40,8 +40,8 @@ import (
 	"github.com/pydio/cells/v4/common/proto/rest"
 	"github.com/pydio/cells/v4/common/proto/tree"
 	"github.com/pydio/cells/v4/common/service"
-	"github.com/pydio/cells/v4/common/service/context/metadata"
 	"github.com/pydio/cells/v4/common/service/resources"
+	"github.com/pydio/cells/v4/common/utils/propagator"
 	"github.com/pydio/cells/v4/idm/share"
 )
 
@@ -145,7 +145,7 @@ func (s *Handler) Nodes(req *restful.Request, rsp *restful.Response) {
 		}
 	}
 
-	readCtx := metadata.WithAdditionalMetadata(ctx, tree.StatFlags(searchRequest.StatFlags).AsMeta())
+	readCtx := propagator.WithAdditionalMetadata(ctx, tree.StatFlags(searchRequest.StatFlags).AsMeta())
 	nodeStreamer, e := treec.NodeProviderStreamerClient(ctx).ReadNodeStream(readCtx)
 	if e == nil {
 		defer nodeStreamer.CloseSend()

@@ -26,8 +26,8 @@ import (
 	minio "github.com/minio/minio-go/v7"
 
 	"github.com/pydio/cells/v4/common"
-	"github.com/pydio/cells/v4/common/service/context/metadata"
 	"github.com/pydio/cells/v4/common/utils/permissions"
+	"github.com/pydio/cells/v4/common/utils/propagator"
 )
 
 func customHeadersTransport(secure bool) (http.RoundTripper, error) {
@@ -47,7 +47,7 @@ func (r *customHeadersRoundTripper) RoundTrip(request *http.Request) (*http.Resp
 	if u, _ := permissions.FindUserNameInContext(ctx); u != "" {
 		request.Header.Set(common.PydioContextUserKey, u)
 	}
-	if meta, ok := metadata.FromContextRead(ctx); ok {
+	if meta, ok := propagator.FromContextRead(ctx); ok {
 		for k, v := range meta {
 			if common.IsXSpecialPydioHeader(k) && request.Header.Get(k) == "" {
 				request.Header.Set(k, v)

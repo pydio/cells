@@ -32,12 +32,13 @@ import (
 
 	"github.com/pydio/cells/v4/common/config/routing"
 	"github.com/pydio/cells/v4/common/log"
+	"github.com/pydio/cells/v4/common/middleware"
 	"github.com/pydio/cells/v4/common/registry"
 	"github.com/pydio/cells/v4/common/registry/util"
 	"github.com/pydio/cells/v4/common/runtime"
 	"github.com/pydio/cells/v4/common/server"
 	"github.com/pydio/cells/v4/common/server/http/mux"
-	"github.com/pydio/cells/v4/common/server/middleware"
+	"github.com/pydio/cells/v4/common/utils/propagator"
 	"github.com/pydio/cells/v4/common/utils/uuid"
 )
 
@@ -68,8 +69,8 @@ func New(ctx context.Context) server.Server {
 
 	srv := &http.Server{}
 	srv.Handler = mux.NewMiddleware(ctx, srvID, lMux)
-	srv.Handler = ContextMiddlewareHandler(middleware.ClientConnIncomingContext(ctx))(srv.Handler)
-	srv.Handler = ContextMiddlewareHandler(middleware.RegistryIncomingContext(ctx))(srv.Handler)
+	srv.Handler = propagator.HttpContextMiddleware(middleware.ClientConnIncomingContext(ctx))(srv.Handler)
+	srv.Handler = propagator.HttpContextMiddleware(middleware.RegistryIncomingContext(ctx))(srv.Handler)
 
 	ctx, cancel := context.WithCancel(ctx)
 

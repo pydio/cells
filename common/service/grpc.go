@@ -27,8 +27,8 @@ import (
 
 	"github.com/pydio/cells/v4/common/registry"
 	"github.com/pydio/cells/v4/common/registry/util"
-	"github.com/pydio/cells/v4/common/runtime/runtimecontext"
 	"github.com/pydio/cells/v4/common/server"
+	"github.com/pydio/cells/v4/common/utils/propagator"
 )
 
 // WithGRPC adds a GRPC service handler to the current service
@@ -43,7 +43,7 @@ func WithGRPC(f func(context.Context, grpc.ServiceRegistrar) error) ServiceOptio
 			var registrar grpc.ServiceRegistrar
 			o.Server.As(&registrar)
 			var reg registry.Registry
-			runtimecontext.Get(ctx, registry.ContextKey, &reg)
+			propagator.Get(ctx, registry.ContextKey, &reg)
 
 			return f(ctx, &serviceRegistrar{
 				ServiceRegistrar: registrar,

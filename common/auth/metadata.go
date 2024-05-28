@@ -26,7 +26,7 @@ import (
 
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/auth/claim"
-	"github.com/pydio/cells/v4/common/service/context/metadata"
+	"github.com/pydio/cells/v4/common/utils/propagator"
 )
 
 // ContextFromClaims feeds context with correct Keys and Metadata for a given Claims
@@ -37,7 +37,7 @@ func ContextFromClaims(ctx context.Context, claims claim.Claims) context.Context
 
 	// Set context Metadata
 	md := make(map[string]string)
-	if existing, ok := metadata.FromContextRead(ctx); ok {
+	if existing, ok := propagator.FromContextRead(ctx); ok {
 		for k, v := range existing {
 			// Ignore existing version of PydioContextUserKey, it will be replaced after
 			if k == strings.ToLower(common.PydioContextUserKey) {
@@ -47,5 +47,5 @@ func ContextFromClaims(ctx context.Context, claims claim.Claims) context.Context
 		}
 	}
 	md[common.PydioContextUserKey] = claims.Name
-	return metadata.NewContext(ctx, md)
+	return propagator.NewContext(ctx, md)
 }

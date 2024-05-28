@@ -7,9 +7,9 @@ import (
 	"github.com/pydio/cells/v4/common/config"
 	"github.com/pydio/cells/v4/common/runtime"
 	"github.com/pydio/cells/v4/common/runtime/manager"
-	"github.com/pydio/cells/v4/common/runtime/runtimecontext"
 	"github.com/pydio/cells/v4/common/storage"
 	"github.com/pydio/cells/v4/common/utils/openurl"
+	"github.com/pydio/cells/v4/common/utils/propagator"
 )
 
 var (
@@ -19,7 +19,7 @@ var (
 func init() {
 	runtime.Register("system", func(ctx context.Context) {
 		var mgr manager.Manager
-		if runtimecontext.Get(ctx, manager.ContextKey, &mgr) {
+		if propagator.Get(ctx, manager.ContextKey, &mgr) {
 			return
 		}
 

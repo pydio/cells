@@ -34,14 +34,14 @@ import (
 	"github.com/pydio/cells/v4/common/auth"
 	"github.com/pydio/cells/v4/common/auth/claim"
 	"github.com/pydio/cells/v4/common/log"
+	"github.com/pydio/cells/v4/common/middleware"
 	"github.com/pydio/cells/v4/common/nodes"
 	"github.com/pydio/cells/v4/common/nodes/abstract"
 	"github.com/pydio/cells/v4/common/proto/idm"
 	"github.com/pydio/cells/v4/common/proto/tree"
-	"github.com/pydio/cells/v4/common/runtime/runtimecontext"
-	servicecontext "github.com/pydio/cells/v4/common/service/context"
-	"github.com/pydio/cells/v4/common/service/context/metadata"
+	"github.com/pydio/cells/v4/common/runtime"
 	"github.com/pydio/cells/v4/common/utils/permissions"
+	"github.com/pydio/cells/v4/common/utils/propagator"
 )
 
 const (
@@ -103,8 +103,8 @@ func updateSessionFromClaims(ctx context.Context, session *melody.Session, claim
 	session.Set(SessionClaimsKey, claims)
 	session.Set(SessionSubjectsKey, append([]string{"*"}, auth.SubjectsFromClaim(claims)...))
 	session.Set(SessionLimiterKey, rate.NewLimiter(LimiterRate, LimiterBurst))
-	ctx = servicecontext.HttpRequestInfoToMetadata(context.Background(), session.Request)
-	if md, ok := metadata.FromContextCopy(ctx); ok {
+	ctx = middleware.HttpRequestInfoToMetadata(context.Background(), session.Request)
+	if md, ok := propagator.FromContextCopy(ctx); ok {
 		session.Set(SessionMetaContext, md)
 	}
 
@@ -134,10 +134,10 @@ func prepareRemoteContext(parent context.Context, session *melody.Session) (cont
 		return nil, fmt.Errorf("unexpected error: websocket session has no claims")
 	}
 	metaCtx := auth.ContextFromClaims(parent, cc)
-	metaCtx = runtimecontext.WithServiceName(metaCtx, common.ServiceGatewayNamespace_+common.ServiceWebSocket)
+	metaCtx = runtime.WithServiceName(metaCtx, common.ServiceGatewayNamespace_+common.ServiceWebSocket)
 	if md, o := session.Get(SessionMetaContext); o {
-		if meta, ok := md.(metadata.Metadata); ok {
-			metaCtx = metadata.WithAdditionalMetadata(metaCtx, meta)
+		if meta, ok := md.(propagator.Metadata); ok {
+			metaCtx = propagator.WithAdditionalMetadata(metaCtx, meta)
 		} else {
 			log.Logger(metaCtx).Error("Cannot cast meta to metadata.Metadata")
 		}

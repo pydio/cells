@@ -27,11 +27,11 @@ import (
 	"github.com/pydio/cells/v4/common/proto/activity"
 	"github.com/pydio/cells/v4/common/runtime"
 	"github.com/pydio/cells/v4/common/runtime/manager"
-	runtimecontext "github.com/pydio/cells/v4/common/runtime/runtimecontext"
 	"github.com/pydio/cells/v4/common/utils/cache"
 	"github.com/pydio/cells/v4/common/utils/configx"
 	"github.com/pydio/cells/v4/common/utils/jsonx"
 	"github.com/pydio/cells/v4/common/utils/openurl"
+	runtimecontext "github.com/pydio/cells/v4/common/utils/propagator"
 )
 
 func WithCache(dao DAO, batchTimeout time.Duration) DAO {

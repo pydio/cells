@@ -30,7 +30,7 @@ import (
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/client/grpc"
 	"github.com/pydio/cells/v4/common/proto/sync"
-	"github.com/pydio/cells/v4/common/service/context/metadata"
+	"github.com/pydio/cells/v4/common/utils/propagator"
 )
 
 var (
@@ -84,7 +84,7 @@ EXAMPLES
 		syncService := "pydio.grpc.data.sync." + snapshotDsName
 
 		cli := sync.NewSyncEndpointClient(grpc.ResolveConn(ctx, syncService, longGrpcCallTimeout()))
-		c := metadata.WithUserNameMetadata(context.Background(), common.PydioSystemUsername)
+		c := propagator.WithUserNameMetadata(context.Background(), common.PydioContextUserKey, common.PydioSystemUsername)
 		req := &sync.ResyncRequest{}
 		if snapshotOperation == "delete" {
 			req.Path = "delete/" + snapshotBasename

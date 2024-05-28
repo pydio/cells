@@ -14,7 +14,6 @@ import (
 
 	"github.com/pydio/cells/v4/common/log"
 	"github.com/pydio/cells/v4/common/runtime"
-	"github.com/pydio/cells/v4/common/runtime/runtimecontext"
 )
 
 type Options struct {
@@ -170,7 +169,7 @@ func (p *Process) pipeOutputs(cmd *exec.Cmd) error {
 		return err
 	}
 	scannerOut := bufio.NewScanner(stdout)
-	defaultLogContext := runtimecontext.WithServiceName(p.ctx, p.o.name)
+	defaultLogContext := runtime.WithServiceName(p.ctx, p.o.name)
 
 	logs := regexp.MustCompile("^(?P<log_date>[^\t]+)\t(?P<log_level>[^\t]+)\t(?P<log_name>[^\t]+)\t(?P<log_message>[^\t]+)(\t)?(?P<log_fields>[^\t]*)$")
 

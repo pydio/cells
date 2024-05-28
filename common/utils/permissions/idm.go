@@ -39,11 +39,11 @@ import (
 	service "github.com/pydio/cells/v4/common/proto/service"
 	"github.com/pydio/cells/v4/common/proto/tree"
 	"github.com/pydio/cells/v4/common/runtime"
-	"github.com/pydio/cells/v4/common/service/context/metadata"
 	"github.com/pydio/cells/v4/common/service/errors"
 	"github.com/pydio/cells/v4/common/utils/cache"
 	json "github.com/pydio/cells/v4/common/utils/jsonx"
 	"github.com/pydio/cells/v4/common/utils/openurl"
+	"github.com/pydio/cells/v4/common/utils/propagator"
 )
 
 var (
@@ -342,7 +342,7 @@ func FindUserNameInContext(ctx context.Context) (string, claim.Claims) {
 		userName = ctx.Value(common.PydioContextUserKey).(string)
 	} else if ctx.Value(strings.ToLower(common.PydioContextUserKey)) != nil {
 		userName = ctx.Value(strings.ToLower(common.PydioContextUserKey)).(string)
-	} else if meta, ok := metadata.FromContextRead(ctx); ok {
+	} else if meta, ok := propagator.FromContextRead(ctx); ok {
 		if value, exists := meta[common.PydioContextUserKey]; exists {
 			userName = value
 		} else if value, exists := meta[strings.ToLower(common.PydioContextUserKey)]; exists {
