@@ -9,16 +9,17 @@ import (
 	"testing"
 	"time"
 
-	. "github.com/smartystreets/goconvey/convey"
 	"gocloud.dev/pubsub"
 	"google.golang.org/protobuf/proto"
 
 	"github.com/pydio/cells/v4/common"
-	clientcontext "github.com/pydio/cells/v4/common/client/context"
 	"github.com/pydio/cells/v4/common/client/grpc"
 	pb "github.com/pydio/cells/v4/common/proto/broker"
 	"github.com/pydio/cells/v4/common/proto/tree"
+	clientcontext "github.com/pydio/cells/v4/common/runtime"
 	"github.com/pydio/cells/v4/common/server/stubs/discoverytest"
+
+	. "github.com/smartystreets/goconvey/convey"
 )
 
 func init() {

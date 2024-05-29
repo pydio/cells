@@ -74,12 +74,7 @@ func RichContext(ctx context.Context, logger log.ZapLogger, fields ...zapcore.Fi
 		fields = append(fields, zap.String(common.XPydioDebugSession, debug))
 	}
 	if ctxMeta, has := propagator.FromContextRead(ctx); has {
-		for _, key := range []string{
-			middleware.HttpMetaRemoteAddress,
-			middleware.HttpMetaUserAgent,
-			middleware.HttpMetaContentType,
-			middleware.HttpMetaProtocol,
-		} {
+		for _, key := range log.EncoderHttpMetaKeys {
 			if val, hasKey := ctxMeta[key]; hasKey {
 				fields = append(fields, zap.String(key, val))
 			}

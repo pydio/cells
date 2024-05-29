@@ -27,7 +27,6 @@ import (
 	"gocloud.dev/pubsub/driver"
 	"google.golang.org/grpc/metadata"
 
-	clientcontext "github.com/pydio/cells/v4/common/client/context"
 	"github.com/pydio/cells/v4/common/client/grpc"
 	pb "github.com/pydio/cells/v4/common/proto/broker"
 	"github.com/pydio/cells/v4/common/runtime"
@@ -110,7 +109,7 @@ func (o *URLOpener) OpenTopicURL(ctx context.Context, u *url.URL) (*pubsub.Topic
 	pubLock.Lock()
 	defer pubLock.Unlock()
 	if _, ok := publishers[u.Host]; !ok {
-		conn := clientcontext.GetClientConn(ctx)
+		conn := runtime.GetClientConn(ctx)
 		if conn == nil {
 			return nil, errors.New("no connection provided")
 		}
@@ -143,7 +142,7 @@ func (o *URLOpener) OpenSubscriptionURL(ctx context.Context, u *url.URL) (*pubsu
 	subLock.Lock()
 	sub, ok := subscribers[sharedKey]
 	if !ok {
-		conn := clientcontext.GetClientConn(ctx)
+		conn := runtime.GetClientConn(ctx)
 		if conn == nil {
 			return nil, errors.New("no connection provided")
 		}
@@ -202,7 +201,7 @@ func NewTopic(path, pubKey string, opts ...Option) (*pubsub.Topic, error) {
 	}
 
 	if stream == nil {
-		conn := clientcontext.GetClientConn(ctx)
+		conn := runtime.GetClientConn(ctx)
 		if conn == nil {
 			return nil, errors.New("no connection provided")
 		}

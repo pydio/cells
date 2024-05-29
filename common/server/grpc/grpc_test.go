@@ -31,11 +31,11 @@ import (
 	"google.golang.org/grpc/examples/helloworld/helloworld"
 	"google.golang.org/grpc/test/bufconn"
 
-	clientcontext "github.com/pydio/cells/v4/common/client/context"
 	cgrpc "github.com/pydio/cells/v4/common/client/grpc"
 	mock2 "github.com/pydio/cells/v4/common/config/mock"
 	pbregistry "github.com/pydio/cells/v4/common/proto/registry"
 	"github.com/pydio/cells/v4/common/registry"
+	clientcontext "github.com/pydio/cells/v4/common/runtime"
 	"github.com/pydio/cells/v4/common/server"
 	"github.com/pydio/cells/v4/common/service"
 	"github.com/pydio/cells/v4/common/utils/propagator"

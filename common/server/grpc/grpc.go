@@ -32,7 +32,6 @@ import (
 	protovalidate "github.com/bufbuild/protovalidate-go"
 	grpc_middleware "github.com/grpc-ecosystem/go-grpc-middleware"
 	grpc_recovery "github.com/grpc-ecosystem/go-grpc-middleware/recovery"
-	"go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc"
 	"go.uber.org/zap"
 	"google.golang.org/grpc"
 	channelz "google.golang.org/grpc/channelz/service"
@@ -280,7 +279,7 @@ func (s *Server) lazyGrpc(rootContext context.Context) *grpc.Server {
 		grpc_recovery.WithRecoveryHandler(customFunc),
 	}
 
-	gs := grpc.NewServer(
+	serverOptions := []grpc.ServerOption{
 		grpc.ChainUnaryInterceptor(
 			ErrorFormatUnaryInterceptor,
 			grpc_recovery.UnaryServerInterceptor(recoveryOpts...),
@@ -305,8 +304,11 @@ func (s *Server) lazyGrpc(rootContext context.Context) *grpc.Server {
 			propagator.ContextStreamServerInterceptor(middleware.ServiceIncomingContext(rootContext)),
 			HandlerStreamInterceptor(&streamInterceptors),
 		),
-		grpc.StatsHandler(otelgrpc.NewServerHandler()),
-	)
+	}
+	// Append stats handlers if there are registered ones
+	serverOptions = append(serverOptions, middleware.GrpcServerStatsHandler(rootContext)...)
+
+	gs := grpc.NewServer(serverOptions...)
 
 	wrappedGS := &serverRegistrar{
 		Server:             gs,

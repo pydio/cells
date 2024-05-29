@@ -30,7 +30,6 @@ import (
 
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/broker"
-	clientcontext "github.com/pydio/cells/v4/common/client/context"
 	clientgrpc "github.com/pydio/cells/v4/common/client/grpc"
 	"github.com/pydio/cells/v4/common/config"
 	"github.com/pydio/cells/v4/common/crypto"
@@ -180,7 +179,7 @@ ENVIRONMENT
 			return err
 		}
 
-		ctx = clientcontext.WithClientConn(ctx, conn)
+		ctx = runtime.WithClientConn(ctx, conn)
 		// ctx = nodescontext.WithSourcesPool(ctx, nodes.NewPool(ctx, reg))
 		runtime.InitGlobalConnConsumers(ctx, "main")
 

@@ -23,6 +23,7 @@ package middleware
 
 import (
 	"context"
+	"github.com/pydio/cells/v4/common/log"
 	"net"
 	"net/http"
 	"strings"
@@ -31,6 +32,15 @@ import (
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/utils/propagator"
 )
+
+func init() {
+	log.EncoderHttpMetaKeys = append(log.EncoderHttpMetaKeys,
+		HttpMetaRemoteAddress,
+		HttpMetaUserAgent,
+		HttpMetaContentType,
+		HttpMetaProtocol,
+	)
+}
 
 const (
 	HttpMetaExtracted     = "HttpMetaExtracted"

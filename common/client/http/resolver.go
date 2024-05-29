@@ -14,7 +14,6 @@ import (
 
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/client"
-	clientcontext "github.com/pydio/cells/v4/common/client/context"
 	grpc2 "github.com/pydio/cells/v4/common/client/grpc"
 	"github.com/pydio/cells/v4/common/config/routing"
 	"github.com/pydio/cells/v4/common/log"
@@ -72,7 +71,7 @@ type resolver struct {
 
 func (m *resolver) Init(ctx context.Context, serverID string, rr routing.RouteRegistrar) {
 
-	conn := clientcontext.GetClientConn(ctx)
+	conn := runtime.GetClientConn(ctx)
 	var reg registry.Registry
 	propagator.Get(ctx, registry.ContextKey, &reg)
 	rc, _ := client.NewResolverCallback(reg)
@@ -136,7 +135,7 @@ func (m *resolver) ServeHTTP(w http.ResponseWriter, r *http.Request) (bool, erro
 		// We assume that internally, the GRPCs service is serving self-signed
 		proxy.Transport = grpcTransport
 		// Wrap context and server request
-		ctx = clientcontext.WithClientConn(ctx, m.c)
+		ctx = runtime.WithClientConn(ctx, m.c)
 		ctx = propagator.With(ctx, registry.ContextKey, m.r)
 		proxy.ServeHTTP(w, r.WithContext(ctx))
 		return true, nil
@@ -178,14 +177,14 @@ func (m *resolver) ServeHTTP(w http.ResponseWriter, r *http.Request) (bool, erro
 	}
 
 	// try to find it in the current mux
-	ctx = clientcontext.WithClientConn(ctx, m.c)
+	ctx = runtime.WithClientConn(ctx, m.c)
 	ctx = propagator.With(ctx, registry.ContextKey, m.r)
 
 	if m.s == nil {
 		mu := http.NewServeMux()
 		m.rr.IteratePatterns(func(pattern string, handler http.Handler) {
 			// Wrap handler in OTEL middleware
-			otl := middleware.HttpMiddlewareOpenTelemetry(pattern)
+			otl := middleware.HttpTracingMiddleware(pattern)
 			mu.Handle(pattern, otl(handler))
 		})
 		m.s = mu

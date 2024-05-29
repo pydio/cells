@@ -39,7 +39,6 @@ import (
 
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/broker"
-	clientcontext "github.com/pydio/cells/v4/common/client/context"
 	"github.com/pydio/cells/v4/common/config"
 	pb "github.com/pydio/cells/v4/common/proto/registry"
 	"github.com/pydio/cells/v4/common/registry"
@@ -200,7 +199,7 @@ func (m *model) lazyBroker() error {
 		ca()
 		_ = discoveryConn.Close()
 	}
-	ct = clientcontext.WithClientConn(ct, discoveryConn)
+	ct = runtime.WithClientConn(ct, discoveryConn)
 	m.br = broker.NewBroker(runtime.BrokerURL(), broker.WithContext(ct))
 
 	return nil

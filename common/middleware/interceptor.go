@@ -1,11 +1,13 @@
-package grpc
+package middleware
 
 import (
 	"context"
-	"github.com/pydio/cells/v4/common/service/errors"
-	"google.golang.org/grpc"
 	"strings"
 	"time"
+
+	"google.golang.org/grpc"
+
+	"github.com/pydio/cells/v4/common/service/errors"
 )
 
 func ErrorNoMatchedRouteRetryUnaryClientInterceptor() grpc.UnaryClientInterceptor {

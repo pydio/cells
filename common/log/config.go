@@ -14,11 +14,22 @@ import (
 type CfgLogger struct {
 	Level    string            `json:"level" yaml:"level"`
 	Encoding string            `json:"encoding" yaml:"encoding"`
-	Outputs  []string          `json:"writers" yaml:"writers"`
-	Filters  map[string]string `json:"filters" yaml:"filters"`
+	Outputs  []string          `json:"outputs" yaml:"outputs"`
+	Filters  map[string]string `json:"filters,omitempty" yaml:"filters,omitempty"`
 }
 
 type Config []CfgLogger
+
+type CombinedConfig struct {
+	Loggers Config        `json:"loggers" yaml:"loggers"`
+	Tracing TracingConfig `json:"tracing" yaml:"tracing"`
+}
+
+type TracingConfig struct {
+	Outputs           []string          `json:"outputs" yaml:"outputs"`
+	ServiceName       string            `json:"service" yaml:"service"`
+	ServiceAttributes map[string]string `json:"attributes,omitempty" yaml:"attributes,omitempty"`
+}
 
 func DefaultLegacyConfig(level, encoding, logToDir string) Config {
 	outputs := []string{

@@ -3,7 +3,7 @@ package log
 import (
 	"fmt"
 	"github.com/pydio/cells/v4/common"
-	servicecontext "github.com/pydio/cells/v4/common/middleware"
+	"github.com/pydio/cells/v4/common/middleware"
 	"github.com/pydio/cells/v4/common/proto/log"
 	json "github.com/pydio/cells/v4/common/utils/jsonx"
 	"strings"
@@ -101,11 +101,11 @@ func (b *baseCodec) marshalLogMsg(line *log.Log) (*IndexableLog, error) {
 		case common.KeyProfile:
 			msg.Profile = val
 		// Session and remote client info
-		case servicecontext.HttpMetaRemoteAddress:
+		case middleware.HttpMetaRemoteAddress:
 			msg.RemoteAddress = val
-		case servicecontext.HttpMetaUserAgent:
+		case middleware.HttpMetaUserAgent:
 			msg.UserAgent = val
-		case servicecontext.HttpMetaProtocol:
+		case middleware.HttpMetaProtocol:
 			msg.HttpProtocol = val
 		// Span enable following a given request between the various services
 		case common.KeySpanUuid:

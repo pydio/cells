@@ -31,10 +31,10 @@ import (
 	"testing"
 	"time"
 
-	clientcontext "github.com/pydio/cells/v4/common/client/context"
 	pb "github.com/pydio/cells/v4/common/proto/registry"
 	"github.com/pydio/cells/v4/common/registry"
 	"github.com/pydio/cells/v4/common/registry/util"
+	clientcontext "github.com/pydio/cells/v4/common/runtime"
 	"github.com/pydio/cells/v4/common/server"
 	"github.com/pydio/cells/v4/common/server/grpc"
 	"github.com/pydio/cells/v4/common/server/stubs/discoverytest"

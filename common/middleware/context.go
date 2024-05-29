@@ -25,14 +25,11 @@ import (
 	"fmt"
 	"strings"
 
-	"go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 	"google.golang.org/grpc/metadata"
 
 	"github.com/pydio/cells/v4/common"
-	clientcontext "github.com/pydio/cells/v4/common/client/context"
-	clientgrpc "github.com/pydio/cells/v4/common/client/grpc"
 	"github.com/pydio/cells/v4/common/config"
 	"github.com/pydio/cells/v4/common/registry"
 	"github.com/pydio/cells/v4/common/runtime"
@@ -42,9 +39,9 @@ import (
 
 // ClientConnIncomingContext adds the ClientConn to context
 func ClientConnIncomingContext(serverRuntimeContext context.Context) func(ctx context.Context) (context.Context, bool, error) {
-	clientConn := clientcontext.GetClientConn(serverRuntimeContext)
+	clientConn := runtime.GetClientConn(serverRuntimeContext)
 	return func(ctx context.Context) (context.Context, bool, error) {
-		return clientcontext.WithClientConn(ctx, clientConn), true, nil
+		return runtime.WithClientConn(ctx, clientConn), true, nil
 	}
 }
 
@@ -91,31 +88,32 @@ func setContextForTenant(ctx context.Context) (context.Context, error) {
 		return ctx, err
 	}
 
-	// TODO - Replace by pool
+	// TODO - Replace by pool? Should this be initialized here? ping @charles after refactoring this
 	cc, ok := clientConns[tenantID]
 	if !ok {
 		var err error
-		cc, err = grpc.Dial("xds://"+tenantID+".cells.com/cells",
+		opts := []grpc.DialOption{
 			grpc.WithTransportCredentials(insecure.NewCredentials()),
 			// grpc.WithConnectParams(grpc.ConnectParams{MinConnectTimeout: 1 * time.Minute, Backoff: backoffConfig}),
 			grpc.WithChainUnaryInterceptor(
-				clientgrpc.ErrorNoMatchedRouteRetryUnaryClientInterceptor(),
-				clientgrpc.ErrorFormatUnaryClientInterceptor(),
+				ErrorNoMatchedRouteRetryUnaryClientInterceptor(),
+				ErrorFormatUnaryClientInterceptor(),
 				propagator.MetaUnaryClientInterceptor(common.CtxCellsMetaPrefix),
 			),
 			grpc.WithChainStreamInterceptor(
-				clientgrpc.ErrorNoMatchedRouteRetryStreamClientInterceptor(),
-				clientgrpc.ErrorFormatStreamClientInterceptor(),
+				ErrorNoMatchedRouteRetryStreamClientInterceptor(),
+				ErrorFormatStreamClientInterceptor(),
 				propagator.MetaStreamClientInterceptor(common.CtxCellsMetaPrefix),
 			),
-			grpc.WithStatsHandler(otelgrpc.NewClientHandler()),
-		)
+		}
+		opts = append(opts, GrpcClientStatsHandler(nil)...)
+		cc, err = grpc.NewClient("xds://"+tenantID+".cells.com/cells", opts...)
 		if err != nil {
 			fmt.Println("And the error is ? ", err)
 		}
 		clientConns[tenantID] = cc
 	}
-	ctx = clientcontext.WithClientConn(ctx, cc)
+	ctx = runtime.WithClientConn(ctx, cc)
 
 	cfg, ok := configStore[tenantID]
 	if !ok {

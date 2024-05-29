@@ -7,13 +7,13 @@ import (
 	"runtime/debug"
 	"time"
 
-	"go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 
 	"github.com/pydio/cells/v4/common"
-	clientcontext "github.com/pydio/cells/v4/common/client/context"
 	"github.com/pydio/cells/v4/common/config"
+	"github.com/pydio/cells/v4/common/middleware"
+	clientcontext "github.com/pydio/cells/v4/common/runtime"
 	"github.com/pydio/cells/v4/common/utils/propagator"
 )
 
@@ -45,11 +45,11 @@ var (
 func setContextForTenant(ctx context.Context, tenant string) context.Context {
 	cc, ok := clientConns[tenant]
 	if !ok {
-		cc, _ = grpc.Dial("xds://"+tenant+".cells.com/cells",
+		opts := []grpc.DialOption{
 			grpc.WithTransportCredentials(insecure.NewCredentials()),
-			grpc.WithStatsHandler(otelgrpc.NewClientHandler()),
-		)
-
+		}
+		opts = append(opts, middleware.GrpcClientStatsHandler(ctx)...)
+		cc, _ = grpc.NewClient("xds://"+tenant+".cells.com/cells", opts...)
 		clientConns[tenant] = cc
 	}
 	ctx = clientcontext.WithClientConn(ctx, cc)

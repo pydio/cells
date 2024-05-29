@@ -30,7 +30,6 @@ import (
 	"go.uber.org/zap/zapcore"
 
 	"github.com/pydio/cells/v4/common"
-	"github.com/pydio/cells/v4/common/middleware"
 )
 
 const (
@@ -59,6 +58,8 @@ func newColorConsoleEncoder(config zapcore.EncoderConfig) zapcore.Encoder {
 }
 
 var (
+	EncoderHttpMetaKeys []string
+
 	ConsoleSkipKeys = []string{
 		// Tracing Keys
 		common.KeySpanUuid,
@@ -74,11 +75,6 @@ var (
 		common.KeyGroupPath,
 		common.KeyProfile,
 		common.KeyRoles,
-		// HTTP Meta Keys
-		middleware.HttpMetaRemoteAddress,
-		middleware.HttpMetaUserAgent,
-		middleware.HttpMetaContentType,
-		middleware.HttpMetaProtocol,
 	}
 
 	consoleNamedColors map[string]int
@@ -115,7 +111,7 @@ func (c *colorConsoleEncoder) EncodeEntry(e zapcore.Entry, ff []zapcore.Field) (
 	}
 	var filtered []zapcore.Field
 	for _, f := range ff {
-		if slices.Contains(ConsoleSkipKeys, f.Key) {
+		if slices.Contains(ConsoleSkipKeys, f.Key) || slices.Contains(EncoderHttpMetaKeys, f.Key) {
 			continue
 		}
 		filtered = append(filtered, f)

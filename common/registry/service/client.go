@@ -32,7 +32,6 @@ import (
 	healthpb "google.golang.org/grpc/health/grpc_health_v1"
 
 	"github.com/pydio/cells/v4/common"
-	clientcontext "github.com/pydio/cells/v4/common/client/context"
 	cgrpc "github.com/pydio/cells/v4/common/client/grpc"
 	pb "github.com/pydio/cells/v4/common/proto/registry"
 	"github.com/pydio/cells/v4/common/registry"
@@ -55,7 +54,7 @@ func init() {
 
 func (o *URLOpener) OpenURL(ctx context.Context, u *url.URL) (registry.Registry, error) {
 	// We use WithBlock, shall we timeout and retry here ?
-	conn := clientcontext.GetClientConn(ctx)
+	conn := runtime.GetClientConn(ctx)
 
 	if conn == nil {
 		var address string

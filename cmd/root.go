@@ -44,6 +44,7 @@ import (
 	"github.com/pydio/cells/v4/common/crypto"
 	"github.com/pydio/cells/v4/common/log"
 	cw "github.com/pydio/cells/v4/common/log/context-wrapper"
+	"github.com/pydio/cells/v4/common/log/tracing"
 	log2 "github.com/pydio/cells/v4/common/proto/log"
 	"github.com/pydio/cells/v4/common/runtime"
 	"github.com/pydio/cells/v4/common/utils/configx"
@@ -323,25 +324,31 @@ func readLoggersAndWatchConfig() {
 		},
 	}
 
-	cbl := log.Config{}
+	cbl := log.CombinedConfig{}
 	srvName := common.ServiceGrpcNamespace_ + common.ServiceLog
-	if err := config.Get(configx.FormatPath("services", srvName, "loggers")).Scan(&cbl); err == nil {
-		fmt.Println("Reloading", len(cbl), "loggers from configuration")
-		log.ReloadMainLogger(cbl)
+	if err := config.Get(configx.FormatPath("services", srvName)).Scan(&cbl); err == nil {
+		fmt.Println("Reloading", len(cbl.Loggers), "loggers from configuration")
+		log.ReloadMainLogger(cbl.Loggers)
+		if er := tracing.InitProvider(cbl.Tracing); er != nil {
+			fmt.Println("Error initializing tracing", er)
+		}
 	}
-	watcher, err := config.Watch(configx.WithPath("services", srvName, "loggers"))
+	watcher, err := config.Watch(configx.WithPath("services", srvName))
 	if err != nil {
 		return
 	}
 	for {
-		event, err := watcher.Next()
-		if err != nil {
+		event, wErr := watcher.Next()
+		if wErr != nil {
 			break
 		}
-		cbl2 := log.Config{}
+		cbl2 := log.CombinedConfig{}
 		if event != nil && event.(configx.Values).Scan(&cbl2) == nil {
-			fmt.Println("Reloading", len(cbl), "loggers from configuration")
-			log.ReloadMainLogger(cbl2)
+			fmt.Println("Reloading", len(cbl.Loggers), "loggers from configuration")
+			log.ReloadMainLogger(cbl2.Loggers)
+			if er := tracing.InitProvider(cbl2.Tracing); er != nil {
+				fmt.Println("Error re-initializing tracing", er)
+			}
 		}
 	}
 	watcher.Stop()

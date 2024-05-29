@@ -35,12 +35,12 @@ import (
 	"google.golang.org/protobuf/runtime/protoimpl"
 
 	"github.com/pydio/cells/v4/common"
-	clientcontext "github.com/pydio/cells/v4/common/client/context"
 	"github.com/pydio/cells/v4/common/client/grpc"
 	"github.com/pydio/cells/v4/common/config"
 	"github.com/pydio/cells/v4/common/proto/object"
 	pb "github.com/pydio/cells/v4/common/proto/registry"
 	"github.com/pydio/cells/v4/common/registry/util"
+	clientcontext "github.com/pydio/cells/v4/common/runtime"
 	"github.com/pydio/cells/v4/common/server/stubs/discoverytest"
 	"github.com/pydio/cells/v4/common/utils/configx"
 	"github.com/pydio/cells/v4/common/utils/std"

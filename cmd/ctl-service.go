@@ -21,17 +21,17 @@
 package cmd
 
 import (
-	clientcontext "github.com/pydio/cells/v4/common/client/context"
-	"github.com/pydio/cells/v4/common/runtime"
-	"google.golang.org/grpc"
-	"google.golang.org/grpc/credentials/insecure"
 	"net/url"
 	"time"
+
+	"github.com/spf13/cobra"
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials/insecure"
 
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/broker"
 	"github.com/pydio/cells/v4/common/proto/log"
-	"github.com/spf13/cobra"
+	"github.com/pydio/cells/v4/common/runtime"
 )
 
 var (
@@ -58,7 +58,7 @@ var serviceLevelCmd = &cobra.Command{
 			return err
 		}
 		discoveryConn, err := grpc.DialContext(ctx, u.Host, grpc.WithTransportCredentials(insecure.NewCredentials()))
-		ctx = clientcontext.WithClientConn(ctx, discoveryConn)
+		ctx = runtime.WithClientConn(ctx, discoveryConn)
 		br := broker.NewBroker(runtime.BrokerURL(), broker.WithContext(ctx))
 		event := &log.LogLevelEvent{
 			ResetInfo:  debugReset,

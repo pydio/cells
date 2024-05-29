@@ -22,30 +22,22 @@ package middleware
 
 import (
 	"context"
-	"fmt"
 	"net/http"
-	"os"
-	"strings"
-	"sync"
 
+	"go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc"
 	"go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp"
-	"go.opentelemetry.io/otel"
-	"go.opentelemetry.io/otel/propagation"
-	"go.opentelemetry.io/otel/sdk/resource"
-	tracesdk "go.opentelemetry.io/otel/sdk/trace"
-	semconv "go.opentelemetry.io/otel/semconv/v1.20.0"
 	"go.opentelemetry.io/otel/trace"
-
-	"github.com/pydio/cells/v4/common/log/tracing"
-	"github.com/pydio/cells/v4/common/runtime"
-)
-
-var (
-	otelInit = &sync.Once{}
+	"google.golang.org/grpc/stats"
 )
 
 func init() {
-	runtime.RegisterEnvVariable("CELLS_OTLP_TRACE_EXPORTERS", "OpenTelemetry Exporters", "One or more URL to declare exporters for Traces")
+	RegisterStatsHandler(func(ctx context.Context, isClient bool) stats.Handler {
+		if isClient {
+			return otelgrpc.NewClientHandler()
+		} else {
+			return otelgrpc.NewServerHandler()
+		}
+	})
 }
 
 // SpanFromContext reads trace.SpanContext from context
@@ -53,60 +45,7 @@ func SpanFromContext(ctx context.Context) trace.SpanContext {
 	return trace.SpanContextFromContext(ctx)
 }
 
-// HttpMiddlewareOpenTelemetry enabled tracing on HTTP server
-func HttpMiddlewareOpenTelemetry(operation string) func(h http.Handler) http.Handler {
-	otelInit.Do(func() {
-		tp, _ := newTraceProvider()
-		otel.SetTracerProvider(tp)
-		otel.SetTextMapPropagator(newPropagator())
-	})
+// HttpTracingMiddleware enabled tracing on HTTP server
+func HttpTracingMiddleware(operation string) func(h http.Handler) http.Handler {
 	return otelhttp.NewMiddleware(operation)
-}
-
-func newTraceProvider() (*tracesdk.TracerProvider, error) {
-
-	// Sample URLs:
-	// "stdout://",
-	// "jaeger://localhost:14268/api/traces",
-	exportersURL := strings.Split(os.Getenv("CELLS_OTLP_TRACE_EXPORTERS"), ",")
-
-	var opts []tracesdk.TracerProviderOption
-	for _, u := range exportersURL {
-		if exp, err := tracing.OpenTracing(context.Background(), u); err == nil {
-			opts = append(opts, tracesdk.WithBatcher(exp))
-		} else {
-			fmt.Printf("cannot open tracer %v", err)
-		}
-	}
-	if len(opts) == 0 {
-		// No exporter found or open, define a Noop
-		opts = append(opts, tracesdk.WithSyncer(&NoopExporter{}))
-	}
-	opts = append(opts, tracesdk.WithResource(resource.NewWithAttributes(
-		semconv.SchemaURL,
-		semconv.ServiceName("cells"),
-		//attribute.String("environment", "whatever"),
-		//attribute.Int64("ID", 1),
-	)),
-	)
-
-	return tracesdk.NewTracerProvider(opts...), nil
-}
-
-func newPropagator() propagation.TextMapPropagator {
-	return propagation.NewCompositeTextMapPropagator(
-		propagation.TraceContext{},
-		propagation.Baggage{},
-	)
-}
-
-type NoopExporter struct {
-}
-
-func (n *NoopExporter) ExportSpans(ctx context.Context, spans []tracesdk.ReadOnlySpan) error {
-	return nil
-}
-
-func (n *NoopExporter) Shutdown(ctx context.Context) error {
-	return nil
 }

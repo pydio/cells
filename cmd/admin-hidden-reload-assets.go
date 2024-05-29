@@ -21,17 +21,17 @@
 package cmd
 
 import (
-	clientcontext "github.com/pydio/cells/v4/common/client/context"
-	"github.com/pydio/cells/v4/common/runtime"
+	"net/url"
+	"time"
+
 	"github.com/spf13/cobra"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 	"google.golang.org/protobuf/types/known/emptypb"
-	"net/url"
-	"time"
 
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/broker"
+	"github.com/pydio/cells/v4/common/runtime"
 )
 
 // docDepsCmd shows dependencies between services.
@@ -54,7 +54,7 @@ DESCRIPTION
 		if err != nil {
 			return err
 		}
-		ctx = clientcontext.WithClientConn(ctx, discoveryConn)
+		ctx = runtime.WithClientConn(ctx, discoveryConn)
 		br := broker.NewBroker(runtime.BrokerURL(), broker.WithContext(ctx))
 		cmd.Println("Sending a reload command on ReloadAssets topic")
 		err = br.Publish(ctx, common.TopicReloadAssets, &emptypb.Empty{})

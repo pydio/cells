@@ -28,7 +28,6 @@ import (
 	"sync"
 	"time"
 
-	"go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc"
 	"go.uber.org/zap/zapcore"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/backoff"
@@ -37,8 +36,8 @@ import (
 
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/client"
-	clientcontext "github.com/pydio/cells/v4/common/client/context"
 	"github.com/pydio/cells/v4/common/config"
+	"github.com/pydio/cells/v4/common/middleware"
 	"github.com/pydio/cells/v4/common/registry"
 	"github.com/pydio/cells/v4/common/runtime"
 	"github.com/pydio/cells/v4/common/service/metrics"
@@ -62,21 +61,25 @@ func DialOptionsForRegistry(reg registry.Registry, options ...grpc.DialOption) [
 
 	backoffConfig := backoff.DefaultConfig
 
+	// Registered StatsHandler
+	sh := middleware.GrpcClientStatsHandler(nil)
+	options = append(options, sh...)
+
 	return append([]grpc.DialOption{
 		grpc.WithTransportCredentials(insecure.NewCredentials()),
 		grpc.WithResolvers(NewBuilder(reg, clientConfig.LBOptions()...)),
 		grpc.WithConnectParams(grpc.ConnectParams{MinConnectTimeout: 1 * time.Minute, Backoff: backoffConfig}),
 		grpc.WithChainUnaryInterceptor(
-			ErrorNoMatchedRouteRetryUnaryClientInterceptor(),
-			ErrorFormatUnaryClientInterceptor(),
+			middleware.ErrorNoMatchedRouteRetryUnaryClientInterceptor(),
+			middleware.ErrorFormatUnaryClientInterceptor(),
 			propagator.MetaUnaryClientInterceptor(common.CtxCellsMetaPrefix),
 		),
 		grpc.WithChainStreamInterceptor(
-			ErrorNoMatchedRouteRetryStreamClientInterceptor(),
-			ErrorFormatStreamClientInterceptor(),
+			middleware.ErrorNoMatchedRouteRetryStreamClientInterceptor(),
+			middleware.ErrorFormatStreamClientInterceptor(),
 			propagator.MetaStreamClientInterceptor(common.CtxCellsMetaPrefix),
 		),
-		grpc.WithStatsHandler(otelgrpc.NewClientHandler()),
+		//grpc.WithStatsHandler(otelgrpc.NewClientHandler()),
 	}, options...)
 }
 
@@ -84,7 +87,7 @@ func ResolveConn(ctx context.Context, serviceName string, opt ...Option) grpc.Cl
 	if ctx == nil {
 		return NewClientConn(serviceName, runtime.Cluster(), opt...)
 	}
-	conn := clientcontext.GetClientConn(ctx)
+	conn := runtime.GetClientConn(ctx)
 	if conn == nil && WarnMissingConnInContext {
 		fmt.Println("Warning, ResolveConn could not find conn, will create a new one")
 		debug.PrintStack()
