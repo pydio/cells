@@ -9,6 +9,11 @@ import (
 	_ "github.com/pydio/cells/v4/common/log/service"
 	_ "github.com/pydio/cells/v4/common/log/stdout"
 
+	// Tracing
+	_ "github.com/pydio/cells/v4/common/log/tracing/jaeger"
+	_ "github.com/pydio/cells/v4/common/log/tracing/otlp"
+	_ "github.com/pydio/cells/v4/common/log/tracing/stdout"
+
 	// Register storage drivers
 	_ "github.com/pydio/cells/v4/common/storage/bleve"
 	_ "github.com/pydio/cells/v4/common/storage/boltdb"
@@ -144,10 +149,6 @@ import (
 	_ "github.com/pydio/cells/v4/common/server/generic"
 	_ "github.com/pydio/cells/v4/common/server/grpc"
 	_ "github.com/pydio/cells/v4/common/server/http"
-
-	// Tracing
-	_ "github.com/pydio/cells/v4/common/log/tracing/jaeger"
-	_ "github.com/pydio/cells/v4/common/log/tracing/stdout"
 
 	// Import Command Package after all Mux Registers
 	"github.com/pydio/cells/v4/cmd"
