@@ -50,7 +50,7 @@ type Handler struct {
 
 func NewHandler(reporter prometheus.Reporter) *Handler {
 	if !runtime.IsFork() {
-		metrics.GetMetrics().Tagged(map[string]string{
+		metrics.GetTaggedMetrics(map[string]string{
 			"version":       common.Version().String(),
 			"package_label": common.PackageLabel,
 			"package_type":  common.PackageType,

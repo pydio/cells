@@ -100,7 +100,7 @@ func (m *conn) Open(c context.Context, dsn string) (dao.Conn, error) {
 
 		var version string
 		if err := db.QueryRow("SELECT VERSION()").Scan(&version); err == nil {
-			metrics.GetMetrics().Tagged(map[string]string{
+			metrics.GetTaggedMetrics(map[string]string{
 				"version": version,
 			}).Gauge("db_version_info").Update(1)
 		}

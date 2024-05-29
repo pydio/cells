@@ -205,7 +205,7 @@ func (cc *clientConn) NewStream(ctx context.Context, desc *grpc.StreamDesc, meth
 	if e == nil {
 		// Prepare gauges
 		key := cc.serviceName + desc.StreamName
-		scope := metrics.GetMetrics().Tagged(map[string]string{"target": cc.serviceName, "method": desc.StreamName})
+		scope := metrics.GetTaggedMetrics(map[string]string{"target": cc.serviceName, "method": desc.StreamName})
 		gauge := scope.Gauge("open_streams")
 		pri := common.LogLevel == zapcore.DebugLevel
 		if cc.serviceName == "pydio.grpc.broker" || cc.serviceName == "pydio.grpc.log" || cc.serviceName == "pydio.grpc.audit" ||

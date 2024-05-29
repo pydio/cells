@@ -154,7 +154,7 @@ func (s *Indexer) sendStatus() {
 		"Indexes": s.listIndexes(),
 	}
 	if u, e := indexDiskUsage(filepath.Dir(s.MustBleveConfig(context.Background()).BlevePath)); e == nil {
-		metrics.GetMetrics().Tagged(map[string]string{"dsn": s.Name()}).Gauge("bleve_usage").Update(float64(u))
+		metrics.GetTaggedMetrics(map[string]string{"dsn": s.Name()}).Gauge("bleve_usage").Update(float64(u))
 		m["Usage"] = u
 	}
 	s.statusInput <- m

@@ -31,7 +31,6 @@ import (
 	"time"
 
 	bigcache "github.com/allegro/bigcache/v3"
-	tally "github.com/uber-go/tally/v4"
 
 	"github.com/pydio/cells/v4/common/runtime"
 	"github.com/pydio/cells/v4/common/service/metrics"
@@ -50,7 +49,7 @@ var (
 type bigCache struct {
 	*bigcache.BigCache
 	closed bool
-	scope  tally.Scope
+	scope  metrics.Meter
 	ticker *time.Ticker
 }
 
@@ -79,7 +78,7 @@ func (o *URLOpener) OpenURL(ctx context.Context, u *url.URL) (cache.Cache, error
 		}
 	}
 
-	bc, err := bigcache.NewBigCache(conf)
+	bc, err := bigcache.New(ctx, conf)
 	if err != nil {
 		return nil, err
 	}

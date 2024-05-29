@@ -135,7 +135,7 @@ func (d *Dispatcher) Run() {
 		workers = append(workers, worker)
 	}
 
-	g := metrics.GetMetrics().Tagged(d.tags).Gauge("activeWorkers")
+	g := metrics.GetTaggedMetrics(d.tags).Gauge("activeWorkers")
 	t := time.NewTicker(500 * time.Millisecond)
 	go func() {
 		for {

@@ -25,7 +25,6 @@ import (
 	"net/http"
 	"strings"
 
-	tally "github.com/uber-go/tally/v4"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/metadata"
 
@@ -36,10 +35,6 @@ import (
 func HttpWrapperMetrics(ctx context.Context, h http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		scope := metrics.GetMetricsForService(runtime.GetServiceName(r.Context()))
-		if scope == tally.NoopScope {
-			h.ServeHTTP(w, r)
-			return
-		}
 		scope.Counter("rest_calls").Inc(1)
 		tsw := scope.Timer("rest_time").Start()
 		defer tsw.Stop()
@@ -54,13 +49,11 @@ type ServiceRetriever interface {
 func MetricsUnaryServerInterceptor() grpc.UnaryServerInterceptor {
 	return func(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (interface{}, error) {
 		if meta, ok := metadata.FromIncomingContext(ctx); ok {
-			if serviceName, ok2 := meta["targetname"]; ok2 {
+			if serviceName, ok2 := meta["service"]; ok2 {
 				scope := metrics.GetMetricsForService(strings.Join(serviceName, ""))
-				if scope != tally.NoopScope {
-					scope.Counter("grpc_calls").Inc(1)
-					tsw := scope.Timer("grpc_time").Start()
-					defer tsw.Stop()
-				}
+				scope.Counter("grpc_calls").Inc(1)
+				tsw := scope.Timer("grpc_time").Start()
+				defer tsw.Stop()
 			}
 		}
 		return handler(ctx, req)

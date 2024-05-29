@@ -161,7 +161,7 @@ func Subscribe(root context.Context, topic string, handler SubscriberHandler, op
 
 	// Wrap Handler for counters
 	id := "sub_" + topicReplacer.Replace(topic)
-	c := metrics.GetMetrics().Tagged(map[string]string{"subscriber": so.CounterName}).Counter(id)
+	c := metrics.GetTaggedMetrics(map[string]string{"subscriber": so.CounterName}).Counter(id)
 	wh := func(ctx context.Context, m Message) error {
 		c.Inc(1)
 		return handler(ctx, m)
