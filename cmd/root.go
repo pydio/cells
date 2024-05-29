@@ -266,12 +266,12 @@ func initConfig(ctx context.Context, debounceVersions bool) (new bool, keyring c
 		}
 	}
 
-	go readLoggersAndWatchConfig()
+	go readLoggersAndWatchConfig(ctx)
 
 	return
 }
 
-func readLoggersAndWatchConfig() {
+func readLoggersAndWatchConfig(ctx context.Context) {
 
 	// This shows a sample log config that can be found in the pydio.json
 	logDir := runtime.ApplicationWorkingDir(runtime.ApplicationDirLogs)
@@ -329,9 +329,18 @@ func readLoggersAndWatchConfig() {
 	if err := config.Get(configx.FormatPath("services", srvName)).Scan(&cbl); err == nil {
 		fmt.Println("Reloading", len(cbl.Loggers), "loggers from configuration")
 		log.ReloadMainLogger(cbl.Loggers)
-		if er := tracing.InitProvider(cbl.Tracing); er != nil {
+		if er := tracing.InitProvider(ctx, cbl.Tracing); er != nil {
 			fmt.Println("Error initializing tracing", er)
 		}
+		// Temp reload providers to test closing
+		/*
+			go func(tracingConfig log.TracingConfig) {
+				<-time.After(60 * time.Second)
+				if er := tracing.InitProvider(ctx, tracingConfig); er != nil {
+					fmt.Println("Error initializing tracing", er)
+				}
+			}(cbl.Tracing)
+		*/
 	}
 	watcher, err := config.Watch(configx.WithPath("services", srvName))
 	if err != nil {
@@ -346,7 +355,7 @@ func readLoggersAndWatchConfig() {
 		if event != nil && event.(configx.Values).Scan(&cbl2) == nil {
 			fmt.Println("Reloading", len(cbl.Loggers), "loggers from configuration")
 			log.ReloadMainLogger(cbl2.Loggers)
-			if er := tracing.InitProvider(cbl2.Tracing); er != nil {
+			if er := tracing.InitProvider(nil, cbl2.Tracing); er != nil {
 				fmt.Println("Error re-initializing tracing", er)
 			}
 		}
