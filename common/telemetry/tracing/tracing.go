@@ -18,6 +18,7 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
+// Package tracing provides an abstraction of OpenTelemetry SpanExporter
 package tracing
 
 import (
@@ -31,7 +32,6 @@ import (
 	"go.opentelemetry.io/otel/sdk/resource"
 	"go.opentelemetry.io/otel/sdk/trace"
 	semconv "go.opentelemetry.io/otel/semconv/v1.20.0"
-	"go.uber.org/multierr"
 
 	"github.com/pydio/cells/v4/common"
 	otel2 "github.com/pydio/cells/v4/common/telemetry/otel"
@@ -48,30 +48,9 @@ type Config struct {
 	ServiceAttributes map[string]string `json:"attributes,omitempty" yaml:"attributes,omitempty"`
 }
 
-type dynamicExporter struct {
-	ee []trace.SpanExporter
-}
-
-func (d *dynamicExporter) ExportSpans(ctx context.Context, spans []trace.ReadOnlySpan) error {
-	var err []error
-	for _, e := range d.ee {
-		err = append(err, e.ExportSpans(ctx, spans))
-	}
-	return multierr.Combine(err...)
-}
-
-func (d *dynamicExporter) Shutdown(ctx context.Context) error {
-	fmt.Println("Closing all tracing providers")
-	var err []error
-	for _, e := range d.ee {
-		err = append(err, e.Shutdown(ctx))
-	}
-	return multierr.Combine(err...)
-}
-
-// InitProvider creates a provider and refresh dynamic exporters
-// Sample output URLs: "stdout://", "jaeger://localhost:14268/api/traces",
-func InitProvider(ctx context.Context, svc otel2.Service, cfg Config) error {
+// InitExporters creates the global trace.Provider and refresh dynamic Exporters.
+// Sample URLs: "stdout://", "jaeger://localhost:14268/api/traces",
+func InitExporters(ctx context.Context, svc otel2.Service, cfg Config) error {
 
 	if dynamic == nil {
 		dynamic = new(dynamicExporter)
@@ -88,7 +67,7 @@ func InitProvider(ctx context.Context, svc otel2.Service, cfg Config) error {
 		}
 	}
 	if len(dynamic.ee) == 0 {
-		dynamic.ee = append(dynamic.ee, &NoopExporter{})
+		dynamic.ee = append(dynamic.ee, &noopExporter{})
 	}
 
 	otelInit.Do(func() {
@@ -125,15 +104,4 @@ func newPropagator() propagation.TextMapPropagator {
 		propagation.TraceContext{},
 		propagation.Baggage{},
 	)
-}
-
-type NoopExporter struct {
-}
-
-func (n *NoopExporter) ExportSpans(ctx context.Context, spans []trace.ReadOnlySpan) error {
-	return nil
-}
-
-func (n *NoopExporter) Shutdown(ctx context.Context) error {
-	return nil
 }

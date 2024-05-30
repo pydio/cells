@@ -82,10 +82,6 @@ const (
 
 	KeySet = "set"
 
-	KeyEnableMetrics    = "enable_metrics"
-	KeyMetricsBasicAuth = "metrics_basic_auth"
-	KeyEnablePprof      = "enable_pprof"
-
 	KeyHttpProxyURL  = "http_proxy"
 	KeyHttpServer    = "http"
 	HttpServerCaddy  = "caddy"
@@ -108,6 +104,10 @@ const (
 	DefaultCacheSuffix      = "/cache"
 	DefaultShortCacheSuffix = "/shortcache"
 	DefaultQueueSuffix      = "/queue"
+
+	// Deprecated keys - but env vars can still be read
+	KeyEnableMetrics = "enable_metrics"
+	KeyEnablePprof   = "enable_pprof"
 )
 
 const (

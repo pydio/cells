@@ -18,11 +18,12 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
+// Package metrics abstract various providers around OpenTelemetry metric.Reader
 package metrics
 
 import (
 	"context"
-	"net/http"
+	"fmt"
 
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/attribute"
@@ -34,15 +35,18 @@ import (
 	otel2 "github.com/pydio/cells/v4/common/telemetry/otel"
 )
 
+// Config is a serializable representation of a list of Readers.
 type Config struct {
 	Readers []string `json:"readers" yaml:"readers"`
 }
 
 var (
-	httpPuller ReaderProvider
+	discoveries []otel2.PullServiceDiscovery
+	enabled     bool
 )
 
-func InitProvider(ctx context.Context, svc otel2.Service, cfg Config) error {
+// InitReaders reads a Config and initializes the corresponding metric.Reader.
+func InitReaders(ctx context.Context, svc otel2.Service, cfg Config) error {
 
 	attrs := []attribute.KeyValue{
 		semconv.ServiceName(svc.Name),
@@ -75,12 +79,16 @@ func InitProvider(ctx context.Context, svc otel2.Service, cfg Config) error {
 		metric.WithView(view),
 	}
 
+	enabled = false
 	for _, r := range cfg.Readers {
 		if rp, er := OpenReader(ctx, r); er == nil {
+			enabled = true
 			opts = append(opts, metric.WithReader(rp))
-			if rp.PullSupported() {
-				httpPuller = rp
+			if sd, ok := rp.(otel2.PullServiceDiscovery); ok {
+				discoveries = append(discoveries, sd)
 			}
+		} else {
+			fmt.Println("Error while initializing metrics reader ", er)
 		}
 	}
 
@@ -90,10 +98,14 @@ func InitProvider(ctx context.Context, svc otel2.Service, cfg Config) error {
 	return nil
 }
 
-func HasHttpPuller() bool {
-	return httpPuller != nil
+func HasPullServices() bool {
+	return len(discoveries) > 0
 }
 
-func HttpHandler() http.Handler {
-	return httpPuller.HttpHandler()
+func GetPullServices() []otel2.PullServiceDiscovery {
+	return discoveries
+}
+
+func HasProviders() bool {
+	return enabled
 }

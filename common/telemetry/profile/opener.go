@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2022. Abstrium SAS <team (at) pydio.com>
+ * Copyright (c) 2024. Abstrium SAS <team (at) pydio.com>
  * This file is part of Pydio Cells.
  *
  * Pydio Cells is free software: you can redistribute it and/or modify
@@ -18,22 +18,15 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-package metrics
+package profile
 
 import (
 	"context"
 	"net/url"
 
-	"go.opentelemetry.io/otel/sdk/metric"
-
+	"github.com/pydio/cells/v4/common/telemetry/otel"
 	"github.com/pydio/cells/v4/common/utils/openurl"
 )
-
-type ReaderProvider interface {
-	metric.Reader
-	// PullSupported() bool
-	// HttpHandler() http.Handler
-}
 
 // URLOpener represents types than can open Registries based on a URL.
 // The opener must not modify the URL argument. OpenURL must be safe to
@@ -41,7 +34,7 @@ type ReaderProvider interface {
 //
 // This interface is generally implemented by types in driver packages.
 type URLOpener interface {
-	OpenURL(ctx context.Context, u *url.URL) (ReaderProvider, error)
+	OpenURL(ctx context.Context, u *url.URL, svc otel.Service) (PProfProvider, error)
 }
 
 // URLMux is a URL opener multiplexer. It matches the scheme of the URLs
@@ -57,17 +50,17 @@ type URLMux struct {
 // Register registers the opener with the given scheme. If an opener
 // already exists for the scheme, Register panics.
 func (mux *URLMux) Register(scheme string, opener URLOpener) {
-	mux.schemes.Register("metrics", "Reader", scheme, opener)
+	mux.schemes.Register("profile", "Profiler", scheme, opener)
 }
 
-// OpenReader calls OpenTopicURL with the URL parsed from urlstr.
+// OpenProfiler calls OpenTopicURL with the URL parsed from urlstr.
 // OpenTopic is safe to call from multiple goroutines.
-func (mux *URLMux) OpenReader(ctx context.Context, urlstr string) (ReaderProvider, error) {
-	opener, u, err := mux.schemes.FromString("Reader", urlstr)
+func (mux *URLMux) OpenProfiler(ctx context.Context, urlstr string, svc otel.Service) (PProfProvider, error) {
+	opener, u, err := mux.schemes.FromString("Profiler", urlstr)
 	if err != nil {
 		return nil, err
 	}
-	return opener.(URLOpener).OpenURL(ctx, u)
+	return opener.(URLOpener).OpenURL(ctx, u, svc)
 }
 
 var defaultURLMux = &URLMux{}
@@ -80,10 +73,10 @@ func DefaultURLMux() *URLMux {
 	return defaultURLMux
 }
 
-// OpenReader opens the Registry identified by the URL given.
+// OpenProfiler opens the Registry identified by the URL given.
 // See the URLOpener documentation in driver subpackages for
 // details on supported URL formats, and https://gocloud.dev/concepts/urls
 // for more information.
-func OpenReader(ctx context.Context, urlstr string) (ReaderProvider, error) {
-	return defaultURLMux.OpenReader(ctx, urlstr)
+func OpenProfiler(ctx context.Context, urlstr string, svc otel.Service) (PProfProvider, error) {
+	return defaultURLMux.OpenProfiler(ctx, urlstr, svc)
 }

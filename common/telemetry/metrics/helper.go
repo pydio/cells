@@ -25,8 +25,8 @@ import (
 	"go.opentelemetry.io/otel/metric"
 )
 
-// MeterHelper interface expands OpenTelemetry interface with some specific counters/gauges for legacy
-// support of tally+prometheus metrics reporting.
+// MeterHelper interface expands OpenTelemetry interface with some easy-to user counters/gauges.
+// They are compatible with legacy tally+prometheus library.
 type MeterHelper interface {
 	metric.Meter
 	Counter(name string, descriptionAndUnit ...string) Counter
@@ -39,6 +39,7 @@ type helper struct {
 	tags map[string]string
 }
 
+// Counter creates a simple Int64 Up Only counter
 func (m *helper) Counter(name string, descAndUnit ...string) Counter {
 	var opts []metric.Int64CounterOption
 	for idx, o := range descAndUnit {
@@ -55,6 +56,7 @@ func (m *helper) Counter(name string, descAndUnit ...string) Counter {
 	}
 }
 
+// Gauge creates a simple Float64 Gauge
 func (m *helper) Gauge(name string, descAndUnit ...string) Gauge {
 	var opts []metric.Float64GaugeOption
 	for idx, o := range descAndUnit {
@@ -71,6 +73,7 @@ func (m *helper) Gauge(name string, descAndUnit ...string) Gauge {
 	}
 }
 
+// Timer provides a tool to record and stop recording time, then sends corresponding duration to an Int64 Gauge
 func (m *helper) Timer(name string, description ...string) Timer {
 	opts := []metric.Float64GaugeOption{
 		metric.WithUnit("ns"),
@@ -100,6 +103,7 @@ func Helper() MeterHelper {
 	return current
 }
 
+// TaggedHelper stores tags internally and add them as Attributes at record time.
 func TaggedHelper(tags map[string]string) MeterHelper {
 	return &helper{
 		Meter: otel.Meter("root"),
@@ -107,6 +111,7 @@ func TaggedHelper(tags map[string]string) MeterHelper {
 	}
 }
 
+// ServiceHelper is a shorthand for TaggedHelper with service key.
 func ServiceHelper(serviceName string) MeterHelper {
 	return TaggedHelper(map[string]string{"service": serviceName})
 }

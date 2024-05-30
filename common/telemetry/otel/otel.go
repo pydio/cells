@@ -18,9 +18,18 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
+// Package otel groups together some common types for telemetry
 package otel
 
+import "context"
+
+// Service is a serialization of OpenTelemetry resources.Resource
 type Service struct {
 	Name       string            `json:"name" yaml:"name"`
 	Attributes map[string]string `json:"attributes" yaml:"attributes"`
+}
+
+// PullServiceDiscovery is used for drivers that may initialize an HTTP service for external data pulling.
+type PullServiceDiscovery interface {
+	InitHTTPPullService(ctx context.Context, route string)
 }

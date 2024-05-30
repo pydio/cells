@@ -38,6 +38,7 @@ type gauge struct {
 	parent *helper
 }
 
+// Update updates the gauge value.
 func (m *gauge) Update(value float64) {
 	var options []metric.RecordOption
 	if m.parent != nil && m.parent.tags != nil {

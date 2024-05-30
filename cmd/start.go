@@ -241,11 +241,14 @@ func init() {
 	StartCmd.Flags().String(runtime.KeyLog, "info", "Output log level: debug, info, warn, error (production is equivalent to log_json+info)")
 	StartCmd.Flags().Bool(runtime.KeyLogJson, false, "Output log formatted as JSON instead of text")
 	StartCmd.Flags().Bool(runtime.KeyLogToFile, common.MustLogFileDefaultValue(), "Write logs on-file in CELLS_LOG_DIR")
-	StartCmd.Flags().Bool(runtime.KeyEnableMetrics, false, "Instrument code to expose internal metrics (to local JSON file, or service discovery if Metrics Basic Auth is set)")
-	StartCmd.Flags().String(runtime.KeyMetricsBasicAuth, "", "Expose metrics to a service discovery endpoint /metrics/sd")
-	StartCmd.Flags().Bool(runtime.KeyEnablePprof, false, "Enable pprof remote debugging")
-	//StartCmd.Flags().Int(runtime.KeyHealthCheckPort, 0, "Healthcheck port number")
 
+	// Deprecate in favor of config-based metrics setup
+	StartCmd.Flags().Bool(runtime.KeyEnableMetrics, false, "[Deprecated] Instrument code to expose internal metrics (to local JSON file, or service discovery if Metrics Basic Auth is set)")
+	StartCmd.Flags().Bool(runtime.KeyEnablePprof, false, "[Deprecated] Enable pprof remote debugging")
+	_ = StartCmd.Flags().MarkDeprecated(runtime.KeyEnableMetrics, "This flag is deprecated, but the env variable is still working. Switch to config-based metrics declaration instead")
+	_ = StartCmd.Flags().MarkDeprecated(runtime.KeyEnablePprof, "This flag is deprecated, but the env variable is still working. Switch to config-based profiling declaration instead")
+
+	//StartCmd.Flags().Int(runtime.KeyHealthCheckPort, 0, "Healthcheck port number")
 	StartCmd.Flags().StringSlice(runtime.KeySet, []string{}, "Set value")
 
 	RootCmd.AddCommand(StartCmd)

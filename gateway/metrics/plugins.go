@@ -22,182 +22,36 @@ package metrics
 
 import (
 	"context"
-	"crypto/subtle"
-	"fmt"
-	"net/http"
-	"net/http/pprof"
-	"os"
-	"strconv"
 
-	"github.com/gorilla/mux"
-
-	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/config/routing"
 	"github.com/pydio/cells/v4/common/runtime"
-	"github.com/pydio/cells/v4/common/server/generic"
-	"github.com/pydio/cells/v4/common/service"
 	"github.com/pydio/cells/v4/common/telemetry/metrics"
-	"github.com/pydio/cells/v4/gateway/metrics/prometheus"
+	"github.com/pydio/cells/v4/common/telemetry/profile"
 )
 
 const (
-	serviceName      = common.ServiceGatewayNamespace_ + common.ServiceMetrics
-	pprofServiceName = common.ServiceWebNamespace_ + common.ServicePprof
-	promServiceName  = common.ServiceWebNamespace_ + common.ServiceMetrics
-	RouteMetrics     = "metrics"
-	RoutePPROFS      = "debug"
-)
-
-type bau struct {
-	login, pwd []byte
-	inner      http.Handler
-}
-
-func (b *bau) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	if l, p, o := r.BasicAuth(); o && subtle.ConstantTimeCompare([]byte(l), b.login) == 1 && subtle.ConstantTimeCompare([]byte(p), b.pwd) == 1 {
-		b.inner.ServeHTTP(w, r)
-		return
-	}
-	w.Header().Set("WWW-Authenticate", `Basic realm="cells metrics"`)
-	w.WriteHeader(401)
-	w.Write([]byte("Unauthorized.\n"))
-}
-
-func newPromHttpService(ctx context.Context, pure bool, with, stop func(ctx context.Context, mux routing.RouteRegistrar) error) {
-
-	var opts []service.ServiceOption
-	opts = append(opts,
-		service.Name(promServiceName),
-		service.Context(ctx),
-		service.Tag(common.ServiceTagGateway),
-		service.Description("Expose metrics for external tools (prometheus and pprof formats)"),
-		service.ForceRegister(true), // Always register in all processes
-		service.WithHTTPStop(stop),
-	)
-	if pure {
-		opts = append(opts, service.WithPureHTTP(with))
-	} else {
-		opts = append(opts, service.WithHTTP(with))
-	}
-	service.NewService(opts...)
-
-}
-
-var (
-// reporter prom.Reporter
-// repOnce sync.Once
+	RouteMetrics = "metrics"
+	RouteProfile = "debug"
 )
 
 func init() {
 
-	routing.RegisterRoute(RouteMetrics, "Prometheus metrics API", "/metrics")
-	routing.RegisterRoute(RoutePPROFS, "Expose golang internal profiling endpoints", "/debug")
+	routing.RegisterRoute(RouteMetrics, "Metrics Pull API", "/metrics")
+	routing.RegisterRoute(RouteProfile, "Profiling Pull API", "/debug")
 
 	runtime.Register("main", func(ctx context.Context) {
 
-		if runtime.MetricsEnabled() && metrics.HasHttpPuller() {
-
-			pattern := fmt.Sprintf("/%s", runtime.ProcessRootID())
-
-			if use, login, pwd := runtime.MetricsRemoteEnabled(); use {
-
-				newPromHttpService(
-					ctx,
-					false,
-					func(ctx context.Context, mux routing.RouteRegistrar) error {
-						router := mux.Route(RouteMetrics)
-						router.Handle(pattern, &bau{inner: metrics.HttpHandler(), login: []byte(login), pwd: []byte(pwd)})
-						/// For main process, also add the central index
-						if !runtime.IsFork() {
-							index := prometheus.NewIndex(ctx)
-							router.Handle("/sd", &bau{inner: index, login: []byte(login), pwd: []byte(pwd)})
-						}
-						return nil
-					},
-					func(ctx context.Context, mux routing.RouteRegistrar) error {
-						mux.DeregisterRoute(RouteMetrics)
-						return nil
-					})
-
-			} else {
-				if !runtime.IsFork() {
-					service.NewService(
-						service.Name(serviceName),
-						service.Context(ctx),
-						service.Tag(common.ServiceTagGateway),
-						service.Description("Gather metrics endpoints for prometheus inside a prom.json file"),
-						service.WithGeneric(func(c context.Context, server *generic.Server) error {
-							srv := &metricsServer{ctx: c, name: serviceName}
-							return srv.Start()
-						}),
-					)
-				}
-				with := func(ctx context.Context, mux routing.RouteRegistrar) error {
-					mux.Route(RouteMetrics).Handle(pattern, metrics.HttpHandler())
-					return nil
-				}
-				stop := func(ctx context.Context, mux routing.RouteRegistrar) error {
-					mux.DeregisterRoute(RouteMetrics)
-					return nil
-				}
-				newPromHttpService(ctx, !runtime.IsFork(), with, stop)
+		if metrics.HasPullServices() {
+			for _, svc := range metrics.GetPullServices() {
+				svc.InitHTTPPullService(ctx, RouteMetrics)
 			}
 		}
 
-		if runtime.PprofEnabled() {
-			prefix := "/" + strconv.Itoa(os.Getpid())
-			service.NewService(
-				service.Name(pprofServiceName),
-				service.Context(ctx),
-				service.ForceRegister(true),
-				service.Tag(common.ServiceTagGateway),
-				service.Description("Expose pprof data as an HTTP endpoint"),
-				service.WithHTTP(func(ctx context.Context, mu routing.RouteRegistrar) error {
-					router := mux.NewRouter().SkipClean(true).StrictSlash(true)
-					router.HandleFunc("/debug/pprof/", pprof.Index)
-					router.HandleFunc("/debug/pprof/allocs", pprof.Index)
-					router.HandleFunc("/debug/pprof/blocks", pprof.Index)
-					router.HandleFunc("/debug/pprof/heap", pprof.Index)
-					router.HandleFunc("/debug/pprof/mutex", pprof.Index)
-					router.HandleFunc("/debug/pprof/threadcreate", pprof.Index)
-					router.HandleFunc("/debug/pprof/goroutine", pprof.Index)
-					router.HandleFunc("/debug/pprof/cmdline", pprof.Cmdline)
-					router.HandleFunc("/debug/pprof/profile", pprof.Profile)
-					router.HandleFunc("/debug/pprof/symbol", pprof.Symbol)
-					router.HandleFunc("/debug/pprof/trace", pprof.Trace)
-					sub := mu.Route(RoutePPROFS)
-					sub.Handle(prefix+"/", router, routing.WithStripPrefix())
-					if runtime.HttpServerType() == runtime.HttpServerCaddy {
-						sub.Handle("/", &pprofHandler{ctx: ctx})
-					}
-					return nil
-				}),
-				service.WithHTTPStop(func(ctx context.Context, mux routing.RouteRegistrar) error {
-					mux.DeregisterRoute(RoutePPROFS)
-					return nil
-				}),
-			)
+		if profile.HasPullServices() {
+			for _, svc := range profile.GetPullServices() {
+				svc.InitHTTPPullService(ctx, RouteProfile)
+			}
 		}
 
 	})
-}
-
-type metricsServer struct {
-	ctx  context.Context
-	name string
-}
-
-func (g *metricsServer) Start() error {
-	return prometheus.WatchTargets(g.ctx, g.name)
-}
-
-func (g *metricsServer) Stop() error {
-	prometheus.StopWatchingTargets()
-
-	return nil
-}
-
-// NoAddress implements NonAddressable interface
-func (g *metricsServer) NoAddress() string {
-	return prometheus.GetFileName(serviceName)
 }

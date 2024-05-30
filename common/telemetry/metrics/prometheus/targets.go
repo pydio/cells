@@ -22,6 +22,10 @@ package prometheus
 
 import (
 	"context"
+	"fmt"
+	"os"
+	"strings"
+	"time"
 
 	"go.uber.org/zap"
 
@@ -30,18 +34,21 @@ import (
 	"github.com/pydio/cells/v4/common/registry"
 	"github.com/pydio/cells/v4/common/runtime"
 	json "github.com/pydio/cells/v4/common/utils/jsonx"
+	"github.com/pydio/cells/v4/common/utils/propagator"
 )
 
+// targetGroup is a serialization of target group
 type targetGroup struct {
 	Targets []string          `json:"targets"`
 	Labels  map[string]string `json:"labels"`
 }
 
+// PromTargets is a serialization of Target Groups
 type PromTargets struct {
 	groups []*targetGroup
 }
 
-func ProcessesAsTargets(ctx context.Context, reg registry.Registry, includeCaddy bool, replaceHost string) *PromTargets {
+func processesAsTargets(ctx context.Context, reg registry.Registry, includeCaddy bool, replaceHost string) *PromTargets {
 
 	t := &PromTargets{}
 	ii, er := reg.List(registry.WithType(pb.ItemType_SERVER))
@@ -106,4 +113,99 @@ func ProcessesAsTargets(ctx context.Context, reg registry.Registry, includeCaddy
 
 func (p *PromTargets) ToJson() ([]byte, error) {
 	return json.Marshal(p.groups)
+}
+
+var (
+	watcher  registry.Watcher
+	canceler context.CancelFunc
+)
+
+type metricsServer struct {
+	ctx         context.Context
+	serviceName string
+	filePath    string
+}
+
+func (g *metricsServer) Start() error {
+	return g.watchTargets(g.ctx, g.serviceName, g.filePath)
+}
+
+func (g *metricsServer) Stop() error {
+	g.stopWatchingTargets()
+
+	return nil
+}
+
+// NoAddress implements NonAddressable interface
+func (g *metricsServer) NoAddress() string {
+	return g.filePath
+}
+
+func (g *metricsServer) watchTargets(ctx context.Context, serviceName, filePath string) error {
+
+	d, e := runtime.ServiceDataDir(serviceName)
+	if e != nil {
+		return e
+	}
+	file := strings.ReplaceAll(filePath, "{{.ServiceDataDir}}", d) //filepath.Join(d, "prom_clients.json")
+
+	/*
+		if !runtime.MetricsEnabled() {
+			empty, _ := json.Marshal([]interface{}{})
+			return os.WriteFile(file, empty, 0755)
+		}
+	*/
+	var reg registry.Registry
+	if !propagator.Get(ctx, registry.ContextKey, &reg) {
+		return fmt.Errorf("cannot find registry in context")
+	}
+
+	ctx, cancel := context.WithCancel(context.Background())
+	canceler = cancel
+	trigger := make(chan bool)
+	timer := time.NewTimer(3 * time.Second)
+	go func() {
+		for {
+			select {
+			case <-timer.C:
+				if d, e := processesAsTargets(ctx, reg, false, "").ToJson(); e == nil {
+					_ = os.WriteFile(file, d, 0755)
+				}
+			case <-trigger:
+				timer.Reset(3 * time.Second)
+			case <-ctx.Done():
+				return
+			}
+		}
+	}()
+
+	// Monitor prometheus clients from registry and update target file accordingly
+
+	var err error
+	if watcher, err = reg.Watch(registry.WithType(pb.ItemType_SERVER)); err != nil {
+		return err
+	}
+	go func() {
+		defer watcher.Stop()
+
+		for {
+			result, err := watcher.Next()
+			if result != nil && err == nil {
+				go func() {
+					trigger <- true
+				}()
+			}
+		}
+	}()
+
+	return nil
+}
+
+func (g *metricsServer) stopWatchingTargets() {
+	if watcher != nil {
+		watcher.Stop()
+	}
+	if canceler != nil {
+		canceler()
+	}
 }

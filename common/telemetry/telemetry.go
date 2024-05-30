@@ -18,18 +18,22 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
+// Package telemetry groups all observability tools for application monitoring: logging, tracing, metrics and profiling
 package telemetry
 
 import (
 	"context"
 	"fmt"
+	"os"
 
 	"go.uber.org/multierr"
 
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/log"
+	"github.com/pydio/cells/v4/common/runtime"
 	"github.com/pydio/cells/v4/common/telemetry/metrics"
 	"github.com/pydio/cells/v4/common/telemetry/otel"
+	"github.com/pydio/cells/v4/common/telemetry/profile"
 	"github.com/pydio/cells/v4/common/telemetry/tracing"
 )
 
@@ -55,21 +59,30 @@ Sample JSON config for telemetry
 },
 "metrics": {
 	"readers": [
-	   "prometheus://",
+       "prom+file:///{{.ServiceDataDir}}/cells_prom_clients.json",
+	   "prom://user:password@anything",
 	   "otlp://localhost:4317"
     ]
+},
+"profiling":{
+	"publishers": [
+	  "pyroscope://localhost:4040",
+	  "pull://"
+	]
 }
-
 ```
 */
 
+// Config is a serializable struct for configuring telemetry
 type Config struct {
 	OTelService otel.Service       `json:"otelService" yaml:"otel_service"`
 	Loggers     []log.LoggerConfig `json:"loggers" yaml:"loggers"`
 	Tracing     tracing.Config     `json:"tracing" yaml:"tracing"`
 	Metrics     metrics.Config     `json:"metrics" yaml:"metrics"`
+	Profiling   profile.Config     `json:"profiling" yaml:"profiling"`
 }
 
+// Reload reads config and call underlying loaders for each aspect (logging, metrics, profiling, tracing)
 func (c Config) Reload(ctx context.Context) error {
 	if c.OTelService.Name == "" {
 		c.OTelService.Name = common.PackageType
@@ -80,15 +93,28 @@ func (c Config) Reload(ctx context.Context) error {
 
 	var errs []error
 	if len(c.Tracing.Outputs) > 0 {
-		if er := tracing.InitProvider(ctx, c.OTelService, c.Tracing); er != nil {
+		if er := tracing.InitExporters(ctx, c.OTelService, c.Tracing); er != nil {
 			errs = append(errs, fmt.Errorf("error initializing tracer %v", er))
 		}
 	}
 	if len(c.Metrics.Readers) > 0 {
-		if er := metrics.InitProvider(ctx, c.OTelService, c.Metrics); er != nil {
+		if er := metrics.InitReaders(ctx, c.OTelService, c.Metrics); er != nil {
 			errs = append(errs, fmt.Errorf("error initializing metrics %v", er))
 		}
+	} else if runtime.GetBool(runtime.KeyEnableMetrics) {
+		// Legacy way of enabling metrics
+		if os.Getenv("CELLS_METRICS_BASIC_AUTH") != "" {
+			c.Metrics.Readers = append(c.Metrics.Readers, "prom://")
+		} else {
+			c.Metrics.Readers = append(c.Metrics.Readers, "prom+file:///{{.ServiceDataDir}}/prom_clients.json")
+		}
 	}
+
+	if len(c.Profiling.Publishers) == 0 && runtime.GetBool(runtime.KeyEnablePprof) {
+		// Legacy way of enabling Pprof
+		c.Profiling.Publishers = append(c.Profiling.Publishers, "pull://")
+	}
+	errs = append(errs, profile.InitPublishers(ctx, c.OTelService, c.Profiling))
 
 	return multierr.Combine(errs...)
 }

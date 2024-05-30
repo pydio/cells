@@ -38,6 +38,7 @@ type counter struct {
 	parent *helper
 }
 
+// Inc increments the counter with a delta.
 func (m *counter) Inc(delta int64) {
 	var options []metric.AddOption
 	if m.parent != nil && m.parent.tags != nil {

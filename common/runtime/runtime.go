@@ -361,28 +361,6 @@ func IsFork() bool {
 	return r.GetBool(KeyForkLegacy)
 }
 
-// MetricsEnabled returns if the metrics should be published or not
-func MetricsEnabled() bool {
-	return r.GetBool(KeyEnableMetrics)
-}
-
-// MetricsRemoteEnabled returns if the metrics should be published on a Service Discovery endpoint
-func MetricsRemoteEnabled() (bool, string, string) {
-	if !MetricsEnabled() {
-		return false, "", ""
-	}
-	parts := strings.Split(r.GetString(KeyMetricsBasicAuth), ":")
-	if len(parts) == 2 {
-		return true, parts[0], parts[1]
-	}
-	return false, "", ""
-}
-
-// PprofEnabled returns if a http endpoint should be published for debug/pprof
-func PprofEnabled() bool {
-	return r.GetBool(KeyEnablePprof)
-}
-
 // DefaultAdvertiseAddress reads or compute the address advertised to clients
 func DefaultAdvertiseAddress() string {
 	if addr := r.GetString(KeyAdvertiseAddress); addr != "" {
@@ -481,11 +459,6 @@ func BuildForkParams(cmd string) []string {
 	// Copy slices arguments
 	sliceArgs := []string{
 		KeyNodeCapacity,
-	}
-
-	// Do not pass MetricsBasicAuth as visible params...
-	if o, l, p := MetricsRemoteEnabled(); o {
-		_ = os.Setenv("CELLS_"+strings.ToUpper(KeyMetricsBasicAuth), l+":"+p)
 	}
 
 	for _, s := range strArgs {
@@ -649,21 +622,24 @@ func Describe() (out []InfoGroup) {
 		InfoPair{"Advertise", DefaultAdvertiseAddress()},
 	)
 
-	logging := InfoGroup{Name: "Monitoring"}
-	me := "false"
-	pp := "false"
-	if o, _, _ := MetricsRemoteEnabled(); o {
-		me = "/metrics/sd (with basic-auth)"
-	} else if MetricsEnabled() {
-		me = "true"
-	}
-	if PprofEnabled() {
-		pp = "true"
-	}
+	// Todo - expose telemetry info ?
+	logging := InfoGroup{Name: "Telemetry (todo)"}
+	/*
+		me := "false"
+		pp := "false"
+		if o, _, _ := MetricsRemoteEnabled(); o {
+			me = "/metrics/sd (with basic-auth)"
+		} else if MetricsEnabled() {
+			me = "true"
+		}
+		if PprofEnabled() {
+			pp = "true"
+		}
+		logging.Pairs = append(logging.Pairs,
+			InfoPair{"Metrics", me},
+			InfoPair{"Profiles", pp},
+		)
+	*/
 
-	logging.Pairs = append(logging.Pairs,
-		InfoPair{"Metrics", me},
-		InfoPair{"Profiles", pp},
-	)
 	return append(out, uGroup, network, logging)
 }

@@ -35,6 +35,7 @@ import (
 	"github.com/pydio/cells/v4/common/crypto/storage"
 	"github.com/pydio/cells/v4/common/proto/install"
 	"github.com/pydio/cells/v4/common/runtime"
+	"github.com/pydio/cells/v4/common/telemetry/metrics"
 	"github.com/pydio/cells/v4/common/utils/uuid"
 )
 
@@ -64,7 +65,7 @@ func ResolveSites(ctx context.Context, resolver routing.UpstreamsResolver, exter
 	tplData := TplData{
 		Sites:         caddySites,
 		WebRoot:       uuid.New(), // non-existing path to make sure we don't statically serve local folder
-		EnableMetrics: runtime.MetricsEnabled(),
+		EnableMetrics: metrics.HasProviders(),
 		DisableAdmin:  !external,
 		MuxMode:       resolver == nil,
 	}

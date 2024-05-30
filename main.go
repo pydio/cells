@@ -18,6 +18,10 @@ import (
 	_ "github.com/pydio/cells/v4/common/telemetry/metrics/otlp"
 	_ "github.com/pydio/cells/v4/common/telemetry/metrics/prometheus"
 
+	// Profiling
+	_ "github.com/pydio/cells/v4/common/telemetry/profile/http_pull"
+	_ "github.com/pydio/cells/v4/common/telemetry/profile/pyroscope"
+
 	// Register storage drivers
 	_ "github.com/pydio/cells/v4/common/storage/bleve"
 	_ "github.com/pydio/cells/v4/common/storage/boltdb"
