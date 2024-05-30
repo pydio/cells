@@ -40,7 +40,7 @@ import (
 	"github.com/pydio/cells/v4/common/middleware"
 	"github.com/pydio/cells/v4/common/registry"
 	"github.com/pydio/cells/v4/common/runtime"
-	"github.com/pydio/cells/v4/common/service/metrics"
+	"github.com/pydio/cells/v4/common/telemetry/metrics"
 	"github.com/pydio/cells/v4/common/utils/propagator"
 
 	_ "google.golang.org/grpc/xds"
@@ -205,8 +205,8 @@ func (cc *clientConn) NewStream(ctx context.Context, desc *grpc.StreamDesc, meth
 	if e == nil {
 		// Prepare gauges
 		key := cc.serviceName + desc.StreamName
-		scope := metrics.GetTaggedMetrics(map[string]string{"target": cc.serviceName, "method": desc.StreamName})
-		gauge := scope.Gauge("open_streams")
+		scope := metrics.TaggedHelper(map[string]string{"target": cc.serviceName, "method": desc.StreamName})
+		gauge := scope.Gauge("open_streams", "Number of GRPC streams currently open")
 		pri := common.LogLevel == zapcore.DebugLevel
 		if cc.serviceName == "pydio.grpc.broker" || cc.serviceName == "pydio.grpc.log" || cc.serviceName == "pydio.grpc.audit" ||
 			cc.serviceName == "pydio.grpc.jobs" || cc.serviceName == "pydio.grpc.registry" ||

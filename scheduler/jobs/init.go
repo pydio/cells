@@ -12,6 +12,7 @@ import (
 
 	"github.com/pydio/cells/v4/common/log"
 	rt "github.com/pydio/cells/v4/common/runtime"
+	"github.com/pydio/cells/v4/common/telemetry/otel"
 )
 
 var (
@@ -37,7 +38,7 @@ func initTasksLogger() *zap.Logger {
 		}
 	}
 
-	cfg := log.Config{
+	cfg := []log.LoggerConfig{
 		{
 			Level:    level,
 			Encoding: "json",
@@ -48,6 +49,6 @@ func initTasksLogger() *zap.Logger {
 		},
 	}
 	var cores []zapcore.Core
-	cores, closers, _ = cfg.LoadCores(context.Background())
+	cores, closers, _ = log.LoadCores(context.Background(), otel.Service{}, cfg)
 	return zap.New(zapcore.NewTee(cores...))
 }

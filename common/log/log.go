@@ -35,6 +35,7 @@ import (
 
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/runtime"
+	"github.com/pydio/cells/v4/common/telemetry/otel"
 )
 
 // WriteSyncer implements zapcore.WriteSyncer
@@ -55,9 +56,11 @@ var (
 
 	StdOut *os.File
 
-	currentConfig Config
+	currentConfig []LoggerConfig
+	currentSvc    otel.Service
+
 	mainClosers   []io.Closer
-	customSyncers []CfgLogger
+	customSyncers []LoggerConfig
 
 	// Parse log lines like below:
 	// 2022/04/21 07:53:46.226	[33mWARN[0m	tls	stapling OCSP	{"error": "no OCSP stapling for [charles-pydio.local kubernetes.docker.internal local.pydio local.pydio.com localhost localhost localpydio.com spnego.lab.py sub1.pydio sub2.pydio 127.0.0.1 192.168.10.101]: no OCSP server specified in certificate"}
@@ -65,9 +68,10 @@ var (
 )
 
 // Init for the log package - called by the main
-func Init(conf Config, ww ...ContextWrapper) {
+func Init(svc otel.Service, conf []LoggerConfig, ww ...ContextWrapper) {
 
 	currentConfig = conf
+	currentSvc = svc
 
 	SetLoggerInit(func() *zap.Logger {
 
@@ -87,7 +91,7 @@ func Init(conf Config, ww ...ContextWrapper) {
 		}
 
 		ctx := context.Background()
-		cores, closers, hasDebug := fullConfig.LoadCores(ctx)
+		cores, closers, hasDebug := LoadCores(ctx, currentSvc, fullConfig)
 		mainClosers = closers
 
 		var loggerOptions []zap.Option
@@ -112,7 +116,8 @@ func Init(conf Config, ww ...ContextWrapper) {
 }
 
 // ReloadMainLogger passes an updated config and force logger reset
-func ReloadMainLogger(cfg Config) {
+func ReloadMainLogger(scv otel.Service, cfg []LoggerConfig) {
+	currentSvc = scv
 	currentConfig = cfg
 	mainLogger.forceReset()
 }
@@ -155,7 +160,7 @@ func CaptureCaddyStdErr(serviceName string) context.Context {
 }
 
 // RegisterWriteSyncer optional writers for logs
-func RegisterWriteSyncer(syncer CfgLogger) {
+func RegisterWriteSyncer(syncer LoggerConfig) {
 	customSyncers = append(customSyncers, syncer)
 
 	mainLogger.forceReset() // Will force reinit next time

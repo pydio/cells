@@ -18,41 +18,34 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-package stdout
+package metrics
 
 import (
 	"context"
-	"fmt"
-	"net/url"
-	"os"
 
-	"go.uber.org/zap/zapcore"
-
-	"github.com/pydio/cells/v4/common/log"
+	"go.opentelemetry.io/otel/attribute"
+	"go.opentelemetry.io/otel/metric"
 )
 
-func init() {
-	log.DefaultURLMux().RegisterSync("stdout", &opener{})
-	log.DefaultURLMux().RegisterSync("err", &opener{})
+// Gauge is the interface for emitting gauge metrics.
+type Gauge interface {
+	// Update sets the gauges absolute value.
+	Update(value float64)
 }
 
-type opener struct{}
+type gauge struct {
+	metric.Float64Gauge
+	parent *helper
+}
 
-func (o *opener) OpenSync(ctx context.Context, u *url.URL) (log.WriteSyncerCloser, error) {
-	if u.Scheme == "stdout" {
-		log.StdOut = os.Stdout
-		return &wrapper{log.StdOut}, nil
-	} else if u.Scheme == "stderr" {
-		return &wrapper{os.Stderr}, nil
-	} else {
-		return nil, fmt.Errorf("unsupported WriteSyncer scheme %s", u.Scheme)
+func (m *gauge) Update(value float64) {
+	var options []metric.RecordOption
+	if m.parent != nil && m.parent.tags != nil {
+		var attrs []attribute.KeyValue
+		for k, v := range m.parent.tags {
+			attrs = append(attrs, attribute.String(k, v))
+		}
+		options = append(options, metric.WithAttributes(attrs...))
 	}
-}
-
-type wrapper struct {
-	zapcore.WriteSyncer
-}
-
-func (w *wrapper) Close() error {
-	return nil
+	m.Float64Gauge.Record(context.Background(), value, options...)
 }

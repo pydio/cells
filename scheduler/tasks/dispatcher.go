@@ -35,7 +35,7 @@ import (
 	"github.com/pydio/cells/v4/common/proto/jobs"
 	"github.com/pydio/cells/v4/common/proto/tree"
 	"github.com/pydio/cells/v4/common/runtime"
-	"github.com/pydio/cells/v4/common/service/metrics"
+	"github.com/pydio/cells/v4/common/telemetry/metrics"
 	"github.com/pydio/cells/v4/common/utils/propagator"
 )
 
@@ -135,7 +135,7 @@ func (d *Dispatcher) Run() {
 		workers = append(workers, worker)
 	}
 
-	g := metrics.GetTaggedMetrics(d.tags).Gauge("activeWorkers")
+	g := metrics.TaggedHelper(d.tags).Gauge("activeWorkers", "Number of concurrent workers currently running in scheduler")
 	t := time.NewTicker(500 * time.Millisecond)
 	go func() {
 		for {

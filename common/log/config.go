@@ -1,3 +1,23 @@
+/*
+ * Copyright (c) 2024. Abstrium SAS <team (at) pydio.com>
+ * This file is part of Pydio Cells.
+ *
+ * Pydio Cells is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Pydio Cells is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with Pydio Cells.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ * The latest code can be found at <https://pydio.com>.
+ */
+
 package log
 
 import (
@@ -9,49 +29,37 @@ import (
 
 	"github.com/manifoldco/promptui"
 	"go.uber.org/zap/zapcore"
+
+	"github.com/pydio/cells/v4/common/telemetry/otel"
 )
 
-type CfgLogger struct {
+type LoggerConfig struct {
 	Level    string            `json:"level" yaml:"level"`
 	Encoding string            `json:"encoding" yaml:"encoding"`
 	Outputs  []string          `json:"outputs" yaml:"outputs"`
 	Filters  map[string]string `json:"filters,omitempty" yaml:"filters,omitempty"`
 }
 
-type Config []CfgLogger
-
-type CombinedConfig struct {
-	Loggers Config        `json:"loggers" yaml:"loggers"`
-	Tracing TracingConfig `json:"tracing" yaml:"tracing"`
-}
-
-type TracingConfig struct {
-	Outputs           []string          `json:"outputs" yaml:"outputs"`
-	ServiceName       string            `json:"service" yaml:"service"`
-	ServiceAttributes map[string]string `json:"attributes,omitempty" yaml:"attributes,omitempty"`
-}
-
-func DefaultLegacyConfig(level, encoding, logToDir string) Config {
+func DefaultLegacyConfig(level, encoding, logToDir string) []LoggerConfig {
 	outputs := []string{
 		"stdout:///",
 	}
 	if logToDir != "" {
 		outputs = append(outputs, "file://"+filepath.Join(logToDir, "pydio.log"))
 	}
-	return Config{{
+	return []LoggerConfig{{
 		Encoding: encoding,
 		Level:    level,
 		Outputs:  outputs,
 	}}
 }
 
-func (cfg Config) LoadCores(ctx context.Context) (cores []zapcore.Core, closers []io.Closer, hasDebug bool) {
+func LoadCores(ctx context.Context, svc otel.Service, cfg []LoggerConfig) (cores []zapcore.Core, closers []io.Closer, hasDebug bool) {
 	closers = []io.Closer{}
 
 	for _, conf := range cfg {
 		var ss []zapcore.WriteSyncer
 		var presetCores []zapcore.Core
-		coreEncoder := conf.Encoder()
 		levelEnabler := conf.Enabler()
 
 		if !hasDebug && levelEnabler.Enabled(zapcore.DebugLevel) {
@@ -62,7 +70,7 @@ func (cfg Config) LoadCores(ctx context.Context) (cores []zapcore.Core, closers 
 			if syncer, er := DefaultURLMux().OpenSync(ctx, u); er == nil {
 				ss = append(ss, syncer)
 				closers = append(closers, syncer)
-			} else if custom, er2 := DefaultURLMux().OpenCore(ctx, u, coreEncoder, levelEnabler); er2 == nil {
+			} else if custom, er2 := DefaultURLMux().OpenCore(ctx, u, levelEnabler, svc); er2 == nil {
 				if len(conf.Filters) > 0 {
 					presetCores = append(presetCores, conf.Wrap(custom))
 				} else {
@@ -104,7 +112,7 @@ func (cfg Config) LoadCores(ctx context.Context) (cores []zapcore.Core, closers 
 
 // Encoder computes encoder based on textual Encoder key
 // Currently supported are "json" and "console"
-func (c CfgLogger) Encoder() zapcore.Encoder {
+func (c LoggerConfig) Encoder() zapcore.Encoder {
 	var e zapcore.Encoder
 	switch c.Encoding {
 	case "console":
@@ -121,7 +129,7 @@ func (c CfgLogger) Encoder() zapcore.Encoder {
 // Enabler creates a dynamic enabler based on Level text value.
 // Level may contain ">=debug" or "<debug" or "=debug"
 // No comparator defaults to ">=", i.e "info" means Info and higher
-func (c CfgLogger) Enabler() zapcore.LevelEnabler {
+func (c LoggerConfig) Enabler() zapcore.LevelEnabler {
 
 	var bb []zapcore.LevelEnabler
 	for _, search := range strings.Split(c.Level, "&") {
@@ -157,7 +165,7 @@ func (c CfgLogger) Enabler() zapcore.LevelEnabler {
 
 // Wrap precomputes a list of matchers if there are k:v filters set
 // and wrap the passed core with a filteringCore.
-func (c CfgLogger) Wrap(core zapcore.Core) zapcore.Core {
+func (c LoggerConfig) Wrap(core zapcore.Core) zapcore.Core {
 	if c.Filters == nil || len(c.Filters) == 0 {
 		return core
 	}

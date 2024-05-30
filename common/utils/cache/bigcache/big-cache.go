@@ -33,7 +33,7 @@ import (
 	bigcache "github.com/allegro/bigcache/v3"
 
 	"github.com/pydio/cells/v4/common/runtime"
-	"github.com/pydio/cells/v4/common/service/metrics"
+	"github.com/pydio/cells/v4/common/telemetry/metrics"
 	"github.com/pydio/cells/v4/common/utils/cache"
 )
 
@@ -49,7 +49,7 @@ var (
 type bigCache struct {
 	*bigcache.BigCache
 	closed bool
-	scope  metrics.Meter
+	scope  metrics.MeterHelper
 	ticker *time.Ticker
 }
 
@@ -86,7 +86,7 @@ func (o *URLOpener) OpenURL(ctx context.Context, u *url.URL) (cache.Cache, error
 	cac := &bigCache{
 		BigCache: bc,
 		ticker:   time.NewTicker(30 * time.Second),
-		scope:    metrics.GetMetricsForService(u.Path),
+		scope:    metrics.ServiceHelper(u.Path),
 	}
 	go func() {
 		for range cac.ticker.C {

@@ -1,3 +1,23 @@
+/*
+ * Copyright (c) 2024. Abstrium SAS <team (at) pydio.com>
+ * This file is part of Pydio Cells.
+ *
+ * Pydio Cells is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Pydio Cells is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with Pydio Cells.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ * The latest code can be found at <https://pydio.com>.
+ */
+
 package tracing
 
 import (
@@ -13,13 +33,20 @@ import (
 	semconv "go.opentelemetry.io/otel/semconv/v1.20.0"
 	"go.uber.org/multierr"
 
-	"github.com/pydio/cells/v4/common/log"
+	"github.com/pydio/cells/v4/common"
+	otel2 "github.com/pydio/cells/v4/common/telemetry/otel"
 )
 
 var (
 	otelInit = &sync.Once{}
 	dynamic  *dynamicExporter
 )
+
+type Config struct {
+	Outputs           []string          `json:"outputs" yaml:"outputs"`
+	ServiceName       string            `json:"service" yaml:"service"`
+	ServiceAttributes map[string]string `json:"attributes,omitempty" yaml:"attributes,omitempty"`
+}
 
 type dynamicExporter struct {
 	ee []trace.SpanExporter
@@ -44,7 +71,7 @@ func (d *dynamicExporter) Shutdown(ctx context.Context) error {
 
 // InitProvider creates a provider and refresh dynamic exporters
 // Sample output URLs: "stdout://", "jaeger://localhost:14268/api/traces",
-func InitProvider(ctx context.Context, cfg log.TracingConfig) error {
+func InitProvider(ctx context.Context, svc otel2.Service, cfg Config) error {
 
 	if dynamic == nil {
 		dynamic = new(dynamicExporter)
@@ -69,12 +96,11 @@ func InitProvider(ctx context.Context, cfg log.TracingConfig) error {
 		opts = append(opts, trace.WithBatcher(dynamic))
 		// Prepare resource attributes
 		attrs := []attribute.KeyValue{
-			semconv.ServiceName(cfg.ServiceName),
+			semconv.ServiceName(svc.Name),
+			semconv.ServiceVersion(common.Version().String()),
 		}
-		if cfg.ServiceAttributes != nil {
-			for k, v := range cfg.ServiceAttributes {
-				attrs = append(attrs, attribute.String(k, v))
-			}
+		for k, v := range svc.Attributes {
+			attrs = append(attrs, attribute.String(k, v))
 		}
 		opts = append(opts, trace.WithResource(resource.NewWithAttributes(semconv.SchemaURL, attrs...)))
 

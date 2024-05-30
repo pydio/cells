@@ -18,41 +18,27 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-package stdout
+package jaeger
 
 import (
 	"context"
-	"fmt"
 	"net/url"
-	"os"
 
-	"go.uber.org/zap/zapcore"
+	"go.opentelemetry.io/otel/exporters/stdout/stdouttrace"
+	tracesdk "go.opentelemetry.io/otel/sdk/trace"
 
-	"github.com/pydio/cells/v4/common/log"
+	"github.com/pydio/cells/v4/common/telemetry/tracing"
 )
 
 func init() {
-	log.DefaultURLMux().RegisterSync("stdout", &opener{})
-	log.DefaultURLMux().RegisterSync("err", &opener{})
+	tracing.DefaultURLMux().Register("stdout", &Opener{})
 }
 
-type opener struct{}
+type Opener struct{}
 
-func (o *opener) OpenSync(ctx context.Context, u *url.URL) (log.WriteSyncerCloser, error) {
-	if u.Scheme == "stdout" {
-		log.StdOut = os.Stdout
-		return &wrapper{log.StdOut}, nil
-	} else if u.Scheme == "stderr" {
-		return &wrapper{os.Stderr}, nil
-	} else {
-		return nil, fmt.Errorf("unsupported WriteSyncer scheme %s", u.Scheme)
-	}
-}
+func (o *Opener) OpenURL(ctx context.Context, u *url.URL) (tracesdk.SpanExporter, error) {
 
-type wrapper struct {
-	zapcore.WriteSyncer
-}
-
-func (w *wrapper) Close() error {
-	return nil
+	return stdouttrace.New(
+		stdouttrace.WithPrettyPrint(),
+	)
 }

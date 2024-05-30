@@ -31,7 +31,7 @@ import (
 	"google.golang.org/protobuf/proto"
 
 	"github.com/pydio/cells/v4/common/service/errors"
-	"github.com/pydio/cells/v4/common/service/metrics"
+	"github.com/pydio/cells/v4/common/telemetry/metrics"
 	"github.com/pydio/cells/v4/common/utils/openurl"
 	"github.com/pydio/cells/v4/common/utils/propagator"
 )
@@ -127,7 +127,7 @@ func PublishRaw(ctx context.Context, topic string, body []byte, header map[strin
 
 // Publish sends a message to standard broker. For the moment, forward message to client.Publish
 func Publish(ctx context.Context, topic string, message proto.Message, opts ...PublishOption) error {
-	metrics.GetMetrics().Counter("pub_" + topicReplacer.Replace(topic)).Inc(1)
+	metrics.Helper().Counter("pub_"+topicReplacer.Replace(topic), "Total number of messages sent on a given topic").Inc(1)
 	return std.Publish(ctx, topic, message, opts...)
 }
 
@@ -161,7 +161,7 @@ func Subscribe(root context.Context, topic string, handler SubscriberHandler, op
 
 	// Wrap Handler for counters
 	id := "sub_" + topicReplacer.Replace(topic)
-	c := metrics.GetTaggedMetrics(map[string]string{"subscriber": so.CounterName}).Counter(id)
+	c := metrics.TaggedHelper(map[string]string{"subscriber": so.CounterName}).Counter(id)
 	wh := func(ctx context.Context, m Message) error {
 		c.Inc(1)
 		return handler(ctx, m)

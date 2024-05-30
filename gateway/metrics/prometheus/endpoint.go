@@ -34,7 +34,7 @@ import (
 	pb "github.com/pydio/cells/v4/common/proto/registry"
 	"github.com/pydio/cells/v4/common/registry"
 	"github.com/pydio/cells/v4/common/runtime"
-	"github.com/pydio/cells/v4/common/service/metrics"
+	"github.com/pydio/cells/v4/common/telemetry/metrics"
 	json "github.com/pydio/cells/v4/common/utils/jsonx"
 	"github.com/pydio/cells/v4/common/utils/propagator"
 )
@@ -50,11 +50,11 @@ type Handler struct {
 
 func NewHandler(reporter prometheus.Reporter) *Handler {
 	if !runtime.IsFork() {
-		metrics.GetTaggedMetrics(map[string]string{
+		metrics.TaggedHelper(map[string]string{
 			"version":       common.Version().String(),
 			"package_label": common.PackageLabel,
 			"package_type":  common.PackageType,
-		}).Gauge("version_info").Update(1)
+		}).Gauge("version_info", "Running binary version information").Update(1)
 	}
 	return &Handler{r: reporter}
 }

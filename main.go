@@ -10,9 +10,13 @@ import (
 	_ "github.com/pydio/cells/v4/common/log/stdout"
 
 	// Tracing
-	_ "github.com/pydio/cells/v4/common/log/tracing/jaeger"
-	_ "github.com/pydio/cells/v4/common/log/tracing/otlp"
-	_ "github.com/pydio/cells/v4/common/log/tracing/stdout"
+	_ "github.com/pydio/cells/v4/common/telemetry/tracing/jaeger"
+	_ "github.com/pydio/cells/v4/common/telemetry/tracing/otlp"
+	_ "github.com/pydio/cells/v4/common/telemetry/tracing/stdout"
+
+	// Metrics
+	_ "github.com/pydio/cells/v4/common/telemetry/metrics/otlp"
+	_ "github.com/pydio/cells/v4/common/telemetry/metrics/prometheus"
 
 	// Register storage drivers
 	_ "github.com/pydio/cells/v4/common/storage/bleve"

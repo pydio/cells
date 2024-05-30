@@ -36,8 +36,8 @@ import (
 	"github.com/pydio/cells/v4/common/log"
 	"github.com/pydio/cells/v4/common/runtime"
 	"github.com/pydio/cells/v4/common/service/errors"
-	"github.com/pydio/cells/v4/common/service/metrics"
 	commonsql "github.com/pydio/cells/v4/common/sql"
+	"github.com/pydio/cells/v4/common/telemetry/metrics"
 )
 
 var (
@@ -100,7 +100,7 @@ func (m *conn) Open(c context.Context, dsn string) (dao.Conn, error) {
 
 		var version string
 		if err := db.QueryRow("SELECT VERSION()").Scan(&version); err == nil {
-			metrics.GetTaggedMetrics(map[string]string{
+			metrics.TaggedHelper(map[string]string{
 				"version": version,
 			}).Gauge("db_version_info").Update(1)
 		}

@@ -21,6 +21,7 @@
 package config
 
 import (
+	"context"
 	"sync"
 
 	"github.com/pydio/cells/v4/common/utils/configx"
@@ -91,6 +92,34 @@ func Set(val interface{}, path ...string) error {
 // Del value at a certain path
 func Del(path ...string) {
 	std.Val(path...).Del()
+}
+
+// GetAndWatch applies a callback on a current value, then watch for its changes and re-apply
+// TODO : watcher should be cancellable with context
+func GetAndWatch(ctx context.Context, configPath []string, callback func(values configx.Values)) {
+	var ii []interface{}
+	for _, s := range configPath {
+		ii = append(ii, s)
+	}
+	values := Get(configx.FormatPath(ii...))
+	callback(values)
+
+	watcher, err := Watch(configx.WithPath(configPath...))
+	if err != nil {
+		return
+	}
+	for {
+		event, wErr := watcher.Next()
+		if wErr != nil {
+			break
+		}
+		if event != nil {
+			if val, ok := event.(configx.Values); ok {
+				callback(val)
+			}
+		}
+	}
+	watcher.Stop()
 }
 
 // Temp

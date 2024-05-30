@@ -3,11 +3,12 @@ package sql
 import (
 	"context"
 	"database/sql"
-	"github.com/pydio/cells/v4/common/log"
-	"go.uber.org/zap"
 	"time"
 
-	"github.com/pydio/cells/v4/common/service/metrics"
+	"go.uber.org/zap"
+
+	"github.com/pydio/cells/v4/common/log"
+	"github.com/pydio/cells/v4/common/telemetry/metrics"
 )
 
 var (
@@ -60,10 +61,10 @@ func computeStats(ctx context.Context, db *sql.DB) {
 			select {
 			case <-time.After(30 * time.Second):
 				s := db.Stats()
-				metrics.GetMetrics().Gauge("db_open_connections").Update(float64(s.OpenConnections))
-				metrics.GetMetrics().Gauge("db_max_open_connections").Update(float64(s.MaxOpenConnections))
-				metrics.GetMetrics().Gauge("db_in_use_connections").Update(float64(s.InUse))
-				metrics.GetMetrics().Gauge("db_idle_connections").Update(float64(s.Idle))
+				metrics.Helper().Gauge("db_open_connections").Update(float64(s.OpenConnections))
+				metrics.Helper().Gauge("db_max_open_connections").Update(float64(s.MaxOpenConnections))
+				metrics.Helper().Gauge("db_in_use_connections").Update(float64(s.InUse))
+				metrics.Helper().Gauge("db_idle_connections").Update(float64(s.Idle))
 			case <-ctx.Done():
 				return
 			}

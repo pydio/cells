@@ -18,41 +18,37 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-package stdout
+package otlp
 
 import (
 	"context"
-	"fmt"
 	"net/url"
-	"os"
 
-	"go.uber.org/zap/zapcore"
+	"go.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracehttp"
+	"go.opentelemetry.io/otel/sdk/trace"
 
-	"github.com/pydio/cells/v4/common/log"
+	"github.com/pydio/cells/v4/common/telemetry/tracing"
 )
 
 func init() {
-	log.DefaultURLMux().RegisterSync("stdout", &opener{})
-	log.DefaultURLMux().RegisterSync("err", &opener{})
+	tracing.DefaultURLMux().Register("otlp", &Opener{})
+	tracing.DefaultURLMux().Register("otlps", &Opener{secure: true})
 }
 
-type opener struct{}
+type Opener struct {
+	secure bool
+}
 
-func (o *opener) OpenSync(ctx context.Context, u *url.URL) (log.WriteSyncerCloser, error) {
-	if u.Scheme == "stdout" {
-		log.StdOut = os.Stdout
-		return &wrapper{log.StdOut}, nil
-	} else if u.Scheme == "stderr" {
-		return &wrapper{os.Stderr}, nil
-	} else {
-		return nil, fmt.Errorf("unsupported WriteSyncer scheme %s", u.Scheme)
+// OpenURL respond to otlp:// scheme
+// Sample URL for local uptrace docker otlp://localhost:4318
+func (o *Opener) OpenURL(ctx context.Context, u *url.URL) (trace.SpanExporter, error) {
+	opts := []otlptracehttp.Option{
+		otlptracehttp.WithEndpoint(u.Host),
+		otlptracehttp.WithCompression(otlptracehttp.GzipCompression),
 	}
-}
-
-type wrapper struct {
-	zapcore.WriteSyncer
-}
-
-func (w *wrapper) Close() error {
-	return nil
+	if !o.secure {
+		opts = append(opts, otlptracehttp.WithInsecure())
+	}
+	exp, er := otlptracehttp.New(ctx, opts...)
+	return exp, er
 }

@@ -28,18 +28,15 @@ import (
 	"net/http/pprof"
 	"os"
 	"strconv"
-	"sync"
 
 	"github.com/gorilla/mux"
-	tally "github.com/uber-go/tally/v4"
-	prom "github.com/uber-go/tally/v4/prometheus"
 
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/config/routing"
 	"github.com/pydio/cells/v4/common/runtime"
 	"github.com/pydio/cells/v4/common/server/generic"
 	"github.com/pydio/cells/v4/common/service"
-	"github.com/pydio/cells/v4/common/service/metrics"
+	"github.com/pydio/cells/v4/common/telemetry/metrics"
 	"github.com/pydio/cells/v4/gateway/metrics/prometheus"
 )
 
@@ -87,8 +84,8 @@ func newPromHttpService(ctx context.Context, pure bool, with, stop func(ctx cont
 }
 
 var (
-	reporter prom.Reporter
-	repOnce  sync.Once
+// reporter prom.Reporter
+// repOnce sync.Once
 )
 
 func init() {
@@ -98,18 +95,7 @@ func init() {
 
 	runtime.Register("main", func(ctx context.Context) {
 
-		if runtime.MetricsEnabled() {
-
-			repOnce.Do(func() {
-				reporter = prom.NewReporter(prom.Options{})
-				options := tally.ScopeOptions{
-					Prefix:         "cells",
-					Tags:           map[string]string{},
-					CachedReporter: reporter,
-					Separator:      prom.DefaultSeparator,
-				}
-				metrics.RegisterRootScope(options)
-			})
+		if runtime.MetricsEnabled() && metrics.HasHttpPuller() {
 
 			pattern := fmt.Sprintf("/%s", runtime.ProcessRootID())
 
@@ -119,9 +105,8 @@ func init() {
 					ctx,
 					false,
 					func(ctx context.Context, mux routing.RouteRegistrar) error {
-						h := prometheus.NewHandler(reporter)
 						router := mux.Route(RouteMetrics)
-						router.Handle(pattern, &bau{inner: h.HTTPHandler(), login: []byte(login), pwd: []byte(pwd)})
+						router.Handle(pattern, &bau{inner: metrics.HttpHandler(), login: []byte(login), pwd: []byte(pwd)})
 						/// For main process, also add the central index
 						if !runtime.IsFork() {
 							index := prometheus.NewIndex(ctx)
@@ -148,8 +133,7 @@ func init() {
 					)
 				}
 				with := func(ctx context.Context, mux routing.RouteRegistrar) error {
-					h := prometheus.NewHandler(reporter)
-					mux.Route(RouteMetrics).Handle(pattern, h.HTTPHandler())
+					mux.Route(RouteMetrics).Handle(pattern, metrics.HttpHandler())
 					return nil
 				}
 				stop := func(ctx context.Context, mux routing.RouteRegistrar) error {

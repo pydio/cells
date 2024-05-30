@@ -25,7 +25,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
-	"path/filepath"
 	"strconv"
 	"strings"
 	"time"
@@ -44,9 +43,10 @@ import (
 	"github.com/pydio/cells/v4/common/crypto"
 	"github.com/pydio/cells/v4/common/log"
 	cw "github.com/pydio/cells/v4/common/log/context-wrapper"
-	"github.com/pydio/cells/v4/common/log/tracing"
 	log2 "github.com/pydio/cells/v4/common/proto/log"
 	"github.com/pydio/cells/v4/common/runtime"
+	"github.com/pydio/cells/v4/common/telemetry"
+	"github.com/pydio/cells/v4/common/telemetry/otel"
 	"github.com/pydio/cells/v4/common/utils/configx"
 
 	_ "github.com/pydio/cells/v4/common/config/etcd"
@@ -266,102 +266,19 @@ func initConfig(ctx context.Context, debounceVersions bool) (new bool, keyring c
 		}
 	}
 
-	go readLoggersAndWatchConfig(ctx)
+	cfgPath := []string{"services", common.ServiceGrpcNamespace_ + common.ServiceLog}
+	go func() {
+		config.GetAndWatch(ctx, cfgPath, func(values configx.Values) {
+			conf := telemetry.Config{}
+			if values.Scan(&conf) == nil {
+				if e := conf.Reload(ctx); e != nil {
+					fmt.Println("Error reloading", e)
+				}
+			}
+		})
+	}()
 
 	return
-}
-
-func readLoggersAndWatchConfig(ctx context.Context) {
-
-	// This shows a sample log config that can be found in the pydio.json
-	logDir := runtime.ApplicationWorkingDir(runtime.ApplicationDirLogs)
-	_ = log.Config{
-		{
-			Encoding: "console",
-			Level:    "info",
-			Outputs: []string{
-				"stdout:///",
-			},
-		},
-		{
-			Encoding: "json",
-			Level:    "info",
-			Outputs: []string{
-				"file://" + filepath.Join(logDir, "pydio.log"),
-				"service:///?service=pydio.grpc.log",
-			},
-		},
-		{
-			Encoding: "json",
-			Level:    ">debug&<=warn",
-			Outputs: []string{
-				"file://" + filepath.Join(logDir, "pydio_info.log"),
-			},
-		},
-		{
-			Encoding: "json",
-			Level:    "error",
-			Outputs: []string{
-				"file://" + filepath.Join(logDir, "pydio_err.log"),
-			},
-		},
-		{
-			Encoding: "console",
-			Level:    "=debug",
-			Filters: map[string]string{
-				common.XPydioDebugSession: "true",
-			},
-			Outputs: []string{
-				"file://" + filepath.Join(logDir, "pydio_request_debug.log"),
-			},
-		},
-		{
-			Encoding: "json",
-			Level:    "debug",
-			Outputs: []string{
-				"otlp://localhost:4318",
-			},
-		},
-	}
-
-	cbl := log.CombinedConfig{}
-	srvName := common.ServiceGrpcNamespace_ + common.ServiceLog
-	if err := config.Get(configx.FormatPath("services", srvName)).Scan(&cbl); err == nil {
-		fmt.Println("Reloading", len(cbl.Loggers), "loggers from configuration")
-		log.ReloadMainLogger(cbl.Loggers)
-		if er := tracing.InitProvider(ctx, cbl.Tracing); er != nil {
-			fmt.Println("Error initializing tracing", er)
-		}
-		// Temp reload providers to test closing
-		/*
-			go func(tracingConfig log.TracingConfig) {
-				<-time.After(60 * time.Second)
-				if er := tracing.InitProvider(ctx, tracingConfig); er != nil {
-					fmt.Println("Error initializing tracing", er)
-				}
-			}(cbl.Tracing)
-		*/
-	}
-	watcher, err := config.Watch(configx.WithPath("services", srvName))
-	if err != nil {
-		return
-	}
-	for {
-		event, wErr := watcher.Next()
-		if wErr != nil {
-			break
-		}
-		cbl2 := log.CombinedConfig{}
-		if event != nil && event.(configx.Values).Scan(&cbl2) == nil {
-			fmt.Println("Reloading", len(cbl.Loggers), "loggers from configuration")
-			log.ReloadMainLogger(cbl2.Loggers)
-			if er := tracing.InitProvider(nil, cbl2.Tracing); er != nil {
-				fmt.Println("Error re-initializing tracing", er)
-			}
-		}
-	}
-	watcher.Stop()
-
 }
 
 func initLogLevel() {
@@ -414,7 +331,7 @@ func initLogLevel() {
 	if common.LogToFile {
 		baseDir = runtime.ApplicationWorkingDir(runtime.ApplicationDirLogs)
 	}
-	log.Init(log.DefaultLegacyConfig(logLevel, encoding, baseDir), cw.RichContext)
+	log.Init(otel.Service{}, log.DefaultLegacyConfig(logLevel, encoding, baseDir), cw.RichContext)
 
 	// Using it once
 	// todo necessary?

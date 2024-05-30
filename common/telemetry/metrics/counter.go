@@ -18,41 +18,34 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-package stdout
+package metrics
 
 import (
 	"context"
-	"fmt"
-	"net/url"
-	"os"
 
-	"go.uber.org/zap/zapcore"
-
-	"github.com/pydio/cells/v4/common/log"
+	"go.opentelemetry.io/otel/attribute"
+	"go.opentelemetry.io/otel/metric"
 )
 
-func init() {
-	log.DefaultURLMux().RegisterSync("stdout", &opener{})
-	log.DefaultURLMux().RegisterSync("err", &opener{})
+// Counter is the interface for emitting counter type metrics.
+type Counter interface {
+	// Inc increments the counter by a delta.
+	Inc(delta int64)
 }
 
-type opener struct{}
+type counter struct {
+	metric.Int64Counter
+	parent *helper
+}
 
-func (o *opener) OpenSync(ctx context.Context, u *url.URL) (log.WriteSyncerCloser, error) {
-	if u.Scheme == "stdout" {
-		log.StdOut = os.Stdout
-		return &wrapper{log.StdOut}, nil
-	} else if u.Scheme == "stderr" {
-		return &wrapper{os.Stderr}, nil
-	} else {
-		return nil, fmt.Errorf("unsupported WriteSyncer scheme %s", u.Scheme)
+func (m *counter) Inc(delta int64) {
+	var options []metric.AddOption
+	if m.parent != nil && m.parent.tags != nil {
+		var attrs []attribute.KeyValue
+		for k, v := range m.parent.tags {
+			attrs = append(attrs, attribute.String(k, v))
+		}
+		options = append(options, metric.WithAttributes(attrs...))
 	}
-}
-
-type wrapper struct {
-	zapcore.WriteSyncer
-}
-
-func (w *wrapper) Close() error {
-	return nil
+	m.Int64Counter.Add(context.Background(), delta, options...)
 }

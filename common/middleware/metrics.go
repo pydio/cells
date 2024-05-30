@@ -29,13 +29,13 @@ import (
 	"google.golang.org/grpc/metadata"
 
 	"github.com/pydio/cells/v4/common/runtime"
-	"github.com/pydio/cells/v4/common/service/metrics"
+	"github.com/pydio/cells/v4/common/telemetry/metrics"
 )
 
 func HttpWrapperMetrics(ctx context.Context, h http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		scope := metrics.GetMetricsForService(runtime.GetServiceName(r.Context()))
-		scope.Counter("rest_calls").Inc(1)
+		scope := metrics.ServiceHelper(runtime.GetServiceName(r.Context()))
+		scope.Counter("rest_calls", "Cumulated number of REST API Calls").Inc(1)
 		tsw := scope.Timer("rest_time").Start()
 		defer tsw.Stop()
 		h.ServeHTTP(w, r)
@@ -50,7 +50,7 @@ func MetricsUnaryServerInterceptor() grpc.UnaryServerInterceptor {
 	return func(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (interface{}, error) {
 		if meta, ok := metadata.FromIncomingContext(ctx); ok {
 			if serviceName, ok2 := meta["service"]; ok2 {
-				scope := metrics.GetMetricsForService(strings.Join(serviceName, ""))
+				scope := metrics.ServiceHelper(strings.Join(serviceName, ""))
 				scope.Counter("grpc_calls").Inc(1)
 				tsw := scope.Timer("grpc_time").Start()
 				defer tsw.Stop()
@@ -64,7 +64,7 @@ func MetricsStreamServerInterceptor() grpc.StreamServerInterceptor {
 	return func(srv interface{}, stream grpc.ServerStream, info *grpc.StreamServerInfo, handler grpc.StreamHandler) error {
 		// srv, ok := info.(ServiceRetriever)
 		// if ok {
-		// 	scope := metrics.GetMetricsForService(srv.ServiceName())
+		// 	scope := metrics.ServiceHelper(srv.ServiceName())
 		//	if scope != tally.NoopScope {
 		//		scope.Counter("grpc_calls").Inc(1)
 		//		tsw := scope.Timer("grpc_time").Start()
