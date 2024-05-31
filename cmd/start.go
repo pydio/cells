@@ -26,6 +26,8 @@ import (
 	"path/filepath"
 
 	"github.com/spf13/cobra"
+	"go.opentelemetry.io/otel"
+	"go.opentelemetry.io/otel/trace"
 	"google.golang.org/grpc"
 
 	"github.com/pydio/cells/v4/common"
@@ -165,9 +167,14 @@ ENVIRONMENT
 			}
 		}
 
+		// A tracer may be configured, create a start trace
+		var span trace.Span
+		ctx, span = otel.GetTracerProvider().Tracer("cells-command").Start(ctx, "start", trace.WithSpanKind(trace.SpanKindInternal))
+
 		// Init registry
 		reg, err := registry.OpenRegistry(ctx, runtime.RegistryURL())
 		if err != nil {
+			span.End()
 			return err
 		}
 		ctx = propagator.With(ctx, registry.ContextKey, reg)
@@ -176,6 +183,7 @@ ENVIRONMENT
 		clientgrpc.WarnMissingConnInContext = true
 		conn, err := grpc.NewClient("xds://"+runtime.Cluster()+".cells.com/cells", clientgrpc.DialOptionsForRegistry(reg)...)
 		if err != nil {
+			span.End()
 			return err
 		}
 
@@ -188,8 +196,11 @@ ENVIRONMENT
 
 		m, err := manager.NewManager(ctx, "main", log.Logger(runtime.WithServiceName(ctx, "pydio.server.manager")))
 		if err != nil {
+			span.End()
 			return err
 		}
+
+		span.End()
 
 		m.SetServeOptions(
 			server.WithGrpcBindAddress(runtime.GrpcBindAddress()),

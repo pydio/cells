@@ -103,23 +103,24 @@ func GetAndWatch(ctx context.Context, configPath []string, callback func(values 
 	}
 	values := Get(configx.FormatPath(ii...))
 	callback(values)
-
-	watcher, err := Watch(configx.WithPath(configPath...))
-	if err != nil {
-		return
-	}
-	for {
-		event, wErr := watcher.Next()
-		if wErr != nil {
-			break
+	go func() {
+		watcher, err := Watch(configx.WithPath(configPath...))
+		if err != nil {
+			return
 		}
-		if event != nil {
-			if val, ok := event.(configx.Values); ok {
-				callback(val)
+		for {
+			event, wErr := watcher.Next()
+			if wErr != nil {
+				break
+			}
+			if event != nil {
+				if val, ok := event.(configx.Values); ok {
+					callback(val)
+				}
 			}
 		}
-	}
-	watcher.Stop()
+		watcher.Stop()
+	}()
 }
 
 // Temp

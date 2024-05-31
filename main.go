@@ -49,7 +49,7 @@ import (
 	//_ "github.com/pydio/cells/v4/discovery/update/rest"
 
 	// Data
-	//_ "github.com/pydio/cells/v4/data/docstore/grpc"
+	_ "github.com/pydio/cells/v4/data/docstore/grpc"
 	_ "github.com/pydio/cells/v4/data/key/grpc"
 	_ "github.com/pydio/cells/v4/data/meta/grpc"
 	_ "github.com/pydio/cells/v4/data/meta/rest"

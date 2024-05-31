@@ -68,13 +68,16 @@ func (o *Opener) OpenURL(ctx context.Context, u *url.URL) (metrics.ReaderProvide
 			otlpmetrichttp.WithTemporalitySelector(preferDeltaTemporalitySelector),
 			otlpmetrichttp.WithInsecure(),
 		)
-	case "otlp+grpc":
-		exporter, err = otlpmetricgrpc.New(ctx,
+	case "otlp+grpc", "otlp+grpc+insecure":
+		opts := []otlpmetricgrpc.Option{
 			otlpmetricgrpc.WithEndpoint(u.Host),
 			otlpmetricgrpc.WithCompressor(gzip.Name),
 			otlpmetricgrpc.WithTemporalitySelector(preferDeltaTemporalitySelector),
-			otlpmetricgrpc.WithInsecure(),
-		)
+		}
+		if u.Scheme == "otlp+grpc+insecure" {
+			opts = append(opts, otlpmetricgrpc.WithInsecure())
+		}
+		exporter, err = otlpmetricgrpc.New(ctx, opts...)
 	default:
 		return nil, fmt.Errorf("unsupported scheme: %s, recognized are otlp (defaults to http), otlp+http, otlp+grpc", u.Scheme)
 	}

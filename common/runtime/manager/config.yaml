@@ -225,18 +225,23 @@ storages: &storages
 #    uri: mongo+indexer://localhost:24017/search
   nosql:
     uri: bleve://tmp/{{ .Value "service" }}
-  bolt:
-#    uri: boltdb:///{{ TODOMustServiceDataDir .Value service }}/{{ .Value tenant }}/{{ .Value prefix }}.db
-    uri: boltdb:///tmp/{{ .Value "tenant" }}/{{ .Value "prefix" }}.db
+  dc_bolt:
+    uri: boltdb://{{{{ getServiceDataDir "pydio.grpc.docstore" }}}}/docstore.db
+  dc_bleve:
+    uri: bleve://{{{{ getServiceDataDir "pydio.grpc.docstore" }}}}/docstore.bleve
   logs:
+    uri: bleve://{{{{ getServiceDataDir "pydio.grpc.logs" }}}}/syslog.bleve?mapping=log
+  jobs:
+    uri: boltdb://{{{{ getServiceDataDir "pydio.grpc.jobs" }}}}/jobs.db
+  tasklogs:
+    uri: bleve://{{{{ getServiceDataDir "pydio.grpc.jobs" }}}}/tasklogs.bleve
 #    uri: bleve:///tmp/{{ TODOMustServiceDataDir .Value service }}.bleve?mapping={{ .Value mapping }}&rotationSize={{ .Value rotationSize }}
-    uri: bleve:///tmp/test-logs.bleve?mapping=log
-  fifo:
-    uri: goq:///tmp/{{ .Value tenant }}/fifo/{{ .Value prefix }}?evictionTime={{ .evictionTime }}
-  user:
-    uri: mysql://tcp(localhost:3306)/cells-{{ .Value tenant }}?prefix={{ .Value prefix }}&shardedBy=name
-  redis-cache:
-    uri: redis://:53535/{{tenant}}
+#  fifo:
+#    uri: goq:///tmp/{{ .Value tenant }}/fifo/{{ .Value prefix }}?evictionTime={{ .evictionTime }}
+#  user:
+#    uri: mysql://tcp(localhost:3306)/cells-{{ .Value tenant }}?prefix={{ .Value prefix }}&shardedBy=name
+#  redis-cache:
+#    uri: redis://:53535/{{tenant}}
 
 #------------------------------------
 # All services
@@ -260,9 +265,9 @@ services:
   pydio.grpc.docstore:
     storages:
       main:
-        - type: bolt
+        - type: dc_bolt
           prefix: docstore
-        - type: nosql
+        - type: dc_bleve
   pydio.grpc.role:
     storages:
       main:
@@ -308,10 +313,10 @@ services:
   pydio.grpc.jobs:
     storages:
       main:
-        - type: bolt
+        - type: jobs
           prefix: jobs
       logs:
-        - type: bleve
+        - type: tasklogs
           prefix: tasklogs
           mapping: log
           rotationSize: -1

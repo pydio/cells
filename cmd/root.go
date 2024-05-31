@@ -267,16 +267,14 @@ func initConfig(ctx context.Context, debounceVersions bool) (new bool, keyring c
 	}
 
 	cfgPath := []string{"services", common.ServiceGrpcNamespace_ + common.ServiceLog}
-	go func() {
-		config.GetAndWatch(ctx, cfgPath, func(values configx.Values) {
-			conf := telemetry.Config{}
-			if values.Scan(&conf) == nil {
-				if e := conf.Reload(ctx); e != nil {
-					fmt.Println("Error reloading", e)
-				}
+	config.GetAndWatch(ctx, cfgPath, func(values configx.Values) {
+		conf := telemetry.Config{}
+		if values.Scan(&conf) == nil {
+			if e := conf.Reload(ctx); e != nil {
+				fmt.Println("Error reloading", e)
 			}
-		})
-	}()
+		}
+	})
 
 	return
 }

@@ -456,7 +456,6 @@ func (s *Indexer) getWriteIndex(ctx context.Context) (bleve.Index, error) {
 	prefix := s.getPrefix(ctx)
 	rotationID := s.getRotationID(path + "/" + prefix)
 	fullPath := s.getFullPath(path, prefix, rotationID)
-	fmt.Println("Write", fullPath)
 
 	var indexes []bleve.Index
 	for _, index := range s.indexes {
@@ -483,7 +482,6 @@ func (s *Indexer) getSearchIndex(ctx context.Context) (bleve.Index, error) {
 	path := s.getPath(ctx)
 	prefix := s.getPrefix(ctx)
 	fullPath := s.getFullPath(path, prefix, "")
-	fmt.Println("Search", fullPath)
 
 	var indexes []bleve.Index
 	for _, index := range s.indexes {

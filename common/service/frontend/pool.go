@@ -28,7 +28,7 @@ import (
 	"strings"
 
 	"github.com/jinzhu/copier"
-	"github.com/philopon/go-toposort"
+	toposort "github.com/philopon/go-toposort"
 	"go.uber.org/zap"
 
 	"github.com/pydio/cells/v4/common/config"

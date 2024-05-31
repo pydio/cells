@@ -22,7 +22,6 @@ package sql
 
 import (
 	"database/sql"
-	"fmt"
 	"regexp"
 	"strings"
 
@@ -44,7 +43,6 @@ func init() {
 
 	regex := func(s, re string) (bool, error) {
 		ok, err := regexp.MatchString(re, s)
-		fmt.Println(s, re, ok, err)
 		return ok, err
 	}
 	sql.Register(SqliteDriver,

@@ -245,7 +245,9 @@ func reset(conf config.Store, store config.Store) error {
 		tmpl = yaml
 	}
 
-	t, err := template.New("context").Delims("{{{{", "}}}}").Parse(tmpl)
+	t, err := template.New("context").Funcs(map[string]any{
+		"getServiceDataDir": runtime.MustServiceDataDir,
+	}).Delims("{{{{", "}}}}").Parse(tmpl)
 	if err != nil {
 		return err
 	}
@@ -263,18 +265,23 @@ func reset(conf config.Store, store config.Store) error {
 		DiscoveryPort         string
 		FrontendPort          string
 		ApplicationWorkingDir string
+		ApplicationDataDir    string
+		ApplicationLogsDir    string
+		ServiceDataDir        func(string) string
 		Config                config.Store
 	}{
-		runtime.ConfigURL(),
-		runtime.RegistryURL(),
-		runtime.BrokerURL(),
-		runtime.CacheURL(""),
-		r.GetString(runtime.KeyBindHost),
-		r.GetString(runtime.KeyBindHost),
-		r.GetString(runtime.KeyGrpcDiscoveryPort),
-		r.GetString(runtime.KeyHttpPort),
-		runtime.ApplicationWorkingDir(),
-		conf,
+		ConfigURL:             runtime.ConfigURL(),
+		RegistryURL:           runtime.RegistryURL(),
+		BrokerURL:             runtime.BrokerURL(),
+		CacheURL:              runtime.CacheURL(""),
+		Config:                conf,
+		BindHost:              r.GetString(runtime.KeyBindHost),
+		AdvertiseHost:         r.GetString(runtime.KeyBindHost),
+		DiscoveryPort:         r.GetString(runtime.KeyGrpcDiscoveryPort),
+		FrontendPort:          r.GetString(runtime.KeyHttpPort),
+		ApplicationWorkingDir: runtime.ApplicationWorkingDir(),
+		ApplicationDataDir:    runtime.ApplicationWorkingDir(runtime.ApplicationDirData),
+		ApplicationLogsDir:    runtime.ApplicationWorkingDir(runtime.ApplicationDirLogs),
 	}); err != nil {
 		return err
 	}

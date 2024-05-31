@@ -62,6 +62,7 @@ var (
 
 	ConsoleSkipKeys = []string{
 		// Tracing Keys
+		common.KeySpanOtel,
 		common.KeySpanUuid,
 		common.KeySpanRootUuid,
 		common.KeySpanParentUuid,

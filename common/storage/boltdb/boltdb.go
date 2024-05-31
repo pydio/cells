@@ -3,6 +3,7 @@ package boltdb
 import (
 	"context"
 	"fmt"
+	"net/url"
 	"os"
 	"path/filepath"
 	"strings"
@@ -27,7 +28,7 @@ var (
 func init() {
 	runtime.Register("system", func(ctx context.Context) {
 		var mgr manager.Manager
-		if propagator.Get(ctx, manager.ContextKey, &mgr) {
+		if !propagator.Get(ctx, manager.ContextKey, &mgr) {
 			return
 		}
 
@@ -88,7 +89,9 @@ func (s *boltdbStorage) boltFromCache(ctx context.Context) (*boltdb, error) {
 		}
 	}
 
-	conn, err := bbolt.Open(strings.TrimPrefix(path, "boltdb://"), defaultMode, options)
+	fsPath := strings.TrimPrefix(path, "boltdb://")
+	fsPath, _ = url.QueryUnescape(fsPath)
+	conn, err := bbolt.Open(fsPath, defaultMode, options)
 	if err != nil {
 		return nil, err
 	}

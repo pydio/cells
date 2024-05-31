@@ -43,11 +43,13 @@ type Opener struct{}
 // or using GRPC otlp+grpc://localhost:4317
 func (o *Opener) OpenURL(ctx context.Context, u *url.URL) (trace.SpanExporter, error) {
 	switch u.Scheme {
-	case "otlp+grpc":
+	case "otlp+grpc", "otlp+grpc+insecure":
 		opts := []otlptracegrpc.Option{
 			otlptracegrpc.WithEndpoint(u.Host),
 			otlptracegrpc.WithCompressor(gzip.Name),
-			otlptracegrpc.WithInsecure(),
+		}
+		if u.Scheme == "otlp+grpc+insecure" {
+			opts = append(opts, otlptracegrpc.WithInsecure())
 		}
 		return otlptracegrpc.New(ctx, opts...)
 	default:
