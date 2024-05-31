@@ -23,11 +23,13 @@ package otlp
 
 import (
 	"context"
+	"fmt"
 	"net/http"
 	"net/url"
 	"time"
 
 	"go.opentelemetry.io/otel/exporters/otlp/otlpmetric/otlpmetricgrpc"
+	"go.opentelemetry.io/otel/exporters/otlp/otlpmetric/otlpmetrichttp"
 	"go.opentelemetry.io/otel/sdk/metric"
 	"go.opentelemetry.io/otel/sdk/metric/metricdata"
 	"google.golang.org/grpc/encoding/gzip"
@@ -53,14 +55,30 @@ func (*provider) HttpHandler() http.Handler {
 
 type Opener struct{}
 
+// OpenURL supports otlp, currently only using grpc protocol
 func (o *Opener) OpenURL(ctx context.Context, u *url.URL) (metrics.ReaderProvider, error) {
 
-	// SAMPLE HOST "localhost:4317"
-	exporter, err := otlpmetricgrpc.New(ctx,
-		otlpmetricgrpc.WithEndpoint(u.Host),
-		otlpmetricgrpc.WithCompressor(gzip.Name),
-		otlpmetricgrpc.WithTemporalitySelector(preferDeltaTemporalitySelector),
-	)
+	var exporter metric.Exporter
+	var err error
+	switch u.Scheme {
+	case "otlp", "otlp+http":
+		exporter, err = otlpmetrichttp.New(ctx,
+			otlpmetrichttp.WithEndpoint(u.Host),
+			otlpmetrichttp.WithCompression(otlpmetrichttp.GzipCompression),
+			otlpmetrichttp.WithTemporalitySelector(preferDeltaTemporalitySelector),
+			otlpmetrichttp.WithInsecure(),
+		)
+	case "otlp+grpc":
+		exporter, err = otlpmetricgrpc.New(ctx,
+			otlpmetricgrpc.WithEndpoint(u.Host),
+			otlpmetricgrpc.WithCompressor(gzip.Name),
+			otlpmetricgrpc.WithTemporalitySelector(preferDeltaTemporalitySelector),
+			otlpmetricgrpc.WithInsecure(),
+		)
+	default:
+		return nil, fmt.Errorf("unsupported scheme: %s, recognized are otlp (defaults to http), otlp+http, otlp+grpc", u.Scheme)
+	}
+
 	if err != nil {
 		return nil, err
 	}

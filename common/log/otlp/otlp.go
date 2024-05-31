@@ -41,6 +41,7 @@ func init() {
 type opener struct{}
 
 func (o *opener) OpenCore(ctx context.Context, u *url.URL, level zapcore.LevelEnabler, svc otel.Service) (log.CoreCloser, error) {
+	useGrpc := u.Scheme == "otlp+grpc"
 	u.Scheme = "http"
 
 	// autosdk env configuration keys
@@ -50,6 +51,9 @@ func (o *opener) OpenCore(ctx context.Context, u *url.URL, level zapcore.LevelEn
 	// export OTEL_RESOURCE_ATTRIBUTES="key1=value1,key2=value2"
 
 	if err := os.Setenv("OTEL_EXPORTER_OTLP_ENDPOINT", u.String()); err == nil {
+		if useGrpc {
+			_ = os.Setenv("OTEL_EXPORTER_OTLP_PROTOCOL", "grpc")
+		}
 		_ = os.Setenv("OTEL_SERVICE_NAME", svc.Name)
 		if svc.Attributes != nil {
 			var parts []string

@@ -24,31 +24,38 @@ import (
 	"context"
 	"net/url"
 
+	"go.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracegrpc"
 	"go.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracehttp"
 	"go.opentelemetry.io/otel/sdk/trace"
+	"google.golang.org/grpc/encoding/gzip"
 
 	"github.com/pydio/cells/v4/common/telemetry/tracing"
 )
 
 func init() {
 	tracing.DefaultURLMux().Register("otlp", &Opener{})
-	tracing.DefaultURLMux().Register("otlps", &Opener{secure: true})
 }
 
-type Opener struct {
-	secure bool
-}
+type Opener struct{}
 
-// OpenURL respond to otlp:// scheme
-// Sample URL for local uptrace docker otlp://localhost:4318
+// OpenURL respond to otlp:// (defaults to otlp+http), otlp+http://, otlp+gprc://  schemes
+// Sample URL for local collector using HTTP otlp://localhost:4318
+// or using GRPC otlp+grpc://localhost:4317
 func (o *Opener) OpenURL(ctx context.Context, u *url.URL) (trace.SpanExporter, error) {
-	opts := []otlptracehttp.Option{
-		otlptracehttp.WithEndpoint(u.Host),
-		otlptracehttp.WithCompression(otlptracehttp.GzipCompression),
+	switch u.Scheme {
+	case "otlp+grpc":
+		opts := []otlptracegrpc.Option{
+			otlptracegrpc.WithEndpoint(u.Host),
+			otlptracegrpc.WithCompressor(gzip.Name),
+			otlptracegrpc.WithInsecure(),
+		}
+		return otlptracegrpc.New(ctx, opts...)
+	default:
+		opts := []otlptracehttp.Option{
+			otlptracehttp.WithEndpoint(u.Host),
+			otlptracehttp.WithCompression(otlptracehttp.GzipCompression),
+			otlptracehttp.WithInsecure(),
+		}
+		return otlptracehttp.New(ctx, opts...)
 	}
-	if !o.secure {
-		opts = append(opts, otlptracehttp.WithInsecure())
-	}
-	exp, er := otlptracehttp.New(ctx, opts...)
-	return exp, er
 }

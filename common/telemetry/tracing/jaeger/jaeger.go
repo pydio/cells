@@ -29,7 +29,6 @@ import (
 
 	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/codes"
-	"go.opentelemetry.io/otel/exporters/jaeger"
 	tracesdk "go.opentelemetry.io/otel/sdk/trace"
 	semconv "go.opentelemetry.io/otel/semconv/v1.20.0"
 	"go.opentelemetry.io/otel/trace"
@@ -46,7 +45,7 @@ const (
 )
 
 func init() {
-	tracing.DefaultURLMux().Register("jaeger", &Opener{})
+	tracing.DefaultURLMux().Register("jaeger-dump", &Opener{})
 }
 
 type Opener struct {
@@ -108,23 +107,16 @@ type Process struct {
 
 func (o *Opener) OpenURL(ctx context.Context, u *url.URL) (tracesdk.SpanExporter, error) {
 
-	if u.Scheme == "jaeger+json" {
-		je := &JsonExporter{
-			filePath:    u.Path,
-			serviceName: "cells-dump",
-			processId:   fmt.Sprintf("pid-%d", os.Getpid()),
-		}
-		if u.Query().Has("service") {
-			je.serviceName = u.Query().Get("service")
-		}
-		return je, nil
-
-	} else {
-		// Replace jaeger:// with http://
-		// Example url http://localhost:14268/api/traces
-		u.Scheme = "http"
-		return jaeger.New(jaeger.WithCollectorEndpoint(jaeger.WithEndpoint(u.String())))
+	je := &JsonExporter{
+		filePath:    u.Path,
+		serviceName: "cells-dump",
+		processId:   fmt.Sprintf("pid-%d", os.Getpid()),
 	}
+	if u.Query().Has("service") {
+		je.serviceName = u.Query().Get("service")
+	}
+	return je, nil
+
 }
 
 func (j *JsonExporter) ExportSpans(ctx context.Context, spans []tracesdk.ReadOnlySpan) error {
