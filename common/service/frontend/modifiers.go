@@ -22,6 +22,7 @@ package frontend
 
 import (
 	"context"
+
 	restful "github.com/emicklei/go-restful/v3"
 	"github.com/gorilla/sessions"
 
@@ -36,7 +37,7 @@ type RegistryModifier func(ctx context.Context, status RequestStatus, registry *
 type PluginModifier func(ctx context.Context, status RequestStatus, plugin Plugin) error
 
 // BootConfModifier is a func type for dynamically filtering the content of the bootconf
-type BootConfModifier func(bootConf *BootConf) error
+type BootConfModifier func(ctx context.Context, bootConf *BootConf) error
 
 type EnrollMiddlewareFunc func(req *restful.Request, rsp *restful.Response, inputRequest *rest.FrontEnrollAuthRequest) bool
 
@@ -101,10 +102,10 @@ func RegisterBootConfModifier(modifier BootConfModifier) {
 }
 
 // ApplyBootConfModifiers is called to apply all registered modifiers on the boot configuration
-func ApplyBootConfModifiers(bootConf *BootConf) error {
+func ApplyBootConfModifiers(ctx context.Context, bootConf *BootConf) error {
 
 	for _, m := range bootConfModifiers {
-		if e := m(bootConf); e != nil {
+		if e := m(ctx, bootConf); e != nil {
 			return e
 		}
 	}

@@ -131,6 +131,7 @@ func (a *FrontendHandler) FrontState(req *restful.Request, rsp *restful.Response
 // directly as a simple GET /a/frontend/bootconf, this endpoint can rely on Cookie for authentication
 func (a *FrontendHandler) FrontBootConf(req *restful.Request, rsp *restful.Response) {
 
+	ctx := req.Request.Context()
 	pool, e := frontend.GetPluginsPool()
 	if e != nil {
 		service.RestError500(req, rsp, e)
@@ -138,15 +139,15 @@ func (a *FrontendHandler) FrontBootConf(req *restful.Request, rsp *restful.Respo
 	}
 	showVersion := false
 	user := &frontend.User{}
-	if e := user.Load(req.Request.Context()); e == nil && user.Logged {
+	if e := user.Load(ctx); e == nil && user.Logged {
 		showVersion = true
 	}
-	bootConf, e := frontend.ComputeBootConf(pool, showVersion)
+	bootConf, e := frontend.ComputeBootConf(ctx, pool, showVersion)
 	if e != nil {
 		service.RestErrorDetect(req, rsp, e)
 		return
 	}
-	rsp.WriteAsJson(bootConf)
+	_ = rsp.WriteAsJson(bootConf)
 
 }
 

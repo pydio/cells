@@ -87,7 +87,7 @@ func (h *IndexHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(500)
 		return
 	}
-	bootConf, e := frontend.ComputeBootConf(pool)
+	bootConf, e := frontend.ComputeBootConf(ctx, pool)
 	if e != nil {
 		w.WriteHeader(500)
 		return

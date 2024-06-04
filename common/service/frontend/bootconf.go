@@ -21,6 +21,7 @@
 package frontend
 
 import (
+	"context"
 	"crypto/md5"
 	"encoding/hex"
 	"os"
@@ -109,7 +110,7 @@ var packagingData []byte
 
 // ComputeBootConf creates a JSON for web interface with a lot of useful info.
 // There is no proto associated
-func ComputeBootConf(pool *PluginsPool, showVersion ...bool) (*BootConf, error) {
+func ComputeBootConf(ctx context.Context, pool *PluginsPool, showVersion ...bool) (*BootConf, error) {
 
 	lang := config.Get("frontend", "plugin", "core.pydio", "DEFAULT_LANGUAGE").Default("en-us").String()
 	sessionTimeout := config.Get("frontend", "plugin", "gui.ajax", "SESSION_TIMEOUT").Default(60).Int()
@@ -181,7 +182,7 @@ func ComputeBootConf(pool *PluginsPool, showVersion ...bool) (*BootConf, error) 
 		b.CustomWording.IconBinary = icBinary
 	}
 
-	if e := ApplyBootConfModifiers(b); e != nil {
+	if e := ApplyBootConfModifiers(ctx, b); e != nil {
 		return nil, e
 	}
 
