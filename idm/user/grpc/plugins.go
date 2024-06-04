@@ -31,6 +31,7 @@ import (
 	"google.golang.org/grpc"
 
 	"github.com/pydio/cells/v4/common"
+	"github.com/pydio/cells/v4/common/broker"
 	grpc2 "github.com/pydio/cells/v4/common/client/grpc"
 	"github.com/pydio/cells/v4/common/config"
 	"github.com/pydio/cells/v4/common/log"
@@ -77,7 +78,7 @@ func init() {
 				idm.RegisterUserServiceServer(server, handler)
 				service2.RegisterLoginModifierServer(server, handler)
 
-				/*Register a cleaner for removing a workspace when there are no more ACLs on it.
+				// Register a cleaner for removing a workspace when there are no more ACLs on it.
 				if e := broker.SubscribeCancellable(ctx, common.TopicIdmEvent, func(ctx context.Context, message broker.Message) error {
 					ev := &idm.ChangeEvent{}
 					if ct, e := message.Unmarshal(ctx, ev); e == nil {
@@ -86,7 +87,7 @@ func init() {
 					return nil
 				}, broker.WithCounterName("user")); e != nil {
 					return e
-				}*/
+				}
 
 				return nil
 			}),
