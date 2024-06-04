@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2021. Abstrium SAS <team (at) pydio.com>
+ * Copyright (c) 2024. Abstrium SAS <team (at) pydio.com>
  * This file is part of Pydio Cells.
  *
  * Pydio Cells is free software: you can redistribute it and/or modify
@@ -18,27 +18,19 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-package index
+package cmd
 
-import (
-	"strings"
+import "github.com/pydio/cells/v4/common/proto/install"
 
-	"github.com/pydio/cells/v4/common/proto/tree"
-	"github.com/pydio/cells/v4/common/utils/mtree"
-)
-
-// NewNode utils
-func NewNode(treeNode tree.N, path mtree.MPath, filenames []string) *mtree.TreeNode {
-	node := mtree.NewTreeNode()
-	if treeNode == nil {
-		treeNode = tree.LightNode(tree.NodeType_UNKNOWN, "", "", "", 0, 0, 0)
-	}
-	node.N = treeNode
-
-	node.SetMPath(path...)
-	node.SetName(filenames[len(filenames)-1])
-
-	node.SetPath(strings.Join(filenames, "/"))
-
-	return node
+type CellsCliPromptStep struct {
+	Step   string
+	Prompt func(*install.InstallConfig) error
 }
+
+func RegisterAdditionalPrompt(step CellsCliPromptStep) {
+	additionalPrompts = append(additionalPrompts, step)
+}
+
+var (
+	additionalPrompts []CellsCliPromptStep
+)

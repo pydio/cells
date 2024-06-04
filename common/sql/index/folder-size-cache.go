@@ -212,7 +212,7 @@ func (dao *FolderSizeCacheSQL) folderSize(node *mtree.TreeNode) {
 	folderSizeLock.RUnlock()
 
 	if ok {
-		node.UpdateSize(size)
+		node.SetSize(size)
 		return
 	}
 
@@ -221,7 +221,7 @@ func (dao *FolderSizeCacheSQL) folderSize(node *mtree.TreeNode) {
 		if row != nil {
 			var size int64
 			if er := row.Scan(&size); er == nil {
-				node.UpdateSize(size)
+				node.SetSize(size)
 
 				folderSizeLock.Lock()
 				folderSizeCache[mpath] = size

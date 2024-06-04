@@ -310,7 +310,7 @@ func (d *daocache) path(strpath string, create bool, noAdd bool, reqNode ...tree
 
 		if node.GetEtag() == "" {
 			// Should only happen for folders - generate first Etag from uuid+mtime
-			node.UpdateEtag(fmt.Sprintf("%x", md5.Sum([]byte(fmt.Sprintf("%s%d", node.GetUuid(), node.GetMTime())))))
+			node.SetEtag(fmt.Sprintf("%x", md5.Sum([]byte(fmt.Sprintf("%s%d", node.GetUuid(), node.GetMTime())))))
 		}
 
 		if !noAdd {

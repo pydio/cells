@@ -225,6 +225,8 @@ storages: &storages
 #    uri: mongo+indexer://localhost:24017/search
   nosql:
     uri: bleve://tmp/{{ .Value "service" }}
+  activities:
+    uri: boltdb://{{{{ getServiceDataDir "pydio.grpc.activity" }}}}/activities.db
   dc_bolt:
     uri: boltdb://{{{{ getServiceDataDir "pydio.grpc.docstore" }}}}/docstore.db
   dc_bleve:
@@ -262,6 +264,11 @@ services:
       main:
         - type: search
           path: chat
+  pydio.grpc.activity:
+    storages:
+      main:
+        - type: activities
+          prefix: activities
   pydio.grpc.docstore:
     storages:
       main:

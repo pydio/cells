@@ -37,11 +37,15 @@ func (pr *Processor) processMetadata(canceler context.Context, operation merger.
 		if opNode == nil {
 			return fmt.Errorf("cannot find operation node for operating on metadata")
 		}
-		parentUuid := operation.GetNode().AsProto().GetStringMeta(merger.MetaNodeParentUUIDMeta)
+		protoNode := &tree.Node{}
+		var parentUuid, parentPath string
+		if operation.GetNode().As(protoNode) {
+			parentUuid = protoNode.GetStringMeta(merger.MetaNodeParentUUIDMeta)
+			parentPath = protoNode.GetStringMeta(merger.MetaNodeParentPathMeta)
+		}
 		if parentUuid == "" {
 			return fmt.Errorf("cannot find parent Uuid for operating on Metadata")
 		}
-		parentPath := operation.GetNode().AsProto().GetStringMeta(merger.MetaNodeParentPathMeta)
 		switch operation.Type() {
 		case merger.OpCreateMeta:
 			return mr.CreateMetadata(canceler, &tree.Node{Uuid: parentUuid, Path: parentPath}, path.Base(opNode.GetPath()), opNode.GetEtag())
@@ -49,6 +53,8 @@ func (pr *Processor) processMetadata(canceler context.Context, operation merger.
 			return mr.UpdateMetadata(canceler, &tree.Node{Uuid: parentUuid, Path: parentPath}, path.Base(opNode.GetPath()), opNode.GetEtag())
 		case merger.OpDeleteMeta:
 			return mr.DeleteMetadata(canceler, &tree.Node{Uuid: parentUuid, Path: parentPath}, path.Base(opNode.GetPath()))
+		default:
+			// ignore
 		}
 	}
 	return nil

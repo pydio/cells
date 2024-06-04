@@ -24,7 +24,6 @@ import (
 	"crypto/md5"
 	"encoding/hex"
 	"fmt"
-	"github.com/pydio/cells/v4/common/sql"
 	"log"
 	osruntime "runtime"
 	"strconv"
@@ -37,6 +36,7 @@ import (
 	"github.com/pydio/cells/v4/common/dao"
 	"github.com/pydio/cells/v4/common/proto/tree"
 	"github.com/pydio/cells/v4/common/runtime"
+	"github.com/pydio/cells/v4/common/sql"
 	"github.com/pydio/cells/v4/common/utils/mtree"
 
 	_ "github.com/pydio/cells/v4/common/utils/cache/gocache"
@@ -136,8 +136,8 @@ func TestMysqlWithCache(t *testing.T) {
 
 		getDAO(ctxWithCache).Flush(false)
 
-		updateNode.UpdateEtag("etag2")
-		updateNode.UpdateSize(24)
+		updateNode.SetEtag("etag2")
+		updateNode.SetSize(24)
 
 		err = getDAO(ctxWithCache).SetNodeMeta(updateNode)
 		So(err, ShouldBeNil)
@@ -213,7 +213,7 @@ func TestMysqlWithCache(t *testing.T) {
 		So(err, ShouldBeNil)
 
 		// Setting MTime to 0 so we can compare
-		node.UpdateMTime(0)
+		node.SetMTime(0)
 
 		So(node.AsProto(), ShouldResemble, mockNode.AsProto())
 
@@ -240,8 +240,8 @@ func TestMysqlWithCache(t *testing.T) {
 		So(err, ShouldBeNil)
 
 		// TODO - find a way
-		node.UpdateMTime(0)
-		node.UpdatePath(mockLongNodeChild2.GetPath())
+		node.SetMTime(0)
+		node.SetPath(mockLongNodeChild2.GetPath())
 
 		getDAO(ctxWithCache).Flush(true)
 
@@ -255,9 +255,9 @@ func TestMysqlWithCache(t *testing.T) {
 		So(err, ShouldBeNil)
 
 		// Setting MTime to 0 so we can compare
-		node.UpdateMTime(0)
-		node.UpdateSize(0)
-		node.UpdatePath("mockLongNode")
+		node.SetMTime(0)
+		node.SetSize(0)
+		node.SetPath("mockLongNode")
 
 		getDAO(ctxWithCache).Flush(true)
 
@@ -274,8 +274,8 @@ func TestMysqlWithCache(t *testing.T) {
 		So(err, ShouldBeNil)
 
 		// TODO - find a way
-		node.UpdateMTime(0)
-		node.UpdatePath(mockLongNodeChild1.GetPath())
+		node.SetMTime(0)
+		node.SetPath(mockLongNodeChild1.GetPath())
 
 		getDAO(ctxWithCache).Flush(true)
 
@@ -293,8 +293,8 @@ func TestMysqlWithCache(t *testing.T) {
 		So(err, ShouldBeNil)
 
 		// TODO - find a way
-		node.UpdateMTime(0)
-		node.UpdatePath(mockLongNodeChild2.GetPath())
+		node.SetMTime(0)
+		node.SetPath(mockLongNodeChild2.GetPath())
 
 		getDAO(ctxWithCache).Flush(true)
 
@@ -482,36 +482,36 @@ func TestMysqlWithCache(t *testing.T) {
 		node := mtree.NewTreeNode()
 		node.N = &tree.Node{Uuid: "etag-parent-folder", Type: tree.NodeType_COLLECTION}
 		node.SetMPath(1, 16)
-		node.UpdateEtag("-1")
+		node.SetEtag("-1")
 
 		node11 := mtree.NewTreeNode()
 		node11.N = &tree.Node{Uuid: "etag-child-1", Type: tree.NodeType_LEAF}
 		node11.SetMPath(1, 16, 1)
-		node11.UpdateEtag(etag1)
+		node11.SetEtag(etag1)
 		node11.SetName("bbb")
 
 		node12 := mtree.NewTreeNode()
 		node12.N = &tree.Node{Uuid: "etag-child-2", Type: tree.NodeType_LEAF}
 		node12.SetMPath(1, 16, 2)
-		node12.UpdateEtag(etag2)
+		node12.SetEtag(etag2)
 		node12.SetName("aaa")
 
 		node13 := mtree.NewTreeNode()
 		node13.N = &tree.Node{Uuid: "etag-child-3", Type: tree.NodeType_COLLECTION}
 		node13.SetMPath(1, 16, 3)
-		node13.UpdateEtag("-1")
+		node13.SetEtag("-1")
 		node13.SetName("ccc")
 
 		node14 := mtree.NewTreeNode()
 		node14.N = &tree.Node{Uuid: "etag-child-child-1", Type: tree.NodeType_LEAF}
 		node14.SetMPath(1, 16, 3, 1)
-		node14.UpdateEtag(etag3)
+		node14.SetEtag(etag3)
 		node14.SetName("a-aaa")
 
 		node15 := mtree.NewTreeNode()
 		node15.N = &tree.Node{Uuid: "etag-child-child-2", Type: tree.NodeType_LEAF}
 		node15.SetMPath(1, 16, 3, 2)
-		node15.UpdateEtag(etag4)
+		node15.SetEtag(etag4)
 		node15.SetName("a-bbb")
 
 		e := getDAO(ctxWithCache).AddNode(node)

@@ -141,45 +141,18 @@ func (node *Node) Clone() *Node {
 	return proto.Clone(node).(*Node)
 }
 
-// UpdatePath changes internal Path value
-func (node *Node) UpdatePath(p string) {
-	node.Path = p
-}
-
-// UpdateUuid changes internal Uuid value
-func (node *Node) UpdateUuid(u string) {
-	node.Uuid = u
-}
-
-// UpdateEtag changes internal Etag value
-func (node *Node) UpdateEtag(et string) {
-	node.Etag = et
-}
-
-// UpdateSize changes internal Size value
-func (node *Node) UpdateSize(s int64) {
-	node.Size = s
-}
-
-// UpdateMTime changes internal MTime value
-func (node *Node) UpdateMTime(s int64) {
-	node.MTime = s
-}
-
-// UpdateMode updates mode fields
-func (node *Node) UpdateMode(s int32) {
-	node.Mode = s
-}
-
 func (node *Node) SetChildrenSize(s uint64) {
 	node.MustSetMeta(common.MetaRecursiveChildrenSize, int64(s))
 }
+
 func (node *Node) SetChildrenFiles(s uint64) {
 	node.MustSetMeta(common.MetaRecursiveChildrenFiles, int64(s))
 }
+
 func (node *Node) SetChildrenFolders(s uint64) {
 	node.MustSetMeta(common.MetaRecursiveChildrenFolders, int64(s))
 }
+
 func (node *Node) GetChildrenSize() (s uint64, o bool) {
 	if !node.HasMetaKey(common.MetaRecursiveChildrenSize) {
 		return
@@ -189,6 +162,7 @@ func (node *Node) GetChildrenSize() (s uint64, o bool) {
 	}
 	return
 }
+
 func (node *Node) GetChildrenFiles() (s uint64, o bool) {
 	if !node.HasMetaKey(common.MetaRecursiveChildrenFiles) {
 		return
@@ -199,6 +173,7 @@ func (node *Node) GetChildrenFiles() (s uint64, o bool) {
 	return
 
 }
+
 func (node *Node) GetChildrenFolders() (s uint64, o bool) {
 	if !node.HasMetaKey(common.MetaRecursiveChildrenFolders) {
 		return

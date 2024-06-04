@@ -41,11 +41,6 @@ import (
 	"github.com/pydio/cells/v4/discovery/install/lib"
 )
 
-type CellsCliPromptStep struct {
-	Step   string
-	Prompt func(*install.InstallConfig) error
-}
-
 var (
 	emailRegexp       = regexp.MustCompile("^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$")
 	additionalPrompts []CellsCliPromptStep
@@ -651,10 +646,6 @@ func setupS3Buckets(c *install.InstallConfig, knownBuckets []string, canCreate b
 			return
 		}
 	}
-}
-
-func RegisterAdditionalPrompt(step CellsCliPromptStep) {
-	additionalPrompts = append(additionalPrompts, step)
 }
 
 func applyAdditionalPrompt(step string, i *install.InstallConfig) error {

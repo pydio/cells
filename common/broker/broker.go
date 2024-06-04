@@ -24,12 +24,15 @@ import (
 	"context"
 	"fmt"
 	"net/url"
+	"runtime"
 	"strings"
 	"sync"
 
+	"go.uber.org/zap"
 	"gocloud.dev/pubsub"
 	"google.golang.org/protobuf/proto"
 
+	"github.com/pydio/cells/v4/common/log"
 	"github.com/pydio/cells/v4/common/service/errors"
 	"github.com/pydio/cells/v4/common/telemetry/metrics"
 	"github.com/pydio/cells/v4/common/utils/openurl"
@@ -303,6 +306,10 @@ func (b *broker) Subscribe(ctx context.Context, topic string, handler Subscriber
 		return nil, err
 	}
 
+	var file string
+	var no int
+	_, file, no, _ = runtime.Caller(3)
+
 	go func() {
 		for {
 			msg, err := sub.Receive(ctx)
@@ -311,28 +318,28 @@ func (b *broker) Subscribe(ctx context.Context, topic string, handler Subscriber
 			}
 
 			msg.Ack()
-
+			var subErr error
 			if b.Options.subscriberInt != nil {
-				if err := b.Options.subscriberInt(ctx, &message{
+				subErr = b.Options.subscriberInt(ctx, &message{
 					header: msg.Metadata,
 					body:   msg.Body,
-				}, handler); err != nil {
-					if so.ErrorHandler != nil {
-						so.ErrorHandler(err)
-					} else {
-						fmt.Println("Cannot handle, no error handler set", topic, err.Error(), msg.Metadata, string(msg.Body))
-					}
-				}
+				}, handler)
 			} else {
-				if err := handler(ctx, &message{
+				subErr = handler(ctx, &message{
 					header: msg.Metadata,
 					body:   msg.Body,
-				}); err != nil {
-					if so.ErrorHandler != nil {
-						so.ErrorHandler(err)
-					} else {
-						fmt.Println("Cannot handle, no error handler set", topic, err.Error(), msg.Metadata, string(msg.Body))
-					}
+				})
+			}
+			if subErr != nil {
+				if so.ErrorHandler != nil {
+					so.ErrorHandler(subErr)
+				} else {
+					log.Logger(ctx).Error("Cannot handle, no error handler set",
+						zap.String("topic", topic),
+						zap.String("line", file),
+						zap.Int("no", no),
+						zap.Error(subErr),
+					)
 				}
 			}
 		}

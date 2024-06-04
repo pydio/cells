@@ -1460,7 +1460,7 @@ func (dao *IndexSQL) Path(strpath string, create bool, reqNode ...tree.N) (mtree
 			parents[level] = node
 
 			pat := strings.Trim(strings.Join(names[0:level], "/"), "/")
-			node.UpdatePath(pat)
+			node.SetPath(pat)
 		} else {
 			if create {
 				if path[level], err = dao.GetNodeFirstAvailableChildIndex(path[0:level]); err != nil {
@@ -1478,7 +1478,7 @@ func (dao *IndexSQL) Path(strpath string, create bool, reqNode ...tree.N) (mtree
 
 				if node.GetEtag() == "" {
 					// Should only happen for folders - generate first Etag from uuid+mtime
-					node.UpdateEtag(fmt.Sprintf("%x", md5.Sum([]byte(fmt.Sprintf("%s%d", node.GetUuid(), node.GetMTime())))))
+					node.SetEtag(fmt.Sprintf("%x", md5.Sum([]byte(fmt.Sprintf("%s%d", node.GetUuid(), node.GetMTime())))))
 				}
 
 				err = dao.AddNode(node)

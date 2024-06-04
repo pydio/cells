@@ -19,6 +19,7 @@ type N interface {
 	INode
 
 	As(interface{}) bool
+	AsProto() *Node
 
 	IsLeaf() bool
 
@@ -271,6 +272,12 @@ func (l *lightNode) ZapPath() zapcore.Field {
 
 func (l *lightNode) ZapUuid() zapcore.Field {
 	return zap.String("uuid", l.uuid)
+}
+
+func (l *lightNode) AsProto() *Node {
+	n := &Node{}
+	l.As(n)
+	return n
 }
 
 func (l *lightNode) As(out any) bool {

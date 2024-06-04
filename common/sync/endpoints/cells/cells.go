@@ -397,7 +397,7 @@ func (c *Abstract) CreateNode(ctx context.Context, node tree.N, updateIfExists b
 		return err
 	}
 	n := node.AsProto().Clone()
-	n.UpdatePath(c.rooted(n.Path))
+	n.SetPath(c.rooted(n.Path))
 	if c.Options.RenewFolderUuids {
 		n.Uuid = ""
 	}
@@ -455,8 +455,8 @@ func (c *Abstract) MoveNode(ct context.Context, oldPath string, newPath string) 
 	}
 	if from, err := c.LoadNode(ctx, oldPath); err == nil {
 		to := from.AsProto().Clone()
-		to.UpdatePath(c.rooted(newPath))
-		from.UpdatePath(c.rooted(from.GetPath()))
+		to.SetPath(c.rooted(newPath))
+		from.SetPath(c.rooted(from.GetPath()))
 		sendCtx, can := context.WithTimeout(ctx, 5*time.Minute)
 		defer can()
 		_, e := cli.UpdateNode(sendCtx, &tree.UpdateNodeRequest{From: from.AsProto(), To: to})

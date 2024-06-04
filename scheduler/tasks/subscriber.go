@@ -205,7 +205,7 @@ func (s *Subscriber) enqueue(ctx context.Context, job *jobs.Job, event proto.Mes
 func (s *Subscriber) getDispatcherForJob(ctx context.Context, job *jobs.Job) *Dispatcher {
 	dispCache, _ := s.dispatchersPool.Get(ctx)
 	var d *Dispatcher
-	if exists := dispCache.Get(job.ID, d); exists {
+	if exists := dispCache.Get(job.ID, &d); exists {
 		return d
 	}
 	maxWorkers := DefaultMaximumWorkers
@@ -306,7 +306,7 @@ func (s *Subscriber) timerEvent(ctx context.Context, event *jobs.JobTriggerEvent
 	// Load Job Data, build selectors
 	defCache, _ := s.definitionsPool.Get(ctx)
 	var j *jobs.Job
-	if ok := defCache.Get(jobId, j); !ok {
+	if ok := defCache.Get(jobId, &j); !ok {
 		// Not in cache, load definition directly for JobsService
 		jobClients := jobs.NewJobServiceClient(grpc.ResolveConn(s.rootCtx, common.ServiceJobs))
 		resp, e := jobClients.GetJob(ctx, &jobs.GetJobRequest{JobID: jobId})
