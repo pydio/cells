@@ -1,4 +1,6 @@
 storages:
+  sql:
+    uri: sqlite3-extended://file:{{ .Value "prefix" }}?mode=memory&cache=shared{{ .Value "prefix" }}
   sql1:
     uri: sqlite3-extended://file:memdb1?mode=memory&cache=shared1
   sql2:

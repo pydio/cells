@@ -12,8 +12,6 @@ import (
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
-	"gorm.io/plugin/dbresolver"
-	"gorm.io/plugin/opentelemetry/tracing"
 
 	"github.com/pydio/cells/v4/common/log"
 	"github.com/pydio/cells/v4/common/runtime"
@@ -21,6 +19,7 @@ import (
 	"github.com/pydio/cells/v4/common/runtime/runtimecontext"
 	"github.com/pydio/cells/v4/common/runtime/tenant"
 	"github.com/pydio/cells/v4/common/storage"
+	"github.com/pydio/cells/v4/common/storage/sql/dbresolver"
 	"github.com/pydio/cells/v4/common/utils/openurl"
 )
 
@@ -118,9 +117,9 @@ func (gs *gormStorage) Open(ctx context.Context, dsn string) (storage.Storage, e
 			Logger:               NewLogger(z, DefaultConfig).LogMode(logger.Info),
 		})
 
-		_ = gdb.Use(tracing.NewPlugin(tracing.WithoutMetrics()))
+		//_ = gdb.Use(tracing.NewPlugin(tracing.WithoutMetrics()))
 
-		dr := &dbresolver.DBResolver{}
+		dr := dbresolver.New()
 
 		_ = gdb.Use(dr)
 		for _, hook := range hookNames {
@@ -135,7 +134,7 @@ func (gs *gormStorage) Open(ctx context.Context, dsn string) (storage.Storage, e
 
 	gs.dr.Register(dbresolver.Config{
 		Sources: []gorm.Dialector{dialect},
-	}, dsn)
+	})
 
 	return gs, nil
 }
