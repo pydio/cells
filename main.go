@@ -34,19 +34,18 @@ import (
 	_ "github.com/pydio/cells/v4/common/nodes/objects/mc"
 
 	// Frontend
-	_ "github.com/pydio/cells/v4/frontend/front-srv/rest"
-	_ "github.com/pydio/cells/v4/frontend/front-srv/web"
+	_ "github.com/pydio/cells/v4/frontend/rest/service"
+	_ "github.com/pydio/cells/v4/frontend/web/service"
 
 	// Discovery
-	_ "github.com/pydio/cells/v4/discovery/broker/grpc"
-	_ "github.com/pydio/cells/v4/discovery/config/grpc"
-	_ "github.com/pydio/cells/v4/discovery/config/web"
-
-	//_ "github.com/pydio/cells/v4/discovery/install/rest"
-	//_ "github.com/pydio/cells/v4/discovery/install/web"
-	_ "github.com/pydio/cells/v4/discovery/registry"
-	//_ "github.com/pydio/cells/v4/discovery/update/grpc"
-	//_ "github.com/pydio/cells/v4/discovery/update/rest"
+	_ "github.com/pydio/cells/v4/discovery/broker/service"
+	_ "github.com/pydio/cells/v4/discovery/config/grpc/service"
+	_ "github.com/pydio/cells/v4/discovery/config/rest/service"
+	_ "github.com/pydio/cells/v4/discovery/install/rest/service"
+	_ "github.com/pydio/cells/v4/discovery/install/web/service"
+	_ "github.com/pydio/cells/v4/discovery/registry/service"
+	_ "github.com/pydio/cells/v4/discovery/update/grpc/service"
+	_ "github.com/pydio/cells/v4/discovery/update/rest/service"
 
 	// Data
 	_ "github.com/pydio/cells/v4/data/docstore/grpc"

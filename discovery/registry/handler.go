@@ -3,11 +3,11 @@ package registry
 import (
 	"context"
 	"errors"
-	"github.com/pydio/cells/v4/common/log"
-	"go.uber.org/zap"
 	"sync"
 
-	"github.com/pydio/cells/v4/common"
+	"go.uber.org/zap"
+
+	"github.com/pydio/cells/v4/common/log"
 	pb "github.com/pydio/cells/v4/common/proto/registry"
 	"github.com/pydio/cells/v4/common/registry"
 	"github.com/pydio/cells/v4/common/registry/util"
@@ -25,10 +25,6 @@ func NewHandler(reg registry.Registry) *Handler {
 	return &Handler{
 		reg: reg,
 	}
-}
-
-func (h *Handler) Name() string {
-	return common.ServiceGrpcNamespace_ + common.ServiceRegistry
 }
 
 func (h *Handler) Session(srv pb.Registry_SessionServer) error {
@@ -92,6 +88,7 @@ func (h *Handler) Start(ctx context.Context, item *pb.Item) (*pb.EmptyResponse, 
 
 	return &pb.EmptyResponse{}, nil
 }
+
 func (h *Handler) Stop(ctx context.Context, item *pb.Item) (*pb.EmptyResponse, error) {
 	if err := h.reg.Stop(util.ToItem(item)); err != nil {
 		return nil, err
@@ -99,6 +96,7 @@ func (h *Handler) Stop(ctx context.Context, item *pb.Item) (*pb.EmptyResponse, e
 
 	return &pb.EmptyResponse{}, nil
 }
+
 func (h *Handler) Get(ctx context.Context, req *pb.GetRequest) (*pb.GetResponse, error) {
 	resp := &pb.GetResponse{}
 
@@ -122,6 +120,7 @@ func (h *Handler) Get(ctx context.Context, req *pb.GetRequest) (*pb.GetResponse,
 
 	return resp, nil
 }
+
 func (h *Handler) Register(ctx context.Context, item *pb.Item) (*pb.EmptyResponse, error) {
 	if err := h.reg.Register(util.ToItem(item)); err != nil {
 		return nil, err

@@ -21,6 +21,7 @@
 package rest
 
 import (
+	"context"
 	"fmt"
 	"strings"
 
@@ -28,11 +29,28 @@ import (
 	"github.com/jcuga/golongpoll"
 	"go.uber.org/zap"
 
+	"github.com/pydio/cells/v4/common"
+	"github.com/pydio/cells/v4/common/broker"
 	"github.com/pydio/cells/v4/common/log"
 	"github.com/pydio/cells/v4/common/proto/install"
 	"github.com/pydio/cells/v4/common/service"
+	"github.com/pydio/cells/v4/common/utils/propagator"
 	"github.com/pydio/cells/v4/discovery/install/lib"
 )
+
+func NewHandler(c context.Context) service.WebHandler {
+	eventManager, _ := golongpoll.StartLongpoll(golongpoll.Options{})
+	return &Handler{
+		eventManager: eventManager,
+		onSuccess: func() error {
+			var bkr broker.Broker
+			if propagator.Get(c, broker.ContextKey, &bkr) {
+				return bkr.Publish(c, common.TopicInstallSuccessEvent, nil)
+			}
+			return broker.Publish(c, common.TopicInstallSuccessEvent, nil)
+		},
+	}
+}
 
 // Handler to the REST requests.
 type Handler struct {

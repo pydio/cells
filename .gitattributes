@@ -2,8 +2,8 @@
 vendor/* linguist-vendored
 
 # Ignore generated Code
-frontend/front-srv/assets/**/build/* linguist-generated
-frontend/front-srv/assets/**/gen/* linguist-generated
+frontend/assets/**/build/* linguist-generated
+frontend/assets/**/gen/* linguist-generated
 discovery/install/assets/src/res/js/gen/* linguist-generated
 discovery/install/assets/src/res/build/* linguist-generated
 

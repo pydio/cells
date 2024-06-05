@@ -1,5 +1,8 @@
+//go:build !dev
+// +build !dev
+
 /*
- * Copyright (c) 2018. Abstrium SAS <team (at) pydio.com>
+ * Copyright (c) 2019-2021. Abstrium SAS <team (at) pydio.com>
  * This file is part of Pydio Cells.
  *
  * Pydio Cells is free software: you can redistribute it and/or modify
@@ -18,18 +21,17 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-// Package frontend contains services required to serve the web interface. It is composed of the following services :
-//
-// ### pydio.web.statics
-// This is a simple HTTP server for accessing to the basic resources like
-// the interface index, serving the front plugins contents, and handling some specific URLs.
-//
-// See web/plugins.go
-//
-// ### pydio.grpc.frontend
-// Provides a couple of frontend-specific REST APIs that are used only by the frontend clients.
-// It has the particularity to implement a Web Session mechanism (using a CookieStore).
-//
-// See rest/service/service.go
-// Services under this folder are called directly by the Http frontend
 package frontend
+
+import (
+	"embed"
+
+	"github.com/pydio/cells/v4/common/utils/statics"
+)
+
+var (
+	//go:embed assets
+	EmbededAssets embed.FS
+
+	FrontendAssets = statics.AsFS(EmbededAssets, "assets")
+)

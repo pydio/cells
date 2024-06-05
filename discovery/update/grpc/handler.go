@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018. Abstrium SAS <team (at) pydio.com>
+ * Copyright (c) 2024. Abstrium SAS <team (at) pydio.com>
  * This file is part of Pydio Cells.
  *
  * Pydio Cells is free software: you can redistribute it and/or modify
@@ -45,10 +45,6 @@ import (
 
 type Handler struct {
 	update.UnimplementedUpdateServiceServer
-}
-
-func (h *Handler) Name() string {
-	return ServiceName
 }
 
 func (h *Handler) UpdateRequired(ctx context.Context, request *update.UpdateRequest) (*update.UpdateResponse, error) {

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018. Abstrium SAS <team (at) pydio.com>
+ * Copyright (c) 2024. Abstrium SAS <team (at) pydio.com>
  * This file is part of Pydio Cells.
  *
  * Pydio Cells is free software: you can redistribute it and/or modify
@@ -18,18 +18,26 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-// Package frontend contains services required to serve the web interface. It is composed of the following services :
-//
-// ### pydio.web.statics
-// This is a simple HTTP server for accessing to the basic resources like
-// the interface index, serving the front plugins contents, and handling some specific URLs.
-//
-// See web/plugins.go
-//
-// ### pydio.grpc.frontend
-// Provides a couple of frontend-specific REST APIs that are used only by the frontend clients.
-// It has the particularity to implement a Web Session mechanism (using a CookieStore).
-//
-// See rest/service/service.go
-// Services under this folder are called directly by the Http frontend
-package frontend
+// Package service is used once at install-time when running install via browser
+package service
+
+import (
+	"context"
+
+	"github.com/pydio/cells/v4/common"
+	"github.com/pydio/cells/v4/common/runtime"
+	"github.com/pydio/cells/v4/common/service"
+	"github.com/pydio/cells/v4/discovery/install/rest"
+)
+
+func init() {
+	runtime.Register("install", func(ctx context.Context) {
+		service.NewService(
+			service.Name(common.ServiceRestNamespace_+common.ServiceInstall),
+			service.Context(ctx),
+			service.Tag(common.ServiceTagDiscovery),
+			service.Description("REST Installation Server"),
+			service.WithWeb(rest.NewHandler),
+		)
+	})
+}
