@@ -54,10 +54,6 @@ type ChatHandler struct {
 	RuntimeCtx context.Context
 }
 
-func (c *ChatHandler) Name() string {
-	return ServiceName
-}
-
 func (c *ChatHandler) PutRoom(ctx context.Context, req *chat.PutRoomRequest) (*chat.PutRoomResponse, error) {
 	dao, err := manager.Resolve[chat2.DAO](ctx)
 	if err != nil {

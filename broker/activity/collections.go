@@ -38,20 +38,20 @@ var (
 	router *compose.Reverse
 )
 
-type sortedWs []*idm.Workspace
+type SortedWs []*idm.Workspace
 
-func (s sortedWs) Less(i, j int) bool {
+func (s SortedWs) Less(i, j int) bool {
 	if s[i].Scope == s[j].Scope {
 		return s[i].Label < s[j].Label
 	}
 	return s[i].Scope > s[j].Scope
 }
 
-func (s sortedWs) Len() int {
+func (s SortedWs) Len() int {
 	return len(s)
 }
 
-func (s sortedWs) Swap(i, j int) {
+func (s SortedWs) Swap(i, j int) {
 	s[i], s[j] = s[j], s[i]
 }
 
@@ -99,7 +99,7 @@ func Digest(ctx context.Context, items []*activity.Object) (*activity.Object, er
 	}
 
 	acSet := make(map[string]struct{})
-	var sorted sortedWs
+	var sorted SortedWs
 	for _, ws := range accessList.GetWorkspaces() {
 		sorted = append(sorted, ws)
 	}

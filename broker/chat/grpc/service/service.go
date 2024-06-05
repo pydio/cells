@@ -18,8 +18,8 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-// Package grpc provides a Pydio GRPC service for managing chat rooms.
-package grpc
+// Package service provides a Pydio GRPC service for managing chat rooms.
+package service
 
 import (
 	"context"
@@ -27,26 +27,25 @@ import (
 	"google.golang.org/grpc"
 
 	"github.com/pydio/cells/v4/broker/chat"
+	grpc2 "github.com/pydio/cells/v4/broker/chat/grpc"
 	"github.com/pydio/cells/v4/common"
 	proto "github.com/pydio/cells/v4/common/proto/chat"
 	"github.com/pydio/cells/v4/common/runtime"
 	"github.com/pydio/cells/v4/common/service"
 )
 
-var ServiceName = common.ServiceGrpcNamespace_ + common.ServiceChat
-
 func init() {
 	runtime.Register("main", func(ctx context.Context) {
 		service.NewService(
-			service.Name(ServiceName),
+			service.Name(common.ServiceGrpcNamespace_+common.ServiceChat),
 			service.Context(ctx),
 			service.Tag(common.ServiceTagBroker),
 			service.Description("Chat Service to attach real-time chats to various object. Coupled with WebSocket"),
-			service.WithStorageDrivers(chat.NewBoltDAO, chat.NewMongoDAO),
-			//service.WithStorageMigrator(chat.Migrate),
+			service.WithStorageDrivers(chat.Drivers...),
+			service.WithStorageMigrator(chat.Migrate),
 			// service.WithStoragePrefix("chat"),
 			service.WithGRPC(func(c context.Context, server grpc.ServiceRegistrar) error {
-				proto.RegisterChatServiceServer(server, &ChatHandler{RuntimeCtx: c})
+				proto.RegisterChatServiceServer(server, &grpc2.ChatHandler{RuntimeCtx: c})
 				return nil
 			}),
 		)

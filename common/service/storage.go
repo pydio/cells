@@ -26,6 +26,12 @@ import (
 	json "github.com/pydio/cells/v4/common/utils/jsonx"
 )
 
+type StorageDrivers []any
+
+func (s *StorageDrivers) Register(f any) {
+	*s = append(*s, f)
+}
+
 type StorageOptions struct {
 	SupportedDrivers map[string][]any
 	Handler          any

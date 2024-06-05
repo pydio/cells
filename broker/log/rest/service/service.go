@@ -1,6 +1,3 @@
-//go:build ignore
-// +build ignore
-
 /*
  * Copyright (c) 2019-2021. Abstrium SAS <team (at) pydio.com>
  * This file is part of Pydio Cells.
@@ -21,51 +18,30 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-// Package grpc provides a Pydio GRPC service for querying the logs
-package grpc
+// Package service exposes a simple REST API for communicating with the GRPC package.
+package service
 
 import (
 	"context"
 
+	"github.com/pydio/cells/v4/broker/log/rest"
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/runtime"
-
 	"github.com/pydio/cells/v4/common/service"
 )
 
 func init() {
 	runtime.Register("main", func(ctx context.Context) {
 		service.NewService(
-			service.Name(common.ServiceGrpcNamespace_+common.ServiceLog+".testing"),
+			service.Name(common.ServiceRestNamespace_+common.ServiceLog),
 			service.Context(ctx),
 			service.Tag(common.ServiceTagBroker),
-			service.Description("Syslog tester"),
-			/*
-				service.WithMicro(func(m micro.Service) error {
-					m.Init(micro.AfterStart(func() error {
-						<-time.After(10 * time.Second)
-						log.Logger(m.Options().Context).Warn("-- STARTING MASSIVE TEST SESSION")
-						k := 0
-						wg := sync.WaitGroup{}
-						for k < 500 {
-							wg.Add(1)
-							go func(k int) {
-								i := 0
-								for i < 500 {
-									log.Logger(m.Options().Context).Warn(fmt.Sprintf("LOG STRING %d-%d", k, i))
-									i++
-								}
-								defer wg.Done()
-							}(k)
-							k++
-						}
-						wg.Wait()
-						log.Logger(m.Options().Context).Warn("-- FINISHED MASSIVE TEST SESSION")
-						return nil
-					}))
-					return nil
-				}),
-			*/
+			service.Description("RESTful Gateway to search in the log repositories"),
+			service.WithWeb(func(c context.Context) service.WebHandler {
+				return &rest.Handler{
+					RuntimeCtx: c,
+				}
+			}),
 		)
 	})
 }

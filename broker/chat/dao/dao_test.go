@@ -18,13 +18,16 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-package chat
+package dao
 
 import (
 	"context"
 	"testing"
 	"time"
 
+	chat2 "github.com/pydio/cells/v4/broker/chat"
+	"github.com/pydio/cells/v4/broker/chat/dao/bolt"
+	"github.com/pydio/cells/v4/broker/chat/dao/mongo"
 	"github.com/pydio/cells/v4/common/proto/chat"
 	"github.com/pydio/cells/v4/common/runtime/manager"
 	"github.com/pydio/cells/v4/common/utils/test"
@@ -38,8 +41,8 @@ import (
 
 var (
 	testcases = []test.StorageTestCase{
-		test.TemplateBoltWithPrefix(NewBoltDAO, "chat_bolt_"),
-		test.TemplateMongoEnvWithPrefix(NewMongoDAO, "broker_"),
+		test.TemplateBoltWithPrefix(bolt.NewBoltDAO, "chat_bolt_"),
+		test.TemplateMongoEnvWithPrefix(mongo.NewMongoDAO, "broker_"),
 	}
 )
 
@@ -47,7 +50,7 @@ func TestDAO(t *testing.T) {
 
 	test.RunStorageTests(testcases, func(ctx context.Context) {
 		Convey("Test connection init", t, func() {
-			m, err := manager.Resolve[DAO](ctx)
+			m, err := manager.Resolve[chat2.DAO](ctx)
 			So(err, ShouldBeNil)
 			So(m, ShouldNotBeNil)
 
@@ -110,7 +113,7 @@ func TestDAO(t *testing.T) {
 		})
 
 		Convey("Clean DB", t, func() {
-			m, err := manager.Resolve[DAO](ctx)
+			m, err := manager.Resolve[chat2.DAO](ctx)
 			So(err, ShouldBeNil)
 			So(m, ShouldNotBeNil)
 

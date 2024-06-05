@@ -55,14 +55,16 @@ type MicroEventsSubscriber struct {
 	sync.Mutex
 	RuntimeCtx context.Context
 
-	cachePool *openurl.Pool[cache.Cache]
-	muxPool   *openurl.Pool[broker.AsyncQueue]
+	cachePool   *openurl.Pool[cache.Cache]
+	muxPool     *openurl.Pool[broker.AsyncQueue]
+	handlerName string
 }
 
-func NewEventsSubscriber(ctx context.Context) (*MicroEventsSubscriber, error) {
+func NewEventsSubscriber(ctx context.Context, handlerName string) (*MicroEventsSubscriber, error) {
 
 	m := &MicroEventsSubscriber{
-		RuntimeCtx: ctx,
+		RuntimeCtx:  ctx,
+		handlerName: handlerName,
 	}
 
 	dbcURL := runtime.QueueURL("debounce", "2s", "idle", "20s", "max", "2000")
@@ -235,7 +237,7 @@ func (e *MicroEventsSubscriber) HandleIdmChange(ctx context.Context, msg *idm.Ch
 		return q.Push(ctx, msg)
 	} else if msg.User != nil && msg.Type == idm.ChangeEventType_DELETE && msg.User.Login != "" {
 		// Clear activity for deleted user
-		ctx = runtime.WithServiceName(ctx, Name)
+		ctx = runtime.WithServiceName(ctx, e.handlerName)
 		log.Logger(ctx).Debug("Clearing activities for user", msg.User.ZapLogin())
 		go func() {
 			if er := dao.Delete(e.RuntimeCtx, activity2.OwnerType_USER, msg.User.Login); er != nil {

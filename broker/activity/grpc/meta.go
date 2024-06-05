@@ -38,10 +38,6 @@ type MetaProvider struct {
 	tree.UnimplementedNodeProviderStreamerServer
 }
 
-func (m *MetaProvider) Name() string {
-	return Name
-}
-
 func (m *MetaProvider) ReadNodeStream(streamer tree.NodeProviderStreamer_ReadNodeStreamServer) error {
 
 	ctx := streamer.Context()

@@ -19,11 +19,12 @@
  */
 
 // Package rest exposes a Rest service for querying activities feed
-package rest
+package service
 
 import (
 	"context"
 
+	"github.com/pydio/cells/v4/broker/activity/rest"
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/runtime"
 	"github.com/pydio/cells/v4/common/service"
@@ -37,7 +38,7 @@ func init() {
 			service.Tag(common.ServiceTagBroker),
 			service.Description("RESTful Gateway to Activity service"),
 			service.WithWeb(func(c context.Context) service.WebHandler {
-				return NewActivityHandler(c)
+				return rest.NewActivityHandler(c)
 			}),
 		)
 	})

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2021. Abstrium SAS <team (at) pydio.com>
+ * Copyright (c) 2024. Abstrium SAS <team (at) pydio.com>
  * This file is part of Pydio Cells.
  *
  * Pydio Cells is free software: you can redistribute it and/or modify
@@ -42,30 +42,22 @@ import (
 
 type Handler struct {
 	proto.UnimplementedMailerServiceServer
-	//dao mailer.Queue
+	svcName string
 
 	senderName   string
 	senderConfig configx.Values
 	sender       mailer.Sender
 }
 
-func NewHandler(serviceCtx context.Context, conf configx.Values) (*Handler, error) {
-	h := new(Handler)
-	/*
-		h.dao = servicecontext.GetDAO(serviceCtx).(mailer.Queue)
-		if h.dao == nil {
-			return nil, fmt.Errorf("could not load queue DAO")
-		}
+func NewHandler(serviceCtx context.Context, svcName string) (*Handler, error) {
 
-	*/
+	conf := config.Get("services", svcName)
+	h := new(Handler)
+	h.svcName = svcName
 	if er := h.initFromConf(serviceCtx, conf, true); er != nil && h.senderName != "disabled" {
 		log.Logger(serviceCtx).Warn("Could not init mailer handler from config: "+er.Error(), zap.Error(er))
 	}
 	return h, nil
-}
-
-func (h *Handler) Name() string {
-	return Name
 }
 
 // SendMail either queues or send a mail directly
@@ -266,7 +258,7 @@ func (h *Handler) initFromConf(ctx context.Context, conf configx.Values, check b
 
 func (h *Handler) checkConfigChange(ctx context.Context, check bool) error {
 
-	cfg := config.Get("services", Name)
+	cfg := config.Get("services", h.svcName)
 	senderName, senderConfig := h.parseConf(cfg)
 	m1, _ := json.Marshal(senderConfig)
 	m2, _ := json.Marshal(h.senderConfig)

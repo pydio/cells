@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2021. Abstrium SAS <team (at) pydio.com>
+ * Copyright (c) 2024. Abstrium SAS <team (at) pydio.com>
  * This file is part of Pydio Cells.
  *
  * Pydio Cells is free software: you can redistribute it and/or modify
@@ -18,7 +18,7 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-package mailer
+package dao
 
 import (
 	"context"
@@ -27,6 +27,9 @@ import (
 
 	"google.golang.org/protobuf/proto"
 
+	mailer2 "github.com/pydio/cells/v4/broker/mailer"
+	"github.com/pydio/cells/v4/broker/mailer/dao/bolt"
+	"github.com/pydio/cells/v4/broker/mailer/dao/mongo"
 	"github.com/pydio/cells/v4/common/proto/mailer"
 	"github.com/pydio/cells/v4/common/runtime/manager"
 	"github.com/pydio/cells/v4/common/utils/configx"
@@ -41,8 +44,8 @@ import (
 var (
 	conf      configx.Values
 	testcases = []test.StorageTestCase{
-		test.TemplateBoltWithPrefix(NewBoltDAO, "test_mailer"),
-		test.TemplateMongoEnvWithPrefix(NewMongoDAO, "broker_"),
+		test.TemplateBoltWithPrefix(bolt.NewBoltDAO, "test_mailer"),
+		test.TemplateMongoEnvWithPrefix(mongo.NewMongoDAO, "broker_"),
 	}
 )
 
@@ -52,7 +55,7 @@ func init() {
 	conf.Val("QueueMaxSize").Set(int64(10))
 }
 
-func testQueue(t *testing.T, queue Queue) {
+func testQueue(t *testing.T, queue mailer2.Queue) {
 
 	email := &mailer.Mail{
 		To: []*mailer.User{{
@@ -127,7 +130,7 @@ func TestEnqueueMail(t *testing.T) {
 	Convey("Test Queue DAO", t, func() {
 
 		test.RunStorageTests(testcases, func(ctx context.Context) {
-			queue, err := manager.Resolve[Queue](ctx)
+			queue, err := manager.Resolve[mailer2.Queue](ctx)
 			if err != nil {
 				panic(err)
 			}

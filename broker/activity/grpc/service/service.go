@@ -18,12 +18,12 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-// Package grpc is the persistence service for all activities.
+// Package service is the GRPC persistence service for all activities.
 //
 // It is listening to many events broadcasted by the application and storing them inside associated feeds, depending
 // on the event context, owner, object type, etc...
 // Persistence is implemented on a Bolt database.
-package grpc
+package service
 
 import (
 	"context"
@@ -31,18 +31,15 @@ import (
 
 	"google.golang.org/grpc"
 	"google.golang.org/protobuf/proto"
-	"google.golang.org/protobuf/types/known/anypb"
 
 	"github.com/pydio/cells/v4/broker/activity"
+	"github.com/pydio/cells/v4/broker/activity/actions"
+	grpc2 "github.com/pydio/cells/v4/broker/activity/grpc"
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/broker"
-	"github.com/pydio/cells/v4/common/client/commons/jobsc"
-	"github.com/pydio/cells/v4/common/log"
 	"github.com/pydio/cells/v4/common/nodes/meta"
 	acproto "github.com/pydio/cells/v4/common/proto/activity"
 	"github.com/pydio/cells/v4/common/proto/idm"
-	"github.com/pydio/cells/v4/common/proto/jobs"
-	serviceproto "github.com/pydio/cells/v4/common/proto/service"
 	"github.com/pydio/cells/v4/common/proto/tree"
 	"github.com/pydio/cells/v4/common/runtime"
 	"github.com/pydio/cells/v4/common/service"
@@ -54,8 +51,6 @@ var (
 )
 
 func init() {
-	jobs.RegisterDefault(digestJob(), Name)
-
 	runtime.Register("main", func(ctx context.Context) {
 		service.NewService(
 			service.Name(Name),
@@ -66,10 +61,10 @@ func init() {
 			service.Migrations([]*service.Migration{
 				{
 					TargetVersion: service.FirstRun(),
-					Up:            registerDigestJob,
+					Up:            actions.RegisterDigestJob,
 				},
 			}),
-			service.WithStorageDrivers(activity.NewBoltDAO, activity.NewMongoDAO),
+			service.WithStorageDrivers(activity.Drivers...),
 			service.WithStorageMigrator(activity.Migrate),
 			/*
 				service.WithStorage("bolt", activity.NewBoltDAO,
@@ -82,17 +77,10 @@ func init() {
 			service.WithGRPC(func(c context.Context, srv grpc.ServiceRegistrar) error {
 
 				// Register Subscribers
-				subscriber, err := NewEventsSubscriber(c)
+				subscriber, err := grpc2.NewEventsSubscriber(c, Name)
 				if err != nil {
 					return err
 				}
-				// Start fifo - it is stopped by c.Done()
-				/*
-					fifo, er := queue.OpenQueue(c, runtime.PersistingQueueURL("serviceName", common.ServiceGrpcNamespace_+common.ServiceActivity, "name", "changes"))
-					if er != nil {
-						return er
-					}
-				*/
 				counterName := broker.WithCounterName("activity")
 
 				processOneWithTimeout := func(ct context.Context, event *tree.NodeChangeEvent) error {
@@ -145,51 +133,11 @@ func init() {
 					return e
 				}
 
-				acproto.RegisterActivityServiceServer(srv, &Handler{})
-				tree.RegisterNodeProviderStreamerServer(srv, &MetaProvider{})
+				acproto.RegisterActivityServiceServer(srv, &grpc2.Handler{})
+				tree.RegisterNodeProviderStreamerServer(srv, &grpc2.MetaProvider{})
 
 				return nil
 			}),
 		)
 	})
-}
-
-func digestJob() *jobs.Job {
-	// Build queries for standard users
-	q1, _ := anypb.New(&idm.UserSingleQuery{NodeType: idm.NodeType_USER})
-	q2, _ := anypb.New(&idm.UserSingleQuery{AttributeName: idm.UserAttrHidden, AttributeAnyValue: true, Not: true})
-	return &jobs.Job{
-		ID:             "users-activity-digest",
-		Label:          "Users activities digest",
-		Owner:          common.PydioSystemUsername,
-		MaxConcurrency: 1,
-		AutoStart:      false,
-		Schedule: &jobs.Schedule{
-			Iso8601Schedule: "R/2012-06-04T19:25:16.828696-07:00/PT15M", // every 5 mn
-		},
-		Actions: []*jobs.Action{
-			{
-				ID: "broker.activity.actions.mail-digest",
-				UsersSelector: &jobs.UsersSelector{
-					Label: "All users except hidden",
-					Query: &serviceproto.Query{
-						SubQueries: []*anypb.Any{q1, q2},
-						Operation:  serviceproto.OperationType_AND,
-					},
-				},
-			},
-		},
-	}
-
-}
-
-func registerDigestJob(ctx context.Context) error {
-
-	log.Logger(ctx).Info("Registering default job for creating activities digests")
-
-	if _, err := jobsc.JobServiceClient(ctx).PutJob(ctx, &jobs.PutJobRequest{Job: digestJob()}); err != nil {
-		return err
-	}
-
-	return nil
 }

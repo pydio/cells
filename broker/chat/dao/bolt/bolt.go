@@ -18,26 +18,35 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-package chat
+package bolt
 
 import (
 	"context"
 	"encoding/binary"
 	"fmt"
 
-	bolt "go.etcd.io/bbolt"
+	"go.etcd.io/bbolt"
 
+	"github.com/pydio/cells/v4/broker/chat"
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/log"
-	"github.com/pydio/cells/v4/common/proto/chat"
+	proto "github.com/pydio/cells/v4/common/proto/chat"
 	"github.com/pydio/cells/v4/common/service/errors"
 	"github.com/pydio/cells/v4/common/utils/configx"
 	json "github.com/pydio/cells/v4/common/utils/jsonx"
 	"github.com/pydio/cells/v4/common/utils/uuid"
 )
 
+func init() {
+	chat.Drivers.Register(NewBoltDAO)
+}
+
+func NewBoltDAO(db *bbolt.DB) chat.DAO {
+	return &boltdbimpl{db: db, HistorySize: 1000}
+}
+
 type boltdbimpl struct {
-	db          *bolt.DB
+	db          *bbolt.DB
 	HistorySize int64
 }
 
@@ -48,7 +57,7 @@ const (
 )
 
 func (h *boltdbimpl) Init(ctx context.Context, config configx.Values) error {
-	return h.db.Update(func(tx *bolt.Tx) error {
+	return h.db.Update(func(tx *bbolt.Tx) error {
 		_, err := tx.CreateBucketIfNotExists([]byte(rooms))
 		if err != nil {
 			return err
@@ -73,7 +82,7 @@ func (h *boltdbimpl) Init(ctx context.Context, config configx.Values) error {
 //
 //	-> ROOM IDS
 //	   -> UUID => messages
-func (h *boltdbimpl) getMessagesBucket(tx *bolt.Tx, createIfNotExist bool, roomUuid string) (*bolt.Bucket, error) {
+func (h *boltdbimpl) getMessagesBucket(tx *bbolt.Tx, createIfNotExist bool, roomUuid string) (*bbolt.Bucket, error) {
 
 	mainBucket := tx.Bucket([]byte(messages))
 	if createIfNotExist {
@@ -94,7 +103,7 @@ func (h *boltdbimpl) getMessagesBucket(tx *bolt.Tx, createIfNotExist bool, roomU
 	}
 }
 
-func (h *boltdbimpl) getRoomsBucket(tx *bolt.Tx, createIfNotExist bool, roomType chat.RoomType, roomObject string) (*bolt.Bucket, error) {
+func (h *boltdbimpl) getRoomsBucket(tx *bbolt.Tx, createIfNotExist bool, roomType proto.RoomType, roomObject string) (*bbolt.Bucket, error) {
 
 	mainBucket := tx.Bucket([]byte(messages))
 	if createIfNotExist {
@@ -129,9 +138,9 @@ func (h *boltdbimpl) getRoomsBucket(tx *bolt.Tx, createIfNotExist bool, roomType
 	}
 }
 
-func (h *boltdbimpl) PutRoom(ctx context.Context, room *chat.ChatRoom) (*chat.ChatRoom, error) {
+func (h *boltdbimpl) PutRoom(ctx context.Context, room *proto.ChatRoom) (*proto.ChatRoom, error) {
 
-	err := h.db.Update(func(tx *bolt.Tx) error {
+	err := h.db.Update(func(tx *bbolt.Tx) error {
 
 		bucket, err := h.getRoomsBucket(tx, true, room.Type, room.RoomTypeObject)
 		if err != nil {
@@ -148,10 +157,10 @@ func (h *boltdbimpl) PutRoom(ctx context.Context, room *chat.ChatRoom) (*chat.Ch
 	return room, err
 }
 
-func (h *boltdbimpl) DeleteRoom(ctx context.Context, room *chat.ChatRoom) (bool, error) {
+func (h *boltdbimpl) DeleteRoom(ctx context.Context, room *proto.ChatRoom) (bool, error) {
 
 	var success bool
-	err := h.db.Update(func(tx *bolt.Tx) error {
+	err := h.db.Update(func(tx *bbolt.Tx) error {
 
 		bucket, err := h.getRoomsBucket(tx, false, room.Type, room.RoomTypeObject)
 		if bucket == nil {
@@ -171,9 +180,9 @@ func (h *boltdbimpl) DeleteRoom(ctx context.Context, room *chat.ChatRoom) (bool,
 	return success, err
 }
 
-func (h *boltdbimpl) ListRooms(ctx context.Context, request *chat.ListRoomsRequest) (rooms []*chat.ChatRoom, e error) {
+func (h *boltdbimpl) ListRooms(ctx context.Context, request *proto.ListRoomsRequest) (rooms []*proto.ChatRoom, e error) {
 
-	e = h.db.View(func(tx *bolt.Tx) error {
+	e = h.db.View(func(tx *bbolt.Tx) error {
 
 		if request.TypeObject != "" {
 
@@ -182,7 +191,7 @@ func (h *boltdbimpl) ListRooms(ctx context.Context, request *chat.ListRoomsReque
 				return nil
 			}
 			err := bucket.ForEach(func(k, v []byte) error {
-				var room chat.ChatRoom
+				var room proto.ChatRoom
 				err := json.Unmarshal(v, &room)
 				if err != nil {
 					return err
@@ -206,7 +215,7 @@ func (h *boltdbimpl) ListRooms(ctx context.Context, request *chat.ListRoomsReque
 				}
 				subBucket := bucket.Bucket(k)
 				return subBucket.ForEach(func(k, v []byte) error {
-					var room chat.ChatRoom
+					var room proto.ChatRoom
 					err := json.Unmarshal(v, &room)
 					if err != nil {
 						return err
@@ -224,10 +233,10 @@ func (h *boltdbimpl) ListRooms(ctx context.Context, request *chat.ListRoomsReque
 	return rooms, e
 }
 
-func (h *boltdbimpl) RoomByUuid(ctx context.Context, byType chat.RoomType, roomUUID string) (*chat.ChatRoom, error) {
-	if byType == chat.RoomType_ANY {
+func (h *boltdbimpl) RoomByUuid(ctx context.Context, byType proto.RoomType, roomUUID string) (*proto.ChatRoom, error) {
+	if byType == proto.RoomType_ANY {
 		log.Logger(ctx).Debug("--- Lookup room with UUID only")
-		types := []chat.RoomType{chat.RoomType_WORKSPACE, chat.RoomType_NODE, chat.RoomType_USER, chat.RoomType_GLOBAL}
+		types := []proto.RoomType{proto.RoomType_WORKSPACE, proto.RoomType_NODE, proto.RoomType_USER, proto.RoomType_GLOBAL}
 		for _, t := range types {
 			if cr, er := h.roomByTypeUuid(ctx, t, roomUUID); er == nil && cr != nil {
 				return cr, nil
@@ -238,12 +247,12 @@ func (h *boltdbimpl) RoomByUuid(ctx context.Context, byType chat.RoomType, roomU
 	return h.roomByTypeUuid(ctx, byType, roomUUID)
 }
 
-// roomByTypeUuid expects a specific type, not chat.RoomType_ANY
-func (h *boltdbimpl) roomByTypeUuid(ctx context.Context, byType chat.RoomType, roomUUID string) (*chat.ChatRoom, error) {
+// roomByTypeUuid expects a specific type, not proto.RoomType_ANY
+func (h *boltdbimpl) roomByTypeUuid(ctx context.Context, byType proto.RoomType, roomUUID string) (*proto.ChatRoom, error) {
 
-	var foundRoom chat.ChatRoom
+	var foundRoom proto.ChatRoom
 	var found bool
-	e := h.db.View(func(tx *bolt.Tx) error {
+	e := h.db.View(func(tx *bbolt.Tx) error {
 		bucket, _ := h.getRoomsBucket(tx, false, byType, "")
 		if bucket == nil {
 			return fmt.Errorf("rooms bucket %s not initialized", byType.String())
@@ -275,8 +284,8 @@ func (h *boltdbimpl) roomByTypeUuid(ctx context.Context, byType chat.RoomType, r
 	return &foundRoom, nil
 }
 
-func (h *boltdbimpl) CountMessages(ctx context.Context, room *chat.ChatRoom) (count int, e error) {
-	e = h.db.View(func(tx *bolt.Tx) error {
+func (h *boltdbimpl) CountMessages(ctx context.Context, room *proto.ChatRoom) (count int, e error) {
+	e = h.db.View(func(tx *bbolt.Tx) error {
 		if bucket, e := h.getMessagesBucket(tx, false, room.Uuid); e != nil {
 			return e
 		} else {
@@ -287,10 +296,10 @@ func (h *boltdbimpl) CountMessages(ctx context.Context, room *chat.ChatRoom) (co
 	return
 }
 
-func (h *boltdbimpl) ListMessages(ctx context.Context, request *chat.ListMessagesRequest) (messages []*chat.ChatMessage, e error) {
+func (h *boltdbimpl) ListMessages(ctx context.Context, request *proto.ListMessagesRequest) (messages []*proto.ChatMessage, e error) {
 
 	bounds := request.Limit > 0 || request.Offset > 0
-	e = h.db.View(func(tx *bolt.Tx) error {
+	e = h.db.View(func(tx *bbolt.Tx) error {
 
 		bucket, _ := h.getMessagesBucket(tx, false, request.RoomUuid)
 		if bucket == nil {
@@ -305,7 +314,7 @@ func (h *boltdbimpl) ListMessages(ctx context.Context, request *chat.ListMessage
 					cursor++
 					continue
 				}
-				var msg chat.ChatMessage
+				var msg proto.ChatMessage
 				if err := json.Unmarshal(v, &msg); err != nil {
 					continue
 				}
@@ -318,7 +327,7 @@ func (h *boltdbimpl) ListMessages(ctx context.Context, request *chat.ListMessage
 			return nil
 		} else {
 			return bucket.ForEach(func(k, v []byte) error {
-				var msg chat.ChatMessage
+				var msg proto.ChatMessage
 				err := json.Unmarshal(v, &msg)
 				if err != nil {
 					return err
@@ -340,13 +349,13 @@ func (h *boltdbimpl) ListMessages(ctx context.Context, request *chat.ListMessage
 	return messages, e
 }
 
-func (h *boltdbimpl) PostMessage(ctx context.Context, request *chat.ChatMessage) (*chat.ChatMessage, error) {
+func (h *boltdbimpl) PostMessage(ctx context.Context, request *proto.ChatMessage) (*proto.ChatMessage, error) {
 
 	if request.Uuid == "" {
 		request.Uuid = uuid.New()
 	}
 
-	err := h.db.Update(func(tx *bolt.Tx) error {
+	err := h.db.Update(func(tx *bbolt.Tx) error {
 		bucket, err := h.getMessagesBucket(tx, true, request.RoomUuid)
 		if err != nil {
 			return nil
@@ -362,16 +371,16 @@ func (h *boltdbimpl) PostMessage(ctx context.Context, request *chat.ChatMessage)
 	return request, err
 }
 
-func (h *boltdbimpl) UpdateMessage(ctx context.Context, request *chat.ChatMessage, callback MessageMatcher) (out *chat.ChatMessage, err error) {
+func (h *boltdbimpl) UpdateMessage(ctx context.Context, request *proto.ChatMessage, callback chat.MessageMatcher) (out *proto.ChatMessage, err error) {
 
-	err = h.db.Update(func(tx *bolt.Tx) error {
+	err = h.db.Update(func(tx *bbolt.Tx) error {
 		bucket, err := h.getMessagesBucket(tx, false, request.RoomUuid)
 		if err != nil {
 			return nil
 		}
 		c := bucket.Cursor()
 		for k, v := c.First(); k != nil; k, v = c.Next() {
-			var msg chat.ChatMessage
+			var msg proto.ChatMessage
 			if er := json.Unmarshal(v, &msg); er != nil {
 				continue
 			}
@@ -390,19 +399,19 @@ func (h *boltdbimpl) UpdateMessage(ctx context.Context, request *chat.ChatMessag
 	return
 }
 
-func (h *boltdbimpl) DeleteMessage(ctx context.Context, message *chat.ChatMessage) error {
+func (h *boltdbimpl) DeleteMessage(ctx context.Context, message *proto.ChatMessage) error {
 
 	if message.Uuid == "" {
 		return errors.BadRequest(common.ServiceChat, "Cannot delete a message without Uuid")
 	}
 
-	err := h.db.Update(func(tx *bolt.Tx) error {
+	err := h.db.Update(func(tx *bbolt.Tx) error {
 		bucket, err := h.getMessagesBucket(tx, false, message.RoomUuid)
 		if err != nil || bucket == nil {
 			return nil
 		}
 		return bucket.ForEach(func(k, v []byte) error {
-			var msg chat.ChatMessage
+			var msg proto.ChatMessage
 			if err := json.Unmarshal(v, &msg); err == nil && msg.Uuid == message.Uuid {
 				return bucket.Delete(k)
 			}

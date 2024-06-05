@@ -27,6 +27,8 @@ import (
 	"time"
 
 	chat2 "github.com/pydio/cells/v4/broker/chat"
+	"github.com/pydio/cells/v4/broker/chat/dao/bolt"
+	"github.com/pydio/cells/v4/broker/chat/dao/mongo"
 	"github.com/pydio/cells/v4/common/nodes/mocks"
 	"github.com/pydio/cells/v4/common/proto/chat"
 	"github.com/pydio/cells/v4/common/runtime/manager"
@@ -42,8 +44,8 @@ import (
 
 var (
 	testcases = []test.StorageTestCase{
-		test.TemplateBoltWithPrefix(chat2.NewBoltDAO, "chat_bolt_"),
-		test.TemplateMongoEnvWithPrefix(chat2.NewMongoDAO, "broker_"),
+		test.TemplateBoltWithPrefix(bolt.NewBoltDAO, "chat_bolt_"),
+		test.TemplateMongoEnvWithPrefix(mongo.NewMongoDAO, "broker_"),
 	}
 )
 

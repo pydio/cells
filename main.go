@@ -75,14 +75,24 @@ import (
 	_ "github.com/pydio/cells/v4/common/registry/config"
 	_ "github.com/pydio/cells/v4/common/registry/service"
 
+	// Broker DAOs
+	_ "github.com/pydio/cells/v4/broker/activity/dao/bolt"
+	_ "github.com/pydio/cells/v4/broker/activity/dao/mongo"
+	_ "github.com/pydio/cells/v4/broker/chat/dao/bolt"
+	_ "github.com/pydio/cells/v4/broker/chat/dao/mongo"
+	_ "github.com/pydio/cells/v4/broker/log/dao/bleve"
+	_ "github.com/pydio/cells/v4/broker/log/dao/mongo"
+	_ "github.com/pydio/cells/v4/broker/mailer/dao/bolt"
+	_ "github.com/pydio/cells/v4/broker/mailer/dao/mongo"
+
 	// Broker
-	_ "github.com/pydio/cells/v4/broker/activity/grpc"
-	_ "github.com/pydio/cells/v4/broker/activity/rest"
-	_ "github.com/pydio/cells/v4/broker/chat/grpc"
-	_ "github.com/pydio/cells/v4/broker/log/grpc"
-	_ "github.com/pydio/cells/v4/broker/log/rest"
-	_ "github.com/pydio/cells/v4/broker/mailer/grpc"
-	_ "github.com/pydio/cells/v4/broker/mailer/rest"
+	_ "github.com/pydio/cells/v4/broker/activity/grpc/service"
+	_ "github.com/pydio/cells/v4/broker/activity/rest/service"
+	_ "github.com/pydio/cells/v4/broker/chat/grpc/service"
+	_ "github.com/pydio/cells/v4/broker/log/grpc/service"
+	_ "github.com/pydio/cells/v4/broker/log/rest/service"
+	_ "github.com/pydio/cells/v4/broker/mailer/grpc/service"
+	_ "github.com/pydio/cells/v4/broker/mailer/rest/service"
 
 	// Cache
 	_ "github.com/pydio/cells/v4/common/broker/debounce"

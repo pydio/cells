@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2021. Abstrium SAS <team (at) pydio.com>
+ * Copyright (c) 2024. Abstrium SAS <team (at) pydio.com>
  * This file is part of Pydio Cells.
  *
  * Pydio Cells is free software: you can redistribute it and/or modify
@@ -18,7 +18,7 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-package mailer
+package bolt
 
 import (
 	"bytes"
@@ -27,15 +27,11 @@ import (
 	"fmt"
 	"strings"
 
-	bolt "go.etcd.io/bbolt"
+	"go.etcd.io/bbolt"
 
+	mailer2 "github.com/pydio/cells/v4/broker/mailer"
 	"github.com/pydio/cells/v4/common/proto/mailer"
 	json "github.com/pydio/cells/v4/common/utils/jsonx"
-)
-
-const (
-	// MaxSendRetries defines number of retries in case of connection failure.
-	MaxSendRetries = 5
 )
 
 // BOLT DAO MANAGEMENT
@@ -43,13 +39,23 @@ var (
 	bucketName = []byte("MailerQueue")
 )
 
+func init() {
+	mailer2.Drivers.Register(NewBoltDAO)
+}
+
+func NewBoltDAO(db *bbolt.DB) mailer2.Queue {
+	bq := &BoltQueue{db: db}
+	_ = bq.Init(nil)
+	return bq
+}
+
 // BoltQueue defines a queue for the mails backed by a Bolt DB.
 type BoltQueue struct {
-	db *bolt.DB
+	db *bbolt.DB
 }
 
 func (b *BoltQueue) Init(ctx context.Context) error {
-	return b.db.Update(func(tx *bolt.Tx) error {
+	return b.db.Update(func(tx *bbolt.Tx) error {
 		_, e := tx.CreateBucketIfNotExists(bucketName)
 		return e
 	})
@@ -64,7 +70,7 @@ func (b *BoltQueue) Close(ctx context.Context) error {
 // Push acquires the lock and add a mail to be sent in the queue.
 func (b *BoltQueue) Push(ctx context.Context, email *mailer.Mail) error {
 
-	return b.db.Update(func(tx *bolt.Tx) error {
+	return b.db.Update(func(tx *bbolt.Tx) error {
 		// Retrieve the bucket.
 		b := tx.Bucket([]byte("MailerQueue"))
 
@@ -89,7 +95,7 @@ func (b *BoltQueue) Consume(ctx context.Context, sendHandler func(email *mailer.
 
 	var output error
 
-	b.db.Update(func(tx *bolt.Tx) error {
+	b.db.Update(func(tx *bbolt.Tx) error {
 
 		b := tx.Bucket([]byte("MailerQueue"))
 		c := b.Cursor()
@@ -110,7 +116,7 @@ func (b *BoltQueue) Consume(ctx context.Context, sendHandler func(email *mailer.
 			// Stream mail
 			if err = sendHandler(&em); err != nil {
 				tos := getTos(&em)
-				if em.Retries <= MaxSendRetries {
+				if em.Retries <= mailer2.MaxSendRetries {
 					// Update number of tries and re-put mail in the queue.
 					em.Retries++
 					em.SendErrors = append(em.SendErrors, err.Error())

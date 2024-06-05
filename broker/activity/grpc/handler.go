@@ -43,10 +43,6 @@ type Handler struct {
 	proto.UnimplementedActivityServiceServer
 }
 
-func (h *Handler) Name() string {
-	return Name
-}
-
 func (h *Handler) PostActivity(stream proto.ActivityService_PostActivityServer) error {
 	ctx := stream.Context()
 

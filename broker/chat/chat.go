@@ -24,11 +24,13 @@ package chat
 import (
 	"context"
 
-	"go.etcd.io/bbolt"
-
 	"github.com/pydio/cells/v4/common/proto/chat"
+	"github.com/pydio/cells/v4/common/runtime/manager"
 	"github.com/pydio/cells/v4/common/service"
-	"github.com/pydio/cells/v4/common/storage/mongodb"
+)
+
+var (
+	Drivers = service.StorageDrivers{}
 )
 
 type MessageMatcher func(msg *chat.ChatMessage) (matches bool, filtered *chat.ChatMessage, err error)
@@ -54,23 +56,19 @@ type DAO interface {
 	CountMessages(ctx context.Context, room *chat.ChatRoom) (count int, e error)
 }
 
-func NewBoltDAO(db *bbolt.DB) DAO {
-	return &boltdbimpl{db: db, HistorySize: 1000}
-}
-
-func NewMongoDAO(db *mongodb.Database) DAO {
-	return &mongoImpl{db: db}
-}
-
-func Migrate(f, t any, dryRun bool, status chan service.MigratorStatus) (map[string]int, error) {
-	ctx := context.Background()
-
+func Migrate(ctx, fromCtx, toCtx context.Context, dryRun bool, status chan service.MigratorStatus) (map[string]int, error) {
 	res := map[string]int{
 		"Rooms":    0,
 		"Messages": 0,
 	}
-	from := f.(DAO)
-	to := t.(DAO)
+	var from, to DAO
+	var err error
+	if from, err = manager.Resolve[DAO](fromCtx); err != nil {
+		return nil, err
+	}
+	if to, err = manager.Resolve[DAO](toCtx); err != nil {
+		return nil, err
+	}
 
 	for _, roomType := range chat.RoomType_value {
 		rooms, er := from.ListRooms(ctx, &chat.ListRoomsRequest{

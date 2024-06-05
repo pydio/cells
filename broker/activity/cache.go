@@ -34,9 +34,14 @@ import (
 	runtimecontext "github.com/pydio/cells/v4/common/utils/propagator"
 )
 
+var noCache bool
+
 func WithCache(dao DAO, batchTimeout time.Duration) DAO {
+	if noCache {
+		return dao
+	}
 	useBatch := false
-	if _, o := dao.(batchDAO); o {
+	if _, o := dao.(BatchDAO); o {
 		useBatch = true
 	}
 	c, _ := cache.OpenPool(runtime.CacheURL("activities", "evictionTime", "5m"))
@@ -54,8 +59,8 @@ type Cache struct {
 
 	useBatch     bool
 	done         chan bool
-	input        chan *batchActivity
-	inner        []*batchActivity
+	input        chan *BatchActivity
+	inner        []*BatchActivity
 	batchTimeout time.Duration
 
 	closed bool
@@ -64,8 +69,8 @@ type Cache struct {
 func (c *Cache) Init(ctx context.Context, values configx.Values) error {
 	if c.useBatch {
 		c.done = make(chan bool)
-		c.input = make(chan *batchActivity)
-		c.inner = make([]*batchActivity, 0, 500)
+		c.input = make(chan *BatchActivity)
+		c.inner = make([]*BatchActivity, 0, 500)
 		go c.startBatching()
 	}
 	if provider, ok := c.DAO.(manager.InitProvider); ok {
@@ -104,7 +109,7 @@ func (c *Cache) flushBatch() {
 	if len(c.inner) == 0 {
 		return
 	}
-	c.DAO.(batchDAO).BatchPost(c.inner)
+	c.DAO.(BatchDAO).BatchPost(c.inner)
 	c.inner = c.inner[:0]
 }
 
@@ -124,12 +129,12 @@ func (c *Cache) PostActivity(ctx context.Context, ownerType activity.OwnerType, 
 		if publish {
 			publishCtx = runtimecontext.ForkContext(context.Background(), ctx)
 		}
-		c.input <- &batchActivity{
+		c.input <- &BatchActivity{
 			Object:     object,
-			ownerType:  ownerType,
-			ownerId:    ownerId,
-			boxName:    boxName,
-			publishCtx: publishCtx,
+			OwnerType:  ownerType,
+			OwnerId:    ownerId,
+			BoxName:    boxName,
+			PublishCtx: publishCtx,
 		}
 		return nil
 	}
@@ -207,11 +212,11 @@ func (c *Cache) Purge(ctx context.Context, logger func(string, int), ownerType a
 }
 
 // AllActivities is used for internal migrations only
-func (c *Cache) allActivities(ctx context.Context) (chan *docActivity, int, error) {
-	return c.DAO.allActivities(ctx)
+func (c *Cache) AllActivities(ctx context.Context) (chan *BatchActivity, int, error) {
+	return c.DAO.AllActivities(ctx)
 }
 
 // AllSubscriptions is used for internal migrations only
-func (c *Cache) allSubscriptions(ctx context.Context) (chan *activity.Subscription, int, error) {
-	return c.DAO.allSubscriptions(ctx)
+func (c *Cache) AllSubscriptions(ctx context.Context) (chan *activity.Subscription, int, error) {
+	return c.DAO.AllSubscriptions(ctx)
 }

@@ -1,16 +1,37 @@
-package mailer
+/*
+ * Copyright (c) 2024. Abstrium SAS <team (at) pydio.com>
+ * This file is part of Pydio Cells.
+ *
+ * Pydio Cells is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Pydio Cells is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with Pydio Cells.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ * The latest code can be found at <https://pydio.com>.
+ */
+
+package mongo
 
 import (
 	"context"
 	"fmt"
-	"github.com/pydio/cells/v4/common/storage/mongodb"
 	"strings"
 	"time"
 
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo/options"
 
+	mailer2 "github.com/pydio/cells/v4/broker/mailer"
 	"github.com/pydio/cells/v4/common/proto/mailer"
+	"github.com/pydio/cells/v4/common/storage/mongodb"
 	"github.com/pydio/cells/v4/common/utils/configx"
 	"github.com/pydio/cells/v4/common/utils/uuid"
 )
@@ -40,6 +61,14 @@ var (
 	}}
 )
 
+func init() {
+	mailer2.Drivers.Register(NewMongoDAO)
+}
+
+func NewMongoDAO(db *mongodb.Database) mailer2.Queue {
+	return &mongoQueue{db: db}
+}
+
 func (m *mongoQueue) Init(ctx context.Context, conf configx.Values) error {
 	return model.Init(ctx, m.db)
 }
@@ -66,7 +95,7 @@ func (m *mongoQueue) Consume(ctx context.Context, f func(email *mailer.Mail) err
 		mail := &StoredEmail{}
 		if de := cursor.Decode(mail); de == nil {
 			i++
-			if err := f(mail.Email); err == nil || mail.Email.Retries > MaxSendRetries {
+			if err := f(mail.Email); err == nil || mail.Email.Retries > mailer2.MaxSendRetries {
 				if _, delE := coll.DeleteOne(ctx, bson.D{{"id", mail.ID}}); delE != nil {
 					fmt.Println("Could not delete email after send", delE)
 					errStack = append(errStack, delE.Error())

@@ -32,11 +32,7 @@ import (
 	"github.com/pydio/cells/v4/common/proto/activity"
 	"github.com/pydio/cells/v4/common/runtime/manager"
 	"github.com/pydio/cells/v4/common/service"
-	"github.com/pydio/cells/v4/common/storage/boltdb"
-	"github.com/pydio/cells/v4/common/storage/mongodb"
 )
-
-var noCache bool
 
 type BoxName string
 
@@ -46,6 +42,10 @@ const (
 	BoxSubscriptions BoxName = "subscriptions"
 	BoxLastRead      BoxName = "lastread"
 	BoxLastSent      BoxName = "lastsent"
+)
+
+var (
+	Drivers = service.StorageDrivers{}
 )
 
 type DAO interface {
@@ -77,40 +77,24 @@ type DAO interface {
 	Purge(ctx context.Context, logger func(string, int), ownerType activity.OwnerType, ownerId string, boxName BoxName, minCount, maxCount int, updatedBefore time.Time, compactDB, clearBackup bool) error
 
 	// AllActivities is used for internal migrations only
-	allActivities(ctx context.Context) (chan *docActivity, int, error)
+	AllActivities(ctx context.Context) (chan *BatchActivity, int, error)
 	// AllSubscriptions is used for internal migrations only
-	allSubscriptions(ctx context.Context) (chan *activity.Subscription, int, error)
+	AllSubscriptions(ctx context.Context) (chan *activity.Subscription, int, error)
 }
 
-type batchActivity struct {
+type BatchActivity struct {
 	*activity.Object
-	ownerType  activity.OwnerType
-	ownerId    string
-	boxName    BoxName
-	publishCtx context.Context
+	OwnerType  activity.OwnerType
+	OwnerId    string
+	BoxName    BoxName
+	PublishCtx context.Context
 }
 
-type batchDAO interface {
-	BatchPost([]*batchActivity) error
+type BatchDAO interface {
+	BatchPost([]*BatchActivity) error
 }
 
-func NewBoltDAO(db *boltdb.Compacter) DAO {
-	d := &boltdbimpl{
-		Compacter:    db,
-		InboxMaxSize: 1000,
-	}
-	if noCache {
-		return d
-	}
-	return WithCache(d, 5*time.Second)
-}
-
-func NewMongoDAO(database *mongodb.Database) DAO {
-	return &mongoimpl{Database: database}
-
-}
-
-func queryFieldsTransformer(s string) (string, error) {
+func QueryFieldsTransformer(s string) (string, error) {
 	switch s {
 	case "eventType":
 		return "type", nil
@@ -126,8 +110,8 @@ func queryFieldsTransformer(s string) (string, error) {
 	return s, fmt.Errorf("unrecognized field name for query")
 }
 
-func Migrate(topCtx, fromCtx, toCtx context.Context, dryRun bool, status chan service.MigratorStatus) (map[string]int, error) {
-	ctx := context.Background()
+func Migrate(ctx, fromCtx, toCtx context.Context, dryRun bool, status chan service.MigratorStatus) (map[string]int, error) {
+
 	out := map[string]int{
 		"Activities":    0,
 		"Subscriptions": 0,
@@ -141,21 +125,21 @@ func Migrate(topCtx, fromCtx, toCtx context.Context, dryRun bool, status chan se
 	if er != nil {
 		return nil, er
 	}
-	aa, total, er := from.allActivities(ctx)
+	aa, total, er := from.AllActivities(ctx)
 	if er != nil {
 		return nil, er
 	}
 	for a := range aa {
 		if dryRun {
 			out["Activities"]++
-		} else if er := to.PostActivity(ctx, activity.OwnerType(a.OwnerType), a.OwnerId, BoxName(a.BoxName), a.Object, false); er == nil {
+		} else if er := to.PostActivity(ctx, a.OwnerType, a.OwnerId, a.BoxName, a.Object, false); er == nil {
 			out["Activities"]++
 		}
 		if total > 0 {
 			status <- service.MigratorStatus{Total: int64(total), Count: int64(out["Activities"])}
 		}
 	}
-	ss, sTotal, er := from.allSubscriptions(ctx)
+	ss, sTotal, er := from.AllSubscriptions(ctx)
 	if er != nil {
 		return out, er
 	}

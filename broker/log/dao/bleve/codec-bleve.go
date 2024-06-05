@@ -18,23 +18,35 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-package log
+package bleve
 
 import (
 	"fmt"
+	"strings"
+
 	bleve "github.com/blevesearch/bleve/v2"
 	"github.com/blevesearch/bleve/v2/mapping"
 	"github.com/blevesearch/bleve/v2/search"
 	"github.com/blevesearch/bleve/v2/search/query"
-	"github.com/pydio/cells/v4/common/utils/configx"
-	"strings"
 
+	log2 "github.com/pydio/cells/v4/broker/log"
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/proto/log"
+	bleve2 "github.com/pydio/cells/v4/common/storage/bleve"
+	"github.com/pydio/cells/v4/common/utils/configx"
 )
 
+func init() {
+	log2.Drivers.Register(NewBleveDAO)
+}
+
+func NewBleveDAO(v *bleve2.Indexer) log2.MessageRepository {
+	v.SetCodex(&BleveCodec{})
+	return log2.NewIndexRepository(v)
+}
+
 type BleveCodec struct {
-	baseCodec
+	log2.BaseCodec
 }
 
 func (b *BleveCodec) Unmarshal(indexed interface{}) (interface{}, error) {

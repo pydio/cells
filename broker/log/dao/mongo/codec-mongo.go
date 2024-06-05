@@ -1,4 +1,4 @@
-package log
+package mongo
 
 import (
 	"fmt"
@@ -8,14 +8,25 @@ import (
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 
+	"github.com/pydio/cells/v4/broker/log"
 	"github.com/pydio/cells/v4/common/storage/mongodb"
 	"github.com/pydio/cells/v4/common/utils/configx"
 )
 
+func init() {
+	log.Drivers.Register(NewMongoDAO)
+}
+
 const mongoCollection = "syslog"
 
+func NewMongoDAO(m *mongodb.Indexer) log.MessageRepository {
+	m.SetCollection(mongoCollection)
+	m.SetCodex(&MongoCodec{})
+	return log.NewIndexRepository(m)
+}
+
 type MongoCodec struct {
-	baseCodec
+	log.BaseCodec
 }
 
 func (m *MongoCodec) Unmarshal(indexed interface{}) (interface{}, error) {
@@ -23,7 +34,7 @@ func (m *MongoCodec) Unmarshal(indexed interface{}) (interface{}, error) {
 	if !ok {
 		return nil, fmt.Errorf("not a cursor")
 	}
-	ilog := &IndexableLog{}
+	ilog := &log.IndexableLog{}
 	if er := cursor.Decode(ilog); er != nil {
 		return nil, er
 	}

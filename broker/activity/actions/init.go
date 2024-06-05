@@ -21,7 +21,11 @@
 // Package actions provides a scheduler action for generating mail digests
 package actions
 
-import "github.com/pydio/cells/v4/scheduler/actions"
+import (
+	"github.com/pydio/cells/v4/common"
+	"github.com/pydio/cells/v4/common/proto/jobs"
+	"github.com/pydio/cells/v4/scheduler/actions"
+)
 
 func init() {
 
@@ -29,5 +33,6 @@ func init() {
 	manager.Register(digestActionName, func() actions.ConcreteAction {
 		return &MailDigestAction{}
 	})
+	jobs.RegisterDefault(DigestJob(), common.ServiceGrpcNamespace_+common.ServiceActivity)
 
 }

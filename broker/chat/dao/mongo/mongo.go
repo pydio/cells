@@ -18,21 +18,30 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-package chat
+package mongo
 
 import (
 	"context"
-	"github.com/pydio/cells/v4/common/storage/mongodb"
 	"strings"
 
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo/options"
 
-	"github.com/pydio/cells/v4/common/proto/chat"
+	"github.com/pydio/cells/v4/broker/chat"
+	proto "github.com/pydio/cells/v4/common/proto/chat"
+	"github.com/pydio/cells/v4/common/storage/mongodb"
 	"github.com/pydio/cells/v4/common/utils/configx"
 	"github.com/pydio/cells/v4/common/utils/uuid"
 )
+
+func init() {
+	chat.Drivers.Register(NewMongoDAO)
+}
+
+func NewMongoDAO(db *mongodb.Database) chat.DAO {
+	return &mongoImpl{db: db}
+}
 
 var mongoModel = mongodb.Model{
 	Collections: []mongodb.Collection{
@@ -66,7 +75,7 @@ func (m *mongoImpl) Init(ctx context.Context, values configx.Values) error {
 	return nil
 }
 
-func (m *mongoImpl) PutRoom(ctx context.Context, room *chat.ChatRoom) (*chat.ChatRoom, error) {
+func (m *mongoImpl) PutRoom(ctx context.Context, room *proto.ChatRoom) (*proto.ChatRoom, error) {
 	if room.Uuid == "" {
 		room.Uuid = uuid.New()
 		_, e := m.db.Collection("rooms").InsertOne(ctx, room)
@@ -88,7 +97,7 @@ func (m *mongoImpl) PutRoom(ctx context.Context, room *chat.ChatRoom) (*chat.Cha
 	}
 }
 
-func (m *mongoImpl) DeleteRoom(ctx context.Context, room *chat.ChatRoom) (bool, error) {
+func (m *mongoImpl) DeleteRoom(ctx context.Context, room *proto.ChatRoom) (bool, error) {
 	res := m.db.Collection("rooms").FindOneAndDelete(ctx, bson.D{{"uuid", room.Uuid}})
 	if res.Err() != nil && !strings.Contains(res.Err().Error(), "no documents in result") {
 		return false, res.Err()
@@ -104,7 +113,7 @@ func (m *mongoImpl) DeleteRoom(ctx context.Context, room *chat.ChatRoom) (bool, 
 	return true, nil
 }
 
-func (m *mongoImpl) ListRooms(ctx context.Context, request *chat.ListRoomsRequest) (cc []*chat.ChatRoom, e error) {
+func (m *mongoImpl) ListRooms(ctx context.Context, request *proto.ListRoomsRequest) (cc []*proto.ChatRoom, e error) {
 	filter := bson.D{{"type", request.ByType}}
 	if request.TypeObject != "" {
 		filter = append(filter, primitive.E{Key: "roomtypeobject", Value: request.TypeObject})
@@ -114,7 +123,7 @@ func (m *mongoImpl) ListRooms(ctx context.Context, request *chat.ListRoomsReques
 		return nil, err
 	}
 	for cursor.Next(ctx) {
-		room := &chat.ChatRoom{}
+		room := &proto.ChatRoom{}
 		if er := cursor.Decode(room); er == nil {
 			cc = append(cc, room)
 		} else {
@@ -124,19 +133,19 @@ func (m *mongoImpl) ListRooms(ctx context.Context, request *chat.ListRoomsReques
 	return
 }
 
-func (m *mongoImpl) RoomByUuid(ctx context.Context, byType chat.RoomType, roomUUID string) (*chat.ChatRoom, error) {
+func (m *mongoImpl) RoomByUuid(ctx context.Context, byType proto.RoomType, roomUUID string) (*proto.ChatRoom, error) {
 	single := m.db.Collection("rooms").FindOne(ctx, bson.D{
 		{"type", byType}, {"uuid", roomUUID},
 	})
 	if single.Err() != nil {
 		return nil, single.Err()
 	}
-	res := &chat.ChatRoom{}
+	res := &proto.ChatRoom{}
 	er := single.Decode(res)
 	return res, er
 }
 
-func (m *mongoImpl) ListMessages(ctx context.Context, request *chat.ListMessagesRequest) (cc []*chat.ChatMessage, e error) {
+func (m *mongoImpl) ListMessages(ctx context.Context, request *proto.ListMessagesRequest) (cc []*proto.ChatMessage, e error) {
 	filter := bson.D{{"roomuuid", request.RoomUuid}}
 	opts := &options.FindOptions{}
 	if request.Limit > 0 {
@@ -151,7 +160,7 @@ func (m *mongoImpl) ListMessages(ctx context.Context, request *chat.ListMessages
 		return nil, err
 	}
 	for cursor.Next(ctx) {
-		room := &chat.ChatMessage{}
+		room := &proto.ChatMessage{}
 		if er := cursor.Decode(room); er == nil {
 			cc = append(cc, room)
 		} else {
@@ -165,7 +174,7 @@ func (m *mongoImpl) ListMessages(ctx context.Context, request *chat.ListMessages
 	return
 }
 
-func (m *mongoImpl) PostMessage(ctx context.Context, request *chat.ChatMessage) (*chat.ChatMessage, error) {
+func (m *mongoImpl) PostMessage(ctx context.Context, request *proto.ChatMessage) (*proto.ChatMessage, error) {
 	if request.Uuid == "" {
 		request.Uuid = uuid.New()
 	}
@@ -178,7 +187,7 @@ func (m *mongoImpl) PostMessage(ctx context.Context, request *chat.ChatMessage) 
 	}
 }
 
-func (m *mongoImpl) UpdateMessage(ctx context.Context, request *chat.ChatMessage, callback MessageMatcher) (*chat.ChatMessage, error) {
+func (m *mongoImpl) UpdateMessage(ctx context.Context, request *proto.ChatMessage, callback chat.MessageMatcher) (*proto.ChatMessage, error) {
 	search := bson.D{
 		{Key: "roomuuid", Value: request.RoomUuid},
 		{Key: "uuid", Value: request.Uuid},
@@ -188,7 +197,7 @@ func (m *mongoImpl) UpdateMessage(ctx context.Context, request *chat.ChatMessage
 	if se := single.Err(); se != nil {
 		return nil, se
 	}
-	res := &chat.ChatMessage{}
+	res := &proto.ChatMessage{}
 	if er := single.Decode(res); er != nil {
 		return nil, er
 	}
@@ -203,7 +212,7 @@ func (m *mongoImpl) UpdateMessage(ctx context.Context, request *chat.ChatMessage
 	return newMsg, e
 }
 
-func (m *mongoImpl) DeleteMessage(ctx context.Context, message *chat.ChatMessage) error {
+func (m *mongoImpl) DeleteMessage(ctx context.Context, message *proto.ChatMessage) error {
 	res := m.db.Collection("messages").FindOneAndDelete(ctx, bson.D{{"uuid", message.Uuid}})
 	if res.Err() != nil {
 		return res.Err()
@@ -212,7 +221,7 @@ func (m *mongoImpl) DeleteMessage(ctx context.Context, message *chat.ChatMessage
 	}
 }
 
-func (m *mongoImpl) CountMessages(ctx context.Context, room *chat.ChatRoom) (count int, e error) {
+func (m *mongoImpl) CountMessages(ctx context.Context, room *proto.ChatRoom) (count int, e error) {
 	c, e := m.db.Collection("messages").CountDocuments(ctx, bson.D{{"roomuuid", room.Uuid}})
 	return int(c), e
 }

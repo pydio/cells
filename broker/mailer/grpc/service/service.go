@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2021. Abstrium SAS <team (at) pydio.com>
+ * Copyright (c) 2024. Abstrium SAS <team (at) pydio.com>
  * This file is part of Pydio Cells.
  *
  * Pydio Cells is free software: you can redistribute it and/or modify
@@ -18,8 +18,8 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-// Package grpc provides the actual logic for posting emails to queue or to mail servers
-package grpc
+// Package service provides the actual logic for posting emails to queue or to mail servers
+package service
 
 import (
 	"context"
@@ -28,8 +28,8 @@ import (
 	"google.golang.org/grpc"
 
 	mailer2 "github.com/pydio/cells/v4/broker/mailer"
+	grpc2 "github.com/pydio/cells/v4/broker/mailer/grpc"
 	"github.com/pydio/cells/v4/common"
-	"github.com/pydio/cells/v4/common/client/commons/jobsc"
 	"github.com/pydio/cells/v4/common/config"
 	"github.com/pydio/cells/v4/common/log"
 	"github.com/pydio/cells/v4/common/proto/jobs"
@@ -44,10 +44,12 @@ var (
 )
 
 func init() {
-	jobs.RegisterDefault(queueJob(), Name)
+	config.RegisterVaultKey("services/" + Name + "/sender/password")
+	jobs.RegisterDefault(mailer2.QueueJob(Name), common.ServiceGrpcNamespace_+common.ServiceMailer)
+
 	runtime.Register("main", func(ctx context.Context) {
 
-		config.RegisterExposedConfigs(Name, ExposedConfigs)
+		config.RegisterExposedConfigs(Name, grpc2.ExposedConfigs)
 
 		service.NewService(
 			service.Name(Name),
@@ -58,10 +60,12 @@ func init() {
 			service.Migrations([]*service.Migration{
 				{
 					TargetVersion: service.FirstRun(),
-					Up:            registerQueueJob,
+					Up: func(ctx context.Context) error {
+						return mailer2.RegisterQueueJob(ctx, Name)
+					},
 				},
 			}),
-			service.WithStorageDrivers(mailer2.NewBoltDAO, mailer2.NewMongoDAO),
+			service.WithStorageDrivers(mailer2.Drivers...),
 			service.WithStorageMigrator(mailer2.MigrateQueue),
 			/*
 				service.WithStorage(mailer2.NewQueueDAO,
@@ -74,8 +78,7 @@ func init() {
 				),*/
 			service.WithGRPC(func(c context.Context, server grpc.ServiceRegistrar) error {
 
-				conf := config.Get("services", Name)
-				handler, err := NewHandler(c, conf)
+				handler, err := grpc2.NewHandler(c, Name)
 				if err != nil {
 					log.Logger(ctx).Error("Init handler", zap.Error(err))
 					return err
@@ -88,39 +91,4 @@ func init() {
 			}),
 		)
 	})
-}
-
-func queueJob() *jobs.Job {
-	return &jobs.Job{
-		ID:             "flush-mailer-queue",
-		Label:          "Flush Mails Queue",
-		Owner:          common.PydioSystemUsername,
-		MaxConcurrency: 1,
-		AutoStart:      false,
-		Schedule: &jobs.Schedule{
-			Iso8601Schedule: "R/2012-06-04T19:25:16.828696-07:00/PT5M", // every 5 mn
-		},
-		Actions: []*jobs.Action{
-			{
-				ID: "actions.cmd.rpc",
-				Parameters: map[string]string{
-					"service": Name,
-					"method":  "MailerService.ConsumeQueue",
-					"request": `{}`,
-				},
-			},
-		},
-	}
-}
-
-// registerQueueJob adds a job to the scheduler to regularly flush the queue
-func registerQueueJob(ctx context.Context) error {
-
-	log.Logger(ctx).Info("Registering default job for consuming mailer queue")
-
-	if _, err := jobsc.JobServiceClient(ctx).PutJob(ctx, &jobs.PutJobRequest{Job: queueJob()}); err != nil {
-		return err
-	}
-
-	return nil
 }

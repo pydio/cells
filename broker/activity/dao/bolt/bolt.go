@@ -18,7 +18,7 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-package activity
+package bolt
 
 import (
 	"bytes"
@@ -34,13 +34,34 @@ import (
 	bolt "go.etcd.io/bbolt"
 	"google.golang.org/protobuf/proto"
 
+	"github.com/pydio/cells/v4/broker/activity"
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/broker"
-	"github.com/pydio/cells/v4/common/proto/activity"
+	acproto "github.com/pydio/cells/v4/common/proto/activity"
 	"github.com/pydio/cells/v4/common/storage/boltdb"
 	"github.com/pydio/cells/v4/common/utils/configx"
 	json "github.com/pydio/cells/v4/common/utils/jsonx"
 )
+
+func init() {
+	activity.Drivers.Register(NewBoltDAO)
+}
+
+func NoCacheDAO(db *boltdb.Compacter) activity.DAO {
+	return &boltdbimpl{Compacter: db, InboxMaxSize: 1000}
+}
+
+func ShortCacheDAO(db *boltdb.Compacter) activity.DAO {
+	return activity.WithCache(&boltdbimpl{Compacter: db, InboxMaxSize: 1000}, 1*time.Second)
+}
+
+func NewBoltDAO(db *boltdb.Compacter) activity.DAO {
+	d := &boltdbimpl{
+		Compacter:    db,
+		InboxMaxSize: 1000,
+	}
+	return activity.WithCache(d, 5*time.Second)
+}
 
 type boltdbimpl struct {
 	*boltdb.Compacter
@@ -53,19 +74,18 @@ func (dao *boltdbimpl) Init(ctx context.Context, options configx.Values) error {
 	// Update defaut inbox max size if set in the config - TODO
 	// dao.InboxMaxSize = options.Val("InboxMaxSize").Default(dao.InboxMaxSize).Int64()
 
-	dao.DB.Update(func(tx *bolt.Tx) error {
-		_, err := tx.CreateBucketIfNotExists([]byte(activity.OwnerType_USER.String()))
+	return dao.DB.Update(func(tx *bolt.Tx) error {
+		_, err := tx.CreateBucketIfNotExists([]byte(acproto.OwnerType_USER.String()))
 		if err != nil {
 			return err
 		}
-		_, err = tx.CreateBucketIfNotExists([]byte(activity.OwnerType_NODE.String()))
+		_, err = tx.CreateBucketIfNotExists([]byte(acproto.OwnerType_NODE.String()))
 		if err != nil {
 			return err
 		}
 		return nil
 	})
 
-	return nil
 }
 
 // Load a given sub-bucket
@@ -84,7 +104,7 @@ func (dao *boltdbimpl) Init(ctx context.Context, options configx.Values) error {
 //	-> NODE_ID
 //	   -> outbox [all node activities, including its children ones]
 //	   -> subscriptions [list of users following this node activity]
-func (dao *boltdbimpl) getBucket(tx *bolt.Tx, createIfNotExist bool, ownerType activity.OwnerType, ownerId string, bucketName BoxName) (*bolt.Bucket, error) {
+func (dao *boltdbimpl) getBucket(tx *bolt.Tx, createIfNotExist bool, ownerType acproto.OwnerType, ownerId string, bucketName activity.BoxName) (*bolt.Bucket, error) {
 
 	mainBucket := tx.Bucket([]byte(ownerType.String()))
 	if createIfNotExist {
@@ -111,10 +131,10 @@ func (dao *boltdbimpl) getBucket(tx *bolt.Tx, createIfNotExist bool, ownerType a
 	return targetBucket, nil
 }
 
-func (dao *boltdbimpl) BatchPost(aa []*batchActivity) error {
+func (dao *boltdbimpl) BatchPost(aa []*activity.BatchActivity) error {
 	return dao.DB.Batch(func(tx *bolt.Tx) error {
 		for _, a := range aa {
-			bucket, err := dao.getBucket(tx, true, a.ownerType, a.ownerId, a.boxName)
+			bucket, err := dao.getBucket(tx, true, a.OwnerType, a.OwnerId, a.BoxName)
 			if err != nil {
 				return err
 			}
@@ -129,11 +149,11 @@ func (dao *boltdbimpl) BatchPost(aa []*batchActivity) error {
 			if err = bucket.Put(k, protoData); err != nil {
 				return err
 			}
-			if a.publishCtx != nil {
-				broker.MustPublish(a.publishCtx, common.TopicActivityEvent, &activity.PostActivityEvent{
-					OwnerType: a.ownerType,
-					OwnerId:   a.ownerId,
-					BoxName:   string(a.boxName),
+			if a.PublishCtx != nil {
+				broker.MustPublish(a.PublishCtx, common.TopicActivityEvent, &acproto.PostActivityEvent{
+					OwnerType: a.OwnerType,
+					OwnerId:   a.OwnerId,
+					BoxName:   string(a.BoxName),
 					Activity:  object,
 				})
 			}
@@ -142,7 +162,7 @@ func (dao *boltdbimpl) BatchPost(aa []*batchActivity) error {
 	})
 }
 
-func (dao *boltdbimpl) PostActivity(ctx context.Context, ownerType activity.OwnerType, ownerId string, boxName BoxName, object *activity.Object, publish bool) error {
+func (dao *boltdbimpl) PostActivity(ctx context.Context, ownerType acproto.OwnerType, ownerId string, boxName activity.BoxName, object *acproto.Object, publish bool) error {
 
 	err := dao.DB.Update(func(tx *bolt.Tx) error {
 
@@ -161,7 +181,7 @@ func (dao *boltdbimpl) PostActivity(ctx context.Context, ownerType activity.Owne
 
 	})
 	if err == nil && publish {
-		broker.MustPublish(ctx, common.TopicActivityEvent, &activity.PostActivityEvent{
+		broker.MustPublish(ctx, common.TopicActivityEvent, &acproto.PostActivityEvent{
 			OwnerType: ownerType,
 			OwnerId:   ownerId,
 			BoxName:   string(boxName),
@@ -172,11 +192,11 @@ func (dao *boltdbimpl) PostActivity(ctx context.Context, ownerType activity.Owne
 
 }
 
-func (dao *boltdbimpl) UpdateSubscription(ctx context.Context, subscription *activity.Subscription) error {
+func (dao *boltdbimpl) UpdateSubscription(ctx context.Context, subscription *acproto.Subscription) error {
 
 	err := dao.DB.Update(func(tx *bolt.Tx) error {
 
-		bucket, err := dao.getBucket(tx, true, subscription.ObjectType, subscription.ObjectId, BoxSubscriptions)
+		bucket, err := dao.getBucket(tx, true, subscription.ObjectType, subscription.ObjectId, activity.BoxSubscriptions)
 		if err != nil {
 			return err
 		}
@@ -192,7 +212,7 @@ func (dao *boltdbimpl) UpdateSubscription(ctx context.Context, subscription *act
 	return err
 }
 
-func (dao *boltdbimpl) ListSubscriptions(ctx context.Context, objectType activity.OwnerType, objectIds []string) (subs []*activity.Subscription, err error) {
+func (dao *boltdbimpl) ListSubscriptions(ctx context.Context, objectType acproto.OwnerType, objectIds []string) (subs []*acproto.Subscription, err error) {
 
 	if len(objectIds) == 0 {
 		return
@@ -201,7 +221,7 @@ func (dao *boltdbimpl) ListSubscriptions(ctx context.Context, objectType activit
 	e := dao.DB.View(func(tx *bolt.Tx) error {
 
 		for _, objectId := range objectIds {
-			bucket, _ := dao.getBucket(tx, false, objectType, objectId, BoxSubscriptions)
+			bucket, _ := dao.getBucket(tx, false, objectType, objectId, activity.BoxSubscriptions)
 			if bucket == nil {
 				continue
 			}
@@ -215,7 +235,7 @@ func (dao *boltdbimpl) ListSubscriptions(ctx context.Context, objectType activit
 				if uE != nil {
 					return uE
 				}
-				subs = append(subs, &activity.Subscription{
+				subs = append(subs, &acproto.Subscription{
 					UserId:     uId,
 					Events:     events,
 					ObjectType: objectType,
@@ -235,13 +255,13 @@ func (dao *boltdbimpl) ListSubscriptions(ctx context.Context, objectType activit
 	return subs, e
 }
 
-func (dao *boltdbimpl) ActivitiesFor(ctx context.Context, ownerType activity.OwnerType, ownerId string, boxName BoxName, refBoxOffset BoxName, reverseOffset int64, limit int64, streamFilter string, result chan *activity.Object, done chan bool) error {
+func (dao *boltdbimpl) ActivitiesFor(ctx context.Context, ownerType acproto.OwnerType, ownerId string, boxName activity.BoxName, refBoxOffset activity.BoxName, reverseOffset int64, limit int64, streamFilter string, result chan *acproto.Object, done chan bool) error {
 
 	defer func() {
 		done <- true
 	}()
 	if boxName == "" {
-		boxName = BoxOutbox
+		boxName = activity.BoxOutbox
 	}
 	var lastRead []byte
 	if limit == 0 && refBoxOffset == "" {
@@ -258,7 +278,7 @@ func (dao *boltdbimpl) ActivitiesFor(ctx context.Context, ownerType activity.Own
 		var fieldErs []error
 		evaluable, _, err = boltdb.BleveQueryToJSONPath(streamFilter, "$", true, func(s string) string {
 			var fe error
-			if s, fe = queryFieldsTransformer(s); fe != nil {
+			if s, fe = activity.QueryFieldsTransformer(s); fe != nil {
 				fieldErs = append(fieldErs, fe)
 			}
 			if s == "updated" {
@@ -285,7 +305,7 @@ func (dao *boltdbimpl) ActivitiesFor(ctx context.Context, ownerType activity.Own
 		i := int64(0)
 		total := int64(0)
 		stackCount := int32(1)
-		var prevObj *activity.Object
+		var prevObj *acproto.Object
 		for k, v := c.Last(); k != nil; k, v = c.Prev() {
 			if uintOffset > 0 && dao.bytesToUint(k) <= uintOffset {
 				break
@@ -337,10 +357,10 @@ func (dao *boltdbimpl) ActivitiesFor(ctx context.Context, ownerType activity.Own
 		return nil
 	})
 
-	if refBoxOffset != BoxLastSent && ownerType == activity.OwnerType_USER && boxName == BoxInbox && len(lastRead) > 0 {
+	if refBoxOffset != activity.BoxLastSent && ownerType == acproto.OwnerType_USER && boxName == activity.BoxInbox && len(lastRead) > 0 {
 		// Store last read in dedicated box
 		go func() {
-			_ = dao.storeLastUserInbox(ownerId, BoxLastRead, lastRead)
+			_ = dao.storeLastUserInbox(ownerId, activity.BoxLastRead, lastRead)
 		}()
 	}
 
@@ -348,11 +368,11 @@ func (dao *boltdbimpl) ActivitiesFor(ctx context.Context, ownerType activity.Own
 
 }
 
-func (dao *boltdbimpl) ReadLastUserInbox(userId string, boxName BoxName) uint64 {
+func (dao *boltdbimpl) ReadLastUserInbox(userId string, boxName activity.BoxName) uint64 {
 
 	var last []byte
 	dao.DB.View(func(tx *bolt.Tx) error {
-		bucket, _ := dao.getBucket(tx, false, activity.OwnerType_USER, userId, boxName)
+		bucket, _ := dao.getBucket(tx, false, acproto.OwnerType_USER, userId, boxName)
 		if bucket == nil {
 			return nil
 		}
@@ -365,7 +385,7 @@ func (dao *boltdbimpl) ReadLastUserInbox(userId string, boxName BoxName) uint64 
 	return 0
 }
 
-func (dao *boltdbimpl) StoreLastUserInbox(ctx context.Context, userId string, boxName BoxName, activityId string) error {
+func (dao *boltdbimpl) StoreLastUserInbox(ctx context.Context, userId string, boxName activity.BoxName, activityId string) error {
 
 	id := strings.TrimPrefix(activityId, "/activity-")
 	uintId, _ := strconv.ParseUint(id, 10, 64)
@@ -375,9 +395,9 @@ func (dao *boltdbimpl) StoreLastUserInbox(ctx context.Context, userId string, bo
 }
 
 // StoreLastUserInbox stores last key read to a "Last" inbox (read, sent)
-func (dao *boltdbimpl) storeLastUserInbox(userId string, boxName BoxName, last []byte) error {
+func (dao *boltdbimpl) storeLastUserInbox(userId string, boxName activity.BoxName, last []byte) error {
 	return dao.DB.Update(func(tx *bolt.Tx) error {
-		bucket, err := dao.getBucket(tx, true, activity.OwnerType_USER, userId, boxName)
+		bucket, err := dao.getBucket(tx, true, acproto.OwnerType_USER, userId, boxName)
 		if err != nil {
 			return err
 		}
@@ -388,11 +408,11 @@ func (dao *boltdbimpl) storeLastUserInbox(userId string, boxName BoxName, last [
 func (dao *boltdbimpl) CountUnreadForUser(ctx context.Context, userId string) int {
 
 	var unread int
-	lastRead := dao.ReadLastUserInbox(userId, BoxLastRead)
+	lastRead := dao.ReadLastUserInbox(userId, activity.BoxLastRead)
 
 	dao.DB.View(func(tx *bolt.Tx) error {
 
-		bucket, _ := dao.getBucket(tx, false, activity.OwnerType_USER, userId, BoxInbox)
+		bucket, _ := dao.getBucket(tx, false, acproto.OwnerType_USER, userId, activity.BoxInbox)
 		if bucket != nil {
 			c := bucket.Cursor()
 			for k, _ := c.Last(); k != nil; k, _ = c.Prev() {
@@ -411,7 +431,7 @@ func (dao *boltdbimpl) CountUnreadForUser(ctx context.Context, userId string) in
 
 // Delete should be wired to "USER_DELETE" and "NODE_DELETE" events
 // to remove (or archive?) deprecated queues
-func (dao *boltdbimpl) Delete(ctx context.Context, ownerType activity.OwnerType, ownerId string) error {
+func (dao *boltdbimpl) Delete(ctx context.Context, ownerType acproto.OwnerType, ownerId string) error {
 
 	err := dao.DB.Update(func(tx *bolt.Tx) error {
 
@@ -427,13 +447,13 @@ func (dao *boltdbimpl) Delete(ctx context.Context, ownerType activity.OwnerType,
 
 	})
 
-	if err != nil || ownerType != activity.OwnerType_USER {
+	if err != nil || ownerType != acproto.OwnerType_USER {
 		return err
 	}
 
 	// When clearing for a given user, clear from nodes data
 	err = dao.DB.Update(func(tx *bolt.Tx) error {
-		nodesBucket := tx.Bucket([]byte(activity.OwnerType_NODE.String()))
+		nodesBucket := tx.Bucket([]byte(acproto.OwnerType_NODE.String()))
 		if nodesBucket == nil {
 			return nil
 		}
@@ -442,7 +462,7 @@ func (dao *boltdbimpl) Delete(ctx context.Context, ownerType activity.OwnerType,
 			if v != nil {
 				return nil
 			}
-			if outbox := nodesBucket.Bucket(k).Bucket([]byte(BoxOutbox)); outbox != nil {
+			if outbox := nodesBucket.Bucket(k).Bucket([]byte(activity.BoxOutbox)); outbox != nil {
 				outbox.ForEach(func(k, v []byte) error {
 					acObject, er := dao.UnmarshalActivity(v)
 					if er == nil && acObject.Actor != nil && acObject.Actor.Id == ownerId {
@@ -451,7 +471,7 @@ func (dao *boltdbimpl) Delete(ctx context.Context, ownerType activity.OwnerType,
 					return nil
 				})
 			}
-			if subscriptions := nodesBucket.Bucket(k).Bucket([]byte(BoxSubscriptions)); subscriptions != nil {
+			if subscriptions := nodesBucket.Bucket(k).Bucket([]byte(activity.BoxSubscriptions)); subscriptions != nil {
 				subscriptions.ForEach(func(k, v []byte) error {
 					if string(k) == ownerId {
 						subscriptions.Delete(k)
@@ -470,7 +490,7 @@ func (dao *boltdbimpl) Delete(ctx context.Context, ownerType activity.OwnerType,
 // Purge removes records based on a maximum number of records and/or based on the activity update date
 // It keeps at least minCount record(s) - to see last activity - even if older than expected date
 // Warning, dao must be resolved again after calling this function if compact is set
-func (dao *boltdbimpl) Purge(ctx context.Context, logger func(string, int), ownerType activity.OwnerType, ownerId string, boxName BoxName, minCount, maxCount int, updatedBefore time.Time, compactDB, clearBackup bool) error {
+func (dao *boltdbimpl) Purge(ctx context.Context, logger func(string, int), ownerType acproto.OwnerType, ownerId string, boxName activity.BoxName, minCount, maxCount int, updatedBefore time.Time, compactDB, clearBackup bool) error {
 
 	purgeBucket := func(bucket *bolt.Bucket, owner string) {
 		c := bucket.Cursor()
@@ -532,20 +552,20 @@ func (dao *boltdbimpl) Purge(ctx context.Context, logger func(string, int), owne
 }
 
 // AllActivities is used for internal migrations only
-func (dao *boltdbimpl) allActivities(ctx context.Context) (chan *docActivity, int, error) {
+func (dao *boltdbimpl) AllActivities(ctx context.Context) (chan *activity.BatchActivity, int, error) {
 
 	db := dao.DB
-	out := make(chan *docActivity, 1000)
-	listBucket := func(bb *bolt.Bucket, ownerType int32, ownerId string, boxName BoxName) {
+	out := make(chan *activity.BatchActivity, 1000)
+	listBucket := func(bb *bolt.Bucket, ownerType int32, ownerId string, boxName activity.BoxName) {
 		cursor := bb.Cursor()
 		for k, v := cursor.First(); k != nil; k, v = cursor.Next() {
 			acObject, err := dao.UnmarshalActivity(v)
 			if err == nil {
-				out <- &docActivity{
+				out <- &activity.BatchActivity{
 					Object:    acObject,
-					BoxName:   string(boxName),
+					BoxName:   boxName,
 					OwnerId:   ownerId,
-					OwnerType: ownerType,
+					OwnerType: acproto.OwnerType(ownerType),
 				}
 			}
 		}
@@ -553,14 +573,14 @@ func (dao *boltdbimpl) allActivities(ctx context.Context) (chan *docActivity, in
 	var total int
 	_ = db.View(func(tx *bolt.Tx) error {
 		// First compute total
-		for _, t := range activity.OwnerType_name {
+		for _, t := range acproto.OwnerType_name {
 			mainBucket := tx.Bucket([]byte(t))
 			// Browse all user
 			_ = mainBucket.ForEach(func(k, v []byte) error {
-				if inbox := mainBucket.Bucket(k).Bucket([]byte(BoxInbox)); inbox != nil {
+				if inbox := mainBucket.Bucket(k).Bucket([]byte(activity.BoxInbox)); inbox != nil {
 					total += inbox.Stats().KeyN
 				}
-				if outbox := mainBucket.Bucket(k).Bucket([]byte(BoxOutbox)); outbox != nil {
+				if outbox := mainBucket.Bucket(k).Bucket([]byte(activity.BoxOutbox)); outbox != nil {
 					total += outbox.Stats().KeyN
 				}
 				return nil
@@ -572,15 +592,15 @@ func (dao *boltdbimpl) allActivities(ctx context.Context) (chan *docActivity, in
 	go func() {
 		defer close(out)
 		_ = db.View(func(tx *bolt.Tx) error {
-			for typeInt, t := range activity.OwnerType_name {
+			for typeInt, t := range acproto.OwnerType_name {
 				mainBucket := tx.Bucket([]byte(t))
 				// Browse all user
 				_ = mainBucket.ForEach(func(k, v []byte) error {
-					if inbox := mainBucket.Bucket(k).Bucket([]byte(BoxInbox)); inbox != nil {
-						listBucket(inbox, typeInt, string(k), BoxInbox)
+					if inbox := mainBucket.Bucket(k).Bucket([]byte(activity.BoxInbox)); inbox != nil {
+						listBucket(inbox, typeInt, string(k), activity.BoxInbox)
 					}
-					if outbox := mainBucket.Bucket(k).Bucket([]byte(BoxOutbox)); outbox != nil {
-						listBucket(outbox, typeInt, string(k), BoxOutbox)
+					if outbox := mainBucket.Bucket(k).Bucket([]byte(activity.BoxOutbox)); outbox != nil {
+						listBucket(outbox, typeInt, string(k), activity.BoxOutbox)
 					}
 					return nil
 				})
@@ -592,15 +612,15 @@ func (dao *boltdbimpl) allActivities(ctx context.Context) (chan *docActivity, in
 }
 
 // AllSubscriptions is used for internal migrations only
-func (dao *boltdbimpl) allSubscriptions(ctx context.Context) (chan *activity.Subscription, int, error) {
-	out := make(chan *activity.Subscription)
+func (dao *boltdbimpl) AllSubscriptions(ctx context.Context) (chan *acproto.Subscription, int, error) {
+	out := make(chan *acproto.Subscription)
 	var total int
 	_ = dao.DB.View(func(tx *bolt.Tx) error {
-		for _, t := range activity.OwnerType_name {
+		for _, t := range acproto.OwnerType_name {
 			mainBucket := tx.Bucket([]byte(t))
 			// Browse all user
 			_ = mainBucket.ForEach(func(uk, uv []byte) error {
-				if inbox := mainBucket.Bucket(uk).Bucket([]byte(BoxSubscriptions)); inbox != nil {
+				if inbox := mainBucket.Bucket(uk).Bucket([]byte(activity.BoxSubscriptions)); inbox != nil {
 					total += inbox.Stats().KeyN
 				}
 				return nil
@@ -611,17 +631,17 @@ func (dao *boltdbimpl) allSubscriptions(ctx context.Context) (chan *activity.Sub
 	go func() {
 		defer close(out)
 		_ = dao.DB.View(func(tx *bolt.Tx) error {
-			for typeInt, t := range activity.OwnerType_name {
+			for typeInt, t := range acproto.OwnerType_name {
 				mainBucket := tx.Bucket([]byte(t))
 				// Browse all user
 				_ = mainBucket.ForEach(func(uk, uv []byte) error {
-					if inbox := mainBucket.Bucket(uk).Bucket([]byte(BoxSubscriptions)); inbox != nil {
+					if inbox := mainBucket.Bucket(uk).Bucket([]byte(activity.BoxSubscriptions)); inbox != nil {
 						c := inbox.Cursor()
 						for k, v := c.First(); k != nil; k, v = c.Next() {
 							var events []string
 							if er := json.Unmarshal(v, &events); er == nil {
-								out <- &activity.Subscription{
-									ObjectType: activity.OwnerType(typeInt),
+								out <- &acproto.Subscription{
+									ObjectType: acproto.OwnerType(typeInt),
 									UserId:     string(uk),
 									ObjectId:   string(k),
 									Events:     events,
@@ -641,7 +661,7 @@ func (dao *boltdbimpl) allSubscriptions(ctx context.Context) (chan *activity.Sub
 
 }
 
-func (dao *boltdbimpl) activitiesAreSimilar(acA *activity.Object, acB *activity.Object) bool {
+func (dao *boltdbimpl) activitiesAreSimilar(acA *acproto.Object, acB *acproto.Object) bool {
 	if acA.Actor == nil || acA.Object == nil || acB.Actor == nil || acB.Object == nil {
 		return false
 	}
@@ -662,8 +682,8 @@ func (dao *boltdbimpl) bytesToUint(by []byte) uint64 {
 	return num
 }
 
-func (dao *boltdbimpl) UnmarshalActivity(bb []byte) (*activity.Object, error) {
-	acObject := &activity.Object{}
+func (dao *boltdbimpl) UnmarshalActivity(bb []byte) (*acproto.Object, error) {
+	acObject := &acproto.Object{}
 	// try proto first
 	if err := proto.Unmarshal(bb, acObject); err == nil {
 		return acObject, err

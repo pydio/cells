@@ -18,7 +18,7 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-package log
+package dao
 
 import (
 	"context"
@@ -26,6 +26,9 @@ import (
 	"testing"
 	"time"
 
+	log2 "github.com/pydio/cells/v4/broker/log"
+	"github.com/pydio/cells/v4/broker/log/dao/bleve"
+	"github.com/pydio/cells/v4/broker/log/dao/mongo"
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/config"
 	"github.com/pydio/cells/v4/common/proto/log"
@@ -40,8 +43,8 @@ import (
 
 var (
 	testcases = []test.StorageTestCase{
-		test.TemplateBleveWithPrefix(NewBleveDAO, "logs_test_"),
-		test.TemplateMongoEnvWithPrefixAndIndexerCollection(NewMongoDAO, "test_broker_", "syslog"),
+		test.TemplateBleveWithPrefix(bleve.NewBleveDAO, "logs_test_"),
+		test.TemplateMongoEnvWithPrefixAndIndexerCollection(mongo.NewMongoDAO, "test_broker_", "syslog"),
 	}
 )
 
@@ -51,7 +54,7 @@ func TestMessageRepository(t *testing.T) {
 		mem, _ := config.OpenStore(ctx, "mem:///")
 		ctx = propagator.With(ctx, config.ContextKey, mem)
 		Convey("Test all property indexation:\n", t, func() {
-			server, err := manager.Resolve[MessageRepository](ctx)
+			server, err := manager.Resolve[log2.MessageRepository](ctx)
 			So(err, ShouldBeNil)
 			So(server, ShouldNotBeNil)
 
@@ -85,7 +88,7 @@ func TestMessageRepository(t *testing.T) {
 		})
 
 		Convey("Basic technical log index tests:\n", t, func() {
-			server, err := manager.Resolve[MessageRepository](ctx)
+			server, err := manager.Resolve[log2.MessageRepository](ctx)
 			So(err, ShouldBeNil)
 			So(server, ShouldNotBeNil)
 
@@ -105,7 +108,7 @@ func TestMessageRepository(t *testing.T) {
 		})
 
 		Convey("Search a result", t, func() {
-			server, err := manager.Resolve[MessageRepository](ctx)
+			server, err := manager.Resolve[log2.MessageRepository](ctx)
 			So(err, ShouldBeNil)
 			So(server, ShouldNotBeNil)
 

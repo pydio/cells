@@ -19,7 +19,7 @@
  */
 
 // Package grpc provides a Pydio GRPC service for querying the logs
-package grpc
+package service
 
 import (
 	"context"
@@ -29,6 +29,7 @@ import (
 	"google.golang.org/grpc"
 
 	"github.com/pydio/cells/v4/broker/log"
+	grpc2 "github.com/pydio/cells/v4/broker/log/grpc"
 	"github.com/pydio/cells/v4/common"
 	log2 "github.com/pydio/cells/v4/common/log"
 	proto "github.com/pydio/cells/v4/common/proto/log"
@@ -50,15 +51,7 @@ func init() {
 			service.Context(ctx),
 			service.Tag(common.ServiceTagBroker),
 			service.Description("Syslog index store"),
-			/*
-				service.WithStorage(
-					service.WithName("logs"),
-					service.WithDriver(log.NewBleveDAO),
-					service.WithDriver(log.NewMongoDAO),
-					service.WithMigrator(log.Migrate),
-				),
-			*/
-			service.WithStorageDrivers(log.NewBleveDAO, log.NewMongoDAO),
+			service.WithStorageDrivers(log.Drivers...),
 			service.WithStorageMigrator(log.Migrate),
 			/*
 				service.WithIndexer(log.NewDAO,
@@ -73,7 +66,7 @@ func init() {
 			*/
 			service.WithGRPC(func(c context.Context, server grpc.ServiceRegistrar) error {
 
-				handler := &Handler{
+				handler := &grpc2.Handler{
 					HandlerName: common.ServiceGrpcNamespace_ + common.ServiceLog,
 				}
 

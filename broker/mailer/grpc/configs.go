@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2021. Abstrium SAS <team (at) pydio.com>
+ * Copyright (c) 2024. Abstrium SAS <team (at) pydio.com>
  * This file is part of Pydio Cells.
  *
  * Pydio Cells is free software: you can redistribute it and/or modify
@@ -22,13 +22,8 @@ package grpc
 
 import (
 	"github.com/pydio/cells/v4/broker/mailer/lang"
-	"github.com/pydio/cells/v4/common/config"
 	"github.com/pydio/cells/v4/common/forms"
 )
-
-func init() {
-	config.RegisterVaultKey("services/" + Name + "/sender/password")
-}
 
 var ExposedConfigs = &forms.Form{
 	I18NBundle: lang.Bundle(),

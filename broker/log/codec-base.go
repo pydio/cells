@@ -2,12 +2,13 @@ package log
 
 import (
 	"fmt"
+	"strings"
+	"time"
+
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/middleware"
 	"github.com/pydio/cells/v4/common/proto/log"
 	json "github.com/pydio/cells/v4/common/utils/jsonx"
-	"strings"
-	"time"
 )
 
 // IndexableLog extends default log.LogMessage struct to add index specific methods
@@ -21,9 +22,9 @@ func (*IndexableLog) BleveType() string {
 	return "log"
 }
 
-type baseCodec struct{}
+type BaseCodec struct{}
 
-func (b *baseCodec) Marshal(input interface{}) (interface{}, error) {
+func (b *BaseCodec) Marshal(input interface{}) (interface{}, error) {
 	var msg *IndexableLog
 	switch v := input.(type) {
 	case *IndexableLog:
@@ -43,7 +44,7 @@ func (b *baseCodec) Marshal(input interface{}) (interface{}, error) {
 }
 
 // marshalLogMsg creates an IndexableLog object and populates the inner LogMessage with known fields of the passed JSON line.
-func (b *baseCodec) marshalLogMsg(line *log.Log) (*IndexableLog, error) {
+func (b *BaseCodec) marshalLogMsg(line *log.Log) (*IndexableLog, error) {
 
 	msg := &IndexableLog{
 		LogMessage: &log.LogMessage{},

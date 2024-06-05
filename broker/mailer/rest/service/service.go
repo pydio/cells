@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2021. Abstrium SAS <team (at) pydio.com>
+ * Copyright (c) 2024. Abstrium SAS <team (at) pydio.com>
  * This file is part of Pydio Cells.
  *
  * Pydio Cells is free software: you can redistribute it and/or modify
@@ -18,12 +18,13 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-// Package rest exposes a simple REST API for communicating with the GRPC package.
-package rest
+// Package service exposes a simple API for posting emails
+package service
 
 import (
 	"context"
 
+	"github.com/pydio/cells/v4/broker/mailer/rest"
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/runtime"
 	"github.com/pydio/cells/v4/common/service"
@@ -32,12 +33,12 @@ import (
 func init() {
 	runtime.Register("main", func(ctx context.Context) {
 		service.NewService(
-			service.Name(common.ServiceRestNamespace_+common.ServiceLog),
+			service.Name(common.ServiceRestNamespace_+common.ServiceMailer),
 			service.Context(ctx),
 			service.Tag(common.ServiceTagBroker),
-			service.Description("RESTful Gateway to search in the log repositories"),
+			service.Description("REST send email service"),
 			service.WithWeb(func(c context.Context) service.WebHandler {
-				return &Handler{
+				return &rest.MailerHandler{
 					RuntimeCtx: c,
 				}
 			}),

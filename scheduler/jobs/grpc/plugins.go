@@ -63,7 +63,7 @@ func init() {
 			service.Tag(common.ServiceTagScheduler),
 			service.Description("Store for scheduler jobs description"),
 			service.WithNamedStorageDrivers("main", jobs.NewBoltDAO, jobs.NewMongoDAO),
-			service.WithNamedStorageDrivers("logs", log.NewBleveDAO, log.NewMongoDAO),
+			service.WithNamedStorageDrivers("logs", log.Drivers...),
 			service.Migrations([]*service.Migration{
 				{
 					TargetVersion: service.ValidVersion("1.4.0"),

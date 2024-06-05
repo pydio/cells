@@ -32,10 +32,10 @@ import (
 	"github.com/pydio/cells/v4/common/proto/log"
 	"github.com/pydio/cells/v4/common/runtime/manager"
 	"github.com/pydio/cells/v4/common/service"
-	"github.com/pydio/cells/v4/common/storage/bleve"
-	"github.com/pydio/cells/v4/common/storage/mongodb"
 	json "github.com/pydio/cells/v4/common/utils/jsonx"
 )
+
+var Drivers = service.StorageDrivers{}
 
 // MessageRepository exposes interface methods to manage the log messages provided by Pydio.
 type MessageRepository interface {
@@ -46,17 +46,6 @@ type MessageRepository interface {
 	Close(context.Context) error
 	Resync(context.Context, log2.ZapLogger) error
 	Truncate(context.Context, int64, log2.ZapLogger) error
-}
-
-func NewBleveDAO(v *bleve.Indexer) MessageRepository {
-	v.SetCodex(&BleveCodec{})
-	return NewIndexRepository(v)
-}
-
-func NewMongoDAO(m *mongodb.Indexer) MessageRepository {
-	m.SetCollection(mongoCollection)
-	m.SetCodex(&MongoCodec{})
-	return NewIndexRepository(m)
 }
 
 func Migrate(mainCtx, fromCtx, toCtx context.Context, dryRun bool, status chan service.MigratorStatus) (map[string]int, error) {
