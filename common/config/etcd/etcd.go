@@ -32,14 +32,18 @@ import (
 	"sync"
 	"time"
 
-	"github.com/r3labs/diff/v3"
+	diff "github.com/r3labs/diff/v3"
 	"go.etcd.io/etcd/api/v3/mvccpb"
 	clientv3 "go.etcd.io/etcd/client/v3"
 	"go.etcd.io/etcd/client/v3/concurrency"
 
 	"github.com/pydio/cells/v4/common/config"
 	"github.com/pydio/cells/v4/common/crypto"
+	"github.com/pydio/cells/v4/common/runtime"
+	"github.com/pydio/cells/v4/common/runtime/manager"
+	"github.com/pydio/cells/v4/common/runtime/runtimecontext"
 	"github.com/pydio/cells/v4/common/utils/configx"
+	"github.com/pydio/cells/v4/common/utils/openurl"
 )
 
 var (
@@ -50,22 +54,44 @@ var (
 type URLOpener struct {
 	tlsConfig *tls.Config
 }
+
 type TLSURLOpener struct{}
 
 func init() {
+
 	config.DefaultURLMux().Register(scheme, &URLOpener{})
 	config.DefaultURLMux().Register(scheme+"+tls", &TLSURLOpener{})
+
+	runtime.Register("system", func(ctx context.Context) {
+		var mgr manager.Manager
+		if !runtimecontext.Get(ctx, manager.ContextKey, &mgr) {
+			return
+		}
+
+		mgr.RegisterConfig(scheme, openurl.WithOpener((&URLOpener{}).Open))
+		mgr.RegisterConfig(scheme+"+tls", openurl.WithOpener((&TLSURLOpener{}).Open))
+	})
 }
 
-func (o *TLSURLOpener) OpenURL(ctx context.Context, u *url.URL) (config.Store, error) {
+func (o *TLSURLOpener) Open(ctx context.Context, urlstr string) (config.Store, error) {
+	u, err := url.Parse(urlstr)
+	if err != nil {
+		return nil, err
+	}
+
 	if tlsConfig, er := crypto.TLSConfigFromURL(u); er == nil {
-		return (&URLOpener{tlsConfig}).OpenURL(ctx, u)
+		return (&URLOpener{tlsConfig}).Open(ctx, urlstr)
 	} else {
 		return nil, fmt.Errorf("error while loading tls config for etcd %v", er)
 	}
 }
 
-func (o *URLOpener) OpenURL(ctx context.Context, u *url.URL) (config.Store, error) {
+func (o *URLOpener) Open(ctx context.Context, urlstr string) (config.Store, error) {
+	u, err := url.Parse(urlstr)
+	if err != nil {
+		return nil, err
+	}
+
 	addr := "://" + u.Host
 	if o.tlsConfig == nil {
 		addr = "http" + addr
@@ -367,7 +393,9 @@ func (m *etcd) save(ctx context.Context) {
 	}
 }
 
-func (m *etcd) Close() error {
+func (m *etcd) As(out any) bool { return false }
+
+func (m *etcd) Close(_ context.Context) error {
 	if m.session != nil {
 		return m.session.Close()
 	}
@@ -671,6 +699,7 @@ func (lm *lockerMutex) Lock() {
 		return
 	}
 }
+
 func (lm *lockerMutex) Unlock() {
 	client := lm.s.Client()
 	lm.Mutex.Unlock(client.Ctx())

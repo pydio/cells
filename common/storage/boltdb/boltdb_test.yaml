@@ -1,0 +1,3 @@
+storages:
+  bolt:
+    uri: boltdb:///tmp/bolt/test

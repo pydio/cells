@@ -28,7 +28,7 @@ type Conn struct{}
 
 type provider struct{}
 
-func (s *provider) OpenURL(ctx context.Context, dsn string) (storage.Storage, error) {
+func (s *provider) Open(ctx context.Context, dsn string) (storage.Storage, error) {
 	return s, nil
 }
 

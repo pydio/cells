@@ -34,7 +34,6 @@ import (
 	"gorm.io/gorm"
 
 	"github.com/pydio/cells/v4/common/config"
-	"github.com/pydio/cells/v4/common/storage"
 	"github.com/pydio/cells/v4/common/utils/configx"
 	json "github.com/pydio/cells/v4/common/utils/jsonx"
 	"github.com/pydio/cells/v4/common/utils/openurl"
@@ -56,7 +55,11 @@ func init() {
 	}
 }
 
-func (o *URLOpener) OpenURL(ctx context.Context, u *url.URL) (config.Store, error) {
+func (o *URLOpener) Open(ctx context.Context, urlstr string) (config.Store, error) {
+	u, err := url.Parse(urlstr)
+	if err != nil {
+		return nil, err
+	}
 
 	var opts []configx.Option
 
@@ -130,10 +133,10 @@ type SQL struct {
 func New(ctx context.Context, driver string, dsn string, prefix string) (config.Store, error) {
 	var db *gorm.DB
 
-	o, er := storage.Get(ctx, &db)
-	if o && er != nil {
-		return nil, er
-	}
+	//o, er := storage.Get(ctx, &db)
+	//if o && er != nil {
+	//	return nil, er
+	//}
 
 	d := NewDAO(db)
 
@@ -223,7 +226,9 @@ func (s *SQL) Watch(oo ...configx.WatchOption) (configx.Receiver, error) {
 	return r, nil
 }
 
-func (s *SQL) Close() error {
+func (s *SQL) As(out any) bool { return false }
+
+func (s *SQL) Close(_ context.Context) error {
 	return nil
 }
 

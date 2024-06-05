@@ -9,7 +9,6 @@ import (
 
 	"github.com/spf13/viper"
 
-	"github.com/pydio/cells/v4/common/config"
 	"github.com/pydio/cells/v4/common/runtime"
 	"github.com/pydio/cells/v4/common/runtime/manager"
 	"github.com/pydio/cells/v4/common/runtime/runtimecontext"
@@ -18,6 +17,7 @@ import (
 	"github.com/pydio/cells/v4/common/storage/sql"
 	"github.com/pydio/cells/v4/common/utils/uuid"
 
+	_ "github.com/pydio/cells/v4/common/config/memory"
 	_ "github.com/pydio/cells/v4/common/registry/config"
 	_ "github.com/pydio/cells/v4/common/storage/bleve"
 	_ "github.com/pydio/cells/v4/common/storage/boltdb"
@@ -137,11 +137,11 @@ func RunStorageTests(testCases []StorageTestCase, f func(context.Context)) {
 		v.Set("yaml", b.String())
 
 		// TODO - this should be handled by the controller
-		store, er := config.OpenStore(context.Background(), "mem://")
-		if er != nil {
-			panic(er)
-		}
-		config.Register(store)
+		//store, er := config.OpenStore(context.Background(), "mem://")
+		//if er != nil {
+		//	panic(er)
+		//}
+		//config.Register(store)
 		runtime.SetRuntime(v)
 
 		var svc service.Service

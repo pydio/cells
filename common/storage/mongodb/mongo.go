@@ -45,7 +45,7 @@ var (
 func init() {
 	runtime.Register("system", func(ctx context.Context) {
 		var mgr manager.Manager
-		if runtimecontext.Get(ctx, manager.ContextKey, &mgr) {
+		if !runtimecontext.Get(ctx, manager.ContextKey, &mgr) {
 			return
 		}
 
@@ -84,7 +84,7 @@ type mongoStorage struct {
 	clients  map[string]*mongo.Client
 }
 
-func (o *mongoStorage) OpenURL(ctx context.Context, urlstr string) (storage.Storage, error) {
+func (o *mongoStorage) Open(ctx context.Context, urlstr string) (storage.Storage, error) {
 	t, err := openurl.URLTemplate(urlstr)
 	if err != nil {
 		return nil, err

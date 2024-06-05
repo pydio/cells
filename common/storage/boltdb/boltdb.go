@@ -3,6 +3,7 @@ package boltdb
 import (
 	"context"
 	"fmt"
+	"net/url"
 	"os"
 	"path/filepath"
 	"strings"
@@ -16,68 +17,45 @@ import (
 	"github.com/pydio/cells/v4/common/runtime/manager"
 	"github.com/pydio/cells/v4/common/runtime/runtimecontext"
 	"github.com/pydio/cells/v4/common/storage"
-	"github.com/pydio/cells/v4/common/utils/openurl"
-	"github.com/pydio/cells/v4/common/utils/uuid"
-)
-
-var (
-	_ storage.Storage = (*boltdbStorage)(nil)
 )
 
 func init() {
 	runtime.Register("system", func(ctx context.Context) {
 		var mgr manager.Manager
-		if runtimecontext.Get(ctx, manager.ContextKey, &mgr) {
+		if !runtimecontext.Get(ctx, manager.ContextKey, &mgr) {
 			return
 		}
 
-		mgr.RegisterStorage("boltdb", &boltdbStorage{})
+		mgr.RegisterStorage("boltdb", Open)
 	})
 }
 
-type boltdb struct {
-	path   string
-	db     *bbolt.DB
-	closed bool
+type DB interface {
+	Internal() *bbolt.DB
+	// Compact(ctx context.Context, opts map[string]interface{}) (old uint64, new uint64, err error)
+	Close(ctx context.Context) error
 }
 
-type boltdbStorage struct {
-	template openurl.Template
-	dbs      []*boltdb
+type db struct {
+	*bbolt.DB
 }
 
-func (s *boltdbStorage) OpenURL(ctx context.Context, urlstr string) (storage.Storage, error) {
-	t, err := openurl.URLTemplate(urlstr)
-	if err != nil {
-		return nil, err
-	}
-
-	return &boltdbStorage{
-		template: t,
-	}, nil
+func (d *db) Internal() *bbolt.DB {
+	return d.DB
 }
 
-func (s *boltdbStorage) boltFromCache(ctx context.Context) (*boltdb, error) {
+func (d *db) Close(ctx context.Context) error {
+	return d.DB.Close()
+}
 
-	u, err := s.template.ResolveURL(ctx)
-	if err != nil {
-		return nil, err
-	}
-	path := u.String()
-
-	for _, db := range s.dbs {
-		if db.path == path {
-			if db.closed {
-				return nil, fmt.Errorf("boltdb already closed")
-			}
-			return db, nil
-		}
-	}
+func Open(ctx context.Context, path string) (storage.Storage, error) {
+	u, err := url.Parse(path)
 
 	// If not found, create one
 	options := bbolt.DefaultOptions
 	options.Timeout = 20 * time.Second
 	var defaultMode os.FileMode
+
 	// TODO Recheck : was 0600 in v4
 	defaultMode = 0644
 
@@ -93,72 +71,42 @@ func (s *boltdbStorage) boltFromCache(ctx context.Context) (*boltdb, error) {
 		return nil, err
 	}
 
-	cacheEntry := &boltdb{
-		db:   conn,
-		path: path,
-	}
+	return &db{conn}, nil
 
-	s.dbs = append(s.dbs, cacheEntry)
-
-	return cacheEntry, nil
+	//return &Compacter{
+	//	DB: conn,
+	//	requireClose: func() error {
+	//		if er := db.Close(); er != nil {
+	//			return er
+	//		} else {
+	//			db.closed = true
+	//			return nil
+	//		}
+	//	},
+	//	switchConnection: func(newDB *bbolt.DB) error {
+	//		cacheEntry.closed = false
+	//		cacheEntry.db = newDB
+	//		return nil
+	//	},
+	//}, nil
 }
 
-func (s *boltdbStorage) Get(ctx context.Context, out interface{}) (bool, error) {
-
-	if v, ok := out.(**bbolt.DB); ok {
-
-		if cacheEntry, err := s.boltFromCache(ctx); err == nil {
-			*v = cacheEntry.db
-			return true, nil
-		} else {
-			return true, err
-		}
-
-	} else if c, is := out.(**Compacter); is {
-
-		if cacheEntry, err := s.boltFromCache(ctx); err == nil {
-			*c = &Compacter{
-				DB: cacheEntry.db,
-				requireClose: func() error {
-					if er := cacheEntry.db.Close(); er != nil {
-						return er
-					} else {
-						cacheEntry.closed = true
-						return nil
-					}
-				},
-				switchConnection: func(newDB *bbolt.DB) error {
-					cacheEntry.closed = false
-					cacheEntry.db = newDB
-					return nil
-				},
-			}
-			return true, nil
-		} else {
-			return true, err
-		}
-
-	}
-
-	return false, nil
-}
-
-func (s *boltdbStorage) CloseConns(ctx context.Context, clean ...bool) (er error) {
-	for _, db := range s.dbs {
-		fsPath := db.db.Path()
-		fmt.Println("closing " + db.path)
-		if er := db.db.Close(); er != nil {
-			return er
-		}
-		if len(clean) > 0 && clean[0] {
-			fmt.Println("removing " + fsPath)
-			if e := os.RemoveAll(db.db.Path()); e != nil {
-				return e
-			}
-		}
-	}
-	return nil
-}
+//func (s *boltdbStorage) CloseConns(ctx context.Context, clean ...bool) (er error) {
+//	for _, db := range s.dbs {
+//		fsPath := db.db.Path()
+//		fmt.Println("closing " + db.path)
+//		if er := db.db.Close(); er != nil {
+//			return er
+//		}
+//		if len(clean) > 0 && clean[0] {
+//			fmt.Println("removing " + fsPath)
+//			if e := os.RemoveAll(db.db.Path()); e != nil {
+//				return e
+//			}
+//		}
+//	}
+//	return nil
+//}
 
 type Compacter struct {
 	*bbolt.DB
@@ -250,34 +198,6 @@ func (c *Compacter) Compact(ctx context.Context, opts map[string]interface{}) (o
 		}
 		return
 	}
-
-}
-
-type boltItem bbolt.DB
-
-func (i *boltItem) Name() string {
-	return "boltdb"
-}
-
-func (i *boltItem) ID() string {
-	return uuid.New()
-}
-
-func (i *boltItem) Metadata() map[string]string {
-	return map[string]string{}
-}
-
-func (i *boltItem) As(i2 interface{}) bool {
-
-	return false
-}
-
-func (i *boltItem) Driver() string {
-	return "boltdb"
-}
-
-func (i *boltItem) DSN() string {
-	return (*bbolt.DB)(i).Path()
 }
 
 func copyValuesOrBucket(bW, bR *bbolt.Bucket) error {

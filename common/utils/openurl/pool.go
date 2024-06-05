@@ -19,26 +19,65 @@ type namedT[T ResourceClosable] struct {
 	active time.Time
 }
 
+type Provider[T ResourceClosable] interface {
+	Init() error
+	Open(ctx context.Context, url string) (T, error)
+	Get(ctx context.Context, data ...map[string]any) (T, error)
+}
+
 type Opener[T ResourceClosable] func(ctx context.Context, url string) (T, error)
+
+type Getter[T ResourceClosable] func(ctx context.Context, url string) (T, error)
 
 type Pool[T ResourceClosable] struct {
 	resolvers []Template
-	opener    func(ctx context.Context, url string) (T, error)
+	provider  Provider[T]
 	pool      map[string]*namedT[T]
 	lock      *sync.RWMutex
+
+	options *PoolOptions[T]
 
 	stopJanitor context.CancelFunc
 }
 
-type PoolOption struct {
+type PoolOption[T ResourceClosable] func(*PoolOptions[T])
+
+type PoolOptions[T ResourceClosable] struct {
 	CleanTicker time.Duration
 	MaxIdleTime time.Duration
+	Opener[T]
+}
+
+func WithCleanTicker[T ResourceClosable](duration time.Duration) PoolOption[T] {
+	return func(o *PoolOptions[T]) {
+		o.CleanTicker = duration
+	}
+}
+
+func WithMaxIdleTime[T ResourceClosable](duration time.Duration) PoolOption[T] {
+	return func(o *PoolOptions[T]) {
+		o.CleanTicker = duration
+	}
+}
+
+func WithOpener[T ResourceClosable](opener Opener[T]) PoolOption[T] {
+	return func(o *PoolOptions[T]) {
+		o.Opener = opener
+	}
 }
 
 // OpenPool creates a pool of resources that are resolved at Get() time.
 // If PoolOption is passed, it will monitor idle resources and close them regulary to free memory
 // Maybe PoolOptions could also be passed by the URL
-func OpenPool[T ResourceClosable](ctx context.Context, uu []string, opener Opener[T], opt ...PoolOption) (*Pool[T], error) {
+func OpenPool[T ResourceClosable](ctx context.Context, uu []string, opener Opener[T], opt ...PoolOption[T]) (*Pool[T], error) {
+	opts := &PoolOptions[T]{
+		Opener: opener,
+	}
+
+	for _, o := range opt {
+		o(opts)
+	}
+
 	var rs []Template
 	for _, u := range uu {
 		if r, e := URLTemplate(u); e != nil {
@@ -50,21 +89,22 @@ func OpenPool[T ResourceClosable](ctx context.Context, uu []string, opener Opene
 
 	pool := &Pool[T]{
 		resolvers: rs,
-		opener:    opener,
 		pool:      make(map[string]*namedT[T]),
 		lock:      &sync.RWMutex{},
+
+		options: opts,
 	}
 
-	if len(opt) > 0 && opt[0].CleanTicker > 0 && opt[0].MaxIdleTime > 0 {
+	if len(opt) > 0 && opts.CleanTicker > 0 && opts.MaxIdleTime > 0 {
 		stopCtx, can := context.WithCancel(ctx)
 		pool.stopJanitor = can
-		go pool.janitor(stopCtx, opt[0].CleanTicker, opt[0].MaxIdleTime)
+		go pool.janitor(stopCtx, opts.CleanTicker, opts.MaxIdleTime)
 	}
 
 	return pool, nil
 }
 
-func (m *Pool[T]) Get(ctx context.Context, resolutionData ...map[string]interface{}) (T, error) {
+func (m Pool[T]) Get(ctx context.Context, resolutionData ...map[string]interface{}) (T, error) {
 	last := len(m.resolvers) - 1
 	for i, resolver := range m.resolvers {
 		// RESOLVE URL
@@ -86,7 +126,7 @@ func (m *Pool[T]) Get(ctx context.Context, resolutionData ...map[string]interfac
 		}
 		m.lock.RUnlock()
 
-		q, er := m.opener(ctx, realURL)
+		q, er := m.options.Opener(ctx, realURL)
 		if er != nil {
 			if i < last {
 				continue // Try next one provided as fallback
@@ -110,7 +150,9 @@ func (m *Pool[T]) Get(ctx context.Context, resolutionData ...map[string]interfac
 }
 
 // Close closes all underlying resources
+// TODO - options with close callback
 func (m *Pool[T]) Close(ctx context.Context, iterate ...func(key string, res T) error) error {
+	//func (m Pool[T]) Close(ctx context.Context) error {
 	if m.stopJanitor != nil {
 		m.stopJanitor()
 	}
@@ -135,7 +177,7 @@ func (m *Pool[T]) Close(ctx context.Context, iterate ...func(key string, res T) 
 	return nil
 }
 
-func (m *Pool[T]) janitor(ctx context.Context, tickerTime, maxIdleTime time.Duration) {
+func (m Pool[T]) janitor(ctx context.Context, tickerTime, maxIdleTime time.Duration) {
 	ticker := time.NewTicker(tickerTime)
 	for {
 		select {
@@ -148,7 +190,7 @@ func (m *Pool[T]) janitor(ctx context.Context, tickerTime, maxIdleTime time.Dura
 	}
 }
 
-func (m *Pool[T]) cleanIdle(ctx context.Context, idleTime time.Duration) {
+func (m Pool[T]) cleanIdle(ctx context.Context, idleTime time.Duration) {
 	var keys []string
 	check := time.Now().Add(-idleTime)
 	m.lock.RLock()

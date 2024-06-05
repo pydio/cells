@@ -26,8 +26,6 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	cgrpc "github.com/pydio/cells/v4/common/client/grpc"
-	"github.com/pydio/cells/v4/common/runtime"
 	"net/url"
 	"strings"
 	"sync"
@@ -40,9 +38,11 @@ import (
 	"google.golang.org/grpc/status"
 
 	clientcontext "github.com/pydio/cells/v4/common/client/context"
+	cgrpc "github.com/pydio/cells/v4/common/client/grpc"
 	"github.com/pydio/cells/v4/common/config"
 	"github.com/pydio/cells/v4/common/log"
 	pb "github.com/pydio/cells/v4/common/proto/config"
+	"github.com/pydio/cells/v4/common/runtime"
 	"github.com/pydio/cells/v4/common/utils/configx"
 )
 
@@ -59,7 +59,12 @@ func init() {
 	}
 }
 
-func (o *URLOpener) OpenURL(ctx context.Context, u *url.URL) (config.Store, error) {
+func (o *URLOpener) Open(ctx context.Context, urlstr string) (config.Store, error) {
+	u, err := url.Parse(urlstr)
+	if err != nil {
+		return nil, err
+	}
+
 	var conn grpc.ClientConnInterface
 
 	if conn = clientcontext.GetClientConn(ctx); conn == nil {
@@ -198,7 +203,9 @@ func (r *remote) Del() error {
 	return nil
 }
 
-func (r *remote) Close() error {
+func (r *remote) As(out any) bool { return false }
+
+func (r *remote) Close(_ context.Context) error {
 	return nil
 }
 
@@ -250,6 +257,7 @@ func (s *remoteLock) Lock() {
 		}
 	}
 }
+
 func (s *remoteLock) Unlock() {
 	if s.stream != nil {
 		if err := s.stream.Send(&pb.NewLockerRequest{
@@ -429,9 +437,11 @@ func (v *values) Bytes() []byte {
 func (v *values) Key() []string {
 	return v.Get().Key()
 }
+
 func (v *values) Reference() configx.Ref {
 	return v.Get().Reference()
 }
+
 func (v *values) Interface() interface{} {
 	return v.Get().Interface()
 }

@@ -21,6 +21,7 @@
 package config
 
 import (
+	"context"
 	"sync"
 
 	"github.com/pydio/cells/v4/common/runtime/runtimecontext"
@@ -50,7 +51,8 @@ func init() {
 type Store interface {
 	configx.Entrypoint
 	configx.Watcher
-	Close() error
+	As(out any) bool
+	Close(ctx context.Context) error
 	Done() <-chan struct{}
 	Saver
 	sync.Locker

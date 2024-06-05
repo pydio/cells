@@ -1,0 +1,5 @@
+storages:
+  sql1:
+    uri: sqlite3-extended://file:memdb1?mode=memory&cache=shared1
+  sql2:
+    uri: sqlite3-extended://file:memdb2?mode=memory&cache=shared2

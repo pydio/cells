@@ -20,23 +20,8 @@
 
 package storage
 
-import (
-	"context"
-)
+import "context"
 
 type Storage interface {
-	Get(ctx context.Context, out interface{}) (provides bool, er error)
-	CloseConns(ctx context.Context, clean ...bool) (er error)
-}
-
-var storages []Storage
-
-func Get(ctx context.Context, out interface{}) (provides bool, er error) {
-	for _, store := range storages {
-		if ok, er := store.Get(ctx, out); ok {
-			return true, er
-		}
-	}
-
-	return false, nil
+	Close(ctx context.Context) error
 }

@@ -27,9 +27,9 @@ import (
 
 var NotFound = errors.New("not found")
 
-func UnsupportedDriver(storage Storage) error {
-	return &UnsupportedDriverTypeErr{Driver: fmt.Sprintf("%v", storage)}
-}
+//func UnsupportedDriver(storage Storage) error {
+//	return &UnsupportedDriverTypeErr{Driver: fmt.Sprintf("%v", storage)}
+//}
 
 type UnsupportedDriverTypeErr struct {
 	Driver string

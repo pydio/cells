@@ -8,20 +8,24 @@ import (
 	"net/url"
 	"os"
 	"path/filepath"
-	"runtime"
+	osruntime "runtime"
 	"strings"
 	"sync"
 	"time"
 
-	"github.com/r3labs/diff/v3"
+	diff "github.com/r3labs/diff/v3"
 
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/config"
 	"github.com/pydio/cells/v4/common/config/memory"
 	"github.com/pydio/cells/v4/common/crypto"
+	"github.com/pydio/cells/v4/common/runtime"
+	"github.com/pydio/cells/v4/common/runtime/manager"
+	"github.com/pydio/cells/v4/common/runtime/runtimecontext"
 	"github.com/pydio/cells/v4/common/utils/configx"
 	"github.com/pydio/cells/v4/common/utils/filex"
 	json "github.com/pydio/cells/v4/common/utils/jsonx"
+	"github.com/pydio/cells/v4/common/utils/openurl"
 )
 
 var (
@@ -35,9 +39,24 @@ type URLOpener struct{}
 func init() {
 	o := &URLOpener{}
 	config.DefaultURLMux().Register(scheme, o)
+
+	runtime.Register("system", func(ctx context.Context) {
+		var mgr manager.Manager
+		if !runtimecontext.Get(ctx, manager.ContextKey, &mgr) {
+			return
+		}
+
+		o := &URLOpener{}
+		mgr.RegisterConfig(scheme, openurl.WithOpener(o.Open))
+	})
 }
 
-func (o *URLOpener) OpenURL(ctx context.Context, u *url.URL) (config.Store, error) {
+func (o *URLOpener) Open(ctx context.Context, urlstr string) (config.Store, error) {
+
+	u, err := url.Parse(urlstr)
+	if err != nil {
+		return nil, err
+	}
 
 	var opts []configx.Option
 	encode := u.Query().Get("encode")
@@ -71,7 +90,7 @@ func (o *URLOpener) OpenURL(ctx context.Context, u *url.URL) (config.Store, erro
 		if u.Query().Get("keyring") != "true" {
 			return nil, err
 		}
-		if runtime.GOOS == "windows" {
+		if osruntime.GOOS == "windows" {
 			_ = os.Chmod(u.Path, 0600)
 		}
 		b, err := filex.Read(u.Path)
@@ -96,7 +115,7 @@ func (o *URLOpener) OpenURL(ctx context.Context, u *url.URL) (config.Store, erro
 		}
 
 		// Keyring Config is likely the old style - switching it
-		if runtime.GOOS != "windows" {
+		if osruntime.GOOS != "windows" {
 			if err := os.Chmod(u.Path, 0400); err != nil {
 				return nil, fmt.Errorf("could not chmod keyring path to 0400 %v", err)
 			}
@@ -256,7 +275,9 @@ func (f *file) Del() error {
 	return fmt.Errorf("not implemented")
 }
 
-func (f *file) Close() error {
+func (f *file) As(out any) bool { return false }
+
+func (f *file) Close(_ context.Context) error {
 	return nil
 }
 

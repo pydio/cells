@@ -2,8 +2,8 @@ package config
 
 import (
 	"context"
+
 	"github.com/pydio/cells/v4/common/utils/openurl"
-	"net/url"
 )
 
 // URLOpener represents types than can open Registries based on a URL.
@@ -12,7 +12,7 @@ import (
 //
 // This interface is generally implemented by types in driver packages.
 type URLOpener interface {
-	OpenURL(ctx context.Context, u *url.URL) (Store, error)
+	Open(ctx context.Context, urlstr string) (Store, error)
 }
 
 // URLMux is a URL opener multiplexer. It matches the scheme of the URLs
@@ -40,13 +40,12 @@ func (mux *URLMux) Register(scheme string, opener URLOpener) {
 // OpenStore calls OpenURL with the URL parsed from urlstr.
 // OpenStore is safe to call from multiple goroutines.
 func (mux *URLMux) OpenStore(ctx context.Context, urlstr string) (Store, error) {
-	opener, u, err := mux.schemes.FromString("Config", urlstr)
+	opener, _, err := mux.schemes.FromString("Config", urlstr)
 	if err != nil {
 		return nil, err
 	}
-	return opener.(URLOpener).OpenURL(ctx, u)
+	return opener.(URLOpener).Open(ctx, urlstr)
 }
-
 
 var defaultURLMux = &URLMux{}
 

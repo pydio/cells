@@ -19,13 +19,12 @@ var (
 func init() {
 	runtime.Register("system", func(ctx context.Context) {
 		var mgr manager.Manager
-		if runtimecontext.Get(ctx, manager.ContextKey, &mgr) {
+		if !runtimecontext.Get(ctx, manager.ContextKey, &mgr) {
 			return
 		}
 
 		st := &configStorage{}
 		for _, scheme := range config.DefaultURLMux().Schemes() {
-
 			mgr.RegisterStorage(scheme, st)
 		}
 	})
@@ -41,7 +40,7 @@ type storedb struct {
 	db   config.Store
 }
 
-func (o *configStorage) OpenURL(ctx context.Context, urlstr string) (storage.Storage, error) {
+func (o *configStorage) Open(ctx context.Context, urlstr string) (storage.Storage, error) {
 	t, err := openurl.URLTemplate(urlstr)
 	if err != nil {
 		return nil, err

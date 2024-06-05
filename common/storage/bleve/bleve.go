@@ -27,7 +27,7 @@ var (
 func init() {
 	runtime.Register("system", func(ctx context.Context) {
 		var mgr manager.Manager
-		if runtimecontext.Get(ctx, manager.ContextKey, &mgr) {
+		if !runtimecontext.Get(ctx, manager.ContextKey, &mgr) {
 			return
 		}
 
@@ -40,7 +40,7 @@ type bleveStorage struct {
 	dbs      []*blevedb
 }
 
-func (s *bleveStorage) OpenURL(ctx context.Context, urlstr string) (storage.Storage, error) {
+func (s *bleveStorage) Open(ctx context.Context, urlstr string) (storage.Storage, error) {
 	t, err := openurl.URLTemplate(urlstr)
 	if err != nil {
 		return nil, err

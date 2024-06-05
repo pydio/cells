@@ -3,15 +3,16 @@ package sql
 import (
 	"context"
 	"database/sql"
+	"errors"
 	"strings"
 	"sync"
 
-	"github.com/pborman/uuid"
 	"gorm.io/driver/mysql"
 	"gorm.io/driver/postgres"
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
+	"gorm.io/plugin/dbresolver"
 	"gorm.io/plugin/opentelemetry/tracing"
 
 	"github.com/pydio/cells/v4/common/log"
@@ -20,7 +21,6 @@ import (
 	"github.com/pydio/cells/v4/common/runtime/runtimecontext"
 	"github.com/pydio/cells/v4/common/runtime/tenant"
 	"github.com/pydio/cells/v4/common/storage"
-	"github.com/pydio/cells/v4/common/storage/sql/dbresolver"
 	"github.com/pydio/cells/v4/common/utils/openurl"
 )
 
@@ -37,82 +37,63 @@ func init() {
 			return
 		}
 
-		gs := &gormStorage{}
+		gs := &gormStorage{
+			once: &sync.Once{},
+		}
+
 		for _, gormType := range Drivers {
-			mgr.RegisterStorage(gormType, gs)
+			mgr.RegisterStorage(gormType, openurl.WithOpener(gs.Open))
 		}
 	})
 }
 
 type gormStorage struct {
-	template openurl.Template
-	db       *gorm.DB
-	dr       *dbresolver.DBResolver
-
-	conns map[string]*sql.DB
+	db *gorm.DB
+	dr *dbresolver.DBResolver
 
 	once *sync.Once
 }
 
-func (gs *gormStorage) OpenURL(ctx context.Context, dsn string) (storage.Storage, error) {
-	t, err := openurl.URLTemplate(dsn)
+func (gs *gormStorage) Open(ctx context.Context, dsn string) (storage.Storage, error) {
+
+	var hookNames []string
+	hookNames, dsn = DetectHooksAndRemoveFromDSN(dsn)
+
+	var ten tenant.Tenant
+	runtimecontext.Get(ctx, tenant.ContextKey, &ten)
+
+	parts := strings.Split(dsn, "://")
+	if len(parts) < 2 {
+		return nil, errors.New("wrong format dsn")
+	}
+	driverName := parts[0]
+	databaseName := strings.Join(parts[1:], "")
+	if driverName == PostgreDriver {
+		// DSN must still contain the scheme, otherwise expected connection info
+		// must be in format "key=value key=value" etc
+		databaseName = dsn
+	}
+
+	conn, err := sql.Open(driverName, databaseName)
 	if err != nil {
 		return nil, err
 	}
 
-	gs.template = t
-	gs.conns = make(map[string]*sql.DB)
-
-	return gs, nil
-}
-
-/*
-func (gs *gormStorage) Provides(conn any) bool {
-	switch conn.(type) {
-	case *sql.DB:
-	default:
-		return false
-	}
-
-	return true
-}
-
-func (gs *gormStorage) GetConn(str string) (storage.Conn, error) {
-	for _, gormType := range Drivers {
-		if strings.HasPrefix(str, gormType+"://") {
-			db, err := sql.Open(gormType, strings.TrimPrefix(str, gormType+"://"))
-			if err != nil {
-				return nil, err
-			}
-
-			return (*gormItem)(db), nil
-		}
-	}
-
-	return nil, nil
-}
-
-*/
-
-func (gs *gormStorage) Register(conn any, tenant string, service string, hooks ...string) {
-
-	db := conn.(*sql.DB)
-
 	var dialect gorm.Dialector
 	var driver string
-	if IsMysqlConn(db.Driver()) {
+	if IsMysqlConn(conn.Driver()) {
 		dialect = mysql.New(mysql.Config{
-			Conn: db,
+			Conn: conn,
 		})
 		driver = MySQLDriver
-	} else if IsPostGreConn(db.Driver()) {
+	} else if IsPostGreConn(conn.Driver()) {
 		dialect = postgres.New(postgres.Config{
-			Conn: db,
+			Conn: conn,
 		})
 		driver = PostgreDriver
-	} else if IsSQLiteConn(db.Driver()) {
+	} else if IsSQLiteConn(conn.Driver()) {
 		dialect = &sqlite.Dialector{
-			Conn: db,
+			Conn: conn,
 		}
 		driver = SqliteDriver
 	}
@@ -139,10 +120,10 @@ func (gs *gormStorage) Register(conn any, tenant string, service string, hooks .
 
 		_ = gdb.Use(tracing.NewPlugin(tracing.WithoutMetrics()))
 
-		dr := dbresolver.New()
+		dr := &dbresolver.DBResolver{}
 
 		_ = gdb.Use(dr)
-		for _, hook := range hooks {
+		for _, hook := range hookNames {
 			if reg, ok := hooksRegister[hook]; ok {
 				reg(gdb)
 			}
@@ -154,68 +135,13 @@ func (gs *gormStorage) Register(conn any, tenant string, service string, hooks .
 
 	gs.dr.Register(dbresolver.Config{
 		Sources: []gorm.Dialector{dialect},
-		Tenant:  tenant,
-		Service: service,
-	})
+	}, dsn)
+
+	return gs, nil
 }
 
-func (gs *gormStorage) Get(ctx context.Context, out interface{}) (bool, error) {
-	if v, ok := out.(**gorm.DB); ok {
-		dsn, err := gs.template.Resolve(ctx) // cannot use ResolveURL here as it may be a mysql DSN (invalid URL)
-		if err != nil {
-			return true, err
-		}
-
-		var hookNames []string
-		hookNames, dsn = DetectHooksAndRemoveFromDSN(dsn)
-
-		var ten tenant.Tenant
-		runtimecontext.Get(ctx, tenant.ContextKey, &ten)
-		// Todo : why the two levels of register (.conns[dsn] and then Register below) ?
-		// Could the Dbresolver directly handle the dsn, including ServiceName & TenantID ?
-		if conn, ok := gs.conns[dsn]; !ok {
-			parts := strings.Split(dsn, "://")
-			if len(parts) < 2 {
-				return false, nil
-			}
-			driverName := parts[0]
-			databaseName := strings.Join(parts[1:], "")
-			if driverName == PostgreDriver {
-				// DSN must still contain the scheme, otherwise expected connection info
-				// must be in format "key=value key=value" etc
-				databaseName = dsn
-			}
-			if conn, err := sql.Open(driverName, databaseName); err != nil {
-				return true, err
-			} else {
-				gs.Register(conn, ten.ID(), runtimecontext.GetServiceName(ctx), hookNames...)
-				gs.conns[dsn] = conn
-			}
-		} else {
-			gs.Register(conn, ten.ID(), runtimecontext.GetServiceName(ctx), hookNames...)
-		}
-
-		*v = gs.db
-		return true, nil
-	}
-
-	return false, nil
-}
-
-func (gs *gormStorage) CloseConns(ctx context.Context, clean ...bool) (e error) {
-	for _, db := range gs.conns {
-		if len(clean) > 0 && len(cleaners) > 0 {
-			for _, c := range cleaners {
-				if er := c(gs.db); er != nil {
-					return er
-				}
-			}
-		}
-		if e = db.Close(); e != nil {
-			return e
-		}
-	}
-	return
+func (gs *gormStorage) Close(ctx context.Context) (e error) {
+	return nil
 }
 
 type Dialector struct {
@@ -230,30 +156,4 @@ func (d *Dialector) Translate(err error) error {
 	}
 
 	return t.Translate(err)
-}
-
-type gormItem sql.DB
-
-func (i *gormItem) Name() string {
-	return "gorm"
-}
-
-func (i *gormItem) ID() string {
-	return uuid.New()
-}
-
-func (i *gormItem) Metadata() map[string]string {
-	return map[string]string{}
-}
-
-func (i *gormItem) As(i2 interface{}) bool {
-	return false
-}
-
-func (i *gormItem) Driver() string {
-	return "gorm"
-}
-
-func (i *gormItem) DSN() string {
-	return "TODO"
 }

@@ -21,6 +21,7 @@
 package config
 
 import (
+	"context"
 	"fmt"
 	"time"
 
@@ -50,6 +51,7 @@ func RevisionsStore() revisions.Store {
 type RevisionsStoreOptions struct {
 	Debounce time.Duration
 }
+
 type RevisionsStoreOption func(o *RevisionsStoreOptions)
 
 func WithDebounce(d time.Duration) RevisionsStoreOption {
@@ -100,8 +102,10 @@ func (v *versionStore) Watch(opts ...configx.WatchOption) (configx.Receiver, err
 	return watcher.Watch(opts...)
 }
 
-func (v *versionStore) Close() error {
-	return v.store.Close()
+func (v *versionStore) As(out any) bool { return false }
+
+func (v *versionStore) Close(ctx context.Context) error {
+	return v.store.Close(ctx)
 }
 
 func (v *versionStore) Done() <-chan struct{} {

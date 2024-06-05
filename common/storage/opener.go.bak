@@ -22,7 +22,6 @@ package storage
 
 import (
 	"context"
-	"text/template"
 
 	"github.com/pydio/cells/v4/common/utils/openurl"
 )
@@ -44,7 +43,6 @@ type URLOpener interface {
 // The zero value is a multiplexer with no registered schemes.
 type URLMux struct {
 	schemes openurl.SchemeMap
-	tmpl    template.Template
 }
 
 // Schemes returns a sorted slice of the registered schemes.
