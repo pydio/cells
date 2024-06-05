@@ -22,11 +22,20 @@ package broker
 
 import (
 	"context"
+	"fmt"
 
 	"gocloud.dev/pubsub"
 
 	"github.com/pydio/cells/v4/common/utils/openurl"
 	"github.com/pydio/cells/v4/common/utils/uuid"
+)
+
+type SubscriptionErrorHandler func(context.Context, *SubscribeOptions, error)
+
+var (
+	defaultSubscriptionErrorHandler SubscriptionErrorHandler = func(_ context.Context, o *SubscribeOptions, err error) {
+		fmt.Println(o.HandleErrorToString(err), err)
+	}
 )
 
 // Options to the broker
@@ -74,6 +83,22 @@ func WithChainSubscriberInterceptor(interceptors ...SubscriberInterceptor) Optio
 	}
 }
 
+// BeforeDisconnect registers all functions to be triggered before the broker disconnect
+func BeforeDisconnect(f func() error) Option {
+	return func(o *Options) {
+		o.beforeDisconnect = append(o.beforeDisconnect, f)
+	}
+}
+
+// PublishOptions holds various configurations for publishing
+type PublishOptions struct {
+	Context context.Context
+
+	MessageQueueURLs []string
+}
+
+type PublishOption func(options *PublishOptions)
+
 // WithAsyncPublisherInterceptor registers a FIFO-like queue to intercept the pushed messages and send them
 // asynchronously after pre-processing
 func WithAsyncPublisherInterceptor(queueURL string, fallbackURLs ...string) PublishOption {
@@ -83,40 +108,14 @@ func WithAsyncPublisherInterceptor(queueURL string, fallbackURLs ...string) Publ
 	}
 }
 
-// WithAsyncSubscriberInterceptor registers a FIFO-like queue to intercept messages received and trigger the main
-// SubscribeHandler asynchronously
-func WithAsyncSubscriberInterceptor(queueURL string, fallbackURLs ...string) SubscribeOption {
-	return func(options *SubscribeOptions) {
-		options.MessageQueueURLs = append(options.MessageQueueURLs, queueURL)
-		options.MessageQueueURLs = append(options.MessageQueueURLs, fallbackURLs...)
-	}
-}
-
-// BeforeDisconnect registers all functions to be triggered before the broker disconnect
-func BeforeDisconnect(f func() error) Option {
-	return func(o *Options) {
-		o.beforeDisconnect = append(o.beforeDisconnect, f)
-	}
-}
-
-type PublishOptions struct {
-	Context context.Context
-
-	MessageQueueURLs []string
-}
-
-type PublishOption func(options *PublishOptions)
-
 func PublishContext(ctx context.Context) PublishOption {
 	return func(options *PublishOptions) {
 		options.Context = ctx
 	}
 }
 
+// SubscribeOptions holds configuration for subscribers
 type SubscribeOptions struct {
-	// Handler executed when errors occur processing messages
-	ErrorHandler func(error)
-
 	// Subscribers with the same queue name
 	// will create a shared subscription where each
 	// receives a subset of messages.
@@ -134,12 +133,21 @@ type SubscribeOptions struct {
 
 	// Optional name for metrics
 	CounterName string
+
+	// Hints used when handling errors with default error handler
+	TopicName  string
+	CalleeFile string
+	CalleeLine int
+
+	// Overrides default error handler
+	customErrorHandler func(context.Context, *SubscribeOptions, error)
 }
 
 type SubscribeOption func(*SubscribeOptions)
 
-func parseSubscribeOptions(opts ...SubscribeOption) SubscribeOptions {
+func parseSubscribeOptions(topic string, opts ...SubscribeOption) SubscribeOptions {
 	opt := SubscribeOptions{
+		TopicName:   topic,
 		CounterName: uuid.New()[0:6],
 	}
 
@@ -150,11 +158,20 @@ func parseSubscribeOptions(opts ...SubscribeOption) SubscribeOptions {
 	return opt
 }
 
-// HandleError sets an ErrorHandler to catch all broker errors that cant be handled
+// WithAsyncSubscriberInterceptor registers a FIFO-like queue to intercept messages received and trigger the main
+// SubscribeHandler asynchronously
+func WithAsyncSubscriberInterceptor(queueURL string, fallbackURLs ...string) SubscribeOption {
+	return func(options *SubscribeOptions) {
+		options.MessageQueueURLs = append(options.MessageQueueURLs, queueURL)
+		options.MessageQueueURLs = append(options.MessageQueueURLs, fallbackURLs...)
+	}
+}
+
+// WithErrorHandler sets an ErrorHandler to catch all broker errors that cant be handled
 // in normal way, for example Codec errors
-func HandleError(h func(error)) SubscribeOption {
+func WithErrorHandler(h func(context.Context, *SubscribeOptions, error)) SubscribeOption {
 	return func(o *SubscribeOptions) {
-		o.ErrorHandler = h
+		o.customErrorHandler = h
 	}
 }
 
@@ -172,10 +189,39 @@ func WithCounterName(n string) SubscribeOption {
 	}
 }
 
+// WithCallee adds a custom id for metrics counter name
+func WithCallee(file string, line int) SubscribeOption {
+	return func(options *SubscribeOptions) {
+		options.CalleeFile = file
+		options.CalleeLine = line
+	}
+}
+
 // SubscribeContext set context
 func SubscribeContext(ctx context.Context) SubscribeOption {
 	return func(o *SubscribeOptions) {
 		o.Context = ctx
+	}
+}
+
+func (o *SubscribeOptions) HandleErrorToString(err error) string {
+	msg := fmt.Sprintf("Subscription on %s cannot be handled: %s", o.TopicName, err.Error())
+	if o.CalleeFile != "" {
+		msg = fmt.Sprintf("Subscription on %s from %s:%d cannot be handled: %s", o.TopicName, o.CalleeFile, o.CalleeLine, err.Error())
+	}
+	return msg
+}
+
+// HandleError tries to log an error during a handler execution. If err is nil it is ignored.
+// If options have a customErrorHandler, it is applied and then it returns
+func (o *SubscribeOptions) HandleError(ctx context.Context, err error) {
+	if err == nil {
+		return
+	}
+	if o.customErrorHandler != nil {
+		o.customErrorHandler(ctx, o, err)
+	} else {
+		defaultSubscriptionErrorHandler(ctx, o, err)
 	}
 }
 

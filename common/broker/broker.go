@@ -28,11 +28,9 @@ import (
 	"strings"
 	"sync"
 
-	"go.uber.org/zap"
 	"gocloud.dev/pubsub"
 	"google.golang.org/protobuf/proto"
 
-	"github.com/pydio/cells/v4/common/log"
 	"github.com/pydio/cells/v4/common/service/errors"
 	"github.com/pydio/cells/v4/common/telemetry/metrics"
 	"github.com/pydio/cells/v4/common/utils/openurl"
@@ -47,8 +45,11 @@ var (
 	ContextKey    = brokerKey{}
 )
 
-func Register(b Broker) {
+func Register(b Broker, errHandler ...SubscriptionErrorHandler) {
 	std = b
+	if len(errHandler) > 0 {
+		defaultSubscriptionErrorHandler = errHandler[0]
+	}
 }
 
 func Default() Broker {
@@ -143,6 +144,9 @@ func MustPublish(ctx context.Context, topic string, message proto.Message, opts 
 }
 
 func SubscribeCancellable(ctx context.Context, topic string, handler SubscriberHandler, opts ...SubscribeOption) error {
+	if _, file, line, ok := runtime.Caller(1); ok {
+		opts = append(opts, WithCallee(file, line))
+	}
 	// Go through Subscribe to parse MessageQueue option
 	unsub, e := Subscribe(ctx, topic, handler, opts...)
 	if e != nil {
@@ -160,7 +164,14 @@ func SubscribeCancellable(ctx context.Context, topic string, handler SubscriberH
 }
 
 func Subscribe(root context.Context, topic string, handler SubscriberHandler, opts ...SubscribeOption) (UnSubscriber, error) {
-	so := parseSubscribeOptions(opts...)
+	so := parseSubscribeOptions(topic, opts...)
+	if so.CalleeFile == "" {
+		if _, file, line, ok := runtime.Caller(1); ok {
+			opts = append(opts, WithCallee(file, line))
+			so.CalleeFile = file
+			so.CalleeLine = line
+		}
+	}
 
 	// Wrap Handler for counters
 	id := "sub_" + topicReplacer.Replace(topic)
@@ -170,27 +181,22 @@ func Subscribe(root context.Context, topic string, handler SubscriberHandler, op
 		return handler(ctx, m)
 	}
 
+	// Wrap handler in Queue
 	if len(so.MessageQueueURLs) > 0 {
 		if so.MessageQueuePool == nil {
 			var er error
 			so.MessageQueuePool, er = openurl.OpenPool[MessageQueue](nil, so.MessageQueueURLs, func(ctx context.Context, url string) (MessageQueue, error) {
 				// On open, set up consume
-				q, er := OpenAsyncQueue(root, url) // OPEN WITH ROOT CONTEXT AS IT CONTROLS THE DONE()
-				if er != nil {
-					return q, er
+				q, err := OpenAsyncQueue(root, url) // OPEN WITH ROOT CONTEXT AS IT CONTROLS THE DONE()
+				if err != nil {
+					return q, err
 				}
-				er = q.Consume(func(ctx context.Context, mm ...Message) {
+				err = q.Consume(func(ctx context.Context, mm ...Message) {
 					for _, m := range mm {
-						if err := wh(ctx, m); err != nil {
-							if so.ErrorHandler != nil {
-								so.ErrorHandler(err)
-							} else {
-								fmt.Println("cannot apply message handler", err)
-							}
-						}
+						so.HandleError(ctx, wh(ctx, m))
 					}
 				})
-				return q, er
+				return q, err
 			})
 			if er != nil {
 				return nil, er
@@ -248,9 +254,9 @@ func (b *broker) closeTopics(c context.Context) {
 }
 
 func (b *broker) PublishRaw(ctx context.Context, topic string, body []byte, header map[string]string, opts ...PublishOption) error {
-	publisher, err := b.openTopic(topic)
-	if err != nil {
-		return err
+	publisher, er := b.openTopic(topic)
+	if er != nil {
+		return er
 	}
 
 	if err := publisher.Send(ctx, &pubsub.Message{
@@ -282,10 +288,10 @@ func (b *broker) Publish(ctx context.Context, topic string, message proto.Messag
 		return err
 	}
 
-	if err := publisher.Send(ctx, &pubsub.Message{
+	if er := publisher.Send(ctx, &pubsub.Message{
 		Body:     body,
 		Metadata: header,
-	}); err != nil {
+	}); er != nil {
 		return err
 	}
 
@@ -293,7 +299,13 @@ func (b *broker) Publish(ctx context.Context, topic string, message proto.Messag
 }
 
 func (b *broker) Subscribe(ctx context.Context, topic string, handler SubscriberHandler, opts ...SubscribeOption) (UnSubscriber, error) {
-	so := parseSubscribeOptions(opts...)
+	so := parseSubscribeOptions(topic, opts...)
+	if so.CalleeFile == "" {
+		if _, file, line, ok := runtime.Caller(1); ok {
+			so.CalleeFile = file
+			so.CalleeLine = line
+		}
+	}
 
 	// Making sure topic is opened
 	_, err := b.openTopic(topic)
@@ -306,14 +318,10 @@ func (b *broker) Subscribe(ctx context.Context, topic string, handler Subscriber
 		return nil, err
 	}
 
-	var file string
-	var no int
-	_, file, no, _ = runtime.Caller(3)
-
 	go func() {
 		for {
-			msg, err := sub.Receive(ctx)
-			if err != nil {
+			msg, er := sub.Receive(ctx)
+			if er != nil {
 				break
 			}
 
@@ -330,18 +338,7 @@ func (b *broker) Subscribe(ctx context.Context, topic string, handler Subscriber
 					body:   msg.Body,
 				})
 			}
-			if subErr != nil {
-				if so.ErrorHandler != nil {
-					so.ErrorHandler(subErr)
-				} else {
-					log.Logger(ctx).Error("Cannot handle, no error handler set",
-						zap.String("topic", topic),
-						zap.String("line", file),
-						zap.Int("no", no),
-						zap.Error(subErr),
-					)
-				}
-			}
+			so.HandleError(ctx, subErr)
 		}
 	}()
 
