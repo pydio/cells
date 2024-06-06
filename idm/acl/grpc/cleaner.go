@@ -69,13 +69,13 @@ func (c *WsRolesCleaner) Handle(ctx context.Context, msg *idm.ChangeEvent) error
 	return nil
 }
 
-type nodesCleaner struct {
+type NodesCleaner struct {
 	handler *Handler
 	fifo    broker.AsyncQueue
 }
 
-func newNodesCleaner(ctx context.Context, h *Handler) (*nodesCleaner, error) {
-	nc := &nodesCleaner{handler: h}
+func NewNodesCleaner(ctx context.Context, h *Handler) (*NodesCleaner, error) {
+	nc := &NodesCleaner{handler: h}
 	var er error
 	if nc.fifo, er = broker.OpenAsyncQueue(ctx, runtime.QueueURL("debounce", "750ms", "idle", "2s", "max", "5000")); er != nil {
 		return nil, er
@@ -94,14 +94,14 @@ func newNodesCleaner(ctx context.Context, h *Handler) (*nodesCleaner, error) {
 	}
 }
 
-func (c *nodesCleaner) Handle(ctx context.Context, msg *tree.NodeChangeEvent) error {
+func (c *NodesCleaner) Handle(ctx context.Context, msg *tree.NodeChangeEvent) error {
 	if msg.Type != tree.NodeChangeEvent_DELETE || msg.Source == nil || msg.Source.Uuid == "" || msg.Optimistic {
 		return nil
 	}
 	return c.fifo.Push(ctx, msg)
 }
 
-func (c *nodesCleaner) process(ctx context.Context, eventsUUIDs ...string) {
+func (c *NodesCleaner) process(ctx context.Context, eventsUUIDs ...string) {
 
 	// Mark ACLs for deletion
 	log.Logger(ctx).Debug(fmt.Sprintf("Marking %d nodes ACL as expired", len(eventsUUIDs)))

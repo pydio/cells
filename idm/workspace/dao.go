@@ -26,11 +26,12 @@ package workspace
 import (
 	"context"
 
-	"gorm.io/gorm"
-
+	"github.com/pydio/cells/v4/common/service"
 	"github.com/pydio/cells/v4/common/sql"
 	"github.com/pydio/cells/v4/common/sql/resources"
 )
+
+var Drivers = service.StorageDrivers{}
 
 // DAO interface
 type DAO interface {
@@ -41,12 +42,4 @@ type DAO interface {
 	Add(context.Context, interface{}) (bool, error)
 	Del(context.Context, sql.Enquirer) (numRows int64, e error)
 	Search(context.Context, sql.Enquirer, *[]interface{}) error
-}
-
-func NewDAO(db *gorm.DB) DAO {
-	resDAO := resources.NewDAO(db)
-	return &sqlimpl{
-		db:           db,
-		resourcesDAO: resDAO,
-	}
 }

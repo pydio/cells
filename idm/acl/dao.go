@@ -25,10 +25,11 @@ import (
 	"context"
 	"time"
 
-	"gorm.io/gorm"
-
+	"github.com/pydio/cells/v4/common/service"
 	"github.com/pydio/cells/v4/common/sql"
 )
+
+var Drivers = service.StorageDrivers{}
 
 type ExpirationProvider interface {
 	GetExpiredBefore() int64
@@ -60,8 +61,4 @@ type DAO interface {
 	SetExpiry(context.Context, sql.Enquirer, time.Time, *ExpirationPeriod) (int64, error)
 	Del(context.Context, sql.Enquirer, *ExpirationPeriod) (numRows int64, e error)
 	Search(context.Context, sql.Enquirer, *[]interface{}, *ExpirationPeriod) error
-}
-
-func NewDAO(db *gorm.DB) DAO {
-	return &sqlimpl{DB: db}
 }

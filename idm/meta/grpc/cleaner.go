@@ -32,13 +32,12 @@ import (
 	"github.com/pydio/cells/v4/common/runtime"
 	"github.com/pydio/cells/v4/common/runtime/manager"
 	"github.com/pydio/cells/v4/idm/meta"
-	"github.com/pydio/cells/v4/idm/meta/namespace"
 )
 
 // Cleaner cleans bookmarks on user deletion
 type Cleaner struct{}
 
-func HandleClean(ctx context.Context, msg *idm.ChangeEvent) error {
+func HandleClean(ctx context.Context, msg *idm.ChangeEvent, srvName string) error {
 
 	if msg.Type != idm.ChangeEventType_DELETE || msg.User == nil || msg.User.IsGroup {
 		return nil
@@ -51,7 +50,7 @@ func HandleClean(ctx context.Context, msg *idm.ChangeEvent) error {
 
 	go func() {
 		searchUserMetaAny, err := anypb.New(&idm.SearchUserMetaRequest{
-			Namespace: namespace.ReservedNamespaceBookmark,
+			Namespace: meta.ReservedNamespaceBookmark,
 		})
 		if err != nil {
 			return
@@ -68,7 +67,7 @@ func HandleClean(ctx context.Context, msg *idm.ChangeEvent) error {
 		if e != nil || len(metas) == 0 {
 			return
 		}
-		ctx = runtime.WithServiceName(ctx, Name)
+		ctx = runtime.WithServiceName(ctx, srvName)
 		log.Logger(ctx).Info(fmt.Sprintf("Cleaning %d bookmarks for user %s", len(metas), msg.User.Login))
 		for _, m := range metas {
 			dao.Del(ctx, m)

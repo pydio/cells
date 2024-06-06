@@ -22,7 +22,6 @@ package grpc
 
 import (
 	"context"
-	"github.com/pydio/cells/v4/common/sql"
 	"testing"
 
 	"google.golang.org/grpc/metadata"
@@ -33,6 +32,7 @@ import (
 	"github.com/pydio/cells/v4/common/runtime/manager"
 	"github.com/pydio/cells/v4/common/utils/test"
 	"github.com/pydio/cells/v4/idm/role"
+	"github.com/pydio/cells/v4/idm/role/dao/sql"
 
 	_ "github.com/pydio/cells/v4/common/utils/cache/gocache"
 
@@ -40,9 +40,7 @@ import (
 )
 
 var (
-	testcases = []test.StorageTestCase{
-		{[]string{sql.SqliteDriver + "://" + sql.SharedMemDSN}, true, role.NewDAO},
-	}
+	testcases = test.TemplateSQL(sql.NewDAO)
 )
 
 func TestRole(t *testing.T) {

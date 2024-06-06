@@ -25,21 +25,17 @@ import (
 	"context"
 
 	"github.com/ory/ladon"
-	"gorm.io/gorm"
 
 	"github.com/pydio/cells/v4/common/proto/idm"
+	"github.com/pydio/cells/v4/common/service"
 )
 
-type DAO interface {
-	// ladon.Warden
-	ladon.Manager
+var Drivers = service.StorageDrivers{}
 
+type DAO interface {
+	ladon.Manager
 	IsAllowed(ctx context.Context, r *ladon.Request) error
 	StorePolicyGroup(ctx context.Context, group *idm.PolicyGroup) (*idm.PolicyGroup, error)
 	ListPolicyGroups(ctx context.Context, filter string) ([]*idm.PolicyGroup, error)
 	DeletePolicyGroup(ctx context.Context, group *idm.PolicyGroup) error
-}
-
-func NewDAO(db *gorm.DB) DAO {
-	return &sqlimpl{DB: db, Manager: NewManager(db)}
 }

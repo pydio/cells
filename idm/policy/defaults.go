@@ -30,6 +30,7 @@ import (
 	"github.com/pydio/cells/v4/common/log"
 	"github.com/pydio/cells/v4/common/proto/idm"
 	"github.com/pydio/cells/v4/common/runtime/manager"
+	"github.com/pydio/cells/v4/common/service"
 	"github.com/pydio/cells/v4/idm/policy/converter"
 )
 
@@ -692,4 +693,59 @@ func Upgrade4399(ctx context.Context) error {
 		}
 	}
 	return nil
+}
+
+var GrpcServiceMigrations = []*service.Migration{
+	{
+		TargetVersion: service.FirstRun(),
+		Up:            InitDefaults,
+	},
+	{
+		TargetVersion: service.ValidVersion("1.0.1"),
+		Up:            Upgrade101,
+	},
+	{
+		TargetVersion: service.ValidVersion("1.0.3"),
+		Up:            Upgrade103,
+	},
+	{
+		TargetVersion: service.ValidVersion("1.2.0"),
+		Up:            Upgrade120,
+	},
+	{
+		TargetVersion: service.ValidVersion("1.2.2"),
+		Up:            Upgrade122,
+	},
+	{
+		TargetVersion: service.ValidVersion("1.4.2"),
+		Up:            Upgrade142,
+	},
+	{
+		TargetVersion: service.ValidVersion("2.0.2"),
+		Up:            Upgrade202,
+	},
+	{
+		TargetVersion: service.ValidVersion("2.0.99"),
+		Up:            Upgrade210,
+	},
+	{
+		TargetVersion: service.ValidVersion("2.1.99"),
+		Up:            Upgrade220,
+	},
+	{
+		TargetVersion: service.ValidVersion("2.2.7"),
+		Up:            Upgrade227,
+	},
+	{
+		TargetVersion: service.ValidVersion("3.9.99"),
+		Up:            Upgrade399,
+	},
+	{
+		TargetVersion: service.ValidVersion("4.1.99"),
+		Up:            Upgrade4199,
+	},
+	{
+		TargetVersion: service.ValidVersion("4.3.99"),
+		Up:            Upgrade4399,
+	},
 }

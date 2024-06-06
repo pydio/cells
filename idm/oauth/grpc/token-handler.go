@@ -37,7 +37,6 @@ type PATHandler struct {
 	auth.UnimplementedPersonalAccessTokenServiceServer
 
 	config fosite.Configurator
-	name   string
 }
 
 func NewPATHandler(config fosite.Configurator) *PATHandler {

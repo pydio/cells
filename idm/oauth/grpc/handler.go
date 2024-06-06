@@ -57,10 +57,12 @@ import (
 	"github.com/pydio/cells/v4/idm/oauth"
 )
 
+func NewOAuthGRPCHandler() *Handler {
+	return &Handler{}
+}
+
 // Handler for the plugin
 type Handler struct {
-	name string
-
 	pauth.UnimplementedLoginProviderServer
 	pauth.UnimplementedConsentProviderServer
 	pauth.UnimplementedAuthCodeProviderServer
@@ -82,10 +84,6 @@ var (
 	_ pauth.AuthTokenRefresherServer = (*Handler)(nil)
 	_ pauth.AuthTokenRevokerServer   = (*Handler)(nil)
 )
-
-func (h *Handler) Name() string {
-	return h.name
-}
 
 func (h *Handler) LongVerifier() string {
 	return strings.ReplaceAll(uuid.New()+uuid.New(), "-", "")

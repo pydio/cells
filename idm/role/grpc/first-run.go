@@ -36,6 +36,7 @@ import (
 	"github.com/pydio/cells/v4/common/proto/idm"
 	pbservice "github.com/pydio/cells/v4/common/proto/service"
 	"github.com/pydio/cells/v4/common/runtime/manager"
+	"github.com/pydio/cells/v4/common/service"
 	json "github.com/pydio/cells/v4/common/utils/jsonx"
 	"github.com/pydio/cells/v4/common/utils/permissions"
 	"github.com/pydio/cells/v4/common/utils/std"
@@ -294,4 +295,20 @@ func UpgradeTo421(ctx context.Context) error {
 	}
 	log.Logger(ctx).Info("Added new ACLs for external users")
 	return nil
+}
+
+var GrpcServiceMigrations = []*service.Migration{
+	{
+		TargetVersion: service.FirstRun(),
+		Up:            InitRoles,
+	}, {
+		TargetVersion: service.ValidVersion("1.2.0"),
+		Up:            UpgradeTo12,
+	}, {
+		TargetVersion: service.ValidVersion("4.1.99"),
+		Up:            UpgradeTo4199,
+	}, {
+		TargetVersion: service.ValidVersion("4.2.1"),
+		Up:            UpgradeTo421,
+	},
 }

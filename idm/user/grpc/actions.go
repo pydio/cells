@@ -21,6 +21,12 @@ var (
 	DeleteUsersActionName = "actions.idm.users.delete"
 )
 
+func init() {
+	actions.GetActionsManager().Register(DeleteUsersActionName, func() actions.ConcreteAction {
+		return &DeleteUsersAction{}
+	})
+}
+
 type DeleteUsersAction struct {
 	common.RuntimeHolder
 	task   *jobs.Task

@@ -26,31 +26,35 @@ package meta
 
 import (
 	"context"
+
 	"github.com/pydio/cells/v4/common/proto/idm"
+	"github.com/pydio/cells/v4/common/service"
 	"github.com/pydio/cells/v4/common/sql"
 	"github.com/pydio/cells/v4/common/sql/resources"
-	"github.com/pydio/cells/v4/idm/meta/namespace"
-	"gorm.io/gorm"
 )
+
+var Drivers = service.StorageDrivers{}
 
 // DAO interface
 type DAO interface {
 	resources.DAO
 
-	GetNamespaceDao() namespace.DAO
+	GetNamespaceDao() NamespaceDAO
 
 	Set(ctx context.Context, meta *idm.UserMeta) (*idm.UserMeta, string, error)
 	Del(ctx context.Context, meta *idm.UserMeta) (prevValue string, e error)
 	Search(ctx context.Context, query sql.Enquirer) ([]*idm.UserMeta, error)
 }
 
-func NewDAO(db *gorm.DB) DAO {
-	resourcesDAO := resources.NewDAO(db)
-	nsDAO := namespace.NewDAO(db)
+const (
+	ReservedNamespaceBookmark = "bookmark"
+)
 
-	return &sqlimpl{
-		db:           db,
-		resourcesDAO: resourcesDAO,
-		nsDAO:        nsDAO,
-	}
+// NamespaceDAO interface
+type NamespaceDAO interface {
+	resources.DAO
+
+	Add(ctx context.Context, ns *idm.UserMetaNamespace) error
+	Del(ctx context.Context, ns *idm.UserMetaNamespace) (e error)
+	List(ctx context.Context) (map[string]*idm.UserMetaNamespace, error)
 }

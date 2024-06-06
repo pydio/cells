@@ -45,8 +45,12 @@ import (
 	"github.com/pydio/cells/v4/common/proto/tree"
 	"github.com/pydio/cells/v4/common/service"
 	"github.com/pydio/cells/v4/common/utils/permissions"
-	"github.com/pydio/cells/v4/idm/meta/namespace"
+	"github.com/pydio/cells/v4/idm/meta"
 )
+
+func NewGraphHandler(ctx context.Context) service.WebHandler {
+	return &GraphHandler{runtimeContext: ctx}
+}
 
 type GraphHandler struct {
 	runtimeContext context.Context
@@ -278,7 +282,7 @@ func (h *GraphHandler) Recommend(req *restful.Request, rsp *restful.Response) {
 			}
 			// Append Subjects
 			sr := &idm.SearchUserMetaRequest{
-				Namespace: namespace.ReservedNamespaceBookmark,
+				Namespace: meta.ReservedNamespaceBookmark,
 				ResourceQuery: &service2.ResourcePolicyQuery{
 					Subjects: subjects,
 				},

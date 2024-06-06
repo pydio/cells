@@ -45,7 +45,10 @@ import (
 	json "github.com/pydio/cells/v4/common/utils/jsonx"
 	"github.com/pydio/cells/v4/common/utils/permissions"
 	"github.com/pydio/cells/v4/idm/meta"
-	"github.com/pydio/cells/v4/idm/meta/namespace"
+)
+
+const (
+	ReservedNSBookmark = meta.ReservedNamespaceBookmark
 )
 
 func NewUserMetaHandler(ctx context.Context) *UserMetaHandler {
@@ -150,7 +153,7 @@ func (s *UserMetaHandler) UpdateUserMeta(req *restful.Request, rsp *restful.Resp
 			service.RestError404(req, rsp, e)
 			return
 		}
-		if meta.Namespace != namespace.ReservedNamespaceBookmark {
+		if meta.Namespace != ReservedNSBookmark {
 			if _, er := router.CanApply(ctx, &tree.NodeChangeEvent{Type: tree.NodeChangeEvent_UPDATE_CONTENT, Target: resp.Node}); er != nil {
 				service.RestError403(req, rsp, er)
 				return
@@ -195,7 +198,7 @@ func (s *UserMetaHandler) UpdateUserMeta(req *restful.Request, rsp *restful.Resp
 			}
 		}
 		// Now update policies for input Meta
-		if meta.Namespace == namespace.ReservedNamespaceBookmark {
+		if meta.Namespace == ReservedNSBookmark {
 			userName, c := permissions.FindUserNameInContext(ctx)
 			meta.Policies = []*serviceproto.ResourcePolicy{
 				{Action: serviceproto.ResourcePolicyAction_OWNER, Subject: c.Subject, Effect: serviceproto.ResourcePolicy_allow},
@@ -259,7 +262,7 @@ func (s *UserMetaHandler) SearchUserMeta(req *restful.Request, rsp *restful.Resp
 func (s *UserMetaHandler) UserBookmarks(req *restful.Request, rsp *restful.Response) {
 
 	searchRequest := &idm.SearchUserMetaRequest{
-		Namespace: namespace.ReservedNamespaceBookmark,
+		Namespace: ReservedNSBookmark,
 	}
 	router := compose.UuidClient(s.ctx)
 	ctx := req.Request.Context()
@@ -324,7 +327,7 @@ func (s *UserMetaHandler) ListUserMetaNamespace(req *restful.Request, rsp *restf
 	output := &rest.UserMetaNamespaceCollection{}
 	if ns, err := s.ListAllNamespaces(ctx, userMetaClient(ctx)); err == nil {
 		for _, n := range ns {
-			if n.Namespace == namespace.ReservedNamespaceBookmark {
+			if n.Namespace == ReservedNSBookmark {
 				continue
 			}
 			output.Namespaces = append(output.Namespaces, n)

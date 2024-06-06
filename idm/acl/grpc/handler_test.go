@@ -32,7 +32,7 @@ import (
 	service "github.com/pydio/cells/v4/common/proto/service"
 	"github.com/pydio/cells/v4/common/utils/configx"
 	"github.com/pydio/cells/v4/common/utils/test"
-	"github.com/pydio/cells/v4/idm/acl"
+	"github.com/pydio/cells/v4/idm/acl/dao/sql"
 
 	. "github.com/smartystreets/goconvey/convey"
 )
@@ -43,7 +43,7 @@ var (
 )
 
 var (
-	testcases = test.TemplateSQL(acl.NewDAO)
+	testcases = test.TemplateSQL(sql.NewDAO)
 )
 
 func TestACL(t *testing.T) {

@@ -36,6 +36,10 @@ import (
 	"github.com/pydio/cells/v4/common/service/resources"
 )
 
+func NewHandler(ctx context.Context) service2.WebHandler {
+	return &Handler{ctx: ctx}
+}
+
 // Handler for the rest package
 type Handler struct {
 	ctx context.Context

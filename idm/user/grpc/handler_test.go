@@ -23,7 +23,6 @@ package grpc
 import (
 	"context"
 	"fmt"
-	"github.com/pydio/cells/v4/common/sql"
 	"testing"
 
 	"google.golang.org/grpc/metadata"
@@ -34,15 +33,13 @@ import (
 	"github.com/pydio/cells/v4/common/proto/service"
 	"github.com/pydio/cells/v4/common/utils/cache"
 	"github.com/pydio/cells/v4/common/utils/test"
-	"github.com/pydio/cells/v4/idm/user"
+	"github.com/pydio/cells/v4/idm/user/dao/sql"
 
 	. "github.com/smartystreets/goconvey/convey"
 )
 
 var (
-	testcases = []test.StorageTestCase{
-		{[]string{sql.SqliteDriver + "://" + sql.SharedMemDSN}, true, user.NewDAO},
-	}
+	testcases = test.TemplateSQL(sql.NewDAO)
 )
 
 func init() {

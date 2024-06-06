@@ -24,12 +24,13 @@ package role
 import (
 	"context"
 
-	"gorm.io/gorm"
-
 	"github.com/pydio/cells/v4/common/proto/idm"
+	"github.com/pydio/cells/v4/common/service"
 	"github.com/pydio/cells/v4/common/sql"
 	"github.com/pydio/cells/v4/common/sql/resources"
 )
+
+var Drivers = service.StorageDrivers{}
 
 // DAO interface
 type DAO interface {
@@ -39,11 +40,4 @@ type DAO interface {
 	Delete(ctx context.Context, query sql.Enquirer) (numRows int64, e error)
 	Search(ctx context.Context, query sql.Enquirer, output *[]*idm.Role) error
 	Count(ctx context.Context, query sql.Enquirer) (int32, error)
-}
-
-func NewDAO(db *gorm.DB) (DAO, error) {
-	return &sqlimpl{
-		db:           db,
-		resourcesDAO: resources.NewDAO(db),
-	}, nil
 }
