@@ -40,13 +40,13 @@ var (
 	UnitTests = false
 )
 
-func updateServicesList(ctx context.Context, treeServer *TreeServer, retry int) {
+func (s *TreeServer) UpdateServicesList(ctx context.Context, retry int) {
 
 	if UnitTests {
 		return
 	}
 
-	k, _ := treeServer.sourcesCaches.Get(ctx)
+	k, _ := s.sourcesCaches.Get(ctx)
 	all, _ := k.KeysByPrefix("")
 	_ = k.Reset()
 	initialLength := len(all)
@@ -77,13 +77,13 @@ func updateServicesList(ctx context.Context, treeServer *TreeServer, retry int) 
 		}
 		dsKeys = append(dsKeys, dataSourceName)
 		_ = k.Set(dataSourceName, obj)
-		log.Logger(ctx).Debug("[Tree:updateServicesList] Add datasource " + dataSourceName)
+		log.Logger(ctx).Debug("[Tree:UpdateServicesList] Add datasource " + dataSourceName)
 	}
 
 	// If registry event comes too soon, running services may not be loaded yet
 	if retry < 4 && initialLength == len(dsKeys) {
 		<-time.After(10 * time.Second)
-		updateServicesList(ctx, treeServer, retry+1)
+		s.UpdateServicesList(ctx, retry+1)
 	}
 	if retry == 5 {
 		log.Logger(ctx).Debug("Force UpdateServicesList", zap.Strings("datasources", dsKeys))
@@ -91,7 +91,7 @@ func updateServicesList(ctx context.Context, treeServer *TreeServer, retry int) 
 }
 
 // TODO - should be using the resolver for this ?
-func watchRegistry(ctx context.Context, treeServer *TreeServer) {
+func (s *TreeServer) WatchRegistry(ctx context.Context) {
 
 	var reg registry.Registry
 	propagator.Get(ctx, registry.ContextKey, &reg)
@@ -122,7 +122,7 @@ func watchRegistry(ctx context.Context, treeServer *TreeServer) {
 		}
 
 		if do {
-			updateServicesList(ctx, treeServer, 0)
+			s.UpdateServicesList(ctx, 0)
 		}
 	}
 }

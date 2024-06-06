@@ -24,14 +24,12 @@ package meta
 import (
 	"context"
 
-	"gorm.io/gorm"
+	"github.com/pydio/cells/v4/common/service"
 )
+
+var Drivers = service.StorageDrivers{}
 
 type DAO interface {
 	SetMetadata(ctx context.Context, nodeId string, author string, metadata map[string]string) (err error)
 	GetMetadata(ctx context.Context, nodeId string) (metadata map[string]string, err error)
-}
-
-func NewGormDAO(db *gorm.DB) DAO {
-	return &sqlImpl{db: db}
 }

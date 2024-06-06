@@ -46,7 +46,7 @@ import (
 )
 
 type Handler struct {
-	runtimeCtx context.Context
+	RuntimeCtx context.Context
 	router     nodes.Client
 	client     tree.SearcherClient
 }
@@ -63,14 +63,14 @@ func (s *Handler) Filter() func(string) string {
 
 func (s *Handler) getRouter() nodes.Client {
 	if s.router == nil {
-		s.router = compose.PathClient(s.runtimeCtx)
+		s.router = compose.PathClient(s.RuntimeCtx)
 	}
 	return s.router
 }
 
 func (s *Handler) getClient() tree.SearcherClient {
 	if s.client == nil {
-		s.client = tree.NewSearcherClient(grpc.ResolveConn(s.runtimeCtx, common.ServiceSearch))
+		s.client = tree.NewSearcherClient(grpc.ResolveConn(s.RuntimeCtx, common.ServiceSearch))
 	}
 	return s.client
 }
@@ -83,7 +83,7 @@ func (s *Handler) sharedResourcesAsNodes(ctx context.Context, query *tree.Query)
 	// Replace FS
 	query.FreeString = freeString
 
-	sc := share.NewClient(s.runtimeCtx, nil)
+	sc := share.NewClient(s.RuntimeCtx, nil)
 	rr, e := sc.ListSharedResources(ctx, "", scope, true, resources.ResourceProviderHandler{})
 	if e != nil {
 		return nil, false, e

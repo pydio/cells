@@ -24,16 +24,14 @@ package versions
 import (
 	"context"
 
-	"go.etcd.io/bbolt"
-
 	"github.com/pydio/cells/v4/common/proto/tree"
 	"github.com/pydio/cells/v4/common/runtime/manager"
 	"github.com/pydio/cells/v4/common/service"
-	"github.com/pydio/cells/v4/common/storage/mongodb"
 )
 
+var Drivers = service.StorageDrivers{}
+
 type DAO interface {
-	// dao.DAO
 	GetLastVersion(nodeUuid string) (*tree.ChangeLog, error)
 	GetVersions(nodeUuid string) (chan *tree.ChangeLog, error)
 	GetVersion(nodeUuid string, versionId string) (*tree.ChangeLog, error)
@@ -41,14 +39,6 @@ type DAO interface {
 	DeleteVersionsForNode(nodeUuid string, versions ...*tree.ChangeLog) error
 	DeleteVersionsForNodes(nodeUuid []string) error
 	ListAllVersionedNodesUuids() (chan string, chan bool, chan error)
-}
-
-func NewBoltDAO(db *bbolt.DB) (DAO, error) {
-	return NewBoltStore(db)
-}
-
-func NewMongoDAO(db *mongodb.Database) DAO {
-	return &mongoStore{Database: db}
 }
 
 func Migrate(main, fromCtx, toCtx context.Context, dryRun bool, status chan service.MigratorStatus) (map[string]int, error) {

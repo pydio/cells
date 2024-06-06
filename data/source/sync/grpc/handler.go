@@ -58,8 +58,7 @@ import (
 // Handler structure
 type Handler struct {
 	globalCtx      context.Context
-	dsName         string
-	handlerName    string
+	DsName         string
 	errorsDetected chan string
 
 	indexClientRead    tree.NodeProviderClient
@@ -86,22 +85,20 @@ type Handler struct {
 	object.UnimplementedResourceCleanerEndpointServer
 }
 
-func NewHandler(ctx context.Context, handlerName, datasource string) (*Handler, error) {
-	h := &Handler{
+func NewHandler(ctx context.Context, datasource string) *Handler {
+	return &Handler{
 		globalCtx:      ctx,
-		dsName:         datasource,
-		handlerName:    handlerName,
+		DsName:         datasource,
 		errorsDetected: make(chan string),
 		stop:           make(chan bool),
 		stMux:          &sync2.Mutex{},
 	}
-	return h, nil
 }
 
 func (s *Handler) Init() error {
 
 	var syncConfig *object.DataSource
-	if err := config.Get("services", common.ServiceGrpcNamespace_+common.ServiceDataSync_+s.dsName).Scan(&syncConfig); err != nil {
+	if err := config.Get("services", common.ServiceGrpcNamespace_+common.ServiceDataSync_+s.DsName).Scan(&syncConfig); err != nil {
 		return err
 	}
 	if sec := config.GetSecret(syncConfig.ApiSecret).String(); sec != "" {
@@ -110,10 +107,6 @@ func (s *Handler) Init() error {
 
 	return s.initSync(syncConfig)
 
-}
-
-func (s *Handler) Name() string {
-	return s.handlerName
 }
 
 func (s *Handler) Start() {
@@ -172,7 +165,7 @@ func (s *Handler) initSync(syncConfig *object.DataSource) error {
 
 	/*
 		ctx := s.globalCtx
-		dataSource := s.dsName
+		dataSource := s.DsName
 
 		// Making sure Object AND underlying S3 is started
 		var minioConfig *object.MinioConfig
@@ -449,7 +442,7 @@ func (s *Handler) watchErrors() {
 				md[common.PydioContextUserKey] = common.PydioSystemUsername
 				ctx := propagator.NewContext(context.Background(), md)
 				broker.MustPublish(ctx, common.TopicTimerEvent, &jobs.JobTriggerEvent{
-					JobID:  "resync-ds-" + s.dsName,
+					JobID:  "resync-ds-" + s.DsName,
 					RunNow: true,
 				})
 			}
@@ -460,7 +453,7 @@ func (s *Handler) watchErrors() {
 }
 
 func (s *Handler) watchConfigs() {
-	serviceName := common.ServiceGrpcNamespace_ + common.ServiceDataSync_ + s.dsName
+	serviceName := common.ServiceGrpcNamespace_ + common.ServiceDataSync_ + s.DsName
 
 	// TODO - should be linked to context
 	for {
@@ -479,7 +472,7 @@ func (s *Handler) watchConfigs() {
 
 			var cfg object.DataSource
 
-			if err := event.(configx.Values).Scan(&cfg); err == nil && cfg.Name == s.dsName {
+			if err := event.(configx.Values).Scan(&cfg); err == nil && cfg.Name == s.DsName {
 				log.Logger(s.globalCtx).Info("Config changed on "+serviceName+", comparing", zap.Object("old", s.SyncConfig), zap.Object("new", &cfg))
 				if s.SyncConfig.ObjectsBaseFolder != cfg.ObjectsBaseFolder || s.SyncConfig.ObjectsBucket != cfg.ObjectsBucket {
 					// @TODO - Object service must be restarted before restarting sync

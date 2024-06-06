@@ -26,15 +26,17 @@ package docstore
 
 import (
 	"context"
-	"github.com/pydio/cells/v4/common/storage/mongodb"
 
-	bleve "github.com/blevesearch/bleve/v2"
 	"github.com/pydio/cells/v4/common/proto/docstore"
-	"go.etcd.io/bbolt"
+	"github.com/pydio/cells/v4/common/runtime/manager"
+	"github.com/pydio/cells/v4/common/service"
+)
+
+var (
+	Drivers = service.StorageDrivers{}
 )
 
 type DAO interface {
-	// dao.DAO
 	PutDocument(ctx context.Context, storeID string, doc *docstore.Document) error
 	GetDocument(ctx context.Context, storeID string, docId string) (*docstore.Document, error)
 	DeleteDocument(ctx context.Context, storeID string, docID string) error
@@ -45,52 +47,39 @@ type DAO interface {
 	Reset() error
 }
 
-var _ DAO = (*BleveServer)(nil)
+func Migrate(ctx, fromCtx, toCtx context.Context, dryRun bool, status chan service.MigratorStatus) (map[string]int, error) {
 
-func NewBleveDAO(boltDB *bbolt.DB, bleveIndex bleve.Index) DAO {
-	return NewBleveEngine(boltDB, bleveIndex)
+	out := map[string]int{
+		"Stores":    0,
+		"Documents": 0,
+	}
+	var from, to DAO
+	var e error
+	if from, e = manager.Resolve[DAO](fromCtx); e != nil {
+		return nil, e
+	}
+	if to, e = manager.Resolve[DAO](toCtx); e != nil {
+		return nil, e
+	}
+	ss, e := from.ListStores(ctx)
+	if e != nil {
+		return nil, e
+	}
+	for _, store := range ss {
+		docs, e := from.QueryDocuments(ctx, store, nil)
+		if e != nil {
+			return nil, e
+		}
+		for doc := range docs {
+			if dryRun {
+				out["Documents"]++
+			} else if er := to.PutDocument(ctx, store, doc); er == nil {
+				out["Documents"]++
+			} else {
+				continue
+			}
+		}
+		out["Stores"]++
+	}
+	return out, nil
 }
-
-func NewMongoDAO(db *mongodb.Database) DAO {
-	return &mongoImpl{Database: db}
-}
-
-//func Migrate(f dao.DAO, t dao.DAO, dryRun bool, status chan dao.MigratorStatus) (map[string]int, error) {
-//	ctx := context.Background()
-//	out := map[string]int{
-//		"Stores":    0,
-//		"Documents": 0,
-//	}
-//	var from, to DAO
-//	if df, e := NewDAO(ctx, f); e == nil {
-//		from = df.(DAO)
-//	} else {
-//		return out, e
-//	}
-//	if dt, e := NewDAO(ctx, t); e == nil {
-//		to = dt.(DAO)
-//	} else {
-//		return out, e
-//	}
-//	ss, e := from.ListStores()
-//	if e != nil {
-//		return nil, e
-//	}
-//	for _, store := range ss {
-//		docs, e := from.QueryDocuments(store, nil)
-//		if e != nil {
-//			return nil, e
-//		}
-//		for doc := range docs {
-//			if dryRun {
-//				out["Documents"]++
-//			} else if er := to.PutDocument(store, doc); er == nil {
-//				out["Documents"]++
-//			} else {
-//				continue
-//			}
-//		}
-//		out["Stores"]++
-//	}
-//	return out, nil
-//}

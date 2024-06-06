@@ -23,11 +23,15 @@ package rest
 
 import (
 	restful "github.com/emicklei/go-restful/v3"
-	"github.com/pydio/cells/v4/common/service"
 
 	"github.com/pydio/cells/v4/common/proto/rest"
+	"github.com/pydio/cells/v4/common/service"
 	"github.com/pydio/cells/v4/data/templates"
 )
+
+func NewTemplatesHandler(dao templates.DAO) service.WebHandler {
+	return &Handler{Dao: dao}
+}
 
 type Handler struct {
 	Dao templates.DAO

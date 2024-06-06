@@ -1,6 +1,7 @@
 package bleve
 
 import (
+	"context"
 	"fmt"
 	"strings"
 	"time"
@@ -11,13 +12,17 @@ import (
 	"github.com/blevesearch/bleve/v2/analysis/lang/en"
 	"github.com/blevesearch/bleve/v2/mapping"
 	"github.com/blevesearch/bleve/v2/registry"
-	"github.com/blevesearch/bleve/v2/search"
+	blevesearch "github.com/blevesearch/bleve/v2/search"
 	"github.com/blevesearch/bleve/v2/search/query"
 
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/nodes/meta"
 	"github.com/pydio/cells/v4/common/proto/tree"
+	"github.com/pydio/cells/v4/common/storage"
+	bleve2 "github.com/pydio/cells/v4/common/storage/bleve"
 	"github.com/pydio/cells/v4/common/utils/configx"
+	"github.com/pydio/cells/v4/data/search"
+	"github.com/pydio/cells/v4/data/search/dao/commons"
 
 	_ "github.com/blevesearch/bleve/v2/analysis/lang/ar"
 	_ "github.com/blevesearch/bleve/v2/analysis/lang/bg"
@@ -64,6 +69,15 @@ var (
 	}
 )
 
+func init() {
+	search.Drivers.Register(NewBleveDAO)
+}
+
+func NewBleveDAO(ctx context.Context, v *bleve2.Indexer) search.Engine {
+	v.SetCodex(&Codec{})
+	return commons.NewServer(ctx, v, createQueryCodec)
+}
+
 type Codec struct {
 	ResultBasenameFacetCount int32
 	ResultContentFacetCount  int32
@@ -72,7 +86,7 @@ type Codec struct {
 	queryNSProvider *meta.NsProvider
 }
 
-func NewQueryCodec(values configx.Values, provider *meta.NsProvider) *Codec {
+func createQueryCodec(values configx.Values, provider *meta.NsProvider) storage.IndexCodex {
 	return &Codec{
 		queryConfig:     values,
 		queryNSProvider: provider,
@@ -86,7 +100,7 @@ func (b *Codec) Marshal(input interface{}) (interface{}, error) {
 
 func (b *Codec) Unmarshal(indexed interface{}) (interface{}, error) {
 
-	hit := indexed.(*search.DocumentMatch)
+	hit := indexed.(*blevesearch.DocumentMatch)
 	node := &tree.Node{}
 	if u, ok := hit.Fields["Uuid"]; ok {
 		node.Uuid = u.(string)
@@ -126,7 +140,7 @@ func (b *Codec) Unmarshal(indexed interface{}) (interface{}, error) {
 
 func (b *Codec) UnmarshalFacet(data interface{}, facets chan interface{}) {
 
-	f, ok := data.(*search.FacetResult)
+	f, ok := data.(*blevesearch.FacetResult)
 	if !ok {
 		return
 	}

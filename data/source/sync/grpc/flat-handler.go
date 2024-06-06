@@ -98,11 +98,11 @@ func (s *Handler) FlatSyncSnapshot(ctx context.Context, dsObject *object.DataSou
 		if syncDone != nil {
 			syncDone <- true
 		}
-		return &flatSyncStater{source: s.dsName, target: "snapshot:delete"}, e
+		return &flatSyncStater{source: s.DsName, target: "snapshot:delete"}, e
 	}
 
-	indexClient := index.NewClient(s.dsName, s.indexClientRead, s.indexClientWrite, s.indexClientSession)
-	snapshotClient, e := newFlatSnapshot(ctx, dsObject, s.s3client, common.ServiceGrpcNamespace_+common.ServiceDataSync_+s.dsName, snapName, mode)
+	indexClient := index.NewClient(s.DsName, s.indexClientRead, s.indexClientWrite, s.indexClientSession)
+	snapshotClient, e := newFlatSnapshot(ctx, dsObject, s.s3client, common.ServiceGrpcNamespace_+common.ServiceDataSync_+s.DsName, snapName, mode)
 	if e != nil {
 		return nil, e
 	}
@@ -126,7 +126,7 @@ func (s *Handler) FlatSyncSnapshot(ctx context.Context, dsObject *object.DataSou
 		if syncDone != nil {
 			syncDone <- true
 		}
-		return &flatSyncStater{source: s.dsName, target: "snapshot:write"}, e
+		return &flatSyncStater{source: s.DsName, target: "snapshot:write"}, e
 	} else {
 		syncTask := task.NewSync(snapshotClient, indexClient, model.DirectionRight)
 		syncTask.SkipTargetChecks = true

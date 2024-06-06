@@ -27,17 +27,17 @@ import (
 	"github.com/pydio/cells/v4/common/proto/tree"
 )
 
-type StubEngine struct{}
+type Engine struct{}
 
-func (s *StubEngine) IndexNode(context.Context, *tree.Node, bool, map[string]struct{}) error {
+func (s *Engine) IndexNode(context.Context, *tree.Node, bool, map[string]struct{}) error {
 	return nil
 }
 
-func (s *StubEngine) DeleteNode(context.Context, *tree.Node) error {
+func (s *Engine) DeleteNode(context.Context, *tree.Node) error {
 	return nil
 }
 
-func (s *StubEngine) SearchNodes(c context.Context, queryObject *tree.Query, from int32, size int32, resultChan chan *tree.Node, facets chan *tree.SearchFacet, doneChan chan bool) error {
+func (s *Engine) SearchNodes(c context.Context, queryObject *tree.Query, from int32, size int32, resultChan chan *tree.Node, facets chan *tree.SearchFacet, doneChan chan bool) error {
 
 	resultChan <- &tree.Node{
 		Uuid: "DocID1",
@@ -49,10 +49,10 @@ func (s *StubEngine) SearchNodes(c context.Context, queryObject *tree.Query, fro
 	return nil
 }
 
-func (s *StubEngine) Close() error {
+func (s *Engine) Close() error {
 	return nil
 }
 
-func (s *StubEngine) ClearIndex(ctx context.Context) error {
+func (s *Engine) ClearIndex(ctx context.Context) error {
 	return nil
 }

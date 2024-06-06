@@ -33,13 +33,13 @@ import (
 	tree "github.com/pydio/cells/v4/common/proto/tree"
 	"github.com/pydio/cells/v4/common/service/errors"
 	"github.com/pydio/cells/v4/common/utils/test"
-	"github.com/pydio/cells/v4/data/meta"
+	"github.com/pydio/cells/v4/data/meta/dao/sql"
 
 	. "github.com/smartystreets/goconvey/convey"
 )
 
 var (
-	testcases = test.TemplateSQL(meta.NewGormDAO)
+	testcases = test.TemplateSQL(sql.NewMetaDAO)
 )
 
 func TestMeta(t *testing.T) {
@@ -47,7 +47,7 @@ func TestMeta(t *testing.T) {
 	test.RunStorageTests(testcases, func(ctx context.Context) {
 
 		ctx = context.WithValue(ctx, claim.ContextKey, claim.Claims{Name: "author-name"})
-		s := NewMetaServer(context.Background())
+		s := NewMetaServer(context.Background(), "metaServiceTest")
 
 		Convey("Simple GET from stubbed implementation", t, func() {
 
@@ -192,7 +192,7 @@ func TestMeta(t *testing.T) {
 func TestStreamer(t *testing.T) {
 	test.RunStorageTests(testcases, func(ctx context.Context) {
 		ctx = context.WithValue(ctx, claim.ContextKey, claim.Claims{Name: "author-name"})
-		server := NewMetaServer(context.Background())
+		server := NewMetaServer(context.Background(), "metaServiceTest")
 		Convey("Test streamer", t, func() {
 
 			respObject, e := server.CreateNode(ctx, &tree.CreateNodeRequest{
@@ -238,11 +238,11 @@ func TestSubscriber(t *testing.T) {
 	test.RunStorageTests(testcases, func(ctx context.Context) {
 
 		ctx = context.WithValue(ctx, claim.ContextKey, claim.Claims{Name: "author-name"})
-		server := NewMetaServer(context.Background())
+		server := NewMetaServer(context.Background(), "metaServiceTest")
 
 		Convey("Test Create Event to Subscriber", t, func() {
 
-			So(server.processEvent(ctx, &tree.NodeChangeEvent{
+			So(server.ProcessEvent(ctx, &tree.NodeChangeEvent{
 				Type: tree.NodeChangeEvent_CREATE,
 				Target: &tree.Node{
 					Uuid: "event-node-uid",
@@ -280,7 +280,7 @@ func TestSubscriber(t *testing.T) {
 
 			// UPDATE_META then UPDATE_PATH
 			{
-				So(server.processEvent(ctx, &tree.NodeChangeEvent{
+				So(server.ProcessEvent(ctx, &tree.NodeChangeEvent{
 					Type: tree.NodeChangeEvent_UPDATE_META,
 					Target: &tree.Node{
 						Uuid: "event-node-uid",
@@ -305,7 +305,7 @@ func TestSubscriber(t *testing.T) {
 				})
 
 				node := respObject.Node
-				So(server.processEvent(ctx, &tree.NodeChangeEvent{
+				So(server.ProcessEvent(ctx, &tree.NodeChangeEvent{
 					Type:   tree.NodeChangeEvent_UPDATE_PATH,
 					Target: node,
 				}), ShouldBeNil)
@@ -326,7 +326,7 @@ func TestSubscriber(t *testing.T) {
 
 			// UPDATE_CONTENT
 			{
-				So(server.processEvent(ctx, &tree.NodeChangeEvent{
+				So(server.ProcessEvent(ctx, &tree.NodeChangeEvent{
 					Type: tree.NodeChangeEvent_UPDATE_CONTENT,
 					Target: &tree.Node{
 						Uuid: "event-node-uid",
@@ -364,7 +364,7 @@ func TestSubscriber(t *testing.T) {
 			})
 			So(er, ShouldBeNil)
 
-			er = server.processEvent(ctx, &tree.NodeChangeEvent{
+			er = server.ProcessEvent(ctx, &tree.NodeChangeEvent{
 				Type: tree.NodeChangeEvent_DELETE,
 				Source: &tree.Node{
 					Uuid: "event-node-uid",

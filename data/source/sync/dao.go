@@ -22,19 +22,13 @@
 package sync
 
 import (
-	"gorm.io/gorm"
-
-	"github.com/pydio/cells/v4/common/dao"
+	"github.com/pydio/cells/v4/common/service"
 	"github.com/pydio/cells/v4/common/sync/endpoints/s3"
 )
 
+var Drivers = service.StorageDrivers{}
+
 type DAO interface {
-	dao.DAO
 	s3.ChecksumMapper
-
 	CleanResourcesOnDeletion() (string, error)
-}
-
-func NewSqlDAO(db *gorm.DB) dao.DAO {
-	return &sqlImpl{db: db}
 }

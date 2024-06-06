@@ -38,10 +38,6 @@ type Handler struct {
 	sync.UnimplementedSyncEndpointServer
 }
 
-func (h *Handler) Name() string {
-	return Name
-}
-
 func (h *Handler) PutDocument(ctx context.Context, request *proto.PutDocumentRequest) (*proto.PutDocumentResponse, error) {
 	dao, err := manager.Resolve[docstore.DAO](ctx)
 	if err != nil {

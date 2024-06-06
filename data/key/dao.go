@@ -23,10 +23,12 @@ package key
 
 import (
 	"context"
-	"gorm.io/gorm"
 
 	"github.com/pydio/cells/v4/common/proto/encryption"
+	"github.com/pydio/cells/v4/common/service"
 )
+
+var Drivers service.StorageDrivers
 
 type DAO interface {
 	ListEncryptedBlockInfo(ctx context.Context, nodeUuid string) ([]*encryption.RangedBlock, error)
@@ -45,10 +47,6 @@ type DAO interface {
 	SaveNodeKey(ctx context.Context, nodeKey *encryption.NodeKey) error
 	GetNodeKey(ctx context.Context, node string, user string) (*encryption.NodeKey, error)
 	DeleteNodeKey(ctx context.Context, nodeKey *encryption.NodeKey) error
-}
-
-func NewDAO(db *gorm.DB) DAO {
-	return &sqlimpl{db: db}
 }
 
 type RangedBlocks struct {

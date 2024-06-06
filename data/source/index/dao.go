@@ -22,23 +22,15 @@
 package index
 
 import (
-	"github.com/pydio/cells/v4/common/proto/tree"
-	"gorm.io/gorm"
-
+	"github.com/pydio/cells/v4/common/service"
 	index "github.com/pydio/cells/v4/common/sql/indexgorm"
 )
+
+var Drivers = service.StorageDrivers{}
 
 // DAO interface
 type DAO interface {
 	index.DAO
-}
-
-// NewDAO for the common sql index
-func NewDAO(db *gorm.DB) DAO {
-
-	indexDAO := index.NewDAO[*tree.TreeNode](db)
-
-	return &sqlimpl{db: db, IndexSQL: indexDAO.(IndexSQL)}
 }
 
 func NewDAOCache(session string, o DAO) DAO {

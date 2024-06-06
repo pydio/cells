@@ -21,17 +21,17 @@
 package grpc
 
 import (
-	"github.com/pydio/cells/v4/common/proto/object"
 	"google.golang.org/protobuf/types/known/anypb"
 
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/proto/jobs"
+	"github.com/pydio/cells/v4/common/proto/object"
 	service "github.com/pydio/cells/v4/common/proto/service"
 	"github.com/pydio/cells/v4/common/proto/tree"
 	"github.com/pydio/cells/v4/data/versions/lang"
 )
 
-func getVersioningJob(language string) *jobs.Job {
+func GetVersioningJob(language string) *jobs.Job {
 
 	T := lang.Bundle().GetTranslationFunc(language)
 

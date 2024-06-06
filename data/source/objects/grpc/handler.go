@@ -29,7 +29,6 @@ import (
 	"time"
 
 	minio "github.com/minio/minio/cmd"
-	_ "github.com/minio/minio/cmd/gateway"
 	"github.com/pkg/errors"
 
 	"github.com/pydio/cells/v4/common"
@@ -39,6 +38,8 @@ import (
 	"github.com/pydio/cells/v4/common/runtime"
 	json "github.com/pydio/cells/v4/common/utils/jsonx"
 	"github.com/pydio/cells/v4/data/source/objects"
+
+	_ "github.com/minio/minio/cmd/gateway"
 )
 
 func init() {
@@ -51,11 +52,6 @@ type ObjectHandler struct {
 	object.UnimplementedResourceCleanerEndpointServer
 	Config           *object.MinioConfig
 	MinioConsolePort int
-	handlerName      string
-}
-
-func (o *ObjectHandler) Name() string {
-	return o.handlerName
 }
 
 // StartMinioServer handler

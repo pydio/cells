@@ -46,7 +46,6 @@ import (
 
 type Handler struct {
 	tree.UnimplementedNodeVersionerServer
-	srvName string
 }
 
 func (h *Handler) buildVersionDescription(ctx context.Context, version *tree.ChangeLog) string {

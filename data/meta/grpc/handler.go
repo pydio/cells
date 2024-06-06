@@ -55,9 +55,9 @@ type MetaServer struct {
 	stoppedLock *sync.Mutex
 }
 
-func NewMetaServer(ctx context.Context) *MetaServer {
+func NewMetaServer(ctx context.Context, srvName string) *MetaServer {
 	m := &MetaServer{}
-	m.cachePool, _ = cache.OpenPool(runtime.CacheURL(ServiceName, "evictionTime", "1m"))
+	m.cachePool, _ = cache.OpenPool(runtime.CacheURL(srvName, "evictionTime", "1m"))
 	m.stoppedLock = &sync.Mutex{}
 	go func() {
 		<-ctx.Done()
@@ -81,9 +81,9 @@ func (s *MetaServer) Stop() {
 	s.stopped = true
 }
 
-func (s *MetaServer) processEvent(ctx context.Context, e *tree.NodeChangeEvent) error {
+func (s *MetaServer) ProcessEvent(ctx context.Context, e *tree.NodeChangeEvent) error {
 
-	log.Logger(ctx).Debug("processEvent", zap.Any("type", e.GetType()))
+	log.Logger(ctx).Debug("ProcessEvent", zap.Any("type", e.GetType()))
 
 	switch e.GetType() {
 	case tree.NodeChangeEvent_CREATE:

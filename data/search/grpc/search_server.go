@@ -40,7 +40,7 @@ import (
 	"github.com/pydio/cells/v4/common/runtime/manager"
 	"github.com/pydio/cells/v4/common/service/errors"
 	"github.com/pydio/cells/v4/common/utils/propagator"
-	"github.com/pydio/cells/v4/data/search/dao"
+	"github.com/pydio/cells/v4/data/search"
 )
 
 // SearchServer implements GRPC server for index/search
@@ -54,10 +54,6 @@ type SearchServer struct {
 	TreeClientStream tree.NodeProviderStreamerClient
 	NsProvider       *meta.NsProvider
 	ReIndexThrottler chan struct{}
-}
-
-func (s *SearchServer) Name() string {
-	return Name
 }
 
 // Subscriber create a handler that will treat events for the meta server
@@ -89,7 +85,7 @@ func (s *SearchServer) processEvent(ctx context.Context, e *tree.NodeChangeEvent
 	log.Logger(ctx).Debug("processEvent", zap.Any("event", e))
 	excludes := s.NsProvider.ExcludeIndexes()
 
-	engine, err := manager.Resolve[dao.SearchEngine](ctx)
+	engine, err := manager.Resolve[search.Engine](ctx)
 	if err != nil {
 		return
 	}
@@ -150,7 +146,7 @@ func (s *SearchServer) Search(req *tree.SearchRequest, streamer tree.Searcher_Se
 	defer close(facetsChan)
 	defer close(doneChan)
 
-	engine, err := manager.Resolve[dao.SearchEngine](ctx)
+	engine, err := manager.Resolve[search.Engine](ctx)
 	if err != nil {
 		return err
 	}
@@ -230,7 +226,7 @@ func (s *SearchServer) Search(req *tree.SearchRequest, streamer tree.Searcher_Se
 
 func (s *SearchServer) TriggerResync(ctx context.Context, req *protosync.ResyncRequest) (*protosync.ResyncResponse, error) {
 
-	engine, err := manager.Resolve[dao.SearchEngine](ctx)
+	engine, err := manager.Resolve[search.Engine](ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -306,7 +302,7 @@ func (s *SearchServer) TriggerResync(ctx context.Context, req *protosync.ResyncR
 
 func (s *SearchServer) ReindexFolder(ctx context.Context, node *tree.Node, excludes map[string]struct{}) {
 
-	engine, err := manager.Resolve[dao.SearchEngine](ctx)
+	engine, err := manager.Resolve[search.Engine](ctx)
 	if err != nil {
 		return
 	}

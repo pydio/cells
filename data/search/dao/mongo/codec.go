@@ -1,6 +1,7 @@
 package mongo
 
 import (
+	"context"
 	"fmt"
 	"strings"
 	"time"
@@ -14,8 +15,11 @@ import (
 
 	"github.com/pydio/cells/v4/common/nodes/meta"
 	"github.com/pydio/cells/v4/common/proto/tree"
+	"github.com/pydio/cells/v4/common/storage"
 	"github.com/pydio/cells/v4/common/storage/mongodb"
 	"github.com/pydio/cells/v4/common/utils/configx"
+	"github.com/pydio/cells/v4/data/search"
+	"github.com/pydio/cells/v4/data/search/dao/commons"
 )
 
 const (
@@ -58,6 +62,23 @@ var (
 		tree.MetaSortType: "node_type",
 	}
 )
+
+func init() {
+	search.Drivers.Register(NewMongoDAO)
+}
+
+func NewMongoDAO(ctx context.Context, v *mongodb.Indexer) search.Engine {
+	v.SetCollection(Collection)
+	v.SetCodex(&Codex{})
+	return commons.NewServer(ctx, v, createQueryCodec)
+}
+
+func createQueryCodec(values configx.Values, metaProvider *meta.NsProvider) storage.IndexCodex {
+	return &Codex{
+		QueryConfigs:    values,
+		QueryNsProvider: metaProvider,
+	}
+}
 
 type mongoBucket struct {
 	BucketID interface{} `bson:"_id"`

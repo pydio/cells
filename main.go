@@ -47,24 +47,39 @@ import (
 	_ "github.com/pydio/cells/v4/discovery/update/grpc/service"
 	_ "github.com/pydio/cells/v4/discovery/update/rest/service"
 
-	// Data
-	_ "github.com/pydio/cells/v4/data/docstore/grpc"
-	_ "github.com/pydio/cells/v4/data/key/grpc"
-	_ "github.com/pydio/cells/v4/data/meta/grpc"
-	_ "github.com/pydio/cells/v4/data/meta/rest"
-	_ "github.com/pydio/cells/v4/data/search/grpc"
-	_ "github.com/pydio/cells/v4/data/search/rest"
+	// Data DAOs
+	_ "github.com/pydio/cells/v4/data/docstore/dao/bleve"
+	_ "github.com/pydio/cells/v4/data/docstore/dao/mongo"
+	_ "github.com/pydio/cells/v4/data/key/dao/sql"
+	_ "github.com/pydio/cells/v4/data/meta/dao/sql"
+	_ "github.com/pydio/cells/v4/data/search/dao/bleve"
+	_ "github.com/pydio/cells/v4/data/search/dao/mongo"
+	_ "github.com/pydio/cells/v4/data/versions/dao/bolt"
+	_ "github.com/pydio/cells/v4/data/versions/dao/mongo"
 
+	// Data Services
+	_ "github.com/pydio/cells/v4/data/docstore/grpc/service"
+	_ "github.com/pydio/cells/v4/data/key/grpc/service"
+	_ "github.com/pydio/cells/v4/data/meta/grpc/service"
+	_ "github.com/pydio/cells/v4/data/meta/rest/service"
+	_ "github.com/pydio/cells/v4/data/search/grpc/service"
+	_ "github.com/pydio/cells/v4/data/search/rest/service"
+	_ "github.com/pydio/cells/v4/data/templates/rest/service"
+	_ "github.com/pydio/cells/v4/data/tree/grpc/service"
+	_ "github.com/pydio/cells/v4/data/tree/rest/service"
+	_ "github.com/pydio/cells/v4/data/versions/grpc/service"
+
+	// DataSources DAOs
+	_ "github.com/pydio/cells/v4/data/source/index/dao/sql"
+	_ "github.com/pydio/cells/v4/data/source/sync/dao/sql"
+
+	// DataSources
 	_ "github.com/pydio/cells/v4/data/source/index"
-	_ "github.com/pydio/cells/v4/data/source/index/grpc"
+	_ "github.com/pydio/cells/v4/data/source/index/grpc/service"
 	_ "github.com/pydio/cells/v4/data/source/objects"
-	_ "github.com/pydio/cells/v4/data/source/objects/grpc"
+	_ "github.com/pydio/cells/v4/data/source/objects/grpc/service"
 	_ "github.com/pydio/cells/v4/data/source/sync"
-	_ "github.com/pydio/cells/v4/data/source/sync/grpc"
-	_ "github.com/pydio/cells/v4/data/templates/rest"
-	_ "github.com/pydio/cells/v4/data/tree/grpc"
-	_ "github.com/pydio/cells/v4/data/tree/rest"
-	_ "github.com/pydio/cells/v4/data/versions/grpc"
+	_ "github.com/pydio/cells/v4/data/source/sync/grpc/service"
 
 	// ETL Stores
 	_ "github.com/pydio/cells/v4/common/etl/stores/cells/local"

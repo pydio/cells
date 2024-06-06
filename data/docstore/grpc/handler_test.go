@@ -31,7 +31,8 @@ import (
 	proto "github.com/pydio/cells/v4/common/proto/docstore"
 	"github.com/pydio/cells/v4/common/utils/test"
 	"github.com/pydio/cells/v4/common/utils/uuid"
-	"github.com/pydio/cells/v4/data/docstore"
+	"github.com/pydio/cells/v4/data/docstore/dao/bleve"
+	"github.com/pydio/cells/v4/data/docstore/dao/mongo"
 
 	. "github.com/smartystreets/goconvey/convey"
 )
@@ -56,8 +57,8 @@ var (
 		{[]string{
 			"boltdb://" + filepath.Join(os.TempDir(), "docstore_bolt_"+uuid.New()+".db"),
 			"bleve://" + filepath.Join(os.TempDir(), "docstore_bleve_"+uuid.New()+".bleve"),
-		}, true, docstore.NewBleveDAO},
-		test.TemplateMongoEnvWithPrefix(docstore.NewMongoDAO, "test_docstore_"),
+		}, true, bleve.NewBleveDAO},
+		test.TemplateMongoEnvWithPrefix(mongo.NewMongoDAO, "test_docstore_"),
 	}
 )
 
