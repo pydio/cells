@@ -18,7 +18,7 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-package jobs
+package mongo
 
 import (
 	"context"
@@ -30,9 +30,10 @@ import (
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 
-	"github.com/pydio/cells/v4/common/proto/jobs"
+	proto "github.com/pydio/cells/v4/common/proto/jobs"
 	"github.com/pydio/cells/v4/common/service/errors"
 	"github.com/pydio/cells/v4/common/storage/mongodb"
+	"github.com/pydio/cells/v4/scheduler/jobs"
 )
 
 const (
@@ -67,7 +68,7 @@ type mongoJob struct {
 	Owner       string `bson:"owner"`
 	HasEvents   bool   `bson:"has_events"`
 	HasSchedule bool   `bson:"has_schedule"`
-	*jobs.Job
+	*proto.Job
 }
 
 type mongoTask struct {
@@ -75,7 +76,15 @@ type mongoTask struct {
 	JobId  string `bson:"job_id"`
 	Status int    `bson:"status"`
 	Stamp  int64  `bson:"ts"`
-	*jobs.Task
+	*proto.Task
+}
+
+func init() {
+	jobs.Drivers.Register(NewMongoDAO)
+}
+
+func NewMongoDAO(db *mongodb.Database) jobs.DAO {
+	return &mongoImpl{Database: db}
 }
 
 type mongoImpl struct {
@@ -89,7 +98,7 @@ type mongoImpl struct {
 //	return m.DAO.Init(ctx, values)
 //}
 
-func (m *mongoImpl) PutJob(job *jobs.Job) error {
+func (m *mongoImpl) PutJob(job *proto.Job) error {
 	c := context.Background()
 	// do not store tasks inside job
 	mj := &mongoJob{
@@ -105,7 +114,7 @@ func (m *mongoImpl) PutJob(job *jobs.Job) error {
 	return e
 }
 
-func (m *mongoImpl) GetJob(jobId string, withTasks jobs.TaskStatus) (*jobs.Job, error) {
+func (m *mongoImpl) GetJob(jobId string, withTasks proto.TaskStatus) (*proto.Job, error) {
 	c := context.Background()
 	res := m.Collection(collJobs).FindOne(c, bson.D{{"id", jobId}})
 	if res.Err() != nil {
@@ -118,7 +127,7 @@ func (m *mongoImpl) GetJob(jobId string, withTasks jobs.TaskStatus) (*jobs.Job, 
 	if er := res.Decode(&mj); er != nil {
 		return nil, er
 	}
-	if withTasks != jobs.TaskStatus_Unknown {
+	if withTasks != proto.TaskStatus_Unknown {
 		tt, e := m.listTasks(jobId, withTasks, 0, 0)
 		if e != nil {
 			return nil, e
@@ -145,7 +154,7 @@ func (m *mongoImpl) DeleteJob(jobId string) error {
 	return nil
 }
 
-func (m *mongoImpl) ListJobs(owner string, eventsOnly bool, timersOnly bool, withTasks jobs.TaskStatus, jobIDs []string, taskCursor ...int32) (chan *jobs.Job, error) {
+func (m *mongoImpl) ListJobs(owner string, eventsOnly bool, timersOnly bool, withTasks proto.TaskStatus, jobIDs []string, taskCursor ...int32) (chan *proto.Job, error) {
 	c := context.Background()
 	filter := bson.D{}
 	if owner != "" {
@@ -163,7 +172,7 @@ func (m *mongoImpl) ListJobs(owner string, eventsOnly bool, timersOnly bool, wit
 	if er != nil {
 		return nil, er
 	}
-	cj := make(chan *jobs.Job)
+	cj := make(chan *proto.Job)
 
 	var offset, limit int64
 	if len(taskCursor) > 0 {
@@ -180,8 +189,8 @@ func (m *mongoImpl) ListJobs(owner string, eventsOnly bool, timersOnly bool, wit
 			if er := cursor.Decode(&mj); er != nil {
 				continue
 			}
-			if withTasks != jobs.TaskStatus_Unknown {
-				if co, e := m.countTasksForJob(mj.ID, withTasks); e != nil || (withTasks != jobs.TaskStatus_Any && co == 0) {
+			if withTasks != proto.TaskStatus_Unknown {
+				if co, e := m.countTasksForJob(mj.ID, withTasks); e != nil || (withTasks != proto.TaskStatus_Any && co == 0) {
 					continue
 				}
 				if tt, e := m.listTasks(mj.ID, withTasks, offset, limit); e == nil {
@@ -196,10 +205,10 @@ func (m *mongoImpl) ListJobs(owner string, eventsOnly bool, timersOnly bool, wit
 
 }
 
-func (m *mongoImpl) PutTask(task *jobs.Task) error {
+func (m *mongoImpl) PutTask(task *proto.Task) error {
 	c := context.Background()
 	// do not store tasks inside job
-	stripTaskData(task)
+	jobs.StripTaskData(task)
 	mj := &mongoTask{
 		ID:     task.ID,
 		JobId:  task.JobID,
@@ -216,7 +225,7 @@ func (m *mongoImpl) PutTask(task *jobs.Task) error {
 	return nil
 }
 
-func (m *mongoImpl) PutTasks(tasks map[string]map[string]*jobs.Task) error {
+func (m *mongoImpl) PutTasks(tasks map[string]map[string]*proto.Task) error {
 	var models []mongo.WriteModel
 	for _, tt := range tasks {
 		for _, t := range tt {
@@ -242,7 +251,7 @@ func (m *mongoImpl) PutTasks(tasks map[string]map[string]*jobs.Task) error {
 	return nil
 }
 
-func (m *mongoImpl) ListTasks(jobId string, taskStatus jobs.TaskStatus, cursor ...int32) (chan *jobs.Task, chan bool, error) {
+func (m *mongoImpl) ListTasks(jobId string, taskStatus proto.TaskStatus, cursor ...int32) (chan *proto.Task, chan bool, error) {
 	var offset, limit int64
 	if len(cursor) > 0 {
 		offset = int64(cursor[0])
@@ -251,11 +260,11 @@ func (m *mongoImpl) ListTasks(jobId string, taskStatus jobs.TaskStatus, cursor .
 		}
 	}
 
-	var tt []*jobs.Task
+	var tt []*proto.Task
 	var er error
 	// If there is a cursor and **jobId is empty**, we want to apply cursor on each task
 	if jobId == "" && len(cursor) > 0 {
-		jj, e := m.ListJobs("", false, false, jobs.TaskStatus_Unknown, []string{})
+		jj, e := m.ListJobs("", false, false, proto.TaskStatus_Unknown, []string{})
 		if e != nil {
 			return nil, nil, e
 		}
@@ -272,7 +281,7 @@ func (m *mongoImpl) ListTasks(jobId string, taskStatus jobs.TaskStatus, cursor .
 		}
 	}
 
-	cj := make(chan *jobs.Task)
+	cj := make(chan *proto.Task)
 	cd := make(chan bool, 1)
 	go func() {
 		defer close(cd)
@@ -284,13 +293,13 @@ func (m *mongoImpl) ListTasks(jobId string, taskStatus jobs.TaskStatus, cursor .
 }
 
 // FindOrphans provides an additional hook to detect lost tasks
-func (m *mongoImpl) FindOrphans() ([]*jobs.Task, error) {
+func (m *mongoImpl) FindOrphans() ([]*proto.Task, error) {
 	// Gather all jobs IDs
-	jj, e := m.ListJobs("", false, false, jobs.TaskStatus_Unknown, []string{})
+	jj, e := m.ListJobs("", false, false, proto.TaskStatus_Unknown, []string{})
 	if e != nil {
 		return nil, e
 	}
-	var tIds []*jobs.Task
+	var tIds []*proto.Task
 	var jIds []string
 	for j := range jj {
 		jIds = append(jIds, j.ID)
@@ -310,7 +319,7 @@ func (m *mongoImpl) FindOrphans() ([]*jobs.Task, error) {
 		if er := cursor.Decode(mj); er != nil {
 			continue
 		}
-		tIds = append(tIds, &jobs.Task{ID: mj.ID, JobID: mj.JobId})
+		tIds = append(tIds, &proto.Task{ID: mj.ID, JobID: mj.JobId})
 	}
 	return tIds, nil
 }
@@ -330,12 +339,12 @@ func (m *mongoImpl) DeleteTasks(jobId string, taskId []string) error {
 	return nil
 }
 
-func (m *mongoImpl) listTasks(jobId string, status jobs.TaskStatus, offset, limit int64) (tasks []*jobs.Task, e error) {
+func (m *mongoImpl) listTasks(jobId string, status proto.TaskStatus, offset, limit int64) (tasks []*proto.Task, e error) {
 	filter := bson.D{}
 	if jobId != "" {
 		filter = append(filter, bson.E{"job_id", jobId})
 	}
-	if status != jobs.TaskStatus_Any {
+	if status != proto.TaskStatus_Any {
 		filter = append(filter, bson.E{"status", int(status)})
 	}
 	findOpts := &options.FindOptions{
@@ -357,18 +366,18 @@ func (m *mongoImpl) listTasks(jobId string, status jobs.TaskStatus, offset, limi
 		if er := cursor.Decode(mj); er != nil {
 			continue
 		}
-		stripTaskData(mj.Task)
+		jobs.StripTaskData(mj.Task)
 		tasks = append(tasks, mj.Task)
 	}
 	return
 }
 
-func (m *mongoImpl) countTasksForJob(jobId string, status jobs.TaskStatus) (count int64, e error) {
+func (m *mongoImpl) countTasksForJob(jobId string, status proto.TaskStatus) (count int64, e error) {
 	filter := bson.D{}
 	if jobId != "" {
 		filter = append(filter, bson.E{"job_id", jobId})
 	}
-	if status != jobs.TaskStatus_Any {
+	if status != proto.TaskStatus_Any {
 		filter = append(filter, bson.E{"status", int(status)})
 	}
 	c := context.Background()

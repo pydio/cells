@@ -58,23 +58,19 @@ type JobsHandler struct {
 }
 
 // NewJobsHandler creates a new JobsHandler
-func NewJobsHandler(runtime context.Context) *JobsHandler {
+func NewJobsHandler(runtime context.Context, serviceName string) *JobsHandler {
 	j := &JobsHandler{
 		//putTaskChan:  make(chan *proto.Task),
 		jobsBuff:     make(map[string]*proto.Job),
 		jobsBuffLock: &sync.Mutex{},
 		stop:         make(chan bool),
 	}
-	j.Handler.HandlerName = ServiceName
+	j.Handler.HandlerName = serviceName
 	return j
 }
 
 func (j *JobsHandler) Close() {
 	close(j.stop)
-}
-
-func (j *JobsHandler) Name() string {
-	return ServiceName
 }
 
 //////////////////

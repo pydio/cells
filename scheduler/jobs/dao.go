@@ -21,16 +21,18 @@
 package jobs
 
 import (
+	"context"
 	"time"
-
-	"go.etcd.io/bbolt"
 
 	"github.com/pydio/cells/v4/common/proto/activity"
 	"github.com/pydio/cells/v4/common/proto/idm"
 	"github.com/pydio/cells/v4/common/proto/jobs"
 	"github.com/pydio/cells/v4/common/proto/tree"
-	"github.com/pydio/cells/v4/common/storage/mongodb"
+	"github.com/pydio/cells/v4/common/runtime/manager"
+	"github.com/pydio/cells/v4/common/service"
 )
+
+var Drivers = service.StorageDrivers{}
 
 // DAO provides method interface to access the store for scheduler job and task definitions.
 type DAO interface {
@@ -48,18 +50,9 @@ type DAO interface {
 	BuildOrphanLogsQuery(time.Duration, []string) string
 }
 
-func NewBoltDAO(db *bbolt.DB) DAO {
-	dao, _ := newBoltStore(db)
-	return dao
-}
-
-func NewMongoDAO(db *mongodb.Database) DAO {
-	return &mongoImpl{Database: db}
-}
-
-// stripTaskData removes unnecessary data from the task log
+// StripTaskData removes unnecessary data from the task log
 // like fully loaded users, nodes, activities, etc.
-func stripTaskData(task *jobs.Task) {
+func StripTaskData(task *jobs.Task) {
 	for _, l := range task.ActionsLogs {
 		if l.InputMessage != nil {
 			stripTaskMessage(l.InputMessage)
@@ -83,43 +76,41 @@ func stripTaskMessage(message *jobs.ActionMessage) {
 	}
 }
 
-//func Migrate(f, t dao.DAO, dryRun bool, status chan dao.MigratorStatus) (map[string]int, error) {
-//	ctx := context.Background()
-//	out := map[string]int{
-//		"Jobs":  0,
-//		"Tasks": 0,
-//	}
-//	var from, to DAO
-//	if df, e := NewDAO(ctx, f); e == nil {
-//		from = df.(DAO)
-//	} else {
-//		return out, e
-//	}
-//	if dt, e := NewDAO(ctx, t); e == nil {
-//		to = dt.(DAO)
-//	} else {
-//		return out, e
-//	}
-//	jj, er := from.ListJobs("", false, false, jobs.TaskStatus_Any, []string{})
-//	if er != nil {
-//		return nil, er
-//	}
-//	for j := range jj {
-//		tasks := j.Tasks
-//		out["Jobs"]++
-//		out["Tasks"] += len(tasks)
-//		if dryRun {
-//			break
-//		}
-//		if e := to.PutJob(j); e != nil {
-//			return out, e
-//		}
-//		for _, ta := range tasks {
-//			if er := to.PutTask(ta); er != nil {
-//				return out, er
-//			}
-//		}
-//	}
-//
-//	return out, nil
-//}
+func Migrate(ctx, fromCtx, toCtx context.Context, dryRun bool, status chan service.MigratorStatus) (map[string]int, error) {
+
+	out := map[string]int{
+		"Jobs":  0,
+		"Tasks": 0,
+	}
+	var from, to DAO
+	var e error
+	if from, e = manager.Resolve[DAO](fromCtx); e != nil {
+		return nil, e
+	}
+	if to, e = manager.Resolve[DAO](toCtx); e != nil {
+		return nil, e
+	}
+
+	jj, er := from.ListJobs("", false, false, jobs.TaskStatus_Any, []string{})
+	if er != nil {
+		return nil, er
+	}
+	for j := range jj {
+		tasks := j.Tasks
+		out["Jobs"]++
+		out["Tasks"] += len(tasks)
+		if dryRun {
+			break
+		}
+		if e := to.PutJob(j); e != nil {
+			return out, e
+		}
+		for _, ta := range tasks {
+			if er := to.PutTask(ta); er != nil {
+				return out, er
+			}
+		}
+	}
+
+	return out, nil
+}

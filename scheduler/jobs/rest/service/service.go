@@ -18,8 +18,8 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-// Package rest provides a REST gateway to the job definition repository.
-package rest
+// Package service provides a REST gateway to the job definition repository.
+package service
 
 import (
 	"context"
@@ -28,6 +28,7 @@ import (
 	"github.com/pydio/cells/v4/common/nodes/compose"
 	"github.com/pydio/cells/v4/common/runtime"
 	"github.com/pydio/cells/v4/common/service"
+	"github.com/pydio/cells/v4/scheduler/jobs/rest"
 )
 
 func init() {
@@ -39,8 +40,8 @@ func init() {
 			service.Description("REST gateway to the scheduler service"),
 			service.WithWeb(func(ctx context.Context) service.WebHandler {
 				// Init router with current registry
-				router = compose.PathClient(ctx)
-				return &JobsHandler{RuntimeContext: ctx}
+				rest.TODORouter = compose.PathClient(ctx)
+				return &rest.JobsHandler{RuntimeContext: ctx}
 			}),
 		)
 	})

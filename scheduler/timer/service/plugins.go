@@ -18,8 +18,8 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-// Package grpc provides a gRPC service that triggers scheduler events based on ISO 8601 patterns.
-package grpc
+// Package service provides a gRPC service that triggers scheduler events based on ISO 8601 patterns.
+package service
 
 import (
 	"context"

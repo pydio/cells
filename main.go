@@ -156,11 +156,13 @@ import (
 	_ "github.com/pydio/cells/v4/idm/workspace/grpc/service"
 	_ "github.com/pydio/cells/v4/idm/workspace/rest/service"
 
-	// Scheduler
-	_ "github.com/pydio/cells/v4/scheduler/jobs/grpc"
-	_ "github.com/pydio/cells/v4/scheduler/jobs/rest"
-	_ "github.com/pydio/cells/v4/scheduler/tasks/grpc"
-	_ "github.com/pydio/cells/v4/scheduler/timer/grpc"
+	// Scheduler and DAO
+	_ "github.com/pydio/cells/v4/scheduler/jobs/dao/bolt"
+	_ "github.com/pydio/cells/v4/scheduler/jobs/dao/mongo"
+	_ "github.com/pydio/cells/v4/scheduler/jobs/grpc/service"
+	_ "github.com/pydio/cells/v4/scheduler/jobs/rest/service"
+	_ "github.com/pydio/cells/v4/scheduler/tasks/grpc/service"
+	_ "github.com/pydio/cells/v4/scheduler/timer/service"
 
 	// Scheduler Actions
 	_ "github.com/pydio/cells/v4/broker/activity/actions"

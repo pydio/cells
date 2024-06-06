@@ -19,7 +19,7 @@
  */
 
 // Package grpc provides a gRPC service to access the store for scheduler job definitions.
-package grpc
+package service
 
 import (
 	"context"
@@ -40,6 +40,7 @@ import (
 	"github.com/pydio/cells/v4/common/runtime/tenant"
 	"github.com/pydio/cells/v4/common/service"
 	"github.com/pydio/cells/v4/scheduler/jobs"
+	grpc3 "github.com/pydio/cells/v4/scheduler/jobs/grpc"
 )
 
 var (
@@ -48,22 +49,23 @@ var (
 	Migration230 = false
 )
 
-const ServiceName = common.ServiceGrpcNamespace_ + common.ServiceJobs
+const Name = common.ServiceGrpcNamespace_ + common.ServiceJobs
 
 func init() {
-	defaults := getDefaultJobs()
+	defaults := grpc3.GetDefaultJobs()
 	for _, j := range defaults {
-		proto.RegisterDefault(j, ServiceName)
+		proto.RegisterDefault(j, Name)
 	}
 
 	runtime.Register("main", func(ctx context.Context) {
 		service.NewService(
-			service.Name(ServiceName),
+			service.Name(Name),
 			service.Context(ctx),
 			service.Tag(common.ServiceTagScheduler),
 			service.Description("Store for scheduler jobs description"),
-			service.WithNamedStorageDrivers("main", jobs.NewBoltDAO, jobs.NewMongoDAO),
+			service.WithNamedStorageDrivers("main", jobs.Drivers...),
 			service.WithNamedStorageDrivers("logs", log.Drivers...),
+			service.WithStorageMigrator(jobs.Migrate),
 			service.Migrations([]*service.Migration{
 				{
 					TargetVersion: service.ValidVersion("1.4.0"),
@@ -92,7 +94,7 @@ func init() {
 			}),
 			service.WithGRPC(func(ctx context.Context, server grpc.ServiceRegistrar) error {
 
-				handler := NewJobsHandler(ctx)
+				handler := grpc3.NewJobsHandler(ctx, Name)
 				// Used by the upper-level logcore.Handler to resolve the storage driver
 				handler.ResolveOptions = append(handler.ResolveOptions, manager.WithName("logs"))
 

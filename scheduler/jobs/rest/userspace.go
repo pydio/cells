@@ -328,7 +328,7 @@ func dirCopy(ctx context.Context, selectedPathes []string, targetNodePath string
 				taskLabel = T("Jobs.User.MultipleCopy")
 				// Additional pre-check for full copy size
 				targetNode.Size = createSize
-				if er := router.WrappedCanApply(nil, targetCtx, &tree.NodeChangeEvent{Type: tree.NodeChangeEvent_CREATE, Target: targetNode}); er != nil {
+				if er := getRouter().WrappedCanApply(nil, targetCtx, &tree.NodeChangeEvent{Type: tree.NodeChangeEvent_CREATE, Target: targetNode}); er != nil {
 					return er
 				}
 			}

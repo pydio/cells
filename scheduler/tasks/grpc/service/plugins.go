@@ -18,11 +18,12 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-// Package grpc provides a gRPC service to effectively run task instances on multiple workers.
-package grpc
+// Package service provides a gRPC service to effectively run task instances on multiple workers.
+package service
 
 import (
 	"context"
+
 	"go.uber.org/zap"
 	"google.golang.org/grpc"
 
@@ -33,22 +34,23 @@ import (
 	"github.com/pydio/cells/v4/common/runtime"
 	"github.com/pydio/cells/v4/common/service"
 	"github.com/pydio/cells/v4/scheduler/tasks"
+	grpc2 "github.com/pydio/cells/v4/scheduler/tasks/grpc"
 )
 
-const ServiceName = common.ServiceGrpcNamespace_ + common.ServiceTasks
+const Name = common.ServiceGrpcNamespace_ + common.ServiceTasks
 
 func init() {
 	jobs.RegisterNodesFreeStringEvaluator(bleveimpl.EvalFreeString)
 
 	runtime.Register("main", func(ctx context.Context) {
 		service.NewService(
-			service.Name(ServiceName),
+			service.Name(Name),
 			service.Context(ctx),
 			service.Tag(common.ServiceTagScheduler),
 			// service.Fork(true),
 			service.Description("Tasks are running jobs dispatched on multiple workers"),
 			service.WithGRPC(func(c context.Context, server grpc.ServiceRegistrar) error {
-				jobs.RegisterTaskServiceServer(server, new(Handler))
+				jobs.RegisterTaskServiceServer(server, new(grpc2.TaskHandler))
 				multiplexer := tasks.NewSubscriber(c)
 				var me error
 				go func() {

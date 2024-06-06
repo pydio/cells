@@ -18,7 +18,7 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-package jobs
+package bolt
 
 import (
 	"context"
@@ -27,14 +27,15 @@ import (
 	"strings"
 	"time"
 
-	bolt "go.etcd.io/bbolt"
+	"go.etcd.io/bbolt"
 	"go.uber.org/zap"
 
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/log"
-	"github.com/pydio/cells/v4/common/proto/jobs"
+	proto "github.com/pydio/cells/v4/common/proto/jobs"
 	"github.com/pydio/cells/v4/common/service/errors"
 	json "github.com/pydio/cells/v4/common/utils/jsonx"
+	"github.com/pydio/cells/v4/scheduler/jobs"
 )
 
 var (
@@ -44,17 +45,26 @@ var (
 	tasksBucketString = "tasks-"
 )
 
-type boltStore struct {
-	*bolt.DB
+func init() {
+	jobs.Drivers.Register(NewBoltDAO)
 }
 
-func newBoltStore(db *bolt.DB) (*boltStore, error) {
+func NewBoltDAO(db *bbolt.DB) jobs.DAO {
+	dao, _ := newBoltStore(db)
+	return dao
+}
+
+type boltStore struct {
+	*bbolt.DB
+}
+
+func newBoltStore(db *bbolt.DB) (*boltStore, error) {
 
 	bs := &boltStore{
 		DB: db,
 	}
 
-	er := db.Update(func(tx *bolt.Tx) error {
+	er := db.Update(func(tx *bbolt.Tx) error {
 		_, err := tx.CreateBucketIfNotExists(jobsBucketKey)
 		if err != nil {
 			return err
@@ -69,9 +79,9 @@ func newBoltStore(db *bolt.DB) (*boltStore, error) {
 
 }
 
-func (s *boltStore) PutJob(job *jobs.Job) error {
+func (s *boltStore) PutJob(job *proto.Job) error {
 
-	err := s.DB.Update(func(tx *bolt.Tx) error {
+	err := s.DB.Update(func(tx *bbolt.Tx) error {
 
 		bucket := tx.Bucket(jobsBucketKey)
 		if job.Tasks != nil {
@@ -89,10 +99,10 @@ func (s *boltStore) PutJob(job *jobs.Job) error {
 
 }
 
-func (s *boltStore) GetJob(jobId string, withTasks jobs.TaskStatus) (*jobs.Job, error) {
+func (s *boltStore) GetJob(jobId string, withTasks proto.TaskStatus) (*proto.Job, error) {
 
-	j := &jobs.Job{}
-	e := s.DB.View(func(tx *bolt.Tx) error {
+	j := &proto.Job{}
+	e := s.DB.View(func(tx *bbolt.Tx) error {
 		// Assume bucket exists and has keys
 		bucket := tx.Bucket(jobsBucketKey)
 		data := bucket.Get([]byte(jobId))
@@ -103,8 +113,8 @@ func (s *boltStore) GetJob(jobId string, withTasks jobs.TaskStatus) (*jobs.Job, 
 		if err != nil {
 			return errors.InternalServerError(common.ServiceJobs, "Cannot deserialize job")
 		}
-		if withTasks != jobs.TaskStatus_Unknown {
-			j.Tasks = []*jobs.Task{}
+		if withTasks != proto.TaskStatus_Unknown {
+			j.Tasks = []*proto.Task{}
 			jobTasksBucket := tx.Bucket([]byte(tasksBucketString + jobId))
 			if jobTasksBucket != nil {
 				j.Tasks = s.tasksToChan(jobTasksBucket, withTasks, nil, 0, 0, j.Tasks)
@@ -121,7 +131,7 @@ func (s *boltStore) GetJob(jobId string, withTasks jobs.TaskStatus) (*jobs.Job, 
 
 func (s *boltStore) DeleteJob(jobID string) error {
 
-	return s.DB.Update(func(tx *bolt.Tx) error {
+	return s.DB.Update(func(tx *bbolt.Tx) error {
 		bucket := tx.Bucket(jobsBucketKey)
 		err := bucket.Delete([]byte(jobID))
 		if err == nil {
@@ -138,18 +148,18 @@ func (s *boltStore) DeleteJob(jobID string) error {
 
 }
 
-func (s *boltStore) ListJobs(owner string, eventsOnly bool, timersOnly bool, withTasks jobs.TaskStatus, jobIDs []string, taskCursor ...int32) (chan *jobs.Job, error) {
+func (s *boltStore) ListJobs(owner string, eventsOnly bool, timersOnly bool, withTasks proto.TaskStatus, jobIDs []string, taskCursor ...int32) (chan *proto.Job, error) {
 
-	res := make(chan *jobs.Job)
+	res := make(chan *proto.Job)
 
 	go func() {
 		defer close(res)
 
-		s.DB.View(func(tx *bolt.Tx) error {
+		s.DB.View(func(tx *bbolt.Tx) error {
 			bucket := tx.Bucket(jobsBucketKey)
 			c := bucket.Cursor()
 			for k, v := c.First(); k != nil; k, v = c.Next() {
-				j := &jobs.Job{}
+				j := &proto.Job{}
 				err := json.Unmarshal(v, j)
 				if err != nil {
 					continue
@@ -169,18 +179,18 @@ func (s *boltStore) ListJobs(owner string, eventsOnly bool, timersOnly bool, wit
 						continue
 					}
 				}
-				if withTasks != jobs.TaskStatus_Unknown {
+				if withTasks != proto.TaskStatus_Unknown {
 					var offset, limit int32
 					if len(taskCursor) == 2 {
 						offset = taskCursor[0]
 						limit = taskCursor[1]
 					}
-					j.Tasks = []*jobs.Task{}
+					j.Tasks = []*proto.Task{}
 					jobTasksBucket := tx.Bucket([]byte(tasksBucketString + j.ID))
 					if jobTasksBucket != nil {
 						j.Tasks = s.tasksToChan(jobTasksBucket, withTasks, nil, offset, limit, j.Tasks)
 					}
-					if withTasks != jobs.TaskStatus_Any {
+					if withTasks != proto.TaskStatus_Any {
 						if len(j.Tasks) > 0 {
 							res <- j
 						}
@@ -197,9 +207,9 @@ func (s *boltStore) ListJobs(owner string, eventsOnly bool, timersOnly bool, wit
 }
 
 // PutTasks batch updates DB with tasks organized by JobID and TaskID
-func (s *boltStore) PutTasks(tasks map[string]map[string]*jobs.Task) error {
+func (s *boltStore) PutTasks(tasks map[string]map[string]*proto.Task) error {
 
-	return s.DB.Update(func(tx *bolt.Tx) error {
+	return s.DB.Update(func(tx *bbolt.Tx) error {
 
 		// First check buckets
 		for jId, ts := range tasks {
@@ -208,7 +218,7 @@ func (s *boltStore) PutTasks(tasks map[string]map[string]*jobs.Task) error {
 				return err
 			}
 			for _, t := range ts {
-				stripTaskData(t)
+				jobs.StripTaskData(t)
 				jsonData, err := json.Marshal(t)
 				if err != nil {
 					return err
@@ -224,12 +234,12 @@ func (s *boltStore) PutTasks(tasks map[string]map[string]*jobs.Task) error {
 
 }
 
-func (s *boltStore) PutTask(task *jobs.Task) error {
+func (s *boltStore) PutTask(task *proto.Task) error {
 
 	jobId := task.JobID
-	stripTaskData(task)
+	jobs.StripTaskData(task)
 
-	return s.DB.Update(func(tx *bolt.Tx) error {
+	return s.DB.Update(func(tx *bbolt.Tx) error {
 
 		tasksBucket, err := tx.CreateBucketIfNotExists([]byte(tasksBucketString + jobId))
 		if err != nil {
@@ -247,7 +257,7 @@ func (s *boltStore) PutTask(task *jobs.Task) error {
 
 func (s *boltStore) DeleteTasks(jobId string, taskId []string) error {
 
-	return s.DB.Update(func(tx *bolt.Tx) error {
+	return s.DB.Update(func(tx *bbolt.Tx) error {
 
 		tasksBucket := tx.Bucket([]byte(tasksBucketString + jobId))
 		if tasksBucket == nil {
@@ -261,9 +271,9 @@ func (s *boltStore) DeleteTasks(jobId string, taskId []string) error {
 
 }
 
-func (s *boltStore) ListTasks(jobId string, taskStatus jobs.TaskStatus, cursor ...int32) (chan *jobs.Task, chan bool, error) {
+func (s *boltStore) ListTasks(jobId string, taskStatus proto.TaskStatus, cursor ...int32) (chan *proto.Task, chan bool, error) {
 
-	results := make(chan *jobs.Task)
+	results := make(chan *proto.Task)
 	done := make(chan bool)
 	var offset int32
 	var limit int32
@@ -276,7 +286,7 @@ func (s *boltStore) ListTasks(jobId string, taskStatus jobs.TaskStatus, cursor .
 
 	go func() {
 
-		s.DB.View(func(tx *bolt.Tx) error {
+		s.DB.View(func(tx *bbolt.Tx) error {
 
 			if len(jobId) > 0 {
 				jobTasksBucket := tx.Bucket([]byte(tasksBucketString + jobId))
@@ -285,7 +295,7 @@ func (s *boltStore) ListTasks(jobId string, taskStatus jobs.TaskStatus, cursor .
 				}
 				s.tasksToChan(jobTasksBucket, taskStatus, results, offset, limit, nil)
 			} else {
-				tx.ForEach(func(name []byte, b *bolt.Bucket) error {
+				tx.ForEach(func(name []byte, b *bbolt.Bucket) error {
 					if strings.HasPrefix(string(name), tasksBucketString) {
 						s.tasksToChan(b, taskStatus, results, offset, limit, nil)
 					}
@@ -303,7 +313,7 @@ func (s *boltStore) ListTasks(jobId string, taskStatus jobs.TaskStatus, cursor .
 	return results, done, nil
 }
 
-func (s *boltStore) FindOrphans() (tt []*jobs.Task, e error) {
+func (s *boltStore) FindOrphans() (tt []*proto.Task, e error) {
 	return // Return empty slice without error, this cannot happen in bolt store
 }
 
@@ -315,18 +325,18 @@ func (s *boltStore) BuildOrphanLogsQuery(since time.Duration, all []string) stri
 	return strings.Join(ids, " ")
 }
 
-func (s *boltStore) tasksToChan(bucket *bolt.Bucket, status jobs.TaskStatus, output chan *jobs.Task, offset int32, limit int32, sliceOutput []*jobs.Task) []*jobs.Task {
+func (s *boltStore) tasksToChan(bucket *bbolt.Bucket, status proto.TaskStatus, output chan *proto.Task, offset int32, limit int32, sliceOutput []*proto.Task) []*proto.Task {
 
 	c := bucket.Cursor()
-	var all []*jobs.Task
+	var all []*proto.Task
 	// Records are not sorted, load the whole bucket
 	for k, v := c.First(); k != nil; k, v = c.Next() {
-		task := &jobs.Task{}
+		task := &proto.Task{}
 		if e := json.Unmarshal(v, task); e != nil {
 			continue
 		}
-		stripTaskData(task)
-		if status != jobs.TaskStatus_Any && task.Status != status {
+		jobs.StripTaskData(task)
+		if status != proto.TaskStatus_Any && task.Status != status {
 			continue
 		}
 		all = append(all, task)

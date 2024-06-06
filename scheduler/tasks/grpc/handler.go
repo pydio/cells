@@ -27,17 +27,13 @@ import (
 	"github.com/pydio/cells/v4/scheduler/tasks"
 )
 
-// Handler implements the TaskService API
-type Handler struct {
+// TaskHandler implements the TaskService API
+type TaskHandler struct {
 	jobs.UnimplementedTaskServiceServer
 }
 
-func (h *Handler) Name() string {
-	return ServiceName
-}
-
 // Control publishes the passed command
-func (h *Handler) Control(ctx context.Context, command *jobs.CtrlCommand) (*jobs.CtrlCommandResponse, error) {
+func (h *TaskHandler) Control(ctx context.Context, command *jobs.CtrlCommand) (*jobs.CtrlCommandResponse, error) {
 
 	tasks.GetBus(ctx).Pub(command, tasks.PubSubTopicControl)
 	return &jobs.CtrlCommandResponse{Msg: "Published"}, nil

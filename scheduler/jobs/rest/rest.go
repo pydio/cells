@@ -46,11 +46,11 @@ import (
 )
 
 var (
-	router nodes.Client
+	TODORouter nodes.Client
 )
 
 func getRouter() nodes.Client {
-	return router
+	return TODORouter
 }
 
 // JobsHandler implements methods accessed via the REST gateway to the job definition repository

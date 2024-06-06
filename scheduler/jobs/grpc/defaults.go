@@ -31,7 +31,7 @@ import (
 	"github.com/pydio/cells/v4/scheduler/lang"
 )
 
-func getDefaultJobs() []*jobs.Job {
+func GetDefaultJobs() []*jobs.Job {
 
 	triggerCreate := &jobs.TriggerFilter{
 		Label:       "Create/Update",

@@ -18,7 +18,7 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-package jobs
+package dao
 
 import (
 	"context"
@@ -40,14 +40,17 @@ import (
 	"github.com/pydio/cells/v4/common/service/errors"
 	"github.com/pydio/cells/v4/common/utils/test"
 	"github.com/pydio/cells/v4/common/utils/uuid"
+	jo "github.com/pydio/cells/v4/scheduler/jobs"
+	"github.com/pydio/cells/v4/scheduler/jobs/dao/bolt"
+	"github.com/pydio/cells/v4/scheduler/jobs/dao/mongo"
 
 	. "github.com/smartystreets/goconvey/convey"
 )
 
 var (
 	testCases = []test.StorageTestCase{
-		{[]string{"boltdb://" + filepath.Join(os.TempDir(), "activity_bolt_"+uuid.New()+".db")}, true, NewBoltDAO},
-		{[]string{os.Getenv("CELLS_TEST_MONGODB_DSN") + "?collection=activity"}, os.Getenv("CELLS_TEST_MONGODB_DSN") != "", NewMongoDAO},
+		{[]string{"boltdb://" + filepath.Join(os.TempDir(), "activity_bolt_"+uuid.New()+".db")}, true, bolt.NewBoltDAO},
+		{[]string{os.Getenv("CELLS_TEST_MONGODB_DSN") + "?collection=activity"}, os.Getenv("CELLS_TEST_MONGODB_DSN") != "", mongo.NewMongoDAO},
 	}
 )
 
@@ -81,7 +84,7 @@ func TestDAO_CRUD(t *testing.T) {
 
 	test.RunStorageTests(testCases, func(ctx context.Context) {
 		Convey("Test Put / Get / Delete", t, func() {
-			db, err := manager.Resolve[DAO](ctx)
+			db, err := manager.Resolve[jo.DAO](ctx)
 			So(err, ShouldBeNil)
 
 			searchQuery, _ := anypb.New(&tree.Query{
@@ -134,7 +137,7 @@ func TestDAO_ListJobs(t *testing.T) {
 	test.RunStorageTests(testCases, func(ctx context.Context) {
 		Convey("Test List Jobs", t, func() {
 
-			db, err := manager.Resolve[DAO](ctx)
+			db, err := manager.Resolve[jo.DAO](ctx)
 			So(err, ShouldBeNil)
 
 			db.PutJob(&jobs.Job{
@@ -271,7 +274,7 @@ func TestDAO_ListJobs(t *testing.T) {
 
 }
 
-func listAndCount(db DAO, owner string, eventsOnly bool, timersOnly bool, withTasks jobs.TaskStatus, taskCursor ...int32) (map[string]*jobs.Job, int, error) {
+func listAndCount(db jo.DAO, owner string, eventsOnly bool, timersOnly bool, withTasks jobs.TaskStatus, taskCursor ...int32) (map[string]*jobs.Job, int, error) {
 
 	resCount := 0
 	res, err := db.ListJobs(owner, eventsOnly, timersOnly, withTasks, []string{}, taskCursor...)
@@ -309,7 +312,7 @@ func listAndCount(db DAO, owner string, eventsOnly bool, timersOnly bool, withTa
 	return list, resCount, err
 }
 
-func loadTasks(db DAO, jobId string, jobStatus jobs.TaskStatus, offset ...int32) ([]*jobs.Task, error) {
+func loadTasks(db jo.DAO, jobId string, jobStatus jobs.TaskStatus, offset ...int32) ([]*jobs.Task, error) {
 
 	tasksChan, doneChan, err := db.ListTasks(jobId, jobStatus, offset...)
 	var allTasks []*jobs.Task
@@ -337,7 +340,7 @@ func TestDAO_PutTask(t *testing.T) {
 
 	test.RunStorageTests(testCases, func(ctx context.Context) {
 		Convey("Test Put Task", t, func() {
-			db, err := manager.Resolve[DAO](ctx)
+			db, err := manager.Resolve[jo.DAO](ctx)
 			So(err, ShouldBeNil)
 
 			e := db.PutTask(&jobs.Task{
@@ -362,7 +365,7 @@ func TestDAO_listTask(t *testing.T) {
 	test.RunStorageTests(testCases, func(ctx context.Context) {
 		Convey("Test Put Task", t, func() {
 
-			db, err := manager.Resolve[DAO](ctx)
+			db, err := manager.Resolve[jo.DAO](ctx)
 			So(err, ShouldBeNil)
 
 			e := db.PutTask(&jobs.Task{
