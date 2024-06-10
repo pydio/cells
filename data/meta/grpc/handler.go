@@ -35,7 +35,7 @@ import (
 	"github.com/pydio/cells/v4/common/proto/tree"
 	"github.com/pydio/cells/v4/common/runtime"
 	"github.com/pydio/cells/v4/common/runtime/manager"
-	"github.com/pydio/cells/v4/common/service/errors"
+	"github.com/pydio/cells/v4/common/service/serviceerrors"
 	"github.com/pydio/cells/v4/common/utils/cache"
 	json "github.com/pydio/cells/v4/common/utils/jsonx"
 	"github.com/pydio/cells/v4/common/utils/openurl"
@@ -153,7 +153,7 @@ func (s *MetaServer) ProcessEvent(ctx context.Context, e *tree.NodeChangeEvent) 
 // ReadNode information off the meta server
 func (s *MetaServer) ReadNode(ctx context.Context, req *tree.ReadNodeRequest) (resp *tree.ReadNodeResponse, err error) {
 	if req.Node == nil || req.Node.Uuid == "" {
-		return resp, errors.BadRequest(common.ServiceMeta, "Please provide a Node with a Uuid")
+		return resp, serviceerrors.BadRequest(common.ServiceMeta, "Please provide a Node with a Uuid")
 	}
 	resp = &tree.ReadNodeResponse{}
 
@@ -189,7 +189,7 @@ func (s *MetaServer) ReadNode(ctx context.Context, req *tree.ReadNodeRequest) (r
 
 	metadata, err := dao.GetMetadata(ctx, req.Node.Uuid)
 	if metadata == nil || err != nil {
-		return resp, errors.NotFound(common.ServiceMeta, "Node with Uuid "+req.Node.Uuid+" not found")
+		return resp, serviceerrors.NotFound(common.ServiceMeta, "Node with Uuid "+req.Node.Uuid+" not found")
 	}
 
 	if ca != nil {
@@ -230,7 +230,7 @@ func (s *MetaServer) ReadNodeStream(streamer tree.NodeProviderStreamer_ReadNodeS
 		log.Logger(ctx).Debug("ReadNodeStream", zap.String("path", request.Node.Path))
 		response, e := s.ReadNode(ctx, &tree.ReadNodeRequest{Node: request.Node})
 		if e != nil {
-			if errors.FromError(e).Code == 404 {
+			if serviceerrors.FromError(e).Code == 404 {
 				// There is no metadata, simply return the original node
 				streamer.Send(&tree.ReadNodeResponse{Node: request.Node})
 			} else {
@@ -250,7 +250,7 @@ func (s *MetaServer) ReadNodeStream(streamer tree.NodeProviderStreamer_ReadNodeS
 
 // ListNodes information from the meta server (Not implemented)
 func (s *MetaServer) ListNodes(req *tree.ListNodesRequest, resp tree.NodeProvider_ListNodesServer) (err error) {
-	return errors.BadRequest("ListNodes", "Method not implemented")
+	return serviceerrors.BadRequest("ListNodes", "Method not implemented")
 }
 
 func (s *MetaServer) saveNode(ctx context.Context, node *tree.Node, silent, reload bool) (*tree.Node, error) {

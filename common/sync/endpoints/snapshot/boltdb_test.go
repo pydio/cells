@@ -23,20 +23,20 @@ package snapshot
 import (
 	"context"
 	"fmt"
-	"github.com/pydio/cells/v4/common/utils/std"
 	"os"
 	"path"
 	"sort"
 	"testing"
 	"time"
 
-	. "github.com/smartystreets/goconvey/convey"
-
 	"github.com/pydio/cells/v4/common/proto/tree"
-	"github.com/pydio/cells/v4/common/service/errors"
+	"github.com/pydio/cells/v4/common/service/serviceerrors"
 	"github.com/pydio/cells/v4/common/sync/endpoints/memory"
 	"github.com/pydio/cells/v4/common/sync/model"
+	"github.com/pydio/cells/v4/common/utils/std"
 	"github.com/pydio/cells/v4/common/utils/uuid"
+
+	. "github.com/smartystreets/goconvey/convey"
 )
 
 func basicDiff(l, r model.PathSyncSource) error {
@@ -156,7 +156,7 @@ func TestSnapshot(t *testing.T) {
 		t, e0 := snapshot.LoadNode(ctx, "a/a1")
 		So(t, ShouldBeNil)
 		So(e0, ShouldNotBeNil)
-		So(errors.FromError(e0).Code, ShouldEqual, 404)
+		So(serviceerrors.FromError(e0).Code, ShouldEqual, 404)
 
 		So(snapshot.MoveNode(ctx, "b", "b-renamed"), ShouldBeNil)
 		test, e := snapshot.LoadNode(ctx, "b/b/b/b/b/b/b/b/b/b/b/b/b/b/leaf")

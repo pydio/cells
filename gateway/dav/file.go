@@ -18,7 +18,7 @@ import (
 	"github.com/pydio/cells/v4/common/nodes/posix"
 	"github.com/pydio/cells/v4/common/proto/tree"
 	"github.com/pydio/cells/v4/common/runtime"
-	cerrors "github.com/pydio/cells/v4/common/service/errors"
+	cerrors "github.com/pydio/cells/v4/common/service/serviceerrors"
 )
 
 var (

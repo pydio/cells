@@ -27,8 +27,8 @@ import (
 
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/client/grpc"
+	"github.com/pydio/cells/v4/common/middleware"
 	"github.com/pydio/cells/v4/common/proto/update"
-	"github.com/pydio/cells/v4/common/service"
 )
 
 type Handler struct{}
@@ -49,13 +49,13 @@ func (h *Handler) UpdateRequired(req *restful.Request, rsp *restful.Response) {
 	ctx := req.Request.Context()
 	var updateRequest update.UpdateRequest
 	if e := req.ReadEntity(&updateRequest); e != nil {
-		service.RestError500(req, rsp, e)
+		middleware.RestError500(req, rsp, e)
 		return
 	}
 	cli := update.NewUpdateServiceClient(grpc.ResolveConn(ctx, common.ServiceUpdate))
 	response, err := cli.UpdateRequired(ctx, &updateRequest)
 	if err != nil {
-		service.RestError500(req, rsp, err)
+		middleware.RestError500(req, rsp, err)
 	} else {
 		rsp.WriteEntity(response)
 	}
@@ -67,18 +67,18 @@ func (h *Handler) ApplyUpdate(req *restful.Request, rsp *restful.Response) {
 	ctx := req.Request.Context()
 	var applyRequest update.ApplyUpdateRequest
 	if e := req.ReadEntity(&applyRequest); e != nil {
-		service.RestError500(req, rsp, e)
+		middleware.RestError500(req, rsp, e)
 		return
 	}
 	if applyRequest.TargetVersion == "" {
-		service.RestError500(req, rsp, fmt.Errorf("please provide a target version"))
+		middleware.RestError500(req, rsp, fmt.Errorf("please provide a target version"))
 		return
 	}
 
 	cli := update.NewUpdateServiceClient(grpc.ResolveConn(ctx, common.ServiceUpdate))
 	response, err := cli.ApplyUpdate(ctx, &applyRequest)
 	if err != nil {
-		service.RestError500(req, rsp, err)
+		middleware.RestError500(req, rsp, err)
 	} else {
 		rsp.WriteEntity(response)
 	}

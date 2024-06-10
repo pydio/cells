@@ -38,7 +38,7 @@ import (
 	"github.com/pydio/cells/v4/common/nodes/models"
 	"github.com/pydio/cells/v4/common/proto/object"
 	"github.com/pydio/cells/v4/common/proto/tree"
-	"github.com/pydio/cells/v4/common/service/errors"
+	"github.com/pydio/cells/v4/common/service/serviceerrors"
 	"github.com/pydio/cells/v4/common/utils/propagator"
 )
 
@@ -68,7 +68,7 @@ func (e *Executor) ReadNode(ctx context.Context, in *tree.ReadNodeRequest, opts 
 		s3Path := e.buildS3Path(info, in.Node)
 		if oi, er := writer.StatObject(ctx, info.ObjectsBucket, s3Path, nil); er != nil {
 			if er.Error() == noSuchKeyString {
-				er = errors.NotFound("not.found", "object not found in datasource: %s", s3Path)
+				er = serviceerrors.NotFound("not.found", "object not found in datasource: %s", s3Path)
 			}
 			log.Logger(ctx).Info("ReadNodeRequest/ObjectsStats Failed", zap.Object("ReadNodeRequest.Node", in.Node), zap.Uint32s("StatFlags", in.StatFlags), zap.Error(er))
 			return nil, er
@@ -87,7 +87,7 @@ func (e *Executor) ReadNode(ctx context.Context, in *tree.ReadNodeRequest, opts 
 		if err != nil {
 			if strings.Contains(err.Error(), "context canceled") {
 				log.Logger(ctx).Debug("Failed to read node (context canceled)", zap.Error(err))
-			} else if errors.FromError(err).Code != 404 {
+			} else if serviceerrors.FromError(err).Code != 404 {
 				log.Logger(ctx).Error("Failed to read node", zap.Any("in", in), zap.Error(err))
 			}
 		}
@@ -242,7 +242,7 @@ func (e *Executor) CopyObject(ctx context.Context, from *tree.Node, to *tree.Nod
 		if e != nil {
 			log.Logger(ctx).Error("HandlerExec: Error on CopyObject while first stating source", zap.Error(e))
 			if e.Error() == noSuchKeyString {
-				e = errors.NotFound("object.not.found", "object was not found, this is not normal: %s", fromPath)
+				e = serviceerrors.NotFound("object.not.found", "object was not found, this is not normal: %s", fromPath)
 			}
 			return models.ObjectInfo{}, e
 		}
@@ -356,7 +356,7 @@ func (e *Executor) MultipartPutObjectPart(ctx context.Context, target *tree.Node
 
 	if requestData.Size <= 0 {
 		// This should never happen, double check
-		return models.MultipartObjectPart{PartNumber: partNumberMarker}, errors.BadRequest("put.part.empty", "trying to upload a part object that has no data. Double check")
+		return models.MultipartObjectPart{PartNumber: partNumberMarker}, serviceerrors.BadRequest("put.part.empty", "trying to upload a part object that has no data. Double check")
 	}
 
 	cp, err := writer.PutObjectPart(ctx, info.ObjectsBucket, s3Path, uploadID, partNumberMarker, reader, requestData.Size, hex.EncodeToString(requestData.Md5Sum), hex.EncodeToString(requestData.Sha256Sum))

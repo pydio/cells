@@ -31,12 +31,12 @@ import (
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/client/commons/idmc"
 	"github.com/pydio/cells/v4/common/log"
+	"github.com/pydio/cells/v4/common/middleware"
 	"github.com/pydio/cells/v4/common/proto/idm"
 	"github.com/pydio/cells/v4/common/proto/rest"
 	serviceproto "github.com/pydio/cells/v4/common/proto/service"
-	"github.com/pydio/cells/v4/common/service"
-	"github.com/pydio/cells/v4/common/service/errors"
 	"github.com/pydio/cells/v4/common/service/resources"
+	"github.com/pydio/cells/v4/common/service/serviceerrors"
 )
 
 // NewRoleHandler creates and configure a new RoleHandler
@@ -97,7 +97,7 @@ func (s *RoleHandler) GetRole(req *restful.Request, rsp *restful.Response) {
 		break
 	}
 	if !found {
-		service.RestError404(req, rsp, errors.NotFound(common.ServiceRole, "cannot find role for uuid "+uuid))
+		middleware.RestError404(req, rsp, serviceerrors.NotFound(common.ServiceRole, "cannot find role for uuid "+uuid))
 		return
 	}
 }
@@ -110,7 +110,7 @@ func (s *RoleHandler) SearchRoles(req *restful.Request, rsp *restful.Response) {
 	err := req.ReadEntity(&inputQuery)
 	if err != nil {
 		log.Logger(req.Request.Context()).Error("cannot fetch rest.SearchRoleRequest from request", zap.Error(err))
-		service.RestError500(req, rsp, err)
+		middleware.RestError500(req, rsp, err)
 		return
 	}
 	log.Logger(ctx).Debug("Received Role.Search API request", zap.Any("q", inputQuery))
@@ -128,20 +128,20 @@ func (s *RoleHandler) SearchRoles(req *restful.Request, rsp *restful.Response) {
 	var er error
 	if query.ResourcePolicyQuery, er = s.RestToServiceResourcePolicy(ctx, inputQuery.ResourcePolicyQuery); er != nil {
 		log.Logger(ctx).Error("403", zap.Error(er))
-		service.RestError403(req, rsp, er)
+		middleware.RestError403(req, rsp, er)
 		return
 	}
 	cl := idmc.RoleServiceClient(ctx)
 	request := &idm.SearchRoleRequest{Query: query}
 	cr, e := cl.CountRole(ctx, request)
 	if e != nil {
-		service.RestErrorDetect(req, rsp, e)
+		middleware.RestErrorDetect(req, rsp, e)
 		return
 	}
 	streamer, err := cl.SearchRole(ctx, request)
 	if err != nil {
 		log.Logger(req.Request.Context()).Error("While fetching roles", zap.Error(err))
-		service.RestError500(req, rsp, err)
+		middleware.RestError500(req, rsp, err)
 		return
 	}
 	defer streamer.CloseSend()
@@ -171,7 +171,7 @@ func (s *RoleHandler) DeleteRole(req *restful.Request, rsp *restful.Response) {
 
 	cl := idmc.RoleServiceClient(ctx)
 	if checkError := s.IsAllowed(ctx, uuid, serviceproto.ResourcePolicyAction_WRITE, cl); checkError != nil {
-		service.RestError403(req, rsp, checkError)
+		middleware.RestError403(req, rsp, checkError)
 		return
 	}
 
@@ -183,7 +183,7 @@ func (s *RoleHandler) DeleteRole(req *restful.Request, rsp *restful.Response) {
 		Query: &serviceproto.Query{SubQueries: []*anypb.Any{query}},
 	})
 	if e != nil {
-		service.RestError500(req, rsp, e)
+		middleware.RestError500(req, rsp, e)
 	} else {
 		log.Auditer(ctx).Info(
 			fmt.Sprintf("Deleted role [%s]", uuid),
@@ -201,7 +201,7 @@ func (s *RoleHandler) SetRole(req *restful.Request, rsp *restful.Response) {
 	err := req.ReadEntity(&inputRole)
 	if err != nil {
 		log.Logger(req.Request.Context()).Error("cannot fetch idm.Role from request", zap.Error(err))
-		service.RestError500(req, rsp, err)
+		middleware.RestError500(req, rsp, err)
 		return
 	}
 	if inputRole.Uuid == "" {
@@ -211,8 +211,8 @@ func (s *RoleHandler) SetRole(req *restful.Request, rsp *restful.Response) {
 	cl := idmc.RoleServiceClient(ctx)
 	log.Logger(ctx).Debug("Received Role.Set", zap.Any("r", inputRole))
 
-	if checkError := s.IsAllowed(ctx, inputRole.Uuid, serviceproto.ResourcePolicyAction_WRITE, cl); checkError != nil && errors.FromError(checkError).Code != 404 {
-		service.RestError403(req, rsp, checkError)
+	if checkError := s.IsAllowed(ctx, inputRole.Uuid, serviceproto.ResourcePolicyAction_WRITE, cl); checkError != nil && serviceerrors.FromError(checkError).Code != 404 {
+		middleware.RestError403(req, rsp, checkError)
 		return
 	}
 	// in fact create or update
@@ -220,7 +220,7 @@ func (s *RoleHandler) SetRole(req *restful.Request, rsp *restful.Response) {
 		Role: &inputRole,
 	})
 	if er != nil {
-		service.RestError500(req, rsp, er)
+		middleware.RestError500(req, rsp, er)
 	} else {
 		log.Auditer(ctx).Info(
 			fmt.Sprintf("Updated role [%s]", inputRole.Label),
@@ -256,7 +256,7 @@ func (s *RoleHandler) PoliciesForRole(ctx context.Context, resourceId string, re
 		break
 	}
 	if role == nil {
-		return policies, errors.NotFound(common.ServiceRole, "cannot find role with id "+resourceId)
+		return policies, serviceerrors.NotFound(common.ServiceRole, "cannot find role with id "+resourceId)
 	}
 	return
 }

@@ -34,6 +34,7 @@ import (
 	"github.com/pydio/cells/v4/common/client/grpc"
 	"github.com/pydio/cells/v4/common/config"
 	"github.com/pydio/cells/v4/common/log"
+	"github.com/pydio/cells/v4/common/middleware"
 	"github.com/pydio/cells/v4/common/nodes/compose"
 	"github.com/pydio/cells/v4/common/proto/auth"
 	"github.com/pydio/cells/v4/common/proto/docstore"
@@ -41,8 +42,7 @@ import (
 	"github.com/pydio/cells/v4/common/proto/mailer"
 	"github.com/pydio/cells/v4/common/proto/rest"
 	"github.com/pydio/cells/v4/common/proto/tree"
-	"github.com/pydio/cells/v4/common/service"
-	"github.com/pydio/cells/v4/common/service/errors"
+	"github.com/pydio/cells/v4/common/service/serviceerrors"
 	"github.com/pydio/cells/v4/common/utils/i18n"
 	json "github.com/pydio/cells/v4/common/utils/jsonx"
 	"github.com/pydio/cells/v4/common/utils/permissions"
@@ -71,7 +71,7 @@ func (a *TokenHandler) Revoke(req *restful.Request, resp *restful.Response) {
 	var input rest.RevokeRequest
 	e := req.ReadEntity(&input)
 	if e != nil {
-		service.RestError500(req, resp, errors.BadRequest(common.ServiceAuth, "Cannot decode input request"))
+		middleware.RestError500(req, resp, serviceerrors.BadRequest(common.ServiceAuth, "Cannot decode input request"))
 		return
 	}
 
@@ -79,7 +79,7 @@ func (a *TokenHandler) Revoke(req *restful.Request, resp *restful.Response) {
 	revokeRequest.Token = &auth.Token{AccessToken: input.TokenId}
 	revokerClient := auth.NewAuthTokenRevokerClient(grpc.ResolveConn(ctx, common.ServiceOAuth))
 	if _, err := revokerClient.Revoke(ctx, revokeRequest); err != nil {
-		service.RestError500(req, resp, err)
+		middleware.RestError500(req, resp, err)
 		return
 	}
 
@@ -171,7 +171,7 @@ func (a *TokenHandler) ResetPassword(req *restful.Request, resp *restful.Respons
 
 	var input rest.ResetPasswordRequest
 	if e := req.ReadEntity(&input); e != nil {
-		service.RestError500(req, resp, e)
+		middleware.RestError500(req, resp, e)
 		return
 	}
 	T := lang.Bundle().GetTranslationFunc(i18n.UserLanguagesFromRestRequest(req, config.Get())...)
@@ -186,7 +186,7 @@ func (a *TokenHandler) ResetPassword(req *restful.Request, resp *restful.Respons
 		if e == nil {
 			e = fmt.Errorf(T("ResetPassword.Err.Unknown"))
 		}
-		service.RestError500(req, resp, e)
+		middleware.RestError500(req, resp, e)
 		return
 	}
 	// Delete in store token now
@@ -195,7 +195,7 @@ func (a *TokenHandler) ResetPassword(req *restful.Request, resp *restful.Respons
 	jsonData := docResp.Document.Data
 	var storedToken ResetToken
 	if e := json.Unmarshal([]byte(jsonData), &storedToken); e != nil {
-		service.RestError500(req, resp, e)
+		middleware.RestError500(req, resp, e)
 		return
 	}
 	response := &rest.ResetPasswordResponse{}
@@ -220,7 +220,7 @@ func (a *TokenHandler) ResetPassword(req *restful.Request, resp *restful.Respons
 	u.Password = input.NewPassword
 	userClient := idmc.UserServiceClient(ctx)
 	if _, e := userClient.CreateUser(ctx, &idm.CreateUserRequest{User: u}); e != nil {
-		service.RestError500(req, resp, fmt.Errorf(T("ResetPassword.Err.ResetFailed")))
+		middleware.RestError500(req, resp, fmt.Errorf(T("ResetPassword.Err.ResetFailed")))
 		return
 	}
 
@@ -254,14 +254,14 @@ func (a *TokenHandler) GenerateDocumentAccessToken(req *restful.Request, resp *r
 
 	var datRequest rest.DocumentAccessTokenRequest
 	if e := req.ReadEntity(&datRequest); e != nil {
-		service.RestError500(req, resp, e)
+		middleware.RestError500(req, resp, e)
 		return
 	}
 	ctx := req.Request.Context()
 	router := compose.PathClient(a.RuntimeCtx)
 	readResp, e := router.ReadNode(ctx, &tree.ReadNodeRequest{Node: &tree.Node{Path: datRequest.Path}})
 	if e != nil {
-		service.RestErrorDetect(req, resp, e)
+		middleware.RestErrorDetect(req, resp, e)
 		return
 	}
 	uName, claims := permissions.FindUserNameInContext(ctx)
@@ -298,7 +298,7 @@ func (a *TokenHandler) GenerateAndWrite(ctx context.Context, genReq *auth.PatGen
 	log.Logger(ctx).Debug("Sending generate request", zap.Any("req", genReq))
 	genResp, e := cli.Generate(ctx, genReq)
 	if e != nil {
-		service.RestErrorDetect(req, resp, e)
+		middleware.RestErrorDetect(req, resp, e)
 		return
 	}
 	resp.WriteEntity(&rest.DocumentAccessTokenResponse{AccessToken: genResp.AccessToken})

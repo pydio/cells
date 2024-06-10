@@ -37,7 +37,7 @@ import (
 	"github.com/pydio/cells/v4/common/proto/jobs"
 	"github.com/pydio/cells/v4/common/runtime"
 	"github.com/pydio/cells/v4/common/service"
-	"github.com/pydio/cells/v4/common/service/errors"
+	"github.com/pydio/cells/v4/common/service/serviceerrors"
 	"github.com/pydio/cells/v4/common/utils/configx"
 	"github.com/pydio/cells/v4/common/utils/i18n"
 	"github.com/pydio/cells/v4/idm/oauth"
@@ -231,8 +231,8 @@ func insertPruningJob(ctx context.Context) error {
 	cli := jobsc.JobServiceClient(ctx)
 	if resp, e := cli.GetJob(ctx, &jobs.GetJobRequest{JobID: pJob.ID}); e == nil && resp.Job != nil {
 		return nil // Already exists
-	} else if e != nil && errors.FromError(e).Code != 404 {
-		log2.Logger(ctx).Info("Insert pruning job: jobs service not ready yet :"+e.Error(), zap.Error(errors.FromError(e)))
+	} else if e != nil && serviceerrors.FromError(e).Code != 404 {
+		log2.Logger(ctx).Info("Insert pruning job: jobs service not ready yet :"+e.Error(), zap.Error(serviceerrors.FromError(e)))
 		return e // not ready yet, retry
 	}
 	_, e := cli.PutJob(ctx, &jobs.PutJobRequest{Job: pJob})

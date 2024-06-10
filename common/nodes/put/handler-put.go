@@ -41,7 +41,7 @@ import (
 	"github.com/pydio/cells/v4/common/nodes/abstract"
 	"github.com/pydio/cells/v4/common/nodes/models"
 	"github.com/pydio/cells/v4/common/proto/tree"
-	"github.com/pydio/cells/v4/common/service/errors"
+	"github.com/pydio/cells/v4/common/service/serviceerrors"
 	"github.com/pydio/cells/v4/common/utils/cache"
 )
 
@@ -139,9 +139,9 @@ func (m *Handler) checkTypeChange(ctx context.Context, node *tree.Node) error {
 	tgtLeaf := resp.GetNode().GetType() == tree.NodeType_LEAF
 	if srcLeaf != tgtLeaf {
 		if tgtLeaf {
-			return errors.Conflict("node.type.conflict", "A file already exists with the same name")
+			return serviceerrors.Conflict("node.type.conflict", "A file already exists with the same name")
 		} else {
-			return errors.Conflict("node.type.conflict", "A folder already exists with the same name")
+			return serviceerrors.Conflict("node.type.conflict", "A folder already exists with the same name")
 		}
 	}
 	return nil
@@ -164,7 +164,7 @@ func (m *Handler) createParentIfNotExist(ctx context.Context, node *tree.Node, s
 			return er
 		}
 		if r, er2 := m.Next.CreateNode(ctx, &tree.CreateNodeRequest{Node: parentNode, IndexationSession: session}); er2 != nil {
-			parsedErr := errors.FromError(er2)
+			parsedErr := serviceerrors.FromError(er2)
 			if parsedErr.Code == http.StatusConflict {
 				return nil
 			}
@@ -184,7 +184,7 @@ func (m *Handler) createParentIfNotExist(ctx context.Context, node *tree.Node, s
 			log.Logger(ctx).Debug("[PUT HANDLER] > Create Parent Node In Index", zap.String("UUID", tmpNode.Uuid), zap.String("Path", tmpNode.Path))
 			_, er := treeWriter.CreateNode(ctx, &tree.CreateNodeRequest{Node: tmpNode, IndexationSession: session})
 			if er != nil {
-				parsedErr := errors.FromError(er)
+				parsedErr := serviceerrors.FromError(er)
 				if parsedErr.Code == http.StatusConflict {
 					return nil
 				}

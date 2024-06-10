@@ -33,7 +33,7 @@ import (
 	"github.com/pydio/cells/v4/common/proto/idm"
 	"github.com/pydio/cells/v4/common/proto/tree"
 	"github.com/pydio/cells/v4/common/runtime"
-	"github.com/pydio/cells/v4/common/service/errors"
+	"github.com/pydio/cells/v4/common/service/serviceerrors"
 	"github.com/pydio/cells/v4/common/utils/cache"
 
 	_ "github.com/pydio/cells/v4/common/utils/cache/gocache"
@@ -107,7 +107,7 @@ func TestBranchTranslator_ReadNode(t *testing.T) {
 		b, _ := newTestHandlerBranchTranslator(pool)
 		_, e := b.ReadNode(context.Background(), &tree.ReadNodeRequest{})
 		So(e, ShouldNotBeNil)
-		parsed := errors.FromError(e)
+		parsed := serviceerrors.FromError(e)
 		So(parsed.Detail, ShouldContainSubstring, "Cannot find client for branch")
 
 	})
@@ -123,7 +123,7 @@ func TestBranchTranslator_ReadNode(t *testing.T) {
 		})
 		_, e := b.ReadNode(c, &tree.ReadNodeRequest{})
 		So(e, ShouldNotBeNil)
-		parsed := errors.FromError(e)
+		parsed := serviceerrors.FromError(e)
 		So(parsed.Code, ShouldEqual, 500)
 
 	})

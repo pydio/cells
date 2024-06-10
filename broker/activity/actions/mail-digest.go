@@ -39,7 +39,7 @@ import (
 	"github.com/pydio/cells/v4/common/proto/idm"
 	"github.com/pydio/cells/v4/common/proto/jobs"
 	"github.com/pydio/cells/v4/common/proto/mailer"
-	"github.com/pydio/cells/v4/common/service/errors"
+	"github.com/pydio/cells/v4/common/service/serviceerrors"
 	"github.com/pydio/cells/v4/common/utils/i18n"
 	"github.com/pydio/cells/v4/common/utils/permissions"
 	"github.com/pydio/cells/v4/scheduler/actions"
@@ -108,7 +108,7 @@ func (m *MailDigestAction) Run(ctx context.Context, channels *actions.RunnableCh
 	}
 
 	if len(input.Users) == 0 {
-		e := errors.BadRequest(digestActionName, "action should be triggered with one user in input")
+		e := serviceerrors.BadRequest(digestActionName, "action should be triggered with one user in input")
 		return input.WithError(e), e
 	}
 	userObject := input.Users[0]

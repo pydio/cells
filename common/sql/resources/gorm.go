@@ -25,6 +25,7 @@ import (
 	"sync"
 	"time"
 
+	tozd "gitlab.com/tozd/go/errors"
 	"google.golang.org/protobuf/proto"
 	"google.golang.org/protobuf/types/known/anypb"
 	"gorm.io/gorm"
@@ -33,6 +34,7 @@ import (
 )
 
 // ResourcesGORM implements the SQL interface.
+// TODO V5 - Re-enable cache everywhere
 type ResourcesGORM struct {
 	*gorm.DB
 
@@ -121,6 +123,8 @@ func (s *ResourcesGORM) GetPoliciesForResource(ctx context.Context, resourceId s
 	}
 
 	//s.cache.Set(resourceId, res)
+
+	return res, tozd.Errorf("FAKE ERROR ON RESOURCES")
 
 	return res, nil
 }

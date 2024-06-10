@@ -33,13 +33,13 @@ import (
 	"github.com/pydio/cells/v4/common/client/commons/treec"
 	"github.com/pydio/cells/v4/common/client/grpc"
 	"github.com/pydio/cells/v4/common/log"
+	"github.com/pydio/cells/v4/common/middleware"
 	"github.com/pydio/cells/v4/common/nodes"
 	"github.com/pydio/cells/v4/common/nodes/acl"
 	"github.com/pydio/cells/v4/common/nodes/compose"
 	"github.com/pydio/cells/v4/common/proto/idm"
 	"github.com/pydio/cells/v4/common/proto/rest"
 	"github.com/pydio/cells/v4/common/proto/tree"
-	"github.com/pydio/cells/v4/common/service"
 	"github.com/pydio/cells/v4/common/service/resources"
 	"github.com/pydio/cells/v4/common/utils/propagator"
 	"github.com/pydio/cells/v4/idm/share"
@@ -119,7 +119,7 @@ func (s *Handler) Nodes(req *restful.Request, rsp *restful.Response) {
 	ctx := req.Request.Context()
 	var searchRequest tree.SearchRequest
 	if err := req.ReadEntity(&searchRequest); err != nil {
-		service.RestError500(req, rsp, err)
+		middleware.RestError500(req, rsp, err)
 		return
 	}
 
@@ -155,7 +155,7 @@ func (s *Handler) Nodes(req *restful.Request, rsp *restful.Response) {
 	sharedNodes, shared, er := s.sharedResourcesAsNodes(ctx, query)
 	if er != nil {
 		log.Logger(ctx).Error("cannot load shared resources")
-		service.RestErrorDetect(req, rsp, e)
+		middleware.RestErrorDetect(req, rsp, e)
 		return
 	}
 
@@ -273,7 +273,7 @@ func (s *Handler) Nodes(req *restful.Request, rsp *restful.Response) {
 
 	if err != nil {
 		log.Logger(ctx).Error("Query", zap.Error(err))
-		service.RestError500(req, rsp, err)
+		middleware.RestError500(req, rsp, err)
 		return
 	}
 

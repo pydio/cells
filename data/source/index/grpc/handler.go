@@ -38,7 +38,7 @@ import (
 	"github.com/pydio/cells/v4/common/proto/tree"
 	"github.com/pydio/cells/v4/common/runtime"
 	"github.com/pydio/cells/v4/common/runtime/manager"
-	"github.com/pydio/cells/v4/common/service/errors"
+	"github.com/pydio/cells/v4/common/service/serviceerrors"
 	cindex "github.com/pydio/cells/v4/common/sql/indexgorm"
 	"github.com/pydio/cells/v4/common/utils/propagator"
 	index "github.com/pydio/cells/v4/data/source/index"
@@ -162,10 +162,10 @@ func (s *TreeServer) CreateNode(ctx context.Context, req *tree.CreateNodeRequest
 	// Updating node based on UUID
 	if reqUUID != "" {
 		if node, err = dao.GetNodeByUUID(ctx, reqUUID); err != nil {
-			return nil, errors.Forbidden(name, "Could not retrieve by uuid: %s", err.Error())
+			return nil, serviceerrors.Forbidden(name, "Could not retrieve by uuid: %s", err.Error())
 		} else if node != nil && updateIfExists {
 			if etag, content, err := s.updateMeta(ctx, dao, node, req.GetNode()); err != nil {
-				return nil, errors.Forbidden(name, "Could not replace previous node: %s", err.Error())
+				return nil, serviceerrors.Forbidden(name, "Could not replace previous node: %s", err.Error())
 			} else {
 				previousEtag = etag
 				if content && previousEtag != common.NodeFlagEtagTemporary {
@@ -177,14 +177,14 @@ func (s *TreeServer) CreateNode(ctx context.Context, req *tree.CreateNodeRequest
 				}
 				s.setDataSourceMeta(node)
 				if err := s.UpdateParentsAndNotify(ctx, dao, req.GetNode().GetSize(), eventType, nil, node, req.IndexationSession); err != nil {
-					return nil, errors.InternalServerError(common.ServiceDataIndex_, "Error while updating parents: %s", err.Error())
+					return nil, serviceerrors.InternalServerError(common.ServiceDataIndex_, "Error while updating parents: %s", err.Error())
 				}
 				resp.Success = true
 				resp.Node = node.GetNode()
 				return resp, nil
 			}
 		} else if node != nil {
-			return nil, errors.New(name, fmt.Sprintf("A node with same UUID already exists. Pass updateIfExists parameter if you are sure to override. %v", err), http.StatusConflict)
+			return nil, serviceerrors.New(name, fmt.Sprintf("A node with same UUID already exists. Pass updateIfExists parameter if you are sure to override. %v", err), http.StatusConflict)
 		}
 	}
 
@@ -203,7 +203,7 @@ func (s *TreeServer) CreateNode(ctx context.Context, req *tree.CreateNodeRequest
 	if !exists {
 		path, created, err = dao.Path(ctx, node, tree.NewTreeNode(""), true)
 		if err != nil {
-			return nil, errors.InternalServerError(name, "Error while inserting node: %s", err.Error())
+			return nil, serviceerrors.InternalServerError(name, "Error while inserting node: %s", err.Error())
 		}
 	}
 
@@ -212,7 +212,7 @@ func (s *TreeServer) CreateNode(ctx context.Context, req *tree.CreateNodeRequest
 		if updateIfExists {
 			node, _ = dao.GetNode(ctx, path)
 			if etag, content, err := s.updateMeta(ctx, dao, node, req.GetNode()); err != nil {
-				return nil, errors.Forbidden(name, "Could not replace previous node: %s", err.Error())
+				return nil, serviceerrors.Forbidden(name, "Could not replace previous node: %s", err.Error())
 			} else {
 				previousEtag = etag
 				if content && previousEtag != common.NodeFlagEtagTemporary {
@@ -220,7 +220,7 @@ func (s *TreeServer) CreateNode(ctx context.Context, req *tree.CreateNodeRequest
 				}
 			}
 		} else {
-			return nil, errors.New(name, "Node path already in use", http.StatusConflict)
+			return nil, serviceerrors.New(name, "Node path already in use", http.StatusConflict)
 		}
 	} else if len(created) > 1 && !updateIfExists && !inSession {
 		// Special case : when not in indexation mode, if node creation
@@ -253,7 +253,7 @@ func (s *TreeServer) CreateNode(ctx context.Context, req *tree.CreateNodeRequest
 	}
 
 	if err := s.UpdateParentsAndNotify(ctx, dao, req.GetNode().GetSize(), eventType, nil, node, req.IndexationSession); err != nil {
-		return nil, errors.InternalServerError(common.ServiceDataIndex_, "Error while updating parents: %s", err.Error())
+		return nil, serviceerrors.InternalServerError(common.ServiceDataIndex_, "Error while updating parents: %s", err.Error())
 	}
 
 	resp.Success = true
@@ -286,7 +286,7 @@ func (s *TreeServer) ReadNode(ctx context.Context, req *tree.ReadNodeRequest) (r
 
 		node, err = dao.GetNodeByUUID(ctx, req.GetNode().GetUuid())
 		if err != nil || node == nil {
-			return nil, errors.NotFound(name, "Could not find node by UUID with %s ", req.GetNode().GetUuid())
+			return nil, serviceerrors.NotFound(name, "Could not find node by UUID with %s ", req.GetNode().GetUuid())
 		}
 
 		// In the case we've retrieve the node by uuid, we need to retrieve the path
@@ -302,13 +302,13 @@ func (s *TreeServer) ReadNode(ctx context.Context, req *tree.ReadNodeRequest) (r
 
 		path, _, err := dao.Path(ctx, node, tree.NewTreeNode(""), false)
 		if err != nil {
-			return nil, errors.InternalServerError(name, "Error while retrieving path [%s], cause: %s", node.GetNode().GetPath(), err.Error())
+			return nil, serviceerrors.InternalServerError(name, "Error while retrieving path [%s], cause: %s", node.GetNode().GetPath(), err.Error())
 		}
 
 		if path == nil {
 			//return errors.New("Could not retrieve file path")
 			// Do not return error, or send a file not exists?
-			return nil, errors.NotFound(name, "Could not retrieve node %s", node.GetNode().GetPath())
+			return nil, serviceerrors.NotFound(name, "Could not retrieve node %s", node.GetNode().GetPath())
 		}
 	}
 
@@ -347,7 +347,7 @@ func (s *TreeServer) ListNodes(req *tree.ListNodesRequest, resp tree.NodeProvide
 	name := runtime.GetServiceName(ctx)
 
 	if req.Ancestors && req.Recursive {
-		return errors.InternalServerError(name, "Please use either Recursive (children) or Ancestors (parents) flag, but not both.")
+		return serviceerrors.InternalServerError(name, "Please use either Recursive (children) or Ancestors (parents) flag, but not both.")
 	}
 
 	// Special case for  "Ancestors", node can have either Path or Uuid
@@ -360,7 +360,7 @@ func (s *TreeServer) ListNodes(req *tree.ListNodesRequest, resp tree.NodeProvide
 
 			node, err = dao.GetNodeByUUID(ctx, req.GetNode().GetUuid())
 			if err != nil {
-				return errors.NotFound(name, "could not find node by UUID with %s, cause: %s", req.GetNode().GetUuid(), err.Error())
+				return serviceerrors.NotFound(name, "could not find node by UUID with %s, cause: %s", req.GetNode().GetUuid(), err.Error())
 			}
 
 		} else {
@@ -368,10 +368,10 @@ func (s *TreeServer) ListNodes(req *tree.ListNodesRequest, resp tree.NodeProvide
 			node = tree.NewTreeNode(safePath(req.GetNode().GetPath()))
 			path, _, err := dao.Path(ctx, node, tree.NewTreeNode(""), false)
 			if err != nil {
-				return errors.InternalServerError(name, "cannot retrieve path for %s, cause: %s", node.GetNode().GetPath(), err.Error())
+				return serviceerrors.InternalServerError(name, "cannot retrieve path for %s, cause: %s", node.GetNode().GetPath(), err.Error())
 			}
 			if path == nil {
-				return errors.NotFound(name, "Could not retrieve node %s", node.GetNode().GetPath())
+				return serviceerrors.NotFound(name, "Could not retrieve node %s", node.GetNode().GetPath())
 			}
 
 			//node, err = dao.GetNode(ctx, path)
@@ -412,11 +412,11 @@ func (s *TreeServer) ListNodes(req *tree.ListNodesRequest, resp tree.NodeProvide
 
 		path, _, err := dao.Path(ctx, node, tree.NewTreeNode(""), false)
 		if err != nil {
-			return errors.InternalServerError(name, "cannot resolve path %s, cause: %s", reqPath, err.Error())
+			return serviceerrors.InternalServerError(name, "cannot resolve path %s, cause: %s", reqPath, err.Error())
 		}
 
 		if path == nil {
-			return errors.NotFound(name, "Could not retrieve node %s", reqPath)
+			return serviceerrors.NotFound(name, "Could not retrieve node %s", reqPath)
 		}
 
 		if req.WithCommits {
@@ -555,13 +555,13 @@ func (s *TreeServer) UpdateNode(ctx context.Context, req *tree.UpdateNodeRequest
 	nodeTo = tree.NewTreeNode(reqToPath)
 
 	if pathFrom, _, err = dao.Path(ctx, nodeFrom, tree.NewTreeNode(""), false); err != nil {
-		return nil, errors.InternalServerError(name, "cannot resolve pathFrom %s, cause: %s", reqFromPath, err.Error())
+		return nil, serviceerrors.InternalServerError(name, "cannot resolve pathFrom %s, cause: %s", reqFromPath, err.Error())
 	}
 	if pathFrom == nil {
-		return nil, errors.NotFound(name, "Could not retrieve node %s", req.From.Path)
+		return nil, serviceerrors.NotFound(name, "Could not retrieve node %s", req.From.Path)
 	}
 	if nodeFrom, err = dao.GetNode(ctx, pathFrom); err != nil {
-		return nil, errors.NotFound(name, "Could not retrieve node %s", req.From.Path)
+		return nil, serviceerrors.NotFound(name, "Could not retrieve node %s", req.From.Path)
 	}
 
 	if cache, o := dao.(cindex.CacheDAO); o {
@@ -570,10 +570,10 @@ func (s *TreeServer) UpdateNode(ctx context.Context, req *tree.UpdateNodeRequest
 
 	} else {
 		if pathTo, _, err = dao.Path(ctx, nodeTo, tree.NewTreeNode(""), true); err != nil {
-			return nil, errors.InternalServerError(name, "cannot resolve pathTo %s, cause: %s", reqToPath, err.Error())
+			return nil, serviceerrors.InternalServerError(name, "cannot resolve pathTo %s, cause: %s", reqToPath, err.Error())
 		}
 		if nodeTo, err = dao.GetNode(ctx, pathTo); err != nil {
-			return nil, errors.NotFound(name, "Could not retrieve node %s", req.From.Path)
+			return nil, serviceerrors.NotFound(name, "Could not retrieve node %s", req.From.Path)
 		}
 
 		// Legacy : to Avoid Duplicate error when using a CacheDAO - Flush now and after delete.
@@ -582,7 +582,7 @@ func (s *TreeServer) UpdateNode(ctx context.Context, req *tree.UpdateNodeRequest
 		// First of all, we delete the existing node
 		if nodeTo != nil {
 			if err = dao.DelNode(ctx, nodeTo); err != nil {
-				return nil, errors.InternalServerError(name, "Could not delete former to node at %s %v", req.To.Path, err)
+				return nil, serviceerrors.InternalServerError(name, "Could not delete former to node at %s %v", req.To.Path, err)
 			}
 		}
 
@@ -601,7 +601,7 @@ func (s *TreeServer) UpdateNode(ctx context.Context, req *tree.UpdateNodeRequest
 		newNode.GetNode().SetPath(reqToPath)
 		s.setDataSourceMeta(newNode)
 		if err := s.UpdateParentsAndNotify(ctx, dao, nodeFrom.GetNode().GetSize(), tree.NodeChangeEvent_UPDATE_PATH, nodeFrom, newNode, req.IndexationSession); err != nil {
-			return nil, errors.InternalServerError(common.ServiceDataIndex_, "error while updating parents:  %s", err.Error())
+			return nil, serviceerrors.InternalServerError(common.ServiceDataIndex_, "error while updating parents:  %s", err.Error())
 		}
 	}
 
@@ -635,12 +635,12 @@ func (s *TreeServer) DeleteNode(ctx context.Context, req *tree.DeleteNodeRequest
 
 	path, _, pE := dao.Path(ctx, node, tree.NewTreeNode(""), false)
 	if pE != nil {
-		return nil, errors.NotFound(name, "Could not compute path %s (%s)", reqPath, pE.Error())
+		return nil, serviceerrors.NotFound(name, "Could not compute path %s (%s)", reqPath, pE.Error())
 	}
 
 	node, err = dao.GetNode(ctx, path)
 	if err != nil {
-		return nil, errors.NotFound(name, "Could not retrieve node %s", reqPath)
+		return nil, serviceerrors.NotFound(name, "Could not retrieve node %s", reqPath)
 	}
 
 	s.setDataSourceMeta(node)
@@ -682,11 +682,11 @@ func (s *TreeServer) DeleteNode(ctx context.Context, req *tree.DeleteNodeRequest
 	}
 
 	if err := dao.DelNode(ctx, node); err != nil {
-		return nil, errors.InternalServerError(name, "Could not delete node at %s, cause: %s", reqPath, err.Error())
+		return nil, serviceerrors.InternalServerError(name, "Could not delete node at %s, cause: %s", reqPath, err.Error())
 	}
 
 	if err := s.UpdateParentsAndNotify(ctx, dao, node.GetNode().GetSize(), tree.NodeChangeEvent_DELETE, node, nil, req.IndexationSession); err != nil {
-		return nil, errors.InternalServerError(common.ServiceDataIndex_, "Error while updating parents: %s", err.Error())
+		return nil, serviceerrors.InternalServerError(common.ServiceDataIndex_, "Error while updating parents: %s", err.Error())
 	}
 
 	if len(childrenEvents) > 0 {

@@ -21,10 +21,11 @@
 package rest
 
 import (
-	"github.com/emicklei/go-restful/v3"
+	restful "github.com/emicklei/go-restful/v3"
+
+	"github.com/pydio/cells/v4/common/middleware"
 	"github.com/pydio/cells/v4/common/proto/idm"
 	"github.com/pydio/cells/v4/common/proto/rest"
-	"github.com/pydio/cells/v4/common/service"
 )
 
 // ListSharedResources implements the corresponding Rest API operation
@@ -32,11 +33,11 @@ func (h *SharesHandler) ListSharedResources(req *restful.Request, rsp *restful.R
 
 	var request rest.ListSharedResourcesRequest
 	if e := req.ReadEntity(&request); e != nil {
-		service.RestError500(req, rsp, e)
+		middleware.RestError500(req, rsp, e)
 		return
 	}
 	if err := h.docStoreStatus(req.Request.Context()); err != nil {
-		service.RestErrorDetect(req, rsp, err)
+		middleware.RestErrorDetect(req, rsp, err)
 		return
 	}
 	response := &rest.ListSharedResourcesResponse{}
@@ -55,7 +56,7 @@ func (h *SharesHandler) ListSharedResources(req *restful.Request, rsp *restful.R
 	}
 	rr, e := h.sc.ListSharedResources(ctx, request.Subject, scope, request.OwnedBySubject, h.ResourceProviderHandler)
 	if e != nil {
-		service.RestErrorDetect(req, rsp, e)
+		middleware.RestErrorDetect(req, rsp, e)
 	}
 
 	for _, res := range rr {

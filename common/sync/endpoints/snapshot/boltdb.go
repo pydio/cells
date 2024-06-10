@@ -40,7 +40,7 @@ import (
 
 	"github.com/pydio/cells/v4/common/log"
 	"github.com/pydio/cells/v4/common/proto/tree"
-	"github.com/pydio/cells/v4/common/service/errors"
+	"github.com/pydio/cells/v4/common/service/serviceerrors"
 	"github.com/pydio/cells/v4/common/sync/model"
 	"github.com/pydio/cells/v4/common/utils/uuid"
 )
@@ -395,7 +395,7 @@ func (s *BoltSnapshot) LoadNode(ctx context.Context, path string, extendedStats 
 		if err != nil {
 			return nil, err
 		} else if node == nil {
-			err = errors.NotFound("not.found", "node not found in snapshot %s", path)
+			err = serviceerrors.NotFound("not.found", "node not found in snapshot %s", path)
 			return nil, err
 		}
 	}

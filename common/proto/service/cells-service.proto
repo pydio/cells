@@ -99,3 +99,13 @@ message Error {
     string Status = 3;
     string Details = 4;
 }
+
+message ErrorDetail {
+    string Key = 1;
+    string StringValue = 2;
+    bytes JsonValue = 3;
+}
+
+message ErrorSentinel {
+    string Name = 1;
+}

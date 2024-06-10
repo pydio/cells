@@ -26,10 +26,10 @@ import (
 
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/client/commons/docstorec"
+	"github.com/pydio/cells/v4/common/middleware"
 	"github.com/pydio/cells/v4/common/proto/docstore"
 	"github.com/pydio/cells/v4/common/proto/rest"
 	"github.com/pydio/cells/v4/common/proto/tree"
-	"github.com/pydio/cells/v4/common/service"
 )
 
 /****************************
@@ -44,7 +44,7 @@ func (s *Handler) ListVirtualNodes(req *restful.Request, resp *restful.Response)
 		StoreID: common.DocStoreIdVirtualNodes,
 	})
 	if er != nil {
-		service.RestError500(req, resp, er)
+		middleware.RestError500(req, resp, er)
 		return
 	}
 	response := &rest.NodesCollection{}

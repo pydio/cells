@@ -281,7 +281,6 @@ func (s *Server) lazyGrpc(rootContext context.Context) *grpc.Server {
 
 	serverOptions := []grpc.ServerOption{
 		grpc.ChainUnaryInterceptor(
-			ErrorFormatUnaryInterceptor,
 			grpc_recovery.UnaryServerInterceptor(recoveryOpts...),
 			middleware.MetricsUnaryServerInterceptor(),
 			propagator.ContextUnaryServerInterceptor(middleware.CellsMetadataIncomingContext),
@@ -290,10 +289,11 @@ func (s *Server) lazyGrpc(rootContext context.Context) *grpc.Server {
 			propagator.ContextUnaryServerInterceptor(middleware.RegistryIncomingContext(rootContext)),
 			propagator.ContextUnaryServerInterceptor(middleware.TenantIncomingContext(rootContext)),
 			propagator.ContextUnaryServerInterceptor(middleware.ServiceIncomingContext(rootContext)),
+			middleware.ErrorFormatUnaryInterceptor,
 			HandlerUnaryInterceptor(&unaryInterceptors),
 		),
 		grpc.ChainStreamInterceptor(
-			ErrorFormatStreamInterceptor,
+			middleware.ErrorFormatStreamInterceptor,
 			grpc_recovery.StreamServerInterceptor(recoveryOpts...),
 			middleware.MetricsStreamServerInterceptor(),
 			propagator.ContextStreamServerInterceptor(middleware.CellsMetadataIncomingContext),

@@ -24,6 +24,7 @@ import (
 	"bytes"
 	"context"
 	"fmt"
+	"github.com/pydio/cells/v4/common/middleware/keys"
 	"path"
 	"strings"
 	"sync"
@@ -37,7 +38,6 @@ import (
 	"github.com/pydio/cells/v4/common/auth/claim"
 	"github.com/pydio/cells/v4/common/broker"
 	"github.com/pydio/cells/v4/common/client/grpc"
-	"github.com/pydio/cells/v4/common/middleware"
 	"github.com/pydio/cells/v4/common/proto/idm"
 	"github.com/pydio/cells/v4/common/proto/tree"
 	"github.com/pydio/cells/v4/common/runtime"
@@ -115,15 +115,15 @@ func PolicyRequestSubjectsFromClaims(claims claim.Claims) []string {
 func PolicyContextFromMetadata(policyContext map[string]string, ctx context.Context) {
 	if ctxMeta, has := propagator.FromContextRead(ctx); has {
 		for _, key := range []string{
-			middleware.HttpMetaRemoteAddress,
-			middleware.HttpMetaUserAgent,
-			middleware.HttpMetaContentType,
-			middleware.HttpMetaProtocol,
-			middleware.HttpMetaHostname,
-			middleware.HttpMetaHost,
-			middleware.HttpMetaPort,
-			middleware.ClientTime,
-			middleware.ServerTime,
+			keys.HttpMetaRemoteAddress,
+			keys.HttpMetaUserAgent,
+			keys.HttpMetaContentType,
+			keys.HttpMetaProtocol,
+			keys.HttpMetaHostname,
+			keys.HttpMetaHost,
+			keys.HttpMetaPort,
+			keys.ClientTime,
+			keys.ServerTime,
 		} {
 			if val, hasKey := ctxMeta[key]; hasKey {
 				policyContext[key] = val

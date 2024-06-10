@@ -33,7 +33,7 @@ import (
 	"github.com/pydio/cells/v4/common/nodes/archive"
 	"github.com/pydio/cells/v4/common/proto/jobs"
 	"github.com/pydio/cells/v4/common/proto/tree"
-	"github.com/pydio/cells/v4/common/service/errors"
+	"github.com/pydio/cells/v4/common/service/serviceerrors"
 	"github.com/pydio/cells/v4/scheduler/actions"
 	"github.com/pydio/cells/v4/scheduler/actions/tools"
 )
@@ -170,7 +170,7 @@ func (ex *ExtractAction) Run(ctx context.Context, channels *actions.RunnableChan
 	case "tar.gz":
 		err = reader.ExtractAllTar(ctx, true, archiveNode, targetNode, channels.StatusMsg)
 	default:
-		err = errors.BadRequest(common.ServiceJobs, "Unsupported archive format:"+format)
+		err = serviceerrors.BadRequest(common.ServiceJobs, "Unsupported archive format:"+format)
 	}
 	if err != nil {
 		// Remove failed extraction folder ?

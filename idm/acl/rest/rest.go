@@ -29,6 +29,7 @@ import (
 
 	"github.com/pydio/cells/v4/common/client/commons/idmc"
 	"github.com/pydio/cells/v4/common/log"
+	"github.com/pydio/cells/v4/common/middleware"
 	"github.com/pydio/cells/v4/common/proto/idm"
 	"github.com/pydio/cells/v4/common/proto/rest"
 	service "github.com/pydio/cells/v4/common/proto/service"
@@ -65,12 +66,12 @@ func (a *Handler) PutAcl(req *restful.Request, rsp *restful.Response) {
 	err := req.ReadEntity(&inputACL)
 	if err != nil {
 		log.Logger(ctx).Error("While fetching idm.ACL", zap.Error(err))
-		service2.RestError500(req, rsp, err)
+		middleware.RestError500(req, rsp, err)
 		return
 	}
 	log.Logger(ctx).Debug("Received ACL.Put API request", zap.Any("inputACL", inputACL))
 	if er := a.WriteAllowed(ctx, &inputACL); er != nil {
-		service2.RestError403(req, rsp, er)
+		middleware.RestError403(req, rsp, er)
 		return
 	}
 
@@ -78,7 +79,7 @@ func (a *Handler) PutAcl(req *restful.Request, rsp *restful.Response) {
 		ACL: &inputACL,
 	})
 	if er != nil {
-		service2.RestError500(req, rsp, er)
+		middleware.RestError500(req, rsp, er)
 	} else {
 		a := response.ACL
 		rsp.WriteEntity(a)
@@ -94,12 +95,12 @@ func (a *Handler) DeleteAcl(req *restful.Request, rsp *restful.Response) {
 	err := req.ReadEntity(&inputACL)
 	if err != nil {
 		log.Logger(ctx).Error("While fetching idm.ACL", zap.Error(err))
-		service2.RestError500(req, rsp, err)
+		middleware.RestError500(req, rsp, err)
 		return
 	}
 	log.Logger(req.Request.Context()).Debug("Received ACL.Delete API request", zap.Any("inputACL", inputACL))
 	if er := a.WriteAllowed(ctx, &inputACL); er != nil {
-		service2.RestError403(req, rsp, er)
+		middleware.RestError403(req, rsp, er)
 		return
 	}
 
@@ -126,7 +127,7 @@ func (a *Handler) DeleteAcl(req *restful.Request, rsp *restful.Response) {
 	})
 
 	if err != nil {
-		service2.RestError500(req, rsp, err)
+		middleware.RestError500(req, rsp, err)
 	} else {
 		restResp := &rest.DeleteResponse{
 			Success: true,
@@ -146,7 +147,7 @@ func (a *Handler) SearchAcls(req *restful.Request, rsp *restful.Response) {
 	err := req.ReadEntity(&restRequest)
 	if err != nil {
 		log.Logger(ctx).Error("While fetching rest.SearchACLRequest", zap.Error(err))
-		service2.RestError500(req, rsp, err)
+		middleware.RestError500(req, rsp, err)
 		return
 	}
 
@@ -168,7 +169,7 @@ func (a *Handler) SearchAcls(req *restful.Request, rsp *restful.Response) {
 		Query: query,
 	})
 	if err != nil {
-		service2.RestError500(req, rsp, err)
+		middleware.RestError500(req, rsp, err)
 		return
 	}
 	defer streamer.CloseSend()

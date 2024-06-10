@@ -31,15 +31,16 @@ import (
 	"testing"
 
 	"github.com/rjeczalik/notify"
-	. "github.com/smartystreets/goconvey/convey"
 	"github.com/spf13/afero"
 
 	servicescommon "github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/proto/tree"
-	"github.com/pydio/cells/v4/common/service/errors"
+	"github.com/pydio/cells/v4/common/service/serviceerrors"
 	"github.com/pydio/cells/v4/common/sync/model"
 	"github.com/pydio/cells/v4/common/utils/hasher"
 	"github.com/pydio/cells/v4/common/utils/hasher/simd"
+
+	. "github.com/smartystreets/goconvey/convey"
 )
 
 func EmptyMockedClient() *FSClient {
@@ -85,9 +86,11 @@ type MockEventInfo struct {
 func (e *MockEventInfo) Event() notify.Event {
 	return e.event
 }
+
 func (e *MockEventInfo) Path() string {
 	return e.path
 }
+
 func (e *MockEventInfo) Sys() interface{} {
 	return e.sys
 }
@@ -100,7 +103,7 @@ func TestLoadNode(t *testing.T) {
 		s, e := c.LoadNode(fsTestCtx, "/test")
 		So(s, ShouldBeNil)
 		So(e, ShouldNotBeNil)
-		So(errors.FromError(e).Code, ShouldEqual, 404)
+		So(serviceerrors.FromError(e).Code, ShouldEqual, 404)
 
 	})
 

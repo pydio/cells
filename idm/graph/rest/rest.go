@@ -37,6 +37,7 @@ import (
 	"github.com/pydio/cells/v4/common/client/grpc"
 	"github.com/pydio/cells/v4/common/config"
 	"github.com/pydio/cells/v4/common/log"
+	"github.com/pydio/cells/v4/common/middleware"
 	"github.com/pydio/cells/v4/common/nodes/compose"
 	"github.com/pydio/cells/v4/common/proto/activity"
 	"github.com/pydio/cells/v4/common/proto/idm"
@@ -74,7 +75,7 @@ func (h *GraphHandler) UserState(req *restful.Request, rsp *restful.Response) {
 
 	accessList, err := permissions.AccessListFromContextClaims(ctx)
 	if err != nil {
-		service.RestError500(req, rsp, err)
+		middleware.RestError500(req, rsp, err)
 		return
 	}
 	state := &rest.UserStateResponse{
@@ -101,12 +102,12 @@ func (h *GraphHandler) Relation(req *restful.Request, rsp *restful.Response) {
 	// Find all workspaces in common
 	contextAccessList, err := permissions.AccessListFromContextClaims(ctx)
 	if err != nil {
-		service.RestError500(req, rsp, err)
+		middleware.RestError500(req, rsp, err)
 		return
 	}
 	targetUserAccessList, _, err := permissions.AccessListFromUser(ctx, userName, false)
 	if err != nil {
-		service.RestError500(req, rsp, err)
+		middleware.RestError500(req, rsp, err)
 		return
 	}
 	// Intersect workspace nodes
@@ -143,7 +144,7 @@ func (h *GraphHandler) Relation(req *restful.Request, rsp *restful.Response) {
 		Type: rest.ResourcePolicyQuery_CONTEXT,
 	})
 	if e != nil {
-		service.RestErrorDetect(req, rsp, e)
+		middleware.RestErrorDetect(req, rsp, e)
 		return
 	}
 	query.ResourcePolicyQuery = &service2.ResourcePolicyQuery{
@@ -154,7 +155,7 @@ func (h *GraphHandler) Relation(req *restful.Request, rsp *restful.Response) {
 	if len(query.SubQueries) > 0 {
 		streamer, e := wsCli.SearchWorkspace(ctx, &idm.SearchWorkspaceRequest{Query: query})
 		if e != nil {
-			service.RestError500(req, rsp, e)
+			middleware.RestError500(req, rsp, e)
 			return
 		}
 		defer streamer.CloseSend()
@@ -209,7 +210,7 @@ func (h *GraphHandler) Relation(req *restful.Request, rsp *restful.Response) {
 func (h *GraphHandler) Recommend(req *restful.Request, rsp *restful.Response) {
 	request := &rest.RecommendRequest{}
 	if e := req.ReadEntity(request); e != nil {
-		service.RestError500(req, rsp, e)
+		middleware.RestError500(req, rsp, e)
 		return
 	}
 	ctx := req.Request.Context()

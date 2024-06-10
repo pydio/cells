@@ -35,7 +35,7 @@ import (
 	"github.com/pydio/cells/v4/common/log"
 	proto "github.com/pydio/cells/v4/common/proto/mailer"
 	"github.com/pydio/cells/v4/common/runtime/manager"
-	"github.com/pydio/cells/v4/common/service/errors"
+	"github.com/pydio/cells/v4/common/service/serviceerrors"
 	"github.com/pydio/cells/v4/common/utils/configx"
 	json "github.com/pydio/cells/v4/common/utils/jsonx"
 )
@@ -72,12 +72,12 @@ func (h *Handler) SendMail(ctx context.Context, req *proto.SendMailRequest) (*pr
 
 	// Sanity checks
 	if mail == nil || (len(mail.Subject) == 0 && mail.TemplateId == "") || len(mail.To) == 0 {
-		e := errors.BadRequest(common.ServiceMailer, "cannot send mail: some required fields are missing")
+		e := serviceerrors.BadRequest(common.ServiceMailer, "cannot send mail: some required fields are missing")
 		log.Logger(ctx).Error("cannot process mail to send", zap.Any("Mail", mail), zap.Error(e))
 		return nil, e
 	}
 	if mail.ContentPlain == "" && mail.ContentMarkdown == "" && mail.ContentHtml == "" && mail.TemplateId == "" {
-		e := errors.BadRequest(common.ServiceMailer, "SendMail: please provide one of ContentPlain, ContentMarkdown or ContentHtml")
+		e := serviceerrors.BadRequest(common.ServiceMailer, "SendMail: please provide one of ContentPlain, ContentMarkdown or ContentHtml")
 		log.Logger(ctx).Error("cannot process mail to send: empty body", zap.Any("Mail", mail), zap.Error(e))
 		return nil, e
 	}

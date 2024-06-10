@@ -30,7 +30,7 @@ import (
 	"github.com/pydio/cells/v4/common/proto/idm"
 	"github.com/pydio/cells/v4/common/proto/rest"
 	"github.com/pydio/cells/v4/common/proto/tree"
-	"github.com/pydio/cells/v4/common/service/errors"
+	"github.com/pydio/cells/v4/common/service/serviceerrors"
 	"github.com/pydio/cells/v4/common/utils/configx"
 	"github.com/pydio/cells/v4/common/utils/permissions"
 )
@@ -60,19 +60,19 @@ func (sc *Client) CheckLinkOptionsAgainstConfigs(ctx context.Context, link *rest
 	options = sc.filterOptionsFromScopes(options, contextParams, checkScopes)
 
 	if files && !options.enableFilePublicLinks {
-		return options, errors.Forbidden("file.public-link.forbidden", "You are not allowed to create public link on files")
+		return options, serviceerrors.Forbidden("file.public-link.forbidden", "You are not allowed to create public link on files")
 	}
 	if folders && !options.enableFolderPublicLinks {
-		return options, errors.Forbidden("folder.public-link.forbidden", "You are not allowed to create public link on folders")
+		return options, serviceerrors.Forbidden("folder.public-link.forbidden", "You are not allowed to create public link on folders")
 	}
 	if options.MaxDownloads > 0 && link.MaxDownloads > int64(options.MaxDownloads) {
-		return options, errors.Forbidden("link.max-downloads.mandatory", "Please set a maximum number of downloads for links")
+		return options, serviceerrors.Forbidden("link.max-downloads.mandatory", "Please set a maximum number of downloads for links")
 	}
 	if options.MaxExpiration > 0 && (link.AccessEnd == 0 || (link.AccessEnd-time.Now().Unix()) > int64(options.MaxExpiration*24*60*60)) {
-		return options, errors.Forbidden("link.max-expiration.mandatory", "Please set a maximum expiration date for links")
+		return options, serviceerrors.Forbidden("link.max-expiration.mandatory", "Please set a maximum expiration date for links")
 	}
 	if options.ShareForcePassword && !link.PasswordRequired {
-		return options, errors.Forbidden("link.password.required", "Share links must use a password")
+		return options, serviceerrors.Forbidden("link.password.required", "Share links must use a password")
 	}
 
 	return options, nil
@@ -115,13 +115,13 @@ func (sc *Client) CheckCellOptionsAgainstConfigs(ctx context.Context, cell *rest
 				return e
 			}
 			if files && !loopOptions.enableFileInternal {
-				return errors.Forbidden("file.share-internal.forbidden", "You are not allowed to create Cells on files")
+				return serviceerrors.Forbidden("file.share-internal.forbidden", "You are not allowed to create Cells on files")
 			}
 			if folders && !loopOptions.enableFolderInternal {
-				return errors.Forbidden("folder.share-internal.forbidden", "You are not allowed to create Cells on folders")
+				return serviceerrors.Forbidden("folder.share-internal.forbidden", "You are not allowed to create Cells on folders")
 			}
 			if loopOptions.CellsMaxExpiration > 0 && (cell.AccessEnd == -1 || (cell.AccessEnd-time.Now().Unix()) > int64(loopOptions.CellsMaxExpiration*24*60*60)) {
-				return errors.Forbidden("cells.max-expiration.mandatory", "Please set a maximum expiration date for Cells")
+				return serviceerrors.Forbidden("cells.max-expiration.mandatory", "Please set a maximum expiration date for Cells")
 			}
 		}
 		return nil

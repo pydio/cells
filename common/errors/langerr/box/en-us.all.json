@@ -1,0 +1,8 @@
+{
+  "error.E_UNAUTHORIZED": {
+    "other": "Access in not authorized."
+  },
+  "error.E_LOGIN_FAILED": {
+    "other": "Could not recognize your name or password, did you check your Caps Lock key?"
+  }
+}

@@ -35,12 +35,12 @@ import (
 	"github.com/pydio/cells/v4/common/auth/claim"
 	"github.com/pydio/cells/v4/common/client/grpc"
 	"github.com/pydio/cells/v4/common/log"
+	"github.com/pydio/cells/v4/common/middleware"
 	"github.com/pydio/cells/v4/common/proto/idm"
 	"github.com/pydio/cells/v4/common/proto/rest"
 	service2 "github.com/pydio/cells/v4/common/proto/service"
-	"github.com/pydio/cells/v4/common/service"
-	"github.com/pydio/cells/v4/common/service/errors"
 	"github.com/pydio/cells/v4/common/service/resources"
+	"github.com/pydio/cells/v4/common/service/serviceerrors"
 	"github.com/pydio/cells/v4/common/utils/permissions"
 	"github.com/pydio/cells/v4/idm/share"
 )
@@ -89,42 +89,42 @@ func (h *SharesHandler) PutCell(req *restful.Request, rsp *restful.Response) {
 	err := req.ReadEntity(&shareRequest)
 	if err != nil {
 		log.Logger(ctx).Error("cannot fetch rest.CellRequest", zap.Error(err))
-		service.RestError500(req, rsp, err)
+		middleware.RestError500(req, rsp, err)
 		return
 	}
 	log.Logger(ctx).Debug("Received Share.Cell API request", zap.Any("input", &shareRequest))
 	ownerUser, er := h.IdmUserFromClaims(ctx)
 	if er != nil {
-		service.RestError403(req, rsp, fmt.Errorf("cannot find user in context"))
+		middleware.RestError403(req, rsp, fmt.Errorf("cannot find user in context"))
 		return
 	}
 
 	if err := h.docStoreStatus(ctx); err != nil {
-		service.RestErrorDetect(req, rsp, err)
+		middleware.RestErrorDetect(req, rsp, err)
 		return
 	}
 
 	// Init Root Nodes and check permissions
 	hasReadonly, err := h.sc.ParseRootNodes(ctx, shareRequest.Room, shareRequest.CreateEmptyRoot)
 	if err != nil {
-		service.RestErrorDetect(req, rsp, err)
+		middleware.RestErrorDetect(req, rsp, err)
 		return
 	}
 
 	// Detect if one root has an access set via policy
 	parentPol, e := h.sc.DetectInheritedPolicy(ctx, shareRequest.Room.RootNodes, nil)
 	if e != nil {
-		service.RestErrorDetect(req, rsp, e)
+		middleware.RestErrorDetect(req, rsp, e)
 		return
 	}
 
 	if e := h.sc.CheckCellOptionsAgainstConfigs(ctx, shareRequest.Room); e != nil {
-		service.RestErrorDetect(req, rsp, e)
+		middleware.RestErrorDetect(req, rsp, e)
 		return
 	}
 
 	if output, err := h.sc.UpsertCell(ctx, shareRequest.Room, ownerUser, hasReadonly, parentPol); err != nil {
-		service.RestError500(req, rsp, err)
+		middleware.RestError500(req, rsp, err)
 	} else {
 		_ = rsp.WriteEntity(output)
 	}
@@ -139,21 +139,21 @@ func (h *SharesHandler) GetCell(req *restful.Request, rsp *restful.Response) {
 
 	workspace, err := h.sc.GetCellWorkspace(ctx, id)
 	if err != nil {
-		if errors.FromError(err).Code == 404 {
-			service.RestError404(req, rsp, err)
+		if serviceerrors.FromError(err).Code == 404 {
+			middleware.RestError404(req, rsp, err)
 		} else {
-			service.RestError500(req, rsp, err)
+			middleware.RestError500(req, rsp, err)
 		}
 		return
 	}
 	acl, err := permissions.AccessListFromContextClaims(ctx)
 	if err != nil {
-		service.RestError403(req, rsp, fmt.Errorf("cannot find access list in context %v", err))
+		middleware.RestError403(req, rsp, fmt.Errorf("cannot find access list in context %v", err))
 		return
 	}
 
 	if output, err := h.sc.WorkspaceToCellObject(ctx, workspace, acl); err != nil {
-		service.RestError500(req, rsp, err)
+		middleware.RestError500(req, rsp, err)
 	} else {
 		rsp.WriteEntity(output)
 	}
@@ -168,7 +168,7 @@ func (h *SharesHandler) DeleteCell(req *restful.Request, rsp *restful.Response) 
 	ownerLogin, _ := permissions.FindUserNameInContext(ctx)
 	err := h.sc.DeleteCell(ctx, id, ownerLogin)
 	if err != nil {
-		service.RestErrorDetect(req, rsp, err)
+		middleware.RestErrorDetect(req, rsp, err)
 		return
 	}
 	_ = rsp.WriteEntity(&rest.DeleteCellResponse{
@@ -184,44 +184,44 @@ func (h *SharesHandler) PutShareLink(req *restful.Request, rsp *restful.Response
 
 	var putRequest rest.PutShareLinkRequest
 	if err := req.ReadEntity(&putRequest); err != nil {
-		service.RestError500(req, rsp, err)
+		middleware.RestError500(req, rsp, err)
 		return
 	}
 	if err := h.docStoreStatus(ctx); err != nil {
-		service.RestErrorDetect(req, rsp, err)
+		middleware.RestErrorDetect(req, rsp, err)
 		return
 	}
 
 	link := putRequest.ShareLink
 	rootWorkspaces, files, folders, e := h.sc.CheckLinkRootNodes(ctx, link)
 	if e != nil {
-		service.RestErrorDetect(req, rsp, e)
+		middleware.RestErrorDetect(req, rsp, e)
 		return
 	}
 	parentPolicy, e := h.sc.DetectInheritedPolicy(ctx, link.RootNodes, rootWorkspaces)
 	if e != nil {
-		service.RestErrorDetect(req, rsp, e)
+		middleware.RestErrorDetect(req, rsp, e)
 		return
 	}
 
 	pluginOptions, e := h.sc.CheckLinkOptionsAgainstConfigs(ctx, link, rootWorkspaces, files, folders)
 	if e != nil {
-		service.RestErrorDetect(req, rsp, e)
+		middleware.RestErrorDetect(req, rsp, e)
 		return
 	} else if pluginOptions.ShareForcePassword && !putRequest.PasswordEnabled {
-		service.RestError403(req, rsp, fmt.Errorf("password is required"))
+		middleware.RestError403(req, rsp, fmt.Errorf("password is required"))
 		return
 	}
 
 	ownerUser, er := h.IdmUserFromClaims(ctx)
 	if er != nil {
-		service.RestError403(req, rsp, fmt.Errorf("cannot find user in context"))
+		middleware.RestError403(req, rsp, fmt.Errorf("cannot find user in context"))
 		return
 	}
 
 	output, er := h.sc.UpsertLink(ctx, link, &putRequest, ownerUser, parentPolicy, pluginOptions)
 	if er != nil {
-		service.RestErrorDetect(req, rsp, er)
+		middleware.RestErrorDetect(req, rsp, er)
 	} else {
 		_ = rsp.WriteEntity(output)
 	}
@@ -237,10 +237,10 @@ func (h *SharesHandler) GetShareLink(req *restful.Request, rsp *restful.Response
 
 	output, err := h.sc.LinkById(ctx, id)
 	if err != nil {
-		if errors.FromError(err).Code == 404 {
-			service.RestError404(req, rsp, err)
+		if serviceerrors.FromError(err).Code == 404 {
+			middleware.RestError404(req, rsp, err)
 		} else {
-			service.RestErrorDetect(req, rsp, err)
+			middleware.RestErrorDetect(req, rsp, err)
 		}
 		return
 	}
@@ -255,12 +255,12 @@ func (h *SharesHandler) DeleteShareLink(req *restful.Request, rsp *restful.Respo
 	id := req.PathParameter("Uuid")
 
 	if err := h.docStoreStatus(ctx); err != nil {
-		service.RestErrorDetect(req, rsp, err)
+		middleware.RestErrorDetect(req, rsp, err)
 		return
 	}
 
 	if err := h.sc.DeleteLink(ctx, id); err != nil {
-		service.RestErrorDetect(req, rsp, err)
+		middleware.RestErrorDetect(req, rsp, err)
 		return
 	}
 
@@ -281,33 +281,33 @@ func (h *SharesHandler) DeleteShareLink(req *restful.Request, rsp *restful.Respo
 func (h *SharesHandler) UpdateSharePolicies(req *restful.Request, rsp *restful.Response) {
 	var input rest.UpdateSharePoliciesRequest
 	if e := req.ReadEntity(&input); e != nil {
-		service.RestError500(req, rsp, e)
+		middleware.RestError500(req, rsp, e)
 		return
 	}
 	ctx := req.Request.Context()
 	if err := h.docStoreStatus(ctx); err != nil {
-		service.RestErrorDetect(req, rsp, err)
+		middleware.RestErrorDetect(req, rsp, err)
 		return
 	}
 	cli := idm.NewWorkspaceServiceClient(grpc.ResolveConn(h.ctx, common.ServiceWorkspace))
 	ws, err := permissions.SearchUniqueWorkspace(ctx, input.Uuid, "")
 	if err != nil {
-		service.RestError500(req, rsp, errors.NotFound("share.not.found", "cannot find associated workspace"))
+		middleware.RestError500(req, rsp, serviceerrors.NotFound("share.not.found", "cannot find associated workspace"))
 		return
 	}
 	if ws.Scope != idm.WorkspaceScope_LINK && ws.Scope != idm.WorkspaceScope_ROOM {
-		service.RestError403(req, rsp, errors.NotFound("workspace.not.share", "you are not allowed to use this api to edit workspaces"))
+		middleware.RestError403(req, rsp, serviceerrors.NotFound("workspace.not.share", "you are not allowed to use this api to edit workspaces"))
 		return
 	}
 	if !h.MatchPolicies(ctx, ws.UUID, ws.Policies, service2.ResourcePolicyAction_WRITE) {
-		service.RestError403(req, rsp, errors.NotFound("share.not.editable", "you are not allowed to edit this share"))
+		middleware.RestError403(req, rsp, serviceerrors.NotFound("share.not.editable", "you are not allowed to edit this share"))
 		return
 	}
 
 	ws.Policies = input.Policies
 	resp, e := cli.CreateWorkspace(ctx, &idm.CreateWorkspaceRequest{Workspace: ws})
 	if e != nil {
-		service.RestErrorDetect(req, rsp, e)
+		middleware.RestErrorDetect(req, rsp, e)
 		return
 	}
 

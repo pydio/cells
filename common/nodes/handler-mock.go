@@ -35,7 +35,7 @@ import (
 	"github.com/pydio/cells/v4/common/log"
 	"github.com/pydio/cells/v4/common/nodes/models"
 	"github.com/pydio/cells/v4/common/proto/tree"
-	errors2 "github.com/pydio/cells/v4/common/service/errors"
+	errors2 "github.com/pydio/cells/v4/common/service/serviceerrors"
 )
 
 func NewHandlerMock() *HandlerMock {

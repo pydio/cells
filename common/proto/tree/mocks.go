@@ -30,7 +30,7 @@ import (
 	"google.golang.org/grpc/metadata"
 
 	"github.com/pydio/cells/v4/common"
-	"github.com/pydio/cells/v4/common/service/errors"
+	"github.com/pydio/cells/v4/common/service/serviceerrors"
 )
 
 type ErrorThrower func(string, string, ...interface{}) error
@@ -100,9 +100,11 @@ func NewStreamerMock(ctx context.Context, nodes map[string]Node) grpc.ClientStre
 func (m *StreamerMock) Context() context.Context {
 	return m.c
 }
+
 func (m *StreamerMock) Send(v interface{}) error {
 	return nil
 }
+
 func (m *StreamerMock) Recv(v interface{}) error {
 
 	node, ok := <-m.ch
@@ -120,9 +122,11 @@ func (m *StreamerMock) Recv(v interface{}) error {
 
 	return nil
 }
+
 func (m *StreamerMock) Error() error {
 	return nil
 }
+
 func (m *StreamerMock) Close() error {
 	return nil
 }
@@ -155,7 +159,7 @@ func (m *NodeProviderMock) ReadNode(ctx context.Context, in *ReadNodeRequest, op
 			}
 		}
 	}
-	return nil, errors.NotFound(common.ServiceDataIndex_, "Node not found")
+	return nil, serviceerrors.NotFound(common.ServiceDataIndex_, "Node not found")
 }
 
 func (m *NodeProviderMock) ListNodes(ctx context.Context, in *ListNodesRequest, opts ...grpc.CallOption) (NodeProvider_ListNodesClient, error) {

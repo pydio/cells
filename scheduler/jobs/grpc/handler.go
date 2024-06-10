@@ -38,7 +38,7 @@ import (
 	proto "github.com/pydio/cells/v4/common/proto/jobs"
 	log2 "github.com/pydio/cells/v4/common/proto/log"
 	"github.com/pydio/cells/v4/common/runtime/manager"
-	"github.com/pydio/cells/v4/common/service/errors"
+	"github.com/pydio/cells/v4/common/service/serviceerrors"
 	"github.com/pydio/cells/v4/common/storage/indexer"
 	"github.com/pydio/cells/v4/common/utils/propagator"
 	"github.com/pydio/cells/v4/common/utils/uuid"
@@ -232,7 +232,7 @@ func (j *JobsHandler) PutTask(ctx context.Context, request *proto.PutTaskRequest
 
 	job, e := store.GetJob(request.Task.JobID, 0)
 	if e != nil {
-		return nil, errors.NotFound(common.ServiceJobs, "Cannot append task to a non existing job ("+request.Task.JobID+")")
+		return nil, serviceerrors.NotFound(common.ServiceJobs, "Cannot append task to a non existing job ("+request.Task.JobID+")")
 	}
 
 	//log.Logger(ctx).Debug("Scheduler PutTask", zap.Any("task", request.Task))
@@ -322,7 +322,7 @@ func (j *JobsHandler) PutTaskStream(streamer proto.JobService_PutTaskStreamServe
 		if !ok {
 			job, e := store.GetJob(t.JobID, 0)
 			if e != nil {
-				return errors.NotFound(common.ServiceJobs, "Cannot append task to a non existing job ("+request.Task.JobID+")")
+				return serviceerrors.NotFound(common.ServiceJobs, "Cannot append task to a non existing job ("+request.Task.JobID+")")
 			}
 			j.jobsBuffLock.Lock()
 			j.jobsBuff[t.JobID] = job
@@ -446,7 +446,7 @@ func (j *JobsHandler) DeleteTasks(ctx context.Context, request *proto.DeleteTask
 
 	} else {
 
-		return nil, errors.BadRequest(common.ServiceJobs, "DeleteTasks: provide either status values or jobId/taskId parameters")
+		return nil, serviceerrors.BadRequest(common.ServiceJobs, "DeleteTasks: provide either status values or jobId/taskId parameters")
 
 	}
 

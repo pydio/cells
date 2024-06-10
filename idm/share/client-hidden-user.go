@@ -35,7 +35,7 @@ import (
 	"github.com/pydio/cells/v4/common/proto/rest"
 	service "github.com/pydio/cells/v4/common/proto/service"
 	"github.com/pydio/cells/v4/common/proto/tree"
-	"github.com/pydio/cells/v4/common/service/errors"
+	"github.com/pydio/cells/v4/common/service/serviceerrors"
 	permissions2 "github.com/pydio/cells/v4/common/utils/permissions"
 	"github.com/pydio/cells/v4/common/utils/uuid"
 )
@@ -52,7 +52,7 @@ func (sc *Client) GetOrCreateHiddenUser(ctx context.Context, ownerUser *idm.User
 		password := login + PasswordComplexitySuffix
 		if passwordEnabled {
 			if len(updatePassword) == 0 {
-				return nil, errors.BadRequest(common.ServiceShare, "Please provide a non empty password!")
+				return nil, serviceerrors.BadRequest(common.ServiceShare, "Please provide a non empty password!")
 			}
 			password = updatePassword
 		}

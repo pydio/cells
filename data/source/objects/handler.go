@@ -33,7 +33,7 @@ import (
 
 	"github.com/pydio/cells/v4/common/log"
 	"github.com/pydio/cells/v4/common/proto/tree"
-	"github.com/pydio/cells/v4/common/service/errors"
+	"github.com/pydio/cells/v4/common/service/serviceerrors"
 	"github.com/pydio/cells/v4/common/utils/configx"
 	"github.com/pydio/cells/v4/common/utils/filesystem"
 )
@@ -184,7 +184,7 @@ func (t *TreeHandler) CreateNode(ctx context.Context, request *tree.CreateNodeRe
 }
 
 func (t *TreeHandler) UpdateNode(ctx context.Context, request *tree.UpdateNodeRequest) (*tree.UpdateNodeResponse, error) {
-	return nil, errors.BadRequest("not.implemented", "")
+	return nil, serviceerrors.BadRequest("not.implemented", "")
 }
 
 func (t *TreeHandler) DeleteNode(ctx context.Context, request *tree.DeleteNodeRequest) (*tree.DeleteNodeResponse, error) {

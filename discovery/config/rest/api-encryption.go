@@ -25,8 +25,8 @@ import (
 
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/client/grpc"
+	"github.com/pydio/cells/v4/common/middleware"
 	"github.com/pydio/cells/v4/common/proto/encryption"
-	"github.com/pydio/cells/v4/common/service"
 )
 
 /****************************
@@ -37,7 +37,7 @@ import (
 func (s *Handler) ListEncryptionKeys(req *restful.Request, resp *restful.Response) {
 	var request encryption.AdminListKeysRequest
 	if e := req.ReadEntity(&request); e != nil {
-		service.RestError500(req, resp, e)
+		middleware.RestError500(req, resp, e)
 		return
 	}
 
@@ -45,7 +45,7 @@ func (s *Handler) ListEncryptionKeys(req *restful.Request, resp *restful.Respons
 	var response *encryption.AdminListKeysResponse
 	var err error
 	if response, err = encClient.AdminListKeys(req.Request.Context(), &request); err != nil {
-		service.RestError500(req, resp, err)
+		middleware.RestError500(req, resp, err)
 		return
 	}
 	resp.WriteEntity(response)
@@ -55,7 +55,7 @@ func (s *Handler) ListEncryptionKeys(req *restful.Request, resp *restful.Respons
 func (s *Handler) CreateEncryptionKey(req *restful.Request, resp *restful.Response) {
 	var request encryption.AdminCreateKeyRequest
 	if e := req.ReadEntity(&request); e != nil {
-		service.RestError500(req, resp, e)
+		middleware.RestError500(req, resp, e)
 		return
 	}
 
@@ -63,7 +63,7 @@ func (s *Handler) CreateEncryptionKey(req *restful.Request, resp *restful.Respon
 	var response *encryption.AdminCreateKeyResponse
 	var err error
 	if response, err = encClient.AdminCreateKey(req.Request.Context(), &request); err != nil {
-		service.RestError500(req, resp, err)
+		middleware.RestError500(req, resp, err)
 		return
 	}
 	resp.WriteEntity(response)
@@ -73,7 +73,7 @@ func (s *Handler) CreateEncryptionKey(req *restful.Request, resp *restful.Respon
 func (s *Handler) DeleteEncryptionKey(req *restful.Request, resp *restful.Response) {
 	var request encryption.AdminDeleteKeyRequest
 	if e := req.ReadEntity(&request); e != nil {
-		service.RestError500(req, resp, e)
+		middleware.RestError500(req, resp, e)
 		return
 	}
 
@@ -81,7 +81,7 @@ func (s *Handler) DeleteEncryptionKey(req *restful.Request, resp *restful.Respon
 	var response *encryption.AdminDeleteKeyResponse
 	var err error
 	if response, err = encClient.AdminDeleteKey(req.Request.Context(), &request); err != nil {
-		service.RestError500(req, resp, err)
+		middleware.RestError500(req, resp, err)
 		return
 	}
 	resp.WriteEntity(response)
@@ -91,7 +91,7 @@ func (s *Handler) DeleteEncryptionKey(req *restful.Request, resp *restful.Respon
 func (s *Handler) ExportEncryptionKey(req *restful.Request, resp *restful.Response) {
 	var request encryption.AdminExportKeyRequest
 	if e := req.ReadEntity(&request); e != nil {
-		service.RestError500(req, resp, e)
+		middleware.RestError500(req, resp, e)
 		return
 	}
 
@@ -99,7 +99,7 @@ func (s *Handler) ExportEncryptionKey(req *restful.Request, resp *restful.Respon
 	var response *encryption.AdminExportKeyResponse
 	var err error
 	if response, err = encClient.AdminExportKey(req.Request.Context(), &request); err != nil {
-		service.RestError500(req, resp, err)
+		middleware.RestError500(req, resp, err)
 		return
 	}
 	resp.WriteEntity(response)
@@ -109,7 +109,7 @@ func (s *Handler) ExportEncryptionKey(req *restful.Request, resp *restful.Respon
 func (s *Handler) ImportEncryptionKey(req *restful.Request, resp *restful.Response) {
 	var request encryption.AdminImportKeyRequest
 	if e := req.ReadEntity(&request); e != nil {
-		service.RestError500(req, resp, e)
+		middleware.RestError500(req, resp, e)
 		return
 	}
 
@@ -117,7 +117,7 @@ func (s *Handler) ImportEncryptionKey(req *restful.Request, resp *restful.Respon
 	var response *encryption.AdminImportKeyResponse
 	var err error
 	if response, err = encClient.AdminImportKey(req.Request.Context(), &request); err != nil {
-		service.RestError500(req, resp, err)
+		middleware.RestError500(req, resp, err)
 		return
 	}
 	resp.WriteEntity(response)

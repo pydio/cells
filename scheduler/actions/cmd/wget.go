@@ -42,7 +42,7 @@ import (
 	"github.com/pydio/cells/v4/common/nodes/models"
 	"github.com/pydio/cells/v4/common/proto/jobs"
 	"github.com/pydio/cells/v4/common/proto/tree"
-	"github.com/pydio/cells/v4/common/service/errors"
+	"github.com/pydio/cells/v4/common/service/serviceerrors"
 	json "github.com/pydio/cells/v4/common/utils/jsonx"
 	"github.com/pydio/cells/v4/scheduler/actions"
 )
@@ -111,7 +111,7 @@ func (w *WGetAction) Init(job *jobs.Job, action *jobs.Action) error {
 	if urlParam, ok := action.Parameters["url"]; ok {
 		w.SourceUrl = urlParam
 	} else {
-		return errors.BadRequest(common.ServiceTasks, "missing parameter url in Action")
+		return serviceerrors.BadRequest(common.ServiceTasks, "missing parameter url in Action")
 	}
 	w.Router = compose.PathClientAdmin(w.GetRuntimeContext())
 	return nil

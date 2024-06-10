@@ -54,8 +54,8 @@ import (
 	"github.com/pydio/cells/v4/common/proto/idm"
 	"github.com/pydio/cells/v4/common/proto/tree"
 	"github.com/pydio/cells/v4/common/runtime"
-	"github.com/pydio/cells/v4/common/service/errors"
 	"github.com/pydio/cells/v4/common/service/frontend"
+	"github.com/pydio/cells/v4/common/service/serviceerrors"
 	"github.com/pydio/cells/v4/common/utils/cache"
 	json "github.com/pydio/cells/v4/common/utils/jsonx"
 	"github.com/pydio/cells/v4/common/utils/openurl"
@@ -104,7 +104,7 @@ func (h *PublicHandler) computeTplConf(req *http.Request, linkId string) (status
 	// Load link data
 	linkData, e := h.loadLink(ctx, linkId)
 	if e != nil {
-		parsed := errors.FromError(e)
+		parsed := serviceerrors.FromError(e)
 		if parsed.Code == 500 && parsed.Id == "go.micro.client" && parsed.Detail == "none available" {
 			tplConf.ErrorMessage = "Service is temporarily unavailable, please retry later."
 			return 503, tplConf, linkData

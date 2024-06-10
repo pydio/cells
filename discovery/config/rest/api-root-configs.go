@@ -30,8 +30,8 @@ import (
 
 	"github.com/pydio/cells/v4/common/config"
 	"github.com/pydio/cells/v4/common/log"
+	"github.com/pydio/cells/v4/common/middleware"
 	"github.com/pydio/cells/v4/common/proto/rest"
-	"github.com/pydio/cells/v4/common/service"
 	json "github.com/pydio/cells/v4/common/utils/jsonx"
 	"github.com/pydio/cells/v4/common/utils/permissions"
 )
@@ -45,7 +45,7 @@ func (s *Handler) PutConfig(req *restful.Request, resp *restful.Response) {
 	ctx := req.Request.Context()
 	var configuration rest.Configuration
 	if err := req.ReadEntity(&configuration); err != nil {
-		service.RestError500(req, resp, err)
+		middleware.RestError500(req, resp, err)
 		return
 	}
 	if configuration.FullPath == "" {
@@ -58,11 +58,11 @@ func (s *Handler) PutConfig(req *restful.Request, resp *restful.Response) {
 	fullPath := strings.Trim(configuration.FullPath, "/")
 	path := strings.Split(fullPath, "/")
 	if len(path) == 0 {
-		service.RestError401(req, resp, errors.New("no path given!"))
+		middleware.RestError401(req, resp, errors.New("no path given!"), "")
 		return
 	}
 	if !config.IsRestEditable(fullPath) {
-		service.RestError403(req, resp, errors.New("you are not allowed to edit that configuration"))
+		middleware.RestError403(req, resp, errors.New("you are not allowed to edit that configuration"))
 		return
 	}
 	var parsed map[string]interface{}
@@ -76,7 +76,7 @@ func (s *Handler) PutConfig(req *restful.Request, resp *restful.Response) {
 		config.Set(parsed, path...)
 		if err := config.Save(u, "Setting config via API"); err != nil {
 			log.Logger(ctx).Error("Put", zap.Error(err))
-			service.RestError500(req, resp, err)
+			middleware.RestError500(req, resp, err)
 			// Restoring original value
 			if original != nil {
 				config.Set(original, path...)
@@ -90,7 +90,7 @@ func (s *Handler) PutConfig(req *restful.Request, resp *restful.Response) {
 			Data:     config.Get(path...).String(),
 		})
 	} else {
-		service.RestError500(req, resp, e)
+		middleware.RestError500(req, resp, e)
 	}
 
 }
@@ -104,7 +104,7 @@ func (s *Handler) GetConfig(req *restful.Request, resp *restful.Response) {
 	path := strings.Split(fullPath, "/")
 
 	if !config.IsRestEditable(fullPath) {
-		service.RestError403(req, resp, errors.New("you are not allowed to read that configuration via the REST API"))
+		middleware.RestError403(req, resp, errors.New("you are not allowed to read that configuration via the REST API"))
 		return
 	}
 

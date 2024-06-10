@@ -23,6 +23,8 @@ package grpc
 import (
 	"context"
 	"fmt"
+	"path"
+	runtime2 "runtime"
 	"runtime/debug"
 	"strings"
 	"sync"
@@ -154,6 +156,7 @@ type clientConn struct {
 // Invoke performs a unary RPC and returns after the response is received
 // into reply.
 func (cc *clientConn) Invoke(ctx context.Context, method string, args interface{}, reply interface{}, opts ...grpc.CallOption) error {
+
 	opts = append([]grpc.CallOption{
 		grpc.WaitForReady(true),
 	}, opts...)
@@ -161,6 +164,13 @@ func (cc *clientConn) Invoke(ctx context.Context, method string, args interface{
 	//if metadata.ValueFromIncomingContext(ctx, ckeys.CtxTargetServiceName)
 	ctx = metadata.AppendToOutgoingContext(ctx, common.CtxTargetServiceName, cc.serviceName)
 	ctx = metadata.AppendToOutgoingContext(ctx, common.CtxTargetTenantName, cc.tenantName)
+	if pc, file, line, ok := runtime2.Caller(2); ok {
+		var fName string
+		if fDesc := runtime2.FuncForPC(pc); fDesc != nil {
+			fName = ":" + path.Base(fDesc.Name()) + "()"
+		}
+		ctx = metadata.AppendToOutgoingContext(ctx, common.CtxGrpcClientCaller, fmt.Sprintf("%s:%d%s", file, line, fName))
+	}
 
 	var cancel context.CancelFunc
 	if cc.callTimeout > 0 {

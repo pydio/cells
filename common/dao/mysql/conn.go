@@ -35,7 +35,7 @@ import (
 	"github.com/pydio/cells/v4/common/dao"
 	"github.com/pydio/cells/v4/common/log"
 	"github.com/pydio/cells/v4/common/runtime"
-	"github.com/pydio/cells/v4/common/service/errors"
+	"github.com/pydio/cells/v4/common/service/serviceerrors"
 	commonsql "github.com/pydio/cells/v4/common/sql"
 	"github.com/pydio/cells/v4/common/telemetry/metrics"
 )
@@ -170,7 +170,7 @@ func FilterDAOErrors(err error) (error, bool) {
 	filtered := false
 	if err != nil {
 		if _, ok := err.(*tools.MySQLError); ok {
-			err = errors.InternalServerError("dao.error", "DAO error received")
+			err = serviceerrors.InternalServerError("dao.error", "DAO error received")
 			filtered = true
 		}
 	}

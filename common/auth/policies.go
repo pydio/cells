@@ -30,10 +30,11 @@ import (
 
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/auth/claim"
+	"github.com/pydio/cells/v4/common/errors"
 	"github.com/pydio/cells/v4/common/log"
 	"github.com/pydio/cells/v4/common/proto/idm"
 	"github.com/pydio/cells/v4/common/proto/rest"
-	"github.com/pydio/cells/v4/common/service/errors"
+	"github.com/pydio/cells/v4/common/service/serviceerrors"
 	"github.com/pydio/cells/v4/common/utils/permissions"
 )
 
@@ -94,11 +95,11 @@ func SubjectsForResourcePolicyQuery(ctx context.Context, q *rest.ResourcePolicyQ
 
 		var value interface{}
 		if value = ctx.Value(claim.ContextKey); value == nil {
-			return subjects, errors.BadRequest("resources", "Only admin profiles can list resources of other users")
+			return subjects, serviceerrors.BadRequest("resources", "Only admin profiles can list resources of other users")
 		}
 		claims := value.(claim.Claims)
 		if claims.Profile != common.PydioProfileAdmin {
-			return subjects, errors.Forbidden("resources", "Only admin profiles can list resources with ANY or NONE filter")
+			return subjects, serviceerrors.Forbidden("resources", "Only admin profiles can list resources with ANY or NONE filter")
 		}
 		return subjects, nil
 
@@ -123,9 +124,11 @@ func SubjectsForResourcePolicyQuery(ctx context.Context, q *rest.ResourcePolicyQ
 					subjects = append(subjects, "role:"+r.Uuid)
 				}
 			} else {
-				if errors.FromError(e).Code != 404 {
+				// Todo - is it necessary? we previously did not return the error...
+				if !errors.Is(e, errors.UserNotFound) {
 					log.Logger(ctx).Warn("[policies] Cannot find user '"+uName+"' although in context", zap.Error(e))
 				}
+				return nil, e
 			}
 		} else {
 			log.Logger(ctx).Error("Cannot find claims in context", zap.Any("c", ctx))
@@ -135,19 +138,19 @@ func SubjectsForResourcePolicyQuery(ctx context.Context, q *rest.ResourcePolicyQ
 	case rest.ResourcePolicyQuery_USER:
 
 		if q.UserId == "" {
-			return subjects, errors.BadRequest("resources", "Please provide a non-empty user id")
+			return subjects, errors.WithMessage(errors.StatusBadRequest, "resources", "Please provide a non-empty user id")
 		}
 		var value interface{}
 		if value = ctx.Value(claim.ContextKey); value == nil {
-			return subjects, errors.BadRequest("resources", "Only admin profiles can list resources of other users")
+			return subjects, errors.WithMessage(errors.StatusBadRequest, "resources", "Only admin profiles can list resources of other users")
 		}
 		claims := value.(claim.Claims)
 		if claims.Profile != common.PydioProfileAdmin {
-			return subjects, errors.Forbidden("resources", "Only admin profiles can list resources of other users")
+			return subjects, errors.WithMessage(errors.StatusForbidden, "resources", "Only admin profiles can list resources of other users")
 		}
 		subjects = append(subjects, "*")
 		if user, err := permissions.SearchUniqueUser(ctx, "", q.UserId); err != nil {
-			return subjects, errors.BadRequest("resources", "Cannot find user with id "+q.UserId+", error was "+err.Error())
+			return subjects, errors.WithMessage(errors.StatusBadRequest, "resources", "Cannot find user with id "+q.UserId+", error was "+err.Error())
 		} else {
 			for _, role := range user.Roles {
 				subjects = append(subjects, "role:"+role.Uuid)

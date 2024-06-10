@@ -39,7 +39,7 @@ import (
 	"github.com/pydio/cells/v4/common/nodes"
 	"github.com/pydio/cells/v4/common/nodes/posix"
 	"github.com/pydio/cells/v4/common/proto/tree"
-	"github.com/pydio/cells/v4/common/service/errors"
+	"github.com/pydio/cells/v4/common/service/serviceerrors"
 )
 
 // FileSystem is the pydio specific implementation of the generic webdav.FileSystem interface
@@ -57,7 +57,7 @@ func (fs *FileSystem) Mkdir(ctx context.Context, name string, perm os.FileMode) 
 	log.Logger(ctx).Debug("FileSystem.Mkdir", zap.String("name", name))
 
 	if strings.HasPrefix(path.Base(name), ".") {
-		return errors.Forbidden("DAV", "Cannot create hidden folders")
+		return serviceerrors.Forbidden("DAV", "Cannot create hidden folders")
 	}
 
 	if !strings.HasSuffix(name, "/") {
@@ -98,7 +98,7 @@ func (fs *FileSystem) OpenFile(ctx context.Context, name string, flag int, perm 
 		return nil, err
 	}
 	if strings.HasPrefix(path.Base(name), "._") {
-		return nil, errors.Forbidden("DAV", "Server does not support MacOS hidden files")
+		return nil, serviceerrors.Forbidden("DAV", "Server does not support MacOS hidden files")
 	}
 
 	var node *tree.Node
@@ -222,7 +222,7 @@ func (fs *FileSystem) Stat(ctx context.Context, name string) (os.FileInfo, error
 	defer fs.mu.Unlock()
 
 	if strings.HasPrefix(path.Base(name), "._") {
-		return nil, errors.Forbidden("DAV", "Cannot stat hidden resources starting with ._")
+		return nil, serviceerrors.Forbidden("DAV", "Cannot stat hidden resources starting with ._")
 	}
 
 	fi, err := fs.stat(ctx, name)
@@ -261,7 +261,7 @@ func (fs *FileSystem) stat(ctx context.Context, name string) (os.FileInfo, error
 		Path: name,
 	}})
 	if err != nil {
-		if errors.FromError(err).Code != 404 && !strings.Contains(err.Error(), " NotFound ") {
+		if serviceerrors.FromError(err).Code != 404 && !strings.Contains(err.Error(), " NotFound ") {
 			log.Logger(ctx).Error("ReadNode Error", zap.Error(err))
 		}
 		return nil, err

@@ -23,7 +23,7 @@ package templates
 import (
 	"context"
 
-	"github.com/pydio/cells/v4/common/service/errors"
+	"github.com/pydio/cells/v4/common/service/serviceerrors"
 )
 
 var (
@@ -66,7 +66,7 @@ func (t *TemplateProvider) ByUUID(ctx context.Context, uuid string) (Node, error
 		}
 	}
 	if node == nil {
-		return nil, errors.NotFound("template.not.found", "Cannot find template with this identifier")
+		return nil, serviceerrors.NotFound("template.not.found", "Cannot find template with this identifier")
 	} else {
 		return node, nil
 	}

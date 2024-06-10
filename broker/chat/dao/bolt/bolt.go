@@ -31,7 +31,7 @@ import (
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/log"
 	proto "github.com/pydio/cells/v4/common/proto/chat"
-	"github.com/pydio/cells/v4/common/service/errors"
+	"github.com/pydio/cells/v4/common/service/serviceerrors"
 	"github.com/pydio/cells/v4/common/utils/configx"
 	json "github.com/pydio/cells/v4/common/utils/jsonx"
 	"github.com/pydio/cells/v4/common/utils/uuid"
@@ -402,7 +402,7 @@ func (h *boltdbimpl) UpdateMessage(ctx context.Context, request *proto.ChatMessa
 func (h *boltdbimpl) DeleteMessage(ctx context.Context, message *proto.ChatMessage) error {
 
 	if message.Uuid == "" {
-		return errors.BadRequest(common.ServiceChat, "Cannot delete a message without Uuid")
+		return serviceerrors.BadRequest(common.ServiceChat, "Cannot delete a message without Uuid")
 	}
 
 	err := h.db.Update(func(tx *bbolt.Tx) error {

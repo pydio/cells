@@ -15,10 +15,11 @@ import (
 
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/config"
+	"github.com/pydio/cells/v4/common/errors"
 	"github.com/pydio/cells/v4/common/log"
 	"github.com/pydio/cells/v4/common/proto/auth"
 	"github.com/pydio/cells/v4/common/runtime/manager"
-	"github.com/pydio/cells/v4/common/service/errors"
+	"github.com/pydio/cells/v4/common/service/serviceerrors"
 	json "github.com/pydio/cells/v4/common/utils/jsonx"
 	"github.com/pydio/cells/v4/common/utils/permissions"
 	"github.com/pydio/cells/v4/common/utils/uuid"
@@ -82,25 +83,25 @@ func (p *PATHandler) Verify(ctx context.Context, request *auth.VerifyTokenReques
 		return nil, err
 	}
 
-	if err := p.getStrategy().Validate(ctx, request.Token); err != nil {
-		return nil, errors.Unauthorized("token.invalid", "Cannot validate token")
+	if er := p.getStrategy().Validate(ctx, request.Token); er != nil {
+		return nil, errors.Tag(er, errors.InvalidIDToken)
 	}
 
 	pat, err := dao.Load(request.Token)
 	if err != nil {
-		return nil, errors.Unauthorized("token.not.found", "Cannot find corresponding Personal Access Token")
+		return nil, errors.Tag(err, errors.InvalidIDToken)
 	}
 
 	// Check Expiration Date
 	if time.Unix(pat.ExpiresAt, 0).Before(time.Now()) {
-		return nil, errors.Unauthorized("token.expired", "Personal token is expired")
+		return nil, errors.Tag(err, errors.ExpiredIDToken)
 	}
 
 	if pat.AutoRefreshWindow > 0 {
 		// Recompute expire date
 		pat.ExpiresAt = time.Now().Add(time.Duration(pat.AutoRefreshWindow) * time.Second).Unix()
 		if er := dao.Store(request.Token, pat, true); er != nil {
-			return nil, errors.BadRequest("internal.error", "Cannot store updated token "+er.Error())
+			return nil, errors.Tag(er, errors.StatusInternalServerError)
 		}
 	}
 
@@ -148,7 +149,7 @@ func (p *PATHandler) Generate(ctx context.Context, request *auth.PatGenerateRequ
 	} else if request.ExpiresAt > 0 {
 		token.ExpiresAt = request.ExpiresAt
 	} else {
-		return nil, errors.BadRequest("missing.parameters", "Please provide one of ExpiresAt or AutoRefreshWindow")
+		return nil, serviceerrors.BadRequest("missing.parameters", "Please provide one of ExpiresAt or AutoRefreshWindow")
 	}
 
 	token.CreatedAt = time.Now().Unix()

@@ -32,7 +32,7 @@ import (
 
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/proto/idm"
-	"github.com/pydio/cells/v4/common/service/errors"
+	"github.com/pydio/cells/v4/common/service/serviceerrors"
 	"github.com/pydio/cells/v4/common/sql"
 	"github.com/pydio/cells/v4/common/sql/resources"
 	"github.com/pydio/cells/v4/idm/workspace"
@@ -100,7 +100,7 @@ func (s *sqlimpl) Add(ctx context.Context, in interface{}) (bool, error) {
 
 	workspace, ok := in.(*idm.Workspace)
 	if !ok {
-		return false, errors.BadRequest(common.ServiceWorkspace, "Wrong type")
+		return false, serviceerrors.BadRequest(common.ServiceWorkspace, "Wrong type")
 	}
 
 	var exSlug string

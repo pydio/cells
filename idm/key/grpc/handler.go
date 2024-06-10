@@ -37,7 +37,7 @@ import (
 	enc "github.com/pydio/cells/v4/common/proto/encryption"
 	"github.com/pydio/cells/v4/common/runtime"
 	"github.com/pydio/cells/v4/common/runtime/manager"
-	"github.com/pydio/cells/v4/common/service/errors"
+	"github.com/pydio/cells/v4/common/service/serviceerrors"
 	"github.com/pydio/cells/v4/common/utils/cache"
 	"github.com/pydio/cells/v4/common/utils/openurl"
 	"github.com/pydio/cells/v4/common/utils/propagator"
@@ -125,7 +125,7 @@ func (ukm *userKeyStore) AdminCreateKey(ctx context.Context, req *enc.AdminCreat
 
 	rsp := &enc.AdminCreateKeyResponse{Success: true}
 
-	if _, _, err := dao.GetKey(ctx, common.PydioSystemUsername, req.KeyID); err != nil && errors.FromError(err).Code == 404 {
+	if _, _, err := dao.GetKey(ctx, common.PydioSystemUsername, req.KeyID); err != nil && serviceerrors.FromError(err).Code == 404 {
 		if er := ukm.createSystemKey(ctx, req.KeyID, req.Label); er != nil {
 			return nil, er
 		} else {
@@ -134,7 +134,7 @@ func (ukm *userKeyStore) AdminCreateKey(ctx context.Context, req *enc.AdminCreat
 	} else if err != nil {
 		return nil, err
 	} else {
-		return nil, errors.BadRequest(common.ServiceEncKey, "Key already exists with this id!")
+		return nil, serviceerrors.BadRequest(common.ServiceEncKey, "Key already exists with this id!")
 	}
 }
 
@@ -156,11 +156,11 @@ func (ukm *userKeyStore) AdminImportKey(ctx context.Context, req *enc.AdminImpor
 	var k *enc.Key
 	k, _, err = dao.GetKey(ctx, common.PydioSystemUsername, req.Key.ID)
 	if err != nil {
-		if errors.FromError(err).Code != 404 {
+		if serviceerrors.FromError(err).Code != 404 {
 			return nil, err
 		}
 	} else if k != nil && !req.Override {
-		return nil, errors.BadRequest(common.ServiceEncKey, fmt.Sprintf("Key already exists with [%s] id", req.Key.ID))
+		return nil, serviceerrors.BadRequest(common.ServiceEncKey, fmt.Sprintf("Key already exists with [%s] id", req.Key.ID))
 	}
 
 	log.Logger(ctx).Debug("Opening sealed key with imported password")
@@ -168,7 +168,7 @@ func (ukm *userKeyStore) AdminImportKey(ctx context.Context, req *enc.AdminImpor
 	err = open(req.Key, []byte(req.StrPassword))
 	if err != nil {
 		rsp.Success = false
-		return rsp, errors.InternalServerError(common.ServiceEncKey, "unable to decrypt %s for import, cause: %s", req.Key.ID, err.Error())
+		return rsp, serviceerrors.InternalServerError(common.ServiceEncKey, "unable to decrypt %s for import, cause: %s", req.Key.ID, err.Error())
 	}
 
 	master, err := ukm.masterFromCache(ctx)
@@ -179,7 +179,7 @@ func (ukm *userKeyStore) AdminImportKey(ctx context.Context, req *enc.AdminImpor
 	err = seal(req.Key, master)
 	if err != nil {
 		rsp.Success = false
-		return rsp, errors.InternalServerError(common.ServiceEncKey, "unable to encrypt %s.%s for export, cause: %s", common.PydioSystemUsername, req.Key.ID, err.Error())
+		return rsp, serviceerrors.InternalServerError(common.ServiceEncKey, "unable to encrypt %s.%s for export, cause: %s", common.PydioSystemUsername, req.Key.ID, err.Error())
 	}
 
 	if req.Key.CreationDate == 0 {
@@ -216,7 +216,7 @@ func (ukm *userKeyStore) AdminImportKey(ctx context.Context, req *enc.AdminImpor
 	err = dao.SaveKey(ctx, req.Key)
 	if err != nil {
 		rsp.Success = false
-		return rsp, errors.InternalServerError(common.ServiceEncKey, "failed to save imported key, cause: %s", err.Error())
+		return rsp, serviceerrors.InternalServerError(common.ServiceEncKey, "failed to save imported key, cause: %s", err.Error())
 	}
 
 	log.Logger(ctx).Debug("Returning response")
@@ -250,7 +250,7 @@ func (ukm *userKeyStore) AdminExportKey(ctx context.Context, req *enc.AdminExpor
 	// We update the key
 	err = dao.SaveKey(ctx, rsp.Key, version)
 	if err != nil {
-		return rsp, errors.InternalServerError(common.ServiceEncKey, "failed to update key info, cause: %s", err.Error())
+		return rsp, serviceerrors.InternalServerError(common.ServiceEncKey, "failed to update key info, cause: %s", err.Error())
 	}
 
 	pwd, err := ukm.masterFromCache(ctx)
@@ -267,12 +267,12 @@ func (ukm *userKeyStore) AdminExportKey(ctx context.Context, req *enc.AdminExpor
 	}
 	err = open(rsp.Key, pwd)
 	if err != nil {
-		return rsp, errors.InternalServerError(common.ServiceEncKey, "unable to decrypt for %s with key %s, cause: %s", common.PydioSystemUsername, req.KeyID, err)
+		return rsp, serviceerrors.InternalServerError(common.ServiceEncKey, "unable to decrypt for %s with key %s, cause: %s", common.PydioSystemUsername, req.KeyID, err)
 	}
 
 	err = seal(rsp.Key, []byte(req.StrPassword))
 	if err != nil {
-		return rsp, errors.InternalServerError(common.ServiceEncKey, "unable to encrypt for %s with key %s for export, cause: %s", common.PydioSystemUsername, req.KeyID, err)
+		return rsp, serviceerrors.InternalServerError(common.ServiceEncKey, "unable to encrypt for %s with key %s for export, cause: %s", common.PydioSystemUsername, req.KeyID, err)
 	}
 	return rsp, nil
 }
@@ -304,7 +304,7 @@ func (ukm *userKeyStore) createSystemKey(ctx context.Context, keyID string, keyL
 	masterKey := crypto.KeyFromPassword(master, 32)
 	encryptedKeyContentBytes, err := crypto.Seal(masterKey, keyContentBytes)
 	if err != nil {
-		return errors.InternalServerError(common.ServiceEncKey, "failed to encrypt the default key. Cause: %s", err.Error())
+		return serviceerrors.InternalServerError(common.ServiceEncKey, "failed to encrypt the default key. Cause: %s", err.Error())
 	}
 	systemKey.Content = base64.StdEncoding.EncodeToString(encryptedKeyContentBytes)
 	log.Logger(context.Background()).Debug(fmt.Sprintf("Saving default key %s", systemKey.Content))
@@ -371,14 +371,14 @@ func (ukm *userKeyStore) legacyFromCache(ctx context.Context, master []byte) (le
 func seal(k *enc.Key, passwordBytes []byte) error {
 	keyContentBytes, err := base64.StdEncoding.DecodeString(k.Content)
 	if err != nil {
-		return errors.New(common.ServiceUserKey, "unable to decode key", 400)
+		return serviceerrors.New(common.ServiceUserKey, "unable to decode key", 400)
 	}
 
 	passwordKey := crypto.KeyFromPassword(passwordBytes, 32)
 	encryptedKeyContentBytes, err := crypto.Seal(passwordKey, keyContentBytes)
 
 	if err != nil {
-		return errors.InternalServerError(common.ServiceEncKey, "failed to encrypt the default key, cause: %s", err.Error())
+		return serviceerrors.InternalServerError(common.ServiceEncKey, "failed to encrypt the default key, cause: %s", err.Error())
 	}
 	k.Content = base64.StdEncoding.EncodeToString(encryptedKeyContentBytes)
 	return nil
@@ -387,7 +387,7 @@ func seal(k *enc.Key, passwordBytes []byte) error {
 func open(k *enc.Key, passwordBytes []byte) error {
 	sealedContentBytes, err := base64.StdEncoding.DecodeString(k.Content)
 	if err != nil {
-		return errors.New(common.ServiceUserKey, "unable to decode key", 400)
+		return serviceerrors.New(common.ServiceUserKey, "unable to decode key", 400)
 	}
 
 	passwordKey := crypto.KeyFromPassword(passwordBytes, 32)

@@ -27,7 +27,6 @@ import (
 	"path/filepath"
 	"testing"
 
-	. "github.com/smartystreets/goconvey/convey"
 	"go.uber.org/zap"
 
 	"github.com/pydio/cells/v4/common"
@@ -35,8 +34,10 @@ import (
 	"github.com/pydio/cells/v4/common/log"
 	"github.com/pydio/cells/v4/common/nodes"
 	"github.com/pydio/cells/v4/common/proto/tree"
-	"github.com/pydio/cells/v4/common/service/errors"
+	"github.com/pydio/cells/v4/common/service/serviceerrors"
 	"github.com/pydio/cells/v4/common/utils/uuid"
+
+	. "github.com/smartystreets/goconvey/convey"
 )
 
 func getTempArchive(formatOrName string) (*tree.Node, string, error) {
@@ -188,7 +189,7 @@ func TestReader_StatChild(t *testing.T) {
 		{
 			_, e := archiveReader.StatChildZip(context.Background(), archiveNode, "actions/nonexistingfile.go")
 			So(e, ShouldNotBeNil)
-			So(errors.FromError(e).Code, ShouldEqual, 404)
+			So(serviceerrors.FromError(e).Code, ShouldEqual, 404)
 		}
 		{
 			stat, e := archiveReader.StatChildZip(context.Background(), archiveNode, "actions/interfaces.go")
@@ -243,7 +244,7 @@ func TestReader_StatChild(t *testing.T) {
 		{
 			_, e := archiveReader.StatChildTar(context.Background(), false, archiveNode, "actions/nonexistingfile.go")
 			So(e, ShouldNotBeNil)
-			So(errors.FromError(e).Code, ShouldEqual, 404)
+			So(serviceerrors.FromError(e).Code, ShouldEqual, 404)
 		}
 		{
 			stat, e := archiveReader.StatChildTar(context.Background(), false, archiveNode, "actions/interfaces.go")
@@ -279,7 +280,7 @@ func TestReader_StatChild(t *testing.T) {
 		{
 			_, e := archiveReader.StatChildTar(context.Background(), true, archiveNode, "actions/nonexistingfile.go")
 			So(e, ShouldNotBeNil)
-			So(errors.FromError(e).Code, ShouldEqual, 404)
+			So(serviceerrors.FromError(e).Code, ShouldEqual, 404)
 		}
 		{
 			stat, e := archiveReader.StatChildTar(context.Background(), true, archiveNode, "actions/interfaces.go")

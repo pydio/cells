@@ -27,7 +27,7 @@ import (
 	"github.com/ory/ladon/manager/memory"
 	"github.com/stretchr/testify/require"
 
-	"github.com/pydio/cells/v4/common/middleware"
+	errors "github.com/pydio/cells/v4/common/middleware/keys"
 
 	. "github.com/smartystreets/goconvey/convey"
 )
@@ -66,7 +66,7 @@ func TestOfficeHoursPolicy(t *testing.T) {
 			Actions:     []string{"write"},
 			Effect:      ladon.AllowAccess,
 			Conditions: ladon.Conditions{
-				middleware.ClientTime: &OfficeHoursCondition{
+				errors.ClientTime: &OfficeHoursCondition{
 					Matches: "Monday-Friday/08:00/17:30",
 				},
 			},

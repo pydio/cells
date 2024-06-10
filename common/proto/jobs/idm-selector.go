@@ -26,12 +26,11 @@ import (
 	"google.golang.org/protobuf/proto"
 	"google.golang.org/protobuf/types/known/anypb"
 
-	"github.com/pydio/cells/v4/common/client/commons/idmc"
+	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/log"
-	"github.com/pydio/cells/v4/common/middleware"
+	"github.com/pydio/cells/v4/common/middleware/keys"
 	"github.com/pydio/cells/v4/common/proto/idm"
 	"github.com/pydio/cells/v4/common/proto/service"
-	"github.com/pydio/cells/v4/common/utils/permissions"
 	"github.com/pydio/cells/v4/common/utils/propagator"
 )
 
@@ -109,7 +108,7 @@ func (m *IdmSelector) Select(ctx context.Context, input *ActionMessage, objects 
 	}
 	switch m.Type {
 	case IdmSelectorType_User:
-		s, e := idmc.UserServiceClient(ctx).SearchUser(ctx, &idm.SearchUserRequest{Query: query})
+		s, e := idm.NewUserServiceClient(connexionResolver(ctx, common.ServiceUser)).SearchUser(ctx, &idm.SearchUserRequest{Query: query})
 		if e != nil {
 			return e
 		}
@@ -124,7 +123,7 @@ func (m *IdmSelector) Select(ctx context.Context, input *ActionMessage, objects 
 			objects <- resp.User
 		}
 	case IdmSelectorType_Role:
-		if s, e := idmc.RoleServiceClient(ctx).SearchRole(ctx, &idm.SearchRoleRequest{Query: query}); e != nil {
+		if s, e := idm.NewRoleServiceClient(connexionResolver(ctx, common.ServiceRole)).SearchRole(ctx, &idm.SearchRoleRequest{Query: query}); e != nil {
 			return e
 		} else {
 			for {
@@ -139,7 +138,7 @@ func (m *IdmSelector) Select(ctx context.Context, input *ActionMessage, objects 
 			}
 		}
 	case IdmSelectorType_Workspace:
-		if s, e := idmc.WorkspaceServiceClient(ctx).SearchWorkspace(ctx, &idm.SearchWorkspaceRequest{Query: query}); e != nil {
+		if s, e := idm.NewWorkspaceServiceClient(connexionResolver(ctx, common.ServiceWorkspace)).SearchWorkspace(ctx, &idm.SearchWorkspaceRequest{Query: query}); e != nil {
 			return e
 		} else {
 			for {
@@ -154,7 +153,7 @@ func (m *IdmSelector) Select(ctx context.Context, input *ActionMessage, objects 
 			}
 		}
 	case IdmSelectorType_Acl:
-		if s, e := idmc.ACLServiceClient(ctx).SearchACL(ctx, &idm.SearchACLRequest{Query: query}); e != nil {
+		if s, e := idm.NewACLServiceClient(connexionResolver(ctx, common.ServiceAcl)).SearchACL(ctx, &idm.SearchACLRequest{Query: query}); e != nil {
 			return e
 		} else {
 			for {
@@ -397,13 +396,13 @@ func (m *IdmSelector) evaluate(ctx context.Context, input *ActionMessage, single
 // WorkspaceFromEventContext tries to find the CtxWorkspaceUuid key in the context metadata and if it is set,
 // lookup actual workspace by UUID.
 func (m *IdmSelector) WorkspaceFromEventContext(ctx context.Context) (*idm.Workspace, bool) {
-	wsUuid, o := propagator.CanonicalMeta(ctx, middleware.CtxWorkspaceUuid)
+	wsUuid, o := propagator.CanonicalMeta(ctx, keys.CtxWorkspaceUuid)
 	if !o || wsUuid == "ROOT" {
 		return nil, false
 	}
 	ct, ca := context.WithCancel(ctx)
 	defer ca()
-	if ws, er := permissions.SearchUniqueWorkspace(ct, wsUuid, ""); er == nil {
+	if ws, er := clientUniqueWorkspace(ct, wsUuid, ""); er == nil {
 		return ws, true
 	} else {
 		return nil, false

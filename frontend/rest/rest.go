@@ -39,6 +39,7 @@ import (
 	"github.com/pydio/cells/v4/common/client/commons/idmc"
 	"github.com/pydio/cells/v4/common/config"
 	"github.com/pydio/cells/v4/common/log"
+	"github.com/pydio/cells/v4/common/middleware"
 	"github.com/pydio/cells/v4/common/nodes/compose"
 	"github.com/pydio/cells/v4/common/nodes/models"
 	pauth "github.com/pydio/cells/v4/common/proto/auth"
@@ -46,7 +47,6 @@ import (
 	"github.com/pydio/cells/v4/common/proto/rest"
 	"github.com/pydio/cells/v4/common/proto/tree"
 	"github.com/pydio/cells/v4/common/runtime/manager"
-	"github.com/pydio/cells/v4/common/service"
 	"github.com/pydio/cells/v4/common/service/frontend"
 	"github.com/pydio/cells/v4/common/service/frontend/sessions"
 	"github.com/pydio/cells/v4/common/service/resources"
@@ -86,7 +86,7 @@ func (a *FrontendHandler) Filter() func(string) string {
 func (a *FrontendHandler) FrontState(req *restful.Request, rsp *restful.Response) {
 	pool, e := frontend.GetPluginsPool()
 	if e != nil {
-		service.RestError500(req, rsp, e)
+		middleware.RestError500(req, rsp, e)
 		return
 	}
 
@@ -94,7 +94,7 @@ func (a *FrontendHandler) FrontState(req *restful.Request, rsp *restful.Response
 
 	user := &frontend.User{}
 	if e := user.Load(ctx); e != nil {
-		service.RestError500(req, rsp, e)
+		middleware.RestError500(req, rsp, e)
 		return
 	}
 
@@ -121,7 +121,7 @@ func (a *FrontendHandler) FrontState(req *restful.Request, rsp *restful.Response
 	}
 	registry, er := pool.RegistryForStatus(ctx, status)
 	if er != nil {
-		service.RestErrorDetect(req, rsp, er)
+		middleware.RestErrorDetect(req, rsp, er)
 		return
 	}
 	rsp.WriteAsXml(registry)
@@ -134,7 +134,7 @@ func (a *FrontendHandler) FrontBootConf(req *restful.Request, rsp *restful.Respo
 	ctx := req.Request.Context()
 	pool, e := frontend.GetPluginsPool()
 	if e != nil {
-		service.RestError500(req, rsp, e)
+		middleware.RestError500(req, rsp, e)
 		return
 	}
 	showVersion := false
@@ -144,7 +144,7 @@ func (a *FrontendHandler) FrontBootConf(req *restful.Request, rsp *restful.Respo
 	}
 	bootConf, e := frontend.ComputeBootConf(ctx, pool, showVersion)
 	if e != nil {
-		service.RestErrorDetect(req, rsp, e)
+		middleware.RestErrorDetect(req, rsp, e)
 		return
 	}
 	_ = rsp.WriteAsJson(bootConf)
@@ -161,7 +161,7 @@ func (a *FrontendHandler) FrontPlugins(req *restful.Request, rsp *restful.Respon
 
 	pool, e := frontend.GetPluginsPool()
 	if e != nil {
-		service.RestError500(req, rsp, e)
+		middleware.RestError500(req, rsp, e)
 		return
 	}
 
@@ -187,13 +187,13 @@ func (a *FrontendHandler) FrontSessionGet(req *restful.Request, rsp *restful.Res
 
 	dao, err := manager.Resolve[sessions.DAO](req.Request.Context())
 	if err != nil {
-		service.RestError500(req, rsp, fmt.Errorf("could not retrieve dao: %s", err))
+		middleware.RestError500(req, rsp, fmt.Errorf("could not retrieve dao: %s", err))
 		return
 	}
 
 	session, err := dao.GetSession(req.Request)
 	if err != nil && session == nil {
-		service.RestError500(req, rsp, fmt.Errorf("could not load session store: %s", err))
+		middleware.RestError500(req, rsp, fmt.Errorf("could not load session store: %s", err))
 		return
 	}
 
@@ -213,13 +213,13 @@ func (a *FrontendHandler) FrontSessionGet(req *restful.Request, rsp *restful.Res
 func (a *FrontendHandler) FrontSession(req *restful.Request, rsp *restful.Response) {
 	dao, err := manager.Resolve[sessions.DAO](req.Request.Context())
 	if err != nil {
-		service.RestError500(req, rsp, fmt.Errorf("could not retrieve dao: %s", err))
+		middleware.RestError500(req, rsp, fmt.Errorf("could not retrieve dao: %s", err))
 		return
 	}
 
 	var loginRequest rest.FrontSessionRequest
 	if e := req.ReadEntity(&loginRequest); e != nil {
-		service.RestError500(req, rsp, e)
+		middleware.RestError500(req, rsp, e)
 		return
 	}
 
@@ -238,7 +238,7 @@ func (a *FrontendHandler) FrontSession(req *restful.Request, rsp *restful.Respon
 
 	session, err := dao.GetSession(req.Request)
 	if err != nil && session == nil {
-		service.RestError500(req, rsp, fmt.Errorf("could not load session store: %s", err))
+		middleware.RestError500(req, rsp, fmt.Errorf("could not load session store: %s", err))
 		return
 	}
 
@@ -254,21 +254,18 @@ func (a *FrontendHandler) FrontSession(req *restful.Request, rsp *restful.Respon
 		RuntimeCtx:          a.runtimeCtx,
 		FrontSessionRequest: &loginRequest,
 	}
-	if e := frontend.ApplyAuthMiddlewares(req, rsp, inReq, response, session); e != nil {
-		if e := session.Save(req.Request, rsp.ResponseWriter); e != nil {
-			log.Logger(ctx).Error("Error saving session", zap.Error(e))
-		}
-		service.RestError401(req, rsp, e)
-		return
+	e := frontend.ApplyAuthMiddlewares(req, rsp, inReq, response, session)
+	// Save session anyway
+	if e2 := session.Save(req.Request, rsp.ResponseWriter); e2 != nil {
+		log.Logger(ctx).Error("Error saving session", zap.Error(e2))
 	}
-
-	if response.Error != "" {
-		service.RestError401(req, rsp, errors.New(response.Error))
+	// Now handle errors
+	if e != nil {
+		middleware.RestError401(req, rsp, e, "E_LOGIN_FAILED")
 		return
-	}
-
-	if e := session.Save(req.Request, rsp.ResponseWriter); e != nil {
-		log.Logger(ctx).Error("Error saving session", zap.Error(e))
+	} else if response.Error != "" {
+		middleware.RestError401(req, rsp, errors.New(response.Error), "E_LOGIN_FAILED")
+		return
 	}
 
 	// Legacy code
@@ -282,7 +279,7 @@ func (a *FrontendHandler) FrontSession(req *restful.Request, rsp *restful.Respon
 		}
 	}
 
-	rsp.WriteEntity(response)
+	_ = rsp.WriteEntity(response)
 }
 
 // FrontSessionDel logs out user by clearing the associated cookie session.
@@ -290,13 +287,13 @@ func (a *FrontendHandler) FrontSessionDel(req *restful.Request, rsp *restful.Res
 
 	dao, err := manager.Resolve[sessions.DAO](req.Request.Context())
 	if err != nil {
-		service.RestError500(req, rsp, fmt.Errorf("could not retrieve dao: %s", err))
+		middleware.RestError500(req, rsp, fmt.Errorf("could not retrieve dao: %s", err))
 		return
 	}
 
 	session, err := dao.GetSession(req.Request)
 	if err != nil && session == nil {
-		service.RestError500(req, rsp, fmt.Errorf("could not load session store: %s", err))
+		middleware.RestError500(req, rsp, fmt.Errorf("could not load session store: %s", err))
 		return
 	}
 
@@ -316,7 +313,7 @@ func (a *FrontendHandler) FrontEnrollAuth(req *restful.Request, rsp *restful.Res
 func (a *FrontendHandler) FrontMessages(req *restful.Request, rsp *restful.Response) {
 	pool, e := frontend.GetPluginsPool()
 	if e != nil {
-		service.RestError500(req, rsp, e)
+		middleware.RestError500(req, rsp, e)
 		return
 	}
 	lang := req.PathParameter("Lang")
@@ -356,7 +353,7 @@ func (a *FrontendHandler) FrontServeBinary(req *restful.Request, rsp *restful.Re
 
 		user, e := permissions.SearchUniqueUser(ctx, binaryUuid, "")
 		if e != nil {
-			service.RestError404(req, rsp, e)
+			middleware.RestError404(req, rsp, e)
 			return
 		}
 		if avatarId, ok := user.Attributes["avatar"]; ok {
@@ -385,7 +382,7 @@ func (a *FrontendHandler) FrontServeBinary(req *restful.Request, rsp *restful.Re
 		if req.QueryParameter("dim") != "" {
 			if dim, e := strconv.ParseInt(req.QueryParameter("dim"), 10, 32); e == nil {
 				if e := readBinary(ctx, router, readNode, rsp.ResponseWriter, rsp.Header(), extension, int(dim)); e != nil {
-					service.RestError500(req, rsp, e)
+					middleware.RestError500(req, rsp, e)
 				}
 				return
 			}
@@ -402,14 +399,14 @@ func (a *FrontendHandler) FrontPutBinary(req *restful.Request, rsp *restful.Resp
 	ctx := req.Request.Context()
 
 	if e := req.Request.ParseForm(); e != nil {
-		service.RestError500(req, rsp, e)
+		middleware.RestError500(req, rsp, e)
 		return
 	}
 	var fileInput io.Reader
 	var fileSize int64
 	f1, f2, e1 := req.Request.FormFile("userfile")
 	if e1 != nil {
-		service.RestError500(req, rsp, e1)
+		middleware.RestError500(req, rsp, e1)
 		return
 	}
 	fileInput = f1
@@ -429,7 +426,7 @@ func (a *FrontendHandler) FrontPutBinary(req *restful.Request, rsp *restful.Resp
 	if binaryType == "USER" {
 
 		if f2.Size > avatarDefaultMaxSize {
-			service.RestError403(req, rsp, fmt.Errorf("you are not allowed to use files bigger than %dB for avatars", avatarDefaultMaxSize))
+			middleware.RestError403(req, rsp, fmt.Errorf("you are not allowed to use files bigger than %dB for avatars", avatarDefaultMaxSize))
 			return
 		}
 		if fi, si, er := filterInputBinaryExif(ctx, fileInput); er == nil {
@@ -438,17 +435,17 @@ func (a *FrontendHandler) FrontPutBinary(req *restful.Request, rsp *restful.Resp
 		}
 		// USER binaries can only be edited by context user or by admin
 		if ctxClaims.Profile != common.PydioProfileAdmin && ctxUser != binaryUuid {
-			service.RestError401(req, rsp, fmt.Errorf("you are not allowed to edit this binary"))
+			middleware.RestError401(req, rsp, fmt.Errorf("you are not allowed to edit this binary"), "")
 			return
 		}
 
 		user, e := permissions.SearchUniqueUser(ctx, binaryUuid, "")
 		if e != nil {
-			service.RestError404(req, rsp, e)
+			middleware.RestError404(req, rsp, e)
 			return
 		}
 		if !a.IsContextEditable(ctx, user.Uuid, user.Policies) {
-			service.RestError403(req, rsp, e)
+			middleware.RestError403(req, rsp, e)
 			return
 		}
 
@@ -472,7 +469,7 @@ func (a *FrontendHandler) FrontPutBinary(req *restful.Request, rsp *restful.Resp
 			Size: fileSize,
 		})
 		if e != nil {
-			service.RestError500(req, rsp, e)
+			middleware.RestError500(req, rsp, e)
 			return
 		}
 
@@ -483,7 +480,7 @@ func (a *FrontendHandler) FrontPutBinary(req *restful.Request, rsp *restful.Resp
 		cli := idmc.UserServiceClient(ctx)
 		_, e = cli.CreateUser(ctx, &idm.CreateUserRequest{User: user})
 		if e != nil {
-			service.RestError404(req, rsp, e)
+			middleware.RestError404(req, rsp, e)
 			return
 		}
 	} else if binaryType == "GLOBAL" {
@@ -500,13 +497,13 @@ func (a *FrontendHandler) FrontPutBinary(req *restful.Request, rsp *restful.Resp
 			Size: fileSize,
 		})
 		if e != nil {
-			service.RestError500(req, rsp, e)
+			middleware.RestError500(req, rsp, e)
 			return
 		}
 
 	} else {
 
-		service.RestError500(req, rsp, fmt.Errorf("unsupported Binary Type (must be USER or GLOBAL)"))
+		middleware.RestError500(req, rsp, fmt.Errorf("unsupported Binary Type (must be USER or GLOBAL)"))
 		return
 
 	}

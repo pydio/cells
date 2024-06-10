@@ -23,6 +23,7 @@ package grpc
 import (
 	"context"
 	"fmt"
+	"github.com/pydio/cells/v4/common/middleware/keys"
 	"strings"
 
 	"google.golang.org/protobuf/types/known/anypb"
@@ -31,7 +32,6 @@ import (
 	"github.com/pydio/cells/v4/common/auth"
 	"github.com/pydio/cells/v4/common/broker"
 	"github.com/pydio/cells/v4/common/log"
-	"github.com/pydio/cells/v4/common/middleware"
 	"github.com/pydio/cells/v4/common/proto/idm"
 	pbservice "github.com/pydio/cells/v4/common/proto/service"
 	"github.com/pydio/cells/v4/common/proto/tree"
@@ -140,7 +140,7 @@ func (h *Handler) UpdateUserMeta(ctx context.Context, request *idm.UpdateUserMet
 				target = resolved
 				if len(resolved.AppearsIn) > 0 {
 					nCtx = propagator.WithAdditionalMetadata(bgCtx, map[string]string{
-						middleware.CtxWorkspaceUuid: resolved.AppearsIn[0].WsUuid,
+						keys.CtxWorkspaceUuid: resolved.AppearsIn[0].WsUuid,
 					})
 				}
 			}

@@ -29,11 +29,11 @@ import (
 
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/auth"
+	"github.com/pydio/cells/v4/common/errors"
 	"github.com/pydio/cells/v4/common/log"
-	"github.com/pydio/cells/v4/common/service/errors"
 )
 
-func isRestApiPublicMethod(r *http.Request) bool {
+func IsRestApiPublicMethod(r *http.Request) bool {
 	return r.Method == "GET" && strings.HasPrefix(r.RequestURI, "/a/frontend/state")
 }
 
@@ -64,7 +64,7 @@ func HttpWrapperJWT(ctx context.Context, h http.Handler) http.Handler {
 			c, _, err := jwtVerifier.Verify(r.Context(), rawIDToken)
 			if err != nil {
 				log.Logger(ctx).Debug("jwtVerifier Error", zap.Error(err))
-				if isRestApiPublicMethod(r) {
+				if IsRestApiPublicMethod(r) {
 					h.ServeHTTP(w, r) // Serve an empty state
 					return
 				}

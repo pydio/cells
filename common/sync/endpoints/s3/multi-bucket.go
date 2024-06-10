@@ -23,7 +23,6 @@ package s3
 import (
 	"context"
 	"fmt"
-	"google.golang.org/protobuf/proto"
 	"io"
 	"path"
 	"regexp"
@@ -31,12 +30,13 @@ import (
 
 	"github.com/gobwas/glob"
 	"go.uber.org/zap"
+	"google.golang.org/protobuf/proto"
 
 	"github.com/pydio/cells/v4/common"
+	"github.com/pydio/cells/v4/common/errors"
 	"github.com/pydio/cells/v4/common/log"
 	"github.com/pydio/cells/v4/common/nodes"
 	"github.com/pydio/cells/v4/common/proto/tree"
-	"github.com/pydio/cells/v4/common/service/errors"
 	"github.com/pydio/cells/v4/common/sync/model"
 )
 
@@ -284,7 +284,7 @@ func (m *MultiBucketClient) GetWriterOn(cancel context.Context, path string, tar
 		return
 	}
 	if b == "" {
-		err = errors.Unauthorized("level.unauthorized", "cannot write file at the buckets level")
+		err = errors.WithMessage(errors.StatusUnauthorized, "cannot write objects at the buckets level")
 		return
 	}
 	return c.GetWriterOn(cancel, i, targetSize)
@@ -297,7 +297,7 @@ func (m *MultiBucketClient) GetReaderOn(ctx context.Context, path string) (out i
 		return
 	}
 	if b == "" {
-		err = errors.Unauthorized("level.unauthorized", "cannot read objects at the buckets level")
+		err = errors.WithMessage(errors.StatusUnauthorized, "cannot read objects at the buckets level")
 		return
 	}
 	return c.GetReaderOn(ctx, i)
@@ -310,7 +310,7 @@ func (m *MultiBucketClient) CreateNode(ctx context.Context, node tree.N, updateI
 		return
 	}
 	if b == "" {
-		err = errors.Unauthorized("level.unauthorized", "cannot create objects at the buckets level")
+		err = errors.WithMessage(errors.StatusUnauthorized, "cannot create object at the buckets level")
 		return
 	}
 	patched := proto.Clone(node).(tree.N)
@@ -325,7 +325,7 @@ func (m *MultiBucketClient) DeleteNode(ctx context.Context, path string) (err er
 		return
 	}
 	if b == "" {
-		err = errors.Unauthorized("level.unauthorized", "cannot create objects at the buckets level")
+		err = errors.WithMessage(errors.StatusUnauthorized, "cannot delete objects at the buckets level")
 		return
 	}
 	return c.DeleteNode(ctx, i)
@@ -338,12 +338,12 @@ func (m *MultiBucketClient) MoveNode(ctx context.Context, oldPath string, newPat
 		return
 	}
 	if b == "" {
-		err = errors.Unauthorized("level.unauthorized", "cannot move objects at the buckets level")
+		err = errors.WithMessage(errors.StatusUnauthorized, "cannot move objects at the buckets level")
 		return
 	}
 	_, b2, i2, _ := m.getClient(newPath)
 	if b2 != b {
-		err = errors.BadRequest("not.implemented", "cannot move objects across buckets for the moment")
+		err = errors.WithMessage(errors.StatusNotImplemented, "cannot move objects accross buckets")
 		return
 	}
 	return c.MoveNode(ctx, i, i2)
@@ -356,7 +356,7 @@ func (m *MultiBucketClient) ComputeChecksum(ctx context.Context, node tree.N) (e
 		return
 	}
 	if b == "" {
-		err = errors.Unauthorized("level.unauthorized", "cannot compute checksum at the buckets level")
+		err = errors.WithMessage(errors.StatusUnauthorized, "cannot compute checksum at the buckets level")
 		return
 	}
 	patched := proto.Clone(node).(tree.N)
@@ -376,7 +376,7 @@ func (m *MultiBucketClient) UpdateNodeUuid(ctx context.Context, node tree.N) (n 
 		return
 	}
 	if b == "" {
-		err = errors.Unauthorized("level.unauthorized", "cannot update node Uuid at the buckets level")
+		err = errors.WithMessage(errors.StatusUnauthorized, "cannot update node UUID at the buckets level")
 		return
 	}
 	patched := proto.Clone(node).(tree.N)

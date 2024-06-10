@@ -31,7 +31,7 @@ import (
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/auth/claim"
 	tree "github.com/pydio/cells/v4/common/proto/tree"
-	"github.com/pydio/cells/v4/common/service/errors"
+	"github.com/pydio/cells/v4/common/service/serviceerrors"
 	"github.com/pydio/cells/v4/common/utils/test"
 	"github.com/pydio/cells/v4/data/meta/dao/sql"
 
@@ -58,7 +58,7 @@ func TestMeta(t *testing.T) {
 			})
 
 			// Should Be Not Found
-			So(errors.FromError(e).Code, ShouldEqual, 404)
+			So(serviceerrors.FromError(e).Code, ShouldEqual, 404)
 		})
 
 		Convey("Simple SET to stub implementation", t, func() {
@@ -174,7 +174,7 @@ func TestMeta(t *testing.T) {
 				},
 			})
 			So(e1, ShouldNotBeNil)
-			e2 := errors.FromError(e1)
+			e2 := serviceerrors.FromError(e1)
 			So(e2.Code, ShouldEqual, 404)
 
 		})
@@ -381,7 +381,7 @@ func TestSubscriber(t *testing.T) {
 			})
 
 			So(readErr, ShouldNotBeNil)
-			e2 := errors.FromError(readErr)
+			e2 := serviceerrors.FromError(readErr)
 			So(e2.Code, ShouldEqual, 404)
 
 		})

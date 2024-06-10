@@ -37,7 +37,7 @@ import (
 	"github.com/pydio/cells/v4/common/proto/docstore"
 	"github.com/pydio/cells/v4/common/proto/idm"
 	"github.com/pydio/cells/v4/common/proto/tree"
-	"github.com/pydio/cells/v4/common/service/errors"
+	"github.com/pydio/cells/v4/common/service/serviceerrors"
 	json "github.com/pydio/cells/v4/common/utils/jsonx"
 	"github.com/pydio/cells/v4/common/utils/permissions"
 	runtimecontext "github.com/pydio/cells/v4/common/utils/propagator"
@@ -108,7 +108,7 @@ func (h *HandlerRead) GetObject(ctx context.Context, node *tree.Node, requestDat
 	if doc, linkData = h.sharedLinkWithDownloadLimit(ctx); doc != nil && linkData != nil {
 		// Check download limit!
 		if linkData.DownloadCount >= linkData.DownloadLimit {
-			return nil, errors.Forbidden("MaxDownloadsReached", "You are not allowed to download this document")
+			return nil, serviceerrors.Forbidden("MaxDownloadsReached", "You are not allowed to download this document")
 		}
 	}
 

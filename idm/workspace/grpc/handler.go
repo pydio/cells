@@ -32,7 +32,7 @@ import (
 	"github.com/pydio/cells/v4/common/proto/idm"
 	"github.com/pydio/cells/v4/common/proto/service"
 	"github.com/pydio/cells/v4/common/runtime/manager"
-	"github.com/pydio/cells/v4/common/service/errors"
+	"github.com/pydio/cells/v4/common/service/serviceerrors"
 	"github.com/pydio/cells/v4/common/sql/resources"
 	"github.com/pydio/cells/v4/common/utils/slug"
 	"github.com/pydio/cells/v4/idm/workspace"
@@ -164,7 +164,7 @@ func (h *Handler) SearchWorkspace(request *idm.SearchWorkspaceRequest, response 
 			continue
 		}
 		if !ok {
-			if e := response.SendMsg(errors.InternalServerError(common.ServiceWorkspace, "Wrong type")); e != nil {
+			if e := response.SendMsg(serviceerrors.InternalServerError(common.ServiceWorkspace, "Wrong type")); e != nil {
 				return e
 			}
 		} else {

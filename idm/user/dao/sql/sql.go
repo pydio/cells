@@ -34,13 +34,12 @@ import (
 	"google.golang.org/protobuf/types/known/anypb"
 	"gorm.io/gorm"
 
-	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/auth"
+	"github.com/pydio/cells/v4/common/errors"
 	"github.com/pydio/cells/v4/common/log"
 	"github.com/pydio/cells/v4/common/proto/idm"
 	service "github.com/pydio/cells/v4/common/proto/service"
 	"github.com/pydio/cells/v4/common/proto/tree"
-	"github.com/pydio/cells/v4/common/service/errors"
 	"github.com/pydio/cells/v4/common/sql"
 	index "github.com/pydio/cells/v4/common/sql/indexgorm"
 	"github.com/pydio/cells/v4/common/sql/resources"
@@ -64,7 +63,13 @@ var (
 		HASH_SALT_INDEX:       2,
 		HASH_PBKDF2_INDEX:     3,
 	}
+
+	DAOError = errors.RegisterBaseSentinel(errors.SqlDAO, "sql-users")
 )
+
+func wrap(err error) errors.E {
+	return errors.Errorf("%w:%w", DAOError, err)
+}
 
 type resourcesDAO resources.DAO
 
@@ -145,7 +150,7 @@ func (s *sqlimpl) instance(ctx context.Context) *gorm.DB {
 }
 
 // Add to the underlying SQL DB.
-func (s *sqlimpl) Add(ctx context.Context, in interface{}) (interface{}, []*idm.User, error) {
+func (s *sqlimpl) Add(ctx context.Context, in interface{}) (interface{}, []*idm.User, errors.E) {
 
 	var createdNodes []*idm.User
 
@@ -153,7 +158,7 @@ func (s *sqlimpl) Add(ctx context.Context, in interface{}) (interface{}, []*idm.
 
 	var ok bool
 	if user, ok = in.(*idm.User); !ok {
-		return nil, createdNodes, fmt.Errorf("invalid format, expecting idm.User")
+		return nil, createdNodes, errors.WithMessage(DAOError, "invalid format, expecting idm.User")
 	}
 
 	user.GroupPath = safeGroupPath(user.GroupPath)
@@ -162,7 +167,7 @@ func (s *sqlimpl) Add(ctx context.Context, in interface{}) (interface{}, []*idm.
 	var node *user_model.User
 	if !user.IsGroup {
 		if len(user.Login) == 0 {
-			return nil, createdNodes, fmt.Errorf("warning, cannot create a user with an empty login")
+			return nil, createdNodes, errors.WithMessage(DAOError, "warning, cannot create a user with an empty login")
 		}
 		node = userToNode(user)
 	} else {
@@ -170,22 +175,22 @@ func (s *sqlimpl) Add(ctx context.Context, in interface{}) (interface{}, []*idm.
 	}
 
 	mpath, created, err := s.indexDAO.Path(ctx, node, &user_model.User{}, true)
-	if err != nil && err != gorm.ErrDuplicatedKey {
-		return nil, createdNodes, err
+	if err != nil && !errors.Is(err, gorm.ErrDuplicatedKey) {
+		return nil, createdNodes, wrap(err)
 	}
 
-	if err == gorm.ErrDuplicatedKey {
+	if errors.Is(err, gorm.ErrDuplicatedKey) {
 		// Node uuid already exists somewhere else, we just need to move it to its new location
 		nodeFrom, err := s.indexDAO.GetNodeByUUID(ctx, node.GetNode().GetUuid())
 		if err != nil {
-			return nil, createdNodes, err
+			return nil, createdNodes, wrap(err)
 		}
 		s.rebuildGroupPath(ctx, nodeFrom)
 
 		if nodeFrom.GetNode().GetPath() != node.GetNode().GetPath() {
 			log.Logger(context.Background()).Debug("MOVE TREE", zap.Any("from", nodeFrom), zap.Any("to", node))
 			if err := s.indexDAO.MoveNodeTree(ctx, nodeFrom, node); err != nil {
-				return nil, createdNodes, err
+				return nil, createdNodes, wrap(err)
 			}
 		} else {
 			// TODO - this is a simple update
@@ -194,7 +199,7 @@ func (s *sqlimpl) Add(ctx context.Context, in interface{}) (interface{}, []*idm.
 		// A node already exists at the target path, we just need to update it
 		nodeFrom, err := s.indexDAO.GetNode(ctx, mpath)
 		if err != nil {
-			return nil, createdNodes, err
+			return nil, createdNodes, wrap(err)
 		}
 
 		node.GetNode().SetUuid(nodeFrom.GetNode().GetUuid())
@@ -202,7 +207,7 @@ func (s *sqlimpl) Add(ctx context.Context, in interface{}) (interface{}, []*idm.
 		node.SetName(nodeFrom.GetName())
 
 		if err := s.indexDAO.SetNode(ctx, node); err != nil {
-			return nil, createdNodes, err
+			return nil, createdNodes, wrap(err)
 		}
 
 		nodeToUser(node, user)
@@ -315,7 +320,7 @@ func (s *sqlimpl) Add(ctx context.Context, in interface{}) (interface{}, []*idm.
 
 		return nil
 	}); err != nil {
-		return nil, nil, err
+		return nil, nil, wrap(err)
 	}
 
 	for _, n := range created {
@@ -335,22 +340,9 @@ func (s *sqlimpl) Add(ctx context.Context, in interface{}) (interface{}, []*idm.
 	return user, createdNodes, nil
 }
 
-// skipRoleAsAutoApplies Check if role is here because of autoApply - if so, do not save
-func (s *sqlimpl) skipRoleAsAutoApplies(profile string, role *idm.Role) bool {
-	if profile == "" || len(role.AutoApplies) == 0 {
-		return false
-	}
-	for _, p := range role.AutoApplies {
-		if p == profile {
-			return true
-		}
-	}
-	return false
-}
-
 // Bind finds a user in the DB, and verify that password is correct.
 // Password is passed in clear form, hashing method is kept internal to the user service
-func (s *sqlimpl) Bind(ctx context.Context, userName string, password string) (user *idm.User, e error) {
+func (s *sqlimpl) Bind(ctx context.Context, userName string, password string) (user *idm.User, e errors.E) {
 
 	q := &idm.UserSingleQuery{
 		Login: userName,
@@ -363,20 +355,23 @@ func (s *sqlimpl) Bind(ctx context.Context, userName string, password string) (u
 		return nil, er
 	}
 
+	nfErr := errors.Errorf("cannot find user %s, %w", userName, errors.UserNotFound)
+	nfErr = wrap(nfErr)
+
 	if len(results) == 0 {
 		// The error code is actually very important
-		return nil, errors.NotFound(common.ServiceUser, "cannot find user %s", userName)
+		return nil, nfErr // serviceerrors.NotFound(common.ServiceUser, "cannot find user %s", userName)
 	}
 	object := results[0]
 	user = object.(*idm.User)
 
 	if s.loginCI {
 		if !strings.EqualFold(user.Login, userName) {
-			return nil, errors.NotFound(common.ServiceUser, "cannot find user %s", userName)
+			return nil, nfErr
 		}
 	} else {
 		if user.Login != userName {
-			return nil, errors.NotFound(common.ServiceUser, "cannot find user %s", userName)
+			return nil, nfErr
 		}
 	}
 
@@ -394,23 +389,23 @@ func (s *sqlimpl) Bind(ctx context.Context, userName string, password string) (u
 		return user, nil
 	}
 
-	return nil, errors.Forbidden(common.ServiceUser, "password does not match")
+	return nil, wrap(errors.WithMessage(errors.StatusForbidden, "password does not match"))
 
 }
 
-func (s *sqlimpl) TouchUser(ctx context.Context, userUuid string) error {
+func (s *sqlimpl) TouchUser(ctx context.Context, userUuid string) errors.E {
 	node := &user_model.User{}
 	node.SetNode(&tree.Node{
 		Uuid:  userUuid,
 		MTime: time.Now().Unix(),
 	})
 
-	return s.indexDAO.SetNode(ctx, node)
+	return wrap(s.indexDAO.SetNode(ctx, node))
 
 }
 
 // Count counts the number of users matching the passed query in the SQL DB.
-func (s *sqlimpl) Count(ctx context.Context, query sql.Enquirer, includeParents ...bool) (int, error) {
+func (s *sqlimpl) Count(ctx context.Context, query sql.Enquirer, includeParents ...bool) (int, errors.E) {
 	var includeParent bool
 	if len(includeParents) > 0 && includeParents[0] {
 		includeParent = includeParents[0]
@@ -424,18 +419,18 @@ func (s *sqlimpl) Count(ctx context.Context, query sql.Enquirer, includeParents 
 	var total int64
 	db, er := sql.NewQueryBuilder[*gorm.DB](query, converter, s.resourcesDAO.(sql.Converter[*gorm.DB])).Build(ctx, s.instance(ctx).Model(&user_model.User{}))
 	if er != nil {
-		return 0, er
+		return 0, wrap(er)
 	}
 	tx := db.Count(&total)
 	if tx.Error != nil {
-		return 0, tx.Error
+		return 0, wrap(tx.Error)
 	}
 
 	return int(total), nil
 }
 
 // Search in the SQL DB
-func (s *sqlimpl) Search(ctx context.Context, query sql.Enquirer, users *[]interface{}, withParents ...bool) error {
+func (s *sqlimpl) Search(ctx context.Context, query sql.Enquirer, users *[]interface{}, withParents ...bool) errors.E {
 
 	var includeParents bool
 	if len(withParents) > 0 {
@@ -448,19 +443,23 @@ func (s *sqlimpl) Search(ctx context.Context, query sql.Enquirer, users *[]inter
 		loginCI:       s.loginCI,
 	}
 	// log.Logger(context.Background()).Debug("Users Search Query ", zap.String("q", queryString), log.DangerouslyZapSmallSlice("q2", query.GetSubQueries()))
-	ctx, cancel := context.WithTimeout(context.Background(), sql.LongConnectionTimeout)
-	defer cancel()
+	var can context.CancelFunc
+	// Unless limit is exactly one, switch to LongConnectionTimeout
+	if query.GetLimit() != 1 {
+		ctx, can = context.WithTimeout(context.Background(), sql.LongConnectionTimeout)
+		defer can()
+	}
 
 	var rows []*user_model.User
 	db, er := sql.NewQueryBuilder[*gorm.DB](query, converter, s.resourcesDAO.(sql.Converter[*gorm.DB])).Build(ctx, s.instance(ctx))
 	if er != nil {
-		return er
+		return wrap(er)
 	}
 
 	tx := db.WithContext(ctx).Find(&rows)
 
 	if tx.Error != nil {
-		return tx.Error
+		return wrap(tx.Error)
 	}
 
 	for _, row := range rows {
@@ -510,7 +509,7 @@ func (s *sqlimpl) Search(ctx context.Context, query sql.Enquirer, users *[]inter
 }
 
 // Del from the SQL DB
-func (s *sqlimpl) Del(ctx context.Context, query sql.Enquirer, users chan *idm.User) (int64, error) {
+func (s *sqlimpl) Del(ctx context.Context, query sql.Enquirer, users chan *idm.User) (int64, errors.E) {
 
 	var rows []*user_model.User
 	converter := &queryConverter{
@@ -520,14 +519,14 @@ func (s *sqlimpl) Del(ctx context.Context, query sql.Enquirer, users chan *idm.U
 	}
 	db, er := sql.NewQueryBuilder[*gorm.DB](query, converter, s.resourcesDAO.(sql.Converter[*gorm.DB])).Build(ctx, s.instance(ctx))
 	if er != nil {
-		return 0, er
+		return 0, wrap(er)
 	}
 	if len(db.Statement.Clauses) == 0 {
-		return 0, fmt.Errorf("condition cannot be empty")
+		return 0, errors.WithMessage(DAOError, "delete conditions cannot be empty")
 	}
 	tx := db.WithContext(ctx).Find(&rows)
 	if tx.Error != nil {
-		return 0, tx.Error
+		return 0, wrap(tx.Error)
 	}
 
 	type delStruct struct {
@@ -555,11 +554,11 @@ func (s *sqlimpl) Del(ctx context.Context, query sql.Enquirer, users chan *idm.U
 	for _, toDel := range data {
 
 		if err := s.indexDAO.DelNode(ctx, toDel.node); err != nil {
-			return count, err
+			return count, wrap(err)
 		}
 
 		if err := s.deleteNodeData(ctx, toDel.node.GetNode().GetUuid()); err != nil {
-			return count, err
+			return count, wrap(err)
 		}
 
 		users <- toDel.object
@@ -569,7 +568,7 @@ func (s *sqlimpl) Del(ctx context.Context, query sql.Enquirer, users chan *idm.U
 	return count, nil
 }
 
-func (s *sqlimpl) CleanRole(ctx context.Context, roleId string) error {
+func (s *sqlimpl) CleanRole(ctx context.Context, roleId string) errors.E {
 
 	db := s.instance(ctx)
 
@@ -577,14 +576,14 @@ func (s *sqlimpl) CleanRole(ctx context.Context, roleId string) error {
 
 	tx := db.Where(q.UserRole.Role.Eq(roleId)).Delete(&user_model.UserRole{})
 	if tx.Error != nil {
-		return tx.Error
+		return wrap(tx.Error)
 	}
 
 	return nil
 
 }
 
-func (s *sqlimpl) LoginModifiedAttr(ctx context.Context, oldName, newName string) (int64, error) {
+func (s *sqlimpl) LoginModifiedAttr(ctx context.Context, oldName, newName string) (int64, errors.E) {
 
 	db := s.instance(ctx)
 
@@ -594,10 +593,23 @@ func (s *sqlimpl) LoginModifiedAttr(ctx context.Context, oldName, newName string
 		Update("value", newName)
 
 	if tx.Error != nil {
-		return 0, tx.Error
+		return 0, wrap(tx.Error)
 	}
 
 	return tx.RowsAffected, nil
+}
+
+// skipRoleAsAutoApplies Check if role is here because of autoApply - if so, do not save
+func (s *sqlimpl) skipRoleAsAutoApplies(profile string, role *idm.Role) bool {
+	if profile == "" || len(role.AutoApplies) == 0 {
+		return false
+	}
+	for _, p := range role.AutoApplies {
+		if p == profile {
+			return true
+		}
+	}
+	return false
 }
 
 func (s *sqlimpl) deleteNodeData(ctx context.Context, uuid string) error {

@@ -3,6 +3,7 @@ package sql
 import (
 	"context"
 	"database/sql"
+	"fmt"
 	"strings"
 	"sync"
 
@@ -170,7 +171,9 @@ func (gs *gormStorage) Get(ctx context.Context, out interface{}) (bool, error) {
 		hookNames, dsn = DetectHooksAndRemoveFromDSN(dsn)
 
 		var ten tenant.Tenant
-		propagator.Get(ctx, tenant.ContextKey, &ten)
+		if !propagator.Get(ctx, tenant.ContextKey, &ten) {
+			return false, fmt.Errorf("cannot find tenant id")
+		}
 		// Todo : why the two levels of register (.conns[dsn] and then Register below) ?
 		// Could the Dbresolver directly handle the dsn, including ServiceName & TenantID ?
 		if conn, ok := gs.conns[dsn]; !ok {

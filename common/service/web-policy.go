@@ -77,7 +77,7 @@ func HttpWrapperPolicy(ctx context.Context, h http.Handler) http.Handler {
 		resp, err := client.IsAllowed(r.Context(), request)
 
 		if err != nil || !resp.Allowed {
-			if isRestApiPublicMethod(r) {
+			if IsRestApiPublicMethod(r) {
 				h.ServeHTTP(w, r)
 				return
 			}

@@ -25,7 +25,7 @@ import (
 
 	"google.golang.org/protobuf/types/known/anypb"
 
-	"github.com/pydio/cells/v4/common/client/commons/idmc"
+	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/proto/idm"
 	"github.com/pydio/cells/v4/common/proto/service"
 )
@@ -77,7 +77,7 @@ func (m *UsersSelector) Select(ctx context.Context, input *ActionMessage, object
 	if query == nil {
 		return nil
 	}
-	userClient := idmc.UserServiceClient(ctx)
+	userClient := idm.NewUserServiceClient(connexionResolver(ctx, common.ServiceUser))
 	s, e := userClient.SearchUser(ctx, &idm.SearchUserRequest{Query: query})
 	if e != nil {
 		return e

@@ -43,7 +43,7 @@ import (
 	"github.com/pydio/cells/v4/common/proto/service"
 	"github.com/pydio/cells/v4/common/proto/tree"
 	"github.com/pydio/cells/v4/common/runtime"
-	"github.com/pydio/cells/v4/common/service/errors"
+	"github.com/pydio/cells/v4/common/service/serviceerrors"
 	"github.com/pydio/cells/v4/common/utils/cache"
 	"github.com/pydio/cells/v4/common/utils/openurl"
 	"github.com/pydio/cells/v4/common/utils/permissions"
@@ -132,7 +132,7 @@ func (a *QuotaFilter) PutObject(ctx context.Context, node *tree.Node, reader io.
 		if maxQuota, currentUsage, err := a.ComputeQuota(ctx, branchInfo.Workspace); err != nil {
 			return models.ObjectInfo{}, err
 		} else if maxQuota > 0 && currentUsage > maxQuota {
-			return models.ObjectInfo{}, errors.New("quota.exceeded", fmt.Sprintf("Your allowed quota of %d is reached", maxQuota), 422)
+			return models.ObjectInfo{}, serviceerrors.New("quota.exceeded", fmt.Sprintf("Your allowed quota of %d is reached", maxQuota), 422)
 		}
 	}
 
@@ -146,7 +146,7 @@ func (a *QuotaFilter) MultipartPutObjectPart(ctx context.Context, target *tree.N
 		if maxQuota, currentUsage, err := a.ComputeQuota(ctx, branchInfo.Workspace); err != nil {
 			return models.MultipartObjectPart{}, err
 		} else if maxQuota > 0 && currentUsage > maxQuota {
-			return models.MultipartObjectPart{}, errors.New("quota.exceeded", fmt.Sprintf("Your allowed quota of %d is reached", maxQuota), 422)
+			return models.MultipartObjectPart{}, serviceerrors.New("quota.exceeded", fmt.Sprintf("Your allowed quota of %d is reached", maxQuota), 422)
 		}
 	}
 
@@ -160,7 +160,7 @@ func (a *QuotaFilter) CopyObject(ctx context.Context, from *tree.Node, to *tree.
 		if maxQuota, currentUsage, err := a.ComputeQuota(ctx, branchInfo.Workspace); err != nil {
 			return models.ObjectInfo{}, err
 		} else if maxQuota > 0 && currentUsage+from.Size > maxQuota {
-			return models.ObjectInfo{}, errors.New("quota.exceeded", fmt.Sprintf("Your allowed quota of %d is reached", maxQuota), 422)
+			return models.ObjectInfo{}, serviceerrors.New("quota.exceeded", fmt.Sprintf("Your allowed quota of %d is reached", maxQuota), 422)
 		}
 	}
 
@@ -176,7 +176,7 @@ func (a *QuotaFilter) WrappedCanApply(srcCtx context.Context, targetCtx context.
 			if maxQuota, currentUsage, err := a.ComputeQuota(targetCtx, bI.Workspace); err != nil {
 				return err
 			} else if maxQuota > 0 && currentUsage+targetNode.Size > maxQuota {
-				return errors.New("quota.exceeded", fmt.Sprintf("Your allowed quota of %d is reached", maxQuota), 422)
+				return serviceerrors.New("quota.exceeded", fmt.Sprintf("Your allowed quota of %d is reached", maxQuota), 422)
 			}
 		}
 	case tree.NodeChangeEvent_UPDATE_PATH:
@@ -187,7 +187,7 @@ func (a *QuotaFilter) WrappedCanApply(srcCtx context.Context, targetCtx context.
 			if maxQuota, currentUsage, err := a.ComputeQuota(targetCtx, tgt.Workspace); err != nil {
 				return err
 			} else if maxQuota > 0 && currentUsage+operation.GetTarget().Size > maxQuota {
-				return errors.New("quota.exceeded", fmt.Sprintf("Your allowed quota of %d is reached", maxQuota), 422)
+				return serviceerrors.New("quota.exceeded", fmt.Sprintf("Your allowed quota of %d is reached", maxQuota), 422)
 			}
 		}
 	}

@@ -31,11 +31,11 @@ import (
 	pbservice "github.com/pydio/cells/v4/common/proto/service"
 	"github.com/pydio/cells/v4/common/proto/tree"
 	"github.com/pydio/cells/v4/common/runtime/manager"
-	"github.com/pydio/cells/v4/common/service/errors"
+	"github.com/pydio/cells/v4/common/service/serviceerrors"
 	"github.com/pydio/cells/v4/idm/acl"
 )
 
-var errMissingDAO = errors.InternalServerError(common.ServiceAcl, "missing dao")
+var errMissingDAO = serviceerrors.InternalServerError(common.ServiceAcl, "missing dao")
 
 // Handler definition
 type Handler struct {
@@ -165,7 +165,7 @@ func (h *Handler) SearchACL(request *idm.SearchACLRequest, response idm.ACLServi
 	for _, in := range *acls {
 		val, ok := in.(*idm.ACL)
 		if !ok {
-			return errors.InternalServerError(common.ServiceAcl, "Wrong type")
+			return serviceerrors.InternalServerError(common.ServiceAcl, "Wrong type")
 		}
 		if e := response.Send(&idm.SearchACLResponse{ACL: val}); e != nil {
 			return e

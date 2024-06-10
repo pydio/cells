@@ -36,7 +36,7 @@ import (
 	proto "github.com/pydio/cells/v4/common/proto/activity"
 	"github.com/pydio/cells/v4/common/proto/tree"
 	"github.com/pydio/cells/v4/common/runtime/manager"
-	"github.com/pydio/cells/v4/common/service/errors"
+	"github.com/pydio/cells/v4/common/service/serviceerrors"
 )
 
 type Handler struct {
@@ -241,7 +241,7 @@ func (h *Handler) PurgeActivities(ctx context.Context, request *proto.PurgeActiv
 		return nil, err
 	}
 	if request.BoxName != string(activity.BoxInbox) && request.BoxName != string(activity.BoxOutbox) {
-		return nil, errors.BadRequest("invalid.parameter", "Please provide one of inbox|outbox box name")
+		return nil, serviceerrors.BadRequest("invalid.parameter", "Please provide one of inbox|outbox box name")
 	}
 	count := int32(0)
 	logger := func(s string, i int) {

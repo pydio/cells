@@ -31,7 +31,7 @@ import (
 	"gocloud.dev/pubsub"
 	"google.golang.org/protobuf/proto"
 
-	"github.com/pydio/cells/v4/common/service/errors"
+	"github.com/pydio/cells/v4/common/errors"
 	"github.com/pydio/cells/v4/common/telemetry/metrics"
 	"github.com/pydio/cells/v4/common/utils/openurl"
 	"github.com/pydio/cells/v4/common/utils/propagator"
@@ -150,7 +150,7 @@ func SubscribeCancellable(ctx context.Context, topic string, handler SubscriberH
 	// Go through Subscribe to parse MessageQueue option
 	unsub, e := Subscribe(ctx, topic, handler, opts...)
 	if e != nil {
-		if errors.IsContextCanceled(e) {
+		if errors.Is(e, context.Canceled) {
 			return nil
 		}
 		return e

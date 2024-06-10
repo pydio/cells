@@ -35,11 +35,11 @@ import (
 	"github.com/pydio/cells/v4/common/client/grpc"
 	"github.com/pydio/cells/v4/common/config"
 	"github.com/pydio/cells/v4/common/log"
+	"github.com/pydio/cells/v4/common/middleware"
 	"github.com/pydio/cells/v4/common/nodes/compose"
 	"github.com/pydio/cells/v4/common/proto/activity"
 	"github.com/pydio/cells/v4/common/proto/rest"
 	"github.com/pydio/cells/v4/common/proto/tree"
-	"github.com/pydio/cells/v4/common/service"
 	"github.com/pydio/cells/v4/common/utils/i18n"
 	"github.com/pydio/cells/v4/common/utils/permissions"
 )
@@ -81,7 +81,7 @@ func (a *ActivityHandler) Stream(req *restful.Request, rsp *restful.Response) {
 	err := req.ReadEntity(&inputReq)
 	if err != nil {
 		log.Logger(ctx).Error("cannot fetch activity.StreamActivitiesRequest", zap.Error(err))
-		service.RestError500(req, rsp, err)
+		middleware.RestError500(req, rsp, err)
 		return
 	}
 	if inputReq.BoxName == "" {
@@ -94,14 +94,14 @@ func (a *ActivityHandler) Stream(req *restful.Request, rsp *restful.Response) {
 
 	if inputReq.UnreadCountOnly {
 		if inputReq.Context != activity.StreamContext_USER_ID || len(inputReq.ContextData) == 0 {
-			service.RestError500(req, rsp, errors.New("wrong arguments, please use only User context to get unread activities"))
+			middleware.RestError500(req, rsp, errors.New("wrong arguments, please use only User context to get unread activities"))
 			return
 		}
 		resp, err := client.UnreadActivitiesNumber(ctx, &activity.UnreadActivitiesRequest{
 			UserId: inputReq.ContextData,
 		})
 		if err != nil {
-			service.RestErrorDetect(req, rsp, err)
+			middleware.RestErrorDetect(req, rsp, err)
 			return
 		}
 		rsp.WriteEntity(activity2.CountCollection(resp.Number))
@@ -119,7 +119,7 @@ func (a *ActivityHandler) Stream(req *restful.Request, rsp *restful.Response) {
 	streamer, err := client.StreamActivities(ctx, &inputReq)
 	if err != nil {
 		log.Logger(ctx).Error("cannot get activity stream", zap.Error(err))
-		service.RestErrorDetect(req, rsp, err)
+		middleware.RestErrorDetect(req, rsp, err)
 		return
 	}
 	serverLinks := render.NewServerLinks()
@@ -143,7 +143,7 @@ func (a *ActivityHandler) Stream(req *restful.Request, rsp *restful.Response) {
 		digest, err := activity2.Digest(ctx, collection)
 		if err != nil {
 			log.Logger(ctx).Error("cannot build Digest", zap.Error(err))
-			service.RestError500(req, rsp, err)
+			middleware.RestError500(req, rsp, err)
 			return
 		}
 		rsp.WriteEntity(digest)
@@ -180,11 +180,11 @@ func (a *ActivityHandler) Subscribe(req *restful.Request, rsp *restful.Response)
 	err := req.ReadEntity(&subscription)
 	if err != nil {
 		log.Logger(ctx).Error("cannot fetch activity.Subscription", zap.Error(err))
-		service.RestError500(req, rsp, err)
+		middleware.RestError500(req, rsp, err)
 		return
 	}
 	if name, _ := permissions.FindUserNameInContext(ctx); name == "" || subscription.UserId != name {
-		service.RestError403(req, rsp, fmt.Errorf("you are not allowed to set subscription on this user"))
+		middleware.RestError403(req, rsp, fmt.Errorf("you are not allowed to set subscription on this user"))
 		return
 	}
 	resp, e := a.getClient().Subscribe(ctx, &activity.SubscribeRequest{
@@ -192,7 +192,7 @@ func (a *ActivityHandler) Subscribe(req *restful.Request, rsp *restful.Response)
 	})
 	if e != nil {
 		log.Logger(ctx).Error("cannot subscribe to activity stream", subscription.Zap(), zap.Error(e))
-		service.RestErrorDetect(req, rsp, err)
+		middleware.RestErrorDetect(req, rsp, err)
 		return
 	}
 
@@ -207,12 +207,12 @@ func (a *ActivityHandler) SearchSubscriptions(req *restful.Request, rsp *restful
 	err := req.ReadEntity(&inputSearch)
 	if err != nil {
 		log.Logger(ctx).Error("cannot fetch activity.SearchSubscriptionsRequest from REST request", zap.Error(err))
-		service.RestError500(req, rsp, err)
+		middleware.RestError500(req, rsp, err)
 		return
 	}
 	name, _ := permissions.FindUserNameInContext(ctx)
 	if name == "" {
-		service.RestError401(req, rsp, fmt.Errorf("you are not allowed to search for subscriptions"))
+		middleware.RestError401(req, rsp, fmt.Errorf("you are not allowed to search for subscriptions"), "")
 		return
 	}
 	inputSearch.UserIds = []string{name}
@@ -220,7 +220,7 @@ func (a *ActivityHandler) SearchSubscriptions(req *restful.Request, rsp *restful
 	streamer, e := a.getClient().SearchSubscriptions(ctx, &inputSearch)
 	if e != nil {
 		log.Logger(ctx).Error("cannot get subscription stream", zap.Error(e))
-		service.RestErrorDetect(req, rsp, err)
+		middleware.RestErrorDetect(req, rsp, err)
 		return
 	}
 	collection := &rest.SubscriptionsCollection{

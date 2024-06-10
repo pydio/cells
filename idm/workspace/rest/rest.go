@@ -32,14 +32,14 @@ import (
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/client/commons/idmc"
 	"github.com/pydio/cells/v4/common/log"
+	service2 "github.com/pydio/cells/v4/common/middleware"
 	"github.com/pydio/cells/v4/common/nodes/abstract"
 	"github.com/pydio/cells/v4/common/proto/idm"
 	"github.com/pydio/cells/v4/common/proto/rest"
 	"github.com/pydio/cells/v4/common/proto/service"
 	"github.com/pydio/cells/v4/common/proto/tree"
-	service2 "github.com/pydio/cells/v4/common/service"
-	"github.com/pydio/cells/v4/common/service/errors"
 	"github.com/pydio/cells/v4/common/service/resources"
+	"github.com/pydio/cells/v4/common/service/serviceerrors"
 	"github.com/pydio/cells/v4/common/utils/permissions"
 	"github.com/pydio/cells/v4/common/utils/uuid"
 )
@@ -100,7 +100,7 @@ func (h *WorkspaceHandler) PutWorkspace(req *restful.Request, rsp *restful.Respo
 	if ws, _ := h.workspaceById(ctx, inputWorkspace.UUID, cli); ws != nil {
 		update = true
 		if !h.MatchPolicies(ctx, ws.UUID, ws.Policies, service.ResourcePolicyAction_WRITE) {
-			service2.RestError403(req, rsp, errors.Forbidden(common.ServiceWorkspace, "You are not allowed to edit this workspace"))
+			service2.RestError403(req, rsp, serviceerrors.Forbidden(common.ServiceWorkspace, "You are not allowed to edit this workspace"))
 			return
 		}
 	} else {
@@ -190,7 +190,7 @@ func (h *WorkspaceHandler) DeleteWorkspace(req *restful.Request, rsp *restful.Re
 					fmt.Sprintf("Forbidden action could not delete workspace [%s]", slug),
 					log.GetAuditId(common.AuditWsDelete),
 				)
-				service2.RestError403(req, rsp, errors.Forbidden(common.ServiceWorkspace, "You are not allowed to edit this workspace!"))
+				service2.RestError403(req, rsp, serviceerrors.Forbidden(common.ServiceWorkspace, "You are not allowed to edit this workspace!"))
 				return
 			}
 		}

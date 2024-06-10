@@ -37,7 +37,7 @@ import (
 	"github.com/pydio/cells/v4/common/proto/rest"
 	"github.com/pydio/cells/v4/common/proto/service"
 	"github.com/pydio/cells/v4/common/proto/tree"
-	"github.com/pydio/cells/v4/common/service/errors"
+	"github.com/pydio/cells/v4/common/service/serviceerrors"
 	"github.com/pydio/cells/v4/common/utils/permissions"
 	"github.com/pydio/cells/v4/common/utils/slug"
 	"github.com/pydio/cells/v4/common/utils/uuid"
@@ -451,7 +451,7 @@ func (sc *Client) GetOrCreateWorkspace(ctx context.Context, ownerUser *idm.User,
 	var create bool
 	if wsUuid == "" {
 		if label == "" {
-			return nil, false, errors.BadRequest(common.ServiceShare, "please provide a non-empty label for this workspace")
+			return nil, false, serviceerrors.BadRequest(common.ServiceShare, "please provide a non-empty label for this workspace")
 		}
 		// Create Workspace
 		wsUuid = uuid.New()
@@ -494,7 +494,7 @@ func (sc *Client) GetOrCreateWorkspace(ctx context.Context, ownerUser *idm.User,
 			workspace = wsResp.Workspace
 		}
 		if workspace == nil {
-			return workspace, false, errors.NotFound(common.ServiceShare, "Cannot find workspace with Uuid "+wsUuid)
+			return workspace, false, serviceerrors.NotFound(common.ServiceShare, "Cannot find workspace with Uuid "+wsUuid)
 		}
 		if refLabel != "" && label == refLabel {
 			label = "{{RefLabel}}"

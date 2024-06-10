@@ -6,9 +6,6 @@ plugins:
   - name: go-grpc
     opt: module=github.com/pydio/cells/v4/common/proto/service
     out: .
-  - name: go-enhanced-grpc
-    opt: module=github.com/pydio/cells/v4/common/proto/service
-    out: .
 #  - name: govalidators
 #    opt: module=github.com/pydio/cells/v4/common/proto/service
 #    out: .

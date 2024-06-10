@@ -44,7 +44,7 @@ import (
 	"github.com/pydio/cells/v4/common/proto/rest"
 	service "github.com/pydio/cells/v4/common/proto/service"
 	"github.com/pydio/cells/v4/common/proto/tree"
-	"github.com/pydio/cells/v4/common/service/errors"
+	"github.com/pydio/cells/v4/common/service/serviceerrors"
 	"github.com/pydio/cells/v4/common/utils/permissions"
 	"github.com/pydio/cells/v4/common/utils/slug"
 	"github.com/pydio/cells/v4/common/utils/uuid"
@@ -173,11 +173,11 @@ func (sc *Client) ParseRootNodes(ctx context.Context, cell *rest.Cell, createEmp
 			metaClient.CreateNode(ctx, &tree.CreateNodeRequest{Node: createResp.Node})
 			cell.RootNodes = append(cell.RootNodes, createResp.Node)
 		} else {
-			return false, errors.InternalServerError(common.ServiceShare, "Wrong configuration, missing rooms virtual node")
+			return false, serviceerrors.InternalServerError(common.ServiceShare, "Wrong configuration, missing rooms virtual node")
 		}
 	}
 	if len(cell.RootNodes) == 0 {
-		return false, errors.BadRequest(common.ServiceShare, "Wrong configuration, missing RootNodes in CellRequest")
+		return false, serviceerrors.BadRequest(common.ServiceShare, "Wrong configuration, missing RootNodes in CellRequest")
 	}
 
 	// First check of incoming ACLs
@@ -191,7 +191,7 @@ func (sc *Client) ParseRootNodes(ctx context.Context, cell *rest.Cell, createEmp
 		for _, a := range cell.GetACLs() {
 			for _, action := range a.GetActions() {
 				if action.Name == permissions.AclWrite.Name {
-					return true, errors.Forbidden(common.ServiceShare, "One of the resource you are sharing is readonly. You cannot assign write permission on this Cell.")
+					return true, serviceerrors.Forbidden(common.ServiceShare, "One of the resource you are sharing is readonly. You cannot assign write permission on this Cell.")
 				}
 			}
 		}
@@ -330,7 +330,7 @@ func (sc *Client) CheckLinkRootNodes(ctx context.Context, link *rest.ShareLink) 
 			return
 		}
 		if resp.Node == nil {
-			e = errors.NotFound(common.ServiceShare, "cannot find root node")
+			e = serviceerrors.NotFound(common.ServiceShare, "cannot find root node")
 			return
 		}
 		link.RootNodes[i] = resp.Node
@@ -347,7 +347,7 @@ func (sc *Client) CheckLinkRootNodes(ctx context.Context, link *rest.ShareLink) 
 	if hasReadonly {
 		for _, p := range link.Permissions {
 			if p == rest.ShareLinkAccessType_Upload {
-				e = errors.Forbidden(common.ServiceShare, "This resource is not writeable, you are not allowed to set this permission.")
+				e = serviceerrors.Forbidden(common.ServiceShare, "This resource is not writeable, you are not allowed to set this permission.")
 				return
 			}
 		}
@@ -369,7 +369,7 @@ func (sc *Client) RootsParentWorkspaces(ctx context.Context, rr []*tree.Node) (w
 			return
 		}
 		if resp.Node == nil {
-			e = errors.NotFound("node.not.found", "cannot find root node")
+			e = serviceerrors.NotFound("node.not.found", "cannot find root node")
 			return
 		}
 		ww = append(ww, resp.Node.AppearsIn...)

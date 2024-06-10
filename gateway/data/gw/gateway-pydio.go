@@ -37,7 +37,7 @@ import (
 	"github.com/pydio/cells/v4/common/nodes/compose"
 	"github.com/pydio/cells/v4/common/nodes/models"
 	"github.com/pydio/cells/v4/common/proto/tree"
-	cerrors "github.com/pydio/cells/v4/common/service/errors"
+	cerrors "github.com/pydio/cells/v4/common/service/serviceerrors"
 )
 
 const (

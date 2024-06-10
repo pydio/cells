@@ -37,7 +37,7 @@ import (
 	"github.com/pydio/cells/v4/common/proto/service"
 	"github.com/pydio/cells/v4/common/proto/tree"
 	"github.com/pydio/cells/v4/common/runtime/manager"
-	"github.com/pydio/cells/v4/common/service/errors"
+	"github.com/pydio/cells/v4/common/service/serviceerrors"
 	"github.com/pydio/cells/v4/common/utils/test"
 	"github.com/pydio/cells/v4/common/utils/uuid"
 	jo "github.com/pydio/cells/v4/scheduler/jobs"
@@ -127,7 +127,7 @@ func TestDAO_CRUD(t *testing.T) {
 			So(e4, ShouldBeNil)
 			deleted, e5 := db.GetJob("unique-job-id", 0)
 			So(deleted, ShouldBeNil)
-			So(errors.FromError(e5).Code, ShouldEqual, 404)
+			So(serviceerrors.FromError(e5).Code, ShouldEqual, 404)
 		})
 	})
 }

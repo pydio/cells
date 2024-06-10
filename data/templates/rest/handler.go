@@ -24,6 +24,7 @@ package rest
 import (
 	restful "github.com/emicklei/go-restful/v3"
 
+	"github.com/pydio/cells/v4/common/middleware"
 	"github.com/pydio/cells/v4/common/proto/rest"
 	"github.com/pydio/cells/v4/common/service"
 	"github.com/pydio/cells/v4/data/templates"
@@ -53,7 +54,7 @@ func (a *Handler) ListTemplates(req *restful.Request, rsp *restful.Response) {
 
 	nodes, er := a.Dao.List(req.Request.Context())
 	if er != nil {
-		service.RestErrorDetect(req, rsp, er)
+		middleware.RestErrorDetect(req, rsp, er)
 		return
 	}
 	response := &rest.ListTemplatesResponse{}

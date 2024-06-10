@@ -34,8 +34,8 @@ import (
 	"github.com/pydio/cells/v4/common/client/grpc"
 	"github.com/pydio/cells/v4/common/config"
 	"github.com/pydio/cells/v4/common/log"
+	"github.com/pydio/cells/v4/common/middleware"
 	"github.com/pydio/cells/v4/common/proto/mailer"
-	"github.com/pydio/cells/v4/common/service"
 	"github.com/pydio/cells/v4/common/utils/i18n"
 	"github.com/pydio/cells/v4/common/utils/permissions"
 )
@@ -77,7 +77,7 @@ func (mh *MailerHandler) Send(req *restful.Request, rsp *restful.Response) {
 
 	ctx := req.Request.Context()
 	if len(message.To) > 100 {
-		service.RestError403(req, rsp, fmt.Errorf("you are not allowed to send emails to more than 100 people at once"))
+		middleware.RestError403(req, rsp, fmt.Errorf("you are not allowed to send emails to more than 100 people at once"))
 	}
 	log.Logger(ctx).Debug("Sending Email", log.DangerouslyZapSmallSlice("to", message.To), zap.String("subject", message.Subject), zap.Any("templateData", message.TemplateData))
 
@@ -86,7 +86,7 @@ func (mh *MailerHandler) Send(req *restful.Request, rsp *restful.Response) {
 
 	claims, ok := ctx.Value(claim.ContextKey).(claim.Claims)
 	if !ok {
-		service.RestError500(req, rsp, fmt.Errorf("sending email anonymously is forbidden"))
+		middleware.RestError500(req, rsp, fmt.Errorf("sending email anonymously is forbidden"))
 		return
 	}
 	// Safe defaults, but maybe reloaded below
@@ -98,7 +98,7 @@ func (mh *MailerHandler) Send(req *restful.Request, rsp *restful.Response) {
 
 	// Reload user, as his displayName/email may have changed during session
 	if u, er := permissions.SearchUniqueUser(ctx, "", claims.Subject); er != nil {
-		service.RestError500(req, rsp, er)
+		middleware.RestError500(req, rsp, er)
 		return
 	} else if email, has := u.GetAttributes()["email"]; has {
 		message.From.Address = email
@@ -121,7 +121,7 @@ func (mh *MailerHandler) Send(req *restful.Request, rsp *restful.Response) {
 		}
 	}
 	if len(resolvedTos) == 0 {
-		service.RestError500(req, rsp, fmt.Errorf("could not find any address to send to"))
+		middleware.RestError500(req, rsp, fmt.Errorf("could not find any address to send to"))
 		return
 	}
 	message.To = resolvedTos
@@ -135,7 +135,7 @@ func (mh *MailerHandler) Send(req *restful.Request, rsp *restful.Response) {
 	response, err := cli.SendMail(ctx, &mailer.SendMailRequest{Mail: &message, InQueue: queue})
 	if err != nil {
 		log.Logger(ctx).Error("could not send mail", zap.Error(err))
-		service.RestError500(req, rsp, err)
+		middleware.RestError500(req, rsp, err)
 		return
 	}
 	response.Success = true // make sure success is set

@@ -38,7 +38,7 @@ import (
 	"github.com/pydio/cells/v4/common/nodes/models"
 	"github.com/pydio/cells/v4/common/proto/docstore"
 	"github.com/pydio/cells/v4/common/proto/tree"
-	"github.com/pydio/cells/v4/common/service/errors"
+	"github.com/pydio/cells/v4/common/service/serviceerrors"
 	json "github.com/pydio/cells/v4/common/utils/jsonx"
 	"github.com/pydio/cells/v4/common/utils/permissions"
 )
@@ -352,7 +352,7 @@ func (a *Handler) getSelectionByUuid(ctx context.Context, selectionUuid string) 
 		doc := resp.Document
 		username, _ := permissions.FindUserNameInContext(ctx)
 		if username != doc.Owner {
-			return false, data, errors.Forbidden("selection.forbidden", "this selection does not belong to you")
+			return false, data, serviceerrors.Forbidden("selection.forbidden", "this selection does not belong to you")
 		}
 		if er := json.Unmarshal([]byte(doc.Data), &data); er != nil {
 			return false, data, er

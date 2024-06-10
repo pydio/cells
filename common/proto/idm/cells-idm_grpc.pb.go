@@ -312,6 +312,7 @@ type UserServiceClient interface {
 	DeleteUser(ctx context.Context, in *DeleteUserRequest, opts ...grpc.CallOption) (*DeleteUserResponse, error)
 	BindUser(ctx context.Context, in *BindUserRequest, opts ...grpc.CallOption) (*BindUserResponse, error)
 	CountUser(ctx context.Context, in *SearchUserRequest, opts ...grpc.CallOption) (*CountUserResponse, error)
+	SearchOne(ctx context.Context, in *SearchUserRequest, opts ...grpc.CallOption) (*SearchUserResponse, error)
 	SearchUser(ctx context.Context, in *SearchUserRequest, opts ...grpc.CallOption) (UserService_SearchUserClient, error)
 	StreamUser(ctx context.Context, opts ...grpc.CallOption) (UserService_StreamUserClient, error)
 }
@@ -354,6 +355,15 @@ func (c *userServiceClient) BindUser(ctx context.Context, in *BindUserRequest, o
 func (c *userServiceClient) CountUser(ctx context.Context, in *SearchUserRequest, opts ...grpc.CallOption) (*CountUserResponse, error) {
 	out := new(CountUserResponse)
 	err := c.cc.Invoke(ctx, "/idm.UserService/CountUser", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *userServiceClient) SearchOne(ctx context.Context, in *SearchUserRequest, opts ...grpc.CallOption) (*SearchUserResponse, error) {
+	out := new(SearchUserResponse)
+	err := c.cc.Invoke(ctx, "/idm.UserService/SearchOne", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -431,6 +441,7 @@ type UserServiceServer interface {
 	DeleteUser(context.Context, *DeleteUserRequest) (*DeleteUserResponse, error)
 	BindUser(context.Context, *BindUserRequest) (*BindUserResponse, error)
 	CountUser(context.Context, *SearchUserRequest) (*CountUserResponse, error)
+	SearchOne(context.Context, *SearchUserRequest) (*SearchUserResponse, error)
 	SearchUser(*SearchUserRequest, UserService_SearchUserServer) error
 	StreamUser(UserService_StreamUserServer) error
 	mustEmbedUnimplementedUserServiceServer()
@@ -451,6 +462,9 @@ func (UnimplementedUserServiceServer) BindUser(context.Context, *BindUserRequest
 }
 func (UnimplementedUserServiceServer) CountUser(context.Context, *SearchUserRequest) (*CountUserResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CountUser not implemented")
+}
+func (UnimplementedUserServiceServer) SearchOne(context.Context, *SearchUserRequest) (*SearchUserResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method SearchOne not implemented")
 }
 func (UnimplementedUserServiceServer) SearchUser(*SearchUserRequest, UserService_SearchUserServer) error {
 	return status.Errorf(codes.Unimplemented, "method SearchUser not implemented")
@@ -543,6 +557,24 @@ func _UserService_CountUser_Handler(srv interface{}, ctx context.Context, dec fu
 	return interceptor(ctx, in, info, handler)
 }
 
+func _UserService_SearchOne_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(SearchUserRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(UserServiceServer).SearchOne(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/idm.UserService/SearchOne",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(UserServiceServer).SearchOne(ctx, req.(*SearchUserRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _UserService_SearchUser_Handler(srv interface{}, stream grpc.ServerStream) error {
 	m := new(SearchUserRequest)
 	if err := stream.RecvMsg(m); err != nil {
@@ -612,6 +644,10 @@ var UserService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "CountUser",
 			Handler:    _UserService_CountUser_Handler,
+		},
+		{
+			MethodName: "SearchOne",
+			Handler:    _UserService_SearchOne_Handler,
 		},
 	},
 	Streams: []grpc.StreamDesc{

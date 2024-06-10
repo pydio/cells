@@ -44,7 +44,7 @@ import (
 	"github.com/pydio/cells/v4/common/proto/tree"
 	"github.com/pydio/cells/v4/common/runtime"
 	"github.com/pydio/cells/v4/common/runtime/manager"
-	"github.com/pydio/cells/v4/common/service/errors"
+	"github.com/pydio/cells/v4/common/service/serviceerrors"
 	"github.com/pydio/cells/v4/common/utils/cache"
 	"github.com/pydio/cells/v4/common/utils/openurl"
 	"github.com/pydio/cells/v4/common/utils/permissions"
@@ -307,7 +307,7 @@ func (e *MicroEventsSubscriber) parentsFromCache(ctx context.Context, node *tree
 				uuid := resp.Node.Uuid
 				kach.Set(parentPath, uuid)
 				parentUuids = append(parentUuids, uuid)
-			} else if errors.FromError(err).Code == 404 {
+			} else if serviceerrors.FromError(err).Code == 404 {
 				kach.Set(parentPath, "**DELETED**")
 			} else {
 				return nil, []string{}, err

@@ -22,14 +22,13 @@ package auth
 
 import (
 	"context"
-	"net/http"
 
 	"google.golang.org/protobuf/proto"
 
 	"github.com/pydio/cells/v4/common/client/commons/idmc"
+	"github.com/pydio/cells/v4/common/errors"
 	"github.com/pydio/cells/v4/common/log"
 	"github.com/pydio/cells/v4/common/proto/idm"
-	"github.com/pydio/cells/v4/common/service/errors"
 )
 
 var (
@@ -59,7 +58,7 @@ func (p *pydioconnector) Login(ctx context.Context, s Scopes, username, password
 	c := idmc.UserServiceClient(ctx)
 	resp, err := c.BindUser(ctx, &idm.BindUserRequest{UserName: username, Password: password})
 	if err != nil {
-		if errors.FromError(err).Code == http.StatusForbidden {
+		if errors.Is(err, errors.StatusForbidden) {
 			return Identity{}, false, nil
 		}
 		return Identity{}, false, err

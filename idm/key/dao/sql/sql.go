@@ -29,7 +29,7 @@ import (
 	"gorm.io/gorm/clause"
 
 	"github.com/pydio/cells/v4/common/proto/encryption"
-	"github.com/pydio/cells/v4/common/service/errors"
+	"github.com/pydio/cells/v4/common/service/serviceerrors"
 	"github.com/pydio/cells/v4/idm/key"
 )
 
@@ -127,7 +127,7 @@ func (s *sqlimpl) GetKey(ctx context.Context, owner string, keyID string) (res *
 	}
 
 	if tx.RowsAffected == 0 {
-		return nil, 0, errors.NotFound("encryption.key.notfound", "cannot find key with id "+keyID)
+		return nil, 0, serviceerrors.NotFound("encryption.key.notfound", "cannot find key with id "+keyID)
 	}
 
 	return key.As(&encryption.Key{}), key.Version, nil

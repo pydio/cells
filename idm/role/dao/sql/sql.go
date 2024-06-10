@@ -31,7 +31,7 @@ import (
 
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/proto/idm"
-	"github.com/pydio/cells/v4/common/service/errors"
+	"github.com/pydio/cells/v4/common/service/serviceerrors"
 	"github.com/pydio/cells/v4/common/sql"
 	"github.com/pydio/cells/v4/common/sql/resources"
 	"github.com/pydio/cells/v4/common/utils/uuid"
@@ -123,7 +123,7 @@ func (s *sqlimpl) instance(ctx context.Context) *gorm.DB {
 // Add to the underlying SQL DB.
 func (s *sqlimpl) Add(ctx context.Context, role *idm.Role) (*idm.Role, bool, error) {
 	if role.Label == "" {
-		return nil, false, errors.BadRequest(common.ServiceRole, "Role cannot have an empty label")
+		return nil, false, serviceerrors.BadRequest(common.ServiceRole, "Role cannot have an empty label")
 	}
 
 	if role.LastUpdated == 0 {

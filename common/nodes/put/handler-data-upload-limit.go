@@ -35,7 +35,7 @@ import (
 	"github.com/pydio/cells/v4/common/nodes/models"
 	"github.com/pydio/cells/v4/common/proto/idm"
 	"github.com/pydio/cells/v4/common/proto/tree"
-	"github.com/pydio/cells/v4/common/service/errors"
+	"github.com/pydio/cells/v4/common/service/serviceerrors"
 	"github.com/pydio/cells/v4/common/utils/permissions"
 )
 
@@ -65,7 +65,7 @@ func (a *UploadLimitFilter) PutObject(ctx context.Context, node *tree.Node, read
 		return models.ObjectInfo{}, err
 	}
 	if size > 0 && requestData.Size > size {
-		return models.ObjectInfo{}, errors.Forbidden("max.upload.limit", fmt.Sprintf("Upload limit is %d", size))
+		return models.ObjectInfo{}, serviceerrors.Forbidden("max.upload.limit", fmt.Sprintf("Upload limit is %d", size))
 	}
 	if len(exts) > 0 {
 		// Beware, Ext function includes the leading dot
@@ -78,7 +78,7 @@ func (a *UploadLimitFilter) PutObject(ctx context.Context, node *tree.Node, read
 			}
 		}
 		if !allowed {
-			return models.ObjectInfo{}, errors.Forbidden("forbidden.upload.extensions", fmt.Sprintf("Extension %s is not allowed!", nodeExt))
+			return models.ObjectInfo{}, serviceerrors.Forbidden("forbidden.upload.extensions", fmt.Sprintf("Extension %s is not allowed!", nodeExt))
 		}
 	}
 
@@ -93,7 +93,7 @@ func (a *UploadLimitFilter) MultipartPutObjectPart(ctx context.Context, target *
 		return models.MultipartObjectPart{}, err
 	}
 	if size > 0 && requestData.Size > size {
-		return models.MultipartObjectPart{}, errors.Forbidden("max.upload.limit", fmt.Sprintf("Upload limit is %d", size))
+		return models.MultipartObjectPart{}, serviceerrors.Forbidden("max.upload.limit", fmt.Sprintf("Upload limit is %d", size))
 	}
 	if len(exts) > 0 {
 		nodeExt := path.Ext(target.GetPath())
@@ -105,7 +105,7 @@ func (a *UploadLimitFilter) MultipartPutObjectPart(ctx context.Context, target *
 			}
 		}
 		if !allowed {
-			return models.MultipartObjectPart{}, errors.Forbidden("forbidden.upload.extensions", fmt.Sprintf("Extension %s is not allowed!", nodeExt))
+			return models.MultipartObjectPart{}, serviceerrors.Forbidden("forbidden.upload.extensions", fmt.Sprintf("Extension %s is not allowed!", nodeExt))
 		}
 	}
 

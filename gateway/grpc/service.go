@@ -2,6 +2,7 @@ package grpc
 
 import (
 	"context"
+	"github.com/pydio/cells/v4/common/middleware/keys"
 	"net/url"
 	"strings"
 	"time"
@@ -188,9 +189,9 @@ func grpcMetaCtxModifier(ctx context.Context) (context.Context, bool, error) {
 	meta := map[string]string{}
 	if existing, ok := metadata2.FromIncomingContext(ctx); ok {
 		translate := map[string]string{
-			"user-agent":      middleware.HttpMetaUserAgent,
-			"content-type":    middleware.HttpMetaContentType,
-			"x-forwarded-for": middleware.HttpMetaRemoteAddress,
+			"user-agent":      keys.HttpMetaUserAgent,
+			"content-type":    keys.HttpMetaContentType,
+			"x-forwarded-for": keys.HttpMetaRemoteAddress,
 			//"x-pydio-span-id": servicecontext.SpanMetadataId,
 		}
 		for k, v := range existing {
@@ -205,15 +206,15 @@ func grpcMetaCtxModifier(ctx context.Context) (context.Context, bool, error) {
 		}
 		// Override with specific header
 		if ua, ok := existing["x-pydio-grpc-user-agent"]; ok {
-			meta[middleware.HttpMetaUserAgent] = strings.Join(ua, "")
+			meta[keys.HttpMetaUserAgent] = strings.Join(ua, "")
 		}
 	}
-	meta[middleware.HttpMetaExtracted] = middleware.HttpMetaExtracted
+	meta[keys.HttpMetaExtracted] = keys.HttpMetaExtracted
 	layout := "2006-01-02T15:04-0700"
 	t := time.Now()
-	meta[middleware.ServerTime] = t.Format(layout)
+	meta[keys.ServerTime] = t.Format(layout)
 	// We currently use server time instead of client time. TODO: Retrieve client time and locale and set it here.
-	meta[middleware.ClientTime] = t.Format(layout)
+	meta[keys.ClientTime] = t.Format(layout)
 
 	return propagator.NewContext(ctx, meta), true, nil
 }

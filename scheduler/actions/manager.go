@@ -27,7 +27,7 @@ import (
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/forms"
 	"github.com/pydio/cells/v4/common/proto/jobs"
-	"github.com/pydio/cells/v4/common/service/errors"
+	"github.com/pydio/cells/v4/common/service/serviceerrors"
 )
 
 var (
@@ -98,7 +98,7 @@ func (m *ActionsManager) LoadActionForm(actionID string) (*forms.Form, error) {
 			}
 		}
 	}
-	return nil, errors.NotFound("action.not.found", "cannot find action with ID %s", actionID)
+	return nil, serviceerrors.NotFound("action.not.found", "cannot find action with ID %s", actionID)
 }
 
 type ignoredAction struct {

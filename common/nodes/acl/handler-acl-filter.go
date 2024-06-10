@@ -32,12 +32,13 @@ import (
 	"github.com/pydio/cells/v4/common/nodes/abstract"
 	"github.com/pydio/cells/v4/common/nodes/models"
 	"github.com/pydio/cells/v4/common/proto/tree"
-	"github.com/pydio/cells/v4/common/service/errors"
+	"github.com/pydio/cells/v4/common/service/serviceerrors"
 	"github.com/pydio/cells/v4/common/utils/permissions"
 )
 
-var pathNotReadable = errors.Forbidden("path.not.readable", "path is not readable")
-var pathNotWriteable = errors.Forbidden("path.not.writeable", "path is not writeable")
+var pathNotReadable = serviceerrors.Forbidden("path.not.readable", "path is not readable")
+
+var pathNotWriteable = serviceerrors.Forbidden("path.not.writeable", "path is not writeable")
 
 func WithFilter() nodes.Option {
 	return func(options *nodes.RouterOptions) {
@@ -106,7 +107,7 @@ func (a *FilterHandler) ReadNode(ctx context.Context, in *tree.ReadNodeRequest, 
 	}
 	updatedParents := append([]*tree.Node{response.GetNode()}, parents[1:]...)
 	if checkDl && accessList.HasExplicitDeny(ctx, permissions.FlagDownload, updatedParents...) {
-		return nil, errors.Forbidden("download.forbidden", "Node cannot be downloaded")
+		return nil, serviceerrors.Forbidden("download.forbidden", "Node cannot be downloaded")
 	}
 	if checkSync && accessList.HasExplicitDeny(ctx, permissions.FlagSync, updatedParents...) {
 		n := response.Node.Clone()
@@ -129,7 +130,7 @@ func (a *FilterHandler) ListNodes(ctx context.Context, in *tree.ListNodesRequest
 	}
 
 	if !accessList.CanRead(ctx, parents...) {
-		return nil, errors.Forbidden("node.not.readable", "Node is not readable")
+		return nil, serviceerrors.Forbidden("node.not.readable", "Node is not readable")
 	}
 
 	stream, err := a.Next.ListNodes(ctx, in, opts...)
@@ -218,7 +219,7 @@ func (a *FilterHandler) DeleteNode(ctx context.Context, in *tree.DeleteNodeReque
 		return nil, pathNotWriteable
 	}
 	if accessList.HasExplicitDeny(ctx, permissions.FlagDelete, delParents...) {
-		return nil, errors.Forbidden("delete.forbidden", "Node cannot be deleted")
+		return nil, serviceerrors.Forbidden("delete.forbidden", "Node cannot be deleted")
 	}
 	return a.Next.DeleteNode(ctx, in, opts...)
 }
@@ -237,7 +238,7 @@ func (a *FilterHandler) GetObject(ctx context.Context, node *tree.Node, requestD
 		return nil, pathNotReadable
 	}
 	if accessList.HasExplicitDeny(ctx, permissions.FlagDownload, parents...) {
-		return nil, errors.Forbidden("download.forbidden", "Node is not downloadable")
+		return nil, serviceerrors.Forbidden("download.forbidden", "Node is not downloadable")
 	}
 	return a.Next.GetObject(ctx, node, requestData)
 }
@@ -259,7 +260,7 @@ func (a *FilterHandler) PutObject(ctx context.Context, node *tree.Node, reader i
 		return models.ObjectInfo{}, pathNotWriteable
 	}
 	if accessList.HasExplicitDeny(ctx, permissions.FlagUpload, parents...) {
-		return models.ObjectInfo{}, errors.Forbidden("upload.forbidden", "Parents have upload explicitly disabled")
+		return models.ObjectInfo{}, serviceerrors.Forbidden("upload.forbidden", "Parents have upload explicitly disabled")
 	}
 	return a.Next.PutObject(ctx, node, reader, requestData)
 }
@@ -278,7 +279,7 @@ func (a *FilterHandler) MultipartCreate(ctx context.Context, node *tree.Node, re
 		return "", pathNotWriteable
 	}
 	if accessList.HasExplicitDeny(ctx, permissions.FlagUpload, parents...) {
-		return "", errors.Forbidden("upload.forbidden", "Parents have upload explicitly disabled")
+		return "", serviceerrors.Forbidden("upload.forbidden", "Parents have upload explicitly disabled")
 	}
 	return a.Next.MultipartCreate(ctx, node, requestData)
 }
@@ -303,11 +304,11 @@ func (a *FilterHandler) CopyObject(ctx context.Context, from *tree.Node, to *tre
 		return models.ObjectInfo{}, pathNotWriteable
 	}
 	if accessList.HasExplicitDeny(ctx, permissions.FlagUpload, toParents...) {
-		return models.ObjectInfo{}, errors.Forbidden("upload.forbidden", "Parents have upload explicitly disabled")
+		return models.ObjectInfo{}, serviceerrors.Forbidden("upload.forbidden", "Parents have upload explicitly disabled")
 	}
 	fullTargets := append(toParents, to)
 	if accessList.HasExplicitDeny(ctx, permissions.FlagDownload, fromParents...) && !accessList.HasExplicitDeny(ctx, permissions.FlagDownload, fullTargets...) {
-		return models.ObjectInfo{}, errors.Forbidden("upload.forbidden", "Source has download explicitly disabled and target does not")
+		return models.ObjectInfo{}, serviceerrors.Forbidden("upload.forbidden", "Source has download explicitly disabled and target does not")
 	}
 	return a.Next.CopyObject(ctx, from, to, requestData)
 }
@@ -371,7 +372,7 @@ func (a *FilterHandler) checkPerm(c context.Context, node *tree.Node, identifier
 		return pathNotWriteable
 	}
 	if len(explicitFlags) > 0 && accessList.HasExplicitDeny(ctx, explicitFlags[0], parents...) {
-		return errors.Forbidden("explicit.deny", "path has explicit denies for flag "+permissions.FlagsToNames[explicitFlags[0]])
+		return serviceerrors.Forbidden("explicit.deny", "path has explicit denies for flag "+permissions.FlagsToNames[explicitFlags[0]])
 	}
 	return nil
 
@@ -379,7 +380,7 @@ func (a *FilterHandler) checkPerm(c context.Context, node *tree.Node, identifier
 
 func (a *FilterHandler) recheckParents(c context.Context, originalError error, node *tree.Node, read, write bool) error {
 
-	if errors.FromError(originalError).Code != 404 {
+	if serviceerrors.FromError(originalError).Code != 404 {
 		return originalError
 	}
 

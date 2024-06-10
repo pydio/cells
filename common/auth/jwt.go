@@ -22,7 +22,6 @@ package auth
 
 import (
 	"context"
-	"errors"
 	"net/url"
 	"sort"
 	"strings"
@@ -32,9 +31,9 @@ import (
 
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/auth/claim"
+	errors3 "github.com/pydio/cells/v4/common/errors"
 	"github.com/pydio/cells/v4/common/log"
 	"github.com/pydio/cells/v4/common/proto/idm"
-	errors2 "github.com/pydio/cells/v4/common/service/errors"
 	"github.com/pydio/cells/v4/common/utils/permissions"
 	"github.com/pydio/cells/v4/common/utils/propagator"
 )
@@ -172,13 +171,13 @@ func (j *JWTVerifier) loadClaims(ctx context.Context, token IDToken, claims *cla
 	if claims.Subject != "" {
 		if u, err := permissions.SearchUniqueUser(ctx, "", claims.Subject); err == nil {
 			user = u
-		} else if errors2.FromError(err).Code != 404 {
+		} else if !errors3.Is(err, errors3.UserNotFound) {
 			return err
 		}
 	} else if claims.Name != "" {
 		if u, err := permissions.SearchUniqueUser(ctx, claims.Name, ""); err == nil {
 			user = u
-		} else if errors2.FromError(err).Code != 404 {
+		} else if !errors3.Is(err, errors3.UserNotFound) {
 			return err
 		}
 	}
@@ -193,12 +192,12 @@ func (j *JWTVerifier) loadClaims(ctx context.Context, token IDToken, claims *cla
 		}
 	}
 	if user == nil {
-		return errors2.NotFound("user.not.found", "user not found neither by name or email")
+		return errors3.WithMessage(errors3.UserNotFound, "user not found neither by name or email")
 	}
 
-	// Check if User is locked
+	// Check underlying verifiers
 	if e := VerifyContext(ctx, user); e != nil {
-		return errors2.Unauthorized("user.context", e.Error())
+		return errors3.Tag(e, errors3.StatusUnauthorized) // errors2.Unauthorized("user.context", e.Error())
 	}
 
 	displayName, ok := user.Attributes["displayName"]
@@ -249,7 +248,7 @@ func (j *JWTVerifier) verifyTokenWithRetry(ctx context.Context, rawIDToken strin
 	}
 
 	if idToken == nil {
-		return nil, errors.New("empty idToken")
+		return nil, errors3.WithStack(errors3.EmptyIDToken)
 	}
 
 	return idToken, nil
@@ -320,7 +319,9 @@ func (j *JWTVerifier) PasswordCredentialsToken(ctx context.Context, userName str
 		}
 	}
 	if token == nil {
-		err = errors2.Unauthorized("empty.token", "could not validate password credentials")
+		if err == nil {
+			err = errors3.WithStack(errors3.EmptyIDToken) // errors2.Unauthorized("empty.token", "could not validate password credentials")
+		}
 	}
 	return token, err
 }

@@ -35,7 +35,7 @@ import (
 	"github.com/pydio/cells/v4/common/proto/idm"
 	"github.com/pydio/cells/v4/common/proto/object"
 	"github.com/pydio/cells/v4/common/proto/tree"
-	"github.com/pydio/cells/v4/common/service/errors"
+	"github.com/pydio/cells/v4/common/service/serviceerrors"
 )
 
 func WithMultipleRoots() nodes.Option {
@@ -111,7 +111,7 @@ func (m *MultipleRootsHandler) updateInputBranch(ctx context.Context, node *tree
 		}
 	}
 	if branch.Root == nil {
-		return ctx, node, errors.NotFound("node.not.found", "Cannot find root node")
+		return ctx, node, serviceerrors.NotFound("node.not.found", "Cannot find root node")
 	}
 	return ctx, m.setWorkspaceRootFlag(branch.Workspace, out), nil
 }
@@ -154,7 +154,7 @@ func (m *MultipleRootsHandler) ListNodes(ctx context.Context, in *tree.ListNodes
 
 	// First try, without modifying ctx & node
 	_, out, err := m.updateInputBranch(ctx, in.Node, "in")
-	if err != nil && errors.FromError(err).Status == "Not Found" {
+	if err != nil && serviceerrors.FromError(err).Status == "Not Found" {
 
 		branch, _ := nodes.GetBranchInfo(ctx, "in")
 		streamer := nodes.NewWrappingStreamer(ctx)
@@ -195,7 +195,7 @@ func (m *MultipleRootsHandler) ReadNode(ctx context.Context, in *tree.ReadNodeRe
 
 	// First try, without modifying ctx & node
 	_, out, err := m.updateInputBranch(ctx, in.Node, "in")
-	if err != nil && errors.FromError(err).Status == "Not Found" && (in.Node.Path == "/" || in.Node.Path == "") {
+	if err != nil && serviceerrors.FromError(err).Status == "Not Found" && (in.Node.Path == "/" || in.Node.Path == "") {
 
 		// Load multiple root nodes and build a fake parent node
 		branch, _ := nodes.GetBranchInfo(ctx, "in")

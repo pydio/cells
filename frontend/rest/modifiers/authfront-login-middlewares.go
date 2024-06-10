@@ -23,7 +23,6 @@ package modifiers
 import (
 	"context"
 	"fmt"
-	"net/http"
 	"strconv"
 	"time"
 
@@ -35,12 +34,13 @@ import (
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/broker"
 	"github.com/pydio/cells/v4/common/client/grpc"
+	"github.com/pydio/cells/v4/common/errors"
 	"github.com/pydio/cells/v4/common/log"
 	"github.com/pydio/cells/v4/common/proto/idm"
 	"github.com/pydio/cells/v4/common/proto/rest"
 	"github.com/pydio/cells/v4/common/proto/service"
-	"github.com/pydio/cells/v4/common/service/errors"
 	"github.com/pydio/cells/v4/common/service/frontend"
+	"github.com/pydio/cells/v4/common/telemetry/tracing"
 	"github.com/pydio/cells/v4/common/utils/i18n"
 	json "github.com/pydio/cells/v4/common/utils/jsonx"
 	"github.com/pydio/cells/v4/common/utils/permissions"
@@ -65,7 +65,7 @@ func LoginSuccessWrapper(middleware frontend.AuthMiddleware) frontend.AuthMiddle
 		// retrieving user
 		username, ok := in.AuthInfo["login"]
 		if !ok {
-			return errors.New("user.not_found", "User id not found", http.StatusNotFound)
+			return errors.WithMessage(errors.StatusBadRequest, "missing user id") // serviceerrors.New("user.not_found", "User id not found", http.StatusNotFound)
 		}
 
 		ctx := req.Request.Context()
@@ -86,7 +86,7 @@ func LoginSuccessWrapper(middleware frontend.AuthMiddleware) frontend.AuthMiddle
 					zap.String(common.KeyUserUuid, user.Uuid),
 				)
 				log.Logger(ctx).Error("Denied login for hidden user " + user.Login + " on main interface")
-				return errors.Unauthorized("hidden.user.nominisite", "You are not allowed to log in to this interface")
+				return errors.WithStack(errors.LoginNotAllowed) // serviceerrors.Unauthorized("hidden.user.nominisite", "You are not allowed to log in to this interface")
 			}
 		}
 
@@ -98,7 +98,7 @@ func LoginSuccessWrapper(middleware frontend.AuthMiddleware) frontend.AuthMiddle
 				zap.String(common.KeyUserUuid, user.Uuid),
 			)
 			log.Logger(ctx).Error("lock denies login for "+user.Login, zap.Error(fmt.Errorf("blocked login")))
-			return errors.Unauthorized(common.ServiceUser, "User "+user.Login+" has been blocked. Contact your sysadmin.")
+			return errors.WithStack(errors.UserLocked) // serviceerrors.Unauthorized(common.ServiceUser, "User "+user.Login+" has been blocked. Contact your sysadmin.")
 		}
 
 		// Reset failed connections
@@ -134,17 +134,21 @@ func LoginSuccessWrapper(middleware frontend.AuthMiddleware) frontend.AuthMiddle
 				zap.Error(err),
 			)
 			log.Logger(ctx).Error("policy denies login for request", zap.Any(common.KeyPolicyRequest, policyRequest), zap.Error(err))
-			return errors.Unauthorized(common.ServiceUser, "User "+user.Login+" is not authorized to log in")
+			return errors.WithStack(errors.LoginNotAllowed) // serviceerrors.Unauthorized(common.ServiceUser, "User "+user.Login+" is not authorized to log in")
 		}
 
 		if lang, ok := in.AuthInfo["lang"]; ok {
 			if _, o := i18n.AvailableLanguages[lang]; o {
 				aclClient := idm.NewACLServiceClient(grpc.ResolveConn(in.RuntimeCtx, common.ServiceAcl))
 				// Remove previous value if any
-				delQ, _ := anypb.New(&idm.ACLSingleQuery{RoleIDs: []string{user.GetUuid()}, Actions: []*idm.ACLAction{{Name: "parameter:core.conf:lang"}}, WorkspaceIDs: []string{"PYDIO_REPO_SCOPE_ALL"}})
+				delQ, _ := anypb.New(&idm.ACLSingleQuery{
+					RoleIDs:      []string{user.GetUuid()},
+					Actions:      []*idm.ACLAction{{Name: "parameter:core.conf:lang"}},
+					WorkspaceIDs: []string{"PYDIO_REPO_SCOPE_ALL"},
+				})
 				send, can := context.WithTimeout(ctx, 500*time.Millisecond)
 				defer can()
-				aclClient.DeleteACL(send, &idm.DeleteACLRequest{Query: &service.Query{SubQueries: []*anypb.Any{delQ}}})
+				_, _ = aclClient.DeleteACL(send, &idm.DeleteACLRequest{Query: &service.Query{SubQueries: []*anypb.Any{delQ}}})
 				// Insert new ACL with language value
 				_, e := aclClient.CreateACL(send, &idm.CreateACLRequest{ACL: &idm.ACL{
 					Action:      &idm.ACLAction{Name: "parameter:core.conf:lang", Value: lang},
@@ -177,13 +181,13 @@ func LoginFailedWrapper(middleware frontend.AuthMiddleware) frontend.AuthMiddlew
 
 		// MIDDLEWARE
 		err := middleware(req, rsp, in, out, session)
-		if err == nil {
-			return nil
+		if err == nil || errors.Is(err, errors.UserNotFound) {
+			return err
 		}
 
-		//fmt.Println("Login failed with ", err)
-
 		ctx := req.Request.Context()
+		ctx, span := tracing.StartLocalSpan(ctx, "Middleware:LoginFailedWrapper")
+		defer span.End()
 
 		username := in.AuthInfo["login"]
 
@@ -191,16 +195,15 @@ func LoginFailedWrapper(middleware frontend.AuthMiddleware) frontend.AuthMiddlew
 
 		// Searching user for attributes
 		user, _ := permissions.SearchUniqueUser(ctx, username, "")
-
 		if user == nil {
-			return errors.New("login.failed", "Login failed", http.StatusUnauthorized)
+			return err // errors.New("login.failed", "Login failed", http.StatusUnauthorized)
 		}
 
 		// double check if user was already locked to reduce work load
 		if permissions.IsUserLocked(user) {
 			msg := fmt.Sprintf("locked user %s is still trying to connect", user.GetLogin())
 			log.Logger(ctx).Warn(msg, user.ZapLogin())
-			return errors.New("user.locked", "User is locked - Please contact your admin", http.StatusUnauthorized)
+			return errors.WithStack(errors.UserLocked) // serviceerrors.New("user.locked", "User is locked - Please contact your admin", http.StatusUnauthorized)
 		}
 
 		var failedInt int64
@@ -249,9 +252,9 @@ func LoginFailedWrapper(middleware frontend.AuthMiddleware) frontend.AuthMiddlew
 
 		// Replacing error not to give any hint
 		if hardLock {
-			return errors.New("user.locked", "User is locked - Please contact your admin", http.StatusUnauthorized)
+			return errors.WithStack(errors.LoginNotAllowed) // serviceerrors.New("user.locked", "User is locked - Please contact your admin", http.StatusUnauthorized)
 		} else {
-			return errors.New("login.failed", "Login failed", http.StatusUnauthorized)
+			return errors.Tag(err, errors.StatusUnauthorized) // serviceerrors.New("login.failed", "Login failed", http.StatusUnauthorized)
 		}
 	}
 }

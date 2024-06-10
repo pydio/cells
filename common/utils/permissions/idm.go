@@ -22,7 +22,6 @@ package permissions
 
 import (
 	"context"
-	"fmt"
 	"io"
 	"strings"
 	"sync"
@@ -34,12 +33,13 @@ import (
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/auth/claim"
 	"github.com/pydio/cells/v4/common/client/commons/idmc"
+	"github.com/pydio/cells/v4/common/errors"
 	"github.com/pydio/cells/v4/common/log"
 	"github.com/pydio/cells/v4/common/proto/idm"
 	service "github.com/pydio/cells/v4/common/proto/service"
 	"github.com/pydio/cells/v4/common/proto/tree"
 	"github.com/pydio/cells/v4/common/runtime"
-	"github.com/pydio/cells/v4/common/service/errors"
+	"github.com/pydio/cells/v4/common/service/serviceerrors"
 	"github.com/pydio/cells/v4/common/utils/cache"
 	json "github.com/pydio/cells/v4/common/utils/jsonx"
 	"github.com/pydio/cells/v4/common/utils/openurl"
@@ -508,21 +508,15 @@ func SearchUniqueUser(ctx context.Context, login string, uuid string, queries ..
 		searchRequests = append(searchRequests, searchRequest)
 	}
 	if len(searchRequests) == 0 {
-		return nil, fmt.Errorf("please provide at least one of login, uuid or queries")
+		return nil, errors.Tag(errors.New("please provide at least one of login, uuid or queries"), errors.StatusBadRequest)
 	}
 	ct, can := context.WithTimeout(ctx, 10*time.Second)
 	defer can()
-	streamer, err := userCli.SearchUser(ct, &idm.SearchUserRequest{
+	resp, err := userCli.SearchOne(ct, &idm.SearchUserRequest{
 		Query: &service.Query{SubQueries: searchRequests, Operation: service.OperationType_AND},
 	})
 	if err != nil {
-		return
-	}
-	resp, e := streamer.Recv()
-	if e == io.EOF || e == io.ErrUnexpectedEOF {
-		return nil, errors.NotFound("user.not.found", "cannot find user with this login or uuid")
-	} else if e != nil {
-		return nil, e
+		return nil, err //serviceerrors.NotFound("user.not.found", "cannot find user with this login or uuid %w", err) - SHOULD ALREADY BE A UserNotFound
 	}
 	user = resp.GetUser()
 	// Store to quick cache
@@ -569,7 +563,7 @@ func SearchUniqueWorkspace(ctx context.Context, wsUuid string, wsSlug string, qu
 		queries = append(queries, &idm.WorkspaceSingleQuery{Slug: wsSlug})
 	}
 	if len(queries) == 0 {
-		return nil, errors.BadRequest("bad.request", "please provide at least one of uuid, slug or custom query")
+		return nil, serviceerrors.BadRequest("bad.request", "please provide at least one of uuid, slug or custom query")
 	}
 	requests := make([]*anypb.Any, len(queries))
 	for _, q := range queries {
@@ -582,7 +576,7 @@ func SearchUniqueWorkspace(ctx context.Context, wsUuid string, wsSlug string, qu
 	}
 	resp, e := st.Recv()
 	if e == io.EOF || e == io.ErrUnexpectedEOF {
-		return nil, errors.NotFound("ws.not.found", "cannot find workspace with these queries")
+		return nil, serviceerrors.NotFound("ws.not.found", "cannot find workspace with these queries")
 	} else if e != nil {
 		return nil, e
 	}
@@ -688,7 +682,7 @@ func CheckContentLock(ctx context.Context, node *tree.Node) error {
 		}
 		acl := rsp.ACL
 		if userName == "" || acl.Action.Value != userName {
-			return errors.Forbidden("file.locked", "This file is locked by another user")
+			return serviceerrors.Forbidden("file.locked", "This file is locked by another user")
 		}
 		break
 	}

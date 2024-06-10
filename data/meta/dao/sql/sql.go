@@ -28,7 +28,7 @@ import (
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
 
-	"github.com/pydio/cells/v4/common/service/errors"
+	"github.com/pydio/cells/v4/common/service/serviceerrors"
 	"github.com/pydio/cells/v4/common/sql"
 	"github.com/pydio/cells/v4/common/utils/configx"
 	"github.com/pydio/cells/v4/data/meta"
@@ -129,7 +129,7 @@ func (s *sqlImpl) GetMetadata(ctx context.Context, nodeId string) (metadata map[
 	}
 
 	if tx.RowsAffected == 0 {
-		return nil, errors.NotFound("metadata-not-found", "Cannot find metadata for node "+nodeId)
+		return nil, serviceerrors.NotFound("metadata-not-found", "Cannot find metadata for node "+nodeId)
 	}
 
 	metadata = make(map[string]string, len(rows))

@@ -37,7 +37,7 @@ import (
 	activity2 "github.com/pydio/cells/v4/common/proto/activity"
 	"github.com/pydio/cells/v4/common/proto/tree"
 	"github.com/pydio/cells/v4/common/runtime/manager"
-	"github.com/pydio/cells/v4/common/service/errors"
+	"github.com/pydio/cells/v4/common/service/serviceerrors"
 	"github.com/pydio/cells/v4/common/utils/i18n"
 	"github.com/pydio/cells/v4/common/utils/permissions"
 	"github.com/pydio/cells/v4/common/utils/uuid"
@@ -115,7 +115,7 @@ func (h *Handler) HeadVersion(ctx context.Context, request *tree.HeadVersionRequ
 		}
 		return &tree.HeadVersionResponse{Version: v}, nil
 	}
-	return nil, errors.NotFound("version.not.found", "version not found")
+	return nil, serviceerrors.NotFound("version.not.found", "version not found")
 }
 
 func (h *Handler) CreateVersion(ctx context.Context, request *tree.CreateVersionRequest) (*tree.CreateVersionResponse, error) {
@@ -247,7 +247,7 @@ func (h *Handler) PruneVersions(ctx context.Context, request *tree.PruneVersions
 
 	} else {
 
-		return nil, errors.BadRequest(common.ServiceVersions, "Please provide at least a node Uuid or set the flag AllDeletedNodes to true")
+		return nil, serviceerrors.BadRequest(common.ServiceVersions, "Please provide at least a node Uuid or set the flag AllDeletedNodes to true")
 
 	}
 

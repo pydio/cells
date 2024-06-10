@@ -28,11 +28,13 @@ import (
 	"google.golang.org/grpc"
 
 	"github.com/pydio/cells/v4/common"
+	grpc3 "github.com/pydio/cells/v4/common/client/grpc"
 	"github.com/pydio/cells/v4/common/log"
 	"github.com/pydio/cells/v4/common/proto/jobs"
 	"github.com/pydio/cells/v4/common/proto/jobs/bleveimpl"
 	"github.com/pydio/cells/v4/common/runtime"
 	"github.com/pydio/cells/v4/common/service"
+	"github.com/pydio/cells/v4/common/utils/permissions"
 	"github.com/pydio/cells/v4/scheduler/tasks"
 	grpc2 "github.com/pydio/cells/v4/scheduler/tasks/grpc"
 )
@@ -41,6 +43,12 @@ const Name = common.ServiceGrpcNamespace_ + common.ServiceTasks
 
 func init() {
 	jobs.RegisterNodesFreeStringEvaluator(bleveimpl.EvalFreeString)
+	jobs.RegisterConnexionResolver(func(ctx context.Context, serviceName string) grpc.ClientConnInterface {
+		return grpc3.ResolveConn(ctx, serviceName)
+	})
+	jobs.RegisterClaimsUsernameParser(permissions.FindUserNameInContext)
+	jobs.RegisterClientUniqueUser(permissions.SearchUniqueUser)
+	jobs.RegisterClientUniqueWorkspace(permissions.SearchUniqueWorkspace)
 
 	runtime.Register("main", func(ctx context.Context) {
 		service.NewService(

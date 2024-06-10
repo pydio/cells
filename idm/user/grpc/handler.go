@@ -36,6 +36,7 @@ import (
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/broker"
 	"github.com/pydio/cells/v4/common/client/commons/idmc"
+	"github.com/pydio/cells/v4/common/errors"
 	"github.com/pydio/cells/v4/common/log"
 	"github.com/pydio/cells/v4/common/proto/idm"
 	"github.com/pydio/cells/v4/common/proto/jobs"
@@ -43,7 +44,7 @@ import (
 	service "github.com/pydio/cells/v4/common/proto/service"
 	"github.com/pydio/cells/v4/common/runtime"
 	"github.com/pydio/cells/v4/common/runtime/manager"
-	"github.com/pydio/cells/v4/common/service/errors"
+	"github.com/pydio/cells/v4/common/service/serviceerrors"
 	"github.com/pydio/cells/v4/common/sql/resources"
 	"github.com/pydio/cells/v4/common/utils/cache"
 	json "github.com/pydio/cells/v4/common/utils/jsonx"
@@ -380,11 +381,47 @@ func (h *Handler) SearchUser(request *idm.SearchUserRequest, response idm.UserSe
 			h.applyAutoApplies(usr, autoApplies)
 			response.Send(&idm.SearchUserResponse{User: usr})
 		} else {
-			return errors.InternalServerError(common.ServiceUser, "wrong type received, should have been idm.User or idm.Group")
+			return serviceerrors.InternalServerError(common.ServiceUser, "wrong type received, should have been idm.User or idm.Group")
 		}
 	}
 
 	return nil
+}
+
+func (h *Handler) SearchOne(ctx context.Context, request *idm.SearchUserRequest) (*idm.SearchUserResponse, error) {
+
+	dao, err := manager.Resolve[user.DAO](ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	autoApplies, er := h.loadAutoAppliesRoles(ctx)
+	if er != nil {
+		return nil, er
+	}
+
+	// Force offset/limit
+	request.Query.Offset = 0
+	request.Query.Limit = 1
+
+	usersGroups := new([]interface{})
+	if err := dao.Search(ctx, request.Query, usersGroups); err != nil {
+		return nil, err
+	}
+	if len(*usersGroups) == 1 {
+		res := (*usersGroups)[0]
+		if usr, ok := res.(*idm.User); ok {
+			usr.Password = ""
+			if usr.Policies, err = dao.GetPoliciesForResource(ctx, usr.Uuid); err != nil {
+				tz := errors.Tag(err, errors.DAO)
+				tz = errors.WithDetails(tz, "query", request.Query)
+				return nil, tz
+			}
+			h.applyAutoApplies(usr, autoApplies)
+			return &idm.SearchUserResponse{User: usr}, nil
+		}
+	}
+	return nil, errors.WithDetails(errors.UserNotFound, "query", request.Query)
 }
 
 // CountUser in database

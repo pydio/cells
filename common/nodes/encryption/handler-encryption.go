@@ -38,7 +38,7 @@ import (
 	"github.com/pydio/cells/v4/common/proto/encryption"
 	"github.com/pydio/cells/v4/common/proto/object"
 	"github.com/pydio/cells/v4/common/proto/tree"
-	"github.com/pydio/cells/v4/common/service/errors"
+	"github.com/pydio/cells/v4/common/service/serviceerrors"
 )
 
 func WithEncryption() nodes.Option {
@@ -85,14 +85,14 @@ func (e *Handler) GetObject(ctx context.Context, node *tree.Node, requestData *m
 			Node: node,
 		})
 		if readErr != nil {
-			return nil, errors.NotFound("views.Handler.encryption", "failed to get node UUID: %s", readErr)
+			return nil, serviceerrors.NotFound("views.Handler.encryption", "failed to get node UUID: %s", readErr)
 		}
 		clone.Uuid = rsp.Node.Uuid
 		clone.Size = rsp.Node.Size
 	}
 
 	if len(clone.Uuid) == 0 || clone.Size == 0 {
-		return nil, errors.NotFound("views.handler.encryption.GetObject", "node Uuid and size are both required")
+		return nil, serviceerrors.NotFound("views.handler.encryption.GetObject", "node Uuid and size are both required")
 	}
 
 	dsName := clone.GetStringMeta(common.MetaNamespaceDatasourceName)
@@ -102,7 +102,7 @@ func (e *Handler) GetObject(ctx context.Context, node *tree.Node, requestData *m
 		} else if branchInfo.DataSource != nil && branchInfo.Name != "" {
 			dsName = branchInfo.Name
 		} else {
-			return nil, errors.New("views.handler.encryption.GetObject", "cannot find datasource name", 500)
+			return nil, serviceerrors.New("views.handler.encryption.GetObject", "cannot find datasource name", 500)
 		}
 		clone.MustSetMeta(common.MetaNamespaceDatasourceName, dsName)
 	}
@@ -133,7 +133,7 @@ func (e *Handler) GetObject(ctx context.Context, node *tree.Node, requestData *m
 	boundariesOk = boundariesOk && (requestData.Length == -1 || requestData.Length > 0 && requestData.StartOffset+requestData.Length <= clone.Size)
 
 	if !boundariesOk {
-		return nil, errors.New("views.handler.encryption.GetObject", "wrong range", 400)
+		return nil, serviceerrors.New("views.handler.encryption.GetObject", "wrong range", 400)
 	}
 
 	fullRead := requestData.StartOffset == 0 && (requestData.Length <= 0 || requestData.Length == clone.Size)
@@ -195,11 +195,11 @@ func (e *Handler) PutObject(ctx context.Context, node *tree.Node, reader io.Read
 		})
 
 		if readErr != nil {
-			return models.ObjectInfo{}, errors.NotFound("views.handler.encryption.PutObject", "failed to get node UUID: %s", readErr)
+			return models.ObjectInfo{}, serviceerrors.NotFound("views.handler.encryption.PutObject", "failed to get node UUID: %s", readErr)
 		}
 
 		if len(rsp.Node.Uuid) == 0 {
-			return models.ObjectInfo{}, errors.NotFound("views.handler.encryption.PutObject", "failed to get node UUID")
+			return models.ObjectInfo{}, serviceerrors.NotFound("views.handler.encryption.PutObject", "failed to get node UUID")
 		}
 		clone.Uuid = rsp.Node.Uuid
 	}
@@ -232,7 +232,7 @@ func (e *Handler) PutObject(ctx context.Context, node *tree.Node, reader io.Read
 
 	info, err := e.getNodeInfoForWrite(ctx, clone)
 	if err != nil {
-		if errors.FromError(err).Code != 404 {
+		if serviceerrors.FromError(err).Code != 404 {
 			return models.ObjectInfo{}, err
 		}
 
@@ -298,7 +298,7 @@ func (e *Handler) CopyObject(ctx context.Context, from *tree.Node, to *tree.Node
 	srcInfo, ok2 := nodes.GetBranchInfo(ctx, "from")
 	destInfo, ok := nodes.GetBranchInfo(ctx, "to")
 	if !ok || !ok2 {
-		return models.ObjectInfo{}, errors.InternalServerError("views.handler.encryption.CopyObject", "Cannot find Handler for src or dest")
+		return models.ObjectInfo{}, serviceerrors.InternalServerError("views.handler.encryption.CopyObject", "Cannot find Handler for src or dest")
 	}
 	readCtx := nodes.WithBranchInfo(ctx, "in", srcInfo, true)
 	writeCtx := nodes.WithBranchInfo(ctx, "in", destInfo, true)
@@ -326,10 +326,10 @@ func (e *Handler) CopyObject(ctx context.Context, from *tree.Node, to *tree.Node
 				Node: from,
 			})
 			if readErr != nil {
-				return models.ObjectInfo{}, errors.NotFound("views.handler.encryption.CopyObject", "failed to get node UUID: %s", readErr)
+				return models.ObjectInfo{}, serviceerrors.NotFound("views.handler.encryption.CopyObject", "failed to get node UUID: %s", readErr)
 			}
 			if len(rsp.Node.Uuid) == 0 {
-				return models.ObjectInfo{}, errors.NotFound("views.handler.encryption.CopyObject", "failed to get node UUID")
+				return models.ObjectInfo{}, serviceerrors.NotFound("views.handler.encryption.CopyObject", "failed to get node UUID")
 			}
 			cloneFrom.Uuid = rsp.Node.Uuid
 		}
@@ -356,7 +356,7 @@ func (e *Handler) CopyObject(ctx context.Context, from *tree.Node, to *tree.Node
 			if readErr != nil {
 				return models.ObjectInfo{}, readErr
 			} else if rsp.Node == nil {
-				return models.ObjectInfo{}, errors.NotFound("views.handler.encryption.CopyObject", "no node found that matches %s", cloneFrom)
+				return models.ObjectInfo{}, serviceerrors.NotFound("views.handler.encryption.CopyObject", "no node found that matches %s", cloneFrom)
 			}
 			cloneFrom = rsp.Node
 		}
@@ -423,11 +423,11 @@ func (e *Handler) MultipartCreate(ctx context.Context, target *tree.Node, reques
 		})
 
 		if readErr != nil {
-			return "", errors.NotFound("views.handler.encryption.MultiPartCreate", "failed to get node UUID: %s", readErr)
+			return "", serviceerrors.NotFound("views.handler.encryption.MultiPartCreate", "failed to get node UUID: %s", readErr)
 		}
 
 		if len(rsp.Node.Uuid) == 0 {
-			return "", errors.NotFound("views.handler.encryption.MultiPartCreate", "failed to get node UUID")
+			return "", serviceerrors.NotFound("views.handler.encryption.MultiPartCreate", "failed to get node UUID")
 		}
 		clone.Uuid = rsp.Node.Uuid
 	}
@@ -457,7 +457,7 @@ func (e *Handler) MultipartCreate(ctx context.Context, target *tree.Node, reques
 
 	_, err = e.getNodeInfoForWrite(ctx, clone)
 	if err != nil {
-		if errors.FromError(err).Code != 404 {
+		if serviceerrors.FromError(err).Code != 404 {
 			return "", err
 		}
 
@@ -508,11 +508,11 @@ func (e *Handler) MultipartPutObjectPart(ctx context.Context, target *tree.Node,
 		})
 
 		if readErr != nil {
-			return models.MultipartObjectPart{}, errors.NotFound("views.handler.encryption.MultiPartPutObject", "failed to get node UUID: %s", readErr)
+			return models.MultipartObjectPart{}, serviceerrors.NotFound("views.handler.encryption.MultiPartPutObject", "failed to get node UUID: %s", readErr)
 		}
 
 		if len(rsp.Node.Uuid) == 0 {
-			return models.MultipartObjectPart{}, errors.NotFound("views.handler.encryption.MultiPartPutObject", "failed to get node UUID")
+			return models.MultipartObjectPart{}, serviceerrors.NotFound("views.handler.encryption.MultiPartPutObject", "failed to get node UUID")
 		}
 		clone.Uuid = rsp.Node.Uuid
 	}

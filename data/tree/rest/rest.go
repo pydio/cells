@@ -40,6 +40,7 @@ import (
 	"github.com/pydio/cells/v4/common/config"
 	"github.com/pydio/cells/v4/common/log"
 	"github.com/pydio/cells/v4/common/middleware"
+	"github.com/pydio/cells/v4/common/middleware/keys"
 	"github.com/pydio/cells/v4/common/nodes"
 	"github.com/pydio/cells/v4/common/nodes/acl"
 	"github.com/pydio/cells/v4/common/nodes/compose"
@@ -49,8 +50,7 @@ import (
 	"github.com/pydio/cells/v4/common/proto/rest"
 	service2 "github.com/pydio/cells/v4/common/proto/service"
 	"github.com/pydio/cells/v4/common/proto/tree"
-	"github.com/pydio/cells/v4/common/service"
-	"github.com/pydio/cells/v4/common/service/errors"
+	"github.com/pydio/cells/v4/common/service/serviceerrors"
 	"github.com/pydio/cells/v4/common/utils/i18n"
 	json "github.com/pydio/cells/v4/common/utils/jsonx"
 	"github.com/pydio/cells/v4/common/utils/mtree"
@@ -109,7 +109,7 @@ func (h *Handler) HeadNode(req *restful.Request, resp *restful.Response) {
 
 	response, err := router.ReadNode(req.Request.Context(), nodeRequest)
 	if err != nil {
-		service.RestError404(req, resp, err)
+		middleware.RestError404(req, resp, err)
 		return
 	}
 
@@ -122,11 +122,11 @@ func (h *Handler) CreateNodes(req *restful.Request, resp *restful.Response) {
 
 	var input rest.CreateNodesRequest
 	if e := req.ReadEntity(&input); e != nil {
-		service.RestError500(req, resp, e)
+		middleware.RestError500(req, resp, e)
 		return
 	}
 	if len(input.Nodes) == 0 {
-		service.RestError500(req, resp, fmt.Errorf("please provide at least one node to create"))
+		middleware.RestError500(req, resp, fmt.Errorf("please provide at least one node to create"))
 		return
 	}
 
@@ -146,7 +146,7 @@ func (h *Handler) CreateNodes(req *restful.Request, resp *restful.Response) {
 		if !n.IsLeaf() {
 			// Additional folders checks for non-flat storages
 			if info, err := router.BranchInfoForNode(ctx, n); err != nil {
-				service.RestError500(req, resp, err)
+				middleware.RestError500(req, resp, err)
 			} else if !info.FlatStorage {
 				folderPaths = append(folderPaths, n.Path)
 				folderChecks[n.Path] = n.Path
@@ -157,7 +157,7 @@ func (h *Handler) CreateNodes(req *restful.Request, resp *restful.Response) {
 			}
 			r, e := router.CreateNode(ctx, &tree.CreateNodeRequest{Node: n, IndexationSession: session})
 			if e != nil {
-				service.RestError500(req, resp, e)
+				middleware.RestError500(req, resp, e)
 				if session != "" {
 					// Make sure to close the session
 					broker.MustPublish(ctx, common.TopicIndexEvent, &tree.IndexEvent{
@@ -175,13 +175,13 @@ func (h *Handler) CreateNodes(req *restful.Request, resp *restful.Response) {
 				provider := templates.GetProvider()
 				node, err := provider.ByUUID(h.RuntimeCtx, input.TemplateUUID)
 				if err != nil {
-					service.RestErrorDetect(req, resp, err)
+					middleware.RestErrorDetect(req, resp, err)
 					return
 				}
 				var e error
 				reader, length, e = node.Read(h.RuntimeCtx)
 				if e != nil {
-					service.RestError500(req, resp, fmt.Errorf("cannot read template"))
+					middleware.RestError500(req, resp, fmt.Errorf("cannot read template"))
 					return
 				}
 
@@ -196,7 +196,7 @@ func (h *Handler) CreateNodes(req *restful.Request, resp *restful.Response) {
 			}
 			_, e := router.PutObject(ctx, n, reader, &models.PutRequestData{Size: length, Metadata: meta})
 			if e != nil {
-				service.RestError500(req, resp, e)
+				middleware.RestError500(req, resp, e)
 				return
 			}
 			output.Children = append(output.Children, n.WithoutReservedMetas())
@@ -251,10 +251,10 @@ func (h *Handler) DeleteNodes(req *restful.Request, resp *restful.Response) {
 
 	var input rest.DeleteNodesRequest
 	if e := req.ReadEntity(&input); e != nil {
-		service.RestError500(req, resp, e)
+		middleware.RestError500(req, resp, e)
 		return
 	} else if len(input.Nodes) == 0 {
-		service.RestError500(req, resp, fmt.Errorf("please provide at least one node"))
+		middleware.RestError500(req, resp, fmt.Errorf("please provide at least one node"))
 		return
 	}
 	if len(input.Nodes) > 1 {
@@ -273,7 +273,7 @@ func (h *Handler) DeleteNodes(req *restful.Request, resp *restful.Response) {
 
 	for _, node := range input.Nodes {
 		if read, er := router.ReadNode(ctx, &tree.ReadNodeRequest{Node: node}); er != nil {
-			service.RestErrorDetect(req, resp, er)
+			middleware.RestErrorDetect(req, resp, er)
 			return
 		} else {
 			node = read.Node
@@ -301,7 +301,7 @@ func (h *Handler) DeleteNodes(req *restful.Request, resp *restful.Response) {
 				}
 				// Additional check for child locks to secure recycle bin empty operation
 				if permissions.HasChildLocks(ctx, filtered) {
-					return errors.New("children.locks", "Resource is currently busy, please retry later", 423)
+					return serviceerrors.New("children.locks", "Resource is currently busy, please retry later", 423)
 				}
 				log.Logger(ctx).Info(fmt.Sprintf("Definitively deleting [%s]", node.GetPath()))
 				deleteJobs.Deletes = append(deleteJobs.Deletes, node.GetPath()) // Pass user-scope path
@@ -351,7 +351,7 @@ func (h *Handler) DeleteNodes(req *restful.Request, resp *restful.Response) {
 			return nil
 		})
 		if e != nil {
-			service.RestErrorDetect(req, resp, e)
+			middleware.RestErrorDetect(req, resp, e)
 			return
 		}
 	}
@@ -403,10 +403,10 @@ func (h *Handler) DeleteNodes(req *restful.Request, resp *restful.Response) {
 			},
 		}
 		ctx = propagator.WithAdditionalMetadata(ctx, map[string]string{
-			middleware.CtxWorkspaceUuid: rMoves.workspace.UUID,
+			keys.CtxWorkspaceUuid: rMoves.workspace.UUID,
 		})
 		if _, er := cli.PutJob(ctx, &jobs.PutJobRequest{Job: job}); er != nil {
-			service.RestError500(req, resp, er)
+			middleware.RestError500(req, resp, er)
 			return
 		} else {
 			output.DeleteJobs = append(output.DeleteJobs, &rest.BackgroundJobResult{
@@ -443,7 +443,7 @@ func (h *Handler) DeleteNodes(req *restful.Request, resp *restful.Response) {
 			},
 		}
 		if _, er := cli.PutJob(ctx, &jobs.PutJobRequest{Job: job}); er != nil {
-			service.RestError500(req, resp, er)
+			middleware.RestError500(req, resp, er)
 			return
 		} else {
 			output.DeleteJobs = append(output.DeleteJobs, &rest.BackgroundJobResult{
@@ -462,10 +462,10 @@ func (h *Handler) CreateSelection(req *restful.Request, resp *restful.Response) 
 
 	var input rest.CreateSelectionRequest
 	if e := req.ReadEntity(&input); e != nil {
-		service.RestError500(req, resp, e)
+		middleware.RestError500(req, resp, e)
 		return
 	} else if len(input.Nodes) == 0 {
-		service.RestError500(req, resp, fmt.Errorf("please provide at least one node"))
+		middleware.RestError500(req, resp, fmt.Errorf("please provide at least one node"))
 		return
 	}
 	if len(input.Nodes) > 1 {
@@ -485,7 +485,7 @@ func (h *Handler) CreateSelection(req *restful.Request, resp *restful.Response) 
 			ID:    selectionUuid,
 		},
 	}); e != nil {
-		service.RestError500(req, resp, e)
+		middleware.RestError500(req, resp, e)
 		return
 	}
 	response := &rest.CreateSelectionResponse{
@@ -501,10 +501,10 @@ func (h *Handler) RestoreNodes(req *restful.Request, resp *restful.Response) {
 
 	var input rest.RestoreNodesRequest
 	if e := req.ReadEntity(&input); e != nil {
-		service.RestError500(req, resp, e)
+		middleware.RestError500(req, resp, e)
 		return
 	} else if len(input.Nodes) == 0 {
-		service.RestError500(req, resp, fmt.Errorf("please provide at least one node"))
+		middleware.RestError500(req, resp, fmt.Errorf("please provide at least one node"))
 		return
 	}
 	if len(input.Nodes) > 1 {
@@ -554,7 +554,7 @@ func (h *Handler) RestoreNodes(req *restful.Request, resp *restful.Response) {
 			}
 			accessList := acl.MustFromContext(ctx)
 			if !accessList.CanWrite(ctx, ancestors...) {
-				return errors.Forbidden("node.not.writeable", "Original location is not writable")
+				return serviceerrors.Forbidden("node.not.writeable", "Original location is not writable")
 			}
 			log.Logger(ctx).Info("Should restore node", zap.String("from", currentFullPath), zap.String("to", originalFullPath))
 			jobUuid := "copy-move-" + uuid.New()
@@ -586,7 +586,7 @@ func (h *Handler) RestoreNodes(req *restful.Request, resp *restful.Response) {
 				},
 			}
 			ctx = propagator.WithAdditionalMetadata(ctx, map[string]string{
-				middleware.CtxWorkspaceUuid: bi.Workspace.GetUUID(),
+				keys.CtxWorkspaceUuid: bi.Workspace.GetUUID(),
 			})
 			if _, er := cli.PutJob(ctx, &jobs.PutJobRequest{Job: job}); er != nil {
 				return er
@@ -603,7 +603,7 @@ func (h *Handler) RestoreNodes(req *restful.Request, resp *restful.Response) {
 	})
 
 	if e != nil {
-		service.RestError500(req, resp, e)
+		middleware.RestError500(req, resp, e)
 	} else {
 		resp.WriteEntity(output)
 	}
@@ -614,7 +614,7 @@ func (h *Handler) ListAdminTree(req *restful.Request, resp *restful.Response) {
 
 	var input tree.ListNodesRequest
 	if err := req.ReadEntity(&input); err != nil {
-		service.RestError500(req, resp, err)
+		middleware.RestError500(req, resp, err)
 		return
 	}
 
@@ -623,13 +623,13 @@ func (h *Handler) ListAdminTree(req *restful.Request, resp *restful.Response) {
 		StatFlags: input.StatFlags,
 	})
 	if err != nil {
-		service.RestError404(req, resp, err)
+		middleware.RestError404(req, resp, err)
 		return
 	}
 
 	streamer, err := getClient(h.RuntimeCtx).ListNodes(req.Request.Context(), &input)
 	if err != nil {
-		service.RestError500(req, resp, err)
+		middleware.RestError500(req, resp, err)
 		return
 	}
 	defer streamer.CloseSend()
@@ -655,13 +655,13 @@ func (h *Handler) StatAdminTree(req *restful.Request, resp *restful.Response) {
 
 	var input tree.ReadNodeRequest
 	if err := req.ReadEntity(&input); err != nil {
-		service.RestError500(req, resp, err)
+		middleware.RestError500(req, resp, err)
 		return
 	}
 
 	response, err := getClient(h.RuntimeCtx).ReadNode(req.Request.Context(), &input)
 	if err != nil {
-		service.RestError500(req, resp, err)
+		middleware.RestError500(req, resp, err)
 		return
 	}
 

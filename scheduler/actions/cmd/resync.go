@@ -33,7 +33,7 @@ import (
 	"github.com/pydio/cells/v4/common/log"
 	"github.com/pydio/cells/v4/common/proto/jobs"
 	"github.com/pydio/cells/v4/common/proto/sync"
-	"github.com/pydio/cells/v4/common/service/errors"
+	"github.com/pydio/cells/v4/common/service/serviceerrors"
 	"github.com/pydio/cells/v4/scheduler/actions"
 )
 
@@ -114,7 +114,7 @@ func (c *ResyncAction) SetTask(task *jobs.Task) {
 func (c *ResyncAction) Init(job *jobs.Job, action *jobs.Action) error {
 	c.ServiceName = action.Parameters["service"]
 	if c.ServiceName == "" {
-		return errors.BadRequest(common.ServiceJobs, "Missing parameters for Sync Action")
+		return serviceerrors.BadRequest(common.ServiceJobs, "Missing parameters for Sync Action")
 	}
 	if path, ok := action.Parameters["path"]; ok {
 		c.Path = path

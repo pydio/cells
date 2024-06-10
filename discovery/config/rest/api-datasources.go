@@ -40,6 +40,7 @@ import (
 	"github.com/pydio/cells/v4/common/client/grpc"
 	"github.com/pydio/cells/v4/common/config"
 	"github.com/pydio/cells/v4/common/log"
+	"github.com/pydio/cells/v4/common/middleware"
 	"github.com/pydio/cells/v4/common/nodes"
 	"github.com/pydio/cells/v4/common/proto/idm"
 	"github.com/pydio/cells/v4/common/proto/jobs"
@@ -47,8 +48,7 @@ import (
 	"github.com/pydio/cells/v4/common/proto/rest"
 	service2 "github.com/pydio/cells/v4/common/proto/service"
 	"github.com/pydio/cells/v4/common/proto/tree"
-	"github.com/pydio/cells/v4/common/service"
-	"github.com/pydio/cells/v4/common/service/errors"
+	"github.com/pydio/cells/v4/common/service/serviceerrors"
 	"github.com/pydio/cells/v4/common/utils/configx"
 	"github.com/pydio/cells/v4/common/utils/filesystem"
 	"github.com/pydio/cells/v4/common/utils/permissions"
@@ -66,13 +66,13 @@ func (s *Handler) GetDataSource(req *restful.Request, resp *restful.Response) {
 
 	if err != nil {
 		err = fmt.Errorf("could not to retrieve datasource with name [%s], root cause: %s", dsName, err.Error())
-		service.RestError500(req, resp, err)
+		middleware.RestError500(req, resp, err)
 		return
 	}
 
 	if res == nil {
 		err = fmt.Errorf("unknown datasource [%s]", dsName)
-		service.RestError404(req, resp, err)
+		middleware.RestError404(req, resp, err)
 		return
 	}
 
@@ -83,14 +83,14 @@ func (s *Handler) PutDataSource(req *restful.Request, resp *restful.Response) {
 
 	var ds object.DataSource
 	if err := req.ReadEntity(&ds); err != nil {
-		service.RestError500(req, resp, err)
+		middleware.RestError500(req, resp, err)
 		return
 	}
 	if ds.Name == "" {
 		ds.Name = req.PathParameter("Name")
 	}
 	if ds.Name == "" {
-		service.RestError500(req, resp, fmt.Errorf("cannot create datasource without at least a name"))
+		middleware.RestError500(req, resp, fmt.Errorf("cannot create datasource without at least a name"))
 		return
 	}
 
@@ -102,7 +102,7 @@ func (s *Handler) PutDataSource(req *restful.Request, resp *restful.Response) {
 	}
 
 	if reg, _ := regexp.MatchString("^[0-9a-z]*$", ds.Name); !reg {
-		service.RestError500(req, resp, fmt.Errorf("datasource name contains an invalid character, please use alphanumeric characters"))
+		middleware.RestError500(req, resp, fmt.Errorf("datasource name contains an invalid character, please use alphanumeric characters"))
 		return
 	}
 
@@ -111,7 +111,7 @@ func (s *Handler) PutDataSource(req *restful.Request, resp *restful.Response) {
 	// Handle / and \ for OS
 	if ds.StorageType == object.StorageType_LOCAL {
 		if err := s.ValidateLocalDSFolderOnPeer(ctx, &ds); err != nil {
-			service.RestError500(req, resp, err)
+			middleware.RestError500(req, resp, err)
 			return
 		}
 		osFolder := filesystem.ToFilePath(ds.StorageConfiguration[object.StorageKeyFolder])
@@ -138,7 +138,7 @@ func (s *Handler) PutDataSource(req *restful.Request, resp *restful.Response) {
 
 	minioConfig, e := config.FactorizeMinioServers(currentMinios, &ds, update)
 	if e != nil {
-		service.RestError500(req, resp, e)
+		middleware.RestError500(req, resp, e)
 		return
 	}
 	if !update && ds.PeerAddress == "" && ds.StorageType == object.StorageType_LOCAL {
@@ -146,7 +146,7 @@ func (s *Handler) PutDataSource(req *restful.Request, resp *restful.Response) {
 		newDsFolder := ds.StorageConfiguration[object.StorageKeyFolder]
 		for _, src := range currentSources {
 			if src.StorageType == ds.StorageType && src.StorageConfiguration[object.StorageKeyFolder] == newDsFolder {
-				service.RestError500(req, resp, errors.Conflict("datasource.folder.conflict", "Cannot create a datasource at the same location than %s", src.Name))
+				middleware.RestError500(req, resp, serviceerrors.Conflict("datasource.folder.conflict", "Cannot create a datasource at the same location than %s", src.Name))
 				return
 			}
 		}
@@ -157,7 +157,7 @@ func (s *Handler) PutDataSource(req *restful.Request, resp *restful.Response) {
 		if secretUuid == "" {
 			secretUuid = config.NewKeyForSecret()
 			if er := config.SetSecret(secretUuid, ds.ApiSecret); er != nil {
-				service.RestError500(req, resp, fmt.Errorf("cannot store secret key"))
+				middleware.RestError500(req, resp, fmt.Errorf("cannot store secret key"))
 				return
 			}
 		}
@@ -224,7 +224,7 @@ func (s *Handler) PutDataSource(req *restful.Request, resp *restful.Response) {
 		}
 
 	} else {
-		service.RestError500(req, resp, err)
+		middleware.RestError500(req, resp, err)
 	}
 
 }
@@ -234,25 +234,25 @@ func (s *Handler) DeleteDataSource(req *restful.Request, resp *restful.Response)
 	ctx := req.Request.Context()
 	dsName := req.PathParameter("Name")
 	if dsName == "" {
-		service.RestError500(req, resp, fmt.Errorf("Please provide a data source name"))
+		middleware.RestError500(req, resp, fmt.Errorf("Please provide a data source name"))
 		return
 	}
 	if dsName == config.Get("defaults", "datasource").String() {
-		service.RestError500(req, resp, fmt.Errorf("This is the default datasource! Please replace it in your config file before trying to delete."))
+		middleware.RestError500(req, resp, fmt.Errorf("This is the default datasource! Please replace it in your config file before trying to delete."))
 		return
 	}
 	hasWorkspace, err := s.findWorkspacesForDatasource(req.Request.Context(), dsName)
 	if err != nil {
-		service.RestError500(req, resp, fmt.Errorf("Error while trying to find workspaces for datasource:"+err.Error()))
+		middleware.RestError500(req, resp, fmt.Errorf("Error while trying to find workspaces for datasource:"+err.Error()))
 		return
 	} else if hasWorkspace {
-		service.RestError500(req, resp, fmt.Errorf("There are workspaces defined on this datasource, please delete them before removing datasource"))
+		middleware.RestError500(req, resp, fmt.Errorf("There are workspaces defined on this datasource, please delete them before removing datasource"))
 		return
 	}
 	currentSources := config.ListSourcesFromConfig()
 
 	if existingDS, ok := currentSources[dsName]; !ok {
-		service.RestError500(req, resp, fmt.Errorf("Cannot find datasource!"))
+		middleware.RestError500(req, resp, fmt.Errorf("Cannot find datasource!"))
 		return
 	} else if existingDS.VersioningPolicyName != "" {
 		if e := removeFullVersioningJob(ctx, dsName); e != nil {
@@ -278,7 +278,7 @@ func (s *Handler) DeleteDataSource(req *restful.Request, resp *restful.Response)
 		u = "rest"
 	}
 	if e := config.Save(u, "Delete DataSource"); e != nil {
-		service.RestError500(req, resp, e)
+		middleware.RestError500(req, resp, e)
 		return
 	}
 	broker.Publish(req.Request.Context(), common.TopicDatasourceEvent, &object.DataSourceEvent{
@@ -294,7 +294,7 @@ func (s *Handler) DeleteDataSource(req *restful.Request, resp *restful.Response)
 func (s *Handler) ListDataSources(req *restful.Request, resp *restful.Response) {
 
 	if sources, err := s.getDataSources(req.Request.Context()); err != nil {
-		service.RestError500(req, resp, err)
+		middleware.RestError500(req, resp, err)
 
 	} else {
 		resp.WriteEntity(&rest.DataSourceCollection{
@@ -337,28 +337,28 @@ func (s *Handler) storageClientForDatasource(ds *object.DataSource) (nodes.Stora
 func (s *Handler) ListStorageBuckets(req *restful.Request, resp *restful.Response) {
 	var r rest.ListStorageBucketsRequest
 	if e := req.ReadEntity(&r); e != nil {
-		service.RestError500(req, resp, e)
+		middleware.RestError500(req, resp, e)
 		return
 	}
 	if r.DataSource.StorageType != object.StorageType_S3 {
-		service.RestError500(req, resp, fmt.Errorf("unsupported datasource type"))
+		middleware.RestError500(req, resp, fmt.Errorf("unsupported datasource type"))
 		return
 	}
 	mc, er := s.storageClientForDatasource(r.DataSource)
 	if er != nil {
-		service.RestErrorDetect(req, resp, er)
+		middleware.RestErrorDetect(req, resp, er)
 		return
 	}
 	bb, er := mc.ListBuckets(context.Background())
 	if er != nil {
-		service.RestErrorDetect(req, resp, er)
+		middleware.RestErrorDetect(req, resp, er)
 		return
 	}
 	var filter *regexp.Regexp
 	if r.BucketsRegexp != "" {
 		filter, er = regexp.Compile(r.BucketsRegexp)
 		if er != nil {
-			service.RestError500(req, resp, er)
+			middleware.RestError500(req, resp, er)
 			return
 		}
 	}
@@ -381,21 +381,21 @@ func (s *Handler) ListStorageBuckets(req *restful.Request, resp *restful.Respons
 func (s *Handler) CreateStorageBucket(req *restful.Request, resp *restful.Response) {
 	var r rest.CreateStorageBucketRequest
 	if e := req.ReadEntity(&r); e != nil {
-		service.RestError500(req, resp, e)
+		middleware.RestError500(req, resp, e)
 		return
 	}
 	if r.DataSource.StorageType != object.StorageType_S3 {
-		service.RestError500(req, resp, fmt.Errorf("unsupported datasource type"))
+		middleware.RestError500(req, resp, fmt.Errorf("unsupported datasource type"))
 		return
 	}
 	bucketName := req.PathParameter("BucketName")
 	if bucketName == "" {
-		service.RestError500(req, resp, fmt.Errorf("missing bucket name"))
+		middleware.RestError500(req, resp, fmt.Errorf("missing bucket name"))
 		return
 	}
 	mc, er := s.storageClientForDatasource(r.DataSource)
 	if er != nil {
-		service.RestErrorDetect(req, resp, er)
+		middleware.RestErrorDetect(req, resp, er)
 		return
 	}
 	location := ""
@@ -404,7 +404,7 @@ func (s *Handler) CreateStorageBucket(req *restful.Request, resp *restful.Respon
 	}
 	er = mc.MakeBucket(req.Request.Context(), bucketName, location)
 	if er != nil {
-		service.RestErrorDetect(req, resp, er)
+		middleware.RestErrorDetect(req, resp, er)
 		return
 	}
 	response := &rest.CreateStorageBucketResponse{

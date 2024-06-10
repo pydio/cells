@@ -41,7 +41,7 @@ import (
 	"github.com/pydio/cells/v4/common/proto/jobs"
 	"github.com/pydio/cells/v4/common/proto/service"
 	"github.com/pydio/cells/v4/common/proto/tree"
-	"github.com/pydio/cells/v4/common/service/errors"
+	"github.com/pydio/cells/v4/common/service/serviceerrors"
 	"github.com/pydio/cells/v4/common/utils/i18n"
 	"github.com/pydio/cells/v4/common/utils/permissions"
 	"github.com/pydio/cells/v4/scheduler/actions"
@@ -136,12 +136,12 @@ func (c *CopyMoveAction) ProvidesProgress() bool {
 func (c *CopyMoveAction) Init(job *jobs.Job, action *jobs.Action) error {
 
 	if action.Parameters == nil {
-		return errors.InternalServerError(common.ServiceJobs, "Could not find parameters for CopyMove action")
+		return serviceerrors.InternalServerError(common.ServiceJobs, "Could not find parameters for CopyMove action")
 	}
 	var tOk bool
 	c.targetPlaceholder, tOk = action.Parameters["target"]
 	if !tOk {
-		return errors.InternalServerError(common.ServiceJobs, "Could not find parameters for CopyMove action")
+		return serviceerrors.InternalServerError(common.ServiceJobs, "Could not find parameters for CopyMove action")
 	}
 	if actionType, ok := action.Parameters["type"]; ok && actionType == "move" {
 		c.move = true

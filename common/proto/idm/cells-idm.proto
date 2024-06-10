@@ -107,6 +107,7 @@ service UserService {
     rpc BindUser (BindUserRequest) returns (BindUserResponse) {};
 
     rpc CountUser (SearchUserRequest) returns (CountUserResponse) {};
+    rpc SearchOne(SearchUserRequest) returns (SearchUserResponse) {};
     rpc SearchUser (SearchUserRequest) returns (stream SearchUserResponse) {};
     rpc StreamUser (stream SearchUserRequest) returns (stream SearchUserResponse) {};
 

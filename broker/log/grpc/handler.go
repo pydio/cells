@@ -38,7 +38,7 @@ import (
 	"github.com/pydio/cells/v4/common/proto/sync"
 	"github.com/pydio/cells/v4/common/runtime"
 	"github.com/pydio/cells/v4/common/runtime/manager"
-	"github.com/pydio/cells/v4/common/service/errors"
+	"github.com/pydio/cells/v4/common/service/serviceerrors"
 )
 
 // Handler is the gRPC interface for the log service.
@@ -133,7 +133,7 @@ func (h *Handler) DeleteLogs(ctx context.Context, req *proto.ListLogRequest) (*p
 
 // AggregatedLogs retrieves aggregated figures from the indexer to generate charts and reports.
 func (h *Handler) AggregatedLogs(req *proto.TimeRangeRequest, stream proto.LogRecorder_AggregatedLogsServer) error {
-	return errors.InternalServerError("not.implemented", "cannot aggregate syslogs")
+	return serviceerrors.InternalServerError("not.implemented", "cannot aggregate syslogs")
 }
 
 // TriggerResync uses the request.Path as parameter. If nothing is passed, it reads all the logs from index and

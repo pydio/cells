@@ -32,6 +32,7 @@ import (
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/broker"
 	"github.com/pydio/cells/v4/common/log"
+	"github.com/pydio/cells/v4/common/middleware"
 	"github.com/pydio/cells/v4/common/proto/install"
 	"github.com/pydio/cells/v4/common/service"
 	"github.com/pydio/cells/v4/common/utils/propagator"
@@ -75,7 +76,7 @@ func (h *Handler) PerformInstallCheck(req *restful.Request, rsp *restful.Respons
 	var input install.PerformCheckRequest
 	err := req.ReadEntity(&input)
 	if err != nil {
-		service.RestError500(req, rsp, err)
+		middleware.RestError500(req, rsp, err)
 		return
 	}
 
@@ -123,7 +124,7 @@ func (h *Handler) PostInstall(req *restful.Request, rsp *restful.Response) {
 
 	err := req.ReadEntity(&input)
 	if err != nil {
-		service.RestError500(req, rsp, err)
+		middleware.RestError500(req, rsp, err)
 		return
 	}
 
@@ -144,7 +145,7 @@ func (h *Handler) PostInstall(req *restful.Request, rsp *restful.Response) {
 		h.eventManager.Publish("install", event)
 	}); er != nil {
 		h.eventManager.Publish("install", &lib.InstallProgressEvent{Message: "Some error occurred: " + er.Error()})
-		service.RestError500(req, rsp, er)
+		middleware.RestError500(req, rsp, er)
 	} else {
 		h.eventManager.Publish("install", &lib.InstallProgressEvent{
 			Message:  "Installation Finished, starting all services...",

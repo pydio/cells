@@ -24,6 +24,7 @@ import (
 	"bufio"
 	"context"
 	"crypto/sha256"
+	"github.com/pydio/cells/v4/common/middleware/keys"
 	"net/url"
 	"os"
 	"regexp"
@@ -499,7 +500,7 @@ func (*cellsdriverContextualizer) Network(ctx context.Context, network uuid.UUID
 
 func (*cellsdriverContextualizer) Config(ctx context.Context, cfg *configx.Provider) *configx.Provider {
 
-	host, _ := middleware.HttpMetaFromGrpcContext(ctx, middleware.HttpMetaHost)
+	host, _ := middleware.HttpMetaFromGrpcContext(ctx, keys.HttpMetaHost)
 	rootURL := "https://" + host
 	var conf config.Store
 	propagator.Get(ctx, config.ContextKey, &conf)

@@ -23,6 +23,7 @@ package path
 import (
 	"context"
 	"fmt"
+	"github.com/pydio/cells/v4/common/middleware/keys"
 	"strings"
 
 	"go.uber.org/zap"
@@ -31,13 +32,12 @@ import (
 
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/log"
-	"github.com/pydio/cells/v4/common/middleware"
 	"github.com/pydio/cells/v4/common/nodes"
 	"github.com/pydio/cells/v4/common/nodes/abstract"
 	"github.com/pydio/cells/v4/common/nodes/acl"
 	"github.com/pydio/cells/v4/common/proto/idm"
 	"github.com/pydio/cells/v4/common/proto/tree"
-	"github.com/pydio/cells/v4/common/service/errors"
+	"github.com/pydio/cells/v4/common/service/serviceerrors"
 	"github.com/pydio/cells/v4/common/utils/propagator"
 )
 
@@ -93,7 +93,7 @@ func (a *WorkspaceHandler) extractWs(ctx context.Context, node *tree.Node) (*idm
 				}
 			}
 			// There is a workspace in path, but it is not in the ACL!
-			return nil, false, errors.NotFound("workspace.not.found", fmt.Sprintf("Workspace %s is not found", parts[0]))
+			return nil, false, serviceerrors.NotFound("workspace.not.found", fmt.Sprintf("Workspace %s is not found", parts[0]))
 		} else {
 			// Root without workspace part
 			return nil, false, nil
@@ -114,9 +114,9 @@ func (a *WorkspaceHandler) updateBranchInfo(ctx context.Context, node *tree.Node
 		return ctx, node, err
 	} else if ok {
 		branchInfo.Workspace = proto.Clone(ws).(*idm.Workspace)
-		if _, ok := propagator.CanonicalMeta(ctx, middleware.CtxWorkspaceUuid); !ok { // do not override if already set
+		if _, ok := propagator.CanonicalMeta(ctx, keys.CtxWorkspaceUuid); !ok { // do not override if already set
 			ctx = propagator.WithAdditionalMetadata(ctx, map[string]string{
-				middleware.CtxWorkspaceUuid: ws.UUID,
+				keys.CtxWorkspaceUuid: ws.UUID,
 			})
 		}
 		return nodes.WithBranchInfo(ctx, identifier, branchInfo), out, nil

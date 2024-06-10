@@ -29,8 +29,8 @@ import (
 	"github.com/pydio/cells/v4/common/client/grpc"
 	"github.com/pydio/cells/v4/common/config"
 	"github.com/pydio/cells/v4/common/log"
+	"github.com/pydio/cells/v4/common/middleware"
 	"github.com/pydio/cells/v4/common/proto/idm"
-	"github.com/pydio/cells/v4/common/service"
 	"github.com/pydio/cells/v4/common/utils/i18n"
 	"github.com/pydio/cells/v4/idm/policy/lang"
 )
@@ -60,7 +60,7 @@ func (h *PolicyHandler) ListPolicies(req *restful.Request, rsp *restful.Response
 
 	streamer, err := h.getClient(ctx).StreamPolicyGroups(ctx, &idm.ListPolicyGroupsRequest{})
 	if err != nil {
-		service.RestErrorDetect(req, rsp, err)
+		middleware.RestErrorDetect(req, rsp, err)
 		return
 	}
 	languages := i18n.UserLanguagesFromRestRequest(req, config.Get())

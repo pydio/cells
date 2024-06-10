@@ -33,7 +33,7 @@ import (
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/log"
 	proto "github.com/pydio/cells/v4/common/proto/jobs"
-	"github.com/pydio/cells/v4/common/service/errors"
+	"github.com/pydio/cells/v4/common/service/serviceerrors"
 	json "github.com/pydio/cells/v4/common/utils/jsonx"
 	"github.com/pydio/cells/v4/scheduler/jobs"
 )
@@ -107,11 +107,11 @@ func (s *boltStore) GetJob(jobId string, withTasks proto.TaskStatus) (*proto.Job
 		bucket := tx.Bucket(jobsBucketKey)
 		data := bucket.Get([]byte(jobId))
 		if data == nil {
-			return errors.NotFound(common.ServiceJobs, "Job ID not found")
+			return serviceerrors.NotFound(common.ServiceJobs, "Job ID not found")
 		}
 		err := json.Unmarshal(data, j)
 		if err != nil {
-			return errors.InternalServerError(common.ServiceJobs, "Cannot deserialize job")
+			return serviceerrors.InternalServerError(common.ServiceJobs, "Cannot deserialize job")
 		}
 		if withTasks != proto.TaskStatus_Unknown {
 			j.Tasks = []*proto.Task{}

@@ -24,6 +24,7 @@ package middleware
 import (
 	"context"
 	"github.com/pydio/cells/v4/common/log"
+	"github.com/pydio/cells/v4/common/middleware/keys"
 	"net"
 	"net/http"
 	"strings"
@@ -35,70 +36,53 @@ import (
 
 func init() {
 	log.EncoderHttpMetaKeys = append(log.EncoderHttpMetaKeys,
-		HttpMetaRemoteAddress,
-		HttpMetaUserAgent,
-		HttpMetaContentType,
-		HttpMetaProtocol,
+		keys.HttpMetaRemoteAddress,
+		keys.HttpMetaUserAgent,
+		keys.HttpMetaContentType,
+		keys.HttpMetaProtocol,
 	)
 }
-
-const (
-	HttpMetaExtracted     = "HttpMetaExtracted"
-	HttpMetaRemoteAddress = "RemoteAddress"
-	HttpMetaRequestMethod = "RequestMethod"
-	HttpMetaRequestURI    = "RequestURI"
-	HttpMetaHost          = "RequestHost"
-	HttpMetaHostname      = "RequestHostname"
-	HttpMetaPort          = "RequestPort"
-	HttpMetaProtocol      = "HttpProtocol"
-	HttpMetaUserAgent     = "UserAgent"
-	HttpMetaContentType   = "ContentType"
-	HttpMetaCookiesString = "CookiesString"
-	ClientTime            = "ClientTime"
-	ServerTime            = "ServerTime"
-	CtxWorkspaceUuid      = "Ctx-Workspace-Uuid"
-)
 
 // HttpRequestInfoToMetadata extracts as much HTTP metadata as possible and stores it in the context as metadata.
 func HttpRequestInfoToMetadata(ctx context.Context, req *http.Request) context.Context {
 
 	meta := map[string]string{}
 	if existing, ok := propagator.FromContextRead(ctx); ok {
-		if _, already := existing[HttpMetaExtracted]; already {
+		if _, already := existing[keys.HttpMetaExtracted]; already {
 			return ctx
 		}
 		for k, v := range existing {
 			meta[k] = v
 		}
 	}
-	meta[HttpMetaExtracted] = HttpMetaExtracted
+	meta[keys.HttpMetaExtracted] = keys.HttpMetaExtracted
 
 	layout := "2006-01-02T15:04-0700"
 	t := time.Now()
-	meta[ServerTime] = t.Format(layout)
+	meta[keys.ServerTime] = t.Format(layout)
 	//TODO: Retrieve client time and locale and set it here.
 	//Unfortunately this is not sent by HTTP Requests.
 	//We currently use server time instead of client time.
-	meta[ClientTime] = t.Format(layout)
+	meta[keys.ClientTime] = t.Format(layout)
 
-	meta[HttpMetaHost] = req.Host
+	meta[keys.HttpMetaHost] = req.Host
 	if h, p, e := net.SplitHostPort(req.Host); e == nil {
-		meta[HttpMetaHostname] = h
-		meta[HttpMetaPort] = p
+		meta[keys.HttpMetaHostname] = h
+		meta[keys.HttpMetaPort] = p
 	}
 	// We might want to also support new standard "Forwarded" header.
 	if h, ok := req.Header["X-Forwarded-For"]; ok {
 		ips := strings.Split(strings.Join(h, ""), ",")
-		meta[HttpMetaRemoteAddress] = ips[0]
+		meta[keys.HttpMetaRemoteAddress] = ips[0]
 	} else if req.RemoteAddr != "" {
-		meta[HttpMetaRemoteAddress] = req.RemoteAddr
+		meta[keys.HttpMetaRemoteAddress] = req.RemoteAddr
 	}
 
 	if h, ok := req.Header["User-Agent"]; ok {
-		meta[HttpMetaUserAgent] = strings.Join(h, "")
+		meta[keys.HttpMetaUserAgent] = strings.Join(h, "")
 	}
 	if h, ok := req.Header["Content-Type"]; ok {
-		meta[HttpMetaContentType] = strings.Join(h, "")
+		meta[keys.HttpMetaContentType] = strings.Join(h, "")
 	}
 	for _, key := range common.XSpecialPydioHeaders {
 		if h, ok := req.Header[key]; ok && len(h) > 0 {
@@ -106,13 +90,13 @@ func HttpRequestInfoToMetadata(ctx context.Context, req *http.Request) context.C
 		}
 	}
 	if req.RequestURI != "" {
-		meta[HttpMetaRequestURI] = req.RequestURI
+		meta[keys.HttpMetaRequestURI] = req.RequestURI
 	}
 	if req.Method != "" {
-		meta[HttpMetaRequestMethod] = req.Method
+		meta[keys.HttpMetaRequestMethod] = req.Method
 	}
 	if req.Proto != "" {
-		meta[HttpMetaProtocol] = req.Proto
+		meta[keys.HttpMetaProtocol] = req.Proto
 	}
 	if len(req.Cookies()) > 0 {
 		var cString []string
@@ -121,7 +105,7 @@ func HttpRequestInfoToMetadata(ctx context.Context, req *http.Request) context.C
 				cString = append(cString, c.String())
 			}
 		}
-		meta[HttpMetaCookiesString] = strings.Join(cString, "//")
+		meta[keys.HttpMetaCookiesString] = strings.Join(cString, "//")
 	}
 
 	return propagator.NewContext(ctx, meta)

@@ -30,7 +30,7 @@ import (
 	"github.com/pydio/cells/v4/common/proto/idm"
 	"github.com/pydio/cells/v4/common/proto/service"
 	"github.com/pydio/cells/v4/common/runtime/manager"
-	"github.com/pydio/cells/v4/common/service/errors"
+	"github.com/pydio/cells/v4/common/service/serviceerrors"
 	"github.com/pydio/cells/v4/common/sql"
 	"github.com/pydio/cells/v4/common/utils/test"
 	"github.com/pydio/cells/v4/common/utils/uuid"
@@ -59,7 +59,7 @@ func TestCrud(t *testing.T) {
 					Label: "",
 				})
 				So(err, ShouldNotBeNil)
-				So(errors.FromError(err).Code, ShouldEqual, 400)
+				So(serviceerrors.FromError(err).Code, ShouldEqual, 400)
 			}
 			{
 				r, _, err := mockDAO.Add(ctx, &idm.Role{

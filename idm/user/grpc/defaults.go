@@ -14,7 +14,7 @@ import (
 	"github.com/pydio/cells/v4/common/proto/idm"
 	service2 "github.com/pydio/cells/v4/common/proto/service"
 	"github.com/pydio/cells/v4/common/runtime/manager"
-	"github.com/pydio/cells/v4/common/service/errors"
+	"github.com/pydio/cells/v4/common/service/serviceerrors"
 	"github.com/pydio/cells/v4/common/utils/propagator"
 	"github.com/pydio/cells/v4/idm/user"
 )
@@ -118,7 +118,7 @@ func InitDefaults(ctx context.Context) error {
 
 // CreateIfNotExists creates a user if DAO.Bind() call returns a 404 error.
 func CreateIfNotExists(ctx context.Context, dao user.DAO, user *idm.User) (*idm.User, error) {
-	if _, err := dao.Bind(ctx, user.Login, user.Password); err != nil && errors.FromError(err).Code != 404 {
+	if _, err := dao.Bind(ctx, user.Login, user.Password); err != nil && serviceerrors.FromError(err).Code != 404 {
 		return nil, err
 	} else if err == nil {
 		log.Logger(ctx).Info("Skipping user " + user.Login + ", already exists")

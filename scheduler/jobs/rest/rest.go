@@ -35,11 +35,11 @@ import (
 	"github.com/pydio/cells/v4/common/client/grpc"
 	"github.com/pydio/cells/v4/common/config"
 	"github.com/pydio/cells/v4/common/log"
+	"github.com/pydio/cells/v4/common/middleware"
 	"github.com/pydio/cells/v4/common/nodes"
 	"github.com/pydio/cells/v4/common/proto/jobs"
 	log2 "github.com/pydio/cells/v4/common/proto/log"
 	"github.com/pydio/cells/v4/common/proto/rest"
-	"github.com/pydio/cells/v4/common/service"
 	"github.com/pydio/cells/v4/common/utils/i18n"
 	json "github.com/pydio/cells/v4/common/utils/jsonx"
 	"github.com/pydio/cells/v4/scheduler/lang"
@@ -74,7 +74,7 @@ func (s *JobsHandler) UserListJobs(req *restful.Request, rsp *restful.Response) 
 
 	var request jobs.ListJobsRequest
 	if err := req.ReadEntity(&request); err != nil {
-		service.RestError500(req, rsp, err)
+		middleware.RestError500(req, rsp, err)
 		return
 	}
 	ctx := req.Request.Context()
@@ -97,7 +97,7 @@ func (s *JobsHandler) UserListJobs(req *restful.Request, rsp *restful.Response) 
 
 	streamer, err := cli.ListJobs(ctx, &request)
 	if err != nil {
-		service.RestErrorDetect(req, rsp, err)
+		middleware.RestErrorDetect(req, rsp, err)
 		return
 	}
 	for {
@@ -148,7 +148,7 @@ func (s *JobsHandler) UserControlJob(req *restful.Request, rsp *restful.Response
 
 	var cmd jobs.CtrlCommand
 	if err := req.ReadEntity(&cmd); err != nil {
-		service.RestError500(req, rsp, err)
+		middleware.RestError500(req, rsp, err)
 		return
 	}
 	ctx := req.Request.Context()
@@ -159,7 +159,7 @@ func (s *JobsHandler) UserControlJob(req *restful.Request, rsp *restful.Response
 			TaskID: []string{cmd.TaskId},
 		}
 		if response, err := cli.DeleteTasks(ctx, delRequest); err != nil {
-			service.RestErrorDetect(req, rsp, err)
+			middleware.RestErrorDetect(req, rsp, err)
 		} else {
 			rsp.WriteEntity(&jobs.CtrlCommandResponse{Msg: fmt.Sprintf("Deleted %v tasks", len(response.Deleted))})
 		}
@@ -185,13 +185,13 @@ func (s *JobsHandler) UserControlJob(req *restful.Request, rsp *restful.Response
 				job.Inactive = false
 			}
 			if _, err := cli.PutJob(ctx, &jobs.PutJobRequest{Job: job}); err != nil {
-				service.RestErrorDetect(req, rsp, err)
+				middleware.RestErrorDetect(req, rsp, err)
 			} else {
 				rsp.WriteEntity(&jobs.CtrlCommandResponse{Msg: "Updated Job State"})
 			}
 
 		} else {
-			service.RestErrorDetect(req, rsp, err)
+			middleware.RestErrorDetect(req, rsp, err)
 		}
 
 	} else {
@@ -199,7 +199,7 @@ func (s *JobsHandler) UserControlJob(req *restful.Request, rsp *restful.Response
 		if response, err := cli.Control(ctx, &cmd); err == nil {
 			rsp.WriteEntity(response)
 		} else {
-			service.RestErrorDetect(req, rsp, err)
+			middleware.RestErrorDetect(req, rsp, err)
 		}
 	}
 
@@ -209,14 +209,14 @@ func (s *JobsHandler) UserDeleteTasks(req *restful.Request, rsp *restful.Respons
 
 	var request jobs.DeleteTasksRequest
 	if err := req.ReadEntity(&request); err != nil {
-		service.RestError500(req, rsp, err)
+		middleware.RestError500(req, rsp, err)
 		return
 	}
 
 	ctx := req.Request.Context()
 	response, e := jobsc.JobServiceClient(ctx).DeleteTasks(ctx, &request)
 	if e != nil {
-		service.RestErrorDetect(req, rsp, e)
+		middleware.RestErrorDetect(req, rsp, e)
 		return
 	}
 
@@ -229,7 +229,7 @@ func (s *JobsHandler) UserCreateJob(req *restful.Request, rsp *restful.Response)
 	var request rest.UserJobRequest
 	err := req.ReadEntity(&request)
 	if err != nil {
-		service.RestError500(req, rsp, err)
+		middleware.RestError500(req, rsp, err)
 		return
 	}
 	if request.JobName == "" {
@@ -300,11 +300,11 @@ func (s *JobsHandler) UserCreateJob(req *restful.Request, rsp *restful.Response)
 	case "import-p8":
 		jobUuid, err = p8migration(ctx, request.JsonParameters)
 	default:
-		service.RestError500(req, rsp, fmt.Errorf("unknown job name"))
+		middleware.RestError500(req, rsp, fmt.Errorf("unknown job name"))
 	}
 
 	if err != nil {
-		service.RestErrorDetect(req, rsp, err)
+		middleware.RestErrorDetect(req, rsp, err)
 		return
 	}
 
@@ -320,7 +320,7 @@ func (s *JobsHandler) ListTasksLogs(req *restful.Request, rsp *restful.Response)
 
 	var input log2.ListLogRequest
 	if e := req.ReadEntity(&input); e != nil {
-		service.RestError500(req, rsp, e)
+		middleware.RestError500(req, rsp, e)
 		return
 	}
 	ctx := req.Request.Context()
@@ -329,7 +329,7 @@ func (s *JobsHandler) ListTasksLogs(req *restful.Request, rsp *restful.Response)
 
 	res, err := c.ListLogs(ctx, &input)
 	if err != nil {
-		service.RestErrorDetect(req, rsp, err)
+		middleware.RestErrorDetect(req, rsp, err)
 		return
 	}
 	defer res.CloseSend()

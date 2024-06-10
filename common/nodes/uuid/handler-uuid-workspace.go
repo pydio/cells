@@ -22,6 +22,7 @@ package uuid
 
 import (
 	"context"
+	"github.com/pydio/cells/v4/common/middleware/keys"
 	"path"
 	"strings"
 
@@ -29,13 +30,12 @@ import (
 	"google.golang.org/protobuf/proto"
 
 	"github.com/pydio/cells/v4/common/log"
-	"github.com/pydio/cells/v4/common/middleware"
 	"github.com/pydio/cells/v4/common/nodes"
 	"github.com/pydio/cells/v4/common/nodes/abstract"
 	"github.com/pydio/cells/v4/common/nodes/acl"
 	"github.com/pydio/cells/v4/common/proto/idm"
 	"github.com/pydio/cells/v4/common/proto/tree"
-	"github.com/pydio/cells/v4/common/service/errors"
+	"github.com/pydio/cells/v4/common/service/serviceerrors"
 	"github.com/pydio/cells/v4/common/utils/permissions"
 	"github.com/pydio/cells/v4/common/utils/propagator"
 )
@@ -100,7 +100,7 @@ func (h *WorkspaceHandler) updateInputBranch(ctx context.Context, node *tree.Nod
 	workspaces, _ := accessList.BelongsToWorkspaces(ctx, parents...)
 	if len(workspaces) == 0 {
 		log.Logger(ctx).Debug("Node des not belong to any accessible workspace!", accessList.Zap())
-		return ctx, node, errors.Forbidden("no.workspaces.found", "Node does not belong to any accessible workspace!")
+		return ctx, node, serviceerrors.Forbidden("no.workspaces.found", "Node does not belong to any accessible workspace!")
 	}
 	// Use first workspace by default
 	branchInfo := nodes.BranchInfo{
@@ -108,9 +108,9 @@ func (h *WorkspaceHandler) updateInputBranch(ctx context.Context, node *tree.Nod
 		Workspace:     proto.Clone(workspaces[0]).(*idm.Workspace),
 	}
 	branchInfo.AncestorsList[node.Path] = parents
-	if _, ok := propagator.CanonicalMeta(ctx, middleware.CtxWorkspaceUuid); !ok {
+	if _, ok := propagator.CanonicalMeta(ctx, keys.CtxWorkspaceUuid); !ok {
 		ctx = propagator.WithAdditionalMetadata(ctx, map[string]string{
-			middleware.CtxWorkspaceUuid: branchInfo.Workspace.UUID,
+			keys.CtxWorkspaceUuid: branchInfo.Workspace.UUID,
 		})
 	}
 	return nodes.WithBranchInfo(ctx, identifier, branchInfo), node, nil
@@ -160,7 +160,7 @@ func (h *WorkspaceHandler) relativePathToWsRoot(ctx context.Context, ws *idm.Wor
 			}
 			return relPath, nil
 		} else {
-			return "", errors.NotFound("RouterUuid", "Cannot subtract paths "+nodeFullPath+" - "+rootPath)
+			return "", serviceerrors.NotFound("RouterUuid", "Cannot subtract paths "+nodeFullPath+" - "+rootPath)
 		}
 	} else {
 		return "", e

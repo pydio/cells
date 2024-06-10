@@ -34,14 +34,14 @@ import (
 	"github.com/pydio/cells/v4/common/auth"
 	"github.com/pydio/cells/v4/common/client/commons/idmc"
 	"github.com/pydio/cells/v4/common/log"
+	"github.com/pydio/cells/v4/common/middleware"
 	"github.com/pydio/cells/v4/common/nodes/compose"
 	"github.com/pydio/cells/v4/common/proto/idm"
 	"github.com/pydio/cells/v4/common/proto/rest"
 	serviceproto "github.com/pydio/cells/v4/common/proto/service"
 	"github.com/pydio/cells/v4/common/proto/tree"
-	"github.com/pydio/cells/v4/common/service"
-	"github.com/pydio/cells/v4/common/service/errors"
 	"github.com/pydio/cells/v4/common/service/resources"
+	"github.com/pydio/cells/v4/common/service/serviceerrors"
 	json "github.com/pydio/cells/v4/common/utils/jsonx"
 	"github.com/pydio/cells/v4/common/utils/permissions"
 	"github.com/pydio/cells/v4/idm/meta"
@@ -106,7 +106,7 @@ func (s *UserMetaHandler) updateLock(ctx context.Context, meta *idm.UserMeta, op
 		}
 		acl := rsp.ACL
 		if userName == "" || acl.Action.Value != userName {
-			return errors.Forbidden("lock.update.forbidden", "This file is locked by another user")
+			return serviceerrors.Forbidden("lock.update.forbidden", "This file is locked by another user")
 		}
 		break
 	}
@@ -132,13 +132,13 @@ func (s *UserMetaHandler) UpdateUserMeta(req *restful.Request, rsp *restful.Resp
 
 	var input idm.UpdateUserMetaRequest
 	if err := req.ReadEntity(&input); err != nil {
-		service.RestError500(req, rsp, err)
+		middleware.RestError500(req, rsp, err)
 		return
 	}
 	ctx := req.Request.Context()
 	nsList, e := s.ListAllNamespaces(ctx, userMetaClient(req.Request.Context()))
 	if e != nil {
-		service.RestError500(req, rsp, e)
+		middleware.RestError500(req, rsp, e)
 		return
 	}
 	var loadUuids []string
@@ -150,12 +150,12 @@ func (s *UserMetaHandler) UpdateUserMeta(req *restful.Request, rsp *restful.Resp
 		var exists bool
 		resp, e := router.ReadNode(ctx, &tree.ReadNodeRequest{Node: &tree.Node{Uuid: meta.NodeUuid}})
 		if e != nil {
-			service.RestError404(req, rsp, e)
+			middleware.RestError404(req, rsp, e)
 			return
 		}
 		if meta.Namespace != ReservedNSBookmark {
 			if _, er := router.CanApply(ctx, &tree.NodeChangeEvent{Type: tree.NodeChangeEvent_UPDATE_CONTENT, Target: resp.Node}); er != nil {
-				service.RestError403(req, rsp, er)
+				middleware.RestError403(req, rsp, er)
 				return
 			}
 		}
@@ -166,19 +166,19 @@ func (s *UserMetaHandler) UpdateUserMeta(req *restful.Request, rsp *restful.Resp
 		if meta.Namespace == permissions.AclContentLock.Name {
 			e := s.updateLock(ctx, meta, input.Operation)
 			if e != nil {
-				service.RestErrorDetect(req, rsp, e)
+				middleware.RestErrorDetect(req, rsp, e)
 			} else {
 				rsp.WriteEntity(&idm.UpdateUserMetaResponse{MetaDatas: []*idm.UserMeta{meta}})
 			}
 			return
 		}
 		if ns, exists = nsList[meta.Namespace]; !exists {
-			service.RestError404(req, rsp, errors.NotFound(common.ServiceUserMeta, "Namespace "+meta.Namespace+" is not defined!"))
+			middleware.RestError404(req, rsp, serviceerrors.NotFound(common.ServiceUserMeta, "Namespace "+meta.Namespace+" is not defined!"))
 			return
 		}
 
 		if !s.MatchPolicies(ctx, meta.Namespace, ns.Policies, serviceproto.ResourcePolicyAction_WRITE) {
-			service.RestError403(req, rsp, errors.Forbidden(common.ServiceUserMeta, "You are not authorized to write on namespace "+meta.Namespace))
+			middleware.RestError403(req, rsp, serviceerrors.Forbidden(common.ServiceUserMeta, "You are not authorized to write on namespace "+meta.Namespace))
 			return
 		}
 		if meta.Uuid != "" {
@@ -215,7 +215,7 @@ func (s *UserMetaHandler) UpdateUserMeta(req *restful.Request, rsp *restful.Resp
 	if len(loadUuids) > 0 {
 		stream, e := umc.SearchUserMeta(ctx, &idm.SearchUserMetaRequest{MetaUuids: loadUuids})
 		if e != nil {
-			service.RestError500(req, rsp, e)
+			middleware.RestError500(req, rsp, e)
 			return
 		}
 		defer stream.CloseSend()
@@ -228,13 +228,13 @@ func (s *UserMetaHandler) UpdateUserMeta(req *restful.Request, rsp *restful.Resp
 				continue
 			}
 			if !s.MatchPolicies(ctx, resp.UserMeta.Uuid, resp.UserMeta.Policies, serviceproto.ResourcePolicyAction_WRITE) {
-				service.RestError403(req, rsp, errors.Forbidden(common.ServiceUserMeta, "You are not authorized to edit this meta "+resp.UserMeta.Namespace))
+				middleware.RestError403(req, rsp, serviceerrors.Forbidden(common.ServiceUserMeta, "You are not authorized to edit this meta "+resp.UserMeta.Namespace))
 				return
 			}
 		}
 	}
 	if response, err := umc.UpdateUserMeta(ctx, &input); err != nil {
-		service.RestError500(req, rsp, err)
+		middleware.RestError500(req, rsp, err)
 	} else {
 		rsp.WriteEntity(response)
 	}
@@ -246,12 +246,12 @@ func (s *UserMetaHandler) SearchUserMeta(req *restful.Request, rsp *restful.Resp
 
 	var input idm.SearchUserMetaRequest
 	if err := req.ReadEntity(&input); err != nil {
-		service.RestError500(req, rsp, err)
+		middleware.RestError500(req, rsp, err)
 		return
 	}
 	ctx := req.Request.Context()
 	if output, e := s.PerformSearchMetaRequest(ctx, &input); e != nil {
-		service.RestError500(req, rsp, e)
+		middleware.RestError500(req, rsp, e)
 	} else {
 		rsp.WriteEntity(output)
 	}
@@ -268,7 +268,7 @@ func (s *UserMetaHandler) UserBookmarks(req *restful.Request, rsp *restful.Respo
 	ctx := req.Request.Context()
 	output, e := s.PerformSearchMetaRequest(ctx, searchRequest)
 	if e != nil {
-		service.RestError500(req, rsp, e)
+		middleware.RestError500(req, rsp, e)
 		return
 	}
 	bulk := &rest.BulkMetaResponse{}
@@ -295,25 +295,25 @@ func (s *UserMetaHandler) UpdateUserMetaNamespace(req *restful.Request, rsp *res
 
 	var input idm.UpdateUserMetaNamespaceRequest
 	if err := req.ReadEntity(&input); err != nil {
-		service.RestError500(req, rsp, err)
+		middleware.RestError500(req, rsp, err)
 		return
 	}
 	ctx := req.Request.Context()
 	// Validate input
 	for _, ns := range input.Namespaces {
 		if !strings.HasPrefix(ns.Namespace, "usermeta-") {
-			service.RestError500(req, rsp, fmt.Errorf("user defined meta must start with usermeta- prefix"))
+			middleware.RestError500(req, rsp, fmt.Errorf("user defined meta must start with usermeta- prefix"))
 			return
 		}
 		if _, e := ns.UnmarshallDefinition(); e != nil {
-			service.RestError500(req, rsp, fmt.Errorf("invalid json definition for namespace: "+e.Error()))
+			middleware.RestError500(req, rsp, fmt.Errorf("invalid json definition for namespace: "+e.Error()))
 			return
 		}
 	}
 
 	response, err := userMetaClient(ctx).UpdateUserMetaNamespace(ctx, &input)
 	if err != nil {
-		service.RestError500(req, rsp, err)
+		middleware.RestError500(req, rsp, err)
 	} else {
 		rsp.WriteEntity(response)
 	}
@@ -343,11 +343,11 @@ func (s *UserMetaHandler) ListUserMetaTags(req *restful.Request, rsp *restful.Re
 	log.Logger(ctx).Debug("Listing tags for namespace " + ns)
 	nss, er := s.ListAllNamespaces(ctx, userMetaClient(ctx))
 	if er != nil {
-		service.RestErrorDetect(req, rsp, er)
+		middleware.RestErrorDetect(req, rsp, er)
 		return
 	}
 	if _, ok := nss[ns]; !ok { // ns not found or filtered by policies
-		service.RestError404(req, rsp, fmt.Errorf("unknown namespace"))
+		middleware.RestError404(req, rsp, fmt.Errorf("unknown namespace"))
 		return
 	}
 	tags, _ := s.tvc.ListTags(ctx, ns)
@@ -359,7 +359,7 @@ func (s *UserMetaHandler) ListUserMetaTags(req *restful.Request, rsp *restful.Re
 func (s *UserMetaHandler) PutUserMetaTag(req *restful.Request, rsp *restful.Response) {
 	var r rest.PutUserMetaTagRequest
 	if e := req.ReadEntity(&r); e != nil {
-		service.RestError500(req, rsp, e)
+		middleware.RestError500(req, rsp, e)
 	}
 	if r.Namespace == "" {
 		r.Namespace = req.PathParameter("Namespace")
@@ -368,20 +368,20 @@ func (s *UserMetaHandler) PutUserMetaTag(req *restful.Request, rsp *restful.Resp
 	ctx := req.Request.Context()
 	nss, er := s.ListAllNamespaces(ctx, userMetaClient(ctx))
 	if er != nil {
-		service.RestErrorDetect(req, rsp, er)
+		middleware.RestErrorDetect(req, rsp, er)
 		return
 	}
 	if nsObject, ok := nss[r.Namespace]; !ok { // ns not found or filtered by policies
-		service.RestError404(req, rsp, fmt.Errorf("unknown namespace"))
+		middleware.RestError404(req, rsp, fmt.Errorf("unknown namespace"))
 		return
 	} else if !nsObject.PoliciesContextEditable {
-		service.RestError403(req, rsp, fmt.Errorf("cannot update these tags"))
+		middleware.RestError403(req, rsp, fmt.Errorf("cannot update these tags"))
 		return
 	}
 
 	e := s.tvc.StoreNewTags(ctx, r.Namespace, []string{r.Tag})
 	if e != nil {
-		service.RestError500(req, rsp, e)
+		middleware.RestError500(req, rsp, e)
 	} else {
 		rsp.WriteEntity(&rest.PutUserMetaTagResponse{Success: true})
 	}
@@ -394,11 +394,11 @@ func (s *UserMetaHandler) DeleteUserMetaTags(req *restful.Request, rsp *restful.
 	log.Logger(ctx).Debug("Delete tags for namespace "+ns, zap.String("tag", tag))
 	if tag == "*" {
 		if e := s.tvc.DeleteAllTags(ctx, ns); e != nil {
-			service.RestError500(req, rsp, e)
+			middleware.RestError500(req, rsp, e)
 			return
 		}
 	} else {
-		service.RestError500(req, rsp, fmt.Errorf("not implemented - please use * to clear all tags"))
+		middleware.RestError500(req, rsp, fmt.Errorf("not implemented - please use * to clear all tags"))
 		return
 	}
 	_ = rsp.WriteEntity(&rest.DeleteUserMetaTagsResponse{Success: true})

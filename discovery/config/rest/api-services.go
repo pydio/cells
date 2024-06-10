@@ -35,6 +35,7 @@ import (
 	"github.com/pydio/cells/v4/common/client/commons/treec"
 	"github.com/pydio/cells/v4/common/client/grpc"
 	"github.com/pydio/cells/v4/common/log"
+	"github.com/pydio/cells/v4/common/middleware"
 	"github.com/pydio/cells/v4/common/proto/ctl"
 	"github.com/pydio/cells/v4/common/proto/object"
 	rpb "github.com/pydio/cells/v4/common/proto/registry"
@@ -43,8 +44,7 @@ import (
 	"github.com/pydio/cells/v4/common/registry"
 	"github.com/pydio/cells/v4/common/registry/util"
 	"github.com/pydio/cells/v4/common/runtime"
-	"github.com/pydio/cells/v4/common/service"
-	"github.com/pydio/cells/v4/common/service/errors"
+	"github.com/pydio/cells/v4/common/service/serviceerrors"
 	"github.com/pydio/cells/v4/common/utils/propagator"
 	"github.com/pydio/cells/v4/common/utils/uuid"
 )
@@ -59,14 +59,14 @@ func (h *Handler) ListServices(req *restful.Request, resp *restful.Response) {
 	// Create a list of all plugins
 	pluginsReg, e := registry.OpenRegistry(context.Background(), runtime.RegistryURL())
 	if e != nil {
-		service.RestError500(req, resp, e)
+		middleware.RestError500(req, resp, e)
 		return
 	}
 	defer pluginsReg.Close()
 
 	services, err := pluginsReg.List(registry.WithType(rpb.ItemType_SERVICE))
 	if err != nil {
-		service.RestError500(req, resp, err)
+		middleware.RestError500(req, resp, err)
 		return
 	}
 
@@ -104,13 +104,13 @@ func (h *Handler) ListRegistry(req *restful.Request, resp *restful.Response) {
 
 	var input rpb.ListRequest
 	if e := req.ReadEntity(&input); e != nil {
-		service.RestError500(req, resp, e)
+		middleware.RestError500(req, resp, e)
 		return
 	}
 
 	pluginsReg, e := registry.OpenRegistry(context.Background(), runtime.RegistryURL())
 	if e != nil {
-		service.RestError500(req, resp, e)
+		middleware.RestError500(req, resp, e)
 		return
 	}
 	defer pluginsReg.Close()
@@ -125,7 +125,7 @@ func (h *Handler) ListRegistry(req *restful.Request, resp *restful.Response) {
 	}
 	ii, e := pluginsReg.List(opts...)
 	if e != nil {
-		service.RestError500(req, resp, e)
+		middleware.RestError500(req, resp, e)
 		return
 	}
 	response := &rpb.ListResponse{}
@@ -162,7 +162,7 @@ func (h *Handler) ListPeersAddresses(req *restful.Request, resp *restful.Respons
 	propagator.Get(req.Request.Context(), registry.ContextKey, &reg)
 	nodes, er := reg.List(registry.WithType(rpb.ItemType_SERVER))
 	if er != nil {
-		service.RestError500(req, resp, er)
+		middleware.RestError500(req, resp, er)
 		return
 	}
 	accu := make(map[string]string)
@@ -198,7 +198,7 @@ func (h *Handler) ListPeerFolders(req *restful.Request, resp *restful.Response) 
 
 	var listReq rest.ListPeerFoldersRequest
 	if e := req.ReadEntity(&listReq); e != nil {
-		service.RestError500(req, resp, e)
+		middleware.RestError500(req, resp, e)
 		return
 	}
 
@@ -214,7 +214,7 @@ func (h *Handler) ListPeerFolders(req *restful.Request, resp *restful.Response) 
 		Node: &tree.Node{Path: listReq.Path},
 	})
 	if e != nil {
-		service.RestError500(req, resp, e)
+		middleware.RestError500(req, resp, e)
 		return
 	}
 	coll := &rest.NodesCollection{}
@@ -235,7 +235,7 @@ func (h *Handler) CreatePeerFolder(req *restful.Request, resp *restful.Response)
 
 	var createReq rest.CreatePeerFolderRequest
 	if e := req.ReadEntity(&createReq); e != nil {
-		service.RestError500(req, resp, e)
+		middleware.RestError500(req, resp, e)
 		return
 	}
 	var opts []grpc.Option
@@ -245,7 +245,7 @@ func (h *Handler) CreatePeerFolder(req *restful.Request, resp *restful.Response)
 	cl := tree.NewNodeReceiverClient(grpc.ResolveConn(req.Request.Context(), common.ServiceDataObjectsPeer, opts...))
 	cr, e := cl.CreateNode(req.Request.Context(), &tree.CreateNodeRequest{Node: &tree.Node{Path: createReq.Path}})
 	if e != nil {
-		service.RestErrorDetect(req, resp, e)
+		middleware.RestErrorDetect(req, resp, e)
 		return
 	}
 	resp.WriteEntity(&rest.CreatePeerFolderResponse{Success: true, Node: cr.Node})
@@ -257,7 +257,7 @@ func (h *Handler) ListProcesses(req *restful.Request, resp *restful.Response) {
 
 	var listReq rest.ListProcessesRequest
 	if e := req.ReadEntity(&listReq); e != nil {
-		service.RestError500(req, resp, e)
+		middleware.RestError500(req, resp, e)
 		return
 	}
 
@@ -267,7 +267,7 @@ func (h *Handler) ListProcesses(req *restful.Request, resp *restful.Response) {
 	propagator.Get(req.Request.Context(), registry.ContextKey, &reg)
 	nodes, er := reg.List(registry.WithType(rpb.ItemType_SERVER))
 	if er != nil {
-		service.RestError500(req, resp, er)
+		middleware.RestError500(req, resp, er)
 		return
 	}
 	accu := make(map[string]map[string]string)
@@ -312,7 +312,7 @@ func (h *Handler) ValidateLocalDSFolderOnPeer(ctx context.Context, newSource *ob
 	// Check it's two level deep
 	parentName := path.Dir(folder)
 	if strings.Trim(parentName, "/") == "" {
-		return errors.BadRequest("ds.folder.invalid", "please use at least a two-levels deep folder")
+		return serviceerrors.BadRequest("ds.folder.invalid", "please use at least a two-levels deep folder")
 	}
 
 	// Stat node to make sure it exists - Create it otherwise
@@ -327,10 +327,10 @@ func (h *Handler) ValidateLocalDSFolderOnPeer(ctx context.Context, newSource *ob
 				Type: tree.NodeType_COLLECTION,
 				Path: folder,
 			}}); err != nil {
-				return errors.Forbidden("ds.folder.cannot.create", err.Error())
+				return serviceerrors.Forbidden("ds.folder.cannot.create", err.Error())
 			}
 		} else {
-			return errors.NotFound("ds.folder.cannot.stat", e.Error())
+			return serviceerrors.NotFound("ds.folder.cannot.stat", e.Error())
 		}
 	}
 
@@ -342,7 +342,7 @@ func (h *Handler) ValidateLocalDSFolderOnPeer(ctx context.Context, newSource *ob
 	}
 	touched, e := wCl.CreateNode(ctx, &tree.CreateNodeRequest{Node: touchFile})
 	if e != nil {
-		return errors.Forbidden("ds.folder.parent.not.writable", "Please make sure that parent folder (%s) is writeable by the application", parentName)
+		return serviceerrors.Forbidden("ds.folder.parent.not.writable", "Please make sure that parent folder (%s) is writeable by the application", parentName)
 	} else {
 		if _, er := wCl.DeleteNode(ctx, &tree.DeleteNodeRequest{Node: touched.Node}); er != nil {
 			log.Logger(ctx).Error("Could not delete tmp file written when creating datasource on peer " + newSource.PeerAddress)
@@ -357,7 +357,7 @@ func (h *Handler) ControlService(req *restful.Request, resp *restful.Response) {
 
 	var ctrlRequest rest.ControlServiceRequest
 	if err := req.ReadEntity(&ctrlRequest); err != nil {
-		service.RestError500(req, resp, err)
+		middleware.RestError500(req, resp, err)
 		return
 	}
 	serviceName := ctrlRequest.ServiceName

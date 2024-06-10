@@ -32,6 +32,7 @@ import (
 	"go.opentelemetry.io/otel/sdk/resource"
 	"go.opentelemetry.io/otel/sdk/trace"
 	semconv "go.opentelemetry.io/otel/semconv/v1.20.0"
+	trace2 "go.opentelemetry.io/otel/trace"
 
 	"github.com/pydio/cells/v4/common"
 	otel2 "github.com/pydio/cells/v4/common/telemetry/otel"
@@ -104,4 +105,10 @@ func newPropagator() propagation.TextMapPropagator {
 		propagation.TraceContext{},
 		propagation.Baggage{},
 	)
+}
+
+// StartLocalSpan starts creates a new span and start recording. Do NOT forget to defer its End() method!
+func StartLocalSpan(ctx context.Context, name string) (context.Context, trace2.Span) {
+	span := trace2.SpanFromContext(ctx)
+	return span.TracerProvider().Tracer("cells").Start(ctx, name)
 }

@@ -39,7 +39,7 @@ import (
 	"github.com/pydio/cells/v4/common/proto/tree"
 	"github.com/pydio/cells/v4/common/runtime"
 	"github.com/pydio/cells/v4/common/service"
-	"github.com/pydio/cells/v4/common/service/errors"
+	"github.com/pydio/cells/v4/common/service/serviceerrors"
 	"github.com/pydio/cells/v4/common/utils/propagator"
 	"github.com/pydio/cells/v4/data/source/sync"
 	grpc_sync "github.com/pydio/cells/v4/data/source/sync/grpc"
@@ -133,7 +133,7 @@ func newService(ctx context.Context, dsObject *object.DataSource) {
 								RunNow: true,
 							})
 						}
-					} else if err != nil && errors.FromError(err).Code == 404 {
+					} else if err != nil && serviceerrors.FromError(err).Code == 404 {
 						log.Logger(jobCtx).Info("Creating job in scheduler to trigger re-indexation")
 						job := grpc_jobs.BuildDataSourceSyncJob(datasource, false, !dsObject.SkipSyncOnRestart)
 						_, e := jobsClient.PutJob(jobCtx, &jobs.PutJobRequest{
@@ -187,7 +187,7 @@ func newService(ctx context.Context, dsObject *object.DataSource) {
 					// Post a job to dump snapshot manually (Flat, non-internal only)
 					if !dsObject.IsInternal() {
 						if _, err := jobsClient.GetJob(jobCtx, &jobs.GetJobRequest{JobID: "snapshot-" + datasource}); err != nil {
-							if errors.FromError(err).Code == 404 {
+							if serviceerrors.FromError(err).Code == 404 {
 								log.Logger(jobCtx).Info("Creating job in scheduler to dump snapshot for " + datasource)
 								job := grpc_jobs.BuildDataSourceSyncJob(datasource, true, false)
 								_, e := jobsClient.PutJob(jobCtx, &jobs.PutJobRequest{

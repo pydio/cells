@@ -34,7 +34,7 @@ import (
 	pbservice "github.com/pydio/cells/v4/common/proto/service"
 	"github.com/pydio/cells/v4/common/runtime/manager"
 	"github.com/pydio/cells/v4/common/service"
-	"github.com/pydio/cells/v4/common/service/errors"
+	"github.com/pydio/cells/v4/common/service/serviceerrors"
 	"github.com/pydio/cells/v4/idm/role"
 )
 
@@ -66,7 +66,7 @@ func (h *Handler) CreateRole(ctx context.Context, req *idm.CreateRoleRequest) (*
 	resp := &idm.CreateRoleResponse{}
 
 	if req.Role.Uuid != "" && strings.Contains(req.Role.Uuid, ",") {
-		return nil, errors.BadRequest("forbidden.characters", "commas are not allowed in role uuid")
+		return nil, serviceerrors.BadRequest("forbidden.characters", "commas are not allowed in role uuid")
 	}
 
 	r, update, err := dao.Add(ctx, req.Role)
@@ -132,7 +132,7 @@ func (h *Handler) DeleteRole(ctx context.Context, req *idm.DeleteRoleRequest) (*
 	}
 
 	if req.Query == nil {
-		return nil, errors.BadRequest(common.ServiceRole, "cannot send a DeleteRole request with an empty query")
+		return nil, serviceerrors.BadRequest(common.ServiceRole, "cannot send a DeleteRole request with an empty query")
 	}
 
 	var roles []*idm.Role

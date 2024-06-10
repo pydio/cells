@@ -28,7 +28,7 @@ import (
 	"github.com/pydio/cells/v4/common/nodes/abstract"
 	"github.com/pydio/cells/v4/common/nodes/models"
 	"github.com/pydio/cells/v4/common/proto/tree"
-	"github.com/pydio/cells/v4/common/service/errors"
+	"github.com/pydio/cells/v4/common/service/serviceerrors"
 	"github.com/pydio/cells/v4/common/utils/permissions"
 )
 
@@ -85,7 +85,7 @@ func (a *LockFilter) PutObject(ctx context.Context, node *tree.Node, reader io.R
 	}
 
 	if accessList.IsLocked(ctx, nn...) {
-		return models.ObjectInfo{}, errors.New("parent.locked", "Node is currently locked", 423)
+		return models.ObjectInfo{}, serviceerrors.New("parent.locked", "Node is currently locked", 423)
 	}
 
 	return a.Next.PutObject(ctx, node, reader, requestData)
@@ -108,7 +108,7 @@ func (a *LockFilter) MultipartCreate(ctx context.Context, node *tree.Node, reque
 	}
 
 	if accessList.IsLocked(ctx, nn...) {
-		return "", errors.New("parent.locked", "Node is currently locked", 423)
+		return "", serviceerrors.New("parent.locked", "Node is currently locked", 423)
 	}
 
 	return a.Next.MultipartCreate(ctx, node, requestData)
@@ -146,7 +146,7 @@ func (a *LockFilter) WrappedCanApply(srcCtx context.Context, targetCtx context.C
 
 	nn := append([]*tree.Node{node}, parents...)
 	if accessList.IsLocked(ctx, nn...) {
-		return errors.New("parent.locked", "Node is currently locked", 423)
+		return serviceerrors.New("parent.locked", "Node is currently locked", 423)
 	}
 
 	return a.Next.WrappedCanApply(srcCtx, targetCtx, operation)

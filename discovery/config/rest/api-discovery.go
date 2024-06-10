@@ -40,6 +40,7 @@ import (
 	"github.com/pydio/cells/v4/common/forms/protos"
 	"github.com/pydio/cells/v4/common/log"
 	"github.com/pydio/cells/v4/common/middleware"
+	"github.com/pydio/cells/v4/common/middleware/keys"
 	"github.com/pydio/cells/v4/common/proto/idm"
 	"github.com/pydio/cells/v4/common/proto/jobs"
 	"github.com/pydio/cells/v4/common/proto/object"
@@ -49,7 +50,7 @@ import (
 	"github.com/pydio/cells/v4/common/registry"
 	"github.com/pydio/cells/v4/common/runtime"
 	"github.com/pydio/cells/v4/common/service"
-	"github.com/pydio/cells/v4/common/service/errors"
+	"github.com/pydio/cells/v4/common/service/serviceerrors"
 	"github.com/pydio/cells/v4/common/utils/i18n"
 	"github.com/pydio/cells/v4/common/utils/net"
 	"github.com/pydio/cells/v4/common/utils/propagator"
@@ -214,12 +215,12 @@ func (s *Handler) documentOpResponse(p *spec.Operation) {
 func (s *Handler) ConfigFormsDiscovery(req *restful.Request, rsp *restful.Response) {
 	serviceName := req.PathParameter("ServiceName")
 	if serviceName == "" {
-		service.RestError500(req, rsp, errors.BadRequest("configs", "Please provide a service name"))
+		middleware.RestError500(req, rsp, serviceerrors.BadRequest("configs", "Please provide a service name"))
 	}
 
 	form := config.ExposedConfigsForService(serviceName)
 	if form == nil {
-		service.RestError404(req, rsp, errors.NotFound("configs", "Cannot find service "+serviceName))
+		middleware.RestError404(req, rsp, serviceerrors.NotFound("configs", "Cannot find service "+serviceName))
 		return
 	}
 	rsp.WriteAsXml(form.Serialize(i18n.UserLanguagesFromRestRequest(req, config.Get())...))
@@ -386,18 +387,18 @@ func (s *Handler) SchedulerActionFormDiscovery(req *restful.Request, rsp *restfu
 				// Build FieldName / Condition Form
 				form = protos.GenerateProtoToForm("contextMetaSingleQuery", &jobs.ContextMetaSingleQuery{}, asSwitch)
 				selectChoices := []map[string]string{
-					{middleware.HttpMetaRemoteAddress: "contextMetaField." + middleware.HttpMetaRemoteAddress},
-					{middleware.HttpMetaUserAgent: "contextMetaField." + middleware.HttpMetaUserAgent},
-					{middleware.HttpMetaContentType: "contextMetaField." + middleware.HttpMetaContentType},
-					{middleware.HttpMetaProtocol: "contextMetaField." + middleware.HttpMetaProtocol},
-					{middleware.HttpMetaHost: "contextMetaField." + middleware.HttpMetaHost},
-					{middleware.HttpMetaHostname: "contextMetaField." + middleware.HttpMetaHostname},
-					{middleware.HttpMetaPort: "contextMetaField." + middleware.HttpMetaPort},
-					{middleware.HttpMetaRequestMethod: "contextMetaField." + middleware.HttpMetaRequestMethod},
-					{middleware.HttpMetaRequestURI: "contextMetaField." + middleware.HttpMetaRequestURI},
-					{middleware.HttpMetaCookiesString: "contextMetaField." + middleware.HttpMetaCookiesString},
+					{keys.HttpMetaRemoteAddress: "contextMetaField." + keys.HttpMetaRemoteAddress},
+					{keys.HttpMetaUserAgent: "contextMetaField." + keys.HttpMetaUserAgent},
+					{keys.HttpMetaContentType: "contextMetaField." + keys.HttpMetaContentType},
+					{keys.HttpMetaProtocol: "contextMetaField." + keys.HttpMetaProtocol},
+					{keys.HttpMetaHost: "contextMetaField." + keys.HttpMetaHost},
+					{keys.HttpMetaHostname: "contextMetaField." + keys.HttpMetaHostname},
+					{keys.HttpMetaPort: "contextMetaField." + keys.HttpMetaPort},
+					{keys.HttpMetaRequestMethod: "contextMetaField." + keys.HttpMetaRequestMethod},
+					{keys.HttpMetaRequestURI: "contextMetaField." + keys.HttpMetaRequestURI},
+					{keys.HttpMetaCookiesString: "contextMetaField." + keys.HttpMetaCookiesString},
 					//{middleware.ClientTime: middleware.ClientTime},
-					{middleware.ServerTime: "contextMetaField." + middleware.ServerTime},
+					{keys.ServerTime: "contextMetaField." + keys.ServerTime},
 				}
 				if asSwitch {
 					sw := form.Groups[0].Fields[0].(*forms.SwitchField)
@@ -416,12 +417,12 @@ func (s *Handler) SchedulerActionFormDiscovery(req *restful.Request, rsp *restfu
 		var err error
 		form, err = actionManager.LoadActionForm(actionName)
 		if err != nil {
-			service.RestErrorDetect(req, rsp, err)
+			middleware.RestErrorDetect(req, rsp, err)
 			return
 		}
 	}
 	if form == nil {
-		service.RestError404(req, rsp, fmt.Errorf("cannot find form"))
+		middleware.RestError404(req, rsp, fmt.Errorf("cannot find form"))
 		return
 	}
 	form.I18NBundle = lang.Bundle()
@@ -434,7 +435,7 @@ func (s *Handler) ListSites(req *restful.Request, rsp *restful.Response) {
 
 	ss, err := routing.LoadSites()
 	if err != nil {
-		service.RestError500(req, rsp, err)
+		middleware.RestError500(req, rsp, err)
 		return
 	}
 

@@ -40,7 +40,7 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/hashicorp/go-version"
+	version "github.com/hashicorp/go-version"
 	update2 "github.com/inconshreveable/go-update"
 	"github.com/kardianos/osext"
 	"go.uber.org/zap"
@@ -51,7 +51,7 @@ import (
 	"github.com/pydio/cells/v4/common/proto/update"
 	runtime2 "github.com/pydio/cells/v4/common/runtime"
 	"github.com/pydio/cells/v4/common/service"
-	"github.com/pydio/cells/v4/common/service/errors"
+	"github.com/pydio/cells/v4/common/service/serviceerrors"
 	"github.com/pydio/cells/v4/common/utils/configx"
 	"github.com/pydio/cells/v4/common/utils/filesystem"
 	json "github.com/pydio/cells/v4/common/utils/jsonx"
@@ -72,11 +72,11 @@ func LoadUpdates(ctx context.Context, conf configx.Values, request *update.Updat
 	}
 	urlConf := conf.Val("#/defaults/update/updateUrl").Default(conf.Val("updateUrl").String()).String()
 	if urlConf == "" {
-		return nil, errors.BadRequest(common.ServiceUpdate, "cannot find update url")
+		return nil, serviceerrors.BadRequest(common.ServiceUpdate, "cannot find update url")
 	}
 	parsed, e := url.Parse(urlConf)
 	if e != nil {
-		return nil, errors.BadRequest(common.ServiceUpdate, e.Error())
+		return nil, serviceerrors.BadRequest(common.ServiceUpdate, e.Error())
 	}
 	if strings.Trim(parsed.Path, "/") == "" {
 		parsed.Path = "/a/update-server"
@@ -204,7 +204,7 @@ func ApplyUpdate(ctx context.Context, p *update.Package, conf configx.Values, dr
 		defer resp.Body.Close()
 		if resp.StatusCode != 200 {
 			plain, _ := io.ReadAll(resp.Body)
-			errorChan <- errors.New("binary.download.error", "Error while downloading binary:"+string(plain), int32(resp.StatusCode))
+			errorChan <- serviceerrors.New("binary.download.error", "Error while downloading binary:"+string(plain), int32(resp.StatusCode))
 			return
 		}
 

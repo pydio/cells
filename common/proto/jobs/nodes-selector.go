@@ -33,22 +33,10 @@ import (
 	"google.golang.org/protobuf/types/known/anypb"
 
 	"github.com/pydio/cells/v4/common"
-	"github.com/pydio/cells/v4/common/client/commons/treec"
-	"github.com/pydio/cells/v4/common/client/grpc"
 	"github.com/pydio/cells/v4/common/log"
 	"github.com/pydio/cells/v4/common/proto/service"
 	"github.com/pydio/cells/v4/common/proto/tree"
 )
-
-type FreeStringEvaluator func(ctx context.Context, query string, node *tree.Node) bool
-
-var (
-	freeStringEvaluator FreeStringEvaluator
-)
-
-func RegisterNodesFreeStringEvaluator(f FreeStringEvaluator) {
-	freeStringEvaluator = f
-}
 
 type NodeMatcher struct {
 	*tree.Query
@@ -130,7 +118,7 @@ func (n *NodesSelector) Select(ctx context.Context, input *ActionMessage, object
 	}
 	// If paths are preset, just load nodes and do not go further
 	if len(q.Paths) > 0 {
-		sCli := treec.NodeProviderClient(ctx)
+		sCli := tree.NewNodeProviderClient(connexionResolver(ctx, common.ServiceTree))
 		for _, p := range q.Paths {
 			if r, e := sCli.ReadNode(ctx, &tree.ReadNodeRequest{Node: &tree.Node{Path: p}}); e == nil {
 				objects <- r.GetNode()
@@ -140,7 +128,7 @@ func (n *NodesSelector) Select(ctx context.Context, input *ActionMessage, object
 	}
 	// If UUIDs are preset, just load nodes and do not go further
 	if len(q.UUIDs) > 0 {
-		sCli := treec.NodeProviderClient(ctx)
+		sCli := tree.NewNodeProviderClient(connexionResolver(ctx, common.ServiceTree))
 		for _, uuid := range q.UUIDs {
 			if r, e := sCli.ReadNode(ctx, &tree.ReadNodeRequest{Node: &tree.Node{Uuid: uuid}}); e == nil {
 				objects <- r.GetNode()
@@ -246,7 +234,7 @@ func (n *NodesSelector) Select(ctx context.Context, input *ActionMessage, object
 }
 
 func (n *NodesSelector) performListing(ctx context.Context, serviceName string, req *tree.SearchRequest, filter func(n *tree.Node) bool, objects chan interface{}) (int32, bool, error) {
-	treeClient := tree.NewSearcherClient(grpc.ResolveConn(ctx, serviceName))
+	treeClient := tree.NewSearcherClient(connexionResolver(ctx, serviceName))
 	sStream, eR := treeClient.Search(ctx, req)
 	if eR != nil {
 		return 0, false, eR

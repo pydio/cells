@@ -37,7 +37,7 @@ import (
 	"github.com/pydio/cells/v4/common/nodes/abstract"
 	"github.com/pydio/cells/v4/common/nodes/models"
 	"github.com/pydio/cells/v4/common/proto/tree"
-	"github.com/pydio/cells/v4/common/service/errors"
+	"github.com/pydio/cells/v4/common/service/serviceerrors"
 	runtimecontext "github.com/pydio/cells/v4/common/utils/propagator"
 	"github.com/pydio/cells/v4/common/utils/uuid"
 )
@@ -115,7 +115,7 @@ func (f *StructStorageHandler) CreateNode(ctx context.Context, in *tree.CreateNo
 	node := in.Node
 	if !node.IsLeaf() {
 		if rr, re := f.ReadNode(ctx, &tree.ReadNodeRequest{Node: node.Clone()}); re == nil && rr != nil && rr.GetNode().IsLeaf() {
-			return nil, errors.Conflict("node.type.conflict", "A file already exists with the same name, trying to insert type "+node.GetType().String())
+			return nil, serviceerrors.Conflict("node.type.conflict", "A file already exists with the same name, trying to insert type "+node.GetType().String())
 		}
 		dsPath := node.GetStringMeta(common.MetaNamespaceDatasourcePath)
 		newNode := &tree.Node{

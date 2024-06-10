@@ -31,7 +31,7 @@ import (
 
 	"github.com/pydio/cells/v4/common/crypto"
 	"github.com/pydio/cells/v4/common/proto/encryption"
-	"github.com/pydio/cells/v4/common/service/errors"
+	"github.com/pydio/cells/v4/common/service/serviceerrors"
 	json "github.com/pydio/cells/v4/common/utils/jsonx"
 )
 
@@ -191,7 +191,7 @@ func (m *mockNodeKeyManagerClient) GetNodeInfo(ctx context.Context, in *encrypti
 
 	nodeKey, entryFound := m.keys[in.NodeId]
 	if !entryFound {
-		return nil, errors.NotFound("mock.NodeKeyManager", "Key not found")
+		return nil, serviceerrors.NotFound("mock.NodeKeyManager", "Key not found")
 	}
 
 	//create copy because object is updated in handler

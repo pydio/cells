@@ -32,9 +32,8 @@ import (
 
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/log"
-	"github.com/pydio/cells/v4/common/middleware"
+	"github.com/pydio/cells/v4/common/middleware/keys"
 	"github.com/pydio/cells/v4/common/proto/idm"
-	"github.com/pydio/cells/v4/common/utils/permissions"
 	"github.com/pydio/cells/v4/common/utils/propagator"
 	"github.com/pydio/cells/v4/common/utils/uuid"
 	"github.com/pydio/cells/v4/idm/policy/converter"
@@ -64,17 +63,17 @@ func (m *ContextMetaFilter) filterPolicyQueries(ctx context.Context, input *Acti
 	policyContext := make(map[string]interface{})
 	if ctxMeta, has := propagator.FromContextRead(ctx); has {
 		for _, key := range []string{
-			middleware.HttpMetaRemoteAddress,
-			middleware.HttpMetaRequestURI,
-			middleware.HttpMetaRequestMethod,
-			middleware.HttpMetaUserAgent,
-			middleware.HttpMetaContentType,
-			middleware.HttpMetaCookiesString,
-			middleware.HttpMetaProtocol,
-			middleware.HttpMetaHostname,
-			middleware.HttpMetaHost,
-			middleware.HttpMetaPort,
-			middleware.ServerTime,
+			keys.HttpMetaRemoteAddress,
+			keys.HttpMetaRequestURI,
+			keys.HttpMetaRequestMethod,
+			keys.HttpMetaUserAgent,
+			keys.HttpMetaContentType,
+			keys.HttpMetaCookiesString,
+			keys.HttpMetaProtocol,
+			keys.HttpMetaHostname,
+			keys.HttpMetaHost,
+			keys.HttpMetaPort,
+			keys.ServerTime,
 		} {
 			if val, hasKey := ctxMeta[key]; hasKey {
 				policyContext[key] = val
@@ -117,7 +116,7 @@ func (m *ContextMetaFilter) filterContextUserQueries(ctx context.Context, input 
 		Type:  IdmSelectorType_User,
 		Query: m.Query,
 	}
-	username, _ := permissions.FindUserNameInContext(ctx)
+	username, _ := claimsUsernameParser(ctx)
 	var user *idm.User
 	if username == "" {
 		log.Logger(ctx).Debug("Applying filter on ContextUser: return false as user is not found in context")
@@ -125,7 +124,7 @@ func (m *ContextMetaFilter) filterContextUserQueries(ctx context.Context, input 
 	}
 	if username == common.PydioSystemUsername {
 		user = &idm.User{Login: username}
-	} else if u, err := permissions.SearchUniqueUser(ctx, username, "", &idm.UserSingleQuery{Login: username}); err == nil {
+	} else if u, err := clientUniqueUser(ctx, username, "", &idm.UserSingleQuery{Login: username}); err == nil {
 		user = u
 	} else {
 		log.Logger(ctx).Debug("Applying filter on ContextUser: return false as user is not found in the system")

@@ -18,14 +18,13 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-package errors
+package serviceerrors
 
 import (
 	"fmt"
-	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
 	"net/http"
-	"strings"
 
+	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
 	"google.golang.org/grpc/status"
 
 	json "github.com/pydio/cells/v4/common/utils/jsonx"
@@ -95,16 +94,6 @@ func BadRequest(id, format string, a ...interface{}) error {
 	}
 }
 
-// Unauthorized generates a 401 error.
-func Unauthorized(id, format string, a ...interface{}) error {
-	return &Error{
-		Id:     id,
-		Code:   401,
-		Detail: fmt.Sprintf(format, a...),
-		Status: http.StatusText(401),
-	}
-}
-
 // Forbidden generates a 403 error.
 func Forbidden(id, format string, a ...interface{}) error {
 	return &Error{
@@ -122,26 +111,6 @@ func NotFound(id, format string, a ...interface{}) error {
 		Code:   404,
 		Detail: fmt.Sprintf(format, a...),
 		Status: http.StatusText(404),
-	}
-}
-
-// MethodNotAllowed generates a 405 error.
-func MethodNotAllowed(id, format string, a ...interface{}) error {
-	return &Error{
-		Id:     id,
-		Code:   405,
-		Detail: fmt.Sprintf(format, a...),
-		Status: http.StatusText(405),
-	}
-}
-
-// Timeout generates a 408 error.
-func Timeout(id, format string, a ...interface{}) error {
-	return &Error{
-		Id:     id,
-		Code:   408,
-		Detail: fmt.Sprintf(format, a...),
-		Status: http.StatusText(408),
 	}
 }
 
@@ -163,85 +132,4 @@ func InternalServerError(id, format string, a ...interface{}) error {
 		Detail: fmt.Sprintf(format, a...),
 		Status: http.StatusText(500),
 	}
-}
-
-// NotImplemented generates a 501 error
-func NotImplemented(id, format string, a ...interface{}) error {
-	return &Error{
-		Id:     id,
-		Code:   501,
-		Detail: fmt.Sprintf(format, a...),
-		Status: http.StatusText(501),
-	}
-}
-
-// BadGateway generates a 502 error
-func BadGateway(id, format string, a ...interface{}) error {
-	return &Error{
-		Id:     id,
-		Code:   502,
-		Detail: fmt.Sprintf(format, a...),
-		Status: http.StatusText(502),
-	}
-}
-
-// ServiceUnavailable generates a 503 error
-func ServiceUnavailable(id, format string, a ...interface{}) error {
-	return &Error{
-		Id:     id,
-		Code:   503,
-		Detail: fmt.Sprintf(format, a...),
-		Status: http.StatusText(503),
-	}
-}
-
-// GatewayTimeout generates a 504 error
-func GatewayTimeout(id, format string, a ...interface{}) error {
-	return &Error{
-		Id:     id,
-		Code:   504,
-		Detail: fmt.Sprintf(format, a...),
-		Status: http.StatusText(504),
-	}
-}
-
-// Equal tries to compare errors
-func Equal(err1 error, err2 error) bool {
-	verr1, ok1 := err1.(*Error)
-	verr2, ok2 := err2.(*Error)
-
-	if ok1 != ok2 {
-		return false
-	}
-
-	if !ok1 {
-		return err1 == err2
-	}
-
-	if verr1.Code != verr2.Code {
-		return false
-	}
-
-	return true
-}
-
-// IsNetworkError tries to detect if error is a network error.
-func IsNetworkError(err error) bool {
-	s := err.Error()
-	parsed := FromError(err)
-	return strings.Contains(s, "context deadline exceeded") ||
-		strings.Contains(s, "unexpected EOF") ||
-		strings.Contains(s, "context canceled") ||
-		strings.Contains(s, "can't assign requested address") ||
-		strings.Contains(s, "SubConns are in TransientFailure") ||
-		parsed.Id == "go.micro.client" && parsed.Code == 500 && parsed.Detail == "not found"
-
-}
-
-// IsContextCanceled interprets error as a "context canceled"
-func IsContextCanceled(err error) bool {
-	if err == nil {
-		return false
-	}
-	return strings.Contains(err.Error(), "context canceled")
 }

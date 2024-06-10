@@ -26,10 +26,10 @@ import (
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/client/commons/docstorec"
 	"github.com/pydio/cells/v4/common/config"
+	"github.com/pydio/cells/v4/common/middleware"
 	"github.com/pydio/cells/v4/common/proto/docstore"
 	"github.com/pydio/cells/v4/common/proto/rest"
 	"github.com/pydio/cells/v4/common/proto/tree"
-	"github.com/pydio/cells/v4/common/service"
 	"github.com/pydio/cells/v4/common/utils/i18n"
 	json "github.com/pydio/cells/v4/common/utils/jsonx"
 	"github.com/pydio/cells/v4/discovery/config/lang"
@@ -48,7 +48,7 @@ func (s *Handler) ListVersioningPolicies(req *restful.Request, resp *restful.Res
 		StoreID: common.DocStoreIdVersioningPolicies,
 	})
 	if er != nil {
-		service.RestError500(req, resp, er)
+		middleware.RestError500(req, resp, er)
 		return
 	}
 	response := &rest.VersioningPolicyCollection{}
@@ -77,7 +77,7 @@ func (s *Handler) GetVersioningPolicy(req *restful.Request, resp *restful.Respon
 		StoreID:    common.DocStoreIdVersioningPolicies,
 		DocumentID: policyId,
 	}); e != nil {
-		service.RestError404(req, resp, e)
+		middleware.RestError404(req, resp, e)
 	} else {
 		var policy *tree.VersioningPolicy
 		if er := json.Unmarshal([]byte(r.Document.Data), &policy); er == nil {
@@ -85,7 +85,7 @@ func (s *Handler) GetVersioningPolicy(req *restful.Request, resp *restful.Respon
 			policy.Description = T(policy.Description)
 			resp.WriteEntity(policy)
 		} else {
-			service.RestError500(req, resp, er)
+			middleware.RestError500(req, resp, er)
 		}
 	}
 }

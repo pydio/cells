@@ -41,7 +41,7 @@ import (
 	"github.com/pydio/cells/v4/common/proto/jobs"
 	"github.com/pydio/cells/v4/common/proto/object"
 	"github.com/pydio/cells/v4/common/proto/tree"
-	"github.com/pydio/cells/v4/common/service/errors"
+	"github.com/pydio/cells/v4/common/service/serviceerrors"
 	"github.com/pydio/cells/v4/common/sync/endpoints/memory"
 	"github.com/pydio/cells/v4/common/sync/endpoints/snapshot"
 	"github.com/pydio/cells/v4/common/sync/model"
@@ -138,7 +138,7 @@ func (c *CaptureAction) GetName() string {
 func (c *CaptureAction) Init(job *jobs.Job, action *jobs.Action) error {
 	c.target = action.Parameters["target"]
 	if c.target == "" {
-		return errors.BadRequest(common.ServiceJobs, "Missing parameter target for Capture Action")
+		return serviceerrors.BadRequest(common.ServiceJobs, "Missing parameter target for Capture Action")
 	}
 	if format, ok := action.Parameters["format"]; ok {
 		c.format = format

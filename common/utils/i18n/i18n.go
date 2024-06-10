@@ -143,6 +143,7 @@ func GetDefaultLanguage(conf configx.Values) string {
 // X-Pydio-Language header, user language inside the system (set via roles), or Accept-Language
 // standard header.
 func UserLanguagesFromRestRequest(req *restful.Request, conf configx.Values) []string {
+	// TODO - Read configs from context
 	pydioLang := req.HeaderParameter("X-Pydio-Language")
 	if pydioLang != "" {
 		return []string{pydioLang}

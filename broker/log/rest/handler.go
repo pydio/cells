@@ -27,9 +27,9 @@ import (
 
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/client/grpc"
+	"github.com/pydio/cells/v4/common/middleware"
 	"github.com/pydio/cells/v4/common/proto/log"
 	"github.com/pydio/cells/v4/common/proto/rest"
-	"github.com/pydio/cells/v4/common/service"
 )
 
 type Handler struct {
@@ -51,7 +51,7 @@ func (h *Handler) Syslog(req *restful.Request, rsp *restful.Response) {
 
 	var input log.ListLogRequest
 	if e := req.ReadEntity(&input); e != nil {
-		service.RestError500(req, rsp, e)
+		middleware.RestError500(req, rsp, e)
 		return
 	}
 	ctx := req.Request.Context()
@@ -60,7 +60,7 @@ func (h *Handler) Syslog(req *restful.Request, rsp *restful.Response) {
 
 	res, err := c.ListLogs(ctx, &input)
 	if err != nil {
-		service.RestErrorDetect(req, rsp, err)
+		middleware.RestErrorDetect(req, rsp, err)
 		return
 	}
 	defer res.CloseSend()

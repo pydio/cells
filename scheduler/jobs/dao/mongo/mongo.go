@@ -31,7 +31,7 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 
 	proto "github.com/pydio/cells/v4/common/proto/jobs"
-	"github.com/pydio/cells/v4/common/service/errors"
+	"github.com/pydio/cells/v4/common/service/serviceerrors"
 	"github.com/pydio/cells/v4/common/storage/mongodb"
 	"github.com/pydio/cells/v4/scheduler/jobs"
 )
@@ -119,7 +119,7 @@ func (m *mongoImpl) GetJob(jobId string, withTasks proto.TaskStatus) (*proto.Job
 	res := m.Collection(collJobs).FindOne(c, bson.D{{"id", jobId}})
 	if res.Err() != nil {
 		if strings.Contains(res.Err().Error(), "no documents in result") {
-			return nil, errors.NotFound("job.not.found", "Job not found")
+			return nil, serviceerrors.NotFound("job.not.found", "Job not found")
 		}
 		return nil, res.Err()
 	}

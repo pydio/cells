@@ -36,7 +36,7 @@ import (
 	"github.com/pydio/cells/v4/common/forms"
 	"github.com/pydio/cells/v4/common/log"
 	"github.com/pydio/cells/v4/common/proto/jobs"
-	"github.com/pydio/cells/v4/common/service/errors"
+	"github.com/pydio/cells/v4/common/service/serviceerrors"
 	json "github.com/pydio/cells/v4/common/utils/jsonx"
 	"github.com/pydio/cells/v4/scheduler/actions"
 )
@@ -121,7 +121,7 @@ func (c *RpcAction) Init(job *jobs.Job, action *jobs.Action) error {
 	c.ServiceName = action.Parameters["service"]
 	c.MethodName = action.Parameters["method"]
 	if c.ServiceName == "" || c.MethodName == "" {
-		return errors.BadRequest(common.ServiceJobs, "Missing parameters for RPC Action")
+		return serviceerrors.BadRequest(common.ServiceJobs, "Missing parameters for RPC Action")
 	}
 	if jsonParams, o := action.Parameters["request"]; o {
 		c.JsonRequest = jsonParams
