@@ -2,6 +2,7 @@ package openurl
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"math"
 	"strings"
@@ -13,23 +14,24 @@ type ResourceClosable interface {
 	Close(context.Context) error
 }
 
-type namedT[T ResourceClosable] struct {
+type namedT[T any] struct {
 	t      T
 	name   string
 	active time.Time
 }
 
-type Provider[T ResourceClosable] interface {
-	Init() error
+type Provider[T any] interface {
 	Open(ctx context.Context, url string) (T, error)
-	Get(ctx context.Context, data ...map[string]any) (T, error)
+	Get(ctx context.Context, url string) (T, error)
 }
 
-type Opener[T ResourceClosable] func(ctx context.Context, url string) (T, error)
+type Resolver[T any] interface {
+	Get(ctx context.Context, data ...map[string]string) (T, error)
+}
 
-type Getter[T ResourceClosable] func(ctx context.Context, url string) (T, error)
+type Opener[T any] func(ctx context.Context, url string) (T, error)
 
-type Pool[T ResourceClosable] struct {
+type Pool[T any] struct {
 	resolvers []Template
 	provider  Provider[T]
 	pool      map[string]*namedT[T]
@@ -40,27 +42,33 @@ type Pool[T ResourceClosable] struct {
 	stopJanitor context.CancelFunc
 }
 
-type PoolOption[T ResourceClosable] func(*PoolOptions[T])
+type PoolOption[T any] func(*PoolOptions[T])
 
-type PoolOptions[T ResourceClosable] struct {
+type PoolOptions[T any] struct {
 	CleanTicker time.Duration
 	MaxIdleTime time.Duration
 	Opener[T]
 }
 
-func WithCleanTicker[T ResourceClosable](duration time.Duration) PoolOption[T] {
+func WithCleanTicker[T any](duration time.Duration) PoolOption[T] {
 	return func(o *PoolOptions[T]) {
 		o.CleanTicker = duration
 	}
 }
 
-func WithMaxIdleTime[T ResourceClosable](duration time.Duration) PoolOption[T] {
+func WithMaxIdleTime[T any](duration time.Duration) PoolOption[T] {
 	return func(o *PoolOptions[T]) {
 		o.CleanTicker = duration
 	}
 }
 
-func WithOpener[T ResourceClosable](opener Opener[T]) PoolOption[T] {
+func WithProvider[T any](provider Provider[T]) PoolOption[T] {
+	return func(o *PoolOptions[T]) {
+		o.Opener = provider.Open
+	}
+}
+
+func WithOpener[T any](opener Opener[T]) PoolOption[T] {
 	return func(o *PoolOptions[T]) {
 		o.Opener = opener
 	}
@@ -69,7 +77,7 @@ func WithOpener[T ResourceClosable](opener Opener[T]) PoolOption[T] {
 // OpenPool creates a pool of resources that are resolved at Get() time.
 // If PoolOption is passed, it will monitor idle resources and close them regulary to free memory
 // Maybe PoolOptions could also be passed by the URL
-func OpenPool[T ResourceClosable](ctx context.Context, uu []string, opener Opener[T], opt ...PoolOption[T]) (*Pool[T], error) {
+func OpenPool[T any](ctx context.Context, uu []string, opener Opener[T], opt ...PoolOption[T]) (*Pool[T], error) {
 	opts := &PoolOptions[T]{
 		Opener: opener,
 	}
@@ -104,6 +112,10 @@ func OpenPool[T ResourceClosable](ctx context.Context, uu []string, opener Opene
 	return pool, nil
 }
 
+//func (m Pool[T]) Resolve(ctx context.Context, resolutionData ...map[string]interface{}) (string, error) {
+//
+//}
+
 func (m Pool[T]) Get(ctx context.Context, resolutionData ...map[string]interface{}) (T, error) {
 	last := len(m.resolvers) - 1
 	for i, resolver := range m.resolvers {
@@ -122,16 +134,22 @@ func (m Pool[T]) Get(ctx context.Context, resolutionData ...map[string]interface
 		if nq, ok := m.pool[realURL]; ok {
 			nq.active = time.Now()
 			m.lock.RUnlock()
+
 			return nq.t, nil
 		}
 		m.lock.RUnlock()
 
-		q, er := m.options.Opener(ctx, realURL)
-		if er != nil {
+		if m.options.Opener == nil {
+			var q T
+			return q, errors.New("no opener available")
+		}
+
+		q, err := m.options.Opener(ctx, realURL)
+		if err != nil {
 			if i < last {
 				continue // Try next one provided as fallback
 			}
-			return q, er
+			return q, err
 		}
 
 		// Set
@@ -143,7 +161,7 @@ func (m Pool[T]) Get(ctx context.Context, resolutionData ...map[string]interface
 		}
 		m.lock.Unlock()
 
-		return q, er
+		return q, err
 	}
 	var res T
 	return res, fmt.Errorf("cannot resolve")
@@ -153,27 +171,27 @@ func (m Pool[T]) Get(ctx context.Context, resolutionData ...map[string]interface
 // TODO - options with close callback
 func (m *Pool[T]) Close(ctx context.Context, iterate ...func(key string, res T) error) error {
 	//func (m Pool[T]) Close(ctx context.Context) error {
-	if m.stopJanitor != nil {
-		m.stopJanitor()
-	}
-	var errString []string
-	m.lock.Lock()
-	defer m.lock.Unlock()
-	for key, res := range m.pool {
-		if er := res.t.Close(ctx); er != nil {
-			errString = append(errString, er.Error())
-		}
-		for _, it := range iterate {
-			if er := it(key, res.t); er != nil {
-				errString = append(errString, er.Error())
-			}
-		}
-		delete(m.pool, key)
-	}
-	if len(errString) > 0 {
-		maxS := int64(math.Min(float64(len(errString)-1), 5))
-		return fmt.Errorf("closing pool returned %d errors, first errors are: %s", len(errString), strings.Join(errString[0:maxS], ","))
-	}
+	//if m.stopJanitor != nil {
+	//	m.stopJanitor()
+	//}
+	//var errString []string
+	//m.lock.Lock()
+	//defer m.lock.Unlock()
+	//for key, res := range m.pool {
+	//	if er := res.t.Close(ctx); er != nil {
+	//		errString = append(errString, er.Error())
+	//	}
+	//	for _, it := range iterate {
+	//		if er := it(key, res.t); er != nil {
+	//			errString = append(errString, er.Error())
+	//		}
+	//	}
+	//	delete(m.pool, key)
+	//}
+	//if len(errString) > 0 {
+	//	maxS := int64(math.Min(float64(len(errString)-1), 5))
+	//	return fmt.Errorf("closing pool returned %d errors, first errors are: %s", len(errString), strings.Join(errString[0:maxS], ","))
+	//}
 	return nil
 }
 
@@ -204,12 +222,12 @@ func (m Pool[T]) cleanIdle(ctx context.Context, idleTime time.Duration) {
 		fmt.Printf("[POOL] Deleting %d idle resources\n", len(keys))
 		var errString []string
 		m.lock.Lock()
-		for _, k := range keys {
-			if er := m.pool[k].t.Close(ctx); er != nil {
-				errString = append(errString, er.Error())
-			}
-			delete(m.pool, k)
-		}
+		//for _, k := range keys {
+		//	if er := m.pool[k].t.Close(ctx); er != nil {
+		//		errString = append(errString, er.Error())
+		//	}
+		//	delete(m.pool, k)
+		//}
 		m.lock.Unlock()
 		if len(errString) > 0 {
 			maxS := int64(math.Min(float64(len(errString)-1), 5))

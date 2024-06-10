@@ -40,6 +40,7 @@ import (
 	"github.com/pydio/cells/v4/common/config"
 	"github.com/pydio/cells/v4/common/crypto"
 	"github.com/pydio/cells/v4/common/runtime"
+	"github.com/pydio/cells/v4/common/runtime/controller"
 	"github.com/pydio/cells/v4/common/runtime/manager"
 	"github.com/pydio/cells/v4/common/runtime/runtimecontext"
 	"github.com/pydio/cells/v4/common/utils/configx"
@@ -68,8 +69,22 @@ func init() {
 			return
 		}
 
-		mgr.RegisterConfig(scheme, openurl.WithOpener((&URLOpener{}).Open))
-		mgr.RegisterConfig(scheme+"+tls", openurl.WithOpener((&TLSURLOpener{}).Open))
+		mgr.RegisterConfig(scheme, controller.WithCustomOpener(func(ctx context.Context, urlstr string) (*openurl.Pool[config.Store], error) {
+			p, err := openurl.OpenPool(ctx, []string{urlstr}, (&URLOpener{}).Open)
+			if err != nil {
+				return nil, err
+			}
+
+			return p, nil
+		}))
+		mgr.RegisterConfig(scheme+"+tls", controller.WithCustomOpener(func(ctx context.Context, urlstr string) (*openurl.Pool[config.Store], error) {
+			p, err := openurl.OpenPool(ctx, []string{urlstr}, (&TLSURLOpener{}).Open)
+			if err != nil {
+				return nil, err
+			}
+
+			return p, nil
+		}))
 	})
 }
 

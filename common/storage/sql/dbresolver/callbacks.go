@@ -4,36 +4,15 @@ import (
 	"strings"
 
 	"gorm.io/gorm"
-
-	"github.com/pydio/cells/v4/common/runtime/runtimecontext"
-	"github.com/pydio/cells/v4/common/runtime/tenant"
 )
 
 func (dr *DBResolver) registerCallbacks(db *gorm.DB) {
-	dr.Callback().Create().Before("*").Register("cells:db_resolver_context", dr.checkContext)
-	dr.Callback().Query().Before("*").Register("cells:db_resolver_context", dr.checkContext)
-	dr.Callback().Update().Before("*").Register("cells:db_resolver_context", dr.checkContext)
-	dr.Callback().Delete().Before("*").Register("cells:db_resolver_context", dr.checkContext)
-	dr.Callback().Row().Before("*").Register("cells:db_resolver_context", dr.checkContext)
-	dr.Callback().Raw().Before("*").Register("cells:db_resolver_context", dr.checkContext)
-
 	dr.Callback().Create().Before("*").Register("cells:db_resolver", dr.switchSource)
 	dr.Callback().Query().Before("*").Register("cells:db_resolver", dr.switchReplica)
 	dr.Callback().Update().Before("*").Register("cells:db_resolver", dr.switchSource)
 	dr.Callback().Delete().Before("*").Register("cells:db_resolver", dr.switchSource)
 	dr.Callback().Row().Before("*").Register("cells:db_resolver", dr.switchReplica)
 	dr.Callback().Raw().Before("*").Register("cells:db_resolver", dr.switchGuess)
-}
-
-func (dr *DBResolver) checkContext(db *gorm.DB) {
-	var t tenant.Tenant
-	if runtimecontext.Get(db.Statement.Context, tenant.ContextKey, &t) {
-		db.Clauses(UseTenant(t.ID()))
-	}
-
-	if service := runtimecontext.GetServiceName(db.Statement.Context); service != "" {
-		db.Clauses(UseService(service))
-	}
 }
 
 func (dr *DBResolver) switchSource(db *gorm.DB) {

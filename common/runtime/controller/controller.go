@@ -2,6 +2,7 @@ package controller
 
 import (
 	"context"
+	"errors"
 
 	"github.com/pydio/cells/v4/common/utils/openurl"
 )
@@ -10,9 +11,22 @@ type Convertible interface {
 	As(out any) bool
 }
 
-type Controller[T openurl.ResourceClosable] interface {
-	Register(scheme string, opener ...openurl.PoolOption[T])
-	Open(ctx context.Context, url string) (Resolver[T], error)
+type Controller[T any] interface {
+	Register(scheme string, options ...Option[T])
+	Open(ctx context.Context, url string) (T, error)
+}
+
+type Option[T any] func(*Options[T])
+
+type Options[T any] struct {
+	CustomOpener Opener[T]
+	PoolOptions  []openurl.PoolOptions[T]
+}
+
+func WithCustomOpener[T any](opener Opener[T]) Option[T] {
+	return func(o *Options[T]) {
+		o.CustomOpener = opener
+	}
 }
 
 type Opener[T any] func(ctx context.Context, url string) (T, error)
@@ -21,20 +35,11 @@ type Resolver[T any] interface {
 	Get(ctx context.Context, data ...map[string]interface{}) (T, error)
 }
 
-type ControllerOption func(*controllerOptions)
-
-type controller[T openurl.ResourceClosable] struct {
+type controller[T any] struct {
 	ctx    context.Context
 	cancel context.CancelFunc
 
 	schemes openurl.SchemeMap
-}
-
-type resolver[T any] struct {
-	template openurl.Template
-	opener   Opener[T]
-
-	Components []*Component[T]
 }
 
 type Component[T any] struct {
@@ -44,19 +49,23 @@ type Component[T any] struct {
 
 type controllerOptions struct{}
 
-func NewController[T openurl.ResourceClosable]() Controller[T] {
+func NewController[T any]() Controller[T] {
 	return &controller[T]{}
 }
 
 // Register registers the opener with the given scheme. If an opener
 // already exists for the scheme, Register panics.
-func (c *controller[T]) Register(scheme string, opener ...openurl.PoolOption[T]) {
-	c.schemes.Register("component", "Component", scheme, opener)
+func (c *controller[T]) Register(scheme string, options ...Option[T]) {
+	opts := Options[T]{}
+	for _, o := range options {
+		o(&opts)
+	}
+	c.schemes.Register("component", "Component", scheme, opts)
 }
 
 // Register registers the opener with the given scheme. If an opener
 // already exists for the scheme, Register panics.
-func (c *controller[T]) Open(ctx context.Context, urlstr string) (Resolver[T], error) {
+func (c *controller[T]) Open(ctx context.Context, urlstr string) (T, error) {
 	//opts := Options{}
 	//for _, o := range opt {
 	//	o(&opts)
@@ -70,61 +79,26 @@ func (c *controller[T]) Open(ctx context.Context, urlstr string) (Resolver[T], e
 	//	}
 	//}
 
-	opts, err := c.schemes.FromStringNoParse("Component", urlstr)
+	var t T
+
+	v, err := c.schemes.FromStringNoParse("Component", urlstr)
 	if err != nil {
-		return nil, err
+		return t, err
 	}
 
-	r, err := openurl.OpenPool(ctx, []string{urlstr}, nil, opts.([]openurl.PoolOption[T])...)
-	return r, nil
-}
-
-func (c *resolver[T]) Get(ctx context.Context, out interface{}) (bool, error) {
-	path, err := c.template.Resolve(ctx)
-	if err != nil {
-		return false, err
+	opts, ok := v.(Options[T])
+	if !ok {
+		return t, errors.New("wrong url")
 	}
 
-	for _, component := range c.Components {
-		if path == component.path {
-			if v, ok := out.(Convertible); ok {
-				return v.As(out), nil
-			} else {
-				return false, nil
-			}
-			return true, nil
-		}
-	}
-
-	// Not found, opening
-	//r, err := c.opener.Open(ctx, path)
-	//if err != nil {
-	//	return false, err
+	//if opts.CustomPoolOpener != nil {
+	//	p, err := opts.CustomPoolOpener(ctx, urlstr)
+	//	if err != nil {
+	//		return nil, err
+	//	}
+	//
+	//	return p, nil
 	//}
 
-	if v, ok := out.(Convertible); ok {
-		return v.As(out), nil
-	} else {
-		return false, nil
-	}
-
-	c.Components = append(c.Components, &Component[T]{
-		//	component: r,
-		path: path,
-	})
-
-	return true, nil
-}
-
-func (c *resolver[T]) As(out interface{}) bool {
-	//if v, ok := out.(*T); ok {
-	//	*v = c.opener.(T)
-	//	return true
-	//}
-
-	if v, ok := out.(Convertible); ok {
-		return v.As(out)
-	}
-
-	return false
+	return openurl.Opener[T](opts.CustomOpener)(ctx, urlstr)
 }

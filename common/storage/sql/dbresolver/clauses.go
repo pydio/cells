@@ -3,6 +3,7 @@ package dbresolver
 import (
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
+	"gorm.io/plugin/dbresolver"
 )
 
 // Operation specifies dbresolver mode
@@ -11,6 +12,10 @@ type Operation string
 const (
 	writeName = "cells:db_resolver:write"
 	readName  = "cells:db_resolver:read"
+)
+
+var (
+	Use = dbresolver.Use
 )
 
 // ModifyStatement modify operation mode

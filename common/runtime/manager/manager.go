@@ -78,8 +78,8 @@ type Manager interface {
 	WatchBroker(ctx context.Context, br broker.Broker) error
 	GetConfig(ctx context.Context) config.Store
 
-	RegisterStorage(scheme string, options ...openurl.PoolOption[storage.Storage])
-	RegisterConfig(scheme string, config ...openurl.PoolOption[config.Store])
+	RegisterStorage(scheme string, options ...controller.Option[storage.Storage])
+	RegisterConfig(scheme string, config ...controller.Option[*openurl.Pool[config.Store]])
 	GetStorage(ctx context.Context, name string, out any) error
 }
 
@@ -101,10 +101,10 @@ type manager struct {
 
 	// controllers
 	storage controller.Controller[storage.Storage]
-	config  controller.Controller[config.Store]
+	config  controller.Controller[*openurl.Pool[config.Store]]
 
 	// TODO - adapt this
-	configResolver controller.Resolver[config.Store]
+	configResolver *openurl.Pool[config.Store]
 
 	logger log.ZapLogger
 }
@@ -123,7 +123,7 @@ func NewManager(ctx context.Context, namespace string, logger log.ZapLogger) (Ma
 		root:   node,
 
 		storage: controller.NewController[storage.Storage](),
-		config:  controller.NewController[config.Store](),
+		config:  controller.NewController[*openurl.Pool[config.Store]](),
 	}
 
 	ctx = runtimecontext.With(ctx, ContextKey, m)
@@ -136,12 +136,12 @@ func NewManager(ctx context.Context, namespace string, logger log.ZapLogger) (Ma
 
 	m.localRegistry = reg
 
-	//cr, err := m.config.Open(ctx, runtime.ConfigURL())
-	//if err != nil {
-	//	return nil, err
-	//}
+	cr, err := m.config.Open(ctx, runtime.ConfigURL())
+	if err != nil {
+		return nil, err
+	}
 
-	// m.configResolver = cr
+	m.configResolver = cr
 
 	if clusterRegistryURL := runtime.RegistryURL(); clusterRegistryURL != "" {
 		clusterRegistry, err := registry.OpenRegistry(ctx, clusterRegistryURL)
@@ -305,12 +305,12 @@ func (m *manager) GetConfig(ctx context.Context) (out config.Store) {
 	return out
 }
 
-func (m *manager) RegisterStorage(scheme string, st ...openurl.PoolOption[storage.Storage]) {
-	m.storage.Register(scheme, st...)
+func (m *manager) RegisterStorage(scheme string, opts ...controller.Option[storage.Storage]) {
+	m.storage.Register(scheme, opts...)
 }
 
-func (m *manager) RegisterConfig(scheme string, st ...openurl.PoolOption[config.Store]) {
-	m.config.Register(scheme, st...)
+func (m *manager) RegisterConfig(scheme string, opts ...controller.Option[*openurl.Pool[config.Store]]) {
+	m.config.Register(scheme, opts...)
 }
 
 func (m *manager) GetStorage(ctx context.Context, name string, out any) error {

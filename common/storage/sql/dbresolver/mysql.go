@@ -18,8 +18,38 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-package storage
+package dbresolver
 
-import "github.com/pydio/cells/v4/common/utils/openurl"
+import (
+	"strings"
 
-type Storage openurl.Resolver[any]
+	mysql2 "github.com/go-sql-driver/mysql"
+)
+
+type mysqlHelper struct{}
+
+func (m *mysqlHelper) Concat(s ...string) string {
+	if len(s) == 1 {
+		return s[0]
+	}
+
+	return `CONCAT(` + strings.Join(s, ", ") + `)`
+}
+
+func (m *mysqlHelper) Hash(s ...string) string {
+	return `SHA1(` + m.Concat(s...) + `)`
+}
+
+func (m *mysqlHelper) HashParent(name string, s ...string) string {
+	pmpath := `SUBSTRING_INDEX(` + m.Concat(s...) + `, '.', level-1)`
+	return m.Hash(name, "'__###PARENT_HASH###__'", pmpath)
+}
+
+const (
+	MySQLDriver = "mysql"
+)
+
+func IsMysqlConn(conn any) bool {
+	_, ok := conn.(*mysql2.MySQLDriver)
+	return ok
+}

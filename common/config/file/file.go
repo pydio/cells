@@ -20,6 +20,7 @@ import (
 	"github.com/pydio/cells/v4/common/config/memory"
 	"github.com/pydio/cells/v4/common/crypto"
 	"github.com/pydio/cells/v4/common/runtime"
+	"github.com/pydio/cells/v4/common/runtime/controller"
 	"github.com/pydio/cells/v4/common/runtime/manager"
 	"github.com/pydio/cells/v4/common/runtime/runtimecontext"
 	"github.com/pydio/cells/v4/common/utils/configx"
@@ -47,7 +48,15 @@ func init() {
 		}
 
 		o := &URLOpener{}
-		mgr.RegisterConfig(scheme, openurl.WithOpener(o.Open))
+
+		mgr.RegisterConfig(scheme, controller.WithCustomOpener(func(ctx context.Context, urlstr string) (*openurl.Pool[config.Store], error) {
+			p, err := openurl.OpenPool(ctx, []string{urlstr}, o.Open)
+			if err != nil {
+				return nil, err
+			}
+
+			return p, nil
+		}))
 	})
 }
 

@@ -14,9 +14,11 @@ import (
 
 	"github.com/pydio/cells/v4/common/log"
 	"github.com/pydio/cells/v4/common/runtime"
+	"github.com/pydio/cells/v4/common/runtime/controller"
 	"github.com/pydio/cells/v4/common/runtime/manager"
 	"github.com/pydio/cells/v4/common/runtime/runtimecontext"
 	"github.com/pydio/cells/v4/common/storage"
+	"github.com/pydio/cells/v4/common/utils/openurl"
 )
 
 func init() {
@@ -26,8 +28,73 @@ func init() {
 			return
 		}
 
-		mgr.RegisterStorage("boltdb", Open)
+		mgr.RegisterStorage("boltdb", controller.WithCustomOpener(OpenPool))
 	})
+}
+
+type pool struct {
+	*openurl.Pool[*db]
+}
+
+func OpenPool(ctx context.Context, uu string) (storage.Storage, error) {
+	p, err := openurl.OpenPool(context.Background(), []string{uu}, func(ctx context.Context, dsn string) (*db, error) {
+		u, err := url.Parse(dsn)
+
+		// If not found, create one
+		options := bbolt.DefaultOptions
+		options.Timeout = 20 * time.Second
+		var defaultMode os.FileMode
+
+		// TODO Recheck : was 0600 in v4
+		defaultMode = 0644
+
+		q := u.Query()
+		if q.Has("timeout") {
+			if timeout, err := time.ParseDuration(q.Get("timeout")); err != nil {
+				options.Timeout = timeout
+			}
+		}
+
+		conn, err := bbolt.Open(strings.TrimPrefix(dsn, "boltdb://"), defaultMode, options)
+		if err != nil {
+			return nil, err
+		}
+
+		//return &Compacter{
+		//	DB: conn,
+		//	requireClose: func() error {
+		//		if er := db.Close(); er != nil {
+		//			return er
+		//		} else {
+		//			db.closed = true
+		//			return nil
+		//		}
+		//	},
+		//	switchConnection: func(newDB *bbolt.DB) error {
+		//		cacheEntry.closed = false
+		//		cacheEntry.db = newDB
+		//		return nil
+		//	},
+		//}, nil
+
+		return &db{conn}, nil
+	})
+
+	if err != nil {
+		return nil, err
+	}
+
+	return &pool{
+		Pool: p,
+	}, nil
+}
+
+func (p *pool) Get(ctx context.Context, data ...map[string]string) (any, error) {
+	return p.Pool.Get(ctx)
+}
+
+func (p *pool) Close(ctx context.Context, iterate ...func(key string, res storage.Storage) error) error {
+	return p.Pool.Close(ctx)
 }
 
 type DB interface {
@@ -47,66 +114,6 @@ func (d *db) Internal() *bbolt.DB {
 func (d *db) Close(ctx context.Context) error {
 	return d.DB.Close()
 }
-
-func Open(ctx context.Context, path string) (storage.Storage, error) {
-	u, err := url.Parse(path)
-
-	// If not found, create one
-	options := bbolt.DefaultOptions
-	options.Timeout = 20 * time.Second
-	var defaultMode os.FileMode
-
-	// TODO Recheck : was 0600 in v4
-	defaultMode = 0644
-
-	q := u.Query()
-	if q.Has("timeout") {
-		if timeout, err := time.ParseDuration(q.Get("timeout")); err != nil {
-			options.Timeout = timeout
-		}
-	}
-
-	conn, err := bbolt.Open(strings.TrimPrefix(path, "boltdb://"), defaultMode, options)
-	if err != nil {
-		return nil, err
-	}
-
-	return &db{conn}, nil
-
-	//return &Compacter{
-	//	DB: conn,
-	//	requireClose: func() error {
-	//		if er := db.Close(); er != nil {
-	//			return er
-	//		} else {
-	//			db.closed = true
-	//			return nil
-	//		}
-	//	},
-	//	switchConnection: func(newDB *bbolt.DB) error {
-	//		cacheEntry.closed = false
-	//		cacheEntry.db = newDB
-	//		return nil
-	//	},
-	//}, nil
-}
-
-//func (s *boltdbStorage) CloseConns(ctx context.Context, clean ...bool) (er error) {
-//	for _, db := range s.dbs {
-//		fsPath := db.db.Path()
-//		fmt.Println("closing " + db.path)
-//		if er := db.db.Close(); er != nil {
-//			return er
-//		}
-//		if len(clean) > 0 && clean[0] {
-//			fmt.Println("removing " + fsPath)
-//			if e := os.RemoveAll(db.db.Path()); e != nil {
-//				return e
-//			}
-//		}
-//	}
-//	return nil
-//}
 
 type Compacter struct {
 	*bbolt.DB
