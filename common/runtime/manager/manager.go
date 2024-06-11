@@ -23,6 +23,7 @@ package manager
 import (
 	"context"
 	"fmt"
+	"github.com/pydio/cells/v4/common/utils/openurl"
 	"io"
 	"os"
 	"strconv"
@@ -78,7 +79,8 @@ type Manager interface {
 	WatchBroker(ctx context.Context, br broker.Broker) error
 	GetConfig(ctx context.Context) config.Store
 
-	RegisterStorage(scheme string, storage storage.URLOpener)
+	RegisterStorage(scheme string, options ...controller.Option[storage.Storage])
+	RegisterConfig(scheme string, config ...controller.Option[*openurl.Pool[config.Store]])
 	GetStorage(ctx context.Context, name string, out any) error
 }
 
@@ -99,9 +101,11 @@ type manager struct {
 	services map[string]service.Service
 
 	// controllers
-	storageMux *storage.URLMux
-	storage    controller.Controller[storage.Storage]
-	config     controller.Controller[config.Store]
+	storage controller.Controller[storage.Storage]
+	config  controller.Controller[*openurl.Pool[config.Store]]
+
+	// TODO - adapt this
+	configResolver *openurl.Pool[config.Store]
 
 	logger log.ZapLogger
 }
@@ -112,26 +116,33 @@ var ContextKey = managerKey{}
 
 func NewManager(ctx context.Context, namespace string, logger log.ZapLogger) (Manager, error) {
 
+	m := &manager{
+		ctx: ctx,
+		ns:  namespace,
+
+		logger: logger,
+		root:   node,
+
+		storage: controller.NewController[storage.Storage](),
+		config:  controller.NewController[*openurl.Pool[config.Store]](),
+	}
+
+	ctx = propagator.With(ctx, ContextKey, m)
+	runtime.Init(ctx, "system")
+
 	reg, err := registry.OpenRegistry(ctx, "mem:///?cache="+namespace)
 	if err != nil {
 		return nil, err
 	}
 
-	m := &manager{
-		ctx: ctx,
-		ns:  namespace,
+	m.localRegistry = reg
 
-		localRegistry: reg,
-
-		logger: logger,
-		root:   node,
-
-		storageMux: &storage.URLMux{},
-		// config: controller.NewController[config.Store](ctx),
+	cr, err := m.config.Open(ctx, runtime.ConfigURL())
+	if err != nil {
+		return nil, err
 	}
 
-	ctx = propagator.With(ctx, ContextKey, m)
-	runtime.Init(ctx, "system")
+	m.configResolver = cr
 
 	if clusterRegistryURL := runtime.RegistryURL(); clusterRegistryURL != "" {
 		clusterRegistry, err := registry.OpenRegistry(ctx, clusterRegistryURL)
@@ -159,19 +170,6 @@ func NewManager(ctx context.Context, namespace string, logger log.ZapLogger) (Ma
 	)
 
 	reg.Register(m.root)
-
-	// Storage controller
-	//storageController, err := controller.NewController(ctx, "", storage.OpenStorageTest)
-	//if err != nil {
-	//	return nil, err
-	//}
-	//
-	//m.storage = storageController
-
-	// Config controller
-	conf, err := controller.NewController[config.Store](ctx, runtime.ConfigURL(), config.OpenStore)
-
-	m.config = conf
 
 	// Initialising default connections
 	if err := m.initConnections(); err != nil {
@@ -308,12 +306,19 @@ func (m *manager) Registry() registry.Registry {
 }
 
 func (m *manager) GetConfig(ctx context.Context) (out config.Store) {
-	m.config.Get(ctx, &out)
-	return
+	out, err := m.configResolver.Get(ctx)
+	if err != nil {
+		// TODO
+	}
+	return out
 }
 
-func (m *manager) RegisterStorage(scheme string, st storage.URLOpener) {
-	m.storageMux.Register(scheme, st)
+func (m *manager) RegisterStorage(scheme string, opts ...controller.Option[storage.Storage]) {
+	m.storage.Register(scheme, opts...)
+}
+
+func (m *manager) RegisterConfig(scheme string, opts ...controller.Option[*openurl.Pool[config.Store]]) {
+	m.config.Register(scheme, opts...)
 }
 
 func (m *manager) GetStorage(ctx context.Context, name string, out any) error {
@@ -322,14 +327,24 @@ func (m *manager) GetStorage(ctx context.Context, name string, out any) error {
 		return err
 	}
 
-	var store storage.Storage
-	if done := item.As(&store); !done {
+	var pool controller.Resolver[storage.Storage]
+	if done := item.As(&pool); !done {
 		return errors.New("wrong item format")
 	}
 
-	if done, _ := store.Get(ctx, out); !done {
-		return errors.New("wrong out format")
+	st, err := pool.Get(ctx)
+	if err != nil {
+		return err
 	}
+
+	out = st
+	//if done := item.As(&store); !done {
+	//	return errors.New("wrong item format")
+	//}
+	//
+	////if done, _ := store.Get(ctx, out); !done {
+	////	return errors.New("wrong out format")
+	////}
 
 	return nil
 }
@@ -347,7 +362,7 @@ func (m *manager) initConnections() error {
 	storages := store.Val("storages")
 	for k := range storages.Map() {
 		uri := storages.Val(k, "uri").String()
-		conn, err := m.storageMux.OpenStorage(m.ctx, uri)
+		conn, err := m.storage.Open(m.ctx, uri)
 		if err != nil {
 			fmt.Println("initConnections - cannot open storage with uri "+uri, err)
 			continue
@@ -568,38 +583,38 @@ func (m *manager) ServeAll(oo ...server.ServeOption) error {
 			return err
 		}
 
-		go func() {
-			w, err := store.Watch(configx.WithPath("processes", runtime.GetString(runtime.KeyName), "*"))
-			if err != nil {
-				return
-			}
-
-			for {
-				diff, err := w.Next()
-				if err != nil {
-					return
-				}
-
-				connections := diff.(configx.Values).Val("processes", runtime.GetString(runtime.KeyName), "connections")
-
-				// Adding connections to the environment
-				for k := range connections.Map() {
-					conn, err := m.storageMux.OpenStorage(m.ctx, connections.Val(k, "uri").String())
-					if err != nil {
-						continue
-					}
-
-					if conn != nil {
-						registry.NewMetaWrapper(m.localRegistry, func(meta map[string]string) {
-							meta[registry.MetaTimestampKey] = fmt.Sprintf("%d", time.Now().UnixNano())
-							meta[registry.MetaStatusKey] = string(registry.StatusTransient)
-						}).Register(registry.NewRichItem("test", "Test", conn), registry.WithEdgeTo(m.root.ID(), "storage", map[string]string{
-							"tenant": "",
-						}))
-					}
-				}
-			}
-		}()
+		//go func() {
+		//	w, err := store.Watch(configx.WithPath("processes", runtime.GetString(runtime.KeyName), "*"))
+		//	if err != nil {
+		//		return
+		//	}
+		//
+		//	for {
+		//		diff, err := w.Next()
+		//		if err != nil {
+		//			return
+		//		}
+		//
+		//		connections := diff.(configx.Values).Val("processes", runtime.GetString(runtime.KeyName), "connections")
+		//
+		//		// Adding connections to the environment
+		//		for k := range connections.Map() {
+		//			conn, err := m.storage.Open(m.ctx, connections.Val(k, "uri").String())
+		//			if err != nil {
+		//				continue
+		//			}
+		//
+		//			if conn != nil {
+		//				registry.NewMetaWrapper(m.localRegistry, func(meta map[string]string) {
+		//					meta[registry.MetaTimestampKey] = fmt.Sprintf("%d", time.Now().UnixNano())
+		//					meta[registry.MetaStatusKey] = string(registry.StatusTransient)
+		//				}).Register(registry.NewRichItem("test", "Test", conn), registry.WithEdgeTo(m.root.ID(), "storage", map[string]string{
+		//					"tenant": "",
+		//				}))
+		//			}
+		//		}
+		//	}
+		//}()
 
 		go func() {
 			r := runtime.GetRuntime()
@@ -1162,7 +1177,7 @@ func (m *manager) WatchServerUniques(srv server.Server, ss []service.Service, co
 }
 
 func (m *manager) MustGetConfig(ctx context.Context) (out config.Store) {
-	m.config.Get(ctx, &out)
+	out, _ = m.configResolver.Get(ctx)
 
 	return
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024. Abstrium SAS <team (at) pydio.com>
+ * Copyright (c) 2019-2021. Abstrium SAS <team (at) pydio.com>
  * This file is part of Pydio Cells.
  *
  * Pydio Cells is free software: you can redistribute it and/or modify
@@ -18,31 +18,14 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-package sql
+package dbresolver
 
 import (
-	"strings"
+	sqlite3 "github.com/mattn/go-sqlite3"
 )
 
-type mysqlHelper struct{}
+func IsSQLiteConn(conn any) bool {
+	_, ok := conn.(*sqlite3.SQLiteDriver)
 
-func (m *mysqlHelper) Concat(s ...string) string {
-	if len(s) == 1 {
-		return s[0]
-	}
-
-	return `CONCAT(` + strings.Join(s, ", ") + `)`
+	return ok
 }
-
-func (m *mysqlHelper) Hash(s ...string) string {
-	return `SHA1(` + m.Concat(s...) + `)`
-}
-
-func (m *mysqlHelper) HashParent(name string, s ...string) string {
-	pmpath := `SUBSTRING_INDEX(` + m.Concat(s...) + `, '.', level-1)`
-	return m.Hash(name, "'__###PARENT_HASH###__'", pmpath)
-}
-
-const (
-	MySQLDriver = "mysql"
-)

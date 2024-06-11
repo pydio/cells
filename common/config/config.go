@@ -51,7 +51,8 @@ func init() {
 type Store interface {
 	configx.Entrypoint
 	configx.Watcher
-	Close() error
+	As(out any) bool
+	Close(ctx context.Context) error
 	Done() <-chan struct{}
 	Saver
 	sync.Locker
