@@ -2,7 +2,6 @@ package dbresolver
 
 import (
 	"database/sql"
-	"fmt"
 	"sync"
 
 	"gorm.io/driver/mysql"
@@ -133,7 +132,6 @@ func (dr *DBResolver) Initialize(db *gorm.DB) error {
 
 func (dr *DBResolver) resolve(stmt *gorm.Statement, op Operation) gorm.ConnPool {
 
-	fmt.Println("Resolving")
 	conn, err := dr.Pool.Get(stmt.Context)
 	if err != nil {
 		panic(err)

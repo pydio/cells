@@ -23,8 +23,6 @@ package manager
 import (
 	"context"
 	"fmt"
-	"github.com/pydio/cells/v4/common/runtime/controller"
-	"github.com/pydio/cells/v4/common/storage"
 	"reflect"
 
 	"github.com/pkg/errors"
@@ -33,6 +31,7 @@ import (
 	registry2 "github.com/pydio/cells/v4/common/proto/registry"
 	"github.com/pydio/cells/v4/common/registry"
 	"github.com/pydio/cells/v4/common/service"
+	"github.com/pydio/cells/v4/common/storage"
 	"github.com/pydio/cells/v4/common/utils/configx"
 	"github.com/pydio/cells/v4/common/utils/propagator"
 )
@@ -105,7 +104,7 @@ func Resolve[T any](ctx context.Context, opts ...ResolveOption) (T, error) {
 		registry.WithAdjacentTargetOptions(registry.WithType(registry2.ItemType_STORAGE)),
 		registry.WithAdjacentEdgeOptions(registry.WithMeta("name", o.Name)),
 	)
-	storages := registry.ItemsAs[controller.Resolver[storage.Storage]](ss)
+	storages := registry.ItemsAs[storage.Storage](ss)
 
 	// Inject dao in handler
 supportedDriversLoop:
