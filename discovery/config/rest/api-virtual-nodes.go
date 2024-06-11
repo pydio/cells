@@ -38,7 +38,7 @@ VERSIONING POLICIES MANAGEMENT
 
 // ListVirtualNodes list all defined template paths.
 func (s *Handler) ListVirtualNodes(req *restful.Request, resp *restful.Response) {
-	//T := lang.Bundle().GetTranslationFunc(utils.UserLanguagesFromRestRequest(req)...)
+	//T := lang.Bundle().T(utils.UserLanguagesFromRestRequest(req)...)
 	ctx := req.Request.Context()
 	docs, er := docstorec.DocStoreClient(ctx).ListDocuments(ctx, &docstore.ListDocumentsRequest{
 		StoreID: common.DocStoreIdVirtualNodes,

@@ -37,7 +37,7 @@ import (
 	"github.com/pydio/cells/v4/common/proto/tree"
 	"github.com/pydio/cells/v4/common/runtime/manager"
 	"github.com/pydio/cells/v4/common/telemetry/log"
-	"github.com/pydio/cells/v4/common/utils/i18n"
+	"github.com/pydio/cells/v4/common/utils/i18n/languages"
 	"github.com/pydio/cells/v4/common/utils/permissions"
 	"github.com/pydio/cells/v4/common/utils/uuid"
 	"github.com/pydio/cells/v4/data/versions"
@@ -53,7 +53,7 @@ func (h *Handler) buildVersionDescription(ctx context.Context, version *tree.Cha
 		serverLinks := render.NewServerLinks()
 		serverLinks.URLS[render.ServerUrlTypeUsers], _ = url.Parse("user://")
 		ac, _ := activity.DocumentActivity(version.OwnerUuid, version.Event)
-		description = render.Markdown(ac, activity2.SummaryPointOfView_SUBJECT, i18n.UserLanguageFromContext(ctx, config.Get(), true), serverLinks)
+		description = render.Markdown(ac, activity2.SummaryPointOfView_SUBJECT, languages.UserLanguageFromContext(ctx, config.Get(), true), serverLinks)
 	} else {
 		description = "N/A"
 	}

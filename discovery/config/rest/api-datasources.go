@@ -517,7 +517,7 @@ func removeFullVersioningJob(ctx context.Context, dsName string) error {
 
 func createFullVersioningJob(ctx context.Context, dsName string) error {
 
-	//T := lang.Bundle().GetTranslationFunc(i18n.GetDefaultLanguage(config.Get()))
+	//T := lang.Bundle().T(i18n.GetDefaultLanguage(config.Get()))
 
 	j := &jobs.Job{
 		ID:                "full-versioning-job-" + dsName,

@@ -29,7 +29,7 @@ import (
 
 	"github.com/spf13/cobra"
 
-	i18n2 "github.com/pydio/cells/v4/common/utils/i18n"
+	i18n2 "github.com/pydio/cells/v4/common/utils/i18n/languages"
 	json "github.com/pydio/cells/v4/common/utils/jsonx"
 )
 
@@ -256,7 +256,7 @@ func convertJsLib(cmd *cobra.Command, dirPath string) error {
 		Other string `json:"other"`
 	}
 
-	for oldN, newN := range i18n2.LanguagesLegacyNames {
+	for oldN, newN := range i18n2.LegacyNames {
 
 		fPath := path.Join(dirPath, oldN+".json")
 		tPath := path.Join(dirPath, newN+".all.json")

@@ -38,7 +38,7 @@ import (
 	"github.com/pydio/cells/v4/common/service"
 	log2 "github.com/pydio/cells/v4/common/telemetry/log"
 	"github.com/pydio/cells/v4/common/utils/configx"
-	"github.com/pydio/cells/v4/common/utils/i18n"
+	"github.com/pydio/cells/v4/common/utils/i18n/languages"
 	"github.com/pydio/cells/v4/idm/oauth"
 	grpc2 "github.com/pydio/cells/v4/idm/oauth/grpc"
 	"github.com/pydio/cells/v4/idm/oauth/lang"
@@ -203,7 +203,7 @@ func init() {
 }
 
 func pruningJob(l string) *jobs.Job {
-	T := lang.Bundle().GetTranslationFunc(l)
+	T := lang.Bundle().T(l)
 	aName := "actions.auth.prune.tokens"
 
 	return &jobs.Job{
@@ -226,7 +226,7 @@ func insertPruningJob(ctx context.Context) error {
 
 	log2.Logger(ctx).Info("Inserting pruning job for revoked token and reset password tokens")
 
-	pJob := pruningJob(i18n.GetDefaultLanguage(config.Get()))
+	pJob := pruningJob(languages.GetDefaultLanguage(config.Get()))
 	cli := jobsc.JobServiceClient(ctx)
 	if resp, e := cli.GetJob(ctx, &jobs.GetJobRequest{JobID: pJob.ID}); e == nil && resp.Job != nil {
 		return nil // Already exists

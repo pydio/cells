@@ -33,14 +33,13 @@ import (
 	"github.com/pydio/cells/v4/common/broker"
 	"github.com/pydio/cells/v4/common/client/commons/jobsc"
 	"github.com/pydio/cells/v4/common/client/grpc"
-	"github.com/pydio/cells/v4/common/config"
+	"github.com/pydio/cells/v4/common/errors"
 	"github.com/pydio/cells/v4/common/middleware"
 	"github.com/pydio/cells/v4/common/nodes"
 	"github.com/pydio/cells/v4/common/proto/jobs"
 	log2 "github.com/pydio/cells/v4/common/proto/log"
 	"github.com/pydio/cells/v4/common/proto/rest"
 	"github.com/pydio/cells/v4/common/telemetry/log"
-	"github.com/pydio/cells/v4/common/utils/i18n"
 	json "github.com/pydio/cells/v4/common/utils/jsonx"
 	"github.com/pydio/cells/v4/scheduler/lang"
 )
@@ -70,7 +69,7 @@ func (s *JobsHandler) Filter() func(string) string {
 
 func (s *JobsHandler) UserListJobs(req *restful.Request, rsp *restful.Response) {
 
-	T := lang.Bundle().GetTranslationFunc(i18n.UserLanguagesFromRestRequest(req, config.Get())...)
+	T := lang.Bundle().T(middleware.DetectedLanguages(req.Request.Context())...)
 
 	var request jobs.ListJobsRequest
 	if err := req.ReadEntity(&request); err != nil {
@@ -238,11 +237,13 @@ func (s *JobsHandler) UserCreateJob(req *restful.Request, rsp *restful.Response)
 
 	ctx := req.Request.Context()
 	log.Logger(ctx).Debug("User.CreateJob", zap.Any("r", &request))
-	languages := i18n.UserLanguagesFromRestRequest(req, config.Get())
+	ll := middleware.DetectedLanguages(ctx)
 
 	jsonParams := make(map[string]interface{})
 	if request.JsonParameters != "" {
-		json.Unmarshal([]byte(request.JsonParameters), &jsonParams)
+		if er := json.Unmarshal([]byte(request.JsonParameters), &jsonParams); er != nil {
+			middleware.RestError500(req, rsp, errors.Tag(er, errors.UnmarshalError))
+		}
 	}
 
 	var jobUuid string
@@ -257,12 +258,12 @@ func (s *JobsHandler) UserCreateJob(req *restful.Request, rsp *restful.Response)
 		}
 		archiveName := jsonParams["archiveName"].(string)
 		format := jsonParams["format"].(string)
-		jobUuid, err = compress(ctx, nodes, archiveName, format, languages...)
+		jobUuid, err = compress(ctx, nodes, archiveName, format, ll...)
 	case "extract":
 		node := jsonParams["node"].(string)
 		target := jsonParams["target"].(string)
 		format := jsonParams["format"].(string)
-		jobUuid, err = extract(ctx, node, target, format, languages...)
+		jobUuid, err = extract(ctx, node, target, format, ll...)
 	case "remote-download":
 		// Reparse json to expected structure
 		type params struct {
@@ -276,7 +277,7 @@ func (s *JobsHandler) UserCreateJob(req *restful.Request, rsp *restful.Response)
 		target := structParams.Target
 		urls := structParams.Urls
 		log.Logger(ctx).Info("Wget Task with params", zap.Any("params", structParams))
-		uuids, e := wgetTasks(ctx, target, urls, languages...)
+		uuids, e := wgetTasks(ctx, target, urls, ll...)
 		jobUuid = strings.Join(uuids, ",")
 		err = e
 	case "copy", "move":
@@ -293,10 +294,10 @@ func (s *JobsHandler) UserCreateJob(req *restful.Request, rsp *restful.Response)
 		if request.JobName == "move" {
 			move = true
 		}
-		jobUuid, err = dirCopy(ctx, nodes, target, targetIsParent, move, languages...)
+		jobUuid, err = dirCopy(ctx, nodes, target, targetIsParent, move, ll...)
 	case "datasource-resync":
 		dsName := jsonParams["dsName"].(string)
-		jobUuid, err = syncDatasource(ctx, dsName, languages...)
+		jobUuid, err = syncDatasource(ctx, dsName, ll...)
 	case "import-p8":
 		jobUuid, err = p8migration(ctx, request.JsonParameters)
 	default:

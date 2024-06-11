@@ -34,7 +34,7 @@ import (
 	"github.com/pydio/cells/v4/common/config"
 	"github.com/pydio/cells/v4/common/telemetry/log"
 	"github.com/pydio/cells/v4/common/utils/configx"
-	"github.com/pydio/cells/v4/common/utils/i18n"
+	"github.com/pydio/cells/v4/common/utils/i18n/languages"
 	json "github.com/pydio/cells/v4/common/utils/jsonx"
 )
 
@@ -78,7 +78,7 @@ func (p *PluginsPool) Load(fs *UnionHttpFs) error {
 	}
 
 	p.Messages = make(map[string]I18nMessages)
-	for lang := range i18n.AvailableLanguages {
+	for lang := range languages.AvailableLanguages {
 		p.Messages[lang] = p.I18nMessages(lang)
 		log.Logger(context.Background()).Debug("Loading messages for "+lang, zap.Int("m", len(p.Messages[lang].Messages)), zap.Int("conf", len(p.Messages[lang].ConfMessages)))
 	}
@@ -290,7 +290,7 @@ func (p *PluginsPool) pluginsForStatus(ctx context.Context, status RequestStatus
 
 func (p *PluginsPool) I18nMessages(lang string) I18nMessages {
 
-	if legacy, b := i18n.LanguagesLegacyNames[lang]; b {
+	if legacy, b := languages.LegacyNames[lang]; b {
 		lang = legacy
 	}
 

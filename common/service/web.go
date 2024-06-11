@@ -92,6 +92,7 @@ func getWebMiddlewares(serviceName string) []func(ctx context.Context, handler h
 			middleware.HttpWrapperMetrics,
 			authorizations.HttpWrapperPolicy,
 			authorizations.HttpWrapperJWT,
+			authorizations.HttpWrapperLanguage,
 			middleware.HttpWrapperMeta,
 		)
 	})

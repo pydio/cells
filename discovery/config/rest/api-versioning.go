@@ -25,12 +25,10 @@ import (
 
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/client/commons/docstorec"
-	"github.com/pydio/cells/v4/common/config"
 	"github.com/pydio/cells/v4/common/middleware"
 	"github.com/pydio/cells/v4/common/proto/docstore"
 	"github.com/pydio/cells/v4/common/proto/rest"
 	"github.com/pydio/cells/v4/common/proto/tree"
-	"github.com/pydio/cells/v4/common/utils/i18n"
 	json "github.com/pydio/cells/v4/common/utils/jsonx"
 	"github.com/pydio/cells/v4/discovery/config/lang"
 )
@@ -41,7 +39,7 @@ VERSIONING POLICIES MANAGEMENT
 
 // ListVersioningPolicies list all defined policies.
 func (s *Handler) ListVersioningPolicies(req *restful.Request, resp *restful.Response) {
-	T := lang.Bundle().GetTranslationFunc(i18n.UserLanguagesFromRestRequest(req, config.Get())...)
+	T := lang.Bundle().T(middleware.DetectedLanguages(req.Request.Context())...)
 	ctx := req.Request.Context()
 	dc := docstorec.DocStoreClient(ctx)
 	docs, er := dc.ListDocuments(ctx, &docstore.ListDocumentsRequest{
@@ -69,7 +67,7 @@ func (s *Handler) ListVersioningPolicies(req *restful.Request, resp *restful.Res
 
 // GetVersioningPolicy returns a specific policy
 func (s *Handler) GetVersioningPolicy(req *restful.Request, resp *restful.Response) {
-	T := lang.Bundle().GetTranslationFunc(i18n.UserLanguagesFromRestRequest(req, config.Get())...)
+	T := lang.Bundle().T(middleware.DetectedLanguages(req.Request.Context())...)
 	policyId := req.PathParameter("Uuid")
 	ctx := req.Request.Context()
 	dc := docstorec.DocStoreClient(ctx)

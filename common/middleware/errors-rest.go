@@ -22,53 +22,58 @@ package middleware
 
 import (
 	restful "github.com/emicklei/go-restful/v3"
-	"go.uber.org/zap"
 
 	"github.com/pydio/cells/v4/common/errors"
+	"github.com/pydio/cells/v4/common/errors/langerr"
 	"github.com/pydio/cells/v4/common/proto/rest"
-	"github.com/pydio/cells/v4/common/telemetry/log"
 )
 
-type restErrorEmitter func(req *restful.Request, resp *restful.Response, err error, errorID ...string)
+var (
+	defaultIDs = map[int]string{
+		500: "E_INTERNAL_SERVER_ERROR",
+		401: "E_UNAUTHORIZED",
+		403: "E_FORBIDDEN",
+		404: "E_NOT_FOUND",
+		423: "E_RESOURCE_LOCKED",
+		503: "E_SERVICE_UNAVAILABLE",
+	}
+)
 
-// RestError500 logs the error with context and write an Error 500 on the response.
-func RestError500(req *restful.Request, resp *restful.Response, err error, errorID ...string) {
-	id := "E_INTERNAL_SERVER_ERROR"
+func commonRestError(req *restful.Request, resp *restful.Response, err error, code int, warnLevel bool, errorID ...string) {
+	// Find default ID
+	id := defaultIDs[code]
 	if len(errorID) > 0 {
 		id = errorID[0]
 	}
-	ctx := req.Request.Context()
-	msg, ff := HandleErrorRest(ctx, err, "[REST]"+req.Request.RequestURI)
-	log.Logger(ctx).Error(msg, ff...)
+	// Log error if necessary
+	HandleErrorRest(req.Request.Context(), err, "[REST]"+req.Request.RequestURI, nil, nil, warnLevel)
 
+	// Emit http response
+	emit(req, resp, code, id)
+}
+
+func emit(req *restful.Request, resp *restful.Response, code int, id string) {
+	ll := DetectedLanguages(req.Request.Context())
 	resp.AddHeader("Content-Type", "application/json")
 	e := &rest.Error{
 		Title:  id,
-		Detail: id,
+		Detail: langerr.T(ll...)("error." + id),
 	}
-	_ = resp.WriteHeaderAndEntity(500, e)
+	_ = resp.WriteHeaderAndEntity(code, e)
+}
+
+// RestError500 logs the error with context and write an Error 500 on the response.
+func RestError500(req *restful.Request, resp *restful.Response, err error, errorID ...string) {
+	commonRestError(req, resp, err, 500, false, errorID...)
 }
 
 // RestError404 logs the error with context and writes an Error 404 on the response.
 func RestError404(req *restful.Request, resp *restful.Response, err error, errorID ...string) {
 	if errors.IsNetworkError(err) {
-		RestError503(req, resp, err, errorID...)
+		commonRestError(req, resp, err, 503, false, errorID...)
 		return
 	}
-	id := "E_NOT_FOUND"
-	if len(errorID) > 0 {
-		id = errorID[0]
-	}
-	ctx := req.Request.Context()
-	msg, ff := HandleErrorRest(ctx, err, "[REST]"+req.Request.RequestURI)
-	log.Logger(ctx).Warn(msg, ff...)
-
-	resp.AddHeader("Content-Type", "application/json")
-	e := &rest.Error{
-		Title:  id,
-		Detail: id,
-	}
-	_ = resp.WriteHeaderAndEntity(404, e)
+	commonRestError(req, resp, err, 404, true, errorID...)
 }
 
 // RestError403 logs the error with context and write an Error 403 on the response.
@@ -77,78 +82,31 @@ func RestError403(req *restful.Request, resp *restful.Response, err error, error
 		RestError503(req, resp, err)
 		return
 	}
-	id := "E_FORBIDDEN"
-	if len(errorID) > 0 {
-		id = errorID[0]
-	}
-
-	ctx := req.Request.Context()
-	msg, ff := HandleErrorRest(ctx, err, "[REST]"+req.Request.RequestURI)
-	log.Logger(ctx).Error(msg, ff...)
-
-	resp.AddHeader("Content-Type", "application/json")
-	e := &rest.Error{
-		Title:  id,
-		Detail: id,
-	}
-	_ = resp.WriteHeaderAndEntity(403, e)
+	commonRestError(req, resp, err, 403, false, errorID...)
 }
 
 // RestError503 logs the error with context and write an Error 503 on the response.
 func RestError503(req *restful.Request, resp *restful.Response, err error, errorID ...string) {
-	id := "E_SERVICE_UNAVAILABLE"
-	if len(errorID) > 0 {
-		id = errorID[0]
-	}
-
-	ctx := req.Request.Context()
-	msg, ff := HandleErrorRest(ctx, err, "[REST]"+req.Request.RequestURI)
-	log.Logger(ctx).Error(msg, ff...)
-
-	resp.AddHeader("Content-Type", "application/json")
-	e := &rest.Error{
-		Title:  id,
-		Detail: id,
-	}
-	_ = resp.WriteHeaderAndEntity(503, e)
+	commonRestError(req, resp, err, 503, false, errorID...)
 }
 
 // RestError423 logs the error with context and write an Error 423 on the response.
 func RestError423(req *restful.Request, resp *restful.Response, err error, errorID ...string) {
-	id := "E_RESOURCE_LOCKED"
-	if len(errorID) > 0 {
-		id = errorID[0]
-	}
-
-	log.Logger(req.Request.Context()).Error("Rest Error 423", zap.Error(err))
-	resp.AddHeader("Content-Type", "application/json")
-	e := &rest.Error{
-		Title:  id,
-		Detail: id,
-	}
-	_ = resp.WriteHeaderAndEntity(423, e)
+	commonRestError(req, resp, err, 423, false, errorID...)
 }
 
 // RestError401 logs the error with context and write an Error 401 on the response.
 func RestError401(req *restful.Request, resp *restful.Response, err error, errorID ...string) {
+	if errors.IsNetworkError(err) {
+		commonRestError(req, resp, err, 503, false, errorID...)
+		return
+	}
 	id := "E_UNAUTHORIZED"
 	if len(errorID) > 0 {
 		id = errorID[0]
 	}
-
-	if errors.IsNetworkError(err) {
-		RestError503(req, resp, err)
-		return
-	}
-	if !errors.Is(err, errors.EmptyIDToken) {
-		HandleErrorRest(req.Request.Context(), err, "[REST]"+req.Request.RequestURI)
-	}
-	resp.AddHeader("Content-Type", "application/json")
-	e := &rest.Error{
-		Code:  id,
-		Title: id,
-	}
-	_ = resp.WriteHeaderAndEntity(401, e)
+	HandleErrorRest(req.Request.Context(), err, "[REST]"+req.Request.RequestURI, nil, []error{errors.EmptyIDToken})
+	emit(req, resp, 401, id)
 }
 
 // RestErrorDetect parses the error and tries to detect the correct code.

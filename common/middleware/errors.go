@@ -41,11 +41,16 @@ const (
 	errHandlerSpanIDKey = "ErrorHandlerSpanID"
 )
 
-func HandleErrorRest(ctx context.Context, err error, prefix string) (string, []zap.Field) {
+func HandleErrorRest(ctx context.Context, err error, prefix string, infos []string, ignores []error, warnOnly ...bool) {
+	for _, ignore := range ignores {
+		if errors.Is(err, ignore) {
+			return
+		}
+	}
+	errorMsg := err.Error()
 	var ff []zap.Field
 	if errors.Is(err, errors.CellsError) {
 		if errors.Is(err, HandledError) {
-			errorMsg := err.Error()
 			for k, v := range errors.AllDetails(err) {
 				if k == errCauseIdKey {
 					ff = append(ff, zap.String(errCauseIdKey, v.(string)))
@@ -60,7 +65,11 @@ func HandleErrorRest(ctx context.Context, err error, prefix string) (string, []z
 	} else {
 		ff = append(ff, zap.Error(err))
 	}
-	return prefix, ff
+	if len(warnOnly) > 0 && warnOnly[0] {
+		log.Logger(ctx).Warn(prefix+errorMsg, ff...)
+	} else {
+		log.Logger(ctx).Error(prefix+errorMsg, ff...)
+	}
 }
 
 func HandleErrorGRPC(ctx context.Context, err error, prefix string, infos ...zap.Field) error {

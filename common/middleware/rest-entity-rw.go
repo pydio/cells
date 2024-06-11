@@ -21,6 +21,7 @@
 package middleware
 
 import (
+	"context"
 	"io"
 
 	protovalidate "github.com/bufbuild/protovalidate-go"
@@ -28,6 +29,22 @@ import (
 	"google.golang.org/protobuf/encoding/protojson"
 	"google.golang.org/protobuf/proto"
 )
+
+type detectedLanguagesKey struct{}
+
+// DetectedLanguages reads languages from context
+func DetectedLanguages(ctx context.Context) []string {
+	var ll []string
+	if v := ctx.Value(detectedLanguagesKey{}); v != nil {
+		ll = v.([]string)
+	}
+	return ll
+}
+
+// WithDetectedLanguages passes the languages in context
+func WithDetectedLanguages(ctx context.Context, ll []string) context.Context {
+	return context.WithValue(ctx, detectedLanguagesKey{}, ll)
+}
 
 // ProtoEntityReaderWriter can read and write values using an encoding such as JSON,XML.
 type ProtoEntityReaderWriter struct {

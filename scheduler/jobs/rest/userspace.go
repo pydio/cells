@@ -51,7 +51,7 @@ import (
 
 func compress(ctx context.Context, selectedPaths []string, targetNodePath string, format string, languages ...string) (string, error) {
 
-	T := lang.Bundle().GetTranslationFunc(languages...)
+	T := lang.Bundle().T(languages...)
 	jobUuid := "compress-folders-" + uuid.New()
 	claims := ctx.Value(claim.ContextKey).(claim.Claims)
 	userName := claims.Name
@@ -164,7 +164,7 @@ func extract(ctx context.Context, selectedNode string, targetPath string, format
 	jobUuid := "extract-archive-" + uuid.New()
 	claims := ctx.Value(claim.ContextKey).(claim.Claims)
 	userName := claims.Name
-	T := lang.Bundle().GetTranslationFunc(languages...)
+	T := lang.Bundle().T(languages...)
 	initialTargetPath := targetPath
 
 	err := getRouter().WrapCallback(func(inputFilter nodes.FilterFunc, outputFilter nodes.FilterFunc) error {
@@ -242,7 +242,7 @@ func extract(ctx context.Context, selectedNode string, targetPath string, format
 
 func dirCopy(ctx context.Context, selectedPathes []string, targetNodePath string, targetIsParent bool, move bool, languages ...string) (string, error) {
 
-	T := lang.Bundle().GetTranslationFunc(languages...)
+	T := lang.Bundle().T(languages...)
 
 	taskType := "copy"
 	taskLabel := T("Jobs.User.DirCopy")
@@ -434,7 +434,7 @@ func wgetTasks(ctx context.Context, parentPath string, urls []string, languages 
 	if !config.Get("frontend", "plugin", "uploader.http", config.KeyFrontPluginEnabled).Bool() {
 		return nil, fmt.Errorf("you are not allowed to use this feature")
 	}
-	T := lang.Bundle().GetTranslationFunc(languages...)
+	T := lang.Bundle().T(languages...)
 	taskLabel := T("Jobs.User.Wget")
 	router := getRouter()
 

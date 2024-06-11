@@ -35,10 +35,6 @@ type I18nBundle struct {
 	*i18n.Bundle
 }
 
-type UserError interface {
-	T(languages ...string) string
-}
-
 type TranslateFunc func(translationID string, args ...interface{}) string
 
 func IdentityFunc(translationID string, args ...interface{}) string {
@@ -75,10 +71,10 @@ func (b *I18nBundle) LoadBoxTranslationFiles(box statics.FS) {
 
 }
 
-// GetTranslationFunc provides the correct translation func for language or the IdentityFunc
+// T provides the correct translation func for language or the IdentityFunc
 // if language is not supported. Languages can be a list of weighted languages as provided
 // in the http header Accept-Language
-func (b *I18nBundle) GetTranslationFunc(languages ...string) TranslateFunc {
+func (b *I18nBundle) T(languages ...string) TranslateFunc {
 
 	l := i18n.NewLocalizer(b.Bundle, languages...)
 	return func(id string, args ...interface{}) string {
@@ -96,18 +92,4 @@ func (b *I18nBundle) GetTranslationFunc(languages ...string) TranslateFunc {
 		return msg
 	}
 
-}
-
-func (b *I18nBundle) CreateError(errorID string) UserError {
-	return &userError{id: errorID, b: b}
-}
-
-type userError struct {
-	id string
-	b  *I18nBundle
-}
-
-func (e *userError) T(languages ...string) string {
-	f := e.b.GetTranslationFunc(languages...)
-	return f("error." + e.id)
 }

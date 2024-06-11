@@ -27,11 +27,9 @@ import (
 
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/client/grpc"
-	"github.com/pydio/cells/v4/common/config"
 	"github.com/pydio/cells/v4/common/middleware"
 	"github.com/pydio/cells/v4/common/proto/idm"
 	"github.com/pydio/cells/v4/common/telemetry/log"
-	"github.com/pydio/cells/v4/common/utils/i18n"
 	"github.com/pydio/cells/v4/idm/policy/lang"
 )
 
@@ -63,8 +61,7 @@ func (h *PolicyHandler) ListPolicies(req *restful.Request, rsp *restful.Response
 		middleware.RestErrorDetect(req, rsp, err)
 		return
 	}
-	languages := i18n.UserLanguagesFromRestRequest(req, config.Get())
-	tr := lang.Bundle().GetTranslationFunc(languages...)
+	tr := lang.Bundle().T(middleware.DetectedLanguages(ctx)...)
 	for {
 		g, er := streamer.Recv()
 		if er != nil {

@@ -37,7 +37,7 @@ import (
 	"github.com/pydio/cells/v4/common/runtime"
 	"github.com/pydio/cells/v4/common/service"
 	"github.com/pydio/cells/v4/common/telemetry/log"
-	"github.com/pydio/cells/v4/common/utils/i18n"
+	"github.com/pydio/cells/v4/common/utils/i18n/languages"
 	json "github.com/pydio/cells/v4/common/utils/jsonx"
 	"github.com/pydio/cells/v4/common/utils/propagator"
 	"github.com/pydio/cells/v4/data/versions"
@@ -79,7 +79,7 @@ func init() {
 						_, _ = jobsClient.DeleteJob(bg, &jobs.DeleteJobRequest{JobID: "prune-versions-job"})
 						reinsert = true
 					}
-					vJob := grpc2.GetVersioningJob(i18n.GetDefaultLanguage(config.Get()))
+					vJob := grpc2.GetVersioningJob(languages.GetDefaultLanguage(config.Get()))
 					if _, err := jobsClient.GetJob(bg, &jobs.GetJobRequest{JobID: vJob.ID}); err != nil || reinsert {
 						if _, er := jobsClient.PutJob(bg, &jobs.PutJobRequest{Job: vJob}); er != nil {
 							log.Logger(ctx).Error("Cannot insert versioning job", zap.Error(er))

@@ -43,7 +43,7 @@ import (
 	"github.com/pydio/cells/v4/common/proto/rest"
 	"github.com/pydio/cells/v4/common/proto/tree"
 	"github.com/pydio/cells/v4/common/telemetry/log"
-	"github.com/pydio/cells/v4/common/utils/i18n"
+	"github.com/pydio/cells/v4/common/utils/i18n/languages"
 	json "github.com/pydio/cells/v4/common/utils/jsonx"
 	"github.com/pydio/cells/v4/common/utils/permissions"
 	"github.com/pydio/cells/v4/common/utils/uuid"
@@ -83,7 +83,7 @@ func (a *TokenHandler) Revoke(req *restful.Request, resp *restful.Response) {
 		return
 	}
 
-	resp.WriteEntity(&rest.RevokeResponse{Success: true, Message: "Token successfully invalidated"})
+	_ = resp.WriteEntity(&rest.RevokeResponse{Success: true, Message: "Token successfully invalidated"})
 
 }
 
@@ -98,7 +98,7 @@ func (a *TokenHandler) ResetPasswordToken(req *restful.Request, resp *restful.Re
 	userLogin := req.PathParameter("UserLogin")
 	ctx := req.Request.Context()
 	response := &rest.ResetPasswordTokenResponse{}
-	T := lang.Bundle().GetTranslationFunc(i18n.UserLanguagesFromRestRequest(req, config.Get())...)
+	T := lang.Bundle().T(middleware.DetectedLanguages(req.Request.Context())...)
 
 	// Search for user by login
 	u, e := permissions.SearchUniqueUser(ctx, userLogin, "")
@@ -116,8 +116,8 @@ func (a *TokenHandler) ResetPasswordToken(req *restful.Request, resp *restful.Re
 		response.Message = T("ResetPassword.Err.EmailNotFound")
 		return
 	}
-	uLang := i18n.UserLanguage(ctx, u, config.Get())
-	T = lang.Bundle().GetTranslationFunc(uLang)
+	uLang := languages.UserLanguage(ctx, u, config.Get())
+	T = lang.Bundle().T(uLang)
 
 	// Create token and store as document
 	token := uuid.New()
@@ -146,7 +146,7 @@ func (a *TokenHandler) ResetPasswordToken(req *restful.Request, resp *restful.Re
 
 	// Send email
 	mailCli := mailer.NewMailerServiceClient(grpc.ResolveConn(ctx, common.ServiceMailer))
-	mailCli.SendMail(ctx, &mailer.SendMailRequest{
+	_, er := mailCli.SendMail(ctx, &mailer.SendMailRequest{
 		InQueue: false,
 		Mail: &mailer.Mail{
 			To: []*mailer.User{{
@@ -161,10 +161,15 @@ func (a *TokenHandler) ResetPasswordToken(req *restful.Request, resp *restful.Re
 			},
 		},
 	})
-	response.Success = true
-	response.Message = T("ResetPassword.Success.EmailSent")
+	if er != nil {
+		response.Success = false
+		response.Message = T("ResetPassword.Err.ResetFailed")
+	} else {
+		response.Success = true
+		response.Message = T("ResetPassword.Success.EmailSent")
+	}
 
-	resp.WriteEntity(response)
+	_ = resp.WriteEntity(response)
 }
 
 func (a *TokenHandler) ResetPassword(req *restful.Request, resp *restful.Response) {
@@ -174,7 +179,7 @@ func (a *TokenHandler) ResetPassword(req *restful.Request, resp *restful.Respons
 		middleware.RestError500(req, resp, e)
 		return
 	}
-	T := lang.Bundle().GetTranslationFunc(i18n.UserLanguagesFromRestRequest(req, config.Get())...)
+	T := lang.Bundle().T(middleware.DetectedLanguages(req.Request.Context())...)
 	ctx := req.Request.Context()
 	token := input.ResetPasswordToken
 	cli := docstorec.DocStoreClient(ctx)
@@ -215,8 +220,8 @@ func (a *TokenHandler) ResetPassword(req *restful.Request, resp *restful.Respons
 		response.Message = T("ResetPassword.Err.UserNotFound")
 		return
 	}
-	uLang := i18n.UserLanguage(ctx, u, config.Get())
-	T = lang.Bundle().GetTranslationFunc(uLang)
+	uLang := languages.UserLanguage(ctx, u, config.Get())
+	T = lang.Bundle().T(uLang)
 	u.Password = input.NewPassword
 	userClient := idmc.UserServiceClient(ctx)
 	if _, e := userClient.CreateUser(ctx, &idm.CreateUserRequest{User: u}); e != nil {
@@ -245,7 +250,7 @@ func (a *TokenHandler) ResetPassword(req *restful.Request, resp *restful.Respons
 	response.Success = true
 	response.Message = T("ResetPassword.Success.ResetFinished")
 
-	resp.WriteEntity(response)
+	_ = resp.WriteEntity(response)
 
 }
 
@@ -301,5 +306,5 @@ func (a *TokenHandler) GenerateAndWrite(ctx context.Context, genReq *auth.PatGen
 		middleware.RestErrorDetect(req, resp, e)
 		return
 	}
-	resp.WriteEntity(&rest.DocumentAccessTokenResponse{AccessToken: genResp.AccessToken})
+	_ = resp.WriteEntity(&rest.DocumentAccessTokenResponse{AccessToken: genResp.AccessToken})
 }

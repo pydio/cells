@@ -37,7 +37,7 @@ import (
 	"github.com/pydio/cells/v4/common/proto/jobs"
 	"github.com/pydio/cells/v4/common/proto/tree"
 	"github.com/pydio/cells/v4/common/telemetry/log"
-	"github.com/pydio/cells/v4/common/utils/i18n"
+	"github.com/pydio/cells/v4/common/utils/i18n/languages"
 	"github.com/pydio/cells/v4/common/utils/uuid"
 	"github.com/pydio/cells/v4/scheduler/actions"
 	"github.com/pydio/cells/v4/scheduler/actions/tools"
@@ -122,7 +122,7 @@ func (c *DeleteAction) Run(ctx context.Context, channels *actions.RunnableChanne
 		return input.WithIgnore(), nil // Ignore
 	}
 
-	T := lang.Bundle().GetTranslationFunc(i18n.UserLanguageFromContext(ctx, config.Get(), true))
+	T := lang.Bundle().T(languages.UserLanguageFromContext(ctx, config.Get(), true))
 
 	childrenOnly, e := jobs.EvaluateFieldBool(ctx, input, c.childrenOnlyParam)
 	if e != nil {

@@ -57,7 +57,7 @@ type ApplicationConfigs struct {
 }
 
 func GetApplicationConfig(languages ...string) ApplicationConfigs {
-	T := lang.Bundle().GetTranslationFunc(languages...)
+	T := lang.Bundle().T(languages...)
 
 	url := config.Get("services", "pydio.grpc.mailer", "url").Default(routing.GetDefaultSiteURL()).String()
 	linkUrl := config.Get("services", "pydio.rest.share", "url").Default(url).String()

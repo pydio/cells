@@ -40,5 +40,5 @@ func T(lang ...string) i18n.TranslateFunc {
 	o.Do(func() {
 		b = i18n.NewI18nBundle(statics.AsFS(content, "box"))
 	})
-	return b.GetTranslationFunc(lang...)
+	return b.T(lang...)
 }

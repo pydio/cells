@@ -18,8 +18,8 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-// Package i18n wraps go-i18n lib for manipulating bundles
-package i18n
+// Package languages provides tools to find language in context
+package languages
 
 import (
 	"context"
@@ -95,7 +95,8 @@ var (
 		"zh-tw": "中國傳統的",   // Chinese traditional
 	}
 
-	LanguagesLegacyNames = map[string]string{
+	// LegacyNames creates a correspondence with old pydio 8 language keys
+	LegacyNames = map[string]string{
 		"en":    "en-us",
 		"fr":    "fr",
 		"es":    "es-es",
