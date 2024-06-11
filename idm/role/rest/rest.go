@@ -30,13 +30,13 @@ import (
 
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/client/commons/idmc"
+	"github.com/pydio/cells/v4/common/errors"
 	"github.com/pydio/cells/v4/common/log"
 	"github.com/pydio/cells/v4/common/middleware"
 	"github.com/pydio/cells/v4/common/proto/idm"
 	"github.com/pydio/cells/v4/common/proto/rest"
 	serviceproto "github.com/pydio/cells/v4/common/proto/service"
 	"github.com/pydio/cells/v4/common/service/resources"
-	"github.com/pydio/cells/v4/common/service/serviceerrors"
 )
 
 // NewRoleHandler creates and configure a new RoleHandler
@@ -97,7 +97,7 @@ func (s *RoleHandler) GetRole(req *restful.Request, rsp *restful.Response) {
 		break
 	}
 	if !found {
-		middleware.RestError404(req, rsp, serviceerrors.NotFound(common.ServiceRole, "cannot find role for uuid "+uuid))
+		middleware.RestError404(req, rsp, errors.WithMessage(errors.RoleNotFound, "cannot find role for uuid "+uuid))
 		return
 	}
 }
@@ -211,7 +211,7 @@ func (s *RoleHandler) SetRole(req *restful.Request, rsp *restful.Response) {
 	cl := idmc.RoleServiceClient(ctx)
 	log.Logger(ctx).Debug("Received Role.Set", zap.Any("r", inputRole))
 
-	if checkError := s.IsAllowed(ctx, inputRole.Uuid, serviceproto.ResourcePolicyAction_WRITE, cl); checkError != nil && serviceerrors.FromError(checkError).Code != 404 {
+	if checkError := s.IsAllowed(ctx, inputRole.Uuid, serviceproto.ResourcePolicyAction_WRITE, cl); !errors.Is(checkError, errors.StatusNotFound) {
 		middleware.RestError403(req, rsp, checkError)
 		return
 	}
@@ -256,7 +256,7 @@ func (s *RoleHandler) PoliciesForRole(ctx context.Context, resourceId string, re
 		break
 	}
 	if role == nil {
-		return policies, serviceerrors.NotFound(common.ServiceRole, "cannot find role with id "+resourceId)
+		return policies, errors.WithMessage(errors.RoleNotFound, "cannot find role with id "+resourceId)
 	}
 	return
 }

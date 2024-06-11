@@ -35,6 +35,7 @@ import (
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/auth"
 	grpc2 "github.com/pydio/cells/v4/common/client/grpc"
+	"github.com/pydio/cells/v4/common/errors"
 	"github.com/pydio/cells/v4/common/log"
 	"github.com/pydio/cells/v4/common/nodes"
 	"github.com/pydio/cells/v4/common/nodes/abstract"
@@ -44,7 +45,6 @@ import (
 	"github.com/pydio/cells/v4/common/proto/service"
 	"github.com/pydio/cells/v4/common/proto/tree"
 	"github.com/pydio/cells/v4/common/registry"
-	"github.com/pydio/cells/v4/common/service/serviceerrors"
 	"github.com/pydio/cells/v4/common/utils/cache"
 	"github.com/pydio/cells/v4/common/utils/openurl"
 	"github.com/pydio/cells/v4/common/utils/permissions"
@@ -229,7 +229,7 @@ func (s *TreeServer) CreateNode(ctx context.Context, req *tree.CreateNodeRequest
 
 	dsName, dsPath := s.treeNodeToDataSourcePath(node)
 	if dsName == "" || dsPath == "" {
-		return nil, serviceerrors.Forbidden(common.ServiceTree, "Cannot write to root node or to datasource node")
+		return nil, errors.WithMessage(errors.StatusForbidden, "Cannot write to root node or to datasource node")
 	}
 
 	if ds, ok := s.datasourceByName(ctx, dsName); ok {
@@ -251,7 +251,7 @@ func (s *TreeServer) CreateNode(ctx context.Context, req *tree.CreateNodeRequest
 		return resp, nil
 	}
 
-	return nil, serviceerrors.Forbidden("datasource.not.found", "Unknown datasource %s", dsName)
+	return nil, errors.WithMessage(errors.StatusForbidden, "Unknown datasource %s", dsName)
 }
 
 // ReadNode implementation for the TreeServer
@@ -282,7 +282,7 @@ func (s *TreeServer) ReadNode(ctx context.Context, req *tree.ReadNodeRequest) (*
 			return nil, err
 		}
 		resp.Node = respNode
-		if flags.Metas() {
+		if metaStreamer != nil {
 			metaStreamer.LoadMetas(ctx, resp.Node)
 		}
 		return resp, nil
@@ -304,21 +304,19 @@ func (s *TreeServer) ReadNode(ctx context.Context, req *tree.ReadNodeRequest) (*
 
 		response, rErr := ds.reader.ReadNode(ctx, dsReq, grpc.WaitForReady(false))
 		if rErr != nil {
-			e := serviceerrors.FromError(rErr)
-
-			return nil, e
+			return nil, rErr
 		}
 
 		resp.Node = response.Node
 		s.updateDataSourceNode(resp.Node, dsName)
-		if flags.Metas() {
+		if metaStreamer != nil {
 			metaStreamer.LoadMetas(ctx, resp.Node)
 		}
 
 		return resp, nil
 	}
 
-	return nil, serviceerrors.NotFound(node.GetPath(), "Not found")
+	return nil, errors.WithMessage(errors.NodeNotFound, node.GetPath())
 }
 
 func (s *TreeServer) ListNodes(req *tree.ListNodesRequest, resp tree.NodeProvider_ListNodesServer) error {
@@ -356,8 +354,7 @@ func (s *TreeServer) ListNodes(req *tree.ListNodesRequest, resp tree.NodeProvide
 		}
 		if dsName == "" && dsPath == "" {
 			// ROOT NODE
-			return serviceerrors.BadRequest(common.ServiceTree, "Cannot get ancestors on ROOT node!")
-
+			return errors.WithMessage(errors.StatusBadRequest, "Cannot get ancestors on ROOT node!")
 		}
 
 		// Special case for Ancestors: send initial node
@@ -386,7 +383,7 @@ func (s *TreeServer) ListNodes(req *tree.ListNodesRequest, resp tree.NodeProvide
 
 			ds, ok := s.datasourceByName(ctx, dsName)
 			if !ok {
-				return serviceerrors.BadRequest(common.ServiceTree, "Cannot find datasource client for %s", dsName)
+				return errors.WithMessagef(errors.DatasourceNotFound, "Cannot find datasource client for %s", dsName)
 			}
 			sendNode.Path = dsPath
 			streamer, err := ds.reader.ListNodes(ctx, &tree.ListNodesRequest{
@@ -394,7 +391,7 @@ func (s *TreeServer) ListNodes(req *tree.ListNodesRequest, resp tree.NodeProvide
 				Ancestors: true,
 			}, grpc.WaitForReady(false))
 			if err != nil {
-				return serviceerrors.InternalServerError(common.ServiceTree, "Cannot send List request to underlying datasource %s", err.Error())
+				return errors.Tag(err, errors.StatusInternalServerError)
 			}
 
 			defer streamer.CloseSend()
@@ -588,7 +585,7 @@ func (s *TreeServer) ListNodesWithLimit(ctx context.Context, metaStreamer meta.L
 		return nil
 	}
 
-	return serviceerrors.NotFound(node.GetPath(), "Not found")
+	return errors.WithMessage(errors.NodeNotFound, node.GetPath())
 }
 
 func (s *TreeServer) dsSize(ctx context.Context, ds DataSource, flags []uint32) (int64, int, error) {
@@ -626,10 +623,10 @@ func (s *TreeServer) UpdateNode(ctx context.Context, req *tree.UpdateNodeRequest
 	dsNameFrom, dsPathFrom := s.treeNodeToDataSourcePath(from)
 	dsNameTo, dsPathTo := s.treeNodeToDataSourcePath(to)
 	if dsNameFrom == "" || dsNameTo == "" || dsPathFrom == "" || dsPathTo == "" {
-		return nil, serviceerrors.Forbidden(common.ServiceTree, "Cannot write to root node or to datasource node")
+		return nil, errors.WithMessage(errors.StatusForbidden, "Cannot write to root node or to datasource node")
 	}
 	if dsNameFrom != dsNameTo {
-		return nil, serviceerrors.Forbidden(common.ServiceTree, "Cannot move between two different datasources")
+		return nil, errors.WithMessage(errors.StatusForbidden, "Cannot move between two different datasources")
 	}
 
 	if ds, ok := s.datasourceByName(ctx, dsNameTo); ok {
@@ -647,7 +644,7 @@ func (s *TreeServer) UpdateNode(ctx context.Context, req *tree.UpdateNodeRequest
 
 	}
 
-	return nil, serviceerrors.Forbidden("datasource.not.found", "Unknown datasource %s", dsNameTo)
+	return nil, errors.WithMessage(errors.StatusForbidden, "Unknown datasource %s", dsNameTo)
 }
 
 // DeleteNode implementation for the TreeServer
@@ -659,7 +656,7 @@ func (s *TreeServer) DeleteNode(ctx context.Context, req *tree.DeleteNodeRequest
 	node := req.GetNode()
 	dsName, dsPath := s.treeNodeToDataSourcePath(node)
 	if dsName == "" || dsPath == "" {
-		return nil, serviceerrors.Forbidden(common.ServiceTree, "Cannot delete root node or datasource node")
+		return nil, errors.WithMessage(errors.StatusForbidden, "Cannot delete root node or datasource node")
 	}
 
 	if ds, ok := s.datasourceByName(ctx, dsName); ok {
@@ -672,7 +669,7 @@ func (s *TreeServer) DeleteNode(ctx context.Context, req *tree.DeleteNodeRequest
 		return resp, nil
 	}
 
-	return nil, serviceerrors.Forbidden("datasource.not.found", "Unknown datasource %s", dsName)
+	return nil, errors.WithMessage(errors.StatusForbidden, "Unknown datasource %s", dsName)
 }
 
 func (s *TreeServer) PublishChange(ctx context.Context, change *tree.NodeChangeEvent) {
@@ -839,7 +836,7 @@ func (s *TreeServer) lookUpByUuid(ctx context.Context, uuid string, statFlags ..
 				return resp.Node, nil
 			}
 		}
-		return nil, serviceerrors.NotFound(uuid, "Not found")
+		return nil, errors.WithMessage(errors.NodeNotFound, uuid)
 	}
 
 	c, cancel := context.WithTimeout(ctx, 10*time.Second)
@@ -871,7 +868,7 @@ func (s *TreeServer) lookUpByUuid(ctx context.Context, uuid string, statFlags ..
 	if foundNode != nil {
 		return foundNode, nil
 	} else {
-		return nil, serviceerrors.NotFound(common.ServiceTree, fmt.Sprintf("Node %s Not found in tree!", uuid))
+		return nil, errors.WithMessagef(errors.NodeNotFound, "Node %s Not found in tree!", uuid)
 	}
 
 }

@@ -36,6 +36,7 @@ import (
 	"github.com/pydio/cells/v4/common/auth/claim"
 	"github.com/pydio/cells/v4/common/config"
 	"github.com/pydio/cells/v4/common/config/routing"
+	"github.com/pydio/cells/v4/common/errors"
 	"github.com/pydio/cells/v4/common/forms"
 	"github.com/pydio/cells/v4/common/forms/protos"
 	"github.com/pydio/cells/v4/common/log"
@@ -50,7 +51,6 @@ import (
 	"github.com/pydio/cells/v4/common/registry"
 	"github.com/pydio/cells/v4/common/runtime"
 	"github.com/pydio/cells/v4/common/service"
-	"github.com/pydio/cells/v4/common/service/serviceerrors"
 	"github.com/pydio/cells/v4/common/utils/i18n"
 	"github.com/pydio/cells/v4/common/utils/net"
 	"github.com/pydio/cells/v4/common/utils/propagator"
@@ -215,12 +215,12 @@ func (s *Handler) documentOpResponse(p *spec.Operation) {
 func (s *Handler) ConfigFormsDiscovery(req *restful.Request, rsp *restful.Response) {
 	serviceName := req.PathParameter("ServiceName")
 	if serviceName == "" {
-		middleware.RestError500(req, rsp, serviceerrors.BadRequest("configs", "Please provide a service name"))
+		middleware.RestError500(req, rsp, errors.WithMessage(errors.InvalidParameters, "Please provide a service name"))
 	}
 
 	form := config.ExposedConfigsForService(serviceName)
 	if form == nil {
-		middleware.RestError404(req, rsp, serviceerrors.NotFound("configs", "Cannot find service "+serviceName))
+		middleware.RestError404(req, rsp, errors.WithMessagef(errors.StatusNotFound, "Cannot find service "+serviceName))
 		return
 	}
 	rsp.WriteAsXml(form.Serialize(i18n.UserLanguagesFromRestRequest(req, config.Get())...))

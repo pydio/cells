@@ -57,7 +57,10 @@ func (h *FolderTasksHandler) Adapt(c nodes.Handler, options nodes.RouterOptions)
 // DeleteNode synchronously and recursively delete a node
 func (h *FolderTasksHandler) DeleteNode(ctx context.Context, in *tree.DeleteNodeRequest, opts ...grpc.CallOption) (*tree.DeleteNodeResponse, error) {
 
-	bi, _ := nodes.GetBranchInfo(ctx, "in")
+	bi, er := nodes.GetBranchInfo(ctx, "in")
+	if er != nil {
+		return nil, er
+	}
 	isFlat := bi.FlatStorage
 	node := in.Node
 	var err error
@@ -117,7 +120,7 @@ func (h *FolderTasksHandler) UpdateNode(ctx context.Context, in *tree.UpdateNode
 	progress := make(chan float32)
 	done := make(chan bool)
 	// Transform identifier from => in
-	if f, ok := nodes.GetBranchInfo(ctx, "from"); ok {
+	if f, er := nodes.GetBranchInfo(ctx, "from"); er == nil {
 		ctx = nodes.WithBranchInfo(ctx, "in", f)
 		// Make sure DATASOURCE_NAME is set
 		if source.GetStringMeta(common.MetaNamespaceDatasourceName) == "" {

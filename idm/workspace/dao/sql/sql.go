@@ -31,8 +31,8 @@ import (
 	"gorm.io/gorm"
 
 	"github.com/pydio/cells/v4/common"
+	"github.com/pydio/cells/v4/common/errors"
 	"github.com/pydio/cells/v4/common/proto/idm"
-	"github.com/pydio/cells/v4/common/service/serviceerrors"
 	"github.com/pydio/cells/v4/common/sql"
 	"github.com/pydio/cells/v4/common/sql/resources"
 	"github.com/pydio/cells/v4/idm/workspace"
@@ -100,7 +100,7 @@ func (s *sqlimpl) Add(ctx context.Context, in interface{}) (bool, error) {
 
 	workspace, ok := in.(*idm.Workspace)
 	if !ok {
-		return false, serviceerrors.BadRequest(common.ServiceWorkspace, "Wrong type")
+		return false, errors.WithMessage(errors.InvalidParameters, "Wrong input type")
 	}
 
 	var exSlug string

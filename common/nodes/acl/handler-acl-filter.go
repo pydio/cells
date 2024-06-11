@@ -28,17 +28,13 @@ import (
 	"google.golang.org/grpc"
 
 	"github.com/pydio/cells/v4/common"
+	"github.com/pydio/cells/v4/common/errors"
 	"github.com/pydio/cells/v4/common/nodes"
 	"github.com/pydio/cells/v4/common/nodes/abstract"
 	"github.com/pydio/cells/v4/common/nodes/models"
 	"github.com/pydio/cells/v4/common/proto/tree"
-	"github.com/pydio/cells/v4/common/service/serviceerrors"
 	"github.com/pydio/cells/v4/common/utils/permissions"
 )
-
-var pathNotReadable = serviceerrors.Forbidden("path.not.readable", "path is not readable")
-
-var pathNotWriteable = serviceerrors.Forbidden("path.not.writeable", "path is not writeable")
 
 func WithFilter() nodes.Option {
 	return func(options *nodes.RouterOptions) {
@@ -66,8 +62,8 @@ func (a *FilterHandler) skipContext(ctx context.Context, identifier ...string) b
 	if len(identifier) > 0 {
 		id = identifier[0]
 	}
-	bI, ok := nodes.GetBranchInfo(ctx, id)
-	return ok && (bI.Binary || bI.TransparentBinary)
+	bI, er := nodes.GetBranchInfo(ctx, id)
+	return er == nil && (bI.Binary || bI.TransparentBinary)
 }
 
 // ReadNode checks if node is readable and forward to next middleware.
@@ -83,7 +79,7 @@ func (a *FilterHandler) ReadNode(ctx context.Context, in *tree.ReadNodeRequest, 
 		return nil, a.recheckParents(ctx, err, in.Node, true, false)
 	}
 	if !accessList.CanRead(ctx, parents...) && !accessList.CanWrite(ctx, parents...) {
-		return nil, pathNotReadable
+		return nil, errors.WithStack(errors.PathNotReadable)
 	}
 	checkDl := in.Node.HasMetaKey(nodes.MetaAclCheckDownload)
 	checkSync := in.Node.HasMetaKey(nodes.MetaAclCheckSyncable)
@@ -107,7 +103,7 @@ func (a *FilterHandler) ReadNode(ctx context.Context, in *tree.ReadNodeRequest, 
 	}
 	updatedParents := append([]*tree.Node{response.GetNode()}, parents[1:]...)
 	if checkDl && accessList.HasExplicitDeny(ctx, permissions.FlagDownload, updatedParents...) {
-		return nil, serviceerrors.Forbidden("download.forbidden", "Node cannot be downloaded")
+		return nil, errors.WithStack(errors.PathDownloadForbidden)
 	}
 	if checkSync && accessList.HasExplicitDeny(ctx, permissions.FlagSync, updatedParents...) {
 		n := response.Node.Clone()
@@ -130,7 +126,7 @@ func (a *FilterHandler) ListNodes(ctx context.Context, in *tree.ListNodesRequest
 	}
 
 	if !accessList.CanRead(ctx, parents...) {
-		return nil, serviceerrors.Forbidden("node.not.readable", "Node is not readable")
+		return nil, errors.WithStack(errors.PathNotReadable)
 	}
 
 	stream, err := a.Next.ListNodes(ctx, in, opts...)
@@ -139,12 +135,11 @@ func (a *FilterHandler) ListNodes(ctx context.Context, in *tree.ListNodesRequest
 	}
 	s := nodes.NewWrappingStreamer(stream.Context())
 	go func() {
-		defer s.CloseSend()
 		for {
-			resp, err := stream.Recv()
-			if err != nil {
-				if err != io.EOF && err != io.ErrUnexpectedEOF {
-					s.SendError(err)
+			resp, er := stream.Recv()
+			if er != nil {
+				if !errors.IsStreamFinished(er) {
+					_ = s.SendError(er)
 				}
 				break
 			}
@@ -162,7 +157,7 @@ func (a *FilterHandler) ListNodes(ctx context.Context, in *tree.ListNodesRequest
 				n.MustSetMeta(common.MetaFlagReadonly, "true")
 				resp.Node = n
 			}
-			s.Send(resp)
+			_ = s.Send(resp)
 		}
 	}()
 
@@ -179,7 +174,7 @@ func (a *FilterHandler) CreateNode(ctx context.Context, in *tree.CreateNodeReque
 		return nil, err
 	}
 	if !accessList.CanWrite(ctx, toParents...) {
-		return nil, pathNotWriteable
+		return nil, errors.WithStack(errors.PathNotWriteable)
 	}
 	return a.Next.CreateNode(ctx, in, opts...)
 }
@@ -194,14 +189,14 @@ func (a *FilterHandler) UpdateNode(ctx context.Context, in *tree.UpdateNodeReque
 		return nil, a.recheckParents(ctx, err, in.From, true, false)
 	}
 	if !accessList.CanRead(ctx, fromParents...) {
-		return nil, pathNotReadable
+		return nil, errors.PathNotReadable
 	}
 	ctx, toParents, err := nodes.AncestorsListFromContext(ctx, in.To, "to", a.ClientsPool, true)
 	if err != nil {
 		return nil, err
 	}
 	if !accessList.CanWrite(ctx, toParents...) {
-		return nil, pathNotWriteable
+		return nil, errors.WithStack(errors.PathNotWriteable)
 	}
 	return a.Next.UpdateNode(ctx, in, opts...)
 }
@@ -216,10 +211,10 @@ func (a *FilterHandler) DeleteNode(ctx context.Context, in *tree.DeleteNodeReque
 		return nil, a.recheckParents(ctx, err, in.Node, true, false)
 	}
 	if !accessList.CanWrite(ctx, delParents...) {
-		return nil, pathNotWriteable
+		return nil, errors.WithStack(errors.PathNotWriteable)
 	}
 	if accessList.HasExplicitDeny(ctx, permissions.FlagDelete, delParents...) {
-		return nil, serviceerrors.Forbidden("delete.forbidden", "Node cannot be deleted")
+		return nil, errors.WithStack(errors.PathDeleteForbidden)
 	}
 	return a.Next.DeleteNode(ctx, in, opts...)
 }
@@ -235,10 +230,10 @@ func (a *FilterHandler) GetObject(ctx context.Context, node *tree.Node, requestD
 		return nil, a.recheckParents(ctx, err, node, true, false)
 	}
 	if !accessList.CanRead(ctx, parents...) {
-		return nil, pathNotReadable
+		return nil, errors.WithStack(errors.PathNotReadable)
 	}
 	if accessList.HasExplicitDeny(ctx, permissions.FlagDownload, parents...) {
-		return nil, serviceerrors.Forbidden("download.forbidden", "Node is not downloadable")
+		return nil, errors.WithStack(errors.PathDownloadForbidden)
 	}
 	return a.Next.GetObject(ctx, node, requestData)
 }
@@ -257,10 +252,10 @@ func (a *FilterHandler) PutObject(ctx context.Context, node *tree.Node, reader i
 		return models.ObjectInfo{}, err
 	}
 	if !accessList.CanWrite(ctx, parents...) {
-		return models.ObjectInfo{}, pathNotWriteable
+		return models.ObjectInfo{}, errors.WithStack(errors.PathNotWriteable)
 	}
 	if accessList.HasExplicitDeny(ctx, permissions.FlagUpload, parents...) {
-		return models.ObjectInfo{}, serviceerrors.Forbidden("upload.forbidden", "Parents have upload explicitly disabled")
+		return models.ObjectInfo{}, errors.WithStack(errors.PathUploadForbidden)
 	}
 	return a.Next.PutObject(ctx, node, reader, requestData)
 }
@@ -276,10 +271,10 @@ func (a *FilterHandler) MultipartCreate(ctx context.Context, node *tree.Node, re
 		return "", err
 	}
 	if !accessList.CanWrite(ctx, parents...) {
-		return "", pathNotWriteable
+		return "", errors.WithStack(errors.PathNotWriteable)
 	}
 	if accessList.HasExplicitDeny(ctx, permissions.FlagUpload, parents...) {
-		return "", serviceerrors.Forbidden("upload.forbidden", "Parents have upload explicitly disabled")
+		return "", errors.WithStack(errors.PathUploadForbidden)
 	}
 	return a.Next.MultipartCreate(ctx, node, requestData)
 }
@@ -294,21 +289,21 @@ func (a *FilterHandler) CopyObject(ctx context.Context, from *tree.Node, to *tre
 		return models.ObjectInfo{}, a.recheckParents(ctx, err, from, true, false)
 	}
 	if !accessList.CanRead(ctx, fromParents...) {
-		return models.ObjectInfo{}, pathNotReadable
+		return models.ObjectInfo{}, errors.WithStack(errors.PathNotReadable)
 	}
 	ctx, toParents, err := nodes.AncestorsListFromContext(ctx, to, "to", a.ClientsPool, true)
 	if err != nil {
 		return models.ObjectInfo{}, err
 	}
 	if !accessList.CanWrite(ctx, toParents...) {
-		return models.ObjectInfo{}, pathNotWriteable
+		return models.ObjectInfo{}, errors.WithStack(errors.PathNotWriteable)
 	}
 	if accessList.HasExplicitDeny(ctx, permissions.FlagUpload, toParents...) {
-		return models.ObjectInfo{}, serviceerrors.Forbidden("upload.forbidden", "Parents have upload explicitly disabled")
+		return models.ObjectInfo{}, errors.WithStack(errors.PathUploadForbidden)
 	}
 	fullTargets := append(toParents, to)
 	if accessList.HasExplicitDeny(ctx, permissions.FlagDownload, fromParents...) && !accessList.HasExplicitDeny(ctx, permissions.FlagDownload, fullTargets...) {
-		return models.ObjectInfo{}, serviceerrors.Forbidden("upload.forbidden", "Source has download explicitly disabled and target does not")
+		return models.ObjectInfo{}, errors.WithStack(errors.PathDownloadForbidden)
 	}
 	return a.Next.CopyObject(ctx, from, to, requestData)
 }
@@ -358,7 +353,7 @@ func (a *FilterHandler) checkPerm(c context.Context, node *tree.Node, identifier
 
 	val := c.Value(ctxUserAccessListKey{})
 	if val == nil {
-		return fmt.Errorf("cannot find accessList in context for checking permissions")
+		return errors.WithStack(errors.AccessListNotFound)
 	}
 	accessList := val.(*permissions.AccessList)
 	ctx, parents, err := nodes.AncestorsListFromContext(c, node, identifier, a.ClientsPool, orParents)
@@ -366,13 +361,13 @@ func (a *FilterHandler) checkPerm(c context.Context, node *tree.Node, identifier
 		return a.recheckParents(c, err, node, read, write)
 	}
 	if read && !accessList.CanRead(ctx, parents...) {
-		return pathNotReadable
+		return errors.WithStack(errors.PathNotReadable)
 	}
 	if write && !accessList.CanWrite(ctx, parents...) {
-		return pathNotWriteable
+		return errors.WithStack(errors.PathNotWriteable)
 	}
 	if len(explicitFlags) > 0 && accessList.HasExplicitDeny(ctx, explicitFlags[0], parents...) {
-		return serviceerrors.Forbidden("explicit.deny", "path has explicit denies for flag "+permissions.FlagsToNames[explicitFlags[0]])
+		return errors.WithMessagef(errors.PathExplicitDeny, "path has explicit denies for flag %s", permissions.FlagsToNames[explicitFlags[0]])
 	}
 	return nil
 
@@ -380,7 +375,7 @@ func (a *FilterHandler) checkPerm(c context.Context, node *tree.Node, identifier
 
 func (a *FilterHandler) recheckParents(c context.Context, originalError error, node *tree.Node, read, write bool) error {
 
-	if serviceerrors.FromError(originalError).Code != 404 {
+	if !errors.Is(originalError, errors.StatusNotFound) {
 		return originalError
 	}
 
@@ -396,10 +391,10 @@ func (a *FilterHandler) recheckParents(c context.Context, originalError error, n
 	}
 
 	if read && !accessList.CanRead(c, parents...) {
-		return pathNotReadable
+		return errors.WithStack(errors.PathNotReadable)
 	}
 	if write && !accessList.CanWrite(c, parents...) {
-		return pathNotWriteable
+		return errors.WithStack(errors.PathNotWriteable)
 	}
 
 	return originalError

@@ -28,10 +28,9 @@ import (
 	bolt "go.etcd.io/bbolt"
 	"go.uber.org/zap"
 
-	"github.com/pydio/cells/v4/common"
+	"github.com/pydio/cells/v4/common/errors"
 	"github.com/pydio/cells/v4/common/log"
 	"github.com/pydio/cells/v4/common/proto/docstore"
-	"github.com/pydio/cells/v4/common/service/serviceerrors"
 	json "github.com/pydio/cells/v4/common/utils/jsonx"
 )
 
@@ -70,7 +69,7 @@ func (s *BoltStore) GetStore(tx *bolt.Tx, storeID string, mode string) (*bolt.Bu
 		if bucket := tx.Bucket(key); bucket != nil {
 			return bucket, nil
 		} else {
-			return nil, serviceerrors.NotFound(common.ServiceDocStore, "Store Not Found")
+			return nil, errors.WithStack(errors.BucketNotFound)
 		}
 	} else {
 		return tx.CreateBucketIfNotExists(key)
@@ -109,11 +108,11 @@ func (s *BoltStore) GetDocument(ctx context.Context, storeID string, docId strin
 		}
 		data := bucket.Get([]byte(docId))
 		if data == nil {
-			return serviceerrors.NotFound(common.ServiceDocStore, "Doc ID not found")
+			return errors.WithMessage(errors.StatusNotFound, "Doc ID not found")
 		}
 		err = json.Unmarshal(data, j)
 		if err != nil {
-			return serviceerrors.InternalServerError(common.ServiceDocStore, "Cannot deserialize document")
+			return errors.Tag(errors.UnmarshalError, err)
 		}
 		return nil
 	})

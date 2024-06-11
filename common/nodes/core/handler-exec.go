@@ -32,13 +32,13 @@ import (
 
 	"github.com/pydio/cells/v4/common"
 	grpc2 "github.com/pydio/cells/v4/common/client/grpc"
+	"github.com/pydio/cells/v4/common/errors"
 	"github.com/pydio/cells/v4/common/log"
 	"github.com/pydio/cells/v4/common/nodes"
 	"github.com/pydio/cells/v4/common/nodes/abstract"
 	"github.com/pydio/cells/v4/common/nodes/models"
 	"github.com/pydio/cells/v4/common/proto/object"
 	"github.com/pydio/cells/v4/common/proto/tree"
-	"github.com/pydio/cells/v4/common/service/serviceerrors"
 	"github.com/pydio/cells/v4/common/utils/propagator"
 )
 
@@ -60,15 +60,15 @@ func (e *Executor) ExecuteWrapped(inputFilter nodes.FilterFunc, outputFilter nod
 func (e *Executor) ReadNode(ctx context.Context, in *tree.ReadNodeRequest, opts ...grpc.CallOption) (*tree.ReadNodeResponse, error) {
 
 	if in.ObjectStats {
-		info, ok := nodes.GetBranchInfo(ctx, "in")
-		if !ok {
-			return nil, nodes.ErrBranchInfoMissing("in")
+		info, er := nodes.GetBranchInfo(ctx, "in")
+		if er != nil {
+			return nil, er
 		}
 		writer := info.Client
 		s3Path := e.buildS3Path(info, in.Node)
 		if oi, er := writer.StatObject(ctx, info.ObjectsBucket, s3Path, nil); er != nil {
 			if er.Error() == noSuchKeyString {
-				er = serviceerrors.NotFound("not.found", "object not found in datasource: %s", s3Path)
+				er = errors.WithMessage(errors.ObjectNotFound, s3Path)
 			}
 			log.Logger(ctx).Info("ReadNodeRequest/ObjectsStats Failed", zap.Object("ReadNodeRequest.Node", in.Node), zap.Uint32s("StatFlags", in.StatFlags), zap.Error(er))
 			return nil, er
@@ -84,13 +84,16 @@ func (e *Executor) ReadNode(ctx context.Context, in *tree.ReadNodeRequest, opts 
 	} else {
 
 		resp, err := e.ClientsPool.GetTreeClient().ReadNode(ctx, in, opts...)
-		if err != nil {
-			if strings.Contains(err.Error(), "context canceled") {
-				log.Logger(ctx).Debug("Failed to read node (context canceled)", zap.Error(err))
-			} else if serviceerrors.FromError(err).Code != 404 {
-				log.Logger(ctx).Error("Failed to read node", zap.Any("in", in), zap.Error(err))
+		/*
+			// Todo - check, should be handled at upper level
+			if err != nil {
+				if errors.Is(err, context.Canceled) {
+					log.Logger(ctx).Debug("Failed to read node (context canceled)", zap.Error(err))
+				} else if !errors.Is(err, errors.StatusNotFound) {
+					log.Logger(ctx).Error("Failed to read node", zap.Any("in", in), zap.Error(err))
+				}
 			}
-		}
+		*/
 
 		return resp, err
 	}
@@ -112,9 +115,9 @@ func (e *Executor) UpdateNode(ctx context.Context, in *tree.UpdateNodeRequest, o
 }
 
 func (e *Executor) DeleteNode(ctx context.Context, in *tree.DeleteNodeRequest, opts ...grpc.CallOption) (*tree.DeleteNodeResponse, error) {
-	info, ok := nodes.GetBranchInfo(ctx, "in")
-	if !ok {
-		return nil, nodes.ErrBranchInfoMissing("in")
+	info, er := nodes.GetBranchInfo(ctx, "in")
+	if er != nil {
+		return nil, er
 	}
 	writer := info.Client
 
@@ -141,9 +144,9 @@ func (e *Executor) DeleteNode(ctx context.Context, in *tree.DeleteNodeRequest, o
 func (e *Executor) GetObject(ctx context.Context, node *tree.Node, requestData *models.GetRequestData) (io.ReadCloser, error) {
 	// Init logger now
 	logger := log.Logger(ctx)
-	info, ok := nodes.GetBranchInfo(ctx, "in")
-	if !ok {
-		return nil, nodes.ErrBranchInfoMissing("in")
+	info, er := nodes.GetBranchInfo(ctx, "in")
+	if er != nil {
+		return nil, er
 	}
 	writer := info.Client
 
@@ -184,9 +187,9 @@ func (e *Executor) GetObject(ctx context.Context, node *tree.Node, requestData *
 }
 
 func (e *Executor) PutObject(ctx context.Context, node *tree.Node, reader io.Reader, requestData *models.PutRequestData) (models.ObjectInfo, error) {
-	info, ok := nodes.GetBranchInfo(ctx, "in")
-	if !ok {
-		return models.ObjectInfo{}, nodes.ErrBranchInfoMissing("in")
+	info, er := nodes.GetBranchInfo(ctx, "in")
+	if er != nil {
+		return models.ObjectInfo{}, er
 	}
 	writer := info.Client
 
@@ -213,13 +216,13 @@ func (e *Executor) PutObject(ctx context.Context, node *tree.Node, reader io.Rea
 func (e *Executor) CopyObject(ctx context.Context, from *tree.Node, to *tree.Node, requestData *models.CopyRequestData) (models.ObjectInfo, error) {
 
 	// If DS's are same datasource, simple S3 Copy operation. Otherwise it must copy from one to another.
-	destInfo, ok := nodes.GetBranchInfo(ctx, "to")
-	if !ok {
-		return models.ObjectInfo{}, nodes.ErrBranchInfoMissing("to")
+	destInfo, er := nodes.GetBranchInfo(ctx, "to")
+	if er != nil {
+		return models.ObjectInfo{}, er
 	}
-	srcInfo, ok2 := nodes.GetBranchInfo(ctx, "from")
-	if !ok2 {
-		return models.ObjectInfo{}, nodes.ErrBranchInfoMissing("from")
+	srcInfo, er := nodes.GetBranchInfo(ctx, "from")
+	if er != nil {
+		return models.ObjectInfo{}, er
 	}
 	destClient := destInfo.Client
 	srcClient := srcInfo.Client
@@ -242,7 +245,7 @@ func (e *Executor) CopyObject(ctx context.Context, from *tree.Node, to *tree.Nod
 		if e != nil {
 			log.Logger(ctx).Error("HandlerExec: Error on CopyObject while first stating source", zap.Error(e))
 			if e.Error() == noSuchKeyString {
-				e = serviceerrors.NotFound("object.not.found", "object was not found, this is not normal: %s", fromPath)
+				e = errors.WithMessage(errors.ObjectNotFound, fromPath)
 			}
 			return models.ObjectInfo{}, e
 		}
@@ -333,9 +336,9 @@ func (e *Executor) CopyObject(ctx context.Context, from *tree.Node, to *tree.Nod
 }
 
 func (e *Executor) MultipartCreate(ctx context.Context, target *tree.Node, requestData *models.MultipartRequestData) (string, error) {
-	info, ok := nodes.GetBranchInfo(ctx, "in")
-	if !ok {
-		return "", nodes.ErrBranchInfoMissing("in")
+	info, er := nodes.GetBranchInfo(ctx, "in")
+	if er != nil {
+		return "", er
 	}
 	s3Path := e.buildS3Path(info, target)
 
@@ -345,9 +348,9 @@ func (e *Executor) MultipartCreate(ctx context.Context, target *tree.Node, reque
 }
 
 func (e *Executor) MultipartPutObjectPart(ctx context.Context, target *tree.Node, uploadID string, partNumberMarker int, reader io.Reader, requestData *models.PutRequestData) (models.MultipartObjectPart, error) {
-	info, ok := nodes.GetBranchInfo(ctx, "in")
-	if !ok {
-		return models.MultipartObjectPart{PartNumber: partNumberMarker}, nodes.ErrBranchInfoMissing("in")
+	info, er := nodes.GetBranchInfo(ctx, "in")
+	if er != nil {
+		return models.MultipartObjectPart{PartNumber: partNumberMarker}, er
 	}
 	writer := info.Client
 	s3Path := e.buildS3Path(info, target)
@@ -356,7 +359,7 @@ func (e *Executor) MultipartPutObjectPart(ctx context.Context, target *tree.Node
 
 	if requestData.Size <= 0 {
 		// This should never happen, double check
-		return models.MultipartObjectPart{PartNumber: partNumberMarker}, serviceerrors.BadRequest("put.part.empty", "trying to upload a part object that has no data. Double check")
+		return models.MultipartObjectPart{PartNumber: partNumberMarker}, errors.WithMessage(errors.StatusBadRequest, "trying to upload a part object that has no data. Double check")
 	}
 
 	cp, err := writer.PutObjectPart(ctx, info.ObjectsBucket, s3Path, uploadID, partNumberMarker, reader, requestData.Size, hex.EncodeToString(requestData.Md5Sum), hex.EncodeToString(requestData.Sha256Sum))
@@ -417,18 +420,18 @@ func (e *Executor) MultipartList(ctx context.Context, prefix string, requestData
 }
 
 func (e *Executor) MultipartAbort(ctx context.Context, target *tree.Node, uploadID string, requestData *models.MultipartRequestData) error {
-	info, ok := nodes.GetBranchInfo(ctx, "in")
-	if !ok {
-		return nodes.ErrBranchInfoMissing("in")
+	info, er := nodes.GetBranchInfo(ctx, "in")
+	if er != nil {
+		return er
 	}
 	s3Path := e.buildS3Path(info, target)
 	return info.Client.AbortMultipartUpload(ctx, info.ObjectsBucket, s3Path, uploadID)
 }
 
 func (e *Executor) MultipartComplete(ctx context.Context, target *tree.Node, uploadID string, uploadedParts []models.MultipartObjectPart) (models.ObjectInfo, error) {
-	info, ok := nodes.GetBranchInfo(ctx, "in")
-	if !ok {
-		return models.ObjectInfo{}, nodes.ErrBranchInfoMissing("in")
+	info, er := nodes.GetBranchInfo(ctx, "in")
+	if er != nil {
+		return models.ObjectInfo{}, er
 	}
 	s3Path := e.buildS3Path(info, target)
 
@@ -461,9 +464,9 @@ func (e *Executor) MultipartComplete(ctx context.Context, target *tree.Node, upl
 }
 
 func (e *Executor) MultipartListObjectParts(ctx context.Context, target *tree.Node, uploadID string, partNumberMarker int, maxParts int) (models.ListObjectPartsResult, error) {
-	info, ok := nodes.GetBranchInfo(ctx, "in")
-	if !ok {
-		return models.ListObjectPartsResult{}, nodes.ErrBranchInfoMissing("in")
+	info, er := nodes.GetBranchInfo(ctx, "in")
+	if er != nil {
+		return models.ListObjectPartsResult{}, er
 	}
 	s3Path := e.buildS3Path(info, target)
 	return info.Client.ListObjectParts(ctx, info.ObjectsBucket, s3Path, uploadID, partNumberMarker, maxParts)

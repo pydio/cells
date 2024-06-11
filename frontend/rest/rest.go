@@ -22,7 +22,6 @@ package rest
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"io"
 	"os"
@@ -38,6 +37,7 @@ import (
 	"github.com/pydio/cells/v4/common/broker"
 	"github.com/pydio/cells/v4/common/client/commons/idmc"
 	"github.com/pydio/cells/v4/common/config"
+	"github.com/pydio/cells/v4/common/errors"
 	"github.com/pydio/cells/v4/common/log"
 	"github.com/pydio/cells/v4/common/middleware"
 	"github.com/pydio/cells/v4/common/nodes/compose"
@@ -264,7 +264,7 @@ func (a *FrontendHandler) FrontSession(req *restful.Request, rsp *restful.Respon
 		middleware.RestError401(req, rsp, e, "E_LOGIN_FAILED")
 		return
 	} else if response.Error != "" {
-		middleware.RestError401(req, rsp, errors.New(response.Error), "E_LOGIN_FAILED")
+		middleware.RestError401(req, rsp, errors.WithMessage(errors.StatusUnauthorized, response.Error), "E_LOGIN_FAILED")
 		return
 	}
 
@@ -292,16 +292,16 @@ func (a *FrontendHandler) FrontSessionDel(req *restful.Request, rsp *restful.Res
 	}
 
 	session, err := dao.GetSession(req.Request)
-	if err != nil && session == nil {
+	if err != nil || session == nil {
 		middleware.RestError500(req, rsp, fmt.Errorf("could not load session store: %s", err))
 		return
 	}
 
 	session.Values = make(map[interface{}]interface{})
 	session.Options.MaxAge = -1
-	session.Save(req.Request, rsp.ResponseWriter)
+	_ = session.Save(req.Request, rsp.ResponseWriter)
 
-	rsp.WriteEntity(nil)
+	_ = rsp.WriteEntity(nil)
 }
 
 // FrontEnrollAuth is a generic endpoint that can be handled by specific 2FA plugins
@@ -317,7 +317,7 @@ func (a *FrontendHandler) FrontMessages(req *restful.Request, rsp *restful.Respo
 		return
 	}
 	lang := req.PathParameter("Lang")
-	rsp.WriteAsJson(pool.I18nMessages(lang).Messages)
+	_ = rsp.WriteAsJson(pool.I18nMessages(lang).Messages)
 }
 
 // Strip Cookies Metadata from context to avoid s3 too-long-header error
@@ -387,7 +387,7 @@ func (a *FrontendHandler) FrontServeBinary(req *restful.Request, rsp *restful.Re
 				return
 			}
 		}
-		readBinary(ctx, router, readNode, rsp.ResponseWriter, rsp.Header(), extension)
+		_ = readBinary(ctx, router, readNode, rsp.ResponseWriter, rsp.Header(), extension)
 	}
 }
 
@@ -435,7 +435,7 @@ func (a *FrontendHandler) FrontPutBinary(req *restful.Request, rsp *restful.Resp
 		}
 		// USER binaries can only be edited by context user or by admin
 		if ctxClaims.Profile != common.PydioProfileAdmin && ctxUser != binaryUuid {
-			middleware.RestError401(req, rsp, fmt.Errorf("you are not allowed to edit this binary"), "")
+			middleware.RestError401(req, rsp, fmt.Errorf("you are not allowed to edit this binary"))
 			return
 		}
 

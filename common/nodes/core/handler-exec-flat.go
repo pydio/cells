@@ -32,6 +32,7 @@ import (
 
 	"github.com/pydio/cells/v4/common"
 	grpc2 "github.com/pydio/cells/v4/common/client/grpc"
+	"github.com/pydio/cells/v4/common/errors"
 	"github.com/pydio/cells/v4/common/log"
 	"github.com/pydio/cells/v4/common/nodes"
 	"github.com/pydio/cells/v4/common/nodes/abstract"
@@ -39,7 +40,6 @@ import (
 	"github.com/pydio/cells/v4/common/proto/encryption"
 	"github.com/pydio/cells/v4/common/proto/object"
 	"github.com/pydio/cells/v4/common/proto/tree"
-	"github.com/pydio/cells/v4/common/service/serviceerrors"
 	"github.com/pydio/cells/v4/common/utils/propagator"
 	"github.com/pydio/cells/v4/common/utils/uuid"
 )
@@ -71,7 +71,7 @@ func (f *FlatStorageHandler) CreateNode(ctx context.Context, in *tree.CreateNode
 	if r, e := f.Next.ReadNode(ctx, &tree.ReadNodeRequest{Node: &tree.Node{Path: in.GetNode().GetPath()}}); e == nil && r.GetNode() != nil {
 		rNode := r.GetNode()
 		if rNode.IsLeaf() {
-			return nil, serviceerrors.Forbidden("cannot.override.file", "trying to create a folder on top of an existing file")
+			return nil, errors.WithMessage(errors.StatusForbidden, "trying to create a folder on top of an existing file")
 		}
 		rNode.MustSetMeta(common.MetaFlagIndexed, true)
 		return &tree.CreateNodeResponse{Node: rNode}, nil
@@ -204,7 +204,7 @@ func (f *FlatStorageHandler) MultipartComplete(ctx context.Context, target *tree
 		// We assume MultipartCreate has already set the clear-size in the index, otherwise we have to find the correct value
 		meta := map[string]string{}
 		if target.Size == 0 {
-			if branchInfo, ok := nodes.GetBranchInfo(ctx, "in"); ok && branchInfo.EncryptionMode != object.EncryptionMode_CLEAR {
+			if branchInfo, er := nodes.GetBranchInfo(ctx, "in"); er == nil && branchInfo.EncryptionMode != object.EncryptionMode_CLEAR {
 				if pS, e := f.encPlainSizeRecompute(ctx, target.GetUuid(), branchInfo.Name); e == nil {
 					// We have to reload the size from encryption service
 					//fmt.Println("Reading plain size from nodeKey service", pS)

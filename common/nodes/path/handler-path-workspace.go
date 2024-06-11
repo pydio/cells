@@ -22,8 +22,6 @@ package path
 
 import (
 	"context"
-	"fmt"
-	"github.com/pydio/cells/v4/common/middleware/keys"
 	"strings"
 
 	"go.uber.org/zap"
@@ -31,13 +29,14 @@ import (
 	"google.golang.org/protobuf/proto"
 
 	"github.com/pydio/cells/v4/common"
+	"github.com/pydio/cells/v4/common/errors"
 	"github.com/pydio/cells/v4/common/log"
+	"github.com/pydio/cells/v4/common/middleware/keys"
 	"github.com/pydio/cells/v4/common/nodes"
 	"github.com/pydio/cells/v4/common/nodes/abstract"
 	"github.com/pydio/cells/v4/common/nodes/acl"
 	"github.com/pydio/cells/v4/common/proto/idm"
 	"github.com/pydio/cells/v4/common/proto/tree"
-	"github.com/pydio/cells/v4/common/service/serviceerrors"
 	"github.com/pydio/cells/v4/common/utils/propagator"
 )
 
@@ -93,7 +92,7 @@ func (a *WorkspaceHandler) extractWs(ctx context.Context, node *tree.Node) (*idm
 				}
 			}
 			// There is a workspace in path, but it is not in the ACL!
-			return nil, false, serviceerrors.NotFound("workspace.not.found", fmt.Sprintf("Workspace %s is not found", parts[0]))
+			return nil, false, errors.WithMessagef(errors.WorkspaceNotFound, "Workspace %s is not found", parts[0])
 		} else {
 			// Root without workspace part
 			return nil, false, nil
@@ -104,7 +103,7 @@ func (a *WorkspaceHandler) extractWs(ctx context.Context, node *tree.Node) (*idm
 }
 
 func (a *WorkspaceHandler) updateBranchInfo(ctx context.Context, node *tree.Node, identifier string) (context.Context, *tree.Node, error) {
-	if info, alreadySet := nodes.GetBranchInfo(ctx, identifier); alreadySet && info.Client != nil {
+	if info, er := nodes.GetBranchInfo(ctx, identifier); er == nil && info.Client != nil {
 		return ctx, node, nil
 	}
 	branchInfo := nodes.BranchInfo{}
@@ -126,7 +125,7 @@ func (a *WorkspaceHandler) updateBranchInfo(ctx context.Context, node *tree.Node
 
 func (a *WorkspaceHandler) updateOutputBranch(ctx context.Context, node *tree.Node, identifier string) (context.Context, *tree.Node, error) {
 	// Prepend Slug to path
-	if info, set := nodes.GetBranchInfo(ctx, identifier); set && info.UUID != "ROOT" {
+	if info, er := nodes.GetBranchInfo(ctx, identifier); er == nil && info.UUID != "ROOT" {
 		out := node.Clone()
 		out.Path = info.Slug + "/" + node.Path
 		return ctx, out, nil
@@ -158,7 +157,7 @@ func (a *WorkspaceHandler) ListNodes(ctx context.Context, in *tree.ListNodesRequ
 		// List user workspaces here
 		accessList, ok := acl.FromContext(ctx)
 		if !ok {
-			return nil, nodes.ErrCannotFindACL()
+			return nil, errors.WithStack(errors.BranchInfoACLMissing)
 		}
 		streamer := nodes.NewWrappingStreamer(ctx)
 		go func() {

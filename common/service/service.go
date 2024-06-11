@@ -22,14 +22,13 @@ package service
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"sync"
 
-	errors2 "github.com/pkg/errors"
 	"go.uber.org/zap"
 	"golang.org/x/exp/maps"
 
+	"github.com/pydio/cells/v4/common/errors"
 	"github.com/pydio/cells/v4/common/log"
 	pb "github.com/pydio/cells/v4/common/proto/registry"
 	"github.com/pydio/cells/v4/common/registry"
@@ -54,10 +53,7 @@ var _ registry.Service = (*service)(nil)
 
 var (
 	mandatoryOptions []ServiceOption
-
-	errNoServerAttached = errors.New("no server attached to the service")
-
-	ContextKey = serviceKey{}
+	ContextKey       = serviceKey{}
 )
 
 func init() {
@@ -218,7 +214,7 @@ func (s *service) Start(oo ...registry.RegisterOption) (er error) {
 			er = fmt.Errorf("panic while starting service %v", e)
 		}
 		if er != nil {
-			er = errors2.Wrap(er, "service.Start "+s.Name())
+			er = errors.WithMessagef(errors.ServiceStartError, "starting %s, %w", s.Name(), er)
 			s.updateRegister(registry.StatusError)
 			if s.Opts.runtimeCancel != nil {
 				s.Opts.runtimeCancel()

@@ -38,6 +38,7 @@ import (
 	"github.com/pydio/cells/v4/common/client/commons/jobsc"
 	"github.com/pydio/cells/v4/common/client/commons/treec"
 	"github.com/pydio/cells/v4/common/config"
+	"github.com/pydio/cells/v4/common/errors"
 	"github.com/pydio/cells/v4/common/log"
 	"github.com/pydio/cells/v4/common/middleware"
 	"github.com/pydio/cells/v4/common/middleware/keys"
@@ -50,7 +51,6 @@ import (
 	"github.com/pydio/cells/v4/common/proto/rest"
 	service2 "github.com/pydio/cells/v4/common/proto/service"
 	"github.com/pydio/cells/v4/common/proto/tree"
-	"github.com/pydio/cells/v4/common/service/serviceerrors"
 	"github.com/pydio/cells/v4/common/utils/i18n"
 	json "github.com/pydio/cells/v4/common/utils/jsonx"
 	"github.com/pydio/cells/v4/common/utils/mtree"
@@ -284,9 +284,9 @@ func (h *Handler) DeleteNodes(req *restful.Request, resp *restful.Response) {
 			if e != nil {
 				return e
 			}
-			bi, ok := nodes.GetBranchInfo(ctx, "in")
-			if !ok {
-				return fmt.Errorf("cannot find branch info for this node")
+			bi, er := nodes.GetBranchInfo(ctx, "in")
+			if er != nil {
+				return er
 			}
 			for _, rootID := range bi.RootUUIDs {
 				if rootID == node.Uuid {
@@ -301,7 +301,7 @@ func (h *Handler) DeleteNodes(req *restful.Request, resp *restful.Response) {
 				}
 				// Additional check for child locks to secure recycle bin empty operation
 				if permissions.HasChildLocks(ctx, filtered) {
-					return serviceerrors.New("children.locks", "Resource is currently busy, please retry later", 423)
+					return errors.WithStack(errors.StatusLocked)
 				}
 				log.Logger(ctx).Info(fmt.Sprintf("Definitively deleting [%s]", node.GetPath()))
 				deleteJobs.Deletes = append(deleteJobs.Deletes, node.GetPath()) // Pass user-scope path
@@ -529,9 +529,9 @@ func (h *Handler) RestoreNodes(req *restful.Request, resp *restful.Response) {
 				log.Logger(ctx).Error("[restore] Cannot find source node", zap.Error(e))
 				return e
 			}
-			bi, ok := nodes.GetBranchInfo(ctx, "in")
-			if !ok {
-				return fmt.Errorf("cannot find branch info for this node")
+			bi, er := nodes.GetBranchInfo(ctx, "in")
+			if er != nil {
+				return er
 			}
 			currentFullPath := filtered.Path
 			originalFullPath := r.GetNode().GetStringMeta(common.MetaNamespaceRecycleRestore)
@@ -554,7 +554,7 @@ func (h *Handler) RestoreNodes(req *restful.Request, resp *restful.Response) {
 			}
 			accessList := acl.MustFromContext(ctx)
 			if !accessList.CanWrite(ctx, ancestors...) {
-				return serviceerrors.Forbidden("node.not.writeable", "Original location is not writable")
+				return errors.WithMessage(errors.StatusForbidden, "Original location is not writable")
 			}
 			log.Logger(ctx).Info("Should restore node", zap.String("from", currentFullPath), zap.String("to", originalFullPath))
 			jobUuid := "copy-move-" + uuid.New()

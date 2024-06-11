@@ -25,11 +25,11 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/pydio/cells/v4/common/errors"
 	"github.com/pydio/cells/v4/common/nodes"
 	"github.com/pydio/cells/v4/common/nodes/models"
 	"github.com/pydio/cells/v4/common/proto/object"
 	"github.com/pydio/cells/v4/common/proto/tree"
-	"github.com/pydio/cells/v4/common/service/serviceerrors"
 
 	. "github.com/smartystreets/goconvey/convey"
 )
@@ -130,24 +130,21 @@ func TestHandler_WriteOperations(t *testing.T) {
 	Convey("Test CreateNode in BinaryStore", t, func() {
 
 		_, e := handler.CreateNode(ctx, &tree.CreateNodeRequest{Node: &tree.Node{Path: testBinaryStoreName + "/thumb"}})
-		parsed := serviceerrors.FromError(e)
-		So(parsed.Code, ShouldEqual, 403)
+		So(errors.Is(e, errors.StatusForbidden), ShouldBeTrue)
 
 	})
 
 	Convey("Test PutObject in BinaryStore", t, func() {
 
 		_, e := handler.PutObject(ctx, &tree.Node{Path: testBinaryStoreName + "/thumb"}, strings.NewReader(""), &models.PutRequestData{})
-		parsed := serviceerrors.FromError(e)
-		So(parsed.Code, ShouldEqual, 403)
+		So(errors.Is(e, errors.StatusForbidden), ShouldBeTrue)
 
 	})
 
 	Convey("Test DeleteNode in BinaryStore", t, func() {
 
 		_, e := handler.DeleteNode(ctx, &tree.DeleteNodeRequest{Node: &tree.Node{Path: testBinaryStoreName + "/thumb"}})
-		parsed := serviceerrors.FromError(e)
-		So(parsed.Code, ShouldEqual, 403)
+		So(errors.Is(e, errors.StatusForbidden), ShouldBeTrue)
 
 	})
 
@@ -157,17 +154,13 @@ func TestHandler_WriteOperations(t *testing.T) {
 			From: &tree.Node{Path: testBinaryStoreName + "/thumb"},
 			To:   &tree.Node{Path: testBinaryStoreName + "/thumb1"},
 		})
-		parsed := serviceerrors.FromError(e)
-		So(parsed.Code, ShouldEqual, 403)
-
+		So(errors.Is(e, errors.StatusForbidden), ShouldBeTrue)
 	})
 
 	Convey("Test CopyObject in BinaryStore", t, func() {
 
 		_, e := handler.CopyObject(ctx, &tree.Node{Path: testBinaryStoreName + "/thumb"}, &tree.Node{Path: testBinaryStoreName + "/thumb1"}, &models.CopyRequestData{})
-		parsed := serviceerrors.FromError(e)
-		So(parsed.Code, ShouldEqual, 403)
-
+		So(errors.Is(e, errors.StatusForbidden), ShouldBeTrue)
 	})
 
 }

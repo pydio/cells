@@ -32,15 +32,15 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/pydio/cells/v4/common/nodes"
-
 	"github.com/krolaw/zipstream"
 	"go.uber.org/zap"
 	"golang.org/x/text/unicode/norm"
 
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/config"
+	"github.com/pydio/cells/v4/common/errors"
 	"github.com/pydio/cells/v4/common/log"
+	"github.com/pydio/cells/v4/common/nodes"
 	"github.com/pydio/cells/v4/common/nodes/models"
 	"github.com/pydio/cells/v4/common/proto/tree"
 )
@@ -157,7 +157,7 @@ func (a *Reader) StatChildZip(ctx context.Context, archiveNode *tree.Node, inner
 
 	nn, err := a.ListChildrenZip(ctx, archiveNode, innerPath, true)
 	if err != nil || len(nn) == 0 {
-		return nil, nodes.ErrFileNotFound("File " + innerPath + " not found inside archive " + archiveNode.Path)
+		return nil, errors.WithMessage(errors.NodeNotFound, "File "+innerPath+" not found inside archive "+archiveNode.Path)
 	}
 	return nn[0], nil
 
@@ -203,7 +203,7 @@ func (a *Reader) ReadChildZip(ctx context.Context, archiveNode *tree.Node, inner
 			return fileReader, err
 		}
 	}
-	return nil, nodes.ErrFileNotFound("File " + innerPath + " not found inside archive")
+	return nil, errors.WithMessage(errors.NodeNotFound, "File "+innerPath+" not found inside archive")
 
 }
 
@@ -405,7 +405,7 @@ func (a *Reader) StatChildTar(ctx context.Context, gzipFormat bool, archiveNode 
 
 	nn, err := a.ListChildrenTar(ctx, gzipFormat, archiveNode, innerPath, true)
 	if err != nil || len(nn) == 0 {
-		return nil, nodes.ErrFileNotFound("File " + innerPath + " not found inside archive " + archiveNode.Path)
+		return nil, errors.WithMessage(errors.NodeNotFound, "File "+innerPath+" not found inside archive "+archiveNode.Path)
 	}
 	return nn[0], nil
 
@@ -454,7 +454,7 @@ func (a *Reader) ReadChildTar(ctx context.Context, gzipFormat bool, writer io.Wr
 			return written, err
 		}
 	}
-	return 0, nodes.ErrFileNotFound("File " + innerPath + " not found inside archive")
+	return 0, errors.WithMessage(errors.NodeNotFound, "File "+innerPath+" not found inside archive")
 
 }
 

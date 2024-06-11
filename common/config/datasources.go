@@ -28,8 +28,8 @@ import (
 	"time"
 
 	"github.com/pydio/cells/v4/common"
+	"github.com/pydio/cells/v4/common/errors"
 	"github.com/pydio/cells/v4/common/proto/object"
-	"github.com/pydio/cells/v4/common/service/serviceerrors"
 	"github.com/pydio/cells/v4/common/utils/configx"
 	"github.com/pydio/cells/v4/common/utils/net"
 	standard "github.com/pydio/cells/v4/common/utils/std"
@@ -397,11 +397,11 @@ func filterMiniosWithBaseFolder(configs map[string]*object.MinioConfig, peerAddr
 			if source.LocalFolder == folder {
 				// If one of these are empty (= start on all node) and not the other one, we don't know how to choose.
 				if (source.PeerAddress == "" && peerAddress != "") || (source.PeerAddress != "" && peerAddress == "") {
-					return nil, serviceerrors.Conflict("datasource.peer.conflict", "there is a Peer Address conflict between two object services pointing on %s. Make sure to either set Peer Addresses everywhere, or no address at all.", source.LocalFolder)
+					return nil, errors.WithMessagef(errors.DatasourceConflict, "there is a Peer Address conflict between two object services pointing on %s. Make sure to either set Peer Addresses everywhere, or no address at all.", source.LocalFolder)
 				}
 				return source, nil
 			} else if strings.HasPrefix(source.LocalFolder, strings.TrimRight(folder, sep)+sep) || strings.HasPrefix(folder, strings.TrimRight(source.LocalFolder, sep)+sep) {
-				return nil, serviceerrors.Conflict("datasource.nested.path", "object service %s is already pointing to %s, make sure to avoid using nested paths for different datasources", source.Name, source.LocalFolder)
+				return nil, errors.WithMessagef(errors.DatasourceConflict, "object service %s is already pointing to %s, make sure to avoid using nested paths for different datasources", source.Name, source.LocalFolder)
 			}
 		}
 	}

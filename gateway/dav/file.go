@@ -10,15 +10,14 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/pkg/errors"
 	"go.uber.org/zap"
 
+	"github.com/pydio/cells/v4/common/errors"
 	"github.com/pydio/cells/v4/common/log"
 	"github.com/pydio/cells/v4/common/nodes/models"
 	"github.com/pydio/cells/v4/common/nodes/posix"
 	"github.com/pydio/cells/v4/common/proto/tree"
 	"github.com/pydio/cells/v4/common/runtime"
-	cerrors "github.com/pydio/cells/v4/common/service/serviceerrors"
 )
 
 var (
@@ -70,7 +69,7 @@ func (f *File) ReadFrom(r io.Reader) (n int64, err error) {
 				log.Logger(f.ctx).Error("Error while deleting temporary node")
 			}
 		}
-		return 0, errors.Wrap(e, msg)
+		return 0, errors.WithMessage(e, msg)
 	}
 
 	partNumber := 0
@@ -122,7 +121,7 @@ func (f *File) ReadFrom(r io.Reader) (n int64, err error) {
 
 // Write is unused but left to respect Writer interface. This method is bypassed by io.Copy to use ReadFrom (see above)
 func (f *File) Write(p []byte) (int, error) {
-	return 0, cerrors.BadRequest("unauthorized method", "this method must not be called, rather use ReadFrom")
+	return 0, errors.WithMessage(errors.StatusInternalServerError, "Write method must not be called, rather use ReadFrom")
 }
 
 // Close closes the underlying reader if it is open

@@ -25,7 +25,6 @@ import (
 	"context"
 	"crypto/md5"
 	"crypto/sha1"
-	"errors"
 	"fmt"
 	"io"
 	"net/url"
@@ -40,12 +39,12 @@ import (
 	"go.uber.org/zap"
 	"golang.org/x/text/unicode/norm"
 
-	servicescommon "github.com/pydio/cells/v4/common"
+	"github.com/pydio/cells/v4/common"
+	"github.com/pydio/cells/v4/common/errors"
 	"github.com/pydio/cells/v4/common/log"
 	"github.com/pydio/cells/v4/common/nodes"
 	"github.com/pydio/cells/v4/common/nodes/models"
 	"github.com/pydio/cells/v4/common/proto/tree"
-	errors2 "github.com/pydio/cells/v4/common/service/serviceerrors"
 	"github.com/pydio/cells/v4/common/sync/model"
 	"github.com/pydio/cells/v4/common/utils/uuid"
 )
@@ -158,12 +157,12 @@ func (c *Client) Stat(ctx context.Context, pa string) (i os.FileInfo, err error)
 				}), nil
 			}
 		}
-		return nil, errors2.NotFound("bucket.not.found", "cannot find bucket %s", c.Bucket)
+		return nil, errors.WithMessage(errors.BucketNotFound, c.Bucket)
 	}
 	objectInfo, e := c.Oc.StatObject(ctx, c.Bucket, fullPath, models.ReadMeta{})
 	if e != nil {
 		// Try folder
-		folderInfo, e2 := c.Oc.StatObject(ctx, c.Bucket, path.Join(fullPath, servicescommon.PydioSyncHiddenFile), models.ReadMeta{})
+		folderInfo, e2 := c.Oc.StatObject(ctx, c.Bucket, path.Join(fullPath, common.PydioSyncHiddenFile), models.ReadMeta{})
 		if e2 != nil {
 			return nil, e
 		}
@@ -174,9 +173,9 @@ func (c *Client) Stat(ctx context.Context, pa string) (i os.FileInfo, err error)
 
 func (c *Client) CreateNode(ctx context.Context, node tree.N, updateIfExists bool) (err error) {
 	if node.IsLeaf() {
-		return errors.New("this is a DataSyncTarget, use PutNode for leafs instead of CreateNode")
+		return errors.WithMessage(errors.StatusBadRequest, "this is a DataSyncTarget, use PutNode for leafs instead of CreateNode")
 	}
-	hiddenPath := fmt.Sprintf("%v/%s", c.getFullPath(node.GetPath()), servicescommon.PydioSyncHiddenFile)
+	hiddenPath := fmt.Sprintf("%v/%s", c.getFullPath(node.GetPath()), common.PydioSyncHiddenFile)
 	_, err = c.Oc.PutObject(ctx, c.Bucket, hiddenPath, strings.NewReader(node.GetUuid()), int64(len(node.GetUuid())), models.PutMeta{ContentType: "text/plain"})
 	return err
 }
@@ -334,7 +333,7 @@ func (c *Client) actualLsRecursive(ctx context.Context, recursive bool, recursiv
 			c.createFolderIdsWhileWalking(ctx, createdDirs, walknFc, folderKey, objectInfo.LastModified, false)
 			continue
 		}
-		if strings.HasSuffix(objectInfo.Key, servicescommon.PydioSyncHiddenFile) {
+		if strings.HasSuffix(objectInfo.Key, common.PydioSyncHiddenFile) {
 			// Create Fake Folder
 			// log.Print("Folder Key is " , folderKey)
 			if folderKey == "" || folderKey == "." {
@@ -509,7 +508,7 @@ func (c *Client) s3forceComputeEtag(ctx context.Context, node tree.N) (models.Ob
 	// Cannot CopyObject on itself for files bigger than 5GB - compute Md5 and store it as metadata instead
 	// TODO : SHOULD NOT BE NECESSARY FOR REAL MINIO ON FS (but required for Minio as S3 gateway or real S3)
 	if objectInfo.Size > c.Oc.CopyObjectMultipartThreshold() {
-		if checksum := oi.Metadata.Get(servicescommon.XAmzMetaContentMd5); checksum != "" {
+		if checksum := oi.Metadata.Get(common.XAmzMetaContentMd5); checksum != "" {
 			objectInfo.ETag = checksum
 			return objectInfo, nil
 		}
@@ -523,15 +522,15 @@ func (c *Client) s3forceComputeEtag(ctx context.Context, node tree.N) (models.Ob
 			return objectInfo, err
 		}
 		checksum := fmt.Sprintf("%x", h.Sum(nil))
-		existingMeta[servicescommon.XAmzMetaDirective] = "REPLACE"
-		existingMeta[servicescommon.XAmzMetaContentMd5] = checksum
+		existingMeta[common.XAmzMetaDirective] = "REPLACE"
+		existingMeta[common.XAmzMetaContentMd5] = checksum
 		err := c.Oc.CopyObjectMultipart(ctx, objectInfo, c.Bucket, objectInfo.Key, c.Bucket, objectInfo.Key, existingMeta, nil)
 		objectInfo.ETag = checksum
 		return objectInfo, err
 
 	} else {
 
-		_, copyErr := c.Oc.CopyObject(ctx, c.Bucket, objectInfo.Key, c.Bucket, objectInfo.Key, map[string]string{servicescommon.XAmzMetaDirective: "REPLACE"}, existingMeta, nil)
+		_, copyErr := c.Oc.CopyObject(ctx, c.Bucket, objectInfo.Key, c.Bucket, objectInfo.Key, map[string]string{common.XAmzMetaDirective: "REPLACE"}, existingMeta, nil)
 		if copyErr != nil {
 			log.Logger(c.globalContext).Error("Compute Etag Copy", zap.Error(copyErr))
 			return objectInfo, copyErr
@@ -588,7 +587,7 @@ func (c *Client) loadNode(ctx context.Context, path string, leaf ...bool) (node 
 		node.Size = stat.Size()
 		node.Mode = int32(stat.Mode())
 		if oi, ok := stat.Sys().(models.ObjectInfo); ok && oi.ContentType != "" && oi.ContentType != "application/octet-stream" {
-			node.MustSetMeta(servicescommon.MetaNamespaceMime, oi.ContentType)
+			node.MustSetMeta(common.MetaNamespaceMime, oi.ContentType)
 		}
 	} else {
 		node.MTime = time.Now().Unix()
@@ -619,13 +618,13 @@ func (c *Client) UpdateNodeUuid(ctx context.Context, node tree.N) (tree.N, error
 			c.getFullPath(node.GetPath()),
 			map[string]string{},
 			map[string]string{
-				servicescommon.XAmzMetaNodeUuid:  node.GetUuid(),
-				servicescommon.XAmzMetaDirective: "REPLACE",
+				common.XAmzMetaNodeUuid:  node.GetUuid(),
+				common.XAmzMetaDirective: "REPLACE",
 			},
 			nil)
 		return node, err
 	} else {
-		hiddenPath := fmt.Sprintf("%v/%s", c.getFullPath(node.GetPath()), servicescommon.PydioSyncHiddenFile)
+		hiddenPath := fmt.Sprintf("%v/%s", c.getFullPath(node.GetPath()), common.PydioSyncHiddenFile)
 		_, err := c.Oc.PutObject(context.Background(), c.Bucket, hiddenPath, strings.NewReader(uid), int64(len(uid)), models.PutMeta{ContentType: "text/plain"})
 		return node, err
 	}
@@ -644,7 +643,7 @@ func (c *Client) getNodeIdentifier(ctx context.Context, path string, leaf bool) 
 func (c *Client) readOrCreateFolderId(ctx context.Context, folderPath string) (uid string, created models.ObjectInfo, e error) {
 
 	// Find existing .pydio
-	hiddenPath := path.Join(folderPath, servicescommon.PydioSyncHiddenFile)
+	hiddenPath := path.Join(folderPath, common.PydioSyncHiddenFile)
 	hiddenPath = strings.TrimLeft(hiddenPath, "/")
 	object, _, err := c.Oc.GetObject(ctx, c.Bucket, hiddenPath, models.ReadMeta{})
 	if err == nil {
@@ -698,9 +697,9 @@ func (c *Client) getFileHash(ctx context.Context, path string) (uid string, hash
 	if e != nil {
 		return "", "", metaSize, e
 	}
-	uid = objectInfo.Metadata.Get(servicescommon.XAmzMetaNodeUuid)
-	if size := objectInfo.Metadata.Get(servicescommon.XAmzMetaClearSize); size != "" {
-		if size == servicescommon.XAmzMetaClearSizeUnknown {
+	uid = objectInfo.Metadata.Get(common.XAmzMetaNodeUuid)
+	if size := objectInfo.Metadata.Get(common.XAmzMetaClearSize); size != "" {
+		if size == common.XAmzMetaClearSizeUnknown {
 			if c.plainSizeComputer != nil {
 				if plain, er := c.plainSizeComputer(uid); er == nil {
 					metaSize = plain
@@ -764,7 +763,7 @@ func (c *Client) Watch(recursivePath string) (*model.WatchObject, error) {
 				notificationInfo := ni.(notification.Info)
 				if notificationInfo.Err != nil {
 					if nErr, ok := notificationInfo.Err.(minio.ErrorResponse); ok && nErr.Code == "APINotSupported" {
-						errorChan <- errors.New("API Not Supported")
+						errorChan <- errors.WithStack(errors.StatusNotImplemented)
 						return
 					}
 					errorChan <- notificationInfo.Err
@@ -783,7 +782,7 @@ func (c *Client) Watch(recursivePath string) (*model.WatchObject, error) {
 					objectPath := key
 					folder := false
 					var additionalCreate string
-					if strings.HasSuffix(key, servicescommon.PydioSyncHiddenFile) {
+					if strings.HasSuffix(key, common.PydioSyncHiddenFile) {
 						additionalCreate = objectPath
 						additionalCreate = c.getLocalPath(additionalCreate)
 						objectPath = path.Dir(key)
@@ -896,8 +895,8 @@ func stripCloseParameters(do bool, params map[string]string) map[string]string {
 	}
 	newParams := make(map[string]string, len(params))
 	for k, v := range params {
-		if k == servicescommon.XPydioSessionUuid && strings.HasPrefix(v, servicescommon.SyncSessionClose_) {
-			newParams[k] = strings.TrimPrefix(v, servicescommon.SyncSessionClose_)
+		if k == common.XPydioSessionUuid && strings.HasPrefix(v, common.SyncSessionClose_) {
+			newParams[k] = strings.TrimPrefix(v, common.SyncSessionClose_)
 		} else {
 			newParams[k] = v
 		}

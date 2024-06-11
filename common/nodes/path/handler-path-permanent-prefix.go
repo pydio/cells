@@ -25,6 +25,7 @@ import (
 	"path"
 	"strings"
 
+	"github.com/pydio/cells/v4/common/errors"
 	"github.com/pydio/cells/v4/common/nodes"
 	"github.com/pydio/cells/v4/common/nodes/abstract"
 	"github.com/pydio/cells/v4/common/proto/tree"
@@ -75,6 +76,6 @@ func (v *PermanentPrefix) updateOutputNode(ctx context.Context, node *tree.Node,
 		return ctx, out, nil
 	}
 
-	return ctx, node, nodes.ErrPermanentPrefixMismatch(out.Path, v.Prefix)
+	return ctx, node, errors.WithMessagef(errors.StatusInternalServerError, "Cannot find prefix %s in output node path %s, this not normal", out.Path, v.Prefix)
 
 }

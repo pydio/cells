@@ -25,6 +25,7 @@ import (
 
 	"google.golang.org/grpc"
 
+	"github.com/pydio/cells/v4/common/errors"
 	"github.com/pydio/cells/v4/common/registry"
 	"github.com/pydio/cells/v4/common/registry/util"
 	"github.com/pydio/cells/v4/common/server"
@@ -37,7 +38,7 @@ func WithGRPC(f func(context.Context, grpc.ServiceRegistrar) error) ServiceOptio
 		o.serverType = server.TypeGrpc
 		o.serverStart = func(ctx context.Context) error {
 			if o.Server == nil {
-				return errNoServerAttached
+				return errors.WithStack(errors.ServiceNoServerAttached)
 			}
 
 			var registrar grpc.ServiceRegistrar

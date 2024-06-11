@@ -6,8 +6,8 @@ import (
 	"testing"
 	"time"
 
+	"github.com/pydio/cells/v4/common/errors"
 	"github.com/pydio/cells/v4/common/proto/auth"
-	"github.com/pydio/cells/v4/common/service/serviceerrors"
 	"github.com/pydio/cells/v4/common/utils/configx"
 	"github.com/pydio/cells/v4/idm/oauth"
 
@@ -71,7 +71,7 @@ func TestPatHandler_Generate(t *testing.T) {
 
 		verifyResponse, er1 := pat.Verify(ctx, &auth.VerifyTokenRequest{Token: "unknownToken"})
 		So(er1, ShouldNotBeNil)
-		So(serviceerrors.Parse(er1.Error()).Code, ShouldEqual, 401)
+		So(errors.Is(er1, errors.StatusUnauthorized), ShouldBeTrue)
 		verifyResponse, er1 = pat.Verify(ctx, &auth.VerifyTokenRequest{Token: generatedToken})
 		So(er1, ShouldBeNil)
 		So(verifyResponse.Success, ShouldBeTrue)
@@ -80,7 +80,7 @@ func TestPatHandler_Generate(t *testing.T) {
 
 		verifyResponse, er1 = pat.Verify(ctx, &auth.VerifyTokenRequest{Token: generatedToken})
 		So(er1, ShouldNotBeNil)
-		So(serviceerrors.Parse(er1.Error()).Code, ShouldEqual, 401)
+		So(errors.Is(er1, errors.StatusUnauthorized), ShouldBeTrue)
 
 	})
 
@@ -125,8 +125,7 @@ func TestPatHandler_AutoRefresh(t *testing.T) {
 		// Longer than refresh - should fail
 		<-time.After(3 * time.Second)
 		verifyResponse, er = pat.Verify(ctx, &auth.VerifyTokenRequest{Token: generatedToken})
-		So(er, ShouldNotBeNil)
-		So(serviceerrors.Parse(er.Error()).Code, ShouldEqual, 401)
+		So(errors.Is(er, errors.StatusUnauthorized), ShouldBeTrue)
 
 	})
 

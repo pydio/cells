@@ -30,14 +30,13 @@ import (
 
 	"github.com/pydio/cells/v4/broker/activity"
 	"github.com/pydio/cells/v4/broker/activity/render"
-	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/client/commons/treec"
 	"github.com/pydio/cells/v4/common/config"
+	"github.com/pydio/cells/v4/common/errors"
 	"github.com/pydio/cells/v4/common/log"
 	activity2 "github.com/pydio/cells/v4/common/proto/activity"
 	"github.com/pydio/cells/v4/common/proto/tree"
 	"github.com/pydio/cells/v4/common/runtime/manager"
-	"github.com/pydio/cells/v4/common/service/serviceerrors"
 	"github.com/pydio/cells/v4/common/utils/i18n"
 	"github.com/pydio/cells/v4/common/utils/permissions"
 	"github.com/pydio/cells/v4/common/utils/uuid"
@@ -115,7 +114,7 @@ func (h *Handler) HeadVersion(ctx context.Context, request *tree.HeadVersionRequ
 		}
 		return &tree.HeadVersionResponse{Version: v}, nil
 	}
-	return nil, serviceerrors.NotFound("version.not.found", "version not found")
+	return nil, errors.WithStack(errors.VersionNotFound)
 }
 
 func (h *Handler) CreateVersion(ctx context.Context, request *tree.CreateVersionRequest) (*tree.CreateVersionResponse, error) {
@@ -247,7 +246,7 @@ func (h *Handler) PruneVersions(ctx context.Context, request *tree.PruneVersions
 
 	} else {
 
-		return nil, serviceerrors.BadRequest(common.ServiceVersions, "Please provide at least a node Uuid or set the flag AllDeletedNodes to true")
+		return nil, errors.WithMessage(errors.InvalidParameters, "Please provide at least a node Uuid or set the flag AllDeletedNodes to true")
 
 	}
 

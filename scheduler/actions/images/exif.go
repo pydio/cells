@@ -33,13 +33,13 @@ import (
 
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/client/grpc"
+	"github.com/pydio/cells/v4/common/errors"
 	"github.com/pydio/cells/v4/common/forms"
 	"github.com/pydio/cells/v4/common/log"
 	"github.com/pydio/cells/v4/common/nodes"
 	"github.com/pydio/cells/v4/common/nodes/models"
 	"github.com/pydio/cells/v4/common/proto/jobs"
 	"github.com/pydio/cells/v4/common/proto/tree"
-	"github.com/pydio/cells/v4/common/service/serviceerrors"
 	"github.com/pydio/cells/v4/scheduler/actions"
 )
 
@@ -173,7 +173,7 @@ func (e *ExifProcessor) ExtractExif(ctx context.Context, node *tree.Node) (*exif
 
 	// Open the test image.
 	if !node.HasSource() {
-		return nil, serviceerrors.InternalServerError(common.ServiceJobs, "Node does not have enough metadata")
+		return nil, errors.WithMessagef(errors.StatusInternalServerError, "Node does not have enough metadata")
 	}
 
 	var reader io.ReadCloser

@@ -24,7 +24,6 @@ import (
 	"context"
 	"io"
 	"path"
-	"strings"
 	"sync"
 	"time"
 
@@ -33,13 +32,13 @@ import (
 
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/broker"
+	"github.com/pydio/cells/v4/common/errors"
 	"github.com/pydio/cells/v4/common/log"
 	"github.com/pydio/cells/v4/common/nodes"
 	"github.com/pydio/cells/v4/common/nodes/abstract"
 	"github.com/pydio/cells/v4/common/nodes/models"
 	"github.com/pydio/cells/v4/common/proto/tree"
 	"github.com/pydio/cells/v4/common/runtime"
-	"github.com/pydio/cells/v4/common/service/serviceerrors"
 	"github.com/pydio/cells/v4/common/utils/cache"
 	json "github.com/pydio/cells/v4/common/utils/jsonx"
 	"github.com/pydio/cells/v4/common/utils/openurl"
@@ -322,14 +321,14 @@ func (s *CacheHandler) ReadNode(ctx context.Context, in *tree.ReadNodeRequest, o
 	if nodes.IsFlatStorage(ctx, "in") {
 		return resp, e
 	}
-	notFound := e != nil && (serviceerrors.FromError(e).Code == 404 || strings.Contains(e.Error(), " NotFound "))
+	notFound := e != nil && errors.Is(e, errors.StatusNotFound)
 	tempo := e == nil && resp.Node.GetEtag() == "temporary"
 	out, isCached := s.cacheGet(ctx, in.Node.GetPath())
 	if e == nil && resp.Node != nil {
 		// Check it was not recently removed
 		if parentDiff, ok := s.cacheDiff(ctx, path.Dir(in.Node.GetPath())); ok {
 			if _, o := parentDiff.Deletes[in.Node.GetPath()]; o {
-				return nil, serviceerrors.NotFound("not.found.cache", " NotFound ")
+				return nil, errors.WithMessage(errors.NodeNotFound, "NotFound in cache")
 			}
 		}
 	}

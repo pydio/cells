@@ -22,20 +22,19 @@ package put
 
 import (
 	"context"
-	"fmt"
 	"io"
 	"path"
 	"strconv"
 	"strings"
 
 	"github.com/pydio/cells/v4/common/config"
+	"github.com/pydio/cells/v4/common/errors"
 	"github.com/pydio/cells/v4/common/log"
 	"github.com/pydio/cells/v4/common/nodes"
 	"github.com/pydio/cells/v4/common/nodes/abstract"
 	"github.com/pydio/cells/v4/common/nodes/models"
 	"github.com/pydio/cells/v4/common/proto/idm"
 	"github.com/pydio/cells/v4/common/proto/tree"
-	"github.com/pydio/cells/v4/common/service/serviceerrors"
 	"github.com/pydio/cells/v4/common/utils/permissions"
 )
 
@@ -65,7 +64,7 @@ func (a *UploadLimitFilter) PutObject(ctx context.Context, node *tree.Node, read
 		return models.ObjectInfo{}, err
 	}
 	if size > 0 && requestData.Size > size {
-		return models.ObjectInfo{}, serviceerrors.Forbidden("max.upload.limit", fmt.Sprintf("Upload limit is %d", size))
+		return models.ObjectInfo{}, errors.WithMessagef(errors.StatusQuotaReached, "upload limit is %d", size)
 	}
 	if len(exts) > 0 {
 		// Beware, Ext function includes the leading dot
@@ -78,7 +77,7 @@ func (a *UploadLimitFilter) PutObject(ctx context.Context, node *tree.Node, read
 			}
 		}
 		if !allowed {
-			return models.ObjectInfo{}, serviceerrors.Forbidden("forbidden.upload.extensions", fmt.Sprintf("Extension %s is not allowed!", nodeExt))
+			return models.ObjectInfo{}, errors.WithMessage(errors.ExtensionsNotAllowed, "extension %s is not allowed!", nodeExt)
 		}
 	}
 
@@ -93,7 +92,7 @@ func (a *UploadLimitFilter) MultipartPutObjectPart(ctx context.Context, target *
 		return models.MultipartObjectPart{}, err
 	}
 	if size > 0 && requestData.Size > size {
-		return models.MultipartObjectPart{}, serviceerrors.Forbidden("max.upload.limit", fmt.Sprintf("Upload limit is %d", size))
+		return models.MultipartObjectPart{}, errors.WithMessagef(errors.StatusQuotaReached, "upload limit is %d", size)
 	}
 	if len(exts) > 0 {
 		nodeExt := path.Ext(target.GetPath())
@@ -105,7 +104,7 @@ func (a *UploadLimitFilter) MultipartPutObjectPart(ctx context.Context, target *
 			}
 		}
 		if !allowed {
-			return models.MultipartObjectPart{}, serviceerrors.Forbidden("forbidden.upload.extensions", fmt.Sprintf("Extension %s is not allowed!", nodeExt))
+			return models.MultipartObjectPart{}, errors.WithMessagef(errors.ExtensionsNotAllowed, "extension %s is not allowed!", nodeExt)
 		}
 	}
 
@@ -131,7 +130,7 @@ func (a *UploadLimitFilter) getUploadLimits(ctx context.Context) (limit int64, e
 		}
 	}
 
-	if i, ok := nodes.GetBranchInfo(ctx, "in"); ok && i.Workspace != nil {
+	if i, er := nodes.GetBranchInfo(ctx, "in"); er == nil && i.Workspace != nil {
 		acl, e := permissions.AccessListFromContextClaims(ctx)
 		if e != nil {
 			err = e

@@ -33,13 +33,13 @@ import (
 	"github.com/pydio/cells/v4/common/client/grpc"
 	"github.com/pydio/cells/v4/common/config"
 	"github.com/pydio/cells/v4/common/config/routing"
+	"github.com/pydio/cells/v4/common/errors"
 	"github.com/pydio/cells/v4/common/forms"
 	"github.com/pydio/cells/v4/common/log"
 	"github.com/pydio/cells/v4/common/proto/activity"
 	"github.com/pydio/cells/v4/common/proto/idm"
 	"github.com/pydio/cells/v4/common/proto/jobs"
 	"github.com/pydio/cells/v4/common/proto/mailer"
-	"github.com/pydio/cells/v4/common/service/serviceerrors"
 	"github.com/pydio/cells/v4/common/utils/i18n"
 	"github.com/pydio/cells/v4/common/utils/permissions"
 	"github.com/pydio/cells/v4/scheduler/actions"
@@ -108,8 +108,7 @@ func (m *MailDigestAction) Run(ctx context.Context, channels *actions.RunnableCh
 	}
 
 	if len(input.Users) == 0 {
-		e := serviceerrors.BadRequest(digestActionName, "action should be triggered with one user in input")
-		return input.WithError(e), e
+		return input.AsRunError(errors.WithMessage(errors.InvalidParameters, "action should be triggered with one user in input"))
 	}
 	userObject := input.Users[0]
 	ctx = auth.WithImpersonate(ctx, input.Users[0])

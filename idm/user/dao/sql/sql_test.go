@@ -28,11 +28,11 @@ import (
 	"google.golang.org/protobuf/types/known/anypb"
 	"gorm.io/gorm"
 
+	"github.com/pydio/cells/v4/common/errors"
 	"github.com/pydio/cells/v4/common/proto/idm"
 	"github.com/pydio/cells/v4/common/proto/service"
 	"github.com/pydio/cells/v4/common/proto/tree"
 	"github.com/pydio/cells/v4/common/runtime/manager"
-	"github.com/pydio/cells/v4/common/service/serviceerrors"
 	"github.com/pydio/cells/v4/common/sql"
 	"github.com/pydio/cells/v4/common/utils/test"
 	"github.com/pydio/cells/v4/idm/user"
@@ -198,14 +198,14 @@ func TestQueryBuilder(t *testing.T) {
 				u, e := mockDAO.Bind(context.TODO(), "usernameXX", "xxxxxxx")
 				So(u, ShouldBeNil)
 				So(e, ShouldNotBeNil)
-				So(serviceerrors.FromError(e).Code, ShouldEqual, 404)
+				So(errors.Is(e, errors.StatusNotFound), ShouldBeTrue)
 			}
 
 			{
 				u, e := mockDAO.Bind(context.TODO(), "username", "xxxxxxxYY")
 				So(u, ShouldBeNil)
 				So(e, ShouldNotBeNil)
-				So(serviceerrors.FromError(e).Code, ShouldEqual, 403)
+				So(errors.Is(e, errors.StatusForbidden), ShouldBeTrue)
 			}
 
 			{

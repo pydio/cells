@@ -34,6 +34,7 @@ import (
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/client/commons/treec"
 	"github.com/pydio/cells/v4/common/client/grpc"
+	"github.com/pydio/cells/v4/common/errors"
 	"github.com/pydio/cells/v4/common/log"
 	"github.com/pydio/cells/v4/common/middleware"
 	"github.com/pydio/cells/v4/common/proto/ctl"
@@ -44,7 +45,6 @@ import (
 	"github.com/pydio/cells/v4/common/registry"
 	"github.com/pydio/cells/v4/common/registry/util"
 	"github.com/pydio/cells/v4/common/runtime"
-	"github.com/pydio/cells/v4/common/service/serviceerrors"
 	"github.com/pydio/cells/v4/common/utils/propagator"
 	"github.com/pydio/cells/v4/common/utils/uuid"
 )
@@ -312,7 +312,7 @@ func (h *Handler) ValidateLocalDSFolderOnPeer(ctx context.Context, newSource *ob
 	// Check it's two level deep
 	parentName := path.Dir(folder)
 	if strings.Trim(parentName, "/") == "" {
-		return serviceerrors.BadRequest("ds.folder.invalid", "please use at least a two-levels deep folder")
+		return errors.WithMessage(errors.InvalidParameters, "please use at least a two-levels deep folder")
 	}
 
 	// Stat node to make sure it exists - Create it otherwise
@@ -327,10 +327,10 @@ func (h *Handler) ValidateLocalDSFolderOnPeer(ctx context.Context, newSource *ob
 				Type: tree.NodeType_COLLECTION,
 				Path: folder,
 			}}); err != nil {
-				return serviceerrors.Forbidden("ds.folder.cannot.create", err.Error())
+				return errors.Tag(err, errors.StatusForbidden)
 			}
 		} else {
-			return serviceerrors.NotFound("ds.folder.cannot.stat", e.Error())
+			return errors.Tag(e, errors.StatusNotFound)
 		}
 	}
 
@@ -342,7 +342,7 @@ func (h *Handler) ValidateLocalDSFolderOnPeer(ctx context.Context, newSource *ob
 	}
 	touched, e := wCl.CreateNode(ctx, &tree.CreateNodeRequest{Node: touchFile})
 	if e != nil {
-		return serviceerrors.Forbidden("ds.folder.parent.not.writable", "Please make sure that parent folder (%s) is writeable by the application", parentName)
+		return errors.WithMessagef(errors.StatusForbidden, "Please make sure that parent folder (%s) is writeable by the application", parentName)
 	} else {
 		if _, er := wCl.DeleteNode(ctx, &tree.DeleteNodeRequest{Node: touched.Node}); er != nil {
 			log.Logger(ctx).Error("Could not delete tmp file written when creating datasource on peer " + newSource.PeerAddress)

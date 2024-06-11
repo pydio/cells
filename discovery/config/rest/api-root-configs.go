@@ -58,7 +58,7 @@ func (s *Handler) PutConfig(req *restful.Request, resp *restful.Response) {
 	fullPath := strings.Trim(configuration.FullPath, "/")
 	path := strings.Split(fullPath, "/")
 	if len(path) == 0 {
-		middleware.RestError401(req, resp, errors.New("no path given!"), "")
+		middleware.RestError401(req, resp, errors.New("no path given!"))
 		return
 	}
 	if !config.IsRestEditable(fullPath) {

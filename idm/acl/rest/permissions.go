@@ -33,12 +33,12 @@ import (
 	"github.com/pydio/cells/v4/common/auth/claim"
 	"github.com/pydio/cells/v4/common/client/commons/idmc"
 	"github.com/pydio/cells/v4/common/client/commons/treec"
+	"github.com/pydio/cells/v4/common/errors"
 	"github.com/pydio/cells/v4/common/log"
 	"github.com/pydio/cells/v4/common/nodes/abstract"
 	"github.com/pydio/cells/v4/common/proto/idm"
 	"github.com/pydio/cells/v4/common/proto/service"
 	"github.com/pydio/cells/v4/common/proto/tree"
-	"github.com/pydio/cells/v4/common/service/serviceerrors"
 	"github.com/pydio/cells/v4/common/utils/permissions"
 )
 
@@ -93,12 +93,12 @@ func (a *Handler) CheckRole(ctx context.Context, roleID string) error {
 		break
 	}
 	if role == nil {
-		return serviceerrors.NotFound(common.ServiceAcl, "Role not found!")
+		return errors.WithStack(errors.RoleNotFound)
 	}
 	if !a.MatchPolicies(ctx, role.Uuid, role.Policies, service.ResourcePolicyAction_WRITE) {
 		subjects, _ := auth.SubjectsForResourcePolicyQuery(ctx, nil)
 		log.Logger(ctx).Error("Error while checking role from ACL rest : ", zap.Any("role", role), log.DangerouslyZapSmallSlice("subjects", subjects))
-		return serviceerrors.Forbidden(common.ServiceAcl, "You are not allowed to edit this role ACLs")
+		return errors.WithStack(errors.RoleACLsNotEditable)
 	}
 	log.Logger(ctx).Info("Checking acl write on role PASSED", zap.String("roleId", roleID))
 	return nil
@@ -163,8 +163,7 @@ func (a *Handler) CheckNode(ctx context.Context, nodeID string, action *idm.ACLA
 	}
 
 	if !check {
-		log.Logger(ctx).Error("Checking acl on parent nodes FAILED", zap.Any("action", action), accessList.Zap(), log.DangerouslyZapSmallSlice("parentNodes", parentNodes))
-		return serviceerrors.Forbidden(common.ServiceAcl, "You are not authorized to open rights on this node")
+		return errors.WithDetails(errors.WithMessage(errors.StatusForbidden, "you are not authorized to open rights on this node"), "action", action)
 	}
 
 	return nil

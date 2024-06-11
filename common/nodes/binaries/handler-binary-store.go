@@ -30,6 +30,7 @@ import (
 	"google.golang.org/grpc"
 
 	"github.com/pydio/cells/v4/common"
+	"github.com/pydio/cells/v4/common/errors"
 	"github.com/pydio/cells/v4/common/log"
 	"github.com/pydio/cells/v4/common/nodes"
 	"github.com/pydio/cells/v4/common/nodes/abstract"
@@ -70,7 +71,7 @@ func (a *Handler) isStorePath(nodePath string) bool {
 
 func (a *Handler) checkContextForAnonRead(ctx context.Context) error {
 	if u := ctx.Value(common.PydioContextUserKey); (u == nil || u == common.PydioS3AnonUsername) && !a.AllowAnonRead {
-		return nodes.ErrCannotReadStore(a.StoreName)
+		return errors.WithMessage(errors.BinaryCannotReadStore, a.StoreName)
 	}
 	return nil
 }
@@ -164,14 +165,14 @@ func (a *Handler) GetObject(ctx context.Context, node *tree.Node, requestData *m
 
 func (a *Handler) CreateNode(ctx context.Context, in *tree.CreateNodeRequest, opts ...grpc.CallOption) (*tree.CreateNodeResponse, error) {
 	if a.isStorePath(in.Node.Path) {
-		return nil, nodes.ErrCannotWriteStore(a.StoreName)
+		return nil, errors.WithMessage(errors.BinaryCannotWriteStore, a.StoreName)
 	}
 	return a.Next.CreateNode(ctx, in, opts...)
 }
 
 func (a *Handler) UpdateNode(ctx context.Context, in *tree.UpdateNodeRequest, opts ...grpc.CallOption) (*tree.UpdateNodeResponse, error) {
 	if a.isStorePath(in.From.Path) || a.isStorePath(in.To.Path) {
-		return nil, nodes.ErrCannotWriteStore(a.StoreName)
+		return nil, errors.WithMessage(errors.BinaryCannotWriteStore, a.StoreName)
 	}
 	return a.Next.UpdateNode(ctx, in, opts...)
 }
@@ -181,7 +182,7 @@ func (a *Handler) DeleteNode(ctx context.Context, in *tree.DeleteNodeRequest, op
 	var source nodes.LoadedSource
 	if a.isStorePath(in.Node.Path) {
 		if !a.AllowPut {
-			return nil, nodes.ErrCannotWriteStore(a.StoreName)
+			return nil, errors.WithMessage(errors.BinaryCannotWriteStore, a.StoreName)
 		}
 		var er error
 		if source, er = a.ClientsPool.GetDataSourceInfo(a.StoreName); er == nil {
@@ -209,7 +210,7 @@ func (a *Handler) DeleteNode(ctx context.Context, in *tree.DeleteNodeRequest, op
 func (a *Handler) PutObject(ctx context.Context, node *tree.Node, reader io.Reader, requestData *models.PutRequestData) (models.ObjectInfo, error) {
 	if a.isStorePath(node.Path) {
 		if !a.AllowPut {
-			return models.ObjectInfo{}, nodes.ErrCannotWriteStore(a.StoreName)
+			return models.ObjectInfo{}, errors.WithMessage(errors.BinaryCannotWriteStore, a.StoreName)
 		}
 		source, er := a.ClientsPool.GetDataSourceInfo(a.StoreName)
 		if er == nil {
@@ -228,7 +229,7 @@ func (a *Handler) PutObject(ctx context.Context, node *tree.Node, reader io.Read
 
 func (a *Handler) CopyObject(ctx context.Context, from *tree.Node, to *tree.Node, requestData *models.CopyRequestData) (models.ObjectInfo, error) {
 	if a.isStorePath(from.Path) || a.isStorePath(to.Path) {
-		return models.ObjectInfo{}, nodes.ErrCannotWriteStore(a.StoreName)
+		return models.ObjectInfo{}, errors.WithMessage(errors.BinaryCannotWriteStore, a.StoreName)
 	}
 	return a.Next.CopyObject(ctx, from, to, requestData)
 }

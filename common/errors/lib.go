@@ -85,3 +85,7 @@ func IsNetworkError(err error) bool {
 		errors.Is(err, balancer.ErrTransientFailure) ||
 		strings.Contains(s, "can't assign requested address")
 }
+
+func IsStreamFinished(err error) bool {
+	return errors.Is(err, io.EOF) || errors.Is(err, io.ErrUnexpectedEOF)
+}

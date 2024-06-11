@@ -212,7 +212,7 @@ func (a *ActivityHandler) SearchSubscriptions(req *restful.Request, rsp *restful
 	}
 	name, _ := permissions.FindUserNameInContext(ctx)
 	if name == "" {
-		middleware.RestError401(req, rsp, fmt.Errorf("you are not allowed to search for subscriptions"), "")
+		middleware.RestError401(req, rsp, fmt.Errorf("you are not allowed to search for subscriptions"))
 		return
 	}
 	inputSearch.UserIds = []string{name}

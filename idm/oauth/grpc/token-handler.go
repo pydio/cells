@@ -19,7 +19,6 @@ import (
 	"github.com/pydio/cells/v4/common/log"
 	"github.com/pydio/cells/v4/common/proto/auth"
 	"github.com/pydio/cells/v4/common/runtime/manager"
-	"github.com/pydio/cells/v4/common/service/serviceerrors"
 	json "github.com/pydio/cells/v4/common/utils/jsonx"
 	"github.com/pydio/cells/v4/common/utils/permissions"
 	"github.com/pydio/cells/v4/common/utils/uuid"
@@ -149,7 +148,7 @@ func (p *PATHandler) Generate(ctx context.Context, request *auth.PatGenerateRequ
 	} else if request.ExpiresAt > 0 {
 		token.ExpiresAt = request.ExpiresAt
 	} else {
-		return nil, serviceerrors.BadRequest("missing.parameters", "Please provide one of ExpiresAt or AutoRefreshWindow")
+		return nil, errors.WithMessage(errors.InvalidParameters, "Please provide one of ExpiresAt or AutoRefreshWindow")
 	}
 
 	token.CreatedAt = time.Now().Unix()

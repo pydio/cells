@@ -26,7 +26,6 @@ package user
 import (
 	"context"
 
-	"github.com/pydio/cells/v4/common/errors"
 	"github.com/pydio/cells/v4/common/proto/idm"
 	"github.com/pydio/cells/v4/common/service"
 	"github.com/pydio/cells/v4/common/sql"
@@ -44,12 +43,12 @@ type DAO interface {
 	// Add creates or updates a user in the underlying repository.
 	// It returns the resulting user, a true flag in case of an update
 	// of an existing user and/or an error if something went wrong.
-	Add(context.Context, interface{}) (interface{}, []*idm.User, errors.E)
-	Del(context.Context, sql.Enquirer, chan *idm.User) (numRows int64, e errors.E)
-	Search(context.Context, sql.Enquirer, *[]interface{}, ...bool) errors.E
-	Count(context.Context, sql.Enquirer, ...bool) (int, errors.E)
-	Bind(ctx context.Context, userName string, password string) (*idm.User, errors.E)
-	CleanRole(ctx context.Context, roleId string) errors.E
-	TouchUser(ctx context.Context, userUuid string) errors.E
-	LoginModifiedAttr(ctx context.Context, oldName, newName string) (int64, errors.E)
+	Add(context.Context, interface{}) (interface{}, []*idm.User, error)
+	Del(context.Context, sql.Enquirer, chan *idm.User) (numRows int64, e error)
+	Search(context.Context, sql.Enquirer, *[]interface{}, ...bool) error
+	Count(context.Context, sql.Enquirer, ...bool) (int, error)
+	Bind(ctx context.Context, userName string, password string) (*idm.User, error)
+	CleanRole(ctx context.Context, roleId string) error
+	TouchUser(ctx context.Context, userUuid string) error
+	LoginModifiedAttr(ctx context.Context, oldName, newName string) (int64, error)
 }

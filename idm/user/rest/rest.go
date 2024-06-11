@@ -37,6 +37,7 @@ import (
 	"github.com/pydio/cells/v4/common/client/commons/jobsc"
 	grpc2 "github.com/pydio/cells/v4/common/client/grpc"
 	"github.com/pydio/cells/v4/common/config"
+	"github.com/pydio/cells/v4/common/errors"
 	"github.com/pydio/cells/v4/common/log"
 	"github.com/pydio/cells/v4/common/middleware"
 	"github.com/pydio/cells/v4/common/proto/front"
@@ -47,7 +48,6 @@ import (
 	service2 "github.com/pydio/cells/v4/common/proto/service"
 	"github.com/pydio/cells/v4/common/runtime"
 	"github.com/pydio/cells/v4/common/service/resources"
-	"github.com/pydio/cells/v4/common/service/serviceerrors"
 	"github.com/pydio/cells/v4/common/utils/cache"
 	json "github.com/pydio/cells/v4/common/utils/jsonx"
 	"github.com/pydio/cells/v4/common/utils/openurl"
@@ -96,7 +96,7 @@ func (s *UserHandler) GetUser(req *restful.Request, rsp *restful.Response) {
 	ctx := req.Request.Context()
 	login := req.PathParameter("Login")
 	if login == "" {
-		middleware.RestError500(req, rsp, serviceerrors.BadRequest("user.missing.login", "please provide a login"))
+		middleware.RestError500(req, rsp, errors.WithMessage(errors.InvalidParameters, "please provide a login"))
 		return
 	}
 
@@ -134,7 +134,7 @@ func (s *UserHandler) GetUser(req *restful.Request, rsp *restful.Response) {
 	if result != nil {
 		rsp.WriteEntity(result)
 	} else {
-		middleware.RestError404(req, rsp, serviceerrors.NotFound("user.notfound", "cannot find user with login %s", login))
+		middleware.RestError404(req, rsp, errors.WithMessagef(errors.UserNotFound, "cannot find user with login %s", login))
 	}
 
 }
@@ -243,14 +243,14 @@ func (s *UserHandler) DeleteUser(req *restful.Request, rsp *restful.Response) {
 	if strings.HasSuffix(req.Request.RequestURI, "%2F") || strings.HasSuffix(req.Request.RequestURI, "/") {
 		log.Logger(req.Request.Context()).Info("Received User.Delete API request (GROUP)", zap.String("login", login), zap.String("crtGroup", claims.GroupPath), zap.String("request", req.Request.RequestURI))
 		if strings.HasPrefix(claims.GroupPath, "/"+login) {
-			middleware.RestError403(req, rsp, serviceerrors.Forbidden(common.ServiceUser, "You are about to delete your own group!"))
+			middleware.RestError403(req, rsp, errors.WithMessage(errors.StatusForbidden, "You are about to delete your own group!"))
 			return
 		}
 		singleQ.GroupPath = login
 		singleQ.Recursive = true
 	} else {
 		if uName == login {
-			middleware.RestError403(req, rsp, serviceerrors.Forbidden(common.ServiceUser, "Please make sure not to delete yourself!"))
+			middleware.RestError403(req, rsp, errors.WithMessage(errors.StatusForbidden, "Please make sure not to delete yourself!"))
 			return
 		}
 		log.Logger(req.Request.Context()).Debug("Received User.Delete API request (LOGIN)", zap.String("login", login), zap.String("request", req.Request.RequestURI))
@@ -283,7 +283,7 @@ func (s *UserHandler) DeleteUser(req *restful.Request, rsp *restful.Response) {
 				log.GetAuditId(common.AuditUserDelete),
 				response.User.ZapUuid(),
 			)
-			middleware.RestError403(req, rsp, serviceerrors.Forbidden(common.ServiceUser, "You are not allowed to edit this resource"))
+			middleware.RestError403(req, rsp, errors.WithMessage(errors.StatusForbidden, "You are not allowed to edit this resource"))
 			return
 		}
 	}
@@ -384,7 +384,7 @@ func (s *UserHandler) PutUser(req *restful.Request, rsp *restful.Response) {
 				log.GetAuditId(common.AuditUserUpdate),
 				update.ZapUuid(),
 			)
-			middleware.RestError403(req, rsp, serviceerrors.Forbidden(common.ServiceUser, "You are not allowed to edit this user!"))
+			middleware.RestError403(req, rsp, errors.WithMessage(errors.StatusForbidden, "You are not allowed to edit this user!"))
 			return
 		}
 		// Check ADD/REMOVE Roles Policies
@@ -405,7 +405,7 @@ func (s *UserHandler) PutUser(req *restful.Request, rsp *restful.Response) {
 		// Check user own password change
 		if inputUser.Password != "" && ctxLogin == inputUser.Login {
 			if _, err := cli.BindUser(ctx, &idm.BindUserRequest{UserName: inputUser.Login, Password: inputUser.OldPassword}); err != nil {
-				middleware.RestError401(req, rsp, err, "")
+				middleware.RestError401(req, rsp, err)
 				return
 			}
 		}
@@ -446,7 +446,7 @@ func (s *UserHandler) PutUser(req *restful.Request, rsp *restful.Response) {
 		// Check current isHidden
 		crtUser, e := permissions.SearchUniqueUser(ctx, ctxLogin, "")
 		if e != nil {
-			middleware.RestError401(req, rsp, fmt.Errorf("invalid context user"), "")
+			middleware.RestError401(req, rsp, fmt.Errorf("invalid context user"))
 			return
 		}
 		if crtUser.IsHidden() {
@@ -722,14 +722,14 @@ func (s *UserHandler) PutRoles(req *restful.Request, rsp *restful.Response) {
 	log.Logger(ctx).Debug("Received User.PutRoles API request", inputUser.ZapLogin())
 
 	if inputUser.Uuid == "" {
-		middleware.RestError500(req, rsp, serviceerrors.BadRequest(common.ServiceUser, "Please provide a user ID"))
+		middleware.RestError500(req, rsp, errors.WithMessage(errors.InvalidParameters, "Please provide a user ID"))
 		return
 	}
 	cli := idmc.UserServiceClient(ctx)
 	var update *idm.User
 	var exists bool
 	if update, exists = s.userById(ctx, inputUser.Uuid, cli); !exists {
-		middleware.RestError404(req, rsp, serviceerrors.NotFound(common.ServiceUser, "user not found"))
+		middleware.RestError404(req, rsp, errors.WithStack(errors.UserNotFound))
 		return
 	}
 
@@ -776,7 +776,7 @@ func (s *UserHandler) PoliciesForUserId(ctx context.Context, resourceId string, 
 
 	user, exists := s.userById(ctx, resourceId, resourceClient.(idm.UserServiceClient))
 	if !exists {
-		return policies, serviceerrors.NotFound(common.ServiceUser, "cannot find user with id "+resourceId)
+		return policies, errors.WithMessagef(errors.UserNotFound, "cannot find user with id %s", resourceId)
 	}
 	policies = user.Policies
 	return
@@ -809,8 +809,7 @@ func (s *UserHandler) checkCanAssignRoles(ctx context.Context, roles []*idm.Role
 			continue
 		}
 		if !s.MatchPolicies(ctx, rsp.Role.Uuid, rsp.Role.Policies, service2.ResourcePolicyAction_WRITE) {
-			log.Logger(ctx).Error("trying to assign a role that is not writeable in the context", zap.Any("r", rsp.Role))
-			return serviceerrors.Forbidden(common.ServiceUser, "You are not allowed to assign this role "+rsp.Role.Uuid)
+			return errors.WithStack(errors.RoleNotAssignable)
 		}
 	}
 	return nil

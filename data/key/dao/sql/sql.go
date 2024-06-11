@@ -27,9 +27,9 @@ import (
 	"go.uber.org/zap"
 	"gorm.io/gorm"
 
+	"github.com/pydio/cells/v4/common/errors"
 	"github.com/pydio/cells/v4/common/log"
 	"github.com/pydio/cells/v4/common/proto/encryption"
-	"github.com/pydio/cells/v4/common/service/serviceerrors"
 	"github.com/pydio/cells/v4/data/key"
 )
 
@@ -141,7 +141,7 @@ func (s *sqlimpl) GetEncryptedLegacyBlockInfo(ctx context.Context, nodeUuid stri
 		return nil, err
 	}
 	if tx.RowsAffected == 0 {
-		return nil, serviceerrors.NotFound("node.key.dao", "no info found for node %s", nodeUuid)
+		return nil, errors.WithMessagef(errors.KeyNotFound, "no info found for node %s", nodeUuid)
 	}
 
 	return (*encryption.RangedBlock)(row), nil
@@ -235,7 +235,7 @@ func (s *sqlimpl) GetNode(ctx context.Context, nodeUuid string) (*encryption.Nod
 	}
 
 	if tx.RowsAffected == 0 {
-		return nil, serviceerrors.NotFound("node.key.dao", "no entry for %s key", nodeUuid)
+		return nil, errors.WithMessagef(errors.KeyNotFound, "no entry for %s key", nodeUuid)
 	}
 
 	return (*encryption.Node)(row), nil
@@ -267,7 +267,7 @@ func (s *sqlimpl) GetNodeKey(ctx context.Context, nodeUuid string, user string) 
 	}
 
 	if tx.RowsAffected == 0 {
-		return nil, serviceerrors.NotFound("node.key.dao", "no key found for node id %s", nodeUuid)
+		return nil, errors.WithMessagef(errors.KeyNotFound, "no key found for node id %s", nodeUuid)
 	}
 
 	return (*encryption.NodeKey)(row), nil

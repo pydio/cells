@@ -34,8 +34,8 @@ import (
 	"github.com/spf13/afero"
 
 	servicescommon "github.com/pydio/cells/v4/common"
+	"github.com/pydio/cells/v4/common/errors"
 	"github.com/pydio/cells/v4/common/proto/tree"
-	"github.com/pydio/cells/v4/common/service/serviceerrors"
 	"github.com/pydio/cells/v4/common/sync/model"
 	"github.com/pydio/cells/v4/common/utils/hasher"
 	"github.com/pydio/cells/v4/common/utils/hasher/simd"
@@ -103,7 +103,7 @@ func TestLoadNode(t *testing.T) {
 		s, e := c.LoadNode(fsTestCtx, "/test")
 		So(s, ShouldBeNil)
 		So(e, ShouldNotBeNil)
-		So(serviceerrors.FromError(e).Code, ShouldEqual, 404)
+		So(errors.Is(e, errors.StatusNotFound), ShouldBeTrue)
 
 	})
 

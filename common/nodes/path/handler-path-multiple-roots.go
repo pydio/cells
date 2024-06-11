@@ -29,13 +29,13 @@ import (
 	"google.golang.org/grpc"
 
 	"github.com/pydio/cells/v4/common"
+	"github.com/pydio/cells/v4/common/errors"
 	"github.com/pydio/cells/v4/common/log"
 	"github.com/pydio/cells/v4/common/nodes"
 	"github.com/pydio/cells/v4/common/nodes/abstract"
 	"github.com/pydio/cells/v4/common/proto/idm"
 	"github.com/pydio/cells/v4/common/proto/object"
 	"github.com/pydio/cells/v4/common/proto/tree"
-	"github.com/pydio/cells/v4/common/service/serviceerrors"
 )
 
 func WithMultipleRoots() nodes.Option {
@@ -76,9 +76,9 @@ func (m *MultipleRootsHandler) setWorkspaceRootFlag(ws *idm.Workspace, node *tre
 
 func (m *MultipleRootsHandler) updateInputBranch(ctx context.Context, node *tree.Node, identifier string) (context.Context, *tree.Node, error) {
 
-	branch, set := nodes.GetBranchInfo(ctx, identifier)
+	branch, er := nodes.GetBranchInfo(ctx, identifier)
 	//log.Logger(ctx).Info("updateInput", zap.Any("branch", branch), zap.Bool("set", set), node.Zap())
-	if !set || (branch.Workspace != nil && branch.UUID == "ROOT") || branch.Client != nil {
+	if er != nil || (branch.Workspace != nil && branch.UUID == "ROOT") || branch.Client != nil {
 		return ctx, node, nil
 	}
 	if len(branch.RootUUIDs) == 1 {
@@ -111,16 +111,16 @@ func (m *MultipleRootsHandler) updateInputBranch(ctx context.Context, node *tree
 		}
 	}
 	if branch.Root == nil {
-		return ctx, node, serviceerrors.NotFound("node.not.found", "Cannot find root node")
+		return ctx, node, errors.WithStack(errors.BranchInfoRootMissing)
 	}
 	return ctx, m.setWorkspaceRootFlag(branch.Workspace, out), nil
 }
 
 func (m *MultipleRootsHandler) updateOutputBranch(ctx context.Context, node *tree.Node, identifier string) (context.Context, *tree.Node, error) {
 
-	branch, set := nodes.GetBranchInfo(ctx, identifier)
+	branch, er := nodes.GetBranchInfo(ctx, identifier)
 	out := node.Clone()
-	if set && branch.DataSource != nil && branch.Workspace != nil && branch.UUID != "ROOT" {
+	if er == nil && branch.DataSource != nil && branch.Workspace != nil && branch.UUID != "ROOT" {
 		if branch.EncryptionMode != object.EncryptionMode_CLEAR {
 			out.MustSetMeta(common.MetaFlagEncrypted, "true")
 		}
@@ -131,18 +131,19 @@ func (m *MultipleRootsHandler) updateOutputBranch(ctx context.Context, node *tre
 			out.MustSetMeta(common.MetaFlagHashingVersion, h)
 		}
 	}
-	if !set || branch.Workspace == nil || branch.UUID == "ROOT" {
+	if er != nil || branch.Workspace == nil || branch.UUID == "ROOT" {
+		// Todo
 		return ctx, m.setWorkspaceRootFlag(branch.Workspace, out), nil
 	}
 	if len(branch.RootUUIDs) == 1 {
 		if root, er := m.LookupRoot(ctx, branch.RootUUIDs[0]); er == nil && !root.IsLeaf() {
 			return ctx, m.setWorkspaceRootFlag(branch.Workspace, out), nil
 		} else if er != nil {
-			return ctx, node, nodes.ErrBranchInfoRootMissing(identifier)
+			return ctx, node, errors.WithMessage(errors.BranchInfoRootMissing, identifier)
 		}
 	}
 	if branch.Root == nil {
-		return ctx, node, nodes.ErrBranchInfoRootMissing(identifier)
+		return ctx, node, errors.WithMessage(errors.BranchInfoRootMissing, identifier)
 	}
 	// Prepend root node Uuid
 	out = m.setWorkspaceRootFlag(branch.Workspace, out)
@@ -154,16 +155,18 @@ func (m *MultipleRootsHandler) ListNodes(ctx context.Context, in *tree.ListNodes
 
 	// First try, without modifying ctx & node
 	_, out, err := m.updateInputBranch(ctx, in.Node, "in")
-	if err != nil && serviceerrors.FromError(err).Status == "Not Found" {
+	if errors.Is(err, errors.StatusNotFound) {
 
-		branch, _ := nodes.GetBranchInfo(ctx, "in")
+		branch, er := nodes.GetBranchInfo(ctx, "in")
+		if er != nil {
+			return nil, er
+		}
 		streamer := nodes.NewWrappingStreamer(ctx)
 		nn, e := m.GetRootKeys(ctx, branch.RootUUIDs)
 		if e != nil {
 			return streamer, e
 		}
 		go func() {
-			defer streamer.CloseSend()
 			for rKey, rNode := range nn {
 				node := rNode.Clone()
 				node.Path = rKey
@@ -181,7 +184,7 @@ func (m *MultipleRootsHandler) ListNodes(ctx context.Context, in *tree.ListNodes
 				}
 				node.MustSetMeta(common.MetaFlagWorkspaceRoot, "true")
 				log.Logger(ctx).Debug("[Multiple Root] Sending back node", node.Zap())
-				streamer.Send(&tree.ListNodesResponse{Node: node})
+				_ = streamer.Send(&tree.ListNodesResponse{Node: node})
 			}
 		}()
 		return streamer, nil
@@ -195,7 +198,7 @@ func (m *MultipleRootsHandler) ReadNode(ctx context.Context, in *tree.ReadNodeRe
 
 	// First try, without modifying ctx & node
 	_, out, err := m.updateInputBranch(ctx, in.Node, "in")
-	if err != nil && serviceerrors.FromError(err).Status == "Not Found" && (in.Node.Path == "/" || in.Node.Path == "") {
+	if err != nil && errors.Is(err, errors.StatusNotFound) && (in.Node.Path == "/" || in.Node.Path == "") {
 
 		// Load multiple root nodes and build a fake parent node
 		branch, _ := nodes.GetBranchInfo(ctx, "in")

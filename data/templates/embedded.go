@@ -29,9 +29,9 @@ import (
 	"sort"
 	"strings"
 
+	"github.com/pydio/cells/v4/common/errors"
 	"github.com/pydio/cells/v4/common/proto/rest"
 	"github.com/pydio/cells/v4/common/proto/tree"
-	"github.com/pydio/cells/v4/common/service/serviceerrors"
 	"github.com/pydio/cells/v4/common/utils/statics"
 )
 
@@ -103,7 +103,7 @@ func (e *Embedded) ByUUID(ctx context.Context, uuid string) (Node, error) {
 		}
 	}
 	if node == nil {
-		return nil, serviceerrors.NotFound("template.not.found", "Cannot find template with this identifier")
+		return nil, errors.WithStack(errors.TemplateNotFound)
 	} else {
 		return node, nil
 	}

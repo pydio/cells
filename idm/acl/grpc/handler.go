@@ -27,15 +27,13 @@ import (
 
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/broker"
+	"github.com/pydio/cells/v4/common/errors"
 	"github.com/pydio/cells/v4/common/proto/idm"
 	pbservice "github.com/pydio/cells/v4/common/proto/service"
 	"github.com/pydio/cells/v4/common/proto/tree"
 	"github.com/pydio/cells/v4/common/runtime/manager"
-	"github.com/pydio/cells/v4/common/service/serviceerrors"
 	"github.com/pydio/cells/v4/idm/acl"
 )
-
-var errMissingDAO = serviceerrors.InternalServerError(common.ServiceAcl, "missing dao")
 
 // Handler definition
 type Handler struct {
@@ -165,7 +163,7 @@ func (h *Handler) SearchACL(request *idm.SearchACLRequest, response idm.ACLServi
 	for _, in := range *acls {
 		val, ok := in.(*idm.ACL)
 		if !ok {
-			return serviceerrors.InternalServerError(common.ServiceAcl, "Wrong type")
+			return errors.WithMessagef(errors.StatusInternalServerError, "Wrong type")
 		}
 		if e := response.Send(&idm.SearchACLResponse{ACL: val}); e != nil {
 			return e

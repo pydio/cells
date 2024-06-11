@@ -31,9 +31,9 @@ import (
 	"go.uber.org/zap"
 
 	"github.com/pydio/cells/v4/common"
+	"github.com/pydio/cells/v4/common/errors"
 	"github.com/pydio/cells/v4/common/log"
 	"github.com/pydio/cells/v4/common/proto/jobs"
-	"github.com/pydio/cells/v4/common/service/serviceerrors"
 	"github.com/pydio/cells/v4/common/utils/propagator"
 	"github.com/pydio/cells/v4/scheduler/actions"
 )
@@ -263,7 +263,7 @@ func (r *Runnable) RunAction(queue chan RunnerFunc) {
 	}()
 
 	if r.Implementation == nil {
-		err := serviceerrors.NotFound("jobs.action.not.found", fmt.Sprintf("cannot run action: no concrete implementation found for ID %s, are you sure this action has been correctly registered?", r.Action.ID))
+		err := errors.WithMessagef(errors.ActionNotFound, "cannot run action: no concrete implementation found for ID %s, are you sure this action has been correctly registered?", r.Action.ID)
 		r.Task.SetError(err, true)
 		return
 	}

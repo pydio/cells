@@ -44,7 +44,6 @@ import (
 	service "github.com/pydio/cells/v4/common/proto/service"
 	"github.com/pydio/cells/v4/common/runtime"
 	"github.com/pydio/cells/v4/common/runtime/manager"
-	"github.com/pydio/cells/v4/common/service/serviceerrors"
 	"github.com/pydio/cells/v4/common/sql/resources"
 	"github.com/pydio/cells/v4/common/utils/cache"
 	json "github.com/pydio/cells/v4/common/utils/jsonx"
@@ -381,7 +380,7 @@ func (h *Handler) SearchUser(request *idm.SearchUserRequest, response idm.UserSe
 			h.applyAutoApplies(usr, autoApplies)
 			response.Send(&idm.SearchUserResponse{User: usr})
 		} else {
-			return serviceerrors.InternalServerError(common.ServiceUser, "wrong type received, should have been idm.User or idm.Group")
+			return errors.WithMessagef(errors.StatusInternalServerError, "wrong type received, should have been idm.User or idm.Group")
 		}
 	}
 

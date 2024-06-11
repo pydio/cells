@@ -39,6 +39,7 @@ import (
 	"github.com/pydio/cells/v4/common/client/commons/treec"
 	"github.com/pydio/cells/v4/common/client/grpc"
 	"github.com/pydio/cells/v4/common/config"
+	"github.com/pydio/cells/v4/common/errors"
 	"github.com/pydio/cells/v4/common/log"
 	"github.com/pydio/cells/v4/common/middleware"
 	"github.com/pydio/cells/v4/common/nodes"
@@ -48,7 +49,6 @@ import (
 	"github.com/pydio/cells/v4/common/proto/rest"
 	service2 "github.com/pydio/cells/v4/common/proto/service"
 	"github.com/pydio/cells/v4/common/proto/tree"
-	"github.com/pydio/cells/v4/common/service/serviceerrors"
 	"github.com/pydio/cells/v4/common/utils/configx"
 	"github.com/pydio/cells/v4/common/utils/filesystem"
 	"github.com/pydio/cells/v4/common/utils/permissions"
@@ -146,7 +146,7 @@ func (s *Handler) PutDataSource(req *restful.Request, resp *restful.Response) {
 		newDsFolder := ds.StorageConfiguration[object.StorageKeyFolder]
 		for _, src := range currentSources {
 			if src.StorageType == ds.StorageType && src.StorageConfiguration[object.StorageKeyFolder] == newDsFolder {
-				middleware.RestError500(req, resp, serviceerrors.Conflict("datasource.folder.conflict", "Cannot create a datasource at the same location than %s", src.Name))
+				middleware.RestError500(req, resp, errors.WithMessagef(errors.DatasourceConflict, "Cannot create a datasource at the same location than %s", src.Name))
 				return
 			}
 		}

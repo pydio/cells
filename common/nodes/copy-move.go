@@ -34,10 +34,10 @@ import (
 
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/broker"
+	"github.com/pydio/cells/v4/common/errors"
 	"github.com/pydio/cells/v4/common/log"
 	"github.com/pydio/cells/v4/common/nodes/models"
 	"github.com/pydio/cells/v4/common/proto/tree"
-	"github.com/pydio/cells/v4/common/service/serviceerrors"
 	"github.com/pydio/cells/v4/common/utils/i18n"
 	"github.com/pydio/cells/v4/common/utils/permissions"
 	"github.com/pydio/cells/v4/common/utils/propagator"
@@ -95,10 +95,7 @@ func extractDSFlat(ctx context.Context, handler Handler, sourceNode, targetNode 
 
 // Is403 checks if error is not nil and has code 403
 func Is403(e error) bool {
-	if e == nil {
-		return false
-	}
-	return serviceerrors.FromError(e).Code == 403
+	return errors.Is(e, errors.StatusForbidden)
 }
 
 // CopyMoveNodes performs a recursive copy or move operation of a node to a new location. It can be inter- or intra-datasources.

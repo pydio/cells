@@ -29,9 +29,9 @@ import (
 	"go.uber.org/zap"
 
 	"github.com/pydio/cells/v4/common"
+	"github.com/pydio/cells/v4/common/errors"
 	"github.com/pydio/cells/v4/common/log"
 	"github.com/pydio/cells/v4/common/proto/tree"
-	"github.com/pydio/cells/v4/common/service/serviceerrors"
 	"github.com/pydio/cells/v4/common/utils/uuid"
 )
 
@@ -57,7 +57,7 @@ func (c *Remote) BulkLoadNodes(ctx context.Context, nodes map[string]string) (ma
 		}
 		resp, err := streamer.Recv()
 		if err != nil || !resp.Success {
-			results[path] = serviceerrors.NotFound("not.found", "node not found")
+			results[path] = errors.WithStack(errors.NodeNotFound)
 		} else {
 			out := resp.Node
 			out.Path = c.unrooted(out.Path)

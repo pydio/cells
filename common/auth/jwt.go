@@ -31,7 +31,7 @@ import (
 
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/auth/claim"
-	errors3 "github.com/pydio/cells/v4/common/errors"
+	"github.com/pydio/cells/v4/common/errors"
 	"github.com/pydio/cells/v4/common/log"
 	"github.com/pydio/cells/v4/common/proto/idm"
 	"github.com/pydio/cells/v4/common/utils/permissions"
@@ -171,13 +171,13 @@ func (j *JWTVerifier) loadClaims(ctx context.Context, token IDToken, claims *cla
 	if claims.Subject != "" {
 		if u, err := permissions.SearchUniqueUser(ctx, "", claims.Subject); err == nil {
 			user = u
-		} else if !errors3.Is(err, errors3.UserNotFound) {
+		} else if !errors.Is(err, errors.UserNotFound) {
 			return err
 		}
 	} else if claims.Name != "" {
 		if u, err := permissions.SearchUniqueUser(ctx, claims.Name, ""); err == nil {
 			user = u
-		} else if !errors3.Is(err, errors3.UserNotFound) {
+		} else if !errors.Is(err, errors.UserNotFound) {
 			return err
 		}
 	}
@@ -192,12 +192,12 @@ func (j *JWTVerifier) loadClaims(ctx context.Context, token IDToken, claims *cla
 		}
 	}
 	if user == nil {
-		return errors3.WithMessage(errors3.UserNotFound, "user not found neither by name or email")
+		return errors.WithMessage(errors.UserNotFound, "user not found neither by name or email")
 	}
 
 	// Check underlying verifiers
 	if e := VerifyContext(ctx, user); e != nil {
-		return errors3.Tag(e, errors3.StatusUnauthorized) // errors2.Unauthorized("user.context", e.Error())
+		return errors.Tag(e, errors.StatusUnauthorized) // errors2.Unauthorized("user.context", e.Error())
 	}
 
 	displayName, ok := user.Attributes["displayName"]
@@ -248,7 +248,7 @@ func (j *JWTVerifier) verifyTokenWithRetry(ctx context.Context, rawIDToken strin
 	}
 
 	if idToken == nil {
-		return nil, errors3.WithStack(errors3.EmptyIDToken)
+		return nil, errors.WithStack(errors.EmptyIDToken)
 	}
 
 	return idToken, nil
@@ -320,7 +320,7 @@ func (j *JWTVerifier) PasswordCredentialsToken(ctx context.Context, userName str
 	}
 	if token == nil {
 		if err == nil {
-			err = errors3.WithStack(errors3.EmptyIDToken) // errors2.Unauthorized("empty.token", "could not validate password credentials")
+			err = errors.WithStack(errors.EmptyIDToken) // errors2.Unauthorized("empty.token", "could not validate password credentials")
 		}
 	}
 	return token, err

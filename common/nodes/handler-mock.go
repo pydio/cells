@@ -22,7 +22,6 @@ package nodes
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"io"
 	"os"
@@ -32,10 +31,10 @@ import (
 
 	"google.golang.org/grpc"
 
+	"github.com/pydio/cells/v4/common/errors"
 	"github.com/pydio/cells/v4/common/log"
 	"github.com/pydio/cells/v4/common/nodes/models"
 	"github.com/pydio/cells/v4/common/proto/tree"
-	errors2 "github.com/pydio/cells/v4/common/service/serviceerrors"
 )
 
 func NewHandlerMock() *HandlerMock {
@@ -70,7 +69,7 @@ func (h *HandlerMock) ReadNode(ctx context.Context, in *tree.ReadNodeRequest, op
 	if n, ok := h.Nodes[in.Node.Path]; ok {
 		return &tree.ReadNodeResponse{Node: n}, nil
 	}
-	return nil, errors.New("Not Found")
+	return nil, errors.WithStack(errors.NodeNotFound)
 }
 
 func (h *HandlerMock) ListNodes(ctx context.Context, in *tree.ListNodesRequest, opts ...grpc.CallOption) (tree.NodeProvider_ListNodesClient, error) {
@@ -97,7 +96,7 @@ func (h *HandlerMock) ListNodes(ctx context.Context, in *tree.ListNodesRequest, 
 			}()
 		} else {
 			streamer.CloseSend()
-			return nil, errors2.NotFound("not.found", "Node not found")
+			return nil, errors.WithStack(errors.NodeNotFound)
 		}
 	} else {
 		go func() {
@@ -160,7 +159,7 @@ func (h *HandlerMock) GetObject(ctx context.Context, node *tree.Node, requestDat
 		closer.Reader = strings.NewReader(n.Path + "hello world")
 		return closer, nil
 	}
-	return nil, errors.New("Not Found")
+	return nil, errors.WithStack(errors.NodeNotFound)
 
 }
 

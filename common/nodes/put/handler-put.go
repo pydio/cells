@@ -25,7 +25,6 @@ import (
 	"context"
 	"fmt"
 	"io"
-	"net/http"
 	"path"
 	"strconv"
 	"strings"
@@ -36,12 +35,12 @@ import (
 	"google.golang.org/grpc"
 
 	"github.com/pydio/cells/v4/common"
+	"github.com/pydio/cells/v4/common/errors"
 	"github.com/pydio/cells/v4/common/log"
 	"github.com/pydio/cells/v4/common/nodes"
 	"github.com/pydio/cells/v4/common/nodes/abstract"
 	"github.com/pydio/cells/v4/common/nodes/models"
 	"github.com/pydio/cells/v4/common/proto/tree"
-	"github.com/pydio/cells/v4/common/service/serviceerrors"
 	"github.com/pydio/cells/v4/common/utils/cache"
 )
 
@@ -139,9 +138,9 @@ func (m *Handler) checkTypeChange(ctx context.Context, node *tree.Node) error {
 	tgtLeaf := resp.GetNode().GetType() == tree.NodeType_LEAF
 	if srcLeaf != tgtLeaf {
 		if tgtLeaf {
-			return serviceerrors.Conflict("node.type.conflict", "A file already exists with the same name")
+			return errors.WithMessagef(errors.NodeTypeConflict, "A file already exists with the same name")
 		} else {
-			return serviceerrors.Conflict("node.type.conflict", "A folder already exists with the same name")
+			return errors.WithMessagef(errors.NodeTypeConflict, "A folder already exists with the same name")
 		}
 	}
 	return nil
@@ -164,8 +163,7 @@ func (m *Handler) createParentIfNotExist(ctx context.Context, node *tree.Node, s
 			return er
 		}
 		if r, er2 := m.Next.CreateNode(ctx, &tree.CreateNodeRequest{Node: parentNode, IndexationSession: session}); er2 != nil {
-			parsedErr := serviceerrors.FromError(er2)
-			if parsedErr.Code == http.StatusConflict {
+			if errors.Is(er2, errors.StatusConflict) {
 				return nil
 			}
 			return er2
@@ -184,8 +182,7 @@ func (m *Handler) createParentIfNotExist(ctx context.Context, node *tree.Node, s
 			log.Logger(ctx).Debug("[PUT HANDLER] > Create Parent Node In Index", zap.String("UUID", tmpNode.Uuid), zap.String("Path", tmpNode.Path))
 			_, er := treeWriter.CreateNode(ctx, &tree.CreateNodeRequest{Node: tmpNode, IndexationSession: session})
 			if er != nil {
-				parsedErr := serviceerrors.FromError(er)
-				if parsedErr.Code == http.StatusConflict {
+				if errors.Is(er, errors.StatusConflict) {
 					return nil
 				}
 				return er
@@ -198,7 +195,7 @@ func (m *Handler) createParentIfNotExist(ctx context.Context, node *tree.Node, s
 // CreateNode recursively creates parents if they do not already exist
 // Only applicable to COLLECTION inside a structured storage (need to create .pydio hidden files)
 func (m *Handler) CreateNode(ctx context.Context, in *tree.CreateNodeRequest, opts ...grpc.CallOption) (*tree.CreateNodeResponse, error) {
-	if info, ok := nodes.GetBranchInfo(ctx, "in"); ok && (info.FlatStorage || info.Binary || info.IsInternal()) || in.Node.IsLeaf() {
+	if info, er := nodes.GetBranchInfo(ctx, "in"); er == nil && (info.FlatStorage || info.Binary || info.IsInternal()) || in.Node.IsLeaf() {
 		return m.Next.CreateNode(ctx, in, opts...)
 	}
 	if e := m.createParentIfNotExist(ctx, in.GetNode().Clone(), in.GetIndexationSession()); e != nil {
@@ -211,7 +208,7 @@ func (m *Handler) CreateNode(ctx context.Context, in *tree.CreateNodeRequest, op
 func (m *Handler) PutObject(ctx context.Context, node *tree.Node, reader io.Reader, requestData *models.PutRequestData) (models.ObjectInfo, error) {
 	log.Logger(ctx).Debug("[HANDLER PUT] > Putting object", zap.String("UUID", node.Uuid), zap.String("Path", node.Path))
 
-	if branchInfo, ok := nodes.GetBranchInfo(ctx, "in"); ok && branchInfo.Binary {
+	if branchInfo, er := nodes.GetBranchInfo(ctx, "in"); er == nil && branchInfo.Binary {
 		return m.Next.PutObject(ctx, node, reader, requestData)
 	}
 

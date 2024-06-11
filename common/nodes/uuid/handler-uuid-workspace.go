@@ -22,20 +22,20 @@ package uuid
 
 import (
 	"context"
-	"github.com/pydio/cells/v4/common/middleware/keys"
 	"path"
 	"strings"
 
 	"go.uber.org/zap"
 	"google.golang.org/protobuf/proto"
 
+	"github.com/pydio/cells/v4/common/errors"
 	"github.com/pydio/cells/v4/common/log"
+	"github.com/pydio/cells/v4/common/middleware/keys"
 	"github.com/pydio/cells/v4/common/nodes"
 	"github.com/pydio/cells/v4/common/nodes/abstract"
 	"github.com/pydio/cells/v4/common/nodes/acl"
 	"github.com/pydio/cells/v4/common/proto/idm"
 	"github.com/pydio/cells/v4/common/proto/tree"
-	"github.com/pydio/cells/v4/common/service/serviceerrors"
 	"github.com/pydio/cells/v4/common/utils/permissions"
 	"github.com/pydio/cells/v4/common/utils/propagator"
 )
@@ -65,7 +65,7 @@ func newWorkspaceHandler() *WorkspaceHandler {
 
 func (h *WorkspaceHandler) updateInputBranch(ctx context.Context, node *tree.Node, identifier string) (context.Context, *tree.Node, error) {
 
-	if info, alreadySet := nodes.GetBranchInfo(ctx, identifier); alreadySet && info.Client != nil {
+	if info, er := nodes.GetBranchInfo(ctx, identifier); er == nil && info.Client != nil {
 		return ctx, node, nil
 	}
 
@@ -79,7 +79,7 @@ func (h *WorkspaceHandler) updateInputBranch(ctx context.Context, node *tree.Nod
 
 	accessList, ok := acl.FromContext(ctx)
 	if !ok {
-		return ctx, node, nodes.ErrCannotFindACL()
+		return ctx, node, errors.WithStack(errors.BranchInfoACLMissing)
 	}
 
 	// Update Access List with resolved virtual nodes
@@ -99,8 +99,7 @@ func (h *WorkspaceHandler) updateInputBranch(ctx context.Context, node *tree.Nod
 	}
 	workspaces, _ := accessList.BelongsToWorkspaces(ctx, parents...)
 	if len(workspaces) == 0 {
-		log.Logger(ctx).Debug("Node des not belong to any accessible workspace!", accessList.Zap())
-		return ctx, node, serviceerrors.Forbidden("no.workspaces.found", "Node does not belong to any accessible workspace!")
+		return ctx, node, errors.WithStack(errors.OutOfAccessibleWorkspaces)
 	}
 	// Use first workspace by default
 	branchInfo := nodes.BranchInfo{
@@ -160,7 +159,7 @@ func (h *WorkspaceHandler) relativePathToWsRoot(ctx context.Context, ws *idm.Wor
 			}
 			return relPath, nil
 		} else {
-			return "", serviceerrors.NotFound("RouterUuid", "Cannot subtract paths "+nodeFullPath+" - "+rootPath)
+			return "", errors.WithMessage(errors.NodeNotFound, "Cannot subtract paths "+nodeFullPath+" - "+rootPath)
 		}
 	} else {
 		return "", e

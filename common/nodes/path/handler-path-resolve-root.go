@@ -26,6 +26,7 @@ import (
 	"strings"
 
 	"github.com/pydio/cells/v4/common"
+	"github.com/pydio/cells/v4/common/errors"
 	"github.com/pydio/cells/v4/common/nodes"
 	"github.com/pydio/cells/v4/common/nodes/abstract"
 	"github.com/pydio/cells/v4/common/proto/tree"
@@ -56,9 +57,9 @@ func (v *WorkspaceRootResolver) Adapt(c nodes.Handler, options nodes.RouterOptio
 
 func (v *WorkspaceRootResolver) updateInputBranch(ctx context.Context, node *tree.Node, identifier string) (context.Context, *tree.Node, error) {
 
-	branchInfo, ok := nodes.GetBranchInfo(ctx, identifier)
-	if !ok {
-		return ctx, node, nodes.ErrBranchInfoMissing(identifier)
+	branchInfo, er := nodes.GetBranchInfo(ctx, identifier)
+	if er != nil {
+		return ctx, node, er
 	}
 
 	if branchInfo.Root == nil {
@@ -83,7 +84,7 @@ func (v *WorkspaceRootResolver) updateOutputNode(ctx context.Context, node *tree
 		return ctx, node, nil
 	}
 	if branchInfo.Root == nil {
-		return ctx, node, nodes.ErrBranchInfoRootMissing(identifier)
+		return ctx, node, errors.WithMessage(errors.BranchInfoRootMissing, identifier)
 	}
 	// Trim root path
 	out := node.Clone()

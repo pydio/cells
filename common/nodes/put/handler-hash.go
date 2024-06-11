@@ -3,18 +3,17 @@ package put
 import (
 	"context"
 	"encoding/hex"
-	"fmt"
 	"hash"
 	"io"
 	"strconv"
 	"strings"
 	"sync"
 
-	errors2 "github.com/pkg/errors"
 	"go.uber.org/zap"
 	"google.golang.org/grpc"
 
 	"github.com/pydio/cells/v4/common"
+	"github.com/pydio/cells/v4/common/errors"
 	"github.com/pydio/cells/v4/common/log"
 	"github.com/pydio/cells/v4/common/nodes"
 	"github.com/pydio/cells/v4/common/nodes/abstract"
@@ -95,7 +94,7 @@ func (m *HashHandler) MultipartPutObjectPart(ctx context.Context, target *tree.N
 func (m *HashHandler) MultipartComplete(ctx context.Context, target *tree.Node, uploadID string, uploadedParts []models.MultipartObjectPart) (models.ObjectInfo, error) {
 	f, e := m.computeMultipartFinalHash(ctx, uploadID, len(uploadedParts))
 	if e != nil {
-		return models.ObjectInfo{}, errors2.Wrap(e, "cannot initialize cache")
+		return models.ObjectInfo{}, errors.Tag(e, errors.StatusDataLoss)
 	}
 	if !nodes.IsFlatStorage(ctx, "in") {
 		nodes.MustCoreMetaSet(ctx, target.Uuid, common.MetaNamespaceHash, f, nodes.IsInternal(ctx, "in"))
@@ -264,12 +263,12 @@ func (m *HashHandler) computeMultipartFinalHash(ctx context.Context, uploadID st
 
 	c, e := m.getPartsCache(ctx)
 	if e != nil {
-		return "", errors2.Wrap(e, "cannot initialize cache")
+		return "", errors.Tag(e, errors.StatusDataLoss)
 	}
 	prefix := "multipart:" + uploadID + ":"
 	kk, e := c.KeysByPrefix(prefix)
 	if e != nil {
-		return "", errors2.Wrap(e, "cannot read keys from cache")
+		return "", errors.Tag(e, errors.StatusDataLoss)
 	}
 	parts := map[int][]string{}
 	for _, k := range kk {
@@ -283,13 +282,13 @@ func (m *HashHandler) computeMultipartFinalHash(ctx context.Context, uploadID st
 		}
 	}
 	if len(parts) != partsNumber {
-		return "", errors2.Wrap(e, "cache does not contain the correct number of parts")
+		return "", errors.WithMessagef(errors.StatusDataLoss, "multipart upload parts number not equal to %d", partsNumber)
 	}
 	summer := simd.MD5()
 	for i := 0; i < partsNumber; i++ {
 		ha, ok := parts[i]
 		if !ok {
-			return "", fmt.Errorf("missing hash for part %d", i)
+			return "", errors.WithMessagef(errors.StatusDataLoss, "missing hash for part %d", i)
 		}
 		for _, h := range ha {
 			bb, _ := hex.DecodeString(h)

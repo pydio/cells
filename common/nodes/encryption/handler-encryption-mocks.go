@@ -30,8 +30,8 @@ import (
 	"google.golang.org/grpc/metadata"
 
 	"github.com/pydio/cells/v4/common/crypto"
+	"github.com/pydio/cells/v4/common/errors"
 	"github.com/pydio/cells/v4/common/proto/encryption"
-	"github.com/pydio/cells/v4/common/service/serviceerrors"
 	json "github.com/pydio/cells/v4/common/utils/jsonx"
 )
 
@@ -191,7 +191,7 @@ func (m *mockNodeKeyManagerClient) GetNodeInfo(ctx context.Context, in *encrypti
 
 	nodeKey, entryFound := m.keys[in.NodeId]
 	if !entryFound {
-		return nil, serviceerrors.NotFound("mock.NodeKeyManager", "Key not found")
+		return nil, errors.WithStack(errors.KeyNotFound)
 	}
 
 	//create copy because object is updated in handler

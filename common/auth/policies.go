@@ -34,7 +34,6 @@ import (
 	"github.com/pydio/cells/v4/common/log"
 	"github.com/pydio/cells/v4/common/proto/idm"
 	"github.com/pydio/cells/v4/common/proto/rest"
-	"github.com/pydio/cells/v4/common/service/serviceerrors"
 	"github.com/pydio/cells/v4/common/utils/permissions"
 )
 
@@ -95,11 +94,11 @@ func SubjectsForResourcePolicyQuery(ctx context.Context, q *rest.ResourcePolicyQ
 
 		var value interface{}
 		if value = ctx.Value(claim.ContextKey); value == nil {
-			return subjects, serviceerrors.BadRequest("resources", "Only admin profiles can list resources of other users")
+			return subjects, errors.WithMessage(errors.StatusForbidden, "no context found to list resources")
 		}
 		claims := value.(claim.Claims)
 		if claims.Profile != common.PydioProfileAdmin {
-			return subjects, serviceerrors.Forbidden("resources", "Only admin profiles can list resources with ANY or NONE filter")
+			return subjects, errors.WithMessage(errors.StatusForbidden, "only admin profiles can list resources with ANY or NONE filter")
 		}
 		return subjects, nil
 

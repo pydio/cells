@@ -31,12 +31,12 @@ import (
 	"google.golang.org/grpc"
 	"google.golang.org/protobuf/proto"
 
+	"github.com/pydio/cells/v4/common/errors"
 	"github.com/pydio/cells/v4/common/log"
 	"github.com/pydio/cells/v4/common/nodes"
 	"github.com/pydio/cells/v4/common/nodes/models"
 	"github.com/pydio/cells/v4/common/proto/tree"
 	"github.com/pydio/cells/v4/common/runtime"
-	"github.com/pydio/cells/v4/common/service/serviceerrors"
 	"github.com/pydio/cells/v4/common/utils/cache"
 	"github.com/pydio/cells/v4/common/utils/openurl"
 )
@@ -112,11 +112,11 @@ func (v *BranchFilter) GetRootKeys(ctx context.Context, rootNodes []string) (map
 }
 
 func (v *BranchFilter) updateInputBranch(ctx context.Context, identifier string, node *tree.Node) (context.Context, error) {
-	return ctx, serviceerrors.New("not.implemented", "Abstract Method Not Implemented", 500)
+	return ctx, errors.WithStack(errors.StatusNotImplemented)
 }
 
 func (v *BranchFilter) updateOutputNode(ctx context.Context, identifier string, node *tree.Node) (context.Context, error) {
-	return ctx, serviceerrors.New("not.implemented", "Abstract Method Not Implemented", 500)
+	return ctx, errors.WithStack(errors.StatusNotImplemented)
 }
 
 func (v *BranchFilter) ExecuteWrapped(inputFilter nodes.FilterFunc, outputFilter nodes.FilterFunc, provider nodes.CallbackFunc) error {

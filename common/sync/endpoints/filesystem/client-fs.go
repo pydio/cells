@@ -25,7 +25,6 @@ import (
 	"bytes"
 	"context"
 	"encoding/hex"
-	"errors"
 	"fmt"
 	"io"
 	"os"
@@ -43,9 +42,9 @@ import (
 	"golang.org/x/text/unicode/norm"
 
 	"github.com/pydio/cells/v4/common"
+	"github.com/pydio/cells/v4/common/errors"
 	"github.com/pydio/cells/v4/common/log"
 	"github.com/pydio/cells/v4/common/proto/tree"
-	errors2 "github.com/pydio/cells/v4/common/service/serviceerrors"
 	"github.com/pydio/cells/v4/common/sync/merger"
 	"github.com/pydio/cells/v4/common/sync/model"
 	"github.com/pydio/cells/v4/common/sync/proc"
@@ -183,7 +182,7 @@ func NewFSClient(rootPath string, options model.EndpointOptions) (*FSClient, err
 	}
 	c.FS = afero.NewBasePathFs(afero.NewOsFs(), c.RootPath)
 	if _, e = c.FS.Stat("/"); e != nil {
-		return nil, errors.New("Cannot stat root folder " + c.RootPath + "!")
+		return nil, errors.WithMessage(errors.NodeNotFound, "Cannot stat root folder "+c.RootPath+"!")
 	}
 	return c, nil
 }
@@ -379,7 +378,7 @@ func (c *FSClient) Watch(recursivePath string) (*model.WatchObject, error) {
 
 func (c *FSClient) CreateNode(ctx context.Context, node tree.N, updateIfExists bool) (err error) {
 	if node.IsLeaf() {
-		return errors.New("this is a DataSyncTarget, use PutNode for leafs instead of CreateNode")
+		return errors.WithMessage(errors.StatusBadRequest, "this is a DataSyncTarget, use PutNode for leafs instead of CreateNode")
 	}
 	fPath := c.denormalize(node.GetPath())
 	_, e := c.FS.Stat(fPath)
@@ -601,7 +600,7 @@ func (c *FSClient) loadNode(ctx context.Context, path string, stat os.FileInfo) 
 	if stat == nil {
 		if stat, err = c.FS.Stat(dnPath); err != nil {
 			if os.IsNotExist(err) {
-				return nil, errors2.NotFound("not.found", path, err)
+				return nil, errors.WithStack(errors.NodeNotFound)
 			}
 			return nil, err
 		}

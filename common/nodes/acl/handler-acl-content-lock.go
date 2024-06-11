@@ -24,10 +24,8 @@ import (
 	"context"
 	"io"
 
-	"github.com/pydio/cells/v4/common/nodes/abstract"
-
 	"github.com/pydio/cells/v4/common/nodes"
-
+	"github.com/pydio/cells/v4/common/nodes/abstract"
 	"github.com/pydio/cells/v4/common/nodes/models"
 	"github.com/pydio/cells/v4/common/proto/tree"
 	"github.com/pydio/cells/v4/common/utils/permissions"
@@ -53,7 +51,7 @@ func (a *ContentLockFilter) Adapt(h nodes.Handler, options nodes.RouterOptions) 
 
 // PutObject check locks before allowing Put operation.
 func (a *ContentLockFilter) PutObject(ctx context.Context, node *tree.Node, reader io.Reader, requestData *models.PutRequestData) (models.ObjectInfo, error) {
-	if branchInfo, ok := nodes.GetBranchInfo(ctx, "in"); ok && branchInfo.IsInternal() {
+	if branchInfo, er := nodes.GetBranchInfo(ctx, "in"); er == nil && branchInfo.IsInternal() {
 		return a.Next.PutObject(ctx, node, reader, requestData)
 	}
 	if err := permissions.CheckContentLock(ctx, node); err != nil {
@@ -63,7 +61,7 @@ func (a *ContentLockFilter) PutObject(ctx context.Context, node *tree.Node, read
 }
 
 func (a *ContentLockFilter) MultipartCreate(ctx context.Context, target *tree.Node, requestData *models.MultipartRequestData) (string, error) {
-	if branchInfo, ok := nodes.GetBranchInfo(ctx, "in"); ok && branchInfo.IsInternal() {
+	if branchInfo, er := nodes.GetBranchInfo(ctx, "in"); er == nil && branchInfo.IsInternal() {
 		return a.Next.MultipartCreate(ctx, target, requestData)
 	}
 	if err := permissions.CheckContentLock(ctx, target); err != nil {

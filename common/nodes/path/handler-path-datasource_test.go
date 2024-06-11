@@ -28,12 +28,12 @@ import (
 	"github.com/spf13/viper"
 
 	"github.com/pydio/cells/v4/common"
+	"github.com/pydio/cells/v4/common/errors"
 	"github.com/pydio/cells/v4/common/nodes"
 	"github.com/pydio/cells/v4/common/nodes/models"
 	"github.com/pydio/cells/v4/common/proto/idm"
 	"github.com/pydio/cells/v4/common/proto/tree"
 	"github.com/pydio/cells/v4/common/runtime"
-	"github.com/pydio/cells/v4/common/service/serviceerrors"
 	"github.com/pydio/cells/v4/common/utils/cache"
 
 	_ "github.com/pydio/cells/v4/common/utils/cache/gocache"
@@ -106,9 +106,7 @@ func TestBranchTranslator_ReadNode(t *testing.T) {
 
 		b, _ := newTestHandlerBranchTranslator(pool)
 		_, e := b.ReadNode(context.Background(), &tree.ReadNodeRequest{})
-		So(e, ShouldNotBeNil)
-		parsed := serviceerrors.FromError(e)
-		So(parsed.Detail, ShouldContainSubstring, "Cannot find client for branch")
+		So(errors.Is(e, errors.BranchInfoMissing), ShouldBeTrue)
 
 	})
 
@@ -123,8 +121,7 @@ func TestBranchTranslator_ReadNode(t *testing.T) {
 		})
 		_, e := b.ReadNode(c, &tree.ReadNodeRequest{})
 		So(e, ShouldNotBeNil)
-		parsed := serviceerrors.FromError(e)
-		So(parsed.Code, ShouldEqual, 500)
+		So(errors.Is(e, errors.StatusInternalServerError), ShouldBeTrue)
 
 	})
 
@@ -142,8 +139,8 @@ func TestBranchTranslator_ReadNode(t *testing.T) {
 		belowNode := mock.Nodes["in"]
 		So(belowNode.Path, ShouldEqual, "datasource/root/path")
 		So(belowNode.GetStringMeta(common.MetaNamespaceDatasourcePath), ShouldEqual, "root/path")
-		outputBranch, ok := nodes.GetBranchInfo(mock.Context, "in")
-		So(ok, ShouldBeTrue)
+		outputBranch, er := nodes.GetBranchInfo(mock.Context, "in")
+		So(er, ShouldBeNil)
 		So(outputBranch.LoadedSource.ObjectsBucket, ShouldEqual, "bucket")
 
 	})
@@ -165,8 +162,8 @@ func TestBranchTranslator_ReadNode(t *testing.T) {
 		So(belowNode, ShouldNotBeNil)
 		So(belowNode.Path, ShouldEqual, "datasource/root/inner/path")
 		//So(belowNode.GetStringMeta(common.MetaNamespaceDatasourcePath), ShouldEqual, "inner/path")
-		outputBranch, ok := nodes.GetBranchInfo(mock.Context, "in")
-		So(ok, ShouldBeTrue)
+		outputBranch, er := nodes.GetBranchInfo(mock.Context, "in")
+		So(er, ShouldBeNil)
 		So(outputBranch.Workspace.UUID, ShouldEqual, "test-workspace")
 		So(outputBranch.ObjectsBucket, ShouldEqual, "bucket")
 	})

@@ -34,13 +34,13 @@ import (
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/auth/claim"
 	"github.com/pydio/cells/v4/common/client/grpc"
+	"github.com/pydio/cells/v4/common/errors"
 	"github.com/pydio/cells/v4/common/log"
 	"github.com/pydio/cells/v4/common/middleware"
 	"github.com/pydio/cells/v4/common/proto/idm"
 	"github.com/pydio/cells/v4/common/proto/rest"
 	service2 "github.com/pydio/cells/v4/common/proto/service"
 	"github.com/pydio/cells/v4/common/service/resources"
-	"github.com/pydio/cells/v4/common/service/serviceerrors"
 	"github.com/pydio/cells/v4/common/utils/permissions"
 	"github.com/pydio/cells/v4/idm/share"
 )
@@ -139,7 +139,7 @@ func (h *SharesHandler) GetCell(req *restful.Request, rsp *restful.Response) {
 
 	workspace, err := h.sc.GetCellWorkspace(ctx, id)
 	if err != nil {
-		if serviceerrors.FromError(err).Code == 404 {
+		if errors.Is(err, errors.StatusNotFound) {
 			middleware.RestError404(req, rsp, err)
 		} else {
 			middleware.RestError500(req, rsp, err)
@@ -237,7 +237,7 @@ func (h *SharesHandler) GetShareLink(req *restful.Request, rsp *restful.Response
 
 	output, err := h.sc.LinkById(ctx, id)
 	if err != nil {
-		if serviceerrors.FromError(err).Code == 404 {
+		if errors.Is(err, errors.StatusNotFound) {
 			middleware.RestError404(req, rsp, err)
 		} else {
 			middleware.RestErrorDetect(req, rsp, err)
@@ -292,15 +292,15 @@ func (h *SharesHandler) UpdateSharePolicies(req *restful.Request, rsp *restful.R
 	cli := idm.NewWorkspaceServiceClient(grpc.ResolveConn(h.ctx, common.ServiceWorkspace))
 	ws, err := permissions.SearchUniqueWorkspace(ctx, input.Uuid, "")
 	if err != nil {
-		middleware.RestError500(req, rsp, serviceerrors.NotFound("share.not.found", "cannot find associated workspace"))
+		middleware.RestError500(req, rsp, errors.WithStack(errors.ShareNotFound))
 		return
 	}
 	if ws.Scope != idm.WorkspaceScope_LINK && ws.Scope != idm.WorkspaceScope_ROOM {
-		middleware.RestError403(req, rsp, serviceerrors.NotFound("workspace.not.share", "you are not allowed to use this api to edit workspaces"))
+		middleware.RestError403(req, rsp, errors.WithStack(errors.ShareWrongType))
 		return
 	}
 	if !h.MatchPolicies(ctx, ws.UUID, ws.Policies, service2.ResourcePolicyAction_WRITE) {
-		middleware.RestError403(req, rsp, serviceerrors.NotFound("share.not.editable", "you are not allowed to edit this share"))
+		middleware.RestError403(req, rsp, errors.WithStack(errors.ShareNotEditable))
 		return
 	}
 

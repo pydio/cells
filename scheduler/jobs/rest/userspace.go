@@ -37,11 +37,11 @@ import (
 	"github.com/pydio/cells/v4/common/client/commons/jobsc"
 	"github.com/pydio/cells/v4/common/client/grpc"
 	"github.com/pydio/cells/v4/common/config"
+	"github.com/pydio/cells/v4/common/errors"
 	"github.com/pydio/cells/v4/common/log"
 	"github.com/pydio/cells/v4/common/nodes"
 	"github.com/pydio/cells/v4/common/proto/jobs"
 	"github.com/pydio/cells/v4/common/proto/tree"
-	"github.com/pydio/cells/v4/common/service/serviceerrors"
 	json "github.com/pydio/cells/v4/common/utils/jsonx"
 	"github.com/pydio/cells/v4/common/utils/permissions"
 	"github.com/pydio/cells/v4/common/utils/uuid"
@@ -56,7 +56,7 @@ func compress(ctx context.Context, selectedPaths []string, targetNodePath string
 	claims := ctx.Value(claim.ContextKey).(claim.Claims)
 	userName := claims.Name
 	theRouter := getRouter()
-	permError := serviceerrors.Forbidden("forbidden.files", "Some files or folder are not allowed to be read or downloaded, you cannot build this archive")
+	permError := errors.WithMessage(errors.StatusForbidden, "Some files or folder are not allowed to be read or downloaded, you cannot build this archive")
 	if format != "zip" && format != "tar" && format != "tar.gz" {
 		return "", fmt.Errorf("unsupported format, please use one of zip, tar or tar.gz")
 	}
@@ -453,7 +453,7 @@ func wgetTasks(ctx context.Context, parentPath string, urls []string, languages 
 	if innerOp, e := router.CanApply(ctx, &tree.NodeChangeEvent{Type: tree.NodeChangeEvent_CREATE, Target: parentNode}); e == nil {
 		fullPathParentNode = innerOp.GetTarget()
 	} else {
-		return []string{}, serviceerrors.Forbidden(common.ServiceJobs, "Parent Node is not writeable")
+		return []string{}, errors.WithStack(errors.PathNotWriteable)
 	}
 
 	var whiteList, blackList []string
@@ -527,7 +527,7 @@ func p8migration(ctx context.Context, jsonParams string) (string, error) {
 
 	claims := ctx.Value(claim.ContextKey).(claim.Claims)
 	if claims.Profile != common.PydioProfileAdmin {
-		return "", serviceerrors.Forbidden("user.job.forbidden", "you are not allowed to create this job")
+		return "", errors.WithMessage(errors.StatusForbidden, "you are not allowed to create this job")
 	}
 	jobUuid := "pydio8-data-import"
 	// Parse JsonParams
@@ -590,7 +590,7 @@ func hostListCheck(list []string, u *url.URL) bool {
 func disallowTemplate(params map[string]string) error {
 	for _, v := range params {
 		if v != jobs.EvaluateFieldStr(context.Background(), &jobs.ActionMessage{}, v) {
-			return serviceerrors.New("format.invalid", "invalid format detected", 403)
+			return errors.WithMessage(errors.StatusInternalServerError, "invalid format detected")
 		}
 	}
 	return nil

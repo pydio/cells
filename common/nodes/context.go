@@ -26,6 +26,7 @@ import (
 	"google.golang.org/protobuf/proto"
 
 	"github.com/pydio/cells/v4/common"
+	"github.com/pydio/cells/v4/common/errors"
 	"github.com/pydio/cells/v4/common/proto/idm"
 	"github.com/pydio/cells/v4/common/proto/object"
 	"github.com/pydio/cells/v4/common/proto/tree"
@@ -72,21 +73,22 @@ func WithBranchInfo(ctx context.Context, identifier string, branchInfo BranchInf
 }
 
 // GetBranchInfo finds BranchInfo inside the context
-func GetBranchInfo(ctx context.Context, identifier string) (BranchInfo, bool) {
+func GetBranchInfo(ctx context.Context, identifier string) (BranchInfo, error) {
 	value := ctx.Value(ctxBranchInfoKey{})
 	if value != nil {
 		data := value.(map[string]BranchInfo)
 		if info, ok := data[identifier]; ok {
-			return info, true
+			return info, nil
 		}
 	}
-	return BranchInfo{}, false
+	return BranchInfo{}, errors.WithStack(errors.BranchInfoMissing)
 }
 
 // AncestorsListFromContext tries to load ancestors or get them from cache
 func AncestorsListFromContext(ctx context.Context, node *tree.Node, identifier string, p SourcesPool, orParents bool) (updatedContext context.Context, parentsList []*tree.Node, e error) {
 
-	branchInfo, hasBranchInfo := GetBranchInfo(ctx, identifier)
+	branchInfo, be := GetBranchInfo(ctx, identifier)
+	hasBranchInfo := be == nil
 	if hasBranchInfo && branchInfo.AncestorsList != nil {
 		if ancestors, ok := branchInfo.AncestorsList[node.Path]; ok {
 			return ctx, ancestors, nil
@@ -129,7 +131,7 @@ func AncestorsListFromContext(ctx context.Context, node *tree.Node, identifier s
 
 // IsFlatStorage checks a context BranchInfo for the FlatStorage flag
 func IsFlatStorage(ctx context.Context, identifier string) bool {
-	if info, ok := GetBranchInfo(ctx, identifier); ok && info.FlatStorage && !info.Binary {
+	if info, er := GetBranchInfo(ctx, identifier); er == nil && info.FlatStorage && !info.Binary {
 		return true
 	}
 	return false
@@ -137,7 +139,7 @@ func IsFlatStorage(ctx context.Context, identifier string) bool {
 
 // IsInternal checks a context BranchInfo for the Internal flag
 func IsInternal(ctx context.Context, identifier string) bool {
-	if info, ok := GetBranchInfo(ctx, identifier); ok && info.IsInternal() {
+	if info, er := GetBranchInfo(ctx, identifier); er == nil && info.IsInternal() {
 		return true
 	}
 	return false
@@ -145,7 +147,7 @@ func IsInternal(ctx context.Context, identifier string) bool {
 
 // IsMinioServer checks a context BranchInfo for pure S3
 func IsMinioServer(ctx context.Context, identifier string) bool {
-	if info, ok := GetBranchInfo(ctx, identifier); ok && info.ServerIsMinio() {
+	if info, er := GetBranchInfo(ctx, identifier); er == nil && info.ServerIsMinio() {
 		return true
 	}
 	return false

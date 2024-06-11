@@ -23,10 +23,9 @@ package uuid
 import (
 	"context"
 
-	"github.com/pydio/cells/v4/common/nodes/abstract"
-
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/nodes"
+	"github.com/pydio/cells/v4/common/nodes/abstract"
 	"github.com/pydio/cells/v4/common/proto/tree"
 )
 
@@ -55,9 +54,9 @@ func (v *DataSourceHandler) Adapt(c nodes.Handler, options nodes.RouterOptions) 
 
 func (v *DataSourceHandler) updateInputBranch(ctx context.Context, node *tree.Node, identifier string) (context.Context, *tree.Node, error) {
 
-	branchInfo, ok := nodes.GetBranchInfo(ctx, identifier)
-	if !ok {
-		return ctx, node, nodes.ErrBranchInfoMissing(identifier)
+	branchInfo, er := nodes.GetBranchInfo(ctx, identifier)
+	if er != nil {
+		return ctx, node, er
 	}
 	if branchInfo.Client != nil {
 		// DS is already set by a previous middleware, ignore.

@@ -26,11 +26,11 @@ import (
 
 	"go.uber.org/zap"
 
+	"github.com/pydio/cells/v4/common/errors"
 	"github.com/pydio/cells/v4/common/log"
 	"github.com/pydio/cells/v4/common/proto/encryption"
 	"github.com/pydio/cells/v4/common/proto/tree"
 	"github.com/pydio/cells/v4/common/runtime/manager"
-	"github.com/pydio/cells/v4/common/service/serviceerrors"
 	"github.com/pydio/cells/v4/data/key"
 )
 
@@ -148,7 +148,7 @@ func (km *NodeKeyManagerHandler) GetNodeInfo(ctx context.Context, req *encryptio
 		}
 
 		if !foundEncryptedOffset {
-			return nil, serviceerrors.InternalServerError("offset.not.found", "Cannot find proper offset for range %d %d", req.PlainOffset, req.PlainLength)
+			return nil, errors.WithMessagef(errors.StatusOutOfRange, "Cannot find proper offset for range %d %d", req.PlainOffset, req.PlainLength)
 		}
 
 		if !foundEncryptedLimit {

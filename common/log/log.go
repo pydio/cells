@@ -96,7 +96,7 @@ func Init(svc otel.Service, conf []LoggerConfig, ww ...ContextWrapper) {
 
 		var loggerOptions []zap.Option
 		if hasDebug || traceFatalEnabled() {
-			loggerOptions = append(loggerOptions, zap.AddStacktrace(zap.FatalLevel))
+			loggerOptions = append(loggerOptions, zap.AddStacktrace(zap.ErrorLevel))
 		}
 		zl := zap.New(zapcore.NewTee(cores...), loggerOptions...)
 		if traceFatalEnabled() {

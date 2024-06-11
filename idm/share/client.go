@@ -33,13 +33,13 @@ import (
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/auth"
 	"github.com/pydio/cells/v4/common/client/commons/idmc"
+	"github.com/pydio/cells/v4/common/errors"
 	"github.com/pydio/cells/v4/common/log"
 	"github.com/pydio/cells/v4/common/nodes"
 	"github.com/pydio/cells/v4/common/proto/idm"
 	"github.com/pydio/cells/v4/common/proto/rest"
 	service2 "github.com/pydio/cells/v4/common/proto/service"
 	"github.com/pydio/cells/v4/common/proto/tree"
-	"github.com/pydio/cells/v4/common/service/serviceerrors"
 	"github.com/pydio/cells/v4/common/utils/permissions"
 	"github.com/pydio/cells/v4/common/utils/uuid"
 )
@@ -149,10 +149,10 @@ func (sc *Client) UpsertLink(ctx context.Context, link *rest.ShareLink, linkOpti
 	} else {
 		if linkOptions.GetUpdateCustomHash() != "" {
 			if !options.HashEditable {
-				return nil, serviceerrors.Forbidden("link.hash.not-editable", "You are not allowed to edit link manually")
+				return nil, errors.WithStack(errors.ShareLinkHashNotEditable)
 			}
 			if len(linkOptions.GetUpdateCustomHash()) < options.HashMinLength {
-				return nil, serviceerrors.Forbidden("link.hash.min-length", "Please use a link hash with at least %d characters", options.HashMinLength)
+				return nil, errors.WithMessagef(errors.ShareLinkHashMinLengthRequired, "Please use a link hash with at least %d characters", options.HashMinLength)
 			}
 		}
 		workspace, create, err = sc.GetOrCreateWorkspace(ctx, ownerUser, link.Uuid, idm.WorkspaceScope_LINK, link.Label, refLabel, link.Description, true)
@@ -399,7 +399,7 @@ func (sc *Client) UpsertCell(ctx context.Context, cell *rest.Cell, ownerUser *id
 		return nil, err
 	}
 	if !wsCreated && !sc.checker.IsContextEditable(ctx, workspace.UUID, workspace.Policies) {
-		return nil, serviceerrors.Forbidden("cell.not.editable", "you are not allowed to edit this cell")
+		return nil, errors.WithStack(errors.CellNotEditable)
 	}
 
 	// Now set ACLs on Workspace
@@ -556,9 +556,9 @@ func (sc *Client) DeleteCell(ctx context.Context, id string, ownerLogin string) 
 
 	ws, e := sc.GetCellWorkspace(ctx, id)
 	if e != nil || ws == nil {
-		return serviceerrors.NotFound("cell.not.found", e.Error())
+		return errors.Tag(e, errors.CellNotFound)
 	} else if !sc.checker.IsContextEditable(ctx, id, ws.Policies) {
-		return serviceerrors.Forbidden("cell.not.editable", "you are not allowed to edit this room")
+		return errors.WithStack(errors.CellNotEditable)
 	}
 
 	currWsLabel := ws.Label

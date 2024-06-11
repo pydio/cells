@@ -37,6 +37,7 @@ import (
 	"github.com/pydio/cells/v4/common/client/commons/docstorec"
 	"github.com/pydio/cells/v4/common/client/commons/idmc"
 	"github.com/pydio/cells/v4/common/config"
+	"github.com/pydio/cells/v4/common/errors"
 	"github.com/pydio/cells/v4/common/log"
 	"github.com/pydio/cells/v4/common/nodes"
 	nodescontext "github.com/pydio/cells/v4/common/nodes/context"
@@ -46,7 +47,6 @@ import (
 	"github.com/pydio/cells/v4/common/proto/service"
 	"github.com/pydio/cells/v4/common/proto/tree"
 	"github.com/pydio/cells/v4/common/runtime"
-	"github.com/pydio/cells/v4/common/service/serviceerrors"
 	"github.com/pydio/cells/v4/common/utils/cache"
 	"github.com/pydio/cells/v4/common/utils/openurl"
 	"github.com/pydio/cells/v4/common/utils/permissions"
@@ -184,7 +184,7 @@ func (m *VirtualNodesManager) ResolveInContext(ctx context.Context, vNode *tree.
 	userName, claims := permissions.FindUserNameInContext(ctx) // We may use Claims returned to grab role or user groupPath
 	if userName == "" {
 		log.Logger(ctx).Error("No UserName found in context, cannot resolve virtual node", zap.Any("ctx", ctx))
-		return nil, serviceerrors.New("claims.not.found", "No Claims found in context", 500)
+		return nil, errors.WithStack(errors.AccessListNotFound)
 	}
 	resolved, e := m.resolvePathWithClaims(ctx, vNode, claims, pool)
 	if e != nil {
@@ -200,7 +200,7 @@ func (m *VirtualNodesManager) ResolveInContext(ctx context.Context, vNode *tree.
 	if readResp, e := pool.GetTreeClient().ReadNode(ctx, &tree.ReadNodeRequest{Node: resolved}); e == nil {
 		_ = m.Cache.Set(resolved.Path, readResp.Node)
 		return readResp.Node, nil
-	} else if serviceerrors.FromError(e).Code == 404 {
+	} else if errors.Is(e, errors.StatusNotFound) {
 		if len(retry) == 0 {
 			// Retry once
 			pool.LoadDataSources()

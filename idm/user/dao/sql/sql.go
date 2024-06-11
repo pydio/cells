@@ -67,8 +67,8 @@ var (
 	DAOError = errors.RegisterBaseSentinel(errors.SqlDAO, "sql-users")
 )
 
-func wrap(err error) errors.E {
-	return errors.Errorf("%w:%w", DAOError, err)
+func wrap(err error) error {
+	return errors.Tag(err, DAOError)
 }
 
 type resourcesDAO resources.DAO
@@ -150,7 +150,7 @@ func (s *sqlimpl) instance(ctx context.Context) *gorm.DB {
 }
 
 // Add to the underlying SQL DB.
-func (s *sqlimpl) Add(ctx context.Context, in interface{}) (interface{}, []*idm.User, errors.E) {
+func (s *sqlimpl) Add(ctx context.Context, in interface{}) (interface{}, []*idm.User, error) {
 
 	var createdNodes []*idm.User
 
@@ -342,7 +342,7 @@ func (s *sqlimpl) Add(ctx context.Context, in interface{}) (interface{}, []*idm.
 
 // Bind finds a user in the DB, and verify that password is correct.
 // Password is passed in clear form, hashing method is kept internal to the user service
-func (s *sqlimpl) Bind(ctx context.Context, userName string, password string) (user *idm.User, e errors.E) {
+func (s *sqlimpl) Bind(ctx context.Context, userName string, password string) (user *idm.User, e error) {
 
 	q := &idm.UserSingleQuery{
 		Login: userName,
@@ -355,12 +355,11 @@ func (s *sqlimpl) Bind(ctx context.Context, userName string, password string) (u
 		return nil, er
 	}
 
-	nfErr := errors.Errorf("cannot find user %s, %w", userName, errors.UserNotFound)
-	nfErr = wrap(nfErr)
+	nfErr := wrap(errors.WithMessagef(errors.UserNotFound, "cannot find user %s, %w", userName))
 
 	if len(results) == 0 {
 		// The error code is actually very important
-		return nil, nfErr // serviceerrors.NotFound(common.ServiceUser, "cannot find user %s", userName)
+		return nil, nfErr
 	}
 	object := results[0]
 	user = object.(*idm.User)
@@ -393,7 +392,7 @@ func (s *sqlimpl) Bind(ctx context.Context, userName string, password string) (u
 
 }
 
-func (s *sqlimpl) TouchUser(ctx context.Context, userUuid string) errors.E {
+func (s *sqlimpl) TouchUser(ctx context.Context, userUuid string) error {
 	node := &user_model.User{}
 	node.SetNode(&tree.Node{
 		Uuid:  userUuid,
@@ -405,7 +404,7 @@ func (s *sqlimpl) TouchUser(ctx context.Context, userUuid string) errors.E {
 }
 
 // Count counts the number of users matching the passed query in the SQL DB.
-func (s *sqlimpl) Count(ctx context.Context, query sql.Enquirer, includeParents ...bool) (int, errors.E) {
+func (s *sqlimpl) Count(ctx context.Context, query sql.Enquirer, includeParents ...bool) (int, error) {
 	var includeParent bool
 	if len(includeParents) > 0 && includeParents[0] {
 		includeParent = includeParents[0]
@@ -430,7 +429,7 @@ func (s *sqlimpl) Count(ctx context.Context, query sql.Enquirer, includeParents 
 }
 
 // Search in the SQL DB
-func (s *sqlimpl) Search(ctx context.Context, query sql.Enquirer, users *[]interface{}, withParents ...bool) errors.E {
+func (s *sqlimpl) Search(ctx context.Context, query sql.Enquirer, users *[]interface{}, withParents ...bool) error {
 
 	var includeParents bool
 	if len(withParents) > 0 {
@@ -509,7 +508,7 @@ func (s *sqlimpl) Search(ctx context.Context, query sql.Enquirer, users *[]inter
 }
 
 // Del from the SQL DB
-func (s *sqlimpl) Del(ctx context.Context, query sql.Enquirer, users chan *idm.User) (int64, errors.E) {
+func (s *sqlimpl) Del(ctx context.Context, query sql.Enquirer, users chan *idm.User) (int64, error) {
 
 	var rows []*user_model.User
 	converter := &queryConverter{
@@ -568,7 +567,7 @@ func (s *sqlimpl) Del(ctx context.Context, query sql.Enquirer, users chan *idm.U
 	return count, nil
 }
 
-func (s *sqlimpl) CleanRole(ctx context.Context, roleId string) errors.E {
+func (s *sqlimpl) CleanRole(ctx context.Context, roleId string) error {
 
 	db := s.instance(ctx)
 
@@ -583,7 +582,7 @@ func (s *sqlimpl) CleanRole(ctx context.Context, roleId string) errors.E {
 
 }
 
-func (s *sqlimpl) LoginModifiedAttr(ctx context.Context, oldName, newName string) (int64, errors.E) {
+func (s *sqlimpl) LoginModifiedAttr(ctx context.Context, oldName, newName string) (int64, error) {
 
 	db := s.instance(ctx)
 

@@ -18,7 +18,6 @@ package pydio
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"io"
 	"net/http"
@@ -32,12 +31,12 @@ import (
 	"github.com/minio/minio/pkg/bucket/policy/condition"
 
 	"github.com/pydio/cells/v4/common"
+	"github.com/pydio/cells/v4/common/errors"
 	"github.com/pydio/cells/v4/common/log"
 	"github.com/pydio/cells/v4/common/nodes"
 	"github.com/pydio/cells/v4/common/nodes/compose"
 	"github.com/pydio/cells/v4/common/nodes/models"
 	"github.com/pydio/cells/v4/common/proto/tree"
-	cerrors "github.com/pydio/cells/v4/common/service/serviceerrors"
 )
 
 const (
@@ -139,29 +138,20 @@ func fromPydioNodeObjectInfo(bucket string, node *tree.Node) minio.ObjectInfo {
 }
 
 func pydioToMinioError(err error, bucket, key string) error {
-	mErr := cerrors.FromError(err)
-	switch mErr.Code {
-	case 403:
+	if errors.Is(err, errors.StatusForbidden) {
 		err = minio.PrefixAccessDenied{
 			Bucket: bucket,
 			Object: key,
 		}
-	case 404:
+	} else if errors.Is(err, errors.StatusNotFound) {
 		err = minio.ObjectNotFound{
 			Bucket: bucket,
 			Object: key,
 		}
-	case 422:
+	} else if errors.Is(err, errors.StatusQuotaReached) {
 		err = minio.PydioQuotaExceeded{
 			Bucket: bucket,
 			Object: key,
-		}
-	default:
-		if strings.Contains(err.Error(), "Forbidden") {
-			err = minio.PrefixAccessDenied{
-				Bucket: bucket,
-				Object: key,
-			}
 		}
 	}
 	return minio.ErrorRespToObjectError(err, bucket, key)
@@ -205,7 +195,7 @@ func (l *pydioObjects) ListPydioObjects(ctx context.Context, bucket string, pref
 		FilterType:   FilterType,
 	})
 	if err != nil {
-		if cerrors.FromError(err).Code == 404 {
+		if errors.Is(err, errors.StatusNotFound) {
 			return nil, nil, nil // Ignore and return empty list
 		}
 		return nil, nil, pydioToMinioError(err, bucket, prefix)
@@ -329,8 +319,7 @@ func (l *pydioObjects) GetObjectInfo(ctx context.Context, bucket string, object 
 	}
 
 	if !readNodeResponse.Node.IsLeaf() {
-		e := errors.New("S3 API Cannot send object info for folder")
-		return minio.ObjectInfo{}, e
+		return minio.ObjectInfo{}, errors.WithStack(errors.NodeTypeConflict)
 	}
 
 	return fromPydioNodeObjectInfo(bucket, readNodeResponse.Node), nil

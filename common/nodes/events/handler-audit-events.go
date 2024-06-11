@@ -283,13 +283,13 @@ func checkBranchInfoForAudit(ctx context.Context, identifier string) (isBinary b
 	wsInfo = zap.String(common.KeyWorkspaceUuid, "")
 	wsScope = zap.String(common.KeyWorkspaceScope, "")
 
-	branchInfo, ok := nodes.GetBranchInfo(ctx, identifier)
-	if ok && branchInfo.IsInternal() {
+	branchInfo, er := nodes.GetBranchInfo(ctx, identifier)
+	if er == nil && branchInfo.IsInternal() {
 		return true, wsInfo, wsScope
 	}
 
 	// Try to retrieve Wksp UUID
-	if ok && branchInfo.Workspace != nil && branchInfo.Workspace.UUID != "" {
+	if er == nil && branchInfo.Workspace != nil && branchInfo.Workspace.UUID != "" {
 		wsInfo = zap.String(common.KeyWorkspaceUuid, branchInfo.Workspace.UUID)
 		wsScope = zap.String(common.KeyWorkspaceScope, branchInfo.Scope.String())
 	}

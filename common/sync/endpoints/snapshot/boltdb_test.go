@@ -29,8 +29,8 @@ import (
 	"testing"
 	"time"
 
+	"github.com/pydio/cells/v4/common/errors"
 	"github.com/pydio/cells/v4/common/proto/tree"
-	"github.com/pydio/cells/v4/common/service/serviceerrors"
 	"github.com/pydio/cells/v4/common/sync/endpoints/memory"
 	"github.com/pydio/cells/v4/common/sync/model"
 	"github.com/pydio/cells/v4/common/utils/std"
@@ -156,7 +156,7 @@ func TestSnapshot(t *testing.T) {
 		t, e0 := snapshot.LoadNode(ctx, "a/a1")
 		So(t, ShouldBeNil)
 		So(e0, ShouldNotBeNil)
-		So(serviceerrors.FromError(e0).Code, ShouldEqual, 404)
+		So(errors.Is(e0, errors.StatusNotFound), ShouldBeTrue)
 
 		So(snapshot.MoveNode(ctx, "b", "b-renamed"), ShouldBeNil)
 		test, e := snapshot.LoadNode(ctx, "b/b/b/b/b/b/b/b/b/b/b/b/b/b/leaf")

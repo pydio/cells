@@ -32,6 +32,7 @@ import (
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/auth"
 	"github.com/pydio/cells/v4/common/client/grpc"
+	"github.com/pydio/cells/v4/common/errors"
 	"github.com/pydio/cells/v4/common/etl/models"
 	"github.com/pydio/cells/v4/common/etl/stores"
 	"github.com/pydio/cells/v4/common/log"
@@ -42,7 +43,6 @@ import (
 	"github.com/pydio/cells/v4/common/proto/rest"
 	"github.com/pydio/cells/v4/common/proto/service"
 	"github.com/pydio/cells/v4/common/proto/tree"
-	"github.com/pydio/cells/v4/common/service/serviceerrors"
 	"github.com/pydio/cells/v4/common/utils/permissions"
 	"github.com/pydio/cells/v4/idm/share"
 )
@@ -153,7 +153,7 @@ func (apiStore *ApiStore) GetUser(ctx context.Context, id string) (*idm.User, er
 		}
 		return resp.User, nil
 	}
-	return nil, serviceerrors.NotFound("user.not.found", "User "+id+" not found")
+	return nil, errors.WithMessage(errors.UserNotFound, "User "+id+" not found")
 }
 
 func (apiStore *ApiStore) ListUsers(ctx context.Context, params map[string]interface{}, progress chan float32) (map[string]*idm.User, error) {

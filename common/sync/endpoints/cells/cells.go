@@ -35,10 +35,10 @@ import (
 	"google.golang.org/protobuf/proto"
 
 	"github.com/pydio/cells/v4/common"
+	"github.com/pydio/cells/v4/common/errors"
 	"github.com/pydio/cells/v4/common/log"
 	"github.com/pydio/cells/v4/common/nodes/models"
 	"github.com/pydio/cells/v4/common/proto/tree"
-	"github.com/pydio/cells/v4/common/service/serviceerrors"
 	"github.com/pydio/cells/v4/common/sync/endpoints/memory"
 	"github.com/pydio/cells/v4/common/sync/model"
 	"github.com/pydio/cells/v4/common/utils/propagator"
@@ -98,16 +98,19 @@ func (c *Abstract) PatchUpdateSnapshot(ctx context.Context, patch interface{}) {
 
 // Convert micro errors to user readable errors
 func (c *Abstract) parseMicroErrors(e error) error {
-	er := serviceerrors.FromError(e)
-	if er.Code == 408 {
-		return fmt.Errorf("cannot connect (408 Timeout): the gRPC port may not be correctly opened in the server")
-	} else if strings.Contains(er.Detail, "connection refused") {
-		return fmt.Errorf("cannot connect (connection refused): there may be an issue with the SSL certificate")
-	} else if er.Code == 401 || er.Code == 403 {
-		return fmt.Errorf("cannot connect (authorization error %d) : %s", er.Code, er.Detail)
-	} else if er.Detail != "" {
-		return fmt.Errorf(er.Detail)
-	}
+	/*
+		todo v5 ?
+		er := serviceerrors.FromError(e)
+		if er.Code == 408 {
+			return fmt.Errorf("cannot connect (408 Timeout): the gRPC port may not be correctly opened in the server")
+		} else if strings.Contains(er.Detail, "connection refused") {
+			return fmt.Errorf("cannot connect (connection refused): there may be an issue with the SSL certificate")
+		} else if er.Code == 401 || er.Code == 403 {
+			return fmt.Errorf("cannot connect (authorization error %d) : %s", er.Code, er.Detail)
+		} else if er.Detail != "" {
+			return fmt.Errorf(er.Detail)
+		}
+	*/
 	return e
 }
 
@@ -430,7 +433,7 @@ func (c *Abstract) DeleteNode(ctx context.Context, name string) (err error) {
 	}
 	read, e := cliRead.ReadNode(ctx, &tree.ReadNodeRequest{Node: &tree.Node{Path: c.rooted(name)}})
 	if e != nil {
-		if serviceerrors.FromError(e).Code == 404 {
+		if errors.Is(e, errors.StatusNotFound) {
 			return nil
 		} else {
 			return e

@@ -39,7 +39,6 @@ import (
 	service "github.com/pydio/cells/v4/common/proto/service"
 	"github.com/pydio/cells/v4/common/proto/tree"
 	"github.com/pydio/cells/v4/common/runtime"
-	"github.com/pydio/cells/v4/common/service/serviceerrors"
 	"github.com/pydio/cells/v4/common/utils/cache"
 	json "github.com/pydio/cells/v4/common/utils/jsonx"
 	"github.com/pydio/cells/v4/common/utils/openurl"
@@ -563,7 +562,7 @@ func SearchUniqueWorkspace(ctx context.Context, wsUuid string, wsSlug string, qu
 		queries = append(queries, &idm.WorkspaceSingleQuery{Slug: wsSlug})
 	}
 	if len(queries) == 0 {
-		return nil, serviceerrors.BadRequest("bad.request", "please provide at least one of uuid, slug or custom query")
+		return nil, errors.WithMessage(errors.StatusBadRequest, "please provide at least one of uuid, slug or custom query")
 	}
 	requests := make([]*anypb.Any, len(queries))
 	for _, q := range queries {
@@ -575,8 +574,8 @@ func SearchUniqueWorkspace(ctx context.Context, wsUuid string, wsSlug string, qu
 		return nil, e
 	}
 	resp, e := st.Recv()
-	if e == io.EOF || e == io.ErrUnexpectedEOF {
-		return nil, serviceerrors.NotFound("ws.not.found", "cannot find workspace with these queries")
+	if errors.Is(e, io.EOF) || errors.Is(e, io.ErrUnexpectedEOF) {
+		return nil, errors.WithMessage(errors.WorkspaceNotFound, "cannot find workspace with these queries")
 	} else if e != nil {
 		return nil, e
 	}
@@ -682,7 +681,7 @@ func CheckContentLock(ctx context.Context, node *tree.Node) error {
 		}
 		acl := rsp.ACL
 		if userName == "" || acl.Action.Value != userName {
-			return serviceerrors.Forbidden("file.locked", "This file is locked by another user")
+			return errors.WithStack(errors.StatusLocked)
 		}
 		break
 	}

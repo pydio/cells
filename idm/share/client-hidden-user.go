@@ -28,14 +28,13 @@ import (
 	"go.uber.org/zap"
 	"google.golang.org/protobuf/types/known/anypb"
 
-	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/client/commons/idmc"
+	"github.com/pydio/cells/v4/common/errors"
 	"github.com/pydio/cells/v4/common/log"
 	"github.com/pydio/cells/v4/common/proto/idm"
 	"github.com/pydio/cells/v4/common/proto/rest"
 	service "github.com/pydio/cells/v4/common/proto/service"
 	"github.com/pydio/cells/v4/common/proto/tree"
-	"github.com/pydio/cells/v4/common/service/serviceerrors"
 	permissions2 "github.com/pydio/cells/v4/common/utils/permissions"
 	"github.com/pydio/cells/v4/common/utils/uuid"
 )
@@ -52,7 +51,7 @@ func (sc *Client) GetOrCreateHiddenUser(ctx context.Context, ownerUser *idm.User
 		password := login + PasswordComplexitySuffix
 		if passwordEnabled {
 			if len(updatePassword) == 0 {
-				return nil, serviceerrors.BadRequest(common.ServiceShare, "Please provide a non empty password!")
+				return nil, errors.WithMessage(errors.InvalidParameters, "Please provide a non empty password!")
 			}
 			password = updatePassword
 		}

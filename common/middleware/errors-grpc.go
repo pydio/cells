@@ -34,7 +34,6 @@ import (
 
 	"github.com/pydio/cells/v4/common/errors"
 	"github.com/pydio/cells/v4/common/proto/service"
-	"github.com/pydio/cells/v4/common/service/serviceerrors"
 )
 
 var HandledError = errors.RegisterBaseSentinel(errors.CellsError, "handled")
@@ -120,6 +119,8 @@ var sc = map[codes.Code]error{
 	codes.Unavailable:        errors.StatusServiceUnavailable,
 	codes.Unauthenticated:    errors.StatusUnauthorized,
 	codes.DataLoss:           errors.StatusDataLoss,
+	codes.Code(422):          errors.StatusQuotaReached,
+	codes.Code(423):          errors.StatusLocked,
 }
 
 func errToCode(err error) codes.Code {
@@ -172,7 +173,7 @@ func CodeFromHTTPStatus(status int) codes.Code {
 	case http.StatusServiceUnavailable:
 		return codes.Unavailable
 	default:
-		return codes.Unknown
+		return codes.Code(uint32(status))
 	}
 }
 
@@ -180,7 +181,6 @@ func ToGRPC(er error) error {
 	if er == nil {
 		return nil
 	}
-
 	if errors.Is(er, errors.CellsError) {
 
 		var dd []protoadapt.MessageV1
@@ -201,20 +201,21 @@ func ToGRPC(er error) error {
 		return gE.Err()
 
 	}
+	return status.New(codes.Internal, er.Error()).Err()
+	/*
+		err := serviceerrors.FromError(er)
 
-	err := serviceerrors.FromError(er)
-
-	s, serr := status.New(CodeFromHTTPStatus(int(err.Code)), err.Detail).WithDetails(&service.Error{
-		ID:      err.Id,
-		Code:    uint32(err.Code),
-		Status:  err.Status,
-		Details: err.Detail,
-	})
-	if serr != nil {
-		return serr
-	}
-
-	return s.Err()
+		s, serr := status.New(CodeFromHTTPStatus(int(err.Code)), err.Detail).WithDetails(&service.Error{
+			ID:      err.Id,
+			Code:    uint32(err.Code),
+			Status:  err.Status,
+			Details: err.Detail,
+		})
+		if serr != nil {
+			return serr
+		}
+		return s.Err()
+	*/
 }
 
 func FromGRPC(er error) error {
@@ -236,13 +237,14 @@ func FromGRPC(er error) error {
 			if sen := errors.ByName(detail.GetName()); sen != nil {
 				er = errors.Tag(er, sen)
 			}
-		case *service.Error:
-			er = &serviceerrors.Error{
-				Id:     detail.ID,
-				Code:   int32(detail.Code),
-				Status: detail.Status,
-				Detail: detail.Details,
-			}
+			/*
+				case *service.Error:
+					er = &serviceerrors.Error{
+						Id:     detail.ID,
+						Code:   int32(detail.Code),
+						Status: detail.Status,
+						Detail: detail.Details,
+					}*/
 		default:
 			details = append(details, fmt.Sprintf("Detail %d (unknown type: %T)", idx, detail), detail)
 		}

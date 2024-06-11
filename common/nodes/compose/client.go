@@ -22,7 +22,6 @@ package compose
 
 import (
 	"context"
-	"fmt"
 	"io"
 
 	"google.golang.org/grpc"
@@ -83,10 +82,10 @@ func (v *clientImpl) BranchInfoForNode(ctx context.Context, node *tree.Node) (br
 		if er != nil {
 			return er
 		}
-		if dsInfo, o := nodes.GetBranchInfo(updatedCtx, "in"); o {
+		if dsInfo, be := nodes.GetBranchInfo(updatedCtx, "in"); be == nil {
 			branch = dsInfo
 		} else {
-			return fmt.Errorf("cannot find branch info for node " + node.GetPath())
+			return be
 		}
 		return nil
 	})

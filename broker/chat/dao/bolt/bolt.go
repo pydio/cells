@@ -28,10 +28,9 @@ import (
 	"go.etcd.io/bbolt"
 
 	"github.com/pydio/cells/v4/broker/chat"
-	"github.com/pydio/cells/v4/common"
+	"github.com/pydio/cells/v4/common/errors"
 	"github.com/pydio/cells/v4/common/log"
 	proto "github.com/pydio/cells/v4/common/proto/chat"
-	"github.com/pydio/cells/v4/common/service/serviceerrors"
 	"github.com/pydio/cells/v4/common/utils/configx"
 	json "github.com/pydio/cells/v4/common/utils/jsonx"
 	"github.com/pydio/cells/v4/common/utils/uuid"
@@ -402,7 +401,7 @@ func (h *boltdbimpl) UpdateMessage(ctx context.Context, request *proto.ChatMessa
 func (h *boltdbimpl) DeleteMessage(ctx context.Context, message *proto.ChatMessage) error {
 
 	if message.Uuid == "" {
-		return serviceerrors.BadRequest(common.ServiceChat, "Cannot delete a message without Uuid")
+		return errors.WithMessage(errors.InvalidParameters, "Cannot delete a message without Uuid")
 	}
 
 	err := h.db.Update(func(tx *bbolt.Tx) error {

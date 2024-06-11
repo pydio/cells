@@ -28,11 +28,11 @@ import (
 
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/client/commons/idmc"
+	"github.com/pydio/cells/v4/common/errors"
 	"github.com/pydio/cells/v4/common/log"
 	"github.com/pydio/cells/v4/common/proto/idm"
 	service "github.com/pydio/cells/v4/common/proto/service"
 	"github.com/pydio/cells/v4/common/proto/tree"
-	"github.com/pydio/cells/v4/common/service/serviceerrors"
 	"github.com/pydio/cells/v4/common/utils/permissions"
 )
 
@@ -119,7 +119,7 @@ func findRecycleForSource(ctx context.Context, source *tree.Node, ancestors []*t
 				return personalFolder, nil
 			}
 		}
-		err = serviceerrors.NotFound("RecycleNotFound", "cannot find recycle root on this branch")
+		err = errors.WithStack(errors.RecycleNotFound)
 	}
 	return
 }

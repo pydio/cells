@@ -33,6 +33,7 @@ import (
 	"github.com/pydio/cells/v4/common/client/commons/idmc"
 	"github.com/pydio/cells/v4/common/client/grpc"
 	"github.com/pydio/cells/v4/common/config"
+	"github.com/pydio/cells/v4/common/errors"
 	"github.com/pydio/cells/v4/common/log"
 	"github.com/pydio/cells/v4/common/middleware"
 	"github.com/pydio/cells/v4/common/nodes/compose"
@@ -42,7 +43,6 @@ import (
 	"github.com/pydio/cells/v4/common/proto/mailer"
 	"github.com/pydio/cells/v4/common/proto/rest"
 	"github.com/pydio/cells/v4/common/proto/tree"
-	"github.com/pydio/cells/v4/common/service/serviceerrors"
 	"github.com/pydio/cells/v4/common/utils/i18n"
 	json "github.com/pydio/cells/v4/common/utils/jsonx"
 	"github.com/pydio/cells/v4/common/utils/permissions"
@@ -71,7 +71,7 @@ func (a *TokenHandler) Revoke(req *restful.Request, resp *restful.Response) {
 	var input rest.RevokeRequest
 	e := req.ReadEntity(&input)
 	if e != nil {
-		middleware.RestError500(req, resp, serviceerrors.BadRequest(common.ServiceAuth, "Cannot decode input request"))
+		middleware.RestError500(req, resp, errors.WithMessage(errors.StatusBadRequest, "Cannot decode input request"))
 		return
 	}
 

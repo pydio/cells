@@ -31,7 +31,6 @@ import (
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/errors"
 	"github.com/pydio/cells/v4/common/log"
-	"github.com/pydio/cells/v4/common/proto/rest"
 	"github.com/pydio/cells/v4/common/utils/jsonx"
 	"github.com/pydio/cells/v4/common/utils/uuid"
 )
@@ -42,13 +41,7 @@ const (
 	errHandlerSpanIDKey = "ErrorHandlerSpanID"
 )
 
-func HandleErrorRest(ctx context.Context, err error, prefix string, infos ...zap.Field) error {
-	if err == nil {
-		return err
-	}
-	toto := &rest.Error{}
-	_ = toto
-
+func HandleErrorRest(ctx context.Context, err error, prefix string) (string, []zap.Field) {
 	var ff []zap.Field
 	if errors.Is(err, errors.CellsError) {
 		if errors.Is(err, HandledError) {
@@ -67,11 +60,7 @@ func HandleErrorRest(ctx context.Context, err error, prefix string, infos ...zap
 	} else {
 		ff = append(ff, zap.Error(err))
 	}
-	if len(infos) > 0 {
-		ff = append(ff, infos...)
-	}
-	log.Logger(ctx).Error(prefix, ff...)
-	return err
+	return prefix, ff
 }
 
 func HandleErrorGRPC(ctx context.Context, err error, prefix string, infos ...zap.Field) error {

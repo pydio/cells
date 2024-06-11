@@ -30,6 +30,7 @@ import (
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/broker"
 	"github.com/pydio/cells/v4/common/client/commons/docstorec"
+	"github.com/pydio/cells/v4/common/errors"
 	"github.com/pydio/cells/v4/common/log"
 	"github.com/pydio/cells/v4/common/nodes"
 	"github.com/pydio/cells/v4/common/nodes/abstract"
@@ -37,7 +38,6 @@ import (
 	"github.com/pydio/cells/v4/common/proto/docstore"
 	"github.com/pydio/cells/v4/common/proto/idm"
 	"github.com/pydio/cells/v4/common/proto/tree"
-	"github.com/pydio/cells/v4/common/service/serviceerrors"
 	json "github.com/pydio/cells/v4/common/utils/jsonx"
 	"github.com/pydio/cells/v4/common/utils/permissions"
 	runtimecontext "github.com/pydio/cells/v4/common/utils/propagator"
@@ -73,7 +73,7 @@ func (h *HandlerRead) feedNodeUuid(ctx context.Context, node *tree.Node) error {
 
 func (h *HandlerRead) ListNodes(ctx context.Context, in *tree.ListNodesRequest, opts ...grpc.CallOption) (tree.NodeProvider_ListNodesClient, error) {
 	c, e := h.Next.ListNodes(ctx, in, opts...)
-	if branchInfo, ok := nodes.GetBranchInfo(ctx, "in"); ok && branchInfo.IsInternal() {
+	if branchInfo, er := nodes.GetBranchInfo(ctx, "in"); er == nil && branchInfo.IsInternal() {
 		return c, e
 	}
 	if e == nil && in.Node != nil {
@@ -108,12 +108,12 @@ func (h *HandlerRead) GetObject(ctx context.Context, node *tree.Node, requestDat
 	if doc, linkData = h.sharedLinkWithDownloadLimit(ctx); doc != nil && linkData != nil {
 		// Check download limit!
 		if linkData.DownloadCount >= linkData.DownloadLimit {
-			return nil, serviceerrors.Forbidden("MaxDownloadsReached", "You are not allowed to download this document")
+			return nil, errors.WithMessage(errors.StatusForbidden, "You are not allowed to download this document")
 		}
 	}
 
 	reader, e := h.Next.GetObject(ctx, node, requestData)
-	if branchInfo, ok := nodes.GetBranchInfo(ctx, "in"); ok && branchInfo.IsInternal() {
+	if branchInfo, er := nodes.GetBranchInfo(ctx, "in"); er == nil && branchInfo.IsInternal() {
 		return reader, e
 	}
 	if e == nil && requestData.StartOffset == 0 {

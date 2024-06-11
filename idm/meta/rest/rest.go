@@ -33,6 +33,7 @@ import (
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/auth"
 	"github.com/pydio/cells/v4/common/client/commons/idmc"
+	"github.com/pydio/cells/v4/common/errors"
 	"github.com/pydio/cells/v4/common/log"
 	"github.com/pydio/cells/v4/common/middleware"
 	"github.com/pydio/cells/v4/common/nodes/compose"
@@ -41,7 +42,6 @@ import (
 	serviceproto "github.com/pydio/cells/v4/common/proto/service"
 	"github.com/pydio/cells/v4/common/proto/tree"
 	"github.com/pydio/cells/v4/common/service/resources"
-	"github.com/pydio/cells/v4/common/service/serviceerrors"
 	json "github.com/pydio/cells/v4/common/utils/jsonx"
 	"github.com/pydio/cells/v4/common/utils/permissions"
 	"github.com/pydio/cells/v4/idm/meta"
@@ -106,7 +106,7 @@ func (s *UserMetaHandler) updateLock(ctx context.Context, meta *idm.UserMeta, op
 		}
 		acl := rsp.ACL
 		if userName == "" || acl.Action.Value != userName {
-			return serviceerrors.Forbidden("lock.update.forbidden", "This file is locked by another user")
+			return errors.WithStack(errors.StatusLocked)
 		}
 		break
 	}
@@ -173,12 +173,12 @@ func (s *UserMetaHandler) UpdateUserMeta(req *restful.Request, rsp *restful.Resp
 			return
 		}
 		if ns, exists = nsList[meta.Namespace]; !exists {
-			middleware.RestError404(req, rsp, serviceerrors.NotFound(common.ServiceUserMeta, "Namespace "+meta.Namespace+" is not defined!"))
+			middleware.RestError404(req, rsp, errors.WithMessage(errors.StatusNotFound, "Namespace "+meta.Namespace+" is not defined!"))
 			return
 		}
 
 		if !s.MatchPolicies(ctx, meta.Namespace, ns.Policies, serviceproto.ResourcePolicyAction_WRITE) {
-			middleware.RestError403(req, rsp, serviceerrors.Forbidden(common.ServiceUserMeta, "You are not authorized to write on namespace "+meta.Namespace))
+			middleware.RestError403(req, rsp, errors.WithMessage(errors.NamespaceNotAllowed, meta.Namespace))
 			return
 		}
 		if meta.Uuid != "" {
@@ -228,7 +228,7 @@ func (s *UserMetaHandler) UpdateUserMeta(req *restful.Request, rsp *restful.Resp
 				continue
 			}
 			if !s.MatchPolicies(ctx, resp.UserMeta.Uuid, resp.UserMeta.Policies, serviceproto.ResourcePolicyAction_WRITE) {
-				middleware.RestError403(req, rsp, serviceerrors.Forbidden(common.ServiceUserMeta, "You are not authorized to edit this meta "+resp.UserMeta.Namespace))
+				middleware.RestError403(req, rsp, errors.WithMessage(errors.NamespaceNotAllowed, resp.UserMeta.Namespace))
 				return
 			}
 		}

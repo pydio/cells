@@ -25,7 +25,6 @@ import (
 	"crypto/sha256"
 	"encoding/base64"
 	"fmt"
-	errors2 "github.com/pydio/cells/v4/common/middleware/keys"
 	"net/http"
 	"net/url"
 	"strings"
@@ -51,6 +50,7 @@ import (
 	"github.com/pydio/cells/v4/common/config/routing"
 	"github.com/pydio/cells/v4/common/log"
 	"github.com/pydio/cells/v4/common/middleware"
+	"github.com/pydio/cells/v4/common/middleware/keys"
 	pauth "github.com/pydio/cells/v4/common/proto/auth"
 	"github.com/pydio/cells/v4/common/runtime/manager"
 	json "github.com/pydio/cells/v4/common/utils/jsonx"
@@ -124,7 +124,7 @@ func (h *Handler) CreateLogin(ctx context.Context, in *pauth.CreateLoginRequest)
 	csrf := strings.Replace(uuid.New(), "-", "", -1)
 
 	// Generate the request URL
-	host, _ := middleware.HttpMetaFromGrpcContext(ctx, errors2.HttpMetaHost)
+	host, _ := middleware.HttpMetaFromGrpcContext(ctx, keys.HttpMetaHost)
 	provider := auth.GetConfigurationProvider(host)
 	iu := urlx.AppendPaths((*provider.GetProvider()).Config().IssuerURL(ctx), (*provider.GetProvider()).Config().OAuth2AuthURL(ctx).Path)
 	sessionID := uuid.New()
@@ -270,7 +270,7 @@ func (h *Handler) CreateConsent(ctx context.Context, in *pauth.CreateConsentRequ
 		return nil, fmt.Errorf(session.Error.Name)
 	}
 
-	host, _ := middleware.HttpMetaFromGrpcContext(ctx, errors2.HttpMetaHost)
+	host, _ := middleware.HttpMetaFromGrpcContext(ctx, keys.HttpMetaHost)
 	if session.RequestedAt.Add((*auth.GetConfigurationProvider(host).GetProvider()).Config().ConsentRequestMaxAge(ctx)).Before(time.Now()) {
 		return nil, errors.WithStack(fosite.ErrRequestUnauthorized.WithDebug("The login request has expired, please try again."))
 	}
@@ -380,7 +380,7 @@ func (h *Handler) CreateAuthCode(ctx context.Context, in *pauth.CreateAuthCodeRe
 		return nil, err
 	}
 
-	host, _ := middleware.HttpMetaFromGrpcContext(ctx, errors2.HttpMetaHost)
+	host, _ := middleware.HttpMetaFromGrpcContext(ctx, keys.HttpMetaHost)
 	configProvider := auth.GetConfigurationProvider(host)
 
 	values := url.Values{}
@@ -504,7 +504,7 @@ func (h *Handler) CreateLogout(ctx context.Context, in *pauth.CreateLogoutReques
 	}
 
 	challenge := strings.Replace(uuid.New(), "-", "", -1)
-	host, _ := middleware.HttpMetaFromGrpcContext(ctx, errors2.HttpMetaHost)
+	host, _ := middleware.HttpMetaFromGrpcContext(ctx, keys.HttpMetaHost)
 
 	// Set the session
 	if err := reg.ConsentManager().CreateLogoutRequest(

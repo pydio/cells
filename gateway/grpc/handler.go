@@ -13,11 +13,11 @@ import (
 	"google.golang.org/grpc/status"
 
 	"github.com/pydio/cells/v4/common"
+	"github.com/pydio/cells/v4/common/errors"
 	"github.com/pydio/cells/v4/common/log"
 	"github.com/pydio/cells/v4/common/nodes"
 	"github.com/pydio/cells/v4/common/nodes/compose"
 	"github.com/pydio/cells/v4/common/proto/tree"
-	"github.com/pydio/cells/v4/common/service/serviceerrors"
 	"github.com/pydio/cells/v4/common/utils/propagator"
 )
 
@@ -119,11 +119,11 @@ func (t *TreeHandler) CreateNodeStream(s tree.NodeReceiverStream_CreateNodeStrea
 }
 
 func (t *TreeHandler) UpdateNodeStream(tree.NodeReceiverStream_UpdateNodeStreamServer) error {
-	return serviceerrors.BadRequest("not.implemented", "UpdateNodeStream not implemented yet")
+	return errors.WithMessage(errors.StatusNotImplemented, "UpdateNodeStream not implemented yet")
 }
 
 func (t *TreeHandler) DeleteNodeStream(tree.NodeReceiverStream_DeleteNodeStreamServer) error {
-	return serviceerrors.BadRequest("not.implemented", "DeleteNodeStream not implemented yet")
+	return errors.WithMessage(errors.StatusNotImplemented, "DeleteNodeStream not implemented yet")
 }
 
 // ReadNode forwards to router

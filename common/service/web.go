@@ -44,6 +44,7 @@ import (
 	"github.com/pydio/cells/v4/common/config/routing"
 	"github.com/pydio/cells/v4/common/log"
 	"github.com/pydio/cells/v4/common/middleware"
+	"github.com/pydio/cells/v4/common/middleware/authorizations"
 	pb "github.com/pydio/cells/v4/common/proto/registry"
 	"github.com/pydio/cells/v4/common/proto/rest"
 	"github.com/pydio/cells/v4/common/registry"
@@ -89,8 +90,8 @@ func getWebMiddlewares(serviceName string) []func(ctx context.Context, handler h
 	wmOnce.Do(func() {
 		wm = append(wm,
 			middleware.HttpWrapperMetrics,
-			HttpWrapperPolicy,
-			HttpWrapperJWT,
+			authorizations.HttpWrapperPolicy,
+			authorizations.HttpWrapperJWT,
 			middleware.HttpWrapperMeta,
 		)
 	})

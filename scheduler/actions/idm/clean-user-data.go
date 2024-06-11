@@ -7,6 +7,7 @@ import (
 
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/auth"
+	"github.com/pydio/cells/v4/common/errors"
 	"github.com/pydio/cells/v4/common/forms"
 	"github.com/pydio/cells/v4/common/log"
 	"github.com/pydio/cells/v4/common/nodes"
@@ -14,7 +15,6 @@ import (
 	"github.com/pydio/cells/v4/common/nodes/compose"
 	"github.com/pydio/cells/v4/common/proto/jobs"
 	"github.com/pydio/cells/v4/common/proto/tree"
-	"github.com/pydio/cells/v4/common/service/serviceerrors"
 	"github.com/pydio/cells/v4/common/utils/std"
 	"github.com/pydio/cells/v4/scheduler/actions"
 )
@@ -127,7 +127,7 @@ func (c *CleanUserDataAction) Run(ctx context.Context, channels *actions.Runnabl
 		// Check if node exists
 		resolved, e := vNodesManager.ResolveInContext(auth.WithImpersonate(ctx, u), vNode, false)
 		if e != nil {
-			if serviceerrors.FromError(e).Code == 404 {
+			if errors.Is(e, errors.StatusNotFound) {
 				continue
 			}
 			done <- true

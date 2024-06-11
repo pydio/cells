@@ -32,12 +32,12 @@ import (
 
 	"github.com/pydio/cells/v4/common"
 	grpc2 "github.com/pydio/cells/v4/common/client/grpc"
+	"github.com/pydio/cells/v4/common/errors"
 	"github.com/pydio/cells/v4/common/log"
 	"github.com/pydio/cells/v4/common/nodes"
 	"github.com/pydio/cells/v4/common/nodes/abstract"
 	"github.com/pydio/cells/v4/common/nodes/models"
 	"github.com/pydio/cells/v4/common/proto/tree"
-	"github.com/pydio/cells/v4/common/service/serviceerrors"
 	runtimecontext "github.com/pydio/cells/v4/common/utils/propagator"
 	"github.com/pydio/cells/v4/common/utils/uuid"
 )
@@ -59,13 +59,13 @@ type StructStorageHandler struct {
 }
 
 func (f *StructStorageHandler) publish(ctx context.Context, identifier string, eventType tree.NodeChangeEvent_EventType, node *tree.Node) {
-	bi, ok := nodes.GetBranchInfo(ctx, identifier)
+	bi, er := nodes.GetBranchInfo(ctx, identifier)
 
 	// Fork context to de-intricate query and publication cancellation
 	ctx = runtimecontext.ForkContext(runtimecontext.NewBackgroundWithMetaCopy(ctx), ctx)
 
 	// Publish only for remote non-minio structured servers
-	if ok && bi.FlatStorage {
+	if er == nil && bi.FlatStorage {
 		return
 	}
 	event := &tree.NodeChangeEvent{Type: eventType}
@@ -115,7 +115,7 @@ func (f *StructStorageHandler) CreateNode(ctx context.Context, in *tree.CreateNo
 	node := in.Node
 	if !node.IsLeaf() {
 		if rr, re := f.ReadNode(ctx, &tree.ReadNodeRequest{Node: node.Clone()}); re == nil && rr != nil && rr.GetNode().IsLeaf() {
-			return nil, serviceerrors.Conflict("node.type.conflict", "A file already exists with the same name, trying to insert type "+node.GetType().String())
+			return nil, errors.WithMessagef(errors.NodeTypeConflict, "A file already exists with the same name, trying to insert type "+node.GetType().String())
 		}
 		dsPath := node.GetStringMeta(common.MetaNamespaceDatasourcePath)
 		newNode := &tree.Node{

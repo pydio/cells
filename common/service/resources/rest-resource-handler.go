@@ -29,9 +29,9 @@ import (
 	"github.com/ory/ladon/manager/memory"
 
 	"github.com/pydio/cells/v4/common/auth"
+	"github.com/pydio/cells/v4/common/errors"
 	"github.com/pydio/cells/v4/common/proto/rest"
 	"github.com/pydio/cells/v4/common/proto/service"
-	"github.com/pydio/cells/v4/common/service/serviceerrors"
 )
 
 // PoliciesLoaderFunc is a signature for a function that can load policies from a given resource
@@ -51,11 +51,11 @@ type ResourceProviderHandler struct {
 func (r *ResourceProviderHandler) IsAllowed(ctx context.Context, resourceId string, action service.ResourcePolicyAction, resourceClient interface{}) (err error) {
 
 	if r.PoliciesLoader == nil {
-		return serviceerrors.InternalServerError(r.ServiceName, "PoliciesLoader function is not implemented")
+		return errors.WithMessage(errors.StatusInternalServerError, "PoliciesLoader function is not implemented")
 	}
 
 	if resourceId == "" {
-		return serviceerrors.NotFound(r.ServiceName, "Empty resourceId")
+		return errors.WithMessage(errors.InvalidParameters, "empty resourceId")
 	}
 
 	var policies []*service.ResourcePolicy
@@ -66,7 +66,7 @@ func (r *ResourceProviderHandler) IsAllowed(ctx context.Context, resourceId stri
 	if r.MatchPolicies(ctx, resourceId, policies, action) {
 		return nil
 	} else {
-		return serviceerrors.Forbidden(r.ServiceName, fmt.Sprintf("Action %s is not allowed on %s %s", action.String(), r.ResourceName, resourceId))
+		return errors.WithMessagef(errors.StatusForbidden, "Action %s is not allowed on %s %s", action.String(), r.ResourceName, resourceId)
 	}
 
 }
@@ -85,7 +85,7 @@ func (r *ResourceProviderHandler) RestToServiceResourcePolicy(ctx context.Contex
 	var subjects []string
 	var err error
 	if subjects, err = auth.SubjectsForResourcePolicyQuery(ctx, input); err != nil {
-		return output, serviceerrors.Forbidden(r.ServiceName, err.Error())
+		return output, errors.Tag(errors.StatusForbidden, err)
 	}
 
 	if input != nil && input.Type == rest.ResourcePolicyQuery_NONE {

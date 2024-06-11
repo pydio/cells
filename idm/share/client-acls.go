@@ -32,12 +32,12 @@ import (
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/client/commons/idmc"
 	"github.com/pydio/cells/v4/common/client/grpc"
+	"github.com/pydio/cells/v4/common/errors"
 	"github.com/pydio/cells/v4/common/log"
 	"github.com/pydio/cells/v4/common/proto/idm"
 	"github.com/pydio/cells/v4/common/proto/rest"
 	"github.com/pydio/cells/v4/common/proto/service"
 	"github.com/pydio/cells/v4/common/proto/tree"
-	"github.com/pydio/cells/v4/common/service/serviceerrors"
 	"github.com/pydio/cells/v4/common/utils/permissions"
 	"github.com/pydio/cells/v4/common/utils/slug"
 	"github.com/pydio/cells/v4/common/utils/uuid"
@@ -451,7 +451,7 @@ func (sc *Client) GetOrCreateWorkspace(ctx context.Context, ownerUser *idm.User,
 	var create bool
 	if wsUuid == "" {
 		if label == "" {
-			return nil, false, serviceerrors.BadRequest(common.ServiceShare, "please provide a non-empty label for this workspace")
+			return nil, false, errors.WithMessage(errors.InvalidParameters, "please provide a non-empty label for this workspace")
 		}
 		// Create Workspace
 		wsUuid = uuid.New()
@@ -494,7 +494,7 @@ func (sc *Client) GetOrCreateWorkspace(ctx context.Context, ownerUser *idm.User,
 			workspace = wsResp.Workspace
 		}
 		if workspace == nil {
-			return workspace, false, serviceerrors.NotFound(common.ServiceShare, "Cannot find workspace with Uuid "+wsUuid)
+			return workspace, false, errors.WithMessagef(errors.WorkspaceNotFound, "Cannot find workspace with Uuid %s", wsUuid)
 		}
 		if refLabel != "" && label == refLabel {
 			label = "{{RefLabel}}"
