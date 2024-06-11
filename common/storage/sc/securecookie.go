@@ -4,13 +4,11 @@ import (
 	"context"
 
 	"github.com/pydio/cells/v4/common/runtime"
+	"github.com/pydio/cells/v4/common/runtime/controller"
 	"github.com/pydio/cells/v4/common/runtime/manager"
 	"github.com/pydio/cells/v4/common/storage"
+	"github.com/pydio/cells/v4/common/utils/openurl"
 	"github.com/pydio/cells/v4/common/utils/propagator"
-)
-
-var (
-	_ storage.Storage = (*provider)(nil)
 )
 
 func init() {
@@ -20,27 +18,34 @@ func init() {
 			return
 		}
 
-		mgr.RegisterStorage("securecookie", &provider{})
+		mgr.RegisterStorage("securecookie", controller.WithCustomOpener(OpenPool))
 	})
 }
 
-type Conn struct{}
-
-type provider struct{}
-
-func (s *provider) OpenURL(ctx context.Context, dsn string) (storage.Storage, error) {
-	return s, nil
+type pool struct {
+	*openurl.Pool[*Conn]
 }
 
-func (s *provider) Get(ctx context.Context, out interface{}) (provides bool, er error) {
-	switch v := out.(type) {
-	case **Conn:
-		*v = &Conn{}
-		return true, nil
+func OpenPool(ctx context.Context, uu string) (storage.Storage, error) {
+	p, err := openurl.OpenPool(context.Background(), []string{uu}, func(ctx context.Context, dsn string) (*Conn, error) {
+		return &Conn{}, nil
+	})
+
+	if err != nil {
+		return nil, err
 	}
-	return false, nil
+
+	return &pool{
+		Pool: p,
+	}, nil
 }
 
-func (s *provider) CloseConns(ctx context.Context, clean ...bool) (er error) {
-	return nil
+func (p *pool) Get(ctx context.Context, data ...map[string]string) (any, error) {
+	return p.Pool.Get(ctx)
 }
+
+func (p *pool) Close(ctx context.Context, iterate ...func(key string, res storage.Storage) error) error {
+	return p.Pool.Close(ctx)
+}
+
+type Conn struct{}

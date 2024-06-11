@@ -23,6 +23,8 @@ package manager
 import (
 	"context"
 	"fmt"
+	"github.com/pydio/cells/v4/common/runtime/controller"
+	"github.com/pydio/cells/v4/common/storage"
 	"reflect"
 
 	"github.com/pkg/errors"
@@ -31,7 +33,6 @@ import (
 	registry2 "github.com/pydio/cells/v4/common/proto/registry"
 	"github.com/pydio/cells/v4/common/registry"
 	"github.com/pydio/cells/v4/common/service"
-	"github.com/pydio/cells/v4/common/storage"
 	"github.com/pydio/cells/v4/common/utils/configx"
 	"github.com/pydio/cells/v4/common/utils/propagator"
 )
@@ -104,7 +105,7 @@ func Resolve[T any](ctx context.Context, opts ...ResolveOption) (T, error) {
 		registry.WithAdjacentTargetOptions(registry.WithType(registry2.ItemType_STORAGE)),
 		registry.WithAdjacentEdgeOptions(registry.WithMeta("name", o.Name)),
 	)
-	storages := registry.ItemsAs[storage.Storage](ss)
+	storages := registry.ItemsAs[controller.Resolver[storage.Storage]](ss)
 
 	// Inject dao in handler
 supportedDriversLoop:
@@ -127,15 +128,25 @@ supportedDriversLoop:
 
 			// Try to fit Input parameter type and Storage types
 			for _, st := range storages {
-				conn := reflect.New(handlerT.In(pos))
-				if isCompatible, err := st.Get(ctx, conn.Interface()); !isCompatible {
-					continue
-				} else if err != nil {
+				stt, err := st.Get(ctx)
+				if err != nil {
 					return t, err
 				}
 
-				args = append(args, conn.Elem())
+				conn := reflect.ValueOf(stt)
+				args = append(args, conn)
 				storageMatched = true
+
+				//conn := reflect.New(handlerT.In(pos))
+				//
+				//if isCompatible, err := st.Get(ctx, conn.Interface()); !isCompatible {
+				//	continue
+				//} else if err != nil {
+				//	return t, err
+				//}
+
+				//args = append(args, conn.Elem())
+				//storageMatched = true
 			}
 
 			if !storageMatched {
@@ -186,23 +197,23 @@ func CloseStoragesForContext(ctx context.Context, opts ...ResolveOption) error {
 		return fmt.Errorf("resolve cannot find service &svc in context")
 	}
 
-	ss := reg.ListAdjacentItems(
-		registry.WithAdjacentSourceItems([]registry.Item{svc}),
-		registry.WithAdjacentTargetOptions(registry.WithType(registry2.ItemType_STORAGE)),
-		registry.WithAdjacentEdgeOptions(registry.WithMeta("name", o.Name)),
-	)
-
-	for _, s := range registry.ItemsAs[storage.Storage](ss) {
-		if o.CleanBeforeClose {
-			if er := s.CloseConns(ctx, true); er != nil {
-				return er
-			}
-		} else {
-			if er := s.CloseConns(ctx); er != nil {
-				return er
-			}
-		}
-	}
+	//ss := reg.ListAdjacentItems(
+	//	registry.WithAdjacentSourceItems([]registry.Item{svc}),
+	//	registry.WithAdjacentTargetOptions(registry.WithType(registry2.ItemType_STORAGE)),
+	//	registry.WithAdjacentEdgeOptions(registry.WithMeta("name", o.Name)),
+	//)
+	//
+	//for _, s := range registry.ItemsAs[storage.Storage[any]](ss) {
+	//	if o.CleanBeforeClose {
+	//		if er := s.CloseConns(ctx, true); er != nil {
+	//			return er
+	//		}
+	//	} else {
+	//		if er := s.CloseConns(ctx); er != nil {
+	//			return er
+	//		}
+	//	}
+	//}
 
 	return nil
 }

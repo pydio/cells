@@ -3,25 +3,17 @@ package bleve
 import (
 	"context"
 	"fmt"
-	"os"
+	"net/url"
 	"strconv"
-
-	bleve "github.com/blevesearch/bleve/v2"
-	"github.com/blevesearch/bleve/v2/index/scorch"
-	"github.com/blevesearch/bleve/v2/index/upsidedown/store/boltdb"
 
 	"github.com/pydio/cells/v4/common/config"
 	"github.com/pydio/cells/v4/common/runtime"
+	"github.com/pydio/cells/v4/common/runtime/controller"
 	"github.com/pydio/cells/v4/common/runtime/manager"
 	"github.com/pydio/cells/v4/common/storage"
-	"github.com/pydio/cells/v4/common/storage/indexer"
 	"github.com/pydio/cells/v4/common/utils/openurl"
 	"github.com/pydio/cells/v4/common/utils/propagator"
 	"github.com/pydio/cells/v4/common/utils/uuid"
-)
-
-var (
-	_ storage.Storage = (*bleveStorage)(nil)
 )
 
 func init() {
@@ -31,180 +23,77 @@ func init() {
 			return
 		}
 
-		mgr.RegisterStorage("bleve", &bleveStorage{})
+		mgr.RegisterStorage("bleve", controller.WithCustomOpener(OpenPool))
 	})
 }
 
-type bleveStorage struct {
-	template openurl.Template
-	dbs      []*blevedb
+type pool struct {
+	*openurl.Pool[*Indexer]
 }
 
-func (s *bleveStorage) OpenURL(ctx context.Context, urlstr string) (storage.Storage, error) {
-	t, err := openurl.URLTemplate(urlstr)
+func OpenPool(ctx context.Context, uu string) (storage.Storage, error) {
+	p, err := openurl.OpenPool(context.Background(), []string{uu}, func(ctx context.Context, dsn string) (*Indexer, error) {
+		u, err := url.Parse(dsn)
+
+		q := u.Query()
+
+		rotationSize := DefaultRotationSize
+		if q.Has("rotationSize") {
+			if size, err := strconv.ParseInt(q.Get("rotationSize"), 10, 0); err != nil {
+				return nil, fmt.Errorf("cannot parse rotationSize %v", err)
+			} else {
+				rotationSize = size
+			}
+		}
+
+		batchSize := DefaultBatchSize
+		if q.Has("batchSize") {
+			if size, err := strconv.ParseInt(q.Get("batchSize"), 10, 0); err != nil {
+				return nil, fmt.Errorf("cannot parse batchSize %v", err)
+			} else {
+				batchSize = size
+			}
+		}
+
+		mappingName := DefaultMappingName
+		if q.Has("mapping") {
+			if mn := q.Get("mapping"); mn != "" {
+				mappingName = mn
+			}
+		}
+
+		index, err := newBleveIndexer(&BleveConfig{
+			BlevePath:    u.Path,
+			RotationSize: rotationSize,
+			BatchSize:    batchSize,
+			MappingName:  mappingName,
+		})
+		if err != nil {
+			return nil, err
+		}
+
+		var cfg config.Store
+		propagator.Get(ctx, config.ContextKey, &cfg)
+		index.serviceConfigs = cfg
+
+		return index, nil
+	})
+
 	if err != nil {
 		return nil, err
 	}
 
-	return &bleveStorage{
-		template: t,
+	return &pool{
+		Pool: p,
 	}, nil
 }
 
-type blevedb struct {
-	path   string
-	fsPath string
-	db     any
+func (p *pool) Get(ctx context.Context, data ...map[string]string) (any, error) {
+	return p.Pool.Get(ctx)
 }
 
-func (s *bleveStorage) CloseConns(ctx context.Context, clean ...bool) error {
-
-	for _, db := range s.dbs {
-		switch base := db.db.(type) {
-		case bleve.Index:
-			if er := base.Close(); er != nil {
-				return er
-			}
-		case *indexer.Indexer:
-			if er := (*base).Close(ctx); er != nil {
-				return er
-			}
-		case **Indexer:
-			if er := (*base).Close(ctx); er != nil {
-				return er
-			}
-		}
-		if len(clean) > 0 && clean[0] {
-			fmt.Println("removing", db.fsPath)
-			if er := os.RemoveAll(db.fsPath); er != nil {
-				return er
-			}
-		}
-	}
-	return nil
-}
-
-func (s *bleveStorage) bleveIndexerFromCache(ctx context.Context) (*Indexer, error) {
-
-	u, err := s.template.ResolveURL(ctx)
-	if err != nil {
-		return nil, err
-	}
-	path := u.String()
-
-	for _, db := range s.dbs {
-		if path == db.path {
-			return db.db.(*Indexer), nil
-		}
-	}
-
-	q := u.Query()
-
-	rotationSize := DefaultRotationSize
-	if q.Has("rotationSize") {
-		if size, err := strconv.ParseInt(q.Get("rotationSize"), 10, 0); err != nil {
-			return nil, fmt.Errorf("cannot parse rotationSize %v", err)
-		} else {
-			rotationSize = size
-		}
-	}
-
-	batchSize := DefaultBatchSize
-	if q.Has("batchSize") {
-		if size, err := strconv.ParseInt(q.Get("batchSize"), 10, 0); err != nil {
-			return nil, fmt.Errorf("cannot parse batchSize %v", err)
-		} else {
-			batchSize = size
-		}
-	}
-
-	mappingName := DefaultMappingName
-	if q.Has("mapping") {
-		if mn := q.Get("mapping"); mn != "" {
-			mappingName = mn
-		}
-	}
-
-	index, err := newBleveIndexer(&BleveConfig{
-		BlevePath:    u.Path,
-		RotationSize: rotationSize,
-		BatchSize:    batchSize,
-		MappingName:  mappingName,
-	})
-	if err != nil {
-		return nil, err
-	}
-
-	var cfg config.Store
-	propagator.Get(ctx, config.ContextKey, &cfg)
-	index.serviceConfigs = cfg
-
-	s.dbs = append(s.dbs, &blevedb{
-		db:     index,
-		path:   path,
-		fsPath: u.Path,
-	})
-
-	return index, nil
-}
-
-func (s *bleveStorage) Get(ctx context.Context, out interface{}) (bool, error) {
-	switch v := out.(type) {
-	case **Indexer:
-		idx, er := s.bleveIndexerFromCache(ctx)
-		if er != nil {
-			return true, er
-		}
-		*v = idx
-		return true, nil
-
-	case *indexer.Indexer:
-		idx, er := s.bleveIndexerFromCache(ctx)
-		if er != nil {
-			return true, er
-		}
-		*v = idx
-		return true, nil
-
-	case *bleve.Index:
-
-		u, err := s.template.ResolveURL(ctx)
-		if err != nil {
-			return true, err
-		}
-		path := u.String()
-
-		for _, db := range s.dbs {
-			if path == db.path {
-				*v = db.db.(bleve.Index)
-				return true, nil
-			}
-		}
-
-		_, e := os.Stat(u.Path)
-		var index bleve.Index
-		if e == nil {
-			index, err = bleve.Open(u.Path)
-		} else {
-			index, err = bleve.NewUsing(u.Path, bleve.NewIndexMapping(), scorch.Name, boltdb.Name, nil)
-		}
-
-		if err != nil {
-			return true, err
-		}
-
-		*v = index
-
-		s.dbs = append(s.dbs, &blevedb{
-			db:     index,
-			path:   path,
-			fsPath: u.Path,
-		})
-
-		return true, nil
-	}
-
-	return false, nil
+func (p *pool) Close(ctx context.Context, iterate ...func(key string, res storage.Storage) error) error {
+	return p.Pool.Close(ctx)
 }
 
 type bleveItem Indexer

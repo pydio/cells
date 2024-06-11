@@ -10,9 +10,11 @@ import (
 )
 
 type ResolverModeKey string
+
 type ResolverMode string
 
 const resolverModeKey ResolverModeKey = "dbresolver:resolver_mode_key"
+
 const (
 	ResolverModeSource  ResolverMode = "source"
 	ResolverModeReplica ResolverMode = "replica"

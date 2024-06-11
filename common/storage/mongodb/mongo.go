@@ -23,23 +23,22 @@ package mongodb
 import (
 	"context"
 	"fmt"
+	"net/url"
 	"strings"
 
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 
 	"github.com/pydio/cells/v4/common/runtime"
+	"github.com/pydio/cells/v4/common/runtime/controller"
 	"github.com/pydio/cells/v4/common/runtime/manager"
 	"github.com/pydio/cells/v4/common/storage"
-	"github.com/pydio/cells/v4/common/storage/indexer"
 	"github.com/pydio/cells/v4/common/utils/openurl"
 	"github.com/pydio/cells/v4/common/utils/propagator"
 )
 
 var (
 	mongoTypes = []string{"mongodb"}
-
-	_ storage.Storage = (*mongoStorage)(nil)
 )
 
 func init() {
@@ -49,12 +48,73 @@ func init() {
 			return
 		}
 
-		ms := &mongoStorage{}
 		for _, mongoType := range mongoTypes {
-			mgr.RegisterStorage(mongoType, ms)
+			mgr.RegisterStorage(mongoType, controller.WithCustomOpener(OpenPool))
 		}
 	})
 
+}
+
+type pool struct {
+	*openurl.Pool[*Indexer]
+}
+
+func OpenPool(ctx context.Context, uu string) (storage.Storage, error) {
+	p, err := openurl.OpenPool(context.Background(), []string{uu}, func(ctx context.Context, dsn string) (*Indexer, error) {
+
+		u, err := url.Parse(dsn)
+		if err != nil {
+			return nil, err
+		}
+
+		hookNames, _ := storage.DetectHooksAndRemoveFromURL(u)
+
+		path := u.String()
+		dbName := strings.Trim(u.Path, "/")
+
+		var db *mongo.Database
+		clOption := options.Client().ApplyURI(path)
+		for _, h := range hookNames {
+			if hook, o := hooksRegister[h]; o {
+				clOption = hook(clOption)
+			}
+		}
+		mgClient, err := mongo.Connect(context.TODO(), clOption)
+		if err != nil {
+			return nil, err
+		}
+
+		db = mgClient.Database(dbName)
+
+		prefix := u.Query().Get("prefix")
+		prefixed := &Database{
+			prefix:   prefix,
+			Database: db,
+		}
+
+		if !u.Query().Has("collection") {
+			return nil, fmt.Errorf("no collection found in URL for indexer")
+		}
+		idx := newIndexer(prefixed, u.Query().Get("collection"))
+
+		return idx, nil
+	})
+
+	if err != nil {
+		return nil, err
+	}
+
+	return &pool{
+		Pool: p,
+	}, nil
+}
+
+func (p *pool) Get(ctx context.Context, data ...map[string]string) (any, error) {
+	return p.Pool.Get(ctx)
+}
+
+func (p *pool) Close(ctx context.Context, iterate ...func(key string, res storage.Storage) error) error {
+	return p.Pool.Close(ctx)
 }
 
 // Database type wraps the *mongo.Database to prepend prefix to collection names
@@ -77,104 +137,4 @@ func (d *Database) CreateCollection(ctx context.Context, name string, opts ...*o
 		name = d.prefix + name
 	}
 	return d.Database.CreateCollection(ctx, name, opts...)
-}
-
-type mongoStorage struct {
-	template openurl.Template
-	clients  map[string]*mongo.Client
-}
-
-func (o *mongoStorage) OpenURL(ctx context.Context, urlstr string) (storage.Storage, error) {
-	t, err := openurl.URLTemplate(urlstr)
-	if err != nil {
-		return nil, err
-	}
-
-	return &mongoStorage{
-		template: t,
-		clients:  make(map[string]*mongo.Client),
-	}, nil
-}
-
-func (s *mongoStorage) CloseConns(ctx context.Context, clean ...bool) error {
-	for _, db := range s.clients {
-		if len(clean) > 0 && clean[0] {
-			for _, cl := range cleaners {
-				if er := cl(ctx, db); er != nil {
-					return er
-				}
-			}
-		}
-		if er := db.Disconnect(ctx); er != nil {
-			return er
-		}
-	}
-	return nil
-}
-
-func (s *mongoStorage) Get(ctx context.Context, out interface{}) (bool, error) {
-	switch out.(type) {
-	case **Database:
-	case **Indexer:
-	case *indexer.Indexer:
-	default:
-		return false, nil
-	}
-
-	u, err := s.template.ResolveURL(ctx)
-	if err != nil {
-		return true, err
-	}
-
-	hookNames, _ := storage.DetectHooksAndRemoveFromURL(u)
-
-	path := u.String()
-	dbName := strings.Trim(u.Path, "/")
-
-	var db *mongo.Database
-	if cli, ok := s.clients[path]; ok {
-		db = cli.Database(dbName)
-	} else {
-		clOption := options.Client().ApplyURI(path)
-		for _, h := range hookNames {
-			if hook, o := hooksRegister[h]; o {
-				clOption = hook(clOption)
-			}
-		}
-		mgClient, err := mongo.Connect(context.TODO(), clOption)
-		if err != nil {
-			return true, err
-		}
-
-		db = mgClient.Database(dbName)
-
-		s.clients[path] = mgClient
-	}
-
-	prefix := u.Query().Get("prefix")
-	prefixed := &Database{
-		prefix:   prefix,
-		Database: db,
-	}
-
-	switch v := out.(type) {
-	case **Database:
-		*v = prefixed
-	case **Indexer:
-		if !u.Query().Has("collection") {
-			return true, fmt.Errorf("no collection found in URL for indexer")
-		}
-		idx := newIndexer(prefixed, u.Query().Get("collection"))
-		*v = idx
-	case *indexer.Indexer:
-		if !u.Query().Has("collection") {
-			return true, fmt.Errorf("no collection found in URL for indexer")
-		}
-		idx := newIndexer(prefixed, u.Query().Get("collection"))
-		*v = idx
-	default:
-		return false, nil
-	}
-
-	return true, nil
 }

@@ -21,6 +21,7 @@
 package config
 
 import (
+	"context"
 	"strings"
 	"sync"
 	"time"
@@ -62,12 +63,12 @@ func (v *vault) Unlock() {
 	v.vault.Unlock()
 }
 
-func (v *vault) Close() error {
-	if err := v.config.Close(); err != nil {
+func (v *vault) Close(ctx context.Context) error {
+	if err := v.config.Close(ctx); err != nil {
 		return err
 	}
 
-	if err := v.vault.Close(); err != nil {
+	if err := v.vault.Close(ctx); err != nil {
 		return err
 	}
 
@@ -77,6 +78,8 @@ func (v *vault) Close() error {
 func (v *vault) Done() <-chan struct{} {
 	return v.config.Done()
 }
+
+func (v *vault) As(out any) bool { return false }
 
 // Save the config in the underlying storage
 func (v *vault) Save(ctxUser string, ctxMessage string) error {
@@ -99,6 +102,7 @@ func (v *vaultStoreLocker) Lock() {
 		v.vaultLocker.Lock()
 	}
 }
+
 func (v *vaultStoreLocker) Unlock() {
 	if v.configLocker != nil {
 		v.configLocker.Unlock()

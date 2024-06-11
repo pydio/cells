@@ -33,12 +33,6 @@ const (
 	SharedMemDSN = "file::memory:?mode=memory&cache=shared"
 )
 
-func IsSQLiteConn(conn any) bool {
-	_, ok := conn.(*sqlite3.SQLiteDriver)
-
-	return ok
-}
-
 func init() {
 
 	regex := func(s, re string) (bool, error) {

@@ -62,13 +62,13 @@ func (dr *DBResolver) SetMaxOpenConns(n int) *DBResolver {
 
 func (dr *DBResolver) Call(fc func(connPool gorm.ConnPool) error) error {
 	if dr.DB != nil {
-		for _, tr := range dr.resolvers {
-			for _, sr := range tr {
-				if err := sr.call(fc); err != nil {
-					return err
-				}
-			}
-		}
+		//for _, tr := range dr.resolvers {
+		//	for _, sr := range tr {
+		//		if err := sr.call(fc); err != nil {
+		//			return err
+		//		}
+		//	}
+		//}
 
 		if dr.global != nil {
 			if err := dr.global.call(fc); err != nil {

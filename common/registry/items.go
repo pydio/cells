@@ -22,6 +22,10 @@ package registry
 
 import "github.com/pydio/cells/v4/common/proto/registry"
 
+type Convertible interface {
+	As(interface{}) bool
+}
+
 // Item is the main interface for registry items
 type Item interface {
 	Name() string
@@ -128,6 +132,9 @@ func (r *RichItem[T]) As(t any) bool {
 		return true
 	}
 
+	if convertible, ok := any(r.item).(Convertible); ok {
+		return convertible.As(t)
+	}
 	return false
 }
 

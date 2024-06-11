@@ -32,14 +32,19 @@ import (
 	"sync"
 	"time"
 
-	"github.com/r3labs/diff/v3"
+	diff "github.com/r3labs/diff/v3"
 	"go.etcd.io/etcd/api/v3/mvccpb"
 	clientv3 "go.etcd.io/etcd/client/v3"
 	"go.etcd.io/etcd/client/v3/concurrency"
 
 	"github.com/pydio/cells/v4/common/config"
 	"github.com/pydio/cells/v4/common/crypto"
+	"github.com/pydio/cells/v4/common/runtime"
+	"github.com/pydio/cells/v4/common/runtime/controller"
+	"github.com/pydio/cells/v4/common/runtime/manager"
 	"github.com/pydio/cells/v4/common/utils/configx"
+	"github.com/pydio/cells/v4/common/utils/openurl"
+	"github.com/pydio/cells/v4/common/utils/propagator"
 )
 
 var (
@@ -50,22 +55,58 @@ var (
 type URLOpener struct {
 	tlsConfig *tls.Config
 }
+
 type TLSURLOpener struct{}
 
 func init() {
+
 	config.DefaultURLMux().Register(scheme, &URLOpener{})
 	config.DefaultURLMux().Register(scheme+"+tls", &TLSURLOpener{})
+
+	runtime.Register("system", func(ctx context.Context) {
+		var mgr manager.Manager
+		if !propagator.Get(ctx, manager.ContextKey, &mgr) {
+			return
+		}
+
+		mgr.RegisterConfig(scheme, controller.WithCustomOpener(func(ctx context.Context, urlstr string) (*openurl.Pool[config.Store], error) {
+			p, err := openurl.OpenPool(ctx, []string{urlstr}, (&URLOpener{}).Open)
+			if err != nil {
+				return nil, err
+			}
+
+			return p, nil
+		}))
+		mgr.RegisterConfig(scheme+"+tls", controller.WithCustomOpener(func(ctx context.Context, urlstr string) (*openurl.Pool[config.Store], error) {
+			p, err := openurl.OpenPool(ctx, []string{urlstr}, (&TLSURLOpener{}).Open)
+			if err != nil {
+				return nil, err
+			}
+
+			return p, nil
+		}))
+	})
 }
 
-func (o *TLSURLOpener) OpenURL(ctx context.Context, u *url.URL) (config.Store, error) {
+func (o *TLSURLOpener) Open(ctx context.Context, urlstr string) (config.Store, error) {
+	u, err := url.Parse(urlstr)
+	if err != nil {
+		return nil, err
+	}
+
 	if tlsConfig, er := crypto.TLSConfigFromURL(u); er == nil {
-		return (&URLOpener{tlsConfig}).OpenURL(ctx, u)
+		return (&URLOpener{tlsConfig}).Open(ctx, urlstr)
 	} else {
 		return nil, fmt.Errorf("error while loading tls config for etcd %v", er)
 	}
 }
 
-func (o *URLOpener) OpenURL(ctx context.Context, u *url.URL) (config.Store, error) {
+func (o *URLOpener) Open(ctx context.Context, urlstr string) (config.Store, error) {
+	u, err := url.Parse(urlstr)
+	if err != nil {
+		return nil, err
+	}
+
 	addr := "://" + u.Host
 	if o.tlsConfig == nil {
 		addr = "http" + addr
@@ -367,7 +408,9 @@ func (m *etcd) save(ctx context.Context) {
 	}
 }
 
-func (m *etcd) Close() error {
+func (m *etcd) As(out any) bool { return false }
+
+func (m *etcd) Close(_ context.Context) error {
 	if m.session != nil {
 		return m.session.Close()
 	}
@@ -671,6 +714,7 @@ func (lm *lockerMutex) Lock() {
 		return
 	}
 }
+
 func (lm *lockerMutex) Unlock() {
 	client := lm.s.Client()
 	lm.Mutex.Unlock(client.Ctx())

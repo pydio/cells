@@ -58,7 +58,12 @@ func init() {
 	}
 }
 
-func (o *URLOpener) OpenURL(ctx context.Context, u *url.URL) (config.Store, error) {
+func (o *URLOpener) Open(ctx context.Context, urlstr string) (config.Store, error) {
+	u, err := url.Parse(urlstr)
+	if err != nil {
+		return nil, err
+	}
+
 	var conn grpc.ClientConnInterface
 
 	if conn = runtime.GetClientConn(ctx); conn == nil {
@@ -197,7 +202,9 @@ func (r *remote) Del() error {
 	return nil
 }
 
-func (r *remote) Close() error {
+func (r *remote) As(out any) bool { return false }
+
+func (r *remote) Close(_ context.Context) error {
 	return nil
 }
 

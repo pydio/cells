@@ -25,7 +25,6 @@ func init() {
 
 		st := &configStorage{}
 		for _, scheme := range config.DefaultURLMux().Schemes() {
-
 			mgr.RegisterStorage(scheme, st)
 		}
 	})
@@ -41,7 +40,7 @@ type storedb struct {
 	db   config.Store
 }
 
-func (o *configStorage) OpenURL(ctx context.Context, urlstr string) (storage.Storage, error) {
+func (o *configStorage) Open(ctx context.Context, urlstr string) (storage.Storage, error) {
 	t, err := openurl.URLTemplate(urlstr)
 	if err != nil {
 		return nil, err

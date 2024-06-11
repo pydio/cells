@@ -40,7 +40,12 @@ func init() {
 
 type URLOpener struct{}
 
-func (o *URLOpener) OpenURL(ctx context.Context, u *url.URL) (config.Store, error) {
+func (o *URLOpener) Open(ctx context.Context, urlstr string) (config.Store, error) {
+	u, err := url.Parse(urlstr)
+	if err != nil {
+		return nil, err
+	}
+
 	storePath := strings.TrimLeft(u.Path, "/")
 	key := u.Query().Get("key")
 	if key == "" {
@@ -139,7 +144,9 @@ func (s *store) Watch(opts ...configx.WatchOption) (configx.Receiver, error) {
 	return nil, fmt.Errorf("vault.watch is not implemented")
 }
 
-func (s *store) Close() error {
+func (s *store) As(out any) bool { return false }
+
+func (s *store) Close(_ context.Context) error {
 	return nil
 }
 

@@ -94,12 +94,12 @@ func MustDiscard() Cache {
 }
 
 // OpenPool opens a Pool[Cache] using OpenCache as opener
-func OpenPool(u string, opt ...openurl.PoolOption) (*openurl.Pool[Cache], error) {
+func OpenPool(u string, opt ...openurl.PoolOption[Cache]) (*openurl.Pool[Cache], error) {
 	return openurl.OpenPool[Cache](nil, []string{u}, OpenCache, opt...)
 }
 
 // MustOpenPool opens a Pool[Cache] using OpenCache as opener, returns a discard:// cache on fail
-func MustOpenPool(u string, opt ...openurl.PoolOption) *openurl.Pool[Cache] {
+func MustOpenPool(u string, opt ...openurl.PoolOption[Cache]) *openurl.Pool[Cache] {
 	p, e := openurl.OpenPool[Cache](nil, []string{u}, OpenCache, opt...)
 	if e == nil {
 		return p

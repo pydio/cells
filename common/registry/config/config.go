@@ -280,7 +280,7 @@ func (c *configRegistry) scanAndBroadcast(res configx.Values, bc broadcaster, bc
 }
 
 func (c *configRegistry) Close() error {
-	return c.store.Close()
+	return c.store.Close(context.TODO())
 }
 
 func (c *configRegistry) Done() <-chan struct{} {

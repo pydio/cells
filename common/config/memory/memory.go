@@ -15,8 +15,13 @@ import (
 	diff "github.com/r3labs/diff/v3"
 
 	"github.com/pydio/cells/v4/common/config"
+	"github.com/pydio/cells/v4/common/runtime"
+	"github.com/pydio/cells/v4/common/runtime/controller"
+	"github.com/pydio/cells/v4/common/runtime/manager"
 	"github.com/pydio/cells/v4/common/utils/configx"
 	json "github.com/pydio/cells/v4/common/utils/jsonx"
+	"github.com/pydio/cells/v4/common/utils/openurl"
+	"github.com/pydio/cells/v4/common/utils/propagator"
 	"github.com/pydio/cells/v4/common/utils/std"
 )
 
@@ -30,11 +35,34 @@ type URLOpener struct{}
 const timeout = 500 * time.Millisecond
 
 func init() {
-	o := &URLOpener{}
-	config.DefaultURLMux().Register(scheme, o)
+
+	config.DefaultURLMux().Register(scheme, &URLOpener{})
+
+	runtime.Register("system", func(ctx context.Context) {
+		var mgr manager.Manager
+		if !propagator.Get(ctx, manager.ContextKey, &mgr) {
+			return
+		}
+
+		o := &URLOpener{}
+		mgr.RegisterConfig(scheme, controller.WithCustomOpener(func(ctx context.Context, urlstr string) (*openurl.Pool[config.Store], error) {
+			p, err := openurl.OpenPool(ctx, []string{urlstr}, o.Open)
+			if err != nil {
+				return nil, err
+			}
+
+			return p, nil
+		}))
+	})
+
 }
 
-func (o *URLOpener) OpenURL(ctx context.Context, u *url.URL) (config.Store, error) {
+func (o *URLOpener) Open(ctx context.Context, urlstr string) (config.Store, error) {
+
+	u, err := url.Parse(urlstr)
+	if err != nil {
+		return nil, err
+	}
 
 	var opts []configx.Option
 
@@ -194,7 +222,9 @@ func (m *memory) Del() error {
 	return fmt.Errorf("not implemented")
 }
 
-func (m *memory) Close() error {
+func (f *memory) As(out any) bool { return false }
+
+func (m *memory) Close(_ context.Context) error {
 	return nil
 }
 
