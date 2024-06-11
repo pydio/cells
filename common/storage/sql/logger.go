@@ -10,7 +10,7 @@ import (
 	glog "gorm.io/gorm/logger"
 	"gorm.io/gorm/utils"
 
-	log2 "github.com/pydio/cells/v4/common/log"
+	log2 "github.com/pydio/cells/v4/common/telemetry/log"
 )
 
 var (

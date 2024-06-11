@@ -13,8 +13,8 @@ import (
 	"google.golang.org/protobuf/proto"
 
 	"github.com/pydio/cells/v4/common/broker"
-	"github.com/pydio/cells/v4/common/log"
 	config2 "github.com/pydio/cells/v4/common/runtime"
+	"github.com/pydio/cells/v4/common/telemetry/log"
 )
 
 func init() {

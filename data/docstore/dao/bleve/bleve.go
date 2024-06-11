@@ -29,8 +29,8 @@ import (
 	"go.etcd.io/bbolt"
 	"go.uber.org/zap"
 
-	"github.com/pydio/cells/v4/common/log"
 	proto "github.com/pydio/cells/v4/common/proto/docstore"
+	"github.com/pydio/cells/v4/common/telemetry/log"
 	json "github.com/pydio/cells/v4/common/utils/jsonx"
 	"github.com/pydio/cells/v4/data/docstore"
 )

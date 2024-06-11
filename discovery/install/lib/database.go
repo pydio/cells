@@ -34,8 +34,8 @@ import (
 	"github.com/go-sql-driver/mysql"
 
 	"github.com/pydio/cells/v4/common/config"
-	"github.com/pydio/cells/v4/common/log"
 	"github.com/pydio/cells/v4/common/proto/install"
+	"github.com/pydio/cells/v4/common/telemetry/log"
 	uuid2 "github.com/pydio/cells/v4/common/utils/uuid"
 )
 

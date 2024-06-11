@@ -23,14 +23,14 @@ package middleware
 
 import (
 	"context"
-	"github.com/pydio/cells/v4/common/log"
-	"github.com/pydio/cells/v4/common/middleware/keys"
 	"net"
 	"net/http"
 	"strings"
 	"time"
 
 	"github.com/pydio/cells/v4/common"
+	"github.com/pydio/cells/v4/common/middleware/keys"
+	"github.com/pydio/cells/v4/common/telemetry/log"
 	"github.com/pydio/cells/v4/common/utils/propagator"
 )
 

@@ -28,13 +28,13 @@ import (
 	"google.golang.org/protobuf/types/known/anypb"
 
 	"github.com/pydio/cells/v4/common/client/commons/idmc"
-	"github.com/pydio/cells/v4/common/log"
 	"github.com/pydio/cells/v4/common/middleware"
 	"github.com/pydio/cells/v4/common/proto/idm"
 	"github.com/pydio/cells/v4/common/proto/rest"
 	service "github.com/pydio/cells/v4/common/proto/service"
 	service2 "github.com/pydio/cells/v4/common/service"
 	"github.com/pydio/cells/v4/common/service/resources"
+	"github.com/pydio/cells/v4/common/telemetry/log"
 )
 
 func NewHandler(ctx context.Context) service2.WebHandler {

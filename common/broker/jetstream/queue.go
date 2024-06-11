@@ -33,7 +33,7 @@ import (
 
 	"github.com/pydio/cells/v4/common/broker"
 	"github.com/pydio/cells/v4/common/crypto"
-	"github.com/pydio/cells/v4/common/log"
+	"github.com/pydio/cells/v4/common/telemetry/log"
 )
 
 var (

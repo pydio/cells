@@ -36,13 +36,13 @@ import (
 
 	"github.com/pydio/cells/v4/common/auth"
 	"github.com/pydio/cells/v4/common/errors"
-	"github.com/pydio/cells/v4/common/log"
 	"github.com/pydio/cells/v4/common/proto/idm"
 	service "github.com/pydio/cells/v4/common/proto/service"
 	"github.com/pydio/cells/v4/common/proto/tree"
 	"github.com/pydio/cells/v4/common/sql"
 	index "github.com/pydio/cells/v4/common/sql/indexgorm"
 	"github.com/pydio/cells/v4/common/sql/resources"
+	"github.com/pydio/cells/v4/common/telemetry/log"
 	"github.com/pydio/cells/v4/idm/user"
 	user_model "github.com/pydio/cells/v4/idm/user/dao/sql/model"
 )

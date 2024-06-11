@@ -25,8 +25,8 @@ import (
 
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/client/commons/jobsc"
-	"github.com/pydio/cells/v4/common/log"
 	"github.com/pydio/cells/v4/common/proto/jobs"
+	"github.com/pydio/cells/v4/common/telemetry/log"
 )
 
 func QueueJob(name string) *jobs.Job {

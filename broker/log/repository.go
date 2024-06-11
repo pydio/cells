@@ -4,9 +4,9 @@ import (
 	"context"
 	"fmt"
 
-	log2 "github.com/pydio/cells/v4/common/log"
 	"github.com/pydio/cells/v4/common/proto/log"
 	"github.com/pydio/cells/v4/common/storage/indexer"
+	log2 "github.com/pydio/cells/v4/common/telemetry/log"
 	"github.com/pydio/cells/v4/common/utils/configx"
 )
 

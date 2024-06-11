@@ -42,7 +42,6 @@ import (
 
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/config/routing"
-	"github.com/pydio/cells/v4/common/log"
 	"github.com/pydio/cells/v4/common/middleware"
 	"github.com/pydio/cells/v4/common/middleware/authorizations"
 	pb "github.com/pydio/cells/v4/common/proto/registry"
@@ -51,6 +50,7 @@ import (
 	"github.com/pydio/cells/v4/common/registry/util"
 	"github.com/pydio/cells/v4/common/runtime"
 	"github.com/pydio/cells/v4/common/server"
+	"github.com/pydio/cells/v4/common/telemetry/log"
 	"github.com/pydio/cells/v4/common/utils/propagator"
 )
 

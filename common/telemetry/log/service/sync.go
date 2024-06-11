@@ -28,8 +28,8 @@ import (
 	"time"
 
 	"github.com/pydio/cells/v4/common/client/grpc"
-	log2 "github.com/pydio/cells/v4/common/log"
 	"github.com/pydio/cells/v4/common/proto/log"
+	log2 "github.com/pydio/cells/v4/common/telemetry/log"
 )
 
 type opener struct{}

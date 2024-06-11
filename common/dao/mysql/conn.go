@@ -34,9 +34,9 @@ import (
 
 	"github.com/pydio/cells/v4/common/dao"
 	"github.com/pydio/cells/v4/common/errors"
-	"github.com/pydio/cells/v4/common/log"
 	"github.com/pydio/cells/v4/common/runtime"
 	commonsql "github.com/pydio/cells/v4/common/sql"
+	"github.com/pydio/cells/v4/common/telemetry/log"
 	"github.com/pydio/cells/v4/common/telemetry/metrics"
 )
 

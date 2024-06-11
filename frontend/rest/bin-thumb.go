@@ -4,20 +4,20 @@ import (
 	"bytes"
 	"context"
 	"fmt"
-	"github.com/rwcarlsen/goexif/exif"
 	"image"
 	"io"
 	"net/http"
 
 	"github.com/disintegration/imaging"
+	"github.com/rwcarlsen/goexif/exif"
 	"go.uber.org/zap"
 	"golang.org/x/image/colornames"
 
 	"github.com/pydio/cells/v4/common"
-	"github.com/pydio/cells/v4/common/log"
 	"github.com/pydio/cells/v4/common/nodes"
 	"github.com/pydio/cells/v4/common/nodes/models"
 	"github.com/pydio/cells/v4/common/proto/tree"
+	"github.com/pydio/cells/v4/common/telemetry/log"
 	exi "github.com/pydio/cells/v4/common/utils/exif"
 )
 

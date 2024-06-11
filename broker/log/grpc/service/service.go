@@ -31,12 +31,12 @@ import (
 	"github.com/pydio/cells/v4/broker/log"
 	grpc2 "github.com/pydio/cells/v4/broker/log/grpc"
 	"github.com/pydio/cells/v4/common"
-	log2 "github.com/pydio/cells/v4/common/log"
 	proto "github.com/pydio/cells/v4/common/proto/log"
 	"github.com/pydio/cells/v4/common/proto/sync"
 	"github.com/pydio/cells/v4/common/runtime"
 	"github.com/pydio/cells/v4/common/runtime/tenant"
 	"github.com/pydio/cells/v4/common/service"
+	log2 "github.com/pydio/cells/v4/common/telemetry/log"
 	json "github.com/pydio/cells/v4/common/utils/jsonx"
 )
 

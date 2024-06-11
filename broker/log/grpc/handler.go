@@ -33,12 +33,12 @@ import (
 	"github.com/pydio/cells/v4/broker/log"
 	"github.com/pydio/cells/v4/common/client/commons/jobsc"
 	"github.com/pydio/cells/v4/common/errors"
-	log2 "github.com/pydio/cells/v4/common/log"
 	"github.com/pydio/cells/v4/common/proto/jobs"
 	proto "github.com/pydio/cells/v4/common/proto/log"
 	"github.com/pydio/cells/v4/common/proto/sync"
 	"github.com/pydio/cells/v4/common/runtime"
 	"github.com/pydio/cells/v4/common/runtime/manager"
+	log2 "github.com/pydio/cells/v4/common/telemetry/log"
 )
 
 // Handler is the gRPC interface for the log service.

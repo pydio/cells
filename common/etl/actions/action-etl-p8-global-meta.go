@@ -30,8 +30,9 @@ import (
 	"path"
 	"strings"
 
-	"github.com/pydio/pydio-sdk-go/config"
 	"go.uber.org/zap"
+
+	"github.com/pydio/pydio-sdk-go/config"
 
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/client/commons/idmc"
@@ -39,7 +40,6 @@ import (
 	"github.com/pydio/cells/v4/common/etl"
 	"github.com/pydio/cells/v4/common/etl/stores/pydio8"
 	"github.com/pydio/cells/v4/common/forms"
-	"github.com/pydio/cells/v4/common/log"
 	"github.com/pydio/cells/v4/common/nodes"
 	"github.com/pydio/cells/v4/common/nodes/compose"
 	"github.com/pydio/cells/v4/common/proto/activity"
@@ -47,6 +47,7 @@ import (
 	"github.com/pydio/cells/v4/common/proto/jobs"
 	"github.com/pydio/cells/v4/common/proto/service"
 	"github.com/pydio/cells/v4/common/proto/tree"
+	"github.com/pydio/cells/v4/common/telemetry/log"
 	json "github.com/pydio/cells/v4/common/utils/jsonx"
 	"github.com/pydio/cells/v4/common/utils/permissions"
 	"github.com/pydio/cells/v4/scheduler/actions"

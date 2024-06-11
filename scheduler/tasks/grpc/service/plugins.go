@@ -29,11 +29,11 @@ import (
 
 	"github.com/pydio/cells/v4/common"
 	grpc3 "github.com/pydio/cells/v4/common/client/grpc"
-	"github.com/pydio/cells/v4/common/log"
 	"github.com/pydio/cells/v4/common/proto/jobs"
 	"github.com/pydio/cells/v4/common/proto/jobs/bleveimpl"
 	"github.com/pydio/cells/v4/common/runtime"
 	"github.com/pydio/cells/v4/common/service"
+	"github.com/pydio/cells/v4/common/telemetry/log"
 	"github.com/pydio/cells/v4/common/utils/permissions"
 	"github.com/pydio/cells/v4/scheduler/tasks"
 	grpc2 "github.com/pydio/cells/v4/scheduler/tasks/grpc"

@@ -37,9 +37,9 @@ import (
 	migrate "github.com/rubenv/sql-migrate"
 	gorp "gopkg.in/gorp.v1"
 
-	"github.com/pydio/cells/v4/common/log"
 	"github.com/pydio/cells/v4/common/runtime"
 	sql2 "github.com/pydio/cells/v4/common/sql"
+	"github.com/pydio/cells/v4/common/telemetry/log"
 
 	. "github.com/ory/ladon"
 )

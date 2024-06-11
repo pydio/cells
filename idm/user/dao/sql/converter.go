@@ -34,10 +34,10 @@ import (
 	"gorm.io/gorm/clause"
 
 	"github.com/pydio/cells/v4/common"
-	"github.com/pydio/cells/v4/common/log"
 	"github.com/pydio/cells/v4/common/proto/idm"
 	"github.com/pydio/cells/v4/common/proto/tree"
 	index "github.com/pydio/cells/v4/common/sql/indexgorm"
+	"github.com/pydio/cells/v4/common/telemetry/log"
 	user_model "github.com/pydio/cells/v4/idm/user/dao/sql/model"
 )
 

@@ -27,7 +27,7 @@ import (
 	"go.uber.org/zap"
 	"google.golang.org/protobuf/proto"
 
-	"github.com/pydio/cells/v4/common/log"
+	"github.com/pydio/cells/v4/common/telemetry/log"
 )
 
 type ConnectorConfig interface {
@@ -183,7 +183,8 @@ type CallbackConnector interface {
 }
 
 // SAMLConnector represents SAML connectors which implement the HTTP POST binding.
-//  RelayState is handled by the server.
+//
+//	RelayState is handled by the server.
 //
 // See: https://docs.oasis-open.org/security/saml/v2.0/saml-bindings-2.0-os.pdf
 // "3.5 HTTP POST Binding"

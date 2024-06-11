@@ -41,11 +41,11 @@ import (
 	"github.com/pydio/cells/v4/common/config/migrations"
 	"github.com/pydio/cells/v4/common/config/revisions"
 	"github.com/pydio/cells/v4/common/crypto"
-	"github.com/pydio/cells/v4/common/log"
-	cw "github.com/pydio/cells/v4/common/log/context-wrapper"
 	log2 "github.com/pydio/cells/v4/common/proto/log"
 	"github.com/pydio/cells/v4/common/runtime"
 	"github.com/pydio/cells/v4/common/telemetry"
+	"github.com/pydio/cells/v4/common/telemetry/log"
+	cw "github.com/pydio/cells/v4/common/telemetry/log/context-wrapper"
 	"github.com/pydio/cells/v4/common/telemetry/otel"
 	"github.com/pydio/cells/v4/common/utils/configx"
 

@@ -33,7 +33,6 @@ import (
 	"github.com/pydio/cells/v4/common/client/commons/treec"
 	grpccli "github.com/pydio/cells/v4/common/client/grpc"
 	"github.com/pydio/cells/v4/common/config"
-	"github.com/pydio/cells/v4/common/log"
 	"github.com/pydio/cells/v4/common/nodes"
 	"github.com/pydio/cells/v4/common/proto/encryption"
 	"github.com/pydio/cells/v4/common/proto/object"
@@ -42,6 +41,7 @@ import (
 	"github.com/pydio/cells/v4/common/sync/endpoints/index"
 	"github.com/pydio/cells/v4/common/sync/endpoints/s3"
 	"github.com/pydio/cells/v4/common/sync/model"
+	"github.com/pydio/cells/v4/common/telemetry/log"
 	"github.com/pydio/cells/v4/common/utils/propagator"
 	"github.com/pydio/cells/v4/common/utils/std"
 )

@@ -22,15 +22,8 @@ package filesystem
 
 import (
 	"context"
-	"fmt"
 	"os"
-	"path/filepath"
-	"strings"
-	"syscall"
-	"time"
-	"unsafe"
 
-	"github.com/pydio/cells/v4/common/log"
 	"github.com/pydio/cells/v4/common/proto/tree"
 )
 

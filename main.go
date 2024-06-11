@@ -3,21 +3,19 @@ package main
 import (
 	"github.com/pydio/cells/v4/common"
 
-	// Register log drivers
-	_ "github.com/pydio/cells/v4/common/log/file"
-	_ "github.com/pydio/cells/v4/common/log/otlp"
-	_ "github.com/pydio/cells/v4/common/log/service"
-	_ "github.com/pydio/cells/v4/common/log/stdout"
-
+	// All Telemetry-related drivers
+	// Logs
+	_ "github.com/pydio/cells/v4/common/telemetry/log/file"
+	_ "github.com/pydio/cells/v4/common/telemetry/log/otlp"
+	_ "github.com/pydio/cells/v4/common/telemetry/log/service"
+	_ "github.com/pydio/cells/v4/common/telemetry/log/stdout"
 	// Tracing
 	_ "github.com/pydio/cells/v4/common/telemetry/tracing/jaeger"
 	_ "github.com/pydio/cells/v4/common/telemetry/tracing/otlp"
 	_ "github.com/pydio/cells/v4/common/telemetry/tracing/stdout"
-
 	// Metrics
 	_ "github.com/pydio/cells/v4/common/telemetry/metrics/otlp"
 	_ "github.com/pydio/cells/v4/common/telemetry/metrics/prometheus"
-
 	// Profiling
 	_ "github.com/pydio/cells/v4/common/telemetry/profile/http_pull"
 	_ "github.com/pydio/cells/v4/common/telemetry/profile/pyroscope"

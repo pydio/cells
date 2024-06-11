@@ -28,8 +28,8 @@ import (
 	"github.com/blevesearch/bleve/v2/search/query"
 	"go.uber.org/zap"
 
-	"github.com/pydio/cells/v4/common/log"
 	"github.com/pydio/cells/v4/common/proto/tree"
+	"github.com/pydio/cells/v4/common/telemetry/log"
 )
 
 func EvalFreeString(ctx context.Context, query string, node *tree.Node) bool {

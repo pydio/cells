@@ -32,7 +32,7 @@ import (
 	"google.golang.org/protobuf/proto"
 
 	"github.com/pydio/cells/v4/common/broker"
-	"github.com/pydio/cells/v4/common/log"
+	"github.com/pydio/cells/v4/common/telemetry/log"
 )
 
 // protoWithContext composes a generic type and a context

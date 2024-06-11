@@ -25,12 +25,11 @@ import (
 	"fmt"
 	"strings"
 
+	"go.uber.org/zap"
 	"google.golang.org/grpc/metadata"
 
-	"go.uber.org/zap"
-
-	"github.com/pydio/cells/v4/common/log"
 	"github.com/pydio/cells/v4/common/proto/tree"
+	"github.com/pydio/cells/v4/common/telemetry/log"
 )
 
 // StreamConverter wraps a Searcher_SearchStream into a NodesProvider_ListNodesStream
@@ -58,6 +57,7 @@ func (sc *StreamConverter) Context() context.Context {
 func (sc *StreamConverter) SendMsg(i interface{}) error {
 	return sc.wrapped.SendMsg(i)
 }
+
 func (sc *StreamConverter) RecvMsg(i interface{}) error {
 	return sc.wrapped.RecvMsg(i)
 }

@@ -22,15 +22,14 @@ package merger
 
 import (
 	"context"
-	"github.com/pydio/cells/v4/common/proto/tree"
 	"sync"
 	"time"
 
-	"github.com/pydio/cells/v4/common/log"
-
 	"go.uber.org/zap/zapcore"
 
+	"github.com/pydio/cells/v4/common/proto/tree"
 	"github.com/pydio/cells/v4/common/sync/model"
+	"github.com/pydio/cells/v4/common/telemetry/log"
 )
 
 type AbstractPatch struct {

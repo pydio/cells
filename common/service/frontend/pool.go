@@ -32,7 +32,7 @@ import (
 	"go.uber.org/zap"
 
 	"github.com/pydio/cells/v4/common/config"
-	"github.com/pydio/cells/v4/common/log"
+	"github.com/pydio/cells/v4/common/telemetry/log"
 	"github.com/pydio/cells/v4/common/utils/configx"
 	"github.com/pydio/cells/v4/common/utils/i18n"
 	json "github.com/pydio/cells/v4/common/utils/jsonx"

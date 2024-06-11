@@ -27,10 +27,10 @@ import (
 
 	"github.com/pydio/cells/v4/broker/activity"
 	"github.com/pydio/cells/v4/common"
-	"github.com/pydio/cells/v4/common/log"
 	activity2 "github.com/pydio/cells/v4/common/proto/activity"
 	"github.com/pydio/cells/v4/common/proto/tree"
 	"github.com/pydio/cells/v4/common/runtime/manager"
+	"github.com/pydio/cells/v4/common/telemetry/log"
 	"github.com/pydio/cells/v4/common/utils/propagator"
 )
 

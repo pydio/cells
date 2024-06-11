@@ -29,8 +29,8 @@ import (
 	"go.uber.org/zap"
 
 	"github.com/pydio/cells/v4/common/client/grpc"
-	"github.com/pydio/cells/v4/common/log"
 	"github.com/pydio/cells/v4/common/proto/tree"
+	"github.com/pydio/cells/v4/common/telemetry/log"
 )
 
 type Streamer struct {

@@ -31,8 +31,8 @@ import (
 	"go.uber.org/zap"
 
 	"github.com/pydio/cells/v4/common/etl/models"
-	"github.com/pydio/cells/v4/common/log"
 	"github.com/pydio/cells/v4/common/proto/idm"
+	"github.com/pydio/cells/v4/common/telemetry/log"
 	"github.com/pydio/cells/v4/common/utils/merger"
 )
 

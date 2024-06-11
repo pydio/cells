@@ -2,7 +2,6 @@ package grpc
 
 import (
 	"context"
-	"github.com/pydio/cells/v4/common/middleware/keys"
 	"net/url"
 	"strings"
 	"time"
@@ -15,14 +14,15 @@ import (
 	"github.com/pydio/cells/v4/common/auth"
 	"github.com/pydio/cells/v4/common/config/routing"
 	"github.com/pydio/cells/v4/common/crypto/providers"
-	"github.com/pydio/cells/v4/common/log"
 	"github.com/pydio/cells/v4/common/middleware"
+	"github.com/pydio/cells/v4/common/middleware/keys"
 	"github.com/pydio/cells/v4/common/proto/install"
 	"github.com/pydio/cells/v4/common/proto/tree"
 	"github.com/pydio/cells/v4/common/runtime"
 	"github.com/pydio/cells/v4/common/server"
 	grpc2 "github.com/pydio/cells/v4/common/server/grpc"
 	"github.com/pydio/cells/v4/common/service"
+	"github.com/pydio/cells/v4/common/telemetry/log"
 	"github.com/pydio/cells/v4/common/utils/propagator"
 )
 

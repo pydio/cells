@@ -27,7 +27,7 @@ import (
 	"github.com/ory/ladon"
 	"go.uber.org/zap"
 
-	"github.com/pydio/cells/v4/common/log"
+	"github.com/pydio/cells/v4/common/telemetry/log"
 )
 
 // OfficeHoursCondition is a condition which is fulfilled if the current time is

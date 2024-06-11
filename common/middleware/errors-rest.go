@@ -25,8 +25,8 @@ import (
 	"go.uber.org/zap"
 
 	"github.com/pydio/cells/v4/common/errors"
-	"github.com/pydio/cells/v4/common/log"
 	"github.com/pydio/cells/v4/common/proto/rest"
+	"github.com/pydio/cells/v4/common/telemetry/log"
 )
 
 type restErrorEmitter func(req *restful.Request, resp *restful.Response, err error, errorID ...string)

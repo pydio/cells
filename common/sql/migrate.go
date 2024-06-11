@@ -31,13 +31,14 @@ import (
 	"strings"
 	"time"
 
-	"github.com/pydio/cells/v4/common/log"
+	migrate "github.com/rubenv/sql-migrate"
+	gorp "gopkg.in/gorp.v1"
 
-	"github.com/rubenv/sql-migrate"
-	"gopkg.in/gorp.v1"
+	"github.com/pydio/cells/v4/common/telemetry/log"
 )
 
 var tableName = "gorp_migrations"
+
 var schemaName = ""
 
 func newTxError(migration *migrate.PlannedMigration, err error) error {
@@ -49,8 +50,10 @@ func newTxError(migration *migrate.PlannedMigration, err error) error {
 
 type migrationById []*migrate.Migration
 
-func (b migrationById) Len() int           { return len(b) }
-func (b migrationById) Swap(i, j int)      { b[i], b[j] = b[j], b[i] }
+func (b migrationById) Len() int { return len(b) }
+
+func (b migrationById) Swap(i, j int) { b[i], b[j] = b[j], b[i] }
+
 func (b migrationById) Less(i, j int) bool { return b[i].Less(b[j]) }
 
 // ExecMigration Execute a set of migrations

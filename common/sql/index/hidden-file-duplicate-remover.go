@@ -22,9 +22,10 @@ package index
 import (
 	"context"
 
-	"github.com/pydio/cells/v4/common/log"
-	"github.com/pydio/cells/v4/common/sql"
 	"go.uber.org/zap"
+
+	"github.com/pydio/cells/v4/common/sql"
+	"github.com/pydio/cells/v4/common/telemetry/log"
 )
 
 // HiddenFileDuplicateRemoverSQL implementation

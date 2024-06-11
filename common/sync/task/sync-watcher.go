@@ -24,10 +24,11 @@ import (
 	"context"
 	"time"
 
-	"github.com/pydio/cells/v4/common/log"
+	"go.uber.org/zap"
+
 	"github.com/pydio/cells/v4/common/sync/filters"
 	"github.com/pydio/cells/v4/common/sync/model"
-	"go.uber.org/zap"
+	"github.com/pydio/cells/v4/common/telemetry/log"
 )
 
 // startWatchers starts events watchers as required on source and target endpoints

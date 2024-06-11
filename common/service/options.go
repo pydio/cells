@@ -26,10 +26,10 @@ import (
 	"net/http"
 
 	"github.com/pydio/cells/v4/common"
-	"github.com/pydio/cells/v4/common/log"
 	"github.com/pydio/cells/v4/common/registry"
 	"github.com/pydio/cells/v4/common/server"
 	"github.com/pydio/cells/v4/common/service/frontend"
+	"github.com/pydio/cells/v4/common/telemetry/log"
 	"github.com/pydio/cells/v4/common/utils/propagator"
 	"github.com/pydio/cells/v4/common/utils/uuid"
 )

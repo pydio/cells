@@ -30,9 +30,9 @@ import (
 	"go.uber.org/zap"
 
 	"github.com/pydio/cells/v4/common"
-	"github.com/pydio/cells/v4/common/log"
 	"github.com/pydio/cells/v4/common/sync/merger"
 	"github.com/pydio/cells/v4/common/sync/model"
+	"github.com/pydio/cells/v4/common/telemetry/log"
 )
 
 // EventsBatcher will batch incoming events and process them after a certain idle time.

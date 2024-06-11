@@ -6,21 +6,23 @@ import (
 	"encoding/gob"
 	"errors"
 	"fmt"
-	"github.com/nats-io/nats.go"
-	"github.com/pydio/cells/v4/common/crypto"
-	"github.com/pydio/cells/v4/common/log"
-	pb "github.com/pydio/cells/v4/common/proto/broker"
-	"github.com/pydio/cells/v4/common/utils/std"
-	"go.uber.org/zap"
-	"gocloud.dev/gcerrors"
-	"gocloud.dev/pubsub"
-	"gocloud.dev/pubsub/batcher"
-	"gocloud.dev/pubsub/driver"
 	"net/url"
 	"path"
 	"strings"
 	"sync"
 	"time"
+
+	nats "github.com/nats-io/nats.go"
+	"go.uber.org/zap"
+	"gocloud.dev/gcerrors"
+	"gocloud.dev/pubsub"
+	"gocloud.dev/pubsub/batcher"
+	"gocloud.dev/pubsub/driver"
+
+	"github.com/pydio/cells/v4/common/crypto"
+	pb "github.com/pydio/cells/v4/common/proto/broker"
+	"github.com/pydio/cells/v4/common/telemetry/log"
+	"github.com/pydio/cells/v4/common/utils/std"
 )
 
 var errNotInitialized = errors.New("natspubsub: topic not initialized")

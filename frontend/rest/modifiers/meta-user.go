@@ -25,8 +25,8 @@ import (
 
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/config"
-	"github.com/pydio/cells/v4/common/log"
 	"github.com/pydio/cells/v4/common/service/frontend"
+	"github.com/pydio/cells/v4/common/telemetry/log"
 )
 
 func MetaUserPluginModifier(ctx context.Context, status frontend.RequestStatus, plugin frontend.Plugin) error {

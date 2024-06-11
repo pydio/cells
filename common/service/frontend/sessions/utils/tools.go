@@ -3,16 +3,16 @@ package utils
 import (
 	"context"
 	"encoding/base64"
-	"go.uber.org/zap"
 	"net/http"
 	"net/url"
 	"strings"
 
 	"github.com/gorilla/securecookie"
+	"go.uber.org/zap"
 
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/config"
-	"github.com/pydio/cells/v4/common/log"
+	"github.com/pydio/cells/v4/common/telemetry/log"
 )
 
 var (

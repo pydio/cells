@@ -23,13 +23,14 @@ package redis
 import (
 	"context"
 	"crypto/tls"
-	"github.com/pydio/cells/v4/common/log"
-	"github.com/pydio/cells/v4/common/utils/std"
-	"go.uber.org/zap"
 	"net/url"
 	"time"
 
-	"github.com/go-redis/redis/v8"
+	redis "github.com/go-redis/redis/v8"
+	"go.uber.org/zap"
+
+	"github.com/pydio/cells/v4/common/telemetry/log"
+	"github.com/pydio/cells/v4/common/utils/std"
 )
 
 var (

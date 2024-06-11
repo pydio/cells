@@ -40,12 +40,12 @@ import (
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/broker"
 	"github.com/pydio/cells/v4/common/crypto"
-	"github.com/pydio/cells/v4/common/log"
 	"github.com/pydio/cells/v4/common/proto/install"
 	"github.com/pydio/cells/v4/common/registry"
 	cruntime "github.com/pydio/cells/v4/common/runtime"
 	"github.com/pydio/cells/v4/common/runtime/manager"
 	"github.com/pydio/cells/v4/common/server"
+	"github.com/pydio/cells/v4/common/telemetry/log"
 	unet "github.com/pydio/cells/v4/common/utils/net"
 	"github.com/pydio/cells/v4/common/utils/propagator"
 )

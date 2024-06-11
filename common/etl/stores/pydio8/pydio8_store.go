@@ -29,20 +29,21 @@ import (
 
 	"github.com/go-openapi/runtime"
 	httptransport "github.com/go-openapi/runtime/client"
+	"go.uber.org/zap"
+
 	"github.com/pydio/pydio-sdk-go/client/provisioning"
 	sdkconfig "github.com/pydio/pydio-sdk-go/config"
 	models2 "github.com/pydio/pydio-sdk-go/models"
 	"github.com/pydio/pydio-sdk-go/shares"
-	"go.uber.org/zap"
 
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/etl/models"
 	"github.com/pydio/cells/v4/common/etl/stores"
-	"github.com/pydio/cells/v4/common/log"
 	"github.com/pydio/cells/v4/common/proto/idm"
 	"github.com/pydio/cells/v4/common/proto/rest"
 	service "github.com/pydio/cells/v4/common/proto/service"
 	"github.com/pydio/cells/v4/common/proto/tree"
+	"github.com/pydio/cells/v4/common/telemetry/log"
 	json "github.com/pydio/cells/v4/common/utils/jsonx"
 	"github.com/pydio/cells/v4/common/utils/permissions"
 	"github.com/pydio/cells/v4/common/utils/uuid"

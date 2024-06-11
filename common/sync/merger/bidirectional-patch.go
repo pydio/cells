@@ -23,7 +23,6 @@ package merger
 import (
 	"context"
 	"fmt"
-	"github.com/pydio/cells/v4/common/proto/tree"
 	"net/url"
 	"path"
 	"strings"
@@ -32,12 +31,14 @@ import (
 	"go.uber.org/zap"
 
 	"github.com/pydio/cells/v4/common"
-	"github.com/pydio/cells/v4/common/log"
+	"github.com/pydio/cells/v4/common/proto/tree"
 	"github.com/pydio/cells/v4/common/sync/model"
+	"github.com/pydio/cells/v4/common/telemetry/log"
 	json "github.com/pydio/cells/v4/common/utils/jsonx"
 )
 
 const OpNone OperationType = 100
+
 const OpMoveTarget OperationType = 101
 
 type Solver func(left, right *TreeNode)

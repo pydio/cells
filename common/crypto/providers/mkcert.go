@@ -45,7 +45,7 @@ import (
 	"github.com/caddyserver/certmagic"
 	"github.com/pkg/errors"
 
-	"github.com/pydio/cells/v4/common/log"
+	"github.com/pydio/cells/v4/common/telemetry/log"
 )
 
 var (
