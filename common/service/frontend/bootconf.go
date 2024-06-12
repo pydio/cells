@@ -35,7 +35,7 @@ import (
 	"github.com/pydio/cells/v4/common/config"
 	"github.com/pydio/cells/v4/common/config/routing"
 	runtime2 "github.com/pydio/cells/v4/common/runtime"
-	"github.com/pydio/cells/v4/common/utils/i18n"
+	"github.com/pydio/cells/v4/common/utils/i18n/languages"
 	"github.com/pydio/cells/v4/common/utils/uuid"
 )
 
@@ -164,7 +164,7 @@ func ComputeBootConf(ctx context.Context, pool *PluginsPool, showVersion ...bool
 			Title: config.Get("frontend", "plugin", "core.pydio", "APPLICATION_TITLE").Default("Pydio Cells").String(),
 			Icon:  "plug/gui.ajax/res/themes/common/images/LoginBoxLogo.png",
 		},
-		AvailableLanguages: i18n.AvailableLanguages,
+		AvailableLanguages: languages.AvailableLanguages,
 		I18nMessages:       pool.I18nMessages(lang).Messages,
 		Backend: BackendConf{
 			PackageType:   common.PackageType,

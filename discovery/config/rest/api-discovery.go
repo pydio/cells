@@ -51,7 +51,6 @@ import (
 	"github.com/pydio/cells/v4/common/runtime"
 	"github.com/pydio/cells/v4/common/service"
 	"github.com/pydio/cells/v4/common/telemetry/log"
-	"github.com/pydio/cells/v4/common/utils/i18n"
 	"github.com/pydio/cells/v4/common/utils/net"
 	"github.com/pydio/cells/v4/common/utils/propagator"
 	"github.com/pydio/cells/v4/discovery/config/lang"
@@ -223,14 +222,14 @@ func (s *Handler) ConfigFormsDiscovery(req *restful.Request, rsp *restful.Respon
 		middleware.RestError404(req, rsp, errors.WithMessagef(errors.StatusNotFound, "Cannot find service "+serviceName))
 		return
 	}
-	rsp.WriteAsXml(form.Serialize(i18n.UserLanguagesFromRestRequest(req, config.Get())...))
+	rsp.WriteAsXml(form.Serialize(middleware.DetectedLanguages(req.Request.Context())...))
 
 }
 
 // SchedulerActionsDiscovery lists all registered actions
 func (s *Handler) SchedulerActionsDiscovery(req *restful.Request, rsp *restful.Response) {
 	actionManager := actions.GetActionsManager()
-	allActions := actionManager.DescribeActions(i18n.UserLanguagesFromRestRequest(req, config.Get())...)
+	allActions := actionManager.DescribeActions(middleware.DetectedLanguages(req.Request.Context())...)
 	response := &rest.SchedulerActionsResponse{
 		Actions: make(map[string]*rest.ActionDescription, len(allActions)),
 	}
@@ -426,7 +425,7 @@ func (s *Handler) SchedulerActionFormDiscovery(req *restful.Request, rsp *restfu
 		return
 	}
 	form.I18NBundle = lang.Bundle()
-	rsp.WriteAsXml(form.Serialize(i18n.UserLanguagesFromRestRequest(req, config.Get())...))
+	rsp.WriteAsXml(form.Serialize(middleware.DetectedLanguages(req.Request.Context())...))
 }
 
 // ListSites implements /config/sites GET API

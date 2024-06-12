@@ -75,7 +75,7 @@ EXAMPLE
  `,
 	RunE: func(cmd *cobra.Command, args []string) error {
 		// Load default Translation package
-		T := lang.Bundle().GetTranslationFunc("en-us")
+		T := lang.Bundle().T("en-us")
 
 		dd := jobs.ListDefaults()
 		table := tablewriter.NewWriter(cmd.OutOrStdout())

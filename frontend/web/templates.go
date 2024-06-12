@@ -23,7 +23,7 @@ package web
 import (
 	"html/template"
 
-	"github.com/pydio/cells/v4/common/utils/i18n"
+	"github.com/pydio/cells/v4/common/utils/i18n/languages"
 )
 
 // TplConfFilterFunc takes a TplConf and modifies it
@@ -62,10 +62,10 @@ type TplConf struct {
 
 // GetLoadingString sends an i18n string for "Loading..."
 func GetLoadingString(lang string) string {
-	if s, o := i18n.LoadingStrings[lang]; o {
+	if s, o := languages.LoadingStrings[lang]; o {
 		return s
 	} else {
-		return i18n.LoadingStrings["en-us"]
+		return languages.LoadingStrings["en-us"]
 	}
 }
 

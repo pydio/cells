@@ -241,7 +241,7 @@ func (j *JobsHandler) PutTask(ctx context.Context, request *proto.PutTaskRequest
 	}
 	response := &proto.PutTaskResponse{}
 	response.Task = request.Task
-	T := lang.Bundle().GetTranslationFunc()
+	T := lang.Bundle().T()
 	job.Label = T(job.Label)
 	if !job.TasksSilentUpdate {
 		broker.MustPublish(propagator.ForkContext(context.Background(), ctx), common.TopicJobTaskEvent, &proto.TaskChangeEvent{
@@ -335,7 +335,7 @@ func (j *JobsHandler) PutTaskStream(streamer proto.JobService_PutTaskStreamServe
 		sendErr := streamer.Send(&proto.PutTaskResponse{
 			Task: t,
 		})
-		T := lang.Bundle().GetTranslationFunc()
+		T := lang.Bundle().T()
 		tJob.Label = T(tJob.Label)
 		if !tJob.TasksSilentUpdate {
 			broker.MustPublish(propagator.ForkContext(context.Background(), ctx), common.TopicJobTaskEvent, &proto.TaskChangeEvent{

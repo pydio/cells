@@ -34,7 +34,7 @@ import (
 	"github.com/pydio/cells/v4/common/proto/docstore"
 	"github.com/pydio/cells/v4/common/proto/jobs"
 	"github.com/pydio/cells/v4/common/telemetry/log"
-	"github.com/pydio/cells/v4/common/utils/i18n"
+	"github.com/pydio/cells/v4/common/utils/i18n/languages"
 	"github.com/pydio/cells/v4/idm/oauth/lang"
 	"github.com/pydio/cells/v4/scheduler/actions"
 )
@@ -83,7 +83,7 @@ func (c *PruneTokensAction) Init(job *jobs.Job, action *jobs.Action) error {
 // Run the actual action code
 func (c *PruneTokensAction) Run(ctx context.Context, channels *actions.RunnableChannels, input *jobs.ActionMessage) (*jobs.ActionMessage, error) {
 
-	T := lang.Bundle().GetTranslationFunc(i18n.GetDefaultLanguage(config.Get()))
+	T := lang.Bundle().T(languages.GetDefaultLanguage(config.Get()))
 
 	output := input
 

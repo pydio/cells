@@ -223,7 +223,7 @@ func BuildDataSourceSyncJob(dsName string, flat, autoStart bool, languages ...st
 
 	} else {
 
-		T := lang.Bundle().GetTranslationFunc(languages...)
+		T := lang.Bundle().T(languages...)
 		ap, _ := anypb.New(&tree.Query{
 			Type:       tree.NodeType_LEAF,
 			PathPrefix: []string{dsName},

@@ -41,7 +41,7 @@ import (
 	"github.com/pydio/cells/v4/common/service/frontend"
 	"github.com/pydio/cells/v4/common/telemetry/log"
 	"github.com/pydio/cells/v4/common/telemetry/tracing"
-	"github.com/pydio/cells/v4/common/utils/i18n"
+	"github.com/pydio/cells/v4/common/utils/i18n/languages"
 	json "github.com/pydio/cells/v4/common/utils/jsonx"
 	"github.com/pydio/cells/v4/common/utils/permissions"
 )
@@ -138,7 +138,7 @@ func LoginSuccessWrapper(middleware frontend.AuthMiddleware) frontend.AuthMiddle
 		}
 
 		if lang, ok := in.AuthInfo["lang"]; ok {
-			if _, o := i18n.AvailableLanguages[lang]; o {
+			if _, o := languages.AvailableLanguages[lang]; o {
 				aclClient := idm.NewACLServiceClient(grpc.ResolveConn(in.RuntimeCtx, common.ServiceAcl))
 				// Remove previous value if any
 				delQ, _ := anypb.New(&idm.ACLSingleQuery{

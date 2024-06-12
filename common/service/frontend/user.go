@@ -38,7 +38,7 @@ import (
 	"github.com/pydio/cells/v4/common/proto/tree"
 	"github.com/pydio/cells/v4/common/telemetry/log"
 	"github.com/pydio/cells/v4/common/utils/configx"
-	"github.com/pydio/cells/v4/common/utils/i18n"
+	"github.com/pydio/cells/v4/common/utils/i18n/languages"
 	json "github.com/pydio/cells/v4/common/utils/jsonx"
 	"github.com/pydio/cells/v4/common/utils/permissions"
 )
@@ -159,7 +159,7 @@ func (u *User) LoadActiveLanguage(parameter string) string {
 	if parameter != "" {
 		return parameter
 	}
-	lang := i18n.GetDefaultLanguage(config.Get())
+	lang := languages.GetDefaultLanguage(config.Get())
 	if v := u.FlattenedRolesConfigByName("core.conf", "lang"); v != "" {
 		lang = v
 	}

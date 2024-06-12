@@ -36,7 +36,7 @@ import (
 	"github.com/pydio/cells/v4/common/middleware"
 	"github.com/pydio/cells/v4/common/proto/mailer"
 	"github.com/pydio/cells/v4/common/telemetry/log"
-	"github.com/pydio/cells/v4/common/utils/i18n"
+	"github.com/pydio/cells/v4/common/utils/i18n/languages"
 	"github.com/pydio/cells/v4/common/utils/permissions"
 )
 
@@ -81,7 +81,7 @@ func (mh *MailerHandler) Send(req *restful.Request, rsp *restful.Response) {
 	}
 	log.Logger(ctx).Debug("Sending Email", log.DangerouslyZapSmallSlice("to", message.To), zap.String("subject", message.Subject), zap.Any("templateData", message.TemplateData))
 
-	langs := i18n.UserLanguagesFromRestRequest(req, config.Get())
+	langs := middleware.DetectedLanguages(ctx)
 	cli := mailer.NewMailerServiceClient(grpc.ResolveConn(mh.RuntimeCtx, common.ServiceMailer))
 
 	claims, ok := ctx.Value(claim.ContextKey).(claim.Claims)
@@ -156,7 +156,7 @@ func (mh *MailerHandler) ResolveUser(ctx context.Context, user *mailer.User) (*m
 			} else {
 				output.Name = emailOrAddress
 			}
-			output.Language = i18n.UserLanguage(ctx, u, config.Get())
+			output.Language = languages.UserLanguage(ctx, u, config.Get())
 			return output, nil
 		} else {
 			return nil, fmt.Errorf("user %s has no email set", emailOrAddress)

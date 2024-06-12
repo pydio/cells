@@ -33,14 +33,12 @@ import (
 	"github.com/pydio/cells/v4/broker/activity/render"
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/client/grpc"
-	"github.com/pydio/cells/v4/common/config"
 	"github.com/pydio/cells/v4/common/middleware"
 	"github.com/pydio/cells/v4/common/nodes/compose"
 	"github.com/pydio/cells/v4/common/proto/activity"
 	"github.com/pydio/cells/v4/common/proto/rest"
 	"github.com/pydio/cells/v4/common/proto/tree"
 	"github.com/pydio/cells/v4/common/telemetry/log"
-	"github.com/pydio/cells/v4/common/utils/i18n"
 	"github.com/pydio/cells/v4/common/utils/permissions"
 )
 
@@ -88,7 +86,7 @@ func (a *ActivityHandler) Stream(req *restful.Request, rsp *restful.Response) {
 		inputReq.BoxName = "outbox"
 	}
 	if inputReq.Language == "" {
-		inputReq.Language = i18n.UserLanguagesFromRestRequest(req, config.Get())[0]
+		inputReq.Language = middleware.DetectedLanguages(ctx)[0]
 	}
 	client := a.getClient()
 

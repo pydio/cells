@@ -29,6 +29,7 @@ import (
 	"strings"
 
 	hermes "github.com/matcornic/hermes/v2"
+
 	"github.com/pydio/cells/v4/broker/mailer/lang"
 	"github.com/pydio/cells/v4/common/proto/mailer"
 )
@@ -67,7 +68,7 @@ func PrepareSimpleBody(user *mailer.User, languages ...string) hermes.Body {
 // BuildTemplateWithId prepares a hermes.Body from a templateId
 func BuildTemplateWithId(user *mailer.User, templateId string, templateData map[string]string, languages ...string) (subject string, body hermes.Body) {
 
-	T := lang.Bundle().GetTranslationFunc(languages...)
+	T := lang.Bundle().T(languages...)
 	configs := GetApplicationConfig(languages...)
 	var intros, outros []string
 	var actions []hermes.Action

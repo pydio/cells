@@ -37,7 +37,6 @@ import (
 	"github.com/pydio/cells/v4/common/client/commons/docstorec"
 	"github.com/pydio/cells/v4/common/client/commons/jobsc"
 	"github.com/pydio/cells/v4/common/client/commons/treec"
-	"github.com/pydio/cells/v4/common/config"
 	"github.com/pydio/cells/v4/common/errors"
 	"github.com/pydio/cells/v4/common/middleware"
 	"github.com/pydio/cells/v4/common/middleware/keys"
@@ -51,7 +50,6 @@ import (
 	service2 "github.com/pydio/cells/v4/common/proto/service"
 	"github.com/pydio/cells/v4/common/proto/tree"
 	"github.com/pydio/cells/v4/common/telemetry/log"
-	"github.com/pydio/cells/v4/common/utils/i18n"
 	json "github.com/pydio/cells/v4/common/utils/jsonx"
 	"github.com/pydio/cells/v4/common/utils/mtree"
 	"github.com/pydio/cells/v4/common/utils/permissions"
@@ -263,8 +261,9 @@ func (h *Handler) DeleteNodes(req *restful.Request, resp *restful.Response) {
 
 	ctx := req.Request.Context()
 	username, _ := permissions.FindUserNameInContext(ctx)
-	languages := i18n.UserLanguagesFromRestRequest(req, config.Get())
-	T := lang.Bundle().GetTranslationFunc(languages...)
+
+	languages := middleware.DetectedLanguages(ctx)
+	T := lang.Bundle().T(languages...)
 	output := &rest.DeleteNodesResponse{}
 	router := h.GetRouter()
 
@@ -513,8 +512,8 @@ func (h *Handler) RestoreNodes(req *restful.Request, resp *restful.Response) {
 	output := &rest.RestoreNodesResponse{}
 	ctx := req.Request.Context()
 	username, _ := permissions.FindUserNameInContext(ctx)
-	languages := i18n.UserLanguagesFromRestRequest(req, config.Get())
-	T := lang.Bundle().GetTranslationFunc(languages...)
+	languages := middleware.DetectedLanguages(ctx)
+	T := lang.Bundle().T(languages...)
 	moveLabel := T("Jobs.User.DirMove")
 
 	router := h.GetRouter()

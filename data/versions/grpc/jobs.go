@@ -33,7 +33,7 @@ import (
 
 func GetVersioningJob(language string) *jobs.Job {
 
-	T := lang.Bundle().GetTranslationFunc(language)
+	T := lang.Bundle().T(language)
 
 	triggerCreate := &jobs.TriggerFilter{
 		Label:       "Create/Update",
