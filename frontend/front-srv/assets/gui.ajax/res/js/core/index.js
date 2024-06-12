@@ -175,8 +175,7 @@ if(originalRequire) {
                 break;
         }
 
-        return originalRequire.apply(this, arguments);
+        return originalRequire.apply(this, libName);
     }
 }
-
 Object.assign(window, {...namespace, PydioCore: namespace});
