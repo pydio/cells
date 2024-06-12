@@ -32,6 +32,7 @@ import (
 	"github.com/pydio/cells/v4/common/errors"
 	"github.com/pydio/cells/v4/common/proto/tree"
 	"github.com/pydio/cells/v4/common/runtime"
+	"github.com/pydio/cells/v4/common/storage/boltdb"
 	"github.com/pydio/cells/v4/common/telemetry/log"
 	"github.com/pydio/cells/v4/data/versions"
 )
@@ -45,10 +46,10 @@ func init() {
 }
 
 type BoltStore struct {
-	*bbolt.DB
+	boltdb.DB
 }
 
-func NewBoltStore(db *bbolt.DB) (versions.DAO, error) {
+func NewBoltStore(db boltdb.DB) (versions.DAO, error) {
 
 	bs := &BoltStore{
 		DB: db,

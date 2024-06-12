@@ -30,6 +30,7 @@ import (
 	"github.com/pydio/cells/v4/broker/chat"
 	"github.com/pydio/cells/v4/common/errors"
 	proto "github.com/pydio/cells/v4/common/proto/chat"
+	"github.com/pydio/cells/v4/common/storage/boltdb"
 	"github.com/pydio/cells/v4/common/telemetry/log"
 	"github.com/pydio/cells/v4/common/utils/configx"
 	json "github.com/pydio/cells/v4/common/utils/jsonx"
@@ -40,12 +41,12 @@ func init() {
 	chat.Drivers.Register(NewBoltDAO)
 }
 
-func NewBoltDAO(db *bbolt.DB) chat.DAO {
+func NewBoltDAO(db boltdb.DB) chat.DAO {
 	return &boltdbimpl{db: db, HistorySize: 1000}
 }
 
 type boltdbimpl struct {
-	db          *bbolt.DB
+	db          boltdb.DB
 	HistorySize int64
 }
 

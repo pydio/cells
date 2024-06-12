@@ -24,6 +24,7 @@ import (
 	"context"
 	"fmt"
 	"reflect"
+	"runtime"
 
 	"github.com/pkg/errors"
 
@@ -159,7 +160,7 @@ supportedDriversLoop:
 		}
 
 		if handlerT.NumIn() != len(args) {
-			return t, fmt.Errorf("number of connections (%d) differs from what is requested by handler (%d)", handlerT.NumIn(), len(args))
+			return t, fmt.Errorf("number of connections (%d) differs from what is requested by handler %s (%d)", handlerT.NumIn(), runtime.FuncForPC(handlerV.Pointer()).Name(), len(args))
 		}
 
 		dao := handlerV.Call(args)[0].Interface()

@@ -23,13 +23,13 @@ package bleve
 import (
 	"context"
 	"strings"
-	"time"
 
 	bolt "go.etcd.io/bbolt"
 	"go.uber.org/zap"
 
 	"github.com/pydio/cells/v4/common/errors"
 	"github.com/pydio/cells/v4/common/proto/docstore"
+	"github.com/pydio/cells/v4/common/storage/boltdb"
 	"github.com/pydio/cells/v4/common/telemetry/log"
 	json "github.com/pydio/cells/v4/common/utils/jsonx"
 )
@@ -41,25 +41,9 @@ var (
 
 type BoltStore struct {
 	// Internal DB
-	db *bolt.DB
+	db boltdb.DB
 	// Path to the DB file
 	DbPath string
-}
-
-func NewBoltStore(fileName string) (*BoltStore, error) {
-
-	bs := &BoltStore{
-		DbPath: fileName,
-	}
-	options := bolt.DefaultOptions
-	options.Timeout = 5 * time.Second
-	db, err := bolt.Open(fileName, 0644, options)
-	if err != nil {
-		return nil, err
-	}
-	bs.db = db
-	return bs, nil
-
 }
 
 func (s *BoltStore) GetStore(tx *bolt.Tx, storeID string, mode string) (*bolt.Bucket, error) {

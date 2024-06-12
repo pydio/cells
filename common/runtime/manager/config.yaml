@@ -312,7 +312,7 @@ services:
           prefix: idm_policy_
   pydio.grpc.log:
     storages:
-      logs:
+      main:
         - type: logs
           prefix: syslog
           mapping: log

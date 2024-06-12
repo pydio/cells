@@ -19,7 +19,7 @@ func init() {
 			service.Tag(common.ServiceTagFrontend),
 			service.Description("REST service for serving specific requests directly to frontend"),
 			service.PluginBoxes(rest.BasePluginsBox),
-			service.WithStorageDrivers(sessions.NewCookieDAO, sessions.NewSQLDAO),
+			service.WithStorageDrivers(sessions.NewSQLDAO), // TODO sessions.NewCookieDAO,
 			service.WithWebMiddleware(func(h http.Handler) http.Handler {
 				return sessions.NewSessionWrapper(h, "POST:/frontend/binaries")
 			}),

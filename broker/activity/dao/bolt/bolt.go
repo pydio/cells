@@ -47,24 +47,24 @@ func init() {
 	activity.Drivers.Register(NewBoltDAO)
 }
 
-func NoCacheDAO(db *boltdb.Compacter) activity.DAO {
-	return &boltdbimpl{Compacter: db, InboxMaxSize: 1000}
+func NoCacheDAO(db boltdb.DB) activity.DAO {
+	return &boltdbimpl{DB: db, InboxMaxSize: 1000}
 }
 
-func ShortCacheDAO(db *boltdb.Compacter) activity.DAO {
-	return activity.WithCache(&boltdbimpl{Compacter: db, InboxMaxSize: 1000}, 1*time.Second)
+func ShortCacheDAO(db boltdb.DB) activity.DAO {
+	return activity.WithCache(&boltdbimpl{DB: db, InboxMaxSize: 1000}, 1*time.Second)
 }
 
-func NewBoltDAO(db *boltdb.Compacter) activity.DAO {
+func NewBoltDAO(db boltdb.DB) activity.DAO {
 	d := &boltdbimpl{
-		Compacter:    db,
+		DB:           db,
 		InboxMaxSize: 1000,
 	}
 	return activity.WithCache(d, 5*time.Second)
 }
 
 type boltdbimpl struct {
-	*boltdb.Compacter
+	boltdb.DB
 	InboxMaxSize int64
 }
 

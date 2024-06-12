@@ -32,6 +32,7 @@ import (
 
 	"github.com/pydio/cells/v4/common/errors"
 	proto "github.com/pydio/cells/v4/common/proto/jobs"
+	"github.com/pydio/cells/v4/common/storage/boltdb"
 	"github.com/pydio/cells/v4/common/telemetry/log"
 	json "github.com/pydio/cells/v4/common/utils/jsonx"
 	"github.com/pydio/cells/v4/scheduler/jobs"
@@ -48,16 +49,16 @@ func init() {
 	jobs.Drivers.Register(NewBoltDAO)
 }
 
-func NewBoltDAO(db *bbolt.DB) jobs.DAO {
+func NewBoltDAO(db boltdb.DB) jobs.DAO {
 	dao, _ := newBoltStore(db)
 	return dao
 }
 
 type boltStore struct {
-	*bbolt.DB
+	boltdb.DB
 }
 
-func newBoltStore(db *bbolt.DB) (*boltStore, error) {
+func newBoltStore(db boltdb.DB) (*boltStore, error) {
 
 	bs := &boltStore{
 		DB: db,

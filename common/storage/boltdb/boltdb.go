@@ -32,12 +32,28 @@ func init() {
 	})
 }
 
+type DB interface {
+	Batch(fn func(*bbolt.Tx) error) error
+	Begin(writable bool) (*bbolt.Tx, error)
+	Compact(ctx context.Context, opts map[string]interface{}) (old uint64, new uint64, err error)
+	Close(ctx context.Context) error
+	GoString() string
+	Info() *bbolt.Info
+	IsReadOnly() bool
+	Path() string
+	Stats() bbolt.Stats
+	String() string
+	Sync() error
+	Update(fn func(*bbolt.Tx) error) error
+	View(fn func(*bbolt.Tx) error) error
+}
+
 type pool struct {
-	*openurl.Pool[*db]
+	*openurl.Pool[DB]
 }
 
 func OpenPool(ctx context.Context, uu string) (storage.Storage, error) {
-	p, err := openurl.OpenPool(context.Background(), []string{uu}, func(ctx context.Context, dsn string) (*db, error) {
+	p, err := openurl.OpenPool(context.Background(), []string{uu}, func(ctx context.Context, dsn string) (DB, error) {
 		u, err := url.Parse(dsn)
 		if err != nil {
 			return nil, err
@@ -78,7 +94,7 @@ func OpenPool(ctx context.Context, uu string) (storage.Storage, error) {
 		//	},
 		//}, nil
 
-		return &db{conn}, nil
+		return &db{DB: conn}, nil
 	})
 
 	if err != nil {
@@ -98,33 +114,19 @@ func (p *pool) Close(ctx context.Context, iterate ...func(key string, res storag
 	return p.Pool.Close(ctx)
 }
 
-type DB interface {
-	Internal() *bbolt.DB
-	// Compact(ctx context.Context, opts map[string]interface{}) (old uint64, new uint64, err error)
-	Close(ctx context.Context) error
-}
-
 type db struct {
 	*bbolt.DB
-}
-
-func (d *db) Internal() *bbolt.DB {
-	return d.DB
+	requireClose     func() error
+	switchConnection func(newDB *bbolt.DB) error
 }
 
 func (d *db) Close(ctx context.Context) error {
 	return d.DB.Close()
 }
 
-type Compacter struct {
-	*bbolt.DB
-	requireClose     func() error
-	switchConnection func(newDB *bbolt.DB) error
-}
+func (d *db) Compact(ctx context.Context, opts map[string]interface{}) (old uint64, new uint64, err error) {
 
-func (c *Compacter) Compact(ctx context.Context, opts map[string]interface{}) (old uint64, new uint64, err error) {
-
-	p := c.Path()
+	p := d.Path()
 	if st, e := os.Stat(p); e == nil {
 		old = uint64(st.Size())
 	}
@@ -147,7 +149,7 @@ func (c *Compacter) Compact(ctx context.Context, opts map[string]interface{}) (o
 		return 0, 0, errors.Wrap(e, "opening copy")
 	}
 	if e := copyDB.Update(func(txW *bbolt.Tx) error {
-		return c.View(func(txR *bbolt.Tx) error {
+		return d.View(func(txR *bbolt.Tx) error {
 			return txR.ForEach(func(name []byte, b *bbolt.Bucket) error {
 				log.TasksLogger(ctx).Info("Copying Bucket" + string(name))
 				bW, e := txW.CreateBucketIfNotExists(name)
@@ -169,8 +171,10 @@ func (c *Compacter) Compact(ctx context.Context, opts map[string]interface{}) (o
 	}
 
 	// require current DB to close
-	if e = c.requireClose(); e != nil {
-		return 0, 0, errors.Wrap(e, "closing current")
+	if closeFn := d.requireClose; closeFn != nil {
+		if e = closeFn(); e != nil {
+			return 0, 0, errors.Wrap(e, "closing current")
+		}
 	}
 
 	if keepBackup {
@@ -199,11 +203,12 @@ func (c *Compacter) Compact(ctx context.Context, opts map[string]interface{}) (o
 		return 0, 0, errors.Wrap(er2, "re-opening connection on updated DB")
 	} else {
 		log.TasksLogger(ctx).Info("Reopening connection on new DB")
-		if er = c.switchConnection(newDB); er == nil {
-			if st, e := os.Stat(p); e == nil {
-				new = uint64(st.Size())
+		if switchFn := d.switchConnection; switchFn != nil {
+			if e = switchFn(newDB); e != nil {
+				return 0, 0, errors.Wrap(e, "closing current")
 			}
 		}
+
 		return
 	}
 }

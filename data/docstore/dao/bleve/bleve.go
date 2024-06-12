@@ -26,10 +26,10 @@ import (
 	"strings"
 
 	bleve "github.com/blevesearch/bleve/v2"
-	"go.etcd.io/bbolt"
 	"go.uber.org/zap"
 
 	proto "github.com/pydio/cells/v4/common/proto/docstore"
+	"github.com/pydio/cells/v4/common/storage/boltdb"
 	"github.com/pydio/cells/v4/common/telemetry/log"
 	json "github.com/pydio/cells/v4/common/utils/jsonx"
 	"github.com/pydio/cells/v4/data/docstore"
@@ -41,7 +41,7 @@ func init() {
 	docstore.Drivers.Register(NewBleveDAO)
 }
 
-func NewBleveDAO(boltDB *bbolt.DB, bleveIndex bleve.Index) docstore.DAO {
+func NewBleveDAO(boltDB boltdb.DB, bleveIndex bleve.Index) docstore.DAO {
 	return NewBleveEngine(boltDB, bleveIndex)
 }
 
@@ -52,7 +52,7 @@ type BleveServer struct {
 	Engine bleve.Index
 }
 
-func NewBleveEngine(db *bbolt.DB, index bleve.Index) *BleveServer {
+func NewBleveEngine(db boltdb.DB, index bleve.Index) *BleveServer {
 	bStore := &BoltStore{db: db}
 
 	return &BleveServer{

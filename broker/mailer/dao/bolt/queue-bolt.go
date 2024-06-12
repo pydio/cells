@@ -31,6 +31,7 @@ import (
 
 	mailer2 "github.com/pydio/cells/v4/broker/mailer"
 	"github.com/pydio/cells/v4/common/proto/mailer"
+	"github.com/pydio/cells/v4/common/storage/boltdb"
 	json "github.com/pydio/cells/v4/common/utils/jsonx"
 )
 
@@ -43,7 +44,7 @@ func init() {
 	mailer2.Drivers.Register(NewBoltDAO)
 }
 
-func NewBoltDAO(db *bbolt.DB) mailer2.Queue {
+func NewBoltDAO(db boltdb.DB) mailer2.Queue {
 	bq := &BoltQueue{db: db}
 	_ = bq.Init(nil)
 	return bq
@@ -51,7 +52,7 @@ func NewBoltDAO(db *bbolt.DB) mailer2.Queue {
 
 // BoltQueue defines a queue for the mails backed by a Bolt DB.
 type BoltQueue struct {
-	db *bbolt.DB
+	db boltdb.DB
 }
 
 func (b *BoltQueue) Init(ctx context.Context) error {

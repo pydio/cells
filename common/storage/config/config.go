@@ -2,18 +2,14 @@ package config
 
 import (
 	"context"
-	"os"
 
 	"github.com/pydio/cells/v4/common/config"
 	"github.com/pydio/cells/v4/common/runtime"
+	"github.com/pydio/cells/v4/common/runtime/controller"
 	"github.com/pydio/cells/v4/common/runtime/manager"
 	"github.com/pydio/cells/v4/common/storage"
 	"github.com/pydio/cells/v4/common/utils/openurl"
 	"github.com/pydio/cells/v4/common/utils/propagator"
-)
-
-var (
-	_ storage.Storage = (*configStorage)(nil)
 )
 
 func init() {
@@ -23,118 +19,34 @@ func init() {
 			return
 		}
 
-		st := &configStorage{}
 		for _, scheme := range config.DefaultURLMux().Schemes() {
-			mgr.RegisterStorage(scheme, st)
+			mgr.RegisterStorage(scheme, controller.WithCustomOpener(OpenPool))
 		}
 	})
 }
 
-type configStorage struct {
-	template openurl.Template
-	dbs      []*storedb
+type pool struct {
+	*openurl.Pool[config.Store]
 }
 
-type storedb struct {
-	path string
-	db   config.Store
-}
-
-func (o *configStorage) Open(ctx context.Context, urlstr string) (storage.Storage, error) {
-	t, err := openurl.URLTemplate(urlstr)
-	if err != nil {
-		return nil, err
-	}
-
-	return &configStorage{
-		template: t,
-	}, nil
-}
-
-type configStore struct {
-	store   config.Store
-	service string
-	tenant  string
-}
-
-func (s *configStorage) Provides(conn any) bool {
-	if _, ok := conn.(*config.Store); ok {
-		return true
-	}
-
-	return false
-}
-
-func (s *configStorage) CloseConns(ctx context.Context, clean ...bool) error {
-	for _, db := range s.dbs {
-		if er := db.db.Close(); er != nil {
-			return er
-		}
-		if len(clean) > 0 && clean[0] {
-			if e := os.RemoveAll(db.path); e != nil {
-				return e
-			}
-		}
-	}
-	return nil
-}
-
-func (s *configStorage) Get(ctx context.Context, out interface{}) (bool, error) {
-	if v, ok := out.(*config.Store); ok {
-		u, err := s.template.ResolveURL(ctx)
-		if err != nil {
-			return true, err
-		}
-		path := u.String()
-
-		for _, db := range s.dbs {
-			if path == db.path {
-				*v = db.db
-				return true, nil
-			}
-		}
-
+func OpenPool(ctx context.Context, uu string) (storage.Storage, error) {
+	p, err := openurl.OpenPool(context.Background(), []string{uu}, func(ctx context.Context, dsn string) (config.Store, error) {
 		// Not found, opening
-		db, err := config.OpenStore(ctx, path)
+		db, err := config.OpenStore(ctx, dsn)
 		if err != nil {
-			return true, err
+			return nil, err
 		}
 
-		*v = db
+		return db, nil
+	})
 
-		s.dbs = append(s.dbs, &storedb{
-			db:   db,
-			path: path,
-		})
-
-		return true, nil
-	}
-
-	return false, nil
+	return &pool{p}, err
 }
 
-//type configItem config.Store
-//
-//func (i *configItem) Name() string {
-//	return "boltdb"
-//}
-//
-//func (i *configItem) ID() string {
-//	return uuid.New()
-//}
-//
-//func (i *configItem) Metadata() map[string]string {
-//	return map[string]string{}
-//}
-//
-//func (i *configItem) As(i2 interface{}) bool {
-//	return false
-//}
-//
-//func (i *configItem) Driver() string {
-//	return "boltdb"
-//}
-//
-//func (i *configItem) DSN() string {
-//	return (*bbolt.DB)(i).Path()
-//}
+func (p *pool) Get(ctx context.Context, data ...map[string]string) (any, error) {
+	return p.Pool.Get(ctx)
+}
+
+func (p *pool) Close(ctx context.Context, iterate ...func(key string, res storage.Storage) error) error {
+	return p.Pool.Close(ctx)
+}

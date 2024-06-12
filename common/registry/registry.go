@@ -65,7 +65,7 @@ func WithAdjacentTargetItems(items []Item) AdjacentItemOption {
 
 func WithAdjacentEdgeOptions(opts ...Option) AdjacentItemOption {
 	return func(o *AdjacentItemOptions) {
-		o.sourceOptions = opts
+		o.edgeOptions = opts
 	}
 }
 
