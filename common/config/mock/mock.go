@@ -21,6 +21,7 @@
 package mock
 
 import (
+	"context"
 	"fmt"
 	"sync"
 
@@ -407,7 +408,11 @@ type MockStore struct {
 	configx.Values
 }
 
-func (m *MockStore) Close() error {
+func (m *MockStore) As(out any) bool {
+	return false
+}
+
+func (m *MockStore) Close(ctx context.Context) error {
 	return nil
 }
 
