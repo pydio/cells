@@ -696,7 +696,10 @@
     "other": "戻る"
   },
   "305": {
-    "other": "メインページに戻る"
+    "other": "Back to Homepage"
+  },
+  "305b": {
+    "other": "My Workspaces"
   },
   "306": {
     "other": "アイテムが多すぎます"

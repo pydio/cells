@@ -63,10 +63,10 @@
     "other": "Das Binärpaket wurde erfolgreich verifiziert, Sie können nun den Dienst neu starten."
   },
   "Update.SetCapDetected.Warning": {
-    "other": "WARNUNG: Sie verwenden einen reservierten Port in einer Ihrer Bindungs-URLs. Dies erfordert Root-Berechtigungen, um den Webdienst zu starten."
+    "other": "WARNING: you are using a reserved port on one of your binding URL. This requires a root capability to start web service."
   },
   "Update.SetCapDetected.Hint": {
-    "other": "Wenn Sie systemd nicht mit 'AmbientCapabilities=CAP_NET_BIND_SERVICE' verwenden, müssen Sie den folgenden Befehl ausführen, um den neuen Binärdateien die Verwendung dieses Ports *vor* dem Neustart Ihrer Instanz zu erlauben:"
+    "other": "If you are not using systemd with the 'AmbientCapabilities=CAP_NET_BIND_SERVICE' parameter, you must execute the following command to authorize the new binary to use this port *before* restarting your instance:"
   },
   "Update.SetCapDetected.Command": {
     "other": "$ sudo setcap 'cap_net_bind_service=+ep' <Pfad zu Ihrer Binärdatei>"
