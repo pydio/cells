@@ -4,7 +4,6 @@ import (
 	"context"
 	"encoding/hex"
 	"fmt"
-	"google.golang.org/grpc"
 	"hash"
 	"io"
 	"strconv"
@@ -13,6 +12,7 @@ import (
 
 	errors2 "github.com/pkg/errors"
 	"go.uber.org/zap"
+	"google.golang.org/grpc"
 
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/log"
@@ -101,7 +101,12 @@ func (m *HashHandler) MultipartComplete(ctx context.Context, target *tree.Node, 
 	} else {
 		target.MustSetMeta(common.MetaNamespaceHash, f)
 	}
-	return m.Next.MultipartComplete(ctx, target, uploadID, uploadedParts)
+	oi, er := m.Next.MultipartComplete(ctx, target, uploadID, uploadedParts)
+	if er == nil {
+		// Clear cache only if MultipartComplete is successful (could be retried)
+		go m.clearMultipartCachedHashes(uploadID)
+	}
+	return oi, er
 }
 
 // MultipartAbort clears parts stored in cache on multipart cancellation
@@ -234,7 +239,7 @@ func (m *HashHandler) StreamChanges(ctx context.Context, in *tree.StreamChangesR
 // getPartsCache initializes a cache for multipart hashes
 func (m *HashHandler) getPartsCache() (c cache.Cache, e error) {
 	m.partsCacheOnce.Do(func() {
-		if c, e = cache.OpenCache(context.Background(), runtime.CacheURL("partshasher", "evictionTime", "24h", "cleanWindow", "24h")); e == nil {
+		if c, e = cache.OpenCache(context.Background(), runtime.CacheURL("partshasher", "evictionTime", "48h", "cleanWindow", "24h")); e == nil {
 			m.partsCache = c
 		}
 	})
@@ -275,8 +280,8 @@ func (m *HashHandler) computeMultipartFinalHash(uploadID string, partsNumber int
 			// Read key
 			partName, _ := strconv.Atoi(strings.TrimPrefix(k, prefix))
 			parts[partName-1] = strings.Split(string(hh), ":")
-			// Clear key now
-			_ = c.Delete(k)
+			// Do NOT clear key now, make sure that CompleteMultipartUpload completed successfully first
+			// _ = c.Delete(k)
 		}
 	}
 	if len(parts) != partsNumber {
