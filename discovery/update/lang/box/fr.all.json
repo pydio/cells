@@ -49,5 +49,26 @@
   },
   "Update.Config.Disable.Description": {
     "other": "Si le serveur n'a pas accès au net, ne pas essayer pas de contacter le serveur de mises à jour."
+  },
+  "Update.Process.Start": {
+    "other": "Mise à jour du binaire"
+  },
+  "Update.Process.Progress": {
+    "other": "Téléchargement du binaire en cours {progress}%..."
+  },
+  "Update.Process.Verify": {
+    "other": "Téléchargement terminé, vérification de l'intégrité en cours..."
+  },
+  "Update.Process.Finished": {
+    "other": "L'intégrité du binaire a bien été vérifiée, vous pouvez maintenant redémarrer le service."
+  },
+  "Update.SetCapDetected.Warning": {
+    "other": "ATTENTION : vous utilisez un port réservé pour l'une des URLs de connexion. Ceci requiert des permissions de super-administrateur (root) pour démarrer le service web."
+  },
+  "Update.SetCapDetected.Hint": {
+    "other": "Si vous n'utilisez pas systemd avec 'AmbientCapabilities=CAP_NET_BIND_SERVICE', vous devez executer la commande suivante pour autoriser le nouveau binaire à utiliser ce port *avant* de redémarrer :"
+  },
+  "Update.SetCapDetected.Command": {
+    "other": "$ sudo setcap 'cap_net_bind_service=+ep' <chemin du binaire>"
   }
 }

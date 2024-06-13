@@ -57,7 +57,7 @@
     "other": "ユーザー ID"
   },
   "22": {
-    "other": "Profile"
+    "other": "プロフィール"
   },
   "23": {
     "other": "デフォルトのワークスペース"
@@ -177,52 +177,52 @@
     "other": "技術的なロールを表示"
   },
   "dashboard.filterByType": {
-    "other": "Filter by Type..."
+    "other": "タイプで絞り込む..."
   },
   "dashboard.filterSelectOne": {
-    "other": "Please select at least one role type in the list"
+    "other": "ロールの種類を少なくとも一つ選択してください"
   },
   "roleType": {
-    "other": "Role Type"
+    "other": "ロールタイプ"
   },
   "roleType.description": {
-    "other": "Standard roles are assigned by administrators, whereas teams are managed by users in their address book. Technical roles are attached automatically to each users and groups and in that case their type cannot be modified."
+    "other": "標準ロールは管理者によって割り当てられ、チームはアドレス帳のユーザによって管理されます。 技術的な役割は、各ユーザーとグループに自動的に割り当てられ、そのタイプを変更することはできません。"
   },
   "roleType.admin": {
-    "other": "Standard"
+    "other": "標準"
   },
   "roleType.admin.description": {
-    "other": "Standard Role"
+    "other": "標準ロール"
   },
   "roleType.IsTeam": {
-    "other": "Team"
+    "other": "チーム"
   },
   "roleType.IsTeam.description": {
-    "other": "Team (visible as a Team in address book)"
+    "other": "チーム (アドレス帳のチームとして表示)"
   },
   "roleType.IsUserRole": {
-    "other": "[Tech] User"
+    "other": "[Tech] ユーザー"
   },
   "roleType.IsUserRole.description": {
-    "other": "[Technical] Created automatically for the corresponding User"
+    "other": "[Technical] 対応するユーザーのために自動的に作成されました"
   },
   "roleType.IsGroupRole": {
-    "other": "[Tech] Group"
+    "other": "[Tech] グループ"
   },
   "roleType.IsGroupRole.description": {
-    "other": "[Technical] Created automatically for the corresponding Group"
+    "other": "[Technical] 対応するグループのために自動的に作成されました"
   },
   "dashboard.typeFilter.admin": {
-    "other": "Standard Roles"
+    "other": "標準ロール"
   },
   "dashboard.typeFilter.IsTeam": {
-    "other": "User-defined Teams"
+    "other": "ユーザー定義チーム"
   },
   "dashboard.typeFilter.IsUserRole": {
-    "other": "[Technical] Attached to each users"
+    "other": "[Technical] 各ユーザーにアタッチされました"
   },
   "dashboard.typeFilter.IsGroupRole": {
-    "other": "[Technical] Attached to each groups"
+    "other": "[Technical] 各グループにアタッチされました"
   },
   "last_update": {
     "other": "最終更新"
@@ -243,9 +243,9 @@
     "other": "ロールは常に他のロールの後に適用されます。ただし、それでも優先されるユーザーロールは除きます。"
   },
   "user.info.main": {
-    "other": "Hover fields to show explanation"
+    "other": "フィールドにカーソルを合わせると説明を表示する"
   },
   "button.info.menu.security": {
-    "other": "Security Actions"
+    "other": "セキュリティアクション"
   }
 }
