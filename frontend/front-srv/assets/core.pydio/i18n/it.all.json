@@ -696,7 +696,10 @@
     "other": "Indietro"
   },
   "305": {
-    "other": "Torna alla pagina iniziale"
+    "other": "Back to Homepage"
+  },
+  "305b": {
+    "other": "My Workspaces"
   },
   "306": {
     "other": "Troppi elementi"

@@ -696,7 +696,10 @@
     "other": "Voltar"
   },
   "305": {
-    "other": "Voltar a página inicial"
+    "other": "Back to Homepage"
+  },
+  "305b": {
+    "other": "My Workspaces"
   },
   "306": {
     "other": "Muitas pastas"
