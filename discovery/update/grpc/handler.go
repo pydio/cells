@@ -26,6 +26,7 @@ import (
 	"math"
 	"net/url"
 	"strconv"
+	"strings"
 	"time"
 
 	"go.uber.org/zap"
@@ -37,9 +38,11 @@ import (
 	"github.com/pydio/cells/v4/common/proto/jobs"
 	"github.com/pydio/cells/v4/common/proto/update"
 	"github.com/pydio/cells/v4/common/runtime"
+	"github.com/pydio/cells/v4/common/utils/i18n"
 	"github.com/pydio/cells/v4/common/utils/permissions"
 	"github.com/pydio/cells/v4/common/utils/uuid"
 	update2 "github.com/pydio/cells/v4/discovery/update"
+	"github.com/pydio/cells/v4/discovery/update/lang"
 )
 
 type Handler struct {
@@ -67,6 +70,10 @@ func (h *Handler) UpdateRequired(ctx context.Context, request *update.UpdateRequ
 }
 
 func (h *Handler) ApplyUpdate(ctx context.Context, request *update.ApplyUpdateRequest) (*update.ApplyUpdateResponse, error) {
+
+	crtLang := i18n.UserLanguageFromContext(ctx, config.Get(), true)
+	fmt.Println("crtLang:", crtLang)
+	T := lang.Bundle().GetTranslationFunc(crtLang)
 
 	configs := config.GetUpdatesConfigs()
 	binaries, e := update2.LoadUpdates(ctx, configs, &update.UpdateRequest{
@@ -105,12 +112,12 @@ func (h *Handler) ApplyUpdate(ctx context.Context, request *update.ApplyUpdateRe
 		Status:        jobs.TaskStatus_Running,
 		HasProgress:   true,
 		StartTime:     int32(time.Now().Unix()),
-		StatusMessage: "Upgrading Binary",
+		StatusMessage: T("Update.Process.Start"),
 		TriggerOwner:  uName,
 	}
 	job := &jobs.Job{
 		ID:    response.Message,
-		Label: "Upgrading Binary",
+		Label: T("Update.Process.Start"),
 		Owner: uName,
 		Tasks: []*jobs.Task{task},
 	}
@@ -121,6 +128,7 @@ func (h *Handler) ApplyUpdate(ctx context.Context, request *update.ApplyUpdateRe
 	broker.MustPublish(ctx, common.TopicJobTaskEvent, event)
 	ct := runtime.ForkContext(context.Background(), ctx)
 	go func() {
+
 		defer close(pgChan)
 		defer close(errorChan)
 		//defer close(doneChan)
@@ -129,9 +137,10 @@ func (h *Handler) ApplyUpdate(ctx context.Context, request *update.ApplyUpdateRe
 			case pg := <-pgChan:
 				task.Progress = float32(pg)
 				if pg < 1 {
-					task.StatusMessage = fmt.Sprintf("Downloading Binary %v%%...", math.Floor(pg*100))
+					stringProgress := fmt.Sprintf("%v", math.Floor(pg*100))
+					task.StatusMessage = strings.Replace(T("Update.Process.Progress"), "{progress}", stringProgress, 1)
 				} else {
-					task.StatusMessage = "Download finished, now verifying package..."
+					task.StatusMessage = T("Update.Process.Verify")
 				}
 				broker.MustPublish(ct, common.TopicJobTaskEvent, event)
 			case e := <-errorChan:
@@ -141,7 +150,7 @@ func (h *Handler) ApplyUpdate(ctx context.Context, request *update.ApplyUpdateRe
 				return
 			case <-doneChan:
 				task.Status = jobs.TaskStatus_Finished
-				task.StatusMessage = "Binary package has been successfully verified, you can now restart Cells.\n"
+				task.StatusMessage = T("Update.Process.Finished")
 				// Double check if we are on a protected port and log a hint in such case.
 				hasProtectedPort := false
 				sites, _ := config.LoadSites()
@@ -155,10 +164,13 @@ func (h *Handler) ApplyUpdate(ctx context.Context, request *update.ApplyUpdateRe
 					}
 				}
 				if hasProtectedPort {
-					task.StatusMessage += "--------- \n"
-					task.StatusMessage += "WARNING: you are using a reserved port on one your binding url.\n"
-					task.StatusMessage += "You must execute following command to authorize the new binary to use this port *before* restarting your instance:\n"
-					task.StatusMessage += "$ sudo setcap 'cap_net_bind_service=+ep' <path to your binary>\n"
+					task.StatusMessage += strings.Join([]string{
+						"",
+						"----------------",
+						T("Update.SetCapDetected.Warning"),
+						T("Update.SetCapDetected.Hint"),
+						T("Update.SetCapDetected.Command"),
+					}, "\n")
 				}
 				broker.MustPublish(ct, common.TopicJobTaskEvent, event)
 				return
