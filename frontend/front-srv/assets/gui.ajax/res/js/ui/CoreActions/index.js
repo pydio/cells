@@ -31,6 +31,7 @@ import externalSelection from './navigation/externalSelection'
 import openGoPro from './navigation/openGoPro'
 import switchToSettings from './navigation/switchToSettings'
 import switchToHomepage from './navigation/switchToHomepage'
+import switchToFilesDefault from './navigation/switchToFilesDefault'
 
 const Callbacks = {
     switchLanguage,
@@ -48,6 +49,7 @@ const Navigation = {
     openGoPro,
     switchToSettings,
     switchToHomepage,
+    switchToFilesDefault,
 };
 
 import SplashDialog from './dialog/SplashDialog'
