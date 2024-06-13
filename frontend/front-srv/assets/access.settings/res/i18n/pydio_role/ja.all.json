@@ -45,7 +45,7 @@
     "other": "パラメータキャッシュを読み込んでいます、しばらくお待ちください、これは一度だけ行われます..."
   },
   "24": {
-    "other": "Account"
+    "other": "アカウント"
   },
   "25": {
     "other": "アクセス制限"
@@ -81,10 +81,10 @@
     "other": "アクセスコントロール"
   },
   "35": {
-    "other": "Workspaces"
+    "other": "ワークスペース"
   },
   "36": {
-    "other": "Pages"
+    "other": "ページ"
   },
   "37": {
     "other": "パラメータのカスタマイズ"
@@ -111,13 +111,13 @@
     "other": "現在のロール/ユーザー/グループのワークスペースへのアクセスを許可"
   },
   "permissions.legend.user": {
-    "other": "Provide access to workspaces for the current user, overriding permissions inherited from user's roles. Use 'Manage Roles' to add/remove roles and identify the sources of inherited permissions."
+    "other": "ユーザのロールから継承された権限を上書きする、現在のユーザのワークスペースへのアクセス権を提供します。 ロールを追加/削除し、継承された権限のソースを特定するには、「ロールの管理」を使用します。"
   },
   "permissions.legend.group": {
-    "other": "Provide access to workspaces for the current group. These permissions will be inherited by all users belonging this group."
+    "other": "現在のグループのワークスペースへのアクセスを提供します。これらの権限は、このグループに属するすべてのユーザーに継承されます。"
   },
   "permissions.legend.role": {
-    "other": "Provide access to workspaces for the current role. These permissions will be applied to all users to whom the role has been assigned."
+    "other": "現在のロールに対するワークスペースへのアクセスを提供します。これらの権限は、ロールが割り当てられたすべてのユーザーに適用されます。"
   },
   "44": {
     "other": "アプリケーションのメインページ"
@@ -126,13 +126,13 @@
     "other": "メインアプリケーションページ(マイアカウント、ウェルカムページなど) へのアクセス"
   },
   "application-params.title": {
-    "other": "Parameters and actions"
+    "other": "パラメーターとアクション"
   },
   "application-params.legend": {
-    "other": "Modify UX parameters and show/hide certain actions for a specific role, globally or by workspace."
+    "other": "UXパラメータを変更し、特定のロール、グローバルまたはワークスペースの特定のアクションを表示/非表示にします。"
   },
   "application-params.legend.user-disclaimer": {
-    "other": "As a general rule, this should be managed at role level, not user level!"
+    "other": "一般的なルールとして、これはユーザーレベルではなくロールレベルで管理されるべきです！"
   },
   "49": {
     "other": "共有"
@@ -153,7 +153,7 @@
     "other": "%1 がワークスペース %2 内から共有しました"
   },
   "54": {
-    "other": "User informations and security actions. Hover fields in the form below to display explanations."
+    "other": "ユーザー情報とセキュリティアクション。下のフィールドにカーソルを合わせると説明が表示されます。"
   },
   "55": {
     "other": "プロファイルとロールを切り替えて、このユーザーに権限を自動的に付与します。"
@@ -174,13 +174,13 @@
     "other": "ユーザーロールの管理"
   },
   "roles.picker.add": {
-    "other": "Add role"
+    "other": "ロールを追加"
   },
   "roles.picker.hint": {
-    "other": "Start typing to search roles..."
+    "other": "入力してロールを検索..."
   },
   "roles.picker.effective": {
-    "other": "Effective role for %s"
+    "other": "%sの有効なロール"
   },
   "parameters.scope.selector.title": {
     "other": "追加..."
@@ -225,15 +225,15 @@
     "other": "ワークスペース全体"
   },
   "section.user-info": {
-    "other": "User Info"
+    "other": "ユーザー情報"
   },
   "section.permissions": {
-    "other": "Permissions"
+    "other": "アクセス許可"
   },
   "section.security": {
-    "other": "Security"
+    "other": "セキュリティ"
   },
   "section.advanced": {
-    "other": "Advanced"
+    "other": "高度な設定"
   }
 }

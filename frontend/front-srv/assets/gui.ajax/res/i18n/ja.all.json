@@ -153,40 +153,40 @@
     "other": "クリップボードにコピーできませんでした。"
   },
   "layouts.preferences": {
-    "other": "Manage Layouts"
+    "other": "レイアウトを管理"
   },
   "layouts.preferences.legend": {
-    "other": "Save and Recall Layouts as Presets"
+    "other": "レイアウトをプリセットとして保存"
   },
   "layouts.action.rename": {
-    "other": "Rename Layout"
+    "other": "レイアウトの名前を変更"
   },
   "layouts.action.remove": {
-    "other": "Remove Layout"
+    "other": "レイアウトの削除"
   },
   "layouts.action.remove.confirm": {
-    "other": "Do you want to remove this layout?"
+    "other": "このレイアウトを削除しますか？"
   },
   "layouts.action.reset": {
-    "other": "Reset Layout"
+    "other": "レイアウトをリセット"
   },
   "layouts.action.reset.confirm": {
-    "other": "Do you want to reset the current layout?"
+    "other": "現在のレイアウトをリセットしますか？"
   },
   "layouts.action.create": {
-    "other": "Save Layout..."
+    "other": "レイアウトを保存..."
   },
   "layouts.action.fork": {
-    "other": "New From Current..."
+    "other": "現在のレイアウトから新規..."
   },
   "layouts.action.create.default": {
-    "other": "My Layout"
+    "other": "マイレイアウト"
   },
   "layouts.prompt.save": {
-    "other": "Save Layout As..."
+    "other": "名前を付けてレイアウトを保存..."
   },
   "layouts.prompt.save.field": {
-    "other": "Choose a name to save/recall the current layout"
+    "other": "現在のレイアウトを保存/呼び出す名前を選択してください"
   },
   "list.display-mode.list": {
     "other": "リスト"
@@ -219,40 +219,40 @@
     "other": "ブックマークを上部にピン留め"
   },
   "list.writeonly.emptystate.title": {
-    "other": "Drop Files Here"
+    "other": "ここにファイルをドロップ"
   },
   "list.writeonly.emptystate.legend": {
-    "other": "This folder is write-only: you cannot see its contents and are only authorized to upload files or folders. Your own content will not be visible after upload!"
+    "other": "このフォルダは書き込み専用です：あなたはその内容を見ることができず、ファイルやフォルダをアップロードすることだけが許可されています。アップロード後は、あなた自身のコンテンツは表示されません！"
   },
   "infopanel.empty.select.file": {
     "other": "情報を表示するファイルを選択します"
   },
   "infopanel.card.pin": {
-    "other": "Attach card (full height)"
+    "other": "カードを貼る(フルハイト)"
   },
   "infopanel.card.unpin": {
-    "other": "Detach card"
+    "other": "カードを取り外す"
   },
   "infopanel.card.detach": {
-    "other": "Detach in a separate panel"
+    "other": "セパレートパネルから切り離す"
   },
   "infopanel.detached.minimize": {
-    "other": "Minimize Panel"
+    "other": "パネルを最小化"
   },
   "infopanel.detached.maximize": {
-    "other": "Open Panel"
+    "other": "パネルを開く"
   },
   "infopanel.detached.dock": {
-    "other": "Dock in the right-hand column"
+    "other": "右側の列のドック"
   },
   "infopanel.detailcard.preview": {
-    "other": "Preview"
+    "other": "プレビュー"
   },
   "infopanel.detailcard.cell-info": {
-    "other": "Cell Info"
+    "other": "セル情報"
   },
   "infopanel.detailcard.cell-chat": {
-    "other": "Cell Chat"
+    "other": "セルチャット"
   },
   "pinned-bookmarks.other": {
     "other": "すべてのファイル"
@@ -345,24 +345,24 @@
     "other": "ダークモード"
   },
   "task.status.Starting": {
-    "other": "Started {startTime}"
+    "other": "{startTime}に開始しました"
   },
   "task.status.Pending": {
-    "other": "Will start soon..."
+    "other": "まもなく開始します..."
   },
   "task.status.Complete": {
-    "other": "Task completed in {duration}"
+    "other": "{duration} でタスクが完了しました"
   },
   "task.status.Finished": {
-    "other": "Task completed in {duration}"
+    "other": "{duration} でタスクが完了しました"
   },
   "task.status.Error": {
-    "other": "An error happened!"
+    "other": "エラーが発生しました！"
   },
   "bigppanel.filter.default-hint": {
-    "other": "Quick Find..."
+    "other": "クイック検索..."
   },
   "sorter.metas.more": {
-    "other": "More..."
+    "other": "もっと見る..."
   }
 }

@@ -2256,10 +2256,10 @@
     "other": "ファイル名に / を使用しないでください！"
   },
   "filename.forbidden.empty": {
-    "other": "You must provide a name!"
+    "other": "ファイル名を指定してください！"
   },
   "filename.trailing-leading.spaces": {
-    "other": "Warning, it seems that the name begins or ends with a blank character (perhaps a typo?)"
+    "other": "警告: 名前は空白の文字で始まるか、または終わるようです(もしかしてタイプミスですか?)"
   },
   "rename.newvalue.error.similar": {
     "other": "名前を変更するには、別の値を使用してください!"
@@ -2346,7 +2346,7 @@
     "other": "5MB未満の画像を使用してください"
   },
   "searchengine.start": {
-    "other": "Start typing to search for files and folders"
+    "other": "ファイルとフォルダを検索するために入力を開始"
   },
   "searchengine.searching": {
     "other": "検索中..."
@@ -2436,52 +2436,52 @@
     "other": "クリックして変更"
   },
   "chat.dropzone.remove": {
-    "other": "Remove"
+    "other": "削除"
   },
   "chat.dropzone.preview": {
-    "other": "Include preview?"
+    "other": "プレビューを含めますか？"
   },
   "chat.dropzone.inline": {
-    "other": "Insert inline"
+    "other": "インライン挿入"
   },
   "chat.load-older": {
     "other": "古い項目"
   },
   "chat.msg.edit": {
-    "other": "Edit Message"
+    "other": "メッセージを編集"
   },
   "chat.msg.save": {
-    "other": "Save Changes"
+    "other": "変更を保存"
   },
   "chat.msg.revert": {
-    "other": "Revert Changes"
+    "other": "変更内容を破棄"
   },
   "chat.msg.delete": {
-    "other": "Delete Message"
+    "other": "メッセージを削除"
   },
   "chat.msg.delete.confirm.title": {
-    "other": "Delete Message?"
+    "other": "メッセージを削除しますか？"
   },
   "chat.msg.delete.confirm": {
-    "other": "This action cannot be undone"
+    "other": "この操作は元に戻せません"
   },
   "chat.link.doc.loading": {
-    "other": "Loading document..."
+    "other": "ファイルを読み込み中…"
   },
   "chat.link.doc.opening": {
-    "other": "Opening document..."
+    "other": "ドキュメントを開いています..."
   },
   "chat.link.doc.goto": {
-    "other": "Go to document"
+    "other": "ドキュメントに移動"
   },
   "chat.link.doc.not-found": {
-    "other": "Document not found, it may have been deleted."
+    "other": "ドキュメントが見つかりません。削除された可能性があります。"
   },
   "chat.link.doc.click-indicator": {
-    "other": "Click to open %s"
+    "other": "クリックで %s を開く"
   },
   "chat.link.doc.open-in": {
-    "other": "Open document in..."
+    "other": "ドキュメントを開く..."
   },
   "workspace.quota-usage": {
     "other": "クオータの使用"

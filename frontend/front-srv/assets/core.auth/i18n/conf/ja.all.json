@@ -45,7 +45,7 @@
     "other": "パスワードを忘れた場合"
   },
   "Forgot Password Link": {
-    "other": "Forgot Password Link"
+    "other": "パスワードをお忘れですか？"
   },
   "Generic Auth Features": {
     "other": "一般的な機能"
@@ -141,7 +141,7 @@
     "other": "Forgot Passwordをクリックしたときにトリガーするアクション。外部認証システムに依存している場合、カスタムアクションをトリガーするために変更できます。"
   },
   "When relying on an external authentication system, replace the Forgot Action with an external link that will be opened in a new window.": {
-    "other": "When relying on an external authentication system, replace the Forgot Action with an external link that will be opened in a new window."
+    "other": "外部認証システムに依存する場合は、新しいウィンドウで開かれる外部リンクに Forgot Action を置き換えます。"
   },
   "Let user create new cells": {
     "other": "ユーザーに新しいセルを作成させます"
