@@ -131,10 +131,18 @@ func TestDBPool(t *testing.T) {
 
 	// First db :
 	db1 := db.Session(&gorm.Session{Context: context.WithValue(context.Background(), "name", "test1")})
-	db1.AutoMigrate(&Data{})
+	if err := db1.AutoMigrate(&Data{}); err != nil {
+		panic(err)
+	}
+
+	if err := db1.AutoMigrate(&Data{}); err != nil {
+		panic(err)
+	}
 
 	db2 := db.Session(&gorm.Session{Context: context.WithValue(context.Background(), "name", "test2")})
-	db2.AutoMigrate(&Data{})
+	if err := db2.AutoMigrate(&Data{}); err != nil {
+		panic(err)
+	}
 
 	fmt.Println("Automigrate is over")
 

@@ -47,6 +47,7 @@ func (dr *DBResolver) switchGuess(db *gorm.DB) {
 		} else {
 			db.Statement.ConnPool = dr.resolve(db.Statement, Write)
 		}
+
 	}
 }
 

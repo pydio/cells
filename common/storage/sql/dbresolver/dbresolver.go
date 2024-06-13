@@ -1,7 +1,7 @@
 package dbresolver
 
 import (
-	"database/sql"
+	"fmt"
 	"sync"
 
 	"gorm.io/driver/mysql"
@@ -20,8 +20,12 @@ const (
 	Read  Operation = "read"
 )
 
+type ClauseBuilder interface {
+	ClauseBuilders() map[string]clause.ClauseBuilder
+}
+
 type DBResolver struct {
-	*openurl.Pool[*sql.DB]
+	*openurl.Pool[gorm.Dialector]
 
 	*gorm.DB
 	global           *resolver
@@ -51,33 +55,26 @@ func (d *DBResolverDialector) Initialize(db *gorm.DB) error {
 }
 
 func (d *DBResolverDialector) Migrator(db *gorm.DB) gorm.Migrator {
-	conn, err := d.dr.Pool.Get(db.Statement.Context)
+	dialector, err := d.dr.Pool.Get(db.Statement.Context)
 	if err != nil {
 		panic(err)
 	}
 
-	var dialect gorm.Dialector
-	// var driver string
-	if IsMysqlConn(conn.Driver()) {
-		dialect = mysql.New(mysql.Config{
-			Conn: conn,
-		})
-		// driver = MySQLDriver
-	} else if IsPostGreConn(conn.Driver()) {
-		dialect = postgres.New(postgres.Config{
-			Conn: conn,
-		})
-		// driver = PostgreDriver
-	} else if IsSQLiteConn(conn.Driver()) {
-		dialect = &sqlite.Dialector{
-			Conn: conn,
-		}
-		// 	driver = SqliteDriver
+	db.Statement.Dialector = dialector
+
+	switch d := dialector.(type) {
+	case *mysql.Dialector:
+		db.Statement.ConnPool = d.Conn
+		db.ConnPool = d.Conn
+	case *postgres.Dialector:
+		db.Statement.ConnPool = d.Conn
+		db.ConnPool = d.Conn
+	case *sqlite.Dialector:
+		db.Statement.ConnPool = d.Conn
+		db.ConnPool = d.Conn
 	}
 
-	db.Statement.Dialector = dialect
-
-	return db.Statement.Migrator()
+	return dialector.Migrator(db)
 }
 
 func (d *DBResolverDialector) DataTypeOf(field *schema.Field) string {
@@ -89,6 +86,13 @@ func (d *DBResolverDialector) DefaultValueOf(field *schema.Field) clause.Express
 }
 
 func (d *DBResolverDialector) BindVarTo(writer clause.Writer, stmt *gorm.Statement, v interface{}) {
+	dialector, err := d.dr.Pool.Get(stmt.Context)
+	if err != nil {
+		panic(err)
+	}
+
+	dialector.BindVarTo(writer, stmt, v)
+
 	return
 }
 
@@ -97,10 +101,10 @@ func (d *DBResolverDialector) QuoteTo(writer clause.Writer, s string) {
 }
 
 func (d *DBResolverDialector) Explain(sql string, vars ...interface{}) string {
-	return "Explaining"
+	return fmt.Sprintf("%s - %v", sql, vars)
 }
 
-func New(pool *openurl.Pool[*sql.DB]) *DBResolver {
+func New(pool *openurl.Pool[gorm.Dialector]) *DBResolver {
 	return &DBResolver{
 		Pool: pool,
 	}
@@ -131,11 +135,52 @@ func (dr *DBResolver) Initialize(db *gorm.DB) error {
 }
 
 func (dr *DBResolver) resolve(stmt *gorm.Statement, op Operation) gorm.ConnPool {
-
-	conn, err := dr.Pool.Get(stmt.Context)
+	dialector, err := dr.Pool.Get(stmt.Context)
 	if err != nil {
 		panic(err)
 	}
 
-	return conn
+	stmt.Dialector = dialector
+
+	if cb, ok := dialector.(ClauseBuilder); ok {
+		for k, v := range cb.ClauseBuilders() {
+			stmt.ClauseBuilders[k] = v
+		}
+	}
+
+	switch d := dialector.(type) {
+	case *mysql.Dialector:
+		return d.Conn
+	case *postgres.Dialector:
+		return d.Conn
+	case *sqlite.Dialector:
+		return d.Conn
+	}
+
+	return nil
+}
+
+func (dr *DBResolver) convertToConnPool(dialectors []gorm.Dialector) (connPools []gorm.ConnPool, err error) {
+	config := *dr.DB.Config
+	for _, dialector := range dialectors {
+		if db, err := gorm.Open(dialector, &config); err == nil {
+			connPool := db.Config.ConnPool
+			if preparedStmtDB, ok := connPool.(*gorm.PreparedStmtDB); ok {
+				connPool = preparedStmtDB.ConnPool
+			}
+
+			dr.prepareStmtStore[connPool] = &gorm.PreparedStmtDB{
+				ConnPool:    db.Config.ConnPool,
+				Stmts:       map[string]*gorm.Stmt{},
+				Mux:         &sync.RWMutex{},
+				PreparedSQL: make([]string, 0, 100),
+			}
+
+			connPools = append(connPools, connPool)
+		} else {
+			return nil, err
+		}
+	}
+
+	return connPools, err
 }
