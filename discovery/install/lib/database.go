@@ -31,13 +31,12 @@ import (
 	"strings"
 	"time"
 
-	uuid2 "github.com/pydio/cells/v4/common/utils/uuid"
-
 	"github.com/go-sql-driver/mysql"
 
 	"github.com/pydio/cells/v4/common/config"
 	"github.com/pydio/cells/v4/common/log"
 	"github.com/pydio/cells/v4/common/proto/install"
+	uuid2 "github.com/pydio/cells/v4/common/utils/uuid"
 )
 
 var (
@@ -191,6 +190,12 @@ func addDatabaseManualConnection(c *install.InstallConfig) (*mysql.Config, error
 
 func checkConnection(dsn string) error {
 	for {
+		conf, e := mysql.ParseDSN(dsn)
+		if e != nil {
+			return e
+		} else if strings.Contains(conf.Passwd, "?") {
+			return fmt.Errorf("currently, sql password cannot contain '?', please use a different user (this will be solved in future version)")
+		}
 		if db, err := sql.Open("mysql+tls", dsn); err != nil {
 			return err
 		} else {
