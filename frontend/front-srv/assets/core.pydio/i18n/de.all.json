@@ -696,7 +696,10 @@
     "other": "Zurück"
   },
   "305": {
-    "other": "Zurück zur Hauptseite"
+    "other": "Back to Homepage"
+  },
+  "305b": {
+    "other": "My Workspaces"
   },
   "306": {
     "other": "Zu viele Ordner"

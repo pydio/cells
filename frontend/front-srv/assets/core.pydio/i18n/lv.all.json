@@ -696,7 +696,10 @@
     "other": "Atpakaļ"
   },
   "305": {
-    "other": "Atgriezties galvenajā lapā"
+    "other": "Back to Homepage"
+  },
+  "305b": {
+    "other": "My Workspaces"
   },
   "306": {
     "other": "Pārāk daudz objektu"
