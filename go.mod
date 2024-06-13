@@ -82,7 +82,7 @@ require (
 	github.com/pborman/uuid v1.2.1
 	github.com/philopon/go-toposort v0.0.0-20170620085441-9be86dbd762f
 	github.com/pkg/errors v0.9.1
-	github.com/pydio/caddyvault v1.0.2
+	github.com/pydio/caddyvault v1.0.3
 	github.com/pydio/go v0.0.0-20191211170306-d00ac19450ef
 	github.com/pydio/melody v0.0.0-20190928133520-4271c6513fb6
 	github.com/pydio/pydio-sdk-go v0.0.0-20190116153840-23ce5c39e65c
