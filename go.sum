@@ -2923,8 +2923,8 @@ github.com/prometheus/prometheus v0.44.0/go.mod h1:aPsmIK3py5XammeTguyqTmuqzX/je
 github.com/prometheus/tsdb v0.7.1/go.mod h1:qhTCs0VvXwvX/y3TZrWD7rabWM+ijKTux40TwIPHuXU=
 github.com/puzpuzpuz/xsync/v3 v3.1.0 h1:EewKT7/LNac5SLiEblJeUu8z5eERHrmRLnMQL2d7qX4=
 github.com/puzpuzpuz/xsync/v3 v3.1.0/go.mod h1:VjzYrABPabuM4KyBh1Ftq6u8nhwY5tBPKP9jpmh0nnA=
-github.com/pydio/caddyvault v1.0.2 h1:aPPlWUOxJUMtoNp89pT3QP8PBX90rI4eyUDIOIe4Qgo=
-github.com/pydio/caddyvault v1.0.2/go.mod h1:aS8RitGxU/qByaXcsK6Mg8tOdINiCNmmCNurGld29A0=
+github.com/pydio/caddyvault v1.0.3 h1:QPf1cUNwDkxjevZdLS7x4ryDqMDYXznDGctUjiRgTHY=
+github.com/pydio/caddyvault v1.0.3/go.mod h1:TqPZn8TE/NPaDqtkX8zCRr/XXpCPjyPloQcBe1zOrbg=
 github.com/pydio/go v0.0.0-20191211170306-d00ac19450ef h1:5FyN7pndX4GyCAb0gdZgN78qJ1IGL1/Mj19bTijXgfk=
 github.com/pydio/go v0.0.0-20191211170306-d00ac19450ef/go.mod h1:H+DrbjBEehySj5ykZVFHF12kpfWtmKpsoyDZ16kUyqk=
 github.com/pydio/melody v0.0.0-20190928133520-4271c6513fb6 h1:R2xi5pGxvwcVUTRh8CrDzdkYLIQT8nXvQHyXuYg1rRE=
