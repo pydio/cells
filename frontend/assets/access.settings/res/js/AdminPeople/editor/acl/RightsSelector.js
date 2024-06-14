@@ -53,9 +53,9 @@ class RightsSelector extends React.Component{
             return;
         }
 
-        const d = this.refs.deny.isChecked();
-        const r = !d && this.refs.read.isChecked();
-        const w = !d && this.refs.write.isChecked();
+        const d = this.refs.deny && this.refs.deny.isChecked();
+        const r = !d && this.refs.read && this.refs.read.isChecked();
+        const w = !d && this.refs.write && this.refs.write.isChecked();
         let acl;
         let parts = [];
         if (d) {
