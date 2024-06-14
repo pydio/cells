@@ -696,7 +696,10 @@
     "other": "Atrás"
   },
   "305": {
-    "other": "Volver a la página principal"
+    "other": "Back to Homepage"
+  },
+  "305b": {
+    "other": "My Workspaces"
   },
   "306": {
     "other": "Demasiados elementos"
@@ -2436,7 +2439,7 @@
     "other": "Click to modify"
   },
   "chat.dropzone.remove": {
-    "other": "Remove"
+    "other": "Eliminar"
   },
   "chat.dropzone.preview": {
     "other": "Include preview?"
@@ -2451,13 +2454,13 @@
     "other": "Edit Message"
   },
   "chat.msg.save": {
-    "other": "Save Changes"
+    "other": "Guardar Cambios"
   },
   "chat.msg.revert": {
     "other": "Revert Changes"
   },
   "chat.msg.delete": {
-    "other": "Delete Message"
+    "other": "Borrar mensaje"
   },
   "chat.msg.delete.confirm.title": {
     "other": "Delete Message?"

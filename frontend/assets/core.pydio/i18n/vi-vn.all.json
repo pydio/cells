@@ -696,7 +696,10 @@
     "other": "Quay lại"
   },
   "305": {
-    "other": "Quay lại trang chính"
+    "other": "Back to Homepage"
+  },
+  "305b": {
+    "other": "My Workspaces"
   },
   "306": {
     "other": "Quá nhiều thứ"

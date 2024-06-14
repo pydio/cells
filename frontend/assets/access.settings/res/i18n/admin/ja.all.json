@@ -12,7 +12,7 @@
     "other": "データソースはPydioのグローバルツリー配下のストレージに存在します。データソースは必要に応じて複数のストレージノードで分散できます。"
   },
   "ds.board.ds.internal.legend": {
-    "other": "Internal DataSources are used to store binaries like files versions"
+    "other": "Internal DataSourcesはファイルのバージョンなどのバイナリを保存するために使用されます"
   },
   "ds.board.ds.title": {
     "other": "データソース"
@@ -54,13 +54,13 @@
     "other": "フラットストレージ"
   },
   "ds.format-picker.flat.legend": {
-    "other": "The files are stored as binaries along regular snapshots of the tree structure to ensure an efficient disaster recovery. This is the recommended option for best performances and scalability."
+    "other": "ファイルは、効率的な障害復旧を確実にするために、ツリー構造の定期的なスナップショットとともにバイナリとして保存されます。これは、最高のパフォーマンスとスケーラビリティのために推奨されるオプションです。"
   },
   "ds.format-picker.structured.title": {
     "other": "既存のデータをインポート"
   },
   "ds.format-picker.structured.legend": {
-    "other": "The tree structure is reflected in the storage and maintained in real-time synchronization. This legacy option is NOT recommended and should only be used for importing existing data. It is event-based and must not be used in high load or clustered installation."
+    "other": "ツリー構造は、ストレージに反映され、リアルタイム同期で維持されます。 このレガシーオプションは推奨されません。既存のデータをインポートする場合にのみ使用してください。 これはイベントベースであり、高負荷またはクラスタ化されたインストールでは使用しないでください。"
   },
   "ds.format-picker.internal.title": {
     "other": "Cells の内部"
@@ -633,46 +633,46 @@
     "other": "結果がありません"
   },
   "logs.details.copy": {
-    "other": "Copy log to clipboard"
+    "other": "ログをクリップボードにコピー"
   },
   "logs.details.show-focus": {
-    "other": "Show +/- 5 minutes"
+    "other": "+ / - 5 分表示"
   },
   "logs.details.close": {
-    "other": "Close log detail"
+    "other": "ログの詳細を閉じる"
   },
   "logs.details.user": {
-    "other": "User"
+    "other": "ユーザー"
   },
   "logs.details.user-attributes": {
-    "other": "User Attributes"
+    "other": "ユーザー属性"
   },
   "logs.details.date": {
-    "other": "Event Date"
+    "other": "イベント日時"
   },
   "logs.details.msg": {
-    "other": "Event Message"
+    "other": "イベントメッセージ"
   },
   "logs.details.service": {
-    "other": "Emitting Service"
+    "other": "発生したサービス"
   },
   "logs.details.connection": {
-    "other": "Connection IP"
+    "other": "接続IP"
   },
   "logs.details.agent": {
-    "other": "User-Agent"
+    "other": "ユーザーエージェント"
   },
   "logs.details.protocol": {
-    "other": "Protocol"
+    "other": "プロトコル"
   },
   "logs.details.node": {
-    "other": "File/Folder"
+    "other": "ファイル/フォルダ"
   },
   "logs.details.transfer-size": {
-    "other": "Transfer Size"
+    "other": "転送サイズ"
   },
   "logs.details.workspace": {
-    "other": "In Workspace"
+    "other": "ワークスペース"
   },
   "menu.0": {
     "other": "ダッシュボード"
@@ -966,7 +966,7 @@
     "other": "サーバーの高負荷を検出する（Linuxサーバーのみ）"
   },
   "perfs.load.error": {
-    "other": "Maybe adding some CPU or RAM to your server could be necessary."
+    "other": "サーバーにCPUやRAMを追加する必要があるかもしれません。"
   },
   "perfs.load.help": {
     "other": "サーバーの負荷が高い場合は、Pydioを使用しているため、サーバーにCPUまたはRAMがないことを示している可能性があります。"
@@ -981,7 +981,7 @@
     "other": "メーラーはメールの送信を再送するように設定されていません。"
   },
   "perfs.mailer.help": {
-    "other": "Using a mail queue prevents the direct sending of emails for each action and request. Instead, it stores them in a separate database and processes the queue independently."
+    "other": "メールキューを使用すると、アクションとリクエストごとにメールを直接送信できなくなります。 代わりに、それらを別のデータベースに格納し、独立してキューを処理します。"
   },
   "perfs.mailer.title": {
     "other": "メールキュー"
@@ -1092,7 +1092,7 @@
     "other": "ルールを削除"
   },
   "policies.acl.empty-string": {
-    "other": "No policies defined, create one use to it as a dynamic workspace permission."
+    "other": "ポリシーが定義されておらず、動的なワークスペース権限として使用するものを作成します。"
   },
   "policies.rule.delete.confirm": {
     "other": "このセキュリティルールを削除してもよろしいですか？これはアプリケーションのセキュリティモデルを外れる可能性があります！"
@@ -1152,7 +1152,7 @@
     "other": "書き込み"
   },
   "react.5c": {
-    "other": "access"
+    "other": "アクセス"
   },
   "react.6": {
     "other": "下位"
@@ -1275,22 +1275,22 @@
     "other": "ユーザー一覧をフィルター..."
   },
   "user.filter.locks": {
-    "other": "Locked Users"
+    "other": "ロックされたユーザー"
   },
   "user.filter.hidden": {
-    "other": "Public Links (hidden)"
+    "other": "公開リンク (非表示)"
   },
   "user.filter.status": {
-    "other": "Status"
+    "other": "ステータス"
   },
   "user.type.hidden": {
-    "other": "Public User"
+    "other": "パブリックユーザ"
   },
   "user.type.hidden.legend": {
     "other": "Public users are created for public links (one per link) and are hidden by default. It can be useful to list them to detect locked public links."
   },
   "user.rootgroup.legend": {
-    "other": "Permissions applied to the entire user hierarchy"
+    "other": "ユーザ階層全体に適用される権限"
   },
   "user.filter.internal": {
     "other": "内部ユーザー"
@@ -1644,16 +1644,16 @@
     "other": "同期"
   },
   "ws.complete.datasources": {
-    "other": "DataSources"
+    "other": "データソース"
   },
   "ws.complete.folders": {
-    "other": "Internal Folders"
+    "other": "内部フォルダ"
   },
   "ws.complete.label": {
-    "other": "Select a DataSource or a Template Path"
+    "other": "データソースまたはテンプレートパスを選択"
   },
   "ws.complete.additional": {
-    "other": "Additional Root"
+    "other": "追加ルート"
   },
   "ws.complete.resolves": {
     "other": "解決先"
@@ -1674,7 +1674,7 @@
     "other": "このワークスペースにデフォルトの権限を設定します（アプリケーションのすべての内部ユーザーに適用されます）。 ピープルのセクションでは、ユーザー/役割ごと/グループごとにこれらの権限を上書きできます。"
   },
   "ws.editor.default_rights.hint": {
-    "other": "Default Rights"
+    "other": "デフォルトの権限"
   },
   "ws.editor.default_rights.none": {
     "other": "なし"
@@ -1932,181 +1932,181 @@
     "other": "このフローのすべてのタスクをクリアしてもよろしいですか？"
   },
   "scheduler.trigger.picker.title": {
-    "other": "Trigger job on..."
+    "other": "ジョブをトリガーする..."
   },
   "scheduler.trigger.type.nodes": {
-    "other": "Files and folders (nodes) events : detect files modifications to move them or update their metadata automatically."
+    "other": "ファイルとフォルダ(ノード)イベント:ファイルの変更を検出して、ファイルを移動したり、メタデータを自動的に更新したりします。"
   },
   "scheduler.trigger.type.workspaces": {
-    "other": "Workspace events : triggered on workspace creation / deletion. Use the Scope flag to filter Workspaces from Cells"
+    "other": "ワークスペースイベント: ワークスペースの作成/削除時にトリガーされます。セルからワークスペースをフィルタリングするには、スコープフラグを使用します"
   },
   "scheduler.trigger.type.acls": {
-    "other": "ACL events : access control lists link workspaces, nodes and roles together to provide accesses to data."
+    "other": "ACL イベント : アクセス制御リストは、ワークスペース、ノード、ロールをリンクして、データへのアクセス権を提供します。"
   },
   "scheduler.trigger.type.users": {
-    "other": "User events : triggered when adding/removing user and when users log in and log out. Can be used for triggering validation flows or assigning accesses."
+    "other": "ユーザーイベント: ユーザーの追加/削除時、およびユーザーのログイン/ログアウト時にトリガーされます。バリデーションフローのトリガーやアクセスの割り当てに使用できます。"
   },
   "scheduler.trigger.type.roles": {
-    "other": "Role events : can be used to automate accesses based on role names. Use IsTeam, IsGroup, IsUser flags to filter roles."
+    "other": "ロールイベント: ロール名に基づいてアクセスを自動化するために使用できます。IsTeam, IsGroup, IsUser フラグを使用してロールをフィルタリングします。"
   },
   "scheduler.trigger.type.chat": {
-    "other": "Chat Events: react to new chat message or chat room modification"
+    "other": "チャットイベント: 新しいチャットメッセージまたはチャットルームの変更に反応します"
   },
   "scheduler.trigger.type.chat-messages": {
-    "other": "Chat Messages Events"
+    "other": "チャットメッセージイベント"
   },
   "scheduler.trigger.type.chat-rooms": {
-    "other": "Chat Rooms Events"
+    "other": "チャットルームイベント"
   },
   "scheduler.trigger.create.node": {
     "other": "ノードを作成"
   },
   "scheduler.trigger.create.node.description": {
-    "other": "A new file was uploaded or a new folder was created."
+    "other": "新しいファイルがアップロードされたか、新しいフォルダが作成されました"
   },
   "scheduler.trigger.read.node": {
     "other": "ノードの読み取り"
   },
   "scheduler.trigger.read.node.description": {
-    "other": "A file was downloaded or a folder content was listed."
+    "other": "ファイルがダウンロードされたか、フォルダ内容が一覧表示されました"
   },
   "scheduler.trigger.update.path": {
     "other": "パスを更新"
   },
   "scheduler.trigger.update.path.description": {
-    "other": "A file or folder was moved or renamed."
+    "other": "ファイルまたはフォルダが移動または名前変更されました。"
   },
   "scheduler.trigger.update.content": {
     "other": "コンテンツを更新"
   },
   "scheduler.trigger.update.content.description": {
-    "other": "A file content was updated by edition or upload overwriting."
+    "other": "ファイルの内容は、編集またはアップロード上書きによって更新されました。"
   },
   "scheduler.trigger.update.metadata": {
     "other": "メタデータを更新"
   },
   "scheduler.trigger.update.metadata.description": {
-    "other": "Internal metadata were modified on file or folder."
+    "other": "ファイルまたはフォルダの内部メタデータが変更されました。"
   },
   "scheduler.trigger.update.user-metadata": {
     "other": "ユーザメタデータを更新"
   },
   "scheduler.trigger.update.user-metadata.description": {
-    "other": "User-defined metadata were modified (event contains updated metadata)."
+    "other": "ユーザー定義のメタデータが変更されました (イベントには更新されたメタデータが含まれています)。"
   },
   "scheduler.trigger.delete.node": {
     "other": "ノードを削除"
   },
   "scheduler.trigger.delete.node.description": {
-    "other": "A file or a folder was definitively deleted."
+    "other": "ファイルまたはフォルダが確実に削除されました。"
   },
   "scheduler.trigger.create.user": {
     "other": "ユーザーを作成"
   },
   "scheduler.trigger.create.user.description": {
-    "other": "A user or a group was created."
+    "other": "ユーザーまたはグループが作成されました。"
   },
   "scheduler.trigger.read.user": {
     "other": "ユーザーの読み取り"
   },
   "scheduler.trigger.read.user.description": {
-    "other": "A user or a group was accessed or listed."
+    "other": "ユーザーまたはグループがアクセスまたはリストされました。"
   },
   "scheduler.trigger.update.user": {
     "other": "ユーザーを更新"
   },
   "scheduler.trigger.update.user.description": {
-    "other": "A user or a group data was updated. Typically happens if user changes a preference or admin assigns a role."
+    "other": "ユーザーまたはグループデータが更新されました。通常、ユーザーが設定を変更した場合や、管理者がロールを割り当てた場合に発生します。"
   },
   "scheduler.trigger.delete.user": {
     "other": "ユーザーを削除"
   },
   "scheduler.trigger.delete.user.description": {
-    "other": "A user or a group was deleted."
+    "other": "ユーザーまたはグループが削除されました。"
   },
   "scheduler.trigger.bind.user": {
     "other": "ユーザーバインド"
   },
   "scheduler.trigger.bind.user.description": {
-    "other": "A user has logged in."
+    "other": "ユーザーがログインしました。"
   },
   "scheduler.trigger.logout.user": {
     "other": "ユーザーログアウト"
   },
   "scheduler.trigger.logout.user.description": {
-    "other": "A user has logged out."
+    "other": "ユーザーがログアウトしました。"
   },
   "scheduler.trigger.role.create": {
-    "other": "Create Role"
+    "other": "ロールを作成"
   },
   "scheduler.trigger.role.create.description": {
-    "other": "A new role was created, by admin or by users."
+    "other": "管理者またはユーザーによって新しいロールが作成されました。"
   },
   "scheduler.trigger.role.update": {
-    "other": "Update Role"
+    "other": "ロールを更新"
   },
   "scheduler.trigger.role.update.description": {
-    "other": "A role has been updated."
+    "other": "ロールが更新されました。"
   },
   "scheduler.trigger.role.delete": {
-    "other": "Delete Role"
+    "other": "ロールを削除"
   },
   "scheduler.trigger.role.delete.description": {
-    "other": "A role has been deleted."
+    "other": "ロールが削除されました。"
   },
   "scheduler.trigger.workspace.create": {
-    "other": "Create Workspace"
+    "other": "ワークスペースを作成"
   },
   "scheduler.trigger.workspace.create.description": {
-    "other": "A new Workspace or Cell was created."
+    "other": "新しいワークスペースまたはセルが作成されました。"
   },
   "scheduler.trigger.workspace.update": {
-    "other": "Update Workspace"
+    "other": "ワークスペースを更新"
   },
   "scheduler.trigger.workspace.update.description": {
-    "other": "A Workspace or a Cell has been updated."
+    "other": "ワークスペースまたはセルが更新されました。"
   },
   "scheduler.trigger.workspace.delete": {
-    "other": "Delete Workspace"
+    "other": "ワークスペースを削除"
   },
   "scheduler.trigger.workspace.delete.description": {
-    "other": "A Workspace or a Cell has been deleted."
+    "other": "ワークスペースまたはセルが削除されました。"
   },
   "scheduler.trigger.acl.create": {
-    "other": "Create/Update ACL"
+    "other": "ACLの作成/更新"
   },
   "scheduler.trigger.acl.create.description": {
-    "other": "An Access Control was opened."
+    "other": "アクセス制御が開かれました。"
   },
   "scheduler.trigger.acl.delete": {
-    "other": "Delete ACL"
+    "other": "ACL の削除"
   },
   "scheduler.trigger.acl.delete.description": {
-    "other": "An Access Control was removed."
+    "other": "アクセス制御が削除されました。"
   },
   "scheduler.trigger.chat-message.put": {
-    "other": "New Chat Message"
+    "other": "新規チャットメッセージ"
   },
   "scheduler.trigger.chat-message.put.description": {
-    "other": "A Message was posted in a ChatRoom."
+    "other": "チャットルームにメッセージが投稿されました。"
   },
   "scheduler.trigger.chat-message.delete": {
-    "other": "Chat Message Deleted"
+    "other": "チャットメッセージが削除されました。"
   },
   "scheduler.trigger.chat-message.delete.description": {
-    "other": "A Message was deleted from a ChatRoom."
+    "other": "チャットルームからメッセージが削除されました。"
   },
   "scheduler.trigger.chat-room.put": {
-    "other": "New Chat Room"
+    "other": "新しいチャットルーム"
   },
   "scheduler.trigger.chat-room.put.description": {
-    "other": "A new ChatRoom was created."
+    "other": "新しいチャットルームが作成されました。"
   },
   "scheduler.trigger.chat-room.delete": {
-    "other": "Delete Chat Room"
+    "other": "チャットルームを削除"
   },
   "scheduler.trigger.chat-room.delete.description": {
-    "other": "A Chatroom has been deleted."
+    "other": "チャットルームが削除されました。"
   },
   "scheduler.trigger.events": {
     "other": "イベント"
@@ -2241,7 +2241,7 @@
     "other": "常に..."
   },
   "scheduler.schedule.type.once": {
-    "other": "Run Once"
+    "other": "一度だけ実行"
   },
   "scheduler.schedule.detail.monthday": {
     "other": "Day of the month"
@@ -2253,7 +2253,7 @@
     "other": "Time of the day"
   },
   "scheduler.schedule.detail.daydate": {
-    "other": "Unique Date"
+    "other": "ユニークな日付"
   },
   "scheduler.schedule.detail.minutes": {
     "other": "期間 (分)"

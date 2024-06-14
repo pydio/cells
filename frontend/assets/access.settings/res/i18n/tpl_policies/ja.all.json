@@ -1,18 +1,18 @@
 {
   "PolicyGroup.Create": {
-    "other": "Create Policy"
+    "other": "ポリシーの作成"
   },
   "PolicyGroup.Filter": {
-    "other": "Filter Templates..."
+    "other": "テンプレートの絞り込み..."
   },
   "PolicyGroup.Create.Manual": {
-    "other": "Manual Creation"
+    "other": "マニュアル作成"
   },
   "PolicyGroup.Create.Templates": {
-    "other": "Templates"
+    "other": "テンプレート"
   },
   "PolicyGroup.ACLSample1.Title": {
-    "other": "Complex ACL Policy"
+    "other": "複雑な ACL ポリシー"
   },
   "PolicyGroup.ACLSample1.Description": {
     "other": "ACLを動的に管理するための複雑なポリシーのサンプル"
@@ -27,7 +27,7 @@
     "other": "Localhost以外からリクエストは、PNG拡張子のファイルを除外します"
   },
   "PolicyGroup.ACLSamplePeriod.Title": {
-    "other": "Limited Period"
+    "other": "期間制限"
   },
   "PolicyGroup.ACLSamplePeriod.Description": {
     "other": "指定された期間のみワークスペースへのアクセスを有効にします"
@@ -36,7 +36,7 @@
     "other": "ACLルールの例では、2018年2月と3月にのみアクセスを許可"
   },
   "PolicyGroup.ACLSampleDateDisable.Title": {
-    "other": "Scheduled Expiration"
+    "other": "予定された有効期限"
   },
   "PolicyGroup.ACLSampleDateDisable.Description": {
     "other": "指定された日付の後にワークスペースへのアクセスを無効にする"
@@ -48,7 +48,7 @@
     "other": "日付が2018-02-28以降の場合は読み込み/書き込みを拒否する"
   },
   "PolicyGroup.ACLSampleBusinessHours.Title": {
-    "other": "Business Hours"
+    "other": "ビジネスアワー"
   },
   "PolicyGroup.ACLSampleBusinessHours.Description": {
     "other": "事前に定義された時間でワークスペースへのアクセスを有効にする"
@@ -57,7 +57,7 @@
     "other": "勤務時間ルールの例、読み取り/書き込みを許可"
   },
   "PolicyGroup.ACLSampleExternalIP.Title": {
-    "other": "Filter IP Address"
+    "other": "IP アドレスをフィルター"
   },
   "PolicyGroup.ACLSampleExternalIP.Description": {
     "other": "LAN 以外へのIP へのアクセスを無効にする"

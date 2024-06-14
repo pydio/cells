@@ -18,7 +18,7 @@
     "other": "制限事項"
   },
   "Maximum size per file allowed to upload. Warning, this limit can vary depending on your underlying storage and the Multipart Chunk Size. For example, Amazon S3 restricts uploads to maximum 10000 distinct parts.": {
-    "other": "Maximum size per file allowed to upload. Warning, this limit can vary depending on your underlying storage and the Multipart Chunk Size. For example, Amazon S3 restricts uploads to maximum 10000 distinct parts."
+    "other": "アップロードできるファイルの最大サイズです。警告：この制限は、元のストレージとマルチパートチャンクサイズによって異なります。 たとえば、Amazon S3 では最大 10000個までに部分アップロードが制限されています。"
   },
   "Options shared by all uploaders plugins": {
     "other": "すべてのアップローダーのプラグインで共有されるオプション"
@@ -42,7 +42,7 @@
     "other": "マルチパートに切り替えて、この値より大きいファイルをアップロードします(バイト単位)"
   },
   "Chunk Size used for multipart uploads, it must be a multiple of 10MB for hashing consistency. If you plan to upload very large files (bigger 500GB), raise this value to lower the total number of parts sent.": {
-    "other": "Chunk Size used for multipart uploads, it must be a multiple of 10MB for hashing consistency. If you plan to upload very large files (bigger 500GB), raise this value to lower the total number of parts sent."
+    "other": "マルチパートアップロードに使用されるチャンクサイズは、一貫性をハッシュするために10MBの倍数でなければなりません。 非常に大きなファイル(500GB以上)をアップロードする場合は、送信される部品の総数を下げるためにこの値を上げてください。"
   },
   "Queue Size": {
     "other": "キューサイズ"
