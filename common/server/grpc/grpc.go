@@ -231,7 +231,7 @@ func (s *Server) lazyGrpc(rootContext context.Context) *grpc.Server {
 			if serviceName != "" {
 				endpoints := reg.ListAdjacentItems(
 					registry.WithAdjacentSourceItems([]registry.Item{s}),
-					registry.WithAdjacentEdgeOptions(registry.WithName("server"), registry.WithMeta("serverType", "grpc")),
+					//registry.WithAdjacentEdgeOptions(registry.WithName("server"), registry.WithMeta("serverType", "grpc")),
 					registry.WithAdjacentTargetOptions(registry.WithName(info.FullMethod), registry.WithType(pb.ItemType_ENDPOINT)),
 				)
 

@@ -178,6 +178,12 @@ func (b *debounce) process() {
 }
 
 func (b *debounce) processBatch(bb []broker.Message) {
+	defer func() {
+		if r := recover(); r != nil {
+			fmt.Println("Recovered in debouncer ", r)
+		}
+	}()
+
 	log.Logger(b.globalCtx).Debug("Processing batched events", zap.Int("size", len(bb)))
 	var cleanEvents []broker.Message
 	for _, e := range bb {

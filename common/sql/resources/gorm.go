@@ -28,6 +28,7 @@ import (
 	"google.golang.org/protobuf/proto"
 	"google.golang.org/protobuf/types/known/anypb"
 	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
 
 	"github.com/pydio/cells/v4/common/proto/service"
 )
@@ -78,7 +79,7 @@ func (s *ResourcesGORM) AddPolicy(ctx context.Context, resourceId string, policy
 
 	policy.Resource = resourceId
 
-	return s.instance(ctx).Create((*service.ResourcePolicy)(policy)).Error
+	return s.instance(ctx).Clauses(clause.OnConflict{DoNothing: true}).Create(policy).Error
 }
 
 // AddPolicies persists a set of policies. If update is true, it replace them by deleting existing ones
@@ -95,7 +96,7 @@ func (s *ResourcesGORM) AddPolicies(ctx context.Context, update bool, resourceId
 
 		for _, policy := range policies {
 			policy.Resource = resourceId
-			if err := tx.Create((*service.ResourcePolicy)(policy)).Error; err != nil {
+			if err := tx.Clauses(clause.OnConflict{DoNothing: true}).Create(policy).Error; err != nil {
 				return err
 			}
 		}
