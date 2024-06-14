@@ -101,7 +101,11 @@ func (m *HashHandler) MultipartComplete(ctx context.Context, target *tree.Node, 
 	} else {
 		target.MustSetMeta(common.MetaNamespaceHash, f)
 	}
-	return m.Next.MultipartComplete(ctx, target, uploadID, uploadedParts)
+	oi, er := m.Next.MultipartComplete(ctx, target, uploadID, uploadedParts)
+	if er == nil {
+		m.clearMultipartCachedHashes(ctx, uploadID)
+	}
+	return oi, er
 }
 
 // MultipartAbort clears parts stored in cache on multipart cancellation
@@ -235,7 +239,7 @@ func (m *HashHandler) StreamChanges(ctx context.Context, in *tree.StreamChangesR
 func (m *HashHandler) getPartsCache(ctx context.Context) (c cache.Cache, e error) {
 	var er error
 	m.partsCacheOnce.Do(func() {
-		m.partsCache, er = cache.OpenPool(runtime.CacheURL("partshasher", "evictionTime", "24h", "cleanWindow", "24h"))
+		m.partsCache, er = cache.OpenPool(runtime.CacheURL("partshasher", "evictionTime", "48h", "cleanWindow", "24h"))
 	})
 	if er != nil {
 		return nil, er
@@ -277,8 +281,8 @@ func (m *HashHandler) computeMultipartFinalHash(ctx context.Context, uploadID st
 			// Read key
 			partName, _ := strconv.Atoi(strings.TrimPrefix(k, prefix))
 			parts[partName-1] = strings.Split(string(hh), ":")
-			// Clear key now
-			_ = c.Delete(k)
+			// Do NOT clear keys now, manually call clear after MultipartComplete is success
+			// _ = c.Delete(k)
 		}
 	}
 	if len(parts) != partsNumber {
