@@ -49,5 +49,26 @@
   },
   "Update.Config.Disable.Description": {
     "other": "Wenn Ihr Server keinen Zugriff auf die Außenwelt hat, versuchen Sie nicht, die Update-Site zu kontaktieren."
+  },
+  "Update.Process.Start": {
+    "other": "Binärdatei Aktualisierung"
+  },
+  "Update.Process.Progress": {
+    "other": "Binärdatei wird heruntergeladen {progress}%..."
+  },
+  "Update.Process.Verify": {
+    "other": "Download abgeschlossen, jetzt wird das Paket überprüft..."
+  },
+  "Update.Process.Finished": {
+    "other": "Das Binärpaket wurde erfolgreich verifiziert, Sie können nun den Dienst neu starten."
+  },
+  "Update.SetCapDetected.Warning": {
+    "other": "WARNUNG: Sie verwenden einen reservierten Port in einer Ihrer Bindungs-URLs. Dies erfordert Root-Berechtigungen, um den Webdienst zu starten."
+  },
+  "Update.SetCapDetected.Hint": {
+    "other": "Wenn Sie systemd nicht mit 'AmbientCapabilities=CAP_NET_BIND_SERVICE' verwenden, müssen Sie den folgenden Befehl ausführen, um den neuen Binärdateien die Verwendung dieses Ports *vor* dem Neustart Ihrer Instanz zu erlauben:"
+  },
+  "Update.SetCapDetected.Command": {
+    "other": "$ sudo setcap 'cap_net_bind_service=+ep' <Pfad zu Ihrer Binärdatei>"
   }
 }
