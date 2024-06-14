@@ -40,6 +40,7 @@ func init() {
 		keys.HttpMetaUserAgent,
 		keys.HttpMetaContentType,
 		keys.HttpMetaProtocol,
+		keys.HttpMetaHost,
 	)
 }
 
