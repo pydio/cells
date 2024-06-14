@@ -613,8 +613,8 @@ go.elastic.co/apm/module/apmot v1.15.0 h1:yqarZ4HCIb6dLAzEVSWdppAuRhfrCfm2Z6UL+u
 go.elastic.co/apm/module/apmot v1.15.0/go.mod h1:BjFz2KOlnjXdnSo0p6nhDDaIEYYX8c6uVHwvkZiLqtQ=
 go.elastic.co/fastjson v1.1.0 h1:3MrGBWWVIxe/xvsbpghtkFoPciPhOCmjsR/HfwEeQR4=
 go.elastic.co/fastjson v1.1.0/go.mod h1:boNGISWMjQsUPy/t6yqt2/1Wx4YNPSe+mZjlyw9vKKI=
-go.etcd.io/bbolt v1.3.10 h1:+BqfJTcCzTItrop8mq/lbzL8wSGtj94UO/3U31shqG0=
-go.etcd.io/bbolt v1.3.10/go.mod h1:bK3UQLPJZly7IlNmV7uVHJDxfe5aK9Ll93e/74Y9oEQ=
+go.etcd.io/bbolt v1.3.9 h1:8x7aARPEXiXbHmtUwAIv7eV2fQFHrLLavdiJ3uzJXoI=
+go.etcd.io/bbolt v1.3.9/go.mod h1:zaO32+Ti0PK1ivdPtgMESzuzL2VPoIG1PCQNvOdo/dE=
 go.mongodb.org/mongo-driver v1.10.2 h1:4Wk3cnqOrQCn0P92L3/mmurMxzdvWWs5J9jinAVKD+k=
 go.mongodb.org/mongo-driver v1.10.2/go.mod h1:z4XpeoU6w+9Vht+jAFyLgVrD+jGSQQe0+CBWFHNiHt8=
 go.opencensus.io v0.24.0 h1:y73uSU6J157QMP2kn2r30vwW1A2W2WFwSCGnAVxeaD0=

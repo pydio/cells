@@ -2,7 +2,7 @@ module github.com/pydio/cells-fuse
 
 go 1.21.0
 
-toolchain go1.22.3
+toolchain go1.21.11
 
 require (
 	github.com/dustin/go-humanize v1.0.1
@@ -13,7 +13,7 @@ require (
 	github.com/pydio/cells/v4 v4.4.3-alpha1
 	github.com/schollz/progressbar/v3 v3.14.4
 	github.com/spf13/cobra v1.8.0
-	go.etcd.io/bbolt v1.3.10
+	go.etcd.io/bbolt v1.3.9
 )
 
 require (
