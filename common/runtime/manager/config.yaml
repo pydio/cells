@@ -220,7 +220,7 @@ processes:
 # Storages
 storages: &storages
   sql:
-    uri: "sqlite3-extended://test.db"
+    uri: sqlite3-extended://test.db?prefix={{ .Value "prefix" }}
 #  search:
 #    uri: mongo+indexer://localhost:24017/search
   nosql:

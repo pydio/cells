@@ -100,12 +100,31 @@ func Resolve[T any](ctx context.Context, opts ...ResolveOption) (T, error) {
 		return t, fmt.Errorf("resolve cannot find manager to load configs")
 	}
 
-	ss := reg.ListAdjacentItems(
-		registry.WithAdjacentSourceItems([]registry.Item{svc}),
-		registry.WithAdjacentTargetOptions(registry.WithType(registry2.ItemType_STORAGE)),
-		registry.WithAdjacentEdgeOptions(registry.WithMeta("name", o.Name)),
+	edges, err := reg.List(
+		registry.WithName("storage"),
+		registry.WithMeta("name", o.Name),
+		registry.WithType(registry2.ItemType_EDGE),
+		registry.WithFilter(func(item registry.Item) bool {
+			edge, ok := item.(registry.Edge)
+			if !ok {
+				return false
+			}
+
+			vv := edge.Vertices()
+			if vv[0] == svc.ID() {
+				return true
+			}
+
+			return false
+		}),
 	)
-	storages := registry.ItemsAs[storage.Storage](ss)
+	if err != nil {
+		return t, err
+	}
+
+	storages, err := reg.List(
+		registry.WithType(registry2.ItemType_STORAGE),
+	)
 
 	// Inject dao in handler
 supportedDriversLoop:
@@ -127,26 +146,27 @@ supportedDriversLoop:
 			storageMatched := false
 
 			// Try to fit Input parameter type and Storage types
-			for _, st := range storages {
-				stt, err := st.Get(ctx)
-				if err != nil {
-					return t, err
+			for _, edge := range registry.ItemsAs[registry.Edge](edges) {
+
+				for _, st := range storages {
+					if edge.Vertices()[1] == st.ID() {
+						for k, v := range edge.Metadata() {
+							ctx = context.WithValue(ctx, k, v)
+						}
+
+						var stt storage.Storage
+						if st.As(&stt) {
+							sttt, err := stt.Get(ctx)
+							if err != nil {
+								return t, err
+							}
+
+							conn := reflect.ValueOf(sttt)
+							args = append(args, conn)
+							storageMatched = true
+						}
+					}
 				}
-
-				conn := reflect.ValueOf(stt)
-				args = append(args, conn)
-				storageMatched = true
-
-				//conn := reflect.New(handlerT.In(pos))
-				//
-				//if isCompatible, err := st.Get(ctx, conn.Interface()); !isCompatible {
-				//	continue
-				//} else if err != nil {
-				//	return t, err
-				//}
-
-				//args = append(args, conn.Elem())
-				//storageMatched = true
 			}
 
 			if !storageMatched {

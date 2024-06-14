@@ -4,9 +4,11 @@ import (
 	"context"
 	"database/sql"
 	"errors"
+	"net/url"
 	"strings"
 	"time"
 
+	mysql2 "github.com/go-sql-driver/mysql"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 	"gorm.io/driver/mysql"
@@ -14,6 +16,7 @@ import (
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
+	"gorm.io/gorm/schema"
 
 	"github.com/pydio/cells/v4/common/runtime"
 	"github.com/pydio/cells/v4/common/runtime/controller"
@@ -59,22 +62,56 @@ func OpenPool(ctx context.Context, uu string) (storage.Storage, error) {
 		}
 
 		var dialect gorm.Dialector
+		var prefix string
 		if dbresolver.IsMysqlConn(conn.Driver()) {
 			dialect = mysql.New(mysql.Config{
 				Conn: conn,
 			})
+			config, err := mysql2.ParseDSN(dsn)
+			if err != nil {
+				return nil, err
+			}
+			if p, ok := config.Params["prefix"]; ok {
+				prefix = p
+			}
+			delete(config.Params, "prefix")
+
+			dsn = config.FormatDSN()
 		} else if dbresolver.IsPostGreConn(conn.Driver()) {
 			dialect = postgres.New(postgres.Config{
 				Conn: conn,
 			})
+
+			u, err := url.Parse(dsn)
+			if err != nil {
+				return nil, err
+			}
+
+			q := u.Query()
+			if q.Has("prefix") {
+				prefix = q.Get("prefix")
+			}
 		} else if dbresolver.IsSQLiteConn(conn.Driver()) {
 			dialect = &sqlite.Dialector{
 				Conn: conn,
+			}
+
+			u, err := url.Parse(dsn)
+			if err != nil {
+				return nil, err
+			}
+
+			q := u.Query()
+			if q.Has("prefix") {
+				prefix = q.Get("prefix")
 			}
 		}
 
 		db, err := gorm.Open(dialect, &gorm.Config{
 			Logger: &logWrapper{log.Logger(ctx)},
+			NamingStrategy: &schema.NamingStrategy{
+				TablePrefix: prefix,
+			},
 		})
 		if err != nil {
 			return nil, err

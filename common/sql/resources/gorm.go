@@ -25,7 +25,6 @@ import (
 	"sync"
 	"time"
 
-	tozd "gitlab.com/tozd/go/errors"
 	"google.golang.org/protobuf/proto"
 	"google.golang.org/protobuf/types/known/anypb"
 	"gorm.io/gorm"
@@ -123,8 +122,6 @@ func (s *ResourcesGORM) GetPoliciesForResource(ctx context.Context, resourceId s
 	}
 
 	//s.cache.Set(resourceId, res)
-
-	return res, tozd.Errorf("FAKE ERROR ON RESOURCES")
 
 	return res, nil
 }

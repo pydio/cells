@@ -117,29 +117,32 @@ func TestDBPool(t *testing.T) {
 	c := controller.NewController[storage.Storage]()
 	c.Register("sqlite3-extended", controller.WithCustomOpener(OpenPool))
 
-	st, err := c.Open(context.Background(), `sqlite3-extended:///tmp/{{ .Value "name" }}.db`)
+	st, err := c.Open(context.Background(), `sqlite3-extended:///tmp/{{ .Value "name" }}.db?prefix={{ .Value "name" }}_`)
 	if err != nil {
 		panic(err)
 	}
 
-	d, err := st.Get(context.Background())
+	ctx1 := context.WithValue(context.Background(), "name", "test1")
+	ctx2 := context.WithValue(context.Background(), "name", "test2")
+
+	d1, err := st.Get(ctx1)
 	if err != nil {
 		panic(err)
 	}
 
-	db := d.(*gorm.DB)
+	d2, err := st.Get(ctx2)
+	if err != nil {
+		panic(err)
+	}
+
+	db1 := d1.(*gorm.DB)
+	db2 := d2.(*gorm.DB)
 
 	// First db :
-	db1 := db.Session(&gorm.Session{Context: context.WithValue(context.Background(), "name", "test1")})
 	if err := db1.AutoMigrate(&Data{}); err != nil {
 		panic(err)
 	}
 
-	if err := db1.AutoMigrate(&Data{}); err != nil {
-		panic(err)
-	}
-
-	db2 := db.Session(&gorm.Session{Context: context.WithValue(context.Background(), "name", "test2")})
 	if err := db2.AutoMigrate(&Data{}); err != nil {
 		panic(err)
 	}
