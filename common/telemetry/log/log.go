@@ -21,13 +21,11 @@
 package log
 
 import (
-	"bufio"
 	"context"
 	"fmt"
 	"io"
 	"os"
 	"regexp"
-	"strings"
 	"time"
 
 	"go.uber.org/zap"
@@ -120,43 +118,6 @@ func ReloadMainLogger(scv otel.Service, cfg []LoggerConfig) {
 	currentSvc = scv
 	currentConfig = cfg
 	mainLogger.forceReset()
-}
-
-func CaptureCaddyStdErr(serviceName string) context.Context {
-	ctx := runtime.WithServiceName(context.Background(), serviceName)
-	lg := Logger(ctx)
-	if traceFatalEnabled() {
-		return ctx
-	}
-	r, w, err := os.Pipe()
-	if err != nil {
-		return ctx
-	}
-	rootErr := os.Stderr
-	os.Stderr = w
-	//caddyLogger := logger.Named("pydio.server.caddy")
-	go func() {
-		scanner := bufio.NewScanner(r)
-		for scanner.Scan() {
-			line := scanner.Text()
-			if parsed := caddyInternals.FindStringSubmatch(line); len(parsed) == 7 {
-				level := strings.Trim(parsed[2], "[340m ")
-				msg := parsed[3] + " - " + parsed[4] + parsed[6]
-				if strings.Contains(level, "INFO") {
-					lg.Info(msg)
-				} else if strings.Contains(level, "WARN") {
-					lg.Warn(msg)
-				} else if strings.Contains(level, "ERROR") {
-					lg.Error(msg)
-				} else { // DEBUG, WARN, or other value
-					lg.Debug(msg)
-				}
-			} else {
-				_, _ = rootErr.WriteString(line)
-			}
-		}
-	}()
-	return ctx
 }
 
 // RegisterWriteSyncer optional writers for logs

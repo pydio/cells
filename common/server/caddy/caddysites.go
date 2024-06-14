@@ -63,11 +63,12 @@ func ResolveSites(ctx context.Context, resolver routing.UpstreamsResolver, exter
 	}
 
 	tplData := TplData{
-		Sites:         caddySites,
-		WebRoot:       uuid.New(), // non-existing path to make sure we don't statically serve local folder
-		EnableMetrics: metrics.HasProviders(),
-		DisableAdmin:  !external,
-		MuxMode:       resolver == nil,
+		Sites:             caddySites,
+		WebRoot:           uuid.New(), // non-existing path to make sure we don't statically serve local folder
+		EnableMetrics:     metrics.HasProviders(),
+		DisableAdmin:      !external,
+		RedirectLogWriter: !external,
+		MuxMode:           resolver == nil,
 	}
 
 	k, e := storage.OpenStore(ctx, runtime.CertsStoreURL())

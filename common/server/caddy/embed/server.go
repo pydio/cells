@@ -46,7 +46,7 @@ import (
 )
 
 var (
-	providersLoggerInit sync.Once
+	loggerInit sync.Once
 )
 
 func init() {
@@ -70,8 +70,9 @@ func (o *Opener) OpenURL(ctx context.Context, u *url.URL) (server.Server, error)
 
 func New(ctx context.Context, asProxy bool) (server.Server, error) {
 
-	providersLoggerInit.Do(func() {
-		ct := log.CaptureCaddyStdErr("pydio.server.caddy")
+	loggerInit.Do(func() {
+		caddyv2.RegisterModule(newWriterOpenerModule("pydio.caddy"))
+		ct := runtime.WithServiceName(context.Background(), "pydio.caddy.mkcert")
 		providers.Logger = log.Logger(ct)
 	})
 

@@ -46,6 +46,10 @@ const (
 {{if .EnableMetrics}}  servers {
     metrics
   }{{end}}
+{{if .RedirectLogWriter}}  log{
+     output cells
+ 	 format json
+  }{{end}}
 }
 
 
@@ -108,12 +112,13 @@ const (
 )
 
 type TplData struct {
-	Sites         []*ActiveSite
-	WebRoot       string
-	Storage       string
-	MuxMode       bool
-	EnableMetrics bool
-	DisableAdmin  bool
+	Sites             []*ActiveSite
+	WebRoot           string
+	Storage           string
+	MuxMode           bool
+	EnableMetrics     bool
+	DisableAdmin      bool
+	RedirectLogWriter bool
 }
 
 var (
