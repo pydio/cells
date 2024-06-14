@@ -72,7 +72,6 @@ func (h *Handler) UpdateRequired(ctx context.Context, request *update.UpdateRequ
 func (h *Handler) ApplyUpdate(ctx context.Context, request *update.ApplyUpdateRequest) (*update.ApplyUpdateResponse, error) {
 
 	crtLang := i18n.UserLanguageFromContext(ctx, config.Get(), true)
-	fmt.Println("crtLang:", crtLang)
 	T := lang.Bundle().GetTranslationFunc(crtLang)
 
 	configs := config.GetUpdatesConfigs()
