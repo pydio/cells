@@ -398,8 +398,8 @@ func (m *manager) initConnections() error {
 				for _, store := range stores {
 					for _, storage := range storages {
 						if store["type"] == storage.Name() {
-							edge, err := m.localRegistry.RegisterEdge(ss.ID(), storage.ID(), "storage", map[string]string{"name": name})
-							fmt.Println("Edge: ", ss.Name(), name, edge, err)
+							store["name"] = name
+							m.localRegistry.RegisterEdge(ss.ID(), storage.ID(), "storage", store)
 						}
 					}
 				}
