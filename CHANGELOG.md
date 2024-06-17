@@ -1,7 +1,14 @@
-# Changes between v4.4.2 and v4.4.3-alpha1
+# Changes between v4.4.2 and v4.4.3
 
-[See Full Changelog](https://github.com/pydio/cells/compare/v4.4.2...v4.4.3-alpha1)
+[See Full Changelog](https://github.com/pydio/cells/compare/v4.4.2...v4.4.3)
 
+- [#6e430e7](https://github.com/pydio/cells/commit/6e430e7e412fa67cfa5d2b8012c950bff84172c4): Remove forgotten dev log message
+- [#74f9138](https://github.com/pydio/cells/commit/74f9138ee39e733617462817e0d2237c2bb79bdd): cells-fuse: stick to go21 for now
+- [#82c143f](https://github.com/pydio/cells/commit/82c143f512709f0a1a35f18de914518003892c20): Revert deps
+- [#4426b2f](https://github.com/pydio/cells/commit/4426b2f46fe60f623578499a2d5ecfddb7f22fc1): Update dep
+- [#401a8a1](https://github.com/pydio/cells/commit/401a8a13d73ba8735d589fe55cb00f95c4e75370): Merge remote-tracking branch 'origin/main'
+- [#1be3c90](https://github.com/pydio/cells/commit/1be3c901d060caa7b3a993b2e7dfc9dba1deb4b0): Update cells-fuse gomod to latest cells
+- [#efe420f](https://github.com/pydio/cells/commit/efe420ffb563f588f1bd30d4c41a32902ffded58): Release v4.4.3-alpha1
 - [#032c127](https://github.com/pydio/cells/commit/032c127247de48327065bcb06bb9880d976403fc): New messages + DE/FR translations
 - [#f6e2e6e](https://github.com/pydio/cells/commit/f6e2e6ed7693e7291c85cebaf97eacd94c006823): New messages + DE/FR translations
 - [#4044b55](https://github.com/pydio/cells/commit/4044b557b9e8beb0f2f19862f6e27b4aa4089376): Merge remote-tracking branch 'origin/main'
