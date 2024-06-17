@@ -199,6 +199,13 @@ func (cc *clientConn) NewStream(ctx context.Context, desc *grpc.StreamDesc, meth
 
 	ctx = metadata.AppendToOutgoingContext(ctx, common.CtxTargetServiceName, cc.serviceName)
 	ctx = metadata.AppendToOutgoingContext(ctx, common.CtxTargetTenantName, cc.tenantName)
+	if pc, file, line, ok := runtime2.Caller(2); ok {
+		var fName string
+		if fDesc := runtime2.FuncForPC(pc); fDesc != nil {
+			fName = ":" + path.Base(fDesc.Name()) + "()"
+		}
+		ctx = metadata.AppendToOutgoingContext(ctx, common.CtxGrpcClientCaller, fmt.Sprintf("%s:%d%s", file, line, fName))
+	}
 
 	var cancel context.CancelFunc
 	if cc.callTimeout > 0 {

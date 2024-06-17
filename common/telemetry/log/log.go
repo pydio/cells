@@ -98,7 +98,7 @@ func Init(svc otel.Service, conf []LoggerConfig, ww ...ContextWrapper) {
 		}
 		zl := zap.New(zapcore.NewTee(cores...), loggerOptions...)
 		if traceFatalEnabled() {
-			_, _ = zap.RedirectStdLogAt(zl, zap.ErrorLevel) // log anything at ErrorLevel with a stack trace
+			_, _ = zap.RedirectStdLogAt(zl, zap.FatalLevel) // log anything at ErrorLevel with a stack trace
 		} else {
 			_, _ = zap.RedirectStdLogAt(zl, zap.DebugLevel)
 		}

@@ -95,7 +95,7 @@ func (p *PluginsPool) RegistryForStatus(ctx context.Context, status RequestStatu
 	registry.Cactions = &Cactions{}
 	registry.Cextensions = &Cextensions{}
 	registry.Cclient_configs = &Cclient_configs{}
-	registry.Cuser = status.User.Publish(status, p)
+	registry.Cuser = status.User.Publish(ctx, status, p)
 
 	messages := p.Messages["en-us"]
 	if status.Lang != "" {

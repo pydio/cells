@@ -83,19 +83,17 @@ func (a *FrontendHandler) Filter() func(string) string {
 	return nil
 }
 
-func (a *FrontendHandler) FrontState(req *restful.Request, rsp *restful.Response) {
+func (a *FrontendHandler) FrontState(req *restful.Request, rsp *restful.Response) error {
 	pool, e := frontend.GetPluginsPool()
 	if e != nil {
-		middleware.RestError500(req, rsp, e)
-		return
+		return e
 	}
 
 	ctx := req.Request.Context()
 
 	user := &frontend.User{}
-	if e := user.Load(ctx); e != nil {
-		middleware.RestError500(req, rsp, e)
-		return
+	if e = user.Load(ctx); e != nil {
+		return e
 	}
 
 	user.LoadActiveWorkspace(req.QueryParameter("ws"))
@@ -121,10 +119,10 @@ func (a *FrontendHandler) FrontState(req *restful.Request, rsp *restful.Response
 	}
 	registry, er := pool.RegistryForStatus(ctx, status)
 	if er != nil {
-		middleware.RestErrorDetect(req, rsp, er)
-		return
+		return er
 	}
-	rsp.WriteAsXml(registry)
+	_ = rsp.WriteAsXml(registry)
+	return nil
 }
 
 // FrontBootConf loads an open JSON struct for start configuration. As it can be called

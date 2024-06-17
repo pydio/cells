@@ -34,6 +34,7 @@ import (
 
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/auth/claim"
+	"github.com/pydio/cells/v4/common/client/commons"
 	"github.com/pydio/cells/v4/common/client/commons/docstorec"
 	"github.com/pydio/cells/v4/common/client/commons/idmc"
 	"github.com/pydio/cells/v4/common/config"
@@ -84,27 +85,33 @@ func GetVirtualNodesManager(ctx context.Context) *VirtualNodesManager {
 				Cache: vcache,
 				mu:    &sync.RWMutex{},
 			}
-			manager.Load(ct)
-			return manager, nil
+			return manager, manager.Load(ct)
 		})
 	})
 
-	vManager, _ := vManagerPool.Get(ctx)
-	return vManager
+	if vManager, er := vManagerPool.Get(ctx); er == nil {
+		return vManager
+	} else {
+		// If error, return an empty manager
+		return &VirtualNodesManager{
+			Cache: cache.MustDiscard(),
+			mu:    &sync.RWMutex{},
+		}
+	}
 }
 
 // Load requests the virtual nodes from the DocStore service.
-func (m *VirtualNodesManager) Load(ctx context.Context, forceReload ...bool) {
+func (m *VirtualNodesManager) Load(ctx context.Context, forceReload ...bool) error {
 	if len(forceReload) == 0 || !forceReload[0] {
 		var vNodes []*tree.Node
 		if m.Cache.Get("###virtual-nodes###", &vNodes) {
 			m.mu.Lock()
 			m.nodes = vNodes
 			m.mu.Unlock()
-			return
+			return nil
 		}
 	}
-	log.Logger(ctx).Debug("Reloading virtual nodes to cache")
+	log.Logger(ctx).Info("Reloading virtual nodes to cache")
 	m.mu.Lock()
 	defer m.mu.Unlock()
 	m.nodes = []*tree.Node{}
@@ -112,33 +119,26 @@ func (m *VirtualNodesManager) Load(ctx context.Context, forceReload ...bool) {
 		StoreID: common.DocStoreIdVirtualNodes,
 		Query:   &docstore.DocumentQuery{},
 	})
-	if e != nil {
-		return
-	}
-	for {
-		resp, err := stream.Recv()
-		if err != nil {
-			break
-		}
-		if resp == nil {
-			continue
-		}
-		data := resp.Document.Data
+	if er := commons.ForEach(stream, e, func(response *docstore.ListDocumentsResponse) error {
+		data := response.Document.Data
 		node := tree.Node{}
-		er := protojson.Unmarshal([]byte(data), &node)
-		if er != nil {
-			log.Logger(context.Background()).Error("Cannot unmarshal data: "+data, zap.Error(er))
+		if er := protojson.Unmarshal([]byte(data), &node); er != nil {
+			return er
 		} else {
-			log.Logger(context.Background()).Debug("Loading virtual node: ", zap.Any("node", &node))
+			log.Logger(ctx).Debug("Loading virtual node: ", zap.Any("node", &node))
 			m.nodes = append(m.nodes, &node)
 		}
+		return nil
+	}); er != nil {
+		return er
 	}
 	if e := m.Cache.Set("###virtual-nodes###", m.nodes); e != nil {
-		log.Logger(context.Background()).Error("cannot set virtual-nodes to cache", zap.Error(e))
+		log.Logger(ctx).Warn("cannot set virtual-nodes to cache", zap.Error(e))
 	}
 	if config.Get("services", "pydio.grpc.user", "loginCI").Default(false).Bool() {
 		m.loginLower = true
 	}
+	return nil
 }
 
 // ByUuid finds a VirtualNode by its Uuid.

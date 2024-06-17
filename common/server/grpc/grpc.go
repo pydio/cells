@@ -293,7 +293,6 @@ func (s *Server) lazyGrpc(rootContext context.Context) *grpc.Server {
 			HandlerUnaryInterceptor(&unaryInterceptors),
 		),
 		grpc.ChainStreamInterceptor(
-			middleware.ErrorFormatStreamInterceptor,
 			grpc_recovery.StreamServerInterceptor(recoveryOpts...),
 			middleware.MetricsStreamServerInterceptor(),
 			propagator.ContextStreamServerInterceptor(middleware.CellsMetadataIncomingContext),
@@ -302,6 +301,7 @@ func (s *Server) lazyGrpc(rootContext context.Context) *grpc.Server {
 			propagator.ContextStreamServerInterceptor(middleware.RegistryIncomingContext(rootContext)),
 			propagator.ContextStreamServerInterceptor(middleware.TenantIncomingContext(rootContext)),
 			propagator.ContextStreamServerInterceptor(middleware.ServiceIncomingContext(rootContext)),
+			middleware.ErrorFormatStreamInterceptor,
 			HandlerStreamInterceptor(&streamInterceptors),
 		),
 	}

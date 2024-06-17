@@ -87,5 +87,5 @@ func IsNetworkError(err error) bool {
 }
 
 func IsStreamFinished(err error) bool {
-	return errors.Is(err, io.EOF) || errors.Is(err, io.ErrUnexpectedEOF)
+	return err != nil && errors.Is(err, io.EOF) || errors.Is(err, io.ErrUnexpectedEOF)
 }

@@ -140,7 +140,7 @@ func (s *Server) ReloadProxy(reg registry.Registry) error {
 	if er != nil {
 		return er
 	}
-	return caddyv2.Load(caddyConfig, true)
+	return caddyv2.Load(caddyConfig, false)
 }
 
 func (s *Server) Stop() error {

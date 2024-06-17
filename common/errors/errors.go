@@ -94,11 +94,12 @@ var (
 	ShareWrongType                 = RegisterBaseSentinel(SharePermissionsForbidden, "share wrong type, use workspace API")
 	ShareNotEditable               = RegisterBaseSentinel(SharePermissionsForbidden, "share not editable")
 
-	DAO      = RegisterBaseSentinel(CellsError, "dao")
-	SqlDAO   = RegisterBaseSentinel(DAO, "sql")
-	MongoDAO = RegisterBaseSentinel(DAO, "mongo")
-	BoltDAO  = RegisterBaseSentinel(DAO, "bolt")
-	BleveDAO = RegisterBaseSentinel(DAO, "bleve")
+	DAO          = RegisterBaseSentinel(CellsError, "dao")
+	ResolveError = RegisterBaseSentinel(DAO, "dao resolution failed")
+	SqlDAO       = RegisterBaseSentinel(DAO, "sql")
+	MongoDAO     = RegisterBaseSentinel(DAO, "mongo")
+	BoltDAO      = RegisterBaseSentinel(DAO, "bolt")
+	BleveDAO     = RegisterBaseSentinel(DAO, "bleve")
 
 	PathNotReadable       = RegisterBaseSentinel(StatusForbidden, "path.not.readable")
 	PathNotWriteable      = RegisterBaseSentinel(StatusForbidden, "path.not.writeable")

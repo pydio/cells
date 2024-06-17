@@ -43,16 +43,16 @@ var (
 type DAO interface {
 	Path(ctx context.Context, node tree.ITreeNode, rootNode tree.ITreeNode, create bool) (*tree.MPath, []tree.ITreeNode, error)
 
-	// Add a node in the tree
+	// AddNode adds a node in the tree
 	AddNode(context.Context, tree.ITreeNode) error
 	// SetNode updates a node, including its tree position
 	SetNode(context.Context, tree.ITreeNode) error
-	// Update a node metadata, without touching its tree position
+	// SetNodeMeta updates a node metadata, without touching its tree position
 	SetNodeMeta(context.Context, tree.ITreeNode) error
-	// Remove a node from the tree
+	// DelNode removes a node from the tree
 	DelNode(context.Context, tree.ITreeNode) error
 
-	// Simple Add / Set / Delete
+	// AddNodeStream Simple Add / Set / Delete
 	AddNodeStream(context.Context, int) (chan tree.ITreeNode, chan error)
 	Flush(context.Context, bool) error
 

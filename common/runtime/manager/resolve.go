@@ -26,9 +26,8 @@ import (
 	"reflect"
 	"runtime"
 
-	"github.com/pkg/errors"
-
 	"github.com/pydio/cells/v4/common/config"
+	"github.com/pydio/cells/v4/common/errors"
 	registry2 "github.com/pydio/cells/v4/common/proto/registry"
 	"github.com/pydio/cells/v4/common/registry"
 	"github.com/pydio/cells/v4/common/service"
@@ -70,7 +69,17 @@ func WithCleanBeforeClose() ResolveOption {
 	}
 }
 
-func Resolve[T any](ctx context.Context, opts ...ResolveOption) (T, error) {
+func Resolve[T any](ctx context.Context, opts ...ResolveOption) (s T, final error) {
+	defer func() {
+		if re := recover(); re != nil {
+			if err, ok := re.(error); ok {
+				final = errors.Tag(err, errors.ResolveError)
+			} else if se, o := re.(string); o {
+				final = errors.WithMessage(errors.ResolveError, se)
+			}
+		}
+	}()
+
 	o := ResolveOptions{
 		Name: "main",
 	}
@@ -83,12 +92,14 @@ func Resolve[T any](ctx context.Context, opts ...ResolveOption) (T, error) {
 
 	// First we get the contextualized registry
 	var reg registry.Registry
-	propagator.Get(ctx, registry.ContextKey, &reg)
+	if !propagator.Get(ctx, registry.ContextKey, &reg) {
+		return t, errors.WithMessage(errors.ResolveError, "cannot find registry &reg in context")
+	}
 
 	// Then we get the service from the context
 	var svc service.Service
 	if !propagator.Get(ctx, service.ContextKey, &svc) {
-		return t, fmt.Errorf("resolve cannot find service &svc in context")
+		return t, errors.WithMessage(errors.ResolveError, "cannot find service &svc in context")
 	}
 
 	// And we load current config
@@ -97,7 +108,7 @@ func Resolve[T any](ctx context.Context, opts ...ResolveOption) (T, error) {
 	if propagator.Get(ctx, managerKey{}, &mg) {
 		cfg = mg.GetConfig(ctx)
 	} else {
-		return t, fmt.Errorf("resolve cannot find manager to load configs")
+		return t, errors.WithMessage(errors.ResolveError, "cannot find manager to load configs")
 	}
 
 	edges, err := reg.List(
@@ -119,12 +130,15 @@ func Resolve[T any](ctx context.Context, opts ...ResolveOption) (T, error) {
 		}),
 	)
 	if err != nil {
-		return t, err
+		return t, errors.Tag(err, errors.ResolveError)
 	}
 
 	storages, err := reg.List(
 		registry.WithType(registry2.ItemType_STORAGE),
 	)
+	if err != nil {
+		return t, errors.Tag(err, errors.ResolveError)
+	}
 
 	// Inject dao in handler
 supportedDriversLoop:
@@ -132,7 +146,7 @@ supportedDriversLoop:
 		handlerV := reflect.ValueOf(handler)
 		handlerT := reflect.TypeOf(handler)
 		if handlerV.Kind() != reflect.Func {
-			return t, errors.New("storage handler is not a function")
+			return t, errors.WithMessage(errors.ResolveError, "storage handler is not a function")
 		}
 
 		var args []reflect.Value
@@ -158,11 +172,14 @@ supportedDriversLoop:
 						if st.As(&stt) {
 							sttt, err := stt.Get(ctx)
 							if err != nil {
-								return t, err
+								return t, errors.Tag(err, errors.ResolveError)
 							}
-
 							conn := reflect.ValueOf(sttt)
-							args = append(args, conn)
+							if len(args) < handlerT.NumIn() {
+								args = append(args, conn)
+							} else {
+								fmt.Println("RESOLVE loop weirdness here - manager.Resolve 181")
+							}
 							storageMatched = true
 						}
 					}
@@ -176,11 +193,11 @@ supportedDriversLoop:
 
 		// Checking all migrations
 		if err := service.UpdateServiceVersion(ctx, cfg, svc.Options()); err != nil {
-			return t, err
+			return t, errors.Tag(err, errors.ResolveError)
 		}
 
 		if handlerT.NumIn() != len(args) {
-			return t, fmt.Errorf("number of connections (%d) differs from what is requested by handler %s (%d)", handlerT.NumIn(), runtime.FuncForPC(handlerV.Pointer()).Name(), len(args))
+			return t, errors.WithMessagef(errors.ResolveError, "number of connections (%d) differs from what is requested by handler %s (%d)", handlerT.NumIn(), runtime.FuncForPC(handlerV.Pointer()).Name(), len(args))
 		}
 
 		dao := handlerV.Call(args)[0].Interface()
@@ -188,14 +205,14 @@ supportedDriversLoop:
 		if initProvider, ok := dao.(InitProvider); ok {
 			serviceConfigs := cfg.Val(configx.FormatPath("services", svc.Name()))
 			if er := initProvider.Init(ctx, serviceConfigs); er != nil {
-				return t, er
+				return t, errors.Tag(er, errors.ResolveError)
 			}
 		}
 
 		return dao.(T), nil
 	}
 
-	return t, errors.New("could not find compatible storage for DAO parameter")
+	return t, errors.WithMessage(errors.ResolveError, "could not find compatible storage for DAO parameter")
 }
 
 func CloseStoragesForContext(ctx context.Context, opts ...ResolveOption) error {

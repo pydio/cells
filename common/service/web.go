@@ -106,6 +106,12 @@ func getWebMiddlewares(serviceName string) []func(ctx context.Context, handler h
 	return append(wm, sw)
 }
 
+type swaggerRestMapper struct {
+	name         string
+	operation    *spec.Operation
+	routeBuilder func(string) *restful.RouteBuilder
+}
+
 // WithWeb returns a web handler
 func WithWeb(handler func(ctx context.Context) WebHandler) ServiceOption {
 
@@ -141,40 +147,19 @@ func WithWeb(handler func(ctx context.Context) WebHandler) ServiceOption {
 			f := reflect.ValueOf(h)
 
 			for path, pathItem := range SwaggerSpec().Spec().Paths.Paths {
-				if pathItem.Get != nil {
-					shortPath, method := operationToRoute(serviceRoute, swaggerTags, path, pathItem.Get, filter, f)
-					if shortPath != "" {
-						ws.Route(ws.GET(shortPath).To(method))
-					}
-				}
-				if pathItem.Delete != nil {
-					shortPath, method := operationToRoute(serviceRoute, swaggerTags, path, pathItem.Delete, filter, f)
-					if shortPath != "" {
-						ws.Route(ws.DELETE(shortPath).To(method))
-					}
-				}
-				if pathItem.Put != nil {
-					shortPath, method := operationToRoute(serviceRoute, swaggerTags, path, pathItem.Put, filter, f)
-					if shortPath != "" {
-						ws.Route(ws.PUT(shortPath).To(method))
-					}
-				}
-				if pathItem.Patch != nil {
-					shortPath, method := operationToRoute(serviceRoute, swaggerTags, path, pathItem.Patch, filter, f)
-					if shortPath != "" {
-						ws.Route(ws.PATCH(shortPath).To(method))
-					}
-				}
-				if pathItem.Head != nil {
-					shortPath, method := operationToRoute(serviceRoute, swaggerTags, path, pathItem.Head, filter, f)
-					if shortPath != "" {
-						ws.Route(ws.HEAD(shortPath).To(method))
-					}
-				}
-				if pathItem.Post != nil {
-					shortPath, method := operationToRoute(serviceRoute, swaggerTags, path, pathItem.Post, filter, f)
-					if shortPath != "" {
-						ws.Route(ws.POST(shortPath).To(method))
+				for _, route := range []swaggerRestMapper{
+					{name: "GET", operation: pathItem.Get, routeBuilder: ws.GET},
+					{name: "DELETE", operation: pathItem.Delete, routeBuilder: ws.DELETE},
+					{name: "PUT", operation: pathItem.Put, routeBuilder: ws.PUT},
+					{name: "PATCH", operation: pathItem.Patch, routeBuilder: ws.PATCH},
+					{name: "HEAD", operation: pathItem.Head, routeBuilder: ws.HEAD},
+					{name: "POST", operation: pathItem.Post, routeBuilder: ws.POST},
+				} {
+					if route.operation != nil {
+						shortPath, method := operationToRoute(ctx, serviceRoute, route.name, swaggerTags, path, route.operation, filter, f)
+						if shortPath != "" {
+							ws.Route(route.routeBuilder(shortPath).To(method))
+						}
 					}
 				}
 			}
@@ -286,16 +271,27 @@ func WithWebStop(handler func(ctx context.Context) error) ServiceOption {
 	}
 }
 
-func operationToRoute(rootPath string, swaggerTags []string, path string, operation *spec.Operation, pathFilter func(string) string, handlerValue reflect.Value) (string, func(req *restful.Request, rsp *restful.Response)) {
+func operationToRoute(ctx context.Context, rootPath, httpMethod string, swaggerTags []string, path string, operation *spec.Operation, pathFilter func(string) string, handlerValue reflect.Value) (shortPath string, handleFunc restful.RouteFunction) {
 
 	if !containsTags(operation, swaggerTags) {
-		return "", nil
+		return
 	}
 
 	method := handlerValue.MethodByName(operation.ID)
 	if method.IsValid() {
-		casted := method.Interface().(func(req *restful.Request, rsp *restful.Response))
-		shortPath := strings.TrimPrefix(path, rootPath)
+		if casted, ok := method.Interface().(func(req *restful.Request, rsp *restful.Response)); ok {
+			handleFunc = casted
+		} else if erHandler, ok2 := method.Interface().(func(req *restful.Request, rsp *restful.Response) error); ok2 {
+			handleFunc = func(req *restful.Request, rsp *restful.Response) {
+				if re := erHandler(req, rsp); re != nil {
+					middleware.RestErrorDetect(req, rsp, re)
+				}
+			}
+		} else {
+			log.Logger(ctx).Warn("Cannot map method " + operation.ID + " type, ignoring " + httpMethod + " for path " + path)
+			return "", nil
+		}
+		shortPath = strings.TrimPrefix(path, rootPath)
 		if shortPath == "" {
 			shortPath = "/"
 		}
@@ -303,12 +299,12 @@ func operationToRoute(rootPath string, swaggerTags []string, path string, operat
 			shortPath = pathFilter(shortPath)
 		}
 
-		log.Logger(context.Background()).Debug("Registering path " + shortPath + " to handler method " + operation.ID)
-		return shortPath, casted
+		log.Logger(ctx).Debug("Registering path " + shortPath + " to handler method " + operation.ID)
+		return
 	}
 
-	log.Logger(context.Background()).Debug("Cannot find method " + operation.ID + " on handler, ignoring GET for path " + path)
-	return "", nil
+	log.Logger(ctx).Warn("Cannot find method " + operation.ID + " on handler, ignoring " + httpMethod + " for path " + path)
+	return
 }
 
 func containsTags(operation *spec.Operation, filtersTags []string) (found bool) {

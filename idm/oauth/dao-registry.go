@@ -213,9 +213,7 @@ func NewRegistrySQL() *cellsdriver {
 	return &cellsdriver{}
 }
 
-func (m *cellsdriver) Init(
-	ctx context.Context, skipNetworkInit bool, migrate bool, ctxer contextx.Contextualizer,
-) error {
+func (m *cellsdriver) Init(ctx context.Context, skipNetworkInit bool, migrate bool, ctxer contextx.Contextualizer) error {
 	contextx.RootContext = context.WithValue(ctx, contextx.ValidContextKey, true)
 
 	// Starting off with default config

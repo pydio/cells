@@ -84,7 +84,7 @@ func (u *User) Load(ctx context.Context) error {
 	// Check locks info
 	if l, ok := u.UserObject.Attributes["locks"]; ok {
 		var locks []string
-		log.Logger(context.Background()).Debug("Checking Locks", zap.Any("l", l))
+		log.Logger(ctx).Debug("Checking Locks", zap.Any("l", l))
 		if e := json.Unmarshal([]byte(l), &locks); e == nil {
 			if len(locks) > 0 {
 				u.HasLocks = true
@@ -213,7 +213,7 @@ func (u *User) LoadWorkspaces(ctx context.Context, accessList *permissions.Acces
 	return nil
 }
 
-func (u *User) Publish(status RequestStatus, pool *PluginsPool) *Cuser {
+func (u *User) Publish(ctx context.Context, status RequestStatus, pool *PluginsPool) *Cuser {
 	if !u.Logged {
 		return nil
 	}
@@ -227,7 +227,7 @@ func (u *User) Publish(status RequestStatus, pool *PluginsPool) *Cuser {
 			Attris_admin: "1",
 		}
 	}
-	reg.Cpreferences.Cpref = u.publishPreferences(status, pool)
+	reg.Cpreferences.Cpref = u.publishPreferences(ctx, status, pool)
 
 	/*
 		// Add locks info
@@ -256,13 +256,13 @@ func (u *User) Publish(status RequestStatus, pool *PluginsPool) *Cuser {
 		reg.Cactive_repo = &Cactive_repo{
 			Attrid: u.ActiveWorkspace,
 		}
-		reg.Crepositories.Crepo = u.publishWorkspaces(status, pool)
+		reg.Crepositories.Crepo = u.publishWorkspaces(ctx, status, pool)
 	}
 
 	return reg
 }
 
-func (u *User) publishPreferences(status RequestStatus, pool *PluginsPool) (preferencesNodes []*Cpref) {
+func (u *User) publishPreferences(ctx context.Context, status RequestStatus, pool *PluginsPool) (preferencesNodes []*Cpref) {
 
 	if preferences, ok := u.UserObject.Attributes["preferences"]; ok {
 		var userPrefs map[string]string
@@ -293,7 +293,7 @@ func (u *User) publishPreferences(status RequestStatus, pool *PluginsPool) (pref
 					AttrpluginId: exposed.PluginId,
 				})
 			} else if v := u.FlattenedRolesConfigByName(exposed.PluginId, exposed.Attrname); v != "" {
-				//				log.Logger(context.Background()).Info("-- Pref found in flattened roles for " + exposed.Attrname)
+				//				log.Logger(ctx).Info("-- Pref found in flattened roles for " + exposed.Attrname)
 				preferencesNodes = append(preferencesNodes, &Cpref{
 					Attrname:     exposed.Attrname,
 					Attrvalue:    v,
@@ -323,7 +323,7 @@ func (u *User) publishPreferences(status RequestStatus, pool *PluginsPool) (pref
 	return
 }
 
-func (u *User) publishWorkspaces(status RequestStatus, pool *PluginsPool) (workspaceNodes []*Crepo) {
+func (u *User) publishWorkspaces(ctx context.Context, status RequestStatus, pool *PluginsPool) (workspaceNodes []*Crepo) {
 
 	accessSettings := make(map[string]*Cclient_settings)
 	for _, p := range pool.Plugins {
@@ -333,7 +333,7 @@ func (u *User) publishWorkspaces(status RequestStatus, pool *PluginsPool) (works
 	}
 
 	// Used to detect "personal files"-like workspace
-	vNodeManager := abstract.GetVirtualNodesManager(status.RuntimeCtx)
+	vNodeManager := abstract.GetVirtualNodesManager(ctx)
 	var skipReserved bool
 	if status.Request != nil {
 		skipReserved = strings.Contains(status.Request.Header.Get("User-Agent"), "com.pydio.PydioPro;")

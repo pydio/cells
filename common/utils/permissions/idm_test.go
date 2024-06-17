@@ -30,8 +30,9 @@ import (
 	"github.com/pydio/cells/v4/common/proto/idm"
 	"github.com/pydio/cells/v4/common/runtime"
 	"github.com/pydio/cells/v4/common/server/stubs/idmtest"
-	_ "github.com/pydio/cells/v4/common/utils/cache/gocache"
 	"github.com/pydio/cells/v4/common/utils/permissions"
+
+	_ "github.com/pydio/cells/v4/common/utils/cache/gocache"
 
 	. "github.com/smartystreets/goconvey/convey"
 )
@@ -86,7 +87,8 @@ func TestSearchUniqueUser(t *testing.T) {
 		So(er, ShouldBeNil)
 		So(aa, ShouldHaveLength, 2)
 
-		rr := permissions.GetRolesForUser(bg, adminUser, false)
+		rr, er := permissions.GetRolesForUser(bg, adminUser, false)
+		So(er, ShouldBeNil)
 		So(rr, ShouldHaveLength, 3)
 
 		rr, _ = permissions.GetRoles(bg, []string{"ADMINS"})

@@ -20,6 +20,7 @@ import (
 	"github.com/pydio/cells/v4/common/service/frontend/sessions/utils"
 	"github.com/pydio/cells/v4/common/telemetry/log"
 	"github.com/pydio/cells/v4/common/utils/configx"
+	"github.com/pydio/cells/v4/common/utils/openurl"
 	"github.com/pydio/cells/v4/common/utils/uuid"
 )
 
@@ -44,7 +45,7 @@ type SessionRow struct {
 	ExpiresOn  time.Time `gorm:"column:expires_on"`
 }
 
-func (s *SessionRow) TableName() string {
+func (r *SessionRow) TableName() string {
 	return "idm_frontend_sessions"
 }
 
@@ -55,8 +56,13 @@ func (r *SessionRow) BeforeCreate(db *gorm.DB) error {
 	return nil
 }
 
+var expirers *openurl.Pool[*sync.Once]
+
 func init() {
 	gob.Register(time.Time{})
+	expirers, _ = openurl.OpenPool[*sync.Once](context.Background(), []string{"mem://"}, func(ctx context.Context, url string) (*sync.Once, error) {
+		return &sync.Once{}, nil
+	})
 }
 
 type Impl struct {
@@ -69,9 +75,12 @@ type Impl struct {
 // GetSession implements the SessionDAO interface
 func (h *Impl) GetSession(r *http.Request) (*sessions.Session, error) {
 	// Auto start expirer - we should find a way to send a Done signal
-	h.startExpirer.Do(func() {
-		h.DeleteExpired(context.TODO(), log.Logger(r.Context()))
-	})
+	ctx := r.Context()
+	if once, er := expirers.Get(ctx); er == nil {
+		once.Do(func() {
+			h.DeleteExpired(context.TODO(), log.Logger(r.Context()))
+		})
+	}
 	return h.Get(r, utils.SessionName(r))
 }
 

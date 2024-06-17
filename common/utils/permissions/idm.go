@@ -22,7 +22,6 @@ package permissions
 
 import (
 	"context"
-	"io"
 	"strings"
 	"sync"
 	"time"
@@ -32,6 +31,7 @@ import (
 
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/auth/claim"
+	"github.com/pydio/cells/v4/common/client/commons"
 	"github.com/pydio/cells/v4/common/client/commons/idmc"
 	"github.com/pydio/cells/v4/common/errors"
 	"github.com/pydio/cells/v4/common/proto/idm"
@@ -62,7 +62,7 @@ func getUsersCache(ctx context.Context) cache.Cache {
 }
 
 // GetRolesForUser loads the roles of a given user.
-func GetRolesForUser(ctx context.Context, user *idm.User, createMissing bool) []*idm.Role {
+func GetRolesForUser(ctx context.Context, user *idm.User, createMissing bool) ([]*idm.Role, error) {
 
 	var roles []*idm.Role
 	var foundRoles = map[string]*idm.Role{}
@@ -73,7 +73,7 @@ func GetRolesForUser(ctx context.Context, user *idm.User, createMissing bool) []
 	}
 
 	if len(roleIds) == 0 {
-		return roles
+		return roles, nil
 	}
 
 	roleClient := idmc.RoleServiceClient(ctx)
@@ -82,26 +82,16 @@ func GetRolesForUser(ctx context.Context, user *idm.User, createMissing bool) []
 		Uuid: roleIds,
 	})
 
-	if stream, err := roleClient.SearchRole(ctx, &idm.SearchRoleRequest{
+	stream, err := roleClient.SearchRole(ctx, &idm.SearchRoleRequest{
 		Query: &service.Query{
 			SubQueries: []*anypb.Any{query},
 		},
-	}); err != nil {
-		log.Logger(ctx).Error("failed to retrieve roles", zap.Error(err))
+	})
+	if er := commons.ForEach(stream, err, func(response *idm.SearchRoleResponse) error {
+		foundRoles[response.GetRole().GetUuid()] = response.GetRole()
 		return nil
-	} else {
-
-		defer stream.CloseSend()
-
-		for {
-			response, err := stream.Recv()
-
-			if err != nil {
-				break
-			}
-
-			foundRoles[response.GetRole().GetUuid()] = response.GetRole()
-		}
+	}); er != nil {
+		return nil, er
 	}
 
 	for _, role := range user.Roles {
@@ -128,7 +118,7 @@ func GetRolesForUser(ctx context.Context, user *idm.User, createMissing bool) []
 			if e == nil {
 				roles = append(roles, resp.Role)
 			} else {
-				log.Logger(ctx).Error("Error creating special role", zap.Error(e))
+				return nil, e
 			}
 
 		} else {
@@ -138,7 +128,7 @@ func GetRolesForUser(ctx context.Context, user *idm.User, createMissing bool) []
 		}
 	}
 
-	return roles
+	return roles, nil
 }
 
 // GetRoles Objects from a list of role names.
@@ -148,25 +138,13 @@ func GetRoles(ctx context.Context, names []string) ([]*idm.Role, error) {
 	if len(names) == 0 {
 		return roles, nil
 	}
-
 	query, _ := anypb.New(&idm.RoleSingleQuery{Uuid: names})
 	stream, err := idmc.RoleServiceClient(ctx).SearchRole(ctx, &idm.SearchRoleRequest{Query: &service.Query{SubQueries: []*anypb.Any{query}}})
-
-	if err != nil {
-		return nil, err
-	}
-
-	for {
-		response, err := stream.Recv()
-
-		if err != nil {
-			if err != io.EOF {
-				return nil, err
-			}
-			break
-		}
-
-		roles = append(roles, response.GetRole())
+	if er := commons.ForEach(stream, err, func(t *idm.SearchRoleResponse) error {
+		roles = append(roles, t.GetRole())
+		return nil
+	}); er != nil {
+		return nil, er
 	}
 
 	var sorted []*idm.Role
@@ -177,7 +155,6 @@ func GetRoles(ctx context.Context, names []string) ([]*idm.Role, error) {
 			}
 		}
 	}
-	//log.Logger(ctx).Debug("GetRoles", zap.Any("roles", sorted))
 	return sorted, nil
 }
 
@@ -209,69 +186,45 @@ func GetACLsForRoles(ctx context.Context, roles []*idm.Role, actions ...*idm.ACL
 	if err != nil {
 		return acls, err
 	}
-	//s := time.Now()
-	stream, err := idmc.ACLServiceClient(ctx).SearchACL(ctx, &idm.SearchACLRequest{
-		Query: &service.Query{
-			SubQueries: []*anypb.Any{q1Any, q2Any},
-			Operation:  service.OperationType_AND,
-		},
+	return performACLSearch(ctx, &service.Query{
+		SubQueries: []*anypb.Any{q1Any, q2Any},
+		Operation:  service.OperationType_AND,
 	})
-
-	if err != nil {
-		log.Logger(ctx).Error("GetACLsForRoles", zap.Error(err))
-		return nil, err
-	}
-
-	for {
-		response, err := stream.Recv()
-
-		if err != nil {
-			if err != io.EOF {
-				return nil, err
-			}
-			break
-		}
-
-		acls = append(acls, response.GetACL())
-	}
-
-	//log.Logger(ctx).Debug("GetACLsForRoles", zap.Any("acls", acls), zap.Any("roles", roles), zap.Any("actions", actions), zap.Duration("t", time.Now().Sub(s)))
-
-	return acls, nil
 }
 
 // GetACLsForWorkspace compiles ACLs list attached to a given workspace.
-func GetACLsForWorkspace(ctx context.Context, workspaceIds []string, actions ...*idm.ACLAction) (acls []*idm.ACL, err error) {
+func GetACLsForWorkspace(ctx context.Context, workspaceIds []string, actions ...*idm.ACLAction) ([]*idm.ACL, error) {
 
 	var subQueries []*anypb.Any
 	q1, _ := anypb.New(&idm.ACLSingleQuery{WorkspaceIDs: workspaceIds})
 	q2, _ := anypb.New(&idm.ACLSingleQuery{Actions: actions})
 	subQueries = append(subQueries, q1, q2)
-
-	stream, err := idmc.ACLServiceClient(ctx).SearchACL(ctx, &idm.SearchACLRequest{
-		Query: &service.Query{
-			SubQueries: subQueries,
-			Operation:  service.OperationType_AND,
-		},
+	return performACLSearch(ctx, &service.Query{
+		SubQueries: subQueries,
+		Operation:  service.OperationType_AND,
 	})
 
-	if err != nil {
-		log.Logger(ctx).Error("GetACLsForWorkspace", zap.Error(err))
-		return nil, err
-	}
+}
 
-	defer stream.CloseSend()
-	for {
-		response, err := stream.Recv()
-		if err != nil {
-			break
-		}
-		acls = append(acls, response.GetACL())
-	}
-	//log.Logger(ctx).Debug("GetACLsForWorkspace", zap.Any("acls", acls), zap.Any("wsId", workspaceId), zap.Any("action", action))
+// GetACLsForActions find all ACLs for a given list of actions
+func GetACLsForActions(ctx context.Context, actions ...*idm.ACLAction) ([]*idm.ACL, error) {
+	var subQueries []*anypb.Any
+	q1, _ := anypb.New(&idm.ACLSingleQuery{Actions: actions})
+	subQueries = append(subQueries, q1)
+	return performACLSearch(ctx, &service.Query{
+		SubQueries: subQueries,
+	})
+}
 
-	return acls, nil
-
+func performACLSearch(ctx context.Context, query *service.Query) (aa []*idm.ACL, e error) {
+	stream, err := idmc.ACLServiceClient(ctx).SearchACL(ctx, &idm.SearchACLRequest{
+		Query: query,
+	})
+	e = commons.ForEach(stream, err, func(t *idm.SearchACLResponse) error {
+		aa = append(aa, t.GetACL())
+		return nil
+	})
+	return
 }
 
 func workspacesByUUIDs(ctx context.Context, uuids []string) (ww []*idm.Workspace, e error) {
@@ -288,46 +241,12 @@ func workspacesByUUIDs(ctx context.Context, uuids []string) (ww []*idm.Workspace
 			Operation:  service.OperationType_OR,
 		},
 	})
-	if err != nil {
-		log.Logger(ctx).Error("search workspace request has failed", zap.Error(err))
-		return nil, err
-	}
-
-	for {
-		response, err := stream.Recv()
-		if err != nil {
-			break
-		}
-		ww = append(ww, response.GetWorkspace())
-	}
+	e = commons.ForEach(stream, err, func(t *idm.SearchWorkspaceResponse) error {
+		ww = append(ww, t.GetWorkspace())
+		return nil
+	})
 	return
 
-}
-
-func GetACLsForActions(ctx context.Context, actions ...*idm.ACLAction) (acls []*idm.ACL, err error) {
-	var subQueries []*anypb.Any
-	q1, _ := anypb.New(&idm.ACLSingleQuery{Actions: actions})
-	subQueries = append(subQueries, q1)
-
-	stream, err := idmc.ACLServiceClient(ctx).SearchACL(ctx, &idm.SearchACLRequest{
-		Query: &service.Query{
-			SubQueries: subQueries,
-		},
-	})
-
-	if err != nil {
-		log.Logger(ctx).Error("GetACLsForActions", zap.Error(err))
-		return nil, err
-	}
-	for {
-		response, err := stream.Recv()
-		if err != nil {
-			break
-		}
-		acls = append(acls, response.GetACL())
-	}
-
-	return acls, nil
 }
 
 func FindUserNameInContext(ctx context.Context) (string, claim.Claims) {
@@ -574,7 +493,7 @@ func SearchUniqueWorkspace(ctx context.Context, wsUuid string, wsSlug string, qu
 		return nil, e
 	}
 	resp, e := st.Recv()
-	if errors.Is(e, io.EOF) || errors.Is(e, io.ErrUnexpectedEOF) {
+	if errors.IsStreamFinished(e) {
 		return nil, errors.WithMessage(errors.WorkspaceNotFound, "cannot find workspace with these queries")
 	} else if e != nil {
 		return nil, e
@@ -670,20 +589,15 @@ func CheckContentLock(ctx context.Context, node *tree.Node) error {
 	if err != nil {
 		return err
 	}
-	defer stream.CloseSend()
-	for {
-		rsp, e := stream.Recv()
-		if e != nil {
-			break
-		}
-		if rsp == nil {
-			continue
-		}
-		acl := rsp.ACL
-		if userName == "" || acl.Action.Value != userName {
-			return errors.WithStack(errors.StatusLocked)
-		}
-		break
+	rsp, e := stream.Recv()
+	if errors.IsStreamFinished(e) {
+		return nil
+	} else if e != nil {
+		return e
+	}
+	acl := rsp.ACL
+	if userName == "" || acl.Action.Value != userName {
+		return errors.WithStack(errors.StatusLocked)
 	}
 	return nil
 }
