@@ -297,9 +297,9 @@ func (a *FrontendHandler) FrontSessionDel(req *restful.Request, rsp *restful.Res
 
 // FrontEnrollAuth is a generic endpoint that can be handled by specific 2FA plugins
 func (a *FrontendHandler) FrontEnrollAuth(req *restful.Request, rsp *restful.Response) error {
-	// Todo - Errors in ApplyEnrollMiddlewares?
-	frontend.ApplyEnrollMiddlewares("FrontEnrollAuth", req, rsp)
-	return nil
+
+	return frontend.ApplyEnrollMiddlewares("FrontEnrollAuth", req, rsp)
+
 }
 
 // FrontMessages loads all i18n messages for a given language

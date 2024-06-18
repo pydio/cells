@@ -282,11 +282,7 @@ func operationToRoute(ctx context.Context, rootPath, httpMethod string, swaggerT
 		if casted, ok := method.Interface().(func(req *restful.Request, rsp *restful.Response)); ok {
 			handleFunc = casted
 		} else if erHandler, ok2 := method.Interface().(func(req *restful.Request, rsp *restful.Response) error); ok2 {
-			handleFunc = func(req *restful.Request, rsp *restful.Response) {
-				if re := erHandler(req, rsp); re != nil {
-					middleware.RestErrorDetect(req, rsp, re)
-				}
-			}
+			handleFunc = middleware.WrapErrorHandlerToRoute(erHandler)
 		} else {
 			log.Logger(ctx).Warn("Cannot map method " + operation.ID + " type, ignoring " + httpMethod + " for path " + path)
 			return "", nil

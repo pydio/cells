@@ -286,11 +286,16 @@ func (a *TokenHandler) GenerateDocumentAccessToken(req *restful.Request, resp *r
 		Scopes:            []string{scope},
 	}
 
+	return a.GenerateAndWrite(ctx, generateRequest, req, resp)
+
+}
+
+func (a *TokenHandler) GenerateAndWrite(ctx context.Context, genReq *auth.PatGenerateRequest, req *restful.Request, resp *restful.Response) error {
 	cli := auth.NewPersonalAccessTokenServiceClient(grpc.ResolveConn(ctx, common.ServiceToken))
-	genResp, e := cli.Generate(ctx, generateRequest)
+	log.Logger(ctx).Debug("Sending generate request", zap.Any("req", genReq))
+	genResp, e := cli.Generate(ctx, genReq)
 	if e != nil {
 		return e
 	}
 	return resp.WriteEntity(&rest.DocumentAccessTokenResponse{AccessToken: genResp.AccessToken})
-
 }

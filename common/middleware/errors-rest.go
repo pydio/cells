@@ -62,13 +62,13 @@ func emit(req *restful.Request, resp *restful.Response, code int, id string) {
 	_ = resp.WriteHeaderAndEntity(code, e)
 }
 
-// RestError500 logs the error with context and write an Error 500 on the response.
-func RestError500(req *restful.Request, resp *restful.Response, err error, errorID ...string) {
+// restError500 logs the error with context and write an Error 500 on the response.
+func restError500(req *restful.Request, resp *restful.Response, err error, errorID ...string) {
 	commonRestError(req, resp, err, 500, false, errorID...)
 }
 
-// RestError404 logs the error with context and writes an Error 404 on the response.
-func RestError404(req *restful.Request, resp *restful.Response, err error, errorID ...string) {
+// restError404 logs the error with context and writes an Error 404 on the response.
+func restError404(req *restful.Request, resp *restful.Response, err error, errorID ...string) {
 	if errors.IsNetworkError(err) {
 		commonRestError(req, resp, err, 503, false, errorID...)
 		return
@@ -76,27 +76,27 @@ func RestError404(req *restful.Request, resp *restful.Response, err error, error
 	commonRestError(req, resp, err, 404, true, errorID...)
 }
 
-// RestError403 logs the error with context and write an Error 403 on the response.
-func RestError403(req *restful.Request, resp *restful.Response, err error, errorID ...string) {
+// restError403 logs the error with context and write an Error 403 on the response.
+func restError403(req *restful.Request, resp *restful.Response, err error, errorID ...string) {
 	if errors.IsNetworkError(err) {
-		RestError503(req, resp, err)
+		restError503(req, resp, err)
 		return
 	}
 	commonRestError(req, resp, err, 403, false, errorID...)
 }
 
-// RestError503 logs the error with context and write an Error 503 on the response.
-func RestError503(req *restful.Request, resp *restful.Response, err error, errorID ...string) {
+// restError503 logs the error with context and write an Error 503 on the response.
+func restError503(req *restful.Request, resp *restful.Response, err error, errorID ...string) {
 	commonRestError(req, resp, err, 503, false, errorID...)
 }
 
-// RestError423 logs the error with context and write an Error 423 on the response.
-func RestError423(req *restful.Request, resp *restful.Response, err error, errorID ...string) {
+// restError423 logs the error with context and write an Error 423 on the response.
+func restError423(req *restful.Request, resp *restful.Response, err error, errorID ...string) {
 	commonRestError(req, resp, err, 423, false, errorID...)
 }
 
-// RestError401 logs the error with context and write an Error 401 on the response.
-func RestError401(req *restful.Request, resp *restful.Response, err error, errorID ...string) {
+// restError401 logs the error with context and write an Error 401 on the response.
+func restError401(req *restful.Request, resp *restful.Response, err error, errorID ...string) {
 	if errors.IsNetworkError(err) {
 		commonRestError(req, resp, err, 503, false, errorID...)
 		return
@@ -109,24 +109,32 @@ func RestError401(req *restful.Request, resp *restful.Response, err error, error
 	emit(req, resp, 401, id)
 }
 
-// RestErrorDetect parses the error and tries to detect the correct code.
-func RestErrorDetect(req *restful.Request, resp *restful.Response, err error, defaultCode ...int32) {
+// restErrorDetect parses the error and tries to detect the correct code.
+func restErrorDetect(req *restful.Request, resp *restful.Response, err error, defaultCode ...int32) {
 	if errors.IsNetworkError(err) {
-		RestError503(req, resp, err)
+		restError503(req, resp, err)
 		return
 	}
 	if errors.Is(err, errors.StatusNotFound) {
-		RestError404(req, resp, err)
+		restError404(req, resp, err)
 	} else if errors.Is(err, errors.StatusServiceUnavailable) {
-		RestError503(req, resp, err)
+		restError503(req, resp, err)
 	} else if errors.Is(err, errors.StatusForbidden) {
-		RestError403(req, resp, err)
+		restError403(req, resp, err)
 	} else if errors.Is(err, errors.StatusUnauthorized) {
-		RestError401(req, resp, err)
+		restError401(req, resp, err)
 	} else if errors.Is(err, errors.StatusLocked) {
-		RestError423(req, resp, err)
+		restError423(req, resp, err)
 	} else {
-		RestError500(req, resp, err)
+		restError500(req, resp, err)
 	}
 
+}
+
+func WrapErrorHandlerToRoute(handler func(req *restful.Request, rsp *restful.Response) error) func(req *restful.Request, rsp *restful.Response) {
+	return func(req *restful.Request, rsp *restful.Response) {
+		if re := handler(req, rsp); re != nil {
+			restErrorDetect(req, rsp, re)
+		}
+	}
 }

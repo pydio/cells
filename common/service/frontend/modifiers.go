@@ -39,7 +39,7 @@ type PluginModifier func(ctx context.Context, status RequestStatus, plugin Plugi
 // BootConfModifier is a func type for dynamically filtering the content of the bootconf
 type BootConfModifier func(ctx context.Context, bootConf *BootConf) error
 
-type EnrollMiddlewareFunc func(req *restful.Request, rsp *restful.Response, inputRequest *rest.FrontEnrollAuthRequest) bool
+type EnrollMiddlewareFunc func(req *restful.Request, rsp *restful.Response, inputRequest *rest.FrontEnrollAuthRequest) (bool, error)
 
 type FrontMiddleware struct {
 	Endpoint   string
@@ -123,20 +123,24 @@ func RegisterEnrollMiddleware(endpoint string, middleware EnrollMiddlewareFunc) 
 }
 
 // ApplyEnrollMiddlewares goes through registered middlewares if there are any for the current endpoint
-func ApplyEnrollMiddlewares(endpoint string, req *restful.Request, rsp *restful.Response) bool {
+func ApplyEnrollMiddlewares(endpoint string, req *restful.Request, rsp *restful.Response) error {
 
 	var request rest.FrontEnrollAuthRequest
-	req.ReadEntity(&request)
+	if er := req.ReadEntity(&request); er != nil {
+		return er
+	}
 	for _, m := range enrollMiddlewares {
 		if m.Endpoint != endpoint {
 			continue
 		}
-		if breakNow := m.Middleware(req, rsp, &request); breakNow {
-			return true
+		if breakNow, err := m.Middleware(req, rsp, &request); err != nil {
+			return err
+		} else if breakNow {
+			return nil
 		}
 	}
 
-	return false
+	return nil
 }
 
 // WrapAuthMiddleware registers an additional auth middleware
