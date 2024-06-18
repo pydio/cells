@@ -27,8 +27,8 @@ import (
 	"go.uber.org/zap"
 	"google.golang.org/protobuf/types/known/anypb"
 
+	"github.com/pydio/cells/v4/common/client/commons"
 	"github.com/pydio/cells/v4/common/client/commons/idmc"
-	"github.com/pydio/cells/v4/common/middleware"
 	"github.com/pydio/cells/v4/common/proto/idm"
 	"github.com/pydio/cells/v4/common/proto/rest"
 	service "github.com/pydio/cells/v4/common/proto/service"
@@ -59,49 +59,40 @@ func (a *Handler) Filter() func(string) string {
 }
 
 // PutAcl puts an acl in storage.
-func (a *Handler) PutAcl(req *restful.Request, rsp *restful.Response) {
+func (a *Handler) PutAcl(req *restful.Request, rsp *restful.Response) error {
 
 	ctx := req.Request.Context()
 	var inputACL idm.ACL
-	err := req.ReadEntity(&inputACL)
-	if err != nil {
-		log.Logger(ctx).Error("While fetching idm.ACL", zap.Error(err))
-		middleware.RestError500(req, rsp, err)
-		return
+	if err := req.ReadEntity(&inputACL); err != nil {
+		return err
 	}
-	log.Logger(ctx).Debug("Received ACL.Put API request", zap.Any("inputACL", inputACL))
+	log.Logger(ctx).Debug("Received ACL.Put API request", zap.Any("inputACL", &inputACL))
 	if er := a.WriteAllowed(ctx, &inputACL); er != nil {
-		middleware.RestError403(req, rsp, er)
-		return
+		return er
 	}
 
 	response, er := idmc.ACLServiceClient(ctx).CreateACL(ctx, &idm.CreateACLRequest{
 		ACL: &inputACL,
 	})
 	if er != nil {
-		middleware.RestError500(req, rsp, er)
+		return er
 	} else {
-		a := response.ACL
-		rsp.WriteEntity(a)
+		return rsp.WriteEntity(response.GetACL())
 	}
 
 }
 
 // DeleteAcl deletes an acl from storage
-func (a *Handler) DeleteAcl(req *restful.Request, rsp *restful.Response) {
+func (a *Handler) DeleteAcl(req *restful.Request, rsp *restful.Response) error {
 
 	ctx := req.Request.Context()
 	var inputACL idm.ACL
-	err := req.ReadEntity(&inputACL)
-	if err != nil {
-		log.Logger(ctx).Error("While fetching idm.ACL", zap.Error(err))
-		middleware.RestError500(req, rsp, err)
-		return
+	if err := req.ReadEntity(&inputACL); err != nil {
+		return err
 	}
-	log.Logger(req.Request.Context()).Debug("Received ACL.Delete API request", zap.Any("inputACL", inputACL))
+	log.Logger(req.Request.Context()).Debug("Received ACL.Delete API request", zap.Any("inputACL", &inputACL))
 	if er := a.WriteAllowed(ctx, &inputACL); er != nil {
-		middleware.RestError403(req, rsp, er)
-		return
+		return er
 	}
 
 	q := &idm.ACLSingleQuery{}
@@ -127,31 +118,28 @@ func (a *Handler) DeleteAcl(req *restful.Request, rsp *restful.Response) {
 	})
 
 	if err != nil {
-		middleware.RestError500(req, rsp, err)
-	} else {
-		restResp := &rest.DeleteResponse{
-			Success: true,
-			NumRows: response.RowsDeleted,
-		}
-		rsp.WriteEntity(restResp)
+		return err
 	}
+
+	restResp := &rest.DeleteResponse{
+		Success: true,
+		NumRows: response.RowsDeleted,
+	}
+	return rsp.WriteEntity(restResp)
 
 }
 
 // SearchAcls uses a stream to search in the acls
-func (a *Handler) SearchAcls(req *restful.Request, rsp *restful.Response) {
+func (a *Handler) SearchAcls(req *restful.Request, rsp *restful.Response) error {
 
 	ctx := req.Request.Context()
 
 	var restRequest rest.SearchACLRequest
-	err := req.ReadEntity(&restRequest)
-	if err != nil {
-		log.Logger(ctx).Error("While fetching rest.SearchACLRequest", zap.Error(err))
-		middleware.RestError500(req, rsp, err)
-		return
+	if err := req.ReadEntity(&restRequest); err != nil {
+		return err
 	}
 
-	log.Logger(ctx).Debug("Received ACL.Search API request", zap.Any("SearchRequest", restRequest))
+	log.Logger(ctx).Debug("Received ACL.Search API request", zap.Any("SearchRequest", &restRequest))
 
 	// Transform to standard query
 	query := &service.Query{
@@ -168,22 +156,13 @@ func (a *Handler) SearchAcls(req *restful.Request, rsp *restful.Response) {
 	streamer, err := idmc.ACLServiceClient(ctx).SearchACL(ctx, &idm.SearchACLRequest{
 		Query: query,
 	})
-	if err != nil {
-		middleware.RestError500(req, rsp, err)
-		return
-	}
-	defer streamer.CloseSend()
 	collection := &rest.ACLCollection{}
-	for {
-		resp, e := streamer.Recv()
-		if e != nil {
-			break
-		}
-		if resp == nil {
-			continue
-		}
-		collection.ACLs = append(collection.ACLs, resp.ACL)
+	if er := commons.ForEach(streamer, err, func(t *idm.SearchACLResponse) error {
+		collection.ACLs = append(collection.ACLs, t.GetACL())
+		return nil
+	}); er != nil {
+		return er
 	}
-	rsp.WriteEntity(collection)
+	return rsp.WriteEntity(collection)
 
 }

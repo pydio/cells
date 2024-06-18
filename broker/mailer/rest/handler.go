@@ -22,7 +22,6 @@ package rest
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"regexp"
 
@@ -33,6 +32,7 @@ import (
 	"github.com/pydio/cells/v4/common/auth/claim"
 	"github.com/pydio/cells/v4/common/client/grpc"
 	"github.com/pydio/cells/v4/common/config"
+	"github.com/pydio/cells/v4/common/errors"
 	"github.com/pydio/cells/v4/common/middleware"
 	"github.com/pydio/cells/v4/common/proto/mailer"
 	"github.com/pydio/cells/v4/common/telemetry/log"
@@ -41,14 +41,14 @@ import (
 )
 
 var (
-	ErrBadFormat = errors.New("invalid format")
+	ErrBadEmailFormat = errors.RegisterBaseSentinel(errors.InvalidParameters, "invalid email format")
 
 	emailRegexp = regexp.MustCompile("^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$")
 )
 
 func ValidateFormat(email string) error {
 	if !emailRegexp.MatchString(email) {
-		return ErrBadFormat
+		return ErrBadEmailFormat
 	}
 	return nil
 }
@@ -70,14 +70,16 @@ func (mh *MailerHandler) Filter() func(string) string {
 }
 
 // Send puts a mail in the queue to be send
-func (mh *MailerHandler) Send(req *restful.Request, rsp *restful.Response) {
+func (mh *MailerHandler) Send(req *restful.Request, rsp *restful.Response) error {
 
 	var message mailer.Mail
-	req.ReadEntity(&message)
+	if err := req.ReadEntity(&message); err != nil {
+		return err
+	}
 
 	ctx := req.Request.Context()
 	if len(message.To) > 100 {
-		middleware.RestError403(req, rsp, fmt.Errorf("you are not allowed to send emails to more than 100 people at once"))
+		return errors.WithMessage(errors.StatusForbidden, "you are not allowed to send emails to more than 100 people at once")
 	}
 	log.Logger(ctx).Debug("Sending Email", log.DangerouslyZapSmallSlice("to", message.To), zap.String("subject", message.Subject), zap.Any("templateData", message.TemplateData))
 
@@ -86,8 +88,7 @@ func (mh *MailerHandler) Send(req *restful.Request, rsp *restful.Response) {
 
 	claims, ok := ctx.Value(claim.ContextKey).(claim.Claims)
 	if !ok {
-		middleware.RestError500(req, rsp, fmt.Errorf("sending email anonymously is forbidden"))
-		return
+		return errors.WithMessage(errors.StatusForbidden, "sending email anonymously is forbidden")
 	}
 	// Safe defaults, but maybe reloaded below
 	message.From = &mailer.User{
@@ -98,8 +99,7 @@ func (mh *MailerHandler) Send(req *restful.Request, rsp *restful.Response) {
 
 	// Reload user, as his displayName/email may have changed during session
 	if u, er := permissions.SearchUniqueUser(ctx, "", claims.Subject); er != nil {
-		middleware.RestError500(req, rsp, er)
-		return
+		return er
 	} else if email, has := u.GetAttributes()["email"]; has {
 		message.From.Address = email
 		if display, has := u.GetAttributes()["displayName"]; has {
@@ -121,8 +121,7 @@ func (mh *MailerHandler) Send(req *restful.Request, rsp *restful.Response) {
 		}
 	}
 	if len(resolvedTos) == 0 {
-		middleware.RestError500(req, rsp, fmt.Errorf("could not find any address to send to"))
-		return
+		return errors.WithMessage(errors.StatusBadRequest, "could not find any address to send to")
 	}
 	message.To = resolvedTos
 	queue := true
@@ -134,12 +133,10 @@ func (mh *MailerHandler) Send(req *restful.Request, rsp *restful.Response) {
 	// Now call service to send email
 	response, err := cli.SendMail(ctx, &mailer.SendMailRequest{Mail: &message, InQueue: queue})
 	if err != nil {
-		log.Logger(ctx).Error("could not send mail", zap.Error(err))
-		middleware.RestError500(req, rsp, err)
-		return
+		return err
 	}
 	response.Success = true // make sure success is set
-	rsp.WriteEntity(response)
+	return rsp.WriteEntity(response)
 }
 
 func (mh *MailerHandler) ResolveUser(ctx context.Context, user *mailer.User) (*mailer.User, error) {

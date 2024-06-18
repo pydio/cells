@@ -68,11 +68,13 @@ var (
 
 	UserLocked      = RegisterBaseSentinel(StatusUnauthorized, "user is locked")
 	LoginNotAllowed = RegisterBaseSentinel(StatusUnauthorized, "login not allowed")
+	LoginFailed     = RegisterBaseSentinel(StatusUnauthorized, "login failed")
 	InvalidIDToken  = RegisterBaseSentinel(StatusUnauthorized, "invalid id_token")
 	EmptyIDToken    = RegisterBaseSentinel(InvalidIDToken, "empty idToken")
 	ExpiredIDToken  = RegisterBaseSentinel(InvalidIDToken, "expired idToken")
 
 	AccessListNotFound        = RegisterBaseSentinel(StatusForbidden, "access list not found")
+	ContextUserNotFound       = RegisterBaseSentinel(StatusForbidden, "context user not found")
 	ExtensionsNotAllowed      = RegisterBaseSentinel(StatusForbidden, "extensions not allowed")
 	OutOfAccessibleWorkspaces = RegisterBaseSentinel(StatusForbidden, "node does not belong to any accessible workspace")
 	FileLocked                = RegisterBaseSentinel(StatusForbidden, "file locked")
@@ -93,6 +95,8 @@ var (
 	ShareLinkHashMinLengthRequired = RegisterBaseSentinel(SharePermissionsForbidden, "hash min length required")
 	ShareWrongType                 = RegisterBaseSentinel(SharePermissionsForbidden, "share wrong type, use workspace API")
 	ShareNotEditable               = RegisterBaseSentinel(SharePermissionsForbidden, "share not editable")
+	ShareLinkNotEditable           = RegisterBaseSentinel(ShareNotEditable, "you are not allowed to edit this link")
+	ShareCellNotEditable           = RegisterBaseSentinel(ShareNotEditable, "you are not allowed to edit this cell")
 
 	DAO          = RegisterBaseSentinel(CellsError, "dao")
 	ResolveError = RegisterBaseSentinel(DAO, "dao resolution failed")
@@ -111,6 +115,9 @@ var (
 	CellNotEditable       = RegisterBaseSentinel(StatusForbidden, "cell not editable")
 
 	UnmarshalError = RegisterBaseSentinel(StatusInternalServerError, "unmarshal error")
+
+	RestInputError       = RegisterBaseSentinel(StatusBadRequest, "rest input error")
+	RestOutputWriteError = RegisterBaseSentinel(StatusBadRequest, "rest output write error")
 
 	BinaryCannotReadStore  = RegisterBaseSentinel(StatusForbidden, "cannot read store")
 	BinaryCannotWriteStore = RegisterBaseSentinel(StatusForbidden, "cannot write store")

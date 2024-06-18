@@ -22,16 +22,14 @@ package share
 
 import (
 	"context"
-	"fmt"
 	"net/url"
 	"path"
-
-	"github.com/go-openapi/errors"
 
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/client/commons/docstorec"
 	"github.com/pydio/cells/v4/common/config"
 	"github.com/pydio/cells/v4/common/config/routing"
+	"github.com/pydio/cells/v4/common/errors"
 	"github.com/pydio/cells/v4/common/proto/docstore"
 	"github.com/pydio/cells/v4/common/proto/idm"
 	"github.com/pydio/cells/v4/common/proto/rest"
@@ -86,7 +84,7 @@ func (sc *Client) StoreHashDocument(ctx context.Context, ownerUser *idm.User, li
 		newHash := updateHash[0]
 		// Check if it already exists
 		if _, e := store.GetDocument(ctx, &docstore.GetDocumentRequest{StoreID: storeID, DocumentID: newHash}); e == nil {
-			return fmt.Errorf("hash is already in use, please use another one")
+			return errors.WithMessage(errors.StatusConflict, "hash is already in use, please use another one")
 		}
 		removeHash = link.LinkHash
 		link.LinkHash = newHash
@@ -132,7 +130,7 @@ func (sc *Client) LoadHashDocumentData(ctx context.Context, shareLink *rest.Shar
 		}
 	}
 	if linkDoc == nil {
-		return errors.NotFound(common.ServiceDocStore, "Cannot find link associated to this workspace")
+		return errors.WithMessage(errors.ShareNotFound, "Cannot find link associated to this workspace")
 	}
 	shareLink.LinkHash = linkDoc.ID
 	var linkData *docstore.ShareDocument
@@ -206,7 +204,7 @@ func (sc *Client) DeleteHashDocument(ctx context.Context, shareId string) error 
 		return err
 	}
 	if !resp.Success || resp.DeletionCount == 0 {
-		return errors.NotFound("Cannot find hash associated with workspace %s for deletion", shareId)
+		return errors.WithMessage(errors.ShareNotFound, "Cannot find hash associated with workspace %s for deletion", shareId)
 	}
 	return nil
 

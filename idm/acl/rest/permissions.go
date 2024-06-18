@@ -22,8 +22,6 @@ package rest
 
 import (
 	"context"
-	"io"
-	"strings"
 
 	"go.uber.org/zap"
 	"google.golang.org/protobuf/types/known/anypb"
@@ -31,6 +29,7 @@ import (
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/auth"
 	"github.com/pydio/cells/v4/common/auth/claim"
+	"github.com/pydio/cells/v4/common/client/commons"
 	"github.com/pydio/cells/v4/common/client/commons/idmc"
 	"github.com/pydio/cells/v4/common/client/commons/treec"
 	"github.com/pydio/cells/v4/common/errors"
@@ -63,7 +62,7 @@ func (a *Handler) WriteAllowed(ctx context.Context, acl *idm.ACL) error {
 		return a.CheckNode(ctx, acl.NodeID, acl.Action)
 
 	} else {
-		log.Logger(ctx).Error("Cannot check acl right for this request - probably a workspace wide acl delete query - letting it through", zap.Any("acl", acl))
+		log.Logger(ctx).Warn("Cannot check acl right for this request - probably a workspace wide acl delete query - letting it through", zap.Any("acl", acl))
 	}
 
 	return nil
@@ -76,31 +75,22 @@ func (a *Handler) CheckRole(ctx context.Context, roleID string) error {
 	cli := idmc.RoleServiceClient(ctx)
 	q, _ := anypb.New(&idm.RoleSingleQuery{Uuid: []string{roleID}})
 	stream, err := cli.SearchRole(ctx, &idm.SearchRoleRequest{Query: &service.Query{SubQueries: []*anypb.Any{q}}})
-	if err != nil {
-		return err
-	}
-	defer stream.CloseSend()
 	var role *idm.Role
-	for {
-		resp, e := stream.Recv()
-		if e != nil {
-			break
-		}
-		if resp == nil {
-			continue
-		}
-		role = resp.Role
-		break
+	if e := commons.ForEach(stream, err, func(t *idm.SearchRoleResponse) error {
+		role = t.GetRole()
+		return nil
+	}); e != nil {
+		return errors.Tag(e, errors.StatusForbidden)
 	}
 	if role == nil {
-		return errors.WithStack(errors.RoleNotFound)
+		return errors.WithMessagef(errors.StatusForbidden, "role %s does not exists", roleID)
 	}
 	if !a.MatchPolicies(ctx, role.Uuid, role.Policies, service.ResourcePolicyAction_WRITE) {
 		subjects, _ := auth.SubjectsForResourcePolicyQuery(ctx, nil)
-		log.Logger(ctx).Error("Error while checking role from ACL rest : ", zap.Any("role", role), log.DangerouslyZapSmallSlice("subjects", subjects))
-		return errors.WithStack(errors.RoleACLsNotEditable)
+		log.Logger(ctx).Debug("Error while checking role from ACL rest : ", zap.Any("role", role), log.DangerouslyZapSmallSlice("subjects", subjects))
+		return errors.WithMessage(errors.RoleACLsNotEditable, "while checking role from ACL")
 	}
-	log.Logger(ctx).Info("Checking acl write on role PASSED", zap.String("roleId", roleID))
+	log.Logger(ctx).Debug("Checking acl write on role PASSED", zap.String("roleId", roleID))
 	return nil
 
 }
@@ -110,11 +100,10 @@ func (a *Handler) CheckNode(ctx context.Context, nodeID string, action *idm.ACLA
 
 	accessList, err := permissions.AccessListFromContextClaims(ctx)
 	if err != nil {
-		return err
+		return errors.Tag(err, errors.StatusForbidden)
 	}
 
 	treeClient := treec.NodeProviderClient(ctx)
-
 	ancestorStream, lErr := treeClient.ListNodes(ctx, &tree.ListNodesRequest{
 		Node:      &tree.Node{Uuid: nodeID},
 		Ancestors: true,
@@ -122,19 +111,17 @@ func (a *Handler) CheckNode(ctx context.Context, nodeID string, action *idm.ACLA
 	if lErr != nil {
 		return lErr
 	}
-	defer ancestorStream.CloseSend()
 	parentNodes := []*tree.Node{{Uuid: nodeID}}
 	for {
 		parent, e := ancestorStream.Recv()
 		if e != nil {
-			if e == io.EOF || e == io.ErrUnexpectedEOF {
+			if errors.IsStreamFinished(e) {
 				break
-			} else {
-				if strings.Contains(e.Error(), "404") {
-					return nil
-				}
-				return e
 			}
+			if errors.Is(e, errors.NodeNotFound) { // todo - recheck this case
+				return nil
+			}
+			return e
 		}
 		if parent == nil {
 			continue

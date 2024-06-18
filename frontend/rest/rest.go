@@ -22,7 +22,6 @@ package rest
 
 import (
 	"context"
-	"fmt"
 	"io"
 	"os"
 	"strconv"
@@ -38,7 +37,6 @@ import (
 	"github.com/pydio/cells/v4/common/client/commons/idmc"
 	"github.com/pydio/cells/v4/common/config"
 	"github.com/pydio/cells/v4/common/errors"
-	"github.com/pydio/cells/v4/common/middleware"
 	"github.com/pydio/cells/v4/common/nodes/compose"
 	"github.com/pydio/cells/v4/common/nodes/models"
 	pauth "github.com/pydio/cells/v4/common/proto/auth"
@@ -127,13 +125,12 @@ func (a *FrontendHandler) FrontState(req *restful.Request, rsp *restful.Response
 
 // FrontBootConf loads an open JSON struct for start configuration. As it can be called
 // directly as a simple GET /a/frontend/bootconf, this endpoint can rely on Cookie for authentication
-func (a *FrontendHandler) FrontBootConf(req *restful.Request, rsp *restful.Response) {
+func (a *FrontendHandler) FrontBootConf(req *restful.Request, rsp *restful.Response) error {
 
 	ctx := req.Request.Context()
 	pool, e := frontend.GetPluginsPool()
 	if e != nil {
-		middleware.RestError500(req, rsp, e)
-		return
+		return e
 	}
 	showVersion := false
 	user := &frontend.User{}
@@ -142,15 +139,14 @@ func (a *FrontendHandler) FrontBootConf(req *restful.Request, rsp *restful.Respo
 	}
 	bootConf, e := frontend.ComputeBootConf(ctx, pool, showVersion)
 	if e != nil {
-		middleware.RestErrorDetect(req, rsp, e)
-		return
+		return e
 	}
 	_ = rsp.WriteAsJson(bootConf)
-
+	return nil
 }
 
 // FrontPlugins dumps a full list of available frontend plugins
-func (a *FrontendHandler) FrontPlugins(req *restful.Request, rsp *restful.Response) {
+func (a *FrontendHandler) FrontPlugins(req *restful.Request, rsp *restful.Response) error {
 
 	if req.Request.Header.Get("x-pydio-plugins-reload") != "" {
 		frontend.HotReload()
@@ -159,8 +155,7 @@ func (a *FrontendHandler) FrontPlugins(req *restful.Request, rsp *restful.Respon
 
 	pool, e := frontend.GetPluginsPool()
 	if e != nil {
-		middleware.RestError500(req, rsp, e)
-		return
+		return e
 	}
 
 	lang := req.QueryParameter("lang")
@@ -177,22 +172,24 @@ func (a *FrontendHandler) FrontPlugins(req *restful.Request, rsp *restful.Respon
 	}
 
 	plugins := pool.AllPluginsManifests(a.runtimeCtx, lang)
-	rsp.WriteAsXml(plugins)
+	_ = rsp.WriteAsXml(plugins)
+	return nil
 }
 
 // FrontSessionGet loads a cookie-based session to get info about an access token
-func (a *FrontendHandler) FrontSessionGet(req *restful.Request, rsp *restful.Response) {
+func (a *FrontendHandler) FrontSessionGet(req *restful.Request, rsp *restful.Response) error {
 
 	dao, err := manager.Resolve[sessions.DAO](req.Request.Context())
 	if err != nil {
-		middleware.RestError500(req, rsp, fmt.Errorf("could not retrieve dao: %s", err))
-		return
+		return err
 	}
 
 	session, err := dao.GetSession(req.Request)
-	if err != nil && session == nil {
-		middleware.RestError500(req, rsp, fmt.Errorf("could not load session store: %s", err))
-		return
+	if err != nil {
+		return err
+	}
+	if session == nil {
+		return errors.WithMessage(errors.StatusInternalServerError, "cannot instantiate session")
 	}
 
 	response := &rest.FrontSessionGetResponse{}
@@ -204,21 +201,19 @@ func (a *FrontendHandler) FrontSessionGet(req *restful.Request, rsp *restful.Res
 		}
 	}
 
-	rsp.WriteEntity(response)
+	return rsp.WriteEntity(response)
 }
 
 // FrontSession initiate a cookie-based session based on a LoginRequest
-func (a *FrontendHandler) FrontSession(req *restful.Request, rsp *restful.Response) {
+func (a *FrontendHandler) FrontSession(req *restful.Request, rsp *restful.Response) error {
 	dao, err := manager.Resolve[sessions.DAO](req.Request.Context())
 	if err != nil {
-		middleware.RestError500(req, rsp, fmt.Errorf("could not retrieve dao: %s", err))
-		return
+		return err
 	}
 
 	var loginRequest rest.FrontSessionRequest
 	if e := req.ReadEntity(&loginRequest); e != nil {
-		middleware.RestError500(req, rsp, e)
-		return
+		return e
 	}
 
 	ctx := req.Request.Context()
@@ -235,9 +230,11 @@ func (a *FrontendHandler) FrontSession(req *restful.Request, rsp *restful.Respon
 	}
 
 	session, err := dao.GetSession(req.Request)
-	if err != nil && session == nil {
-		middleware.RestError500(req, rsp, fmt.Errorf("could not load session store: %s", err))
-		return
+	if err != nil {
+		return err
+	}
+	if session == nil {
+		return errors.WithMessage(errors.StatusInternalServerError, "cannot instantiate session")
 	}
 
 	// Legacy code
@@ -259,11 +256,9 @@ func (a *FrontendHandler) FrontSession(req *restful.Request, rsp *restful.Respon
 	}
 	// Now handle errors
 	if e != nil {
-		middleware.RestError401(req, rsp, e, "E_LOGIN_FAILED")
-		return
+		return errors.Tag(e, errors.LoginFailed)
 	} else if response.Error != "" {
-		middleware.RestError401(req, rsp, errors.WithMessage(errors.StatusUnauthorized, response.Error), "E_LOGIN_FAILED")
-		return
+		return errors.WithMessage(errors.LoginFailed, response.Error)
 	}
 
 	// Legacy code
@@ -277,45 +272,45 @@ func (a *FrontendHandler) FrontSession(req *restful.Request, rsp *restful.Respon
 		}
 	}
 
-	_ = rsp.WriteEntity(response)
+	return rsp.WriteEntity(response)
 }
 
 // FrontSessionDel logs out user by clearing the associated cookie session.
-func (a *FrontendHandler) FrontSessionDel(req *restful.Request, rsp *restful.Response) {
+func (a *FrontendHandler) FrontSessionDel(req *restful.Request, rsp *restful.Response) error {
 
 	dao, err := manager.Resolve[sessions.DAO](req.Request.Context())
 	if err != nil {
-		middleware.RestError500(req, rsp, fmt.Errorf("could not retrieve dao: %s", err))
-		return
+		return err
 	}
 
 	session, err := dao.GetSession(req.Request)
 	if err != nil || session == nil {
-		middleware.RestError500(req, rsp, fmt.Errorf("could not load session store: %s", err))
-		return
+		return err
 	}
 
 	session.Values = make(map[interface{}]interface{})
 	session.Options.MaxAge = -1
 	_ = session.Save(req.Request, rsp.ResponseWriter)
 
-	_ = rsp.WriteEntity(nil)
+	return rsp.WriteEntity(nil)
 }
 
 // FrontEnrollAuth is a generic endpoint that can be handled by specific 2FA plugins
-func (a *FrontendHandler) FrontEnrollAuth(req *restful.Request, rsp *restful.Response) {
+func (a *FrontendHandler) FrontEnrollAuth(req *restful.Request, rsp *restful.Response) error {
+	// Todo - Errors in ApplyEnrollMiddlewares?
 	frontend.ApplyEnrollMiddlewares("FrontEnrollAuth", req, rsp)
+	return nil
 }
 
 // FrontMessages loads all i18n messages for a given language
-func (a *FrontendHandler) FrontMessages(req *restful.Request, rsp *restful.Response) {
+func (a *FrontendHandler) FrontMessages(req *restful.Request, rsp *restful.Response) error {
 	pool, e := frontend.GetPluginsPool()
 	if e != nil {
-		middleware.RestError500(req, rsp, e)
-		return
+		return e
 	}
 	lang := req.PathParameter("Lang")
 	_ = rsp.WriteAsJson(pool.I18nMessages(lang).Messages)
+	return nil
 }
 
 // Strip Cookies Metadata from context to avoid s3 too-long-header error
@@ -337,7 +332,7 @@ func ctxWithoutCookies(ctx context.Context) context.Context {
 // FrontServeBinary triggers the download of a stored binary.
 // As it can be used directly in <img url="/a/frontend/binary">, this endpoint can rely
 // on the cookie to authenticate user
-func (a *FrontendHandler) FrontServeBinary(req *restful.Request, rsp *restful.Response) {
+func (a *FrontendHandler) FrontServeBinary(req *restful.Request, rsp *restful.Response) error {
 
 	binaryType := req.PathParameter("BinaryType")
 	binaryUuid := req.PathParameter("Uuid")
@@ -351,8 +346,7 @@ func (a *FrontendHandler) FrontServeBinary(req *restful.Request, rsp *restful.Re
 
 		user, e := permissions.SearchUniqueUser(ctx, binaryUuid, "")
 		if e != nil {
-			middleware.RestError404(req, rsp, e)
-			return
+			return e
 		}
 		if avatarId, ok := user.Attributes["avatar"]; ok {
 
@@ -380,32 +374,32 @@ func (a *FrontendHandler) FrontServeBinary(req *restful.Request, rsp *restful.Re
 		if req.QueryParameter("dim") != "" {
 			if dim, e := strconv.ParseInt(req.QueryParameter("dim"), 10, 32); e == nil {
 				if e := readBinary(ctx, router, readNode, rsp.ResponseWriter, rsp.Header(), extension, int(dim)); e != nil {
-					middleware.RestError500(req, rsp, e)
+					return e
+				} else {
+					return nil
 				}
-				return
 			}
 		}
 		_ = readBinary(ctx, router, readNode, rsp.ResponseWriter, rsp.Header(), extension)
 	}
+	return nil
 }
 
 // FrontPutBinary receives an upload to store a binary.
-func (a *FrontendHandler) FrontPutBinary(req *restful.Request, rsp *restful.Response) {
+func (a *FrontendHandler) FrontPutBinary(req *restful.Request, rsp *restful.Response) error {
 
 	binaryType := req.PathParameter("BinaryType")
 	binaryUuid := req.PathParameter("Uuid")
 	ctx := req.Request.Context()
 
 	if e := req.Request.ParseForm(); e != nil {
-		middleware.RestError500(req, rsp, e)
-		return
+		return errors.Tag(e, errors.UnmarshalError)
 	}
 	var fileInput io.Reader
 	var fileSize int64
 	f1, f2, e1 := req.Request.FormFile("userfile")
 	if e1 != nil {
-		middleware.RestError500(req, rsp, e1)
-		return
+		return errors.Tag(e1, errors.UnmarshalError)
 	}
 	fileInput = f1
 	fileSize = f2.Size
@@ -419,13 +413,14 @@ func (a *FrontendHandler) FrontPutBinary(req *restful.Request, rsp *restful.Resp
 	router := compose.PathClient(a.runtimeCtx)
 	ctx = ctxWithoutCookies(ctx)
 
-	defer f1.Close()
+	defer func() {
+		_ = f1.Close()
+	}()
 
 	if binaryType == "USER" {
 
 		if f2.Size > avatarDefaultMaxSize {
-			middleware.RestError403(req, rsp, fmt.Errorf("you are not allowed to use files bigger than %dB for avatars", avatarDefaultMaxSize))
-			return
+			return errors.WithMessagef(errors.StatusForbidden, "you are not allowed to use files bigger than %dB for avatars", avatarDefaultMaxSize)
 		}
 		if fi, si, er := filterInputBinaryExif(ctx, fileInput); er == nil {
 			fileInput = fi
@@ -433,18 +428,15 @@ func (a *FrontendHandler) FrontPutBinary(req *restful.Request, rsp *restful.Resp
 		}
 		// USER binaries can only be edited by context user or by admin
 		if ctxClaims.Profile != common.PydioProfileAdmin && ctxUser != binaryUuid {
-			middleware.RestError401(req, rsp, fmt.Errorf("you are not allowed to edit this binary"))
-			return
+			return errors.WithMessage(errors.StatusForbidden, "you are not allowed to edit this binary")
 		}
 
 		user, e := permissions.SearchUniqueUser(ctx, binaryUuid, "")
 		if e != nil {
-			middleware.RestError404(req, rsp, e)
-			return
+			return e
 		}
 		if !a.IsContextEditable(ctx, user.Uuid, user.Policies) {
-			middleware.RestError403(req, rsp, e)
-			return
+			return errors.WithMessage(errors.StatusForbidden, "you are not allowed to edit this user")
 		}
 
 		node := &tree.Node{
@@ -467,8 +459,7 @@ func (a *FrontendHandler) FrontPutBinary(req *restful.Request, rsp *restful.Resp
 			Size: fileSize,
 		})
 		if e != nil {
-			middleware.RestError500(req, rsp, e)
-			return
+			return e
 		}
 
 		if user.Attributes == nil {
@@ -476,10 +467,8 @@ func (a *FrontendHandler) FrontPutBinary(req *restful.Request, rsp *restful.Resp
 		}
 		user.Attributes["avatar"] = binaryId
 		cli := idmc.UserServiceClient(ctx)
-		_, e = cli.CreateUser(ctx, &idm.CreateUserRequest{User: user})
-		if e != nil {
-			middleware.RestError404(req, rsp, e)
-			return
+		if _, e = cli.CreateUser(ctx, &idm.CreateUserRequest{User: user}); e != nil {
+			return e
 		}
 	} else if binaryType == "GLOBAL" {
 
@@ -490,28 +479,23 @@ func (a *FrontendHandler) FrontPutBinary(req *restful.Request, rsp *restful.Resp
 		if _, e := router.DeleteNode(ctx, &tree.DeleteNodeRequest{Node: node}); e != nil {
 			log.Logger(ctx).Error("Error while deleting existing binary", node.Zap(), zap.Error(e))
 		}
-
-		_, e := router.PutObject(ctx, node, fileInput, &models.PutRequestData{
-			Size: fileSize,
-		})
-		if e != nil {
-			middleware.RestError500(req, rsp, e)
-			return
+		if _, e := router.PutObject(ctx, node, fileInput, &models.PutRequestData{Size: fileSize}); e != nil {
+			return e
 		}
 
 	} else {
 
-		middleware.RestError500(req, rsp, fmt.Errorf("unsupported Binary Type (must be USER or GLOBAL)"))
-		return
+		return errors.WithMessage(errors.InvalidParameters, "unsupported Binary Type (must be USER or GLOBAL)")
 
 	}
 
-	rsp.WriteAsJson(map[string]string{"binary": binaryId})
+	_ = rsp.WriteAsJson(map[string]string{"binary": binaryId})
+	return nil
 
 }
 
 // SettingsMenu builds the list of available page for the Cells Console left menu
-func (a *FrontendHandler) SettingsMenu(req *restful.Request, rsp *restful.Response) {
+func (a *FrontendHandler) SettingsMenu(req *restful.Request, rsp *restful.Response) error {
 
 	formDevOnce.Do(func() {
 		if os.Getenv("CELLS_ENABLE_FORMS_DEVEL") == "1" {
@@ -537,6 +521,6 @@ func (a *FrontendHandler) SettingsMenu(req *restful.Request, rsp *restful.Respon
 		}
 	})
 
-	rsp.WriteEntity(settingsNode)
+	return rsp.WriteEntity(settingsNode)
 
 }

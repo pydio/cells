@@ -26,6 +26,7 @@ import (
 	restful "github.com/emicklei/go-restful/v3"
 
 	"github.com/pydio/cells/v4/common"
+	"github.com/pydio/cells/v4/common/client/commons"
 	"github.com/pydio/cells/v4/common/client/grpc"
 	"github.com/pydio/cells/v4/common/middleware"
 	"github.com/pydio/cells/v4/common/proto/idm"
@@ -50,31 +51,25 @@ func (h *PolicyHandler) getClient(ctx context.Context) idm.PolicyEngineServiceCl
 }
 
 // ListPolicies lists Policy Groups
-func (h *PolicyHandler) ListPolicies(req *restful.Request, rsp *restful.Response) {
+func (h *PolicyHandler) ListPolicies(req *restful.Request, rsp *restful.Response) error {
 
 	ctx := req.Request.Context()
 	log.Logger(ctx).Debug("Received Policy.List API request")
 	response := &idm.ListPolicyGroupsResponse{}
+	tr := lang.Bundle().T(middleware.DetectedLanguages(ctx)...)
 
 	streamer, err := h.getClient(ctx).StreamPolicyGroups(ctx, &idm.ListPolicyGroupsRequest{})
-	if err != nil {
-		middleware.RestErrorDetect(req, rsp, err)
-		return
-	}
-	tr := lang.Bundle().T(middleware.DetectedLanguages(ctx)...)
-	for {
-		g, er := streamer.Recv()
-		if er != nil {
-			break
-		}
+	if er := commons.ForEach(streamer, err, func(g *idm.PolicyGroup) error {
 		g.Name = tr(g.Name)
 		g.Description = tr(g.Description)
 		for _, r := range g.Policies {
 			r.Description = tr(r.Description)
 		}
 		response.PolicyGroups = append(response.PolicyGroups, g)
+		return nil
+	}); er != nil {
+		return er
 	}
-	response.Total = int32(len(response.PolicyGroups))
+	return rsp.WriteEntity(response)
 
-	rsp.WriteEntity(response)
 }

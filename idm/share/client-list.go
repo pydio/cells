@@ -22,7 +22,6 @@ package share
 
 import (
 	"context"
-	"fmt"
 
 	"google.golang.org/protobuf/types/known/anypb"
 
@@ -30,6 +29,7 @@ import (
 	"github.com/pydio/cells/v4/common/auth"
 	"github.com/pydio/cells/v4/common/auth/claim"
 	"github.com/pydio/cells/v4/common/client/grpc"
+	"github.com/pydio/cells/v4/common/errors"
 	"github.com/pydio/cells/v4/common/proto/idm"
 	"github.com/pydio/cells/v4/common/proto/rest"
 	service2 "github.com/pydio/cells/v4/common/proto/service"
@@ -56,7 +56,7 @@ func (sc *Client) ListSharedResources(ctx context.Context, subject string, scope
 	}
 	if subject != "" {
 		if !admin {
-			return nil, fmt.Errorf("only admins can specify a subject")
+			return nil, errors.WithMessage(errors.StatusForbidden, "only admins can specify a subject")
 		}
 		subjects = append(subjects, subject)
 	} else {

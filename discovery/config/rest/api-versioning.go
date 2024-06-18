@@ -24,6 +24,7 @@ import (
 	restful "github.com/emicklei/go-restful/v3"
 
 	"github.com/pydio/cells/v4/common"
+	"github.com/pydio/cells/v4/common/client/commons"
 	"github.com/pydio/cells/v4/common/client/commons/docstorec"
 	"github.com/pydio/cells/v4/common/middleware"
 	"github.com/pydio/cells/v4/common/proto/docstore"
@@ -38,35 +39,31 @@ VERSIONING POLICIES MANAGEMENT
 *****************************/
 
 // ListVersioningPolicies list all defined policies.
-func (s *Handler) ListVersioningPolicies(req *restful.Request, resp *restful.Response) {
+func (s *Handler) ListVersioningPolicies(req *restful.Request, resp *restful.Response) error {
 	T := lang.Bundle().T(middleware.DetectedLanguages(req.Request.Context())...)
 	ctx := req.Request.Context()
 	dc := docstorec.DocStoreClient(ctx)
+	response := &rest.VersioningPolicyCollection{}
 	docs, er := dc.ListDocuments(ctx, &docstore.ListDocumentsRequest{
 		StoreID: common.DocStoreIdVersioningPolicies,
 	})
-	if er != nil {
-		middleware.RestError500(req, resp, er)
-		return
-	}
-	response := &rest.VersioningPolicyCollection{}
-	for {
-		r, e := docs.Recv()
-		if e != nil {
-			break
-		}
+	if er = commons.ForEach(docs, er, func(r *docstore.ListDocumentsResponse) error {
 		var policy *tree.VersioningPolicy
-		if er := json.Unmarshal([]byte(r.Document.Data), &policy); er == nil {
-			policy.Name = T(policy.Name)
-			policy.Description = T(policy.Description)
-			response.Policies = append(response.Policies, policy)
+		if err := json.Unmarshal([]byte(r.GetDocument().GetData()), &policy); err != nil {
+			return err
 		}
+		policy.Name = T(policy.Name)
+		policy.Description = T(policy.Description)
+		response.Policies = append(response.Policies, policy)
+		return nil
+	}); er != nil {
+		return er
 	}
-	resp.WriteEntity(response)
+	return resp.WriteEntity(response)
 }
 
 // GetVersioningPolicy returns a specific policy
-func (s *Handler) GetVersioningPolicy(req *restful.Request, resp *restful.Response) {
+func (s *Handler) GetVersioningPolicy(req *restful.Request, resp *restful.Response) error {
 	T := lang.Bundle().T(middleware.DetectedLanguages(req.Request.Context())...)
 	policyId := req.PathParameter("Uuid")
 	ctx := req.Request.Context()
@@ -75,15 +72,15 @@ func (s *Handler) GetVersioningPolicy(req *restful.Request, resp *restful.Respon
 		StoreID:    common.DocStoreIdVersioningPolicies,
 		DocumentID: policyId,
 	}); e != nil {
-		middleware.RestError404(req, resp, e)
+		return e
 	} else {
 		var policy *tree.VersioningPolicy
 		if er := json.Unmarshal([]byte(r.Document.Data), &policy); er == nil {
 			policy.Name = T(policy.Name)
 			policy.Description = T(policy.Description)
-			resp.WriteEntity(policy)
+			return resp.WriteEntity(policy)
 		} else {
-			middleware.RestError500(req, resp, er)
+			return er
 		}
 	}
 }

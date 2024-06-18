@@ -161,7 +161,7 @@ func (sc *Client) UpsertLink(ctx context.Context, link *rest.ShareLink, linkOpti
 		return nil, err
 	}
 	if !create && !sc.checker.IsContextEditable(ctx, workspace.UUID, workspace.Policies) {
-		return nil, fmt.Errorf("you are not allowed to edit this link")
+		return nil, errors.WithStack(errors.ShareLinkNotEditable)
 	}
 	track("IsContextEditable")
 
@@ -262,7 +262,7 @@ func (sc *Client) DeleteLink(ctx context.Context, id string) error {
 	if ws, e := sc.GetLinkWorkspace(ctx, id); e != nil || ws == nil {
 		return e
 	} else if !sc.checker.IsContextEditable(ctx, id, ws.Policies) {
-		return fmt.Errorf("you are not allowed to edit this link")
+		return errors.WithStack(errors.ShareLinkNotEditable)
 	}
 
 	// First remove hash data

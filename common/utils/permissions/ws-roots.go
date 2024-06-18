@@ -2,13 +2,13 @@ package permissions
 
 import (
 	"context"
-	"fmt"
 	"strings"
 
 	"google.golang.org/protobuf/types/known/anypb"
 
 	"github.com/pydio/cells/v4/common/client/commons/idmc"
 	"github.com/pydio/cells/v4/common/client/commons/treec"
+	"github.com/pydio/cells/v4/common/errors"
 	"github.com/pydio/cells/v4/common/proto/idm"
 	"github.com/pydio/cells/v4/common/proto/service"
 	"github.com/pydio/cells/v4/common/proto/tree"
@@ -24,7 +24,7 @@ func CheckDefinedRootsForWorkspace(ctx context.Context, ws *idm.Workspace, resol
 		}
 	}
 	if len(uuids) == 0 {
-		return fmt.Errorf("cannot define workspace without any root nodes")
+		return errors.WithMessage(errors.InvalidParameters, "cannot define workspace without any root nodes")
 	}
 
 	streamer := treec.NodeProviderStreamerClient(ctx)
@@ -37,11 +37,11 @@ func CheckDefinedRootsForWorkspace(ctx context.Context, ws *idm.Workspace, resol
 			// Ignore roots based on virtual nodes
 			continue
 		}
-		if e := c.Send(&tree.ReadNodeRequest{Node: &tree.Node{Uuid: nodeId}}); e != nil {
+		if e = c.Send(&tree.ReadNodeRequest{Node: &tree.Node{Uuid: nodeId}}); e != nil {
 			return e
 		}
-		if r, e := c.Recv(); e != nil || r == nil || r.GetNode() == nil || r.GetNode().GetUuid() == "" {
-			return fmt.Errorf("cannot find workspace root by uuid (%s), maybe datasource is not ready yet? Error was: %s", nodeId, e.Error())
+		if r, se := c.Recv(); se != nil {
+			return errors.WithMessagef(errors.NodeNotFound, "cannot find workspace root by uuid (%s), maybe datasource is not ready yet?", nodeId)
 		} else {
 			log.Logger(ctx).Debug("PutWorkspace : found root node", r.GetNode().Zap("root"))
 		}

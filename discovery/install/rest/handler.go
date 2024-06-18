@@ -31,7 +31,6 @@ import (
 
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/broker"
-	"github.com/pydio/cells/v4/common/middleware"
 	"github.com/pydio/cells/v4/common/proto/install"
 	"github.com/pydio/cells/v4/common/service"
 	"github.com/pydio/cells/v4/common/telemetry/log"
@@ -70,14 +69,12 @@ func (h *Handler) Filter() func(string) string {
 }
 
 // PerformInstallCheck performs a few server side checks before launching the real install.
-func (h *Handler) PerformInstallCheck(req *restful.Request, rsp *restful.Response) {
+func (h *Handler) PerformInstallCheck(req *restful.Request, rsp *restful.Response) error {
 
 	ctx := req.Request.Context()
 	var input install.PerformCheckRequest
-	err := req.ReadEntity(&input)
-	if err != nil {
-		middleware.RestError500(req, rsp, err)
-		return
+	if err := req.ReadEntity(&input); err != nil {
+		return err
 	}
 
 	installConfig := input.GetConfig()
@@ -89,19 +86,19 @@ func (h *Handler) PerformInstallCheck(req *restful.Request, rsp *restful.Respons
 	}
 
 	result, _ := lib.PerformCheck(ctx, input.Name, installConfig)
-	rsp.WriteEntity(&install.PerformCheckResponse{Result: result})
+	return rsp.WriteEntity(&install.PerformCheckResponse{Result: result})
 
 }
 
 // GetAgreement returns current Licence text for user validation.
-func (h *Handler) GetAgreement(req *restful.Request, rsp *restful.Response) {
+func (h *Handler) GetAgreement(req *restful.Request, rsp *restful.Response) error {
 
-	rsp.WriteEntity(&install.GetAgreementResponse{Text: AgplText})
+	return rsp.WriteEntity(&install.GetAgreementResponse{Text: AgplText})
 
 }
 
 // GetInstall retrieves default configuration parameters.
-func (h *Handler) GetInstall(req *restful.Request, rsp *restful.Response) {
+func (h *Handler) GetInstall(req *restful.Request, rsp *restful.Response) error {
 
 	ctx := req.Request.Context()
 	// Create a copy of default config without any db passwords
@@ -112,23 +109,20 @@ func (h *Handler) GetInstall(req *restful.Request, rsp *restful.Response) {
 		Config: &defaultConfig,
 	}
 	log.Logger(ctx).Debug("Received Install.Get request", zap.Any("response", response))
-	rsp.WriteEntity(response)
+	return rsp.WriteEntity(response)
+
 }
 
 // PostInstall updates pydio.json configuration file after having gathered modifications from the admin end user.
-func (h *Handler) PostInstall(req *restful.Request, rsp *restful.Response) {
+func (h *Handler) PostInstall(req *restful.Request, rsp *restful.Response) error {
 
 	ctx := req.Request.Context()
 
 	var input install.InstallRequest
-
-	err := req.ReadEntity(&input)
-	if err != nil {
-		middleware.RestError500(req, rsp, err)
-		return
+	if err := req.ReadEntity(&input); err != nil {
+		return err
 	}
-
-	log.Logger(ctx).Debug("Received Install.Post request", zap.Any("input", input))
+	log.Logger(ctx).Debug("Received Install.Post request", zap.Any("input", &input))
 
 	response := &install.InstallResponse{}
 	installConfig := input.GetConfig()
@@ -141,18 +135,20 @@ func (h *Handler) PostInstall(req *restful.Request, rsp *restful.Response) {
 		}
 		installConfig.UseDocumentsDSN = true
 	}
+	var iErr error
+
 	if er := lib.Install(ctx, installConfig, lib.InstallAll, func(event *lib.InstallProgressEvent) {
-		h.eventManager.Publish("install", event)
+		_ = h.eventManager.Publish("install", event)
 	}); er != nil {
-		h.eventManager.Publish("install", &lib.InstallProgressEvent{Message: "Some error occurred: " + er.Error()})
-		middleware.RestError500(req, rsp, er)
+		_ = h.eventManager.Publish("install", &lib.InstallProgressEvent{Message: "Some error occurred: " + er.Error()})
+		iErr = er
 	} else {
-		h.eventManager.Publish("install", &lib.InstallProgressEvent{
+		_ = h.eventManager.Publish("install", &lib.InstallProgressEvent{
 			Message:  "Installation Finished, starting all services...",
 			Progress: 100,
 		})
 		response.Success = true
-		rsp.WriteEntity(response)
+		iErr = rsp.WriteEntity(response)
 	}
 
 	log.Logger(ctx).Info("Install done: trigger onSuccess now")
@@ -162,6 +158,8 @@ func (h *Handler) PostInstall(req *restful.Request, rsp *restful.Response) {
 	}
 	h.eventManager.Shutdown()
 	// }()
+	return iErr
+
 }
 
 // InstallEvents returns events

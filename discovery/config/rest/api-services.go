@@ -35,7 +35,6 @@ import (
 	"github.com/pydio/cells/v4/common/client/commons/treec"
 	"github.com/pydio/cells/v4/common/client/grpc"
 	"github.com/pydio/cells/v4/common/errors"
-	"github.com/pydio/cells/v4/common/middleware"
 	"github.com/pydio/cells/v4/common/proto/ctl"
 	"github.com/pydio/cells/v4/common/proto/object"
 	rpb "github.com/pydio/cells/v4/common/proto/registry"
@@ -54,20 +53,18 @@ SERVICES MANAGEMENT
 *********************/
 
 // ListServices lists all services with their status
-func (h *Handler) ListServices(req *restful.Request, resp *restful.Response) {
+func (h *Handler) ListServices(req *restful.Request, resp *restful.Response) error {
 
 	// Create a list of all plugins
 	pluginsReg, e := registry.OpenRegistry(context.Background(), runtime.RegistryURL())
 	if e != nil {
-		middleware.RestError500(req, resp, e)
-		return
+		return e
 	}
 	defer pluginsReg.Close()
 
 	services, err := pluginsReg.List(registry.WithType(rpb.ItemType_SERVICE))
 	if err != nil {
-		middleware.RestError500(req, resp, err)
-		return
+		return err
 	}
 
 	output := &rest.ServiceCollection{
@@ -97,21 +94,19 @@ func (h *Handler) ListServices(req *restful.Request, resp *restful.Response) {
 		output.Services = append(output.Services, h.serviceToRest(pluginsReg, srv, nodes))
 	}
 
-	resp.WriteEntity(output)
+	return resp.WriteEntity(output)
 }
 
-func (h *Handler) ListRegistry(req *restful.Request, resp *restful.Response) {
+func (h *Handler) ListRegistry(req *restful.Request, resp *restful.Response) error {
 
 	var input rpb.ListRequest
 	if e := req.ReadEntity(&input); e != nil {
-		middleware.RestError500(req, resp, e)
-		return
+		return e
 	}
 
 	pluginsReg, e := registry.OpenRegistry(context.Background(), runtime.RegistryURL())
 	if e != nil {
-		middleware.RestError500(req, resp, e)
-		return
+		return e
 	}
 	defer pluginsReg.Close()
 
@@ -125,8 +120,7 @@ func (h *Handler) ListRegistry(req *restful.Request, resp *restful.Response) {
 	}
 	ii, e := pluginsReg.List(opts...)
 	if e != nil {
-		middleware.RestError500(req, resp, e)
-		return
+		return e
 	}
 	response := &rpb.ListResponse{}
 	for _, i := range ii {
@@ -148,12 +142,12 @@ func (h *Handler) ListRegistry(req *restful.Request, resp *restful.Response) {
 		}
 		response.Items = append(response.Items, item)
 	}
-	_ = resp.WriteEntity(response)
+	return resp.WriteEntity(response)
 
 }
 
 // ListPeersAddresses lists all Peers (servers) on which any pydio service is running
-func (h *Handler) ListPeersAddresses(req *restful.Request, resp *restful.Response) {
+func (h *Handler) ListPeersAddresses(req *restful.Request, resp *restful.Response) error {
 
 	response := &rest.ListPeersAddressesResponse{
 		PeerAddresses: []string{},
@@ -162,8 +156,7 @@ func (h *Handler) ListPeersAddresses(req *restful.Request, resp *restful.Respons
 	propagator.Get(req.Request.Context(), registry.ContextKey, &reg)
 	nodes, er := reg.List(registry.WithType(rpb.ItemType_SERVER))
 	if er != nil {
-		middleware.RestError500(req, resp, er)
-		return
+		return er
 	}
 	accu := make(map[string]string)
 	hosts := make(map[string]string)
@@ -189,17 +182,16 @@ func (h *Handler) ListPeersAddresses(req *restful.Request, resp *restful.Respons
 		}
 		response.PeerAddresses = append(response.PeerAddresses, v)
 	}
-	resp.WriteEntity(response)
+	return resp.WriteEntity(response)
 
 }
 
 // ListPeerFolders lists folders on a given peer to configure a local folder datasource.
-func (h *Handler) ListPeerFolders(req *restful.Request, resp *restful.Response) {
+func (h *Handler) ListPeerFolders(req *restful.Request, resp *restful.Response) error {
 
 	var listReq rest.ListPeerFoldersRequest
 	if e := req.ReadEntity(&listReq); e != nil {
-		middleware.RestError500(req, resp, e)
-		return
+		return e
 	}
 
 	var opts []grpc.Option
@@ -214,8 +206,7 @@ func (h *Handler) ListPeerFolders(req *restful.Request, resp *restful.Response) 
 		Node: &tree.Node{Path: listReq.Path},
 	})
 	if e != nil {
-		middleware.RestError500(req, resp, e)
-		return
+		return e
 	}
 	coll := &rest.NodesCollection{}
 	for {
@@ -226,17 +217,16 @@ func (h *Handler) ListPeerFolders(req *restful.Request, resp *restful.Response) 
 		coll.Children = append(coll.Children, r.Node)
 	}
 
-	resp.WriteEntity(coll)
+	return resp.WriteEntity(coll)
 
 }
 
 // CreatePeerFolder forwards folder creation call to specific peer
-func (h *Handler) CreatePeerFolder(req *restful.Request, resp *restful.Response) {
+func (h *Handler) CreatePeerFolder(req *restful.Request, resp *restful.Response) error {
 
 	var createReq rest.CreatePeerFolderRequest
 	if e := req.ReadEntity(&createReq); e != nil {
-		middleware.RestError500(req, resp, e)
-		return
+		return e
 	}
 	var opts []grpc.Option
 	if createReq.PeerAddress != "" {
@@ -245,20 +235,18 @@ func (h *Handler) CreatePeerFolder(req *restful.Request, resp *restful.Response)
 	cl := tree.NewNodeReceiverClient(grpc.ResolveConn(req.Request.Context(), common.ServiceDataObjectsPeer, opts...))
 	cr, e := cl.CreateNode(req.Request.Context(), &tree.CreateNodeRequest{Node: &tree.Node{Path: createReq.Path}})
 	if e != nil {
-		middleware.RestErrorDetect(req, resp, e)
-		return
+		return e
 	}
-	resp.WriteEntity(&rest.CreatePeerFolderResponse{Success: true, Node: cr.Node})
+	return resp.WriteEntity(&rest.CreatePeerFolderResponse{Success: true, Node: cr.Node})
 
 }
 
 // ListProcesses lists running Processes from registry, with option PeerId or ServiceName filter.
-func (h *Handler) ListProcesses(req *restful.Request, resp *restful.Response) {
+func (h *Handler) ListProcesses(req *restful.Request, resp *restful.Response) error {
 
 	var listReq rest.ListProcessesRequest
 	if e := req.ReadEntity(&listReq); e != nil {
-		middleware.RestError500(req, resp, e)
-		return
+		return e
 	}
 
 	out := &rest.ListProcessesResponse{}
@@ -267,8 +255,7 @@ func (h *Handler) ListProcesses(req *restful.Request, resp *restful.Response) {
 	propagator.Get(req.Request.Context(), registry.ContextKey, &reg)
 	nodes, er := reg.List(registry.WithType(rpb.ItemType_SERVER))
 	if er != nil {
-		middleware.RestError500(req, resp, er)
-		return
+		return er
 	}
 	accu := make(map[string]map[string]string)
 	for _, n := range nodes {
@@ -291,7 +278,7 @@ func (h *Handler) ListProcesses(req *restful.Request, resp *restful.Response) {
 		})
 	}
 
-	resp.WriteEntity(out)
+	return resp.WriteEntity(out)
 
 }
 
@@ -353,18 +340,18 @@ func (h *Handler) ValidateLocalDSFolderOnPeer(ctx context.Context, newSource *ob
 }
 
 // ControlService is sends a command to a specific service - Not used for the moment.
-func (h *Handler) ControlService(req *restful.Request, resp *restful.Response) {
+func (h *Handler) ControlService(req *restful.Request, resp *restful.Response) error {
 
 	var ctrlRequest rest.ControlServiceRequest
 	if err := req.ReadEntity(&ctrlRequest); err != nil {
-		middleware.RestError500(req, resp, err)
-		return
+		return err
 	}
 	serviceName := ctrlRequest.ServiceName
 	cmd := ctrlRequest.Command
 	node := ctrlRequest.NodeName
 
 	log.Logger(req.Request.Context()).Debug("Received command " + cmd.String() + " for service " + serviceName + " on node " + node)
+	return nil
 
 }
 

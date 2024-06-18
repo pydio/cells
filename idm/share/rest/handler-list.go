@@ -23,22 +23,19 @@ package rest
 import (
 	restful "github.com/emicklei/go-restful/v3"
 
-	"github.com/pydio/cells/v4/common/middleware"
 	"github.com/pydio/cells/v4/common/proto/idm"
 	"github.com/pydio/cells/v4/common/proto/rest"
 )
 
 // ListSharedResources implements the corresponding Rest API operation
-func (h *SharesHandler) ListSharedResources(req *restful.Request, rsp *restful.Response) {
+func (h *SharesHandler) ListSharedResources(req *restful.Request, rsp *restful.Response) error {
 
 	var request rest.ListSharedResourcesRequest
 	if e := req.ReadEntity(&request); e != nil {
-		middleware.RestError500(req, rsp, e)
-		return
+		return e
 	}
 	if err := h.docStoreStatus(req.Request.Context()); err != nil {
-		middleware.RestErrorDetect(req, rsp, err)
-		return
+		return err
 	}
 	response := &rest.ListSharedResourcesResponse{}
 
@@ -56,7 +53,7 @@ func (h *SharesHandler) ListSharedResources(req *restful.Request, rsp *restful.R
 	}
 	rr, e := h.sc.ListSharedResources(ctx, request.Subject, scope, request.OwnedBySubject, h.ResourceProviderHandler)
 	if e != nil {
-		middleware.RestErrorDetect(req, rsp, e)
+		return e
 	}
 
 	for _, res := range rr {
@@ -85,6 +82,6 @@ func (h *SharesHandler) ListSharedResources(req *restful.Request, rsp *restful.R
 		response.Resources = append(response.Resources, resource)
 	}
 
-	return
+	return rsp.WriteEntity(response)
 
 }

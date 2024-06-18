@@ -21,13 +21,11 @@
 package rest
 
 import (
-	"fmt"
-
 	restful "github.com/emicklei/go-restful/v3"
 
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/client/grpc"
-	"github.com/pydio/cells/v4/common/middleware"
+	"github.com/pydio/cells/v4/common/errors"
 	"github.com/pydio/cells/v4/common/proto/update"
 )
 
@@ -44,43 +42,40 @@ func (h *Handler) Filter() func(string) string {
 	}
 }
 
-func (h *Handler) UpdateRequired(req *restful.Request, rsp *restful.Response) {
+func (h *Handler) UpdateRequired(req *restful.Request, rsp *restful.Response) error {
 
 	ctx := req.Request.Context()
 	var updateRequest update.UpdateRequest
 	if e := req.ReadEntity(&updateRequest); e != nil {
-		middleware.RestError500(req, rsp, e)
-		return
+		return e
 	}
 	cli := update.NewUpdateServiceClient(grpc.ResolveConn(ctx, common.ServiceUpdate))
 	response, err := cli.UpdateRequired(ctx, &updateRequest)
 	if err != nil {
-		middleware.RestError500(req, rsp, err)
+		return err
 	} else {
-		rsp.WriteEntity(response)
+		return rsp.WriteEntity(response)
 	}
 
 }
 
-func (h *Handler) ApplyUpdate(req *restful.Request, rsp *restful.Response) {
+func (h *Handler) ApplyUpdate(req *restful.Request, rsp *restful.Response) error {
 
 	ctx := req.Request.Context()
 	var applyRequest update.ApplyUpdateRequest
 	if e := req.ReadEntity(&applyRequest); e != nil {
-		middleware.RestError500(req, rsp, e)
-		return
+		return e
 	}
 	if applyRequest.TargetVersion == "" {
-		middleware.RestError500(req, rsp, fmt.Errorf("please provide a target version"))
-		return
+		return errors.WithMessage(errors.InvalidParameters, "please provide a target version")
 	}
 
 	cli := update.NewUpdateServiceClient(grpc.ResolveConn(ctx, common.ServiceUpdate))
 	response, err := cli.ApplyUpdate(ctx, &applyRequest)
 	if err != nil {
-		middleware.RestError500(req, rsp, err)
+		return err
 	} else {
-		rsp.WriteEntity(response)
+		return rsp.WriteEntity(response)
 	}
 
 }

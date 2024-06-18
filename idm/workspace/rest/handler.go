@@ -30,9 +30,9 @@ import (
 	"google.golang.org/protobuf/types/known/anypb"
 
 	"github.com/pydio/cells/v4/common"
+	"github.com/pydio/cells/v4/common/client/commons"
 	"github.com/pydio/cells/v4/common/client/commons/idmc"
 	"github.com/pydio/cells/v4/common/errors"
-	service2 "github.com/pydio/cells/v4/common/middleware"
 	"github.com/pydio/cells/v4/common/nodes/abstract"
 	"github.com/pydio/cells/v4/common/proto/idm"
 	"github.com/pydio/cells/v4/common/proto/rest"
@@ -80,28 +80,24 @@ func (h *WorkspaceHandler) virtualPathResolver() permissions.VirtualPathResolver
 	return h.runtimeVirtualPathResolver
 }
 
-func (h *WorkspaceHandler) PutWorkspace(req *restful.Request, rsp *restful.Response) {
+func (h *WorkspaceHandler) PutWorkspace(req *restful.Request, rsp *restful.Response) error {
 
 	ctx := req.Request.Context()
 	var inputWorkspace idm.Workspace
-	err := req.ReadEntity(&inputWorkspace)
-	if err != nil {
-		log.Logger(ctx).Error("cannot fetch idm.Workspace from request", zap.Error(err))
-		service2.RestError500(req, rsp, err)
-		return
+	if err := req.ReadEntity(&inputWorkspace); err != nil {
+		return err
 	}
 	if inputWorkspace.Slug == "" {
 		inputWorkspace.Slug = req.PathParameter("Slug")
 	}
-	log.Logger(req.Request.Context()).Debug("Received Workspace.Put API request", zap.Any("inputWorkspace", inputWorkspace))
+	log.Logger(req.Request.Context()).Debug("Received Workspace.Put API request", zap.Any("inputWorkspace", &inputWorkspace))
 
 	cli := idmc.WorkspaceServiceClient(ctx)
 	update := false
 	if ws, _ := h.workspaceById(ctx, inputWorkspace.UUID, cli); ws != nil {
 		update = true
 		if !h.MatchPolicies(ctx, ws.UUID, ws.Policies, service.ResourcePolicyAction_WRITE) {
-			service2.RestError403(req, rsp, errors.WithMessage(errors.StatusForbidden, "You are not allowed to edit this workspace"))
-			return
+			return errors.WithMessage(errors.StatusForbidden, "You are not allowed to edit this workspace")
 		}
 	} else {
 		// Create a new Uuid
@@ -121,32 +117,28 @@ func (h *WorkspaceHandler) PutWorkspace(req *restful.Request, rsp *restful.Respo
 
 	// Additional check on workspaces roots
 	if er := permissions.CheckDefinedRootsForWorkspace(ctx, &inputWorkspace, h.virtualPathResolver()); er != nil {
-		log.Logger(ctx).Error("Cannot create workspace on a non-existing node")
-		service2.RestError404(req, rsp, er)
-		return
+		return er
 	}
 
 	response, er := cli.CreateWorkspace(req.Request.Context(), &idm.CreateWorkspaceRequest{
 		Workspace: &inputWorkspace,
 	})
 	if er != nil {
-		service2.RestError500(req, rsp, er)
-		return
+
+		return er
 	}
 	if e := permissions.StoreRootNodesAsACLs(ctx, &inputWorkspace, update); e != nil {
-		service2.RestError500(req, rsp, e)
-		return
+		return e
 	}
 	if e := permissions.ManageDefaultRights(ctx, &inputWorkspace, false, defaultRights, quotaValue); e != nil {
-		service2.RestError500(req, rsp, e)
-		return
+		return e
 	}
 
 	u := response.Workspace
 	if e := permissions.ManageDefaultRights(ctx, u, true, "", ""); e != nil {
 		log.Logger(ctx).Warn("Error while calling ManageDefaultRights", zap.Error(e))
 	}
-	_ = rsp.WriteEntity(u)
+	we := rsp.WriteEntity(u)
 	if update {
 		log.Auditer(ctx).Info(
 			fmt.Sprintf("Updated workspace [%s]", u.Slug),
@@ -161,9 +153,11 @@ func (h *WorkspaceHandler) PutWorkspace(req *restful.Request, rsp *restful.Respo
 			u.ZapUuid(),
 		)
 	}
+	return we
+
 }
 
-func (h *WorkspaceHandler) DeleteWorkspace(req *restful.Request, rsp *restful.Response) {
+func (h *WorkspaceHandler) DeleteWorkspace(req *restful.Request, rsp *restful.Response) error {
 
 	slug := req.PathParameter("Slug")
 	log.Logger(req.Request.Context()).Debug("Received Workspace.Delete API request", zap.String("Slug", slug))
@@ -176,47 +170,44 @@ func (h *WorkspaceHandler) DeleteWorkspace(req *restful.Request, rsp *restful.Re
 	ctx := req.Request.Context()
 	cli := idmc.WorkspaceServiceClient(ctx)
 
-	if stream, e := cli.SearchWorkspace(ctx, &idm.SearchWorkspaceRequest{Query: serviceQuery}); e == nil {
-		for {
-			resp, err := stream.Recv()
-			if err != nil {
-				break
-			}
-			if resp == nil {
-				continue
-			}
-			if !h.MatchPolicies(ctx, resp.Workspace.UUID, resp.Workspace.Policies, service.ResourcePolicyAction_WRITE) {
-				log.Auditer(ctx).Error(
-					fmt.Sprintf("Forbidden action could not delete workspace [%s]", slug),
-					log.GetAuditId(common.AuditWsDelete),
-				)
-				service2.RestError403(req, rsp, errors.WithMessage(errors.StatusForbidden, "You are not allowed to edit this workspace!"))
-				return
-			}
+	var found bool
+	stream, e := cli.SearchWorkspace(ctx, &idm.SearchWorkspaceRequest{Query: serviceQuery})
+	if e = commons.ForEach(stream, e, func(resp *idm.SearchWorkspaceResponse) error {
+		found = true
+		if !h.MatchPolicies(ctx, resp.Workspace.UUID, resp.Workspace.Policies, service.ResourcePolicyAction_WRITE) {
+			log.Auditer(ctx).Error(
+				fmt.Sprintf("Forbidden action could not delete workspace [%s]", slug),
+				log.GetAuditId(common.AuditWsDelete),
+			)
+			return errors.WithMessage(errors.StatusForbidden, "You are not allowed to edit this workspace!")
 		}
+		return nil
+	}); e == nil {
+		return e
+	}
+	if !found {
+		return errors.WithStack(errors.WorkspaceNotFound)
 	}
 
 	n, e := cli.DeleteWorkspace(req.Request.Context(), &idm.DeleteWorkspaceRequest{Query: serviceQuery})
 	if e != nil {
-		service2.RestError500(req, rsp, e)
-	} else {
-		log.Auditer(ctx).Info(
-			fmt.Sprintf("Removed workspace [%s]", slug),
-			log.GetAuditId(common.AuditWsDelete),
-		)
-		_ = rsp.WriteEntity(&rest.DeleteResponse{Success: true, NumRows: n.RowsDeleted})
+		return e
 	}
+
+	log.Auditer(ctx).Info(
+		fmt.Sprintf("Removed workspace [%s]", slug),
+		log.GetAuditId(common.AuditWsDelete),
+	)
+	return rsp.WriteEntity(&rest.DeleteResponse{Success: true, NumRows: n.RowsDeleted})
 
 }
 
-func (h *WorkspaceHandler) SearchWorkspaces(req *restful.Request, rsp *restful.Response) {
+func (h *WorkspaceHandler) SearchWorkspaces(req *restful.Request, rsp *restful.Response) error {
 
 	ctx := req.Request.Context()
 	var restRequest rest.SearchWorkspaceRequest
-	err := req.ReadEntity(&restRequest)
-	if err != nil {
-		service2.RestError500(req, rsp, err)
-		return
+	if err := req.ReadEntity(&restRequest); err != nil {
+		return err
 	}
 
 	// Transform to standard query
@@ -234,37 +225,27 @@ func (h *WorkspaceHandler) SearchWorkspaces(req *restful.Request, rsp *restful.R
 
 	var er error
 	if query.ResourcePolicyQuery, er = h.RestToServiceResourcePolicy(ctx, restRequest.ResourcePolicyQuery); er != nil {
-		log.Logger(ctx).Error("403", zap.Error(er))
-		service2.RestError403(req, rsp, er)
-		return
+		return errors.Tag(er, errors.StatusForbidden)
 	}
 
 	cli := idmc.WorkspaceServiceClient(ctx)
 
-	streamer, err := cli.SearchWorkspace(ctx, &idm.SearchWorkspaceRequest{
-		Query: query,
-	})
-	if err != nil {
-		service2.RestError500(req, rsp, err)
-		return
-	}
-
 	collection := &rest.WorkspaceCollection{}
 	var uuids []string
 	wss := make(map[string]*idm.Workspace)
-	for {
-		resp, e := streamer.Recv()
-		if e != nil {
-			break
-		}
-		if resp == nil {
-			continue
-		}
+
+	streamer, err := cli.SearchWorkspace(ctx, &idm.SearchWorkspaceRequest{
+		Query: query,
+	})
+	if err = commons.ForEach(streamer, err, func(resp *idm.SearchWorkspaceResponse) error {
 		resp.Workspace.PoliciesContextEditable = h.IsContextEditable(ctx, resp.Workspace.UUID, resp.Workspace.Policies)
 		uuids = append(uuids, resp.Workspace.UUID)
 		wss[resp.Workspace.UUID] = resp.Workspace
 		collection.Workspaces = append(collection.Workspaces, resp.Workspace)
 		collection.Total++
+		return nil
+	}); err != nil {
+		return err
 	}
 	if len(collection.Workspaces) > 0 {
 		if e := permissions.LoadRootNodesForWorkspaces(ctx, uuids, wss, h.virtualPathResolver()); e != nil {
@@ -274,7 +255,7 @@ func (h *WorkspaceHandler) SearchWorkspaces(req *restful.Request, rsp *restful.R
 			log.Logger(ctx).Warn("Error while calling BulkReadDefaultRights", zap.Error(e))
 		}
 	}
-	_ = rsp.WriteEntity(collection)
+	return rsp.WriteEntity(collection)
 
 }
 

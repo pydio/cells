@@ -33,10 +33,11 @@ import (
 
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/auth"
+	"github.com/pydio/cells/v4/common/client/commons"
 	"github.com/pydio/cells/v4/common/client/commons/idmc"
 	"github.com/pydio/cells/v4/common/client/grpc"
 	"github.com/pydio/cells/v4/common/config"
-	"github.com/pydio/cells/v4/common/middleware"
+	"github.com/pydio/cells/v4/common/errors"
 	"github.com/pydio/cells/v4/common/nodes/compose"
 	"github.com/pydio/cells/v4/common/proto/activity"
 	"github.com/pydio/cells/v4/common/proto/idm"
@@ -68,15 +69,12 @@ func (h *GraphHandler) Filter() func(string) string {
 }
 
 // UserState is an alias for requests without roleID
-func (h *GraphHandler) UserState(req *restful.Request, rsp *restful.Response) {
+func (h *GraphHandler) UserState(req *restful.Request, rsp *restful.Response) error {
 
 	ctx := req.Request.Context()
-	log.Logger(ctx).Debug("Received Graph.UserState API request for uuid")
-
 	accessList, err := permissions.AccessListFromContextClaims(ctx)
 	if err != nil {
-		middleware.RestError500(req, rsp, err)
-		return
+		return errors.Tag(err, errors.StatusForbidden)
 	}
 	state := &rest.UserStateResponse{
 		Workspaces:         []*idm.Workspace{},
@@ -89,12 +87,12 @@ func (h *GraphHandler) UserState(req *restful.Request, rsp *restful.Response) {
 			state.Workspaces = append(state.Workspaces, ws)
 		}
 	}
-	rsp.WriteEntity(state)
+	return rsp.WriteEntity(state)
 
 }
 
 // Relation computes workspaces shared in common, and teams belonging.
-func (h *GraphHandler) Relation(req *restful.Request, rsp *restful.Response) {
+func (h *GraphHandler) Relation(req *restful.Request, rsp *restful.Response) error {
 	userName := req.PathParameter("UserId")
 	ctx := req.Request.Context()
 	responseObject := &rest.RelationResponse{}
@@ -102,13 +100,11 @@ func (h *GraphHandler) Relation(req *restful.Request, rsp *restful.Response) {
 	// Find all workspaces in common
 	contextAccessList, err := permissions.AccessListFromContextClaims(ctx)
 	if err != nil {
-		middleware.RestError500(req, rsp, err)
-		return
+		return errors.Tag(err, errors.StatusForbidden)
 	}
 	targetUserAccessList, _, err := permissions.AccessListFromUser(ctx, userName, false)
 	if err != nil {
-		middleware.RestError500(req, rsp, err)
-		return
+		return errors.Tag(err, errors.StatusForbidden)
 	}
 	// Intersect workspace nodes
 	contextWorkspaces := contextAccessList.DetectedWsRights(ctx)
@@ -144,8 +140,7 @@ func (h *GraphHandler) Relation(req *restful.Request, rsp *restful.Response) {
 		Type: rest.ResourcePolicyQuery_CONTEXT,
 	})
 	if e != nil {
-		middleware.RestErrorDetect(req, rsp, e)
-		return
+		return e
 	}
 	query.ResourcePolicyQuery = &service2.ResourcePolicyQuery{
 		Subjects: subjects,
@@ -153,18 +148,12 @@ func (h *GraphHandler) Relation(req *restful.Request, rsp *restful.Response) {
 
 	log.Logger(ctx).Debug("QUERY", zap.Any("q", query))
 	if len(query.SubQueries) > 0 {
-		streamer, e := wsCli.SearchWorkspace(ctx, &idm.SearchWorkspaceRequest{Query: query})
-		if e != nil {
-			middleware.RestError500(req, rsp, e)
-			return
-		}
-		defer streamer.CloseSend()
-		for {
-			resp, e := streamer.Recv()
-			if resp == nil || e != nil {
-				break
-			}
-			responseObject.SharedCells = append(responseObject.SharedCells, resp.Workspace)
+		streamer, er := wsCli.SearchWorkspace(ctx, &idm.SearchWorkspaceRequest{Query: query})
+		if e = commons.ForEach(streamer, er, func(t *idm.SearchWorkspaceResponse) error {
+			responseObject.SharedCells = append(responseObject.SharedCells, t.GetWorkspace())
+			return nil
+		}); e != nil {
+			return e
 		}
 	}
 
@@ -187,39 +176,29 @@ func (h *GraphHandler) Relation(req *restful.Request, rsp *restful.Response) {
 			},
 		},
 	})
-	if e != nil {
-		return
-	}
-	defer rStreamer.CloseSend()
-	for {
-		roleResp, er := rStreamer.Recv()
-		if er != nil {
-			break
-		}
-		if roleResp == nil {
-			continue
-		}
-		responseObject.BelongsToTeams = append(responseObject.BelongsToTeams, roleResp.Role)
+	if e := commons.ForEach(rStreamer, e, func(t *idm.SearchRoleResponse) error {
+		responseObject.BelongsToTeams = append(responseObject.BelongsToTeams, t.GetRole())
+		return nil
+	}); e != nil {
+		return e
 	}
 
-	rsp.WriteEntity(responseObject)
+	return rsp.WriteEntity(responseObject)
 
 }
 
 // Recommend computes recommendations for home page by loading activities, bookmarks, and finally workspaces
-func (h *GraphHandler) Recommend(req *restful.Request, rsp *restful.Response) {
+func (h *GraphHandler) Recommend(req *restful.Request, rsp *restful.Response) error {
 	request := &rest.RecommendRequest{}
 	if e := req.ReadEntity(request); e != nil {
-		middleware.RestError500(req, rsp, e)
-		return
+		return e
 	}
 	ctx := req.Request.Context()
 
 	// Return empty if accessList i  s empty
 	accessList, err := permissions.AccessListFromContextClaims(ctx)
 	if err != nil || len(accessList.GetWorkspaces()) == 0 {
-		rsp.WriteEntity(&rest.RecommendResponse{})
-		return
+		return rsp.WriteEntity(&rest.RecommendResponse{})
 	}
 	uName, _ := permissions.FindUserNameInContext(ctx)
 	ak := map[string]struct{}{}
@@ -374,5 +353,5 @@ func (h *GraphHandler) Recommend(req *restful.Request, rsp *restful.Response) {
 		}, false)
 	}
 
-	rsp.WriteEntity(resp)
+	return rsp.WriteEntity(resp)
 }

@@ -216,7 +216,7 @@ func (sc *Client) DetectInheritedPolicy(ctx context.Context, roots []*tree.Node,
 		// Check if there is a default policy set for cells using custom folders
 		claims, ok := ctx.Value(claim.ContextKey).(claim.Claims)
 		if !ok {
-			return "", fmt.Errorf("cannot find claims in context")
+			return "", errors.WithStack(errors.InvalidIDToken)
 		}
 		roles, er := permissions.GetRoles(ctx, strings.Split(claims.Roles, ","))
 		if er != nil {
@@ -264,7 +264,7 @@ func (sc *Client) DetectInheritedPolicy(ctx context.Context, roots []*tree.Node,
 							continue
 						}
 						if parentPol != "" && parentPol != p {
-							return "", fmt.Errorf("roots have conflicting access policies, cannot assign permissions")
+							return "", errors.WithMessage(errors.StatusConflict, "roots have conflicting access policies, cannot assign permissions")
 						} else {
 							parentPol = p
 						}

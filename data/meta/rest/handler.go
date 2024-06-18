@@ -34,7 +34,7 @@ import (
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/broker"
 	"github.com/pydio/cells/v4/common/client/commons/treec"
-	"github.com/pydio/cells/v4/common/middleware"
+	"github.com/pydio/cells/v4/common/errors"
 	"github.com/pydio/cells/v4/common/nodes"
 	"github.com/pydio/cells/v4/common/nodes/compose"
 	"github.com/pydio/cells/v4/common/proto/rest"
@@ -60,35 +60,26 @@ func (h *Handler) Filter() func(string) string {
 	}
 }
 
-func error404(req *restful.Request, resp *restful.Response, err error) {
-	// Do not log error as it's polluting logs for nothing
-	middleware.RestError404(req, resp, err)
-}
-
-func (h *Handler) GetMeta(req *restful.Request, resp *restful.Response) {
+func (h *Handler) GetMeta(req *restful.Request, resp *restful.Response) error {
 	p := req.PathParameter("NodePath")
 	var nsRequest rest.MetaNamespaceRequest
 	if err := req.ReadEntity(&nsRequest); err != nil {
-		middleware.RestError500(req, resp, err)
-		return
+		return errors.Tag(err, errors.UnmarshalError)
 	}
 	ctx := req.Request.Context()
 	nsRequest.NodePath = p
 	node, err := h.loadNodeByPath(ctx, nsRequest.NodePath, false)
 	if err != nil {
-		error404(req, resp, err)
-		return
+		return err
 	}
-
-	resp.WriteEntity(node.WithoutReservedMetas())
+	return resp.WriteEntity(node.WithoutReservedMetas())
 }
 
-func (h *Handler) GetBulkMeta(req *restful.Request, resp *restful.Response) {
+func (h *Handler) GetBulkMeta(req *restful.Request, resp *restful.Response) error {
 
 	var bulkRequest rest.GetBulkMetaRequest
 	if err := req.ReadEntity(&bulkRequest); err != nil {
-		middleware.RestError500(req, resp, err)
-		return
+		return err
 	}
 	output := &rest.BulkMetaResponse{}
 	ctx := req.Request.Context()
@@ -113,8 +104,7 @@ func (h *Handler) GetBulkMeta(req *restful.Request, resp *restful.Response) {
 					output.Nodes = append(output.Nodes, readResp.WithoutReservedMetas())
 				}
 			} else {
-				error404(req, resp, err)
-				return
+				return errors.Tag(err, errors.NodeNotFound)
 			}
 		} else {
 			var asFolder bool
@@ -147,8 +137,7 @@ func (h *Handler) GetBulkMeta(req *restful.Request, resp *restful.Response) {
 		for _, n := range output.Nodes {
 			reservedOutput.Nodes = append(reservedOutput.Nodes, n.WithoutReservedMetas())
 		}
-		resp.WriteEntity(reservedOutput)
-		return
+		return resp.WriteEntity(reservedOutput)
 	}
 
 	for _, folderNode := range folderNodes {
@@ -188,8 +177,7 @@ func (h *Handler) GetBulkMeta(req *restful.Request, resp *restful.Response) {
 		}
 		cc, countDiffers, er := h.fillChildren(ctx, listRequest, childrenCount)
 		if er != nil {
-			middleware.RestErrorDetect(req, resp, er)
-			return
+			return er
 		}
 		childrenLoaded = int32(len(cc))
 		output.Nodes = append(output.Nodes, cc...)
@@ -252,22 +240,20 @@ func (h *Handler) GetBulkMeta(req *restful.Request, resp *restful.Response) {
 
 	}
 
-	resp.WriteEntity(output)
+	return resp.WriteEntity(output)
 
 }
 
-func (h *Handler) SetMeta(req *restful.Request, resp *restful.Response) {
+func (h *Handler) SetMeta(req *restful.Request, resp *restful.Response) error {
 
 	p := req.PathParameter("NodePath")
 	var metaCollection rest.MetaCollection
 	if err := req.ReadEntity(&metaCollection); err != nil {
-		middleware.RestError500(req, resp, err)
-		return
+		return err
 	}
 	node, err := h.loadNodeByPath(req.Request.Context(), p, false)
 	if err != nil {
-		middleware.RestError500(req, resp, err)
-		return
+		return err
 	}
 	for _, m := range metaCollection.Metadatas {
 		ns := m.Namespace
@@ -290,26 +276,23 @@ func (h *Handler) SetMeta(req *restful.Request, resp *restful.Response) {
 	})
 	if er != nil {
 		log.Logger(ctx).Error("Failed to change the meta data", zap.Error(er))
-		middleware.RestError500(req, resp, er)
-		return
+		return er
 	}
-	resp.WriteEntity(node.WithoutReservedMetas())
+	return resp.WriteEntity(node.WithoutReservedMetas())
 
 }
 
-func (h *Handler) DeleteMeta(req *restful.Request, resp *restful.Response) {
+func (h *Handler) DeleteMeta(req *restful.Request, resp *restful.Response) error {
 
 	p := req.PathParameter("NodePath")
 	var nsRequest rest.MetaNamespaceRequest
 	if err := req.ReadEntity(&nsRequest); err != nil {
-		middleware.RestError500(req, resp, err)
-		return
+		return err
 	}
 	nsRequest.NodePath = p
 	node, err := h.loadNodeByPath(req.Request.Context(), nsRequest.NodePath, false)
 	if err != nil {
-		middleware.RestError404(req, resp, err)
-		return
+		return err
 	}
 	for _, ns := range nsRequest.Namespace {
 		node.MustSetMeta(ns, "")
@@ -326,10 +309,9 @@ func (h *Handler) DeleteMeta(req *restful.Request, resp *restful.Response) {
 		return nil
 	})
 	if er != nil {
-		middleware.RestError500(req, resp, er)
-		return
+		return er
 	}
-	resp.WriteEntity(node.WithoutReservedMetas())
+	return resp.WriteEntity(node.WithoutReservedMetas())
 
 }
 

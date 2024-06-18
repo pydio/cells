@@ -311,12 +311,12 @@ func AccessListFromContextClaims(ctx context.Context) (accessList *AccessList, e
 	//fmt.Println("Loading AccessList")
 	roles, e := GetRoles(ctx, strings.Split(claims.Roles, ","))
 	if e != nil {
-		return nil, e
+		return nil, errors.Tag(e, errors.AccessListNotFound)
 	}
 	accessList.AppendRoles(roles...)
 	aa, e := GetACLsForRoles(ctx, roles, AclRead, AclDeny, AclWrite, AclLock, AclPolicy)
 	if e != nil {
-		return nil, e
+		return nil, errors.Tag(e, errors.AccessListNotFound)
 	}
 	accessList.AppendACLs(aa...)
 	accessList.Flatten(ctx)
@@ -326,7 +326,7 @@ func AccessListFromContextClaims(ctx context.Context) (accessList *AccessList, e
 	}
 
 	if er := accessList.LoadWorkspaces(ctx, workspacesByUUIDs); er != nil {
-		return nil, er
+		return nil, errors.Tag(er, errors.AccessListNotFound)
 	}
 
 	if er := accessList.cache(ctx, claims.GetUniqueKey()); er != nil {

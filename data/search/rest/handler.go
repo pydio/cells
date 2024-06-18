@@ -32,7 +32,6 @@ import (
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/client/commons/treec"
 	"github.com/pydio/cells/v4/common/client/grpc"
-	"github.com/pydio/cells/v4/common/middleware"
 	"github.com/pydio/cells/v4/common/nodes"
 	"github.com/pydio/cells/v4/common/nodes/acl"
 	"github.com/pydio/cells/v4/common/nodes/compose"
@@ -114,19 +113,17 @@ func (s *Handler) extractSharedMeta(freeString string) (scope idm.WorkspaceScope
 	return
 }
 
-func (s *Handler) Nodes(req *restful.Request, rsp *restful.Response) {
+func (s *Handler) Nodes(req *restful.Request, rsp *restful.Response) error {
 
 	ctx := req.Request.Context()
 	var searchRequest tree.SearchRequest
 	if err := req.ReadEntity(&searchRequest); err != nil {
-		middleware.RestError500(req, rsp, err)
-		return
+		return err
 	}
 
 	query := searchRequest.Query
 	if query == nil {
-		rsp.WriteEntity(&rest.SearchResults{Total: 0})
-		return
+		return rsp.WriteEntity(&rest.SearchResults{Total: 0})
 	}
 
 	router := s.getRouter()
@@ -154,9 +151,7 @@ func (s *Handler) Nodes(req *restful.Request, rsp *restful.Response) {
 	// TMP Load shared
 	sharedNodes, shared, er := s.sharedResourcesAsNodes(ctx, query)
 	if er != nil {
-		log.Logger(ctx).Error("cannot load shared resources")
-		middleware.RestErrorDetect(req, rsp, e)
-		return
+		return er
 	}
 
 	err := router.WrapCallback(func(inputFilter nodes.FilterFunc, outputFilter nodes.FilterFunc) error {
@@ -272,9 +267,7 @@ func (s *Handler) Nodes(req *restful.Request, rsp *restful.Response) {
 	})
 
 	if err != nil {
-		log.Logger(ctx).Error("Query", zap.Error(err))
-		middleware.RestError500(req, rsp, err)
-		return
+		return err
 	}
 
 	result := &rest.SearchResults{
@@ -282,6 +275,6 @@ func (s *Handler) Nodes(req *restful.Request, rsp *restful.Response) {
 		Facets:  facets,
 		Total:   int32(len(nn)),
 	}
-	rsp.WriteEntity(result)
+	return rsp.WriteEntity(result)
 
 }

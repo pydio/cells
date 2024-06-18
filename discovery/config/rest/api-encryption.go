@@ -25,7 +25,6 @@ import (
 
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/client/grpc"
-	"github.com/pydio/cells/v4/common/middleware"
 	"github.com/pydio/cells/v4/common/proto/encryption"
 )
 
@@ -34,91 +33,81 @@ import (
 *****************************/
 
 // ListEncryptionKeys simply forwards to underlying key service
-func (s *Handler) ListEncryptionKeys(req *restful.Request, resp *restful.Response) {
+func (s *Handler) ListEncryptionKeys(req *restful.Request, resp *restful.Response) error {
 	var request encryption.AdminListKeysRequest
 	if e := req.ReadEntity(&request); e != nil {
-		middleware.RestError500(req, resp, e)
-		return
+		return e
 	}
 
 	encClient := encryption.NewUserKeyStoreClient(grpc.ResolveConn(s.MainCtx, common.ServiceUserKey))
 	var response *encryption.AdminListKeysResponse
 	var err error
 	if response, err = encClient.AdminListKeys(req.Request.Context(), &request); err != nil {
-		middleware.RestError500(req, resp, err)
-		return
+		return err
 	}
-	resp.WriteEntity(response)
+	return resp.WriteEntity(response)
 }
 
 // CreateEncryptionKey simply forwards to underlying key service
-func (s *Handler) CreateEncryptionKey(req *restful.Request, resp *restful.Response) {
+func (s *Handler) CreateEncryptionKey(req *restful.Request, resp *restful.Response) error {
 	var request encryption.AdminCreateKeyRequest
 	if e := req.ReadEntity(&request); e != nil {
-		middleware.RestError500(req, resp, e)
-		return
+		return e
 	}
 
 	encClient := encryption.NewUserKeyStoreClient(grpc.ResolveConn(s.MainCtx, common.ServiceUserKey))
 	var response *encryption.AdminCreateKeyResponse
 	var err error
 	if response, err = encClient.AdminCreateKey(req.Request.Context(), &request); err != nil {
-		middleware.RestError500(req, resp, err)
-		return
+		return err
 	}
-	resp.WriteEntity(response)
+	return resp.WriteEntity(response)
 }
 
 // DeleteEncryptionKey simply forwards to underlying key service
-func (s *Handler) DeleteEncryptionKey(req *restful.Request, resp *restful.Response) {
+func (s *Handler) DeleteEncryptionKey(req *restful.Request, resp *restful.Response) error {
 	var request encryption.AdminDeleteKeyRequest
 	if e := req.ReadEntity(&request); e != nil {
-		middleware.RestError500(req, resp, e)
-		return
+		return e
 	}
 
 	encClient := encryption.NewUserKeyStoreClient(grpc.ResolveConn(s.MainCtx, common.ServiceUserKey))
 	var response *encryption.AdminDeleteKeyResponse
 	var err error
 	if response, err = encClient.AdminDeleteKey(req.Request.Context(), &request); err != nil {
-		middleware.RestError500(req, resp, err)
-		return
+		return err
 	}
-	resp.WriteEntity(response)
+	return resp.WriteEntity(response)
 }
 
 // ExportEncryptionKey simply forwards to underlying key service
-func (s *Handler) ExportEncryptionKey(req *restful.Request, resp *restful.Response) {
+func (s *Handler) ExportEncryptionKey(req *restful.Request, resp *restful.Response) error {
 	var request encryption.AdminExportKeyRequest
 	if e := req.ReadEntity(&request); e != nil {
-		middleware.RestError500(req, resp, e)
-		return
+		return e
 	}
 
 	encClient := encryption.NewUserKeyStoreClient(grpc.ResolveConn(s.MainCtx, common.ServiceUserKey))
 	var response *encryption.AdminExportKeyResponse
 	var err error
 	if response, err = encClient.AdminExportKey(req.Request.Context(), &request); err != nil {
-		middleware.RestError500(req, resp, err)
-		return
+		return err
 	}
-	resp.WriteEntity(response)
+	return resp.WriteEntity(response)
 }
 
 // ImportEncryptionKey forwards call to underlying key service
-func (s *Handler) ImportEncryptionKey(req *restful.Request, resp *restful.Response) {
+func (s *Handler) ImportEncryptionKey(req *restful.Request, resp *restful.Response) error {
 	var request encryption.AdminImportKeyRequest
 	if e := req.ReadEntity(&request); e != nil {
-		middleware.RestError500(req, resp, e)
-		return
+		return e
 	}
 
 	encClient := encryption.NewUserKeyStoreClient(grpc.ResolveConn(s.MainCtx, common.ServiceUserKey))
 	var response *encryption.AdminImportKeyResponse
 	var err error
 	if response, err = encClient.AdminImportKey(req.Request.Context(), &request); err != nil {
-		middleware.RestError500(req, resp, err)
-		return
+		return err
 	}
-	resp.WriteEntity(response)
+	return resp.WriteEntity(response)
 }

@@ -28,6 +28,8 @@ import (
 	restful "github.com/emicklei/go-restful/v3"
 	"google.golang.org/protobuf/encoding/protojson"
 	"google.golang.org/protobuf/proto"
+
+	"github.com/pydio/cells/v4/common/errors"
 )
 
 type detectedLanguagesKey struct{}
@@ -57,25 +59,19 @@ func (e *ProtoEntityReaderWriter) Read(req *restful.Request, v interface{}) erro
 	pb := v.(proto.Message)
 	bb, err := io.ReadAll(req.Request.Body)
 	if err != nil {
-		return err
+		return errors.Tag(err, errors.RestInputError)
 	}
-	if err := protojson.Unmarshal(bb, pb); err != nil {
-		return err
+	if err = protojson.Unmarshal(bb, pb); err != nil {
+		return errors.Tag(err, errors.RestInputError)
 	}
-
-	validator, err := protovalidate.New()
-	if err != nil {
-		return err
+	// todo - do we need to allocate on each call ?
+	validator, er := protovalidate.New()
+	if er != nil {
+		return errors.Tag(er, errors.RestInputError)
 	}
-
-	if err := validator.Validate(pb); err != nil {
-		return err
+	if err = validator.Validate(pb); err != nil {
+		return errors.Tag(err, errors.RestInputError)
 	}
-
-	//if valid, ok := pb.(validator.Validator); ok {
-	//	return valid.Validate()
-	//}
-
 	return nil
 }
 
@@ -94,9 +90,11 @@ func (e *ProtoEntityReaderWriter) Write(resp *restful.Response, status int, v in
 	resp.WriteHeader(status)
 	bb, ee := protojson.Marshal(v.(proto.Message))
 	if ee != nil {
-		return ee
+		return errors.Tag(ee, errors.RestOutputWriteError)
 	}
-	_, er := resp.Write(bb)
-	return er
-
+	if _, er := resp.Write(bb); er != nil {
+		return errors.Tag(er, errors.RestOutputWriteError)
+	} else {
+		return nil
+	}
 }

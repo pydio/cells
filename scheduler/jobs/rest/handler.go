@@ -31,6 +31,7 @@ import (
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/auth/claim"
 	"github.com/pydio/cells/v4/common/broker"
+	"github.com/pydio/cells/v4/common/client/commons"
 	"github.com/pydio/cells/v4/common/client/commons/jobsc"
 	"github.com/pydio/cells/v4/common/client/grpc"
 	"github.com/pydio/cells/v4/common/errors"
@@ -67,14 +68,13 @@ func (s *JobsHandler) Filter() func(string) string {
 	return nil
 }
 
-func (s *JobsHandler) UserListJobs(req *restful.Request, rsp *restful.Response) {
+func (s *JobsHandler) UserListJobs(req *restful.Request, rsp *restful.Response) error {
 
 	T := lang.Bundle().T(middleware.DetectedLanguages(req.Request.Context())...)
 
 	var request jobs.ListJobsRequest
 	if err := req.ReadEntity(&request); err != nil {
-		middleware.RestError500(req, rsp, err)
-		return
+		return err
 	}
 	ctx := req.Request.Context()
 	cli := jobsc.JobServiceClient(ctx)
@@ -95,18 +95,8 @@ func (s *JobsHandler) UserListJobs(req *restful.Request, rsp *restful.Response) 
 	loadedJobs := make(map[string]*jobs.Job)
 
 	streamer, err := cli.ListJobs(ctx, &request)
-	if err != nil {
-		middleware.RestErrorDetect(req, rsp, err)
-		return
-	}
-	for {
-		resp, e := streamer.Recv()
-		if e != nil {
-			break
-		}
-		if resp == nil {
-			continue
-		}
+
+	if err = commons.ForEach(streamer, err, func(resp *jobs.ListJobsResponse) error {
 		j := resp.GetJob()
 		j.Label = T(j.Label)
 		if request.TasksLimit == 1 && len(j.Tasks) > 0 && j.Tasks[0].Status == jobs.TaskStatus_Running {
@@ -114,6 +104,9 @@ func (s *JobsHandler) UserListJobs(req *restful.Request, rsp *restful.Response) 
 		}
 		output.Jobs = append(output.Jobs, j)
 		loadedJobs[j.ID] = j
+		return nil
+	}); err != nil {
+		return err
 	}
 
 	// For request.TasksLimit == 1, reload all running tasks to display a correct count
@@ -125,30 +118,22 @@ func (s *JobsHandler) UserListJobs(req *restful.Request, rsp *restful.Response) 
 			LoadTasks:  jobs.TaskStatus_Running,
 			JobIDs:     hasRunning,
 		})
-		if err == nil {
-			defer stream2.CloseSend()
-			for {
-				resp, e := stream2.Recv()
-				if e != nil {
-					break
-				}
-				if resp == nil {
-					continue
-				}
-				// Update running tasks
-				loadedJobs[resp.Job.ID].Tasks = resp.Job.Tasks
-			}
+		if er := commons.ForEach(stream2, err, func(resp *jobs.ListJobsResponse) error {
+			loadedJobs[resp.Job.ID].Tasks = resp.Job.Tasks
+			return nil
+		}); er != nil {
+			return er
 		}
 	}
-	rsp.WriteEntity(output)
+
+	return rsp.WriteEntity(output)
 }
 
-func (s *JobsHandler) UserControlJob(req *restful.Request, rsp *restful.Response) {
+func (s *JobsHandler) UserControlJob(req *restful.Request, rsp *restful.Response) error {
 
 	var cmd jobs.CtrlCommand
 	if err := req.ReadEntity(&cmd); err != nil {
-		middleware.RestError500(req, rsp, err)
-		return
+		return err
 	}
 	ctx := req.Request.Context()
 	if cmd.Cmd == jobs.Command_Delete {
@@ -158,9 +143,9 @@ func (s *JobsHandler) UserControlJob(req *restful.Request, rsp *restful.Response
 			TaskID: []string{cmd.TaskId},
 		}
 		if response, err := cli.DeleteTasks(ctx, delRequest); err != nil {
-			middleware.RestErrorDetect(req, rsp, err)
+			return err
 		} else {
-			rsp.WriteEntity(&jobs.CtrlCommandResponse{Msg: fmt.Sprintf("Deleted %v tasks", len(response.Deleted))})
+			return rsp.WriteEntity(&jobs.CtrlCommandResponse{Msg: fmt.Sprintf("Deleted %v tasks", len(response.Deleted))})
 		}
 
 	} else if cmd.Cmd == jobs.Command_RunOnce {
@@ -171,6 +156,7 @@ func (s *JobsHandler) UserControlJob(req *restful.Request, rsp *restful.Response
 			RunTaskId:     cmd.TaskId,
 			RunParameters: cmd.RunParameters,
 		})
+		return nil
 
 	} else if cmd.Cmd == jobs.Command_Active || cmd.Cmd == jobs.Command_Inactive {
 
@@ -184,52 +170,49 @@ func (s *JobsHandler) UserControlJob(req *restful.Request, rsp *restful.Response
 				job.Inactive = false
 			}
 			if _, err := cli.PutJob(ctx, &jobs.PutJobRequest{Job: job}); err != nil {
-				middleware.RestErrorDetect(req, rsp, err)
+				return err
 			} else {
-				rsp.WriteEntity(&jobs.CtrlCommandResponse{Msg: "Updated Job State"})
+				return rsp.WriteEntity(&jobs.CtrlCommandResponse{Msg: "Updated Job State"})
 			}
 
 		} else {
-			middleware.RestErrorDetect(req, rsp, err)
+			return err
 		}
 
 	} else {
 		cli := jobs.NewTaskServiceClient(grpc.ResolveConn(ctx, common.ServiceTasks))
 		if response, err := cli.Control(ctx, &cmd); err == nil {
-			rsp.WriteEntity(response)
+			return rsp.WriteEntity(response)
 		} else {
-			middleware.RestErrorDetect(req, rsp, err)
+			return err
 		}
 	}
 
 }
 
-func (s *JobsHandler) UserDeleteTasks(req *restful.Request, rsp *restful.Response) {
+func (s *JobsHandler) UserDeleteTasks(req *restful.Request, rsp *restful.Response) error {
 
 	var request jobs.DeleteTasksRequest
 	if err := req.ReadEntity(&request); err != nil {
-		middleware.RestError500(req, rsp, err)
-		return
+		return err
 	}
 
 	ctx := req.Request.Context()
 	response, e := jobsc.JobServiceClient(ctx).DeleteTasks(ctx, &request)
 	if e != nil {
-		middleware.RestErrorDetect(req, rsp, e)
-		return
+		return e
 	}
 
-	rsp.WriteEntity(response)
+	return rsp.WriteEntity(response)
 
 }
 
-func (s *JobsHandler) UserCreateJob(req *restful.Request, rsp *restful.Response) {
+func (s *JobsHandler) UserCreateJob(req *restful.Request, rsp *restful.Response) error {
 
 	var request rest.UserJobRequest
 	err := req.ReadEntity(&request)
 	if err != nil {
-		middleware.RestError500(req, rsp, err)
-		return
+		return err
 	}
 	if request.JobName == "" {
 		request.JobName = req.PathParameter("JobName")
@@ -242,7 +225,7 @@ func (s *JobsHandler) UserCreateJob(req *restful.Request, rsp *restful.Response)
 	jsonParams := make(map[string]interface{})
 	if request.JsonParameters != "" {
 		if er := json.Unmarshal([]byte(request.JsonParameters), &jsonParams); er != nil {
-			middleware.RestError500(req, rsp, errors.Tag(er, errors.UnmarshalError))
+			return errors.Tag(er, errors.UnmarshalError)
 		}
 	}
 
@@ -252,13 +235,13 @@ func (s *JobsHandler) UserCreateJob(req *restful.Request, rsp *restful.Response)
 
 	switch request.JobName {
 	case "compress":
-		var nodes []string
+		var nn []string
 		for _, i := range jsonParams["nodes"].([]interface{}) {
-			nodes = append(nodes, i.(string))
+			nn = append(nn, i.(string))
 		}
 		archiveName := jsonParams["archiveName"].(string)
 		format := jsonParams["format"].(string)
-		jobUuid, err = compress(ctx, nodes, archiveName, format, ll...)
+		jobUuid, err = compress(ctx, nn, archiveName, format, ll...)
 	case "extract":
 		node := jsonParams["node"].(string)
 		target := jsonParams["target"].(string)
@@ -272,7 +255,7 @@ func (s *JobsHandler) UserCreateJob(req *restful.Request, rsp *restful.Response)
 		}
 		var structParams params
 		if request.JsonParameters != "" {
-			json.Unmarshal([]byte(request.JsonParameters), &structParams)
+			_ = json.Unmarshal([]byte(request.JsonParameters), &structParams)
 		}
 		target := structParams.Target
 		urls := structParams.Urls
@@ -281,9 +264,9 @@ func (s *JobsHandler) UserCreateJob(req *restful.Request, rsp *restful.Response)
 		jobUuid = strings.Join(uuids, ",")
 		err = e
 	case "copy", "move":
-		var nodes []string
+		var nn []string
 		for _, i := range jsonParams["nodes"].([]interface{}) {
-			nodes = append(nodes, i.(string))
+			nn = append(nn, i.(string))
 		}
 		target := jsonParams["target"].(string)
 		var targetIsParent bool
@@ -294,56 +277,47 @@ func (s *JobsHandler) UserCreateJob(req *restful.Request, rsp *restful.Response)
 		if request.JobName == "move" {
 			move = true
 		}
-		jobUuid, err = dirCopy(ctx, nodes, target, targetIsParent, move, ll...)
+		jobUuid, err = dirCopy(ctx, nn, target, targetIsParent, move, ll...)
 	case "datasource-resync":
 		dsName := jsonParams["dsName"].(string)
 		jobUuid, err = syncDatasource(ctx, dsName, ll...)
 	case "import-p8":
 		jobUuid, err = p8migration(ctx, request.JsonParameters)
 	default:
-		middleware.RestError500(req, rsp, fmt.Errorf("unknown job name"))
+		err = errors.WithMessagef(errors.InvalidParameters, "unknown job name %s", request.JobName)
 	}
 
 	if err != nil {
-		middleware.RestErrorDetect(req, rsp, err)
-		return
+		return err
 	}
 
 	response := &rest.UserJobResponse{
 		JobUuid: jobUuid,
 	}
-	rsp.WriteEntity(response)
+	return rsp.WriteEntity(response)
 
 }
 
 // ListTasksLogs retrieves the logs attached to a specific task
-func (s *JobsHandler) ListTasksLogs(req *restful.Request, rsp *restful.Response) {
+func (s *JobsHandler) ListTasksLogs(req *restful.Request, rsp *restful.Response) error {
 
 	var input log2.ListLogRequest
 	if e := req.ReadEntity(&input); e != nil {
-		middleware.RestError500(req, rsp, e)
-		return
+		return e
 	}
 	ctx := req.Request.Context()
 
 	c := log2.NewLogRecorderClient(grpc.ResolveConn(ctx, common.ServiceJobs))
 
-	res, err := c.ListLogs(ctx, &input)
-	if err != nil {
-		middleware.RestErrorDetect(req, rsp, err)
-		return
-	}
-	defer res.CloseSend()
-
 	logColl := &rest.LogMessageCollection{}
-	for {
-		response, err := res.Recv()
-		if err != nil {
-			break
-		}
-		logColl.Logs = append(logColl.Logs, response.GetLogMessage())
+	res, err := c.ListLogs(ctx, &input)
+	err = commons.ForEach(res, err, func(t *log2.ListLogResponse) error {
+		logColl.Logs = append(logColl.Logs, t.GetLogMessage())
+		return nil
+	})
+	if err != nil {
+		return err
 	}
-
-	rsp.WriteEntity(logColl)
+	return rsp.WriteEntity(logColl)
 
 }

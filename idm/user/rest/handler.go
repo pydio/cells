@@ -131,11 +131,10 @@ func (s *UserHandler) GetUser(req *restful.Request, rsp *restful.Response) error
 	}
 
 	if result != nil {
-		_ = rsp.WriteEntity(result)
+		return rsp.WriteEntity(result)
 	} else {
 		return errors.WithMessagef(errors.UserNotFound, "cannot find user with login %s", login)
 	}
-	return nil
 }
 
 // SearchUsers performs a paginated query to the user repository.
@@ -221,8 +220,7 @@ func (s *UserHandler) SearchUsers(req *restful.Request, rsp *restful.Response) e
 		}
 	}
 
-	_ = rsp.WriteEntity(response)
-	return nil
+	return rsp.WriteEntity(response)
 }
 
 // DeleteUser removes a user or group from the repository.
@@ -296,7 +294,7 @@ func (s *UserHandler) DeleteUser(req *restful.Request, rsp *restful.Response) er
 		if _, er := clj.PutJob(ctx, &jobs.PutJobRequest{Job: job}); er != nil {
 			return er
 		}
-		_ = rsp.WriteEntity(&rest.DeleteResponse{Success: true, NumRows: 0})
+		return rsp.WriteEntity(&rest.DeleteResponse{Success: true, NumRows: 0})
 
 	} else {
 
@@ -313,9 +311,8 @@ func (s *UserHandler) DeleteUser(req *restful.Request, rsp *restful.Response) er
 		log.Auditer(ctx).Info(msg,
 			log.GetAuditId(common.AuditUserDelete),
 		)
-		_ = rsp.WriteEntity(&rest.DeleteResponse{Success: true, NumRows: n.RowsDeleted})
+		return rsp.WriteEntity(&rest.DeleteResponse{Success: true, NumRows: n.RowsDeleted})
 	}
-	return nil
 
 }
 
@@ -324,8 +321,7 @@ func (s *UserHandler) PutUser(req *restful.Request, rsp *restful.Response) error
 
 	ctx := req.Request.Context()
 	var inputUser idm.User
-	err := req.ReadEntity(&inputUser)
-	if err != nil {
+	if err := req.ReadEntity(&inputUser); err != nil {
 		return err
 	}
 	if inputUser.Login == "" {
@@ -626,7 +622,7 @@ func (s *UserHandler) PutUser(req *restful.Request, rsp *restful.Response) error
 	if err != nil {
 		return err
 	}
-	_ = rsp.WriteEntity(u)
+	we := rsp.WriteEntity(u)
 
 	_, hasEmailAddress := u.Attributes["email"]
 	if sendEmail && hasEmailAddress {
@@ -663,7 +659,7 @@ func (s *UserHandler) PutUser(req *restful.Request, rsp *restful.Response) error
 			}
 		}()
 	}
-	return nil
+	return we
 }
 
 // PutRoles updates an existing user with the passed list of roles.
@@ -720,9 +716,9 @@ func (s *UserHandler) PutRoles(req *restful.Request, rsp *restful.Response) erro
 		response.User.ZapUuid(),
 		zap.Int("Roles length", len(u.Roles)),
 	)
-	_ = rsp.WriteEntity(u.WithPublicData(ctx, s.IsContextEditable(ctx, u.Uuid, u.Policies)))
+	we := rsp.WriteEntity(u.WithPublicData(ctx, s.IsContextEditable(ctx, u.Uuid, u.Policies)))
 	permissions.ForceClearUserCache(ctx, response.User.GetLogin())
-	return nil
+	return we
 }
 
 // PoliciesForUserId retrieves policies for a given UserId.

@@ -21,7 +21,6 @@
 package rest
 
 import (
-	"fmt"
 	net2 "net"
 	"net/url"
 	"strings"
@@ -75,7 +74,7 @@ func withScheme(u *url.URL, s string) *url.URL {
 }
 
 // EndpointsDiscovery publishes a list of available endpoints
-func (s *Handler) EndpointsDiscovery(req *restful.Request, resp *restful.Response) {
+func (s *Handler) EndpointsDiscovery(req *restful.Request, resp *restful.Response) error {
 	var t time.Time
 	var e error
 	if t, e = time.Parse("2006-01-02T15:04:05", common.BuildStamp); e != nil {
@@ -153,12 +152,12 @@ func (s *Handler) EndpointsDiscovery(req *restful.Request, resp *restful.Respons
 		}
 	}
 
-	resp.WriteEntity(endpointResponse)
+	return resp.WriteEntity(endpointResponse)
 
 }
 
 // OpenApiDiscovery prints out the Swagger Spec in JSON format
-func (s *Handler) OpenApiDiscovery(req *restful.Request, resp *restful.Response) {
+func (s *Handler) OpenApiDiscovery(req *restful.Request, resp *restful.Response) error {
 
 	p := net.ExternalDomainFromRequest(req.Request)
 	p.Path = ""
@@ -195,7 +194,8 @@ func (s *Handler) OpenApiDiscovery(req *restful.Request, resp *restful.Response)
 		delete(jsonSpec.Spec().Paths.Paths, path)
 		jsonSpec.Spec().Paths.Paths[outPath] = ops
 	}
-	resp.WriteAsJson(jsonSpec.Spec())
+	_ = resp.WriteAsJson(jsonSpec.Spec())
+	return nil
 
 }
 
@@ -211,23 +211,23 @@ func (s *Handler) documentOpResponse(p *spec.Operation) {
 }
 
 // ConfigFormsDiscovery serves an XML description for building a form
-func (s *Handler) ConfigFormsDiscovery(req *restful.Request, rsp *restful.Response) {
+func (s *Handler) ConfigFormsDiscovery(req *restful.Request, rsp *restful.Response) error {
 	serviceName := req.PathParameter("ServiceName")
 	if serviceName == "" {
-		middleware.RestError500(req, rsp, errors.WithMessage(errors.InvalidParameters, "Please provide a service name"))
+		return errors.WithMessage(errors.InvalidParameters, "Please provide a service name")
 	}
 
 	form := config.ExposedConfigsForService(serviceName)
 	if form == nil {
-		middleware.RestError404(req, rsp, errors.WithMessagef(errors.StatusNotFound, "Cannot find service "+serviceName))
-		return
+		return errors.WithMessagef(errors.StatusNotFound, "Cannot find service "+serviceName)
 	}
-	rsp.WriteAsXml(form.Serialize(middleware.DetectedLanguages(req.Request.Context())...))
+	_ = rsp.WriteAsXml(form.Serialize(middleware.DetectedLanguages(req.Request.Context())...))
+	return nil
 
 }
 
 // SchedulerActionsDiscovery lists all registered actions
-func (s *Handler) SchedulerActionsDiscovery(req *restful.Request, rsp *restful.Response) {
+func (s *Handler) SchedulerActionsDiscovery(req *restful.Request, rsp *restful.Response) error {
 	actionManager := actions.GetActionsManager()
 	allActions := actionManager.DescribeActions(middleware.DetectedLanguages(req.Request.Context())...)
 	response := &rest.SchedulerActionsResponse{
@@ -254,11 +254,11 @@ func (s *Handler) SchedulerActionsDiscovery(req *restful.Request, rsp *restful.R
 			FormModuleProps:   a.FormModuleProps,
 		}
 	}
-	rsp.WriteEntity(response)
+	return rsp.WriteEntity(response)
 }
 
 // SchedulerActionFormDiscovery sends an XML-serialized form for building parameters for a given action
-func (s *Handler) SchedulerActionFormDiscovery(req *restful.Request, rsp *restful.Response) {
+func (s *Handler) SchedulerActionFormDiscovery(req *restful.Request, rsp *restful.Response) error {
 	actionName := req.PathParameter("ActionName")
 	var form *forms.Form
 	if strings.HasPrefix(actionName, "proto:") {
@@ -416,29 +416,26 @@ func (s *Handler) SchedulerActionFormDiscovery(req *restful.Request, rsp *restfu
 		var err error
 		form, err = actionManager.LoadActionForm(actionName)
 		if err != nil {
-			middleware.RestErrorDetect(req, rsp, err)
-			return
+			return err
 		}
 	}
 	if form == nil {
-		middleware.RestError404(req, rsp, fmt.Errorf("cannot find form"))
-		return
+		return errors.WithMessage(errors.StatusNotFound, "cannot find form")
 	}
 	form.I18NBundle = lang.Bundle()
-	rsp.WriteAsXml(form.Serialize(middleware.DetectedLanguages(req.Request.Context())...))
+	_ = rsp.WriteAsXml(form.Serialize(middleware.DetectedLanguages(req.Request.Context())...))
+	return nil
 }
 
 // ListSites implements /config/sites GET API
-func (s *Handler) ListSites(req *restful.Request, rsp *restful.Response) {
+func (s *Handler) ListSites(req *restful.Request, rsp *restful.Response) error {
 	// There is an optional Filter string on req
-
 	ss, err := routing.LoadSites()
 	if err != nil {
-		middleware.RestError500(req, rsp, err)
-		return
+		return err
 	}
 
 	sites := &rest.ListSitesResponse{}
 	sites.Sites = ss
-	rsp.WriteEntity(sites)
+	return rsp.WriteEntity(sites)
 }

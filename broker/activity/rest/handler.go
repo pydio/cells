@@ -22,23 +22,21 @@ package rest
 
 import (
 	"context"
-	"fmt"
 	"net/url"
 
 	restful "github.com/emicklei/go-restful/v3"
-	"github.com/pkg/errors"
-	"go.uber.org/zap"
 
 	activity2 "github.com/pydio/cells/v4/broker/activity"
 	"github.com/pydio/cells/v4/broker/activity/render"
 	"github.com/pydio/cells/v4/common"
+	"github.com/pydio/cells/v4/common/client/commons"
 	"github.com/pydio/cells/v4/common/client/grpc"
+	"github.com/pydio/cells/v4/common/errors"
 	"github.com/pydio/cells/v4/common/middleware"
 	"github.com/pydio/cells/v4/common/nodes/compose"
 	"github.com/pydio/cells/v4/common/proto/activity"
 	"github.com/pydio/cells/v4/common/proto/rest"
 	"github.com/pydio/cells/v4/common/proto/tree"
-	"github.com/pydio/cells/v4/common/telemetry/log"
 	"github.com/pydio/cells/v4/common/utils/permissions"
 )
 
@@ -71,16 +69,13 @@ func (a *ActivityHandler) getClient() activity.ActivityServiceClient {
 }
 
 // Stream returns a collection of activities
-func (a *ActivityHandler) Stream(req *restful.Request, rsp *restful.Response) {
+func (a *ActivityHandler) Stream(req *restful.Request, rsp *restful.Response) error {
 
 	ctx := req.Request.Context()
 
 	var inputReq activity.StreamActivitiesRequest
-	err := req.ReadEntity(&inputReq)
-	if err != nil {
-		log.Logger(ctx).Error("cannot fetch activity.StreamActivitiesRequest", zap.Error(err))
-		middleware.RestError500(req, rsp, err)
-		return
+	if err := req.ReadEntity(&inputReq); err != nil {
+		return err
 	}
 	if inputReq.BoxName == "" {
 		inputReq.BoxName = "outbox"
@@ -92,34 +87,25 @@ func (a *ActivityHandler) Stream(req *restful.Request, rsp *restful.Response) {
 
 	if inputReq.UnreadCountOnly {
 		if inputReq.Context != activity.StreamContext_USER_ID || len(inputReq.ContextData) == 0 {
-			middleware.RestError500(req, rsp, errors.New("wrong arguments, please use only User context to get unread activities"))
-			return
+			return errors.WithMessage(errors.InvalidParameters, "wrong arguments, please use only User context to get unread activities")
 		}
 		resp, err := client.UnreadActivitiesNumber(ctx, &activity.UnreadActivitiesRequest{
 			UserId: inputReq.ContextData,
 		})
 		if err != nil {
-			middleware.RestErrorDetect(req, rsp, err)
-			return
+			return err
 		}
-		rsp.WriteEntity(activity2.CountCollection(resp.Number))
-		return
+		return rsp.WriteEntity(activity2.CountCollection(resp.Number))
 	}
 
 	var collection []*activity.Object
 	accessList, err := permissions.AccessListFromContextClaims(ctx)
 	if err != nil || len(accessList.GetWorkspaces()) == 0 {
 		// Return Empty collection
-		rsp.WriteEntity(activity2.Collection(collection))
-		return
+		return rsp.WriteEntity(activity2.Collection(collection))
 	}
 
 	streamer, err := client.StreamActivities(ctx, &inputReq)
-	if err != nil {
-		log.Logger(ctx).Error("cannot get activity stream", zap.Error(err))
-		middleware.RestErrorDetect(req, rsp, err)
-		return
-	}
 	serverLinks := render.NewServerLinks()
 	serverLinks.URLS[render.ServerUrlTypeDocs], _ = url.Parse("doc://")
 	serverLinks.URLS[render.ServerUrlTypeUsers], _ = url.Parse("user://")
@@ -127,119 +113,87 @@ func (a *ActivityHandler) Stream(req *restful.Request, rsp *restful.Response) {
 
 	if inputReq.AsDigest {
 		// Get all collection, will be filtered by Digest() function
-		for {
-			resp, e := streamer.Recv()
-			if e != nil {
-				break
-			}
-			if resp == nil {
-				continue
-			}
+		if e := commons.ForEach(streamer, err, func(resp *activity.StreamActivitiesResponse) error {
 			resp.Activity.Summary = render.Markdown(resp.Activity, activity.SummaryPointOfView_GENERIC, inputReq.Language, serverLinks)
 			collection = append(collection, resp.Activity)
+			return nil
+		}); e != nil {
+			return e
 		}
-		digest, err := activity2.Digest(ctx, collection)
-		if err != nil {
-			log.Logger(ctx).Error("cannot build Digest", zap.Error(err))
-			middleware.RestError500(req, rsp, err)
-			return
+
+		if digest, err := activity2.Digest(ctx, collection); err != nil {
+			return err
+		} else {
+			return rsp.WriteEntity(digest)
 		}
-		rsp.WriteEntity(digest)
 
 	} else {
 
 		// Filter activities as they come
-		for {
-			resp, e := streamer.Recv()
-			if e != nil {
-				break
-			}
-			if resp == nil {
-				continue
-			}
-			if a.FilterActivity(ctx, accessList, resp.Activity) {
+		if e := commons.ForEach(streamer, err, func(resp *activity.StreamActivitiesResponse) error {
+			if a.filterActivity(ctx, accessList, resp.Activity) {
 				resp.Activity.Summary = render.Markdown(resp.Activity, inputReq.PointOfView, inputReq.Language, serverLinks)
 				collection = append(collection, resp.Activity)
 			}
-
+			return nil
+		}); e != nil {
+			return e
 		}
-
-		collectionObject := activity2.Collection(collection)
-		rsp.WriteEntity(collectionObject)
+		return rsp.WriteEntity(activity2.Collection(collection))
 	}
 }
 
 // Subscribe hooks a given object to another one activity streams
-func (a *ActivityHandler) Subscribe(req *restful.Request, rsp *restful.Response) {
+func (a *ActivityHandler) Subscribe(req *restful.Request, rsp *restful.Response) error {
 
 	ctx := req.Request.Context()
-
 	var subscription activity.Subscription
-	err := req.ReadEntity(&subscription)
-	if err != nil {
-		log.Logger(ctx).Error("cannot fetch activity.Subscription", zap.Error(err))
-		middleware.RestError500(req, rsp, err)
-		return
+	if err := req.ReadEntity(&subscription); err != nil {
+		return err
 	}
 	if name, _ := permissions.FindUserNameInContext(ctx); name == "" || subscription.UserId != name {
-		middleware.RestError403(req, rsp, fmt.Errorf("you are not allowed to set subscription on this user"))
-		return
+		return errors.WithMessage(errors.StatusForbidden, "you are not allowed to set subscription on this user")
 	}
 	resp, e := a.getClient().Subscribe(ctx, &activity.SubscribeRequest{
 		Subscription: &subscription,
 	})
 	if e != nil {
-		log.Logger(ctx).Error("cannot subscribe to activity stream", subscription.Zap(), zap.Error(e))
-		middleware.RestErrorDetect(req, rsp, err)
-		return
+		return e
 	}
+	return rsp.WriteEntity(resp.Subscription)
 
-	rsp.WriteEntity(resp.Subscription)
 }
 
 // SearchSubscriptions loads existing subscription for a given object
-func (a *ActivityHandler) SearchSubscriptions(req *restful.Request, rsp *restful.Response) {
+func (a *ActivityHandler) SearchSubscriptions(req *restful.Request, rsp *restful.Response) error {
 
 	ctx := req.Request.Context()
 	var inputSearch activity.SearchSubscriptionsRequest
-	err := req.ReadEntity(&inputSearch)
-	if err != nil {
-		log.Logger(ctx).Error("cannot fetch activity.SearchSubscriptionsRequest from REST request", zap.Error(err))
-		middleware.RestError500(req, rsp, err)
-		return
+	if err := req.ReadEntity(&inputSearch); err != nil {
+		return err
 	}
 	name, _ := permissions.FindUserNameInContext(ctx)
 	if name == "" {
-		middleware.RestError401(req, rsp, fmt.Errorf("you are not allowed to search for subscriptions"))
-		return
+		return errors.WithMessage(errors.StatusForbidden, "you are not allowed to search for subscriptions")
 	}
 	inputSearch.UserIds = []string{name}
 
 	streamer, e := a.getClient().SearchSubscriptions(ctx, &inputSearch)
-	if e != nil {
-		log.Logger(ctx).Error("cannot get subscription stream", zap.Error(e))
-		middleware.RestErrorDetect(req, rsp, err)
-		return
-	}
 	collection := &rest.SubscriptionsCollection{
 		Subscriptions: []*activity.Subscription{},
 	}
-	for {
-		resp, rE := streamer.Recv()
-		if rE != nil {
-			break
-		}
-		if resp == nil {
-			continue
-		}
+	if e = commons.ForEach(streamer, e, func(resp *activity.SearchSubscriptionsResponse) error {
 		collection.Subscriptions = append(collection.Subscriptions, resp.Subscription)
+		return nil
+	}); e != nil {
+		return e
 	}
+	return rsp.WriteEntity(collection)
 
-	rsp.WriteEntity(collection)
 }
 
-// FilterActivity is used internally to show only authorized events depending on the context
-func (a *ActivityHandler) FilterActivity(ctx context.Context, accessList *permissions.AccessList, ac *activity.Object) bool {
+// filterActivity is used internally to show only authorized events depending on the context
+func (a *ActivityHandler) filterActivity(ctx context.Context, accessList *permissions.AccessList, ac *activity.Object) bool {
 
 	if ac.Object == nil {
 		return true

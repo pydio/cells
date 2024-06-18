@@ -35,7 +35,6 @@ import (
 	"github.com/pydio/cells/v4/common/auth/claim"
 	"github.com/pydio/cells/v4/common/client/grpc"
 	"github.com/pydio/cells/v4/common/errors"
-	"github.com/pydio/cells/v4/common/middleware"
 	"github.com/pydio/cells/v4/common/proto/idm"
 	"github.com/pydio/cells/v4/common/proto/rest"
 	service2 "github.com/pydio/cells/v4/common/proto/service"
@@ -76,192 +75,167 @@ func (h *SharesHandler) Filter() func(string) string {
 func (h *SharesHandler) IdmUserFromClaims(ctx context.Context) (*idm.User, error) {
 	claims := ctx.Value(claim.ContextKey).(claim.Claims)
 	if claims.Subject == "" {
-		return nil, fmt.Errorf("missing subject on Claims")
+		return nil, errors.WithMessage(errors.InvalidIDToken, "missing subject on claims")
 	}
-	return permissions.SearchUniqueUser(ctx, "", claims.Subject)
+	u, e := permissions.SearchUniqueUser(ctx, "", claims.Subject)
+	if e != nil {
+		return nil, errors.WithMessage(errors.ContextUserNotFound, e.Error())
+	}
+	return u, nil
 }
 
 // PutCell creates or updates a shared room (a.k.a a Cell) via REST API.
-func (h *SharesHandler) PutCell(req *restful.Request, rsp *restful.Response) {
+func (h *SharesHandler) PutCell(req *restful.Request, rsp *restful.Response) error {
 
 	ctx := req.Request.Context()
 	var shareRequest rest.PutCellRequest
-	err := req.ReadEntity(&shareRequest)
-	if err != nil {
-		log.Logger(ctx).Error("cannot fetch rest.CellRequest", zap.Error(err))
-		middleware.RestError500(req, rsp, err)
-		return
+	if err := req.ReadEntity(&shareRequest); err != nil {
+		return err
 	}
 	log.Logger(ctx).Debug("Received Share.Cell API request", zap.Any("input", &shareRequest))
 	ownerUser, er := h.IdmUserFromClaims(ctx)
 	if er != nil {
-		middleware.RestError403(req, rsp, fmt.Errorf("cannot find user in context"))
-		return
+		return er
 	}
 
 	if err := h.docStoreStatus(ctx); err != nil {
-		middleware.RestErrorDetect(req, rsp, err)
-		return
+		return er
 	}
 
 	// Init Root Nodes and check permissions
 	hasReadonly, err := h.sc.ParseRootNodes(ctx, shareRequest.Room, shareRequest.CreateEmptyRoot)
 	if err != nil {
-		middleware.RestErrorDetect(req, rsp, err)
-		return
+		return er
 	}
 
 	// Detect if one root has an access set via policy
 	parentPol, e := h.sc.DetectInheritedPolicy(ctx, shareRequest.Room.RootNodes, nil)
 	if e != nil {
-		middleware.RestErrorDetect(req, rsp, e)
-		return
+		return e
 	}
 
-	if e := h.sc.CheckCellOptionsAgainstConfigs(ctx, shareRequest.Room); e != nil {
-		middleware.RestErrorDetect(req, rsp, e)
-		return
+	if e = h.sc.CheckCellOptionsAgainstConfigs(ctx, shareRequest.Room); e != nil {
+		return e
 	}
 
 	if output, err := h.sc.UpsertCell(ctx, shareRequest.Room, ownerUser, hasReadonly, parentPol); err != nil {
-		middleware.RestError500(req, rsp, err)
+		return err
 	} else {
-		_ = rsp.WriteEntity(output)
+		return rsp.WriteEntity(output)
 	}
 
 }
 
 // GetCell simply retrieves a shared room from its UUID.
-func (h *SharesHandler) GetCell(req *restful.Request, rsp *restful.Response) {
+func (h *SharesHandler) GetCell(req *restful.Request, rsp *restful.Response) error {
 
 	ctx := req.Request.Context()
 	id := req.PathParameter("Uuid")
 
 	workspace, err := h.sc.GetCellWorkspace(ctx, id)
 	if err != nil {
-		if errors.Is(err, errors.StatusNotFound) {
-			middleware.RestError404(req, rsp, err)
-		} else {
-			middleware.RestError500(req, rsp, err)
-		}
-		return
+		return err
 	}
 	acl, err := permissions.AccessListFromContextClaims(ctx)
 	if err != nil {
-		middleware.RestError403(req, rsp, fmt.Errorf("cannot find access list in context %v", err))
-		return
+		return err
 	}
 
 	if output, err := h.sc.WorkspaceToCellObject(ctx, workspace, acl); err != nil {
-		middleware.RestError500(req, rsp, err)
+		return err
 	} else {
-		rsp.WriteEntity(output)
+		return rsp.WriteEntity(output)
 	}
 
 }
 
 // DeleteCell loads the workspace and its root nodes and eventually removes room root totally.
-func (h *SharesHandler) DeleteCell(req *restful.Request, rsp *restful.Response) {
+func (h *SharesHandler) DeleteCell(req *restful.Request, rsp *restful.Response) error {
 
 	ctx := req.Request.Context()
 	id := req.PathParameter("Uuid")
 	ownerLogin, _ := permissions.FindUserNameInContext(ctx)
-	err := h.sc.DeleteCell(ctx, id, ownerLogin)
-	if err != nil {
-		middleware.RestErrorDetect(req, rsp, err)
-		return
+	if ownerLogin == "" {
+		return errors.WithStack(errors.ContextUserNotFound)
 	}
-	_ = rsp.WriteEntity(&rest.DeleteCellResponse{
-		Success: true,
-	})
+	if err := h.sc.DeleteCell(ctx, id, ownerLogin); err != nil {
+		return err
+	} else {
+		return rsp.WriteEntity(&rest.DeleteCellResponse{Success: true})
+	}
 
 }
 
 // PutShareLink creates or updates a link to a shared item.
-func (h *SharesHandler) PutShareLink(req *restful.Request, rsp *restful.Response) {
+func (h *SharesHandler) PutShareLink(req *restful.Request, rsp *restful.Response) error {
 
 	ctx := req.Request.Context()
 
 	var putRequest rest.PutShareLinkRequest
 	if err := req.ReadEntity(&putRequest); err != nil {
-		middleware.RestError500(req, rsp, err)
-		return
+		return err
 	}
 	if err := h.docStoreStatus(ctx); err != nil {
-		middleware.RestErrorDetect(req, rsp, err)
-		return
+		return err
 	}
 
 	link := putRequest.ShareLink
 	rootWorkspaces, files, folders, e := h.sc.CheckLinkRootNodes(ctx, link)
 	if e != nil {
-		middleware.RestErrorDetect(req, rsp, e)
-		return
+		return e
 	}
 	parentPolicy, e := h.sc.DetectInheritedPolicy(ctx, link.RootNodes, rootWorkspaces)
 	if e != nil {
-		middleware.RestErrorDetect(req, rsp, e)
-		return
+		return e
 	}
 
 	pluginOptions, e := h.sc.CheckLinkOptionsAgainstConfigs(ctx, link, rootWorkspaces, files, folders)
 	if e != nil {
-		middleware.RestErrorDetect(req, rsp, e)
-		return
+		return e
 	} else if pluginOptions.ShareForcePassword && !putRequest.PasswordEnabled {
-		middleware.RestError403(req, rsp, fmt.Errorf("password is required"))
-		return
+		return errors.WithStack(errors.ShareLinkPasswordRequired)
 	}
 
 	ownerUser, er := h.IdmUserFromClaims(ctx)
 	if er != nil {
-		middleware.RestError403(req, rsp, fmt.Errorf("cannot find user in context"))
-		return
+		return er
 	}
 
 	output, er := h.sc.UpsertLink(ctx, link, &putRequest, ownerUser, parentPolicy, pluginOptions)
 	if er != nil {
-		middleware.RestErrorDetect(req, rsp, er)
+		return er
 	} else {
-		_ = rsp.WriteEntity(output)
+		return rsp.WriteEntity(output)
 	}
-	return
 
 }
 
 // GetShareLink loads link information.
-func (h *SharesHandler) GetShareLink(req *restful.Request, rsp *restful.Response) {
+func (h *SharesHandler) GetShareLink(req *restful.Request, rsp *restful.Response) error {
 
 	ctx := req.Request.Context()
 	id := req.PathParameter("Uuid")
 
 	output, err := h.sc.LinkById(ctx, id)
 	if err != nil {
-		if errors.Is(err, errors.StatusNotFound) {
-			middleware.RestError404(req, rsp, err)
-		} else {
-			middleware.RestErrorDetect(req, rsp, err)
-		}
-		return
+		return err
 	}
-	_ = rsp.WriteEntity(output)
+	return rsp.WriteEntity(output)
 
 }
 
 // DeleteShareLink deletes a link information.
-func (h *SharesHandler) DeleteShareLink(req *restful.Request, rsp *restful.Response) {
+func (h *SharesHandler) DeleteShareLink(req *restful.Request, rsp *restful.Response) error {
 
 	ctx := req.Request.Context()
 	id := req.PathParameter("Uuid")
 
 	if err := h.docStoreStatus(ctx); err != nil {
-		middleware.RestErrorDetect(req, rsp, err)
-		return
+		return err
 	}
 
 	if err := h.sc.DeleteLink(ctx, id); err != nil {
-		middleware.RestErrorDetect(req, rsp, err)
-		return
+		return err
 	}
 
 	log.Auditer(ctx).Info(
@@ -271,44 +245,38 @@ func (h *SharesHandler) DeleteShareLink(req *restful.Request, rsp *restful.Respo
 		zap.String(common.KeyWorkspaceUuid, id),
 	)
 
-	_ = rsp.WriteEntity(&rest.DeleteShareLinkResponse{
+	return rsp.WriteEntity(&rest.DeleteShareLinkResponse{
 		Success: true,
 	})
 
 }
 
 // UpdateSharePolicies updates policies associated to the underlying workspace
-func (h *SharesHandler) UpdateSharePolicies(req *restful.Request, rsp *restful.Response) {
+func (h *SharesHandler) UpdateSharePolicies(req *restful.Request, rsp *restful.Response) error {
 	var input rest.UpdateSharePoliciesRequest
 	if e := req.ReadEntity(&input); e != nil {
-		middleware.RestError500(req, rsp, e)
-		return
+		return e
 	}
 	ctx := req.Request.Context()
 	if err := h.docStoreStatus(ctx); err != nil {
-		middleware.RestErrorDetect(req, rsp, err)
-		return
+		return err
 	}
 	cli := idm.NewWorkspaceServiceClient(grpc.ResolveConn(h.ctx, common.ServiceWorkspace))
 	ws, err := permissions.SearchUniqueWorkspace(ctx, input.Uuid, "")
 	if err != nil {
-		middleware.RestError500(req, rsp, errors.WithStack(errors.ShareNotFound))
-		return
+		return err
 	}
 	if ws.Scope != idm.WorkspaceScope_LINK && ws.Scope != idm.WorkspaceScope_ROOM {
-		middleware.RestError403(req, rsp, errors.WithStack(errors.ShareWrongType))
-		return
+		return errors.WithStack(errors.ShareWrongType)
 	}
 	if !h.MatchPolicies(ctx, ws.UUID, ws.Policies, service2.ResourcePolicyAction_WRITE) {
-		middleware.RestError403(req, rsp, errors.WithStack(errors.ShareNotEditable))
-		return
+		return errors.WithStack(errors.ShareNotEditable)
 	}
 
 	ws.Policies = input.Policies
 	resp, e := cli.CreateWorkspace(ctx, &idm.CreateWorkspaceRequest{Workspace: ws})
 	if e != nil {
-		middleware.RestErrorDetect(req, rsp, e)
-		return
+		return e
 	}
 
 	log.Logger(ctx).Info("Updated policies for share", zap.String("uuid", input.Uuid))
@@ -318,7 +286,8 @@ func (h *SharesHandler) UpdateSharePolicies(req *restful.Request, rsp *restful.R
 		Policies:                resp.Workspace.Policies,
 		PoliciesContextEditable: resp.Workspace.PoliciesContextEditable,
 	}
-	rsp.WriteEntity(response)
+	return rsp.WriteEntity(response)
+
 }
 
 func (h *SharesHandler) docStoreStatus(ctx context.Context) error {

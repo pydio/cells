@@ -22,10 +22,10 @@ package share
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/client/grpc"
+	"github.com/pydio/cells/v4/common/errors"
 	"github.com/pydio/cells/v4/common/proto/idm"
 	"github.com/pydio/cells/v4/common/utils/permissions"
 	"github.com/pydio/cells/v4/common/utils/uuid"
@@ -46,7 +46,7 @@ func (sc *Client) InheritPolicies(ctx context.Context, policyName string, read, 
 	} else if write {
 		suffix = "wo"
 	} else {
-		return "", fmt.Errorf("provide at least one of read or write for extending policy")
+		return "", errors.WithStack(errors.InvalidParameters)
 	}
 	// Create inherited flavours
 	if ro, er := sc.policyByName(ctx, polClient, policyName+"-"+suffix); er == nil && ro != nil {
@@ -102,13 +102,13 @@ func (sc *Client) derivePolicy(policy *idm.PolicyGroup, read, write bool, suffix
 		}
 	}
 	if allowPol == nil {
-		return nil, fmt.Errorf("cannot derive parent policy (no allow rule set)")
+		return nil, errors.WithMessagef(errors.StatusForbidden, "cannot derive parent policy (no allow rule set)")
 	}
 	if read && !hasRead {
-		return nil, fmt.Errorf("cannot assign read as parent policy does not provide read access")
+		return nil, errors.WithMessagef(errors.StatusForbidden, "cannot assign read as parent policy does not provide read access")
 	}
 	if write && !hasWrite {
-		return nil, fmt.Errorf("cannot assign write as parent policy does not provide write access")
+		return nil, errors.WithMessagef(errors.StatusForbidden, "cannot assign write as parent policy does not provide write access")
 	}
 	// Reset actions
 	allowPol.ID = uuid.New()
@@ -131,7 +131,7 @@ func (sc *Client) policyByName(ctx context.Context, cl idm.PolicyEngineServiceCl
 		return nil, e
 	}
 	if len(response.PolicyGroups) == 0 {
-		return nil, fmt.Errorf("cannot find policy with uuid " + name)
+		return nil, errors.WithMessagef(errors.StatusNotFound, "cannot find policy with uuid %s", name)
 	}
 	return response.PolicyGroups[0], nil
 }

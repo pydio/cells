@@ -26,7 +26,6 @@ import (
 
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/client/commons/docstorec"
-	"github.com/pydio/cells/v4/common/middleware"
 	"github.com/pydio/cells/v4/common/proto/docstore"
 	"github.com/pydio/cells/v4/common/proto/rest"
 	"github.com/pydio/cells/v4/common/proto/tree"
@@ -37,15 +36,14 @@ VERSIONING POLICIES MANAGEMENT
 *****************************/
 
 // ListVirtualNodes list all defined template paths.
-func (s *Handler) ListVirtualNodes(req *restful.Request, resp *restful.Response) {
+func (s *Handler) ListVirtualNodes(req *restful.Request, resp *restful.Response) error {
 	//T := lang.Bundle().T(utils.UserLanguagesFromRestRequest(req)...)
 	ctx := req.Request.Context()
 	docs, er := docstorec.DocStoreClient(ctx).ListDocuments(ctx, &docstore.ListDocumentsRequest{
 		StoreID: common.DocStoreIdVirtualNodes,
 	})
 	if er != nil {
-		middleware.RestError500(req, resp, er)
-		return
+		return er
 	}
 	response := &rest.NodesCollection{}
 	for {
@@ -58,5 +56,5 @@ func (s *Handler) ListVirtualNodes(req *restful.Request, resp *restful.Response)
 			response.Children = append(response.Children, &vNode)
 		}
 	}
-	resp.WriteEntity(response)
+	return resp.WriteEntity(response)
 }

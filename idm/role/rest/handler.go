@@ -29,9 +29,9 @@ import (
 	"google.golang.org/protobuf/types/known/anypb"
 
 	"github.com/pydio/cells/v4/common"
+	"github.com/pydio/cells/v4/common/client/commons"
 	"github.com/pydio/cells/v4/common/client/commons/idmc"
 	"github.com/pydio/cells/v4/common/errors"
-	"github.com/pydio/cells/v4/common/middleware"
 	"github.com/pydio/cells/v4/common/proto/idm"
 	"github.com/pydio/cells/v4/common/proto/rest"
 	serviceproto "github.com/pydio/cells/v4/common/proto/service"
@@ -64,7 +64,7 @@ func (s *RoleHandler) Filter() func(string) string {
 }
 
 // GetRole provides a REST end point to retrieve a given Role with UUID
-func (s *RoleHandler) GetRole(req *restful.Request, rsp *restful.Response) {
+func (s *RoleHandler) GetRole(req *restful.Request, rsp *restful.Response) error {
 	ctx := req.Request.Context()
 	uuid := req.PathParameter("Uuid")
 	log.Logger(ctx).Debug("Received Role.Get API request for uuid " + uuid)
@@ -72,48 +72,36 @@ func (s *RoleHandler) GetRole(req *restful.Request, rsp *restful.Response) {
 		Uuid: []string{uuid},
 	})
 	cl := idmc.RoleServiceClient(ctx)
+	var role *idm.Role
 	streamer, err := cl.SearchRole(ctx, &idm.SearchRoleRequest{
 		Query: &serviceproto.Query{
 			SubQueries: []*anypb.Any{query},
 		},
 	})
-	if err != nil {
-		// Handle error
-		return
+	if er := commons.ForEach(streamer, err, func(resp *idm.SearchRoleResponse) error {
+		role = resp.GetRole()
+		role.PoliciesContextEditable = s.IsContextEditable(ctx, role.Uuid, role.Policies)
+		return nil
+	}); er != nil {
+		return er
 	}
-	defer streamer.CloseSend()
-	found := false
-	for {
-		resp, e := streamer.Recv()
-		if e != nil {
-			break
-		}
-		if resp == nil {
-			continue
-		}
-		resp.Role.PoliciesContextEditable = s.IsContextEditable(ctx, resp.Role.Uuid, resp.Role.Policies)
-		rsp.WriteEntity(resp.Role)
-		found = true
-		break
+	if role == nil {
+		return errors.WithMessagef(errors.RoleNotFound, "cannot find role with uuid %s", uuid)
+	} else {
+		return rsp.WriteEntity(role)
 	}
-	if !found {
-		middleware.RestError404(req, rsp, errors.WithMessage(errors.RoleNotFound, "cannot find role for uuid "+uuid))
-		return
-	}
+
 }
 
 // SearchRoles provides a REST endpoint to query the role repository
-func (s *RoleHandler) SearchRoles(req *restful.Request, rsp *restful.Response) {
+func (s *RoleHandler) SearchRoles(req *restful.Request, rsp *restful.Response) error {
 	ctx := req.Request.Context()
 
 	var inputQuery rest.SearchRoleRequest
-	err := req.ReadEntity(&inputQuery)
-	if err != nil {
-		log.Logger(req.Request.Context()).Error("cannot fetch rest.SearchRoleRequest from request", zap.Error(err))
-		middleware.RestError500(req, rsp, err)
-		return
+	if err := req.ReadEntity(&inputQuery); err != nil {
+		return err
 	}
-	log.Logger(ctx).Debug("Received Role.Search API request", zap.Any("q", inputQuery))
+	log.Logger(ctx).Debug("Received Role.Search API request", zap.Any("q", &inputQuery))
 	// Transform to standard query
 	query := &serviceproto.Query{
 		Limit:     inputQuery.Limit,
@@ -127,43 +115,33 @@ func (s *RoleHandler) SearchRoles(req *restful.Request, rsp *restful.Response) {
 	}
 	var er error
 	if query.ResourcePolicyQuery, er = s.RestToServiceResourcePolicy(ctx, inputQuery.ResourcePolicyQuery); er != nil {
-		log.Logger(ctx).Error("403", zap.Error(er))
-		middleware.RestError403(req, rsp, er)
-		return
+		return er // already a 403
 	}
 	cl := idmc.RoleServiceClient(ctx)
 	request := &idm.SearchRoleRequest{Query: query}
 	cr, e := cl.CountRole(ctx, request)
 	if e != nil {
-		middleware.RestErrorDetect(req, rsp, e)
-		return
-	}
-	streamer, err := cl.SearchRole(ctx, request)
-	if err != nil {
-		log.Logger(req.Request.Context()).Error("While fetching roles", zap.Error(err))
-		middleware.RestError500(req, rsp, err)
-		return
-	}
-	defer streamer.CloseSend()
-	result := new(rest.RolesCollection)
-	result.Total = cr.GetCount()
-	for {
-		resp, e := streamer.Recv()
-		if e != nil {
-			break
-		}
-		if resp == nil {
-			continue
-		}
-		resp.Role.PoliciesContextEditable = s.IsContextEditable(ctx, resp.Role.Uuid, resp.Role.Policies)
-		result.Roles = append(result.Roles, resp.Role)
+		return e
 	}
 
-	rsp.WriteEntity(result)
+	result := &rest.RolesCollection{
+		Total: cr.GetCount(),
+	}
+	streamer, err := cl.SearchRole(ctx, request)
+	if er = commons.ForEach(streamer, err, func(resp *idm.SearchRoleResponse) error {
+		resp.Role.PoliciesContextEditable = s.IsContextEditable(ctx, resp.Role.Uuid, resp.Role.Policies)
+		result.Roles = append(result.Roles, resp.Role)
+		return nil
+	}); er != nil {
+		return er
+	}
+
+	return rsp.WriteEntity(result)
+
 }
 
 // DeleteRole provides a REST endpoint to delete a given role given its UUID
-func (s *RoleHandler) DeleteRole(req *restful.Request, rsp *restful.Response) {
+func (s *RoleHandler) DeleteRole(req *restful.Request, rsp *restful.Response) error {
 
 	ctx := req.Request.Context()
 	uuid := req.PathParameter("Uuid")
@@ -171,8 +149,7 @@ func (s *RoleHandler) DeleteRole(req *restful.Request, rsp *restful.Response) {
 
 	cl := idmc.RoleServiceClient(ctx)
 	if checkError := s.IsAllowed(ctx, uuid, serviceproto.ResourcePolicyAction_WRITE, cl); checkError != nil {
-		middleware.RestError403(req, rsp, checkError)
-		return
+		return checkError
 	}
 
 	// Now delete role
@@ -183,52 +160,50 @@ func (s *RoleHandler) DeleteRole(req *restful.Request, rsp *restful.Response) {
 		Query: &serviceproto.Query{SubQueries: []*anypb.Any{query}},
 	})
 	if e != nil {
-		middleware.RestError500(req, rsp, e)
-	} else {
-		log.Auditer(ctx).Info(
-			fmt.Sprintf("Deleted role [%s]", uuid),
-			log.GetAuditId(common.AuditRoleDelete),
-			zap.String(common.KeyRoleUuid, uuid),
-		)
-		rsp.WriteEntity(&idm.Role{Uuid: uuid})
+		return e
 	}
+
+	log.Auditer(ctx).Info(
+		fmt.Sprintf("Deleted role [%s]", uuid),
+		log.GetAuditId(common.AuditRoleDelete),
+		zap.String(common.KeyRoleUuid, uuid),
+	)
+	return rsp.WriteEntity(&idm.Role{Uuid: uuid})
+
 }
 
 // SetRole provides a REST endpoint to create or update a role in the repository
-func (s *RoleHandler) SetRole(req *restful.Request, rsp *restful.Response) {
+func (s *RoleHandler) SetRole(req *restful.Request, rsp *restful.Response) error {
 
 	var inputRole idm.Role
-	err := req.ReadEntity(&inputRole)
-	if err != nil {
-		log.Logger(req.Request.Context()).Error("cannot fetch idm.Role from request", zap.Error(err))
-		middleware.RestError500(req, rsp, err)
-		return
+	if err := req.ReadEntity(&inputRole); err != nil {
+		return err
 	}
 	if inputRole.Uuid == "" {
 		inputRole.Uuid = req.PathParameter("Uuid")
 	}
 	ctx := req.Request.Context()
 	cl := idmc.RoleServiceClient(ctx)
-	log.Logger(ctx).Debug("Received Role.Set", zap.Any("r", inputRole))
+	log.Logger(ctx).Debug("Received Role.Set", zap.Any("r", &inputRole))
 
 	if checkError := s.IsAllowed(ctx, inputRole.Uuid, serviceproto.ResourcePolicyAction_WRITE, cl); !errors.Is(checkError, errors.StatusNotFound) {
-		middleware.RestError403(req, rsp, checkError)
-		return
+		return checkError
 	}
 	// in fact create or update
 	resp, er := cl.CreateRole(ctx, &idm.CreateRoleRequest{
 		Role: &inputRole,
 	})
 	if er != nil {
-		middleware.RestError500(req, rsp, er)
-	} else {
-		log.Auditer(ctx).Info(
-			fmt.Sprintf("Updated role [%s]", inputRole.Label),
-			log.GetAuditId(common.AuditRoleUpdate),
-			inputRole.Zap(),
-		)
-		rsp.WriteEntity(resp.Role)
+		return er
 	}
+
+	log.Auditer(ctx).Info(
+		fmt.Sprintf("Updated role [%s]", inputRole.Label),
+		log.GetAuditId(common.AuditRoleUpdate),
+		inputRole.Zap(),
+	)
+	return rsp.WriteEntity(resp.Role)
+
 }
 
 // PoliciesForRole retrieves Policies bound to a role given its UUID
@@ -239,24 +214,18 @@ func (s *RoleHandler) PoliciesForRole(ctx context.Context, resourceId string, re
 	})
 	searchQuery := &serviceproto.Query{SubQueries: []*anypb.Any{query}}
 
+	var found bool
 	cli := resourceClient.(idm.RoleServiceClient)
 	st, e := cli.SearchRole(ctx, &idm.SearchRoleRequest{Query: searchQuery})
-	if e != nil {
+	if e = commons.ForEach(st, e, func(t *idm.SearchRoleResponse) error {
+		policies = t.GetRole().GetPolicies()
+		found = true
+		return nil
+	}); e != nil {
 		return policies, e
 	}
-	defer st.CloseSend()
-	var role *idm.Role
-	for {
-		resp, err := st.Recv()
-		if err != nil {
-			break
-		}
-		role = resp.Role
-		policies = role.Policies
-		break
-	}
-	if role == nil {
-		return policies, errors.WithMessage(errors.RoleNotFound, "cannot find role with id "+resourceId)
+	if !found {
+		return policies, errors.WithMessagef(errors.RoleNotFound, "cannot find role with id %s", resourceId)
 	}
 	return
 }

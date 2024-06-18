@@ -22,14 +22,13 @@ package rest
 
 import (
 	"context"
-	"errors"
 	"strings"
 
 	restful "github.com/emicklei/go-restful/v3"
 	"go.uber.org/zap"
 
 	"github.com/pydio/cells/v4/common/config"
-	"github.com/pydio/cells/v4/common/middleware"
+	"github.com/pydio/cells/v4/common/errors"
 	"github.com/pydio/cells/v4/common/proto/rest"
 	"github.com/pydio/cells/v4/common/telemetry/log"
 	json "github.com/pydio/cells/v4/common/utils/jsonx"
@@ -40,13 +39,12 @@ import (
 GENERIC GET/PUT CALLS
 *********************/
 
-func (s *Handler) PutConfig(req *restful.Request, resp *restful.Response) {
+func (s *Handler) PutConfig(req *restful.Request, resp *restful.Response) error {
 
 	ctx := req.Request.Context()
 	var configuration rest.Configuration
 	if err := req.ReadEntity(&configuration); err != nil {
-		middleware.RestError500(req, resp, err)
-		return
+		return err
 	}
 	if configuration.FullPath == "" {
 		configuration.FullPath = req.PathParameter("FullPath")
@@ -58,12 +56,10 @@ func (s *Handler) PutConfig(req *restful.Request, resp *restful.Response) {
 	fullPath := strings.Trim(configuration.FullPath, "/")
 	path := strings.Split(fullPath, "/")
 	if len(path) == 0 {
-		middleware.RestError401(req, resp, errors.New("no path given!"))
-		return
+		return errors.WithMessage(errors.InvalidParameters, "no path given")
 	}
 	if !config.IsRestEditable(fullPath) {
-		middleware.RestError403(req, resp, errors.New("you are not allowed to edit that configuration"))
-		return
+		return errors.WithMessage(errors.StatusForbidden, "you are not allowed to edit that configuration")
 	}
 	var parsed map[string]interface{}
 	if e := json.Unmarshal([]byte(configuration.Data), &parsed); e == nil {
@@ -76,26 +72,24 @@ func (s *Handler) PutConfig(req *restful.Request, resp *restful.Response) {
 		config.Set(parsed, path...)
 		if err := config.Save(u, "Setting config via API"); err != nil {
 			log.Logger(ctx).Error("Put", zap.Error(err))
-			middleware.RestError500(req, resp, err)
-			// Restoring original value
 			if original != nil {
 				config.Set(original, path...)
 			}
-			return
+			return err
 		}
 		s.logPluginEnabled(req.Request.Context(), configuration.FullPath, parsed, original)
 		// Reload new data
-		resp.WriteEntity(&rest.Configuration{
+		return resp.WriteEntity(&rest.Configuration{
 			FullPath: configuration.FullPath,
 			Data:     config.Get(path...).String(),
 		})
 	} else {
-		middleware.RestError500(req, resp, e)
+		return errors.Tag(e, errors.UnmarshalError)
 	}
 
 }
 
-func (s *Handler) GetConfig(req *restful.Request, resp *restful.Response) {
+func (s *Handler) GetConfig(req *restful.Request, resp *restful.Response) error {
 
 	ctx := req.Request.Context()
 	fullPath := strings.Trim(req.PathParameter("FullPath"), "/")
@@ -104,8 +98,7 @@ func (s *Handler) GetConfig(req *restful.Request, resp *restful.Response) {
 	path := strings.Split(fullPath, "/")
 
 	if !config.IsRestEditable(fullPath) {
-		middleware.RestError403(req, resp, errors.New("you are not allowed to read that configuration via the REST API"))
-		return
+		return errors.WithMessage(errors.StatusForbidden, "you are not allowed to edit that configuration")
 	}
 
 	data := config.Get(path...).String()
@@ -114,7 +107,7 @@ func (s *Handler) GetConfig(req *restful.Request, resp *restful.Response) {
 		FullPath: fullPath,
 		Data:     data,
 	}
-	resp.WriteEntity(output)
+	return resp.WriteEntity(output)
 
 }
 

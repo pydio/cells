@@ -64,26 +64,24 @@ func (a *TokenHandler) Filter() func(string) string {
 	return nil
 }
 
-func (a *TokenHandler) Revoke(req *restful.Request, resp *restful.Response) {
+func (a *TokenHandler) Revoke(req *restful.Request, resp *restful.Response) error {
 
 	ctx := req.Request.Context()
 
 	var input rest.RevokeRequest
 	e := req.ReadEntity(&input)
 	if e != nil {
-		middleware.RestError500(req, resp, errors.WithMessage(errors.StatusBadRequest, "Cannot decode input request"))
-		return
+		return e
 	}
 
 	revokeRequest := &auth.RevokeTokenRequest{}
 	revokeRequest.Token = &auth.Token{AccessToken: input.TokenId}
 	revokerClient := auth.NewAuthTokenRevokerClient(grpc.ResolveConn(ctx, common.ServiceOAuth))
 	if _, err := revokerClient.Revoke(ctx, revokeRequest); err != nil {
-		middleware.RestError500(req, resp, err)
-		return
+		return err
 	}
 
-	_ = resp.WriteEntity(&rest.RevokeResponse{Success: true, Message: "Token successfully invalidated"})
+	return resp.WriteEntity(&rest.RevokeResponse{Success: true, Message: "Token successfully invalidated"})
 
 }
 
@@ -93,7 +91,7 @@ type ResetToken struct {
 	Expiration int32  `json:"expiration"`
 }
 
-func (a *TokenHandler) ResetPasswordToken(req *restful.Request, resp *restful.Response) {
+func (a *TokenHandler) ResetPasswordToken(req *restful.Request, resp *restful.Response) error {
 
 	userLogin := req.PathParameter("UserLogin")
 	ctx := req.Request.Context()
@@ -108,13 +106,13 @@ func (a *TokenHandler) ResetPasswordToken(req *restful.Request, resp *restful.Re
 		if e != nil || u.Attributes["email"] == "" {
 			response.Success = false
 			response.Message = T("ResetPassword.Err.EmailNotFound")
-			return
+			return resp.WriteEntity(response)
 		}
 	}
 	if u.Attributes["email"] == "" {
 		response.Success = false
 		response.Message = T("ResetPassword.Err.EmailNotFound")
-		return
+		return resp.WriteEntity(response)
 	}
 	uLang := languages.UserLanguage(ctx, u, config.Get())
 	T = lang.Bundle().T(uLang)
@@ -141,7 +139,7 @@ func (a *TokenHandler) ResetPasswordToken(req *restful.Request, resp *restful.Re
 		log.Logger(ctx).Error("Could not store reset password key", zap.Error(err))
 		response.Success = false
 		response.Message = T("ResetPassword.Err.Unknown")
-		return
+		return resp.WriteEntity(response)
 	}
 
 	// Send email
@@ -169,15 +167,14 @@ func (a *TokenHandler) ResetPasswordToken(req *restful.Request, resp *restful.Re
 		response.Message = T("ResetPassword.Success.EmailSent")
 	}
 
-	_ = resp.WriteEntity(response)
+	return resp.WriteEntity(response)
 }
 
-func (a *TokenHandler) ResetPassword(req *restful.Request, resp *restful.Response) {
+func (a *TokenHandler) ResetPassword(req *restful.Request, resp *restful.Response) error {
 
 	var input rest.ResetPasswordRequest
 	if e := req.ReadEntity(&input); e != nil {
-		middleware.RestError500(req, resp, e)
-		return
+		return e
 	}
 	T := lang.Bundle().T(middleware.DetectedLanguages(req.Request.Context())...)
 	ctx := req.Request.Context()
@@ -189,50 +186,47 @@ func (a *TokenHandler) ResetPassword(req *restful.Request, resp *restful.Respons
 	})
 	if e != nil || docResp.Document == nil || docResp.Document.Data == "" {
 		if e == nil {
-			e = fmt.Errorf(T("ResetPassword.Err.Unknown"))
+			e = errors.WithStack(errors.StatusNotFound)
 		}
-		middleware.RestError500(req, resp, e)
-		return
+		return e
 	}
 	// Delete in store token now
-	cli.DeleteDocuments(ctx, &docstore.DeleteDocumentsRequest{StoreID: common.DocStoreIdResetPassKeys, DocumentID: token})
+	_, _ = cli.DeleteDocuments(ctx, &docstore.DeleteDocumentsRequest{StoreID: common.DocStoreIdResetPassKeys, DocumentID: token})
 
 	jsonData := docResp.Document.Data
 	var storedToken ResetToken
-	if e := json.Unmarshal([]byte(jsonData), &storedToken); e != nil {
-		middleware.RestError500(req, resp, e)
-		return
+	if e = json.Unmarshal([]byte(jsonData), &storedToken); e != nil {
+		return errors.Tag(e, errors.UnmarshalError)
 	}
 	response := &rest.ResetPasswordResponse{}
 	if time.Unix(int64(storedToken.Expiration), 0).Before(time.Now()) {
 		response.Success = false
 		response.Message = T("ResetPassword.Err.TokenExpired")
-		return
+		return resp.WriteEntity(response)
 	}
 	if storedToken.UserLogin != input.UserLogin && storedToken.UserEmail != input.UserLogin {
 		response.Success = false
 		response.Message = T("ResetPassword.Err.TokenNotCorresponding")
-		return
+		return resp.WriteEntity(response)
 	}
 	u, e := permissions.SearchUniqueUser(ctx, storedToken.UserLogin, "")
 	if e != nil {
 		response.Success = false
 		response.Message = T("ResetPassword.Err.UserNotFound")
-		return
+		return resp.WriteEntity(response)
 	}
 	uLang := languages.UserLanguage(ctx, u, config.Get())
 	T = lang.Bundle().T(uLang)
 	u.Password = input.NewPassword
 	userClient := idmc.UserServiceClient(ctx)
-	if _, e := userClient.CreateUser(ctx, &idm.CreateUserRequest{User: u}); e != nil {
-		middleware.RestError500(req, resp, fmt.Errorf(T("ResetPassword.Err.ResetFailed")))
-		return
+	if _, e = userClient.CreateUser(ctx, &idm.CreateUserRequest{User: u}); e != nil {
+		return e
 	}
 
 	go func() {
 		// Send email
 		mailCli := mailer.NewMailerServiceClient(grpc.ResolveConn(ctx, common.ServiceMailer))
-		mailCli.SendMail(ctx, &mailer.SendMailRequest{
+		_, _ = mailCli.SendMail(ctx, &mailer.SendMailRequest{
 			InQueue: false,
 			Mail: &mailer.Mail{
 				To: []*mailer.User{{
@@ -249,25 +243,22 @@ func (a *TokenHandler) ResetPassword(req *restful.Request, resp *restful.Respons
 
 	response.Success = true
 	response.Message = T("ResetPassword.Success.ResetFinished")
-
-	_ = resp.WriteEntity(response)
+	return resp.WriteEntity(response)
 
 }
 
 // GenerateDocumentAccessToken generates a temporary access token for a specific document for the current user
-func (a *TokenHandler) GenerateDocumentAccessToken(req *restful.Request, resp *restful.Response) {
+func (a *TokenHandler) GenerateDocumentAccessToken(req *restful.Request, resp *restful.Response) error {
 
 	var datRequest rest.DocumentAccessTokenRequest
 	if e := req.ReadEntity(&datRequest); e != nil {
-		middleware.RestError500(req, resp, e)
-		return
+		return e
 	}
 	ctx := req.Request.Context()
 	router := compose.PathClient(a.RuntimeCtx)
 	readResp, e := router.ReadNode(ctx, &tree.ReadNodeRequest{Node: &tree.Node{Path: datRequest.Path}})
 	if e != nil {
-		middleware.RestErrorDetect(req, resp, e)
-		return
+		return e
 	}
 	uName, claims := permissions.FindUserNameInContext(ctx)
 	uUuid := claims.Subject
@@ -294,17 +285,12 @@ func (a *TokenHandler) GenerateDocumentAccessToken(req *restful.Request, resp *r
 		Issuer:            req.Request.URL.String(),
 		Scopes:            []string{scope},
 	}
-	a.GenerateAndWrite(ctx, generateRequest, req, resp)
 
-}
-
-func (a *TokenHandler) GenerateAndWrite(ctx context.Context, genReq *auth.PatGenerateRequest, req *restful.Request, resp *restful.Response) {
 	cli := auth.NewPersonalAccessTokenServiceClient(grpc.ResolveConn(ctx, common.ServiceToken))
-	log.Logger(ctx).Debug("Sending generate request", zap.Any("req", genReq))
-	genResp, e := cli.Generate(ctx, genReq)
+	genResp, e := cli.Generate(ctx, generateRequest)
 	if e != nil {
-		middleware.RestErrorDetect(req, resp, e)
-		return
+		return e
 	}
-	_ = resp.WriteEntity(&rest.DocumentAccessTokenResponse{AccessToken: genResp.AccessToken})
+	return resp.WriteEntity(&rest.DocumentAccessTokenResponse{AccessToken: genResp.AccessToken})
+
 }

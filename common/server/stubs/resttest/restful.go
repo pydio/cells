@@ -28,7 +28,6 @@ import (
 
 	restful "github.com/emicklei/go-restful/v3"
 	"google.golang.org/protobuf/encoding/protojson"
-
 	"google.golang.org/protobuf/proto"
 )
 
@@ -54,7 +53,9 @@ func (r *respWriter) WriteHeader(statusCode int) {
 	r.statusCode = statusCode
 }
 
-func RunRestfulHandler(ctx context.Context, handler restful.RouteFunction, payload proto.Message, expected proto.Message, pathParameters map[string]string) (int, error) {
+type routeFunc func(req *restful.Request, resp *restful.Response) error
+
+func RunRestfulHandler(ctx context.Context, handler routeFunc, payload proto.Message, expected proto.Message, pathParameters map[string]string) (int, error) {
 
 	// Marshal Proto and build restful.Request
 	inputData, e := protojson.Marshal(payload)
@@ -79,15 +80,18 @@ func RunRestfulHandler(ctx context.Context, handler restful.RouteFunction, paylo
 	resp := restful.NewResponse(&respWriter{Buffer: *output, hh: map[string][]string{}})
 
 	// Run Handler
-	handler(req, resp)
+	er := handler(req, resp)
+	if er != nil {
+		return 500, er
+	}
 
 	// Decode Response
 	sCode := resp.ResponseWriter.(*respWriter).statusCode
 	sContent := resp.ResponseWriter.(*respWriter).String()
 	if sCode != http.StatusOK {
-		return sCode, fmt.Errorf("Error Status :%s", sContent)
+		return sCode, fmt.Errorf("error status :%s", sContent)
 	}
-	er := protojson.Unmarshal([]byte(sContent), expected)
+	er = protojson.Unmarshal([]byte(sContent), expected)
 	return sCode, er
 
 }

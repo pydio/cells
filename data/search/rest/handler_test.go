@@ -1,9 +1,11 @@
 package rest
 
 import (
-	"github.com/pydio/cells/v4/common/proto/idm"
-	. "github.com/smartystreets/goconvey/convey"
 	"testing"
+
+	"github.com/pydio/cells/v4/common/proto/idm"
+
+	. "github.com/smartystreets/goconvey/convey"
 )
 
 func TestRegexp(t *testing.T) {

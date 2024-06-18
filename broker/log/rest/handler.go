@@ -26,8 +26,8 @@ import (
 	restful "github.com/emicklei/go-restful/v3"
 
 	"github.com/pydio/cells/v4/common"
+	"github.com/pydio/cells/v4/common/client/commons"
 	"github.com/pydio/cells/v4/common/client/grpc"
-	"github.com/pydio/cells/v4/common/middleware"
 	"github.com/pydio/cells/v4/common/proto/log"
 	"github.com/pydio/cells/v4/common/proto/rest"
 )
@@ -47,33 +47,24 @@ func (h *Handler) Filter() func(string) string {
 }
 
 // Syslog retrieves the technical logs items matched by the query and export them in JSON, XLSX or CSV format
-func (h *Handler) Syslog(req *restful.Request, rsp *restful.Response) {
+func (h *Handler) Syslog(req *restful.Request, rsp *restful.Response) error {
 
 	var input log.ListLogRequest
 	if e := req.ReadEntity(&input); e != nil {
-		middleware.RestError500(req, rsp, e)
-		return
+		return e
 	}
 	ctx := req.Request.Context()
 
 	c := log.NewLogRecorderClient(grpc.ResolveConn(h.RuntimeCtx, common.ServiceLog))
 
 	res, err := c.ListLogs(ctx, &input)
-	if err != nil {
-		middleware.RestErrorDetect(req, rsp, err)
-		return
-	}
-	defer res.CloseSend()
-
 	logColl := &rest.LogMessageCollection{}
-	for {
-		response, err := res.Recv()
-		if err != nil {
-			break
-		}
-		logColl.Logs = append(logColl.Logs, response.GetLogMessage())
+	if e := commons.ForEach(res, err, func(t *log.ListLogResponse) error {
+		logColl.Logs = append(logColl.Logs, t.GetLogMessage())
+		return nil
+	}); e != nil {
+		return e
 	}
-
-	rsp.WriteEntity(logColl)
+	return rsp.WriteEntity(logColl)
 
 }
