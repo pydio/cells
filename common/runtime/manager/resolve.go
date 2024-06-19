@@ -152,7 +152,7 @@ func Resolve[T any](ctx context.Context, opts ...ResolveOption) (s T, final erro
 
 		// Check if first expected parameter is a context, if so, use the input context
 		if handlerT.In(0).Implements(reflect.TypeOf((*context.Context)(nil)).Elem()) {
-			args = append(args, reflect.ValueOf(ctx))
+			args[0] = reflect.ValueOf(ctx)
 		}
 
 		// Try to fit Input parameter type and Storage types
