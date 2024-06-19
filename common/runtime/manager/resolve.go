@@ -141,7 +141,6 @@ func Resolve[T any](ctx context.Context, opts ...ResolveOption) (s T, final erro
 	}
 
 	// Inject dao in handler
-supportedDriversLoop:
 	for _, handler := range svc.Options().StorageOptions.SupportedDrivers[o.Name] {
 		handlerV := reflect.ValueOf(handler)
 		handlerT := reflect.TypeOf(handler)
@@ -149,45 +148,37 @@ supportedDriversLoop:
 			return t, errors.WithMessage(errors.ResolveError, "storage handler is not a function")
 		}
 
-		var args []reflect.Value
+		var args = make([]reflect.Value, handlerT.NumIn())
 
 		// Check if first expected parameter is a context, if so, use the input context
 		if handlerT.In(0).Implements(reflect.TypeOf((*context.Context)(nil)).Elem()) {
 			args = append(args, reflect.ValueOf(ctx))
 		}
 
-		for pos := len(args); pos < handlerT.NumIn(); pos++ {
-			storageMatched := false
+		// Try to fit Input parameter type and Storage types
+		for _, edge := range registry.ItemsAs[registry.Edge](edges) {
+			for _, st := range storages {
+				if edge.Vertices()[1] == st.ID() {
+					for k, v := range edge.Metadata() {
+						ctx = context.WithValue(ctx, k, v)
+					}
 
-			// Try to fit Input parameter type and Storage types
-			for _, edge := range registry.ItemsAs[registry.Edge](edges) {
-
-				for _, st := range storages {
-					if edge.Vertices()[1] == st.ID() {
-						for k, v := range edge.Metadata() {
-							ctx = context.WithValue(ctx, k, v)
+					var stt storage.Storage
+					if st.As(&stt) {
+						sttt, err := stt.Get(ctx)
+						if err != nil {
+							return t, errors.Tag(err, errors.ResolveError)
 						}
+						connT := reflect.TypeOf(sttt)
+						conn := reflect.ValueOf(sttt)
 
-						var stt storage.Storage
-						if st.As(&stt) {
-							sttt, err := stt.Get(ctx)
-							if err != nil {
-								return t, errors.Tag(err, errors.ResolveError)
+						for pos := 0; pos < handlerT.NumIn(); pos++ {
+							if connT.AssignableTo(handlerT.In(pos)) {
+								args[pos] = conn
 							}
-							conn := reflect.ValueOf(sttt)
-							if len(args) < handlerT.NumIn() {
-								args = append(args, conn)
-							} else {
-								fmt.Println("RESOLVE loop weirdness here - manager.Resolve 181")
-							}
-							storageMatched = true
 						}
 					}
 				}
-			}
-
-			if !storageMatched {
-				continue supportedDriversLoop
 			}
 		}
 

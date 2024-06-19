@@ -37,6 +37,7 @@ import (
 	"github.com/blevesearch/bleve/v2/index/upsidedown/store/boltdb"
 	"github.com/blevesearch/bleve/v2/mapping"
 	"github.com/blevesearch/bleve/v2/search/query"
+	index "github.com/blevesearch/bleve_index_api"
 	"github.com/rs/xid"
 
 	"github.com/pydio/cells/v4/common/config"
@@ -261,11 +262,18 @@ func (s *Indexer) Close(ctx context.Context) error {
 	return nil
 }
 
-func (s *Indexer) InsertOne(ctx context.Context, data interface{}) error {
-	msg, er := s.codec.Marshal(data)
-	if er != nil {
-		return er
+func (s *Indexer) InsertOne(ctx context.Context, data any) error {
+	var msg any
+	if s.codec != nil {
+		if m, err := s.codec.Marshal(data); err != nil {
+			return err
+		} else {
+			msg = m
+		}
+	} else {
+		msg = data
 	}
+
 	index, err := s.getWriteIndex(ctx)
 	if err != nil {
 		return err
@@ -286,7 +294,7 @@ func (s *Indexer) DeleteOne(ctx context.Context, data interface{}) error {
 	}
 
 	id, ok := data.(string)
-	if ok {
+	if !ok {
 		return errors.New("id is missing")
 	}
 
@@ -351,6 +359,59 @@ func (s *Indexer) DeleteMany(ctx context.Context, qu interface{}) (int32, error)
 	return count, nil
 }
 
+func (s *Indexer) Count(ctx context.Context, qu interface{}) (int, error) {
+
+	r, ok := qu.(*bleve.SearchRequest)
+	if !ok {
+		return 0, fmt.Errorf("Count expects a search request")
+	}
+
+	si, err := s.getSearchIndex(ctx)
+	if err != nil {
+		return 0, err
+	}
+
+	sr, err := si.SearchInContext(ctx, r)
+	if err != nil {
+		return 0, err
+	}
+
+	return len(sr.Hits), nil
+}
+
+func (s *Indexer) Search(ctx context.Context, in any, out any) error {
+	qu, ok := in.(*bleve.SearchRequest)
+	if !ok {
+		return fmt.Errorf("Search expects a *bleve.SearchRequest as in value")
+	}
+
+	res, ok := out.(*[]index.Document)
+	if !ok {
+		return fmt.Errorf("Search expects a pointer as out value")
+	}
+
+	si, err := s.getSearchIndex(ctx)
+	if err != nil {
+		return err
+	}
+
+	sr, err := si.SearchInContext(ctx, qu)
+	if err != nil {
+		return err
+	}
+
+	for _, hit := range sr.Hits {
+		doc, err := si.Document(hit.ID)
+		if err != nil {
+			return nil
+		}
+
+		*res = append(*res, doc)
+	}
+
+	return nil
+}
+
 func (s *Indexer) FindMany(ctx context.Context, qu interface{}, offset, limit int32, sortFields string, sortDesc bool, customCodec indexer.IndexCodex) (chan interface{}, error) {
 	codec := s.GetCodex()
 	if customCodec != nil {
@@ -369,7 +430,6 @@ func (s *Indexer) FindMany(ctx context.Context, qu interface{}, offset, limit in
 		q = bleve.NewQueryStringQuery(str)
 		request = bleve.NewSearchRequest(q)
 	} else {
-
 		if r, _, err := codec.BuildQuery(qu, offset, limit, sortFields, sortDesc); err != nil {
 			return nil, err
 		} else {

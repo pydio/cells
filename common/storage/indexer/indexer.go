@@ -37,6 +37,9 @@ type Indexer interface {
 	InsertOne(ctx context.Context, data interface{}) error
 	DeleteOne(ctx context.Context, data interface{}) error
 	DeleteMany(ctx context.Context, query interface{}) (int32, error)
+
+	Count(ctx context.Context, query interface{}) (int, error)
+	Search(ctx context.Context, in any, out any) error
 	FindMany(ctx context.Context, query interface{}, offset, limit int32, sortFields string, sortDesc bool, customCodex IndexCodex) (chan interface{}, error)
 
 	// SetCodex sets the IndexCodex to be used for marshalling/unmarshalling data. Can be locally overriden during FindMany requests.

@@ -17,6 +17,7 @@ import (
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
 	"gorm.io/gorm/schema"
+	opentracing "gorm.io/plugin/opentracing"
 
 	"github.com/pydio/cells/v4/common/runtime"
 	"github.com/pydio/cells/v4/common/runtime/controller"
@@ -113,9 +114,12 @@ func OpenPool(ctx context.Context, uu string) (storage.Storage, error) {
 				TablePrefix: prefix,
 			},
 		})
+
 		if err != nil {
 			return nil, err
 		}
+
+		db.Use(opentracing.New())
 
 		return db, nil
 	})

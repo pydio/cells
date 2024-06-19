@@ -26,10 +26,12 @@ import (
 	"strings"
 
 	bleve "github.com/blevesearch/bleve/v2"
+	index "github.com/blevesearch/bleve_index_api"
 	"go.uber.org/zap"
 
 	proto "github.com/pydio/cells/v4/common/proto/docstore"
 	"github.com/pydio/cells/v4/common/storage/boltdb"
+	"github.com/pydio/cells/v4/common/storage/indexer"
 	"github.com/pydio/cells/v4/common/telemetry/log"
 	json "github.com/pydio/cells/v4/common/utils/jsonx"
 	"github.com/pydio/cells/v4/data/docstore"
@@ -41,7 +43,7 @@ func init() {
 	docstore.Drivers.Register(NewBleveDAO)
 }
 
-func NewBleveDAO(boltDB boltdb.DB, bleveIndex bleve.Index) docstore.DAO {
+func NewBleveDAO(boltDB boltdb.DB, bleveIndex indexer.Indexer) docstore.DAO {
 	return NewBleveEngine(boltDB, bleveIndex)
 }
 
@@ -49,10 +51,26 @@ type BleveServer struct {
 	// Internal Bolt
 	*BoltStore
 	// Internal Bleve database
-	Engine bleve.Index
+	Engine indexer.Indexer
 }
 
-func NewBleveEngine(db boltdb.DB, index bleve.Index) *BleveServer {
+type IndexableDoc map[string]any
+
+func (i IndexableDoc) IndexID() string {
+	a, ok := i["DOCSTORE_DOC_ID"]
+	if !ok {
+		return ""
+	}
+
+	s, ok := a.(string)
+	if !ok {
+		return ""
+	}
+
+	return s
+}
+
+func NewBleveEngine(db boltdb.DB, index indexer.Indexer) *BleveServer {
 	bStore := &BoltStore{db: db}
 
 	return &BleveServer{
@@ -70,7 +88,7 @@ func (s *BleveServer) PutDocument(ctx context.Context, storeID string, doc *prot
 	if doc.IndexableMeta == "" {
 		return nil
 	}
-	toIndex := make(map[string]interface{})
+	toIndex := make(IndexableDoc)
 	err := json.Unmarshal([]byte(doc.IndexableMeta), &toIndex)
 	if err != nil {
 		return nil
@@ -81,7 +99,7 @@ func (s *BleveServer) PutDocument(ctx context.Context, storeID string, doc *prot
 		toIndex["DOCSTORE_OWNER"] = doc.GetOwner()
 	}
 	log.Logger(context.Background()).Debug("IndexDocument", zap.Any("data", toIndex))
-	err = s.Engine.Index(doc.GetID(), toIndex)
+	err = s.Engine.InsertOne(ctx, toIndex)
 	if err != nil {
 		return err
 	}
@@ -89,12 +107,11 @@ func (s *BleveServer) PutDocument(ctx context.Context, storeID string, doc *prot
 }
 
 func (s *BleveServer) DeleteDocument(ctx context.Context, storeID string, docID string) error {
-
 	if er := s.BoltStore.DeleteDocument(storeID, docID); er != nil {
 		return er
 	}
 
-	return s.Engine.Delete(docID)
+	return s.Engine.DeleteOne(ctx, docID)
 
 }
 
@@ -198,27 +215,27 @@ func (s *BleveServer) search(storeID string, query *proto.DocumentQuery, countOn
 	}
 
 	docs := []string{}
-	searchResult, err := s.Engine.Search(searchRequest)
-	if err != nil {
+	var searchResult []index.Document
+	if err := s.Engine.Search(context.TODO(), searchRequest, &searchResult); err != nil {
 		return docs, 0, err
 	}
+
 	log.Logger(context.Background()).Debug("SearchDocuments", zap.Any("result", searchResult))
 
 	if countOnly {
-		return nil, int64(searchResult.Total), nil
-	}
-	for _, hit := range searchResult.Hits {
-		doc, docErr := s.Engine.Document(hit.ID)
-		if docErr != nil || doc == nil || doc.ID() == "" {
-			log.Logger(context.Background()).Debug("Skipping Document", zap.Any("doc", doc), zap.Error(docErr))
-			continue
+		total, err := s.Engine.Count(context.TODO(), searchRequest)
+		if err != nil {
+			return docs, 0, err
 		}
-		log.Logger(context.Background()).Debug("Sending Document", zap.Any("doc", doc))
+
+		return nil, int64(total), nil
+	}
+
+	for _, doc := range searchResult {
 		docs = append(docs, doc.ID())
 	}
 
-	return docs, int64(searchResult.Total), nil
-
+	return docs, int64(len(searchResult)), nil
 }
 
 func (s *BleveServer) escapeMetaValue(value string) string {
