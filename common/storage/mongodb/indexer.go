@@ -168,6 +168,16 @@ func (i *Indexer) DeleteMany(ctx context.Context, query interface{}) (int32, err
 	}
 }
 
+func (i *Indexer) Count(ctx context.Context, query interface{}) (int, error) {
+	// TODO
+	return 0, nil
+}
+
+func (i *Indexer) Search(ctx context.Context, query interface{}, out any) error {
+	// TODO
+	return nil
+}
+
 func (i *Indexer) FindMany(ctx context.Context, query interface{}, offset, limit int32, sortFields string, sortDesc bool, customCodec indexer.IndexCodex) (chan interface{}, error) {
 	codec := i.codec
 	if customCodec != nil {
