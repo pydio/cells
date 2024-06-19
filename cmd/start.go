@@ -37,6 +37,7 @@ import (
 	clientgrpc "github.com/pydio/cells/v4/common/client/grpc"
 	"github.com/pydio/cells/v4/common/config"
 	"github.com/pydio/cells/v4/common/crypto"
+	"github.com/pydio/cells/v4/common/errors"
 	"github.com/pydio/cells/v4/common/registry"
 	"github.com/pydio/cells/v4/common/runtime"
 	"github.com/pydio/cells/v4/common/runtime/manager"
@@ -198,7 +199,7 @@ ENVIRONMENT
 			log.Logger(ctx2).Error(options.HandleErrorToString(err),
 				zap.String("topic", options.TopicName),
 				zap.String("caller", fmt.Sprintf("%s:%d", options.CalleeFile, options.CalleeLine)),
-				zap.Error(err),
+				errors.Zap(err),
 			)
 		}
 		broker.Register(broker.NewBroker(runtime.BrokerURL(), broker.WithContext(ctx)), errorHandler)

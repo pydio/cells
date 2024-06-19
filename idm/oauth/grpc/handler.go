@@ -41,13 +41,13 @@ import (
 	"github.com/ory/x/errorsx"
 	"github.com/ory/x/sqlxx"
 	"github.com/ory/x/urlx"
-	"github.com/pkg/errors"
 	"go.uber.org/zap"
 
 	"github.com/pydio/cells/v4/common/auth"
 	"github.com/pydio/cells/v4/common/auth/hydra"
 	"github.com/pydio/cells/v4/common/config"
 	"github.com/pydio/cells/v4/common/config/routing"
+	"github.com/pydio/cells/v4/common/errors"
 	"github.com/pydio/cells/v4/common/middleware"
 	"github.com/pydio/cells/v4/common/middleware/keys"
 	pauth "github.com/pydio/cells/v4/common/proto/auth"
@@ -428,7 +428,7 @@ func (h *Handler) CreateAuthCode(ctx context.Context, in *pauth.CreateAuthCodeRe
 	cookieSession.Values["csrf"] = in.GetConsent().GetCSRF()
 
 	session, f, err := reg.ConsentStrategy().HandleOAuth2AuthorizationRequest(ctx, http.ResponseWriter(nil), req, ar)
-	if errors.Cause(err) == consent.ErrAbortOAuth2Request {
+	if errors.Is(err, consent.ErrAbortOAuth2Request) {
 		// do nothing
 		return &pauth.CreateAuthCodeResponse{}, nil
 	} else if err != nil {
@@ -576,18 +576,18 @@ func (h *Handler) Verify(ctx context.Context, in *pauth.VerifyTokenRequest) (*pa
 
 	tokenType, ar, err := reg.OAuth2Provider().IntrospectToken(ctx, in.GetToken(), fosite.AccessToken, session)
 	if err != nil {
-		return nil, err
+		return nil, errors.Tag(err, errors.InvalidIDToken)
 	}
 
 	if tokenType != fosite.AccessToken {
-		return nil, errors.New("Only access tokens are allowed in the authorization header")
+		return nil, errors.WithMessage(errors.InvalidIDToken, "only access tokens are allowed in the authorization header")
 	}
 
 	claims := ar.GetSession().(*oauth2.Session).IDTokenClaims()
 	b, err := json.Marshal(claims)
 
 	if err != nil {
-		return nil, err
+		return nil, errors.Tag(errors.InvalidIDToken, err)
 	}
 
 	out := &pauth.VerifyTokenResponse{}
@@ -717,7 +717,7 @@ func (h *Handler) PasswordCredentialsToken(ctx context.Context, in *pauth.Passwo
 	// Getting or creating challenge
 	c, err := hydra.CreateLogin(ctx, config.DefaultOAuthClientID, []string{"openid", "profile", "offline"}, []string{})
 	if err != nil {
-		return nil, errors.Wrap(err, "PasswordCredentialsToken")
+		return nil, errors.WithMessage(errors.LoginFailed, "cannot create login")
 	}
 	challenge := c.Challenge
 

@@ -18,26 +18,35 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-package oauth
+package sql
 
 import (
 	"context"
-	"embed"
 	"fmt"
-	"gorm.io/gorm"
-	"gorm.io/gorm/clause"
 	"time"
 
+	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
+
+	"github.com/pydio/cells/v4/common/dao"
 	"github.com/pydio/cells/v4/common/proto/auth"
 	"github.com/pydio/cells/v4/common/sql"
 	"github.com/pydio/cells/v4/common/utils/configx"
 	json "github.com/pydio/cells/v4/common/utils/jsonx"
+	"github.com/pydio/cells/v4/idm/oauth"
 )
 
-var (
-	//go:embed migrations/*
-	migrationsFS embed.FS
+func init() {
+	oauth.PatDrivers.Register(NewPatDAO)
+}
 
+// NewPatDAO creates a new DAO interface implementation. Only SQL is supported.
+func NewPatDAO(db *gorm.DB) dao.DAO {
+	return &sqlImpl{db: db}
+}
+
+/*
+var (
 	queries = map[string]string{
 		"insert":       `INSERT INTO idm_personal_tokens VALUES (?,CONCAT('sha256:', SHA2(?, 256)),?,?,?,?,?,?,?,?,?,?)`,
 		"updateExpire": `UPDATE idm_personal_tokens SET expire_at=? WHERE uuid=?`,
@@ -53,6 +62,7 @@ var (
 		"validToken-sqlite": `SELECT * FROM idm_personal_tokens WHERE access_token=? AND expire_at > ? LIMIT 0,1`,
 	}
 )
+*/
 
 type PersonalToken struct {
 	UUID              string       `gorm:"column:uuid; primaryKey;"`
@@ -69,7 +79,7 @@ type PersonalToken struct {
 	Scopes            string       `gorm:"column:scopes;"`
 }
 
-func (u *PersonalToken) As(res *auth.PersonalAccessToken) *auth.PersonalAccessToken {
+func (u *PersonalToken) As(res *auth.PersonalAccessToken) (*auth.PersonalAccessToken, error) {
 	res.Uuid = u.UUID
 	res.Type = u.Type
 	res.Label = u.Label
@@ -81,11 +91,13 @@ func (u *PersonalToken) As(res *auth.PersonalAccessToken) *auth.PersonalAccessTo
 	res.CreatedBy = u.CreatedBy
 	res.UpdatedAt = u.UpdatedAt.Unix()
 
-	if e := json.Unmarshal([]byte(u.Scopes), &res.Scopes); e != nil {
-		return nil
+	if u.Scopes != "" {
+		if e := json.Unmarshal([]byte(u.Scopes), &res.Scopes); e != nil {
+			return nil, e
+		}
 	}
 
-	return res
+	return res, nil
 }
 
 func (u *PersonalToken) From(res *auth.PersonalAccessToken) *PersonalToken {
@@ -139,7 +151,7 @@ func (s *sqlImpl) Load(accessToken string) (*auth.PersonalAccessToken, error) {
 		return nil, fmt.Errorf("not.found")
 	}
 
-	return token.As(&auth.PersonalAccessToken{}), nil
+	return token.As(&auth.PersonalAccessToken{})
 }
 
 func (s *sqlImpl) Store(accessToken string, token *auth.PersonalAccessToken, update bool) error {
@@ -194,7 +206,11 @@ func (s *sqlImpl) List(byType auth.PatType, byUser string) ([]*auth.PersonalAcce
 		return nil, tx.Error
 	}
 	for _, pt := range pts {
-		res = append(res, pt.As(&auth.PersonalAccessToken{}))
+		if ptt, er := pt.As(&auth.PersonalAccessToken{}); er == nil {
+			res = append(res, ptt)
+		} else {
+			return nil, er
+		}
 	}
 
 	return res, nil

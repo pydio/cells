@@ -31,7 +31,7 @@ var (
 	StatusInternalServerError = tozd.BaseWrap(CellsError, "internal")
 	StatusForbidden           = tozd.BaseWrap(CellsError, "forbidden")
 	StatusUnauthorized        = tozd.BaseWrap(CellsError, "unauthorized")
-	StatusTooManyRequests     = tozd.BaseWrap(CellsError, "forbidden")
+	StatusTooManyRequests     = tozd.BaseWrap(CellsError, "too many requests")
 	StatusRequestTimeout      = tozd.BaseWrap(CellsError, "timeout")
 	StatusBadRequest          = tozd.BaseWrap(CellsError, "bad request")
 	StatusConflict            = tozd.BaseWrap(CellsError, "conflict")

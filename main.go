@@ -115,24 +115,24 @@ import (
 	_ "github.com/pydio/cells/v4/common/utils/cache/redis"
 
 	// Gateways
+	//_ "github.com/pydio/cells/v4/gateway/grpc"
 	_ "github.com/pydio/cells/v4/gateway/data"
 	_ "github.com/pydio/cells/v4/gateway/dav"
-
-	//_ "github.com/pydio/cells/v4/gateway/grpc"
 	_ "github.com/pydio/cells/v4/gateway/metrics"
-	//_ "github.com/pydio/cells/v4/gateway/websocket/api"
 	_ "github.com/pydio/cells/v4/gateway/sites"
+	_ "github.com/pydio/cells/v4/gateway/websocket/service"
 	_ "github.com/pydio/cells/v4/gateway/wopi"
 
 	// IDM DAOs
 	_ "github.com/pydio/cells/v4/idm/acl/dao/sql"
 	_ "github.com/pydio/cells/v4/idm/key/dao/sql"
 	_ "github.com/pydio/cells/v4/idm/meta/dao/sql"
+	_ "github.com/pydio/cells/v4/idm/oauth/dao/sql"
 	_ "github.com/pydio/cells/v4/idm/policy/dao/sql"
 	_ "github.com/pydio/cells/v4/idm/role/dao/sql"
 	_ "github.com/pydio/cells/v4/idm/user/dao/sql"
 	_ "github.com/pydio/cells/v4/idm/workspace/dao/sql"
-	// todo - clean oauth grpc DAO
+	// todo - clean oauth Registry DAO
 
 	// IDM
 	_ "github.com/pydio/cells/v4/idm/acl/grpc/service"

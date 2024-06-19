@@ -290,6 +290,11 @@ services:
       main:
         - type: sql
           prefix: idm_user_
+  pydio.grpc.token:
+    storages:
+      main:
+        - type: sql
+          prefix: pat_token_
   pydio.grpc.key:
     storages:
       main:
@@ -310,6 +315,11 @@ services:
       main:
         - type: sql
           prefix: idm_policy_
+  pydio.grpc.user-meta:
+    storages:
+      main:
+        - type: sql
+          prefix: idm_user_meta
   pydio.grpc.log:
     storages:
       main:

@@ -163,7 +163,7 @@ func init() {
 			service.Context(ctx),
 			service.Tag(common.ServiceTagIdm),
 			service.Description("Personal Access Token Provider"),
-			service.WithStorageDrivers(oauth.NewDAO),
+			service.WithStorageDrivers(oauth.PatDrivers...),
 			service.WithGRPC(func(ctx context.Context, server grpc.ServiceRegistrar) error {
 				pat := &grpc2.PATHandler{}
 				auth2.RegisterPersonalAccessTokenServiceServer(server, pat)

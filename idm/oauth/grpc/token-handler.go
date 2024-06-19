@@ -3,12 +3,13 @@ package grpc
 import (
 	"context"
 	"crypto/rand"
+	"crypto/sha512"
 	"encoding/base64"
+	"hash"
 	"io"
 	"sync"
 	"time"
 
-	"github.com/ory/fosite"
 	"github.com/ory/fosite/token/hmac"
 	"github.com/ory/fosite/token/jwt"
 	"go.uber.org/zap"
@@ -36,13 +37,51 @@ type PATHandler struct {
 	auth.UnimplementedAuthTokenVerifierServer
 	auth.UnimplementedPersonalAccessTokenServiceServer
 
-	config fosite.Configurator
+	config hmac.HMACStrategyConfigurator
 }
 
-func NewPATHandler(config fosite.Configurator) *PATHandler {
-	return &PATHandler{
-		config: config,
+type configProvider struct{}
+
+func (c *configProvider) GetTokenEntropy(ctx context.Context) int {
+	//TODO - Check
+	return 32
+}
+
+func (c *configProvider) GetGlobalSecret(ctx context.Context) ([]byte, error) {
+	if len(tokensKey) > 0 {
+		return tokensKey, nil
 	}
+
+	cVal := config.Get("defaults", "personalTokens", "secureKey")
+	if cVal.String() == "" {
+		tokensKey = c.generateRandomKey(32)
+		strKey := base64.StdEncoding.EncodeToString(tokensKey)
+		_ = cVal.Set(strKey)
+		_ = config.Save(common.PydioSystemUsername, "Creating random key for personal tokens service")
+	} else if t, e := base64.StdEncoding.DecodeString(cVal.String()); e == nil {
+		tokensKey = t
+	} else {
+		log.Logger(ctx).Error("Could not read generated key for personal tokens!", zap.Error(e))
+	}
+	return tokensKey, nil
+}
+
+func (c *configProvider) generateRandomKey(length int) []byte {
+	k := make([]byte, length)
+	if _, err := io.ReadFull(rand.Reader, k); err != nil {
+		return nil
+	}
+	return k
+}
+
+func (c *configProvider) GetRotatedGlobalSecrets(ctx context.Context) ([][]byte, error) {
+	//TODO implement me
+	return [][]byte{}, nil
+}
+
+func (c *configProvider) GetHMACHasher(ctx context.Context) func() hash.Hash {
+	//TODO - Check
+	return sha512.New512_256
 }
 
 func (p *PATHandler) getDao(ctx context.Context) (oauth.DAO, error) {
@@ -51,29 +90,9 @@ func (p *PATHandler) getDao(ctx context.Context) (oauth.DAO, error) {
 
 func (p *PATHandler) getStrategy() *hmac.HMACStrategy {
 	return &hmac.HMACStrategy{
-		Config: p.config,
+		Config: &configProvider{},
 		Mutex:  sync.Mutex{},
 	}
-}
-
-func (p *PATHandler) getKey() []byte {
-
-	if len(tokensKey) > 0 {
-		return tokensKey
-	}
-
-	cVal := config.Get("defaults", "personalTokens", "secureKey")
-	if cVal.String() == "" {
-		tokensKey = p.generateRandomKey(32)
-		strKey := base64.StdEncoding.EncodeToString(tokensKey)
-		cVal.Set(strKey)
-		config.Save(common.PydioSystemUsername, "Creating random key for personal tokens service")
-	} else if t, e := base64.StdEncoding.DecodeString(cVal.String()); e == nil {
-		tokensKey = t
-	} else {
-		log.Logger(context.Background()).Error("Could not read generated key for personal tokens!", zap.Error(e))
-	}
-	return tokensKey
 }
 
 func (p *PATHandler) Verify(ctx context.Context, request *auth.VerifyTokenRequest) (*auth.VerifyTokenResponse, error) {
@@ -215,12 +234,4 @@ func (p *PATHandler) PruneTokens(ctx context.Context, request *auth.PruneTokensR
 	return &auth.PruneTokensResponse{
 		Count: int32(i),
 	}, nil
-}
-
-func (p *PATHandler) generateRandomKey(length int) []byte {
-	k := make([]byte, length)
-	if _, err := io.ReadFull(rand.Reader, k); err != nil {
-		return nil
-	}
-	return k
 }

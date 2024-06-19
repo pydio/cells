@@ -27,7 +27,10 @@ import (
 	"strings"
 
 	tozd "gitlab.com/tozd/go/errors"
+	"go.uber.org/zap"
 	"google.golang.org/grpc/balancer"
+
+	"github.com/pydio/cells/v4/common/utils/jsonx"
 )
 
 // E is an alias to original library
@@ -63,6 +66,18 @@ func Tag(err error, sentinel error) error {
 		return err
 	}
 	return tozd.Join(err, sentinel)
+}
+
+func Zap(err error) zap.Field {
+	if err == nil {
+		return zap.Skip()
+	}
+	if Is(err, CellsError) {
+		js, _ := jsonx.Marshal(err)
+		return zap.ByteString("jsonErr", js)
+	} else {
+		return zap.Error(err)
+	}
 }
 
 // AllDetails stacks all Details from all unwrapped errors. It overrides tozd version to avoid stopping on Cause() case.

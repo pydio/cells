@@ -18,8 +18,8 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-// Package api starts the actual WebSocket service
-package api
+// Package service starts the actual WebSocket service
+package service
 
 import (
 	"context"

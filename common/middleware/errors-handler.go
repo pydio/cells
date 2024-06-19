@@ -31,7 +31,6 @@ import (
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/errors"
 	"github.com/pydio/cells/v4/common/telemetry/log"
-	"github.com/pydio/cells/v4/common/utils/jsonx"
 	"github.com/pydio/cells/v4/common/utils/uuid"
 )
 
@@ -41,8 +40,15 @@ const (
 	errHandlerSpanIDKey = "ErrorHandlerSpanID"
 )
 
+var (
+	commonIgnores = []error{
+		errors.EmptyIDToken,
+		errors.InvalidIDToken,
+	}
+)
+
 func HandleErrorRest(ctx context.Context, err error, prefix string, infos []string, ignores []error, warnOnly ...bool) {
-	for _, ignore := range ignores {
+	for _, ignore := range append(commonIgnores, ignores...) {
 		if errors.Is(err, ignore) {
 			return
 		}
@@ -60,7 +66,7 @@ func HandleErrorRest(ctx context.Context, err error, prefix string, infos []stri
 			}
 			ff = append(ff, zap.String("error", errorMsg))
 		} else {
-			ff = append(ff, zap.Error(err))
+			ff = append(ff, errors.Zap(err))
 		}
 	} else {
 		ff = append(ff, zap.Error(err))
@@ -91,13 +97,18 @@ func HandleErrorGRPC(ctx context.Context, err error, prefix string, infos ...zap
 		if meta := metadata.ValueFromIncomingContext(ctx, common.CtxGrpcClientCaller); len(meta) > 0 {
 			fields = append(fields, zap.String("ClientCaller", strings.Join(meta, "")))
 		}
-		if errors.Is(err, errors.CellsError) {
-			js, _ := jsonx.Marshal(err)
-			fields = append(fields, zap.Any("jsonErr", jsonx.RawMessage(js)))
-		} else {
-			fields = append(fields, zap.Error(err))
+		fields = append(fields, errors.Zap(err))
+
+		ignore := false
+		for _, ig := range commonIgnores {
+			if errors.Is(err, ig) {
+				ignore = true
+				break
+			}
 		}
-		log.Logger(ctx).Error(prefix+" "+errorMsg, fields...)
+		if !ignore {
+			log.Logger(ctx).Error(prefix+" "+errorMsg, fields...)
+		}
 
 		err = errors.Tag(err, HandledError)
 

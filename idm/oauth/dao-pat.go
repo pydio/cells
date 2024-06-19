@@ -22,10 +22,13 @@
 package oauth
 
 import (
-	"gorm.io/gorm"
-
 	"github.com/pydio/cells/v4/common/dao"
 	"github.com/pydio/cells/v4/common/proto/auth"
+	"github.com/pydio/cells/v4/common/service"
+)
+
+var (
+	PatDrivers service.StorageDrivers
 )
 
 // DAO interface
@@ -41,9 +44,4 @@ type DAO interface {
 	List(byType auth.PatType, byUser string) ([]*auth.PersonalAccessToken, error)
 	// PruneExpired removes expired PAT from the storage.
 	PruneExpired() (int, error)
-}
-
-// NewDAO creates a new DAO interface implementation. Only SQL is supported.
-func NewDAO(db *gorm.DB) dao.DAO {
-	return &sqlImpl{db: db}
 }

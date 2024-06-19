@@ -24,6 +24,7 @@ import (
 	"context"
 	"fmt"
 	"net/http"
+	"net/url"
 	"path"
 	"slices"
 	"strings"
@@ -376,7 +377,7 @@ func (r *registeredHandler) attach(route *subRoute, subPattern string) (pattern 
 	ha := r.Handler
 	if r.stripPrefix {
 		prefix = strings.TrimSuffix(pattern, "/") // NO trailing slash
-		ha = http.StripPrefix(prefix, r.Handler)
+		ha = StripPrefixKeepSlash(prefix, r.Handler)
 	}
 	// Wrap handler to inject resolvedRouteURI inside the context
 	handler = http.HandlerFunc(func(writer http.ResponseWriter, request *http.Request) {
@@ -385,4 +386,39 @@ func (r *registeredHandler) attach(route *subRoute, subPattern string) (pattern 
 		ha.ServeHTTP(writer, req)
 	})
 	return
+}
+
+// StripPrefixKeepSlash returns a handler that serves HTTP requests by removing the
+// given prefix from the request URL's Path (and RawPath if set) and invoking
+// the handler h. StripPrefixKeepSlash handles a request for a path that doesn't begin
+// with prefix by replying with an HTTP 404 not found error. The prefix must
+// match exactly: if the prefix in the request contains escaped characters
+// the reply is also an HTTP 404 not found error.
+//
+// It differs from http.StripPrefix by keeping a "/" if resulting path is ""
+func StripPrefixKeepSlash(prefix string, h http.Handler) http.Handler {
+	if prefix == "" {
+		return h
+	}
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		p := strings.TrimPrefix(r.URL.Path, prefix)
+		if p == "" {
+			p = "/"
+		}
+		rp := strings.TrimPrefix(r.URL.RawPath, prefix)
+		if rp == "" {
+			rp = "/"
+		}
+		if len(p) < len(r.URL.Path) && (r.URL.RawPath == "" || len(rp) < len(r.URL.RawPath)) {
+			r2 := new(http.Request)
+			*r2 = *r
+			r2.URL = new(url.URL)
+			*r2.URL = *r.URL
+			r2.URL.Path = p
+			r2.URL.RawPath = rp
+			h.ServeHTTP(w, r2)
+		} else {
+			http.NotFound(w, r)
+		}
+	})
 }
