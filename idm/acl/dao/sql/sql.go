@@ -141,7 +141,7 @@ func (s *sqlimpl) addWithDupCheck(ctx context.Context, in interface{}, check boo
 	if workspace.UUID != "" {
 		workspace.UUID = val.GetWorkspaceID()
 
-		tx := s.instance(ctx).FirstOrCreate(&workspace)
+		tx := s.instance(ctx).Where(workspace).FirstOrCreate(&workspace)
 		if tx.Error != nil {
 			return tx.Error
 		}
@@ -149,7 +149,7 @@ func (s *sqlimpl) addWithDupCheck(ctx context.Context, in interface{}, check boo
 
 	node := Node{UUID: val.GetNodeID()}
 	if node.UUID != "" {
-		tx := s.instance(ctx).FirstOrCreate(&node)
+		tx := s.instance(ctx).Where(node).FirstOrCreate(&node)
 		if tx.Error != nil {
 			return tx.Error
 		}
@@ -157,7 +157,7 @@ func (s *sqlimpl) addWithDupCheck(ctx context.Context, in interface{}, check boo
 
 	role := Role{UUID: val.GetRoleID()}
 	if role.UUID != "" {
-		tx := s.instance(ctx).FirstOrCreate(&role)
+		tx := s.instance(ctx).Where(role).FirstOrCreate(&role)
 		if tx.Error != nil {
 			return tx.Error
 		}
