@@ -24,7 +24,7 @@ var (
 )
 
 // NewLogger initialize logger
-func NewLogger(z log2.ZapLogger, config glog.Config) glog.Interface {
+func NewLogger(config glog.Config) glog.Interface {
 	var (
 		traceStr     = "[SQL] [%.3fms] [rows:%v] %s"
 		traceWarnStr = "[SQL] %s [%.3fms] [rows:%v] %s"
@@ -33,7 +33,6 @@ func NewLogger(z log2.ZapLogger, config glog.Config) glog.Interface {
 
 	return &zapLogger{
 		Config:       config,
-		z:            z.With(zap.String("layer", "sql")),
 		traceStr:     traceStr,
 		traceWarnStr: traceWarnStr,
 		traceErrStr:  traceErrStr,
@@ -41,7 +40,6 @@ func NewLogger(z log2.ZapLogger, config glog.Config) glog.Interface {
 }
 
 type zapLogger struct {
-	z log2.ZapLogger
 	glog.Config
 	infoStr, warnStr, errStr            string
 	traceStr, traceErrStr, traceWarnStr string
@@ -114,7 +112,7 @@ func (l *zapLogger) Trace(ctx context.Context, begin time.Time, fc func() (strin
 		}
 	}
 	if logLine != "" {
-		log2.Logger(ctx).Debug(logLine, ff...)
+		log2.Logger(ctx).Info(logLine, ff...)
 	}
 }
 

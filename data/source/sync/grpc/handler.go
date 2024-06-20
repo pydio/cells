@@ -508,8 +508,8 @@ func (s *Handler) TriggerResync(c context.Context, req *protosync.ResyncRequest)
 		statusChan = make(chan model.Status)
 		doneChan = make(chan interface{})
 
-		subCtx := propagator.WithUserNameMetadata(context.Background(), common.PydioContextUserKey, common.PydioSystemUsername)
-		subCtx = propagator.ForkContext(subCtx, c)
+		subCtx := propagator.ForkContext(context.Background(), c)
+		subCtx = propagator.WithUserNameMetadata(subCtx, common.PydioContextUserKey, common.PydioSystemUsername)
 
 		theTask := req.Task
 		autoClient := tasks.NewTaskReconnectingClient(subCtx)

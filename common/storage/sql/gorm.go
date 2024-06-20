@@ -9,8 +9,6 @@ import (
 	"time"
 
 	mysql2 "github.com/go-sql-driver/mysql"
-	"go.uber.org/zap"
-	"go.uber.org/zap/zapcore"
 	"gorm.io/driver/mysql"
 	"gorm.io/driver/postgres"
 	"gorm.io/driver/sqlite"
@@ -24,7 +22,6 @@ import (
 	"github.com/pydio/cells/v4/common/runtime/manager"
 	"github.com/pydio/cells/v4/common/storage"
 	"github.com/pydio/cells/v4/common/storage/sql/dbresolver"
-	"github.com/pydio/cells/v4/common/telemetry/log"
 	"github.com/pydio/cells/v4/common/utils/openurl"
 	"github.com/pydio/cells/v4/common/utils/propagator"
 )
@@ -108,19 +105,22 @@ func OpenPool(ctx context.Context, uu string) (storage.Storage, error) {
 			}
 		}
 
-		newLogger := logger.New(
-			&logWrapper{log.Logger(ctx)}, // io writer
-			logger.Config{
+		customLogger := NewLogger(logger.Config{
+			SlowThreshold:             time.Second, // Slow SQL threshold
+			LogLevel:                  logger.Warn, // Log level
+			IgnoreRecordNotFoundError: true,        // Ignore ErrRecordNotFound error for logger
+			// ParameterizedQueries:      true,        // Don't include params in the SQL log
+			// Colorful: false, // Disable color
+		})
+
+		db, err := gorm.Open(dialect, &gorm.Config{
+			Logger: NewLogger(logger.Config{
 				SlowThreshold:             time.Second,   // Slow SQL threshold
 				LogLevel:                  logger.Silent, // Log level
 				IgnoreRecordNotFoundError: true,          // Ignore ErrRecordNotFound error for logger
 				// ParameterizedQueries:      true,        // Don't include params in the SQL log
 				// Colorful: false, // Disable color
-			},
-		)
-
-		db, err := gorm.Open(dialect, &gorm.Config{
-			Logger: newLogger,
+			}),
 			NamingStrategy: &schema.NamingStrategy{
 				TablePrefix: prefix,
 			},
@@ -129,8 +129,9 @@ func OpenPool(ctx context.Context, uu string) (storage.Storage, error) {
 		if err != nil {
 			return nil, err
 		}
-
-		db.Use(opentracing.New())
+		// also replace Default
+		logger.Default = customLogger
+		_ = db.Use(opentracing.New())
 
 		return db, nil
 	})
@@ -164,34 +165,4 @@ func (d *Dialector) Translate(err error) error {
 	}
 
 	return t.Translate(err)
-}
-
-type logWrapper struct {
-	log.ZapLogger
-}
-
-func (l logWrapper) Printf(fmt string, args ...interface{}) {
-	l.ZapLogger.Infof(fmt, args...)
-}
-
-func (l logWrapper) LogMode(level logger.LogLevel) logger.Interface {
-	return &logWrapper{l.ZapLogger.WithOptions(zap.IncreaseLevel(zap.LevelEnablerFunc(func(zapLevel zapcore.Level) bool {
-		return int(zapLevel) > int(level)
-	})))}
-}
-
-func (l logWrapper) Info(ctx context.Context, s string, i ...interface{}) {
-	l.ZapLogger.Infof(s, i...)
-}
-
-func (l logWrapper) Warn(ctx context.Context, s string, i ...interface{}) {
-	l.ZapLogger.Warnf(s, i...)
-}
-
-func (l logWrapper) Error(ctx context.Context, s string, i ...interface{}) {
-	l.ZapLogger.Errorf(s, i...)
-}
-
-func (l logWrapper) Trace(ctx context.Context, begin time.Time, fc func() (sql string, rowsAffected int64), err error) {
-	// TODO
 }

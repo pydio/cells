@@ -44,6 +44,8 @@ var (
 	commonIgnores = []error{
 		errors.EmptyIDToken,
 		errors.InvalidIDToken,
+		errors.StatusCancelled,
+		context.Canceled,
 	}
 )
 
@@ -53,7 +55,7 @@ func HandleErrorRest(ctx context.Context, err error, prefix string, infos []stri
 			return
 		}
 	}
-	errorMsg := err.Error()
+	errorMsg := strings.ReplaceAll(err.Error(), "\n", " || ")
 	var ff []zap.Field
 	if errors.Is(err, errors.CellsError) {
 		if errors.Is(err, HandledError) {
@@ -72,9 +74,9 @@ func HandleErrorRest(ctx context.Context, err error, prefix string, infos []stri
 		ff = append(ff, zap.Error(err))
 	}
 	if len(warnOnly) > 0 && warnOnly[0] {
-		log.Logger(ctx).Warn(prefix+errorMsg, ff...)
+		log.Logger(ctx).Warn(prefix+" "+errorMsg, ff...)
 	} else {
-		log.Logger(ctx).Error(prefix+errorMsg, ff...)
+		log.Logger(ctx).Error(prefix+" "+errorMsg, ff...)
 	}
 }
 
@@ -83,31 +85,35 @@ func HandleErrorGRPC(ctx context.Context, err error, prefix string, infos ...zap
 		return nil
 	}
 	if !errors.Is(err, HandledError) {
-		var fields []zap.Field
 		var details []any
 
 		errorId := uuid.New()[:13]
-		errorMsg := err.Error()
+		errorMsg := strings.ReplaceAll(err.Error(), "\n", " || ")
 
-		fields = append(fields, zap.String("errorId", errorId))
-		if len(infos) > 0 {
-			fields = append(fields, infos...)
-		}
-		//		fields = append(fields, zap.String("method", info.FullMethod))
-		if meta := metadata.ValueFromIncomingContext(ctx, common.CtxGrpcClientCaller); len(meta) > 0 {
-			fields = append(fields, zap.String("ClientCaller", strings.Join(meta, "")))
-		}
-		fields = append(fields, errors.Zap(err))
-
-		ignore := false
+		ignoreLog := false
 		for _, ig := range commonIgnores {
 			if errors.Is(err, ig) {
-				ignore = true
+				ignoreLog = true
 				break
 			}
 		}
-		if !ignore {
+		if !ignoreLog {
+			var fields []zap.Field
+			fields = append(fields, zap.String("errorId", errorId))
+			if len(infos) > 0 {
+				fields = append(fields, infos...)
+			}
+			//		fields = append(fields, zap.String("method", info.FullMethod))
+			if meta := metadata.ValueFromIncomingContext(ctx, common.CtxGrpcClientCaller); len(meta) > 0 {
+				fields = append(fields, zap.String("ClientCaller", strings.Join(meta, "")))
+			}
+			fields = append(fields, errors.Zap(err))
+
 			log.Logger(ctx).Error(prefix+" "+errorMsg, fields...)
+		}
+
+		if errors.Is(err, context.Canceled) {
+			err = errors.Tag(err, errors.StatusCancelled)
 		}
 
 		err = errors.Tag(err, HandledError)

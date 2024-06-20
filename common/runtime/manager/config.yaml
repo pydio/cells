@@ -294,8 +294,13 @@ services:
     storages:
       main:
         - type: sql
-          prefix: pat_token_
+          prefix: personal_token
   pydio.grpc.key:
+    storages:
+      main:
+        - type: sql
+          prefix: data_key_
+  pydio.grpc.user-key:
     storages:
       main:
         - type: sql

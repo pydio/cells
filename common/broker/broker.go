@@ -45,11 +45,8 @@ var (
 	ContextKey    = brokerKey{}
 )
 
-func Register(b Broker, errHandler ...SubscriptionErrorHandler) {
+func Register(b Broker) {
 	std = b
-	if len(errHandler) > 0 {
-		defaultSubscriptionErrorHandler = errHandler[0]
-	}
 }
 
 func Default() Broker {
@@ -178,7 +175,7 @@ func Subscribe(root context.Context, topic string, handler SubscriberHandler, op
 	c := metrics.TaggedHelper(map[string]string{"subscriber": so.CounterName}).Counter(id)
 	wh := func(ctx context.Context, m Message) error {
 		c.Inc(1)
-		return handler(ctx, m)
+		return so.HandleError(ctx, handler(ctx, m))
 	}
 
 	// Wrap handler in Queue
@@ -193,7 +190,7 @@ func Subscribe(root context.Context, topic string, handler SubscriberHandler, op
 				}
 				err = q.Consume(func(ctx context.Context, mm ...Message) {
 					for _, m := range mm {
-						so.HandleError(ctx, wh(ctx, m))
+						_ = so.HandleError(ctx, wh(ctx, m))
 					}
 				})
 				return q, err
@@ -338,7 +335,7 @@ func (b *broker) Subscribe(ctx context.Context, topic string, handler Subscriber
 					body:   msg.Body,
 				})
 			}
-			so.HandleError(ctx, subErr)
+			_ = so.HandleError(ctx, subErr)
 		}
 	}()
 

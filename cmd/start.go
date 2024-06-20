@@ -22,14 +22,12 @@ package cmd
 
 import (
 	"context"
-	"fmt"
 	"os"
 	"path/filepath"
 
 	"github.com/spf13/cobra"
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/trace"
-	"go.uber.org/zap"
 	"google.golang.org/grpc"
 
 	"github.com/pydio/cells/v4/common"
@@ -37,7 +35,6 @@ import (
 	clientgrpc "github.com/pydio/cells/v4/common/client/grpc"
 	"github.com/pydio/cells/v4/common/config"
 	"github.com/pydio/cells/v4/common/crypto"
-	"github.com/pydio/cells/v4/common/errors"
 	"github.com/pydio/cells/v4/common/registry"
 	"github.com/pydio/cells/v4/common/runtime"
 	"github.com/pydio/cells/v4/common/runtime/manager"
@@ -194,15 +191,7 @@ ENVIRONMENT
 		// ctx = nodescontext.WithSourcesPool(ctx, nodes.NewPool(ctx, reg))
 		runtime.InitGlobalConnConsumers(ctx, "main")
 
-		// Init broker with a default error handler
-		errorHandler := func(ctx2 context.Context, options *broker.SubscribeOptions, err error) {
-			log.Logger(ctx2).Error(options.HandleErrorToString(err),
-				zap.String("topic", options.TopicName),
-				zap.String("caller", fmt.Sprintf("%s:%d", options.CalleeFile, options.CalleeLine)),
-				errors.Zap(err),
-			)
-		}
-		broker.Register(broker.NewBroker(runtime.BrokerURL(), broker.WithContext(ctx)), errorHandler)
+		broker.Register(broker.NewBroker(runtime.BrokerURL(), broker.WithContext(ctx)))
 
 		m, err := manager.NewManager(ctx, "main", log.Logger(runtime.WithServiceName(ctx, "pydio.server.manager")))
 		if err != nil {

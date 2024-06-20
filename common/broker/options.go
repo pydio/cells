@@ -23,20 +23,31 @@ package broker
 import (
 	"context"
 	"fmt"
+	"strings"
 
+	"go.uber.org/zap"
 	"gocloud.dev/pubsub"
 
+	"github.com/pydio/cells/v4/common/errors"
+	"github.com/pydio/cells/v4/common/middleware"
+	"github.com/pydio/cells/v4/common/telemetry/log"
 	"github.com/pydio/cells/v4/common/utils/openurl"
 	"github.com/pydio/cells/v4/common/utils/uuid"
 )
 
-type SubscriptionErrorHandler func(context.Context, *SubscribeOptions, error)
+type SubscriptionErrorHandler func(context.Context, *SubscribeOptions, error) error
 
-var (
-	defaultSubscriptionErrorHandler SubscriptionErrorHandler = func(_ context.Context, o *SubscribeOptions, err error) {
-		fmt.Println(o.HandleErrorToString(err), err)
+func defaultSubscriptionErrorHandler(ctx context.Context, o *SubscribeOptions, err error) error {
+	if !errors.Is(err, middleware.HandledError) {
+		log.Logger(ctx).Error(o.HandleErrorToString(err),
+			zap.String("topic", o.TopicName),
+			zap.String("caller", fmt.Sprintf("%s:%d", o.CalleeFile, o.CalleeLine)),
+			errors.Zap(err),
+		)
+		return errors.Tag(err, middleware.HandledError)
 	}
-)
+	return err
+}
 
 // Options to the broker
 type Options struct {
@@ -140,15 +151,16 @@ type SubscribeOptions struct {
 	CalleeLine int
 
 	// Overrides default error handler
-	customErrorHandler func(context.Context, *SubscribeOptions, error)
+	errorHandler SubscriptionErrorHandler
 }
 
 type SubscribeOption func(*SubscribeOptions)
 
 func parseSubscribeOptions(topic string, opts ...SubscribeOption) SubscribeOptions {
 	opt := SubscribeOptions{
-		TopicName:   topic,
-		CounterName: uuid.New()[0:6],
+		TopicName:    topic,
+		CounterName:  uuid.New()[0:6],
+		errorHandler: defaultSubscriptionErrorHandler,
 	}
 
 	for _, o := range opts {
@@ -169,9 +181,9 @@ func WithAsyncSubscriberInterceptor(queueURL string, fallbackURLs ...string) Sub
 
 // WithErrorHandler sets an ErrorHandler to catch all broker errors that cant be handled
 // in normal way, for example Codec errors
-func WithErrorHandler(h func(context.Context, *SubscribeOptions, error)) SubscribeOption {
+func WithErrorHandler(h SubscriptionErrorHandler) SubscribeOption {
 	return func(o *SubscribeOptions) {
-		o.customErrorHandler = h
+		o.errorHandler = h
 	}
 }
 
@@ -205,24 +217,21 @@ func SubscribeContext(ctx context.Context) SubscribeOption {
 }
 
 func (o *SubscribeOptions) HandleErrorToString(err error) string {
-	msg := fmt.Sprintf("Subscription on %s cannot be handled: %s", o.TopicName, err.Error())
+	errMsg := strings.ReplaceAll(err.Error(), "\n", " || ")
+	msg := fmt.Sprintf("Subscription on %s cannot be handled: %s", o.TopicName, errMsg)
 	if o.CalleeFile != "" {
-		msg = fmt.Sprintf("Subscription on %s from %s:%d cannot be handled: %s", o.TopicName, o.CalleeFile, o.CalleeLine, err.Error())
+		msg = fmt.Sprintf("Subscription on %s from %s:%d cannot be handled: %s", o.TopicName, o.CalleeFile, o.CalleeLine, errMsg)
 	}
 	return msg
 }
 
 // HandleError tries to log an error during a handler execution. If err is nil it is ignored.
-// If options have a customErrorHandler, it is applied and then it returns
-func (o *SubscribeOptions) HandleError(ctx context.Context, err error) {
+// If options have a errorHandler, it is applied and then it returns
+func (o *SubscribeOptions) HandleError(ctx context.Context, err error) error {
 	if err == nil {
-		return
+		return err
 	}
-	if o.customErrorHandler != nil {
-		o.customErrorHandler(ctx, o, err)
-	} else {
-		defaultSubscriptionErrorHandler(ctx, o, err)
-	}
+	return o.errorHandler(ctx, o, err)
 }
 
 type Publisher func(ctx context.Context, msg *pubsub.Message) error
