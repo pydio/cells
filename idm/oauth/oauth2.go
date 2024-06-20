@@ -3,6 +3,10 @@ package oauth
 import (
 	"context"
 	"database/sql"
+	"net/url"
+	"strings"
+	"time"
+
 	"github.com/ory/fosite"
 	foauth2 "github.com/ory/fosite/handler/oauth2"
 	"github.com/ory/fosite/handler/openid"
@@ -12,17 +16,20 @@ import (
 	"github.com/ory/hydra/v2/x"
 	"github.com/ory/x/errorsx"
 	"github.com/ory/x/stringsx"
-	json "github.com/pydio/cells/v4/common/utils/jsonx"
 	"github.com/tidwall/gjson"
+	"go.uber.org/zap"
 	"gorm.io/gorm"
-	"net/url"
-	"strings"
-	"time"
+
+	"github.com/pydio/cells/v4/common/telemetry/log"
+	json "github.com/pydio/cells/v4/common/utils/jsonx"
 )
 
 var _ foauth2.CoreStorage = new(oauth2Driver)
+
 var _ openid.OpenIDConnectRequestStorage = new(oauth2Driver)
+
 var _ pkce.PKCERequestStorage = new(oauth2Driver)
+
 var _ x.FositeStorer
 
 type (
@@ -322,10 +329,11 @@ func (o *oauth2Driver) FlushInactiveAccessTokens(ctx context.Context, notAfter t
 		notAfter = requestMaxExpire
 	}
 
-	tx := o.db.Where("requested_at < ?", notAfter).Limit(limit).Delete(&OAuth2RequestSQLAccess{})
+	tx := o.db.Where("requested_at < ?", notAfter.UTC()).Limit(limit).Delete(&OAuth2RequestSQLAccess{})
 	if tx.Error != nil {
 		return tx.Error
 	}
+	log.TasksLogger(ctx).Info("FlushInactiveAccessTokens", zap.Time("notAfter", notAfter.UTC()), zap.Int64("count", tx.RowsAffected))
 
 	return nil
 }
@@ -345,10 +353,11 @@ func (o *oauth2Driver) FlushInactiveRefreshTokens(ctx context.Context, notAfter 
 		notAfter = requestMaxExpire
 	}
 
-	tx := o.db.Where("requested_at < ?", notAfter).Limit(limit).Delete(&OAuth2RequestSQLRefresh{})
+	tx := o.db.Where("requested_at < ?", notAfter.UTC()).Limit(limit).Delete(&OAuth2RequestSQLRefresh{})
 	if tx.Error != nil {
 		return tx.Error
 	}
+	log.TasksLogger(ctx).Info("FlushInactiveRefreshTokens", zap.Time("notAfter", notAfter.UTC()), zap.Int64("count", tx.RowsAffected))
 
 	return nil
 }

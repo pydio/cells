@@ -92,7 +92,9 @@ func (c *PruneTokensAction) Run(ctx context.Context, channels *actions.RunnableC
 	if pruneResp, e := cli.PruneTokens(ctx, &auth.PruneTokensRequest{}); e != nil {
 		return input.WithError(e), e
 	} else {
-		log.TasksLogger(ctx).Info("OAuth Service: " + T("Auth.PruneJob.Revoked", struct{ Count int32 }{Count: pruneResp.GetCount()}))
+		if pruneResp.GetCount() > -1 {
+			log.TasksLogger(ctx).Info("OAuth Service: " + T("Auth.PruneJob.Revoked", struct{ Count int32 }{Count: pruneResp.GetCount()}))
+		}
 		output.AppendOutput(&jobs.ActionOutput{Success: true})
 	}
 

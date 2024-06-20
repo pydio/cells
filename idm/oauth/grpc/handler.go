@@ -975,18 +975,20 @@ func (h *Handler) PruneTokens(ctx context.Context, in *pauth.PruneTokensRequest)
 	}
 
 	storage := reg.OAuth2Storage()
-	if err := storage.FlushInactiveAccessTokens(ctx, time.Now(), 1000, 100); err != nil {
+	// internal will recheck config.GetAccessTokenLifespan
+	if err = storage.FlushInactiveAccessTokens(ctx, time.Now().Add(-1*time.Hour), 1000, 100); err != nil {
 		return nil, err
 	}
 
-	if err := storage.FlushInactiveLoginConsentRequests(ctx, time.Now(), 1000, 100); err != nil {
+	if err = storage.FlushInactiveLoginConsentRequests(ctx, time.Now().Add(-1*time.Hour), 1000, 100); err != nil {
 		return nil, err
 	}
 
 	// Flush inactive refresh tokens older than 3 months
-	if err := storage.FlushInactiveRefreshTokens(ctx, time.Now().Add(-90*24*time.Hour), 1000, 100); err != nil {
+	if err = storage.FlushInactiveRefreshTokens(ctx, time.Now().Add(-90*24*time.Hour), 1000, 100); err != nil {
 		return nil, err
 	}
 
-	return &pauth.PruneTokensResponse{}, nil
+	// Return -1 as "unknown count"
+	return &pauth.PruneTokensResponse{Count: -1}, nil
 }
