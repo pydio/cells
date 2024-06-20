@@ -264,42 +264,54 @@ func (j *JobsHandler) PutTaskStream(streamer proto.JobService_PutTaskStreamServe
 		return err
 	}
 
-	putTaskBuff := make(map[string]map[string]*proto.Task)
-	putTaskBuffLength := 0
+	buffer := make(map[string]map[string]*proto.Task)
+	bufferLength := 0
 
 	batch := indexer.NewBatch(ctx,
+		indexer.WithExpire(2*time.Second),
+		indexer.WithFlushCallback(func() error {
+			if bufferLength == 0 {
+				return nil
+			}
+			if err = store.PutTasks(buffer); err != nil {
+				return err
+			}
+			clear(buffer)
+			bufferLength = 0
+			return nil
+		}),
 		indexer.WithInsertCallback(func(in any) error {
 			task, ok := in.(*proto.Task)
 			if !ok {
 				return fmt.Errorf("wrong format")
 			}
 
-			if _, o := putTaskBuff[task.JobID]; !o {
-				putTaskBuff[task.JobID] = make(map[string]*proto.Task)
+			if _, o := buffer[task.JobID]; !o {
+				buffer[task.JobID] = make(map[string]*proto.Task)
 			}
 
 			var storeNow bool
-			if stored, o := putTaskBuff[task.JobID][task.ID]; !o || stored.Status == proto.TaskStatus_Finished {
+			if stored, o := buffer[task.JobID][task.ID]; !o || stored.Status == proto.TaskStatus_Finished {
 				storeNow = true
 			}
 
-			putTaskBuffLength++
-			putTaskBuff[task.JobID][task.ID] = task
-			if putTaskBuffLength > 500 {
+			bufferLength++
+			buffer[task.JobID][task.ID] = task
+			if bufferLength > 500 {
 
 				// Flushing now
-				log.Logger(context.Background()).Debug("Now flushing", zap.Any("j", putTaskBuff))
-				if err := store.PutTasks(putTaskBuff); err != nil {
+				log.Logger(context.Background()).Debug("Now flushing", zap.Any("j", buffer))
+				if err = store.PutTasks(buffer); err != nil {
 					log.Logger(context.Background()).Error("Error while flushing tasks to store")
 					return err
 				}
 
-				clear(putTaskBuff)
-				putTaskBuffLength = 0
+				clear(buffer)
+				bufferLength = 0
 
 			} else if storeNow {
 				log.Logger(context.Background()).Debug("Quick store of this task as it is new or finished", task.Zap())
-				store.PutTask(task)
+				return store.PutTask(task)
 			}
 
 			return nil
@@ -331,7 +343,11 @@ func (j *JobsHandler) PutTaskStream(streamer proto.JobService_PutTaskStreamServe
 		} else {
 			tJob = s
 		}
-		batch.Insert(t)
+
+		if e := batch.Insert(t); e != nil {
+			_ = streamer.SendMsg(e)
+			continue
+		}
 		sendErr := streamer.Send(&proto.PutTaskResponse{
 			Task: t,
 		})

@@ -1,8 +1,27 @@
+/*
+ * Copyright (c) 2024. Abstrium SAS <team (at) pydio.com>
+ * This file is part of Pydio Cells.
+ *
+ * Pydio Cells is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Pydio Cells is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with Pydio Cells.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ * The latest code can be found at <https://pydio.com>.
+ */
+
 package indexer
 
 import (
 	"context"
-	"fmt"
 	"sync"
 	"time"
 )
@@ -18,6 +37,7 @@ type BatchOptions struct {
 	Context context.Context
 	Cancel  context.CancelFunc
 
+	Expire         time.Duration
 	FlushCondition func() bool
 	InsertCallback []func(any) error
 	DeleteCallback []func(any) error
@@ -50,8 +70,16 @@ func WithFlushCallback(fn func() error) BatchOption {
 	}
 }
 
+func WithExpire(d time.Duration) BatchOption {
+	return func(o *BatchOptions) {
+		o.Expire = d
+	}
+}
+
 func NewBatch(ctx context.Context, opts ...BatchOption) Batch {
-	o := BatchOptions{}
+	o := BatchOptions{
+		Expire: 3 * time.Second,
+	}
 
 	for _, opt := range opts {
 		opt(&o)
@@ -109,7 +137,6 @@ func (b *batch) watchInserts() {
 			}
 
 			if b.opts.FlushCondition != nil && b.opts.FlushCondition() {
-				fmt.Println("Flushing")
 				b.flush()
 			}
 
@@ -118,7 +145,7 @@ func (b *batch) watchInserts() {
 			b.flushLock.Lock()
 			b.flush()
 			b.flushLock.Unlock()
-		case <-time.After(3 * time.Second):
+		case <-time.After(b.opts.Expire):
 			b.flushLock.Lock()
 			b.flush()
 			b.flushLock.Unlock()

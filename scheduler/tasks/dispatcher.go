@@ -80,21 +80,17 @@ func NewDispatcher(rootCtx context.Context, maxWorkers int, job *jobs.Job, tags 
 			for _, msg := range mm {
 				var event interface{}
 
-				eventContext := context.Background()
-				eventCtx := propagator.ForkContext(eventContext, rootCtx)
+				eventCtx := propagator.ForkContext(context.Background(), rootCtx)
 
 				tce := &tree.NodeChangeEvent{}
 				ice := &idm.ChangeEvent{}
 				jte := &jobs.JobTriggerEvent{}
-				if ctx, e := msg.Unmarshal(eventContext, tce); e == nil {
-					event = tce
-					eventCtx = ctx
-				} else if ctx, e := msg.Unmarshal(eventContext, ice); e == nil {
-					event = ice
-					eventCtx = ctx
-				} else if ctx, e := msg.Unmarshal(eventContext, jte); e == nil {
-					event = jte
-					eventCtx = ctx
+				if ctU, e := msg.Unmarshal(eventCtx, tce); e == nil {
+					event, eventCtx = tce, ctU
+				} else if ctU, e = msg.Unmarshal(eventCtx, ice); e == nil {
+					event, eventCtx = ice, ctU
+				} else if ctU, e = msg.Unmarshal(eventCtx, jte); e == nil {
+					event, eventCtx = jte, ctU
 				} else {
 					fmt.Println("Cannot unmarshall msg data to any known event type")
 					continue

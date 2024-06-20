@@ -99,15 +99,11 @@ func NewTaskFromEvent(runtime, ctx context.Context, job *jobs.Job, event interfa
 // Queue send this new task to the dispatcher queue.
 // If a second queue is passed, it may differ from main input queue, so it is used for children queuing
 func (t *Task) Queue(queue ...chan RunnerFunc) {
-	var ct context.Context
-	var can context.CancelFunc
 	if d, o := itemTimeout(t.context, t.Job.Timeout); o {
-		ct, can = context.WithTimeout(t.context, d)
+		t.context, t.cancel = context.WithTimeout(t.context, d)
 	} else {
-		ct, can = context.WithCancel(t.context)
+		t.context, t.cancel = context.WithCancel(t.context)
 	}
-	t.context = ct
-	t.cancel = can
 	jobId := t.Job.ID
 	taskId := t.runID
 

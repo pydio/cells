@@ -312,7 +312,7 @@ func (c *consentDriver) FlushInactiveLoginConsentRequests(ctx context.Context, n
 		notAfter = requestMaxExpire
 	}
 
-	tx := c.db.Model(&Flow{}).Where("requested_at < ?", notAfter).Limit(limit).Delete(&Flow{})
+	tx := c.db.Model(&Flow{}).Where("requested_at < ?", notAfter.UTC()).Limit(limit).Delete(&Flow{})
 	if tx.Error != nil {
 		return tx.Error
 	}
