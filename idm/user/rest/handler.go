@@ -233,13 +233,13 @@ func (s *UserHandler) DeleteUser(req *restful.Request, rsp *restful.Response) er
 	if strings.HasSuffix(req.Request.RequestURI, "%2F") || strings.HasSuffix(req.Request.RequestURI, "/") {
 		log.Logger(ctx).Info("Received User.Delete API request (GROUP)", zap.String("login", login), zap.String("crtGroup", claims.GroupPath), zap.String("request", req.Request.RequestURI))
 		if strings.HasPrefix(claims.GroupPath, "/"+login) {
-			return errors.WithMessage(errors.StatusForbidden, "You are about to delete your own group!")
+			return errors.WithAPICode(errors.StatusForbidden, errors.ApiGroupCannotDeleteOwn)
 		}
 		singleQ.GroupPath = login
 		singleQ.Recursive = true
 	} else {
 		if uName == login {
-			return errors.WithMessage(errors.StatusForbidden, "Please make sure not to delete yourself!")
+			return errors.WithAPICode(errors.StatusForbidden, errors.ApiUserCannotDeleteOwn)
 		}
 		log.Logger(ctx).Debug("Received User.Delete API request (LOGIN)", zap.String("login", login), zap.String("request", req.Request.RequestURI))
 		singleQ.Login = login
@@ -345,7 +345,7 @@ func (s *UserHandler) PutUser(req *restful.Request, rsp *restful.Response) error
 		}
 	} else if _, err := permissions.SearchUniqueUser(ctx, inputUser.Login, ""); err == nil {
 		// Login without Uuid: check if user already exists
-		return errors.WithMessage(errors.StatusConflict, "a user with the same login already exists")
+		return errors.WithAPICode(errors.StatusConflict, errors.ApiUserAlreadyExists, "login", inputUser.GetLogin())
 	}
 	var existingAcls []*idm.ACL
 	ctxLogin, ctxClaims := permissions.FindUserNameInContext(ctx)
@@ -357,7 +357,7 @@ func (s *UserHandler) PutUser(req *restful.Request, rsp *restful.Response) error
 				log.GetAuditId(common.AuditUserUpdate),
 				update.ZapUuid(),
 			)
-			return errors.WithMessage(errors.StatusForbidden, "You are not allowed to edit this user!")
+			return errors.WithAPICode(errors.StatusForbidden, errors.ApiUserNotEditable)
 		}
 		// Check ADD/REMOVE Roles Policies
 		roleCli := idmc.RoleServiceClient(ctx)
@@ -408,7 +408,7 @@ func (s *UserHandler) PutUser(req *restful.Request, rsp *restful.Response) error
 		// Check that parent group exists, or it will be created automatically (ok for admin, nok for others)
 		if strings.Trim(inputUser.GroupPath, "/") != "" {
 			if _, ok := permissions.GroupExists(ctx, inputUser.GroupPath); !ok {
-				return errors.WithMessage(errors.StatusForbidden, "You are not allowed to create groups")
+				return errors.WithAPICode(errors.StatusForbidden, errors.ApiGroupCannotCreate)
 			}
 		}
 		// Check current isHidden
@@ -417,7 +417,7 @@ func (s *UserHandler) PutUser(req *restful.Request, rsp *restful.Response) error
 			return errors.Tag(e, errors.StatusUnauthorized)
 		}
 		if crtUser.IsHidden() {
-			return errors.WithMessage(errors.StatusForbidden, "You are not allowed to create users")
+			return errors.WithAPICode(errors.StatusForbidden, errors.ApiUserCannotCreate)
 		}
 
 		// For creation by non-admin, check USER_CREATE_USERS plugins permission.
@@ -432,14 +432,14 @@ func (s *UserHandler) PutUser(req *restful.Request, rsp *restful.Response) error
 			}
 			local := acl.FlattenedFrontValues().Val("parameters", "core.auth", "USER_CREATE_USERS", permissions.FrontWsScopeAll).Default(global).Bool()
 			if !local {
-				return errors.WithMessage(errors.StatusForbidden, "You are not allowed to create users")
+				return errors.WithAPICode(errors.StatusForbidden, errors.ApiUserCannotCreate)
 			}
 		}
 	}
 
 	if inputUser.IsGroup {
 		if ctxClaims.Profile != common.PydioProfileAdmin {
-			return errors.WithMessage(errors.StatusForbidden, "You are not allowed to create groups")
+			return errors.WithAPICode(errors.StatusForbidden, errors.ApiGroupCannotCreate)
 		}
 		inputUser.GroupPath = strings.TrimSuffix(inputUser.GroupPath, "/") + "/" + inputUser.GroupLabel
 	} else {
@@ -451,11 +451,11 @@ func (s *UserHandler) PutUser(req *restful.Request, rsp *restful.Response) error
 		// Double-check authorized access to /acl endpoint - if allowed, it's a delegated admin.
 		if ctxClaims.Profile == common.PydioProfileStandard && inputUser.Attributes[idm.UserAttrProfile] != common.PydioProfileShared &&
 			ctxLogin != inputUser.Login && !allowedUserSpecialPermissions(ctx, ctxClaims) {
-			return errors.WithMessage(errors.StatusForbidden, "You are not allowed to create users with this profile")
+			return errors.WithAPICode(errors.StatusForbidden, errors.ApiUserCannotCreateProfile)
 		}
 		// Generic check - profile is never higher than current user profile
 		if profilesLevel[inputUser.Attributes[idm.UserAttrProfile]] > profilesLevel[ctxClaims.Profile] {
-			return errors.WithMessagef(errors.StatusForbidden, "you are not allowed to set a profile (%s) higher than your current profile (%s)", inputUser.Attributes[idm.UserAttrProfile], ctxClaims.Profile)
+			return errors.WithAPICode(errors.StatusForbidden, errors.ApiUserCannotIncreaseProfile, "profile", inputUser.Attributes[idm.UserAttrProfile], "own", ctxClaims.Profile)
 		}
 		if _, ok := inputUser.Attributes[idm.UserAttrPassHashed]; ok {
 			return errors.WithMessage(errors.StatusForbidden, "You are not allowed to use this attribute")

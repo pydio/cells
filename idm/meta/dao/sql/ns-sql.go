@@ -26,10 +26,19 @@ import (
 
 	"gorm.io/gorm"
 
+	"github.com/pydio/cells/v4/common/errors"
 	"github.com/pydio/cells/v4/common/proto/idm"
 	"github.com/pydio/cells/v4/common/sql/resources"
 	"github.com/pydio/cells/v4/idm/meta"
 )
+
+var (
+	NsErr = errors.RegisterBaseSentinel(errors.SqlDAO, "sql user-meta namespaces")
+)
+
+func nsTag(err error) error {
+	return errors.Tag(err, NsErr)
+}
 
 type MetaNamespace struct {
 	Namespace  string `gorm:"primaryKey; column: namespace;"`
@@ -116,12 +125,12 @@ func (s *nsSqlImpl) instance(ctx context.Context) *gorm.DB {
 func (s *nsSqlImpl) Add(ctx context.Context, ns *idm.UserMetaNamespace) error {
 	tx := s.instance(ctx).Create((&MetaNamespace{}).From(ns))
 	if tx.Error != nil {
-		return tx.Error
+		return nsTag(tx.Error)
 	}
 
 	if len(ns.Policies) > 0 {
 		if err := s.AddPolicies(ctx, false, ns.Namespace, ns.Policies); err != nil {
-			return err
+			return nsTag(err)
 		}
 	}
 
@@ -132,11 +141,11 @@ func (s *nsSqlImpl) Add(ctx context.Context, ns *idm.UserMetaNamespace) error {
 func (s *nsSqlImpl) Del(ctx context.Context, ns *idm.UserMetaNamespace) (e error) {
 	tx := s.instance(ctx).Where((&MetaNamespace{}).From(ns)).Delete(&MetaNamespace{})
 	if tx.Error != nil {
-		return tx.Error
+		return nsTag(tx.Error)
 	}
 
 	if err := s.DeletePoliciesForResource(ctx, ns.Namespace); err != nil {
-		return err
+		return nsTag(err)
 	}
 
 	return nil
@@ -147,7 +156,7 @@ func (s *nsSqlImpl) List(ctx context.Context) (map[string]*idm.UserMetaNamespace
 	var mm []*MetaNamespace
 	tx := s.instance(ctx).Find(&mm)
 	if tx.Error != nil {
-		return nil, tx.Error
+		return nil, nsTag(tx.Error)
 	}
 
 	var res = make(map[string]*idm.UserMetaNamespace)
@@ -157,7 +166,7 @@ func (s *nsSqlImpl) List(ctx context.Context) (map[string]*idm.UserMetaNamespace
 		// Add policies
 		pol, err := s.GetPoliciesForResource(ctx, ns.Namespace)
 		if err != nil {
-			return nil, err
+			return nil, nsTag(err)
 		}
 
 		ns.Policies = pol

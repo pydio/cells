@@ -31,6 +31,7 @@ import (
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
 
+	"github.com/pydio/cells/v4/common/errors"
 	"github.com/pydio/cells/v4/common/proto/idm"
 	service "github.com/pydio/cells/v4/common/proto/service"
 	"github.com/pydio/cells/v4/common/sql"
@@ -44,6 +45,14 @@ type resourcesDAO resources.DAO
 
 func init() {
 	meta.Drivers.Register(NewDAO)
+}
+
+var (
+	MetaErr = errors.RegisterBaseSentinel(errors.SqlDAO, "sql user-meta")
+)
+
+func tag(err error) error {
+	return errors.Tag(err, MetaErr)
 }
 
 func NewDAO(db *gorm.DB) meta.DAO {
@@ -136,7 +145,7 @@ func (s *sqlimpl) Set(ctx context.Context, meta *idm.UserMeta) (*idm.UserMeta, s
 	// Attempting to create
 	tx := s.instance(ctx).Clauses(clause.OnConflict{DoNothing: true}).Create(old)
 	if tx.Error != nil {
-		return nil, "", tx.Error
+		return nil, "", tag(tx.Error)
 	}
 
 	if tx.RowsAffected == 0 {
@@ -147,7 +156,7 @@ func (s *sqlimpl) Set(ctx context.Context, meta *idm.UserMeta) (*idm.UserMeta, s
 		update = true
 		tx := s.instance(ctx).Where(&Meta{UUID: old.UUID}).Updates(target)
 		if tx.Error != nil {
-			return nil, "", tx.Error
+			return nil, "", tag(tx.Error)
 		}
 	} else {
 		target = old
@@ -163,7 +172,7 @@ func (s *sqlimpl) Set(ctx context.Context, meta *idm.UserMeta) (*idm.UserMeta, s
 		err = s.resourcesDAO.AddPolicies(ctx, update, meta.Uuid, meta.Policies)
 	}
 
-	return meta, prev, err
+	return meta, prev, tag(err)
 }
 
 // Del deletes meta by their Id.
@@ -172,17 +181,17 @@ func (s *sqlimpl) Del(ctx context.Context, meta *idm.UserMeta) (previousValue st
 	old := &Meta{}
 
 	if tx := s.instance(ctx).Where(&Meta{UUID: target.UUID, Owner: target.Owner, Namespace: target.Namespace, NodeUUID: target.NodeUUID}).Find(&old); tx.Error != nil {
-		return "", tx.Error
+		return "", tag(tx.Error)
 	}
 
 	previousValue = string(old.Data)
 
 	if tx := s.instance(ctx).Delete(&old); tx.Error != nil {
-		return "", tx.Error
+		return "", tag(tx.Error)
 	}
 
 	if e := s.resourcesDAO.DeletePoliciesForResource(ctx, old.UUID); e != nil {
-		return "", e
+		return "", tag(e)
 	}
 
 	return previousValue, nil
@@ -201,7 +210,7 @@ func (s *sqlimpl) Search(ctx context.Context, query sql.Enquirer) ([]*idm.UserMe
 
 	tx := db.Find(&metas)
 	if tx.Error != nil {
-		return nil, tx.Error
+		return nil, tag(tx.Error)
 	}
 
 	var res []*idm.UserMeta

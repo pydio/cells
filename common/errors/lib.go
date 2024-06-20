@@ -60,8 +60,23 @@ var (
 	As = tozd.As
 )
 
+// WithAPICode adds APICode and optional formatting arguments as error Details
+func WithAPICode(base error, code ApiCode, kv ...interface{}) E {
+	details := []interface{}{"apiCode", code}
+	if len(kv) > 0 {
+		if len(kv)%2 != 0 {
+			panic(New("odd number of arguments for initial details"))
+		}
+		details = append(details, "apiCodeArgs", kv)
+	}
+	return WithDetails(base, details...)
+}
+
 // Tag an existing error with a known sentinel. If it is already responding to Is(er, sentinel), it will be unmodified.
 func Tag(err error, sentinel error) error {
+	if err == nil {
+		return err
+	}
 	if Is(err, sentinel) {
 		return err
 	}

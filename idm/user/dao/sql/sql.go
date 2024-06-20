@@ -355,7 +355,7 @@ func (s *sqlimpl) Bind(ctx context.Context, userName string, password string) (u
 		return nil, er
 	}
 
-	nfErr := wrap(errors.WithMessagef(errors.UserNotFound, "cannot find user %s, %w", userName))
+	nfErr := wrap(errors.WithMessagef(errors.UserNotFound, "cannot find user %s", userName))
 
 	if len(results) == 0 {
 		// The error code is actually very important
@@ -377,14 +377,10 @@ func (s *sqlimpl) Bind(ctx context.Context, userName string, password string) (u
 	hashedPass := user.Password
 
 	// Check password
-	valid, _ := hasher.CheckDBKDF2PydioPwd(password, hashedPass)
-	if valid {
+	if valid, _ := hasher.CheckDBKDF2PydioPwd(password, hashedPass); valid {
 		return user, nil
-	}
-
-	// Check with legacy format (coming from PHP, Salt []byte is built differently)
-	valid, _ = hasher.CheckDBKDF2PydioPwd(password, hashedPass, true)
-	if valid {
+	} else if valid, _ = hasher.CheckDBKDF2PydioPwd(password, hashedPass, true); valid {
+		// Recheck with legacy format (users coming from PHP, salt []byte is built differently)
 		return user, nil
 	}
 
