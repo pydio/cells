@@ -217,7 +217,7 @@ func (s *sqlimpl) Search(ctx context.Context, query sql.Enquirer, out *[]interfa
 
 	var acls []ACL
 
-	tx := db.Find(&acls)
+	tx := db.Preload("Role").Preload("Workspace").Preload("Node").Find(&acls)
 	if tx.Error != nil {
 		return tx.Error
 	}

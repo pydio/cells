@@ -108,8 +108,19 @@ func OpenPool(ctx context.Context, uu string) (storage.Storage, error) {
 			}
 		}
 
+		newLogger := logger.New(
+			&logWrapper{log.Logger(ctx)}, // io writer
+			logger.Config{
+				SlowThreshold:             time.Second,   // Slow SQL threshold
+				LogLevel:                  logger.Silent, // Log level
+				IgnoreRecordNotFoundError: true,          // Ignore ErrRecordNotFound error for logger
+				// ParameterizedQueries:      true,        // Don't include params in the SQL log
+				// Colorful: false, // Disable color
+			},
+		)
+
 		db, err := gorm.Open(dialect, &gorm.Config{
-			Logger: &logWrapper{log.Logger(ctx)},
+			Logger: newLogger,
 			NamingStrategy: &schema.NamingStrategy{
 				TablePrefix: prefix,
 			},
@@ -157,6 +168,10 @@ func (d *Dialector) Translate(err error) error {
 
 type logWrapper struct {
 	log.ZapLogger
+}
+
+func (l logWrapper) Printf(fmt string, args ...interface{}) {
+	l.ZapLogger.Infof(fmt, args...)
 }
 
 func (l logWrapper) LogMode(level logger.LogLevel) logger.Interface {
