@@ -156,7 +156,7 @@ let RolesDashboard = createReactClass({
                         {label}
                     </span>),
                 sorterValue: role.Uuid === 'ROOT_GROUP' ? '0000000' : label,
-                isDefault: role.AutoApplies.join(', ') || '-',
+                isDefault: role.AutoApplies && role.AutoApplies.join(', ') || '-',
                 lastUpdated: role.LastUpdated,
                 roleType: this.context.getMessage('roleType.' + roleType, 'role_editor')
             });

@@ -184,16 +184,20 @@ class LogTable extends React.Component {
         const {body} = AdminComponents.AdminStyles();
         let {tableMaster} = body;
         tableMaster.row.transition = 'all 750ms cubic-bezier(0.23, 1, 0.32, 1) 0ms';
-        let cellStyle = {};
+        let cellStyle = {whiteSpace: 'initial', paddingTop: 6, paddingBottom: 6};
         let childrenButtonProps = {};
+        const tsCellStyle = {lineHeight:'16px', fontSize: 11, fontWeight: 500}
         if (darkTheme) {
             cellStyle = {
+                whiteSpace: 'initial',
                 fontFamily:'monospace',
                 fontWeight: 'bold',
+                verticalAlign:'top',
                 height: 24,
                 paddingTop: 4,
                 paddingBottom: 4
             }
+            tsCellStyle.lineHeight = null
             tableMaster = {
                 ...tableMaster,
                 row: {
@@ -201,7 +205,7 @@ class LogTable extends React.Component {
                     backgroundColor: 'rgba(0,0,0,.87)',
                     color: 'rgba(255,255,255,.87)',
                     height: 24,
-                    borderBottomColor: 'rgba(0,0,0,.87)',
+                    borderBottom: 0,
                     cursor: 'pointer'
                 }
             };
@@ -246,7 +250,7 @@ class LogTable extends React.Component {
                     return <span style={{display:'flex', alignItems:'center', color: tableMaster.row.color, fontFamily:tableMaster.row.fontFamily}}><FontIcon className={"mdi mdi-play-circle-outline"} style={{fontSize: 12, marginRight: 5, color: tableMaster.row.color}}/> {dateString}</span>
                 }
                 return dateString;
-            }, style:{...cellStyle, width: 130, padding: '4px 12px'}, headerStyle:{width: 130, padding: 12}},
+            }, style:{...cellStyle, ...tsCellStyle, width: 130, padding: '4px 12px 4px 0'}, headerStyle:{width: 130, paddingRight: 12, paddingLeft: 0}},
             {name:'Level', label:MessageHash['ajxp_admin.logs.level'] || 'logs.level', hideSmall:true, renderCell:(row) => {
                 let color = null;
                 if(row.Level==='info') {
