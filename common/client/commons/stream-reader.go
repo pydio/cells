@@ -57,6 +57,18 @@ func ForEach[T any](streamClient StreamClient[T], openError error, handler Respo
 	return nil
 }
 
+// MustStreamOne is a shortcut to call for each and get first result.
+func MustStreamOne[T any](streamClient StreamClient[T], openError error) (T, bool, error) {
+	var out T
+	var found bool
+	er := ForEach(streamClient, openError, func(t T) error {
+		out = t
+		found = true
+		return nil
+	})
+	return out, found, er
+}
+
 // WrapStream wraps a grpc stream client to add ForEach method
 func WrapStream[T any](sc StreamClient[T]) StreamClientWrapper[T] {
 	return &wrapperStreamClient[T]{StreamClient: sc}

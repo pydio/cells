@@ -46,7 +46,7 @@ func init() {
 		service.NewService(
 			service.Name(Name),
 			service.Context(ctx),
-			service.Tag(common.ServiceTagIdm),
+			service.Tag(common.ServiceTagIdm, "users"),
 			service.Description("Users persistence layer"),
 			service.Migrations([]*service.Migration{
 				{

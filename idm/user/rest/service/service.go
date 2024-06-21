@@ -35,7 +35,7 @@ func init() {
 		service.NewService(
 			service.Name(common.ServiceRestNamespace_+common.ServiceUser),
 			service.Context(ctx),
-			service.Tag(common.ServiceTagIdm),
+			service.Tag(common.ServiceTagIdm, "users"),
 			service.Description("RESTful Gateway to users service"),
 			service.WithWeb(func(c context.Context) service.WebHandler {
 				return rest.NewUserHandler(c)

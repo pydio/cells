@@ -26,6 +26,7 @@ import (
 
 	"go.opentelemetry.io/otel/trace"
 	"go.uber.org/zap"
+	"go.uber.org/zap/zapcore"
 	"google.golang.org/grpc/metadata"
 
 	"github.com/pydio/cells/v4/common"
@@ -49,8 +50,8 @@ var (
 	}
 )
 
-func HandleErrorRest(ctx context.Context, err error, prefix string, infos []string, ignores []error, warnOnly ...bool) {
-	for _, ignore := range append(commonIgnores, ignores...) {
+func logRestError(ctx context.Context, err error, prefix string, logLevel zapcore.Level) {
+	for _, ignore := range commonIgnores {
 		if errors.Is(err, ignore) {
 			return
 		}
@@ -73,14 +74,16 @@ func HandleErrorRest(ctx context.Context, err error, prefix string, infos []stri
 	} else {
 		ff = append(ff, zap.Error(err))
 	}
-	if len(warnOnly) > 0 && warnOnly[0] {
+	if logLevel == zapcore.WarnLevel {
 		log.Logger(ctx).Warn(prefix+" "+errorMsg, ff...)
+	} else if logLevel == zapcore.DebugLevel {
+		log.Logger(ctx).Debug(prefix+" "+errorMsg, ff...)
 	} else {
 		log.Logger(ctx).Error(prefix+" "+errorMsg, ff...)
 	}
 }
 
-func HandleErrorGRPC(ctx context.Context, err error, prefix string, infos ...zap.Field) error {
+func handleGrpcError(ctx context.Context, err error, prefix string, infos ...zap.Field) error {
 	if err == nil {
 		return nil
 	}

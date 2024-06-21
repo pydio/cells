@@ -26,7 +26,6 @@ import (
 	"google.golang.org/protobuf/proto"
 
 	"github.com/pydio/cells/v4/common/client/commons/idmc"
-	"github.com/pydio/cells/v4/common/errors"
 	"github.com/pydio/cells/v4/common/proto/idm"
 	"github.com/pydio/cells/v4/common/telemetry/log"
 )
@@ -58,9 +57,6 @@ func (p *pydioconnector) Login(ctx context.Context, s Scopes, username, password
 	c := idmc.UserServiceClient(ctx)
 	resp, err := c.BindUser(ctx, &idm.BindUserRequest{UserName: username, Password: password})
 	if err != nil {
-		if errors.Is(err, errors.StatusForbidden) {
-			return Identity{}, false, nil
-		}
 		return Identity{}, false, err
 	}
 

@@ -124,7 +124,6 @@ func (h *WorkspaceHandler) PutWorkspace(req *restful.Request, rsp *restful.Respo
 		Workspace: &inputWorkspace,
 	})
 	if er != nil {
-
 		return er
 	}
 	if e := permissions.StoreRootNodesAsACLs(ctx, &inputWorkspace, update); e != nil {
@@ -170,28 +169,22 @@ func (h *WorkspaceHandler) DeleteWorkspace(req *restful.Request, rsp *restful.Re
 	ctx := req.Request.Context()
 	cli := idmc.WorkspaceServiceClient(ctx)
 
-	var found bool
 	stream, e := cli.SearchWorkspace(ctx, &idm.SearchWorkspaceRequest{Query: serviceQuery})
-	if e = commons.ForEach(stream, e, func(resp *idm.SearchWorkspaceResponse) error {
-		found = true
-		if !h.MatchPolicies(ctx, resp.Workspace.UUID, resp.Workspace.Policies, service.ResourcePolicyAction_WRITE) {
-			log.Auditer(ctx).Error(
-				fmt.Sprintf("Forbidden action could not delete workspace [%s]", slug),
-				log.GetAuditId(common.AuditWsDelete),
-			)
-			return errors.WithMessage(errors.StatusForbidden, "You are not allowed to edit this workspace!")
-		}
-		return nil
-	}); e == nil {
-		return e
-	}
-	if !found {
-		return errors.WithStack(errors.WorkspaceNotFound)
+	if resp, found, er := commons.MustStreamOne[*idm.SearchWorkspaceResponse](stream, e); er != nil {
+		return er
+	} else if !found {
+		return errors.WithAPICode(errors.WorkspaceNotFound, errors.ApiWorkspaceNotFound)
+	} else if !h.MatchPolicies(ctx, resp.Workspace.UUID, resp.Workspace.Policies, service.ResourcePolicyAction_WRITE) {
+		log.Auditer(ctx).Error(
+			fmt.Sprintf("Forbidden action could not delete workspace [%s]", slug),
+			log.GetAuditId(common.AuditWsDelete),
+		)
+		return errors.WithAPICode(errors.StatusForbidden, errors.ApiWorkspaceNotEditable, "You are not allowed to edit this workspace!")
 	}
 
-	n, e := cli.DeleteWorkspace(req.Request.Context(), &idm.DeleteWorkspaceRequest{Query: serviceQuery})
-	if e != nil {
-		return e
+	n, er := cli.DeleteWorkspace(req.Request.Context(), &idm.DeleteWorkspaceRequest{Query: serviceQuery})
+	if er != nil {
+		return er
 	}
 
 	log.Auditer(ctx).Info(

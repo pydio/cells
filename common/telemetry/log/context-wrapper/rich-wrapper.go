@@ -30,6 +30,7 @@ import (
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/auth/claim"
 	"github.com/pydio/cells/v4/common/middleware"
+	"github.com/pydio/cells/v4/common/service"
 	"github.com/pydio/cells/v4/common/telemetry/log"
 	"github.com/pydio/cells/v4/common/utils/propagator"
 )
@@ -45,7 +46,12 @@ func RichContext(ctx context.Context, logger log.ZapLogger, fields ...zapcore.Fi
 	logger = log.BasicContextWrapper(ctx, logger, fields...)
 
 	// Compute all fields
-
+	var svc service.Service
+	if propagator.Get(ctx, service.ContextKey, &svc) {
+		for _, t := range svc.Tags() {
+			fields = append(fields, zap.String("tag", t))
+		}
+	}
 	if span := middleware.SpanFromContext(ctx); span.HasSpanID() {
 		fields = append(fields, zap.Any(common.KeySpanOtel, span))
 	}

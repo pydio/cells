@@ -12,14 +12,12 @@ import (
 
 	"github.com/ory/fosite/token/hmac"
 	"github.com/ory/fosite/token/jwt"
-	"go.uber.org/zap"
 
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/config"
 	"github.com/pydio/cells/v4/common/errors"
 	"github.com/pydio/cells/v4/common/proto/auth"
 	"github.com/pydio/cells/v4/common/runtime/manager"
-	"github.com/pydio/cells/v4/common/telemetry/log"
 	json "github.com/pydio/cells/v4/common/utils/jsonx"
 	"github.com/pydio/cells/v4/common/utils/permissions"
 	"github.com/pydio/cells/v4/common/utils/uuid"
@@ -43,7 +41,7 @@ type PATHandler struct {
 type configProvider struct{}
 
 func (c *configProvider) GetTokenEntropy(ctx context.Context) int {
-	//TODO - Check
+	//TODO - Recheck expected value
 	return 32
 }
 
@@ -61,7 +59,7 @@ func (c *configProvider) GetGlobalSecret(ctx context.Context) ([]byte, error) {
 	} else if t, e := base64.StdEncoding.DecodeString(cVal.String()); e == nil {
 		tokensKey = t
 	} else {
-		log.Logger(ctx).Error("Could not read generated key for personal tokens!", zap.Error(e))
+		return nil, errors.WithMessage(errors.UnmarshalError, "Could not read generated key for personal tokens!")
 	}
 	return tokensKey, nil
 }
@@ -75,12 +73,12 @@ func (c *configProvider) generateRandomKey(length int) []byte {
 }
 
 func (c *configProvider) GetRotatedGlobalSecrets(ctx context.Context) ([][]byte, error) {
-	//TODO implement me
+	//TODO implement me ?
 	return [][]byte{}, nil
 }
 
 func (c *configProvider) GetHMACHasher(ctx context.Context) func() hash.Hash {
-	//TODO - Check
+	//TODO - Recheck expected value
 	return sha512.New512_256
 }
 

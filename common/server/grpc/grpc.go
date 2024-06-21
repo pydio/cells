@@ -30,7 +30,6 @@ import (
 	"sync"
 
 	protovalidate "github.com/bufbuild/protovalidate-go"
-	grpc_middleware "github.com/grpc-ecosystem/go-grpc-middleware"
 	grpc_recovery "github.com/grpc-ecosystem/go-grpc-middleware/recovery"
 	"go.uber.org/zap"
 	"google.golang.org/grpc"
@@ -48,7 +47,6 @@ import (
 	"github.com/pydio/cells/v4/common/registry/util"
 	"github.com/pydio/cells/v4/common/runtime"
 	"github.com/pydio/cells/v4/common/server"
-	"github.com/pydio/cells/v4/common/service"
 	"github.com/pydio/cells/v4/common/telemetry/log"
 	"github.com/pydio/cells/v4/common/utils/propagator"
 	"github.com/pydio/cells/v4/common/utils/uuid"
@@ -145,41 +143,16 @@ func (s *Server) lazyGrpc(rootContext context.Context) *grpc.Server {
 
 	unaryInterceptors = append(unaryInterceptors,
 
+		// THIS IS THE FINAL HANDLER - ENDPOINT HAS BEEN FOR EARLIER IN THE CHAIN
 		func(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (interface{}, error) {
-			ctx = propagator.ForkContext(ctx, rootContext)
 
 			serviceName := runtime.GetServiceName(ctx)
 			if serviceName != "" {
-				endpoints := reg.ListAdjacentItems(
-					registry.WithAdjacentSourceItems([]registry.Item{s}),
-					registry.WithAdjacentTargetOptions(registry.WithName(info.FullMethod), registry.WithType(pb.ItemType_ENDPOINT)),
-				)
+				var ep registry.Endpoint
 
-				for _, endpoint := range endpoints {
-					ep := endpoint.(registry.Endpoint)
-
-					services := reg.ListAdjacentItems(
-						registry.WithAdjacentSourceItems([]registry.Item{endpoint}),
-						registry.WithAdjacentTargetOptions(registry.WithType(pb.ItemType_SERVICE)),
-					)
-
-					var svc service.Service
-					for _, service := range services {
-						if service.Name() == serviceName {
-							service.As(&svc)
-							break
-						}
-					}
-
-					if svc == nil {
-						continue
-					}
-
-					ctx = propagator.With(ctx, service.ContextKey, svc)
-
+				if propagator.Get(ctx, EndpointKey, &ep) {
 					method := info.FullMethod[strings.LastIndex(info.FullMethod, "/")+1:]
 					outputs := reflect.ValueOf(ep.Handler()).MethodByName(method).Call([]reflect.Value{reflect.ValueOf(ctx), reflect.ValueOf(req)})
-
 					resp := outputs[0].Interface()
 					err := outputs[1].Interface()
 					if err != nil {
@@ -224,46 +197,16 @@ func (s *Server) lazyGrpc(rootContext context.Context) *grpc.Server {
 		//
 		//	return handler(srv, ss)
 		//},
-		func(srv interface{}, ss grpc.ServerStream, info *grpc.StreamServerInfo, handler grpc.StreamHandler) error {
-			ctx := propagator.ForkContext(ss.Context(), rootContext)
 
+		// THIS IS THE FINAL HANDLER - ENDPOINT HAS BEEN FOR EARLIER IN THE CHAIN
+		func(srv interface{}, ss grpc.ServerStream, info *grpc.StreamServerInfo, handler grpc.StreamHandler) error {
+			ctx := ss.Context()
 			serviceName := runtime.GetServiceName(ctx)
 			if serviceName != "" {
-				endpoints := reg.ListAdjacentItems(
-					registry.WithAdjacentSourceItems([]registry.Item{s}),
-					//registry.WithAdjacentEdgeOptions(registry.WithName("server"), registry.WithMeta("serverType", "grpc")),
-					registry.WithAdjacentTargetOptions(registry.WithName(info.FullMethod), registry.WithType(pb.ItemType_ENDPOINT)),
-				)
-
-				for _, endpoint := range endpoints {
-					services := reg.ListAdjacentItems(
-						registry.WithAdjacentSourceItems([]registry.Item{endpoint}),
-						registry.WithAdjacentTargetOptions(registry.WithType(pb.ItemType_SERVICE)),
-					)
-
-					var svc service.Service
-					for _, service := range services {
-						if service.Name() == serviceName {
-							service.As(&svc)
-							break
-						}
-					}
-
-					if svc == nil {
-						continue
-					}
-
-					ep := endpoint.(registry.Endpoint)
-
-					ctx = propagator.With(ctx, service.ContextKey, svc)
-
-					wrapped := grpc_middleware.WrapServerStream(ss)
-					wrapped.WrappedContext = ctx
-
-					return handler(ep.Handler(), wrapped)
+				var ep registry.Endpoint
+				if propagator.Get(ctx, EndpointKey, &ep) {
+					return handler(ep.Handler(), ss)
 				}
-
-				//return grpc.ErrServerStopped
 			}
 
 			return handler(srv, ss)
@@ -289,6 +232,7 @@ func (s *Server) lazyGrpc(rootContext context.Context) *grpc.Server {
 			propagator.ContextUnaryServerInterceptor(middleware.RegistryIncomingContext(rootContext)),
 			propagator.ContextUnaryServerInterceptor(middleware.TenantIncomingContext(rootContext)),
 			propagator.ContextUnaryServerInterceptor(middleware.ServiceIncomingContext(rootContext)),
+			unaryEndpointInterceptor(rootContext, s),
 			middleware.ErrorFormatUnaryInterceptor,
 			HandlerUnaryInterceptor(&unaryInterceptors),
 		),
@@ -301,6 +245,7 @@ func (s *Server) lazyGrpc(rootContext context.Context) *grpc.Server {
 			propagator.ContextStreamServerInterceptor(middleware.RegistryIncomingContext(rootContext)),
 			propagator.ContextStreamServerInterceptor(middleware.TenantIncomingContext(rootContext)),
 			propagator.ContextStreamServerInterceptor(middleware.ServiceIncomingContext(rootContext)),
+			streamEndpointInterceptor(rootContext, s),
 			middleware.ErrorFormatStreamInterceptor,
 			HandlerStreamInterceptor(&streamInterceptors),
 		),

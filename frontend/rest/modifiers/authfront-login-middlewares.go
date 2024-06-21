@@ -98,7 +98,7 @@ func LoginSuccessWrapper(middleware frontend.AuthMiddleware) frontend.AuthMiddle
 				zap.String(common.KeyUserUuid, user.Uuid),
 			)
 			log.Logger(ctx).Error("lock denies login for "+user.Login, zap.Error(fmt.Errorf("blocked login")))
-			return errors.WithStack(errors.UserLocked) // serviceerrors.Unauthorized(common.ServiceUser, "User "+user.Login+" has been blocked. Contact your sysadmin.")
+			return errors.WithAPICode(errors.UserLocked, errors.ApiUserLocked, "login", user.Login)
 		}
 
 		// Reset failed connections
@@ -203,7 +203,7 @@ func LoginFailedWrapper(middleware frontend.AuthMiddleware) frontend.AuthMiddlew
 		if permissions.IsUserLocked(user) {
 			msg := fmt.Sprintf("locked user %s is still trying to connect", user.GetLogin())
 			log.Logger(ctx).Warn(msg, user.ZapLogin())
-			return errors.WithStack(errors.UserLocked) // serviceerrors.New("user.locked", "User is locked - Please contact your admin", http.StatusUnauthorized)
+			return errors.WithAPICode(errors.Tag(err, errors.UserLocked), errors.ApiUserLocked, "login", user.Login)
 		}
 
 		var failedInt int64

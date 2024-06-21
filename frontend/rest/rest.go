@@ -256,9 +256,9 @@ func (a *FrontendHandler) FrontSession(req *restful.Request, rsp *restful.Respon
 	}
 	// Now handle errors
 	if e != nil {
-		return errors.Tag(e, errors.LoginFailed)
+		return errors.WithAPICode(e, errors.ApiLoginFailed) //errors.Tag(e, errors.LoginFailed)
 	} else if response.Error != "" {
-		return errors.WithMessage(errors.LoginFailed, response.Error)
+		return errors.WithAPICode(errors.WithMessage(errors.LoginFailed, response.Error), errors.ApiLoginFailed)
 	}
 
 	// Legacy code

@@ -15,6 +15,7 @@ const (
 
 	ApiLoginFailed               ApiCode = "E_LOGIN_FAILED"
 	ApiUserAlreadyExists         ApiCode = "E_USER_ALREADY_EXISTS"
+	ApiUserLocked                ApiCode = "E_USER_LOCKED"
 	ApiUserNotEditable           ApiCode = "E_USER_NOT_EDITABLE"
 	ApiUserCannotCreate          ApiCode = "E_USER_CANNOT_CREATE"
 	ApiUserCannotCreateProfile   ApiCode = "E_USER_CANNOT_CREATE_PROFILE"
@@ -22,4 +23,7 @@ const (
 	ApiUserCannotIncreaseProfile ApiCode = "E_USER_CANNOT_INCREASE_PROFILE"
 	ApiGroupCannotCreate         ApiCode = "E_GROUP_CANNOT_CREATE"
 	ApiGroupCannotDeleteOwn      ApiCode = "E_GROUP_CANNOT_DELETE_OWN"
+
+	ApiWorkspaceNotFound    ApiCode = "E_WORKSPACE_NOT_FOUND"
+	ApiWorkspaceNotEditable ApiCode = "E_WORKSPACE_NOT_EDITABLE"
 )

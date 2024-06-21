@@ -41,7 +41,6 @@ import (
 	"github.com/ory/x/errorsx"
 	"github.com/ory/x/sqlxx"
 	"github.com/ory/x/urlx"
-	"go.uber.org/zap"
 
 	"github.com/pydio/cells/v4/common/auth"
 	"github.com/pydio/cells/v4/common/auth/hydra"
@@ -52,7 +51,6 @@ import (
 	"github.com/pydio/cells/v4/common/middleware/keys"
 	pauth "github.com/pydio/cells/v4/common/proto/auth"
 	"github.com/pydio/cells/v4/common/runtime/manager"
-	"github.com/pydio/cells/v4/common/telemetry/log"
 	json "github.com/pydio/cells/v4/common/utils/jsonx"
 	"github.com/pydio/cells/v4/common/utils/uuid"
 	"github.com/pydio/cells/v4/idm/oauth"
@@ -408,9 +406,7 @@ func (h *Handler) CreateAuthCode(ctx context.Context, in *pauth.CreateAuthCodeRe
 
 	ar, err := reg.OAuth2Provider().NewAuthorizeRequest(ctx, req)
 	if err != nil {
-		e := fosite.ErrorToRFC6749Error(err)
-		log.Logger(ctx).Error("Could not create authorize request", zap.Error(e))
-		return nil, err
+		return nil, errors.WithMessage(err, "while trying to create authorize request")
 	}
 
 	cookieStore, err := reg.CookieStore(ctx)
@@ -432,9 +428,7 @@ func (h *Handler) CreateAuthCode(ctx context.Context, in *pauth.CreateAuthCodeRe
 		// do nothing
 		return &pauth.CreateAuthCodeResponse{}, nil
 	} else if err != nil {
-		e := fosite.ErrorToRFC6749Error(err)
-		log.Logger(ctx).Error("Could not handle authorize request", zap.Error(e))
-		return nil, err
+		return nil, errors.WithMessage(err, "while trying to authorize request")
 	}
 
 	for _, scope := range session.GrantedScope {
@@ -489,9 +483,7 @@ func (h *Handler) CreateAuthCode(ctx context.Context, in *pauth.CreateAuthCodeRe
 	})
 
 	if err != nil {
-		e := fosite.ErrorToRFC6749Error(err)
-		log.Logger(ctx).Error("Could not create authorize response", zap.Error(e), zap.String("debug", e.Debug()))
-		return nil, err
+		return nil, errors.WithMessage(err, "while trying to authorize response")
 	}
 
 	return &pauth.CreateAuthCodeResponse{Code: response.GetCode()}, nil
@@ -597,6 +589,43 @@ func (h *Handler) Verify(ctx context.Context, in *pauth.VerifyTokenRequest) (*pa
 	return out, nil
 }
 
+func (h *Handler) rangePasswordConnectors(ctx context.Context, username, password string) (identity auth.Identity, source string, err error) {
+
+	var valid bool
+	attempt := 0
+
+	for _, c := range auth.GetConnectors() {
+		cc, ok := c.Conn().(auth.PasswordConnector)
+		if !ok {
+			continue
+		}
+
+		attempt++
+		loginCtx, can := context.WithTimeout(ctx, 5*time.Second)
+		defer can()
+		identity, valid, err = cc.Login(loginCtx, auth.Scopes{}, username, password)
+		if valid {
+			source = c.Name()
+			break
+		}
+	}
+
+	if attempt == 0 {
+		err = errors.WithMessage(errors.StatusInternalServerError, "No password connector found")
+		return
+	}
+	if !valid {
+		if err == nil {
+			err = errors.WithMessage(errors.StatusUnauthorized, "no connector could validate connexion")
+		}
+		return
+	}
+
+	return
+
+}
+
+// PasswordCredentialsCode validates the code information and generates a token
 func (h *Handler) PasswordCredentialsCode(ctx context.Context, in *pauth.PasswordCredentialsCodeRequest) (*pauth.PasswordCredentialsCodeResponse, error) {
 
 	// Getting or creating challenge
@@ -609,37 +638,8 @@ func (h *Handler) PasswordCredentialsCode(ctx context.Context, in *pauth.Passwor
 		}
 	}
 
-	var identity auth.Identity
-	var valid bool
-	var err error
-
-	connectors := auth.GetConnectors()
-	source := ""
-	for _, c := range connectors {
-		cc, ok := c.Conn().(auth.PasswordConnector)
-		if !ok {
-			continue
-		}
-
-		// Creating a timeout for context
-		loginctx, _ := context.WithTimeout(ctx, 5*time.Second)
-		identity, valid, err = cc.Login(loginctx, auth.Scopes{}, in.GetUsername(), in.GetPassword())
-		// Error means the user is unknwown to the system, we continue to the next round
-		if err != nil {
-			continue
-		}
-
-		// Invalid means we found the user but did not match the password
-		if !valid {
-			err = errors.New("password does not match")
-			continue
-		}
-
-		source = c.Name()
-
-		break
-	}
-
+	// Range PasswordConnectors
+	identity, source, err := h.rangePasswordConnectors(ctx, in.GetUsername(), in.GetPassword())
 	if err != nil {
 		return nil, err
 	}
@@ -647,28 +647,25 @@ func (h *Handler) PasswordCredentialsCode(ctx context.Context, in *pauth.Passwor
 	// Searching login challenge
 	login, err := hydra.GetLogin(ctx, challenge)
 	if err != nil {
-		log.Logger(ctx).Error("Failed to get login ", zap.Error(err))
-		return nil, err
+		return nil, errors.WithMessage(err, "while trying to GetLogin")
 	}
 
 	// Accepting login challenge
 	acceptLogin, err := hydra.AcceptLogin(ctx, challenge, identity.UserID)
 	if err != nil {
-		log.Logger(ctx).Error("Failed to accept login ", zap.Error(err))
-		return nil, err
+		return nil, errors.WithMessage(err, "while trying to Accept Login")
 	}
 
 	// Creating consent
-	consent, err := hydra.CreateConsent(ctx, acceptLogin.Challenge)
+	cst, err := hydra.CreateConsent(ctx, acceptLogin.Challenge)
 	if err != nil {
-		log.Logger(ctx).Error("Failed to create consent ", zap.Error(err))
-		return nil, err
+		return nil, errors.WithMessage(err, "while trying create consent")
 	}
 
 	// Accepting consent
-	if _, err := hydra.AcceptConsent(
+	if _, err = hydra.AcceptConsent(
 		ctx,
-		consent.Challenge,
+		cst.Challenge,
 		login.GetRequestedScope(),
 		login.GetRequestedAudience(),
 		map[string]string{},
@@ -678,8 +675,7 @@ func (h *Handler) PasswordCredentialsCode(ctx context.Context, in *pauth.Passwor
 			"authSource": source,
 		},
 	); err != nil {
-		log.Logger(ctx).Error("Failed to accept consent ", zap.Error(err))
-		return nil, err
+		return nil, errors.WithMessage(err, "while trying to accept consent")
 	}
 
 	requestURL, err := url.Parse(login.GetRequestURL())
@@ -694,14 +690,9 @@ func (h *Handler) PasswordCredentialsCode(ctx context.Context, in *pauth.Passwor
 		return nil, err
 	}
 
-	code, err := hydra.CreateAuthCode(ctx, consent, login.GetClientID(), redirectURL, requestURLValues.Get("code_challenge"), requestURLValues.Get("code_challenge_method"))
+	code, err := hydra.CreateAuthCode(ctx, cst, login.GetClientID(), redirectURL, requestURLValues.Get("code_challenge"), requestURLValues.Get("code_challenge_method"))
 	if err != nil {
-		log.Logger(ctx).Error("Failed to create auth code ", zap.Error(err))
-		return nil, err
-	}
-
-	if err != nil {
-		return nil, err
+		return nil, errors.WithMessage(err, "while trying to create auth code")
 	}
 
 	out := &pauth.PasswordCredentialsCodeResponse{
@@ -717,78 +708,38 @@ func (h *Handler) PasswordCredentialsToken(ctx context.Context, in *pauth.Passwo
 	// Getting or creating challenge
 	c, err := hydra.CreateLogin(ctx, config.DefaultOAuthClientID, []string{"openid", "profile", "offline"}, []string{})
 	if err != nil {
-		return nil, errors.WithMessage(errors.LoginFailed, "cannot create login")
-	}
-	challenge := c.Challenge
-
-	var identity auth.Identity
-	var valid bool
-
-	connectors := auth.GetConnectors()
-
-	attempt := 0
-	source := ""
-	for _, c := range connectors {
-		cc, ok := c.Conn().(auth.PasswordConnector)
-		if !ok {
-			continue
-		}
-
-		attempt++
-
-		loginctx, can := context.WithTimeout(ctx, 5*time.Second)
-		defer can()
-		identity, valid, err = cc.Login(loginctx, auth.Scopes{}, in.GetUsername(), in.GetPassword())
-
-		// Error means the user is unknwown to the system, we continue to the next round
-		if err != nil {
-			continue
-		}
-
-		// Invalid means we found the user but did not match the password
-		if !valid {
-			err = errors.New("password does not match")
-			continue
-		}
-
-		source = c.Name()
-
-		break
+		return nil, errors.WithMessage(err, "while trying to CreateLogin")
 	}
 
-	if attempt == 0 {
-		return nil, errors.New("No password connector found")
-	}
-
+	// Check User/Pwd
+	identity, source, err := h.rangePasswordConnectors(ctx, in.GetUsername(), in.GetPassword())
 	if err != nil {
 		return nil, err
 	}
 
 	// Searching login challenge
+	challenge := c.GetChallenge()
 	login, err := hydra.GetLogin(ctx, challenge)
 	if err != nil {
-		log.Logger(ctx).Error("Failed to get login ", zap.Error(err))
-		return nil, err
+		return nil, errors.WithMessage(err, "while trying to GetLogin")
 	}
 
 	// Accepting login challenge
 	verifyLogin, err := hydra.AcceptLogin(ctx, challenge, identity.UserID)
 	if err != nil {
-		log.Logger(ctx).Error("Failed to accept login ", zap.Error(err))
-		return nil, err
+		return nil, errors.WithMessage(err, "while trying to AcceptLogin")
 	}
 
 	// Creating consent
-	consent, err := hydra.CreateConsent(ctx, verifyLogin.Challenge)
+	cst, err := hydra.CreateConsent(ctx, verifyLogin.Challenge)
 	if err != nil {
-		log.Logger(ctx).Error("Failed to create consent ", zap.Error(err))
-		return nil, err
+		return nil, errors.WithMessage(err, "while creating consent")
 	}
 
 	// Accepting consent
 	verifyConsent, err := hydra.AcceptConsent(
 		ctx,
-		consent.Challenge,
+		cst.Challenge,
 		login.GetRequestedScope(),
 		login.GetRequestedAudience(),
 		map[string]string{},
@@ -799,11 +750,10 @@ func (h *Handler) PasswordCredentialsToken(ctx context.Context, in *pauth.Passwo
 		},
 	)
 	if err != nil {
-		log.Logger(ctx).Error("Failed to accept consent ", zap.Error(err))
-		return nil, err
+		return nil, errors.WithMessage(err, "while accepting consent")
 	}
 
-	consent.Challenge = verifyConsent.Challenge
+	cst.Challenge = verifyConsent.Challenge
 
 	requestURL, err := url.Parse(login.GetRequestURL())
 	if err != nil {
@@ -817,22 +767,18 @@ func (h *Handler) PasswordCredentialsToken(ctx context.Context, in *pauth.Passwo
 		return nil, err
 	}
 
-	verifier := consent.Challenge // Must be > 43 characters
+	verifier := cst.Challenge // Must be > 43 characters
 	hash := sha256.New()
-	if _, err := hash.Write([]byte(verifier)); err != nil {
+	if _, err = hash.Write([]byte(verifier)); err != nil {
 		return nil, err
 	}
 
 	codeChallenge := base64.RawURLEncoding.EncodeToString(hash.Sum([]byte{}))
 	codeChallengeMethod := "S256"
 
-	code, err := hydra.CreateAuthCode(ctx, consent, login.GetClientID(), redirectURL, codeChallenge, codeChallengeMethod)
+	code, err := hydra.CreateAuthCode(ctx, cst, login.GetClientID(), redirectURL, codeChallenge, codeChallengeMethod)
 	if err != nil {
-		log.Logger(ctx).Error("Failed to create auth code ", zap.Error(err))
-		return nil, err
-	}
-	if err != nil {
-		return nil, err
+		return nil, errors.WithMessage(err, "while creating auth code")
 	}
 
 	tokenResp, err := h.Exchange(ctx, &pauth.ExchangeRequest{

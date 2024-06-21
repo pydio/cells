@@ -61,7 +61,11 @@ var (
 )
 
 // WithAPICode adds APICode and optional formatting arguments as error Details
-func WithAPICode(base error, code ApiCode, kv ...interface{}) E {
+// It does not override an existing APICode
+func WithAPICode(base error, code ApiCode, kv ...interface{}) error {
+	if _, _, alreadySet := HasApiCode(base); alreadySet {
+		return base
+	}
 	details := []interface{}{"apiCode", code}
 	if len(kv) > 0 {
 		if len(kv)%2 != 0 {
@@ -70,6 +74,19 @@ func WithAPICode(base error, code ApiCode, kv ...interface{}) E {
 		details = append(details, "apiCodeArgs", kv)
 	}
 	return WithDetails(base, details...)
+}
+
+func HasApiCode(err error) (code ApiCode, args []interface{}, has bool) {
+	if dd := AllDetails(err); dd != nil {
+		if ac, ok := dd["apiCode"]; ok {
+			code = ac.(ApiCode)
+			if apiCodeArgs, ok2 := dd["apiCodeArgs"]; ok2 {
+				args = apiCodeArgs.([]interface{})
+			}
+			return code, args, true
+		}
+	}
+	return "", nil, false
 }
 
 // Tag an existing error with a known sentinel. If it is already responding to Is(er, sentinel), it will be unmodified.
@@ -95,12 +112,28 @@ func Zap(err error) zap.Field {
 	}
 }
 
-// AllDetails stacks all Details from all unwrapped errors. It overrides tozd version to avoid stopping on Cause() case.
+// AllDetails stacks all Details from all unwrapped errors.
+// It overrides tozd version to avoid stopping on Cause() case and to gather joined errors details
 func AllDetails(err error) map[string]interface{} {
 	out := tozd.AllDetails(err)
+	for _, ue := range tozd.Unjoin(err) {
+		for k, v := range AllDetails(ue) {
+			if out == nil {
+				out = map[string]interface{}{}
+			}
+			if _, has := out[k]; !has {
+				out[k] = v
+			}
+		}
+	}
 	if c := tozd.Cause(err); c != nil {
 		for k, v := range AllDetails(c) {
-			out[k] = v
+			if out == nil {
+				out = map[string]interface{}{}
+			}
+			if _, has := out[k]; !has {
+				out[k] = v
+			}
 		}
 	}
 	return out

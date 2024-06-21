@@ -98,19 +98,19 @@ func (s *sqlimpl) instance(ctx context.Context) *gorm.DB {
 // Add to the SQL DB.
 func (s *sqlimpl) Add(ctx context.Context, in interface{}) (bool, error) {
 
-	workspace, ok := in.(*idm.Workspace)
+	ws, ok := in.(*idm.Workspace)
 	if !ok {
 		return false, errors.WithMessage(errors.InvalidParameters, "Wrong input type")
 	}
 
 	var exSlug string
-	exist := &idm.Workspace{UUID: workspace.UUID}
+	exist := &idm.Workspace{UUID: ws.UUID}
 	if tx := s.instance(ctx).First(exist); tx.Error == nil {
 		exSlug = exist.Slug
 	}
-	if (exSlug == "" || exSlug != workspace.Slug) && s.slugExists(ctx, workspace.Slug) {
+	if (exSlug == "" || exSlug != ws.Slug) && s.slugExists(ctx, ws.Slug) {
 		index := 1
-		baseSlug := workspace.Slug
+		baseSlug := ws.Slug
 		testSlug := fmt.Sprintf("%s-%v", baseSlug, index)
 		for {
 			if !s.slugExists(ctx, testSlug) {
@@ -119,10 +119,10 @@ func (s *sqlimpl) Add(ctx context.Context, in interface{}) (bool, error) {
 			index++
 			testSlug = fmt.Sprintf("%s-%v", baseSlug, index)
 		}
-		workspace.Slug = testSlug
+		ws.Slug = testSlug
 	}
 
-	tx := s.instance(ctx).FirstOrCreate(workspace)
+	tx := s.instance(ctx).FirstOrCreate(ws)
 	if err := tx.Error; err != nil {
 		return false, err
 	}

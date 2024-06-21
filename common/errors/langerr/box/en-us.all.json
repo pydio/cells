@@ -20,6 +20,9 @@
   "error.E_LOGIN_FAILED": {
     "other": "Could not recognize your name or password, did you check your Caps Lock key?"
   },
+  "error.E_USER_LOCKED": {
+    "other": "User {{.login}} has been blocked. Please contact your administrator."
+  },
   "error.E_NOT_FOUND": {
     "other": "Resource was not found."
   },
