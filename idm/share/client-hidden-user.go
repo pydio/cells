@@ -30,12 +30,12 @@ import (
 
 	"github.com/pydio/cells/v4/common/client/commons/idmc"
 	"github.com/pydio/cells/v4/common/errors"
+	"github.com/pydio/cells/v4/common/permissions"
 	"github.com/pydio/cells/v4/common/proto/idm"
 	"github.com/pydio/cells/v4/common/proto/rest"
 	service "github.com/pydio/cells/v4/common/proto/service"
 	"github.com/pydio/cells/v4/common/proto/tree"
 	"github.com/pydio/cells/v4/common/telemetry/log"
-	permissions2 "github.com/pydio/cells/v4/common/utils/permissions"
 	"github.com/pydio/cells/v4/common/utils/uuid"
 )
 
@@ -118,11 +118,11 @@ func (sc *Client) GetOrCreateHiddenUser(ctx context.Context, ownerUser *idm.User
 }
 
 // UpdateACLsForHiddenUser deletes and replaces access ACLs for a hidden user.
-func (sc *Client) UpdateACLsForHiddenUser(ctx context.Context, roleId string, workspaceId string, rootNodes []*tree.Node, permissions []rest.ShareLinkAccessType, parentPolicy string, update bool) error {
+func (sc *Client) UpdateACLsForHiddenUser(ctx context.Context, roleId string, workspaceId string, rootNodes []*tree.Node, perms []rest.ShareLinkAccessType, parentPolicy string, update bool) error {
 
 	HasRead := false
 	HasWrite := false
-	for _, perm := range permissions {
+	for _, perm := range perms {
 		if perm == rest.ShareLinkAccessType_Download || perm == rest.ShareLinkAccessType_Preview {
 			HasRead = true
 		}
@@ -145,7 +145,7 @@ func (sc *Client) UpdateACLsForHiddenUser(ctx context.Context, roleId string, wo
 		return nil
 	}
 
-	acls, err := sc.GetTemplateACLsForMinisite(ctx, roleId, permissions, aclClient)
+	acls, err := sc.GetTemplateACLsForMinisite(ctx, roleId, perms, aclClient)
 	if err != nil {
 		return err
 	}
@@ -160,7 +160,7 @@ func (sc *Client) UpdateACLsForHiddenUser(ctx context.Context, roleId string, wo
 				WorkspaceID: workspaceId,
 				NodeID:      rootNode.Uuid,
 				Action: &idm.ACLAction{
-					Name:  permissions2.AclPolicy.Name,
+					Name:  permissions.AclPolicy.Name,
 					Value: newPol,
 				},
 			})
@@ -170,7 +170,7 @@ func (sc *Client) UpdateACLsForHiddenUser(ctx context.Context, roleId string, wo
 					RoleID:      roleId,
 					WorkspaceID: workspaceId,
 					NodeID:      rootNode.Uuid,
-					Action:      permissions2.AclRead,
+					Action:      permissions.AclRead,
 				})
 			}
 			if HasWrite {
@@ -178,7 +178,7 @@ func (sc *Client) UpdateACLsForHiddenUser(ctx context.Context, roleId string, wo
 					RoleID:      roleId,
 					WorkspaceID: workspaceId,
 					NodeID:      rootNode.Uuid,
-					Action:      permissions2.AclWrite,
+					Action:      permissions.AclWrite,
 				})
 			}
 		}
@@ -186,7 +186,7 @@ func (sc *Client) UpdateACLsForHiddenUser(ctx context.Context, roleId string, wo
 	// Add default Repository Id for the role
 	acls = append(acls, &idm.ACL{
 		RoleID:      roleId,
-		WorkspaceID: permissions2.FrontWsScopeAll,
+		WorkspaceID: permissions.FrontWsScopeAll,
 		Action: &idm.ACLAction{
 			Name:  "parameter:core.conf:DEFAULT_START_REPOSITORY",
 			Value: workspaceId,

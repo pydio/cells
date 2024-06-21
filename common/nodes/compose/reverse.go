@@ -36,13 +36,13 @@ import (
 	"github.com/pydio/cells/v4/common/nodes/put"
 	"github.com/pydio/cells/v4/common/nodes/version"
 	"github.com/pydio/cells/v4/common/nodes/virtual"
+	"github.com/pydio/cells/v4/common/permissions"
 	"github.com/pydio/cells/v4/common/proto/idm"
 	"github.com/pydio/cells/v4/common/proto/tree"
 	"github.com/pydio/cells/v4/common/runtime"
 	"github.com/pydio/cells/v4/common/telemetry/log"
 	"github.com/pydio/cells/v4/common/utils/cache"
 	"github.com/pydio/cells/v4/common/utils/openurl"
-	"github.com/pydio/cells/v4/common/utils/permissions"
 )
 
 // Reverse is an extended clientImpl used mainly to filter events sent from inside to outside the application

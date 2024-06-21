@@ -26,7 +26,7 @@ import (
 	minio "github.com/minio/minio-go/v7"
 
 	"github.com/pydio/cells/v4/common"
-	"github.com/pydio/cells/v4/common/utils/permissions"
+	"github.com/pydio/cells/v4/common/permissions"
 	"github.com/pydio/cells/v4/common/utils/propagator"
 )
 

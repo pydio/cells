@@ -27,10 +27,10 @@ import (
 
 	"github.com/spf13/viper"
 
+	permissions2 "github.com/pydio/cells/v4/common/permissions"
 	"github.com/pydio/cells/v4/common/proto/idm"
 	"github.com/pydio/cells/v4/common/runtime"
 	"github.com/pydio/cells/v4/common/server/stubs/idmtest"
-	"github.com/pydio/cells/v4/common/utils/permissions"
 
 	_ "github.com/pydio/cells/v4/common/utils/cache/gocache"
 
@@ -63,15 +63,15 @@ func TestMain(m *testing.M) {
 func TestSearchUniqueUser(t *testing.T) {
 	bg := context.Background()
 	Convey("Test Basic Search Requests on Mocks", t, func() {
-		adminUser, e := permissions.SearchUniqueUser(bg, "admin", "")
+		adminUser, e := permissions2.SearchUniqueUser(bg, "admin", "")
 		So(e, ShouldBeNil)
-		_, e = permissions.SearchUniqueUser(bg, "otherlogin", "")
+		_, e = permissions2.SearchUniqueUser(bg, "otherlogin", "")
 		So(e, ShouldNotBeNil)
-		aa, e := permissions.GetACLsForActions(bg, permissions.AclRead)
+		aa, e := permissions2.GetACLsForActions(bg, permissions2.AclRead)
 		So(e, ShouldBeNil)
 		So(aa, ShouldNotBeEmpty)
 
-		fakeAcl := permissions.NewAccessList()
+		fakeAcl := permissions2.NewAccessList()
 		fakeAcl.AppendACLs(&idm.ACL{
 			ID:          "",
 			Action:      &idm.ACLAction{Name: "read", Value: "1"},
@@ -81,23 +81,23 @@ func TestSearchUniqueUser(t *testing.T) {
 		})
 		fakeAcl.Flatten(bg)
 
-		aa, er := permissions.GetACLsForWorkspace(bg, []string{
+		aa, er := permissions2.GetACLsForWorkspace(bg, []string{
 			testData.WsSlugToUuid("common-files"),
-		}, permissions.AclRead, permissions.AclWrite)
+		}, permissions2.AclRead, permissions2.AclWrite)
 		So(er, ShouldBeNil)
 		So(aa, ShouldHaveLength, 2)
 
-		rr, er := permissions.GetRolesForUser(bg, adminUser, false)
+		rr, er := permissions2.GetRolesForUser(bg, adminUser, false)
 		So(er, ShouldBeNil)
 		So(rr, ShouldHaveLength, 3)
 
-		rr, _ = permissions.GetRoles(bg, []string{"ADMINS"})
+		rr, _ = permissions2.GetRoles(bg, []string{"ADMINS"})
 		So(rr, ShouldHaveLength, 1)
 
 	})
 
 	Convey("Test ACL List load", t, func() {
-		acl, user, er := permissions.AccessListFromUser(bg, "admin", false)
+		acl, user, er := permissions2.AccessListFromUser(bg, "admin", false)
 		So(er, ShouldBeNil)
 		So(user, ShouldNotBeEmpty)
 		So(acl, ShouldNotBeEmpty)
