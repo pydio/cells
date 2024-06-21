@@ -95,10 +95,10 @@ const namespace = {
     Pydio
 };
 
-var originalRequire = window.require || require
+let originalRequire = window.require || require
 
 if(originalRequire) {
-    window.require = (libName) => {
+    window.require = function(libName){
 
         switch (libName){
             case 'pydio/lang/observable':
