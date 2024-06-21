@@ -105,13 +105,13 @@ func (h *IndexHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	tplConf := &TplConf{
 		ApplicationTitle: config.Get("frontend", "plugin", "core.pydio", "APPLICATION_TITLE").Default("Cells").String(),
-		//Rebase:           "/",
-		ResourcesFolder: "./plug/gui.ajax/res",
-		Favicon:         "./plug/gui.ajax/res/themes/common/images/favicon.png",
-		Theme:           "material",
-		Version:         frontend.VersionHash(),
-		LoadingString:   GetLoadingString(bootConf.CurrentLanguage),
-		StartParameters: startParameters,
+		Rebase:           "/",
+		ResourcesFolder:  "/plug/gui.ajax/res",
+		Favicon:          "/plug/gui.ajax/res/themes/common/images/favicon.png",
+		Theme:            "material",
+		Version:          frontend.VersionHash(),
+		LoadingString:    GetLoadingString(bootConf.CurrentLanguage),
+		StartParameters:  startParameters,
 	}
 	if customHeader := config.Get("frontend", "plugin", "gui.ajax", "HTML_CUSTOM_HEADER").String(); customHeader != "" {
 		tplConf.CustomHTMLHeader = template.HTML(customHeader)

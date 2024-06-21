@@ -141,7 +141,7 @@ func ComputeBootConf(ctx context.Context, pool *PluginsPool, showVersion ...bool
 	}
 
 	b := &BootConf{
-		AjxpResourcesFolder:          "plug/gui.ajax/res",
+		AjxpResourcesFolder:          "/plug/gui.ajax/res",
 		ENDPOINT_REST_API:            common.DefaultRouteREST,
 		ENDPOINT_S3_GATEWAY:          "/io",
 		ENDPOINT_WEBSOCKET:           "/ws/event",
