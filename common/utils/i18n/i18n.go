@@ -47,7 +47,7 @@ var (
 		"it":    "Italiano",
 		"lv":    "Latv",
 		"pt-br": "Português do Brasil",
-		"ja":    "日本人",        // Japanese
+		"ja":    "日本語",        // Japanese
 		"ru":    "русский",    // Russian
 		"vi-vn": "Tiếng Việt", // Vietnamese
 		"zh-cn": "简体中文",       // Chinese simplified
