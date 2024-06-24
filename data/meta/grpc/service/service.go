@@ -30,6 +30,7 @@ import (
 	"github.com/pydio/cells/v4/common/broker"
 	"github.com/pydio/cells/v4/common/proto/tree"
 	"github.com/pydio/cells/v4/common/runtime"
+	"github.com/pydio/cells/v4/common/runtime/manager"
 	"github.com/pydio/cells/v4/common/service"
 	"github.com/pydio/cells/v4/data/meta"
 	grpc2 "github.com/pydio/cells/v4/data/meta/grpc"
@@ -48,6 +49,19 @@ func init() {
 			service.Description("Metadata server for tree nodes"),
 			service.Unique(true),
 			service.WithStorageDrivers(meta.Drivers...),
+			service.Migrations([]*service.Migration{
+				{
+					TargetVersion: service.FirstRun(),
+					Up: func(ctx context.Context) error {
+						dao, err := manager.Resolve[meta.DAO](ctx)
+						if err != nil {
+							return err
+						}
+
+						return dao.Migrate(ctx)
+					},
+				},
+			}),
 			service.WithGRPC(func(ctx context.Context, srv grpc.ServiceRegistrar) error {
 				engine := grpc2.NewMetaServer(ctx, Name)
 

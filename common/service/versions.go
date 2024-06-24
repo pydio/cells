@@ -177,20 +177,22 @@ func applyMigrations(ctx context.Context, current *version.Version, target *vers
 
 	// corner case of the fresh install, returns the current target version to be stored
 	if current.Equal(FirstRun()) {
-		m := migrations[0]
 
-		// Double check to insure we really only perform FirstRun initialisation
-		if !m.TargetVersion.Equal(FirstRun()) {
-			// no first run init, doing nothing
-			return target, nil
+		for _, m := range migrations {
+			// Double check to insure we really only perform FirstRun initialisation
+			if !m.TargetVersion.Equal(FirstRun()) {
+				// no first run init, doing nothing
+				return target, nil
+			}
+
+			log.Logger(ctx).Debug(fmt.Sprintf("About to initialise service at version %s", target.String()))
+			err := m.Up(ctx)
+			if err != nil {
+				log.Logger(ctx).Error(fmt.Sprintf("could not initialise service at version %s", target.String()), zap.Error(err))
+				return current, err
+			}
 		}
 
-		log.Logger(ctx).Debug(fmt.Sprintf("About to initialise service at version %s", target.String()))
-		err := m.Up(ctx)
-		if err != nil {
-			log.Logger(ctx).Error(fmt.Sprintf("could not initialise service at version %s", target.String()), zap.Error(err))
-			return current, err
-		}
 		return target, nil
 	}
 

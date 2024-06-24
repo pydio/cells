@@ -91,17 +91,14 @@ func (*RangedBlockLegacy) TableName() string { return "enc_legacy_nodes" }
 
 // Init handler for the SQL DAO
 func (s *sqlimpl) instance(ctx context.Context) *gorm.DB {
-	if s.once == nil {
-		s.once = &sync.Once{}
+	return s.db.Session(&gorm.Session{SkipDefaultTransaction: true}).WithContext(ctx)
+}
+
+func (s *sqlimpl) Migrate(ctx context.Context) error {
+	if err := s.instance(ctx).AutoMigrate(&Node{}, &NodeKey{}, &RangedBlock{}, &RangedBlockLegacy{}); err != nil {
+		return err
 	}
-
-	db := s.db.Session(&gorm.Session{SkipDefaultTransaction: true}).WithContext(ctx)
-
-	s.once.Do(func() {
-		db.AutoMigrate(&Node{}, &NodeKey{}, &RangedBlock{}, &RangedBlockLegacy{})
-	})
-
-	return db
+	return nil
 }
 
 // Init handler for the SQL DAO

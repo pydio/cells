@@ -122,17 +122,23 @@ func (dao *sqlimpl) GetNamespaceDao() meta.NamespaceDAO {
 }
 
 func (s *sqlimpl) instance(ctx context.Context) *gorm.DB {
-	if s.once == nil {
-		s.once = &sync.Once{}
+	return s.db.Session(&gorm.Session{SkipDefaultTransaction: true}).WithContext(ctx)
+}
+
+func (s *sqlimpl) Migrate(ctx context.Context) error {
+	if err := s.instance(ctx).AutoMigrate(&MetaNamespace{}); err != nil {
+		return err
 	}
 
-	db := s.db.Session(&gorm.Session{SkipDefaultTransaction: true}).WithContext(ctx)
+	if err := s.resourcesDAO.Migrate(ctx); err != nil {
+		return err
+	}
 
-	s.once.Do(func() {
-		db.AutoMigrate(&Meta{})
-	})
+	if err := s.nsDAO.Migrate(ctx); err != nil {
+		return err
+	}
 
-	return db
+	return nil
 }
 
 // Set adds or updates a UserMeta to the DB

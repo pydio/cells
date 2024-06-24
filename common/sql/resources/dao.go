@@ -23,12 +23,16 @@ package resources
 
 import (
 	"context"
-	service "github.com/pydio/cells/v4/common/proto/service"
+
 	"gorm.io/gorm"
+
+	service "github.com/pydio/cells/v4/common/proto/service"
 )
 
 // DAO interface
 type DAO interface {
+	Migrate(ctx context.Context) error
+
 	AddPolicy(ctx context.Context, resourceId string, policy *service.ResourcePolicy) error
 	AddPolicies(ctx context.Context, update bool, resourceId string, rules []*service.ResourcePolicy) error
 	GetPoliciesForResource(ctx context.Context, resourceId string) ([]*service.ResourcePolicy, error)

@@ -32,6 +32,7 @@ import (
 	"github.com/pydio/cells/v4/common/proto/idm"
 	"github.com/pydio/cells/v4/common/proto/tree"
 	"github.com/pydio/cells/v4/common/runtime"
+	"github.com/pydio/cells/v4/common/runtime/manager"
 	"github.com/pydio/cells/v4/common/service"
 	"github.com/pydio/cells/v4/idm/acl"
 	grpc2 "github.com/pydio/cells/v4/idm/acl/grpc"
@@ -50,6 +51,17 @@ func init() {
 			service.Description("Access Control List service"),
 			service.WithStorageDrivers(acl.Drivers...),
 			service.Migrations([]*service.Migration{
+				{
+					TargetVersion: service.FirstRun(),
+					Up: func(ctx context.Context) error {
+						dao, err := manager.Resolve[acl.DAO](ctx)
+						if err != nil {
+							return err
+						}
+
+						return dao.Migrate(ctx)
+					},
+				},
 				{
 					TargetVersion: service.ValidVersion("1.2.0"),
 					Up:            grpc2.UpgradeTo120,

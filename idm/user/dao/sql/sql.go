@@ -136,17 +136,19 @@ func safeGroupPath(gPath string) string {
 }
 
 func (s *sqlimpl) instance(ctx context.Context) *gorm.DB {
-	if s.once == nil {
-		s.once = &sync.Once{}
+	return s.db.Session(&gorm.Session{SkipDefaultTransaction: true}).WithContext(ctx)
+}
+
+func (s *sqlimpl) Migrate(ctx context.Context) error {
+	if err := s.instance(ctx).AutoMigrate(&user_model.User{}, &user_model.UserRole{}, &user_model.UserAttribute{}); err != nil {
+		return err
 	}
 
-	db := s.db.Session(&gorm.Session{SkipDefaultTransaction: true}).WithContext(ctx)
+	if err := s.resourcesDAO.Migrate(ctx); err != nil {
+		return err
+	}
 
-	s.once.Do(func() {
-		db.AutoMigrate(&user_model.User{}, &user_model.UserRole{}, &user_model.UserAttribute{})
-	})
-
-	return db
+	return nil
 }
 
 // Add to the underlying SQL DB.

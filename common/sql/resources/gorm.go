@@ -59,17 +59,15 @@ type ResourcesGORM struct {
 //}
 
 func (s *ResourcesGORM) instance(ctx context.Context) *gorm.DB {
-	if s.once == nil {
-		s.once = &sync.Once{}
+	return s.DB.Session(&gorm.Session{SkipDefaultTransaction: true}).WithContext(ctx)
+}
+
+func (s *ResourcesGORM) Migrate(ctx context.Context) error {
+	if err := s.instance(ctx).AutoMigrate(&service.ResourcePolicy{}); err != nil {
+		return err
 	}
 
-	db := s.DB.Session(&gorm.Session{SkipDefaultTransaction: true}).WithContext(ctx)
-
-	s.once.Do(func() {
-		db.AutoMigrate(&service.ResourcePolicy{})
-	})
-
-	return db
+	return nil
 }
 
 // AddPolicy persists a policy in the underlying storage

@@ -23,8 +23,9 @@ package sql
 import (
 	"context"
 	"embed"
-	"gorm.io/gorm"
 	"sync"
+
+	"gorm.io/gorm"
 )
 
 func NewDAO(db *gorm.DB) DAO {
@@ -32,6 +33,7 @@ func NewDAO(db *gorm.DB) DAO {
 }
 
 type DAO interface {
+	Migrate(ctx context.Context) error
 	Get(ctx context.Context) ([]byte, error)
 	Set(ctx context.Context, data []byte) error
 }
@@ -63,11 +65,11 @@ func (s *sqlimpl) instance(ctx context.Context) *gorm.DB {
 
 	db := s.DB.Session(&gorm.Session{SkipDefaultTransaction: true}).WithContext(ctx)
 
-	s.once.Do(func() {
-		db.AutoMigrate(&KV{})
-	})
-
 	return db
+}
+
+func (s *sqlimpl) Migrate(ctx context.Context) error {
+	return s.instance(ctx).AutoMigrate(&KV{})
 }
 
 func (s *sqlimpl) Get(ctx context.Context) ([]byte, error) {

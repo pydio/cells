@@ -161,7 +161,9 @@ func (c *sqlPersister) MigrationStatus(ctx context.Context) (popx.MigrationStatu
 func (c *sqlPersister) MigrateDown(ctx context.Context, i int) error {
 	c.consentDriver.AutoMigrate()
 	c.jwkDriver.AutoMigrate()
-	c.oauth2Driver.AutoMigrate()
+	if err := c.oauth2Driver.Migrate(ctx); err != nil {
+		return err
+	}
 
 	return nil
 }
@@ -169,7 +171,9 @@ func (c *sqlPersister) MigrateDown(ctx context.Context, i int) error {
 func (c *sqlPersister) MigrateUp(ctx context.Context) error {
 	c.consentDriver.AutoMigrate()
 	c.jwkDriver.AutoMigrate()
-	c.oauth2Driver.AutoMigrate()
+	if err := c.oauth2Driver.Migrate(ctx); err != nil {
+		return err
+	}
 
 	return nil
 }
@@ -177,7 +181,9 @@ func (c *sqlPersister) MigrateUp(ctx context.Context) error {
 func (c *sqlPersister) PrepareMigration(ctx context.Context) error {
 	c.consentDriver.AutoMigrate()
 	c.jwkDriver.AutoMigrate()
-	c.oauth2Driver.AutoMigrate()
+	if err := c.oauth2Driver.Migrate(ctx); err != nil {
+		return err
+	}
 
 	return nil
 }

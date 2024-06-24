@@ -29,6 +29,7 @@ import (
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/proto/idm"
 	"github.com/pydio/cells/v4/common/runtime"
+	"github.com/pydio/cells/v4/common/runtime/manager"
 	"github.com/pydio/cells/v4/common/service"
 	"github.com/pydio/cells/v4/idm/policy"
 	grpc2 "github.com/pydio/cells/v4/idm/policy/grpc"
@@ -44,7 +45,19 @@ func init() {
 			service.Tag(common.ServiceTagIdm),
 			service.Description("Policy Engine Service"),
 			service.WithStorageDrivers(policy.Drivers...),
-			service.Migrations(policy.GrpcServiceMigrations),
+			service.Migrations(append([]*service.Migration{
+				{
+					TargetVersion: service.FirstRun(),
+					Up: func(ctx context.Context) error {
+						dao, err := manager.Resolve[policy.DAO](ctx)
+						if err != nil {
+							return err
+						}
+
+						return dao.Migrate(ctx)
+					},
+				},
+			}, policy.GrpcServiceMigrations...)),
 			service.WithGRPC(func(ctx context.Context, srv grpc.ServiceRegistrar) error {
 				handler := grpc2.NewHandler()
 				idm.RegisterPolicyEngineServiceServer(srv, handler)

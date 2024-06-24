@@ -40,9 +40,12 @@ type DAO interface {
 	resources.DAO
 	index.DAO
 
+	Migrate(ctx context.Context) error
+
 	// Add creates or updates a user in the underlying repository.
 	// It returns the resulting user, a true flag in case of an update
 	// of an existing user and/or an error if something went wrong.
+
 	Add(context.Context, interface{}) (interface{}, []*idm.User, error)
 	Del(context.Context, sql.Enquirer, chan *idm.User) (numRows int64, e error)
 	Search(context.Context, sql.Enquirer, *[]interface{}, ...bool) error

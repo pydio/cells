@@ -26,8 +26,10 @@ import (
 	"google.golang.org/grpc"
 
 	"github.com/pydio/cells/v4/common"
+	configsql "github.com/pydio/cells/v4/common/config/sql"
 	pb "github.com/pydio/cells/v4/common/proto/config"
 	"github.com/pydio/cells/v4/common/runtime"
+	"github.com/pydio/cells/v4/common/runtime/manager"
 	"github.com/pydio/cells/v4/common/service"
 	grpc2 "github.com/pydio/cells/v4/discovery/config/grpc"
 )
@@ -43,18 +45,24 @@ func init() {
 			service.Context(ctx),
 			service.Tag(common.ServiceTagDiscovery),
 			service.Description("Grpc service for serving configurations to forks"),
-			// service.WithStorage(config.NewDAO),
+			service.WithStorageDrivers(configsql.NewDAO),
+			service.Migrations([]*service.Migration{
+				{
+					Up: func(ctx context.Context) error {
+						dao, err := manager.Resolve[configsql.DAO](ctx)
+						if err != nil {
+							return err
+						}
+
+						return dao.Migrate(ctx)
+					},
+				},
+			}),
 			service.WithGRPC(func(c context.Context, srv grpc.ServiceRegistrar) error {
-				// Register handler
 				pb.RegisterConfigServer(srv, grpc2.NewHandler())
 
 				return nil
 			}),
-			//service.WithGRPCStop(func(c context.Context, srv *grpc.Server) error {
-			//	pb.DeregisterConfigEnhancedServer(srv, common.ServiceGrpcNamespace_+common.ServiceConfig)
-			//
-			//	return nil
-			//}),
 		)
 	})
 }

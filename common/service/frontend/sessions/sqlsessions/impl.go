@@ -72,6 +72,10 @@ type Impl struct {
 	startExpirer sync.Once
 }
 
+func (h *Impl) Migrate(ctx context.Context) error {
+	return h.DB.AutoMigrate(&SessionRow{})
+}
+
 // GetSession implements the SessionDAO interface
 func (h *Impl) GetSession(r *http.Request) (*sessions.Session, error) {
 	// Auto start expirer - we should find a way to send a Done signal

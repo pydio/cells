@@ -34,6 +34,8 @@ var Drivers = service.StorageDrivers{}
 
 type DAO interface {
 	ladon.Manager
+
+	Migrate(ctx context.Context) error
 	IsAllowed(ctx context.Context, r *ladon.Request) error
 	StorePolicyGroup(ctx context.Context, group *idm.PolicyGroup) (*idm.PolicyGroup, error)
 	ListPolicyGroups(ctx context.Context, filter string) ([]*idm.PolicyGroup, error)

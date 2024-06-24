@@ -37,6 +37,8 @@ var Drivers = service.StorageDrivers{}
 type DAO interface {
 	resources.DAO
 
+	Migrate(ctx context.Context) error
+
 	// Add creates or updates a workspace in the database.
 	// It returns true in case of an update.
 	Add(context.Context, interface{}) (bool, error)

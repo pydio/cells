@@ -30,6 +30,7 @@ import (
 	"github.com/pydio/cells/v4/common/proto/idm"
 	service2 "github.com/pydio/cells/v4/common/proto/service"
 	"github.com/pydio/cells/v4/common/runtime"
+	"github.com/pydio/cells/v4/common/runtime/manager"
 	"github.com/pydio/cells/v4/common/service"
 	"github.com/pydio/cells/v4/idm/workspace"
 	grpc2 "github.com/pydio/cells/v4/idm/workspace/grpc"
@@ -47,6 +48,19 @@ func init() {
 			service.Tag(common.ServiceTagIdm),
 			service.Description("Workspaces Service"),
 			service.WithStorageDrivers(workspace.Drivers...),
+			service.Migrations([]*service.Migration{
+				{
+					TargetVersion: service.FirstRun(),
+					Up: func(ctx context.Context) error {
+						dao, err := manager.Resolve[workspace.DAO](ctx)
+						if err != nil {
+							return err
+						}
+
+						return dao.Migrate(ctx)
+					},
+				},
+			}),
 			service.WithGRPC(func(ctx context.Context, srv grpc.ServiceRegistrar) error {
 				h := grpc2.NewHandler()
 				idm.RegisterWorkspaceServiceServer(srv, h)

@@ -84,6 +84,14 @@ func (s *sqlImpl) instance(ctx context.Context) *gorm.DB {
 	return db
 }
 
+func (s *sqlImpl) Migrate(ctx context.Context) error {
+	if err := s.instance(ctx).AutoMigrate(&Meta{}); err != nil {
+		return err
+	}
+
+	return nil
+}
+
 // SetMetadata creates or updates metadata for a node
 func (s *sqlImpl) SetMetadata(ctx context.Context, nodeId string, author string, metadata map[string]string) (err error) {
 

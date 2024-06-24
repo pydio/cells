@@ -31,6 +31,7 @@ import (
 var Drivers service.StorageDrivers
 
 type DAO interface {
+	Migrate(ctx context.Context) error
 	ListEncryptedBlockInfo(ctx context.Context, nodeUuid string) ([]*encryption.RangedBlock, error)
 	SaveEncryptedBlockInfo(ctx context.Context, nodeUuid string, b *encryption.RangedBlock) error
 	GetEncryptedLegacyBlockInfo(ctx context.Context, nodeUuid string) (*encryption.RangedBlock, error)
