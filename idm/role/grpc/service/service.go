@@ -30,6 +30,7 @@ import (
 	"github.com/pydio/cells/v4/common/broker"
 	"github.com/pydio/cells/v4/common/proto/idm"
 	"github.com/pydio/cells/v4/common/runtime"
+	"github.com/pydio/cells/v4/common/runtime/manager"
 	"github.com/pydio/cells/v4/common/service"
 	"github.com/pydio/cells/v4/idm/role"
 	grpc2 "github.com/pydio/cells/v4/idm/role/grpc"
@@ -44,8 +45,20 @@ func init() {
 			service.Context(ctx),
 			service.Tag(common.ServiceTagIdm),
 			service.Description("Roles Service"),
-			service.Migrations(grpc2.GrpcServiceMigrations),
 			service.WithStorageDrivers(role.Drivers...),
+			service.Migrations(append([]*service.Migration{
+				{
+					TargetVersion: service.FirstRun(),
+					Up: func(ctx context.Context) error {
+						dao, err := manager.Resolve[role.DAO](ctx)
+						if err != nil {
+							return err
+						}
+
+						return dao.Migrate(ctx)
+					},
+				},
+			}, grpc2.GrpcServiceMigrations...)),
 			service.WithGRPC(func(ctx context.Context, server grpc.ServiceRegistrar) error {
 				handler := grpc2.NewHandler()
 				idm.RegisterRoleServiceServer(server, handler)

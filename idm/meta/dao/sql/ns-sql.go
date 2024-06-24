@@ -112,13 +112,15 @@ func (s *nsSqlImpl) instance(ctx context.Context) *gorm.DB {
 		s.once = &sync.Once{}
 	}
 
-	db := s.db.Session(&gorm.Session{SkipDefaultTransaction: true}).WithContext(ctx)
+	return s.db.Session(&gorm.Session{SkipDefaultTransaction: true}).WithContext(ctx)
+}
 
-	s.once.Do(func() {
-		db.AutoMigrate(&MetaNamespace{})
-	})
+func (s *nsSqlImpl) Migrate(ctx context.Context) error {
+	if err := s.instance(ctx).AutoMigrate(&MetaNamespace{}); err != nil {
+		return err
+	}
 
-	return db
+	return s.resourcesDAO.Migrate(ctx)
 }
 
 // Add inserts a namespace

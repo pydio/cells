@@ -112,11 +112,11 @@ func (s *sqlimpl) instance(ctx context.Context) *gorm.DB {
 
 	db := s.DB.Session(&gorm.Session{SkipDefaultTransaction: true}).WithContext(ctx)
 
-	s.once.Do(func() {
-		db.AutoMigrate(&ACL{}, &Role{}, &Workspace{}, &Node{})
-	})
-
 	return db
+}
+
+func (s *sqlimpl) Migrate(ctx context.Context) error {
+	return s.instance(ctx).AutoMigrate(&ACL{}, &Role{}, &Workspace{}, &Node{})
 }
 
 // Add inserts an ACL to the underlying SQL DB

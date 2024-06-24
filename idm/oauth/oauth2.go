@@ -80,8 +80,8 @@ type oauth2Driver struct {
 	r  Registry
 }
 
-func (o *oauth2Driver) AutoMigrate() {
-	o.db.AutoMigrate(&OAuth2RequestSQLOIDC{}, &OAuth2RequestSQLAccess{}, &OAuth2RequestSQLRefresh{}, &OAuth2RequestSQLCode{}, &OAuth2RequestSQLPKCE{})
+func (o *oauth2Driver) Migrate(ctx context.Context) error {
+	return o.db.AutoMigrate(&OAuth2RequestSQLOIDC{}, &OAuth2RequestSQLAccess{}, &OAuth2RequestSQLRefresh{}, &OAuth2RequestSQLCode{}, &OAuth2RequestSQLPKCE{})
 }
 
 func (o *oauth2Driver) createSession(ctx context.Context, signature string, request fosite.Requester, table tableName) error {

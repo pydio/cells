@@ -31,6 +31,7 @@ import (
 	"github.com/pydio/cells/v4/common/proto/idm"
 	service2 "github.com/pydio/cells/v4/common/proto/service"
 	"github.com/pydio/cells/v4/common/runtime"
+	"github.com/pydio/cells/v4/common/runtime/manager"
 	"github.com/pydio/cells/v4/common/service"
 	"github.com/pydio/cells/v4/idm/user"
 	grpc2 "github.com/pydio/cells/v4/idm/user/grpc"
@@ -49,6 +50,17 @@ func init() {
 			service.Tag(common.ServiceTagIdm, "users"),
 			service.Description("Users persistence layer"),
 			service.Migrations([]*service.Migration{
+				{
+					TargetVersion: service.FirstRun(),
+					Up: func(ctx context.Context) error {
+						dao, err := manager.Resolve[user.DAO](ctx)
+						if err != nil {
+							return err
+						}
+
+						return dao.Migrate(ctx)
+					},
+				},
 				{
 					//TargetVersion: service.FirstRun(),
 					TargetVersion: service.Latest(),

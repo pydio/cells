@@ -60,19 +60,14 @@ func NewSQLDAO(db *gorm.DB) DAO {
 		HttpOnly: true,
 	}
 
-	i := &sqlsessions.Impl{
+	return &sqlsessions.Impl{
 		DB:      db,
 		Options: defaultOptions,
 	}
-
-	if er := db.AutoMigrate(&sqlsessions.SessionRow{}); er != nil {
-		log.Logger(context.Background()).Errorf("Cannot AutoMigrate sessions DB %v", er)
-	}
-
-	return i
 }
 
 type DAO interface {
+	Migrate(ctx context.Context) error
 	GetSession(r *http.Request) (*sessions.Session, error)
 	DeleteExpired(ctx context.Context, logger log.ZapLogger)
 }
@@ -93,6 +88,10 @@ func (s *cookiesImpl) Init(ctx context.Context, values configx.Values) error {
 		s.secureKeyPairs = k
 		return s.DAO.Init(ctx, values)
 	}
+}
+
+func (s *cookiesImpl) Migrate(ctx context.Context) error {
+	return nil
 }
 
 func (s *cookiesImpl) GetSession(r *http.Request) (*sessions.Session, error) {

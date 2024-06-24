@@ -36,6 +36,7 @@ var Drivers = service.StorageDrivers{}
 type DAO interface {
 	resources.DAO
 
+	Migrate(ctx context.Context) error
 	Add(ctx context.Context, role *idm.Role) (*idm.Role, bool, error)
 	Delete(ctx context.Context, query sql.Enquirer) (numRows int64, e error)
 	Search(ctx context.Context, query sql.Enquirer, output *[]*idm.Role) error

@@ -32,6 +32,7 @@ import (
 	"github.com/pydio/cells/v4/common/proto/idm"
 	"github.com/pydio/cells/v4/common/proto/tree"
 	"github.com/pydio/cells/v4/common/runtime"
+	"github.com/pydio/cells/v4/common/runtime/manager"
 	"github.com/pydio/cells/v4/common/service"
 	"github.com/pydio/cells/v4/idm/meta"
 	grpc2 "github.com/pydio/cells/v4/idm/meta/grpc"
@@ -52,6 +53,19 @@ func init() {
 			service.Metadata(meta2.ServiceMetaProviderRequired, "true"),
 			service.Description("User-defined Metadata"),
 			service.WithStorageDrivers(meta.Drivers...),
+			service.Migrations([]*service.Migration{
+				{
+					TargetVersion: service.FirstRun(),
+					Up: func(ctx context.Context) error {
+						dao, err := manager.Resolve[meta.DAO](ctx)
+						if err != nil {
+							return err
+						}
+
+						return dao.Migrate(ctx)
+					},
+				},
+			}),
 			service.Unique(true),
 			service.WithGRPC(func(ctx context.Context, server grpc.ServiceRegistrar) error {
 

@@ -22,7 +22,6 @@ package sql
 
 import (
 	"context"
-	"sync"
 
 	"google.golang.org/protobuf/proto"
 	"gorm.io/gorm"
@@ -79,23 +78,19 @@ func (u *UserKey) From(res *encryption.Key) *UserKey {
 
 type sqlimpl struct {
 	db *gorm.DB
-
-	once *sync.Once
 }
 
 // Init handler for the SQL DAO
 func (s *sqlimpl) instance(ctx context.Context) *gorm.DB {
-	if s.once == nil {
-		s.once = &sync.Once{}
+	return s.db.Session(&gorm.Session{SkipDefaultTransaction: true}).WithContext(ctx)
+}
+
+func (s *sqlimpl) Migrate(ctx context.Context) error {
+	if err := s.instance(ctx).AutoMigrate(&UserKey{}); err != nil {
+		return err
 	}
 
-	db := s.db.Session(&gorm.Session{SkipDefaultTransaction: true}).WithContext(ctx)
-
-	s.once.Do(func() {
-		db.AutoMigrate(&UserKey{})
-	})
-
-	return db
+	return nil
 }
 
 // SaveKey saves the key to persistence layer

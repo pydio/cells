@@ -29,6 +29,7 @@ import (
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/proto/encryption"
 	"github.com/pydio/cells/v4/common/runtime"
+	"github.com/pydio/cells/v4/common/runtime/manager"
 	"github.com/pydio/cells/v4/common/service"
 	"github.com/pydio/cells/v4/idm/key"
 	grpc2 "github.com/pydio/cells/v4/idm/key/grpc"
@@ -44,6 +45,19 @@ func init() {
 			service.Tag(common.ServiceTagIdm),
 			service.Description("Encryption Keys server"),
 			service.WithStorageDrivers(key.Drivers...),
+			service.Migrations([]*service.Migration{
+				{
+					TargetVersion: service.FirstRun(),
+					Up: func(ctx context.Context) error {
+						dao, err := manager.Resolve[key.DAO](ctx)
+						if err != nil {
+							return err
+						}
+
+						return dao.Migrate(ctx)
+					},
+				},
+			}),
 			service.WithGRPC(func(ctx context.Context, server grpc.ServiceRegistrar) error {
 				h, e := grpc2.NewUserKeyStore(ctx)
 				if e != nil {

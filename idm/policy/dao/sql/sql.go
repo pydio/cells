@@ -51,38 +51,6 @@ type sqlimpl struct {
 	once *sync.Once
 }
 
-var (
-/*
-	queries = map[string]string{
-		"upsertPolicyGroup": `INSERT INTO idm_policy_group (uuid,name,description,owner_uuid,resource_group,last_updated) VALUES (?,?,?,?,?,?) ON DUPLICATE KEY UPDATE name=?,description=?,owner_uuid=?,resource_group=?,last_updated=?`,
-		"deletePolicyGroup": `DELETE FROM idm_policy_group WHERE uuid=?`,
-		"insertRelPolicy":   `INSERT INTO idm_policy_rel (group_uuid,policy_id) VALUES (?,?)`,
-		"deleteRelPolicies": `DELETE FROM idm_policy_rel WHERE group_uuid=?`,
-		"listJoined":        `SELECT p.GetUUID(),p.name,p.description,p.owner_uuid,p.resource_group,p.last_updated,r.policy_id FROM idm_policy_group as p,idm_policy_rel as r WHERE r.group_uuid=p.GetUUID()`,
-		"listJoinedUuid":    `SELECT p.GetUUID(),p.name,p.description,p.owner_uuid,p.resource_group,p.last_updated,r.policy_id FROM idm_policy_group as p,idm_policy_rel as r WHERE r.group_uuid=p.GetUUID() AND p.GetUUID()=?`,
-		"listJoinedLike":    `SELECT p.GetUUID(),p.name,p.description,p.owner_uuid,p.resource_group,p.last_updated,r.policy_id FROM idm_policy_group as p,idm_policy_rel as r WHERE r.group_uuid=p.GetUUID() AND (p.name LIKE ? or p.description LIKE ?)`,
-		"listJoinedRes":     `SELECT p.GetUUID(),p.name,p.description,p.owner_uuid,p.resource_group,p.last_updated,r.policy_id FROM idm_policy_group as p,idm_policy_rel as r WHERE r.group_uuid=p.GetUUID() AND p.resource_group=?`,
-		"listRelPolicies":   `SELECT policy_id FROM idm_policy_rel WHERE group_uuid=?`,
-	}
-*/
-)
-
-//type PolicyGroup struct {
-//	UUID          string                  `gorm:"column:uuid;primaryKey"`
-//	Name          string                  `gorm:"column:name;type:varchar(500);notNull;"`        // VARCHAR(500) NOT NULL,
-//	Description   string                  `gorm:"column:description;type:varchar(500);notNull;"` // VARCHAR(500) NOT NULL,
-//	OwnerUUID     string                  `gorm:"column:owner_uuid;type:varchar(500);null;"`     // VARCHAR(255) NULL,
-//	ResourceGroup idm.PolicyResourceGroup `gorm:"column:resource_group;type:int;"`               // INT,
-//	LastUpdated   int                     `gorm:"column:last_updated;type:int;"`
-//	Policies      []Policy                `gorm:"many2many:policy_rel;foreignKey:UUID;joinForeignKey:GroupUUID;References:ID;joinReferences:PolicyID;"`
-//}
-//
-//type PolicyRel struct {
-//	ID        int    `gorm:"column:id;primaryKey;type:bigint;notNull;autoIncrement;"` // BIGINT NOT NULL AUTO_INCREMENT,
-//	GroupUUID string `gorm:"column:group_uuid;type:varchar(255);notNull;"`            // VARCHAR(255) NOT NULL,
-//	PolicyID  string `gorm:"colum:policy_id;type:varchar(255);notNull;"`              //  VARCHAR(255) NOT NULL,
-//}
-
 func (s *sqlimpl) instance(ctx context.Context) *gorm.DB {
 	if s.once == nil {
 		s.once = &sync.Once{}
@@ -95,10 +63,17 @@ func (s *sqlimpl) instance(ctx context.Context) *gorm.DB {
 		db.SetupJoinTable(&idm.Policy{}, "Actions", &idm.PolicyActionRel{})
 		db.SetupJoinTable(&idm.Policy{}, "Resources", &idm.PolicyResourceRel{})
 		db.SetupJoinTable(&idm.Policy{}, "Subjects", &idm.PolicySubjectRel{})
-		db.AutoMigrate(&idm.PolicyAction{}, &idm.PolicyResource{}, &idm.PolicySubject{}, &idm.Policy{}, &idm.PolicyGroup{})
 	})
 
 	return db
+}
+
+func (s *sqlimpl) Migrate(ctx context.Context) error {
+	if err := s.instance(ctx).AutoMigrate(&idm.PolicyAction{}, &idm.PolicyResource{}, &idm.PolicySubject{}, &idm.Policy{}, &idm.PolicyGroup{}); err != nil {
+		return err
+	}
+
+	return nil
 }
 
 // StorePolicyGroup first upserts policies (and fail fast) before upserting the passed policy group
@@ -112,42 +87,6 @@ func (s *sqlimpl) StorePolicyGroup(ctx context.Context, group *idm.PolicyGroup) 
 			return nil, err
 		}
 	}
-
-	//var policies []*Policy
-	//for _, policy := range group.GetPolicies() {
-	//	policies = append(policies, &Policy{
-	//		ID:          policy.GetId(),
-	//		Description: policy.GetDescription(),
-	//		Effect:      policy.GetEffect(),
-	//	})
-	//}
-
-	// Insert or update Policies first
-	/*for _, policy := range group.Policies {
-		if policy.GetID() == "" { // must be a new policy
-			policy.ID = uuid.New()
-			err := s.Manager.WithContext(ctx).Create(converter.ProtoToLadonPolicy(policy))
-			if err != nil {
-				log.Logger(ctx).Error(fmt.Sprintf("cannot create new ladon policy with description: %s", policy.Description), zap.Error(err))
-				return group, err
-			}
-		} else { // maybe new or update
-			p, err := s.Manager.WithContext(ctx).Get(policy.GetID())
-			if err != nil && err.Error() != "sql: no rows in result set" {
-				log.Logger(ctx).Error(fmt.Sprintf("unable to retrieve policy with id %s", policy.GetID()), zap.Error(err))
-				return group, err
-			}
-			if p != nil {
-				err = s.Manager.WithContext(ctx).Update(converter.ProtoToLadonPolicy(policy))
-			} else {
-				err = s.Manager.WithContext(ctx).Create(converter.ProtoToLadonPolicy(policy))
-			}
-			if err != nil {
-				log.Logger(ctx).Error(fmt.Sprintf("cannot upsert policy with id %s", policy.GetID()), zap.Error(err))
-				return group, err
-			}
-		}
-	}*/
 
 	// Insert Policy Group
 	s.instance(ctx).Clauses(clause.OnConflict{
@@ -191,34 +130,6 @@ func (s *sqlimpl) ListPolicyGroups(ctx context.Context, filter string) (groups [
 	if tx.Error != nil {
 		return nil, tx.Error
 	}
-
-	//for _, policyGroup := range policyGroups {
-	//	var policies []*idm.Policy
-	//	for _, policy := range policyGroup.Policies {
-	//
-	//		p := &idm.Policy{
-	//			ID:          policy.GetID(),
-	//			Description: policy.Description,
-	//			//Subjects:    policy.Subjects,
-	//			//Resources:   policy.Resources,
-	//			//Actions:     policy.Actions,
-	//			//Effect:      policy.Effect,
-	//		}
-	//
-	//		if err := json.Unmarshal([]byte(policy.Conditions), p.Conditions); err != nil {
-	//			return nil, err
-	//		}
-	//
-	//		policies = append(policies, p)
-	//	}
-	//	groups = append(groups, &idm.PolicyGroup{
-	//		UUID:          policyGroup.GetUUID(),
-	//		OwnerUUID:     policyGroup.GetOwnerUUID(),
-	//		Policies:      policies,
-	//		ResourceGroup: policyGroup.ResourceGroup,
-	//		LastUpdated:   int32(policyGroup.LastUpdated),
-	//	})
-	//}
 
 	return
 }

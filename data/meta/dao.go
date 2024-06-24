@@ -30,6 +30,7 @@ import (
 var Drivers = service.StorageDrivers{}
 
 type DAO interface {
+	Migrate(ctx context.Context) error
 	SetMetadata(ctx context.Context, nodeId string, author string, metadata map[string]string) (err error)
 	GetMetadata(ctx context.Context, nodeId string) (metadata map[string]string, err error)
 }

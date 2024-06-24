@@ -32,6 +32,7 @@ var Drivers = service.StorageDrivers{}
 
 // DAO is a protocol for user key storing
 type DAO interface {
+	Migrate(ctx context.Context) error
 	SaveKey(ctx context.Context, key *encryption.Key, version ...int) error
 	GetKey(ctx context.Context, owner string, KeyID string) (*encryption.Key, int, error)
 	ListKeys(ctx context.Context, owner string) ([]*encryption.Key, error)
