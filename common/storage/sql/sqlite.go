@@ -21,15 +21,17 @@
 package sql
 
 import (
-	"database/sql"
+	"database/sql/driver"
 	"regexp"
 	"strings"
 
-	sqlite3 "github.com/mattn/go-sqlite3"
+	sqlite "github.com/glebarez/go-sqlite"
+
+	_ "github.com/glebarez/sqlite"
 )
 
 const (
-	SqliteDriver = "sqlite3-extended"
+	SqliteDriver = "sqlite"
 	SharedMemDSN = "file::memory:?mode=memory&cache=shared"
 )
 
@@ -39,20 +41,22 @@ func init() {
 		ok, err := regexp.MatchString(re, s)
 		return ok, err
 	}
-	sql.Register(SqliteDriver,
-		&sqlite3.SQLiteDriver{
-			ConnectHook: func(conn *sqlite3.SQLiteConn) error {
-				if err := conn.RegisterFunc("regexp_like", regex, true); err != nil {
-					return err
-				}
-				if err := conn.RegisterFunc("REGEXP_LIKE", regex, true); err != nil {
-					return err
-				}
+	_ = regex
+	scalar := func(ctx *sqlite.FunctionContext, args []driver.Value) (driver.Value, error) {
+		s := args[0].(string)
+		re := args[1].(string)
+		ok, err := regexp.MatchString(re, s)
+		return ok, err
+	}
 
-				return nil
-			},
-		})
-
+	e := sqlite.RegisterScalarFunction("regexp_like", 2, scalar)
+	if e != nil {
+		panic(e)
+	}
+	e = sqlite.RegisterScalarFunction("REGEXP_LIKE", 2, scalar)
+	if e != nil {
+		panic(e)
+	}
 }
 
 type sqliteHelper struct{}

@@ -15,6 +15,7 @@ require (
 	github.com/beevik/ntp v1.4.3
 	github.com/bep/debounce v1.2.1
 	github.com/blevesearch/bleve/v2 v2.4.0
+	github.com/blevesearch/bleve_index_api v1.1.7
 	github.com/bufbuild/protovalidate-go v0.2.0
 	github.com/caddyserver/caddy/v2 v2.8.4
 	github.com/caddyserver/certmagic v0.21.3
@@ -29,6 +30,8 @@ require (
 	github.com/fatih/color v1.17.0
 	github.com/fatih/structs v1.1.0
 	github.com/gdamore/tcell/v2 v2.7.4
+	github.com/glebarez/go-sqlite v1.21.2
+	github.com/glebarez/sqlite v1.11.0
 	github.com/go-gorm/caches v1.0.1
 	github.com/go-jose/go-jose/v3 v3.0.3
 	github.com/go-openapi/errors v0.22.0
@@ -73,7 +76,6 @@ require (
 	github.com/lpar/gzipped v1.1.0
 	github.com/manifoldco/promptui v0.9.0
 	github.com/matcornic/hermes/v2 v2.1.0
-	github.com/mattn/go-sqlite3 v2.0.3+incompatible
 	github.com/microcosm-cc/bluemonday v1.0.26
 	github.com/minio/cli v1.24.2
 	github.com/minio/md5-simd v1.1.2
@@ -169,6 +171,7 @@ require (
 	gorm.io/gen v0.3.26
 	gorm.io/gorm v1.25.10
 	gorm.io/plugin/dbresolver v1.5.1
+	gorm.io/plugin/opentracing v0.0.0-20211220013347-7d2b2af23560
 	k8s.io/apimachinery v0.30.1
 )
 
@@ -204,7 +207,6 @@ require (
 	github.com/bcicen/jstream v1.0.1 // indirect
 	github.com/beorn7/perks v1.0.1 // indirect
 	github.com/bits-and-blooms/bitset v1.13.0 // indirect
-	github.com/blevesearch/bleve_index_api v1.1.7 // indirect
 	github.com/blevesearch/geo v0.1.20 // indirect
 	github.com/blevesearch/go-faiss v1.0.16 // indirect
 	github.com/blevesearch/go-porterstemmer v1.0.3 // indirect
@@ -332,7 +334,6 @@ require (
 	github.com/hashicorp/go-sockaddr v1.0.6 // indirect
 	github.com/hashicorp/go-uuid v1.0.3 // indirect
 	github.com/hashicorp/golang-lru v1.0.2 // indirect
-	github.com/hashicorp/golang-lru/v2 v2.0.7 // indirect
 	github.com/hashicorp/hcl v1.0.0 // indirect
 	github.com/huandu/xstrings v1.4.0 // indirect
 	github.com/inconshreveable/mousetrap v1.1.0 // indirect
@@ -382,6 +383,7 @@ require (
 	github.com/mattn/go-colorable v0.1.13 // indirect
 	github.com/mattn/go-isatty v0.0.20 // indirect
 	github.com/mattn/go-runewidth v0.0.15 // indirect
+	github.com/mattn/go-sqlite3 v2.0.3+incompatible // indirect
 	github.com/mattn/goveralls v0.0.12 // indirect
 	github.com/mgutz/ansi v0.0.0-20200706080929-d51e80ef957d // indirect
 	github.com/mholt/acmez/v2 v2.0.1 // indirect
@@ -532,17 +534,13 @@ require (
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 	gorm.io/datatypes v1.2.0 // indirect
 	gorm.io/hints v1.1.2 // indirect
-	gorm.io/plugin/opentracing v0.0.0-20211220013347-7d2b2af23560 // indirect
 	howett.net/plist v1.0.0 // indirect
 	k8s.io/klog/v2 v2.120.1 // indirect
 	k8s.io/utils v0.0.0-20230726121419-3b25d923346b // indirect
-	modernc.org/gc/v3 v3.0.0-20240107210532-573471604cb6 // indirect
 	modernc.org/libc v1.52.1 // indirect
 	modernc.org/mathutil v1.6.0 // indirect
 	modernc.org/memory v1.8.0 // indirect
 	modernc.org/sqlite v1.30.1 // indirect
-	modernc.org/strutil v1.2.0 // indirect
-	modernc.org/token v1.1.0 // indirect
 )
 
 // That one was published 6 months before official release ;-)
@@ -553,4 +551,4 @@ retract v4.0.0
 
 replace github.com/minio/minio => github.com/pydio/minio v0.0.0-20240105133831-b78b44f45a00
 
-replace github.com/mattn/go-sqlite3 => github.com/mattn/go-sqlite3 v1.14.16
+//replace github.com/mattn/go-sqlite3 => github.com/mattn/go-sqlite3 v1.14.16

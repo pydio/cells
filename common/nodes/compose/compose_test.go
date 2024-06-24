@@ -46,7 +46,6 @@ import (
 	"github.com/pydio/cells/v4/common/utils/configx"
 	"github.com/pydio/cells/v4/common/utils/propagator"
 
-	_ "github.com/mattn/go-sqlite3"
 	_ "github.com/pydio/cells/v4/common/utils/cache/gocache"
 	_ "gocloud.dev/pubsub/mempubsub"
 

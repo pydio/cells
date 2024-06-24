@@ -53,7 +53,7 @@ win:
 	 .
 
 dev:
-	env CGO_ENABLED=1 ${GOBIN} build\
+	env CGO_ENABLED=0 ${GOBIN} build\
 	 -tags dev\
 	 -gcflags "all=-N -l"\
 	 -ldflags "-X github.com/pydio/cells/v4/common.version=${DEV_VERSION}\

@@ -21,11 +21,11 @@
 package dbresolver
 
 import (
-	sqlite3 "github.com/mattn/go-sqlite3"
+	sqlite "github.com/glebarez/go-sqlite"
 )
 
 func IsSQLiteConn(conn any) bool {
-	_, ok := conn.(*sqlite3.SQLiteDriver)
+	_, ok := conn.(*sqlite.Driver)
 
 	return ok
 }
