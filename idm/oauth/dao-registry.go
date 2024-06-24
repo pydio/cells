@@ -67,6 +67,7 @@ import (
 	"go.uber.org/zap"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
+	"gorm.io/gorm/schema"
 
 	"github.com/pydio/cells/v4/common/auth"
 	"github.com/pydio/cells/v4/common/config"
@@ -561,8 +562,8 @@ type HydraJwkMigration struct {
 	AppliedAt time.Time `db:"applied_at"`
 }
 
-func (hjm *HydraJwkMigration) TableName() string {
-	return "hydra_jwk_migration"
+func (hjm *HydraJwkMigration) TableName(n schema.Namer) string {
+	return n.TableName("jwk_migration")
 }
 
 type HydraJwk struct {
@@ -574,8 +575,8 @@ type HydraJwk struct {
 	CreatedAt time.Time `db:"created_at"`
 }
 
-func (hj HydraJwk) TableName() string {
-	return "hydra_jwk"
+func (hj HydraJwk) TableName(n schema.Namer) string {
+	return n.TableName("jwk")
 }
 
 func CheckCollation(conn *pop.Connection, dbName string) (bool, error) {

@@ -1,12 +1,22 @@
 package user_model
 
-import "github.com/pydio/cells/v4/common/proto/tree"
+import (
+	"gorm.io/gorm/schema"
+
+	"github.com/pydio/cells/v4/common/proto/tree"
+)
 
 type User struct {
 	tree.TreeNode
 }
 
+// TableName is kept for backward compatibility
+func (*User) TableName(namer schema.Namer) string {
+	return namer.TableName("user_idx_tree")
+}
+
 var _ tree.ITreeNode = (*tree.TreeNode)(nil)
+
 var _ tree.ITreeNode = (*User)(nil)
 
 type UserAttribute struct {

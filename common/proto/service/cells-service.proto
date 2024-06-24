@@ -43,13 +43,13 @@ message ResourcePolicy {
 
     int64 id = 1                    [(orm.orm).gorm = {column: "id"; autoIncrement: true;}];
     string Resource = 2             [(orm.orm).gorm = {column: "resource";}];
-    ResourcePolicyAction Action = 3 [(orm.orm).gorm = {column: "action";}];
-    string Subject = 4              [(orm.orm).gorm = {column: "subject";}];
+    ResourcePolicyAction Action = 3 [(orm.orm).gorm = {column: "action";type: "varchar"; size:255; serializer: "proto_enum"}];
+    string Subject = 4              [(orm.orm).gorm = {column: "subject";type:"varchar"; size: 255}];
     enum PolicyEffect {
         deny = 0;
         allow = 1;
     }
-    PolicyEffect Effect = 5         [(orm.orm).gorm = {column: "effect";}];
+    PolicyEffect Effect = 5         [(orm.orm).gorm = {column: "effect"; type:"varchar"; serializer: "proto_enum"}];
     string JsonConditions = 6       [(orm.orm).gorm = {column: "conditions";}];
 }
 

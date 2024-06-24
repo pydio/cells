@@ -22,7 +22,6 @@ package resources
 
 import (
 	"context"
-	"github.com/pydio/cells/v4/common/sql"
 	"testing"
 
 	"github.com/pydio/cells/v4/common/proto/service"
@@ -33,9 +32,7 @@ import (
 )
 
 var (
-	testcases = []test.StorageTestCase{
-		{[]string{sql.SqliteDriver + "://" + sql.SharedMemDSN}, true, NewDAO},
-	}
+	testcases = test.TemplateSQL(NewDAO)
 )
 
 func TestQueryResourceForAction(t *testing.T) {

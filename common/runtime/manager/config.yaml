@@ -220,7 +220,7 @@ processes:
 # Storages
 storages: &storages
   sql:
-    uri: sqlite3-extended://test.db?prefix={{ .Value "prefix" }}
+    uri: sqlite3-extended://test.db?prefix={{ .Value "prefix" }}&policies={{ .Value "policies" }}&singular={{ .Value "singular" }}
 #  search:
 #    uri: mongo+indexer://localhost:24017/search
   nosql:
@@ -253,7 +253,8 @@ services:
     storages:
       main:
         - type: sql
-          prefix: idm_oauth_
+          prefix: oauth2_
+          singular: "true"
   pydio.rest.frontend:
     storages:
       main:
@@ -279,22 +280,24 @@ services:
     storages:
       main:
         - type: sql
-          prefix: idm_role_
+          prefix: idm_
+          policies: idm_role_policies
   pydio.grpc.acl:
     storages:
       main:
         - type: sql
-          prefix: idm_acl_
+          prefix: idm_
   pydio.grpc.user:
     storages:
       main:
         - type: sql
-          prefix: idm_user_
+          prefix: idm_
+          policies: idm_user_policies
   pydio.grpc.token:
     storages:
       main:
         - type: sql
-          prefix: personal_token
+          prefix: idm_
   pydio.grpc.key:
     storages:
       main:
@@ -304,22 +307,24 @@ services:
     storages:
       main:
         - type: sql
-          prefix: idm_key_
+          prefix: idm_
   pydio.grpc.workspace:
     storages:
       main:
         - type: sql
-          prefix: idm_workspace_
+          prefix: idm_
+          policies: idm_workspace_policies
   pydio.grpc.meta:
     storages:
       main:
         - type: sql
-          prefix: idm_meta_
+          prefix: idm_usr_
   pydio.grpc.policy:
     storages:
       main:
         - type: sql
-          prefix: idm_policy_
+          prefix: ladon_
+          singular: "true"
   pydio.grpc.user-meta:
     storages:
       main:

@@ -19,6 +19,7 @@ import (
 	"github.com/tidwall/gjson"
 	"go.uber.org/zap"
 	"gorm.io/gorm"
+	"gorm.io/gorm/schema"
 
 	"github.com/pydio/cells/v4/common/errors"
 	"github.com/pydio/cells/v4/common/telemetry/log"
@@ -51,24 +52,24 @@ const (
 	sqlTablePKCE    tableName = "pkce"
 )
 
-func (r *OAuth2RequestSQLOIDC) TableName() string {
-	return "hydra_oauth2_oidc"
+func (r *OAuth2RequestSQLOIDC) TableName(n schema.Namer) string {
+	return n.TableName("oidc")
 }
 
-func (r *OAuth2RequestSQLAccess) TableName() string {
-	return "hydra_oauth2_access"
+func (r *OAuth2RequestSQLAccess) TableName(n schema.Namer) string {
+	return n.TableName("access")
 }
 
-func (r *OAuth2RequestSQLRefresh) TableName() string {
-	return "hydra_oauth2_refresh"
+func (r *OAuth2RequestSQLRefresh) TableName(n schema.Namer) string {
+	return n.TableName("refresh")
 }
 
-func (r *OAuth2RequestSQLCode) TableName() string {
-	return "hydra_oauth2_code"
+func (r *OAuth2RequestSQLCode) TableName(n schema.Namer) string {
+	return n.TableName("code")
 }
 
-func (r *OAuth2RequestSQLPKCE) TableName() string {
-	return "hydra_oauth2_pkce"
+func (r *OAuth2RequestSQLPKCE) TableName(n schema.Namer) string {
+	return n.TableName("pkce")
 }
 
 var (

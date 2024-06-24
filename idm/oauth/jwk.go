@@ -4,7 +4,7 @@ import (
 	"context"
 	"reflect"
 
-	"github.com/go-jose/go-jose/v3"
+	jose "github.com/go-jose/go-jose/v3"
 	"github.com/ory/hydra/v2/jwk"
 	"github.com/ory/hydra/v2/x"
 	"github.com/ory/x/errorsx"
@@ -23,9 +23,14 @@ type jwkDriver struct {
 	r jwk.Registry
 }
 
+type SqlJWK jwk.SQLData
+
+func (SqlJWK) TableName(n schema.Namer) string {
+	return n.TableName("jwk")
+}
+
 func (c *jwkDriver) AutoMigrate() {
-	c.db.AutoMigrate(&jwk.SQLData{})
-	// c.db.Config.NamingStrategy = &namer{c.db.Config.NamingStrategy, &jwk.SQLData{}}
+	c.db.AutoMigrate(&SqlJWK{})
 }
 
 func (j *jwkDriver) GenerateAndPersistKeySet(ctx context.Context, set, kid, alg, use string) (*jose.JSONWebKeySet, error) {
@@ -60,7 +65,7 @@ func (j *jwkDriver) addKey(db *gorm.DB, ctx context.Context, set string, key *jo
 		Key:     encrypted,
 	}
 
-	tx := db.Create(data)
+	tx := db.Model(SqlJWK{}).Create(data)
 	if err := tx.Error; err != nil {
 		return err
 	}
@@ -73,7 +78,7 @@ func (j *jwkDriver) AddKey(ctx context.Context, set string, key *jose.JSONWebKey
 }
 
 func (j *jwkDriver) AddKeySet(ctx context.Context, set string, keys *jose.JSONWebKeySet) error {
-	return j.db.Transaction(func(tx *gorm.DB) error {
+	return j.db.Model(SqlJWK{}).Transaction(func(tx *gorm.DB) error {
 		for _, key := range keys.Keys {
 			if err := j.addKey(tx, ctx, set, &key); err != nil {
 				return err
@@ -84,7 +89,7 @@ func (j *jwkDriver) AddKeySet(ctx context.Context, set string, keys *jose.JSONWe
 }
 
 func (j *jwkDriver) UpdateKey(ctx context.Context, set string, key *jose.JSONWebKey) error {
-	return j.db.Transaction(func(tx *gorm.DB) error {
+	return j.db.Model(SqlJWK{}).Transaction(func(tx *gorm.DB) error {
 		if err := j.DeleteKey(ctx, set, key.KeyID); err != nil {
 			return err
 		}
@@ -97,7 +102,7 @@ func (j *jwkDriver) UpdateKey(ctx context.Context, set string, key *jose.JSONWeb
 }
 
 func (j *jwkDriver) UpdateKeySet(ctx context.Context, set string, keys *jose.JSONWebKeySet) error {
-	return j.db.Transaction(func(tx *gorm.DB) error {
+	return j.db.Model(SqlJWK{}).Transaction(func(tx *gorm.DB) error {
 		if err := j.DeleteKeySet(ctx, set); err != nil {
 			return err
 		}
@@ -111,7 +116,7 @@ func (j *jwkDriver) UpdateKeySet(ctx context.Context, set string, keys *jose.JSO
 
 func (j *jwkDriver) GetKey(ctx context.Context, set, kid string) (*jose.JSONWebKeySet, error) {
 	var data *jwk.SQLData
-	if tx := j.db.Model(data).Where(jwk.SQLData{Set: set, KID: kid}).Order("created_at DESC").First(&data); tx != nil && tx.Error != nil {
+	if tx := j.db.Model(SqlJWK{}).Where(jwk.SQLData{Set: set, KID: kid}).Order("created_at DESC").First(&data); tx != nil && tx.Error != nil {
 		return nil, tx.Error
 	}
 
@@ -132,7 +137,7 @@ func (j *jwkDriver) GetKey(ctx context.Context, set, kid string) (*jose.JSONWebK
 
 func (j *jwkDriver) GetKeySet(ctx context.Context, set string) (*jose.JSONWebKeySet, error) {
 	var data []*jwk.SQLData
-	if tx := j.db.Where(jwk.SQLData{Set: set}).Order("created_at DESC").Find(&data); tx != nil && tx.Error != nil {
+	if tx := j.db.Model(SqlJWK{}).Where(jwk.SQLData{Set: set}).Order("created_at DESC").Find(&data); tx != nil && tx.Error != nil {
 		return nil, tx.Error
 	}
 
@@ -163,7 +168,7 @@ func (j *jwkDriver) GetKeySet(ctx context.Context, set string) (*jose.JSONWebKey
 
 func (j *jwkDriver) DeleteKey(ctx context.Context, set, kid string) error {
 	var data *jwk.SQLData
-	if tx := j.db.Model(data).Where(jwk.SQLData{Set: set, KID: kid}).Delete(&data); tx != nil && tx.Error != nil {
+	if tx := j.db.Model(SqlJWK{}).Where(jwk.SQLData{Set: set, KID: kid}).Delete(&data); tx != nil && tx.Error != nil {
 		return tx.Error
 	}
 
@@ -172,7 +177,7 @@ func (j *jwkDriver) DeleteKey(ctx context.Context, set, kid string) error {
 
 func (j *jwkDriver) DeleteKeySet(ctx context.Context, set string) error {
 	var data *jwk.SQLData
-	if tx := j.db.Model(data).Where(jwk.SQLData{Set: set}).Delete(&data); tx != nil && tx.Error != nil {
+	if tx := j.db.Model(SqlJWK{}).Where(jwk.SQLData{Set: set}).Delete(&data); tx != nil && tx.Error != nil {
 		return tx.Error
 	}
 

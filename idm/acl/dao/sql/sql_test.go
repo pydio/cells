@@ -279,6 +279,23 @@ func simpleCrud(t *testing.T, ctx context.Context, dao acl.DAO, nodeId, roleId, 
 	if len(res) != 1 {
 		return fmt.Errorf("No ACL found with nodeId %s", nodeId)
 	}
+	a1 := res[0].(*idm.ACL)
+	if a1.NodeID != nodeId {
+		return fmt.Errorf("Node id %s does not match node id %s", a1.NodeID, nodeId)
+	}
+	if a1.RoleID != roleId {
+		return fmt.Errorf("Role id %s does not match role id %s", a1.RoleID, roleId)
+	}
+	if a1.WorkspaceID != wsId {
+		return fmt.Errorf("Workspace id %s does not match workspace id %s", a1.WorkspaceID, wsId)
+	}
+	if a1.Action.Name != actionName {
+		return fmt.Errorf("Action name %s does not match action name %s", a1.Action.Name, actionName)
+	}
+	if a1.Action.Value != actionValue {
+		return fmt.Errorf("Action value %s does not match action value %s", a1.Action.Value, actionValue)
+	}
+
 	num, er := dao.Del(ctx, enquirer, nil)
 	if er != nil {
 		return fmt.Errorf("Del %v", er)

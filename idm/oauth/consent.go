@@ -10,6 +10,7 @@ import (
 	"github.com/ory/hydra/v2/oauth2/flowctx"
 	"github.com/ory/x/sqlxx"
 	"gorm.io/gorm"
+	"gorm.io/gorm/schema"
 
 	"github.com/pydio/cells/v4/common/runtime/manager"
 )
@@ -114,7 +115,7 @@ func (c *consentDriver) VerifyAndInvalidateConsentRequest(ctx context.Context, v
 		return nil, err
 	}
 
-	if tx := c.db.Omit("Client").Create(f); tx.Error != nil {
+	if tx := c.db.Model(Flow{}).Omit("Client").Create(f); tx.Error != nil {
 		return nil, tx.Error
 	}
 
@@ -320,8 +321,8 @@ func (c *consentDriver) FlushInactiveLoginConsentRequests(ctx context.Context, n
 	return nil
 }
 
-func (_ Flow) TableName() string {
-	return "hydra_oauth2_flow"
+func (*Flow) TableName(namer2 schema.Namer) string {
+	return namer2.TableName("flow")
 }
 
 func (f *Flow) BeforeSave(_ *gorm.DB) error {

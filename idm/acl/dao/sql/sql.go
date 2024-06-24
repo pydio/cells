@@ -31,6 +31,7 @@ import (
 	"google.golang.org/protobuf/proto"
 	"google.golang.org/protobuf/types/known/anypb"
 	"gorm.io/gorm"
+	"gorm.io/gorm/schema"
 
 	"github.com/pydio/cells/v4/common/proto/idm"
 	"github.com/pydio/cells/v4/common/sql"
@@ -57,7 +58,7 @@ type ACL struct {
 	Role        Role      `gorm:"foreignKey:RoleID"`
 	Workspace   Workspace `gorm:"foreignKey:WorkspaceID"`
 	Node        Node      `gorm:"foreignKey:NodeID"`
-	Expiry      time.Time `gorm:"expiry_date"`
+	Expiry      time.Time `gorm:"column:expire_at;type:timestamp;default:null"`
 }
 
 type Role struct {
@@ -81,20 +82,20 @@ type sqlimpl struct {
 	once *sync.Once
 }
 
-func (*ACL) TableName() string {
-	return "acls"
+func (*ACL) TableName(namer schema.Namer) string {
+	return namer.TableName("acls")
 }
 
-func (*Role) TableName() string {
-	return "acl_roles"
+func (*Role) TableName(namer schema.Namer) string {
+	return namer.TableName("acl_roles")
 }
 
-func (*Workspace) TableName() string {
-	return "acl_workspaces"
+func (*Workspace) TableName(namer schema.Namer) string {
+	return namer.TableName("acl_workspaces")
 }
 
-func (*Node) TableName() string {
-	return "acl_nodes"
+func (*Node) TableName(namer schema.Namer) string {
+	return namer.TableName("acl_nodes")
 }
 
 // Init handler for the SQL DAO
@@ -214,7 +215,19 @@ func (s *sqlimpl) Search(ctx context.Context, query sql.Enquirer, out *[]interfa
 	if er != nil {
 		return er
 	}
-
+	// Legacy - TODO
+	//
+	//if period != nil {
+	//	expressions = append(expressions, dao.expirationToGoqu(period, a).Expressions()...)
+	//} else {
+	//	// By default, exclude all expired ACLs
+	//	expressions = append(expressions,
+	//		goqu.Or(
+	//			a.Col("expires_at").IsNull(),
+	//			a.Col("expires_at").Gt(dao.valueForTime(time.Now())),
+	//		),
+	//	)
+	//}
 	var acls []ACL
 
 	tx := db.Preload("Role").Preload("Workspace").Preload("Node").Find(&acls)

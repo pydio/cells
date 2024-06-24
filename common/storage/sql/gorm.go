@@ -41,6 +41,7 @@ func init() {
 			mgr.RegisterStorage(gormType, controller.WithCustomOpener(OpenPool))
 		}
 	})
+	schema.RegisterSerializer("proto_enum", EnumSerial{})
 }
 
 type pool struct {
@@ -60,7 +61,7 @@ func OpenPool(ctx context.Context, uu string) (storage.Storage, error) {
 		}
 
 		var dialect gorm.Dialector
-		var prefix string
+		var prefix, policies, singular string
 		if dbresolver.IsMysqlConn(conn.Driver()) {
 			dialect = mysql.New(mysql.Config{
 				Conn: conn,
@@ -73,6 +74,14 @@ func OpenPool(ctx context.Context, uu string) (storage.Storage, error) {
 				prefix = p
 			}
 			delete(config.Params, "prefix")
+			if p, ok := config.Params["policies"]; ok {
+				policies = p
+			}
+			delete(config.Params, "policies")
+			if p, ok := config.Params["singular"]; ok {
+				singular = p
+			}
+			delete(config.Params, "singular")
 
 			dsn = config.FormatDSN()
 		} else if dbresolver.IsPostGreConn(conn.Driver()) {
@@ -89,6 +98,12 @@ func OpenPool(ctx context.Context, uu string) (storage.Storage, error) {
 			if q.Has("prefix") {
 				prefix = q.Get("prefix")
 			}
+			if q.Has("policies") {
+				policies = q.Get("policies")
+			}
+			if q.Has("singular") {
+				singular = q.Get("singular")
+			}
 		} else if dbresolver.IsSQLiteConn(conn.Driver()) {
 			dialect = &sqlite.Dialector{
 				Conn: conn,
@@ -103,6 +118,15 @@ func OpenPool(ctx context.Context, uu string) (storage.Storage, error) {
 			if q.Has("prefix") {
 				prefix = q.Get("prefix")
 			}
+			if q.Has("policies") {
+				policies = q.Get("policies")
+			}
+			if q.Has("singular") {
+				singular = q.Get("singular")
+			}
+		}
+		if policies == "<no value>" {
+			policies = ""
 		}
 
 		customLogger := NewLogger(logger.Config{
@@ -121,8 +145,12 @@ func OpenPool(ctx context.Context, uu string) (storage.Storage, error) {
 				// ParameterizedQueries:      true,        // Don't include params in the SQL log
 				// Colorful: false, // Disable color
 			}),
-			NamingStrategy: &schema.NamingStrategy{
-				TablePrefix: prefix,
+			NamingStrategy: &customNaming{
+				NamingStrategy: &schema.NamingStrategy{
+					TablePrefix:   prefix,
+					SingularTable: singular == "true",
+				},
+				Policies: policies,
 			},
 		})
 
