@@ -11,6 +11,7 @@ import (
 	"github.com/pydio/cells/v4/common/runtime/manager"
 	"github.com/pydio/cells/v4/common/utils/test"
 	"github.com/pydio/cells/v4/common/utils/uuid"
+	"github.com/pydio/cells/v4/idm/policy"
 
 	. "github.com/smartystreets/goconvey/convey"
 )
@@ -22,7 +23,7 @@ var (
 func TestManager(t *testing.T) {
 
 	test.RunStorageTests(testcases, func(ctx context.Context) {
-		dao, er := manager.Resolve[DAO](ctx)
+		dao, er := manager.Resolve[policy.DAO](ctx)
 		if er != nil {
 			panic(er)
 		}

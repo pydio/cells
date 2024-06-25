@@ -20,6 +20,14 @@
 
 package storage
 
-import "github.com/pydio/cells/v4/common/utils/openurl"
+import (
+	"context"
+
+	"github.com/pydio/cells/v4/common/utils/openurl"
+)
 
 type Storage openurl.Resolver[any]
+
+type Migrator interface {
+	Migrate(ctx context.Context) error
+}
