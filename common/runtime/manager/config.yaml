@@ -330,6 +330,7 @@ services:
       main:
         - type: sql
           prefix: idm_usr_
+          policies: idm_usr_meta_policies
   pydio.grpc.log:
     storages:
       main:
