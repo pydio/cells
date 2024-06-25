@@ -126,7 +126,7 @@ func (s *sqlimpl) instance(ctx context.Context) *gorm.DB {
 }
 
 func (s *sqlimpl) Migrate(ctx context.Context) error {
-	if err := s.instance(ctx).AutoMigrate(&MetaNamespace{}); err != nil {
+	if err := s.instance(ctx).AutoMigrate(&Meta{}, &MetaNamespace{}); err != nil {
 		return err
 	}
 

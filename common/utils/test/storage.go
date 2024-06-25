@@ -13,6 +13,7 @@ import (
 	"github.com/pydio/cells/v4/common/runtime/manager"
 	"github.com/pydio/cells/v4/common/runtime/tenant"
 	"github.com/pydio/cells/v4/common/service"
+	"github.com/pydio/cells/v4/common/storage"
 	"github.com/pydio/cells/v4/common/storage/sql"
 	"github.com/pydio/cells/v4/common/utils/propagator"
 	"github.com/pydio/cells/v4/common/utils/uuid"
@@ -150,6 +151,16 @@ func RunStorageTests(testCases []StorageTestCase, f func(context.Context)) {
 				service.Name("test"),
 				service.Context(ctx),
 				service.WithStorageDrivers(tc.DAO),
+				service.Migrations([]*service.Migration{{
+					TargetVersion: service.FirstRun(),
+					Up: func(ctx context.Context) error {
+						mig, err := manager.Resolve[storage.Migrator](ctx)
+						if err != nil {
+							return err
+						}
+						return mig.Migrate(ctx)
+					},
+				}}),
 			)
 		})
 

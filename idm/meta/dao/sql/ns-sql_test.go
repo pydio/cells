@@ -85,7 +85,9 @@ func TestNSResourceRules(t *testing.T) {
 
 	test.RunStorageTests(nsTestcases, func(ctx context.Context) {
 		mockDAO, er := manager.Resolve[meta.NamespaceDAO](ctx)
-		So(er, ShouldBeNil)
+		if er != nil {
+			panic(er)
+		}
 
 		Convey("Test Add Rule", t, func() {
 
