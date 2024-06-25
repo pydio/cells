@@ -148,11 +148,13 @@ func Resolve[T any](ctx context.Context, opts ...ResolveOption) (s T, final erro
 			return t, errors.WithMessage(errors.ResolveError, "storage handler is not a function")
 		}
 
+		var assigned int
 		var args = make([]reflect.Value, handlerT.NumIn())
 
 		// Check if first expected parameter is a context, if so, use the input context
 		if handlerT.In(0).Implements(reflect.TypeOf((*context.Context)(nil)).Elem()) {
 			args[0] = reflect.ValueOf(ctx)
+			assigned++
 		}
 
 		// Try to fit Input parameter type and Storage types
@@ -175,6 +177,7 @@ func Resolve[T any](ctx context.Context, opts ...ResolveOption) (s T, final erro
 						for pos := 0; pos < handlerT.NumIn(); pos++ {
 							if connT.AssignableTo(handlerT.In(pos)) {
 								args[pos] = conn
+								assigned++
 							}
 						}
 					}
@@ -187,8 +190,8 @@ func Resolve[T any](ctx context.Context, opts ...ResolveOption) (s T, final erro
 			return t, errors.Tag(err, errors.ResolveError)
 		}
 
-		if handlerT.NumIn() != len(args) {
-			return t, errors.WithMessagef(errors.ResolveError, "number of connections (%d) differs from what is requested by handler %s (%d)", handlerT.NumIn(), runtime.FuncForPC(handlerV.Pointer()).Name(), len(args))
+		if handlerT.NumIn() != assigned {
+			return t, errors.WithMessagef(errors.ResolveError, "number of connections (%d) differs from what is requested by handler %s (%d)", assigned, runtime.FuncForPC(handlerV.Pointer()).Name(), handlerT.NumIn())
 		}
 
 		dao := handlerV.Call(args)[0].Interface()

@@ -259,7 +259,7 @@ services:
     storages:
       main:
         - type: sql
-          prefix: idm_sessions_
+          prefix: idm_
   pydio.grpc.search:
     storages:
       main:
@@ -318,7 +318,7 @@ services:
     storages:
       main:
         - type: sql
-          prefix: idm_usr_
+          prefix: data_
   pydio.grpc.policy:
     storages:
       main:
@@ -329,7 +329,7 @@ services:
     storages:
       main:
         - type: sql
-          prefix: idm_user_meta
+          prefix: idm_usr_
   pydio.grpc.log:
     storages:
       main:

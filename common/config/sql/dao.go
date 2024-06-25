@@ -22,7 +22,6 @@ package sql
 
 import (
 	"context"
-	"embed"
 	"sync"
 
 	"gorm.io/gorm"
@@ -39,12 +38,12 @@ type DAO interface {
 }
 
 var (
-	//go:embed migrations/*
-	migrationsFS embed.FS
+/*
 	queries      = map[string]interface{}{
 		"get": "select data from %%PREFIX%%_config where id = 1",
 		"set": "insert into %%PREFIX%%_config(id, data) values (1, ?) on duplicate key update data = ?",
 	}
+*/
 )
 
 type sqlimpl struct {
