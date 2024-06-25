@@ -136,7 +136,7 @@ func (h *Handler) DeleteRole(ctx context.Context, req *idm.DeleteRoleRequest) (*
 	}
 
 	var roles []*idm.Role
-	if err := dao.Search(ctx, req.Query, &roles); err != nil {
+	if err = dao.Search(ctx, req.Query, &roles); err != nil {
 		return nil, err
 	}
 
@@ -192,6 +192,10 @@ func (h *Handler) SearchRole(request *idm.SearchRoleRequest, response idm.RoleSe
 	}
 
 	for _, r := range roles {
+		r.Policies, err = dao.GetPoliciesForResource(ctx, r.GetUuid())
+		if err != nil {
+			return err
+		}
 		if e := response.Send(&idm.SearchRoleResponse{Role: r}); e != nil {
 			return e
 		}
@@ -231,11 +235,15 @@ func (h *Handler) StreamRole(streamer idm.RoleService_StreamRoleServer) error {
 		}
 
 		var roles []*idm.Role
-		if err := dao.Search(ctx, incoming.Query, &roles); err != nil {
+		if err = dao.Search(ctx, incoming.Query, &roles); err != nil {
 			return err
 		}
 
 		for _, r := range roles {
+			r.Policies, err = dao.GetPoliciesForResource(ctx, r.GetUuid())
+			if err != nil {
+				return err
+			}
 			if e := streamer.Send(&idm.SearchRoleResponse{Role: r}); e != nil {
 				return e
 			}

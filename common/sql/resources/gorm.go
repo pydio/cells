@@ -74,10 +74,10 @@ func (s *ResourcesGORM) Migrate(ctx context.Context) error {
 func (s *ResourcesGORM) AddPolicy(ctx context.Context, resourceId string, policy *service.ResourcePolicy) error {
 
 	// s.cache.Delete(resourceId)
+	pol := proto.Clone(policy).(*service.ResourcePolicy)
+	pol.Resource = resourceId
 
-	policy.Resource = resourceId
-
-	return s.instance(ctx).Clauses(clause.OnConflict{DoNothing: true}).Create(policy).Error
+	return s.instance(ctx).Clauses(clause.OnConflict{DoNothing: true}).Create(pol).Error
 }
 
 // AddPolicies persists a set of policies. If update is true, it replace them by deleting existing ones
@@ -93,8 +93,9 @@ func (s *ResourcesGORM) AddPolicies(ctx context.Context, update bool, resourceId
 		}
 
 		for _, policy := range policies {
-			policy.Resource = resourceId
-			if err := tx.Clauses(clause.OnConflict{DoNothing: true}).Create(policy).Error; err != nil {
+			pol := proto.Clone(policy).(*service.ResourcePolicy)
+			pol.Resource = resourceId
+			if err := tx.Clauses(clause.OnConflict{DoNothing: true}).Create(pol).Error; err != nil {
 				return err
 			}
 		}
@@ -191,6 +192,7 @@ func (s *ResourcesGORM) DeletePoliciesForResourceAndAction(ctx context.Context, 
 
 // BuildPolicyConditionForAction builds an ResourcesSQL condition from claims toward the associated resource table
 func (s *ResourcesGORM) BuildPolicyConditionForAction(ctx context.Context, q *service.ResourcePolicyQuery, action service.ResourcePolicyAction) (out any, e error) {
+
 	if q == nil || q.Any {
 		return nil, nil
 	}
@@ -199,25 +201,24 @@ func (s *ResourcesGORM) BuildPolicyConditionForAction(ctx context.Context, q *se
 	subjects := q.GetSubjects()
 
 	if q.Empty {
-		subQuery := s.instance(ctx).Model(&service.ResourcePolicy{}).Select("1").Where(&service.ResourcePolicy{Resource: leftIdentifier, Action: action})
 
+		subQuery := s.instance(ctx).Model(&service.ResourcePolicy{}).Select("1").Where(&service.ResourcePolicy{Resource: leftIdentifier, Action: action})
 		return s.instance(ctx).Not("EXISTS(?)", subQuery), nil
 
 	} else {
+
 		subQuery := s.DB.Model(&service.ResourcePolicy{}).Select("1").Where(&service.ResourcePolicy{Resource: leftIdentifier, Action: action})
 		if len(subjects) > 0 {
 			subjectQuery := s.DB
 			for _, subject := range subjects {
 				subjectQuery = subjectQuery.Or(&service.ResourcePolicy{Subject: subject})
 			}
-
-			subQuery.Where(subjectQuery)
+			subQuery = subQuery.Where(subjectQuery)
 		}
 
 		return s.instance(ctx).Where("EXISTS(?)", subQuery), nil
 	}
 
-	return
 }
 
 // Convert a policy query to conditions from claims toward the associated resource table
