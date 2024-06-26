@@ -26,14 +26,15 @@ import (
 
 	"google.golang.org/protobuf/proto"
 
+	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/proto/install"
 )
 
 type ActiveRoute struct {
-	Path             string
-	RequestHeaderSet map[string]string
-	RewriteRules     []any
-	Upstreams        []any
+	Path         string
+	HeaderMods   []any
+	RewriteRules []any
+	Upstreams    []any
 }
 
 type ActiveProxy struct {
@@ -111,15 +112,32 @@ func ResolveProxy(proxyConfig *install.ProxyConfig, tlsResolver TLSResolver, rew
 		rule := site.FindRouteRule(route.GetID())
 		if !site.HasRouting() || rule.Accept() {
 			cr := &ActiveRoute{
-				Path:             route.GetURI() + "*",
-				RequestHeaderSet: map[string]string{},
+				Path: route.GetURI() + "*",
 			}
-			cr.RequestHeaderSet["X-Pydio-Site-Hash"] = proxyConfig.Hash()
+			for _, hm := range proxyConfig.GetHeaderMods() {
+				cr.HeaderMods = append(cr.HeaderMods, hm)
+			}
+			cr.HeaderMods = append(cr.HeaderMods, &install.HeaderMod{
+				ApplyTo: install.HeaderModApplyTo_REQUEST,
+				Action:  install.HeaderModAction_OVERWRITE_IF_EXISTS_OR_ADD,
+				Key:     common.XPydioSiteHash,
+				Value:   proxyConfig.Hash(),
+			})
 			if setExternalHost != "" {
-				cr.RequestHeaderSet["Host"] = setExternalHost
+				cr.HeaderMods = append(cr.HeaderMods, &install.HeaderMod{
+					ApplyTo: install.HeaderModApplyTo_REQUEST,
+					Action:  install.HeaderModAction_OVERWRITE_IF_EXISTS_OR_ADD,
+					Key:     "Host",
+					Value:   setExternalHost,
+				})
 			}
 			if rule.Action == "Rewrite" {
-				cr.RequestHeaderSet["X-Pydio-Site-RouteURI"] = rule.Value
+				cr.HeaderMods = append(cr.HeaderMods, &install.HeaderMod{
+					ApplyTo: install.HeaderModApplyTo_REQUEST,
+					Action:  install.HeaderModAction_OVERWRITE_IF_EXISTS_OR_ADD,
+					Key:     "X-Pydio-Site-RouteURI",
+					Value:   rule.Value,
+				})
 			}
 			rewriteResolver(cr, route, rule)
 			if upstreamResolver != nil {

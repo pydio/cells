@@ -71,6 +71,43 @@ message Rule {
     string Value = 4;
 }
 
+enum HeaderModAction {
+    // This action will append the specified value to the existing values if the header
+    // already exists. If the header doesn't exist then this will add the header with
+    // specified key and value.
+    APPEND_IF_EXISTS_OR_ADD = 0;
+    // This action will add the header if it doesn't already exist. If the header
+    // already exists then this will be a no-op.
+    ADD_IF_ABSENT = 1;
+    // This action will overwrite the specified value by discarding any existing values if
+    // the header already exists. If the header doesn't exist then this will add the header
+    // with specified key and value.
+    OVERWRITE_IF_EXISTS_OR_ADD = 2;
+    // This action will overwrite the specified value by discarding any existing values if
+    // the header already exists. If the header doesn't exist then this will be no-op.
+    OVERWRITE_IF_EXISTS = 3;
+    // This action will purely remove the header if it exists, no-op otherwise
+    REMOVE = 4;
+}
+
+enum HeaderModApplyTo {
+    // Apply header modification to incoming request
+    REQUEST = 0;
+    // Apply header modification to outgoing response
+    RESPONSE = 1;
+}
+
+message HeaderMod {
+    // Mod on Request or Response header
+    HeaderModApplyTo ApplyTo = 1;
+    // One of the HeaderModAction
+    HeaderModAction Action = 2;
+    // Header key
+    string Key = 3;
+    // Header value - not used if action is REMOVE
+    string Value = 4;
+}
+
 // ProxyConfig gives necessary URL and TLS configurations to start proxy
 message ProxyConfig {
     option (setter.all_fields) = true;
@@ -95,8 +132,10 @@ message ProxyConfig {
     // Optional matching rules for main routes - special empty case means Match All, but if any routes are defined
     // they are evaluated with a Deny-by-default and ExplicitDeny-wins approach
     repeated Rule Routing = 9;
+    // Optional headers modifications
+    repeated HeaderMod HeaderMods = 10;
     // Hash dynamically computed from Binds and ReverseProxyURL
-    string ComputedHash = 10;
+    string ComputedHash = 11;
 }
 
 // TLSSelfSigned generates a selfsigned certificate

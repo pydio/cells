@@ -65,8 +65,8 @@ const (
 
 	{{range .Routes}}
 	route {{.Path}} {
-		{{range $k,$v := .RequestHeaderSet}}
-		request_header {{$k}} {{$v}}{{end}}
+		{{range .HeaderMods}}{{.}}
+		{{end}}
 
 		{{if $Maintenance}}
 		# Special redir for maintenance mode

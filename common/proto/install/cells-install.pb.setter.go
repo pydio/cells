@@ -124,6 +124,7 @@ type ProxyConfigGetter interface {
 	GetMaintenance() bool
 	GetMaintenanceConditions() []string
 	GetRouting() []*Rule
+	GetHeaderMods() []*HeaderMod
 	GetComputedHash() string
 }
 
@@ -137,6 +138,7 @@ type ProxyConfigSetter interface {
 	SetMaintenance(bool)
 	SetMaintenanceConditions([]string)
 	SetRouting([]*Rule)
+	SetHeaderMods([]*HeaderMod)
 	SetComputedHash(string)
 }
 
@@ -181,6 +183,13 @@ func (x *ProxyConfig) SetRouting(v []*Rule) {
 	}
 
 	x.Routing = v
+}
+func (x *ProxyConfig) SetHeaderMods(v []*HeaderMod) {
+	if x == nil {
+		x = new(ProxyConfig)
+	}
+
+	x.HeaderMods = v
 }
 func (x *ProxyConfig) SetComputedHash(v string) {
 	if x == nil {

@@ -8,6 +8,15 @@ import (
 	"github.com/pydio/cells/v4/common/proto/install"
 )
 
+var (
+	localToCoreHeaderAction = map[install.HeaderModAction]core.HeaderValueOption_HeaderAppendAction{
+		install.HeaderModAction_APPEND_IF_EXISTS_OR_ADD:    core.HeaderValueOption_APPEND_IF_EXISTS_OR_ADD,
+		install.HeaderModAction_ADD_IF_ABSENT:              core.HeaderValueOption_ADD_IF_ABSENT,
+		install.HeaderModAction_OVERWRITE_IF_EXISTS_OR_ADD: core.HeaderValueOption_OVERWRITE_IF_EXISTS_OR_ADD,
+		install.HeaderModAction_OVERWRITE_IF_EXISTS:        core.HeaderValueOption_OVERWRITE_IF_EXISTS,
+	}
+)
+
 // ToXDS is a WIP implementation for generating XDS configuration from active proxy
 func ToXDS(site *install.ProxyConfig, upstreamsResolver UpstreamsResolver) (*route.VirtualHost, error) {
 
@@ -46,9 +55,27 @@ func ToXDS(site *install.ProxyConfig, upstreamsResolver UpstreamsResolver) (*rou
 	}
 
 	for _, r := range activeProxy.Routes {
-		var hh []*core.HeaderValueOption
-		for k, v := range r.RequestHeaderSet {
-			hh = append(hh, &core.HeaderValueOption{Header: &core.HeaderValue{Key: k, Value: v}})
+		var reqAdd, respAdd []*core.HeaderValueOption
+		var reqRem, respRem []string
+		for _, m := range r.HeaderMods {
+			mod := m.(*install.HeaderMod)
+			if mod.Action == install.HeaderModAction_REMOVE {
+				if mod.ApplyTo == install.HeaderModApplyTo_REQUEST {
+					reqRem = append(reqRem, mod.Key)
+				} else {
+					respRem = append(respRem, mod.Key)
+				}
+			} else {
+				hvo := &core.HeaderValueOption{
+					Header:       &core.HeaderValue{Key: mod.Key, Value: mod.Value},
+					AppendAction: localToCoreHeaderAction[mod.Action],
+				}
+				if mod.ApplyTo == install.HeaderModApplyTo_REQUEST {
+					reqAdd = append(reqAdd, hvo)
+				} else {
+					respAdd = append(respAdd, hvo)
+				}
+			}
 		}
 		// Prefix rewrite may have been resolved by rewriteResolver
 		var prefixRewrite string
@@ -65,7 +92,10 @@ func ToXDS(site *install.ProxyConfig, upstreamsResolver UpstreamsResolver) (*rou
 			Match: &route.RouteMatch{
 				PathSpecifier: &route.RouteMatch_Prefix{Prefix: r.Path},
 			},
-			RequestHeadersToAdd: hh,
+			RequestHeadersToAdd:     reqAdd,
+			RequestHeadersToRemove:  reqRem,
+			ResponseHeadersToAdd:    respAdd,
+			ResponseHeadersToRemove: respRem,
 			Action: &route.Route_Route{
 				Route: &route.RouteAction{
 					RegexRewrite:  regexRewrite,

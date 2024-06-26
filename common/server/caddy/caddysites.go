@@ -118,8 +118,31 @@ func ResolveSites(ctx context.Context, resolver routing.UpstreamsResolver, exter
 func sitesToCaddySites(sites []*install.ProxyConfig, upstreamResolver routing.UpstreamsResolver) (caddySites []*ActiveSite, er error) {
 
 	rewriteResolver := func(cr *routing.ActiveRoute, route routing.Route, rule *install.Rule) {
-		cr.RequestHeaderSet["X-Real-IP"] = "{http.request.remote}"
-		cr.RequestHeaderSet["X-Forwarded-Proto"] = "{http.request.scheme}"
+		// Transform []*install.HeaderMods to []string for CaddyFile
+		var stringMods []any
+		stringMods = append(stringMods, "request_header X-Real-Ip {http.request.remote}")
+		stringMods = append(stringMods, "request_header X-Forwarded-Proto {http.request.scheme}")
+		for _, m := range cr.HeaderMods {
+			mod := m.(*install.HeaderMod)
+			if mod.Action == install.HeaderModAction_REMOVE {
+				if mod.ApplyTo == install.HeaderModApplyTo_REQUEST {
+					stringMods = append(stringMods, "request_header -"+mod.Key)
+				} else {
+					stringMods = append(stringMods, "header -"+mod.Key)
+				}
+			} else {
+				appendPlus := ""
+				if mod.Action == install.HeaderModAction_ADD_IF_ABSENT || mod.Action == install.HeaderModAction_APPEND_IF_EXISTS_OR_ADD {
+					appendPlus = "+"
+				}
+				if mod.ApplyTo == install.HeaderModApplyTo_REQUEST {
+					stringMods = append(stringMods, "request_header "+appendPlus+mod.Key+" "+mod.Value)
+				} else {
+					stringMods = append(stringMods, "header "+appendPlus+mod.Key+" "+mod.Value)
+				}
+			}
+		}
+		cr.HeaderMods = stringMods
 		if rule.Action == "Rewrite" {
 			inputURI := rule.Value
 			realTarget := route.GetURI()
