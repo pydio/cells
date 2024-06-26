@@ -130,15 +130,12 @@ func (s *IndexSQL[T]) instance(ctx context.Context) *gorm.DB {
 		}
 	}
 
-	if s.once == nil {
-		s.once = &sync.Once{}
-	}
-
-	s.once.Do(func() {
-		s.DB.AutoMigrate(t)
-	})
-
 	return s.DB
+}
+
+func (s *IndexSQL[T]) Migrate(ctx context.Context) error {
+	t := s.factory.Struct()
+	return s.instance(ctx).AutoMigrate(t)
 }
 
 // Init handles the db version migration and prepare the statements

@@ -35,6 +35,8 @@ import (
 	"github.com/pydio/cells/v4/common/utils/test"
 	"github.com/pydio/cells/v4/data/meta/dao/sql"
 
+	_ "github.com/pydio/cells/v4/common/broker/debounce"
+
 	. "github.com/smartystreets/goconvey/convey"
 )
 
