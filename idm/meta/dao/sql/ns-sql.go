@@ -25,9 +25,11 @@ import (
 	"sync"
 
 	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
 
 	"github.com/pydio/cells/v4/common/errors"
 	"github.com/pydio/cells/v4/common/proto/idm"
+	"github.com/pydio/cells/v4/common/proto/service"
 	"github.com/pydio/cells/v4/common/sql/resources"
 	"github.com/pydio/cells/v4/idm/meta"
 )
@@ -116,16 +118,33 @@ func (s *nsSqlImpl) instance(ctx context.Context) *gorm.DB {
 }
 
 func (s *nsSqlImpl) Migrate(ctx context.Context) error {
-	if err := s.instance(ctx).AutoMigrate(&MetaNamespace{}); err != nil {
+
+	instance := s.instance(ctx)
+	if err := instance.AutoMigrate(&MetaNamespace{}); err != nil {
 		return err
 	}
 
-	return s.resourcesDAO.Migrate(ctx)
+	if err := s.resourcesDAO.Migrate(ctx); err != nil {
+		return err
+	}
+
+	if err := s.Add(ctx, &idm.UserMetaNamespace{
+		Namespace: meta.ReservedNamespaceBookmark,
+		Label:     "Bookmarks",
+		Policies: []*service.ResourcePolicy{
+			{Action: service.ResourcePolicyAction_READ, Subject: "*", Effect: service.ResourcePolicy_allow},
+			{Action: service.ResourcePolicyAction_WRITE, Subject: "*", Effect: service.ResourcePolicy_allow},
+		},
+	}); err != nil {
+		return err
+	}
+
+	return nil
 }
 
 // Add inserts a namespace
 func (s *nsSqlImpl) Add(ctx context.Context, ns *idm.UserMetaNamespace) error {
-	tx := s.instance(ctx).Create((&MetaNamespace{}).From(ns))
+	tx := s.instance(ctx).Clauses(clause.OnConflict{DoNothing: true}).Create((&MetaNamespace{}).From(ns))
 	if tx.Error != nil {
 		return nsTag(tx.Error)
 	}

@@ -25,7 +25,6 @@ import (
 	"crypto/md5"
 	"encoding/hex"
 	"fmt"
-	"math/rand"
 	"os"
 	osruntime "runtime"
 	"strconv"
@@ -38,10 +37,9 @@ import (
 	"github.com/pydio/cells/v4/common/dao"
 	"github.com/pydio/cells/v4/common/proto/tree"
 	"github.com/pydio/cells/v4/common/runtime"
-	"github.com/pydio/cells/v4/common/sql"
-	"github.com/pydio/cells/v4/common/storage"
-	"github.com/pydio/cells/v4/common/utils/configx"
+	"github.com/pydio/cells/v4/common/runtime/manager"
 	"github.com/pydio/cells/v4/common/utils/mtree"
+	"github.com/pydio/cells/v4/common/utils/test"
 
 	_ "github.com/pydio/cells/v4/common/utils/cache/bigcache"
 	_ "github.com/pydio/cells/v4/common/utils/cache/gocache"
@@ -51,6 +49,7 @@ import (
 )
 
 var (
+	testcases    = test.TemplateSQL(NewDAO[*tree.TreeNode])
 	ctxWithCache context.Context
 	baseCacheDAO dao.DAO
 )
@@ -69,205 +68,37 @@ func TestMain(m *testing.M) {
 }
 
 func testAll(t *testing.T, f func(dao testdao) func(*testing.T)) {
-	ctx := context.Background()
-
-	dbs := []struct {
-		name    string
-		driver  string
-		dsn     string
-		prefix  string
-		wrapper func(store storage.Storage) dao.DAO
-	}{
-		{
-			"SQLite",
-			sql.SqliteDriver,
-			//cellssqlite.SharedMemDSN,
-			"test.db",
-			"test_nocache",
-			func(store storage.Storage) dao.DAO {
-				dao, err := NewDAO(ctx, store)
-				if err != nil {
-					return nil
-				}
-
-				return dao
-			},
-		},
-		{
-			"SQLite W/ Standard Cache",
-			sql.SqliteDriver,
-			"test.db",
-			//"file::memcache:?mode=memory&cache=shared",
-			"test_cache",
-			func(store storage.Storage) dao.DAO {
-				dao, err := NewDAO(ctx, store)
-				if err != nil {
-					return nil
-				}
-
-				dao = NewDAOCache(fmt.Sprintf("%s-%d", "test", rand.Intn(1000)), 300, dao.(DAO))
-
-				return dao
-			},
-		},
-		{
-			"MySQL",
-			sql.MySQLDriver,
-			"root:P@ssw0rd@tcp(localhost:3306)/cellstest?parseTime=true",
-			"test_mysql_nocache",
-			func(store storage.Storage) dao.DAO {
-				dao, err := NewDAO(ctx, store)
-				if err != nil {
-					return nil
-				}
-
-				return dao
-			},
-		},
-		//{
-		//	"MySQL W/ Standard Cache",
-		//	mysql.MySQLDriver,
-		//	"root:P@ssw0rd@tcp(localhost:3306)/cellstest?parseTime=true",
-		//	"test_mysql_cache",
-		//	func(store storage.Storage) dao.DAO {
-		//		dao, err := NewDAO(ctx, store)
-		//		if err != nil {
-		//			return nil
-		//		}
-		//
-		//		return NewDAOCache(fmt.Sprintf("%s-%d", "test", rand.Intn(1000)), 300, dao.(DAO[*tree.TreeNode]))
-		//	},
-		//},
-		//{
-		//	"PostGreSQL",
-		//	pgsql.MySQLDriver,
-		//	"host=localhost port=5432 dbname=testdb user=root password=mysecretpassword sslmode=disable",
-		//	"test_postgres_nocache",
-		//	func(store storage.Storage) dao.DAO {
-		//		dao, err := NewDAO(ctx, store)
-		//		if err != nil {
-		//			return nil
-		//		}
-		//
-		//		return dao
-		//	},
-		//},
-		//{
-		//	"PostGreSQL W/ Standard Cache",
-		//	pgsql.MySQLDriver,
-		//	"host=localhost port=5432 dbname=testdb user=root password=mysecretpassword sslmode=disable",
-		//	"test_postgres_cache",
-		//	func(db *gorm.DB) dao.DaoWrapperFunc {
-		//		return func(ctx context.Context, o dao.DAO) (dao.DAO, error) {
-		//			dao, err := NewDAO(ctx, o)
-		//			if err != nil {
-		//				return nil, err
-		//			}
-		//			return NewDAOCache(fmt.Sprintf("%s-%d", "test", rand.Intn(1000)), 300, dao.(DAO)), nil
-		//		}
-		//	},
-		//},
-	}
-
-	for _, db := range dbs {
-		store := storage.New("test", db.driver, db.dsn)
-
-		//d, err := dao.InitDAO(context.Background(), db.driver, db.dsn, db.prefix, db.wrapper(gormDB), options)
-		//if err != nil {
-		//	panic(err)
-		//}
-		var gormDB *gorm.DB
-		store.Get(&gormDB)
-
-		// gormDB.AutoMigrate(&tree.TreeNode{})
-
-		dao := db.wrapper(store).(testdao)
-		dao.Init(context.TODO(), configx.New())
+	var cnt = 0
+	test.RunStorageTests(testcases, func(ctx context.Context) {
+		dao, err := manager.Resolve[DAO](ctx)
+		if err != nil {
+			panic(err)
+		}
 
 		// First make sure that we delete everything
 		dao.DelNode(ctx, &tree.TreeNode{MPath: &tree.MPath{MPath1: "1"}})
 		dao.DelNode(ctx, &tree.TreeNode{MPath: &tree.MPath{MPath1: "2"}})
 
 		// Run the test
-		t.Run(db.name, f(dao))
-	}
+		t.Run(testcases[cnt].DSN[0], f(dao))
+	})
 }
 
 func testAllCache(t *testing.T, f func(dao testdao) func(*testing.T)) {
-	ctx := context.Background()
-
-	dbs := []struct {
-		name    string
-		driver  string
-		dsn     string
-		prefix  string
-		wrapper func(storage.Storage) dao.DAO
-	}{
-		//{
-		//	"SQLite with Standard Cache",
-		//	cellssqlite.MySQLDriver,
-		//	"file::memcache:?mode=memory&cache=shared",
-		//	"test_cache",
-		//	func(db *gorm.DB) dao.DaoWrapperFunc {
-		//		return func(ctx context.Context, o dao.DAO) (dao.DAO, error) {
-		//			dao, err := NewDAO(ctx, o)
-		//			if err != nil {
-		//				return nil, err
-		//			}
-		//			return NewDAOCache(fmt.Sprintf("%s-%d", "test", rand.Intn(1000)), 300, dao.(DAO)), nil
-		//		}
-		//	},
-		//},
-		//{
-		//	"MySQL",
-		//	mysql.MySQLDriver,
-		//	"root:P@ssw0rd@tcp(localhost:3306)/cellstest?parseTime=true",
-		//	"test_cache_",
-		//	func(db *gorm.DB) dao.DaoWrapperFunc {
-		//		return func(ctx context.Context, o dao.DAO) (dao.DAO, error) {
-		//			dao, err := NewDAO(ctx, o)
-		//			if err != nil {
-		//				return nil, err
-		//			}
-		//			return NewDAOCache(fmt.Sprintf("%s-%d", "test", rand.Intn(1000)), 300, dao.(DAO)), nil
-		//		}
-		//	},
-		//},
-		//{
-		//	"PostGreSQL",
-		//	pgsql.MySQLDriver,
-		//	"host=localhost port=5432 dbname=testdb user=root password=mysecretpassword sslmode=disable",
-		//	"test_cache",
-		//	func(db *gorm.DB) dao.DaoWrapperFunc {
-		//		return func(ctx context.Context, o dao.DAO) (dao.DAO, error) {
-		//			dao, err := NewDAO(ctx, o)
-		//			if err != nil {
-		//				return nil, err
-		//			}
-		//			return NewDAOCache(fmt.Sprintf("%s-%d", "test", rand.Intn(1000)), 300, dao.(DAO)), nil
-		//		}
-		//	},
-		//},
-	}
-
-	for _, db := range dbs {
-		store := storage.New("test", db.driver, db.dsn)
-
-		//d, err := dao.InitDAO(context.Background(), db.driver, db.dsn, db.prefix, db.wrapper(gormDB), options)
-		//if err != nil {
-		//	panic(err)
-		//}
-
-		dao := db.wrapper(store).(testdao)
-		dao.Init(context.TODO(), configx.New())
+	var cnt = 0
+	test.RunStorageTests(testcases, func(ctx context.Context) {
+		dao, err := manager.Resolve[DAO](ctx)
+		if err != nil {
+			panic(err)
+		}
 
 		// First make sure that we delete everything
 		dao.DelNode(ctx, &tree.TreeNode{MPath: &tree.MPath{MPath1: "1"}})
 		dao.DelNode(ctx, &tree.TreeNode{MPath: &tree.MPath{MPath1: "2"}})
 
 		// Run the test
-		t.Run(db.name, f(dao))
-	}
+		t.Run(testcases[cnt].DSN[0], f(dao))
+	})
 }
 
 // PrintMemUsage outputs the current, total and OS memory being used. As well as the number

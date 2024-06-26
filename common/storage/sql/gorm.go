@@ -63,9 +63,12 @@ func OpenPool(ctx context.Context, uu string) (storage.Storage, error) {
 		var dialect gorm.Dialector
 		var prefix, policies, singular string
 		if dbresolver.IsMysqlConn(conn.Driver()) {
-			dialect = mysql.New(mysql.Config{
-				Conn: conn,
-			})
+			dialect = &Dialector{
+				Dialector: mysql.New(mysql.Config{
+					Conn: conn,
+				}),
+				Helper: &mysqlHelper{},
+			}
 			config, err := mysql2.ParseDSN(dsn)
 			if err != nil {
 				return nil, err
@@ -85,9 +88,12 @@ func OpenPool(ctx context.Context, uu string) (storage.Storage, error) {
 
 			dsn = config.FormatDSN()
 		} else if dbresolver.IsPostGreConn(conn.Driver()) {
-			dialect = postgres.New(postgres.Config{
-				Conn: conn,
-			})
+			dialect = &Dialector{
+				Dialector: postgres.New(postgres.Config{
+					Conn: conn,
+				}),
+				Helper: &postgresHelper{},
+			}
 
 			u, err := url.Parse(dsn)
 			if err != nil {
@@ -105,8 +111,11 @@ func OpenPool(ctx context.Context, uu string) (storage.Storage, error) {
 				singular = q.Get("singular")
 			}
 		} else if dbresolver.IsSQLiteConn(conn.Driver()) {
-			dialect = &sqlite.Dialector{
-				Conn: conn,
+			dialect = &Dialector{
+				Dialector: &sqlite.Dialector{
+					Conn: conn,
+				},
+				Helper: &sqliteHelper{},
 			}
 
 			u, err := url.Parse(dsn)
@@ -138,6 +147,7 @@ func OpenPool(ctx context.Context, uu string) (storage.Storage, error) {
 		})
 
 		db, err := gorm.Open(dialect, &gorm.Config{
+			TranslateError: true,
 			Logger: NewLogger(logger.Config{
 				SlowThreshold:             time.Second,   // Slow SQL threshold
 				LogLevel:                  logger.Silent, // Log level
