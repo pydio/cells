@@ -3,6 +3,7 @@ package sql
 import (
 	"context"
 	"database/sql"
+	"errors"
 	"fmt"
 	"testing"
 
@@ -20,6 +21,7 @@ import (
 	"github.com/pydio/cells/v4/common/service"
 	"github.com/pydio/cells/v4/common/storage"
 	dbresolver "github.com/pydio/cells/v4/common/storage/sql/dbresolver"
+	"github.com/pydio/cells/v4/common/utils/uuid"
 
 	_ "embed"
 	_ "github.com/pydio/cells/v4/common/registry/config"
@@ -113,11 +115,16 @@ type Data struct {
 	MyData string `gorm:"column:data"`
 }
 
+type DataWithPK struct {
+	ID   string `gorm:"column:id; primaryKey;"`
+	Data string `gorm:"column:data"`
+}
+
 func TestDBPool(t *testing.T) {
 	c := controller.NewController[storage.Storage]()
-	c.Register("sqlite3-extended", controller.WithCustomOpener(OpenPool))
+	c.Register("sqlite", controller.WithCustomOpener(OpenPool))
 
-	st, err := c.Open(context.Background(), `sqlite3-extended:///tmp/{{ .Value "name" }}.db?prefix={{ .Value "name" }}_`)
+	st, err := c.Open(context.Background(), `sqlite:///tmp/`+uuid.New()+`{{ .Value "name" }}.db?prefix={{ .Value "name" }}_`)
 	if err != nil {
 		panic(err)
 	}
@@ -139,7 +146,7 @@ func TestDBPool(t *testing.T) {
 	db2 := d2.(*gorm.DB)
 
 	// First db :
-	if err := db1.AutoMigrate(&Data{}); err != nil {
+	if err := db1.AutoMigrate(&Data{}, &DataWithPK{}); err != nil {
 		panic(err)
 	}
 
@@ -158,18 +165,29 @@ func TestDBPool(t *testing.T) {
 	db2.Where(&Data{"whatever3"}).Find(&res)
 
 	fmt.Println(res)
+
+	tx := db1.Create(&DataWithPK{ID: "unique", Data: "something"})
+	if tx.Error != nil {
+		panic(tx.Error)
+	}
+	tx = db1.Create(&DataWithPK{ID: "unique", Data: "something else but with same ID, should output duplicate"})
+	if tx.Error != nil {
+		if !errors.Is(tx.Error, gorm.ErrDuplicatedKey) {
+			panic(tx.Error)
+		}
+	}
 }
 
 func TestNormalResolver(t *testing.T) {
 	//dsn_master := "sqlite3-extended:///tmp/test1.db"
 	//dsn_shard1 := "sqlite3-extended:///tmp/test2.db"
 
-	conn_master, _ := sql.Open("sqlite3-extended", "/tmp/master.db")
+	conn_master, _ := sql.Open("sqlite", "/tmp/master.db")
 	dialect_master := &sqlite.Dialector{
 		Conn: conn_master,
 	}
 
-	conn_shard1, _ := sql.Open("sqlite3-extended", "/tmp/shard1.db")
+	conn_shard1, _ := sql.Open("sqlite", "/tmp/shard1.db")
 	dialect_shard1 := &sqlite.Dialector{
 		Conn: conn_shard1,
 	}
