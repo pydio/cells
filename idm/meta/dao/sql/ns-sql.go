@@ -26,6 +26,7 @@ import (
 
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
+	"gorm.io/gorm/schema"
 
 	"github.com/pydio/cells/v4/common/errors"
 	"github.com/pydio/cells/v4/common/proto/idm"
@@ -48,6 +49,10 @@ type MetaNamespace struct {
 	Order      int32  `gorm:"column: ns_order;"`
 	Indexable  bool   `gorm:"column: indexable;"`
 	Definition []byte `gorm:"column: definition;"`
+}
+
+func (*MetaNamespace) TableName(namer schema.Namer) string {
+	return namer.TableName("meta_ns")
 }
 
 func (u *MetaNamespace) As(res *idm.UserMetaNamespace) *idm.UserMetaNamespace {

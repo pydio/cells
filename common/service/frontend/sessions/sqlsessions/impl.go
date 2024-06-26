@@ -2,7 +2,6 @@ package sqlsessions
 
 import (
 	"context"
-	"embed"
 	"encoding/gob"
 	"errors"
 	"fmt"
@@ -16,6 +15,7 @@ import (
 	"go.uber.org/zap"
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
+	"gorm.io/gorm/schema"
 
 	"github.com/pydio/cells/v4/common/service/frontend/sessions/utils"
 	"github.com/pydio/cells/v4/common/telemetry/log"
@@ -25,8 +25,7 @@ import (
 )
 
 var (
-	//go:embed migrations/*
-	migrationsFS embed.FS
+/*
 	queries      = map[string]string{
 		"insert": "INSERT INTO idm_frontend_sessions (id, session_data, session_url, created_on, modified_on, expires_on) VALUES (NULL,?,?,?,?,?)",
 		"update": "UPDATE idm_frontend_sessions SET session_data = ?, created_on = ?, expires_on = ? WHERE id = ?",
@@ -34,6 +33,7 @@ var (
 		"select": "SELECT id, session_data, created_on, modified_on, expires_on from idm_frontend_sessions WHERE id = ?",
 		"clean":  "DELETE FROM idm_frontend_sessions WHERE expires_on < NOW()",
 	}
+*/
 )
 
 type SessionRow struct {
@@ -45,8 +45,8 @@ type SessionRow struct {
 	ExpiresOn  time.Time `gorm:"column:expires_on"`
 }
 
-func (r *SessionRow) TableName() string {
-	return "idm_frontend_sessions"
+func (r *SessionRow) TableName(namer schema.Namer) string {
+	return namer.TableName("sessions")
 }
 
 func (r *SessionRow) BeforeCreate(db *gorm.DB) error {

@@ -19,7 +19,7 @@ import (
 )
 
 // NewCookieDAO creates an encrypted cookies carried along with requests
-func NewCookieDAO(_ *sc.Conn) DAO {
+func NewCookieDAO(some *sc.Conn) DAO {
 
 	timeout := config.Get("frontend", "plugin", "gui.ajax", "SESSION_TIMEOUT").Default(60).Int()
 	defaultOptions := &sessions.Options{

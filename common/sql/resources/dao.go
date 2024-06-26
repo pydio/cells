@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2021. Abstrium SAS <team (at) pydio.com>
+ * Copyright (c) 2024. Abstrium SAS <team (at) pydio.com>
  * This file is part of Pydio Cells.
  *
  * Pydio Cells is free software: you can redistribute it and/or modify
@@ -27,6 +27,7 @@ import (
 	"gorm.io/gorm"
 
 	service "github.com/pydio/cells/v4/common/proto/service"
+	"github.com/pydio/cells/v4/common/sql"
 )
 
 // DAO interface
@@ -43,8 +44,9 @@ type DAO interface {
 	DeletePoliciesBySubject(ctx context.Context, subject string) error
 
 	BuildPolicyConditionForAction(ctx context.Context, q *service.ResourcePolicyQuery, action service.ResourcePolicyAction) (expr any, e error)
+	sql.Converter[*gorm.DB]
 }
 
 func NewDAO(db *gorm.DB) DAO {
-	return &ResourcesGORM{DB: db}
+	return withCache(&gormImpl{DB: db})
 }

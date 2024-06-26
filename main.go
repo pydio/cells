@@ -23,9 +23,8 @@ import (
 	// Register storage drivers
 	_ "github.com/pydio/cells/v4/common/storage/bleve"
 	_ "github.com/pydio/cells/v4/common/storage/boltdb"
-
-	//_ "github.com/pydio/cells/v4/common/storage/config"
 	_ "github.com/pydio/cells/v4/common/storage/mongodb"
+	_ "github.com/pydio/cells/v4/common/storage/sc"
 	_ "github.com/pydio/cells/v4/common/storage/sql"
 
 	// Register minio client for objects storage

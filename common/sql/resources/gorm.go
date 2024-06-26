@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2021. Abstrium SAS <team (at) pydio.com>
+ * Copyright (c) 2024. Abstrium SAS <team (at) pydio.com>
  * This file is part of Pydio Cells.
  *
  * Pydio Cells is free software: you can redistribute it and/or modify
@@ -22,7 +22,6 @@ package resources
 
 import (
 	"context"
-	"sync"
 	"time"
 
 	"google.golang.org/protobuf/proto"
@@ -33,47 +32,23 @@ import (
 	"github.com/pydio/cells/v4/common/proto/service"
 )
 
-// ResourcesGORM implements the SQL interface.
-// TODO V5 - Re-enable cache everywhere
-type ResourcesGORM struct {
+// gormImpl implements the SQL interface.
+type gormImpl struct {
 	*gorm.DB
-
-	once *sync.Once
-
 	LeftIdentifier string
 }
 
-// Init performs necessary up migration.
-//func (s *ResourcesGORM) Init(ctx context.Context, options configx.Values) error {
-//
-//	s.instance = func() *gorm.DB {
-//		return s.DB.Session(&gorm.Session{SkipDefaultTransaction: true}).Table("idm_role_policies")
-//	}
-//
-//	s.instance().AutoMigrate(&service.ResourcePolicyORM{})
-//
-//	//c, _ := cache.OpenCache(context.TODO(), runtime.ShortCacheURL("evictionTime", "30s", "cleanWindow", "2m"))
-//	//s.cache = c
-//
-//	return nil
-//}
-
-func (s *ResourcesGORM) instance(ctx context.Context) *gorm.DB {
+func (s *gormImpl) instance(ctx context.Context) *gorm.DB {
 	return s.DB.Session(&gorm.Session{SkipDefaultTransaction: true}).WithContext(ctx)
 }
 
-func (s *ResourcesGORM) Migrate(ctx context.Context) error {
-	if err := s.instance(ctx).AutoMigrate(&service.ResourcePolicy{}); err != nil {
-		return err
-	}
-
-	return nil
+func (s *gormImpl) Migrate(ctx context.Context) error {
+	return s.instance(ctx).AutoMigrate(&service.ResourcePolicy{})
 }
 
 // AddPolicy persists a policy in the underlying storage
-func (s *ResourcesGORM) AddPolicy(ctx context.Context, resourceId string, policy *service.ResourcePolicy) error {
+func (s *gormImpl) AddPolicy(ctx context.Context, resourceId string, policy *service.ResourcePolicy) error {
 
-	// s.cache.Delete(resourceId)
 	pol := proto.Clone(policy).(*service.ResourcePolicy)
 	pol.Resource = resourceId
 
@@ -81,10 +56,7 @@ func (s *ResourcesGORM) AddPolicy(ctx context.Context, resourceId string, policy
 }
 
 // AddPolicies persists a set of policies. If update is true, it replace them by deleting existing ones
-func (s *ResourcesGORM) AddPolicies(ctx context.Context, update bool, resourceId string, policies []*service.ResourcePolicy) error {
-
-	// s.cache.Delete(resourceId)
-
+func (s *gormImpl) AddPolicies(ctx context.Context, update bool, resourceId string, policies []*service.ResourcePolicy) error {
 	return s.instance(ctx).Transaction(func(tx *gorm.DB) error {
 		if update {
 			if err := tx.Where(&service.ResourcePolicy{Resource: resourceId}).Delete(&service.ResourcePolicy{}).Error; err != nil {
@@ -105,12 +77,7 @@ func (s *ResourcesGORM) AddPolicies(ctx context.Context, update bool, resourceId
 }
 
 // GetPoliciesForResource finds all policies for a given resource
-func (s *ResourcesGORM) GetPoliciesForResource(ctx context.Context, resourceId string) ([]*service.ResourcePolicy, error) {
-
-	//var rules []*service.ResourcePolicy
-	//if s.cache.Get(resourceId, &rules) {
-	//	return rules, nil
-	//}
+func (s *gormImpl) GetPoliciesForResource(ctx context.Context, resourceId string) ([]*service.ResourcePolicy, error) {
 
 	var res []*service.ResourcePolicy
 
@@ -121,21 +88,17 @@ func (s *ResourcesGORM) GetPoliciesForResource(ctx context.Context, resourceId s
 		return nil, err
 	}
 
-	//s.cache.Set(resourceId, res)
-
 	return res, nil
 }
 
 // DeletePoliciesForResource removes all policies for a given resource
-func (s *ResourcesGORM) DeletePoliciesForResource(ctx context.Context, resourceId string) error {
-
-	//s.cache.Delete(resourceId)
+func (s *gormImpl) DeletePoliciesForResource(ctx context.Context, resourceId string) error {
 
 	return s.instance(ctx).Delete(&service.ResourcePolicy{}, &service.ResourcePolicy{Resource: resourceId}).Error
 }
 
 // GetPoliciesForSubject finds all policies with a given subject
-func (s *ResourcesGORM) GetPoliciesForSubject(ctx context.Context, subject string) ([]*service.ResourcePolicy, error) {
+func (s *gormImpl) GetPoliciesForSubject(ctx context.Context, subject string) ([]*service.ResourcePolicy, error) {
 	var res []*service.ResourcePolicy
 
 	timeout, cancel := context.WithTimeout(context.Background(), 50*time.Second)
@@ -149,7 +112,7 @@ func (s *ResourcesGORM) GetPoliciesForSubject(ctx context.Context, subject strin
 }
 
 // ReplacePoliciesSubject set a new subject to all policies with the old subject
-func (s *ResourcesGORM) ReplacePoliciesSubject(ctx context.Context, oldSubject, newSubject string) (int, error) {
+func (s *gormImpl) ReplacePoliciesSubject(ctx context.Context, oldSubject, newSubject string) (int, error) {
 
 	timeout, cancel := context.WithTimeout(context.Background(), 50*time.Second)
 	defer cancel()
@@ -164,34 +127,17 @@ func (s *ResourcesGORM) ReplacePoliciesSubject(ctx context.Context, oldSubject, 
 }
 
 // DeletePoliciesBySubject removes all policies for a given resource
-func (s *ResourcesGORM) DeletePoliciesBySubject(ctx context.Context, subject string) error {
-
-	// Delete cache items that would contain this subject
-	//s.cache.Iterate(func(key string, val interface{}) {
-	//	if rules, ok := val.([]*service.ResourcePolicy); ok {
-	//		for _, pol := range rules {
-	//			if pol.Subject == subject {
-	//				s.cache.Delete(key)
-	//				break
-	//			}
-	//		}
-	//	}
-	//})
-
+func (s *gormImpl) DeletePoliciesBySubject(ctx context.Context, subject string) error {
 	return s.instance(ctx).Delete(&service.ResourcePolicy{}, &service.ResourcePolicy{Subject: subject}).Error
 }
 
 // DeletePoliciesForResourceAndAction removes policies for a given resource only if they have the corresponding action
-func (s *ResourcesGORM) DeletePoliciesForResourceAndAction(ctx context.Context, resourceId string, action service.ResourcePolicyAction) error {
-
-	//s.cache.Delete(resourceId)
-
+func (s *gormImpl) DeletePoliciesForResourceAndAction(ctx context.Context, resourceId string, action service.ResourcePolicyAction) error {
 	return s.instance(ctx).Delete(&service.ResourcePolicy{}, &service.ResourcePolicy{Resource: resourceId, Action: action}).Error
-
 }
 
 // BuildPolicyConditionForAction builds an ResourcesSQL condition from claims toward the associated resource table
-func (s *ResourcesGORM) BuildPolicyConditionForAction(ctx context.Context, q *service.ResourcePolicyQuery, action service.ResourcePolicyAction) (out any, e error) {
+func (s *gormImpl) BuildPolicyConditionForAction(ctx context.Context, q *service.ResourcePolicyQuery, action service.ResourcePolicyAction) (out any, e error) {
 
 	if q == nil || q.Any {
 		return nil, nil
@@ -222,7 +168,7 @@ func (s *ResourcesGORM) BuildPolicyConditionForAction(ctx context.Context, q *se
 }
 
 // Convert a policy query to conditions from claims toward the associated resource table
-func (s *ResourcesGORM) Convert(ctx context.Context, val *anypb.Any, db *gorm.DB) (*gorm.DB, bool, error) {
+func (s *gormImpl) Convert(ctx context.Context, val *anypb.Any, db *gorm.DB) (*gorm.DB, bool, error) {
 
 	q := new(service.ResourcePolicyQuery)
 	if err := anypb.UnmarshalTo(val, q, proto.UnmarshalOptions{}); err != nil {

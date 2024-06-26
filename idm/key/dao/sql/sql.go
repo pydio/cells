@@ -114,18 +114,17 @@ func (s *sqlimpl) SaveKey(ctx context.Context, key *encryption.Key, version ...i
 
 // GetKey loads key from persistence layer
 func (s *sqlimpl) GetKey(ctx context.Context, owner string, keyID string) (res *encryption.Key, version int, err error) {
-	var key *UserKey
+	var k *UserKey
 
-	tx := s.instance(ctx).Where(&UserKey{Owner: owner, ID: keyID}).First(&key)
+	tx := s.instance(ctx).Where(&UserKey{Owner: owner, ID: keyID}).First(&k)
 	if tx.Error != nil {
+		if errors.Is(tx.Error, gorm.ErrRecordNotFound) {
+			return nil, 0, errors.WithMessage(errors.KeyNotFound, "cannot find key with id "+keyID)
+		}
 		return nil, 0, tx.Error
 	}
 
-	if tx.RowsAffected == 0 {
-		return nil, 0, errors.WithMessage(errors.KeyNotFound, "cannot find key with id "+keyID)
-	}
-
-	return key.As(&encryption.Key{}), key.Version, nil
+	return k.As(&encryption.Key{}), k.Version, nil
 }
 
 // ListKeys list all keys by owner
