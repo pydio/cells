@@ -455,7 +455,7 @@ func (s *Indexer) FindMany(ctx context.Context, qu interface{}, offset, limit in
 func (s *Indexer) rotate(ctx context.Context) error {
 	path := s.getPath(ctx)
 	prefix := s.getPrefix(ctx)
-	rotationID := s.getNextRotationID(path + "/" + prefix)
+	rotationID := s.getNextRotationID(filepath.Join(path, prefix))
 	currentPath := s.getFullPath(path, prefix, rotationID)
 
 	idx, err := s.openOneIndex(currentPath, s.conf.MappingName)
@@ -493,7 +493,7 @@ func (s *Indexer) SetCodex(c indexer.IndexCodex) {
 func (s *Indexer) getWriteIndex(ctx context.Context) (bleve.Index, error) {
 	path := s.getPath(ctx)
 	prefix := s.getPrefix(ctx)
-	rotationID := s.getRotationID(path + "/" + prefix)
+	rotationID := s.getRotationID(filepath.Join(path, prefix))
 	fullPath := s.getFullPath(path, prefix, rotationID)
 
 	var indexes []bleve.Index
@@ -508,9 +508,7 @@ func (s *Indexer) getWriteIndex(ctx context.Context) (bleve.Index, error) {
 		if err != nil {
 			return nil, err
 		}
-
 		s.indexes = append(s.indexes, idx)
-
 		return idx, err
 	}
 
