@@ -22,6 +22,7 @@ package resources
 
 import (
 	"context"
+	"strings"
 	"time"
 
 	"google.golang.org/protobuf/proto"
@@ -35,7 +36,6 @@ import (
 // gormImpl implements the SQL interface.
 type gormImpl struct {
 	*gorm.DB
-	LeftIdentifier string
 }
 
 func (s *gormImpl) instance(ctx context.Context) *gorm.DB {
@@ -143,7 +143,8 @@ func (s *gormImpl) BuildPolicyConditionForAction(ctx context.Context, q *service
 		return nil, nil
 	}
 
-	leftIdentifier := s.LeftIdentifier
+	//leftIdentifier := s.LeftIdentifier
+	leftIdentifier := ""
 	subjects := q.GetSubjects()
 
 	if q.Empty {
@@ -164,7 +165,6 @@ func (s *gormImpl) BuildPolicyConditionForAction(ctx context.Context, q *service
 
 		return s.instance(ctx).Where("EXISTS(?)", subQuery), nil
 	}
-
 }
 
 // Convert a policy query to conditions from claims toward the associated resource table
@@ -178,7 +178,9 @@ func (s *gormImpl) Convert(ctx context.Context, val *anypb.Any, db *gorm.DB) (*g
 	db = db.Session(&gorm.Session{})
 
 	if q.Empty {
-		subQuery := s.instance(ctx).Model(&service.ResourcePolicy{}).Select("resource").Where(&service.ResourcePolicy{Action: service.ResourcePolicyAction_ANY})
+		args := strings.Split(q.LeftIdentifier, ".")
+
+		subQuery := s.instance(ctx).Model(&service.ResourcePolicy{}).Select("resource").Where(clause.Eq{Column: "resource", Value: clause.Column{Table: args[0], Name: args[1]}}).Where(&service.ResourcePolicy{Action: service.ResourcePolicyAction_ANY})
 		count++
 		db = db.Not("uuid IN(?)", subQuery)
 	} else {
@@ -195,11 +197,33 @@ func (s *gormImpl) Convert(ctx context.Context, val *anypb.Any, db *gorm.DB) (*g
 				}
 			}
 
-			subQuery = subQuery.Where(&service.ResourcePolicy{Action: service.ResourcePolicyAction_ANY}).Where(subjectQuery)
+			args := strings.Split(q.LeftIdentifier, ".")
+
+			subQuery = subQuery.Where(clause.Eq{Column: "resource", Value: clause.Column{Table: args[0], Name: args[1]}}).Where(&service.ResourcePolicy{Action: service.ResourcePolicyAction_ANY}).Where(subjectQuery)
 		}
 		count++
 		db = db.Where("uuid IN (?)", subQuery)
 	}
 
 	return db, count > 0, nil
+}
+
+type QueryBuilder struct {
+	DAO
+	LeftIdentifier string
+}
+
+func (r *QueryBuilder) Convert(ctx context.Context, val *anypb.Any, db *gorm.DB) (*gorm.DB, bool, error) { // Adding left identifier to resource policy query
+	rq := new(service.ResourcePolicyQuery)
+	if err := anypb.UnmarshalTo(val, rq, proto.UnmarshalOptions{}); err != nil {
+		return db, false, nil
+	}
+
+	rq.LeftIdentifier = r.LeftIdentifier
+
+	if err := anypb.MarshalFrom(val, rq, proto.MarshalOptions{}); err != nil {
+		return db, false, err
+	}
+
+	return r.DAO.Convert(ctx, val, db)
 }

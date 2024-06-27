@@ -44,6 +44,7 @@ type DAO interface {
 	DeletePoliciesBySubject(ctx context.Context, subject string) error
 
 	BuildPolicyConditionForAction(ctx context.Context, q *service.ResourcePolicyQuery, action service.ResourcePolicyAction) (expr any, e error)
+
 	sql.Converter[*gorm.DB]
 }
 

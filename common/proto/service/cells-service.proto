@@ -36,6 +36,7 @@ message ResourcePolicyQuery {
     repeated string Subjects = 1;
     bool Empty = 2;
     bool Any = 3;
+    string LeftIdentifier = 4;
 }
 
 message ResourcePolicy {

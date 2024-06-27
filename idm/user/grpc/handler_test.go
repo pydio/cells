@@ -25,12 +25,14 @@ import (
 	"fmt"
 	"testing"
 
+	"go.uber.org/zap"
 	"google.golang.org/grpc/metadata"
 	"google.golang.org/protobuf/types/known/anypb"
 
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/proto/idm"
 	"github.com/pydio/cells/v4/common/proto/service"
+	"github.com/pydio/cells/v4/common/telemetry/log"
 	"github.com/pydio/cells/v4/common/utils/cache"
 	"github.com/pydio/cells/v4/common/utils/test"
 	"github.com/pydio/cells/v4/idm/user/dao/sql"
@@ -51,6 +53,14 @@ func init() {
 	_ = c.Set("autoApplies", map[string][]*idm.Role{
 		"autoApplyProfile": {{Uuid: "auto-apply", AutoApplies: []string{"autoApplyProfile"}}},
 	})
+
+	log.SetLoggerInit(func() *zap.Logger {
+		cfg := zap.NewDevelopmentConfig()
+		cfg.OutputPaths = []string{"stdout"}
+		z, _ := cfg.Build()
+
+		return z
+	}, nil)
 }
 
 func TestLoginCIDAO(t *testing.T) {

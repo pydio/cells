@@ -94,11 +94,11 @@ type IndexSQL[T tree.ITreeNode] struct {
 type Factory[T tree.ITreeNode] interface {
 	Struct() T
 	Slice() []T
+	RootGroupProvider
 }
 
-type FactoryProvider interface {
-	Struct() any
-	Slice() any
+type RootGroupProvider interface {
+	RootGroup() string
 }
 
 type treeNodeFactory[T tree.ITreeNode] struct{}
@@ -111,6 +111,16 @@ func (*treeNodeFactory[T]) Struct() T {
 
 func (*treeNodeFactory[T]) Slice() []T {
 	return []T{}
+}
+
+func (*treeNodeFactory[T]) RootGroup() string {
+	var t T
+
+	if r, ok := any(t).(RootGroupProvider); ok {
+		return r.RootGroup()
+	}
+
+	return "ROOT"
 }
 
 func (s *IndexSQL[T]) instance(ctx context.Context) *gorm.DB {
@@ -848,7 +858,16 @@ func Path(ctx context.Context, dao DAO, targetNode tree.ITreeNode, parentNode tr
 
 		if len(remainingPath) > 1 {
 			// Cloning the current node
-			currentNode = reflect.New(reflect.TypeOf(parentNode).Elem()).Interface().(tree.ITreeNode)
+			clone := reflect.New(reflect.TypeOf(parentNode).Elem())
+
+			val := reflect.ValueOf(parentNode).Elem()
+			nVal := clone.Elem()
+			for i := 0; i < val.NumField(); i++ {
+				nvField := nVal.Field(i)
+				nvField.Set(val.Field(i))
+			}
+
+			currentNode = clone.Interface().(tree.ITreeNode)
 		} else {
 			currentNode = targetNode
 		}
@@ -882,17 +901,18 @@ func Path(ctx context.Context, dao DAO, targetNode tree.ITreeNode, parentNode tr
 	if parentMPath.Length() == 0 {
 		// The current node is the root
 		// We hardcode its values and add it
+
 		currentNode.SetMPath(tree.NewMPath(1))
 
-		currentNode.SetNode(&tree.Node{
-			Uuid:  "ROOT",
-			Type:  tree.NodeType_COLLECTION,
-			Mode:  0777,
-			MTime: time.Now().Unix(),
-			Path:  "/",
-		})
+		//currentNode.SetNode(&tree.Node{
+		//	Uuid:  "ROOT",
+		//	Type:  tree.NodeType_COLLECTION,
+		//	Mode:  0777,
+		//	MTime: time.Now().Unix(),
+		//	Path:  "/",
+		//})
 
-		currentNode.SetName("")
+		//currentNode.SetName("")
 	} else {
 
 		// And finally we create the path in the node

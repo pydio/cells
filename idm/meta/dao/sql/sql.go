@@ -30,6 +30,7 @@ import (
 	"google.golang.org/protobuf/types/known/anypb"
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
+	"gorm.io/gorm/schema"
 
 	"github.com/pydio/cells/v4/common/errors"
 	"github.com/pydio/cells/v4/common/proto/idm"
@@ -207,7 +208,12 @@ func (s *sqlimpl) Del(ctx context.Context, meta *idm.UserMeta) (previousValue st
 // func (s *sqlimpl) Search(metaIds []string, nodeUuids []string, namespace string, ownerSubject string, resourceQuery *service.ResourcePolicyQuery) ([]*idm.UserMeta, error) {
 func (s *sqlimpl) Search(ctx context.Context, query sql.Enquirer) ([]*idm.UserMeta, error) {
 
-	db, er := sql.NewQueryBuilder[*gorm.DB](query, new(queryBuilder), s.resourcesDAO.(sql.Converter[*gorm.DB])).Build(ctx, s.instance(ctx))
+	sch, _ := schema.Parse(&Meta{}, &sync.Map{}, s.instance(ctx).NamingStrategy)
+	rqb := new(resources.QueryBuilder)
+	rqb.DAO = s.resourcesDAO
+	rqb.LeftIdentifier = sch.Table + "." + sch.PrimaryFields[0].Name
+
+	db, er := sql.NewQueryBuilder[*gorm.DB](query, new(queryBuilder), rqb).Build(ctx, s.instance(ctx))
 	if er != nil {
 		return nil, er
 	}

@@ -75,7 +75,7 @@ func TestNSCrud(t *testing.T) {
 			// List meta for the node
 			result2, er := mockDAO.List(ctx)
 			So(er, ShouldBeNil)
-			So(result2, ShouldHaveLength, 1)
+			So(result2, ShouldHaveLength, 2)
 		})
 	})
 
@@ -91,14 +91,14 @@ func TestNSResourceRules(t *testing.T) {
 
 		Convey("Test Add Rule", t, func() {
 
-			err := mockDAO.AddPolicy(ctx, "resource-id", &service.ResourcePolicy{Action: service.ResourcePolicyAction_READ, Subject: "subject1"})
+			err := mockDAO.AddPolicy(ctx, "resource-id-ns", &service.ResourcePolicy{Action: service.ResourcePolicyAction_READ, Subject: "subject1"})
 			So(err, ShouldBeNil)
 
 		})
 
 		Convey("Select Rules", t, func() {
 
-			rules, err := mockDAO.GetPoliciesForResource(ctx, "resource-id")
+			rules, err := mockDAO.GetPoliciesForResource(ctx, "resource-id-ns")
 			So(rules, ShouldHaveLength, 1)
 			So(err, ShouldBeNil)
 
@@ -106,10 +106,10 @@ func TestNSResourceRules(t *testing.T) {
 
 		Convey("Delete Rules", t, func() {
 
-			err := mockDAO.DeletePoliciesForResource(ctx, "resource-id")
+			err := mockDAO.DeletePoliciesForResource(ctx, "resource-id-ns")
 			So(err, ShouldBeNil)
 
-			rules, err := mockDAO.GetPoliciesForResource(ctx, "resource-id")
+			rules, err := mockDAO.GetPoliciesForResource(ctx, "resource-id-ns")
 			So(rules, ShouldHaveLength, 0)
 			So(err, ShouldBeNil)
 
@@ -117,18 +117,18 @@ func TestNSResourceRules(t *testing.T) {
 
 		Convey("Delete Rules For Action", t, func() {
 
-			e := mockDAO.AddPolicy(ctx, "resource-id", &service.ResourcePolicy{Action: service.ResourcePolicyAction_READ, Subject: "subject1"})
+			e := mockDAO.AddPolicy(ctx, "resource-id-ns", &service.ResourcePolicy{Action: service.ResourcePolicyAction_READ, Subject: "subject1"})
 			So(e, ShouldBeNil)
-			e = mockDAO.AddPolicy(ctx, "resource-id", &service.ResourcePolicy{Action: service.ResourcePolicyAction_WRITE, Subject: "subject1"})
+			e = mockDAO.AddPolicy(ctx, "resource-id-ns", &service.ResourcePolicy{Action: service.ResourcePolicyAction_WRITE, Subject: "subject1"})
 			So(e, ShouldBeNil)
 
-			rules, err := mockDAO.GetPoliciesForResource(ctx, "resource-id")
+			rules, err := mockDAO.GetPoliciesForResource(ctx, "resource-id-ns")
 			So(rules, ShouldHaveLength, 2)
 
-			err = mockDAO.DeletePoliciesForResourceAndAction(ctx, "resource-id", service.ResourcePolicyAction_READ)
+			err = mockDAO.DeletePoliciesForResourceAndAction(ctx, "resource-id-ns", service.ResourcePolicyAction_READ)
 			So(err, ShouldBeNil)
 
-			rules, err = mockDAO.GetPoliciesForResource(ctx, "resource-id")
+			rules, err = mockDAO.GetPoliciesForResource(ctx, "resource-id-ns")
 			So(rules, ShouldHaveLength, 1)
 			So(err, ShouldBeNil)
 

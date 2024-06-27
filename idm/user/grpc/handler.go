@@ -34,6 +34,7 @@ import (
 	"google.golang.org/protobuf/types/known/anypb"
 
 	"github.com/pydio/cells/v4/common"
+	"github.com/pydio/cells/v4/common/auth"
 	"github.com/pydio/cells/v4/common/broker"
 	"github.com/pydio/cells/v4/common/client/commons/idmc"
 	"github.com/pydio/cells/v4/common/errors"
@@ -60,6 +61,18 @@ var (
 		{Subject: "profile:admin", Action: pbservice.ResourcePolicyAction_WRITE, Effect: pbservice.ResourcePolicy_allow},
 	}
 	autoAppliesCachePool *openurl.Pool[cache.Cache]
+
+	hasher = auth.PydioPW{
+		PBKDF2_HASH_ALGORITHM: "sha256",
+		PBKDF2_ITERATIONS:     1000,
+		PBKDF2_SALT_BYTE_SIZE: 32,
+		PBKDF2_HASH_BYTE_SIZE: 24,
+		HASH_SECTIONS:         4,
+		HASH_ALGORITHM_INDEX:  0,
+		HASH_ITERATION_INDEX:  1,
+		HASH_SALT_INDEX:       2,
+		HASH_PBKDF2_INDEX:     3,
+	}
 )
 
 // ByOverride implements sort.Interface for []Role based on the ForceOverride field.
@@ -131,7 +144,7 @@ func (h *Handler) CreateUser(ctx context.Context, req *idm.CreateUserRequest) (*
 		// Check if it is a "force pass change operation".
 		ctxLogin, _ := permissions.FindUserNameInContext(ctx)
 		if l, ok := out.Attributes["locks"]; ok && strings.Contains(l, "pass_change") && ctxLogin == out.Login {
-			if req.User.OldPassword == out.Password {
+			if req.User.Password == req.User.OldPassword {
 				return nil, fmt.Errorf("new password is the same as the old password, please use a different one")
 			}
 			var locks, newLocks []string

@@ -89,31 +89,6 @@ type nsSqlImpl struct {
 	resourcesDAO
 }
 
-//// Init handler for the SQL DAO
-//func (s *nsSqlImpl) Init(ctx context.Context, options configx.Values) error {
-//
-//	db := s.db
-//
-//	s.instance().AutoMigrate(&MetaNamespace{})
-//
-//	// Preparing the resources
-//	//s.resourcesDAO.Init(ctx, options)
-//
-//	// TODO
-//	// s.ResourcesGORM.LeftIdentifier = "idm_usr_meta_ns.namespace"
-//
-//	//s.Add(&idm.UserMetaNamespace{
-//	//	Namespace: ReservedNamespaceBookmark,
-//	//	Label:     "Bookmarks",
-//	//	Policies: []*service.ResourcePolicy{
-//	//		{Action: service.ResourcePolicyAction_READ, Subject: "*", Effect: service.ResourcePolicy_allow},
-//	//		{Action: service.ResourcePolicyAction_WRITE, Subject: "*", Effect: service.ResourcePolicy_allow},
-//	//	},
-//	//})
-//
-//	return nil
-//}
-
 func (s *nsSqlImpl) instance(ctx context.Context) *gorm.DB {
 	if s.once == nil {
 		s.once = &sync.Once{}

@@ -31,6 +31,7 @@ import (
 	"go.uber.org/zap"
 	"golang.org/x/text/transform"
 	"golang.org/x/text/unicode/norm"
+	"google.golang.org/protobuf/proto"
 	"google.golang.org/protobuf/types/known/anypb"
 	"gorm.io/gorm"
 
@@ -158,9 +159,10 @@ func (s *sqlimpl) Add(ctx context.Context, in interface{}) (interface{}, []*idm.
 
 	var user *idm.User
 
-	var ok bool
-	if user, ok = in.(*idm.User); !ok {
+	if u, ok := in.(*idm.User); !ok {
 		return nil, createdNodes, errors.WithMessage(DAOError, "invalid format, expecting idm.User")
+	} else {
+		user = proto.Clone(u).(*idm.User)
 	}
 
 	user.GroupPath = safeGroupPath(user.GroupPath)
@@ -176,7 +178,16 @@ func (s *sqlimpl) Add(ctx context.Context, in interface{}) (interface{}, []*idm.
 		node = groupToNode(user)
 	}
 
-	mpath, created, err := s.indexDAO.Path(ctx, node, &user_model.User{}, true)
+	rootNode := &user_model.User{}
+	rootNode.SetNode(&tree.Node{
+		Uuid:  "ROOT_GROUP",
+		Path:  "/",
+		Type:  tree.NodeType_COLLECTION,
+		Mode:  0777,
+		MTime: time.Now().Unix(),
+	})
+
+	mpath, created, err := s.indexDAO.Path(ctx, node, rootNode, true)
 	if err != nil && !errors.Is(err, gorm.ErrDuplicatedKey) {
 		return nil, createdNodes, wrap(err)
 	}
@@ -439,6 +450,7 @@ func (s *sqlimpl) Search(ctx context.Context, query sql.Enquirer, users *[]inter
 		includeParent: includeParents,
 		loginCI:       s.loginCI,
 	}
+
 	// log.Logger(context.Background()).Debug("Users Search Query ", zap.String("q", queryString), log.DangerouslyZapSmallSlice("q2", query.GetSubQueries()))
 	var can context.CancelFunc
 	// Unless limit is exactly one, switch to LongConnectionTimeout

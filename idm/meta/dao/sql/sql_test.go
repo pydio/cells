@@ -24,11 +24,13 @@ import (
 	"context"
 	"testing"
 
+	"go.uber.org/zap"
 	"google.golang.org/protobuf/types/known/anypb"
 
 	"github.com/pydio/cells/v4/common/proto/idm"
 	service "github.com/pydio/cells/v4/common/proto/service"
 	"github.com/pydio/cells/v4/common/runtime/manager"
+	"github.com/pydio/cells/v4/common/telemetry/log"
 	"github.com/pydio/cells/v4/common/utils/test"
 	"github.com/pydio/cells/v4/idm/meta"
 
@@ -40,6 +42,16 @@ import (
 var (
 	testcases = test.TemplateSQL(NewDAO)
 )
+
+func init() {
+	log.SetLoggerInit(func() *zap.Logger {
+		conf := zap.NewDevelopmentConfig()
+		conf.OutputPaths = []string{"stdout"}
+		logger, _ := conf.Build()
+
+		return logger
+	}, nil)
+}
 
 func TestCrud(t *testing.T) {
 
@@ -200,21 +212,21 @@ func TestResourceRules(t *testing.T) {
 
 		})
 
-		//Convey("Delete Rules For Action", t, func() {
-		//
-		//	mockDAO.AddPolicy(ctx, "resource-id", &service.ResourcePolicy{Action: service.ResourcePolicyAction_READ, Subject: "subject1"})
-		//	mockDAO.AddPolicy(ctx, "resource-id", &service.ResourcePolicy{Action: service.ResourcePolicyAction_WRITE, Subject: "subject1"})
-		//
-		//	rules, err := mockDAO.GetPoliciesForResource(ctx, "resource-id")
-		//	So(rules, ShouldHaveLength, 2)
-		//
-		//	err = mockDAO.DeletePoliciesForResourceAndAction(ctx, "resource-id", service.ResourcePolicyAction_READ)
-		//	So(err, ShouldBeNil)
-		//
-		//	rules, err = mockDAO.GetPoliciesForResource(ctx, "resource-id")
-		//	So(rules, ShouldHaveLength, 1)
-		//	So(err, ShouldBeNil)
-		//
-		//})
+		Convey("Delete Rules For Action", t, func() {
+
+			mockDAO.AddPolicy(ctx, "resource-id", &service.ResourcePolicy{Action: service.ResourcePolicyAction_READ, Subject: "subject1"})
+			mockDAO.AddPolicy(ctx, "resource-id", &service.ResourcePolicy{Action: service.ResourcePolicyAction_WRITE, Subject: "subject1"})
+
+			rules, err := mockDAO.GetPoliciesForResource(ctx, "resource-id")
+			So(rules, ShouldHaveLength, 2)
+
+			err = mockDAO.DeletePoliciesForResourceAndAction(ctx, "resource-id", service.ResourcePolicyAction_READ)
+			So(err, ShouldBeNil)
+
+			rules, err = mockDAO.GetPoliciesForResource(ctx, "resource-id")
+			So(rules, ShouldHaveLength, 1)
+			So(err, ShouldBeNil)
+
+		})
 	})
 }
