@@ -496,3 +496,8 @@ func (i *Indexer) SetCodex(c indexer.IndexCodex) {
 		}
 	}
 }
+
+// Stats method - TODO
+func (i *Indexer) Stats(ctx context.Context) map[string]interface{} {
+	return make(map[string]interface{})
+}

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2021. Abstrium SAS <team (at) pydio.com>
+ * Copyright (c) 2024. Abstrium SAS <team (at) pydio.com>
  * This file is part of Pydio Cells.
  *
  * Pydio Cells is free software: you can redistribute it and/or modify
@@ -80,6 +80,7 @@ func (b *BleveCodec) BuildQuery(qu interface{}, offset, limit int32, sortFields 
 							phrase := mp.MatchPhrase
 							if strings.Contains(phrase, " ") {
 								match := query.NewMatchQuery(mp.MatchPhrase)
+								match.SetOperator(query.MatchQueryOperatorAnd)
 								match.SetField(mp.Field())
 								match.SetBoost(mp.Boost())
 								cj.Conjuncts[i] = match

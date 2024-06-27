@@ -237,6 +237,22 @@ func (m *ProxyConfig) UnmarshalFromMap(data map[string]interface{}, getKey func(
 			return fmt.Errorf("unexpected type for Routes (expected array)")
 		}
 	}
+	if u, o := data[getKey("HeaderMods")]; o {
+		if s, o := u.([]interface{}); o {
+			for _, v := range s {
+				// Remarshal and unmarshal as HeaderMod
+				mm, _ := json.Marshal(v)
+				rule := &HeaderMod{}
+				if er := json.Unmarshal(mm, rule); er == nil {
+					m.HeaderMods = append(m.HeaderMods, rule)
+				} else {
+					return fmt.Errorf("unexpected type for HeaderMods item (expected HeaderMod type)")
+				}
+			}
+		} else {
+			return fmt.Errorf("unexpected type for HeaderMods (expected array)")
+		}
+	}
 	if u, o := data[getKey("SSLRedirect")]; o {
 		if b, o := u.(bool); o {
 			m.SSLRedirect = b

@@ -22,11 +22,9 @@ package bleve
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"math"
 	"os"
-	"path"
 	"path/filepath"
 	"sort"
 	"strings"
@@ -41,6 +39,7 @@ import (
 	"github.com/rs/xid"
 
 	"github.com/pydio/cells/v4/common/config"
+	"github.com/pydio/cells/v4/common/errors"
 	"github.com/pydio/cells/v4/common/storage/indexer"
 	"github.com/pydio/cells/v4/common/utils/configx"
 	"github.com/pydio/cells/v4/common/utils/uuid"
@@ -81,7 +80,7 @@ func newBleveIndexer(conf *BleveConfig) (*Indexer, error) {
 		return nil, fmt.Errorf("use a rotation size bigger than %d", MinRotationSize)
 	}
 
-	indexer := &Indexer{
+	idx := &Indexer{
 		conf:        conf,
 		inserts:     make(chan interface{}, BufferedChanSize),
 		deletes:     make(chan interface{}, BufferedChanSize),
@@ -90,14 +89,15 @@ func newBleveIndexer(conf *BleveConfig) (*Indexer, error) {
 		forceFlush:  make(chan bool, 1),
 	}
 
-	indexes, err := indexer.openAllIndex(conf.BlevePath, conf.MappingName)
+	dir, prefix := filepath.Split(conf.BlevePath)
+	indexes, err := idx.openAllIndexes(dir, prefix, conf.MappingName)
 	if err != nil {
 		return nil, err
 	}
 
-	indexer.indexes = indexes
+	idx.indexes = indexes
 
-	return indexer, nil
+	return idx, nil
 }
 
 func (s *Indexer) Init(ctx context.Context, conf configx.Values) error {
@@ -167,15 +167,17 @@ func (s *Indexer) As(i interface{}) bool {
 //}
 
 // Stats implements DAO method by listing opened indexes and documents counts
-//func (s *Indexer) Stats() map[string]interface{} {
-//	m := map[string]interface{}{
-//		"indexes": s.listIndexes(),
-//	}
-//	if count, e := s.searchIndex.DocCount(); e == nil {
-//		m["docsCount"] = count
-//	}
-//	return m
-//}
+func (s *Indexer) Stats(ctx context.Context) map[string]interface{} {
+	m := map[string]interface{}{
+		"indexes": s.listIndexes(s.getPath(ctx), s.getPrefix(ctx)),
+	}
+	if si, e := s.getSearchIndex(ctx); e == nil {
+		if count, e := si.DocCount(); e == nil {
+			m["docsCount"] = count
+		}
+	}
+	return m
+}
 
 // Open lists all existing indexes and creates a writeable index on the active one
 // and a composed index for searching. It calls watchInserts() to start watching for
@@ -212,42 +214,19 @@ func (s *Indexer) As(i interface{}) bool {
 //}
 
 func (s *Indexer) getFullPath(path string, prefix string, rotationID string) string {
-	builder := strings.Builder{}
-
-	builder.WriteString(path)
-	builder.WriteString("/")
-	builder.WriteString(prefix)
-
+	fp := filepath.Join(path, prefix)
 	if rotationID != "" {
-		builder.WriteString(".")
-		builder.WriteString(rotationID)
+		fp += "." + rotationID
 	}
-
-	return builder.String()
+	return fp
 }
 
 func (s *Indexer) getPrefix(ctx context.Context) string {
-	return path.Base(s.conf.BlevePath)
-	//prefix := ctx.Value("prefix").(*template.Template)
-	//
-	//prefixBuilder := &strings.Builder{}
-	//if err := prefix.Execute(prefixBuilder, struct {
-	//	Ctx context.Context
-	//}{
-	//	Ctx: ctx,
-	//}); err != nil {
-	//	return ""
-	//}
-	//
-	//if prefixBuilder.Len() == 0 {
-	//	return ""
-	//}
-	//
-	//return prefixBuilder.String()
+	return filepath.Base(s.conf.BlevePath)
 }
 
 func (s *Indexer) getPath(ctx context.Context) string {
-	return s.conf.BlevePath
+	return filepath.Dir(s.conf.BlevePath)
 }
 
 func (s *Indexer) Close(ctx context.Context) error {
@@ -274,7 +253,7 @@ func (s *Indexer) InsertOne(ctx context.Context, data any) error {
 		msg = data
 	}
 
-	index, err := s.getWriteIndex(ctx)
+	writeIndex, err := s.getWriteIndex(ctx)
 	if err != nil {
 		return err
 	}
@@ -284,21 +263,21 @@ func (s *Indexer) InsertOne(ctx context.Context, data any) error {
 	} else {
 		id = xid.New().String()
 	}
-	return index.Index(id, msg)
+	return writeIndex.Index(id, msg)
 }
 
 func (s *Indexer) DeleteOne(ctx context.Context, data interface{}) error {
-	index, err := s.getWriteIndex(ctx)
+	writeIndex, err := s.getWriteIndex(ctx)
 	if err != nil {
 		return err
 	}
 
 	id, ok := data.(string)
 	if !ok {
-		return errors.New("id is missing")
+		return errors.WithMessage(errors.InvalidParameters, "id is missing")
 	}
 
-	return index.Delete(id)
+	return writeIndex.Delete(id)
 }
 
 func (s *Indexer) checkRotate(ctx context.Context) bool {
@@ -306,12 +285,12 @@ func (s *Indexer) checkRotate(ctx context.Context) bool {
 		return false
 	}
 
-	index, err := s.getWriteIndex(ctx)
+	writeIndex, err := s.getWriteIndex(ctx)
 	if err != nil {
 		return false
 	}
 
-	du, err := indexDiskUsage(index.Name())
+	du, err := indexDiskUsage(writeIndex.Name())
 	if err != nil {
 		return false
 	}
@@ -363,7 +342,7 @@ func (s *Indexer) Count(ctx context.Context, qu interface{}) (int, error) {
 
 	r, ok := qu.(*bleve.SearchRequest)
 	if !ok {
-		return 0, fmt.Errorf("Count expects a search request")
+		return 0, errors.WithMessage(errors.InvalidParameters, "count expects a search request")
 	}
 
 	si, err := s.getSearchIndex(ctx)
@@ -376,7 +355,7 @@ func (s *Indexer) Count(ctx context.Context, qu interface{}) (int, error) {
 		return 0, err
 	}
 
-	return len(sr.Hits), nil
+	return int(sr.Total), nil
 }
 
 func (s *Indexer) Search(ctx context.Context, in any, out any) error {
@@ -476,7 +455,7 @@ func (s *Indexer) FindMany(ctx context.Context, qu interface{}, offset, limit in
 func (s *Indexer) rotate(ctx context.Context) error {
 	path := s.getPath(ctx)
 	prefix := s.getPrefix(ctx)
-	rotationID := s.getNextRotationID(path + "/" + prefix)
+	rotationID := s.getNextRotationID(filepath.Join(path, prefix))
 	currentPath := s.getFullPath(path, prefix, rotationID)
 
 	idx, err := s.openOneIndex(currentPath, s.conf.MappingName)
@@ -514,13 +493,13 @@ func (s *Indexer) SetCodex(c indexer.IndexCodex) {
 func (s *Indexer) getWriteIndex(ctx context.Context) (bleve.Index, error) {
 	path := s.getPath(ctx)
 	prefix := s.getPrefix(ctx)
-	rotationID := s.getRotationID(path + "/" + prefix)
+	rotationID := s.getRotationID(filepath.Join(path, prefix))
 	fullPath := s.getFullPath(path, prefix, rotationID)
 
 	var indexes []bleve.Index
-	for _, index := range s.indexes {
-		if strings.HasPrefix(index.Name(), fullPath) {
-			indexes = append(indexes, index)
+	for _, idx := range s.indexes {
+		if strings.HasPrefix(idx.Name(), fullPath) {
+			indexes = append(indexes, idx)
 		}
 	}
 
@@ -529,9 +508,7 @@ func (s *Indexer) getWriteIndex(ctx context.Context) (bleve.Index, error) {
 		if err != nil {
 			return nil, err
 		}
-
 		s.indexes = append(s.indexes, idx)
-
 		return idx, err
 	}
 
@@ -544,9 +521,9 @@ func (s *Indexer) getSearchIndex(ctx context.Context) (bleve.Index, error) {
 	fullPath := s.getFullPath(path, prefix, "")
 
 	var indexes []bleve.Index
-	for _, index := range s.indexes {
-		if strings.HasPrefix(index.Name(), fullPath) {
-			indexes = append(indexes, index)
+	for _, idx := range s.indexes {
+		if strings.HasPrefix(idx.Name(), fullPath) {
+			indexes = append(indexes, idx)
 		}
 	}
 
@@ -596,7 +573,7 @@ func (s *Indexer) Resync(ctx context.Context, logger func(string)) error {
 		return e
 	}
 	defer func() {
-		os.RemoveAll(copyDir)
+		_ = os.RemoveAll(copyDir)
 	}()
 	copyPath := filepath.Join(copyDir, filepath.Base(s.conf.BlevePath))
 
@@ -622,7 +599,9 @@ func (s *Indexer) Resync(ctx context.Context, logger func(string)) error {
 	req.Size = 5000
 	page := 0
 
-	b, err := dup.NewBatch(ctx)
+	b, err := dup.NewBatch(ctx, indexer.WithErrorHandler(func(err error) {
+		logger("Batch error during index replication: " + err.Error())
+	}))
 	if err != nil {
 		return err
 	}
@@ -652,7 +631,7 @@ func (s *Indexer) Resync(ctx context.Context, logger func(string)) error {
 				fmt.Println(e)
 				continue
 			}
-			b.Insert(mu)
+			_ = b.Insert(mu)
 		}
 		if sr.Total <= uint64((page+1)*req.Size) {
 			break
@@ -706,10 +685,10 @@ func (s *Indexer) Truncate(ctx context.Context, max int64, logger func(string)) 
 		prefix := s.getPrefix(ctx)
 		fullPath := s.getFullPath(path, prefix, "")
 
-		for _, index := range s.indexes {
-			if strings.HasPrefix(index.Name(), fullPath) {
-				logger(" - Remove " + index.Name())
-				if er := os.RemoveAll(index.Name()); er != nil {
+		for _, idx := range s.indexes {
+			if strings.HasPrefix(idx.Name(), fullPath) {
+				logger(" - Remove " + idx.Name())
+				if er := os.RemoveAll(idx.Name()); er != nil {
 					return er
 				}
 			}
@@ -726,14 +705,14 @@ func (s *Indexer) Truncate(ctx context.Context, max int64, logger func(string)) 
 	var remove bool
 
 	logger("Start purging old files")
-	for _, index := range s.indexes {
-		if strings.HasPrefix(index.Name(), fullPath) {
+	for _, idx := range s.indexes {
+		if strings.HasPrefix(idx.Name(), fullPath) {
 			if remove {
-				e := os.RemoveAll(index.Name())
+				e := os.RemoveAll(idx.Name())
 				if e != nil {
-					logger(fmt.Sprintf("cannot remove index %s", index.Name()))
+					logger(fmt.Sprintf("cannot remove index %s", idx.Name()))
 				}
-			} else if u, e := indexDiskUsage(index.Name()); e == nil {
+			} else if u, e := indexDiskUsage(idx.Name()); e == nil {
 				total += u
 				remove = total > max
 			}
@@ -741,7 +720,7 @@ func (s *Indexer) Truncate(ctx context.Context, max int64, logger func(string)) 
 	}
 
 	// Now restart - it will renumber files
-	s.rotate(ctx)
+	return s.rotate(ctx)
 
 	//logger("Re-opening log server")
 	//if er := s.Open(ctx); er != nil {
@@ -750,34 +729,27 @@ func (s *Indexer) Truncate(ctx context.Context, max int64, logger func(string)) 
 	//logger("Truncate operation done")
 
 	//s.updateStatus()
-
-	return nil
 }
 
-func (s *Indexer) listIndexes(path string) (paths []string) {
+func (s *Indexer) listIndexes(path string, prefix string) (paths []string) {
 	files, err := os.ReadDir(path)
 	if err != nil {
 		return
 	}
-
 	for _, file := range files {
-		if !file.IsDir() {
-			continue
+		if file.IsDir() && strings.HasPrefix(file.Name(), prefix) {
+			paths = append(paths, file.Name())
 		}
-
-		paths = append(paths, file.Name())
 	}
-
 	sort.Strings(paths)
-
 	return
 }
 
-func (s *Indexer) openAllIndex(blevePath string, mappingName string) ([]bleve.Index, error) {
+func (s *Indexer) openAllIndexes(dir, prefix, mappingName string) ([]bleve.Index, error) {
 	var indexes []bleve.Index
 
-	for _, path := range s.listIndexes(blevePath) {
-		idx, err := s.openOneIndex(blevePath+"/"+path, mappingName)
+	for _, fName := range s.listIndexes(dir, prefix) {
+		idx, err := s.openOneIndex(filepath.Join(dir, fName), mappingName)
 		if err != nil {
 			return nil, err
 		}
@@ -789,9 +761,9 @@ func (s *Indexer) openAllIndex(blevePath string, mappingName string) ([]bleve.In
 }
 
 // openOneIndex tries to open an existing index at a given path, or creates a new one
-func (s *Indexer) openOneIndex(bleveIndexPath string, mappingName string) (bleve.Index, error) {
+func (s *Indexer) openOneIndex(fullPath string, mappingName string) (bleve.Index, error) {
 
-	index, err := bleve.Open(bleveIndexPath)
+	idx, err := bleve.Open(fullPath)
 	if err != nil {
 		indexMapping := bleve.NewIndexMapping()
 		if s.codec != nil {
@@ -807,17 +779,17 @@ func (s *Indexer) openOneIndex(bleveIndexPath string, mappingName string) (bleve
 		}
 
 		// Creates the new index and initializes the server
-		if bleveIndexPath == "" {
-			index, err = bleve.NewMemOnly(indexMapping)
+		if fullPath == "" {
+			idx, err = bleve.NewMemOnly(indexMapping)
 		} else {
-			index, err = bleve.NewUsing(bleveIndexPath, indexMapping, scorch.Name, boltdb.Name, nil)
+			idx, err = bleve.NewUsing(fullPath, indexMapping, scorch.Name, boltdb.Name, nil)
 		}
 		if err != nil {
 			return nil, err
 		}
 	}
 
-	return index, nil
+	return idx, nil
 }
 
 func (s *Indexer) NewBatch(ctx context.Context, opts ...indexer.BatchOption) (indexer.Batch, error) {
@@ -834,14 +806,23 @@ func (s *Indexer) NewBatch(ctx context.Context, opts ...indexer.BatchOption) (in
 		indexer.WithFlushCondition(func() bool {
 			return batch.Size() > int(s.conf.BatchSize)
 		}),
-		indexer.WithInsertCallback(func(msg any) error {
+		indexer.WithInsertCallback(func(data any) error {
 			var id string
-			if provider, ok := msg.(indexer.IndexIDProvider); ok {
+			if provider, ok := data.(indexer.IndexIDProvider); ok {
 				id = provider.IndexID()
 			} else {
 				id = xid.New().String()
 			}
-
+			var msg any
+			if s.codec != nil {
+				if m, err := s.codec.Marshal(data); err != nil {
+					return err
+				} else {
+					msg = m
+				}
+			} else {
+				msg = data
+			}
 			if err := batch.Index(id, msg); err != nil {
 				return err
 			}
@@ -851,7 +832,7 @@ func (s *Indexer) NewBatch(ctx context.Context, opts ...indexer.BatchOption) (in
 		indexer.WithDeleteCallback(func(msg any) error {
 			id, ok := msg.(string)
 			if !ok {
-				return errors.New("not a string")
+				return errors.WithStack(errors.InvalidParameters)
 			}
 
 			batch.Delete(id)
@@ -866,7 +847,7 @@ func (s *Indexer) NewBatch(ctx context.Context, opts ...indexer.BatchOption) (in
 			batch.Reset()
 
 			if s.checkRotate(ctx) {
-				s.rotate(ctx)
+				_ = s.rotate(ctx)
 
 				newIndex, err := s.getWriteIndex(ctx)
 				if err != nil {

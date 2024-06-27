@@ -18,7 +18,7 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-// Package grpc provides a Pydio GRPC service for querying the logs
+// Package service provides a Pydio GRPC service for querying the logs
 package service
 
 import (
@@ -41,13 +41,13 @@ import (
 )
 
 const (
-	ServiceName = common.ServiceGrpcNamespace_ + common.ServiceLog
+	Name = common.ServiceGrpcNamespace_ + common.ServiceLog
 )
 
 func init() {
 	runtime.Register("discovery", func(ctx context.Context) {
 		service.NewService(
-			service.Name(ServiceName),
+			service.Name(Name),
 			service.Context(ctx),
 			service.Tag(common.ServiceTagBroker),
 			service.Description("Syslog index store"),
@@ -59,7 +59,7 @@ func init() {
 					service.WithStorageMigrator(log.Migrate),
 					service.WithStorageSupport(bleve.Driver, mongodb.Driver),
 					service.WithStorageDefaultDriver(func() (string, string) {
-						return bleve.Driver, filepath.Join(runtime.MustServiceDataDir(ServiceName), "syslog.bleve?mapping=log")
+						return bleve.Driver, filepath.Join(runtime.MustServiceDataDir(Name), "syslog.bleve?mapping=log")
 					}),
 				),
 

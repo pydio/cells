@@ -15,7 +15,7 @@ import (
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
 	"gorm.io/gorm/schema"
-	opentracing "gorm.io/plugin/opentracing"
+	otel "gorm.io/plugin/opentelemetry/tracing"
 
 	"github.com/pydio/cells/v4/common/runtime"
 	"github.com/pydio/cells/v4/common/runtime/controller"
@@ -169,7 +169,8 @@ func OpenPool(ctx context.Context, uu string) (storage.Storage, error) {
 		}
 		// also replace Default
 		logger.Default = customLogger
-		_ = db.Use(opentracing.New())
+		// This enables tracing and metrics on DB
+		_ = db.Use(otel.NewPlugin())
 
 		return db, nil
 	})

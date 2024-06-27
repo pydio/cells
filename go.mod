@@ -171,7 +171,7 @@ require (
 	gorm.io/gen v0.3.26
 	gorm.io/gorm v1.25.10
 	gorm.io/plugin/dbresolver v1.5.1
-	gorm.io/plugin/opentracing v0.0.0-20211220013347-7d2b2af23560
+	gorm.io/plugin/opentelemetry v0.1.4
 	k8s.io/apimachinery v0.30.1
 )
 

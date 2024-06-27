@@ -70,6 +70,8 @@ type Indexer interface {
 	Resync(ctx context.Context, logger func(string)) error
 	// Truncate should free some disk space. Used by bleve implementation in conjunction with rotationSize parameter.
 	Truncate(ctx context.Context, max int64, logger func(string)) error
+	// Stats returns statistics about current indexer
+	Stats(ctx context.Context) map[string]interface{}
 
 	NewBatch(ctx context.Context, options ...BatchOption) (Batch, error)
 

@@ -42,43 +42,58 @@ type BatchOptions struct {
 	InsertCallback []func(any) error
 	DeleteCallback []func(any) error
 	FlushCallback  []func() error
+	ErrorHandler   func(error)
 }
 
 type BatchOption func(*BatchOptions)
 
+// WithFlushCondition provides an arbitrary check before triggering flush
 func WithFlushCondition(fn func() bool) BatchOption {
 	return func(o *BatchOptions) {
 		o.FlushCondition = fn
 	}
 }
 
+// WithInsertCallback is called on each insert
 func WithInsertCallback(fn func(any) error) BatchOption {
 	return func(o *BatchOptions) {
 		o.InsertCallback = append(o.InsertCallback, fn)
 	}
 }
 
+// WithDeleteCallback is called on each delete
 func WithDeleteCallback(fn func(any) error) BatchOption {
 	return func(o *BatchOptions) {
 		o.DeleteCallback = append(o.DeleteCallback, fn)
 	}
 }
 
+// WithFlushCallback is triggered at flush time
 func WithFlushCallback(fn func() error) BatchOption {
 	return func(o *BatchOptions) {
 		o.FlushCallback = append(o.FlushCallback, fn)
 	}
 }
 
+// WithExpire is the maximum wait time before triggering flush
+// This flush is not going through the FlushCondition check, it is always triggered
 func WithExpire(d time.Duration) BatchOption {
 	return func(o *BatchOptions) {
 		o.Expire = d
 	}
 }
 
+// WithErrorHandler sets an error handler for internal errors happening
+func WithErrorHandler(fn func(error)) BatchOption {
+	return func(o *BatchOptions) {
+		o.ErrorHandler = fn
+	}
+}
+
 func NewBatch(ctx context.Context, opts ...BatchOption) Batch {
 	o := BatchOptions{
-		Expire: 3 * time.Second,
+		Expire:       3 * time.Second,
+		ErrorHandler: func(error) {},
 	}
 
 	for _, opt := range opts {
@@ -114,10 +129,14 @@ type batch struct {
 func (b *batch) watchInserts() {
 	for {
 		select {
-		case msg := <-b.inserts:
+		case msg, open := <-b.inserts:
+			if !open {
+				continue
+			}
 			b.flushLock.Lock()
 			for _, f := range b.opts.InsertCallback {
 				if err := f(msg); err != nil {
+					b.opts.ErrorHandler(err)
 					continue
 				}
 			}
@@ -128,10 +147,14 @@ func (b *batch) watchInserts() {
 
 			b.flushLock.Unlock()
 
-		case msg := <-b.deletes:
+		case msg, open := <-b.deletes:
+			if !open {
+				continue
+			}
 			b.flushLock.Lock()
 			for _, f := range b.opts.DeleteCallback {
 				if err := f(msg); err != nil {
+					b.opts.ErrorHandler(err)
 					continue
 				}
 			}
@@ -161,7 +184,9 @@ func (b *batch) watchInserts() {
 
 func (b *batch) flush() {
 	for _, f := range b.opts.FlushCallback {
-		f()
+		if er := f(); er != nil {
+			b.opts.ErrorHandler(er)
+		}
 	}
 }
 

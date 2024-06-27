@@ -1,3 +1,23 @@
+/*
+ * Copyright (c) 2024. Abstrium SAS <team (at) pydio.com>
+ * This file is part of Pydio Cells.
+ *
+ * Pydio Cells is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Pydio Cells is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with Pydio Cells.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ * The latest code can be found at <https://pydio.com>.
+ */
+
 package log
 
 import (
@@ -27,6 +47,10 @@ func NewIndexRepository(idx indexer.Indexer) MessageRepository {
 // PutLog  adds a new LogMessage in the syslog index.
 func (s *IndexRepository) PutLog(ctx context.Context, line *log.Log) error {
 	return s.idx.InsertOne(ctx, line)
+}
+
+func (s *IndexRepository) NewBatch(ctx context.Context, options ...indexer.BatchOption) (indexer.Batch, error) {
+	return s.idx.NewBatch(ctx, options...)
 }
 
 // ListLogs performs a query in the bleve index, based on the passed query string.
@@ -76,6 +100,10 @@ func (s *IndexRepository) Truncate(ctx context.Context, max int64, logger log2.Z
 
 func (s *IndexRepository) Close(ctx context.Context) error {
 	return s.idx.Close(ctx)
+}
+
+func (s *IndexRepository) Stats(ctx context.Context) map[string]interface{} {
+	return s.idx.Stats(ctx)
 }
 
 func logTaskInfo(l log2.ZapLogger, msg string, level string) {
