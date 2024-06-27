@@ -17,6 +17,9 @@ var (
         "TLSConfig": {
           "SelfSigned": {}
         },
+        "HeaderMods": [
+          { "Key": "X-Pydio-Tenant", "Value": "sub1" }
+        ],
         "Routing": [
            {"Matcher": "*", "Effect": 1},
            {"Matcher": "public", "Effect": 1, "Action":"Rewrite","Value": "/p"},
@@ -46,5 +49,8 @@ func TestProxyUnmarshal(t *testing.T) {
 			So(r3.Effect, ShouldEqual, RuleEffect_ACCEPT)
 			So(r3.Action, ShouldEqual, "Rewrite")
 		})
+
+		So(p.HeaderMods, ShouldHaveLength, 1)
+		So(p.HeaderMods[0].Key, ShouldEqual, "X-Pydio-Tenant")
 	})
 }
