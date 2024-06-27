@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2021. Abstrium SAS <team (at) pydio.com>
+ * Copyright (c) 2024. Abstrium SAS <team (at) pydio.com>
  * This file is part of Pydio Cells.
  *
  * Pydio Cells is free software: you can redistribute it and/or modify
@@ -23,7 +23,6 @@ package grpc
 import (
 	"context"
 	"fmt"
-	"io"
 	"strconv"
 	"strings"
 	"time"
@@ -38,6 +37,7 @@ import (
 	"github.com/pydio/cells/v4/common/proto/sync"
 	"github.com/pydio/cells/v4/common/runtime"
 	"github.com/pydio/cells/v4/common/runtime/manager"
+	"github.com/pydio/cells/v4/common/storage/indexer"
 	log2 "github.com/pydio/cells/v4/common/telemetry/log"
 )
 
@@ -65,25 +65,31 @@ func (h *Handler) OneLog(ctx context.Context, line *proto.Log) error {
 func (h *Handler) PutLog(stream proto.LogRecorder_PutLogServer) error {
 
 	ctx := stream.Context()
-
 	repo, err := manager.Resolve[log.MessageRepository](ctx, h.ResolveOptions...)
 	if err != nil {
 		return err
 	}
+	batch, err := repo.NewBatch(ctx, indexer.WithErrorHandler(func(err error) {
+		log2.Logger(ctx).Error("error while processing logs", zap.Error(err))
+	}))
+	if err != nil {
+		return err
+	}
+	defer func() {
+		_ = batch.Flush()
+	}()
 
-	var logCount int32
 	for {
-		line, err := stream.Recv()
-		if err == io.EOF {
-			return nil
+		line, er := stream.Recv()
+		if er != nil {
+			if errors.IsStreamFinished(er) {
+				return nil
+			}
+			return er
 		}
-
-		if err != nil {
-			return err
+		if er := batch.Insert(line); er != nil {
+			log2.Logger(ctx).Warn("error while putting log", zap.Error(er))
 		}
-		logCount++
-
-		_ = repo.PutLog(stream.Context(), line)
 	}
 }
 

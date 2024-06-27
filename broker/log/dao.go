@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2021. Abstrium SAS <team (at) pydio.com>
+ * Copyright (c) 2024. Abstrium SAS <team (at) pydio.com>
  * This file is part of Pydio Cells.
  *
  * Pydio Cells is free software: you can redistribute it and/or modify
@@ -31,6 +31,7 @@ import (
 	"github.com/pydio/cells/v4/common/proto/log"
 	"github.com/pydio/cells/v4/common/runtime/manager"
 	"github.com/pydio/cells/v4/common/service"
+	"github.com/pydio/cells/v4/common/storage/indexer"
 	log2 "github.com/pydio/cells/v4/common/telemetry/log"
 	json "github.com/pydio/cells/v4/common/utils/jsonx"
 )
@@ -46,6 +47,7 @@ type MessageRepository interface {
 	Close(context.Context) error
 	Resync(context.Context, log2.ZapLogger) error
 	Truncate(context.Context, int64, log2.ZapLogger) error
+	NewBatch(ctx context.Context, options ...indexer.BatchOption) (indexer.Batch, error)
 }
 
 func Migrate(mainCtx, fromCtx, toCtx context.Context, dryRun bool, status chan service.MigratorStatus) (map[string]int, error) {

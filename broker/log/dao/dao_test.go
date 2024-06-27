@@ -48,6 +48,17 @@ var (
 	}
 )
 
+func listLogs(ctx context.Context, server log2.MessageRepository, query string, page, size int32) (ll []*log.LogMessage, err error) {
+	results, err := server.ListLogs(ctx, query, page, size)
+	if err != nil {
+		return nil, err
+	}
+	for currResp := range results {
+		ll = append(ll, currResp.GetLogMessage())
+	}
+	return
+}
+
 func TestMessageRepository(t *testing.T) {
 
 	test.RunStorageTests(testcases, func(ctx context.Context) {
@@ -63,19 +74,18 @@ func TestMessageRepository(t *testing.T) {
 			// Wait for batch to be processed
 			<-time.After(4 * time.Second)
 
-			results, err := server.ListLogs(ctx, fmt.Sprintf(`+%s:info`, common.KeyLevel), 0, 1000)
+			// List All (empty query string)
+			results, err := listLogs(ctx, server, "", 0, 100)
 			So(err, ShouldBeNil)
-			var msg log.LogMessage
+			So(len(results), ShouldEqual, 1)
 
-			// Insure the log has been indexed
-			count := 0
-			for currResp := range results {
-				count++
-				msg = *currResp.GetLogMessage()
-			}
-			So(count, ShouldEqual, 1)
+			// List With LogLevel Info
+			results, err = listLogs(ctx, server, fmt.Sprintf(`+%s:info`, common.KeyLevel), 0, 100)
+			So(err, ShouldBeNil)
+			So(len(results), ShouldEqual, 1)
 
 			// Check indexed values
+			msg := results[0]
 			So(msg.GetMsg(), ShouldEqual, "Login")
 			So(msg.GetLevel(), ShouldEqual, "info")
 			So(msg.GetLogger(), ShouldEqual, "pydio.grpc.auth")
@@ -112,141 +122,41 @@ func TestMessageRepository(t *testing.T) {
 			So(err, ShouldBeNil)
 			So(server, ShouldNotBeNil)
 
-			results, err := server.ListLogs(ctx, fmt.Sprintf(
+			results, err := listLogs(ctx, server, fmt.Sprintf(
 				`+%s:*test* +%s:INFO +%s:>1142080000`, // ~01.01.2006
 				common.KeyMsg,
 				common.KeyLevel,
 				common.KeyTs,
-			), 0, 1000)
+			), 0, 100)
 			So(err, ShouldBeNil)
+			So(len(results), ShouldEqual, 2)
 
-			count := 0
-			// 	for _ = range results {
-			for range results {
-				count++
-			}
-			So(count, ShouldEqual, 2)
+			results, err = listLogs(ctx, server, fmt.Sprintf(
+				`+%s:"another test" +%s:INFO +%s:>1142080000`,
+				common.KeyMsg,
+				common.KeyLevel,
+				common.KeyTs,
+			), 0, 100)
+			So(err, ShouldBeNil)
+			So(len(results), ShouldEqual, 1)
+
+			// Test cursor
+			results, err = listLogs(ctx, server, "", 0, 2)
+			So(err, ShouldBeNil)
+			So(len(results), ShouldEqual, 2)
+
+			results, err = listLogs(ctx, server, "", 1, 2)
+			So(err, ShouldBeNil)
+			So(len(results), ShouldEqual, 2)
+
+			results, err = listLogs(ctx, server, "", 2, 2)
+			So(err, ShouldBeNil)
+			So(len(results), ShouldEqual, 1)
+
 		})
 	})
 }
 
-// TODO
-/*
-func TestSizeRotation(t *testing.T) {
-	bleve.UnitTestEnv = true
-	ctx := context.Background()
-	Convey("Test Rotation", t, func() {
-		p := filepath.Join(os.TempDir(), uuid.New(), "syslog.bleve")
-		_ = os.MkdirAll(filepath.Dir(p), 0777)
-		fmt.Println("Storing temporary index in", p)
-		dsn := p + fmt.Sprintf("?mapping=log&batchSize=2500&rotationSize=%d", 1*1024*1024)
-
-		dao, _ := bleve.NewDAO(ctx, "bleve", dsn, "")
-		idx, _ := bleve.NewIndexer(ctx, dao)
-		idx.SetCodex(&BleveCodec{})
-		So(idx.Init(ctx, configx.New()), ShouldBeNil)
-		s := NewIndexRepository(idx)
-
-		So(e, ShouldBeNil)
-		var i, k int
-		for i = 0; i < 10000; i++ {
-			line := map[string]string{
-				"level":  "info",
-				"ts":     time.Now().Format(time.RFC3339),
-				"logger": "pydio.grpc.log",
-				"MsgId":  "1",
-				"msg":    fmt.Sprintf("Message number %d", i),
-			}
-			data, _ := json.Marshal(line)
-			So(s.PutLog(ctx, &log.Log{Message: data, Nano: int32(time.Now().UnixNano())}), ShouldBeNil)
-		}
-		fmt.Println("Inserted 10000 logs")
-		<-time.After(5 * time.Second)
-		for k = i; k < i+10020; k++ {
-			line := map[string]string{
-				"level":  "info",
-				"ts":     time.Now().Format(time.RFC3339),
-				"logger": "pydio.grpc.log",
-				"MsgId":  "1",
-				"msg":    fmt.Sprintf("Message number %d", k),
-			}
-			data, _ := json.Marshal(line)
-			So(s.PutLog(ctx, &log.Log{Message: data, Nano: int32(time.Now().UnixNano())}), ShouldBeNil)
-		}
-		fmt.Println("Inserted 10020 other logs")
-
-		<-time.After(5 * time.Second)
-
-		m := idx.Stats()
-		So(m, ShouldNotBeNil)
-		So(m["docsCount"], ShouldEqual, uint64(20020))
-		So(m["indexes"], ShouldHaveLength, 9)
-
-		s.Close(ctx)
-		<-time.After(5 * time.Second)
-
-		// Re-open with same data and carry one feeding with logs
-
-		dao, _ = bleve.NewDAO(ctx, "bleve", dsn, "")
-		idx, _ = bleve.NewIndexer(ctx, dao)
-		idx.SetCodex(&BleveCodec{})
-		_ = idx.Init(ctx, configx.New())
-		s = NewIndexRepository(idx)
-		So(e, ShouldBeNil)
-		for i = 0; i < 10000; i++ {
-			line := map[string]string{
-				"level":  "info",
-				"ts":     time.Now().Format(time.RFC3339),
-				"logger": "pydio.grpc.log",
-				"MsgId":  "1",
-				"msg":    fmt.Sprintf("Message number %d", i),
-			}
-			data, _ := json.Marshal(line)
-			_ = s.PutLog(ctx, &log.Log{Message: data, Nano: int32(time.Now().UnixNano())})
-		}
-		fmt.Println("Inserted 10000 logs")
-		<-time.After(5 * time.Second)
-		fmt.Println("Inserting 10020 other logs")
-		for k = i; k < i+10020; k++ {
-			line := map[string]string{
-				"level":  "info",
-				"ts":     time.Now().Format(time.RFC3339),
-				"logger": "pydio.grpc.log",
-				"MsgId":  "1",
-				"msg":    fmt.Sprintf("Message number %d", k),
-			}
-			data, _ := json.Marshal(line)
-			_ = s.PutLog(ctx, &log.Log{Message: data, Nano: int32(time.Now().UnixNano())})
-		}
-
-		<-time.After(5 * time.Second)
-
-		m = idx.Stats()
-		So(m, ShouldNotBeNil)
-		So(m["docsCount"], ShouldEqual, uint64(40040))
-
-		So(s.Resync(context.Background(), nil), ShouldBeNil)
-		<-time.After(5 * time.Second)
-
-		m = idx.Stats()
-		So(m, ShouldNotBeNil)
-		So(m["docsCount"], ShouldEqual, uint64(40040))
-		parts := m["indexes"].([]string)
-		So(len(parts), ShouldBeGreaterThan, 5)
-
-		So(s.Truncate(context.Background(), 15*1024*1024, nil), ShouldBeNil)
-		m = idx.Stats()
-		newParts := m["indexes"].([]string)
-		So(len(newParts), ShouldBeLessThan, len(parts))
-
-		// Close and Clean
-		_ = s.Close(ctx)
-		<-time.After(5 * time.Second)
-		_ = os.RemoveAll(filepath.Dir(p))
-
-	})
-}
-*/
 func log2map(level string, msg string) *log.Log {
 
 	str := fmt.Sprintf(`{"ts": "%s", "level": "%s", "msg": "%s"}`, time.Now().Format(time.RFC3339), level, msg)
@@ -257,5 +167,25 @@ func log2map(level string, msg string) *log.Log {
 }
 
 const (
-	sampleSyslog = `{"level":"info","ts":"2018-03-08T13:32:18+01:00","logger":"pydio.grpc.auth","msg":"Login", "RemoteAddress":"::1","UserAgent":"Mozilla/5.0","HttpProtocol":"HTTP/1.1","MsgId":"1","UserName":"jenny"}`
+	sampleSyslog = `{
+	"level":"info",
+	"ts":"2018-03-08T13:32:18+01:00",
+	"logger":"pydio.grpc.auth",
+	"msg":"Login", 
+	"RemoteAddress":"::1",
+	"UserAgent":"Mozilla/5.0",
+	"HttpProtocol":"HTTP/1.1",
+	"MsgId":"1",
+	"UserName":"jenny",
+	"UserUuid": "unique-user-uuid",
+	"GroupPath":"/",
+	"NodeUuid": "unique-node-uuid",
+	"NodePath":"path/to/file.ext",
+	"WsUuid": "unique-ws-uuid",
+	"OperationUuid": "unique-operation-uuid",
+	"OperationLabel": "Job Label",
+	"SchedulerJobUuid": "unique-scheduler-job-uuid",
+	"SchedulerTaskUuid": "unique-scheduler-task-uuid",
+	"JsonZaps":"{\"encodedKey\":\"encodedValue\"}"
+}`
 )
