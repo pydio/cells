@@ -24,10 +24,11 @@ import (
 	"testing"
 
 	"github.com/ory/ladon"
-	. "github.com/smartystreets/goconvey/convey"
 
 	"github.com/pydio/cells/v4/common/proto/idm"
 	"github.com/pydio/cells/v4/idm/policy/conditions"
+
+	. "github.com/smartystreets/goconvey/convey"
 )
 
 func TestProtoToLadonPolicy(t *testing.T) {
@@ -35,7 +36,7 @@ func TestProtoToLadonPolicy(t *testing.T) {
 	Convey("Test Proto => Ladon", t, func() {
 
 		protoPolicy := &idm.Policy{
-			Id:          "policy-id",
+			ID:          "policy-id",
 			Description: "policy description",
 			Resources:   []string{"resource1", "resource2"},
 			Subjects:    []string{"subject1", "subject2", "subject3"},
@@ -90,7 +91,7 @@ func TestLadonToProtoPolicy(t *testing.T) {
 
 		test := LadonToProtoPolicy(ladonPolicy)
 		So(test, ShouldNotBeNil)
-		So(test.Id, ShouldEqual, "acl-complex-rule2")
+		So(test.ID, ShouldEqual, "acl-complex-rule2")
 		So(test.Conditions, ShouldHaveLength, 2)
 		So(test.Conditions, ShouldContainKey, "RemoteAddress")
 		cd := test.Conditions["RemoteAddress"]

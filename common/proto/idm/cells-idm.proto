@@ -3,6 +3,7 @@ syntax = "proto3";
 import "cells-service.proto";
 import "cells-tree.proto";
 import "orm.proto";
+import "cells-setter.proto";
 import "buf/validate/validate.proto";
 import "google/protobuf/descriptor.proto";
 
@@ -443,14 +444,12 @@ service UserMetaService {
 
 // Piece of metadata attached to a node
 message UserMeta {
-    option (orm.ormPolicy).enabled = true;
-
     // Unique identifier of the metadata
-    string Uuid = 1     [(orm.orm).gorm = {column: "uuid";  primaryKey: true;}];
+    string Uuid = 1;
     // Unique identifier of the node to which meta is attached
-    string NodeUuid = 2 [(orm.orm).gorm = {column: "uuid";}];
+    string NodeUuid = 2;
     // Namespace for the metadata
-    string Namespace = 3 [(orm.orm).gorm = {column: "uuid";}];;
+    string Namespace = 3;
     // Json encoded value used to pass any type of values
     string JsonValue = 4;
     // Policies for securing access
@@ -601,14 +600,18 @@ message Policy {
 
     string ID = 1                               [(orm.orm).gorm = {column:"id"; type: "varchar(255)"; primaryKey: true; notNull: true}, json_name="id"];
     string Description = 2                      [(orm.orm).gorm = {column:"description";}, json_name="description"];
-    repeated PolicySubject Subjects = 3         [(orm.orm).gorm = {many2many:"policy_subject_rel"; foreignKey:"ID";joinForeignKey:"Policy";references:"ID";joinReferences:"Subject";constraint:"OnDelete:CASCADE";}, json_name="subjects"];
-    repeated PolicyResource Resources = 4       [(orm.orm).gorm = {many2many:"policy_resource_rel"; foreignKey:"ID";joinForeignKey:"Policy";references:"ID";joinReferences:"Resource";constraint:"OnDelete:CASCADE";}, json_name="resources"];
-    repeated PolicyAction Actions = 5           [(orm.orm).gorm = {many2many:"policy_action_rel"; foreignKey:"ID";joinForeignKey:"Policy";references:"ID";joinReferences:"Action";constraint:"OnDelete:CASCADE";}, json_name="actions"];
+    repeated string Subjects = 3                [json_name="subjects"];
+    repeated string Resources = 4               [json_name="resources"];
+    repeated string Actions = 5                 [json_name="actions"];
+    repeated PolicySubject OrmSubjects = 8      [(orm.orm).gorm = {many2many:"policy_subject_rel"; foreignKey:"ID";joinForeignKey:"Policy";references:"ID";joinReferences:"Subject";constraint:"OnDelete:CASCADE";}];
+    repeated PolicyResource OrmResources = 9    [(orm.orm).gorm = {many2many:"policy_resource_rel"; foreignKey:"ID";joinForeignKey:"Policy";references:"ID";joinReferences:"Resource";constraint:"OnDelete:CASCADE";}];
+    repeated PolicyAction OrmActions = 10       [(orm.orm).gorm = {many2many:"policy_action_rel"; foreignKey:"ID";joinForeignKey:"Policy";references:"ID";joinReferences:"Action";constraint:"OnDelete:CASCADE";}];
     PolicyEffect Effect = 6                     [(orm.orm).gorm = {column:"effect";}, json_name="effect"];
     map <string,PolicyCondition> Conditions = 7 [(orm.orm).gorm = {column:"conditions"; serializer:"json";}, json_name="conditions"];
 }
 
 message PolicySubject {
+    option (setter.all_fields) = true;
     option (orm.ormPolicy).enabled = true;
 
     string ID = 1        [(orm.orm).gorm = {column:"id"; type: "varchar(64)"; primaryKey: true; notNull: true}];
@@ -618,6 +621,7 @@ message PolicySubject {
 }
 
 message PolicyResource {
+    option (setter.all_fields) = true;
     option (orm.ormPolicy).enabled = true;
 
     string ID = 1        [(orm.orm).gorm = {column:"id"; type: "varchar(64)"; primaryKey: true; notNull: true}];
@@ -627,6 +631,7 @@ message PolicyResource {
 }
 
 message PolicyAction {
+    option (setter.all_fields) = true;
     option (orm.ormPolicy).enabled = true;
 
     string ID = 1        [(orm.orm).gorm = {column:"id"; type: "varchar(64)"; primaryKey: true; notNull: true}];
@@ -666,13 +671,13 @@ message PolicyRel {
 message PolicyGroup {
     option (orm.ormPolicy).enabled = true;
 
-    string UUID = 1                       [(orm.orm).gorm = {column: "uuid"; primaryKey: true}, (buf.validate.field).required = true];
+    string Uuid = 1                       [(orm.orm).gorm = {column: "uuid"; primaryKey: true}, (buf.validate.field).required = true];
     string Name = 2                       [(orm.orm).gorm = {column: "name";}];
     string Description = 3                [(orm.orm).gorm = {column: "description";}];;
-    string OwnerUUID = 4                  [(orm.orm).gorm = {column: "owner_uuid";}];;
+    string OwnerUuid = 4                  [(orm.orm).gorm = {column: "owner_uuid";}];;
     PolicyResourceGroup ResourceGroup = 5 [(orm.orm).gorm = {column: "resource_group";}];;
     int32 LastUpdated = 6                 [(orm.orm).gorm = {column: "last_updated";}];;
-    repeated Policy Policies = 7          [(orm.orm).gorm = {many2many: "policy_rel"; foreignKey: "UUID"; joinForeignKey: "GroupUUID"; references: "ID"; joinReferences: "PolicyID";}];;
+    repeated Policy Policies = 7          [(orm.orm).gorm = {many2many: "policy_rel"; foreignKey: "Uuid"; joinForeignKey: "GroupUUID"; references: "ID"; joinReferences: "PolicyID";}];;
 }
 
 // Request / Response Messages

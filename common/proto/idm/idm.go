@@ -101,10 +101,10 @@ POLICIES, ACLS
 
 // MarshalLogObject implements custom marshalling for logs
 func (pg *PolicyGroup) MarshalLogObject(encoder zapcore.ObjectEncoder) error {
-	encoder.AddString("Uuid", pg.GetUUID())
+	encoder.AddString("Uuid", pg.GetUuid())
 	encoder.AddString("Name", pg.GetName())
 	encoder.AddString("Description", pg.GetDescription())
-	encoder.AddString("OwnerUuid", pg.GetOwnerUUID())
+	encoder.AddString("OwnerUuid", pg.GetOwnerUuid())
 	encoder.AddString("ResourceGroup", pg.GetResourceGroup().String())
 	if len(pg.Policies) > 100 {
 		encoder.AddInt("PoliciesNumber", len(pg.Policies))
@@ -120,7 +120,7 @@ func (pg *PolicyGroup) Zap() zapcore.Field { return zap.Object(common.KeyPolicyG
 
 // ZapUuid simply calls zap.String() with PolicyGroupUuid standard key and this policy group uuid
 func (pg *PolicyGroup) ZapUuid() zapcore.Field {
-	return zap.String(common.KeyPolicyGroupUuid, pg.GetUUID())
+	return zap.String(common.KeyPolicyGroupUuid, pg.GetUuid())
 }
 
 // MarshalLogObject implements custom marshalling for logs

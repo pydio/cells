@@ -40,7 +40,7 @@ var (
 	// that is why we rather declare here the corresponding message IDs.
 	DefaultPolicyGroups = []*idm.PolicyGroup{
 		{
-			UUID:          "public-access",
+			Uuid:          "public-access",
 			Name:          "PolicyGroup.PublicAccess.Title",
 			Description:   "PolicyGroup.PublicAccess.Description",
 			ResourceGroup: idm.PolicyResourceGroup_rest,
@@ -89,7 +89,7 @@ var (
 		},
 
 		{
-			UUID:          "public-access-install",
+			Uuid:          "public-access-install",
 			Name:          "PolicyGroup.PublicInstall.Title",
 			Description:   "PolicyGroup.PublicInstall.Description",
 			ResourceGroup: idm.PolicyResourceGroup_rest,
@@ -107,7 +107,7 @@ var (
 
 		// Default Accesses to REST endpoints for logged user and for admin user
 		{
-			UUID:          "rest-apis-default-accesses",
+			Uuid:          "rest-apis-default-accesses",
 			Name:          "PolicyGroup.LoggedUsers.Title",
 			Description:   "PolicyGroup.LoggedUsers.Description",
 			ResourceGroup: idm.PolicyResourceGroup_rest,
@@ -203,7 +203,7 @@ var (
 		},
 
 		{
-			UUID:          "oidc-actions-policies",
+			Uuid:          "oidc-actions-policies",
 			Name:          "PolicyGroup.OIDC.Title",
 			Description:   "PolicyGroup.OIDC.Description",
 			ResourceGroup: idm.PolicyResourceGroup_oidc,
@@ -230,7 +230,7 @@ func InitDefaults(ctx context.Context) error {
 
 	for _, policyGroup := range DefaultPolicyGroups {
 		if _, er := dao.StorePolicyGroup(ctx, policyGroup); er != nil {
-			log.Logger(ctx).Error("could not store default policy group "+policyGroup.GetUUID(), zap.Any("policy", policyGroup), zap.Error(er))
+			log.Logger(ctx).Error("could not store default policy group "+policyGroup.GetUuid(), zap.Any("policy", policyGroup), zap.Error(er))
 		}
 	}
 	log.Logger(ctx).Info("Inserted default policies")
@@ -249,31 +249,31 @@ func Upgrade101(ctx context.Context) error {
 		return e
 	}
 	for _, group := range groups {
-		if group.GetUUID() == "frontend-restricted-accesses" {
+		if group.GetUuid() == "frontend-restricted-accesses" {
 			for _, p := range group.Policies {
 				if p.GetID() == "anon-frontend-logs" {
-					p.Resources = []*idm.PolicyResource{{Template: "rest:/frontend/frontlogs"}}
+					p.Resources = []string{"rest:/frontend/frontlogs"}
 				}
 			}
 			if _, er := dao.StorePolicyGroup(ctx, group); er != nil {
-				log.Logger(ctx).Error("could not update policy group "+group.GetUUID(), zap.Error(er))
+				log.Logger(ctx).Error("could not update policy group "+group.GetUuid(), zap.Error(er))
 			} else {
-				log.Logger(ctx).Info("Updated policy group " + group.GetUUID())
+				log.Logger(ctx).Info("Updated policy group " + group.GetUuid())
 			}
-		} else if group.GetUUID() == "rest-apis-default-accesses" {
+		} else if group.GetUuid() == "rest-apis-default-accesses" {
 			for _, p := range group.Policies {
 				if p.GetID() == "user-default-policy" {
-					p.Resources = append(p.Resources, []*idm.PolicyResource{
-						{Template: "rest:/docstore/keystore<.+>"},
-						{Template: "rest:/changes"},
-						{Template: "rest:/changes<.+>"},
+					p.Resources = append(p.Resources, []string{
+						"rest:/docstore/keystore<.+>",
+						"rest:/changes",
+						"rest:/changes<.+>",
 					}...)
 				}
 			}
 			if _, er := dao.StorePolicyGroup(ctx, group); er != nil {
-				log.Logger(ctx).Error("could not update policy group "+group.GetUUID(), zap.Error(er))
+				log.Logger(ctx).Error("could not update policy group "+group.GetUuid(), zap.Error(er))
 			} else {
-				log.Logger(ctx).Info("Updated policy group " + group.GetUUID())
+				log.Logger(ctx).Info("Updated policy group " + group.GetUuid())
 			}
 		}
 	}
@@ -292,7 +292,7 @@ func Upgrade103(ctx context.Context) error {
 		return e
 	}
 	for _, group := range groups {
-		if group.GetUUID() == "rest-apis-default-accesses" {
+		if group.GetUuid() == "rest-apis-default-accesses" {
 			group.Policies = append(group.Policies, converter.LadonToProtoPolicy(&ladon.DefaultPolicy{
 				ID:          "shares-default-policy",
 				Description: "PolicyGroup.LoggedUsers.Rule3",
@@ -302,9 +302,9 @@ func Upgrade103(ctx context.Context) error {
 				Effect:      ladon.AllowAccess,
 			}))
 			if _, er := dao.StorePolicyGroup(ctx, group); er != nil {
-				log.Logger(ctx).Error("could not update policy group "+group.GetUUID(), zap.Error(er))
+				log.Logger(ctx).Error("could not update policy group "+group.GetUuid(), zap.Error(er))
 			} else {
-				log.Logger(ctx).Info("Updated policy group " + group.GetUUID())
+				log.Logger(ctx).Info("Updated policy group " + group.GetUuid())
 			}
 		}
 	}
@@ -323,7 +323,7 @@ func Upgrade120(ctx context.Context) error {
 		return e
 	}
 	for _, group := range groups {
-		if group.GetUUID() == "rest-apis-default-accesses" {
+		if group.GetUuid() == "rest-apis-default-accesses" {
 			var updates []*idm.Policy
 			for _, p := range group.Policies {
 				if p.GetID() == "shares-default-policy" {
@@ -331,17 +331,17 @@ func Upgrade120(ctx context.Context) error {
 					continue
 				}
 				if p.GetID() == "user-default-policy" {
-					var newResources []*idm.PolicyResource
+					var newResources []string
 					for _, res := range p.Resources {
-						if strings.HasPrefix(res.Template, "rest:/acl") || strings.HasPrefix(res.Template, "rest:/docstore") {
+						if strings.HasPrefix(res, "rest:/acl") || strings.HasPrefix(res, "rest:/docstore") {
 							// Remove those accesses
 							continue
 						}
 						newResources = append(newResources, res)
 					}
-					newResources = append(newResources, []*idm.PolicyResource{
-						{Template: "rest:/frontend/<.*>"},
-						{Template: "rest:/tree/<.*>"},
+					newResources = append(newResources, []string{
+						"rest:/frontend/<.*>",
+						"rest:/tree/<.*>",
 					}...)
 					p.Resources = newResources
 				}
@@ -359,17 +359,17 @@ func Upgrade120(ctx context.Context) error {
 			}))
 			group.Policies = updates
 			if _, er := dao.StorePolicyGroup(ctx, group); er != nil {
-				log.Logger(ctx).Error("could not update policy group "+group.GetUUID(), zap.Error(er))
+				log.Logger(ctx).Error("could not update policy group "+group.GetUuid(), zap.Error(er))
 			} else {
-				log.Logger(ctx).Info("Updated policy group " + group.GetUUID())
+				log.Logger(ctx).Info("Updated policy group " + group.GetUuid())
 			}
-		} else if group.GetUUID() == "frontend-restricted-accesses" {
+		} else if group.GetUuid() == "frontend-restricted-accesses" {
 			if err := dao.DeletePolicyGroup(ctx, group); err != nil {
-				log.Logger(ctx).Error("could not delete unused policy group "+group.GetUUID(), zap.Error(err))
+				log.Logger(ctx).Error("could not delete unused policy group "+group.GetUuid(), zap.Error(err))
 			} else {
-				log.Logger(ctx).Info("Deleted unused policy group "+group.GetUUID(), zap.Error(err))
+				log.Logger(ctx).Info("Deleted unused policy group "+group.GetUuid(), zap.Error(err))
 			}
-		} else if group.GetUUID() == "public-access" {
+		} else if group.GetUuid() == "public-access" {
 			group.Policies = append(group.Policies, converter.LadonToProtoPolicy(&ladon.DefaultPolicy{
 				ID:          "frontend-state",
 				Description: "PolicyGroup.PublicAccess.Rule3",
@@ -386,9 +386,9 @@ func Upgrade120(ctx context.Context) error {
 				Effect:      ladon.AllowAccess,
 			}))
 			if _, er := dao.StorePolicyGroup(ctx, group); er != nil {
-				log.Logger(ctx).Error("could not update policy group "+group.GetUUID(), zap.Error(er))
+				log.Logger(ctx).Error("could not update policy group "+group.GetUuid(), zap.Error(er))
 			} else {
-				log.Logger(ctx).Info("Updated policy group " + group.GetUUID())
+				log.Logger(ctx).Info("Updated policy group " + group.GetUuid())
 			}
 		}
 
@@ -407,16 +407,16 @@ func Upgrade122(ctx context.Context) error {
 		return e
 	}
 	for _, group := range groups {
-		if group.GetUUID() == "rest-apis-default-accesses" {
+		if group.GetUuid() == "rest-apis-default-accesses" {
 			for _, p := range group.Policies {
 				if p.GetID() == "user-default-policy" {
-					p.Resources = append(p.Resources, &idm.PolicyResource{Template: "rest:/templates"})
+					p.Resources = append(p.Resources, "rest:/templates")
 				}
 			}
 			if _, er := dao.StorePolicyGroup(ctx, group); er != nil {
-				log.Logger(ctx).Error("could not update policy group "+group.GetUUID(), zap.Error(er))
+				log.Logger(ctx).Error("could not update policy group "+group.GetUuid(), zap.Error(er))
 			} else {
-				log.Logger(ctx).Info("Updated policy group " + group.GetUUID())
+				log.Logger(ctx).Info("Updated policy group " + group.GetUuid())
 			}
 		}
 	}
@@ -435,7 +435,7 @@ func Upgrade142(ctx context.Context) error {
 		return e
 	}
 	for _, group := range groups {
-		if group.GetUUID() == "rest-apis-default-accesses" {
+		if group.GetUuid() == "rest-apis-default-accesses" {
 			group.Policies = append(group.Policies, converter.LadonToProtoPolicy(&ladon.DefaultPolicy{
 				ID:          "user-ws-readonly",
 				Description: "PolicyGroup.LoggedUsers.Rule4",
@@ -447,9 +447,9 @@ func Upgrade142(ctx context.Context) error {
 				Effect:  ladon.DenyAccess,
 			}))
 			if _, er := dao.StorePolicyGroup(ctx, group); er != nil {
-				log.Logger(ctx).Error("could not update policy group "+group.GetUUID(), zap.Error(er))
+				log.Logger(ctx).Error("could not update policy group "+group.GetUuid(), zap.Error(er))
 			} else {
-				log.Logger(ctx).Info("Updated policy group " + group.GetUUID())
+				log.Logger(ctx).Info("Updated policy group " + group.GetUuid())
 			}
 		}
 	}
@@ -466,19 +466,19 @@ func Upgrade202(ctx context.Context) error {
 		return e
 	}
 	for _, group := range groups {
-		if group.GetUUID() == "rest-apis-default-accesses" {
+		if group.GetUuid() == "rest-apis-default-accesses" {
 			for _, p := range group.Policies {
 				if p.GetID() == "user-default-policy" {
-					var newRes []*idm.PolicyResource
+					var newRes []string
 					for _, r := range p.Resources {
-						if r.Template == "rest:/tree/<.*>" {
-							newRes = append(newRes, []*idm.PolicyResource{
-								{Template: "rest:/tree/create"},
-								{Template: "rest:/tree/delete"},
-								{Template: "rest:/tree/restore"},
-								{Template: "rest:/tree/selection"},
-								{Template: "rest:/tree/stat/<.+>"},
-								{Template: "rest:/tree/stats"},
+						if r == "rest:/tree/<.*>" {
+							newRes = append(newRes, []string{
+								"rest:/tree/create",
+								"rest:/tree/delete",
+								"rest:/tree/restore",
+								"rest:/tree/selection",
+								"rest:/tree/stat/<.+>",
+								"rest:/tree/stats",
 							}...)
 						} else {
 							newRes = append(newRes, r)
@@ -488,9 +488,9 @@ func Upgrade202(ctx context.Context) error {
 				}
 			}
 			if _, er := dao.StorePolicyGroup(ctx, group); er != nil {
-				log.Logger(ctx).Error("could not update policy group "+group.GetUUID(), zap.Error(er))
+				log.Logger(ctx).Error("could not update policy group "+group.GetUuid(), zap.Error(er))
 			} else {
-				log.Logger(ctx).Info("Updated policy group " + group.GetUUID())
+				log.Logger(ctx).Info("Updated policy group " + group.GetUuid())
 			}
 		}
 	}
@@ -507,16 +507,16 @@ func Upgrade210(ctx context.Context) error {
 		return e
 	}
 	for _, group := range groups {
-		if group.GetUUID() == "rest-apis-default-accesses" {
+		if group.GetUuid() == "rest-apis-default-accesses" {
 			var newPolicies []*idm.Policy
 			for _, p := range group.Policies {
 				if p.GetID() == "user-meta-tags-no-delete" || p.GetID() == "user-ws-readonly" {
 					continue
 				}
 				if p.GetID() == "user-default-policy" {
-					var newRes []*idm.PolicyResource
+					var newRes []string
 					for _, r := range p.Resources {
-						if r.Template == "rest:/workspace/<.+>" || r.Template == "rest:/user-meta<.+>" {
+						if r == "rest:/workspace/<.+>" || r == "rest:/user-meta<.+>" {
 							continue
 						} else {
 							newRes = append(newRes, r)
@@ -553,9 +553,9 @@ func Upgrade210(ctx context.Context) error {
 			)
 			group.Policies = newPolicies
 			if _, er := dao.StorePolicyGroup(ctx, group); er != nil {
-				log.Logger(ctx).Error("could not update policy group "+group.GetUUID(), zap.Error(er))
+				log.Logger(ctx).Error("could not update policy group "+group.GetUuid(), zap.Error(er))
 			} else {
-				log.Logger(ctx).Info("Updated policy group " + group.GetUUID())
+				log.Logger(ctx).Info("Updated policy group " + group.GetUuid())
 			}
 		}
 	}
@@ -572,16 +572,16 @@ func Upgrade220(ctx context.Context) error {
 		return e
 	}
 	for _, group := range groups {
-		if group.GetUUID() == "rest-apis-default-accesses" {
+		if group.GetUuid() == "rest-apis-default-accesses" {
 			for _, p := range group.Policies {
 				if p.GetID() == "user-default-policy" {
-					p.Resources = append(p.Resources, &idm.PolicyResource{Template: "rest:/auth/token/document"})
+					p.Resources = append(p.Resources, "rest:/auth/token/document")
 				}
 			}
 			if _, er := dao.StorePolicyGroup(ctx, group); er != nil {
-				log.Logger(ctx).Error("could not update policy group "+group.GetUUID(), zap.Error(er))
+				log.Logger(ctx).Error("could not update policy group "+group.GetUuid(), zap.Error(er))
 			} else {
-				log.Logger(ctx).Info("Updated policy group " + group.GetUUID())
+				log.Logger(ctx).Info("Updated policy group " + group.GetUuid())
 			}
 		}
 	}
@@ -598,24 +598,24 @@ func Upgrade227(ctx context.Context) error {
 		return e
 	}
 	for _, group := range groups {
-		if group.GetUUID() == "public-access" {
+		if group.GetUuid() == "public-access" {
 			for _, p := range group.Policies {
 				if p.GetID() == "frontend-state" {
-					p.Resources = []*idm.PolicyResource{
-						{Template: "rest:/frontend/binaries/GLOBAL/<.*>"},
-						{Template: "rest:/frontend/bootconf"},
-						{Template: "rest:/frontend/messages/<.*>"},
-						{Template: "rest:/frontend/plugins/<.*>"},
-						{Template: "rest:/frontend/state"},
-						{Template: "rest:/frontend/auth/state"},
-						{Template: "rest:/frontend/login/connectors"},
+					p.Resources = []string{
+						"rest:/frontend/binaries/GLOBAL/<.*>",
+						"rest:/frontend/bootconf",
+						"rest:/frontend/messages/<.*>",
+						"rest:/frontend/plugins/<.*>",
+						"rest:/frontend/state",
+						"rest:/frontend/auth/state",
+						"rest:/frontend/login/connectors",
 					}
 				}
 			}
 			if _, er := dao.StorePolicyGroup(ctx, group); er != nil {
-				log.Logger(ctx).Error("could not update policy group "+group.GetUUID(), zap.Error(er))
+				log.Logger(ctx).Error("could not update policy group "+group.GetUuid(), zap.Error(er))
 			} else {
-				log.Logger(ctx).Info("Updated policy group " + group.GetUUID())
+				log.Logger(ctx).Info("Updated policy group " + group.GetUuid())
 			}
 		}
 	}
@@ -632,16 +632,16 @@ func Upgrade399(ctx context.Context) error {
 		return e
 	}
 	for _, group := range groups {
-		if group.GetUUID() == "rest-apis-default-accesses" {
+		if group.GetUuid() == "rest-apis-default-accesses" {
 			for _, p := range group.Policies {
 				if p.GetID() == "user-default-policy" {
-					p.Resources = append(p.Resources, &idm.PolicyResource{Template: "rest:/templates<.+>"})
+					p.Resources = append(p.Resources, "rest:/templates<.+>")
 				}
 			}
 			if _, er := dao.StorePolicyGroup(ctx, group); er != nil {
-				log.Logger(ctx).Error("could not update policy group "+group.GetUUID(), zap.Error(er))
+				log.Logger(ctx).Error("could not update policy group "+group.GetUuid(), zap.Error(er))
 			} else {
-				log.Logger(ctx).Info("Updated policy group " + group.GetUUID())
+				log.Logger(ctx).Info("Updated policy group " + group.GetUuid())
 			}
 		}
 	}
@@ -658,16 +658,16 @@ func Upgrade4199(ctx context.Context) error {
 		return e
 	}
 	for _, group := range groups {
-		if group.GetUUID() == "rest-apis-default-accesses" {
+		if group.GetUuid() == "rest-apis-default-accesses" {
 			for _, p := range group.Policies {
 				if p.GetID() == "user-default-policy" {
-					p.Resources = append(p.Resources, &idm.PolicyResource{Template: "rest:/scheduler/hooks/<.+>"})
+					p.Resources = append(p.Resources, "rest:/scheduler/hooks/<.+>")
 				}
 			}
 			if _, er := dao.StorePolicyGroup(ctx, group); er != nil {
-				log.Logger(ctx).Error("could not update policy group "+group.GetUUID(), zap.Error(er))
+				log.Logger(ctx).Error("could not update policy group "+group.GetUuid(), zap.Error(er))
 			} else {
-				log.Logger(ctx).Info("Updated policy group " + group.GetUUID())
+				log.Logger(ctx).Info("Updated policy group " + group.GetUuid())
 			}
 		}
 	}
@@ -686,9 +686,9 @@ func Upgrade4399(ctx context.Context) error {
 	for _, group := range groups {
 		if strings.HasPrefix(group.Name, "PolicyGroup.ACLSample") {
 			if er := dao.DeletePolicyGroup(ctx, group); er != nil {
-				log.Logger(ctx).Error("could not delete policy group "+group.GetUUID(), zap.Error(er))
+				log.Logger(ctx).Error("could not delete policy group "+group.GetUuid(), zap.Error(er))
 			} else {
-				log.Logger(ctx).Info("Removed sample policy group replaced by the template picker " + group.GetUUID())
+				log.Logger(ctx).Info("Removed sample policy group replaced by the template picker " + group.GetUuid())
 			}
 		}
 	}

@@ -27,12 +27,14 @@ import (
 	"time"
 
 	"github.com/ory/ladon"
+	"google.golang.org/protobuf/proto"
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
 
 	"github.com/pydio/cells/v4/common/proto/idm"
 	"github.com/pydio/cells/v4/common/utils/uuid"
 	"github.com/pydio/cells/v4/idm/policy"
+	"github.com/pydio/cells/v4/idm/policy/converter"
 )
 
 func init() {
@@ -60,9 +62,9 @@ func (s *sqlimpl) instance(ctx context.Context) *gorm.DB {
 
 	s.once.Do(func() {
 		db.SetupJoinTable(&idm.PolicyGroup{}, "Policies", &idm.PolicyRel{})
-		db.SetupJoinTable(&idm.Policy{}, "Actions", &idm.PolicyActionRel{})
-		db.SetupJoinTable(&idm.Policy{}, "Resources", &idm.PolicyResourceRel{})
-		db.SetupJoinTable(&idm.Policy{}, "Subjects", &idm.PolicySubjectRel{})
+		db.SetupJoinTable(&idm.Policy{}, "OrmActions", &idm.PolicyActionRel{})
+		db.SetupJoinTable(&idm.Policy{}, "OrmResources", &idm.PolicyResourceRel{})
+		db.SetupJoinTable(&idm.Policy{}, "OrmSubjects", &idm.PolicySubjectRel{})
 	})
 
 	return db
@@ -80,28 +82,44 @@ func (s *sqlimpl) Migrate(ctx context.Context) error {
 // and recreating corresponding relations.
 func (s *sqlimpl) StorePolicyGroup(ctx context.Context, group *idm.PolicyGroup) (*idm.PolicyGroup, error) {
 
-	if group.GetUUID() == "" {
-		group.UUID = uuid.New()
+	storeGroup := proto.Clone(group).(*idm.PolicyGroup)
+	storeGroup.LastUpdated = int32(time.Now().Unix())
+
+	if storeGroup.GetUuid() == "" {
+		storeGroup.Uuid = uuid.New()
 	} else {
-		if err := s.DeletePolicyGroup(ctx, group); err != nil {
+		if err := s.DeletePolicyGroup(ctx, storeGroup); err != nil {
 			return nil, err
+		}
+	}
+
+	for _, p := range storeGroup.Policies {
+		for _, template := range p.GetActions() {
+			action := &idm.PolicyAction{}
+			if err := converter.StringToTemplate(template, action); err == nil {
+				p.OrmActions = append(p.OrmActions, action)
+			}
+		}
+		for _, template := range p.GetResources() {
+			resource := &idm.PolicyResource{}
+			if err := converter.StringToTemplate(template, resource); err == nil {
+				p.OrmResources = append(p.OrmResources, resource)
+			}
+		}
+		for _, template := range p.GetSubjects() {
+			subject := &idm.PolicySubject{}
+			if err := converter.StringToTemplate(template, subject); err == nil {
+				p.OrmSubjects = append(p.OrmSubjects, subject)
+			}
 		}
 	}
 
 	// Insert Policy Group
 	s.instance(ctx).Clauses(clause.OnConflict{
 		DoUpdates: clause.AssignmentColumns([]string{"name", "description", "owner_uuid", "resource_group", "last_updated"}), // column needed to be updated
-	}).Create(&idm.PolicyGroup{
-		UUID:          group.GetUUID(),
-		Name:          group.Name,
-		Description:   group.Description,
-		OwnerUUID:     group.GetOwnerUUID(),
-		ResourceGroup: group.ResourceGroup,
-		LastUpdated:   int32(time.Now().Unix()),
-		Policies:      group.Policies,
-	})
+	}).Create(storeGroup)
 
-	return group, nil
+	return storeGroup, nil
 
 }
 
@@ -119,16 +137,30 @@ func (s *sqlimpl) ListPolicyGroups(ctx context.Context, filter string) (groups [
 	} else if strings.HasPrefix(filter, "uuid:") {
 		id := strings.TrimPrefix(filter, "uuid:")
 
-		tx = tx.Where(&idm.PolicyGroup{UUID: id})
+		tx = tx.Where(&idm.PolicyGroup{Uuid: id})
 	} else if strings.HasPrefix(filter, "like:") {
 		like := "%" + strings.TrimPrefix(filter, "like:") + "%"
 
 		tx = tx.Where(clause.Like{Column: "name", Value: like}).Or(clause.Like{Column: "description", Value: like})
 	}
 
-	tx = tx.Preload("Policies.Actions").Preload("Policies.Resources").Preload("Policies.Subjects").Preload("Policies").Find(&groups)
+	tx = tx.Preload("Policies.OrmActions").Preload("Policies.OrmResources").Preload("Policies.OrmSubjects").Preload("Policies").Find(&groups)
 	if tx.Error != nil {
 		return nil, tx.Error
+	}
+	// Convert OrmXX to XX
+	for _, gr := range groups {
+		for _, p := range gr.Policies {
+			for _, a := range p.OrmActions {
+				p.Actions = append(p.Actions, a.Template)
+			}
+			for _, r := range p.OrmResources {
+				p.Resources = append(p.Resources, r.Template)
+			}
+			for _, sub := range p.OrmSubjects {
+				p.Subjects = append(p.Subjects, sub.Template)
+			}
+		}
 	}
 
 	return
@@ -138,7 +170,7 @@ func (s *sqlimpl) ListPolicyGroups(ctx context.Context, filter string) (groups [
 func (s *sqlimpl) DeletePolicyGroup(ctx context.Context, group *idm.PolicyGroup) error {
 
 	// TODO - cascade ?
-	tx := s.instance(ctx).Where(&idm.PolicyGroup{UUID: group.GetUUID()}).Delete(&idm.PolicyGroup{})
+	tx := s.instance(ctx).Where(&idm.PolicyGroup{Uuid: group.GetUuid()}).Delete(&idm.PolicyGroup{})
 	if tx.Error != nil {
 		return tx.Error
 	}

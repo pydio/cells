@@ -196,7 +196,7 @@ func (s *managerWithContext) FindRequestCandidates(r *ladon.Request) (ladon.Poli
 
 	db := s.instance(s.ctx)
 
-	tx := db.Model(&idm.Policy{}).Preload("Actions").Preload("Resources").Preload("Subjects")
+	tx := db.Model(&idm.Policy{}).Preload("OrmActions").Preload("OrmResources").Preload("OrmSubjects")
 
 	if r.Subject != "" {
 		qs1 := db.Model(&idm.PolicySubjectRel{}).Select("policy as rel_policy_id, subject as rel_subject_id")
@@ -276,7 +276,7 @@ func (s *managerWithContext) FindPoliciesForSubject(subject string) (ladon.Polic
 func (s *managerWithContext) GetAll(limit, offset int64) (ladon.Policies, error) {
 	var policies []*idm.Policy
 	tx := s.instance(s.ctx).
-		Preload("Actions").Preload("Resources").Preload("Subjects").
+		Preload("OrmActions").Preload("OrmResources").Preload("OrmSubjects").
 		Limit(int(limit)).Offset(int(offset)).Find(&policies)
 
 	if tx.Error != nil {
@@ -294,7 +294,7 @@ func (s *managerWithContext) GetAll(limit, offset int64) (ladon.Policies, error)
 // Get retrieves a policy.
 func (s *managerWithContext) Get(id string) (ladon.Policy, error) {
 	var policy *idm.Policy
-	tx := s.instance(s.ctx).Preload("Actions").Preload("Resources").Preload("Subjects").Where(&idm.Policy{ID: id}).Find(&policy)
+	tx := s.instance(s.ctx).Preload("OrmActions").Preload("OrmResources").Preload("OrmSubjects").Where(&idm.Policy{ID: id}).Find(&policy)
 
 	if tx.Error != nil {
 		return nil, tx.Error

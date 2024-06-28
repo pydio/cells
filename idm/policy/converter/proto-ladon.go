@@ -21,17 +21,28 @@ func ProtoToLadonPolicy(p *idm.Policy) ladon.Policy {
 		Effect:      p.GetEffect().String(),
 	}
 
-	res.Actions = []string{}
-	for _, action := range p.Actions {
-		res.Actions = append(res.Actions, action.Template)
+	if len(p.GetActions()) > 0 {
+		res.Actions = p.GetActions()
+	} else if len(p.GetOrmActions()) > 0 {
+		for _, action := range p.OrmActions {
+			res.Actions = append(res.Actions, action.Template)
+		}
 	}
-	res.Subjects = []string{}
-	for _, subject := range p.Subjects {
-		res.Subjects = append(res.Subjects, subject.Template)
+
+	if len(p.GetSubjects()) > 0 {
+		res.Subjects = p.GetSubjects()
+	} else if len(p.GetOrmSubjects()) > 0 {
+		for _, subject := range p.OrmSubjects {
+			res.Subjects = append(res.Subjects, subject.Template)
+		}
 	}
-	res.Resources = []string{}
-	for _, resource := range p.Resources {
-		res.Resources = append(res.Resources, resource.Template)
+
+	if len(p.GetResources()) > 0 {
+		res.Resources = p.GetResources()
+	} else if len(p.GetOrmResources()) > 0 {
+		for _, resource := range p.GetOrmResources() {
+			res.Resources = append(res.Resources, resource.Template)
+		}
 	}
 
 	sort.Strings(res.Actions)
@@ -60,6 +71,26 @@ func ProtoToLadonPolicy(p *idm.Policy) ladon.Policy {
 	return res
 }
 
+var (
+	defaultPol = &ladon.DefaultPolicy{}
+)
+
+func StringToTemplate(template string, obj idm.IPolicySubject) error {
+	h := sha256.New()
+	h.Write([]byte(template))
+	id := fmt.Sprintf("%x", h.Sum(nil))
+
+	compiled, err := compiler.CompileRegex(template, defaultPol.GetStartDelimiter(), defaultPol.GetEndDelimiter())
+	if err != nil {
+		return err
+	}
+	obj.SetID(id)
+	obj.SetTemplate(template)
+	obj.SetHasRegex(strings.Index(template, string(defaultPol.GetStartDelimiter())) >= -1)
+	obj.SetCompiled(compiled.String())
+	return nil
+}
+
 func LadonToProtoPolicy(p ladon.Policy) *idm.Policy {
 
 	res := &idm.Policy{
@@ -73,57 +104,24 @@ func LadonToProtoPolicy(p ladon.Policy) *idm.Policy {
 	}
 
 	for _, template := range p.GetActions() {
-		h := sha256.New()
-		h.Write([]byte(template))
-		id := fmt.Sprintf("%x", h.Sum(nil))
-
-		compiled, err := compiler.CompileRegex(template, p.GetStartDelimiter(), p.GetEndDelimiter())
-		if err != nil {
-			return nil
+		action := &idm.PolicyAction{}
+		if err := StringToTemplate(template, action); err == nil {
+			res.OrmActions = append(res.OrmActions, action)
 		}
-
-		res.Actions = append(res.Actions, &idm.PolicyAction{
-			ID:       id,
-			Template: template,
-			HasRegex: strings.Index(template, string(p.GetStartDelimiter())) >= -1,
-			Compiled: compiled.String(),
-		})
 	}
 
 	for _, template := range p.GetResources() {
-		h := sha256.New()
-		h.Write([]byte(template))
-		id := fmt.Sprintf("%x", h.Sum(nil))
-
-		compiled, err := compiler.CompileRegex(template, p.GetStartDelimiter(), p.GetEndDelimiter())
-		if err != nil {
-			return nil
+		resource := &idm.PolicyResource{}
+		if err := StringToTemplate(template, resource); err == nil {
+			res.OrmResources = append(res.OrmResources, resource)
 		}
-
-		res.Resources = append(res.Resources, &idm.PolicyResource{
-			ID:       id,
-			Template: template,
-			HasRegex: strings.Index(template, string(p.GetStartDelimiter())) >= -1,
-			Compiled: compiled.String(),
-		})
 	}
 
 	for _, template := range p.GetSubjects() {
-		h := sha256.New()
-		h.Write([]byte(template))
-		id := fmt.Sprintf("%x", h.Sum(nil))
-
-		compiled, err := compiler.CompileRegex(template, p.GetStartDelimiter(), p.GetEndDelimiter())
-		if err != nil {
-			return nil
+		subject := &idm.PolicySubject{}
+		if err := StringToTemplate(template, subject); err == nil {
+			res.OrmSubjects = append(res.OrmSubjects, subject)
 		}
-
-		res.Subjects = append(res.Subjects, &idm.PolicySubject{
-			ID:       id,
-			Template: template,
-			HasRegex: strings.Index(template, string(p.GetStartDelimiter())) >= -1,
-			Compiled: compiled.String(),
-		})
 	}
 
 	if len(p.GetConditions()) > 0 {

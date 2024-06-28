@@ -345,7 +345,11 @@ func AssertPolicyEqual(t *testing.T, expected, got ladon.Policy) {
 	So(testEq(expected.GetActions(), got.GetActions()), ShouldBeNil)
 	So(testEq(expected.GetResources(), got.GetResources()), ShouldBeNil)
 	So(testEq(expected.GetSubjects(), got.GetSubjects()), ShouldBeNil)
-	So(expected.GetConditions(), ShouldResemble, got.GetConditions())
+	if len(expected.GetConditions()) == 0 {
+		So(len(expected.GetConditions()), ShouldEqual, len(got.GetConditions()))
+	} else {
+		So(expected.GetConditions(), ShouldResemble, got.GetConditions())
+	}
 }
 
 func testEq(a, b []string) error {
@@ -450,7 +454,7 @@ func HelperTestCreateGetDelete(s ladon.Manager) func(t *testing.T) {
 			for _, got := range pols {
 				for _, expect := range TestManagerPolicies {
 					if got.GetID() == expect.GetID() {
-						So(expect, ShouldResemble, got)
+						AssertPolicyEqual(t, expect, got)
 						found[got.GetID()]++
 					}
 				}

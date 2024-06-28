@@ -88,9 +88,9 @@ func (m *ContextMetaFilter) filterPolicyQueries(ctx context.Context, input *Acti
 		if e := anypb.UnmarshalTo(q, &c, proto.UnmarshalOptions{}); e == nil {
 			idPol := &idm.Policy{
 				ID:        uuid.New(),
-				Subjects:  []*idm.PolicySubject{{Template: "ctx"}},
-				Actions:   []*idm.PolicyAction{{Template: "ctx"}},
-				Resources: []*idm.PolicyResource{{Template: "ctx"}},
+				Subjects:  []string{"ctx"},
+				Actions:   []string{"ctx"},
+				Resources: []string{"ctx"},
 				Effect:    idm.PolicyEffect_allow,
 				Conditions: map[string]*idm.PolicyCondition{
 					c.FieldName: c.Condition,
