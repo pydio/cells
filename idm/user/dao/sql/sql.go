@@ -401,14 +401,15 @@ func (s *sqlimpl) Bind(ctx context.Context, userName string, password string) (u
 
 }
 
+// TouchUser loads a user by UUID and updates its MTime to Now()
 func (s *sqlimpl) TouchUser(ctx context.Context, userUuid string) error {
-	node := &user_model.User{}
-	node.SetNode(&tree.Node{
-		Uuid:  userUuid,
-		MTime: time.Now().Unix(),
-	})
 
-	return wrap(s.indexDAO.SetNode(ctx, node))
+	nodeSrc, er := s.indexDAO.GetNodeByUUID(ctx, userUuid)
+	if er != nil {
+		return wrap(er)
+	}
+	nodeSrc.GetNode().SetMTime(time.Now().Unix())
+	return wrap(s.indexDAO.SetNode(ctx, nodeSrc))
 
 }
 
