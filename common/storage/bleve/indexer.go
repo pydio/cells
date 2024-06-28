@@ -28,7 +28,7 @@ import (
 	"path/filepath"
 	"sort"
 	"strings"
-	"sync"
+	"time"
 
 	bleve "github.com/blevesearch/bleve/v2"
 	"github.com/blevesearch/bleve/v2/index/scorch"
@@ -42,6 +42,7 @@ import (
 	"github.com/pydio/cells/v4/common/errors"
 	"github.com/pydio/cells/v4/common/storage/indexer"
 	"github.com/pydio/cells/v4/common/utils/configx"
+	"github.com/pydio/cells/v4/common/utils/filesystem"
 	"github.com/pydio/cells/v4/common/utils/uuid"
 )
 
@@ -56,17 +57,10 @@ type Indexer struct {
 
 	indexes []bleve.Index
 
-	crtBatch    *bleve.Batch
-	flushLock   *sync.Mutex
-	inserts     chan interface{}
-	deletes     chan interface{}
-	forceFlush  chan bool
-	insertsDone chan bool
-
 	codec          indexer.IndexCodex
 	serviceConfigs config.Store
 
-	opened bool
+	closed bool
 
 	statusInput chan map[string]interface{}
 	debouncer   func(func())
@@ -77,16 +71,11 @@ type Indexer struct {
 // Setting rotationSize to -1 fully disables rotation
 func newBleveIndexer(conf *BleveConfig) (*Indexer, error) {
 	if conf.RotationSize > -1 && conf.RotationSize < MinRotationSize {
-		return nil, fmt.Errorf("use a rotation size bigger than %d", MinRotationSize)
+		return nil, errors.WithMessagef(errors.DAO, "use a rotation size bigger than %d", MinRotationSize)
 	}
 
 	idx := &Indexer{
-		conf:        conf,
-		inserts:     make(chan interface{}, BufferedChanSize),
-		deletes:     make(chan interface{}, BufferedChanSize),
-		insertsDone: make(chan bool),
-		flushLock:   &sync.Mutex{},
-		forceFlush:  make(chan bool, 1),
+		conf: conf,
 	}
 
 	dir, prefix := filepath.Split(conf.BlevePath)
@@ -166,7 +155,7 @@ func (s *Indexer) As(i interface{}) bool {
 //	})
 //}
 
-// Stats implements DAO method by listing opened indexes and documents counts
+// Stats implements DAO method by listing closed indexes and documents counts
 func (s *Indexer) Stats(ctx context.Context) map[string]interface{} {
 	m := map[string]interface{}{
 		"indexes": s.listIndexes(s.getPath(ctx), s.getPrefix(ctx)),
@@ -208,7 +197,7 @@ func (s *Indexer) Stats(ctx context.Context) map[string]interface{} {
 //		s.searchIndex.Add(index)
 //	}
 //
-//	s.opened = true
+//	s.closed = true
 //
 //	return nil
 //}
@@ -230,15 +219,19 @@ func (s *Indexer) getPath(ctx context.Context) string {
 }
 
 func (s *Indexer) Close(ctx context.Context) error {
-	if !s.opened {
+	if s.closed {
 		return nil
 	}
-	s.opened = false
-	close(s.insertsDone)
-	close(s.inserts)
-	close(s.deletes)
-	close(s.forceFlush)
-	return nil
+	s.closed = true
+	var errs []error
+	for _, id := range s.indexes {
+		if er := id.Close(); er != nil {
+			errs = append(errs, er)
+		} else {
+			//fmt.Println("Closed " + id.Name())
+		}
+	}
+	return errors.Join(errs...)
 }
 
 func (s *Indexer) InsertOne(ctx context.Context, data any) error {
@@ -290,7 +283,7 @@ func (s *Indexer) checkRotate(ctx context.Context) bool {
 		return false
 	}
 
-	du, err := indexDiskUsage(writeIndex.Name())
+	du, err := filesystem.RecursiveDiskUsage(writeIndex.Name())
 	if err != nil {
 		return false
 	}
@@ -303,9 +296,9 @@ func (s *Indexer) DeleteMany(ctx context.Context, qu interface{}) (int32, error)
 	var str string
 	var ok bool
 	if str, ok = qu.(string); !ok {
-		return 0, fmt.Errorf("DeleteMany expects a query string")
+		return 0, errors.WithMessage(errors.DAO, "DeleteMany expects a query string")
 	} else if str == "" {
-		return 0, fmt.Errorf("cannot pass an empty query for deletion")
+		return 0, errors.WithMessage(errors.DAO, "cannot pass an empty query for deletion")
 	}
 	q = bleve.NewQueryStringQuery(str)
 	req := bleve.NewSearchRequest(q)
@@ -319,7 +312,6 @@ func (s *Indexer) DeleteMany(ctx context.Context, qu interface{}) (int32, error)
 	for {
 		sr, err := idx.SearchInContext(ctx, req)
 		if err != nil {
-			fmt.Println(err)
 			return 0, err
 		}
 		b := idx.NewBatch()
@@ -361,12 +353,12 @@ func (s *Indexer) Count(ctx context.Context, qu interface{}) (int, error) {
 func (s *Indexer) Search(ctx context.Context, in any, out any) error {
 	qu, ok := in.(*bleve.SearchRequest)
 	if !ok {
-		return fmt.Errorf("Search expects a *bleve.SearchRequest as in value")
+		return errors.WithMessage(errors.DAO, "Indexer.Search expects a *bleve.SearchRequest as in value")
 	}
 
 	res, ok := out.(*[]index.Document)
 	if !ok {
-		return fmt.Errorf("Search expects a pointer as out value")
+		return errors.WithMessage(errors.DAO, "Indexer.Search expects a pointer as out value")
 	}
 
 	si, err := s.getSearchIndex(ctx)
@@ -402,9 +394,9 @@ func (s *Indexer) FindMany(ctx context.Context, qu interface{}, offset, limit in
 		var str string
 		var ok bool
 		if str, ok = qu.(string); !ok {
-			return nil, fmt.Errorf("FindMany expects a query string")
+			return nil, errors.WithMessage(errors.DAO, "FindMany expects a query string")
 		} else if str == "" {
-			return nil, fmt.Errorf("cannot pass an empty query for deletion")
+			return nil, errors.WithMessage(errors.DAO, "cannot pass an empty query for deletion")
 		}
 		q = bleve.NewQueryStringQuery(str)
 		request = bleve.NewSearchRequest(q)
@@ -413,7 +405,7 @@ func (s *Indexer) FindMany(ctx context.Context, qu interface{}, offset, limit in
 			return nil, err
 		} else {
 			if req, ok := r.(*bleve.SearchRequest); !ok {
-				return nil, fmt.Errorf("Unrecognized searchRequest type")
+				return nil, errors.WithMessage(errors.DAO, "Unrecognized searchRequest type")
 			} else {
 				request = req
 			}
@@ -567,7 +559,7 @@ func (s *Indexer) Resync(ctx context.Context, logger func(string)) error {
 	//prefix := s.getPrefix(ctx)
 	// fullPath := s.getFullPath(path, prefix, "")
 
-	copyDir := filepath.Join(filepath.Dir(s.conf.BlevePath), uuid.New())
+	copyDir := filepath.Join(s.getPath(ctx), uuid.New())
 	e := os.Mkdir(copyDir, 0777)
 	if e != nil {
 		return e
@@ -575,23 +567,20 @@ func (s *Indexer) Resync(ctx context.Context, logger func(string)) error {
 	defer func() {
 		_ = os.RemoveAll(copyDir)
 	}()
-	copyPath := filepath.Join(copyDir, filepath.Base(s.conf.BlevePath))
+	copyPath := filepath.Join(copyDir, s.getPrefix(ctx))
 
-	var conf *BleveConfig
-	*conf = *s.conf
-
-	conf.BlevePath = copyPath
+	conf := &BleveConfig{
+		BlevePath:    copyPath,
+		MappingName:  s.conf.MappingName,
+		RotationSize: s.conf.RotationSize,
+		BatchSize:    s.conf.BatchSize,
+	}
 
 	dup := &Indexer{
 		conf: conf,
 	}
 	dup.SetCodex(s.codec)
-	dup.inserts = make(chan interface{}, BufferedChanSize)
 
-	//er := dup.Open(ctx)
-	//if er != nil {
-	//	return er
-	//}
 	logger("Listing Index inside new one")
 
 	q := bleve.NewMatchAllQuery()
@@ -608,7 +597,7 @@ func (s *Indexer) Resync(ctx context.Context, logger func(string)) error {
 
 	for {
 
-		logger(fmt.Sprintf("Reindexing logs from page %d\n", page))
+		logger(fmt.Sprintf("Reindexing logs from page %d", page))
 		req.From = page * req.Size
 		req.Fields = []string{"*"}
 		idx, err := s.getSearchIndex(ctx)
@@ -617,18 +606,15 @@ func (s *Indexer) Resync(ctx context.Context, logger func(string)) error {
 		}
 		sr, err := idx.SearchInContext(ctx, req)
 		if err != nil {
-			fmt.Println(err)
 			return err
 		}
 		for _, hit := range sr.Hits {
 			um, e := s.codec.Unmarshal(hit)
 			if e != nil {
-				fmt.Println(e)
 				continue
 			}
 			mu, e := s.codec.Marshal(um)
 			if e != nil {
-				fmt.Println(e)
 				continue
 			}
 			_ = b.Insert(mu)
@@ -648,30 +634,46 @@ func (s *Indexer) Resync(ctx context.Context, logger func(string)) error {
 	if er := dup.Close(ctx); er != nil {
 		return er
 	}
-	// <-time.After(5 * time.Second) // Make sure original is closed
+	<-time.After(5 * time.Second) // Make sure original is closed
 
-	//logger("Removing old indexes")
-	//for _, ip := range s.listIndexes() {
-	//	if err := os.RemoveAll(filepath.Join(filepath.Dir(s.indexPath), ip)); err != nil {
-	//		return err
-	//	}
-	//}
-	//logger("Moving new indexes")
-	//for _, ip := range dup.listIndexes() {
-	//	src := filepath.Join(copyDir, ip)
-	//	target := filepath.Join(filepath.Join(filepath.Dir(s.indexPath), ip))
-	//	if err := os.Rename(src, target); err != nil {
-	//		return err
-	//	}
-	//}
+	logger("Removing old indexes")
+	// Copy indexes refs and close everything
+	var indexesPaths []string
+	for _, i := range s.indexes {
+		indexesPaths = append(indexesPaths, i.Name())
+	}
+	if er := s.Close(ctx); er != nil {
+		return er
+	}
+	for _, ip := range indexesPaths {
+		if err = os.RemoveAll(ip); err != nil {
+			return err
+		} else {
+			logger(" - Removed " + ip)
+		}
+	}
+	logger("Moving new indexes") // temp folder is removed at defer
+	dupIdx := dup.listIndexes(dup.getPath(ctx), dup.getPrefix(ctx))
+	if er := dup.Close(ctx); er != nil {
+		return er
+	}
+	for _, ip := range dupIdx {
+		src := filepath.Join(dup.getPath(ctx), ip)
+		target := filepath.Join(s.getPath(ctx), ip)
+		if err := os.Rename(src, target); err != nil {
+			return err
+		} else {
+			logger(" - Moved " + src + " to " + target)
+		}
+	}
 
-	//logger("Restarting new mr")
-	//if err := s.Open(ctx); err != nil {
-	//	return err
-	//}
-	//logger("Resync operation done")
-
-	//s.updateStatus()
+	// Replace to original bleve path
+	logger("Resync operation done, replacing current receiver with dup")
+	reopen, er := newBleveIndexer(s.conf)
+	if er != nil {
+		return er
+	}
+	*s = *reopen
 
 	return nil
 
@@ -712,7 +714,7 @@ func (s *Indexer) Truncate(ctx context.Context, max int64, logger func(string)) 
 				if e != nil {
 					logger(fmt.Sprintf("cannot remove index %s", idx.Name()))
 				}
-			} else if u, e := indexDiskUsage(idx.Name()); e == nil {
+			} else if u, e := filesystem.RecursiveDiskUsage(idx.Name()); e == nil {
 				total += u
 				remove = total > max
 			}
@@ -867,33 +869,4 @@ func (s *Indexer) NewBatch(ctx context.Context, opts ...indexer.BatchOption) (in
 	}
 
 	return indexer.NewBatch(ctx, opts...), nil
-}
-
-// indexDiskUsage is a simple implementation for computing directory size
-func indexDiskUsage(currPath string) (int64, error) {
-	var size int64
-
-	files, err := os.ReadDir(currPath)
-	if err != nil {
-		return 0, err
-	}
-
-	for _, file := range files {
-		if file.IsDir() {
-			s, e := indexDiskUsage(filepath.Join(currPath, file.Name()))
-			if e != nil {
-				return 0, e
-			}
-			size += s
-		} else {
-			info, err := file.Info()
-			if err != nil {
-				continue
-			}
-
-			size += info.Size()
-		}
-	}
-
-	return size, nil
 }

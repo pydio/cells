@@ -12,6 +12,8 @@ import (
 
 	"github.com/pydio/cells/v4/common/runtime/manager"
 	"github.com/pydio/cells/v4/common/storage/bleve"
+	"github.com/pydio/cells/v4/common/utils/configx"
+	"github.com/pydio/cells/v4/common/utils/filesystem"
 	"github.com/pydio/cells/v4/common/utils/test"
 	"github.com/pydio/cells/v4/common/utils/uuid"
 
@@ -26,6 +28,24 @@ type DocTest struct {
 	Logger  string
 }
 
+type CodexTest struct{}
+
+func (c *CodexTest) Marshal(input interface{}) (interface{}, error) {
+	return input, nil
+}
+
+func (c *CodexTest) Unmarshal(indexed interface{}) (interface{}, error) {
+	return indexed, nil
+}
+
+func (c *CodexTest) BuildQuery(query interface{}, offset, limit int32, sortFields string, sortDesc bool) (interface{}, interface{}, error) {
+	return query, nil, nil
+}
+
+func (c *CodexTest) GetModel(sc configx.Values) (interface{}, bool) {
+	return nil, false
+}
+
 func TestSizeRotation(t *testing.T) {
 	fp := filepath.Join(os.TempDir(), "log_test_rotation_"+uuid.New()+".db")
 	rotationTest := test.StorageTestCase{
@@ -35,6 +55,7 @@ func TestSizeRotation(t *testing.T) {
 	}
 
 	test.RunStorageTests([]test.StorageTestCase{rotationTest}, func(ctx context.Context) {
+
 		Convey("Test Insertion Counts", t, func() {
 
 			s, e := manager.Resolve[*bleve.Indexer](ctx)
@@ -87,7 +108,7 @@ func TestSizeRotation(t *testing.T) {
 			fullSize := func(indexes []string) (size int64, count int) {
 				for _, i := range indexes {
 					i = filepath.Join(filepath.Dir(fp), i)
-					if st, er := indexDiskUsage(i); er == nil {
+					if st, er := filesystem.RecursiveDiskUsage(i); er == nil {
 						size += st
 					} else {
 						t.Errorf("cannot stat index %s", i)
@@ -108,6 +129,25 @@ func TestSizeRotation(t *testing.T) {
 
 		})
 
+		Convey("Test Resync", t, func() {
+			s, e := manager.Resolve[*bleve.Indexer](ctx)
+			So(e, ShouldBeNil)
+			So(s, ShouldNotBeNil)
+			s.SetCodex(&CodexTest{})
+
+			// Count logs before resync
+			countBefore, er := s.Count(ctx, &v2.SearchRequest{Query: v2.NewMatchAllQuery()})
+			So(er, ShouldBeNil)
+			t.Logf("Starting ReIndexation with %d logs", countBefore)
+
+			So(s.Resync(ctx, func(s string) {
+				t.Log(s)
+			}), ShouldBeNil)
+
+			countAfter, er := s.Count(ctx, &v2.SearchRequest{Query: v2.NewMatchAllQuery()})
+			So(countAfter, ShouldEqual, countBefore)
+			t.Logf("Reading %d logs after Reindexation", countAfter)
+		})
 	})
 }
 
@@ -173,31 +213,3 @@ func TestBleve(t *testing.T) {
 	})
 }
 */
-// indexDiskUsage is a simple implementation for computing directory size
-func indexDiskUsage(currPath string) (int64, error) {
-	var size int64
-
-	files, err := os.ReadDir(currPath)
-	if err != nil {
-		return 0, err
-	}
-
-	for _, file := range files {
-		if file.IsDir() {
-			s, e := indexDiskUsage(filepath.Join(currPath, file.Name()))
-			if e != nil {
-				return 0, e
-			}
-			size += s
-		} else {
-			info, err := file.Info()
-			if err != nil {
-				continue
-			}
-
-			size += info.Size()
-		}
-	}
-
-	return size, nil
-}

@@ -54,6 +54,8 @@ var (
 	// Details reads the map[string]interface{} details of a given error (not recursively unwrapping)
 	Details = tozd.Details
 
+	Join = tozd.Join
+
 	// Is replaces stdlib.Is
 	Is = tozd.Is
 	// As replaces stdlib.As

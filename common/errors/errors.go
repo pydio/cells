@@ -98,7 +98,7 @@ var (
 	ShareLinkNotEditable           = RegisterBaseSentinel(ShareNotEditable, "you are not allowed to edit this link")
 	ShareCellNotEditable           = RegisterBaseSentinel(ShareNotEditable, "you are not allowed to edit this cell")
 
-	DAO          = RegisterBaseSentinel(CellsError, "dao")
+	DAO          = RegisterBaseSentinel(StatusInternalServerError, "dao")
 	ResolveError = RegisterBaseSentinel(DAO, "dao resolution failed")
 	SqlDAO       = RegisterBaseSentinel(DAO, "sql")
 	MongoDAO     = RegisterBaseSentinel(DAO, "mongo")
