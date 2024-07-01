@@ -40,11 +40,18 @@ var (
 	defaultsTemplate string
 	//go:embed bootstrap.yaml
 	bootstrapTemplate string
+
+	bootstrapPatches ypatch.Patch
 )
 
 // SetBootstrapTemplate overrides initial template
 func SetBootstrapTemplate(tpl string) {
 	bootstrapTemplate = tpl
+}
+
+// AppendBootstrapPatches registers additional patches for modifying default template
+func AppendBootstrapPatches(ops ...ypatch.Operation) {
+	bootstrapPatches = append(bootstrapPatches, ops...)
 }
 
 // Bootstrap wraps a config.Store and is loaded from yaml templates or additional environment data
@@ -115,7 +122,6 @@ func (bs *Bootstrap) reload(conf config.Store) error {
 		tmpl = yaml
 	}
 
-	patch := ypatch.Patch{}
 	for _, pair := range runtime.GetStringSlice(runtime.KeySet) {
 		kv := strings.SplitN(pair, "=", 2)
 		if len(kv) != 2 {
@@ -125,7 +131,7 @@ func (bs *Bootstrap) reload(conf config.Store) error {
 			kv[0] = "/" + kv[0]
 		}
 		if pa, er := ypatch.ParsePath(kv[0]); er == nil {
-			patch = append(patch, ypatch.Operation{
+			bootstrapPatches = append(bootstrapPatches, ypatch.Operation{
 				Type:  ypatch.OperationAdd,
 				Path:  pa,
 				Value: kv[1],
@@ -135,8 +141,8 @@ func (bs *Bootstrap) reload(conf config.Store) error {
 		}
 	}
 
-	if len(patch) > 0 {
-		if patched, er := ypatch.Apply([]byte(tmpl), patch); er != nil {
+	if len(bootstrapPatches) > 0 {
+		if patched, er := ypatch.Apply([]byte(tmpl), bootstrapPatches); er != nil {
 			return er
 		} else {
 			tmpl = string(patched)
