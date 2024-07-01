@@ -32,6 +32,7 @@ import (
 	"gorm.io/gorm/clause"
 
 	"github.com/pydio/cells/v4/common/proto/idm"
+	"github.com/pydio/cells/v4/common/telemetry/log"
 	"github.com/pydio/cells/v4/common/utils/uuid"
 	"github.com/pydio/cells/v4/idm/policy"
 	"github.com/pydio/cells/v4/idm/policy/converter"
@@ -70,7 +71,30 @@ func (s *sqlimpl) instance(ctx context.Context) *gorm.DB {
 	return db
 }
 
+type LegacyPolicyGroup struct{}
+
+func (g LegacyPolicyGroup) TableName() string {
+	return "idm_policy_group"
+}
+
+type LegacyPolicyRel struct{}
+
+func (g LegacyPolicyRel) TableName() string {
+	return "idm_policy_rel"
+}
+
 func (s *sqlimpl) Migrate(ctx context.Context) error {
+
+	mig := s.instance(ctx).Migrator()
+	if mig.HasTable(&LegacyPolicyGroup{}) {
+		log.Logger(ctx).Info("Renaming existing tables idm_policy_group and idm_policy_rel")
+		if er := mig.RenameTable(&LegacyPolicyGroup{}, &idm.PolicyGroup{}); er != nil {
+			return er
+		}
+		if er := mig.RenameTable(&LegacyPolicyRel{}, &idm.PolicyRel{}); er != nil {
+			return er
+		}
+	}
 	if err := s.instance(ctx).AutoMigrate(&idm.PolicyAction{}, &idm.PolicyResource{}, &idm.PolicySubject{}, &idm.Policy{}, &idm.PolicyGroup{}); err != nil {
 		return err
 	}
