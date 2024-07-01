@@ -29,8 +29,8 @@ func (SqlJWK) TableName(n schema.Namer) string {
 	return n.TableName("jwk")
 }
 
-func (c *jwkDriver) AutoMigrate() {
-	c.db.AutoMigrate(&SqlJWK{})
+func (c *jwkDriver) AutoMigrate() error {
+	return c.db.AutoMigrate(&SqlJWK{})
 }
 
 func (j *jwkDriver) GenerateAndPersistKeySet(ctx context.Context, set, kid, alg, use string) (*jose.JSONWebKeySet, error) {
