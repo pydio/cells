@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2022. Abstrium SAS <team (at) pydio.com>
+ * Copyright (c) 2024. Abstrium SAS <team (at) pydio.com>
  * This file is part of Pydio Cells.
  *
  * Pydio Cells is free software: you can redistribute it and/or modify
@@ -23,11 +23,9 @@ package manager
 import (
 	"context"
 	"fmt"
-	"io"
 	"os"
 	"strconv"
 	"strings"
-	"text/template"
 	"time"
 
 	"github.com/bep/debounce"
@@ -63,9 +61,6 @@ const (
 )
 
 var (
-	//go:embed config.yaml
-	defaultTemplate string
-
 	node = util.CreateNode()
 )
 
@@ -225,78 +220,6 @@ func NewManager(ctx context.Context, namespace string, logger log.ZapLogger) (Ma
 	return m, nil
 }
 
-func reset(conf config.Store, store config.Store) error {
-	tmpl := defaultTemplate
-
-	// Then generate the new template based on the config
-	if file := runtime.GetString("file"); file != "" {
-		f, err := os.Open(file)
-		if err != nil {
-			return err
-		}
-		b, err := io.ReadAll(f)
-		if err != nil {
-			return err
-		}
-		tmpl = string(b)
-	} else if yaml := runtime.GetString("yaml"); yaml != "" {
-		tmpl = yaml
-	}
-
-	t, err := template.New("context").Funcs(map[string]any{
-		"getServiceDataDir": runtime.MustServiceDataDir,
-	}).Delims("{{{{", "}}}}").Parse(tmpl)
-	if err != nil {
-		return err
-	}
-
-	var b strings.Builder
-
-	r := runtime.GetRuntime()
-	if err := t.Execute(&b, struct {
-		ConfigURL             string
-		RegistryURL           string
-		BrokerURL             string
-		CacheURL              string
-		BindHost              string
-		AdvertiseHost         string
-		DiscoveryPort         string
-		FrontendPort          string
-		ApplicationWorkingDir string
-		ApplicationDataDir    string
-		ApplicationLogsDir    string
-		ServiceDataDir        func(string) string
-		Config                config.Store
-	}{
-		ConfigURL:             runtime.ConfigURL(),
-		RegistryURL:           runtime.RegistryURL(),
-		BrokerURL:             runtime.BrokerURL(),
-		CacheURL:              runtime.CacheURL(""),
-		Config:                conf,
-		BindHost:              r.GetString(runtime.KeyBindHost),
-		AdvertiseHost:         r.GetString(runtime.KeyBindHost),
-		DiscoveryPort:         r.GetString(runtime.KeyGrpcDiscoveryPort),
-		FrontendPort:          r.GetString(runtime.KeyHttpPort),
-		ApplicationWorkingDir: runtime.ApplicationWorkingDir(),
-		ApplicationDataDir:    runtime.ApplicationWorkingDir(runtime.ApplicationDirData),
-		ApplicationLogsDir:    runtime.ApplicationWorkingDir(runtime.ApplicationDirLogs),
-	}); err != nil {
-		return err
-	}
-
-	store.Set([]byte(b.String()))
-
-	for _, pair := range runtime.GetStringSlice(runtime.KeySet) {
-		kv := strings.SplitN(pair, "=", 2)
-		if len(kv) != 2 {
-			return nil
-		}
-		store.Val(kv[0]).Set(kv[1])
-	}
-
-	return nil
-}
-
 func (m *manager) Context() context.Context {
 	return m.ctx
 }
@@ -350,12 +273,8 @@ func (m *manager) GetStorage(ctx context.Context, name string, out any) error {
 }
 
 func (m *manager) initConnections() error {
-	store, err := config.OpenStore(m.ctx, "mem://?encode=yaml")
+	store, err := loadBootstrap(m.ctx)
 	if err != nil {
-		return err
-	}
-
-	if err := reset(nil, store); err != nil {
 		return err
 	}
 
@@ -367,6 +286,7 @@ func (m *manager) initConnections() error {
 			fmt.Println("initConnections - cannot open storage with uri "+uri, err)
 			continue
 		}
+		fmt.Println("initConnections - opened storage with uri " + uri)
 
 		if conn != nil {
 			registry.NewMetaWrapper(m.localRegistry, func(meta map[string]string) {
@@ -377,7 +297,7 @@ func (m *manager) initConnections() error {
 	}
 
 	runtime.Register(m.ns, func(ctx context.Context) {
-		storages, err := m.localRegistry.List(registry.WithType(pb.ItemType_STORAGE))
+		storageItems, err := m.localRegistry.List(registry.WithType(pb.ItemType_STORAGE))
 		if err != nil {
 			return
 		}
@@ -395,11 +315,11 @@ func (m *manager) initConnections() error {
 			}
 
 			for name, stores := range namedStores {
-				for _, store := range stores {
-					for _, storage := range storages {
-						if store["type"] == storage.Name() {
-							store["name"] = name
-							m.localRegistry.RegisterEdge(ss.ID(), storage.ID(), "storage", store)
+				for _, st := range stores {
+					for _, item := range storageItems {
+						if st["type"] == item.Name() {
+							st["name"] = name
+							_, _ = m.localRegistry.RegisterEdge(ss.ID(), item.ID(), "storage", st)
 						}
 					}
 				}
@@ -412,20 +332,15 @@ func (m *manager) initConnections() error {
 
 func (m *manager) ServeAll(oo ...server.ServeOption) error {
 
-	store, err := config.OpenStore(m.ctx, "mem://?encode=yaml")
+	bootstrap, err := loadBootstrap(m.ctx)
 	if err != nil {
 		return err
 	}
 
 	if len(runtime.GetStringSlice(runtime.KeyArgTags)) == 0 {
 		cmds := make(map[string]*fork.Process)
-
-		if err := reset(nil, store); err != nil {
-			return err
-		}
-
 		go func() {
-			w, err := store.Watch(configx.WithPath("processes", "*"), configx.WithChangesOnly())
+			w, err := bootstrap.Watch(configx.WithPath("processes", "*"), configx.WithChangesOnly())
 			if err != nil {
 				return
 			}
@@ -438,7 +353,7 @@ func (m *manager) ServeAll(oo ...server.ServeOption) error {
 
 				create := diff.(configx.Values).Val("create", "processes")
 				update := diff.(configx.Values).Val("update", "processes")
-				delete := diff.(configx.Values).Val("delete", "processes")
+				deletes := diff.(configx.Values).Val("delete", "processes")
 
 				var processesToStart, processesToStop []string
 
@@ -449,7 +364,7 @@ func (m *manager) ServeAll(oo ...server.ServeOption) error {
 					processesToStop = append(processesToStop, name)
 					processesToStart = append(processesToStart, name)
 				}
-				for name := range delete.Map() {
+				for name := range deletes.Map() {
 					processesToStop = append(processesToStop, name)
 				}
 
@@ -459,11 +374,11 @@ func (m *manager) ServeAll(oo ...server.ServeOption) error {
 					}
 				}
 
-				processes := store.Val("processes")
+				processes := bootstrap.Val("processes")
 
 				for _, v := range processesToStart {
 					for name := range processes.Map() {
-						process := store.Val("processes", name)
+						process := bootstrap.Val("processes", name)
 
 						if name == v {
 							connections := process.Val("connections")
@@ -544,47 +459,19 @@ func (m *manager) ServeAll(oo ...server.ServeOption) error {
 			}
 		}()
 
-		go func() {
-			r := runtime.GetRuntime()
-			conf, err := config.OpenStore(m.ctx, "grpc://"+r.GetString(runtime.KeyBindHost)+":"+r.GetString(runtime.KeyGrpcDiscoveryPort))
-			if err != nil {
-				fmt.Println("Error is ", err)
-			}
+		go bootstrap.WatchConfAndReset(m.ctx, "grpc://"+runtime.GetRuntime().GetString(runtime.KeyBindHost)+":"+runtime.GetRuntime().GetString(runtime.KeyGrpcDiscoveryPort), func(err error) {
+			fmt.Println("[bootstrap-watcher]" + err.Error())
+		})
 
-			reset(conf, store)
-
-			res, err := conf.Watch()
-			if err != nil {
-				fmt.Println("Error is there ", err)
-				return
-			}
-
-			fmt.Println("And watching")
-
-			for {
-				_, err := res.Next()
-				if err != nil {
-					return
-				}
-
-				fmt.Println("Received update here !! ")
-
-				reset(conf, store)
-			}
-		}()
 	} else {
 
-		registry.NewMetaWrapper(m.localRegistry, func(meta map[string]string) {
+		_ = registry.NewMetaWrapper(m.localRegistry, func(meta map[string]string) {
 			meta[registry.MetaTimestampKey] = fmt.Sprintf("%d", time.Now().UnixNano())
 			meta[registry.MetaStatusKey] = string(registry.StatusTransient)
 		}).Register(m.root)
 
-		if err := reset(nil, store); err != nil {
-			return err
-		}
-
 		//go func() {
-		//	w, err := store.Watch(configx.WithPath("processes", runtime.GetString(runtime.KeyName), "*"))
+		//	w, err := bootstrap.Watch(configx.WithPath("processes", runtime.GetString(runtime.KeyName), "*"))
 		//	if err != nil {
 		//		return
 		//	}
@@ -616,35 +503,9 @@ func (m *manager) ServeAll(oo ...server.ServeOption) error {
 		//	}
 		//}()
 
-		go func() {
-			r := runtime.GetRuntime()
-			conf, err := config.OpenStore(m.ctx, r.GetString(runtime.KeyConfig))
-			if err != nil {
-				fmt.Println("Error is ", err)
-				return
-			}
-
-			reset(conf, store)
-
-			res, err := conf.Watch()
-			if err != nil {
-				fmt.Println("Error is there ", err)
-				return
-			}
-
-			fmt.Println("We have an update")
-
-			for {
-				_, err := res.Next()
-				if err != nil {
-					return
-				}
-
-				fmt.Println("Received update here !! ")
-
-				reset(conf, store)
-			}
-		}()
+		go bootstrap.WatchConfAndReset(m.ctx, runtime.GetRuntime().GetString(runtime.KeyConfig), func(err error) {
+			fmt.Println("[bootstrap-watcher]" + err.Error())
+		})
 
 		m.servers = map[string]server.Server{}
 		m.services = map[string]service.Service{}

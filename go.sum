@@ -2768,6 +2768,10 @@ github.com/ory/pagination v0.0.1/go.mod h1:d1ToRROAUleriPhmb2dYbhANhhLwZ8s395m2y
 github.com/ory/x v0.0.613 h1:MHT0scH7hcrOkc3aH7qqYLzXVJkjhB0szWTwpD2lh8Q=
 github.com/ory/x v0.0.613/go.mod h1:uH065puz8neija0neqwIN3PmXXfDsB9VbZTZ20Znoos=
 github.com/ovh/go-ovh v1.4.1/go.mod h1:6bL6pPyUT7tBfI0pqOegJgRjgjuO+mOo+MyXd1EEC0M=
+github.com/palantir/pkg v1.1.0 h1:0EhrSUP8oeeh3MUvk7V/UU7WmsN1UiJNTvNj0sN9Cpo=
+github.com/palantir/pkg v1.1.0/go.mod h1:KC9srP/9ssWRxBxFCIqhUGC4Jt7OJkWRz0Iqehup1/c=
+github.com/palantir/pkg/yamlpatch v1.2.0 h1:yzcT+EhjFf7YDvSLXes1LVntzPNqHEwyFi/XeY82g28=
+github.com/palantir/pkg/yamlpatch v1.2.0/go.mod h1:6ROYcKLodUJvuvfEErAJnnULLOIWYkVPLqFN8ITmP3g=
 github.com/pascaldekloe/goe v0.0.0-20180627143212-57f6aae5913c/go.mod h1:lzWF7FIEvWOWxwDKqyGYQf6ZUaNfKdP144TG7ZOy1lc=
 github.com/pascaldekloe/goe v0.1.0/go.mod h1:lzWF7FIEvWOWxwDKqyGYQf6ZUaNfKdP144TG7ZOy1lc=
 github.com/patrickmn/go-cache v2.1.0+incompatible h1:HRMgzkcYKYpi3C8ajMPV8OFXaaRUnok+kx1WdO15EQc=

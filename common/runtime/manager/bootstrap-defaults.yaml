@@ -1,0 +1,346 @@
+#--------------------------------------------
+# Default variables
+#--------------------------------------------
+defaults:
+  bind: &bind 0.0.0.0
+  advertise: &advertise 0.0.0.0
+
+  #--------------------------------------------
+  # Default connection to runtime functions
+  #--------------------------------------------
+  connections: &connections
+    config:
+      uri: xds://default.cells.com/cells
+    registry:
+      uri: xds://default.cells.com/cells
+    broker:
+      uri: xds://default.cells.com/cells
+
+
+  #--------------------------------------------
+  # Default servers configuration
+  #--------------------------------------------
+  servers: &servers
+    grpc:
+      bind: *bind
+      advertise: *advertise
+      port: 0
+    grpc_discovery:
+      bind: *bind
+      advertise: *advertise
+      port: 0
+    http:
+      bind: *bind
+      advertise: *advertise
+      type: http
+      port: 0
+
+  #--------------------------------------------
+  # Default env configuration
+  #--------------------------------------------
+  env: &env
+    CELLS_USE_REGISTRY_SESSION: true
+    GRPC_EXPERIMENTAL_XDS_FEDERATION: true
+    GRPC_XDS_BOOTSTRAP_CONFIG: {
+      "xds_servers": [
+        {
+          "server_uri": "0.0.0.0:8030",
+          "server_features": [
+            "xds_v3"
+          ],
+          "channel_creds": [
+            {
+              "type": "insecure"
+            }
+          ]
+        }
+      ],
+      "client_default_listener_resource_name_template": "xdstp://default.cells.com/envoy.config.listener.v3.Listener/grpc/client/%s",
+      "server_listener_resource_name_template": "xdstp://default.cells.com/envoy.config.listener.v3.Listener/grpc/server/%s",
+      "node": {
+        "id": "test-id",
+        "locality": {
+          "zone": "us-central1-a"
+        }
+      },
+      "authorities": {
+        "default.cells.com": {
+          "client_listener_resource_name_template": "xdstp://default.cells.com/envoy.config.listener.v3.Listener/grpc/client/%s"
+        },
+        "sub1.cells.com": {
+          "client_listener_resource_name_template": "xdstp://sub1.cells.com/envoy.config.listener.v3.Listener/grpc/client/%s",
+          "server_listener_resource_name_template": "xdstp://sub1.cells.com/envoy.config.listener.v3.Listener/grpc/server/%s",
+          "xds_servers": [
+            {
+              "server_uri": "127.0.0.1:8130",
+              "server_features": [
+                "xds_v3"
+              ],
+              "channel_creds": [
+                {
+                  "type": "insecure"
+                }
+              ]
+            }
+          ]
+        }
+      }
+    }
+
+  #--------------------------------------------
+  # All processes
+  #--------------------------------------------
+  processes: &processes
+    discovery:
+      runtime: discovery
+      connections:
+        <<: *connections
+        config:
+          uri: file://{{{{ .ApplicationWorkingDir }}}}/pydio.json
+        registry:
+          uri: mem://?cache=shared
+        broker:
+          uri: mem://
+
+      servers:
+        <<: *servers
+        grpc:
+          port: 8030
+        http:
+          type: http
+          port: 0
+
+      env: *env
+
+      services:
+        discovery:
+        gateway:
+        frontend:
+        data:
+        scheduler:
+        auth:
+        broker:
+        idm:
+
+
+#  gateway:
+#    connections:
+#      <<: *connections
+#    env: *env
+#    services:
+#      gateway:
+#    servers:
+#      http:
+#        type: caddy
+#        port: 8080
+
+
+      #  data:
+      #    connections: *connections
+      #    servers: *servers
+      #    env: *env
+      #
+      #    services:
+      #      data:
+
+      #  idm:
+      #    connections: *connections
+      #    servers: *servers
+      #    env: *env
+      #
+      #    services:
+
+
+      #  datasource-peer:
+      #    connections: *connections
+      #    servers: *servers
+      #    env: *env
+      #
+      #    services:
+      #      datasource:
+      #        - pydio.grpc.data.objects.peer
+      #
+      #  {{ if .Config }}
+      #  {{ $objectsVal := .Config.Val "services/pydio.grpc.data.objects/sources" }}
+      #  {{ $ := .Config }}
+      #  {{ range $objectsVal.StringArray }}
+      #  {{ if or (lt (len .) 8) (ne (slice . 0 8) ("updated:")) }}
+      #  {{ if not ($.Val "services" (print "pydio.grpc.data.objects." .) "Disabled").Bool }}
+      #  objects-{{ . }}:
+      #    connections: *connections
+      #    servers: *servers
+      #    env: *env
+      #
+      #    services:
+      #      datasource:
+      #        - pydio.grpc.data.objects.{{ . }}
+      #  {{ end }}
+      #  {{ end }}
+      #  {{ end }}
+      #
+      #  {{ $indexesVal := .Config.Val "services/pydio.grpc.data.index/sources" }}
+      #  {{ $ := .Config }}
+      #  {{ range $indexesVal.StringArray }}
+      #  {{ if or (lt (len .) 8) (ne (slice . 0 8) ("updated:")) }}
+      #  {{ if not ($.Val "services" (print "pydio.grpc.data.index." .) "Disabled").Bool }}
+      #  index-{{ . }}:
+      #    #{{ if eq . "pydiods1" }}debug: true{{ end }}
+      #    connections: *connections
+      #    servers: *servers
+      #    env: *env
+      #
+      #    services:
+      #      datasource:
+      #        - pydio.grpc.data.index.{{ . }}
+      #  {{ end }}
+      #  {{ end }}
+      #  {{ end }}
+      #
+      #  {{ $syncVal := .Config.Val "services/pydio.grpc.data.sync/sources" }}
+      #  {{ $ := .Config }}
+      #  {{ range $syncVal.StringArray }}
+      #  {{ if or (lt (len .) 8) (ne (slice . 0 8) ("updated:")) }}
+      #  {{ if not ($.Val "services" (print "pydio.grpc.data.sync." .) "Disabled").Bool }}
+      #  sync-{{ . }}:
+      #    #{{ if eq . "pydiods1" }}debug: true{{ end }}
+      #    connections: *connections
+      #    servers: *servers
+      #    env: *env
+      #
+      #    services:
+      #      datasource:
+      #        - pydio.grpc.data.sync.{{ . }}
+      #  {{ end }}
+      #  {{ end }}
+      #  {{ end }}
+      #  {{ end }}
+
+  # Storages
+  storages: &storages
+    sql:
+      uri: sqlite://test.db?prefix={{ .Value "prefix" }}&policies={{ .Value "policies" }}&singular={{ .Value "singular" }}
+  #  search:
+  #    uri: mongo+indexer://localhost:24017/search
+    activities:
+      uri: boltdb://{{{{ getServiceDataDir "pydio.grpc.activity" }}}}/activities.db
+    dc_bolt:
+      uri: boltdb://{{{{ getServiceDataDir "pydio.grpc.docstore" }}}}/docstore.db
+    dc_bleve:
+      uri: bleve://{{{{ getServiceDataDir "pydio.grpc.docstore" }}}}/docstore.bleve
+    logs:
+      uri: bleve://{{{{ getServiceDataDir "pydio.grpc.logs" }}}}/syslog.bleve?mapping=log
+    jobs:
+      uri: boltdb://{{{{ getServiceDataDir "pydio.grpc.jobs" }}}}/jobs.db
+    tasklogs:
+      uri: bleve://{{{{ getServiceDataDir "pydio.grpc.jobs" }}}}/tasklogs.bleve
+  #    uri: bleve:///tmp/{{ TODOMustServiceDataDir .Value service }}.bleve?mapping={{ .Value mapping }}&rotationSize={{ .Value rotationSize }}
+  #  fifo:
+  #    uri: goq:///tmp/{{ .Value tenant }}/fifo/{{ .Value prefix }}?evictionTime={{ .evictionTime }}
+  #  user:
+  #    uri: mysql://tcp(localhost:3306)/cells-{{ .Value tenant }}?prefix={{ .Value prefix }}&shardedBy=name
+  #  redis-cache:
+  #    uri: redis://:53535/{{tenant}}
+
+  #------------------------------------
+  # All services
+  #------------------------------------
+  services: &services
+    pydio.grpc.oauth:
+      storages:
+        main:
+          - type: sql
+            prefix: oauth2_
+            singular: "true"
+    pydio.rest.frontend:
+      storages:
+        main:
+          - type: sql
+            prefix: idm_
+    pydio.grpc.search:
+      storages:
+        main:
+          - type: search
+            path: chat
+    pydio.grpc.activity:
+      storages:
+        main:
+          - type: activities
+            prefix: activities
+    pydio.grpc.docstore:
+      storages:
+        main:
+          - type: dc_bolt
+            prefix: docstore
+          - type: dc_bleve
+    pydio.grpc.role:
+      storages:
+        main:
+          - type: sql
+            prefix: idm_
+            policies: idm_role_policies
+    pydio.grpc.acl:
+      storages:
+        main:
+          - type: sql
+            prefix: idm_
+    pydio.grpc.user:
+      storages:
+        main:
+          - type: sql
+            prefix: idm_
+            policies: idm_user_policies
+    pydio.grpc.token:
+      storages:
+        main:
+          - type: sql
+            prefix: idm_
+    pydio.grpc.key:
+      storages:
+        main:
+          - type: sql
+            prefix: data_key_
+    pydio.grpc.user-key:
+      storages:
+        main:
+          - type: sql
+            prefix: idm_
+    pydio.grpc.workspace:
+      storages:
+        main:
+          - type: sql
+            prefix: idm_
+            policies: idm_workspace_policies
+    pydio.grpc.meta:
+      storages:
+        main:
+          - type: sql
+            prefix: data_
+    pydio.grpc.policy:
+      storages:
+        main:
+          - type: sql
+            prefix: ladon_
+            singular: "true"
+    pydio.grpc.user-meta:
+      storages:
+        main:
+          - type: sql
+            prefix: idm_usr_
+            policies: idm_usr_meta_policies
+    pydio.grpc.log:
+      storages:
+        main:
+          - type: logs
+            prefix: syslog
+            mapping: log
+            rotationSize: -1
+    pydio.grpc.jobs:
+      storages:
+        main:
+          - type: jobs
+            prefix: jobs
+        logs:
+          - type: tasklogs
+            prefix: tasklogs
+            mapping: log
+            rotationSize: -1

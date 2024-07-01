@@ -421,6 +421,8 @@ require (
 	github.com/ory/jsonschema/v3 v3.0.8 // indirect
 	github.com/ory/kratos-client-go v0.13.1 // indirect
 	github.com/ory/pagination v0.0.1 // indirect
+	github.com/palantir/pkg v1.1.0 // indirect
+	github.com/palantir/pkg/yamlpatch v1.2.0 // indirect
 	github.com/pelletier/go-toml v1.9.5 // indirect
 	github.com/pelletier/go-toml/v2 v2.2.2 // indirect
 	github.com/philhofer/fwd v1.1.2-0.20210722190033-5c56ac6d0bb9 // indirect
