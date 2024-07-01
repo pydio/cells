@@ -75,12 +75,18 @@ data:
     export VAULT_TOKEN=$(cat /root/.vault-token)
     export VAULT_ADDR=http://127.0.0.1:8200
 
+    if vault status; then
+      exit 0
+    fi
+
     vault operator init -n 1 -t 1 >> ${OUTPUT?}
 
-    unseal=$(cat ${OUTPUT?} | grep "Unseal Key 1:" | sed -e "s/Unseal Key 1: //g")
-    root=$(cat ${OUTPUT?} | grep "Initial Root Token:" | sed -e "s/Initial Root Token: //g")
+    if ! vault status; then
+      unseal=$(cat ${OUTPUT?} | grep "Unseal Key 1:" | sed -e "s/Unseal Key 1: //g")
+      vault operator unseal ${unseal?}
+    fi
 
-    vault operator unseal ${unseal?}
+    root=$(cat ${OUTPUT?} | grep "Initial Root Token:" | sed -e "s/Initial Root Token: //g")
 
     vault login -no-print ${root?}
 
