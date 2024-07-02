@@ -301,8 +301,7 @@ func (o *oauth2Driver) DeletePKCERequestSession(ctx context.Context, signature s
 }
 
 func (o *oauth2Driver) RevokeRefreshToken(ctx context.Context, requestID string) error {
-	r := &OAuth2RequestSQLRefresh{Request: requestID, Active: false}
-	tx := o.db.Updates(&r)
+	tx := o.db.Where(OAuth2RequestSQLRefresh{Request: requestID}).Updates(OAuth2RequestSQLRefresh{Active: false})
 	if tx.Error != nil {
 		return errors.Tag(tx.Error, OAuthRegistryError)
 	}
@@ -311,8 +310,7 @@ func (o *oauth2Driver) RevokeRefreshToken(ctx context.Context, requestID string)
 }
 
 func (o *oauth2Driver) RevokeRefreshTokenMaybeGracePeriod(ctx context.Context, requestID string, signature string) error {
-	r := &OAuth2RequestSQLRefresh{Request: requestID, Active: false}
-	tx := o.db.Updates(&r)
+	tx := o.db.Where(OAuth2RequestSQLRefresh{Request: requestID}).Updates(OAuth2RequestSQLRefresh{Active: false})
 	if tx.Error != nil {
 		return errors.Tag(tx.Error, OAuthRegistryError)
 	}
