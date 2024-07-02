@@ -30,15 +30,20 @@ import (
 
 	"github.com/pydio/cells/v4/broker/activity"
 	"github.com/pydio/cells/v4/broker/activity/render"
+	"github.com/pydio/cells/v4/common"
+	"github.com/pydio/cells/v4/common/client/commons"
+	"github.com/pydio/cells/v4/common/client/commons/docstorec"
 	"github.com/pydio/cells/v4/common/client/commons/treec"
 	"github.com/pydio/cells/v4/common/config"
 	"github.com/pydio/cells/v4/common/errors"
 	"github.com/pydio/cells/v4/common/permissions"
 	activity2 "github.com/pydio/cells/v4/common/proto/activity"
+	"github.com/pydio/cells/v4/common/proto/docstore"
 	"github.com/pydio/cells/v4/common/proto/tree"
 	"github.com/pydio/cells/v4/common/runtime/manager"
 	"github.com/pydio/cells/v4/common/telemetry/log"
 	"github.com/pydio/cells/v4/common/utils/i18n/languages"
+	json "github.com/pydio/cells/v4/common/utils/jsonx"
 	"github.com/pydio/cells/v4/common/utils/uuid"
 	"github.com/pydio/cells/v4/data/versions"
 )
@@ -276,4 +281,39 @@ func (h *Handler) PruneVersions(ctx context.Context, request *tree.PruneVersions
 	log.Logger(ctx).Debug("Responding to Prune with versions", zap.Int("versions", len(resp.DeletedVersions)))
 
 	return resp, nil
+}
+
+func (h *Handler) ListVersioningPolicies(req *tree.ListVersioningPoliciesRequest, streamer tree.NodeVersioner_ListVersioningPoliciesServer) error {
+	ctx := streamer.Context()
+	// Trigger Migration
+	_, _ = manager.Resolve[versions.DAO](ctx)
+
+	dc := docstorec.DocStoreClient(ctx)
+	if req.PolicyID != "" {
+		// Find specific policy in docstore
+		if r, e := dc.GetDocument(ctx, &docstore.GetDocumentRequest{
+			StoreID:    common.DocStoreIdVersioningPolicies,
+			DocumentID: req.PolicyID,
+		}); e != nil {
+			return e // Maybe a Not Found
+		} else {
+			var policy *tree.VersioningPolicy
+			if er := json.Unmarshal([]byte(r.Document.Data), &policy); er != nil {
+				return er
+			}
+			return streamer.Send(policy)
+		}
+	} else {
+		// Stream policies from docstore
+		docs, er := dc.ListDocuments(ctx, &docstore.ListDocumentsRequest{
+			StoreID: common.DocStoreIdVersioningPolicies,
+		})
+		return commons.ForEach(docs, er, func(r *docstore.ListDocumentsResponse) error {
+			var policy *tree.VersioningPolicy
+			if err := json.Unmarshal([]byte(r.GetDocument().GetData()), &policy); err != nil {
+				return err
+			}
+			return streamer.Send(policy)
+		})
+	}
 }

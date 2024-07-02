@@ -25,12 +25,10 @@ import (
 
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/client/commons"
-	"github.com/pydio/cells/v4/common/client/commons/docstorec"
+	"github.com/pydio/cells/v4/common/client/grpc"
 	"github.com/pydio/cells/v4/common/middleware"
-	"github.com/pydio/cells/v4/common/proto/docstore"
 	"github.com/pydio/cells/v4/common/proto/rest"
 	"github.com/pydio/cells/v4/common/proto/tree"
-	json "github.com/pydio/cells/v4/common/utils/jsonx"
 	"github.com/pydio/cells/v4/discovery/config/lang"
 )
 
@@ -42,16 +40,10 @@ VERSIONING POLICIES MANAGEMENT
 func (s *Handler) ListVersioningPolicies(req *restful.Request, resp *restful.Response) error {
 	T := lang.Bundle().T(middleware.DetectedLanguages(req.Request.Context())...)
 	ctx := req.Request.Context()
-	dc := docstorec.DocStoreClient(ctx)
+	vc := tree.NewNodeVersionerClient(grpc.ResolveConn(ctx, common.ServiceVersions))
+	pols, er := vc.ListVersioningPolicies(ctx, &tree.ListVersioningPoliciesRequest{})
 	response := &rest.VersioningPolicyCollection{}
-	docs, er := dc.ListDocuments(ctx, &docstore.ListDocumentsRequest{
-		StoreID: common.DocStoreIdVersioningPolicies,
-	})
-	if er = commons.ForEach(docs, er, func(r *docstore.ListDocumentsResponse) error {
-		var policy *tree.VersioningPolicy
-		if err := json.Unmarshal([]byte(r.GetDocument().GetData()), &policy); err != nil {
-			return err
-		}
+	if er = commons.ForEach(pols, er, func(policy *tree.VersioningPolicy) error {
 		policy.Name = T(policy.Name)
 		policy.Description = T(policy.Description)
 		response.Policies = append(response.Policies, policy)
@@ -67,20 +59,12 @@ func (s *Handler) GetVersioningPolicy(req *restful.Request, resp *restful.Respon
 	T := lang.Bundle().T(middleware.DetectedLanguages(req.Request.Context())...)
 	policyId := req.PathParameter("Uuid")
 	ctx := req.Request.Context()
-	dc := docstorec.DocStoreClient(ctx)
-	if r, e := dc.GetDocument(ctx, &docstore.GetDocumentRequest{
-		StoreID:    common.DocStoreIdVersioningPolicies,
-		DocumentID: policyId,
-	}); e != nil {
-		return e
-	} else {
-		var policy *tree.VersioningPolicy
-		if er := json.Unmarshal([]byte(r.Document.Data), &policy); er == nil {
-			policy.Name = T(policy.Name)
-			policy.Description = T(policy.Description)
-			return resp.WriteEntity(policy)
-		} else {
-			return er
-		}
-	}
+	vc := tree.NewNodeVersionerClient(grpc.ResolveConn(ctx, common.ServiceVersions))
+	pols, er := vc.ListVersioningPolicies(ctx, &tree.ListVersioningPoliciesRequest{PolicyID: policyId})
+	return commons.ForEach(pols, er, func(policy *tree.VersioningPolicy) error {
+		policy.Name = T(policy.Name)
+		policy.Description = T(policy.Description)
+		return resp.WriteEntity(policy)
+	})
+
 }

@@ -1417,6 +1417,7 @@ type NodeVersionerClient interface {
 	ListVersions(ctx context.Context, in *ListVersionsRequest, opts ...grpc.CallOption) (NodeVersioner_ListVersionsClient, error)
 	HeadVersion(ctx context.Context, in *HeadVersionRequest, opts ...grpc.CallOption) (*HeadVersionResponse, error)
 	PruneVersions(ctx context.Context, in *PruneVersionsRequest, opts ...grpc.CallOption) (*PruneVersionsResponse, error)
+	ListVersioningPolicies(ctx context.Context, in *ListVersioningPoliciesRequest, opts ...grpc.CallOption) (NodeVersioner_ListVersioningPoliciesClient, error)
 }
 
 type nodeVersionerClient struct {
@@ -1495,6 +1496,38 @@ func (c *nodeVersionerClient) PruneVersions(ctx context.Context, in *PruneVersio
 	return out, nil
 }
 
+func (c *nodeVersionerClient) ListVersioningPolicies(ctx context.Context, in *ListVersioningPoliciesRequest, opts ...grpc.CallOption) (NodeVersioner_ListVersioningPoliciesClient, error) {
+	stream, err := c.cc.NewStream(ctx, &NodeVersioner_ServiceDesc.Streams[1], "/tree.NodeVersioner/ListVersioningPolicies", opts...)
+	if err != nil {
+		return nil, err
+	}
+	x := &nodeVersionerListVersioningPoliciesClient{stream}
+	if err := x.ClientStream.SendMsg(in); err != nil {
+		return nil, err
+	}
+	if err := x.ClientStream.CloseSend(); err != nil {
+		return nil, err
+	}
+	return x, nil
+}
+
+type NodeVersioner_ListVersioningPoliciesClient interface {
+	Recv() (*VersioningPolicy, error)
+	grpc.ClientStream
+}
+
+type nodeVersionerListVersioningPoliciesClient struct {
+	grpc.ClientStream
+}
+
+func (x *nodeVersionerListVersioningPoliciesClient) Recv() (*VersioningPolicy, error) {
+	m := new(VersioningPolicy)
+	if err := x.ClientStream.RecvMsg(m); err != nil {
+		return nil, err
+	}
+	return m, nil
+}
+
 // NodeVersionerServer is the server API for NodeVersioner service.
 // All implementations must embed UnimplementedNodeVersionerServer
 // for forward compatibility
@@ -1504,6 +1537,7 @@ type NodeVersionerServer interface {
 	ListVersions(*ListVersionsRequest, NodeVersioner_ListVersionsServer) error
 	HeadVersion(context.Context, *HeadVersionRequest) (*HeadVersionResponse, error)
 	PruneVersions(context.Context, *PruneVersionsRequest) (*PruneVersionsResponse, error)
+	ListVersioningPolicies(*ListVersioningPoliciesRequest, NodeVersioner_ListVersioningPoliciesServer) error
 	mustEmbedUnimplementedNodeVersionerServer()
 }
 
@@ -1525,6 +1559,9 @@ func (UnimplementedNodeVersionerServer) HeadVersion(context.Context, *HeadVersio
 }
 func (UnimplementedNodeVersionerServer) PruneVersions(context.Context, *PruneVersionsRequest) (*PruneVersionsResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method PruneVersions not implemented")
+}
+func (UnimplementedNodeVersionerServer) ListVersioningPolicies(*ListVersioningPoliciesRequest, NodeVersioner_ListVersioningPoliciesServer) error {
+	return status.Errorf(codes.Unimplemented, "method ListVersioningPolicies not implemented")
 }
 func (UnimplementedNodeVersionerServer) mustEmbedUnimplementedNodeVersionerServer() {}
 
@@ -1632,6 +1669,27 @@ func _NodeVersioner_PruneVersions_Handler(srv interface{}, ctx context.Context, 
 	return interceptor(ctx, in, info, handler)
 }
 
+func _NodeVersioner_ListVersioningPolicies_Handler(srv interface{}, stream grpc.ServerStream) error {
+	m := new(ListVersioningPoliciesRequest)
+	if err := stream.RecvMsg(m); err != nil {
+		return err
+	}
+	return srv.(NodeVersionerServer).ListVersioningPolicies(m, &nodeVersionerListVersioningPoliciesServer{stream})
+}
+
+type NodeVersioner_ListVersioningPoliciesServer interface {
+	Send(*VersioningPolicy) error
+	grpc.ServerStream
+}
+
+type nodeVersionerListVersioningPoliciesServer struct {
+	grpc.ServerStream
+}
+
+func (x *nodeVersionerListVersioningPoliciesServer) Send(m *VersioningPolicy) error {
+	return x.ServerStream.SendMsg(m)
+}
+
 // NodeVersioner_ServiceDesc is the grpc.ServiceDesc for NodeVersioner service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -1660,6 +1718,11 @@ var NodeVersioner_ServiceDesc = grpc.ServiceDesc{
 		{
 			StreamName:    "ListVersions",
 			Handler:       _NodeVersioner_ListVersions_Handler,
+			ServerStreams: true,
+		},
+		{
+			StreamName:    "ListVersioningPolicies",
+			Handler:       _NodeVersioner_ListVersioningPolicies_Handler,
 			ServerStreams: true,
 		},
 	},

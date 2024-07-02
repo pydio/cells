@@ -25,15 +25,19 @@ import (
 	"context"
 
 	"google.golang.org/grpc"
+	"gorm.io/gorm"
 
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/broker"
+	"github.com/pydio/cells/v4/common/errors"
 	meta2 "github.com/pydio/cells/v4/common/nodes/meta"
 	"github.com/pydio/cells/v4/common/proto/idm"
+	service2 "github.com/pydio/cells/v4/common/proto/service"
 	"github.com/pydio/cells/v4/common/proto/tree"
 	"github.com/pydio/cells/v4/common/runtime"
 	"github.com/pydio/cells/v4/common/runtime/manager"
 	"github.com/pydio/cells/v4/common/service"
+	"github.com/pydio/cells/v4/common/telemetry/log"
 	"github.com/pydio/cells/v4/idm/meta"
 	grpc2 "github.com/pydio/cells/v4/idm/meta/grpc"
 )
@@ -61,8 +65,10 @@ func init() {
 						if err != nil {
 							return err
 						}
-
-						return dao.Migrate(ctx)
+						if err = dao.Migrate(ctx); err != nil {
+							return err
+						}
+						return defaultMetas(ctx, dao)
 					},
 				},
 			}),
@@ -90,28 +96,24 @@ func init() {
 	})
 }
 
-//func defaultMetas(ctx context.Context) error {
-//	log.Logger(ctx).Info("Inserting default namespace for metadata")
-//	dao := service.DAOFromContext[meta.DAO](ctx)
-//
-//	err := dao.GetNamespaceDao().Add(&idm.UserMetaNamespace{
-//		Namespace:      "usermeta-tags",
-//		Label:          "Tags",
-//		Indexable:      true,
-//		JsonDefinition: "{\"type\":\"tags\"}",
-//		Policies: []*service2.ResourcePolicy{
-//			{Action: service2.ResourcePolicyAction_READ, Subject: "*", Effect: service2.ResourcePolicy_allow},
-//			{Action: service2.ResourcePolicyAction_WRITE, Subject: "*", Effect: service2.ResourcePolicy_allow},
-//		},
-//	})
-//
-//	me, ok := err.(*mysql.MySQLError)
-//	if !ok {
-//		return err
-//	}
-//	if me.Number == 1062 {
-//		// This is a duplicate error, we ignore it
-//		return nil
-//	}
-//	return err
-//}
+func defaultMetas(ctx context.Context, dao meta.DAO) error {
+	err := dao.GetNamespaceDao().Add(ctx, &idm.UserMetaNamespace{
+		Namespace:      "usermeta-tags",
+		Label:          "Tags",
+		Indexable:      true,
+		JsonDefinition: "{\"type\":\"tags\"}",
+		Policies: []*service2.ResourcePolicy{
+			{Action: service2.ResourcePolicyAction_READ, Subject: "*", Effect: service2.ResourcePolicy_allow},
+			{Action: service2.ResourcePolicyAction_WRITE, Subject: "*", Effect: service2.ResourcePolicy_allow},
+		},
+	})
+	if err == nil {
+		log.Logger(ctx).Info("Inserted default namespace for metadata")
+		return nil
+	}
+	if errors.Is(err, gorm.ErrDuplicatedKey) {
+		// This is a duplicate error, we ignore it
+		return nil
+	}
+	return err
+}

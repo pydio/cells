@@ -273,6 +273,16 @@ service NodeVersioner{
     rpc ListVersions(ListVersionsRequest) returns (stream ListVersionsResponse) {};
     rpc HeadVersion(HeadVersionRequest) returns (HeadVersionResponse) {};
     rpc PruneVersions(PruneVersionsRequest) returns (PruneVersionsResponse) {};
+    rpc ListVersioningPolicies(ListVersioningPoliciesRequest) returns (stream VersioningPolicy) {};
+}
+
+message ListVersioningPoliciesRequest {
+    // Limit list to one specific policy
+    string PolicyID = 1;
+    // Limit the number of results
+    int64 Limit = 4;
+    // Start listing at a given position
+    int64 Offset = 5;
 }
 
 message CreateVersionRequest{
