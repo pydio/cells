@@ -85,11 +85,17 @@ data:
       EXIT_STATUS=$?
 
       if echo \"$VAULT_STATUS\" | grep '"initialized": false'; then
-        vault operator init -n 1 -t 1 >> ${OUTPUT?}
-        root=$(cat ${OUTPUT?} | grep "Initial Root Token:" | sed -e "s/Initial Root Token: //g")
-        unseal=$(cat ${OUTPUT?} | grep "Unseal Key 1:" | sed -e "s/Unseal Key 1: //g")
+        if echo \"$VAULT_STATUS\" | grep '"type": "shamir"'; then
+          vault operator init -n 1 -t 1 >> ${OUTPUT?}
 
-        vault operator unseal ${unseal?}
+          unseal=$(cat ${OUTPUT?} | grep "Unseal Key 1:" | sed -e "s/Unseal Key 1: //g")
+          vault operator unseal ${unseal?}
+        else
+          vault operator init >> ${OUTPUT?}
+        fi
+
+        root=$(cat ${OUTPUT?} | grep "Initial Root Token:" | sed -e "s/Initial Root Token: //g")
+
         vault login -no-print ${root?}
       
         vault secrets enable -version=2 -path=secret kv
