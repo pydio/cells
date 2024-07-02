@@ -180,7 +180,7 @@ func (b *debounce) process() {
 func (b *debounce) processBatch(bb []broker.Message) {
 	defer func() {
 		if r := recover(); r != nil {
-			fmt.Println("Recovered in debouncer ", r)
+			log.Logger(b.globalCtx).Error("Recovered in debouncer", zap.Any("r", r), zap.Stack("stack"))
 		}
 	}()
 

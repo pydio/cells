@@ -26,6 +26,8 @@ import (
 	"fmt"
 
 	keyring "github.com/zalando/go-keyring"
+
+	"github.com/pydio/cells/v4/common/utils/propagator"
 )
 
 type keyringKey struct{}
@@ -33,6 +35,10 @@ type keyringKey struct{}
 var (
 	KeyringContextKey = keyringKey{}
 )
+
+func init() {
+	propagator.RegisterKeyInjector[Keyring](KeyringContextKey)
+}
 
 type Keyring interface {
 	Get(string, string) (string, error)

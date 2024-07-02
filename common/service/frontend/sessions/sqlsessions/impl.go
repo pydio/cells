@@ -3,7 +3,6 @@ package sqlsessions
 import (
 	"context"
 	"encoding/gob"
-	"errors"
 	"fmt"
 	"net/http"
 	"net/url"
@@ -17,6 +16,7 @@ import (
 	"gorm.io/gorm/clause"
 	"gorm.io/gorm/schema"
 
+	"github.com/pydio/cells/v4/common/errors"
 	"github.com/pydio/cells/v4/common/service/frontend/sessions/utils"
 	"github.com/pydio/cells/v4/common/telemetry/log"
 	"github.com/pydio/cells/v4/common/utils/configx"
@@ -118,7 +118,7 @@ func (h *Impl) New(r *http.Request, name string) (*sessions.Session, error) {
 	if cook, errCookie := r.Cookie(name); errCookie == nil {
 		err = securecookie.DecodeMulti(name, cook.Value, &session.ID, h.Codecs...)
 		if err == nil {
-			err = h.load(session)
+			err = h.load(r.Context(), session)
 			if err == nil {
 				session.IsNew = false
 			} else {
@@ -285,7 +285,7 @@ func (h *Impl) update(u *url.URL, session *sessions.Session) error {
 	return nil
 }
 
-func (h *Impl) load(session *sessions.Session) error {
+func (h *Impl) load(ctx context.Context, session *sessions.Session) error {
 
 	var sess SessionRow
 	tx := h.DB.Where(&SessionRow{ID: session.ID}).First(&sess)
@@ -294,12 +294,11 @@ func (h *Impl) load(session *sessions.Session) error {
 	}
 
 	if sess.ExpiresOn.Sub(time.Now()) < 0 {
-		log.Logger(context.Background()).Info(fmt.Sprintf("Session expired on %s, but it is %s now.", sess.ExpiresOn, time.Now()))
-		return errors.New("Session expired")
+		log.Logger(ctx).Info(fmt.Sprintf("Session expired on %s, but it is %s now.", sess.ExpiresOn, time.Now()))
+		return errors.New("session expired")
 	}
 
-	err := securecookie.DecodeMulti(session.Name(), sess.Data, &session.Values, h.Codecs...)
-	if err != nil {
+	if err := securecookie.DecodeMulti(session.Name(), sess.Data, &session.Values, h.Codecs...); err != nil {
 		return err
 	}
 	session.Values["created_on"] = sess.CreatedOn
