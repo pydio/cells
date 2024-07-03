@@ -29,6 +29,7 @@ import (
 	index "github.com/blevesearch/bleve_index_api"
 	"go.uber.org/zap"
 
+	"github.com/pydio/cells/v4/common/errors"
 	proto "github.com/pydio/cells/v4/common/proto/docstore"
 	"github.com/pydio/cells/v4/common/storage/boltdb"
 	"github.com/pydio/cells/v4/common/storage/indexer"
@@ -71,7 +72,7 @@ func (i IndexableDoc) IndexID() string {
 }
 
 func NewBleveEngine(db boltdb.DB, index indexer.Indexer) *BleveServer {
-	bStore := &BoltStore{db: db}
+	bStore := &BoltStore{DB: db}
 
 	return &BleveServer{
 		BoltStore: bStore,
@@ -243,4 +244,15 @@ func (s *BleveServer) escapeMetaValue(value string) string {
 	r := strings.NewReplacer("-", "\\-", "~", "\\~", "*", "\\*", ":", "\\:", "/", "\\/", " ", "\\ ")
 	return r.Replace(value)
 
+}
+
+func (s *BleveServer) CloseAndDrop(ctx context.Context) error {
+	var errs []error
+	if er := s.Engine.CloseAndDrop(ctx); er != nil {
+		errs = append(errs, er)
+	}
+	if er := s.BoltStore.CloseAndDrop(ctx); er != nil {
+		errs = append(errs, er)
+	}
+	return errors.Join(errs...)
 }

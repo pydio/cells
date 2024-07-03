@@ -20,6 +20,7 @@ import (
 	"github.com/pydio/cells/v4/common/proto/tree"
 	"github.com/pydio/cells/v4/common/storage"
 	bleve2 "github.com/pydio/cells/v4/common/storage/bleve"
+	"github.com/pydio/cells/v4/common/storage/indexer"
 	"github.com/pydio/cells/v4/common/utils/configx"
 	"github.com/pydio/cells/v4/data/search"
 	"github.com/pydio/cells/v4/data/search/dao/commons"
@@ -76,6 +77,11 @@ func init() {
 func NewBleveDAO(ctx context.Context, v *bleve2.Indexer) search.Engine {
 	v.SetCodex(&Codec{})
 	return commons.NewServer(ctx, v, createQueryCodec)
+}
+
+func FastBleveDAO(ctx context.Context, v *bleve2.Indexer) search.Engine {
+	v.SetCodex(&Codec{})
+	return commons.NewServer(ctx, v, createQueryCodec, indexer.WithExpire(10*time.Millisecond))
 }
 
 type Codec struct {

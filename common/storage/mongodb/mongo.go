@@ -138,3 +138,8 @@ func (d *Database) CreateCollection(ctx context.Context, name string, opts ...*o
 	}
 	return d.Database.CreateCollection(ctx, name, opts...)
 }
+
+// CloseAndDrop implements storage.Dropper interface
+func (d *Database) CloseAndDrop(ctx context.Context) error {
+	panic("implement me")
+}

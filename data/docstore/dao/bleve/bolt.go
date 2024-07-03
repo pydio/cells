@@ -41,7 +41,7 @@ var (
 
 type BoltStore struct {
 	// Internal DB
-	db boltdb.DB
+	boltdb.DB
 	// Path to the DB file
 	DbPath string
 }
@@ -63,7 +63,7 @@ func (s *BoltStore) GetStore(tx *bolt.Tx, storeID string, mode string) (*bolt.Bu
 
 func (s *BoltStore) PutDocument(ctx context.Context, storeID string, doc *docstore.Document) error {
 
-	err := s.db.Update(func(tx *bolt.Tx) error {
+	err := s.Update(func(tx *bolt.Tx) error {
 
 		log.Logger(ctx).Debug("Bolt:PutDocument", zap.String("storeId", storeID), zap.Any("doc", doc))
 		bucket, err := s.GetStore(tx, storeID, "write")
@@ -84,7 +84,7 @@ func (s *BoltStore) PutDocument(ctx context.Context, storeID string, doc *docsto
 func (s *BoltStore) GetDocument(ctx context.Context, storeID string, docId string) (*docstore.Document, error) {
 
 	j := &docstore.Document{}
-	e := s.db.View(func(tx *bolt.Tx) error {
+	e := s.View(func(tx *bolt.Tx) error {
 
 		bucket, err := s.GetStore(tx, storeID, "read")
 		if err != nil {
@@ -110,7 +110,7 @@ func (s *BoltStore) GetDocument(ctx context.Context, storeID string, docId strin
 
 func (s *BoltStore) DeleteDocument(storeID string, docID string) error {
 
-	return s.db.Update(func(tx *bolt.Tx) error {
+	return s.Update(func(tx *bolt.Tx) error {
 
 		bucket, err := s.GetStore(tx, storeID, "write")
 		if err != nil {
@@ -128,7 +128,7 @@ func (s *BoltStore) ListDocuments(storeID string, query *docstore.DocumentQuery)
 
 	go func() {
 
-		s.db.View(func(tx *bolt.Tx) error {
+		s.View(func(tx *bolt.Tx) error {
 			defer func() {
 				close(res)
 			}()
@@ -160,7 +160,7 @@ func (s *BoltStore) ListDocuments(storeID string, query *docstore.DocumentQuery)
 // ListStores list all buckets
 func (s *BoltStore) ListStores(context.Context) ([]string, error) {
 	var stores []string
-	e := s.db.View(func(tx *bolt.Tx) error {
+	e := s.View(func(tx *bolt.Tx) error {
 		return tx.ForEach(func(name []byte, b *bolt.Bucket) error {
 			n := string(name)
 			if strings.HasPrefix(n, storeBucketString) {

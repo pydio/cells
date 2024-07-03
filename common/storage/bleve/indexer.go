@@ -234,6 +234,30 @@ func (s *Indexer) Close(ctx context.Context) error {
 	return errors.Join(errs...)
 }
 
+// CloseAndDrop implements storage.Dropper
+func (s *Indexer) CloseAndDrop(ctx context.Context) error {
+	if s.closed {
+		return nil
+	}
+	s.closed = true
+	var errs []error
+	// Copy indexes refs and close everything
+	var indexesPaths []string
+	for _, i := range s.indexes {
+		indexesPaths = append(indexesPaths, i.Name())
+	}
+	if er := s.Close(ctx); er != nil {
+		return er
+	}
+	for _, ip := range indexesPaths {
+		fmt.Println("Removing Bleve Index", ip)
+		if err := os.RemoveAll(ip); err != nil {
+			errs = append(errs, err)
+		}
+	}
+	return errors.Join(errs...)
+}
+
 func (s *Indexer) InsertOne(ctx context.Context, data any) error {
 	var msg any
 	if s.codec != nil {

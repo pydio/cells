@@ -31,33 +31,33 @@ import (
 )
 
 type IndexRepository struct {
-	idx indexer.Indexer
+	indexer.Indexer
 }
 
 func (s *IndexRepository) Init(ctx context.Context, conf configx.Values) error {
-	return s.idx.Init(ctx, conf)
+	return s.Indexer.Init(ctx, conf)
 }
 
 func NewIndexRepository(idx indexer.Indexer) MessageRepository {
 	return &IndexRepository{
-		idx: idx,
+		Indexer: idx,
 	}
 }
 
 // PutLog  adds a new LogMessage in the syslog index.
 func (s *IndexRepository) PutLog(ctx context.Context, line *log.Log) error {
-	return s.idx.InsertOne(ctx, line)
+	return s.Indexer.InsertOne(ctx, line)
 }
 
 func (s *IndexRepository) NewBatch(ctx context.Context, options ...indexer.BatchOption) (indexer.Batch, error) {
-	return s.idx.NewBatch(ctx, options...)
+	return s.Indexer.NewBatch(ctx, options...)
 }
 
 // ListLogs performs a query in the bleve index, based on the passed query string.
 // It returns results as a stream of log.ListLogResponse for each corresponding hit.
 // Results are ordered by descending timestamp rather than by score.
 func (s *IndexRepository) ListLogs(ctx context.Context, str string, page int32, size int32) (chan log.ListLogResponse, error) {
-	ch, er := s.idx.FindMany(ctx, str, page*size, size, "", false, nil)
+	ch, er := s.Indexer.FindMany(ctx, str, page*size, size, "", false, nil)
 	if er != nil {
 		return nil, er
 	}
@@ -73,7 +73,7 @@ func (s *IndexRepository) ListLogs(ctx context.Context, str string, page int32, 
 
 // DeleteLogs truncate logs based on a search query
 func (s *IndexRepository) DeleteLogs(ctx context.Context, query string) (int64, error) {
-	c, er := s.idx.DeleteMany(ctx, query)
+	c, er := s.Indexer.DeleteMany(ctx, query)
 	if er == nil {
 		return int64(c), nil
 	} else {
@@ -87,23 +87,23 @@ func (s *IndexRepository) AggregatedLogs(_ context.Context, _ string, _ string, 
 }
 
 func (s *IndexRepository) Resync(ctx context.Context, logger log2.ZapLogger) error {
-	return s.idx.Resync(ctx, func(s string) {
+	return s.Indexer.Resync(ctx, func(s string) {
 		logTaskInfo(logger, s, "info")
 	})
 }
 
 func (s *IndexRepository) Truncate(ctx context.Context, max int64, logger log2.ZapLogger) error {
-	return s.idx.Truncate(ctx, max, func(s string) {
+	return s.Indexer.Truncate(ctx, max, func(s string) {
 		logTaskInfo(logger, s, "info")
 	})
 }
 
 func (s *IndexRepository) Close(ctx context.Context) error {
-	return s.idx.Close(ctx)
+	return s.Indexer.Close(ctx)
 }
 
 func (s *IndexRepository) Stats(ctx context.Context) map[string]interface{} {
-	return s.idx.Stats(ctx)
+	return s.Indexer.Stats(ctx)
 }
 
 func logTaskInfo(l log2.ZapLogger, msg string, level string) {

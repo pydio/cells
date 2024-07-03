@@ -46,12 +46,12 @@ type Server struct {
 	queryCodecProvider QueryCodecProvider
 }
 
-func NewServer(ctx context.Context, idx indexer.Indexer, provider QueryCodecProvider) *Server {
+func NewServer(ctx context.Context, idx indexer.Indexer, provider QueryCodecProvider, batchOptions ...indexer.BatchOption) *Server {
 
 	server := &Server{
 		queryCodecProvider: provider,
 		Indexer:            idx,
-		batch:              NewBatch(ctx, idx, meta.NewNsProvider(ctx), BatchOptions{}),
+		batch:              NewBatch(ctx, idx, meta.NewNsProvider(ctx), BatchOptions{}, batchOptions...),
 	}
 
 	//go server.watchConfigs(ctx)
@@ -112,6 +112,10 @@ func (s *Server) ClearIndex(ctx context.Context) error {
 	return s.Indexer.Truncate(ctx, 0, func(s string) {
 		log.Logger(ctx).Info(s)
 	})
+}
+
+func (s *Server) Flush() error {
+	return s.batch.Flush()
 }
 
 func (s *Server) SearchNodes(ctx context.Context, queryObject *tree.Query, from int32, size int32, sortField string, sortDesc bool, resultChan chan *tree.Node, facets chan *tree.SearchFacet, doneChan chan bool) error {

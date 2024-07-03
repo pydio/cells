@@ -45,18 +45,18 @@ func init() {
 }
 
 func NewBoltDAO(db boltdb.DB) mailer2.Queue {
-	bq := &BoltQueue{db: db}
+	bq := &BoltQueue{DB: db}
 	_ = bq.Init(nil)
 	return bq
 }
 
 // BoltQueue defines a queue for the mails backed by a Bolt DB.
 type BoltQueue struct {
-	db boltdb.DB
+	boltdb.DB
 }
 
 func (b *BoltQueue) Init(ctx context.Context) error {
-	return b.db.Update(func(tx *bbolt.Tx) error {
+	return b.Update(func(tx *bbolt.Tx) error {
 		_, e := tx.CreateBucketIfNotExists(bucketName)
 		return e
 	})
@@ -64,14 +64,14 @@ func (b *BoltQueue) Init(ctx context.Context) error {
 
 // Close closes the DB and delete corresponding file if deleteOnClose flag as been set on creation.
 func (b *BoltQueue) Close(ctx context.Context) error {
-	//	return b.db.CloseConn(ctx)
+	//	return b.CloseConn(ctx)
 	return nil
 }
 
 // Push acquires the lock and add a mail to be sent in the queue.
 func (b *BoltQueue) Push(ctx context.Context, email *mailer.Mail) error {
 
-	return b.db.Update(func(tx *bbolt.Tx) error {
+	return b.Update(func(tx *bbolt.Tx) error {
 		// Retrieve the bucket.
 		b := tx.Bucket([]byte("MailerQueue"))
 
@@ -96,7 +96,7 @@ func (b *BoltQueue) Consume(ctx context.Context, sendHandler func(email *mailer.
 
 	var output error
 
-	b.db.Update(func(tx *bbolt.Tx) error {
+	_ = b.Update(func(tx *bbolt.Tx) error {
 
 		b := tx.Bucket([]byte("MailerQueue"))
 		c := b.Cursor()

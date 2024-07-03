@@ -79,4 +79,6 @@ type Indexer interface {
 	Init(ctx context.Context, conf configx.Values) error
 	// Close closes the index connection
 	Close(ctx context.Context) error
+	// CloseAndDrop closes the index and remove all resources
+	CloseAndDrop(ctx context.Context) error
 }

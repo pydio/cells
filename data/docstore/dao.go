@@ -44,6 +44,7 @@ type DAO interface {
 	QueryDocuments(ctx context.Context, storeID string, query *docstore.DocumentQuery) (chan *docstore.Document, error)
 	CountDocuments(ctx context.Context, storeID string, query *docstore.DocumentQuery) (int, error)
 	ListStores(ctx context.Context) ([]string, error)
+	CloseAndDrop(ctx context.Context) error
 	Reset() error
 }
 

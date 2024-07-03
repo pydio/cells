@@ -177,6 +177,17 @@ func RunStorageTests(testCases []StorageTestCase, f func(context.Context)) {
 
 		f(ctx)
 
-		_ = manager.CloseStoragesForContext(ctx, manager.WithCleanBeforeClose())
+		// Close and drop, or just close
+		if dropper, er := manager.Resolve[storage.Dropper](ctx); er == nil {
+			if er = dropper.CloseAndDrop(ctx); er != nil {
+				panic(er)
+			}
+		} else if cl, er := manager.Resolve[storage.Closer](ctx); er == nil {
+			if er = cl.Close(ctx); er != nil {
+				panic(er)
+			}
+		}
+
+		//_ = manager.CloseStoragesForContext(ctx, manager.WithCleanBeforeClose())
 	}
 }

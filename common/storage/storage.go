@@ -31,3 +31,11 @@ type Storage openurl.Resolver[any]
 type Migrator interface {
 	Migrate(ctx context.Context) error
 }
+
+type Closer interface {
+	Close(ctx context.Context) error
+}
+
+type Dropper interface {
+	CloseAndDrop(ctx context.Context) error
+}

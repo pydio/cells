@@ -37,6 +37,7 @@ type DB interface {
 	Begin(writable bool) (*bbolt.Tx, error)
 	Compact(ctx context.Context, opts map[string]interface{}) (old uint64, new uint64, err error)
 	Close(ctx context.Context) error
+	CloseAndDrop(ctx context.Context) error
 	GoString() string
 	Info() *bbolt.Info
 	IsReadOnly() bool
@@ -120,8 +121,19 @@ type db struct {
 	switchConnection func(newDB *bbolt.DB) error
 }
 
+// Close implements storage.Closer interface
 func (d *db) Close(ctx context.Context) error {
 	return d.DB.Close()
+}
+
+// CloseAndDrop implements storage.Dropper interface
+func (d *db) CloseAndDrop(ctx context.Context) error {
+	pa := d.DB.Path()
+	fmt.Println("Dropping BoltDB " + pa)
+	if er := d.DB.Close(); er != nil {
+		return er
+	}
+	return os.Remove(pa)
 }
 
 func (d *db) Compact(ctx context.Context, opts map[string]interface{}) (old uint64, new uint64, err error) {

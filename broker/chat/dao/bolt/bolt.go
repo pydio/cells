@@ -42,11 +42,11 @@ func init() {
 }
 
 func NewBoltDAO(db boltdb.DB) chat.DAO {
-	return &boltdbimpl{db: db, HistorySize: 1000}
+	return &boltdbimpl{DB: db, HistorySize: 1000}
 }
 
 type boltdbimpl struct {
-	db          boltdb.DB
+	boltdb.DB
 	HistorySize int64
 }
 
@@ -57,7 +57,7 @@ const (
 )
 
 func (h *boltdbimpl) Init(ctx context.Context, config configx.Values) error {
-	return h.db.Update(func(tx *bbolt.Tx) error {
+	return h.Update(func(tx *bbolt.Tx) error {
 		_, err := tx.CreateBucketIfNotExists([]byte(rooms))
 		if err != nil {
 			return err
@@ -140,7 +140,7 @@ func (h *boltdbimpl) getRoomsBucket(tx *bbolt.Tx, createIfNotExist bool, roomTyp
 
 func (h *boltdbimpl) PutRoom(ctx context.Context, room *proto.ChatRoom) (*proto.ChatRoom, error) {
 
-	err := h.db.Update(func(tx *bbolt.Tx) error {
+	err := h.Update(func(tx *bbolt.Tx) error {
 
 		bucket, err := h.getRoomsBucket(tx, true, room.Type, room.RoomTypeObject)
 		if err != nil {
@@ -160,7 +160,7 @@ func (h *boltdbimpl) PutRoom(ctx context.Context, room *proto.ChatRoom) (*proto.
 func (h *boltdbimpl) DeleteRoom(ctx context.Context, room *proto.ChatRoom) (bool, error) {
 
 	var success bool
-	err := h.db.Update(func(tx *bbolt.Tx) error {
+	err := h.Update(func(tx *bbolt.Tx) error {
 
 		bucket, err := h.getRoomsBucket(tx, false, room.Type, room.RoomTypeObject)
 		if bucket == nil {
@@ -182,7 +182,7 @@ func (h *boltdbimpl) DeleteRoom(ctx context.Context, room *proto.ChatRoom) (bool
 
 func (h *boltdbimpl) ListRooms(ctx context.Context, request *proto.ListRoomsRequest) (rooms []*proto.ChatRoom, e error) {
 
-	e = h.db.View(func(tx *bbolt.Tx) error {
+	e = h.View(func(tx *bbolt.Tx) error {
 
 		if request.TypeObject != "" {
 
@@ -252,7 +252,7 @@ func (h *boltdbimpl) roomByTypeUuid(ctx context.Context, byType proto.RoomType, 
 
 	var foundRoom proto.ChatRoom
 	var found bool
-	e := h.db.View(func(tx *bbolt.Tx) error {
+	e := h.View(func(tx *bbolt.Tx) error {
 		bucket, _ := h.getRoomsBucket(tx, false, byType, "")
 		if bucket == nil {
 			return fmt.Errorf("rooms bucket %s not initialized", byType.String())
@@ -285,7 +285,7 @@ func (h *boltdbimpl) roomByTypeUuid(ctx context.Context, byType proto.RoomType, 
 }
 
 func (h *boltdbimpl) CountMessages(ctx context.Context, room *proto.ChatRoom) (count int, e error) {
-	e = h.db.View(func(tx *bbolt.Tx) error {
+	e = h.View(func(tx *bbolt.Tx) error {
 		if bucket, e := h.getMessagesBucket(tx, false, room.Uuid); e != nil {
 			return e
 		} else {
@@ -299,7 +299,7 @@ func (h *boltdbimpl) CountMessages(ctx context.Context, room *proto.ChatRoom) (c
 func (h *boltdbimpl) ListMessages(ctx context.Context, request *proto.ListMessagesRequest) (messages []*proto.ChatMessage, e error) {
 
 	bounds := request.Limit > 0 || request.Offset > 0
-	e = h.db.View(func(tx *bbolt.Tx) error {
+	e = h.View(func(tx *bbolt.Tx) error {
 
 		bucket, _ := h.getMessagesBucket(tx, false, request.RoomUuid)
 		if bucket == nil {
@@ -355,7 +355,7 @@ func (h *boltdbimpl) PostMessage(ctx context.Context, request *proto.ChatMessage
 		request.Uuid = uuid.New()
 	}
 
-	err := h.db.Update(func(tx *bbolt.Tx) error {
+	err := h.Update(func(tx *bbolt.Tx) error {
 		bucket, err := h.getMessagesBucket(tx, true, request.RoomUuid)
 		if err != nil {
 			return nil
@@ -373,7 +373,7 @@ func (h *boltdbimpl) PostMessage(ctx context.Context, request *proto.ChatMessage
 
 func (h *boltdbimpl) UpdateMessage(ctx context.Context, request *proto.ChatMessage, callback chat.MessageMatcher) (out *proto.ChatMessage, err error) {
 
-	err = h.db.Update(func(tx *bbolt.Tx) error {
+	err = h.Update(func(tx *bbolt.Tx) error {
 		bucket, err := h.getMessagesBucket(tx, false, request.RoomUuid)
 		if err != nil {
 			return nil
@@ -405,7 +405,7 @@ func (h *boltdbimpl) DeleteMessage(ctx context.Context, message *proto.ChatMessa
 		return errors.WithMessage(errors.InvalidParameters, "Cannot delete a message without Uuid")
 	}
 
-	err := h.db.Update(func(tx *bbolt.Tx) error {
+	err := h.Update(func(tx *bbolt.Tx) error {
 		bucket, err := h.getMessagesBucket(tx, false, message.RoomUuid)
 		if err != nil || bucket == nil {
 			return nil

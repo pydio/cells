@@ -65,7 +65,7 @@ type BatchOptions struct {
 	//IndexContent bool
 }
 
-func NewBatch(ctx context.Context, idx indexer.Indexer, nsProvider *meta.NsProvider, options BatchOptions) indexer.Batch {
+func NewBatch(ctx context.Context, idx indexer.Indexer, nsProvider *meta.NsProvider, options BatchOptions, iOpts ...indexer.BatchOption) indexer.Batch {
 	wrapper := &Batch{
 		options:    options,
 		inserts:    make(map[string]*tree.IndexableNode),
@@ -75,9 +75,9 @@ func NewBatch(ctx context.Context, idx indexer.Indexer, nsProvider *meta.NsProvi
 
 	wrapper.ctx = wrapper.createBackgroundContext(ctx)
 
-	batch, _ := idx.NewBatch(ctx)
+	batch, _ := idx.NewBatch(ctx, iOpts...)
 
-	return indexer.NewBatch(ctx,
+	iOpts = append(iOpts,
 		indexer.WithFlushCondition(func() bool {
 			return len(wrapper.inserts)+len(wrapper.deletes) > BatchSize
 		}),
@@ -114,16 +114,20 @@ func NewBatch(ctx context.Context, idx indexer.Indexer, nsProvider *meta.NsProvi
 			}
 			log.Logger(wrapper.ctx).Info("Flushing search batch", zap.Int("size", l))
 			excludes := wrapper.nsProvider.ExcludeIndexes()
-			var nodes []*tree.IndexableNode
-			wrapper.nsProvider.InitStreamers(wrapper.ctx)
+			var nn []*tree.IndexableNode
+			if er := wrapper.nsProvider.InitStreamers(wrapper.ctx); er != nil {
+				return er
+			}
 			for uuid, node := range wrapper.inserts {
 				if e := wrapper.LoadIndexableNode(node, excludes); e == nil {
-					nodes = append(nodes, node)
+					nn = append(nn, node)
 				}
 				delete(wrapper.inserts, uuid)
 			}
-			wrapper.nsProvider.CloseStreamers()
-			for _, n := range nodes {
+			if er := wrapper.nsProvider.CloseStreamers(); er != nil {
+				return er
+			}
+			for _, n := range nn {
 				if er := batch.Insert(n); er != nil {
 					fmt.Println("Search batch - InsertOne error", er.Error())
 				}
@@ -138,6 +142,7 @@ func NewBatch(ctx context.Context, idx indexer.Indexer, nsProvider *meta.NsProvi
 			return nil
 		}),
 	)
+	return indexer.NewBatch(ctx, iOpts...)
 }
 
 func (b *Batch) LoadIndexableNode(indexNode *tree.IndexableNode, excludes map[string]struct{}) error {

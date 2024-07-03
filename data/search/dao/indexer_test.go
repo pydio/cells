@@ -22,7 +22,6 @@ package dao
 
 import (
 	"context"
-	"fmt"
 	"log"
 	"os"
 	"path/filepath"
@@ -38,6 +37,7 @@ import (
 	"github.com/pydio/cells/v4/common/utils/uuid"
 	"github.com/pydio/cells/v4/data/search"
 	"github.com/pydio/cells/v4/data/search/dao/bleve"
+	"github.com/pydio/cells/v4/data/search/dao/commons"
 	"github.com/pydio/cells/v4/data/search/dao/mongo"
 
 	_ "github.com/pydio/cells/v4/common/registry/config"
@@ -48,7 +48,7 @@ import (
 
 var (
 	testcases = []test.StorageTestCase{
-		{[]string{"bleve://" + filepath.Join(os.TempDir(), "data_search_tests"+uuid.New()+".bleve") + "?mapping=node"}, true, bleve.NewBleveDAO},
+		{[]string{"bleve://" + filepath.Join(os.TempDir(), "data_search_tests"+uuid.New()+".bleve") + "?mapping=node"}, true, bleve.FastBleveDAO},
 		test.TemplateMongoEnvWithPrefix(mongo.NewMongoDAO, "search_tests_"),
 	}
 )
@@ -57,11 +57,9 @@ func init() {
 	_ = mock.RegisterMockConfig()
 }
 
-func createNodes(s search.Engine) {
+func createNodes(s search.Engine) error {
 
 	ctx := context.Background()
-
-	b, _ := s.NewBatch(ctx)
 
 	node := &tree.Node{
 		Uuid:  "docID1",
@@ -78,9 +76,8 @@ func createNodes(s search.Engine) {
 		"lon": 8.372777777777777,
 	})
 
-	e := b.Insert(node)
-	if e != nil {
-		log.Println("Error while indexing node", e)
+	if e := s.IndexNode(ctx, node, false, nil); e != nil {
+		return e
 	}
 
 	node2 := &tree.Node{
@@ -92,12 +89,12 @@ func createNodes(s search.Engine) {
 	}
 	node2.MustSetMeta("name", "folder")
 
-	e = b.Insert(node2)
-	if e != nil {
+	if e := s.IndexNode(ctx, node2, false, nil); e != nil {
 		log.Println("Error while indexing node", e)
 	}
 
-	b.Flush()
+	return s.(*commons.Server).Flush()
+
 }
 
 func performSearch(ctx context.Context, index search.Engine, queryObject *tree.Query) ([]*tree.Node, error) {
@@ -127,7 +124,6 @@ func performSearch(ctx context.Context, index search.Engine, queryObject *tree.Q
 		}
 	}()
 
-	fmt.Println("Doing search")
 	e := index.SearchNodes(ctx, queryObject, 0, 10, "", false, resultsChan, facetsChan, doneChan)
 	wg.Wait()
 	return results, e
@@ -232,7 +228,10 @@ func TestSearchNode(t *testing.T) {
 			panic(err)
 		}
 
-		createNodes(server)
+		Convey("Index nodes", t, func() {
+			So(createNodes(server), ShouldBeNil)
+			<-time.After(100 * time.Millisecond)
+		})
 
 		Convey("Search Node by name", t, func() {
 
