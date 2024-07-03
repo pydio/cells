@@ -862,11 +862,12 @@ func Path(ctx context.Context, dao DAO, targetNode tree.ITreeNode, parentNode tr
 
 			val := reflect.ValueOf(parentNode).Elem()
 			nVal := clone.Elem()
-			for i := 0; i < val.NumField(); i++ {
-				nvField := nVal.Field(i)
-				nvField.Set(val.Field(i))
+			for _, f := range reflect.VisibleFields(val.Type()) {
+				if f.IsExported() {
+					nvField := nVal.FieldByName(f.Name)
+					nvField.Set(val.FieldByName(f.Name))
+				}
 			}
-
 			currentNode = clone.Interface().(tree.ITreeNode)
 		} else {
 			currentNode = targetNode
