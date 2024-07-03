@@ -36,11 +36,6 @@ import (
 	"github.com/pydio/cells/v4/common/utils/configx"
 )
 
-type IndexDAO interface {
-	storage.IndexDAO
-	SetCollection(string)
-}
-
 type Indexer struct {
 	*Database
 	collection      string
@@ -60,6 +55,10 @@ func (i *Indexer) GetCodex() indexer.IndexCodex {
 }
 
 func newIndexer(db *Database, mainCollection string) *Indexer {
+	if mainCollection == "" {
+		// Return a no-op indexer, just embedding a database
+		return &Indexer{Database: db}
+	}
 	i := &Indexer{
 		Database:   db,
 		bufferSize: 2000,
@@ -349,16 +348,25 @@ func (i *Indexer) Truncate(ctx context.Context, max int64, logger func(string)) 
 	return nil
 }
 
-// CloseAndDrop implements storage.Closer interface
+// Close implements storage.Closer interface
 func (i *Indexer) Close(ctx context.Context) error {
-	close(i.done)
+	if i.done != nil {
+		close(i.done)
+	}
 	return i.Client().Disconnect(ctx)
 }
 
 // CloseAndDrop implements storage.Dropper interface
 func (i *Indexer) CloseAndDrop(ctx context.Context) error {
-	// TODO
-	close(i.done)
+	if i.done != nil {
+		close(i.done)
+	}
+	var err []error
+	for _, cc := range cleaners {
+		if e := cc(ctx, i.Client()); e != nil {
+			err = append(err, e)
+		}
+	}
 	return i.Client().Disconnect(ctx)
 }
 

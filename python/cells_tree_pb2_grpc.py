@@ -21,12 +21,12 @@ class NodeProviderStub(object):
                 '/tree.NodeProvider/ReadNode',
                 request_serializer=cells__tree__pb2.ReadNodeRequest.SerializeToString,
                 response_deserializer=cells__tree__pb2.ReadNodeResponse.FromString,
-                )
+                _registered_method=True)
         self.ListNodes = channel.unary_stream(
                 '/tree.NodeProvider/ListNodes',
                 request_serializer=cells__tree__pb2.ListNodesRequest.SerializeToString,
                 response_deserializer=cells__tree__pb2.ListNodesResponse.FromString,
-                )
+                _registered_method=True)
 
 
 class NodeProviderServicer(object):
@@ -64,6 +64,7 @@ def add_NodeProviderServicer_to_server(servicer, server):
     generic_handler = grpc.method_handlers_generic_handler(
             'tree.NodeProvider', rpc_method_handlers)
     server.add_generic_rpc_handlers((generic_handler,))
+    server.add_registered_method_handlers('tree.NodeProvider', rpc_method_handlers)
 
 
  # This class is part of an EXPERIMENTAL API.
@@ -84,11 +85,21 @@ class NodeProvider(object):
             wait_for_ready=None,
             timeout=None,
             metadata=None):
-        return grpc.experimental.unary_unary(request, target, '/tree.NodeProvider/ReadNode',
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/tree.NodeProvider/ReadNode',
             cells__tree__pb2.ReadNodeRequest.SerializeToString,
             cells__tree__pb2.ReadNodeResponse.FromString,
-            options, channel_credentials,
-            insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
 
     @staticmethod
     def ListNodes(request,
@@ -101,11 +112,21 @@ class NodeProvider(object):
             wait_for_ready=None,
             timeout=None,
             metadata=None):
-        return grpc.experimental.unary_stream(request, target, '/tree.NodeProvider/ListNodes',
+        return grpc.experimental.unary_stream(
+            request,
+            target,
+            '/tree.NodeProvider/ListNodes',
             cells__tree__pb2.ListNodesRequest.SerializeToString,
             cells__tree__pb2.ListNodesResponse.FromString,
-            options, channel_credentials,
-            insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
 
 
 class NodeProviderStreamerStub(object):
@@ -121,7 +142,7 @@ class NodeProviderStreamerStub(object):
                 '/tree.NodeProviderStreamer/ReadNodeStream',
                 request_serializer=cells__tree__pb2.ReadNodeRequest.SerializeToString,
                 response_deserializer=cells__tree__pb2.ReadNodeResponse.FromString,
-                )
+                _registered_method=True)
 
 
 class NodeProviderStreamerServicer(object):
@@ -145,6 +166,7 @@ def add_NodeProviderStreamerServicer_to_server(servicer, server):
     generic_handler = grpc.method_handlers_generic_handler(
             'tree.NodeProviderStreamer', rpc_method_handlers)
     server.add_generic_rpc_handlers((generic_handler,))
+    server.add_registered_method_handlers('tree.NodeProviderStreamer', rpc_method_handlers)
 
 
  # This class is part of an EXPERIMENTAL API.
@@ -162,11 +184,21 @@ class NodeProviderStreamer(object):
             wait_for_ready=None,
             timeout=None,
             metadata=None):
-        return grpc.experimental.stream_stream(request_iterator, target, '/tree.NodeProviderStreamer/ReadNodeStream',
+        return grpc.experimental.stream_stream(
+            request_iterator,
+            target,
+            '/tree.NodeProviderStreamer/ReadNodeStream',
             cells__tree__pb2.ReadNodeRequest.SerializeToString,
             cells__tree__pb2.ReadNodeResponse.FromString,
-            options, channel_credentials,
-            insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
 
 
 class NodeChangesStreamerStub(object):
@@ -182,7 +214,7 @@ class NodeChangesStreamerStub(object):
                 '/tree.NodeChangesStreamer/StreamChanges',
                 request_serializer=cells__tree__pb2.StreamChangesRequest.SerializeToString,
                 response_deserializer=cells__tree__pb2.NodeChangeEvent.FromString,
-                )
+                _registered_method=True)
 
 
 class NodeChangesStreamerServicer(object):
@@ -206,6 +238,7 @@ def add_NodeChangesStreamerServicer_to_server(servicer, server):
     generic_handler = grpc.method_handlers_generic_handler(
             'tree.NodeChangesStreamer', rpc_method_handlers)
     server.add_generic_rpc_handlers((generic_handler,))
+    server.add_registered_method_handlers('tree.NodeChangesStreamer', rpc_method_handlers)
 
 
  # This class is part of an EXPERIMENTAL API.
@@ -223,11 +256,21 @@ class NodeChangesStreamer(object):
             wait_for_ready=None,
             timeout=None,
             metadata=None):
-        return grpc.experimental.unary_stream(request, target, '/tree.NodeChangesStreamer/StreamChanges',
+        return grpc.experimental.unary_stream(
+            request,
+            target,
+            '/tree.NodeChangesStreamer/StreamChanges',
             cells__tree__pb2.StreamChangesRequest.SerializeToString,
             cells__tree__pb2.NodeChangeEvent.FromString,
-            options, channel_credentials,
-            insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
 
 
 class NodeChangesReceiverStreamerStub(object):
@@ -243,7 +286,7 @@ class NodeChangesReceiverStreamerStub(object):
                 '/tree.NodeChangesReceiverStreamer/PostNodeChanges',
                 request_serializer=cells__tree__pb2.NodeChangeEvent.SerializeToString,
                 response_deserializer=cells__tree__pb2.NodeChangeEvent.FromString,
-                )
+                _registered_method=True)
 
 
 class NodeChangesReceiverStreamerServicer(object):
@@ -267,6 +310,7 @@ def add_NodeChangesReceiverStreamerServicer_to_server(servicer, server):
     generic_handler = grpc.method_handlers_generic_handler(
             'tree.NodeChangesReceiverStreamer', rpc_method_handlers)
     server.add_generic_rpc_handlers((generic_handler,))
+    server.add_registered_method_handlers('tree.NodeChangesReceiverStreamer', rpc_method_handlers)
 
 
  # This class is part of an EXPERIMENTAL API.
@@ -284,11 +328,21 @@ class NodeChangesReceiverStreamer(object):
             wait_for_ready=None,
             timeout=None,
             metadata=None):
-        return grpc.experimental.stream_stream(request_iterator, target, '/tree.NodeChangesReceiverStreamer/PostNodeChanges',
+        return grpc.experimental.stream_stream(
+            request_iterator,
+            target,
+            '/tree.NodeChangesReceiverStreamer/PostNodeChanges',
             cells__tree__pb2.NodeChangeEvent.SerializeToString,
             cells__tree__pb2.NodeChangeEvent.FromString,
-            options, channel_credentials,
-            insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
 
 
 class NodeReceiverStub(object):
@@ -307,17 +361,17 @@ class NodeReceiverStub(object):
                 '/tree.NodeReceiver/CreateNode',
                 request_serializer=cells__tree__pb2.CreateNodeRequest.SerializeToString,
                 response_deserializer=cells__tree__pb2.CreateNodeResponse.FromString,
-                )
+                _registered_method=True)
         self.UpdateNode = channel.unary_unary(
                 '/tree.NodeReceiver/UpdateNode',
                 request_serializer=cells__tree__pb2.UpdateNodeRequest.SerializeToString,
                 response_deserializer=cells__tree__pb2.UpdateNodeResponse.FromString,
-                )
+                _registered_method=True)
         self.DeleteNode = channel.unary_unary(
                 '/tree.NodeReceiver/DeleteNode',
                 request_serializer=cells__tree__pb2.DeleteNodeRequest.SerializeToString,
                 response_deserializer=cells__tree__pb2.DeleteNodeResponse.FromString,
-                )
+                _registered_method=True)
 
 
 class NodeReceiverServicer(object):
@@ -366,6 +420,7 @@ def add_NodeReceiverServicer_to_server(servicer, server):
     generic_handler = grpc.method_handlers_generic_handler(
             'tree.NodeReceiver', rpc_method_handlers)
     server.add_generic_rpc_handlers((generic_handler,))
+    server.add_registered_method_handlers('tree.NodeReceiver', rpc_method_handlers)
 
 
  # This class is part of an EXPERIMENTAL API.
@@ -386,11 +441,21 @@ class NodeReceiver(object):
             wait_for_ready=None,
             timeout=None,
             metadata=None):
-        return grpc.experimental.unary_unary(request, target, '/tree.NodeReceiver/CreateNode',
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/tree.NodeReceiver/CreateNode',
             cells__tree__pb2.CreateNodeRequest.SerializeToString,
             cells__tree__pb2.CreateNodeResponse.FromString,
-            options, channel_credentials,
-            insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
 
     @staticmethod
     def UpdateNode(request,
@@ -403,11 +468,21 @@ class NodeReceiver(object):
             wait_for_ready=None,
             timeout=None,
             metadata=None):
-        return grpc.experimental.unary_unary(request, target, '/tree.NodeReceiver/UpdateNode',
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/tree.NodeReceiver/UpdateNode',
             cells__tree__pb2.UpdateNodeRequest.SerializeToString,
             cells__tree__pb2.UpdateNodeResponse.FromString,
-            options, channel_credentials,
-            insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
 
     @staticmethod
     def DeleteNode(request,
@@ -420,11 +495,21 @@ class NodeReceiver(object):
             wait_for_ready=None,
             timeout=None,
             metadata=None):
-        return grpc.experimental.unary_unary(request, target, '/tree.NodeReceiver/DeleteNode',
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/tree.NodeReceiver/DeleteNode',
             cells__tree__pb2.DeleteNodeRequest.SerializeToString,
             cells__tree__pb2.DeleteNodeResponse.FromString,
-            options, channel_credentials,
-            insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
 
 
 class NodeReceiverStreamStub(object):
@@ -440,17 +525,17 @@ class NodeReceiverStreamStub(object):
                 '/tree.NodeReceiverStream/CreateNodeStream',
                 request_serializer=cells__tree__pb2.CreateNodeRequest.SerializeToString,
                 response_deserializer=cells__tree__pb2.CreateNodeResponse.FromString,
-                )
+                _registered_method=True)
         self.UpdateNodeStream = channel.stream_stream(
                 '/tree.NodeReceiverStream/UpdateNodeStream',
                 request_serializer=cells__tree__pb2.UpdateNodeRequest.SerializeToString,
                 response_deserializer=cells__tree__pb2.UpdateNodeResponse.FromString,
-                )
+                _registered_method=True)
         self.DeleteNodeStream = channel.stream_stream(
                 '/tree.NodeReceiverStream/DeleteNodeStream',
                 request_serializer=cells__tree__pb2.DeleteNodeRequest.SerializeToString,
                 response_deserializer=cells__tree__pb2.DeleteNodeResponse.FromString,
-                )
+                _registered_method=True)
 
 
 class NodeReceiverStreamServicer(object):
@@ -496,6 +581,7 @@ def add_NodeReceiverStreamServicer_to_server(servicer, server):
     generic_handler = grpc.method_handlers_generic_handler(
             'tree.NodeReceiverStream', rpc_method_handlers)
     server.add_generic_rpc_handlers((generic_handler,))
+    server.add_registered_method_handlers('tree.NodeReceiverStream', rpc_method_handlers)
 
 
  # This class is part of an EXPERIMENTAL API.
@@ -513,11 +599,21 @@ class NodeReceiverStream(object):
             wait_for_ready=None,
             timeout=None,
             metadata=None):
-        return grpc.experimental.stream_stream(request_iterator, target, '/tree.NodeReceiverStream/CreateNodeStream',
+        return grpc.experimental.stream_stream(
+            request_iterator,
+            target,
+            '/tree.NodeReceiverStream/CreateNodeStream',
             cells__tree__pb2.CreateNodeRequest.SerializeToString,
             cells__tree__pb2.CreateNodeResponse.FromString,
-            options, channel_credentials,
-            insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
 
     @staticmethod
     def UpdateNodeStream(request_iterator,
@@ -530,11 +626,21 @@ class NodeReceiverStream(object):
             wait_for_ready=None,
             timeout=None,
             metadata=None):
-        return grpc.experimental.stream_stream(request_iterator, target, '/tree.NodeReceiverStream/UpdateNodeStream',
+        return grpc.experimental.stream_stream(
+            request_iterator,
+            target,
+            '/tree.NodeReceiverStream/UpdateNodeStream',
             cells__tree__pb2.UpdateNodeRequest.SerializeToString,
             cells__tree__pb2.UpdateNodeResponse.FromString,
-            options, channel_credentials,
-            insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
 
     @staticmethod
     def DeleteNodeStream(request_iterator,
@@ -547,11 +653,21 @@ class NodeReceiverStream(object):
             wait_for_ready=None,
             timeout=None,
             metadata=None):
-        return grpc.experimental.stream_stream(request_iterator, target, '/tree.NodeReceiverStream/DeleteNodeStream',
+        return grpc.experimental.stream_stream(
+            request_iterator,
+            target,
+            '/tree.NodeReceiverStream/DeleteNodeStream',
             cells__tree__pb2.DeleteNodeRequest.SerializeToString,
             cells__tree__pb2.DeleteNodeResponse.FromString,
-            options, channel_credentials,
-            insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
 
 
 class SessionIndexerStub(object):
@@ -570,17 +686,17 @@ class SessionIndexerStub(object):
                 '/tree.SessionIndexer/OpenSession',
                 request_serializer=cells__tree__pb2.OpenSessionRequest.SerializeToString,
                 response_deserializer=cells__tree__pb2.OpenSessionResponse.FromString,
-                )
+                _registered_method=True)
         self.FlushSession = channel.unary_unary(
                 '/tree.SessionIndexer/FlushSession',
                 request_serializer=cells__tree__pb2.FlushSessionRequest.SerializeToString,
                 response_deserializer=cells__tree__pb2.FlushSessionResponse.FromString,
-                )
+                _registered_method=True)
         self.CloseSession = channel.unary_unary(
                 '/tree.SessionIndexer/CloseSession',
                 request_serializer=cells__tree__pb2.CloseSessionRequest.SerializeToString,
                 response_deserializer=cells__tree__pb2.CloseSessionResponse.FromString,
-                )
+                _registered_method=True)
 
 
 class SessionIndexerServicer(object):
@@ -629,6 +745,7 @@ def add_SessionIndexerServicer_to_server(servicer, server):
     generic_handler = grpc.method_handlers_generic_handler(
             'tree.SessionIndexer', rpc_method_handlers)
     server.add_generic_rpc_handlers((generic_handler,))
+    server.add_registered_method_handlers('tree.SessionIndexer', rpc_method_handlers)
 
 
  # This class is part of an EXPERIMENTAL API.
@@ -649,11 +766,21 @@ class SessionIndexer(object):
             wait_for_ready=None,
             timeout=None,
             metadata=None):
-        return grpc.experimental.unary_unary(request, target, '/tree.SessionIndexer/OpenSession',
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/tree.SessionIndexer/OpenSession',
             cells__tree__pb2.OpenSessionRequest.SerializeToString,
             cells__tree__pb2.OpenSessionResponse.FromString,
-            options, channel_credentials,
-            insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
 
     @staticmethod
     def FlushSession(request,
@@ -666,11 +793,21 @@ class SessionIndexer(object):
             wait_for_ready=None,
             timeout=None,
             metadata=None):
-        return grpc.experimental.unary_unary(request, target, '/tree.SessionIndexer/FlushSession',
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/tree.SessionIndexer/FlushSession',
             cells__tree__pb2.FlushSessionRequest.SerializeToString,
             cells__tree__pb2.FlushSessionResponse.FromString,
-            options, channel_credentials,
-            insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
 
     @staticmethod
     def CloseSession(request,
@@ -683,11 +820,21 @@ class SessionIndexer(object):
             wait_for_ready=None,
             timeout=None,
             metadata=None):
-        return grpc.experimental.unary_unary(request, target, '/tree.SessionIndexer/CloseSession',
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/tree.SessionIndexer/CloseSession',
             cells__tree__pb2.CloseSessionRequest.SerializeToString,
             cells__tree__pb2.CloseSessionResponse.FromString,
-            options, channel_credentials,
-            insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
 
 
 class NodeEventsProviderStub(object):
@@ -706,7 +853,7 @@ class NodeEventsProviderStub(object):
                 '/tree.NodeEventsProvider/WatchNode',
                 request_serializer=cells__tree__pb2.WatchNodeRequest.SerializeToString,
                 response_deserializer=cells__tree__pb2.WatchNodeResponse.FromString,
-                )
+                _registered_method=True)
 
 
 class NodeEventsProviderServicer(object):
@@ -733,6 +880,7 @@ def add_NodeEventsProviderServicer_to_server(servicer, server):
     generic_handler = grpc.method_handlers_generic_handler(
             'tree.NodeEventsProvider', rpc_method_handlers)
     server.add_generic_rpc_handlers((generic_handler,))
+    server.add_registered_method_handlers('tree.NodeEventsProvider', rpc_method_handlers)
 
 
  # This class is part of an EXPERIMENTAL API.
@@ -753,11 +901,21 @@ class NodeEventsProvider(object):
             wait_for_ready=None,
             timeout=None,
             metadata=None):
-        return grpc.experimental.unary_stream(request, target, '/tree.NodeEventsProvider/WatchNode',
+        return grpc.experimental.unary_stream(
+            request,
+            target,
+            '/tree.NodeEventsProvider/WatchNode',
             cells__tree__pb2.WatchNodeRequest.SerializeToString,
             cells__tree__pb2.WatchNodeResponse.FromString,
-            options, channel_credentials,
-            insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
 
 
 class SearcherStub(object):
@@ -776,7 +934,7 @@ class SearcherStub(object):
                 '/tree.Searcher/Search',
                 request_serializer=cells__tree__pb2.SearchRequest.SerializeToString,
                 response_deserializer=cells__tree__pb2.SearchResponse.FromString,
-                )
+                _registered_method=True)
 
 
 class SearcherServicer(object):
@@ -803,6 +961,7 @@ def add_SearcherServicer_to_server(servicer, server):
     generic_handler = grpc.method_handlers_generic_handler(
             'tree.Searcher', rpc_method_handlers)
     server.add_generic_rpc_handlers((generic_handler,))
+    server.add_registered_method_handlers('tree.Searcher', rpc_method_handlers)
 
 
  # This class is part of an EXPERIMENTAL API.
@@ -823,11 +982,21 @@ class Searcher(object):
             wait_for_ready=None,
             timeout=None,
             metadata=None):
-        return grpc.experimental.unary_stream(request, target, '/tree.Searcher/Search',
+        return grpc.experimental.unary_stream(
+            request,
+            target,
+            '/tree.Searcher/Search',
             cells__tree__pb2.SearchRequest.SerializeToString,
             cells__tree__pb2.SearchResponse.FromString,
-            options, channel_credentials,
-            insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
 
 
 class NodeContentReaderStub(object):
@@ -859,6 +1028,7 @@ def add_NodeContentReaderServicer_to_server(servicer, server):
     generic_handler = grpc.method_handlers_generic_handler(
             'tree.NodeContentReader', rpc_method_handlers)
     server.add_generic_rpc_handlers((generic_handler,))
+    server.add_registered_method_handlers('tree.NodeContentReader', rpc_method_handlers)
 
 
  # This class is part of an EXPERIMENTAL API.
@@ -899,6 +1069,7 @@ def add_NodeContentWriterServicer_to_server(servicer, server):
     generic_handler = grpc.method_handlers_generic_handler(
             'tree.NodeContentWriter', rpc_method_handlers)
     server.add_generic_rpc_handlers((generic_handler,))
+    server.add_registered_method_handlers('tree.NodeContentWriter', rpc_method_handlers)
 
 
  # This class is part of an EXPERIMENTAL API.
@@ -926,27 +1097,32 @@ class NodeVersionerStub(object):
                 '/tree.NodeVersioner/CreateVersion',
                 request_serializer=cells__tree__pb2.CreateVersionRequest.SerializeToString,
                 response_deserializer=cells__tree__pb2.CreateVersionResponse.FromString,
-                )
+                _registered_method=True)
         self.StoreVersion = channel.unary_unary(
                 '/tree.NodeVersioner/StoreVersion',
                 request_serializer=cells__tree__pb2.StoreVersionRequest.SerializeToString,
                 response_deserializer=cells__tree__pb2.StoreVersionResponse.FromString,
-                )
+                _registered_method=True)
         self.ListVersions = channel.unary_stream(
                 '/tree.NodeVersioner/ListVersions',
                 request_serializer=cells__tree__pb2.ListVersionsRequest.SerializeToString,
                 response_deserializer=cells__tree__pb2.ListVersionsResponse.FromString,
-                )
+                _registered_method=True)
         self.HeadVersion = channel.unary_unary(
                 '/tree.NodeVersioner/HeadVersion',
                 request_serializer=cells__tree__pb2.HeadVersionRequest.SerializeToString,
                 response_deserializer=cells__tree__pb2.HeadVersionResponse.FromString,
-                )
+                _registered_method=True)
         self.PruneVersions = channel.unary_unary(
                 '/tree.NodeVersioner/PruneVersions',
                 request_serializer=cells__tree__pb2.PruneVersionsRequest.SerializeToString,
                 response_deserializer=cells__tree__pb2.PruneVersionsResponse.FromString,
-                )
+                _registered_method=True)
+        self.ListVersioningPolicies = channel.unary_stream(
+                '/tree.NodeVersioner/ListVersioningPolicies',
+                request_serializer=cells__tree__pb2.ListVersioningPoliciesRequest.SerializeToString,
+                response_deserializer=cells__tree__pb2.VersioningPolicy.FromString,
+                _registered_method=True)
 
 
 class NodeVersionerServicer(object):
@@ -985,6 +1161,12 @@ class NodeVersionerServicer(object):
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
+    def ListVersioningPolicies(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
 
 def add_NodeVersionerServicer_to_server(servicer, server):
     rpc_method_handlers = {
@@ -1013,10 +1195,16 @@ def add_NodeVersionerServicer_to_server(servicer, server):
                     request_deserializer=cells__tree__pb2.PruneVersionsRequest.FromString,
                     response_serializer=cells__tree__pb2.PruneVersionsResponse.SerializeToString,
             ),
+            'ListVersioningPolicies': grpc.unary_stream_rpc_method_handler(
+                    servicer.ListVersioningPolicies,
+                    request_deserializer=cells__tree__pb2.ListVersioningPoliciesRequest.FromString,
+                    response_serializer=cells__tree__pb2.VersioningPolicy.SerializeToString,
+            ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
             'tree.NodeVersioner', rpc_method_handlers)
     server.add_generic_rpc_handlers((generic_handler,))
+    server.add_registered_method_handlers('tree.NodeVersioner', rpc_method_handlers)
 
 
  # This class is part of an EXPERIMENTAL API.
@@ -1037,11 +1225,21 @@ class NodeVersioner(object):
             wait_for_ready=None,
             timeout=None,
             metadata=None):
-        return grpc.experimental.unary_unary(request, target, '/tree.NodeVersioner/CreateVersion',
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/tree.NodeVersioner/CreateVersion',
             cells__tree__pb2.CreateVersionRequest.SerializeToString,
             cells__tree__pb2.CreateVersionResponse.FromString,
-            options, channel_credentials,
-            insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
 
     @staticmethod
     def StoreVersion(request,
@@ -1054,11 +1252,21 @@ class NodeVersioner(object):
             wait_for_ready=None,
             timeout=None,
             metadata=None):
-        return grpc.experimental.unary_unary(request, target, '/tree.NodeVersioner/StoreVersion',
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/tree.NodeVersioner/StoreVersion',
             cells__tree__pb2.StoreVersionRequest.SerializeToString,
             cells__tree__pb2.StoreVersionResponse.FromString,
-            options, channel_credentials,
-            insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
 
     @staticmethod
     def ListVersions(request,
@@ -1071,11 +1279,21 @@ class NodeVersioner(object):
             wait_for_ready=None,
             timeout=None,
             metadata=None):
-        return grpc.experimental.unary_stream(request, target, '/tree.NodeVersioner/ListVersions',
+        return grpc.experimental.unary_stream(
+            request,
+            target,
+            '/tree.NodeVersioner/ListVersions',
             cells__tree__pb2.ListVersionsRequest.SerializeToString,
             cells__tree__pb2.ListVersionsResponse.FromString,
-            options, channel_credentials,
-            insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
 
     @staticmethod
     def HeadVersion(request,
@@ -1088,11 +1306,21 @@ class NodeVersioner(object):
             wait_for_ready=None,
             timeout=None,
             metadata=None):
-        return grpc.experimental.unary_unary(request, target, '/tree.NodeVersioner/HeadVersion',
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/tree.NodeVersioner/HeadVersion',
             cells__tree__pb2.HeadVersionRequest.SerializeToString,
             cells__tree__pb2.HeadVersionResponse.FromString,
-            options, channel_credentials,
-            insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
 
     @staticmethod
     def PruneVersions(request,
@@ -1105,11 +1333,48 @@ class NodeVersioner(object):
             wait_for_ready=None,
             timeout=None,
             metadata=None):
-        return grpc.experimental.unary_unary(request, target, '/tree.NodeVersioner/PruneVersions',
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/tree.NodeVersioner/PruneVersions',
             cells__tree__pb2.PruneVersionsRequest.SerializeToString,
             cells__tree__pb2.PruneVersionsResponse.FromString,
-            options, channel_credentials,
-            insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def ListVersioningPolicies(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_stream(
+            request,
+            target,
+            '/tree.NodeVersioner/ListVersioningPolicies',
+            cells__tree__pb2.ListVersioningPoliciesRequest.SerializeToString,
+            cells__tree__pb2.VersioningPolicy.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
 
 
 class FileKeyManagerStub(object):
@@ -1128,7 +1393,7 @@ class FileKeyManagerStub(object):
                 '/tree.FileKeyManager/GetEncryptionKey',
                 request_serializer=cells__tree__pb2.GetEncryptionKeyRequest.SerializeToString,
                 response_deserializer=cells__tree__pb2.GetEncryptionKeyResponse.FromString,
-                )
+                _registered_method=True)
 
 
 class FileKeyManagerServicer(object):
@@ -1155,6 +1420,7 @@ def add_FileKeyManagerServicer_to_server(servicer, server):
     generic_handler = grpc.method_handlers_generic_handler(
             'tree.FileKeyManager', rpc_method_handlers)
     server.add_generic_rpc_handlers((generic_handler,))
+    server.add_registered_method_handlers('tree.FileKeyManager', rpc_method_handlers)
 
 
  # This class is part of an EXPERIMENTAL API.
@@ -1175,11 +1441,21 @@ class FileKeyManager(object):
             wait_for_ready=None,
             timeout=None,
             metadata=None):
-        return grpc.experimental.unary_unary(request, target, '/tree.FileKeyManager/GetEncryptionKey',
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/tree.FileKeyManager/GetEncryptionKey',
             cells__tree__pb2.GetEncryptionKeyRequest.SerializeToString,
             cells__tree__pb2.GetEncryptionKeyResponse.FromString,
-            options, channel_credentials,
-            insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
 
 
 class SyncChangesStub(object):
@@ -1199,12 +1475,12 @@ class SyncChangesStub(object):
                 '/tree.SyncChanges/Put',
                 request_serializer=cells__tree__pb2.SyncChange.SerializeToString,
                 response_deserializer=cells__tree__pb2.PutSyncChangeResponse.FromString,
-                )
+                _registered_method=True)
         self.Search = channel.unary_stream(
                 '/tree.SyncChanges/Search',
                 request_serializer=cells__tree__pb2.SearchSyncChangeRequest.SerializeToString,
                 response_deserializer=cells__tree__pb2.SyncChange.FromString,
-                )
+                _registered_method=True)
 
 
 class SyncChangesServicer(object):
@@ -1243,6 +1519,7 @@ def add_SyncChangesServicer_to_server(servicer, server):
     generic_handler = grpc.method_handlers_generic_handler(
             'tree.SyncChanges', rpc_method_handlers)
     server.add_generic_rpc_handlers((generic_handler,))
+    server.add_registered_method_handlers('tree.SyncChanges', rpc_method_handlers)
 
 
  # This class is part of an EXPERIMENTAL API.
@@ -1264,11 +1541,21 @@ class SyncChanges(object):
             wait_for_ready=None,
             timeout=None,
             metadata=None):
-        return grpc.experimental.stream_unary(request_iterator, target, '/tree.SyncChanges/Put',
+        return grpc.experimental.stream_unary(
+            request_iterator,
+            target,
+            '/tree.SyncChanges/Put',
             cells__tree__pb2.SyncChange.SerializeToString,
             cells__tree__pb2.PutSyncChangeResponse.FromString,
-            options, channel_credentials,
-            insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
 
     @staticmethod
     def Search(request,
@@ -1281,8 +1568,18 @@ class SyncChanges(object):
             wait_for_ready=None,
             timeout=None,
             metadata=None):
-        return grpc.experimental.unary_stream(request, target, '/tree.SyncChanges/Search',
+        return grpc.experimental.unary_stream(
+            request,
+            target,
+            '/tree.SyncChanges/Search',
             cells__tree__pb2.SearchSyncChangeRequest.SerializeToString,
             cells__tree__pb2.SyncChange.FromString,
-            options, channel_credentials,
-            insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)

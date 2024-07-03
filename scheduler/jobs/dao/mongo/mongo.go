@@ -83,8 +83,8 @@ func init() {
 	jobs.Drivers.Register(NewMongoDAO)
 }
 
-func NewMongoDAO(db *mongodb.Database) jobs.DAO {
-	return &mongoImpl{Database: db}
+func NewMongoDAO(db *mongodb.Indexer) jobs.DAO {
+	return &mongoImpl{Database: db.Database}
 }
 
 type mongoImpl struct {

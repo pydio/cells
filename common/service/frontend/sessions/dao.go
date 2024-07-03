@@ -10,7 +10,6 @@ import (
 	"gorm.io/gorm"
 
 	"github.com/pydio/cells/v4/common/config"
-	"github.com/pydio/cells/v4/common/dao"
 	"github.com/pydio/cells/v4/common/service/frontend/sessions/sqlsessions"
 	"github.com/pydio/cells/v4/common/service/frontend/sessions/utils"
 	"github.com/pydio/cells/v4/common/storage/sc"
@@ -73,7 +72,6 @@ type DAO interface {
 }
 
 type cookiesImpl struct {
-	dao.DAO
 	sync.Mutex
 	secureKeyPairs []byte
 	sessionStores  map[string]sessions.Store
@@ -86,7 +84,7 @@ func (s *cookiesImpl) Init(ctx context.Context, values configx.Values) error {
 		return e
 	} else {
 		s.secureKeyPairs = k
-		return s.DAO.Init(ctx, values)
+		return nil
 	}
 }
 

@@ -39,8 +39,8 @@ func init() {
 	chat.Drivers.Register(NewMongoDAO)
 }
 
-func NewMongoDAO(db *mongodb.Database) chat.DAO {
-	return &mongoImpl{db: db}
+func NewMongoDAO(db *mongodb.Indexer) chat.DAO {
+	return &mongoImpl{db: db.Database}
 }
 
 var mongoModel = mongodb.Model{

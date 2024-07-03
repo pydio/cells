@@ -1,3 +1,5 @@
+//go:build storage
+
 /*
  * Copyright (c) 2019-2021. Abstrium SAS <team (at) pydio.com>
  * This file is part of Pydio Cells.
@@ -39,8 +41,8 @@ import (
 	proto "github.com/pydio/cells/v4/common/proto/activity"
 	"github.com/pydio/cells/v4/common/proto/idm"
 	"github.com/pydio/cells/v4/common/runtime/manager"
+	"github.com/pydio/cells/v4/common/storage/test"
 	"github.com/pydio/cells/v4/common/utils/configx"
-	"github.com/pydio/cells/v4/common/utils/test"
 	"github.com/pydio/cells/v4/common/utils/uuid"
 
 	_ "github.com/pydio/cells/v4/common/storage/boltdb"
@@ -661,7 +663,7 @@ func TestPurge(t *testing.T) {
 
 			waitIfCache(dao)
 
-			err = dao.Purge(nil, logger, proto.OwnerType_USER, "john", activity.BoxInbox, 1, 100, time.Time{}, true, true)
+			err = dao.Purge(ctx, logger, proto.OwnerType_USER, "john", activity.BoxInbox, 1, 100, time.Time{}, true, true)
 			So(err, ShouldBeNil)
 			dao, err = manager.Resolve[activity.DAO](ctx)
 			So(err, ShouldBeNil)
@@ -670,7 +672,7 @@ func TestPurge(t *testing.T) {
 			So(err, ShouldBeNil)
 			So(results, ShouldHaveLength, 4)
 
-			err = dao.Purge(nil, logger, proto.OwnerType_USER, "john", activity.BoxInbox, 1, 2, time.Time{}, true, true)
+			err = dao.Purge(ctx, logger, proto.OwnerType_USER, "john", activity.BoxInbox, 1, 2, time.Time{}, true, true)
 			So(err, ShouldBeNil)
 			dao, err = manager.Resolve[activity.DAO](ctx)
 			So(err, ShouldBeNil)
@@ -689,7 +691,7 @@ func TestPurge(t *testing.T) {
 			So(results, ShouldHaveLength, 4)
 
 			sevenDays := 7 * time.Hour * 24
-			err = dao.Purge(nil, logger, proto.OwnerType_USER, "john", activity.BoxInbox, 0, 100, time.Now().Add(-sevenDays), true, true)
+			err = dao.Purge(ctx, logger, proto.OwnerType_USER, "john", activity.BoxInbox, 0, 100, time.Now().Add(-sevenDays), true, true)
 			So(err, ShouldBeNil)
 			dao, err = manager.Resolve[activity.DAO](ctx)
 			So(err, ShouldBeNil)
@@ -730,7 +732,7 @@ func TestSubscriptions(t *testing.T) {
 				ObjectId:   "ROOT",
 				Events:     []string{"read", "write"},
 			}
-			err = dao.UpdateSubscription(nil, sub)
+			err = dao.UpdateSubscription(ctx, sub)
 			So(err, ShouldBeNil)
 
 			sub2 := &proto.Subscription{
@@ -739,10 +741,10 @@ func TestSubscriptions(t *testing.T) {
 				ObjectId:   "OTHER_NODE",
 				Events:     []string{"read", "write"},
 			}
-			err = dao.UpdateSubscription(nil, sub2)
+			err = dao.UpdateSubscription(ctx, sub2)
 			So(err, ShouldBeNil)
 
-			subs, err := dao.ListSubscriptions(nil, proto.OwnerType_NODE, []string{"ROOT"})
+			subs, err := dao.ListSubscriptions(ctx, proto.OwnerType_NODE, []string{"ROOT"})
 			So(err, ShouldBeNil)
 			So(subs, ShouldHaveLength, 1)
 
@@ -764,10 +766,10 @@ func TestSubscriptions(t *testing.T) {
 				Events:     []string{},
 			}
 
-			err = dao.UpdateSubscription(nil, sub)
+			err = dao.UpdateSubscription(ctx, sub)
 			So(err, ShouldBeNil)
 
-			subs, err := dao.ListSubscriptions(nil, proto.OwnerType_NODE, []string{"ROOT"})
+			subs, err := dao.ListSubscriptions(ctx, proto.OwnerType_NODE, []string{"ROOT"})
 			So(err, ShouldBeNil)
 			So(subs, ShouldHaveLength, 0)
 

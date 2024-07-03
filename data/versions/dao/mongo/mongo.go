@@ -62,8 +62,8 @@ type mVersion struct {
 	*tree.ChangeLog
 }
 
-func NewMongoDAO(db *mongodb.Database) versions.DAO {
-	return &mongoStore{Database: db}
+func NewMongoDAO(db *mongodb.Indexer) versions.DAO {
+	return &mongoStore{Database: db.Database}
 }
 
 type mongoStore struct {

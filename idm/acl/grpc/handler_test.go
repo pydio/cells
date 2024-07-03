@@ -1,3 +1,5 @@
+//go:build storage
+
 /*
  * Copyright (c) 2018. Abstrium SAS <team (at) pydio.com>
  * This file is part of Pydio Cells.
@@ -30,16 +32,10 @@ import (
 
 	"github.com/pydio/cells/v4/common/proto/idm"
 	service "github.com/pydio/cells/v4/common/proto/service"
-	"github.com/pydio/cells/v4/common/utils/configx"
-	"github.com/pydio/cells/v4/common/utils/test"
+	"github.com/pydio/cells/v4/common/storage/test"
 	"github.com/pydio/cells/v4/idm/acl/dao/sql"
 
 	. "github.com/smartystreets/goconvey/convey"
-)
-
-var (
-	//mockDAO acl.DAO
-	options = configx.New()
 )
 
 var (

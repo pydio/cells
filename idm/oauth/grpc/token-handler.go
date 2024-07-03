@@ -82,8 +82,8 @@ func (c *configProvider) GetHMACHasher(ctx context.Context) func() hash.Hash {
 	return sha512.New512_256
 }
 
-func (p *PATHandler) getDao(ctx context.Context) (oauth.DAO, error) {
-	return manager.Resolve[oauth.DAO](ctx)
+func (p *PATHandler) getDao(ctx context.Context) (oauth.PatDAO, error) {
+	return manager.Resolve[oauth.PatDAO](ctx)
 }
 
 func (p *PATHandler) getStrategy() *hmac.HMACStrategy {

@@ -22,7 +22,6 @@
 package oauth
 
 import (
-	"github.com/pydio/cells/v4/common/dao"
 	"github.com/pydio/cells/v4/common/proto/auth"
 	"github.com/pydio/cells/v4/common/service"
 )
@@ -31,9 +30,8 @@ var (
 	PatDrivers service.StorageDrivers
 )
 
-// DAO interface
-type DAO interface {
-	dao.DAO
+// PatDAO interface
+type PatDAO interface {
 	// Load finds a corresponding, non-expired PAT based on the AccessToken.
 	Load(accessToken string) (*auth.PersonalAccessToken, error)
 	// Store inserts a PAT in the storage.

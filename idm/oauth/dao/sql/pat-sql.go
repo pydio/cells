@@ -1,3 +1,5 @@
+//go:build storage
+
 /*
  * Copyright (c) 2018. Abstrium SAS <team (at) pydio.com>
  * This file is part of Pydio Cells.
@@ -28,9 +30,7 @@ import (
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
 
-	"github.com/pydio/cells/v4/common/dao"
 	"github.com/pydio/cells/v4/common/proto/auth"
-	"github.com/pydio/cells/v4/common/sql"
 	"github.com/pydio/cells/v4/common/utils/configx"
 	json "github.com/pydio/cells/v4/common/utils/jsonx"
 	"github.com/pydio/cells/v4/idm/oauth"
@@ -41,7 +41,7 @@ func init() {
 }
 
 // NewPatDAO creates a new DAO interface implementation. Only SQL is supported.
-func NewPatDAO(db *gorm.DB) dao.DAO {
+func NewPatDAO(db *gorm.DB) oauth.PatDAO {
 	return &sqlImpl{db: db}
 }
 
@@ -116,11 +116,8 @@ func (u *PersonalToken) From(res *auth.PersonalAccessToken) *PersonalToken {
 }
 
 type sqlImpl struct {
-	db *gorm.DB
-
+	db       *gorm.DB
 	instance func() *gorm.DB
-
-	*sql.Handler
 }
 
 // Init handler for the SQL DAO

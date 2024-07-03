@@ -21,8 +21,6 @@
 package storage
 
 import (
-	"context"
-
 	"github.com/pydio/cells/v4/common/utils/configx"
 )
 
@@ -54,6 +52,7 @@ type IndexIDProvider interface {
 	IndexID() string
 }
 
+/*
 // IndexDAO is a rich DAO with ready-to-use inserts + search capacities.
 // It must be initialised with a proper DAO and a proper IndexCodex.
 type IndexDAO interface {
@@ -76,3 +75,4 @@ type IndexDAO interface {
 	// Close closes the index connection
 	Close(ctx context.Context) error
 }
+*/

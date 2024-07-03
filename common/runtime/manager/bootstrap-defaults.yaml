@@ -219,20 +219,12 @@ defaults:
   storages: &storages
     sql:
       uri: sqlite://test.db?prefix={{ .Value "prefix" }}&policies={{ .Value "policies" }}&singular={{ .Value "singular" }}
+    bolt:
+      uri: boltdb://{{ .Value "dir" }}/{{ .Value "file" }}
+    bleve:
+      uri: bleve://{{ .Value "dir" }}/{{ .Value "file" }}
   #  search:
   #    uri: mongo+indexer://localhost:24017/search
-    activities:
-      uri: boltdb://{{{{ getServiceDataDir "pydio.grpc.activity" }}}}/activities.db
-    dc_bolt:
-      uri: boltdb://{{{{ getServiceDataDir "pydio.grpc.docstore" }}}}/docstore.db
-    dc_bleve:
-      uri: bleve://{{{{ getServiceDataDir "pydio.grpc.docstore" }}}}/docstore.bleve
-    logs:
-      uri: bleve://{{{{ getServiceDataDir "pydio.grpc.logs" }}}}/syslog.bleve?mapping=log
-    jobs:
-      uri: boltdb://{{{{ getServiceDataDir "pydio.grpc.jobs" }}}}/jobs.db
-    tasklogs:
-      uri: bleve://{{{{ getServiceDataDir "pydio.grpc.jobs" }}}}/tasklogs.bleve
   #    uri: bleve:///tmp/{{ TODOMustServiceDataDir .Value service }}.bleve?mapping={{ .Value mapping }}&rotationSize={{ .Value rotationSize }}
   #  fifo:
   #    uri: goq:///tmp/{{ .Value tenant }}/fifo/{{ .Value prefix }}?evictionTime={{ .evictionTime }}
@@ -264,14 +256,40 @@ defaults:
     pydio.grpc.activity:
       storages:
         main:
-          - type: activities
-            prefix: activities
+          - type: bolt
+            dir: {{{{ getServiceDataDir "pydio.grpc.activity" }}}}
+            file: activities.db
+    pydio.grpc.versions:
+      storages:
+        main:
+          - type: bolt
+            dir: {{{{ getServiceDataDir "pydio.grpc.versions" }}}}
+            file: versions.db
     pydio.grpc.docstore:
       storages:
         main:
-          - type: dc_bolt
-            prefix: docstore
-          - type: dc_bleve
+          - type: bolt
+            dir: {{{{ getServiceDataDir "pydio.grpc.docstore" }}}}
+            file: docstore.db
+          - type: bleve
+            dir: {{{{ getServiceDataDir "pydio.grpc.docstore" }}}}
+            file: docstore.bleve?rotationSize=-1
+    pydio.grpc.log:
+      storages:
+        main:
+          - type: bleve
+            dir: {{{{ getServiceDataDir "pydio.grpc.log" }}}}
+            file: syslog.bleve?mapping=log&rotationSize=-1
+    pydio.grpc.jobs:
+      storages:
+        main:
+          - type: bolt
+            dir: {{{{ getServiceDataDir "pydio.grpc.jobs" }}}}
+            file: jobs.db
+        logs:
+          - type: bleve
+            dir: {{{{ getServiceDataDir "pydio.grpc.jobs" }}}}
+            file: tasklogs.bleve?mapping=log&rotationSize=-1
     pydio.grpc.role:
       storages:
         main:
@@ -327,20 +345,3 @@ defaults:
           - type: sql
             prefix: idm_usr_
             policies: idm_usr_meta_policies
-    pydio.grpc.log:
-      storages:
-        main:
-          - type: logs
-            prefix: syslog
-            mapping: log
-            rotationSize: -1
-    pydio.grpc.jobs:
-      storages:
-        main:
-          - type: jobs
-            prefix: jobs
-        logs:
-          - type: tasklogs
-            prefix: tasklogs
-            mapping: log
-            rotationSize: -1

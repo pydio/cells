@@ -1,3 +1,5 @@
+//go:build storage
+
 package grpc
 
 import (
@@ -7,8 +9,8 @@ import (
 
 	"github.com/pydio/cells/v4/common/errors"
 	"github.com/pydio/cells/v4/common/proto/auth"
+	"github.com/pydio/cells/v4/common/storage/test"
 	"github.com/pydio/cells/v4/common/utils/configx"
-	"github.com/pydio/cells/v4/common/utils/test"
 	"github.com/pydio/cells/v4/idm/oauth/dao/sql"
 
 	. "github.com/smartystreets/goconvey/convey"

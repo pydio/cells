@@ -26,7 +26,6 @@ import (
 	"go.uber.org/zap"
 	"gorm.io/gorm"
 
-	"github.com/pydio/cells/v4/common/sql"
 	"github.com/pydio/cells/v4/common/telemetry/log"
 	"github.com/pydio/cells/v4/common/utils/configx"
 	"github.com/pydio/cells/v4/data/source/sync"
@@ -58,8 +57,6 @@ type Checksum struct {
 
 // Impl of the SQL interface
 type sqlImpl struct {
-	sql.DAO
-
 	db       *gorm.DB
 	instance func(ctx context.Context) *gorm.DB
 }

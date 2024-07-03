@@ -27,10 +27,13 @@ import (
 	"github.com/spf13/cobra"
 
 	"github.com/pydio/cells/v4/common/client/grpc"
+	"github.com/pydio/cells/v4/common/runtime/tenant"
+	"github.com/pydio/cells/v4/common/utils/propagator"
 )
 
 var (
 	adminCmdGRPCTimeout string
+	adminCmdTenantID    string
 )
 
 func longGrpcCallTimeout() grpc.Option {
@@ -65,6 +68,14 @@ DESCRIPTION
 
 		_, _, er := initConfig(cmd.Context(), true)
 
+		var t tenant.Tenant
+		if t, er = tenant.GetManager().TenantByID(adminCmdTenantID); er != nil {
+			t = tenant.GetManager().GetMaster()
+			cmd.Println("tenant not found, using " + t.ID())
+		} else {
+			cmd.Println("using tenant " + adminCmdTenantID)
+		}
+		ctx = propagator.With(ctx, tenant.ContextKey, t)
 		return er
 	},
 	Run: func(cmd *cobra.Command, args []string) {
@@ -77,5 +88,6 @@ func init() {
 	addExternalCmdRegistryFlags(AdminCmd.PersistentFlags())
 	addCacheFlags(AdminCmd.PersistentFlags())
 	AdminCmd.PersistentFlags().StringVarP(&adminCmdGRPCTimeout, "grpc_client_timeout", "", "60m", "Default timeout for long-running GRPC calls, expressed as a golang duration")
+	AdminCmd.PersistentFlags().StringVar(&adminCmdTenantID, "tenant_id", "default", "Tenant ID to apply command")
 	RootCmd.AddCommand(AdminCmd)
 }

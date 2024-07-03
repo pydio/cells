@@ -1,3 +1,6 @@
+//go:build exclude
+// +build exclude
+
 /*
  * Copyright (c) 2019-2022. Abstrium SAS <team (at) pydio.com>
  * This file is part of Pydio Cells.

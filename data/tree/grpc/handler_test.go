@@ -25,11 +25,11 @@ import (
 	"sync"
 	"testing"
 
-	. "github.com/smartystreets/goconvey/convey"
-
 	"github.com/pydio/cells/v4/common/nodes"
 	"github.com/pydio/cells/v4/common/nodes/mocks"
 	"github.com/pydio/cells/v4/common/proto/tree"
+
+	. "github.com/smartystreets/goconvey/convey"
 )
 
 var (
@@ -63,12 +63,11 @@ func init() {
 func TestReadNode(t *testing.T) {
 
 	// Create tree server with fake datasources
-	ts := &TreeServer{
-		sources:     dataSources,
-		mainCtx:     mainCtx,
-		sourcesLock: &sync.RWMutex{},
-	}
 	ctx := context.Background()
+	ts := NewTreeServer(ctx, "test")
+	for _, ds := range dataSources {
+		ts.AppendDatasource(ctx, ds.Name, ds)
+	}
 
 	Convey("Search By Path", t, func() {
 
@@ -96,10 +95,10 @@ func TestReadNode(t *testing.T) {
 func TestListNodes(t *testing.T) {
 
 	// Create tree server with fake datasources
-	ts := &TreeServer{
-		sources:     dataSources,
-		mainCtx:     context.Background(),
-		sourcesLock: &sync.RWMutex{},
+	ctx := context.Background()
+	ts := NewTreeServer(ctx, "test")
+	for _, ds := range dataSources {
+		ts.AppendDatasource(ctx, ds.Name, ds)
 	}
 
 	Convey("List datasources", t, func() {
@@ -148,13 +147,11 @@ func TestListNodes(t *testing.T) {
 func TestRootNodeOperations(t *testing.T) {
 
 	// Create tree server with fake datasources
-	ts := &TreeServer{
-		sources:     dataSources,
-		mainCtx:     mainCtx,
-		sourcesLock: &sync.RWMutex{},
-	}
-
 	ctx := context.Background()
+	ts := NewTreeServer(ctx, "test")
+	for _, ds := range dataSources {
+		ts.AppendDatasource(ctx, ds.Name, ds)
+	}
 
 	Convey("Create Node on Root", t, func() {
 

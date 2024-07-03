@@ -1,3 +1,5 @@
+//go:build storage
+
 /*
  * Copyright (c) 2018. Abstrium SAS <team (at) pydio.com>
  * This file is part of Pydio Cells.
@@ -30,8 +32,8 @@ import (
 	"github.com/pydio/cells/v4/common/proto/idm"
 	service "github.com/pydio/cells/v4/common/proto/service"
 	"github.com/pydio/cells/v4/common/runtime/manager"
+	"github.com/pydio/cells/v4/common/storage/test"
 	"github.com/pydio/cells/v4/common/telemetry/log"
-	"github.com/pydio/cells/v4/common/utils/test"
 	"github.com/pydio/cells/v4/idm/meta"
 
 	_ "github.com/pydio/cells/v4/common/utils/cache/gocache"

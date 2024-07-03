@@ -114,6 +114,9 @@ func uniqueQueryToFilters(m query.Query, fieldTransformer func(string) string, i
 		}
 	case *query.MatchPhraseQuery:
 		phrase := strings.Trim(v.MatchPhrase, "\"")
+		if !strings.Contains(phrase, "*") && strings.Contains(phrase, " ") {
+			phrase = "*" + phrase + "*"
+		}
 		if strings.Contains(phrase, "*") {
 			regexp := ""
 			if !strings.HasPrefix(phrase, "*") {

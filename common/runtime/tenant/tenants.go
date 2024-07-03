@@ -22,8 +22,8 @@ package tenant
 
 import (
 	"context"
-	"fmt"
 
+	"github.com/pydio/cells/v4/common/errors"
 	"github.com/pydio/cells/v4/common/utils/propagator"
 )
 
@@ -31,10 +31,11 @@ var (
 	tm Manager = &basicManager{
 		tt: []Tenant{
 			&basicTenant{id: "default"},
-			//			&basicTenant{id: "tenant1"},
-			//			&basicTenant{id: "tenant2"},
+			&basicTenant{id: "sub1"},
+			&basicTenant{id: "sub2"},
 		},
 	}
+	ErrNotFound = errors.RegisterBaseSentinel(errors.StatusUnauthorized, "tenant not found")
 )
 
 func RegisterManager(m Manager) {
@@ -110,7 +111,7 @@ func (b *basicManager) TenantByID(id string) (Tenant, error) {
 			return t, nil
 		}
 	}
-	return nil, fmt.Errorf("not found")
+	return nil, errors.WithStack(ErrNotFound)
 }
 
 func (b *basicManager) Subscribe(cb func(event WatchEvent)) error {

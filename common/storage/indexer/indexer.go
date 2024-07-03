@@ -49,17 +49,25 @@ type QueryOptionsProvider interface {
 	BuildQueryOptions(query interface{}, offset, limit int32) (interface{}, error)
 }
 
+// IndexIDProvider provides a method to retrieve a document unique ID
 type IndexIDProvider interface {
 	IndexID() string
 }
 
+// Indexer is a generic interface for storages supporting advanced search techniques
 type Indexer interface {
+	// InsertOne stores one document. Write operations may be batched underneath.
 	InsertOne(ctx context.Context, data interface{}) error
+	// DeleteOne deletes one document. It can only be used if documents are providing IDs.
 	DeleteOne(ctx context.Context, data interface{}) error
+	// DeleteMany deletes documents by a search query.
 	DeleteMany(ctx context.Context, query interface{}) (int32, error)
 
+	// Count performs a query and just get the total number of results
 	Count(ctx context.Context, query interface{}) (int, error)
+	// Search performs a query
 	Search(ctx context.Context, in any, out any) error
+	// FindMany sends a search query to indexer. A custom IndexCodex can be used to accumulate some information during results parsing.
 	FindMany(ctx context.Context, query interface{}, offset, limit int32, sortFields string, sortDesc bool, customCodex IndexCodex) (chan interface{}, error)
 
 	// SetCodex sets the IndexCodex to be used for marshalling/unmarshalling data. Can be locally overriden during FindMany requests.
@@ -73,6 +81,7 @@ type Indexer interface {
 	// Stats returns statistics about current indexer
 	Stats(ctx context.Context) map[string]interface{}
 
+	// NewBatch creates a batch for inserts/deletes
 	NewBatch(ctx context.Context, options ...BatchOption) (Batch, error)
 
 	// Init the underlying model

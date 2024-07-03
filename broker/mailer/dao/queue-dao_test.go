@@ -1,3 +1,5 @@
+//go:build storage
+
 /*
  * Copyright (c) 2024. Abstrium SAS <team (at) pydio.com>
  * This file is part of Pydio Cells.
@@ -32,8 +34,8 @@ import (
 	"github.com/pydio/cells/v4/broker/mailer/dao/mongo"
 	"github.com/pydio/cells/v4/common/proto/mailer"
 	"github.com/pydio/cells/v4/common/runtime/manager"
+	"github.com/pydio/cells/v4/common/storage/test"
 	"github.com/pydio/cells/v4/common/utils/configx"
-	"github.com/pydio/cells/v4/common/utils/test"
 
 	_ "github.com/pydio/cells/v4/common/storage/boltdb"
 	_ "github.com/pydio/cells/v4/common/storage/mongodb"
@@ -55,7 +57,7 @@ func init() {
 	conf.Val("QueueMaxSize").Set(int64(10))
 }
 
-func testQueue(t *testing.T, queue mailer2.Queue) {
+func testQueue(ctx context.Context, t *testing.T, queue mailer2.Queue) {
 
 	email := &mailer.Mail{
 		To: []*mailer.User{{
@@ -73,11 +75,11 @@ func testQueue(t *testing.T, queue mailer2.Queue) {
 	email2 := proto.Clone(email).(*mailer.Mail)
 	email2.Subject = "Second email"
 
-	err := queue.Push(nil, email)
+	err := queue.Push(ctx, email)
 	So(err, ShouldBeNil)
 
 	var consumedMail *mailer.Mail
-	e := queue.Consume(nil, func(email *mailer.Mail) error {
+	e := queue.Consume(ctx, func(email *mailer.Mail) error {
 		consumedMail = email
 		return nil
 	})
@@ -85,12 +87,12 @@ func testQueue(t *testing.T, queue mailer2.Queue) {
 	So(consumedMail, ShouldNotBeNil)
 	So(consumedMail.GetFrom().Name, ShouldEqual, "Sender")
 
-	err = queue.Push(nil, email2)
+	err = queue.Push(ctx, email2)
 	So(err, ShouldBeNil)
 
 	// We should only retrieve 2nd email
 	i := 0
-	e = queue.Consume(nil, func(email *mailer.Mail) error {
+	e = queue.Consume(ctx, func(email *mailer.Mail) error {
 		consumedMail = email
 		i++
 		return nil
@@ -101,20 +103,20 @@ func testQueue(t *testing.T, queue mailer2.Queue) {
 	So(i, ShouldEqual, 1)
 
 	email2.Subject = "Test 3 With Fail"
-	err = queue.Push(nil, email2)
+	err = queue.Push(ctx, email2)
 	So(err, ShouldBeNil)
-	e = queue.Consume(nil, func(email *mailer.Mail) error {
+	e = queue.Consume(ctx, func(email *mailer.Mail) error {
 		return fmt.Errorf("Failed Sending Email - Should Update Retry")
 	})
 	So(e, ShouldNotBeNil)
 
-	e = queue.Consume(nil, func(email *mailer.Mail) error {
+	e = queue.Consume(ctx, func(email *mailer.Mail) error {
 		return fmt.Errorf("Failed Sending Email - Should Update Retry _ 2")
 	})
 	So(e, ShouldNotBeNil)
 
 	i = 0
-	e = queue.Consume(nil, func(email *mailer.Mail) error {
+	e = queue.Consume(ctx, func(email *mailer.Mail) error {
 		i++
 		consumedMail = email
 		return nil
@@ -135,7 +137,7 @@ func TestEnqueueMail(t *testing.T) {
 				panic(err)
 			}
 
-			testQueue(t, queue)
+			testQueue(ctx, t, queue)
 		})
 
 	})

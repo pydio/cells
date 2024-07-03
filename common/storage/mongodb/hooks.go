@@ -24,6 +24,7 @@ import (
 	"context"
 	"fmt"
 	"strings"
+	"sync"
 
 	"go.mongodb.org/mongo-driver/event"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -35,19 +36,22 @@ var (
 
 	createdCollections = map[string]bool{}
 	cleaners           []func(ctx context.Context, cl *mongo.Client) error
+	cleanersOnce       sync.Once
 )
 
 func init() {
 	hooksRegister["cleanCollections"] = func(options *options.ClientOptions) *options.ClientOptions {
-		cleaners = append(cleaners, func(ctx context.Context, cl *mongo.Client) error {
-			for coll := range createdCollections {
-				parts := strings.Split(coll, ":::")
-				fmt.Println("Dropping collection " + parts[1] + " from DB " + parts[0])
-				if er := cl.Database(parts[0]).Collection(parts[1]).Drop(ctx); er != nil {
-					return er
+		cleanersOnce.Do(func() {
+			cleaners = append(cleaners, func(ctx context.Context, cl *mongo.Client) error {
+				for coll := range createdCollections {
+					parts := strings.Split(coll, ":::")
+					fmt.Println("Dropping collection " + parts[1] + " from DB " + parts[0])
+					if er := cl.Database(parts[0]).Collection(parts[1]).Drop(ctx); er != nil {
+						return er
+					}
 				}
-			}
-			return nil
+				return nil
+			})
 		})
 		return options.SetMonitor(&event.CommandMonitor{
 			Started: func(ctx context.Context, startedEvent *event.CommandStartedEvent) {

@@ -65,8 +65,8 @@ func init() {
 	mailer2.Drivers.Register(NewMongoDAO)
 }
 
-func NewMongoDAO(db *mongodb.Database) mailer2.Queue {
-	return &mongoQueue{db: db}
+func NewMongoDAO(db *mongodb.Indexer) mailer2.Queue {
+	return &mongoQueue{db: db.Database}
 }
 
 func (m *mongoQueue) Init(ctx context.Context, conf configx.Values) error {

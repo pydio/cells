@@ -1,3 +1,5 @@
+//go:build storage
+
 /*
  * Copyright (c) 2019-2021. Abstrium SAS <team (at) pydio.com>
  * This file is part of Pydio Cells.
@@ -29,7 +31,6 @@ import (
 	"gorm.io/gorm/clause"
 
 	"github.com/pydio/cells/v4/common/errors"
-	"github.com/pydio/cells/v4/common/sql"
 	"github.com/pydio/cells/v4/common/utils/configx"
 	"github.com/pydio/cells/v4/data/meta"
 )
@@ -55,8 +56,6 @@ func (*Meta) TableName() string { return "data_meta" }
 
 // Impl of the SQL interface
 type sqlImpl struct {
-	sql.DAO
-
 	db   *gorm.DB
 	once *sync.Once
 }

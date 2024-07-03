@@ -1,4 +1,4 @@
-package oauth
+package sql
 
 import (
 	"fmt"
@@ -6,17 +6,16 @@ import (
 	"time"
 
 	"github.com/pydio/cells/v4/common/proto/auth"
-	"github.com/pydio/cells/v4/common/sql"
+	"github.com/pydio/cells/v4/idm/oauth"
 )
 
 // MemDAO is a dev-util for storing tokens in memory
 type MemDAO struct {
-	sql.DAO
 	tokens map[string]*auth.PersonalAccessToken
 	tLock  *sync.Mutex
 }
 
-func NewMemDao() DAO {
+func NewMemDao() oauth.PatDAO {
 	m := &MemDAO{
 		tokens: make(map[string]*auth.PersonalAccessToken),
 		tLock:  &sync.Mutex{},

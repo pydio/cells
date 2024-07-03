@@ -65,8 +65,8 @@ func init() {
 	docstore.Drivers.Register(NewMongoDAO)
 }
 
-func NewMongoDAO(db *mongodb.Database) docstore.DAO {
-	return &mongoImpl{Database: db}
+func NewMongoDAO(db *mongodb.Indexer) docstore.DAO {
+	return &mongoImpl{Database: db.Database}
 }
 
 type mongoImpl struct {

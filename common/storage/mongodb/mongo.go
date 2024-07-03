@@ -22,13 +22,13 @@ package mongodb
 
 import (
 	"context"
-	"fmt"
 	"net/url"
 	"strings"
 
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 
+	"github.com/pydio/cells/v4/common/errors"
 	"github.com/pydio/cells/v4/common/runtime"
 	"github.com/pydio/cells/v4/common/runtime/controller"
 	"github.com/pydio/cells/v4/common/runtime/manager"
@@ -37,20 +37,13 @@ import (
 	"github.com/pydio/cells/v4/common/utils/propagator"
 )
 
-var (
-	mongoTypes = []string{"mongodb"}
-)
-
 func init() {
 	runtime.Register("system", func(ctx context.Context) {
 		var mgr manager.Manager
 		if !propagator.Get(ctx, manager.ContextKey, &mgr) {
 			return
 		}
-
-		for _, mongoType := range mongoTypes {
-			mgr.RegisterStorage(mongoType, controller.WithCustomOpener(OpenPool))
-		}
+		mgr.RegisterStorage("mongodb", controller.WithCustomOpener(OpenPool))
 	})
 
 }
@@ -92,12 +85,8 @@ func OpenPool(ctx context.Context, uu string) (storage.Storage, error) {
 			Database: db,
 		}
 
-		if !u.Query().Has("collection") {
-			return nil, fmt.Errorf("no collection found in URL for indexer")
-		}
-		idx := newIndexer(prefixed, u.Query().Get("collection"))
+		return newIndexer(prefixed, u.Query().Get("collection")), nil
 
-		return idx, nil
 	})
 
 	if err != nil {
@@ -141,5 +130,14 @@ func (d *Database) CreateCollection(ctx context.Context, name string, opts ...*o
 
 // CloseAndDrop implements storage.Dropper interface
 func (d *Database) CloseAndDrop(ctx context.Context) error {
-	panic("implement me")
+	var err []error
+	for _, cc := range cleaners {
+		if e := cc(ctx, d.Client()); e != nil {
+			err = append(err, e)
+		}
+	}
+	if e := d.Client().Disconnect(ctx); e != nil {
+		err = append(err, e)
+	}
+	return errors.Join(err...)
 }

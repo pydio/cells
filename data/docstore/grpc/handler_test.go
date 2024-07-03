@@ -1,3 +1,5 @@
+//go:build storage
+
 /*
  * Copyright (c) 2019-2021. Abstrium SAS <team (at) pydio.com>
  * This file is part of Pydio Cells.
@@ -29,7 +31,7 @@ import (
 	"google.golang.org/grpc"
 
 	proto "github.com/pydio/cells/v4/common/proto/docstore"
-	"github.com/pydio/cells/v4/common/utils/test"
+	"github.com/pydio/cells/v4/common/storage/test"
 	"github.com/pydio/cells/v4/common/utils/uuid"
 	"github.com/pydio/cells/v4/data/docstore/dao/bleve"
 	"github.com/pydio/cells/v4/data/docstore/dao/mongo"

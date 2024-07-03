@@ -78,8 +78,8 @@ func init() {
 	activity.Drivers.Register(NewMongoDAO)
 }
 
-func NewMongoDAO(database *mongodb.Database) activity.DAO {
-	return &mongoimpl{Database: database}
+func NewMongoDAO(ix *mongodb.Indexer) activity.DAO {
+	return &mongoimpl{Database: ix.Database}
 }
 
 type mongoimpl struct {

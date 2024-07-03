@@ -1,3 +1,6 @@
+//go:build exclude
+// +build exclude
+
 /*
  * Copyright (c) 2019-2021. Abstrium SAS <team (at) pydio.com>
  * This file is part of Pydio Cells.
@@ -25,7 +28,6 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
-	"os"
 	"strings"
 	"sync"
 	"sync/atomic"
@@ -36,38 +38,11 @@ import (
 	"github.com/pydio/cells/v4/common/dao"
 	"github.com/pydio/cells/v4/common/registry"
 	"github.com/pydio/cells/v4/common/registry/util"
-	"github.com/pydio/cells/v4/common/runtime"
 	"github.com/pydio/cells/v4/common/utils/configx"
 )
 
-var (
-	DefaultConnectionTimeout = 30 * time.Second
-	LongConnectionTimeout    = 10 * time.Minute
-	ErrNoRows                = sql.ErrNoRows
-)
-
-func init() {
-	runtime.RegisterEnvVariable("CELLS_SQL_DEFAULT_CONN", "30s", "Default SQL connection timeout")
-	runtime.RegisterEnvVariable("CELLS_SQL_LONG_CONN", "10m", "Default SQL long connections timeout (for reading big tables)")
-
-	if dc := os.Getenv("CELLS_SQL_DEFAULT_CONN"); dc != "" {
-		if ddc, e := time.ParseDuration(dc); e == nil {
-			DefaultConnectionTimeout = ddc
-		}
-	}
-
-	if dc := os.Getenv("CELLS_SQL_LONG_CONN"); dc != "" {
-		if ddc, e := time.ParseDuration(dc); e == nil {
-			LongConnectionTimeout = ddc
-		}
-	}
-
-}
-
 // DAO interface definition
 type DAO interface {
-	dao.DAO
-
 	DB() *sql.DB
 	Version() (string, error)
 	Prepare(string, interface{}) error

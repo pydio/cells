@@ -27,7 +27,6 @@ import (
 	"gorm.io/gorm"
 
 	"github.com/pydio/cells/v4/common/proto/tree"
-	"github.com/pydio/cells/v4/common/sql"
 	cindex "github.com/pydio/cells/v4/common/sql/indexgorm"
 	"github.com/pydio/cells/v4/common/telemetry/log"
 	"github.com/pydio/cells/v4/common/utils/configx"
@@ -57,11 +56,6 @@ type sqlimpl struct {
 	db *gorm.DB
 
 	IndexSQL
-}
-
-func (s *sqlimpl) GetSQLDAO() sql.DAO {
-	//TODO implement me
-	panic("implement me")
 }
 
 func (s *sqlimpl) LostAndFounds(ctx context.Context) ([]cindex.LostAndFound, error) {

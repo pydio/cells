@@ -24,7 +24,6 @@ import (
 	"context"
 	"crypto/md5"
 	"encoding/hex"
-	"fmt"
 	"log"
 	"regexp"
 	"testing"
@@ -34,9 +33,8 @@ import (
 	"github.com/pydio/cells/v4/common/proto/tree"
 	"github.com/pydio/cells/v4/common/runtime"
 	"github.com/pydio/cells/v4/common/runtime/manager"
-	"github.com/pydio/cells/v4/common/sql"
+	"github.com/pydio/cells/v4/common/storage/test"
 	"github.com/pydio/cells/v4/common/utils/configx"
-	"github.com/pydio/cells/v4/common/utils/test"
 	"github.com/pydio/cells/v4/data/source/index"
 
 	_ "github.com/pydio/cells/v4/common/utils/cache/gocache"
@@ -117,15 +115,6 @@ func init() {
 	}
 }
 
-func getSQLDAO(ctx context.Context) sql.DAO {
-	dao, err := manager.Resolve[sql.DAO](ctx)
-	if err != nil {
-		panic(err)
-	}
-
-	return dao
-}
-
 func getDAO(ctx context.Context) index.DAO {
 	dao, err := manager.Resolve[index.DAO](ctx)
 	if err != nil {
@@ -171,6 +160,7 @@ func trimSchema(schema []string) []string {
 	return newSchema
 }
 
+/*
 func printTree() {
 	// query
 
@@ -207,6 +197,8 @@ func printNodes() {
 		fmt.Println(uuid, name, leaf, mtime, etag, size, mode)
 	}
 }
+
+*/
 
 func TestMysql(t *testing.T) {
 	testAll(t, func(dao index.DAO) func(t *testing.T) {
