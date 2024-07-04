@@ -27,8 +27,6 @@ import (
 	"strings"
 	"text/template"
 
-	ypatch "github.com/palantir/pkg/yamlpatch"
-
 	"github.com/pydio/cells/v4/common/config"
 	"github.com/pydio/cells/v4/common/runtime"
 
@@ -40,18 +38,11 @@ var (
 	defaultsTemplate string
 	//go:embed bootstrap.yaml
 	bootstrapTemplate string
-
-	bootstrapPatches ypatch.Patch
 )
 
 // SetBootstrapTemplate overrides initial template
 func SetBootstrapTemplate(tpl string) {
 	bootstrapTemplate = tpl
-}
-
-// AppendBootstrapPatches registers additional patches for modifying default template
-func AppendBootstrapPatches(ops ...ypatch.Operation) {
-	bootstrapPatches = append(bootstrapPatches, ops...)
 }
 
 // Bootstrap wraps a config.Store and is loaded from yaml templates or additional environment data
@@ -122,38 +113,40 @@ func (bs *Bootstrap) reload(conf config.Store) error {
 		tmpl = yaml
 	}
 
+	fullYaml, er := tplEval(tmpl, "yaml", conf)
+	if er != nil {
+		return er
+	}
+	_ = bs.Set([]byte(fullYaml))
+
+	// Assign keys passed by arguments, by evaluating their value through templating as well
 	for _, pair := range runtime.GetStringSlice(runtime.KeySet) {
 		kv := strings.SplitN(pair, "=", 2)
 		if len(kv) != 2 {
-			continue
+			return nil
 		}
-		if !strings.HasPrefix(kv[0], "/") {
-			kv[0] = "/" + kv[0]
-		}
-		if pa, er := ypatch.ParsePath(kv[0]); er == nil {
-			bootstrapPatches = append(bootstrapPatches, ypatch.Operation{
-				Type:  ypatch.OperationAdd,
-				Path:  pa,
-				Value: kv[1],
-			})
-		} else {
-			return er
-		}
+		_ = bs.Val(kv[0]).Set(kv[1])
+		/*
+			// TODO
+				if val, er := tplEval(kv[1], kv[0], conf); er == nil {
+					fmt.Println("HERER", val)
+					_ = bs.Val(kv[0]).Set(val)
+				} else {
+					return er
+				}
+		*/
 	}
 
-	if len(bootstrapPatches) > 0 {
-		if patched, er := ypatch.Apply([]byte(tmpl), bootstrapPatches); er != nil {
-			return er
-		} else {
-			tmpl = string(patched)
-		}
-	}
+	return nil
 
-	t, err := template.New("context").Funcs(map[string]any{
+}
+
+func tplEval(tpl, name string, conf config.Store) (string, error) {
+	t, err := template.New(name).Funcs(map[string]any{
 		"getServiceDataDir": runtime.MustServiceDataDir,
-	}).Delims("{{{{", "}}}}").Parse(tmpl)
+	}).Delims("{{{{", "}}}}").Parse(tpl)
 	if err != nil {
-		return err
+		return "", err
 	}
 
 	var b strings.Builder
@@ -187,11 +180,8 @@ func (bs *Bootstrap) reload(conf config.Store) error {
 		ApplicationDataDir:    runtime.ApplicationWorkingDir(runtime.ApplicationDirData),
 		ApplicationLogsDir:    runtime.ApplicationWorkingDir(runtime.ApplicationDirLogs),
 	}); err != nil {
-		return err
+		return "", err
 	}
-
-	_ = bs.Set([]byte(b.String()))
-
-	return nil
+	return b.String(), nil
 
 }
