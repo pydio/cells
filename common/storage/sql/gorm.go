@@ -63,12 +63,6 @@ func OpenPool(ctx context.Context, uu string) (storage.Storage, error) {
 		var dialect gorm.Dialector
 		var prefix, policies, singular string
 		if dbresolver.IsMysqlConn(conn.Driver()) {
-			dialect = &Dialector{
-				Dialector: mysql.New(mysql.Config{
-					Conn: conn,
-				}),
-				Helper: &mysqlHelper{},
-			}
 			config, err := mysql2.ParseDSN(dsn)
 			if err != nil {
 				return nil, err
@@ -87,6 +81,18 @@ func OpenPool(ctx context.Context, uu string) (storage.Storage, error) {
 			delete(config.Params, "singular")
 
 			dsn = config.FormatDSN()
+			// Re-open with cleaned DSN
+			_ = conn.Close()
+			conn, err = sql.Open(parts[0], strings.TrimPrefix(dsn, parts[0]+"://"))
+			if err != nil {
+				return nil, err
+			}
+			dialect = &Dialector{
+				Dialector: mysql.New(mysql.Config{
+					Conn: conn,
+				}),
+				Helper: &mysqlHelper{},
+			}
 		} else if dbresolver.IsPostGreConn(conn.Driver()) {
 			dialect = &Dialector{
 				Dialector: postgres.New(postgres.Config{
@@ -149,9 +155,9 @@ func OpenPool(ctx context.Context, uu string) (storage.Storage, error) {
 		db, err := gorm.Open(dialect, &gorm.Config{
 			TranslateError: true,
 			Logger: NewLogger(logger.Config{
-				SlowThreshold:             time.Second,   // Slow SQL threshold
-				LogLevel:                  logger.Silent, // Log level
-				IgnoreRecordNotFoundError: true,          // Ignore ErrRecordNotFound error for logger
+				SlowThreshold:             time.Second,  // Slow SQL threshold
+				LogLevel:                  logger.Error, // Log level
+				IgnoreRecordNotFoundError: true,         // Ignore ErrRecordNotFound error for logger
 				// ParameterizedQueries:      true,        // Don't include params in the SQL log
 				// Colorful: false, // Disable color
 			}),

@@ -671,7 +671,7 @@ message PolicyRel {
 message PolicyGroup {
     option (orm.ormPolicy).enabled = true;
 
-    string Uuid = 1                       [(orm.orm).gorm = {column: "uuid"; primaryKey: true}, (buf.validate.field).required = true];
+    string Uuid = 1                       [(orm.orm).gorm = {column: "uuid"; type:"varchar(255)"; primaryKey: true}, (buf.validate.field).required = true];
     string Name = 2                       [(orm.orm).gorm = {column: "name";}];
     string Description = 3                [(orm.orm).gorm = {column: "description";}];;
     string OwnerUuid = 4                  [(orm.orm).gorm = {column: "owner_uuid";}];;

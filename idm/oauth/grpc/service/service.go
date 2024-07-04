@@ -18,7 +18,7 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-// Package grpc spins an OpenID Connect Server using the coreos/dex implementation
+// Package service spins an OpenID Connect Server
 package service
 
 import (

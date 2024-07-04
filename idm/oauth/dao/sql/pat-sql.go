@@ -1,7 +1,5 @@
-//go:build storage
-
 /*
- * Copyright (c) 2018. Abstrium SAS <team (at) pydio.com>
+ * Copyright (c) 2024. Abstrium SAS <team (at) pydio.com>
  * This file is part of Pydio Cells.
  *
  * Pydio Cells is free software: you can redistribute it and/or modify
@@ -24,11 +22,11 @@ package sql
 
 import (
 	"context"
-	"fmt"
 	"time"
 
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
+	"gorm.io/gorm/schema"
 
 	"github.com/pydio/cells/v4/common/proto/auth"
 	"github.com/pydio/cells/v4/common/utils/configx"
@@ -46,6 +44,7 @@ func NewPatDAO(db *gorm.DB) oauth.PatDAO {
 }
 
 /*
+// TODO - Token used to be sha256 encrypted !
 var (
 	queries = map[string]string{
 		"insert":       `INSERT INTO idm_personal_tokens VALUES (?,CONCAT('sha256:', SHA2(?, 256)),?,?,?,?,?,?,?,?,?,?)`,
@@ -77,6 +76,10 @@ type PersonalToken struct {
 	CreatedBy         string       `gorm:"column:created_by;"`
 	UpdatedAt         time.Time    `gorm:"column:updated_at;"`
 	Scopes            string       `gorm:"column:scopes;"`
+}
+
+func (u *PersonalToken) TableName(namer schema.Namer) string {
+	return namer.TableName("personal_tokens")
 }
 
 func (u *PersonalToken) As(res *auth.PersonalAccessToken) (*auth.PersonalAccessToken, error) {
@@ -123,7 +126,7 @@ type sqlImpl struct {
 // Init handler for the SQL DAO
 func (s *sqlImpl) Init(ctx context.Context, options configx.Values) error {
 	s.instance = func() *gorm.DB {
-		return s.db.Session(&gorm.Session{SkipDefaultTransaction: true}).Table("idm_personal_tokens")
+		return s.db.Session(&gorm.Session{SkipDefaultTransaction: true}).Model(&PersonalToken{})
 	}
 
 	s.instance().AutoMigrate(&PersonalToken{})
@@ -144,9 +147,6 @@ func (s *sqlImpl) Load(accessToken string) (*auth.PersonalAccessToken, error) {
 	if tx.Error != nil {
 		return nil, tx.Error
 	}
-	if tx.RowsAffected == 0 {
-		return nil, fmt.Errorf("not.found")
-	}
 
 	return token.As(&auth.PersonalAccessToken{})
 }
@@ -156,7 +156,7 @@ func (s *sqlImpl) Store(accessToken string, token *auth.PersonalAccessToken, upd
 	//defer s.Unlock()
 
 	if update {
-		tx := s.instance().Where(&PersonalToken{UUID: token.Uuid}).Update("expire_at", token.ExpiresAt)
+		tx := s.instance().Model(&PersonalToken{}).Where(&PersonalToken{UUID: token.Uuid}).Update("expire_at", time.Unix(token.ExpiresAt, 0))
 		if tx.Error != nil {
 			return tx.Error
 		}

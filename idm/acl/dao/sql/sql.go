@@ -117,7 +117,15 @@ func (s *sqlimpl) instance(ctx context.Context) *gorm.DB {
 }
 
 func (s *sqlimpl) Migrate(ctx context.Context) error {
-	return s.instance(ctx).AutoMigrate(&ACL{}, &Role{}, &Workspace{}, &Node{})
+	db := s.instance(ctx)
+	if er := s.instance(ctx).AutoMigrate(&ACL{}, &Role{}, &Workspace{}, &Node{}); er != nil {
+		return er
+	}
+	// Create default "-1" values for each tables
+	tx := db.Save(&Role{ID: -1})
+	tx = db.Save(&Workspace{ID: -1})
+	tx = db.Save(&Node{ID: -1})
+	return tx.Error
 }
 
 // Add inserts an ACL to the underlying SQL DB

@@ -171,13 +171,15 @@ func TestPathHandler_List(t *testing.T) {
 				Label:     "Other Document token for admin",
 				ExpiresAt: time.Now().Add(5 * time.Second).Unix(),
 			})
-			pat.Generate(ctx, &auth.PatGenerateRequest{
+			resp, er := pat.Generate(ctx, &auth.PatGenerateRequest{
 				Type:      auth.PatType_PERSONAL,
 				UserUuid:  "user-uuid",
 				UserLogin: "user",
 				Label:     "Personal token for user",
 				ExpiresAt: time.Now().Add(5 * time.Second).Unix(),
 			})
+			So(er, ShouldBeNil)
+			So(resp.AccessToken, ShouldNotBeEmpty)
 
 			listResponse, e := pat.List(ctx, &auth.PatListRequest{})
 			So(e, ShouldBeNil)
@@ -198,6 +200,7 @@ func TestPathHandler_List(t *testing.T) {
 			listResponse, e = pat.List(ctx, &auth.PatListRequest{Type: auth.PatType_PERSONAL, ByUserLogin: "user"})
 			So(e, ShouldBeNil)
 			So(listResponse.Tokens, ShouldHaveLength, 1)
+			So(resp.AccessToken, ShouldNotEqual)
 		})
 	})
 }
