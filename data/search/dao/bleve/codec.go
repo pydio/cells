@@ -18,7 +18,6 @@ import (
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/nodes/meta"
 	"github.com/pydio/cells/v4/common/proto/tree"
-	"github.com/pydio/cells/v4/common/storage"
 	bleve2 "github.com/pydio/cells/v4/common/storage/bleve"
 	"github.com/pydio/cells/v4/common/storage/indexer"
 	"github.com/pydio/cells/v4/common/utils/configx"
@@ -92,7 +91,7 @@ type Codec struct {
 	queryNSProvider *meta.NsProvider
 }
 
-func createQueryCodec(values configx.Values, provider *meta.NsProvider) storage.IndexCodex {
+func createQueryCodec(values configx.Values, provider *meta.NsProvider) indexer.IndexCodex {
 	return &Codec{
 		queryConfig:     values,
 		queryNSProvider: provider,

@@ -15,7 +15,7 @@ import (
 
 	"github.com/pydio/cells/v4/common/nodes/meta"
 	"github.com/pydio/cells/v4/common/proto/tree"
-	"github.com/pydio/cells/v4/common/storage"
+	"github.com/pydio/cells/v4/common/storage/indexer"
 	"github.com/pydio/cells/v4/common/storage/mongodb"
 	"github.com/pydio/cells/v4/common/utils/configx"
 	"github.com/pydio/cells/v4/data/search"
@@ -73,7 +73,7 @@ func NewMongoDAO(ctx context.Context, v *mongodb.Indexer) search.Engine {
 	return commons.NewServer(ctx, v, createQueryCodec)
 }
 
-func createQueryCodec(values configx.Values, metaProvider *meta.NsProvider) storage.IndexCodex {
+func createQueryCodec(values configx.Values, metaProvider *meta.NsProvider) indexer.IndexCodex {
 	return &Codex{
 		QueryConfigs:    values,
 		QueryNsProvider: metaProvider,

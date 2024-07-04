@@ -51,8 +51,8 @@ import (
 
 var (
 	testCases = []test.StorageTestCase{
-		{[]string{"boltdb://" + filepath.Join(os.TempDir(), "activity_bolt_"+uuid.New()+".db")}, true, bolt.NewBoltDAO},
-		{[]string{os.Getenv("CELLS_TEST_MONGODB_DSN") + "?collection=activity"}, os.Getenv("CELLS_TEST_MONGODB_DSN") != "", mongo.NewMongoDAO},
+		{[]string{"boltdb://" + filepath.Join(os.TempDir(), "jobs_bolt_"+uuid.New()+".db")}, true, bolt.NewBoltDAO},
+		test.TemplateMongoEnvWithPrefix(mongo.NewMongoDAO, "jobs_"),
 	}
 )
 

@@ -1,3 +1,5 @@
+//go:build storage
+
 package boltdb
 
 import (

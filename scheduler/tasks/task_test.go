@@ -99,8 +99,9 @@ func TestTaskSetters(t *testing.T) {
 		task.SetStatus(jobs.TaskStatus_Finished)
 		So(task.task.Status, ShouldEqual, 3)
 
-		task.SetProgress(0.23)
-		So(task.task.Progress, ShouldEqual, 0.23)
+		pg := float32(0.23)
+		task.SetProgress(pg)
+		So(task.task.Progress, ShouldEqual, pg)
 
 	})
 

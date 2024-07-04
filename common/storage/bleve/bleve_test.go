@@ -1,3 +1,5 @@
+//go:build storage
+
 package bleve_test
 
 import (

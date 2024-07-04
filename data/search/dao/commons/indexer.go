@@ -28,7 +28,6 @@ import (
 	"github.com/pydio/cells/v4/common/nodes/meta"
 	"github.com/pydio/cells/v4/common/proto/tree"
 	"github.com/pydio/cells/v4/common/runtime/manager"
-	"github.com/pydio/cells/v4/common/storage"
 	"github.com/pydio/cells/v4/common/storage/indexer"
 	"github.com/pydio/cells/v4/common/telemetry/log"
 	"github.com/pydio/cells/v4/common/utils/configx"
@@ -38,7 +37,7 @@ var (
 	BatchSize = 2000
 )
 
-type QueryCodecProvider func(values configx.Values, metaProvider *meta.NsProvider) storage.IndexCodex
+type QueryCodecProvider func(values configx.Values, metaProvider *meta.NsProvider) indexer.IndexCodex
 
 type Server struct {
 	indexer.Indexer

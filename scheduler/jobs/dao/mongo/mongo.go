@@ -33,6 +33,7 @@ import (
 	"github.com/pydio/cells/v4/common/errors"
 	proto "github.com/pydio/cells/v4/common/proto/jobs"
 	"github.com/pydio/cells/v4/common/storage/mongodb"
+	"github.com/pydio/cells/v4/common/utils/configx"
 	"github.com/pydio/cells/v4/scheduler/jobs"
 )
 
@@ -91,12 +92,9 @@ type mongoImpl struct {
 	*mongodb.Database
 }
 
-//func (m *mongoImpl) Init(ctx context.Context, values configx.Values) error {
-//	if er := model.Init(ctx, m.DAO); er != nil {
-//		return er
-//	}
-//	return m.DAO.Init(ctx, values)
-//}
+func (m *mongoImpl) Init(ctx context.Context, values configx.Values) error {
+	return model.Init(ctx, m.Database)
+}
 
 func (m *mongoImpl) PutJob(job *proto.Job) error {
 	c := context.Background()

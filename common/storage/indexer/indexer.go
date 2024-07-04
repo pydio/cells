@@ -46,7 +46,7 @@ type FacetParser interface {
 
 // QueryOptionsProvider adds additional capacities to IndexCodex for building search Query
 type QueryOptionsProvider interface {
-	BuildQueryOptions(query interface{}, offset, limit int32) (interface{}, error)
+	BuildQueryOptions(query interface{}, offset, limit int32, sortFields string, sortDesc bool) (interface{}, error)
 }
 
 // IndexIDProvider provides a method to retrieve a document unique ID

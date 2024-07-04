@@ -1,3 +1,5 @@
+//go:build storage
+
 /*
  * Copyright (c) 2024. Abstrium SAS <team (at) pydio.com>
  * This file is part of Pydio Cells.
