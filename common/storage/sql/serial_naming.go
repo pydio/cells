@@ -16,9 +16,18 @@ func (e EnumSerial) Scan(ctx context.Context, field *schema.Field, dst reflect.V
 	if en, ok := reflect.Zero(field.StructField.Type).Interface().(protoreflect.Enum); ok {
 		enumType := en.Type()
 		values := enumType.Descriptor().Values()
+		var compare string
+		switch val := dbValue.(type) {
+		case []byte:
+			compare = string(val)
+		case string:
+			compare = val
+		default:
+			return fmt.Errorf("cannot scan value of type %T to proto_enum", dbValue)
+		}
 		for i := 0; i < values.Len(); i++ {
 			enumValue := values.Get(i)
-			if string(enumValue.Name()) == dbValue {
+			if string(enumValue.Name()) == compare {
 				dst.Elem().FieldByName(field.StructField.Name).Set(reflect.ValueOf(enumValue.Number()).Convert(field.StructField.Type))
 				break
 			}
@@ -29,7 +38,7 @@ func (e EnumSerial) Scan(ctx context.Context, field *schema.Field, dst reflect.V
 
 func (e EnumSerial) Value(ctx context.Context, field *schema.Field, dst reflect.Value, fieldValue interface{}) (interface{}, error) {
 	if f, ok := fieldValue.(fmt.Stringer); ok {
-		return f.String(), nil
+		return []byte(f.String()), nil
 	}
 	return fieldValue, fmt.Errorf("value does not implement .String() method")
 }
