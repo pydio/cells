@@ -329,14 +329,14 @@ func (e *MicroEventsSubscriber) ProcessIdmBatch(ctx context.Context, cE ...broke
 	workspaces := make(map[string]*idm.Workspace)
 	// Remove updates/deletes
 	for _, msg := range cE {
-		var event *idm.ChangeEvent
+		event := &idm.ChangeEvent{}
 		if _, er := msg.Unmarshal(ctx, event); er != nil {
 			continue
 		}
 		if event.Type == idm.ChangeEventType_UPDATE && (event.Acl.Action.Name == permissions.AclRead.Name || event.Acl.Action.Name == permissions.AclWrite.Name) {
 			var del bool
 			for _, m2 := range cE {
-				var e2 *idm.ChangeEvent
+				e2 := &idm.ChangeEvent{}
 				if _, er := m2.Unmarshal(ctx, e2); er != nil {
 					continue
 				}

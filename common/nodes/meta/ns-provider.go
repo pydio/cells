@@ -183,8 +183,8 @@ func (p *NsProvider) Clear() {
 // Watch watches idm ChangeEvents to force reload when metadata namespaces are modified
 func (p *NsProvider) Watch(ctx context.Context) {
 	_ = broker.SubscribeCancellable(ctx, common.TopicIdmEvent, func(ctx context.Context, message broker.Message) error {
-		var ce idm.ChangeEvent
-		if _, e := message.Unmarshal(ctx, &ce); e == nil && ce.MetaNamespace != nil {
+		ce := &idm.ChangeEvent{}
+		if _, e := message.Unmarshal(ctx, ce); e == nil && ce.MetaNamespace != nil {
 			p.Clear()
 		}
 		return nil
