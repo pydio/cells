@@ -219,7 +219,8 @@ defaults:
   storages: &storages
     sql:
       uri: sqlite://test.db?prefix={{ .Value "prefix" }}&policies={{ .Value "policies" }}&singular={{ .Value "singular" }}
- #      uri: mysql://root@tcp(localhost:3306)/cellstmp?parseTime=true&prefix={{ .Value "prefix" }}&policies={{ .Value "policies" }}&singular={{ .Value "singular" }}
+#      uri: mysql://root@tcp(localhost:3306)/cellstmp?parseTime=true&prefix={{ .Value "prefix" }}&policies={{ .Value "policies" }}&singular={{ .Value "singular" }}
+#      uri: postgres://postgres:cells@localhost:5432/postgres?sslmode=disable&prefix={{ .Value "prefix" }}&policies={{ .Value "policies" }}&singular={{ .Value "singular" }}
     bolt:
       uri: boltdb://{{ .Value "dir" }}/{{ .Value "file" }}
     bleve:

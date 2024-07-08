@@ -3,7 +3,6 @@ package sql
 import (
 	"context"
 	"database/sql"
-	"errors"
 	"net/url"
 	"strings"
 	"time"
@@ -17,11 +16,11 @@ import (
 	"gorm.io/gorm/schema"
 	otel "gorm.io/plugin/opentelemetry/tracing"
 
+	"github.com/pydio/cells/v4/common/errors"
 	"github.com/pydio/cells/v4/common/runtime"
 	"github.com/pydio/cells/v4/common/runtime/controller"
 	"github.com/pydio/cells/v4/common/runtime/manager"
 	"github.com/pydio/cells/v4/common/storage"
-	"github.com/pydio/cells/v4/common/storage/sql/dbresolver"
 	"github.com/pydio/cells/v4/common/utils/openurl"
 	"github.com/pydio/cells/v4/common/utils/propagator"
 )
@@ -48,100 +47,96 @@ type pool struct {
 	*openurl.Pool[*gorm.DB]
 }
 
+func cleanDSN(dsn string, vars map[string]string, parserType string) (string, error) {
+	switch parserType {
+	case "mysql":
+		conf, err := mysql2.ParseDSN(dsn)
+		if err != nil {
+			return "", err
+		}
+		for k := range vars {
+			if v, ok := conf.Params[k]; ok {
+				if v != "<no value>" {
+					vars[k] = v
+				}
+				delete(conf.Params, k)
+			}
+		}
+		return conf.FormatDSN(), nil
+	default:
+		u, er := url.Parse(dsn)
+		if er != nil {
+			return dsn, er
+		}
+		query := u.Query()
+		for k := range vars {
+			if query.Has(k) {
+				if query.Get(k) != "<no value>" {
+					vars[k] = query.Get(k)
+				}
+				query.Del(k)
+			}
+		}
+		u.RawQuery = query.Encode()
+		return u.String(), nil
+	}
+}
+
 func OpenPool(ctx context.Context, uu string) (storage.Storage, error) {
 	p, err := openurl.OpenPool(ctx, []string{uu}, func(ctx context.Context, dsn string) (*gorm.DB, error) {
 		parts := strings.SplitN(dsn, "://", 2)
 		if len(parts) < 2 {
-			return nil, errors.New("wrong format dsn")
+			return nil, errors.WithMessage(errors.SqlDAO, "wrong format dsn")
 		}
-
-		conn, err := sql.Open(parts[0], parts[1])
+		scheme := parts[0]
+		expectedVars := map[string]string{
+			"prefix":   "",
+			"policies": "",
+			"singular": "",
+		}
+		var clean string
+		var er error
+		switch scheme {
+		case MySQLDriver:
+			clean, er = cleanDSN(dsn, expectedVars, "mysql")
+		case PostgreDriver, SqliteDriver:
+			clean, er = cleanDSN(dsn, expectedVars, "url")
+		default:
+			return nil, errors.WithMessage(errors.SqlDAO, "unsupported scheme")
+		}
+		if er != nil {
+			return nil, er
+		}
+		// Trim scheme and open sql connection pool
+		clean = strings.TrimPrefix(clean, scheme+"://")
+		conn, err := sql.Open(scheme, clean)
 		if err != nil {
 			return nil, err
 		}
 
 		var dialect gorm.Dialector
-		var prefix, policies, singular string
-		if dbresolver.IsMysqlConn(conn.Driver()) {
-			config, err := mysql2.ParseDSN(dsn)
-			if err != nil {
-				return nil, err
-			}
-			if p, ok := config.Params["prefix"]; ok {
-				prefix = p
-			}
-			delete(config.Params, "prefix")
-			if p, ok := config.Params["policies"]; ok {
-				policies = p
-			}
-			delete(config.Params, "policies")
-			if p, ok := config.Params["singular"]; ok {
-				singular = p
-			}
-			delete(config.Params, "singular")
-
-			dsn = config.FormatDSN()
-			// Re-open with cleaned DSN
-			_ = conn.Close()
-			conn, err = sql.Open(parts[0], strings.TrimPrefix(dsn, parts[0]+"://"))
-			if err != nil {
-				return nil, err
-			}
+		switch scheme {
+		case MySQLDriver:
 			dialect = &Dialector{
 				Dialector: mysql.New(mysql.Config{
 					Conn: conn,
 				}),
 				Helper: &mysqlHelper{},
 			}
-		} else if dbresolver.IsPostGreConn(conn.Driver()) {
+		case PostgreDriver:
 			dialect = &Dialector{
 				Dialector: postgres.New(postgres.Config{
 					Conn: conn,
 				}),
 				Helper: &postgresHelper{},
 			}
-
-			u, err := url.Parse(dsn)
-			if err != nil {
-				return nil, err
-			}
-
-			q := u.Query()
-			if q.Has("prefix") {
-				prefix = q.Get("prefix")
-			}
-			if q.Has("policies") {
-				policies = q.Get("policies")
-			}
-			if q.Has("singular") {
-				singular = q.Get("singular")
-			}
-		} else if dbresolver.IsSQLiteConn(conn.Driver()) {
+		case SqliteDriver:
 			dialect = &Dialector{
 				Dialector: &sqlite.Dialector{
 					Conn: conn,
 				},
 				Helper: &sqliteHelper{},
 			}
-
-			u, err := url.Parse(dsn)
-			if err != nil {
-				return nil, err
-			}
-
-			q := u.Query()
-			if q.Has("prefix") {
-				prefix = q.Get("prefix")
-			}
-			if q.Has("policies") {
-				policies = q.Get("policies")
-			}
-			if q.Has("singular") {
-				singular = q.Get("singular")
-			}
-		}
-		if policies == "<no value>" {
-			policies = ""
 		}
 
 		customLogger := NewLogger(logger.Config{
@@ -163,10 +158,10 @@ func OpenPool(ctx context.Context, uu string) (storage.Storage, error) {
 			}),
 			NamingStrategy: &customNaming{
 				NamingStrategy: &schema.NamingStrategy{
-					TablePrefix:   prefix,
-					SingularTable: singular == "true",
+					TablePrefix:   expectedVars["prefix"],
+					SingularTable: expectedVars["singular"] == "true",
 				},
-				Policies: policies,
+				Policies: expectedVars["policies"],
 			},
 		})
 
