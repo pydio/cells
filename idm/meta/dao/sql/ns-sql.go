@@ -124,7 +124,7 @@ func (s *nsSqlImpl) Migrate(ctx context.Context) error {
 
 // Add inserts a namespace
 func (s *nsSqlImpl) Add(ctx context.Context, ns *idm.UserMetaNamespace) error {
-	tx := s.instance(ctx).Clauses(clause.OnConflict{DoNothing: true}).Create((&MetaNamespace{}).From(ns))
+	tx := s.instance(ctx).Clauses(clause.OnConflict{UpdateAll: true}).Create((&MetaNamespace{}).From(ns))
 	if tx.Error != nil {
 		return nsTag(tx.Error)
 	}
