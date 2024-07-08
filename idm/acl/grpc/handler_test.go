@@ -208,6 +208,47 @@ func TestACL(t *testing.T) {
 			_ = s.SearchACL(&idm.SearchACLRequest{Query: query}, mock)
 			So(mock.InternalBuffer, ShouldHaveLength, 1) // Restored now re-appears
 
+			dr, err = s.DeleteACL(ctx, &idm.DeleteACLRequest{Query: query})
+			So(err, ShouldBeNil)
+			So(dr.GetRowsDeleted(), ShouldEqual, 1)
+
+		})
+
+		Convey("Expire and restore by re-adding ACL", t, func() {
+			sameACL := &idm.ACL{
+				NodeID:      "expire-node-new",
+				WorkspaceID: "fake-ws-new",
+				Action:      &idm.ACLAction{Name: "read", Value: "1"},
+				RoleID:      "role5",
+			}
+			// New insert, expire then restore an ACL
+			_, err := s.CreateACL(ctx, &idm.CreateACLRequest{ACL: sameACL})
+			So(err, ShouldBeNil)
+			singleQ1 := new(idm.ACLSingleQuery)
+			singleQ1.RoleIDs = []string{"role5"}
+			singleQ1Any, _ := anypb.New(singleQ1)
+			query := &service.Query{
+				SubQueries: []*anypb.Any{singleQ1Any},
+			}
+
+			// Expire ACL
+			expTime := time.Now().Add(-1 * time.Hour)
+			resp, err := s.ExpireACL(ctx, &idm.ExpireACLRequest{Query: query, Timestamp: expTime.Unix()})
+			So(err, ShouldBeNil)
+			So(resp.Rows, ShouldEqual, 1)
+
+			mock := &aclStreamMock{ctx: ctx}
+			_ = s.SearchACL(&idm.SearchACLRequest{Query: query}, mock)
+			So(mock.InternalBuffer, ShouldHaveLength, 0) // Expired does not appear anymore
+
+			// Re-add ACL - should implicitly restore it
+			_, err = s.CreateACL(ctx, &idm.CreateACLRequest{ACL: sameACL})
+			So(err, ShouldBeNil)
+
+			mock = &aclStreamMock{ctx: ctx}
+			_ = s.SearchACL(&idm.SearchACLRequest{Query: query}, mock)
+			So(mock.InternalBuffer, ShouldHaveLength, 1) // Restored now re-appears
+
 		})
 	})
 }

@@ -22,7 +22,6 @@ package sql
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"sync"
 	"time"
@@ -33,6 +32,7 @@ import (
 	"gorm.io/gorm"
 	"gorm.io/gorm/schema"
 
+	"github.com/pydio/cells/v4/common/errors"
 	"github.com/pydio/cells/v4/common/proto/idm"
 	"github.com/pydio/cells/v4/common/sql"
 	"github.com/pydio/cells/v4/common/telemetry/log"
@@ -49,16 +49,17 @@ func NewDAO(db *gorm.DB) acl.DAO {
 }
 
 type ACL struct {
-	ID          int64     `gorm:"primaryKey;column:id;autoIncrement;"`
-	ActionName  string    `gorm:"column:action_name;type:varchar(500)"`
-	ActionValue string    `gorm:"column:action_value;type:varchar(500)"`
-	RoleID      int       `gorm:"column:role_id;default:-1;"`
-	WorkspaceID int       `gorm:"column:workspace_id; default: -1"`
-	NodeID      int       `gorm:"column:node_id; default: -1"`
-	Role        Role      `gorm:"foreignKey:RoleID"`
-	Workspace   Workspace `gorm:"foreignKey:WorkspaceID"`
-	Node        Node      `gorm:"foreignKey:NodeID"`
-	Expiry      time.Time `gorm:"column:expire_at;type:timestamp;default:null"`
+	ID          int64      `gorm:"primaryKey;column:id;autoIncrement;"`
+	ActionName  string     `gorm:"column:action_name;type:varchar(500);uniqueIndex:acls_u1"`
+	ActionValue string     `gorm:"column:action_value;type:varchar(500)"`
+	RoleID      int        `gorm:"column:role_id;default:-1;uniqueIndex:acls_u1"`
+	WorkspaceID int        `gorm:"column:workspace_id; default: -1;uniqueIndex:acls_u1"`
+	NodeID      int        `gorm:"column:node_id; default: -1;uniqueIndex:acls_u1"`
+	Role        Role       `gorm:"foreignKey:RoleID"`
+	Workspace   Workspace  `gorm:"foreignKey:WorkspaceID"`
+	Node        Node       `gorm:"foreignKey:NodeID"`
+	Creation    time.Time  `gorm:"column:created_at;type:timestamp;default:current_timestamp;"`
+	Expiry      *time.Time `gorm:"column:expires_at;type:timestamp;default:null"`
 }
 
 type Role struct {
@@ -139,11 +140,11 @@ func (s *sqlimpl) addWithDupCheck(ctx context.Context, in interface{}, check boo
 
 	val, ok := in.(*idm.ACL)
 	if !ok {
-		return errors.New("Wrong type")
+		return errors.WithMessage(errors.SqlDAO, "Wrong type")
 	}
 
 	if val.Action == nil {
-		return errors.New("Missing action value")
+		return errors.WithMessage(errors.SqlDAO, "Missing action value")
 	}
 
 	workspace := Workspace{UUID: val.GetWorkspaceID()}
@@ -174,7 +175,7 @@ func (s *sqlimpl) addWithDupCheck(ctx context.Context, in interface{}, check boo
 
 	log.Logger(ctx).Debug("AddACL", zap.String("r", role.UUID), zap.String("w", workspace.UUID), zap.String("n", node.UUID), zap.Any("value", val))
 
-	acl := ACL{
+	a := &ACL{
 		ActionName:  val.Action.Name,
 		ActionValue: val.Action.Value,
 		Role:        role,
@@ -182,14 +183,21 @@ func (s *sqlimpl) addWithDupCheck(ctx context.Context, in interface{}, check boo
 		Node:        node,
 	}
 
-	tx := s.instance(ctx).Create(&acl)
+	tx := s.instance(ctx).Create(a)
 	if tx.Error != nil {
+		if errors.Is(tx.Error, gorm.ErrDuplicatedKey) && check {
+			if tx = s.instance(ctx).Where("expires_at IS NOT NULL AND expires_at < ?", time.Now()).Where(a).Delete(a); tx.Error == nil && tx.RowsAffected > 0 {
+				fmt.Println("[AddACL] Replacing one duplicate row that was in fact expired")
+				return s.addWithDupCheck(ctx, in, false)
+			}
+		}
 		return tx.Error
 	}
 
-	val.ID = fmt.Sprintf("%v", acl.ID)
+	val.ID = fmt.Sprintf("%v", a.ID)
 
 	// TODO - duplicate
+	// `DELETE FROM idm_acls WHERE action_name=? AND role_id=? AND workspace_id=? AND node_id=? AND expires_at IS NOT NULL AND expires_at < ?
 	/*
 		OLD CODE WAS
 		res, err := stmt.Exec(val.Action.Name, val.Action.Value, roleID, workspaceID, nodeID)
@@ -238,22 +246,22 @@ func (s *sqlimpl) Search(ctx context.Context, query sql.Enquirer, out *[]interfa
 	//}
 	var acls []ACL
 
-	tx := db.Preload("Role").Preload("Workspace").Preload("Node").Find(&acls)
+	tx := db.Preload("Role").Preload("Workspace").Preload("Node").Where("expires_at IS NULL or expires_at > ?", time.Now()).Find(&acls)
 	if tx.Error != nil {
 		return tx.Error
 	}
 
-	for _, acl := range acls {
+	for _, a := range acls {
 		val := new(idm.ACL)
 		action := new(idm.ACLAction)
 
-		val.ID = fmt.Sprintf("%d", acl.ID)
-		val.NodeID = acl.Node.UUID
-		val.RoleID = acl.Role.UUID
-		val.WorkspaceID = acl.Workspace.UUID
+		val.ID = fmt.Sprintf("%d", a.ID)
+		val.NodeID = a.Node.UUID
+		val.RoleID = a.Role.UUID
+		val.WorkspaceID = a.Workspace.UUID
 
-		action.Name = acl.ActionName
-		action.Value = acl.ActionValue
+		action.Name = a.ActionName
+		action.Value = a.ActionValue
 
 		val.Action = action
 		*out = append(*out, val)
@@ -263,7 +271,7 @@ func (s *sqlimpl) Search(ctx context.Context, query sql.Enquirer, out *[]interfa
 }
 
 // SetExpiry sets an expiry timestamp on the acl
-func (s *sqlimpl) SetExpiry(ctx context.Context, query sql.Enquirer, t time.Time, period *acl.ExpirationPeriod) (int64, error) {
+func (s *sqlimpl) SetExpiry(ctx context.Context, query sql.Enquirer, t *time.Time, period *acl.ExpirationPeriod) (int64, error) {
 
 	db, er := sql.NewQueryBuilder[*gorm.DB](query, new(queryConverter)).Build(ctx, s.instance(ctx))
 	if er != nil {
@@ -272,14 +280,14 @@ func (s *sqlimpl) SetExpiry(ctx context.Context, query sql.Enquirer, t time.Time
 
 	if period != nil {
 		if !period.End.IsZero() {
-			db = db.Where("expiry_date < ?", period.End)
+			db = db.Where("expires_at < ?", period.End)
 		}
 		if !period.Start.IsZero() {
-			db = db.Where("expiry_date > ?", period.Start)
+			db = db.Where("expires_at > ?", period.Start)
 		}
 	}
 
-	tx := db.Updates(&ACL{Expiry: t})
+	tx := db.Model(ACL{}).Update("Expiry", t)
 	if tx.Error != nil {
 		return 0, tx.Error
 	}
@@ -297,10 +305,10 @@ func (s *sqlimpl) Del(ctx context.Context, query sql.Enquirer, period *acl.Expir
 
 	if period != nil {
 		if !period.End.IsZero() {
-			db = db.Where("expiry_date < ?", period.End)
+			db = db.Where("expires_at < ?", period.End)
 		}
 		if !period.Start.IsZero() {
-			db = db.Where("expiry_date > ?", period.Start)
+			db = db.Where("expires_at > ?", period.Start)
 		}
 	}
 
@@ -309,27 +317,29 @@ func (s *sqlimpl) Del(ctx context.Context, query sql.Enquirer, period *acl.Expir
 		return 0, tx.Error
 	}
 
-	/*if tx.RowsAffected > 0 {
-
-		// Perform clean up
-		if stmt, er := dao.GetStmt("CleanWorkspaces"); er == nil {
-			stmt.Exec()
+	if tx.RowsAffected > 0 {
+		newInstance := s.instance(ctx)
+		subQuery := newInstance.Session(&gorm.Session{}).Model(&ACL{}).Distinct("workspace_id")
+		if cleanTx := newInstance.Where("id != -1").Not("id IN (?)", subQuery).Delete(&Workspace{}); cleanTx.Error == nil {
+			fmt.Printf("Cleaned %d workspaces\n", cleanTx.RowsAffected)
 		} else {
-			return 0, er
+			return 0, cleanTx.Error
 		}
 
-		if stmt, er := dao.GetStmt("CleanRoles"); er == nil {
-			stmt.Exec()
+		subQuery2 := newInstance.Session(&gorm.Session{}).Model(&ACL{}).Distinct("node_id")
+		if cleanTx := newInstance.Where("id != -1").Not("id IN (?)", subQuery2).Delete(&Node{}); cleanTx.Error == nil {
+			fmt.Printf("Cleaned %d nodes\n", cleanTx.RowsAffected)
 		} else {
-			return 0, er
+			return 0, cleanTx.Error
 		}
 
-		if stmt, er := dao.GetStmt("CleanNodes"); er == nil {
-			stmt.Exec()
+		subQuery3 := newInstance.Session(&gorm.Session{}).Model(&ACL{}).Distinct("role_id")
+		if cleanTx := newInstance.Where("id != -1").Not("id IN (?)", subQuery3).Delete(&Role{}); cleanTx.Error == nil {
+			fmt.Printf("Cleaned %d roles\n", cleanTx.RowsAffected)
 		} else {
-			return 0, er
+			return 0, cleanTx.Error
 		}
-	}*/
+	}
 
 	return tx.RowsAffected, nil
 }

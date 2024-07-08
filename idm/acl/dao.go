@@ -59,7 +59,7 @@ func ReadExpirationPeriod(p ExpirationProvider) *ExpirationPeriod {
 type DAO interface {
 	Migrate(context.Context) error
 	Add(context.Context, interface{}) error
-	SetExpiry(context.Context, sql.Enquirer, time.Time, *ExpirationPeriod) (int64, error)
+	SetExpiry(context.Context, sql.Enquirer, *time.Time, *ExpirationPeriod) (int64, error)
 	Del(context.Context, sql.Enquirer, *ExpirationPeriod) (numRows int64, e error)
 	Search(context.Context, sql.Enquirer, *[]interface{}, *ExpirationPeriod) error
 }

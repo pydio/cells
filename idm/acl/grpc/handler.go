@@ -76,7 +76,8 @@ func (h *Handler) ExpireACL(ctx context.Context, req *idm.ExpireACLRequest) (*id
 	if err != nil {
 		return nil, err
 	}
-	numRows, err := dao.SetExpiry(ctx, req.Query, time.Unix(req.Timestamp, 0), nil)
+	expTime := time.Unix(req.Timestamp, 0)
+	numRows, err := dao.SetExpiry(ctx, req.Query, &expTime, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -97,7 +98,7 @@ func (h *Handler) RestoreACL(ctx context.Context, req *idm.RestoreACLRequest) (*
 	}
 
 	// Set zeroTime to restore
-	numRows, err := dao.SetExpiry(ctx, req.Query, time.Time{}, acl.ReadExpirationPeriod(req))
+	numRows, err := dao.SetExpiry(ctx, req.Query, nil, acl.ReadExpirationPeriod(req))
 	if err != nil {
 		return nil, err
 	}
