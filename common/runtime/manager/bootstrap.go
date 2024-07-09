@@ -22,7 +22,6 @@ package manager
 
 import (
 	"context"
-	"io"
 	"os"
 	"strings"
 	"text/template"
@@ -100,11 +99,7 @@ func (bs *Bootstrap) reload(conf config.Store) error {
 
 	// Then generate the new template based on the config
 	if file := runtime.GetString("file"); file != "" {
-		f, err := os.Open(file)
-		if err != nil {
-			return err
-		}
-		b, err := io.ReadAll(f)
+		b, err := os.ReadFile(file)
 		if err != nil {
 			return err
 		}
@@ -119,22 +114,31 @@ func (bs *Bootstrap) reload(conf config.Store) error {
 	}
 	_ = bs.Set([]byte(fullYaml))
 
+	var pairs = runtime.GetStringSlice(runtime.KeySet)
+	if sets := runtime.GetString(runtime.KeySetsFile); sets != "" {
+		if bb, err := os.ReadFile(sets); err == nil {
+			for _, line := range strings.Split(string(bb), "\n") {
+				line = strings.TrimSpace(line)
+				if line[0] == '#' || line == "" {
+					continue
+				}
+				pairs = append(pairs, line)
+			}
+		}
+	}
+
 	// Assign keys passed by arguments, by evaluating their value through templating as well
-	for _, pair := range runtime.GetStringSlice(runtime.KeySet) {
+	for _, pair := range pairs {
 		kv := strings.SplitN(pair, "=", 2)
 		if len(kv) != 2 {
-			return nil
+			continue
 		}
-		_ = bs.Val(kv[0]).Set(kv[1])
-		/*
-			// TODO
-				if val, er := tplEval(kv[1], kv[0], conf); er == nil {
-					fmt.Println("HERER", val)
-					_ = bs.Val(kv[0]).Set(val)
-				} else {
-					return er
-				}
-		*/
+		//_ = bs.Val(kv[0]).Set(kv[1])
+		if val, er := tplEval(kv[1], kv[0], conf); er == nil {
+			_ = bs.Val(kv[0]).Set(val)
+		} else {
+			return er
+		}
 	}
 
 	return nil

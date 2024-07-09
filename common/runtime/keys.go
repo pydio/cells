@@ -80,7 +80,8 @@ const (
 	KeyLogJson   = "log_json"
 	KeyLogToFile = "log_to_file"
 
-	KeySet = "set"
+	KeySet      = "set"
+	KeySetsFile = "sets"
 
 	KeyHttpProxyURL  = "http_proxy"
 	KeyHttpServer    = "http"

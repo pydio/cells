@@ -260,6 +260,7 @@ func init() {
 
 	//StartCmd.Flags().Int(runtime.KeyHealthCheckPort, 0, "Healthcheck port number")
 	StartCmd.Flags().StringSlice(runtime.KeySet, []string{}, "Set value")
+	StartCmd.Flags().String(runtime.KeySetsFile, "", "File containing one key=value per line as would be passed by multiple --set flags")
 
 	RootCmd.AddCommand(StartCmd)
 }
