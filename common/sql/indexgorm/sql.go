@@ -886,6 +886,9 @@ func Path(ctx context.Context, dao DAO, targetNode tree.ITreeNode, parentNode tr
 
 	// The current node to be retrieved or created is the first item in the path
 	currentName := remainingPath[0]
+	if currentName == "" {
+		currentName = targetNode.GetName()
+	}
 
 	// Trying to retrieve the node first
 	if existingNode, err := dao.GetNodeChild(ctx, parentMPath, currentName); err != nil && err != gorm.ErrRecordNotFound {
@@ -904,16 +907,6 @@ func Path(ctx context.Context, dao DAO, targetNode tree.ITreeNode, parentNode tr
 		// We hardcode its values and add it
 
 		currentNode.SetMPath(tree.NewMPath(1))
-
-		//currentNode.SetNode(&tree.Node{
-		//	Uuid:  "ROOT",
-		//	Type:  tree.NodeType_COLLECTION,
-		//	Mode:  0777,
-		//	MTime: time.Now().Unix(),
-		//	Path:  "/",
-		//})
-
-		//currentNode.SetName("")
 	} else {
 
 		// And finally we create the path in the node
