@@ -138,6 +138,63 @@ func TestGetNodeChildren(t *testing.T) {
 	})
 }
 
+func TestPath(t *testing.T) {
+	testAll(t, func(dao testdao) func(t *testing.T) {
+		return func(t *testing.T) {
+			mpath, nodes, err := dao.Path(
+				context.Background(),
+				&tree.TreeNode{
+					Node: &tree.Node{
+						Uuid: "ROOT",
+						Type: tree.NodeType_COLLECTION,
+						Path: "/",
+					},
+					Name: "ROOT",
+				}, &tree.TreeNode{
+					Node: &tree.Node{
+						Path: "",
+					},
+				}, true)
+
+			fmt.Println(mpath, nodes, err)
+
+			mpath2, nodes2, err2 := dao.Path(
+				context.Background(),
+				&tree.TreeNode{
+					Node: &tree.Node{
+						Uuid: "ROOT",
+						Type: tree.NodeType_COLLECTION,
+						Path: "/",
+					},
+					Name: "ROOT",
+				}, &tree.TreeNode{
+					Node: &tree.Node{
+						Path: "",
+					},
+				}, true)
+
+			fmt.Println(mpath2, nodes2, err2)
+
+			mpath3, nodes3, err3 := dao.Path(
+				context.Background(),
+				&tree.TreeNode{
+					Node: &tree.Node{
+						Uuid: "ROOT",
+						Type: tree.NodeType_COLLECTION,
+						Path: "/",
+					},
+					Name: "ROOT",
+				}, &tree.TreeNode{
+					Node: &tree.Node{
+						Path: "",
+					},
+				}, true)
+
+			fmt.Println(mpath3, nodes3, err3)
+		}
+	})
+}
+
 func TestMysql(t *testing.T) {
 	ctx := context.Background()
 
