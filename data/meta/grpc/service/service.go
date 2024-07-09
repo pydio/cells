@@ -52,14 +52,7 @@ func init() {
 			service.Migrations([]*service.Migration{
 				{
 					TargetVersion: service.FirstRun(),
-					Up: func(ctx context.Context) error {
-						dao, err := manager.Resolve[meta.DAO](ctx)
-						if err != nil {
-							return err
-						}
-
-						return dao.Migrate(ctx)
-					},
+					Up:            manager.StorageMigration(),
 				},
 			}),
 			service.WithGRPC(func(ctx context.Context, srv grpc.ServiceRegistrar) error {

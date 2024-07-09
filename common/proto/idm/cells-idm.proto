@@ -62,11 +62,11 @@ message Role {
     // Label of this role
     string Label = 2                [(orm.orm).gorm = {column: "label"; type: "varchar(500)"; notNull: true;}];
     // Whether this role represents a user team or not
-    bool IsTeam = 3                 [(orm.orm).gorm = {column: "team_role"; type: "tinyint(1)";}];
+    bool IsTeam = 3                 [(orm.orm).gorm = {column: "team_role"; }];
     // Whether this role is attached to a Group object
-    bool GroupRole = 4              [(orm.orm).gorm = {column: "group_role"; type: "tinyint(1)";}];
+    bool GroupRole = 4              [(orm.orm).gorm = {column: "group_role"; }];
     // Whether this role is attached to a User object
-    bool UserRole = 5               [(orm.orm).gorm = {column: "user_role";type: "tinyint(1)";}];
+    bool UserRole = 5               [(orm.orm).gorm = {column: "user_role";}];
     // Last modification date of the role
     int32 LastUpdated = 6           [(orm.orm).gorm = {column: "last_updated"; type: "int"}];
     // List of profiles (standard, shared, admin) on which the role will be automatically applied
@@ -289,9 +289,9 @@ message Workspace {
     // Slug is an url-compatible form of the workspace label, or can be freely modified (max length 500)
     string Slug = 4                               [(orm.orm).gorm = {column: "slug"; type:"varchar(500)"; unique: true;}, (buf.validate.field).string.max_len = 500];
     // Scope can be ADMIN, ROOM (=CELL) or LINK
-    WorkspaceScope Scope = 5                      [(orm.orm).gorm = {column: "scope"; type:"int(1)";}];
+    WorkspaceScope Scope = 5                      [(orm.orm).gorm = {column: "scope";}];
     // Last modification time
-    int32 LastUpdated = 6                         [(orm.orm).gorm = {column: "last_updated"; type:"int";}];
+    int32 LastUpdated = 6                         [(orm.orm).gorm = {column: "last_updated";}];
     // Policies for securing access
     repeated service.ResourcePolicy Policies = 7;
     // JSON-encoded list of attributes

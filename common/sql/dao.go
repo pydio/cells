@@ -24,23 +24,7 @@
 // Package sql provides tools and DAOs for speaking SQL as well as managing tables migrations
 package sql
 
-import (
-	"context"
-	"database/sql"
-	"fmt"
-	"strings"
-	"sync"
-	"sync/atomic"
-	"time"
-
-	"github.com/fatih/structs"
-
-	"github.com/pydio/cells/v4/common/dao"
-	"github.com/pydio/cells/v4/common/registry"
-	"github.com/pydio/cells/v4/common/registry/util"
-	"github.com/pydio/cells/v4/common/utils/configx"
-)
-
+/*
 // DAO interface definition
 type DAO interface {
 	DB() *sql.DB
@@ -326,3 +310,4 @@ func (s *stmtWithTimeout) QueryRow(args ...interface{}) *sql.Row {
 	ctx, _ := context.WithTimeout(context.Background(), DefaultConnectionTimeout)
 	return s.Stmt.QueryRowContext(ctx, args...)
 }
+*/

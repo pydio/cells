@@ -35,6 +35,7 @@ import (
 	auth2 "github.com/pydio/cells/v4/common/proto/auth"
 	"github.com/pydio/cells/v4/common/proto/jobs"
 	"github.com/pydio/cells/v4/common/runtime"
+	"github.com/pydio/cells/v4/common/runtime/manager"
 	"github.com/pydio/cells/v4/common/service"
 	log2 "github.com/pydio/cells/v4/common/telemetry/log"
 	"github.com/pydio/cells/v4/common/utils/configx"
@@ -115,6 +116,10 @@ func init() {
 			service.Migrations([]*service.Migration{
 				{
 					TargetVersion: service.FirstRun(),
+					Up:            manager.StorageMigration(),
+				},
+				{
+					TargetVersion: service.FirstRun(),
 					Up:            insertPruningJob,
 				},
 			}),
@@ -164,6 +169,10 @@ func init() {
 			service.Tag(common.ServiceTagIdm),
 			service.Description("Personal Access Token Provider"),
 			service.WithStorageDrivers(oauth.PatDrivers...),
+			service.Migrations([]*service.Migration{{
+				TargetVersion: service.FirstRun(),
+				Up:            manager.StorageMigration(),
+			}}),
 			service.WithGRPC(func(ctx context.Context, server grpc.ServiceRegistrar) error {
 				pat := &grpc2.PATHandler{}
 				auth2.RegisterPersonalAccessTokenServiceServer(server, pat)

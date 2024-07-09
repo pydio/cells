@@ -99,7 +99,11 @@ func OpenPool(ctx context.Context, uu string) (storage.Storage, error) {
 		switch scheme {
 		case MySQLDriver:
 			clean, er = cleanDSN(dsn, expectedVars, "mysql")
-		case PostgreDriver, SqliteDriver:
+			clean = strings.TrimPrefix(clean, scheme+"://")
+		case SqliteDriver:
+			clean, er = cleanDSN(dsn, expectedVars, "url")
+			clean = strings.TrimPrefix(clean, scheme+"://")
+		case PostgreDriver:
 			clean, er = cleanDSN(dsn, expectedVars, "url")
 		default:
 			return nil, errors.WithMessage(errors.SqlDAO, "unsupported scheme")
@@ -108,7 +112,6 @@ func OpenPool(ctx context.Context, uu string) (storage.Storage, error) {
 			return nil, er
 		}
 		// Trim scheme and open sql connection pool
-		clean = strings.TrimPrefix(clean, scheme+"://")
 		conn, err := sql.Open(scheme, clean)
 		if err != nil {
 			return nil, err

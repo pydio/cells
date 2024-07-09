@@ -24,16 +24,7 @@
 // Package index provides ready-to-use tables and DAOs for storing hierarchical data using the nested sets pattern
 package index
 
-import (
-	"context"
-	"fmt"
-
-	"github.com/pydio/cells/v4/common/dao"
-	"github.com/pydio/cells/v4/common/proto/tree"
-	"github.com/pydio/cells/v4/common/sql"
-	"github.com/pydio/cells/v4/common/utils/mtree"
-)
-
+/*
 // DAO interface
 type DAO interface {
 	// sql.DAO
@@ -103,3 +94,6 @@ type LostAndFound interface {
 	GetUUIDs() []string
 	MarkForDeletion([]string)
 }
+
+
+*/

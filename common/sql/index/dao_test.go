@@ -22,28 +22,7 @@
  */
 package index
 
-import (
-	"context"
-	"crypto/md5"
-	"encoding/hex"
-	"fmt"
-	"log"
-	"strconv"
-	"strings"
-	"sync"
-	"testing"
-	"time"
-
-	"github.com/spf13/viper"
-
-	"github.com/pydio/cells/v4/common/dao"
-	"github.com/pydio/cells/v4/common/proto/tree"
-	"github.com/pydio/cells/v4/common/runtime"
-	"github.com/pydio/cells/v4/common/sql"
-	"github.com/pydio/cells/v4/common/utils/mtree"
-
-	. "github.com/smartystreets/goconvey/convey"
-)
+/*
 
 var (
 	ctxNoCache context.Context
@@ -63,15 +42,12 @@ func init() {
 		return NewDAO(d, "ROOT"), nil
 	}
 
-	/*
-		d, er := dao.InitDAO(ctx, sqlite.Driver, "file::memnocache:?mode=memory&cache=shared", "test1", wrapper, options)
-		if er != nil {
-			panic(er)
-		} else {
-			ctxNoCache = servicecontext.WithDAO(ctx, d)
-		}
-
-	*/
+		//d, er := dao.InitDAO(ctx, sqlite.Driver, "file::memnocache:?mode=memory&cache=shared", "test1", wrapper, options)
+		//if er != nil {
+		//	panic(er)
+		//} else {
+		//	ctxNoCache = servicecontext.WithDAO(ctx, d)
+		//}
 }
 
 func makeDAO() dao.DAO {
@@ -1228,9 +1204,10 @@ func BenchmarkMysql(b *testing.B) {
 		// List Root
 		nodes := currentDAO.GetNodeChildren(context.Background(), mtree.MPath{1})
 		<-nodes
-		/*count := 0
-		for range nodes {
-			count++
-		}*/
+		//count := 0
+		//for range nodes {
+		//	count++
+		//}
 	}
 }
+*/

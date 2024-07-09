@@ -1,10 +1,5 @@
 package dbresolver
 
 import (
-	"github.com/lib/pq"
+	_ "github.com/jackc/pgx/v5"
 )
-
-func IsPostGreConn(conn any) bool {
-	_, ok := conn.(*pq.Driver)
-	return ok
-}

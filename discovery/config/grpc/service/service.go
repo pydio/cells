@@ -48,14 +48,8 @@ func init() {
 			service.WithStorageDrivers(configsql.NewDAO),
 			service.Migrations([]*service.Migration{
 				{
-					Up: func(ctx context.Context) error {
-						dao, err := manager.Resolve[configsql.DAO](ctx)
-						if err != nil {
-							return err
-						}
-
-						return dao.Migrate(ctx)
-					},
+					TargetVersion: service.FirstRun(),
+					Up:            manager.StorageMigration(),
 				},
 			}),
 			service.WithGRPC(func(c context.Context, srv grpc.ServiceRegistrar) error {

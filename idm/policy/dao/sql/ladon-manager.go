@@ -225,7 +225,7 @@ func (s *managerWithContext) FindRequestCandidates(r *ladon.Request) (ladon.Poli
 	regexpBuilder := func(table, key string) string {
 		return fmt.Sprintf("%s = true and CAST(? AS BINARY) REGEXP BINARY %s", table+"."+key+"_regex", table+"."+key+"_compiled")
 	}
-	if db.Name() == "sqlite" {
+	if db.Name() == "sqlite" || db.Name() == "postgres" {
 		// Warning, this requires sqlite3-extended driver with injected function REGEXP_LIKE
 		regexpBuilder = func(table, key string) string {
 			return fmt.Sprintf("%s = true and REGEXP_LIKE(?, %s)", table+"."+key+"_regex", table+"."+key+"_compiled")

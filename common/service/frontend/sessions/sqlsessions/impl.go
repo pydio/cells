@@ -222,8 +222,8 @@ func (h *Impl) DeleteExpired(ctx context.Context, logger log.ZapLogger) {
 			case <-ticker.C:
 				if del, er := h.deleteExpired(); er != nil {
 					logger.Error("Error while running deleteExpired", zap.Error(er))
-				} else {
-					logger.Info(fmt.Sprintf("Successfully cleaned %d sessions", del), zap.Int64("count", del))
+				} else if del > 0 {
+					logger.Info(fmt.Sprintf("Cleaned %d expired sessions", del), zap.Int64("count", del))
 				}
 			case <-ctx.Done():
 				break

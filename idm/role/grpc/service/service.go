@@ -49,14 +49,7 @@ func init() {
 			service.Migrations(append([]*service.Migration{
 				{
 					TargetVersion: service.FirstRun(),
-					Up: func(ctx context.Context) error {
-						dao, err := manager.Resolve[role.DAO](ctx)
-						if err != nil {
-							return err
-						}
-
-						return dao.Migrate(ctx)
-					},
+					Up:            manager.StorageMigration(),
 				},
 			}, grpc2.GrpcServiceMigrations...)),
 			service.WithGRPC(func(ctx context.Context, server grpc.ServiceRegistrar) error {

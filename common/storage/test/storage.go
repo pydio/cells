@@ -153,15 +153,7 @@ func RunStorageTests(testCases []StorageTestCase, f func(context.Context)) {
 				service.WithStorageDrivers(tc.DAO),
 				service.Migrations([]*service.Migration{{
 					TargetVersion: service.FirstRun(),
-					Up: func(ctx context.Context) error {
-						mig, err := manager.Resolve[storage.Migrator](ctx)
-						if err != nil {
-							// We're ignoring the error in purpose, we just don't need to migrate
-							return nil
-						}
-
-						return mig.Migrate(ctx)
-					},
+					Up:            manager.StorageMigration(),
 				}}),
 			)
 		})

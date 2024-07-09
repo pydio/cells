@@ -24,20 +24,8 @@
 package mysql
 
 import (
-	"context"
 	"database/sql"
-	"fmt"
 	"sync"
-
-	tools "github.com/go-sql-driver/mysql"
-	"go.uber.org/zap"
-
-	"github.com/pydio/cells/v4/common/dao"
-	"github.com/pydio/cells/v4/common/errors"
-	"github.com/pydio/cells/v4/common/runtime"
-	commonsql "github.com/pydio/cells/v4/common/sql"
-	"github.com/pydio/cells/v4/common/telemetry/log"
-	"github.com/pydio/cells/v4/common/telemetry/metrics"
 )
 
 var (
@@ -51,6 +39,7 @@ type conn struct {
 	conn *sql.DB
 }
 
+/*
 func (m *conn) Open(c context.Context, dsn string) (dao.Conn, error) {
 	var (
 		db *sql.DB
@@ -176,3 +165,4 @@ func FilterDAOErrors(err error) (error, bool) {
 	}
 	return err, filtered
 }
+*/

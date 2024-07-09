@@ -41,6 +41,7 @@ import (
 	"github.com/ory/x/errorsx"
 	"github.com/ory/x/sqlxx"
 	"github.com/ory/x/urlx"
+	"go.opentelemetry.io/otel/trace"
 
 	"github.com/pydio/cells/v4/common/auth"
 	"github.com/pydio/cells/v4/common/auth/hydra"
@@ -559,17 +560,22 @@ func (h *Handler) AcceptLogout(ctx context.Context, in *pauth.AcceptLogoutReques
 
 // Verify checks if the token is valid for hydra
 func (h *Handler) Verify(ctx context.Context, in *pauth.VerifyTokenRequest) (*pauth.VerifyTokenResponse, error) {
+	span := trace.SpanFromContext(ctx)
 	reg, err := manager.Resolve[oauth.Registry](ctx)
 	if err != nil {
 		return nil, err
 	}
+	span.AddEvent("Registry Resolved")
 
 	session := oauth2.NewSession("")
+	span.AddEvent("Session Created")
 
 	tokenType, ar, err := reg.OAuth2Provider().IntrospectToken(ctx, in.GetToken(), fosite.AccessToken, session)
 	if err != nil {
 		return nil, errors.Tag(err, errors.InvalidIDToken)
 	}
+
+	span.AddEvent("Token Validated")
 
 	if tokenType != fosite.AccessToken {
 		return nil, errors.WithMessage(errors.InvalidIDToken, "only access tokens are allowed in the authorization header")

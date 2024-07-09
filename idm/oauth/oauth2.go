@@ -17,12 +17,14 @@ import (
 	"github.com/ory/x/errorsx"
 	"github.com/ory/x/stringsx"
 	"github.com/tidwall/gjson"
+	"go.opentelemetry.io/otel/trace"
 	"go.uber.org/zap"
 	"gorm.io/gorm"
 	"gorm.io/gorm/schema"
 
 	"github.com/pydio/cells/v4/common/errors"
 	"github.com/pydio/cells/v4/common/telemetry/log"
+	"github.com/pydio/cells/v4/common/telemetry/tracing"
 	json "github.com/pydio/cells/v4/common/utils/jsonx"
 )
 
@@ -82,10 +84,16 @@ type oauth2Driver struct {
 }
 
 func (o *oauth2Driver) Migrate(ctx context.Context) error {
+	var span trace.Span
+	ctx, span = tracing.StartLocalSpan(ctx, "oAuth2Driver.Migrate")
+	defer span.End()
 	return o.db.AutoMigrate(&OAuth2RequestSQLOIDC{}, &OAuth2RequestSQLAccess{}, &OAuth2RequestSQLRefresh{}, &OAuth2RequestSQLCode{}, &OAuth2RequestSQLPKCE{})
 }
 
 func (o *oauth2Driver) createSession(ctx context.Context, signature string, request fosite.Requester, table tableName) error {
+	var span trace.Span
+	ctx, span = tracing.StartLocalSpan(ctx, "oAuth2Driver.createSession")
+	defer span.End()
 
 	session := request.GetSession().(*oauth2.Session)
 	sessionBytes, err := json.Marshal(session)
@@ -132,7 +140,9 @@ func (o *oauth2Driver) createSession(ctx context.Context, signature string, requ
 }
 
 func (o *oauth2Driver) getSession(ctx context.Context, req interface{}, session fosite.Session) (fosite.Requester, error) {
-
+	var span trace.Span
+	ctx, span = tracing.StartLocalSpan(ctx, "oAuth2Driver.getSession")
+	defer span.End()
 	tx := o.db.Where(req).Find(&req)
 	if tx.Error != nil {
 		return nil, tx.Error
@@ -197,7 +207,7 @@ func (o *oauth2Driver) ClientAssertionJWTValid(ctx context.Context, jti string) 
 
 	tx := o.db.First(&j)
 	if tx.Error != nil {
-		if tx.Error == sql.ErrNoRows {
+		if errors.Is(tx.Error, sql.ErrNoRows) {
 			return nil
 		}
 		return errors.Tag(tx.Error, OAuthRegistryError)

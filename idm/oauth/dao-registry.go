@@ -65,7 +65,6 @@ import (
 	"github.com/ory/x/popx"
 	"github.com/sirupsen/logrus"
 	"go.uber.org/zap"
-	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 	"gorm.io/gorm/schema"
 
@@ -113,11 +112,12 @@ type Registry interface {
 	OAuth2HMACStrategy() *foauth2.HMACSHAStrategy
 }
 
+/*
 func init() {
 	dbal.RegisterDriver(func() dbal.Driver {
 		return NewRegistrySQL()
 	})
-}
+}*/
 
 var _ foauth2.TokenRevocationStorage = (*sqlPersister)(nil)
 
@@ -218,41 +218,42 @@ type cellsdriver struct {
 }
 
 func NewRegistryDAO(db *gorm.DB) Registry {
-	c := &cellsdriver{
+	return &cellsdriver{
 		db: db,
 	}
-
-	// TODO
-	c.Persister().MigrateUp(context.TODO())
-
-	return c
 }
 
+func (m *cellsdriver) Migrate(ctx context.Context) error {
+	return m.Persister().MigrateUp(ctx)
+}
+
+/*
 func NewRegistrySQL() *cellsdriver {
 	return &cellsdriver{}
 }
+*/
 
 func (m *cellsdriver) Init(ctx context.Context, skipNetworkInit bool, migrate bool, ctxer contextx.Contextualizer) error {
 	contextx.RootContext = context.WithValue(ctx, contextx.ValidContextKey, true)
+	/*
+		// Starting off with default config
+		dsn := m.Config().DSN()
 
-	// Starting off with default config
-	dsn := m.Config().DSN()
+		dialector := mysql.Open(dsn)
 
-	dialector := mysql.Open(dsn)
+		// Should use tenants and dbresolver to include tenants switching
+		db, err := gorm.Open(dialector, &gorm.Config{
+			DisableForeignKeyConstraintWhenMigrating: true,
+			FullSaveAssociations:                     true,
+		})
+		if err != nil {
+			return err
+		}
 
-	// Should use tenants and dbresolver to include tenants switching
-	db, err := gorm.Open(dialector, &gorm.Config{
-		DisableForeignKeyConstraintWhenMigrating: true,
-		FullSaveAssociations:                     true,
-	})
-	if err != nil {
-		return err
-	}
+		m.db = db
 
-	m.db = db
-
-	m.Persister().MigrateUp(ctx)
-
+		m.Persister().MigrateUp(ctx)
+	*/
 	return nil
 }
 

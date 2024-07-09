@@ -23,28 +23,7 @@
 
 package index
 
-import (
-	"context"
-	"crypto/md5"
-	"database/sql"
-	"errors"
-	"fmt"
-	"regexp"
-	"sort"
-	"strings"
-	"sync"
-	"time"
-
-	"go.uber.org/zap"
-
-	"github.com/pydio/cells/v4/common/dao"
-	"github.com/pydio/cells/v4/common/proto/tree"
-	commonsql "github.com/pydio/cells/v4/common/sql"
-	"github.com/pydio/cells/v4/common/telemetry/log"
-	"github.com/pydio/cells/v4/common/utils/configx"
-	"github.com/pydio/cells/v4/common/utils/mtree"
-)
-
+/*
 var (
 	cache      = make(map[string]DAO)
 	cacheMutex = &sync.Mutex{}
@@ -738,3 +717,4 @@ func (d *daocache) ResyncDirtyEtags(rootNode *mtree.TreeNode) error {
 
 	return err
 }
+*/

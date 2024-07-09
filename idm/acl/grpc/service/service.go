@@ -53,14 +53,7 @@ func init() {
 			service.Migrations([]*service.Migration{
 				{
 					TargetVersion: service.FirstRun(),
-					Up: func(ctx context.Context) error {
-						dao, err := manager.Resolve[acl.DAO](ctx)
-						if err != nil {
-							return err
-						}
-
-						return dao.Migrate(ctx)
-					},
+					Up:            manager.StorageMigration(),
 				},
 				{
 					TargetVersion: service.ValidVersion("1.2.0"),

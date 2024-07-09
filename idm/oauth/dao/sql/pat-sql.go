@@ -128,10 +128,11 @@ func (s *sqlImpl) Init(ctx context.Context, options configx.Values) error {
 	s.instance = func() *gorm.DB {
 		return s.db.Session(&gorm.Session{SkipDefaultTransaction: true}).Model(&PersonalToken{})
 	}
-
-	s.instance().AutoMigrate(&PersonalToken{})
-
 	return nil
+}
+
+func (s *sqlImpl) Migrate(ctx context.Context) error {
+	return s.instance().AutoMigrate(&PersonalToken{})
 }
 
 func (s *sqlImpl) Load(accessToken string) (*auth.PersonalAccessToken, error) {

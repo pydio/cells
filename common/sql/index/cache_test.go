@@ -23,30 +23,10 @@
 package index
 
 import (
-	"context"
-	"crypto/md5"
-	"encoding/hex"
-	"fmt"
-	"log"
-	osruntime "runtime"
-	"strconv"
-	"strings"
-	"sync"
-	"testing"
-
-	"github.com/spf13/viper"
-
-	"github.com/pydio/cells/v4/common/dao"
-	"github.com/pydio/cells/v4/common/proto/tree"
-	"github.com/pydio/cells/v4/common/runtime"
-	"github.com/pydio/cells/v4/common/sql"
-	"github.com/pydio/cells/v4/common/utils/mtree"
-
 	_ "github.com/pydio/cells/v4/common/utils/cache/gocache"
-
-	. "github.com/smartystreets/goconvey/convey"
 )
 
+/*
 var (
 	ctxWithCache context.Context
 	baseCacheDAO dao.DAO
@@ -911,3 +891,4 @@ func TestGettingNodeByPathBeforeCreationWithCache(t *testing.T) {
 	})
 
 }
+*/

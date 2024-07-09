@@ -26,12 +26,15 @@ import (
 	"reflect"
 	"runtime"
 
+	"go.opentelemetry.io/otel/trace"
+
 	"github.com/pydio/cells/v4/common/config"
 	"github.com/pydio/cells/v4/common/errors"
 	registry2 "github.com/pydio/cells/v4/common/proto/registry"
 	"github.com/pydio/cells/v4/common/registry"
 	"github.com/pydio/cells/v4/common/service"
 	"github.com/pydio/cells/v4/common/storage"
+	"github.com/pydio/cells/v4/common/telemetry/tracing"
 	"github.com/pydio/cells/v4/common/utils/configx"
 	"github.com/pydio/cells/v4/common/utils/propagator"
 )
@@ -90,6 +93,10 @@ func Resolve[T any](ctx context.Context, opts ...ResolveOption) (s T, final erro
 
 	var t T
 
+	var span trace.Span
+	ctx, span = tracing.StartLocalSpan(ctx, "Resolve")
+	defer span.End()
+
 	// First we get the contextualized registry
 	var reg registry.Registry
 	if !propagator.Get(ctx, registry.ContextKey, &reg) {
@@ -110,7 +117,7 @@ func Resolve[T any](ctx context.Context, opts ...ResolveOption) (s T, final erro
 	} else {
 		return t, errors.WithMessage(errors.ResolveError, "cannot find manager to load configs")
 	}
-
+	span.AddEvent("Before Listing")
 	edges, err := reg.List(
 		registry.WithName("storage"),
 		registry.WithMeta("name", o.Name),
@@ -132,6 +139,7 @@ func Resolve[T any](ctx context.Context, opts ...ResolveOption) (s T, final erro
 	if err != nil {
 		return t, errors.Tag(err, errors.ResolveError)
 	}
+	span.AddEvent("After Listing Edges")
 
 	storages, err := reg.List(
 		registry.WithType(registry2.ItemType_STORAGE),
@@ -139,6 +147,8 @@ func Resolve[T any](ctx context.Context, opts ...ResolveOption) (s T, final erro
 	if err != nil {
 		return t, errors.Tag(err, errors.ResolveError)
 	}
+
+	span.AddEvent("After Listing Storages")
 
 	// Inject dao in handler
 	for _, handler := range svc.Options().StorageOptions.SupportedDrivers[o.Name] {
@@ -185,6 +195,8 @@ func Resolve[T any](ctx context.Context, opts ...ResolveOption) (s T, final erro
 			}
 		}
 
+		span.AddEvent("Before Service Version")
+
 		// Checking all migrations
 		if err := service.UpdateServiceVersion(ctx, cfg, svc.Options()); err != nil {
 			return t, errors.Tag(err, errors.ResolveError)
@@ -194,7 +206,11 @@ func Resolve[T any](ctx context.Context, opts ...ResolveOption) (s T, final erro
 			return t, errors.WithMessagef(errors.ResolveError, "number of connections (%d) differs from what is requested by handler %s (%d)", assigned, runtime.FuncForPC(handlerV.Pointer()).Name(), handlerT.NumIn())
 		}
 
+		span.AddEvent("After Service Version")
+
 		dao := handlerV.Call(args)[0].Interface()
+
+		span.AddEvent("After Handler.Call")
 
 		if initProvider, ok := dao.(InitProvider); ok {
 			serviceConfigs := cfg.Val(configx.FormatPath("services", svc.Name()))
@@ -255,4 +271,15 @@ func MustGetConfig(ctx context.Context) config.Store {
 		panic("manager must be set")
 	}
 	return mg.GetConfig(ctx)
+}
+
+// StorageMigration produces a function for Resolving a storage.Migrator and apply its Migrate function
+func StorageMigration(opts ...ResolveOption) func(ctx2 context.Context) error {
+	return func(ctx context.Context) error {
+		mig, err := Resolve[storage.Migrator](ctx, opts...)
+		if err != nil {
+			return nil
+		}
+		return mig.Migrate(ctx)
+	}
 }
