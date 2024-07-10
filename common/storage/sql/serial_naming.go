@@ -10,6 +10,7 @@ import (
 	"gorm.io/gorm/schema"
 )
 
+// EnumSerial is a gorm serializer to store proto.Enum as string instead of integer
 type EnumSerial struct{}
 
 func (e EnumSerial) Scan(ctx context.Context, field *schema.Field, dst reflect.Value, dbValue interface{}) error {
@@ -41,6 +42,29 @@ func (e EnumSerial) Value(ctx context.Context, field *schema.Field, dst reflect.
 		return []byte(f.String()), nil
 	}
 	return fieldValue, fmt.Errorf("value does not implement .String() method")
+}
+
+// BoolInt is a gorm serializer to store booleans as integers
+type BoolInt struct{}
+
+func (b BoolInt) Scan(ctx context.Context, field *schema.Field, dst reflect.Value, dbValue interface{}) error {
+	boolVal := dbValue == int64(1)
+	if dst.Kind() == reflect.Ptr {
+		dst.Elem().FieldByName(field.StructField.Name).SetBool(boolVal)
+	} else {
+		dst.FieldByName(field.StructField.Name).SetBool(boolVal)
+	}
+	return nil
+}
+
+func (b BoolInt) Value(ctx context.Context, field *schema.Field, dst reflect.Value, fieldValue interface{}) (interface{}, error) {
+	if fieldValue == 0 || fieldValue == 1 {
+		return fieldValue.(int64), nil
+	}
+	if boo, ok := fieldValue.(bool); ok && boo {
+		return int64(1), nil
+	}
+	return int64(0), nil
 }
 
 type customNaming struct {

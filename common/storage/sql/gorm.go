@@ -9,6 +9,8 @@ import (
 
 	"github.com/glebarez/sqlite"
 	mysql2 "github.com/go-sql-driver/mysql"
+	pgx "github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/stdlib"
 	"gorm.io/driver/mysql"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
@@ -23,6 +25,8 @@ import (
 	"github.com/pydio/cells/v4/common/storage"
 	"github.com/pydio/cells/v4/common/utils/openurl"
 	"github.com/pydio/cells/v4/common/utils/propagator"
+
+	_ "github.com/jackc/pgx/v5"
 )
 
 var (
@@ -41,6 +45,7 @@ func init() {
 		}
 	})
 	schema.RegisterSerializer("proto_enum", EnumSerial{})
+	schema.RegisterSerializer("bool_int", BoolInt{})
 }
 
 type pool struct {
@@ -96,6 +101,7 @@ func OpenPool(ctx context.Context, uu string) (storage.Storage, error) {
 		}
 		var clean string
 		var er error
+		var conn *sql.DB
 		switch scheme {
 		case MySQLDriver:
 			clean, er = cleanDSN(dsn, expectedVars, "mysql")
@@ -111,10 +117,20 @@ func OpenPool(ctx context.Context, uu string) (storage.Storage, error) {
 		if er != nil {
 			return nil, er
 		}
-		// Trim scheme and open sql connection pool
-		conn, err := sql.Open(scheme, clean)
-		if err != nil {
-			return nil, err
+
+		// Open sql connection pool - special case to force PG to use PGX driver, not PQ
+		switch scheme {
+		case PostgreDriver:
+			pgxConfig, err := pgx.ParseConfig(clean)
+			if err != nil {
+				return nil, err
+			}
+			conn = stdlib.OpenDB(*pgxConfig)
+		default:
+			conn, er = sql.Open(scheme, clean)
+		}
+		if er != nil {
+			return nil, er
 		}
 
 		var dialect gorm.Dialector

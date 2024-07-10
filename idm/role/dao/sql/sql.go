@@ -159,7 +159,7 @@ func (s *sqlimpl) Count(ctx context.Context, query sql.Enquirer) (int32, error) 
 	}
 	rqb := new(resources.QueryBuilder)
 	rqb.DAO = s.resourcesDAO
-	rqb.LeftIdentifier = sch.Table + "." + sch.PrimaryFields[0].Name
+	rqb.LeftIdentifier = sch.Table + "." + sch.PrimaryFields[0].DBName
 
 	db, er := sql.NewQueryBuilder[*gorm.DB](query, new(queryBuilder), rqb).Build(ctx, s.instance(ctx))
 	if er != nil {
@@ -184,7 +184,7 @@ func (s *sqlimpl) Search(ctx context.Context, query sql.Enquirer, roles *[]*idm.
 	}
 	rqb := new(resources.QueryBuilder)
 	rqb.DAO = s.resourcesDAO
-	rqb.LeftIdentifier = sch.Table + "." + sch.PrimaryFields[0].Name
+	rqb.LeftIdentifier = sch.Table + "." + sch.PrimaryFields[0].DBName
 
 	db, er := sql.NewQueryBuilder[*gorm.DB](query, new(queryBuilder), rqb).Build(ctx, s.instance(ctx))
 	if er != nil {

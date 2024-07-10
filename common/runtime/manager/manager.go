@@ -396,6 +396,9 @@ func (m *manager) ServeAll(oo ...server.ServeOption) error {
 							}
 
 							childArgs = append(childArgs, "start", "--name", name)
+							if sets := runtime.GetString(runtime.KeySetsFile); sets != "" {
+								childArgs = append(childArgs, "--sets", sets)
+							}
 
 							// Adding connections to the environment
 							for k := range connections.Map() {

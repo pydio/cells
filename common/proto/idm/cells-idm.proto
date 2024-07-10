@@ -62,11 +62,11 @@ message Role {
     // Label of this role
     string Label = 2                [(orm.orm).gorm = {column: "label"; type: "varchar(500)"; notNull: true;}];
     // Whether this role represents a user team or not
-    bool IsTeam = 3                 [(orm.orm).gorm = {column: "team_role"; }];
+    bool IsTeam = 3                 [(orm.orm).gorm = {column: "team_role"; type: "smallint"; serializer: "bool_int" }];
     // Whether this role is attached to a Group object
-    bool GroupRole = 4              [(orm.orm).gorm = {column: "group_role"; }];
+    bool GroupRole = 4              [(orm.orm).gorm = {column: "group_role"; type: "smallint"; serializer: "bool_int" }];
     // Whether this role is attached to a User object
-    bool UserRole = 5               [(orm.orm).gorm = {column: "user_role";}];
+    bool UserRole = 5               [(orm.orm).gorm = {column: "user_role"; type: "smallint"; serializer: "bool_int" }];
     // Last modification date of the role
     int32 LastUpdated = 6           [(orm.orm).gorm = {column: "last_updated"; type: "int"}];
     // List of profiles (standard, shared, admin) on which the role will be automatically applied
@@ -76,7 +76,7 @@ message Role {
     // Whether the policies resolve into an editable state
     bool PoliciesContextEditable = 9;
     // Is used in a stack of roles, this one will always be applied last.
-    bool ForceOverride = 10         [(orm.orm).gorm = {column: "override";}];
+    bool ForceOverride = 10         [(orm.orm).gorm = {column: "override"; type: "smallint" serializer: "bool_int"}];
 }
 
 // RoleSingleQuery is the basic unit for building queries to Roles.
