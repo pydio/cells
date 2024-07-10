@@ -143,17 +143,17 @@ func (c *queryConverter) Convert(ctx context.Context, val *anypb.Any, db *gorm.D
 			return db, false, err
 		}
 		if fullPath {
-			wheres = append(wheres, db.Where(getMPathEquals([]byte(parentNode.GetMPath().ToString()))))
+			wheres = append(wheres, buildMPathEquals(db, []byte(parentNode.GetMPath().ToString())))
 		} else {
-			var gPathQuery *gorm.DB
+			gPathQuery := buildMPathLike(db, []byte(parentNode.GetMPath().ToString()))
 			if q.Recursive {
 				// Get whole tree
-				gPathQuery = db.Where(getMPathLike([]byte(parentNode.GetMPath().ToString()))).Where("level >= ?", parentNode.GetLevel()+1)
+				gPathQuery = gPathQuery.Where("level >= ?", parentNode.GetLevel()+1)
 			} else {
-				gPathQuery = db.Where(getMPathLike([]byte(parentNode.GetMPath().ToString()))).Where("level = ?", parentNode.GetLevel()+1)
+				gPathQuery = gPathQuery.Where("level = ?", parentNode.GetLevel()+1)
 			}
 			if c.includeParent {
-				incParentQuery := db.Where(getMPathEquals([]byte(parentNode.GetMPath().ToString())))
+				incParentQuery := buildMPathEquals(db, []byte(parentNode.GetMPath().ToString()))
 				wheres = append(wheres, db.Where(db.Where(incParentQuery).Or(gPathQuery)))
 			} else {
 				wheres = append(wheres, db.Where(gPathQuery))

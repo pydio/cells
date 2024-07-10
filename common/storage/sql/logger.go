@@ -14,13 +14,7 @@ import (
 )
 
 var (
-	DefaultConfig = glog.Config{
-		SlowThreshold:             200 * time.Millisecond,
-		LogLevel:                  glog.Warn,
-		IgnoreRecordNotFoundError: false,
-		Colorful:                  false,
-	}
-	//Recorder = traceRecorder{Interface: Default, BeginAt: time.Now()}
+	TestPrintQueries = false
 )
 
 // NewLogger initialize logger
@@ -112,6 +106,9 @@ func (l *zapLogger) Trace(ctx context.Context, begin time.Time, fc func() (strin
 		}
 	}
 	if logLine != "" {
+		if TestPrintQueries {
+			fmt.Println(logLine)
+		}
 		log2.Logger(ctx).Info(logLine, ff...)
 	}
 }

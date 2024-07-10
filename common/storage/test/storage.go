@@ -53,6 +53,7 @@ type StorageTestCase struct {
 }
 
 func init() {
+	sql.TestPrintQueries = true
 	var err error
 	tmpl, err = template.New("test").Parse(yaml)
 	if err != nil {
@@ -75,7 +76,7 @@ func TemplateSQL(daoFunc any) []StorageTestCase {
 			DAO:       daoFunc,
 		},
 		{
-			DSN:       []string{os.Getenv("CELLS_TEST_PGSQL_DSN") + "&hookNames=cleanTables"},
+			DSN:       []string{os.Getenv("CELLS_TEST_PGSQL_DSN")},
 			Condition: os.Getenv("CELLS_TEST_PGSQL_DSN") != "",
 			DAO:       daoFunc,
 		},

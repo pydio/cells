@@ -34,6 +34,7 @@ import (
 	"google.golang.org/protobuf/proto"
 	"google.golang.org/protobuf/types/known/anypb"
 	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
 
 	"github.com/pydio/cells/v4/common/auth"
 	"github.com/pydio/cells/v4/common/errors"
@@ -655,13 +656,15 @@ func (s *sqlimpl) rebuildGroupPath(ctx context.Context, node tree.ITreeNode) {
 
 }
 
-// where t.mpath = ?
-func getMPathEquals(mpath []byte) string {
-	var res []string
-
+func buildMPathEquals(db *gorm.DB, mpath []byte) *gorm.DB {
 	for {
 		cnt := (len(mpath) - 1) / indexLen
-		res = append(res, fmt.Sprintf(`mpath%d LIKE "%s"`, cnt+1, mpath[(cnt*indexLen):]))
+
+		// PREVIOUS WAS : res = append(res, fmt.Sprintf(`mpath%d LIKE "%s"`, cnt+1, mpath[(cnt*indexLen):]))
+		db = db.Where(clause.Like{
+			Column: fmt.Sprintf("mpath%d", cnt+1),
+			Value:  mpath[(cnt * indexLen):],
+		})
 
 		if idx := cnt * indexLen; idx == 0 {
 			break
@@ -669,25 +672,28 @@ func getMPathEquals(mpath []byte) string {
 
 		mpath = mpath[0 : cnt*indexLen]
 	}
-
-	return strings.Join(res, " and ")
+	return db
 }
 
-// t.mpath LIKE ?
-func getMPathLike(mpath []byte) string {
-	var res []string
-
+func buildMPathLike(db *gorm.DB, mpath []byte) *gorm.DB {
 	mpath = append(mpath, []byte(".%")...)
 
-	done := false
+	//done := false
 	for {
 		cnt := (len(mpath) - 1) / indexLen
-		if !done {
-			res = append(res, fmt.Sprintf(`mpath%d LIKE "%s"`, cnt+1, mpath[(cnt*indexLen):]))
-			done = true
-		} else {
-			res = append(res, fmt.Sprintf(`mpath%d LIKE "%s"`, cnt+1, mpath[(cnt*indexLen):]))
-		}
+		db = db.Where(clause.Like{
+			Column: fmt.Sprintf("mpath%d", cnt+1),
+			Value:  mpath[(cnt * indexLen):],
+		})
+		/*
+			TODO - RECHECK THIS CODE ? IT WAS DOING NOTHING DIFFERENT if done or not done
+				if !done {
+					res = append(res, fmt.Sprintf(`mpath%d LIKE "%s"`, cnt+1, mpath[(cnt*indexLen):]))
+					done = true
+				} else {
+					res = append(res, fmt.Sprintf(`mpath%d LIKE "%s"`, cnt+1, mpath[(cnt*indexLen):]))
+				}
+		*/
 
 		if idx := cnt * indexLen; idx == 0 {
 			break
@@ -695,8 +701,8 @@ func getMPathLike(mpath []byte) string {
 
 		mpath = mpath[0 : cnt*indexLen]
 	}
+	return db
 
-	return strings.Join(res, " and ")
 }
 
 func isMn(r rune) bool {
