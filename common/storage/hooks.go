@@ -25,6 +25,10 @@ import (
 	"strings"
 )
 
+var (
+	TestFinisherHooks []func() error
+)
+
 // DetectHooksAndRemoveFromURL detects a hookNames=hook1,hook2,hook3 query parameter
 // and remove it from the RawQuery
 func DetectHooksAndRemoveFromURL(u *url.URL) ([]string, bool) {
