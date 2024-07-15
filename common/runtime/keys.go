@@ -79,6 +79,7 @@ const (
 	KeyLog       = "log"
 	KeyLogJson   = "log_json"
 	KeyLogToFile = "log_to_file"
+	KeyLogSQL    = "log_sql"
 
 	KeySet      = "set"
 	KeySetsFile = "sets"
