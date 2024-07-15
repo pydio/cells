@@ -63,19 +63,20 @@ func init() {
 
 // TemplateSQL returns a single SQL test case with the provided DAO func
 func TemplateSQL(daoFunc any) []StorageTestCase {
+	unique := uuid.New()[:6]
 	return []StorageTestCase{
 		{
-			DSN:       []string{sql.SqliteDriver + "://" + sql.SharedMemDSN + "&hookNames=cleanTables"},
+			DSN:       []string{sql.SqliteDriver + "://" + sql.SharedMemDSN + "&hookNames=cleanTables&prefix=" + unique},
 			Condition: true,
 			DAO:       daoFunc,
 		},
 		{
-			DSN:       []string{os.Getenv("CELLS_TEST_MYSQL_DSN") + "?parseTime=true&hookNames=cleanTables"},
+			DSN:       []string{os.Getenv("CELLS_TEST_MYSQL_DSN") + "?parseTime=true&hookNames=cleanTables&prefix=" + unique},
 			Condition: os.Getenv("CELLS_TEST_MYSQL_DSN") != "",
 			DAO:       daoFunc,
 		},
 		{
-			DSN:       []string{os.Getenv("CELLS_TEST_PGSQL_DSN") + "&hookNames=cleanTables"},
+			DSN:       []string{os.Getenv("CELLS_TEST_PGSQL_DSN") + "&hookNames=cleanTables&prefix=" + unique},
 			Condition: os.Getenv("CELLS_TEST_PGSQL_DSN") != "",
 			DAO:       daoFunc,
 		},
