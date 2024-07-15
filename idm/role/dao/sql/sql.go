@@ -28,7 +28,6 @@ import (
 	"google.golang.org/protobuf/proto"
 	"google.golang.org/protobuf/types/known/anypb"
 	"gorm.io/gorm"
-	"gorm.io/gorm/schema"
 
 	"github.com/pydio/cells/v4/common/errors"
 	"github.com/pydio/cells/v4/common/proto/idm"
@@ -153,14 +152,10 @@ func (s *sqlimpl) Add(ctx context.Context, role *idm.Role) (*idm.Role, bool, err
 }
 
 func (s *sqlimpl) Count(ctx context.Context, query sql.Enquirer) (int32, error) {
-	sch, err := schema.Parse(&idm.Role{}, &sync.Map{}, s.instance(ctx).NamingStrategy)
+	rqb, err := resources.PrepareQueryBuilder(&idm.Role{}, s.resourcesDAO, s.instance(ctx).NamingStrategy)
 	if err != nil {
 		return 0, err
 	}
-	rqb := new(resources.QueryBuilder)
-	rqb.DAO = s.resourcesDAO
-	rqb.LeftIdentifier = sch.Table + "." + sch.PrimaryFields[0].DBName
-
 	db, er := sql.NewQueryBuilder[*gorm.DB](query, new(queryBuilder), rqb).Build(ctx, s.instance(ctx))
 	if er != nil {
 		return 0, er
@@ -178,14 +173,11 @@ func (s *sqlimpl) Count(ctx context.Context, query sql.Enquirer) (int32, error) 
 
 // Search in the SQL DB.
 func (s *sqlimpl) Search(ctx context.Context, query sql.Enquirer, roles *[]*idm.Role) error {
-	sch, err := schema.Parse(&idm.Role{}, &sync.Map{}, s.instance(ctx).NamingStrategy)
+
+	rqb, err := resources.PrepareQueryBuilder(&idm.Role{}, s.resourcesDAO, s.instance(ctx).NamingStrategy)
 	if err != nil {
 		return err
 	}
-	rqb := new(resources.QueryBuilder)
-	rqb.DAO = s.resourcesDAO
-	rqb.LeftIdentifier = sch.Table + "." + sch.PrimaryFields[0].DBName
-
 	db, er := sql.NewQueryBuilder[*gorm.DB](query, new(queryBuilder), rqb).Build(ctx, s.instance(ctx))
 	if er != nil {
 		return er

@@ -426,8 +426,13 @@ func (s *sqlimpl) Count(ctx context.Context, query sql.Enquirer, includeParents 
 		loginCI:       s.loginCI,
 	}
 
+	rqb, err := resources.PrepareQueryBuilder(&user_model.User{}, s.resourcesDAO, s.instance(ctx).NamingStrategy)
+	if err != nil {
+		return 0, err
+	}
+
 	var total int64
-	db, er := sql.NewQueryBuilder[*gorm.DB](query, converter, s.resourcesDAO.(sql.Converter[*gorm.DB])).Build(ctx, s.instance(ctx).Model(&user_model.User{}))
+	db, er := sql.NewQueryBuilder[*gorm.DB](query, converter, rqb).Build(ctx, s.instance(ctx).Model(&user_model.User{}))
 	if er != nil {
 		return 0, wrap(er)
 	}
@@ -461,8 +466,13 @@ func (s *sqlimpl) Search(ctx context.Context, query sql.Enquirer, users *[]inter
 		defer can()
 	}
 
+	rqb, err := resources.PrepareQueryBuilder(&user_model.User{}, s.resourcesDAO, s.instance(ctx).NamingStrategy)
+	if err != nil {
+		return err
+	}
+
 	var rows []*user_model.User
-	db, er := sql.NewQueryBuilder[*gorm.DB](query, converter, s.resourcesDAO.(sql.Converter[*gorm.DB])).Build(ctx, s.instance(ctx))
+	db, er := sql.NewQueryBuilder[*gorm.DB](query, converter, rqb).Build(ctx, s.instance(ctx))
 	if er != nil {
 		return wrap(er)
 	}
@@ -528,7 +538,12 @@ func (s *sqlimpl) Del(ctx context.Context, query sql.Enquirer, users chan *idm.U
 		includeParent: true,
 		loginCI:       s.loginCI,
 	}
-	db, er := sql.NewQueryBuilder[*gorm.DB](query, converter, s.resourcesDAO.(sql.Converter[*gorm.DB])).Build(ctx, s.instance(ctx))
+
+	rqb, err := resources.PrepareQueryBuilder(&user_model.User{}, s.resourcesDAO, s.instance(ctx).NamingStrategy)
+	if err != nil {
+		return 0, err
+	}
+	db, er := sql.NewQueryBuilder[*gorm.DB](query, converter, rqb).Build(ctx, s.instance(ctx))
 	if er != nil {
 		return 0, wrap(er)
 	}

@@ -186,6 +186,7 @@ func (h *Handler) SearchRole(request *idm.SearchRoleRequest, response idm.RoleSe
 	if err != nil {
 		return err
 	}
+	request.Query = pbservice.PrepareResourcePolicyQuery(request.Query)
 
 	if err := dao.Search(ctx, request.Query, &roles); err != nil {
 		return err

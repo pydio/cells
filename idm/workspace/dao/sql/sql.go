@@ -77,26 +77,6 @@ func (s *sqlimpl) Migrate(ctx context.Context) error {
 	return nil
 }
 
-// Init handler for the SQL DAO
-//func (s *sqlimpl) Init(ctx context.Context, options configx.Values) error {
-//
-//	// super
-//	//if er := s.DAO.Init(ctx, options); er != nil {
-//	//	return er
-//	//}
-//
-//	db := s.db
-//
-//	s.instance = func() *gorm.DB { return db.Session(&gorm.Session{SkipDefaultTransaction: true}).Table("idm_roles") }
-//
-//	s.instance().AutoMigrate(&idm.WorkspaceORM{})
-//
-//	s.ResourcesGORM = &resources.ResourcesGORM{DB: s.db}
-//	s.ResourcesGORM.Init(ctx, options)
-//
-//	return nil
-//}
-
 // Add to the SQL DB.
 func (s *sqlimpl) Add(ctx context.Context, in interface{}) (bool, error) {
 
@@ -148,7 +128,11 @@ func (s *sqlimpl) slugExists(ctx context.Context, slug string) bool {
 // Search searches
 func (s *sqlimpl) Search(ctx context.Context, query sql.Enquirer, workspaces *[]interface{}) error {
 
-	db, er := sql.NewQueryBuilder[*gorm.DB](query, new(queryBuilder), s.resourcesDAO.(sql.Converter[*gorm.DB])).Build(ctx, s.instance(ctx))
+	rqb, er := resources.PrepareQueryBuilder(&idm.Workspace{}, s.resourcesDAO, s.instance(ctx).NamingStrategy)
+	if er != nil {
+		return er
+	}
+	db, er := sql.NewQueryBuilder[*gorm.DB](query, new(queryBuilder), rqb).Build(ctx, s.instance(ctx))
 	if er != nil {
 		return er
 	}
@@ -170,7 +154,11 @@ func (s *sqlimpl) Search(ctx context.Context, query sql.Enquirer, workspaces *[]
 // Del from the SQL DB
 func (s *sqlimpl) Del(ctx context.Context, query sql.Enquirer) (int64, error) {
 
-	db, er := sql.NewQueryBuilder[*gorm.DB](query, new(queryBuilder), s.resourcesDAO.(sql.Converter[*gorm.DB])).Build(ctx, s.instance(ctx))
+	rqb, er := resources.PrepareQueryBuilder(&idm.Workspace{}, s.resourcesDAO, s.instance(ctx).NamingStrategy)
+	if er != nil {
+		return 0, er
+	}
+	db, er := sql.NewQueryBuilder[*gorm.DB](query, new(queryBuilder), rqb).Build(ctx, s.instance(ctx))
 	if er != nil {
 		return 0, er
 	}

@@ -23,12 +23,14 @@ package resources
 import (
 	"context"
 	"strings"
+	"sync"
 	"time"
 
 	"google.golang.org/protobuf/proto"
 	"google.golang.org/protobuf/types/known/anypb"
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
+	"gorm.io/gorm/schema"
 
 	"github.com/pydio/cells/v4/common/proto/service"
 )
@@ -211,6 +213,18 @@ func (s *gormImpl) Convert(ctx context.Context, val *anypb.Any, db *gorm.DB) (*g
 type QueryBuilder struct {
 	DAO
 	LeftIdentifier string
+}
+
+// PrepareQueryBuilder instantiates a QueryBuilder with a proper LeftIdentifier
+func PrepareQueryBuilder(refModel any, refDAO DAO, naming schema.Namer) (*QueryBuilder, error) {
+	sch, err := schema.Parse(refModel, &sync.Map{}, naming)
+	if err != nil {
+		return nil, err
+	}
+	rqb := new(QueryBuilder)
+	rqb.DAO = refDAO
+	rqb.LeftIdentifier = sch.Table + "." + sch.PrimaryFields[0].DBName
+	return rqb, nil
 }
 
 func (r *QueryBuilder) Convert(ctx context.Context, val *anypb.Any, db *gorm.DB) (*gorm.DB, bool, error) { // Adding left identifier to resource policy query

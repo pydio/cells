@@ -144,13 +144,10 @@ func TestRoleWithRules(t *testing.T) {
 		Convey("Find Roles with Resource", t, func() {
 
 			singleQ, _ := anypb.New(&idm.RoleSingleQuery{Uuid: []string{"role-res"}})
-			resourceQ, _ := anypb.New(&service.ResourcePolicyQuery{
-				Subjects: []string{"profile:anon"},
-			})
 
 			// Search with wrong context
 			simpleQuery := &service.Query{
-				SubQueries: []*anypb.Any{singleQ, resourceQ},
+				SubQueries: []*anypb.Any{singleQ},
 				Offset:     0,
 				Limit:      10,
 				ResourcePolicyQuery: &service.ResourcePolicyQuery{
@@ -167,10 +164,9 @@ func TestRoleWithRules(t *testing.T) {
 			So(len(mock.InternalBuffer), ShouldEqual, 0)
 
 			// Search with "ANY"
-			resourceQ2, _ := anypb.New(&service.ResourcePolicyQuery{
+			simpleQuery.ResourcePolicyQuery = &service.ResourcePolicyQuery{
 				Subjects: []string{},
-			})
-			simpleQuery.SubQueries = []*anypb.Any{singleQ, resourceQ2}
+			}
 			mock = &roleStreamMock{ctx: ctx}
 			err = s.SearchRole(&idm.SearchRoleRequest{
 				Query: simpleQuery,
@@ -181,15 +177,14 @@ func TestRoleWithRules(t *testing.T) {
 
 			// Search with correct context
 			// Build context with fake claims
-			resourceQ3, _ := anypb.New(&service.ResourcePolicyQuery{
+			simpleQuery.ResourcePolicyQuery = &service.ResourcePolicyQuery{
 				Subjects: []string{
 					"user:subject-name",
 					"profile:standard",
 					"role:role1",
 					"role:role2",
 				},
-			})
-			simpleQuery.SubQueries = []*anypb.Any{singleQ, resourceQ3}
+			}
 			mock = &roleStreamMock{ctx: ctx}
 			err = s.SearchRole(&idm.SearchRoleRequest{
 				Query: simpleQuery,

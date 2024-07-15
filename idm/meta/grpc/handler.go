@@ -209,8 +209,6 @@ func (h *Handler) SearchUserMeta(request *idm.SearchUserMetaRequest, stream idm.
 		SubQueries: []*anypb.Any{
 			searchUserMetaAny, resourceQueryAny,
 		},
-		Offset:    0,
-		Limit:     10,
 		Operation: pbservice.OperationType_AND,
 	}
 

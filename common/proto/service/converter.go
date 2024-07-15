@@ -26,3 +26,27 @@ import "google.golang.org/protobuf/types/known/anypb"
 type Converter interface {
 	Convert(*anypb.Any) (string, bool)
 }
+
+// PrepareResourcePolicyQuery reads ResourcePolicyQuery and append it as a sub-query for further Conversion.
+func PrepareResourcePolicyQuery(query *Query) *Query {
+	if query == nil || query.ResourcePolicyQuery == nil {
+		return query
+	}
+	rp, _ := anypb.New(query.ResourcePolicyQuery)
+	if query.Operation == OperationType_AND {
+		// Already an AND, just append
+		query.SubQueries = append(query.SubQueries, rp)
+		return query
+
+	} else {
+		// Wrap existing an RPQuery in an AND
+		subQ, _ := anypb.New(query)
+		return &Query{
+			Operation:  OperationType_AND,
+			Offset:     query.Offset,
+			Limit:      query.Limit,
+			SubQueries: []*anypb.Any{subQ, rp},
+		}
+
+	}
+}

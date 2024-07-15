@@ -153,6 +153,7 @@ func (h *Handler) SearchWorkspace(request *idm.SearchWorkspaceRequest, response 
 	}
 
 	workspaces := new([]interface{})
+	request.Query = service.PrepareResourcePolicyQuery(request.Query)
 	if err := dao.Search(ctx, request.Query, workspaces); err != nil {
 		return err
 	}

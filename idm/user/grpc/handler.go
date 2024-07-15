@@ -378,6 +378,7 @@ func (h *Handler) SearchUser(request *idm.SearchUserRequest, response idm.UserSe
 	}
 
 	usersGroups := new([]interface{})
+	request.Query = service.PrepareResourcePolicyQuery(request.Query)
 	if err := dao.Search(ctx, request.Query, usersGroups); err != nil {
 		return err
 	}
