@@ -167,12 +167,18 @@ func OpenPool(ctx context.Context, uu string) (storage.Storage, error) {
 			// Colorful: false, // Disable color
 		})
 
+		logLevel := logger.Error
+		// log2.Logger(ctx).Infof("LogSQL enabled ? %v", runtime.GetBool(runtime.KeyLogSQL))
+		if runtime.GetBool(runtime.KeyLogSQL) {
+			logLevel = logger.Info
+		}
+
 		db, err := gorm.Open(dialect, &gorm.Config{
 			TranslateError: true,
 			Logger: NewLogger(logger.Config{
-				SlowThreshold:             time.Second,  // Slow SQL threshold
-				LogLevel:                  logger.Error, // Log level
-				IgnoreRecordNotFoundError: true,         // Ignore ErrRecordNotFound error for logger
+				SlowThreshold:             time.Second, // Slow SQL threshold
+				LogLevel:                  logLevel,    // Log level
+				IgnoreRecordNotFoundError: true,        // Ignore ErrRecordNotFound error for logger
 				// ParameterizedQueries:      true,        // Don't include params in the SQL log
 				// Colorful: false, // Disable color
 			}),
