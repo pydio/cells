@@ -61,7 +61,12 @@ func GormConvertString(db *gorm.DB, neq bool, field string, values ...string) *g
 		v := values[0]
 		var cl interface{}
 		if strings.Contains(v, "*") {
-			cl = clause.Like{Column: field, Value: strings.Replace(v, "*", "%", -1)}
+			val := strings.Replace(v, "*", "%", -1)
+			if db.Name() == "postgres" {
+				cl = ILike{Column: field, Value: val}
+			} else {
+				cl = clause.Like{Column: field, Value: val}
+			}
 		} else {
 			cl = clause.Eq{Column: field, Value: v}
 		}
@@ -73,4 +78,17 @@ func GormConvertString(db *gorm.DB, neq bool, field string, values ...string) *g
 	}
 
 	return db
+}
+
+type ILike struct {
+	Column interface{}
+	Value  interface{}
+}
+
+func (eq ILike) Build(builder clause.Builder) {
+	_, _ = builder.WriteString("LOWER(")
+	builder.WriteQuoted(eq.Column)
+	_, _ = builder.WriteString(") LIKE LOWER(")
+	builder.AddVar(builder, eq.Value)
+	_, _ = builder.WriteString(")")
 }
