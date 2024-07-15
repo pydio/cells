@@ -21,10 +21,8 @@
 package sql
 
 import (
-	"net/url"
-	"strings"
+	"fmt"
 
-	"github.com/go-sql-driver/mysql"
 	"gorm.io/gorm"
 
 	"github.com/pydio/cells/v4/common/storage"
@@ -33,50 +31,28 @@ import (
 var (
 	createdTables = map[string]bool{}
 	hooksRegister = map[string]func(*gorm.DB){}
-	cleaners      []func(*gorm.DB) error
 )
 
-// DetectHooksAndRemoveFromDSN detects a hookNames=hook1,hook2,hook3 query parameter
-// and remove it from the RawQuery
-func DetectHooksAndRemoveFromDSN(dsn string) ([]string, string) {
-	// Try to use standard URL
-	if u, er := url.Parse(dsn); er == nil {
-		if hh, ok := storage.DetectHooksAndRemoveFromURL(u); ok {
-			return hh, u.String()
-		} else {
-			return nil, dsn
-		}
-	}
-	// Try to use mysql
-	if cfg, er := mysql.ParseDSN(dsn); er == nil {
-		if param, ok := cfg.Params["hookNames"]; ok {
-			hookNames := strings.Split(param, ",")
-			delete(cfg.Params, "hookNames")
-			return hookNames, cfg.FormatDSN()
-		} else {
-			return nil, dsn
-		}
-	}
-	return nil, dsn
-}
-
 func init() {
-	hooksRegister["cleanTables"] = func(db *gorm.DB) {
-		_ = db.Callback().Create().After("gorm:after_create").Register("created_tables", hookCreate)
-		cleaners = append(cleaners, func(d *gorm.DB) error {
-			for t := range createdTables {
-				if er := d.Migrator().DropTable(t); er != nil {
-					return er
-				}
-			}
-			return nil
-		})
-	}
+	hooksRegister["cleanTables"] = cleanTablesHook
 }
 
-func hookCreate(db *gorm.DB) {
-	st := db.Statement
-	if st.Table != "" {
-		createdTables[st.Table] = true
-	}
+func cleanTablesHook(db *gorm.DB) {
+	// try to catch create table names with a callback on all create queries
+	_ = db.Callback().Create().After("gorm:after_create").Register("created_tables", func(db *gorm.DB) {
+		st := db.Statement
+		if st.Table != "" {
+			createdTables[st.Table] = true
+		}
+	})
+	// Register a FinisherHook to drop registered tables
+	storage.TestFinisherHooks = append(storage.TestFinisherHooks, func() error {
+		fmt.Println(createdTables)
+		for t := range createdTables {
+			if er := db.Migrator().DropTable(t); er != nil {
+				return er
+			}
+		}
+		return nil
+	})
 }

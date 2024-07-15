@@ -95,9 +95,10 @@ func OpenPool(ctx context.Context, uu string) (storage.Storage, error) {
 		}
 		scheme := parts[0]
 		expectedVars := map[string]string{
-			"prefix":   "",
-			"policies": "",
-			"singular": "",
+			"prefix":    "",
+			"policies":  "",
+			"singular":  "",
+			"hookNames": "",
 		}
 		var clean string
 		var er error
@@ -197,6 +198,14 @@ func OpenPool(ctx context.Context, uu string) (storage.Storage, error) {
 		logger.Default = customLogger
 		// This enables tracing and metrics on DB
 		_ = db.Use(otel.NewPlugin())
+
+		if hooks := expectedVars["hookNames"]; hooks != "" {
+			for _, h := range strings.Split(hooks, ",") {
+				if reg, ok := hooksRegister[h]; ok {
+					reg(db)
+				}
+			}
+		}
 
 		return db, nil
 	})

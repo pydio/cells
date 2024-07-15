@@ -76,7 +76,7 @@ func TemplateSQL(daoFunc any) []StorageTestCase {
 			DAO:       daoFunc,
 		},
 		{
-			DSN:       []string{os.Getenv("CELLS_TEST_PGSQL_DSN")},
+			DSN:       []string{os.Getenv("CELLS_TEST_PGSQL_DSN") + "&hookNames=cleanTables"},
 			Condition: os.Getenv("CELLS_TEST_PGSQL_DSN") != "",
 			DAO:       daoFunc,
 		},
@@ -169,6 +169,13 @@ func RunStorageTests(testCases []StorageTestCase, f func(context.Context)) {
 		ctx = propagator.With(ctx, tenant.ContextKey, tenant.GetManager().GetMaster())
 
 		f(ctx)
+
+		// Clean up hooks - we cannot resolve gorm.DB as a Closer or Dropper...
+		for _, tf := range storage.TestFinisherHooks {
+			if er := tf(); er != nil {
+				panic(er)
+			}
+		}
 
 		// Close and drop, or just close
 		if dropper, er := manager.Resolve[storage.Dropper](ctx); er == nil {
