@@ -39,7 +39,7 @@ import (
 	"github.com/pydio/cells/v4/common/proto/tree"
 	index "github.com/pydio/cells/v4/common/sql/indexgorm"
 	"github.com/pydio/cells/v4/common/telemetry/log"
-	user_model "github.com/pydio/cells/v4/idm/user/dao/sql/model"
+	usermodel "github.com/pydio/cells/v4/idm/user/dao/sql/model"
 )
 
 type queryConverter struct {
@@ -50,7 +50,7 @@ type queryConverter struct {
 
 func (c *queryConverter) Convert(ctx context.Context, val *anypb.Any, db *gorm.DB) (*gorm.DB, bool, error) {
 
-	query := user_model.Use(db)
+	query := usermodel.Use(db)
 	u := query.User
 	a := query.UserAttribute
 	r := query.UserRole
@@ -93,7 +93,7 @@ func (c *queryConverter) Convert(ctx context.Context, val *anypb.Any, db *gorm.D
 			q.AttributeName = idm.UserAttrLabelLike
 			q.AttributeValue = q.Login
 		} else if c.loginCI {
-			// Use Equal but make sure it's case insensitive
+			// Use Equal but make sure it's case-insensitive
 			if q.Not {
 				wheres = append(wheres, db.Not(LowerEq{Column: u.Name, Value: q.Login}))
 			} else {
@@ -122,7 +122,7 @@ func (c *queryConverter) Convert(ctx context.Context, val *anypb.Any, db *gorm.D
 	}
 
 	if groupPath != "" {
-		user := &user_model.User{}
+		user := &usermodel.User{}
 		user.SetNode(&tree.Node{
 			Path: groupPath,
 		})
@@ -132,9 +132,9 @@ func (c *queryConverter) Convert(ctx context.Context, val *anypb.Any, db *gorm.D
 			return db, false, err
 		}
 		if mpath == nil {
-			//log.Logger(context.Background()).Debug("Nil mpath for groupPath", zap.Any("g", groupPath))
-			// We do return a Where clause that always resolves to FALSE
-			db = db.Where(false)
+			// We do not want to break, but just make sure no results are returned.
+			// => Return a Where clause that always resolves to FALSE
+			db = db.Where("1 = 0")
 			return db, true, nil
 		}
 		parentNode, err := c.treeDao.GetNode(context.TODO(), mpath)
@@ -241,12 +241,12 @@ func (c *queryConverter) Convert(ctx context.Context, val *anypb.Any, db *gorm.D
 	return db, len(wheres) > 0, nil
 }
 
-func userToNode(u *idm.User) *user_model.User {
+func userToNode(u *idm.User) *usermodel.User {
 
-	path := strings.TrimRight(u.GroupPath, "/") + "/" + u.Login
-	path = safeGroupPath(path)
+	pa := strings.TrimRight(u.GroupPath, "/") + "/" + u.Login
+	pa = safeGroupPath(pa)
 	n := &tree.Node{
-		Path: path,
+		Path: pa,
 		Uuid: u.Uuid,
 		Type: tree.NodeType_LEAF,
 		Size: 1,
@@ -266,7 +266,7 @@ func userToNode(u *idm.User) *user_model.User {
 		}
 	}
 	n.MustSetMeta(common.MetaNamespaceNodeName, u.Login)
-	return &user_model.User{
+	return &usermodel.User{
 		TreeNode: tree.TreeNode{
 			Node: n,
 		},
@@ -274,23 +274,22 @@ func userToNode(u *idm.User) *user_model.User {
 
 }
 
-func groupToNode(g *idm.User) *user_model.User {
-	path := safeGroupPath(g.GroupPath)
+func groupToNode(g *idm.User) *usermodel.User {
 	n := &tree.Node{
-		Path:      path,
+		Path:      safeGroupPath(g.GroupPath),
 		Uuid:      g.Uuid,
 		Type:      tree.NodeType_COLLECTION,
 		MetaStore: map[string]string{"name": g.GroupLabel},
 	}
 
-	return &user_model.User{
+	return &usermodel.User{
 		TreeNode: tree.TreeNode{
 			Node: n,
 		},
 	}
 }
 
-func nodeToUser(t *user_model.User, u *idm.User) {
+func nodeToUser(t *usermodel.User, u *idm.User) {
 	u.Uuid = t.GetNode().GetUuid()
 	u.Login = t.GetName()
 	u.Password = t.GetNode().GetEtag()
@@ -298,7 +297,7 @@ func nodeToUser(t *user_model.User, u *idm.User) {
 	u.LastConnected = int32(t.GetNode().GetMTime())
 
 	var gRoles []string
-	t.GetNode().GetMeta("GroupRoles", &gRoles)
+	_ = t.GetNode().GetMeta("GroupRoles", &gRoles)
 	// Do not apply inheritance to anonymous user
 	if t.GetName() == common.PydioS3AnonUsername {
 		u.Roles = []*idm.Role{}
@@ -308,7 +307,7 @@ func nodeToUser(t *user_model.User, u *idm.User) {
 	}
 }
 
-func nodeToGroup(t *user_model.User, u *idm.User) {
+func nodeToGroup(t *usermodel.User, u *idm.User) {
 	u.Uuid = t.GetNode().GetUuid()
 	u.IsGroup = true
 	u.GroupLabel = t.GetName()
@@ -321,9 +320,9 @@ type LowerEq struct {
 }
 
 func (eq *LowerEq) Build(builder clause.Builder) {
-	builder.WriteString("LOWER(")
+	_, _ = builder.WriteString("LOWER(")
 	builder.WriteQuoted(eq.Column)
-	builder.WriteString(") = LOWER(")
+	_, _ = builder.WriteString(") = LOWER(")
 	builder.AddVar(builder, eq.Value)
-	builder.WriteString(")")
+	_, _ = builder.WriteString(")")
 }
