@@ -50,7 +50,9 @@ type queryConverter struct {
 
 func (c *queryConverter) Convert(ctx context.Context, val *anypb.Any, db *gorm.DB) (*gorm.DB, bool, error) {
 
+	db = db.Session(&gorm.Session{})
 	query := usermodel.Use(db)
+
 	u := query.User
 	a := query.UserAttribute
 	r := query.UserRole
