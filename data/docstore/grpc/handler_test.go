@@ -60,7 +60,7 @@ var (
 			"boltdb://" + filepath.Join(os.TempDir(), "docstore_bolt_"+uuid.New()+".db"),
 			"bleve://" + filepath.Join(os.TempDir(), "docstore_bleve_"+uuid.New()+".bleve"),
 		}, true, bleve.NewBleveDAO},
-		test.TemplateMongoEnvWithPrefix(mongo.NewMongoDAO, "test_docstore_"),
+		test.TemplateMongoEnvWithPrefix(mongo.NewMongoDAO, "test_docstore_"+uuid.New()[:6]+"_"),
 	}
 )
 

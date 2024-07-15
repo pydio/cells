@@ -44,7 +44,7 @@ import (
 var (
 	testcases = []test.StorageTestCase{
 		test.TemplateBoltWithPrefix(bolt.NewBoltDAO, "chat_bolt_"),
-		test.TemplateMongoEnvWithPrefix(mongo.NewMongoDAO, "broker_"),
+		test.TemplateMongoEnvWithPrefix(mongo.NewMongoDAO, "broker_"+uuid.New()[:6]+"_"),
 	}
 )
 

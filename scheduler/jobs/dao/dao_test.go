@@ -52,7 +52,7 @@ import (
 var (
 	testCases = []test.StorageTestCase{
 		{[]string{"boltdb://" + filepath.Join(os.TempDir(), "jobs_bolt_"+uuid.New()+".db")}, true, bolt.NewBoltDAO},
-		test.TemplateMongoEnvWithPrefix(mongo.NewMongoDAO, "jobs_"),
+		test.TemplateMongoEnvWithPrefix(mongo.NewMongoDAO, "jobs_"+uuid.New()[:6]+"_"),
 	}
 )
 

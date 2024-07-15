@@ -51,7 +51,7 @@ import (
 var (
 	testcases = []test.StorageTestCase{
 		{[]string{"bleve://" + filepath.Join(os.TempDir(), "data_search_tests"+uuid.New()+".bleve") + "?mapping=node"}, true, bleve.FastBleveDAO},
-		test.TemplateMongoEnvWithPrefix(mongo.NewMongoDAO, "search_tests_"),
+		test.TemplateMongoEnvWithPrefix(mongo.NewMongoDAO, "search_tests_"+uuid.New()[:6]+"_"),
 	}
 )
 
