@@ -37,6 +37,7 @@ import (
 	"gorm.io/gorm/clause"
 
 	"github.com/pydio/cells/v4/common/auth"
+	"github.com/pydio/cells/v4/common/config"
 	"github.com/pydio/cells/v4/common/errors"
 	"github.com/pydio/cells/v4/common/proto/idm"
 	service "github.com/pydio/cells/v4/common/proto/service"
@@ -45,6 +46,7 @@ import (
 	index "github.com/pydio/cells/v4/common/sql/indexgorm"
 	"github.com/pydio/cells/v4/common/sql/resources"
 	"github.com/pydio/cells/v4/common/telemetry/log"
+	runtimecontext "github.com/pydio/cells/v4/common/utils/propagator"
 	"github.com/pydio/cells/v4/idm/user"
 	user_model "github.com/pydio/cells/v4/idm/user/dao/sql/model"
 )
@@ -82,14 +84,18 @@ func init() {
 }
 
 // NewDAO wraps passed DAO with specific Pydio implementation of User DAO and returns it.
-func NewDAO(db *gorm.DB) user.DAO {
+func NewDAO(ctx context.Context, db *gorm.DB) user.DAO {
 	resDAO := resources.NewDAO(db)
 	idxDAO := index.NewDAO[*user_model.User](db)
+
+	var store config.Store
+	runtimecontext.Get(ctx, config.ContextKey, &store)
 
 	return &sqlimpl{
 		db:           db,
 		resourcesDAO: resDAO,
 		indexDAO:     idxDAO,
+		loginCI:      store.Val("services", "pydio.grpc.user", "loginCI").Bool(),
 	}
 }
 
@@ -436,6 +442,7 @@ func (s *sqlimpl) Count(ctx context.Context, query sql.Enquirer, includeParents 
 	if er != nil {
 		return 0, wrap(er)
 	}
+	//tx := db.Group("name").Count(&total)
 	tx := db.Count(&total)
 	if tx.Error != nil {
 		return 0, wrap(tx.Error)
@@ -578,12 +585,11 @@ func (s *sqlimpl) Del(ctx context.Context, query sql.Enquirer, users chan *idm.U
 
 	var count = int64(0)
 	for _, toDel := range data {
-
-		if err := s.indexDAO.DelNode(ctx, toDel.node); err != nil {
+		if err := s.deleteNodeData(ctx, toDel.node); err != nil {
 			return count, wrap(err)
 		}
 
-		if err := s.deleteNodeData(ctx, toDel.node.GetNode().GetUuid()); err != nil {
+		if err := s.indexDAO.DelNode(ctx, toDel.node); err != nil {
 			return count, wrap(err)
 		}
 
@@ -638,17 +644,17 @@ func (s *sqlimpl) skipRoleAsAutoApplies(profile string, role *idm.Role) bool {
 	return false
 }
 
-func (s *sqlimpl) deleteNodeData(ctx context.Context, uuid string) error {
+func (s *sqlimpl) deleteNodeData(ctx context.Context, node tree.ITreeNode) error {
 
 	db := s.instance(ctx)
 
-	q := user_model.Use(db)
+	subQ := db.Select("uuid").Where(tree.MPathEqualsOrLike{Value: node.GetMPath()}).Model(&user_model.User{})
 
-	if tx := db.Where(q.UserAttribute.UUID.Eq(uuid)).Delete(&user_model.UserAttribute{}); tx.Error != nil {
+	if tx := db.Where("uuid IN (?)", subQ).Delete(&user_model.UserAttribute{}); tx.Error != nil {
 		return tx.Error
 	}
 
-	if tx := db.Where(q.UserRole.UUID.Eq(uuid)).Delete(&user_model.UserRole{}); tx.Error != nil {
+	if tx := db.Where("uuid IN (?)", subQ).Delete(&user_model.UserRole{}); tx.Error != nil {
 		return tx.Error
 	}
 
