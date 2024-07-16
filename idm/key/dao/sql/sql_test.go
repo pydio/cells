@@ -42,7 +42,7 @@ var (
 
 func TestDAOPut(t *testing.T) {
 
-	test.RunStorageTests(testcases, func(ctx context.Context) {
+	test.RunStorageTests(testcases, t, func(ctx context.Context) {
 
 		dao, err := manager.Resolve[key.DAO](ctx)
 		if err != nil {

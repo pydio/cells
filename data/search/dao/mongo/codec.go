@@ -73,6 +73,12 @@ func NewMongoDAO(ctx context.Context, v *mongodb.Indexer) search.Engine {
 	return commons.NewServer(ctx, v, createQueryCodec)
 }
 
+func FastMongoDAO(ctx context.Context, v *mongodb.Indexer) search.Engine {
+	v.SetCollection(Collection)
+	v.SetCodex(&Codex{})
+	return commons.NewServer(ctx, v, createQueryCodec, indexer.WithExpire(10*time.Millisecond))
+}
+
 func createQueryCodec(values configx.Values, metaProvider *meta.NsProvider) indexer.IndexCodex {
 	return &Codex{
 		QueryConfigs:    values,

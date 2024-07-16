@@ -49,7 +49,7 @@ var (
 )
 
 func TestSimpleCrud(t *testing.T) {
-	test.RunStorageTests(testcases, func(ctx context.Context) {
+	test.RunStorageTests(testcases, t, func(ctx context.Context) {
 
 		dao, err := manager.Resolve[acl.DAO](ctx)
 		if err != nil {
@@ -64,7 +64,7 @@ func TestSimpleCrud(t *testing.T) {
 }
 
 func TestQueryBuilder(t *testing.T) {
-	test.RunStorageTests(testcases, func(ctx context.Context) {
+	test.RunStorageTests(testcases, t, func(ctx context.Context) {
 
 		dao, err := manager.Resolve[acl.DAO](ctx)
 		if err != nil {
@@ -411,16 +411,19 @@ func checkORs(query string, parts []string) error {
 }
 
 func SkipFuzzInsert(f *testing.F) {
-	test.RunStorageTests(testcases, func(ctx context.Context) {
-		dao, err := manager.Resolve[acl.DAO](ctx)
-		if err != nil {
-			panic(err)
-		}
-		f.Add("node1", "role1", "ws1", "read", "1")
-		f.Fuzz(func(t *testing.T, nodeId, roleId, wsId, actionName, actionValue string) {
-			if er := simpleCrud(t, ctx, dao, nodeId, roleId, wsId, actionName, actionValue); er != nil {
-				t.Errorf("%v", er)
+	/*
+		test.RunStorageTests(testcases, f, func(ctx context.Context) {
+			dao, err := manager.Resolve[acl.DAO](ctx)
+			if err != nil {
+				panic(err)
 			}
+			f.Add("node1", "role1", "ws1", "read", "1")
+			f.Fuzz(func(t *testing.T, nodeId, roleId, wsId, actionName, actionValue string) {
+				if er := simpleCrud(t, ctx, dao, nodeId, roleId, wsId, actionName, actionValue); er != nil {
+					t.Errorf("%v", er)
+				}
+			})
 		})
-	})
+
+	*/
 }

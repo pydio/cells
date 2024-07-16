@@ -44,13 +44,13 @@ import (
 var (
 	testcases = []test.StorageTestCase{
 		test.TemplateBoltWithPrefix(bolt.NewBoltDAO, "chat_bolt_"),
-		test.TemplateMongoEnvWithPrefix(mongo.NewMongoDAO, "broker_"),
+		test.TemplateMongoEnvWithPrefix(mongo.NewMongoDAO, "broker_"+uuid.New()[:6]+"_"),
 	}
 )
 
 func TestDAO(t *testing.T) {
 
-	test.RunStorageTests(testcases, func(ctx context.Context) {
+	test.RunStorageTests(testcases, t, func(ctx context.Context) {
 		Convey("Test connection init", t, func() {
 			m, err := manager.Resolve[chat2.DAO](ctx)
 			So(err, ShouldBeNil)

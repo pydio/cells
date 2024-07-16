@@ -37,6 +37,7 @@ import (
 	"github.com/pydio/cells/v4/common/runtime/manager"
 	"github.com/pydio/cells/v4/common/storage/test"
 	"github.com/pydio/cells/v4/common/utils/propagator"
+	"github.com/pydio/cells/v4/common/utils/uuid"
 
 	_ "github.com/pydio/cells/v4/common/storage/bleve"
 
@@ -46,7 +47,7 @@ import (
 var (
 	testcases = []test.StorageTestCase{
 		test.TemplateBleveWithPrefix(bleve.NewBleveDAO, "logs_test_"),
-		test.TemplateMongoEnvWithPrefixAndIndexerCollection(mongo.NewMongoDAO, "test_broker_", "syslog"),
+		test.TemplateMongoEnvWithPrefixAndIndexerCollection(mongo.NewMongoDAO, "test_broker_"+uuid.New()[:6]+"_", "syslog"),
 	}
 )
 
@@ -63,7 +64,7 @@ func listLogs(ctx context.Context, server log2.MessageRepository, query string, 
 
 func TestMessageRepository(t *testing.T) {
 
-	test.RunStorageTests(testcases, func(ctx context.Context) {
+	test.RunStorageTests(testcases, t, func(ctx context.Context) {
 		mem, _ := config.OpenStore(ctx, "mem:///")
 		ctx = propagator.With(ctx, config.ContextKey, mem)
 		Convey("Test all property indexation:\n", t, func() {

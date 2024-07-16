@@ -5,9 +5,12 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+	"testing"
 	"text/template"
 
 	"github.com/spf13/viper"
+	"golang.org/x/text/cases"
+	"golang.org/x/text/language"
 
 	"github.com/pydio/cells/v4/common/runtime"
 	"github.com/pydio/cells/v4/common/runtime/manager"
@@ -50,6 +53,7 @@ type StorageTestCase struct {
 	DSN       []string
 	Condition bool
 	DAO       any
+	Label     string
 }
 
 func init() {
@@ -119,74 +123,86 @@ func TemplateBleveWithPrefix(daoFunc any, prefix string) StorageTestCase {
 	}
 }
 
+var (
+	caser = cases.Title(language.English)
+)
+
 // RunStorageTests initialize a runtime and run the tests cases with correct DAOs in context
-func RunStorageTests(testCases []StorageTestCase, f func(context.Context)) {
+func RunStorageTests(testCases []StorageTestCase, t *testing.T, f func(context.Context)) {
 	for _, tc := range testCases {
 		if !tc.Condition {
 			continue
 		}
 
-		// read template
-		b := &strings.Builder{}
-		err := tmpl.Execute(b, tc.DSN)
-		if err != nil {
-			panic(err)
+		label := tc.Label
+		if label == "" {
+			scheme := strings.SplitN(tc.DSN[0], "://", 2)[0]
+			label = caser.String(scheme)
 		}
-		v := viper.New()
-		v.Set(runtime.KeyConfig, "mem://")
-		v.SetDefault(runtime.KeyCache, "pm://")
-		v.SetDefault(runtime.KeyShortCache, "pm://")
-		v.Set("yaml", b.String())
 
-		// TODO - this should be handled by the controller
-		//store, er := config.OpenStore(context.Background(), "mem://")
-		//if er != nil {
-		//	panic(er)
-		//}
-		//config.Register(store)
-		runtime.SetRuntime(v)
+		t.Run(label, func(t *testing.T) {
+			// read template
+			b := &strings.Builder{}
+			err := tmpl.Execute(b, tc.DSN)
+			if err != nil {
+				panic(err)
+			}
+			v := viper.New()
+			v.Set(runtime.KeyConfig, "mem://")
+			v.SetDefault(runtime.KeyCache, "pm://")
+			v.SetDefault(runtime.KeyShortCache, "pm://")
+			v.Set("yaml", b.String())
 
-		var svc service.Service
-		runtime.Register("test", func(ctx context.Context) {
-			svc = service.NewService(
-				service.Name("test"),
-				service.Context(ctx),
-				service.WithStorageDrivers(tc.DAO),
-				service.Migrations([]*service.Migration{{
-					TargetVersion: service.FirstRun(),
-					Up:            manager.StorageMigration(),
-				}}),
-			)
+			// TODO - this should be handled by the controller
+			//store, er := config.OpenStore(context.Background(), "mem://")
+			//if er != nil {
+			//	panic(er)
+			//}
+			//config.Register(store)
+			runtime.SetRuntime(v)
+
+			var svc service.Service
+			runtime.Register("test", func(ctx context.Context) {
+				svc = service.NewService(
+					service.Name("test"),
+					service.Context(ctx),
+					service.WithStorageDrivers(tc.DAO),
+					service.Migrations([]*service.Migration{{
+						TargetVersion: service.FirstRun(),
+						Up:            manager.StorageMigration(),
+					}}),
+				)
+			})
+
+			mgr, err := manager.NewManager(context.Background(), "test", nil)
+			if err != nil {
+				panic(err)
+			}
+
+			ctx := mgr.Context()
+			ctx = propagator.With(ctx, service.ContextKey, svc)
+			ctx = propagator.With(ctx, tenant.ContextKey, tenant.GetManager().GetMaster())
+
+			f(ctx)
+
+			// Clean up hooks - we cannot resolve gorm.DB as a Closer or Dropper...
+			for _, tf := range storage.TestFinisherHooks {
+				if er := tf(); er != nil {
+					panic(er)
+				}
+			}
+
+			// Close and drop, or just close
+			if dropper, er := manager.Resolve[storage.Dropper](ctx); er == nil {
+				if er = dropper.CloseAndDrop(ctx); er != nil {
+					panic(er)
+				}
+			} else if cl, er := manager.Resolve[storage.Closer](ctx); er == nil {
+				if er = cl.Close(ctx); er != nil {
+					panic(er)
+				}
+			}
 		})
-
-		mgr, err := manager.NewManager(context.Background(), "test", nil)
-		if err != nil {
-			panic(err)
-		}
-
-		ctx := mgr.Context()
-		ctx = propagator.With(ctx, service.ContextKey, svc)
-		ctx = propagator.With(ctx, tenant.ContextKey, tenant.GetManager().GetMaster())
-
-		f(ctx)
-
-		// Clean up hooks - we cannot resolve gorm.DB as a Closer or Dropper...
-		for _, tf := range storage.TestFinisherHooks {
-			if er := tf(); er != nil {
-				panic(er)
-			}
-		}
-
-		// Close and drop, or just close
-		if dropper, er := manager.Resolve[storage.Dropper](ctx); er == nil {
-			if er = dropper.CloseAndDrop(ctx); er != nil {
-				panic(er)
-			}
-		} else if cl, er := manager.Resolve[storage.Closer](ctx); er == nil {
-			if er = cl.Close(ctx); er != nil {
-				panic(er)
-			}
-		}
 
 		//_ = manager.CloseStoragesForContext(ctx, manager.WithCleanBeforeClose())
 	}

@@ -37,12 +37,13 @@ type BatchOptions struct {
 	Context context.Context
 	Cancel  context.CancelFunc
 
-	Expire         time.Duration
-	FlushCondition func() bool
-	InsertCallback []func(any) error
-	DeleteCallback []func(any) error
-	FlushCallback  []func() error
-	ErrorHandler   func(error)
+	Expire             time.Duration
+	FlushCondition     func() bool
+	InsertCallback     []func(any) error
+	DeleteCallback     []func(any) error
+	FlushCallback      []func() error
+	ForceFlushCallback []func() error
+	ErrorHandler       func(error)
 }
 
 type BatchOption func(*BatchOptions)
@@ -72,6 +73,13 @@ func WithDeleteCallback(fn func(any) error) BatchOption {
 func WithFlushCallback(fn func() error) BatchOption {
 	return func(o *BatchOptions) {
 		o.FlushCallback = append(o.FlushCallback, fn)
+	}
+}
+
+// WithForceFlushCallback forces a full flush
+func WithForceFlushCallback(fn func() error) BatchOption {
+	return func(o *BatchOptions) {
+		o.ForceFlushCallback = append(o.ForceFlushCallback, fn)
 	}
 }
 
@@ -137,12 +145,13 @@ func (b *batch) watchInserts() {
 			for _, f := range b.opts.InsertCallback {
 				if err := f(msg); err != nil {
 					b.opts.ErrorHandler(err)
+					b.flushLock.Unlock()
 					continue
 				}
 			}
 
 			if b.opts.FlushCondition != nil && b.opts.FlushCondition() {
-				b.flush()
+				b.flush(false)
 			}
 
 			b.flushLock.Unlock()
@@ -155,26 +164,27 @@ func (b *batch) watchInserts() {
 			for _, f := range b.opts.DeleteCallback {
 				if err := f(msg); err != nil {
 					b.opts.ErrorHandler(err)
+					b.flushLock.Unlock()
 					continue
 				}
 			}
 
 			if b.opts.FlushCondition != nil && b.opts.FlushCondition() {
-				b.flush()
+				b.flush(false)
 			}
 
 			b.flushLock.Unlock()
 		case <-b.forceFlush:
 			b.flushLock.Lock()
-			b.flush()
+			b.flush(true)
 			b.flushLock.Unlock()
 		case <-time.After(b.opts.Expire):
 			b.flushLock.Lock()
-			b.flush()
+			b.flush(false)
 			b.flushLock.Unlock()
 		case <-b.opts.Context.Done():
 			b.flushLock.Lock()
-			b.flush()
+			b.flush(true)
 			b.flushLock.Unlock()
 
 			return
@@ -182,10 +192,17 @@ func (b *batch) watchInserts() {
 	}
 }
 
-func (b *batch) flush() {
+func (b *batch) flush(force bool) {
 	for _, f := range b.opts.FlushCallback {
 		if er := f(); er != nil {
 			b.opts.ErrorHandler(er)
+		}
+	}
+	if force {
+		for _, f := range b.opts.ForceFlushCallback {
+			if er := f(); er != nil {
+				b.opts.ErrorHandler(er)
+			}
 		}
 	}
 }

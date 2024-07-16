@@ -23,7 +23,6 @@ package mongodb
 import (
 	"context"
 	"fmt"
-	"time"
 
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -40,13 +39,8 @@ type Indexer struct {
 	collection      string
 	collectionModel Collection
 	codec           indexer.IndexCodex
-	inserts         []interface{}
-	deletes         []string
-	tick            chan bool
-	flush           chan bool
-	done            chan bool
-	bufferSize      int
 	runtime         context.Context
+	bufferSize      int
 }
 
 func (i *Indexer) GetCodex() indexer.IndexCodex {
@@ -60,41 +54,10 @@ func newIndexer(db *Database, mainCollection string) *Indexer {
 	}
 	i := &Indexer{
 		Database:   db,
-		bufferSize: 2000,
-		tick:       make(chan bool),
-		flush:      make(chan bool, 1),
-		done:       make(chan bool, 1),
 		collection: mainCollection,
+		bufferSize: 2000,
 	}
-	go i.watch()
 	return i
-}
-
-func (i *Indexer) watch() {
-	defer close(i.tick)
-	defer close(i.flush)
-	for {
-		select {
-		case <-i.tick:
-			if len(i.inserts) > i.bufferSize || len(i.deletes) > i.bufferSize {
-				i.Flush(i.runtime)
-			}
-		case <-time.After(3 * time.Second):
-			i.Flush(i.runtime)
-		case <-i.flush:
-			i.Flush(i.runtime)
-		case <-i.done:
-			return
-		}
-	}
-}
-
-func (i *Indexer) mustTick() {
-	// avoid send on closed panic
-	defer func() {
-		recover()
-	}()
-	i.tick <- true
 }
 
 func (i *Indexer) SetCollection(c string) {
@@ -123,13 +86,13 @@ func (i *Indexer) Init(ctx context.Context, cfg configx.Values) error {
 }
 
 func (i *Indexer) InsertOne(ctx context.Context, data interface{}) error {
-	if m, e := i.codec.Marshal(data); e == nil {
-		i.inserts = append(i.inserts, m)
-		i.mustTick()
-		return nil
-	} else {
+	m, e := i.codec.Marshal(data)
+	if e != nil {
 		return e
 	}
+	conn := i.Collection(i.collection)
+	_, er := conn.InsertOne(ctx, m)
+	return er
 }
 
 func (i *Indexer) DeleteOne(ctx context.Context, data interface{}) error {
@@ -142,9 +105,9 @@ func (i *Indexer) DeleteOne(ctx context.Context, data interface{}) error {
 	if indexId == "" {
 		return fmt.Errorf("data must be a string or an IndexIDProvider")
 	}
-	i.deletes = append(i.deletes, indexId)
-	i.mustTick()
-	return nil
+	conn := i.Collection(i.collection)
+	_, er := conn.DeleteOne(ctx, bson.M{i.collectionModel.IDName: indexId})
+	return er
 }
 
 func (i *Indexer) DeleteMany(ctx context.Context, query interface{}) (int32, error) {
@@ -349,17 +312,11 @@ func (i *Indexer) Truncate(ctx context.Context, max int64, logger func(string)) 
 
 // Close implements storage.Closer interface
 func (i *Indexer) Close(ctx context.Context) error {
-	if i.done != nil {
-		close(i.done)
-	}
 	return i.Client().Disconnect(ctx)
 }
 
 // CloseAndDrop implements storage.Dropper interface
 func (i *Indexer) CloseAndDrop(ctx context.Context) error {
-	if i.done != nil {
-		close(i.done)
-	}
 	var err []error
 	for _, cc := range cleaners {
 		if e := cc(ctx, i.Client()); e != nil {
@@ -367,48 +324,6 @@ func (i *Indexer) CloseAndDrop(ctx context.Context) error {
 		}
 	}
 	return i.Client().Disconnect(ctx)
-}
-
-func (i *Indexer) Flush(ctx context.Context) error {
-	conn := i.Collection(i.collection)
-
-	if len(i.inserts) > 0 {
-		if i.collectionModel.IDName != "" {
-			// First remove all entries with given ID
-			var ors bson.A
-			for _, insert := range i.inserts {
-				if p, o := insert.(indexer.IndexIDProvider); o {
-					ors = append(ors, bson.M{i.collectionModel.IDName: p.IndexID()})
-				}
-			}
-			if _, e := conn.DeleteMany(ctx, bson.M{"$or": ors}); e != nil {
-				log.Logger(ctx).Error("error while flushing pre-deletes:" + e.Error())
-				return e
-			}
-		}
-		if _, e := conn.InsertMany(ctx, i.inserts); e != nil {
-			log.Logger(ctx).Error("error while flushing index to db" + e.Error())
-			return e
-		} else {
-			//fmt.Println("flushed index to db", len(res.InsertedIDs))
-		}
-		i.inserts = []interface{}{}
-	}
-
-	if len(i.deletes) > 0 && i.collectionModel.IDName != "" {
-		var ors bson.A
-		for _, d := range i.deletes {
-			ors = append(ors, bson.M{i.collectionModel.IDName: d})
-		}
-		if _, e := conn.DeleteMany(context.Background(), bson.M{"$or": ors}); e != nil {
-			log.Logger(ctx).Error("error while flushing deletes to index" + e.Error())
-			return e
-		} else {
-			//fmt.Println("flushed index, deleted", res.DeletedCount)
-		}
-		i.deletes = []string{}
-	}
-	return nil
 }
 
 func (i *Indexer) NewBatch(ctx context.Context, opts ...indexer.BatchOption) (indexer.Batch, error) {
@@ -425,13 +340,10 @@ func (i *Indexer) NewBatch(ctx context.Context, opts ...indexer.BatchOption) (in
 		indexer.WithInsertCallback(func(msg any) error {
 			if m, e := i.codec.Marshal(msg); e == nil {
 				inserts = append(inserts, m)
-				i.mustTick()
 				return nil
 			} else {
 				return e
 			}
-
-			return nil
 		}),
 		indexer.WithDeleteCallback(func(msg any) error {
 			var indexId string
@@ -444,7 +356,6 @@ func (i *Indexer) NewBatch(ctx context.Context, opts ...indexer.BatchOption) (in
 				return fmt.Errorf("data must be a string or an IndexIDProvider")
 			}
 			deletes = append(deletes, indexId)
-			i.mustTick()
 
 			return nil
 		}),
@@ -489,11 +400,6 @@ func (i *Indexer) NewBatch(ctx context.Context, opts ...indexer.BatchOption) (in
 			}
 			return nil
 		}))
-
-	o := &indexer.BatchOptions{}
-	for _, opt := range opts {
-		opt(o)
-	}
 
 	return indexer.NewBatch(ctx, opts...), nil
 }

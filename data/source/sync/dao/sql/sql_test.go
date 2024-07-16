@@ -1,3 +1,5 @@
+//go:build storage
+
 /*
  * Copyright (c) 2019-2021. Abstrium SAS <team (at) pydio.com>
  * This file is part of Pydio Cells.
@@ -36,8 +38,8 @@ var (
 )
 
 func TestNewMemChecksumMapper(t *testing.T) {
-	Convey("Test ChecksumMapper in memory", t, func() {
-		test.RunStorageTests(testcases, func(ctx context.Context) {
+	test.RunStorageTests(testcases, t, func(ctx context.Context) {
+		Convey("Test ChecksumMapper in memory", t, func() {
 			mockDAO, err := manager.Resolve[sync.DAO](ctx)
 			So(err, ShouldBeNil)
 

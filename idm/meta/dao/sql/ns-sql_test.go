@@ -44,7 +44,7 @@ var (
 
 func TestNSCrud(t *testing.T) {
 
-	test.RunStorageTests(nsTestcases, func(ctx context.Context) {
+	test.RunStorageTests(nsTestcases, t, func(ctx context.Context) {
 
 		Convey("Create Meta Namespace", t, func() {
 			mockDAO, er := manager.Resolve[meta.NamespaceDAO](ctx)
@@ -85,7 +85,7 @@ func TestNSCrud(t *testing.T) {
 
 func TestNSResourceRules(t *testing.T) {
 
-	test.RunStorageTests(nsTestcases, func(ctx context.Context) {
+	test.RunStorageTests(nsTestcases, t, func(ctx context.Context) {
 		mockDAO, er := manager.Resolve[meta.NamespaceDAO](ctx)
 		if er != nil {
 			panic(er)

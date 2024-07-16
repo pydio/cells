@@ -57,7 +57,7 @@ func init() {
 
 func TestCrud(t *testing.T) {
 
-	test.RunStorageTests(testcases, func(ctx context.Context) {
+	test.RunStorageTests(testcases, t, func(ctx context.Context) {
 		mockDAO, err := manager.Resolve[meta.DAO](ctx)
 		if err != nil {
 			panic(err)
@@ -182,7 +182,7 @@ func TestCrud(t *testing.T) {
 
 func TestResourceRules(t *testing.T) {
 
-	test.RunStorageTests(testcases, func(ctx context.Context) {
+	test.RunStorageTests(testcases, t, func(ctx context.Context) {
 		mockDAO, err := manager.Resolve[meta.DAO](ctx)
 		if err != nil {
 			panic(err)

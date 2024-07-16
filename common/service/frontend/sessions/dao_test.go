@@ -21,9 +21,9 @@ var (
 
 func TestInsert(t *testing.T) {
 
-	Convey("Test Crud", t, func() {
+	test.RunStorageTests(testcases, t, func(ctx context.Context) {
 
-		test.RunStorageTests(testcases, func(ctx context.Context) {
+		Convey("Test Crud", t, func() {
 
 			dao, er := manager.Resolve[DAO](ctx)
 			So(er, ShouldBeNil)

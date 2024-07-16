@@ -48,7 +48,7 @@ var (
 
 func TestMeta(t *testing.T) {
 
-	test.RunStorageTests(testcases, func(ctx context.Context) {
+	test.RunStorageTests(testcases, t, func(ctx context.Context) {
 
 		ctx = context.WithValue(ctx, claim.ContextKey, claim.Claims{Name: "author-name"})
 		s := NewMetaServer(context.Background(), "metaServiceTest")
@@ -193,7 +193,7 @@ func TestMeta(t *testing.T) {
 }
 
 func TestStreamer(t *testing.T) {
-	test.RunStorageTests(testcases, func(ctx context.Context) {
+	test.RunStorageTests(testcases, t, func(ctx context.Context) {
 		ctx = context.WithValue(ctx, claim.ContextKey, claim.Claims{Name: "author-name"})
 		server := NewMetaServer(context.Background(), "metaServiceTest")
 		Convey("Test streamer", t, func() {
@@ -238,7 +238,7 @@ func TestStreamer(t *testing.T) {
 
 func TestSubscriber(t *testing.T) {
 
-	test.RunStorageTests(testcases, func(ctx context.Context) {
+	test.RunStorageTests(testcases, t, func(ctx context.Context) {
 
 		ctx = context.WithValue(ctx, claim.ContextKey, claim.Claims{Name: "author-name"})
 		server := NewMetaServer(context.Background(), "metaServiceTest")

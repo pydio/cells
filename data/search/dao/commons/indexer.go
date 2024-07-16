@@ -41,7 +41,9 @@ type QueryCodecProvider func(values configx.Values, metaProvider *meta.NsProvide
 
 type Server struct {
 	indexer.Indexer
+	srvContext         context.Context
 	batch              indexer.Batch
+	batchOptions       []indexer.BatchOption
 	queryCodecProvider QueryCodecProvider
 }
 
@@ -50,12 +52,20 @@ func NewServer(ctx context.Context, idx indexer.Indexer, provider QueryCodecProv
 	server := &Server{
 		queryCodecProvider: provider,
 		Indexer:            idx,
-		batch:              NewBatch(ctx, idx, meta.NewNsProvider(ctx), BatchOptions{}, batchOptions...),
+		srvContext:         ctx,
+		batchOptions:       batchOptions,
 	}
 
 	//go server.watchConfigs(ctx)
 
 	return server
+}
+
+func (s *Server) getBatch() indexer.Batch {
+	if s.batch == nil {
+		s.batch = NewBatch(s.srvContext, s.Indexer, meta.NewNsProvider(s.srvContext), BatchOptions{}, s.batchOptions...)
+	}
+	return s.batch
 }
 
 //func (s *Server) watchConfigs(ctx context.Context) {
@@ -78,8 +88,10 @@ func NewServer(ctx context.Context, idx indexer.Indexer, provider QueryCodecProv
 //}
 
 func (s *Server) Close(ctx context.Context) error {
-	if err := s.batch.Close(); err != nil {
-		return err
+	if s.batch != nil {
+		if err := s.batch.Close(); err != nil {
+			return err
+		}
 	}
 	return s.Indexer.Close(ctx)
 }
@@ -100,11 +112,11 @@ func (s *Server) IndexNode(c context.Context, n *tree.Node, reloadCore bool, exc
 		ReloadNs:   !reloadCore,
 	}
 
-	return s.batch.Insert(indexNode)
+	return s.getBatch().Insert(indexNode)
 }
 
 func (s *Server) DeleteNode(c context.Context, n *tree.Node) error {
-	return s.batch.Delete(n.GetUuid())
+	return s.getBatch().Delete(n.GetUuid())
 }
 
 func (s *Server) ClearIndex(ctx context.Context) error {
@@ -114,6 +126,9 @@ func (s *Server) ClearIndex(ctx context.Context) error {
 }
 
 func (s *Server) Flush() error {
+	if s.batch == nil {
+		return nil
+	}
 	return s.batch.Flush()
 }
 

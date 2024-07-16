@@ -36,6 +36,7 @@ import (
 	"github.com/pydio/cells/v4/common/runtime/manager"
 	"github.com/pydio/cells/v4/common/storage/test"
 	"github.com/pydio/cells/v4/common/utils/configx"
+	"github.com/pydio/cells/v4/common/utils/uuid"
 
 	_ "github.com/pydio/cells/v4/common/storage/boltdb"
 	_ "github.com/pydio/cells/v4/common/storage/mongodb"
@@ -47,7 +48,7 @@ var (
 	conf      configx.Values
 	testcases = []test.StorageTestCase{
 		test.TemplateBoltWithPrefix(bolt.NewBoltDAO, "test_mailer"),
-		test.TemplateMongoEnvWithPrefix(mongo.NewMongoDAO, "broker_"),
+		test.TemplateMongoEnvWithPrefix(mongo.NewMongoDAO, "broker_"+uuid.New()[:6]+"_"),
 	}
 )
 
@@ -129,9 +130,8 @@ func testQueue(ctx context.Context, t *testing.T, queue mailer2.Queue) {
 
 func TestEnqueueMail(t *testing.T) {
 
-	Convey("Test Queue DAO", t, func() {
-
-		test.RunStorageTests(testcases, func(ctx context.Context) {
+	test.RunStorageTests(testcases, t, func(ctx context.Context) {
+		Convey("Test Queue DAO", t, func() {
 			queue, err := manager.Resolve[mailer2.Queue](ctx)
 			if err != nil {
 				panic(err)
@@ -139,7 +139,6 @@ func TestEnqueueMail(t *testing.T) {
 
 			testQueue(ctx, t, queue)
 		})
-
 	})
 
 }

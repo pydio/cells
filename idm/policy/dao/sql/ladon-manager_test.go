@@ -24,7 +24,7 @@ var (
 
 func TestManager(t *testing.T) {
 
-	test.RunStorageTests(testcases, func(ctx context.Context) {
+	test.RunStorageTests(testcases, t, func(ctx context.Context) {
 		dao, er := manager.Resolve[policy.DAO](ctx)
 		if er != nil {
 			panic(er)

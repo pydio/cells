@@ -28,7 +28,7 @@ var (
 
 func TestPatHandler_Generate(t *testing.T) {
 
-	test.RunStorageTests(testCases, func(ctx context.Context) {
+	test.RunStorageTests(testCases, t, func(ctx context.Context) {
 
 		Convey("Test Personal Access Tokens", t, func() {
 			pat := &PATHandler{}
@@ -74,7 +74,7 @@ func TestPatHandler_Generate(t *testing.T) {
 }
 
 func TestPatHandler_AutoRefresh(t *testing.T) {
-	test.RunStorageTests(testCases, func(ctx context.Context) {
+	test.RunStorageTests(testCases, t, func(ctx context.Context) {
 
 		Convey("Test AutoRefresh Access Tokens", t, func() {
 			pat := &PATHandler{}
@@ -121,7 +121,7 @@ func TestPatHandler_AutoRefresh(t *testing.T) {
 }
 
 func TestPatHandler_Revoke(t *testing.T) {
-	test.RunStorageTests(testCases, func(ctx context.Context) {
+	test.RunStorageTests(testCases, t, func(ctx context.Context) {
 
 		Convey("Test Revoke Access Tokens", t, func() {
 			pat := &PATHandler{}
@@ -146,7 +146,7 @@ func TestPatHandler_Revoke(t *testing.T) {
 }
 
 func TestPathHandler_List(t *testing.T) {
-	test.RunStorageTests(testCases, func(ctx context.Context) {
+	test.RunStorageTests(testCases, t, func(ctx context.Context) {
 
 		Convey("Test Revoke Access Tokens", t, func() {
 			pat := &PATHandler{}
@@ -200,7 +200,7 @@ func TestPathHandler_List(t *testing.T) {
 			listResponse, e = pat.List(ctx, &auth.PatListRequest{Type: auth.PatType_PERSONAL, ByUserLogin: "user"})
 			So(e, ShouldBeNil)
 			So(listResponse.Tokens, ShouldHaveLength, 1)
-			So(resp.AccessToken, ShouldNotEqual)
+			So(resp.AccessToken, ShouldNotBeEmpty)
 		})
 	})
 }

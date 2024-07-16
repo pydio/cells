@@ -48,7 +48,7 @@ var (
 func TestRole(t *testing.T) {
 
 	s := new(Handler)
-	test.RunStorageTests(testcases, func(ctx context.Context) {
+	test.RunStorageTests(testcases, t, func(ctx context.Context) {
 		Convey("Create Roles", t, func() {
 			resp, err := s.CreateRole(ctx, &idm.CreateRoleRequest{Role: &idm.Role{Uuid: "role1", Label: "Role 1"}})
 
@@ -120,7 +120,7 @@ func TestRoleWithRules(t *testing.T) {
 
 	s := new(Handler)
 
-	test.RunStorageTests(testcases, func(ctx context.Context) {
+	test.RunStorageTests(testcases, t, func(ctx context.Context) {
 		dao, err := manager.Resolve[role.DAO](ctx)
 		if err != nil {
 			panic(err)

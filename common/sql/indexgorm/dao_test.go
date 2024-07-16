@@ -67,7 +67,7 @@ func TestMain(m *testing.M) {
 
 func testAll(t *testing.T, f func(dao testdao) func(*testing.T)) {
 	var cnt = 0
-	test.RunStorageTests(testcases, func(ctx context.Context) {
+	test.RunStorageTests(testcases, t, func(ctx context.Context) {
 		dao, err := manager.Resolve[DAO](ctx)
 		if err != nil {
 			panic(err)
@@ -84,7 +84,7 @@ func testAll(t *testing.T, f func(dao testdao) func(*testing.T)) {
 
 func testAllCache(t *testing.T, f func(dao testdao) func(*testing.T)) {
 	var cnt = 0
-	test.RunStorageTests(testcases, func(ctx context.Context) {
+	test.RunStorageTests(testcases, t, func(ctx context.Context) {
 		dao, err := manager.Resolve[DAO](ctx)
 		if err != nil {
 			panic(err)
