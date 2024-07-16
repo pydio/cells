@@ -51,7 +51,7 @@ var (
 
 func TestQueryBuilder(t *testing.T) {
 
-	test.RunStorageTests(testcases, func(ctx context.Context) {
+	test.RunStorageTests(testcases, t, func(ctx context.Context) {
 		mockDAO, err := manager.Resolve[user.DAO](ctx)
 		if err != nil {
 			panic(err)
@@ -631,7 +631,7 @@ func TestQueryBuilder(t *testing.T) {
 }
 
 func TestDestructiveCreateUser(t *testing.T) {
-	test.RunStorageTests(testcases, func(ctx context.Context) {
+	test.RunStorageTests(testcases, t, func(ctx context.Context) {
 		mockDAO, err := manager.Resolve[user.DAO](ctx)
 		if err != nil {
 			panic(err)

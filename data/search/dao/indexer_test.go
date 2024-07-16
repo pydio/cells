@@ -50,7 +50,7 @@ import (
 
 var (
 	testcases = []test.StorageTestCase{
-		{[]string{"bleve://" + filepath.Join(os.TempDir(), "data_search_tests"+uuid.New()+".bleve") + "?mapping=node"}, true, bleve.FastBleveDAO},
+		{DSN: []string{"bleve://" + filepath.Join(os.TempDir(), "data_search_tests"+uuid.New()+".bleve") + "?mapping=node"}, Condition: true, DAO: bleve.FastBleveDAO},
 		test.TemplateMongoEnvWithPrefix(mongo.NewMongoDAO, "search_tests_"+uuid.New()[:6]+"_"),
 	}
 )
@@ -186,7 +186,7 @@ func performSearch(ctx context.Context, index search.Engine, queryObject *tree.Q
 //}
 
 func TestIndexNode(t *testing.T) {
-	test.RunStorageTests(testcases, func(ctx context.Context) {
+	test.RunStorageTests(testcases, t, func(ctx context.Context) {
 		server, err := manager.Resolve[search.Engine](ctx)
 		if err != nil {
 			panic(err)
@@ -224,7 +224,7 @@ func TestIndexNode(t *testing.T) {
 }
 
 func TestSearchNode(t *testing.T) {
-	test.RunStorageTests(testcases, func(ctx context.Context) {
+	test.RunStorageTests(testcases, t, func(ctx context.Context) {
 		server, err := manager.Resolve[search.Engine](ctx)
 		if err != nil {
 			panic(err)
@@ -449,7 +449,7 @@ func TestSearchNode(t *testing.T) {
 }
 
 func TestSearchByGeolocation(t *testing.T) {
-	test.RunStorageTests(testcases, func(ctx context.Context) {
+	test.RunStorageTests(testcases, t, func(ctx context.Context) {
 
 		server, err := manager.Resolve[search.Engine](ctx)
 		if err != nil {
@@ -497,7 +497,7 @@ func TestSearchByGeolocation(t *testing.T) {
 }
 
 func TestDeleteNode(t *testing.T) {
-	test.RunStorageTests(testcases, func(ctx context.Context) {
+	test.RunStorageTests(testcases, t, func(ctx context.Context) {
 		server, err := manager.Resolve[search.Engine](ctx)
 		if err != nil {
 			panic(err)
@@ -521,7 +521,7 @@ func TestDeleteNode(t *testing.T) {
 }
 
 func TestClearIndex(t *testing.T) {
-	test.RunStorageTests(testcases, func(ctx context.Context) {
+	test.RunStorageTests(testcases, t, func(ctx context.Context) {
 		server, err := manager.Resolve[search.Engine](ctx)
 		if err != nil {
 			panic(err)
@@ -546,7 +546,7 @@ func TestClearIndex(t *testing.T) {
 }
 
 func TestSearchByUuidsMatch(t *testing.T) {
-	test.RunStorageTests(testcases, func(ctx context.Context) {
+	test.RunStorageTests(testcases, t, func(ctx context.Context) {
 		server, err := manager.Resolve[search.Engine](ctx)
 		if err != nil {
 			panic(err)

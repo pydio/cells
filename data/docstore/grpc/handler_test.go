@@ -56,10 +56,10 @@ func (l *listDocsTestStreamer) Send(r *proto.ListDocumentsResponse) error {
 
 var (
 	testcases = []test.StorageTestCase{
-		{[]string{
-			"boltdb://" + filepath.Join(os.TempDir(), "docstore_bolt_"+uuid.New()+".db"),
-			"bleve://" + filepath.Join(os.TempDir(), "docstore_bleve_"+uuid.New()+".bleve"),
-		}, true, bleve.NewBleveDAO},
+		{DSN: []string{
+			"boltdb://" + filepath.Join(os.TempDir(), "docstore_bolt_"+uuid.New()[:6]+".db"),
+			"bleve://" + filepath.Join(os.TempDir(), "docstore_bleve_"+uuid.New()[:6]+".bleve"),
+		}, Condition: true, DAO: bleve.NewBleveDAO, Label: "Bolt_Bleve"},
 		test.TemplateMongoEnvWithPrefix(mongo.NewMongoDAO, "test_docstore_"+uuid.New()[:6]+"_"),
 	}
 )
@@ -67,7 +67,7 @@ var (
 func TestHandler_CRUD(t *testing.T) {
 
 	h := &Handler{}
-	test.RunStorageTests(testcases, func(ctx context.Context) {
+	test.RunStorageTests(testcases, t, func(ctx context.Context) {
 
 		Convey("Test Document GET/PUT/DELETE", t, func() {
 
@@ -164,7 +164,7 @@ func TestHandler_CRUD(t *testing.T) {
 func TestHandler_Search(t *testing.T) {
 
 	h := &Handler{}
-	test.RunStorageTests(testcases, func(ctx context.Context) {
+	test.RunStorageTests(testcases, t, func(ctx context.Context) {
 
 		Convey("Test Document LIST/SEARCH", t, func() {
 

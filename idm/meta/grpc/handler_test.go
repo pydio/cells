@@ -42,7 +42,7 @@ var (
 )
 
 func TestRole(t *testing.T) {
-	test.RunStorageTests(testcases, func(ctx context.Context) {
+	test.RunStorageTests(testcases, t, func(ctx context.Context) {
 
 		dao, err := manager.Resolve[meta.DAO](ctx)
 		if err != nil {

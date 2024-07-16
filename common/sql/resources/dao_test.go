@@ -37,7 +37,7 @@ var (
 
 func TestQueryResourceForAction(t *testing.T) {
 
-	test.RunStorageTests(testcases, func(ctx context.Context) {
+	test.RunStorageTests(testcases, t, func(ctx context.Context) {
 
 		Convey("Test Query Builder", t, func() {
 

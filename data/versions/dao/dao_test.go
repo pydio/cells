@@ -46,8 +46,8 @@ var (
 
 func TestDAO_CRUD(t *testing.T) {
 
-	Convey("Test CRUD", t, func() {
-		test.RunStorageTests(testcases, func(ctx context.Context) {
+	test.RunStorageTests(testcases, t, func(ctx context.Context) {
+		Convey("Test CRUD", t, func() {
 
 			bs, err := manager.Resolve[versions.DAO](ctx)
 			So(err, ShouldBeNil)
@@ -112,8 +112,8 @@ func TestDAO_CRUD(t *testing.T) {
 
 	})
 
-	Convey("Test DeleteVersionsForNode", t, func() {
-		test.RunStorageTests(testcases, func(ctx context.Context) {
+	test.RunStorageTests(testcases, t, func(ctx context.Context) {
+		Convey("Test DeleteVersionsForNode", t, func() {
 
 			bs, err := manager.Resolve[versions.DAO](ctx)
 			So(err, ShouldBeNil)

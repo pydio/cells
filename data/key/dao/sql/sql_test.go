@@ -39,7 +39,7 @@ var (
 )
 
 func TestSqlimpl_InsertNode(t *testing.T) {
-	test.RunStorageTests(testcases, func(ctx context.Context) {
+	test.RunStorageTests(testcases, t, func(ctx context.Context) {
 		Convey("Test Put key", t, func() {
 			mockDAO, er := manager.Resolve[key.DAO](ctx)
 			So(er, ShouldBeNil)
@@ -53,7 +53,7 @@ func TestSqlimpl_InsertNode(t *testing.T) {
 }
 
 func TestSqlimpl_SetNodeKey(t *testing.T) {
-	test.RunStorageTests(testcases, func(ctx context.Context) {
+	test.RunStorageTests(testcases, t, func(ctx context.Context) {
 		Convey("Set node key", t, func() {
 			mockDAO, er := manager.Resolve[key.DAO](ctx)
 			So(er, ShouldBeNil)
@@ -69,7 +69,7 @@ func TestSqlimpl_SetNodeKey(t *testing.T) {
 }
 
 func TestSqlimpl_SetNodeKey2(t *testing.T) {
-	test.RunStorageTests(testcases, func(ctx context.Context) {
+	test.RunStorageTests(testcases, t, func(ctx context.Context) {
 		Convey("Set node share key 1", t, func() {
 
 			mockDAO, er := manager.Resolve[key.DAO](ctx)
@@ -86,7 +86,7 @@ func TestSqlimpl_SetNodeKey2(t *testing.T) {
 }
 
 func TestSqlimpl_SetNodeKey3(t *testing.T) {
-	test.RunStorageTests(testcases, func(ctx context.Context) {
+	test.RunStorageTests(testcases, t, func(ctx context.Context) {
 
 		Convey("Set node share key 2", t, func() {
 			mockDAO, er := manager.Resolve[key.DAO](ctx)
@@ -104,7 +104,7 @@ func TestSqlimpl_SetNodeKey3(t *testing.T) {
 }
 
 func TestSqlimpl_GetNodeKey(t *testing.T) {
-	test.RunStorageTests(testcases, func(ctx context.Context) {
+	test.RunStorageTests(testcases, t, func(ctx context.Context) {
 		Convey("Get node key", t, func() {
 			mockDAO, er := manager.Resolve[key.DAO](ctx)
 			So(er, ShouldBeNil)
@@ -117,7 +117,7 @@ func TestSqlimpl_GetNodeKey(t *testing.T) {
 }
 
 func TestSqlimpl_DeleteNodeSharedKey(t *testing.T) {
-	test.RunStorageTests(testcases, func(ctx context.Context) {
+	test.RunStorageTests(testcases, t, func(ctx context.Context) {
 		Convey("Get node key", t, func() {
 			mockDAO, er := manager.Resolve[key.DAO](ctx)
 			So(er, ShouldBeNil)
@@ -132,7 +132,7 @@ func TestSqlimpl_DeleteNodeSharedKey(t *testing.T) {
 }
 
 func TestSqlimpl_DeleteNodeAllSharedKey(t *testing.T) {
-	test.RunStorageTests(testcases, func(ctx context.Context) {
+	test.RunStorageTests(testcases, t, func(ctx context.Context) {
 		Convey("Get node key", t, func() {
 			mockDAO, er := manager.Resolve[key.DAO](ctx)
 			So(er, ShouldBeNil)
@@ -146,7 +146,7 @@ func TestSqlimpl_DeleteNodeAllSharedKey(t *testing.T) {
 }
 
 func TestSqlimpl_DeleteNode(t *testing.T) {
-	test.RunStorageTests(testcases, func(ctx context.Context) {
+	test.RunStorageTests(testcases, t, func(ctx context.Context) {
 		Convey("Get node key", t, func() {
 			mockDAO, er := manager.Resolve[key.DAO](ctx)
 			So(er, ShouldBeNil)

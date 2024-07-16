@@ -43,7 +43,7 @@ var (
 
 func TestUniqueSlug(t *testing.T) {
 
-	test.RunStorageTests(testcases, func(ctx context.Context) {
+	test.RunStorageTests(testcases, t, func(ctx context.Context) {
 		mockDAO, err := manager.Resolve[workspace.DAO](ctx)
 		if err != nil {
 			panic(err)
@@ -118,7 +118,7 @@ func TestUniqueSlug(t *testing.T) {
 
 func TestSearch(t *testing.T) {
 
-	test.RunStorageTests(testcases, func(ctx context.Context) {
+	test.RunStorageTests(testcases, t, func(ctx context.Context) {
 		mockDAO, err := manager.Resolve[workspace.DAO](ctx)
 		if err != nil {
 			panic(err)

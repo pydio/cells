@@ -53,6 +53,7 @@ type StorageTestCase struct {
 	DSN       []string
 	Condition bool
 	DAO       any
+	Label     string
 }
 
 func init() {
@@ -132,10 +133,14 @@ func RunStorageTests(testCases []StorageTestCase, t *testing.T, f func(context.C
 		if !tc.Condition {
 			continue
 		}
-		scheme := strings.SplitN(tc.DSN[0], "://", 2)[0]
-		scheme = caser.String(scheme)
 
-		t.Run(scheme, func(t *testing.T) {
+		label := tc.Label
+		if label == "" {
+			scheme := strings.SplitN(tc.DSN[0], "://", 2)[0]
+			label = caser.String(scheme)
+		}
+
+		t.Run(label, func(t *testing.T) {
 			// read template
 			b := &strings.Builder{}
 			err := tmpl.Execute(b, tc.DSN)

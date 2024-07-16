@@ -22,7 +22,7 @@ import (
 
 func boltCases() []test.StorageTestCase {
 	return []test.StorageTestCase{
-		{[]string{"boltdb://" + filepath.Join(os.TempDir(), "activity_bolt_"+uuid.New()+".db")}, true, NoCacheDAO},
+		{DSN: []string{"boltdb://" + filepath.Join(os.TempDir(), "activity_bolt_"+uuid.New()+".db")}, Condition: true, DAO: NoCacheDAO},
 	}
 }
 

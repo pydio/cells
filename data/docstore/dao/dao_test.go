@@ -41,18 +41,18 @@ import (
 
 var (
 	testcases = []test.StorageTestCase{
-		{[]string{
+		{DSN: []string{
 			"boltdb://" + filepath.Join(os.TempDir(), "docstore_bolt_"+uuid.New()+".db"),
 			"bleve://" + filepath.Join(os.TempDir(), "docstore_bleve_"+uuid.New()+".db"),
-		}, true, bleve.NewBleveEngine},
+		}, Condition: true, DAO: bleve.NewBleveEngine, Label: "Bolt_Bleve"},
 		test.TemplateMongoEnvWithPrefix(mongo.NewMongoDAO, "test_docstore_"),
 	}
 )
 
 func TestDocStore(t *testing.T) {
 
-	Convey("Test PUT / LIST DocStore - more tests in grpc/handler_test.go", t, func() {
-		test.RunStorageTests(testcases, func(ctx context.Context) {
+	test.RunStorageTests(testcases, t, func(ctx context.Context) {
+		Convey("Test PUT / LIST DocStore - more tests in grpc/handler_test.go", t, func() {
 			dao, err := manager.Resolve[docstore.DAO](ctx)
 			So(err, ShouldBeNil)
 

@@ -58,15 +58,15 @@ var (
 
 func testCases() []test.StorageTestCase {
 	return []test.StorageTestCase{
-		{[]string{"boltdb://" + filepath.Join(os.TempDir(), "activity_bolt_"+uuid.New()+".db")}, true, bolt.NoCacheDAO},
-		{[]string{"boltdb://" + filepath.Join(os.TempDir(), "activity_bolt_"+uuid.New()+".db")}, true, bolt.ShortCacheDAO},
+		{DSN: []string{"boltdb://" + filepath.Join(os.TempDir(), "activity_bolt_"+uuid.New()+".db")}, Condition: true, DAO: bolt.NoCacheDAO, Label: "Boltdb_NoCache"},
+		{DSN: []string{"boltdb://" + filepath.Join(os.TempDir(), "activity_bolt_"+uuid.New()+".db")}, Condition: true, DAO: bolt.ShortCacheDAO, Label: "Boltdb_WithCache"},
 		test.TemplateMongoEnvWithPrefix(mongo.NewMongoDAO, "unit_broker_"+uuid.New()[:6]+"_"),
 	}
 }
 
 func boltCases() []test.StorageTestCase {
 	return []test.StorageTestCase{
-		{[]string{"boltdb://" + filepath.Join(os.TempDir(), "activity_bolt_"+uuid.New()+".db")}, true, bolt.NoCacheDAO},
+		{DSN: []string{"boltdb://" + filepath.Join(os.TempDir(), "activity_bolt_"+uuid.New()+".db")}, Condition: true, DAO: bolt.NoCacheDAO},
 	}
 }
 

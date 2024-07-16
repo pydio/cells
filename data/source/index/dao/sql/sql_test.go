@@ -135,7 +135,7 @@ func TestMain(m *testing.M) {
 
 func testAll(t *testing.T, f func(dao index.DAO) func(*testing.T)) {
 	var cnt = 0
-	test.RunStorageTests(testcases, func(ctx context.Context) {
+	test.RunStorageTests(testcases, t, func(ctx context.Context) {
 		dao, err := manager.Resolve[index.DAO](ctx)
 		if err != nil {
 			panic(err)

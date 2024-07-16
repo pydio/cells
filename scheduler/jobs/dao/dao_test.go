@@ -51,7 +51,7 @@ import (
 
 var (
 	testCases = []test.StorageTestCase{
-		{[]string{"boltdb://" + filepath.Join(os.TempDir(), "jobs_bolt_"+uuid.New()+".db")}, true, bolt.NewBoltDAO},
+		{DSN: []string{"boltdb://" + filepath.Join(os.TempDir(), "jobs_bolt_"+uuid.New()+".db")}, Condition: true, DAO: bolt.NewBoltDAO},
 		test.TemplateMongoEnvWithPrefix(mongo.NewMongoDAO, "jobs_"+uuid.New()[:6]+"_"),
 	}
 )
@@ -84,7 +84,7 @@ var (
 
 func TestDAO_CRUD(t *testing.T) {
 
-	test.RunStorageTests(testCases, func(ctx context.Context) {
+	test.RunStorageTests(testCases, t, func(ctx context.Context) {
 		Convey("Test Put / Get / Delete", t, func() {
 			db, err := manager.Resolve[jo.DAO](ctx)
 			So(err, ShouldBeNil)
@@ -136,7 +136,7 @@ func TestDAO_CRUD(t *testing.T) {
 
 func TestDAO_ListJobs(t *testing.T) {
 
-	test.RunStorageTests(testCases, func(ctx context.Context) {
+	test.RunStorageTests(testCases, t, func(ctx context.Context) {
 		Convey("Test List Jobs", t, func() {
 
 			db, err := manager.Resolve[jo.DAO](ctx)
@@ -340,7 +340,7 @@ func loadTasks(db jo.DAO, jobId string, jobStatus jobs.TaskStatus, offset ...int
 
 func TestDAO_PutTask(t *testing.T) {
 
-	test.RunStorageTests(testCases, func(ctx context.Context) {
+	test.RunStorageTests(testCases, t, func(ctx context.Context) {
 		Convey("Test Put Task", t, func() {
 			db, err := manager.Resolve[jo.DAO](ctx)
 			So(err, ShouldBeNil)
@@ -364,7 +364,7 @@ func TestDAO_PutTask(t *testing.T) {
 
 func TestDAO_listTask(t *testing.T) {
 
-	test.RunStorageTests(testCases, func(ctx context.Context) {
+	test.RunStorageTests(testCases, t, func(ctx context.Context) {
 		Convey("Test Put Task", t, func() {
 
 			db, err := manager.Resolve[jo.DAO](ctx)

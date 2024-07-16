@@ -67,7 +67,7 @@ func init() {
 
 func TestLoginCIDAO(t *testing.T) {
 
-	test.RunStorageTests(testcases, func(ctx context.Context) {
+	test.RunStorageTests(testcases, t, func(ctx context.Context) {
 
 		/*
 			cfg := configx.New()
@@ -115,7 +115,7 @@ func TestLoginCIDAO(t *testing.T) {
 
 func TestUser(t *testing.T) {
 
-	test.RunStorageTests(testcases, func(ctx context.Context) {
+	test.RunStorageTests(testcases, t, func(ctx context.Context) {
 		h := NewHandler(ctx)
 
 		Convey("Create one user", t, func() {

@@ -37,7 +37,7 @@ var (
 
 func TestNewMemChecksumMapper(t *testing.T) {
 	Convey("Test ChecksumMapper in memory", t, func() {
-		test.RunStorageTests(testcases, func(ctx context.Context) {
+		test.RunStorageTests(testcases, t, func(ctx context.Context) {
 			mockDAO, err := manager.Resolve[sync.DAO](ctx)
 			So(err, ShouldBeNil)
 

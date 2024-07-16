@@ -56,7 +56,7 @@ func TestSizeRotation(t *testing.T) {
 		DAO:       func(v *bleve.Indexer) *bleve.Indexer { return v },
 	}
 
-	test.RunStorageTests([]test.StorageTestCase{rotationTest}, func(ctx context.Context) {
+	test.RunStorageTests([]test.StorageTestCase{rotationTest}, t, func(ctx context.Context) {
 
 		Convey("Test Insertion Counts", t, func() {
 
