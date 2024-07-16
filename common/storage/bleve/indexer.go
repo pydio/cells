@@ -713,12 +713,16 @@ func (s *Indexer) Truncate(ctx context.Context, max int64, logger func(string)) 
 
 		for _, idx := range s.indexes {
 			if strings.HasPrefix(idx.Name(), fullPath) {
+				if er := s.Close(ctx); er != nil {
+					return er
+				}
 				logger(" - Remove " + idx.Name())
 				if er := os.RemoveAll(idx.Name()); er != nil {
 					return er
 				}
 			}
 		}
+		s.indexes = []bleve.Index{}
 
 		return nil
 	}

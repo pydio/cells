@@ -50,8 +50,8 @@ import (
 
 var (
 	testcases = []test.StorageTestCase{
-		{DSN: []string{"bleve://" + filepath.Join(os.TempDir(), "data_search_tests"+uuid.New()+".bleve") + "?mapping=node"}, Condition: true, DAO: bleve.FastBleveDAO},
-		test.TemplateMongoEnvWithPrefix(mongo.NewMongoDAO, "search_tests_"+uuid.New()[:6]+"_"),
+		{DSN: []string{"bleve://" + filepath.Join(os.TempDir(), "data_search_tests"+uuid.New()[:6]+".bleve") + "?mapping=node"}, Condition: true, DAO: bleve.FastBleveDAO},
+		test.TemplateMongoEnvWithPrefix(mongo.FastMongoDAO, "search_tests_"+uuid.New()[:6]+"_"),
 	}
 )
 
@@ -95,8 +95,12 @@ func createNodes(s search.Engine) error {
 		log.Println("Error while indexing node", e)
 	}
 
-	return s.(*commons.Server).Flush()
+	if er := s.(*commons.Server).Flush(); er != nil {
+		return er
+	}
 
+	<-time.After(100 * time.Millisecond)
+	return nil
 }
 
 func performSearch(ctx context.Context, index search.Engine, queryObject *tree.Query) ([]*tree.Node, error) {
@@ -232,7 +236,6 @@ func TestSearchNode(t *testing.T) {
 
 		Convey("Index nodes", t, func() {
 			So(createNodes(server), ShouldBeNil)
-			<-time.After(100 * time.Millisecond)
 		})
 
 		Convey("Search Node by name", t, func() {
@@ -456,7 +459,9 @@ func TestSearchByGeolocation(t *testing.T) {
 			panic(err)
 		}
 
-		createNodes(server)
+		if err = createNodes(server); err != nil {
+			panic(err)
+		}
 
 		Convey("Search Node by GeoLocation", t, func() {
 
@@ -502,7 +507,9 @@ func TestDeleteNode(t *testing.T) {
 		if err != nil {
 			panic(err)
 		}
-		createNodes(server)
+		if er := createNodes(server); er != nil {
+			panic(err)
+		}
 
 		Convey("Delete Node", t, func() {
 
@@ -529,7 +536,7 @@ func TestClearIndex(t *testing.T) {
 
 		Convey("Clear Index", t, func() {
 
-			createNodes(server)
+			So(createNodes(server), ShouldBeNil)
 
 			e := server.ClearIndex(ctx)
 			So(e, ShouldBeNil)
@@ -554,7 +561,7 @@ func TestSearchByUuidsMatch(t *testing.T) {
 
 		Convey("Search Node by UUID(s)", t, func() {
 
-			createNodes(server)
+			So(createNodes(server), ShouldBeNil)
 
 			node3 := &tree.Node{
 				Uuid:  "uuidpart1-uuidpart2",

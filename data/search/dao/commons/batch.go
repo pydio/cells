@@ -107,9 +107,9 @@ func NewBatch(ctx context.Context, idx indexer.Indexer, nsProvider *meta.NsProvi
 		}),
 		indexer.WithFlushCallback(func() error {
 			wrapper.Lock()
+			defer wrapper.Unlock()
 			l := len(wrapper.inserts) + len(wrapper.deletes)
 			if l == 0 {
-				wrapper.Unlock()
 				return nil
 			}
 			log.Logger(wrapper.ctx).Info("Flushing search batch", zap.Int("size", l))
@@ -138,8 +138,10 @@ func NewBatch(ctx context.Context, idx indexer.Indexer, nsProvider *meta.NsProvi
 				}
 				delete(wrapper.deletes, uuid)
 			}
-			wrapper.Unlock()
 			return nil
+		}),
+		indexer.WithForceFlushCallback(func() error {
+			return batch.Flush()
 		}),
 	)
 	return indexer.NewBatch(ctx, iOpts...)
