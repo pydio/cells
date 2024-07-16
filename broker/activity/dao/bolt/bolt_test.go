@@ -27,7 +27,7 @@ func boltCases() []test.StorageTestCase {
 }
 
 func TestBoltMassivePurge(t *testing.T) {
-	test.RunStorageTests(boltCases(), func(ctx context.Context) {
+	test.RunStorageTests(boltCases(), t, func(ctx context.Context) {
 		dao, err := manager.Resolve[activity2.DAO](ctx)
 		if err != nil {
 			panic(err)

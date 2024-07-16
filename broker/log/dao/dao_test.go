@@ -64,7 +64,7 @@ func listLogs(ctx context.Context, server log2.MessageRepository, query string, 
 
 func TestMessageRepository(t *testing.T) {
 
-	test.RunStorageTests(testcases, func(ctx context.Context) {
+	test.RunStorageTests(testcases, t, func(ctx context.Context) {
 		mem, _ := config.OpenStore(ctx, "mem:///")
 		ctx = propagator.With(ctx, config.ContextKey, mem)
 		Convey("Test all property indexation:\n", t, func() {

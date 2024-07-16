@@ -130,9 +130,8 @@ func testQueue(ctx context.Context, t *testing.T, queue mailer2.Queue) {
 
 func TestEnqueueMail(t *testing.T) {
 
-	Convey("Test Queue DAO", t, func() {
-
-		test.RunStorageTests(testcases, func(ctx context.Context) {
+	test.RunStorageTests(testcases, t, func(ctx context.Context) {
+		Convey("Test Queue DAO", t, func() {
 			queue, err := manager.Resolve[mailer2.Queue](ctx)
 			if err != nil {
 				panic(err)
@@ -140,7 +139,6 @@ func TestEnqueueMail(t *testing.T) {
 
 			testQueue(ctx, t, queue)
 		})
-
 	})
 
 }

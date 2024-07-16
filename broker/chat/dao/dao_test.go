@@ -50,7 +50,7 @@ var (
 
 func TestDAO(t *testing.T) {
 
-	test.RunStorageTests(testcases, func(ctx context.Context) {
+	test.RunStorageTests(testcases, t, func(ctx context.Context) {
 		Convey("Test connection init", t, func() {
 			m, err := manager.Resolve[chat2.DAO](ctx)
 			So(err, ShouldBeNil)

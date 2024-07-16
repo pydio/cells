@@ -83,7 +83,7 @@ func waitIfCache(d activity.DAO) {
 
 func TestBasicEmptyDao(t *testing.T) {
 
-	test.RunStorageTests(testCases(), func(ctx context.Context) {
+	test.RunStorageTests(testCases(), t, func(ctx context.Context) {
 		Convey("Test getBucket - read - not exists", t, func() {
 			dao, err := manager.Resolve[activity.DAO](ctx)
 			So(err, ShouldBeNil)
@@ -99,7 +99,7 @@ func TestBasicEmptyDao(t *testing.T) {
 
 func TestInsertActivity(t *testing.T) {
 
-	test.RunStorageTests(testCases(), func(ctx context.Context) {
+	test.RunStorageTests(testCases(), t, func(ctx context.Context) {
 
 		Convey("Test insert", t, func() {
 
@@ -203,7 +203,7 @@ func TestInsertActivity(t *testing.T) {
 
 func TestMultipleInsert(t *testing.T) {
 
-	test.RunStorageTests(testCases(), func(ctx context.Context) {
+	test.RunStorageTests(testCases(), t, func(ctx context.Context) {
 
 		Convey("Test insert", t, func() {
 			dao, err := manager.Resolve[activity.DAO](ctx)
@@ -261,7 +261,7 @@ func TestMultipleInsert(t *testing.T) {
 
 func TestCursor(t *testing.T) {
 
-	test.RunStorageTests(testCases(), func(ctx context.Context) {
+	test.RunStorageTests(testCases(), t, func(ctx context.Context) {
 		Convey("Insert Activities and browse", t, func() {
 			dao, err := manager.Resolve[activity.DAO](ctx)
 			So(err, ShouldBeNil)
@@ -380,7 +380,7 @@ func TestCursor(t *testing.T) {
 }
 
 func TestStreamFilter(t *testing.T) {
-	test.RunStorageTests(testCases(), func(ctx context.Context) {
+	test.RunStorageTests(testCases(), t, func(ctx context.Context) {
 
 		Convey("Test Filtering Stream", t, func() {
 
@@ -473,7 +473,7 @@ func recordStream(dao activity.DAO, ctx context.Context, ownerType proto.OwnerTy
 
 func TestSimilarSkipping(t *testing.T) {
 
-	test.RunStorageTests(boltCases(), func(ctx context.Context) {
+	test.RunStorageTests(boltCases(), t, func(ctx context.Context) {
 
 		Convey("Insert Activities and browse", t, func() {
 			dao, err := manager.Resolve[activity.DAO](ctx)
@@ -578,7 +578,7 @@ func TestSimilarSkipping(t *testing.T) {
 
 func TestDelete(t *testing.T) {
 
-	test.RunStorageTests(testCases(), func(ctx context.Context) {
+	test.RunStorageTests(testCases(), t, func(ctx context.Context) {
 		Convey("Test Delete Owner", t, func() {
 
 			dao, err := manager.Resolve[activity.DAO](ctx)
@@ -611,7 +611,7 @@ func TestDelete(t *testing.T) {
 
 func TestPurge(t *testing.T) {
 
-	test.RunStorageTests(testCases(), func(ctx context.Context) {
+	test.RunStorageTests(testCases(), t, func(ctx context.Context) {
 
 		dao, err := manager.Resolve[activity.DAO](ctx)
 		if err != nil {
@@ -719,7 +719,7 @@ func TestPurge(t *testing.T) {
 
 func TestSubscriptions(t *testing.T) {
 
-	test.RunStorageTests(testCases(), func(ctx context.Context) {
+	test.RunStorageTests(testCases(), t, func(ctx context.Context) {
 
 		Convey("Test subscribe", t, func() {
 			dao, err := manager.Resolve[activity.DAO](ctx)
@@ -794,7 +794,7 @@ func TestWsSorting(t *testing.T) {
 
 func SkipTestMassiveQueries(t *testing.T) {
 
-	test.RunStorageTests(testCases(), func(ctx context.Context) {
+	test.RunStorageTests(testCases(), t, func(ctx context.Context) {
 
 		Convey("Test massive queries", t, func() {
 

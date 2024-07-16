@@ -73,7 +73,7 @@ func TestChatHandler_PutRoom(t *testing.T) {
 
 	handler := &ChatHandler{}
 
-	test.RunStorageTests(testcases, func(ctx context.Context) {
+	test.RunStorageTests(testcases, t, func(ctx context.Context) {
 
 		roomUuid := uuid.New()
 		nodeUuid := uuid.New()
@@ -139,7 +139,7 @@ func TestChatHandler_PutMessage(t *testing.T) {
 
 	handler := &ChatHandler{}
 
-	test.RunStorageTests(testcases, func(ctx context.Context) {
+	test.RunStorageTests(testcases, t, func(ctx context.Context) {
 
 		ctx = context.WithValue(ctx, "resolved-meta-client", &mocks.NodeReceiverClient{})
 
@@ -224,7 +224,7 @@ func TestChatHandler_ListMessages(t *testing.T) {
 
 	handler := &ChatHandler{}
 
-	test.RunStorageTests(testcases, func(ctx context.Context) {
+	test.RunStorageTests(testcases, t, func(ctx context.Context) {
 
 		roomUuid := uuid.New()
 		ctx = context.WithValue(ctx, "resolved-meta-client", &mocks.NodeReceiverClient{})
