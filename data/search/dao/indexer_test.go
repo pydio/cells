@@ -527,31 +527,6 @@ func TestDeleteNode(t *testing.T) {
 	})
 }
 
-func TestClearIndex(t *testing.T) {
-	test.RunStorageTests(testcases, t, func(ctx context.Context) {
-		server, err := manager.Resolve[search.Engine](ctx)
-		if err != nil {
-			panic(err)
-		}
-
-		Convey("Clear Index", t, func() {
-
-			So(createNodes(server), ShouldBeNil)
-
-			e := server.ClearIndex(ctx)
-			So(e, ShouldBeNil)
-
-			queryObject := &tree.Query{
-				FileName: "node",
-			}
-
-			results, e := performSearch(ctx, server, queryObject)
-			So(e, ShouldBeNil)
-			So(results, ShouldHaveLength, 0)
-		})
-	})
-}
-
 func TestSearchByUuidsMatch(t *testing.T) {
 	test.RunStorageTests(testcases, t, func(ctx context.Context) {
 		server, err := manager.Resolve[search.Engine](ctx)
@@ -586,7 +561,8 @@ func TestSearchByUuidsMatch(t *testing.T) {
 
 			e = server.IndexNode(ctx, node4, false, nil)
 			So(e, ShouldBeNil)
-			<-time.After(7 * time.Second)
+
+			<-time.After(1 * time.Second)
 
 			queryObject := &tree.Query{
 				UUIDs: []string{"randomUUID"},
@@ -626,4 +602,29 @@ func TestSearchByUuidsMatch(t *testing.T) {
 		})
 	})
 
+}
+
+func TestClearIndex(t *testing.T) {
+	test.RunStorageTests(testcases, t, func(ctx context.Context) {
+		server, err := manager.Resolve[search.Engine](ctx)
+		if err != nil {
+			panic(err)
+		}
+
+		Convey("Clear Index", t, func() {
+
+			So(createNodes(server), ShouldBeNil)
+
+			e := server.ClearIndex(ctx)
+			So(e, ShouldBeNil)
+
+			queryObject := &tree.Query{
+				FileName: "node",
+			}
+
+			results, e := performSearch(ctx, server, queryObject)
+			So(e, ShouldBeNil)
+			So(results, ShouldHaveLength, 0)
+		})
+	})
 }
