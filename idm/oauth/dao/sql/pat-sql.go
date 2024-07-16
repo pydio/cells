@@ -72,10 +72,10 @@ type PersonalToken struct {
 	UserLogin         string       `gorm:"column:user_login;"`
 	AutoRefreshWindow int32        `gorm:"column:auto_refresh;"`
 	ExpiresAt         time.Time    `gorm:"column:expire_at;"`
-	CreatedAt         time.Time    `gorm:"column:created_at;"`
 	CreatedBy         string       `gorm:"column:created_by;"`
-	UpdatedAt         time.Time    `gorm:"column:updated_at;"`
 	Scopes            string       `gorm:"column:scopes;"`
+	UpdatedAt         time.Time    `gorm:"autoUpdateTime"`
+	CreatedAt         time.Time    `gorm:"autoCreateTime"`
 }
 
 func (u *PersonalToken) TableName(namer schema.Namer) string {
@@ -199,7 +199,7 @@ func (s *sqlImpl) List(byType auth.PatType, byUser string) ([]*auth.PersonalAcce
 	if byType != auth.PatType_ANY {
 		tx = tx.Where(&PersonalToken{Type: byType})
 	}
-	tx = tx.Order("created_at").Find(&res)
+	tx = tx.Order("created_at").Find(&pts)
 	if tx.Error != nil {
 		return nil, tx.Error
 	}

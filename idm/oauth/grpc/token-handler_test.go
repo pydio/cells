@@ -200,7 +200,7 @@ func TestPathHandler_List(t *testing.T) {
 			listResponse, e = pat.List(ctx, &auth.PatListRequest{Type: auth.PatType_PERSONAL, ByUserLogin: "user"})
 			So(e, ShouldBeNil)
 			So(listResponse.Tokens, ShouldHaveLength, 1)
-			So(resp.AccessToken, ShouldNotEqual)
+			So(resp.AccessToken, ShouldNotBeEmpty)
 		})
 	})
 }
