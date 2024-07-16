@@ -1,3 +1,5 @@
+//go:build source
+
 /*
  * Copyright (c) 2019-2021. Abstrium SAS <team (at) pydio.com>
  * This file is part of Pydio Cells.
@@ -26,10 +28,11 @@ import (
 	"os"
 	"testing"
 
-	. "github.com/smartystreets/goconvey/convey"
 	"github.com/spf13/afero"
 
 	"github.com/pydio/cells/v4/common/proto/tree"
+
+	. "github.com/smartystreets/goconvey/convey"
 )
 
 var (
