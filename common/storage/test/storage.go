@@ -71,7 +71,7 @@ func TemplateSQL(daoFunc any) []StorageTestCase {
 	return []StorageTestCase{
 		{
 			DSN:       []string{sql.SqliteDriver + "://" + sql.SharedMemDSN + "&hookNames=cleanTables&prefix=" + unique},
-			Condition: os.Getenv("CELLS_TEST_MYSQL_DSN") == "" && os.Getenv("CELLS_TEST_PGSQL_DSN") == "",
+			Condition: true,
 			DAO:       daoFunc,
 		},
 		{
