@@ -68,23 +68,32 @@ func init() {
 // TemplateSQL returns a single SQL test case with the provided DAO func
 func TemplateSQL(daoFunc any) []StorageTestCase {
 	unique := uuid.New()[:6]
-	return []StorageTestCase{
+	ss := []StorageTestCase{
 		{
 			DSN:       []string{sql.SqliteDriver + "://" + sql.SharedMemDSN + "&hookNames=cleanTables&prefix=" + unique},
 			Condition: true,
 			DAO:       daoFunc,
 		},
-		{
-			DSN:       []string{os.Getenv("CELLS_TEST_MYSQL_DSN") + "?parseTime=true&hookNames=cleanTables&prefix=" + unique},
-			Condition: os.Getenv("CELLS_TEST_MYSQL_DSN") != "",
-			DAO:       daoFunc,
-		},
-		{
-			DSN:       []string{os.Getenv("CELLS_TEST_PGSQL_DSN") + "&hookNames=cleanTables&prefix=" + unique},
-			Condition: os.Getenv("CELLS_TEST_PGSQL_DSN") != "",
-			DAO:       daoFunc,
-		},
 	}
+	if other := os.Getenv("CELLS_TEST_MYSQL_DSN"); other != "" {
+		for _, dsn := range strings.Split(other, ";") {
+			ss = append(ss, StorageTestCase{
+				DSN:       []string{strings.TrimSpace(dsn) + "?parseTime=true&hookNames=cleanTables&prefix=" + unique},
+				Condition: true,
+				DAO:       daoFunc,
+			})
+		}
+	}
+	if other := os.Getenv("CELLS_TEST_PGSQL_DSN"); other != "" {
+		for _, dsn := range strings.Split(other, ";") {
+			ss = append(ss, StorageTestCase{
+				DSN:       []string{strings.TrimSpace(dsn) + "&hookNames=cleanTables&prefix=" + unique},
+				Condition: true,
+				DAO:       daoFunc,
+			})
+		}
+	}
+	return ss
 }
 
 // TemplateMongoEnvWithPrefix creates a StorageTestCase for MongoDB
