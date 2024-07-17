@@ -71,7 +71,7 @@ func TemplateSQL(daoFunc any) []StorageTestCase {
 	return []StorageTestCase{
 		{
 			DSN:       []string{sql.SqliteDriver + "://" + sql.SharedMemDSN + "&hookNames=cleanTables&prefix=" + unique},
-			Condition: true,
+			Condition: os.Getenv("CELLS_TEST_MYSQL_DSN") == "" && os.Getenv("CELLS_TEST_PGSQL_DSN") == "",
 			DAO:       daoFunc,
 		},
 		{
@@ -153,12 +153,6 @@ func RunStorageTests(testCases []StorageTestCase, t *testing.T, f func(context.C
 			v.SetDefault(runtime.KeyShortCache, "pm://")
 			v.Set("yaml", b.String())
 
-			// TODO - this should be handled by the controller
-			//store, er := config.OpenStore(context.Background(), "mem://")
-			//if er != nil {
-			//	panic(er)
-			//}
-			//config.Register(store)
 			runtime.SetRuntime(v)
 
 			var svc service.Service

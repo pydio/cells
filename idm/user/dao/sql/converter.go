@@ -97,9 +97,9 @@ func (c *queryConverter) Convert(ctx context.Context, val *anypb.Any, db *gorm.D
 		} else if c.loginCI {
 			// Use Equal but make sure it's case-insensitive
 			if q.Not {
-				wheres = append(wheres, db.Not(LowerEq{Column: u.Name, Value: q.Login}))
+				wheres = append(wheres, db.Not(&LowerEq{Column: u.Name.RawExpr(), Value: q.Login}))
 			} else {
-				wheres = append(wheres, db.Where(LowerEq{Column: u.Name, Value: q.Login}))
+				wheres = append(wheres, db.Where(&LowerEq{Column: u.Name.RawExpr(), Value: q.Login}))
 			}
 		} else {
 			if q.Not {

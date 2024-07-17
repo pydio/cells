@@ -34,9 +34,11 @@ import (
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/proto/idm"
 	"github.com/pydio/cells/v4/common/proto/service"
+	"github.com/pydio/cells/v4/common/runtime/manager"
 	"github.com/pydio/cells/v4/common/storage/test"
 	"github.com/pydio/cells/v4/common/telemetry/log"
 	"github.com/pydio/cells/v4/common/utils/cache"
+	"github.com/pydio/cells/v4/common/utils/propagator"
 	"github.com/pydio/cells/v4/idm/user/dao/sql"
 
 	. "github.com/smartystreets/goconvey/convey"
@@ -68,18 +70,10 @@ func init() {
 func TestLoginCIDAO(t *testing.T) {
 
 	test.RunStorageTests(testcases, t, func(ctx context.Context) {
+		var mgr manager.Manager
+		propagator.Get(ctx, manager.ContextKey, &mgr)
+		mgr.GetConfig(ctx).Val("services", "test", "loginCI").Set(true)
 
-		/*
-			cfg := configx.New()
-			_ = cfg.Val("loginCI").Set(true)
-			ciDAO, e := dao.InitDAO(ctx, sqlite.Driver, sqlite.SharedMemDSN, "idm_user", user.NewDAO, cfg)
-			if e != nil {
-				t.Fail()
-				return
-			}
-					h2 := NewHandler(ctx)
-
-		*/
 		h := NewHandler(ctx)
 
 		Convey("Test LoginCI support", t, func() {

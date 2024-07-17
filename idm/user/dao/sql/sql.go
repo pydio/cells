@@ -37,7 +37,6 @@ import (
 	"gorm.io/gorm/clause"
 
 	"github.com/pydio/cells/v4/common/auth"
-	"github.com/pydio/cells/v4/common/config"
 	"github.com/pydio/cells/v4/common/errors"
 	"github.com/pydio/cells/v4/common/proto/idm"
 	service "github.com/pydio/cells/v4/common/proto/service"
@@ -46,7 +45,7 @@ import (
 	index "github.com/pydio/cells/v4/common/sql/indexgorm"
 	"github.com/pydio/cells/v4/common/sql/resources"
 	"github.com/pydio/cells/v4/common/telemetry/log"
-	runtimecontext "github.com/pydio/cells/v4/common/utils/propagator"
+	"github.com/pydio/cells/v4/common/utils/configx"
 	"github.com/pydio/cells/v4/idm/user"
 	user_model "github.com/pydio/cells/v4/idm/user/dao/sql/model"
 )
@@ -88,14 +87,10 @@ func NewDAO(ctx context.Context, db *gorm.DB) user.DAO {
 	resDAO := resources.NewDAO(db)
 	idxDAO := index.NewDAO[*user_model.User](db)
 
-	var store config.Store
-	runtimecontext.Get(ctx, config.ContextKey, &store)
-
 	return &sqlimpl{
 		db:           db,
 		resourcesDAO: resDAO,
 		indexDAO:     idxDAO,
-		loginCI:      store.Val("services", "pydio.grpc.user", "loginCI").Bool(),
 	}
 }
 
@@ -116,28 +111,14 @@ type sqlimpl struct {
 var _ user.DAO = (*sqlimpl)(nil)
 
 // Init handler for the SQL DAO
-//func (s *sqlimpl) Init(ctx context.Context, options configx.Values) error {
-//
-//	s.instance().AutoMigrate(&user_model.User{}, &user_model.UserRole{}, &user_model.UserAttribute{})
-//
-//	// Preparing the resources
-//	if err := s.resourcesDAO.Init(ctx, options); err != nil {
-//		return fmt.Errorf("cannot initialise resources DAO: %v", err)
-//	}
-//
-//	// Preparing the index
-//	if err := s.indexDAO.Init(ctx, options); err != nil {
-//		return fmt.Errorf("cannot initialise index DAO: %v", err)
-//	}
-//
-//	s.indexDAO.FixRandHash2(ctx)
-//
-//	if options.Val("loginCI").Default(false).Bool() {
-//		s.loginCI = true
-//	}
-//
-//	return nil
-//}
+func (s *sqlimpl) Init(ctx context.Context, options configx.Values) error {
+
+	if options.Val("loginCI").Default(false).Bool() {
+		s.loginCI = true
+	}
+
+	return nil
+}
 
 func safeGroupPath(gPath string) string {
 	return fmt.Sprintf("/%s", strings.Trim(gPath, "/"))

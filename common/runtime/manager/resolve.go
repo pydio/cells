@@ -117,6 +117,7 @@ func Resolve[T any](ctx context.Context, opts ...ResolveOption) (s T, final erro
 	} else {
 		return t, errors.WithMessage(errors.ResolveError, "cannot find manager to load configs")
 	}
+
 	span.AddEvent("Before Listing")
 	edges, err := reg.List(
 		registry.WithName("storage"),
