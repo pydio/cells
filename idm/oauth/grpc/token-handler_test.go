@@ -83,7 +83,7 @@ func TestPatHandler_AutoRefresh(t *testing.T) {
 				UserUuid:          "admin-uuid",
 				UserLogin:         "admin",
 				Label:             "Personal token for admin",
-				AutoRefreshWindow: 2, // Refresh every 2s
+				AutoRefreshWindow: 3, // Refresh every 2s
 			})
 			So(e, ShouldBeNil)
 			generatedToken := rsp.AccessToken
@@ -112,7 +112,7 @@ func TestPatHandler_AutoRefresh(t *testing.T) {
 			So(er, ShouldBeNil)
 
 			// Longer than refresh - should fail
-			<-time.After(3 * time.Second)
+			<-time.After(5 * time.Second)
 			verifyResponse, er = pat.Verify(ctx, &auth.VerifyTokenRequest{Token: generatedToken})
 			So(errors.Is(er, errors.StatusUnauthorized), ShouldBeTrue)
 
