@@ -655,23 +655,18 @@ func (s *sqlimpl) rebuildGroupPath(ctx context.Context, node tree.ITreeNode) {
 		node.GetNode().SetPath(fmt.Sprintf("/%s", strings.TrimLeft(p, "/")))
 		node.GetNode().MustSetMeta("GroupRoles", roles)
 	}
-
 }
 
 func buildMPathEquals(db *gorm.DB, mpath []byte) *gorm.DB {
 	for {
 		cnt := (len(mpath) - 1) / indexLen
-
-		// PREVIOUS WAS : res = append(res, fmt.Sprintf(`mpath%d LIKE "%s"`, cnt+1, mpath[(cnt*indexLen):]))
 		db = db.Where(clause.Like{
 			Column: fmt.Sprintf("mpath%d", cnt+1),
 			Value:  string(mpath[(cnt * indexLen):]),
 		})
-
 		if idx := cnt * indexLen; idx == 0 {
 			break
 		}
-
 		mpath = mpath[0 : cnt*indexLen]
 	}
 	return db
@@ -687,20 +682,9 @@ func buildMPathLike(db *gorm.DB, mpath []byte) *gorm.DB {
 			Column: fmt.Sprintf("mpath%d", cnt+1),
 			Value:  string(mpath[(cnt * indexLen):]),
 		})
-		/*
-			TODO - RECHECK THIS CODE ? IT WAS DOING NOTHING DIFFERENT if done or not done
-				if !done {
-					res = append(res, fmt.Sprintf(`mpath%d LIKE "%s"`, cnt+1, mpath[(cnt*indexLen):]))
-					done = true
-				} else {
-					res = append(res, fmt.Sprintf(`mpath%d LIKE "%s"`, cnt+1, mpath[(cnt*indexLen):]))
-				}
-		*/
-
 		if idx := cnt * indexLen; idx == 0 {
 			break
 		}
-
 		mpath = mpath[0 : cnt*indexLen]
 	}
 	return db
