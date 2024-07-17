@@ -162,10 +162,3 @@ func init() {
 
 	UserCmd.AddCommand(userCreateCmd)
 }
-
-func notEmpty(input string) error {
-	if len(input) == 0 {
-		return fmt.Errorf("Field cannot be empty!")
-	}
-	return nil
-}

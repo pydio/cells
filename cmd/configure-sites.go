@@ -1,5 +1,3 @@
-//go:build exclude
-
 /*
  * Copyright (c) 2019-2021. Abstrium SAS <team (at) pydio.com>
  * This file is part of Pydio Cells.
@@ -35,6 +33,7 @@ import (
 	"github.com/spf13/cobra"
 
 	"github.com/pydio/cells/v4/common"
+	"github.com/pydio/cells/v4/common/config/routing"
 	"github.com/pydio/cells/v4/common/proto/install"
 )
 

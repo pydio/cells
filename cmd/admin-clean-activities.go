@@ -1,5 +1,3 @@
-//go:build exclude
-
 /*
  * Copyright (c) 2019-2021. Abstrium SAS <team (at) pydio.com>
  * This file is part of Pydio Cells.
@@ -36,8 +34,11 @@ import (
 	"github.com/spf13/cobra"
 
 	"github.com/pydio/cells/v4/broker/activity"
+	"github.com/pydio/cells/v4/broker/activity/dao/bolt"
+	"github.com/pydio/cells/v4/common/client/commons/jobsc"
 	activity2 "github.com/pydio/cells/v4/common/proto/activity"
 	"github.com/pydio/cells/v4/common/proto/jobs"
+	"github.com/pydio/cells/v4/common/runtime/manager"
 	"github.com/pydio/cells/v4/common/utils/uuid"
 )
 
@@ -141,15 +142,15 @@ EXAMPLES
 		if offlineDB != "" {
 
 			ctx := cmd.Context()
-			db, er := boltdb.NewDAO(ctx, "boltdb", offlineDB, "")
+			var er error
+			ctx, er = manager.DSNtoContextDAO(ctx, []string{offlineDB}, bolt.NewBoltDAO)
 			if er != nil {
-				log.Fatalln("Cannot open DB file", er.Error())
+				log.Fatalln("Cannot prepare DAO")
 			}
-			da, e := activity.NewDAO(ctx, db)
-			if e != nil {
-				log.Fatalln("Cannot open DAO", e.Error())
+			dao, err := manager.Resolve[activity.DAO](ctx)
+			if err != nil {
+				log.Fatalln("Cannot open DAO")
 			}
-			dao := da.(activity.DAO)
 			loggerFunc := func(s string, _ int) {
 				cmd.Println(s)
 			}

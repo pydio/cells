@@ -1,5 +1,3 @@
-//go:build exclude
-
 /*
  * Copyright (c) 2019-2021. Abstrium SAS <team (at) pydio.com>
  * This file is part of Pydio Cells.
@@ -30,7 +28,6 @@ import (
 	"os/exec"
 	"os/user"
 	"runtime"
-	"strings"
 	"time"
 
 	"github.com/manifoldco/promptui"
@@ -38,14 +35,10 @@ import (
 	"github.com/spf13/pflag"
 
 	"github.com/pydio/cells/v4/common"
-	"github.com/pydio/cells/v4/common/broker"
+	"github.com/pydio/cells/v4/common/config/routing"
 	"github.com/pydio/cells/v4/common/crypto"
 	"github.com/pydio/cells/v4/common/proto/install"
-	"github.com/pydio/cells/v4/common/registry"
 	cruntime "github.com/pydio/cells/v4/common/runtime"
-	"github.com/pydio/cells/v4/common/runtime/manager"
-	"github.com/pydio/cells/v4/common/server"
-	"github.com/pydio/cells/v4/common/telemetry/log"
 	unet "github.com/pydio/cells/v4/common/utils/net"
 	"github.com/pydio/cells/v4/common/utils/propagator"
 )
@@ -311,62 +304,64 @@ func checkDefaultBusy(cmd *cobra.Command, proxyConf *install.ProxyConfig, pickOn
 }
 
 func performBrowserInstall(cmd *cobra.Command, ctx context.Context, proxyConf *install.ProxyConfig) {
+	panic("implement me")
+	/*
+		ctx, cancel := context.WithCancel(ctx)
+		defer cancel()
 
-	ctx, cancel := context.WithCancel(ctx)
-	defer cancel()
+		initLogLevel()
 
-	initLogLevel()
+		reg, err := registry.OpenRegistry(ctx, cruntime.RegistryURL())
+		if err != nil {
+			return
+		}
+		cruntime.SetDefault(cruntime.KeyHttpServer, cruntime.HttpServerCaddy)
+		managerLogger := log.Logger(cruntime.WithServiceName(ctx, "pydio.server.manager"))
+		m := manager.NewManager(ctx, reg, "mem:///", "install", managerLogger)
 
-	reg, err := registry.OpenRegistry(ctx, cruntime.RegistryURL())
-	if err != nil {
-		return
-	}
-	cruntime.SetDefault(cruntime.KeyHttpServer, cruntime.HttpServerCaddy)
+		bkr := broker.NewBroker(cruntime.BrokerURL())
+		ctx = propagator.With(broker.ContextKey, bkr)
 
-	managerLogger := log.Logger(cruntime.WithServiceName(ctx, "pydio.server.manager"))
-	m := manager.NewManager(ctx, reg, "mem:///", "install", managerLogger)
+		openURL := proxyConf.GetDefaultBindURL()
+		if runtime.GOOS == "windows" {
+			// Windows browser cannot find 0.0.0.0 - use localhost instead.
+			openURL = strings.Replace(openURL, "0.0.0.0", "localhost", 1)
+		}
 
-	bkr := broker.NewBroker(cruntime.BrokerURL())
-	ctx = propagator.With(broker.ContextKey, bkr)
+		cmd.Println("")
+		cmd.Println(promptui.Styler(promptui.BGMagenta, promptui.FGWhite)("Installation Server is starting..."))
+		cmd.Println(promptui.Styler(promptui.BGMagenta, promptui.FGWhite)("Listening to: " + proxyConf.GetDefaultBindURL()))
+		cmd.Println("")
 
-	openURL := proxyConf.GetDefaultBindURL()
-	if runtime.GOOS == "windows" {
-		// Windows browser cannot find 0.0.0.0 - use localhost instead.
-		openURL = strings.Replace(openURL, "0.0.0.0", "localhost", 1)
-	}
+		if err := m.Init(ctx); err != nil {
+			panic(err)
+		}
 
-	cmd.Println("")
-	cmd.Println(promptui.Styler(promptui.BGMagenta, promptui.FGWhite)("Installation Server is starting..."))
-	cmd.Println(promptui.Styler(promptui.BGMagenta, promptui.FGWhite)("Listening to: " + proxyConf.GetDefaultBindURL()))
-	cmd.Println("")
+		m.ServeAll(server.WithErrorCallback(func(err error) {
+			panic(err)
+		}))
 
-	if err := m.Init(ctx); err != nil {
-		panic(err)
-	}
-
-	m.ServeAll(server.WithErrorCallback(func(err error) {
-		panic(err)
-	}))
-
-	<-time.After(2 * time.Second)
-	if err := open(openURL); err != nil {
-		fmt.Println(promptui.Styler(promptui.BGMagenta, promptui.FGWhite)("Open a browser window to: [" + openURL + "]"))
-	}
-
-	done := make(chan bool, 1)
-	unsub, _ := bkr.Subscribe(ctx, common.TopicInstallSuccessEvent, func(context.Context, broker.Message) error {
-		fmt.Println("Browser install is finished. Stopping server in 5s...")
 		<-time.After(2 * time.Second)
-		done <- true
-		return nil
-	})
+		if err := open(openURL); err != nil {
+			fmt.Println(promptui.Styler(promptui.BGMagenta, promptui.FGWhite)("Open a browser window to: [" + openURL + "]"))
+		}
 
-	<-done
-	close(done)
-	m.StopAll()
-	_ = unsub()
+		done := make(chan bool, 1)
+		unsub, _ := bkr.Subscribe(ctx, common.TopicInstallSuccessEvent, func(context.Context, broker.Message) error {
+			fmt.Println("Browser install is finished. Stopping server in 5s...")
+			<-time.After(2 * time.Second)
+			done <- true
+			return nil
+		})
 
-	return
+		<-done
+		close(done)
+		m.StopAll()
+		_ = unsub()
+
+		return
+
+	*/
 }
 
 /* HELPERS */

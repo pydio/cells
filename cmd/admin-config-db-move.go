@@ -47,7 +47,7 @@ var (
 	dbMoveFromURL string
 	dbMoveToURL   string
 
-	yaml = `
+	moveYAML = `
 storages:
   {{- range $idx, $dsn := . }}
   storage{{ $idx }}: 
@@ -126,7 +126,7 @@ func configDbMoveOne(cmd *cobra.Command, dry, promptConfig bool, migOption *flat
 func configDbMoveOne(cmd *cobra.Command, dry, promptConfig bool, migOption *flatOptions, from, to string) error {
 
 	var err error
-	tmpl, err = template.New("test").Parse(yaml)
+	tmpl, err = template.New("test").Parse(moveYAML)
 	if err != nil {
 
 		return err

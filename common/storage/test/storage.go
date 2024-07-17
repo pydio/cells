@@ -8,17 +8,12 @@ import (
 	"testing"
 	"text/template"
 
-	"github.com/spf13/viper"
 	"golang.org/x/text/cases"
 	"golang.org/x/text/language"
 
-	"github.com/pydio/cells/v4/common/runtime"
 	"github.com/pydio/cells/v4/common/runtime/manager"
-	"github.com/pydio/cells/v4/common/runtime/tenant"
-	"github.com/pydio/cells/v4/common/service"
 	"github.com/pydio/cells/v4/common/storage"
 	"github.com/pydio/cells/v4/common/storage/sql"
-	"github.com/pydio/cells/v4/common/utils/propagator"
 	"github.com/pydio/cells/v4/common/utils/uuid"
 
 	_ "github.com/pydio/cells/v4/common/config/memory"
@@ -150,42 +145,47 @@ func RunStorageTests(testCases []StorageTestCase, t *testing.T, f func(context.C
 		}
 
 		t.Run(label, func(t *testing.T) {
-			// read template
-			b := &strings.Builder{}
-			err := tmpl.Execute(b, tc.DSN)
+			/*
+				// read template
+				b := &strings.Builder{}
+				err := tmpl.Execute(b, tc.DSN)
+				if err != nil {
+					panic(err)
+				}
+				v := viper.New()
+				v.Set(runtime.KeyConfig, "mem://")
+				v.SetDefault(runtime.KeyCache, "pm://")
+				v.SetDefault(runtime.KeyShortCache, "pm://")
+				v.Set("yaml", b.String())
+
+				runtime.SetRuntime(v)
+
+				var svc service.Service
+				runtime.Register("test", func(ctx context.Context) {
+					svc = service.NewService(
+						service.Name("test"),
+						service.Context(ctx),
+						service.WithStorageDrivers(tc.DAO),
+						service.Migrations([]*service.Migration{{
+							TargetVersion: service.FirstRun(),
+							Up:            manager.StorageMigration(),
+						}}),
+					)
+				})
+
+				mgr, err := manager.NewManager(context.Background(), "test", nil)
+				if err != nil {
+					panic(err)
+				}
+
+				ctx := mgr.Context()
+				ctx = propagator.With(ctx, service.ContextKey, svc)
+				ctx = propagator.With(ctx, tenant.ContextKey, tenant.GetManager().GetMaster())
+			*/
+			ctx, err := manager.DSNtoContextDAO(context.Background(), tc.DSN, tc.DAO)
 			if err != nil {
 				panic(err)
 			}
-			v := viper.New()
-			v.Set(runtime.KeyConfig, "mem://")
-			v.SetDefault(runtime.KeyCache, "pm://")
-			v.SetDefault(runtime.KeyShortCache, "pm://")
-			v.Set("yaml", b.String())
-
-			runtime.SetRuntime(v)
-
-			var svc service.Service
-			runtime.Register("test", func(ctx context.Context) {
-				svc = service.NewService(
-					service.Name("test"),
-					service.Context(ctx),
-					service.WithStorageDrivers(tc.DAO),
-					service.Migrations([]*service.Migration{{
-						TargetVersion: service.FirstRun(),
-						Up:            manager.StorageMigration(),
-					}}),
-				)
-			})
-
-			mgr, err := manager.NewManager(context.Background(), "test", nil)
-			if err != nil {
-				panic(err)
-			}
-
-			ctx := mgr.Context()
-			ctx = propagator.With(ctx, service.ContextKey, svc)
-			ctx = propagator.With(ctx, tenant.ContextKey, tenant.GetManager().GetMaster())
-
 			f(ctx)
 
 			// Clean up hooks - we cannot resolve gorm.DB as a Closer or Dropper...

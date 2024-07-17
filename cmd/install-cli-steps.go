@@ -30,7 +30,3 @@ type CellsCliPromptStep struct {
 func RegisterAdditionalPrompt(step CellsCliPromptStep) {
 	additionalPrompts = append(additionalPrompts, step)
 }
-
-var (
-	additionalPrompts []CellsCliPromptStep
-)
