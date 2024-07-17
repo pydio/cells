@@ -52,7 +52,7 @@ func NoCacheDAO(db boltdb.DB) activity.DAO {
 }
 
 func ShortCacheDAO(db boltdb.DB) activity.DAO {
-	return activity.WithCache(&boltdbimpl{DB: db, InboxMaxSize: 1000}, 1*time.Second)
+	return activity.WithCache(&boltdbimpl{DB: db, InboxMaxSize: 1000}, 300*time.Millisecond)
 }
 
 func NewBoltDAO(db boltdb.DB) activity.DAO {
