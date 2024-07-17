@@ -665,7 +665,7 @@ func buildMPathEquals(db *gorm.DB, mpath []byte) *gorm.DB {
 		// PREVIOUS WAS : res = append(res, fmt.Sprintf(`mpath%d LIKE "%s"`, cnt+1, mpath[(cnt*indexLen):]))
 		db = db.Where(clause.Like{
 			Column: fmt.Sprintf("mpath%d", cnt+1),
-			Value:  mpath[(cnt * indexLen):],
+			Value:  string(mpath[(cnt * indexLen):]),
 		})
 
 		if idx := cnt * indexLen; idx == 0 {
@@ -685,7 +685,7 @@ func buildMPathLike(db *gorm.DB, mpath []byte) *gorm.DB {
 		cnt := (len(mpath) - 1) / indexLen
 		db = db.Where(clause.Like{
 			Column: fmt.Sprintf("mpath%d", cnt+1),
-			Value:  mpath[(cnt * indexLen):],
+			Value:  string(mpath[(cnt * indexLen):]),
 		})
 		/*
 			TODO - RECHECK THIS CODE ? IT WAS DOING NOTHING DIFFERENT if done or not done
