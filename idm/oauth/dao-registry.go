@@ -31,10 +31,8 @@ import (
 	"strconv"
 	"strings"
 	"sync"
-	"time"
 
 	tools "github.com/go-sql-driver/mysql"
-	pop "github.com/gobuffalo/pop/v6"
 	"github.com/gofrs/uuid"
 	"github.com/gorilla/sessions"
 	retryablehttp "github.com/hashicorp/go-retryablehttp"
@@ -60,14 +58,11 @@ import (
 	"github.com/ory/x/dbal"
 	"github.com/ory/x/httpx"
 	"github.com/ory/x/logrusx"
-	"github.com/ory/x/networkx"
 	"github.com/ory/x/otelx"
-	"github.com/ory/x/popx"
-	"github.com/sirupsen/logrus"
 	"go.uber.org/zap"
 	"gorm.io/gorm"
-	"gorm.io/gorm/schema"
 
+	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/auth"
 	"github.com/pydio/cells/v4/common/config"
 	"github.com/pydio/cells/v4/common/config/routing"
@@ -81,17 +76,16 @@ import (
 	"github.com/pydio/cells/v4/common/utils/propagator"
 )
 
-var _ Registry = new(cellsdriver)
+// Check interface conformance
+var _ Registry = (*cellsdriver)(nil)
 
 var (
-	reg  Registry
-	once = &sync.Once{}
+	reg Registry
 
-	syncLock = &sync.Mutex{}
-
-	logrusLogger *logrus.Logger
-	logrusOnce   = &sync.Once{}
-
+	logger          *logrusx.Logger
+	audit           *logrusx.Logger
+	loggerOnce      = &sync.Once{}
+	auditOnce       = &sync.Once{}
 	onRegistryInits []func()
 )
 
@@ -112,104 +106,6 @@ type Registry interface {
 	OAuth2HMACStrategy() *foauth2.HMACSHAStrategy
 }
 
-/*
-func init() {
-	dbal.RegisterDriver(func() dbal.Driver {
-		return NewRegistrySQL()
-	})
-}*/
-
-var _ foauth2.TokenRevocationStorage = (*sqlPersister)(nil)
-
-type sqlPersister struct {
-	*consentDriver
-	*clientDriver
-	*oauth2Driver
-	*jwkDriver
-	*trustDriver
-}
-
-func (c *sqlPersister) NewNonce(ctx context.Context, accessToken string, expiresAt time.Time) (string, error) {
-	//TODO implement me
-	panic("implement me")
-}
-
-func (c *sqlPersister) IsNonceValid(ctx context.Context, accessToken string, nonce string) error {
-	//TODO implement me
-	panic("implement me")
-}
-
-func (c *sqlPersister) Authenticate(ctx context.Context, name string, secret string) error {
-	//TODO implement me
-	panic("implement me")
-}
-
-func (c *sqlPersister) NetworkID(ctx context.Context) uuid.UUID {
-	//TODO implement me
-	panic("implement me")
-}
-
-func (c *sqlPersister) DetermineNetwork(ctx context.Context) (*networkx.Network, error) {
-	//TODO implement me
-	panic("implement me")
-}
-
-func (c *sqlPersister) MigrationStatus(ctx context.Context) (popx.MigrationStatuses, error) {
-	return popx.MigrationStatuses{}, nil
-}
-
-func (c *sqlPersister) MigrateDown(ctx context.Context, i int) error {
-	if err := c.consentDriver.AutoMigrate(); err != nil {
-		return err
-	}
-	if err := c.jwkDriver.AutoMigrate(); err != nil {
-		return err
-	}
-	if err := c.oauth2Driver.Migrate(ctx); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func (c *sqlPersister) MigrateUp(ctx context.Context) error {
-	if err := c.consentDriver.AutoMigrate(); err != nil {
-		return err
-	}
-	if err := c.jwkDriver.AutoMigrate(); err != nil {
-		return err
-	}
-	if err := c.oauth2Driver.Migrate(ctx); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func (c *sqlPersister) PrepareMigration(ctx context.Context) error {
-	if err := c.consentDriver.AutoMigrate(); err != nil {
-		return err
-	}
-	if err := c.jwkDriver.AutoMigrate(); err != nil {
-		return err
-	}
-	if err := c.oauth2Driver.Migrate(ctx); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func (c *sqlPersister) Connection(ctx context.Context) *pop.Connection {
-	// Not used
-	return &pop.Connection{}
-}
-
-func (c *sqlPersister) Ping() error {
-	// Not used
-	return nil
-}
-
 type cellsdriver struct {
 	persister persistence.Persister
 	sql.Dependencies
@@ -227,56 +123,16 @@ func (m *cellsdriver) Migrate(ctx context.Context) error {
 	return m.Persister().MigrateUp(ctx)
 }
 
-/*
-func NewRegistrySQL() *cellsdriver {
-	return &cellsdriver{}
-}
-*/
-
+// Init implements Registry interface
 func (m *cellsdriver) Init(ctx context.Context, skipNetworkInit bool, migrate bool, ctxer contextx.Contextualizer) error {
 	contextx.RootContext = context.WithValue(ctx, contextx.ValidContextKey, true)
-	/*
-		// Starting off with default config
-		dsn := m.Config().DSN()
-
-		dialector := mysql.Open(dsn)
-
-		// Should use tenants and dbresolver to include tenants switching
-		db, err := gorm.Open(dialector, &gorm.Config{
-			DisableForeignKeyConstraintWhenMigrating: true,
-			FullSaveAssociations:                     true,
-		})
-		if err != nil {
-			return err
-		}
-
-		m.db = db
-
-		m.Persister().MigrateUp(ctx)
-	*/
 	return nil
 }
 
-func (m *cellsdriver) alwaysCanHandle(dsn string) bool {
-	scheme := strings.Split(dsn, "://")[0]
-	s := dbal.Canonicalize(scheme)
-	return s == dbal.DriverMySQL || s == dbal.DriverPostgreSQL || s == dbal.DriverCockroachDB
-}
-
 func (m *cellsdriver) Persister() persistence.Persister {
-
-	if m.persister != nil {
-		return m.persister
+	if m.persister == nil {
+		m.persister = newPersister(m.db, m)
 	}
-
-	m.persister = &sqlPersister{
-		consentDriver: &consentDriver{m.db, m},
-		clientDriver:  &clientDriver{config.Get("services/pydio.web.oauth/staticClients")},
-		oauth2Driver:  &oauth2Driver{m.db, m},
-		jwkDriver:     &jwkDriver{m.db, m},
-		trustDriver:   &trustDriver{},
-	}
-
 	return m.persister
 }
 
@@ -387,7 +243,7 @@ func (m *cellsdriver) Writer() herodot.Writer {
 }
 
 func (m *cellsdriver) CookieStore(ctx context.Context) (sessions.Store, error) {
-	var keys [][]byte
+	var kk [][]byte
 	secrets, err := m.Config().GetCookieSecrets(ctx)
 	if err != nil {
 		return nil, err
@@ -395,10 +251,10 @@ func (m *cellsdriver) CookieStore(ctx context.Context) (sessions.Store, error) {
 
 	for _, k := range secrets {
 		encrypt := sha256.Sum256(k)
-		keys = append(keys, k, encrypt[:])
+		kk = append(kk, k, encrypt[:])
 	}
 
-	cs := sessions.NewCookieStore(keys...)
+	cs := sessions.NewCookieStore(kk...)
 	cs.Options.Secure = m.Config().CookieSecure(ctx)
 	cs.Options.HttpOnly = true
 
@@ -421,11 +277,114 @@ func (m *cellsdriver) CookieStore(ctx context.Context) (sessions.Store, error) {
 }
 
 func (m *cellsdriver) Logger() *logrusx.Logger {
-	return logrusx.New("cells", runtime.Version())
+	serviceName := common.ServiceGrpcNamespace_ + common.ServiceOAuth
+	loggerOnce.Do(func() {
+		logCtx := runtime2.WithServiceName(context.Background(), serviceName)
+		r, w, _ := os.Pipe()
+		go func() {
+			scanner := bufio.NewScanner(r)
+			for scanner.Scan() {
+				line := scanner.Text()
+				var logged map[string]interface{}
+				level := "info"
+				message := line
+				var fields []zap.Field
+				if e := json.Unmarshal([]byte(line), &logged); e == nil {
+					if l, o := logged["level"]; o {
+						level = l.(string)
+					}
+					if m, o := logged["msg"]; o {
+						message = m.(string)
+						if strings.HasPrefix(message, "JSON Web Key Set") {
+							message += " This can take some time"
+						}
+					}
+					if e, o := logged["error"]; o {
+						if oMap, ok := e.(map[string]interface{}); ok && oMap["debug"] != "" {
+							level = "debug"
+						}
+					}
+				}
+				for k, v := range logged {
+					if k == "msg" || k == "level" || k == "time" || k == "service_name" || k == "audience" || k == "service_version" {
+						continue
+					}
+					fields = append(fields, zap.Any(k, v))
+					if level == "debug" && strings.Contains(message, "migration") {
+						level = "info"
+					}
+				}
+				// Special case
+				//if strings.Contains(message, "No tracer configured") {
+				//	level = "debug"
+				//}
+				switch level {
+				case "debug":
+					log.Logger(logCtx).Debug(message, fields...)
+				case "warn":
+					log.Logger(logCtx).Warn(message, fields...)
+				case "info":
+					log.Logger(logCtx).Info(message, fields...)
+				default:
+					log.Logger(logCtx).Info(message, fields...)
+				}
+			}
+		}()
+		logger = logrusx.New(serviceName, runtime.Version())
+		logger.Logger.SetOutput(w)
+	})
+	return logger
 }
 
 func (m *cellsdriver) AuditLogger() *logrusx.Logger {
-	return logrusx.New("cells", runtime.Version())
+	serviceName := common.ServiceGrpcNamespace_ + common.ServiceOAuth
+	auditOnce.Do(func() {
+		logCtx := runtime2.WithServiceName(context.Background(), common.ServiceGrpcNamespace_+common.ServiceOAuth)
+		r, w, _ := os.Pipe()
+		go func() {
+			scanner := bufio.NewScanner(r)
+			for scanner.Scan() {
+				line := scanner.Text()
+				var logged map[string]interface{}
+				level := "info"
+				message := line
+				var fields []zap.Field
+				if e := json.Unmarshal([]byte(line), &logged); e == nil {
+					if l, o := logged["level"]; o {
+						level = l.(string)
+					}
+					if m, o := logged["msg"]; o {
+						message = m.(string)
+					}
+					if e, o := logged["error"]; o {
+						if oMap, ok := e.(map[string]interface{}); ok && oMap["debug"] != "" {
+							level = "debug"
+						}
+					}
+				}
+				for k, v := range logged {
+					if k == "msg" || k == "level" || k == "time" || k == "service_name" || k == "audience" || k == "service_version" {
+						continue
+					}
+					fields = append(fields, zap.Any(k, v))
+				}
+				switch level {
+				case "debug":
+					log.Auditer(logCtx).Debug(message, fields...)
+				case "warn":
+					log.Auditer(logCtx).Warn(message, fields...)
+				case "info":
+					log.Auditer(logCtx).Info(message, fields...)
+				default:
+					log.Auditer(logCtx).Info(message, fields...)
+				}
+			}
+		}()
+		audit = logrusx.New(serviceName, runtime.Version())
+		audit.Logger.SetOutput(w)
+	})
+	return audit
+
 }
 
 func (m *cellsdriver) HTTPClient(ctx context.Context, opts ...httpx.ResilientOptions) *retryablehttp.Client {
@@ -501,11 +460,6 @@ func (*cellsdriver) Contextualizer() contextx.Contextualizer {
 	return &cellsdriverContextualizer{}
 }
 
-//func (m *cellsdriver) Kratos() kratos.Client {
-//	//TODO implement me
-//	panic("implement me")
-//}
-
 func (m *cellsdriver) FlowCipher() *aead.XChaCha20Poly1305 {
 	return aead.NewXChaCha20Poly1305(m.Config())
 }
@@ -574,150 +528,6 @@ func (*cellsdriverContextualizer) Config(ctx context.Context, cfg *configx.Provi
 	//}
 
 	return p
-}
-
-type HydraJwkMigration struct {
-	Id        string    `db:"id"`
-	AppliedAt time.Time `db:"applied_at"`
-}
-
-func (hjm *HydraJwkMigration) TableName(n schema.Namer) string {
-	return n.TableName("jwk_migration")
-}
-
-type HydraJwk struct {
-	Pk        uint      `db:"pk"`
-	Sid       string    `db:"sid"`
-	Kid       string    `db:"kid"`
-	Version   uint      `db:"version"`
-	KeyData   string    `db:"keydata"`
-	CreatedAt time.Time `db:"created_at"`
-}
-
-func (hj HydraJwk) TableName(n schema.Namer) string {
-	return n.TableName("jwk")
-}
-
-func CheckCollation(conn *pop.Connection, dbName string) (bool, error) {
-	type CollationRow struct {
-		TableName      string `db:"table_name"`
-		TableCollation string `db:"table_collation"`
-	}
-
-	c, err := conn.RawQuery("SELECT TABLE_NAME, TABLE_COLLATION" +
-		" FROM INFORMATION_SCHEMA.TABLES tbl" +
-		" WHERE TABLE_SCHEMA='" + dbName + "' AND TABLE_TYPE='BASE TABLE'" +
-		" AND TABLE_NAME NOT LIKE '%_migrations'" +
-		" AND TABLE_NAME NOT LIKE '%_migration'" +
-		" AND TABLE_COLLATION NOT LIKE 'ascii%'" +
-		" AND TABLE_COLLATION NOT LIKE CONCAT(@@CHARACTER_SET_DATABASE, '%')").Count(&CollationRow{})
-
-	return c > 0, err
-}
-
-//func InitRegistry(ctx context.Context, dbServiceName string) (e error) {
-//
-//	logger := log.Logger(ctx)
-//	var rg registry.Registry
-//	if runtimecontext.Get(ctx, registry.ContextKey, &rg) {
-//		if locker := rg.NewLocker("oauthinit"); locker != nil {
-//			locker.Lock()
-//			defer locker.Unlock()
-//		}
-//	}
-//
-//	//clients := defaultConf.Clients()
-//
-//	once.Do(func() {
-//		//var dbName string
-//		reg, _, e = createSqlRegistryForConf(dbServiceName, defaultConf)
-//		if e != nil {
-//			logger.Error("Cannot init registryFromDSN", zap.Error(e))
-//		}
-//
-//		reg.Init(ctx, true, true, nil)
-//
-//		auth.RegisterOryProvider(reg.OAuth2Provider())
-//	})
-//
-//	if e != nil {
-//		return
-//	}
-//
-//	for _, onRegistryInit := range onRegistryInits {
-//		onRegistryInit()
-//	}
-//
-//	return nil
-//}
-
-func OnRegistryInit(f func()) {
-	onRegistryInits = append(onRegistryInits, f)
-}
-
-func getLogrusLogger(serviceName string) *logrus.Logger {
-	logrusOnce.Do(func() {
-		logCtx := runtime2.WithServiceName(context.Background(), serviceName)
-		r, w, _ := os.Pipe()
-		go func() {
-			scanner := bufio.NewScanner(r)
-			for scanner.Scan() {
-				line := scanner.Text()
-				var logged map[string]interface{}
-				level := "info"
-				message := line
-				if strings.Contains(line, "An error occurred while checking for the legacy migration table, maybe it does not exist yet? Trying to create.") {
-					continue
-				}
-				if strings.Contains(line, "Migration has not been applied but it might be a legacy migration, investigating.") {
-					continue
-				}
-				var fields []zap.Field
-				if e := json.Unmarshal([]byte(line), &logged); e == nil {
-					if l, o := logged["level"]; o {
-						level = l.(string)
-					}
-					if m, o := logged["msg"]; o {
-						message = m.(string)
-						if strings.HasPrefix(message, "JSON Web Key Set") {
-							message += " This can take some time"
-						}
-					}
-					if e, o := logged["error"]; o {
-						if oMap, ok := e.(map[string]interface{}); ok && oMap["debug"] != "" {
-							level = "debug"
-						}
-					}
-				}
-				for k, v := range logged {
-					if k == "msg" || k == "level" || k == "time" || k == "service_name" || k == "audience" || k == "service_version" {
-						continue
-					}
-					fields = append(fields, zap.Any(k, v))
-					if level == "debug" && strings.Contains(message, "migration") {
-						level = "info"
-					}
-				}
-				// Special case
-				if strings.Contains(message, "No tracer configured") {
-					level = "debug"
-				}
-				switch level {
-				case "debug":
-					log.Logger(logCtx).Debug(message, fields...)
-				case "warn":
-					log.Logger(logCtx).Warn(message, fields...)
-				case "info":
-					log.Logger(logCtx).Info(message, fields...)
-				default:
-					log.Logger(logCtx).Info(message, fields...)
-				}
-			}
-		}()
-		logrusLogger = logrus.New()
-		logrusLogger.SetOutput(w)
-	})
-	return logrusLogger
 }
 
 func createSqlRegistryForConf(serviceName string, conf auth.ConfigurationProvider) (Registry, string, error) {
@@ -857,4 +667,64 @@ func varsFromStr(s string, sites []*install.ProxyConfig) []string {
 
 	}
 	return res
+}
+
+/*
+// TODO ?
+func CheckCollation(conn *pop.Connection, dbName string) (bool, error) {
+	type CollationRow struct {
+		TableName      string `db:"table_name"`
+		TableCollation string `db:"table_collation"`
+	}
+
+	c, err := conn.RawQuery("SELECT TABLE_NAME, TABLE_COLLATION" +
+		" FROM INFORMATION_SCHEMA.TABLES tbl" +
+		" WHERE TABLE_SCHEMA='" + dbName + "' AND TABLE_TYPE='BASE TABLE'" +
+		" AND TABLE_NAME NOT LIKE '%_migrations'" +
+		" AND TABLE_NAME NOT LIKE '%_migration'" +
+		" AND TABLE_COLLATION NOT LIKE 'ascii%'" +
+		" AND TABLE_COLLATION NOT LIKE CONCAT(@@CHARACTER_SET_DATABASE, '%')").Count(&CollationRow{})
+
+	return c > 0, err
+}
+*/
+
+//func InitRegistry(ctx context.Context, dbServiceName string) (e error) {
+//
+//	logger := log.Logger(ctx)
+//	var rg registry.Registry
+//	if runtimecontext.Get(ctx, registry.ContextKey, &rg) {
+//		if locker := rg.NewLocker("oauthinit"); locker != nil {
+//			locker.Lock()
+//			defer locker.Unlock()
+//		}
+//	}
+//
+//	//clients := defaultConf.Clients()
+//
+//	once.Do(func() {
+//		//var dbName string
+//		reg, _, e = createSqlRegistryForConf(dbServiceName, defaultConf)
+//		if e != nil {
+//			logger.Error("Cannot init registryFromDSN", zap.Error(e))
+//		}
+//
+//		reg.Init(ctx, true, true, nil)
+//
+//		auth.RegisterOryProvider(reg.OAuth2Provider())
+//	})
+//
+//	if e != nil {
+//		return
+//	}
+//
+//	for _, onRegistryInit := range onRegistryInits {
+//		onRegistryInit()
+//	}
+//
+//	return nil
+//}
+
+func OnRegistryInit(f func()) {
+	onRegistryInits = append(onRegistryInits, f)
 }

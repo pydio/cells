@@ -1,3 +1,5 @@
+//go:build storage
+
 /*
  * Copyright (c) 2019-2021. Abstrium SAS <team (at) pydio.com>
  * This file is part of Pydio Cells.
@@ -22,10 +24,11 @@ package oauth
 
 import (
 	"context"
-	"fmt"
 	"testing"
 
-	"github.com/ory/hydra/v2/consent"
+	"github.com/pydio/cells/v4/common/config"
+	"github.com/pydio/cells/v4/common/runtime/manager"
+	"github.com/pydio/cells/v4/common/storage/test"
 
 	. "github.com/smartystreets/goconvey/convey"
 )
@@ -40,20 +43,35 @@ func TestRange(t *testing.T) {
 	})
 }
 
+var (
+	testCases = test.TemplateSQL(NewRegistryDAO)
+)
+
 func TestRegistry(t *testing.T) {
-	Convey("Test Registry", t, func() {
-		r := NewRegistrySQL()
-		req := &consent.LoginRequest{
-			ID:         "testlogin",
-			ClientID:   "testclient",
-			RequestURL: "testurl",
-		}
 
-		fmt.Println("And the client is ? ", req.ID, req.ClientID, req.RequestURL)
-
-		r.ConsentManager().CreateLoginRequest(context.TODO(), req)
-
-		resp, _ := r.ConsentManager().GetLoginRequest(context.TODO(), "testlogin")
-		fmt.Println("And the client is ? ", resp.ID, resp.ClientID, resp.RequestURL)
+	test.RunStorageTests(testCases, t, func(ctx context.Context) {
+		Convey("Basic Resolve", t, func() {
+			fakeStore, _ := config.OpenStore(ctx, "mem://")
+			config.Register(fakeStore)
+			dao, err := manager.Resolve[Registry](ctx)
+			So(err, ShouldBeNil)
+			So(dao, ShouldNotBeNil)
+		})
 	})
+	/*
+		Convey("Test Registry", t, func() {
+			r := NewRegistrySQL()
+			req := &consent.LoginRequest{
+				ID:         "testlogin",
+				ClientID:   "testclient",
+				RequestURL: "testurl",
+			}
+
+			fmt.Println("And the client is ? ", req.ID, req.ClientID, req.RequestURL)
+
+			r.ConsentManager().CreateLoginRequest(context.TODO(), req)
+
+			resp, _ := r.ConsentManager().GetLoginRequest(context.TODO(), "testlogin")
+			fmt.Println("And the client is ? ", resp.ID, resp.ClientID, resp.RequestURL)
+		})*/
 }
