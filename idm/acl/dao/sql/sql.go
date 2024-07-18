@@ -196,32 +196,6 @@ func (s *sqlimpl) addWithDupCheck(ctx context.Context, in interface{}, check boo
 
 	val.ID = fmt.Sprintf("%v", a.ID)
 
-	// TODO - duplicate
-	// `DELETE FROM idm_acls WHERE action_name=? AND role_id=? AND workspace_id=? AND node_id=? AND expires_at IS NOT NULL AND expires_at < ?
-	/*
-		OLD CODE WAS
-		res, err := stmt.Exec(val.Action.Name, val.Action.Value, roleID, workspaceID, nodeID)
-			if err != nil {
-				if mErr, ok := err.(*mysql.MySQLError); ok && mErr.Number == 1062 && check {
-					// fmt.Println("GOT DUPLICATE ERROR", mErr.Error(), mErr.Message)
-					// There is a duplicate : if it is expired, we can safely ignore it and replace it
-					deleteStmt, dE := dao.GetStmt("CleanDuplicateIfExpired")
-					if dE != nil {
-						return dE
-					}
-					delRes, drE := deleteStmt.Exec(val.Action.Name, roleID, workspaceID, nodeID, time.Now())
-					if drE != nil {
-						return drE
-					}
-					if affected, e := delRes.RowsAffected(); e == nil && affected == 1 {
-						// fmt.Println("[AddACL] Replacing one duplicate row that was in fact expired")
-						return dao.addWithDupCheck(in, false)
-					}
-				}
-				return err
-			}
-	*/
-
 	return nil
 }
 
@@ -231,22 +205,16 @@ func (s *sqlimpl) Search(ctx context.Context, query sql.Enquirer, out *[]interfa
 	if er != nil {
 		return er
 	}
-	// Legacy - TODO
-	//
-	//if period != nil {
-	//	expressions = append(expressions, dao.expirationToGoqu(period, a).Expressions()...)
-	//} else {
-	//	// By default, exclude all expired ACLs
-	//	expressions = append(expressions,
-	//		goqu.Or(
-	//			a.Col("expires_at").IsNull(),
-	//			a.Col("expires_at").Gt(dao.valueForTime(time.Now())),
-	//		),
-	//	)
-	//}
-	var acls []ACL
 
-	tx := db.Preload("Role").Preload("Workspace").Preload("Node").Where("expires_at IS NULL or expires_at > ?", time.Now()).Find(&acls)
+	var acls []ACL
+	db = db.Preload("Role").Preload("Workspace").Preload("Node")
+	if period != nil {
+		db = s.wherePeriod(db, period)
+	} else {
+		db = db.Where("expires_at IS NULL or expires_at > ?", time.Now())
+	}
+
+	tx := db.Find(&acls)
 	if tx.Error != nil {
 		return tx.Error
 	}
@@ -279,12 +247,7 @@ func (s *sqlimpl) SetExpiry(ctx context.Context, query sql.Enquirer, t *time.Tim
 	}
 
 	if period != nil {
-		if !period.End.IsZero() {
-			db = db.Where("expires_at < ?", period.End)
-		}
-		if !period.Start.IsZero() {
-			db = db.Where("expires_at > ?", period.Start)
-		}
+		db = s.wherePeriod(db, period)
 	}
 
 	tx := db.Model(ACL{}).Update("Expiry", t)
@@ -304,12 +267,7 @@ func (s *sqlimpl) Del(ctx context.Context, query sql.Enquirer, period *acl.Expir
 	}
 
 	if period != nil {
-		if !period.End.IsZero() {
-			db = db.Where("expires_at < ?", period.End)
-		}
-		if !period.Start.IsZero() {
-			db = db.Where("expires_at > ?", period.Start)
-		}
+		db = s.wherePeriod(db, period)
 	}
 
 	tx := db.Delete(&ACL{})
@@ -342,6 +300,19 @@ func (s *sqlimpl) Del(ctx context.Context, query sql.Enquirer, period *acl.Expir
 	}
 
 	return tx.RowsAffected, nil
+}
+
+func (s *sqlimpl) wherePeriod(db *gorm.DB, period *acl.ExpirationPeriod) *gorm.DB {
+	if period == nil {
+		return db
+	}
+	if !period.End.IsZero() {
+		db = db.Where("expires_at < ?", period.End)
+	}
+	if !period.Start.IsZero() {
+		db = db.Where("expires_at > ?", period.Start)
+	}
+	return db
 }
 
 type queryConverter idm.ACLSingleQuery

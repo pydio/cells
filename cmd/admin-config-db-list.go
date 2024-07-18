@@ -1,5 +1,3 @@
-//go:build exclude
-
 /*
  * Copyright (c) 2019-2021. Abstrium SAS <team (at) pydio.com>
  * This file is part of Pydio Cells.
@@ -91,42 +89,48 @@ func configDatabaseList() (dd []*configDatabase) {
 		log.Fatal(e.Error())
 	}
 
-	for _, s := range ss {
-		var defaultDriver string
-		for _, sOpt := range s.Options().Storages {
-			if sOpt.DefaultDriver != nil {
-				driver, dsn := sOpt.DefaultDriver()
-				defaultDriver = driver
-				skip := false
-				// Exclude already registered
-				for _, d := range dd {
-					if d.driver == driver && d.dsn == dsn {
-						d.services = append(d.services, configDbService{serviceName: s.Name(), storageKey: sOpt.StorageKey})
-						skip = true
-						break
+	_ = ss
+	/*
+		// TODO
+		for _, s := range ss {
+			var defaultDriver string
+			for _, sOpt := range s.Options().StorageOptions.SupportedDrivers {
+
+				if sOpt.DefaultDriver != nil {
+					driver, dsn := sOpt.DefaultDriver()
+					defaultDriver = driver
+					skip := false
+					// Exclude already registered
+					for _, d := range dd {
+						if d.driver == driver && d.dsn == dsn {
+							d.services = append(d.services, configDbService{serviceName: s.Name(), storageKey: sOpt.StorageKey})
+							skip = true
+							break
+						}
 					}
+					if skip {
+						continue
+					}
+					dd = append(dd, &configDatabase{
+						driver:   driver,
+						dsn:      dsn,
+						services: []configDbService{{serviceName: s.Name(), storageKey: sOpt.StorageKey}},
+					})
 				}
-				if skip {
-					continue
-				}
-				dd = append(dd, &configDatabase{
-					driver:   driver,
-					dsn:      dsn,
-					services: []configDbService{{serviceName: s.Name(), storageKey: sOpt.StorageKey}},
-				})
-			}
-			for _, supported := range sOpt.SupportedDrivers {
-				if supported == defaultDriver {
-					continue
-				}
-				for _, d := range dd {
-					if d.driver == supported {
-						d.services = append(d.services, configDbService{serviceName: s.Name(), storageKey: sOpt.StorageKey})
+				for _, supported := range sOpt.SupportedDrivers {
+					if supported == defaultDriver {
+						continue
+					}
+					for _, d := range dd {
+						if d.driver == supported {
+							d.services = append(d.services, configDbService{serviceName: s.Name(), storageKey: sOpt.StorageKey})
+						}
 					}
 				}
 			}
 		}
-	}
+
+	*/
 
 	return
 }

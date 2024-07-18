@@ -6,7 +6,6 @@ import (
 	"path/filepath"
 	"strings"
 	"testing"
-	"text/template"
 
 	"golang.org/x/text/cases"
 	"golang.org/x/text/language"
@@ -25,25 +24,6 @@ import (
 	_ "github.com/pydio/cells/v4/common/utils/cache/gocache"
 )
 
-var (
-	yaml = `
-storages:
-  {{- range $idx, $dsn := . }}
-  storage{{ $idx }}: 
-    uri: {{ $dsn }}
-  {{- end }}
-services:
-  test:
-    storages:
-      main:
-	    {{- range $idx, $dsn := . }}
-        - type: storage{{ $idx }}
-	    {{- end }}
-`
-
-	tmpl *template.Template
-)
-
 type StorageTestCase struct {
 	DSN       []string
 	Condition bool
@@ -53,11 +33,6 @@ type StorageTestCase struct {
 
 func init() {
 	sql.TestPrintQueries = true
-	var err error
-	tmpl, err = template.New("test").Parse(yaml)
-	if err != nil {
-		panic(err)
-	}
 }
 
 // TemplateSQL returns a single SQL test case with the provided DAO func
@@ -143,45 +118,7 @@ func RunStorageTests(testCases []StorageTestCase, t *testing.T, f func(context.C
 			scheme := strings.SplitN(tc.DSN[0], "://", 2)[0]
 			label = caser.String(scheme)
 		}
-
-		t.Run(label, func(t *testing.T) {
-			/*
-				// read template
-				b := &strings.Builder{}
-				err := tmpl.Execute(b, tc.DSN)
-				if err != nil {
-					panic(err)
-				}
-				v := viper.New()
-				v.Set(runtime.KeyConfig, "mem://")
-				v.SetDefault(runtime.KeyCache, "pm://")
-				v.SetDefault(runtime.KeyShortCache, "pm://")
-				v.Set("yaml", b.String())
-
-				runtime.SetRuntime(v)
-
-				var svc service.Service
-				runtime.Register("test", func(ctx context.Context) {
-					svc = service.NewService(
-						service.Name("test"),
-						service.Context(ctx),
-						service.WithStorageDrivers(tc.DAO),
-						service.Migrations([]*service.Migration{{
-							TargetVersion: service.FirstRun(),
-							Up:            manager.StorageMigration(),
-						}}),
-					)
-				})
-
-				mgr, err := manager.NewManager(context.Background(), "test", nil)
-				if err != nil {
-					panic(err)
-				}
-
-				ctx := mgr.Context()
-				ctx = propagator.With(ctx, service.ContextKey, svc)
-				ctx = propagator.With(ctx, tenant.ContextKey, tenant.GetManager().GetMaster())
-			*/
+		runner := func(t *testing.T) {
 			ctx, err := manager.DSNtoContextDAO(context.Background(), tc.DSN, tc.DAO)
 			if err != nil {
 				panic(err)
@@ -205,7 +142,12 @@ func RunStorageTests(testCases []StorageTestCase, t *testing.T, f func(context.C
 					panic(er)
 				}
 			}
-		})
+		}
+		if t != nil {
+			t.Run(label, runner)
+		} else {
+			runner(nil)
+		}
 
 		//_ = manager.CloseStoragesForContext(ctx, manager.WithCleanBeforeClose())
 	}

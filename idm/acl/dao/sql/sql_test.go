@@ -25,7 +25,6 @@ package sql
 import (
 	"context"
 	"fmt"
-	"strings"
 	"testing"
 
 	"google.golang.org/protobuf/types/known/anypb"
@@ -390,40 +389,4 @@ func del(t *testing.T, ctx context.Context, dao acl.DAO, acls []*idm.ACL) error 
 		return fmt.Errorf("did not delete the correct number of ACLs (expected %d, got %d", len(acls), total)
 	}
 	return nil
-}
-
-func checkORs(query string, parts []string) error {
-	where := strings.SplitN(query, " WHERE ", 2)[1]
-	ors := strings.Split(where, " OR ")
-	for _, part := range parts {
-		var found bool
-		for _, or := range ors {
-			if strings.TrimSpace(part) == strings.TrimSpace(or) {
-				found = true
-				break
-			}
-		}
-		if !found {
-			return fmt.Errorf("cannot find part %s in OR list, query was %s", part, query)
-		}
-	}
-	return nil
-}
-
-func SkipFuzzInsert(f *testing.F) {
-	/*
-		test.RunStorageTests(testcases, f, func(ctx context.Context) {
-			dao, err := manager.Resolve[acl.DAO](ctx)
-			if err != nil {
-				panic(err)
-			}
-			f.Add("node1", "role1", "ws1", "read", "1")
-			f.Fuzz(func(t *testing.T, nodeId, roleId, wsId, actionName, actionValue string) {
-				if er := simpleCrud(t, ctx, dao, nodeId, roleId, wsId, actionName, actionValue); er != nil {
-					t.Errorf("%v", er)
-				}
-			})
-		})
-
-	*/
 }

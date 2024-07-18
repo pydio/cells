@@ -103,8 +103,8 @@ func (b *balancer) Build(reg registry.Registry) error {
 		var services, endpoints []registry.Item
 		var loaded bool
 
-		for _, addr := range addrs {
-			addr := addr.Name()
+		for _, item := range addrs {
+			addr := item.Name()
 			usedAddr[addr] = struct{}{}
 			proxy, ok := b.readyProxies[addr]
 			if !ok {
@@ -126,6 +126,7 @@ func (b *balancer) Build(reg registry.Registry) error {
 						registry.WithAdjacentSourceItems([]registry.Item{srv}),
 						registry.WithAdjacentTargetOptions(registry.WithType(pb.ItemType_ENDPOINT)),
 					)
+					loaded = true
 				}
 				proxy = &reverseProxy{
 					URL:       u,

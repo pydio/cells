@@ -45,6 +45,7 @@ type Claims struct {
 	Email          string      `json:"email" mapstructure:"email"`
 	Profile        string      `json:"profile" mapstructure:"profile"`
 	Verified       bool        `json:"email_verified" mapstructure:"email_verified"`
+	Public         bool        `json:"public" mapstructure:"public"`
 	Roles          string      `json:"roles" mapstructure:"roles"`
 	Expiry         time.Time   `json:"expiry" mapstructure:"expiry"`
 	AuthSource     string      `json:"authSource" mapstructure:"authSource"`

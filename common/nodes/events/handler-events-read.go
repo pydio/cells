@@ -36,7 +36,6 @@ import (
 	"github.com/pydio/cells/v4/common/nodes/models"
 	"github.com/pydio/cells/v4/common/permissions"
 	"github.com/pydio/cells/v4/common/proto/docstore"
-	"github.com/pydio/cells/v4/common/proto/idm"
 	"github.com/pydio/cells/v4/common/proto/tree"
 	"github.com/pydio/cells/v4/common/telemetry/log"
 	json "github.com/pydio/cells/v4/common/utils/jsonx"
@@ -156,24 +155,17 @@ func (h *HandlerRead) GetObject(ctx context.Context, node *tree.Node, requestDat
 
 }
 
+// sharedLinkWithDownloadLimit searches corresponding link and update download number, only in the case of a "Public" user (hidden)
 func (h *HandlerRead) sharedLinkWithDownloadLimit(ctx context.Context) (doc *docstore.Document, linkData *docstore.ShareDocument) {
 
 	userLogin, claims := permissions.FindUserNameInContext(ctx)
-	// TODO - Have the 'hidden' info directly in claims => could it be a profile instead ?
-	if claims.Profile != common.PydioProfileShared {
+	if !claims.Public {
 		return
 	}
-	bgContext := runtimecontext.ForkContext(context.Background(), ctx)
-	user, e := permissions.SearchUniqueUser(bgContext, userLogin, "", &idm.UserSingleQuery{AttributeName: idm.UserAttrHidden, AttributeValue: "true"})
-	if e != nil || user == nil {
-		return
-	}
-
-	// This is a unique hidden user - search corresponding link and update download number
 	store := docstorec.DocStoreClient(ctx)
 
-	// SEARCH WITH PRESET_LOGIN
-	lC, ca := context.WithCancel(bgContext)
+	// First search with preset_login
+	lC, ca := context.WithCancel(runtimecontext.ForkContext(context.Background(), ctx))
 	defer ca()
 	stream, e := store.ListDocuments(lC, &docstore.ListDocumentsRequest{StoreID: common.DocStoreIdShares, Query: &docstore.DocumentQuery{
 		MetaQuery: "+SHARE_TYPE:minisite +PRESET_LOGIN:" + userLogin + "",
@@ -186,7 +178,7 @@ func (h *HandlerRead) sharedLinkWithDownloadLimit(ctx context.Context) (doc *doc
 	}
 
 	if doc == nil {
-		// SEARCH WITH PRELOG_USER
+		// Otherwise search with prelog_user
 		stream2, e := store.ListDocuments(lC, &docstore.ListDocumentsRequest{StoreID: common.DocStoreIdShares, Query: &docstore.DocumentQuery{
 			MetaQuery: "+SHARE_TYPE:minisite +PRELOG_USER:" + userLogin + "",
 		}})

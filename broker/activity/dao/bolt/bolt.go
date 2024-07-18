@@ -47,32 +47,31 @@ func init() {
 	activity.Drivers.Register(NewBoltDAO)
 }
 
+const (
+	defaultCacheExpiration = 5 * time.Second
+)
+
 func NoCacheDAO(db boltdb.DB) activity.DAO {
-	return &boltdbimpl{DB: db, InboxMaxSize: 1000}
+	return &boltdbimpl{DB: db}
 }
 
 func ShortCacheDAO(db boltdb.DB) activity.DAO {
-	return activity.WithCache(&boltdbimpl{DB: db, InboxMaxSize: 1000}, 300*time.Millisecond)
+	return activity.WithCache(&boltdbimpl{DB: db}, 300*time.Millisecond)
 }
 
 func NewBoltDAO(db boltdb.DB) activity.DAO {
 	d := &boltdbimpl{
-		DB:           db,
-		InboxMaxSize: 1000,
+		DB: db,
 	}
-	return activity.WithCache(d, 5*time.Second)
+	return activity.WithCache(d, defaultCacheExpiration)
 }
 
 type boltdbimpl struct {
 	boltdb.DB
-	InboxMaxSize int64
 }
 
 // Init the storage
 func (dao *boltdbimpl) Init(ctx context.Context, options configx.Values) error {
-
-	// Update defaut inbox max size if set in the config - TODO
-	// dao.InboxMaxSize = options.Val("InboxMaxSize").Default(dao.InboxMaxSize).Int64()
 
 	return dao.DB.Update(func(tx *bolt.Tx) error {
 		_, err := tx.CreateBucketIfNotExists([]byte(acproto.OwnerType_USER.String()))

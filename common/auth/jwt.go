@@ -200,14 +200,14 @@ func (j *JWTVerifier) loadClaims(ctx context.Context, token IDToken, claims *cla
 		return errors.Tag(e, errors.StatusUnauthorized) // errors2.Unauthorized("user.context", e.Error())
 	}
 
-	displayName, ok := user.Attributes["displayName"]
+	displayName, ok := user.Attributes[idm.UserAttrDisplayName]
 	if !ok {
 		displayName = ""
 	}
 
-	profile, ok := user.Attributes["profile"]
+	profile, ok := user.Attributes[idm.UserAttrProfile]
 	if !ok {
-		profile = "standard"
+		profile = common.PydioProfileStandard
 	}
 
 	var roles []string
@@ -218,6 +218,7 @@ func (j *JWTVerifier) loadClaims(ctx context.Context, token IDToken, claims *cla
 	claims.Name = user.Login
 	claims.DisplayName = displayName
 	claims.Profile = profile
+	claims.Public = profile == common.PydioProfileShared && user.IsHidden()
 	claims.Roles = strings.Join(roles, ",")
 	claims.GroupPath = user.GroupPath
 
@@ -412,6 +413,7 @@ func WithImpersonate(ctx context.Context, user *idm.User) context.Context {
 		if dn, o := user.Attributes[idm.UserAttrDisplayName]; o {
 			c.DisplayName = dn
 		}
+		c.Public = user.IsHidden()
 	}
 	ctx = propagator.WithAdditionalMetadata(ctx, map[string]string{common.PydioContextUserKey: user.Login})
 	return context.WithValue(ctx, claim.ContextKey, c)
