@@ -139,7 +139,7 @@ func (a *LockFilter) WrappedCanApply(srcCtx context.Context, targetCtx context.C
 	}
 
 	// First load ancestors or grab them from BranchInfo
-	_, parents, err := nodes.AncestorsListFromContext(ctx, node, "in", a.ClientsPool, false)
+	_, parents, err := nodes.AncestorsListFromContext(ctx, node, "in", a.ContextPool(ctx), false)
 	if err != nil {
 		return err
 	}

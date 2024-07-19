@@ -76,7 +76,7 @@ func compress(ctx context.Context, selectedPaths []string, targetNodePath string
 			if err := theRouter.WrappedCanApply(srcCtx, nil, &tree.NodeChangeEvent{Type: tree.NodeChangeEvent_READ, Source: node}); err != nil {
 				return permError
 			}
-			resp, e := theRouter.GetClientsPool().GetTreeClient().ReadNode(ctx, &tree.ReadNodeRequest{Node: node})
+			resp, e := theRouter.GetClientsPool(ctx).GetTreeClient().ReadNode(ctx, &tree.ReadNodeRequest{Node: node})
 			if e != nil {
 				return e
 			}
@@ -179,7 +179,7 @@ func extract(ctx context.Context, selectedNode string, targetPath string, format
 			return err
 		}
 		var archiveSize int64
-		if resp, e := getRouter().GetClientsPool().GetTreeClient().ReadNode(srcCtx, &tree.ReadNodeRequest{Node: node}); e != nil {
+		if resp, e := getRouter().GetClientsPool(ctx).GetTreeClient().ReadNode(srcCtx, &tree.ReadNodeRequest{Node: node}); e != nil {
 			return e
 		} else {
 			archiveSize = resp.GetNode().GetSize()
@@ -298,7 +298,7 @@ func dirCopy(ctx context.Context, selectedPathes []string, targetNodePath string
 			if rErr := getRouter().WrappedCanApply(srcCtx, nil, &tree.NodeChangeEvent{Type: tree.NodeChangeEvent_READ, Source: node}); rErr != nil {
 				return rErr
 			}
-			r, e := getRouter().GetClientsPool().GetTreeClient().ReadNode(ctx, &tree.ReadNodeRequest{Node: &tree.Node{Path: node.Path}})
+			r, e := getRouter().GetClientsPool(ctx).GetTreeClient().ReadNode(ctx, &tree.ReadNodeRequest{Node: &tree.Node{Path: node.Path}})
 			if e != nil {
 				return e
 			}

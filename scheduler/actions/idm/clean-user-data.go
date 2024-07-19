@@ -115,7 +115,7 @@ func (c *CleanUserDataAction) Run(ctx context.Context, channels *actions.Runnabl
 	}
 
 	router := compose.PathClient(c.GetRuntimeContext(), nodes.AsAdmin(), nodes.WithSynchronousTasks())
-	clientsPool := router.GetClientsPool()
+	clientsPool := router.GetClientsPool(ctx)
 	var cleaned bool
 	// For the moment, just rename personal folder to user UUID to collision with new user with same Login
 	vNodesManager := abstract.GetVirtualNodesManager(c.GetRuntimeContext())

@@ -60,8 +60,8 @@ var expirers *openurl.Pool[*sync.Once]
 
 func init() {
 	gob.Register(time.Time{})
-	expirers, _ = openurl.OpenPool[*sync.Once](context.Background(), []string{"mem://"}, func(ctx context.Context, url string) (*sync.Once, error) {
-		return &sync.Once{}, nil
+	expirers = openurl.MustMemPool[*sync.Once](context.Background(), func(ctx context.Context, url string) *sync.Once {
+		return &sync.Once{}
 	})
 }
 

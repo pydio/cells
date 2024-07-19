@@ -70,7 +70,7 @@ func (v *BranchFilter) LookupRoot(ctx context.Context, uuid string) (*tree.Node,
 		return n, nil
 	}
 
-	resp, err := v.ClientsPool.GetTreeClient().ReadNode(context.Background(), &tree.ReadNodeRequest{Node: &tree.Node{
+	resp, err := v.ContextPool(ctx).GetTreeClient().ReadNode(context.Background(), &tree.ReadNodeRequest{Node: &tree.Node{
 		Uuid: uuid,
 	}})
 	if err != nil {

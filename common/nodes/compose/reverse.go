@@ -55,7 +55,7 @@ type Reverse struct {
 func ReverseClient(ctx context.Context, oo ...nodes.Option) *Reverse {
 	opts := append(oo,
 		nodes.WithContext(ctx),
-		nodes.WithCore(func(pool nodes.SourcesPool) nodes.Handler {
+		nodes.WithCore(func(pool *openurl.Pool[nodes.SourcesPool]) nodes.Handler {
 			exe := &core.Executor{}
 			exe.SetClientsPool(pool)
 			return exe
@@ -98,7 +98,7 @@ func (r *Reverse) WorkspaceCanSeeNode(ctx context.Context, accessList *permissio
 			if accessList != nil {
 				if !ancestorsLoaded {
 					var e error
-					if ancestors, e = nodes.BuildAncestorsList(ctx, r.GetClientsPool().GetTreeClient(), node); e != nil {
+					if ancestors, e = nodes.BuildAncestorsList(ctx, r.GetClientsPool(ctx).GetTreeClient(), node); e != nil {
 						log.Logger(ctx).Debug("Cannot list ancestors list for", node.Zap(), zap.Error(e))
 						return node, false
 					} else {
@@ -150,7 +150,7 @@ func (r *Reverse) getRoot(ctx context.Context, rootId string) *tree.Node {
 	if ca != nil && ca.Get(rootId, &node) {
 		return node
 	}
-	resp, e := r.GetClientsPool().GetTreeClient().ReadNode(ctx, &tree.ReadNodeRequest{Node: &tree.Node{Uuid: rootId}})
+	resp, e := r.GetClientsPool(ctx).GetTreeClient().ReadNode(ctx, &tree.ReadNodeRequest{Node: &tree.Node{Uuid: rootId}})
 	if e == nil && resp.Node != nil {
 		resp.Node.Path = strings.Trim(resp.Node.Path, "/")
 		if ca != nil {

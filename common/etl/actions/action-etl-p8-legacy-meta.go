@@ -302,7 +302,7 @@ func (c *MigratePydioMetaAction) WorkspaceHasTemplatePath(ctx context.Context, w
 	if len(acls) == 0 {
 		return false, fmt.Errorf("cannot find root nodes")
 	}
-	treeClient := c.GetRouter().GetClientsPool().GetTreeClient()
+	treeClient := c.GetRouter().GetClientsPool(ctx).GetTreeClient()
 	for _, a := range acls {
 		r, e := treeClient.ReadNode(ctx, &tree.ReadNodeRequest{Node: &tree.Node{Uuid: a.NodeID}})
 		if e == nil && r != nil {

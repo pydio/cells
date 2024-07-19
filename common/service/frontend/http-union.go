@@ -30,6 +30,7 @@ import (
 	"time"
 
 	"github.com/pydio/cells/v4/common"
+	"github.com/pydio/cells/v4/common/service"
 	json "github.com/pydio/cells/v4/common/utils/jsonx"
 )
 
@@ -74,7 +75,7 @@ func (ti *timedInfo) ModTime() time.Time {
 	return ti.t
 }
 
-func NewUnionHttpFs(boxes ...PluginBox) *UnionHttpFs {
+func NewUnionHttpFs(boxes ...service.PluginBox) *UnionHttpFs {
 
 	var packrs []fs.FS
 	var allRoots []string
@@ -157,6 +158,7 @@ func (i *IndexFile) Close() error {
 	i.cursor = 0
 	return nil
 }
+
 func (i *IndexFile) Read(p []byte) (n int, err error) {
 	//fmt.Println("Reading ", len(p), "bytes", i.cursor, len(i.data))
 	data := i.data
@@ -174,12 +176,15 @@ func (i *IndexFile) Read(p []byte) (n int, err error) {
 	i.cursor += int64(math.Min(float64(len(data)), float64(len(p))))
 	return b, e
 }
+
 func (i *IndexFile) Seek(offset int64, whence int) (int64, error) {
 	return strings.NewReader(i.data).Seek(offset, whence)
 }
+
 func (i *IndexFile) Readdir(count int) ([]os.FileInfo, error) {
 	return []os.FileInfo{i.info}, nil
 }
+
 func (i *IndexFile) Stat() (os.FileInfo, error) {
 	return i.info, nil
 }

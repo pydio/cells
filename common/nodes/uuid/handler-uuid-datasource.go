@@ -69,7 +69,7 @@ func (v *DataSourceHandler) updateInputBranch(ctx context.Context, node *tree.No
 		// Ignore this step
 		return ctx, node, nil
 	}
-	source, e := v.ClientsPool.GetDataSourceInfo(dsName)
+	source, e := v.ContextPool(ctx).GetDataSourceInfo(dsName)
 	if e != nil {
 		return ctx, node, e
 	}

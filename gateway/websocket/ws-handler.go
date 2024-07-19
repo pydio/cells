@@ -134,7 +134,7 @@ func (w *WebsocketHandler) InitHandlers(ctx context.Context) {
 				_ = session.CloseWithMsg(NewErrorMessage(e))
 				return
 			}
-			updateSessionFromClaims(ctx, session, claims, w.EventRouter.GetClientsPool())
+			updateSessionFromClaims(ctx, session, claims, w.EventRouter.GetClientsPool(ctx))
 
 		case MsgUnsubscribe:
 
@@ -266,7 +266,7 @@ func (w *WebsocketHandler) BroadcastNodeChangeEvent(ctx context.Context, event *
 		eSource := event.Source
 
 		if event.refreshTarget && eTarget != nil {
-			if respNode, err := w.EventRouter.GetClientsPool().GetTreeClient().ReadNode(metaCtx, &tree.ReadNodeRequest{Node: event.Target}); err == nil {
+			if respNode, err := w.EventRouter.GetClientsPool(ctx).GetTreeClient().ReadNode(metaCtx, &tree.ReadNodeRequest{Node: event.Target}); err == nil {
 				eTarget = respNode.Node
 			}
 		}

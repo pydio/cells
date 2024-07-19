@@ -91,7 +91,7 @@ func (c *OnDeleteVersionsAction) GetName() string {
 func (c *OnDeleteVersionsAction) Init(job *jobs.Job, action *jobs.Action) error {
 
 	c.Handler = getRouter(c.GetRuntimeContext())
-	c.Pool = getRouter(c.GetRuntimeContext()).GetClientsPool()
+	c.Pool = getRouter(c.GetRuntimeContext()).GetClientsPool(c.GetRuntimeContext())
 	var ok bool
 	if c.rootFolder, ok = action.Parameters["rootFolder"]; !ok {
 		c.rootFolder = "$DELETED"

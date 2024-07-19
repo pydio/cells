@@ -269,7 +269,7 @@ func (h *Handler) DeleteNodes(req *restful.Request, resp *restful.Response) erro
 		}
 		e := router.WrapCallback(func(inputFilter nodes.FilterFunc, outputFilter nodes.FilterFunc) error {
 			ctx, filtered, _ := inputFilter(ctx, node, "in")
-			_, ancestors, e := nodes.AncestorsListFromContext(ctx, filtered, "in", router.GetClientsPool(), false)
+			_, ancestors, e := nodes.AncestorsListFromContext(ctx, filtered, "in", router.GetClientsPool(ctx), false)
 			if e != nil {
 				return e
 			}
@@ -505,7 +505,7 @@ func (h *Handler) RestoreNodes(req *restful.Request, resp *restful.Response) err
 	e := router.WrapCallback(func(inputFilter nodes.FilterFunc, outputFilter nodes.FilterFunc) error {
 		for _, n := range input.Nodes {
 			ctx, filtered, _ := inputFilter(ctx, n, "in")
-			r, e := router.GetClientsPool().GetTreeClient().ReadNode(ctx, &tree.ReadNodeRequest{Node: filtered})
+			r, e := router.GetClientsPool(ctx).GetTreeClient().ReadNode(ctx, &tree.ReadNodeRequest{Node: filtered})
 			if e != nil {
 				log.Logger(ctx).Error("[restore] Cannot find source node", zap.Error(e))
 				return e
@@ -529,7 +529,7 @@ func (h *Handler) RestoreNodes(req *restful.Request, resp *restful.Response) err
 				moveLabel = T("Jobs.User.DirMove")
 			}
 			targetNode := &tree.Node{Path: originalFullPath}
-			_, ancestors, e := nodes.AncestorsListFromContext(ctx, targetNode, "in", router.GetClientsPool(), true)
+			_, ancestors, e := nodes.AncestorsListFromContext(ctx, targetNode, "in", router.GetClientsPool(ctx), true)
 			if e != nil {
 				return e
 			}

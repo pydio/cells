@@ -72,7 +72,7 @@ func (c *PruneVersionsAction) GetName() string {
 // Init passes the parameters to a newly created PruneVersionsAction.
 func (c *PruneVersionsAction) Init(job *jobs.Job, action *jobs.Action) error {
 
-	c.Pool = getRouter(c.GetRuntimeContext()).GetClientsPool()
+	c.Pool = getRouter(c.GetRuntimeContext()).GetClientsPool(c.GetRuntimeContext())
 	c.Handler = getRouter(c.GetRuntimeContext())
 	return nil
 }

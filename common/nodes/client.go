@@ -57,7 +57,7 @@ type Client interface {
 	WrapCallback(provider CallbackFunc) error
 	BranchInfoForNode(ctx context.Context, node *tree.Node) (branch BranchInfo, err error)
 	CanApply(ctx context.Context, operation *tree.NodeChangeEvent) (*tree.NodeChangeEvent, error)
-	GetClientsPool() SourcesPool
+	GetClientsPool(ctx context.Context) SourcesPool
 }
 
 var (

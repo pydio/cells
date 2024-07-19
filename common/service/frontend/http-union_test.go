@@ -25,6 +25,7 @@ import (
 	"io"
 	"testing"
 
+	"github.com/pydio/cells/v4/common/service"
 	"github.com/pydio/cells/v4/common/utils/statics"
 
 	. "github.com/smartystreets/goconvey/convey"
@@ -41,10 +42,10 @@ func TestUnionHttpFs(t *testing.T) {
 
 	Convey("Test EmbedFS", t, func() {
 
-		fs := NewUnionHttpFs(PluginBox{
+		fs := NewUnionHttpFs(service.PluginBox{
 			Exposes: []string{"a", "b"},
 			Box:     statics.AsFS(testAssets1, "tests/assets1"),
-		}, PluginBox{
+		}, service.PluginBox{
 			Exposes: []string{"c"},
 			Box:     statics.AsFS(testAssets2, "tests/assets2"),
 		})

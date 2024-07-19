@@ -31,6 +31,8 @@ type Resolver[T any] interface {
 
 type Opener[T any] func(ctx context.Context, url string) (T, error)
 
+type MustOpener[T any] func(ctx context.Context, url string) T
+
 type Pool[T any] struct {
 	resolvers []Template
 	provider  Provider[T]
@@ -110,6 +112,16 @@ func OpenPool[T any](ctx context.Context, uu []string, opener Opener[T], opt ...
 	}
 
 	return pool, nil
+}
+
+// MustMemPool opens a pool that differentiate basically by tenant, and does not trigger any errors
+func MustMemPool[T any](ctx context.Context, opener MustOpener[T], opt ...PoolOption[T]) *Pool[T] {
+	op := func(ctx context.Context, url string) (T, error) {
+		mo := opener(ctx, url)
+		return mo, nil
+	}
+	p, _ := OpenPool(ctx, []string{"mem://{{.Value \"tenant\"}}"}, op, opt...)
+	return p
 }
 
 //func (m Pool[T]) Resolve(ctx context.Context, resolutionData ...map[string]interface{}) (string, error) {

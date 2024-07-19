@@ -28,7 +28,6 @@ import (
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/registry"
 	"github.com/pydio/cells/v4/common/server"
-	"github.com/pydio/cells/v4/common/service/frontend"
 	"github.com/pydio/cells/v4/common/telemetry/log"
 	"github.com/pydio/cells/v4/common/utils/propagator"
 	"github.com/pydio/cells/v4/common/utils/uuid"
@@ -232,9 +231,9 @@ func Metadata(name, value string) ServiceOption {
 }
 
 // PluginBoxes option for a service
-func PluginBoxes(boxes ...frontend.PluginBox) ServiceOption {
+func PluginBoxes(boxes ...PluginBox) ServiceOption {
 	return func(o *ServiceOptions) {
-		frontend.RegisterPluginBoxes(boxes...)
+		RegisterPluginBoxes(boxes...)
 	}
 }
 

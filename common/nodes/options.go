@@ -24,9 +24,11 @@ import (
 	"context"
 
 	"github.com/pydio/cells/v4/common/registry"
+	"github.com/pydio/cells/v4/common/utils/openurl"
 )
 
 type Option func(options *RouterOptions)
+
 type Adapter interface {
 	Adapt(h Handler, options RouterOptions) Handler
 }
@@ -35,7 +37,7 @@ type Adapter interface {
 type RouterOptions struct {
 	Context context.Context
 
-	CoreClient func(pool SourcesPool) Handler
+	CoreClient func(pool *openurl.Pool[SourcesPool]) Handler
 
 	AdminView     bool
 	WatchRegistry bool
@@ -51,7 +53,7 @@ type RouterOptions struct {
 	PermanentPrefix  string
 
 	Wrappers []Adapter
-	Pool     SourcesPool
+	Pool     *openurl.Pool[SourcesPool]
 }
 
 func WithContext(ctx context.Context) Option {
@@ -59,7 +61,8 @@ func WithContext(ctx context.Context) Option {
 		options.Context = ctx
 	}
 }
-func WithCore(init func(pool SourcesPool) Handler) Option {
+
+func WithCore(init func(pool *openurl.Pool[SourcesPool]) Handler) Option {
 	return func(options *RouterOptions) {
 		options.CoreClient = init
 	}

@@ -21,36 +21,18 @@
 package frontend
 
 import (
-	"io/fs"
+	"github.com/pydio/cells/v4/common/service"
 )
 
 var (
-	registry   []PluginBox
 	loadedFs   *UnionHttpFs
 	loadedPool *PluginsPool
 )
 
-// PluginBox exposes web assets
-type PluginBox struct {
-	Box        fs.FS
-	Exposes    []string
-	ExposeFunc func() []string
-}
-
-// RegisterPluginBoxes adds a PluginBox to registry
-func RegisterPluginBoxes(boxes ...PluginBox) {
-	registry = append(registry, boxes...)
-}
-
-// GetRegisteredPluginBoxes lists all registered PluginBox
-func GetRegisteredPluginBoxes() []PluginBox {
-	return registry
-}
-
 // GetPluginsFS builds an HttpFs out of all the registered plugins boxes
 func GetPluginsFS() *UnionHttpFs {
 	if loadedFs == nil {
-		loadedFs = NewUnionHttpFs(GetRegisteredPluginBoxes()...)
+		loadedFs = NewUnionHttpFs(service.GetRegisteredPluginBoxes()...)
 	}
 	return loadedFs
 }

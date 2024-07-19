@@ -78,7 +78,7 @@ func (c *CleanThumbsTask) Run(ctx context.Context, channels *actions.RunnableCha
 	}
 
 	r := getRouter(c.GetRuntimeContext())
-	dsi, e := r.GetClientsPool().GetDataSourceInfo(common.PydioThumbstoreNamespace)
+	dsi, e := r.GetClientsPool(ctx).GetDataSourceInfo(common.PydioThumbstoreNamespace)
 	if e != nil || dsi.Client == nil {
 		log.TasksLogger(ctx).Error("Cannot get ThumbStoreClient", zap.Error(e))
 		return input.WithError(e), e

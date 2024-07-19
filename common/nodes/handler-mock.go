@@ -35,6 +35,7 @@ import (
 	"github.com/pydio/cells/v4/common/nodes/models"
 	"github.com/pydio/cells/v4/common/proto/tree"
 	"github.com/pydio/cells/v4/common/telemetry/log"
+	"github.com/pydio/cells/v4/common/utils/openurl"
 )
 
 func NewHandlerMock() *HandlerMock {
@@ -57,7 +58,7 @@ func (r MockReadCloser) Close() error {
 	return nil
 }
 
-func (h *HandlerMock) SetClientsPool(p SourcesPool) {}
+func (h *HandlerMock) SetClientsPool(p *openurl.Pool[SourcesPool]) {}
 
 func (h *HandlerMock) ExecuteWrapped(inputFilter FilterFunc, outputFilter FilterFunc, provider CallbackFunc) error {
 	return provider(inputFilter, outputFilter)

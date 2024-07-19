@@ -292,7 +292,7 @@ func (t *ThumbnailExtractor) writeSizeFromSrc(ctx context.Context, img image.Ima
 
 	if !localTest {
 
-		dsi, e := router.GetClientsPool().GetDataSourceInfo(common.PydioThumbstoreNamespace)
+		dsi, e := router.GetClientsPool(ctx).GetDataSourceInfo(common.PydioThumbstoreNamespace)
 		if e != nil || dsi.Client == nil {
 			logger.Error("Cannot find ds info for thumbnail store", zap.Error(e))
 			return false, e

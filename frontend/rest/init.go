@@ -27,12 +27,13 @@ import (
 
 	"github.com/pydio/cells/v4/common/config"
 	"github.com/pydio/cells/v4/common/runtime"
+	"github.com/pydio/cells/v4/common/service"
 	"github.com/pydio/cells/v4/common/service/frontend"
 	front "github.com/pydio/cells/v4/frontend"
 	"github.com/pydio/cells/v4/frontend/rest/modifiers"
 )
 
-var BasePluginsBox = frontend.PluginBox{
+var BasePluginsBox = service.PluginBox{
 	Box: front.FrontendAssets,
 	Exposes: []string{
 		"access.directory",

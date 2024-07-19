@@ -93,7 +93,7 @@ func (h *WorkspaceHandler) updateInputBranch(ctx context.Context, node *tree.Nod
 		}
 	}
 
-	parents, err := nodes.BuildAncestorsList(ctx, h.ClientsPool.GetTreeClient(), node)
+	parents, err := nodes.BuildAncestorsList(ctx, h.ContextPool(ctx).GetTreeClient(), node)
 	if err != nil {
 		return ctx, node, err
 	}
@@ -122,7 +122,7 @@ func (h *WorkspaceHandler) updateOutputBranch(ctx context.Context, node *tree.No
 	if accessList, ok = acl.FromContext(ctx); !ok {
 		return ctx, node, nil
 	}
-	if _, ancestors, e := nodes.AncestorsListFromContext(ctx, node, identifier, h.ClientsPool, false); e == nil {
+	if _, ancestors, e := nodes.AncestorsListFromContext(ctx, node, identifier, h.ContextPool(ctx), false); e == nil {
 		out := node.Clone()
 		workspaces, wsRoots := accessList.BelongsToWorkspaces(ctx, ancestors...)
 		log.Logger(ctx).Debug("Belongs to workspaces", zap.Int("ws length", len(workspaces)), zap.Any("wsRoots", wsRoots))

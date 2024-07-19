@@ -75,7 +75,7 @@ func (v *DataSourceHandler) updateInputBranch(ctx context.Context, node *tree.No
 			// Get Data Source from first segment, leave tree path unchanged
 			parts := strings.Split(strings.Trim(node.Path, "/"), "/")
 			dsName := parts[0]
-			source, e := v.ClientsPool.GetDataSourceInfo(dsName)
+			source, e := v.ContextPool(ctx).GetDataSourceInfo(dsName)
 			if e != nil {
 				return ctx, node, e
 			}
@@ -104,7 +104,7 @@ func (v *DataSourceHandler) updateInputBranch(ctx context.Context, node *tree.No
 
 		wsRoot := branchInfo.Root
 		dsName := wsRoot.GetStringMeta(common.MetaNamespaceDatasourceName)
-		source, err := v.ClientsPool.GetDataSourceInfo(dsName)
+		source, err := v.ContextPool(ctx).GetDataSourceInfo(dsName)
 		if err != nil {
 			log.Logger(ctx).Error("Cannot find DataSourceInfo for "+dsName, zap.Error(err))
 			return nil, out, err
@@ -136,7 +136,7 @@ func (v *DataSourceHandler) updateOutputNode(ctx context.Context, node *tree.Nod
 	// Reload DS info - may be necessary for outputFiltering case
 	if branchInfo, er := nodes.GetBranchInfo(ctx, identifier); (er != nil || branchInfo.DataSource == nil) && node.GetStringMeta(common.MetaNamespaceDatasourceName) != "" {
 		dsName := node.GetStringMeta(common.MetaNamespaceDatasourceName)
-		if source, err := v.ClientsPool.GetDataSourceInfo(dsName); err == nil {
+		if source, err := v.ContextPool(ctx).GetDataSourceInfo(dsName); err == nil {
 			branchInfo.LoadedSource = source
 			ctx = nodes.WithBranchInfo(ctx, identifier, branchInfo)
 		}

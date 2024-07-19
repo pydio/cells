@@ -32,6 +32,7 @@ import (
 	"github.com/pydio/cells/v4/common/nodes/models"
 	"github.com/pydio/cells/v4/common/proto/tree"
 	"github.com/pydio/cells/v4/common/telemetry/log"
+	"github.com/pydio/cells/v4/common/utils/openurl"
 )
 
 type ContextWrapper func(ctx context.Context) (context.Context, error)
@@ -40,7 +41,7 @@ type ContextWrapper func(ctx context.Context) (context.Context, error)
 // all calls to the Next handler
 type Handler struct {
 	Next        nodes.Handler
-	ClientsPool nodes.SourcesPool
+	ClientsPool *openurl.Pool[nodes.SourcesPool]
 	RuntimeCtx  context.Context
 	CtxWrapper  ContextWrapper
 }
@@ -63,8 +64,13 @@ func (a *Handler) SetNextHandler(h nodes.Handler) {
 	a.Next = h
 }
 
-func (a *Handler) SetClientsPool(p nodes.SourcesPool) {
+func (a *Handler) SetClientsPool(p *openurl.Pool[nodes.SourcesPool]) {
 	a.ClientsPool = p
+}
+
+func (a *Handler) ContextPool(ctx context.Context) nodes.SourcesPool {
+	p, _ := a.ClientsPool.Get(ctx)
+	return p
 }
 
 func (a *Handler) ExecuteWrapped(inputFilter nodes.FilterFunc, outputFilter nodes.FilterFunc, provider nodes.CallbackFunc) error {

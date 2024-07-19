@@ -36,6 +36,7 @@ import (
 	"github.com/pydio/cells/v4/common/nodes/sync"
 	"github.com/pydio/cells/v4/common/nodes/version"
 	"github.com/pydio/cells/v4/common/nodes/virtual"
+	"github.com/pydio/cells/v4/common/utils/openurl"
 )
 
 func PathClient(ctx context.Context, oo ...nodes.Option) nodes.Client {
@@ -51,7 +52,7 @@ func PathClientAdmin(ctx context.Context, oo ...nodes.Option) nodes.Client {
 func pathComposer(oo ...nodes.Option) []nodes.Option {
 
 	return append(oo,
-		nodes.WithCore(func(pool nodes.SourcesPool) nodes.Handler {
+		nodes.WithCore(func(pool *openurl.Pool[nodes.SourcesPool]) nodes.Handler {
 			exe := &core.Executor{}
 			exe.SetClientsPool(pool)
 			return exe

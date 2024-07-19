@@ -37,8 +37,10 @@ import (
 	pb "github.com/pydio/cells/v4/common/proto/registry"
 	"github.com/pydio/cells/v4/common/proto/tree"
 	"github.com/pydio/cells/v4/common/registry"
+	"github.com/pydio/cells/v4/common/runtime/manager"
 	"github.com/pydio/cells/v4/common/telemetry/log"
 	"github.com/pydio/cells/v4/common/utils/configx"
+	"github.com/pydio/cells/v4/common/utils/propagator"
 )
 
 type sourceAlias struct {
@@ -87,12 +89,17 @@ type ClientsPool struct {
 }
 
 func NewPool(ctx context.Context, reg registry.Registry) *ClientsPool {
+	var mgr manager.Manager
+	if !propagator.Get(ctx, manager.ContextKey, &mgr) {
+		panic("cannot instantiate client pool (missing manager in context)")
+	}
+
 	pool := &ClientsPool{
 		ctx:     ctx,
 		sources: make(map[string]LoadedSource),
 		aliases: make(map[string]sourceAlias),
 		reload:  make(chan bool),
-		reg:     reg,
+		reg:     mgr.Registry(),
 	}
 	return pool
 }
