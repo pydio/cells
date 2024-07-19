@@ -44,7 +44,6 @@ import (
 	"github.com/pydio/cells/v4/common/permissions"
 	"github.com/pydio/cells/v4/common/proto/service"
 	"github.com/pydio/cells/v4/common/proto/tree"
-	"github.com/pydio/cells/v4/common/registry"
 	"github.com/pydio/cells/v4/common/telemetry/log"
 	"github.com/pydio/cells/v4/common/utils/cache"
 	"github.com/pydio/cells/v4/common/utils/openurl"
@@ -775,9 +774,7 @@ loop:
 
 // ModifyLogin should detect TemplatePaths using the User.Name variable, resolve them and forward the request to the corresponding index
 func (s *TreeServer) ModifyLogin(ctx context.Context, req *service.ModifyLoginRequest) (*service.ModifyLoginResponse, error) {
-	var reg registry.Registry
-	propagator.Get(ctx, registry.ContextKey, &reg)
-	ctx = nodescontext.WithSourcesPool(ctx, nodes.NewPool(ctx, reg))
+	ctx = nodescontext.WithSourcesPool(ctx, nodes.NewPool(ctx))
 	m := abstract.GetVirtualNodesManager(ctx)
 	resp := &service.ModifyLoginResponse{}
 	originalUser, er := permissions.SearchUniqueUser(ctx, req.OldLogin, "")

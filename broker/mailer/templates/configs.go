@@ -34,7 +34,7 @@ import (
 
 var templateFilters []FilterFunc
 
-type FilterFunc func(configs ApplicationConfigs) ApplicationConfigs
+type FilterFunc func(ctx context.Context, configs ApplicationConfigs) ApplicationConfigs
 
 func RegisterTemplateFilter(filterFunc FilterFunc) {
 	templateFilters = append(templateFilters, filterFunc)
@@ -104,7 +104,7 @@ func GetApplicationConfig(ctx context.Context, languages ...string) ApplicationC
 
 	if len(templateFilters) > 0 {
 		for _, f := range templateFilters {
-			a = f(a)
+			a = f(ctx, a)
 		}
 	}
 

@@ -40,6 +40,7 @@ import (
 	"github.com/pydio/cells/v4/common/runtime/manager"
 	"github.com/pydio/cells/v4/common/telemetry/log"
 	"github.com/pydio/cells/v4/common/utils/configx"
+	"github.com/pydio/cells/v4/common/utils/openurl"
 	"github.com/pydio/cells/v4/common/utils/propagator"
 )
 
@@ -88,7 +89,28 @@ type ClientsPool struct {
 	reload chan bool
 }
 
-func NewPool(ctx context.Context, reg registry.Registry) *ClientsPool {
+func NewPool(ctx context.Context) *openurl.Pool[SourcesPool] {
+	return openurl.MustMemPool[SourcesPool](ctx, func(ctx context.Context, url string) SourcesPool {
+		return openPool(ctx)
+	})
+}
+
+// NewTestPool creates a client Pool and initialises it by calling the registry.
+func NewTestPool(ctx context.Context, presetClient ...SourcesPool) *openurl.Pool[SourcesPool] {
+	return openurl.MustMemPool[SourcesPool](ctx, func(ctx context.Context, url string) SourcesPool {
+		if len(presetClient) > 0 {
+			return presetClient[0]
+		}
+		return &ClientsPool{
+			ctx:     ctx,
+			sources: make(map[string]LoadedSource),
+			aliases: make(map[string]sourceAlias),
+			reload:  make(chan bool),
+		}
+	})
+}
+
+func openPool(ctx context.Context) *ClientsPool {
 	var mgr manager.Manager
 	if !propagator.Get(ctx, manager.ContextKey, &mgr) {
 		panic("cannot instantiate client pool (missing manager in context)")
@@ -115,19 +137,6 @@ func (p *ClientsPool) Once() {
 	})
 }
 
-// NewTestPool creates a client Pool and initialises it by calling the registry.
-func NewTestPool(ctx context.Context) *ClientsPool {
-
-	pool := &ClientsPool{
-		ctx:     ctx,
-		sources: make(map[string]LoadedSource),
-		aliases: make(map[string]sourceAlias),
-		reload:  make(chan bool),
-	}
-	return pool
-
-}
-
 // Close stops the underlying watcher if defined.
 func (p *ClientsPool) Close() {
 	if p.regWatcher != nil {
@@ -139,7 +148,6 @@ func (p *ClientsPool) Close() {
 }
 
 // GetTreeClient returns the internal NodeProviderClient pointing to the TreeService.
-// TODO CONTEXT
 func (p *ClientsPool) GetTreeClient() tree.NodeProviderClient {
 	if p.treeClient != nil {
 		return p.treeClient
@@ -369,10 +377,6 @@ func (p *ClientsPool) CreateClientsForDataSource(dataSourceName string, dataSour
 
 func MakeFakeClientsPool(tc tree.NodeProviderClient, tw tree.NodeReceiverClient) *ClientsPool {
 	IsUnitTestEnv = true
-	c := NewTestPool(context.TODO())
-
-	c.treeClient = tc
-	c.treeClientWrite = tw
 
 	mockDatasource := &object.DataSource{
 		Name:          "datasource",
@@ -391,8 +395,16 @@ func MakeFakeClientsPool(tc tree.NodeProviderClient, tw tree.NodeReceiverClient)
 	_ = cfg.Val("type").Set("mock")
 	client, _ := NewStorageClient(cfg)
 	loaded.Client = client
-	c.sources = map[string]LoadedSource{
-		"datasource": loaded,
+
+	return &ClientsPool{
+		ctx: context.TODO(),
+		sources: map[string]LoadedSource{
+			"datasource": loaded,
+		},
+		aliases:         make(map[string]sourceAlias),
+		reload:          make(chan bool),
+		treeClient:      tc,
+		treeClientWrite: tw,
 	}
-	return c
+
 }

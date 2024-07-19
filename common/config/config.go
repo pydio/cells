@@ -70,15 +70,19 @@ type Saver interface {
 
 func fromCtxWithCheck(ctx context.Context) Store {
 	var s Store
-	if !propagator.Get(ctx, ContextKey, &s) {
+	if ctx == nil || !propagator.Get(ctx, ContextKey, &s) {
+		er := "No config found in context"
+		if ctx == nil {
+			er = "empty context when looking for context"
+		}
 		pc, file, line, ok := runtime.Caller(2)
 		if ok {
 			if fn := runtime.FuncForPC(pc); fn != nil {
-				fmt.Printf("No config found in context, using default store %s - %s:%d\n", fn.Name(), file, line)
+				fmt.Printf(er+", using default store %s - %s:%d\n", fn.Name(), file, line)
 				return std
 			}
 		}
-		fmt.Println("No config found in context, using default store")
+		fmt.Println(er + ", using default store")
 		return std
 	}
 	return s

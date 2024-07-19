@@ -117,7 +117,7 @@ func (h *IndexHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		tplConf.CustomHTMLHeader = template.HTML(customHeader)
 	}
 
-	tplConf = FilterTplConf(tplConf)
+	tplConf = FilterTplConf(ctx, tplConf)
 
 	if strings.HasPrefix(r.URL.Path, h.resetPasswordPath) {
 		reset := strings.TrimPrefix(r.URL.Path, h.resetPasswordPath)

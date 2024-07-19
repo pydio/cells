@@ -98,7 +98,7 @@ func (h *PublicHandler) computeTplConf(req *http.Request, linkId string) (status
 		tplConf.CustomHTMLHeader = template.HTML(customHeader)
 	}
 
-	tplConf = FilterTplConf(tplConf)
+	tplConf = FilterTplConf(ctx, tplConf)
 
 	statusCode = 200
 	// Load link data

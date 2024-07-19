@@ -41,7 +41,6 @@ import (
 	"github.com/pydio/cells/v4/common/middleware/keys"
 	"github.com/pydio/cells/v4/common/nodes"
 	"github.com/pydio/cells/v4/common/nodes/compose"
-	nodescontext "github.com/pydio/cells/v4/common/nodes/context"
 	"github.com/pydio/cells/v4/common/proto/chat"
 	"github.com/pydio/cells/v4/common/proto/tree"
 	"github.com/pydio/cells/v4/common/telemetry/log"
@@ -56,13 +55,11 @@ const (
 type ChatHandler struct {
 	ctx       context.Context
 	Websocket *melody.Melody
-	Pool      nodes.SourcesPool
 }
 
 // NewChatHandler creates a new ChatHandler
 func NewChatHandler(ctx context.Context) *ChatHandler {
 	w := &ChatHandler{ctx: ctx}
-	w.Pool = nodescontext.GetSourcesPool(ctx)
 	w.initHandlers(ctx)
 	return w
 }
@@ -150,7 +147,7 @@ func (c *ChatHandler) initHandlers(ctx context.Context) {
 					session.CloseWithMsg(NewErrorMessage(e))
 					return
 				}
-				updateSessionFromClaims(ctx, session, claims, c.Pool)
+				updateSessionFromClaims(ctx, session, claims)
 				return
 
 			case MsgUnsubscribe:

@@ -48,7 +48,7 @@ func NewMetaService(nodes ...*tree.Node) (grpc.ClientConnInterface, error) {
 
 	*/
 
-	ts := srv.NewMetaServer(context.Background())
+	ts := srv.NewMetaServer(context.Background(), "sample")
 
 	srv1 := &tree.NodeProviderStub{}
 	srv1.NodeProviderServer = ts

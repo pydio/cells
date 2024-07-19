@@ -49,12 +49,8 @@ func newClient(opts ...nodes.Option) *clientImpl {
 		o(&options)
 	}
 
-	options.Pool = openurl.MustMemPool[nodes.SourcesPool](options.Context, func(ctx context.Context, url string) nodes.SourcesPool {
-		return nodes.NewPool(ctx, nil)
-	})
-
 	var handler nodes.Handler
-
+	options.Pool = nodes.NewPool(options.Context)
 	handler = options.CoreClient(options.Pool)
 
 	// wrap in reverse

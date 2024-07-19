@@ -309,7 +309,7 @@ func (a *FrontendHandler) FrontMessages(req *restful.Request, rsp *restful.Respo
 		return e
 	}
 	lang := req.PathParameter("Lang")
-	_ = rsp.WriteAsJson(pool.I18nMessages(lang).Messages)
+	_ = rsp.WriteAsJson(pool.I18nMessages(req.Request.Context(), lang).Messages)
 	return nil
 }
 

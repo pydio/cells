@@ -165,7 +165,7 @@ func ComputeBootConf(ctx context.Context, pool *PluginsPool, showVersion ...bool
 			Icon:  "plug/gui.ajax/res/themes/common/images/LoginBoxLogo.png",
 		},
 		AvailableLanguages: languages.AvailableLanguages,
-		I18nMessages:       pool.I18nMessages(lang).Messages,
+		I18nMessages:       pool.I18nMessages(ctx, lang).Messages,
 		Backend: BackendConf{
 			PackageType:   common.PackageType,
 			PackageLabel:  common.PackageLabel,

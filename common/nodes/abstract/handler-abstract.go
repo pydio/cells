@@ -29,6 +29,7 @@ import (
 	"google.golang.org/grpc"
 
 	"github.com/pydio/cells/v4/common/nodes"
+	nodescontext "github.com/pydio/cells/v4/common/nodes/context"
 	"github.com/pydio/cells/v4/common/nodes/models"
 	"github.com/pydio/cells/v4/common/proto/tree"
 	"github.com/pydio/cells/v4/common/telemetry/log"
@@ -53,6 +54,7 @@ func (a *Handler) AdaptOptions(h nodes.Handler, options nodes.RouterOptions) {
 }
 
 func (a *Handler) WrapContext(ctx context.Context) (context.Context, error) {
+	ctx = nodescontext.WithSourcesPool(ctx, a.ClientsPool)
 	if a.CtxWrapper != nil {
 		return a.CtxWrapper(ctx)
 	} else {

@@ -31,14 +31,10 @@ import (
 	"github.com/spf13/cobra"
 
 	"github.com/pydio/cells/v4/common/auth"
-	"github.com/pydio/cells/v4/common/nodes"
 	"github.com/pydio/cells/v4/common/nodes/compose"
-	nodescontext "github.com/pydio/cells/v4/common/nodes/context"
 	"github.com/pydio/cells/v4/common/nodes/models"
 	"github.com/pydio/cells/v4/common/proto/idm"
 	"github.com/pydio/cells/v4/common/proto/tree"
-	"github.com/pydio/cells/v4/common/registry"
-	"github.com/pydio/cells/v4/common/utils/propagator"
 	"github.com/pydio/cells/v4/common/utils/uuid"
 )
 
@@ -71,9 +67,10 @@ EXAMPLE
 			cmd.Help()
 			return
 		}
-		var reg registry.Registry
-		propagator.Get(ctx, registry.ContextKey, &reg)
-		router := compose.PathClientAdmin(nodescontext.WithSourcesPool(ctx, nodes.NewPool(ctx, reg)))
+		//var reg registry.Registry
+		//propagator.Get(ctx, registry.ContextKey, &reg)
+		//router := compose.PathClientAdmin(nodescontext.WithSourcesPool(ctx, nodes.NewPool(ctx, reg)))
+		router := compose.PathClientAdmin(ctx)
 		c := auth.WithImpersonate(cmd.Context(), &idm.User{Login: benchUser})
 		bar := progressbar.Default(int64(benchNumber), "# files created")
 		for i := 0; i < benchNumber; i++ {

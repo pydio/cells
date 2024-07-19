@@ -21,13 +21,14 @@
 package web
 
 import (
+	"context"
 	"html/template"
 
 	"github.com/pydio/cells/v4/common/utils/i18n/languages"
 )
 
 // TplConfFilterFunc takes a TplConf and modifies it
-type TplConfFilterFunc func(in *TplConf) *TplConf
+type TplConfFilterFunc func(ctx context.Context, in *TplConf) *TplConf
 
 var (
 	tplConfFilters []TplConfFilterFunc
@@ -39,9 +40,9 @@ func RegisterTplConfFilter(f TplConfFilterFunc) {
 }
 
 // FilterTplConf applies registered filters on TplConf object
-func FilterTplConf(i *TplConf) *TplConf {
+func FilterTplConf(ctx context.Context, i *TplConf) *TplConf {
 	for _, f := range tplConfFilters {
-		i = f(i)
+		i = f(ctx, i)
 	}
 	return i
 }
