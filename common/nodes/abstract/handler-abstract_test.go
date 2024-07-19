@@ -26,11 +26,12 @@ import (
 	"testing"
 
 	"github.com/pkg/errors"
-	. "github.com/smartystreets/goconvey/convey"
 
 	"github.com/pydio/cells/v4/common/nodes"
 	"github.com/pydio/cells/v4/common/nodes/models"
 	"github.com/pydio/cells/v4/common/proto/tree"
+
+	. "github.com/smartystreets/goconvey/convey"
 )
 
 type FakeWrapperHandler struct {
@@ -85,7 +86,7 @@ func TestWrapper(t *testing.T) {
 	Convey("Test clients pool", t, func() {
 
 		fakeWrapperHandler, _ := emptyFakeWrapper()
-		fakeWrapperHandler.SetClientsPool(&nodes.ClientsPool{})
+		fakeWrapperHandler.SetClientsPool(nodes.NewTestPool(context.Background()))
 
 	})
 

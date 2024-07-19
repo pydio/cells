@@ -28,15 +28,18 @@ import (
 	"testing"
 	"time"
 
-	. "github.com/smartystreets/goconvey/convey"
 	"github.com/spf13/viper"
 
 	"github.com/pydio/cells/v4/common/proto/tree"
 	"github.com/pydio/cells/v4/common/runtime"
+	"github.com/pydio/cells/v4/common/utils/openurl"
+
 	_ "github.com/pydio/cells/v4/common/utils/cache/gocache"
+
+	. "github.com/smartystreets/goconvey/convey"
 )
 
-var pools []SourcesPool
+var pools []*openurl.Pool[SourcesPool]
 
 func TestMain(m *testing.M) {
 	v := viper.New()

@@ -79,8 +79,8 @@ func (p *PluginsPool) Load(fs *UnionHttpFs) error {
 
 	p.Messages = make(map[string]I18nMessages)
 	for lang := range languages.AvailableLanguages {
-		p.Messages[lang] = p.I18nMessages(lang)
-		log.Logger(context.Background()).Debug("Loading messages for "+lang, zap.Int("m", len(p.Messages[lang].Messages)), zap.Int("conf", len(p.Messages[lang].ConfMessages)))
+		p.Messages[lang] = p.loadI18nMessages(lang)
+		log.Logger(context.Background()).Debug("Loading base messages for "+lang, zap.Int("m", len(p.Messages[lang].Messages)), zap.Int("conf", len(p.Messages[lang].ConfMessages)))
 	}
 
 	return nil
@@ -288,7 +288,26 @@ func (p *PluginsPool) pluginsForStatus(ctx context.Context, status RequestStatus
 	return sorted
 }
 
-func (p *PluginsPool) I18nMessages(lang string) I18nMessages {
+func (p *PluginsPool) I18nMessages(ctx context.Context, lang string) I18nMessages {
+	i := p.loadI18nMessages(lang)
+	appTitle := config.Get(ctx, "frontend", "plugin", "core.pydio", "APPLICATION_TITLE").String()
+	if appTitle == "" {
+		return i
+	}
+	out := I18nMessages{
+		Messages:     make(map[string]string, len(i.Messages)),
+		ConfMessages: make(map[string]string, len(i.ConfMessages)),
+	}
+	for k, v := range i.Messages {
+		out.Messages[k] = strings.ReplaceAll(v, "APPLICATION_TITLE", appTitle)
+	}
+	for k, v := range i.ConfMessages {
+		out.ConfMessages[k] = strings.ReplaceAll(v, "APPLICATION_TITLE", appTitle)
+	}
+	return out
+}
+
+func (p *PluginsPool) loadI18nMessages(lang string) I18nMessages {
 
 	if legacy, b := languages.LegacyNames[lang]; b {
 		lang = legacy
@@ -332,19 +351,12 @@ func (p *PluginsPool) parseI18nFolder(ns string, lang string, defaultLang string
 	} else if f2, e2 := p.fs.Open(path.Join(libPath, defaultLang+".all.json")); e2 == nil {
 		f = f2
 	}
-	//TODO move to another layer
-	//appTitle := config.Get(ctx, "frontend", "plugin", "core.pydio", "APPLICATION_TITLE").String()
 	if f != nil {
 		content, _ := io.ReadAll(f)
 		var data map[string]Translation
 		if e1 := json.Unmarshal(content, &data); e1 == nil {
 			for k, trans := range data {
 				v := trans.Other
-				/*
-					if appTitle != "" && strings.Contains(v, "APPLICATION_TITLE") {
-						v = strings.Replace(v, "APPLICATION_TITLE", appTitle, -1)
-					}
-				*/
 				if ns == "" {
 					msg[k] = v
 				} else {
@@ -354,7 +366,7 @@ func (p *PluginsPool) parseI18nFolder(ns string, lang string, defaultLang string
 		} else {
 			log.Logger(context.Background()).Error("Cannot parse language file: ", zap.String("lib", libPath), zap.String("lang", lang), zap.Error(e1))
 		}
-		f.Close()
+		_ = f.Close()
 	}
 	return msg
 }

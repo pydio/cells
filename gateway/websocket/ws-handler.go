@@ -134,7 +134,7 @@ func (w *WebsocketHandler) InitHandlers(ctx context.Context) {
 				_ = session.CloseWithMsg(NewErrorMessage(e))
 				return
 			}
-			updateSessionFromClaims(ctx, session, claims, w.EventRouter.GetClientsPool(ctx))
+			updateSessionFromClaims(ctx, session, claims)
 
 		case MsgUnsubscribe:
 

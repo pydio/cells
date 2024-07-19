@@ -25,7 +25,6 @@ import (
 	"context"
 	"crypto/md5"
 	"encoding/hex"
-	"github.com/pydio/cells/v4/common/utils/hasher"
 	"hash"
 	"io"
 	"math"
@@ -33,12 +32,13 @@ import (
 	"strings"
 	"testing"
 
-	. "github.com/smartystreets/goconvey/convey"
-
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/nodes"
 	"github.com/pydio/cells/v4/common/nodes/models"
 	"github.com/pydio/cells/v4/common/proto/tree"
+	"github.com/pydio/cells/v4/common/utils/hasher"
+
+	. "github.com/smartystreets/goconvey/convey"
 )
 
 func testMkFileResources() (*Handler, context.Context, *nodes.HandlerMock) {
@@ -52,7 +52,7 @@ func testMkFileResources() (*Handler, context.Context, *nodes.HandlerMock) {
 		}},
 	}
 	tw := &tree.NodeReceiverMock{}
-	pool := nodes.MakeFakeClientsPool(tc, tw)
+	pool := nodes.NewTestPool(context.Background(), nodes.MakeFakeClientsPool(tc, tw))
 
 	// create dummy handler
 	h := &Handler{}

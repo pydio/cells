@@ -35,7 +35,6 @@ import (
 	"github.com/pydio/cells/v4/common/auth"
 	"github.com/pydio/cells/v4/common/auth/claim"
 	"github.com/pydio/cells/v4/common/middleware"
-	"github.com/pydio/cells/v4/common/nodes"
 	"github.com/pydio/cells/v4/common/nodes/abstract"
 	"github.com/pydio/cells/v4/common/permissions"
 	"github.com/pydio/cells/v4/common/proto/idm"
@@ -62,7 +61,7 @@ const LimiterRate = 30
 
 const LimiterBurst = 20
 
-func updateSessionFromClaims(ctx context.Context, session *melody.Session, claims claim.Claims, pool nodes.SourcesPool) {
+func updateSessionFromClaims(ctx context.Context, session *melody.Session, claims claim.Claims) {
 
 	ctx = context.WithValue(ctx, claim.ContextKey, claims)
 	vNodeResolver := abstract.GetVirtualNodesManager(ctx).GetResolver(true)

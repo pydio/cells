@@ -22,11 +22,16 @@ package datatest
 
 import (
 	"context"
+	"os"
 
 	"google.golang.org/grpc"
 
 	"github.com/pydio/cells/v4/common"
-	"github.com/pydio/cells/v4/common/proto/docstore"
+	proto "github.com/pydio/cells/v4/common/proto/docstore"
+	"github.com/pydio/cells/v4/common/runtime/manager"
+	"github.com/pydio/cells/v4/common/utils/uuid"
+	"github.com/pydio/cells/v4/data/docstore/dao/bleve"
+	srv "github.com/pydio/cells/v4/data/docstore/grpc"
 )
 
 func defaults() map[string]string {
@@ -50,16 +55,26 @@ func NewDocStoreService() (grpc.ClientConnInterface, error) {
 		h := &srv.Handler{
 			DAO: d.(*docstore2.BleveServer),
 		}*/
-	serv := &docstore.DocStoreStub{}
-	//serv.DocStoreServer = h
+	tmpPath := os.TempDir()
+	short := uuid.New()[:6]
+	conns := []string{
+		"bolt://" + tmpPath + "/docstore-" + short + ".db",
+		"bleve://" + tmpPath + "/docstore-" + short + ".bleve",
+	}
+	ctx, err := manager.DSNtoContextDAO(context.Background(), conns, bleve.NewBleveDAO)
+	if err != nil {
+		return nil, err
+	}
+	serv := &proto.DocStoreStub{}
+	serv.DocStoreServer = &srv.Handler{}
 
 	for id, json := range defaults() {
-		_, er := serv.DocStoreServer.PutDocument(context.Background(), &docstore.PutDocumentRequest{
+		_, er := serv.DocStoreServer.PutDocument(ctx, &proto.PutDocumentRequest{
 			StoreID:    common.DocStoreIdVirtualNodes,
 			DocumentID: id,
-			Document: &docstore.Document{
+			Document: &proto.Document{
 				ID:    id,
-				Type:  docstore.DocumentType_JSON,
+				Type:  proto.DocumentType_JSON,
 				Owner: common.PydioSystemUsername,
 				Data:  json,
 			},

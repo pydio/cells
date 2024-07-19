@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"github.com/pydio/cells/v4/common/nodes"
+	"github.com/pydio/cells/v4/common/utils/openurl"
 	"github.com/pydio/cells/v4/common/utils/propagator"
 )
 
@@ -14,24 +15,23 @@ const (
 )
 
 func init() {
-	propagator.RegisterContextInjector(func(ctx, parent context.Context) context.Context {
-		if p := GetSourcesPool(parent); p != nil {
-			return WithSourcesPool(ctx, p)
-		}
-		return ctx
-	})
+	propagator.RegisterKeyInjector[*openurl.Pool[nodes.SourcesPool]](poolKey)
 }
 
 // WithSourcesPool pushes a nodes.SourcesPool client to the context
-func WithSourcesPool(ctx context.Context, pool nodes.SourcesPool) context.Context {
+func WithSourcesPool(ctx context.Context, pool *openurl.Pool[nodes.SourcesPool]) context.Context {
 	return context.WithValue(ctx, poolKey, pool)
 }
 
 // GetSourcesPool gets a nodes.SourcesPool from context
 func GetSourcesPool(ctx context.Context) nodes.SourcesPool {
-	if p, o := ctx.Value(poolKey).(nodes.SourcesPool); o {
-		p.Once()
-		return p
+	if p, o := ctx.Value(poolKey).(*openurl.Pool[nodes.SourcesPool]); o {
+		sp, er := p.Get(ctx)
+		if er != nil {
+			panic(er)
+		}
+		sp.Once()
+		return sp
 	}
 	return nil
 }

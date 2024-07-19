@@ -35,6 +35,7 @@ import (
 	"github.com/pydio/cells/v4/common/proto/tree"
 	"github.com/pydio/cells/v4/common/runtime"
 	"github.com/pydio/cells/v4/common/utils/cache"
+	"github.com/pydio/cells/v4/common/utils/openurl"
 
 	_ "github.com/pydio/cells/v4/common/utils/cache/gocache"
 
@@ -48,7 +49,7 @@ func TestMain(m *testing.M) {
 	runtime.SetRuntime(v)
 }
 
-func newTestHandlerBranchTranslator(pool *nodes.ClientsPool) (*DataSourceHandler, *nodes.HandlerMock) {
+func newTestHandlerBranchTranslator(pool *openurl.Pool[nodes.SourcesPool]) (*DataSourceHandler, *nodes.HandlerMock) {
 
 	testRootNode := &tree.Node{
 		Uuid:      "root-node-uuid",
@@ -100,7 +101,7 @@ func makeFakeTestContext(identifier string, root ...*tree.Node) context.Context 
 
 func TestBranchTranslator_ReadNode(t *testing.T) {
 
-	pool := nodes.MakeFakeClientsPool(nil, nil)
+	pool := nodes.NewTestPool(context.Background())
 
 	Convey("Test Readnode without context", t, func() {
 
@@ -194,7 +195,7 @@ func TestBranchTranslator_ReadNode(t *testing.T) {
 
 func TestBranchTranslator_ListNodes(t *testing.T) {
 
-	pool := nodes.MakeFakeClientsPool(nil, nil)
+	pool := nodes.NewTestPool(context.Background())
 
 	Convey("Test ListNodes with user context", t, func() {
 
@@ -225,7 +226,7 @@ func TestBranchTranslator_ListNodes(t *testing.T) {
 
 func TestBranchTranslator_OtherMethods(t *testing.T) {
 
-	pool := nodes.MakeFakeClientsPool(nil, nil)
+	pool := nodes.NewTestPool(context.Background())
 
 	Convey("Test CreateNode", t, func() {
 
