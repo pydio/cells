@@ -22,20 +22,20 @@ package cmd
 
 import (
 	"context"
-	"github.com/pydio/cells/v4/common/config/mock"
-	"github.com/pydio/cells/v4/common/nodes"
-	nodescontext "github.com/pydio/cells/v4/common/nodes/context"
 	"os"
 	"path/filepath"
 	"testing"
 
-	. "github.com/smartystreets/goconvey/convey"
-
 	"github.com/pydio/cells/v4/common"
+	"github.com/pydio/cells/v4/common/config/mock"
+	"github.com/pydio/cells/v4/common/nodes"
+	nodescontext "github.com/pydio/cells/v4/common/nodes/context"
 	"github.com/pydio/cells/v4/common/proto/jobs"
 	"github.com/pydio/cells/v4/common/proto/tree"
 	"github.com/pydio/cells/v4/common/utils/uuid"
 	"github.com/pydio/cells/v4/scheduler/actions"
+
+	. "github.com/smartystreets/goconvey/convey"
 )
 
 func init() {
@@ -92,7 +92,8 @@ func TestWGetAction_Run(t *testing.T) {
 
 		action := &WGetAction{}
 		ctx := context.Background()
-		action.SetRuntimeContext(nodescontext.WithSourcesPool(ctx, nodes.NewTestPool(ctx)))
+		ctx = nodescontext.WithSourcesPool(ctx, nodes.NewTestPool(ctx))
+		action.SetRuntimeContext(ctx)
 
 		job := &jobs.Job{}
 		action.Init(job, &jobs.Action{

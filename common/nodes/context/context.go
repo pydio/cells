@@ -23,6 +23,15 @@ func WithSourcesPool(ctx context.Context, pool *openurl.Pool[nodes.SourcesPool])
 	return context.WithValue(ctx, poolKey, pool)
 }
 
+func GetPool(ctx context.Context) (*openurl.Pool[nodes.SourcesPool], bool) {
+	p := ctx.Value(poolKey)
+	if p == nil {
+		return nil, false
+	} else {
+		return p.(*openurl.Pool[nodes.SourcesPool]), true
+	}
+}
+
 // GetSourcesPool gets a nodes.SourcesPool from context
 func GetSourcesPool(ctx context.Context) nodes.SourcesPool {
 	if p, o := ctx.Value(poolKey).(*openurl.Pool[nodes.SourcesPool]); o {
