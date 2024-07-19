@@ -26,7 +26,12 @@ func openGoTemplate(s string) (Template, error) {
 
 func (g *goTpl) Resolve(ctx context.Context, data ...map[string]interface{}) (string, error) {
 	pathBuilder := &strings.Builder{}
-	//data = dataFromContext(ctx, data...)
+	for _, dd := range data {
+		for k, v := range dd {
+			ctx = context.WithValue(ctx, k, v)
+		}
+	}
+	// data = dataFromContext(ctx, data...)
 	er := g.tpl.Execute(pathBuilder, ctx)
 	return pathBuilder.String(), er
 }

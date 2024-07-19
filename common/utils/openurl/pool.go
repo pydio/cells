@@ -128,11 +128,17 @@ func MustMemPool[T any](ctx context.Context, opener MustOpener[T], opt ...PoolOp
 //
 //}
 
-func (m Pool[T]) Get(ctx context.Context, resolutionData ...map[string]interface{}) (T, error) {
+func (m Pool[T]) Get(ctx context.Context, resolutionData ...map[string]string) (T, error) {
 	last := len(m.resolvers) - 1
 	for i, resolver := range m.resolvers {
+		data := make(map[string]any)
+		for _, d := range resolutionData {
+			for k, v := range d {
+				data[k] = v
+			}
+		}
 		// RESOLVE URL
-		realURL, er := resolver.Resolve(ctx, resolutionData...)
+		realURL, er := resolver.Resolve(ctx, data)
 		if er != nil {
 			if i < last {
 				continue // Try next one provided as fallback

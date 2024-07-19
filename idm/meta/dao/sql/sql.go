@@ -78,10 +78,10 @@ type sqlimpl struct {
 }
 
 type Meta struct {
-	UUID      string                    `gorm:"primaryKey; column:uuid; notNull;"`
-	NodeUUID  string                    `gorm:"column:node_uuid;type:varchar(255); notNull; uniqueIndex:idm_user_meta_u1;"`
-	Namespace string                    `gorm:"column:namespace;type:varchar(255); notNull; uniqueIndex:idm_user_meta_u1;"`
-	Owner     string                    `gorm:"column:owner;type:varchar(255); uniqueIndex:idm_user_meta_u1;"`
+	UUID      string                    `gorm:"primaryKey; column:uuid"`
+	NodeUUID  string                    `gorm:"column:node_uuid; type:varchar(255); notNull; index:,unique,composite:u1;"`
+	Namespace string                    `gorm:"column:namespace; type:varchar(255); notNull; index:,unique,composite:u1;"`
+	Owner     string                    `gorm:"column:owner; type:varchar(255); notNull; index:,unique,composite:u1;"`
 	Timestamp int32                     `gorm:"column:timestamp"`
 	Format    string                    `gorm:"column:format;type:varchar(50)"`
 	Data      []byte                    `gorm:"column:data"`

@@ -74,6 +74,7 @@ type customNaming struct {
 
 func (c *customNaming) TableName(name string) string {
 	n := c.NamingStrategy.TableName(name)
+
 	// Special cases
 	// idx_tree - we want it singular
 	n = strings.Replace(n, "_idx_trees", "_idx_tree", 1)
@@ -81,5 +82,6 @@ func (c *customNaming) TableName(name string) string {
 	if c.Policies != "" && n == c.TablePrefix+"resource_policies" {
 		return c.Policies
 	}
+
 	return n
 }

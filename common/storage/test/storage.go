@@ -21,6 +21,7 @@ import (
 	_ "github.com/pydio/cells/v4/common/storage/boltdb"
 	_ "github.com/pydio/cells/v4/common/storage/config"
 	_ "github.com/pydio/cells/v4/common/storage/mongodb"
+	_ "github.com/pydio/cells/v4/common/storage/sql"
 	_ "github.com/pydio/cells/v4/common/utils/cache/gocache"
 )
 
