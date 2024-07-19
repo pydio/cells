@@ -23,11 +23,11 @@ package cmd
 import (
 	"errors"
 	"fmt"
-	"github.com/manifoldco/promptui"
 	"log"
 	"os"
 	"time"
 
+	"github.com/manifoldco/promptui"
 	"github.com/spf13/cobra"
 
 	"github.com/pydio/cells/v4/common/config"
@@ -71,9 +71,9 @@ EXAMPLES
 		path := args[1]
 		data := args[2]
 
-		config.Set(data, "services", id, path)
+		config.Set(ctx, data, "services", id, path)
 
-		if err := config.Save("cli", fmt.Sprintf("Set by path %s/%s", id, path)); err == nil {
+		if err := config.Save(ctx, "cli", fmt.Sprintf("Set by path %s/%s", id, path)); err == nil {
 			cmd.Println(promptui.IconGood + " Config set")
 		} else {
 			log.Fatal(err)

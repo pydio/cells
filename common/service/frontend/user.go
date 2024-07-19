@@ -155,11 +155,11 @@ func (u *User) LoadActiveWorkspace(parameter string) {
 
 }
 
-func (u *User) LoadActiveLanguage(parameter string) string {
+func (u *User) LoadActiveLanguage(ctx context.Context, parameter string) string {
 	if parameter != "" {
 		return parameter
 	}
-	lang := languages.GetDefaultLanguage(config.Get())
+	lang := languages.GetDefaultLanguage(config.Get(ctx))
 	if v := u.FlattenedRolesConfigByName("core.conf", "lang"); v != "" {
 		lang = v
 	}

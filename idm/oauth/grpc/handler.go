@@ -819,7 +819,7 @@ func (h *Handler) Exchange(ctx context.Context, in *pauth.ExchangeRequest) (*pau
 	values.Set("grant_type", "authorization_code")
 	values.Set("code", in.Code)
 	values.Set("code_verifier", "")
-	values.Set("redirect_uri", routing.GetDefaultSiteURL()+"/auth/callback")
+	values.Set("redirect_uri", routing.GetDefaultSiteURL(ctx)+"/auth/callback")
 
 	req, err := http.NewRequest("POST", "", strings.NewReader(values.Encode()))
 	if err != nil {
@@ -860,7 +860,7 @@ func (h *Handler) Refresh(ctx context.Context, in *pauth.RefreshTokenRequest) (*
 	values.Set("grant_type", "refresh_token")
 	values.Set("refresh_token", in.RefreshToken)
 	values.Set("response_type", "id_token token")
-	values.Set("redirect_uri", routing.GetDefaultSiteURL()+"/auth/callback")
+	values.Set("redirect_uri", routing.GetDefaultSiteURL(ctx)+"/auth/callback")
 
 	req, err := http.NewRequest("POST", "", strings.NewReader(values.Encode()))
 	if err != nil {

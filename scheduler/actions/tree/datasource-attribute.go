@@ -107,10 +107,10 @@ func (d *datasourceAttributeAction) Run(ctx context.Context, channels *actions.R
 		ds.StorageConfiguration[attName] = attValue
 	}
 
-	if er := config.Set(ds, "services", "pydio.grpc.data.sync."+ds.Name); er != nil {
+	if er := config.Set(ctx, ds, "services", "pydio.grpc.data.sync."+ds.Name); er != nil {
 		return input.WithError(er), er
 	}
-	if er := config.Save(common.PydioSystemUsername, "Flagging datasource "+ds.Name+" with "+attName+"="+attValue); er != nil {
+	if er := config.Save(ctx, common.PydioSystemUsername, "Flagging datasource "+ds.Name+" with "+attName+"="+attValue); er != nil {
 		return input.WithError(er), er
 	}
 

@@ -21,10 +21,11 @@
 package migrations
 
 import (
+	"context"
 	"fmt"
 	"path"
 
-	"github.com/hashicorp/go-version"
+	version "github.com/hashicorp/go-version"
 	"google.golang.org/protobuf/proto"
 
 	"github.com/pydio/cells/v4/common"
@@ -42,18 +43,21 @@ func init() {
 
 func updateVersionsStore(conf configx.Values) error {
 
+	// TODO NIL CONTEXT
+	var ctx context.Context
+
 	c := conf.Val("services", "pydio.versions-store")
 	dsName := c.Val("datasource").Default(configx.Reference("#/defaults/datasource")).String()
 	bucket := c.Val("bucket").Default("versions").String()
 
 	// Create a new "internal" datasource
-	crtSources := config.ListSourcesFromConfig()
+	crtSources := config.ListSourcesFromConfig(ctx)
 	dsObject, ok := crtSources[dsName]
 	if !ok {
 		return fmt.Errorf("cannot find versions-store datasource")
 	}
 	var newDsName = "versions"
-	if _, exists := config.ListSourcesFromConfig()[newDsName]; exists {
+	if _, exists := config.ListSourcesFromConfig(ctx)[newDsName]; exists {
 		newDsName = "versions" + uuid.New()[0:6]
 	}
 	dsCopy := proto.Clone(dsObject).(*object.DataSource)
@@ -91,18 +95,21 @@ func updateVersionsStore(conf configx.Values) error {
 
 func updateThumbsStore(conf configx.Values) error {
 
+	// TODO NIL CONTEXT
+	var ctx context.Context
+
 	c := conf.Val("services", "pydio.thumbs_store")
 	dsName := c.Val("datasource").Default(configx.Reference("#/defaults/datasource")).String()
 	bucket := c.Val("bucket").Default("thumbs").String()
 
 	// Create a new "internal" datasource
-	crtSources := config.ListSourcesFromConfig()
+	crtSources := config.ListSourcesFromConfig(ctx)
 	dsObject, ok := crtSources[dsName]
 	if !ok {
 		return fmt.Errorf("cannot find thumbs_store datasource")
 	}
 	var newDsName = "thumbnails"
-	if _, exists := config.ListSourcesFromConfig()[newDsName]; exists {
+	if _, exists := config.ListSourcesFromConfig(ctx)[newDsName]; exists {
 		newDsName = "thumbnails" + uuid.New()[0:6]
 	}
 	dsCopy := proto.Clone(dsObject).(*object.DataSource)

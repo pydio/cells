@@ -455,7 +455,7 @@ func (s *Subscriber) jobLevelDataSourceFilterPass(ctx context.Context, event *tr
 		var ds *object.DataSource
 		e := std.Retry(ctx, func() error {
 			var er error
-			ds, er = config.GetSourceInfoByName(dsName)
+			ds, er = config.GetSourceInfoByName(ctx, dsName)
 			return er
 		}, 3, 20)
 		if e != nil {

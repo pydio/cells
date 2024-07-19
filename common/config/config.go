@@ -22,6 +22,8 @@ package config
 
 import (
 	"context"
+	"fmt"
+	"runtime"
 	"sync"
 
 	"github.com/pydio/cells/v4/common/utils/configx"
@@ -66,9 +68,25 @@ type Saver interface {
 	Save(string, string) error
 }
 
+func fromCtxWithCheck(ctx context.Context) Store {
+	var s Store
+	if !propagator.Get(ctx, ContextKey, &s) {
+		pc, file, line, ok := runtime.Caller(2)
+		if ok {
+			if fn := runtime.FuncForPC(pc); fn != nil {
+				fmt.Printf("No config found in context, using default store %s - %s:%d\n", fn.Name(), file, line)
+				return std
+			}
+		}
+		fmt.Println("No config found in context, using default store")
+		return std
+	}
+	return s
+}
+
 // Save the config in the hard store
-func Save(ctxUser string, ctxMessage string) error {
-	if err := std.Save(ctxUser, ctxMessage); err != nil {
+func Save(ctx context.Context, ctxUser string, ctxMessage string) error {
+	if err := fromCtxWithCheck(ctx).Save(ctxUser, ctxMessage); err != nil {
 		return err
 	}
 
@@ -76,23 +94,23 @@ func Save(ctxUser string, ctxMessage string) error {
 }
 
 // Watch for config changes for a specific path or underneath
-func Watch(opts ...configx.WatchOption) (configx.Receiver, error) {
-	return std.Watch(opts...)
+func Watch(ctx context.Context, opts ...configx.WatchOption) (configx.Receiver, error) {
+	return fromCtxWithCheck(ctx).Watch(opts...)
 }
 
 // Get access to the underlying structure at a certain path
-func Get(path ...string) configx.Values {
-	return std.Val(path...)
+func Get(ctx context.Context, path ...string) configx.Values {
+	return fromCtxWithCheck(ctx).Val(path...)
 }
 
 // Set new values at a certain path
-func Set(val interface{}, path ...string) error {
-	return std.Val(path...).Set(val)
+func Set(ctx context.Context, val interface{}, path ...string) error {
+	return fromCtxWithCheck(ctx).Val(path...).Set(val)
 }
 
 // Del value at a certain path
-func Del(path ...string) {
-	std.Val(path...).Del()
+func Del(ctx context.Context, path ...string) {
+	fromCtxWithCheck(ctx).Val(path...).Del()
 }
 
 // GetAndWatch applies a callback on a current value, then watch for its changes and re-apply
@@ -102,10 +120,10 @@ func GetAndWatch(ctx context.Context, configPath []string, callback func(values 
 	for _, s := range configPath {
 		ii = append(ii, s)
 	}
-	values := Get(configx.FormatPath(ii...))
+	values := Get(ctx, configx.FormatPath(ii...))
 	callback(values)
 	go func() {
-		watcher, err := Watch(configx.WithPath(configPath...))
+		watcher, err := Watch(ctx, configx.WithPath(configPath...))
 		if err != nil {
 			return
 		}

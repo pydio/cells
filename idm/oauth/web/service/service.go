@@ -62,7 +62,7 @@ func init() {
 			service.Description("OAuth Provider"),
 			service.WithHTTP(func(ctx context.Context, serveMux routing.RouteRegistrar) error {
 				router := mux.NewRouter()
-				hh := routing.GetSitesAllowedURLs()
+				hh := routing.GetSitesAllowedURLs(ctx)
 				for _, u := range hh {
 					// fmt.Println("Registering router for host", u.String())
 					// Two-level check : Host() is regexp based, fast, but only on Hostname

@@ -50,8 +50,8 @@ type Handler struct {
 }
 
 func NewHandler(serviceCtx context.Context, svcName string) (*Handler, error) {
-
-	conf := config.Get("services", svcName)
+	// TODO - conf should not be read here
+	conf := config.Get(serviceCtx, "services", svcName)
 	h := new(Handler)
 	h.svcName = svcName
 	if er := h.initFromConf(serviceCtx, conf, true); er != nil && h.senderName != "disabled" {
@@ -90,7 +90,7 @@ func (h *Handler) SendMail(ctx context.Context, req *proto.SendMailRequest) (*pr
 		if to.Language != "" {
 			languages = append(languages, to.Language)
 		}
-		configs := templates.GetApplicationConfig(languages...)
+		configs := templates.GetApplicationConfig(ctx, languages...)
 		// Clone email and set unique user
 		m := protobuf.Clone(mail).(*proto.Mail)
 		m.To = []*proto.User{to}
@@ -129,18 +129,18 @@ func (h *Handler) SendMail(ctx context.Context, req *proto.SendMailRequest) (*pr
 				m.From.Address = configs.From
 			}
 		}
-		he := templates.GetHermes(languages...)
+		he := templates.GetHermes(ctx, languages...)
 		if m.ContentHtml == "" {
 			var body hermes.Body
 			if m.TemplateId != "" {
 				var subject string
-				subject, body = templates.BuildTemplateWithId(to, m.TemplateId, m.TemplateData, languages...)
+				subject, body = templates.BuildTemplateWithId(ctx, to, m.TemplateId, m.TemplateData, languages...)
 				m.Subject = subject
 				if m.ContentMarkdown != "" {
 					body.FreeMarkdown = hermes.Markdown(m.ContentMarkdown)
 				}
 			} else {
-				body = templates.PrepareSimpleBody(to, languages...)
+				body = templates.PrepareSimpleBody(ctx, to, languages...)
 				if m.ContentMarkdown != "" {
 					body.FreeMarkdown = hermes.Markdown(m.ContentMarkdown)
 				} else {
@@ -232,7 +232,7 @@ func (h *Handler) initFromConf(ctx context.Context, conf configx.Values, check b
 		if newConfig != initialConfig {
 			//config.Get("services", servicecontext.GetServiceName(ctx), "valid").Set(true)
 			conf.Val("valid").Set(newConfig)
-			config.Save(common.PydioSystemUsername, "Update mailer valid config")
+			config.Save(ctx, common.PydioSystemUsername, "Update mailer valid config")
 		}
 	}()
 
@@ -258,7 +258,7 @@ func (h *Handler) initFromConf(ctx context.Context, conf configx.Values, check b
 
 func (h *Handler) checkConfigChange(ctx context.Context, check bool) error {
 
-	cfg := config.Get("services", h.svcName)
+	cfg := config.Get(ctx, "services", h.svcName)
 	senderName, senderConfig := h.parseConf(cfg)
 	m1, _ := json.Marshal(senderConfig)
 	m2, _ := json.Marshal(h.senderConfig)

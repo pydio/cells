@@ -87,16 +87,16 @@ type BootConf struct {
 
 var versionHash string
 
-func VersionHash() string {
+func VersionHash(ctx context.Context) string {
 	if versionHash != "" {
 		return versionHash
 	}
 	// Create version seed
-	vSeed := config.Get("frontend", "versionSeed").Default("").String()
+	vSeed := config.Get(ctx, "frontend", "versionSeed").Default("").String()
 	if vSeed == "" {
 		vSeed = uuid.New()
-		config.Set(vSeed, "frontend", "versionSeed")
-		config.Save(common.PydioSystemUsername, "Generating version seed")
+		config.Set(ctx, vSeed, "frontend", "versionSeed")
+		config.Save(ctx, common.PydioSystemUsername, "Generating version seed")
 	}
 	md := md5.New()
 	md.Write([]byte(vSeed + common.Version().String()))
@@ -112,12 +112,12 @@ var packagingData []byte
 // There is no proto associated
 func ComputeBootConf(ctx context.Context, pool *PluginsPool, showVersion ...bool) (*BootConf, error) {
 
-	lang := config.Get("frontend", "plugin", "core.pydio", "DEFAULT_LANGUAGE").Default("en-us").String()
-	sessionTimeout := config.Get("frontend", "plugin", "gui.ajax", "SESSION_TIMEOUT").Default(60).Int()
-	clientSession := config.Get("frontend", "plugin", "gui.ajax", "CLIENT_TIMEOUT").Default(24).Int()
-	timeoutWarn := config.Get("frontend", "plugin", "gui.ajax", "CLIENT_TIMEOUT_WARN").Default(3).Int()
+	lang := config.Get(ctx, "frontend", "plugin", "core.pydio", "DEFAULT_LANGUAGE").Default("en-us").String()
+	sessionTimeout := config.Get(ctx, "frontend", "plugin", "gui.ajax", "SESSION_TIMEOUT").Default(60).Int()
+	clientSession := config.Get(ctx, "frontend", "plugin", "gui.ajax", "CLIENT_TIMEOUT").Default(24).Int()
+	timeoutWarn := config.Get(ctx, "frontend", "plugin", "gui.ajax", "CLIENT_TIMEOUT_WARN").Default(3).Int()
 
-	vHash := VersionHash()
+	vHash := VersionHash(ctx)
 	vDate := ""
 	vRev := ""
 	_, tz := time.Now().Zone()
@@ -145,7 +145,7 @@ func ComputeBootConf(ctx context.Context, pool *PluginsPool, showVersion ...bool
 		ENDPOINT_REST_API:            common.DefaultRouteREST,
 		ENDPOINT_S3_GATEWAY:          "/io",
 		ENDPOINT_WEBSOCKET:           "/ws/event",
-		PUBLIC_BASEURI:               routing.GetPublicBaseUri(),
+		PUBLIC_BASEURI:               routing.GetPublicBaseUri(ctx),
 		ZipEnabled:                   true,
 		MultipleFilesDownloadEnabled: true,
 		UsersEditable:                true,
@@ -157,11 +157,11 @@ func ComputeBootConf(ctx context.Context, pool *PluginsPool, showVersion ...bool
 		Client_timeout_warning:       timeoutWarn,
 		AjxpVersion:                  vHash,
 		AjxpVersionDate:              vDate,
-		ValidMailer:                  config.Get("services", "pydio.grpc.mailer", "valid").Default(false).Bool(),
+		ValidMailer:                  config.Get(ctx, "services", "pydio.grpc.mailer", "valid").Default(false).Bool(),
 		Theme:                        "material",
 		AjxpImagesCommon:             true,
 		CustomWording: CustomWording{
-			Title: config.Get("frontend", "plugin", "core.pydio", "APPLICATION_TITLE").Default("Pydio Cells").String(),
+			Title: config.Get(ctx, "frontend", "plugin", "core.pydio", "APPLICATION_TITLE").Default("Pydio Cells").String(),
 			Icon:  "plug/gui.ajax/res/themes/common/images/LoginBoxLogo.png",
 		},
 		AvailableLanguages: languages.AvailableLanguages,
@@ -178,7 +178,7 @@ func ComputeBootConf(ctx context.Context, pool *PluginsPool, showVersion ...bool
 		},
 	}
 
-	if icBinary := config.Get("frontend", "plugin", "gui.ajax", "CUSTOM_ICON_BINARY").Default("").String(); icBinary != "" {
+	if icBinary := config.Get(ctx, "frontend", "plugin", "gui.ajax", "CUSTOM_ICON_BINARY").Default("").String(); icBinary != "" {
 		b.CustomWording.IconBinary = icBinary
 	}
 

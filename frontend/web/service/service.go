@@ -39,10 +39,12 @@ import (
 	"github.com/pydio/cells/v4/common/config/routing"
 	"github.com/pydio/cells/v4/common/middleware"
 	"github.com/pydio/cells/v4/common/proto/front"
+	"github.com/pydio/cells/v4/common/registry"
 	"github.com/pydio/cells/v4/common/runtime"
 	"github.com/pydio/cells/v4/common/service"
 	"github.com/pydio/cells/v4/common/service/frontend"
 	"github.com/pydio/cells/v4/common/telemetry/log"
+	"github.com/pydio/cells/v4/common/utils/propagator"
 	"github.com/pydio/cells/v4/frontend/web"
 )
 
@@ -77,7 +79,7 @@ func init() {
 
 	routing.RegisterRoute(RouteFrontend, "Main Frontend", "/")
 	routing.RegisterRoute(RoutePublic, "Public links access", "/public", routing.WithCustomResolver(func(ctx context.Context) string {
-		return routing.GetPublicBaseUri()
+		return routing.GetPublicBaseUri(ctx)
 	}))
 
 	runtime.Register("main", func(ctx context.Context) {
@@ -120,6 +122,7 @@ func init() {
 				m.Handle("plug/", fs, routing.WithStripPrefix())
 				indexHandler := web.NewIndexHandler(ctx, ResetPasswordPath)
 				indexHandler = middleware.HttpWrapperMeta(ctx, indexHandler)
+				indexHandler = tenantWrapper(ctx, indexHandler)
 				indexHandler = timeoutWrap(indexHandler)
 				indexHandler = recoveryWrap(indexHandler)
 
@@ -134,6 +137,7 @@ func init() {
 				// /public endpoint : special handler for index, redirect to /plug/ for the rest
 				ph := web.NewPublicHandler(ctx)
 				handler := middleware.HttpWrapperMeta(ctx, ph)
+				handler = tenantWrapper(ctx, handler)
 				handler = timeoutWrap(handler)
 				handler = recoveryWrap(handler)
 
@@ -163,7 +167,7 @@ func init() {
 // DropLegacyStatics removes files and references to old PHP data in configuration
 func DropLegacyStatics(ctx context.Context) error {
 
-	frontRoot := config.Get("defaults", "frontRoot").Default(filepath.Join(runtime.ApplicationWorkingDir(), "static", "pydio")).String()
+	frontRoot := config.Get(ctx, "defaults", "frontRoot").Default(filepath.Join(runtime.ApplicationWorkingDir(), "static", "pydio")).String()
 	if frontRoot != "" {
 		if er := os.RemoveAll(frontRoot); er != nil {
 			log.Logger(ctx).Error("Could not remove old PHP data from "+frontRoot+". You may safely delete this folder. Error was", zap.Error(er))
@@ -173,16 +177,26 @@ func DropLegacyStatics(ctx context.Context) error {
 	}
 
 	log.Logger(ctx).Info("Clearing unused configurations")
-	config.Del("defaults", "frontRoot")
-	config.Del("defaults", "fpm")
-	config.Del("defaults", "fronts")
-	config.Del("services", "pydio.frontends")
-	if config.Get("frontend", "plugin", "core.pydio", "APPLICATION_TITLE").String() == "" {
-		config.Set("Pydio Cells", "frontend", "plugin", "core.pydio", "APPLICATION_TITLE")
+	config.Del(ctx, "defaults", "frontRoot")
+	config.Del(ctx, "defaults", "fpm")
+	config.Del(ctx, "defaults", "fronts")
+	config.Del(ctx, "services", "pydio.frontends")
+	if config.Get(ctx, "frontend", "plugin", "core.pydio", "APPLICATION_TITLE").String() == "" {
+		config.Set(ctx, "Pydio Cells", "frontend", "plugin", "core.pydio", "APPLICATION_TITLE")
 	}
-	if e := config.Save(common.PydioSystemUsername, "Upgrade to 1.2.0"); e == nil {
+	if e := config.Save(ctx, common.PydioSystemUsername, "Upgrade to 1.2.0"); e == nil {
 		log.Logger(ctx).Info("[Upgrade] Cleaned unused configurations")
 	}
 
 	return nil
+}
+
+func tenantWrapper(svcContext context.Context, h http.Handler) http.Handler {
+	return http.HandlerFunc(func(rw http.ResponseWriter, req *http.Request) {
+		ctx := propagator.ForkContext(req.Context(), svcContext)
+		var reg registry.Registry
+		propagator.Get(ctx, registry.ContextKey, &reg)
+		ctx, _, _ = middleware.TenantIncomingContext(nil)(ctx)
+		h.ServeHTTP(rw, req.WithContext(ctx))
+	})
 }

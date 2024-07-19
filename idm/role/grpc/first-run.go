@@ -81,7 +81,7 @@ func InitRoles(ctx context.Context) error {
 		return er
 	}
 
-	lang := config.Get("frontend", "plugin", "core.pydio", "DEFAULT_LANGUAGE").Default("en-us").String()
+	lang := config.Get(ctx, "frontend", "plugin", "core.pydio", "DEFAULT_LANGUAGE").Default("en-us").String()
 	langJ, _ := json.Marshal(lang)
 	scopeAll := permissions.FrontWsScopeAll
 	scopeShared := permissions.FrontWsScopeShared

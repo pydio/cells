@@ -37,7 +37,7 @@ func MetaUserPluginModifier(ctx context.Context, status frontend.RequestStatus, 
 		log.Logger(ctx).Debug("Skipping Meta-User Registry Modifier as no user in context")
 		return nil
 	}
-	if config.Get("services", common.ServiceGrpcNamespace_+common.ServiceSearch, "indexContent").Default(false).Bool() {
+	if config.Get(ctx, "services", common.ServiceGrpcNamespace_+common.ServiceSearch, "indexContent").Default(false).Bool() {
 		plugin.ExposeConfigs(map[string]interface{}{
 			"indexContent": true,
 		})

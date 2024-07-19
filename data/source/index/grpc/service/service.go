@@ -43,7 +43,7 @@ import (
 func init() {
 	runtime.Register("main", func(ctx context.Context) {
 		// Retrieve server from the runtime - TODO
-		sources := config.SourceNamesForDataServices(common.ServiceDataIndex)
+		sources := config.SourceNamesForDataServices(ctx, common.ServiceDataIndex)
 		for _, source := range sources {
 			name := common.ServiceGrpcNamespace_ + common.ServiceDataIndex_ + source
 
@@ -55,7 +55,7 @@ func init() {
 				service.Source(source),
 				service.WithStorageDrivers(index.Drivers...),
 				service.WithGRPC(func(ctx context.Context, srv grpc.ServiceRegistrar) error {
-					dsObject, e := config.GetSourceInfoByName(name)
+					dsObject, e := config.GetSourceInfoByName(ctx, name)
 					if e != nil {
 						return fmt.Errorf("cannot find datasource configuration for " + name)
 					}

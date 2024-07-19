@@ -64,9 +64,9 @@ EXAMPLE
 		id := args[0]
 		path := args[1]
 
-		config.Del("services", id, path)
+		config.Del(ctx, "services", id, path)
 
-		err := config.Save("cli", fmt.Sprintf("Delete by path %s/%s", id, path))
+		err := config.Save(ctx, "cli", fmt.Sprintf("Delete by path %s/%s", id, path))
 		if err != nil {
 			cmd.Println(err)
 			return

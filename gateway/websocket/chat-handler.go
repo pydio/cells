@@ -497,7 +497,7 @@ func (c *ChatHandler) sendVideoInfoIfSupported(ctx context.Context, roomUuid str
 	if os.Getenv("CELLS_ENABLE_LIVEKIT") == "" {
 		return
 	}
-	conf := config.Get("frontend", "plugin", "action.livekit")
+	conf := config.Get(ctx, "frontend", "plugin", "action.livekit")
 	if !conf.Val(config.KeyFrontPluginEnabled).Bool() {
 		return
 	}

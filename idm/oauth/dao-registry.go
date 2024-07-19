@@ -111,11 +111,13 @@ type cellsdriver struct {
 	sql.Dependencies
 	db  *gorm.DB
 	cfg *hconfig.DefaultProvider
+	ctx context.Context
 }
 
-func NewRegistryDAO(db *gorm.DB) Registry {
+func NewRegistryDAO(ctx context.Context, db *gorm.DB) Registry {
 	return &cellsdriver{
-		db: db,
+		db:  db,
+		ctx: ctx,
 	}
 }
 
@@ -131,7 +133,7 @@ func (m *cellsdriver) Init(ctx context.Context, skipNetworkInit bool, migrate bo
 
 func (m *cellsdriver) Persister() persistence.Persister {
 	if m.persister == nil {
-		m.persister = newPersister(m.db, m)
+		m.persister = newPersister(m.ctx, m.db, m)
 	}
 	return m.persister
 }
@@ -488,7 +490,7 @@ func (*cellsdriverContextualizer) Config(ctx context.Context, cfg *configx.Provi
 	if secret := c.Val("secret").String(); secret != "" {
 		_ = c2.Val(hconfig.KeyGetSystemSecret).Set([]string{c.Val("secret").String()})
 	}
-	_, dbDSN := config.GetDatabase("pydio.web.oauth")
+	_, dbDSN := config.GetDatabase(ctx, "pydio.web.oauth")
 	_ = c2.Val(hconfig.KeyDSN).Set(dbDSN)
 	_ = c2.Val(hconfig.KeyPublicURL).Set(rootURL + "/oidc")
 	_ = c2.Val(hconfig.KeyIssuerURL).Set(rootURL + "/oidc")
@@ -540,7 +542,9 @@ func createSqlRegistryForConf(serviceName string, conf auth.ConfigurationProvide
 	//	logrusx.ForceFormat("json"),
 	//)
 	// cfg := (*conf.GetProvider()).Config()
-	dbDriver, dbDSN := config.GetDatabase(serviceName)
+
+	// TODO CONTEXT
+	dbDriver, dbDSN := config.GetDatabase(nil, serviceName)
 
 	dbName := ""
 	if dbDriver == "mysql" {
@@ -637,7 +641,8 @@ func varsFromStr(s string, sites []*install.ProxyConfig) []string {
 	var res []string
 	defaultBind := ""
 	if len(sites) > 0 {
-		defaultBind = routing.GetDefaultSiteURL(sites...)
+		// TODO CONTEXT
+		defaultBind = routing.GetDefaultSiteURL(nil, sites...)
 	}
 	if strings.Contains(s, "#default_bind#") {
 

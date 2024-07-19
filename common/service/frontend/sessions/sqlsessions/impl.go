@@ -90,7 +90,7 @@ func (h *Impl) GetSession(r *http.Request) (*sessions.Session, error) {
 
 // Init handler for the SQL DAO
 func (h *Impl) Init(ctx context.Context, options configx.Values) error {
-	keys, er := utils.LoadKey()
+	keys, er := utils.LoadKey(ctx)
 	if er != nil {
 		return er
 	}

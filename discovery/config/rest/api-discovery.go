@@ -430,7 +430,7 @@ func (s *Handler) SchedulerActionFormDiscovery(req *restful.Request, rsp *restfu
 // ListSites implements /config/sites GET API
 func (s *Handler) ListSites(req *restful.Request, rsp *restful.Response) error {
 	// There is an optional Filter string on req
-	ss, err := routing.LoadSites()
+	ss, err := routing.LoadSites(req.Request.Context())
 	if err != nil {
 		return err
 	}

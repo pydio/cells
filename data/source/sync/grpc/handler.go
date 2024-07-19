@@ -95,10 +95,10 @@ func NewHandler(ctx context.Context, datasource string) *Handler {
 	}
 }
 
-func (s *Handler) Init() error {
+func (s *Handler) Init(ctx context.Context) error {
 
 	var syncConfig *object.DataSource
-	if err := config.Get("services", common.ServiceGrpcNamespace_+common.ServiceDataSync_+s.DsName).Scan(&syncConfig); err != nil {
+	if err := config.Get(ctx, "services", common.ServiceGrpcNamespace_+common.ServiceDataSync_+s.DsName).Scan(&syncConfig); err != nil {
 		return err
 	}
 	if sec := config.GetSecret(syncConfig.ApiSecret).String(); sec != "" {
@@ -397,7 +397,7 @@ func (s *Handler) watchDisconnection() {
 			<-time.After(3 * time.Second)
 			var syncConfig *object.DataSource
 			sName := runtime.GetServiceName(s.globalCtx)
-			if err := config.Get("services", sName).Scan(&syncConfig); err != nil {
+			if err := config.Get(s.globalCtx, "services", sName).Scan(&syncConfig); err != nil {
 				log.Logger(s.globalCtx).Error("Cannot read config to reinitialize sync")
 			}
 			if sec := config.GetSecret(syncConfig.ApiSecret).String(); sec != "" {
@@ -457,7 +457,7 @@ func (s *Handler) watchConfigs() {
 
 	// TODO - should be linked to context
 	for {
-		watcher, e := config.Watch(configx.WithPath("services", serviceName))
+		watcher, e := config.Watch(s.globalCtx, configx.WithPath("services", serviceName))
 		if e != nil {
 			time.Sleep(1 * time.Second)
 			continue
@@ -483,7 +483,7 @@ func (s *Handler) watchConfigs() {
 					s.SyncConfig.EncryptionMode = cfg.EncryptionMode
 					s.SyncConfig.EncryptionKey = cfg.EncryptionKey
 					<-time.After(2 * time.Second)
-					config.TouchSourceNamesForDataServices(common.ServiceDataSync)
+					config.TouchSourceNamesForDataServices(s.globalCtx, common.ServiceDataSync)
 				}
 			} else if err != nil {
 				log.Logger(s.globalCtx).Error("Could not scan event", zap.Error(err))

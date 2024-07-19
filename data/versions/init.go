@@ -70,7 +70,7 @@ func PolicyForNode(ctx context.Context, node *tree.Node) *tree.VersioningPolicy 
 	policiesCache, _ := policiesCachePool.Get(ctx)
 
 	dataSourceName := node.GetStringMeta(common.MetaNamespaceDatasourceName)
-	policyName := config.Get("services", common.ServiceGrpcNamespace_+common.ServiceDataSync_+dataSourceName, "VersioningPolicyName").String()
+	policyName := config.Get(ctx, "services", common.ServiceGrpcNamespace_+common.ServiceDataSync_+dataSourceName, "VersioningPolicyName").String()
 	if policyName == "" {
 		return nil
 	}
@@ -115,8 +115,8 @@ func DataSourceForPolicy(ctx context.Context, policy *tree.VersioningPolicy) (no
 	}
 }
 
-func DefaultLocation(originalUUID, versionUUID string) *tree.Node {
-	c := config.Get("services", "pydio.versions-store")
+func DefaultLocation(ctx context.Context, originalUUID, versionUUID string) *tree.Node {
+	c := config.Get(ctx, "services", "pydio.versions-store")
 	dsName := c.Val("datasource").Default(configx.Reference("#/defaults/datasource")).String()
 	vPath := originalUUID + "__" + versionUUID
 	return &tree.Node{

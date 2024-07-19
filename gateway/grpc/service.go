@@ -68,7 +68,7 @@ func init() {
 	)
 	runtime.Register("main", func(ctx context.Context) {
 
-		ss, _ := routing.LoadSites()
+		ss, _ := routing.LoadSites(ctx)
 		var hasClear, hasTls bool
 		for _, s := range ss {
 			if s.HasTLS() {

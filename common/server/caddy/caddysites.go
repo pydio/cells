@@ -52,7 +52,7 @@ type ActiveSite struct {
 // ResolveSites generates a Caddyfile using routing.ResolveProxy with custom resolvers
 func ResolveSites(ctx context.Context, resolver routing.UpstreamsResolver, external bool) ([]byte, []string, error) {
 	// Creating temporary caddy file
-	sites, err := routing.LoadSites()
+	sites, err := routing.LoadSites(ctx)
 	if err != nil {
 		return nil, nil, err
 	}

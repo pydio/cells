@@ -24,18 +24,16 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/pydio/cells/v4/common"
-
-	"github.com/pydio/cells/v4/common/config"
-
 	"google.golang.org/grpc"
 
+	"github.com/pydio/cells/v4/common"
+	"github.com/pydio/cells/v4/common/config"
 	"github.com/pydio/cells/v4/common/proto/object"
 )
 
-func NewDataSourceService(dsName string) *DataSourceService {
+func NewDataSourceService(ctx context.Context, dsName string) *DataSourceService {
 	var os *object.DataSource
-	config.Get("services", common.ServiceGrpcNamespace_+common.ServiceDataSync_+dsName).Scan(&os)
+	config.Get(ctx, "services", common.ServiceGrpcNamespace_+common.ServiceDataSync_+dsName).Scan(&os)
 	serv := &DataSourceService{
 		data: os,
 	}

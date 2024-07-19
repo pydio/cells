@@ -64,16 +64,16 @@ func (s *Handler) PutConfig(req *restful.Request, resp *restful.Response) error 
 	var parsed map[string]interface{}
 	if e := json.Unmarshal([]byte(configuration.Data), &parsed); e == nil {
 		var original map[string]interface{}
-		if o := config.Get(path...).Map(); len(o) > 0 {
+		if o := config.Get(ctx, path...).Map(); len(o) > 0 {
 			original = o
 			// Delete was there to prevent a merge - now done directly in the config lib
 			// config.Del(path...)
 		}
-		config.Set(parsed, path...)
-		if err := config.Save(u, "Setting config via API"); err != nil {
+		config.Set(ctx, parsed, path...)
+		if err := config.Save(ctx, u, "Setting config via API"); err != nil {
 			log.Logger(ctx).Error("Put", zap.Error(err))
 			if original != nil {
-				config.Set(original, path...)
+				config.Set(ctx, original, path...)
 			}
 			return err
 		}
@@ -81,7 +81,7 @@ func (s *Handler) PutConfig(req *restful.Request, resp *restful.Response) error 
 		// Reload new data
 		return resp.WriteEntity(&rest.Configuration{
 			FullPath: configuration.FullPath,
-			Data:     config.Get(path...).String(),
+			Data:     config.Get(ctx, path...).String(),
 		})
 	} else {
 		return errors.Tag(e, errors.UnmarshalError)
@@ -101,7 +101,7 @@ func (s *Handler) GetConfig(req *restful.Request, resp *restful.Response) error 
 		return errors.WithMessage(errors.StatusForbidden, "you are not allowed to edit that configuration")
 	}
 
-	data := config.Get(path...).String()
+	data := config.Get(ctx, path...).String()
 
 	output := &rest.Configuration{
 		FullPath: fullPath,

@@ -45,7 +45,7 @@ DESCRIPTION
   See 'sites' command help for more info about Sites management.
 `,
 	Run: func(cmd *cobra.Command, args []string) {
-		sites, e := routing.LoadSites(true)
+		sites, e := routing.LoadSites(ctx, true)
 		if len(sites) == 0 {
 			cmd.Println("No sites are defined in config, currently using defaults. Nothing to do.")
 			return

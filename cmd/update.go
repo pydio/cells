@@ -39,6 +39,7 @@ import (
 )
 
 var updateToVersion string
+
 var updateDryRun bool
 
 var updateBinCmd = &cobra.Command{
@@ -57,7 +58,7 @@ DESCRIPTION
 	},
 	Run: func(cmd *cobra.Command, args []string) {
 
-		configs := config.GetUpdatesConfigs()
+		configs := config.GetUpdatesConfigs(ctx)
 		binaries, e := update2.LoadUpdates(context.Background(), configs, &update.UpdateRequest{})
 		if e != nil {
 			log.Fatal("Cannot retrieve available updates", zap.Error(e))

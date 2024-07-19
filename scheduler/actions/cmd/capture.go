@@ -174,7 +174,7 @@ func (c *CaptureAction) Run(ctx context.Context, channels *actions.RunnableChann
 	sides := jobs.EvaluateFieldStr(ctx, input, c.sides)
 
 	var syncConfig *object.DataSource
-	if err := config.Get("services", common.ServiceGrpcNamespace_+common.ServiceDataSync_+dsName).Scan(&syncConfig); err != nil {
+	if err := config.Get(ctx, "services", common.ServiceGrpcNamespace_+common.ServiceDataSync_+dsName).Scan(&syncConfig); err != nil {
 		return input.WithError(err), err
 	}
 	if sec := config.GetSecret(syncConfig.ApiSecret).String(); sec != "" {

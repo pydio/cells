@@ -102,7 +102,7 @@ func activityClient(ctx context.Context) activity.ActivityServiceClient {
 // Run processes the actual action code
 func (m *MailDigestAction) Run(ctx context.Context, channels *actions.RunnableChannels, input *jobs.ActionMessage) (*jobs.ActionMessage, error) {
 
-	if !config.Get("services", common.ServiceGrpcNamespace_+common.ServiceMailer, "valid").Default(false).Bool() {
+	if !config.Get(ctx, "services", common.ServiceGrpcNamespace_+common.ServiceMailer, "valid").Default(false).Bool() {
 		log.Logger(ctx).Debug("Ignoring as no valid mailer was found")
 		return input.WithIgnore(), nil
 	}
@@ -123,7 +123,7 @@ func (m *MailDigestAction) Run(ctx context.Context, channels *actions.RunnableCh
 	if displayName, has = userObject.Attributes["displayName"]; !has {
 		displayName = userObject.Login
 	}
-	lang := languages.UserLanguage(ctx, userObject, config.Get())
+	lang := languages.UserLanguage(ctx, userObject, config.Get(ctx))
 
 	query := &activity.StreamActivitiesRequest{
 		Context:     activity.StreamContext_USER_ID,
@@ -159,8 +159,8 @@ func (m *MailDigestAction) Run(ctx context.Context, channels *actions.RunnableCh
 	}
 
 	links := render.NewServerLinks()
-	url := config.Get("services", "pydio.grpc.mailer", "url").Default(routing.GetDefaultSiteURL()).String()
-	linkUrl := config.Get("services", "pydio.rest.share", "url").Default(url).String()
+	url := config.Get(ctx, "services", "pydio.grpc.mailer", "url").Default(routing.GetDefaultSiteURL(ctx)).String()
+	linkUrl := config.Get(ctx, "services", "pydio.rest.share", "url").Default(url).String()
 	if linkUrl != "" {
 		links.UrlFuncs[render.ServerUrlTypeDocs] = func(object *activity.Object, label string) string {
 			return render.MakeMarkdownLink(linkUrl+"/ws-"+strings.TrimLeft(object.Name, "/"), label)

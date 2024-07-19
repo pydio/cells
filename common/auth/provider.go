@@ -63,7 +63,8 @@ func InitConfiguration(values configx.Values) {
 	confMutex.Lock()
 	defer confMutex.Unlock()
 	initConnector := false
-	for _, rootUrl := range routing.GetSitesAllowedURLs() {
+	// TODO CONTEXT
+	for _, rootUrl := range routing.GetSitesAllowedURLs(nil) {
 		p := NewProvider(rootUrl.String(), values)
 		if !initConnector {
 			// Use first conf as default

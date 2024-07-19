@@ -21,6 +21,7 @@
 package config
 
 import (
+	"context"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -40,13 +41,13 @@ var (
 )
 
 // ListMinioConfigsFromConfig scans configs for objects services configs
-func ListMinioConfigsFromConfig() map[string]*object.MinioConfig {
+func ListMinioConfigsFromConfig(ctx context.Context) map[string]*object.MinioConfig {
 	res := make(map[string]*object.MinioConfig)
 
-	names := SourceNamesForDataServices(common.ServiceDataObjects)
+	names := SourceNamesForDataServices(ctx, common.ServiceDataObjects)
 	for _, name := range names {
 		var conf *object.MinioConfig
-		if e := Get(configx.FormatPath("services", common.ServiceGrpcNamespace_+common.ServiceDataObjects_+name)).Scan(&conf); e == nil && conf != nil {
+		if e := Get(ctx, configx.FormatPath("services", common.ServiceGrpcNamespace_+common.ServiceDataObjects_+name)).Scan(&conf); e == nil && conf != nil {
 			res[name] = conf
 			// Replace ApiSecret with value from vault
 			if sec := GetSecret(conf.ApiSecret).String(); sec != "" {
@@ -58,20 +59,20 @@ func ListMinioConfigsFromConfig() map[string]*object.MinioConfig {
 }
 
 // ListSourcesFromConfig scans configs for sync services configs
-func ListSourcesFromConfig() map[string]*object.DataSource {
+func ListSourcesFromConfig(ctx context.Context) map[string]*object.DataSource {
 	res := make(map[string]*object.DataSource)
-	names := SourceNamesForDataServices(common.ServiceDataSync)
+	names := SourceNamesForDataServices(ctx, common.ServiceDataSync)
 	for _, name := range names {
-		if conf, e := GetSourceInfoByName(name); e == nil {
+		if conf, e := GetSourceInfoByName(ctx, name); e == nil {
 			res[name] = conf
 		}
 	}
 	return res
 }
 
-func GetSourceInfoByName(dsName string) (*object.DataSource, error) {
+func GetSourceInfoByName(ctx context.Context, dsName string) (*object.DataSource, error) {
 	var conf *object.DataSource
-	c := Get(configx.FormatPath("services", common.ServiceGrpcNamespace_+common.ServiceDataSync_+dsName))
+	c := Get(ctx, configx.FormatPath("services", common.ServiceGrpcNamespace_+common.ServiceDataSync_+dsName))
 	if e := c.Scan(&conf); e == nil {
 		if conf == nil {
 			return nil, fmt.Errorf("cannot load source by name " + dsName)
@@ -83,8 +84,8 @@ func GetSourceInfoByName(dsName string) (*object.DataSource, error) {
 }
 
 // SourceNamesForDataServices list sourceNames from the config, excluding the timestamp key
-func SourceNamesForDataServices(dataSrvType string) []string {
-	return SourceNamesFromDataConfigs(Get(configx.FormatPath("services", common.ServiceGrpcNamespace_+dataSrvType)))
+func SourceNamesForDataServices(ctx context.Context, dataSrvType string) []string {
+	return SourceNamesFromDataConfigs(Get(ctx, configx.FormatPath("services", common.ServiceGrpcNamespace_+dataSrvType)))
 }
 
 // SourceNamesFromDataConfigs list sourceNames from the config, excluding the timestamp key
@@ -105,34 +106,34 @@ func SourceNamesFiltered(names []string) []string {
 }
 
 // SourceNamesToConfig saves index and sync sources to configs
-func SourceNamesToConfig(sources map[string]*object.DataSource) {
+func SourceNamesToConfig(ctx context.Context, sources map[string]*object.DataSource) {
 	var sourcesJsonKey []string
 	for name := range sources {
 		sourcesJsonKey = append(sourcesJsonKey, name)
 	}
 	// Append a timestamped value to make sure it modifies the sources and triggers a config.Watch() event
 	sourcesJsonKey = append(sourcesJsonKey, fmt.Sprintf("%s%v", sourcesTimestampPrefix, time.Now().Unix()))
-	Set(sourcesJsonKey, configx.FormatPath("services", common.ServiceGrpcNamespace_+common.ServiceDataSync, "sources"))
-	Set(sourcesJsonKey, configx.FormatPath("services", common.ServiceGrpcNamespace_+common.ServiceDataIndex, "sources"))
+	Set(ctx, sourcesJsonKey, configx.FormatPath("services", common.ServiceGrpcNamespace_+common.ServiceDataSync, "sources"))
+	Set(ctx, sourcesJsonKey, configx.FormatPath("services", common.ServiceGrpcNamespace_+common.ServiceDataIndex, "sources"))
 }
 
 // TouchSourceNamesForDataServices update the timestamp set with the source list
-func TouchSourceNamesForDataServices(dataSrvType string) {
-	sources := SourceNamesForDataServices(dataSrvType)
+func TouchSourceNamesForDataServices(ctx context.Context, dataSrvType string) {
+	sources := SourceNamesForDataServices(ctx, dataSrvType)
 	sources = append(sources, fmt.Sprintf("%s%v", sourcesTimestampPrefix, time.Now().Unix()))
-	Set(sources, configx.FormatPath("services", common.ServiceGrpcNamespace_+dataSrvType, "sources"))
-	Save(common.PydioSystemUsername, "Touch sources update date for "+dataSrvType)
+	Set(ctx, sources, configx.FormatPath("services", common.ServiceGrpcNamespace_+dataSrvType, "sources"))
+	Save(ctx, common.PydioSystemUsername, "Touch sources update date for "+dataSrvType)
 }
 
 // MinioConfigNamesToConfig saves objects sources to config
-func MinioConfigNamesToConfig(sources map[string]*object.MinioConfig) {
+func MinioConfigNamesToConfig(ctx context.Context, sources map[string]*object.MinioConfig) {
 	var sourcesJSONKey []string
 	for name := range sources {
 		sourcesJSONKey = append(sourcesJSONKey, name)
 	}
 	// Append a timestamped value to make sure it modifies the sources and triggers a config.Watch() event
 	sourcesJSONKey = append(sourcesJSONKey, fmt.Sprintf("%s%v", sourcesTimestampPrefix, time.Now().Unix()))
-	Set(sourcesJSONKey, configx.FormatPath("services", common.ServiceGrpcNamespace_+common.ServiceDataObjects, "sources"))
+	Set(ctx, sourcesJSONKey, configx.FormatPath("services", common.ServiceGrpcNamespace_+common.ServiceDataObjects, "sources"))
 }
 
 // IndexServiceTableNames returns table names for indexes

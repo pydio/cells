@@ -79,7 +79,7 @@ func init() {
 						_, _ = jobsClient.DeleteJob(bg, &jobs.DeleteJobRequest{JobID: "prune-versions-job"})
 						reinsert = true
 					}
-					vJob := grpc2.GetVersioningJob(languages.GetDefaultLanguage(config.Get()))
+					vJob := grpc2.GetVersioningJob(languages.GetDefaultLanguage(config.Get(ctx)))
 					if _, err := jobsClient.GetJob(bg, &jobs.GetJobRequest{JobID: vJob.ID}); err != nil || reinsert {
 						if _, er := jobsClient.PutJob(bg, &jobs.PutJobRequest{Job: vJob}); er != nil {
 							log.Logger(ctx).Error("Cannot insert versioning job", zap.Error(er))

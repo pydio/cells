@@ -183,7 +183,7 @@ func (p *PluginsPool) AllPluginsManifests(ctx context.Context, lang string) *Cpl
 	}
 	emptyStatus := RequestStatus{
 		RuntimeCtx:    ctx,
-		Config:        config.Get(),
+		Config:        config.Get(ctx),
 		Lang:          lang,
 		NoClaims:      true,
 		AclParameters: configx.New(),
@@ -332,16 +332,19 @@ func (p *PluginsPool) parseI18nFolder(ns string, lang string, defaultLang string
 	} else if f2, e2 := p.fs.Open(path.Join(libPath, defaultLang+".all.json")); e2 == nil {
 		f = f2
 	}
-	appTitle := config.Get("frontend", "plugin", "core.pydio", "APPLICATION_TITLE").String()
+	//TODO move to another layer
+	//appTitle := config.Get(ctx, "frontend", "plugin", "core.pydio", "APPLICATION_TITLE").String()
 	if f != nil {
 		content, _ := io.ReadAll(f)
 		var data map[string]Translation
 		if e1 := json.Unmarshal(content, &data); e1 == nil {
 			for k, trans := range data {
 				v := trans.Other
-				if appTitle != "" && strings.Contains(v, "APPLICATION_TITLE") {
-					v = strings.Replace(v, "APPLICATION_TITLE", appTitle, -1)
-				}
+				/*
+					if appTitle != "" && strings.Contains(v, "APPLICATION_TITLE") {
+						v = strings.Replace(v, "APPLICATION_TITLE", appTitle, -1)
+					}
+				*/
 				if ns == "" {
 					msg[k] = v
 				} else {

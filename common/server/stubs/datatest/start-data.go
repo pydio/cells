@@ -47,8 +47,8 @@ func RegisterTreeAndDatasources(treeNodes ...*tree.Node) error {
 			return e
 		}
 		grpc.RegisterMock(common.ServiceDataIndex_+ds, idx)
-
-		dsServ := NewDataSourceService(ds)
+		// TODO Context With Config
+		dsServ := NewDataSourceService(nil, ds)
 		grpc.RegisterMock(common.ServiceDataSync_+ds, dsServ)
 	}
 

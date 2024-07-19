@@ -34,14 +34,14 @@ func init() {
 	config.RegisterProxy("frontend/plugin/editor.libreoffice", config.ProxySetter(func(s config.Store, val interface{}, pa ...string) error {
 		if m, o := val.(map[string]interface{}); o {
 			if b, isBool := m[config.KeyFrontPluginEnabled].(bool); isBool {
-				_ = config.Set(b, "services", common.ServiceWebNamespace_+LibreOffice, "enabled")
+				_ = s.Val("services", common.ServiceWebNamespace_+LibreOffice, "enabled").Set(b)
 			}
 		}
 		return s.Val(pa...).Set(val)
 	}))
 
 	routing.RegisterRoute(RouteMain, "Collabora Leaflet API", "/leaflet", routing.WithCustomResolver(func(ctx context.Context) string {
-		version := config.Get("frontend", "plugin", "editor.libreoffice").Val("LIBREOFFICE_CODE_VERSION").Default("v6").String()
+		version := config.Get(ctx, "frontend", "plugin", "editor.libreoffice").Val("LIBREOFFICE_CODE_VERSION").Default("v6").String()
 		if version != "v6" {
 			return "/browser"
 		} else {
@@ -50,7 +50,7 @@ func init() {
 	}))
 
 	routing.RegisterRoute(RouteWs, "Collabora Websocket API", "/lool", routing.WithCustomResolver(func(ctx context.Context) string {
-		version := config.Get("frontend", "plugin", "editor.libreoffice").Val("LIBREOFFICE_CODE_VERSION").Default("v6").String()
+		version := config.Get(ctx, "frontend", "plugin", "editor.libreoffice").Val("LIBREOFFICE_CODE_VERSION").Default("v6").String()
 		if version != "v6" {
 			return "/cool"
 		} else {
@@ -68,7 +68,7 @@ func init() {
 			service.AutoRestart(true),
 			service.Description("Grpc service for internal requests about frontend manifest"),
 			service.WithHTTP(func(ctx context.Context, mux routing.RouteRegistrar) error {
-				pconf := config.Get("frontend", "plugin", "editor.libreoffice")
+				pconf := config.Get(ctx, "frontend", "plugin", "editor.libreoffice")
 				enabled := pconf.Val(config.KeyFrontPluginEnabled).Default(false).Bool()
 				if !enabled {
 					log.Logger(ctx).Info("Skipping LibreOffice plugin as not enabled")

@@ -114,7 +114,7 @@ func (a *TokenHandler) ResetPasswordToken(req *restful.Request, resp *restful.Re
 		response.Message = T("ResetPassword.Err.EmailNotFound")
 		return resp.WriteEntity(response)
 	}
-	uLang := languages.UserLanguage(ctx, u, config.Get())
+	uLang := languages.UserLanguage(ctx, u, config.Get(ctx))
 	T = lang.Bundle().T(uLang)
 
 	// Create token and store as document
@@ -215,7 +215,7 @@ func (a *TokenHandler) ResetPassword(req *restful.Request, resp *restful.Respons
 		response.Message = T("ResetPassword.Err.UserNotFound")
 		return resp.WriteEntity(response)
 	}
-	uLang := languages.UserLanguage(ctx, u, config.Get())
+	uLang := languages.UserLanguage(ctx, u, config.Get(ctx))
 	T = lang.Bundle().T(uLang)
 	u.Password = input.NewPassword
 	userClient := idmc.UserServiceClient(ctx)
@@ -268,7 +268,7 @@ func (a *TokenHandler) GenerateDocumentAccessToken(req *restful.Request, resp *r
 	}
 	scope := fmt.Sprintf("node:%s:%s", readResp.Node.GetUuid(), permission)
 
-	cVal := config.Get("defaults", "personalTokens", "documentTokensRefresh").Default("30m").String()
+	cVal := config.Get(ctx, "defaults", "personalTokens", "documentTokensRefresh").Default("30m").String()
 	var refresh int32
 	if d, e := time.ParseDuration(cVal); e != nil {
 		refresh = 30 * 60

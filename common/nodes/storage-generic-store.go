@@ -21,6 +21,7 @@
 package nodes
 
 import (
+	"context"
 	"fmt"
 
 	"github.com/pydio/cells/v4/common"
@@ -29,7 +30,7 @@ import (
 )
 
 // GetGenericStoreClientConfig finds datasource/bucket for a given store.
-func GetGenericStoreClientConfig(storeNamespace string) (dataSource string, bucket string, e error) {
+func GetGenericStoreClientConfig(ctx context.Context, storeNamespace string) (dataSource string, bucket string, e error) {
 
 	// TMP - TO BE FIXED
 	var configKey string
@@ -42,7 +43,7 @@ func GetGenericStoreClientConfig(storeNamespace string) (dataSource string, buck
 		configKey = "pydio." + storeNamespace
 	}
 
-	c := config.Get("services", configKey)
+	c := config.Get(ctx, "services", configKey)
 
 	dataSource = c.Val("datasource").Default(configx.Reference("#/defaults/datasource")).String()
 	bucket = c.Val("bucket").String()

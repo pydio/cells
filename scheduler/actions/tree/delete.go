@@ -122,7 +122,7 @@ func (c *DeleteAction) Run(ctx context.Context, channels *actions.RunnableChanne
 		return input.WithIgnore(), nil // Ignore
 	}
 
-	T := lang.Bundle().T(languages.UserLanguageFromContext(ctx, config.Get(), true))
+	T := lang.Bundle().T(languages.UserLanguageFromContext(ctx, config.Get(ctx), true))
 
 	childrenOnly, e := jobs.EvaluateFieldBool(ctx, input, c.childrenOnlyParam)
 	if e != nil {

@@ -71,7 +71,7 @@ func (h *Handler) Run(ctx context.Context, req *test.RunTestsRequest) (*test.Run
 	// Assume there is a "cellsdata" datasource
 	var dsConf *object.DataSource
 	srvName := common.ServiceGrpcNamespace_ + common.ServiceDataSync_ + "cellsdata"
-	if e := config.Get("services", srvName).Scan(&dsConf); e != nil {
+	if e := config.Get(ctx, "services", srvName).Scan(&dsConf); e != nil {
 		return nil, fmt.Errorf("cannot read config for " + srvName)
 	}
 	dsConf.ApiKey = "mycustomapikey"
@@ -93,7 +93,7 @@ func (h *Handler) Run(ctx context.Context, req *test.RunTestsRequest) (*test.Run
 	// Try same tests on a gateway
 	var gatewayConf *object.DataSource
 	gatewayName := common.ServiceGrpcNamespace_ + common.ServiceDataSync_ + "s3ds"
-	if e := config.Get("services", gatewayName).Scan(&gatewayConf); e != nil || gatewayConf == nil {
+	if e := config.Get(ctx, "services", gatewayName).Scan(&gatewayConf); e != nil || gatewayConf == nil {
 		res := test.NewTestResult("Testing on gateways3 datasource")
 		res.Log("[SKIPPED] Cannot read config for " + gatewayName + " - Please create an S3 datasource named gateways3")
 		resp.Results = append(resp.Results, res)

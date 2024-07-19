@@ -33,11 +33,11 @@ func SessionName(r *http.Request) string {
 }
 
 // LoadKey loads secure session key from config or generates a new one
-func LoadKey() ([]byte, error) {
+func LoadKey(ctx context.Context) ([]byte, error) {
 	if knownKey != nil {
 		return knownKey, nil
 	}
-	val := config.Get("frontend", "session", "secureKey").String()
+	val := config.Get(ctx, "frontend", "session", "secureKey").String()
 	if val != "" {
 		if kk, e := base64.StdEncoding.DecodeString(val); e == nil {
 			knownKey = kk
@@ -46,10 +46,10 @@ func LoadKey() ([]byte, error) {
 	}
 	knownKey = securecookie.GenerateRandomKey(64)
 	val = base64.StdEncoding.EncodeToString(knownKey)
-	if er := config.Get("frontend", "session", "secureKey").Set(val); er != nil {
+	if er := config.Get(ctx, "frontend", "session", "secureKey").Set(val); er != nil {
 		return nil, er
 	}
-	if e := config.Save(common.PydioSystemUsername, "Generating session random key"); e != nil {
+	if e := config.Save(ctx, common.PydioSystemUsername, "Generating session random key"); e != nil {
 		log.Logger(context.Background()).Error("Failed saving secure key to config, session will not be persisted after restart!", zap.Error(e))
 		return nil, e
 	}

@@ -21,6 +21,7 @@
 package templates
 
 import (
+	"context"
 	"fmt"
 	"strings"
 
@@ -56,24 +57,24 @@ type ApplicationConfigs struct {
 	DisableCSSInlining bool
 }
 
-func GetApplicationConfig(languages ...string) ApplicationConfigs {
+func GetApplicationConfig(ctx context.Context, languages ...string) ApplicationConfigs {
 	T := lang.Bundle().T(languages...)
 
-	url := config.Get("services", "pydio.grpc.mailer", "url").Default(routing.GetDefaultSiteURL()).String()
-	linkUrl := config.Get("services", "pydio.rest.share", "url").Default(url).String()
+	url := config.Get(ctx, "services", "pydio.grpc.mailer", "url").Default(routing.GetDefaultSiteURL(ctx)).String()
+	linkUrl := config.Get(ctx, "services", "pydio.rest.share", "url").Default(url).String()
 
-	from := config.Get("services", "pydio.grpc.mailer", "from").Default("do-not-reply@pydio.com").String()
-	fromName := config.Get("services", "pydio.grpc.mailer", "fromName").Default("").String()
+	from := config.Get(ctx, "services", "pydio.grpc.mailer", "from").Default("do-not-reply@pydio.com").String()
+	fromName := config.Get(ctx, "services", "pydio.grpc.mailer", "fromName").Default("").String()
 
 	// "default" value is interpreted by the configs internal - read map directly instead of looking for "@value"
 	fromCtl := "user"
-	legacyFromMap := config.Get("services", "pydio.grpc.mailer", "fromCtl").Map()
+	legacyFromMap := config.Get(ctx, "services", "pydio.grpc.mailer", "fromCtl").Map()
 	if tt, ok := legacyFromMap["@value"]; ok {
 		if s, o := tt.(string); o {
 			fromCtl = s
 		}
 	}
-	fromMap := config.Get("services", "pydio.grpc.mailer").Map()
+	fromMap := config.Get(ctx, "services", "pydio.grpc.mailer").Map()
 	if tt, ok := fromMap["fromCtl"]; ok {
 		if s, o := tt.(string); o {
 			fromCtl = s
@@ -98,7 +99,7 @@ func GetApplicationConfig(languages ...string) ApplicationConfigs {
 		Signature:          T("Mail.Main.Signature"),
 		Theme:              new(pydioTheme),
 		ButtonsColor:       "#22BC66",
-		DisableCSSInlining: config.Get("services", "pydio.grpc.mailer", "disableCssInlining").Default(true).Bool(),
+		DisableCSSInlining: config.Get(ctx, "services", "pydio.grpc.mailer", "disableCssInlining").Default(true).Bool(),
 	}
 
 	if len(templateFilters) > 0 {

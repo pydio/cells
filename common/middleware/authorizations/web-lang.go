@@ -13,8 +13,7 @@ import (
 
 func HttpWrapperLanguage(_ context.Context, h http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		// Todo config should be contextualized
-		ll := languages.UserLanguagesFromRestRequest(&restful.Request{Request: r}, config.Get())
+		ll := languages.UserLanguagesFromRestRequest(&restful.Request{Request: r}, config.Get(r.Context()))
 		ctx := middleware.WithDetectedLanguages(r.Context(), ll)
 		r = r.WithContext(ctx)
 		h.ServeHTTP(w, r)

@@ -206,8 +206,8 @@ func (h *GraphHandler) Recommend(req *restful.Request, rsp *restful.Response) er
 
 	router := compose.UuidClient(h.runtimeContext)
 
-	showActivities := config.Get("services", common.ServiceRestNamespace_+common.ServiceGraph, "recommendations", "activities").Default(true).Bool()
-	showBookmarks := config.Get("services", common.ServiceRestNamespace_+common.ServiceGraph, "recommendations", "bookmarks").Default(true).Bool()
+	showActivities := config.Get(ctx, "services", common.ServiceRestNamespace_+common.ServiceGraph, "recommendations", "activities").Default(true).Bool()
+	showBookmarks := config.Get(ctx, "services", common.ServiceRestNamespace_+common.ServiceGraph, "recommendations", "bookmarks").Default(true).Bool()
 
 	wg := &sync.WaitGroup{}
 	if showActivities {

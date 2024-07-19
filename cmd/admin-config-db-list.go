@@ -45,7 +45,7 @@ type configDbService struct {
 
 func configDatabaseList() (dd []*configDatabase) {
 
-	m := config.Get("databases").Map()
+	m := config.Get(ctx, "databases").Map()
 
 	for id, v := range m {
 

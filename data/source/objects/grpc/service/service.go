@@ -41,8 +41,8 @@ func init() {
 
 	runtime.Register("main", func(ctx context.Context) {
 
-		sources := config.SourceNamesForDataServices(common.ServiceDataObjects)
-		mm := config.ListMinioConfigsFromConfig()
+		sources := config.SourceNamesForDataServices(ctx, common.ServiceDataObjects)
+		mm := config.ListMinioConfigsFromConfig(ctx)
 
 		for _, datasource := range sources {
 			service.NewService(

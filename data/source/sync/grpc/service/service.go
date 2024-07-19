@@ -50,8 +50,8 @@ func init() {
 
 	runtime.Register("main", func(ctx context.Context) {
 
-		sources := config.SourceNamesForDataServices(common.ServiceDataSync)
-		dss := config.ListSourcesFromConfig()
+		sources := config.SourceNamesForDataServices(ctx, common.ServiceDataSync)
+		dss := config.ListSourcesFromConfig(ctx)
 
 		for _, datasource := range sources {
 			//if !runtime.IsRequired(datasource) {
@@ -113,7 +113,7 @@ func newService(ctx context.Context, dsObject *object.DataSource) {
 
 			go func(syncHandler *grpc_sync.Handler) error {
 
-				if e := syncHandler.Init(); e != nil {
+				if e := syncHandler.Init(ctx); e != nil {
 					return e
 				}
 
@@ -172,10 +172,10 @@ func newService(ctx context.Context, dsObject *object.DataSource) {
 						// Now save config without "initFromBucket" key
 						newValue := proto.Clone(dsObject).(*object.DataSource)
 						delete(newValue.StorageConfiguration, clearConfigKey)
-						if ce := config.Set(newValue, "services", serviceName); ce != nil {
+						if ce := config.Set(ctx, newValue, "services", serviceName); ce != nil {
 							log.Logger(jobCtx).Error("[initFromBucket] Removing "+clearConfigKey+" key from datasource", zap.Error(ce))
 						} else {
-							if err := config.Save("system", "Removing "+clearConfigKey+" key from datasource "+serviceName); err != nil {
+							if err := config.Save(ctx, "system", "Removing "+clearConfigKey+" key from datasource "+serviceName); err != nil {
 								log.Logger(jobCtx).Error("[initFromBucket] Saving "+clearConfigKey+" key removal from datasource", zap.Error(err))
 							} else {
 								log.Logger(jobCtx).Info("[initFromBucket] Removed "+clearConfigKey+" key from datasource", zap.Object("ds", newValue))
@@ -210,15 +210,16 @@ func newService(ctx context.Context, dsObject *object.DataSource) {
 		}),
 	)
 
-	if storage := WithStorage(datasource); storage != nil {
+	// Todo Ctx should be tenant-ized
+	if storage := WithStorage(ctx, datasource); storage != nil {
 		sOptions = append(sOptions, storage)
 	}
 	service.NewService(sOptions...)
 
 }
 
-func WithStorage(source string) service.ServiceOption {
-	mapperType := config.Get("services", common.ServiceGrpcNamespace_+common.ServiceDataSync_+source, "StorageConfiguration", "checksumMapper").String()
+func WithStorage(ctx context.Context, source string) service.ServiceOption {
+	mapperType := config.Get(ctx, "services", common.ServiceGrpcNamespace_+common.ServiceDataSync_+source, "StorageConfiguration", "checksumMapper").String()
 	switch mapperType {
 	case "dao":
 		// todo define prefix data_sync_{SOURCE}

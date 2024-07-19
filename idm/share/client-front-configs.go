@@ -55,7 +55,7 @@ func (sc *Client) CheckLinkOptionsAgainstConfigs(ctx context.Context, link *rest
 	if e != nil {
 		return PluginOptions{}, e
 	}
-	options := sc.DefaultOptions()
+	options := sc.DefaultOptions(ctx)
 	checkScopes := permissions.FrontValuesScopesFromWorkspaceRelativePaths(wss)
 	options = sc.filterOptionsFromScopes(options, contextParams, checkScopes)
 
@@ -89,7 +89,7 @@ func (sc *Client) CheckCellOptionsAgainstConfigs(ctx context.Context, cell *rest
 	if e != nil {
 		return e
 	}
-	options := sc.DefaultOptions()
+	options := sc.DefaultOptions(ctx)
 	aclWss := acl.GetWorkspaces()
 	return router.WrapCallback(func(inputFilter nodes.FilterFunc, outputFilter nodes.FilterFunc) error {
 		for _, n := range cell.RootNodes {
@@ -129,9 +129,9 @@ func (sc *Client) CheckCellOptionsAgainstConfigs(ctx context.Context, cell *rest
 }
 
 // DefaultOptions loads the plugin default options, without further context-based filtering
-func (sc *Client) DefaultOptions() PluginOptions {
+func (sc *Client) DefaultOptions(ctx context.Context) PluginOptions {
 	// Defaults
-	configParams := config.Get("frontend", "plugin", "action.share")
+	configParams := config.Get(ctx, "frontend", "plugin", "action.share")
 	options := PluginOptions{
 		MaxExpiration:           configParams.Val("FILE_MAX_EXPIRATION").Default(-1).Int(),
 		MaxDownloads:            configParams.Val("FILE_MAX_DOWNLOAD").Default(-1).Int(),

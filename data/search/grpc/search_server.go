@@ -246,9 +246,9 @@ func (s *SearchServer) TriggerResync(ctx context.Context, req *protosync.ResyncR
 		log.Logger(ctx).Info("Will Re-Index DataSource " + reqPath)
 	} else {
 		// List all Datasources
-		dss := config.SourceNamesForDataServices(common.ServiceDataSync)
+		dss := config.SourceNamesForDataServices(ctx, common.ServiceDataSync)
 		for _, dn := range dss {
-			if ds, e := config.GetSourceInfoByName(dn); e == nil {
+			if ds, e := config.GetSourceInfoByName(ctx, dn); e == nil {
 				if ds.Disabled || ds.IsInternal() {
 					continue
 				}

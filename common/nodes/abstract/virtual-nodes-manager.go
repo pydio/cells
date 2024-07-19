@@ -135,7 +135,7 @@ func (m *VirtualNodesManager) Load(ctx context.Context, forceReload ...bool) err
 	if e := m.Cache.Set("###virtual-nodes###", m.nodes); e != nil {
 		log.Logger(ctx).Warn("cannot set virtual-nodes to cache", zap.Error(e))
 	}
-	if config.Get("services", "pydio.grpc.user", "loginCI").Default(false).Bool() {
+	if config.Get(ctx, "services", "pydio.grpc.user", "loginCI").Default(false).Bool() {
 		m.loginLower = true
 	}
 	return nil

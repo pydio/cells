@@ -42,8 +42,9 @@ type Balancer interface {
 }
 
 func NewBalancer(excludeId string) Balancer {
+	// TODO - Recheck - do we want to contextualize this config?
 	var clusterConfig *client.ClusterConfig
-	config.Get("cluster").Default(&client.ClusterConfig{}).Scan(&clusterConfig)
+	config.Get(nil, "cluster").Default(&client.ClusterConfig{}).Scan(&clusterConfig)
 	clientConfig := clusterConfig.GetClientConfig("http")
 
 	opts := &client.BalancerOptions{}

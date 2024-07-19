@@ -152,8 +152,8 @@ DESCRIPTION
 				}
 				index, _, _ := prompt.Run()
 				if index == 0 {
-					config.Set(version.Data)
-					config.Save("cli", "Config Restoration to version "+configVersionRestore)
+					config.Set(ctx, version.Data)
+					config.Save(ctx, "cli", "Config Restoration to version "+configVersionRestore)
 				}
 			} else {
 				log.Fatal("Cannot parse version Id")

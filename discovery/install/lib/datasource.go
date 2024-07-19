@@ -21,6 +21,7 @@
 package lib
 
 import (
+	"context"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -41,7 +42,7 @@ func init() {
 }
 
 // actionDatasourceAdd created default datasources at install
-func actionDatasourceAdd(c *install.InstallConfig) error {
+func actionDatasourceAdd(ctx context.Context, c *install.InstallConfig) error {
 
 	var conf *object.DataSource
 	var err error
@@ -69,19 +70,19 @@ func actionDatasourceAdd(c *install.InstallConfig) error {
 	minioConfig.ApiSecret = keyUuid
 	conf.ApiSecret = keyUuid
 	// Now store in config
-	if er := config.Set(minioConfig, "services", fmt.Sprintf(`pydio.grpc.data.objects.%s`, minioConfig.Name)); er != nil {
+	if er := config.Set(ctx, minioConfig, "services", fmt.Sprintf(`pydio.grpc.data.objects.%s`, minioConfig.Name)); er != nil {
 		return er
 	}
-	if er := config.Set([]string{minioConfig.Name}, "services", "pydio.grpc.data.objects", "sources"); er != nil {
+	if er := config.Set(ctx, []string{minioConfig.Name}, "services", "pydio.grpc.data.objects", "sources"); er != nil {
 		return er
 	}
 
 	// Store keys
 	sources := []string{conf.Name, "personal", "cellsdata", "versions", "thumbnails"}
-	if er := config.Set(sources, "services", "pydio.grpc.data.index", "sources"); er != nil {
+	if er := config.Set(ctx, sources, "services", "pydio.grpc.data.index", "sources"); er != nil {
 		return er
 	}
-	if er := config.Set(sources, "services", "pydio.grpc.data.sync", "sources"); er != nil {
+	if er := config.Set(ctx, sources, "services", "pydio.grpc.data.sync", "sources"); er != nil {
 		return er
 	}
 	s3buckets := make(map[string]string, len(sources))
@@ -103,16 +104,16 @@ func actionDatasourceAdd(c *install.InstallConfig) error {
 	for _, source := range sources {
 		// Store indexes tables
 		index := fmt.Sprintf(`pydio.grpc.data.index.%s`, source)
-		if er := config.Set("default", "services", index, "dsn"); er != nil {
+		if er := config.Set(ctx, "default", "services", index, "dsn"); er != nil {
 			return er
 		}
 		if conf.PeerAddress != "" {
-			if er := config.Set(conf.PeerAddress, "services", index, "PeerAddress"); er != nil {
+			if er := config.Set(ctx, conf.PeerAddress, "services", index, "PeerAddress"); er != nil {
 				return er
 			}
 		}
 		tableNames := config.IndexServiceTableNames(source)
-		if er := config.Set(tableNames, "services", index, "tables"); er != nil {
+		if er := config.Set(ctx, tableNames, "services", index, "tables"); er != nil {
 			return er
 		}
 
@@ -132,24 +133,24 @@ func actionDatasourceAdd(c *install.InstallConfig) error {
 		}
 		sourceConf.StorageConfiguration[object.StorageKeyHashingVersion] = object.CurrentHashingVersion
 		sync := fmt.Sprintf(`pydio.grpc.data.sync.%s`, source)
-		if er := config.Set(sourceConf, "services", sync); er != nil {
+		if er := config.Set(ctx, sourceConf, "services", sync); er != nil {
 			return er
 		}
 	}
 
 	// Set main dsName as default
-	if config.Get("defaults", "datasource").String() == "" {
-		if er := config.Set(conf.Name, "defaults", "datasource"); er != nil {
+	if config.Get(ctx, "defaults", "datasource").String() == "" {
+		if er := config.Set(ctx, conf.Name, "defaults", "datasource"); er != nil {
 			return er
 		}
 	}
 
 	// For S3 Case, technical buckets are generally custom ones
 	if conf.StorageType == object.StorageType_S3 {
-		if er := config.Set(c.GetDsS3BucketBinaries(), "services", "pydio.docstore-binaries", "bucket"); er != nil {
+		if er := config.Set(ctx, c.GetDsS3BucketBinaries(), "services", "pydio.docstore-binaries", "bucket"); er != nil {
 			return er
 		}
-		if er := config.Set(c.GetDsS3BucketThumbs(), "services", "pydio.thumbs_store", "bucket"); er != nil {
+		if er := config.Set(ctx, c.GetDsS3BucketThumbs(), "services", "pydio.thumbs_store", "bucket"); er != nil {
 			return er
 		}
 	}
@@ -157,7 +158,7 @@ func actionDatasourceAdd(c *install.InstallConfig) error {
 		"datasource": "versions",
 		"bucket":     s3buckets["versions"],
 	}
-	if er := config.Set(vStoreConf, "services", "pydio.versions-store"); er != nil {
+	if er := config.Set(ctx, vStoreConf, "services", "pydio.versions-store"); er != nil {
 		return er
 	}
 
@@ -165,11 +166,11 @@ func actionDatasourceAdd(c *install.InstallConfig) error {
 		"datasource": "thumbnails",
 		"bucket":     s3buckets["thumbnails"],
 	}
-	if er := config.Set(tStoreConf, "services", "pydio.thumbs_store"); er != nil {
+	if er := config.Set(ctx, tStoreConf, "services", "pydio.thumbs_store"); er != nil {
 		return er
 	}
 
-	return config.Save("cli", "Install / Setting default DataSources")
+	return config.Save(ctx, "cli", "Install / Setting default DataSources")
 }
 
 func addDatasourceS3(c *install.InstallConfig) (*object.DataSource, error) {

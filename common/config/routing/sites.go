@@ -21,6 +21,7 @@
 package routing
 
 import (
+	"context"
 	"net/url"
 
 	"github.com/pkg/errors"
@@ -42,9 +43,9 @@ var (
 )
 
 // GetDefaultSiteURL returns the first available bindURL of all available sites
-func GetDefaultSiteURL(sites ...*install.ProxyConfig) string {
+func GetDefaultSiteURL(ctx context.Context, sites ...*install.ProxyConfig) string {
 	if len(sites) == 0 {
-		sites, _ = LoadSites()
+		sites, _ = LoadSites(ctx)
 	}
 	// Try first to find a declared external URL
 	for _, s := range sites {
@@ -61,8 +62,8 @@ func GetDefaultSiteURL(sites ...*install.ProxyConfig) string {
 
 // GetSitesAllowedURLs returns a map of hostname => url for all sites.
 // TODO : this function could switch to a list of specific authorized hostnames
-func GetSitesAllowedURLs() map[string]*url.URL {
-	ss, _ := LoadSites()
+func GetSitesAllowedURLs(ctx context.Context) map[string]*url.URL {
+	ss, _ := LoadSites(ctx)
 	hh := make(map[string]*url.URL)
 	for _, site := range ss {
 		for k, v := range site.GetExternalUrls() {
@@ -78,10 +79,10 @@ func GetSitesAllowedURLs() map[string]*url.URL {
 // - INTERNAL CONFIG
 // - If none is found, returns a default value
 // If configOnly is set to true, will only return the ones saved in configs
-func LoadSites(configOnly ...bool) ([]*install.ProxyConfig, error) {
+func LoadSites(ctx context.Context, configOnly ...bool) ([]*install.ProxyConfig, error) {
 
 	var sites []*install.ProxyConfig
-	if e := config.Get(configx.FormatPath("defaults", "sites")).Scan(&sites); e != nil {
+	if e := config.Get(ctx, configx.FormatPath("defaults", "sites")).Scan(&sites); e != nil {
 		return nil, errors.WithMessage(e, "error while parsing sites from config ")
 	}
 	if len(configOnly) > 0 && configOnly[0] {
@@ -101,12 +102,12 @@ func LoadSites(configOnly ...bool) ([]*install.ProxyConfig, error) {
 }
 
 // SaveSites saves a list of sites inside configuration
-func SaveSites(sites []*install.ProxyConfig, user, msg string) error {
+func SaveSites(ctx context.Context, sites []*install.ProxyConfig, user, msg string) error {
 
-	if e := config.Set(sites, configx.FormatPath("defaults", "sites")); e != nil {
+	if e := config.Set(ctx, sites, configx.FormatPath("defaults", "sites")); e != nil {
 		return e
 	}
-	if e := config.Save(user, msg); e != nil {
+	if e := config.Save(ctx, user, msg); e != nil {
 		return e
 	}
 	return nil
@@ -114,13 +115,13 @@ func SaveSites(sites []*install.ProxyConfig, user, msg string) error {
 }
 
 // GetPublicBaseUri returns the default public uri
-func GetPublicBaseUri() string {
-	return "/" + slug.Make(config.Get(configx.FormatPath("frontend", "plugin", "action.share", "LINK_PUBLIC_URI_BASE")).Default("public").String())
+func GetPublicBaseUri(ctx context.Context) string {
+	return "/" + slug.Make(config.Get(ctx, configx.FormatPath("frontend", "plugin", "action.share", "LINK_PUBLIC_URI_BASE")).Default("public").String())
 }
 
 // GetPublicBaseDavSegment returns the segment used to exposed minisites through DAV
-func GetPublicBaseDavSegment() string {
-	return slug.Make(config.Get(configx.FormatPath("frontend", "plugin", "action.share", "LINK_PUBLIC_URI_DAV_SEGMENT")).Default("dav").String())
+func GetPublicBaseDavSegment(ctx context.Context) string {
+	return slug.Make(config.Get(ctx, configx.FormatPath("frontend", "plugin", "action.share", "LINK_PUBLIC_URI_DAV_SEGMENT")).Default("dav").String())
 }
 
 func EnvOverrideDefaultBind() bool {

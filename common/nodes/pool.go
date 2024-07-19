@@ -160,7 +160,7 @@ func (p *ClientsPool) GetTreeClientWrite() tree.NodeReceiverClient {
 func (p *ClientsPool) GetDataSourceInfo(dsName string, retries ...int) (LoadedSource, error) {
 
 	if dsName == "default" {
-		dsName = config.Get("defaults", "datasource").Default("default").String()
+		dsName = config.Get(p.ctx, "defaults", "datasource").Default("default").String()
 	}
 
 	p.RLock()
@@ -236,11 +236,11 @@ func (p *ClientsPool) LoadDataSources() {
 		return
 	}
 
-	sources := config.Get("services", common.ServiceGrpcNamespace_+common.ServiceDataSync, "sources").StringArray()
+	sources := config.Get(p.ctx, "services", common.ServiceGrpcNamespace_+common.ServiceDataSync, "sources").StringArray()
 	sources = config.SourceNamesFiltered(sources)
 
 	for _, source := range sources {
-		if config.Get("services", common.ServiceGrpcNamespace_+common.ServiceDataSync_+source, "Disabled").Bool() {
+		if config.Get(p.ctx, "services", common.ServiceGrpcNamespace_+common.ServiceDataSync_+source, "Disabled").Bool() {
 			continue
 		}
 
@@ -270,7 +270,7 @@ func (p *ClientsPool) LoadDataSources() {
 }
 
 func (p *ClientsPool) registerAlternativeClient(namespace string) error {
-	dataSource, bucket, err := GetGenericStoreClientConfig(namespace)
+	dataSource, bucket, err := GetGenericStoreClientConfig(p.ctx, namespace)
 	if err != nil {
 		return err
 	}
@@ -322,7 +322,7 @@ func (p *ClientsPool) reloadDebounced() {
 
 func (p *ClientsPool) watchConfigChanges() {
 	for {
-		watcher, err := config.Watch(configx.WithPath("services", common.ServiceGrpcNamespace_+common.ServiceDataSync, "sources"))
+		watcher, err := config.Watch(p.ctx, configx.WithPath("services", common.ServiceGrpcNamespace_+common.ServiceDataSync, "sources"))
 		if err != nil {
 			// Cool-off period
 			time.Sleep(1 * time.Second)

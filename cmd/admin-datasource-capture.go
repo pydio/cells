@@ -83,7 +83,8 @@ EXAMPLES
 		}
 
 		var syncConfig *object.DataSource
-		if err := config.Get("services", common.ServiceGrpcNamespace_+common.ServiceDataSync_+captureDsName).Scan(&syncConfig); err != nil {
+		// TODO
+		if err := config.Get(cmd.Context(), "services", common.ServiceGrpcNamespace_+common.ServiceDataSync_+captureDsName).Scan(&syncConfig); err != nil {
 			return err
 		}
 		if sec := config.GetSecret(syncConfig.ApiSecret).String(); sec != "" {

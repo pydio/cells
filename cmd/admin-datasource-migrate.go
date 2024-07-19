@@ -237,13 +237,13 @@ DESCRIPTION
 			p := promptui.Prompt{Label: "Objects format is fully re-structured, do you wish to update configuration", IsConfirm: true, Default: "y"}
 			if _, e := p.Run(); e == nil {
 
-				_ = config.Set(tgtBucket, "services", common.ServiceGrpcNamespace_+common.ServiceDataSync_+source.Name, "ObjectsBucket")
+				_ = config.Set(ctx, tgtBucket, "services", common.ServiceGrpcNamespace_+common.ServiceDataSync_+source.Name, "ObjectsBucket")
 				if fKey, o := source.StorageConfiguration[object.StorageKeyFolder]; o {
 					fKey = path.Join(path.Dir(fKey), tgtBucket)
-					_ = config.Set(fKey, "services", common.ServiceGrpcNamespace_+common.ServiceDataSync_+source.Name, "StorageConfiguration", object.StorageKeyFolder)
+					_ = config.Set(ctx, fKey, "services", common.ServiceGrpcNamespace_+common.ServiceDataSync_+source.Name, "StorageConfiguration", object.StorageKeyFolder)
 				}
-				_ = config.Set(tgtFmt == "flat", "services", common.ServiceGrpcNamespace_+common.ServiceDataSync_+source.Name, "FlatStorage")
-				_ = config.Save(common.PydioSystemUsername, "Migrating datasource format")
+				_ = config.Set(ctx, tgtFmt == "flat", "services", common.ServiceGrpcNamespace_+common.ServiceDataSync_+source.Name, "FlatStorage")
+				_ = config.Save(ctx, common.PydioSystemUsername, "Migrating datasource format")
 				migrateLogger("Updated DataSource configuration after migration", true)
 			}
 		} else {
@@ -259,7 +259,7 @@ DESCRIPTION
 }
 
 func migratePickDS() (source *object.DataSource, srcFmt, tgtFmt, srcBucket, tgtBucket string, e error) {
-	dss := config.ListSourcesFromConfig()
+	dss := config.ListSourcesFromConfig(ctx)
 	var dsName string
 	var opts []string
 	for _, ds := range dss {

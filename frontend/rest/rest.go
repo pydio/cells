@@ -95,11 +95,11 @@ func (a *FrontendHandler) FrontState(req *restful.Request, rsp *restful.Response
 	}
 
 	user.LoadActiveWorkspace(req.QueryParameter("ws"))
-	lang := user.LoadActiveLanguage(req.QueryParameter("lang"))
+	lang := user.LoadActiveLanguage(ctx, req.QueryParameter("lang"))
 
 	rolesConfigs := user.FlattenedRolesConfigs()
 
-	c := config.Get()
+	c := config.Get(ctx)
 	aclParameters := rolesConfigs.Val("parameters")
 	aclActions := rolesConfigs.Val("actions")
 	scopes := user.GetActiveScopes()
@@ -162,7 +162,7 @@ func (a *FrontendHandler) FrontPlugins(req *restful.Request, rsp *restful.Respon
 	if lang == "" {
 		user := &frontend.User{}
 		if e := user.Load(req.Request.Context()); e == nil {
-			if l := user.LoadActiveLanguage(""); l != "" {
+			if l := user.LoadActiveLanguage(req.Request.Context(), ""); l != "" {
 				lang = l
 			}
 		}

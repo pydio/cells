@@ -69,7 +69,7 @@ func (m *DataSourceSelector) Select(ctx context.Context, input *ActionMessage, o
 		}
 		return nil
 	}
-	for _, ds := range m.loadDSS() {
+	for _, ds := range m.loadDSS(ctx) {
 		if m.All || m.evaluate(ctx, m.Query, input, ds) {
 			objects <- ds
 		}
@@ -92,8 +92,8 @@ func (m *DataSourceSelector) SelectorLabel() string {
 	return m.SelectorID()
 }
 
-func (m *DataSourceSelector) loadDSS() (sources []*object.DataSource) {
-	for _, ds := range config.ListSourcesFromConfig() {
+func (m *DataSourceSelector) loadDSS(ctx context.Context) (sources []*object.DataSource) {
+	for _, ds := range config.ListSourcesFromConfig(ctx) {
 		sources = append(sources, ds)
 	}
 	return

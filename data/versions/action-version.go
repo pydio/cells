@@ -100,7 +100,7 @@ func (c *VersionAction) Run(ctx context.Context, channels *actions.RunnableChann
 	if node.Etag == common.NodeFlagEtagTemporary || tree.IgnoreNodeForOutput(ctx, node) {
 		return input.WithIgnore(), nil // Ignore
 	}
-	T := lang.Bundle().T(languages.GetDefaultLanguage(config.Get()))
+	T := lang.Bundle().T(languages.GetDefaultLanguage(config.Get(ctx)))
 	policy := PolicyForNode(ctx, node)
 	if policy == nil {
 		return input.WithIgnore(), nil

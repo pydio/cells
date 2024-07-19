@@ -18,9 +18,9 @@ import (
 )
 
 // NewCookieDAO creates an encrypted cookies carried along with requests
-func NewCookieDAO(some *sc.Conn) DAO {
+func NewCookieDAO(ctx context.Context, some *sc.Conn) DAO {
 
-	timeout := config.Get("frontend", "plugin", "gui.ajax", "SESSION_TIMEOUT").Default(60).Int()
+	timeout := config.Get(ctx, "frontend", "plugin", "gui.ajax", "SESSION_TIMEOUT").Default(60).Int()
 	defaultOptions := &sessions.Options{
 		Path:     "/a/frontend",
 		MaxAge:   60 * timeout,
@@ -43,7 +43,7 @@ func NewCookieDAO(some *sc.Conn) DAO {
 	}
 
 	ci.sessionStores = make(map[string]sessions.Store)
-	if k, e := utils.LoadKey(); e == nil {
+	if k, e := utils.LoadKey(ctx); e == nil {
 		ci.secureKeyPairs = k
 	}
 
@@ -51,8 +51,8 @@ func NewCookieDAO(some *sc.Conn) DAO {
 }
 
 // NewSQLDAO stores sessions in DB
-func NewSQLDAO(db *gorm.DB) DAO {
-	timeout := config.Get("frontend", "plugin", "gui.ajax", "SESSION_TIMEOUT").Default(60).Int()
+func NewSQLDAO(ctx context.Context, db *gorm.DB) DAO {
+	timeout := config.Get(ctx, "frontend", "plugin", "gui.ajax", "SESSION_TIMEOUT").Default(60).Int()
 	defaultOptions := &sessions.Options{
 		Path:     "/a/frontend",
 		MaxAge:   60 * timeout,
@@ -80,7 +80,7 @@ type cookiesImpl struct {
 
 func (s *cookiesImpl) Init(ctx context.Context, values configx.Values) error {
 	s.sessionStores = make(map[string]sessions.Store)
-	if k, e := utils.LoadKey(); e != nil {
+	if k, e := utils.LoadKey(ctx); e != nil {
 		return e
 	} else {
 		s.secureKeyPairs = k

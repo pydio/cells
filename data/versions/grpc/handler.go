@@ -58,7 +58,7 @@ func (h *Handler) buildVersionDescription(ctx context.Context, version *tree.Cha
 		serverLinks := render.NewServerLinks()
 		serverLinks.URLS[render.ServerUrlTypeUsers], _ = url.Parse("user://")
 		ac, _ := activity.DocumentActivity(version.OwnerUuid, version.Event)
-		description = render.Markdown(ac, activity2.SummaryPointOfView_SUBJECT, languages.UserLanguageFromContext(ctx, config.Get(), true), serverLinks)
+		description = render.Markdown(ac, activity2.SummaryPointOfView_SUBJECT, languages.UserLanguageFromContext(ctx, config.Get(ctx), true), serverLinks)
 	} else {
 		description = "N/A"
 	}
@@ -92,7 +92,7 @@ func (h *Handler) ListVersions(request *tree.ListVersionsRequest, versionsStream
 
 	for l := range logs {
 		if l.GetLocation() == nil {
-			l.Location = versions.DefaultLocation(request.Node.Uuid, l.Uuid)
+			l.Location = versions.DefaultLocation(ctx, request.Node.Uuid, l.Uuid)
 		}
 		l.Description = h.buildVersionDescription(ctx, l)
 		resp := &tree.ListVersionsResponse{Version: l}
@@ -115,7 +115,7 @@ func (h *Handler) HeadVersion(ctx context.Context, request *tree.HeadVersionRequ
 	}
 	if (v != &tree.ChangeLog{}) {
 		if v.GetLocation() == nil {
-			v.Location = versions.DefaultLocation(request.Node.Uuid, v.Uuid)
+			v.Location = versions.DefaultLocation(ctx, request.Node.Uuid, v.Uuid)
 		}
 		return &tree.HeadVersionResponse{Version: v}, nil
 	}
@@ -186,7 +186,7 @@ func (h *Handler) StoreVersion(ctx context.Context, request *tree.StoreVersionRe
 	}
 	for _, pv := range resp.PruneVersions {
 		if pv.Location == nil {
-			pv.Location = versions.DefaultLocation(request.Node.Uuid, pv.Uuid)
+			pv.Location = versions.DefaultLocation(ctx, request.Node.Uuid, pv.Uuid)
 		}
 	}
 
@@ -264,7 +264,7 @@ func (h *Handler) PruneVersions(ctx context.Context, request *tree.PruneVersions
 			defer wg.Done()
 			for cLog := range allLogs {
 				if cLog.Location == nil {
-					cLog.Location = versions.DefaultLocation(i, cLog.Uuid)
+					cLog.Location = versions.DefaultLocation(ctx, i, cLog.Uuid)
 				} else {
 					cLog.Location.Type = tree.NodeType_LEAF
 				}

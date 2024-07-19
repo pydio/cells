@@ -74,11 +74,11 @@ func ListServicesWithStorage() (ss []service.Service, e error) {
 	return ss, nil
 }
 
-func actionConfigsSet(c *install.InstallConfig) error {
+func actionConfigsSet(ctx context.Context, c *install.InstallConfig) error {
 
 	// OAuth web
 	oauthWeb := common.ServiceWebNamespace_ + common.ServiceOAuth
-	if config.Get("services", oauthWeb, "secret").String() != "" {
+	if config.Get(ctx, "services", oauthWeb, "secret").String() != "" {
 		// Secret already set
 		return nil
 	}
@@ -88,13 +88,13 @@ func actionConfigsSet(c *install.InstallConfig) error {
 		return err
 	}
 
-	if er := config.Set([]string{"#insecure_binds...#/auth/callback"}, "services", oauthWeb, "insecureRedirects"); er != nil {
+	if er := config.Set(ctx, []string{"#insecure_binds...#/auth/callback"}, "services", oauthWeb, "insecureRedirects"); er != nil {
 		return er
 	}
-	if er := config.Set(string(secret), "services", oauthWeb, "secret"); er != nil {
+	if er := config.Set(ctx, string(secret), "services", oauthWeb, "secret"); er != nil {
 		return er
 	}
 
-	return config.Save("cli", "Generating secret of "+oauthWeb+" service")
+	return config.Save(ctx, "cli", "Generating secret of "+oauthWeb+" service")
 
 }

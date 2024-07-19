@@ -25,7 +25,7 @@ func init() {
 	config.RegisterProxy("frontend/plugin/action.livekit", config.ProxySetter(func(s config.Store, val interface{}, pa ...string) error {
 		if m, o := val.(map[string]interface{}); o {
 			if b, isBool := m[config.KeyFrontPluginEnabled].(bool); isBool {
-				_ = config.Set(b, "services", common.ServiceWebNamespace_+LiveKit, "enabled")
+				_ = s.Val("services", common.ServiceWebNamespace_+LiveKit, "enabled").Set(b)
 			}
 		}
 		return s.Val(pa...).Set(val)
@@ -42,8 +42,8 @@ func init() {
 			service.Description("Grpc service for internal requests about frontend manifest"),
 			service.WithHTTP(func(ctx context.Context, mux routing.RouteRegistrar) error {
 
-				enabled := config.Get("frontend", "plugin", "action.livekit", config.KeyFrontPluginEnabled).Bool()
-				lkUrl := config.Get("frontend", "plugin", "action.livekit", "LK_WS_URL").String()
+				enabled := config.Get(ctx, "frontend", "plugin", "action.livekit", config.KeyFrontPluginEnabled).Bool()
+				lkUrl := config.Get(ctx, "frontend", "plugin", "action.livekit", "LK_WS_URL").String()
 				if !enabled || lkUrl == "" {
 					log.Logger(ctx).Info("Skipping Livekit plugin as not enabled")
 					return nil

@@ -88,13 +88,13 @@ func (h *PublicHandler) computeTplConf(req *http.Request, linkId string) (status
 	ctx := req.Context()
 
 	tplConf = &TplConf{
-		ApplicationTitle: config.Get("frontend", "plugin", "core.pydio", "APPLICATION_TITLE").Default("Pydio Cells").String(),
+		ApplicationTitle: config.Get(ctx, "frontend", "plugin", "core.pydio", "APPLICATION_TITLE").Default("Pydio Cells").String(),
 		ResourcesFolder:  "plug/gui.ajax/res",
 		Favicon:          "plug/gui.ajax/res/themes/common/images/favicon.png",
 		Theme:            "material",
-		Version:          frontend.VersionHash(),
+		Version:          frontend.VersionHash(ctx),
 	}
-	if customHeader := config.Get("frontend", "plugin", "gui.ajax", "HTML_CUSTOM_HEADER").String(); customHeader != "" {
+	if customHeader := config.Get(ctx, "frontend", "plugin", "gui.ajax", "HTML_CUSTOM_HEADER").String(); customHeader != "" {
 		tplConf.CustomHTMLHeader = template.HTML(customHeader)
 	}
 
@@ -204,7 +204,7 @@ func (h *PublicHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.Header().Set("Content-Type", "text/html; charset=utf8")
-	for hK, hV := range config.Get("frontend", "secureHeaders").StringMap() {
+	for hK, hV := range config.Get(r.Context(), "frontend", "secureHeaders").StringMap() {
 		w.Header().Set(hK, hV)
 	}
 	if strings.Contains(r.Header.Get("Accept-Encoding"), "gzip") {
@@ -278,7 +278,7 @@ func (h *PublicHandler) ServeDAV(w http.ResponseWriter, r *http.Request, linkId 
 		return fmt.Errorf("[404] cannot find dav path")
 	}
 
-	davPrefix := path.Join(routing.GetPublicBaseUri(), linkId, routing.GetPublicBaseDavSegment())
+	davPrefix := path.Join(routing.GetPublicBaseUri(ctx), linkId, routing.GetPublicBaseDavSegment(ctx))
 	log.Logger(ctx).Debug("processing dav request on public link", zap.String("inputPath", inputPath), zap.String("davPrefix", davPrefix), zap.String("routerPrefix", innerPrefix), zap.String("davPath", davPath))
 	davHandler, prefixRouter := dav.GetHandler(h.runtimeContext, davPrefix, innerPrefix)
 
@@ -301,9 +301,10 @@ func (h *PublicHandler) ServeDAV(w http.ResponseWriter, r *http.Request, linkId 
 }
 
 func (h *PublicHandler) parseLinkId(r *http.Request) (linkId, davPath string) {
-	linkId = strings.Trim(strings.TrimPrefix(r.URL.Path, routing.GetPublicBaseUri()), "/")
+	ctx := r.Context()
+	linkId = strings.Trim(strings.TrimPrefix(r.URL.Path, routing.GetPublicBaseUri(ctx)), "/")
 	parts := strings.Split(linkId, "/")
-	davSegment := routing.GetPublicBaseDavSegment()
+	davSegment := routing.GetPublicBaseDavSegment(ctx)
 	if len(parts) > 1 && parts[1] == davSegment {
 		linkId = parts[0]
 		if len(parts) > 2 {
@@ -385,12 +386,12 @@ func (h *PublicHandler) davDirectoryIndex(w http.ResponseWriter, r *http.Request
 	if r.Method != http.MethodGet {
 		return
 	}
+	ctx := r.Context()
 
-	indexConf := config.Get("frontend", "plugin", "action.share", "LINK_PUBLIC_DIRECTORY_INDEXES").Default("_cells_index.html,_cells_listing.phtml,_cells_listing.json").String()
+	indexConf := config.Get(ctx, "frontend", "plugin", "action.share", "LINK_PUBLIC_DIRECTORY_INDEXES").Default("_cells_index.html,_cells_listing.phtml,_cells_listing.json").String()
 	if indexConf == "" {
 		return
 	}
-	ctx := r.Context()
 	resp, er := router.ReadNode(ctx, &tree.ReadNodeRequest{Node: &tree.Node{Path: innerPath}})
 	if er != nil {
 		return
@@ -435,11 +436,11 @@ func (h *PublicHandler) davDirectoryIndex(w http.ResponseWriter, r *http.Request
 		break
 	}
 	if cType == "" && (hasTemplate || hasJson) { // No content found, maybe default ?
-		if defPhtml := config.Get("frontend", "plugin", "action.share", "LINK_PUBLIC_DIRECTORY_LISTING_PHTML").String(); defPhtml != "" {
+		if defPhtml := config.Get(ctx, "frontend", "plugin", "action.share", "LINK_PUBLIC_DIRECTORY_LISTING_PHTML").String(); defPhtml != "" {
 			content = []byte(defPhtml)
 			cType = "text/html"
 			evalT = true
-		} else if defJson := config.Get("frontend", "plugin", "action.share", "LINK_PUBLIC_DIRECTORY_LISTING_PHTML").String(); defJson != "" {
+		} else if defJson := config.Get(ctx, "frontend", "plugin", "action.share", "LINK_PUBLIC_DIRECTORY_LISTING_PHTML").String(); defJson != "" {
 			content = []byte(defJson)
 			cType = "application/json"
 			evalT = true

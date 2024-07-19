@@ -119,7 +119,7 @@ func (a *UploadLimitFilter) getUploadLimits(ctx context.Context) (limit int64, e
 	extensionsName := "ALLOWED_EXTENSIONS"
 
 	var stringExts string
-	if v := config.Get("frontend", "plugin", pName).StringMap(); v != nil {
+	if v := config.Get(ctx, "frontend", "plugin", pName).StringMap(); v != nil {
 		if u, ok := v[maxSizeName]; ok {
 			if l, e := strconv.ParseInt(u, 10, 64); e == nil {
 				limit = l

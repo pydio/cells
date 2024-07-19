@@ -52,7 +52,7 @@ type Handler struct {
 
 func (h *Handler) UpdateRequired(ctx context.Context, request *update.UpdateRequest) (*update.UpdateResponse, error) {
 
-	configs := config.GetUpdatesConfigs()
+	configs := config.GetUpdatesConfigs(ctx)
 	binaries, e := update2.LoadUpdates(ctx, configs, request)
 	if e != nil {
 		log.Logger(ctx).Error("Failed retrieving available updates", zap.Error(e))
@@ -68,10 +68,10 @@ func (h *Handler) UpdateRequired(ctx context.Context, request *update.UpdateRequ
 
 func (h *Handler) ApplyUpdate(ctx context.Context, request *update.ApplyUpdateRequest) (*update.ApplyUpdateResponse, error) {
 
-	crtLang := languages.UserLanguageFromContext(ctx, config.Get(), true)
+	crtLang := languages.UserLanguageFromContext(ctx, config.Get(ctx), true)
 	T := lang.Bundle().T(crtLang)
 
-	configs := config.GetUpdatesConfigs()
+	configs := config.GetUpdatesConfigs(ctx)
 	binaries, e := update2.LoadUpdates(ctx, configs, &update.UpdateRequest{
 		PackageName: request.PackageName,
 	})
@@ -148,7 +148,7 @@ func (h *Handler) ApplyUpdate(ctx context.Context, request *update.ApplyUpdateRe
 				task.StatusMessage = T("Update.Process.Finished")
 				// Double check if we are on a protected port and log a hint in such case.
 				hasProtectedPort := false
-				sites, _ := routing.LoadSites()
+				sites, _ := routing.LoadSites(ctx)
 				for _, si := range sites {
 					for _, a := range si.GetBindURLs() {
 						u, _ := url.Parse(a)

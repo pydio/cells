@@ -50,12 +50,12 @@ func (c *configProvider) GetGlobalSecret(ctx context.Context) ([]byte, error) {
 		return tokensKey, nil
 	}
 
-	cVal := config.Get("defaults", "personalTokens", "secureKey")
+	cVal := config.Get(ctx, "defaults", "personalTokens", "secureKey")
 	if cVal.String() == "" {
 		tokensKey = c.generateRandomKey(32)
 		strKey := base64.StdEncoding.EncodeToString(tokensKey)
 		_ = cVal.Set(strKey)
-		_ = config.Save(common.PydioSystemUsername, "Creating random key for personal tokens service")
+		_ = config.Save(ctx, common.PydioSystemUsername, "Creating random key for personal tokens service")
 	} else if t, e := base64.StdEncoding.DecodeString(cVal.String()); e == nil {
 		tokensKey = t
 	} else {

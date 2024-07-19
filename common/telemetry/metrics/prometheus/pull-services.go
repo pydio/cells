@@ -141,7 +141,7 @@ func (p *indexHandler) ServeHTTP(writer http.ResponseWriter, request *http.Reque
 	var reg registry.Registry
 	propagator.Get(p.ctx, registry.ContextKey, &reg)
 
-	externalURL := routing.GetDefaultSiteURL()
+	externalURL := routing.GetDefaultSiteURL(request.Context())
 	u, _ := url.Parse(externalURL)
 	targets := processesAsTargets(p.ctx, reg, true, u.Host)
 	writer.Header().Set("Content-Type", "application/json")

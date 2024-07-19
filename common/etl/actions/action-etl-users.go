@@ -101,7 +101,7 @@ func (c *SyncUsersAction) GetName() string {
 // Init parses and validates parameters
 func (c *SyncUsersAction) Init(job *jobs.Job, action *jobs.Action) error {
 	// Making sure oauth configs are up-to-date on this node
-	auth.InitConfiguration(config.Get("services", common.ServiceWebNamespace_+common.ServiceOAuth))
+	auth.InitConfiguration(config.Get(c.RuntimeContext, "services", common.ServiceWebNamespace_+common.ServiceOAuth))
 	return c.ParseStores(action.Parameters)
 }
 

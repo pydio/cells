@@ -786,31 +786,32 @@ func (m *manager) servicesRunningOn(server server.Server) (ss []service.Service)
 }
 
 func (m *manager) WatchServicesConfigs() {
-	res, err := config.Watch(configx.WithPath("services"), configx.WithChangesOnly())
-	if err != nil {
-		return
-	}
-	for {
-		v, _ := res.Next()
-		mm := v.(configx.Values).Val("update", "services").Map()
+	/*
+		res, err := config.Watch(configx.WithPath("services"), configx.WithChangesOnly())
+		if err != nil {
+			return
+		}
+		for {
+			v, _ := res.Next()
+			mm := v.(configx.Values).Val("update", "services").Map()
 
-		for k, _ := range mm {
-			ss, err := m.localRegistry.List(registry.WithName(k), registry.WithType(pb.ItemType_SERVICE))
-			if err != nil || len(ss) == 0 {
-				continue
-			}
-			var svc service.Service
-			if ss[0].As(&svc) && svc.Options().AutoRestart {
-				if er := m.stopService(svc); er == nil {
-					if sErr := m.startService(svc); sErr != nil {
-						log.Logger(m.ctx).Error("Cannot start service"+svc.Name(), zap.Error(sErr))
+			for k, _ := range mm {
+				ss, err := m.localRegistry.List(registry.WithName(k), registry.WithType(pb.ItemType_SERVICE))
+				if err != nil || len(ss) == 0 {
+					continue
+				}
+				var svc service.Service
+				if ss[0].As(&svc) && svc.Options().AutoRestart {
+					if er := m.stopService(svc); er == nil {
+						if sErr := m.startService(svc); sErr != nil {
+							log.Logger(m.ctx).Error("Cannot start service"+svc.Name(), zap.Error(sErr))
+						}
+					} else {
+						log.Logger(m.ctx).Error("Cannot stop service"+svc.Name(), zap.Error(er))
 					}
-				} else {
-					log.Logger(m.ctx).Error("Cannot stop service"+svc.Name(), zap.Error(er))
 				}
 			}
-		}
-	}
+		}*/
 }
 
 func (m *manager) WatchBroker(ctx context.Context, br broker.Broker) error {

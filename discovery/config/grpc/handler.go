@@ -43,12 +43,12 @@ func (h *Handler) Get(ctx context.Context, req *pb.GetRequest) (*pb.GetResponse,
 		}, nil
 	}
 	return &pb.GetResponse{
-		Value: &pb.Value{Data: config.Get(req.GetPath()).Bytes()},
+		Value: &pb.Value{Data: config.Get(ctx, req.GetPath()).Bytes()},
 	}, nil
 }
 
 func (h *Handler) Set(ctx context.Context, req *pb.SetRequest) (*pb.SetResponse, error) {
-	if err := config.Set(req.GetValue().GetData(), req.GetPath()); err != nil {
+	if err := config.Set(ctx, req.GetValue().GetData(), req.GetPath()); err != nil {
 		return nil, err
 	}
 
@@ -56,7 +56,7 @@ func (h *Handler) Set(ctx context.Context, req *pb.SetRequest) (*pb.SetResponse,
 }
 
 func (h *Handler) Delete(ctx context.Context, req *pb.DeleteRequest) (*pb.DeleteResponse, error) {
-	if err := config.Get(req.GetPath()).Del(); err != nil {
+	if err := config.Get(ctx, req.GetPath()).Del(); err != nil {
 		return nil, err
 	}
 
@@ -68,7 +68,7 @@ func (h *Handler) Watch(req *pb.WatchRequest, stream pb.Config_WatchServer) erro
 	if req.GetPath() != "" && req.GetPath() != "/" {
 		opts = append(opts, configx.WithPath(req.GetPath()))
 	}
-	w, err := config.Watch(opts...)
+	w, err := config.Watch(stream.Context(), opts...)
 	if err != nil {
 		return err
 	}
@@ -92,7 +92,7 @@ func (h *Handler) Watch(req *pb.WatchRequest, stream pb.Config_WatchServer) erro
 }
 
 func (h *Handler) Save(ctx context.Context, req *pb.SaveRequest) (*pb.SaveResponse, error) {
-	if err := config.Save(req.GetUser(), req.GetMessage()); err != nil {
+	if err := config.Save(ctx, req.GetUser(), req.GetMessage()); err != nil {
 		return nil, err
 	}
 

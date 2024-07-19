@@ -181,10 +181,10 @@ func (sc *Client) LoadHashDocumentData(ctx context.Context, shareLink *rest.Shar
 		}
 	}
 
-	shareLink.LinkUrl = path.Join(routing.GetPublicBaseUri(), shareLink.LinkHash)
-	if configBase := config.Get("services", common.ServiceRestNamespace_+common.ServiceShare, "url").String(); configBase != "" {
+	shareLink.LinkUrl = path.Join(routing.GetPublicBaseUri(ctx), shareLink.LinkHash)
+	if configBase := config.Get(ctx, "services", common.ServiceRestNamespace_+common.ServiceShare, "url").String(); configBase != "" {
 		if cfu, e := url.Parse(configBase); e == nil {
-			cfu.Path = path.Join(routing.GetPublicBaseUri(), shareLink.LinkHash)
+			cfu.Path = path.Join(routing.GetPublicBaseUri(ctx), shareLink.LinkHash)
 			shareLink.LinkUrl = cfu.String()
 		}
 	}

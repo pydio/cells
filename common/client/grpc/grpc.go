@@ -57,8 +57,9 @@ var (
 
 func DialOptionsForRegistry(reg registry.Registry, options ...grpc.DialOption) []grpc.DialOption {
 
+	// TODO - Recheck - do we want to contextualize this config?
 	var clusterConfig *client.ClusterConfig
-	config.Get("cluster").Default(&client.ClusterConfig{}).Scan(&clusterConfig)
+	config.Get(nil, "cluster").Default(&client.ClusterConfig{}).Scan(&clusterConfig)
 	clientConfig := clusterConfig.GetClientConfig("grpc")
 
 	backoffConfig := backoff.DefaultConfig

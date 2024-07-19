@@ -248,19 +248,19 @@ func initConfig(ctx context.Context, debounceVersions bool) (new bool, keyring c
 	config.Register(mainConfig)
 
 	if !runtime.IsFork() {
-		if config.Get("version").String() == "" && config.Get("defaults/database").String() == "" {
+		if config.Get(ctx, "version").String() == "" && config.Get(ctx, "defaults/database").String() == "" {
 			new = true
 			var data interface{}
 			if err := json.Unmarshal([]byte(config.SampleConfig), &data); err == nil {
-				if err := config.Get().Set(data); err == nil {
-					_ = config.Save(common.PydioSystemUsername, "Initialize with sample config")
+				if err := config.Get(ctx).Set(data); err == nil {
+					_ = config.Save(ctx, common.PydioSystemUsername, "Initialize with sample config")
 				}
 			}
 		}
 
 		// Need to do something for the versions
-		if save, err := migrations.UpgradeConfigsIfRequired(config.Get(), common.Version()); err == nil && save {
-			if err := config.Save(common.PydioSystemUsername, "Configs upgrades applied"); err != nil {
+		if save, err := migrations.UpgradeConfigsIfRequired(config.Get(ctx), common.Version()); err == nil && save {
+			if err := config.Save(ctx, common.PydioSystemUsername, "Configs upgrades applied"); err != nil {
 				return false, nil, fmt.Errorf("could not save config migrations %v", err)
 			}
 		}

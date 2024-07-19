@@ -48,7 +48,7 @@ func FirstRun(ctx context.Context) error {
 	var hasPersonal bool
 	var commonDS string
 	// List datasources from configs
-	sources := config.SourceNamesForDataServices(common.ServiceDataIndex)
+	sources := config.SourceNamesForDataServices(ctx, common.ServiceDataIndex)
 	for _, s := range sources {
 		if s == "personal" {
 			hasPersonal = true

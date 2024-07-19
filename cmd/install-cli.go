@@ -121,7 +121,7 @@ func cliInstall(cmd *cobra.Command, proxyConfig *install.ProxyConfig) (*install.
 	fmt.Println("\n\033[1m## Software is ready to run!\033[0m")
 
 	fmt.Println(p.Styler(p.FGFaint)("Cells will be accessible through the following URLs:"))
-	ss, _ := routing.LoadSites()
+	ss, _ := routing.LoadSites(ctx)
 	var urls []string
 	for _, s := range ss {
 		for _, u := range s.GetExternalUrls() {

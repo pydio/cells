@@ -213,7 +213,7 @@ ENVIRONMENT
 			fatalIfError(cmd, er)
 
 			// Gather proxy information
-			sites, err := routing.LoadSites()
+			sites, err := routing.LoadSites(ctx)
 			fatalIfError(cmd, err)
 			proxyConf = sites[0]
 
@@ -269,7 +269,7 @@ func switchDefaultTls(cmd *cobra.Command, proxyConf *install.ProxyConfig, disabl
 		noTlsConf := *proxyConf
 		noTlsConf.TLSConfig = nil
 		proxyConf = &noTlsConf
-		return proxyConf, routing.SaveSites([]*install.ProxyConfig{proxyConf}, common.PydioSystemUsername, "Binding to http (no tls)")
+		return proxyConf, routing.SaveSites(ctx, []*install.ProxyConfig{proxyConf}, common.PydioSystemUsername, "Binding to http (no tls)")
 	}
 	return proxyConf, nil
 }
@@ -298,7 +298,7 @@ func checkDefaultBusy(cmd *cobra.Command, proxyConf *install.ProxyConfig, pickOn
 
 	var err error
 	if msg != "" {
-		err = routing.SaveSites([]*install.ProxyConfig{proxyConf}, common.PydioSystemUsername, msg)
+		err = routing.SaveSites(ctx, []*install.ProxyConfig{proxyConf}, common.PydioSystemUsername, msg)
 	}
 	return proxyConf, msg, err
 }

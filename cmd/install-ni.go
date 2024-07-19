@@ -172,11 +172,11 @@ func installFromConf() (*install.InstallConfig, error) {
 		for k, v := range installConf.CustomConfigs {
 			fmt.Println(".... Setting custom configuration key " + k)
 			cPath := strings.Split(k, "/")
-			if e := config.Set(v, cPath...); e != nil {
+			if e := config.Set(ctx, v, cPath...); e != nil {
 				return nil, fmt.Errorf("could not set value for config key " + k)
 			}
 		}
-		if e := config.Save(common.PydioSystemUsername, "Setting custom configs from installation file"); e != nil {
+		if e := config.Save(ctx, common.PydioSystemUsername, "Setting custom configs from installation file"); e != nil {
 			return nil, e
 		}
 	}
@@ -288,8 +288,8 @@ func unmarshallConf() (*NiInstallConfig, error) {
 func applyProxySites(sites []*install.ProxyConfig) error {
 
 	// Save configs
-	config.Set(sites, "defaults", "sites")
-	err := config.Save("cli", "Saving sites configs")
+	config.Set(ctx, sites, "defaults", "sites")
+	err := config.Save(ctx, "cli", "Saving sites configs")
 	if err != nil {
 		return err
 	}

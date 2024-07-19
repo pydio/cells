@@ -47,7 +47,7 @@ func MobileRegModifier(ctx context.Context, status frontend.RequestStatus, plugi
 	}
 	p := plugin.(*frontend.Cplugin)
 
-	fullDisable := config.Get("frontend", "plugin", "gui.mobile", "GUI_MOBILE_DISABLE").Bool()
+	fullDisable := config.Get(ctx, "frontend", "plugin", "gui.mobile", "GUI_MOBILE_DISABLE").Bool()
 	if mobileAgent && !fullDisable {
 		p.Attrenabled = "true"
 	} else {

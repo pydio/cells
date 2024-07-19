@@ -138,7 +138,7 @@ func init() {
 				auth2.RegisterAuthTokenPrunerServer(server, h)
 				auth2.RegisterPasswordCredentialsTokenServer(server, h)
 
-				watcher, _ := config.Watch(configx.WithPath("services", common.ServiceWebNamespace_+common.ServiceOAuth))
+				watcher, _ := config.Watch(ctx, configx.WithPath("services", common.ServiceWebNamespace_+common.ServiceOAuth))
 				go func() {
 					for {
 						values, er := watcher.Next()
@@ -202,7 +202,7 @@ func init() {
 		})
 
 		// load configuration
-		auth.InitConfiguration(config.Get("services", common.ServiceWebNamespace_+common.ServiceOAuth))
+		auth.InitConfiguration(config.Get(ctx, "services", common.ServiceWebNamespace_+common.ServiceOAuth))
 
 		// Register the services as GRPC Auth Providers
 		auth.RegisterGRPCProvider(auth.ProviderTypeGrpc, common.ServiceGrpcNamespace_+common.ServiceOAuth)
@@ -235,7 +235,7 @@ func insertPruningJob(ctx context.Context) error {
 
 	log2.Logger(ctx).Info("Inserting pruning job for revoked token and reset password tokens")
 
-	pJob := pruningJob(languages.GetDefaultLanguage(config.Get()))
+	pJob := pruningJob(languages.GetDefaultLanguage(config.Get(ctx)))
 	cli := jobsc.JobServiceClient(ctx)
 	if resp, e := cli.GetJob(ctx, &jobs.GetJobRequest{JobID: pJob.ID}); e == nil && resp.Job != nil {
 		return nil // Already exists

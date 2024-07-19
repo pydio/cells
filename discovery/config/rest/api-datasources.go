@@ -104,15 +104,15 @@ func (s *Handler) PutDataSource(req *restful.Request, resp *restful.Response) er
 			return err
 		}
 		osFolder := filesystem.ToFilePath(ds.StorageConfiguration[object.StorageKeyFolder])
-		rootPrefix := config.Get("services", common.ServiceGrpcNamespace_+common.ServiceDataObjects, "allowedLocalDsFolder").String()
+		rootPrefix := config.Get(ctx, "services", common.ServiceGrpcNamespace_+common.ServiceDataObjects, "allowedLocalDsFolder").String()
 		if rootPrefix != "" && !strings.HasPrefix(osFolder, rootPrefix) {
 			osFolder = filepath.Join(rootPrefix, osFolder)
 		}
 		ds.StorageConfiguration[object.StorageKeyFolder] = osFolder
 	}
 
-	currentSources := config.ListSourcesFromConfig()
-	currentMinios := config.ListMinioConfigsFromConfig()
+	currentSources := config.ListSourcesFromConfig(ctx)
+	currentMinios := config.ListMinioConfigsFromConfig(ctx)
 	initialDs, update := currentSources[ds.Name]
 	var initialVersioningEmpty bool
 	if update {
@@ -154,34 +154,34 @@ func (s *Handler) PutDataSource(req *restful.Request, resp *restful.Response) er
 	dsName := ds.Name
 	// UPDATE INDEX
 	if ds.Disabled {
-		config.Set(true, "services", "pydio.grpc.data.index."+dsName, "Disabled")
+		config.Set(ctx, true, "services", "pydio.grpc.data.index."+dsName, "Disabled")
 	} else {
-		config.Del("services", "pydio.grpc.data.index."+dsName, "Disabled")
+		config.Del(ctx, "services", "pydio.grpc.data.index."+dsName, "Disabled")
 	}
-	config.Get().Map()
+	config.Get(ctx).Map()
 	if ds.PeerAddress != "" {
-		config.Set(ds.PeerAddress, "services", "pydio.grpc.data.index."+dsName, "PeerAddress")
+		config.Set(ctx, ds.PeerAddress, "services", "pydio.grpc.data.index."+dsName, "PeerAddress")
 	} else {
-		config.Del("services", "pydio.grpc.data.index."+dsName, "PeerAddress")
+		config.Del(ctx, "services", "pydio.grpc.data.index."+dsName, "PeerAddress")
 	}
-	config.Get().Map()
-	config.Set("default", "services", "pydio.grpc.data.index."+dsName, "dsn")
-	config.Set(config.IndexServiceTableNames(dsName), "services", "pydio.grpc.data.index."+dsName, "tables")
+	config.Get(ctx).Map()
+	config.Set(ctx, "default", "services", "pydio.grpc.data.index."+dsName, "dsn")
+	config.Set(ctx, config.IndexServiceTableNames(dsName), "services", "pydio.grpc.data.index."+dsName, "tables")
 	// UPDATE SYNC
-	config.Set(ds, "services", "pydio.grpc.data.sync."+dsName)
+	config.Set(ctx, ds, "services", "pydio.grpc.data.sync."+dsName)
 	// UPDATE OBJECTS
-	config.Set(minioConfig, "services", "pydio.grpc.data.objects."+minioConfig.Name)
+	config.Set(ctx, minioConfig, "services", "pydio.grpc.data.objects."+minioConfig.Name)
 
 	log.Logger(ctx).Debug("Now Store Sources", zap.Any("sources", currentSources), zap.Any("ds", &ds))
-	config.SourceNamesToConfig(currentSources)
-	config.MinioConfigNamesToConfig(currentMinios)
+	config.SourceNamesToConfig(ctx, currentSources)
+	config.MinioConfigNamesToConfig(ctx, currentMinios)
 
 	u, _ := permissions.FindUserNameInContext(ctx)
 	if u == "" {
 		u = "rest"
 	}
 
-	if err := config.Save(u, "Create DataSource"); err == nil {
+	if err := config.Save(ctx, u, "Create DataSource"); err == nil {
 		eventType := object.DataSourceEvent_CREATE
 		if update {
 			eventType = object.DataSourceEvent_UPDATE
@@ -217,7 +217,7 @@ func (s *Handler) DeleteDataSource(req *restful.Request, resp *restful.Response)
 	if dsName == "" {
 		return errors.WithMessage(errors.InvalidParameters, "please provide a datasource name")
 	}
-	if dsName == config.Get("defaults", "datasource").String() {
+	if dsName == config.Get(ctx, "defaults", "datasource").String() {
 		return errors.WithMessage(errors.StatusBadRequest, "This is the default datasource! Please replace it in your config file before trying to delete.")
 	}
 	hasWorkspace, err := s.findWorkspacesForDatasource(req.Request.Context(), dsName)
@@ -226,7 +226,7 @@ func (s *Handler) DeleteDataSource(req *restful.Request, resp *restful.Response)
 	} else if hasWorkspace {
 		return errors.WithMessage(errors.DatasourceConflict, "There are workspaces defined on this datasource, please delete them before removing datasource")
 	}
-	currentSources := config.ListSourcesFromConfig()
+	currentSources := config.ListSourcesFromConfig(ctx)
 
 	if existingDS, ok := currentSources[dsName]; !ok {
 		return errors.WithStack(errors.DatasourceNotFound)
@@ -236,24 +236,24 @@ func (s *Handler) DeleteDataSource(req *restful.Request, resp *restful.Response)
 		}
 	}
 	delete(currentSources, dsName)
-	config.SourceNamesToConfig(currentSources)
-	config.Del("services", "pydio.grpc.data.index."+dsName)
-	config.Del("services", "pydio.grpc.data.sync."+dsName)
+	config.SourceNamesToConfig(ctx, currentSources)
+	config.Del(ctx, "services", "pydio.grpc.data.index."+dsName)
+	config.Del(ctx, "services", "pydio.grpc.data.sync."+dsName)
 
-	currentMinios := config.ListMinioConfigsFromConfig()
+	currentMinios := config.ListMinioConfigsFromConfig(ctx)
 	if keys := config.UnusedMinioServers(currentMinios, currentSources); len(keys) > 0 {
 		for _, key := range keys {
-			config.Del("services", "pydio.grpc.data.objects."+key)
+			config.Del(ctx, "services", "pydio.grpc.data.objects."+key)
 			delete(currentMinios, key)
 		}
-		config.MinioConfigNamesToConfig(currentMinios)
+		config.MinioConfigNamesToConfig(ctx, currentMinios)
 	}
 
 	u, _ := permissions.FindUserNameInContext(req.Request.Context())
 	if u == "" {
 		u = "rest"
 	}
-	if e := config.Save(u, "Delete DataSource"); e != nil {
+	if e := config.Save(ctx, u, "Delete DataSource"); e != nil {
 		return e
 	}
 	_ = broker.Publish(req.Request.Context(), common.TopicDatasourceEvent, &object.DataSourceEvent{
@@ -382,7 +382,7 @@ func (s *Handler) CreateStorageBucket(req *restful.Request, resp *restful.Respon
 
 func (s *Handler) getDataSources(ctx context.Context) ([]*object.DataSource, error) {
 
-	sources := config.SourceNamesForDataServices(common.ServiceDataIndex)
+	sources := config.SourceNamesForDataServices(ctx, common.ServiceDataIndex)
 	var dataSources []*object.DataSource
 	for _, src := range sources {
 		if ds, found, _ := s.loadDataSource(ctx, src); found {
@@ -396,7 +396,7 @@ func (s *Handler) loadDataSource(ctx context.Context, dsName string) (*object.Da
 
 	var ds *object.DataSource
 
-	err := config.Get("services", common.ServiceGrpcNamespace_+common.ServiceDataSync_+dsName).Scan(&ds)
+	err := config.Get(ctx, "services", common.ServiceGrpcNamespace_+common.ServiceDataSync_+dsName).Scan(&ds)
 	if err != nil {
 		return nil, false, err
 	}
@@ -408,7 +408,7 @@ func (s *Handler) loadDataSource(ctx context.Context, dsName string) (*object.Da
 
 	if ds.StorageConfiguration != nil {
 		if folder, ok := ds.StorageConfiguration[object.StorageKeyFolder]; ok {
-			rootPrefix := config.Get("services", common.ServiceGrpcNamespace_+common.ServiceDataObjects, "allowedLocalDsFolder").String()
+			rootPrefix := config.Get(ctx, "services", common.ServiceGrpcNamespace_+common.ServiceDataObjects, "allowedLocalDsFolder").String()
 			if rootPrefix != "" && strings.HasPrefix(folder, rootPrefix) {
 				folder = strings.TrimPrefix(folder, rootPrefix)
 			}

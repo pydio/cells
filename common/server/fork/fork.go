@@ -26,7 +26,6 @@ import (
 
 	"golang.org/x/exp/maps"
 
-	"github.com/pydio/cells/v4/common/config"
 	"github.com/pydio/cells/v4/common/config/routing"
 	pb "github.com/pydio/cells/v4/common/proto/registry"
 	"github.com/pydio/cells/v4/common/registry"
@@ -75,9 +74,11 @@ func NewServer(ctx context.Context, forkStart string) server.Server {
 func (s *Server) RawServe(*server.ServeOptions) (ii []registry.Item, e error) {
 
 	var opts []fork.Option
-	if config.Get("services", s.s.name, "debugFork").Bool() {
-		opts = append(opts, fork.WithDebug())
-	}
+	/*
+		if config.Get(ctx, "services", s.s.name, "debugFork").Bool() {
+			opts = append(opts, fork.WithDebug())
+		}
+	*/
 	if len(routing.DefaultBindOverrideToFlags()) > 0 {
 		opts = append(opts, fork.WithCustomFlags(routing.DefaultBindOverrideToFlags()...))
 	}

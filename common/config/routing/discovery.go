@@ -50,7 +50,7 @@ func SiteFromContext(ctx context.Context, ss []*install.ProxyConfig) (*install.P
 }
 
 func SiteContextDiscoveryRoutes(ctx context.Context, uriForSameSite ...bool) (map[string][]*url.URL, error) {
-	ss, er := LoadSites()
+	ss, er := LoadSites(ctx)
 	if er != nil {
 		return nil, er
 	}

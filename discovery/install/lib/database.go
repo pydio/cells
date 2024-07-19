@@ -74,7 +74,7 @@ func dsnFromInstallConfig(c *install.InstallConfig) (string, error) {
 
 }
 
-func installDocumentDSN(c *install.InstallConfig) error {
+func installDocumentDSN(ctx context.Context, c *install.InstallConfig) error {
 
 	if c.GetDocumentsDSN() == "" {
 		return nil
@@ -96,7 +96,7 @@ func installDocumentDSN(c *install.InstallConfig) error {
 	if c.GetUseDocumentsDSN() && driver == "mongodb" {
 		setDefaultsKey = "documentsDSN"
 	}
-	if er := config.SetDatabase(dbKey, driver, dsn, setDefaultsKey); er != nil {
+	if er := config.SetDatabase(ctx, dbKey, driver, dsn, setDefaultsKey); er != nil {
 		return er
 	}
 	/*
@@ -130,14 +130,14 @@ func installDocumentDSN(c *install.InstallConfig) error {
 }
 
 // DATABASES
-func actionDatabaseAdd(c *install.InstallConfig, flags byte) error {
+func actionDatabaseAdd(ctx context.Context, c *install.InstallConfig, flags byte) error {
 
-	if er := installDocumentDSN(c); er != nil {
+	if er := installDocumentDSN(ctx, c); er != nil {
 		return er
 	}
 
 	if flags&InstallDSNOnly != 0 {
-		return config.Save("cli", "Installed new Document DSN")
+		return config.Save(ctx, "cli", "Installed new Document DSN")
 	}
 
 	dsn, err := dsnFromInstallConfig(c)
@@ -153,11 +153,11 @@ func actionDatabaseAdd(c *install.InstallConfig, flags byte) error {
 	_, _ = io.WriteString(h, dsn)
 	id := fmt.Sprintf("%x", h.Sum(nil))
 
-	if e := config.SetDatabase(id, "mysql", dsn, "database"); e != nil {
+	if e := config.SetDatabase(ctx, id, "mysql", dsn, "database"); e != nil {
 		return e
 	}
 
-	return config.Save("cli", "Install / Setting Databases")
+	return config.Save(ctx, "cli", "Install / Setting Databases")
 }
 
 func addDatabaseTCPConnection(c *install.InstallConfig) (*mysql.Config, error) {

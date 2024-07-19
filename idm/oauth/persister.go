@@ -36,10 +36,10 @@ import (
 
 var _ foauth2.TokenRevocationStorage = (*sqlPersister)(nil)
 
-func newPersister(db *gorm.DB, r Registry) *sqlPersister {
+func newPersister(ctx context.Context, db *gorm.DB, r Registry) *sqlPersister {
 	return &sqlPersister{
 		consentDriver: &consentDriver{db, r},
-		clientDriver:  &clientDriver{config.Get("services/pydio.web.oauth/staticClients")},
+		clientDriver:  &clientDriver{config.Get(ctx, "services/pydio.web.oauth/staticClients")},
 		oauth2Driver:  &oauth2Driver{db, r},
 		jwkDriver:     &jwkDriver{db, r},
 		trustDriver:   &trustDriver{},

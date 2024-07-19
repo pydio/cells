@@ -213,7 +213,7 @@ func (a *Reader) ExtractAllZip(ctx context.Context, archiveNode *tree.Node, targ
 	// We have to download whole archive to read its content
 	var archiveName string
 	var archiveSize, uncompressed int64
-	maxRatio := config.Get("defaults", "archiveMaxRatio").Default(UnCompressThreshold).Int64()
+	maxRatio := config.Get(ctx, "defaults", "archiveMaxRatio").Default(UnCompressThreshold).Int64()
 
 	if localFolder := archiveNode.GetStringMeta(common.MetaNamespaceNodeTestLocalFolder); localFolder != "" {
 		archiveName = filepath.Join(localFolder, archiveNode.Uuid)
@@ -465,7 +465,7 @@ func (a *Reader) ExtractAllTar(ctx context.Context, gzipFormat bool, archiveNode
 	var inputStream io.ReadCloser
 	var openErr error
 	var archiveSize, uncompressed int64
-	maxRatio := config.Get("defaults", "archiveMaxRatio").Default(UnCompressThreshold).Int64()
+	maxRatio := config.Get(ctx, "defaults", "archiveMaxRatio").Default(UnCompressThreshold).Int64()
 	if localFolder := archiveNode.GetStringMeta(common.MetaNamespaceNodeTestLocalFolder); localFolder != "" {
 		inputStream, openErr = os.Open(filepath.Join(localFolder, archiveNode.Uuid))
 		s, e := os.Stat(filepath.Join(localFolder, archiveNode.Uuid))

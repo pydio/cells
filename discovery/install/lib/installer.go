@@ -62,7 +62,7 @@ func Install(ctx context.Context, c *install.InstallConfig, flags byte, publishe
 	publisher(&InstallProgressEvent{Message: "Starting installation now", Progress: 0})
 
 	if (flags&InstallAll) != 0 || (flags&InstallConfig) != 0 {
-		if err := actionConfigsSet(c); err != nil {
+		if err := actionConfigsSet(ctx, c); err != nil {
 			log.Logger(ctx).Error("Error while getting ports", zap.Error(err))
 			return err
 		}
@@ -70,7 +70,7 @@ func Install(ctx context.Context, c *install.InstallConfig, flags byte, publishe
 	}
 
 	if (flags&InstallAll) != 0 || (flags&InstallDb) != 0 {
-		if err := actionDatabaseAdd(c, flags); err != nil {
+		if err := actionDatabaseAdd(ctx, c, flags); err != nil {
 			log.Logger(ctx).Error("Error while adding database", zap.Error(err))
 			return err
 		}
@@ -78,7 +78,7 @@ func Install(ctx context.Context, c *install.InstallConfig, flags byte, publishe
 	}
 
 	if (flags&InstallAll) != 0 || (flags&InstallDs) != 0 {
-		if err := actionDatasourceAdd(c); err != nil {
+		if err := actionDatasourceAdd(ctx, c); err != nil {
 			log.Logger(ctx).Error("Error while adding datasource", zap.Error(err))
 			return err
 		}
@@ -86,7 +86,7 @@ func Install(ctx context.Context, c *install.InstallConfig, flags byte, publishe
 	}
 
 	if (flags&InstallAll) != 0 || (flags&InstallFrontend) != 0 {
-		if err := actionFrontendsAdd(c); err != nil {
+		if err := actionFrontendsAdd(ctx, c); err != nil {
 			log.Logger(ctx).Error("Error while creating logs directory", zap.Error(err))
 			return err
 		}

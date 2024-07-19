@@ -83,7 +83,7 @@ func (c *PruneTokensAction) Init(job *jobs.Job, action *jobs.Action) error {
 // Run the actual action code
 func (c *PruneTokensAction) Run(ctx context.Context, channels *actions.RunnableChannels, input *jobs.ActionMessage) (*jobs.ActionMessage, error) {
 
-	T := lang.Bundle().T(languages.GetDefaultLanguage(config.Get()))
+	T := lang.Bundle().T(languages.GetDefaultLanguage(config.Get(ctx)))
 
 	output := input
 

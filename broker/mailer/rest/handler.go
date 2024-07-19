@@ -153,7 +153,7 @@ func (mh *MailerHandler) ResolveUser(ctx context.Context, user *mailer.User) (*m
 			} else {
 				output.Name = emailOrAddress
 			}
-			output.Language = languages.UserLanguage(ctx, u, config.Get())
+			output.Language = languages.UserLanguage(ctx, u, config.Get(ctx))
 			return output, nil
 		} else {
 			return nil, fmt.Errorf("user %s has no email set", emailOrAddress)

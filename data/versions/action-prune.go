@@ -81,11 +81,11 @@ func (c *PruneVersionsAction) Init(job *jobs.Job, action *jobs.Action) error {
 func (c *PruneVersionsAction) Run(ctx context.Context, channels *actions.RunnableChannels, input *jobs.ActionMessage) (*jobs.ActionMessage, error) {
 
 	// First check if versioning is enabled on any datasource
-	sources := config.SourceNamesForDataServices(common.ServiceDataIndex)
+	sources := config.SourceNamesForDataServices(ctx, common.ServiceDataIndex)
 	var versioningFound bool
 	for _, src := range sources {
 		var ds *object.DataSource
-		if err := config.Get("services", common.ServiceGrpcNamespace_+common.ServiceDataSync_+src).Scan(&ds); err == nil {
+		if err := config.Get(ctx, "services", common.ServiceGrpcNamespace_+common.ServiceDataSync_+src).Scan(&ds); err == nil {
 			if ds.VersioningPolicyName != "" {
 				versioningFound = true
 				break
