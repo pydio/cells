@@ -37,6 +37,7 @@ message ResourcePolicyQuery {
     bool Empty = 2;
     bool Any = 3;
     string LeftIdentifier = 4;
+    ResourcePolicyAction Action = 5;
 }
 
 message ResourcePolicy {

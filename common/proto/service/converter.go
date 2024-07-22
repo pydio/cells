@@ -28,9 +28,12 @@ type Converter interface {
 }
 
 // PrepareResourcePolicyQuery reads ResourcePolicyQuery and append it as a sub-query for further Conversion.
-func PrepareResourcePolicyQuery(query *Query) *Query {
+func PrepareResourcePolicyQuery(query *Query, action ResourcePolicyAction) *Query {
 	if query == nil || query.ResourcePolicyQuery == nil {
 		return query
+	}
+	if query.ResourcePolicyQuery.Action == ResourcePolicyAction_ANY {
+		query.ResourcePolicyQuery.Action = action
 	}
 	rp, _ := anypb.New(query.ResourcePolicyQuery)
 	if query.Operation == OperationType_AND {
@@ -40,6 +43,7 @@ func PrepareResourcePolicyQuery(query *Query) *Query {
 
 	} else {
 		// Wrap existing an RPQuery in an AND
+		query.ResourcePolicyQuery = nil
 		subQ, _ := anypb.New(query)
 		return &Query{
 			Operation:  OperationType_AND,

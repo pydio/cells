@@ -630,6 +630,83 @@ func TestQueryBuilder(t *testing.T) {
 	})
 }
 
+func TestUserPolicies(t *testing.T) {
+	test.RunStorageTests(testcases, t, func(ctx context.Context) {
+		mockDAO, err := manager.Resolve[user.DAO](ctx)
+		if err != nil {
+			panic(err)
+		}
+
+		Convey("User not readable policy", t, func() {
+
+			us := &idm.User{
+				Login:     "username",
+				Password:  "xxxxxxx",
+				GroupPath: "/path/to/group",
+				Attributes: map[string]string{
+					idm.UserAttrDisplayName: "John Doe",
+					idm.UserAttrHidden:      "false",
+					"active":                "true",
+				},
+				Roles: []*idm.Role{
+					{Uuid: "1", Label: "Role1"},
+					{Uuid: "2", Label: "Role2"},
+				},
+				Policies: []*service.ResourcePolicy{
+					{
+						Action:  service.ResourcePolicyAction_READ,
+						Subject: "user:owner",
+						Effect:  service.ResourcePolicy_allow,
+					},
+					{
+						Action:  service.ResourcePolicyAction_WRITE,
+						Subject: "user:owner",
+						Effect:  service.ResourcePolicy_allow,
+					},
+				},
+			}
+			u, _, err := mockDAO.Add(ctx, us)
+			So(err, ShouldBeNil)
+			So(u, ShouldNotBeNil)
+			err = mockDAO.AddPolicies(ctx, false, u.(*idm.User).Uuid, us.Policies)
+			So(err, ShouldBeNil)
+
+			// List without ResourcePolicyQuery
+			sq, _ := anypb.New(&idm.UserSingleQuery{Login: "user*"})
+			query := &service.Query{SubQueries: []*anypb.Any{sq}}
+			var res []interface{}
+			So(mockDAO.Search(ctx, query, &res), ShouldBeNil)
+			So(res, ShouldHaveLength, 1)
+
+			query = &service.Query{
+				SubQueries: []*anypb.Any{sq},
+				ResourcePolicyQuery: &service.ResourcePolicyQuery{
+					Subjects: []string{"user:owner"},
+				},
+			}
+			query = service.PrepareResourcePolicyQuery(query, service.ResourcePolicyAction_READ)
+			res = []interface{}{}
+			i, e := mockDAO.Count(ctx, query)
+			So(e, ShouldBeNil)
+			So(i, ShouldEqual, 1)
+			So(mockDAO.Search(ctx, query, &res), ShouldBeNil)
+			So(res, ShouldHaveLength, 1)
+
+			query = &service.Query{
+				SubQueries: []*anypb.Any{sq},
+				ResourcePolicyQuery: &service.ResourcePolicyQuery{
+					Subjects: []string{"user:other", "profile:something"},
+				},
+			}
+			query = service.PrepareResourcePolicyQuery(query, service.ResourcePolicyAction_READ)
+			res = []interface{}{}
+			So(mockDAO.Search(ctx, query, &res), ShouldBeNil)
+			So(res, ShouldHaveLength, 0)
+		})
+
+	})
+}
+
 func TestDestructiveCreateUser(t *testing.T) {
 	test.RunStorageTests(testcases, t, func(ctx context.Context) {
 		mockDAO, err := manager.Resolve[user.DAO](ctx)

@@ -107,6 +107,7 @@ func (h *Handler) DeleteWorkspace(ctx context.Context, req *idm.DeleteWorkspaceR
 	}
 
 	workspaces := new([]interface{})
+	req.Query = service.PrepareResourcePolicyQuery(req.Query, service.ResourcePolicyAction_READ)
 	if err := dao.Search(ctx, req.Query, workspaces); err != nil {
 		return nil, err
 	}
@@ -153,7 +154,7 @@ func (h *Handler) SearchWorkspace(request *idm.SearchWorkspaceRequest, response 
 	}
 
 	workspaces := new([]interface{})
-	request.Query = service.PrepareResourcePolicyQuery(request.Query)
+	request.Query = service.PrepareResourcePolicyQuery(request.Query, service.ResourcePolicyAction_READ)
 	if err := dao.Search(ctx, request.Query, workspaces); err != nil {
 		return err
 	}
@@ -198,6 +199,8 @@ func (h *Handler) StreamWorkspace(streamer idm.WorkspaceService_StreamWorkspaceS
 		}
 
 		workspaces := new([]interface{})
+
+		incoming.Query = service.PrepareResourcePolicyQuery(incoming.Query, service.ResourcePolicyAction_READ)
 		if err := dao.Search(ctx, incoming.Query, workspaces); err != nil {
 			continue
 		}

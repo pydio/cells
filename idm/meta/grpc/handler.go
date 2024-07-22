@@ -153,6 +153,7 @@ func (h *Handler) UpdateUserMeta(ctx context.Context, request *idm.UpdateUserMet
 
 			resourceQueryAny, err := anypb.New(&pbservice.ResourcePolicyQuery{
 				Subjects: subjects,
+				Action:   pbservice.ResourcePolicyAction_READ,
 			})
 			if err != nil {
 				continue
@@ -200,6 +201,7 @@ func (h *Handler) SearchUserMeta(request *idm.SearchUserMetaRequest, stream idm.
 		return err
 	}
 
+	request.ResourceQuery.Action = pbservice.ResourcePolicyAction_READ
 	resourceQueryAny, err := anypb.New(request.ResourceQuery)
 	if err != nil {
 		return err
@@ -267,6 +269,7 @@ func (h *Handler) ReadNodeStream(stream tree.NodeProviderStreamer_ReadNodeStream
 
 			resourceQueryAny, err := anypb.New(&pbservice.ResourcePolicyQuery{
 				Subjects: subjects,
+				Action:   pbservice.ResourcePolicyAction_READ,
 			})
 			if err != nil {
 				return err

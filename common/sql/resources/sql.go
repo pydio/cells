@@ -23,6 +23,7 @@
 
 package resources
 
+/*
 import (
 	"context"
 	"embed"
@@ -300,7 +301,7 @@ func (s *ResourcesSQL) DeletePoliciesForResourceAndAction(resourceId string, act
 	return err
 
 }
-
+*/
 // BuildPolicyConditionForAction builds an ResourcesSQL condition from claims toward the associated resource table
 // TODO IS IT STILL TODO ?
 /*

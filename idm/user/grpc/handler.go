@@ -378,7 +378,7 @@ func (h *Handler) SearchUser(request *idm.SearchUserRequest, response idm.UserSe
 	}
 
 	usersGroups := new([]interface{})
-	request.Query = service.PrepareResourcePolicyQuery(request.Query)
+	request.Query = service.PrepareResourcePolicyQuery(request.Query, service.ResourcePolicyAction_READ)
 	if err := dao.Search(ctx, request.Query, usersGroups); err != nil {
 		return err
 	}
@@ -416,7 +416,7 @@ func (h *Handler) SearchOne(ctx context.Context, request *idm.SearchUserRequest)
 	// Force offset/limit
 	request.Query.Offset = 0
 	request.Query.Limit = 1
-
+	request.Query = service.PrepareResourcePolicyQuery(request.Query, service.ResourcePolicyAction_READ)
 	usersGroups := new([]interface{})
 	if err := dao.Search(ctx, request.Query, usersGroups); err != nil {
 		return nil, err
@@ -444,6 +444,7 @@ func (h *Handler) CountUser(ctx context.Context, request *idm.SearchUserRequest)
 		return nil, err
 	}
 
+	request.Query = service.PrepareResourcePolicyQuery(request.Query, service.ResourcePolicyAction_READ)
 	total, err := dao.Count(ctx, request.Query)
 	if err != nil {
 		return nil, err
@@ -474,6 +475,7 @@ func (h *Handler) StreamUser(streamer idm.UserService_StreamUserServer) error {
 		}
 
 		users := new([]interface{})
+		incoming.Query = service.PrepareResourcePolicyQuery(incoming.Query, service.ResourcePolicyAction_READ)
 		if err := dao.Search(ctx, incoming.Query, users); err != nil {
 			return err
 		}

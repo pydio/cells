@@ -35,7 +35,6 @@ import (
 
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/proto/idm"
-	"github.com/pydio/cells/v4/common/proto/service"
 	"github.com/pydio/cells/v4/common/proto/tree"
 	index "github.com/pydio/cells/v4/common/sql/indexgorm"
 	"github.com/pydio/cells/v4/common/telemetry/log"
@@ -56,22 +55,9 @@ func (c *queryConverter) Convert(ctx context.Context, val *anypb.Any, db *gorm.D
 	u := query.User
 	a := query.UserAttribute
 	r := query.UserRole
-
-	// Adding left identifier to resource policy query
-	rq := new(service.ResourcePolicyQuery)
-	if err := anypb.UnmarshalTo(val, rq, proto.UnmarshalOptions{}); err == nil {
-		rq.LeftIdentifier = u.TableName() + "." + u.Uuid.ColumnName().String()
-		if err := anypb.MarshalFrom(val, rq, proto.MarshalOptions{}); err != nil {
-			return db, false, err
-		}
-
-		return db, false, nil
-	}
-
 	var attributeOrLogin bool
 
 	q := new(idm.UserSingleQuery)
-
 	if err := anypb.UnmarshalTo(val, q, proto.UnmarshalOptions{}); err != nil {
 		// This is not the expected val, just ignore
 		return nil, false, nil
@@ -184,23 +170,24 @@ func (c *queryConverter) Convert(ctx context.Context, val *anypb.Any, db *gorm.D
 		if !q.AttributeAnyValue {
 			txAttributes = txAttributes.Where(a.Value.Like(strings.Replace(q.AttributeValue, "*", "%", -1)))
 		}
-
+		var wtx *gorm.DB
 		if q.Not {
-			wheres = append(wheres, db.Not(field.CompareSubQuery(
+			wtx = db.Not(field.CompareSubQuery(
 				field.ExistsOp,
 				u.Uuid,
 				txAttributes.UnderlyingDB(),
-			)))
+			))
 		} else {
-			wheres = append(wheres, db.Where(field.CompareSubQuery(
+			wtx = db.Where(field.CompareSubQuery(
 				field.ExistsOp,
 				u.Uuid,
 				txAttributes.UnderlyingDB(),
-			)))
+			))
 		}
 
 		if attributeOrLogin {
-			db = db.Or(u.Name.Eq(q.Login))
+			wtx = wtx.Or(u.Name.Like(strings.Replace(q.AttributeValue, "*", "%", -1)))
+			wheres = append(wheres, wtx)
 		}
 	}
 

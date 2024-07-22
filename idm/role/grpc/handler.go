@@ -136,6 +136,7 @@ func (h *Handler) DeleteRole(ctx context.Context, req *idm.DeleteRoleRequest) (*
 	}
 
 	var roles []*idm.Role
+	req.Query = pbservice.PrepareResourcePolicyQuery(req.Query, pbservice.ResourcePolicyAction_READ)
 	if err = dao.Search(ctx, req.Query, &roles); err != nil {
 		return nil, err
 	}
@@ -186,8 +187,8 @@ func (h *Handler) SearchRole(request *idm.SearchRoleRequest, response idm.RoleSe
 	if err != nil {
 		return err
 	}
-	request.Query = pbservice.PrepareResourcePolicyQuery(request.Query)
 
+	request.Query = pbservice.PrepareResourcePolicyQuery(request.Query, pbservice.ResourcePolicyAction_READ)
 	if err := dao.Search(ctx, request.Query, &roles); err != nil {
 		return err
 	}
@@ -212,6 +213,7 @@ func (h *Handler) CountRole(ctx context.Context, request *idm.SearchRoleRequest)
 		return nil, err
 	}
 
+	request.Query = pbservice.PrepareResourcePolicyQuery(request.Query, pbservice.ResourcePolicyAction_READ)
 	count, err := dao.Count(ctx, request.Query)
 	if err != nil {
 		return nil, err
@@ -236,6 +238,7 @@ func (h *Handler) StreamRole(streamer idm.RoleService_StreamRoleServer) error {
 		}
 
 		var roles []*idm.Role
+		incoming.Query = pbservice.PrepareResourcePolicyQuery(incoming.Query, pbservice.ResourcePolicyAction_READ)
 		if err = dao.Search(ctx, incoming.Query, &roles); err != nil {
 			return err
 		}

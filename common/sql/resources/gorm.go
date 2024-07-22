@@ -32,6 +32,7 @@ import (
 	"gorm.io/gorm/clause"
 	"gorm.io/gorm/schema"
 
+	"github.com/pydio/cells/v4/common/errors"
 	"github.com/pydio/cells/v4/common/proto/service"
 )
 
@@ -141,6 +142,8 @@ func (s *gormImpl) DeletePoliciesForResourceAndAction(ctx context.Context, resou
 // BuildPolicyConditionForAction builds an ResourcesSQL condition from claims toward the associated resource table
 func (s *gormImpl) BuildPolicyConditionForAction(ctx context.Context, q *service.ResourcePolicyQuery, action service.ResourcePolicyAction) (out any, e error) {
 
+	return nil, errors.WithMessage(errors.StatusNotImplemented, "should use Convert API instead")
+
 	if q == nil || q.Any {
 		return nil, nil
 	}
@@ -170,6 +173,8 @@ func (s *gormImpl) BuildPolicyConditionForAction(ctx context.Context, q *service
 }
 
 // Convert a policy query to conditions from claims toward the associated resource table
+// TODO - See BuildPolicyConditionForAction
+// This ends up doing UUID IN (SELECT) whereas a Left Join is probably faster
 func (s *gormImpl) Convert(ctx context.Context, val *anypb.Any, db *gorm.DB) (*gorm.DB, bool, error) {
 
 	q := new(service.ResourcePolicyQuery)
@@ -182,7 +187,7 @@ func (s *gormImpl) Convert(ctx context.Context, val *anypb.Any, db *gorm.DB) (*g
 	if q.Empty {
 		args := strings.Split(q.LeftIdentifier, ".")
 
-		subQuery := s.instance(ctx).Model(&service.ResourcePolicy{}).Select("resource").Where(clause.Eq{Column: "resource", Value: clause.Column{Table: args[0], Name: args[1]}}).Where(&service.ResourcePolicy{Action: service.ResourcePolicyAction_ANY})
+		subQuery := s.instance(ctx).Model(&service.ResourcePolicy{}).Select("resource").Where(clause.Eq{Column: "resource", Value: clause.Column{Table: args[0], Name: args[1]}}).Where(&service.ResourcePolicy{Action: q.Action})
 		count++
 		db = db.Not("uuid IN(?)", subQuery)
 	} else {
@@ -191,17 +196,11 @@ func (s *gormImpl) Convert(ctx context.Context, val *anypb.Any, db *gorm.DB) (*g
 		subQuery := s.instance(ctx).Model(&service.ResourcePolicy{}).Select("resource")
 		if len(subjects) > 0 {
 			subjectQuery := s.instance(ctx)
-			for i, subject := range subjects {
-				if i == 0 {
-					subjectQuery = subjectQuery.Where(&service.ResourcePolicy{Subject: subject})
-				} else {
-					subjectQuery = subjectQuery.Or(&service.ResourcePolicy{Subject: subject})
-				}
+			for _, subject := range subjects {
+				subjectQuery = subjectQuery.Or(&service.ResourcePolicy{Subject: subject})
 			}
-
 			args := strings.Split(q.LeftIdentifier, ".")
-
-			subQuery = subQuery.Where(clause.Eq{Column: "resource", Value: clause.Column{Table: args[0], Name: args[1]}}).Where(&service.ResourcePolicy{Action: service.ResourcePolicyAction_ANY}).Where(subjectQuery)
+			subQuery = subQuery.Where(clause.Eq{Column: "resource", Value: clause.Column{Table: args[0], Name: args[1]}}).Where(subjectQuery).Where(&service.ResourcePolicy{Action: q.Action})
 		}
 		count++
 		db = db.Where("uuid IN (?)", subQuery)
