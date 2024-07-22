@@ -121,7 +121,7 @@ func NewWithServer(ctx context.Context, name string, s *grpc.Server, listen stri
 		cancel: cancel,
 		opts:   opts,
 		Server: s,
-		regI:   &serverRegistrar{Server: s, Mutex: &sync.Mutex{}},
+		regI:   &serverRegistrar{Server: s, RWMutex: &sync.RWMutex{}},
 	})
 }
 
@@ -262,7 +262,7 @@ func (s *Server) lazyGrpc(rootContext context.Context) *grpc.Server {
 		reg:                reg,
 		unaryInterceptors:  &unaryInterceptors,
 		streamInterceptors: &streamInterceptors,
-		Mutex:              &sync.Mutex{},
+		RWMutex:            &sync.RWMutex{},
 	}
 
 	channelz.RegisterChannelzServiceToServer(wrappedGS)
@@ -388,10 +388,12 @@ type serverRegistrar struct {
 	unaryInterceptors  *[]grpc.UnaryServerInterceptor
 	streamInterceptors *[]grpc.StreamServerInterceptor
 
-	*sync.Mutex
+	*sync.RWMutex
 }
 
 func (r *serverRegistrar) GetServiceInfo() map[string]grpc.ServiceInfo {
+	r.RLock()
+	defer r.RUnlock()
 
 	endpoints := r.reg.ListAdjacentItems(
 		registry.WithAdjacentSourceOptions(registry.WithName("grpc"), registry.WithType(pb.ItemType_SERVER)),
@@ -425,11 +427,13 @@ func (r *serverRegistrar) GetServiceInfo() map[string]grpc.ServiceInfo {
 }
 
 func (r *serverRegistrar) RegisterService(desc *grpc.ServiceDesc, impl interface{}) {
+
 	r.Lock()
 	defer r.Unlock()
 
 	// Making sure we don't panic if the same service info has already been registered in the main grpc
 	info := r.Server.GetServiceInfo()
+
 	if _, exists := info[desc.ServiceName]; !exists {
 		r.Server.RegisterService(desc, impl)
 	}
@@ -437,7 +441,6 @@ func (r *serverRegistrar) RegisterService(desc *grpc.ServiceDesc, impl interface
 	for _, method := range desc.Methods {
 		endpoint := util.CreateEndpoint("/"+desc.ServiceName+"/"+method.MethodName, impl, map[string]string{})
 
-		//fmt.Println("Registering ", "/"+desc.ServiceName+"/"+method.MethodName, endpoint.ID(), r.id)
 		r.reg.Register(endpoint,
 			registry.WithEdgeTo(r.id, "server", map[string]string{
 				"serverType": "grpc",
