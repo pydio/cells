@@ -55,10 +55,14 @@ func RunJavaScript(ctx context.Context, script string, inputs map[string]interfa
 	vm := otto.New()
 
 	for inputVar, inputData := range inputs {
-		vm.Set(inputVar, inputData)
+		if er := vm.Set(inputVar, inputData); er != nil {
+			return er
+		}
 	}
 	for outputVar, outputData := range outputs {
-		vm.Set(outputVar, outputData)
+		if er := vm.Set(outputVar, outputData); er != nil {
+			return er
+		}
 	}
 
 	if _, e := vm.Run(script); e == nil {
@@ -73,7 +77,6 @@ func RunJavaScript(ctx context.Context, script string, inputs map[string]interfa
 					outputs[oVar], _ = vmValue.ToString()
 				case reflect.Bool:
 					outputs[oVar], _ = vmValue.ToBoolean()
-					// TODO OTHER TYPES
 				default:
 					return errors.New("JS Runner : unsupported expected output type")
 				}

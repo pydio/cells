@@ -73,7 +73,7 @@ func fromCtxWithCheck(ctx context.Context) Store {
 	if ctx == nil || !propagator.Get(ctx, ContextKey, &s) {
 		er := "No config found in context"
 		if ctx == nil {
-			er = "empty context when looking for context"
+			er = "empty context (when looking for config)"
 		}
 		pc, file, line, ok := runtime.Caller(2)
 		if ok {
