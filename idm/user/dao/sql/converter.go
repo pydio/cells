@@ -187,8 +187,8 @@ func (c *queryConverter) Convert(ctx context.Context, val *anypb.Any, db *gorm.D
 
 		if attributeOrLogin {
 			wtx = wtx.Or(u.Name.Like(strings.Replace(q.AttributeValue, "*", "%", -1)))
-			wheres = append(wheres, wtx)
 		}
+		wheres = append(wheres, wtx)
 	}
 
 	if len(q.HasRole) > 0 {
