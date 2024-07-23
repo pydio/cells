@@ -136,7 +136,7 @@ func (c *ChatHandler) initHandlers(ctx context.Context) {
 			switch msg.Type {
 			case MsgSubscribe:
 				if msg.JWT == "" {
-					session.CloseWithMsg(NewErrorMessageString("Empty JWT"))
+					_ = session.CloseWithMsg(NewErrorMessageString("Empty JWT"))
 					log.Logger(ctx).Debug("empty jwt")
 					return
 				}
@@ -144,7 +144,7 @@ func (c *ChatHandler) initHandlers(ctx context.Context) {
 				_, claims, e := verifier.Verify(ctx, msg.JWT)
 				if e != nil {
 					log.Logger(ctx).Error("invalid jwt received from websocket connection")
-					session.CloseWithMsg(NewErrorMessage(e))
+					_ = session.CloseWithMsg(NewErrorMessage(e))
 					return
 				}
 				updateSessionFromClaims(ctx, session, claims)

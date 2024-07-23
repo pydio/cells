@@ -23,6 +23,7 @@ package middleware
 import (
 	"context"
 	"fmt"
+	"net/http"
 	"strings"
 
 	"google.golang.org/grpc"
@@ -31,9 +32,11 @@ import (
 
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/config"
+	pb "github.com/pydio/cells/v4/common/proto/registry"
 	"github.com/pydio/cells/v4/common/registry"
 	"github.com/pydio/cells/v4/common/runtime"
 	tenant2 "github.com/pydio/cells/v4/common/runtime/tenant"
+	"github.com/pydio/cells/v4/common/server"
 	"github.com/pydio/cells/v4/common/utils/propagator"
 )
 
@@ -169,4 +172,40 @@ func HandlerInterceptor() func(ctx context.Context) (context.Context, bool, erro
 		ctx, err = setContextForTenant(ctx)
 		return ctx, true, err
 	}
+}
+
+func WebTenantMiddleware(ctx context.Context, endpoint string, serviceContextKey any, srv server.Server, h http.Handler) http.Handler {
+	return http.HandlerFunc(func(rw http.ResponseWriter, req *http.Request) {
+		ctx := propagator.ForkContext(req.Context(), ctx)
+
+		var reg registry.Registry
+		propagator.Get(ctx, registry.ContextKey, &reg)
+
+		path := strings.TrimSuffix(req.RequestURI, req.URL.Path)
+		if endpoint != "" {
+			path = endpoint
+		}
+
+		endpoints := reg.ListAdjacentItems(
+			registry.WithAdjacentSourceItems([]registry.Item{srv}),
+			registry.WithAdjacentTargetOptions(registry.WithName(path), registry.WithType(pb.ItemType_ENDPOINT)),
+		)
+
+		for _, ep := range endpoints {
+			services := reg.ListAdjacentItems(
+				registry.WithAdjacentSourceItems([]registry.Item{ep}),
+				registry.WithAdjacentTargetOptions(registry.WithType(pb.ItemType_SERVICE)),
+			)
+
+			if len(services) != 1 {
+				continue
+			}
+
+			ctx = propagator.With(ctx, serviceContextKey, services[0])
+		}
+
+		ctx, _, _ = TenantIncomingContext(nil)(ctx)
+
+		h.ServeHTTP(rw, req.WithContext(ctx))
+	})
 }

@@ -43,6 +43,21 @@ func WithHTTP(f func(context.Context, routing.RouteRegistrar) error) ServiceOpti
 	}
 }
 
+// WithHTTPOptions adds a http microservice handler to the current service, passing ServiceOptions to initializer
+func WithHTTPOptions(f func(context.Context, routing.RouteRegistrar, *ServiceOptions) error) ServiceOption {
+	return func(o *ServiceOptions) {
+		o.serverType = server.TypeHttp
+		o.serverStart = func(c context.Context) error {
+			var mux routing.RouteRegistrar
+			if !o.Server.As(&mux) {
+				return fmt.Errorf("server %s is not a mux ", o.Name)
+			}
+
+			return f(c, mux, o)
+		}
+	}
+}
+
 func WithHTTPStop(f func(context.Context, routing.RouteRegistrar) error) ServiceOption {
 	return func(o *ServiceOptions) {
 		o.serverStop = func(c context.Context) error {

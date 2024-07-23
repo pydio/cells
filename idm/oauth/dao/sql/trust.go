@@ -1,8 +1,9 @@
-package oauth
+package sql
 
 import (
 	"context"
 	"errors"
+	"github.com/pydio/cells/v4/idm/oauth"
 	"strings"
 	"time"
 
@@ -18,7 +19,7 @@ var _ trust.GrantManager = new(trustDriver)
 type trustDriver struct {
 	db *gorm.DB
 
-	r Registry
+	r oauth.Registry
 }
 
 func (t trustDriver) CreateGrant(ctx context.Context, g trust.Grant, publicKey jose.JSONWebKey) error {

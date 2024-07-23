@@ -41,8 +41,7 @@ import (
 type ProviderType int
 
 const (
-	ProviderTypeOry ProviderType = iota
-	ProviderTypeGrpc
+	ProviderTypeGrpc ProviderType = iota
 	ProviderTypePAT
 )
 
@@ -64,12 +63,12 @@ type Exchanger interface {
 
 // TokenOption is an AuthCodeOption is passed to Config.AuthCodeURL.
 type TokenOption interface {
-	setValue(url.Values)
+	SetValue(url.Values)
 }
 
 type setParam struct{ k, v string }
 
-func (p setParam) setValue(m url.Values) { m.Set(p.k, p.v) }
+func (p setParam) SetValue(m url.Values) { m.Set(p.k, p.v) }
 
 // SetChallenge builds a TokenOption which passes key/value parameters
 // to a provider's token exchange endpoint.
@@ -419,7 +418,7 @@ func WithImpersonate(ctx context.Context, user *idm.User) context.Context {
 	return context.WithValue(ctx, claim.ContextKey, c)
 }
 
-func addProvider(p Provider) {
+func RegisterProvider(p Provider) {
 	providers = append(providers, p)
 	sortProviders()
 }

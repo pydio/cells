@@ -245,6 +245,12 @@ defaults:
           - type: sql
             prefix: oauth2_
             singular: "true"
+    pydio.web.oauth:
+      storages:
+        main:
+          - type: sql
+            prefix: oauth2_
+            singular: "true"
     pydio.rest.frontend:
       storages:
         main:

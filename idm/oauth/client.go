@@ -2,54 +2,62 @@ package oauth
 
 import (
 	"context"
-	"github.com/ory/fosite"
-	"github.com/ory/hydra/v2/client"
-	"github.com/pydio/cells/v4/common/utils/configx"
 	"net/http"
 	"strings"
+
+	"github.com/ory/fosite"
+	"github.com/ory/hydra/v2/client"
+
+	"github.com/pydio/cells/v4/common/config"
+	"github.com/pydio/cells/v4/common/utils/configx"
 )
 
-var _ client.Manager = new(clientDriver)
+var _ client.Manager = new(clientConfigDriver)
 
-type clientDriver struct {
+// NewClientConfigDriver creates a client.Manager directly reading from configuration
+func NewClientConfigDriver(ctx context.Context) client.Manager {
+	return &clientConfigDriver{store: config.Get(ctx, "services/pydio.web.oauth/staticClients")}
+}
+
+type clientConfigDriver struct {
 	store configx.Values
 }
 
-func (c clientDriver) AuthenticateClient(ctx context.Context, id string, secret []byte) (*client.Client, error) {
+func (c clientConfigDriver) AuthenticateClient(ctx context.Context, id string, secret []byte) (*client.Client, error) {
 	//TODO implement me
 	panic("implement me")
 }
 
-func (c clientDriver) GetClient(ctx context.Context, id string) (fosite.Client, error) {
+func (c clientConfigDriver) GetClient(ctx context.Context, id string) (fosite.Client, error) {
 	return c.GetConcreteClient(ctx, id)
 }
 
-func (c clientDriver) CreateClient(ctx context.Context, cli *client.Client) error {
+func (c clientConfigDriver) CreateClient(ctx context.Context, cli *client.Client) error {
 	//TODO implement me
 	panic("implement me")
 }
 
-func (c clientDriver) UpdateClient(ctx context.Context, cli *client.Client) error {
+func (c clientConfigDriver) UpdateClient(ctx context.Context, cli *client.Client) error {
 	//TODO implement me
 	panic("implement me")
 }
 
-func (c clientDriver) DeleteClient(ctx context.Context, id string) error {
+func (c clientConfigDriver) DeleteClient(ctx context.Context, id string) error {
 	//TODO implement me
 	panic("implement me")
 }
 
-func (c clientDriver) GetClients(ctx context.Context, filters client.Filter) ([]client.Client, error) {
+func (c clientConfigDriver) GetClients(ctx context.Context, filters client.Filter) ([]client.Client, error) {
 	//TODO implement me
 	panic("implement me")
 }
 
-func (c clientDriver) CountClients(ctx context.Context) (int, error) {
+func (c clientConfigDriver) CountClients(ctx context.Context) (int, error) {
 	//TODO implement me
 	panic("implement me")
 }
 
-func (c clientDriver) GetConcreteClient(ctx context.Context, id string) (*client.Client, error) {
+func (c clientConfigDriver) GetConcreteClient(ctx context.Context, id string) (*client.Client, error) {
 	var clis []*client.Client
 
 	err := c.store.Scan(&clis)
@@ -83,7 +91,7 @@ func (c clientDriver) GetConcreteClient(ctx context.Context, id string) (*client
 	return nil, fosite.ErrNotFound
 }
 
-func (c clientDriver) Authenticate(ctx context.Context, id string, secret []byte) (*client.Client, error) {
+func (c clientConfigDriver) Authenticate(ctx context.Context, id string, secret []byte) (*client.Client, error) {
 	//TODO implement me
 	panic("implement me")
 }

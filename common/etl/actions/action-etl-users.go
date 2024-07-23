@@ -28,8 +28,6 @@ import (
 	"go.uber.org/zap"
 
 	"github.com/pydio/cells/v4/common"
-	"github.com/pydio/cells/v4/common/auth"
-	"github.com/pydio/cells/v4/common/config"
 	"github.com/pydio/cells/v4/common/etl"
 	"github.com/pydio/cells/v4/common/etl/models"
 	"github.com/pydio/cells/v4/common/forms"
@@ -101,7 +99,8 @@ func (c *SyncUsersAction) GetName() string {
 // Init parses and validates parameters
 func (c *SyncUsersAction) Init(job *jobs.Job, action *jobs.Action) error {
 	// Making sure oauth configs are up-to-date on this node
-	auth.InitConfiguration(config.Get(c.RuntimeContext, "services", common.ServiceWebNamespace_+common.ServiceOAuth))
+	// TODO ?
+	// auth.InitConfiguration()
 	return c.ParseStores(action.Parameters)
 }
 

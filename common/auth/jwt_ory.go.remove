@@ -1,3 +1,5 @@
+//go:build exclude
+
 /*
  * Copyright (c) 2019-2021. Abstrium SAS <team (at) pydio.com>
  * This file is part of Pydio Cells.
@@ -41,20 +43,11 @@ import (
 	json "github.com/pydio/cells/v4/common/utils/jsonx"
 )
 
-type oryprovider struct {
-	oauth2Provider fosite.OAuth2Provider
-}
+// oryprovider is NOT USED anymore - TODO REMOVE
+type oryprovider struct{}
 
 type orytoken struct {
 	claims *jwt.IDTokenClaims
-}
-
-func RegisterOryProvider(o fosite.OAuth2Provider) {
-	p := new(oryprovider)
-
-	p.oauth2Provider = o
-
-	addProvider(p)
 }
 
 func (p *oryprovider) GetType() ProviderType {
@@ -64,7 +57,7 @@ func (p *oryprovider) GetType() ProviderType {
 func (p *oryprovider) LoginChallengeCode(ctx context.Context, claims claim.Claims, opts ...TokenOption) (string, error) {
 	v := url.Values{}
 	for _, opt := range opts {
-		opt.setValue(v)
+		opt.SetValue(v)
 	}
 
 	// Getting or creating challenge
@@ -113,7 +106,7 @@ func (p *oryprovider) LoginChallengeCode(ctx context.Context, claims claim.Claim
 
 	requestURLValues := requestURL.Query()
 
-	redirectURL, err := GetRedirectURIFromRequestValues(requestURLValues)
+	redirectURL, err := oauth.GetRedirectURIFromRequestValues(requestURLValues)
 	if err != nil {
 		return "", err
 	}
@@ -135,7 +128,7 @@ func (p *oryprovider) PasswordCredentialsCode(ctx context.Context, userName stri
 
 	v := url.Values{}
 	for _, opt := range opts {
-		opt.setValue(v)
+		opt.SetValue(v)
 	}
 
 	// Getting or creating challenge
@@ -152,7 +145,7 @@ func (p *oryprovider) PasswordCredentialsCode(ctx context.Context, userName stri
 	var valid bool
 	var err error
 
-	connectors := GetConnectors()
+	connectors := GetConnectors(ctx)
 	source := ""
 	for _, c := range connectors {
 		cc, ok := c.Conn().(PasswordConnector)
@@ -227,7 +220,7 @@ func (p *oryprovider) PasswordCredentialsCode(ctx context.Context, userName stri
 
 	requestURLValues := requestURL.Query()
 
-	redirectURL, err := GetRedirectURIFromRequestValues(requestURLValues)
+	redirectURL, err := oauth.GetRedirectURIFromRequestValues(requestURLValues)
 	if err != nil {
 		return "", err
 	}
@@ -256,7 +249,7 @@ func (p *oryprovider) PasswordCredentialsToken(ctx context.Context, userName str
 	var identity Identity
 	var valid bool
 
-	connectors := GetConnectors()
+	connectors := GetConnectors(ctx)
 
 	attempt := 0
 	source := ""
@@ -340,7 +333,7 @@ func (p *oryprovider) PasswordCredentialsToken(ctx context.Context, userName str
 
 	requestURLValues := requestURL.Query()
 
-	redirectURL, err := GetRedirectURIFromRequestValues(requestURLValues)
+	redirectURL, err := oauth.GetRedirectURIFromRequestValues(requestURLValues)
 	if err != nil {
 		return nil, err
 	}
@@ -367,7 +360,7 @@ func (p *oryprovider) PasswordCredentialsToken(ctx context.Context, userName str
 func (p *oryprovider) Logout(ctx context.Context, requestUrl, username, sessionID string, opts ...TokenOption) error {
 	v := url.Values{}
 	for _, opt := range opts {
-		opt.setValue(v)
+		opt.SetValue(v)
 	}
 
 	logout, err := hydra.CreateLogout(ctx, requestUrl, username, sessionID)
@@ -389,7 +382,12 @@ func (p *oryprovider) Verify(ctx context.Context, accessToken string) (IDToken, 
 	ctx2, cancel := context.WithTimeout(ctx, 50*time.Second)
 	defer cancel()
 
-	tokenType, ar, err := p.oauth2Provider.IntrospectToken(ctx2, accessToken, fosite.AccessToken, session)
+	reg, er := manager.Resolve[oauth.Registry](ctx)
+	if er != nil {
+		return nil, er
+	}
+
+	tokenType, ar, err := reg.OAuth2Provider().IntrospectToken(ctx2, accessToken, fosite.AccessToken, session)
 	if err != nil {
 		return nil, err
 	}
@@ -417,22 +415,4 @@ func (t *orytoken) Claims(v interface{}) error {
 
 func (t *orytoken) ScopedClaims(claims *claim.Claims) error {
 	return nil
-}
-
-// GetRedirectURIFromRequestValues extracts the redirect_uri from values but does not do any sort of validation.
-//
-// Considered specifications
-//   - https://tools.ietf.org/html/rfc6749#section-3.1
-//     The endpoint URI MAY include an
-//     "application/x-www-form-urlencoded" formatted (per Appendix B) query
-//     component ([RFC3986] Section 3.4), which MUST be retained when adding
-//     additional query parameters.
-func GetRedirectURIFromRequestValues(values url.Values) (string, error) {
-	// rfc6749 3.1.   Authorization Endpoint
-	// The endpoint URI MAY include an "application/x-www-form-urlencoded" formatted (per Appendix B) query component
-	redirectURI, err := url.QueryUnescape(values.Get("redirect_uri"))
-	if err != nil {
-		return "", errors.WithStack(fosite.ErrInvalidRequest.WithHint(`The "redirect_uri" parameter is malformed or missing.`).WithDebug(err.Error()))
-	}
-	return redirectURI, nil
 }

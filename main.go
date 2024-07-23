@@ -131,7 +131,6 @@ import (
 	_ "github.com/pydio/cells/v4/idm/role/dao/sql"
 	_ "github.com/pydio/cells/v4/idm/user/dao/sql"
 	_ "github.com/pydio/cells/v4/idm/workspace/dao/sql"
-	// todo - clean oauth Registry DAO
 
 	// IDM
 	_ "github.com/pydio/cells/v4/idm/acl/grpc/service"
@@ -142,7 +141,7 @@ import (
 	_ "github.com/pydio/cells/v4/idm/meta/rest/service"
 	_ "github.com/pydio/cells/v4/idm/oauth/grpc/service"
 	_ "github.com/pydio/cells/v4/idm/oauth/rest/service"
-	//_ "github.com/pydio/cells/v4/idm/oauth/web"
+	_ "github.com/pydio/cells/v4/idm/oauth/web/service"
 	_ "github.com/pydio/cells/v4/idm/policy/grpc/service"
 	_ "github.com/pydio/cells/v4/idm/policy/rest/service"
 	_ "github.com/pydio/cells/v4/idm/role/grpc/service"

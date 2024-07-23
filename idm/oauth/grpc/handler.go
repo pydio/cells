@@ -123,9 +123,7 @@ func (h *Handler) CreateLogin(ctx context.Context, in *pauth.CreateLoginRequest)
 	csrf := strings.Replace(uuid.New(), "-", "", -1)
 
 	// Generate the request URL
-	host, _ := middleware.HttpMetaFromGrpcContext(ctx, keys.HttpMetaHost)
-	provider := auth.GetConfigurationProvider(host)
-	iu := urlx.AppendPaths((*provider.GetProvider()).Config().IssuerURL(ctx), (*provider.GetProvider()).Config().OAuth2AuthURL(ctx).Path)
+	iu := urlx.AppendPaths(reg.Config().IssuerURL(ctx), reg.Config().OAuth2AuthURL(ctx).Path)
 	sessionID := uuid.New()
 
 	if err := reg.ConsentManager().CreateLoginSession(ctx, &flow.LoginSession{
@@ -269,8 +267,7 @@ func (h *Handler) CreateConsent(ctx context.Context, in *pauth.CreateConsentRequ
 		return nil, fmt.Errorf(session.Error.Name)
 	}
 
-	host, _ := middleware.HttpMetaFromGrpcContext(ctx, keys.HttpMetaHost)
-	if session.RequestedAt.Add((*auth.GetConfigurationProvider(host).GetProvider()).Config().ConsentRequestMaxAge(ctx)).Before(time.Now()) {
+	if session.RequestedAt.Add(reg.Config().ConsentRequestMaxAge(ctx)).Before(time.Now()) {
 		return nil, errors.WithStack(fosite.ErrRequestUnauthorized.WithDebug("The login request has expired, please try again."))
 	}
 
@@ -380,7 +377,6 @@ func (h *Handler) CreateAuthCode(ctx context.Context, in *pauth.CreateAuthCodeRe
 	}
 
 	host, _ := middleware.HttpMetaFromGrpcContext(ctx, keys.HttpMetaHost)
-	configProvider := auth.GetConfigurationProvider(host)
 
 	values := url.Values{}
 	values.Set("client_id", in.GetClientID())
@@ -416,7 +412,7 @@ func (h *Handler) CreateAuthCode(ctx context.Context, in *pauth.CreateAuthCodeRe
 	}
 
 	cl := ar.GetClient().(*client.Client)
-	clientSpecificCookieNameConsentCSRF := fmt.Sprintf("%s_%s", (*configProvider.GetProvider()).Config().CookieNameConsentCSRF(ctx), cl.CookieSuffix())
+	clientSpecificCookieNameConsentCSRF := fmt.Sprintf("%s_%s", reg.Config().CookieNameConsentCSRF(ctx), cl.CookieSuffix())
 
 	cookieSession, err := cookieStore.Get(req, clientSpecificCookieNameConsentCSRF)
 	if err != nil {
@@ -447,7 +443,7 @@ func (h *Handler) CreateAuthCode(ctx context.Context, in *pauth.CreateAuthCodeRe
 
 	var accessTokenKeyID string
 
-	if (*configProvider.GetProvider()).Config().AccessTokenStrategy(ctx) == "jwt" {
+	if reg.Config().AccessTokenStrategy(ctx) == "jwt" {
 		accessTokenKeyID, err = reg.AccessTokenJWTStrategy().GetPublicKeyID(ctx)
 		if err != nil {
 			return nil, err
@@ -458,7 +454,7 @@ func (h *Handler) CreateAuthCode(ctx context.Context, in *pauth.CreateAuthCodeRe
 
 	claims := &jwt.IDTokenClaims{
 		Subject:     session.ConsentRequest.Subject,
-		Issuer:      strings.TrimRight((*configProvider.GetProvider()).Config().IssuerURL(ctx).String(), "/") + "/",
+		Issuer:      strings.TrimRight(reg.Config().IssuerURL(ctx).String(), "/") + "/",
 		IssuedAt:    time.Now().UTC(),
 		AuthTime:    time.Now().UTC(),
 		RequestedAt: time.Now().UTC(),
@@ -497,7 +493,6 @@ func (h *Handler) CreateLogout(ctx context.Context, in *pauth.CreateLogoutReques
 	}
 
 	challenge := strings.Replace(uuid.New(), "-", "", -1)
-	host, _ := middleware.HttpMetaFromGrpcContext(ctx, keys.HttpMetaHost)
 
 	// Set the session
 	if err := reg.ConsentManager().CreateLogoutRequest(
@@ -510,7 +505,7 @@ func (h *Handler) CreateLogout(ctx context.Context, in *pauth.CreateLogoutReques
 			Verifier:    uuid.New(),
 			RPInitiated: false,
 
-			PostLogoutRedirectURI: (*auth.GetConfigurationProvider(host).GetProvider()).Config().LogoutRedirectURL(ctx).String(),
+			PostLogoutRedirectURI: reg.Config().LogoutRedirectURL(ctx).String(),
 		},
 	); err != nil {
 		return nil, errors.WithStack(err)
@@ -599,8 +594,13 @@ func (h *Handler) rangePasswordConnectors(ctx context.Context, username, passwor
 
 	var valid bool
 	attempt := 0
+	reg, er := manager.Resolve[oauth.Registry](ctx)
+	if er != nil {
+		err = er
+		return
+	}
 
-	for _, c := range auth.GetConnectors() {
+	for _, c := range reg.Connectors(ctx) {
 		cc, ok := c.Conn().(auth.PasswordConnector)
 		if !ok {
 			continue
@@ -691,7 +691,7 @@ func (h *Handler) PasswordCredentialsCode(ctx context.Context, in *pauth.Passwor
 
 	requestURLValues := requestURL.Query()
 
-	redirectURL, err := auth.GetRedirectURIFromRequestValues(requestURLValues)
+	redirectURL, err := oauth.GetRedirectURIFromRequestValues(requestURLValues)
 	if err != nil {
 		return nil, err
 	}
@@ -768,7 +768,7 @@ func (h *Handler) PasswordCredentialsToken(ctx context.Context, in *pauth.Passwo
 
 	requestURLValues := requestURL.Query()
 
-	redirectURL, err := auth.GetRedirectURIFromRequestValues(requestURLValues)
+	redirectURL, err := oauth.GetRedirectURIFromRequestValues(requestURLValues)
 	if err != nil {
 		return nil, err
 	}

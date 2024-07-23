@@ -22,6 +22,7 @@ package auth
 
 import (
 	"context"
+	"net/url"
 	"strings"
 
 	"github.com/mitchellh/mapstructure"
@@ -77,6 +78,30 @@ func (p *grpcProvider) PasswordCredentialsToken(ctx context.Context, userName st
 	return hydra.PasswordCredentialsToken(ctx, userName, password)
 }
 
+func (p *grpcProvider) LoginChallengeCode(ctx context.Context, claims claim.Claims, opts ...TokenOption) (string, error) {
+	panic("implement me - see jwt_ory and make grpc version")
+}
+
+func (p *grpcProvider) PasswordCredentialsCode(ctx context.Context, userName string, password string, opts ...TokenOption) (string, error) {
+	panic("implement me - see jwt_ory and make grpc version")
+}
+
+func (p *grpcProvider) Logout(ctx context.Context, requestUrl, username, sessionID string, opts ...TokenOption) error {
+
+	v := url.Values{}
+	for _, opt := range opts {
+		opt.SetValue(v)
+	}
+
+	logout, err := hydra.CreateLogout(ctx, requestUrl, username, sessionID)
+	if err != nil {
+		return err
+	}
+
+	return hydra.AcceptLogout(ctx, logout.Challenge, v.Get("access_token"), v.Get("refresh_token"))
+
+}
+
 func (p *grpcProvider) Exchange(ctx context.Context, code, codeVerifier string) (*oauth2.Token, error) {
 	return hydra.Exchange(ctx, code, codeVerifier)
 }
@@ -104,11 +129,11 @@ func RegisterGRPCProvider(pType ProviderType, service string) {
 	case ProviderTypeGrpc:
 		p := new(grpcProvider)
 		p.service = service
-		addProvider(p)
+		RegisterProvider(p)
 	case ProviderTypePAT:
 		p := new(grpcVerifier)
 		p.service = service
-		addProvider(p)
+		RegisterProvider(p)
 	}
 
 }

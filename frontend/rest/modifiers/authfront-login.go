@@ -32,6 +32,7 @@ import (
 	pauth "github.com/pydio/cells/v4/common/proto/auth"
 	"github.com/pydio/cells/v4/common/proto/rest"
 	"github.com/pydio/cells/v4/common/service/frontend"
+	"github.com/pydio/cells/v4/idm/oauth"
 )
 
 func LoginPasswordAuth(middleware frontend.AuthMiddleware) frontend.AuthMiddleware {
@@ -62,7 +63,7 @@ func LoginPasswordAuth(middleware frontend.AuthMiddleware) frontend.AuthMiddlewa
 
 			requestURLValues := requestURL.Query()
 
-			redirectURL, err := auth.GetRedirectURIFromRequestValues(requestURLValues)
+			redirectURL, err := oauth.GetRedirectURIFromRequestValues(requestURLValues)
 			if err != nil {
 				return err
 			}

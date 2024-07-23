@@ -40,13 +40,7 @@ import (
 )
 
 func init() {
-	propagator.RegisterContextInjector(func(ctx, parent context.Context) context.Context {
-		var mg Manager
-		if propagator.Get(parent, managerKey{}, &mg) {
-			return propagator.With(ctx, managerKey{}, mg)
-		}
-		return ctx
-	})
+	propagator.RegisterKeyInjector[Manager](managerKey{})
 }
 
 type InitProvider interface {

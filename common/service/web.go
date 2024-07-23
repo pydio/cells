@@ -51,7 +51,6 @@ import (
 	"github.com/pydio/cells/v4/common/runtime"
 	"github.com/pydio/cells/v4/common/server"
 	"github.com/pydio/cells/v4/common/telemetry/log"
-	"github.com/pydio/cells/v4/common/utils/propagator"
 )
 
 const (
@@ -207,41 +206,8 @@ func WithWeb(handler func(ctx context.Context) WebHandler) ServiceOption {
 				}
 			}
 
-			testServiceContext := func(h http.Handler, o *ServiceOptions) http.Handler {
-				return http.HandlerFunc(func(rw http.ResponseWriter, req *http.Request) {
-					ctx := propagator.ForkContext(req.Context(), ctx)
-
-					var reg registry.Registry
-					propagator.Get(ctx, registry.ContextKey, &reg)
-
-					path := strings.TrimSuffix(req.RequestURI, req.URL.Path)
-
-					endpoints := reg.ListAdjacentItems(
-						registry.WithAdjacentSourceItems([]registry.Item{o.Server}),
-						registry.WithAdjacentTargetOptions(registry.WithName(path), registry.WithType(pb.ItemType_ENDPOINT)),
-					)
-
-					for _, endpoint := range endpoints {
-						services := reg.ListAdjacentItems(
-							registry.WithAdjacentSourceItems([]registry.Item{endpoint}),
-							registry.WithAdjacentTargetOptions(registry.WithType(pb.ItemType_SERVICE)),
-						)
-
-						if len(services) != 1 {
-							continue
-						}
-
-						ctx = propagator.With(ctx, ContextKey, services[0])
-					}
-
-					ctx, _, _ = middleware.TenantIncomingContext(nil)(ctx)
-
-					h.ServeHTTP(rw, req.WithContext(ctx))
-				})
-			}
-
 			wrapped = UpdateServiceVersionWrapper(wrapped, o)
-			wrapped = testServiceContext(wrapped, o)
+			wrapped = middleware.WebTenantMiddleware(ctx, "", ContextKey, o.Server, wrapped)
 
 			sub := mux.Route(APIRoute)
 			sub.Handle(serviceRoute, wrapped, routing.WithStripPrefix(), routing.WithEnsureTrailing())

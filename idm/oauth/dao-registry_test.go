@@ -24,6 +24,7 @@ package oauth
 
 import (
 	"context"
+	"github.com/pydio/cells/v4/idm/oauth/dao/sql"
 	"testing"
 
 	"github.com/pydio/cells/v4/common/config"
@@ -44,7 +45,7 @@ func TestRange(t *testing.T) {
 }
 
 var (
-	testCases = test.TemplateSQL(NewRegistryDAO)
+	testCases = test.TemplateSQL(sql.NewRegistryDAO)
 )
 
 func TestRegistry(t *testing.T) {

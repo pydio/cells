@@ -24,23 +24,20 @@ package service
 import (
 	"context"
 	"encoding/base64"
-	"net"
 	"net/http"
 	"strings"
 
-	"github.com/gorilla/mux"
 	"github.com/ory/fosite"
-	"github.com/ory/hydra/v2/consent"
-	"github.com/ory/hydra/v2/jwk"
 	"github.com/ory/hydra/v2/oauth2"
-	"github.com/ory/hydra/v2/x"
 	"github.com/rs/cors"
+	"go.uber.org/zap"
 
 	"github.com/pydio/cells/v4/common"
-	"github.com/pydio/cells/v4/common/auth"
 	"github.com/pydio/cells/v4/common/config/routing"
+	"github.com/pydio/cells/v4/common/errors"
 	"github.com/pydio/cells/v4/common/middleware"
 	"github.com/pydio/cells/v4/common/runtime"
+	"github.com/pydio/cells/v4/common/runtime/manager"
 	"github.com/pydio/cells/v4/common/service"
 	"github.com/pydio/cells/v4/common/telemetry/log"
 	"github.com/pydio/cells/v4/idm/oauth"
@@ -60,53 +57,27 @@ func init() {
 			service.Context(ctx),
 			service.Tag(common.ServiceTagIdm),
 			service.Description("OAuth Provider"),
-			service.WithHTTP(func(ctx context.Context, serveMux routing.RouteRegistrar) error {
-				router := mux.NewRouter()
-				hh := routing.GetSitesAllowedURLs(ctx)
-				for _, u := range hh {
-					// fmt.Println("Registering router for host", u.String())
-					// Two-level check : Host() is regexp based, fast, but only on Hostname
-					host := u.Host
-					hostname := u.Hostname()
-					subRouter := router.Host(hostname)
-					if _, p, e := net.SplitHostPort(u.Host); e == nil && p != "" {
-						// Additional check to take port into account
-						subRouter = subRouter.MatcherFunc(func(request *http.Request, _ *mux.RouteMatch) bool {
-							return host == request.Host
-						})
+			service.WithStorageDrivers(oauth.RegistryDrivers...),
+			service.WithHTTPOptions(func(ctx context.Context, serveMux routing.RouteRegistrar, o *service.ServiceOptions) error {
+
+				handlerFunc := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+					reg, er := manager.Resolve[oauth.Registry](r.Context())
+					if er != nil {
+						panic(errors.WithMessage(errors.StatusInternalServerError, "cannot resolve oauthReg"))
 					}
+					reg.PublicRouter().ServeHTTP(w, r)
+				})
 
-					conf := auth.GetConfigurationProvider(host)
-					reg, e := oauth.DuplicateRegistryForConf(common.ServiceGrpcNamespace_+common.ServiceOAuth, conf)
-					if e != nil {
-						return e
-					}
-
-					admin := x.NewRouterAdmin((*conf.GetProvider()).Config().AdminURL)
-					public := x.NewRouterPublic()
-
-					oauth2Handler := oauth2.NewHandler(reg, (*conf.GetProvider()).Config())
-					oauth2Handler.SetRoutes(admin, public, func(handler http.Handler) http.Handler {
-						return handler
-					})
-
-					consentHandler := consent.NewHandler(reg, (*conf.GetProvider()).Config())
-					consentHandler.SetRoutes(admin)
-
-					keyHandler := jwk.NewHandler(reg)
-					keyHandler.SetRoutes(admin, public, func(handler http.Handler) http.Handler {
-						return handler
-					})
-
-					subRouter.Handler(middleware.HttpWrapperMeta(ctx, TokenMethodWrapper(ctx, public)))
-				}
+				handler := TokenMethodWrapper(ctx, handlerFunc)
+				handler = middleware.HttpWrapperMeta(ctx, handler)
+				handler = middleware.WebTenantMiddleware(ctx, "/oidc", service.ContextKey, o.Server, handler)
 
 				serveMux.Route(RouteOIDC).Handle("/", cors.New(cors.Options{
 					AllowedMethods:   []string{"GET", "POST", "PUT", "PATCH", "DELETE"},
 					AllowedHeaders:   []string{"Authorization", "Content-Type"},
 					ExposedHeaders:   []string{"Content-Type"},
 					AllowCredentials: true,
-				}).Handler(router), routing.WithStripPrefix())
+				}).Handler(handler), routing.WithStripPrefix())
 				return nil
 			}),
 			service.WithHTTPStop(func(ctx context.Context, mux routing.RouteRegistrar) error {
@@ -138,13 +109,18 @@ func TokenMethodWrapper(ctx context.Context, handler http.Handler) http.Handler 
 			}
 
 			if clientId != "" {
-				if cli, er := oauth.GetRegistry().OAuth2Storage().GetClient(ctx, clientId); er == nil {
-					if oidcClient, ok := cli.(fosite.OpenIDConnectClient); ok {
-						if oidcClient.GetTokenEndpointAuthMethod() == "none" && r.Header != nil {
-							log.Logger(ctx).Debug("[/oidc/oauth2/token] Removing Basic Auth for public client")
-							r.Header.Del("Authorization")
+				registry, err := manager.Resolve[oauth.Registry](ctx)
+				if err == nil {
+					if cli, er := registry.OAuth2Storage().GetClient(ctx, clientId); er == nil {
+						if oidcClient, ok := cli.(fosite.OpenIDConnectClient); ok {
+							if oidcClient.GetTokenEndpointAuthMethod() == "none" && r.Header != nil {
+								log.Logger(ctx).Debug("[/oidc/oauth2/token] Removing Basic Auth for public client")
+								r.Header.Del("Authorization")
+							}
 						}
 					}
+				} else {
+					log.Logger(ctx).Warn("TokenMethodWrapper cannot resolve registry", zap.Error(err))
 				}
 			}
 		}

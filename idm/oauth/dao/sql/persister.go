@@ -18,28 +18,28 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-package oauth
+package sql
 
 import (
 	"context"
+	"github.com/pydio/cells/v4/idm/oauth"
 	"time"
 
 	pop "github.com/gobuffalo/pop/v6"
 	"github.com/gofrs/uuid"
 	foauth2 "github.com/ory/fosite/handler/oauth2"
+	"github.com/ory/hydra/v2/client"
 	"github.com/ory/x/networkx"
 	"github.com/ory/x/popx"
 	"gorm.io/gorm"
-
-	"github.com/pydio/cells/v4/common/config"
 )
 
 var _ foauth2.TokenRevocationStorage = (*sqlPersister)(nil)
 
-func newPersister(ctx context.Context, db *gorm.DB, r Registry) *sqlPersister {
+func newPersister(ctx context.Context, db *gorm.DB, r oauth.Registry) *sqlPersister {
 	return &sqlPersister{
+		Manager:       oauth.NewClientConfigDriver(ctx),
 		consentDriver: &consentDriver{db, r},
-		clientDriver:  &clientDriver{config.Get(ctx, "services/pydio.web.oauth/staticClients")},
 		oauth2Driver:  &oauth2Driver{db, r},
 		jwkDriver:     &jwkDriver{db, r},
 		trustDriver:   &trustDriver{},
@@ -47,8 +47,8 @@ func newPersister(ctx context.Context, db *gorm.DB, r Registry) *sqlPersister {
 }
 
 type sqlPersister struct {
+	client.Manager
 	*consentDriver
-	*clientDriver
 	*oauth2Driver
 	*jwkDriver
 	*trustDriver

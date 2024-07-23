@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2021. Abstrium SAS <team (at) pydio.com>
+ * Copyright (c) 2024. Abstrium SAS <team (at) pydio.com>
  * This file is part of Pydio Cells.
  *
  * Pydio Cells is free software: you can redistribute it and/or modify
@@ -23,89 +23,125 @@ package auth
 import (
 	"context"
 	"fmt"
-	"sync"
+	"runtime"
+	"strings"
 
+	"github.com/gofrs/uuid"
+	"github.com/ory/fosite"
 	hconf "github.com/ory/hydra/v2/driver/config"
+	"github.com/ory/hydra/v2/spec"
 	hconfx "github.com/ory/x/configx"
-	"github.com/ory/x/logrusx"
+	"github.com/ory/x/contextx"
 
+	"github.com/pydio/cells/v4/common"
+	"github.com/pydio/cells/v4/common/config"
 	"github.com/pydio/cells/v4/common/config/routing"
+	"github.com/pydio/cells/v4/common/errors"
+	"github.com/pydio/cells/v4/common/middleware"
+	"github.com/pydio/cells/v4/common/middleware/keys"
+	"github.com/pydio/cells/v4/common/proto/install"
+	"github.com/pydio/cells/v4/common/telemetry/log"
 	"github.com/pydio/cells/v4/common/utils/configx"
 )
 
-type ConfigurationProvider interface {
-
-	// GetProvider returns an instanciated hconf.Provider struct
-	GetProvider() *hconf.Provider
-
-	// Clients lists all defined clients
-	Clients() configx.Scanner
-
-	// Connectors lists all defined connectors
-	Connectors() configx.Scanner
-}
-
 var (
-	confMap     map[string]ConfigurationProvider
-	confMutex   *sync.Mutex
-	defaultConf ConfigurationProvider
-
-	onConfigurationInits []func(scanner configx.Scanner)
-	confInit             bool
+	ConfigCorePath = []string{"services", common.ServiceWebNamespace_ + common.ServiceOAuth}
 )
 
-func init() {
-	confMap = make(map[string]ConfigurationProvider)
-	confMutex = &sync.Mutex{}
+type ConnectorsProvider interface {
+	// Connectors lists all defined connectors
+	Connectors(ctx context.Context) []ConnectorConfig
 }
 
-func InitConfiguration(values configx.Values) {
-	confMutex.Lock()
-	defer confMutex.Unlock()
-	initConnector := false
-	// TODO CONTEXT
-	for _, rootUrl := range routing.GetSitesAllowedURLs(nil) {
-		p := NewProvider(rootUrl.String(), values)
-		if !initConnector {
-			// Use first conf as default
-			defaultConf = p
-			for _, onConfigurationInit := range onConfigurationInits {
-				onConfigurationInit(p.Connectors())
+func GetProviderContextualizer() *ProviderContextualizer {
+	return &ProviderContextualizer{
+		ConfigPath: ConfigCorePath,
+	}
+}
+
+type ProviderContextualizer struct {
+	NID        uuid.UUID
+	ConfigPath []string
+}
+
+// Network returns the network id for the given context.
+func (pc *ProviderContextualizer) Network(ctx context.Context, network uuid.UUID) uuid.UUID {
+	if pc.NID == uuid.Nil {
+		pc.NID = uuid.Must(uuid.NewV4())
+	}
+	return pc.NID
+}
+
+// Config returns the config for the given context.
+func (pc *ProviderContextualizer) Config(ctx context.Context, provider *hconfx.Provider) *hconfx.Provider {
+	// For RootContext, create an empty fallback provider
+	if ctx == contextx.RootContext {
+		empty, _ := hconfx.New(ctx, spec.ConfigValidationSchema)
+		return empty
+	}
+
+	sites, er := routing.LoadSites(ctx)
+	if er != nil {
+		panic(er)
+	}
+	values := config.Get(ctx, pc.ConfigPath...)
+
+	p, err := configToProvider(ctx, values, sites...)
+	if err != nil {
+		panic(err)
+	}
+	return p
+}
+
+func configToProvider(ctx context.Context, values configx.Values, sites ...*install.ProxyConfig) (*hconfx.Provider, error) {
+	var rootURL string
+	var site *install.ProxyConfig
+
+	var ok bool
+	if ctx != contextx.RootContext {
+		if site, ok = routing.SiteFromContext(ctx, sites); ok {
+			uu := site.GetExternalUrls()
+			for _, u := range uu {
+				rootURL = u.String()
+				break
 			}
-			initConnector = true
+		} else {
+			// Try to find host in meta - TODO Improve Scheme
+			host, _ := middleware.HttpMetaFromGrpcContext(ctx, keys.HttpMetaHost)
+			if host == "" {
+				return nil, errors.WithMessage(errors.StatusInternalServerError, "cannot find rootURL")
+			}
+			rootURL = "https://" + host
+			dbg := ""
+			if pc, file, line, o := runtime.Caller(3); o {
+				if fn := runtime.FuncForPC(pc); fn != nil {
+					dbg = fmt.Sprintf("- from %s - %s:%d", fn.Name(), file, line)
+				}
+			}
+			log.Logger(ctx).Warn("cannot find site from context, and not contextx.RootContext" + dbg)
 		}
-		confMap[rootUrl.Host] = p
-	}
-	confInit = true
-}
-
-func OnConfigurationInit(f func(scanner configx.Scanner)) {
-	onConfigurationInits = append(onConfigurationInits, f)
-
-	if confInit {
-		confMutex.Lock()
-		defer confMutex.Unlock()
-		for _, provider := range confMap {
-			f(provider.Connectors())
-			break
-		}
-	}
-}
-
-func GetConfigurationProvider(hostname ...string) ConfigurationProvider {
-	confMutex.Lock()
-	defer confMutex.Unlock()
-
-	if len(hostname) > 0 {
-		if c, ok := confMap[hostname[0]]; ok {
-			return c
-		}
+	} else {
+		rootURL = "https://"
 	}
 
-	return defaultConf
+	val := mapConfigValues(rootURL, values)
+
+	// TODO - should be checked for all clients - Site-specific mapping
+	if site != nil {
+		rr := values.Val("insecureRedirects").StringArray()
+		var out []string
+		for _, r := range rr {
+			out = append(out, varsFromStr(r, sites, site)...)
+		}
+		if len(out) > 0 {
+			_ = val.Val("dangerous-allow-insecure-redirect-urls").Set(out)
+		}
+	}
+	return hconfx.New(ctx, spec.ConfigValidationSchema, hconfx.WithValues(val.Map()))
+
 }
 
-func NewProvider(rootURL string, values configx.Values) ConfigurationProvider {
+func mapConfigValues(rootURL string, values configx.Values) configx.Values {
 
 	val := configx.New()
 	if secret := values.Val("secret").String(); secret != "" {
@@ -126,51 +162,40 @@ func NewProvider(rootURL string, values configx.Values) ConfigurationProvider {
 	_ = val.Val(hconf.KeyIDTokenLifespan).Set(values.Val("idTokenLifespan").Default("1h").String())
 	_ = val.Val(hconf.KeyAuthCodeLifespan).Set(values.Val("authCodeLifespan").Default("10m").String())
 
+	_ = val.Val(hconf.HSMEnabled).Set("false")
+
 	_ = val.Val(hconf.KeyLogLevel).Set("trace")
 	_ = val.Val("log.leak_sensitive_values").Set(true)
 
-	//rr := values.Val("insecureRedirects").StringArray()
-	//sites, _ := routing.LoadSites()
-	//var out []string
-	//for _, r := range rr {
-	//	out = append(out, oauth.varsFromStr(r, sites)...)
-	//}
-	//if len(out) > 0 {
-	//	_ = val.Val("dangerous-allow-insecure-redirect-urls").Set(out)
-	//}
+	_ = val.Val(hconf.KeyCookieSameSiteMode).Set("Strict")
+	return val
+}
 
-	provider, err := hconf.New(context.TODO(), logrusx.New("test", "test"), hconfx.WithValues(val.Map()))
-	if err != nil {
-		fmt.Println("We have an error here", err)
+func varsFromStr(s string, sites []*install.ProxyConfig, site *install.ProxyConfig) []string {
+	var res []string
+	defaultBind := routing.GetDefaultSiteURL(nil, sites...)
+	if strings.Contains(s, "#default_bind#") {
+
+		res = append(res, strings.ReplaceAll(s, "#default_bind#", defaultBind))
+
+	} else if strings.Contains(s, "#binds...#") {
+
+		for _, u := range site.GetExternalUrls() {
+			res = append(res, strings.ReplaceAll(s, "#binds...#", u.String()))
+		}
+
+	} else if strings.Contains(s, "#insecure_binds...") {
+
+		for _, u := range site.GetExternalUrls() {
+			if !fosite.IsRedirectURISecure(context.TODO(), u) {
+				res = append(res, strings.ReplaceAll(s, "#insecure_binds...#", u.String()))
+			}
+		}
+
+	} else {
+
+		res = append(res, s)
+
 	}
-	return &configurationProvider{
-		defaultProvider: &defaultProvider{provider},
-		v:               values,
-	}
-}
-
-type configurationProvider struct {
-	defaultProvider hconf.Provider
-	// values
-	v configx.Values
-}
-
-type defaultProvider struct {
-	*hconf.DefaultProvider
-}
-
-func (v *configurationProvider) GetProvider() *hconf.Provider {
-	return &v.defaultProvider
-}
-
-func (v *configurationProvider) Clients() configx.Scanner {
-	return v.v.Val("staticClients")
-}
-
-func (v *configurationProvider) Connectors() configx.Scanner {
-	return v.v.Val("connectors")
-}
-
-func (d *defaultProvider) Config() *hconf.DefaultProvider {
-	return d.DefaultProvider
+	return res
 }

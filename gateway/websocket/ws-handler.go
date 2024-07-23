@@ -113,6 +113,7 @@ func (w *WebsocketHandler) InitHandlers(ctx context.Context) {
 
 	w.Websocket.HandleMessage(func(session *melody.Session, bytes []byte) {
 
+		ct := session.Request.Context()
 		msg := &Message{}
 		e := json.Unmarshal(bytes, msg)
 		if e != nil {
@@ -124,17 +125,17 @@ func (w *WebsocketHandler) InitHandlers(ctx context.Context) {
 
 			if msg.JWT == "" {
 				_ = session.CloseWithMsg(NewErrorMessageString("empty jwt"))
-				log.Logger(ctx).Debug("empty jwt")
+				log.Logger(ct).Debug("empty jwt")
 				return
 			}
 			verifier := auth.DefaultJWTVerifier()
-			_, claims, er := verifier.Verify(ctx, msg.JWT)
+			_, claims, er := verifier.Verify(ct, msg.JWT)
 			if er != nil {
-				log.Logger(ctx).Error("invalid jwt received from websocket connection", zap.Any("original", msg))
+				log.Logger(ct).Error("invalid jwt received from websocket connection", zap.Any("original", msg))
 				_ = session.CloseWithMsg(NewErrorMessage(e))
 				return
 			}
-			updateSessionFromClaims(ctx, session, claims)
+			updateSessionFromClaims(ct, session, claims)
 
 		case MsgUnsubscribe:
 

@@ -1,8 +1,9 @@
-package oauth
+package sql
 
 import (
 	"context"
 	"database/sql"
+	"github.com/pydio/cells/v4/idm/oauth"
 	"net/url"
 	"strings"
 	"time"
@@ -80,7 +81,7 @@ var (
 
 type oauth2Driver struct {
 	db *gorm.DB
-	r  Registry
+	r  oauth.Registry
 }
 
 func (o *oauth2Driver) Migrate(ctx context.Context) error {

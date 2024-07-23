@@ -24,6 +24,7 @@ import (
 	"bufio"
 	"context"
 	"crypto/sha256"
+	"net/http"
 	"net/url"
 	"os"
 	"regexp"
@@ -32,8 +33,6 @@ import (
 	"strings"
 	"sync"
 
-	tools "github.com/go-sql-driver/mysql"
-	"github.com/gofrs/uuid"
 	"github.com/gorilla/sessions"
 	retryablehttp "github.com/hashicorp/go-retryablehttp"
 	"github.com/ory/fosite"
@@ -55,38 +54,32 @@ import (
 	"github.com/ory/hydra/v2/x"
 	"github.com/ory/x/configx"
 	"github.com/ory/x/contextx"
-	"github.com/ory/x/dbal"
+	"github.com/ory/x/httprouterx"
 	"github.com/ory/x/httpx"
 	"github.com/ory/x/logrusx"
 	"github.com/ory/x/otelx"
+	"github.com/pkg/errors"
 	"go.uber.org/zap"
-	"gorm.io/gorm"
 
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/auth"
 	"github.com/pydio/cells/v4/common/config"
-	"github.com/pydio/cells/v4/common/config/routing"
-	"github.com/pydio/cells/v4/common/crypto"
-	"github.com/pydio/cells/v4/common/middleware"
-	"github.com/pydio/cells/v4/common/middleware/keys"
-	"github.com/pydio/cells/v4/common/proto/install"
 	runtime2 "github.com/pydio/cells/v4/common/runtime"
+	"github.com/pydio/cells/v4/common/service"
 	"github.com/pydio/cells/v4/common/telemetry/log"
 	json "github.com/pydio/cells/v4/common/utils/jsonx"
-	"github.com/pydio/cells/v4/common/utils/propagator"
 )
 
 // Check interface conformance
-var _ Registry = (*cellsdriver)(nil)
+var _ Registry = (*AbstractRegistry)(nil)
 
 var (
-	reg Registry
+	RegistryDrivers service.StorageDrivers
 
-	logger          *logrusx.Logger
-	audit           *logrusx.Logger
-	loggerOnce      = &sync.Once{}
-	auditOnce       = &sync.Once{}
-	onRegistryInits []func()
+	logger     *logrusx.Logger
+	audit      *logrusx.Logger
+	loggerOnce = &sync.Once{}
+	auditOnce  = &sync.Once{}
 )
 
 type Registry interface {
@@ -104,58 +97,74 @@ type Registry interface {
 	x.RegistryCookieStore
 
 	OAuth2HMACStrategy() *foauth2.HMACSHAStrategy
+	PublicRouter() *httprouterx.RouterPublic
+	auth.ConnectorsProvider
 }
 
-type cellsdriver struct {
-	persister persistence.Persister
+type AbstractRegistry struct {
+	Storage persistence.Persister
 	sql.Dependencies
-	db  *gorm.DB
-	cfg *hconfig.DefaultProvider
-	ctx context.Context
+	cfg          *hconfig.DefaultProvider
+	routerPublic *httprouterx.RouterPublic
+	routerAdmin  *httprouterx.RouterAdmin
+	connectors   []auth.ConnectorConfig
 }
 
-func NewRegistryDAO(ctx context.Context, db *gorm.DB) Registry {
-	return &cellsdriver{
-		db:  db,
-		ctx: ctx,
-	}
-}
-
-func (m *cellsdriver) Migrate(ctx context.Context) error {
+func (m *AbstractRegistry) Migrate(ctx context.Context) error {
 	return m.Persister().MigrateUp(ctx)
 }
 
 // Init implements Registry interface
-func (m *cellsdriver) Init(ctx context.Context, skipNetworkInit bool, migrate bool, ctxer contextx.Contextualizer) error {
+func (m *AbstractRegistry) Init(ctx context.Context, skipNetworkInit bool, migrate bool, ctxer contextx.Contextualizer) error {
 	contextx.RootContext = context.WithValue(ctx, contextx.ValidContextKey, true)
 	return nil
 }
 
-func (m *cellsdriver) Persister() persistence.Persister {
-	if m.persister == nil {
-		m.persister = newPersister(m.ctx, m.db, m)
-	}
-	return m.persister
+func (m *AbstractRegistry) Persister() persistence.Persister {
+	return m.Storage
 }
 
-func (m *cellsdriver) Ping() error {
+func (m *AbstractRegistry) PublicRouter() *httprouterx.RouterPublic {
+	if m.routerPublic == nil {
+		regConfig := m.Config()
+
+		m.routerAdmin = x.NewRouterAdmin(regConfig.AdminURL)
+		m.routerPublic = x.NewRouterPublic()
+
+		oauth2Handler := oauth2.NewHandler(m, regConfig)
+		oauth2Handler.SetRoutes(m.routerAdmin, m.routerPublic, func(handler http.Handler) http.Handler {
+			return handler
+		})
+
+		consentHandler := consent.NewHandler(m, regConfig)
+		consentHandler.SetRoutes(m.routerAdmin)
+
+		keyHandler := jwk.NewHandler(m)
+		keyHandler.SetRoutes(m.routerAdmin, m.routerPublic, func(handler http.Handler) http.Handler {
+			return handler
+		})
+	}
+	return m.routerPublic
+}
+
+func (m *AbstractRegistry) Ping() error {
 	// TODO
 	return nil
 }
 
-func (m *cellsdriver) ClientManager() client.Manager {
+func (m *AbstractRegistry) ClientManager() client.Manager {
 	return m.Persister()
 }
 
-func (m *cellsdriver) ConsentManager() consent.Manager {
+func (m *AbstractRegistry) ConsentManager() consent.Manager {
 	return m.Persister()
 }
 
-func (m *cellsdriver) OAuth2Storage() x.FositeStorer {
+func (m *AbstractRegistry) OAuth2Storage() x.FositeStorer {
 	return m.Persister()
 }
 
-func (m *cellsdriver) KeyManager() jwk.Manager {
+func (m *AbstractRegistry) KeyManager() jwk.Manager {
 	/*if m.Config().HSMEnabled() {
 		return hsm.NewKeyManager(hsm.NewContext(m.Config(), m.Logger()), m.Config())
 	}*/
@@ -163,70 +172,62 @@ func (m *cellsdriver) KeyManager() jwk.Manager {
 	return m.Persister()
 }
 
-func (m *cellsdriver) SoftwareKeyManager() jwk.Manager {
+func (m *AbstractRegistry) SoftwareKeyManager() jwk.Manager {
 	return m.Persister()
 }
 
-func (m *cellsdriver) GrantManager() trust.GrantManager {
+func (m *AbstractRegistry) GrantManager() trust.GrantManager {
 	return m.Persister()
 }
 
-func (m *cellsdriver) Tracer(ctx context.Context) *otelx.Tracer {
+func (m *AbstractRegistry) Tracer(ctx context.Context) *otelx.Tracer {
 	return otelx.NewNoop(m.Logger(), &otelx.Config{})
 }
 
-func (m *cellsdriver) GetJWKSFetcherStrategy() fosite.JWKSFetcherStrategy {
+func (m *AbstractRegistry) GetJWKSFetcherStrategy() fosite.JWKSFetcherStrategy {
 	return fosite.NewDefaultJWKSFetcherStrategy()
 }
 
-func (m *cellsdriver) Config() *hconfig.DefaultProvider {
+func (m *AbstractRegistry) Config() *hconfig.DefaultProvider {
 	if m.cfg != nil {
 		return m.cfg
 	}
 
-	p, err := configx.New(context.TODO(), spec.ConfigValidationSchema)
-	if err != nil {
-		return nil
-	}
-
-	m.cfg = hconfig.NewCustom(
-		logrusx.New("test", "test"),
-		p,
-		&cellsdriverContextualizer{},
-	)
+	emptyProvider, _ := configx.New(context.TODO(), spec.ConfigValidationSchema)
+	m.cfg = hconfig.NewCustom(m.Logger(), emptyProvider, auth.GetProviderContextualizer())
 
 	return m.cfg
 }
 
-func (m *cellsdriver) ClientValidator() *client.Validator {
+func (m *AbstractRegistry) ClientValidator() *client.Validator {
 	return client.NewValidator(m)
 }
 
-func (m *cellsdriver) ClientHasher() fosite.Hasher {
+func (m *AbstractRegistry) ClientHasher() fosite.Hasher {
 	return x.NewHasher(m.Config())
 }
 
-func (m *cellsdriver) ExtraFositeFactories() []fositex.Factory {
+func (m *AbstractRegistry) ExtraFositeFactories() []fositex.Factory {
 	return []fositex.Factory{}
 }
 
-func (m *cellsdriver) OpenIDJWTStrategy() jwk.JWTSigner {
+func (m *AbstractRegistry) OpenIDJWTStrategy() jwk.JWTSigner {
 	return jwk.NewDefaultJWTSigner(m.Config(), m, x.OpenIDConnectKeyName)
 }
 
-func (m *cellsdriver) OAuth2HMACStrategy() *foauth2.HMACSHAStrategy {
+func (m *AbstractRegistry) OAuth2HMACStrategy() *foauth2.HMACSHAStrategy {
 	return compose.NewOAuth2HMACStrategy(m.OAuth2Config())
 }
 
-func (m *cellsdriver) OAuth2Config() *fositex.Config {
+func (m *AbstractRegistry) OAuth2Config() *fositex.Config {
 	return fositex.NewConfig(m)
 }
 
-func (m *cellsdriver) ConsentStrategy() consent.Strategy {
+func (m *AbstractRegistry) ConsentStrategy() consent.Strategy {
 	return consent.NewStrategy(m, m.Config())
 }
 
-func (m *cellsdriver) SubjectIdentifierAlgorithm(ctx context.Context) map[string]consent.SubjectIdentifierAlgorithm {
+func (m *AbstractRegistry) SubjectIdentifierAlgorithm(ctx context.Context) map[string]consent.SubjectIdentifierAlgorithm {
 	sia := map[string]consent.SubjectIdentifierAlgorithm{}
 	for _, t := range m.Config().SubjectTypesSupported(ctx) {
 		switch t {
@@ -240,11 +241,11 @@ func (m *cellsdriver) SubjectIdentifierAlgorithm(ctx context.Context) map[string
 	return sia
 }
 
-func (m *cellsdriver) Writer() herodot.Writer {
+func (m *AbstractRegistry) Writer() herodot.Writer {
 	return herodot.NewJSONWriter(m.Logger())
 }
 
-func (m *cellsdriver) CookieStore(ctx context.Context) (sessions.Store, error) {
+func (m *AbstractRegistry) CookieStore(ctx context.Context) (sessions.Store, error) {
 	var kk [][]byte
 	secrets, err := m.Config().GetCookieSecrets(ctx)
 	if err != nil {
@@ -278,7 +279,7 @@ func (m *cellsdriver) CookieStore(ctx context.Context) (sessions.Store, error) {
 	return cs, nil
 }
 
-func (m *cellsdriver) Logger() *logrusx.Logger {
+func (m *AbstractRegistry) Logger() *logrusx.Logger {
 	serviceName := common.ServiceGrpcNamespace_ + common.ServiceOAuth
 	loggerOnce.Do(func() {
 		logCtx := runtime2.WithServiceName(context.Background(), serviceName)
@@ -338,7 +339,7 @@ func (m *cellsdriver) Logger() *logrusx.Logger {
 	return logger
 }
 
-func (m *cellsdriver) AuditLogger() *logrusx.Logger {
+func (m *AbstractRegistry) AuditLogger() *logrusx.Logger {
 	serviceName := common.ServiceGrpcNamespace_ + common.ServiceOAuth
 	auditOnce.Do(func() {
 		logCtx := runtime2.WithServiceName(context.Background(), common.ServiceGrpcNamespace_+common.ServiceOAuth)
@@ -389,37 +390,37 @@ func (m *cellsdriver) AuditLogger() *logrusx.Logger {
 
 }
 
-func (m *cellsdriver) HTTPClient(ctx context.Context, opts ...httpx.ResilientOptions) *retryablehttp.Client {
+func (m *AbstractRegistry) HTTPClient(ctx context.Context, opts ...httpx.ResilientOptions) *retryablehttp.Client {
 	return retryablehttp.NewClient()
 }
 
-func (m *cellsdriver) OpenIDConnectRequestValidator() *openid.OpenIDConnectRequestValidator {
+func (m *AbstractRegistry) OpenIDConnectRequestValidator() *openid.OpenIDConnectRequestValidator {
 	return openid.NewOpenIDConnectRequestValidator(&openid.DefaultStrategy{
 		Config: m.OAuth2ProviderConfig(),
 		Signer: m.OpenIDJWTStrategy(),
 	}, m.OAuth2ProviderConfig())
 }
 
-func (m *cellsdriver) OAuth2Provider() fosite.OAuth2Provider {
+func (m *AbstractRegistry) OAuth2Provider() fosite.OAuth2Provider {
 	return fosite.NewOAuth2Provider(m.OAuth2Storage(), m.OAuth2ProviderConfig())
 }
 
-func (m *cellsdriver) AudienceStrategy() fosite.AudienceMatchingStrategy {
+func (m *AbstractRegistry) AudienceStrategy() fosite.AudienceMatchingStrategy {
 	return fosite.DefaultAudienceMatchingStrategy
 }
 
-func (m *cellsdriver) AccessTokenJWTStrategy() jwk.JWTSigner {
+func (m *AbstractRegistry) AccessTokenJWTStrategy() jwk.JWTSigner {
 	return jwk.NewDefaultJWTSigner(m.Config(), m, x.OAuth2JWTKeyName)
 }
 
-func (m *cellsdriver) AccessRequestHooks() []oauth2.AccessRequestHook {
+func (m *AbstractRegistry) AccessRequestHooks() []oauth2.AccessRequestHook {
 	return []oauth2.AccessRequestHook{
 		oauth2.RefreshTokenHook(m),
 		oauth2.TokenHook(m),
 	}
 }
 
-func (m *cellsdriver) OAuth2ProviderConfig() fosite.Configurator {
+func (m *AbstractRegistry) OAuth2ProviderConfig() fosite.Configurator {
 	conf := m.OAuth2Config()
 	hmacAtStrategy := m.OAuth2HMACStrategy()
 	oidcSigner := m.OpenIDJWTStrategy()
@@ -446,160 +447,54 @@ func (m *cellsdriver) OAuth2ProviderConfig() fosite.Configurator {
 	return conf
 }
 
-func (m *cellsdriver) KeyCipher() *aead.AESGCM {
+func (m *AbstractRegistry) KeyCipher() *aead.AESGCM {
 	return aead.NewAESGCM(m.Config())
 }
 
-func (m *cellsdriver) GrantValidator() *trust.GrantValidator {
+func (m *AbstractRegistry) GrantValidator() *trust.GrantValidator {
 	return trust.NewGrantValidator()
 }
 
-func (*cellsdriver) CanHandle(dsn string) bool {
+func (*AbstractRegistry) CanHandle(dsn string) bool {
 	return true
 }
 
-func (*cellsdriver) Contextualizer() contextx.Contextualizer {
-	return &cellsdriverContextualizer{}
+func (*AbstractRegistry) Contextualizer() contextx.Contextualizer {
+	return auth.GetProviderContextualizer()
 }
 
-func (m *cellsdriver) FlowCipher() *aead.XChaCha20Poly1305 {
+func (m *AbstractRegistry) FlowCipher() *aead.XChaCha20Poly1305 {
 	return aead.NewXChaCha20Poly1305(m.Config())
 }
 
-type cellsdriverContextualizer struct{}
-
-func (*cellsdriverContextualizer) Network(ctx context.Context, network uuid.UUID) uuid.UUID {
-	return network
-}
-
-func (*cellsdriverContextualizer) Config(ctx context.Context, cfg *configx.Provider) *configx.Provider {
-
-	host, _ := middleware.HttpMetaFromGrpcContext(ctx, keys.HttpMetaHost)
-	rootURL := "https://" + host
-	var conf config.Store
-	propagator.Get(ctx, config.ContextKey, &conf)
-	values := conf.Val("services", "pydio.web.oauth")
-
-	m := values.Map()
-
-	c, _ := config.OpenStore(ctx, "mem://")
-	c.Set(m)
-
-	c2, _ := config.OpenStore(ctx, "mem://")
-
-	if secret := c.Val("secret").String(); secret != "" {
-		_ = c2.Val(hconfig.KeyGetSystemSecret).Set([]string{c.Val("secret").String()})
-	}
-	_, dbDSN := config.GetDatabase(ctx, "pydio.web.oauth")
-	_ = c2.Val(hconfig.KeyDSN).Set(dbDSN)
-	_ = c2.Val(hconfig.KeyPublicURL).Set(rootURL + "/oidc")
-	_ = c2.Val(hconfig.KeyIssuerURL).Set(rootURL + "/oidc")
-	_ = c2.Val(hconfig.KeyLoginURL).Set(rootURL + "/oauth2/login")
-	_ = c2.Val(hconfig.KeyLogoutURL).Set(rootURL + "/oauth2/logout")
-	_ = c2.Val(hconfig.KeyConsentURL).Set(rootURL + "/oauth2/consent")
-	_ = c2.Val(hconfig.KeyErrorURL).Set(rootURL + "/oauth2/fallbacks/error")
-	_ = c2.Val(hconfig.KeyLogoutRedirectURL).Set(rootURL + "/oauth2/logout/callback")
-
-	_ = c2.Val(hconfig.KeyAccessTokenStrategy).Set(c.Val("accessTokenStrategy").Default("opaque").String())
-	_ = c2.Val(hconfig.KeyConsentRequestMaxAge).Set(c.Val("consentRequestMaxAge").Default("30m").String())
-	_ = c2.Val(hconfig.KeyAccessTokenLifespan).Set(c.Val("accessTokenLifespan").Default("10m").String())
-	_ = c2.Val(hconfig.KeyRefreshTokenLifespan).Set(c.Val("refreshTokenLifespan").Default("1440h").String())
-	_ = c2.Val(hconfig.KeyIDTokenLifespan).Set(c.Val("idTokenLifespan").Default("1h").String())
-	_ = c2.Val(hconfig.KeyAuthCodeLifespan).Set(c.Val("authCodeLifespan").Default("10m").String())
-
-	_ = c2.Val(hconfig.HSMEnabled).Set("false")
-
-	_ = c2.Val(hconfig.KeyLogLevel).Set("trace")
-	_ = c2.Val("log.leak_sensitive_values").Set(true)
-
-	_ = c2.Val(hconfig.KeyCookieSameSiteMode).Set("Strict")
-
-	p, err := configx.New(context.TODO(), spec.ConfigValidationSchema, configx.WithValues(c2.Val().Map()))
-	if err != nil {
-		return nil
+// Connectors lists all defined connectors
+func (m *AbstractRegistry) Connectors(ctx context.Context) []auth.ConnectorConfig {
+	if m.connectors != nil {
+		return m.connectors
 	}
 
-	//rr := values.Val("insecureRedirects").StringArray()
-	//sites, _ := config.LoadSites()
-	//var out []string
-	//for _, r := range rr {
-	//	out = append(out, varsFromStr(r, sites)...)
-	//}
-	//if len(out) > 0 {
-	//	_ = val.Val("dangerous-allow-insecure-redirect-urls").Set(out)
-	//}
+	var cc []struct {
+		ID   string
+		Name string
+		Type string
+	}
 
-	return p
-}
+	if err := config.Get(ctx, auth.ConfigCorePath...).Val("connectors").Scan(&cc); err != nil {
+		log.Fatal("Cannot correctly scan Connectors from config. JSON format maybe wrong, please check configuration. Error was " + err.Error())
+	}
 
-func createSqlRegistryForConf(serviceName string, conf auth.ConfigurationProvider) (Registry, string, error) {
-
-	//lx := logrusx.New(
-	//	serviceName,
-	//	"1",
-	//	logrusx.UseLogger(getLogrusLogger(serviceName)),
-	//	logrusx.ForceLevel(logrus.DebugLevel),
-	//	logrusx.ForceFormat("json"),
-	//)
-	// cfg := (*conf.GetProvider()).Config()
-
-	// TODO CONTEXT
-	dbDriver, dbDSN := config.GetDatabase(nil, serviceName)
-
-	dbName := ""
-	if dbDriver == "mysql" {
-		mysqlConfig, err := tools.ParseDSN(dbDSN)
-		if err != nil {
-			return nil, "", err
+	for _, c := range cc {
+		if c.Type == "pydio" {
+			// Registering the first connector
+			con, _ := auth.OpenConnector(c.ID, c.Name, c.Type, nil)
+			m.connectors = []auth.ConnectorConfig{con}
 		}
-		if ssl, ok := mysqlConfig.Params["ssl"]; ok && ssl == "true" {
-			u := &url.URL{}
-			q := u.Query()
-			q.Add(crypto.KeyCertStoreName, mysqlConfig.Params[crypto.KeyCertStoreName])
-			q.Add(crypto.KeyCertInsecureHost, mysqlConfig.Params[crypto.KeyCertInsecureHost])
-			q.Add(crypto.KeyCertUUID, mysqlConfig.Params[crypto.KeyCertUUID])
-			q.Add(crypto.KeyCertKeyUUID, mysqlConfig.Params[crypto.KeyCertKeyUUID])
-			q.Add(crypto.KeyCertCAUUID, mysqlConfig.Params[crypto.KeyCertCAUUID])
-			u.RawQuery = q.Encode()
-
-			tlsConfig, err := crypto.TLSConfigFromURL(u)
-			if err != nil {
-				return nil, "", err
-			}
-			if tlsConfig != nil {
-				delete(mysqlConfig.Params, "ssl")
-				delete(mysqlConfig.Params, crypto.KeyCertStoreName)
-				delete(mysqlConfig.Params, crypto.KeyCertInsecureHost)
-				delete(mysqlConfig.Params, crypto.KeyCertUUID)
-				delete(mysqlConfig.Params, crypto.KeyCertKeyUUID)
-				delete(mysqlConfig.Params, crypto.KeyCertCAUUID)
-
-				tools.RegisterTLSConfig("cells", tlsConfig)
-				mysqlConfig.TLSConfig = "cells"
-				dbDSN = mysqlConfig.FormatDSN()
-			}
-		}
-
-		dbName = mysqlConfig.DBName
 	}
 
-	driver, err := dbal.GetDriverFor(dbDSN)
-	if err != nil {
-		return nil, "", err
-	}
-
-	return driver.(Registry), dbName, nil
+	return m.connectors
 }
 
-func GetRegistry() Registry {
-	return reg
-}
-
-func DuplicateRegistryForConf(refService string, c auth.ConfigurationProvider) (Registry, error) {
-	r, _, e := createSqlRegistryForConf(refService, c)
-	return r, e
-}
-
+// Todo - not used ?
 func rangeFromStr(s string) []string {
 
 	var res []string
@@ -637,43 +532,6 @@ func rangeFromStr(s string) []string {
 	return res
 }
 
-func varsFromStr(s string, sites []*install.ProxyConfig) []string {
-	var res []string
-	defaultBind := ""
-	if len(sites) > 0 {
-		// TODO CONTEXT
-		defaultBind = routing.GetDefaultSiteURL(nil, sites...)
-	}
-	if strings.Contains(s, "#default_bind#") {
-
-		res = append(res, strings.ReplaceAll(s, "#default_bind#", defaultBind))
-
-	} else if strings.Contains(s, "#binds...#") {
-
-		for _, si := range sites {
-			for _, u := range si.GetExternalUrls() {
-				res = append(res, strings.ReplaceAll(s, "#binds...#", u.String()))
-			}
-		}
-
-	} else if strings.Contains(s, "#insecure_binds...") {
-
-		for _, si := range sites {
-			for _, u := range si.GetExternalUrls() {
-				if !fosite.IsRedirectURISecure(context.TODO(), u) {
-					res = append(res, strings.ReplaceAll(s, "#insecure_binds...#", u.String()))
-				}
-			}
-		}
-
-	} else {
-
-		res = append(res, s)
-
-	}
-	return res
-}
-
 /*
 // TODO ?
 func CheckCollation(conn *pop.Connection, dbName string) (bool, error) {
@@ -694,42 +552,20 @@ func CheckCollation(conn *pop.Connection, dbName string) (bool, error) {
 }
 */
 
-//func InitRegistry(ctx context.Context, dbServiceName string) (e error) {
+// GetRedirectURIFromRequestValues extracts the redirect_uri from values but does not do any sort of validation.
 //
-//	logger := log.Logger(ctx)
-//	var rg registry.Registry
-//	if runtimecontext.Get(ctx, registry.ContextKey, &rg) {
-//		if locker := rg.NewLocker("oauthinit"); locker != nil {
-//			locker.Lock()
-//			defer locker.Unlock()
-//		}
-//	}
-//
-//	//clients := defaultConf.Clients()
-//
-//	once.Do(func() {
-//		//var dbName string
-//		reg, _, e = createSqlRegistryForConf(dbServiceName, defaultConf)
-//		if e != nil {
-//			logger.Error("Cannot init registryFromDSN", zap.Error(e))
-//		}
-//
-//		reg.Init(ctx, true, true, nil)
-//
-//		auth.RegisterOryProvider(reg.OAuth2Provider())
-//	})
-//
-//	if e != nil {
-//		return
-//	}
-//
-//	for _, onRegistryInit := range onRegistryInits {
-//		onRegistryInit()
-//	}
-//
-//	return nil
-//}
-
-func OnRegistryInit(f func()) {
-	onRegistryInits = append(onRegistryInits, f)
+// Considered specifications
+//   - https://tools.ietf.org/html/rfc6749#section-3.1
+//     The endpoint URI MAY include an
+//     "application/x-www-form-urlencoded" formatted (per Appendix B) query
+//     component ([RFC3986] Section 3.4), which MUST be retained when adding
+//     additional query parameters.
+func GetRedirectURIFromRequestValues(values url.Values) (string, error) {
+	// rfc6749 3.1.   Authorization Endpoint
+	// The endpoint URI MAY include an "application/x-www-form-urlencoded" formatted (per Appendix B) query component
+	redirectURI, err := url.QueryUnescape(values.Get("redirect_uri"))
+	if err != nil {
+		return "", errors.WithStack(fosite.ErrInvalidRequest.WithHint(`The "redirect_uri" parameter is malformed or missing.`).WithDebug(err.Error()))
+	}
+	return redirectURI, nil
 }

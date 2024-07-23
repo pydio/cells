@@ -1,7 +1,8 @@
-package oauth
+package sql
 
 import (
 	"context"
+	"github.com/pydio/cells/v4/idm/oauth"
 	"time"
 
 	"github.com/gofrs/uuid"
@@ -19,7 +20,7 @@ import (
 type consentDriver struct {
 	db *gorm.DB
 
-	r Registry
+	r oauth.Registry
 }
 
 type Flow struct {
@@ -310,7 +311,7 @@ func (c *consentDriver) CreateConsentRequest(ctx context.Context, f *flow.Flow, 
 
 func (c *consentDriver) GetConsentRequest(ctx context.Context, challenge string) (req *flow.OAuth2ConsentRequest, err error) {
 
-	reg, err := manager.Resolve[Registry](ctx)
+	reg, err := manager.Resolve[oauth.Registry](ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -361,7 +362,7 @@ func (c *consentDriver) RevokeSubjectClientConsentSession(ctx context.Context, u
 }
 
 func (c *consentDriver) VerifyAndInvalidateConsentRequest(ctx context.Context, verifier string) (*flow.AcceptOAuth2ConsentRequest, error) {
-	reg, err := manager.Resolve[Registry](ctx)
+	reg, err := manager.Resolve[oauth.Registry](ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -446,7 +447,7 @@ func (c *consentDriver) CreateLoginRequest(ctx context.Context, req *flow.LoginR
 
 func (c *consentDriver) GetLoginRequest(ctx context.Context, challenge string) (*flow.LoginRequest, error) {
 
-	reg, err := manager.Resolve[Registry](ctx)
+	reg, err := manager.Resolve[oauth.Registry](ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -501,7 +502,7 @@ func (c *consentDriver) HandleLoginRequest(ctx context.Context, f *flow.Flow, ch
 }
 
 func (c *consentDriver) VerifyAndInvalidateLoginRequest(ctx context.Context, verifier string) (*flow.HandledLoginRequest, error) {
-	reg, err := manager.Resolve[Registry](ctx)
+	reg, err := manager.Resolve[oauth.Registry](ctx)
 	if err != nil {
 		return nil, err
 	}
