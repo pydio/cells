@@ -210,7 +210,7 @@ func (h *Handler) CreateConsent(ctx context.Context, in *pauth.CreateConsentRequ
 	// We decode the flow from the cookie again because VerifyAndInvalidateLoginRequest does not return the flow
 	f, err := flowctx.Decode[flow.Flow](ctx, reg.FlowCipher(), in.LoginChallenge, flowctx.AsLoginVerifier)
 	if err != nil {
-		return nil, errorsx.WithStack(fosite.ErrAccessDenied.WithHint("The login verifier is invalid."))
+		return nil, errors.WithMessagef(errors.StatusUnauthorized, "Login verifier is invalid: %v", err)
 	}
 
 	// Set up csrf/challenge/verifier values

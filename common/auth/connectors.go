@@ -28,7 +28,10 @@ import (
 	"google.golang.org/protobuf/proto"
 
 	"github.com/pydio/cells/v4/common/telemetry/log"
+	"github.com/pydio/cells/v4/common/utils/configx"
 )
+
+type ConnectorScanner func(context.Context, configx.Scanner) ([]ConnectorConfig, error)
 
 type ConnectorConfig interface {
 	ID() string
@@ -46,12 +49,23 @@ type Opener interface {
 }
 
 var (
-	connectorTypes = make(map[string]OpenerFunc)
+	connectorTypes                    = make(map[string]OpenerFunc)
+	connectorScanner ConnectorScanner = DefaultConnectorScanner
 )
 
 // RegisterConnectorType registers how to set an opener for a connector type
 func RegisterConnectorType(connType string, openerFunc OpenerFunc) {
 	connectorTypes[connType] = openerFunc
+}
+
+// SetConnectorScanner replaces internal connectorScanner
+func SetConnectorScanner(scanner ConnectorScanner) {
+	connectorScanner = scanner
+}
+
+// ScanConnectors uses the internal connectorScanner to read configurations
+func ScanConnectors(ctx context.Context, values configx.Values) ([]ConnectorConfig, error) {
+	return connectorScanner(ctx, values)
 }
 
 // OpenConnector finds the correct opener

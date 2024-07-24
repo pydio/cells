@@ -473,22 +473,10 @@ func (m *AbstractRegistry) Connectors(ctx context.Context) []auth.ConnectorConfi
 		return m.connectors
 	}
 
-	var cc []struct {
-		ID   string
-		Name string
-		Type string
-	}
-
-	if err := config.Get(ctx, ConfigCorePath...).Val("connectors").Scan(&cc); err != nil {
-		log.Fatal("Cannot correctly scan Connectors from config. JSON format maybe wrong, please check configuration. Error was " + err.Error())
-	}
-
-	for _, c := range cc {
-		if c.Type == "pydio" {
-			// Registering the first connector
-			con, _ := auth.OpenConnector(c.ID, c.Name, c.Type, nil)
-			m.connectors = []auth.ConnectorConfig{con}
-		}
+	var er error
+	m.connectors, er = auth.ScanConnectors(ctx, config.Get(ctx, ConfigCorePath...).Val("connectors"))
+	if er != nil {
+		log.Logger(ctx).Error("Cannot scan connectors, will return an empty []auth.ConnectorConfig", zap.Error(er))
 	}
 
 	return m.connectors

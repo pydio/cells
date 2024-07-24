@@ -28,6 +28,7 @@ import (
 	"github.com/pydio/cells/v4/common/client/commons/idmc"
 	"github.com/pydio/cells/v4/common/proto/idm"
 	"github.com/pydio/cells/v4/common/telemetry/log"
+	"github.com/pydio/cells/v4/common/utils/configx"
 )
 
 var (
@@ -68,4 +69,26 @@ func (p *pydioconnector) Login(ctx context.Context, s Scopes, username, password
 		EmailVerified: true,
 		Groups:        []string{},
 	}, true, nil
+}
+
+func DefaultConnectorScanner(ctx context.Context, values configx.Scanner) (connectors []ConnectorConfig, err error) {
+	var cc []struct {
+		ID   string
+		Name string
+		Type string
+	}
+
+	if err = values.Scan(&cc); err != nil {
+		return nil, err
+	}
+
+	for _, c := range cc {
+		if c.Type == "pydio" {
+			// Registering the first connector
+			con, _ := OpenConnector(c.ID, c.Name, c.Type, nil)
+			connectors = []ConnectorConfig{con}
+		}
+	}
+	return
+
 }
