@@ -98,7 +98,7 @@ type Registry interface {
 
 	OAuth2HMACStrategy() *foauth2.HMACSHAStrategy
 	PublicRouter() *httprouterx.RouterPublic
-	auth.ConnectorsProvider
+	Connectors(ctx context.Context) []auth.ConnectorConfig
 }
 
 type AbstractRegistry struct {
@@ -194,7 +194,7 @@ func (m *AbstractRegistry) Config() *hconfig.DefaultProvider {
 	}
 
 	emptyProvider, _ := configx.New(context.TODO(), spec.ConfigValidationSchema)
-	m.cfg = hconfig.NewCustom(m.Logger(), emptyProvider, auth.GetProviderContextualizer())
+	m.cfg = hconfig.NewCustom(m.Logger(), emptyProvider, GetProviderContextualizer())
 
 	return m.cfg
 }
@@ -460,7 +460,7 @@ func (*AbstractRegistry) CanHandle(dsn string) bool {
 }
 
 func (*AbstractRegistry) Contextualizer() contextx.Contextualizer {
-	return auth.GetProviderContextualizer()
+	return GetProviderContextualizer()
 }
 
 func (m *AbstractRegistry) FlowCipher() *aead.XChaCha20Poly1305 {
@@ -479,7 +479,7 @@ func (m *AbstractRegistry) Connectors(ctx context.Context) []auth.ConnectorConfi
 		Type string
 	}
 
-	if err := config.Get(ctx, auth.ConfigCorePath...).Val("connectors").Scan(&cc); err != nil {
+	if err := config.Get(ctx, ConfigCorePath...).Val("connectors").Scan(&cc); err != nil {
 		log.Fatal("Cannot correctly scan Connectors from config. JSON format maybe wrong, please check configuration. Error was " + err.Error())
 	}
 

@@ -9,18 +9,17 @@ import (
 	"github.com/ory/hydra/v2/client"
 
 	"github.com/pydio/cells/v4/common/config"
-	"github.com/pydio/cells/v4/common/utils/configx"
 )
 
-var _ client.Manager = new(clientConfigDriver)
+var _ client.Manager = (*clientConfigDriver)(nil)
 
 // NewClientConfigDriver creates a client.Manager directly reading from configuration
 func NewClientConfigDriver(ctx context.Context) client.Manager {
-	return &clientConfigDriver{store: config.Get(ctx, "services/pydio.web.oauth/staticClients")}
+	return &clientConfigDriver{}
 }
 
 type clientConfigDriver struct {
-	store configx.Values
+	//store configx.Values
 }
 
 func (c clientConfigDriver) AuthenticateClient(ctx context.Context, id string, secret []byte) (*client.Client, error) {
@@ -60,7 +59,7 @@ func (c clientConfigDriver) CountClients(ctx context.Context) (int, error) {
 func (c clientConfigDriver) GetConcreteClient(ctx context.Context, id string) (*client.Client, error) {
 	var clis []*client.Client
 
-	err := c.store.Scan(&clis)
+	err := config.Get(ctx, ConfigCorePath...).Val("staticClients").Scan(&clis)
 	if err != nil {
 		return nil, err
 	}
@@ -74,6 +73,7 @@ func (c clientConfigDriver) GetConcreteClient(ctx context.Context, id string) (*
 				var ctxCli client.Client
 				ctxCli = *cli
 
+				// Todo - check r.Host against current site
 				var redirectURIs []string
 				for _, redirectURI := range []string(cli.RedirectURIs) {
 					redirectURIs = append(redirectURIs, strings.Replace(redirectURI, "#default_bind#", "https://"+r.Host, 1))

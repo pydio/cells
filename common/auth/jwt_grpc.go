@@ -74,15 +74,21 @@ func (p *grpcProvider) GetType() ProviderType {
 	return ProviderTypeGrpc
 }
 
+// PasswordCredentialsToken forwards the call to gRPC service
 func (p *grpcProvider) PasswordCredentialsToken(ctx context.Context, userName string, password string) (*oauth2.Token, error) {
 	return hydra.PasswordCredentialsToken(ctx, userName, password)
 }
 
-func (p *grpcProvider) LoginChallengeCode(ctx context.Context, claims claim.Claims, opts ...TokenOption) (string, error) {
-	panic("implement me - see jwt_ory and make grpc version")
+// PasswordCredentialsCode forwards the call to gRPC service
+func (p *grpcProvider) PasswordCredentialsCode(ctx context.Context, userName string, password string, opts ...TokenOption) (string, error) {
+	v := url.Values{}
+	for _, opt := range opts {
+		opt.SetValue(v)
+	}
+	return hydra.PasswordCredentialsCode(ctx, userName, password, v.Get("challenge"))
 }
 
-func (p *grpcProvider) PasswordCredentialsCode(ctx context.Context, userName string, password string, opts ...TokenOption) (string, error) {
+func (p *grpcProvider) LoginChallengeCode(ctx context.Context, claims claim.Claims, opts ...TokenOption) (string, error) {
 	panic("implement me - see jwt_ory and make grpc version")
 }
 

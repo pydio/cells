@@ -203,6 +203,19 @@ func PasswordCredentialsToken(ctx context.Context, username, password string) (*
 	return token, nil
 }
 
+func PasswordCredentialsCode(ctx context.Context, username, password, challenge string) (string, error) {
+	c := auth.NewPasswordCredentialsCodeClient(OAuthConn(ctx))
+	resp, err := c.PasswordCredentialsCode(ctx, &auth.PasswordCredentialsCodeRequest{
+		Username:  username,
+		Password:  password,
+		Challenge: challenge,
+	})
+	if err != nil {
+		return "", nil
+	}
+	return resp.GetCode(), nil
+}
+
 func Exchange(ctx context.Context, code string, verifier string) (*oauth2.Token, error) {
 
 	c := auth.NewAuthCodeExchangerClient(OAuthConn(ctx))

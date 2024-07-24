@@ -2,7 +2,6 @@ package sql
 
 import (
 	"context"
-	"github.com/pydio/cells/v4/idm/oauth"
 	"time"
 
 	"github.com/gofrs/uuid"
@@ -15,6 +14,7 @@ import (
 	"gorm.io/gorm/schema"
 
 	"github.com/pydio/cells/v4/common/runtime/manager"
+	"github.com/pydio/cells/v4/idm/oauth"
 )
 
 type consentDriver struct {
@@ -440,6 +440,7 @@ func (c *consentDriver) ConfirmLoginSession(ctx context.Context, loginSession *f
 func (c *consentDriver) CreateLoginRequest(ctx context.Context, req *flow.LoginRequest) (*flow.Flow, error) {
 	f := flow.NewFlow(req)
 
+	// TODO - This is commented - is it expected to NOT store the flow here?
 	// tx := c.db.Omit("Client").Create((*Flow)(f))
 
 	return f, nil

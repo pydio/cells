@@ -27,6 +27,7 @@ import (
 	"strings"
 	"time"
 
+	"go.uber.org/zap"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -34,6 +35,7 @@ import (
 
 	"github.com/pydio/cells/v4/common/errors"
 	"github.com/pydio/cells/v4/common/proto/service"
+	"github.com/pydio/cells/v4/common/telemetry/log"
 )
 
 var HandledError = errors.RegisterBaseSentinel(errors.CellsError, "handled")
@@ -43,6 +45,7 @@ func ErrorNoMatchedRouteRetryUnaryClientInterceptor() grpc.UnaryClientIntercepto
 		for {
 			err := invoker(ctx, method, req, reply, cc, opts...)
 			if err != nil && (strings.Contains(err.Error(), "no matched route was found") || strings.Contains(err.Error(), "unknown cluster")) {
+				log.Logger(ctx).Warn("gRPC - no matched route found - Waiting for retry", zap.String("method", method))
 				<-time.After(100 * time.Millisecond)
 				continue
 			}

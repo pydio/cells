@@ -18,7 +18,7 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-package auth
+package oauth
 
 import (
 	"context"
@@ -48,11 +48,6 @@ var (
 	ConfigCorePath = []string{"services", common.ServiceWebNamespace_ + common.ServiceOAuth}
 )
 
-type ConnectorsProvider interface {
-	// Connectors lists all defined connectors
-	Connectors(ctx context.Context) []ConnectorConfig
-}
-
 func GetProviderContextualizer() *ProviderContextualizer {
 	return &ProviderContextualizer{
 		ConfigPath: ConfigCorePath,
@@ -60,16 +55,12 @@ func GetProviderContextualizer() *ProviderContextualizer {
 }
 
 type ProviderContextualizer struct {
-	NID        uuid.UUID
 	ConfigPath []string
 }
 
 // Network returns the network id for the given context.
 func (pc *ProviderContextualizer) Network(ctx context.Context, network uuid.UUID) uuid.UUID {
-	if pc.NID == uuid.Nil {
-		pc.NID = uuid.Must(uuid.NewV4())
-	}
-	return pc.NID
+	return network
 }
 
 // Config returns the config for the given context.

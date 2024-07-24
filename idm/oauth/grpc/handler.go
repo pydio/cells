@@ -44,7 +44,6 @@ import (
 	"go.opentelemetry.io/otel/trace"
 
 	"github.com/pydio/cells/v4/common/auth"
-	"github.com/pydio/cells/v4/common/auth/hydra"
 	"github.com/pydio/cells/v4/common/config"
 	"github.com/pydio/cells/v4/common/config/routing"
 	"github.com/pydio/cells/v4/common/errors"
@@ -73,6 +72,7 @@ type Handler struct {
 	pauth.UnimplementedAuthTokenPrunerServer
 	pauth.UnimplementedPasswordCredentialsTokenServer
 	pauth.UnimplementedLogoutProviderServer
+	pauth.UnimplementedPasswordCredentialsCodeServer
 }
 
 var (
@@ -85,8 +85,12 @@ var (
 	_ pauth.AuthTokenRevokerServer   = (*Handler)(nil)
 )
 
-func (h *Handler) LongVerifier() string {
-	return strings.ReplaceAll(uuid.New()+uuid.New(), "-", "")
+func (h *Handler) makeUUID(long bool) string {
+	if long {
+		return strings.ReplaceAll(uuid.New()+uuid.New(), "-", "")
+	} else {
+		return strings.ReplaceAll(uuid.New(), "-", "")
+	}
 }
 
 func (h *Handler) GetLogin(ctx context.Context, in *pauth.GetLoginRequest) (*pauth.GetLoginResponse, error) {
@@ -107,59 +111,25 @@ func (h *Handler) GetLogin(ctx context.Context, in *pauth.GetLoginRequest) (*pau
 	out.RequestedScope = req.RequestedScope
 	out.RequestedAudience = req.RequestedAudience
 	out.ClientID = req.ClientID
+	if req.Client != nil {
+		out.ClientID = req.Client.GetID()
+	}
 
 	return out, nil
 }
 
 func (h *Handler) CreateLogin(ctx context.Context, in *pauth.CreateLoginRequest) (*pauth.CreateLoginResponse, error) {
+
 	reg, err := manager.Resolve[oauth.Registry](ctx)
 	if err != nil {
 		return nil, err
 	}
 
 	// Set up csrf/challenge/verifier values
-	verifier := strings.Replace(uuid.New(), "-", "", -1)
-	challenge := strings.Replace(uuid.New(), "-", "", -1)
-	csrf := strings.Replace(uuid.New(), "-", "", -1)
+	verifier := h.makeUUID(false)
+	csrf := h.makeUUID(false)
 
-	// Generate the request URL
-	iu := urlx.AppendPaths(reg.Config().IssuerURL(ctx), reg.Config().OAuth2AuthURL(ctx).Path)
-	sessionID := uuid.New()
-
-	if err := reg.ConsentManager().CreateLoginSession(ctx, &flow.LoginSession{
-		ID:              sessionID,
-		Subject:         "",
-		AuthenticatedAt: sqlxx.NullTime(time.Now().UTC()),
-		Remember:        false,
-	}); err != nil {
-		return nil, err
-	}
-
-	// Checking the client exists
-	cl, err := reg.ClientManager().GetConcreteClient(ctx, in.GetClientID())
-	if err != nil {
-		return nil, err
-	}
-
-	// Set the session
-	f, err := reg.ConsentManager().CreateLoginRequest(
-		ctx,
-		&flow.LoginRequest{
-			ID:                challenge,
-			Verifier:          verifier,
-			CSRF:              csrf,
-			Skip:              false,
-			RequestedScope:    in.GetScopes(),
-			RequestedAudience: in.GetAudiences(),
-			Subject:           "",
-			ClientID:          in.GetClientID(),
-			Client:            cl,
-			RequestURL:        iu.String(),
-			AuthenticatedAt:   sqlxx.NullTime{},
-			RequestedAt:       time.Now().UTC(),
-			SessionID:         sqlxx.NullString(sessionID),
-		},
-	)
+	f, err := h.createLoginFlow(ctx, reg, in, verifier, csrf)
 	if err != nil {
 		return nil, errors.WithStack(err)
 	}
@@ -244,9 +214,9 @@ func (h *Handler) CreateConsent(ctx context.Context, in *pauth.CreateConsentRequ
 	}
 
 	// Set up csrf/challenge/verifier values
-	verifier := strings.Replace(uuid.New(), "-", "", -1)
-	challenge := strings.Replace(uuid.New(), "-", "", -1)
-	csrf := strings.Replace(uuid.New(), "-", "", -1)
+	verifier := h.makeUUID(false)
+	challenge := h.makeUUID(false)
+	csrf := h.makeUUID(false)
 
 	//login, err := reg.ConsentManager().GetLoginRequest(ctx, in.LoginChallenge)
 	//if err != nil {
@@ -492,7 +462,7 @@ func (h *Handler) CreateLogout(ctx context.Context, in *pauth.CreateLogoutReques
 		return nil, err
 	}
 
-	challenge := strings.Replace(uuid.New(), "-", "", -1)
+	challenge := h.makeUUID(false)
 
 	// Set the session
 	if err := reg.ConsentManager().CreateLogoutRequest(
@@ -590,206 +560,88 @@ func (h *Handler) Verify(ctx context.Context, in *pauth.VerifyTokenRequest) (*pa
 	return out, nil
 }
 
-func (h *Handler) rangePasswordConnectors(ctx context.Context, username, password string) (identity auth.Identity, source string, err error) {
-
-	var valid bool
-	attempt := 0
-	reg, er := manager.Resolve[oauth.Registry](ctx)
-	if er != nil {
-		err = er
-		return
-	}
-
-	for _, c := range reg.Connectors(ctx) {
-		cc, ok := c.Conn().(auth.PasswordConnector)
-		if !ok {
-			continue
-		}
-
-		attempt++
-		loginCtx, can := context.WithTimeout(ctx, 5*time.Second)
-		defer can()
-		identity, valid, err = cc.Login(loginCtx, auth.Scopes{}, username, password)
-		if valid {
-			source = c.Name()
-			break
-		}
-	}
-
-	if attempt == 0 {
-		err = errors.WithMessage(errors.StatusInternalServerError, "No password connector found")
-		return
-	}
-	if !valid {
-		if err == nil {
-			err = errors.WithMessage(errors.StatusUnauthorized, "no connector could validate connexion")
-		}
-		return
-	}
-
-	return
-
-}
-
 // PasswordCredentialsCode validates the code information and generates a token
 func (h *Handler) PasswordCredentialsCode(ctx context.Context, in *pauth.PasswordCredentialsCodeRequest) (*pauth.PasswordCredentialsCodeResponse, error) {
 
+	reg, er := manager.Resolve[oauth.Registry](ctx)
+	if er != nil {
+		return nil, er
+	}
+
 	// Getting or creating challenge
 	challenge := in.GetChallenge()
+	var requestedScope, requestedAudience []string
+	var requestURL, clientID string
 	if challenge == "" {
-		if c, err := hydra.CreateLogin(ctx, config.DefaultOAuthClientID, []string{"openid", "profile", "offline"}, []string{}); err != nil {
-			return nil, err
-		} else {
-			challenge = c.Challenge
+		verif := h.makeUUID(false)
+		csrf := h.makeUUID(false)
+		f, er := h.createLoginFlow(ctx, reg, &pauth.CreateLoginRequest{
+			ClientID:  config.DefaultOAuthClientID,
+			Scopes:    []string{"openid", "profile", "offline"},
+			Audiences: []string{},
+		}, verif, csrf)
+		if er != nil {
+			return nil, er
 		}
+		challenge, _ = f.ToLoginChallenge(ctx, reg)
+		requestedAudience = f.RequestedAudience
+		requestedScope = f.RequestedScope
+		requestURL = f.RequestURL
+		clientID = f.ClientID
+	} else {
+		req, err := reg.ConsentManager().GetLoginRequest(ctx, challenge)
+		if err != nil {
+			return nil, err
+		}
+		requestURL = req.RequestURL
+		requestedScope = req.RequestedScope
+		requestedAudience = req.RequestedAudience
+		clientID = req.Client.GetID()
 	}
 
-	// Range PasswordConnectors
-	identity, source, err := h.rangePasswordConnectors(ctx, in.GetUsername(), in.GetPassword())
+	code, err := h.loginToCode(ctx, challenge, in.GetUsername(), in.GetPassword(), requestedScope, requestedAudience, requestURL, clientID)
 	if err != nil {
-		return nil, err
+		return nil, errors.WithMessage(err, "while creating auth code")
 	}
-
-	// Searching login challenge
-	login, err := hydra.GetLogin(ctx, challenge)
-	if err != nil {
-		return nil, errors.WithMessage(err, "while trying to GetLogin")
-	}
-
-	// Accepting login challenge
-	acceptLogin, err := hydra.AcceptLogin(ctx, challenge, identity.UserID)
-	if err != nil {
-		return nil, errors.WithMessage(err, "while trying to Accept Login")
-	}
-
-	// Creating consent
-	cst, err := hydra.CreateConsent(ctx, acceptLogin.Challenge)
-	if err != nil {
-		return nil, errors.WithMessage(err, "while trying create consent")
-	}
-
-	// Accepting consent
-	if _, err = hydra.AcceptConsent(
-		ctx,
-		cst.Challenge,
-		login.GetRequestedScope(),
-		login.GetRequestedAudience(),
-		map[string]string{},
-		map[string]string{
-			"name":       identity.Username,
-			"email":      identity.Email,
-			"authSource": source,
-		},
-	); err != nil {
-		return nil, errors.WithMessage(err, "while trying to accept consent")
-	}
-
-	requestURL, err := url.Parse(login.GetRequestURL())
-	if err != nil {
-		return nil, err
-	}
-
-	requestURLValues := requestURL.Query()
-
-	redirectURL, err := oauth.GetRedirectURIFromRequestValues(requestURLValues)
-	if err != nil {
-		return nil, err
-	}
-
-	code, err := hydra.CreateAuthCode(ctx, cst, login.GetClientID(), redirectURL, requestURLValues.Get("code_challenge"), requestURLValues.Get("code_challenge_method"))
-	if err != nil {
-		return nil, errors.WithMessage(err, "while trying to create auth code")
-	}
-
 	out := &pauth.PasswordCredentialsCodeResponse{
 		Code: code,
 	}
-
 	return out, err
+
 }
 
 // PasswordCredentialsToken validates the login information and generates a token
 func (h *Handler) PasswordCredentialsToken(ctx context.Context, in *pauth.PasswordCredentialsTokenRequest) (*pauth.PasswordCredentialsTokenResponse, error) {
 
+	reg, err := manager.Resolve[oauth.Registry](ctx)
+	verif := h.makeUUID(false)
+	csrf := h.makeUUID(false)
+
 	// Getting or creating challenge
-	c, err := hydra.CreateLogin(ctx, config.DefaultOAuthClientID, []string{"openid", "profile", "offline"}, []string{})
+	f, err := h.createLoginFlow(ctx, reg, &pauth.CreateLoginRequest{
+		ClientID:  config.DefaultOAuthClientID,
+		Scopes:    []string{"openid", "profile", "offline"},
+		Audiences: []string{},
+	}, verif, csrf)
 	if err != nil {
 		return nil, errors.WithMessage(err, "while trying to CreateLogin")
 	}
 
-	// Check User/Pwd
-	identity, source, err := h.rangePasswordConnectors(ctx, in.GetUsername(), in.GetPassword())
-	if err != nil {
-		return nil, err
-	}
-
-	// Searching login challenge
-	challenge := c.GetChallenge()
-	login, err := hydra.GetLogin(ctx, challenge)
+	// Get login challenge
+	challenge, err := f.ToLoginChallenge(ctx, reg)
 	if err != nil {
 		return nil, errors.WithMessage(err, "while trying to GetLogin")
 	}
 
-	// Accepting login challenge
-	verifyLogin, err := hydra.AcceptLogin(ctx, challenge, identity.UserID)
-	if err != nil {
-		return nil, errors.WithMessage(err, "while trying to AcceptLogin")
+	clientID := f.ClientID
+	if f.Client != nil {
+		clientID = f.Client.GetID()
 	}
-
-	// Creating consent
-	cst, err := hydra.CreateConsent(ctx, verifyLogin.Challenge)
-	if err != nil {
-		return nil, errors.WithMessage(err, "while creating consent")
-	}
-
-	// Accepting consent
-	verifyConsent, err := hydra.AcceptConsent(
-		ctx,
-		cst.Challenge,
-		login.GetRequestedScope(),
-		login.GetRequestedAudience(),
-		map[string]string{},
-		map[string]string{
-			"name":       identity.Username,
-			"email":      identity.Email,
-			"authSource": source,
-		},
-	)
-	if err != nil {
-		return nil, errors.WithMessage(err, "while accepting consent")
-	}
-
-	cst.Challenge = verifyConsent.Challenge
-
-	requestURL, err := url.Parse(login.GetRequestURL())
-	if err != nil {
-		return nil, err
-	}
-
-	requestURLValues := requestURL.Query()
-
-	redirectURL, err := oauth.GetRedirectURIFromRequestValues(requestURLValues)
-	if err != nil {
-		return nil, err
-	}
-
-	verifier := cst.Challenge // Must be > 43 characters
-	hash := sha256.New()
-	if _, err = hash.Write([]byte(verifier)); err != nil {
-		return nil, err
-	}
-
-	codeChallenge := base64.RawURLEncoding.EncodeToString(hash.Sum([]byte{}))
-	codeChallengeMethod := "S256"
-
-	code, err := hydra.CreateAuthCode(ctx, cst, login.GetClientID(), redirectURL, codeChallenge, codeChallengeMethod)
-	if err != nil {
-		return nil, errors.WithMessage(err, "while creating auth code")
-	}
+	code, err := h.loginToCode(ctx, challenge, in.GetUsername(), in.GetPassword(), f.RequestedScope, f.RequestedAudience, f.RequestURL, clientID)
 
 	tokenResp, err := h.Exchange(ctx, &pauth.ExchangeRequest{
 		Code:         code,
-		CodeVerifier: verifier,
+		CodeVerifier: verif,
 	})
 	if err != nil {
 		return nil, err
@@ -943,4 +795,172 @@ func (h *Handler) PruneTokens(ctx context.Context, in *pauth.PruneTokensRequest)
 
 	// Return -1 as "unknown count"
 	return &pauth.PruneTokensResponse{Count: -1}, nil
+}
+
+// INTERNAL
+
+func (h *Handler) createLoginFlow(ctx context.Context, reg oauth.Registry, in *pauth.CreateLoginRequest, verifier, csrf string) (*flow.Flow, error) {
+	reg, err := manager.Resolve[oauth.Registry](ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	// Set up csrf/challenge/verifier values
+	challenge := h.makeUUID(false)
+
+	// Generate the request URL
+	iu := urlx.AppendPaths(reg.Config().IssuerURL(ctx), reg.Config().OAuth2AuthURL(ctx).Path)
+	sessionID := uuid.New()
+
+	if err := reg.ConsentManager().CreateLoginSession(ctx, &flow.LoginSession{
+		ID:              sessionID,
+		Subject:         "",
+		AuthenticatedAt: sqlxx.NullTime(time.Now().UTC()),
+		Remember:        false,
+	}); err != nil {
+		return nil, err
+	}
+
+	// Checking the client exists
+	cl, err := reg.ClientManager().GetConcreteClient(ctx, in.GetClientID())
+	if err != nil {
+		return nil, err
+	}
+
+	// Set the session
+	return reg.ConsentManager().CreateLoginRequest(
+		ctx,
+		&flow.LoginRequest{
+			ID:                challenge,
+			Verifier:          verifier,
+			CSRF:              csrf,
+			Skip:              false,
+			RequestedScope:    in.GetScopes(),
+			RequestedAudience: in.GetAudiences(),
+			Subject:           "",
+			ClientID:          in.GetClientID(),
+			Client:            cl,
+			RequestURL:        iu.String(),
+			AuthenticatedAt:   sqlxx.NullTime{},
+			RequestedAt:       time.Now().UTC(),
+			SessionID:         sqlxx.NullString(sessionID),
+		},
+	)
+
+}
+
+// rangePasswordConnectors ranges over connectors to identify user
+func (h *Handler) rangePasswordConnectors(ctx context.Context, username, password string) (identity auth.Identity, source string, err error) {
+
+	var valid bool
+	attempt := 0
+	reg, er := manager.Resolve[oauth.Registry](ctx)
+	if er != nil {
+		err = er
+		return
+	}
+
+	for _, c := range reg.Connectors(ctx) {
+		cc, ok := c.Conn().(auth.PasswordConnector)
+		if !ok {
+			continue
+		}
+
+		attempt++
+		loginCtx, can := context.WithTimeout(ctx, 5*time.Second)
+		defer can()
+		identity, valid, err = cc.Login(loginCtx, auth.Scopes{}, username, password)
+		if valid {
+			source = c.Name()
+			break
+		}
+	}
+
+	if attempt == 0 {
+		err = errors.WithMessage(errors.StatusInternalServerError, "No password connector found")
+		return
+	}
+	if !valid {
+		if err == nil {
+			err = errors.WithMessage(errors.StatusUnauthorized, "no connector could validate connexion")
+		}
+		return
+	}
+
+	return
+
+}
+
+// loginToCode mimicks a full password identification, login+challenge validation, consent creation/acceptation and finally a code
+func (h *Handler) loginToCode(ctx context.Context, challenge, username, password string, requestedScope, requestedAudience []string, requestURL, clientID string) (string, error) {
+
+	// Range PasswordConnectors
+	identity, source, err := h.rangePasswordConnectors(ctx, username, password)
+	if err != nil {
+		return "", err
+	}
+
+	// Accepting login challenge
+	verifyLogin, err := h.AcceptLogin(ctx, &pauth.AcceptLoginRequest{Challenge: challenge, Subject: identity.UserID})
+	if err != nil {
+		return "", errors.WithMessage(err, "while trying to AcceptLogin")
+	}
+
+	// Creating consent
+	cstResp, err := h.CreateConsent(ctx, &pauth.CreateConsentRequest{LoginChallenge: verifyLogin.Challenge})
+	if err != nil {
+		return "", errors.WithMessage(err, "while creating consent")
+	}
+	cst := cstResp.GetConsent()
+
+	// Accepting consent
+	acceptResp, err := h.AcceptConsent(ctx, &pauth.AcceptConsentRequest{
+		Challenge:   cst.Challenge,
+		Scopes:      requestedScope,
+		Audiences:   requestedAudience,
+		AccessToken: map[string]string{},
+		IDToken: map[string]string{
+			"name":       identity.Username,
+			"email":      identity.Email,
+			"authSource": source,
+		},
+	})
+	if err != nil {
+		return "", errors.WithMessage(err, "while accepting consent")
+	}
+	cst.Challenge = acceptResp.GetChallenge()
+
+	parsedURL, err := url.Parse(requestURL)
+	if err != nil {
+		return "", err
+	}
+
+	requestURLValues := parsedURL.Query()
+
+	redirectURL, err := oauth.GetRedirectURIFromRequestValues(requestURLValues)
+	if err != nil {
+		return "", err
+	}
+
+	verifier := cst.Challenge // Must be > 43 characters
+	hash := sha256.New()
+	if _, err = hash.Write([]byte(verifier)); err != nil {
+		return "", err
+	}
+
+	codeChallenge := base64.RawURLEncoding.EncodeToString(hash.Sum([]byte{}))
+	codeChallengeMethod := "S256"
+
+	codeResponse, err := h.CreateAuthCode(ctx, &pauth.CreateAuthCodeRequest{
+		Consent:             cst,
+		ClientID:            clientID,
+		RedirectURI:         redirectURL,
+		CodeChallenge:       codeChallenge,
+		CodeChallengeMethod: codeChallengeMethod,
+	})
+	if err != nil {
+		return "", errors.WithMessage(err, "while creating auth code")
+	}
+
+	return codeResponse.GetCode(), nil
 }

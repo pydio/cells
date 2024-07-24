@@ -80,6 +80,7 @@ func init() {
 				auth2.RegisterAuthTokenRevokerServer(server, h)
 				auth2.RegisterAuthTokenPrunerServer(server, h)
 				auth2.RegisterPasswordCredentialsTokenServer(server, h)
+				auth2.RegisterPasswordCredentialsCodeServer(server, h)
 
 				return nil
 			}),
