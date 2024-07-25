@@ -3,7 +3,6 @@ package sql
 import (
 	"context"
 	"database/sql"
-	"github.com/pydio/cells/v4/idm/oauth"
 	"net/url"
 	"strings"
 	"time"
@@ -14,7 +13,6 @@ import (
 	"github.com/ory/fosite/handler/pkce"
 	"github.com/ory/hydra/v2/oauth2"
 	hsql "github.com/ory/hydra/v2/persistence/sql"
-	"github.com/ory/hydra/v2/x"
 	"github.com/ory/x/errorsx"
 	"github.com/ory/x/stringsx"
 	"github.com/tidwall/gjson"
@@ -27,15 +25,18 @@ import (
 	"github.com/pydio/cells/v4/common/telemetry/log"
 	"github.com/pydio/cells/v4/common/telemetry/tracing"
 	json "github.com/pydio/cells/v4/common/utils/jsonx"
+	"github.com/pydio/cells/v4/idm/oauth"
+
+	_ "github.com/ory/hydra/v2/x"
 )
 
-var _ foauth2.CoreStorage = new(oauth2Driver)
+var _ foauth2.CoreStorage = (*oauth2Driver)(nil)
 
-var _ openid.OpenIDConnectRequestStorage = new(oauth2Driver)
+var _ openid.OpenIDConnectRequestStorage = (*oauth2Driver)(nil)
 
-var _ pkce.PKCERequestStorage = new(oauth2Driver)
+var _ pkce.PKCERequestStorage = (*oauth2Driver)(nil)
 
-var _ x.FositeStorer
+//var _ x.FositeStorer
 
 type (
 	tableName               string

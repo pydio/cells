@@ -102,6 +102,21 @@ func Watch(ctx context.Context, opts ...configx.WatchOption) (configx.Receiver, 
 	return fromCtxWithCheck(ctx).Watch(opts...)
 }
 
+// WatchCombined watches for different config paths
+func WatchCombined(ctx context.Context, paths [][]string, opts ...configx.WatchOption) (configx.Receiver, error) {
+	cfg := fromCtxWithCheck(ctx)
+	var rr []configx.Receiver
+	for _, path := range paths {
+		oo := append([]configx.WatchOption{configx.WithPath(path...)}, opts...)
+		if r, e := cfg.Watch(oo...); e != nil {
+			return nil, e
+		} else {
+			rr = append(rr, r)
+		}
+	}
+	return configx.NewCombinedWatcher(rr), nil
+}
+
 // Get access to the underlying structure at a certain path
 func Get(ctx context.Context, path ...string) configx.Values {
 	return fromCtxWithCheck(ctx).Val(path...)

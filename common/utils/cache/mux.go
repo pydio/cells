@@ -25,6 +25,7 @@ import (
 	"fmt"
 	"net/url"
 
+	"github.com/pydio/cells/v4/common/telemetry/log"
 	"github.com/pydio/cells/v4/common/utils/openurl"
 )
 
@@ -87,6 +88,54 @@ func OpenCache(ctx context.Context, urlstr string) (Cache, error) {
 	return defaultURLMux.OpenCache(ctx, urlstr)
 }
 
+type Watcher interface {
+	Next() (interface{}, error)
+	Stop()
+}
+
+type watcherCache struct {
+	Cache
+	w Watcher
+}
+
+func (wc *watcherCache) Close(ctx context.Context) error {
+	wc.w.Stop()
+	return wc.Cache.Close(ctx)
+}
+
+type WatcherOpener openurl.Opener[Watcher]
+
+// WithAutoResetWatcher replaces internal Opener
+func WithAutoResetWatcher(watchOpener WatcherOpener) openurl.PoolOption[Cache] {
+	return func(p *openurl.PoolOptions[Cache]) {
+		p.Opener = autoResetOpener(watchOpener)
+	}
+}
+
+// AutoResetOpener creates an Opener wrapped with a channel that triggers created cache.Reset()
+func autoResetOpener(watcherOpener WatcherOpener) openurl.Opener[Cache] {
+	return func(ctx context.Context, urlstr string) (Cache, error) {
+		ca, er := defaultURLMux.OpenCache(ctx, urlstr)
+		if er != nil {
+			return nil, er
+		}
+		if watcher, err := watcherOpener(ctx, urlstr); err == nil {
+			go func() {
+				for {
+					if _, err = watcher.Next(); err != nil {
+						return
+					}
+					log.Logger(ctx).Info("Resetting cache on watch event")
+					_ = ca.Reset()
+				}
+			}()
+			// Wrap in watchCache to stop watcher on close
+			ca = &watcherCache{Cache: ca, w: watcher}
+		}
+		return ca, nil
+	}
+}
+
 // MustDiscard opens a discard-cache that can be used as fallback for openCache-related errors
 func MustDiscard() Cache {
 	C, _ := defaultURLMux.OpenCache(context.Background(), "discard://")
@@ -110,6 +159,6 @@ func MustOpenPool(u string, opt ...openurl.PoolOption[Cache]) *openurl.Pool[Cach
 	}
 }
 
-func MustOpenNonExpirableMemory() *openurl.Pool[Cache] {
-	return MustOpenPool("pm://?evictionTime=-1&tenant={{ .Value \"tenant\" }}")
+func MustOpenNonExpirableMemory(opt ...openurl.PoolOption[Cache]) *openurl.Pool[Cache] {
+	return MustOpenPool("pm://?evictionTime=-1&tenant={{ .Value \"tenant\" }}", opt...)
 }

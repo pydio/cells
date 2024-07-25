@@ -32,6 +32,7 @@ import (
 	"github.com/ory/hydra/v2/spec"
 	hconfx "github.com/ory/x/configx"
 	"github.com/ory/x/contextx"
+	"go.opentelemetry.io/otel/trace"
 
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/config"
@@ -41,21 +42,36 @@ import (
 	"github.com/pydio/cells/v4/common/middleware/keys"
 	"github.com/pydio/cells/v4/common/proto/install"
 	"github.com/pydio/cells/v4/common/telemetry/log"
+	"github.com/pydio/cells/v4/common/telemetry/tracing"
+	"github.com/pydio/cells/v4/common/utils/cache"
 	"github.com/pydio/cells/v4/common/utils/configx"
+	"github.com/pydio/cells/v4/common/utils/openurl"
 )
 
 var (
 	ConfigCorePath = []string{"services", common.ServiceWebNamespace_ + common.ServiceOAuth}
+	cacheProvider  *ProviderContextualizer
+	rootCtxConfig  *hconfx.Provider
 )
 
-func GetProviderContextualizer() *ProviderContextualizer {
-	return &ProviderContextualizer{
-		ConfigPath: ConfigCorePath,
+func init() {
+	cacheProvider = &ProviderContextualizer{
+		configPath: ConfigCorePath,
+		cachePool: cache.MustOpenNonExpirableMemory(cache.WithAutoResetWatcher(func(ctx context.Context, url string) (cache.Watcher, error) {
+			// watch "sites" and "oauth" configs
+			return config.WatchCombined(ctx, [][]string{ConfigCorePath, routing.ConfigPath})
+		})),
 	}
+	rootCtxConfig, _ = hconfx.New(contextx.RootContext, spec.ConfigValidationSchema)
+}
+
+func GetProviderContextualizer() *ProviderContextualizer {
+	return cacheProvider
 }
 
 type ProviderContextualizer struct {
-	ConfigPath []string
+	configPath []string
+	cachePool  *openurl.Pool[cache.Cache]
 }
 
 // Network returns the network id for the given context.
@@ -67,24 +83,41 @@ func (pc *ProviderContextualizer) Network(ctx context.Context, network uuid.UUID
 func (pc *ProviderContextualizer) Config(ctx context.Context, provider *hconfx.Provider) *hconfx.Provider {
 	// For RootContext, create an empty fallback provider
 	if ctx == contextx.RootContext {
-		empty, _ := hconfx.New(ctx, spec.ConfigValidationSchema)
-		return empty
+		return rootCtxConfig
+	}
+	var span trace.Span
+	ctx, span = tracing.StartLocalSpan(ctx, "oauth.ContextualizedConfig")
+	defer span.End()
+
+	ka, _ := pc.cachePool.Get(ctx)
+
+	prov := &hconfx.Provider{}
+	if ka.Get("provider", &prov) {
+		span.AddEvent("From Cache")
+		return prov
 	}
 
 	sites, er := routing.LoadSites(ctx)
 	if er != nil {
 		panic(er)
 	}
-	values := config.Get(ctx, pc.ConfigPath...)
+	values := config.Get(ctx, pc.configPath...)
+	span.AddEvent("Sites Loaded")
 
 	p, err := configToProvider(ctx, values, sites...)
 	if err != nil {
 		panic(err)
 	}
+	_ = ka.Set("provider", p)
 	return p
 }
 
 func configToProvider(ctx context.Context, values configx.Values, sites ...*install.ProxyConfig) (*hconfx.Provider, error) {
+
+	var span trace.Span
+	ctx, span = tracing.StartLocalSpan(ctx, "oauth.configToProvider")
+	defer span.End()
+
 	var rootURL string
 	var site *install.ProxyConfig
 

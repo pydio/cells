@@ -40,6 +40,8 @@ var (
 		TLSConfig:   &install.ProxyConfig_SelfSigned{SelfSigned: &install.TLSSelfSigned{}},
 		SSLRedirect: false,
 	}
+	ConfigPath         = []string{"defaults", "sites"}
+	ConfigPathFormated = configx.FormatPath("defaults", "sites")
 )
 
 // GetDefaultSiteURL returns the first available bindURL of all available sites
@@ -82,7 +84,7 @@ func GetSitesAllowedURLs(ctx context.Context) map[string]*url.URL {
 func LoadSites(ctx context.Context, configOnly ...bool) ([]*install.ProxyConfig, error) {
 
 	var sites []*install.ProxyConfig
-	if e := config.Get(ctx, configx.FormatPath("defaults", "sites")).Scan(&sites); e != nil {
+	if e := config.Get(ctx, ConfigPathFormated).Scan(&sites); e != nil {
 		return nil, errors.WithMessage(e, "error while parsing sites from config ")
 	}
 	if len(configOnly) > 0 && configOnly[0] {
@@ -104,7 +106,7 @@ func LoadSites(ctx context.Context, configOnly ...bool) ([]*install.ProxyConfig,
 // SaveSites saves a list of sites inside configuration
 func SaveSites(ctx context.Context, sites []*install.ProxyConfig, user, msg string) error {
 
-	if e := config.Set(ctx, sites, configx.FormatPath("defaults", "sites")); e != nil {
+	if e := config.Set(ctx, sites, ConfigPathFormated); e != nil {
 		return e
 	}
 	if e := config.Save(ctx, user, msg); e != nil {
