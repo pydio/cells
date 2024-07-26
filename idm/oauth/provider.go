@@ -22,8 +22,6 @@ package oauth
 
 import (
 	"context"
-	"fmt"
-	"runtime"
 	"strings"
 
 	"github.com/gofrs/uuid"
@@ -37,11 +35,7 @@ import (
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/config"
 	"github.com/pydio/cells/v4/common/config/routing"
-	"github.com/pydio/cells/v4/common/errors"
-	"github.com/pydio/cells/v4/common/middleware"
-	"github.com/pydio/cells/v4/common/middleware/keys"
 	"github.com/pydio/cells/v4/common/proto/install"
-	"github.com/pydio/cells/v4/common/telemetry/log"
 	"github.com/pydio/cells/v4/common/telemetry/tracing"
 	"github.com/pydio/cells/v4/common/utils/cache"
 	"github.com/pydio/cells/v4/common/utils/configx"
@@ -91,62 +85,42 @@ func (pc *ProviderContextualizer) Config(ctx context.Context, provider *hconfx.P
 
 	ka, _ := pc.cachePool.Get(ctx)
 
+	var sites []*install.ProxyConfig
+	if !ka.Get("sites", &sites) {
+		if ss, er := routing.LoadSites(ctx); er != nil {
+			panic(er)
+		} else {
+			sites = ss
+			_ = ka.Set("sites", sites)
+		}
+	}
+	site, rootURL, ok := routing.SiteFromContext(ctx, sites)
+	if !ok || rootURL == nil {
+		panic("cannot find site from context")
+	}
+
 	prov := &hconfx.Provider{}
-	if ka.Get("provider", &prov) {
-		span.AddEvent("From Cache")
+	if ka.Get(rootURL.String(), &prov) {
+		span.AddEvent("Provider From Cache")
 		return prov
 	}
 
-	sites, er := routing.LoadSites(ctx)
-	if er != nil {
-		panic(er)
-	}
 	values := config.Get(ctx, pc.configPath...)
 	span.AddEvent("Sites Loaded")
 
-	p, err := configToProvider(ctx, values, sites...)
+	p, err := configToProvider(ctx, values, rootURL.String(), sites, site)
 	if err != nil {
 		panic(err)
 	}
-	_ = ka.Set("provider", p)
+	_ = ka.Set(rootURL.String(), p)
 	return p
 }
 
-func configToProvider(ctx context.Context, values configx.Values, sites ...*install.ProxyConfig) (*hconfx.Provider, error) {
+func configToProvider(ctx context.Context, values configx.Values, rootURL string, sites []*install.ProxyConfig, site *install.ProxyConfig) (*hconfx.Provider, error) {
 
 	var span trace.Span
 	ctx, span = tracing.StartLocalSpan(ctx, "oauth.configToProvider")
 	defer span.End()
-
-	var rootURL string
-	var site *install.ProxyConfig
-
-	var ok bool
-	if ctx != contextx.RootContext {
-		if site, ok = routing.SiteFromContext(ctx, sites); ok {
-			uu := site.GetExternalUrls()
-			for _, u := range uu {
-				rootURL = u.String()
-				break
-			}
-		} else {
-			// Try to find host in meta - TODO Improve Scheme
-			host, _ := middleware.HttpMetaFromGrpcContext(ctx, keys.HttpMetaHost)
-			if host == "" {
-				return nil, errors.WithMessage(errors.StatusInternalServerError, "cannot find rootURL")
-			}
-			rootURL = "https://" + host
-			dbg := ""
-			if pc, file, line, o := runtime.Caller(3); o {
-				if fn := runtime.FuncForPC(pc); fn != nil {
-					dbg = fmt.Sprintf("- from %s - %s:%d", fn.Name(), file, line)
-				}
-			}
-			log.Logger(ctx).Warn("cannot find site from context, and not contextx.RootContext" + dbg)
-		}
-	} else {
-		rootURL = "https://"
-	}
 
 	val := mapConfigValues(rootURL, values)
 

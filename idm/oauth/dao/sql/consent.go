@@ -323,7 +323,7 @@ func (c *consentDriver) GetConsentRequest(ctx context.Context, challenge string)
 
 	f.ConsentChallengeID = sqlxx.NullString(challenge)
 
-	return ((*flow.Flow)(f)).GetConsentRequest(), nil
+	return f.GetConsentRequest(), nil
 }
 
 func (c *consentDriver) HandleConsentRequest(ctx context.Context, f *flow.Flow, r *flow.AcceptOAuth2ConsentRequest) (*flow.OAuth2ConsentRequest, error) {
@@ -342,7 +342,7 @@ func (c *consentDriver) HandleConsentRequest(ctx context.Context, f *flow.Flow, 
 	// to make sure that the challenge ID in the returned flow matches the param.
 	r.ID = f.ConsentChallengeID.String()
 
-	if err := ((*flow.Flow)(f)).HandleConsentRequest(r); err != nil {
+	if err := f.HandleConsentRequest(r); err != nil {
 		return nil, err
 	}
 
@@ -350,7 +350,7 @@ func (c *consentDriver) HandleConsentRequest(ctx context.Context, f *flow.Flow, 
 	//	return nil, tx.Error
 	//}
 
-	return ((*flow.Flow)(f)).GetConsentRequest(), nil
+	return f.GetConsentRequest(), nil
 }
 
 func (c *consentDriver) RevokeSubjectConsentSession(ctx context.Context, user string) error {
@@ -383,7 +383,7 @@ func (c *consentDriver) VerifyAndInvalidateConsentRequest(ctx context.Context, v
 	//	f.Client = cli
 	//}
 
-	if err := ((*flow.Flow)(f)).InvalidateConsentRequest(); err != nil {
+	if err := f.InvalidateConsentRequest(); err != nil {
 		return nil, err
 	}
 
@@ -391,7 +391,7 @@ func (c *consentDriver) VerifyAndInvalidateConsentRequest(ctx context.Context, v
 		return nil, tx.Error
 	}
 
-	return ((*flow.Flow)(f)).GetHandledConsentRequest(), nil
+	return f.GetHandledConsentRequest(), nil
 }
 
 func (c *consentDriver) FindGrantedAndRememberedConsentRequests(ctx context.Context, client, user string) ([]flow.AcceptOAuth2ConsentRequest, error) {
@@ -439,13 +439,11 @@ func (c *consentDriver) ConfirmLoginSession(ctx context.Context, loginSession *f
 
 func (c *consentDriver) CreateLoginRequest(ctx context.Context, req *flow.LoginRequest) (*flow.Flow, error) {
 	f := flow.NewFlow(req)
-
-	// TODO - This is commented - is it expected to NOT store the flow here?
-	// tx := c.db.Omit("Client").Create((*Flow)(f))
-
 	return f, nil
 }
 
+// GetLoginRequest decodes flow and returns a *flow.LoginRequest
+// Warning, this is bypassed by Registry.GetLoginRequestAsFlow to get the full *flow.Flow data
 func (c *consentDriver) GetLoginRequest(ctx context.Context, challenge string) (*flow.LoginRequest, error) {
 
 	reg, err := manager.Resolve[oauth.Registry](ctx)
@@ -479,27 +477,13 @@ func (c *consentDriver) GetLoginRequest(ctx context.Context, challenge string) (
 
 func (c *consentDriver) HandleLoginRequest(ctx context.Context, f *flow.Flow, challenge string, r *flow.HandledLoginRequest) (*flow.LoginRequest, error) {
 
-	//if tx := c.db.First(&f, "id=?", challenge); tx.Error != nil {
-	//	return nil, tx.Error
-	//}
-
-	//if cli, err := c.r.ClientManager().GetConcreteClient(ctx, f.ClientID); err != nil {
-	//	return nil, err
-	//} else {
-	//	f.Client = cli
-	//}
-
 	r.ID = f.ID
 
-	if err := ((*flow.Flow)(f)).HandleLoginRequest(r); err != nil {
+	if err := f.HandleLoginRequest(r); err != nil {
 		return nil, err
 	}
 
-	//if tx := c.db.Omit("Client").Save(f); tx.Error != nil {
-	//	return nil, tx.Error
-	//}
-
-	return ((*flow.Flow)(f)).GetLoginRequest(), nil
+	return f.GetLoginRequest(), nil
 }
 
 func (c *consentDriver) VerifyAndInvalidateLoginRequest(ctx context.Context, verifier string) (*flow.HandledLoginRequest, error) {
@@ -524,7 +508,7 @@ func (c *consentDriver) VerifyAndInvalidateLoginRequest(ctx context.Context, ver
 	//	f.Client = cli
 	//}
 
-	if err := ((*flow.Flow)(f)).InvalidateLoginRequest(); err != nil {
+	if err := f.InvalidateLoginRequest(); err != nil {
 		return nil, err
 	}
 
@@ -533,7 +517,7 @@ func (c *consentDriver) VerifyAndInvalidateLoginRequest(ctx context.Context, ver
 	//}
 
 	var d flow.HandledLoginRequest
-	d = ((*flow.Flow)(f)).GetHandledLoginRequest()
+	d = f.GetHandledLoginRequest()
 
 	return &d, nil
 }

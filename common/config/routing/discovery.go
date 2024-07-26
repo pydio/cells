@@ -25,19 +25,20 @@ import (
 	"net/url"
 
 	"github.com/pydio/cells/v4/common"
+	"github.com/pydio/cells/v4/common/middleware/keys"
 	"github.com/pydio/cells/v4/common/proto/install"
 	"github.com/pydio/cells/v4/common/utils/propagator"
 )
 
 // SiteFromContext lookups for siteHash in the context
-func SiteFromContext(ctx context.Context, ss []*install.ProxyConfig) (*install.ProxyConfig, bool) {
+func SiteFromContext(ctx context.Context, ss []*install.ProxyConfig) (*install.ProxyConfig, *url.URL, bool) {
 	meta, ok := propagator.FromContextRead(ctx)
 	if !ok {
-		return nil, false
+		return nil, nil, false
 	}
 	siteHash, ok2 := meta[common.XPydioSiteHash]
 	if !ok2 || len(siteHash) == 0 {
-		return nil, false
+		return nil, nil, false
 	}
 	var found *install.ProxyConfig
 	for _, site := range ss {
@@ -46,7 +47,18 @@ func SiteFromContext(ctx context.Context, ss []*install.ProxyConfig) (*install.P
 			break
 		}
 	}
-	return found, found != nil
+	var u *url.URL
+	if found != nil {
+		if host, o := propagator.CanonicalMeta(ctx, keys.HttpMetaHost); o {
+			for _, eu := range found.GetExternalUrls() {
+				if eu.Host == host {
+					u = eu
+					break
+				}
+			}
+		}
+	}
+	return found, u, found != nil
 }
 
 func SiteContextDiscoveryRoutes(ctx context.Context, uriForSameSite ...bool) (map[string][]*url.URL, error) {
@@ -58,7 +70,7 @@ func SiteContextDiscoveryRoutes(ctx context.Context, uriForSameSite ...bool) (ma
 	routes := ListRoutes()
 	useUri := len(uriForSameSite) > 0 && uriForSameSite[0]
 
-	crtSite, ok := SiteFromContext(ctx, ss)
+	crtSite, _, ok := SiteFromContext(ctx, ss)
 	if !ok {
 		// No site in context, return un-resolved routes list
 		for _, r := range routes {

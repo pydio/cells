@@ -27,9 +27,12 @@ import (
 
 	"go.uber.org/zap"
 
+	"github.com/pydio/melody"
+
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/broker"
 	"github.com/pydio/cells/v4/common/config/routing"
+	"github.com/pydio/cells/v4/common/middleware"
 	"github.com/pydio/cells/v4/common/nodes/compose"
 	"github.com/pydio/cells/v4/common/proto/activity"
 	chat2 "github.com/pydio/cells/v4/common/proto/chat"
@@ -70,18 +73,21 @@ func init() {
 				mux.DeregisterRoute(RouteWebsocket)
 				return nil
 			}),
-			service.WithHTTP(func(ctx context.Context, mux routing.RouteRegistrar) error {
+			service.WithHTTPOptions(func(ctx context.Context, mux routing.RouteRegistrar, o *service.ServiceOptions) error {
 				ws = websocket.NewWebSocketHandler(ctx)
 				chat = websocket.NewChatHandler(ctx)
 				ws.EventRouter = compose.ReverseClient(ctx)
 
 				sub := mux.Route(RouteWebsocket)
-				sub.Handle("/event", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-					_ = ws.Websocket.HandleRequest(w, r)
-				}))
-				sub.Handle("/chat", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-					_ = chat.Websocket.HandleRequest(w, r)
-				}))
+				medodyAsHandler := func(mel *melody.Melody) http.Handler {
+					hf := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+						_ = mel.HandleRequest(w, r)
+					})
+					return middleware.HttpWrapperMeta(ctx, http.Handler(hf))
+				}
+				sub.Handle("/event", medodyAsHandler(ws.Websocket))
+				sub.Handle("/chat", medodyAsHandler(chat.Websocket))
+
 				//q1, _ := queue.OpenQueue(ctx, runtime.QueueURL("debounce", "1s", "idle", "10s", "max", "10000"))
 				//q2, _ := queue.OpenQueue(ctx, runtime.QueueURL("debounce", "1s", "idle", "10s", "max", "10000"))
 				counterName := broker.WithCounterName("websocket")

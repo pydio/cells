@@ -44,9 +44,11 @@ import (
 	"github.com/ory/hydra/v2/client"
 	"github.com/ory/hydra/v2/consent"
 	hconfig "github.com/ory/hydra/v2/driver/config"
+	"github.com/ory/hydra/v2/flow"
 	"github.com/ory/hydra/v2/fositex"
 	"github.com/ory/hydra/v2/jwk"
 	"github.com/ory/hydra/v2/oauth2"
+	"github.com/ory/hydra/v2/oauth2/flowctx"
 	"github.com/ory/hydra/v2/oauth2/trust"
 	"github.com/ory/hydra/v2/persistence"
 	"github.com/ory/hydra/v2/persistence/sql"
@@ -96,6 +98,7 @@ type Registry interface {
 	x.RegistryLogger
 	x.RegistryCookieStore
 
+	GetLoginRequestAsFlow(ctx context.Context, challenge string) (*flow.Flow, error)
 	OAuth2HMACStrategy() *foauth2.HMACSHAStrategy
 	PublicRouter() *httprouterx.RouterPublic
 	Connectors(ctx context.Context) []auth.ConnectorConfig
@@ -277,6 +280,11 @@ func (m *AbstractRegistry) CookieStore(ctx context.Context) (sessions.Store, err
 	}
 
 	return cs, nil
+}
+
+// GetLoginRequestAsFlow bypasses ConsentManager.GetLoginRequest to get the complete *flow.Flow instead of *flow.LoginRequest
+func (m *AbstractRegistry) GetLoginRequestAsFlow(ctx context.Context, challenge string) (*flow.Flow, error) {
+	return flowctx.Decode[flow.Flow](ctx, m.FlowCipher(), challenge, flowctx.AsLoginChallenge)
 }
 
 func (m *AbstractRegistry) Logger() *logrusx.Logger {

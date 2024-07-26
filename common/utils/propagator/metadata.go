@@ -129,7 +129,13 @@ func WithUserNameMetadata(ctx context.Context, userKey string, userName string) 
 // CanonicalMeta extract header name or its lowercase version
 func CanonicalMeta(ctx context.Context, name string) (string, bool) {
 	if md, o := fromContext(ctx); o {
+		if val, ok := md[name]; ok {
+			return val, true
+		}
 		if val, ok := md[strings.Title(name)]; ok {
+			return val, true
+		}
+		if val, ok := md[strings.Title(strings.ToLower(name))]; ok {
 			return val, true
 		}
 	}

@@ -93,31 +93,6 @@ func (h *Handler) makeUUID(long bool) string {
 	}
 }
 
-func (h *Handler) GetLogin(ctx context.Context, in *pauth.GetLoginRequest) (*pauth.GetLoginResponse, error) {
-	reg, err := manager.Resolve[oauth.Registry](ctx)
-	if err != nil {
-		return nil, err
-	}
-
-	req, err := reg.ConsentManager().GetLoginRequest(ctx, in.Challenge)
-	if err != nil {
-		return nil, err
-	}
-	out := &pauth.GetLoginResponse{}
-	out.Challenge = req.ID
-	out.SessionID = req.SessionID.String()
-	out.RequestURL = req.RequestURL
-	out.Subject = req.Subject
-	out.RequestedScope = req.RequestedScope
-	out.RequestedAudience = req.RequestedAudience
-	out.ClientID = req.ClientID
-	if req.Client != nil {
-		out.ClientID = req.Client.GetID()
-	}
-
-	return out, nil
-}
-
 func (h *Handler) CreateLogin(ctx context.Context, in *pauth.CreateLoginRequest) (*pauth.CreateLoginResponse, error) {
 
 	reg, err := manager.Resolve[oauth.Registry](ctx)
@@ -149,6 +124,31 @@ func (h *Handler) CreateLogin(ctx context.Context, in *pauth.CreateLoginRequest)
 	return out, nil
 }
 
+func (h *Handler) GetLogin(ctx context.Context, in *pauth.GetLoginRequest) (*pauth.GetLoginResponse, error) {
+	reg, err := manager.Resolve[oauth.Registry](ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := reg.GetLoginRequestAsFlow(ctx, in.Challenge)
+	if err != nil {
+		return nil, err
+	}
+	out := &pauth.GetLoginResponse{}
+	out.Challenge = req.ID
+	out.SessionID = req.SessionID.String()
+	out.RequestURL = req.RequestURL
+	out.Subject = req.Subject
+	out.RequestedScope = req.RequestedScope
+	out.RequestedAudience = req.RequestedAudience
+	out.ClientID = req.ClientID
+	if req.Client != nil {
+		out.ClientID = req.Client.GetID()
+	}
+
+	return out, nil
+}
+
 func (h *Handler) AcceptLogin(ctx context.Context, in *pauth.AcceptLoginRequest) (*pauth.AcceptLoginResponse, error) {
 	reg, err := manager.Resolve[oauth.Registry](ctx)
 	if err != nil {
@@ -166,7 +166,7 @@ func (h *Handler) AcceptLogin(ctx context.Context, in *pauth.AcceptLoginRequest)
 		return nil, err
 	}
 
-	if _, err := reg.ConsentManager().HandleLoginRequest(ctx, f, in.Challenge, &p); err != nil {
+	if _, err = reg.ConsentManager().HandleLoginRequest(ctx, f, in.Challenge, &p); err != nil {
 		return nil, err
 	}
 
@@ -570,33 +570,37 @@ func (h *Handler) PasswordCredentialsCode(ctx context.Context, in *pauth.Passwor
 
 	// Getting or creating challenge
 	challenge := in.GetChallenge()
+	var f *flow.Flow
+	var err error
+
 	var requestedScope, requestedAudience []string
 	var requestURL, clientID string
+
 	if challenge == "" {
 		verif := h.makeUUID(false)
 		csrf := h.makeUUID(false)
-		f, er := h.createLoginFlow(ctx, reg, &pauth.CreateLoginRequest{
+		f, err = h.createLoginFlow(ctx, reg, &pauth.CreateLoginRequest{
 			ClientID:  config.DefaultOAuthClientID,
 			Scopes:    []string{"openid", "profile", "offline"},
 			Audiences: []string{},
 		}, verif, csrf)
-		if er != nil {
-			return nil, er
-		}
-		challenge, _ = f.ToLoginChallenge(ctx, reg)
-		requestedAudience = f.RequestedAudience
-		requestedScope = f.RequestedScope
-		requestURL = f.RequestURL
-		clientID = f.ClientID
-	} else {
-		req, err := reg.ConsentManager().GetLoginRequest(ctx, challenge)
 		if err != nil {
 			return nil, err
 		}
-		requestURL = req.RequestURL
-		requestedScope = req.RequestedScope
-		requestedAudience = req.RequestedAudience
-		clientID = req.Client.GetID()
+		challenge, _ = f.ToLoginChallenge(ctx, reg)
+	} else {
+		f, err = reg.GetLoginRequestAsFlow(ctx, challenge)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	requestedAudience = f.RequestedAudience
+	requestedScope = f.RequestedScope
+	requestURL = f.RequestURL
+	clientID = f.ClientID
+	if f.Client != nil {
+		clientID = f.Client.GetID()
 	}
 
 	code, err := h.loginToCode(ctx, challenge, in.GetUsername(), in.GetPassword(), requestedScope, requestedAudience, requestURL, clientID)

@@ -175,14 +175,14 @@ func WithWeb(handler func(ctx context.Context) WebHandler) ServiceOption {
 			// var e error
 			wrapped := http.Handler(wc)
 
+			for _, m := range o.WebMiddlewares {
+				wrapped = m(wrapped)
+			}
+
 			if o.Name != common.ServiceRestNamespace_+common.ServiceInstall {
 				for _, wrap := range getWebMiddlewares(o.Name) {
 					wrapped = wrap(ctx, wrapped)
 				}
-			}
-
-			for _, m := range o.WebMiddlewares {
-				wrapped = m(wrapped)
 			}
 
 			wrapped = cors.Default().Handler(wrapped)
