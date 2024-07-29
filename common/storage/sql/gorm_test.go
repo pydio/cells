@@ -21,6 +21,7 @@ import (
 	"github.com/pydio/cells/v4/common/service"
 	"github.com/pydio/cells/v4/common/storage"
 	dbresolver "github.com/pydio/cells/v4/common/storage/sql/dbresolver"
+	"github.com/pydio/cells/v4/common/storage/test"
 	"github.com/pydio/cells/v4/common/utils/uuid"
 
 	_ "embed"
@@ -35,6 +36,10 @@ var (
 type DAO struct {
 	DB *gorm.DB
 }
+
+var (
+	testcases = test.TemplateSQL(NewDAO)
+)
 
 func NewDAO(db *gorm.DB) DAO {
 	return DAO{DB: db}
@@ -112,7 +117,10 @@ func (n noopDialector) Explain(sql string, vars ...interface{}) string {
 }
 
 type Data struct {
-	MyData string `gorm:"column:data"`
+	MyData       string `gorm:"column:data"`
+	Index        string `gorm:"column:index;index:index;"`
+	UniqueIndex1 string `gorm:"column:unique_index1;index:,unique,composite:uniqueIndex;"`
+	UniqueIndex2 string `gorm:"column:unique_index2;index:,unique,composite:uniqueIndex;"`
 }
 
 type DataWithPK struct {
@@ -156,13 +164,13 @@ func TestDBPool(t *testing.T) {
 
 	fmt.Println("Automigrate is over")
 
-	db1.Create(&Data{"whatever"})
-	db2.Create(&Data{"whatever2"})
-	db2.Create(&Data{"whatever3"})
-	db2.Create(&Data{"whatever4"})
+	db1.Create(&Data{MyData: "whatever"})
+	db2.Create(&Data{MyData: "whatever2"})
+	db2.Create(&Data{MyData: "whatever3"})
+	db2.Create(&Data{MyData: "whatever4"})
 
 	var res []*Data
-	db2.Where(&Data{"whatever3"}).Find(&res)
+	db2.Where(&Data{MyData: "whatever3"}).Find(&res)
 
 	fmt.Println(res)
 
@@ -209,6 +217,20 @@ func TestNormalResolver(t *testing.T) {
 
 	db.Clauses(dbresolver.Use("shard1")).AutoMigrate(&Data{})
 
+}
+
+func TestNaming(t *testing.T) {
+
+	test.RunStorageTests(testcases, t, func(ctx context.Context) {
+		dao, err := manager.Resolve[DAO](ctx)
+		if err != nil {
+			panic(err)
+		}
+
+		if err := dao.DB.AutoMigrate(&Data{}); err != nil {
+			fmt.Println(err)
+		}
+	})
 }
 
 func MustAs[T any](in any) T {

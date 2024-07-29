@@ -80,6 +80,11 @@ type serviceRegistrar struct {
 	reg  registry.Registry
 }
 
+//func (s *serviceRegistrar) GetServiceInfo() map[string]grpc.ServiceInfo {
+//	fmt.Println("GetServiceInfo")
+//	return map[string]grpc.ServiceInfo{}
+//}
+
 func (s *serviceRegistrar) RegisterService(desc *grpc.ServiceDesc, impl interface{}) {
 	s.ServiceRegistrar.RegisterService(desc, impl)
 

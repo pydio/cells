@@ -7,99 +7,142 @@ import (
 	"log"
 	"sync"
 	"testing"
-	"time"
 
 	"gocloud.dev/pubsub"
+	"golang.org/x/sync/errgroup"
+	grpc2 "google.golang.org/grpc"
 	"google.golang.org/protobuf/proto"
 
 	"github.com/pydio/cells/v4/common"
+	cb "github.com/pydio/cells/v4/common/broker"
+	"github.com/pydio/cells/v4/common/broker/grpcpubsub/handler"
 	"github.com/pydio/cells/v4/common/client/grpc"
 	pb "github.com/pydio/cells/v4/common/proto/broker"
 	"github.com/pydio/cells/v4/common/proto/tree"
-	clientcontext "github.com/pydio/cells/v4/common/runtime"
+	"github.com/pydio/cells/v4/common/runtime"
 	"github.com/pydio/cells/v4/common/server/stubs/discoverytest"
+	"github.com/pydio/cells/v4/common/service"
+	"github.com/pydio/cells/v4/common/storage/test"
+
+	_ "gocloud.dev/pubsub/mempubsub"
 
 	. "github.com/smartystreets/goconvey/convey"
 )
 
 func init() {
-	grpc.RegisterMock(common.ServiceBroker, discoverytest.NewBrokerService())
+	runtime.Register("test", func(ctx context.Context) {
+		service.NewService(
+			service.Name(common.ServiceGrpcNamespace_+common.ServiceBroker),
+			service.Context(ctx),
+			service.Tag("test"),
+			service.WithGRPC(func(ctx context.Context, srv grpc2.ServiceRegistrar) error {
+				pb.RegisterBrokerServer(srv, handler.NewHandler(cb.NewBroker("mem://")))
+				return nil
+			}),
+		)
+	})
+
+	// grpc.RegisterMock(common.ServiceBroker, discoverytest.NewBrokerService())
 }
 
 func TestServiceBroker(t *testing.T) {
-	Convey("Test Service Broker", t, func() {
-		numMessagesToSend := 1000
-		numMessagesReceived := 0
+	test.RunTests(t, func(ctx context.Context) {
+		Convey("Test Service Broker", t, func() {
 
-		var cancel context.CancelFunc
-		conn := grpc.NewClientConn(common.ServiceBroker, "")
-		ctx := clientcontext.WithClientConn(context.Background(), conn)
-		ctx, cancel = context.WithTimeout(ctx, 1*time.Second)
+			numMessagesToSend := 1000
+			numMessagesReceived := 0
 
-		cli, err := pb.NewBrokerClient(conn).Subscribe(ctx)
-		if err != nil {
-			log.Fatal(err)
-		}
-		sub := &sharedSubscriber{
-			Broker_SubscribeClient: cli,
-			sharedKey:              "h",
-			cancel:                 nil,
-			out:                    make(map[string]chan []*pb.Message),
-		}
-		go sub.Dispatch()
+			var cancel context.CancelFunc
+			conn := grpc.ResolveConn(ctx, common.ServiceBroker)
 
-		subscription, err := NewSubscription("test1", WithContext(ctx), WithSubscriber(sub))
-		if err != nil {
-			log.Fatal(err)
-		}
+			ctx := runtime.WithClientConn(ctx, conn)
+			ctx, cancel = context.WithCancel(ctx)
 
-		go func() {
-			defer cancel()
+			// defer cancel()
 
-			defer subscription.Shutdown(context.Background())
-
-			for {
-				msg, err := subscription.Receive(context.Background())
-				if err == io.EOF {
-					return
-				}
-
-				numMessagesReceived++
-
-				msg.Ack()
-
-				ev := &tree.NodeChangeEvent{}
-				if err := proto.Unmarshal(msg.Body, ev); err != nil {
-					return
-				}
+			cli, err := pb.NewBrokerClient(conn).Subscribe(ctx)
+			if err != nil {
+				log.Fatal(err)
 			}
-		}()
+			sub := &sharedSubscriber{
+				Broker_SubscribeClient: cli,
+				sharedKey:              "h",
+				cancel:                 nil,
+				out:                    make(map[string]chan []*pb.Message),
+			}
+			go sub.Dispatch()
 
-		topic, err := NewTopic("test1", "", WithContext(ctx))
-		if err != nil {
-			log.Fatal(err)
-		}
-		defer topic.Shutdown(ctx)
+			subscription, err := NewSubscription("test1", WithContext(ctx), WithSubscriber(sub))
+			if err != nil {
+				log.Fatal(err)
+			}
 
-		msg := &tree.NodeChangeEvent{Source: &tree.Node{Path: "source"}, Target: &tree.Node{Path: "target"}}
-		b, err := proto.Marshal(msg)
-		if err != nil {
-			fmt.Println("Error ", err)
-			return
-		}
+			wg := sync.WaitGroup{}
+			wg.Add(1)
+			go func() {
+				defer wg.Done()
+				defer subscription.Shutdown(context.Background())
 
-		for i := 0; i < numMessagesToSend; i++ {
-			go topic.Send(context.Background(), &pubsub.Message{
-				Body: b,
-			})
-		}
+				for {
+					msg, err := subscription.Receive(context.Background())
+					if err == io.EOF {
+						fmt.Println("Received EOF")
+						return
+					}
 
-		select {
-		case <-ctx.Done():
-		}
+					if err != nil {
+						fmt.Println(err)
+						return
+					}
 
-		So(numMessagesReceived, ShouldEqual, numMessagesToSend)
+					fmt.Println("Received message")
 
+					numMessagesReceived++
+
+					msg.Ack()
+
+					ev := &tree.NodeChangeEvent{}
+					if err := proto.Unmarshal(msg.Body, ev); err != nil {
+						return
+					}
+				}
+			}()
+
+			topic, err := NewTopic("test1", "", WithContext(ctx))
+			if err != nil {
+				log.Fatal(err)
+			}
+
+			msg := &tree.NodeChangeEvent{Source: &tree.Node{Path: "source"}, Target: &tree.Node{Path: "target"}}
+			b, err := proto.Marshal(msg)
+			if err != nil {
+				return
+			}
+
+			var eg errgroup.Group
+			for i := 0; i < numMessagesToSend; i++ {
+				eg.Go(func() error {
+					fmt.Println("Sent ", i)
+					return topic.Send(context.Background(), &pubsub.Message{
+						Body: b,
+					})
+				})
+			}
+
+			if err := eg.Wait(); err != nil {
+				So(err, ShouldBeNil)
+			}
+
+			topic.Shutdown(ctx)
+
+			wg.Wait()
+			fmt.Println(cancel)
+
+			fmt.Println(numMessagesReceived, numMessagesToSend)
+
+			So(numMessagesReceived, ShouldEqual, numMessagesToSend)
+
+		})
 	})
 }
 
@@ -109,8 +152,8 @@ func TestConcurrentReceivesGetAllTheMessages(t *testing.T) {
 	var cancel context.CancelFunc
 
 	conn := grpc.NewClientConn(common.ServiceBroker, "")
-	ctx := clientcontext.WithClientConn(context.Background(), conn)
-	ctx, cancel = context.WithCancel(ctx)
+	// ctx := clientcontext.WithClientConn(context.Background(), conn)
+	ctx, cancel := context.WithCancel(context.Background())
 	cli, err := pb.NewBrokerClient(conn).Subscribe(ctx)
 	if err != nil {
 		log.Fatal(err)

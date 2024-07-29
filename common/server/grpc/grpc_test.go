@@ -25,8 +25,12 @@ import (
 	"fmt"
 	"log"
 	"net"
+	"strings"
 	"testing"
+	"text/template"
+	"time"
 
+	"github.com/spf13/viper"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/examples/helloworld/helloworld"
 	"google.golang.org/grpc/test/bufconn"
@@ -35,7 +39,9 @@ import (
 	mock2 "github.com/pydio/cells/v4/common/config/mock"
 	pbregistry "github.com/pydio/cells/v4/common/proto/registry"
 	"github.com/pydio/cells/v4/common/registry"
-	clientcontext "github.com/pydio/cells/v4/common/runtime"
+	"github.com/pydio/cells/v4/common/registry/util"
+	"github.com/pydio/cells/v4/common/runtime"
+	"github.com/pydio/cells/v4/common/runtime/manager"
 	"github.com/pydio/cells/v4/common/server"
 	"github.com/pydio/cells/v4/common/service"
 	"github.com/pydio/cells/v4/common/utils/propagator"
@@ -43,6 +49,27 @@ import (
 
 	_ "github.com/pydio/cells/v4/common/registry/config"
 )
+
+var (
+	yaml = `
+servers:
+  grpc:
+    bind: 0.0.0.0
+    port: 0
+services:
+  test:
+`
+
+	tmpl *template.Template
+)
+
+func init() {
+	var err error
+	tmpl, err = template.New("test").Parse(yaml)
+	if err != nil {
+		panic(err)
+	}
+}
 
 type mock struct {
 	helloworld.UnimplementedGreeterServer
@@ -144,7 +171,7 @@ func TestServiceRegistry(t *testing.T) {
 		log.Fatal("no conn", err)
 	}
 
-	ctx = clientcontext.WithClientConn(ctx, conn)
+	ctx = runtime.WithClientConn(ctx, conn)
 
 	cli1 := helloworld.NewGreeterClient(cgrpc.ResolveConn(ctx, "test.registry"))
 	resp1, err1 := cli1.SayHello(ctx, &helloworld.HelloRequest{Name: "test"})
@@ -155,6 +182,92 @@ func TestServiceRegistry(t *testing.T) {
 	resp2, err2 := cli2.SayHello(ctx, &helloworld.HelloRequest{Name: "test"}, grpc.WaitForReady(false))
 
 	fmt.Println(resp2, err2)
+
+}
+
+func TestGetServiceInfo(t *testing.T) {
+	// read template
+	b := &strings.Builder{}
+	err := tmpl.Execute(b, nil)
+	if err != nil {
+		panic(err)
+	}
+
+	v := viper.New()
+	v.Set(runtime.KeyConfig, "mem://")
+	v.SetDefault(runtime.KeyCache, "pm://")
+	v.SetDefault(runtime.KeyShortCache, "pm://")
+	v.Set(runtime.KeyArgTags, "test")
+	v.Set("yaml", b.String())
+
+	runtime.SetRuntime(v)
+
+	ctx, cancel := context.WithTimeout(context.Background(), 1*time.Minute)
+	defer cancel()
+
+	runtime.Register("test", func(ctx context.Context) {
+		listener := bufconn.Listen(1024 * 1024)
+		srv := New(ctx, WithListener(listener))
+
+		svc := service.NewService(
+			service.Name("test"),
+			service.Tag("test"),
+			service.Context(ctx),
+			service.WithServer(srv),
+			service.WithGRPC(func(_ context.Context, srv grpc.ServiceRegistrar) error {
+				fmt.Println("Registering")
+				helloworld.RegisterGreeterServer(srv, &mock{})
+				return nil
+			}),
+		)
+
+		var mgr manager.Manager
+		if propagator.Get(ctx, manager.ContextKey, &mgr) {
+			for i := 0; i < 100; i++ {
+				mgr.Registry().Register(endpoint,
+					registry.WithEdgeTo(svc.ID(), "handler", map[string]string{
+						"modtime": time.Now().String(),
+					}),
+					registry.WithEdgeTo(srv.ID(), "server", map[string]string{
+						"modtime": time.Now().String(),
+					}),
+				)
+			}
+			go func() {
+				for {
+					select {
+					case <-time.After(1 * time.Nanosecond):
+						endpoint := util.CreateEndpoint("/tests/test", nil, map[string]string{})
+
+					}
+				}
+			}()
+		}
+
+		var grpcServer *grpc.Server
+		if srv.As(&grpcServer) {
+			go func() {
+
+				for {
+					select {
+					case <-time.After(1 * time.Nanosecond):
+						fmt.Println("Geting service info ", grpcServer.GetServiceInfo())
+					}
+				}
+			}()
+		}
+	})
+
+	mgr, err := manager.NewManager(ctx, "test", nil)
+	if err != nil {
+		panic(err)
+	}
+
+	if err := mgr.ServeAll(); err != nil {
+		fmt.Println(err)
+	}
+
+	<-ctx.Done()
 
 }
 

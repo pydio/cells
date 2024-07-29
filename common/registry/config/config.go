@@ -325,7 +325,7 @@ func getType(item registry.Item) string {
 			return "generic"
 		}
 	default:
-		return "other"
+		return "generic"
 	}
 }
 
@@ -352,7 +352,7 @@ func getFromItemType(itemType pb.ItemType) string {
 	case pb.ItemType_ENDPOINT:
 		return "endpoint"
 	default:
-		return "other"
+		return "generic"
 	}
 }
 
@@ -462,7 +462,7 @@ func (c *configRegistry) List(opts ...registry.Option) ([]registry.Item, error) 
 		case pb.ItemType_TAG:
 			store = c.store.Val("tag")
 		default:
-			store = c.store.Val("other")
+			store = c.store.Val("generic")
 		}
 
 		if store.Get() == nil {

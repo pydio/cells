@@ -24,6 +24,7 @@ import (
 	routeservice "github.com/envoyproxy/go-control-plane/envoy/service/route/v3"
 	runtimeservice "github.com/envoyproxy/go-control-plane/envoy/service/runtime/v3"
 	secretservice "github.com/envoyproxy/go-control-plane/envoy/service/secret/v3"
+	clientservice "github.com/envoyproxy/go-control-plane/envoy/service/status/v3"
 	matcherv3 "github.com/envoyproxy/go-control-plane/envoy/type/matcher/v3"
 	"github.com/envoyproxy/go-control-plane/pkg/cache/types"
 	cachev3 "github.com/envoyproxy/go-control-plane/pkg/cache/v3"
@@ -31,6 +32,7 @@ import (
 	xds "github.com/envoyproxy/go-control-plane/pkg/server/v3"
 	"github.com/envoyproxy/go-control-plane/pkg/wellknown"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/xds/csds"
 	"google.golang.org/protobuf/types/known/anypb"
 	"google.golang.org/protobuf/types/known/durationpb"
 	"google.golang.org/protobuf/types/known/wrapperspb"
@@ -87,6 +89,12 @@ func init() {
 							fetches:  0,
 							requests: 0,
 						})
+
+						csdsHandler, err := csds.NewClientStatusDiscoveryServer()
+						if err != nil {
+							return err
+						}
+
 						discoveryservice.RegisterAggregatedDiscoveryServiceServer(discoveryServer, discoveryHandler)
 						endpointservice.RegisterEndpointDiscoveryServiceServer(discoveryServer, discoveryHandler)
 						clusterservice.RegisterClusterDiscoveryServiceServer(discoveryServer, discoveryHandler)
@@ -94,6 +102,7 @@ func init() {
 						listenerservice.RegisterListenerDiscoveryServiceServer(discoveryServer, discoveryHandler)
 						secretservice.RegisterSecretDiscoveryServiceServer(discoveryServer, discoveryHandler)
 						runtimeservice.RegisterRuntimeDiscoveryServiceServer(discoveryServer, discoveryHandler)
+						clientservice.RegisterClientStatusDiscoveryServiceServer(discoveryServer, csdsHandler)
 
 						// TODO - make sure that this is ok
 						cb, err := client.NewResolverCallback(reg)

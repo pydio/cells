@@ -29,6 +29,8 @@ import (
 )
 
 type ServeOptions struct {
+	Context         context.Context
+	Listener        net.Listener
 	HttpBindAddress string
 	GrpcBindAddress string
 	ErrorCallback   func(error)
@@ -58,6 +60,14 @@ func WithHttpBindAddress(a string) ServeOption {
 	return func(o *ServeOptions) {
 		o.HttpBindAddress = a
 	}
+}
+
+func WithContext(ctx context.Context) ServeOption {
+	return func(o *ServeOptions) { o.Context = ctx }
+}
+
+func WithListener(l net.Listener) ServeOption {
+	return func(o *ServeOptions) { o.Listener = l }
 }
 
 func WithBeforeServe(f func(oo ...registry.RegisterOption) error) ServeOption {

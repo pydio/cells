@@ -97,7 +97,7 @@ func New(ctx context.Context, opt ...Option) server.Server {
 	}
 
 	ctx, cancel := context.WithCancel(ctx)
-	return server.NewServer(ctx, &Server{
+	s := &Server{
 		id:   "grpc-" + uuid.New(),
 		name: opts.Name,
 		// meta: make(map[string]string),
@@ -105,7 +105,11 @@ func New(ctx context.Context, opt ...Option) server.Server {
 		ctx:    ctx,
 		cancel: cancel,
 		opts:   opts,
-	})
+	}
+
+	s.lazyGrpc(ctx)
+
+	return server.NewServer(ctx, s)
 }
 
 // NewWithServer can pass preset grpc.Server with custom listen address
@@ -279,8 +283,10 @@ func (s *Server) Type() server.Type {
 }
 
 func (s *Server) RawServe(opts *server.ServeOptions) (ii []registry.Item, e error) {
-	srv := s.lazyGrpc(s.ctx)
-	listener := s.opts.Listener
+
+	srv := s.lazyGrpc(opts.Context)
+
+	listener := opts.Listener
 	if listener == nil {
 		addr := s.opts.Addr
 		if addr == "" {

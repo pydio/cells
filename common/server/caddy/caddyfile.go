@@ -52,8 +52,6 @@ const (
   }{{end}}
 }
 
-
-
 {{range .Sites}}
 {{$MuxMode := .MuxMode}}
 {{$SiteHash := .Hash}}
@@ -169,5 +167,4 @@ func FromTemplate(ctx context.Context, tplData TplData) ([]byte, error) {
 		log.Logger(ctx).Warn(w.String())
 	}
 	return confs, nil
-
 }

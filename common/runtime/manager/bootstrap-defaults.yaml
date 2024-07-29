@@ -6,6 +6,19 @@ defaults:
   advertise: &advertise 0.0.0.0
 
   #--------------------------------------------
+  # Default listeners
+  #--------------------------------------------
+  listeners: &listeners
+    grpc:
+      type: tcp
+      bind: *bind
+      port: 0
+    http:
+      type: tcp
+      bind: *bind
+      addr: 0
+
+  #--------------------------------------------
   # Default connection to runtime functions
   #--------------------------------------------
   connections: &connections
@@ -16,24 +29,18 @@ defaults:
     broker:
       uri: xds://default.cells.com/cells
 
-
   #--------------------------------------------
   # Default servers configuration
   #--------------------------------------------
   servers: &servers
+    caddy:
+      type: caddy
     grpc:
-      bind: *bind
-      advertise: *advertise
-      port: 0
-    grpc_discovery:
-      bind: *bind
-      advertise: *advertise
-      port: 0
+      type: grpc
+      listener: grpc
     http:
-      bind: *bind
-      advertise: *advertise
       type: http
-      port: 0
+      listener: http
 
   #--------------------------------------------
   # Default env configuration
@@ -87,6 +94,237 @@ defaults:
       }
     }
 
+  #------------------------------------
+  # All services
+  #------------------------------------
+  services: &services
+    pydio.grpc.broker:
+      servers:
+        - grpc
+    pydio.grpc.registry:
+      servers:
+        - grpc
+    pydio.grpc.config:
+      servers:
+        - grpc
+    pydio.gateway.sites:
+      servers:
+        - caddy
+    pydio.grpc.oauth:
+      servers:
+        - grpc
+      storages:
+        main:
+          - type: sql
+            prefix: oauth2_
+            singular: "true"
+    pydio.web.oauth:
+      servers:
+        - caddy
+      storages:
+        main:
+          - type: sql
+            prefix: oauth2_
+            singular: "true"
+    pydio.web.statics:
+      servers:
+        - caddy
+    pydio.rest.frontend:
+      servers:
+        - caddy
+      storages:
+        main:
+          - type: sql
+            prefix: idm_
+    pydio.grpc.search:
+      servers:
+        - grpc
+      storages:
+        main:
+          - type: search
+            path: chat
+    pydio.grpc.activity:
+      servers:
+        - grpc
+      storages:
+        main:
+          - type: bolt
+            dir: {{{{ getServiceDataDir "pydio.grpc.activity" }}}}
+            file: activities.db
+    pydio.grpc.versions:
+      servers:
+        - grpc
+      storages:
+        main:
+          - type: bolt
+            dir: {{{{ getServiceDataDir "pydio.grpc.versions" }}}}
+            file: versions.db
+    pydio.grpc.docstore:
+      servers:
+        - grpc
+      storages:
+        main:
+          - type: bolt
+            dir: {{{{ getServiceDataDir "pydio.grpc.docstore" }}}}
+            file: docstore.db
+          - type: bleve
+            dir: {{{{ getServiceDataDir "pydio.grpc.docstore" }}}}
+            file: docstore.bleve?rotationSize=-1
+    pydio.grpc.log:
+      servers:
+        - grpc
+      storages:
+        main:
+          - type: bleve
+            dir: {{{{ getServiceDataDir "pydio.grpc.log" }}}}
+            file: syslog.bleve?mapping=log&rotationSize=-1
+    pydio.grpc.jobs:
+      servers:
+        - grpc
+      storages:
+        main:
+          - type: bolt
+            dir: {{{{ getServiceDataDir "pydio.grpc.jobs" }}}}
+            file: jobs.db
+        logs:
+          - type: bleve
+            dir: {{{{ getServiceDataDir "pydio.grpc.jobs" }}}}
+            file: tasklogs.bleve?mapping=log&rotationSize=-1
+    pydio.grpc.role:
+      servers:
+        - grpc
+      storages:
+        main:
+          - type: sql
+            prefix: idm_
+            policies: idm_role_policies
+    pydio.grpc.acl:
+      servers:
+        - grpc
+      storages:
+        main:
+          - type: sql
+            prefix: idm_
+    pydio.grpc.user:
+      servers:
+        - grpc
+      storages:
+        main:
+          - type: sql
+            prefix: idm_
+            policies: idm_user_policies
+    pydio.grpc.token:
+      servers:
+        - grpc
+      storages:
+        main:
+          - type: sql
+            prefix: idm_
+    pydio.grpc.key:
+      servers:
+        - grpc
+      storages:
+        main:
+          - type: sql
+            prefix: data_key_
+    pydio.grpc.user-key:
+      servers:
+        - grpc
+      storages:
+        main:
+          - type: sql
+            prefix: idm_
+    pydio.grpc.workspace:
+      servers:
+        - grpc
+      storages:
+        main:
+          - type: sql
+            prefix: idm_
+            policies: idm_workspace_policies
+    pydio.grpc.meta:
+      servers:
+        - grpc
+      storages:
+        main:
+          - type: sql
+            prefix: data_
+    pydio.grpc.policy:
+      servers:
+        - grpc
+      storages:
+        main:
+          - type: sql
+            prefix: ladon_
+            singular: "true"
+    pydio.grpc.user-meta:
+      servers:
+        - grpc
+      storages:
+        main:
+          - type: sql
+            prefix: idm_usr_
+            policies: idm_usr_meta_policies
+    pydio.rest.user-meta:
+      servers:
+        - caddy
+    pydio.rest.search:
+      servers:
+        - caddy
+    pydio.rest.tree:
+      servers:
+        - caddy
+    pydio.rest.acl:
+      servers:
+        - caddy
+    pydio.rest.graph:
+      servers:
+        - caddy
+    pydio.rest.meta:
+      servers:
+        - caddy
+    pydio.rest.oauth:
+      servers:
+        - caddy
+    pydio.rest.policy:
+      servers:
+        - caddy
+    pydio.rest.role:
+      servers:
+        - caddy
+    pydio.rest.share:
+      servers:
+        - caddy
+    pydio.rest.user:
+      servers:
+        - caddy
+    pydio.rest.workspace:
+      servers:
+        - caddy
+    pydio.gateway.data:
+      servers:
+        - caddy
+
+  # Storages
+  storages: &storages
+    sql:
+      # uri: sqlite://test.db?prefix={{ .Value "prefix" }}&policies={{ .Value "policies" }}&singular={{ .Value "singular" }}
+      uri: mysql://root:P@ssw0rd@tcp(localhost:3306)/cellstmp?parseTime=true&prefix={{ .Value "prefix" }}&policies={{ .Value "policies" }}&singular={{ .Value "singular" }}
+    #      uri: postgres://postgres:cells@localhost:5432/postgres?sslmode=disable&prefix={{ .Value "prefix" }}&policies={{ .Value "policies" }}&singular={{ .Value "singular" }}
+    bolt:
+      uri: boltdb://{{ .Value "dir" }}/{{ .Value "file" }}
+    bleve:
+      uri: bleve://{{ .Value "dir" }}/{{ .Value "file" }}
+    #  search:
+    #    uri: mongo+indexer://localhost:24017/search
+    #    uri: bleve:///tmp/{{ TODOMustServiceDataDir .Value service }}.bleve?mapping={{ .Value mapping }}&rotationSize={{ .Value rotationSize }}
+    #  fifo:
+    #    uri: goq:///tmp/{{ .Value tenant }}/fifo/{{ .Value prefix }}?evictionTime={{ .evictionTime }}
+    #  user:
+    #    uri: mysql://tcp(localhost:3306)/cells-{{ .Value tenant }}?prefix={{ .Value prefix }}&shardedBy=name
+    #  redis-cache:
+    #    uri: redis://:53535/{{tenant}}
+
   #--------------------------------------------
   # All processes
   #--------------------------------------------
@@ -102,37 +340,52 @@ defaults:
         broker:
           uri: mem://
 
-      servers:
-        <<: *servers
+      listeners:
         grpc:
+          type: tcp
+          bind: 0.0.0.0
           port: 8030
         http:
-          type: http
+          type: tcp
+          bind: 0.0.0.0
           port: 0
+
+      servers:
+        caddy:
+          type: caddy
+        grpc:
+          type: grpc
+          listener: grpc
+        http:
+          type: http
+          listener: http
 
       env: *env
 
-      services:
-        discovery:
-        gateway:
-        frontend:
-        data:
-        scheduler:
-        auth:
-        broker:
-        idm:
+      storages: *storages
 
+      services: *services
 
-#  gateway:
-#    connections:
-#      <<: *connections
-#    env: *env
-#    services:
-#      gateway:
-#    servers:
-#      http:
-#        type: caddy
-#        port: 8080
+#      tags:
+#        discovery:
+#        gateway:
+#        frontend:
+#        data:
+#        scheduler:
+#        auth:
+#        broker:
+#        idm:
+
+      #  gateway:
+      #    connections:
+      #      <<: *connections
+      #    env: *env
+      #    services:
+      #      gateway:
+      #    servers:
+      #      http:
+      #        type: caddy
+      #        port: 8080
 
 
       #  data:
@@ -214,142 +467,3 @@ defaults:
       #  {{ end }}
       #  {{ end }}
       #  {{ end }}
-
-  # Storages
-  storages: &storages
-    sql:
-      uri: sqlite://test.db?prefix={{ .Value "prefix" }}&policies={{ .Value "policies" }}&singular={{ .Value "singular" }}
-#      uri: mysql://root@tcp(localhost:3306)/cellstmp?parseTime=true&prefix={{ .Value "prefix" }}&policies={{ .Value "policies" }}&singular={{ .Value "singular" }}
-#      uri: postgres://postgres:cells@localhost:5432/postgres?sslmode=disable&prefix={{ .Value "prefix" }}&policies={{ .Value "policies" }}&singular={{ .Value "singular" }}
-    bolt:
-      uri: boltdb://{{ .Value "dir" }}/{{ .Value "file" }}
-    bleve:
-      uri: bleve://{{ .Value "dir" }}/{{ .Value "file" }}
-  #  search:
-  #    uri: mongo+indexer://localhost:24017/search
-  #    uri: bleve:///tmp/{{ TODOMustServiceDataDir .Value service }}.bleve?mapping={{ .Value mapping }}&rotationSize={{ .Value rotationSize }}
-  #  fifo:
-  #    uri: goq:///tmp/{{ .Value tenant }}/fifo/{{ .Value prefix }}?evictionTime={{ .evictionTime }}
-  #  user:
-  #    uri: mysql://tcp(localhost:3306)/cells-{{ .Value tenant }}?prefix={{ .Value prefix }}&shardedBy=name
-  #  redis-cache:
-  #    uri: redis://:53535/{{tenant}}
-
-  #------------------------------------
-  # All services
-  #------------------------------------
-  services: &services
-    pydio.grpc.oauth:
-      storages:
-        main:
-          - type: sql
-            prefix: oauth2_
-            singular: "true"
-    pydio.web.oauth:
-      storages:
-        main:
-          - type: sql
-            prefix: oauth2_
-            singular: "true"
-    pydio.rest.frontend:
-      storages:
-        main:
-          - type: sql
-            prefix: idm_
-    pydio.grpc.search:
-      storages:
-        main:
-          - type: search
-            path: chat
-    pydio.grpc.activity:
-      storages:
-        main:
-          - type: bolt
-            dir: {{{{ getServiceDataDir "pydio.grpc.activity" }}}}
-            file: activities.db
-    pydio.grpc.versions:
-      storages:
-        main:
-          - type: bolt
-            dir: {{{{ getServiceDataDir "pydio.grpc.versions" }}}}
-            file: versions.db
-    pydio.grpc.docstore:
-      storages:
-        main:
-          - type: bolt
-            dir: {{{{ getServiceDataDir "pydio.grpc.docstore" }}}}
-            file: docstore.db
-          - type: bleve
-            dir: {{{{ getServiceDataDir "pydio.grpc.docstore" }}}}
-            file: docstore.bleve?rotationSize=-1
-    pydio.grpc.log:
-      storages:
-        main:
-          - type: bleve
-            dir: {{{{ getServiceDataDir "pydio.grpc.log" }}}}
-            file: syslog.bleve?mapping=log&rotationSize=-1
-    pydio.grpc.jobs:
-      storages:
-        main:
-          - type: bolt
-            dir: {{{{ getServiceDataDir "pydio.grpc.jobs" }}}}
-            file: jobs.db
-        logs:
-          - type: bleve
-            dir: {{{{ getServiceDataDir "pydio.grpc.jobs" }}}}
-            file: tasklogs.bleve?mapping=log&rotationSize=-1
-    pydio.grpc.role:
-      storages:
-        main:
-          - type: sql
-            prefix: idm_
-            policies: idm_role_policies
-    pydio.grpc.acl:
-      storages:
-        main:
-          - type: sql
-            prefix: idm_
-    pydio.grpc.user:
-      storages:
-        main:
-          - type: sql
-            prefix: idm_
-            policies: idm_user_policies
-    pydio.grpc.token:
-      storages:
-        main:
-          - type: sql
-            prefix: idm_
-    pydio.grpc.key:
-      storages:
-        main:
-          - type: sql
-            prefix: data_key_
-    pydio.grpc.user-key:
-      storages:
-        main:
-          - type: sql
-            prefix: idm_
-    pydio.grpc.workspace:
-      storages:
-        main:
-          - type: sql
-            prefix: idm_
-            policies: idm_workspace_policies
-    pydio.grpc.meta:
-      storages:
-        main:
-          - type: sql
-            prefix: data_
-    pydio.grpc.policy:
-      storages:
-        main:
-          - type: sql
-            prefix: ladon_
-            singular: "true"
-    pydio.grpc.user-meta:
-      storages:
-        main:
-          - type: sql
-            prefix: idm_usr_
-            policies: idm_usr_meta_policies
