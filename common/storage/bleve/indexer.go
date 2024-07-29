@@ -458,12 +458,12 @@ func (s *Indexer) FindMany(ctx context.Context, qu interface{}, offset, limit in
 				cRes <- hit
 			}
 		}
-		// Parse & send facets
-		//if fParser, ok := codec.(FacetParser); ok {
-		//	for _, facet := range sr.Facets {
-		//		fParser.UnmarshalFacet(facet, cRes)
-		//	}
-		//}
+		//Parse & send facets
+		if fParser, ok := codec.(indexer.FacetParser); ok {
+			for _, facet := range sr.Facets {
+				fParser.UnmarshalFacet(facet, cRes)
+			}
+		}
 	}()
 	return cRes, nil
 }

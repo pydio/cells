@@ -298,6 +298,9 @@ defaults:
     pydio.rest.user:
       servers:
         - caddy
+    pydio.rest.log:
+      servers:
+        - caddy
     pydio.rest.workspace:
       servers:
         - caddy
