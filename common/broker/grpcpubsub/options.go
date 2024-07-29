@@ -39,6 +39,7 @@ type Options struct {
 
 type Publisher interface {
 	Send(*pb.PublishRequest) error
+	CloseSend() error
 }
 
 type Subscriber interface {

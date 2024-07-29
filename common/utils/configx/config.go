@@ -482,7 +482,9 @@ func (c *config) Val(s ...string) Values {
 		}
 		return c
 	} else if len(keys) > 0 && keys[0] == "#" {
-		keys = keys[1:]
+		tmp := make([]string, len(keys)-1)
+		copy(tmp, keys[1:])
+		keys = tmp
 	} else {
 		keys = append(c.k, keys...)
 	}
@@ -695,6 +697,7 @@ func (c *config) Bool() bool {
 	}
 	return cast.ToBool(v)
 }
+
 func (c *config) Bytes() []byte {
 	v := c.get()
 	if v == nil {
@@ -712,12 +715,14 @@ func (c *config) Bytes() []byte {
 
 	return []byte(cast.ToString(v))
 }
+
 func (c *config) Key() []string {
 	if c.r != nil {
 		return append(c.r.k, c.k...)
 	}
 	return c.k
 }
+
 func (c *config) Reference() Ref {
 	r := &ref{}
 	if err := c.Scan(r); err != nil {
@@ -731,9 +736,11 @@ func (c *config) Reference() Ref {
 
 	return nil
 }
+
 func (c *config) Interface() interface{} {
 	return c.get()
 }
+
 func (c *config) Int() int {
 	v := c.get()
 	if v == nil {
@@ -741,6 +748,7 @@ func (c *config) Int() int {
 	}
 	return cast.ToInt(v)
 }
+
 func (c *config) Int64() int64 {
 	v := c.get()
 	if v == nil {
@@ -748,6 +756,7 @@ func (c *config) Int64() int64 {
 	}
 	return cast.ToInt64(v)
 }
+
 func (c *config) Duration() time.Duration {
 	v := c.get()
 	if v == nil {
@@ -755,6 +764,7 @@ func (c *config) Duration() time.Duration {
 	}
 	return cast.ToDuration(v)
 }
+
 func (c *config) String() string {
 	v := c.get()
 
@@ -779,6 +789,7 @@ func (c *config) String() string {
 
 	return cast.ToString(v)
 }
+
 func (c *config) StringMap() map[string]string {
 	v := c.get()
 	if v == nil {
@@ -786,6 +797,7 @@ func (c *config) StringMap() map[string]string {
 	}
 	return cast.ToStringMapString(v)
 }
+
 func (c *config) StringArray() []string {
 	v := c.get()
 	vv := reflect.ValueOf(v)
@@ -794,6 +806,7 @@ func (c *config) StringArray() []string {
 	}
 	return cast.ToStringSlice(c.get())
 }
+
 func (c *config) Slice() []interface{} {
 	v := c.get()
 	if v == nil {
@@ -801,6 +814,7 @@ func (c *config) Slice() []interface{} {
 	}
 	return cast.ToSlice(c.get())
 }
+
 func (c *config) Map() map[string]interface{} {
 	v := c.get()
 	if v == nil {
@@ -809,6 +823,7 @@ func (c *config) Map() map[string]interface{} {
 	r, _ := cast.ToStringMapE(v)
 	return r
 }
+
 func (c *config) UnmarshalJSON(data []byte) error {
 	var m map[string]interface{}
 

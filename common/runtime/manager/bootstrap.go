@@ -112,7 +112,9 @@ func (bs *Bootstrap) reload(conf config.Store) error {
 	if er != nil {
 		return er
 	}
-	_ = bs.Set([]byte(fullYaml))
+	if err := bs.Set([]byte(fullYaml)); err != nil {
+		return err
+	}
 
 	var pairs = runtime.GetStringSlice(runtime.KeySet)
 	if sets := runtime.GetString(runtime.KeySetsFile); sets != "" {

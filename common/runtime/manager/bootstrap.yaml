@@ -4,12 +4,4 @@
 # Defaults variable values are injected at load time
 #------------------------------------------
 name: main
-bind: *bind
-advertise: *advertise
-connections: *connections
-servers: *servers
-env: *env
 processes: *processes
-storages:
-  <<: *storages
-services: *services

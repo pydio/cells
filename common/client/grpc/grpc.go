@@ -40,6 +40,7 @@ import (
 	"github.com/pydio/cells/v4/common/client"
 	"github.com/pydio/cells/v4/common/config"
 	"github.com/pydio/cells/v4/common/middleware"
+	pb "github.com/pydio/cells/v4/common/proto/registry"
 	"github.com/pydio/cells/v4/common/registry"
 	"github.com/pydio/cells/v4/common/runtime"
 	"github.com/pydio/cells/v4/common/telemetry/metrics"
@@ -90,15 +91,25 @@ func ResolveConn(ctx context.Context, serviceName string, opt ...Option) grpc.Cl
 	if ctx == nil {
 		return NewClientConn(serviceName, runtime.Cluster(), opt...)
 	}
-	conn := runtime.GetClientConn(ctx)
-	if conn == nil && WarnMissingConnInContext {
-		fmt.Println("Warning, ResolveConn could not find conn, will create a new one")
-		debug.PrintStack()
-	}
+
 	var reg registry.Registry
 	propagator.Get(ctx, registry.ContextKey, &reg)
-	opt = append(opt, WithClientConn(conn))
 	opt = append(opt, WithRegistry(reg))
+
+	if c, err := reg.Get(common.ServiceGrpcNamespace_+serviceName, registry.WithType(pb.ItemType_GENERIC)); err == nil && c != nil {
+		var conn *grpc.ClientConn
+		if c.As(&conn) {
+			opt = append(opt, WithClientConn(conn))
+		}
+	} else {
+		conn := runtime.GetClientConn(ctx)
+		if conn == nil && WarnMissingConnInContext {
+			fmt.Println("Warning, ResolveConn could not find conn, will create a new one")
+			debug.PrintStack()
+		}
+
+		opt = append(opt, WithClientConn(conn))
+	}
 
 	tenantName := "default"
 	if mm, ok := propagator.FromContextRead(ctx); ok {
@@ -130,6 +141,7 @@ func NewClientConn(serviceName string, tenantName string, opt ...Option) grpc.Cl
 
 			opts.Registry = reg
 		}
+
 		conn, err := grpc.Dial("xds://"+runtime.Cluster()+".cells.com/cells", DialOptionsForRegistry(opts.Registry, opts.DialOptions...)...)
 		if err != nil {
 			return nil

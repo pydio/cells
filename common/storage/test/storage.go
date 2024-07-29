@@ -6,17 +6,23 @@ import (
 	"path/filepath"
 	"strings"
 	"testing"
+	"text/template"
 
+	"github.com/spf13/viper"
 	"golang.org/x/text/cases"
 	"golang.org/x/text/language"
 
+	"github.com/pydio/cells/v4/common/runtime"
 	"github.com/pydio/cells/v4/common/runtime/manager"
+	"github.com/pydio/cells/v4/common/runtime/tenant"
 	"github.com/pydio/cells/v4/common/storage"
 	"github.com/pydio/cells/v4/common/storage/sql"
+	"github.com/pydio/cells/v4/common/utils/propagator"
 	"github.com/pydio/cells/v4/common/utils/uuid"
 
 	_ "github.com/pydio/cells/v4/common/config/memory"
 	_ "github.com/pydio/cells/v4/common/registry/config"
+	_ "github.com/pydio/cells/v4/common/server/grpc"
 	_ "github.com/pydio/cells/v4/common/storage/bleve"
 	_ "github.com/pydio/cells/v4/common/storage/boltdb"
 	_ "github.com/pydio/cells/v4/common/storage/config"
@@ -106,6 +112,82 @@ func TemplateBleveWithPrefix(daoFunc any, prefix string) StorageTestCase {
 var (
 	caser = cases.Title(language.English)
 )
+
+var (
+	singleYAML = `
+listeners:
+  bufconn:
+    type: bufconn
+    bufsize: 1048576
+connections:
+  pydio.grpc.broker:
+    type: grpc
+    uri: passthrough://bufnet
+    listener: bufconn
+servers:
+  grpc:
+    uri: grpc://
+    listener: bufconn
+services:
+  pydio.grpc.broker:
+    servers:
+      - grpc
+`
+
+	singleTpl *template.Template
+)
+
+func init() {
+	var err error
+	singleTpl, err = template.New("test").Parse(singleYAML)
+	if err != nil {
+		panic(err)
+	}
+}
+
+func RunTests(t *testing.T, f func(context.Context)) {
+	ctx, cancel := context.WithCancel(context.Background())
+
+	// read template
+	b := &strings.Builder{}
+	err := singleTpl.Execute(b, nil)
+	if err != nil {
+		return
+	}
+	v := viper.New()
+	v.Set(runtime.KeyConfig, "mem://")
+	v.SetDefault(runtime.KeyCache, "pm://")
+	v.SetDefault(runtime.KeyShortCache, "pm://")
+	v.SetDefault(runtime.KeyArgTags, []string{"test"})
+	v.Set("yaml", b.String())
+
+	runtime.SetRuntime(v)
+
+	mgr, err := manager.NewManager(ctx, "test", nil)
+	if err != nil {
+		return
+	}
+
+	ctx = mgr.Context()
+	ctx = propagator.With(ctx, tenant.ContextKey, tenant.GetManager().GetMaster())
+
+	mgr.ServeAll()
+
+	/*log.SetLoggerInit(func() *zap.Logger {
+		cfg := zap.NewDevelopmentConfig()
+		cfg.OutputPaths = []string{"stdout"}
+		z, _ := cfg.Build()
+
+		return z
+	}, nil)*/
+
+	t.Run("Testing with server", func(t *testing.T) {
+		f(ctx)
+		cancel()
+	})
+
+	<-ctx.Done()
+}
 
 // RunStorageTests initialize a runtime and run the tests cases with correct DAOs in context
 func RunStorageTests(testCases []StorageTestCase, t *testing.T, f func(context.Context)) {
