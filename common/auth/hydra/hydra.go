@@ -29,6 +29,7 @@ import (
 
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/client/grpc"
+	"github.com/pydio/cells/v4/common/config"
 	"github.com/pydio/cells/v4/common/proto/auth"
 )
 
@@ -58,10 +59,12 @@ type TokenResponse struct {
 	ExpiresIn    int64  `json:"expires_in"`
 }
 
+// OAuthConn resolves a grpc connexion to ServiceOAuth
 func OAuthConn(ctx context.Context) grpc2.ClientConnInterface {
 	return grpc.ResolveConn(ctx, common.ServiceOAuth)
 }
 
+// GetLogin forwards call to grpc server
 func GetLogin(ctx context.Context, challenge string) (*auth.GetLoginResponse, error) {
 	c := auth.NewLoginProviderClient(OAuthConn(ctx))
 	resp, err := c.GetLogin(ctx, &auth.GetLoginRequest{
@@ -74,6 +77,7 @@ func GetLogin(ctx context.Context, challenge string) (*auth.GetLoginResponse, er
 	return resp, nil
 }
 
+// CreateLogin forwards call to grpc server
 func CreateLogin(ctx context.Context, clientID string, scopes, audiences []string) (*auth.ID, error) {
 	c := auth.NewLoginProviderClient(OAuthConn(ctx))
 	resp, err := c.CreateLogin(ctx, &auth.CreateLoginRequest{
@@ -88,6 +92,7 @@ func CreateLogin(ctx context.Context, clientID string, scopes, audiences []strin
 	return resp.GetLogin(), nil
 }
 
+// AcceptLogin forwards call to grpc server
 func AcceptLogin(ctx context.Context, challenge string, subject string) (*RedirectResponse, error) {
 	c := auth.NewLoginProviderClient(OAuthConn(ctx))
 	res, err := c.AcceptLogin(ctx, &auth.AcceptLoginRequest{
@@ -101,6 +106,7 @@ func AcceptLogin(ctx context.Context, challenge string, subject string) (*Redire
 	return &RedirectResponse{Challenge: res.GetChallenge()}, nil
 }
 
+// CreateConsent forwards call to grpc server
 func CreateConsent(ctx context.Context, loginChallenge string) (*auth.ID, error) {
 
 	//login, err := GetLogin(ctx, loginChallenge)
@@ -119,6 +125,7 @@ func CreateConsent(ctx context.Context, loginChallenge string) (*auth.ID, error)
 	return resp.GetConsent(), nil
 }
 
+// AcceptConsent forwards call to grpc server
 func AcceptConsent(ctx context.Context, challenge string, scopes, audiences []string, accessToken, idToken map[string]string) (*RedirectResponse, error) {
 	c := auth.NewConsentProviderClient(OAuthConn(ctx))
 	res, err := c.AcceptConsent(ctx, &auth.AcceptConsentRequest{
@@ -135,6 +142,7 @@ func AcceptConsent(ctx context.Context, challenge string, scopes, audiences []st
 	return &RedirectResponse{Challenge: res.GetChallenge()}, nil
 }
 
+// CreateLogout forwards call to grpc server
 func CreateLogout(ctx context.Context, url, subject, sessionID string) (*auth.ID, error) {
 	c := auth.NewLogoutProviderClient(OAuthConn(ctx))
 	resp, err := c.CreateLogout(ctx, &auth.CreateLogoutRequest{
@@ -149,6 +157,7 @@ func CreateLogout(ctx context.Context, url, subject, sessionID string) (*auth.ID
 	return resp.GetLogout(), nil
 }
 
+// AcceptLogout forwards call to grpc server
 func AcceptLogout(ctx context.Context, challenge string, accessToken string, refreshToken string) error {
 	c := auth.NewLogoutProviderClient(OAuthConn(ctx))
 	_, err := c.AcceptLogout(ctx, &auth.AcceptLogoutRequest{
@@ -163,6 +172,7 @@ func AcceptLogout(ctx context.Context, challenge string, accessToken string, ref
 	return nil
 }
 
+// CreateAuthCode forwards call to grpc server
 func CreateAuthCode(ctx context.Context, consent *auth.ID, clientID, redirectURI, codeChallenge, codeChallengeMethod string) (string, error) {
 	c := auth.NewAuthCodeProviderClient(OAuthConn(ctx))
 	resp, err := c.CreateAuthCode(ctx, &auth.CreateAuthCodeRequest{
@@ -179,6 +189,7 @@ func CreateAuthCode(ctx context.Context, consent *auth.ID, clientID, redirectURI
 	return resp.Code, nil
 }
 
+// PasswordCredentialsToken forwards call to grpc server
 func PasswordCredentialsToken(ctx context.Context, username, password string) (*oauth2.Token, error) {
 	c := auth.NewPasswordCredentialsTokenClient(OAuthConn(ctx))
 	resp, err := c.PasswordCredentialsToken(ctx, &auth.PasswordCredentialsTokenRequest{
@@ -203,6 +214,7 @@ func PasswordCredentialsToken(ctx context.Context, username, password string) (*
 	return token, nil
 }
 
+// PasswordCredentialsCode forwards call to grpc server
 func PasswordCredentialsCode(ctx context.Context, username, password, challenge string) (string, error) {
 	c := auth.NewPasswordCredentialsCodeClient(OAuthConn(ctx))
 	resp, err := c.PasswordCredentialsCode(ctx, &auth.PasswordCredentialsCodeRequest{
@@ -216,6 +228,25 @@ func PasswordCredentialsCode(ctx context.Context, username, password, challenge 
 	return resp.GetCode(), nil
 }
 
+// LoginChallengeCode forwards call to grpc server
+func LoginChallengeCode(ctx context.Context, challenge string, claims map[string]string) (*auth.GetLoginResponse, string, error) {
+	c := auth.NewLoginChallengeCodeClient(OAuthConn(ctx))
+	resp, err := c.LoginChallengeCode(ctx, &auth.LoginChallengeCodeRequest{
+		Challenge: challenge,
+		Claims:    claims,
+		DefaultCreateLogin: &auth.CreateLoginRequest{
+			ClientID:  config.DefaultOAuthClientID,
+			Scopes:    []string{"openid", "profile", "offline"},
+			Audiences: []string{},
+		},
+	})
+	if err != nil {
+		return nil, "", err
+	}
+	return resp.GetLoginResponse(), resp.GetCode(), nil
+}
+
+// Exchange forwards call to grpc server
 func Exchange(ctx context.Context, code string, verifier string) (*oauth2.Token, error) {
 
 	c := auth.NewAuthCodeExchangerClient(OAuthConn(ctx))
@@ -241,6 +272,7 @@ func Exchange(ctx context.Context, code string, verifier string) (*oauth2.Token,
 	return token, nil
 }
 
+// Refresh forwards call to grpc server
 func Refresh(ctx context.Context, refreshToken string) (*TokenResponse, error) {
 	c := auth.NewAuthTokenRefresherClient(OAuthConn(ctx))
 	resp, err := c.Refresh(ctx, &auth.RefreshTokenRequest{

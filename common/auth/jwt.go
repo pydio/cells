@@ -33,6 +33,7 @@ import (
 	"github.com/pydio/cells/v4/common/auth/claim"
 	"github.com/pydio/cells/v4/common/errors"
 	"github.com/pydio/cells/v4/common/permissions"
+	"github.com/pydio/cells/v4/common/proto/auth"
 	"github.com/pydio/cells/v4/common/proto/idm"
 	"github.com/pydio/cells/v4/common/telemetry/log"
 	"github.com/pydio/cells/v4/common/utils/propagator"
@@ -95,7 +96,7 @@ type PasswordCredentialsCodeExchanger interface {
 }
 
 type LoginChallengeCodeExchanger interface {
-	LoginChallengeCode(context.Context, claim.Claims, ...TokenOption) (string, error)
+	LoginChallengeCode(context.Context, claim.Claims, ...TokenOption) (*auth.GetLoginResponse, string, error)
 }
 
 type LogoutProvider interface {
@@ -328,8 +329,9 @@ func (j *JWTVerifier) PasswordCredentialsToken(ctx context.Context, userName str
 
 // LoginChallengeCode will perform an implicit flow
 // to get a valid code from given claims and challenge
-func (j *JWTVerifier) LoginChallengeCode(ctx context.Context, claims claim.Claims, opts ...TokenOption) (string, error) {
+func (j *JWTVerifier) LoginChallengeCode(ctx context.Context, claims claim.Claims, opts ...TokenOption) (*auth.GetLoginResponse, string, error) {
 
+	var resp *auth.GetLoginResponse
 	var code string
 	var err error
 
@@ -339,13 +341,13 @@ func (j *JWTVerifier) LoginChallengeCode(ctx context.Context, claims claim.Claim
 			continue
 		}
 
-		code, err = p.LoginChallengeCode(ctx, claims, opts...)
+		resp, code, err = p.LoginChallengeCode(ctx, claims, opts...)
 		if err == nil {
 			break
 		}
 	}
 
-	return code, err
+	return resp, code, err
 }
 
 // PasswordCredentialsCode will perform an implicit flow

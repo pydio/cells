@@ -81,6 +81,7 @@ func init() {
 				auth2.RegisterAuthTokenPrunerServer(server, h)
 				auth2.RegisterPasswordCredentialsTokenServer(server, h)
 				auth2.RegisterPasswordCredentialsCodeServer(server, h)
+				auth2.RegisterLoginChallengeCodeServer(server, h)
 
 				return nil
 			}),

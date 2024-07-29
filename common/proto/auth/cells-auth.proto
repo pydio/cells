@@ -225,6 +225,21 @@ message PasswordCredentialsTokenResponse {
     int64 Expiry = 4 [json_name="expiry"];
 }
 
+service LoginChallengeCode {
+    rpc LoginChallengeCode(LoginChallengeCodeRequest) returns (LoginChallengeCodeResponse) {};
+}
+
+message LoginChallengeCodeRequest {
+    string Challenge = 1 ;
+    map<string,string> Claims = 2 ;
+    CreateLoginRequest DefaultCreateLogin = 3;
+}
+
+message LoginChallengeCodeResponse {
+    string Code = 1;
+    GetLoginResponse LoginResponse = 2;
+}
+
 service AuthTokenRefresher {
     rpc Refresh(RefreshTokenRequest) returns (RefreshTokenResponse) {};
 }

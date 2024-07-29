@@ -73,6 +73,7 @@ type Handler struct {
 	pauth.UnimplementedPasswordCredentialsTokenServer
 	pauth.UnimplementedLogoutProviderServer
 	pauth.UnimplementedPasswordCredentialsCodeServer
+	pauth.UnimplementedLoginChallengeCodeServer
 }
 
 var (
@@ -603,7 +604,13 @@ func (h *Handler) PasswordCredentialsCode(ctx context.Context, in *pauth.Passwor
 		clientID = f.Client.GetID()
 	}
 
-	code, err := h.loginToCode(ctx, challenge, in.GetUsername(), in.GetPassword(), requestedScope, requestedAudience, requestURL, clientID)
+	// Range PasswordConnectors
+	identity, source, err := h.rangePasswordConnectors(ctx, in.GetUsername(), in.GetPassword())
+	if err != nil {
+		return nil, err
+	}
+
+	code, err := h.loginToCode(ctx, challenge, identity, source, requestedScope, requestedAudience, requestURL, clientID)
 	if err != nil {
 		return nil, errors.WithMessage(err, "while creating auth code")
 	}
@@ -641,7 +648,14 @@ func (h *Handler) PasswordCredentialsToken(ctx context.Context, in *pauth.Passwo
 	if f.Client != nil {
 		clientID = f.Client.GetID()
 	}
-	code, err := h.loginToCode(ctx, challenge, in.GetUsername(), in.GetPassword(), f.RequestedScope, f.RequestedAudience, f.RequestURL, clientID)
+
+	// Range PasswordConnectors
+	identity, source, err := h.rangePasswordConnectors(ctx, in.GetUsername(), in.GetPassword())
+	if err != nil {
+		return nil, err
+	}
+
+	code, err := h.loginToCode(ctx, challenge, identity, source, f.RequestedScope, f.RequestedAudience, f.RequestURL, clientID)
 
 	tokenResp, err := h.Exchange(ctx, &pauth.ExchangeRequest{
 		Code:         code,
@@ -659,6 +673,69 @@ func (h *Handler) PasswordCredentialsToken(ctx context.Context, in *pauth.Passwo
 	}
 
 	return out, nil
+}
+
+func (h *Handler) LoginChallengeCode(ctx context.Context, in *pauth.LoginChallengeCodeRequest) (*pauth.LoginChallengeCodeResponse, error) {
+
+	reg, err := manager.Resolve[oauth.Registry](ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	challenge := in.GetChallenge()
+	claims := in.GetClaims()
+
+	var loginResponse *pauth.GetLoginResponse
+	if challenge == "" {
+		// Set up csrf/challenge/verifier values
+		verifier := h.makeUUID(false)
+		csrf := h.makeUUID(false)
+		f, er := h.createLoginFlow(ctx, reg, in.GetDefaultCreateLogin(), verifier, csrf)
+		if er != nil {
+			return nil, er
+		}
+		loginResponse = &pauth.GetLoginResponse{
+			Challenge:         f.ID,
+			SessionID:         f.SessionID.String(),
+			Subject:           f.Subject,
+			RequestedAudience: f.RequestedAudience,
+			RequestedScope:    f.RequestedScope,
+			RequestURL:        f.RequestURL,
+			ClientID:          f.ClientID,
+		}
+		if f.Client != nil {
+			loginResponse.ClientID = f.Client.GetID()
+		}
+
+	} else {
+		rl, er := h.GetLogin(ctx, &pauth.GetLoginRequest{Challenge: challenge})
+		if er != nil {
+			return nil, er
+		}
+		loginResponse = rl
+	}
+
+	code, err := h.loginToCode(ctx,
+		challenge,
+		auth.Identity{
+			UserID:   claims["subject"],
+			Email:    claims["email"],
+			Username: claims["name"],
+		},
+		claims["authSource"],
+		loginResponse.GetRequestedScope(),
+		loginResponse.GetRequestedAudience(),
+		loginResponse.GetRequestURL(),
+		loginResponse.GetClientID(),
+	)
+	if err != nil {
+		return nil, err
+	}
+	return &pauth.LoginChallengeCodeResponse{
+		Code:          code,
+		LoginResponse: loginResponse,
+	}, nil
+
 }
 
 // Exchange code for a proper token
@@ -896,13 +973,7 @@ func (h *Handler) rangePasswordConnectors(ctx context.Context, username, passwor
 }
 
 // loginToCode mimicks a full password identification, login+challenge validation, consent creation/acceptation and finally a code
-func (h *Handler) loginToCode(ctx context.Context, challenge, username, password string, requestedScope, requestedAudience []string, requestURL, clientID string) (string, error) {
-
-	// Range PasswordConnectors
-	identity, source, err := h.rangePasswordConnectors(ctx, username, password)
-	if err != nil {
-		return "", err
-	}
+func (h *Handler) loginToCode(ctx context.Context, challenge string, identity auth.Identity, source string, requestedScope, requestedAudience []string, requestURL, clientID string) (string, error) {
 
 	// Accepting login challenge
 	verifyLogin, err := h.AcceptLogin(ctx, &pauth.AcceptLoginRequest{Challenge: challenge, Subject: identity.UserID})

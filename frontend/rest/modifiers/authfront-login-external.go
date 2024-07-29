@@ -28,7 +28,6 @@ import (
 	"github.com/gorilla/sessions"
 
 	"github.com/pydio/cells/v4/common/auth"
-	"github.com/pydio/cells/v4/common/auth/hydra"
 	"github.com/pydio/cells/v4/common/proto/rest"
 	"github.com/pydio/cells/v4/common/service/frontend"
 	"github.com/pydio/cells/v4/idm/oauth"
@@ -50,21 +49,18 @@ func LoginExternalAuth(middleware frontend.AuthMiddleware) frontend.AuthMiddlewa
 		if !ok {
 			return errors.New("Access token is required")
 		}
-
-		_, claims, err := auth.DefaultJWTVerifier().Verify(req.Request.Context(), accessToken.(string))
+		ctx := req.Request.Context()
+		jwtVerifier := auth.DefaultJWTVerifier()
+		_, claims, err := jwtVerifier.Verify(ctx, accessToken.(string))
 		if err != nil {
 			return err
 		}
 
-		code, err := auth.DefaultJWTVerifier().LoginChallengeCode(req.Request.Context(), claims, auth.SetChallenge(challenge))
+		login, code, err := jwtVerifier.LoginChallengeCode(ctx, claims, auth.SetChallenge(challenge))
 		if err != nil {
 			return err
 		}
 
-		login, err := hydra.GetLogin(req.Request.Context(), challenge)
-		if err != nil {
-			return err
-		}
 		requestURL, err := url.Parse(login.GetRequestURL())
 		if err != nil {
 			return err

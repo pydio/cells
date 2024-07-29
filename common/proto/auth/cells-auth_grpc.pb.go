@@ -1062,6 +1062,92 @@ var PasswordCredentialsToken_ServiceDesc = grpc.ServiceDesc{
 	Metadata: "cells-auth.proto",
 }
 
+// LoginChallengeCodeClient is the client API for LoginChallengeCode service.
+//
+// For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
+type LoginChallengeCodeClient interface {
+	LoginChallengeCode(ctx context.Context, in *LoginChallengeCodeRequest, opts ...grpc.CallOption) (*LoginChallengeCodeResponse, error)
+}
+
+type loginChallengeCodeClient struct {
+	cc grpc.ClientConnInterface
+}
+
+func NewLoginChallengeCodeClient(cc grpc.ClientConnInterface) LoginChallengeCodeClient {
+	return &loginChallengeCodeClient{cc}
+}
+
+func (c *loginChallengeCodeClient) LoginChallengeCode(ctx context.Context, in *LoginChallengeCodeRequest, opts ...grpc.CallOption) (*LoginChallengeCodeResponse, error) {
+	out := new(LoginChallengeCodeResponse)
+	err := c.cc.Invoke(ctx, "/auth.LoginChallengeCode/LoginChallengeCode", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+// LoginChallengeCodeServer is the server API for LoginChallengeCode service.
+// All implementations must embed UnimplementedLoginChallengeCodeServer
+// for forward compatibility
+type LoginChallengeCodeServer interface {
+	LoginChallengeCode(context.Context, *LoginChallengeCodeRequest) (*LoginChallengeCodeResponse, error)
+	mustEmbedUnimplementedLoginChallengeCodeServer()
+}
+
+// UnimplementedLoginChallengeCodeServer must be embedded to have forward compatible implementations.
+type UnimplementedLoginChallengeCodeServer struct {
+}
+
+func (UnimplementedLoginChallengeCodeServer) LoginChallengeCode(context.Context, *LoginChallengeCodeRequest) (*LoginChallengeCodeResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method LoginChallengeCode not implemented")
+}
+func (UnimplementedLoginChallengeCodeServer) mustEmbedUnimplementedLoginChallengeCodeServer() {}
+
+// UnsafeLoginChallengeCodeServer may be embedded to opt out of forward compatibility for this service.
+// Use of this interface is not recommended, as added methods to LoginChallengeCodeServer will
+// result in compilation errors.
+type UnsafeLoginChallengeCodeServer interface {
+	mustEmbedUnimplementedLoginChallengeCodeServer()
+}
+
+func RegisterLoginChallengeCodeServer(s grpc.ServiceRegistrar, srv LoginChallengeCodeServer) {
+	s.RegisterService(&LoginChallengeCode_ServiceDesc, srv)
+}
+
+func _LoginChallengeCode_LoginChallengeCode_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(LoginChallengeCodeRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(LoginChallengeCodeServer).LoginChallengeCode(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/auth.LoginChallengeCode/LoginChallengeCode",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(LoginChallengeCodeServer).LoginChallengeCode(ctx, req.(*LoginChallengeCodeRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+// LoginChallengeCode_ServiceDesc is the grpc.ServiceDesc for LoginChallengeCode service.
+// It's only intended for direct use with grpc.RegisterService,
+// and not to be introspected or modified (even as a copy)
+var LoginChallengeCode_ServiceDesc = grpc.ServiceDesc{
+	ServiceName: "auth.LoginChallengeCode",
+	HandlerType: (*LoginChallengeCodeServer)(nil),
+	Methods: []grpc.MethodDesc{
+		{
+			MethodName: "LoginChallengeCode",
+			Handler:    _LoginChallengeCode_LoginChallengeCode_Handler,
+		},
+	},
+	Streams:  []grpc.StreamDesc{},
+	Metadata: "cells-auth.proto",
+}
+
 // AuthTokenRefresherClient is the client API for AuthTokenRefresher service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.

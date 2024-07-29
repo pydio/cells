@@ -22,23 +22,18 @@ package auth
 
 import (
 	"context"
-	"crypto/sha256"
-	"encoding/base64"
 	"net/url"
 	"strings"
 
 	"github.com/mitchellh/mapstructure"
 	"github.com/ory/fosite/token/jwt"
-	"go.uber.org/zap"
 	"golang.org/x/oauth2"
 
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/auth/claim"
 	"github.com/pydio/cells/v4/common/auth/hydra"
 	"github.com/pydio/cells/v4/common/client/grpc"
-	"github.com/pydio/cells/v4/common/config"
 	"github.com/pydio/cells/v4/common/proto/auth"
-	"github.com/pydio/cells/v4/common/telemetry/log"
 	json "github.com/pydio/cells/v4/common/utils/jsonx"
 )
 
@@ -93,7 +88,7 @@ func (p *grpcProvider) PasswordCredentialsCode(ctx context.Context, userName str
 	return hydra.PasswordCredentialsCode(ctx, userName, password, v.Get("challenge"))
 }
 
-func (p *grpcProvider) LoginChallengeCode(ctx context.Context, claims claim.Claims, opts ...TokenOption) (string, error) {
+func (p *grpcProvider) LoginChallengeCode(ctx context.Context, claims claim.Claims, opts ...TokenOption) (*auth.GetLoginResponse, string, error) {
 	v := url.Values{}
 	for _, opt := range opts {
 		opt.SetValue(v)
@@ -101,73 +96,93 @@ func (p *grpcProvider) LoginChallengeCode(ctx context.Context, claims claim.Clai
 
 	// Getting or creating challenge
 	challenge := v.Get("challenge")
-	if challenge == "" {
-		if c, err := hydra.CreateLogin(ctx, config.DefaultOAuthClientID, []string{"openid", "profile", "offline"}, []string{}); err != nil {
-			return "", err
-		} else {
-			challenge = c.Challenge
+	claimsAsMap := map[string]string{
+		"subject":    claims.Subject,
+		"name":       claims.Name,
+		"email":      claims.Email,
+		"authSource": claims.AuthSource,
+	}
+	return hydra.LoginChallengeCode(ctx, challenge, claimsAsMap)
+	/*
+		if challenge == "" {
+			if c, err := hydra.CreateLogin(ctx, config.DefaultOAuthClientID, []string{"openid", "profile", "offline"}, []string{}); err != nil {
+				return nil, "", err
+			} else {
+				challenge = c.Challenge
+			}
 		}
-	}
 
-	// Searching login challenge
-	login, err := hydra.GetLogin(ctx, challenge)
-	if err != nil {
-		log.Logger(ctx).Error("Failed to get login ", zap.Error(err))
-		return "", err
-	}
+		// Searching login challenge
+		login, err := hydra.GetLogin(ctx, challenge)
+		if err != nil {
+			log.Logger(ctx).Error("Failed to get login ", zap.Error(err))
+			return nil, "", err
+		}
 
-	// Accepting login challenge
-	verify, err := hydra.AcceptLogin(ctx, challenge, claims.Subject)
-	if err != nil {
-		log.Logger(ctx).Error("Failed to accept login ", zap.Error(err))
-		return "", err
-	}
+		// Accepting login challenge
+		verify, err := hydra.AcceptLogin(ctx, challenge, claims.Subject)
+		if err != nil {
+			log.Logger(ctx).Error("Failed to accept login ", zap.Error(err))
+			return nil, "", err
+		}
 
-	// Creating consent
-	consent, err := hydra.CreateConsent(ctx, verify.Challenge)
-	if err != nil {
-		log.Logger(ctx).Error("Failed to create consent ", zap.Error(err))
-		return "", err
-	}
+		// Creating consent
+		consent, err := hydra.CreateConsent(ctx, verify.Challenge)
+		if err != nil {
+			log.Logger(ctx).Error("Failed to create consent ", zap.Error(err))
+			return nil, "", err
+		}
 
-	// Accepting consent
-	acceptResp, err := hydra.AcceptConsent(ctx, consent.Challenge, login.GetRequestedScope(), login.GetRequestedAudience(), map[string]string{}, map[string]string{
-		"name":  claims.Name,
-		"email": claims.Email,
-	})
-	if err != nil {
-		log.Logger(ctx).Error("Failed to accept consent ", zap.Error(err))
-		return "", err
-	}
-	consent.Challenge = acceptResp.Challenge
-	verifier := consent.Challenge // Must be > 43 characters
-	hash := sha256.New()
-	if _, err = hash.Write([]byte(verifier)); err != nil {
-		return "", err
-	}
+		claimsMap := map[string]string{
+			"name":  claims.Name,
+			"email": claims.Email,
+		}
+		if claims.AuthSource != "" {
+			claimsMap["authSource"] = claims.AuthSource
+		}
+		// Accepting consent
+		acceptResp, err := hydra.AcceptConsent(ctx,
+			consent.Challenge,
+			login.GetRequestedScope(),
+			login.GetRequestedAudience(),
+			map[string]string{},
+			claimsMap,
+		)
+		if err != nil {
+			log.Logger(ctx).Error("Failed to accept consent ", zap.Error(err))
+			return nil, "", err
+		}
+		consent.Challenge = acceptResp.Challenge
+		verifier := consent.Challenge // Must be > 43 characters
+		hash := sha256.New()
+		if _, err = hash.Write([]byte(verifier)); err != nil {
+			return nil, "", err
+		}
 
-	codeChallenge := base64.RawURLEncoding.EncodeToString(hash.Sum([]byte{}))
-	codeChallengeMethod := "S256"
+		codeChallenge := base64.RawURLEncoding.EncodeToString(hash.Sum([]byte{}))
+		codeChallengeMethod := "S256"
 
-	requestURL, err := url.Parse(login.GetRequestURL())
-	if err != nil {
-		return "", err
-	}
+		requestURL, err := url.Parse(login.GetRequestURL())
+		if err != nil {
+			return nil, "", err
+		}
 
-	requestURLValues := requestURL.Query()
+		requestURLValues := requestURL.Query()
 
-	redirectURL, err := url.QueryUnescape(requestURLValues.Get("redirect_uri"))
-	if err != nil {
-		return "", err
-	}
+		redirectURL, err := url.QueryUnescape(requestURLValues.Get("redirect_uri"))
+		if err != nil {
+			return nil, "", err
+		}
 
-	code, err := hydra.CreateAuthCode(ctx, consent, login.GetClientID(), redirectURL, codeChallenge, codeChallengeMethod)
-	if err != nil {
-		log.Logger(ctx).Error("Failed to create auth code ", zap.Error(err))
-		return "", err
-	}
+		code, err := hydra.CreateAuthCode(ctx, consent, login.GetClientID(), redirectURL, codeChallenge, codeChallengeMethod)
+		if err != nil {
+			log.Logger(ctx).Error("Failed to create auth code ", zap.Error(err))
+			return nil, "", err
+		}
 
-	return code, err
+		return login, code, err
+
+	*/
 }
 
 func (p *grpcProvider) Logout(ctx context.Context, requestUrl, username, sessionID string, opts ...TokenOption) error {
