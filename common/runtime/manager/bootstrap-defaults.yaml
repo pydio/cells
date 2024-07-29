@@ -329,7 +329,7 @@ defaults:
   # All processes
   #--------------------------------------------
   processes: &processes
-    discovery:
+    discovery: &discovery
       runtime: discovery
       connections:
         <<: *connections
