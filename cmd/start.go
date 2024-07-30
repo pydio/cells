@@ -28,11 +28,9 @@ import (
 	"github.com/spf13/cobra"
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/trace"
-	"google.golang.org/grpc"
 
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/broker"
-	clientgrpc "github.com/pydio/cells/v4/common/client/grpc"
 	"github.com/pydio/cells/v4/common/config"
 	"github.com/pydio/cells/v4/common/crypto"
 	"github.com/pydio/cells/v4/common/registry"
@@ -180,14 +178,6 @@ ENVIRONMENT
 		ctx = propagator.With(ctx, registry.ContextKey, reg)
 		ctx = propagator.With(ctx, config.ContextKey, config.Main())
 
-		clientgrpc.WarnMissingConnInContext = true
-		conn, err := grpc.NewClient("xds://"+runtime.Cluster()+".cells.com/cells", clientgrpc.DialOptionsForRegistry(reg)...)
-		if err != nil {
-			span.End()
-			return err
-		}
-
-		ctx = runtime.WithClientConn(ctx, conn)
 		// ctx = nodescontext.WithSourcesPool(ctx, nodes.NewPool(ctx, reg))
 		runtime.InitGlobalConnConsumers(ctx, "main")
 

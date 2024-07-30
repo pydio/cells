@@ -114,7 +114,8 @@ func (o *URLOpener) OpenTopicURL(ctx context.Context, u *url.URL) (*pubsub.Topic
 			return nil, errors.New("no connection provided")
 		}
 
-		conn = grpc.NewClientConn("pydio.grpc.broker", runtime.Cluster(), grpc.WithClientConn(conn))
+		// TODO - should be multi-tenant
+		conn = grpc.ResolveConn(ctx, "pydio.grpc.broker")
 
 		cli := pb.NewBrokerClient(conn)
 		if s, err := cli.Publish(ctx); err != nil {
@@ -142,12 +143,9 @@ func (o *URLOpener) OpenSubscriptionURL(ctx context.Context, u *url.URL) (*pubsu
 	subLock.Lock()
 	sub, ok := subscribers[sharedKey]
 	if !ok {
-		conn := runtime.GetClientConn(ctx)
-		if conn == nil {
-			return nil, errors.New("no connection provided")
-		}
 
-		conn = grpc.NewClientConn("pydio.grpc.broker", runtime.Cluster(), grpc.WithClientConn(conn))
+		// TODO - resolveconn should do multi tenancy
+		conn := grpc.ResolveConn(ctx, "pydio.grpc.broker")
 
 		ct, ca := context.WithCancel(ctx)
 		ct = metadata.AppendToOutgoingContext(ct, "cells-subscriber-id", strings.Join(runtime.ProcessStartTags(), " "))

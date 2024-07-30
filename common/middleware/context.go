@@ -22,12 +22,10 @@ package middleware
 
 import (
 	"context"
-	"fmt"
 	"net/http"
 	"strings"
 
 	"google.golang.org/grpc"
-	"google.golang.org/grpc/credentials/insecure"
 	"google.golang.org/grpc/metadata"
 
 	"github.com/pydio/cells/v4/common"
@@ -91,7 +89,7 @@ func setContextForTenant(ctx context.Context) (context.Context, error) {
 		return ctx, err
 	}
 
-	// TODO - Replace by pool? Should this be initialized here? ping @charles after refactoring this
+	/* TODO - Replace by pool? Should this be initialized here? ping @charles after refactoring this
 	cc, ok := clientConns[tenantID]
 	if !ok {
 		var err error
@@ -129,7 +127,7 @@ func setContextForTenant(ctx context.Context) (context.Context, error) {
 		configStore[tenantID] = cfg
 	}
 
-	ctx = propagator.With(ctx, config.ContextKey, cfg)
+	ctx = propagator.With(ctx, config.ContextKey, cfg)*/
 	ctx = propagator.With(ctx, tenant2.ContextKey, tenant)
 
 	return ctx, nil

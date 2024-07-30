@@ -40,6 +40,7 @@ import (
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/broker"
 	"github.com/pydio/cells/v4/common/config"
+	"github.com/pydio/cells/v4/common/middleware"
 	pb "github.com/pydio/cells/v4/common/proto/registry"
 	"github.com/pydio/cells/v4/common/registry"
 	"github.com/pydio/cells/v4/common/registry/util"
@@ -585,7 +586,7 @@ func (m *manager) initConnections() error {
 		}
 
 		switch vv["type"] {
-		case "grpc":
+		default:
 			var dialOptions []grpc.DialOption
 			// Checking if we need to retrieve a listener
 			if listenerName, ok := vv["listener"]; ok {
@@ -607,7 +608,23 @@ func (m *manager) initConnections() error {
 						)
 					}
 				}
+			} else {
+				dialOptions = append(dialOptions, grpc.WithTransportCredentials(insecure.NewCredentials()))
 			}
+
+			dialOptions = append(dialOptions,
+				grpc.WithChainUnaryInterceptor(
+					middleware.ErrorNoMatchedRouteRetryUnaryClientInterceptor(),
+					middleware.ErrorFormatUnaryClientInterceptor(),
+					propagator.MetaUnaryClientInterceptor(common.CtxCellsMetaPrefix),
+				),
+				grpc.WithChainStreamInterceptor(
+					middleware.ErrorNoMatchedRouteRetryStreamClientInterceptor(),
+					middleware.ErrorFormatStreamClientInterceptor(),
+					propagator.MetaStreamClientInterceptor(common.CtxCellsMetaPrefix),
+				))
+
+			dialOptions = append(dialOptions, middleware.GrpcClientStatsHandler(nil)...)
 
 			conn, err := grpc.NewClient(vv["uri"].(string), dialOptions...)
 			if err != nil {

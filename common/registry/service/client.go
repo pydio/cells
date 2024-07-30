@@ -28,7 +28,6 @@ import (
 	"time"
 
 	"google.golang.org/grpc"
-	"google.golang.org/grpc/credentials/insecure"
 	healthpb "google.golang.org/grpc/health/grpc_health_v1"
 
 	"github.com/pydio/cells/v4/common"
@@ -36,7 +35,6 @@ import (
 	pb "github.com/pydio/cells/v4/common/proto/registry"
 	"github.com/pydio/cells/v4/common/registry"
 	"github.com/pydio/cells/v4/common/registry/util"
-	"github.com/pydio/cells/v4/common/runtime"
 )
 
 var schemes = []string{"grpc", "xds"}
@@ -53,41 +51,8 @@ func init() {
 }
 
 func (o *URLOpener) OpenURL(ctx context.Context, u *url.URL) (registry.Registry, error) {
-	// We use WithBlock, shall we timeout and retry here ?
-	conn := runtime.GetClientConn(ctx)
-
-	if conn == nil {
-		var address string
-		switch u.Scheme {
-		case "grpc":
-			address = u.Hostname()
-			if port := u.Port(); port != "" {
-				address = address + ":" + port
-			}
-		case "xds":
-			address = u.String()
-		}
-		var cli *grpc.ClientConn
-		var err error
-		if u.Query().Get("timeout") != "" {
-			if d, e := time.ParseDuration(u.Query().Get("timeout")); e != nil {
-				return nil, e
-			} else {
-				ct, _ := context.WithTimeout(ctx, d)
-				cli, err = grpc.DialContext(ct, address, grpc.WithTransportCredentials(insecure.NewCredentials()), grpc.WithBlock())
-			}
-		} else {
-			cli, err = grpc.Dial(address, grpc.WithTransportCredentials(insecure.NewCredentials()), grpc.WithBlock())
-		}
-
-		if err != nil {
-			return nil, err
-		}
-
-		conn = cli
-	}
-
-	conn = cgrpc.NewClientConn("pydio.grpc.registry", runtime.Cluster(), cgrpc.WithClientConn(conn))
+	// TODO - should use multi tenancy
+	conn := cgrpc.ResolveConn(ctx, "pydio.grpc.registry")
 
 	return NewRegistry(WithConn(conn))
 }

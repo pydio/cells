@@ -34,13 +34,11 @@ import (
 	"go.uber.org/zap"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
-	"google.golang.org/grpc/credentials/insecure"
 	"google.golang.org/grpc/status"
 
 	cgrpc "github.com/pydio/cells/v4/common/client/grpc"
 	"github.com/pydio/cells/v4/common/config"
 	pb "github.com/pydio/cells/v4/common/proto/config"
-	"github.com/pydio/cells/v4/common/runtime"
 	"github.com/pydio/cells/v4/common/telemetry/log"
 	"github.com/pydio/cells/v4/common/utils/configx"
 )
@@ -64,26 +62,8 @@ func (o *URLOpener) Open(ctx context.Context, urlstr string) (config.Store, erro
 		return nil, err
 	}
 
-	var conn grpc.ClientConnInterface
-
-	if conn = runtime.GetClientConn(ctx); conn == nil {
-		addr := u.String()
-		switch u.Scheme {
-		case "grpc":
-			addr = u.Host
-		}
-
-		c, err := grpc.Dial(addr, grpc.WithTransportCredentials(insecure.NewCredentials()))
-		if err != nil {
-			return nil, err
-		}
-
-		conn = c
-	}
-
-	conn = cgrpc.NewClientConn("pydio.grpc.config", runtime.Cluster(), cgrpc.WithClientConn(conn))
-
-	store := New(context.Background(), conn, u.Query().Get("namespace"), "/")
+	// TODO - resolveconn should do multi tenancy
+	store := New(context.Background(), cgrpc.ResolveConn(ctx, "pydio.grpc.config"), u.Query().Get("namespace"), "/")
 
 	return store, nil
 }

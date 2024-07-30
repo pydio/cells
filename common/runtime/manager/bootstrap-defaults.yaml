@@ -28,6 +28,32 @@ defaults:
       uri: xds://default.cells.com/cells
     broker:
       uri: xds://default.cells.com/cells
+    pydio.grpc.log:
+      uri: xds://default.cells.com/cells
+    pydio.grpc.config:
+      uri: xds://default.cells.com/cells
+    pydio.grpc.policy:
+      uri: xds://default.cells.com/cells
+    pydio.grpc.oauth:
+      uri: xds://default.cells.com/cells
+    pydio.grpc.user:
+      uri: xds://default.cells.com/cells
+    pydio.grpc.role:
+      uri: xds://default.cells.com/cells
+    pydio.grpc.acl:
+      uri: xds://default.cells.com/cells
+    pydio.grpc.workspace:
+      uri: xds://default.cells.com/cells
+    pydio.grpc.token:
+      uri: xds://default.cells.com/cells
+    pydio.grpc.docstore:
+      uri: xds://default.cells.com/cells
+    pydio.grpc.user-meta:
+      uri: xds://default.cells.com/cells
+    pydio.grpc.activity:
+      uri: xds://default.cells.com/cells
+    pydio.grpc.tree:
+      uri: xds://default.cells.com/cells
 
   #--------------------------------------------
   # Default servers configuration

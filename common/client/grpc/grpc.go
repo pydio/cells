@@ -32,17 +32,12 @@ import (
 
 	"go.uber.org/zap/zapcore"
 	"google.golang.org/grpc"
-	"google.golang.org/grpc/backoff"
-	"google.golang.org/grpc/credentials/insecure"
 	"google.golang.org/grpc/metadata"
 
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/client"
-	"github.com/pydio/cells/v4/common/config"
-	"github.com/pydio/cells/v4/common/middleware"
 	pb "github.com/pydio/cells/v4/common/proto/registry"
 	"github.com/pydio/cells/v4/common/registry"
-	"github.com/pydio/cells/v4/common/runtime"
 	"github.com/pydio/cells/v4/common/telemetry/metrics"
 	"github.com/pydio/cells/v4/common/utils/propagator"
 
@@ -52,63 +47,30 @@ import (
 type ctxBalancerFilterKey struct{}
 
 var (
-	CallTimeoutShort         = 1 * time.Second
-	WarnMissingConnInContext = false
+	CallTimeoutShort = 1 * time.Second
 )
 
-func DialOptionsForRegistry(reg registry.Registry, options ...grpc.DialOption) []grpc.DialOption {
-
-	// TODO - Recheck - do we want to contextualize this config?
-	var clusterConfig *client.ClusterConfig
-	config.Get(nil, "cluster").Default(&client.ClusterConfig{}).Scan(&clusterConfig)
-	clientConfig := clusterConfig.GetClientConfig("grpc")
-
-	backoffConfig := backoff.DefaultConfig
-
-	// Registered StatsHandler
-	sh := middleware.GrpcClientStatsHandler(nil)
-	options = append(options, sh...)
-
-	return append([]grpc.DialOption{
-		grpc.WithTransportCredentials(insecure.NewCredentials()),
-		grpc.WithResolvers(NewBuilder(reg, clientConfig.LBOptions()...)),
-		grpc.WithConnectParams(grpc.ConnectParams{MinConnectTimeout: 1 * time.Minute, Backoff: backoffConfig}),
-		grpc.WithChainUnaryInterceptor(
-			middleware.ErrorNoMatchedRouteRetryUnaryClientInterceptor(),
-			middleware.ErrorFormatUnaryClientInterceptor(),
-			propagator.MetaUnaryClientInterceptor(common.CtxCellsMetaPrefix),
-		),
-		grpc.WithChainStreamInterceptor(
-			middleware.ErrorNoMatchedRouteRetryStreamClientInterceptor(),
-			middleware.ErrorFormatStreamClientInterceptor(),
-			propagator.MetaStreamClientInterceptor(common.CtxCellsMetaPrefix),
-		),
-		//grpc.WithStatsHandler(otelgrpc.NewClientHandler()),
-	}, options...)
-}
-
 func ResolveConn(ctx context.Context, serviceName string, opt ...Option) grpc.ClientConnInterface {
-	if ctx == nil {
-		return NewClientConn(serviceName, runtime.Cluster(), opt...)
-	}
-
 	var reg registry.Registry
 	propagator.Get(ctx, registry.ContextKey, &reg)
-	opt = append(opt, WithRegistry(reg))
+
+	if reg == nil {
+		panic("Should have a registry")
+	}
+
+	opts := new(Options)
+	for _, o := range opt {
+		o(opts)
+	}
 
 	if c, err := reg.Get(common.ServiceGrpcNamespace_+serviceName, registry.WithType(pb.ItemType_GENERIC)); err == nil && c != nil {
 		var conn *grpc.ClientConn
 		if c.As(&conn) {
-			opt = append(opt, WithClientConn(conn))
+			opts.ClientConn = conn
 		}
 	} else {
-		conn := runtime.GetClientConn(ctx)
-		if conn == nil && WarnMissingConnInContext {
-			fmt.Println("Warning, ResolveConn could not find conn, will create a new one")
-			debug.PrintStack()
-		}
-
-		opt = append(opt, WithClientConn(conn))
+		fmt.Println("grpc client not found ", common.ServiceGrpcNamespace_+serviceName)
+		return nil
 	}
 
 	tenantName := "default"
@@ -116,37 +78,6 @@ func ResolveConn(ctx context.Context, serviceName string, opt ...Option) grpc.Cl
 		if p, o := mm[common.XPydioTenantUuid]; o {
 			tenantName = p
 		}
-	}
-
-	return NewClientConn(serviceName, tenantName, opt...)
-}
-
-// NewClientConn returns a client attached to the defaults.
-func NewClientConn(serviceName string, tenantName string, opt ...Option) grpc.ClientConnInterface {
-	opts := new(Options)
-	for _, o := range opt {
-		o(opts)
-	}
-
-	if c, o := mox[strings.TrimPrefix(serviceName, common.ServiceGrpcNamespace_)]; o {
-		return c
-	}
-
-	if opts.ClientConn == nil || opts.DialOptions != nil {
-		if opts.Registry == nil {
-			reg, err := registry.OpenRegistry(context.Background(), runtime.RegistryURL())
-			if err != nil {
-				return nil
-			}
-
-			opts.Registry = reg
-		}
-
-		conn, err := grpc.Dial("xds://"+runtime.Cluster()+".cells.com/cells", DialOptionsForRegistry(opts.Registry, opts.DialOptions...)...)
-		if err != nil {
-			return nil
-		}
-		opts.ClientConn = conn
 	}
 
 	return &clientConn{
