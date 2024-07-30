@@ -1,10 +1,34 @@
+/*
+ * Copyright (c) 2024. Abstrium SAS <team (at) pydio.com>
+ * This file is part of Pydio Cells.
+ *
+ * Pydio Cells is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Pydio Cells is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with Pydio Cells.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ * The latest code can be found at <https://pydio.com>.
+ */
+
 package openurl
 
 import (
 	"context"
 	"fmt"
 	"net/url"
+	"os"
+	"path"
 	"sync"
+
+	"github.com/pydio/cells/v4/common/runtime"
 )
 
 type StringTemplate interface {
@@ -18,17 +42,35 @@ type Template interface {
 
 type TemplateOpener func(tplString string) (Template, error)
 
-type ContextInjector func(context.Context, map[string]interface{}) error
+type TemplateInjector func(context.Context, map[string]interface{}) error
 
 var (
 	tplRegister map[string]TemplateOpener
 	tplRegLock  *sync.RWMutex
-	injectors   []ContextInjector
+	injectors   []TemplateInjector
+	tplFuncs    map[string]any
 )
 
 func init() {
 	tplRegister = make(map[string]TemplateOpener)
 	tplRegLock = &sync.RWMutex{}
+	tplFuncs = make(map[string]any)
+	tplFuncs["autoMkdir"] = func(dir string) string {
+		if s, e := os.Stat(dir); e == nil {
+			if !s.IsDir() {
+				panic(fmt.Errorf("%s is not a directory", dir))
+			}
+			return dir
+		} else if er := os.MkdirAll(dir, 0755); er == nil {
+			return dir
+		} else {
+			panic(fmt.Errorf("cannot create directory %s: %v", dir, e))
+		}
+	}
+	tplFuncs["serviceDataDir"] = func(dir string) string {
+		return runtime.MustServiceDataDir(dir)
+	}
+	tplFuncs["joinPath"] = path.Join
 
 	RegisterURLTemplate("gotpl", openGoTemplate, true)
 }
@@ -43,9 +85,16 @@ func RegisterURLTemplate(scheme string, opener TemplateOpener, asDefault ...bool
 	tplRegLock.Unlock()
 }
 
-// RegisterContextInjector appends a ContextInjector to extract info from context before passing to templates
-func RegisterContextInjector(injector ContextInjector) {
+// RegisterTemplateInjector appends a TemplateInjector to extract info from context before passing to templates
+func RegisterTemplateInjector(injector TemplateInjector) {
 	injectors = append(injectors, injector)
+}
+
+// RegisterTplFunc appends an arbitrary executable func
+func RegisterTplFunc(name string, fn any) {
+	tplRegLock.Lock()
+	tplFuncs[name] = fn
+	tplRegLock.Unlock()
 }
 
 // URLTemplate initialize a Template based on rawURL for later resolution

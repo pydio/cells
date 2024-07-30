@@ -95,7 +95,7 @@ func OpenPool(ctx context.Context, uu string) (storage.Storage, error) {
 		//	},
 		//}, nil
 
-		return &db{DB: conn}, nil
+		return &db{DB: conn}, err
 	})
 
 	if err != nil {

@@ -138,7 +138,7 @@ func TestDBPool(t *testing.T) {
 		panic(err)
 	}
 
-	openurl.RegisterContextInjector(func(ctx context.Context, m map[string]interface{}) error {
+	openurl.RegisterTemplateInjector(func(ctx context.Context, m map[string]interface{}) error {
 		name := ctx.Value("name").(string)
 		m["Name"] = name
 		return nil

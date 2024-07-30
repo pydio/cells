@@ -247,27 +247,29 @@ func initConfig(ctx context.Context, debounceVersions bool) (new bool, keyring c
 	// Register default now
 	config.Register(mainConfig)
 
+	// Use as core config for the next calls
+	rootCtx := context.WithValue(ctx, config.ContextKey, mainConfig)
 	if !runtime.IsFork() {
-		if config.Get(ctx, "version").String() == "" && config.Get(ctx, "defaults/database").String() == "" {
+		if config.Get(rootCtx, "version").String() == "" && config.Get(rootCtx, "defaults/database").String() == "" {
 			new = true
 			var data interface{}
 			if err := json.Unmarshal([]byte(config.SampleConfig), &data); err == nil {
-				if err := config.Get(ctx).Set(data); err == nil {
-					_ = config.Save(ctx, common.PydioSystemUsername, "Initialize with sample config")
+				if err := config.Get(rootCtx).Set(data); err == nil {
+					_ = config.Save(rootCtx, common.PydioSystemUsername, "Initialize with sample config")
 				}
 			}
 		}
 
 		// Need to do something for the versions
-		if save, err := migrations.UpgradeConfigsIfRequired(config.Get(ctx), common.Version()); err == nil && save {
-			if err := config.Save(ctx, common.PydioSystemUsername, "Configs upgrades applied"); err != nil {
+		if save, err := migrations.UpgradeConfigsIfRequired(config.Get(rootCtx), common.Version()); err == nil && save {
+			if err := config.Save(rootCtx, common.PydioSystemUsername, "Configs upgrades applied"); err != nil {
 				return false, nil, fmt.Errorf("could not save config migrations %v", err)
 			}
 		}
 	}
 
 	cfgPath := []string{"services", common.ServiceGrpcNamespace_ + common.ServiceLog}
-	config.GetAndWatch(ctx, cfgPath, func(values configx.Values) {
+	config.GetAndWatch(rootCtx, cfgPath, func(values configx.Values) {
 		conf := telemetry.Config{}
 		if values.Scan(&conf) == nil {
 			if e := conf.Reload(ctx); e != nil {

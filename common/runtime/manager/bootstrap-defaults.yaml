@@ -149,7 +149,6 @@ defaults:
       storages:
         main:
           - type: bolt
-            dir: {{{{ getServiceDataDir "pydio.grpc.activity" }}}}
             file: activities.db
     pydio.grpc.versions:
       servers:
@@ -157,7 +156,6 @@ defaults:
       storages:
         main:
           - type: bolt
-            dir: {{{{ getServiceDataDir "pydio.grpc.versions" }}}}
             file: versions.db
     pydio.grpc.docstore:
       servers:
@@ -165,10 +163,8 @@ defaults:
       storages:
         main:
           - type: bolt
-            dir: {{{{ getServiceDataDir "pydio.grpc.docstore" }}}}
             file: docstore.db
           - type: bleve
-            dir: {{{{ getServiceDataDir "pydio.grpc.docstore" }}}}
             file: docstore.bleve?rotationSize=-1
     pydio.grpc.log:
       servers:
@@ -176,7 +172,6 @@ defaults:
       storages:
         main:
           - type: bleve
-            dir: {{{{ getServiceDataDir "pydio.grpc.log" }}}}
             file: syslog.bleve?mapping=log&rotationSize=-1
     pydio.grpc.jobs:
       servers:
@@ -184,11 +179,9 @@ defaults:
       storages:
         main:
           - type: bolt
-            dir: {{{{ getServiceDataDir "pydio.grpc.jobs" }}}}
             file: jobs.db
         logs:
           - type: bleve
-            dir: {{{{ getServiceDataDir "pydio.grpc.jobs" }}}}
             file: tasklogs.bleve?mapping=log&rotationSize=-1
     pydio.grpc.role:
       servers:
@@ -318,9 +311,9 @@ defaults:
       uri: mysql://root:P@ssw0rd@tcp(localhost:3306)/cellstmp?parseTime=true&prefix={{ .Meta.prefix }}&policies={{ .Meta.policies }}&singular={{ .Meta.singular }}
     #      uri: postgres://postgres:cells@localhost:5432/postgres?sslmode=disable&prefix={{ .Value "prefix" }}&policies={{ .Value "policies" }}&singular={{ .Value "singular" }}
     bolt:
-      uri: boltdb://{{ .Meta.dir }}/{{ .Meta.file }}
+      uri: boltdb://{{ autoMkdir (joinPath  ( serviceDataDir .Service ) ( tenantPathWithBlank .Tenant "default" ) ) }}/{{ .Meta.file }}
     bleve:
-      uri: bleve://{{ .Meta.dir }}/{{ .Meta.file }}
+      uri: bleve://{{ autoMkdir (joinPath  ( serviceDataDir .Service ) ( tenantPathWithBlank .Tenant "default" ) ) }}/{{ .Meta.file }}
     #  search:
     #    uri: mongo+indexer://localhost:24017/search
     #    uri: bleve:///tmp/{{ TODOMustServiceDataDir .Value service }}.bleve?mapping={{ .Value mapping }}&rotationSize={{ .Value rotationSize }}

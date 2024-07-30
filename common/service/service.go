@@ -36,6 +36,7 @@ import (
 	"github.com/pydio/cells/v4/common/server"
 	"github.com/pydio/cells/v4/common/telemetry/log"
 	json "github.com/pydio/cells/v4/common/utils/jsonx"
+	"github.com/pydio/cells/v4/common/utils/openurl"
 	"github.com/pydio/cells/v4/common/utils/propagator"
 )
 
@@ -58,6 +59,13 @@ var (
 
 func init() {
 	propagator.RegisterKeyInjector[Service](ContextKey)
+	openurl.RegisterTemplateInjector(func(ctx context.Context, m map[string]interface{}) error {
+		var svc Service
+		if o := propagator.Get(ctx, ContextKey, &svc); o {
+			m["Service"] = svc.Name()
+		}
+		return nil
+	})
 }
 
 type Service interface {
