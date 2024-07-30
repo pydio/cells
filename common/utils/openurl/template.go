@@ -18,9 +18,12 @@ type Template interface {
 
 type TemplateOpener func(tplString string) (Template, error)
 
+type ContextInjector func(context.Context, map[string]interface{}) error
+
 var (
 	tplRegister map[string]TemplateOpener
 	tplRegLock  *sync.RWMutex
+	injectors   []ContextInjector
 )
 
 func init() {
@@ -38,6 +41,11 @@ func RegisterURLTemplate(scheme string, opener TemplateOpener, asDefault ...bool
 		tplRegister[""] = opener
 	}
 	tplRegLock.Unlock()
+}
+
+// RegisterContextInjector appends a ContextInjector to extract info from context before passing to templates
+func RegisterContextInjector(injector ContextInjector) {
+	injectors = append(injectors, injector)
 }
 
 // URLTemplate initialize a Template based on rawURL for later resolution
@@ -78,23 +86,24 @@ func (u *urlParseWrapper) ResolveURL(ctx context.Context, optionalData ...map[st
 }
 
 // dataFromContext converts context data and optional list of maps into template variables
-func dataFromContext(ctx context.Context, data ...map[string]interface{}) map[string]interface{} {
+func dataFromContext(ctx context.Context, data ...map[string]interface{}) (map[string]interface{}, error) {
 	tplData := map[string]interface{}{}
 
-	// TODO INJECTORS / EXTRACTORS HERE
-	ctData := map[string]interface{}{}
-	for k, v := range ctData {
-		tplData[k] = v
+	// ContextInjectors
+	for _, i := range injectors {
+		if err := i(ctx, tplData); err != nil {
+			return nil, err
+		}
 	}
 
-	// APPEND OPTIONAL DATA
+	// Additional Data
 	for _, opt := range data {
 		for k, v := range opt {
 			tplData[k] = v
 		}
 	}
 
-	return tplData
+	return tplData, nil
 }
 
 // getScheme is taken from std lib url.URL to just extract the scheme

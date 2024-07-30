@@ -26,7 +26,7 @@ type Provider[T any] interface {
 }
 
 type Resolver[T any] interface {
-	Get(ctx context.Context, data ...map[string]string) (T, error)
+	Get(ctx context.Context, data ...map[string]interface{}) (T, error)
 }
 
 type Opener[T any] func(ctx context.Context, url string) (T, error)
@@ -120,7 +120,7 @@ func MustMemPool[T any](ctx context.Context, opener MustOpener[T], opt ...PoolOp
 		mo := opener(ctx, url)
 		return mo, nil
 	}
-	p, _ := OpenPool(ctx, []string{"mem://{{.Value \"tenant\"}}"}, op, opt...)
+	p, _ := OpenPool(ctx, []string{"mem://{{ .Tenant }}"}, op, opt...)
 	return p
 }
 
@@ -128,7 +128,7 @@ func MustMemPool[T any](ctx context.Context, opener MustOpener[T], opt ...PoolOp
 //
 //}
 
-func (m Pool[T]) Get(ctx context.Context, resolutionData ...map[string]string) (T, error) {
+func (m Pool[T]) Get(ctx context.Context, resolutionData ...map[string]interface{}) (T, error) {
 	last := len(m.resolvers) - 1
 	for i, resolver := range m.resolvers {
 		data := make(map[string]any)

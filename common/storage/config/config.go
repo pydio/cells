@@ -43,8 +43,8 @@ func OpenPool(ctx context.Context, uu string) (storage.Storage, error) {
 	return &pool{p}, err
 }
 
-func (p *pool) Get(ctx context.Context, data ...map[string]string) (any, error) {
-	return p.Pool.Get(ctx)
+func (p *pool) Get(ctx context.Context, data ...map[string]interface{}) (any, error) {
+	return p.Pool.Get(ctx, data...)
 }
 
 func (p *pool) Close(ctx context.Context, iterate ...func(key string, res storage.Storage) error) error {

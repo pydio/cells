@@ -219,7 +219,7 @@ func OpenPool(ctx context.Context, uu string) (storage.Storage, error) {
 	}, nil
 }
 
-func (p *pool) Get(ctx context.Context, data ...map[string]string) (any, error) {
+func (p *pool) Get(ctx context.Context, data ...map[string]interface{}) (any, error) {
 	return p.Pool.Get(ctx, data...)
 }
 

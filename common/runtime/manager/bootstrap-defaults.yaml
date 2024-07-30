@@ -307,17 +307,20 @@ defaults:
     pydio.gateway.data:
       servers:
         - caddy
+    pydio.gateway.websocket:
+      servers:
+        - caddy
 
   # Storages
   storages: &storages
     sql:
       # uri: sqlite://test.db?prefix={{ .Value "prefix" }}&policies={{ .Value "policies" }}&singular={{ .Value "singular" }}
-      uri: mysql://root:P@ssw0rd@tcp(localhost:3306)/cellstmp?parseTime=true&prefix={{ .Value "prefix" }}&policies={{ .Value "policies" }}&singular={{ .Value "singular" }}
+      uri: mysql://root:P@ssw0rd@tcp(localhost:3306)/cellstmp?parseTime=true&prefix={{ .Meta.prefix }}&policies={{ .Meta.policies }}&singular={{ .Meta.singular }}
     #      uri: postgres://postgres:cells@localhost:5432/postgres?sslmode=disable&prefix={{ .Value "prefix" }}&policies={{ .Value "policies" }}&singular={{ .Value "singular" }}
     bolt:
-      uri: boltdb://{{ .Value "dir" }}/{{ .Value "file" }}
+      uri: boltdb://{{ .Meta.dir }}/{{ .Meta.file }}
     bleve:
-      uri: bleve://{{ .Value "dir" }}/{{ .Value "file" }}
+      uri: bleve://{{ .Meta.dir }}/{{ .Meta.file }}
     #  search:
     #    uri: mongo+indexer://localhost:24017/search
     #    uri: bleve:///tmp/{{ TODOMustServiceDataDir .Value service }}.bleve?mapping={{ .Value mapping }}&rotationSize={{ .Value rotationSize }}

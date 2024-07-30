@@ -166,13 +166,15 @@ func Resolve[T any](ctx context.Context, opts ...ResolveOption) (s T, final erro
 		for _, edge := range registry.ItemsAs[registry.Edge](edges) {
 			for _, st := range storages {
 				if edge.Vertices()[1] == st.ID() {
-					for k, v := range edge.Metadata() {
-						ctx = context.WithValue(ctx, k, v)
+					meta := edge.Metadata()
+					resolutionData := make(map[string]string, len(meta))
+					for k, v := range meta {
+						resolutionData[k] = v
 					}
 
 					var stt storage.Storage
 					if st.As(&stt) {
-						sttt, err := stt.Get(ctx)
+						sttt, err := stt.Get(ctx, map[string]interface{}{"Meta": resolutionData})
 						if err != nil {
 							return t, errors.Tag(err, errors.ResolveError)
 						}

@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
+	"github.com/pydio/cells/v4/common/utils/openurl"
 	"testing"
 
 	"github.com/spf13/viper"
@@ -132,10 +133,16 @@ func TestDBPool(t *testing.T) {
 	c := controller.NewController[storage.Storage]()
 	c.Register("sqlite", controller.WithCustomOpener(OpenPool))
 
-	st, err := c.Open(context.Background(), `sqlite:///tmp/`+uuid.New()+`{{ .Value "name" }}.db?prefix={{ .Value "name" }}_`)
+	st, err := c.Open(context.Background(), `sqlite:///tmp/`+uuid.New()+`{{ .Name }}.db?prefix={{ .Name }}_`)
 	if err != nil {
 		panic(err)
 	}
+
+	openurl.RegisterContextInjector(func(ctx context.Context, m map[string]interface{}) error {
+		name := ctx.Value("name").(string)
+		m["Name"] = name
+		return nil
+	})
 
 	ctx1 := context.WithValue(context.Background(), "name", "test1")
 	ctx2 := context.WithValue(context.Background(), "name", "test2")

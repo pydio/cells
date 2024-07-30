@@ -83,7 +83,9 @@ func init() {
 					hf := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 						_ = mel.HandleRequest(w, r)
 					})
-					return middleware.HttpWrapperMeta(ctx, http.Handler(hf))
+					handler := middleware.HttpWrapperMeta(ctx, http.Handler(hf))
+					handler = middleware.WebTenantMiddleware(ctx, "", service.ContextKey, o.Server, handler)
+					return handler
 				}
 				sub.Handle("/event", medodyAsHandler(ws.Websocket))
 				sub.Handle("/chat", medodyAsHandler(chat.Websocket))

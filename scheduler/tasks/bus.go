@@ -66,7 +66,7 @@ var (
 
 func GetBus(ctx context.Context) *Bus {
 	if busPool == nil {
-		busPool, _ = openurl.OpenPool[*Bus](ctx, []string{"{{ .Value \"tenant\" }}"}, func(ctx context.Context, url string) (*Bus, error) {
+		busPool, _ = openurl.OpenPool[*Bus](ctx, []string{"{{ .Tenant }}"}, func(ctx context.Context, url string) (*Bus, error) {
 			// create pubsub and start listening
 			c := &Bus{
 				PubSub: pubsub.New(0),
