@@ -146,8 +146,8 @@ TOKEN SCOPE
 func init() {
 	UserCmd.AddCommand(pTokCmd)
 	pTokCmd.Flags().StringVarP(&tokUserLogin, "user", "u", "", "User login (mandatory)")
-	pTokCmd.Flags().StringVarP(&tokExpireTime, "expire", "e", "", "Expire after duration. Format is 20u where u is a unit: s (second), (minute), h (hour), d(day).")
-	pTokCmd.Flags().StringVarP(&tokAutoRefresh, "auto", "a", "", "Auto-refresh expiration when token is used. Format is 20u where u is a unit: s (second), (minute), h (hour), d(day).")
+	pTokCmd.Flags().StringVarP(&tokExpireTime, "expire", "e", "", "Expire after duration. Format is 20u where u is a unit: s (second), m (minute), h (hour), d(day).")
+	pTokCmd.Flags().StringVarP(&tokAutoRefresh, "auto", "a", "", "Auto-refresh expiration when token is used. Format is 20u where u is a unit: s (second), m (minute), h (hour), d(day).")
 	pTokCmd.Flags().StringSliceVarP(&tokScopes, "scope", "s", []string{}, "Optional scopes")
 	pTokCmd.Flags().BoolVarP(&tokCreationQuiet, "quiet", "q", false, "Only return the newly created token value (typically useful in automation scripts with a short expiry time)")
 }

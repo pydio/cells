@@ -30,7 +30,7 @@
     "other": "{{.Configs.Title}} のパスワードはリセットされました"
   },
   "Mail.ResetPasswordDone.Intros": {
-    "other": "パスワードリセット要求に続き、{{.Configs.Title}} に対するあなたのパスワードは正常にリセットされました。"
+    "other": "パスワード再設定リクエストに応じて、{{.Configs.Title}}のパスワード再設定に成功しました。"
   },
   "Mail.ResetPasswordDone.Outros": {
     "other": "もしあなたがこの操作を行ったのでなければ、セキュリティに問題が生じている可能性があるため、直ちに管理者へ警告してください。"

@@ -66,55 +66,89 @@ data:
     #!/bin/sh
 
     OUTPUT=/tmp/output.txt
+
     export VAULT_TOKEN=$(cat /root/.vault-token)
+
     export VAULT_ADDR=http://127.0.0.1:8200
 
-    vault operator init -n 1 -t 1 >> ${OUTPUT?}
+    COUNT=1
+    LIMIT=30
+    while [ 1 ]; do
 
-    unseal=$(cat ${OUTPUT?} | grep "Unseal Key 1:" | sed -e "s/Unseal Key 1: //g")
-    root=$(cat ${OUTPUT?} | grep "Initial Root Token:" | sed -e "s/Initial Root Token: //g")
+      VAULT_STATUS=$(vault status -format json)
+      EXIT_STATUS=$?
 
-    vault operator unseal ${unseal?}
+      if echo \"$VAULT_STATUS\" | grep '"initialized": false'; then
+        if echo \"$VAULT_STATUS\" | grep '"type": "shamir"'; then
+          vault operator init -n 1 -t 1 >> ${OUTPUT?}
 
-    vault login -no-print ${root?}
+          unseal=$(cat ${OUTPUT?} | grep "Unseal Key 1:" | sed -e "s/Unseal Key 1: //g")
+          vault operator unseal ${unseal?}
+        else
+          vault operator init >> ${OUTPUT?}
+        fi
 
-    vault secrets enable -version=2 -path=secret kv
-    vault secrets enable -version=2 -path=caddycerts kv
-    vault secrets enable pki
+        root=$(cat ${OUTPUT?} | grep "Initial Root Token:" | sed -e "s/Initial Root Token: //g")
 
-    vault write pki/root/generate/internal \
-      common_name={{ include "cells.serviceDomain" . }} \
-      ttl=8760h
+        vault login -no-print ${root?}
 
-    vault write pki/config/urls \
-      issuing_certificates="{{ include "cells.vaultURL" . }}/v1/pki/ca" \
-      crl_distribution_points="{{ include "cells.vaultURL" . }}/v1/pki/crl"
+        vault secrets enable -version=2 -path=secret kv
+        vault secrets enable -version=2 -path=caddycerts kv
+        vault secrets enable pki
 
-    vault secrets tune -max-lease-ttl=8760h pki
+        vault write pki/root/generate/internal \
+          common_name={{ include "cells.serviceDomain" . }} \
+          ttl=8760h
 
-    vault write pki/roles/application \
-      allowed_domains=*.{{ include "cells.serviceDomain" . }} \
-      allow_any_name=true \
-      allow_subdomains=true \
-      max_ttl=72h
+        vault write pki/config/urls \
+          issuing_certificates="{{ include "cells.vaultURL" . }}/v1/pki/ca" \
+          crl_distribution_points="{{ include "cells.vaultURL" . }}/v1/pki/crl"
 
-    vault policy write pki /vault/userconfig/cells-vault/pki-policy.hcl
+        vault secrets tune -max-lease-ttl=8760h pki
 
-    vault auth enable kubernetes
+        vault write pki/roles/application \
+          allowed_domains=*.{{ include "cells.serviceDomain" . }} \
+          allow_any_name=true \
+          allow_subdomains=true \
+          max_ttl=72h
 
-    vault write auth/kubernetes/config \
-        kubernetes_host=https://kubernetes.default.svc \
-        kubernetes_ca_cert=@/var/run/secrets/kubernetes.io/serviceaccount/ca.crt
+        vault policy write pki /vault/userconfig/cells-vault/pki-policy.hcl
 
-    vault policy write app /vault/userconfig/cells-vault/app-policy.hcl
+        vault auth enable kubernetes
 
-    vault write auth/kubernetes/role/app \
-       bound_service_account_names=app \
-       bound_service_account_namespaces={{ .Release.Namespace }} \
-       policies=app,pki \
-       ttl=24h
+        vault write auth/kubernetes/config \
+            kubernetes_host=https://kubernetes.default.svc \
+            kubernetes_ca_cert=@/var/run/secrets/kubernetes.io/serviceaccount/ca.crt
 
-    vault token create -policy=app
+        vault policy write app /vault/userconfig/cells-vault/app-policy.hcl
+
+        vault write auth/kubernetes/role/app \
+           bound_service_account_names=app \
+           bound_service_account_namespaces={{ .Release.Namespace }} \
+           policies=app,pki \
+           ttl=24h
+
+        vault token create -policy=app
+
+
+      elif [ $EXIT_STATUS -eq 2 ]; then
+        echo "$VAULT_STATUS"
+        exit 0
+
+      elif [ $COUNT -ge $LIMIT ]; then
+        # Dont know what happened... Exiting
+        echo "$VAULT_STAUS"
+        exit 1
+      else
+        # For debugging\n
+        echo "$VAULT_STATUS"
+        exit 0
+      fi
+
+      COUNT=$((COUNT+1))
+
+      sleep 1
+    done
 
   app-policy.hcl: |
     path "auth/token/lookup-self" {

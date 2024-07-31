@@ -59,6 +59,7 @@ var (
 		common.KeyProfile,
 		common.KeyRoles,
 		// HTTP Meta Keys
+		servicecontext.HttpMetaHost,
 		servicecontext.HttpMetaRemoteAddress,
 		servicecontext.HttpMetaUserAgent,
 		servicecontext.HttpMetaContentType,

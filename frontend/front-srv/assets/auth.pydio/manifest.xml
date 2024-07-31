@@ -72,7 +72,7 @@
                 </processing>
             </action>
             <action name="switch_to_homepage">
-                <gui text="305" title="305" hasAccessKey="false" iconClass="mdi mdi-home" >
+                <gui text="305" title="305" hasAccessKey="false" iconClass="mdi mdi-home-outline" >
                     <context dir="false" recycle="true" selection="false" actionBar="true" actionBarGroup="aUser"/>
                 </gui>
                 <rightsContext adminOnly="false" noUser="true" read="false" userLogged="only" write="false"/>
@@ -81,6 +81,22 @@
                         return (pydio && pydio.user && (pydio.user.getRepositoriesList().has('homepage') && pydio.user.activeRepository !== 'homepage'));
                     ]]> </activeCondition>
                     <clientCallback module="PydioCoreActions.Navigation.switchToHomepage"/>
+                </processing>
+            </action>
+            <action name="switch_to_files">
+                <gui text="305b" title="305b" hasAccessKey="false" iconClass="mdi mdi-folder-multiple-outline" >
+                    <context dir="false" recycle="true" selection="false" actionBar="true" actionBarGroup="aUser"/>
+                </gui>
+                <rightsContext adminOnly="false" noUser="true" read="false" userLogged="only" write="false"/>
+                <processing>
+                    <activeCondition><![CDATA[
+                        if(!pydio || !pydio.user) {
+                            return false;
+                        }
+                        const repoList = pydio.user.getRepositoriesList()
+                        return (pydio.user.activeRepository === 'settings' && repoList.values().find(r => r.getAccessType === 'gateway'))
+                    ]]> </activeCondition>
+                    <clientCallback module="PydioCoreActions.Navigation.switchToFilesDefault"/>
                 </processing>
             </action>
         </actions>

@@ -24,7 +24,6 @@ import (
 	"bytes"
 	"context"
 	"fmt"
-	"golang.org/x/exp/maps"
 	"net"
 	"net/url"
 	"os"
@@ -36,14 +35,14 @@ import (
 	caddy "github.com/caddyserver/caddy/v2"
 	"github.com/caddyserver/caddy/v2/caddyconfig"
 	"github.com/caddyserver/caddy/v2/caddyconfig/caddyfile"
-	_ "github.com/caddyserver/caddy/v2/modules/standard"
-	"github.com/pydio/caddyvault"
-	"github.com/pydio/cells/v4/common/crypto/storage"
 	"go.uber.org/zap"
+	"golang.org/x/exp/maps"
+
+	"github.com/pydio/caddyvault"
 
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/config"
-	"github.com/pydio/cells/v4/common/crypto/providers"
+	"github.com/pydio/cells/v4/common/crypto/storage"
 	"github.com/pydio/cells/v4/common/log"
 	"github.com/pydio/cells/v4/common/registry"
 	"github.com/pydio/cells/v4/common/registry/util"
@@ -51,6 +50,8 @@ import (
 	"github.com/pydio/cells/v4/common/server"
 	"github.com/pydio/cells/v4/common/server/caddy/mux"
 	"github.com/pydio/cells/v4/common/utils/uuid"
+
+	_ "github.com/caddyserver/caddy/v2/modules/standard"
 )
 
 const (
@@ -62,6 +63,10 @@ const (
 {{if .EnableMetrics}}  servers {
     metrics
   }{{end}}
+  log{
+     output cells
+ 	 format json
+  }
 }
 
 
@@ -158,8 +163,11 @@ type Server struct {
 func New(ctx context.Context, dir string) (server.Server, error) {
 
 	providersLoggerInit.Do(func() {
-		ct := log.CaptureCaddyStdErr("pydio.server.caddy")
-		providers.Logger = log.Logger(ct)
+		caddy.RegisterModule(&writerOpener{})
+		/*
+			ct := log.CaptureCaddyStdErr("pydio.server.caddy")
+			providers.Logger = log.Logger(ct)
+		*/
 	})
 
 	srvMUX := server.NewListableMux()

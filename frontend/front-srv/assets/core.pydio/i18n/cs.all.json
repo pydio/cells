@@ -696,7 +696,10 @@
     "other": "Zpět"
   },
   "305": {
-    "other": "Zpět na hlavní stránku"
+    "other": "Back to Homepage"
+  },
+  "305b": {
+    "other": "My Workspaces"
   },
   "306": {
     "other": "Příliš mnoho položek"

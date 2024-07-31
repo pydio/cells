@@ -77,6 +77,7 @@ func RichContext(ctx context.Context, logger log.ZapLogger, fields ...zapcore.Fi
 	}
 	if ctxMeta, has := metadata.FromContextRead(ctx); has {
 		for _, key := range []string{
+			servicecontext.HttpMetaHost,
 			servicecontext.HttpMetaRemoteAddress,
 			servicecontext.HttpMetaUserAgent,
 			servicecontext.HttpMetaContentType,

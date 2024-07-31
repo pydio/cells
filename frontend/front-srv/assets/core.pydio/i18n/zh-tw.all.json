@@ -696,7 +696,10 @@
     "other": "Back"
   },
   "305": {
-    "other": "Go back to main page"
+    "other": "Back to Homepage"
+  },
+  "305b": {
+    "other": "My Workspaces"
   },
   "306": {
     "other": "Too many items"

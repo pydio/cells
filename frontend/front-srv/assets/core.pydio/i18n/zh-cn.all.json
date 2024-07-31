@@ -696,7 +696,10 @@
     "other": "后退"
   },
   "305": {
-    "other": "返回首页"
+    "other": "Back to Homepage"
+  },
+  "305b": {
+    "other": "My Workspaces"
   },
   "306": {
     "other": "项目数量太多"

@@ -201,19 +201,19 @@
     "other": "メタデータ"
   },
   "search.sorter.relevant.desc": {
-    "other": "Most Relevant First"
+    "other": "関連順"
   },
   "search.sorter.modified.desc": {
-    "other": "Recently Added First"
+    "other": "更新日が新しい順"
   },
   "search.sorter.modified.asc": {
-    "other": "Oldest First"
+    "other": "古い順"
   },
   "search.sorter.size.desc": {
-    "other": "Biggest First"
+    "other": "サイズの大きい順"
   },
   "search.sorter.size.asc": {
-    "other": "Smallest First"
+    "other": "サイズの小さい順"
   },
   "facet.label.file": {
     "other": "ファイル"
