@@ -46,43 +46,43 @@ keywords:
 
 dependencies:
   - name: mariadb
-    condition: mariadb.enabled
+    condition: mariadb.useNewInstallation
     repository: https://charts.bitnami.com/bitnami
     version: x.x.x
   - name: mariadb-galera
-    condition: mariadb-galera.enabled
+    condition: mariadb.galera.useNewInstallation
     repository: https://charts.bitnami.com/bitnami
     version: x.x.x
   - name: redis
-    condition: redis.enabled
+    condition: redis.useNewInstallation
     repository: https://charts.bitnami.com/bitnami
     version: x.x.x
   - name: nats
-    condition: nats.enabled
+    condition: nats.useNewInstallation
     repository: https://charts.bitnami.com/bitnami
     version: x.x.x
   - name: mongodb
-    condition: mongodb.enabled
+    condition: mongodb.useNewInstallation
     repository: https://charts.bitnami.com/bitnami
     version: x.x.x
   - name: etcd
-    condition: etcd.enabled
+    condition: etcd.useNewInstallation
     repository: https://charts.bitnami.com/bitnami
     version: x.x.x
   - name: minio
-    condition: minio.enabled
+    condition: minio.useNewInstallation
     repository: https://charts.bitnami.com/bitnami
     version: x.x.x
   - name: ingress-nginx
-    condition: ingress.enabled
+    condition: nginx.useNewInstallation
     repository: https://kubernetes.github.io/ingress-nginx
     version: x.x.x
   - name: vault  
-    condition: vault.enabled
+    condition: vault.useNewInstallation
     repository: https://helm.releases.hashicorp.com
     version: x.x.x
   - name: cert-manager
-    condition: tls.enabled
+    condition: cert-manager.useNewInstallation
     repository: https://charts.jetstack.io
     version: x.x.x
 

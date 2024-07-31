@@ -143,11 +143,19 @@ REDIS HOST
 {{- end }}
 
 {{- define "cells.redisHost" -}}
+{{- if eq .Values.redis.useNewInstallation false }}
+{{- .Values.redis.host }}
+{{- else }}
 {{- printf "%s-redis-master.%s.svc.%s" .Release.Name .Release.Namespace .Values.clusterDomain }}
+{{- end }}
 {{- end }}
 
 {{- define "cells.redisPort" -}}
+{{- if eq .Values.redis.useNewInstallation false }}
+{{- .Values.redis.port }}
+{{- else }}
 {{ .Values.redis.master.service.ports.redis | toString }}
+{{- end }}
 {{- end }}
 
 {{- define "cells.redisURL" -}}
@@ -189,42 +197,51 @@ VAULT HOST
 MARIADB HOST
 */}}
 {{- define "cells.mariadbName" -}}
+{{- if or (eq .Values.mariadb.useNewInstallation false) (eq .Values.mariadb.galera.useNewInstallation false) }}
+{{- .Values.mariadb.database }}
+{{- else }}
 {{ include "cells.fullname" (dict "Release" .Release "Values" .Values.mariadb "Chart" (dict "Name" "mariadb")) }}
+{{- end }}
 {{- end }}
 
 {{- define "cells.mariadbHost" -}}
-{{- printf "%s-mariadb.%s.svc.%s" .Release.Name .Release.Namespace .Values.clusterDomain }}
+{{- if or (eq .Values.mariadb.useNewInstallation false) (eq .Values.mariadb.galera.useNewInstallation false) }}
+{{- .Values.mariadb.host }}
+{{- else }}
+{{-   if eq .Values.mariadb.galera.enabled true }}
+    {{- printf "%s-mariadb-galera.%s.svc.%s" .Release.Name .Release.Namespace .Values.clusterDomain }}
+{{- else }}
+    {{- printf "%s-mariadb.%s.svc.%s" .Release.Name .Release.Namespace .Values.clusterDomain }}
+{{- end }}
+{{- end }}
 {{- end }}
 
 {{- define "cells.mariadbPort" -}}
+{{- if or (eq .Values.mariadb.useNewInstallation false) (eq .Values.mariadb.galera.useNewInstallation false) }}
+{{- .Values.mariadb.port | toString }}
+{{- else }}
 {{ .Values.mariadb.primary.service.ports.mysql | toString }}
+{{- end }}
+{{- end }}
+
+{{- define "cells.mariadbUser" -}}
+{{- if or (eq .Values.mariadb.useNewInstallation false) (eq .Values.mariadb.galera.useNewInstallation false) }}
+{{- .Values.mariadb.username }}
+{{- else }}
+{{- printf "root" }}
+{{- end }}
+{{- end }}
+
+{{- define "cells.mariadbPassword" -}}
+{{- if or (eq .Values.mariadb.useNewInstallation false) (eq .Values.mariadb.galera.useNewInstallation false) }}
+{{- .Values.mariadb.password }}
+{{- else }}
+{{- printf "$MARIADB_ROOT_PASSWORD" | default "" }}
+{{- end }}
 {{- end }}
 
 {{- define "cells.mariadbURL" -}}
-{{- $tls := include "cells.urlTLSScheme" (dict "enabled" .Values.mariadb.tls.enabled) }}
-{{- $user := include "cells.urlUser" (dict "enabled" .Values.etcd.auth.rbac.create "user" "root" "password" "$(ETCD_ROOT_PASSWORD)") }}
-{{- $tlsParams := include "cells.urlTLSParams" (dict "enabled" .Values.etcd.auth.client.secureTransport "prefix" "etcd" "certFilename" .Values.etcd.auth.client.certFilename "certKeyFilename" .Values.etcd.auth.client.certKeyFilename "caFilename" .Values.etcd.auth.client.caFilename) }}
-{{- printf "mysql://%s:%s/%s?%s" $tls $user (include "cells.mariadbHost" .) (include "cells.mariadbPort" .) (include "cells.mariadbName" .) $tlsParams }}
-{{- end }}
-
-{{/*
-MARIADB GALERA HOST
-*/}}
-
-{{- define "cells.mariadbGaleraName" -}}
-{{ include "cells.fullname" (dict "Release" .Release "Values" .Values.mariadb "Chart" (dict "Name" "mariadb-galera")) }}
-{{- end }}
-
-{{- define "cells.mariadbGaleraHost" -}}
-{{- printf "%s-mariadb-galera.%s.svc.%s" .Release.Name .Release.Namespace .Values.clusterDomain }}
-{{- end }}
-
-{{- define "cells.mariadbGaleraPort" -}}
-{{ index .Values "mariadb-galera" "service" "ports" "mysql" | toString }}
-{{- end }}
-
-{{- define "cells.mariadbGaleraURL" -}}
-{{- printf "mysql://%s:%s" (include "cells.mariadbGaleraHost" .) (include "cells.mariadbGaleraPort" .) }}
+{{- printf "" }}
 {{- end }}
 
 {{/*
