@@ -31,8 +31,9 @@ import (
 	"github.com/pydio/cells/v4/common/proto/idm"
 	service "github.com/pydio/cells/v4/common/proto/service"
 	"github.com/pydio/cells/v4/common/proto/tree"
-	"github.com/pydio/cells/v4/common/runtime"
+	"github.com/pydio/cells/v4/common/runtime/manager"
 	"github.com/pydio/cells/v4/common/telemetry/log"
+	"github.com/pydio/cells/v4/common/utils/propagator"
 )
 
 type WsRolesCleaner struct {
@@ -71,16 +72,24 @@ func (c *WsRolesCleaner) Handle(ctx context.Context, msg *idm.ChangeEvent) error
 
 type NodesCleaner struct {
 	handler *Handler
-	fifo    broker.AsyncQueue
 }
 
-func NewNodesCleaner(ctx context.Context, h *Handler) (*NodesCleaner, error) {
-	nc := &NodesCleaner{handler: h}
-	var er error
-	if nc.fifo, er = broker.OpenAsyncQueue(ctx, runtime.QueueURL("debounce", "750ms", "idle", "2s", "max", "5000")); er != nil {
-		return nil, er
-	} else {
-		er = nc.fifo.Consume(func(ct context.Context, events ...broker.Message) {
+func NewNodesCleaner(ctx context.Context, h *Handler) *NodesCleaner {
+	return &NodesCleaner{handler: h}
+}
+
+func (c *NodesCleaner) getQueue(ctx context.Context) (broker.AsyncQueue, error) {
+	var mgr manager.Manager
+	if !propagator.Get(ctx, manager.ContextKey, &mgr) {
+		return nil, fmt.Errorf("no manager in context")
+	}
+	data := map[string]interface{}{
+		"debounce": "750ms",
+		"idle":     "2s",
+		"max":      "5000",
+	}
+	return mgr.GetQueue(ctx, "debouncer", data, "activity", func(q broker.AsyncQueue) (broker.AsyncQueue, error) {
+		er := q.Consume(func(ct context.Context, events ...broker.Message) {
 			var uu []string
 			for _, e := range events {
 				t := &tree.NodeChangeEvent{}
@@ -88,17 +97,22 @@ func NewNodesCleaner(ctx context.Context, h *Handler) (*NodesCleaner, error) {
 					uu = append(uu, t.Source.Uuid)
 				}
 			}
-			nc.process(ctx, uu...)
+			c.process(ctx, uu...)
 		})
-		return nc, er
-	}
+		return q, er
+	})
+
 }
 
 func (c *NodesCleaner) Handle(ctx context.Context, msg *tree.NodeChangeEvent) error {
 	if msg.Type != tree.NodeChangeEvent_DELETE || msg.Source == nil || msg.Source.Uuid == "" || msg.Optimistic {
 		return nil
 	}
-	return c.fifo.Push(ctx, msg)
+	q, e := c.getQueue(ctx)
+	if e != nil {
+		return e
+	}
+	return q.Push(ctx, msg)
 }
 
 func (c *NodesCleaner) process(ctx context.Context, eventsUUIDs ...string) {

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023. Abstrium SAS <team (at) pydio.com>
+ * Copyright (c) 2024. Abstrium SAS <team (at) pydio.com>
  * This file is part of Pydio Cells.
  *
  * Pydio Cells is free software: you can redistribute it and/or modify
@@ -33,12 +33,28 @@ import (
 
 	"github.com/pydio/cells/v4/common/broker"
 	"github.com/pydio/cells/v4/common/crypto"
+	"github.com/pydio/cells/v4/common/runtime"
+	"github.com/pydio/cells/v4/common/runtime/controller"
+	"github.com/pydio/cells/v4/common/runtime/manager"
 	"github.com/pydio/cells/v4/common/telemetry/log"
+	"github.com/pydio/cells/v4/common/utils/propagator"
 )
 
 var (
 	nc *nats.Conn
 )
+
+func init() {
+	runtime.Register("system", func(ctx context.Context) {
+		var mgr manager.Manager
+		if !propagator.Get(ctx, manager.ContextKey, &mgr) {
+			return
+		}
+		mgr.RegisterQueue("nats", controller.WithCustomOpener(func(ctx context.Context, url string) (broker.AsyncQueuePool, error) {
+			return broker.NewWrappedPool(url, broker.MakeWrappedOpener(&streamOpener{}))
+		}))
+	})
+}
 
 type streamOpener struct{}
 
@@ -48,10 +64,6 @@ func (s *streamOpener) OpenURL(ctx context.Context, u *url.URL) (broker.AsyncQue
 		return nil, fmt.Errorf("missing query parameter 'name' for opening queue")
 	}
 	return NewNatsQueue(ctx, u, streamName)
-}
-
-func init() {
-	broker.DefaultURLMux().Register("nats", &streamOpener{})
 }
 
 type Queue struct {

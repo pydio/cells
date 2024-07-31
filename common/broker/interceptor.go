@@ -7,13 +7,7 @@ import (
 	"runtime/debug"
 	"time"
 
-	"google.golang.org/grpc"
-	"google.golang.org/grpc/credentials/insecure"
-
-	"github.com/pydio/cells/v4/common"
-	"github.com/pydio/cells/v4/common/config"
 	"github.com/pydio/cells/v4/common/middleware"
-	clientcontext "github.com/pydio/cells/v4/common/runtime"
 	"github.com/pydio/cells/v4/common/utils/propagator"
 )
 
@@ -37,31 +31,6 @@ func TimeoutSubscriberInterceptor() SubscriberInterceptor {
 	}
 }
 
-var (
-	clientConns = make(map[string]grpc.ClientConnInterface)
-	configStore = make(map[string]config.Store)
-)
-
-func setContextForTenant(ctx context.Context, tenant string) context.Context {
-	cc, ok := clientConns[tenant]
-	if !ok {
-		opts := []grpc.DialOption{
-			grpc.WithTransportCredentials(insecure.NewCredentials()),
-		}
-		opts = append(opts, middleware.GrpcClientStatsHandler(ctx)...)
-		cc, _ = grpc.NewClient("xds://"+tenant+".cells.com/cells", opts...)
-		clientConns[tenant] = cc
-	}
-	ctx = clientcontext.WithClientConn(ctx, cc)
-
-	cfg, ok := configStore[tenant]
-	if !ok {
-		cfg, _ = config.OpenStore(ctx, "xds://"+tenant+".cells.com/cells")
-		configStore[tenant] = cfg
-	}
-	return propagator.With(ctx, config.ContextKey, cfg)
-}
-
 func HeaderInjectorInterceptor() SubscriberInterceptor {
 	return func(ctx context.Context, m Message, handler SubscriberHandler) error {
 		header, _ := m.RawData()
@@ -72,12 +41,9 @@ func HeaderInjectorInterceptor() SubscriberInterceptor {
 
 func ContextInjectorInterceptor() SubscriberInterceptor {
 	return func(ctx context.Context, m Message, handler SubscriberHandler) error {
-		tenant := "default"
-		header, _ := m.RawData()
-		if t, ok := header[common.XPydioTenantUuid]; ok {
-			tenant = t
+		if ct, ok, er := middleware.TenantIncomingContext(ctx)(ctx); ok && er == nil {
+			return handler(ct, m)
 		}
-
-		return handler(setContextForTenant(ctx, tenant), m)
+		return handler(ctx, m)
 	}
 }

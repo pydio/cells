@@ -28,12 +28,11 @@ import (
 
 	"go.uber.org/zap"
 
-	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/broker"
 	"github.com/pydio/cells/v4/common/proto/idm"
 	"github.com/pydio/cells/v4/common/proto/jobs"
 	"github.com/pydio/cells/v4/common/proto/tree"
-	"github.com/pydio/cells/v4/common/runtime"
+	"github.com/pydio/cells/v4/common/runtime/manager"
 	"github.com/pydio/cells/v4/common/telemetry/log"
 	"github.com/pydio/cells/v4/common/telemetry/metrics"
 	"github.com/pydio/cells/v4/common/utils/propagator"
@@ -68,39 +67,74 @@ func NewDispatcher(rootCtx context.Context, maxWorkers int, job *jobs.Job, tags 
 	pool := make(chan chan RunnerFunc, maxWorkers)
 	jobQueue := make(chan RunnerFunc)
 	var fifoQueue chan RunnerFunc
+	var fifo broker.AsyncQueue
+	var er error
+	var mgr manager.Manager
 	ctx, can := context.WithCancel(rootCtx)
-	fifo, er := broker.OpenAsyncQueue(ctx, runtime.PersistingQueueURL("serviceName", common.ServiceGrpcNamespace_+common.ServiceTasks, "name", "jobs", "prefix", job.ID))
-	if er != nil {
-		can()
-		log.Logger(rootCtx).Warn("Cannot open fifo for dispatcher - job "+job.ID+", this will run without queue", zap.Error(er))
-	} else {
-		fifoQueue = make(chan RunnerFunc)
-		_ = fifo.Consume(func(ct context.Context, mm ...broker.Message) {
+	if propagator.Get(rootCtx, manager.ContextKey, &mgr) {
+		data := map[string]interface{}{"name": "jobs", "prefix": job.ID}
+		fifo, er = mgr.GetQueue(ctx, "persister", data, "job-"+job.ID, func(q broker.AsyncQueue) (broker.AsyncQueue, error) {
+			return q, q.Consume(func(ct context.Context, mm ...broker.Message) {
+				for _, msg := range mm {
+					var event interface{}
 
-			for _, msg := range mm {
-				var event interface{}
+					eventCtx := propagator.ForkContext(context.Background(), rootCtx)
 
-				eventCtx := propagator.ForkContext(context.Background(), rootCtx)
+					tce := &tree.NodeChangeEvent{}
+					ice := &idm.ChangeEvent{}
+					jte := &jobs.JobTriggerEvent{}
+					if ctU, e := msg.Unmarshal(eventCtx, tce); e == nil {
+						event, eventCtx = tce, ctU
+					} else if ctU, e = msg.Unmarshal(eventCtx, ice); e == nil {
+						event, eventCtx = ice, ctU
+					} else if ctU, e = msg.Unmarshal(eventCtx, jte); e == nil {
+						event, eventCtx = jte, ctU
+					} else {
+						fmt.Println("Cannot unmarshall msg data to any known event type")
+						continue
+					}
 
-				tce := &tree.NodeChangeEvent{}
-				ice := &idm.ChangeEvent{}
-				jte := &jobs.JobTriggerEvent{}
-				if ctU, e := msg.Unmarshal(eventCtx, tce); e == nil {
-					event, eventCtx = tce, ctU
-				} else if ctU, e = msg.Unmarshal(eventCtx, ice); e == nil {
-					event, eventCtx = ice, ctU
-				} else if ctU, e = msg.Unmarshal(eventCtx, jte); e == nil {
-					event, eventCtx = jte, ctU
-				} else {
-					fmt.Println("Cannot unmarshall msg data to any known event type")
-					continue
+					task := NewTaskFromEvent(rootCtx, eventCtx, job, event)
+					task.Queue(fifoQueue, jobQueue)
 				}
-
-				task := NewTaskFromEvent(rootCtx, eventCtx, job, event)
-				task.Queue(fifoQueue, jobQueue)
-			}
+			})
 		})
+		if er == nil {
+			fifoQueue = make(chan RunnerFunc)
+			_ = fifo.Consume(func(ct context.Context, mm ...broker.Message) {
+
+				for _, msg := range mm {
+					var event interface{}
+
+					eventCtx := propagator.ForkContext(context.Background(), rootCtx)
+
+					tce := &tree.NodeChangeEvent{}
+					ice := &idm.ChangeEvent{}
+					jte := &jobs.JobTriggerEvent{}
+					if ctU, e := msg.Unmarshal(eventCtx, tce); e == nil {
+						event, eventCtx = tce, ctU
+					} else if ctU, e = msg.Unmarshal(eventCtx, ice); e == nil {
+						event, eventCtx = ice, ctU
+					} else if ctU, e = msg.Unmarshal(eventCtx, jte); e == nil {
+						event, eventCtx = jte, ctU
+					} else {
+						fmt.Println("Cannot unmarshall msg data to any known event type")
+						continue
+					}
+
+					task := NewTaskFromEvent(rootCtx, eventCtx, job, event)
+					task.Queue(fifoQueue, jobQueue)
+				}
+			})
+		} else {
+			can()
+			log.Logger(rootCtx).Warn("Cannot open fifo for dispatcher - job "+job.ID+", this will run without queue", zap.Error(er))
+		}
+	} else {
+		can()
+		log.Logger(rootCtx).Warn("No manager found when creating Dispatcher, cannot initialize fifo")
 	}
+
 	return &Dispatcher{
 		workerPool: pool,
 		maxWorker:  maxWorkers,

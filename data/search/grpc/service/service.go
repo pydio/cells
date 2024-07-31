@@ -34,7 +34,9 @@ import (
 	"github.com/pydio/cells/v4/common/proto/sync"
 	"github.com/pydio/cells/v4/common/proto/tree"
 	"github.com/pydio/cells/v4/common/runtime"
+	"github.com/pydio/cells/v4/common/runtime/manager"
 	"github.com/pydio/cells/v4/common/service"
+	"github.com/pydio/cells/v4/common/utils/propagator"
 	"github.com/pydio/cells/v4/data/search"
 	grpc2 "github.com/pydio/cells/v4/data/search/grpc"
 )
@@ -66,17 +68,25 @@ func init() {
 				tree.RegisterSearcherServer(server, searcher)
 				sync.RegisterSyncEndpointServer(server, searcher)
 
-				subscriber := searcher.Subscriber()
-				if er := subscriber.Start(c); er != nil {
-					return er
+				opts := []broker.SubscribeOption{
+					broker.Queue("search"),
+					broker.WithCounterName("search"),
 				}
+				var mgr manager.Manager
+				if propagator.Get(c, manager.ContextKey, &mgr) {
+					if d, e := mgr.GetQueuePool("persisted"); e == nil {
+						opts = append(opts, broker.WithAsyncQueuePool(d, map[string]interface{}{"name": "search"}))
+					}
+				}
+
+				subscriber := searcher.Subscriber()
 				if e := broker.SubscribeCancellable(c, common.TopicMetaChanges, func(ctx context.Context, message broker.Message) error {
 					msg := &tree.NodeChangeEvent{}
 					if ct, e := message.Unmarshal(ctx, msg); e == nil {
 						return subscriber.Handle(ct, msg)
 					}
 					return nil
-				}, broker.Queue("search"), broker.WithCounterName("search")); e != nil {
+				}, opts...); e != nil {
 					//_ = bleveEngine.Close()
 					return e
 				}

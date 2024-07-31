@@ -31,7 +31,6 @@ import (
 	"github.com/pydio/cells/v4/common/errors"
 	"github.com/pydio/cells/v4/common/middleware"
 	"github.com/pydio/cells/v4/common/telemetry/log"
-	"github.com/pydio/cells/v4/common/utils/openurl"
 	"github.com/pydio/cells/v4/common/utils/uuid"
 )
 
@@ -139,8 +138,10 @@ type SubscribeOptions struct {
 	// Optional MessageQueue than can debounce/persist
 	// received messages and re-process them later on.
 	// They should be dynamically opened based on the input context
-	MessageQueueURLs []string
-	MessageQueuePool *openurl.Pool[MessageQueue]
+	AsyncQueuePool []struct {
+		AsyncQueuePool AsyncQueuePool
+		Resolution     map[string]interface{}
+	}
 
 	// Optional name for metrics
 	CounterName string
@@ -170,12 +171,14 @@ func parseSubscribeOptions(topic string, opts ...SubscribeOption) SubscribeOptio
 	return opt
 }
 
-// WithAsyncSubscriberInterceptor registers a FIFO-like queue to intercept messages received and trigger the main
-// SubscribeHandler asynchronously
-func WithAsyncSubscriberInterceptor(queueURL string, fallbackURLs ...string) SubscribeOption {
+// WithAsyncQueuePool adapts the subscriber with a queue
+// If many queues are appended, they are tried in the same order (fallback)
+func WithAsyncQueuePool(queuePool AsyncQueuePool, data map[string]interface{}) SubscribeOption {
 	return func(options *SubscribeOptions) {
-		options.MessageQueueURLs = append(options.MessageQueueURLs, queueURL)
-		options.MessageQueueURLs = append(options.MessageQueueURLs, fallbackURLs...)
+		options.AsyncQueuePool = append(options.AsyncQueuePool, struct {
+			AsyncQueuePool AsyncQueuePool
+			Resolution     map[string]interface{}
+		}{AsyncQueuePool: queuePool, Resolution: data})
 	}
 }
 

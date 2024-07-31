@@ -40,6 +40,7 @@ import (
 	rpb "github.com/pydio/cells/v4/common/proto/registry"
 	"github.com/pydio/cells/v4/common/proto/tree"
 	"github.com/pydio/cells/v4/common/runtime"
+	"github.com/pydio/cells/v4/common/runtime/manager"
 	"github.com/pydio/cells/v4/common/telemetry/log"
 	"github.com/pydio/cells/v4/common/utils/cache"
 	"github.com/pydio/cells/v4/common/utils/openurl"
@@ -83,14 +84,37 @@ func NewSubscriber(parentContext context.Context) *Subscriber {
 
 	s.rootCtx = context.WithValue(parentContext, common.PydioContextUserKey, common.PydioSystemUsername)
 
-	tpq := runtime.PersistingQueueURL("serviceName", common.ServiceGrpcNamespace_+common.ServiceTasks, "name", common.TopicTreeChanges)
-	tpqFallback := runtime.QueueURL("debounce", "2s", "idle", "20s", "max", "2000")
-
-	mpq := runtime.PersistingQueueURL("serviceName", common.ServiceGrpcNamespace_+common.ServiceTasks, "name", common.TopicMetaChanges)
-	mpqFallback := runtime.QueueURL("debounce", "2s", "idle", "20s", "max", "2000")
-
 	queueOpt := broker.Queue("tasks")
 	counterOpt := broker.WithCounterName("tasks")
+
+	treeOpts := []broker.SubscribeOption{
+		queueOpt,
+		counterOpt,
+	}
+	metaOpts := []broker.SubscribeOption{
+		queueOpt,
+		counterOpt,
+	}
+
+	var mgr manager.Manager
+	if propagator.Get(parentContext, manager.ContextKey, &mgr) {
+		if d, e := mgr.GetQueuePool("persisted"); e == nil {
+			treeOpts = append(treeOpts, broker.WithAsyncQueuePool(d, map[string]interface{}{"name": common.TopicTreeChanges}))
+			metaOpts = append(metaOpts, broker.WithAsyncQueuePool(d, map[string]interface{}{"name": common.TopicMetaChanges}))
+		}
+		if d, e := mgr.GetQueuePool("debouncer"); e == nil {
+			treeOpts = append(treeOpts, broker.WithAsyncQueuePool(d, map[string]interface{}{"debounce": "2s", "idle": "20s", "max": "2000"}))
+			metaOpts = append(metaOpts, broker.WithAsyncQueuePool(d, map[string]interface{}{"debounce": "2s", "idle": "20s", "max": "2000"}))
+		}
+	} else {
+		fmt.Println("NO MANAGER ON SUBSCRIBER START")
+	}
+
+	//tpq := runtime.PersistingQueueURL("serviceName", common.ServiceGrpcNamespace_+common.ServiceTasks, "name", common.TopicTreeChanges)
+	//tpqFallback := runtime.QueueURL("debounce", "2s", "idle", "20s", "max", "2000")
+
+	//mpq := runtime.PersistingQueueURL("serviceName", common.ServiceGrpcNamespace_+common.ServiceTasks, "name", common.TopicMetaChanges)
+	//mpqFallback := runtime.QueueURL("debounce", "2s", "idle", "20s", "max", "2000")
 
 	_ = broker.SubscribeCancellable(parentContext, common.TopicTreeChanges, func(ctx context.Context, message broker.Message) error {
 		md, bb := message.RawData()
@@ -110,7 +134,7 @@ func NewSubscriber(parentContext context.Context) *Subscriber {
 		} else {
 			return e
 		}
-	}, queueOpt, broker.WithAsyncSubscriberInterceptor(tpq, tpqFallback), counterOpt)
+	}, treeOpts...)
 
 	_ = broker.SubscribeCancellable(parentContext, common.TopicTimerEvent, func(c context.Context, message broker.Message) error {
 		target := &jobs.JobTriggerEvent{}
@@ -135,7 +159,7 @@ func NewSubscriber(parentContext context.Context) *Subscriber {
 			return s.processNodeEvent(propagator.NewContext(s.rootCtx, md), target)
 		}
 		return nil
-	}, queueOpt, broker.WithAsyncSubscriberInterceptor(mpq, mpqFallback), counterOpt)
+	}, metaOpts...)
 
 	_ = broker.SubscribeCancellable(parentContext, common.TopicIdmEvent, func(c context.Context, message broker.Message) error {
 		target := &idm.ChangeEvent{}

@@ -210,28 +210,6 @@ func ShortCacheURL(queryPairs ...string) string {
 	return u.String()
 }
 
-// QueueURL creates URL to open a FIFO queue, containing queryPairs as query parameters
-func QueueURL(queryPairs ...string) string {
-	str := r.GetString(KeyQueue)
-	u, _ := url.Parse(str)
-	if !strings.HasSuffix(u.Path, DefaultQueueSuffix) {
-		u.Path += DefaultQueueSuffix
-	}
-	pairsToQuery(u, queryPairs...)
-	return u.String()
-}
-
-// PersistingQueueURL creates URL to open a FIFO queue that persists to restart, containing queryPairs as query parameters
-func PersistingQueueURL(queryPairs ...string) string {
-	str := r.GetString(KeyPersistQueue)
-	u, _ := url.Parse(str)
-	if !strings.HasSuffix(u.Path, DefaultQueueSuffix) {
-		u.Path += DefaultQueueSuffix
-	}
-	pairsToQuery(u, queryPairs...)
-	return u.String()
-}
-
 // ProxyServerURL defines which proxy to use for serving Sites
 func ProxyServerURL() string {
 	if HttpServerType() == HttpServerCaddy {
@@ -595,12 +573,14 @@ func Describe() (out []InfoGroup) {
 		"ShortCache": func() string {
 			return ShortCacheURL()
 		},
-		"Queue": func() string {
-			return QueueURL()
-		},
-		"Persisting Queue": func() string {
-			return PersistingQueueURL()
-		},
+		/*
+			"Queue": func() string {
+				return QueueURL()
+			},
+			"Persisting Queue": func() string {
+				return PersistingQueueURL()
+			},
+		*/
 	}
 
 	for _, k := range keys {

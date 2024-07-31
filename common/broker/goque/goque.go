@@ -1,3 +1,23 @@
+/*
+ * Copyright (c) 2024. Abstrium SAS <team (at) pydio.com>
+ * This file is part of Pydio Cells.
+ *
+ * Pydio Cells is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Pydio Cells is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with Pydio Cells.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ * The latest code can be found at <https://pydio.com>.
+ */
+
 package goque
 
 import (
@@ -13,14 +33,28 @@ import (
 	"google.golang.org/protobuf/proto"
 
 	"github.com/pydio/cells/v4/common/broker"
-	config2 "github.com/pydio/cells/v4/common/runtime"
+	"github.com/pydio/cells/v4/common/errors"
+	"github.com/pydio/cells/v4/common/runtime"
+	"github.com/pydio/cells/v4/common/runtime/controller"
+	"github.com/pydio/cells/v4/common/runtime/manager"
 	"github.com/pydio/cells/v4/common/telemetry/log"
+	"github.com/pydio/cells/v4/common/utils/propagator"
 )
 
 func init() {
-	broker.DefaultURLMux().Register("file", &gq{})
 	queues = map[string]*serviceQueue{}
 	ql = &sync.Mutex{}
+
+	runtime.Register("system", func(ctx context.Context) {
+		var mgr manager.Manager
+		if !propagator.Get(ctx, manager.ContextKey, &mgr) {
+			return
+		}
+		mgr.RegisterQueue("fifo", controller.WithCustomOpener(func(ctx context.Context, url string) (broker.AsyncQueuePool, error) {
+			return broker.NewWrappedPool(url, broker.MakeWrappedOpener(&gq{}))
+		}))
+	})
+
 }
 
 type serviceQueue struct {
@@ -78,11 +112,11 @@ func (g *gq) Consume(callback func(context.Context, ...broker.Message)) error {
 				it, er = g.qu.Dequeue()
 			}
 			if er != nil {
-				if er == goque.ErrDBClosed {
+				if errors.Is(er, goque.ErrDBClosed) {
 					log.Logger(g.ctx).Debug("[goque] Closing consumer on DB closed" + g.prefix)
 					return
 				}
-				if er != goque.ErrEmpty && er != goque.ErrOutOfBounds {
+				if !errors.Is(er, goque.ErrEmpty) && !errors.Is(er, goque.ErrOutOfBounds) {
 					log.Logger(g.ctx).Error("[goque] Received error while consuming messages"+g.prefix, zap.Error(er))
 				}
 				<-time.After(500 * time.Millisecond)
@@ -108,10 +142,10 @@ func (g *gq) Close(ctx context.Context) error {
 }
 
 func (g *gq) OpenURL(ctx context.Context, u *url.URL) (broker.AsyncQueue, error) {
-	srv := u.Query().Get("serviceName")
-	if srv == "" {
-		return nil, fmt.Errorf("please provide a service name")
-	}
+	//srv := u.Query().Get("serviceName")
+	//if srv == "" {
+	//	return nil, fmt.Errorf("please provide a service name")
+	//}
 	streamName := u.Query().Get("name")
 	if streamName == "" {
 		return nil, fmt.Errorf("please provide a stream name")
@@ -131,7 +165,7 @@ func (g *gq) OpenURL(ctx context.Context, u *url.URL) (broker.AsyncQueue, error)
 		}, nil
 	}
 
-	srvDir := config2.MustServiceDataDir(srv)
+	srvDir := u.Path //config2.MustServiceDataDir(srv)
 	dataDir := filepath.Join(srvDir, queueName)
 	var sq *serviceQueue
 	var pq *goque.PrefixQueue

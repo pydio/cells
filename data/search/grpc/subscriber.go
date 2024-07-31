@@ -23,37 +23,14 @@ package grpc
 import (
 	"context"
 
-	"go.uber.org/zap"
-
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/broker"
 	"github.com/pydio/cells/v4/common/proto/tree"
-	"github.com/pydio/cells/v4/common/runtime"
-	"github.com/pydio/cells/v4/common/telemetry/log"
 )
 
 // EventsSubscriber definition
 type EventsSubscriber struct {
-	broker.AsyncQueue
 	outputChannel chan *broker.TypeWithContext[*tree.NodeChangeEvent]
-}
-
-func (e *EventsSubscriber) Start(ctx context.Context) error {
-	if qu, err := broker.OpenAsyncQueue(ctx, runtime.PersistingQueueURL("serviceName", common.ServiceGrpcNamespace_+common.ServiceSearch, "name", "search")); err == nil {
-		e.AsyncQueue = qu
-	} else {
-		log.Logger(ctx).Error("Cannot start queue, using an in-memory instead", zap.Error(err))
-
-	}
-	er := e.Consume(func(ctx context.Context, messages ...broker.Message) {
-		for _, message := range messages {
-			msg := &tree.NodeChangeEvent{}
-			if ct, er := message.Unmarshal(ctx, msg); er == nil {
-				_ = e.Handle(ct, msg)
-			}
-		}
-	})
-	return er
 }
 
 // Handle the events received and send them to the subscriber

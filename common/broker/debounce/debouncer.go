@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023. Abstrium SAS <team (at) pydio.com>
+ * Copyright (c) 2024. Abstrium SAS <team (at) pydio.com>
  * This file is part of Pydio Cells.
  *
  * Pydio Cells is free software: you can redistribute it and/or modify
@@ -32,7 +32,11 @@ import (
 	"google.golang.org/protobuf/proto"
 
 	"github.com/pydio/cells/v4/common/broker"
+	"github.com/pydio/cells/v4/common/runtime"
+	"github.com/pydio/cells/v4/common/runtime/controller"
+	"github.com/pydio/cells/v4/common/runtime/manager"
 	"github.com/pydio/cells/v4/common/telemetry/log"
+	"github.com/pydio/cells/v4/common/utils/propagator"
 )
 
 // protoWithContext composes a generic type and a context
@@ -61,7 +65,16 @@ func (t *protoWithContext) RawData() (map[string]string, []byte) {
 }
 
 func init() {
-	broker.DefaultURLMux().Register("mem", &debounce{})
+	runtime.Register("system", func(ctx context.Context) {
+		var mgr manager.Manager
+		if !propagator.Get(ctx, manager.ContextKey, &mgr) {
+			return
+		}
+		mgr.RegisterQueue("mem", controller.WithCustomOpener(func(ctx context.Context, url string) (broker.AsyncQueuePool, error) {
+			return broker.NewWrappedPool(url, broker.MakeWrappedOpener(&debounce{}))
+		}))
+	})
+
 }
 
 // debounce debounces events on a given timeframe and calls process on them afterward
@@ -84,7 +97,7 @@ type debounce struct {
 func (b *debounce) OpenURL(ctx context.Context, u *url.URL) (broker.AsyncQueue, error) {
 	deb := 3 * time.Second
 	idl := 20 * time.Second
-	max := 2000
+	maxN := 2000
 
 	if d := u.Query().Get("debounce"); d != "" {
 		if du, er := time.ParseDuration(d); er == nil {
@@ -103,7 +116,7 @@ func (b *debounce) OpenURL(ctx context.Context, u *url.URL) (broker.AsyncQueue, 
 
 	if m := u.Query().Get("max"); m != "" {
 		if ma, er := strconv.Atoi(m); er == nil {
-			max = ma
+			maxN = ma
 		} else {
 			log.Logger(ctx).Warn("[debounce] Cannot parse max, using default", zap.Error(er))
 		}
@@ -114,7 +127,7 @@ func (b *debounce) OpenURL(ctx context.Context, u *url.URL) (broker.AsyncQueue, 
 		globalCtx: ctx,
 		debounce:  deb,
 		idle:      idl,
-		maxEvents: max,
+		maxEvents: maxN,
 	}, nil
 }
 

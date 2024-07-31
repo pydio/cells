@@ -22,11 +22,30 @@ package broker
 
 import (
 	"context"
+	"net/url"
+	"sync"
 
 	"google.golang.org/protobuf/proto"
+
+	"github.com/pydio/cells/v4/common/errors"
+	"github.com/pydio/cells/v4/common/runtime/controller"
+	"github.com/pydio/cells/v4/common/utils/openurl"
 )
 
+const (
+	OpenerFuncKey = "opener"
+	OpenerIDKey   = "openerID"
+)
+
+type URLOpener interface {
+	OpenURL(ctx context.Context, u *url.URL) (AsyncQueue, error)
+}
+
 type Consumer func(...Message)
+
+type OpenWrapper func(q AsyncQueue) (AsyncQueue, error)
+
+type AsyncQueuePool openurl.Resolver[AsyncQueue]
 
 type AsyncQueue interface {
 	MessageQueue
@@ -37,4 +56,92 @@ type AsyncQueue interface {
 type TypeWithContext[T any] struct {
 	Original T
 	Ctx      context.Context
+}
+
+func NewWrappedPool(rootURL string, wrapper func(w OpenWrapper) controller.Opener[AsyncQueuePool]) (AsyncQueuePool, error) {
+	return &openerPoolWrapper{
+		url:       rootURL,
+		wrapper:   wrapper,
+		pools:     make(map[string]controller.Opener[AsyncQueuePool]),
+		poolsLock: &sync.Mutex{},
+	}, nil
+}
+
+type openerPoolWrapper struct {
+	wrapper   func(w OpenWrapper) controller.Opener[AsyncQueuePool]
+	url       string
+	pools     map[string]controller.Opener[AsyncQueuePool]
+	poolsLock *sync.Mutex
+}
+
+func (opw *openerPoolWrapper) Get(ctx context.Context, data ...map[string]interface{}) (AsyncQueue, error) {
+	if len(data) == 0 {
+		return nil, errors.New("no resolution data provided")
+	}
+	var opId string
+	var op OpenWrapper
+	for _, m := range data {
+		for k, v := range m {
+			if k == OpenerIDKey {
+				opId = v.(string)
+			} else if k == OpenerFuncKey {
+				op = v.(OpenWrapper)
+			}
+		}
+	}
+	if opId == "" {
+		return nil, errors.New("provide an opener ID")
+	}
+	if op == nil {
+		return nil, errors.New("provide an opener")
+	}
+
+	opw.poolsLock.Lock()
+	var poolOpener controller.Opener[AsyncQueuePool]
+	if p, ok := opw.pools[opId]; ok {
+		poolOpener = p
+	} else {
+		poolOpener = opw.wrapper(op)
+		opw.pools[opId] = poolOpener
+	}
+	opw.poolsLock.Unlock()
+	qp, _ := poolOpener(ctx, opw.url)
+
+	return qp.Get(ctx, data...)
+
+}
+
+type pool struct {
+	*openurl.Pool[AsyncQueue]
+}
+
+func (p *pool) Get(ctx context.Context, data ...map[string]interface{}) (AsyncQueue, error) {
+	return p.Pool.Get(ctx, data...)
+}
+
+func MakeWrappedOpener(opener URLOpener) func(w OpenWrapper) controller.Opener[AsyncQueuePool] {
+	return func(w OpenWrapper) controller.Opener[AsyncQueuePool] {
+		return func(ctx context.Context, rawUrl string) (AsyncQueuePool, error) {
+			p, err := openurl.OpenPool(context.Background(), []string{rawUrl}, func(ctx context.Context, dsn string) (AsyncQueue, error) {
+				u, er := url.Parse(dsn)
+				if er != nil {
+					return nil, er
+				}
+				dq, e := opener.OpenURL(ctx, u)
+				if e != nil {
+					return nil, e
+				}
+				return w(dq)
+			})
+
+			if err != nil {
+				return nil, err
+			}
+
+			return &pool{
+				Pool: p,
+			}, nil
+		}
+	}
+
 }

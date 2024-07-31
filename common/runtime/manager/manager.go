@@ -77,11 +77,15 @@ type Manager interface {
 	SetServeOptions(...server.ServeOption)
 	WatchServicesConfigs()
 	WatchBroker(ctx context.Context, br broker.Broker) error
-	GetConfig(ctx context.Context) config.Store
 
 	RegisterStorage(scheme string, options ...controller.Option[storage.Storage])
 	RegisterConfig(scheme string, config ...controller.Option[*openurl.Pool[config.Store]])
+	RegisterQueue(scheme string, opts ...controller.Option[broker.AsyncQueuePool])
+
 	GetStorage(ctx context.Context, name string, out any) error
+	GetConfig(ctx context.Context) config.Store
+	GetQueue(ctx context.Context, name string, resolutionData map[string]interface{}, openerID string, openerFunc broker.OpenWrapper) (broker.AsyncQueue, error)
+	GetQueuePool(name string) (broker.AsyncQueuePool, error)
 }
 
 type manager struct {
@@ -103,6 +107,7 @@ type manager struct {
 	// controllers
 	storage controller.Controller[storage.Storage]
 	config  controller.Controller[*openurl.Pool[config.Store]]
+	queues  controller.Controller[broker.AsyncQueuePool]
 
 	// TODO - adapt this
 	configResolver *openurl.Pool[config.Store]
@@ -125,6 +130,7 @@ func NewManager(ctx context.Context, namespace string, logger log.ZapLogger) (Ma
 
 		storage: controller.NewController[storage.Storage](),
 		config:  controller.NewController[*openurl.Pool[config.Store]](),
+		queues:  controller.NewController[broker.AsyncQueuePool](),
 	}
 
 	ctx = propagator.With(ctx, ContextKey, m)
@@ -179,23 +185,37 @@ func NewManager(ctx context.Context, namespace string, logger log.ZapLogger) (Ma
 		return m.initProcesses()
 	})
 
+	// Load bootstrap and compute base depending on process
+	bootstrap, err := loadBootstrap(m.ctx)
+	if err != nil {
+		return nil, err
+	}
+	base := "#"
+	if name := runtime.Name(); name != "default" {
+		base += strings.Join(strings.Split("_"+name, "_"), "/processes/")
+	}
 	// Initialising listeners
-	if err := m.initListeners(); err != nil {
+	if err := m.initListeners(bootstrap, base); err != nil {
 		return nil, err
 	}
 
 	// Initialising servers
-	if err := m.initServers(); err != nil {
+	if err := m.initServers(bootstrap, base); err != nil {
 		return nil, err
 	}
 
 	// Initialising default connections
-	if err := m.initConnections(); err != nil {
+	if err := m.initConnections(bootstrap, base); err != nil {
 		return nil, err
 	}
 
 	// Initialising storages
-	if err := m.initStorages(); err != nil {
+	if err := m.initStorages(bootstrap, base); err != nil {
+		return nil, err
+	}
+
+	// Initialising queues
+	if err := m.initQueues(bootstrap, base); err != nil {
 		return nil, err
 	}
 
@@ -272,6 +292,10 @@ func (m *manager) RegisterConfig(scheme string, opts ...controller.Option[*openu
 	m.config.Register(scheme, opts...)
 }
 
+func (m *manager) RegisterQueue(scheme string, opts ...controller.Option[broker.AsyncQueuePool]) {
+	m.queues.Register(scheme, opts...)
+}
+
 func (m *manager) GetStorage(ctx context.Context, name string, out any) error {
 	item, err := m.localRegistry.Get(name, registry.WithType(pb.ItemType_STORAGE))
 	if err != nil {
@@ -298,6 +322,28 @@ func (m *manager) GetStorage(ctx context.Context, name string, out any) error {
 	////}
 
 	return nil
+}
+
+func (m *manager) GetQueue(ctx context.Context, name string, resolutionData map[string]interface{}, openerID string, openerFunc broker.OpenWrapper) (broker.AsyncQueue, error) {
+	qp, er := m.GetQueuePool(name)
+	if er != nil {
+		return nil, er
+	}
+	resolutionData[broker.OpenerIDKey] = openerID
+	resolutionData[broker.OpenerFuncKey] = openerFunc
+	return qp.Get(ctx, resolutionData)
+}
+
+func (m *manager) GetQueuePool(name string) (broker.AsyncQueuePool, error) {
+	item, err := m.localRegistry.Get("queue-"+name, registry.WithType(pb.ItemType_GENERIC))
+	if err != nil {
+		return nil, err
+	}
+	var pool broker.AsyncQueuePool
+	if ok := item.As(&pool); !ok {
+		return nil, errors.New("wrong item format")
+	}
+	return pool, nil
 }
 
 func (m *manager) initProcesses() error {
@@ -436,19 +482,8 @@ func (m *manager) initProcesses() error {
 	}
 }
 
-func (m *manager) initListeners() error {
-	store, err := loadBootstrap(m.ctx)
-	if err != nil {
-		return err
-	}
-
-	base := "#"
-	if name := runtime.Name(); name != "default" {
-		base += strings.Join(strings.Split("_"+name, "_"), "/processes/")
-	}
-
+func (m *manager) initListeners(store *Bootstrap, base string) error {
 	listeners := store.Val(base + "/listeners")
-
 	for k, v := range listeners.Map() {
 		vv, ok := v.(map[any]any)
 		if !ok {
@@ -488,16 +523,7 @@ func (m *manager) initListeners() error {
 	return nil
 }
 
-func (m *manager) initServers() error {
-	store, err := loadBootstrap(m.ctx)
-	if err != nil {
-		return err
-	}
-
-	base := "#"
-	if name := runtime.Name(); name != "default" {
-		base += strings.Join(strings.Split("_"+name, "_"), "/processes/")
-	}
+func (m *manager) initServers(store *Bootstrap, base string) error {
 
 	servers := store.Val(base + "/servers")
 	for _, v := range servers.Map() {
@@ -567,17 +593,7 @@ func (m *manager) initServers() error {
 	return nil
 }
 
-func (m *manager) initConnections() error {
-	store, err := loadBootstrap(m.ctx)
-	if err != nil {
-		return err
-	}
-
-	base := "#"
-	if name := runtime.Name(); name != "default" {
-		base += strings.Join(strings.Split("_"+name, "_"), "/processes/")
-	}
-
+func (m *manager) initConnections(store *Bootstrap, base string) error {
 	connections := store.Val(base + "/connections")
 	for k, v := range connections.Map() {
 		vv, ok := v.(map[any]any)
@@ -643,17 +659,7 @@ func (m *manager) initConnections() error {
 	return nil
 }
 
-func (m *manager) initStorages() error {
-	store, err := loadBootstrap(m.ctx)
-	if err != nil {
-		return err
-	}
-
-	base := "#"
-	if name := runtime.Name(); name != "default" {
-		base += strings.Join(strings.Split("_"+name, "_"), "/processes/")
-	}
-
+func (m *manager) initStorages(store *Bootstrap, base string) error {
 	storages := store.Val(base + "/storages")
 	for k := range storages.Map() {
 		uri := storages.Val(k, "uri").String()
@@ -703,6 +709,29 @@ func (m *manager) initStorages() error {
 		}
 	})
 
+	return nil
+}
+
+func (m *manager) initQueues(store *Bootstrap, base string) error {
+	queues := store.Val(base + "/queues")
+	for k := range queues.Map() {
+		uri := queues.Val(k, "uri").String()
+		pool, err := m.queues.Open(m.ctx, uri)
+		if err != nil {
+			fmt.Println("initQueues - cannot open pool with URI"+uri, err)
+			continue
+		}
+		regKey := "queue-" + k
+		er := registry.NewMetaWrapper(m.localRegistry, func(meta map[string]string) {
+			meta[registry.MetaTimestampKey] = fmt.Sprintf("%d", time.Now().UnixNano())
+			meta[registry.MetaStatusKey] = string(registry.StatusTransient)
+		}).Register(registry.NewRichItem(regKey, regKey, pool), registry.WithEdgeTo(m.root.ID(), "queue", nil))
+		if er != nil {
+			fmt.Println("initQueues - cannot register pool with URI"+uri, er)
+		} else {
+			fmt.Println("initQueues - Registered " + regKey + " with pool from uri " + uri)
+		}
+	}
 	return nil
 }
 

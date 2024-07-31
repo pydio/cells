@@ -33,8 +33,8 @@ import (
 
 	"github.com/pydio/cells/v4/common/errors"
 	"github.com/pydio/cells/v4/common/telemetry/metrics"
-	"github.com/pydio/cells/v4/common/utils/openurl"
 	"github.com/pydio/cells/v4/common/utils/propagator"
+	"github.com/pydio/cells/v4/common/utils/uuid"
 )
 
 type brokerKey struct{}
@@ -69,7 +69,7 @@ func NewBroker(s string, opts ...Option) Broker {
 	opts = append(opts, WithChainSubscriberInterceptor(
 		TimeoutSubscriberInterceptor(),
 		HeaderInjectorInterceptor(),
-		// ContextInjectorInterceptor(),
+		ContextInjectorInterceptor(),
 	))
 
 	options := newOptions(opts...)
@@ -179,32 +179,31 @@ func Subscribe(root context.Context, topic string, handler SubscriberHandler, op
 	}
 
 	// Wrap handler in Queue
-	if len(so.MessageQueueURLs) > 0 {
-		if so.MessageQueuePool == nil {
-			var er error
-			so.MessageQueuePool, er = openurl.OpenPool[MessageQueue](nil, so.MessageQueueURLs, func(ctx context.Context, url string) (MessageQueue, error) {
-				// On open, set up consume
-				q, err := OpenAsyncQueue(root, url) // OPEN WITH ROOT CONTEXT AS IT CONTROLS THE DONE()
-				if err != nil {
-					return q, err
-				}
-				err = q.Consume(func(ctx context.Context, mm ...Message) {
-					for _, m := range mm {
-						_ = so.HandleError(ctx, wh(ctx, m))
-					}
-				})
-				return q, err
-			})
-			if er != nil {
-				return nil, er
-			}
-		}
+	if len(so.AsyncQueuePool) > 0 {
+		openerID := uuid.New()
 		qH := func(ctx context.Context, m Message) error {
-			mq, er := so.MessageQueuePool.Get(ctx)
+			openReso := map[string]interface{}{
+				OpenerIDKey: openerID,
+				OpenerFuncKey: OpenWrapper(func(q AsyncQueue) (AsyncQueue, error) {
+					err := q.Consume(func(ctx context.Context, mm ...Message) {
+						for _, mess := range mm {
+							_ = so.HandleError(ctx, wh(ctx, mess))
+						}
+					})
+					return q, err
+				}),
+			}
+			var q AsyncQueue
+			var er error
+			for _, po := range so.AsyncQueuePool {
+				if q, er = po.AsyncQueuePool.Get(ctx, openReso, po.Resolution); er == nil {
+					break
+				}
+			}
 			if er != nil {
 				return er
 			}
-			return mq.PushRaw(ctx, m)
+			return q.PushRaw(ctx, m)
 		}
 		// Replace original handler
 		return std.Subscribe(root, topic, qH, opts...)

@@ -42,6 +42,7 @@ import (
 	"github.com/pydio/cells/v4/common/proto/idm"
 	"github.com/pydio/cells/v4/common/proto/tree"
 	"github.com/pydio/cells/v4/common/runtime"
+	"github.com/pydio/cells/v4/common/runtime/manager"
 	"github.com/pydio/cells/v4/common/service"
 	"github.com/pydio/cells/v4/common/utils/propagator"
 )
@@ -66,14 +67,6 @@ func init() {
 			}),
 			service.WithStorageDrivers(activity.Drivers...),
 			service.WithStorageMigrator(activity.Migrate),
-			/*
-				service.WithStorage("bolt", activity.NewBoltDAO,
-					service.WithStoragePrefix("activity"),
-					service.WithStorageDefaultDriver(func() (string, string) {
-						return boltdb.Driver, filepath.Join(runtime.MustServiceDataDir(Name), "activities.db")
-					}),
-				),
-			*/
 			service.WithGRPC(func(c context.Context, srv grpc.ServiceRegistrar) error {
 
 				// Register Subscribers
@@ -82,6 +75,16 @@ func init() {
 					return err
 				}
 				counterName := broker.WithCounterName("activity")
+				opts := []broker.SubscribeOption{counterName}
+				idmOpts := []broker.SubscribeOption{counterName}
+				var mgr manager.Manager
+				if propagator.Get(c, manager.ContextKey, &mgr) {
+					if d, e := mgr.GetQueuePool("persisted"); e == nil {
+						opts = append(opts, broker.WithAsyncQueuePool(d, map[string]interface{}{"name": "treeChanges"}))
+						// TODO - USED FOR TESTING QUEUING ON IDM EVENTS
+						//idmOpts = append(idmOpts, broker.WithAsyncQueuePool(d, map[string]interface{}{"name": "idmChanges"}))
+					}
+				}
 
 				processOneWithTimeout := func(ct context.Context, event *tree.NodeChangeEvent) error {
 					var ca context.CancelFunc
@@ -106,7 +109,7 @@ func init() {
 						return processOneWithTimeout(propagator.NewContext(ctx, md), msg)
 					}
 					return nil
-				}, broker.WithAsyncSubscriberInterceptor(runtime.PersistingQueueURL("serviceName", common.ServiceGrpcNamespace_+common.ServiceActivity, "name", "changes")), counterName); e != nil {
+				}, opts...); e != nil {
 					return e
 				}
 
@@ -129,7 +132,7 @@ func init() {
 						return subscriber.HandleIdmChange(ctx, msg)
 					}
 					return nil
-				}, counterName); e != nil {
+				}, idmOpts...); e != nil {
 					return e
 				}
 

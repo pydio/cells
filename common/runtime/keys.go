@@ -32,8 +32,6 @@ const (
 	KeyCertsStore   = "certs_store"
 	KeyCache        = "cache"
 	KeyShortCache   = "shortcache"
-	KeyQueue        = "queue"
-	KeyPersistQueue = "persistqueue"
 	KeyFork         = "fork"
 	KeyForkLegacy   = "is_fork"
 	KeyArgTags      = "tags"

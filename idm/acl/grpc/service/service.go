@@ -80,10 +80,7 @@ func init() {
 					return e
 				}
 
-				nCleaner, er := grpc2.NewNodesCleaner(ctx, handler)
-				if er != nil {
-					return er
-				}
+				nCleaner := grpc2.NewNodesCleaner(ctx, handler)
 				if e := broker.SubscribeCancellable(ctx, common.TopicTreeChanges, func(ctx context.Context, message broker.Message) error {
 					ev := &tree.NodeChangeEvent{}
 					if ctx, e := message.Unmarshal(ctx, ev); e == nil {

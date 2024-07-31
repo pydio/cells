@@ -22,6 +22,7 @@ package grpc
 
 import (
 	"context"
+	"fmt"
 	"path"
 	"strings"
 	"sync"
@@ -55,8 +56,8 @@ type MicroEventsSubscriber struct {
 	sync.Mutex
 	RuntimeCtx context.Context
 
-	cachePool   *openurl.Pool[cache.Cache]
-	muxPool     *openurl.Pool[broker.AsyncQueue]
+	cachePool *openurl.Pool[cache.Cache]
+	//muxPool     *openurl.Pool[broker.AsyncQueue]
 	handlerName string
 }
 
@@ -66,26 +67,43 @@ func NewEventsSubscriber(ctx context.Context, handlerName string) (*MicroEventsS
 		RuntimeCtx:  ctx,
 		handlerName: handlerName,
 	}
-
-	dbcURL := runtime.QueueURL("debounce", "2s", "idle", "20s", "max", "2000")
-	dbcOpener := func(ctx context.Context, u string) (broker.AsyncQueue, error) {
-		q, e := broker.OpenAsyncQueue(ctx, u)
-		if e != nil {
-			return q, e
+	/*
+		dbcURL := runtime.QueueURL("debounce", "2s", "idle", "20s", "max", "2000")
+		dbcOpener := func(ctx context.Context, u string) (broker.AsyncQueue, error) {
+			q, e := broker.OpenAsyncQueue(ctx, u)
+			if e != nil {
+				return q, e
+			}
+			er := q.Consume(m.ProcessIdmBatch)
+			return q, er
 		}
-		er := q.Consume(m.ProcessIdmBatch)
-		return q, er
-	}
-	var er error
-	m.muxPool, er = openurl.OpenPool[broker.AsyncQueue](ctx, []string{dbcURL}, dbcOpener)
-	if er != nil {
-		return nil, er
-	}
+		var er error
+		m.muxPool, er = openurl.OpenPool[broker.AsyncQueue](ctx, []string{dbcURL}, dbcOpener)
+		if er != nil {
+			return nil, er
+		}*/
 
+	var er error
 	cacheURL := runtime.ShortCacheURL("evictionTime", "3m", "cleanWindow", "10m")
 	m.cachePool, er = cache.OpenPool(cacheURL)
 
 	return m, er
+}
+
+func (e *MicroEventsSubscriber) getQueue(ctx context.Context) (broker.AsyncQueue, error) {
+	var mgr manager.Manager
+	if !propagator.Get(ctx, manager.ContextKey, &mgr) {
+		return nil, fmt.Errorf("no manager in context")
+	}
+	data := map[string]interface{}{
+		"debounce": "2s",
+		"idle":     "20s",
+		"max":      "2000",
+	}
+	return mgr.GetQueue(ctx, "debouncer", data, "activity", func(q broker.AsyncQueue) (broker.AsyncQueue, error) {
+		er := q.Consume(e.ProcessIdmBatch)
+		return q, er
+	})
 }
 
 func (e *MicroEventsSubscriber) ignoreForInternal(node *tree.Node) bool {
@@ -230,7 +248,7 @@ func (e *MicroEventsSubscriber) HandleIdmChange(ctx context.Context, msg *idm.Ch
 			msg.Attributes = make(map[string]string)
 		}
 		msg.Attributes["user"] = author
-		q, er := e.muxPool.Get(ctx)
+		q, er := e.getQueue(ctx) //e.muxPool.Get(ctx)
 		if er != nil {
 			return er
 		}
