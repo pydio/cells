@@ -55,9 +55,9 @@ func init() {
 					Up:            manager.StorageMigration(),
 				},
 				{
-					//TargetVersion: service.FirstRun(),
-					TargetVersion: service.Latest(),
-					Up:            grpc2.InitDefaults,
+					TargetVersion: service.FirstRun(),
+					//TargetVersion: service.Latest(),
+					Up: grpc2.InitDefaults,
 				},
 			}),
 			service.WithStorageDrivers(user.Drivers...),

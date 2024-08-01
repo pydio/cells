@@ -24,6 +24,7 @@ import (
 	"context"
 	"crypto/tls"
 	"net/http"
+	"sync"
 
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/registry"
@@ -49,9 +50,9 @@ type ServiceOptions struct {
 	runtimeCtx    context.Context
 	runtimeCancel context.CancelFunc
 
-	// TODO - this should be done properly per tenant
-	migrateOnce bool
-	Migrations  []*Migration `json:"-"`
+	migrateOnce  map[string]bool
+	migrateOnceL *sync.Mutex
+	Migrations   []*Migration `json:"-"`
 
 	// Port      string
 	TLSConfig *tls.Config
@@ -252,6 +253,8 @@ func newOptions(opts ...ServiceOption) *ServiceOptions {
 	opt.Version = common.Version().String()
 	opt.AutoStart = true
 	opt.rootContext = context.TODO()
+	opt.migrateOnce = make(map[string]bool)
+	opt.migrateOnceL = &sync.Mutex{}
 
 	for _, o := range opts {
 		if o == nil {
