@@ -26,6 +26,7 @@ func init() {
 		return nil
 	})
 	openurl.RegisterTplFunc("tenantPathWithBlank", PathWithBlank)
+	openurl.RegisterTplFunc("tenantSepWithBlank", ValueOrBlank)
 }
 
 // PathWithBlank returns the /tenant value, unless the tenant equals the blank value and it returns empty
@@ -34,5 +35,13 @@ func PathWithBlank(tenant, blankValue string) string {
 		return ""
 	} else {
 		return "/" + tenant
+	}
+}
+
+func ValueOrBlank(tenant, separator, blankValue string) string {
+	if tenant == blankValue {
+		return ""
+	} else {
+		return tenant + separator
 	}
 }
