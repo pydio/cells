@@ -29,10 +29,14 @@ import (
 	. "github.com/smartystreets/goconvey/convey"
 )
 
+const (
+	serviceBroker = common.ServiceGrpcNamespace_ + common.ServiceBroker
+)
+
 func init() {
 	runtime.Register("test", func(ctx context.Context) {
 		service.NewService(
-			service.Name(common.ServiceGrpcNamespace_+common.ServiceBroker),
+			service.Name(serviceBroker),
 			service.Context(ctx),
 			service.Tag("test"),
 			service.WithGRPC(func(ctx context.Context, srv grpc2.ServiceRegistrar) error {
@@ -53,7 +57,7 @@ func TestServiceBroker(t *testing.T) {
 			numMessagesReceived := 0
 
 			var cancel context.CancelFunc
-			conn := grpc.ResolveConn(ctx, common.ServiceBroker)
+			conn := grpc.ResolveConn(ctx, common.ServiceBrokerGRPC)
 
 			ctx := runtime.WithClientConn(ctx, conn)
 			ctx, cancel = context.WithCancel(ctx)

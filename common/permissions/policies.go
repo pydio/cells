@@ -24,7 +24,6 @@ import (
 	"bytes"
 	"context"
 	"fmt"
-	"github.com/pydio/cells/v4/common/middleware/keys"
 	"path"
 	"strings"
 	"sync"
@@ -38,6 +37,7 @@ import (
 	"github.com/pydio/cells/v4/common/auth/claim"
 	"github.com/pydio/cells/v4/common/broker"
 	"github.com/pydio/cells/v4/common/client/grpc"
+	"github.com/pydio/cells/v4/common/middleware/keys"
 	"github.com/pydio/cells/v4/common/proto/idm"
 	"github.com/pydio/cells/v4/common/proto/tree"
 	"github.com/pydio/cells/v4/common/runtime"
@@ -168,7 +168,7 @@ func PolicyContextFromClaims(policyContext map[string]string, ctx context.Contex
 
 func loadPoliciesByResourcesType(ctx context.Context, resType string) ([]*idm.Policy, error) {
 
-	cli := idm.NewPolicyEngineServiceClient(grpc.ResolveConn(ctx, common.ServicePolicy))
+	cli := idm.NewPolicyEngineServiceClient(grpc.ResolveConn(ctx, common.ServicePolicyGRPC))
 	st, e := cli.StreamPolicyGroups(ctx, &idm.ListPolicyGroupsRequest{Filter: "resource_group:" + resType})
 	if e != nil {
 		return nil, e

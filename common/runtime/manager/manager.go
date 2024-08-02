@@ -21,12 +21,15 @@
 package manager
 
 import (
+	"bytes"
 	"context"
 	"fmt"
 	"net"
 	"os"
+	"regexp"
 	"strconv"
 	"strings"
+	"text/template"
 	"time"
 
 	"github.com/bep/debounce"
@@ -150,13 +153,13 @@ func NewManager(ctx context.Context, namespace string, logger log.ZapLogger) (Ma
 
 	m.configResolver = cr
 
-	if clusterRegistryURL := runtime.RegistryURL(); clusterRegistryURL != "" {
-		clusterRegistry, err := registry.OpenRegistry(ctx, clusterRegistryURL)
-		if err == nil {
-			m.clusterRegistry = clusterRegistry
-			//return nil, err
-		}
-	}
+	//if clusterRegistryURL := runtime.RegistryURL(); clusterRegistryURL != "" {
+	//	clusterRegistry, err := registry.OpenRegistry(ctx, clusterRegistryURL)
+	//	if err == nil {
+	//		m.clusterRegistry = clusterRegistry
+	//		//return nil, err
+	//	}
+	//}
 
 	reg = registry.NewTransientWrapper(reg, registry.WithType(pb.ItemType_SERVICE))
 	reg = registry.NewMetaWrapper(reg, server.InitPeerMeta, registry.WithType(pb.ItemType_SERVER), registry.WithType(pb.ItemType_NODE))
@@ -191,7 +194,7 @@ func NewManager(ctx context.Context, namespace string, logger log.ZapLogger) (Ma
 		return nil, err
 	}
 	base := "#"
-	if name := runtime.Name(); name != "default" {
+	if name := runtime.Name(); name != "" && name != "default" {
 		base += strings.Join(strings.Split("_"+name, "_"), "/processes/")
 	}
 	// Initialising listeners
@@ -558,6 +561,11 @@ func (m *manager) initServers(store *Bootstrap, base string) error {
 			registry.NewMetaWrapper(m.localRegistry, func(meta map[string]string) {
 				meta[registry.MetaTimestampKey] = fmt.Sprintf("%d", time.Now().UnixNano())
 				meta[registry.MetaStatusKey] = string(registry.StatusStopped)
+
+				if s, ok := vv["services"]; ok {
+					b, _ := json.Marshal(s)
+					meta["services"] = string(b)
+				}
 			}).Register(srv, regOpts...)
 		}
 	}
@@ -651,6 +659,11 @@ func (m *manager) initConnections(store *Bootstrap, base string) error {
 				registry.NewMetaWrapper(m.localRegistry, func(meta map[string]string) {
 					meta[registry.MetaTimestampKey] = fmt.Sprintf("%d", time.Now().UnixNano())
 					meta[registry.MetaStatusKey] = string(registry.StatusTransient)
+
+					if s, ok := vv["services"]; ok {
+						b, _ := json.Marshal(s)
+						meta["services"] = string(b)
+					}
 				}).Register(registry.NewRichItem(k, k, conn), registry.WithEdgeTo(m.root.ID(), "connection", nil))
 			}
 		}
@@ -665,10 +678,11 @@ func (m *manager) initStorages(store *Bootstrap, base string) error {
 		uri := storages.Val(k, "uri").String()
 		conn, err := m.storage.Open(m.ctx, uri)
 		if err != nil {
-			fmt.Println("initConnections - cannot open storage with uri "+uri, err)
+			fmt.Println("initStorages - cannot open storage with uri "+uri, err)
 			continue
 		}
-		fmt.Println("initConnections - opened storage with uri " + uri)
+
+		fmt.Println("initStorages - opened storage with uri " + uri)
 
 		if conn != nil {
 			registry.NewMetaWrapper(m.localRegistry, func(meta map[string]string) {
@@ -742,7 +756,7 @@ func (m *manager) ServeAll(oo ...server.ServeOption) error {
 		return err
 	}
 
-	_ = registry.NewMetaWrapper(m.localRegistry, func(meta map[string]string) {
+	registry.NewMetaWrapper(m.localRegistry, func(meta map[string]string) {
 		meta[registry.MetaTimestampKey] = fmt.Sprintf("%d", time.Now().UnixNano())
 		meta[registry.MetaStatusKey] = string(registry.StatusTransient)
 	}).Register(m.root)
@@ -753,83 +767,8 @@ func (m *manager) ServeAll(oo ...server.ServeOption) error {
 
 	m.servers = map[string]server.Server{}
 	m.services = map[string]service.Service{}
-	byScheme := map[string]server.Server{}
 
-	servers, err := m.localRegistry.List(registry.WithType(pb.ItemType_SERVER))
-	if err != nil {
-		return err
-	}
-
-	for _, ss := range servers {
-		var s server.Server
-		if !ss.As(&s) {
-			continue
-		}
-		m.servers[s.ID()] = s
-	}
-
-	services, err := m.localRegistry.List(registry.WithType(pb.ItemType_SERVICE))
-	if err != nil {
-		return err
-	}
-
-	for _, ss := range services {
-		var s service.Service
-		if !ss.As(&s) {
-			continue
-		}
-		opts := s.Options()
-		mustFork := opts.Fork && !runtime.IsFork()
-
-		// Replace service context with target registry
-		opts.SetRegistry(m.localRegistry)
-
-		if !runtime.IsRequired(s.Name(), opts.Tags...) && !opts.ForceRegister {
-			continue
-		}
-
-		if mustFork && !opts.AutoStart {
-			continue
-		}
-
-		// Checking if we have a link in the registry
-		servers := m.Registry().ListAdjacentItems(
-			registry.WithAdjacentEdgeOptions(registry.WithName("service")),
-			registry.WithAdjacentSourceItems([]registry.Item{s}),
-			registry.WithAdjacentTargetOptions(registry.WithType(pb.ItemType_SERVER)),
-		)
-
-		for _, srvv := range servers {
-			var srv server.Server
-			if srvv.As(&srv) {
-				byScheme[srv.Name()] = srv
-			}
-		}
-
-		//if opts.Server == nil {
-		//	// Find server and start it
-		//	scheme := s.ServerScheme()
-		//	if sr, o := byScheme[scheme]; o {
-		//		opts.Server = sr
-		//	} else if srv, er := server.OpenServer(m.ctx, scheme); er == nil {
-		//		byScheme[scheme] = srv
-		//		opts.Server = srv
-		//	} else {
-		//		return fmt.Errorf("no server found")
-		//	}
-		//
-		//	if mustFork {
-		//		continue // Do not register here
-		//	}
-		//}
-
-		m.services[s.ID()] = s
-	}
-
-	for _, sr := range byScheme {
-		m.servers[sr.ID()] = sr // Keep a ref to the actual object
-	}
-
+	// Locking the namespace so that a start doesn't occur at the same time elsewhere
 	if locker := m.localRegistry.NewLocker("start-node-" + m.ns); locker != nil {
 		locker.Lock()
 
@@ -869,9 +808,11 @@ func (m *manager) ServeAll(oo ...server.ServeOption) error {
 	for _, o := range oo {
 		o(opt)
 	}
+
+	// Starting servers attached to this node that are currently stopped
 	eg := &errgroup.Group{}
-	ss := m.serversWithStatus(registry.StatusStopped)
-	for _, srv := range ss {
+	servers := m.serversWithStatus(registry.StatusStopped)
+	for _, srv := range servers {
 		func(srv server.Server) {
 			eg.Go(func() error {
 				if err := m.startServer(srv, oo...); err != nil {
@@ -885,9 +826,11 @@ func (m *manager) ServeAll(oo ...server.ServeOption) error {
 
 	waitAndServe := func() {
 		if err := eg.Wait(); err != nil && opt.ErrorCallback != nil {
+			log.Logger(m.ctx).Error("Server couldn't start ", zap.Error(err))
 			opt.ErrorCallback(err)
 		}
 	}
+
 	if opt.BlockUntilServe {
 		waitAndServe()
 		return nil
@@ -944,18 +887,85 @@ func (m *manager) startServer(srv server.Server, oo ...server.ServeOption) error
 		}
 	}
 
+	serviceFilterTemplate := template.New("serviceFilter")
+
+	var targetOpts []registry.Option
+	// Retrieving server services information to see which services we need to start
+	if b, ok := srv.Metadata()["services"]; ok {
+		var sm []map[string]string
+		if err := json.Unmarshal([]byte(b), &sm); err != nil {
+			return err
+		}
+
+		for _, smm := range sm {
+			if filter, ok := smm["filter"]; ok {
+				targetOpts = append(targetOpts, registry.WithFilter(func(item registry.Item) bool {
+					tmpl, err := serviceFilterTemplate.Parse(filter)
+					if err != nil {
+						return false
+					}
+					var buf bytes.Buffer
+					if err := tmpl.Execute(&buf, item); err != nil {
+						return false
+					}
+
+					name := item.Name()
+					fmt.Println(name)
+
+					ors := strings.Split(buf.String(), " or ")
+					for _, or := range ors {
+						f := strings.SplitN(or, " ", 3)
+						var fn func(string, []byte) (bool, error)
+						switch f[1] {
+						case "=":
+						case "~=":
+							fn = regexp.Match
+						case "!~=":
+							fn = func(pattern string, b []byte) (bool, error) {
+								matched, err := regexp.Match(pattern, b)
+								return !matched, err
+							}
+						}
+
+						if fn != nil {
+							match, err := fn(f[2], []byte(f[0]))
+							if err != nil {
+								return false
+							}
+
+							if match {
+								return true
+							}
+						}
+					}
+
+					return false
+				}))
+			}
+		}
+	}
+
 	// Associating services
 	services := m.Registry().ListAdjacentItems(
-		registry.WithAdjacentSourceItems([]registry.Item{srv}),
-		registry.WithAdjacentEdgeOptions(registry.WithName("service")),
-		registry.WithAdjacentTargetOptions(registry.WithType(pb.ItemType_SERVICE)),
+		registry.WithAdjacentSourceItems([]registry.Item{m.root}),
+		registry.WithAdjacentEdgeOptions(registry.WithName("Node")),
+		registry.WithAdjacentTargetOptions(
+			append(targetOpts, registry.WithType(pb.ItemType_SERVICE))...,
+		),
 	)
 
 	for _, svcv := range services {
 		var svc service.Service
-		if svcv.As(&svc) {
-			opts = append(opts, m.serviceServeOptions(svc)...)
+
+		if !svcv.As(&svc) {
+			continue
 		}
+
+		if !runtime.IsRequired(svc.Name()) {
+			continue
+		}
+
+		opts = append(opts, m.serviceServeOptions(svc)...)
 
 		svc.Options().Server = srv
 	}
@@ -1058,11 +1068,24 @@ func (m *manager) serviceServeOptions(svc service.Service) []server.ServeOption 
 }
 
 func (m *manager) serversWithStatus(status registry.Status) (ss []server.Server) {
-	for _, srv := range m.servers {
+	items := m.localRegistry.ListAdjacentItems(
+		registry.WithAdjacentEdgeOptions(registry.WithName("server")),
+		registry.WithAdjacentTargetOptions(registry.WithType(pb.ItemType_SERVER)),
+		registry.WithAdjacentSourceItems([]registry.Item{m.root}),
+	)
+
+	for _, item := range items {
+		var srv server.Server
+
+		if !item.As(&srv) {
+			continue
+		}
+
 		if srv.Is(status) {
 			ss = append(ss, srv)
 		}
 	}
+
 	return
 }
 

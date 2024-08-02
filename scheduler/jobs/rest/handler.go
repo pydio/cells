@@ -180,7 +180,7 @@ func (s *JobsHandler) UserControlJob(req *restful.Request, rsp *restful.Response
 		}
 
 	} else {
-		cli := jobs.NewTaskServiceClient(grpc.ResolveConn(ctx, common.ServiceTasks))
+		cli := jobs.NewTaskServiceClient(grpc.ResolveConn(ctx, common.ServiceTasksGRPC))
 		if response, err := cli.Control(ctx, &cmd); err == nil {
 			return rsp.WriteEntity(response)
 		} else {
@@ -307,7 +307,7 @@ func (s *JobsHandler) ListTasksLogs(req *restful.Request, rsp *restful.Response)
 	}
 	ctx := req.Request.Context()
 
-	c := log2.NewLogRecorderClient(grpc.ResolveConn(ctx, common.ServiceJobs))
+	c := log2.NewLogRecorderClient(grpc.ResolveConn(ctx, common.ServiceJobsGRPC))
 
 	logColl := &rest.LogMessageCollection{}
 	res, err := c.ListLogs(ctx, &input)

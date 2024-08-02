@@ -59,7 +59,7 @@ DESCRIPTION
 			return e
 		}
 
-		aclClient := idm.NewACLServiceClient(grpc.ResolveConn(ctx, common.ServiceAcl))
+		aclClient := idm.NewACLServiceClient(grpc.ResolveConn(ctx, common.ServiceAclGRPC))
 
 		for {
 			resp, er := stream.Recv()

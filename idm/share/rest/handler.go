@@ -261,7 +261,7 @@ func (h *SharesHandler) UpdateSharePolicies(req *restful.Request, rsp *restful.R
 	if err := h.docStoreStatus(ctx); err != nil {
 		return err
 	}
-	cli := idm.NewWorkspaceServiceClient(grpc.ResolveConn(h.ctx, common.ServiceWorkspace))
+	cli := idm.NewWorkspaceServiceClient(grpc.ResolveConn(h.ctx, common.ServiceWorkspaceGRPC))
 	ws, err := permissions.SearchUniqueWorkspace(ctx, input.Uuid, "")
 	if err != nil {
 		return err
@@ -291,7 +291,7 @@ func (h *SharesHandler) UpdateSharePolicies(req *restful.Request, rsp *restful.R
 }
 
 func (h *SharesHandler) docStoreStatus(ctx context.Context) error {
-	cli := grpc_health_v1.NewHealthClient(grpc.ResolveConn(ctx, common.ServiceDocStore))
+	cli := grpc_health_v1.NewHealthClient(grpc.ResolveConn(ctx, common.ServiceDocStoreGRPC))
 	_, er := cli.Check(context.Background(), &grpc_health_v1.HealthCheckRequest{})
 	return er
 }

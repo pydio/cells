@@ -27,6 +27,7 @@ import (
 	"gocloud.dev/pubsub/driver"
 	"google.golang.org/grpc/metadata"
 
+	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/client/grpc"
 	pb "github.com/pydio/cells/v4/common/proto/broker"
 	"github.com/pydio/cells/v4/common/runtime"
@@ -115,7 +116,7 @@ func (o *URLOpener) OpenTopicURL(ctx context.Context, u *url.URL) (*pubsub.Topic
 		}
 
 		// TODO - should be multi-tenant
-		conn = grpc.ResolveConn(ctx, "pydio.grpc.broker")
+		conn = grpc.ResolveConn(ctx, common.ServiceBrokerGRPC)
 
 		cli := pb.NewBrokerClient(conn)
 		if s, err := cli.Publish(ctx); err != nil {
@@ -145,7 +146,7 @@ func (o *URLOpener) OpenSubscriptionURL(ctx context.Context, u *url.URL) (*pubsu
 	if !ok {
 
 		// TODO - resolveconn should do multi tenancy
-		conn := grpc.ResolveConn(ctx, "pydio.grpc.broker")
+		conn := grpc.ResolveConn(ctx, common.ServiceBrokerGRPC)
 
 		ct, ca := context.WithCancel(ctx)
 		ct = metadata.AppendToOutgoingContext(ct, "cells-subscriber-id", strings.Join(runtime.ProcessStartTags(), " "))

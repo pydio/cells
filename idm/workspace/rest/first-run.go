@@ -63,7 +63,7 @@ func FirstRun(ctx context.Context) error {
 		return nil
 	}
 
-	wsClient := idm.NewWorkspaceServiceClient(grpc.ResolveConn(ctx, common.ServiceWorkspace))
+	wsClient := idm.NewWorkspaceServiceClient(grpc.ResolveConn(ctx, common.ServiceWorkspaceGRPC))
 
 	if hasPersonal {
 		log.Logger(ctx).Info("Creating a Personal workspace")

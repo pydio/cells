@@ -84,7 +84,7 @@ func (mh *MailerHandler) Send(req *restful.Request, rsp *restful.Response) error
 	log.Logger(ctx).Debug("Sending Email", log.DangerouslyZapSmallSlice("to", message.To), zap.String("subject", message.Subject), zap.Any("templateData", message.TemplateData))
 
 	langs := middleware.DetectedLanguages(ctx)
-	cli := mailer.NewMailerServiceClient(grpc.ResolveConn(mh.RuntimeCtx, common.ServiceMailer))
+	cli := mailer.NewMailerServiceClient(grpc.ResolveConn(mh.RuntimeCtx, common.ServiceMailerGRPC))
 
 	claims, ok := ctx.Value(claim.ContextKey).(claim.Claims)
 	if !ok {

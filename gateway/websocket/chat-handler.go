@@ -177,7 +177,7 @@ func (c *ChatHandler) initHandlers(ctx context.Context) {
 			}
 		}
 
-		chatClient := chat.NewChatServiceClient(grpc.ResolveConn(c.ctx, common.ServiceChat))
+		chatClient := chat.NewChatServiceClient(grpc.ResolveConn(c.ctx, common.ServiceChatGRPC))
 
 		switch chatMsg.Type {
 
@@ -387,7 +387,7 @@ func (c *ChatHandler) removeSessionRoom(session *melody.Session, roomUuid string
 
 func (c *ChatHandler) findOrCreateRoom(ctx context.Context, room *chat.ChatRoom, createIfNotExists bool) (*chat.ChatRoom, error) {
 
-	chatClient := chat.NewChatServiceClient(grpc.ResolveConn(ctx, common.ServiceChat))
+	chatClient := chat.NewChatServiceClient(grpc.ResolveConn(ctx, common.ServiceChatGRPC))
 	ct, ca := context.WithCancel(ctx)
 	defer ca()
 	s, e := chatClient.ListRooms(ct, &chat.ListRoomsRequest{

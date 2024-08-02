@@ -216,7 +216,7 @@ func (h *GraphHandler) Recommend(req *restful.Request, rsp *restful.Response) er
 			defer wg.Done()
 
 			// Load activities
-			ac := activity.NewActivityServiceClient(grpc.ResolveConn(h.runtimeContext, common.ServiceActivity))
+			ac := activity.NewActivityServiceClient(grpc.ResolveConn(h.runtimeContext, common.ServiceActivityGRPC))
 			acReq := &activity.StreamActivitiesRequest{
 				Context:     activity.StreamContext_USER_ID,
 				ContextData: uName,

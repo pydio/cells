@@ -73,7 +73,7 @@ EXAMPLES
 			return
 		}
 
-		syncService := "pydio.grpc." + cleanLogsService
+		syncService := common.ServiceGrpcNamespace_ + cleanLogsService
 		byteSize := fmt.Sprintf("%d", b)
 
 		cmd.Printf("Sending resync command to service %s with parameter TRUNCATE/%s\n", syncService, byteSize)

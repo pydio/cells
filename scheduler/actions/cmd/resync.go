@@ -22,7 +22,6 @@ package cmd
 
 import (
 	"context"
-	"strings"
 
 	"go.uber.org/zap"
 	grpc2 "google.golang.org/grpc"
@@ -132,8 +131,7 @@ func (c *ResyncAction) Run(ctx context.Context, channels *actions.RunnableChanne
 
 	//ctx, _ = context.WithTimeout(ctx, 1*time.Hour)
 	srvName := jobs.EvaluateFieldStr(ctx, input, c.ServiceName)
-	// V4: strip grpc prefix
-	srvName = strings.TrimPrefix(srvName, common.ServiceGrpcNamespace_)
+
 	syncClient := sync.NewSyncEndpointClient(grpc.ResolveConn(c.GetRuntimeContext(), srvName))
 	log.TasksLogger(ctx).Info("Sending Resync command to " + srvName)
 	_, e := syncClient.TriggerResync(ctx, &sync.ResyncRequest{

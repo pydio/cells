@@ -76,7 +76,7 @@ func (a *TokenHandler) Revoke(req *restful.Request, resp *restful.Response) erro
 
 	revokeRequest := &auth.RevokeTokenRequest{}
 	revokeRequest.Token = &auth.Token{AccessToken: input.TokenId}
-	revokerClient := auth.NewAuthTokenRevokerClient(grpc.ResolveConn(ctx, common.ServiceOAuth))
+	revokerClient := auth.NewAuthTokenRevokerClient(grpc.ResolveConn(ctx, common.ServiceOAuthGRPC))
 	if _, err := revokerClient.Revoke(ctx, revokeRequest); err != nil {
 		return err
 	}
@@ -143,7 +143,7 @@ func (a *TokenHandler) ResetPasswordToken(req *restful.Request, resp *restful.Re
 	}
 
 	// Send email
-	mailCli := mailer.NewMailerServiceClient(grpc.ResolveConn(ctx, common.ServiceMailer))
+	mailCli := mailer.NewMailerServiceClient(grpc.ResolveConn(ctx, common.ServiceMailerGRPC))
 	_, er := mailCli.SendMail(ctx, &mailer.SendMailRequest{
 		InQueue: false,
 		Mail: &mailer.Mail{
@@ -225,7 +225,7 @@ func (a *TokenHandler) ResetPassword(req *restful.Request, resp *restful.Respons
 
 	go func() {
 		// Send email
-		mailCli := mailer.NewMailerServiceClient(grpc.ResolveConn(ctx, common.ServiceMailer))
+		mailCli := mailer.NewMailerServiceClient(grpc.ResolveConn(ctx, common.ServiceMailerGRPC))
 		_, _ = mailCli.SendMail(ctx, &mailer.SendMailRequest{
 			InQueue: false,
 			Mail: &mailer.Mail{
@@ -291,7 +291,7 @@ func (a *TokenHandler) GenerateDocumentAccessToken(req *restful.Request, resp *r
 }
 
 func (a *TokenHandler) GenerateAndWrite(ctx context.Context, genReq *auth.PatGenerateRequest, req *restful.Request, resp *restful.Response) error {
-	cli := auth.NewPersonalAccessTokenServiceClient(grpc.ResolveConn(ctx, common.ServiceToken))
+	cli := auth.NewPersonalAccessTokenServiceClient(grpc.ResolveConn(ctx, common.ServiceTokenGRPC))
 	log.Logger(ctx).Debug("Sending generate request", zap.Any("req", genReq))
 	genResp, e := cli.Generate(ctx, genReq)
 	if e != nil {

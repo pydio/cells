@@ -105,14 +105,14 @@ func LoginSuccessWrapper(middleware frontend.AuthMiddleware) frontend.AuthMiddle
 		if user.Attributes != nil {
 			if _, ok := user.Attributes["failedConnections"]; ok {
 				log.Logger(ctx).Info("[WrapWithUserLocks] Resetting user failedConnections", user.ZapLogin())
-				userClient := idm.NewUserServiceClient(grpc.ResolveConn(ctx, common.ServiceUser))
+				userClient := idm.NewUserServiceClient(grpc.ResolveConn(ctx, common.ServiceUserGRPC))
 				delete(user.Attributes, "failedConnections")
 				userClient.CreateUser(ctx, &idm.CreateUserRequest{User: user})
 			}
 		}
 
 		// Checking policies
-		cli := idm.NewPolicyEngineServiceClient(grpc.ResolveConn(ctx, common.ServicePolicy))
+		cli := idm.NewPolicyEngineServiceClient(grpc.ResolveConn(ctx, common.ServicePolicyGRPC))
 		policyContext := make(map[string]string)
 		permissions.PolicyContextFromMetadata(policyContext, ctx)
 		subjects := permissions.PolicyRequestSubjectsFromUser(user)
@@ -139,7 +139,7 @@ func LoginSuccessWrapper(middleware frontend.AuthMiddleware) frontend.AuthMiddle
 
 		if lang, ok := in.AuthInfo["lang"]; ok {
 			if _, o := languages.AvailableLanguages[lang]; o {
-				aclClient := idm.NewACLServiceClient(grpc.ResolveConn(ctx, common.ServiceAcl))
+				aclClient := idm.NewACLServiceClient(grpc.ResolveConn(ctx, common.ServiceAclGRPC))
 				// Remove previous value if any
 				delQ, _ := anypb.New(&idm.ACLSingleQuery{
 					RoleIDs:      []string{user.GetUuid()},
@@ -245,7 +245,7 @@ func LoginFailedWrapper(middleware frontend.AuthMiddleware) frontend.AuthMiddlew
 		}
 
 		log.Logger(ctx).Debug(fmt.Sprintf("[WrapWithUserLocks] Updating failed connection number for user [%s]", user.GetLogin()), user.ZapLogin())
-		userClient := idm.NewUserServiceClient(grpc.ResolveConn(ctx, common.ServiceUser))
+		userClient := idm.NewUserServiceClient(grpc.ResolveConn(ctx, common.ServiceUserGRPC))
 		if _, e := userClient.CreateUser(ctx, &idm.CreateUserRequest{User: user}); e != nil {
 			log.Logger(ctx).Error("could not store failedConnection for user", zap.Error(e))
 		}

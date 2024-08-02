@@ -28,44 +28,10 @@ defaults:
   # Default connection to runtime functions
   #--------------------------------------------
   connections: &connections
-    config:
+    grpcconn:
       uri: xds://default.cells.com/cells
-    registry:
-      uri: xds://default.cells.com/cells
-    broker:
-      uri: xds://default.cells.com/cells
-    pydio.grpc.log:
-      uri: xds://default.cells.com/cells
-    pydio.grpc.config:
-      uri: xds://default.cells.com/cells
-    pydio.grpc.policy:
-      uri: xds://default.cells.com/cells
-    pydio.grpc.oauth:
-      uri: xds://default.cells.com/cells
-    pydio.grpc.user:
-      uri: xds://default.cells.com/cells
-    pydio.grpc.role:
-      uri: xds://default.cells.com/cells
-    pydio.grpc.acl:
-      uri: xds://default.cells.com/cells
-    pydio.grpc.workspace:
-      uri: xds://default.cells.com/cells
-    pydio.grpc.token:
-      uri: xds://default.cells.com/cells
-    pydio.grpc.docstore:
-      uri: xds://default.cells.com/cells
-    pydio.grpc.user-meta:
-      uri: xds://default.cells.com/cells
-    pydio.grpc.activity:
-      uri: xds://default.cells.com/cells
-    pydio.grpc.tree:
-      uri: xds://default.cells.com/cells
-    pydio.grpc.tasks:
-      uri: xds://default.cells.com/cells
-    pydio.grpc.jobs:
-      uri: xds://default.cells.com/cells
-    pydio.grpc.timer:
-      uri: xds://default.cells.com/cells
+      services:
+        - filter: "{{ .Name }} ~= pydio.grpc..*"
 
   #--------------------------------------------
   # Default servers configuration
@@ -73,12 +39,19 @@ defaults:
   servers: &servers
     caddy:
       type: caddy
+      services:
+        - filter: "{{ .Name }} ~= pydio\\.rest\\..*"
     grpc:
       type: grpc
       listener: grpc
+      services:
+        - filter: "{{ .Name }} ~= pydio\\.grpc\\..*"
     http:
       type: http
       listener: http
+      services:
+        - filter: "{{ .Name }} ~= pydio\\.http\\..*"
+
 
   #--------------------------------------------
   # Default env configuration
@@ -136,68 +109,40 @@ defaults:
   # All services
   #------------------------------------
   services: &services
-    pydio.grpc.broker:
-      servers:
-        - grpc
-    pydio.grpc.registry:
-      servers:
-        - grpc
-    pydio.grpc.config:
-      servers:
-        - grpc
-    pydio.gateway.sites:
-      servers:
-        - caddy
+
     pydio.grpc.oauth:
-      servers:
-        - grpc
       storages:
         main:
           - type: sql
             prefix: oauth2_
             singular: "true"
     pydio.web.oauth:
-      servers:
-        - caddy
       storages:
         main:
           - type: sql
             prefix: oauth2_
             singular: "true"
-    pydio.web.statics:
-      servers:
-        - caddy
     pydio.rest.frontend:
-      servers:
-        - caddy
       storages:
         main:
           - type: sql
             prefix: idm_
     pydio.grpc.search:
-      servers:
-        - grpc
       storages:
         main:
           - type: search
             path: chat
     pydio.grpc.activity:
-      servers:
-        - grpc
       storages:
         main:
           - type: bolt
             file: activities.db
     pydio.grpc.versions:
-      servers:
-        - grpc
       storages:
         main:
           - type: bolt
             file: versions.db
     pydio.grpc.docstore:
-      servers:
-        - grpc
       storages:
         main:
           - type: bolt
@@ -205,15 +150,11 @@ defaults:
           - type: bleve
             file: docstore.bleve?rotationSize=-1
     pydio.grpc.log:
-      servers:
-        - grpc
       storages:
         main:
           - type: bleve
             file: syslog.bleve?mapping=log&rotationSize=-1
     pydio.grpc.jobs:
-      servers:
-        - grpc
       storages:
         main:
           - type: bolt
@@ -222,125 +163,60 @@ defaults:
           - type: bleve
             file: tasklogs.bleve?mapping=log&rotationSize=-1
     pydio.grpc.role:
-      servers:
-        - grpc
       storages:
         main:
           - type: sql
             prefix: idm_
             policies: idm_role_policies
     pydio.grpc.acl:
-      servers:
-        - grpc
       storages:
         main:
           - type: sql
             prefix: idm_
     pydio.grpc.user:
-      servers:
-        - grpc
       storages:
         main:
           - type: sql
             prefix: idm_
             policies: idm_user_policies
     pydio.grpc.token:
-      servers:
-        - grpc
       storages:
         main:
           - type: sql
             prefix: idm_
     pydio.grpc.key:
-      servers:
-        - grpc
       storages:
         main:
           - type: sql
             prefix: data_key_
     pydio.grpc.user-key:
-      servers:
-        - grpc
       storages:
         main:
           - type: sql
             prefix: idm_
     pydio.grpc.workspace:
-      servers:
-        - grpc
       storages:
         main:
           - type: sql
             prefix: idm_
             policies: idm_workspace_policies
     pydio.grpc.meta:
-      servers:
-        - grpc
       storages:
         main:
           - type: sql
             prefix: data_
     pydio.grpc.policy:
-      servers:
-        - grpc
       storages:
         main:
           - type: sql
             prefix: ladon_
             singular: "true"
     pydio.grpc.user-meta:
-      servers:
-        - grpc
       storages:
         main:
           - type: sql
             prefix: idm_usr_
             policies: idm_usr_meta_policies
-    pydio.rest.user-meta:
-      servers:
-        - caddy
-    pydio.rest.search:
-      servers:
-        - caddy
-    pydio.rest.tree:
-      servers:
-        - caddy
-    pydio.rest.acl:
-      servers:
-        - caddy
-    pydio.rest.graph:
-      servers:
-        - caddy
-    pydio.rest.meta:
-      servers:
-        - caddy
-    pydio.rest.oauth:
-      servers:
-        - caddy
-    pydio.rest.policy:
-      servers:
-        - caddy
-    pydio.rest.role:
-      servers:
-        - caddy
-    pydio.rest.share:
-      servers:
-        - caddy
-    pydio.rest.user:
-      servers:
-        - caddy
-    pydio.rest.log:
-      servers:
-        - caddy
-    pydio.rest.workspace:
-      servers:
-        - caddy
-    pydio.gateway.data:
-      servers:
-        - caddy
-    pydio.gateway.websocket:
-      servers:
-        - caddy
 
   # Storages
   storages: &storages
@@ -390,12 +266,20 @@ defaults:
       servers:
         caddy:
           type: caddy
+          services:
+            - filter: "{{ .Name }} ~= pydio.rest..* or {{ .Name }} ~= pydio.web.statics"
         grpc:
           type: grpc
           listener: grpc
-        http:
-          type: http
-          listener: http
+          services:
+            - filter: "{{ .Name }} ~= pydio.grpc..*"
+            - filter: "{{ .Name }} !~= pydio.grpc.data."
+
+#        http:
+#          type: http
+#          listener: http
+#          services:
+#            - filter: "{{ .Name }} ~= pydio.rest..* or {{ .Name }} ~= pydio.web.statics"
 
       env: *env
 

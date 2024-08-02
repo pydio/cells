@@ -38,7 +38,7 @@ func NewTreeService(dss []string, nodes ...*tree.Node) (grpc.ClientConnInterface
 	server := srv.NewTreeServer(ct, "")
 
 	for _, ds := range dss {
-		conn := grpc2.ResolveConn(ct, common.ServiceDataIndex_+ds)
+		conn := grpc2.ResolveConn(ct, common.ServiceDataIndexGRPC_+ds)
 		server.AppendDatasource(ct, ds, srv.NewDataSource(ds, tree.NewNodeProviderClient(conn), tree.NewNodeReceiverClient(conn)))
 	}
 

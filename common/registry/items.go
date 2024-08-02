@@ -126,6 +126,10 @@ func (r *RichItem[T]) Metadata() map[string]string {
 	return r.meta
 }
 
+func (r *RichItem[T]) SetMetadata(meta map[string]string) {
+	r.meta = meta
+}
+
 func (r *RichItem[T]) As(t any) bool {
 	if v, ok := t.(*T); ok {
 		*v = r.item

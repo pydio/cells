@@ -69,7 +69,7 @@ func (s *Handler) getRouter() nodes.Client {
 
 func (s *Handler) getClient() tree.SearcherClient {
 	if s.client == nil {
-		s.client = tree.NewSearcherClient(grpc.ResolveConn(s.RuntimeCtx, common.ServiceSearch))
+		s.client = tree.NewSearcherClient(grpc.ResolveConn(s.RuntimeCtx, common.ServiceSearchGRPC))
 	}
 	return s.client
 }

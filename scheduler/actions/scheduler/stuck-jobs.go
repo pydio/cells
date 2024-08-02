@@ -114,7 +114,7 @@ func (c *PruneJobsAction) Run(ctx context.Context, channels *actions.RunnableCha
 		maxRunningTime = 3600
 	}
 
-	cli := jobs.NewJobServiceClient(grpc.ResolveConn(c.GetRuntimeContext(), common.ServiceJobs))
+	cli := jobs.NewJobServiceClient(grpc.ResolveConn(c.GetRuntimeContext(), common.ServiceJobsGRPC))
 	// Fix Stuck Tasks
 	resp, e := cli.DetectStuckTasks(ctx, &jobs.DetectStuckTasksRequest{
 		Since: int32(maxRunningTime),

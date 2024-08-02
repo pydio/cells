@@ -232,7 +232,7 @@ func (h *Handler) CreatePeerFolder(req *restful.Request, resp *restful.Response)
 	if createReq.PeerAddress != "" {
 		opts = append(opts, grpc.WithPeerSelector(createReq.PeerAddress))
 	}
-	cl := tree.NewNodeReceiverClient(grpc.ResolveConn(req.Request.Context(), common.ServiceDataObjectsPeer, opts...))
+	cl := tree.NewNodeReceiverClient(grpc.ResolveConn(req.Request.Context(), common.ServiceDataObjectsPeerGRPC, opts...))
 	cr, e := cl.CreateNode(req.Request.Context(), &tree.CreateNodeRequest{Node: &tree.Node{Path: createReq.Path}})
 	if e != nil {
 		return e
@@ -286,12 +286,11 @@ func (h *Handler) ListProcesses(req *restful.Request, resp *restful.Response) er
 func (h *Handler) ValidateLocalDSFolderOnPeer(ctx context.Context, newSource *object.DataSource) error {
 
 	folder := newSource.StorageConfiguration[object.StorageKeyFolder]
-	srvName := common.ServiceGrpcNamespace_ + common.ServiceDataObjectsPeer
 	var opts []grpc.Option
 	if newSource.PeerAddress != "" {
 		opts = append(opts, grpc.WithPeerSelector(newSource.PeerAddress))
 	}
-	conn := grpc.ResolveConn(ctx, srvName, opts...)
+	conn := grpc.ResolveConn(ctx, common.ServiceDataObjectsPeerGRPC, opts...)
 
 	cl := tree.NewNodeProviderClient(conn)
 	wCl := tree.NewNodeReceiverClient(conn)

@@ -70,7 +70,7 @@ func InitDefaults(ctx context.Context) error {
 				return err
 			}
 			// Create user role
-			roleClient := idm.NewRoleServiceClient(grpc.ResolveConn(ctx, common.ServiceRole))
+			roleClient := idm.NewRoleServiceClient(grpc.ResolveConn(ctx, common.ServiceRoleGRPC))
 			if _, err := roleClient.CreateRole(ctx, &idm.CreateRoleRequest{Role: &idm.Role{
 				Uuid:     newUser.Uuid,
 				Label:    newUser.Login + " role",
@@ -102,7 +102,7 @@ func InitDefaults(ctx context.Context) error {
 			return err
 		}
 		// Create user role
-		roleClient := idm.NewRoleServiceClient(grpc.ResolveConn(ctx, common.ServiceRole))
+		roleClient := idm.NewRoleServiceClient(grpc.ResolveConn(ctx, common.ServiceRoleGRPC))
 		if _, err := roleClient.CreateRole(ctx, &idm.CreateRoleRequest{Role: &idm.Role{
 			Uuid:     newAnon.Uuid,
 			Label:    newAnon.Login + " role",

@@ -49,7 +49,7 @@ func (h *Handler) UpdateRequired(req *restful.Request, rsp *restful.Response) er
 	if e := req.ReadEntity(&updateRequest); e != nil {
 		return e
 	}
-	cli := update.NewUpdateServiceClient(grpc.ResolveConn(ctx, common.ServiceUpdate))
+	cli := update.NewUpdateServiceClient(grpc.ResolveConn(ctx, common.ServiceUpdateGRPC))
 	response, err := cli.UpdateRequired(ctx, &updateRequest)
 	if err != nil {
 		return err
@@ -70,7 +70,7 @@ func (h *Handler) ApplyUpdate(req *restful.Request, rsp *restful.Response) error
 		return errors.WithMessage(errors.InvalidParameters, "please provide a target version")
 	}
 
-	cli := update.NewUpdateServiceClient(grpc.ResolveConn(ctx, common.ServiceUpdate))
+	cli := update.NewUpdateServiceClient(grpc.ResolveConn(ctx, common.ServiceUpdateGRPC))
 	response, err := cli.ApplyUpdate(ctx, &applyRequest)
 	if err != nil {
 		return err

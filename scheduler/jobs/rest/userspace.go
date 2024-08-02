@@ -349,7 +349,7 @@ func dirCopy(ctx context.Context, selectedPathes []string, targetNodePath string
 		log.Logger(ctx).Info("Creating copy/move job", pZap, zap.String("target", targetNodePath))
 		if move && strings.Contains(targetNodePath, common.RecycleBinName) {
 			// Update node meta before moving
-			metaClient := tree.NewNodeReceiverClient(grpc.ResolveConn(ctx, common.ServiceMeta))
+			metaClient := tree.NewNodeReceiverClient(grpc.ResolveConn(ctx, common.ServiceMetaGRPC))
 			for _, n := range loadedNodes {
 				metaNode := &tree.Node{Uuid: n.GetUuid()}
 				metaNode.MustSetMeta(common.MetaNamespaceRecycleRestore, n.Path)

@@ -21,13 +21,16 @@
 package grpc
 
 import (
+	"bytes"
 	"context"
 	"fmt"
 	"path"
+	"regexp"
 	runtime2 "runtime"
 	"runtime/debug"
 	"strings"
 	"sync"
+	"text/template"
 	"time"
 
 	"go.uber.org/zap/zapcore"
@@ -39,6 +42,7 @@ import (
 	pb "github.com/pydio/cells/v4/common/proto/registry"
 	"github.com/pydio/cells/v4/common/registry"
 	"github.com/pydio/cells/v4/common/telemetry/metrics"
+	json "github.com/pydio/cells/v4/common/utils/jsonx"
 	"github.com/pydio/cells/v4/common/utils/propagator"
 
 	_ "google.golang.org/grpc/xds"
@@ -63,15 +67,74 @@ func ResolveConn(ctx context.Context, serviceName string, opt ...Option) grpc.Cl
 		o(opts)
 	}
 
-	if c, err := reg.Get(common.ServiceGrpcNamespace_+serviceName, registry.WithType(pb.ItemType_GENERIC)); err == nil && c != nil {
-		var conn *grpc.ClientConn
-		if c.As(&conn) {
-			opts.ClientConn = conn
-		}
-	} else {
-		fmt.Println("grpc client not found ", common.ServiceGrpcNamespace_+serviceName)
+	filterTemplate := template.New("")
+
+	conns, err := reg.List(
+		registry.WithType(pb.ItemType_GENERIC),
+		registry.WithFilter(func(item registry.Item) bool {
+			// Retrieving server services information to see which services we need to start
+			if b, ok := item.Metadata()["services"]; ok {
+				var sm []map[string]string
+				if err := json.Unmarshal([]byte(b), &sm); err != nil {
+					return false
+				}
+				for _, smm := range sm {
+					if filter, ok := smm["filter"]; ok {
+						tmpl, err := filterTemplate.Parse(filter)
+						if err != nil {
+							return false
+						}
+
+						var buf bytes.Buffer
+						if err := tmpl.Execute(&buf, struct {
+							Name string
+						}{
+							Name: serviceName,
+						}); err != nil {
+							return false
+						}
+
+						f := strings.SplitN(buf.String(), " ", 3)
+						var fn func(string, []byte) (bool, error)
+						switch f[1] {
+						case "=":
+						case "~=":
+							fn = regexp.Match
+						}
+
+						if fn != nil {
+							match, err := fn(f[2], []byte(f[0]))
+							if err != nil {
+								return false
+							}
+
+							if !match {
+								return false
+							}
+						}
+					}
+				}
+			} else {
+				return false
+			}
+
+			return true
+		}),
+	)
+	if err != nil {
+		panic(err)
+	}
+
+	if len(conns) != 1 {
 		return nil
 	}
+
+	var conn *grpc.ClientConn
+	if !conns[0].As(&conn) {
+		panic("Should be a connection")
+	}
+
+	opts.ClientConn = conn
 
 	tenantName := "default"
 	if mm, ok := propagator.FromContextRead(ctx); ok {
@@ -84,7 +147,7 @@ func ResolveConn(ctx context.Context, serviceName string, opt ...Option) grpc.Cl
 		callTimeout:         opts.CallTimeout,
 		ClientConnInterface: opts.ClientConn,
 		balancerFilter:      opts.BalancerFilter,
-		serviceName:         common.ServiceGrpcNamespace_ + strings.TrimPrefix(serviceName, common.ServiceGrpcNamespace_),
+		serviceName:         serviceName,
 		tenantName:          tenantName,
 	}
 }

@@ -447,7 +447,7 @@ func (sc *Client) GetOrCreateWorkspace(ctx context.Context, ownerUser *idm.User,
 
 	log.Logger(ctx).Debug("GetOrCreateWorkspace", zap.String("wsUuid", wsUuid), zap.Any("scope", scope.String()), zap.Bool("updateIfNeeded", updateIfNeeded))
 
-	wsClient := idm.NewWorkspaceServiceClient(grpc.ResolveConn(sc.RuntimeContext, common.ServiceWorkspace))
+	wsClient := idm.NewWorkspaceServiceClient(grpc.ResolveConn(sc.RuntimeContext, common.ServiceWorkspaceGRPC))
 	var create bool
 	if wsUuid == "" {
 		if label == "" {
@@ -553,7 +553,7 @@ func (sc *Client) DeleteWorkspace(ctx context.Context, ownerLogin string, scope 
 		}
 	}
 	// Deleting workspace will delete associated policies and associated ACLs
-	wsClient := idm.NewWorkspaceServiceClient(grpc.ResolveConn(sc.RuntimeContext, common.ServiceWorkspace))
+	wsClient := idm.NewWorkspaceServiceClient(grpc.ResolveConn(sc.RuntimeContext, common.ServiceWorkspaceGRPC))
 	q, _ := anypb.New(&idm.WorkspaceSingleQuery{
 		Uuid: workspaceId,
 	})

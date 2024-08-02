@@ -651,7 +651,7 @@ func (e *Handler) getKeyProtectionTool(ctx context.Context) (UserKeyTool, error)
 func (e *Handler) getNodeKeyManagerClient() encryption.NodeKeyManagerClient {
 	nodeEncryptionClient := e.nodeKeyManagerClient
 	if nodeEncryptionClient == nil {
-		nodeEncryptionClient = encryption.NewNodeKeyManagerClient(grpc.ResolveConn(e.RuntimeCtx, common.ServiceEncKey))
+		nodeEncryptionClient = encryption.NewNodeKeyManagerClient(grpc.ResolveConn(e.RuntimeCtx, common.ServiceEncKeyGRPC))
 	}
 	return nodeEncryptionClient
 }

@@ -36,6 +36,7 @@ import (
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 
+	"github.com/pydio/cells/v4/common"
 	cgrpc "github.com/pydio/cells/v4/common/client/grpc"
 	"github.com/pydio/cells/v4/common/config"
 	pb "github.com/pydio/cells/v4/common/proto/config"
@@ -63,7 +64,7 @@ func (o *URLOpener) Open(ctx context.Context, urlstr string) (config.Store, erro
 	}
 
 	// TODO - resolveconn should do multi tenancy
-	store := New(context.Background(), cgrpc.ResolveConn(ctx, "pydio.grpc.config"), u.Query().Get("namespace"), "/")
+	store := New(context.Background(), cgrpc.ResolveConn(ctx, common.ServiceConfigGRPC), u.Query().Get("namespace"), "/")
 
 	return store, nil
 }

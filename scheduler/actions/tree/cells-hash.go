@@ -174,7 +174,7 @@ func (c *CellsHashAction) Run(ctx context.Context, channels *actions.RunnableCha
 		return input.WithError(e), e
 	}
 	ctx = ct
-	mc := tree.NewNodeReceiverClient(grpc.ResolveConn(c.GetRuntimeContext(), common.ServiceMeta))
+	mc := tree.NewNodeReceiverClient(grpc.ResolveConn(c.GetRuntimeContext(), common.ServiceMetaGRPC))
 	var outNodes []*tree.Node
 	for _, node := range input.Nodes {
 		if node.Etag == "" {

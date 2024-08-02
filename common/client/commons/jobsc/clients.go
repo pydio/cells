@@ -10,5 +10,5 @@ import (
 
 // JobServiceClient provides a resolved jobs.JobServiceClient pointing to ServiceJobs by default
 func JobServiceClient(ctx context.Context, opt ...grpc.Option) jobs.JobServiceClient {
-	return jobs.NewJobServiceClient(grpc.ResolveConn(ctx, common.ServiceJobs, opt...))
+	return jobs.NewJobServiceClient(grpc.ResolveConn(ctx, common.ServiceJobsGRPC, opt...))
 }

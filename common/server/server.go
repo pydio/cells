@@ -23,6 +23,7 @@ package server
 import (
 	"context"
 	"fmt"
+	"time"
 
 	"github.com/pkg/errors"
 	"golang.org/x/exp/maps"
@@ -126,10 +127,22 @@ func (s *server) Serve(oo ...ServeOption) (outErr error) {
 	for _, h := range opt.BeforeServe {
 		func(bs func(oo ...registry.RegisterOption) error) {
 			g.Go(func() error {
-				return bs(opt.RegistryOptions...)
+				ch := make(chan error, 1)
+
+				go func() {
+					ch <- bs(opt.RegistryOptions...)
+				}()
+
+				select {
+				case <-time.After(10 * time.Second):
+					return errors.New("[ERROR] BeforeServe timeout")
+				case err := <-ch:
+					return err
+				}
 			})
 		}(h)
 	}
+
 	if er := g.Wait(); er != nil {
 		return er
 	}

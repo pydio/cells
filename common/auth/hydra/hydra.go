@@ -61,7 +61,7 @@ type TokenResponse struct {
 
 // OAuthConn resolves a grpc connexion to ServiceOAuth
 func OAuthConn(ctx context.Context) grpc2.ClientConnInterface {
-	return grpc.ResolveConn(ctx, common.ServiceOAuth)
+	return grpc.ResolveConn(ctx, common.ServiceOAuthGRPC)
 }
 
 // GetLogin forwards call to grpc server

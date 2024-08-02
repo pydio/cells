@@ -47,7 +47,7 @@ func (h *PolicyHandler) Filter() func(string) string {
 }
 
 func (h *PolicyHandler) getClient(ctx context.Context) idm.PolicyEngineServiceClient {
-	return idm.NewPolicyEngineServiceClient(grpc.ResolveConn(ctx, common.ServicePolicy))
+	return idm.NewPolicyEngineServiceClient(grpc.ResolveConn(ctx, common.ServicePolicyGRPC))
 }
 
 // ListPolicies lists Policy Groups

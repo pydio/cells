@@ -58,7 +58,7 @@ EXAMPLES
 			cmd.Help()
 			return
 		}
-		syncService := "pydio.grpc.data.sync." + resyncDsName
+		syncService := common.ServiceDataSyncGRPC_ + resyncDsName
 
 		cli := sync.NewSyncEndpointClient(grpc.ResolveConn(cmd.Context(), syncService, longGrpcCallTimeout()))
 		c := propagator.WithUserNameMetadata(context.Background(), common.PydioContextUserKey, common.PydioSystemUsername)
