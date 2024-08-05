@@ -32,8 +32,6 @@ import (
 	"path"
 	"testing"
 
-	"github.com/spf13/viper"
-
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/auth"
 	"github.com/pydio/cells/v4/common/broker"
@@ -46,7 +44,6 @@ import (
 	"github.com/pydio/cells/v4/common/proto/idm"
 	"github.com/pydio/cells/v4/common/proto/rest"
 	"github.com/pydio/cells/v4/common/proto/tree"
-	"github.com/pydio/cells/v4/common/runtime"
 	"github.com/pydio/cells/v4/common/server/stubs/datatest"
 	"github.com/pydio/cells/v4/common/server/stubs/idmtest"
 	"github.com/pydio/cells/v4/common/server/stubs/resttest"
@@ -61,10 +58,7 @@ import (
 
 func TestMain(m *testing.M) {
 
-	v := viper.New()
-	v.SetDefault(runtime.KeyCache, "pm://")
-	v.SetDefault(runtime.KeyShortCache, "pm://")
-	runtime.SetRuntime(v)
+	cache_helper.SetStaticResolver("pm://", &gocache.URLOpener{})
 
 	grpc2.UnitTests = true
 
@@ -115,7 +109,7 @@ func TestShareLinks(t *testing.T) {
 		ctx = auth.WithImpersonate(ctx, u)
 
 		newNode := &tree.Node{Path: "pydiods1/file.ex", Type: tree.NodeType_LEAF, Size: 24}
-		nc := tree.NewNodeReceiverClient(grpc.ResolveConn(ctx, common.ServiceTree))
+		nc := tree.NewNodeReceiverClient(grpc.ResolveConn(ctx, common.ServiceTreeGRPC))
 		cR, e := nc.CreateNode(ctx, &tree.CreateNodeRequest{Node: newNode})
 		So(e, ShouldBeNil)
 		newNode = cR.GetNode()
@@ -192,13 +186,13 @@ func TestBasicMocks(t *testing.T) {
 	})
 
 	Convey("Test Index Mock", t, func() {
-		cl := tree.NewNodeReceiverClient(grpc.ResolveConn(context.TODO(), common.ServiceDataIndex_+"pydiods1"))
+		cl := tree.NewNodeReceiverClient(grpc.ResolveConn(context.TODO(), common.ServiceDataIndexGRPC_+"pydiods1"))
 		resp, e := cl.CreateNode(bg, &tree.CreateNodeRequest{Node: &tree.Node{Path: "/test", Type: tree.NodeType_COLLECTION, Size: 24, Etag: "etag"}})
 		So(e, ShouldBeNil)
 		So(resp, ShouldNotBeNil)
 		So(resp.Node.Uuid, ShouldNotBeEmpty)
 
-		cl2 := tree.NewNodeProviderClient(grpc.ResolveConn(context.TODO(), common.ServiceDataIndex_+"pydiods1"))
+		cl2 := tree.NewNodeProviderClient(grpc.ResolveConn(context.TODO(), common.ServiceDataIndexGRPC_+"pydiods1"))
 		st, e := cl2.ListNodes(bg, &tree.ListNodesRequest{Node: &tree.Node{Path: "/"}})
 		So(e, ShouldBeNil)
 		var nn []*tree.Node
@@ -213,8 +207,8 @@ func TestBasicMocks(t *testing.T) {
 	})
 
 	Convey("Test Tree Mock", t, func() {
-		conn := grpc.ResolveConn(context.TODO(), common.ServiceTree)
-		conn2 := grpc.ResolveConn(context.TODO(), common.ServiceMeta)
+		conn := grpc.ResolveConn(context.TODO(), common.ServiceTreeGRPC)
+		conn2 := grpc.ResolveConn(context.TODO(), common.ServiceMetaGRPC)
 		cl := tree.NewNodeReceiverClient(conn)
 		resp, e := cl.CreateNode(bg, &tree.CreateNodeRequest{Node: &tree.Node{Path: "/pydiods1/test", Type: tree.NodeType_COLLECTION, Size: 24, Etag: "etag"}})
 		So(e, ShouldBeNil)

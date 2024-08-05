@@ -151,7 +151,7 @@ func (c *MigrateGlobalMetaAction) loadMeta(ctx context.Context, conf *config.Sdk
 		log.TasksLogger(ctx).Error("Cannot load access list for user", zap.Any("login", c.cellAdmin), zap.Error(e))
 		return e
 	}
-	subClient := activity.NewActivityServiceClient(grpc.ResolveConn(ctx, common.ServiceActivity))
+	subClient := activity.NewActivityServiceClient(grpc.ResolveConn(ctx, common.ServiceActivityGRPC))
 	metaClient := idmc.UserMetaServiceClient(ctx)
 	log.TasksLogger(ctx).Info("Global Meta", zap.Int("data length", len(data)))
 	for wsId, users := range data {

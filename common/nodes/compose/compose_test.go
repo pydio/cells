@@ -28,8 +28,6 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/spf13/viper"
-
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/auth"
 	"github.com/pydio/cells/v4/common/client/grpc"
@@ -42,9 +40,10 @@ import (
 	"github.com/pydio/cells/v4/common/permissions"
 	"github.com/pydio/cells/v4/common/proto/tree"
 	"github.com/pydio/cells/v4/common/registry"
-	"github.com/pydio/cells/v4/common/runtime"
 	"github.com/pydio/cells/v4/common/server/stubs/datatest"
 	"github.com/pydio/cells/v4/common/server/stubs/idmtest"
+	"github.com/pydio/cells/v4/common/utils/cache/gocache"
+	cache_helper "github.com/pydio/cells/v4/common/utils/cache/helper"
 	"github.com/pydio/cells/v4/common/utils/configx"
 	"github.com/pydio/cells/v4/common/utils/propagator"
 
@@ -56,10 +55,7 @@ import (
 
 func TestMain(m *testing.M) {
 
-	v := viper.New()
-	v.SetDefault(runtime.KeyCache, "pm://")
-	v.SetDefault(runtime.KeyShortCache, "pm://")
-	runtime.SetRuntime(v)
+	cache_helper.SetStaticResolver("pm://", &gocache.URLOpener{})
 
 	nodes.UseMockStorageClientType()
 

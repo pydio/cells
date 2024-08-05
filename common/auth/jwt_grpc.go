@@ -23,13 +23,11 @@ package auth
 import (
 	"context"
 	"net/url"
-	"strings"
 
 	"github.com/mitchellh/mapstructure"
 	"github.com/ory/fosite/token/jwt"
 	"golang.org/x/oauth2"
 
-	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/auth/claim"
 	"github.com/pydio/cells/v4/common/auth/hydra"
 	"github.com/pydio/cells/v4/common/client/grpc"
@@ -48,7 +46,7 @@ func (p *grpcVerifier) GetType() ProviderType {
 
 func (p *grpcVerifier) Verify(ctx context.Context, rawIDToken string) (IDToken, error) {
 
-	cli := auth.NewAuthTokenVerifierClient(grpc.ResolveConn(ctx, strings.TrimPrefix(p.service, common.ServiceGrpcNamespace_)))
+	cli := auth.NewAuthTokenVerifierClient(grpc.ResolveConn(ctx, p.service))
 
 	resp, err := cli.Verify(ctx, &auth.VerifyTokenRequest{
 		Token: rawIDToken,

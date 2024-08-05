@@ -70,10 +70,7 @@ func init() {
 			service.WithGRPC(func(c context.Context, srv grpc.ServiceRegistrar) error {
 
 				// Register Subscribers
-				subscriber, err := grpc2.NewEventsSubscriber(c, Name)
-				if err != nil {
-					return err
-				}
+				subscriber := grpc2.NewEventsSubscriber(c, Name)
 				counterName := broker.WithCounterName("activity")
 				opts := []broker.SubscribeOption{counterName}
 				idmOpts := []broker.SubscribeOption{counterName}

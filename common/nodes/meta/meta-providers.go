@@ -24,7 +24,6 @@ package meta
 import (
 	"context"
 	"io"
-	"strings"
 	"time"
 
 	"go.uber.org/zap"
@@ -147,8 +146,8 @@ func getMetaProviderStreamers(ctx context.Context, flags tree.Flags) ([]tree.Nod
 	}
 
 	// Load core Meta
-	result = append(result, tree.NewNodeProviderStreamerClient(grpc.ResolveConn(ctx, common.ServiceMeta)))
-	names = append(names, common.ServiceGrpcNamespace_+common.ServiceMeta)
+	result = append(result, tree.NewNodeProviderStreamerClient(grpc.ResolveConn(ctx, common.ServiceMetaGRPC)))
+	names = append(names, common.ServiceMetaGRPC)
 
 	// Load User meta (if claims are not empty!)
 	if u, _ := permissions.FindUserNameInContext(ctx); u == "" {
@@ -166,7 +165,7 @@ func getMetaProviderStreamers(ctx context.Context, flags tree.Flags) ([]tree.Nod
 			log.Logger(ctx).Debug("Skipping service " + srv.Name() + " because of minimal metas flag")
 			continue
 		}
-		result = append(result, tree.NewNodeProviderStreamerClient(grpc.ResolveConn(ctx, strings.TrimPrefix(srv.Name(), common.ServiceGrpcNamespace_))))
+		result = append(result, tree.NewNodeProviderStreamerClient(grpc.ResolveConn(ctx, srv.Name())))
 		names = append(names, srv.Name())
 	}
 

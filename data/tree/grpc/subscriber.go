@@ -29,26 +29,25 @@ import (
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/broker"
 	"github.com/pydio/cells/v4/common/proto/tree"
-	"github.com/pydio/cells/v4/common/runtime"
 	"github.com/pydio/cells/v4/common/telemetry/log"
 	"github.com/pydio/cells/v4/common/utils/cache"
+	cache_helper "github.com/pydio/cells/v4/common/utils/cache/helper"
 	json "github.com/pydio/cells/v4/common/utils/jsonx"
-	"github.com/pydio/cells/v4/common/utils/openurl"
 	"github.com/pydio/cells/v4/common/utils/propagator"
 )
 
 type EventSubscriber struct {
 	TreeServer *TreeServer
-	cachePool  *openurl.Pool[cache.Cache]
 }
 
-func NewEventSubscriber(t *TreeServer) (*EventSubscriber, error) {
-	es := &EventSubscriber{
+var (
+	cacheConfig = cache.Config{Eviction: "10m"}
+)
+
+func NewEventSubscriber(t *TreeServer) *EventSubscriber {
+	return &EventSubscriber{
 		TreeServer: t,
 	}
-	var er error
-	es.cachePool, _ = cache.OpenPool(runtime.CacheURL("pydio.grpc.tree", "evictionTime", "10m"))
-	return es, er
 }
 
 func (s *EventSubscriber) publish(ctx context.Context, msg *tree.NodeChangeEvent) {
@@ -65,7 +64,7 @@ func (s *EventSubscriber) enqueueInCache(ctx context.Context, moveUuid string, e
 	} else {
 		opposite = moveUuid + "-" + tree.NodeChangeEvent_CREATE.String()
 	}
-	ca, _ := s.cachePool.Get(ctx)
+	ca, _ := cache_helper.ResolveCache(ctx, "shared", cacheConfig)
 	if d, o := ca.GetBytes(opposite); o {
 		_ = json.Unmarshal(d, &other)
 		update := &tree.NodeChangeEvent{

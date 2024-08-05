@@ -44,6 +44,8 @@ import (
 	"github.com/pydio/cells/v4/common/runtime/manager"
 	"github.com/pydio/cells/v4/common/server"
 	"github.com/pydio/cells/v4/common/service"
+	"github.com/pydio/cells/v4/common/utils/cache/gocache"
+	cache_helper "github.com/pydio/cells/v4/common/utils/cache/helper"
 	"github.com/pydio/cells/v4/common/utils/propagator"
 	discoveryregistry "github.com/pydio/cells/v4/discovery/registry"
 
@@ -195,12 +197,11 @@ func TestGetServiceInfo(t *testing.T) {
 
 	v := viper.New()
 	v.Set(runtime.KeyConfig, "mem://")
-	v.SetDefault(runtime.KeyCache, "pm://")
-	v.SetDefault(runtime.KeyShortCache, "pm://")
 	v.Set(runtime.KeyArgTags, "test")
 	v.Set("yaml", b.String())
-
 	runtime.SetRuntime(v)
+
+	cache_helper.SetStaticResolver("pm://", &gocache.URLOpener{})
 
 	ctx, cancel := context.WithTimeout(context.Background(), 1*time.Minute)
 	defer cancel()

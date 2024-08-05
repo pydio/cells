@@ -126,7 +126,7 @@ func (c *OnDeleteVersionsAction) Run(ctx context.Context, channels *actions.Runn
 	prefix := strings.TrimSuffix(base, ext)
 	parentCreated := false
 
-	versionClient := tree.NewNodeVersionerClient(grpc.ResolveConn(c.GetRuntimeContext(), common.ServiceVersions))
+	versionClient := tree.NewNodeVersionerClient(grpc.ResolveConn(c.GetRuntimeContext(), common.ServiceVersionsGRPC))
 
 	if response, err := versionClient.PruneVersions(ctx, &tree.PruneVersionsRequest{UniqueNode: node}); err == nil {
 		deleteStrategy := policy.GetNodeDeletedStrategy()

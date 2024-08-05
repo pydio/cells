@@ -25,16 +25,21 @@ import (
 	"time"
 
 	"github.com/pydio/cells/v4/common/proto/activity"
-	"github.com/pydio/cells/v4/common/runtime"
 	"github.com/pydio/cells/v4/common/runtime/manager"
 	"github.com/pydio/cells/v4/common/utils/cache"
+	cache_helper "github.com/pydio/cells/v4/common/utils/cache/helper"
 	"github.com/pydio/cells/v4/common/utils/configx"
 	"github.com/pydio/cells/v4/common/utils/jsonx"
-	"github.com/pydio/cells/v4/common/utils/openurl"
 	runtimecontext "github.com/pydio/cells/v4/common/utils/propagator"
 )
 
-var noCache bool
+var (
+	noCache   bool
+	cacheConf = cache.Config{
+		Prefix:   "activities",
+		Eviction: "5m",
+	}
+)
 
 func WithCache(dao DAO, batchTimeout time.Duration) DAO {
 	if noCache {
@@ -44,10 +49,9 @@ func WithCache(dao DAO, batchTimeout time.Duration) DAO {
 	if _, o := dao.(BatchDAO); o {
 		useBatch = true
 	}
-	c, _ := cache.OpenPool(runtime.CacheURL("activities", "evictionTime", "5m"))
 	return &Cache{
-		DAO:          dao,
-		cachePool:    c,
+		DAO: dao,
+		//cachePool:    c,
 		useBatch:     useBatch,
 		batchTimeout: batchTimeout,
 	}
@@ -55,7 +59,6 @@ func WithCache(dao DAO, batchTimeout time.Duration) DAO {
 
 type Cache struct {
 	DAO
-	cachePool *openurl.Pool[cache.Cache]
 
 	useBatch     bool
 	done         chan bool
@@ -142,7 +145,7 @@ func (c *Cache) PostActivity(ctx context.Context, ownerType activity.OwnerType, 
 
 func (c *Cache) UpdateSubscription(ctx context.Context, subscription *activity.Subscription) error {
 	// Clear cache
-	if ca, er := c.cachePool.Get(ctx); er == nil {
+	if ca, er := cache_helper.ResolveCache(ctx, "shared", cacheConf); er == nil {
 		_ = ca.Delete(subscription.ObjectType.String() + "-" + subscription.ObjectId)
 	}
 	return c.DAO.UpdateSubscription(ctx, subscription)
@@ -152,10 +155,7 @@ func (c *Cache) ListSubscriptions(ctx context.Context, objectType activity.Owner
 
 	var filtered []string
 	toCache := make(map[string][]*activity.Subscription)
-	var ca cache.Cache
-	if k, er := c.cachePool.Get(ctx); er == nil {
-		ca = k
-	}
+	ca, _ := cache_helper.ResolveCache(ctx, "shared", cacheConf)
 
 	for _, id := range objectIds {
 		// We'll cache an empty slice by default

@@ -40,7 +40,7 @@ VERSIONING POLICIES MANAGEMENT
 func (s *Handler) ListVersioningPolicies(req *restful.Request, resp *restful.Response) error {
 	T := lang.Bundle().T(middleware.DetectedLanguages(req.Request.Context())...)
 	ctx := req.Request.Context()
-	vc := tree.NewNodeVersionerClient(grpc.ResolveConn(ctx, common.ServiceVersions))
+	vc := tree.NewNodeVersionerClient(grpc.ResolveConn(ctx, common.ServiceVersionsGRPC))
 	pols, er := vc.ListVersioningPolicies(ctx, &tree.ListVersioningPoliciesRequest{})
 	response := &rest.VersioningPolicyCollection{}
 	if er = commons.ForEach(pols, er, func(policy *tree.VersioningPolicy) error {
@@ -59,7 +59,7 @@ func (s *Handler) GetVersioningPolicy(req *restful.Request, resp *restful.Respon
 	T := lang.Bundle().T(middleware.DetectedLanguages(req.Request.Context())...)
 	policyId := req.PathParameter("Uuid")
 	ctx := req.Request.Context()
-	vc := tree.NewNodeVersionerClient(grpc.ResolveConn(ctx, common.ServiceVersions))
+	vc := tree.NewNodeVersionerClient(grpc.ResolveConn(ctx, common.ServiceVersionsGRPC))
 	pols, er := vc.ListVersioningPolicies(ctx, &tree.ListVersioningPoliciesRequest{PolicyID: policyId})
 	return commons.ForEach(pols, er, func(policy *tree.VersioningPolicy) error {
 		policy.Name = T(policy.Name)

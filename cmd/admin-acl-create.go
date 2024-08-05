@@ -43,7 +43,7 @@ DESCRIPTION
 `,
 	Run: func(cmd *cobra.Command, args []string) {
 
-		client := idm.NewACLServiceClient(grpc.ResolveConn(cmd.Context(), common.ServiceAcl))
+		client := idm.NewACLServiceClient(grpc.ResolveConn(cmd.Context(), common.ServiceAclGRPC))
 
 		if action == "" || value == "" || (roleID == "" && workspaceID == "" && nodeID == "") {
 			log.Fatal("Please provide at least one of role_id, workspace_id or node_id, and an action name/value")

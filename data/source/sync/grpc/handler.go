@@ -351,7 +351,7 @@ func (s *Handler) initSync(syncConfig *object.DataSource) error {
 		}
 	*/
 
-	conn := grpccli.ResolveConn(s.globalCtx, common.ServiceDataIndex_+syncConfig.Name)
+	conn := grpccli.ResolveConn(s.globalCtx, common.ServiceDataIndexGRPC_+syncConfig.Name)
 	s.indexClientWrite = tree.NewNodeReceiverClient(conn)
 	s.indexClientRead = tree.NewNodeProviderClient(conn)
 	s.indexClientClean = protosync.NewSyncEndpointClient(conn)

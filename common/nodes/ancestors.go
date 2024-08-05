@@ -26,39 +26,33 @@ import (
 	"io"
 	"path"
 	"strings"
-	"sync"
 
 	"google.golang.org/grpc/status"
 
 	"github.com/pydio/cells/v4/common/proto/tree"
-	"github.com/pydio/cells/v4/common/runtime"
 	"github.com/pydio/cells/v4/common/utils/cache"
-	"github.com/pydio/cells/v4/common/utils/openurl"
+	cache_helper "github.com/pydio/cells/v4/common/utils/cache/helper"
 )
 
 var (
-	ancestorsParentsPool *openurl.Pool[cache.Cache]
-	appOnce              sync.Once
-	ancestorsNodesPool   *openurl.Pool[cache.Cache]
-	anpOnce              sync.Once
-	//	ancestorsParentsCache cache.Cache
-	//	ancestorsNodesCache   cache.Cache
+	ancestorsConfig = cache.Config{
+		Prefix:      "ancestors",
+		Eviction:    "1500ms",
+		CleanWindow: "3m",
+	}
+	ancestorsParentsConfig = cache.Config{
+		Prefix:      "ancestors-parents",
+		Eviction:    "1500ms",
+		CleanWindow: "3m",
+	}
 )
 
 func getAncestorsParentsCache(ctx context.Context) cache.Cache {
-	appOnce.Do(func() {
-		ancestorsParentsPool = cache.MustOpenPool(runtime.ShortCacheURL("evictionTime", "1500ms", "cleanWindow", "3m"))
-	})
-	c, _ := ancestorsParentsPool.Get(ctx)
-	return c
+	return cache_helper.MustResolveCache(ctx, "short", ancestorsParentsConfig)
 }
 
 func getAncestorsNodesCache(ctx context.Context) cache.Cache {
-	appOnce.Do(func() {
-		ancestorsNodesPool = cache.MustOpenPool(runtime.ShortCacheURL("evictionTime", "1500ms", "cleanWindow", "3m"))
-	})
-	c, _ := ancestorsNodesPool.Get(ctx)
-	return c
+	return cache_helper.MustResolveCache(ctx, "short", ancestorsConfig)
 }
 
 // BuildAncestorsList uses ListNodes with "Ancestors" flag to build the list of parent nodes.

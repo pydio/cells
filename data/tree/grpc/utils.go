@@ -68,8 +68,8 @@ func (s *TreeServer) UpdateServicesList(ctx context.Context, retry int) {
 		if !i.As(&syncService) {
 			continue
 		}
-		dataSourceName := strings.TrimPrefix(syncService.Name(), common.ServiceGrpcNamespace_+common.ServiceDataSync_)
-		indexService := common.ServiceDataIndex_ + dataSourceName
+		dataSourceName := strings.TrimPrefix(syncService.Name(), common.ServiceDataSyncGRPC_)
+		indexService := common.ServiceDataIndexGRPC_ + dataSourceName
 		obj := DataSource{
 			Name:   dataSourceName,
 			writer: tree.NewNodeReceiverClient(grpc.ResolveConn(ctx, indexService)),

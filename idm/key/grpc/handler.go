@@ -34,25 +34,29 @@ import (
 	"github.com/pydio/cells/v4/common/crypto"
 	"github.com/pydio/cells/v4/common/errors"
 	enc "github.com/pydio/cells/v4/common/proto/encryption"
-	"github.com/pydio/cells/v4/common/runtime"
 	"github.com/pydio/cells/v4/common/runtime/manager"
 	"github.com/pydio/cells/v4/common/telemetry/log"
 	"github.com/pydio/cells/v4/common/utils/cache"
-	"github.com/pydio/cells/v4/common/utils/openurl"
+	cache_helper "github.com/pydio/cells/v4/common/utils/cache/helper"
 	"github.com/pydio/cells/v4/common/utils/propagator"
 	"github.com/pydio/cells/v4/idm/key"
 )
 
+var keyCacheConfig = cache.Config{
+	Eviction:    "24h",
+	CleanWindow: "24h",
+}
+
 type userKeyStore struct {
 	enc.UnimplementedUserKeyStoreServer
 
-	ctxCachePool *openurl.Pool[cache.Cache]
+	//ctxCachePool *openurl.Pool[cache.Cache]
 }
 
 // NewUserKeyStore creates a master password based
 func NewUserKeyStore(ctx context.Context) (enc.UserKeyStoreServer, error) {
 	return &userKeyStore{
-		ctxCachePool: cache.MustOpenPool(runtime.ShortCacheURL("evictionTime", "24h", "cleanWindow", "24h")),
+		//ctxCachePool: cache.MustOpenPool(runtime.ShortCacheURL("evictionTime", "24h", "cleanWindow", "24h")),
 	}, nil
 }
 
@@ -311,7 +315,7 @@ func (ukm *userKeyStore) createSystemKey(ctx context.Context, keyID string, keyL
 }
 
 func (ukm *userKeyStore) masterFromCache(ctx context.Context) (master []byte, err error) {
-	ka, er := ukm.ctxCachePool.Get(ctx)
+	ka, er := cache_helper.ResolveCache(ctx, "short", keyCacheConfig)
 	if er != nil {
 		return nil, er
 	}
@@ -340,7 +344,7 @@ func (ukm *userKeyStore) masterFromCache(ctx context.Context) (master []byte, er
 }
 
 func (ukm *userKeyStore) legacyFromCache(ctx context.Context, master []byte) (legacy []byte, err error) {
-	ka, er := ukm.ctxCachePool.Get(ctx)
+	ka, er := cache_helper.ResolveCache(ctx, "short", keyCacheConfig)
 	if er != nil {
 		return nil, er
 	}

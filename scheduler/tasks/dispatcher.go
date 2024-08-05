@@ -73,7 +73,7 @@ func NewDispatcher(rootCtx context.Context, maxWorkers int, job *jobs.Job, tags 
 	ctx, can := context.WithCancel(rootCtx)
 	if propagator.Get(rootCtx, manager.ContextKey, &mgr) {
 		data := map[string]interface{}{"name": "jobs", "prefix": job.ID}
-		fifo, er = mgr.GetQueue(ctx, "persister", data, "job-"+job.ID, func(q broker.AsyncQueue) (broker.AsyncQueue, error) {
+		fifo, er = mgr.GetQueue(ctx, "persisted", data, "job-"+job.ID, func(q broker.AsyncQueue) (broker.AsyncQueue, error) {
 			return q, q.Consume(func(ct context.Context, mm ...broker.Message) {
 				for _, msg := range mm {
 					var event interface{}

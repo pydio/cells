@@ -29,12 +29,10 @@ import (
 	"sync"
 	"testing"
 
-	"github.com/spf13/viper"
 	"google.golang.org/grpc/metadata"
 
 	"github.com/pydio/cells/v4/common/proto/object"
 	"github.com/pydio/cells/v4/common/proto/tree"
-	"github.com/pydio/cells/v4/common/runtime"
 	json "github.com/pydio/cells/v4/common/utils/jsonx"
 	"github.com/pydio/cells/v4/data/source/index"
 
@@ -111,10 +109,8 @@ func (l *List) Close() error {
 }
 
 func TestMain(m *testing.M) {
-	v := viper.New()
-	v.SetDefault(runtime.KeyCache, "pm://")
-	v.SetDefault(runtime.KeyShortCache, "pm://")
-	runtime.SetRuntime(v)
+
+	cache_helper.SetStaticResolver("pm://", &gocache.URLOpener{})
 
 	/*
 		// TODO?

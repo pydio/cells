@@ -169,7 +169,7 @@ func (sc *Client) ParseRootNodes(ctx context.Context, cell *rest.Cell, createEmp
 			}
 			// Update node meta
 			createResp.Node.MustSetMeta(common.MetaFlagCellNode, true)
-			metaClient := tree.NewNodeReceiverClient(grpc.ResolveConn(sc.RuntimeContext, common.ServiceMeta))
+			metaClient := tree.NewNodeReceiverClient(grpc.ResolveConn(sc.RuntimeContext, common.ServiceMetaGRPC))
 			metaClient.CreateNode(ctx, &tree.CreateNodeRequest{Node: createResp.Node})
 			cell.RootNodes = append(cell.RootNodes, createResp.Node)
 		} else {

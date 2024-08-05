@@ -38,6 +38,7 @@ import (
 	"github.com/pydio/cells/v4/common/proto/install"
 	"github.com/pydio/cells/v4/common/telemetry/tracing"
 	"github.com/pydio/cells/v4/common/utils/cache"
+	"github.com/pydio/cells/v4/common/utils/cache/gocache"
 	"github.com/pydio/cells/v4/common/utils/configx"
 	"github.com/pydio/cells/v4/common/utils/openurl"
 )
@@ -51,10 +52,10 @@ var (
 func init() {
 	cacheProvider = &ProviderContextualizer{
 		configPath: ConfigCorePath,
-		cachePool: cache.MustOpenNonExpirableMemory(cache.WithAutoResetWatcher(func(ctx context.Context, url string) (cache.Watcher, error) {
+		cachePool: gocache.MustOpenNonExpirableMemory(func(ctx context.Context, url string) (gocache.Watcher, error) {
 			// watch "sites" and "oauth" configs
 			return config.WatchCombined(ctx, [][]string{ConfigCorePath, routing.ConfigPath})
-		})),
+		}),
 	}
 	rootCtxConfig, _ = hconfx.New(contextx.RootContext, spec.ConfigValidationSchema)
 }

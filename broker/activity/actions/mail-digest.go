@@ -92,17 +92,17 @@ func (m *MailDigestAction) Init(job *jobs.Job, action *jobs.Action) error {
 }
 
 func mailerClient(ctx context.Context) mailer.MailerServiceClient {
-	return mailer.NewMailerServiceClient(grpc.ResolveConn(ctx, common.ServiceMailer))
+	return mailer.NewMailerServiceClient(grpc.ResolveConn(ctx, common.ServiceMailerGRPC))
 }
 
 func activityClient(ctx context.Context) activity.ActivityServiceClient {
-	return activity.NewActivityServiceClient(grpc.ResolveConn(ctx, common.ServiceActivity))
+	return activity.NewActivityServiceClient(grpc.ResolveConn(ctx, common.ServiceActivityGRPC))
 }
 
 // Run processes the actual action code
 func (m *MailDigestAction) Run(ctx context.Context, channels *actions.RunnableChannels, input *jobs.ActionMessage) (*jobs.ActionMessage, error) {
 
-	if !config.Get(ctx, "services", common.ServiceGrpcNamespace_+common.ServiceMailer, "valid").Default(false).Bool() {
+	if !config.Get(ctx, "services", common.ServiceMailerGRPC, "valid").Default(false).Bool() {
 		log.Logger(ctx).Debug("Ignoring as no valid mailer was found")
 		return input.WithIgnore(), nil
 	}

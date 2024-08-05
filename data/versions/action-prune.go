@@ -99,7 +99,7 @@ func (c *PruneVersionsAction) Run(ctx context.Context, channels *actions.Runnabl
 	} else {
 		log.TasksLogger(ctx).Info("Starting action: one or more datasources found with versioning enabled.")
 	}
-	versionClient := tree.NewNodeVersionerClient(grpc.ResolveConn(c.GetRuntimeContext(), common.ServiceVersions))
+	versionClient := tree.NewNodeVersionerClient(grpc.ResolveConn(c.GetRuntimeContext(), common.ServiceVersionsGRPC))
 	if response, err := versionClient.PruneVersions(ctx, &tree.PruneVersionsRequest{AllDeletedNodes: true}); err == nil {
 		for _, version := range response.DeletedVersions {
 			deleteNode := version.GetLocation()

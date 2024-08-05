@@ -137,7 +137,7 @@ func (c *WsCleaner) deleteEmptyWs(workspaceId string) error {
 
 	// Check if there are still some ACLs for this workspace
 	// TODO RETRIEVE CONTEXT
-	cl := idm.NewACLServiceClient(grpc.ResolveConn(c.ctx, common.ServiceAcl))
+	cl := idm.NewACLServiceClient(grpc.ResolveConn(c.ctx, common.ServiceAclGRPC))
 	q, _ := anypb.New(&idm.ACLSingleQuery{
 		WorkspaceIDs: []string{workspaceId},
 	})

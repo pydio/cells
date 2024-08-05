@@ -5,3 +5,5 @@
 #------------------------------------------
 name: main
 processes: *processes
+connections: *connections
+env: *env

@@ -52,7 +52,7 @@ func init() {
 
 func (o *URLOpener) OpenURL(ctx context.Context, u *url.URL) (registry.Registry, error) {
 	// TODO - should use multi tenancy
-	conn := cgrpc.ResolveConn(ctx, "pydio.grpc.registry")
+	conn := cgrpc.ResolveConn(ctx, common.ServiceRegistryGRPC)
 
 	return NewRegistry(WithConn(conn))
 }

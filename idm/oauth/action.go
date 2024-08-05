@@ -88,7 +88,7 @@ func (c *PruneTokensAction) Run(ctx context.Context, channels *actions.RunnableC
 	output := input
 
 	// Prune revoked tokens on OAuth service
-	cli := auth.NewAuthTokenPrunerClient(grpc.ResolveConn(ctx, common.ServiceOAuth))
+	cli := auth.NewAuthTokenPrunerClient(grpc.ResolveConn(ctx, common.ServiceOAuthGRPC))
 	if pruneResp, e := cli.PruneTokens(ctx, &auth.PruneTokensRequest{}); e != nil {
 		return input.WithError(e), e
 	} else {
@@ -99,7 +99,7 @@ func (c *PruneTokensAction) Run(ctx context.Context, channels *actions.RunnableC
 	}
 
 	// Prune revoked tokens on OAuth service
-	cli2 := auth.NewAuthTokenPrunerClient(grpc.ResolveConn(ctx, common.ServiceToken))
+	cli2 := auth.NewAuthTokenPrunerClient(grpc.ResolveConn(ctx, common.ServiceTokenGRPC))
 	if pruneResp, e := cli2.PruneTokens(ctx, &auth.PruneTokensRequest{}); e != nil {
 		return input.WithError(e), e
 	} else {

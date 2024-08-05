@@ -82,7 +82,7 @@ EXAMPLES
 			return
 		}
 
-		aclClient := idm.NewACLServiceClient(grpc.ResolveConn(ctx, common.ServiceAcl))
+		aclClient := idm.NewACLServiceClient(grpc.ResolveConn(ctx, common.ServiceAclGRPC))
 		resp, e := aclClient.DeleteACL(ctx, req)
 		if e != nil {
 			cmd.Println("[ERROR] " + e.Error())

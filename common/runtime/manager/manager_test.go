@@ -7,8 +7,11 @@ import (
 	"github.com/spf13/viper"
 	"go.etcd.io/bbolt"
 	"go.mongodb.org/mongo-driver/mongo"
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/examples/helloworld/helloworld"
 	"gorm.io/gorm"
 
+	cgrpc "github.com/pydio/cells/v4/common/client/grpc"
 	"github.com/pydio/cells/v4/common/registry"
 	"github.com/pydio/cells/v4/common/runtime"
 	"github.com/pydio/cells/v4/common/runtime/manager"
@@ -19,6 +22,7 @@ import (
 
 	_ "embed"
 	_ "github.com/pydio/cells/v4/common/registry/config"
+	_ "github.com/pydio/cells/v4/common/server/grpc"
 	_ "github.com/pydio/cells/v4/common/storage/boltdb"
 	_ "github.com/pydio/cells/v4/common/storage/mongodb"
 	_ "github.com/pydio/cells/v4/common/storage/sql"
@@ -29,9 +33,20 @@ import (
 var (
 	//go:embed config-storage-test.yaml
 	storageTestTemplate string
+
+	//go:embed config-connection-test.yaml
+	connectionTestTemplate string
 )
 
-func TestManager(t *testing.T) {
+type testHandler struct {
+	helloworld.UnimplementedGreeterServer
+}
+
+func (*testHandler) SayHello(ctx context.Context, req *helloworld.HelloRequest) (*helloworld.HelloReply, error) {
+	return &helloworld.HelloReply{Message: "Hello " + req.GetName()}, nil
+}
+
+func TestManagerStorage(t *testing.T) {
 	v := viper.New()
 	v.Set("name", "discovery")
 	v.Set("tags", "storages")
@@ -110,4 +125,43 @@ func TestManager(t *testing.T) {
 	)
 
 	svc.Start()
+}
+
+func TestManagerConnection(t *testing.T) {
+	v := viper.New()
+	v.Set("config", "mem://")
+	v.Set("yaml", connectionTestTemplate)
+	runtime.SetRuntime(v)
+
+	ctx := context.Background()
+
+	runtime.Register("test", func(ctx context.Context) {
+		service.NewService(
+			service.Name("service.test"),
+			service.Context(ctx),
+			service.WithGRPC(func(ctx context.Context, registrar grpc.ServiceRegistrar) error {
+				helloworld.RegisterGreeterServer(registrar, &testHandler{})
+				return nil
+			}),
+		)
+	})
+
+	mg, err := manager.NewManager(ctx, "test", nil)
+	if err != nil {
+		t.Error("cannot run test", err)
+		t.Fail()
+		return
+	}
+
+	mg.ServeAll()
+
+	Convey("Testing the manager connections", t, func() {
+		conn := cgrpc.ResolveConn(mg.Context(), "service.test")
+		So(conn, ShouldNotBeNil)
+
+		cli := helloworld.NewGreeterClient(conn)
+		resp, err := cli.SayHello(ctx, &helloworld.HelloRequest{Name: "John"})
+		So(err, ShouldBeNil)
+		So(resp.GetMessage(), ShouldEqual, "Hello John")
+	})
 }

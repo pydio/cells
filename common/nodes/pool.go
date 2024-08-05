@@ -152,7 +152,7 @@ func (p *ClientsPool) GetTreeClient() tree.NodeProviderClient {
 	if p.treeClient != nil {
 		return p.treeClient
 	}
-	return tree.NewNodeProviderClient(clientgrpc.ResolveConn(p.ctx, common.ServiceGrpcNamespace_+common.ServiceTree))
+	return tree.NewNodeProviderClient(clientgrpc.ResolveConn(p.ctx, common.ServiceTreeGRPC))
 }
 
 // GetTreeClientWrite returns the internal NodeReceiverClient pointing to the TreeService.
@@ -160,7 +160,7 @@ func (p *ClientsPool) GetTreeClientWrite() tree.NodeReceiverClient {
 	if p.treeClientWrite != nil {
 		return p.treeClientWrite
 	}
-	return tree.NewNodeReceiverClient(clientgrpc.ResolveConn(p.ctx, common.ServiceGrpcNamespace_+common.ServiceTree))
+	return tree.NewNodeReceiverClient(clientgrpc.ResolveConn(p.ctx, common.ServiceTreeGRPC))
 }
 
 // GetDataSourceInfo tries to find information about a DataSource, eventually retrying as DataSource
@@ -252,7 +252,7 @@ func (p *ClientsPool) LoadDataSources() {
 			continue
 		}
 
-		endpointClient := object.NewDataSourceEndpointClient(clientgrpc.ResolveConn(p.ctx, common.ServiceGrpcNamespace_+common.ServiceDataSync_+source))
+		endpointClient := object.NewDataSourceEndpointClient(clientgrpc.ResolveConn(p.ctx, common.ServiceDataSyncGRPC_+source))
 		to, ca := context.WithTimeout(p.ctx, 20*time.Second)
 		response, err := endpointClient.GetDataSourceConfig(to, &object.GetDataSourceConfigRequest{})
 		if err == nil && response.DataSource != nil {
@@ -261,7 +261,7 @@ func (p *ClientsPool) LoadDataSources() {
 				log.Logger(context.Background()).Warn("Cannot create clients for datasource "+source, zap.Error(e))
 			}
 		} else {
-			log.Logger(p.ctx).Debug("no answer from endpoint, maybe not ready yet? "+common.ServiceGrpcNamespace_+common.ServiceDataSync_+source, zap.Any("r", response), zap.Error(err))
+			log.Logger(p.ctx).Debug("no answer from endpoint, maybe not ready yet? "+common.ServiceDataSyncGRPC_+source, zap.Any("r", response), zap.Error(err))
 		}
 		ca()
 	}

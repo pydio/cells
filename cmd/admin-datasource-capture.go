@@ -84,13 +84,13 @@ EXAMPLES
 
 		var syncConfig *object.DataSource
 		// TODO
-		if err := config.Get(cmd.Context(), "services", common.ServiceGrpcNamespace_+common.ServiceDataSync_+captureDsName).Scan(&syncConfig); err != nil {
+		if err := config.Get(cmd.Context(), "services", common.ServiceDataSyncGRPC_+captureDsName).Scan(&syncConfig); err != nil {
 			return err
 		}
 		if sec := config.GetSecret(syncConfig.ApiSecret).String(); sec != "" {
 			syncConfig.ApiSecret = sec
 		}
-		conn := grpc.ResolveConn(ctx, common.ServiceGrpcNamespace_+common.ServiceDataIndex_+captureDsName)
+		conn := grpc.ResolveConn(ctx, common.ServiceDataIndexGRPC_+captureDsName)
 		cRead := tree.NewNodeProviderClient(conn)
 		cWrite := tree.NewNodeReceiverClient(conn)
 		cSess := tree.NewSessionIndexerClient(conn)

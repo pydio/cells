@@ -615,7 +615,7 @@ func (j *JobsHandler) cleanStuckByStatus(ctx context.Context, serverStart bool, 
 		return nil, false, err
 	}
 
-	tcli := proto.NewTaskServiceClient(grpc.ResolveConn(ctx, common.ServiceTasks))
+	tcli := proto.NewTaskServiceClient(grpc.ResolveConn(ctx, common.ServiceTasksGRPC))
 	shouldRetry := false
 	var currentTaskID string
 	if mm, ok := propagator.FromContextRead(ctx); ok {

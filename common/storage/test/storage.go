@@ -132,6 +132,11 @@ services:
   pydio.grpc.broker:
     servers:
       - grpc
+caches:
+  short:
+    uri: pm://
+  shared:
+    uri: pm://
 `
 
 	singleTpl *template.Template
@@ -156,8 +161,6 @@ func RunTests(t *testing.T, f func(context.Context)) {
 	}
 	v := viper.New()
 	v.Set(runtime.KeyConfig, "mem://")
-	v.SetDefault(runtime.KeyCache, "pm://")
-	v.SetDefault(runtime.KeyShortCache, "pm://")
 	v.SetDefault(runtime.KeyArgTags, []string{"test"})
 	v.Set("yaml", b.String())
 

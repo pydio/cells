@@ -10,5 +10,5 @@ import (
 
 // DocStoreClient provides a default client for common.ServiceDocStore
 func DocStoreClient(ctx context.Context, opt ...grpc.Option) docstore.DocStoreClient {
-	return docstore.NewDocStoreClient(grpc.ResolveConn(ctx, common.ServiceDocStore, opt...))
+	return docstore.NewDocStoreClient(grpc.ResolveConn(ctx, common.ServiceDocStoreGRPC, opt...))
 }

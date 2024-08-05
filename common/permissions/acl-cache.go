@@ -27,22 +27,22 @@ import (
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/broker"
 	"github.com/pydio/cells/v4/common/proto/idm"
-	"github.com/pydio/cells/v4/common/runtime"
 	"github.com/pydio/cells/v4/common/utils/cache"
-	"github.com/pydio/cells/v4/common/utils/openurl"
+	cache_helper "github.com/pydio/cells/v4/common/utils/cache/helper"
 	"github.com/pydio/cells/v4/common/utils/std"
 )
 
 var (
-	aclCachePool *openurl.Pool[cache.Cache]
-	aclOnce      sync.Once
+	aclOnce         sync.Once
+	ancestorsConfig = cache.Config{
+		Prefix:      "acls",
+		Eviction:    "60s",
+		CleanWindow: "30s",
+	}
 )
 
 func getAclCache(ctx context.Context) cache.Cache {
 	aclOnce.Do(func() {
-		// Init pool
-		aclCachePool = cache.MustOpenPool(runtime.ShortCacheURL("evictionTime", "60s", "cleanWindow", "30s"))
-
 		// Subscribe
 		_, _ = broker.Subscribe(context.Background(), common.TopicIdmEvent, func(ct context.Context, message broker.Message) error {
 			event := &idm.ChangeEvent{}
@@ -52,19 +52,14 @@ func getAclCache(ctx context.Context) cache.Cache {
 			}
 			switch event.Type {
 			case idm.ChangeEventType_CREATE, idm.ChangeEventType_UPDATE, idm.ChangeEventType_DELETE:
-				if ka, er := aclCachePool.Get(msgCtx); er == nil {
+				if ka, er := cache_helper.ResolveCache(msgCtx, "short", ancestorsConfig); er == nil {
 					return ka.Reset()
 				}
 			}
 			return nil
 		}, broker.WithCounterName("acl-cache"))
 	})
-
-	if ka, er := aclCachePool.Get(ctx); er == nil {
-		return ka
-	} else {
-		return cache.MustDiscard()
-	}
+	return cache_helper.MustResolveCache(ctx, "short", ancestorsConfig)
 }
 
 type CachedAccessList struct {

@@ -35,19 +35,23 @@ import (
 	"github.com/pydio/cells/v4/common/nodes"
 	"github.com/pydio/cells/v4/common/nodes/models"
 	"github.com/pydio/cells/v4/common/proto/tree"
-	"github.com/pydio/cells/v4/common/runtime"
 	"github.com/pydio/cells/v4/common/telemetry/log"
 	"github.com/pydio/cells/v4/common/utils/cache"
-	"github.com/pydio/cells/v4/common/utils/openurl"
+	cache_helper "github.com/pydio/cells/v4/common/utils/cache/helper"
 )
+
+var rootNodesCacheConfig = cache.Config{
+	Prefix:      "root-nodes",
+	Eviction:    "10s",
+	CleanWindow: "60s",
+}
 
 // BranchFilter is a ready-made Handler that can be used by all handlers that just modify the path in one way
 // or another before forwarding calls to Next handler.
 type BranchFilter struct {
 	Handler
-	InputMethod    nodes.FilterFunc
-	OutputMethod   nodes.FilterFunc
-	RootNodesCache *openurl.Pool[cache.Cache]
+	InputMethod  nodes.FilterFunc
+	OutputMethod nodes.FilterFunc
 }
 
 func (v *BranchFilter) LookupRoot(ctx context.Context, uuid string) (*tree.Node, error) {
@@ -56,14 +60,7 @@ func (v *BranchFilter) LookupRoot(ctx context.Context, uuid string) (*tree.Node,
 		return virtualNode, nil
 	}
 
-	if v.RootNodesCache == nil {
-		var er error
-		v.RootNodesCache, er = cache.OpenPool(runtime.ShortCacheURL("evictionTime", "10s", "cleanWindow", "60s"))
-		if er != nil {
-			return nil, er
-		}
-	}
-	ca, _ := v.RootNodesCache.Get(ctx)
+	ca, _ := cache_helper.ResolveCache(ctx, "short", rootNodesCacheConfig)
 
 	var n *tree.Node
 	if ca != nil && ca.Get(uuid, &n) {

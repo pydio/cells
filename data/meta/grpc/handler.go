@@ -32,12 +32,11 @@ import (
 	"github.com/pydio/cells/v4/common/broker"
 	"github.com/pydio/cells/v4/common/errors"
 	"github.com/pydio/cells/v4/common/proto/tree"
-	"github.com/pydio/cells/v4/common/runtime"
 	"github.com/pydio/cells/v4/common/runtime/manager"
 	"github.com/pydio/cells/v4/common/telemetry/log"
 	"github.com/pydio/cells/v4/common/utils/cache"
+	cache_helper "github.com/pydio/cells/v4/common/utils/cache/helper"
 	json "github.com/pydio/cells/v4/common/utils/jsonx"
-	"github.com/pydio/cells/v4/common/utils/openurl"
 	"github.com/pydio/cells/v4/data/meta"
 )
 
@@ -48,15 +47,12 @@ type MetaServer struct {
 	tree.UnimplementedNodeReceiverServer
 	//tree.UnimplementedSearcherServer
 
-	cachePool *openurl.Pool[cache.Cache]
-
 	stopped     bool
 	stoppedLock *sync.Mutex
 }
 
 func NewMetaServer(ctx context.Context, srvName string) *MetaServer {
 	m := &MetaServer{}
-	m.cachePool, _ = cache.OpenPool(runtime.CacheURL(srvName, "evictionTime", "1m"))
 	m.stoppedLock = &sync.Mutex{}
 	go func() {
 		<-ctx.Done()
@@ -71,10 +67,6 @@ func (s *MetaServer) Stop() {
 
 	if s.stopped {
 		return
-	}
-
-	if s.cachePool != nil {
-		_ = s.cachePool.Close(context.Background())
 	}
 
 	s.stopped = true
@@ -156,7 +148,7 @@ func (s *MetaServer) ReadNode(ctx context.Context, req *tree.ReadNodeRequest) (r
 	}
 	resp = &tree.ReadNodeResponse{}
 
-	ca, _ := s.cachePool.Get(ctx)
+	ca, _ := cache_helper.ResolveCache(ctx, "shared", cache.Config{Eviction: "1m"})
 	if ca != nil {
 		//s.cacheMutex.Lock(req.Node.Uuid)
 		//defer s.cacheMutex.Unlock(req.Node.Uuid)
@@ -259,7 +251,7 @@ func (s *MetaServer) saveNode(ctx context.Context, node *tree.Node, silent, relo
 		author = claims.Name
 	}
 
-	if ca, _ := s.cachePool.Get(ctx); ca != nil {
+	if ca, _ := cache_helper.ResolveCache(ctx, "shared", cache.Config{Eviction: "1m"}); ca != nil {
 		_ = ca.Delete(node.Uuid)
 	}
 
@@ -320,7 +312,7 @@ func (s *MetaServer) UpdateNode(ctx context.Context, req *tree.UpdateNodeRequest
 // DeleteNode metadata (Not implemented)
 func (s *MetaServer) DeleteNode(ctx context.Context, request *tree.DeleteNodeRequest) (result *tree.DeleteNodeResponse, err error) {
 
-	ca, _ := s.cachePool.Get(ctx)
+	ca, _ := cache_helper.ResolveCache(ctx, "shared", cache.Config{Eviction: "1m"})
 	if ca != nil {
 		_ = ca.Delete(request.Node.Uuid)
 	}

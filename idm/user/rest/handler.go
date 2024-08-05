@@ -46,12 +46,11 @@ import (
 	"github.com/pydio/cells/v4/common/proto/mailer"
 	"github.com/pydio/cells/v4/common/proto/rest"
 	service2 "github.com/pydio/cells/v4/common/proto/service"
-	"github.com/pydio/cells/v4/common/runtime"
 	"github.com/pydio/cells/v4/common/service/resources"
 	"github.com/pydio/cells/v4/common/telemetry/log"
 	"github.com/pydio/cells/v4/common/utils/cache"
+	cache_helper "github.com/pydio/cells/v4/common/utils/cache/helper"
 	json "github.com/pydio/cells/v4/common/utils/jsonx"
-	"github.com/pydio/cells/v4/common/utils/openurl"
 	"github.com/pydio/cells/v4/common/utils/uuid"
 	"github.com/pydio/cells/v4/idm/user/grpc"
 )
@@ -631,7 +630,7 @@ func (s *UserHandler) PutUser(req *restful.Request, rsp *restful.Response) error
 		if l, o := u.Attributes["parameter:core.conf:lang"]; o {
 			lang = strings.Trim(l, `"`)
 		}
-		mailCli := mailer.NewMailerServiceClient(grpc2.ResolveConn(ctx, common.ServiceMailer))
+		mailCli := mailer.NewMailerServiceClient(grpc2.ResolveConn(ctx, common.ServiceMailerGRPC))
 		email := &mailer.Mail{
 			To: []*mailer.User{{
 				Uuid:     u.Uuid,
@@ -839,16 +838,16 @@ func paramsAclsToAttributes(ctx context.Context, users []*idm.User) error {
 	return nil
 }
 
-var cachedParams *openurl.Pool[cache.Cache]
+var paramsCacheConfig = cache.Config{
+	Eviction:    "24h",
+	CleanWindow: "24h",
+}
 
 func allowedAclKey(ctx context.Context, k string, contextEditable bool) bool {
 	var params []*front.ExposedParameter
-	if cachedParams == nil {
-		cachedParams = cache.MustOpenPool(runtime.ShortCacheURL("evictionTime", "20s", "cleanWindow", "1m"))
-	}
-	ca, _ := cachedParams.Get(ctx)
-	if ca != nil && !ca.Get("params", &params) {
-		mC := front.NewManifestServiceClient(grpc2.ResolveConn(ctx, common.ServiceFrontStatics))
+	ca := cache_helper.MustResolveCache(ctx, "short", paramsCacheConfig)
+	if !ca.Get("params", &params) {
+		mC := front.NewManifestServiceClient(grpc2.ResolveConn(ctx, common.ServiceFrontStaticsGRPC))
 		resp, e := mC.ExposedParameters(ctx, &front.ExposedParametersRequest{
 			Scope:   "user",
 			Exposed: true,
@@ -878,7 +877,7 @@ func allowedAclKey(ctx context.Context, k string, contextEditable bool) bool {
 
 func allowedUserSpecialPermissions(ctx context.Context, claims claim.Claims) bool {
 	subjects := permissions.PolicyRequestSubjectsFromClaims(claims)
-	client := idm.NewPolicyEngineServiceClient(grpc2.ResolveConn(ctx, common.ServicePolicy))
+	client := idm.NewPolicyEngineServiceClient(grpc2.ResolveConn(ctx, common.ServicePolicyGRPC))
 	request := &idm.PolicyEngineRequest{
 		Subjects: subjects,
 		Resource: "rest:/acl",

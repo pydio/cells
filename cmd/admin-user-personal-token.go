@@ -109,7 +109,7 @@ TOKEN SCOPE
 			cmd.Println("Cannot find user")
 			return
 		}
-		cli := auth.NewPersonalAccessTokenServiceClient(grpc.ResolveConn(ctx, common.ServiceToken))
+		cli := auth.NewPersonalAccessTokenServiceClient(grpc.ResolveConn(ctx, common.ServiceTokenGRPC))
 		resp, e := cli.Generate(context.Background(), &auth.PatGenerateRequest{
 			Type:              auth.PatType_PERSONAL,
 			UserUuid:          u.Uuid,

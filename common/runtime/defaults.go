@@ -33,6 +33,4 @@ var (
 	DefaultKeyKeyring    = "file://" + filepath.ToSlash(filepath.Join(ApplicationWorkingDir(), DefaultKeyringFileName)+"?keyring=true")
 	DefaultKeyCertsStore = "file://" + filepath.ToSlash(filepath.Join(ApplicationWorkingDir(), DefaultCertStorePath))
 	DefaultKeyVault      = "detect"
-	DefaultKeyCache      = "bigcache://"
-	DefaultKeyShortCache = "pm://"
 )

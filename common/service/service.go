@@ -22,7 +22,6 @@ package service
 
 import (
 	"context"
-	"fmt"
 	"sync"
 
 	"go.uber.org/zap"
@@ -217,10 +216,10 @@ func (s *service) Start(oo ...registry.RegisterOption) (er error) {
 	}
 
 	defer func() {
-		if e := recover(); e != nil {
-			s.Opts.Logger().Error("panic while starting service", zap.Any("p", e))
-			er = fmt.Errorf("panic while starting service %v", e)
-		}
+		//if e := recover(); e != nil {
+		//	s.Opts.Logger().Error("panic while starting service", zap.Any("p", e))
+		//	er = fmt.Errorf("panic while starting service %v", e)
+		//}
 		if er != nil {
 			er = errors.WithMessagef(errors.ServiceStartError, "starting %s, %w", s.Name(), er)
 			s.updateRegister(registry.StatusError)

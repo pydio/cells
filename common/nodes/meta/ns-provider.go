@@ -22,7 +22,6 @@ package meta
 
 import (
 	"context"
-	"strings"
 	"sync"
 
 	"github.com/pydio/cells/v4/common"
@@ -111,7 +110,7 @@ func (p *NsProvider) Load() {
 	ct, ca := context.WithCancel(context.Background())
 	defer ca()
 	for _, srv := range services {
-		cl := idm.NewUserMetaServiceClient(grpc.ResolveConn(p.Ctx, strings.TrimPrefix(srv.Name(), common.ServiceGrpcNamespace_)))
+		cl := idm.NewUserMetaServiceClient(grpc.ResolveConn(p.Ctx, srv.Name()))
 		s, e := cl.ListUserMetaNamespace(ct, &idm.ListUserMetaNamespaceRequest{})
 		if e != nil {
 			continue
@@ -138,7 +137,7 @@ func (p *NsProvider) InitStreamers(ctx context.Context) error {
 	ct, can := context.WithCancel(ctx)
 	p.closer = can
 	for _, srv := range services {
-		c := tree.NewNodeProviderStreamerClient(grpc.ResolveConn(ctx, strings.TrimPrefix(srv.Name(), common.ServiceGrpcNamespace_)))
+		c := tree.NewNodeProviderStreamerClient(grpc.ResolveConn(ctx, srv.Name()))
 		if s, e := c.ReadNodeStream(ct); e == nil {
 			p.streamers = append(p.streamers, s)
 		}

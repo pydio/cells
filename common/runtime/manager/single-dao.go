@@ -35,6 +35,11 @@ import (
 
 var (
 	singleYAML = `
+caches:
+  short:
+    uri: pm://
+  shared:
+    uri: pm://
 storages:
   {{- range $idx, $dsn := . }}
   storage{{ $idx }}: 
@@ -69,8 +74,6 @@ func DSNtoContextDAO(ctx context.Context, dsn []string, daoFunc any) (context.Co
 	}
 	v := viper.New()
 	v.Set(runtime.KeyConfig, "mem://")
-	v.SetDefault(runtime.KeyCache, "pm://")
-	v.SetDefault(runtime.KeyShortCache, "pm://")
 	v.Set("yaml", b.String())
 
 	runtime.SetRuntime(v)

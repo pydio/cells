@@ -138,7 +138,7 @@ func (t *ThumbnailExtractor) Init(job *jobs.Job, action *jobs.Action) error {
 		t.thumbSizes = map[string]int{"sm": 300}
 	}
 	if !nodes.IsUnitTestEnv {
-		t.metaClient = tree.NewNodeReceiverClient(grpc.ResolveConn(t.GetRuntimeContext(), common.ServiceMeta))
+		t.metaClient = tree.NewNodeReceiverClient(grpc.ResolveConn(t.GetRuntimeContext(), common.ServiceMetaGRPC))
 	}
 	return nil
 }

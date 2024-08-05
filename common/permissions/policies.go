@@ -24,7 +24,6 @@ import (
 	"bytes"
 	"context"
 	"fmt"
-	"github.com/pydio/cells/v4/common/middleware/keys"
 	"path"
 	"strings"
 	"sync"
@@ -38,11 +37,11 @@ import (
 	"github.com/pydio/cells/v4/common/auth/claim"
 	"github.com/pydio/cells/v4/common/broker"
 	"github.com/pydio/cells/v4/common/client/grpc"
+	"github.com/pydio/cells/v4/common/middleware/keys"
 	"github.com/pydio/cells/v4/common/proto/idm"
 	"github.com/pydio/cells/v4/common/proto/tree"
-	"github.com/pydio/cells/v4/common/runtime"
 	"github.com/pydio/cells/v4/common/utils/cache"
-	"github.com/pydio/cells/v4/common/utils/openurl"
+	cache_helper "github.com/pydio/cells/v4/common/utils/cache/helper"
 	"github.com/pydio/cells/v4/common/utils/propagator"
 	"github.com/pydio/cells/v4/idm/policy/converter"
 )
@@ -57,26 +56,25 @@ const (
 	PolicyNodeMeta_         = "NodeMeta:"
 )
 
-var polCachePool *openurl.Pool[cache.Cache]
+// var polCachePool *openurl.Pool[cache.Cache]
+var polCacheConfig = cache.Config{
+	Prefix:      "policies",
+	Eviction:    "1m",
+	CleanWindow: "10m",
+}
 
-var polCacheSync sync.Once
+var polCacheOnce sync.Once
 
 func getCheckersCache(ctx context.Context) cache.Cache {
-	polCacheSync.Do(func() {
-		polCachePool = cache.MustOpenPool(runtime.ShortCacheURL("evictionTime", "1m", "cleanWindow", "10m"))
+	polCacheOnce.Do(func() {
 		_, _ = broker.Subscribe(context.Background(), common.TopicIdmPolicies, func(ct context.Context, message broker.Message) error {
-			if polCache, er := polCachePool.Get(ct); er == nil {
-				_ = polCache.Delete("acl")
-				_ = polCache.Delete("oidc")
-			}
+			polCache := cache_helper.MustResolveCache(ct, "short", polCacheConfig)
+			_ = polCache.Delete("acl")
+			_ = polCache.Delete("oidc")
 			return nil
 		}, broker.WithCounterName("policies-cache"))
 	})
-	polCache, er := polCachePool.Get(ctx)
-	if er != nil {
-		polCache = cache.MustDiscard()
-	}
-	return polCache
+	return cache_helper.MustResolveCache(ctx, "short", polCacheConfig)
 }
 
 // PolicyRequestSubjectsFromUser builds an array of string subjects from the passed User.
@@ -168,7 +166,7 @@ func PolicyContextFromClaims(policyContext map[string]string, ctx context.Contex
 
 func loadPoliciesByResourcesType(ctx context.Context, resType string) ([]*idm.Policy, error) {
 
-	cli := idm.NewPolicyEngineServiceClient(grpc.ResolveConn(ctx, common.ServicePolicy))
+	cli := idm.NewPolicyEngineServiceClient(grpc.ResolveConn(ctx, common.ServicePolicyGRPC))
 	st, e := cli.StreamPolicyGroups(ctx, &idm.ListPolicyGroupsRequest{Filter: "resource_group:" + resType})
 	if e != nil {
 		return nil, e

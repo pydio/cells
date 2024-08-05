@@ -211,10 +211,10 @@ func TestGetSetGRPC(t *testing.T) {
 	config.Register(mem)
 	config.RegisterVault(vault)
 
-	conn := grpc.ResolveConn(context.Background(), common.ServiceConfig)
+	conn := grpc.ResolveConn(context.Background(), common.ServiceConfigGRPC)
 	ctx := clientcontext.WithClientConn(context.Background(), conn)
 
-	store, err := config.OpenStore(ctx, "grpc://"+common.ServiceConfig)
+	store, err := config.OpenStore(ctx, "grpc://"+common.ServiceConfigGRPC)
 	if err != nil {
 		t.Fail()
 	}

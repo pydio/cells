@@ -162,7 +162,6 @@ func tplEval(tpl, name string, conf config.Store) (string, error) {
 		ConfigURL             string
 		RegistryURL           string
 		BrokerURL             string
-		CacheURL              string
 		BindHost              string
 		AdvertiseHost         string
 		DiscoveryPort         string
@@ -176,7 +175,6 @@ func tplEval(tpl, name string, conf config.Store) (string, error) {
 		ConfigURL:             runtime.ConfigURL(),
 		RegistryURL:           runtime.RegistryURL(),
 		BrokerURL:             runtime.BrokerURL(),
-		CacheURL:              runtime.CacheURL(""),
 		Config:                conf,
 		BindHost:              r.GetString(runtime.KeyBindHost),
 		AdvertiseHost:         r.GetString(runtime.KeyBindHost),

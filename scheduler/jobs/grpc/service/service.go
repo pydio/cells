@@ -179,7 +179,7 @@ func init() {
 				if len(autoStarts) > 0 {
 					hc = grpc2.NewHealthChecker(ctx)
 					go func() {
-						hc.Monitor(common.ServiceTasks)
+						hc.Monitor(common.ServiceGrpcNamespace_ + common.ServiceTasks)
 						for tc, jj := range autoStarts {
 							for _, j := range jj {
 								logger.Info("Sending a start event for job '" + j.Label + "'")

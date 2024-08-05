@@ -27,6 +27,7 @@ import (
 	"github.com/spf13/cobra"
 
 	"github.com/pydio/cells/v4/common/client/grpc"
+	"github.com/pydio/cells/v4/common/runtime/manager"
 	"github.com/pydio/cells/v4/common/runtime/tenant"
 	"github.com/pydio/cells/v4/common/utils/propagator"
 )
@@ -68,6 +69,13 @@ DESCRIPTION
 
 		_, _, er := initConfig(cmd.Context(), true)
 
+		mgr, err := manager.NewManager(cmd.Context(), "cmd", nil)
+		if err != nil {
+			return err
+		}
+
+		ctx = mgr.Context()
+
 		var t tenant.Tenant
 		if t, er = tenant.GetManager().TenantByID(adminCmdTenantID); er != nil {
 			t = tenant.GetManager().GetMaster()
@@ -75,7 +83,11 @@ DESCRIPTION
 		} else {
 			cmd.Println("using tenant " + adminCmdTenantID)
 		}
+
 		ctx = propagator.With(ctx, tenant.ContextKey, t)
+
+		cmd.SetContext(ctx)
+
 		return er
 	},
 	Run: func(cmd *cobra.Command, args []string) {
@@ -86,7 +98,6 @@ DESCRIPTION
 func init() {
 	// Registry / Broker Flags
 	addExternalCmdRegistryFlags(AdminCmd.PersistentFlags())
-	addCacheFlags(AdminCmd.PersistentFlags())
 	AdminCmd.PersistentFlags().StringVarP(&adminCmdGRPCTimeout, "grpc_client_timeout", "", "60m", "Default timeout for long-running GRPC calls, expressed as a golang duration")
 	AdminCmd.PersistentFlags().StringVar(&adminCmdTenantID, "tenant_id", "default", "Tenant ID to apply command")
 	RootCmd.AddCommand(AdminCmd)

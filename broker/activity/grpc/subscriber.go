@@ -48,7 +48,7 @@ import (
 	"github.com/pydio/cells/v4/common/runtime/manager"
 	"github.com/pydio/cells/v4/common/telemetry/log"
 	"github.com/pydio/cells/v4/common/utils/cache"
-	"github.com/pydio/cells/v4/common/utils/openurl"
+	cache_helper "github.com/pydio/cells/v4/common/utils/cache/helper"
 	"github.com/pydio/cells/v4/common/utils/propagator"
 )
 
@@ -56,38 +56,22 @@ type MicroEventsSubscriber struct {
 	sync.Mutex
 	RuntimeCtx context.Context
 
-	cachePool *openurl.Pool[cache.Cache]
-	//muxPool     *openurl.Pool[broker.AsyncQueue]
 	handlerName string
+	cacheConfig cache.Config
 }
 
-func NewEventsSubscriber(ctx context.Context, handlerName string) (*MicroEventsSubscriber, error) {
+func NewEventsSubscriber(ctx context.Context, handlerName string) *MicroEventsSubscriber {
 
-	m := &MicroEventsSubscriber{
+	return &MicroEventsSubscriber{
 		RuntimeCtx:  ctx,
 		handlerName: handlerName,
+		cacheConfig: cache.Config{
+			Prefix:      "activities-subscriber",
+			Eviction:    "3m",
+			CleanWindow: "10m",
+		},
 	}
-	/*
-		dbcURL := runtime.QueueURL("debounce", "2s", "idle", "20s", "max", "2000")
-		dbcOpener := func(ctx context.Context, u string) (broker.AsyncQueue, error) {
-			q, e := broker.OpenAsyncQueue(ctx, u)
-			if e != nil {
-				return q, e
-			}
-			er := q.Consume(m.ProcessIdmBatch)
-			return q, er
-		}
-		var er error
-		m.muxPool, er = openurl.OpenPool[broker.AsyncQueue](ctx, []string{dbcURL}, dbcOpener)
-		if er != nil {
-			return nil, er
-		}*/
 
-	var er error
-	cacheURL := runtime.ShortCacheURL("evictionTime", "3m", "cleanWindow", "10m")
-	m.cachePool, er = cache.OpenPool(cacheURL)
-
-	return m, er
 }
 
 func (e *MicroEventsSubscriber) getQueue(ctx context.Context) (broker.AsyncQueue, error) {
@@ -272,7 +256,7 @@ func (e *MicroEventsSubscriber) parentsFromCache(ctx context.Context, node *tree
 	e.Lock()
 	defer e.Unlock()
 
-	kach, err := e.cachePool.Get(ctx)
+	kach, err := cache_helper.ResolveCache(ctx, "short", e.cacheConfig)
 	if err != nil {
 		return nil, nil, err
 	}

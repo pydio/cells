@@ -58,10 +58,17 @@ import (
 	"github.com/pydio/cells/v4/common/service/frontend"
 	"github.com/pydio/cells/v4/common/telemetry/log"
 	"github.com/pydio/cells/v4/common/utils/cache"
+	cache_helper "github.com/pydio/cells/v4/common/utils/cache/helper"
 	json "github.com/pydio/cells/v4/common/utils/jsonx"
-	"github.com/pydio/cells/v4/common/utils/openurl"
 	"github.com/pydio/cells/v4/common/utils/propagator"
 	"github.com/pydio/cells/v4/gateway/dav"
+)
+
+var (
+	cacheConfig = cache.Config{
+		Eviction:    "30s",
+		CleanWindow: "5m",
+	}
 )
 
 // PublicHandler implements http.Handler to server public links
@@ -69,8 +76,6 @@ type PublicHandler struct {
 	tpl            *template.Template
 	error          *template.Template
 	runtimeContext context.Context
-
-	davWssCachePool *openurl.Pool[cache.Cache]
 }
 
 func NewPublicHandler(c context.Context) *PublicHandler {
@@ -79,7 +84,6 @@ func NewPublicHandler(c context.Context) *PublicHandler {
 	}
 	h.tpl, _ = template.New("public").Parse(Public)
 	h.error, _ = template.New("error").Parse(errorTpl)
-	h.davWssCachePool = cache.MustOpenPool("pm:///?evictionTime=30s&cleanWindow=5m")
 	return h
 }
 
@@ -248,7 +252,7 @@ func (h *PublicHandler) ServeDAV(w http.ResponseWriter, r *http.Request, linkId 
 
 	// Load workspace and its root nodes
 	var ws *idm.Workspace
-	ca, _ := h.davWssCachePool.Get(ctx)
+	ca := cache_helper.MustResolveCache(ctx, "short", cacheConfig)
 	if !ca.Get(linkData.RepositoryId, &ws) {
 		workspace, er := permissions.SearchUniqueWorkspace(ctx, linkData.RepositoryId, "")
 		if er != nil {

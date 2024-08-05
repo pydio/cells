@@ -2,7 +2,6 @@ package cache
 
 import (
 	"context"
-	"net/url"
 	"time"
 )
 
@@ -10,19 +9,8 @@ var (
 	_ Cache = (*discard)(nil)
 )
 
-func init() {
-	defaultURLMux.Register("discard", &discardOpener{})
-}
-
-type discardOpener struct{}
-
-func (d *discardOpener) OpenURL(ctx context.Context, u *url.URL) (Cache, error) {
-	return &discard{}, nil
-}
-
 // discard is a "dev>null" cache, that can be used to disable a specific cache
-type discard struct {
-}
+type discard struct{}
 
 func (d *discard) Get(key string, value interface{}) (ok bool) {
 	return false

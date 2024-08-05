@@ -298,7 +298,7 @@ func (f *FlatStorageHandler) postCreate(ctx context.Context, node *tree.Node, re
 
 func (f *FlatStorageHandler) encPlainSizeRecompute(ctx context.Context, nodeUUID, dsName string) (int64, error) {
 	if keyClient == nil {
-		keyClient = encryption.NewNodeKeyManagerClient(grpc2.ResolveConn(ctx, common.ServiceEncKey))
+		keyClient = encryption.NewNodeKeyManagerClient(grpc2.ResolveConn(ctx, common.ServiceEncKeyGRPC))
 	}
 	if resp, e := keyClient.GetNodePlainSize(ctx, &encryption.GetNodePlainSizeRequest{
 		NodeId: nodeUUID,
