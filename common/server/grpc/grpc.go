@@ -358,6 +358,10 @@ func (s *Server) As(i interface{}) bool {
 		*sr = s.regI
 		return true
 	}
+	if l, ok := i.(*sync.Locker); ok {
+		*l = s.regI.(*serverRegistrar)
+		return true
+	}
 	return false
 }
 

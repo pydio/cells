@@ -22,6 +22,7 @@ package service
 
 import (
 	"context"
+	"sync"
 
 	"google.golang.org/grpc"
 
@@ -45,9 +46,12 @@ func WithGRPC(f func(context.Context, grpc.ServiceRegistrar) error) ServiceOptio
 			o.Server.As(&registrar)
 			var reg registry.Registry
 			propagator.Get(ctx, registry.ContextKey, &reg)
+			var locker sync.Locker
+			o.Server.As(&locker)
 
 			return f(ctx, &serviceRegistrar{
 				ServiceRegistrar: registrar,
+				Locker:           locker,
 				id:               o.ID,
 				name:             o.Name,
 				reg:              reg,
@@ -71,10 +75,9 @@ type endpoint struct {
 
 type handler interface{}
 
-var serviceRegistrars = make(map[endpoint]handler)
-
 type serviceRegistrar struct {
 	grpc.ServiceRegistrar
+	sync.Locker
 	id   string
 	name string
 	reg  registry.Registry
@@ -123,6 +126,10 @@ func (s *serviceRegistrar) ID() string {
 }
 
 func (s *serviceRegistrar) As(v interface{}) bool {
+	if l, ok := v.(*sync.Locker); ok {
+		*l = s.Locker
+		return true
+	}
 	srv, ok := s.ServiceRegistrar.(Convertible)
 	if !ok {
 		return false
