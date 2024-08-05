@@ -33,6 +33,7 @@ import (
 
 	"github.com/pydio/cells/v4/common/crypto"
 	cache "github.com/pydio/cells/v4/common/utils/cache"
+	cache_helper "github.com/pydio/cells/v4/common/utils/cache/helper"
 	standard "github.com/pydio/cells/v4/common/utils/std"
 )
 
@@ -58,11 +59,11 @@ type Options struct {
 
 func init() {
 	o := &URLOpener{}
-	cache.DefaultURLMux().Register(scheme, o)
-	cache.DefaultURLMux().Register(scheme+"+tls", o)
+	cache_helper.RegisterCachePool(scheme, o)
+	cache_helper.RegisterCachePool(scheme+"+tls", o)
 }
 
-func (o *URLOpener) OpenURL(ctx context.Context, u *url.URL) (cache.Cache, error) {
+func (o *URLOpener) Open(ctx context.Context, u *url.URL) (cache.Cache, error) {
 	opt := &Options{
 		EvictionTime: time.Minute,
 		CleanWindow:  10 * time.Minute,

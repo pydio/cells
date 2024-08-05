@@ -32,16 +32,20 @@ import (
 	"github.com/pydio/cells/v4/common/nodes"
 	"github.com/pydio/cells/v4/common/proto/docstore"
 	"github.com/pydio/cells/v4/common/proto/tree"
-	"github.com/pydio/cells/v4/common/runtime"
 	"github.com/pydio/cells/v4/common/telemetry/log"
 	"github.com/pydio/cells/v4/common/utils/cache"
+	cache_helper "github.com/pydio/cells/v4/common/utils/cache/helper"
 	"github.com/pydio/cells/v4/common/utils/configx"
 	json "github.com/pydio/cells/v4/common/utils/jsonx"
-	"github.com/pydio/cells/v4/common/utils/openurl"
 	"github.com/pydio/cells/v4/scheduler/actions"
 )
 
-var policiesCachePool *openurl.Pool[cache.Cache]
+var (
+	policiesCacheConf = cache.Config{
+		Eviction:    "1h",
+		CleanWindow: "1h",
+	}
+)
 
 func init() {
 
@@ -64,19 +68,15 @@ func init() {
 // PolicyForNode checks datasource name and find corresponding VersioningPolicy (if set). Returns nil otherwise.
 func PolicyForNode(ctx context.Context, node *tree.Node) *tree.VersioningPolicy {
 
-	if policiesCachePool == nil {
-		policiesCachePool, _ = cache.OpenPool(runtime.ShortCacheURL("evictionTime", "1h", "cleanWindow", "1h"))
-	}
-	policiesCache, _ := policiesCachePool.Get(ctx)
-
 	dataSourceName := node.GetStringMeta(common.MetaNamespaceDatasourceName)
 	policyName := config.Get(ctx, "services", common.ServiceGrpcNamespace_+common.ServiceDataSync_+dataSourceName, "VersioningPolicyName").String()
 	if policyName == "" {
 		return nil
 	}
+	pk := cache_helper.MustResolveCache(ctx, "short", policiesCacheConf)
 
 	var v *tree.VersioningPolicy
-	if policiesCache.Get(policyName, &v) {
+	if pk.Get(policyName, &v) {
 		return v
 	}
 
@@ -92,7 +92,7 @@ func PolicyForNode(ctx context.Context, node *tree.Node) *tree.VersioningPolicy 
 	var p *tree.VersioningPolicy
 	if er := json.Unmarshal([]byte(r.Document.Data), &p); er == nil {
 		log.Logger(ctx).Debug("[VERSION] found policy for node", zap.Any("p", p))
-		policiesCache.Set(policyName, p)
+		pk.Set(policyName, p)
 		return p
 	}
 

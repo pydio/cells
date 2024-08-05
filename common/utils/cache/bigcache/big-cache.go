@@ -35,6 +35,7 @@ import (
 	"github.com/pydio/cells/v4/common/runtime"
 	"github.com/pydio/cells/v4/common/telemetry/metrics"
 	"github.com/pydio/cells/v4/common/utils/cache"
+	cache_helper "github.com/pydio/cells/v4/common/utils/cache/helper"
 )
 
 var (
@@ -57,11 +58,11 @@ type URLOpener struct{}
 
 func init() {
 	o := &URLOpener{}
-	cache.DefaultURLMux().Register(scheme, o)
+	cache_helper.RegisterCachePool(scheme, o)
 	runtime.RegisterEnvVariable("CELLS_CACHES_HARD_LIMIT", "8", "In MB, default maximum size used by various in-memory caches")
 }
 
-func (o *URLOpener) OpenURL(ctx context.Context, u *url.URL) (cache.Cache, error) {
+func (o *URLOpener) Open(ctx context.Context, u *url.URL) (cache.Cache, error) {
 	conf := DefaultBigCacheConfig()
 	if v := u.Query().Get("evictionTime"); v != "" {
 		if i, err := time.ParseDuration(v); err != nil {

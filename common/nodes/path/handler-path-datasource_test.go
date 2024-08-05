@@ -25,28 +25,35 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/spf13/viper"
-
 	"github.com/pydio/cells/v4/common"
+	"github.com/pydio/cells/v4/common/config"
 	"github.com/pydio/cells/v4/common/errors"
 	"github.com/pydio/cells/v4/common/nodes"
 	"github.com/pydio/cells/v4/common/nodes/models"
 	"github.com/pydio/cells/v4/common/proto/idm"
 	"github.com/pydio/cells/v4/common/proto/tree"
-	"github.com/pydio/cells/v4/common/runtime"
 	"github.com/pydio/cells/v4/common/utils/cache"
+	"github.com/pydio/cells/v4/common/utils/cache/gocache"
+	cache_helper "github.com/pydio/cells/v4/common/utils/cache/helper"
 	"github.com/pydio/cells/v4/common/utils/openurl"
+	"github.com/pydio/cells/v4/common/utils/propagator"
 
-	_ "github.com/pydio/cells/v4/common/utils/cache/gocache"
+	_ "github.com/pydio/cells/v4/common/config/memory"
 
 	. "github.com/smartystreets/goconvey/convey"
 )
 
+var (
+	ctx  context.Context
+	pool *openurl.Pool[nodes.SourcesPool]
+)
+
 func TestMain(m *testing.M) {
-	v := viper.New()
-	v.SetDefault(runtime.KeyCache, "pm://")
-	v.SetDefault(runtime.KeyShortCache, "pm://")
-	runtime.SetRuntime(v)
+	cache_helper.SetStaticResolver("pm://?evictionTime=20s&cleanWindow=10s", &gocache.URLOpener{})
+	mem, _ := config.OpenStore(context.Background(), "mem://")
+	ctx = propagator.With(context.Background(), config.ContextKey, mem)
+	pool = nodes.NewTestPool(ctx, nodes.MakeFakeClientsPool(nil, nil))
+	m.Run()
 }
 
 func newTestHandlerBranchTranslator(pool *openurl.Pool[nodes.SourcesPool]) (*DataSourceHandler, *nodes.HandlerMock) {
@@ -59,8 +66,7 @@ func newTestHandlerBranchTranslator(pool *openurl.Pool[nodes.SourcesPool]) (*Dat
 	testRootNode.MustSetMeta(common.MetaNamespaceDatasourceName, "datasource")
 	testRootNode.MustSetMeta(common.MetaNamespaceDatasourcePath, "root")
 	b := newDataSourceHandler()
-	b.RootNodesCache = cache.MustOpenPool(runtime.ShortCacheURL("evictionTime", "1s", "cleanWindow", "10s"))
-	ka, _ := b.RootNodesCache.Get(context.TODO())
+	ka := cache_helper.MustResolveCache(context.Background(), "any", cache.Config{})
 	_ = ka.Set("root-node-uuid", testRootNode)
 	mock := nodes.NewHandlerMock()
 	mock.Nodes["datasource/root/inner/path"] = &tree.Node{
@@ -82,7 +88,6 @@ func makeFakeTestContext(identifier string, root ...*tree.Node) context.Context 
 
 	fakeRoot := &tree.Node{Path: "datasource/root"}
 	fakeRoot.MustSetMeta(common.MetaNamespaceDatasourceName, "datasource")
-	c := context.Background()
 	b := nodes.BranchInfo{
 		Workspace: &idm.Workspace{
 			UUID:  "test-workspace",
@@ -94,19 +99,16 @@ func makeFakeTestContext(identifier string, root ...*tree.Node) context.Context 
 	if len(root) > 0 {
 		b.Root = root[0]
 	}
-	c = nodes.WithBranchInfo(c, identifier, b)
-	return c
+	return nodes.WithBranchInfo(ctx, identifier, b)
 
 }
 
 func TestBranchTranslator_ReadNode(t *testing.T) {
 
-	pool := nodes.NewTestPool(context.Background())
-
 	Convey("Test Readnode without context", t, func() {
 
 		b, _ := newTestHandlerBranchTranslator(pool)
-		_, e := b.ReadNode(context.Background(), &tree.ReadNodeRequest{})
+		_, e := b.ReadNode(ctx, &tree.ReadNodeRequest{})
 		So(errors.Is(e, errors.BranchInfoMissing), ShouldBeTrue)
 
 	})
@@ -114,7 +116,7 @@ func TestBranchTranslator_ReadNode(t *testing.T) {
 	Convey("Test Readnode with wrong context", t, func() {
 
 		b, _ := newTestHandlerBranchTranslator(pool)
-		c := nodes.WithBranchInfo(context.Background(), "in", nodes.BranchInfo{
+		c := nodes.WithBranchInfo(ctx, "in", nodes.BranchInfo{
 			Workspace: &idm.Workspace{
 				UUID:  "another-workspace",
 				Label: "Another Workspace",
@@ -129,7 +131,7 @@ func TestBranchTranslator_ReadNode(t *testing.T) {
 	Convey("Test Readnode with admin context", t, func() {
 
 		b, mock := newTestHandlerBranchTranslator(pool)
-		adminCtx := nodes.WithBranchInfo(context.Background(), "in", nodes.BranchInfo{
+		adminCtx := nodes.WithBranchInfo(ctx, "in", nodes.BranchInfo{
 			Workspace: &idm.Workspace{UUID: "ROOT"},
 		})
 		_, e := b.ReadNode(adminCtx, &tree.ReadNodeRequest{Node: &tree.Node{
@@ -182,7 +184,7 @@ func TestBranchTranslator_ReadNode(t *testing.T) {
 	Convey("Test update Output Node - Admin", t, func() {
 
 		b, _ := newTestHandlerBranchTranslator(pool)
-		adminCtx := nodes.WithBranchInfo(context.Background(), "in", nodes.BranchInfo{
+		adminCtx := nodes.WithBranchInfo(ctx, "in", nodes.BranchInfo{
 			Workspace: &idm.Workspace{UUID: "ROOT"},
 		})
 		node := &tree.Node{Path: "datasource/root/sub/path"}
@@ -194,8 +196,6 @@ func TestBranchTranslator_ReadNode(t *testing.T) {
 }
 
 func TestBranchTranslator_ListNodes(t *testing.T) {
-
-	pool := nodes.NewTestPool(context.Background())
 
 	Convey("Test ListNodes with user context", t, func() {
 
@@ -225,8 +225,6 @@ func TestBranchTranslator_ListNodes(t *testing.T) {
 }
 
 func TestBranchTranslator_OtherMethods(t *testing.T) {
-
-	pool := nodes.NewTestPool(context.Background())
 
 	Convey("Test CreateNode", t, func() {
 

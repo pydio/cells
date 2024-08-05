@@ -39,17 +39,24 @@ import (
 	"github.com/pydio/cells/v4/common/permissions"
 	"github.com/pydio/cells/v4/common/proto/idm"
 	"github.com/pydio/cells/v4/common/proto/tree"
-	"github.com/pydio/cells/v4/common/runtime"
 	"github.com/pydio/cells/v4/common/telemetry/log"
 	"github.com/pydio/cells/v4/common/utils/cache"
+	cache_helper "github.com/pydio/cells/v4/common/utils/cache/helper"
 	"github.com/pydio/cells/v4/common/utils/openurl"
+)
+
+var (
+	revCacheConfig = cache.Config{
+		Prefix:      "nodes-reverse",
+		Eviction:    "120s",
+		CleanWindow: "10m",
+	}
 )
 
 // Reverse is an extended clientImpl used mainly to filter events sent from inside to outside the application
 type Reverse struct {
 	nodes.Client
 	runtimeCtx context.Context
-	rootsCache *openurl.Pool[cache.Cache]
 }
 
 func ReverseClient(ctx context.Context, oo ...nodes.Option) *Reverse {
@@ -73,11 +80,9 @@ func ReverseClient(ctx context.Context, oo ...nodes.Option) *Reverse {
 		encryption.WithEncryption(),
 	)
 	cl := newClient(opts...)
-	cp, _ := cache.OpenPool(runtime.ShortCacheURL("evictionTime", "120s", "cleanWindow", "10m"))
 	return &Reverse{
 		Client:     cl,
 		runtimeCtx: cl.runtimeCtx,
-		rootsCache: cp,
 	}
 }
 
@@ -146,16 +151,14 @@ func (r *Reverse) NodeIsChildOfRoot(ctx context.Context, node *tree.Node, rootId
 // getRoot provides a loaded root node from the cache or from the treeClient
 func (r *Reverse) getRoot(ctx context.Context, rootId string) *tree.Node {
 	var node *tree.Node
-	ca, _ := r.rootsCache.Get(ctx)
-	if ca != nil && ca.Get(rootId, &node) {
+	ca := cache_helper.MustResolveCache(ctx, "short", revCacheConfig)
+	if ca.Get(rootId, &node) {
 		return node
 	}
 	resp, e := r.GetClientsPool(ctx).GetTreeClient().ReadNode(ctx, &tree.ReadNodeRequest{Node: &tree.Node{Uuid: rootId}})
 	if e == nil && resp.Node != nil {
 		resp.Node.Path = strings.Trim(resp.Node.Path, "/")
-		if ca != nil {
-			_ = ca.Set(rootId, resp.Node.Clone())
-		}
+		_ = ca.Set(rootId, resp.Node.Clone())
 		return resp.Node
 	}
 	return nil

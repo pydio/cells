@@ -30,10 +30,7 @@ import (
 	"regexp"
 	"testing"
 
-	"github.com/spf13/viper"
-
 	"github.com/pydio/cells/v4/common/proto/tree"
-	"github.com/pydio/cells/v4/common/runtime"
 	"github.com/pydio/cells/v4/common/runtime/manager"
 	"github.com/pydio/cells/v4/common/storage/test"
 	"github.com/pydio/cells/v4/common/utils/configx"
@@ -127,10 +124,7 @@ func getDAO(ctx context.Context) index.DAO {
 }
 
 func TestMain(m *testing.M) {
-	v := viper.New()
-	v.SetDefault(runtime.KeyCache, "pm://")
-	v.SetDefault(runtime.KeyShortCache, "pm://")
-	runtime.SetRuntime(v)
+	cache_helper.SetStaticResolver("pm://", &gocache.URLOpener{})
 
 	m.Run()
 }

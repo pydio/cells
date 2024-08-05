@@ -31,23 +31,24 @@ import (
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/broker"
 	"github.com/pydio/cells/v4/common/proto/idm"
-	"github.com/pydio/cells/v4/common/runtime"
 	"github.com/pydio/cells/v4/common/runtime/manager"
 	"github.com/pydio/cells/v4/common/telemetry/log"
 	"github.com/pydio/cells/v4/common/utils/cache"
-	"github.com/pydio/cells/v4/common/utils/openurl"
+	cache_helper "github.com/pydio/cells/v4/common/utils/cache/helper"
 	"github.com/pydio/cells/v4/idm/policy"
 )
 
+var groupsCacheConfig = cache.Config{
+	Eviction:    "72h",
+	CleanWindow: "72h",
+}
+
 type Handler struct {
 	idm.UnimplementedPolicyEngineServiceServer
-	groupsCachePool *openurl.Pool[cache.Cache]
 }
 
 func NewHandler() idm.PolicyEngineServiceServer {
-	return &Handler{
-		groupsCachePool: cache.MustOpenPool(runtime.ShortCacheURL("evictionTime", "72h", "cleanWindow", "72h")),
-	}
+	return &Handler{}
 }
 
 func (h *Handler) IsAllowed(ctx context.Context, request *idm.PolicyEngineRequest) (*idm.PolicyEngineResponse, error) {
@@ -128,7 +129,7 @@ func (h *Handler) ListPolicyGroups(ctx context.Context, request *idm.ListPolicyG
 
 	response := &idm.ListPolicyGroupsResponse{}
 
-	ka, er := h.groupsCachePool.Get(ctx)
+	ka, er := cache_helper.ResolveCache(ctx, "short", groupsCacheConfig)
 
 	if er == nil && request.Filter == "" && ka.Get("policyGroup", &response.PolicyGroups) {
 		response.Total = int32(len(response.PolicyGroups))
@@ -156,7 +157,7 @@ func (h *Handler) StorePolicyGroup(ctx context.Context, request *idm.StorePolicy
 		return nil, er
 	}
 
-	if ka, er := h.groupsCachePool.Get(ctx); er == nil {
+	if ka, er := cache_helper.ResolveCache(ctx, "short", groupsCacheConfig); er == nil {
 		_ = ka.Delete("policyGroup")
 	}
 
@@ -185,7 +186,7 @@ func (h *Handler) DeletePolicyGroup(ctx context.Context, request *idm.DeletePoli
 		return nil, er
 	}
 
-	if ka, er := h.groupsCachePool.Get(ctx); er == nil {
+	if ka, er := cache_helper.ResolveCache(ctx, "short", groupsCacheConfig); er == nil {
 		_ = ka.Delete("policyGroup")
 	}
 

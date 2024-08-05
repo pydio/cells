@@ -47,10 +47,7 @@ func init() {
 			service.WithGRPC(func(ctx context.Context, server grpc.ServiceRegistrar) error {
 
 				treeServer := grpc2.NewTreeServer(ctx, Name)
-				eventSubscriber, e := grpc2.NewEventSubscriber(treeServer)
-				if e != nil {
-					return e
-				}
+				eventSubscriber := grpc2.NewEventSubscriber(treeServer)
 
 				go treeServer.UpdateServicesList(ctx, 0)
 

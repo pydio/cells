@@ -43,13 +43,12 @@ import (
 	"github.com/pydio/cells/v4/common/proto/jobs"
 	pbservice "github.com/pydio/cells/v4/common/proto/service"
 	service "github.com/pydio/cells/v4/common/proto/service"
-	"github.com/pydio/cells/v4/common/runtime"
 	"github.com/pydio/cells/v4/common/runtime/manager"
 	"github.com/pydio/cells/v4/common/sql/resources"
 	"github.com/pydio/cells/v4/common/telemetry/log"
 	"github.com/pydio/cells/v4/common/utils/cache"
+	cache_helper "github.com/pydio/cells/v4/common/utils/cache/helper"
 	json "github.com/pydio/cells/v4/common/utils/jsonx"
-	"github.com/pydio/cells/v4/common/utils/openurl"
 	"github.com/pydio/cells/v4/common/utils/propagator"
 	"github.com/pydio/cells/v4/idm/user"
 	"github.com/pydio/cells/v4/scheduler/tasks"
@@ -60,7 +59,10 @@ var (
 		{Subject: "profile:standard", Action: pbservice.ResourcePolicyAction_READ, Effect: pbservice.ResourcePolicy_allow},
 		{Subject: "profile:admin", Action: pbservice.ResourcePolicyAction_WRITE, Effect: pbservice.ResourcePolicy_allow},
 	}
-	autoAppliesCachePool *openurl.Pool[cache.Cache]
+	cacheConfig = cache.Config{
+		Eviction:    "10s",
+		CleanWindow: "20s",
+	}
 
 	hasher = auth.PydioPW{
 		PBKDF2_HASH_ALGORITHM: "sha256",
@@ -83,6 +85,17 @@ func (a ByOverride) Len() int { return len(a) }
 func (a ByOverride) Swap(i, j int) { a[i], a[j] = a[j], a[i] }
 
 func (a ByOverride) Less(i, j int) bool { return !a[i].ForceOverride && a[j].ForceOverride }
+
+func resolveCache(ctx context.Context) (cache.Cache, error) {
+	var mgr manager.Manager
+	if propagator.Get(ctx, manager.ContextKey, &mgr) {
+		return mgr.GetCache(ctx, "short", map[string]interface{}{
+			"evictionTime": "10s",
+			"cleanWindow":  "20s",
+		})
+	}
+	return nil, errors.New("no manager found")
+}
 
 // Handler definition
 type Handler struct {
@@ -551,11 +564,9 @@ func (h *Handler) applyAutoApplies(usr *idm.User, autoApplies map[string][]*idm.
 func (h *Handler) loadAutoAppliesRoles(ctx context.Context) (autoApplies map[string][]*idm.Role, err error) {
 
 	// Check if it's not already cached
-	if autoAppliesCachePool != nil {
-		ca, _ := autoAppliesCachePool.Get(ctx)
-		if ca != nil && ca.Get("autoApplies", &autoApplies) {
-			return
-		}
+	ca, cer := cache_helper.ResolveCache(ctx, "short", cacheConfig)
+	if cer == nil && ca.Get("autoApplies", &autoApplies) {
+		return
 	}
 
 	autoApplies = make(map[string][]*idm.Role)
@@ -582,15 +593,8 @@ func (h *Handler) loadAutoAppliesRoles(ctx context.Context) (autoApplies map[str
 		}
 	}
 
-	// Save to cache
-	if autoAppliesCachePool == nil {
-		autoAppliesCachePool, err = cache.OpenPool(runtime.ShortCacheURL("evictionTime", "10s", "cleanWindow", "20s"))
-		if err != nil {
-			return
-		}
-	}
-	if c, er := autoAppliesCachePool.Get(ctx); er == nil {
-		_ = c.Set("autoApplies", autoApplies)
+	if cer == nil {
+		_ = ca.Set("autoApplies", autoApplies)
 	}
 
 	return

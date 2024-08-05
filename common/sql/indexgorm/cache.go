@@ -3,15 +3,17 @@ package index
 import (
 	"context"
 	"errors"
-	"github.com/go-gorm/caches"
-	"github.com/pydio/cells/v4/common/proto/tree"
-	"github.com/pydio/cells/v4/common/runtime"
-	"github.com/pydio/cells/v4/common/utils/cache"
-	"google.golang.org/protobuf/proto"
-	"gorm.io/gorm"
 	"sort"
 	"strconv"
 	"strings"
+
+	"github.com/go-gorm/caches"
+	"google.golang.org/protobuf/proto"
+	"gorm.io/gorm"
+
+	"github.com/pydio/cells/v4/common/proto/tree"
+	"github.com/pydio/cells/v4/common/utils/cache"
+	cache_helper "github.com/pydio/cells/v4/common/utils/cache/helper"
 )
 
 var _ caches.Cacher = (*Cacher)(nil)
@@ -43,27 +45,32 @@ func (c *Cacher) Store(key string, val interface{}) error {
 type daocache struct {
 	DAO
 	session     string
-	cche        cache.Cache
 	concurrency int
 }
 
 var (
-	_ DAO = (*daocache)(nil)
+	_         DAO = (*daocache)(nil)
+	cacheConf     = cache.Config{
+		Prefix:      "index",
+		Eviction:    "10m",
+		CleanWindow: "3m",
+	}
 	//	_ dao.DAO = (*daocache)(nil)
 )
 
 // NewDAOCache wraps a cache around the dao
 func NewDAOCache(session string, concurrency int, d DAO) DAO {
-	cche, _ := cache.OpenCache(context.TODO(), runtime.ShortCacheURL("evictionTime", "10m", "cleanWindow", "3m"))
-
 	c := &daocache{
 		DAO:         d,
 		session:     session,
-		cche:        cche,
 		concurrency: concurrency,
 	}
 
 	return c
+}
+
+func (d *daocache) getCache(ctx context.Context) cache.Cache {
+	return cache_helper.MustResolveCache(ctx, "short", cacheConf)
 }
 
 func (d *daocache) AddNode(ctx context.Context, node tree.ITreeNode) error {
@@ -73,33 +80,33 @@ func (d *daocache) AddNode(ctx context.Context, node tree.ITreeNode) error {
 	mpathStr := clone.GetMPath().ToString()
 	parentMpathStr := clone.GetMPath().Parent().ToString()
 
-	if d.cche.Exists(getKey("add_", mpathStr)) {
+	if d.getCache(ctx).Exists(getKey("add_", mpathStr)) {
 		return gorm.ErrDuplicatedKey
 	}
 
 	// Adding to list
-	if err := d.cche.Set(getKey("add_", mpathStr), node); err != nil {
+	if err := d.getCache(ctx).Set(getKey("add_", mpathStr), node); err != nil {
 		return err
 	}
 
 	// Saving GetNodeChild
-	if err := d.cche.Set(getKey("nc_", parentMpathStr, "_", clone.GetName()), node); err != nil {
+	if err := d.getCache(ctx).Set(getKey("nc_", parentMpathStr, "_", clone.GetName()), node); err != nil {
 		return err
 	}
 
 	// Saving AvailableChildIndex
-	if err := d.cche.Set(getKey("ac_", mpathStr), []int{0}); err != nil {
+	if err := d.getCache(ctx).Set(getKey("ac_", mpathStr), []int{0}); err != nil {
 		return err
 	}
 
 	// Set Parent AvailableChildIndex List
 	var all []int
-	if ok := d.cche.Get(getKey("ac_", parentMpathStr), &all); ok {
+	if ok := d.getCache(ctx).Get(getKey("ac_", parentMpathStr), &all); ok {
 		i, _ := strconv.Atoi(mpathStr[len(parentMpathStr)+1:])
 		all = append(all, i)
 	}
 
-	d.cche.Set(getKey("ac_", parentMpathStr), all)
+	d.getCache(ctx).Set(getKey("ac_", parentMpathStr), all)
 
 	return nil
 }
@@ -113,7 +120,7 @@ func (d *daocache) GetNode(ctx context.Context, mPath *tree.MPath) (tree.ITreeNo
 	if err != nil {
 		return node, err
 	}
-	if ok := d.cche.Get(key, &node); ok {
+	if ok := d.getCache(ctx).Get(key, &node); ok {
 		return node, nil
 	}
 
@@ -130,7 +137,7 @@ func (d *daocache) GetNodeChild(ctx context.Context, mPath *tree.MPath, name str
 		return node, err
 	}
 
-	if ok := d.cche.Get(key, &node); ok {
+	if ok := d.getCache(ctx).Get(key, &node); ok {
 		return node, nil
 	}
 
@@ -141,7 +148,7 @@ func (d *daocache) GetNodeChild(ctx context.Context, mPath *tree.MPath, name str
 	if err := tree.NewITreeNode(&pnode); err != nil {
 		return node, err
 	}
-	if ok := d.cche.Get(pkey, &pnode); ok {
+	if ok := d.getCache(ctx).Get(pkey, &pnode); ok {
 		return node, errors.New("not found")
 	}
 
@@ -151,7 +158,7 @@ func (d *daocache) GetNodeChild(ctx context.Context, mPath *tree.MPath, name str
 		return node, err
 	}
 
-	return node, d.cche.Set(key, node)
+	return node, d.getCache(ctx).Set(key, node)
 }
 
 func getKey(parts ...string) string {
@@ -168,7 +175,7 @@ func getKey(parts ...string) string {
 func (d *daocache) GetNodeFirstAvailableChildIndex(ctx context.Context, mPath *tree.MPath) (available uint64, e error) {
 
 	var all []int
-	if ok := d.cche.Get(getKey("ac_", mPath.ToString()), &all); ok {
+	if ok := d.getCache(ctx).Get(getKey("ac_", mPath.ToString()), &all); ok {
 		sort.Ints(all)
 
 		max := all[len(all)-1]
@@ -197,12 +204,12 @@ func (d *daocache) GetNodeFirstAvailableChildIndex(ctx context.Context, mPath *t
 	return d.DAO.GetNodeFirstAvailableChildIndex(nil, mPath)
 }
 
-func (d *daocache) Flush(context.Context, bool) error {
+func (d *daocache) Flush(ctx context.Context, b bool) error {
 
-	ic, ec := d.DAO.AddNodeStream(nil, d.concurrency)
+	ic, ec := d.DAO.AddNodeStream(ctx, d.concurrency)
 
 	var count = 0
-	if err := d.cche.Iterate(func(key string, value interface{}) {
+	if err := d.getCache(ctx).Iterate(func(key string, value interface{}) {
 		if strings.HasPrefix(key, "add_") {
 			count++
 			ic <- value.(tree.ITreeNode)
@@ -211,7 +218,7 @@ func (d *daocache) Flush(context.Context, bool) error {
 		return err
 	}
 
-	if err := d.cche.Reset(); err != nil {
+	if err := d.getCache(ctx).Reset(); err != nil {
 		return err
 	}
 

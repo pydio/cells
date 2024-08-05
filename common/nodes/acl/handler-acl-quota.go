@@ -25,7 +25,6 @@ import (
 	"io"
 	"strconv"
 	"strings"
-	"sync"
 
 	"go.uber.org/zap"
 	"google.golang.org/grpc"
@@ -42,10 +41,9 @@ import (
 	"github.com/pydio/cells/v4/common/proto/idm"
 	"github.com/pydio/cells/v4/common/proto/service"
 	"github.com/pydio/cells/v4/common/proto/tree"
-	"github.com/pydio/cells/v4/common/runtime"
 	"github.com/pydio/cells/v4/common/telemetry/log"
 	"github.com/pydio/cells/v4/common/utils/cache"
-	"github.com/pydio/cells/v4/common/utils/openurl"
+	cache_helper "github.com/pydio/cells/v4/common/utils/cache/helper"
 )
 
 func WithQuota() nodes.Option {
@@ -56,11 +54,16 @@ func WithQuota() nodes.Option {
 	}
 }
 
+var cacheConfig = cache.Config{
+	Prefix:          "acl-quota",
+	Eviction:        "30s",
+	CleanWindow:     "3m",
+	DiscardFallback: true,
+}
+
 // QuotaFilter applies storage quota limitation on a per-workspace basis.
 type QuotaFilter struct {
 	abstract.Handler
-	readCache *openurl.Pool[cache.Cache]
-	once      sync.Once
 }
 
 func (a *QuotaFilter) Adapt(h nodes.Handler, options nodes.RouterOptions) nodes.Handler {
@@ -84,15 +87,9 @@ func (a *QuotaFilter) ReadNode(ctx context.Context, in *tree.ReadNodeRequest, op
 		q  int64
 		u  int64
 	}
-	var er error
-	a.once.Do(func() {
-		a.readCache, er = cache.OpenPool(runtime.ShortCacheURL("evictionTime", "30s", "cleanWindow", "3m"))
-	})
-	if er != nil {
-		return nil, er
-	}
+
 	var cacheKey string
-	ca, _ := a.readCache.Get(ctx)
+	ca := cache_helper.MustResolveCache(ctx, "short", cacheConfig)
 	if claims, ok := ctx.Value(claim.ContextKey).(claim.Claims); ok {
 		cacheKey = branch.Workspace.UUID + "-" + claims.Name
 		var qc *qCache

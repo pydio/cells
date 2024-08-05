@@ -28,10 +28,9 @@ import (
 	"testing"
 	"time"
 
-	"github.com/spf13/viper"
-
 	"github.com/pydio/cells/v4/common/proto/tree"
-	"github.com/pydio/cells/v4/common/runtime"
+	"github.com/pydio/cells/v4/common/utils/cache/gocache"
+	cache_helper "github.com/pydio/cells/v4/common/utils/cache/helper"
 	"github.com/pydio/cells/v4/common/utils/openurl"
 
 	_ "github.com/pydio/cells/v4/common/utils/cache/gocache"
@@ -42,10 +41,8 @@ import (
 var pools []*openurl.Pool[SourcesPool]
 
 func TestMain(m *testing.M) {
-	v := viper.New()
-	v.SetDefault(runtime.KeyCache, "pm://")
-	v.SetDefault(runtime.KeyShortCache, "pm://")
-	runtime.SetRuntime(v)
+	cache_helper.SetStaticResolver("pm://", &gocache.URLOpener{})
+	m.Run()
 }
 
 func BenchmarkClientsPoolWithoutRegistryWatch(b *testing.B) {

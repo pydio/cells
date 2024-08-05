@@ -44,7 +44,6 @@ import (
 
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/proto/tree"
-	"github.com/pydio/cells/v4/common/runtime"
 	"github.com/pydio/cells/v4/common/sql"
 	"github.com/pydio/cells/v4/common/telemetry/log"
 	cache2 "github.com/pydio/cells/v4/common/utils/cache"
@@ -393,9 +392,6 @@ type IndexSQL struct {
 
 // Init handles the db version migration and prepare the statements
 func (dao *IndexSQL) Init(ctx context.Context, options configx.Values) error {
-
-	c, _ := cache2.OpenCache(context.TODO(), runtime.ShortCacheURL("evictionTime", "5s", "cleanWindow", "10s"))
-	dao.shortCache = c
 
 	migrations := &sql.FSMigrationSource{
 		Box:         statics.AsFS(migrationsFS, "migrations"),

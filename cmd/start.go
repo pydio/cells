@@ -234,7 +234,6 @@ func init() {
 		_ = StartCmd.Flags().MarkHidden(runtime.KeyGrpcExternal)
 	}
 
-	addCacheFlags(StartCmd.Flags())
 	addRegistryFlags(StartCmd.Flags())
 	addSiteOverrideFlags(StartCmd.Flags(), true)
 

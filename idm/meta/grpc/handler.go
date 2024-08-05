@@ -34,13 +34,12 @@ import (
 	"github.com/pydio/cells/v4/common/proto/idm"
 	pbservice "github.com/pydio/cells/v4/common/proto/service"
 	"github.com/pydio/cells/v4/common/proto/tree"
-	"github.com/pydio/cells/v4/common/runtime"
 	"github.com/pydio/cells/v4/common/runtime/manager"
 	"github.com/pydio/cells/v4/common/sql/resources"
 	"github.com/pydio/cells/v4/common/telemetry/log"
 	"github.com/pydio/cells/v4/common/utils/cache"
+	cache_helper "github.com/pydio/cells/v4/common/utils/cache/helper"
 	json "github.com/pydio/cells/v4/common/utils/jsonx"
-	"github.com/pydio/cells/v4/common/utils/openurl"
 	"github.com/pydio/cells/v4/common/utils/propagator"
 	"github.com/pydio/cells/v4/idm/meta"
 )
@@ -50,14 +49,14 @@ type Handler struct {
 	idm.UnimplementedUserMetaServiceServer
 	tree.UnimplementedNodeProviderStreamerServer
 	pbservice.UnimplementedLoginModifierServer
+}
 
-	searchCachePool *openurl.Pool[cache.Cache]
+var cacheConfig = cache.Config{
+	Prefix: "pydio.grpc.user-meta",
 }
 
 func NewHandler(ctx context.Context) *Handler {
-	h := &Handler{
-		searchCachePool: cache.MustOpenPool(runtime.CacheURL(common.ServiceGrpcNamespace_ + common.ServiceUserMeta)),
-	}
+	h := &Handler{}
 	go func() {
 		<-ctx.Done()
 		h.Stop()
@@ -66,7 +65,7 @@ func NewHandler(ctx context.Context) *Handler {
 }
 
 func (h *Handler) Stop() {
-	_ = h.searchCachePool.Close(context.Background())
+	//_ = h.searchCachePool.Close(context.Background())
 }
 
 // UpdateUserMeta adds, updates or deletes user meta.
@@ -365,7 +364,8 @@ func (h *Handler) ModifyLogin(ctx context.Context, req *pbservice.ModifyLoginReq
 }
 
 func (h *Handler) resultsToCache(ctx context.Context, nodeId string, searchSubjects []string, results []*idm.UserMeta) {
-	sc, _ := h.searchCachePool.Get(ctx)
+
+	sc, _ := cache_helper.ResolveCache(ctx, "shared", cacheConfig)
 	if sc == nil {
 		return
 	}
@@ -377,7 +377,7 @@ func (h *Handler) resultsToCache(ctx context.Context, nodeId string, searchSubje
 }
 
 func (h *Handler) resultsFromCache(ctx context.Context, nodeId string, searchSubjects []string) (results []*idm.UserMeta, found bool) {
-	sc, _ := h.searchCachePool.Get(ctx)
+	sc, _ := cache_helper.ResolveCache(ctx, "shared", cacheConfig)
 	if sc == nil {
 		return
 	}
@@ -393,7 +393,7 @@ func (h *Handler) resultsFromCache(ctx context.Context, nodeId string, searchSub
 }
 
 func (h *Handler) clearCacheForNode(ctx context.Context, nodeId string) {
-	sc, _ := h.searchCachePool.Get(ctx)
+	sc, _ := cache_helper.ResolveCache(ctx, "shared", cacheConfig)
 	if sc == nil {
 		return
 	}

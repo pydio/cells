@@ -185,48 +185,12 @@ func ConfigURL() string {
 	return v
 }
 
-// CacheURL creates URL to open a long-living, shared cache, containing queryPairs as query parameters
-func CacheURL(prefix string, queryPairs ...string) string {
-	str := r.GetString(KeyCache)
-	u, _ := url.Parse(str)
-	if u.Path == "" {
-		u.Path += DefaultCacheSuffix
-	}
-	if prefix != "" {
-		u.Path += "/" + prefix
-	}
-	pairsToQuery(u, queryPairs...)
-	return u.String() + "&tenant={{ .Tenant }}"
-}
-
-// ShortCacheURL creates URL to open a short, local cache, containing queryPairs as query parameters
-func ShortCacheURL(queryPairs ...string) string {
-	str := r.GetString(KeyShortCache)
-	u, _ := url.Parse(str)
-	if !strings.HasSuffix(str, DefaultShortCacheSuffix) {
-		u.Path += DefaultShortCacheSuffix
-	}
-	pairsToQuery(u, queryPairs...)
-	return u.String() + "&tenant={{ .Tenant }}"
-}
-
 // ProxyServerURL defines which proxy to use for serving Sites
 func ProxyServerURL() string {
 	if HttpServerType() == HttpServerCaddy {
 		return ""
 	}
 	return r.GetString(KeyHttpProxyURL)
-}
-
-func pairsToQuery(u *url.URL, queryPairs ...string) {
-	if len(queryPairs) > 0 && len(queryPairs)%2 == 0 {
-		q := u.Query()
-		for i, k := range queryPairs {
-			if i%2 == 0 {
-				q.Set(k, queryPairs[i+1])
-			}
-		}
-	}
 }
 
 // ConfigIsLocalFile checks if ConfigURL scheme is file
@@ -422,9 +386,7 @@ func BuildForkParams(cmd string) []string {
 	}
 
 	strArgsWithDefaults := map[string]string{
-		KeyKeyring:    DefaultKeyKeyring,
-		KeyCache:      DefaultKeyCache,
-		KeyShortCache: DefaultKeyShortCache,
+		KeyKeyring: DefaultKeyKeyring,
 	}
 
 	// Copy bool arguments
@@ -554,10 +516,10 @@ func Describe() (out []InfoGroup) {
 		"Vault",
 		"Keyring",
 		"Certificates",
-		"Cache",
-		"ShortCache",
-		"Queue",
-		"Persisting Queue",
+		//"Cache",
+		//"ShortCache",
+		//"Queue",
+		//"Persisting Queue",
 	}
 	urls := map[string]func() string{
 		"Registry":     RegistryURL,
@@ -566,13 +528,13 @@ func Describe() (out []InfoGroup) {
 		"Vault":        VaultURL,
 		"Keyring":      KeyringURL,
 		"Certificates": CertsStoreURL,
-		"Cache": func() string {
-			return CacheURL("")
-		},
-		"ShortCache": func() string {
-			return ShortCacheURL()
-		},
 		/*
+			"Cache": func() string {
+				return CacheURL("")
+			},
+			"ShortCache": func() string {
+				return ShortCacheURL()
+			},
 			"Queue": func() string {
 				return QueueURL()
 			},

@@ -23,7 +23,6 @@ package permissions
 import (
 	"context"
 	"strings"
-	"sync"
 	"time"
 
 	"go.uber.org/zap"
@@ -37,28 +36,25 @@ import (
 	"github.com/pydio/cells/v4/common/proto/idm"
 	service "github.com/pydio/cells/v4/common/proto/service"
 	"github.com/pydio/cells/v4/common/proto/tree"
-	"github.com/pydio/cells/v4/common/runtime"
 	"github.com/pydio/cells/v4/common/telemetry/log"
 	"github.com/pydio/cells/v4/common/utils/cache"
+	cache_helper "github.com/pydio/cells/v4/common/utils/cache/helper"
 	json "github.com/pydio/cells/v4/common/utils/jsonx"
-	"github.com/pydio/cells/v4/common/utils/openurl"
 	"github.com/pydio/cells/v4/common/utils/propagator"
 )
 
 var (
-	usersCachePool *openurl.Pool[cache.Cache]
-	usersOnce      sync.Once
+	//usersCachePool *openurl.Pool[cache.Cache]
+	//usersOnce      sync.Once
+	usersCacheConfig = cache.Config{
+		Prefix:      "users",
+		Eviction:    "5s",
+		CleanWindow: "30s",
+	}
 )
 
 func getUsersCache(ctx context.Context) cache.Cache {
-	usersOnce.Do(func() {
-		usersCachePool = cache.MustOpenPool(runtime.ShortCacheURL("evictionTime", "5s", "cleanWindow", "30s"))
-	})
-	if c, er := usersCachePool.Get(ctx); er == nil {
-		return c
-	} else {
-		return cache.MustDiscard()
-	}
+	return cache_helper.MustResolveCache(ctx, "short", usersCacheConfig)
 }
 
 // GetRolesForUser loads the roles of a given user.

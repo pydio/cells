@@ -24,6 +24,12 @@ defaults:
     persisted:
       uri: fifo://{{ autoMkdir (joinPath  ( serviceDataDir .Service ) ( tenantPathWithBlank .Tenant "default" ) ) }}?name={{ .name }}&prefix={{ .prefix }}
 
+  caches: &caches
+    short:
+      uri: pm://?evictionTime={{ .evictionTime}}&cleanWindow={{ .cleanWindow }}&tenant={{ .Tenant }}&prefix={{ .prefix }}
+    shared:
+      uri: bigcache://?evictionTime={{ .evictionTime }}&cleanWindow={{ .cleanWindow }}&tenant={{ .Tenant }}&prefix={{ .prefix }}
+
   #--------------------------------------------
   # Default connection to runtime functions
   #--------------------------------------------
@@ -288,6 +294,8 @@ defaults:
       services: *services
 
       queues: *queues
+
+      caches: *caches
 
 #      tags:
 #        discovery:

@@ -25,12 +25,11 @@ import (
 	"log"
 	"testing"
 
-	"github.com/spf13/viper"
-
 	permissions2 "github.com/pydio/cells/v4/common/permissions"
 	"github.com/pydio/cells/v4/common/proto/idm"
-	"github.com/pydio/cells/v4/common/runtime"
 	"github.com/pydio/cells/v4/common/server/stubs/idmtest"
+	"github.com/pydio/cells/v4/common/utils/cache/gocache"
+	cache_helper "github.com/pydio/cells/v4/common/utils/cache/helper"
 
 	_ "github.com/pydio/cells/v4/common/utils/cache/gocache"
 
@@ -40,11 +39,7 @@ import (
 var testData *idmtest.TestData
 
 func TestMain(m *testing.M) {
-	v := viper.New()
-	v.SetDefault(runtime.KeyCache, "pm://")
-	v.SetDefault(runtime.KeyShortCache, "pm://")
-	runtime.SetRuntime(v)
-
+	cache_helper.SetStaticResolver("pm://", &gocache.URLOpener{})
 	sd, er := idmtest.GetStartData()
 	if er != nil {
 		log.Fatal(er)

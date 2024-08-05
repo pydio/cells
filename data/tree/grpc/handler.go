@@ -46,6 +46,7 @@ import (
 	"github.com/pydio/cells/v4/common/proto/tree"
 	"github.com/pydio/cells/v4/common/telemetry/log"
 	"github.com/pydio/cells/v4/common/utils/cache"
+	"github.com/pydio/cells/v4/common/utils/cache/gocache"
 	"github.com/pydio/cells/v4/common/utils/openurl"
 	"github.com/pydio/cells/v4/common/utils/propagator"
 	"github.com/pydio/cells/v4/common/utils/uuid"
@@ -119,8 +120,8 @@ type TreeServer struct {
 func NewTreeServer(ctx context.Context, name string) *TreeServer {
 	return &TreeServer{
 		name:          name,
-		sourcesCaches: cache.MustOpenNonExpirableMemory(),
-		listenersPool: cache.MustOpenNonExpirableMemory(),
+		sourcesCaches: gocache.MustOpenNonExpirableMemory(),
+		listenersPool: gocache.MustOpenNonExpirableMemory(),
 	}
 }
 

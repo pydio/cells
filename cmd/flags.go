@@ -67,17 +67,6 @@ func addRegistryFlags(flags *pflag.FlagSet, hideAll ...bool) {
 	}
 }
 
-// addCacheFlags registers necessary flags to connect to the cache (defaults to in-memory)
-func addCacheFlags(flags *pflag.FlagSet) {
-	flags.String(runtime.KeyCache, runtime.DefaultKeyCache, "Sharded Cache")
-	flags.String(runtime.KeyShortCache, runtime.DefaultKeyShortCache, "Short cache")
-
-	if os.Getenv(EnvDisplayHiddenFlags) == "" {
-		flags.MarkHidden(runtime.KeyCache)
-		flags.MarkHidden(runtime.KeyShortCache)
-	}
-}
-
 // addExternalCmdRegistryFlags registers necessary flags to connect to the registry with defaults :8001
 func addExternalCmdRegistryFlags(flags *pflag.FlagSet, hideAll ...bool) {
 	discoveryAddress := "grpc://:" + runtime.DefaultDiscoveryPort

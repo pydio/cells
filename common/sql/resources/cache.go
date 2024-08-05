@@ -24,55 +24,61 @@ import (
 	"context"
 
 	"github.com/pydio/cells/v4/common/proto/service"
-	"github.com/pydio/cells/v4/common/runtime"
 	"github.com/pydio/cells/v4/common/utils/cache"
+	cache_helper "github.com/pydio/cells/v4/common/utils/cache/helper"
+)
+
+var (
+	cacheConfig = cache.Config{
+		Prefix:      "resources",
+		Eviction:    "30s",
+		CleanWindow: "2m",
+	}
 )
 
 type cacheImpl struct {
 	DAO
-	c cache.Cache
 }
 
 func withCache(dao DAO) DAO {
-	ka, er := cache.OpenCache(context.TODO(), runtime.ShortCacheURL("evictionTime", "30s", "cleanWindow", "2m"))
-	if er != nil {
-		ka = cache.MustDiscard()
-	}
 	c := &cacheImpl{
 		DAO: dao,
-		c:   ka,
 	}
 	return c
 }
 
+func (c *cacheImpl) getCache(ctx context.Context) cache.Cache {
+	return cache_helper.MustResolveCache(ctx, "short", cacheConfig)
+}
+
 func (c *cacheImpl) AddPolicy(ctx context.Context, resourceId string, policy *service.ResourcePolicy) error {
-	_ = c.c.Delete(resourceId)
+	_ = c.getCache(ctx).Delete(resourceId)
 	return c.DAO.AddPolicy(ctx, resourceId, policy)
 }
 
 func (c *cacheImpl) AddPolicies(ctx context.Context, update bool, resourceId string, policies []*service.ResourcePolicy) error {
-	_ = c.c.Delete(resourceId)
+	_ = c.getCache(ctx).Delete(resourceId)
 	return c.DAO.AddPolicies(ctx, update, resourceId, policies)
 }
 
 func (c *cacheImpl) DeletePoliciesForResource(ctx context.Context, resourceId string) error {
-	_ = c.c.Delete(resourceId)
+	_ = c.getCache(ctx).Delete(resourceId)
 	return c.DAO.DeletePoliciesForResource(ctx, resourceId)
 }
 
 func (c *cacheImpl) DeletePoliciesForResourceAndAction(ctx context.Context, resourceId string, action service.ResourcePolicyAction) error {
-	_ = c.c.Delete(resourceId)
+	_ = c.getCache(ctx).Delete(resourceId)
 	return c.DAO.DeletePoliciesForResourceAndAction(ctx, resourceId, action)
 }
 
 func (c *cacheImpl) GetPoliciesForResource(ctx context.Context, resourceId string) ([]*service.ResourcePolicy, error) {
 	var rules []*service.ResourcePolicy
-	if c.c.Get(resourceId, &rules) {
+	if c.getCache(ctx).Get(resourceId, &rules) {
 		return rules, nil
 	}
 	res, er := c.DAO.GetPoliciesForResource(ctx, resourceId)
 	if er == nil && len(res) > 0 {
-		_ = c.c.Set(resourceId, res)
+		_ = c.getCache(ctx).Set(resourceId, res)
 	}
 	return res, er
 }
@@ -80,11 +86,11 @@ func (c *cacheImpl) GetPoliciesForResource(ctx context.Context, resourceId strin
 func (c *cacheImpl) DeletePoliciesBySubject(ctx context.Context, subject string) error {
 
 	//Delete cache items that would contain this subject
-	_ = c.c.Iterate(func(key string, val interface{}) {
+	_ = c.getCache(ctx).Iterate(func(key string, val interface{}) {
 		if rules, ok := val.([]*service.ResourcePolicy); ok {
 			for _, pol := range rules {
 				if pol.Subject == subject {
-					_ = c.c.Delete(key)
+					_ = c.getCache(ctx).Delete(key)
 					break
 				}
 			}

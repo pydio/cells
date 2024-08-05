@@ -28,6 +28,7 @@ import (
 	"go.uber.org/zap"
 	"google.golang.org/grpc"
 
+	"github.com/pydio/cells/v4/common/errors"
 	"github.com/pydio/cells/v4/common/nodes"
 	"github.com/pydio/cells/v4/common/nodes/abstract"
 	"github.com/pydio/cells/v4/common/proto/tree"
@@ -70,7 +71,7 @@ func (v *BrowserHandler) ReadNode(ctx context.Context, in *tree.ReadNodeRequest,
 // ListNodes Append virtual nodes to the datasources list if admin is listing the root of the tree
 func (v *BrowserHandler) ListNodes(ctx context.Context, in *tree.ListNodesRequest, opts ...grpc.CallOption) (streamer tree.NodeProvider_ListNodesClient, e error) {
 
-	vManager := abstract.GetVirtualNodesManager(v.RuntimeCtx)
+	vManager := abstract.GetVirtualNodesManager(ctx)
 	if virtual, exists := vManager.ByPath(in.Node.Path); exists {
 		log.Logger(ctx).Debug("Virtual Node Browser, Found, send no children", zap.Any("found", virtual))
 		s := nodes.NewWrappingStreamer(ctx)
@@ -88,12 +89,12 @@ func (v *BrowserHandler) ListNodes(ctx context.Context, in *tree.ListNodesReques
 	}
 	s := nodes.NewWrappingStreamer(ctx)
 	go func() {
-		vManager.Load(ctx, true)
+		vManager.Load(true)
 		defer s.CloseSend()
 		for {
 			resp, err := stream.Recv()
 			if err != nil {
-				if err != io.EOF && err != io.ErrUnexpectedEOF {
+				if !errors.Is(err, io.EOF) && !errors.Is(err, io.ErrUnexpectedEOF) {
 					s.SendError(err)
 				}
 				break

@@ -33,6 +33,7 @@ import (
 	"github.com/pydio/cells/v4/common/proto/jobs"
 	"github.com/pydio/cells/v4/common/proto/jobs/bleveimpl"
 	"github.com/pydio/cells/v4/common/runtime"
+	"github.com/pydio/cells/v4/common/runtime/tenant"
 	"github.com/pydio/cells/v4/common/service"
 	"github.com/pydio/cells/v4/common/telemetry/log"
 	"github.com/pydio/cells/v4/scheduler/tasks"
@@ -59,20 +60,23 @@ func init() {
 			service.Description("Tasks are running jobs dispatched on multiple workers"),
 			service.WithGRPC(func(c context.Context, server grpc.ServiceRegistrar) error {
 				jobs.RegisterTaskServiceServer(server, new(grpc2.TaskHandler))
-				multiplexer := tasks.NewSubscriber(c)
-				var me error
-				go func() {
-					if er := multiplexer.Init(c); er != nil {
-						log.Logger(c).Error("Could not properly start tasks multiplexer: "+er.Error(), zap.Error(er))
-						me = er
-						return
-					}
-					// Else wait for c.Done()
-					<-c.Done()
-					multiplexer.Stop()
-				}()
-				// Eventually return me if it was fast enough
-				return me
+				return tenant.GetManager().Iterate(c, func(c context.Context, t tenant.Tenant) error {
+					tc := t.Context(c)
+					multiplexer := tasks.NewSubscriber(tc)
+					var me error
+					go func() {
+						if er := multiplexer.Init(tc); er != nil {
+							log.Logger(c).Error("Could not properly start tasks multiplexer: "+er.Error(), zap.Error(er))
+							me = er
+							return
+						}
+						// Else wait for c.Done()
+						<-c.Done()
+						multiplexer.Stop()
+					}()
+					// Eventually return me if it was fast enough
+					return me
+				})
 			}),
 		)
 	})

@@ -18,9 +18,9 @@ import (
 	"github.com/pydio/cells/v4/common/nodes/abstract"
 	"github.com/pydio/cells/v4/common/nodes/models"
 	"github.com/pydio/cells/v4/common/proto/tree"
-	"github.com/pydio/cells/v4/common/runtime"
 	"github.com/pydio/cells/v4/common/telemetry/log"
 	"github.com/pydio/cells/v4/common/utils/cache"
+	cache_helper "github.com/pydio/cells/v4/common/utils/cache/helper"
 	"github.com/pydio/cells/v4/common/utils/hasher"
 	"github.com/pydio/cells/v4/common/utils/hasher/simd"
 	"github.com/pydio/cells/v4/common/utils/openurl"
@@ -34,9 +34,15 @@ func WithHashInterceptor() nodes.Option {
 	}
 }
 
-var HashFunc = func() hash.Hash {
-	return hasher.NewBlockHash(simd.MD5(), hasher.DefaultBlockSize)
-}
+var (
+	HashFunc = func() hash.Hash {
+		return hasher.NewBlockHash(simd.MD5(), hasher.DefaultBlockSize)
+	}
+	partsCacheConf = cache.Config{
+		Eviction:    "48h",
+		CleanWindow: "24h",
+	}
+)
 
 // HashHandler wraps input readers to compute custom Hash on the fly
 type HashHandler struct {
@@ -237,14 +243,7 @@ func (m *HashHandler) StreamChanges(ctx context.Context, in *tree.StreamChangesR
 
 // getPartsCache initializes a cache for multipart hashes
 func (m *HashHandler) getPartsCache(ctx context.Context) (c cache.Cache, e error) {
-	var er error
-	m.partsCacheOnce.Do(func() {
-		m.partsCache, er = cache.OpenPool(runtime.CacheURL("partshasher", "evictionTime", "48h", "cleanWindow", "24h"))
-	})
-	if er != nil {
-		return nil, er
-	}
-	return m.partsCache.Get(ctx)
+	return cache_helper.ResolveCache(ctx, "shared", partsCacheConf)
 }
 
 // clearMultipartCachedHashes removes any stored parts from the cache

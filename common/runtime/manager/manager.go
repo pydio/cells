@@ -53,6 +53,7 @@ import (
 	"github.com/pydio/cells/v4/common/service"
 	"github.com/pydio/cells/v4/common/storage"
 	"github.com/pydio/cells/v4/common/telemetry/log"
+	"github.com/pydio/cells/v4/common/utils/cache"
 	"github.com/pydio/cells/v4/common/utils/configx"
 	"github.com/pydio/cells/v4/common/utils/fork"
 	json "github.com/pydio/cells/v4/common/utils/jsonx"
@@ -84,11 +85,13 @@ type Manager interface {
 	RegisterStorage(scheme string, options ...controller.Option[storage.Storage])
 	RegisterConfig(scheme string, config ...controller.Option[*openurl.Pool[config.Store]])
 	RegisterQueue(scheme string, opts ...controller.Option[broker.AsyncQueuePool])
+	RegisterCache(scheme string, opts ...controller.Option[*openurl.Pool[cache.Cache]])
 
 	GetStorage(ctx context.Context, name string, out any) error
 	GetConfig(ctx context.Context) config.Store
 	GetQueue(ctx context.Context, name string, resolutionData map[string]interface{}, openerID string, openerFunc broker.OpenWrapper) (broker.AsyncQueue, error)
 	GetQueuePool(name string) (broker.AsyncQueuePool, error)
+	GetCache(ctx context.Context, name string, resolutionData map[string]interface{}) (cache.Cache, error)
 }
 
 type manager struct {
@@ -111,6 +114,7 @@ type manager struct {
 	storage controller.Controller[storage.Storage]
 	config  controller.Controller[*openurl.Pool[config.Store]]
 	queues  controller.Controller[broker.AsyncQueuePool]
+	caches  controller.Controller[*openurl.Pool[cache.Cache]]
 
 	// TODO - adapt this
 	configResolver *openurl.Pool[config.Store]
@@ -134,6 +138,7 @@ func NewManager(ctx context.Context, namespace string, logger log.ZapLogger) (Ma
 		storage: controller.NewController[storage.Storage](),
 		config:  controller.NewController[*openurl.Pool[config.Store]](),
 		queues:  controller.NewController[broker.AsyncQueuePool](),
+		caches:  controller.NewController[*openurl.Pool[cache.Cache]](),
 	}
 
 	ctx = propagator.With(ctx, ContextKey, m)
@@ -222,6 +227,11 @@ func NewManager(ctx context.Context, namespace string, logger log.ZapLogger) (Ma
 		return nil, err
 	}
 
+	// Initialising caches
+	if err := m.initCaches(bootstrap, base); err != nil {
+		return nil, err
+	}
+
 	reg = registry.NewFuncWrapper(reg,
 		registry.OnRegister(func(item *registry.Item, opts *[]registry.RegisterOption) {
 			var node registry.Node
@@ -299,6 +309,10 @@ func (m *manager) RegisterQueue(scheme string, opts ...controller.Option[broker.
 	m.queues.Register(scheme, opts...)
 }
 
+func (m *manager) RegisterCache(scheme string, opts ...controller.Option[*openurl.Pool[cache.Cache]]) {
+	m.caches.Register(scheme, opts...)
+}
+
 func (m *manager) GetStorage(ctx context.Context, name string, out any) error {
 	item, err := m.localRegistry.Get(name, registry.WithType(pb.ItemType_STORAGE))
 	if err != nil {
@@ -340,13 +354,25 @@ func (m *manager) GetQueue(ctx context.Context, name string, resolutionData map[
 func (m *manager) GetQueuePool(name string) (broker.AsyncQueuePool, error) {
 	item, err := m.localRegistry.Get("queue-"+name, registry.WithType(pb.ItemType_GENERIC))
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "cannot get queue-"+name+" from registry")
 	}
 	var pool broker.AsyncQueuePool
 	if ok := item.As(&pool); !ok {
-		return nil, errors.New("wrong item format")
+		return nil, errors.New("wrong registry item format for queue-" + name)
 	}
 	return pool, nil
+}
+
+func (m *manager) GetCache(ctx context.Context, name string, resolutionData map[string]interface{}) (cache.Cache, error) {
+	item, err := m.localRegistry.Get("cache-"+name, registry.WithType(pb.ItemType_GENERIC))
+	if err != nil {
+		return nil, errors.Wrap(err, "cannot get cache-"+name+" from registry")
+	}
+	var pool *openurl.Pool[cache.Cache]
+	if ok := item.As(&pool); !ok {
+		return nil, errors.New("wrong registry item format for cache-" + name)
+	}
+	return pool.Get(ctx, resolutionData)
 }
 
 func (m *manager) initProcesses() error {
@@ -741,9 +767,32 @@ func (m *manager) initQueues(store *Bootstrap, base string) error {
 			meta[registry.MetaStatusKey] = string(registry.StatusTransient)
 		}).Register(registry.NewRichItem(regKey, regKey, pool), registry.WithEdgeTo(m.root.ID(), "queue", nil))
 		if er != nil {
-			fmt.Println("initQueues - cannot register pool with URI"+uri, er)
+			fmt.Println("initQueues - cannot register queue pool with URI"+uri, er)
 		} else {
 			fmt.Println("initQueues - Registered " + regKey + " with pool from uri " + uri)
+		}
+	}
+	return nil
+}
+
+func (m *manager) initCaches(store *Bootstrap, base string) error {
+	caches := store.Val(base + "/caches")
+	for k := range caches.Map() {
+		uri := caches.Val(k, "uri").String()
+		pool, err := m.caches.Open(m.ctx, uri)
+		if err != nil {
+			fmt.Println("initCaches - cannot open cache pool with URI"+uri, err)
+			continue
+		}
+		regKey := "cache-" + k
+		er := registry.NewMetaWrapper(m.localRegistry, func(meta map[string]string) {
+			meta[registry.MetaTimestampKey] = fmt.Sprintf("%d", time.Now().UnixNano())
+			meta[registry.MetaStatusKey] = string(registry.StatusTransient)
+		}).Register(registry.NewRichItem(regKey, regKey, pool), registry.WithEdgeTo(m.root.ID(), "cache", nil))
+		if er != nil {
+			fmt.Println("initCaches - cannot register pool with URI"+uri, er)
+		} else {
+			fmt.Println("initCaches - Registered " + regKey + " with pool from uri " + uri)
 		}
 	}
 	return nil
@@ -909,8 +958,8 @@ func (m *manager) startServer(srv server.Server, oo ...server.ServeOption) error
 						return false
 					}
 
-					name := item.Name()
-					fmt.Println(name)
+					//name := item.Name()
+					//fmt.Println(name)
 
 					ors := strings.Split(buf.String(), " or ")
 					for _, or := range ors {

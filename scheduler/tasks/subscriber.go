@@ -43,6 +43,7 @@ import (
 	"github.com/pydio/cells/v4/common/runtime/manager"
 	"github.com/pydio/cells/v4/common/telemetry/log"
 	"github.com/pydio/cells/v4/common/utils/cache"
+	"github.com/pydio/cells/v4/common/utils/cache/gocache"
 	"github.com/pydio/cells/v4/common/utils/openurl"
 	"github.com/pydio/cells/v4/common/utils/propagator"
 	"github.com/pydio/cells/v4/common/utils/std"
@@ -75,8 +76,8 @@ type Subscriber struct {
 func NewSubscriber(parentContext context.Context) *Subscriber {
 
 	s := &Subscriber{
-		definitionsPool: cache.MustOpenNonExpirableMemory(),
-		dispatchersPool: cache.MustOpenNonExpirableMemory(),
+		definitionsPool: gocache.MustOpenNonExpirableMemory(),
+		dispatchersPool: gocache.MustOpenNonExpirableMemory(),
 		//definitions: make(map[string]*jobs.Job),
 		//queue:       make(chan Runnable),
 		//dispatchers: make(map[string]*Dispatcher),

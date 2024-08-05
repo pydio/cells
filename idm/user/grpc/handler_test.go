@@ -38,6 +38,7 @@ import (
 	"github.com/pydio/cells/v4/common/storage/test"
 	"github.com/pydio/cells/v4/common/telemetry/log"
 	"github.com/pydio/cells/v4/common/utils/cache"
+	cache_helper "github.com/pydio/cells/v4/common/utils/cache/helper"
 	"github.com/pydio/cells/v4/common/utils/propagator"
 	"github.com/pydio/cells/v4/idm/user/dao/sql"
 
@@ -49,15 +50,6 @@ var (
 )
 
 func init() {
-	autoAppliesCachePool = cache.MustOpenPool("pm://?evictionTime=3600s&cleanWindow=7200s")
-	c, err := autoAppliesCachePool.Get(context.TODO())
-	if err != nil {
-		panic(err)
-	}
-	_ = c.Set("autoApplies", map[string][]*idm.Role{
-		"autoApplyProfile": {{Uuid: "auto-apply", AutoApplies: []string{"autoApplyProfile"}}},
-	})
-
 	log.SetLoggerInit(func() *zap.Logger {
 		cfg := zap.NewDevelopmentConfig()
 		cfg.OutputPaths = []string{"stdout"}
@@ -110,6 +102,15 @@ func TestLoginCIDAO(t *testing.T) {
 func TestUser(t *testing.T) {
 
 	test.RunStorageTests(testcases, t, func(ctx context.Context) {
+		// Store some data in cache
+		c, err := cache_helper.ResolveCache(ctx, "short", cache.Config{Eviction: "3600s", CleanWindow: "7200s"})
+		if err != nil {
+			panic(err)
+		}
+		_ = c.Set("autoApplies", map[string][]*idm.Role{
+			"autoApplyProfile": {{Uuid: "auto-apply", AutoApplies: []string{"autoApplyProfile"}}},
+		})
+
 		h := NewHandler(ctx)
 
 		Convey("Create one user", t, func() {

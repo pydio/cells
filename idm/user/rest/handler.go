@@ -46,12 +46,11 @@ import (
 	"github.com/pydio/cells/v4/common/proto/mailer"
 	"github.com/pydio/cells/v4/common/proto/rest"
 	service2 "github.com/pydio/cells/v4/common/proto/service"
-	"github.com/pydio/cells/v4/common/runtime"
 	"github.com/pydio/cells/v4/common/service/resources"
 	"github.com/pydio/cells/v4/common/telemetry/log"
 	"github.com/pydio/cells/v4/common/utils/cache"
+	cache_helper "github.com/pydio/cells/v4/common/utils/cache/helper"
 	json "github.com/pydio/cells/v4/common/utils/jsonx"
-	"github.com/pydio/cells/v4/common/utils/openurl"
 	"github.com/pydio/cells/v4/common/utils/uuid"
 	"github.com/pydio/cells/v4/idm/user/grpc"
 )
@@ -839,15 +838,15 @@ func paramsAclsToAttributes(ctx context.Context, users []*idm.User) error {
 	return nil
 }
 
-var cachedParams *openurl.Pool[cache.Cache]
+var paramsCacheConfig = cache.Config{
+	Eviction:    "24h",
+	CleanWindow: "24h",
+}
 
 func allowedAclKey(ctx context.Context, k string, contextEditable bool) bool {
 	var params []*front.ExposedParameter
-	if cachedParams == nil {
-		cachedParams = cache.MustOpenPool(runtime.ShortCacheURL("evictionTime", "20s", "cleanWindow", "1m"))
-	}
-	ca, _ := cachedParams.Get(ctx)
-	if ca != nil && !ca.Get("params", &params) {
+	ca := cache_helper.MustResolveCache(ctx, "short", paramsCacheConfig)
+	if !ca.Get("params", &params) {
 		mC := front.NewManifestServiceClient(grpc2.ResolveConn(ctx, common.ServiceFrontStaticsGRPC))
 		resp, e := mC.ExposedParameters(ctx, &front.ExposedParametersRequest{
 			Scope:   "user",

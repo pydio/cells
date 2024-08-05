@@ -40,16 +40,19 @@ import (
 	"github.com/pydio/cells/v4/common/runtime"
 	"github.com/pydio/cells/v4/common/telemetry/log"
 	"github.com/pydio/cells/v4/common/utils/cache"
+	cache_helper "github.com/pydio/cells/v4/common/utils/cache/helper"
 	json "github.com/pydio/cells/v4/common/utils/jsonx"
-	"github.com/pydio/cells/v4/common/utils/openurl"
 )
 
 var (
-	cachePool *openurl.Pool[cache.Cache]
-	//getCtxCache(ctx)       cache.Cache
 	pkgOnce         sync.Once
 	cacheNodePrefix = "__node__"
 	cacheDiffPrefix = "__diff__"
+	syncCacheConfig = cache.Config{
+		Prefix:      "nodes-cache",
+		Eviction:    "30s",
+		CleanWindow: "1m",
+	}
 )
 
 type cacheDiff struct {
@@ -84,7 +87,6 @@ func newCacheHandler() *CacheHandler {
 	s := &CacheHandler{}
 
 	pkgOnce.Do(func() {
-		cachePool = cache.MustOpenPool(runtime.CacheURL("nodes-cache", "evictionTime", "30s", "cleanWindow", "1m"))
 		_, _ = broker.Subscribe(context.TODO(), common.TopicTreeChanges, func(ctx context.Context, publication broker.Message) error {
 			event := &tree.NodeChangeEvent{}
 			if ctx, e := publication.Unmarshal(ctx, event); e == nil && !event.Optimistic {
@@ -101,11 +103,7 @@ func newCacheHandler() *CacheHandler {
 }
 
 func getCtxCache(ctx context.Context) cache.Cache {
-	if ca, er := cachePool.Get(ctx); er != nil {
-		return cache.MustDiscard()
-	} else {
-		return ca
-	}
+	return cache_helper.MustResolveCache(ctx, "shared", syncCacheConfig)
 }
 
 func (s *CacheHandler) cacheEvent(ctx context.Context, event *tree.NodeChangeEvent) {

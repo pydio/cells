@@ -22,26 +22,28 @@ package cachetest
 
 import (
 	"context"
+	"net/url"
 	"testing"
 	"time"
 
 	"github.com/pydio/cells/v4/common/utils/cache"
-
-	_ "github.com/pydio/cells/v4/common/utils/cache/bigcache"
-	_ "github.com/pydio/cells/v4/common/utils/cache/gocache"
+	"github.com/pydio/cells/v4/common/utils/cache/bigcache"
+	"github.com/pydio/cells/v4/common/utils/cache/gocache"
 
 	. "github.com/smartystreets/goconvey/convey"
 )
 
 func TestShort(t *testing.T) {
 	Convey("Test Short", t, func() {
-		c, err := cache.OpenCache(context.TODO(), "pm://")
+		u, _ := url.Parse("pm:///?evictionTime=20m&cleanWindow=10m")
+		c, err := (&gocache.URLOpener{}).Open(context.TODO(), u)
 		So(err, ShouldBeNil)
 		e := performTest(c)
 		So(e, ShouldBeNil)
 	})
 	Convey("Test Sharded", t, func() {
-		c, err := cache.OpenCache(context.TODO(), "bigcache://id")
+		u, _ := url.Parse("bigcache://id")
+		c, err := (&bigcache.URLOpener{}).Open(context.TODO(), u)
 		So(err, ShouldBeNil)
 		e := performTest(c)
 		So(e, ShouldBeNil)

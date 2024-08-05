@@ -30,8 +30,6 @@ const (
 	KeyVault        = "vault"
 	KeyKeyring      = "keyring"
 	KeyCertsStore   = "certs_store"
-	KeyCache        = "cache"
-	KeyShortCache   = "shortcache"
 	KeyFork         = "fork"
 	KeyForkLegacy   = "is_fork"
 	KeyArgTags      = "tags"
