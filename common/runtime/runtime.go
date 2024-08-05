@@ -196,7 +196,7 @@ func CacheURL(prefix string, queryPairs ...string) string {
 		u.Path += "/" + prefix
 	}
 	pairsToQuery(u, queryPairs...)
-	return u.String()
+	return u.String() + "&tenant={{ .Tenant }}"
 }
 
 // ShortCacheURL creates URL to open a short, local cache, containing queryPairs as query parameters
@@ -207,7 +207,7 @@ func ShortCacheURL(queryPairs ...string) string {
 		u.Path += DefaultShortCacheSuffix
 	}
 	pairsToQuery(u, queryPairs...)
-	return u.String()
+	return u.String() + "&tenant={{ .Tenant }}"
 }
 
 // ProxyServerURL defines which proxy to use for serving Sites
@@ -226,7 +226,6 @@ func pairsToQuery(u *url.URL, queryPairs ...string) {
 				q.Set(k, queryPairs[i+1])
 			}
 		}
-		u.RawQuery = q.Encode()
 	}
 }
 
