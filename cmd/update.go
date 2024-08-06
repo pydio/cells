@@ -21,7 +21,6 @@
 package cmd
 
 import (
-	"context"
 	"fmt"
 	"math"
 	"os"
@@ -59,7 +58,7 @@ DESCRIPTION
 	Run: func(cmd *cobra.Command, args []string) {
 
 		configs := config.GetUpdatesConfigs(ctx)
-		binaries, e := update2.LoadUpdates(context.Background(), configs, &update.UpdateRequest{})
+		binaries, e := update2.LoadUpdates(cmd.Context(), configs, &update.UpdateRequest{})
 		if e != nil {
 			log.Fatal("Cannot retrieve available updates", zap.Error(e))
 		}
@@ -125,7 +124,7 @@ DESCRIPTION
 					}
 				}
 			}()
-			update2.ApplyUpdate(context.Background(), apply, configs, updateDryRun, pgChan, doneChan, errorChan)
+			update2.ApplyUpdate(cmd.Context(), apply, configs, updateDryRun, pgChan, doneChan, errorChan)
 			wg.Wait()
 		}
 

@@ -21,7 +21,6 @@
 package cmd
 
 import (
-	"context"
 	"fmt"
 	"net"
 	"net/url"
@@ -73,7 +72,7 @@ func cliInstall(cmd *cobra.Command, proxyConfig *install.ProxyConfig) (*install.
 		cliConfig.DocumentsDSN = ""
 	}
 
-	e = lib.Install(context.Background(), cliConfig, lib.InstallDb, func(event *lib.InstallProgressEvent) {
+	e = lib.Install(cmd.Context(), cliConfig, lib.InstallDb, func(event *lib.InstallProgressEvent) {
 		fmt.Println(p.Styler(p.FGFaint)("... " + event.Message))
 	})
 	if e != nil {
@@ -101,7 +100,7 @@ func cliInstall(cmd *cobra.Command, proxyConfig *install.ProxyConfig) (*install.
 	}
 
 	fmt.Println("\n\033[1m## Applying configuration\033[0m")
-	e = lib.Install(context.Background(), cliConfig, lib.InstallAll, func(event *lib.InstallProgressEvent) {
+	e = lib.Install(cmd.Context(), cliConfig, lib.InstallAll, func(event *lib.InstallProgressEvent) {
 		fmt.Println(p.Styler(p.FGFaint)("... " + event.Message))
 	})
 	if e != nil {
@@ -112,7 +111,7 @@ func cliInstall(cmd *cobra.Command, proxyConfig *install.ProxyConfig) (*install.
 	if applyDocumentsDSN != "" {
 		cliConfig.DocumentsDSN = applyDocumentsDSN
 		cliConfig.UseDocumentsDSN = true
-		e = lib.Install(context.Background(), cliConfig, lib.InstallDb, func(event *lib.InstallProgressEvent) {
+		e = lib.Install(cmd.Context(), cliConfig, lib.InstallDb, func(event *lib.InstallProgressEvent) {
 			fmt.Println(p.Styler(p.FGFaint)("... " + event.Message))
 		})
 		fmt.Println(p.IconGood + " Documents DSN set up")
@@ -207,7 +206,7 @@ func promptDB(c *install.InstallConfig) (adminRequired bool, err error) {
 		}
 	}
 	adminRequired = true
-	if res, e := lib.PerformCheck(context.Background(), "DB", c); e != nil {
+	if res, e := lib.PerformCheck(ctx, "DB", c); e != nil {
 		fmt.Println(p.IconBad + " Cannot connect to database, please review the parameters: " + e.Error())
 		return promptDB(c)
 	} else {
@@ -361,7 +360,7 @@ func promptAdditionalMongoDSN(c *install.InstallConfig, loop bool) error {
 
 	fmt.Println("")
 	fmt.Println("Performing test connection to " + targetUrl.Redacted())
-	if _, er := lib.PerformCheck(context.Background(), "MONGO", c); er != nil {
+	if _, er := lib.PerformCheck(ctx, "MONGO", c); er != nil {
 		fmt.Println(p.IconBad + " " + er.Error())
 		fmt.Println(p.IconBad + " Cannot connect, please review your parameters!")
 		return promptAdditionalMongoDSN(c, true)
@@ -540,7 +539,7 @@ func setupS3Connection(c *install.InstallConfig) (buckets []string, canCreate bo
 	} else {
 		c.DsS3ApiSecret = strings.TrimSpace(apiSecret)
 	}
-	check, _ := lib.PerformCheck(context.Background(), "S3_KEYS", c)
+	check, _ := lib.PerformCheck(ctx, "S3_KEYS", c)
 	var res map[string]interface{}
 	e = json.Unmarshal([]byte(check.JsonResult), &res)
 	if e != nil {
@@ -632,7 +631,7 @@ func setupS3Buckets(c *install.InstallConfig, knownBuckets []string, canCreate b
 		} else if e == p.ErrInterrupt {
 			return used, []string{}, e
 		} else {
-			check, er := lib.PerformCheck(context.Background(), "S3_BUCKETS", c)
+			check, er := lib.PerformCheck(ctx, "S3_BUCKETS", c)
 			if !check.Success {
 				return used, []string{}, fmt.Errorf("Error while creating buckets: %s", er.Error())
 			}

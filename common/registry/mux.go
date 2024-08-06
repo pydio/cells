@@ -67,13 +67,13 @@ func (mux *URLMux) OpenRegistry(ctx context.Context, urlstr string) (Registry, e
 		return nil, err
 	}
 
-	// TODO - maybe do this with users ? Explain
+	// TODO - Was "tenant" - Does not seem to be used
+	tKey := "scope"
 	tenant := ""
 	if strings.Contains(u.Scheme, "+restricted") {
-		if u.Query().Has("tenant") {
-			tenant = u.Query().Get("tenant")
-			u.Query().Del("tenant")
-
+		if u.Query().Has(tKey) {
+			tenant = u.Query().Get(tKey)
+			u.Query().Del(tKey)
 		}
 	}
 
@@ -84,8 +84,8 @@ func (mux *URLMux) OpenRegistry(ctx context.Context, urlstr string) (Registry, e
 
 	if tenant != "" {
 		reg = NewMetaWrapper(reg, func(meta map[string]string) {
-			if _, ok := meta["tenant"]; !ok {
-				meta["tenant"] = tenant
+			if _, ok := meta[tKey]; !ok {
+				meta[tKey] = tenant
 			}
 		})
 	}

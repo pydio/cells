@@ -21,7 +21,6 @@
 package cmd
 
 import (
-	"context"
 	"fmt"
 	"os"
 
@@ -57,7 +56,7 @@ EXAMPLE
 	},
 	Run: func(cmd *cobra.Command, args []string) {
 		if confirmUserDeletion(cmd, userLogin) {
-			err := deleteUser(context.Background(), userLogin)
+			err := deleteUser(cmd.Context(), userLogin)
 			if err != nil {
 				cmd.Printf("could not delete %s: %s", userLogin, err.Error())
 			}

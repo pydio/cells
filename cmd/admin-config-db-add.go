@@ -23,7 +23,6 @@
 package cmd
 
 import (
-	"context"
 	"strings"
 	"time"
 
@@ -61,7 +60,7 @@ DESCRIPTION
 				return err
 			}
 			cmd.Println("\033[1m## Performing SQL Installation\033[0m")
-			if err := lib.Install(context.Background(), installConfig, lib.InstallDb, func(event *lib.InstallProgressEvent) {
+			if err := lib.Install(cmd.Context(), installConfig, lib.InstallDb, func(event *lib.InstallProgressEvent) {
 				cmd.Println(promptui.IconGood + " " + event.Message)
 			}); err != nil {
 				return err
@@ -82,7 +81,7 @@ DESCRIPTION
 			}
 
 			cmd.Println("\033[1m## Performing NoSQL Installation\033[0m")
-			if err := lib.Install(context.Background(), installConfig, lib.InstallDb|lib.InstallDSNOnly, func(event *lib.InstallProgressEvent) {
+			if err := lib.Install(cmd.Context(), installConfig, lib.InstallDb|lib.InstallDSNOnly, func(event *lib.InstallProgressEvent) {
 				cmd.Println(promptui.IconGood + " " + event.Message)
 			}); err != nil {
 				return err

@@ -117,7 +117,7 @@ type TreeServer struct {
 }
 
 // NewTreeServer initialize a TreeServer with proper internals
-func NewTreeServer(ctx context.Context, name string) *TreeServer {
+func NewTreeServer(name string) *TreeServer {
 	return &TreeServer{
 		name:          name,
 		sourcesCaches: gocache.MustOpenNonExpirableMemory(),

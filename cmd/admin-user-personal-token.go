@@ -21,7 +21,6 @@
 package cmd
 
 import (
-	"context"
 	"fmt"
 	"os"
 	"time"
@@ -104,13 +103,13 @@ TOKEN SCOPE
 				fmt.Println(promptui.IconBad + " Cannot parse auto-refresh duration. Use golang format like 30s, 30m, 24h, 28d")
 			}
 		}
-		u, e := permissions.SearchUniqueUser(context.Background(), tokUserLogin, "")
+		u, e := permissions.SearchUniqueUser(cmd.Context(), tokUserLogin, "")
 		if e != nil {
 			cmd.Println("Cannot find user")
 			return
 		}
 		cli := auth.NewPersonalAccessTokenServiceClient(grpc.ResolveConn(ctx, common.ServiceTokenGRPC))
-		resp, e := cli.Generate(context.Background(), &auth.PatGenerateRequest{
+		resp, e := cli.Generate(cmd.Context(), &auth.PatGenerateRequest{
 			Type:              auth.PatType_PERSONAL,
 			UserUuid:          u.Uuid,
 			UserLogin:         tokUserLogin,

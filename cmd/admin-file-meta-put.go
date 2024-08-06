@@ -21,7 +21,6 @@
 package cmd
 
 import (
-	"context"
 	"fmt"
 	"os"
 
@@ -62,7 +61,7 @@ EXAMPLE
 	RunE: func(cmd *cobra.Command, args []string) error {
 		client := tree.NewNodeReceiverClient(grpc.ResolveConn(ctx, common.ServiceMetaGRPC))
 
-		_, err := client.UpdateNode(context.Background(), &tree.UpdateNodeRequest{
+		_, err := client.UpdateNode(cmd.Context(), &tree.UpdateNodeRequest{
 			To: &tree.Node{
 				Uuid:      metaPutUUID,
 				MetaStore: map[string]string{metaPutKey: metaPutVal},

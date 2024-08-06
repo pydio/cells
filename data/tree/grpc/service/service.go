@@ -31,6 +31,7 @@ import (
 	service2 "github.com/pydio/cells/v4/common/proto/service"
 	"github.com/pydio/cells/v4/common/proto/tree"
 	"github.com/pydio/cells/v4/common/runtime"
+	"github.com/pydio/cells/v4/common/runtime/tenant"
 	"github.com/pydio/cells/v4/common/service"
 	grpc2 "github.com/pydio/cells/v4/data/tree/grpc"
 )
@@ -46,9 +47,10 @@ func init() {
 			service.Description("Aggregator of all datasources into one master tree"),
 			service.WithGRPC(func(ctx context.Context, server grpc.ServiceRegistrar) error {
 
-				treeServer := grpc2.NewTreeServer(ctx, Name)
+				treeServer := grpc2.NewTreeServer(Name)
 				eventSubscriber := grpc2.NewEventSubscriber(treeServer)
 
+				ctx = tenant.TODOKnownEmpty(ctx)
 				go treeServer.UpdateServicesList(ctx, 0)
 
 				tree.RegisterNodeProviderServer(server, treeServer)

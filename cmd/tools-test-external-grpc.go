@@ -1,7 +1,6 @@
 package cmd
 
 import (
-	"context"
 	"crypto/tls"
 	"crypto/x509"
 	"fmt"
@@ -40,7 +39,7 @@ var TestExternalGrpc = &cobra.Command{
 		cli := tree.NewNodeProviderClient(conn)
 		md := metadata.MD{}
 		md.Set("x-pydio-bearer", extToken)
-		og := metadata.NewOutgoingContext(context.Background(), md)
+		og := metadata.NewOutgoingContext(cmd.Context(), md)
 		stream, e := cli.ListNodes(og, &tree.ListNodesRequest{Node: &tree.Node{Path: "common-files"}})
 		if e != nil {
 			return e

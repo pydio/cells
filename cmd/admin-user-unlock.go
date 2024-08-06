@@ -21,7 +21,6 @@
 package cmd
 
 import (
-	"context"
 	"fmt"
 	"log"
 	"os"
@@ -59,7 +58,7 @@ EXAMPLE
 	Run: func(cmd *cobra.Command, args []string) {
 		client := idmc.UserServiceClient(ctx)
 
-		users, err := searchUser(context.Background(), client, userUnlockLogin)
+		users, err := searchUser(cmd.Context(), client, userUnlockLogin)
 		if err != nil {
 			fmt.Printf("Cannot list users for login %s: %s", userUnlockLogin, err.Error())
 		}
@@ -67,7 +66,7 @@ EXAMPLE
 		for _, user := range users {
 			delete(user.Attributes, "locks")
 			delete(user.Attributes, "failedConnections")
-			if _, err := client.CreateUser(context.Background(), &idm.CreateUserRequest{
+			if _, err := client.CreateUser(cmd.Context(), &idm.CreateUserRequest{
 				User: user,
 			}); err != nil {
 				fmt.Printf("could not unlock user [%s], skipping.\n Error message: %s", user.Login, err.Error())

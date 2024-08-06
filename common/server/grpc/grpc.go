@@ -30,15 +30,12 @@ import (
 	"sync"
 
 	protovalidate "github.com/bufbuild/protovalidate-go"
-	grpc_recovery "github.com/grpc-ecosystem/go-grpc-middleware/recovery"
 	"go.uber.org/zap"
 	"google.golang.org/grpc"
 	channelz "google.golang.org/grpc/channelz/service"
-	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/health"
 	"google.golang.org/grpc/health/grpc_health_v1"
 	"google.golang.org/grpc/reflection"
-	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/proto"
 
 	"github.com/pydio/cells/v4/common/middleware"
@@ -137,17 +134,12 @@ func (s *Server) lazyGrpc(rootContext context.Context) *grpc.Server {
 		return s.Server
 	}
 
-	var (
-		unaryInterceptors  []grpc.UnaryServerInterceptor
-		streamInterceptors []grpc.StreamServerInterceptor
-	)
-
 	var reg registry.Registry
 	propagator.Get(rootContext, registry.ContextKey, &reg)
 
-	unaryInterceptors = append(unaryInterceptors,
+	unaryFinalInterceptors := []grpc.UnaryServerInterceptor{
 
-		// THIS IS THE FINAL HANDLER - ENDPOINT HAS BEEN FOR EARLIER IN THE CHAIN
+		// this is the final handler - endpoint has been found earlier in the chain
 		func(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (interface{}, error) {
 
 			serviceName := runtime.GetServiceName(ctx)
@@ -184,9 +176,9 @@ func (s *Server) lazyGrpc(rootContext context.Context) *grpc.Server {
 
 			return handler(ctx, req)
 		},
-	)
+	}
 
-	streamInterceptors = append(streamInterceptors,
+	streamFinalInterceptors := []grpc.StreamServerInterceptor{
 		//func(srv interface{}, ss grpc.ServerStream, info *grpc.StreamServerInfo, handler grpc.StreamHandler) error {
 		//	v, err := protovalidate.New()
 		//	if err != nil {
@@ -202,7 +194,7 @@ func (s *Server) lazyGrpc(rootContext context.Context) *grpc.Server {
 		//	return handler(srv, ss)
 		//},
 
-		// THIS IS THE FINAL HANDLER - ENDPOINT HAS BEEN FOR EARLIER IN THE CHAIN
+		// This is the final handler - endpoint has been found earlier in the chain
 		func(srv interface{}, ss grpc.ServerStream, info *grpc.StreamServerInfo, handler grpc.StreamHandler) error {
 			ctx := ss.Context()
 			serviceName := runtime.GetServiceName(ctx)
@@ -214,45 +206,24 @@ func (s *Server) lazyGrpc(rootContext context.Context) *grpc.Server {
 			}
 
 			return handler(srv, ss)
-		})
+		},
+	}
 
-	// Recovery
-	// Define customfunc to handle panic
-	customFunc := func(p interface{}) (err error) {
-		return status.Errorf(codes.Unknown, "panic triggered: %v", p)
-	}
-	// Shared options for the logger, with a custom gRPC code to log level function.
-	recoveryOpts := []grpc_recovery.Option{
-		grpc_recovery.WithRecoveryHandler(customFunc),
-	}
+	unaryMiddlewares := append(
+		middleware.GrpcUnaryServerInterceptors(rootContext),
+		unaryEndpointInterceptor(rootContext, s),
+		HandlerUnaryInterceptor(&unaryFinalInterceptors),
+	)
+
+	streamMiddlewares := append(
+		middleware.GrpcStreamServerInterceptors(rootContext),
+		streamEndpointInterceptor(rootContext, s),
+		HandlerStreamInterceptor(&streamFinalInterceptors),
+	)
 
 	serverOptions := []grpc.ServerOption{
-		grpc.ChainUnaryInterceptor(
-			grpc_recovery.UnaryServerInterceptor(recoveryOpts...),
-			middleware.MetricsUnaryServerInterceptor(),
-			propagator.ContextUnaryServerInterceptor(middleware.CellsMetadataIncomingContext),
-			propagator.ContextUnaryServerInterceptor(middleware.TargetNameToServiceNameContext(rootContext)),
-			propagator.ContextUnaryServerInterceptor(middleware.ClientConnIncomingContext(rootContext)),
-			propagator.ContextUnaryServerInterceptor(middleware.RegistryIncomingContext(rootContext)),
-			propagator.ContextUnaryServerInterceptor(middleware.TenantIncomingContext(rootContext)),
-			propagator.ContextUnaryServerInterceptor(middleware.ServiceIncomingContext(rootContext)),
-			unaryEndpointInterceptor(rootContext, s),
-			middleware.ErrorFormatUnaryInterceptor,
-			HandlerUnaryInterceptor(&unaryInterceptors),
-		),
-		grpc.ChainStreamInterceptor(
-			grpc_recovery.StreamServerInterceptor(recoveryOpts...),
-			middleware.MetricsStreamServerInterceptor(),
-			propagator.ContextStreamServerInterceptor(middleware.CellsMetadataIncomingContext),
-			propagator.ContextStreamServerInterceptor(middleware.TargetNameToServiceNameContext(rootContext)),
-			propagator.ContextStreamServerInterceptor(middleware.ClientConnIncomingContext(rootContext)),
-			propagator.ContextStreamServerInterceptor(middleware.RegistryIncomingContext(rootContext)),
-			propagator.ContextStreamServerInterceptor(middleware.TenantIncomingContext(rootContext)),
-			propagator.ContextStreamServerInterceptor(middleware.ServiceIncomingContext(rootContext)),
-			streamEndpointInterceptor(rootContext, s),
-			middleware.ErrorFormatStreamInterceptor,
-			HandlerStreamInterceptor(&streamInterceptors),
-		),
+		grpc.ChainUnaryInterceptor(unaryMiddlewares...),
+		grpc.ChainStreamInterceptor(streamMiddlewares...),
 	}
 	// Append stats handlers if there are registered ones
 	serverOptions = append(serverOptions, middleware.GrpcServerStatsHandler(rootContext)...)
@@ -264,8 +235,8 @@ func (s *Server) lazyGrpc(rootContext context.Context) *grpc.Server {
 		id:                 s.ID(),
 		name:               s.Name(),
 		reg:                reg,
-		unaryInterceptors:  &unaryInterceptors,
-		streamInterceptors: &streamInterceptors,
+		unaryInterceptors:  &unaryFinalInterceptors,
+		streamInterceptors: &streamFinalInterceptors,
 		RWMutex:            &sync.RWMutex{},
 	}
 

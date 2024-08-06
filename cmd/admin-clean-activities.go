@@ -21,7 +21,6 @@
 package cmd
 
 import (
-	"context"
 	"encoding/json"
 	"fmt"
 	"log"
@@ -183,7 +182,7 @@ EXAMPLES
 				},
 			}
 
-			_, err := jobClient.PutJob(context.Background(), &jobs.PutJobRequest{
+			_, err := jobClient.PutJob(cmd.Context(), &jobs.PutJobRequest{
 				Job: job,
 			})
 			if err != nil {

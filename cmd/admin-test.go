@@ -24,7 +24,6 @@
 package cmd
 
 import (
-	"context"
 	"fmt"
 
 	"github.com/fatih/color"
@@ -51,7 +50,7 @@ var testCmd = &cobra.Command{
 		}
 		c := test.NewTesterClient(grpc.ResolveConn(ctx, conformanceTestServiceName))
 		fmt.Println("")
-		if response, e := c.Run(context.Background(), &test.RunTestsRequest{}); e != nil {
+		if response, e := c.Run(cmd.Context(), &test.RunTestsRequest{}); e != nil {
 			fmt.Println("Error while running tests, did you start the server?", e)
 		} else {
 			pass := true

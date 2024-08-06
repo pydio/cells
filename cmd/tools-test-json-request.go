@@ -1,11 +1,12 @@
 package cmd
 
 import (
-	"context"
 	"fmt"
+
+	"github.com/spf13/cobra"
+
 	"github.com/pydio/cells/v4/common/proto/jobs"
 	cmd2 "github.com/pydio/cells/v4/scheduler/actions/cmd"
-	"github.com/spf13/cobra"
 )
 
 var JsonRequest = &cobra.Command{
@@ -20,7 +21,7 @@ var JsonRequest = &cobra.Command{
 				"request": "{}",
 			},
 		})
-		action.Run(context.Background(), nil, &jobs.ActionMessage{})
+		action.Run(cmd.Context(), nil, &jobs.ActionMessage{})
 
 		action2 := &cmd2.RpcAction{}
 		action2.Init(&jobs.Job{}, &jobs.Action{
@@ -30,7 +31,7 @@ var JsonRequest = &cobra.Command{
 				"request": "{}",
 			},
 		})
-		_, e := action2.Run(context.Background(), nil, &jobs.ActionMessage{})
+		_, e := action2.Run(cmd.Context(), nil, &jobs.ActionMessage{})
 		fmt.Println(e)
 
 	},

@@ -21,7 +21,6 @@
 package cmd
 
 import (
-	"context"
 	"fmt"
 	"log"
 	"os"
@@ -102,7 +101,7 @@ EXAMPLE
 	RunE: func(cmd *cobra.Command, args []string) error {
 		ctx := cmd.Context()
 		client := idmc.UserServiceClient(ctx)
-		users, err := searchUser(context.Background(), client, userProfileLogin)
+		users, err := searchUser(cmd.Context(), client, userProfileLogin)
 		if err != nil {
 			fmt.Printf("Cannot list users for login %s: %s", userProfileLogin, err.Error())
 		}
@@ -112,7 +111,7 @@ EXAMPLE
 				user.Attributes = make(map[string]string, 1)
 			}
 			user.Attributes["profile"] = userTargetProfile
-			if _, err := client.CreateUser(context.Background(), &idm.CreateUserRequest{
+			if _, err := client.CreateUser(cmd.Context(), &idm.CreateUserRequest{
 				User: user,
 			}); err != nil {
 				fmt.Printf("could not update profile for [%s], skipping and continuing.\n Error message: %s", user.Login, err.Error())

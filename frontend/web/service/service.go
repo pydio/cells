@@ -196,7 +196,8 @@ func tenantWrapper(svcContext context.Context, h http.Handler) http.Handler {
 		ctx := propagator.ForkContext(req.Context(), svcContext)
 		var reg registry.Registry
 		propagator.Get(ctx, registry.ContextKey, &reg)
-		ctx, _, _ = middleware.TenantIncomingContext(nil)(ctx)
+		// TODO WEB MODIFIERS
+		ctx, _, _ = middleware.ApplyGRPCIncomingContextModifiers(ctx)
 		h.ServeHTTP(rw, req.WithContext(ctx))
 	})
 }

@@ -28,6 +28,8 @@ import (
 )
 
 var (
+	empty = &basicTenant{id: "empty"}
+
 	tm Manager = &basicManager{
 		tt: []Tenant{
 			&basicTenant{id: "default"},
@@ -44,6 +46,10 @@ func RegisterManager(m Manager) {
 
 func GetManager() Manager {
 	return tm
+}
+
+func TODOKnownEmpty(ctx context.Context) context.Context {
+	return empty.Context(ctx)
 }
 
 type Tenant interface {

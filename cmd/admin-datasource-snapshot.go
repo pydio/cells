@@ -21,7 +21,6 @@
 package cmd
 
 import (
-	"context"
 	"os"
 
 	"github.com/manifoldco/promptui"
@@ -84,7 +83,7 @@ EXAMPLES
 		syncService := common.ServiceDataSyncGRPC_ + snapshotDsName
 
 		cli := sync.NewSyncEndpointClient(grpc.ResolveConn(ctx, syncService, longGrpcCallTimeout()))
-		c := propagator.WithUserNameMetadata(context.Background(), common.PydioContextUserKey, common.PydioSystemUsername)
+		c := propagator.WithUserNameMetadata(cmd.Context(), common.PydioContextUserKey, common.PydioSystemUsername)
 		req := &sync.ResyncRequest{}
 		if snapshotOperation == "delete" {
 			req.Path = "delete/" + snapshotBasename

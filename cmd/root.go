@@ -335,7 +335,7 @@ func initLogLevel() {
 
 	// Using it once
 	// todo necessary?
-	log.Logger(context.Background())
+	log.Logger(ctx)
 }
 
 func initLogLevelListener(ctx context.Context) {

@@ -21,7 +21,6 @@
 package cmd
 
 import (
-	"context"
 	"os"
 
 	"github.com/manifoldco/promptui"
@@ -61,7 +60,7 @@ EXAMPLES
 		syncService := common.ServiceDataSyncGRPC_ + resyncDsName
 
 		cli := sync.NewSyncEndpointClient(grpc.ResolveConn(cmd.Context(), syncService, longGrpcCallTimeout()))
-		c := propagator.WithUserNameMetadata(context.Background(), common.PydioContextUserKey, common.PydioSystemUsername)
+		c := propagator.WithUserNameMetadata(cmd.Context(), common.PydioContextUserKey, common.PydioSystemUsername)
 		resp, err := cli.TriggerResync(c, &sync.ResyncRequest{Path: "/"})
 		if err != nil {
 			cmd.Println("Resync Failed: " + err.Error())

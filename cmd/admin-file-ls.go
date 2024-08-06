@@ -21,7 +21,6 @@
 package cmd
 
 import (
-	"context"
 	"fmt"
 	"os"
 	"path"
@@ -86,7 +85,7 @@ EXAMPLE
 			cmd.Println("Lookup node with UUID " + promptui.Styler(promptui.FGUnderline)(lsUuid))
 
 			// Special case for a node look up by its UUID
-			r, e := client.ReadNode(context.Background(), &tree.ReadNodeRequest{Node: &tree.Node{Uuid: lsUuid}})
+			r, e := client.ReadNode(cmd.Context(), &tree.ReadNodeRequest{Node: &tree.Node{Uuid: lsUuid}})
 			if e != nil {
 				return e
 			}
@@ -119,7 +118,7 @@ EXAMPLE
 
 			// List all children
 			// Note: if distant DS is structured, .pydio files are returned but not counted to compute the limit.
-			streamer, err := client.ListNodes(context.Background(), &tree.ListNodesRequest{
+			streamer, err := client.ListNodes(cmd.Context(), &tree.ListNodesRequest{
 				Node:      &tree.Node{Path: lsPath},
 				Recursive: lsRecursive,
 				Limit:     int64(lsLimit),

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2022. Abstrium SAS <team (at) pydio.com>
+ * Copyright (c) 2024. Abstrium SAS <team (at) pydio.com>
  * This file is part of Pydio Cells.
  *
  * Pydio Cells is free software: you can redistribute it and/or modify
@@ -25,18 +25,109 @@ import (
 	"net/http"
 	"strings"
 
+	grpc_recovery "github.com/grpc-ecosystem/go-grpc-middleware/recovery"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/metadata"
+	"google.golang.org/grpc/status"
 
 	"github.com/pydio/cells/v4/common"
-	"github.com/pydio/cells/v4/common/config"
 	pb "github.com/pydio/cells/v4/common/proto/registry"
 	"github.com/pydio/cells/v4/common/registry"
 	"github.com/pydio/cells/v4/common/runtime"
-	tenant2 "github.com/pydio/cells/v4/common/runtime/tenant"
 	"github.com/pydio/cells/v4/common/server"
 	"github.com/pydio/cells/v4/common/utils/propagator"
 )
+
+type HttpContextModifier func(r *http.Request) (*http.Request, error)
+
+var (
+	outgoingModifiers     []propagator.OutgoingContextModifier
+	incomingModifiers     []propagator.IncomingContextModifier
+	httpIncomingModifiers []HttpContextModifier
+
+	recoverOptions = []grpc_recovery.Option{
+		grpc_recovery.WithRecoveryHandler(func(p interface{}) (err error) {
+			return status.Errorf(codes.Internal, "panic triggered: %v", p)
+		}),
+	}
+)
+
+// RegisterModifier registers a middleware
+func RegisterModifier(m any) {
+	switch v := m.(type) {
+	case propagator.OutgoingContextModifier:
+		outgoingModifiers = append(outgoingModifiers, v)
+	case propagator.IncomingContextModifier:
+		incomingModifiers = append(incomingModifiers, v)
+	case HttpContextModifier:
+		httpIncomingModifiers = append(httpIncomingModifiers, v)
+	default:
+		panic("unknown propagator type")
+	}
+}
+
+// GrpcUnaryClientInterceptors returns a list of grpc.UnaryClientInterceptor
+func GrpcUnaryClientInterceptors() []grpc.UnaryClientInterceptor {
+	uu := []grpc.UnaryClientInterceptor{
+		ErrorNoMatchedRouteRetryUnaryClientInterceptor(),
+		ErrorFormatUnaryClientInterceptor(),
+		propagator.MetaUnaryClientInterceptor(common.CtxCellsMetaPrefix),
+	}
+	for _, o := range outgoingModifiers {
+		uu = append(uu, propagator.ContextUnaryClientInterceptor(o))
+	}
+	return uu
+}
+
+// GrpcStreamClientInterceptors returns a list of grpc.StreamClientInterceptor
+func GrpcStreamClientInterceptors() []grpc.StreamClientInterceptor {
+	uu := []grpc.StreamClientInterceptor{
+		ErrorNoMatchedRouteRetryStreamClientInterceptor(),
+		ErrorFormatStreamClientInterceptor(),
+		propagator.MetaStreamClientInterceptor(common.CtxCellsMetaPrefix),
+	}
+	for _, o := range outgoingModifiers {
+		uu = append(uu, propagator.ContextStreamClientInterceptor(o))
+	}
+	return uu
+}
+
+// GrpcUnaryServerInterceptors returns a list of grpc.UnaryServerInterceptor
+func GrpcUnaryServerInterceptors(rootContext context.Context) []grpc.UnaryServerInterceptor {
+	uu := []grpc.UnaryServerInterceptor{
+		grpc_recovery.UnaryServerInterceptor(recoverOptions...),
+		MetricsUnaryServerInterceptor(),
+		propagator.ContextUnaryServerInterceptor(CellsMetadataIncomingContext),
+		propagator.ContextUnaryServerInterceptor(TargetNameToServiceNameContext(rootContext)),
+		propagator.ContextUnaryServerInterceptor(ClientConnIncomingContext(rootContext)),
+		propagator.ContextUnaryServerInterceptor(RegistryIncomingContext(rootContext)),
+		propagator.ContextUnaryServerInterceptor(ServiceIncomingContext(rootContext)),
+	}
+	for _, o := range incomingModifiers {
+		uu = append(uu, propagator.ContextUnaryServerInterceptor(o))
+	}
+	uu = append(uu, ErrorFormatUnaryInterceptor)
+	return uu
+}
+
+// GrpcStreamServerInterceptors returns a list of grpc.StreamServerInterceptor
+func GrpcStreamServerInterceptors(rootContext context.Context) []grpc.StreamServerInterceptor {
+	uu := []grpc.StreamServerInterceptor{
+		grpc_recovery.StreamServerInterceptor(recoverOptions...),
+		MetricsStreamServerInterceptor(),
+		propagator.ContextStreamServerInterceptor(CellsMetadataIncomingContext),
+		propagator.ContextStreamServerInterceptor(TargetNameToServiceNameContext(rootContext)),
+		propagator.ContextStreamServerInterceptor(ClientConnIncomingContext(rootContext)),
+		propagator.ContextStreamServerInterceptor(RegistryIncomingContext(rootContext)),
+		propagator.ContextStreamServerInterceptor(ServiceIncomingContext(rootContext)),
+	}
+	for _, o := range incomingModifiers {
+		uu = append(uu, propagator.ContextStreamServerInterceptor(o))
+	}
+	uu = append(uu, ErrorFormatStreamInterceptor)
+	return uu
+}
 
 // ClientConnIncomingContext adds the ClientConn to context
 func ClientConnIncomingContext(serverRuntimeContext context.Context) func(ctx context.Context) (context.Context, bool, error) {
@@ -67,15 +158,11 @@ func TargetNameToServiceNameContext(serverRuntimeContext context.Context) func(c
 	}
 }
 
-var (
-	clientConns = make(map[string]grpc.ClientConnInterface)
-	configStore = make(map[string]config.Store)
-)
-
+/*
 func setContextForTenant(ctx context.Context) (context.Context, error) {
 	tenantID := "default"
 	if md, ok := metadata.FromIncomingContext(ctx); ok {
-		if t := md.Get("tenant"); len(t) > 0 {
+		if t := md.Get(common.CtxTargetTenantName); len(t) > 0 {
 			tenantID = strings.Join(t, "")
 		}
 	}
@@ -89,56 +176,35 @@ func setContextForTenant(ctx context.Context) (context.Context, error) {
 		return ctx, err
 	}
 
-	/* TODO - Replace by pool? Should this be initialized here? ping @charles after refactoring this
-	cc, ok := clientConns[tenantID]
-	if !ok {
-		var err error
-		opts := []grpc.DialOption{
-			grpc.WithTransportCredentials(insecure.NewCredentials()),
-			// grpc.WithConnectParams(grpc.ConnectParams{MinConnectTimeout: 1 * time.Minute, Backoff: backoffConfig}),
-			grpc.WithChainUnaryInterceptor(
-				ErrorNoMatchedRouteRetryUnaryClientInterceptor(),
-				ErrorFormatUnaryClientInterceptor(),
-				propagator.MetaUnaryClientInterceptor(common.CtxCellsMetaPrefix),
-			),
-			grpc.WithChainStreamInterceptor(
-				ErrorNoMatchedRouteRetryStreamClientInterceptor(),
-				ErrorFormatStreamClientInterceptor(),
-				propagator.MetaStreamClientInterceptor(common.CtxCellsMetaPrefix),
-			),
-		}
-		opts = append(opts, GrpcClientStatsHandler(nil)...)
-		cc, err = grpc.NewClient("xds://"+tenantID+".cells.com/cells", opts...)
-		if err != nil {
-			fmt.Println("And the error is ? ", err)
-		}
-		clientConns[tenantID] = cc
-	}
-	ctx = runtime.WithClientConn(ctx, cc)
-
-	cfg, ok := configStore[tenantID]
-	if !ok {
-		if c, err := config.OpenStore(ctx, "xds://"+tenantID+".cells.com/cells"); err == nil {
-			cfg = c
-		} else {
-			cfg = config.Main()
-		}
-
-		configStore[tenantID] = cfg
-	}
-
-	ctx = propagator.With(ctx, config.ContextKey, cfg)*/
+	//ctx = propagator.With(ctx, config.ContextKey, cfg)
 	ctx = propagator.With(ctx, tenant2.ContextKey, tenant)
 
 	return ctx, nil
 }
 
-func TenantIncomingContext(serverRuntimeContext context.Context) func(ctx context.Context) (context.Context, bool, error) {
-	return func(ctx context.Context) (context.Context, bool, error) {
-		var err error
-		ctx, err = setContextForTenant(ctx)
-		return ctx, true, err
+*/
+
+func ApplyGRPCIncomingContextModifiers(ctx context.Context) (ct context.Context, modified bool, er error) {
+	ct = ctx
+	for _, o := range incomingModifiers {
+		var b bool
+		ct, b, er = o(ct)
+		if b {
+			modified = true
+		}
 	}
+	return
+}
+
+func ApplyHTTPIncomingContextModifiers(r *http.Request) (*http.Request, error) {
+	var er error
+	for _, o := range httpIncomingModifiers {
+		r, er = o(r)
+		if er != nil {
+			return nil, er
+		}
+	}
+	return r, nil
 }
 
 func setContextForService(ctx context.Context) context.Context {
@@ -161,14 +227,6 @@ func ServiceIncomingContext(serverRuntimeContext context.Context) func(ctx conte
 		ctx = setContextForService(ctx)
 
 		return ctx, true, nil
-	}
-}
-
-func HandlerInterceptor() func(ctx context.Context) (context.Context, bool, error) {
-	return func(ctx context.Context) (context.Context, bool, error) {
-		var err error
-		ctx, err = setContextForTenant(ctx)
-		return ctx, true, err
 	}
 }
 
@@ -201,9 +259,12 @@ func WebTenantMiddleware(ctx context.Context, endpoint string, serviceContextKey
 
 			ctx = propagator.With(ctx, serviceContextKey, services[0])
 		}
-
-		ctx, _, _ = TenantIncomingContext(nil)(ctx)
-
-		h.ServeHTTP(rw, req.WithContext(ctx))
+		req = req.WithContext(ctx)
+		var er error
+		if req, er = ApplyHTTPIncomingContextModifiers(req); er != nil {
+			rw.WriteHeader(http.StatusInternalServerError)
+			return
+		}
+		h.ServeHTTP(rw, req)
 	})
 }

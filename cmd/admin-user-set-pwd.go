@@ -21,7 +21,6 @@
 package cmd
 
 import (
-	"context"
 	"fmt"
 	"log"
 	"os"
@@ -92,14 +91,14 @@ EXAMPLE
 	Run: func(cmd *cobra.Command, args []string) {
 		client := idmc.UserServiceClient(ctx)
 
-		users, err := searchUser(context.Background(), client, userPwdLogin)
+		users, err := searchUser(cmd.Context(), client, userPwdLogin)
 		if err != nil {
 			fmt.Printf("Cannot list users for login %s: %s", userPwdLogin, err.Error())
 		}
 
 		for _, user := range users {
 			user.Password = userPwd
-			if _, err := client.CreateUser(context.Background(), &idm.CreateUserRequest{
+			if _, err := client.CreateUser(cmd.Context(), &idm.CreateUserRequest{
 				User: user,
 			}); err != nil {
 				fmt.Printf("could not update password for [%s], skipping and continuing.\n Error message: %s", user.Login, err.Error())

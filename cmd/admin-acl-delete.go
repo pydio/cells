@@ -21,7 +21,6 @@
 package cmd
 
 import (
-	"context"
 	"fmt"
 	"io"
 	"log"
@@ -77,7 +76,7 @@ DESCRIPTION
 		}
 
 		if deleteAclForce || confirmAclDeletion(cmd, client, query) {
-			if response, err := client.DeleteACL(context.Background(), &idm.DeleteACLRequest{
+			if response, err := client.DeleteACL(cmd.Context(), &idm.DeleteACLRequest{
 				Query: &service.Query{
 					SubQueries: []*anypb.Any{query},
 				},

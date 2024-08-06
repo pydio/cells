@@ -21,7 +21,6 @@
 package cmd
 
 import (
-	"context"
 	"fmt"
 	"os"
 	"path"
@@ -144,7 +143,7 @@ EXAMPLES
 			Label:    "User " + u.Login + " role",
 		}
 
-		if _, err := idmc.RoleServiceClient(ctx).CreateRole(context.Background(), &idm.CreateRoleRequest{
+		if _, err := idmc.RoleServiceClient(ctx).CreateRole(ctx, &idm.CreateRoleRequest{
 			Role: &newRole,
 		}); err != nil {
 			cmd.Println(err.Error())

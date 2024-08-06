@@ -22,7 +22,6 @@ package cmd
 
 import (
 	"bytes"
-	"context"
 	"fmt"
 	"log"
 	"os"
@@ -204,7 +203,7 @@ func installFromConf() (*install.InstallConfig, error) {
 	// Check if pre-configured DB is up and running
 	nbRetry := 20
 	for i := 0; i < nbRetry; i++ {
-		if res, _ := lib.PerformCheck(context.Background(), "DB", iConf); res.Success {
+		if res, _ := lib.PerformCheck(ctx, "DB", iConf); res.Success {
 			break
 		}
 		if i == nbRetry-1 {
@@ -215,7 +214,7 @@ func installFromConf() (*install.InstallConfig, error) {
 		<-time.After(10 * time.Second)
 	}
 
-	err = lib.Install(context.Background(), iConf, lib.InstallAll, func(event *lib.InstallProgressEvent) {
+	err = lib.Install(ctx, iConf, lib.InstallAll, func(event *lib.InstallProgressEvent) {
 		fmt.Println(event.Message)
 	})
 	if err != nil {

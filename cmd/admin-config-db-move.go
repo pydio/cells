@@ -151,7 +151,7 @@ func configDbMoveOne(cmd *cobra.Command, dry, promptConfig bool, migOption *flat
 	v.Set(runtime.KeyConfig, "mem://")
 	v.Set("yaml", b.String())
 
-	store, er := config.OpenStore(context.Background(), "mem://")
+	store, er := config.OpenStore(cmd.Context(), "mem://")
 	if er != nil {
 		panic(er)
 	}
@@ -172,7 +172,7 @@ func configDbMoveOne(cmd *cobra.Command, dry, promptConfig bool, migOption *flat
 			service.WithStorageDrivers(migOption.SupportedDrivers[migOption.storageKey]...),
 		)
 	})
-	mgr, err := manager.NewManager(context.Background(), "test", nil)
+	mgr, err := manager.NewManager(cmd.Context(), "test", nil)
 	if err != nil {
 		return err
 	}

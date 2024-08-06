@@ -136,26 +136,17 @@ func ResolveConn(ctx context.Context, serviceName string, opt ...Option) grpc.Cl
 
 	opts.ClientConn = conn
 
-	tenantName := "default"
-	if mm, ok := propagator.FromContextRead(ctx); ok {
-		if p, o := mm[common.XPydioTenantUuid]; o {
-			tenantName = p
-		}
-	}
-
 	return &clientConn{
 		callTimeout:         opts.CallTimeout,
 		ClientConnInterface: opts.ClientConn,
 		balancerFilter:      opts.BalancerFilter,
 		serviceName:         serviceName,
-		tenantName:          tenantName,
 	}
 }
 
 type clientConn struct {
 	grpc.ClientConnInterface
 	serviceName    string
-	tenantName     string
 	callTimeout    time.Duration
 	balancerFilter client.BalancerTargetFilter
 }
@@ -168,9 +159,7 @@ func (cc *clientConn) Invoke(ctx context.Context, method string, args interface{
 		grpc.WaitForReady(true),
 	}, opts...)
 
-	//if metadata.ValueFromIncomingContext(ctx, ckeys.CtxTargetServiceName)
 	ctx = metadata.AppendToOutgoingContext(ctx, common.CtxTargetServiceName, cc.serviceName)
-	ctx = metadata.AppendToOutgoingContext(ctx, common.CtxTargetTenantName, cc.tenantName)
 	if pc, file, line, ok := runtime2.Caller(2); ok {
 		var fName string
 		if fDesc := runtime2.FuncForPC(pc); fDesc != nil {
@@ -205,7 +194,6 @@ func (cc *clientConn) NewStream(ctx context.Context, desc *grpc.StreamDesc, meth
 	}, opts...)
 
 	ctx = metadata.AppendToOutgoingContext(ctx, common.CtxTargetServiceName, cc.serviceName)
-	ctx = metadata.AppendToOutgoingContext(ctx, common.CtxTargetTenantName, cc.tenantName)
 	if pc, file, line, ok := runtime2.Caller(2); ok {
 		var fName string
 		if fDesc := runtime2.FuncForPC(pc); fDesc != nil {

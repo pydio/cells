@@ -67,7 +67,7 @@ func Latest() *version.Version {
 func UpdateServiceVersionWrapper(h http.Handler, o *ServiceOptions) http.Handler {
 	return http.HandlerFunc(func(rw http.ResponseWriter, req *http.Request) {
 		ctx := req.Context()
-		ctx, _, _ = middleware.TenantIncomingContext(nil)(ctx)
+		ctx, _, _ = middleware.ApplyGRPCIncomingContextModifiers(ctx)
 		var cfg config.Store
 		propagator.Get(ctx, config.ContextKey, &cfg)
 		err := UpdateServiceVersion(ctx, cfg, o)

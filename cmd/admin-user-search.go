@@ -21,7 +21,6 @@
 package cmd
 
 import (
-	"context"
 	"fmt"
 	"os"
 	"path"
@@ -76,7 +75,7 @@ EXAMPLES
 		table := tablewriter.NewWriter(cmd.OutOrStdout())
 		table.SetHeader([]string{"Name", "Is Group", "Profile", "Path", "UUID"})
 
-		stream, err := client.SearchUser(context.Background(), &idm.SearchUserRequest{
+		stream, err := client.SearchUser(ctx, &idm.SearchUserRequest{
 			Query: &service.Query{
 				SubQueries: []*anypb.Any{query},
 				Limit:      int64(userSearchLimit),

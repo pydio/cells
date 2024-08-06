@@ -29,7 +29,6 @@ import (
 	"github.com/pydio/cells/v4/common/client/grpc"
 	"github.com/pydio/cells/v4/common/runtime/manager"
 	"github.com/pydio/cells/v4/common/runtime/tenant"
-	"github.com/pydio/cells/v4/common/utils/propagator"
 )
 
 var (
@@ -67,25 +66,26 @@ DESCRIPTION
 
 		bindViperFlags(cmd.Flags())
 
-		_, _, er := initConfig(cmd.Context(), true)
-
-		mgr, err := manager.NewManager(cmd.Context(), "cmd", nil)
-		if err != nil {
-			return err
-		}
-
-		ctx = mgr.Context()
-
 		var t tenant.Tenant
+		var er error
 		if t, er = tenant.GetManager().TenantByID(adminCmdTenantID); er != nil {
 			t = tenant.GetManager().GetMaster()
 			cmd.Println("tenant not found, using " + t.ID())
 		} else {
 			cmd.Println("using tenant " + adminCmdTenantID)
 		}
+		ctx = t.Context(cmd.Context())
 
-		ctx = propagator.With(ctx, tenant.ContextKey, t)
+		_, _, er = initConfig(ctx, true)
+		if er != nil {
+			return er
+		}
+		mgr, err := manager.NewManager(ctx, "cmd", nil)
+		if err != nil {
+			return err
+		}
 
+		ctx = mgr.Context()
 		cmd.SetContext(ctx)
 
 		return er

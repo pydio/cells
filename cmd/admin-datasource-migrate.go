@@ -55,7 +55,6 @@ var (
 	migrateForce  bool
 	migrateDry    bool
 	migrateMove   bool
-	authCtx       = context.WithValue(context.Background(), common.PydioContextUserKey, common.PydioSystemUsername)
 	migrateLogger = func(s string, print bool) {
 		fmt.Println(s)
 	}
@@ -118,6 +117,8 @@ DESCRIPTION
 			}
 		}
 
+		authCtx := context.WithValue(cmd.Context(), common.PydioContextUserKey, common.PydioSystemUsername)
+
 		// Pick datasource to migrate
 		source, _, tgtFmt, srcBucket, tgtBucket, e := migratePickDS()
 		if e != nil {
@@ -141,7 +142,7 @@ DESCRIPTION
 		}
 
 		// Prepare Clients
-		rootNode, idxClient, mc, e := migratePrepareClients(source)
+		rootNode, idxClient, mc, e := migratePrepareClients(authCtx, source)
 		if e != nil {
 			migrateLogger("[ERROR] "+e.Error(), true)
 			return e
@@ -298,17 +299,17 @@ func migratePickDS() (source *object.DataSource, srcFmt, tgtFmt, srcBucket, tgtB
 	return
 }
 
-func migratePrepareClients(source *object.DataSource) (rootNode *tree.Node, idx tree.NodeProviderClient, mc nodes.StorageClient, e error) {
+func migratePrepareClients(ctx context.Context, source *object.DataSource) (rootNode *tree.Node, idx tree.NodeProviderClient, mc nodes.StorageClient, e error) {
 
 	idx = treec.ServiceNodeProviderClient(ctx, common.ServiceDataIndex_+source.Name, longGrpcCallTimeout())
-	r, er := idx.ReadNode(authCtx, &tree.ReadNodeRequest{Node: &tree.Node{Path: "/"}})
+	r, er := idx.ReadNode(ctx, &tree.ReadNodeRequest{Node: &tree.Node{Path: "/"}})
 	if er != nil {
 		e = er
 		return
 	}
 	rootNode = r.GetNode()
 	objCli := object.NewObjectsEndpointClient(grpc.ResolveConn(ctx, common.ServiceDataObjects_+source.ObjectsServiceName))
-	or, er := objCli.GetMinioConfig(authCtx, &object.GetMinioConfigRequest{})
+	or, er := objCli.GetMinioConfig(ctx, &object.GetMinioConfigRequest{})
 	if er != nil {
 		e = er
 		return

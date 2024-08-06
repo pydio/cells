@@ -225,7 +225,6 @@ const (
 	XPydioIndexationSessionUuid = "X-Pydio-Indexation-Session"
 	XPydioFrontendSessionUuid   = "X-Pydio-Frontend-Session"
 	XPydioMoveUuid              = "X-Pydio-Move"
-	XPydioTenantUuid            = "X-Pydio-Tenant"
 	XPydioSiteHash              = "X-Pydio-Site-Hash"
 	XPydioDebugSession          = "X-Pydio-Debug-Session"
 	XContentType                = "Content-Type"
@@ -239,7 +238,6 @@ const (
 	PydioProfileAnon     = "anon"
 
 	CtxTargetServiceName       = "service"
-	CtxTargetTenantName        = "tenant"
 	CtxCellsMetaPrefix         = "x-cells-"
 	CtxGrpcClientCaller        = "grpc-client-caller"
 	CtxSchedulerOperationId    = "Scheduler-Operation-Id"

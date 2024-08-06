@@ -187,6 +187,7 @@ func (s *UserHandler) SearchUsers(req *restful.Request, rsp *restful.Response) e
 	response := &rest.UsersCollection{
 		Total: resp.Count,
 	}
+	log.Logger(ctx).Info("User Query", zap.Any("q", query), zap.Int32("t", resp.Count))
 
 	if !userReq.CountOnly {
 		streamer, e := cli.SearchUser(ctx, &idm.SearchUserRequest{
@@ -201,10 +202,12 @@ func (s *UserHandler) SearchUsers(req *restful.Request, rsp *restful.Response) e
 				}
 				u.PoliciesContextEditable = s.IsContextEditable(ctx, u.Uuid, u.Policies)
 				response.Groups = append(response.Groups, u)
+				log.Logger(ctx).Info("Appending Group" + u.GroupLabel)
 			} else {
 				if u.Roles, e = permissions.GetRolesForUser(ctx, u, false); e != nil {
 					return e
 				}
+				log.Logger(ctx).Info("Appending User" + u.Login)
 				response.Users = append(response.Users, u.WithPublicData(ctx, s.IsContextEditable(ctx, u.Uuid, u.Policies)))
 			}
 			return nil

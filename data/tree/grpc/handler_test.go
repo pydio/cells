@@ -66,7 +66,7 @@ func TestReadNode(t *testing.T) {
 
 	// Create tree server with fake datasources
 	ctx := context.Background()
-	ts := NewTreeServer(ctx, "test")
+	ts := NewTreeServer("test")
 	for _, ds := range dataSources {
 		ts.AppendDatasource(ctx, ds.Name, ds)
 	}
@@ -98,7 +98,7 @@ func TestListNodes(t *testing.T) {
 
 	// Create tree server with fake datasources
 	ctx := context.Background()
-	ts := NewTreeServer(ctx, "test")
+	ts := NewTreeServer("test")
 	for _, ds := range dataSources {
 		ts.AppendDatasource(ctx, ds.Name, ds)
 	}
@@ -150,7 +150,7 @@ func TestRootNodeOperations(t *testing.T) {
 
 	// Create tree server with fake datasources
 	ctx := context.Background()
-	ts := NewTreeServer(ctx, "test")
+	ts := NewTreeServer("test")
 	for _, ds := range dataSources {
 		ts.AppendDatasource(ctx, ds.Name, ds)
 	}

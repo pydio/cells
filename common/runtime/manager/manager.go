@@ -663,16 +663,9 @@ func (m *manager) initConnections(store *Bootstrap, base string) error {
 			}
 
 			dialOptions = append(dialOptions,
-				grpc.WithChainUnaryInterceptor(
-					middleware.ErrorNoMatchedRouteRetryUnaryClientInterceptor(),
-					middleware.ErrorFormatUnaryClientInterceptor(),
-					propagator.MetaUnaryClientInterceptor(common.CtxCellsMetaPrefix),
-				),
-				grpc.WithChainStreamInterceptor(
-					middleware.ErrorNoMatchedRouteRetryStreamClientInterceptor(),
-					middleware.ErrorFormatStreamClientInterceptor(),
-					propagator.MetaStreamClientInterceptor(common.CtxCellsMetaPrefix),
-				))
+				grpc.WithChainUnaryInterceptor(middleware.GrpcUnaryClientInterceptors()...),
+				grpc.WithChainStreamInterceptor(middleware.GrpcStreamClientInterceptors()...),
+			)
 
 			dialOptions = append(dialOptions, middleware.GrpcClientStatsHandler(nil)...)
 

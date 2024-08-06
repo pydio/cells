@@ -114,7 +114,7 @@ func (c *queryConverter) Convert(ctx context.Context, val *anypb.Any, db *gorm.D
 		user.SetNode(&tree.Node{
 			Path: groupPath,
 		})
-		mpath, _, err := c.treeDao.Path(context.TODO(), user, tree.NewTreeNode(""), false)
+		mpath, _, err := c.treeDao.Path(ctx, user, tree.NewTreeNode(""), false)
 		if err != nil && err.Error() != "not found" {
 			log.Logger(context.Background()).Error("Error while getting parent mpath", zap.Any("g", groupPath), zap.Error(err))
 			return db, false, err
@@ -122,10 +122,11 @@ func (c *queryConverter) Convert(ctx context.Context, val *anypb.Any, db *gorm.D
 		if mpath == nil {
 			// We do not want to break, but just make sure no results are returned.
 			// => Return a Where clause that always resolves to FALSE
+			log.Logger(context.Background()).Error("Nil MPath On Convert, add 1 = 0 condition", zap.Any("g", groupPath))
 			db = db.Where("1 = 0")
 			return db, true, nil
 		}
-		parentNode, err := c.treeDao.GetNode(context.TODO(), mpath)
+		parentNode, err := c.treeDao.GetNode(ctx, mpath)
 		if err != nil {
 			log.Logger(context.Background()).Error("Error while getting parent node", zap.Any("g", groupPath), zap.Error(err))
 			return db, false, err
@@ -162,7 +163,7 @@ func (c *queryConverter) Convert(ctx context.Context, val *anypb.Any, db *gorm.D
 	}
 
 	if len(q.AttributeName) > 0 {
-		txAttributes := a.WithContext(context.TODO()).
+		txAttributes := a.WithContext(ctx).
 			Select(a.Name).
 			Where(a.Name.Eq(q.AttributeName)).
 			Where(a.UUID.EqCol(u.Uuid))
@@ -192,7 +193,7 @@ func (c *queryConverter) Convert(ctx context.Context, val *anypb.Any, db *gorm.D
 	}
 
 	if len(q.HasRole) > 0 {
-		txRoles := r.WithContext(context.TODO()).
+		txRoles := r.WithContext(ctx).
 			Select(r.UUID).
 			Where(r.Role.Eq(q.HasRole)).
 			Where(r.UUID.EqCol(u.Uuid))

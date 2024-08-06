@@ -41,7 +41,7 @@ func HeaderInjectorInterceptor() SubscriberInterceptor {
 
 func ContextInjectorInterceptor() SubscriberInterceptor {
 	return func(ctx context.Context, m Message, handler SubscriberHandler) error {
-		if ct, ok, er := middleware.TenantIncomingContext(ctx)(ctx); ok && er == nil {
+		if ct, ok, er := middleware.ApplyGRPCIncomingContextModifiers(ctx); ok && er == nil {
 			return handler(ct, m)
 		}
 		return handler(ctx, m)

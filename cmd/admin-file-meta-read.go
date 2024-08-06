@@ -21,7 +21,6 @@
 package cmd
 
 import (
-	"context"
 	"fmt"
 	"os"
 
@@ -77,7 +76,7 @@ EXAMPLE
 	RunE: func(cmd *cobra.Command, args []string) error {
 		client := treec.ServiceNodeProviderClient(ctx, common.ServiceMeta)
 
-		response, err := client.ReadNode(context.Background(), &tree.ReadNodeRequest{
+		response, err := client.ReadNode(cmd.Context(), &tree.ReadNodeRequest{
 			Node: &tree.Node{
 				Uuid: metaReadUUID,
 			},

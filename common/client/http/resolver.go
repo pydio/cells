@@ -110,14 +110,14 @@ func (m *resolver) Stop() {
 }
 
 func (m *resolver) ServeHTTP(w http.ResponseWriter, r *http.Request) (bool, error) {
-	// Adding tenant to request
-	if tenant := r.Header.Get(common.XPydioTenantUuid); tenant == "" {
-		r.Header.Set(common.XPydioTenantUuid, runtime.Cluster())
+
+	r, er := middleware.ApplyHTTPIncomingContextModifiers(r)
+	if er != nil {
+		return false, er
 	}
 
 	ctx := propagator.WithAdditionalMetadata(r.Context(), map[string]string{
-		common.XPydioTenantUuid: r.Header.Get(common.XPydioTenantUuid),
-		common.XPydioSiteHash:   r.Header.Get(common.XPydioSiteHash),
+		common.XPydioSiteHash: r.Header.Get(common.XPydioSiteHash),
 	})
 
 	r = r.WithContext(ctx)
