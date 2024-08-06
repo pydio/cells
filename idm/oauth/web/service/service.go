@@ -70,7 +70,7 @@ func init() {
 
 				handler := TokenMethodWrapper(ctx, handlerFunc)
 				handler = middleware.HttpWrapperMeta(ctx, handler)
-				handler = middleware.WebTenantMiddleware(ctx, "/oidc", service.ContextKey, o.Server, handler)
+				handler = middleware.WebIncomingContextMiddleware(ctx, "/oidc", service.ContextKey, o.Server, handler)
 
 				serveMux.Route(RouteOIDC).Handle("/", cors.New(cors.Options{
 					AllowedMethods:   []string{"GET", "POST", "PUT", "PATCH", "DELETE"},

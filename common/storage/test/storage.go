@@ -14,10 +14,8 @@ import (
 
 	"github.com/pydio/cells/v4/common/runtime"
 	"github.com/pydio/cells/v4/common/runtime/manager"
-	"github.com/pydio/cells/v4/common/runtime/tenant"
 	"github.com/pydio/cells/v4/common/storage"
 	"github.com/pydio/cells/v4/common/storage/sql"
-	"github.com/pydio/cells/v4/common/utils/propagator"
 	"github.com/pydio/cells/v4/common/utils/uuid"
 
 	_ "github.com/pydio/cells/v4/common/config/memory"
@@ -172,7 +170,7 @@ func RunTests(t *testing.T, f func(context.Context)) {
 	}
 
 	ctx = mgr.Context()
-	ctx = propagator.With(ctx, tenant.ContextKey, tenant.GetManager().GetMaster())
+	ctx = runtime.MultiContextManager().RootContext(ctx)
 
 	mgr.ServeAll()
 

@@ -24,12 +24,11 @@ import (
 	"context"
 
 	"github.com/pydio/cells/v4/common/errors"
+	"github.com/pydio/cells/v4/common/runtime"
 	"github.com/pydio/cells/v4/common/utils/propagator"
 )
 
 var (
-	empty = &basicTenant{id: "empty"}
-
 	tm Manager = &basicManager{
 		tt: []Tenant{
 			&basicTenant{id: "default"},
@@ -40,36 +39,18 @@ var (
 	ErrNotFound = errors.RegisterBaseSentinel(errors.StatusUnauthorized, "tenant not found")
 )
 
-func RegisterManager(m Manager) {
-	tm = m
-}
-
-func GetManager() Manager {
-	return tm
-}
-
-func TODOKnownEmpty(ctx context.Context) context.Context {
-	return empty.Context(ctx)
-}
-
 type Tenant interface {
 	Context(ctx context.Context) context.Context
 	ID() string
 }
 
 type Manager interface {
+	runtime.MultiContextProvider
+
 	GetMaster() Tenant
 	IsMaster(Tenant) bool
 	ListTenants() []Tenant
-	Iterate(ct context.Context, f func(ctx context.Context, t Tenant) error) error
 	TenantByID(id string) (Tenant, error)
-	Subscribe(cb func(event WatchEvent)) error
-}
-
-type WatchEvent interface {
-	Action() string
-	Tenant() Tenant
-	Context(ctx context.Context) context.Context
 }
 
 type basicTenant struct {
@@ -81,12 +62,42 @@ func (b *basicTenant) ID() string {
 }
 
 func (b *basicTenant) Context(ctx context.Context) context.Context {
-	return propagator.With(ctx, ContextKey, b)
+	return propagator.With[string](ctx, runtime.MultiContextKey, b.ID())
 }
 
 type basicManager struct {
 	master Tenant
 	tt     []Tenant
+}
+
+func (b *basicManager) Current(ctx context.Context) string {
+	var id string
+	propagator.Get[string](ctx, runtime.MultiContextKey, &id)
+	return id
+}
+
+func (b *basicManager) RootContext(ctx context.Context) context.Context {
+	if adminCmdTenantID == "" {
+		adminCmdTenantID = "default"
+	}
+	return propagator.With(ctx, runtime.MultiContextKey, adminCmdTenantID)
+}
+
+func (b *basicManager) Iterate(ctx context.Context, add func(context.Context, string) error) error {
+	for _, t := range b.tt {
+		if e := add(t.Context(ctx), t.ID()); e != nil {
+			return e
+		}
+	}
+	return nil
+}
+
+func (b *basicManager) Watch(ctx context.Context, add func(context.Context, string) error, remove func(context.Context, string) error, iterate bool) error {
+	if iterate {
+		return b.Iterate(ctx, add)
+	}
+	// TODO Watch
+	return nil
 }
 
 func (b *basicManager) GetMaster() Tenant {
@@ -96,15 +107,6 @@ func (b *basicManager) GetMaster() Tenant {
 
 func (b *basicManager) IsMaster(t Tenant) bool {
 	return t.ID() == "default"
-}
-
-func (b *basicManager) Iterate(c context.Context, f func(ctx context.Context, t Tenant) error) error {
-	for _, t := range b.tt {
-		if e := f(t.Context(c), t); e != nil {
-			return e
-		}
-	}
-	return nil
 }
 
 func (b *basicManager) ListTenants() []Tenant {
@@ -118,8 +120,4 @@ func (b *basicManager) TenantByID(id string) (Tenant, error) {
 		}
 	}
 	return nil, errors.WithStack(ErrNotFound)
-}
-
-func (b *basicManager) Subscribe(cb func(event WatchEvent)) error {
-	return nil
 }

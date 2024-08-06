@@ -34,7 +34,6 @@ import (
 	proto "github.com/pydio/cells/v4/common/proto/log"
 	"github.com/pydio/cells/v4/common/proto/sync"
 	"github.com/pydio/cells/v4/common/runtime"
-	"github.com/pydio/cells/v4/common/runtime/tenant"
 	"github.com/pydio/cells/v4/common/service"
 	log2 "github.com/pydio/cells/v4/common/telemetry/log"
 	json "github.com/pydio/cells/v4/common/utils/jsonx"
@@ -70,7 +69,7 @@ func init() {
 					HandlerName: common.ServiceGrpcNamespace_ + common.ServiceLog,
 				}
 
-				_ = tenant.GetManager().Iterate(c, func(ctx context.Context, t tenant.Tenant) error {
+				_ = runtime.MultiContextManager().Iterate(c, func(ctx context.Context, _ string) error {
 					cv := common.MakeCellsVersion()
 					m := map[string]string{
 						"logger":       common.ServiceGrpcNamespace_ + common.ServiceLog,

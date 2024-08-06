@@ -33,7 +33,6 @@ import (
 	"github.com/pydio/cells/v4/common/proto/jobs"
 	"github.com/pydio/cells/v4/common/proto/jobs/bleveimpl"
 	"github.com/pydio/cells/v4/common/runtime"
-	"github.com/pydio/cells/v4/common/runtime/tenant"
 	"github.com/pydio/cells/v4/common/service"
 	"github.com/pydio/cells/v4/common/telemetry/log"
 	"github.com/pydio/cells/v4/scheduler/tasks"
@@ -60,8 +59,7 @@ func init() {
 			service.Description("Tasks are running jobs dispatched on multiple workers"),
 			service.WithGRPC(func(c context.Context, server grpc.ServiceRegistrar) error {
 				jobs.RegisterTaskServiceServer(server, new(grpc2.TaskHandler))
-				return tenant.GetManager().Iterate(c, func(c context.Context, t tenant.Tenant) error {
-					tc := t.Context(c)
+				return runtime.MultiContextManager().Iterate(c, func(tc context.Context, _ string) error {
 					multiplexer := tasks.NewSubscriber(tc)
 					var me error
 					go func() {

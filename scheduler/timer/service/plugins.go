@@ -30,10 +30,8 @@ import (
 	"github.com/pydio/cells/v4/common/broker"
 	"github.com/pydio/cells/v4/common/proto/jobs"
 	"github.com/pydio/cells/v4/common/runtime"
-	"github.com/pydio/cells/v4/common/runtime/tenant"
 	"github.com/pydio/cells/v4/common/server/generic"
 	"github.com/pydio/cells/v4/common/service"
-	"github.com/pydio/cells/v4/common/utils/propagator"
 	"github.com/pydio/cells/v4/scheduler/timer"
 )
 
@@ -54,38 +52,29 @@ func init() {
 			service.Unique(true),
 			service.WithGeneric(func(c context.Context, server *generic.Server) error {
 
-				tm := tenant.GetManager()
+				tm := runtime.MultiContextManager()
 
-				pLocks.Lock()
-				tm.Iterate(c, func(tenantContext context.Context, t tenant.Tenant) error {
-					tp := timer.NewEventProducer(tenantContext)
-					go tp.Start()
-					producers[t.ID()] = tp
-					return nil
-				})
-				pLocks.Unlock()
-
-				_ = tm.Subscribe(func(event tenant.WatchEvent) {
+				_ = tm.Watch(c, func(ct context.Context, id string) error {
 					pLocks.Lock()
 					defer pLocks.Unlock()
-					tenantID := event.Tenant().ID()
-					if event.Action() == "add" {
-						tp := timer.NewEventProducer(event.Context(c))
-						go tp.Start()
-						producers[tenantID] = tp
-					} else if event.Action() == "delete" {
-						delete(producers, tenantID)
-					}
-				})
+					tp := timer.NewEventProducer(ct)
+					go tp.Start()
+					producers[id] = tp
+					return nil
+				}, func(_ context.Context, id string) error {
+					pLocks.Lock()
+					defer pLocks.Unlock()
+					delete(producers, id)
+					return nil
+				}, true)
 
 				if er := broker.SubscribeCancellable(c, common.TopicJobConfigEvent, func(ctx context.Context, message broker.Message) error {
 					msg := &jobs.JobChangeEvent{}
 					if ct, e := message.Unmarshal(ctx, msg); e == nil {
-						var ten tenant.Tenant
-						if propagator.Get(ctx, tenant.ContextKey, &ten) {
+						if cID := runtime.MultiContextManager().Current(ctx); cID != "" {
 							pLocks.RLock()
 							defer pLocks.RUnlock()
-							if producer, ok := producers[ten.ID()]; ok {
+							if producer, ok := producers[cID]; ok {
 								return producer.Handle(ct, msg)
 							}
 							return fmt.Errorf("cannot find timer.Producer for corresponding tenant")

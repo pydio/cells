@@ -28,7 +28,6 @@ import (
 	"github.com/spf13/viper"
 
 	"github.com/pydio/cells/v4/common/runtime"
-	"github.com/pydio/cells/v4/common/runtime/tenant"
 	"github.com/pydio/cells/v4/common/service"
 	"github.com/pydio/cells/v4/common/utils/propagator"
 )
@@ -98,7 +97,7 @@ func DSNtoContextDAO(ctx context.Context, dsn []string, daoFunc any) (context.Co
 
 	ctx = mgr.Context()
 	ctx = propagator.With(ctx, service.ContextKey, svc)
-	ctx = propagator.With(ctx, tenant.ContextKey, tenant.GetManager().GetMaster())
+	ctx = runtime.MultiContextManager().RootContext(ctx)
 
 	return ctx, nil
 }

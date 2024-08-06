@@ -36,7 +36,6 @@ import (
 	"github.com/pydio/cells/v4/common/proto/sync"
 	"github.com/pydio/cells/v4/common/runtime"
 	"github.com/pydio/cells/v4/common/runtime/manager"
-	"github.com/pydio/cells/v4/common/runtime/tenant"
 	"github.com/pydio/cells/v4/common/service"
 	log3 "github.com/pydio/cells/v4/common/telemetry/log"
 	"github.com/pydio/cells/v4/scheduler/jobs"
@@ -105,7 +104,7 @@ func init() {
 
 				autoStarts := make(map[context.Context][]*proto.Job)
 
-				_ = tenant.GetManager().Iterate(ctx, func(c context.Context, t tenant.Tenant) error {
+				_ = runtime.MultiContextManager().Iterate(ctx, func(c context.Context, _ string) error {
 					for _, j := range defaults {
 						if _, e := handler.GetJob(c, &proto.GetJobRequest{JobID: j.ID}); e != nil {
 							_, _ = handler.PutJob(c, &proto.PutJobRequest{Job: j})

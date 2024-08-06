@@ -3,6 +3,8 @@ package main
 import (
 	"github.com/pydio/cells/v4/common"
 
+	_ "github.com/pydio/cells/v4/common/runtime/tenant"
+
 	// All Telemetry-related drivers
 	// Logs
 	_ "github.com/pydio/cells/v4/common/telemetry/log/file"

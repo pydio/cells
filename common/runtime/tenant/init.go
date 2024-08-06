@@ -28,15 +28,15 @@ import (
 
 	"google.golang.org/grpc/metadata"
 
+	"github.com/pydio/cells/v4/cmd"
 	"github.com/pydio/cells/v4/common/middleware"
+	"github.com/pydio/cells/v4/common/runtime"
 	"github.com/pydio/cells/v4/common/utils/openurl"
 	"github.com/pydio/cells/v4/common/utils/propagator"
 )
 
-type tenantKey struct{}
-
 var (
-	ContextKey = tenantKey{}
+	adminCmdTenantID string
 )
 
 const (
@@ -46,13 +46,15 @@ const (
 )
 
 func init() {
-	propagator.RegisterKeyInjector[Tenant](ContextKey)
+	runtime.RegisterMultiContextManager(tm)
+	cmd.AdminCmd.PersistentFlags().StringVar(&adminCmdTenantID, "tenant_id", "default", "Tenant ID to apply command")
+
 	// GRPC OUTGOING
 	middleware.RegisterModifier(propagator.OutgoingContextModifier(func(ctx context.Context) context.Context {
 		tenantID := defaultTenantID
-		var t Tenant
-		if propagator.Get(ctx, ContextKey, &t) {
-			tenantID = t.ID()
+		var t string
+		if propagator.Get[string](ctx, runtime.MultiContextKey, &t) {
+			tenantID = t
 		}
 		ctx = metadata.AppendToOutgoingContext(ctx, metadataKey, tenantID)
 		return ctx
@@ -66,7 +68,7 @@ func init() {
 			}
 		}
 		// Check that it does exist
-		tenant, err := GetManager().TenantByID(tenantID)
+		tenant, err := tm.TenantByID(tenantID)
 		if err != nil {
 			return ctx, false, err
 		}
@@ -81,7 +83,7 @@ func init() {
 			r.Header.Set(headerTenantID, defaultTenantID)
 		}
 		// Check that it does exist, and append to context
-		t, err := GetManager().TenantByID(tenant)
+		t, err := tm.TenantByID(tenant)
 		if err != nil {
 			return nil, err
 		}
@@ -89,11 +91,11 @@ func init() {
 	}))
 	// TEMPLATE
 	openurl.RegisterTemplateInjector(func(ctx context.Context, m map[string]interface{}) error {
-		var t Tenant
-		if propagator.Get(ctx, ContextKey, &t) {
+		var tID string
+		if propagator.Get[string](ctx, runtime.MultiContextKey, &tID) {
 			// If tenant is "empty", ignore for now
-			if t != empty {
-				m["Tenant"] = t.ID()
+			if tID != "" {
+				m["Tenant"] = tID
 			}
 		} else {
 			fmt.Println("TemplateInjector - tenant not found in context")

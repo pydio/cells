@@ -27,13 +27,12 @@ import (
 	"github.com/spf13/cobra"
 
 	"github.com/pydio/cells/v4/common/client/grpc"
+	"github.com/pydio/cells/v4/common/runtime"
 	"github.com/pydio/cells/v4/common/runtime/manager"
-	"github.com/pydio/cells/v4/common/runtime/tenant"
 )
 
 var (
 	adminCmdGRPCTimeout string
-	adminCmdTenantID    string
 )
 
 func longGrpcCallTimeout() grpc.Option {
@@ -66,17 +65,8 @@ DESCRIPTION
 
 		bindViperFlags(cmd.Flags())
 
-		var t tenant.Tenant
-		var er error
-		if t, er = tenant.GetManager().TenantByID(adminCmdTenantID); er != nil {
-			t = tenant.GetManager().GetMaster()
-			cmd.Println("tenant not found, using " + t.ID())
-		} else {
-			cmd.Println("using tenant " + adminCmdTenantID)
-		}
-		ctx = t.Context(cmd.Context())
-
-		_, _, er = initConfig(ctx, true)
+		ctx = runtime.MultiContextManager().RootContext(ctx)
+		_, _, er := initConfig(ctx, true)
 		if er != nil {
 			return er
 		}
@@ -99,6 +89,5 @@ func init() {
 	// Registry / Broker Flags
 	addExternalCmdRegistryFlags(AdminCmd.PersistentFlags())
 	AdminCmd.PersistentFlags().StringVarP(&adminCmdGRPCTimeout, "grpc_client_timeout", "", "60m", "Default timeout for long-running GRPC calls, expressed as a golang duration")
-	AdminCmd.PersistentFlags().StringVar(&adminCmdTenantID, "tenant_id", "default", "Tenant ID to apply command")
 	RootCmd.AddCommand(AdminCmd)
 }

@@ -158,32 +158,6 @@ func TargetNameToServiceNameContext(serverRuntimeContext context.Context) func(c
 	}
 }
 
-/*
-func setContextForTenant(ctx context.Context) (context.Context, error) {
-	tenantID := "default"
-	if md, ok := metadata.FromIncomingContext(ctx); ok {
-		if t := md.Get(common.CtxTargetTenantName); len(t) > 0 {
-			tenantID = strings.Join(t, "")
-		}
-	}
-	if mm, ok := propagator.FromContextRead(ctx); ok {
-		if p, ok := mm[common.XPydioTenantUuid]; ok {
-			tenantID = p
-		}
-	}
-	tenant, err := tenant2.GetManager().TenantByID(tenantID)
-	if err != nil {
-		return ctx, err
-	}
-
-	//ctx = propagator.With(ctx, config.ContextKey, cfg)
-	ctx = propagator.With(ctx, tenant2.ContextKey, tenant)
-
-	return ctx, nil
-}
-
-*/
-
 func ApplyGRPCIncomingContextModifiers(ctx context.Context) (ct context.Context, modified bool, er error) {
 	ct = ctx
 	for _, o := range incomingModifiers {
@@ -230,7 +204,7 @@ func ServiceIncomingContext(serverRuntimeContext context.Context) func(ctx conte
 	}
 }
 
-func WebTenantMiddleware(ctx context.Context, endpoint string, serviceContextKey any, srv server.Server, h http.Handler) http.Handler {
+func WebIncomingContextMiddleware(ctx context.Context, endpoint string, serviceContextKey any, srv server.Server, h http.Handler) http.Handler {
 	return http.HandlerFunc(func(rw http.ResponseWriter, req *http.Request) {
 		ctx := propagator.ForkContext(req.Context(), ctx)
 

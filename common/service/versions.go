@@ -35,7 +35,6 @@ import (
 	"github.com/pydio/cells/v4/common/config"
 	"github.com/pydio/cells/v4/common/middleware"
 	"github.com/pydio/cells/v4/common/runtime"
-	"github.com/pydio/cells/v4/common/runtime/tenant"
 	"github.com/pydio/cells/v4/common/telemetry/log"
 	"github.com/pydio/cells/v4/common/utils/propagator"
 )
@@ -84,13 +83,8 @@ func UpdateServiceVersion(ctx context.Context, store config.Store, opts *Service
 
 	// Todo - this may be probably directly contextualized by the store
 	var err error
-	var t tenant.Tenant
 	prefix := []string{"versions", opts.Name}
-	tID := "default"
-	if propagator.Get(ctx, tenant.ContextKey, &t) && t.ID() != "default" {
-		prefix = []string{"versions", t.ID(), opts.Name}
-		tID = t.ID()
-	}
+	tID := runtime.MultiContextManager().Current(ctx)
 	var run bool
 	opts.migrateOnceL.Lock()
 	if !opts.migrateOnce[tID] {

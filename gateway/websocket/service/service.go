@@ -84,7 +84,7 @@ func init() {
 						_ = mel.HandleRequest(w, r)
 					})
 					handler := middleware.HttpWrapperMeta(ctx, http.Handler(hf))
-					handler = middleware.WebTenantMiddleware(ctx, "", service.ContextKey, o.Server, handler)
+					handler = middleware.WebIncomingContextMiddleware(ctx, "", service.ContextKey, o.Server, handler)
 					return handler
 				}
 				sub.Handle("/event", medodyAsHandler(ws.Websocket))

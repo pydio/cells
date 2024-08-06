@@ -207,7 +207,7 @@ func WithWeb(handler func(ctx context.Context) WebHandler) ServiceOption {
 			}
 
 			wrapped = UpdateServiceVersionWrapper(wrapped, o)
-			wrapped = middleware.WebTenantMiddleware(ctx, "", ContextKey, o.Server, wrapped)
+			wrapped = middleware.WebIncomingContextMiddleware(ctx, "", ContextKey, o.Server, wrapped)
 
 			sub := mux.Route(APIRoute)
 			sub.Handle(serviceRoute, wrapped, routing.WithStripPrefix(), routing.WithEnsureTrailing())

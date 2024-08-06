@@ -36,7 +36,6 @@ import (
 	"github.com/pydio/cells/v4/common/config"
 	"github.com/pydio/cells/v4/common/runtime"
 	"github.com/pydio/cells/v4/common/runtime/manager"
-	"github.com/pydio/cells/v4/common/runtime/tenant"
 	"github.com/pydio/cells/v4/common/service"
 	"github.com/pydio/cells/v4/common/utils/propagator"
 	"github.com/pydio/cells/v4/discovery/install/lib"
@@ -177,7 +176,6 @@ func configDbMoveOne(cmd *cobra.Command, dry, promptConfig bool, migOption *flat
 		return err
 	}
 	ctx = mgr.Context()
-	ctx = propagator.With(ctx, tenant.ContextKey, tenant.GetManager().GetMaster())
 
 	sChan := make(chan service.MigratorStatus, 1000)
 	var bar *progressbar.ProgressBar
