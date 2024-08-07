@@ -194,7 +194,7 @@ func (e *Executor) PutObject(ctx context.Context, node *tree.Node, reader io.Rea
 	writer := info.Client
 
 	s3Path := e.buildS3Path(info, node)
-	opts := e.putOptionsFromRequestMeta(info, requestData.Metadata)
+	opts := e.putOptionsFromRequestMeta(ctx, info, requestData.Metadata)
 	log.Logger(ctx).Debug("[handler exec]: put object", zap.String("s3Path", s3Path), zap.Any("requestData", requestData))
 	if requestData.Size <= 0 {
 		oi, err := writer.PutObject(ctx, info.ObjectsBucket, s3Path, reader, -1, opts)
@@ -315,7 +315,7 @@ func (e *Executor) CopyObject(ctx context.Context, from *tree.Node, to *tree.Nod
 		ctx = propagator.NewContext(ctx, ctxMeta)
 
 		log.Logger(ctx).Debug("HandlerExec: copy one DS to another", zap.Any("meta", srcStat), zap.Any("requestMeta", requestData.Metadata))
-		opts := e.putOptionsFromRequestMeta(destInfo, requestData.Metadata)
+		opts := e.putOptionsFromRequestMeta(ctx, destInfo, requestData.Metadata)
 		opts.ContentType = cType
 		opts.Progress = requestData.Progress
 		oi, err := destClient.PutObject(ctx, destBucket, toPath, reader, srcStat.Size, opts)
@@ -342,7 +342,7 @@ func (e *Executor) MultipartCreate(ctx context.Context, target *tree.Node, reque
 	}
 	s3Path := e.buildS3Path(info, target)
 
-	putOptions := e.putOptionsFromRequestMeta(info, requestData.Metadata)
+	putOptions := e.putOptionsFromRequestMeta(ctx, info, requestData.Metadata)
 	id, err := info.Client.NewMultipartUpload(ctx, info.ObjectsBucket, s3Path, putOptions)
 	return id, err
 }
@@ -483,7 +483,7 @@ func (e *Executor) WrappedCanApply(_ context.Context, _ context.Context, _ *tree
 	return nil
 }
 
-func (e *Executor) putOptionsFromRequestMeta(bi nodes.BranchInfo, metadata map[string]string) models.PutMeta {
+func (e *Executor) putOptionsFromRequestMeta(ctx context.Context, bi nodes.BranchInfo, metadata map[string]string) models.PutMeta {
 	opts := models.PutMeta{UserMetadata: make(map[string]string)}
 	for k, v := range metadata {
 		if k == "content-type" {
@@ -501,7 +501,7 @@ func (e *Executor) putOptionsFromRequestMeta(bi nodes.BranchInfo, metadata map[s
 			if sc == "STANDARD" || sc == "REDUCED_REDUNDANCY" || sc == "STANDARD_IA" || sc == "ONEZONE_IA" || sc == "INTELLIGENT_TIERING" || sc == "GLACIER" || sc == "DEEP_ARCHIVE" || sc == "OUTPOSTS" || sc == "GLACIER_IR" {
 				opts.StorageClass = sc
 			} else {
-				log.Logger(context.Background()).Warn("Unsupported StorageClass value " + sc + ", must be one of STANDARD | REDUCED_REDUNDANCY | STANDARD_IA | ONEZONE_IA | INTELLIGENT_TIERING | GLACIER | DEEP_ARCHIVE | OUTPOSTS | GLACIER_IR")
+				log.Logger(ctx).Warn("Unsupported StorageClass value " + sc + ", must be one of STANDARD | REDUCED_REDUNDANCY | STANDARD_IA | ONEZONE_IA | INTELLIGENT_TIERING | GLACIER | DEEP_ARCHIVE | OUTPOSTS | GLACIER_IR")
 			}
 		}
 	}

@@ -84,7 +84,7 @@ func (h *Handler) IsAllowed(ctx context.Context, request *idm.PolicyEngineReques
 		} else if strings.Contains(err.Error(), "Request was forcefully denied") {
 			// Explicitly Deny : break and return false, ignoring following policies
 			response.ExplicitDeny = true
-			// log.Logger(context.Background()).Error("IsAllowed: explicitly denied", zap.Any("ladonRequest", ladonRequest))
+			// log.Logger(ctx).Error("IsAllowed: explicitly denied", zap.Any("ladonRequest", ladonRequest))
 			return response, nil
 		} else {
 			if strings.Contains(err.Error(), "connection refused") {

@@ -22,6 +22,8 @@
 package sync
 
 import (
+	"context"
+
 	"github.com/pydio/cells/v4/common/service"
 	"github.com/pydio/cells/v4/common/sync/endpoints/s3"
 )
@@ -30,5 +32,5 @@ var Drivers = service.StorageDrivers{}
 
 type DAO interface {
 	s3.ChecksumMapper
-	CleanResourcesOnDeletion() (string, error)
+	CleanResourcesOnDeletion(ctx context.Context) (string, error)
 }

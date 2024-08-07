@@ -104,7 +104,7 @@ func (s *Server) RawServe(opts *server.ServeOptions) (ii []registry.Item, e erro
 			if err.Error() == "http: Server closed" || err.Error() == "context canceled" {
 				return
 			}
-			log.Logger(context.Background()).Error("Could not start http server because "+err.Error(), zap.Error(err))
+			log.Logger(opts.Context).Error("Could not start http server because "+err.Error(), zap.Error(err))
 		}
 	}()
 

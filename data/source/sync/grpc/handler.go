@@ -674,7 +674,7 @@ func (s *Handler) CleanResourcesBeforeDelete(ctx context.Context, request *objec
 	var ee []string
 
 	if dao, er := manager.Resolve[sync.DAO](ctx); er == nil {
-		if m, e := dao.CleanResourcesOnDeletion(); e != nil {
+		if m, e := dao.CleanResourcesOnDeletion(ctx); e != nil {
 			ee = append(ee, e.Error())
 		} else {
 			mm = append(mm, m)

@@ -168,7 +168,7 @@ func (h *Handler) SendMail(ctx context.Context, req *proto.SendMailRequest) (*pr
 			}
 		} else {
 			log.Logger(ctx).Info("SendMail: sending email", log.DangerouslyZapSmallSlice("to", tt), zap.Any("from", *m.From), zap.String("subject", m.Subject))
-			if e := h.sender.Send(m); e != nil {
+			if e := h.sender.Send(ctx, m); e != nil {
 				log.Logger(ctx).Error(fmt.Sprintf("could not directly send mail: %s", e.Error()), log.DangerouslyZapSmallSlice("to", tt), zap.Any("from", *m.From), zap.String("subject", m.Subject))
 				return nil, e
 			}
@@ -194,7 +194,7 @@ func (h *Handler) ConsumeQueue(ctx context.Context, req *proto.ConsumeQueueReque
 			return fmt.Errorf("cannot send empty email")
 		}
 		counter++
-		return h.sender.Send(em)
+		return h.sender.Send(ctx, em)
 	}
 
 	e := dao.Consume(ctx, c)

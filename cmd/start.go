@@ -177,9 +177,7 @@ ENVIRONMENT
 		}
 		ctx = propagator.With(ctx, registry.ContextKey, reg)
 		ctx = propagator.With(ctx, config.ContextKey, config.Main())
-
-		// ctx = nodescontext.WithSourcesPool(ctx, nodes.NewPool(ctx, reg))
-		runtime.InitGlobalConnConsumers(ctx, "main")
+		ctx = runtime.AsCoreContext(ctx)
 
 		broker.Register(broker.NewBroker(runtime.BrokerURL(), broker.WithContext(ctx)))
 
@@ -199,6 +197,8 @@ ENVIRONMENT
 			server.WithGrpcBindAddress(runtime.GrpcBindAddress()),
 			server.WithHttpBindAddress(runtime.HttpBindAddress()),
 		)
+
+		runtime.InitGlobalConnConsumers(m.Context(), "main")
 
 		<-ctx.Done()
 

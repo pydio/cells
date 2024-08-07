@@ -29,6 +29,7 @@ import (
 	"github.com/caddyserver/caddy/v2/caddyconfig/caddyfile"
 	"go.uber.org/zap"
 
+	"github.com/pydio/cells/v4/common/runtime"
 	"github.com/pydio/cells/v4/common/telemetry/log"
 	"github.com/pydio/cells/v4/common/utils/jsonx"
 )
@@ -77,7 +78,7 @@ func (w *caddyWriterOpener) UnmarshalCaddyfile(d *caddyfile.Dispenser) error {
 // should be safe for concurrent use but need not
 // be synchronous.
 func (w *caddyWriterOpener) OpenWriter() (io.WriteCloser, error) {
-	mainLogger := log.Logger(context.Background())
+	mainLogger := log.Logger(runtime.AsCoreContext(context.Background()))
 	pool := &sync.Pool{
 		New: func() interface{} {
 			return map[string]interface{}{}

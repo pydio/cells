@@ -117,8 +117,8 @@ func (gm *Smtp) Check(ctx context.Context) error {
 
 }
 
-func (gm *Smtp) Send(email *mailer.Mail) error {
-	log.Logger(context.Background()).Debug("Trying to send email", zap.String("smtpHost", gm.Host), zap.String("smtpUser", gm.User), zap.Any("mail", email))
+func (gm *Smtp) Send(ctx context.Context, email *mailer.Mail) error {
+	log.Logger(ctx).Debug("Trying to send email", zap.String("smtpHost", gm.Host), zap.String("smtpUser", gm.User), zap.Any("mail", email))
 	m, e := NewGomailMessage(email)
 	if e != nil {
 		return e

@@ -189,7 +189,7 @@ func (s *sqlimpl) Add(ctx context.Context, in interface{}) (interface{}, []*idm.
 		s.rebuildGroupPath(ctx, nodeFrom)
 
 		if nodeFrom.GetNode().GetPath() != node.GetNode().GetPath() {
-			log.Logger(context.Background()).Debug("MOVE TREE", zap.Any("from", nodeFrom), zap.Any("to", node))
+			log.Logger(ctx).Debug("MOVE TREE", zap.Any("from", nodeFrom), zap.Any("to", node))
 			if err := s.indexDAO.MoveNodeTree(ctx, nodeFrom, node); err != nil {
 				return nil, createdNodes, wrap(err)
 			}
@@ -547,7 +547,7 @@ func (s *sqlimpl) Del(ctx context.Context, query sql.Enquirer, users chan *idm.U
 		node   *user_model.User
 		object *idm.User
 	}
-	log.Logger(context.Background()).Debug("Delete")
+	log.Logger(ctx).Debug("Delete")
 
 	var data []*delStruct
 

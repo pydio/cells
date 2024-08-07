@@ -103,7 +103,7 @@ func (c *ChatHandler) BroadcastChatMessage(ctx context.Context, msg *chat.ChatEv
 			log.Logger(ctx).Error("Session is closed")
 			return false
 		}
-		_, found := c.roomInSession(session, compareRoomId)
+		_, found := c.roomInSession(ctx, session, compareRoomId)
 		return found
 	})
 
@@ -201,9 +201,9 @@ func (c *ChatHandler) initHandlers(ctx context.Context) {
 			}
 			sessRoom.uuid = foundRoom.Uuid
 			c.heartbeat(ctx, userName, foundRoom)
-			c.storeSessionRoom(session, sessRoom)
+			c.storeSessionRoom(ctx, session, sessRoom)
 			// Update Room Users
-			if save := c.appendUserToRoom(foundRoom, userName); save {
+			if save := c.appendUserToRoom(ctx, foundRoom, userName); save {
 
 				_, e := chatClient.PutRoom(ctx, &chat.PutRoomRequest{Room: foundRoom})
 				if e != nil {
@@ -215,11 +215,11 @@ func (c *ChatHandler) initHandlers(ctx context.Context) {
 
 			foundRoom, e1 := c.findOrCreateRoom(ctx, chatMsg.Room, false)
 			if e1 == nil && foundRoom != nil {
-				if save := c.removeUserFromRoom(foundRoom, userName); save {
+				if save := c.removeUserFromRoom(ctx, foundRoom, userName); save {
 					chatClient.PutRoom(ctx, &chat.PutRoomRequest{Room: foundRoom})
 					log.Logger(ctx).Debug("LEAVE", zap.Any("msg", chatMsg), zap.Any("r", foundRoom))
 				}
-				c.removeSessionRoom(session, foundRoom.Uuid)
+				c.removeSessionRoom(ctx, session, foundRoom.Uuid)
 			}
 
 		case chat.WsMessageType_HISTORY:
@@ -292,7 +292,7 @@ func (c *ChatHandler) initHandlers(ctx context.Context) {
 		case chat.WsMessageType_POST:
 
 			log.Logger(ctx).Debug("POST", zap.Any("msg", chatMsg))
-			if session, found := c.roomInSession(session, chatMsg.Message.RoomUuid); !found || session.readonly {
+			if session, found := c.roomInSession(ctx, session, chatMsg.Message.RoomUuid); !found || session.readonly {
 				log.Logger(ctx).Error("Not authorized to post in this room")
 				break
 			}
@@ -310,7 +310,7 @@ func (c *ChatHandler) initHandlers(ctx context.Context) {
 		case chat.WsMessageType_DELETE_MSG:
 
 			log.Logger(ctx).Debug("Delete", zap.Any("msg", chatMsg))
-			if session, found := c.roomInSession(session, chatMsg.Message.RoomUuid); !found || session.readonly {
+			if session, found := c.roomInSession(ctx, session, chatMsg.Message.RoomUuid); !found || session.readonly {
 				log.Logger(ctx).Error("Not authorized to post in this room")
 				break
 			}
@@ -335,7 +335,7 @@ type sessionRoom struct {
 	readonly bool
 }
 
-func (c *ChatHandler) roomInSession(session *melody.Session, roomUuid string) (*sessionRoom, bool) {
+func (c *ChatHandler) roomInSession(ctx context.Context, session *melody.Session, roomUuid string) (*sessionRoom, bool) {
 	if key, ok := session.Get(SessionRoomKey); ok && key != nil {
 		rooms := key.([]*sessionRoom)
 		for _, v := range rooms {
@@ -343,12 +343,12 @@ func (c *ChatHandler) roomInSession(session *melody.Session, roomUuid string) (*
 				return v, true
 			}
 		}
-		log.Logger(context.Background()).Debug("looking for rooms in session", zap.String("search", roomUuid))
+		log.Logger(ctx).Debug("looking for rooms in session", zap.String("search", roomUuid))
 	}
 	return nil, false
 }
 
-func (c *ChatHandler) storeSessionRoom(session *melody.Session, room *sessionRoom) *melody.Session {
+func (c *ChatHandler) storeSessionRoom(ctx context.Context, session *melody.Session, room *sessionRoom) *melody.Session {
 	var rooms []*sessionRoom
 	if key, ok := session.Get(SessionRoomKey); ok && key != nil {
 		rooms = key.([]*sessionRoom)
@@ -361,15 +361,15 @@ func (c *ChatHandler) storeSessionRoom(session *melody.Session, room *sessionRoo
 	}
 	if !found {
 		rooms = append(rooms, room)
-		log.Logger(context.Background()).Debug("storing rooms to session", zap.Any("room", room.uuid), zap.Int("rooms length", len(rooms)))
+		log.Logger(ctx).Debug("storing rooms to session", zap.Any("room", room.uuid), zap.Int("rooms length", len(rooms)))
 		session.Set(SessionRoomKey, rooms)
 	} else {
-		log.Logger(context.Background()).Debug("rooms to session already found", zap.Any("room", room.uuid), zap.Int("rooms length", len(rooms)))
+		log.Logger(ctx).Debug("rooms to session already found", zap.Any("room", room.uuid), zap.Int("rooms length", len(rooms)))
 	}
 	return session
 }
 
-func (c *ChatHandler) removeSessionRoom(session *melody.Session, roomUuid string) *melody.Session {
+func (c *ChatHandler) removeSessionRoom(ctx context.Context, session *melody.Session, roomUuid string) *melody.Session {
 	var rooms []*sessionRoom
 	if key, ok := session.Get(SessionRoomKey); ok && key != nil {
 		rooms = key.([]*sessionRoom)
@@ -380,7 +380,7 @@ func (c *ChatHandler) removeSessionRoom(session *melody.Session, roomUuid string
 			newRooms = append(newRooms, k)
 		}
 	}
-	log.Logger(context.Background()).Debug("removing room from session", zap.Any("room", roomUuid), zap.Int("rooms length", len(newRooms)))
+	log.Logger(ctx).Debug("removing room from session", zap.Any("room", roomUuid), zap.Int("rooms length", len(newRooms)))
 	session.Set(SessionRoomKey, newRooms)
 	return session
 }
@@ -424,7 +424,7 @@ func (c *ChatHandler) findOrCreateRoom(ctx context.Context, room *chat.ChatRoom,
 
 }
 
-func (c *ChatHandler) appendUserToRoom(room *chat.ChatRoom, userName string) bool {
+func (c *ChatHandler) appendUserToRoom(ctx context.Context, room *chat.ChatRoom, userName string) bool {
 	uniq := map[string]string{}
 	for _, u := range room.Users {
 		uniq[u] = u
@@ -440,7 +440,7 @@ func (c *ChatHandler) appendUserToRoom(room *chat.ChatRoom, userName string) boo
 	return true
 }
 
-func (c *ChatHandler) removeUserFromRoom(room *chat.ChatRoom, userName string) bool {
+func (c *ChatHandler) removeUserFromRoom(ctx context.Context, room *chat.ChatRoom, userName string) bool {
 	users := []string{}
 	var found bool
 	for _, u := range room.Users {

@@ -203,7 +203,7 @@ func (p *ClientsPool) GetDataSourceInfo(dsName string, retries ...int) (LoadedSo
 		}
 		delay := (retry + 1) * 2
 
-		log.Logger(context.Background()).Warn(fmt.Sprintf("[ClientsPool] cannot find datasource, retrying in %ds...", delay), zap.String("ds", dsName), zap.Any("retries", retry))
+		log.Logger(p.ctx).Warn(fmt.Sprintf("[ClientsPool] cannot find datasource, retrying in %ds...", delay), zap.String("ds", dsName), zap.Any("retries", retry))
 
 		<-time.After(time.Duration(delay) * time.Second)
 		p.LoadDataSources()
@@ -218,7 +218,7 @@ func (p *ClientsPool) GetDataSourceInfo(dsName string, retries ...int) (LoadedSo
 			keys = append(keys, k)
 		}
 		p.RUnlock()
-		log.Logger(context.Background()).Error(e.Error(), zap.Strings("currentSources", keys))
+		log.Logger(p.ctx).Error(e.Error(), zap.Strings("currentSources", keys))
 		return LoadedSource{}, e
 
 	}
@@ -258,7 +258,7 @@ func (p *ClientsPool) LoadDataSources() {
 		if err == nil && response.DataSource != nil {
 			log.Logger(p.ctx).Debug("Creating client for datasource " + source)
 			if e := p.CreateClientsForDataSource(source, response.DataSource); e != nil {
-				log.Logger(context.Background()).Warn("Cannot create clients for datasource "+source, zap.Error(e))
+				log.Logger(p.ctx).Warn("Cannot create clients for datasource "+source, zap.Error(e))
 			}
 		} else {
 			log.Logger(p.ctx).Debug("no answer from endpoint, maybe not ready yet? "+common.ServiceDataSyncGRPC_+source, zap.Any("r", response), zap.Error(err))
@@ -358,7 +358,7 @@ func (p *ClientsPool) watchConfigChanges() {
 
 func (p *ClientsPool) CreateClientsForDataSource(dataSourceName string, dataSource *object.DataSource) error {
 
-	log.Logger(context.Background()).Debug("Adding dataSource", zap.String("dsname", dataSourceName))
+	log.Logger(p.ctx).Debug("Adding dataSource", zap.String("dsname", dataSourceName))
 	loaded := LoadedSource{
 		DataSource: dataSource,
 	}

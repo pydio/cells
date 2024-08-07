@@ -30,6 +30,7 @@ import (
 	"github.com/pydio/cells/v4/common/client/grpc"
 	"github.com/pydio/cells/v4/common/proto/log"
 	log2 "github.com/pydio/cells/v4/common/telemetry/log"
+	"github.com/pydio/cells/v4/common/utils/propagator"
 )
 
 type opener struct{}
@@ -43,7 +44,8 @@ func (o *opener) OpenSync(ctx context.Context, u *url.URL) (log2.WriteSyncerClos
 		return nil, fmt.Errorf("logger service:// must provide a ?service query parameter")
 	}
 	fmt.Println("init LogSyncer on service", serviceName)
-	return NewLogSyncer(log2.ReadyLogSyncerContext, serviceName), nil
+	sCtx := propagator.ForkContext(log2.ReadyLogSyncerContext, ctx)
+	return NewLogSyncer(sCtx, serviceName), nil
 }
 
 func init() {

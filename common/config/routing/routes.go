@@ -177,7 +177,7 @@ type registrar struct {
 
 // IteratePatterns performs a callback on all actual patterns and their corresponding handler
 func (h *registrar) IteratePatterns(it func(pattern string, handler http.Handler)) {
-	logCtx := runtime.WithServiceName(context.Background(), "pydio.web.mux")
+	logCtx := runtime.WithServiceName(runtime.AsCoreContext(context.Background()), "pydio.web.mux")
 	for _, r := range h.routes {
 		log.Logger(logCtx).Info("ROUTE " + r.id)
 		r.patternsMutex.RLock()

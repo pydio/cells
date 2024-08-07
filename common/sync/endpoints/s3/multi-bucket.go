@@ -152,7 +152,7 @@ func (m *MultiBucketClient) Walk(ctx context.Context, walknFc model.WalkNodesFun
 						tKey := s3BucketTagPrefix + key
 						for _, g := range m.bucketMetas {
 							if g.Match(tKey) {
-								log.Logger(context.Background()).Info("Attaching tag information to bucket "+bucket.Name, zap.String(tKey, value))
+								log.Logger(ctx).Info("Attaching tag information to bucket "+bucket.Name, zap.String(tKey, value))
 								fNode.MustSetMeta(tKey, value)
 								break
 							}
@@ -190,7 +190,7 @@ func (m *MultiBucketClient) Walk(ctx context.Context, walknFc model.WalkNodesFun
 		if collect {
 			go func() {
 				// We know all eTags from this datasource, now purge unused from mapper
-				if deleted := c.checksumMapper.Purge(eTags); deleted > 0 {
+				if deleted := c.checksumMapper.Purge(ctx, eTags); deleted > 0 {
 					log.Logger(c.globalContext).Info(fmt.Sprintf("Purged %d eTag(s) from ChecksumMapper", deleted))
 				} else {
 					log.Logger(c.globalContext).Info("ChecksumMapper nothing to purge")

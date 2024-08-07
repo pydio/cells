@@ -58,7 +58,7 @@ func (c *ChatHandler) heartbeat(ctx context.Context, username string, room *chat
 				defer hbbLocks.Unlock()
 				for _, roomChat := range heartbeater.rooms {
 					if f, e := c.findOrCreateRoom(ctx, roomChat, false); e == nil && f != nil {
-						if save := c.removeUserFromRoom(f, username); save {
+						if save := c.removeUserFromRoom(ctx, f, username); save {
 							chatClient := chat.NewChatServiceClient(grpc.ResolveConn(ctx, common.ServiceChatGRPC))
 							chatClient.PutRoom(ctx, &chat.PutRoomRequest{Room: f})
 						}

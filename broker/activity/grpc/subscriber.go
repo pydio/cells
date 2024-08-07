@@ -469,7 +469,7 @@ func (e *MicroEventsSubscriber) LoadResources(ctx context.Context, roles map[str
 		workspaces[resp.Workspace.UUID] = resp.Workspace
 	}
 
-	log.Logger(context.Background()).Debug("Loaded Resources", zap.Any("roles", roles), zap.Any("users", users), zap.Any("workspaces", workspaces))
+	log.Logger(ctx).Debug("Loaded Resources", zap.Any("roles", roles), zap.Any("users", users), zap.Any("workspaces", workspaces))
 
 	return nil
 }

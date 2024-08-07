@@ -8,6 +8,8 @@ import (
 
 type mCtxKey struct{}
 
+type coreCtxKey struct{}
+
 var (
 	MultiContextKey                      = mCtxKey{}
 	mcManager       MultiContextProvider = &basicMulti{}
@@ -21,12 +23,30 @@ func TODOKnownEmpty(ctx context.Context) context.Context {
 	return mcManager.RootContext(ctx)
 }
 
+func AsCoreContext(ctx context.Context) context.Context {
+	return propagator.With(ctx, MultiContextKey, &coreCtxKey{})
+}
+
+func IsCoreContext(ctx context.Context) bool {
+	var core *coreCtxKey
+	return propagator.Get(ctx, MultiContextKey, &core)
+}
+
+func CoreBackground() context.Context {
+	return AsCoreContext(context.Background())
+}
+
 func RegisterMultiContextManager(m MultiContextProvider) {
 	mcManager = m
 }
 
 func MultiContextManager() MultiContextProvider {
 	return mcManager
+}
+
+// MultiMatches compares two contexts
+func MultiMatches(ctx1, ctx2 context.Context) bool {
+	return mcManager.Current(ctx1) == mcManager.Current(ctx2)
 }
 
 type MultiContextProvider interface {

@@ -32,6 +32,7 @@ import (
 	"go.uber.org/zap"
 
 	"github.com/pydio/cells/v4/common/config"
+	"github.com/pydio/cells/v4/common/runtime"
 	"github.com/pydio/cells/v4/common/telemetry/log"
 	"github.com/pydio/cells/v4/common/utils/configx"
 	"github.com/pydio/cells/v4/common/utils/i18n/languages"
@@ -71,7 +72,7 @@ func (p *PluginsPool) Load(fs *UnionHttpFs) error {
 	for _, plugin := range plugs {
 		object, e := p.readManifest(fs, plugin)
 		if e != nil {
-			log.Logger(context.Background()).Error("Ignoring "+plugin, zap.Error(e))
+			log.Logger(runtime.CoreBackground()).Error("Ignoring "+plugin, zap.Error(e))
 			continue
 		}
 		p.Plugins[plugin] = object
@@ -80,7 +81,7 @@ func (p *PluginsPool) Load(fs *UnionHttpFs) error {
 	p.Messages = make(map[string]I18nMessages)
 	for lang := range languages.AvailableLanguages {
 		p.Messages[lang] = p.loadI18nMessages(lang)
-		log.Logger(context.Background()).Debug("Loading base messages for "+lang, zap.Int("m", len(p.Messages[lang].Messages)), zap.Int("conf", len(p.Messages[lang].ConfMessages)))
+		log.Logger(runtime.CoreBackground()).Debug("Loading base messages for "+lang, zap.Int("m", len(p.Messages[lang].Messages)), zap.Int("conf", len(p.Messages[lang].ConfMessages)))
 	}
 
 	return nil
@@ -364,7 +365,7 @@ func (p *PluginsPool) parseI18nFolder(ns string, lang string, defaultLang string
 				}
 			}
 		} else {
-			log.Logger(context.Background()).Error("Cannot parse language file: ", zap.String("lib", libPath), zap.String("lang", lang), zap.Error(e1))
+			log.Logger(runtime.CoreBackground()).Error("Cannot parse language file: ", zap.String("lib", libPath), zap.String("lang", lang), zap.Error(e1))
 		}
 		_ = f.Close()
 	}

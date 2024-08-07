@@ -29,9 +29,11 @@ import (
 	"sync"
 
 	"gocloud.dev/pubsub"
+	"google.golang.org/grpc/metadata"
 	"google.golang.org/protobuf/proto"
 
 	"github.com/pydio/cells/v4/common/errors"
+	"github.com/pydio/cells/v4/common/middleware"
 	"github.com/pydio/cells/v4/common/telemetry/metrics"
 	"github.com/pydio/cells/v4/common/utils/propagator"
 	"github.com/pydio/cells/v4/common/utils/uuid"
@@ -66,11 +68,13 @@ type SubscriberHandler func(ctx context.Context, msg Message) error
 // NewBroker wraps a standard broker but prevents it from disconnecting while there still is a service running
 func NewBroker(s string, opts ...Option) Broker {
 
-	opts = append(opts, WithChainSubscriberInterceptor(
-		TimeoutSubscriberInterceptor(),
-		HeaderInjectorInterceptor(),
-		ContextInjectorInterceptor(),
-	))
+	opts = append(opts,
+		WithChainSubscriberInterceptor(
+			TimeoutSubscriberInterceptor(),
+			HeaderInjectorInterceptor(),
+			ContextInjectorInterceptor(),
+		),
+	)
 
 	options := newOptions(opts...)
 	u, _ := url.Parse(s)
@@ -278,6 +282,12 @@ func (b *broker) Publish(ctx context.Context, topic string, message proto.Messag
 			header[k] = v
 		}
 	}
+	gc := middleware.ApplyGRPCOutgoingContextModifiers(ctx)
+	if md, ok := metadata.FromOutgoingContext(gc); ok {
+		for k, v := range md {
+			header[k] = strings.Join(v, "")
+		}
+	}
 
 	publisher, err := b.openTopic(topic)
 	if err != nil {
@@ -320,17 +330,20 @@ func (b *broker) Subscribe(ctx context.Context, topic string, handler Subscriber
 			if er != nil {
 				break
 			}
-
+			metaCopy := make(map[string]string, len(msg.Metadata))
+			for k, v := range msg.Metadata {
+				metaCopy[k] = v
+			}
 			msg.Ack()
 			var subErr error
 			if b.Options.subscriberInt != nil {
 				subErr = b.Options.subscriberInt(ctx, &message{
-					header: msg.Metadata,
+					header: metaCopy,
 					body:   msg.Body,
 				}, handler)
 			} else {
 				subErr = handler(ctx, &message{
-					header: msg.Metadata,
+					header: metaCopy,
 					body:   msg.Body,
 				})
 			}

@@ -34,6 +34,7 @@ import (
 	"go.uber.org/zap"
 
 	"github.com/pydio/cells/v4/common/proto/tree"
+	"github.com/pydio/cells/v4/common/runtime"
 	"github.com/pydio/cells/v4/common/sync/endpoints/memory"
 	"github.com/pydio/cells/v4/common/sync/filters"
 	"github.com/pydio/cells/v4/common/sync/merger"
@@ -84,7 +85,7 @@ func (s *Sync) SetFilters(roots []string, excludes []string) {
 		if g, e := glob.Compile(i, '/'); e == nil {
 			s.Ignores = append(s.Ignores, g)
 		} else {
-			log.Logger(context.Background()).Error("Unsupported glob pattern format!", zap.Error(e))
+			log.Logger(runtime.CoreBackground()).Error("Unsupported glob pattern format!", zap.Error(e))
 		}
 	}
 }

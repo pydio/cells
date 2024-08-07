@@ -46,7 +46,7 @@ var Drivers = service.StorageDrivers{}
 
 type Sender interface {
 	Configure(ctx context.Context, conf configx.Values) error
-	Send(email *mailer.Mail) error
+	Send(ctx context.Context, email *mailer.Mail) error
 	Check(ctx context.Context) error
 }
 

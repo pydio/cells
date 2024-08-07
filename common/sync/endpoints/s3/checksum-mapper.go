@@ -20,16 +20,19 @@
 
 package s3
 
-import "sync"
+import (
+	"context"
+	"sync"
+)
 
 // ChecksumMapper maintains a mapping of eTags => checksum
 type ChecksumMapper interface {
 	// Get finds a checksum for a given eTag, returns false if not found
-	Get(eTag string) (string, bool)
+	Get(ctx context.Context, eTag string) (string, bool)
 	// Set stores an eTag checksum couple if it does not already exists
-	Set(eTag, checksum string)
+	Set(ctx context.Context, eTag, checksum string)
 	// Purge removes unknown values based on the full list of know values
-	Purge(knownETags []string) int
+	Purge(ctx context.Context, knownETags []string) int
 }
 
 // MemChecksumMapper is an in-memory implementation for ChecksumMapper interface
@@ -47,7 +50,7 @@ func NewMemChecksumMapper() *MemChecksumMapper {
 }
 
 // Get finds a checksum by eTag
-func (m *MemChecksumMapper) Get(eTag string) (string, bool) {
+func (m *MemChecksumMapper) Get(ctx context.Context, eTag string) (string, bool) {
 	m.mux.Lock()
 	defer m.mux.Unlock()
 	cs, ok := m.data[eTag]
@@ -55,14 +58,14 @@ func (m *MemChecksumMapper) Get(eTag string) (string, bool) {
 }
 
 // Set stores a checksum for a given eTag
-func (m *MemChecksumMapper) Set(eTag, checksum string) {
+func (m *MemChecksumMapper) Set(ctx context.Context, eTag, checksum string) {
 	m.mux.Lock()
 	defer m.mux.Unlock()
 	m.data[eTag] = checksum
 }
 
 // Purge compares existing eTags to stored eTags and removes unnecessary ones
-func (m *MemChecksumMapper) Purge(knownETags []string) int {
+func (m *MemChecksumMapper) Purge(ctx context.Context, knownETags []string) int {
 	m.mux.Lock()
 	defer m.mux.Unlock()
 	count := 0

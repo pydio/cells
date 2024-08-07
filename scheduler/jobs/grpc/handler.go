@@ -300,9 +300,9 @@ func (j *JobsHandler) PutTaskStream(streamer proto.JobService_PutTaskStreamServe
 			if bufferLength > 500 {
 
 				// Flushing now
-				log.Logger(context.Background()).Debug("Now flushing", zap.Any("j", buffer))
+				log.Logger(ctx).Debug("Now flushing", zap.Any("j", buffer))
 				if err = store.PutTasks(buffer); err != nil {
-					log.Logger(context.Background()).Error("Error while flushing tasks to store")
+					log.Logger(ctx).Error("Error while flushing tasks to store")
 					return err
 				}
 
@@ -310,7 +310,7 @@ func (j *JobsHandler) PutTaskStream(streamer proto.JobService_PutTaskStreamServe
 				bufferLength = 0
 
 			} else if storeNow {
-				log.Logger(context.Background()).Debug("Quick store of this task as it is new or finished", task.Zap())
+				log.Logger(ctx).Debug("Quick store of this task as it is new or finished", task.Zap())
 				return store.PutTask(task)
 			}
 

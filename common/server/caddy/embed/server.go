@@ -73,6 +73,7 @@ func New(ctx context.Context, asProxy bool) (server.Server, error) {
 	loggerInit.Do(func() {
 		caddyv2.RegisterModule(newWriterOpenerModule("pydio.caddy"))
 		ct := runtime.WithServiceName(context.Background(), "pydio.caddy.mkcert")
+		ct = runtime.AsCoreContext(ct)
 		providers.Logger = log.Logger(ct)
 	})
 

@@ -40,12 +40,13 @@ func IsRestApiPublicMethod(r *http.Request) bool {
 // HttpWrapperJWT captures and verifies a JWT token if it's present in the headers.
 // Warning: it goes through if there is no JWT => the next handlers
 // must verify if a valid user was found or not.
-func HttpWrapperJWT(ctx context.Context, h http.Handler) http.Handler {
+func HttpWrapperJWT(ct context.Context, h http.Handler) http.Handler {
 
 	jwtVerifier := auth.DefaultJWTVerifier()
 
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 
+		ctx := r.Context()
 		log.Logger(ctx).Debug("JWTHttpHandler: Checking JWT")
 
 		if val, ok1 := r.Header["Authorization"]; ok1 {
@@ -61,7 +62,7 @@ func HttpWrapperJWT(ctx context.Context, h http.Handler) http.Handler {
 			//var claims claim.Claims
 			var err error
 
-			c, _, err := jwtVerifier.Verify(r.Context(), rawIDToken)
+			c, _, err := jwtVerifier.Verify(ctx, rawIDToken)
 			if err != nil {
 				log.Logger(ctx).Debug("jwtVerifier Error", zap.Error(err))
 				if IsRestApiPublicMethod(r) {

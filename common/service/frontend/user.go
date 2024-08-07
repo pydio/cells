@@ -234,7 +234,7 @@ func (u *User) Publish(ctx context.Context, status RequestStatus, pool *PluginsP
 		var hasLock bool
 		if l, ok := u.UserObject.Attributes["locks"]; ok {
 			var locks []string
-			log.Logger(context.Background()).Info("Checking Locks", zap.Any("l", l))
+			log.Logger(ctx).Info("Checking Locks", zap.Any("l", l))
 			if e := json.Unmarshal([]byte(l), &locks); e == nil {
 				if len(locks) > 0 {
 					if reg.Cspecial_rights == nil {

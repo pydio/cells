@@ -170,6 +170,14 @@ func ApplyGRPCIncomingContextModifiers(ctx context.Context) (ct context.Context,
 	return
 }
 
+func ApplyGRPCOutgoingContextModifiers(ctx context.Context) (ct context.Context) {
+	ct = ctx
+	for _, o := range outgoingModifiers {
+		ct = o(ct)
+	}
+	return
+}
+
 func ApplyHTTPIncomingContextModifiers(r *http.Request) (*http.Request, error) {
 	var er error
 	for _, o := range httpIncomingModifiers {
@@ -239,6 +247,16 @@ func WebIncomingContextMiddleware(ctx context.Context, endpoint string, serviceC
 			rw.WriteHeader(http.StatusInternalServerError)
 			return
 		}
+		h.ServeHTTP(rw, req)
+	})
+}
+
+func HttpContextWrapper(svcContext context.Context, h http.Handler) http.Handler {
+	return http.HandlerFunc(func(rw http.ResponseWriter, req *http.Request) {
+		ctx := propagator.ForkContext(req.Context(), svcContext)
+		var reg registry.Registry
+		propagator.Get(ctx, registry.ContextKey, &reg)
+		req, _ = ApplyHTTPIncomingContextModifiers(req.WithContext(ctx))
 		h.ServeHTTP(rw, req)
 	})
 }

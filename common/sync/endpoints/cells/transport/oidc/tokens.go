@@ -53,7 +53,7 @@ type TokenStore struct {
 
 func NewTokenStore() *TokenStore {
 	u, _ := url.Parse("pm:///?evictionTime=20m&cleanWindow=10m")
-	c, _ := (&gocache.URLOpener{}).OpenURL(context.TODO(), u)
+	c, _ := (&gocache.URLOpener{}).Open(context.TODO(), u)
 	t := &TokenStore{
 		internalCache: c,
 	}

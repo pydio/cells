@@ -31,6 +31,7 @@ import (
 	"go.uber.org/zap/zapcore"
 
 	"github.com/pydio/cells/v4/common/telemetry/otel"
+	"github.com/pydio/cells/v4/common/utils/openurl"
 )
 
 type LoggerConfig struct {
@@ -67,6 +68,15 @@ func LoadCores(ctx context.Context, svc otel.Service, cfg []LoggerConfig) (cores
 		}
 
 		for _, u := range conf.Outputs {
+			tpl, e := openurl.URLTemplate(u)
+			if e != nil {
+				panic(e)
+			}
+			u, e = tpl.Resolve(ctx)
+			if e != nil {
+				panic(e)
+			}
+			fmt.Println("Opening Log Core/Sync with URL", u)
 			if syncer, er := DefaultURLMux().OpenSync(ctx, u); er == nil {
 				ss = append(ss, syncer)
 				closers = append(closers, syncer)

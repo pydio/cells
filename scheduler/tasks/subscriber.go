@@ -78,9 +78,6 @@ func NewSubscriber(parentContext context.Context) *Subscriber {
 	s := &Subscriber{
 		definitionsPool: gocache.MustOpenNonExpirableMemory(),
 		dispatchersPool: gocache.MustOpenNonExpirableMemory(),
-		//definitions: make(map[string]*jobs.Job),
-		//queue:       make(chan Runnable),
-		//dispatchers: make(map[string]*Dispatcher),
 	}
 
 	s.rootCtx = context.WithValue(parentContext, common.PydioContextUserKey, common.PydioSystemUsername)
@@ -111,12 +108,6 @@ func NewSubscriber(parentContext context.Context) *Subscriber {
 		fmt.Println("NO MANAGER ON SUBSCRIBER START")
 	}
 
-	//tpq := runtime.PersistingQueueURL("serviceName", common.ServiceGrpcNamespace_+common.ServiceTasks, "name", common.TopicTreeChanges)
-	//tpqFallback := runtime.QueueURL("debounce", "2s", "idle", "20s", "max", "2000")
-
-	//mpq := runtime.PersistingQueueURL("serviceName", common.ServiceGrpcNamespace_+common.ServiceTasks, "name", common.TopicMetaChanges)
-	//mpqFallback := runtime.QueueURL("debounce", "2s", "idle", "20s", "max", "2000")
-
 	_ = broker.SubscribeCancellable(parentContext, common.TopicTreeChanges, func(ctx context.Context, message broker.Message) error {
 		md, bb := message.RawData()
 		event := &tree.NodeChangeEvent{}
@@ -138,6 +129,9 @@ func NewSubscriber(parentContext context.Context) *Subscriber {
 	}, treeOpts...)
 
 	_ = broker.SubscribeCancellable(parentContext, common.TopicTimerEvent, func(c context.Context, message broker.Message) error {
+		if !runtime.MultiMatches(parentContext, c) {
+			return nil
+		}
 		target := &jobs.JobTriggerEvent{}
 		if ctx, e := message.Unmarshal(c, target); e == nil {
 			return s.timerEvent(ctx, target)

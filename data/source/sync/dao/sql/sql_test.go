@@ -52,10 +52,10 @@ func TestNewMemChecksumMapper(t *testing.T) {
 			So(v2, ShouldBeEmpty)
 			So(o2, ShouldBeFalse)
 
-			c := mockDAO.Purge([]string{"eTag-1"})
+			c := mockDAO.Purge(ctx, []string{"eTag-1"})
 			So(c, ShouldEqual, 0)
 
-			c = mockDAO.Purge([]string{"eTag-other"})
+			c = mockDAO.Purge(ctx, []string{"eTag-other"})
 			So(c, ShouldEqual, 1)
 		})
 	})

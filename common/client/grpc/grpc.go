@@ -126,6 +126,7 @@ func ResolveConn(ctx context.Context, serviceName string, opt ...Option) grpc.Cl
 	}
 
 	if len(conns) != 1 {
+		fmt.Println("Expected 1 connection, ResolveConn returns nil for " + serviceName)
 		return nil
 	}
 

@@ -73,41 +73,38 @@ func init() {
 				mux.DeregisterRoute(RouteWebsocket)
 				return nil
 			}),
-			service.WithHTTPOptions(func(ctx context.Context, mux routing.RouteRegistrar, o *service.ServiceOptions) error {
-				ws = websocket.NewWebSocketHandler(ctx)
-				chat = websocket.NewChatHandler(ctx)
-				ws.EventRouter = compose.ReverseClient(ctx)
+			service.WithHTTPOptions(func(rootCtx context.Context, mux routing.RouteRegistrar, o *service.ServiceOptions) error {
+				ws = websocket.NewWebSocketHandler(rootCtx)
+				chat = websocket.NewChatHandler(rootCtx)
+				ws.EventRouter = compose.ReverseClient(rootCtx)
 
 				sub := mux.Route(RouteWebsocket)
-				medodyAsHandler := func(mel *melody.Melody) http.Handler {
+				melodyAsHandler := func(mel *melody.Melody) http.Handler {
 					hf := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 						_ = mel.HandleRequest(w, r)
 					})
-					handler := middleware.HttpWrapperMeta(ctx, http.Handler(hf))
-					handler = middleware.WebIncomingContextMiddleware(ctx, "", service.ContextKey, o.Server, handler)
+					handler := middleware.HttpWrapperMeta(rootCtx, http.Handler(hf))
+					handler = middleware.WebIncomingContextMiddleware(rootCtx, "", service.ContextKey, o.Server, handler)
 					return handler
 				}
-				sub.Handle("/event", medodyAsHandler(ws.Websocket))
-				sub.Handle("/chat", medodyAsHandler(chat.Websocket))
-
-				//q1, _ := queue.OpenQueue(ctx, runtime.QueueURL("debounce", "1s", "idle", "10s", "max", "10000"))
-				//q2, _ := queue.OpenQueue(ctx, runtime.QueueURL("debounce", "1s", "idle", "10s", "max", "10000"))
+				sub.Handle("/event", melodyAsHandler(ws.Websocket))
+				sub.Handle("/chat", melodyAsHandler(chat.Websocket))
 				counterName := broker.WithCounterName("websocket")
 
-				_ = broker.SubscribeCancellable(ctx, common.TopicTreeChanges, func(_ context.Context, message broker.Message) error {
+				_ = broker.SubscribeCancellable(rootCtx, common.TopicTreeChanges, func(ctx context.Context, message broker.Message) error {
 					event := &tree.NodeChangeEvent{}
-					if _, e := message.Unmarshal(ctx, event); e == nil {
+					if ctx, e := message.Unmarshal(ctx, event); e == nil {
 						if er := ws.HandleNodeChangeEvent(ctx, event); er != nil {
-							log.Logger(ctx).Error("Cannot handle event", zap.Any("event", event), zap.Error(er))
+							log.Logger(rootCtx).Error("Cannot handle event", zap.Any("event", event), zap.Error(er))
 						}
 						return nil
 					} else {
 						return e
 					}
 				}, /*broker.WithLocalQueue(q1),*/ counterName)
-				_ = broker.SubscribeCancellable(ctx, common.TopicMetaChanges, func(ctx context.Context, message broker.Message) error {
+				_ = broker.SubscribeCancellable(rootCtx, common.TopicMetaChanges, func(ctx context.Context, message broker.Message) error {
 					event := &tree.NodeChangeEvent{}
-					if _, e := message.Unmarshal(ctx, event); e == nil {
+					if ctx, e := message.Unmarshal(ctx, event); e == nil {
 						if er := ws.HandleNodeChangeEvent(ctx, event); er != nil {
 							log.Logger(ctx).Error("Cannot handle event", zap.Any("event", event), zap.Error(er))
 						}
@@ -116,9 +113,9 @@ func init() {
 						return e
 					}
 				}, /*broker.WithLocalQueue(q2),*/ counterName)
-				_ = broker.SubscribeCancellable(ctx, common.TopicJobTaskEvent, func(ctx context.Context, message broker.Message) error {
+				_ = broker.SubscribeCancellable(rootCtx, common.TopicJobTaskEvent, func(ctx context.Context, message broker.Message) error {
 					event := &jobs.TaskChangeEvent{}
-					if _, e := message.Unmarshal(ctx, event); e == nil {
+					if ctx, e := message.Unmarshal(ctx, event); e == nil {
 						if er := ws.BroadcastTaskChangeEvent(ctx, event); er != nil {
 							log.Logger(ctx).Error("Cannot handle event", zap.Any("event", event), zap.Error(er))
 						}
@@ -127,9 +124,9 @@ func init() {
 						return e
 					}
 				})
-				_ = broker.SubscribeCancellable(ctx, common.TopicIdmEvent, func(ctx context.Context, message broker.Message) error {
+				_ = broker.SubscribeCancellable(rootCtx, common.TopicIdmEvent, func(ctx context.Context, message broker.Message) error {
 					event := &idm.ChangeEvent{}
-					if _, e := message.Unmarshal(ctx, event); e == nil {
+					if ctx, e := message.Unmarshal(ctx, event); e == nil {
 						if er := ws.BroadcastIDMChangeEvent(ctx, event); er != nil {
 							log.Logger(ctx).Error("Cannot handle event", zap.Any("event", event), zap.Error(er))
 						}
@@ -138,9 +135,9 @@ func init() {
 						return e
 					}
 				}, counterName)
-				_ = broker.SubscribeCancellable(ctx, common.TopicActivityEvent, func(ctx context.Context, message broker.Message) error {
+				_ = broker.SubscribeCancellable(rootCtx, common.TopicActivityEvent, func(ctx context.Context, message broker.Message) error {
 					event := &activity.PostActivityEvent{}
-					if _, e := message.Unmarshal(ctx, event); e == nil {
+					if ctx, e := message.Unmarshal(ctx, event); e == nil {
 						if er := ws.BroadcastActivityEvent(ctx, event); er != nil {
 							log.Logger(ctx).Error("Cannot handle event", zap.Any("event", event), zap.Error(er))
 						}
@@ -149,9 +146,9 @@ func init() {
 						return e
 					}
 				}, counterName)
-				_ = broker.SubscribeCancellable(ctx, common.TopicChatEvent, func(ctx context.Context, message broker.Message) error {
+				_ = broker.SubscribeCancellable(rootCtx, common.TopicChatEvent, func(ctx context.Context, message broker.Message) error {
 					event := &chat2.ChatEvent{}
-					if _, e := message.Unmarshal(ctx, event); e == nil {
+					if ctx, e := message.Unmarshal(ctx, event); e == nil {
 						if er := chat.BroadcastChatMessage(ctx, event); er != nil {
 							log.Logger(ctx).Error("Cannot handle event", zap.Any("event", event), zap.Error(er))
 						}

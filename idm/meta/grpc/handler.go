@@ -370,7 +370,6 @@ func (h *Handler) resultsToCache(ctx context.Context, nodeId string, searchSubje
 		return
 	}
 	key := fmt.Sprintf("%s-%s", nodeId, strings.Join(searchSubjects, "-"))
-	//log.Logger(context.Background()).Info("User-Meta - Store Cache Key: " + key)
 	if data, e := json.Marshal(results); e == nil {
 		sc.Set(key, data)
 	}
@@ -384,7 +383,6 @@ func (h *Handler) resultsFromCache(ctx context.Context, nodeId string, searchSub
 	key := fmt.Sprintf("%s-%s", nodeId, strings.Join(searchSubjects, "-"))
 	if data, ok := sc.GetBytes(key); ok {
 		if er := json.Unmarshal(data, &results); er == nil {
-			//log.Logger(context.Background()).Info("User-Meta - Got Cache Key: " + key)
 			return results, true
 		}
 	}
@@ -399,7 +397,6 @@ func (h *Handler) clearCacheForNode(ctx context.Context, nodeId string) {
 	}
 	if clears, e := sc.KeysByPrefix(nodeId + "-"); e == nil {
 		for _, k := range clears {
-			//log.Logger(context.Background()).Info("User-Meta - Clear Cache Key: " + k)
 			_ = sc.Delete(k)
 		}
 	}

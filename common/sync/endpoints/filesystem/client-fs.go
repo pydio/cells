@@ -434,7 +434,7 @@ func (c *FSClient) MoveNode(ctx context.Context, oldPath string, newPath string)
 		typeOfBasePathFs := reflect.TypeOf(&afero.BasePathFs{})
 		typeOfFs := reflect.TypeOf(c.FS)
 		if stat.IsDir() && (typeOfFs == typeOfMem || typeOfFs == typeOfBasePathFs) {
-			c.moveRecursively(oldPath, newPath)
+			c.moveRecursively(ctx, oldPath, newPath)
 		} else {
 			err = c.FS.Rename(oldPath, newPath)
 		}
@@ -517,7 +517,7 @@ func (c *FSClient) GetReaderOn(_ context.Context, path string) (out io.ReadClose
 }
 
 // Internal function expects already denormalized form
-func (c *FSClient) moveRecursively(oldPath string, newPath string) (err error) {
+func (c *FSClient) moveRecursively(ctx context.Context, oldPath string, newPath string) (err error) {
 
 	// Some fs require moving resources recursively
 	moves := make(map[int]string)
@@ -539,17 +539,15 @@ func (c *FSClient) moveRecursively(oldPath string, newPath string) (err error) {
 			continue
 		}
 		msg := fmt.Sprintf("Moving %v to %v", wPath, newPath+strings.TrimPrefix(wPath, oldPath))
-		log.Logger(context.Background()).Debug(msg)
+		log.Logger(ctx).Debug(msg)
 		c.FS.Rename(wPath, newPath+strings.TrimPrefix(wPath, oldPath))
 	}
-	c.FS.Rename(oldPath, newPath)
-	//rename(oldPath,)
-	return nil
+	return c.FS.Rename(oldPath, newPath)
 
 }
 
 // Expects already denormalized form
-func (c *FSClient) readOrCreateFolderId(path string) (uid string, e error) {
+func (c *FSClient) readOrCreateFolderId(ctx context.Context, path string) (uid string, e error) {
 
 	if c.options.BrowseOnly {
 		return uuid.New(), nil
@@ -564,7 +562,7 @@ func (c *FSClient) readOrCreateFolderId(path string) (uid string, e error) {
 			return "", we
 		}
 		if err := c.SetHidden(hiddenFilePath, true); err != nil {
-			log.Logger(context.Background()).Error("Cannot set file as hidden", zap.Error(err))
+			log.Logger(ctx).Error("Cannot set file as hidden", zap.Error(err))
 		}
 	} else {
 		content, re := afero.ReadFile(c.FS, hiddenFilePath)
@@ -610,7 +608,7 @@ func (c *FSClient) loadNode(ctx context.Context, path string, stat os.FileInfo) 
 	var nETag, nUuid string
 
 	if stat.IsDir() {
-		id, err := c.readOrCreateFolderId(dnPath)
+		id, err := c.readOrCreateFolderId(ctx, dnPath)
 		if err != nil {
 			return nil, err
 		}

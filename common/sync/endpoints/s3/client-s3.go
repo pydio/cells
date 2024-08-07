@@ -311,7 +311,7 @@ func (c *Client) Walk(ctx context.Context, walkFunc model.WalkNodesFunc, root st
 	if collect {
 		go func() {
 			// We know all eTags, purge other from mapper
-			if deleted := c.checksumMapper.Purge(eTags); deleted > 0 {
+			if deleted := c.checksumMapper.Purge(ctx, eTags); deleted > 0 {
 				log.Logger(c.globalContext).Info(fmt.Sprintf("Purged %d eTag(s) from ChecksumMapper", deleted))
 			}
 		}()
@@ -480,7 +480,7 @@ func (c *Client) s3forceComputeEtag(ctx context.Context, node tree.N) (models.Ob
 	if c.checksumMapper != nil {
 		// We use a checksum mapper : do not copy object in-place!
 		eTag := strings.Trim(oi.ETag, "\"")
-		if cs, ok := c.checksumMapper.Get(eTag); ok {
+		if cs, ok := c.checksumMapper.Get(ctx, eTag); ok {
 			log.Logger(c.globalContext).Debug("Read eTag from ChecksumMapper " + cs)
 			objectInfo.ETag = cs
 		} else {
@@ -496,7 +496,7 @@ func (c *Client) s3forceComputeEtag(ctx context.Context, node tree.N) (models.Ob
 			}
 			checksum := fmt.Sprintf("%x", h.Sum(nil))
 			log.Logger(c.globalContext).Debug("Stored inside ChecksumMapper " + checksum)
-			c.checksumMapper.Set(eTag, checksum)
+			c.checksumMapper.Set(ctx, eTag, checksum)
 			objectInfo.ETag = checksum
 		}
 		return objectInfo, nil

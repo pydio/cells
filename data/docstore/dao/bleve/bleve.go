@@ -99,7 +99,7 @@ func (s *BleveServer) PutDocument(ctx context.Context, storeID string, doc *prot
 	if doc.GetOwner() != "" {
 		toIndex["DOCSTORE_OWNER"] = doc.GetOwner()
 	}
-	log.Logger(context.Background()).Debug("IndexDocument", zap.Any("data", toIndex))
+	log.Logger(ctx).Debug("IndexDocument", zap.Any("data", toIndex))
 	err = s.Engine.InsertOne(ctx, toIndex)
 	if err != nil {
 		return err
@@ -118,7 +118,7 @@ func (s *BleveServer) DeleteDocument(ctx context.Context, storeID string, docID 
 
 func (s *BleveServer) DeleteDocuments(ctx context.Context, storeID string, query *proto.DocumentQuery) (int, error) {
 	var count int
-	dd, _, e := s.search(storeID, query, false)
+	dd, _, e := s.search(ctx, storeID, query, false)
 	if e != nil {
 		return 0, e
 	}
@@ -150,7 +150,7 @@ func (s *BleveServer) CountDocuments(ctx context.Context, storeID string, query 
 	if query == nil || query.MetaQuery == "" {
 		return 0, fmt.Errorf("Provide a query for count")
 	}
-	docIds, _, err := s.search(storeID, query, true)
+	docIds, _, err := s.search(ctx, storeID, query, true)
 	if err != nil {
 		return 0, err
 	}
@@ -162,7 +162,7 @@ func (s *BleveServer) QueryDocuments(ctx context.Context, storeID string, query 
 
 	if query != nil && query.MetaQuery != "" {
 
-		docIds, _, err := s.search(storeID, query, false)
+		docIds, _, err := s.search(ctx, storeID, query, false)
 		if err != nil {
 			return nil, err
 		}
@@ -186,7 +186,7 @@ func (s *BleveServer) QueryDocuments(ctx context.Context, storeID string, query 
 
 }
 
-func (s *BleveServer) search(storeID string, query *proto.DocumentQuery, countOnly bool) ([]string, int64, error) {
+func (s *BleveServer) search(ctx context.Context, storeID string, query *proto.DocumentQuery, countOnly bool) ([]string, int64, error) {
 
 	parts := strings.Split(query.MetaQuery, " ")
 	for i, p := range parts {
@@ -201,7 +201,7 @@ func (s *BleveServer) search(storeID string, query *proto.DocumentQuery, countOn
 	}
 	qStringQuery := bleve.NewQueryStringQuery(strings.Join(parts, " "))
 
-	log.Logger(context.Background()).Debug("SearchDocuments", zap.Any("query", qStringQuery))
+	log.Logger(ctx).Debug("SearchDocuments", zap.Any("query", qStringQuery))
 	searchRequest := bleve.NewSearchRequest(qStringQuery)
 
 	if !countOnly {
@@ -217,14 +217,14 @@ func (s *BleveServer) search(storeID string, query *proto.DocumentQuery, countOn
 
 	docs := []string{}
 	var searchResult []index.Document
-	if err := s.Engine.Search(context.TODO(), searchRequest, &searchResult); err != nil {
+	if err := s.Engine.Search(ctx, searchRequest, &searchResult); err != nil {
 		return docs, 0, err
 	}
 
-	log.Logger(context.Background()).Debug("SearchDocuments", zap.Any("result", searchResult))
+	log.Logger(ctx).Debug("SearchDocuments", zap.Any("result", searchResult))
 
 	if countOnly {
-		total, err := s.Engine.Count(context.TODO(), searchRequest)
+		total, err := s.Engine.Count(ctx, searchRequest)
 		if err != nil {
 			return docs, 0, err
 		}

@@ -336,7 +336,7 @@ func SwaggerSpec() *loads.Document {
 	})
 
 	if swaggerMergedDocument == nil {
-		// log.Logger(context.Background()).Fatal("Could not find any valid json spec for swagger")
+		// log.Logger(ctx).Fatal("Could not find any valid json spec for swagger")
 	}
 
 	return swaggerMergedDocument

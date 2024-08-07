@@ -229,7 +229,7 @@ func (s *sqlimpl) Search(ctx context.Context, query sql.Enquirer) ([]*idm.UserMe
 		if policies, e := s.resourcesDAO.GetPoliciesForResource(ctx, m.Uuid); e == nil {
 			m.Policies = policies
 		} else {
-			log.Logger(context.Background()).Error("cannot load resource policies for uuid: "+m.Uuid, zap.Error(e))
+			log.Logger(ctx).Error("cannot load resource policies for uuid: "+m.Uuid, zap.Error(e))
 		}
 
 		res = append(res, m)

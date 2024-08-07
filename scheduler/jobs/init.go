@@ -2,7 +2,6 @@ package jobs
 
 import (
 	"context"
-	"fmt"
 	"io"
 	"os"
 	"path/filepath"
@@ -15,28 +14,19 @@ import (
 	"github.com/pydio/cells/v4/common/telemetry/otel"
 )
 
-var (
-	closers []io.Closer
-)
-
 func init() {
 	rt.RegisterEnvVariable("CELLS_JOBS_LOG_LEVEL", "info", "Log level used for scheduler jobs - to be used carefully as it may produce a large volume of logs.")
 	log.SetTasksLoggerInit(initTasksLogger, func(ctx context.Context) {})
 }
 
-func initTasksLogger() *zap.Logger {
+func initTasksLogger(ctx context.Context) (*zap.Logger, []io.Closer) {
 
 	level := "info"
 	if os.Getenv("CELLS_JOBS_LOG_LEVEL") == "debug" {
 		level = "debug"
 	}
 	logDir := rt.ApplicationWorkingDir(rt.ApplicationDirLogs)
-
-	for _, cl := range closers {
-		if er := cl.Close(); er != nil {
-			fmt.Println("Error while closing", er.Error())
-		}
-	}
+	logDir += "{{ tenantPathWithBlank .Tenant \"default\" }}"
 
 	cfg := []log.LoggerConfig{
 		{
@@ -48,7 +38,6 @@ func initTasksLogger() *zap.Logger {
 			},
 		},
 	}
-	var cores []zapcore.Core
-	cores, closers, _ = log.LoadCores(context.Background(), otel.Service{}, cfg)
-	return zap.New(zapcore.NewTee(cores...))
+	cores, closers, _ := log.LoadCores(ctx, otel.Service{}, cfg)
+	return zap.New(zapcore.NewTee(cores...)), closers
 }

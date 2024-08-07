@@ -675,7 +675,7 @@ func (s *TreeServer) DeleteNode(ctx context.Context, req *tree.DeleteNodeRequest
 func (s *TreeServer) PublishChange(ctx context.Context, change *tree.NodeChangeEvent) {
 	defer func() {
 		if e := recover(); e != nil {
-			log.Logger(context.Background()).Error("Panic recovered in PublishChange", zap.Any("error", e))
+			log.Logger(ctx).Error("Panic recovered in PublishChange", zap.Any("error", e))
 		}
 	}()
 	po, _ := s.listenersPool.Get(ctx)

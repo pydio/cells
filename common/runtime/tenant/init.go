@@ -62,7 +62,10 @@ func init() {
 	// GRPC INCOMING
 	middleware.RegisterModifier(propagator.IncomingContextModifier(func(ctx context.Context) (context.Context, bool, error) {
 		tenantID := defaultTenantID
-		if md, ok := metadata.FromIncomingContext(ctx); ok {
+		// Make sure to check meta first if IncomingContext is not set
+		if ca, ok := propagator.CanonicalMeta(ctx, metadataKey); ok {
+			tenantID = ca
+		} else if md, ok2 := metadata.FromIncomingContext(ctx); ok2 {
 			if t := md.Get(metadataKey); len(t) > 0 {
 				tenantID = strings.Join(t, "")
 			}
@@ -92,13 +95,17 @@ func init() {
 	// TEMPLATE
 	openurl.RegisterTemplateInjector(func(ctx context.Context, m map[string]interface{}) error {
 		var tID string
+		m["Tenant"] = defaultTenantID
 		if propagator.Get[string](ctx, runtime.MultiContextKey, &tID) {
-			// If tenant is "empty", ignore for now
 			if tID != "" {
 				m["Tenant"] = tID
+			} else {
+				fmt.Println("TemplateInjector - empty tenant string found in context, using " + defaultTenantID)
 			}
 		} else {
-			fmt.Println("TemplateInjector - tenant not found in context")
+			if !runtime.IsCoreContext(ctx) {
+				fmt.Println("TemplateInjector - tenant not found in context, not core, using " + defaultTenantID)
+			}
 		}
 		return nil
 	})

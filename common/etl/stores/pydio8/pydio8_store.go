@@ -44,6 +44,7 @@ import (
 	"github.com/pydio/cells/v4/common/proto/rest"
 	service "github.com/pydio/cells/v4/common/proto/service"
 	"github.com/pydio/cells/v4/common/proto/tree"
+	runtime2 "github.com/pydio/cells/v4/common/runtime"
 	"github.com/pydio/cells/v4/common/telemetry/log"
 	json "github.com/pydio/cells/v4/common/utils/jsonx"
 	"github.com/pydio/cells/v4/common/utils/uuid"
@@ -238,7 +239,7 @@ func (s *Pydio8Store) GetLdapDomainName() (string, error) {
 
 func getUsersFromPath(s *Pydio8Store, p string, page int64) ([]*idm.User, error) {
 
-	log.Logger(context.Background()).Debug("P8Store:getUsersFromPath", zap.Any("path", p), zap.Any("page", page))
+	log.Logger(runtime2.CoreBackground()).Debug("P8Store:getUsersFromPath", zap.Any("path", p), zap.Any("page", page))
 	builder := service.NewResourcePoliciesBuilder()
 
 	var users []*idm.User
@@ -269,7 +270,7 @@ func getUsersFromPath(s *Pydio8Store, p string, page int64) ([]*idm.User, error)
 	if data == nil {
 		return nil, nil
 	}
-	log.Logger(context.Background()).Debug("Loaded a users page", zap.Int("count", len(data.Children)))
+	log.Logger(runtime2.CoreBackground()).Debug("Loaded a users page", zap.Int("count", len(data.Children)))
 	cV1 := &ClientV1{}
 
 	var contextDomain string
@@ -337,7 +338,7 @@ func getUsersFromPath(s *Pydio8Store, p string, page int64) ([]*idm.User, error)
 					}
 
 				} else {
-					log.Logger(context.Background()).Debug("JSON marshal error", zap.Error(err))
+					log.Logger(runtime2.CoreBackground()).Debug("JSON marshal error", zap.Error(err))
 				}
 			}
 
@@ -487,11 +488,11 @@ func (s *Pydio8Store) getACLs(roleID string, path string) ([]*idm.ACL, error) {
 	} else if mapA, ok := aclData.(map[string]interface{}); ok {
 		roleACLs = mapA
 	} else {
-		log.Logger(context.Background()).Debug("Cannot convert roles acls", zap.Any("result", aclData))
+		log.Logger(runtime2.CoreBackground()).Debug("Cannot convert roles acls", zap.Any("result", aclData))
 		return nil, fmt.Errorf("could not convert role acls")
 	}
 
-	log.Logger(context.Background()).Debug("Loaded role", zap.Any("path", path), zap.Any("roleID", roleID), zap.Any("result", roleACLs))
+	log.Logger(runtime2.CoreBackground()).Debug("Loaded role", zap.Any("path", path), zap.Any("roleID", roleID), zap.Any("result", roleACLs))
 
 	rightsMap := map[rune]*idm.ACLAction{
 		'r': {Name: "read", Value: "1"},

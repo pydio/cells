@@ -32,6 +32,7 @@ import (
 
 	"github.com/pydio/cells/v4/common/etl/models"
 	"github.com/pydio/cells/v4/common/proto/idm"
+	"github.com/pydio/cells/v4/common/runtime"
 	"github.com/pydio/cells/v4/common/telemetry/log"
 	"github.com/pydio/cells/v4/common/utils/merger"
 )
@@ -124,7 +125,7 @@ func (m *Merger) diffUsers(extUsers map[string]*idm.User, apiUsers map[string]*i
 			}
 			userToDelete[extUserId] = false
 			if len(ExtUser.Roles) > 0 {
-				log.Logger(context.Background()).Info("External has roles", zap.Int("length", len(ExtUser.Roles)))
+				log.Logger(runtime.CoreBackground()).Info("External has roles", zap.Int("length", len(ExtUser.Roles)))
 			}
 			if ExtUser.IsMergeable(apiUser) {
 				user, err, shouldBeUpdated := ExtUser.Merge(apiUser, m.Options)

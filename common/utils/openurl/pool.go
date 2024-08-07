@@ -22,12 +22,13 @@ package openurl
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"math"
 	"strings"
 	"sync"
 	"time"
+
+	"github.com/pydio/cells/v4/common/errors"
 )
 
 type ResourceClosable interface {
@@ -233,7 +234,19 @@ func (m *Pool[T]) Close(ctx context.Context, iterate ...func(key string, res T) 
 	return nil
 }
 
-func (m Pool[T]) janitor(ctx context.Context, tickerTime, maxIdleTime time.Duration) {
+func (m *Pool[T]) Iterate(ctx context.Context, it func(key string, res T) error) error {
+	m.lock.RLock()
+	defer m.lock.RUnlock()
+	var errs []error
+	for key, res := range m.pool {
+		if er := it(key, res.t); er != nil {
+			errs = append(errs, er)
+		}
+	}
+	return errors.Join(errs...)
+}
+
+func (m *Pool[T]) janitor(ctx context.Context, tickerTime, maxIdleTime time.Duration) {
 	ticker := time.NewTicker(tickerTime)
 	for {
 		select {
@@ -246,7 +259,7 @@ func (m Pool[T]) janitor(ctx context.Context, tickerTime, maxIdleTime time.Durat
 	}
 }
 
-func (m Pool[T]) cleanIdle(ctx context.Context, idleTime time.Duration) {
+func (m *Pool[T]) cleanIdle(ctx context.Context, idleTime time.Duration) {
 	var keys []string
 	check := time.Now().Add(-idleTime)
 	m.lock.RLock()

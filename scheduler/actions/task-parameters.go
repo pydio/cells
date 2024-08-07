@@ -5,6 +5,7 @@ import (
 
 	"github.com/pydio/cells/v4/common/forms"
 	"github.com/pydio/cells/v4/common/proto/jobs"
+	"github.com/pydio/cells/v4/common/runtime"
 	"github.com/pydio/cells/v4/common/telemetry/log"
 	json "github.com/pydio/cells/v4/common/utils/jsonx"
 )
@@ -206,7 +207,7 @@ func (p *TaskParameters) flattenGroup(fields []forms.Field, parameters map[strin
 			var jsonValues map[string]string
 			if er := json.Unmarshal([]byte(jsonEncoded), &jsonValues); er != nil {
 				if jsonEncoded != "-1" {
-					log.Logger(context.Background()).Warn("Cannot parse switch values " + jsonEncoded + ", skipping " + name + ", error: " + er.Error())
+					log.Logger(runtime.CoreBackground()).Warn("Cannot parse switch values " + jsonEncoded + ", skipping " + name + ", error: " + er.Error())
 				}
 				continue
 			}

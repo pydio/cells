@@ -44,13 +44,16 @@ var (
 )
 
 // HttpWrapperPolicy applies relevant policy rules and blocks the request if necessary
-func HttpWrapperPolicy(ctx context.Context, h http.Handler) http.Handler {
+func HttpWrapperPolicy(ct context.Context, h http.Handler) http.Handler {
+
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		ctx := r.Context()
+
 		subjects := []string{"profile:anon"}
 		policyRequestContext := make(map[string]string)
 
 		// Find profile in claims, if any
-		if cValue := r.Context().Value(claim.ContextKey); cValue != nil {
+		if cValue := ctx.Value(claim.ContextKey); cValue != nil {
 			if claims, ok := cValue.(claim.Claims); ok {
 				log.Logger(ctx).Debug("Got Claims", zap.Any("claims", claims))
 				policyRequestContext[HTTPMetaJwtClientApp] = claims.GetClientApp()
@@ -68,13 +71,13 @@ func HttpWrapperPolicy(ctx context.Context, h http.Handler) http.Handler {
 			Action:   r.Method,
 		}
 
-		permissions.PolicyContextFromMetadata(policyRequestContext, r.Context())
+		permissions.PolicyContextFromMetadata(policyRequestContext, ctx)
 		if len(policyRequestContext) > 0 {
 			request.Context = policyRequestContext
 		}
 
 		// Effective request to ladon
-		resp, err := client.IsAllowed(r.Context(), request)
+		resp, err := client.IsAllowed(ctx, request)
 
 		if err != nil || !resp.Allowed {
 			if IsRestApiPublicMethod(r) {
@@ -99,7 +102,6 @@ func HttpWrapperPolicy(ctx context.Context, h http.Handler) http.Handler {
 			return
 		}
 
-		r = r.WithContext(r.Context())
 		h.ServeHTTP(w, r)
 	})
 }

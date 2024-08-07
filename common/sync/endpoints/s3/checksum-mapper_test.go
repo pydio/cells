@@ -21,6 +21,7 @@
 package s3
 
 import (
+	"context"
 	"testing"
 
 	. "github.com/smartystreets/goconvey/convey"
@@ -29,19 +30,20 @@ import (
 func TestNewMemChecksumMapper(t *testing.T) {
 	Convey("Test ChecksumMapper in memory", t, func() {
 		m := NewMemChecksumMapper()
-		m.Set("eTag-1", "checksum")
-		v, o := m.Get("eTag-1")
+		ct := context.Background()
+		m.Set(ct, "eTag-1", "checksum")
+		v, o := m.Get(ct, "eTag-1")
 		So(v, ShouldEqual, "checksum")
 		So(o, ShouldBeTrue)
 
-		v2, o2 := m.Get("eTag-2")
+		v2, o2 := m.Get(ct, "eTag-2")
 		So(v2, ShouldBeEmpty)
 		So(o2, ShouldBeFalse)
 
-		c := m.Purge([]string{"eTag-1"})
+		c := m.Purge(ct, []string{"eTag-1"})
 		So(c, ShouldEqual, 0)
 
-		c = m.Purge([]string{"eTag-other"})
+		c = m.Purge(ct, []string{"eTag-other"})
 		So(c, ShouldEqual, 1)
 	})
 }

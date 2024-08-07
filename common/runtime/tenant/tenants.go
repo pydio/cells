@@ -62,7 +62,9 @@ func (b *basicTenant) ID() string {
 }
 
 func (b *basicTenant) Context(ctx context.Context) context.Context {
-	return propagator.With[string](ctx, runtime.MultiContextKey, b.ID())
+	ctx = propagator.With[string](ctx, runtime.MultiContextKey, b.ID())
+	ctx = propagator.WithAdditionalMetadata(ctx, map[string]string{metadataKey: b.ID()})
+	return ctx
 }
 
 type basicManager struct {

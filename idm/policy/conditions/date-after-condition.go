@@ -21,12 +21,12 @@
 package conditions
 
 import (
-	"context"
 	"time"
 
 	"github.com/ory/ladon"
 	"go.uber.org/zap"
 
+	"github.com/pydio/cells/v4/common/runtime"
 	"github.com/pydio/cells/v4/common/telemetry/log"
 )
 
@@ -46,13 +46,13 @@ func (c *DateAfterCondition) Fulfills(value interface{}, _ *ladon.Request) bool 
 
 	s, ok := value.(string)
 	if !ok {
-		log.Logger(context.Background()).Error("passed value must be a string", zap.Any("input param", value))
+		log.Logger(runtime.CoreBackground()).Error("passed value must be a string", zap.Any("input param", value))
 		return false
 	}
 
 	t, parseErr := time.Parse(timeLayout, s)
 	if parseErr != nil {
-		log.Logger(context.Background()).Error("cannot parse passed value. reference layout is "+timeLayout, zap.String("input param", s), zap.Error(parseErr))
+		log.Logger(runtime.CoreBackground()).Error("cannot parse passed value. reference layout is "+timeLayout, zap.String("input param", s), zap.Error(parseErr))
 		return false
 	}
 

@@ -59,7 +59,7 @@ func (s *Sendmail) Check(ctx context.Context) error {
 
 }
 
-func (d *Sendmail) Send(email *mailer.Mail) error {
+func (d *Sendmail) Send(ctx context.Context, email *mailer.Mail) error {
 
 	m, e := NewGomailMessage(email)
 	if e != nil {

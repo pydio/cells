@@ -76,7 +76,7 @@ func (s *sqlimpl) FixRandHash2(ctx context.Context, excludes ...cindex.LostAndFo
 // Init handler for the SQL DAO
 func (s *sqlimpl) Init(ctx context.Context, options configx.Values) error {
 
-	log.Logger(context.Background()).Debug("Finished IndexSQL Init")
+	log.Logger(ctx).Debug("Finished IndexSQL Init")
 
 	// Preparing the db statements
 	//if options.Val("prepare").Default(true).Bool() {
@@ -87,10 +87,10 @@ func (s *sqlimpl) Init(ctx context.Context, options configx.Values) error {
 	//	}
 	//}
 
-	log.Logger(context.Background()).Debug("Local sql Prepares")
+	log.Logger(ctx).Debug("Local sql Prepares")
 
 	if _, err := s.GetNode(ctx, mtree.NewMPath(1)); err != nil {
-		log.Logger(context.Background()).Info("Creating root node in index ")
+		log.Logger(ctx).Info("Creating root node in index ")
 		treeNode := &tree.TreeNode{}
 		treeNode.SetMPath(tree.NewMPath(1))
 		treeNode.SetNode(&tree.Node{

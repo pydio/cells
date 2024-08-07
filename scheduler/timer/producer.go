@@ -141,7 +141,7 @@ func (e *EventProducer) StartOrUpdateJob(job *jobs.Job) {
 		w.Start()
 		e.Waiters[jobId] = w
 	} else {
-		log.Logger(context.Background()).Error("Cannot register job", zap.Error(err))
+		log.Logger(e.Context).Error("Cannot register job", zap.Error(err))
 	}
 }
 

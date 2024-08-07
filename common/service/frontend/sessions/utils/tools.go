@@ -50,7 +50,7 @@ func LoadKey(ctx context.Context) ([]byte, error) {
 		return nil, er
 	}
 	if e := config.Save(ctx, common.PydioSystemUsername, "Generating session random key"); e != nil {
-		log.Logger(context.Background()).Error("Failed saving secure key to config, session will not be persisted after restart!", zap.Error(e))
+		log.Logger(ctx).Error("Failed saving secure key to config, session will not be persisted after restart!", zap.Error(e))
 		return nil, e
 	}
 	return knownKey, nil

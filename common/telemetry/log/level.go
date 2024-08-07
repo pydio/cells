@@ -73,7 +73,7 @@ func SetDynamicDebugLevels(reset, level bool, services ...string) {
 	dynamicDebug = updates
 	ddRegexp = updatesR
 	fmt.Println("Updating Dynamic Debug Services", dynamicDebug)
-	mainLogger.forceReset()
+	resetLoggerPool(mainLoggerPool)
 }
 
 func getCoreLevel() zapcore.Level {

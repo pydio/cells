@@ -19,7 +19,7 @@ func servicesWithMeta(ctx context.Context, metaName string, metaValue string) ([
 			return nil, err
 		}
 		reg = defaultReg
-		log.Logger(context.Background()).Warn("servicesWithMeta called empty registry, will use default, this is not recommended")
+		log.Logger(ctx).Warn("servicesWithMeta called empty registry, will use default, this is not recommended")
 	}
 
 	items, e := reg.List(registry.WithType(pb.ItemType_SERVICE), registry.WithMeta(metaName, metaValue))

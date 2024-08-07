@@ -116,19 +116,19 @@ func (c *queryConverter) Convert(ctx context.Context, val *anypb.Any, db *gorm.D
 		})
 		mpath, _, err := c.treeDao.Path(ctx, user, tree.NewTreeNode(""), false)
 		if err != nil && err.Error() != "not found" {
-			log.Logger(context.Background()).Error("Error while getting parent mpath", zap.Any("g", groupPath), zap.Error(err))
+			log.Logger(ctx).Error("Error while getting parent mpath", zap.Any("g", groupPath), zap.Error(err))
 			return db, false, err
 		}
 		if mpath == nil {
 			// We do not want to break, but just make sure no results are returned.
 			// => Return a Where clause that always resolves to FALSE
-			log.Logger(context.Background()).Error("Nil MPath On Convert, add 1 = 0 condition", zap.Any("g", groupPath))
+			log.Logger(ctx).Error("Nil MPath On Convert, add 1 = 0 condition", zap.Any("g", groupPath))
 			db = db.Where("1 = 0")
 			return db, true, nil
 		}
 		parentNode, err := c.treeDao.GetNode(ctx, mpath)
 		if err != nil {
-			log.Logger(context.Background()).Error("Error while getting parent node", zap.Any("g", groupPath), zap.Error(err))
+			log.Logger(ctx).Error("Error while getting parent node", zap.Any("g", groupPath), zap.Error(err))
 			return db, false, err
 		}
 		if fullPath {

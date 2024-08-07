@@ -856,7 +856,7 @@ func allowedAclKey(ctx context.Context, k string, contextEditable bool) bool {
 			Exposed: true,
 		})
 		if e != nil {
-			log.Logger(context.Background()).Error("Cannot read plugins pool", zap.Error(e))
+			log.Logger(ctx).Error("Cannot read plugins pool", zap.Error(e))
 			return false
 		}
 		params = resp.Parameters

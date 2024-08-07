@@ -287,7 +287,7 @@ func (s *Server) RawServe(opts *server.ServeOptions) (ii []registry.Item, e erro
 		defer s.cancel()
 
 		if err := srv.Serve(listener); err != nil {
-			log.Logger(context.Background()).Error("Could not start grpc server because of "+err.Error(), zap.Error(err))
+			log.Logger(opts.Context).Error("Could not start grpc server because of "+err.Error(), zap.Error(err))
 		}
 	}()
 

@@ -39,12 +39,10 @@ import (
 	"github.com/pydio/cells/v4/common/config/routing"
 	"github.com/pydio/cells/v4/common/middleware"
 	"github.com/pydio/cells/v4/common/proto/front"
-	"github.com/pydio/cells/v4/common/registry"
 	"github.com/pydio/cells/v4/common/runtime"
 	"github.com/pydio/cells/v4/common/service"
 	"github.com/pydio/cells/v4/common/service/frontend"
 	"github.com/pydio/cells/v4/common/telemetry/log"
-	"github.com/pydio/cells/v4/common/utils/propagator"
 	"github.com/pydio/cells/v4/frontend/web"
 )
 
@@ -122,7 +120,7 @@ func init() {
 				m.Handle("plug/", fs, routing.WithStripPrefix())
 				indexHandler := web.NewIndexHandler(ctx, ResetPasswordPath)
 				indexHandler = middleware.HttpWrapperMeta(ctx, indexHandler)
-				indexHandler = tenantWrapper(ctx, indexHandler)
+				indexHandler = middleware.HttpContextWrapper(ctx, indexHandler)
 				indexHandler = timeoutWrap(indexHandler)
 				indexHandler = recoveryWrap(indexHandler)
 
@@ -137,7 +135,7 @@ func init() {
 				// /public endpoint : special handler for index, redirect to /plug/ for the rest
 				ph := web.NewPublicHandler(ctx)
 				handler := middleware.HttpWrapperMeta(ctx, ph)
-				handler = tenantWrapper(ctx, handler)
+				handler = middleware.HttpContextWrapper(ctx, handler)
 				handler = timeoutWrap(handler)
 				handler = recoveryWrap(handler)
 
@@ -189,15 +187,4 @@ func DropLegacyStatics(ctx context.Context) error {
 	}
 
 	return nil
-}
-
-func tenantWrapper(svcContext context.Context, h http.Handler) http.Handler {
-	return http.HandlerFunc(func(rw http.ResponseWriter, req *http.Request) {
-		ctx := propagator.ForkContext(req.Context(), svcContext)
-		var reg registry.Registry
-		propagator.Get(ctx, registry.ContextKey, &reg)
-		// TODO WEB MODIFIERS
-		ctx, _, _ = middleware.ApplyGRPCIncomingContextModifiers(ctx)
-		h.ServeHTTP(rw, req.WithContext(ctx))
-	})
 }

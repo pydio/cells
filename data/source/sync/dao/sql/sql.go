@@ -70,9 +70,9 @@ func (s *sqlImpl) Init(ctx context.Context, options configx.Values) error {
 	return nil
 }
 
-func (s *sqlImpl) CleanResourcesOnDeletion() (string, error) {
+func (s *sqlImpl) CleanResourcesOnDeletion(ctx context.Context) (string, error) {
 
-	if err := s.instance(context.TODO()).Migrator().DropTable(&Checksum{}); err != nil {
+	if err := s.instance(ctx).Migrator().DropTable(&Checksum{}); err != nil {
 		return "", err
 	}
 
@@ -80,11 +80,11 @@ func (s *sqlImpl) CleanResourcesOnDeletion() (string, error) {
 
 }
 
-func (s *sqlImpl) Get(eTag string) (string, bool) {
+func (s *sqlImpl) Get(ctx context.Context, eTag string) (string, bool) {
 
 	var row *Checksum
 
-	tx := s.instance(context.TODO()).Where(&Checksum{Etag: eTag}).First(&row)
+	tx := s.instance(ctx).Where(&Checksum{Etag: eTag}).First(&row)
 	if tx.Error != nil {
 		return "", false
 	}
@@ -96,23 +96,23 @@ func (s *sqlImpl) Get(eTag string) (string, bool) {
 	return row.Checksum, true
 }
 
-func (s *sqlImpl) Set(eTag, checksum string) {
-	tx := s.instance(context.TODO()).Create(&Checksum{Etag: eTag, Checksum: checksum})
+func (s *sqlImpl) Set(ctx context.Context, eTag, checksum string) {
+	tx := s.instance(ctx).Create(&Checksum{Etag: eTag, Checksum: checksum})
 	if tx.Error != nil {
-		s.logError(tx.Error)
+		s.logError(ctx, tx.Error)
 	}
 }
 
-func (s *sqlImpl) Purge(knownETags []string) int {
+func (s *sqlImpl) Purge(ctx context.Context, knownETags []string) int {
 	var delete []Checksum
 	for _, knownETag := range knownETags {
 		delete = append(delete, Checksum{Etag: knownETag})
 	}
 
-	tx := s.instance(context.TODO()).Not(&delete).Delete(&Checksum{})
+	tx := s.instance(ctx).Not(&delete).Delete(&Checksum{})
 	return int(tx.RowsAffected)
 }
 
-func (h *sqlImpl) logError(e error) {
-	log.Logger(context.Background()).Error("[SLQ Checksum Mapper]", zap.Error(e))
+func (h *sqlImpl) logError(ctx context.Context, e error) {
+	log.Logger(ctx).Error("[SLQ Checksum Mapper]", zap.Error(e))
 }

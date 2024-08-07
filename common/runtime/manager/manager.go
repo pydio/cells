@@ -951,15 +951,15 @@ func (m *manager) startServer(srv server.Server, oo ...server.ServeOption) error
 						return false
 					}
 
-					//name := item.Name()
-					//fmt.Println(name)
-
 					ors := strings.Split(buf.String(), " or ")
 					for _, or := range ors {
 						f := strings.SplitN(or, " ", 3)
 						var fn func(string, []byte) (bool, error)
 						switch f[1] {
 						case "=":
+							fn = func(s string, i []byte) (bool, error) {
+								return s == string(i), nil
+							}
 						case "~=":
 							fn = regexp.Match
 						case "!~=":

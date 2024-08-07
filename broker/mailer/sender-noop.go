@@ -58,7 +58,7 @@ func (n *NoOpSender) Configure(ctx context.Context, conf configx.Values) error {
 	return nil
 }
 
-func (n *NoOpSender) Send(email *mailer.Mail) error {
+func (n *NoOpSender) Send(ctx context.Context, email *mailer.Mail) error {
 	if !n.valid || !n.dump {
 		return nil
 	}

@@ -140,7 +140,7 @@ func TestCreateFolderId(t *testing.T) {
 		var exist bool
 		exist, _ = afero.Exists(c.FS, "/folder/"+servicescommon.PydioSyncHiddenFile)
 		So(exist, ShouldBeFalse)
-		s, _ := c.readOrCreateFolderId("/folder")
+		s, _ := c.readOrCreateFolderId(fsTestCtx, "/folder")
 		So(s, ShouldNotBeNil)
 		exist, _ = afero.Exists(c.FS, "/folder/"+servicescommon.PydioSyncHiddenFile)
 		So(exist, ShouldBeTrue)
@@ -154,7 +154,7 @@ func TestCreateFolderId(t *testing.T) {
 		c := EmptyMockedClient()
 		c.FS.Mkdir("/folder", 0777)
 		afero.WriteFile(c.FS, "/folder/"+servicescommon.PydioSyncHiddenFile, []byte("unique-id"), 0777)
-		s, _ := c.readOrCreateFolderId("/folder")
+		s, _ := c.readOrCreateFolderId(fsTestCtx, "/folder")
 		So(s, ShouldEqual, "unique-id")
 
 	})

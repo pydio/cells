@@ -55,7 +55,7 @@ func (s *SendGrid) Check(ctx context.Context) error {
 }
 
 // Send performs the real code to the sendgrid API.
-func (s *SendGrid) Send(email *mailer.Mail) error {
+func (s *SendGrid) Send(ctx context.Context, email *mailer.Mail) error {
 
 	from := mail.NewEmail(email.From.Name, email.From.Address)
 	// fmt.Printf("Sendgrid from mail: %s - %s \n", from.Name, from.Address)

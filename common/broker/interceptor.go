@@ -34,7 +34,6 @@ func TimeoutSubscriberInterceptor() SubscriberInterceptor {
 func HeaderInjectorInterceptor() SubscriberInterceptor {
 	return func(ctx context.Context, m Message, handler SubscriberHandler) error {
 		header, _ := m.RawData()
-
 		return handler(propagator.WithAdditionalMetadata(ctx, header), m)
 	}
 }

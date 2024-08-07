@@ -44,7 +44,7 @@ const Name = common.ServiceGrpcNamespace_ + common.ServiceTasks
 func init() {
 	jobs.RegisterNodesFreeStringEvaluator(bleveimpl.EvalFreeString)
 	jobs.RegisterConnexionResolver(func(ctx context.Context, serviceName string) grpc.ClientConnInterface {
-		return grpc3.ResolveConn(ctx, serviceName)
+		return grpc3.ResolveConn(ctx, common.ServiceGrpcNamespace_+serviceName)
 	})
 	jobs.RegisterClaimsUsernameParser(permissions.FindUserNameInContext)
 	jobs.RegisterClientUniqueUser(permissions.SearchUniqueUser)

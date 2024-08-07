@@ -21,11 +21,15 @@
 package log
 
 import (
+	"context"
 	"fmt"
+	"io"
 	"sync"
 
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
+
+	"github.com/pydio/cells/v4/common/utils/openurl"
 )
 
 type ZapLogger interface {
@@ -52,16 +56,21 @@ type ZapLogger interface {
 	Core() zapcore.Core
 }
 
+type LoggerPool *openurl.Pool[*logger]
+
+type LoggerInitializer func(ctx context.Context) (*zap.Logger, []io.Closer)
+
 type logger struct {
 	*zap.Logger
 
-	init func() *zap.Logger
+	init LoggerInitializer
 	once *sync.Once
 
 	namedMu sync.Mutex
 	named   map[string]ZapLogger
 
-	fields []zap.Field
+	fields  []zap.Field
+	closers []io.Closer
 }
 
 func newLogger() *logger {
@@ -72,7 +81,7 @@ func newLogger() *logger {
 	}
 }
 
-func (l *logger) set(init func() *zap.Logger) {
+func (l *logger) set(init LoggerInitializer) {
 	l.init = init
 	l.once = &sync.Once{}
 }
@@ -85,10 +94,13 @@ func (l *logger) forceReset() {
 	l.namedMu.Unlock()
 }
 
-func (l *logger) get() ZapLogger {
+func (l *logger) get(ctx context.Context) ZapLogger {
 	l.once.Do(func() {
 		if l.init != nil {
-			l.Logger = l.init()
+			for _, c := range l.closers {
+				_ = c.Close()
+			}
+			l.Logger, l.closers = l.init(ctx)
 		}
 	})
 
@@ -148,12 +160,15 @@ func (l *logger) Fatal(msg string, fields ...zap.Field) {
 func (l *logger) Debugf(format string, args ...interface{}) {
 	l.Logger.Debug(fmt.Sprintf(format, args...))
 }
+
 func (l *logger) Infof(format string, args ...interface{}) {
 	l.Logger.Info(fmt.Sprintf(format, args...))
 }
+
 func (l *logger) Warnf(format string, args ...interface{}) {
 	l.Logger.Warn(fmt.Sprintf(format, args...))
 }
+
 func (l *logger) Errorf(format string, args ...interface{}) {
 	l.Logger.Error(fmt.Sprintf(format, args...))
 }

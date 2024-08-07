@@ -310,7 +310,7 @@ func (ukm *userKeyStore) createSystemKey(ctx context.Context, keyID string, keyL
 		return errors.WithMessagef(errors.StatusInternalServerError, "failed to encrypt the default key. Cause: %s", err.Error())
 	}
 	systemKey.Content = base64.StdEncoding.EncodeToString(encryptedKeyContentBytes)
-	log.Logger(context.Background()).Debug(fmt.Sprintf("Saving default key %s", systemKey.Content))
+	log.Logger(ctx).Debug(fmt.Sprintf("Saving default key %s", systemKey.Content))
 	return dao.SaveKey(ctx, systemKey)
 }
 
