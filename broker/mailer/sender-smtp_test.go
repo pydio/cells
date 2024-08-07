@@ -24,10 +24,10 @@ import (
 	"context"
 	"testing"
 
-	. "github.com/smartystreets/goconvey/convey"
-
 	"github.com/pydio/cells/v4/common/proto/mailer"
 	"github.com/pydio/cells/v4/common/utils/configx"
+
+	. "github.com/smartystreets/goconvey/convey"
 )
 
 const (
@@ -70,7 +70,7 @@ func TestSmtp_Send(t *testing.T) {
 		err := smtp.Configure(context.Background(), conf)
 		So(err, ShouldBeNil)
 
-		err = smtp.Send(email)
+		err = smtp.Send(context.Background(), email)
 		if test_pwd == "" { // usual case when not in dev mode
 			So(err, ShouldNotBeNil)
 		} else {

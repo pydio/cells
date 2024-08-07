@@ -25,6 +25,7 @@ package grpc
 import (
 	"context"
 	"fmt"
+	"io"
 	"testing"
 
 	"go.uber.org/zap"
@@ -50,12 +51,11 @@ var (
 )
 
 func init() {
-	log.SetLoggerInit(func() *zap.Logger {
+	log.SetLoggerInit(func(_ context.Context) (*zap.Logger, []io.Closer) {
 		cfg := zap.NewDevelopmentConfig()
 		cfg.OutputPaths = []string{"stdout"}
 		z, _ := cfg.Build()
-
-		return z
+		return z, nil
 	}, nil)
 }
 

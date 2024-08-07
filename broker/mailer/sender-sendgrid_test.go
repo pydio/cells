@@ -24,10 +24,10 @@ import (
 	"context"
 	"testing"
 
-	. "github.com/smartystreets/goconvey/convey"
-
 	"github.com/pydio/cells/v4/common/proto/mailer"
 	"github.com/pydio/cells/v4/common/utils/configx"
+
+	. "github.com/smartystreets/goconvey/convey"
 )
 
 const (
@@ -70,7 +70,7 @@ func TestSendgrid_Send(t *testing.T) {
 		err := sendGrid.Configure(context.Background(), conf)
 		So(err, ShouldBeNil)
 
-		err = sendGrid.Send(email)
+		err = sendGrid.Send(context.Background(), email)
 		if sendgridTestConfig_apiKey == "" { // usual case when not in dev mode
 			So(err, ShouldNotBeNil)
 		} else {

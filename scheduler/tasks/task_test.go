@@ -30,7 +30,7 @@ import (
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/proto/jobs"
 	"github.com/pydio/cells/v4/common/proto/tree"
-	"github.com/pydio/cells/v4/common/runtime/tenant"
+	"github.com/pydio/cells/v4/common/runtime"
 	"github.com/pydio/cells/v4/common/utils/propagator"
 
 	_ "github.com/pydio/cells/v4/scheduler/actions/scheduler"
@@ -54,7 +54,7 @@ func (t *testTenant) ID() string {
 }
 
 var (
-	runtimeCtx = propagator.With(context.Background(), tenant.ContextKey, &testTenant{})
+	runtimeCtx = runtime.CoreBackground()
 )
 
 func TestNewTaskFromEvent(t *testing.T) {

@@ -24,6 +24,7 @@ package sql
 
 import (
 	"context"
+	"io"
 	"testing"
 
 	"go.uber.org/zap"
@@ -46,12 +47,11 @@ var (
 )
 
 func init() {
-	log.SetLoggerInit(func() *zap.Logger {
+	log.SetLoggerInit(func(_ context.Context) (*zap.Logger, []io.Closer) {
 		conf := zap.NewDevelopmentConfig()
 		conf.OutputPaths = []string{"stdout"}
 		logger, _ := conf.Build()
-
-		return logger
+		return logger, nil
 	}, nil)
 }
 

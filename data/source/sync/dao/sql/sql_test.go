@@ -43,12 +43,12 @@ func TestNewMemChecksumMapper(t *testing.T) {
 			mockDAO, err := manager.Resolve[sync.DAO](ctx)
 			So(err, ShouldBeNil)
 
-			mockDAO.Set("eTag-1", "checksum")
-			v, o := mockDAO.Get("eTag-1")
+			mockDAO.Set(ctx, "eTag-1", "checksum")
+			v, o := mockDAO.Get(ctx, "eTag-1")
 			So(v, ShouldEqual, "checksum")
 			So(o, ShouldBeTrue)
 
-			v2, o2 := mockDAO.Get("eTag-2")
+			v2, o2 := mockDAO.Get(ctx, "eTag-2")
 			So(v2, ShouldBeEmpty)
 			So(o2, ShouldBeFalse)
 
