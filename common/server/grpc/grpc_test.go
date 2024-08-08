@@ -36,6 +36,7 @@ import (
 	"google.golang.org/grpc/test/bufconn"
 
 	cgrpc "github.com/pydio/cells/v4/common/client/grpc"
+	"github.com/pydio/cells/v4/common/config"
 	mock2 "github.com/pydio/cells/v4/common/config/mock"
 	pbregistry "github.com/pydio/cells/v4/common/proto/registry"
 	"github.com/pydio/cells/v4/common/registry"
@@ -201,10 +202,12 @@ func TestGetServiceInfo(t *testing.T) {
 	v.Set("yaml", b.String())
 	runtime.SetRuntime(v)
 
-	cache_helper.SetStaticResolver("pm://", &gocache.URLOpener{})
-
 	ctx, cancel := context.WithTimeout(context.Background(), 1*time.Minute)
 	defer cancel()
+
+	mem, _ := config.OpenStore(ctx, "mem://")
+	ctx = propagator.With(ctx, config.ContextKey, mem)
+	cache_helper.SetStaticResolver("pm://", &gocache.URLOpener{})
 
 	runtime.Register("test", func(ctx context.Context) {
 		listener := bufconn.Listen(1024 * 1024)

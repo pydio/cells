@@ -12,10 +12,12 @@ import (
 	"golang.org/x/text/cases"
 	"golang.org/x/text/language"
 
+	"github.com/pydio/cells/v4/common/config"
 	"github.com/pydio/cells/v4/common/runtime"
 	"github.com/pydio/cells/v4/common/runtime/manager"
 	"github.com/pydio/cells/v4/common/storage"
 	"github.com/pydio/cells/v4/common/storage/sql"
+	"github.com/pydio/cells/v4/common/utils/propagator"
 	"github.com/pydio/cells/v4/common/utils/uuid"
 
 	_ "github.com/pydio/cells/v4/common/config/memory"
@@ -161,6 +163,9 @@ func RunTests(t *testing.T, f func(context.Context)) {
 	v.Set(runtime.KeyConfig, "mem://")
 	v.SetDefault(runtime.KeyArgTags, []string{"test"})
 	v.Set("yaml", b.String())
+
+	mem, _ := config.OpenStore(ctx, "mem://")
+	ctx = propagator.With(ctx, config.ContextKey, mem)
 
 	runtime.SetRuntime(v)
 

@@ -27,6 +27,7 @@ import (
 
 	"github.com/spf13/viper"
 
+	"github.com/pydio/cells/v4/common/config"
 	"github.com/pydio/cells/v4/common/runtime"
 	"github.com/pydio/cells/v4/common/service"
 	"github.com/pydio/cells/v4/common/utils/propagator"
@@ -74,6 +75,8 @@ func DSNtoContextDAO(ctx context.Context, dsn []string, daoFunc any) (context.Co
 	v := viper.New()
 	v.Set(runtime.KeyConfig, "mem://")
 	v.Set("yaml", b.String())
+	mem, _ := config.OpenStore(ctx, "mem://")
+	ctx = propagator.With(ctx, config.ContextKey, mem)
 
 	runtime.SetRuntime(v)
 
