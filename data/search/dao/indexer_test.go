@@ -53,15 +53,16 @@ var (
 		{DSN: []string{"bleve://" + filepath.Join(os.TempDir(), "data_search_tests"+uuid.New()[:6]+".bleve") + "?mapping=node"}, Condition: true, DAO: bleve.FastBleveDAO},
 		test.TemplateMongoEnvWithPrefix(mongo.FastMongoDAO, "search_tests_"+uuid.New()[:6]+"_"),
 	}
+	global context.Context
 )
 
 func init() {
-	_ = mock.RegisterMockConfig()
+	global, _ = mock.RegisterMockConfig(context.Background())
 }
 
 func createNodes(s search.Engine) error {
 
-	ctx := context.Background()
+	ctx := global
 
 	node := &tree.Node{
 		Uuid:  "docID1",
@@ -146,13 +147,13 @@ func performSearch(ctx context.Context, index search.Engine, queryObject *tree.Q
 //		var idx *bleve.Indexer
 //		st.Get(context.TODO(), &idx)
 //
-//		server := NewBleveDAO(context.Background(), idx)
+//		server := NewBleveDAO(global, idx)
 //		So(server, ShouldNotBeNil)
 //
 //		e := server.Close(context.TODO())
 //		So(e, ShouldBeNil)
 //
-//		server = NewBleveDAO(context.Background(), idx)
+//		server = NewBleveDAO(global, idx)
 //		So(server, ShouldNotBeNil)
 //
 //		e = server.Close(context.TODO())
@@ -175,7 +176,7 @@ func performSearch(ctx context.Context, index search.Engine, queryObject *tree.Q
 //		}
 //		node.MustSetMeta(common.MetaNamespaceNodeName, "node.txt")
 //
-//		b := NewBatch(context.Background(), nil, meta.NewNsProvider(context.Background()), BatchOptions{config: configx.New()})
+//		b := NewBatch(global, nil, meta.NewNsProvider(context.Background()), BatchOptions{config: configx.New()})
 //		indexNode := &tree.IndexableNode{Node: *node}
 //		e := b.loadIndexableNode(indexNode, nil)
 //		So(e, ShouldBeNil)
@@ -219,8 +220,7 @@ func TestIndexNode(t *testing.T) {
 				Type:      1,
 				MetaStore: make(map[string]string),
 			}
-			ctx := context.Background()
-			e := server.IndexNode(ctx, node, false, nil)
+			e := server.IndexNode(global, node, false, nil)
 
 			So(e, ShouldNotBeNil)
 		})

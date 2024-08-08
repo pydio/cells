@@ -22,31 +22,28 @@ package config
 
 import (
 	"context"
-	"fmt"
-	"runtime"
 	"sync"
 
 	"github.com/pydio/cells/v4/common/utils/configx"
 	"github.com/pydio/cells/v4/common/utils/propagator"
 )
 
-var (
-	std Store
-)
-
-// Register the default config store
-func Register(store Store) {
-	std = store
-}
-
 type configKey struct{}
 
+type vaultKey struct{}
+
+type revisionsKey struct{}
+
 var (
-	ContextKey = configKey{}
+	ContextKey   = configKey{}
+	VaultKey     = vaultKey{}
+	RevisionsKey = revisionsKey{}
 )
 
 func init() {
 	propagator.RegisterKeyInjector[Store](ContextKey)
+	propagator.RegisterKeyInjector[Store](VaultKey)
+	propagator.RegisterKeyInjector[Store](RevisionsKey)
 }
 
 // Store defines the functionality a config must provide
@@ -68,29 +65,9 @@ type Saver interface {
 	Save(string, string) error
 }
 
-func fromCtxWithCheck(ctx context.Context) Store {
-	var s Store
-	if ctx == nil || !propagator.Get(ctx, ContextKey, &s) {
-		er := "No config found in context"
-		if ctx == nil {
-			er = "empty context (when looking for config)"
-		}
-		pc, file, line, ok := runtime.Caller(2)
-		if ok {
-			if fn := runtime.FuncForPC(pc); fn != nil {
-				fmt.Printf(er+", using default store %s - %s:%d\n", fn.Name(), file, line)
-				return std
-			}
-		}
-		fmt.Println(er + ", using default store")
-		return std
-	}
-	return s
-}
-
 // Save the config in the hard store
 func Save(ctx context.Context, ctxUser string, ctxMessage string) error {
-	if err := fromCtxWithCheck(ctx).Save(ctxUser, ctxMessage); err != nil {
+	if err := propagator.MustWithHint[Store](ctx, ContextKey, "config").Save(ctxUser, ctxMessage); err != nil {
 		return err
 	}
 
@@ -99,12 +76,12 @@ func Save(ctx context.Context, ctxUser string, ctxMessage string) error {
 
 // Watch for config changes for a specific path or underneath
 func Watch(ctx context.Context, opts ...configx.WatchOption) (configx.Receiver, error) {
-	return fromCtxWithCheck(ctx).Watch(opts...)
+	return propagator.MustWithHint[Store](ctx, ContextKey, "config").Watch(opts...)
 }
 
 // WatchCombined watches for different config paths
 func WatchCombined(ctx context.Context, paths [][]string, opts ...configx.WatchOption) (configx.Receiver, error) {
-	cfg := fromCtxWithCheck(ctx)
+	cfg := propagator.MustWithHint[Store](ctx, ContextKey, "config")
 	var rr []configx.Receiver
 	for _, path := range paths {
 		oo := append([]configx.WatchOption{configx.WithPath(path...)}, opts...)
@@ -119,17 +96,17 @@ func WatchCombined(ctx context.Context, paths [][]string, opts ...configx.WatchO
 
 // Get access to the underlying structure at a certain path
 func Get(ctx context.Context, path ...string) configx.Values {
-	return fromCtxWithCheck(ctx).Val(path...)
+	return propagator.MustWithHint[Store](ctx, ContextKey, "config").Val(path...)
 }
 
 // Set new values at a certain path
 func Set(ctx context.Context, val interface{}, path ...string) error {
-	return fromCtxWithCheck(ctx).Val(path...).Set(val)
+	return propagator.MustWithHint[Store](ctx, ContextKey, "config").Val(path...).Set(val)
 }
 
 // Del value at a certain path
 func Del(ctx context.Context, path ...string) {
-	fromCtxWithCheck(ctx).Val(path...).Del()
+	propagator.MustWithHint[Store](ctx, ContextKey, "config").Val(path...).Del()
 }
 
 // GetAndWatch applies a callback on a current value, then watch for its changes and re-apply
@@ -159,9 +136,4 @@ func GetAndWatch(ctx context.Context, configPath []string, callback func(values 
 		}
 		watcher.Stop()
 	}()
-}
-
-// Temp
-func Main() Store {
-	return std
 }

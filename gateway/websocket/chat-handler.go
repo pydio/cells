@@ -510,7 +510,11 @@ func (c *ChatHandler) sendVideoInfoIfSupported(ctx context.Context, roomUuid str
 	}
 	apiKey := conf.Val("LK_API_KEY").String()
 	apiSecret := conf.Val("LK_API_SECRET").String()
-	apiSecret = config.Vault().Val(apiSecret).String()
+	var vault config.Store
+	if !propagator.Get(ctx, config.VaultKey, &vault) {
+		panic("cannot find vault in context")
+	}
+	apiSecret = vault.Val(apiSecret).String()
 	sessionUser, _ := session.Get(SessionUsernameKey)
 
 	if token, e := c.getLKJoinToken(apiKey, apiSecret, roomUuid, sessionUser.(string)); e == nil {

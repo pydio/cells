@@ -177,7 +177,7 @@ func (c *CaptureAction) Run(ctx context.Context, channels *actions.RunnableChann
 	if err := config.Get(ctx, "services", common.ServiceGrpcNamespace_+common.ServiceDataSync_+dsName).Scan(&syncConfig); err != nil {
 		return input.WithError(err), err
 	}
-	if sec := config.GetSecret(syncConfig.ApiSecret).String(); sec != "" {
+	if sec := config.GetSecret(ctx, syncConfig.ApiSecret).String(); sec != "" {
 		syncConfig.ApiSecret = sec
 	}
 	conn := grpc.ResolveConn(ctx, common.ServiceDataIndexGRPC_+dsName)

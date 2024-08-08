@@ -38,10 +38,14 @@ import (
 	. "github.com/smartystreets/goconvey/convey"
 )
 
+var (
+	global context.Context
+)
+
 func init() {
 	// Ignore client pool for unit tests
 	nodes.IsUnitTestEnv = true
-	_ = mock.RegisterMockConfig()
+	global, _ = mock.RegisterMockConfig(context.Background())
 }
 
 func TestWGetAction_GetName(t *testing.T) {
@@ -56,7 +60,7 @@ func TestWGetAction_Init(t *testing.T) {
 	Convey("", t, func() {
 
 		action := &WGetAction{}
-		ctx := context.Background()
+		ctx := global
 		action.SetRuntimeContext(nodescontext.WithSourcesPool(ctx, nodes.NewTestPool(ctx)))
 		job := &jobs.Job{}
 		// Missing Parameters
@@ -71,7 +75,7 @@ func TestWGetAction_Init(t *testing.T) {
 		})
 		status := make(chan string)
 		progress := make(chan float32)
-		_, e = action.Run(context.Background(), &actions.RunnableChannels{StatusMsg: status, Progress: progress}, &jobs.ActionMessage{})
+		_, e = action.Run(global, &actions.RunnableChannels{StatusMsg: status, Progress: progress}, &jobs.ActionMessage{})
 		So(e, ShouldNotBeNil)
 
 		// Valid URL
@@ -91,7 +95,7 @@ func TestWGetAction_Run(t *testing.T) {
 	Convey("", t, func() {
 
 		action := &WGetAction{}
-		ctx := context.Background()
+		ctx := global
 		ctx = nodescontext.WithSourcesPool(ctx, nodes.NewTestPool(ctx))
 		action.SetRuntimeContext(ctx)
 
@@ -114,7 +118,7 @@ func TestWGetAction_Run(t *testing.T) {
 
 		status := make(chan string)
 		progress := make(chan float32)
-		_, er := action.Run(context.Background(), &actions.RunnableChannels{StatusMsg: status, Progress: progress}, &jobs.ActionMessage{
+		_, er := action.Run(global, &actions.RunnableChannels{StatusMsg: status, Progress: progress}, &jobs.ActionMessage{
 			Nodes: []*tree.Node{node},
 		})
 		close(status)

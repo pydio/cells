@@ -54,7 +54,7 @@ func (gm *Smtp) Configure(ctx context.Context, conf configx.Values) error {
 
 	gm.Password = conf.Val("clearPass").Default("NOT_SET").String()
 	if gm.Password == "NOT_SET" {
-		gm.Password = config.GetSecret(conf.Val("password").String()).Default("NOT_SET").String()
+		gm.Password = config.GetSecret(ctx, conf.Val("password").String()).Default("NOT_SET").String()
 	}
 
 	if gm.Password == "NOT_SET" {

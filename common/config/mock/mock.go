@@ -27,6 +27,7 @@ import (
 
 	"github.com/pydio/cells/v4/common/config"
 	"github.com/pydio/cells/v4/common/utils/configx"
+	"github.com/pydio/cells/v4/common/utils/propagator"
 )
 
 var json = `{
@@ -453,13 +454,13 @@ func (r *Receiver) Stop() {
 	close(r.stop)
 }
 
-func RegisterMockConfig() error {
+func RegisterMockConfig(ctx context.Context) (context.Context, error) {
 	cfg := configx.New(configx.WithJSON())
 	er := cfg.Set([]byte(json))
 	if er != nil {
-		return er
+		return ctx, er
 	}
 	store := &MockStore{Values: cfg}
-	config.Register(store)
-	return nil
+	ctx = propagator.With(ctx, config.ContextKey, store)
+	return ctx, nil
 }

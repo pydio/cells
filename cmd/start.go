@@ -31,8 +31,6 @@ import (
 
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/broker"
-	"github.com/pydio/cells/v4/common/config"
-	"github.com/pydio/cells/v4/common/crypto"
 	"github.com/pydio/cells/v4/common/registry"
 	"github.com/pydio/cells/v4/common/runtime"
 	"github.com/pydio/cells/v4/common/runtime/manager"
@@ -147,7 +145,9 @@ ENVIRONMENT
 		}
 
 		// Init config
-		isNew, keyring, er := initConfig(ctx, true)
+		var er error
+		var isNew bool
+		ctx, isNew, er = initConfig(ctx, true)
 		if er != nil {
 			return er
 		}
@@ -158,7 +158,6 @@ ENVIRONMENT
 			//	"Do you want to reset the initial configuration", cmd, args)
 		}
 
-		ctx = propagator.With(ctx, crypto.KeyringContextKey, keyring)
 		for _, cc := range configChecks {
 			if e := cc(ctx); e != nil {
 				return e
@@ -176,7 +175,6 @@ ENVIRONMENT
 			return err
 		}
 		ctx = propagator.With(ctx, registry.ContextKey, reg)
-		ctx = propagator.With(ctx, config.ContextKey, config.Main())
 		ctx = runtime.AsCoreContext(ctx)
 
 		broker.Register(broker.NewBroker(runtime.BrokerURL(), broker.WithContext(ctx)))

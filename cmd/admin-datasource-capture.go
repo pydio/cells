@@ -87,7 +87,7 @@ EXAMPLES
 		if err := config.Get(cmd.Context(), "services", common.ServiceDataSyncGRPC_+captureDsName).Scan(&syncConfig); err != nil {
 			return err
 		}
-		if sec := config.GetSecret(syncConfig.ApiSecret).String(); sec != "" {
+		if sec := config.GetSecret(ctx, syncConfig.ApiSecret).String(); sec != "" {
 			syncConfig.ApiSecret = sec
 		}
 		conn := grpc.ResolveConn(ctx, common.ServiceDataIndexGRPC_+captureDsName)

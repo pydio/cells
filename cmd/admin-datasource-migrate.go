@@ -316,7 +316,7 @@ func migratePrepareClients(ctx context.Context, source *object.DataSource) (root
 	}
 	conf := or.GetMinioConfig()
 	apiSecret := conf.ApiSecret
-	if s := config.GetSecret(conf.ApiSecret).String(); s != "" {
+	if s := config.GetSecret(ctx, conf.ApiSecret).String(); s != "" {
 		apiSecret = s
 	}
 	cfData := configx.New()

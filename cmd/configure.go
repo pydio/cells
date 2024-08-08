@@ -36,11 +36,9 @@ import (
 
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/config/routing"
-	"github.com/pydio/cells/v4/common/crypto"
 	"github.com/pydio/cells/v4/common/proto/install"
 	cruntime "github.com/pydio/cells/v4/common/runtime"
 	unet "github.com/pydio/cells/v4/common/utils/net"
-	"github.com/pydio/cells/v4/common/utils/propagator"
 )
 
 func init() {
@@ -175,12 +173,13 @@ ENVIRONMENT
 		cmd.Println("")
 
 		var proxyConf *install.ProxyConfig
-		var kr crypto.Keyring
+
+		ctx := cmd.Context()
 
 		if niYamlFile != "" || niJsonFile != "" || niBindUrl != "" {
 
 			var er error
-			_, kr, er = initConfig(cmd.Context(), false)
+			ctx, _, er = initConfig(ctx, false)
 			fatalIfError(cmd, er)
 
 			installConf, err := nonInteractiveInstall(cmd, args)
@@ -209,7 +208,7 @@ ENVIRONMENT
 			}
 
 			var er error
-			_, kr, er = initConfig(cmd.Context(), !niModeCli)
+			ctx, _, er = initConfig(ctx, !niModeCli)
 			fatalIfError(cmd, er)
 
 			// Gather proxy information
@@ -231,6 +230,7 @@ ENVIRONMENT
 				}
 			}
 		}
+		cmd.SetContext(ctx)
 
 		// Prompt for config with CLI, apply and exit
 		if niModeCli {
@@ -238,7 +238,6 @@ ENVIRONMENT
 			fatalIfError(cmd, err)
 		} else {
 			// Prepare Context and run browser install
-			ctx = propagator.With(ctx, crypto.KeyringContextKey, kr)
 			performBrowserInstall(cmd, ctx, proxyConf)
 		}
 
@@ -251,12 +250,11 @@ ENVIRONMENT
 			cmd.Println("")
 			return
 		}
-
 		// Reset runtime and hardcode new command to run
 		initViperRuntime()
 		bin := os.Args[0]
 		os.Args = []string{bin, "start"}
-		e := DefaultStartCmd.ExecuteContext(cmd.Context())
+		e := DefaultStartCmd.ExecuteContext(ctx)
 		if e != nil {
 			panic(e)
 		}

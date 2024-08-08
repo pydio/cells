@@ -50,7 +50,7 @@ func ListMinioConfigsFromConfig(ctx context.Context) map[string]*object.MinioCon
 		if e := Get(ctx, configx.FormatPath("services", common.ServiceGrpcNamespace_+common.ServiceDataObjects_+name)).Scan(&conf); e == nil && conf != nil {
 			res[name] = conf
 			// Replace ApiSecret with value from vault
-			if sec := GetSecret(conf.ApiSecret).String(); sec != "" {
+			if sec := GetSecret(ctx, conf.ApiSecret).String(); sec != "" {
 				conf.ApiSecret = sec
 			}
 		}
@@ -167,7 +167,7 @@ func UnusedMinioServers(minios map[string]*object.MinioConfig, sources map[strin
 }
 
 // FactorizeMinioServers tries to find exisiting MinioConfig that can be directly reused by the new source, or creates a new one
-func FactorizeMinioServers(existingConfigs map[string]*object.MinioConfig, newSource *object.DataSource, update bool) (config *object.MinioConfig, e error) {
+func FactorizeMinioServers(ctx context.Context, existingConfigs map[string]*object.MinioConfig, newSource *object.DataSource, update bool) (config *object.MinioConfig, e error) {
 
 	if newSource.StorageType == object.StorageType_S3 {
 		if gateway := filterGatewaysWithKeys(existingConfigs, newSource.StorageType, newSource.ApiKey, newSource.StorageConfiguration[object.StorageKeyCustomEndpoint]); gateway != nil {
@@ -260,10 +260,10 @@ func FactorizeMinioServers(existingConfigs map[string]*object.MinioConfig, newSo
 			}
 			if updateCredsSecret {
 				if crtSecretId != "" {
-					_ = DelSecret(crtSecretId)
+					_ = DelSecret(ctx, crtSecretId)
 				}
 				secretId := NewKeyForSecret()
-				if er := SetSecret(secretId, creds); er != nil {
+				if er := SetSecret(ctx, secretId, creds); er != nil {
 					return nil, fmt.Errorf("error while saving secret key %w", er)
 				}
 				config.GatewayConfiguration = map[string]string{object.StorageKeyJsonCredentials: secretId}
@@ -277,7 +277,7 @@ func FactorizeMinioServers(existingConfigs map[string]*object.MinioConfig, newSo
 			}
 			// Replace credentials by a secret Key
 			secretId := NewKeyForSecret()
-			if er := SetSecret(secretId, creds); er != nil {
+			if er := SetSecret(ctx, secretId, creds); er != nil {
 				return nil, fmt.Errorf("error while saving secrte key %w", er)
 			}
 			newSource.StorageConfiguration[object.StorageKeyJsonCredentials] = secretId

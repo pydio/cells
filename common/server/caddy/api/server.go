@@ -86,7 +86,7 @@ func (s *Server) RawServe(*server.ServeOptions) (ii []registry.Item, er error) {
 	propagator.Get(s.RootContext(), registry.ContextKey, &reg)
 
 	rc, _ := client.NewResolverCallback(reg)
-	s.balancer = clienthttp.NewBalancer(s.ID())
+	s.balancer = clienthttp.NewBalancer(s.RootContext(), s.ID())
 	rc.Add(s.ReloadProxy)
 	return nil, s.ReloadProxy(reg)
 

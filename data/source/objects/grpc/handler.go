@@ -65,7 +65,7 @@ func (o *ObjectHandler) StartMinioServer(ctx context.Context, minioServiceName s
 	secretKey := o.Config.ApiSecret
 
 	// Replace secretKey on the fly
-	if sec := config.GetSecret(secretKey).String(); sec != "" {
+	if sec := config.GetSecret(ctx, secretKey).String(); sec != "" {
 		secretKey = sec
 	}
 	configFolder, e := objects.CreateMinioConfigFile(minioServiceName, accessKey, secretKey)
@@ -90,7 +90,7 @@ func (o *ObjectHandler) StartMinioServer(ctx context.Context, minioServiceName s
 		if credsUuid == "" {
 			return errors.New("missing google application credentials to start GCS gateway")
 		}
-		creds := config.GetSecret(credsUuid).Bytes()
+		creds := config.GetSecret(ctx, credsUuid).Bytes()
 		if len(creds) == 0 {
 			return errors.New("missing google application credentials to start GCS gateway (cannot find inside vault)")
 		}

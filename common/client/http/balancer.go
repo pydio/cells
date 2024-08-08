@@ -21,6 +21,7 @@
 package http
 
 import (
+	"context"
 	"fmt"
 	"math/rand"
 	"net/url"
@@ -41,10 +42,9 @@ type Balancer interface {
 	ListEndpointTargets(path string, reverse ...bool) ([]*url.URL, error)
 }
 
-func NewBalancer(excludeId string) Balancer {
-	// TODO - Recheck - do we want to contextualize this config?
+func NewBalancer(ctx context.Context, excludeId string) Balancer {
 	var clusterConfig *client.ClusterConfig
-	config.Get(nil, "cluster").Default(&client.ClusterConfig{}).Scan(&clusterConfig)
+	config.Get(ctx, "cluster").Default(&client.ClusterConfig{}).Scan(&clusterConfig)
 	clientConfig := clusterConfig.GetClientConfig("http")
 
 	opts := &client.BalancerOptions{}

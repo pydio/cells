@@ -201,15 +201,15 @@ func TestGetSetGRPC(t *testing.T) {
 	//	t.Skip("skipping test: ETCD_SERVER_ADDR not defined")
 	//}
 
-	mem, err := config.OpenStore(context.Background(), "mem://")
+	_, err := config.OpenStore(context.Background(), "mem://")
 	if err != nil {
 		t.Fail()
 	}
 
 	vault, err := config.OpenStore(context.Background(), "mem://")
 
-	config.Register(mem)
-	config.RegisterVault(vault)
+	//config.Register(mem)
+	//config.RegisterVault(vault)
 
 	conn := grpc.ResolveConn(context.Background(), common.ServiceConfigGRPC)
 	ctx := clientcontext.WithClientConn(context.Background(), conn)

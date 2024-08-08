@@ -52,7 +52,10 @@ DESCRIPTION
 `,
 	PreRunE: func(cmd *cobra.Command, args []string) error {
 		bindViperFlags(cmd.Flags())
-		_, _, er := initConfig(cmd.Context(), false)
+		var er error
+		ctx := cmd.Context()
+		ctx, _, er = initConfig(cmd.Context(), false)
+		cmd.SetContext(ctx)
 		return er
 	},
 	Run: func(cmd *cobra.Command, args []string) {

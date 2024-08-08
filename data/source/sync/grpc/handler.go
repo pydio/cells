@@ -101,7 +101,7 @@ func (s *Handler) Init(ctx context.Context) error {
 	if err := config.Get(ctx, "services", common.ServiceGrpcNamespace_+common.ServiceDataSync_+s.DsName).Scan(&syncConfig); err != nil {
 		return err
 	}
-	if sec := config.GetSecret(syncConfig.ApiSecret).String(); sec != "" {
+	if sec := config.GetSecret(ctx, syncConfig.ApiSecret).String(); sec != "" {
 		syncConfig.ApiSecret = sec
 	}
 
@@ -400,7 +400,7 @@ func (s *Handler) watchDisconnection() {
 			if err := config.Get(s.globalCtx, "services", sName).Scan(&syncConfig); err != nil {
 				log.Logger(s.globalCtx).Error("Cannot read config to reinitialize sync")
 			}
-			if sec := config.GetSecret(syncConfig.ApiSecret).String(); sec != "" {
+			if sec := config.GetSecret(s.globalCtx, syncConfig.ApiSecret).String(); sec != "" {
 				syncConfig.ApiSecret = sec
 			}
 			if e := s.initSync(syncConfig); e != nil {

@@ -21,16 +21,15 @@
 package config
 
 import (
+	"context"
+
 	"github.com/pydio/cells/v4/common/utils/configx"
+	"github.com/pydio/cells/v4/common/utils/propagator"
 	"github.com/pydio/cells/v4/common/utils/uuid"
 )
 
 var (
 	registeredVaultKeys []string
-)
-
-var (
-	stdvault Store = std
 )
 
 // RegisterVaultKey adds a key to the configuration so that the value
@@ -45,26 +44,28 @@ func NewKeyForSecret() string {
 }
 
 // GetSecret returns the non encrypted value for a uuid
-func GetSecret(uuid string) configx.Values {
+func GetSecret(ctx context.Context, uuid string) configx.Values {
 	if uuid == "" {
 		return configx.New()
 	}
-	return stdvault.Val(uuid)
+	return propagator.MustWithHint[Store](ctx, VaultKey, "vault").Val(uuid)
 }
 
 // SetSecret set the value for a uuid in the vault
-func SetSecret(uuid string, val string) error {
-	if er := stdvault.Val(uuid).Set(val); er == nil {
-		return stdvault.Save("system ", "saving "+uuid)
+func SetSecret(ctx context.Context, uuid string, val string) error {
+	v := propagator.MustWithHint[Store](ctx, VaultKey, "vault")
+	if er := v.Val(uuid).Set(val); er == nil {
+		return v.Save("system ", "saving "+uuid)
 	} else {
 		return er
 	}
 }
 
 // DelSecret deletes the value of a uuid in the vault
-func DelSecret(uuid string) error {
-	if er := stdvault.Val(uuid).Del(); er == nil {
-		return stdvault.Save("system", "deleting "+uuid)
+func DelSecret(ctx context.Context, uuid string) error {
+	v := propagator.MustWithHint[Store](ctx, VaultKey, "vault")
+	if er := v.Val(uuid).Del(); er == nil {
+		return v.Save("system", "deleting "+uuid)
 	} else {
 		return er
 	}

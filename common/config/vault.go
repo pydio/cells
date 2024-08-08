@@ -29,16 +29,6 @@ import (
 	"github.com/pydio/cells/v4/common/utils/configx"
 )
 
-// Vault returns the default vault
-func Vault() configx.Entrypoint {
-	return stdvault
-}
-
-// RegisterVault sets the default vault
-func RegisterVault(store Store) {
-	stdvault = store
-}
-
 // Config holds the main structure of a configuration
 type vault struct {
 	config Store

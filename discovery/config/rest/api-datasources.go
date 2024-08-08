@@ -87,7 +87,7 @@ func (s *Handler) PutDataSource(req *restful.Request, resp *restful.Response) er
 
 	// Replace uuid secret if it exists
 	var secretUuid string
-	if sec := config.GetSecret(ds.ApiSecret).String(); sec != "" {
+	if sec := config.GetSecret(req.Request.Context(), ds.ApiSecret).String(); sec != "" {
 		secretUuid = ds.ApiSecret
 		ds.ApiSecret = sec
 	}
@@ -125,7 +125,7 @@ func (s *Handler) PutDataSource(req *restful.Request, resp *restful.Response) er
 		ds.StorageConfiguration[object.StorageKeyHashingVersion] = object.CurrentHashingVersion
 	}
 
-	minioConfig, e := config.FactorizeMinioServers(currentMinios, &ds, update)
+	minioConfig, e := config.FactorizeMinioServers(ctx, currentMinios, &ds, update)
 	if e != nil {
 		return e
 	}
@@ -143,7 +143,7 @@ func (s *Handler) PutDataSource(req *restful.Request, resp *restful.Response) er
 	if ds.ApiSecret != "" {
 		if secretUuid == "" {
 			secretUuid = config.NewKeyForSecret()
-			if er := config.SetSecret(secretUuid, ds.ApiSecret); er != nil {
+			if er := config.SetSecret(ctx, secretUuid, ds.ApiSecret); er != nil {
 				return er
 			}
 		}
@@ -279,7 +279,7 @@ func (s *Handler) ListDataSources(req *restful.Request, resp *restful.Response) 
 	}
 }
 
-func (s *Handler) storageClientForDatasource(ds *object.DataSource) (nodes.StorageClient, error) {
+func (s *Handler) storageClientForDatasource(ctx context.Context, ds *object.DataSource) (nodes.StorageClient, error) {
 	endpoint := "https://s3.amazonaws.com"
 	if c, o := ds.StorageConfiguration[object.StorageKeyCustomEndpoint]; o && c != "" {
 		endpoint = c
@@ -287,7 +287,7 @@ func (s *Handler) storageClientForDatasource(ds *object.DataSource) (nodes.Stora
 	u, _ := url.Parse(endpoint)
 	host := u.Host
 	secure := u.Scheme == "https"
-	if sec := config.GetSecret(ds.ApiSecret).String(); sec != "" {
+	if sec := config.GetSecret(ctx, ds.ApiSecret).String(); sec != "" {
 		ds.ApiSecret = sec
 	}
 
@@ -317,7 +317,7 @@ func (s *Handler) ListStorageBuckets(req *restful.Request, resp *restful.Respons
 	if r.DataSource.StorageType != object.StorageType_S3 {
 		return errors.WithMessage(errors.StatusBadRequest, "unsupported datasource type")
 	}
-	mc, er := s.storageClientForDatasource(r.DataSource)
+	mc, er := s.storageClientForDatasource(req.Request.Context(), r.DataSource)
 	if er != nil {
 		return er
 	}
@@ -360,7 +360,7 @@ func (s *Handler) CreateStorageBucket(req *restful.Request, resp *restful.Respon
 	if bucketName == "" {
 		return errors.WithMessage(errors.InvalidParameters, "missing bucket name")
 	}
-	mc, er := s.storageClientForDatasource(r.DataSource)
+	mc, er := s.storageClientForDatasource(req.Request.Context(), r.DataSource)
 	if er != nil {
 		return er
 	}

@@ -45,7 +45,7 @@ type Connector interface{}
 type OpenerFunc func(proto.Message) (Opener, error)
 
 type Opener interface {
-	Open(string, log.ZapLogger) (Connector, error)
+	Open(context.Context, string, log.ZapLogger) (Connector, error)
 }
 
 var (
@@ -69,7 +69,7 @@ func ScanConnectors(ctx context.Context, values configx.Values) ([]ConnectorConf
 }
 
 // OpenConnector finds the correct opener
-func OpenConnector(id, name, connectorType string, data proto.Message) (ConnectorConfig, error) {
+func OpenConnector(ctx context.Context, id, name, connectorType string, data proto.Message) (ConnectorConfig, error) {
 	openerFunc, ok := connectorTypes[connectorType]
 	if !ok {
 		return nil, fmt.Errorf("could not retrieve opener func")
@@ -80,7 +80,7 @@ func OpenConnector(id, name, connectorType string, data proto.Message) (Connecto
 		return nil, err
 	}
 
-	c, err := opener.Open(id, nil)
+	c, err := opener.Open(ctx, id, nil)
 	if err != nil {
 		return nil, err
 	}

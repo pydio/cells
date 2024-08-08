@@ -428,7 +428,7 @@ func (m *model) renderButtons(i registry.Item) {
 
 func (m *model) initConfigView() {
 	if m.cfg == nil {
-		_, _, _ = initConfig(m.ctx, false)
+		m.ctx, _, _ = initConfig(m.ctx, false)
 		m.cfg = config.Get(m.ctx)
 		m.configsView.SetSelectedFunc(func(node *tview.TreeNode) {
 			node.SetExpanded(!node.IsExpanded())

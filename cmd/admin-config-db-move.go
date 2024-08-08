@@ -154,7 +154,8 @@ func configDbMoveOne(cmd *cobra.Command, dry, promptConfig bool, migOption *flat
 	if er != nil {
 		panic(er)
 	}
-	config.Register(store)
+	ctx = propagator.With(cmd.Context(), config.ContextKey, store)
+
 	runtime.SetRuntime(v)
 
 	var svcFrom service.Service
@@ -171,7 +172,7 @@ func configDbMoveOne(cmd *cobra.Command, dry, promptConfig bool, migOption *flat
 			service.WithStorageDrivers(migOption.SupportedDrivers[migOption.storageKey]...),
 		)
 	})
-	mgr, err := manager.NewManager(cmd.Context(), "test", nil)
+	mgr, err := manager.NewManager(ctx, "test", nil)
 	if err != nil {
 		return err
 	}

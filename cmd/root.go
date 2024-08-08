@@ -48,6 +48,7 @@ import (
 	cw "github.com/pydio/cells/v4/common/telemetry/log/context-wrapper"
 	"github.com/pydio/cells/v4/common/telemetry/otel"
 	"github.com/pydio/cells/v4/common/utils/configx"
+	"github.com/pydio/cells/v4/common/utils/propagator"
 
 	_ "github.com/pydio/cells/v4/common/config/etcd"
 	_ "github.com/pydio/cells/v4/common/config/service"
@@ -196,30 +197,31 @@ func skipCoreInit() bool {
 	return false
 }
 
-func initConfig(ctx context.Context, debounceVersions bool) (new bool, keyring crypto.Keyring, er error) {
+func initConfig(ctx context.Context, debounceVersions bool) (context.Context, bool, error) {
 
 	if skipCoreInit() {
-		return
+		return ctx, false, nil
 	}
 
 	// Keyring store
 	keyringStore, err := config.OpenStore(ctx, runtime.KeyringURL())
 	if err != nil {
-		return false, nil, fmt.Errorf("could not init keyring store %v", err)
+		return ctx, false, fmt.Errorf("could not init keyring store %v", err)
 	}
 	// Keyring start and creation of the master password
-	keyring = crypto.NewConfigKeyring(keyringStore, crypto.WithAutoCreate(true, func(s string) {
+	kr := crypto.NewConfigKeyring(keyringStore, crypto.WithAutoCreate(true, func(s string) {
 		fmt.Println(promptui.IconWarn + " [Keyring] " + s)
 	}))
-	password, err := keyring.Get(common.ServiceGrpcNamespace_+common.ServiceUserKey, common.KeyringMasterKey)
+	password, err := kr.Get(common.ServiceGrpcNamespace_+common.ServiceUserKey, common.KeyringMasterKey)
 	if err != nil {
-		return false, nil, fmt.Errorf("could not get master password %v", err)
+		return ctx, false, fmt.Errorf("could not get master password %v", err)
 	}
 	runtime.SetVaultMasterKey(password)
+	ctx = propagator.With(ctx, crypto.KeyringContextKey, kr)
 
 	mainConfig, err := config.OpenStore(ctx, runtime.ConfigURL())
 	if err != nil {
-		return false, nil, err
+		return ctx, false, err
 	}
 
 	// Init RevisionsStore if config is config.RevisionsProvider
@@ -230,46 +232,43 @@ func initConfig(ctx context.Context, debounceVersions bool) (new bool, keyring c
 		}
 		var versionsStore revisions.Store
 		mainConfig, versionsStore = revProvider.AsRevisionsStore(rOpt...)
-		config.RegisterRevisionsStore(versionsStore)
+		ctx = propagator.With(ctx, config.RevisionsKey, versionsStore)
 	}
 
 	// Wrap config with vaultConfig if set
 	vaultConfig, err := config.OpenStore(ctx, runtime.VaultURL())
 	if err != nil {
-		return false, nil, err
+		return ctx, false, err
 	}
-	config.RegisterVault(vaultConfig)
+	ctx = propagator.With(ctx, config.VaultKey, vaultConfig)
 	mainConfig = config.NewVault(vaultConfig, mainConfig)
 
 	// Additional Proxy
 	mainConfig = config.Proxy(mainConfig)
+	ctx = context.WithValue(ctx, config.ContextKey, mainConfig)
 
-	// Register default now
-	config.Register(mainConfig)
-
-	// Use as core config for the next calls
-	rootCtx := context.WithValue(ctx, config.ContextKey, mainConfig)
+	var isNew bool
 	if !runtime.IsFork() {
-		if config.Get(rootCtx, "version").String() == "" && config.Get(rootCtx, "defaults/database").String() == "" {
-			new = true
+		if config.Get(ctx, "version").String() == "" && config.Get(ctx, "defaults/database").String() == "" {
+			isNew = true
 			var data interface{}
 			if err := json.Unmarshal([]byte(config.SampleConfig), &data); err == nil {
-				if err := config.Get(rootCtx).Set(data); err == nil {
-					_ = config.Save(rootCtx, common.PydioSystemUsername, "Initialize with sample config")
+				if err := config.Get(ctx).Set(data); err == nil {
+					_ = config.Save(ctx, common.PydioSystemUsername, "Initialize with sample config")
 				}
 			}
 		}
 
 		// Need to do something for the versions
-		if save, err := migrations.UpgradeConfigsIfRequired(config.Get(rootCtx), common.Version()); err == nil && save {
-			if err := config.Save(rootCtx, common.PydioSystemUsername, "Configs upgrades applied"); err != nil {
-				return false, nil, fmt.Errorf("could not save config migrations %v", err)
+		if save, err := migrations.UpgradeConfigsIfRequired(config.Get(ctx), common.Version()); err == nil && save {
+			if err := config.Save(ctx, common.PydioSystemUsername, "Configs upgrades applied"); err != nil {
+				return ctx, false, fmt.Errorf("could not save config migrations %v", err)
 			}
 		}
 	}
 
 	cfgPath := []string{"services", common.ServiceGrpcNamespace_ + common.ServiceLog}
-	config.GetAndWatch(rootCtx, cfgPath, func(values configx.Values) {
+	config.GetAndWatch(ctx, cfgPath, func(values configx.Values) {
 		conf := telemetry.Config{}
 		if values.Scan(&conf) == nil {
 			if e := conf.Reload(ctx); e != nil {
@@ -278,7 +277,7 @@ func initConfig(ctx context.Context, debounceVersions bool) (new bool, keyring c
 		}
 	})
 
-	return
+	return ctx, isNew, nil
 }
 
 func initLogLevel() {

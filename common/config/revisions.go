@@ -27,11 +27,7 @@ import (
 
 	"github.com/pydio/cells/v4/common/config/revisions"
 	"github.com/pydio/cells/v4/common/utils/configx"
-)
-
-var (
-	// RevisionsStore is the default Version Store for the configuration
-	revisionsStore revisions.Store
+	"github.com/pydio/cells/v4/common/utils/propagator"
 )
 
 type versionStore struct {
@@ -39,13 +35,8 @@ type versionStore struct {
 	store Store
 }
 
-// RegisterRevisionsStore sets the default version store
-func RegisterRevisionsStore(store revisions.Store) {
-	revisionsStore = store
-}
-
-func RevisionsStore() revisions.Store {
-	return revisionsStore
+func RevisionsStore(ctx context.Context) revisions.Store {
+	return propagator.MustWithHint[revisions.Store](ctx, RevisionsKey, "revisions")
 }
 
 type RevisionsStoreOptions struct {

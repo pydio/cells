@@ -65,6 +65,7 @@ func TestMain(m *testing.M) {
 	//_ = broker.Connect()
 	nodes.UseMockStorageClientType()
 
+	// TODO Context config
 	if e := mock.RegisterMockConfig(); e != nil {
 		log.Fatal(e)
 	}

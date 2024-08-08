@@ -86,3 +86,16 @@ func Get[T any](ctx context.Context, key any, out *T) bool {
 
 	return true
 }
+
+// MustWithHint performs a Get() and panics with a hint message if not found
+func MustWithHint[T any](ctx context.Context, key any, hint string) T {
+	var s T
+	if ctx == nil {
+		panic("empty context (when looking for " + hint + ")")
+	}
+	if !Get(ctx, key, &s) {
+		er := "No " + hint + " found in context"
+		panic(er)
+	}
+	return s
+}

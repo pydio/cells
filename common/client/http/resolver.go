@@ -75,7 +75,7 @@ func (m *resolver) Init(ctx context.Context, serverID string, rr routing.RouteRe
 	var reg registry.Registry
 	propagator.Get(ctx, registry.ContextKey, &reg)
 	rc, _ := client.NewResolverCallback(reg)
-	bal := NewBalancer(serverID)
+	bal := NewBalancer(ctx, serverID)
 	rc.Add(bal.Build)
 
 	m.c = conn

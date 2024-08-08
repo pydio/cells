@@ -66,7 +66,8 @@ DESCRIPTION
 		bindViperFlags(cmd.Flags())
 
 		ctx = runtime.MultiContextManager().RootContext(ctx)
-		_, _, er := initConfig(ctx, true)
+		var er error
+		ctx, _, er = initConfig(ctx, true)
 		if er != nil {
 			return er
 		}

@@ -24,8 +24,10 @@ import (
 	"context"
 
 	"github.com/pydio/cells/v4/common/config"
+	"github.com/pydio/cells/v4/common/errors"
 	pb "github.com/pydio/cells/v4/common/proto/config"
 	"github.com/pydio/cells/v4/common/utils/configx"
+	"github.com/pydio/cells/v4/common/utils/propagator"
 )
 
 type Handler struct {
@@ -38,8 +40,12 @@ func NewHandler() *Handler {
 
 func (h *Handler) Get(ctx context.Context, req *pb.GetRequest) (*pb.GetResponse, error) {
 	if req.Namespace == "vault" {
+		var vault config.Store
+		if !propagator.Get(ctx, config.VaultKey, &vault) {
+			return nil, errors.WithMessage(errors.StatusInternalServerError, "cannot find vault in context")
+		}
 		return &pb.GetResponse{
-			Value: &pb.Value{Data: config.Vault().Val(req.GetPath()).Bytes()},
+			Value: &pb.Value{Data: vault.Val(req.GetPath()).Bytes()},
 		}, nil
 	}
 	return &pb.GetResponse{

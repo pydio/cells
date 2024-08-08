@@ -43,7 +43,7 @@ func init() {
 
 type pydioconfig struct{}
 
-func (c *pydioconfig) Open(string, log.ZapLogger) (Connector, error) {
+func (c *pydioconfig) Open(context.Context, string, log.ZapLogger) (Connector, error) {
 	return &pydioconnector{}, nil
 }
 
@@ -85,7 +85,7 @@ func DefaultConnectorScanner(ctx context.Context, values configx.Scanner) (conne
 	for _, c := range cc {
 		if c.Type == "pydio" {
 			// Registering the first connector
-			con, _ := OpenConnector(c.ID, c.Name, c.Type, nil)
+			con, _ := OpenConnector(ctx, c.ID, c.Name, c.Type, nil)
 			connectors = []ConnectorConfig{con}
 		}
 	}

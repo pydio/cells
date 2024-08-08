@@ -83,8 +83,13 @@ EXAMPLES
 `,
 	PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
 		bindViperFlags(cmd.Flags())
-		_, _, er := initConfig(cmd.Context(), false)
-		return er
+		var er error
+		ctx, _, er = initConfig(cmd.Context(), false)
+		if er != nil {
+			return er
+		}
+		cmd.SetContext(ctx)
+		return nil
 	},
 	Run: func(cmd *cobra.Command, args []string) {
 		sites, e := routing.LoadSites(ctx, true)

@@ -87,7 +87,7 @@ func InitEndpoints(ctx context.Context, syncConfig *object.DataSource, clientRea
 			return
 		}
 		minioConfig = resp.MinioConfig
-		if sec := config.GetSecret(minioConfig.ApiSecret).String(); sec != "" {
+		if sec := config.GetSecret(ctx, minioConfig.ApiSecret).String(); sec != "" {
 			minioConfig.ApiSecret = sec
 		}
 		cfg := minioConfig.ClientConfig()
