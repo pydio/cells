@@ -194,8 +194,8 @@ func Resolve[T any](ctx context.Context, opts ...ResolveOption) (s T, final erro
 
 		span.AddEvent("Before Service Version")
 
-		// Checking all migrations
-		if err := service.UpdateServiceVersion(ctx, cfg, svc.Options()); err != nil {
+		// Double-checking all migrations
+		if err := service.UpdateServiceVersion(ctx, svc.Options()); err != nil {
 			return t, errors.Tag(err, errors.ResolveError)
 		}
 

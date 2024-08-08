@@ -148,6 +148,11 @@ defaults:
         main:
           - type: bolt
             file: versions.db
+    pydio.grpc.mailer:
+      storages:
+        main:
+          - type: bolt
+            file: queue.db
     pydio.grpc.docstore:
       storages:
         main:

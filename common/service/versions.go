@@ -23,7 +23,6 @@ package service
 import (
 	"context"
 	"fmt"
-	"net/http"
 	"os"
 	"path/filepath"
 	"strings"
@@ -33,7 +32,6 @@ import (
 
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/config"
-	"github.com/pydio/cells/v4/common/middleware"
 	"github.com/pydio/cells/v4/common/runtime"
 	"github.com/pydio/cells/v4/common/telemetry/log"
 	"github.com/pydio/cells/v4/common/utils/propagator"
@@ -63,28 +61,16 @@ func Latest() *version.Version {
 	return common.Version()
 }
 
-func UpdateServiceVersionWrapper(h http.Handler, o *ServiceOptions) http.Handler {
-	return http.HandlerFunc(func(rw http.ResponseWriter, req *http.Request) {
-		ctx := req.Context()
-		ctx, _, _ = middleware.ApplyGRPCIncomingContextModifiers(ctx)
-		var cfg config.Store
-		propagator.Get(ctx, config.ContextKey, &cfg)
-		err := UpdateServiceVersion(ctx, cfg, o)
-		if err != nil {
-			fmt.Println("Failed to run service version update")
-		}
-
-		h.ServeHTTP(rw, req)
-	})
-}
-
 // UpdateServiceVersion applies migration(s) if necessary and stores new current version for future use.
-func UpdateServiceVersion(ctx context.Context, store config.Store, opts *ServiceOptions) error {
+func UpdateServiceVersion(ctx context.Context, opts *ServiceOptions) error {
 
-	// Todo - this may be probably directly contextualized by the store
 	var err error
 	prefix := []string{"versions", opts.Name}
 	tID := runtime.MultiContextManager().Current(ctx)
+	if tID != "default" {
+		prefix = []string{"versions", tID, opts.Name}
+	}
+
 	var run bool
 	opts.migrateOnceL.Lock()
 	if !opts.migrateOnce[tID] {
@@ -94,6 +80,11 @@ func UpdateServiceVersion(ctx context.Context, store config.Store, opts *Service
 	opts.migrateOnceL.Unlock()
 	if !run {
 		return nil
+	}
+
+	var store config.Store
+	if !propagator.Get(ctx, config.ContextKey, &store) {
+		return fmt.Errorf("could not find store for service %s during updateServiceVersion", opts.Name)
 	}
 
 	newVersion, _ := version.NewVersion(opts.Version)
