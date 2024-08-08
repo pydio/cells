@@ -21,15 +21,14 @@
 package tree
 
 import (
-	"context"
 	"testing"
-
-	. "github.com/smartystreets/goconvey/convey"
 
 	"github.com/pydio/cells/v4/common/nodes"
 	"github.com/pydio/cells/v4/common/proto/jobs"
 	"github.com/pydio/cells/v4/common/proto/tree"
 	"github.com/pydio/cells/v4/scheduler/actions"
+
+	. "github.com/smartystreets/goconvey/convey"
 )
 
 func TestMetaAction_GetName(t *testing.T) {
@@ -68,12 +67,12 @@ func TestMetaAction_Run(t *testing.T) {
 		status := make(chan string)
 		progress := make(chan float32)
 
-		ignored, err := metaAction.Run(context.Background(), &actions.RunnableChannels{StatusMsg: status, Progress: progress}, &jobs.ActionMessage{
+		ignored, err := metaAction.Run(global, &actions.RunnableChannels{StatusMsg: status, Progress: progress}, &jobs.ActionMessage{
 			Nodes: []*tree.Node{},
 		})
 		So(ignored.GetLastOutput().Ignored, ShouldBeTrue)
 
-		output, err := metaAction.Run(context.Background(), &actions.RunnableChannels{StatusMsg: status, Progress: progress}, &jobs.ActionMessage{
+		output, err := metaAction.Run(global, &actions.RunnableChannels{StatusMsg: status, Progress: progress}, &jobs.ActionMessage{
 			Nodes: []*tree.Node{&tree.Node{
 				Path: "test",
 			}},

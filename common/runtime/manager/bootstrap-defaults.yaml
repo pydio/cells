@@ -274,6 +274,10 @@ defaults:
           type: caddy
           services:
             - filter: "{{ .Name }} ~= pydio.rest..* or {{ .Name }} ~= pydio.web.statics or {{ .Name }} = pydio.gateway.websocket"
+        generic:
+          type: generic
+          services:
+            - filter: "{{ .Name }} ~= pydio.generic..*"
         grpc:
           type: grpc
           listener: grpc

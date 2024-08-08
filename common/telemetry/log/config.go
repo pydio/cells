@@ -76,7 +76,6 @@ func LoadCores(ctx context.Context, svc otel.Service, cfg []LoggerConfig) (cores
 			if e != nil {
 				panic(e)
 			}
-			fmt.Println("Opening Log Core/Sync with URL", u)
 			if syncer, er := DefaultURLMux().OpenSync(ctx, u); er == nil {
 				ss = append(ss, syncer)
 				closers = append(closers, syncer)

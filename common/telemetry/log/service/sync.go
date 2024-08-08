@@ -43,7 +43,6 @@ func (o *opener) OpenSync(ctx context.Context, u *url.URL) (log2.WriteSyncerClos
 	if serviceName == "" {
 		return nil, fmt.Errorf("logger service:// must provide a ?service query parameter")
 	}
-	fmt.Println("init LogSyncer on service", serviceName)
 	sCtx := propagator.ForkContext(log2.ReadyLogSyncerContext, ctx)
 	return NewLogSyncer(sCtx, serviceName), nil
 }

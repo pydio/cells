@@ -86,15 +86,6 @@ func Init(svc otel.Service, conf []LoggerConfig, ww ...ContextWrapper) {
 		// Append custom configurations
 		fullConfig := append(currentConfig, customSyncers...)
 
-		// TODO - attach closers to pool ?
-		/*
-			for _, cl := range mainClosers {
-				if e := cl.Close(); e != nil {
-					fmt.Printf("Error while closing logger: %v\n", e)
-				}
-			}
-		*/
-
 		cores, closers, hasDebug := LoadCores(ctx, currentSvc, fullConfig)
 		var loggerOptions []zap.Option
 		if hasDebug || traceFatalEnabled() {
@@ -134,17 +125,6 @@ func RegisterWriteSyncer(syncer LoggerConfig) {
 // Must be called before initialization
 func SetSkipServerSync() {
 	panic("should be simply ignored by configuration or if grpc context is not initialized")
-}
-
-// initLogger sets the initializer and eventually registers a GlobalConnConsumer function.
-func initLogger(l *logger, f LoggerInitializer, globalConnInit func(ctx context.Context)) {
-	l.set(f)
-	if globalConnInit != nil {
-		runtime.RegisterGlobalConnConsumer("main", func(ctx context.Context) {
-			globalConnInit(ctx)
-			l.forceReset()
-		})
-	}
 }
 
 // initLogger sets the initializer and eventually registers a GlobalConnConsumer function.
