@@ -10,6 +10,7 @@ CREATE TABLE IF NOT EXISTS idm_user_keys (
 );
 
 CREATE UNIQUE INDEX unique_user_key_owner ON idm_user_keys (owner, key_id);
+CREATE INDEX user_key_owner_idx ON idm_user_keys (owner);
 
 -- +migrate Down
 DROP TABLE idm_user_keys;

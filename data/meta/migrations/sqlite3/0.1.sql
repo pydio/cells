@@ -9,6 +9,7 @@ CREATE TABLE IF NOT EXISTS data_meta (
     unique(node_id, namespace)
 );
 
+CREATE INDEX data_meta_node_idx ON data_meta(node_id);
 CREATE INDEX data_meta_timestamp_idx ON data_meta(timestamp);
 CREATE INDEX data_meta_author_idx ON data_meta(author);
 

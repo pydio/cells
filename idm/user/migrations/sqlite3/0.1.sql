@@ -15,6 +15,9 @@ CREATE TABLE IF NOT EXISTS idm_user_roles (
     PRIMARY KEY (uuid, role)
 );
 
+CREATE INDEX idm_usr_attr_uuid_idx ON idm_user_attributes (uuid);
+CREATE INDEX idm_usr_roles_uuid_idx ON idm_user_roles (uuid);
+
 -- +migrate Down
 DROP TABLE idm_user_attributes;
 DROP TABLE idm_user_roles;
