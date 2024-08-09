@@ -68,7 +68,7 @@ export default class Editor extends React.Component {
         let langParam = '';
         if(pydio.user.getPreference('lang')) {
             let lang = pydio.user.getPreference('lang')
-            if(lang.split) {
+            if(lang !== 'zh-cn' &&  lang.split) {
                 lang = lang.split('-')[0]
             }
             langParam = `&lang=${lang}`
