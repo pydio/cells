@@ -257,6 +257,7 @@ class TaskActivity extends Component{
             content = JSON.parse(log.JsonZaps)
             delete(content.LogType)
             delete(content.ContentType)
+            delete(content.RequestHost)
             delete(content.SchedulerTaskActionTags)
             const kk = Object.keys(content)
             if(kk.length === 0){
