@@ -10,6 +10,7 @@ CREATE TABLE IF NOT EXISTS idm_usr_meta (
     PRIMARY KEY (uuid),
     UNIQUE (namespace,node_uuid,owner)
 );
+CREATE INDEX idm_usr_meta_node_idx ON idm_usr_meta (node_uuid);
 
 -- +migrate Down
 DROP TABLE idm_usr_meta;
