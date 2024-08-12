@@ -160,9 +160,11 @@ spec:
               for i in /var/certs/*/*; do
                 cells admin cert import $i --uuid $(basename $(dirname $i))-$(basename $i);
               done
+          {{- if and .Values.vault.enabled }}
           env:
             - name: CELLS_CERTS_STORE
               value: {{ include "cells.vaultURL" . }}/caddycerts
+          {{- end }}
           volumeMounts:
             - name: cells
               mountPath: /var/cells-install
@@ -188,7 +190,7 @@ spec:
             - |
               sleep 3
               source /var/cells-install/source
-              if ! cells admin config check; then 
+              if ! cells admin config check; then
                 cells configure
               fi
               sleep 3
@@ -212,14 +214,14 @@ spec:
             - name: CELLS_KEYRING
               value: {{ include "cells.vaultURL" . }}/secret?key=keyring
             {{- end }}
-            {{- if .Values.mariadb.enabled }}
+            {{- if .Values.mariadb.useNewInstallation }}
             - name: MARIADB_ROOT_PASSWORD
               valueFrom:
                 secretKeyRef:
                   name: {{ .Release.Name }}-mariadb
                   key: mariadb-root-password
             {{- end }}
-            {{- if index .Values "mariadb-galera" "enabled" }}
+            {{- if .Values.mariadb.galera.useNewInstallation }}
             - name: MARIADB_ROOT_PASSWORD
               valueFrom:
                 secretKeyRef:
@@ -238,8 +240,10 @@ spec:
                   name: {{ .Release.Name }}-minio
                   key: root-password
             {{- end }}
+            {{- if .Values.vault.enabled }}
             - name: CELLS_CERTS_STORE
               value: {{ include "cells.vaultURL" . }}/caddycerts
+            {{- end }}
           volumeMounts:
             - name: cells
               mountPath: /var/cells-install
