@@ -29,6 +29,7 @@ import (
 	"go.uber.org/zap"
 
 	"github.com/pydio/cells/v4/common/broker"
+	"github.com/pydio/cells/v4/common/proto/chat"
 	"github.com/pydio/cells/v4/common/proto/idm"
 	"github.com/pydio/cells/v4/common/proto/jobs"
 	"github.com/pydio/cells/v4/common/proto/tree"
@@ -66,69 +67,29 @@ type Dispatcher struct {
 func NewDispatcher(rootCtx context.Context, maxWorkers int, job *jobs.Job, tags map[string]string) *Dispatcher {
 	pool := make(chan chan RunnerFunc, maxWorkers)
 	jobQueue := make(chan RunnerFunc)
-	var fifoQueue chan RunnerFunc
-	var fifo broker.AsyncQueue
-	var er error
-	var mgr manager.Manager
 	ctx, can := context.WithCancel(rootCtx)
+	d := &Dispatcher{
+		workerPool: pool,
+		maxWorker:  maxWorkers,
+		jobQueue:   jobQueue,
+		tags:       tags,
+		activeChan: make(chan int, 100),
+		quit:       make(chan bool, 1),
+	}
+	var mgr manager.Manager
+
 	if propagator.Get(rootCtx, manager.ContextKey, &mgr) {
+		var fifoQueue chan RunnerFunc
+		var fifo broker.AsyncQueue
+		var er error
 		data := map[string]interface{}{"name": "jobs", "prefix": job.ID}
-		fifo, er = mgr.GetQueue(ctx, "persisted", data, "job-"+job.ID, func(q broker.AsyncQueue) (broker.AsyncQueue, error) {
-			return q, q.Consume(func(ct context.Context, mm ...broker.Message) {
-				for _, msg := range mm {
-					var event interface{}
-
-					eventCtx := propagator.ForkContext(context.Background(), rootCtx)
-
-					tce := &tree.NodeChangeEvent{}
-					ice := &idm.ChangeEvent{}
-					jte := &jobs.JobTriggerEvent{}
-					if ctU, e := msg.Unmarshal(eventCtx, tce); e == nil {
-						event, eventCtx = tce, ctU
-					} else if ctU, e = msg.Unmarshal(eventCtx, ice); e == nil {
-						event, eventCtx = ice, ctU
-					} else if ctU, e = msg.Unmarshal(eventCtx, jte); e == nil {
-						event, eventCtx = jte, ctU
-					} else {
-						fmt.Println("Cannot unmarshall msg data to any known event type")
-						continue
-					}
-
-					task := NewTaskFromEvent(rootCtx, eventCtx, job, event)
-					task.Queue(fifoQueue, jobQueue)
-				}
-			})
-		})
-		if er == nil {
-			fifoQueue = make(chan RunnerFunc)
-			_ = fifo.Consume(func(ct context.Context, mm ...broker.Message) {
-
-				for _, msg := range mm {
-					var event interface{}
-
-					eventCtx := propagator.ForkContext(context.Background(), rootCtx)
-
-					tce := &tree.NodeChangeEvent{}
-					ice := &idm.ChangeEvent{}
-					jte := &jobs.JobTriggerEvent{}
-					if ctU, e := msg.Unmarshal(eventCtx, tce); e == nil {
-						event, eventCtx = tce, ctU
-					} else if ctU, e = msg.Unmarshal(eventCtx, ice); e == nil {
-						event, eventCtx = ice, ctU
-					} else if ctU, e = msg.Unmarshal(eventCtx, jte); e == nil {
-						event, eventCtx = jte, ctU
-					} else {
-						fmt.Println("Cannot unmarshall msg data to any known event type")
-						continue
-					}
-
-					task := NewTaskFromEvent(rootCtx, eventCtx, job, event)
-					task.Queue(fifoQueue, jobQueue)
-				}
-			})
-		} else {
+		if fifo, er = mgr.GetQueue(ctx, "persisted", data, "job-"+job.ID, d.Opener(rootCtx, job, fifoQueue, jobQueue)); er != nil {
 			can()
 			log.Logger(rootCtx).Warn("Cannot open fifo for dispatcher - job "+job.ID+", this will run without queue", zap.Error(er))
+		} else {
+			d.fifo = fifo
+			d.fifoQueue = fifoQueue
+			d.fifoCancel = can
 		}
 	} else {
 		can()
@@ -142,10 +103,37 @@ func NewDispatcher(rootCtx context.Context, maxWorkers int, job *jobs.Job, tags 
 		tags:       tags,
 		activeChan: make(chan int, 100),
 		quit:       make(chan bool, 1),
+	}
+}
 
-		fifo:       fifo,
-		fifoCancel: can,
-		fifoQueue:  fifoQueue,
+func (d *Dispatcher) Opener(rootCtx context.Context, job *jobs.Job, queues ...chan RunnerFunc) broker.OpenWrapper {
+	return func(q broker.AsyncQueue) (broker.AsyncQueue, error) {
+		return q, q.Consume(func(ct context.Context, mm ...broker.Message) {
+			for _, msg := range mm {
+				var event interface{}
+
+				eventCtx := propagator.ForkContext(context.Background(), rootCtx)
+				tce := &tree.NodeChangeEvent{}
+				ice := &idm.ChangeEvent{}
+				jte := &jobs.JobTriggerEvent{}
+				ce := &chat.ChatEvent{}
+				if ctU, e := msg.Unmarshal(eventCtx, tce); e == nil {
+					event, eventCtx = tce, ctU
+				} else if ctU, e = msg.Unmarshal(eventCtx, ice); e == nil {
+					event, eventCtx = ice, ctU
+				} else if ctU, e = msg.Unmarshal(eventCtx, jte); e == nil {
+					event, eventCtx = jte, ctU
+				} else if ctU, e = msg.Unmarshal(eventCtx, ce); e == nil {
+					event, eventCtx = ce, ctU
+				} else {
+					fmt.Println("Cannot unmarshall msg data to any known event type")
+					continue
+				}
+
+				task := NewTaskFromEvent(rootCtx, eventCtx, job, event)
+				task.Queue(queues...)
+			}
+		})
 	}
 }
 

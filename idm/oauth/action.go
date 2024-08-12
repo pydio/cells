@@ -29,6 +29,7 @@ import (
 	"github.com/pydio/cells/v4/common/client/commons/docstorec"
 	"github.com/pydio/cells/v4/common/client/grpc"
 	"github.com/pydio/cells/v4/common/config"
+	"github.com/pydio/cells/v4/common/config/routing"
 	"github.com/pydio/cells/v4/common/forms"
 	"github.com/pydio/cells/v4/common/proto/auth"
 	"github.com/pydio/cells/v4/common/proto/docstore"
@@ -89,6 +90,15 @@ func (c *PruneTokensAction) Run(ctx context.Context, channels *actions.RunnableC
 
 	// Prune revoked tokens on OAuth service
 	cli := auth.NewAuthTokenPrunerClient(grpc.ResolveConn(ctx, common.ServiceOAuthGRPC))
+
+	ss, er := routing.LoadSites(ctx)
+	if er != nil {
+		return input.AsRunError(er)
+	}
+	if _, _, ok := routing.SiteFromContext(ctx, ss); !ok {
+		return input.AsRunError(fmt.Errorf("no site found in context - should be parametrized"))
+	}
+
 	if pruneResp, e := cli.PruneTokens(ctx, &auth.PruneTokensRequest{}); e != nil {
 		return input.WithError(e), e
 	} else {

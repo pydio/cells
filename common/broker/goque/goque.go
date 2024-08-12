@@ -69,10 +69,11 @@ var (
 )
 
 type gq struct {
-	ctx    context.Context
-	qu     *goque.Queue
-	pQu    *goque.PrefixQueue
-	prefix string
+	ctx     context.Context
+	qu      *goque.Queue
+	pQu     *goque.PrefixQueue
+	prefix  string
+	dataDir string
 }
 
 func (g *gq) Push(ctx context.Context, msg proto.Message) error {
@@ -96,6 +97,7 @@ func (g *gq) PushRaw(_ context.Context, message broker.Message) error {
 }
 
 func (g *gq) Consume(callback func(context.Context, ...broker.Message)) error {
+	var erCount int
 	go func() {
 		for {
 			select {
@@ -112,12 +114,15 @@ func (g *gq) Consume(callback func(context.Context, ...broker.Message)) error {
 				it, er = g.qu.Dequeue()
 			}
 			if er != nil {
+				erCount++
 				if errors.Is(er, goque.ErrDBClosed) {
-					log.Logger(g.ctx).Debug("[goque] Closing consumer on DB closed" + g.prefix)
+					log.Logger(g.ctx).Warn("[goque] Closing consumer on closed DB " + g.prefix)
 					return
 				}
 				if !errors.Is(er, goque.ErrEmpty) && !errors.Is(er, goque.ErrOutOfBounds) {
 					log.Logger(g.ctx).Error("[goque] Received error while consuming messages"+g.prefix, zap.Error(er))
+				} else if errors.Is(er, goque.ErrOutOfBounds) && erCount%500 == 0 {
+					log.Logger(g.ctx).Error("[goque] Received many errors while consuming messages (prefix:"+g.prefix+"), data may be corrupted, you may have to restart and clear the fifo corresponding folder: "+g.dataDir, zap.Error(er))
 				}
 				<-time.After(500 * time.Millisecond)
 				continue
@@ -165,8 +170,8 @@ func (g *gq) OpenURL(ctx context.Context, u *url.URL) (broker.AsyncQueue, error)
 		}, nil
 	}
 
-	srvDir := u.Path //config2.MustServiceDataDir(srv)
-	dataDir := filepath.Join(srvDir, queueName)
+	dataDir := filepath.Join(u.Path, queueName)
+
 	var sq *serviceQueue
 	var pq *goque.PrefixQueue
 	var q *goque.Queue
@@ -174,7 +179,7 @@ func (g *gq) OpenURL(ctx context.Context, u *url.URL) (broker.AsyncQueue, error)
 	if prefix != "" {
 		pq, err = goque.OpenPrefixQueue(dataDir)
 	} else {
-		q, err = goque.OpenQueue(filepath.Join(srvDir, queueName))
+		q, err = goque.OpenQueue(dataDir)
 	}
 	sq = &serviceQueue{q: q, pq: pq, rc: 0}
 	if err != nil {
@@ -194,9 +199,10 @@ func (g *gq) OpenURL(ctx context.Context, u *url.URL) (broker.AsyncQueue, error)
 		}
 	}()
 	return &gq{
-		ctx:    ctx,
-		qu:     q,
-		pQu:    pq,
-		prefix: prefix,
+		ctx:     ctx,
+		qu:      q,
+		pQu:     pq,
+		prefix:  prefix,
+		dataDir: dataDir,
 	}, nil
 }

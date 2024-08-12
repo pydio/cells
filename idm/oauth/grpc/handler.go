@@ -854,6 +854,12 @@ func (h *Handler) Revoke(ctx context.Context, in *pauth.RevokeTokenRequest) (*pa
 
 // PruneTokens garbage collect expired IdTokens and Tokens
 func (h *Handler) PruneTokens(ctx context.Context, in *pauth.PruneTokensRequest) (*pauth.PruneTokensResponse, error) {
+	if ss, er := routing.LoadSites(ctx); er == nil {
+		if _, _, ok := routing.SiteFromContext(ctx, ss); !ok {
+			return nil, errors.WithMessage(errors.StatusInternalServerError, "PruneTokens action must find a SITE in context (probably triggered via timer)")
+		}
+	}
+
 	reg, err := manager.Resolve[oauth.Registry](ctx)
 	if err != nil {
 		return nil, err

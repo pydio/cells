@@ -23,6 +23,7 @@ package broker
 import (
 	"context"
 	"net/url"
+	"strings"
 	"sync"
 
 	"google.golang.org/protobuf/proto"
@@ -59,8 +60,17 @@ type TypeWithContext[T any] struct {
 }
 
 func NewWrappedPool(rootURL string, wrapper func(w OpenWrapper) controller.Opener[AsyncQueuePool]) (AsyncQueuePool, error) {
+	resURL := rootURL + "&opener={{ .openerID }}"
+	if !strings.Contains(resURL, "?") {
+		resURL = rootURL + "?opener={{ .openerID }}"
+	}
+	resolver, er := openurl.URLTemplate(resURL)
+	if er != nil {
+		return nil, er
+	}
 	return &openerPoolWrapper{
 		url:       rootURL,
+		resolver:  resolver,
 		wrapper:   wrapper,
 		pools:     make(map[string]controller.Opener[AsyncQueuePool]),
 		poolsLock: &sync.Mutex{},
@@ -70,6 +80,7 @@ func NewWrappedPool(rootURL string, wrapper func(w OpenWrapper) controller.Opene
 type openerPoolWrapper struct {
 	wrapper   func(w OpenWrapper) controller.Opener[AsyncQueuePool]
 	url       string
+	resolver  openurl.Template
 	pools     map[string]controller.Opener[AsyncQueuePool]
 	poolsLock *sync.Mutex
 }
@@ -96,13 +107,18 @@ func (opw *openerPoolWrapper) Get(ctx context.Context, data ...map[string]interf
 		return nil, errors.New("provide an opener")
 	}
 
+	identifier, er := opw.resolver.Resolve(ctx, data...)
+	if er != nil {
+		return nil, er
+	}
+
 	opw.poolsLock.Lock()
 	var poolOpener controller.Opener[AsyncQueuePool]
-	if p, ok := opw.pools[opId]; ok {
+	if p, ok := opw.pools[identifier]; ok {
 		poolOpener = p
 	} else {
 		poolOpener = opw.wrapper(op)
-		opw.pools[opId] = poolOpener
+		opw.pools[identifier] = poolOpener
 	}
 	opw.poolsLock.Unlock()
 	qp, _ := poolOpener(ctx, opw.url)

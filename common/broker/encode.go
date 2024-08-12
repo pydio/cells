@@ -89,10 +89,12 @@ type pulledMessage struct {
 func (p *pulledMessage) Unmarshal(ctx context.Context, target proto.Message) (context.Context, error) {
 	// Try anypb first
 	if e := p.a.UnmarshalTo(target); e != nil {
-		// Try direct proto unmarshalling
-		if er := proto.Unmarshal(p.data, target); er != nil {
-			return ctx, er
-		}
+		// Try direct proto unmarshalling - TODO recheck
+		/*
+			if er := proto.Unmarshal(p.data, target); er != nil {
+				return ctx, er
+			}*/
+		return ctx, e
 	}
 	if p.hh != nil {
 		ctx = propagator.NewContext(ctx, p.hh)

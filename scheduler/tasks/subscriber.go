@@ -225,6 +225,7 @@ func (s *Subscriber) getDispatcherForJob(ctx context.Context, job *jobs.Job) *Di
 	dispCache, _ := s.dispatchersPool.Get(ctx)
 	var d *Dispatcher
 	if exists := dispCache.Get(job.ID, &d); exists {
+		log.Logger(ctx).Debug("Found dispatcher for job " + job.ID + " in cache")
 		return d
 	}
 	maxWorkers := DefaultMaximumWorkers

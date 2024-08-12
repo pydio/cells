@@ -25,11 +25,14 @@ import (
 	"sync/atomic"
 	"time"
 
+	"go.uber.org/zap"
 	"google.golang.org/protobuf/encoding/protojson"
 
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/permissions"
 	"github.com/pydio/cells/v4/common/proto/jobs"
+	"github.com/pydio/cells/v4/common/runtime"
+	"github.com/pydio/cells/v4/common/telemetry/log"
 	"github.com/pydio/cells/v4/common/utils/propagator"
 	"github.com/pydio/cells/v4/common/utils/uuid"
 	"github.com/pydio/cells/v4/scheduler/actions"
@@ -61,7 +64,8 @@ type Task struct {
 }
 
 // NewTaskFromEvent creates a task based on incoming job and event
-func NewTaskFromEvent(runtime, ctx context.Context, job *jobs.Job, event interface{}) *Task {
+func NewTaskFromEvent(runtimeC, ctx context.Context, job *jobs.Job, event interface{}) *Task {
+	log.Logger(ctx).Debug("NewTaskFromEvent "+job.ID, zap.String("RC", runtime.MultiContextManager().Current(runtimeC)), zap.String("C", runtime.MultiContextManager().Current(ctx)))
 	ctxUserName, _ := permissions.FindUserNameInContext(ctx)
 	taskID := uuid.New()
 	if trigger, ok := event.(*jobs.JobTriggerEvent); ok && trigger.RunTaskId != "" {
@@ -92,7 +96,7 @@ func NewTaskFromEvent(runtime, ctx context.Context, job *jobs.Job, event interfa
 			CanStop:       true,
 		},
 	}
-	t.SetRuntimeContext(runtime)
+	t.SetRuntimeContext(runtimeC)
 	return t
 }
 

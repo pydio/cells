@@ -23,21 +23,28 @@ package runtime
 import (
 	"context"
 	"strings"
+	"sync"
 )
 
 var (
 	initializers  = make(map[string][]func(ctx context.Context))
+	innLock       = &sync.RWMutex{}
 	connConsumers = make(map[string][]func(ctx context.Context))
+	connLock      = &sync.RWMutex{}
 	lastInit      string
 )
 
 func Register(typ string, y ...func(ctx context.Context)) {
+	innLock.Lock()
+	defer innLock.Unlock()
 	for _, t := range strings.Split(typ, ",") {
 		initializers[t] = append(initializers[t], y...)
 	}
 }
 
 func Init(ctx context.Context, typ string) {
+	innLock.RLock()
+	defer innLock.RUnlock()
 	lastInit = typ
 	for _, init := range initializers[typ] {
 		init(ctx)
@@ -49,12 +56,16 @@ func LastInitType() string {
 }
 
 func RegisterGlobalConnConsumer(typ string, y ...func(ctx context.Context)) {
+	connLock.Lock()
+	defer connLock.Unlock()
 	for _, t := range strings.Split(typ, ",") {
 		connConsumers[t] = append(connConsumers[t], y...)
 	}
 }
 
 func InitGlobalConnConsumers(ctx context.Context, typ string) {
+	connLock.RLock()
+	defer connLock.RUnlock()
 	for _, init := range connConsumers[typ] {
 		init(ctx)
 	}
