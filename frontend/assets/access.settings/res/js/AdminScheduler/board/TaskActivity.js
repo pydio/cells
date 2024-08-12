@@ -48,6 +48,10 @@ class TaskActivity extends Component{
         };
     }
 
+    static ignoreZapKeys() {
+        return ['LogType', 'ContentType', 'RequestHost', 'tag', 'SchedulerTaskActionTags'];
+    }
+
     toggleTimeOffset() {
         const {timeOffset, serverOffset} = this.state;
         this.setState({timeOffset:timeOffset?0:serverOffset})
@@ -255,9 +259,9 @@ class TaskActivity extends Component{
         let content = {}, keyName = 'Data'
         try {
             content = JSON.parse(log.JsonZaps)
-            delete(content.LogType)
-            delete(content.ContentType)
-            delete(content.SchedulerTaskActionTags)
+            TaskActivity.ignoreZapKeys().forEach((k) => {
+                delete(content[k])
+            })
             const kk = Object.keys(content)
             if(kk.length === 0){
                 return null

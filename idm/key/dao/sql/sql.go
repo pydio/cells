@@ -41,7 +41,7 @@ func NewDAO(db *gorm.DB) key.DAO {
 }
 
 type UserKey struct {
-	Owner        string `gorm:"primaryKey; column:owner"`
+	Owner        string `gorm:"primaryKey; column:owner; index:,composite:ow;"`
 	ID           string `gorm:"primaryKey; column:key_id"`
 	Label        string `gorm:"column:key_label"`
 	Content      string `gorm:"column:key_data"`

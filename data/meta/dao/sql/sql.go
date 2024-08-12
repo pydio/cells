@@ -42,7 +42,7 @@ func NewMetaDAO(db *gorm.DB) meta.DAO {
 }
 
 type Meta struct {
-	NodeId    string `gorm:"primaryKey;column:node_id;type:varchar(255);notNull"`
+	NodeId    string `gorm:"primaryKey;column:node_id;type:varchar(255);notNull; index:;"`
 	Namespace string `gorm:"primaryKey; column:namespace;type:varchar(255);notNull"`
 	Author    string `gorm:"column:author;type:varchar(255);index;"`
 	Timestamp int64  `gorm:"column:timestamp;"`

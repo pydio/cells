@@ -164,10 +164,13 @@ class UsersLoader extends React.Component {
             this.setState({dataSource: this._emptyValueList});
             return;
         }
-        const {existingOnly, freeValueAllowed, excludes} = this.props;
+        const {existingOnly, freeValueAllowed, excludes, allowCurrent = false} = this.props;
         FuncUtils.bufferCallback('remote_users_search', timeout, function(){
             this.setState({loading: true});
-            const excluded = [Pydio.getInstance().user.id, 'pydio.anon.user'];
+            const excluded = ['pydio.anon.user'];
+            if(!allowCurrent) {
+                excluded.push(Pydio.getInstance().user.id)
+            }
             this.suggestionLoader(value, function(users){
                 let valueExists = false;
                 let values = users.filter(userObject => {

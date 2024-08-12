@@ -20,14 +20,14 @@ var _ tree.ITreeNode = (*tree.TreeNode)(nil)
 var _ tree.ITreeNode = (*User)(nil)
 
 type UserAttribute struct {
-	UUID  string `gorm:"column:uuid; primaryKey"`
+	UUID  string `gorm:"column:uuid; primaryKey; index:,composite:ui;"`
 	Name  string `gorm:"column:name; primaryKey"`
 	Value string `gorm:"column:value;"`
 	User  *User  `gorm:"foreignKey:UUID"`
 }
 
 type UserRole struct {
-	UUID   string `gorm:"column:uuid; primaryKey"`
+	UUID   string `gorm:"column:uuid; primaryKey; index:,composite:ui;"`
 	Role   string `gorm:"column:name; primaryKey"`
 	Weight int    `gorm:"column:weight"`
 	User   *User  `gorm:"foreignKey:UUID"`

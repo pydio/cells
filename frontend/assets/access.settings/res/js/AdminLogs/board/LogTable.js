@@ -225,11 +225,14 @@ class LogTable extends React.Component {
                 headerStyle:{width:20, paddingLeft:0,paddingRight:0},
                 renderCell:(row) => {
                     if(row.HasChildren){
-                        const toggle = () => {
+                        const toggle = (ev) => {
+                            ev.stopPropagation();
                             rootSpans[row.SpanUuid].open = !rootSpans[row.SpanUuid].open;
                             this.setState({rootSpans});
                         };
                         return <IconButton
+                            style={{width: 20, padding:'11px 0'}}
+                            iconStyle={{color: "#9e9e9e"}}
                             iconClassName={row.IsOpen?"mdi mdi-menu-down":"mdi mdi-menu-right"}
                             onClick={toggle}
                             {...childrenButtonProps}
@@ -244,10 +247,10 @@ class LogTable extends React.Component {
                 if (m.isSame(Date.now(), 'day')){
                     dateString = m.format('HH:mm:ss');
                 } else {
-                    dateString = m.toLocaleString();
+                    dateString = m.format(m.localeData().longDateFormat('LLL'));
                 }
                 if(row.HasRoot){
-                    return <span style={{display:'flex', alignItems:'center', color: tableMaster.row.color, fontFamily:tableMaster.row.fontFamily}}><FontIcon className={"mdi mdi-play-circle-outline"} style={{fontSize: 12, marginRight: 5, color: tableMaster.row.color}}/> {dateString}</span>
+                    return <span style={{display:'flex', alignItems:'center', color: tableMaster.row.color, fontFamily:tableMaster.row.fontFamily}}><FontIcon className={"mdi mdi-chevron-right"} style={{fontSize: 12, marginRight: 5, color: tableMaster.row.color}}/> {dateString}</span>
                 }
                 return dateString;
             }, style:{...cellStyle, ...tsCellStyle, width: 130, padding: '4px 12px 4px 0'}, headerStyle:{width: 130, paddingRight: 12, paddingLeft: 0}},
