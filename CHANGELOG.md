@@ -1,31 +1,18 @@
-# Changes between v4.4.2 and v4.4.3
+# Changes between v4.4.3 and v4.4.4
 
-[See Full Changelog](https://github.com/pydio/cells/compare/v4.4.2...v4.4.3)
+[See Full Changelog](https://github.com/pydio/cells/compare/v4.4.3...v4.4.4)
 
-- [#6e430e7](https://github.com/pydio/cells/commit/6e430e7e412fa67cfa5d2b8012c950bff84172c4): Remove forgotten dev log message
-- [#74f9138](https://github.com/pydio/cells/commit/74f9138ee39e733617462817e0d2237c2bb79bdd): cells-fuse: stick to go21 for now
-- [#82c143f](https://github.com/pydio/cells/commit/82c143f512709f0a1a35f18de914518003892c20): Revert deps
-- [#4426b2f](https://github.com/pydio/cells/commit/4426b2f46fe60f623578499a2d5ecfddb7f22fc1): Update dep
-- [#401a8a1](https://github.com/pydio/cells/commit/401a8a13d73ba8735d589fe55cb00f95c4e75370): Merge remote-tracking branch 'origin/main'
-- [#1be3c90](https://github.com/pydio/cells/commit/1be3c901d060caa7b3a993b2e7dfc9dba1deb4b0): Update cells-fuse gomod to latest cells
-- [#efe420f](https://github.com/pydio/cells/commit/efe420ffb563f588f1bd30d4c41a32902ffded58): Release v4.4.3-alpha1
-- [#032c127](https://github.com/pydio/cells/commit/032c127247de48327065bcb06bb9880d976403fc): New messages + DE/FR translations
-- [#f6e2e6e](https://github.com/pydio/cells/commit/f6e2e6ed7693e7291c85cebaf97eacd94c006823): New messages + DE/FR translations
-- [#4044b55](https://github.com/pydio/cells/commit/4044b557b9e8beb0f2f19862f6e27b4aa4089376): Merge remote-tracking branch 'origin/main'
-- [#0e8149c](https://github.com/pydio/cells/commit/0e8149c9318e73e1b86a85feed6ba3afe77011ab): Better way of capturing caddy internal logs
-- [#1a7de8b](https://github.com/pydio/cells/commit/1a7de8b2564885c137ffc8a0f4f4ec370df5767c): New messages + DE/FR translations
-- [#3e10b24](https://github.com/pydio/cells/commit/3e10b24a596897e5d414b76f0d44fc68973ece7f): New messages + DE/FR translations
-- [#5de7ead](https://github.com/pydio/cells/commit/5de7ead08cc646bafd963a20571050e596cda689): Add action to get back to workspaces when no Homepage is available. Fix ACL glitch when assigning rights to Pages.
-- [#5a943c6](https://github.com/pydio/cells/commit/5a943c610ca8549b6e26d5cf0ddd5083d57cf6f7): Fix en typo - change gomod toolchain
-- [#7ed358e](https://github.com/pydio/cells/commit/7ed358eaa1a4b8a26f9e5cb958b40b5d27bf24eb): 100% Japanese + New message and DE/FR translations
-- [#5c83a93](https://github.com/pydio/cells/commit/5c83a9361fca1106d715ae6d712b8c5e617f7b38): 100% Japanese + New message and DE/FR translations
-- [#bddc243](https://github.com/pydio/cells/commit/bddc243dd6f5d6cf613a93096398b2dd0661c68f): update cells-fuse dependencies (redo after next cells version is published)
-- [#4f211e8](https://github.com/pydio/cells/commit/4f211e8a50fa450f6c8b717240963742734b2b98): update caddyvault tag
-- [#80d5a8f](https://github.com/pydio/cells/commit/80d5a8fb159c5d91683fb060747306bdc28d5e4b): Log host key
-- [#93f8b45](https://github.com/pydio/cells/commit/93f8b452a2f93fa4e77f9298316193a1bd344388): translate update task statuses and improve hint for setcap.
-- [#4a37bf6](https://github.com/pydio/cells/commit/4a37bf614c6ddab6913928af52126572c082b408): Enable japanese as it is fully covered
-- [#e5fecde](https://github.com/pydio/cells/commit/e5fecdee6007346a1940fae2200e0b305aeec098): Additional check on db password containing '?' as it breaks hydra sql connection later in the process.
-- [#da09fa1](https://github.com/pydio/cells/commit/da09fa153399e98d3a00db898fc96421d4530a2e): Use longer caching for multiparts - clear cache on MultipartComplete only if underlying operation succeed.
-- [#ea04ee8](https://github.com/pydio/cells/commit/ea04ee8c54453f017df28724ecce8b87e5217fcb): fix wrong command help hint - fix #569
-- [#3d64dfe](https://github.com/pydio/cells/commit/3d64dfe4389c0a88db115e28886d3cc093970c68): update caddy
-- [#6e54ae5](https://github.com/pydio/cells/commit/6e54ae5964172a7a3a3a22ca05161f5eed812392): Next development cycle
+- [#c454972](https://github.com/pydio/cells/commit/c45497268086d31cfe6909943d74bb491ca4c865): Manually fix #573
+- [#e1a1f5e](https://github.com/pydio/cells/commit/e1a1f5ebe18a87bbf507314f9276cc81b4141fe6): Additional parameter on UsersCompleter to include current user.
+- [#186feac](https://github.com/pydio/cells/commit/186feac43d18f72625d1c175c5f2bcdc577ca7f2): Scheduler: hide RequestHost from json zaps
+- [#1e75ad7](https://github.com/pydio/cells/commit/1e75ad70d81230282ffdc37e85e128f5b255c27a): update a couple of dependencies
+- [#1003b33](https://github.com/pydio/cells/commit/1003b335a6943ba084c7f85cf4305d5126885d9a): more missing indexes
+- [#cf75d0e](https://github.com/pydio/cells/commit/cf75d0eba3f452b4683c31f7b160d8ca1d8572dc): more gitignore
+- [#2789e87](https://github.com/pydio/cells/commit/2789e872b6b6f23ea7da1a2b1dc19f24dbb145e9): Missing index on idm_user_meta table
+- [#1a27f15](https://github.com/pydio/cells/commit/1a27f15bbd445424b7ed49045f778ebc5fa12028): Collabora lang : special case for zh-cn
+- [#d75a7b2](https://github.com/pydio/cells/commit/d75a7b2d53ee25ec4aa91d8a66cd84d71f6f832f): Improve Logs date display
+- [#0acafc8](https://github.com/pydio/cells/commit/0acafc8281a0ee0a8d29d259cd309d208fa52683): Helm template update
+- [#daf7347](https://github.com/pydio/cells/commit/daf73478b1b709ba34fa733c3ef7821b1c782850): Helm template update
+- [#43189cc](https://github.com/pydio/cells/commit/43189cc00d523819d644e22f687644a958f2e5bb): Helm template update
+- [#9b6fe1e](https://github.com/pydio/cells/commit/9b6fe1ed6ed6ea0aba36769167663674f1d789d1): Helm template update
+- [#a0e30b5](https://github.com/pydio/cells/commit/a0e30b5f1b5657e2d5b9badd81ad8740c7a38197): Next development cycle
