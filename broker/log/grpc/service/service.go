@@ -31,6 +31,7 @@ import (
 	"github.com/pydio/cells/v4/broker/log"
 	grpc2 "github.com/pydio/cells/v4/broker/log/grpc"
 	"github.com/pydio/cells/v4/common"
+	"github.com/pydio/cells/v4/common/config"
 	proto "github.com/pydio/cells/v4/common/proto/log"
 	"github.com/pydio/cells/v4/common/proto/sync"
 	"github.com/pydio/cells/v4/common/runtime"
@@ -51,6 +52,16 @@ func init() {
 			service.Tag(common.ServiceTagBroker),
 			service.Description("Syslog index store"),
 			service.WithStorageDrivers(log.Drivers...),
+			service.Migrations([]*service.Migration{{
+				TargetVersion: service.FirstRun(),
+				Up: func(ctx context.Context) error {
+					return config.Get(ctx, "services", Name).Val("loggers[0]").Set(map[string]any{
+						"encoding": "console",
+						"level":    "info",
+						"outputs":  []string{"stdout:///"},
+					})
+				},
+			}}),
 			service.WithStorageMigrator(log.Migrate),
 			/*
 				service.WithIndexer(log.NewDAO,

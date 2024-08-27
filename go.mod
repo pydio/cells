@@ -20,6 +20,7 @@ require (
 	github.com/caddyserver/caddy/v2 v2.8.4
 	github.com/caddyserver/certmagic v0.21.3
 	github.com/cskr/pubsub v1.0.2
+	github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc
 	github.com/disintegration/imaging v1.6.2
 	github.com/dsoprea/go-exif/v3 v3.0.1
 	github.com/dsoprea/go-jpeg-image-structure v0.0.0-20221012074422-4f3f7e934102
@@ -69,6 +70,9 @@ require (
 	github.com/json-iterator/go v1.1.12
 	github.com/kardianos/osext v0.0.0-20190222173326-2bc1f35cddc0
 	github.com/karrick/godirwalk v1.17.0
+	github.com/knadh/koanf/parsers/json v0.1.0
+	github.com/knadh/koanf/providers/rawbytes v0.1.0
+	github.com/knadh/koanf/v2 v2.1.1
 	github.com/krolaw/zipstream v0.0.0-20180621105154-0a2661891f94
 	github.com/kylelemons/godebug v1.1.0
 	github.com/livekit/protocol v1.16.0
@@ -112,7 +116,6 @@ require (
 	github.com/sendgrid/sendgrid-go v3.14.0+incompatible
 	github.com/sethvargo/go-limiter v1.0.0
 	github.com/shibukawa/configdir v0.0.0-20170330084843-e180dbdc8da0
-	github.com/sirupsen/logrus v1.9.3
 	github.com/smartystreets/goconvey v1.8.1
 	github.com/spf13/afero v1.11.0
 	github.com/spf13/cast v1.6.0
@@ -241,7 +244,6 @@ require (
 	github.com/cristalhq/jwt/v4 v4.0.2 // indirect
 	github.com/danieljoos/wincred v1.2.1 // indirect
 	github.com/dave/jennifer v1.7.0 // indirect
-	github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc // indirect
 	github.com/dchest/siphash v1.2.1 // indirect
 	github.com/dgraph-io/badger v1.6.2 // indirect
 	github.com/dgraph-io/badger/v2 v2.2007.4 // indirect
@@ -325,7 +327,6 @@ require (
 	github.com/gosimple/unidecode v1.0.1 // indirect
 	github.com/grafana/pyroscope-go/godeltaprof v0.1.6 // indirect
 	github.com/grpc-ecosystem/go-grpc-prometheus v1.2.0 // indirect
-	github.com/grpc-ecosystem/grpcdebug v1.0.5 // indirect
 	github.com/hashicorp/errwrap v1.1.0 // indirect
 	github.com/hashicorp/go-cleanhttp v0.5.2 // indirect
 	github.com/hashicorp/go-multierror v1.1.1 // indirect
@@ -369,11 +370,9 @@ require (
 	github.com/klauspost/readahead v1.4.0 // indirect
 	github.com/klauspost/reedsolomon v1.9.15 // indirect
 	github.com/knadh/koanf/maps v0.1.1 // indirect
-	github.com/knadh/koanf/parsers/json v0.1.0 // indirect
 	github.com/knadh/koanf/parsers/toml v0.1.0 // indirect
 	github.com/knadh/koanf/parsers/yaml v0.1.0 // indirect
 	github.com/knadh/koanf/providers/posflag v0.1.0 // indirect
-	github.com/knadh/koanf/v2 v2.1.1 // indirect
 	github.com/lib/pq v1.10.9 // indirect
 	github.com/libdns/libdns v0.2.2 // indirect
 	github.com/lucasb-eyer/go-colorful v1.2.0 // indirect
@@ -451,6 +450,7 @@ require (
 	github.com/shoenig/go-m1cpu v0.1.6 // indirect
 	github.com/shopspring/decimal v1.4.0 // indirect
 	github.com/shurcooL/sanitized_anchor_name v1.0.0 // indirect
+	github.com/sirupsen/logrus v1.9.3 // indirect
 	github.com/slackhq/nebula v1.6.1 // indirect
 	github.com/smallstep/certificates v0.26.1 // indirect
 	github.com/smallstep/go-attestation v0.4.4-0.20240109183208-413678f90935 // indirect

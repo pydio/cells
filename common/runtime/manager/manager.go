@@ -202,6 +202,7 @@ func NewManager(ctx context.Context, namespace string, logger log.ZapLogger) (Ma
 	if name := runtime.Name(); name != "" && name != "default" {
 		base += strings.Join(strings.Split("_"+name, "_"), "/processes/")
 	}
+
 	// Initialising listeners
 	if err := m.initListeners(bootstrap, base); err != nil {
 		return nil, err
