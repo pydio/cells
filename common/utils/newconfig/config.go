@@ -5,9 +5,11 @@ import (
 	"fmt"
 	"github.com/spf13/cast"
 	"maps"
+	"reflect"
 	"slices"
 	"strconv"
 	"strings"
+	"time"
 )
 
 type config struct {
@@ -26,9 +28,19 @@ type Values interface {
 	Default(def any) Values
 	Val(path ...string) Values
 
-	String() string
-	StringArray() []string
+	Bool() bool
+	Bytes() []byte
+	Key() []string
+	// Reference() Ref
+	Interface() interface{}
 	Int() int
+	Int64() int64
+	Duration() time.Duration
+	String() string
+	StringMap() map[string]string
+	StringArray() []string
+	Slice() []interface{}
+	Map() map[string]interface{}
 
 	Scan(out any) error
 }
@@ -46,18 +58,6 @@ func New(opts ...Option) *config {
 		v:    &a,
 		opts: options,
 	}
-}
-
-func (c *config) Int() int {
-	return cast.ToInt(c.Get())
-}
-
-func (c *config) String() string {
-	return cast.ToString(c.Get())
-}
-
-func (c *config) StringArray() []string {
-	return cast.ToStringSlice(c.Get())
 }
 
 func (c *config) Scan(out any) error {
@@ -257,6 +257,153 @@ func (c *config) Val(s ...string) Values {
 func (c *config) Default(d any) Values {
 	c.d = d
 	return c
+}
+
+func (c *config) Bool() bool {
+	v := c.Get()
+	if v == nil {
+		return false
+	}
+	return cast.ToBool(v)
+}
+
+func (c *config) Bytes() []byte {
+	v := c.Get()
+	if v == nil {
+		return []byte{}
+	}
+
+	if m := c.opts.Marshaller; m != nil {
+		data, err := m.Marshal(v)
+		if err != nil {
+			return []byte{}
+		}
+
+		return data
+	}
+
+	return []byte(cast.ToString(v))
+}
+
+func (c *config) Key() []string {
+	return c.k
+}
+
+//func (c *config) Reference() Ref {
+//	r := &ref{}
+//	if err := c.Scan(r); err != nil {
+//		return nil
+//	}
+//
+//	rr, ok := GetReference(r)
+//	if ok {
+//		return rr
+//	}
+//
+//	return nil
+//}
+
+func (c *config) Interface() interface{} {
+	return c.Get()
+}
+
+func (c *config) Int() int {
+	v := c.Get()
+	if v == nil {
+		return 0
+	}
+	return cast.ToInt(v)
+}
+
+func (c *config) Int64() int64 {
+	v := c.Get()
+	if v == nil {
+		return 0
+	}
+	return cast.ToInt64(v)
+}
+
+func (c *config) Duration() time.Duration {
+	v := c.Get()
+	if v == nil {
+		return 0 * time.Second
+	}
+	return cast.ToDuration(v)
+}
+
+func (c *config) String() string {
+	v := c.Get()
+	switch vv := v.(type) {
+	case []interface{}, map[string]interface{}:
+		if m := c.opts.Marshaller; m != nil {
+			data, err := m.Marshal(vv)
+			if err != nil {
+				return ""
+			}
+
+			return string(data)
+		}
+
+		return ""
+	case string:
+		// Need to handle it differently
+		if vv == "default" {
+			v = c.d
+		}
+	}
+
+	return cast.ToString(v)
+}
+
+func (c *config) StringMap() map[string]string {
+	v := c.Get()
+	if v == nil {
+		return map[string]string{}
+	}
+	return cast.ToStringMapString(v)
+}
+
+func (c *config) StringArray() []string {
+	v := c.Get()
+	vv := reflect.ValueOf(v)
+	if !vv.IsValid() || reflect.ValueOf(v).IsNil() || reflect.ValueOf(v).IsZero() {
+		return []string{}
+	}
+	return cast.ToStringSlice(c.Get())
+}
+
+func (c *config) Slice() []interface{} {
+	v := c.Get()
+	if v == nil {
+		return []interface{}{}
+	}
+	return cast.ToSlice(c.Get())
+}
+
+func (c *config) Map() map[string]interface{} {
+	v := c.Get()
+	if v == nil {
+		return map[string]interface{}{}
+	}
+	r, _ := cast.ToStringMapE(v)
+	return r
+}
+
+func (c *config) UnmarshalJSON(data []byte) error {
+	var m map[string]interface{}
+
+	err := c.opts.Unmarshaler.Unmarshal(data, &m)
+	if err != nil {
+		return err
+	}
+
+	*c.v = m
+
+	return nil
+}
+
+func (c *config) MarshalJSON() ([]byte, error) {
+	return c.opts.Marshaller.Marshal(c.v)
 }
 
 func merge(dst any, src any) (any, error) {
