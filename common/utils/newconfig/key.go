@@ -40,8 +40,7 @@ func StringToKeys(s ...string) []string {
 	lastIndex := 0
 	for i, v := range r {
 		if v == "#" {
-			lastIndex = i
-
+			lastIndex = i + 1
 		}
 	}
 
