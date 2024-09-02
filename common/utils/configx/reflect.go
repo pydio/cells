@@ -1,4 +1,4 @@
-package newconfig
+package configx
 
 import (
 	"fmt"

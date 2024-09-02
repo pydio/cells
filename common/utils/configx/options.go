@@ -21,14 +21,17 @@
 package configx
 
 import (
+	"bytes"
 	"context"
-	"github.com/spf13/cast"
+	"fmt"
 
+	"github.com/spf13/cast"
 	"google.golang.org/protobuf/encoding/protojson"
 	"google.golang.org/protobuf/proto"
 	yaml "gopkg.in/yaml.v2"
 
 	json "github.com/pydio/cells/v4/common/utils/jsonx"
+	"github.com/pydio/cells/v4/common/utils/openurl"
 )
 
 type Unmarshaler interface {
@@ -61,6 +64,8 @@ type Options struct {
 
 	// Do not create any resources
 	ReadOnly bool
+
+	ReferencePool *openurl.Pool[Values]
 
 	// Used to pass other potential options
 	Context context.Context
@@ -97,6 +102,30 @@ func WithJSON() Option {
 	return func(o *Options) {
 		o.Unmarshaler = &jsonReader{}
 		o.Marshaller = &jsonWriter{}
+	}
+}
+
+type binaryReader struct{}
+
+func (g *binaryReader) Unmarshal(data []byte, out any) error {
+	b := bytes.NewBuffer(data)
+	_, err := fmt.Fscanln(b, out)
+	return err
+}
+
+type binaryWriter struct{}
+
+func (g *binaryWriter) Marshal(out any) ([]byte, error) {
+	// A simple encoding: plain text.
+	var b bytes.Buffer
+	fmt.Fprintln(&b, out)
+	return b.Bytes(), nil
+}
+
+func WithBinary() Option {
+	return func(o *Options) {
+		o.Unmarshaler = &binaryReader{}
+		o.Marshaller = &binaryWriter{}
 	}
 }
 
@@ -175,5 +204,11 @@ func WithReadOnly() Option {
 func WithSetCallback(f func([]string, interface{}) error) Option {
 	return func(o *Options) {
 		o.SetCallback = f
+	}
+}
+
+func WithReferencePool(ref *openurl.Pool[Values]) Option {
+	return func(o *Options) {
+		o.ReferencePool = ref
 	}
 }

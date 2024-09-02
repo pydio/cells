@@ -30,9 +30,11 @@ import (
 	"github.com/pydio/cells/v4/common/utils/propagator"
 )
 
+type store Store
+
 type versionStore struct {
 	revisions.Store
-	store Store
+	store
 }
 
 func RevisionsStore(ctx context.Context) revisions.Store {
@@ -69,7 +71,7 @@ func (v *versionStore) Val(path ...string) configx.Values {
 }
 
 // Get access to the underlying structure at a certain path
-func (v *versionStore) Get() configx.Value {
+func (v *versionStore) Get() any {
 	return v.store.Get()
 }
 
@@ -125,8 +127,4 @@ func (v *versionStore) Lock() {
 
 func (v *versionStore) Unlock() {
 	v.store.Unlock()
-}
-
-type configStore struct {
-	store Store
 }

@@ -51,7 +51,7 @@ func (m *ActionOutput) JsonAsValues() configx.Values {
 func (m *ActionOutput) JsonAsValue() configx.Value {
 	v := configx.New(configx.WithJSON())
 	v.Set(m.JsonBody)
-	return v.Get()
+	return v
 }
 
 func (m *ActionOutput) JsonSliceOfObjects() ([]map[string]interface{}, error) {

@@ -22,8 +22,6 @@ package config
 
 import (
 	"context"
-
-	"github.com/pydio/cells/v4/common/utils/configx"
 )
 
 // HasDatabase checks if DB key is set
@@ -43,7 +41,7 @@ func GetStorageDriver(store Store, configKey, serviceName string) (driver string
 	}
 	defined = store.Val("#/databases/" + dbKey).StringMap()["driver"] != ""
 	// Finally, use #/defaults/database value
-	c := store.Val("#/databases/" + dbKey).Default(configx.Reference("#/defaults/database")).StringMap()
+	c := store.Val("#/databases/" + dbKey).Default(store.Val("#/defaults/database").Get()).StringMap()
 
 	return c["driver"], c["dsn"], defined
 }
@@ -51,7 +49,7 @@ func GetStorageDriver(store Store, configKey, serviceName string) (driver string
 // GetDatabase retrieves the database data from the config
 func GetDatabase(ctx context.Context, key string) (string, string) {
 
-	c := Get(ctx, "#/databases/"+key).Default(configx.Reference("#/defaults/database")).StringMap()
+	c := Get(ctx, "#/databases/"+key).Default(Get(ctx, "#/defaults/database").Get()).StringMap()
 
 	return c["driver"], c["dsn"]
 }
@@ -67,7 +65,7 @@ func SetDatabase(ctx context.Context, key string, driver string, dsn string, def
 	}
 	// If defaultsKey is set and value is not already set, add it
 	if defaultsKey != "" && Get(ctx, "defaults", defaultsKey).String() == "" {
-		return Set(ctx, configx.Reference("#/databases/"+key), "defaults", defaultsKey)
+		return Set(ctx, Get(ctx, "#/databases/"+key).Get(), "defaults", defaultsKey)
 	}
 	return nil
 }

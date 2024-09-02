@@ -8,7 +8,9 @@ import (
 )
 
 type ProxySetter func(Store, interface{}, ...string) error
+
 type ProxyGetter func(Store, ...string) configx.Values
+
 type ProxyDeleter func(Store, ...string) error
 
 var (
@@ -88,7 +90,7 @@ func (p *proxyValues) Set(value interface{}) error {
 	return p.Values.Set(value)
 }
 
-func (p *proxyValues) Get() configx.Value {
+func (p *proxyValues) Get() any {
 	if p.getter != nil {
 		return p.getter(p.store, p.path...)
 	}

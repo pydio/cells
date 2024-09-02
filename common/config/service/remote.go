@@ -143,7 +143,7 @@ func (r *remote) Val(path ...string) configx.Values {
 	}
 }
 
-func (r *remote) Get() configx.Value {
+func (r *remote) Get() any {
 	v := configx.New(configx.WithJSON())
 
 	rsp, err := r.cli.Get(r.ctx, &pb.GetRequest{
@@ -159,7 +159,7 @@ func (r *remote) Get() configx.Value {
 		fmt.Println("And the error there is ? ", err)
 	}
 
-	return v
+	return v.Get()
 }
 
 func (r *remote) Set(value interface{}) error {
@@ -325,7 +325,7 @@ func (v *values) Val(path ...string) configx.Values {
 	}
 }
 
-func (v *values) Get() configx.Value {
+func (v *values) Get() any {
 	c := configx.New(configx.WithJSON())
 
 	rsp, err := v.cli.Get(v.ctx, &pb.GetRequest{
@@ -362,7 +362,7 @@ func (v *values) Clone() configx.Value {
 		//fmt.Println("And the error is ? ", err)
 	}
 
-	return c.Get()
+	return c
 }
 
 func (v *values) Set(value interface{}) error {
@@ -391,73 +391,4 @@ func (v *values) Del() error {
 	}
 
 	return nil
-}
-
-func (v *values) Default(i interface{}) configx.Value {
-	if vv, ok := configx.GetReference(i); ok {
-		i = (&values{
-			ctx:  v.ctx,
-			cli:  v.cli,
-			id:   v.id,
-			path: configx.StringToKeys(vv.Get()),
-		}).Get()
-	}
-
-	return v.Get().Default(i)
-}
-
-func (v *values) Bool() bool {
-	return v.Get().Bool()
-}
-
-func (v *values) Bytes() []byte {
-	return v.Get().Bytes()
-}
-
-func (v *values) Key() []string {
-	return v.Get().Key()
-}
-
-func (v *values) Reference() configx.Ref {
-	return v.Get().Reference()
-}
-
-func (v *values) Interface() interface{} {
-	return v.Get().Interface()
-}
-
-func (v *values) Int() int {
-	return v.Get().Int()
-}
-
-func (v *values) Int64() int64 {
-	return v.Get().Int64()
-}
-
-func (v *values) Duration() time.Duration {
-	return v.Get().Duration()
-}
-
-func (v *values) String() string {
-	return v.Get().String()
-}
-
-func (v *values) StringMap() map[string]string {
-	return v.Get().StringMap()
-}
-
-func (v *values) StringArray() []string {
-	return v.Get().StringArray()
-}
-
-func (v *values) Slice() []interface{} {
-	return v.Get().Slice()
-}
-
-func (v *values) Map() map[string]interface{} {
-	return v.Get().Map()
-}
-
-func (v *values) Scan(i interface{}, opts ...configx.Option) error {
-	return v.Get().Scan(i, opts...)
 }

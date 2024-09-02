@@ -24,6 +24,34 @@ import (
 	"io"
 )
 
+type Watcher interface {
+	Watch(opts ...WatchOption) (Receiver, error)
+}
+
+type Receiver interface {
+	Next() (interface{}, error)
+	Stop()
+}
+
+type WatchOption func(*WatchOptions)
+
+type WatchOptions struct {
+	Path        []string
+	ChangesOnly bool
+}
+
+func WithPath(path ...string) WatchOption {
+	return func(o *WatchOptions) {
+		o.Path = path
+	}
+}
+
+func WithChangesOnly() WatchOption {
+	return func(o *WatchOptions) {
+		o.ChangesOnly = true
+	}
+}
+
 var _ Receiver = (*combinedWatcher)(nil)
 
 type event struct {

@@ -103,7 +103,7 @@ func (v *vaultStoreLocker) Unlock() {
 }
 
 // Get access to the underlying structure at a certain path
-func (v *vault) Get() configx.Value {
+func (v *vault) Get() any {
 	return v.vault.Get()
 }
 
@@ -140,8 +140,8 @@ func (v *vaultvalues) Val(s ...string) configx.Values {
 
 // Get retrieves the value as saved in the config (meaning the uuid if it is a registered key)
 // Data will need to be retrieved from the vault via other means
-func (v *vaultvalues) Get() configx.Value {
-	return v.Values
+func (v *vaultvalues) Get() any {
+	return v.Values.Get()
 }
 
 // Set ensures that the keys that have been target are saved encrypted in the vault
@@ -205,58 +205,58 @@ func (v *vaultvalues) Set(value interface{}) error {
 }
 
 // Default value
-func (v *vaultvalues) Default(i interface{}) configx.Value {
-	return v.Get().Default(i)
+func (v *vaultvalues) Default(i interface{}) configx.Values {
+	return v.Default(i)
 }
 
 // Bool value
 func (v *vaultvalues) Bool() bool {
-	return v.Get().Bool()
+	return v.Bool()
 }
 
 // Int value
 func (v *vaultvalues) Int() int {
-	return v.Get().Int()
+	return v.Int()
 }
 
 // Int64 value
 func (v *vaultvalues) Int64() int64 {
-	return v.Get().Int64()
+	return v.Int64()
 }
 
 // Bytes value
 func (v *vaultvalues) Bytes() []byte {
-	return v.Get().Bytes()
+	return v.Bytes()
 }
 
 // Duration value
 func (v *vaultvalues) Duration() time.Duration {
-	return v.Get().Duration()
+	return v.Duration()
 }
 
 // String value
 func (v *vaultvalues) String() string {
-	return v.Get().Default("").String()
+	return v.Default("").String()
 }
 
 // StringMap value
 func (v *vaultvalues) StringMap() map[string]string {
-	return v.Get().StringMap()
+	return v.StringMap()
 }
 
 // StringArray value
 func (v *vaultvalues) StringArray() []string {
-	return v.Get().StringArray()
+	return v.StringArray()
 }
 
 // Slice value
 func (v *vaultvalues) Slice() []interface{} {
-	return v.Get().Slice()
+	return v.Slice()
 }
 
 // Map value
 func (v *vaultvalues) Map() map[string]interface{} {
-	return v.Get().Map()
+	return v.Map()
 }
 
 // MarshalJSON

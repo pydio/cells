@@ -149,7 +149,7 @@ func New(opt ...configx.Option) config.Store {
 }
 
 func (m *memory) flush() {
-	snap := configx.New()
+	snap := configx.New(configx.WithJSON())
 	snap.Set(std.DeepClone(m.v.Interface()))
 	for {
 		select {
@@ -161,7 +161,7 @@ func (m *memory) flush() {
 			}
 			m.timer = time.NewTimer(timeout)
 		case <-m.timer.C:
-			clone := std.DeepClone(m.v.Interface())
+			clone := std.DeepClone(m.v.Get())
 			if clone == nil {
 				continue
 			}
@@ -200,8 +200,8 @@ func (m *memory) update() {
 	m.reset <- true
 }
 
-func (m *memory) Get() configx.Value {
-	return m.v
+func (m *memory) Get() any {
+	return m.v.Get()
 }
 
 func (m *memory) Set(value interface{}) error {
@@ -344,7 +344,7 @@ func (r *receiver) Next() (interface{}, error) {
 			r.timer = time.NewTimer(timeout)
 
 		case <-r.timer.C:
-			c := configx.New()
+			c := configx.New(configx.WithJSON())
 			if r.changesOnly {
 				for _, op := range changes {
 					switch op.Type {
