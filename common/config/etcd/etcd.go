@@ -326,11 +326,11 @@ func (m *etcd) watch(ctx context.Context) {
 	}
 }
 
-func (m *etcd) Get() configx.Value {
+func (m *etcd) Get() any {
 	m.valuesLocker.RLock()
 	defer m.valuesLocker.RUnlock()
 
-	return m.values
+	return m.values.Get()
 }
 
 func (m *etcd) Val(path ...string) configx.Values {
@@ -599,11 +599,11 @@ func (v *values) Set(value interface{}) error {
 	return nil
 }
 
-func (v *values) Get() configx.Value {
+func (v *values) Get() any {
 	v.valuesLocker.RLock()
 	defer v.valuesLocker.RUnlock()
 
-	return v.values.Val(v.path)
+	return v.values.Val(v.path).Get()
 }
 
 func (v *values) Clone() configx.Value {
@@ -636,64 +636,64 @@ func (v *values) Val(path ...string) configx.Values {
 	return &values{values: v.values, valuesLocker: v.valuesLocker, withKeys: v.withKeys, ops: v.ops, prefix: v.prefix, path: strings.Join(path, "/"), leaseID: v.leaseID, opts: v.opts}
 }
 
-func (v *values) Default(i interface{}) configx.Value {
-	return v.Get().Default(i)
+func (v *values) Default(i interface{}) configx.Values {
+	return v.values.Val(v.path).Default(i)
 }
 
 func (v *values) Bool() bool {
-	return v.Get().Bool()
+	return v.values.Val(v.path).Bool()
 }
 
 func (v *values) Bytes() []byte {
-	return v.Get().Bytes()
+	return v.values.Val(v.path).Bytes()
 }
 
 func (v *values) Key() []string {
-	return v.Get().Key()
+	return v.values.Val(v.path).Key()
 }
 
-func (v *values) Reference() configx.Ref {
-	return v.Get().Reference()
-}
+//func (v *values) Reference() configx.Ref {
+//	return v.Get().Reference()
+//}
 
 func (v *values) Interface() interface{} {
-	return v.Get().Interface()
+	return v.values.Val(v.path).Interface()
 }
 
 func (v *values) Int() int {
-	return v.Get().Int()
+	return v.values.Val(v.path).Int()
 }
 
 func (v *values) Int64() int64 {
-	return v.Get().Int64()
+	return v.values.Val(v.path).Int64()
 }
 
 func (v *values) Duration() time.Duration {
-	return v.Get().Duration()
+	return v.values.Val(v.path).Duration()
 }
 
 func (v *values) String() string {
-	return v.Get().String()
+	return v.values.Val(v.path).String()
 }
 
 func (v *values) StringMap() map[string]string {
-	return v.Get().StringMap()
+	return v.values.Val(v.path).StringMap()
 }
 
 func (v *values) StringArray() []string {
-	return v.Get().StringArray()
+	return v.values.Val(v.path).StringArray()
 }
 
 func (v *values) Slice() []interface{} {
-	return v.Get().Slice()
+	return v.values.Val(v.path).Slice()
 }
 
 func (v *values) Map() map[string]interface{} {
-	return v.Get().Map()
+	return v.values.Val(v.path).Map()
 }
 
 func (v *values) Scan(i interface{}, opts ...configx.Option) error {
-	return v.Get().Scan(i, opts...)
+	return v.values.Val(v.path).Scan(i, opts...)
 }
 
 type lockerMutex struct {

@@ -34,6 +34,8 @@ import (
 	"github.com/pydio/cells/v4/common/utils/openurl"
 )
 
+type Getter func() any
+
 type Unmarshaler interface {
 	Unmarshal([]byte, interface{}) error
 }
@@ -54,6 +56,7 @@ type Option func(*Options)
 
 type Options struct {
 	InitData interface{}
+	Getter
 	Unmarshaler
 	Marshaller
 	Encrypter
@@ -96,6 +99,12 @@ type jsonWriter struct{}
 
 func (j *jsonWriter) Marshal(in interface{}) ([]byte, error) {
 	return json.Marshal(in)
+}
+
+func WithGetter(g Getter) Option {
+	return func(o *Options) {
+		o.Getter = g
+	}
 }
 
 func WithJSON() Option {

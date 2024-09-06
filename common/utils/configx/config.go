@@ -3,6 +3,7 @@ package configx
 import (
 	"context"
 	"fmt"
+	"github.com/pydio/cells/v4/common/errors"
 	"maps"
 	"reflect"
 	"slices"
@@ -33,13 +34,16 @@ type Entrypoint interface {
 }
 
 type Values interface {
-	Get() any
-	Set(data any) error
-	Del() error
+	KVStore
+	Valuer
 
 	Default(def any) Values
 	Val(path ...string) Values
 
+	Scanner
+}
+
+type Valuer interface {
 	Bool() bool
 	Bytes() []byte
 	Key() []string
@@ -53,15 +57,11 @@ type Values interface {
 	StringArray() []string
 	Slice() []interface{}
 	Map() map[string]interface{}
-
-	Scanner
 }
 
 type Scanner interface {
-	Scan(out any) error
+	Scan(out any, options ...Option) error
 }
-
-type Value Values
 
 func New(opts ...Option) *config {
 	options := Options{}
@@ -69,6 +69,10 @@ func New(opts ...Option) *config {
 	for _, o := range opts {
 		o(&options)
 	}
+
+	//if options.Marshaller == nil {
+	//	WithJSON()(&options)
+	//}
 
 	var a any
 
@@ -78,23 +82,50 @@ func New(opts ...Option) *config {
 	}
 }
 
-func (c *config) Scan(out any) error {
+func (c *config) Scan(out any, options ...Option) error {
+	var opts Options
+	for _, o := range options {
+		o(&opts)
+	}
+
+	marshaller := opts.Marshaller
+	if marshaller == nil {
+		marshaller = c.opts.Marshaller
+	}
+
+	unmarshaler := opts.Unmarshaler
+	if unmarshaler == nil {
+		unmarshaler = c.opts.Unmarshaler
+	}
+
 	var b []byte
-	if marshaller := c.opts.Marshaller; marshaller != nil {
+	if marshaller != nil {
 		if bb, err := marshaller.Marshal(c.Get()); err != nil {
 			return err
 		} else {
 			b = bb
 		}
 	}
-	if unmarshaler := c.opts.Unmarshaler; unmarshaler != nil {
+
+	if unmarshaler != nil {
 		return unmarshaler.Unmarshal(b, out)
+	} else {
+		rv := reflect.ValueOf(out).Elem()
+		if rv.CanSet() {
+			rv.Set(reflect.ValueOf(c.Get()))
+		} else {
+			return errors.New("cannot be set")
+		}
 	}
 
 	return nil
 }
 
 func (c *config) Get() any {
+	if g := c.opts.Getter; g != nil {
+		return g()
+	}
+
 	var current any
 
 	current = *c.v
@@ -164,12 +195,12 @@ func (c *config) Set(data any) error {
 	}
 
 	// Checking if we don't have a reference in the parent keys
-	for i := len(c.k) - 1; i >= 0; i-- {
-		switch m := c.Val("#").Val(c.k[:i]...).Get().(type) {
-		case map[string]any:
-			fmt.Println("HERE ", m["$ref"])
-		}
-	}
+	//for i := len(c.k) - 1; i >= 0; i-- {
+	//	switch m := c.Val("#").Val(c.k[:i]...).Interface().(type) {
+	//	case map[string]any:
+	//		fmt.Println("HERE", m["$ref"])
+	//	}
+	//}
 
 	if enc := c.opts.Encrypter; enc != nil {
 		switch vv := data.(type) {
@@ -206,15 +237,17 @@ func (c *config) Set(data any) error {
 		}
 	}
 
-	var v any
 	if c.opts.Unmarshaler != nil {
+		var v any
 		if err := c.opts.Unmarshaler.Unmarshal(b, &v); err != nil {
 			return err
+		} else {
+			data = v
 		}
 	}
 
 	// Building the keys one by one
-	var current = v
+	var current = data
 	for i := len(c.k); i >= 1; i-- {
 		k, err := strconv.Atoi(c.k[i-1])
 		if err == nil {
@@ -245,7 +278,7 @@ func (c *config) Del() error {
 
 	// Retrieving parent
 	v := c.Val("#").Val(c.k[:len(c.k)-1]...)
-	switch vv := v.Get().(type) {
+	switch vv := v.Interface().(type) {
 	case []any:
 		kk, err := strconv.Atoi(c.k[len(c.k)-1])
 		if err != nil {
@@ -278,7 +311,7 @@ func (c *config) Default(d any) Values {
 }
 
 func (c *config) Bool() bool {
-	v := c.Get()
+	v := c.Interface()
 	if v == nil {
 		return false
 	}
@@ -286,7 +319,7 @@ func (c *config) Bool() bool {
 }
 
 func (c *config) Bytes() []byte {
-	v := c.Get()
+	v := c.Interface()
 	if v == nil {
 		return []byte{}
 	}
@@ -350,7 +383,8 @@ func (c *config) Duration() time.Duration {
 }
 
 func (c *config) String() string {
-	v := c.Get()
+
+	v := c.Interface()
 	switch vv := v.(type) {
 	case []interface{}, map[string]interface{}:
 		if m := c.opts.Marshaller; m != nil {

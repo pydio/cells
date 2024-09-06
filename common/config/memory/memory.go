@@ -140,20 +140,30 @@ func New(opt ...configx.Option) config.Store {
 		externalLocker:  &sync.RWMutex{},
 		receiversLocker: &sync.RWMutex{},
 		reset:           make(chan bool),
-		timer:           time.NewTimer(timeout),
 	}
 
 	go m.flush()
+
+	m.timer = time.NewTimer(timeout)
 
 	return m
 }
 
 func (m *memory) flush() {
-	snap := configx.New(configx.WithJSON())
+	snap := configx.New()
 	snap.Set(std.DeepClone(m.v.Interface()))
+
+	// Waiting for first call to start the timeout
+	select {
+	case <-m.reset:
+		m.timer = time.NewTimer(timeout)
+	}
+
+	// Now looping the timer
 	for {
 		select {
 		case <-m.reset:
+
 			m.timer.Stop()
 			select {
 			case <-m.timer.C:
@@ -162,6 +172,7 @@ func (m *memory) flush() {
 			m.timer = time.NewTimer(timeout)
 		case <-m.timer.C:
 			clone := std.DeepClone(m.v.Get())
+
 			if clone == nil {
 				continue
 			}
@@ -264,7 +275,6 @@ func (m *memory) Watch(opts ...configx.WatchOption) (configx.Receiver, error) {
 		regPath:     regPath,
 		level:       len(o.Path),
 		m:           m,
-		timer:       time.NewTimer(timeout),
 		changesOnly: o.ChangesOnly,
 	}
 
@@ -331,6 +341,21 @@ func (r *receiver) call(op diff.Change) error {
 func (r *receiver) Next() (interface{}, error) {
 	changes := []diff.Change{}
 
+	select {
+	case op := <-r.ch:
+		if r.closed {
+			return nil, errClosedChannel
+		}
+
+		changes = append(changes, op)
+
+		if r.timer != nil {
+			r.timer.Stop()
+		}
+
+		r.timer = time.NewTimer(timeout)
+	}
+
 	for {
 		select {
 		case op := <-r.ch:
@@ -344,7 +369,7 @@ func (r *receiver) Next() (interface{}, error) {
 			r.timer = time.NewTimer(timeout)
 
 		case <-r.timer.C:
-			c := configx.New(configx.WithJSON())
+			c := configx.New()
 			if r.changesOnly {
 				for _, op := range changes {
 					switch op.Type {
@@ -383,7 +408,6 @@ func (r *receiver) Next() (interface{}, error) {
 					return nil, err
 				}
 			}
-
 			return c, nil
 		}
 	}

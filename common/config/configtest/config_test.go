@@ -45,8 +45,8 @@ import (
 	"github.com/pydio/cells/v4/common/utils/configx"
 	"github.com/pydio/cells/v4/common/utils/std"
 
-	_ "github.com/pydio/cells/v4/common/config/etcd"
-	_ "github.com/pydio/cells/v4/common/config/file"
+	// _ "github.com/pydio/cells/v4/common/config/etcd"
+	// _ "github.com/pydio/cells/v4/common/config/file"
 	_ "github.com/pydio/cells/v4/common/config/memory"
 	_ "github.com/pydio/cells/v4/common/config/service"
 )

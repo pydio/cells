@@ -24,18 +24,13 @@ import (
 	"context"
 	"crypto/tls"
 	"fmt"
+	"go.uber.org/zap"
 	"net/url"
 	"os"
 	"strings"
 	"sync"
-	"time"
-
-	clientv3 "go.etcd.io/etcd/client/v3"
-	"go.uber.org/zap"
 
 	"github.com/pydio/cells/v4/common/config"
-	"github.com/pydio/cells/v4/common/config/etcd"
-	"github.com/pydio/cells/v4/common/config/file"
 	"github.com/pydio/cells/v4/common/config/memory"
 	"github.com/pydio/cells/v4/common/crypto"
 	pb "github.com/pydio/cells/v4/common/proto/registry"
@@ -102,55 +97,55 @@ func (o *URLOpener) openURL(ctx context.Context, u *url.URL) (registry.Registry,
 
 	// Init store
 	opts = append(opts, configx.WithInitData(map[string]interface{}{
-		"node":     &sync.Map{},
-		"service":  &sync.Map{},
-		"edge":     &sync.Map{},
-		"dao":      &sync.Map{},
-		"server":   &sync.Map{},
-		"address":  &sync.Map{},
-		"endpoint": &sync.Map{},
-		"tag":      &sync.Map{},
-		"stats":    &sync.Map{},
-		"generic":  &sync.Map{},
-		"other":    &sync.Map{},
+		//"node":     &sync.Map{},
+		//"service":  &sync.Map{},
+		//"edge":     &sync.Map{},
+		//"dao":      &sync.Map{},
+		//"server":   &sync.Map{},
+		//"address":  &sync.Map{},
+		//"endpoint": &sync.Map{},
+		//"tag":      &sync.Map{},
+		//"stats":    &sync.Map{},
+		//"generic":  &sync.Map{},
+		//"other":    &sync.Map{},
 	}))
 
 	switch strings.TrimSuffix(u.Scheme, "+tls") {
-	case "etcd":
-		addr := "://" + u.Host
-		if o.tlsConfig == nil {
-			addr = "http" + addr
-		} else {
-			addr = "https" + addr
-		}
-
-		// Registry via etcd
-		pwd, _ := u.User.Password()
-
-		// Registry via etcd
-		etcdConn, err := clientv3.New(clientv3.Config{
-			Endpoints:   []string{addr},
-			DialTimeout: 2 * time.Second,
-			Username:    u.User.Username(),
-			Password:    pwd,
-			TLS:         o.tlsConfig,
-		})
-
-		if err != nil {
-			return nil, err
-		}
-
-		store, err := etcd.NewSource(ctx, etcdConn, u.Path, 10, true, opts...)
-		if err != nil {
-			return nil, err
-		}
-		reg = NewConfigRegistry(store, byName)
-	case "file":
-		store, err := file.New(u.Path, opts...)
-		if err != nil {
-			return nil, err
-		}
-		reg = NewConfigRegistry(store, byName)
+	//case "etcd":
+	//	addr := "://" + u.Host
+	//	if o.tlsConfig == nil {
+	//		addr = "http" + addr
+	//	} else {
+	//		addr = "https" + addr
+	//	}
+	//
+	//	// Registry via etcd
+	//	pwd, _ := u.User.Password()
+	//
+	//	// Registry via etcd
+	//	etcdConn, err := clientv3.New(clientv3.Config{
+	//		Endpoints:   []string{addr},
+	//		DialTimeout: 2 * time.Second,
+	//		Username:    u.User.Username(),
+	//		Password:    pwd,
+	//		TLS:         o.tlsConfig,
+	//	})
+	//
+	//	if err != nil {
+	//		return nil, err
+	//	}
+	//
+	//	store, err := etcd.NewSource(ctx, etcdConn, u.Path, 10, true, opts...)
+	//	if err != nil {
+	//		return nil, err
+	//	}
+	//	reg = NewConfigRegistry(store, byName)
+	//case "file":
+	//	store, err := file.New(u.Path, opts...)
+	//	if err != nil {
+	//		return nil, err
+	//	}
+	//	reg = NewConfigRegistry(store, byName)
 	case "mem":
 		store := memory.New(opts...)
 
@@ -256,7 +251,7 @@ func (c *configRegistry) scanAndBroadcast(res configx.Values, bc broadcaster, bc
 	val := values.Val(getFromItemType(bcType))
 	if val.Get() != nil {
 		itemsMap := map[string]interface{}{}
-		if err := val.Default(map[string]interface{}{}).Scan(itemsMap); err != nil {
+		if err := val.Scan(&itemsMap); err != nil {
 			log.Error("Error while scanning registry watch event to sync map", zap.Error(err))
 			return err
 		}
@@ -381,6 +376,7 @@ func (c *configRegistry) Register(item registry.Item, option ...registry.Registe
 		return err
 	}
 
+	// fmt.Println(c.store.Val(getType(item)).Val(item.ID()).Get())
 	if err := c.store.Save("system", "register"); err != nil {
 		return err
 	}
@@ -469,12 +465,13 @@ func (c *configRegistry) List(opts ...registry.Option) ([]registry.Item, error) 
 			continue
 		}
 
-		rawItems, ok := store.Get().Default(&sync.Map{}).Interface().(*sync.Map)
+		rawItems, ok := store.Default(map[string]any{}).Interface().(map[string]any)
 		if !ok {
+			fmt.Println("We have a problem here ", store.Interface())
 			continue
 		}
 
-		rawItems.Range(func(k any, rawItem any) bool {
+		for _, rawItem := range rawItems {
 			var item registry.Item
 			switch ri := rawItem.(type) {
 			case registry.Item:
@@ -491,7 +488,7 @@ func (c *configRegistry) List(opts ...registry.Option) ([]registry.Item, error) 
 				}
 			}
 			if len(o.IDs) > 0 && !foundID {
-				return true
+				continue
 			}
 
 			foundName := false
@@ -503,7 +500,7 @@ func (c *configRegistry) List(opts ...registry.Option) ([]registry.Item, error) 
 			}
 
 			if len(o.Names) > 0 && !foundName {
-				return true
+				continue
 			}
 
 			accept := true
@@ -515,14 +512,11 @@ func (c *configRegistry) List(opts ...registry.Option) ([]registry.Item, error) 
 			}
 
 			if len(o.Filters) > 0 && !accept {
-				return true
+				continue
 			}
 
 			res = append(res, item)
-
-			return true
-		})
-
+		}
 	}
 
 	return res, nil
@@ -561,7 +555,9 @@ func (c *configRegistry) Watch(opts ...registry.Option) (registry.Watcher, error
 
 	// We shouldn't block the response
 	go func() {
-		res <- registry.NewResult(pb.ActionType_CREATE, items)
+		if len(items) > 0 {
+			res <- registry.NewResult(pb.ActionType_CREATE, items)
+		}
 	}()
 
 	c.broadcastersLock.Lock()

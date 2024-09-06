@@ -48,7 +48,7 @@ func (m *ActionOutput) JsonAsValues() configx.Values {
 }
 
 // JsonAsValue loads JsonBody into a configx.Value type to ease golang templating
-func (m *ActionOutput) JsonAsValue() configx.Value {
+func (m *ActionOutput) JsonAsValue() configx.Values {
 	v := configx.New(configx.WithJSON())
 	v.Set(m.JsonBody)
 	return v

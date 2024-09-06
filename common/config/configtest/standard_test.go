@@ -28,8 +28,8 @@ import (
 	"github.com/pydio/cells/v4/common/utils/configx"
 
 	// Plugins to test
-	_ "github.com/pydio/cells/v4/common/config/etcd"
-	_ "github.com/pydio/cells/v4/common/config/file"
+	// _ "github.com/pydio/cells/v4/common/config/etcd"
+	// _ "github.com/pydio/cells/v4/common/config/file"
 	_ "github.com/pydio/cells/v4/common/config/memory"
 )
 

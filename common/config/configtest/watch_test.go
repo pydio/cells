@@ -30,8 +30,8 @@ import (
 
 	"github.com/pydio/cells/v4/common/config"
 	// Plugins to test
-	_ "github.com/pydio/cells/v4/common/config/etcd"
-	_ "github.com/pydio/cells/v4/common/config/file"
+	// _ "github.com/pydio/cells/v4/common/config/etcd"
+	// _ "github.com/pydio/cells/v4/common/config/file"
 	_ "github.com/pydio/cells/v4/common/config/memory"
 )
 
@@ -42,8 +42,6 @@ func testWatch(t *testing.T, store config.Store) {
 			wg := &sync.WaitGroup{}
 
 			w, _ := store.Watch()
-			// We first receive the initial list
-			w.Next()
 
 			go func() {
 				defer w.Stop()

@@ -61,6 +61,7 @@ func (m *watcher) actionMatches(event, filter pb.ActionType) bool {
 }
 
 func (m *watcher) Next() (Result, error) {
+
 	for {
 		select {
 		case r := <-m.res:

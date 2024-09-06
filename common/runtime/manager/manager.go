@@ -855,6 +855,8 @@ func (m *manager) ServeAll(oo ...server.ServeOption) error {
 	// Starting servers attached to this node that are currently stopped
 	eg := &errgroup.Group{}
 	servers := m.serversWithStatus(registry.StatusStopped)
+
+	fmt.Println("All servers ", servers)
 	for _, srv := range servers {
 		func(srv server.Server) {
 			eg.Go(func() error {

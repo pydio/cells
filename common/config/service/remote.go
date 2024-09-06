@@ -72,6 +72,7 @@ func (o *URLOpener) Open(ctx context.Context, urlstr string) (config.Store, erro
 type remote struct {
 	ctx            context.Context
 	cli            pb.ConfigClient
+	values         configx.Values
 	id             string
 	path           []string
 	internalLocker *sync.RWMutex
@@ -80,6 +81,8 @@ type remote struct {
 }
 
 func New(ctx context.Context, conn grpc.ClientConnInterface, id string, path string) config.Store {
+	fmt.Println("Store is here")
+
 	r := &remote{
 		ctx:            ctx,
 		cli:            pb.NewConfigClient(conn),
@@ -135,16 +138,18 @@ func New(ctx context.Context, conn grpc.ClientConnInterface, id string, path str
 }
 
 func (r *remote) Val(path ...string) configx.Values {
+	// v := configx.New()
+	fmt.Println("In val")
+
 	return &values{
-		ctx:  r.ctx,
-		cli:  r.cli,
-		id:   r.id,
-		path: append(r.path, path...),
+		ctx: r.ctx,
+		cli: r.cli,
+		id:  r.id,
 	}
 }
 
 func (r *remote) Get() any {
-	v := configx.New(configx.WithJSON())
+	v := configx.New()
 
 	rsp, err := r.cli.Get(r.ctx, &pb.GetRequest{
 		Namespace: r.id,
@@ -310,32 +315,33 @@ func (r *receiver) Stop() {
 }
 
 type values struct {
-	ctx  context.Context
-	cli  pb.ConfigClient
-	id   string
-	path []string
+	ctx context.Context
+	cli pb.ConfigClient
+	id  string
+	configx.Values
 }
 
 func (v *values) Val(path ...string) configx.Values {
+	fmt.Println("In here")
 	return &values{
-		ctx:  v.ctx,
-		cli:  v.cli,
-		id:   v.id,
-		path: append(v.path, path...),
+		ctx:    v.ctx,
+		cli:    v.cli,
+		id:     v.id,
+		Values: v.Val(path...),
 	}
 }
 
 func (v *values) Get() any {
-	c := configx.New(configx.WithJSON())
+	c := configx.New()
 
 	rsp, err := v.cli.Get(v.ctx, &pb.GetRequest{
 		Namespace: v.id,
-		Path:      strings.Join(v.path, "/"),
+		Path:      strings.Join(v.Key(), "/"),
 	})
 
 	if err != nil {
 		fmt.Println("Config error (fork cannot contact remote gRPC service: ", err.Error(), ")")
-		return c
+		return nil
 	}
 
 	if err := c.Set(rsp.GetValue().GetData()); err != nil {
@@ -343,26 +349,6 @@ func (v *values) Get() any {
 	}
 
 	return c.Get()
-}
-
-func (v *values) Clone() configx.Value {
-	c := configx.New(configx.WithJSON())
-
-	rsp, err := v.cli.Get(v.ctx, &pb.GetRequest{
-		Namespace: v.id,
-		Path:      strings.Join(v.path, "/"),
-	})
-
-	if err != nil {
-		fmt.Println("Config error (fork cannot contact remote gRPC service: ", err.Error(), ")")
-		return c
-	}
-
-	if err := c.Set(rsp.GetValue().GetData()); err != nil {
-		//fmt.Println("And the error is ? ", err)
-	}
-
-	return c
 }
 
 func (v *values) Set(value interface{}) error {
@@ -373,7 +359,7 @@ func (v *values) Set(value interface{}) error {
 
 	if _, err := v.cli.Set(v.ctx, &pb.SetRequest{
 		Namespace: v.id,
-		Path:      strings.Join(v.path, "/"),
+		Path:      strings.Join(v.Key(), "/"),
 		Value:     &pb.Value{Data: b},
 	}); err != nil {
 		return err
@@ -385,7 +371,7 @@ func (v *values) Set(value interface{}) error {
 func (v *values) Del() error {
 	if _, err := v.cli.Delete(v.ctx, &pb.DeleteRequest{
 		Namespace: v.id,
-		Path:      strings.Join(v.path, "/"),
+		Path:      strings.Join(v.Key(), "/"),
 	}); err != nil {
 		return err
 	}

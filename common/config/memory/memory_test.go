@@ -1,10 +1,7 @@
 package memory
 
 import (
-	"fmt"
 	"testing"
-
-	"github.com/davecgh/go-spew/spew"
 
 	"github.com/pydio/cells/v4/common/utils/configx"
 )
@@ -26,8 +23,9 @@ func TestMemory(t *testing.T) {
 			t.Fatal(err)
 		}
 
-		spew.Dump(res.(configx.Values).Get())
-		fmt.Println(res, mem.Val("hello"))
+		if res.(configx.Values).Val("hello").String() != "world" {
+			t.Fail()
+		}
 
 		break
 	}

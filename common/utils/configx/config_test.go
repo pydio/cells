@@ -3,6 +3,7 @@ package configx
 import (
 	"context"
 	"fmt"
+	"net/http"
 	"reflect"
 	"strings"
 	"sync"
@@ -115,6 +116,14 @@ func TestSetting(t *testing.T) {
 		//spew.Dump(*r2.v)
 		//spew.Dump(*c.v)
 	})
+}
+
+func TestMem(t *testing.T) {
+	c := New()
+	err := c.Val("whatever").Set(&http.Client{})
+	fmt.Println(err)
+
+	spew.Dump(c.Val("whatever").Get())
 }
 
 func TestBinary(t *testing.T) {
@@ -579,4 +588,28 @@ func TestSyncMap(t *testing.T) {
 		fmt.Println(c.Val("test/testsyncmap").String())
 		fmt.Println(o.Val("test/testsyncmap").String())
 	})
+}
+
+// Testing the interfacing
+type testconf struct {
+	Values
+}
+
+func (c *testconf) Val(path ...string) Values {
+	fmt.Println("Here")
+	return New(WithGetter(c.Get))
+}
+
+func (c testconf) Get() any {
+	v := New()
+	v.Set("whatever")
+
+	return v.Get()
+}
+
+func TestOverride(t *testing.T) {
+	c := &testconf{}
+	s := c.Val("whatever").String()
+
+	fmt.Println("Result ", s)
 }
