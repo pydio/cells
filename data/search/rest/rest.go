@@ -23,16 +23,14 @@ package rest
 
 import (
 	"context"
-	"github.com/pydio/cells/v4/common/service/resources"
-	"github.com/pydio/cells/v4/idm/share"
 	"regexp"
 	"strings"
 
 	restful "github.com/emicklei/go-restful/v3"
-	"github.com/pydio/cells/v4/common/client/grpc"
 	"go.uber.org/zap"
 
 	"github.com/pydio/cells/v4/common"
+	"github.com/pydio/cells/v4/common/client/grpc"
 	"github.com/pydio/cells/v4/common/log"
 	"github.com/pydio/cells/v4/common/nodes"
 	"github.com/pydio/cells/v4/common/nodes/acl"
@@ -42,6 +40,8 @@ import (
 	"github.com/pydio/cells/v4/common/proto/tree"
 	"github.com/pydio/cells/v4/common/service"
 	"github.com/pydio/cells/v4/common/service/context/metadata"
+	"github.com/pydio/cells/v4/common/service/resources"
+	"github.com/pydio/cells/v4/idm/share"
 )
 
 type Handler struct {
@@ -74,6 +74,7 @@ func (s *Handler) getClient() tree.SearcherClient {
 	return s.client
 }
 
+// sharedResourcesAsNodes lists existing nodes that are shared given a scope, owned by context user
 func (s *Handler) sharedResourcesAsNodes(ctx context.Context, query *tree.Query) ([]*tree.Node, bool, error) {
 	scope, freeString, active := s.extractSharedMeta(query.FreeString)
 	if !active {
@@ -94,6 +95,7 @@ func (s *Handler) sharedResourcesAsNodes(ctx context.Context, query *tree.Query)
 	return out, active, nil
 }
 
+// extractSharedMeta reads special meta from FreeString to detect searches on shared resources
 func (s *Handler) extractSharedMeta(freeString string) (scope idm.WorkspaceScope, newString string, has bool) {
 	rx, _ := regexp.Compile("((\\+)?Meta\\.shared_resource_type:(any|cell|link))")
 	matches := rx.FindAllStringSubmatch(freeString, -1)
@@ -113,6 +115,47 @@ func (s *Handler) extractSharedMeta(freeString string) (scope idm.WorkspaceScope
 	return
 }
 
+// wsAsPrefixes translates idm.Workspace to a list of root prefixes
+func (s *Handler) wsAsPrefixes(in []string, ws *idm.Workspace) []string {
+	if len(ws.RootUUIDs) > 1 {
+		for _, root := range ws.RootUUIDs {
+			in = append(in, ws.Slug+"/"+root)
+		}
+	} else {
+		in = append(in, ws.Slug)
+	}
+	return in
+}
+
+// factorizePathPrefixes finds uppermost prefixes and detect if they are slugs or not
+func (s *Handler) factorizePathPrefixes(in []string) map[string]bool {
+	// bool=true means it's a slug
+	inputPrefixes := map[string]bool{}
+	for _, ppf := range in {
+		ppf = strings.Trim(ppf, "/")
+		var ignore bool
+		for k := range inputPrefixes {
+			if strings.HasPrefix(ppf, k) {
+				// a key already targets a wider path
+				ignore = true
+			} else if strings.HasPrefix(k, ppf) {
+				// ppf will override current key
+				delete(inputPrefixes, k)
+			}
+		}
+		if ignore {
+			continue
+		}
+		if !strings.Contains(ppf, "/") {
+			inputPrefixes[ppf] = true
+		} else {
+			inputPrefixes[ppf] = false
+		}
+	}
+	return inputPrefixes
+}
+
+// Nodes performs a search query
 func (s *Handler) Nodes(req *restful.Request, rsp *restful.Response) {
 
 	ctx := req.Request.Context()
@@ -132,17 +175,9 @@ func (s *Handler) Nodes(req *restful.Request, rsp *restful.Response) {
 
 	var nn []*tree.Node
 	var facets []*tree.SearchFacet
-	prefixes := []string{}
+	var prefixes []string
 	nodesPrefixes := map[string]string{}
-	var passedPrefix string
-	var passedWorkspaceSlug string
-	if len(query.PathPrefix) > 0 {
-		passedPrefix = strings.Trim(query.PathPrefix[0], "/")
-		if len(strings.Split(passedPrefix, "/")) == 1 {
-			passedWorkspaceSlug = passedPrefix
-			passedPrefix = ""
-		}
-	}
+	inputPrefixes := s.factorizePathPrefixes(query.PathPrefix)
 
 	cl := tree.NewNodeProviderStreamerClient(grpc.GetClientConnFromCtx(ctx, common.ServiceTree))
 	readCtx := metadata.WithAdditionalMetadata(ctx, tree.StatFlags(searchRequest.StatFlags).AsMeta())
@@ -185,28 +220,32 @@ func (s *Handler) Nodes(req *restful.Request, rsp *restful.Response) {
 			}
 		}
 
-		if len(passedPrefix) > 0 {
-			// Passed prefix
-			prefixes = append(prefixes, passedPrefix)
-
-		} else {
+		if len(inputPrefixes) == 0 {
+			// Nothing specified - lookup in all workspaces
 			for _, w := range userWorkspaces {
-				if len(passedWorkspaceSlug) > 0 && w.Slug != passedWorkspaceSlug {
-					continue
-				}
-				if len(w.RootUUIDs) > 1 {
-					for _, root := range w.RootUUIDs {
-						prefixes = append(prefixes, w.Slug+"/"+root)
+				prefixes = s.wsAsPrefixes(prefixes, w)
+			}
+		} else {
+			for pf, isSlug := range inputPrefixes {
+				if isSlug {
+					// Workspace slug: append various roots for this WS
+					for _, w := range userWorkspaces {
+						if w.Slug == pf {
+							prefixes = s.wsAsPrefixes(prefixes, w)
+							break
+						}
 					}
 				} else {
-					prefixes = append(prefixes, w.Slug)
+					// Full path, just append
+					prefixes = append(prefixes, pf)
 				}
 			}
 		}
-		query.PathPrefix = []string{}
 
+		// Now rebuild **resolved** PathPrefix list
 		var e error
 		ctx = acl.WithPresetACL(loaderCtx, nil) // Just set the key, acl is already set
+		query.PathPrefix = []string{}
 		for _, p := range prefixes {
 			rootNode := &tree.Node{Path: p}
 			ctx, rootNode, e = inputFilter(ctx, rootNode, "search-"+p)
