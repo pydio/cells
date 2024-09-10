@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"net/http"
 	"strings"
+	"time"
 
 	"google.golang.org/grpc"
 
@@ -64,7 +65,7 @@ func (m *resolver) Init(ctx context.Context, serverID string, s server.HttpMux) 
 	m.b = bal
 
 	if runtime.LastInitType() != "install" {
-		monitor := grpc2.NewHealthChecker(ctx)
+		monitor := grpc2.NewHealthCheckerWithRetries(ctx, 5*time.Second, 30*time.Second)
 		go monitor.Monitor(common.ServiceOAuth)
 		m.monitor = monitor
 	}

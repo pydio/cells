@@ -23,8 +23,11 @@ package grpc
 import (
 	"context"
 	"fmt"
+	"time"
 
 	"google.golang.org/grpc/health/grpc_health_v1"
+
+	"github.com/pydio/cells/v4/common/utils/std"
 )
 
 // HealthMonitor blocks a connection to a specific service health
@@ -34,14 +37,26 @@ type HealthMonitor interface {
 	Stop()
 }
 
+// NewHealthChecker creates a HealthMonitor that blocks once on establishing the gRPC connection
 func NewHealthChecker(c context.Context) HealthMonitor {
 	return &healthChecker{c: c}
 }
 
+// NewHealthCheckerWithRetries creates a HealthMonitor that retries the gRPC connection if it fails
+// Do not pass 0 as retry or timeout parameters !
+func NewHealthCheckerWithRetries(c context.Context, retry, timeout time.Duration) HealthMonitor {
+	return &healthChecker{
+		c:       c,
+		retry:   retry,
+		timeout: timeout,
+	}
+}
+
 type healthChecker struct {
-	c      context.Context
-	cancel context.CancelFunc
-	status bool
+	c              context.Context
+	cancel         context.CancelFunc
+	status         bool
+	retry, timeout time.Duration
 }
 
 // Monitor blocks a connection to a specific service health.
@@ -49,11 +64,26 @@ func (h *healthChecker) Monitor(serviceName string) {
 	cli := grpc_health_v1.NewHealthClient(GetClientConnFromCtx(h.c, serviceName))
 	ct, can := context.WithCancel(context.Background())
 	h.cancel = can
-	resp, er := cli.Check(ct, &grpc_health_v1.HealthCheckRequest{})
-	if er != nil {
-		fmt.Println("[ERROR] Could not monitor service" + serviceName + ": " + er.Error())
+	testFunc := func() error {
+		resp, er := cli.Check(ct, &grpc_health_v1.HealthCheckRequest{})
+		if er == nil {
+			h.status = resp.Status == grpc_health_v1.HealthCheckResponse_SERVING
+			return nil
+		}
+		if h.timeout > 0 {
+			fmt.Println("[WARN] Could not monitor service " + serviceName + ": " + er.Error() + ", will retry in " + h.retry.String())
+		}
+		return er
 	}
-	h.status = resp.Status == grpc_health_v1.HealthCheckResponse_SERVING
+	var fail error
+	if h.timeout > 0 {
+		fail = std.Retry(ct, testFunc, h.retry, h.timeout)
+	} else {
+		fail = testFunc()
+	}
+	if fail != nil {
+		fmt.Println("[ERROR] Cannot contact service " + serviceName + ": " + fail.Error() + ", monitor will block, this is probably abnormal.")
+	}
 }
 
 // Up returns internal status value.
