@@ -85,15 +85,15 @@ func (m *resolver) Init(ctx context.Context, serverID string, rr routing.RouteRe
 	m.b = bal
 
 	// todo
-	/*if runtime.LastInitType() != "install" {
-		monitorOAuth := grpc2.NewHealthChecker(ctx)
-		go monitorOAuth.Monitor(common.ServiceOAuth)
-		m.monitorOAuth = monitorOAuth
+	/*
+		if runtime.LastInitType() != "install" {
+			m.monitorOAuth = grpc2.NewHealthCheckerWithRetries(ctx, 5*time.Second, 30*time.Second)
+			m.monitorUser = grpc2.NewHealthCheckerWithRetries(ctx, 5*time.Second, 30*time.Second)
 
-		monitorUser := grpc2.NewHealthChecker(ctx)
-		go monitorUser.Monitor(common.ServiceUser)
-		m.monitorUser = monitorUser
-	}*/
+			go m.monitorOAuth.Monitor(common.ServiceOAuth)
+			go m.monitorUser.Monitor(common.ServiceUser)
+		}
+	*/
 
 }
 
