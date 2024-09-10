@@ -29,7 +29,6 @@ import (
 	"time"
 
 	minio "github.com/minio/minio/cmd"
-	_ "github.com/minio/minio/cmd/gateway"
 	"github.com/pkg/errors"
 
 	"github.com/pydio/cells/v4/common"
@@ -39,6 +38,8 @@ import (
 	"github.com/pydio/cells/v4/common/runtime"
 	json "github.com/pydio/cells/v4/common/utils/jsonx"
 	"github.com/pydio/cells/v4/data/source/objects"
+
+	_ "github.com/minio/minio/cmd/gateway"
 )
 
 func init() {
@@ -137,6 +138,9 @@ func (o *ObjectHandler) StartMinioServer(ctx context.Context, minioServiceName s
 
 	params = append(params, "--config-dir")
 	params = append(params, configFolder)
+
+	params = append(params, "--certs-dir")
+	params = append(params, filepath.Join(configFolder, "certs"))
 
 	if port > 0 {
 		params = append(params, "--address")

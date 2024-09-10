@@ -22,6 +22,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"path/filepath"
 	"strings"
 	"time"
 
@@ -37,6 +38,7 @@ import (
 	"github.com/pydio/cells/v4/common/nodes/compose"
 	"github.com/pydio/cells/v4/common/nodes/models"
 	"github.com/pydio/cells/v4/common/proto/tree"
+	"github.com/pydio/cells/v4/common/runtime"
 	cerrors "github.com/pydio/cells/v4/common/service/errors"
 )
 
@@ -106,6 +108,9 @@ func (p *Pydio) Production() bool {
 
 // Handler for 'minio gateway azure' command line.
 func pydioGatewayMain(ctx *cli.Context) {
+	sd, _ := runtime.ServiceDataDir(common.ServiceGatewayData)
+	_ = ctx.Set("config-dir", filepath.Join(sd, "cfg"))
+	_ = ctx.Set("certs-dir", filepath.Join(sd, "certs"))
 	minio.StartGateway(ctx, PydioGateway)
 }
 
