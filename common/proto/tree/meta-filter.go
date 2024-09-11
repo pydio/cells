@@ -39,11 +39,12 @@ const (
 	MetaFilterETag      = "etag"
 	MetaFilterDepth     = "depth"
 
-	MetaSortTime  = "mtime"
-	MetaSortSize  = "size"
-	MetaSortName  = "name"
-	MetaSortMPath = "mpath1,mpath2,mpath3,mpath4"
-	MetaSortType  = "leaf"
+	MetaSortTime   = "mtime"
+	MetaSortSize   = "size"
+	MetaSortName   = "name"
+	MetaSortNameCI = "name_ci"
+	MetaSortMPath  = "mpath1,mpath2,mpath3,mpath4"
+	MetaSortType   = "leaf"
 )
 
 var (
@@ -58,7 +59,7 @@ type cmp struct {
 }
 
 func ValidSortField(sortField string) bool {
-	return sortField == MetaSortName || sortField == MetaSortTime || sortField == MetaSortSize ||
+	return sortField == MetaSortName || sortField == MetaSortNameCI || sortField == MetaSortTime || sortField == MetaSortSize ||
 		sortField == MetaSortType || sortField == MetaSortMPath
 }
 
@@ -270,7 +271,11 @@ func (m *MetaFilter) OrderBy() string {
 	if m.sortDesc {
 		dir = "DESC"
 	}
-	return m.sortField + " " + dir
+	if m.sortField == MetaSortNameCI {
+		return "LOWER(name) " + dir
+	} else {
+		return m.sortField + " " + dir
+	}
 }
 
 func (m *MetaFilter) grepToLikes(field, g string, neg bool) (string, []interface{}) {
