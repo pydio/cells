@@ -119,7 +119,7 @@ func (o *URLOpener) Open(ctx context.Context, urlstr string) (config.Store, erro
 			return nil, fmt.Errorf("could not chmod keyring path to 0600 %v", err)
 		}
 
-		if err := filex.Save(u.Path, mem.Get().Bytes()); err != nil {
+		if err := filex.Save(u.Path, mem.Val().Bytes()); err != nil {
 			return nil, fmt.Errorf("could not save keyring store %v", err)
 		}
 
@@ -243,18 +243,22 @@ func (f *file) update() {
 	}
 }
 
-func (f *file) Get() configx.Value {
+func (f *file) Default(def any) configx.Values {
+	return nil
+}
+
+func (f *file) Get() any {
 	f.mtx.RLock()
 	defer f.mtx.RUnlock()
 
 	return f.v.Get()
 }
 
-func (f *file) Clone() configx.Value {
+func (f *file) Clone() configx.Values {
 	f.mtx.RLock()
 	defer f.mtx.RUnlock()
 
-	return f.v.Get()
+	return f.v.Val()
 }
 
 func (f *file) Set(value interface{}) error {

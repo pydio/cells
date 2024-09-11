@@ -63,7 +63,6 @@ defaults:
   # Default env configuration
   #--------------------------------------------
   env: &env
-    CELLS_KEYRING: "mem://"
     CELLS_USE_REGISTRY_SESSION: true
     GRPC_EXPERIMENTAL_XDS_FEDERATION: true
     GRPC_XDS_BOOTSTRAP_CONFIG: {
@@ -233,8 +232,8 @@ defaults:
   # Storages
   storages: &storages
     sql:
-      uri: sqlite://test.db?prefix={{ .Meta.prefix }}&policies={{ .Meta.policies }}&singular={{ .Meta.singular }}
-      # uri: mysql://root:P@ssw0rd@tcp(localhost:3306)/cellstmp?parseTime=true&prefix={{ .Meta.prefix }}&policies={{ .Meta.policies }}&singular={{ .Meta.singular }}
+      #uri: sqlite://test.db?prefix={{ .Meta.prefix }}&policies={{ .Meta.policies }}&singular={{ .Meta.singular }}
+      uri: mysql://root:P@ssw0rd@tcp(localhost:3306)/cellstmp?parseTime=true&prefix={{ .Meta.prefix }}&policies={{ .Meta.policies }}&singular={{ .Meta.singular }}
     #      uri: postgres://postgres:cells@localhost:5432/postgres?sslmode=disable&prefix={{ .Value "prefix" }}&policies={{ .Value "policies" }}&singular={{ .Value "singular" }}
     bolt:
       uri: boltdb://{{ autoMkdir (joinPath  ( serviceDataDir .Service ) ( tenantPathWithBlank .Tenant "default" ) ) }}/{{ .Meta.file }}
