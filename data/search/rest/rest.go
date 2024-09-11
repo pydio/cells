@@ -133,6 +133,9 @@ func (s *Handler) factorizePathPrefixes(in []string) map[string]bool {
 	inputPrefixes := map[string]bool{}
 	for _, ppf := range in {
 		ppf = strings.Trim(ppf, "/")
+		if ppf == "" {
+			continue
+		}
 		var ignore bool
 		for k := range inputPrefixes {
 			if strings.HasPrefix(ppf, k) {
