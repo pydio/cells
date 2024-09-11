@@ -104,11 +104,10 @@ func Resolve[T any](ctx context.Context, opts ...ResolveOption) (s T, final erro
 	}
 
 	// And we load current config
-	var mg Manager
 	var cfg config.Store
-	if propagator.Get(ctx, managerKey{}, &mg) {
-		cfg = mg.GetConfig(ctx)
-	} else {
+	if !propagator.Get(ctx, config.ContextKey, &cfg) {
+		//cfg = mg.GetConfig(ctx)
+		//} else {
 		return t, errors.WithMessage(errors.ResolveError, "cannot find manager to load configs")
 	}
 
@@ -263,11 +262,11 @@ func CloseStoragesForContext(ctx context.Context, opts ...ResolveOption) error {
 }
 
 func MustGetConfig(ctx context.Context) config.Store {
-	var mg Manager
-	if !propagator.Get(ctx, ContextKey, &mg) {
+	var conf config.Store
+	if !propagator.Get(ctx, config.ContextKey, &conf) {
 		panic("manager must be set")
 	}
-	return mg.GetConfig(ctx)
+	return conf
 }
 
 // StorageMigration produces a function for Resolving a storage.Migrator and apply its Migrate function

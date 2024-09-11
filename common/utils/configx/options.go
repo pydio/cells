@@ -56,7 +56,9 @@ type Option func(*Options)
 
 type Options struct {
 	InitData interface{}
-	Getter
+
+	Storer
+
 	Unmarshaler
 	Marshaller
 	Encrypter
@@ -80,6 +82,12 @@ func WithInitData(data interface{}) Option {
 	}
 }
 
+func WithStorer(data Storer) Option {
+	return func(o *Options) {
+		o.Storer = data
+	}
+}
+
 type jsonReader struct{}
 
 func (j *jsonReader) Unmarshal(data []byte, out interface{}) error {
@@ -99,12 +107,6 @@ type jsonWriter struct{}
 
 func (j *jsonWriter) Marshal(in interface{}) ([]byte, error) {
 	return json.Marshal(in)
-}
-
-func WithGetter(g Getter) Option {
-	return func(o *Options) {
-		o.Getter = g
-	}
 }
 
 func WithJSON() Option {

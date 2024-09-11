@@ -81,8 +81,7 @@ type remote struct {
 }
 
 func New(ctx context.Context, conn grpc.ClientConnInterface, id string, path string) config.Store {
-	fmt.Println("Store is here")
-
+	cli := pb.NewConfigClient(conn)
 	r := &remote{
 		ctx:            ctx,
 		cli:            pb.NewConfigClient(conn),
@@ -90,6 +89,13 @@ func New(ctx context.Context, conn grpc.ClientConnInterface, id string, path str
 		path:           strings.Split(path, "/"),
 		internalLocker: &sync.RWMutex{},
 		externalLocker: &sync.RWMutex{},
+		values: configx.New(
+			configx.WithJSON(),
+			configx.WithStorer(&values{
+				ctx: ctx,
+				cli: cli,
+				id:  id,
+			})),
 	}
 
 	go func() {
@@ -100,6 +106,7 @@ func New(ctx context.Context, conn grpc.ClientConnInterface, id string, path str
 			})
 
 			if err != nil {
+				fmt.Println(err)
 				time.Sleep(1 * time.Second)
 				continue
 			}
@@ -138,53 +145,22 @@ func New(ctx context.Context, conn grpc.ClientConnInterface, id string, path str
 }
 
 func (r *remote) Val(path ...string) configx.Values {
-	// v := configx.New()
-	fmt.Println("In val")
-
-	return &values{
-		ctx: r.ctx,
-		cli: r.cli,
-		id:  r.id,
-	}
+	return r.values.Val(path...)
 }
 
 func (r *remote) Get() any {
-	v := configx.New()
-
-	rsp, err := r.cli.Get(r.ctx, &pb.GetRequest{
-		Namespace: r.id,
-		Path:      strings.Join(r.path, "/"),
-	})
-
-	if err != nil {
-		return v
-	}
-
-	if err := v.Set(rsp.GetValue().GetData()); err != nil {
-		fmt.Println("And the error there is ? ", err)
-	}
-
-	return v.Get()
+	return r.values.Get()
 }
 
 func (r *remote) Set(value interface{}) error {
-	b, err := json.Marshal(value)
-	if err != nil {
-		return err
-	}
-
-	if _, err := r.cli.Set(r.ctx, &pb.SetRequest{
-		Namespace: r.id,
-		Path:      strings.Join(r.path, "/"),
-		Value:     &pb.Value{Data: b},
-	}); err != nil {
-		return err
-	}
-
-	return nil
+	return r.values.Set(value)
 }
 
 func (r *remote) Del() error {
+	return nil
+}
+
+func (r *remote) Default(data any) configx.Values {
 	return nil
 }
 
@@ -318,25 +294,28 @@ type values struct {
 	ctx context.Context
 	cli pb.ConfigClient
 	id  string
-	configx.Values
+	k   []string
+}
+
+func (r *values) Default(data any) configx.Values {
+	return nil
 }
 
 func (v *values) Val(path ...string) configx.Values {
-	fmt.Println("In here")
-	return &values{
-		ctx:    v.ctx,
-		cli:    v.cli,
-		id:     v.id,
-		Values: v.Val(path...),
-	}
+	return configx.New(configx.WithStorer(&values{
+		ctx: v.ctx,
+		cli: v.cli,
+		id:  v.id,
+		k:   configx.StringToKeys(append(v.k, path...)...),
+	}))
 }
 
 func (v *values) Get() any {
-	c := configx.New()
+	c := configx.New(configx.WithJSON())
 
 	rsp, err := v.cli.Get(v.ctx, &pb.GetRequest{
 		Namespace: v.id,
-		Path:      strings.Join(v.Key(), "/"),
+		Path:      strings.Join(v.k, "/"),
 	})
 
 	if err != nil {
@@ -359,7 +338,7 @@ func (v *values) Set(value interface{}) error {
 
 	if _, err := v.cli.Set(v.ctx, &pb.SetRequest{
 		Namespace: v.id,
-		Path:      strings.Join(v.Key(), "/"),
+		Path:      strings.Join(v.k, "/"),
 		Value:     &pb.Value{Data: b},
 	}); err != nil {
 		return err
@@ -371,7 +350,7 @@ func (v *values) Set(value interface{}) error {
 func (v *values) Del() error {
 	if _, err := v.cli.Delete(v.ctx, &pb.DeleteRequest{
 		Namespace: v.id,
-		Path:      strings.Join(v.Key(), "/"),
+		Path:      strings.Join(v.k, "/"),
 	}); err != nil {
 		return err
 	}

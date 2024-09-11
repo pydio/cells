@@ -31,13 +31,11 @@ import (
 
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/broker"
-	"github.com/pydio/cells/v4/common/registry"
 	"github.com/pydio/cells/v4/common/runtime"
 	"github.com/pydio/cells/v4/common/runtime/manager"
 	"github.com/pydio/cells/v4/common/server"
 	"github.com/pydio/cells/v4/common/telemetry/log"
 	"github.com/pydio/cells/v4/common/utils/filex"
-	"github.com/pydio/cells/v4/common/utils/propagator"
 
 	_ "embed"
 )
@@ -144,7 +142,7 @@ ENVIRONMENT
 			//	cmd, args)
 		}
 
-		// Init config
+		/* Init config
 		var er error
 		var isNew bool
 		ctx, isNew, er = initConfig(ctx, true)
@@ -162,19 +160,19 @@ ENVIRONMENT
 			if e := cc(ctx); e != nil {
 				return e
 			}
-		}
+		}*/
 
 		// A tracer may be configured, create a start trace
 		var span trace.Span
 		ctx, span = otel.GetTracerProvider().Tracer("cells-command").Start(ctx, "start", trace.WithSpanKind(trace.SpanKindInternal))
 
-		// Init registry
+		/* Init registry
 		reg, err := registry.OpenRegistry(ctx, runtime.RegistryURL())
 		if err != nil {
 			span.End()
 			return err
 		}
-		ctx = propagator.With(ctx, registry.ContextKey, reg)
+		ctx = propagator.With(ctx, registry.ContextKey, reg)*/
 		ctx = runtime.AsCoreContext(ctx)
 
 		broker.Register(broker.NewBroker(runtime.BrokerURL(), broker.WithContext(ctx)))

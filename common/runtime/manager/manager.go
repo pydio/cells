@@ -33,6 +33,7 @@ import (
 	"time"
 
 	"github.com/bep/debounce"
+	"github.com/manifoldco/promptui"
 	"github.com/pkg/errors"
 	"go.uber.org/zap"
 	"golang.org/x/sync/errgroup"
@@ -43,6 +44,9 @@ import (
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/broker"
 	"github.com/pydio/cells/v4/common/config"
+	"github.com/pydio/cells/v4/common/config/migrations"
+	"github.com/pydio/cells/v4/common/config/revisions"
+	"github.com/pydio/cells/v4/common/crypto"
 	"github.com/pydio/cells/v4/common/middleware"
 	pb "github.com/pydio/cells/v4/common/proto/registry"
 	"github.com/pydio/cells/v4/common/registry"
@@ -52,6 +56,7 @@ import (
 	"github.com/pydio/cells/v4/common/server"
 	"github.com/pydio/cells/v4/common/service"
 	"github.com/pydio/cells/v4/common/storage"
+	"github.com/pydio/cells/v4/common/telemetry"
 	"github.com/pydio/cells/v4/common/telemetry/log"
 	"github.com/pydio/cells/v4/common/utils/cache"
 	"github.com/pydio/cells/v4/common/utils/configx"
@@ -141,52 +146,16 @@ func NewManager(ctx context.Context, namespace string, logger log.ZapLogger) (Ma
 		caches:  controller.NewController[*openurl.Pool[cache.Cache]](),
 	}
 
+	ctx = m.ctx
+
 	ctx = propagator.With(ctx, ContextKey, m)
 	runtime.Init(ctx, "system")
 
-	reg, err := registry.OpenRegistry(ctx, "mem:///?cache="+namespace)
-	if err != nil {
-		return nil, err
-	}
-
-	m.localRegistry = reg
-
-	cr, err := m.config.Open(ctx, runtime.ConfigURL())
-	if err != nil {
-		return nil, err
-	}
-
-	m.configResolver = cr
-
-	//if clusterRegistryURL := runtime.RegistryURL(); clusterRegistryURL != "" {
-	//	clusterRegistry, err := registry.OpenRegistry(ctx, clusterRegistryURL)
-	//	if err == nil {
-	//		m.clusterRegistry = clusterRegistry
-	//		//return nil, err
-	//	}
-	//}
-
-	reg = registry.NewTransientWrapper(reg, registry.WithType(pb.ItemType_SERVICE))
-	reg = registry.NewMetaWrapper(reg, server.InitPeerMeta, registry.WithType(pb.ItemType_SERVER), registry.WithType(pb.ItemType_NODE))
-	reg = registry.NewMetaWrapper(reg, func(meta map[string]string) {
-		if _, ok := meta[runtime.NodeRootID]; !ok {
-			meta[runtime.NodeRootID] = m.root.ID()
-		}
-	}, registry.WithType(pb.ItemType_SERVER), registry.WithType(pb.ItemType_SERVICE), registry.WithType(pb.ItemType_NODE))
-
-	reg = registry.NewFuncWrapper(reg,
-		// Adding to cluster registry
-		registry.OnRegister(func(item *registry.Item, opts *[]registry.RegisterOption) {
-			if m.clusterRegistry != nil {
-				m.clusterRegistry.Register(*item, *opts...)
-			}
-		}),
-	)
-
-	reg.Register(m.root)
-
-	ctx = propagator.With(ctx, registry.ContextKey, reg)
 	m.ctx = ctx
+
+	m.initConfig()
+
+	m.initRegistry()
 
 	var eg errgroup.Group
 	eg.Go(func() error {
@@ -233,49 +202,10 @@ func NewManager(ctx context.Context, namespace string, logger log.ZapLogger) (Ma
 		return nil, err
 	}
 
-	reg = registry.NewFuncWrapper(reg,
-		registry.OnRegister(func(item *registry.Item, opts *[]registry.RegisterOption) {
-			var node registry.Node
-			var server server.Server
-			var service service.Service
-			if (*item).As(&node) && node.ID() != m.root.ID() {
-				*opts = append(*opts, registry.WithEdgeTo(m.root.ID(), "Node", nil))
-			} else if (*item).As(&server) {
-				*opts = append(*opts, registry.WithEdgeTo(m.root.ID(), "Node", nil))
-			} else if (*item).As(&service) {
-				*opts = append(*opts, registry.WithEdgeTo(m.root.ID(), "Node", nil))
-			}
-		}),
+	runtime.Init(m.ctx, "discovery")
+	runtime.Init(m.ctx, m.ns)
 
-		// Adding to cluster registry
-		registry.OnRegister(func(item *registry.Item, opts *[]registry.RegisterOption) {
-			if m.clusterRegistry != nil {
-				m.clusterRegistry.Register(*item, *opts...)
-			}
-		}),
-	)
-
-	m.localRegistry = reg
-
-	// Detect a parent root
-	var current registry.Item
-	if ii, er := reg.List(registry.WithType(pb.ItemType_NODE), registry.WithMeta(runtime.NodeMetaHostName, runtime.GetHostname())); er == nil && len(ii) > 0 {
-		for _, root := range ii {
-			rPID := root.Metadata()[runtime.NodeMetaPID]
-			if rPID == strconv.Itoa(os.Getpid()) {
-				current = root
-			}
-		}
-	}
-	if current != nil {
-		m.root = current
-	}
-
-	ctx = propagator.With(ctx, registry.ContextKey, reg)
-	runtime.Init(ctx, "discovery")
-	runtime.Init(ctx, m.ns)
-
-	m.ctx = ctx
+	//m.ctx = ctx
 
 	go m.WatchTransientStatus()
 
@@ -374,6 +304,178 @@ func (m *manager) GetCache(ctx context.Context, name string, resolutionData map[
 		return nil, errors.New("wrong registry item format for cache-" + name)
 	}
 	return pool.Get(ctx, resolutionData)
+}
+
+func (m *manager) initConfig() error {
+	ctx := m.ctx
+
+	// Keyring store
+	keyringStore, err := config.OpenStore(ctx, runtime.KeyringURL())
+	if err != nil {
+		fmt.Errorf("could not init keyring store %v", err)
+	}
+
+	// Keyring start and creation of the master password
+	kr := crypto.NewConfigKeyring(keyringStore, crypto.WithAutoCreate(true, func(s string) {
+		fmt.Println(promptui.IconWarn + " [Keyring] " + s)
+	}))
+
+	password, err := kr.Get(common.ServiceGrpcNamespace_+common.ServiceUserKey, common.KeyringMasterKey)
+	if err != nil {
+		fmt.Errorf("could not get master password %v", err)
+	}
+
+	runtime.SetVaultMasterKey(password)
+	ctx = propagator.With(ctx, crypto.KeyringContextKey, kr)
+
+	mainConfig, err := config.OpenStore(ctx, runtime.ConfigURL())
+	if err != nil {
+		return err
+	}
+
+	// Init RevisionsStore if config is config.RevisionsProvider
+	if revProvider, ok := mainConfig.(config.RevisionsProvider); ok {
+		var rOpt []config.RevisionsStoreOption
+		//if debounceVersions {
+		//	rOpt = append(rOpt, config.WithDebounce(2*time.Second))
+		//}
+		var versionsStore revisions.Store
+		mainConfig, versionsStore = revProvider.AsRevisionsStore(rOpt...)
+		ctx = propagator.With(ctx, config.RevisionsKey, versionsStore)
+	}
+
+	// Wrap config with vaultConfig if set
+	vaultConfig, err := config.OpenStore(ctx, runtime.VaultURL())
+	if err != nil {
+		return err
+	}
+	ctx = propagator.With(ctx, config.VaultKey, vaultConfig)
+	mainConfig = config.NewVault(vaultConfig, mainConfig)
+
+	// Additional Proxy
+	mainConfig = config.Proxy(mainConfig)
+	ctx = context.WithValue(ctx, config.ContextKey, mainConfig)
+
+	if !runtime.IsFork() {
+		if config.Get(ctx, "version").String() == "" && config.Get(ctx, "defaults/database").String() == "" {
+			var data interface{}
+			if err := json.Unmarshal([]byte(config.SampleConfig), &data); err == nil {
+				if err := config.Get(ctx).Set(data); err == nil {
+					_ = config.Save(ctx, common.PydioSystemUsername, "Initialize with sample config")
+				}
+			}
+		}
+
+		// Need to do something for the versions
+		if save, err := migrations.UpgradeConfigsIfRequired(config.Get(ctx), common.Version()); err == nil && save {
+			if err := config.Save(ctx, common.PydioSystemUsername, "Configs upgrades applied"); err != nil {
+				return fmt.Errorf("could not save config migrations %v", err)
+			}
+		}
+	}
+
+	cfgPath := []string{"services", common.ServiceGrpcNamespace_ + common.ServiceLog}
+	config.GetAndWatch(ctx, cfgPath, func(values configx.Values) {
+		conf := telemetry.Config{
+			Loggers: []log.LoggerConfig{{
+				Encoding: "console",
+				Level:    "info",
+				Outputs:  []string{"stdout:///"},
+			}},
+		}
+		if values.Scan(&conf) == nil {
+			if e := conf.Reload(ctx); e != nil {
+				fmt.Println("Error reloading", e)
+			}
+		}
+	})
+
+	m.ctx = ctx
+
+	return nil
+}
+
+func (m *manager) initRegistry() error {
+
+	reg, err := registry.OpenRegistry(m.ctx, "mem:///?cache="+m.ns)
+	if err != nil {
+		return err
+	}
+
+	m.localRegistry = reg
+
+	//if clusterRegistryURL := runtime.RegistryURL(); clusterRegistryURL != "" {
+	//	clusterRegistry, err := registry.OpenRegistry(ctx, clusterRegistryURL)
+	//	if err == nil {
+	//		m.clusterRegistry = clusterRegistry
+	//		//return nil, err
+	//	}
+	//}
+
+	reg = registry.NewTransientWrapper(reg, registry.WithType(pb.ItemType_SERVICE))
+	reg = registry.NewMetaWrapper(reg, server.InitPeerMeta, registry.WithType(pb.ItemType_SERVER), registry.WithType(pb.ItemType_NODE))
+	reg = registry.NewMetaWrapper(reg, func(meta map[string]string) {
+		if _, ok := meta[runtime.NodeRootID]; !ok {
+			meta[runtime.NodeRootID] = m.root.ID()
+		}
+	}, registry.WithType(pb.ItemType_SERVER), registry.WithType(pb.ItemType_SERVICE), registry.WithType(pb.ItemType_NODE))
+
+	reg = registry.NewFuncWrapper(reg,
+		// Adding to cluster registry
+		registry.OnRegister(func(item *registry.Item, opts *[]registry.RegisterOption) {
+			if m.clusterRegistry != nil {
+				m.clusterRegistry.Register(*item, *opts...)
+			}
+		}),
+	)
+
+	reg.Register(m.root)
+
+	// m.ctx = propagator.With(m.ctx, registry.ContextKey, reg)
+
+	// runtime.Register("discovery", func(ctx context.Context) {
+	reg = registry.NewFuncWrapper(reg,
+		registry.OnRegister(func(item *registry.Item, opts *[]registry.RegisterOption) {
+			var node registry.Node
+			var server server.Server
+			var service service.Service
+			if (*item).As(&node) && node.ID() != m.root.ID() {
+				*opts = append(*opts, registry.WithEdgeTo(m.root.ID(), "Node", nil))
+			} else if (*item).As(&server) {
+				*opts = append(*opts, registry.WithEdgeTo(m.root.ID(), "Node", nil))
+			} else if (*item).As(&service) {
+				*opts = append(*opts, registry.WithEdgeTo(m.root.ID(), "Node", nil))
+			}
+		}),
+
+		// Adding to cluster registry
+		registry.OnRegister(func(item *registry.Item, opts *[]registry.RegisterOption) {
+			if m.clusterRegistry != nil {
+				m.clusterRegistry.Register(*item, *opts...)
+			}
+		}),
+	)
+
+	m.localRegistry = reg
+
+	// Detect a parent root
+	var current registry.Item
+	if ii, er := reg.List(registry.WithType(pb.ItemType_NODE), registry.WithMeta(runtime.NodeMetaHostName, runtime.GetHostname())); er == nil && len(ii) > 0 {
+		for _, root := range ii {
+			rPID := root.Metadata()[runtime.NodeMetaPID]
+			if rPID == strconv.Itoa(os.Getpid()) {
+				current = root
+			}
+		}
+	}
+	if current != nil {
+		m.root = current
+	}
+
+	m.ctx = propagator.With(m.ctx, registry.ContextKey, reg)
+	// })
+
+	return nil
 }
 
 func (m *manager) initProcesses() error {

@@ -50,9 +50,7 @@ import (
 	"github.com/pydio/cells/v4/common/utils/configx"
 	"github.com/pydio/cells/v4/common/utils/propagator"
 
-	_ "github.com/pydio/cells/v4/common/config/etcd"
 	_ "github.com/pydio/cells/v4/common/config/service"
-	_ "github.com/pydio/cells/v4/common/config/vault"
 )
 
 var (
@@ -269,7 +267,13 @@ func initConfig(ctx context.Context, debounceVersions bool) (context.Context, bo
 
 	cfgPath := []string{"services", common.ServiceGrpcNamespace_ + common.ServiceLog}
 	config.GetAndWatch(ctx, cfgPath, func(values configx.Values) {
-		conf := telemetry.Config{}
+		conf := telemetry.Config{
+			Loggers: []log.LoggerConfig{{
+				Encoding: "console",
+				Level:    "info",
+				Outputs:  []string{"stdout:///"},
+			}},
+		}
 		if values.Scan(&conf) == nil {
 			if e := conf.Reload(ctx); e != nil {
 				fmt.Println("Error reloading", e)

@@ -117,6 +117,10 @@ func (v *vault) Val(s ...string) configx.Values {
 	return &vaultvalues{strings.Join(s, "/"), v.config.Val(s...), v.vault.Val()}
 }
 
+func (v *vault) Default(d any) configx.Values {
+	return nil
+}
+
 // Watch changes to the path
 func (v *vault) Watch(opts ...configx.WatchOption) (configx.Receiver, error) {
 	return v.config.Watch(opts...)
@@ -206,57 +210,57 @@ func (v *vaultvalues) Set(value interface{}) error {
 
 // Default value
 func (v *vaultvalues) Default(i interface{}) configx.Values {
-	return v.Default(i)
+	return v.Values.Default(i)
 }
 
 // Bool value
 func (v *vaultvalues) Bool() bool {
-	return v.Bool()
+	return v.Values.Bool()
 }
 
 // Int value
 func (v *vaultvalues) Int() int {
-	return v.Int()
+	return v.Values.Int()
 }
 
 // Int64 value
 func (v *vaultvalues) Int64() int64 {
-	return v.Int64()
+	return v.Values.Int64()
 }
 
 // Bytes value
 func (v *vaultvalues) Bytes() []byte {
-	return v.Bytes()
+	return v.Values.Bytes()
 }
 
 // Duration value
 func (v *vaultvalues) Duration() time.Duration {
-	return v.Duration()
+	return v.Values.Duration()
 }
 
 // String value
 func (v *vaultvalues) String() string {
-	return v.Default("").String()
+	return v.Values.Default("").String()
 }
 
 // StringMap value
 func (v *vaultvalues) StringMap() map[string]string {
-	return v.StringMap()
+	return v.Values.StringMap()
 }
 
 // StringArray value
 func (v *vaultvalues) StringArray() []string {
-	return v.StringArray()
+	return v.Values.StringArray()
 }
 
 // Slice value
 func (v *vaultvalues) Slice() []interface{} {
-	return v.Slice()
+	return v.Values.Slice()
 }
 
 // Map value
 func (v *vaultvalues) Map() map[string]interface{} {
-	return v.Map()
+	return v.Values.Map()
 }
 
 // MarshalJSON

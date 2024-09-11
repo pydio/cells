@@ -52,6 +52,9 @@ var SampleConfig = `{
             }
         }
     },
+    "testconf": {
+       "$ref": "mem://?cache={{ .Meta.tenant }}#/testconf"
+    },
     "services":{
         "pydio.grpc.config":{
             "dsn": "default"
@@ -126,6 +129,7 @@ var SampleConfig = `{
             "fork": true
         },
 		"pydio.web.oauth":{
+			"secret": "a-very-insecure-secret-for-checking-out-the-demo",
 			"connectors": [
 				{
 					"type": "pydio",

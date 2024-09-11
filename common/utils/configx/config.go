@@ -3,51 +3,50 @@ package configx
 import (
 	"context"
 	"fmt"
-	"github.com/pydio/cells/v4/common/errors"
 	"maps"
 	"reflect"
 	"slices"
 	"strconv"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/spf13/cast"
+
+	"github.com/pydio/cells/v4/common/errors"
 )
 
-type config struct {
-	v       *any
-	d       any
-	k       []string // Reference to current key
-	opts    Options
+type values struct {
+	opts Options
+	Storer
+}
+
+type store struct {
+	v    *any
+	d    any
+	k    []string // Reference to current key
+	opts Options
+
+	mutex   *sync.RWMutex
 	rLocked bool
 }
 
-type KVStore interface {
+type Storer interface {
+	Val(path ...string) Values
+	Default(def any) Values
 	Get() any
 	Set(value any) error
 	Del() error
 }
 
-type Entrypoint interface {
-	KVStore
-	Val(path ...string) Values
-}
-
 type Values interface {
-	KVStore
-	Valuer
-
-	Default(def any) Values
-	Val(path ...string) Values
-
-	Scanner
+	Storer
+	Caster
 }
 
-type Valuer interface {
+type Caster interface {
 	Bool() bool
 	Bytes() []byte
-	Key() []string
-	// Reference() Ref
 	Interface() interface{}
 	Int() int
 	Int64() int64
@@ -57,32 +56,187 @@ type Valuer interface {
 	StringArray() []string
 	Slice() []interface{}
 	Map() map[string]interface{}
+	Scanner
 }
 
 type Scanner interface {
 	Scan(out any, options ...Option) error
 }
 
-func New(opts ...Option) *config {
+func New(opts ...Option) Values {
 	options := Options{}
 
 	for _, o := range opts {
 		o(&options)
 	}
 
-	//if options.Marshaller == nil {
-	//	WithJSON()(&options)
-	//}
+	if options.Storer == nil {
+		var a any
 
-	var a any
+		WithStorer(&store{
+			v:     &a,
+			opts:  options,
+			mutex: &sync.RWMutex{},
+		})(&options)
+	}
 
-	return &config{
-		v:    &a,
-		opts: options,
+	return &values{
+		opts:   options,
+		Storer: options.Storer,
 	}
 }
 
-func (c *config) Scan(out any, options ...Option) error {
+func (c *store) Val(s ...string) Values {
+	return &values{
+		opts: c.opts,
+		Storer: &store{
+			v:     c.v,
+			k:     StringToKeys(append(c.k, s...)...),
+			opts:  c.opts,
+			mutex: c.mutex,
+		},
+	}
+}
+
+func (c *store) Default(d any) Values {
+	c.d = d
+	return &values{
+		opts:   c.opts,
+		Storer: c,
+	}
+}
+
+func (c *store) Key() []string {
+	return c.k
+}
+
+func (c *store) Options() Options {
+	return c.opts
+}
+
+func (c *values) Bool() bool {
+	v := c.Interface()
+	if v == nil {
+		return false
+	}
+	return cast.ToBool(v)
+}
+
+func (c *values) Bytes() []byte {
+	v := c.Interface()
+	if v == nil {
+		return []byte{}
+	}
+
+	if m := c.opts.Marshaller; m != nil {
+		data, err := m.Marshal(v)
+		if err != nil {
+			return []byte{}
+		}
+
+		return data
+	}
+
+	return []byte(cast.ToString(v))
+}
+
+//func (c *config) Reference() Ref {
+//	r := &ref{}
+//	if err := c.Scan(r); err != nil {
+//		return nil
+//	}
+//
+//	rr, ok := GetReference(r)
+//	if ok {
+//		return rr
+//	}
+//
+//	return nil
+//}
+
+func (c *values) Interface() interface{} {
+	return c.Get()
+}
+
+func (c *values) Int() int {
+	v := c.Get()
+	if v == nil {
+		return 0
+	}
+	return cast.ToInt(v)
+}
+
+func (c *values) Int64() int64 {
+	v := c.Get()
+	if v == nil {
+		return 0
+	}
+	return cast.ToInt64(v)
+}
+
+func (c *values) Duration() time.Duration {
+	v := c.Get()
+	if v == nil {
+		return 0 * time.Second
+	}
+	return cast.ToDuration(v)
+}
+
+func (c *values) String() string {
+
+	v := c.Interface()
+	switch vv := v.(type) {
+	case []interface{}, map[string]interface{}:
+		if m := c.opts.Marshaller; m != nil {
+			data, err := m.Marshal(vv)
+			if err != nil {
+				return ""
+			}
+
+			return string(data)
+		}
+
+		return ""
+	}
+
+	return cast.ToString(v)
+}
+
+func (c *values) StringMap() map[string]string {
+	v := c.Get()
+	if v == nil {
+		return map[string]string{}
+	}
+	return cast.ToStringMapString(v)
+}
+
+func (c *values) StringArray() []string {
+	v := c.Get()
+	vv := reflect.ValueOf(v)
+	if !vv.IsValid() || reflect.ValueOf(v).IsNil() || reflect.ValueOf(v).IsZero() {
+		return []string{}
+	}
+	return cast.ToStringSlice(c.Get())
+}
+
+func (c *values) Slice() []interface{} {
+	v := c.Get()
+	if v == nil {
+		return []interface{}{}
+	}
+	return cast.ToSlice(c.Get())
+}
+
+func (c *values) Map() map[string]interface{} {
+	v := c.Get()
+	if v == nil {
+		return map[string]interface{}{}
+	}
+	r, _ := cast.ToStringMapE(v)
+	return r
+}
+
+func (c *values) Scan(out any, options ...Option) error {
 	var opts Options
 	for _, o := range options {
 		o(&opts)
@@ -121,10 +275,26 @@ func (c *config) Scan(out any, options ...Option) error {
 	return nil
 }
 
-func (c *config) Get() any {
-	if g := c.opts.Getter; g != nil {
-		return g()
+func (c *store) UnmarshalJSON(data []byte) error {
+	var m map[string]interface{}
+
+	err := c.opts.Unmarshaler.Unmarshal(data, &m)
+	if err != nil {
+		return err
 	}
+
+	*c.v = m
+
+	return nil
+}
+
+func (c *store) MarshalJSON() ([]byte, error) {
+	return c.opts.Marshaller.Marshal(c.v)
+}
+
+func (c *store) Get() any {
+	//c.mutex.RLock()
+	//defer c.mutex.RUnlock()
 
 	var current any
 
@@ -143,6 +313,12 @@ func (c *config) Get() any {
 			}
 
 			current = v[kk]
+		case map[any]any:
+			if vv, ok := v[k]; ok {
+				current = vv
+			} else {
+				return c.d
+			}
 		case map[string]any:
 			if vv, ok := v[k]; ok {
 				current = vv
@@ -154,6 +330,31 @@ func (c *config) Get() any {
 		}
 
 		switch v := current.(type) {
+		case map[any]any:
+			if refV, ok := v["$ref"]; ok {
+				ref := strings.SplitN(refV.(string), "#", 2)
+				refTarget, refValue := ref[0], ref[1]
+
+				var configRef Values
+				if refTarget == "" {
+					configRef = c.Val("#")
+				} else {
+					if rp := c.opts.ReferencePool; rp != nil {
+						var err error
+
+						configRef, err = rp.Get(context.Background())
+						if err != nil {
+							return c.d
+						}
+					}
+				}
+
+				if configRef == nil {
+					return nil
+				}
+
+				current = configRef.Val(refValue).Get()
+			}
 		case map[string]any:
 			if refV, ok := v["$ref"]; ok {
 				ref := strings.SplitN(refV.(string), "#", 2)
@@ -189,7 +390,10 @@ func (c *config) Get() any {
 	return current
 }
 
-func (c *config) Set(data any) error {
+func (c *store) Set(data any) error {
+	//c.mutex.Lock()
+	//defer c.mutex.Unlock()
+
 	if c == nil {
 		return fmt.Errorf("value doesn't exist")
 	}
@@ -270,7 +474,8 @@ func (c *config) Set(data any) error {
 	return nil
 }
 
-func (c *config) Del() error {
+func (c *store) Del() error {
+
 	if len(c.k) == 0 {
 		*c.v = nil
 		return nil
@@ -288,6 +493,10 @@ func (c *config) Del() error {
 		vv = append(vv[:kk], vv[kk+1:]...)
 
 		return v.Set(vv)
+	case map[any]any:
+		delete(vv, c.k[len(c.k)-1])
+
+		return v.Set(vv)
 	case map[string]any:
 		delete(vv, c.k[len(c.k)-1])
 
@@ -295,167 +504,6 @@ func (c *config) Del() error {
 	}
 
 	return nil
-}
-
-func (c *config) Val(s ...string) Values {
-	return &config{
-		v:    c.v,
-		k:    StringToKeys(append(c.k, s...)...),
-		opts: c.opts,
-	}
-}
-
-func (c *config) Default(d any) Values {
-	c.d = d
-	return c
-}
-
-func (c *config) Bool() bool {
-	v := c.Interface()
-	if v == nil {
-		return false
-	}
-	return cast.ToBool(v)
-}
-
-func (c *config) Bytes() []byte {
-	v := c.Interface()
-	if v == nil {
-		return []byte{}
-	}
-
-	if m := c.opts.Marshaller; m != nil {
-		data, err := m.Marshal(v)
-		if err != nil {
-			return []byte{}
-		}
-
-		return data
-	}
-
-	return []byte(cast.ToString(v))
-}
-
-func (c *config) Key() []string {
-	return c.k
-}
-
-//func (c *config) Reference() Ref {
-//	r := &ref{}
-//	if err := c.Scan(r); err != nil {
-//		return nil
-//	}
-//
-//	rr, ok := GetReference(r)
-//	if ok {
-//		return rr
-//	}
-//
-//	return nil
-//}
-
-func (c *config) Interface() interface{} {
-	return c.Get()
-}
-
-func (c *config) Int() int {
-	v := c.Get()
-	if v == nil {
-		return 0
-	}
-	return cast.ToInt(v)
-}
-
-func (c *config) Int64() int64 {
-	v := c.Get()
-	if v == nil {
-		return 0
-	}
-	return cast.ToInt64(v)
-}
-
-func (c *config) Duration() time.Duration {
-	v := c.Get()
-	if v == nil {
-		return 0 * time.Second
-	}
-	return cast.ToDuration(v)
-}
-
-func (c *config) String() string {
-
-	v := c.Interface()
-	switch vv := v.(type) {
-	case []interface{}, map[string]interface{}:
-		if m := c.opts.Marshaller; m != nil {
-			data, err := m.Marshal(vv)
-			if err != nil {
-				return ""
-			}
-
-			return string(data)
-		}
-
-		return ""
-	case string:
-		// Need to handle it differently
-		if vv == "default" {
-			v = c.d
-		}
-	}
-
-	return cast.ToString(v)
-}
-
-func (c *config) StringMap() map[string]string {
-	v := c.Get()
-	if v == nil {
-		return map[string]string{}
-	}
-	return cast.ToStringMapString(v)
-}
-
-func (c *config) StringArray() []string {
-	v := c.Get()
-	vv := reflect.ValueOf(v)
-	if !vv.IsValid() || reflect.ValueOf(v).IsNil() || reflect.ValueOf(v).IsZero() {
-		return []string{}
-	}
-	return cast.ToStringSlice(c.Get())
-}
-
-func (c *config) Slice() []interface{} {
-	v := c.Get()
-	if v == nil {
-		return []interface{}{}
-	}
-	return cast.ToSlice(c.Get())
-}
-
-func (c *config) Map() map[string]interface{} {
-	v := c.Get()
-	if v == nil {
-		return map[string]interface{}{}
-	}
-	r, _ := cast.ToStringMapE(v)
-	return r
-}
-
-func (c *config) UnmarshalJSON(data []byte) error {
-	var m map[string]interface{}
-
-	err := c.opts.Unmarshaler.Unmarshal(data, &m)
-	if err != nil {
-		return err
-	}
-
-	*c.v = m
-
-	return nil
-}
-
-func (c *config) MarshalJSON() ([]byte, error) {
-	return c.opts.Marshaller.Marshal(c.v)
 }
 
 func merge(dst any, src any) (any, error) {
@@ -492,6 +540,24 @@ func merge(dst any, src any) (any, error) {
 		}
 
 		current = s
+	case map[any]any:
+		srcV, ok := src.(map[any]any)
+		if !ok {
+			return src, nil
+			// return nil, errors.New("not the same type")
+		}
+
+		// Merging those that are both in dst and in src
+		m := maps.Clone(dstV)
+		for k, v := range srcV {
+			if merged, err := merge(dstV[k], v); err != nil {
+				return nil, err
+			} else {
+				m[k] = merged
+			}
+		}
+
+		current = m
 	case map[string]any:
 		srcV, ok := src.(map[string]any)
 		if !ok {
@@ -499,6 +565,7 @@ func merge(dst any, src any) (any, error) {
 			// return nil, errors.New("not the same type")
 		}
 
+		// Merging those that are both in dst and in src
 		m := maps.Clone(dstV)
 		for k, v := range srcV {
 			if merged, err := merge(dstV[k], v); err != nil {

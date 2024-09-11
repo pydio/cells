@@ -48,7 +48,7 @@ func init() {
 
 // Store defines the functionality a config must provide
 type Store interface {
-	configx.Entrypoint
+	configx.Storer
 	configx.Watcher
 	As(out any) bool
 	Close(ctx context.Context) error

@@ -138,6 +138,7 @@ func (r *graphRegistry) RegisterEdge(item1, item2, edgeLabel string, metadata ma
 	pair := []string{item1, item2}
 	sort.Strings(pair)
 	h := md5.New()
+	h.Write([]byte(edgeLabel))
 	h.Write([]byte(strings.Join(pair, "-")))
 	id := hex.EncodeToString(h.Sum(nil))
 

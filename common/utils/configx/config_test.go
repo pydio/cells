@@ -512,8 +512,6 @@ func TestEncrypt(t *testing.T) {
 		err := m.Set(dataYAML)
 		So(err, ShouldBeNil)
 		So(m.Val("secrets/test").Set("test"), ShouldBeNil)
-
-		spew.Dump(*m.v)
 	})
 }
 
@@ -567,8 +565,6 @@ func TestSyncMap(t *testing.T) {
 			"test": &sync.Map{},
 		})
 
-		spew.Dump(*c.v)
-
 		whatever1 := "whatever1"
 		whatever2 := "whatever2"
 
@@ -597,10 +593,10 @@ type testconf struct {
 
 func (c *testconf) Val(path ...string) Values {
 	fmt.Println("Here")
-	return New(WithGetter(c.Get))
+	return c.Values.Val(path...)
 }
 
-func (c testconf) Get() any {
+func (c *testconf) Get() any {
 	v := New()
 	v.Set("whatever")
 
@@ -609,7 +605,44 @@ func (c testconf) Get() any {
 
 func TestOverride(t *testing.T) {
 	c := &testconf{}
+	c.Values = New()
+
 	s := c.Val("whatever").String()
 
 	fmt.Println("Result ", s)
+}
+
+type implValuesOverride struct {
+	k []string
+	*values
+}
+
+func (i implValuesOverride) Val(path ...string) Values {
+	return New(WithStorer(&implValuesOverride{
+		k: StringToKeys(append(i.k, path...)...),
+	}))
+}
+
+func (i implValuesOverride) Default(def any) Values {
+	return nil
+}
+
+func (i implValuesOverride) Get() any {
+	fmt.Println(i.k)
+	return "whatever"
+}
+
+func (i implValuesOverride) Set(value any) error {
+	return nil
+}
+
+func (i implValuesOverride) Del() error {
+	return nil
+}
+
+func TestStorer(t *testing.T) {
+	v := New(WithStorer(&implValuesOverride{}))
+
+	v.Val("whatever").Val("yessir").Set("whatever")
+	fmt.Println(v.Val("whatever").Val("yessir").String())
 }

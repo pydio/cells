@@ -26,7 +26,6 @@ import (
 	"google.golang.org/grpc"
 
 	"github.com/pydio/cells/v4/common"
-	configsql "github.com/pydio/cells/v4/common/config/sql"
 	pb "github.com/pydio/cells/v4/common/proto/config"
 	"github.com/pydio/cells/v4/common/runtime"
 	"github.com/pydio/cells/v4/common/runtime/manager"
@@ -45,7 +44,7 @@ func init() {
 			service.Context(ctx),
 			service.Tag(common.ServiceTagDiscovery),
 			service.Description("Grpc service for serving configurations to forks"),
-			service.WithStorageDrivers(configsql.NewDAO),
+			// service.WithStorageDrivers(configsql.NewDAO),
 			service.Migrations([]*service.Migration{
 				{
 					TargetVersion: service.FirstRun(),

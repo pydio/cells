@@ -15,13 +15,9 @@ import (
 	diff "github.com/r3labs/diff/v3"
 
 	"github.com/pydio/cells/v4/common/config"
-	"github.com/pydio/cells/v4/common/runtime"
-	"github.com/pydio/cells/v4/common/runtime/controller"
-	"github.com/pydio/cells/v4/common/runtime/manager"
 	"github.com/pydio/cells/v4/common/utils/configx"
 	json "github.com/pydio/cells/v4/common/utils/jsonx"
 	"github.com/pydio/cells/v4/common/utils/openurl"
-	"github.com/pydio/cells/v4/common/utils/propagator"
 	"github.com/pydio/cells/v4/common/utils/std"
 )
 
@@ -35,25 +31,24 @@ type URLOpener struct{}
 const timeout = 500 * time.Millisecond
 
 func init() {
-
 	config.DefaultURLMux().Register(scheme, &URLOpener{})
 
-	runtime.Register("system", func(ctx context.Context) {
-		var mgr manager.Manager
-		if !propagator.Get(ctx, manager.ContextKey, &mgr) {
-			return
-		}
-
-		o := &URLOpener{}
-		mgr.RegisterConfig(scheme, controller.WithCustomOpener(func(ctx context.Context, urlstr string) (*openurl.Pool[config.Store], error) {
-			p, err := openurl.OpenPool(ctx, []string{urlstr}, o.Open)
-			if err != nil {
-				return nil, err
-			}
-
-			return p, nil
-		}))
-	})
+	//runtime.Register("system", func(ctx context.Context) {
+	//	var mgr manager.Manager
+	//	if !propagator.Get(ctx, manager.ContextKey, &mgr) {
+	//		return
+	//	}
+	//
+	//	o := &URLOpener{}
+	//	mgr.RegisterConfig(scheme, controller.WithCustomOpener(func(ctx context.Context, urlstr string) (*openurl.Pool[config.Store], error) {
+	//		p, err := openurl.OpenPool(ctx, []string{urlstr}, o.Open)
+	//		if err != nil {
+	//			return nil, err
+	//		}
+	//
+	//		return p, nil
+	//	}))
+	//})
 
 }
 
@@ -85,6 +80,18 @@ func (o *URLOpener) Open(ctx context.Context, urlstr string) (config.Store, erro
 		//}
 		opts = append(opts, configx.WithInitData([]byte(data)))
 	}
+
+	rc := configx.New(configx.WithJSON())
+	if err := rc.Set([]byte(`{"testconf":"whatever"}`)); err != nil {
+		panic(err)
+	}
+
+	rp, _ := openurl.OpenPool(context.Background(), []string{""}, func(ctx context.Context, u string) (configx.Values, error) {
+		fmt.Println("Retrieving value from the reference pool : ", u)
+		return rc, nil
+	})
+
+	opts = append(opts, configx.WithReferencePool(rp))
 
 	store := New(opts...)
 
@@ -229,6 +236,10 @@ func (m *memory) Val(path ...string) configx.Values {
 	return &values{Values: m.v.Val(path...), m: m, path: path}
 }
 
+func (m *memory) Default(d any) configx.Values {
+	return nil
+}
+
 func (m *memory) Del() error {
 	return fmt.Errorf("not implemented")
 }
@@ -369,7 +380,7 @@ func (r *receiver) Next() (interface{}, error) {
 			r.timer = time.NewTimer(timeout)
 
 		case <-r.timer.C:
-			c := configx.New()
+			c := configx.New(r.m.opts...)
 			if r.changesOnly {
 				for _, op := range changes {
 					switch op.Type {

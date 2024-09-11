@@ -182,7 +182,7 @@ import (
 	_ "gocloud.dev/pubsub/rabbitpubsub"
 
 	// Config drivers
-	_ "github.com/pydio/cells/v4/common/config/sql"
+	// _ "github.com/pydio/cells/v4/common/config/sql"
 
 	// Servers
 	_ "github.com/pydio/cells/v4/common/server/caddy/api"
