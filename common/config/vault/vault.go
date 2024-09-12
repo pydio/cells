@@ -113,7 +113,14 @@ func (s *store) read() {
 	}
 }
 
-func (s *store) Get() configx.Value {
+func (s *store) Context(ctx context.Context) configx.Values {
+	return &val{
+		Values: s.v.Context(ctx),
+		store:  s,
+	}
+}
+
+func (s *store) Get() any {
 	s.read()
 	return s.v
 }
@@ -138,6 +145,10 @@ func (s *store) Val(path ...string) configx.Values {
 	v := s.v.Val(path...)
 	// Wrap into an autoSave configx.Values
 	return &val{Values: v, store: s}
+}
+
+func (s *store) Default(def any) configx.Values {
+	return &val{Values: s.v.Default(def), store: s}
 }
 
 func (s *store) Watch(opts ...configx.WatchOption) (configx.Receiver, error) {

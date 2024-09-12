@@ -243,8 +243,12 @@ func (f *file) update() {
 	}
 }
 
+func (f *file) Context(ctx context.Context) configx.Values {
+	return f.v.Context(ctx)
+}
+
 func (f *file) Default(def any) configx.Values {
-	return nil
+	return f.v.Default(def)
 }
 
 func (f *file) Get() any {
@@ -412,6 +416,14 @@ type values struct {
 	lock sync.Locker
 
 	f *file
+}
+
+func (v *values) Context(ctx context.Context) configx.Values {
+	return &values{Values: v.Values.Context(ctx), lock: v.lock, f: v.f}
+}
+
+func (v *values) Default(def any) configx.Values {
+	return &values{Values: v.Values.Default(def), lock: v.lock, f: v.f}
 }
 
 func (v *values) Val(path ...string) configx.Values {

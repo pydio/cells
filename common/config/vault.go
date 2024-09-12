@@ -117,6 +117,10 @@ func (v *vault) Val(s ...string) configx.Values {
 	return &vaultvalues{strings.Join(s, "/"), v.config.Val(s...), v.vault.Val()}
 }
 
+func (v *vault) Context(ctx context.Context) configx.Values {
+	return &vaultvalues{Values: v.config.Context(ctx), vault: v.vault.Context(ctx)}
+}
+
 func (v *vault) Default(d any) configx.Values {
 	return nil
 }
@@ -135,6 +139,10 @@ type vaultvalues struct {
 	path string
 	configx.Values
 	vault configx.Values
+}
+
+func (v *vaultvalues) Context(ctx context.Context) configx.Values {
+	return &vaultvalues{v.path, v.Values.Context(ctx), v.vault.Context(ctx)}
 }
 
 // Val of the path

@@ -17,7 +17,7 @@ import (
 )
 
 type values struct {
-	opts Options
+	opts *Options
 	Storer
 }
 
@@ -25,13 +25,14 @@ type store struct {
 	v    *any
 	d    any
 	k    []string // Reference to current key
-	opts Options
+	opts *Options
 
 	mutex   *sync.RWMutex
 	rLocked bool
 }
 
 type Storer interface {
+	Context(ctx context.Context) Values
 	Val(path ...string) Values
 	Default(def any) Values
 	Get() any
@@ -64,10 +65,10 @@ type Scanner interface {
 }
 
 func New(opts ...Option) Values {
-	options := Options{}
+	options := &Options{}
 
 	for _, o := range opts {
-		o(&options)
+		o(options)
 	}
 
 	if options.Storer == nil {
@@ -77,12 +78,22 @@ func New(opts ...Option) Values {
 			v:     &a,
 			opts:  options,
 			mutex: &sync.RWMutex{},
-		})(&options)
+		})(options)
 	}
 
 	return &values{
 		opts:   options,
 		Storer: options.Storer,
+	}
+}
+
+func (c *store) Context(ctx context.Context) Values {
+	opts := c.opts
+	opts.Context = ctx
+
+	return &values{
+		opts:   opts,
+		Storer: c,
 	}
 }
 
@@ -110,7 +121,7 @@ func (c *store) Key() []string {
 	return c.k
 }
 
-func (c *store) Options() Options {
+func (c *store) Options() *Options {
 	return c.opts
 }
 
@@ -342,7 +353,7 @@ func (c *store) Get() any {
 					if rp := c.opts.ReferencePool; rp != nil {
 						var err error
 
-						configRef, err = rp.Get(context.Background())
+						configRef, err = rp.Get(c.opts.Context)
 						if err != nil {
 							return c.d
 						}
@@ -367,7 +378,7 @@ func (c *store) Get() any {
 					if rp := c.opts.ReferencePool; rp != nil {
 						var err error
 
-						configRef, err = rp.Get(context.Background())
+						configRef, err = rp.Get(c.opts.Context)
 						if err != nil {
 							return c.d
 						}

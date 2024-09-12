@@ -22,6 +22,17 @@ package config
 
 import "github.com/pydio/cells/v4/common"
 
+//"secureHeaders":{
+//"X-XSS-Protection": "1; mode=block"
+//},
+//"plugin": {
+//"editor.libreoffice": {
+//"LIBREOFFICE_HOST": "localhost",
+//"LIBREOFFICE_PORT": "9980",
+//"LIBREOFFICE_SSL": true
+//}
+//}
+
 // SampleConfig is the default config used during the first install
 var SampleConfig = `{
 	"version": "` + common.Version().String() + `",
@@ -29,7 +40,100 @@ var SampleConfig = `{
 		"update": {
 			"publicKey": "` + common.UpdateDefaultPublicKey + `",
 			"updateUrl": "` + common.UpdateDefaultServerUrl + `"
-		}
+		},
+		"sites": [
+		  {
+			"Binds": [
+			  "0.0.0.0:8080"
+			],
+			"Routing": [
+			  {
+				"Effect": 1,
+				"Matcher": "*"
+			  },
+			  {
+				"Effect": 0,
+				"Matcher": "io"
+			  },
+			  {
+				"Effect": 0,
+				"Matcher": "data"
+			  }
+			],
+			"TLSConfig": {
+			  "SelfSigned": {}
+			}
+		  },
+		  {
+			"Binds": [
+			  "0.0.0.0:8081"
+			],
+			"HeaderMods": [
+			  {
+				"Action": 2,
+				"Key": "X-Pydio-Tenant",
+				"Value": "sub1"
+			  }
+			],
+			"Routing": [
+			  {
+				"Effect": 1,
+				"Matcher": "*"
+			  },
+			  {
+				"Action": "Rewrite",
+				"Effect": 1,
+				"Matcher": "api",
+				"Value": "/api"
+			  }
+			],
+			"TLSConfig": {
+			  "SelfSigned": {}
+			}
+		  },
+		  {
+			"Binds": [
+			  "0.0.0.0:8082"
+			],
+			"HeaderMods": [
+			  {
+				"Action": 2,
+				"Key": "X-Pydio-Tenant",
+				"Value": "sub2"
+			  }
+			],
+			"Routing": [
+			  {
+				"Effect": 1,
+				"Matcher": "*"
+			  }
+			],
+			"TLSConfig": {
+			  "SelfSigned": {}
+			}
+		  },
+		  {
+			"Binds": [
+			  "0.0.0.0:8989"
+			],
+			"HeaderMods": [
+			  {
+				"Action": 2,
+				"Key": "X-Pydio-Tenant",
+				"Value": "sub3"
+			  }
+			],
+			"Routing": [
+			  {
+				"Effect": 1,
+				"Matcher": "*"
+			  }
+			],
+			"TLSConfig": {
+			  "SelfSigned": {}
+			}
+		  }
+		]
 	},
     "databases": {
       "pydio.grpc.oauth": {
@@ -41,19 +145,7 @@ var SampleConfig = `{
         "nats": 4222
     },
     "frontend":{
-        "secureHeaders":{
-			"X-XSS-Protection": "1; mode=block"
-		},
-        "plugin": {
-            "editor.libreoffice": {
-                "LIBREOFFICE_HOST": "localhost",
-                "LIBREOFFICE_PORT": "9980",
-                "LIBREOFFICE_SSL": true
-            }
-        }
-    },
-    "testconf": {
-       "$ref": "mem://?cache={{ .Meta.tenant }}#/testconf"
+		"$ref": "file:///tmp/{{ .Tenant }}.json#/frontend"
     },
     "services":{
         "pydio.grpc.config":{

@@ -96,17 +96,17 @@ func WatchCombined(ctx context.Context, paths [][]string, opts ...configx.WatchO
 
 // Get access to the underlying structure at a certain path
 func Get(ctx context.Context, path ...string) configx.Values {
-	return propagator.MustWithHint[Store](ctx, ContextKey, "config").Val(path...)
+	return propagator.MustWithHint[Store](ctx, ContextKey, "config").Context(ctx).Val(path...)
 }
 
 // Set new values at a certain path
 func Set(ctx context.Context, val interface{}, path ...string) error {
-	return propagator.MustWithHint[Store](ctx, ContextKey, "config").Val(path...).Set(val)
+	return propagator.MustWithHint[Store](ctx, ContextKey, "config").Context(ctx).Val(path...).Set(val)
 }
 
 // Del value at a certain path
 func Del(ctx context.Context, path ...string) {
-	propagator.MustWithHint[Store](ctx, ContextKey, "config").Val(path...).Del()
+	propagator.MustWithHint[Store](ctx, ContextKey, "config").Context(ctx).Val(path...).Del()
 }
 
 // GetAndWatch applies a callback on a current value, then watch for its changes and re-apply
