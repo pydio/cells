@@ -509,8 +509,8 @@ func (s *Indexer) SetCodex(c indexer.IndexCodex) {
 func (s *Indexer) getWriteIndex(ctx context.Context) (bleve.Index, error) {
 	path := s.getPath(ctx)
 	prefix := s.getPrefix(ctx)
-	rotationID := s.getRotationID(filepath.Join(path, prefix))
-	fullPath := s.getFullPath(path, prefix, rotationID)
+	//rotationID := s.getRotationID(filepath.Join(path, prefix))
+	fullPath := filepath.Join(path, prefix) // s.getFullPath(path, prefix, rotationID)
 
 	var indexes []bleve.Index
 	for _, idx := range s.indexes {
@@ -812,6 +812,7 @@ func (s *Indexer) openOneIndex(fullPath string, mappingName string) (bleve.Index
 		if fullPath == "" {
 			idx, err = bleve.NewMemOnly(indexMapping)
 		} else {
+			//			fmt.Println("*** Opening New Index", fullPath)
 			idx, err = bleve.NewUsing(fullPath, indexMapping, scorch.Name, boltdb.Name, nil)
 		}
 		if err != nil {

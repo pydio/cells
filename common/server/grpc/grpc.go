@@ -43,7 +43,6 @@ import (
 	"github.com/pydio/cells/v4/common/registry"
 	"github.com/pydio/cells/v4/common/registry/util"
 	"github.com/pydio/cells/v4/common/runtime"
-	"github.com/pydio/cells/v4/common/runtime/manager"
 	"github.com/pydio/cells/v4/common/server"
 	"github.com/pydio/cells/v4/common/telemetry/log"
 	"github.com/pydio/cells/v4/common/utils/propagator"
@@ -146,8 +145,6 @@ func (s *Server) lazyGrpc(rootContext context.Context) *grpc.Server {
 			serviceName := runtime.GetServiceName(ctx)
 			if serviceName != "" {
 				var ep registry.Endpoint
-
-				fmt.Println("Retrieving testconf string ", manager.MustGetConfig(ctx).Val("testconf").String())
 
 				if propagator.Get(ctx, EndpointKey, &ep) {
 					method := info.FullMethod[strings.LastIndex(info.FullMethod, "/")+1:]
