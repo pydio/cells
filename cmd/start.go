@@ -149,6 +149,7 @@ ENVIRONMENT
 		if er != nil {
 			return er
 		}
+		// TODO - RECHECK BLANK INSTALL
 		if isNew && runtime.ConfigIsLocalFile() {
 			return nil
 			//return triggerInstall(
@@ -156,6 +157,7 @@ ENVIRONMENT
 			//	"Do you want to reset the initial configuration", cmd, args)
 		}
 
+		// TODO - RECHECK USE OTHER FUNCS
 		for _, cc := range configChecks {
 			if e := cc(ctx); e != nil {
 				return e

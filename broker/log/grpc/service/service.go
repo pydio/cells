@@ -52,6 +52,7 @@ func init() {
 			service.Tag(common.ServiceTagBroker),
 			service.Description("Syslog index store"),
 			service.WithStorageDrivers(log.Drivers...),
+			// TODO - Recheck
 			service.Migrations([]*service.Migration{{
 				TargetVersion: service.FirstRun(),
 				Up: func(ctx context.Context) error {
