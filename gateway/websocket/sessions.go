@@ -25,11 +25,10 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/olahol/melody"
 	"go.uber.org/zap"
 	"golang.org/x/time/rate"
 	"google.golang.org/protobuf/proto"
-
-	"github.com/pydio/melody"
 
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/auth"

@@ -70,9 +70,6 @@ require (
 	github.com/json-iterator/go v1.1.12
 	github.com/kardianos/osext v0.0.0-20190222173326-2bc1f35cddc0
 	github.com/karrick/godirwalk v1.17.0
-	github.com/knadh/koanf/parsers/json v0.1.0
-	github.com/knadh/koanf/providers/rawbytes v0.1.0
-	github.com/knadh/koanf/v2 v2.1.1
 	github.com/krolaw/zipstream v0.0.0-20180621105154-0a2661891f94
 	github.com/kylelemons/godebug v1.1.0
 	github.com/livekit/protocol v1.16.0
@@ -89,6 +86,7 @@ require (
 	github.com/nats-io/nats.go v1.34.1
 	github.com/nicksnyder/go-i18n/v2 v2.4.0
 	github.com/odigos-io/opentelemetry-zap-bridge v0.0.5
+	github.com/olahol/melody v1.2.1
 	github.com/olekukonko/tablewriter v0.0.5
 	github.com/ory/fosite v0.44.1-0.20231218095112-ac9ae4bd99d7
 	github.com/ory/herodot v0.10.3-0.20230626083119-d7e5192f0d88
@@ -102,7 +100,6 @@ require (
 	github.com/prometheus/client_golang v1.19.1
 	github.com/pydio/caddyvault v1.0.3
 	github.com/pydio/go v0.0.0-20191211170306-d00ac19450ef
-	github.com/pydio/melody v0.0.0-20190928133520-4271c6513fb6
 	github.com/pydio/pydio-sdk-go v0.0.0-20190116153840-23ce5c39e65c
 	github.com/r3labs/diff/v3 v3.0.1
 	github.com/rivo/tview v0.0.0-20220307222120-9994674d60a8
@@ -370,9 +367,11 @@ require (
 	github.com/klauspost/readahead v1.4.0 // indirect
 	github.com/klauspost/reedsolomon v1.9.15 // indirect
 	github.com/knadh/koanf/maps v0.1.1 // indirect
+	github.com/knadh/koanf/parsers/json v0.1.0 // indirect
 	github.com/knadh/koanf/parsers/toml v0.1.0 // indirect
 	github.com/knadh/koanf/parsers/yaml v0.1.0 // indirect
 	github.com/knadh/koanf/providers/posflag v0.1.0 // indirect
+	github.com/knadh/koanf/v2 v2.1.1 // indirect
 	github.com/lib/pq v1.10.9 // indirect
 	github.com/libdns/libdns v0.2.2 // indirect
 	github.com/lucasb-eyer/go-colorful v1.2.0 // indirect

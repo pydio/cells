@@ -28,13 +28,12 @@ import (
 	"sync"
 	"time"
 
+	"github.com/olahol/melody"
 	"github.com/ory/ladon"
 	"github.com/ory/ladon/manager/memory"
 	"go.uber.org/zap"
 	"golang.org/x/time/rate"
 	"google.golang.org/protobuf/encoding/protojson"
-
-	"github.com/pydio/melody"
 
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/auth"
@@ -46,6 +45,7 @@ import (
 	"github.com/pydio/cells/v4/common/proto/jobs"
 	"github.com/pydio/cells/v4/common/proto/service"
 	"github.com/pydio/cells/v4/common/proto/tree"
+	"github.com/pydio/cells/v4/common/runtime"
 	"github.com/pydio/cells/v4/common/telemetry/log"
 	"github.com/pydio/cells/v4/common/utils/cache"
 	json "github.com/pydio/cells/v4/common/utils/jsonx"
@@ -210,6 +210,10 @@ func (w *WebsocketHandler) BroadcastNodeChangeEvent(ctx context.Context, event *
 
 	return w.Websocket.BroadcastFilter([]byte(`"dump"`), func(session *melody.Session) bool {
 
+		if !runtime.MultiMatches(session.Request.Context(), ctx) {
+			return false
+		}
+
 		var workspaces map[string]*idm.Workspace
 		var accessList *permissions.AccessList
 
@@ -327,6 +331,10 @@ func (w *WebsocketHandler) BroadcastTaskChangeEvent(ctx context.Context, event *
 	taskOwner := event.TaskUpdated.TriggerOwner
 	message, _ := protojson.Marshal(event)
 	return w.Websocket.BroadcastFilter(message, func(session *melody.Session) bool {
+		if !runtime.MultiMatches(session.Request.Context(), ctx) {
+			return false
+		}
+
 		var isAdmin, o bool
 		var v interface{}
 		if v, o = session.Get(SessionProfileKey); o && v == common.PydioProfileAdmin {
@@ -358,6 +366,10 @@ func (w *WebsocketHandler) BroadcastIDMChangeEvent(ctx context.Context, event *i
 	message, _ := protojson.Marshal(event)
 
 	return w.Websocket.BroadcastFilter(message, func(session *melody.Session) bool {
+
+		if !runtime.MultiMatches(session.Request.Context(), ctx) {
+			return false
+		}
 
 		var checkRoleId string
 		var checkUserId string
@@ -446,6 +458,9 @@ func (w *WebsocketHandler) BroadcastActivityEvent(ctx context.Context, event *ac
 	}
 	message, _ := protojson.Marshal(event)
 	return w.Websocket.BroadcastFilter(message, func(session *melody.Session) bool {
+		if !runtime.MultiMatches(session.Request.Context(), ctx) {
+			return false
+		}
 		if val, ok := session.Get(SessionUsernameKey); ok && val != nil {
 			return event.OwnerId == val.(string) && event.Activity.Actor.Id != val.(string)
 		}
