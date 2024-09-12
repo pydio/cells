@@ -86,9 +86,13 @@ func (o *URLOpener) Open(ctx context.Context, urlstr string) (config.Store, erro
 		panic(err)
 	}
 
-	rp, _ := openurl.OpenPool(context.Background(), []string{""}, func(ctx context.Context, u string) (configx.Values, error) {
-		fmt.Println("Retrieving value from the reference pool : ", u)
-		return rc, nil
+	rp, _ := openurl.OpenPool(context.Background(), []string{"file:///tmp/{{ .Tenant }}.json"}, func(ctx context.Context, u string) (configx.Values, error) {
+		st, err := config.OpenStore(ctx, u)
+		if err != nil {
+			return nil, err
+		}
+
+		return st.Val(), nil
 	})
 
 	opts = append(opts, configx.WithReferencePool(rp))
@@ -232,12 +236,16 @@ func (m *memory) Set(value interface{}) error {
 	return nil
 }
 
+func (m *memory) Context(ctx context.Context) configx.Values {
+	return &values{Values: m.v.Context(ctx), m: m}
+}
+
 func (m *memory) Val(path ...string) configx.Values {
 	return &values{Values: m.v.Val(path...), m: m, path: path}
 }
 
 func (m *memory) Default(d any) configx.Values {
-	return nil
+	return &values{Values: m.v.Default(d), m: m}
 }
 
 func (m *memory) Del() error {
@@ -460,6 +468,14 @@ func (v *values) Del() error {
 	return nil
 }
 
+func (v *values) Context(ctx context.Context) configx.Values {
+	return &values{Values: v.Values.Context(ctx), m: v.m}
+}
+
 func (v *values) Val(path ...string) configx.Values {
 	return &values{Values: v.Values.Val(path...), m: v.m}
+}
+
+func (v *values) Default(d any) configx.Values {
+	return &values{Values: v.Values.Default(d), m: v.m}
 }

@@ -144,8 +144,16 @@ func New(ctx context.Context, conn grpc.ClientConnInterface, id string, path str
 	return r
 }
 
+func (r *remote) Context(ctx context.Context) configx.Values {
+	return r.values.Context(ctx)
+}
+
 func (r *remote) Val(path ...string) configx.Values {
 	return r.values.Val(path...)
+}
+
+func (r *remote) Default(data any) configx.Values {
+	return r.values.Default(data)
 }
 
 func (r *remote) Get() any {
@@ -157,10 +165,6 @@ func (r *remote) Set(value interface{}) error {
 }
 
 func (r *remote) Del() error {
-	return nil
-}
-
-func (r *remote) Default(data any) configx.Values {
 	return nil
 }
 
@@ -295,6 +299,10 @@ type values struct {
 	cli pb.ConfigClient
 	id  string
 	k   []string
+}
+
+func (r *values) Context(ctx context.Context) configx.Values {
+	return nil
 }
 
 func (r *values) Default(data any) configx.Values {
