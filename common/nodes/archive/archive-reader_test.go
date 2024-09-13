@@ -402,7 +402,8 @@ func TestReader_ExtractAll(t *testing.T) {
 
 	Convey("ExtractAllZip", t, func() {
 
-		So(mock.RegisterMockConfig(), ShouldBeNil)
+		ctx, er := mock.RegisterMockConfig(context.Background())
+		So(er, ShouldBeNil)
 		archiveNode, tmpArchive, e := getTempArchive("zip")
 		So(e, ShouldBeNil)
 		defer os.Remove(tmpArchive)
@@ -411,7 +412,7 @@ func TestReader_ExtractAll(t *testing.T) {
 			Router: nodes.NewHandlerMock(),
 		}
 
-		er := archiveReader.ExtractAllZip(context.Background(), archiveNode, &tree.Node{
+		er = archiveReader.ExtractAllZip(ctx, archiveNode, &tree.Node{
 			Path: "path/to/target",
 		})
 		So(er, ShouldBeNil)

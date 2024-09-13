@@ -37,6 +37,11 @@ import (
 	"github.com/pydio/cells/v4/common/telemetry/log"
 )
 
+// Testing purpose
+type stackInternals struct{}
+
+var stackInternalsKey = stackInternals{}
+
 type Writer struct {
 	Router nodes.Handler
 
@@ -55,6 +60,32 @@ func (w *Writer) commonRoot(nodes []*tree.Node) string {
 
 }
 
+func (w *Writer) selectionPrefixes(nodes []*tree.Node) (pp []string) {
+	// A unique folder - return full path
+	if len(nodes) == 1 && !nodes[0].IsLeaf() {
+		return []string{nodes[0].Path}
+	}
+
+	dirs := map[string]struct{}{}
+	for _, node := range nodes {
+		dirs[path.Dir(node.Path)] = struct{}{}
+	}
+
+	// all nodes have a common parent, use it as internal root
+	if len(dirs) == 1 {
+		for range nodes {
+			pp = append(pp, path.Dir(nodes[0].Path))
+		}
+		return
+	}
+
+	// There are different locations - use each as internal path
+	for _, node := range nodes {
+		pp = append(pp, path.Dir(node.Path))
+	}
+	return
+}
+
 // ZipSelection creates a .zip archive from nodes selection
 func (w *Writer) ZipSelection(ctx context.Context, output io.Writer, selection []*tree.Node, logsChannels ...chan string) (int64, error) {
 
@@ -71,9 +102,9 @@ func (w *Writer) ZipSelection(ctx context.Context, output io.Writer, selection [
 		}
 	}
 
-	parentRoot := w.commonRoot(selection)
+	prefixes := w.selectionPrefixes(selection)
 
-	log.Logger(ctx).Debug("ZipSelection", zap.String("parent", parentRoot), zap.Int("selection size", len(selection)))
+	log.Logger(ctx).Debug("ZipSelection", zap.Int("selection size", len(selection)))
 
 	filters := []nodes.WalkFilterFunc{
 		nodes.WalkFilterSkipPydioHiddenFile,
@@ -84,7 +115,7 @@ func (w *Writer) ZipSelection(ctx context.Context, output io.Writer, selection [
 	if w.WalkFilter != nil {
 		filters = append(filters, w.WalkFilter)
 	}
-	for _, node := range selection {
+	for i, node := range selection {
 
 		request := &tree.ListNodesRequest{
 			Node:       &tree.Node{Path: node.Path},
@@ -97,7 +128,7 @@ func (w *Writer) ZipSelection(ctx context.Context, output io.Writer, selection [
 			if err != nil {
 				return nil
 			}
-			internalPath := strings.TrimPrefix(n.Path, parentRoot)
+			internalPath := strings.TrimPrefix(n.Path, prefixes[i])
 			internalPath = strings.TrimLeft(internalPath, "/")
 			if internalPath == "" {
 				return nil
@@ -136,6 +167,11 @@ func (w *Writer) ZipSelection(ctx context.Context, output io.Writer, selection [
 			if len(logsChannels) > 0 {
 				logsChannels[0] <- "File " + internalPath + " added to archive"
 			}
+			// For Testing purpose
+			if v := ctx.Value(stackInternalsKey); v != nil {
+				vm := v.(map[string]string)
+				vm[internalPath] = internalPath
+			}
 
 			return nil
 		}, false, filters...)
@@ -168,9 +204,9 @@ func (w *Writer) TarSelection(ctx context.Context, output io.Writer, gzipFile bo
 		defer tw.Close()
 	}
 
-	parentRoot := w.commonRoot(selection)
+	prefixes := w.selectionPrefixes(selection)
 
-	for _, node := range selection {
+	for i, node := range selection {
 
 		request := &tree.ListNodesRequest{
 			Node:       &tree.Node{Path: node.Path},
@@ -180,7 +216,7 @@ func (w *Writer) TarSelection(ctx context.Context, output io.Writer, gzipFile bo
 		}
 		err := w.Router.ListNodesWithCallback(ctx, request, func(ctx context.Context, n *tree.Node, err error) error {
 
-			internalPath := strings.TrimPrefix(n.Path, parentRoot)
+			internalPath := strings.TrimPrefix(n.Path, prefixes[i])
 			header := &tar.Header{
 				Name:    internalPath,
 				ModTime: n.GetModTime(),

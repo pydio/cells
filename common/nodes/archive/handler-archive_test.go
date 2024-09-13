@@ -27,12 +27,12 @@ import (
 	"sync"
 	"testing"
 
-	. "github.com/smartystreets/goconvey/convey"
-
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/nodes"
 	"github.com/pydio/cells/v4/common/nodes/models"
 	"github.com/pydio/cells/v4/common/proto/tree"
+
+	. "github.com/smartystreets/goconvey/convey"
 )
 
 type mockSelectionProvider struct {
@@ -127,10 +127,19 @@ func TestHandler_GetObject(t *testing.T) {
 	mock.Nodes["path/folder/file2"] = &tree.Node{Path: "path/folder/file2", Type: tree.NodeType_LEAF, Size: 10}
 	mock.Nodes["path/folder/"+common.PydioSyncHiddenFile] = &tree.Node{Path: "path/folder/file2", Type: tree.NodeType_LEAF, Size: 10}
 	mock.Nodes["path/folder/subfolder_ignored"] = &tree.Node{Path: "path/folder/file2", Type: tree.NodeType_COLLECTION}
+	mock.Nodes["path/to/cell1"] = &tree.Node{Path: "path/to/cell1", Type: tree.NodeType_COLLECTION, Size: 30}
+	mock.Nodes["path/to/cell1/folder1"] = &tree.Node{Path: "path/to/cell1/folder1", Type: tree.NodeType_COLLECTION, Size: 30}
+	mock.Nodes["path/to/cell1/file"] = &tree.Node{Path: "path/to/cell1/file", Type: tree.NodeType_LEAF, Size: 30}
+	mock.Nodes["user2/cells/cell2"] = &tree.Node{Path: "user2/cells/cell2", Type: tree.NodeType_COLLECTION, Size: 30}
+	mock.Nodes["user2/cells/cell2/folder2"] = &tree.Node{Path: "user2/cells/cell2/folder2", Type: tree.NodeType_COLLECTION, Size: 30}
+	mock.Nodes["user2/cells/cell2/file"] = &tree.Node{Path: "user2/cells/cell2/file", Type: tree.NodeType_LEAF, Size: 30}
 
 	selMock := newMockSelectionProvider()
 	selMock.sel["selection-uuid"] = append(selMock.sel["selection-uuid"], &tree.Node{Path: "path/folder/file1", Type: tree.NodeType_LEAF})
 	selMock.sel["selection-uuid"] = append(selMock.sel["selection-uuid"], &tree.Node{Path: "path/folder/file2", Type: tree.NodeType_LEAF})
+
+	selMock.sel["selection-cells"] = append(selMock.sel["selection-cells"], &tree.Node{Path: "path/to/cell1", Type: tree.NodeType_COLLECTION})
+	selMock.sel["selection-cells"] = append(selMock.sel["selection-cells"], &tree.Node{Path: "user2/cells/cell2", Type: tree.NodeType_COLLECTION})
 
 	zipHandler := &Handler{
 		selectionProvider: selMock,
@@ -152,7 +161,9 @@ func TestHandler_GetObject(t *testing.T) {
 	})
 
 	Convey("Test Get Zip Selection", t, func() {
-		reader, e := zipHandler.GetObject(context.Background(), &tree.Node{
+		internals := map[string]string{}
+		ctx := context.WithValue(context.Background(), stackInternalsKey, internals)
+		reader, e := zipHandler.GetObject(ctx, &tree.Node{
 			Path: "path/selection-uuid-selection.zip",
 		}, &models.GetRequestData{
 			Length: -1,
@@ -163,6 +174,29 @@ func TestHandler_GetObject(t *testing.T) {
 		n, _ := io.Copy(bytes.NewBuffer(data), reader)
 		reader.Close()
 		So(n, ShouldBeGreaterThan, 20)
+		So(internals, ShouldHaveLength, 2)
+		So(internals, ShouldContainKey, "file1")
+		So(internals, ShouldContainKey, "file2")
+	})
+
+	Convey("Test Get Zip Selection", t, func() {
+		internals := map[string]string{}
+		ctx := context.WithValue(context.Background(), stackInternalsKey, internals)
+		reader, e := zipHandler.GetObject(ctx, &tree.Node{
+			Path: "path/selection-cells-selection.zip",
+		}, &models.GetRequestData{
+			Length: -1,
+		})
+		So(e, ShouldBeNil)
+		So(reader, ShouldNotBeNil)
+		data := []byte{}
+		n, _ := io.Copy(bytes.NewBuffer(data), reader)
+		reader.Close()
+		So(n, ShouldBeGreaterThan, 20)
+		So(internals, ShouldHaveLength, 4)
+		t.Log(internals)
+		So(internals, ShouldContainKey, "cell1/file")
+		So(internals, ShouldContainKey, "cell2/file")
 	})
 
 	Convey("Test Get Tar Node", t, func() {
