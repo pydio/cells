@@ -25,9 +25,8 @@ import (
 	"context"
 	"net/http"
 
+	"github.com/olahol/melody"
 	"go.uber.org/zap"
-
-	"github.com/pydio/melody"
 
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/broker"

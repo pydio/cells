@@ -29,10 +29,9 @@ import (
 
 	lkauth "github.com/livekit/protocol/auth"
 	"github.com/microcosm-cc/bluemonday"
+	"github.com/olahol/melody"
 	"go.uber.org/zap"
 	"google.golang.org/protobuf/encoding/protojson"
-
-	"github.com/pydio/melody"
 
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/auth"
@@ -43,6 +42,7 @@ import (
 	"github.com/pydio/cells/v4/common/nodes/compose"
 	"github.com/pydio/cells/v4/common/proto/chat"
 	"github.com/pydio/cells/v4/common/proto/tree"
+	"github.com/pydio/cells/v4/common/runtime"
 	"github.com/pydio/cells/v4/common/telemetry/log"
 	json "github.com/pydio/cells/v4/common/utils/jsonx"
 	"github.com/pydio/cells/v4/common/utils/propagator"
@@ -99,6 +99,9 @@ func (c *ChatHandler) BroadcastChatMessage(ctx context.Context, msg *chat.ChatEv
 	}
 
 	return c.Websocket.BroadcastFilter(buff, func(session *melody.Session) bool {
+		if !runtime.MultiMatches(session.Request.Context(), ctx) {
+			return false
+		}
 		if session.IsClosed() {
 			log.Logger(ctx).Error("Session is closed")
 			return false

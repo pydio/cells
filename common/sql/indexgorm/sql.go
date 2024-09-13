@@ -125,7 +125,7 @@ func (*treeNodeFactory[T]) RootGroup() string {
 
 func (s *IndexSQL[T]) instance(ctx context.Context) *gorm.DB {
 	cachesPlugin := &caches.Caches{Conf: &caches.Config{
-		Easer: true,
+		// Easer: true, // TODO - disabled that at super-fact calls to GetNodeChild() randomly return results
 		// Cacher: NewCacher(c),
 	}}
 
@@ -447,7 +447,7 @@ func (dao *IndexSQL[T]) GetNodeChild(ctx context.Context, mPath *tree.MPath, nam
 	}
 
 	if tx.RowsAffected == 0 {
-		return nil, errors.New("not found")
+		return nil, gorm.ErrRecordNotFound // errors.New("not found")
 	}
 
 	return node, nil
@@ -891,7 +891,7 @@ func Path(ctx context.Context, dao DAO, targetNode tree.ITreeNode, parentNode tr
 	}
 
 	// Trying to retrieve the node first
-	if existingNode, err := dao.GetNodeChild(ctx, parentMPath, currentName); err != nil && err != gorm.ErrRecordNotFound {
+	if existingNode, err := dao.GetNodeChild(ctx, parentMPath, currentName); err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
 		return nil, nil, err
 	} else if existingNode != nil && existingNode.GetMPath() != nil {
 		return Path(ctx, dao, targetNode, existingNode, create)
