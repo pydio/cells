@@ -81,21 +81,23 @@ func (o *URLOpener) Open(ctx context.Context, urlstr string) (config.Store, erro
 		opts = append(opts, configx.WithInitData([]byte(data)))
 	}
 
-	rc := configx.New(configx.WithJSON())
-	if err := rc.Set([]byte(`{"testconf":"whatever"}`)); err != nil {
-		panic(err)
-	}
+	if pools := u.Query().Get("pools"); pools != "" {
+		rps := strings.Split(pools, "&")
+		for _, rp := range rps {
+			kv := strings.SplitN(rp, "=", 2)
 
-	rp, _ := openurl.OpenPool(context.Background(), []string{"file:///tmp/{{ .Tenant }}.json"}, func(ctx context.Context, u string) (configx.Values, error) {
-		st, err := config.OpenStore(ctx, u)
-		if err != nil {
-			return nil, err
+			rp, _ := openurl.OpenPool(ctx, []string{kv[1]}, func(ctx context.Context, u string) (configx.Values, error) {
+				st, err := config.OpenStore(ctx, u)
+				if err != nil {
+					return nil, err
+				}
+
+				return st.Val(), nil
+			})
+
+			opts = append(opts, configx.WithReferencePool(kv[0], rp))
 		}
-
-		return st.Val(), nil
-	})
-
-	opts = append(opts, configx.WithReferencePool(rp))
+	}
 
 	store := New(opts...)
 

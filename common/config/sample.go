@@ -145,7 +145,7 @@ var SampleConfig = `{
         "nats": 4222
     },
     "frontend":{
-		"$ref": "file:///tmp/{{ .Tenant }}.json#/frontend"
+		"$ref": "rp#/frontend"
     },
     "services":{
         "pydio.grpc.config":{

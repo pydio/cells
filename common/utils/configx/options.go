@@ -70,7 +70,7 @@ type Options struct {
 	// Do not create any resources
 	ReadOnly bool
 
-	ReferencePool *openurl.Pool[Values]
+	ReferencePool map[string]*openurl.Pool[Values]
 
 	// Used to pass other potential options
 	Context context.Context
@@ -218,8 +218,11 @@ func WithSetCallback(f func([]string, interface{}) error) Option {
 	}
 }
 
-func WithReferencePool(ref *openurl.Pool[Values]) Option {
+func WithReferencePool(key string, ref *openurl.Pool[Values]) Option {
 	return func(o *Options) {
-		o.ReferencePool = ref
+		if o.ReferencePool == nil {
+			o.ReferencePool = make(map[string]*openurl.Pool[Values])
+		}
+		o.ReferencePool[key] = ref
 	}
 }

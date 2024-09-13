@@ -351,11 +351,13 @@ func (c *store) Get() any {
 					configRef = c.Val("#")
 				} else {
 					if rp := c.opts.ReferencePool; rp != nil {
-						var err error
+						if refTargetPool, ok := rp[refTarget]; ok {
+							var err error
 
-						configRef, err = rp.Get(c.opts.Context)
-						if err != nil {
-							return c.d
+							configRef, err = refTargetPool.Get(c.opts.Context)
+							if err != nil {
+								return c.d
+							}
 						}
 					}
 				}
@@ -376,11 +378,13 @@ func (c *store) Get() any {
 					configRef = c.Val("#")
 				} else {
 					if rp := c.opts.ReferencePool; rp != nil {
-						var err error
+						if refTargetPool, ok := rp[refTarget]; ok {
+							var err error
 
-						configRef, err = rp.Get(c.opts.Context)
-						if err != nil {
-							return c.d
+							configRef, err = refTargetPool.Get(c.opts.Context)
+							if err != nil {
+								return c.d
+							}
 						}
 					}
 				}

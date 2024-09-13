@@ -158,6 +158,7 @@ func (m Pool[T]) Get(ctx context.Context, resolutionData ...map[string]interface
 				data[k] = v
 			}
 		}
+
 		// RESOLVE URL
 		realURL, er := resolver.Resolve(ctx, data)
 		if er != nil {

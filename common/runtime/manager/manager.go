@@ -25,6 +25,7 @@ import (
 	"context"
 	"fmt"
 	"net"
+	"net/url"
 	"os"
 	"regexp"
 	"strconv"
@@ -554,7 +555,25 @@ func (m *manager) initProcesses() error {
 
 					// Adding connections to the environment
 					for k := range connections.Map() {
-						childEnv = append(childEnv, fmt.Sprintf("CELLS_%s=%s", strings.ToUpper(k), connections.Val(k, "uri")))
+						uri := connections.Val(k, "uri").String()
+						u, err := url.Parse(uri)
+						if err != nil {
+							log.Logger(m.ctx).Warn("connection url not right")
+							continue
+						}
+
+						pools := connections.Val(k, "pools").Map()
+						if len(pools) > 0 {
+							var poolSlice []string
+							for k, v := range pools {
+								poolSlice = append(poolSlice, fmt.Sprintf("%s=%s", k, v))
+							}
+							q := u.Query()
+							q.Add("pools", strings.Join(poolSlice, "&"))
+							u.RawQuery = q.Encode()
+						}
+
+						childEnv = append(childEnv, fmt.Sprintf("CELLS_%s=%s", strings.ToUpper(k), u.String()))
 					}
 
 					for k, v := range env.Map() {
