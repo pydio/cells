@@ -17,7 +17,7 @@
  *
  * The latest code can be found at <https://pydio.com>.
  */
-import React from 'react'
+import React, {createRef} from 'react'
 import Pydio from 'pydio'
 import MetaClient from "./MetaClient";
 import UserMetaPanel from './UserMetaPanel'
@@ -28,11 +28,11 @@ export default class InfoPanel extends React.Component{
 
     constructor(props){
         super(props);
+        this.panel = createRef();
+
         this.state = {};
         this._nodeObserver = () => {
-            if(this.refs.panel){
-                this.refs.panel.resetUpdateData();
-            }
+            this.panel.current && this.panel.current.resetUpdateData();
             this.forceUpdate();
         };
         if(props.node){
@@ -41,23 +41,25 @@ export default class InfoPanel extends React.Component{
     }
 
     componentWillReceiveProps(newProps){
-        if(this.props.node){
-            this.props.node.stopObserving('node_replaced', this._nodeObserver)
+        if (newProps.node === this.props.node) {
+            return
         }
-        if(newProps.node !== this.props.node && this.refs.panel){
-            newProps.node.observe('node_replaced', this._nodeObserver)
-        }
+        this.panel.current && this.panel.current.resetUpdateData();
+        this.props.node && this.props.node.stopObserving('node_replaced', this._nodeObserver)
+        newProps.node && newProps.node.observe('node_replaced', this._nodeObserver)
+
     }
 
     componentWillUnmount(){
-        if(this.props.node){
-            this.props.node.stopObserving('node_replaced', this._nodeObserver)
-        }
+        this.props.node && this.props.node.stopObserving('node_replaced', this._nodeObserver)
     }
 
     saveMeta(){
-        let values = this.refs.panel.getUpdateData();
-        return MetaClient.getInstance().saveMeta(this.props.pydio.getContextHolder().getSelectedNodes(), values);
+        let values = this.panel.current.getUpdateData();
+        const {node} = this.props;
+        return MetaClient.getInstance().saveMeta([node], values).then(() => {
+            //this.panel.current.resetUpdateData(); // Reset
+        });
     }
 
     onChangeUpdateData(updateData){
@@ -68,7 +70,7 @@ export default class InfoPanel extends React.Component{
         let actions = [];
         const {pydio, node, popoverPanel, ...infoProps} = this.props;
         const {MessageHash} = pydio;
-        const values = this.state.updateData || new Map();
+        const values = this.panel.current  ? this.panel.current.getUpdateData() : new Map();
         const readOnly = node.getMetadata().get('node_readonly') === 'true';
         let hasAction = false;
 
@@ -104,7 +106,7 @@ export default class InfoPanel extends React.Component{
                 popoverPanel={popoverPanel}
             >
                 <UserMetaPanel
-                    ref="panel"
+                    ref={this.panel}
                     node={this.props.node}
                     editMode={!readOnly}
                     pydio={this.props.pydio}
