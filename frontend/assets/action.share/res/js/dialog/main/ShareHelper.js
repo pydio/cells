@@ -225,6 +225,10 @@ class ShareHelper {
         } else {
             templateId = "Cell";
             templateData["Cell"] = cellModel.getLabel();
+            const repo = Pydio.getInstance().user.getRepositoriesList().get(cellModel.cell.Uuid)
+            if(repo && repo.getSlug()) {
+                templateData["LinkPath"] = "/ws-" + repo.getSlug();
+            }
         }
 
         return {
