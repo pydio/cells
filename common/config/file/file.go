@@ -93,6 +93,8 @@ func (o *URLOpener) Open(ctx context.Context, urlstr string) (config.Store, erro
 		opts = append(opts, configx.WithReadOnly())
 	}
 
+	opts = append(opts, config.ReferencePoolOptionsFromURL(ctx, u)...)
+
 	store, err := New(u.Path, opts...)
 	if err != nil {
 		// Try to upgrade legacy keyring

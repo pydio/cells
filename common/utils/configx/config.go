@@ -556,10 +556,17 @@ func merge(dst any, src any) (any, error) {
 
 		current = s
 	case map[any]any:
-		srcV, ok := src.(map[any]any)
-		if !ok {
+		var srcV map[any]any
+		switch vv := src.(type) {
+		case map[string]any:
+			srcV = map[any]any{}
+			for k, v := range vv {
+				srcV[k] = v
+			}
+		case map[any]any:
+			srcV = vv
+		default:
 			return src, nil
-			// return nil, errors.New("not the same type")
 		}
 
 		// Merging those that are both in dst and in src
@@ -574,10 +581,17 @@ func merge(dst any, src any) (any, error) {
 
 		current = m
 	case map[string]any:
-		srcV, ok := src.(map[string]any)
-		if !ok {
+		var srcV map[string]any
+		switch vv := src.(type) {
+		case map[string]any:
+			srcV = vv
+		case map[any]any:
+			srcV = map[string]any{}
+			for k, v := range vv {
+				srcV[fmt.Sprintf("%s", k)] = v
+			}
+		default:
 			return src, nil
-			// return nil, errors.New("not the same type")
 		}
 
 		// Merging those that are both in dst and in src

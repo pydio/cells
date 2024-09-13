@@ -17,7 +17,6 @@ import (
 	"github.com/pydio/cells/v4/common/config"
 	"github.com/pydio/cells/v4/common/utils/configx"
 	json "github.com/pydio/cells/v4/common/utils/jsonx"
-	"github.com/pydio/cells/v4/common/utils/openurl"
 	"github.com/pydio/cells/v4/common/utils/std"
 )
 
@@ -81,23 +80,7 @@ func (o *URLOpener) Open(ctx context.Context, urlstr string) (config.Store, erro
 		opts = append(opts, configx.WithInitData([]byte(data)))
 	}
 
-	if pools := u.Query().Get("pools"); pools != "" {
-		rps := strings.Split(pools, "&")
-		for _, rp := range rps {
-			kv := strings.SplitN(rp, "=", 2)
-
-			rp, _ := openurl.OpenPool(ctx, []string{kv[1]}, func(ctx context.Context, u string) (configx.Values, error) {
-				st, err := config.OpenStore(ctx, u)
-				if err != nil {
-					return nil, err
-				}
-
-				return st.Val(), nil
-			})
-
-			opts = append(opts, configx.WithReferencePool(kv[0], rp))
-		}
-	}
+	opts = append(opts, config.ReferencePoolOptionsFromURL(ctx, u)...)
 
 	store := New(opts...)
 
