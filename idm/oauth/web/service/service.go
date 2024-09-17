@@ -33,6 +33,7 @@ import (
 	"go.uber.org/zap"
 
 	"github.com/pydio/cells/v4/common"
+	"github.com/pydio/cells/v4/common/config"
 	"github.com/pydio/cells/v4/common/config/routing"
 	"github.com/pydio/cells/v4/common/errors"
 	"github.com/pydio/cells/v4/common/middleware"
@@ -57,6 +58,64 @@ func init() {
 			service.Context(ctx),
 			service.Tag(common.ServiceTagIdm),
 			service.Description("OAuth Provider"),
+			service.Migrations([]*service.Migration{{
+				TargetVersion: service.FirstRun(),
+				Up: func(ctx context.Context) error {
+					config.Get(ctx, "services", common.ServiceWebNamespace_+common.ServiceOAuth).Set(map[string]any{
+						"secret": "a-very-insecure-secret-for-checking-out-the-demo",
+						"connectors": []any{
+							map[string]any{
+								"type": "pydio",
+								"id":   "pydio",
+								"name": "Pydio Cells",
+							},
+						},
+						"cors": map[string]any{
+							"public": map[string]any{
+								"allowedOrigins": "*",
+							},
+						},
+						"staticClients": []any{
+							map[string]any{
+								"client_id":                         config.DefaultOAuthClientID,
+								"client_name":                       "CellsFrontend Application",
+								"revokeRefreshTokenAfterInactivity": "2h",
+								"grant_types":                       []any{"authorization_code", "refresh_token"},
+								"redirect_uris":                     []any{"#default_bind#/auth/callback"},
+								"post_logout_redirect_uris":         []any{"#default_bind#/auth/logout"},
+								"response_types":                    []any{"code", "token", "id_token"},
+								"scope":                             "openid email profile pydio offline",
+							},
+							map[string]any{
+								"client_id":      "cells-sync",
+								"client_name":    "CellsSync Application",
+								"grant_types":    []any{"authorization_code", "refresh_token"},
+								"redirect_uris":  []any{"http://localhost:3000/servers/callback", "http://localhost:[3636-3666]/servers/callback"},
+								"response_types": []any{"code", "token", "id_token"},
+								"scope":          "openid email profile pydio offline",
+							},
+							map[string]any{
+								"client_id":      "cells-client",
+								"client_name":    "Cells Client CLI Tool",
+								"grant_types":    []any{"authorization_code", "refresh_token"},
+								"redirect_uris":  []any{"http://localhost:3000/servers/callback", "#binds...#/oauth2/oob"},
+								"response_types": []any{"code", "token", "id_token"},
+								"scope":          "openid email profile pydio offline",
+							},
+							map[string]any{
+								"client_id":      "cells-mobile",
+								"client_name":    "Mobile Applications",
+								"grant_types":    []any{"authorization_code", "refresh_token"},
+								"redirect_uris":  []any{"cellsauth://callback"},
+								"response_types": []any{"code", "token", "id_token"},
+								"scope":          "openid email profile pydio offline",
+							},
+						},
+					})
+
+					return nil
+				},
+			}}),
 			service.WithStorageDrivers(oauth.RegistryDrivers...),
 			service.WithHTTPOptions(func(ctx context.Context, serveMux routing.RouteRegistrar, o *service.ServiceOptions) error {
 
