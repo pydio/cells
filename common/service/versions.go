@@ -66,10 +66,8 @@ func UpdateServiceVersion(ctx context.Context, opts *ServiceOptions) error {
 
 	var err error
 	prefix := []string{"versions", opts.Name}
+	runtime.MultiContextManager()
 	tID := runtime.MultiContextManager().Current(ctx)
-	if tID != "default" {
-		prefix = []string{"versions", tID, opts.Name}
-	}
 
 	var run bool
 	opts.migrateOnceL.Lock()
@@ -88,7 +86,7 @@ func UpdateServiceVersion(ctx context.Context, opts *ServiceOptions) error {
 	}
 
 	newVersion, _ := version.NewVersion(opts.Version)
-	lastVersion, e := lastKnownVersion(store, opts.Name, prefix...)
+	lastVersion, e := lastKnownVersion(ctx, store, opts.Name, prefix...)
 	if e != nil {
 		err = fmt.Errorf("cannot update service version for %s (%v)", opts.Name, e)
 		return err
@@ -97,7 +95,7 @@ func UpdateServiceVersion(ctx context.Context, opts *ServiceOptions) error {
 	if len(opts.Migrations) > 0 {
 		writeVersion, err := applyMigrations(ctx, lastVersion, newVersion, opts.Migrations)
 		if writeVersion != nil {
-			if e := updateVersion(store, opts.Name, writeVersion, prefix...); e != nil {
+			if e := updateVersion(ctx, store, opts.Name, writeVersion, prefix...); e != nil {
 				log.Logger(ctx).Error("could not write version file", zap.Error(e))
 			}
 		}
@@ -115,21 +113,21 @@ func legacyVersionFile(serviceName string) string {
 }
 
 // lastKnownVersion looks on this server if there was a previous version of this service
-func lastKnownVersion(store config.Store, serviceName string, prefix ...string) (v *version.Version, e error) {
+func lastKnownVersion(ctx context.Context, store config.Store, serviceName string, prefix ...string) (v *version.Version, e error) {
 
-	def := strings.TrimSpace(store.Val(prefix...).Default("0.0.0").String())
+	def := strings.TrimSpace(store.Context(ctx).Val(prefix...).Default("0.0.0").String())
 	if def == "0.0.0" {
 		if data, err := os.ReadFile(legacyVersionFile(serviceName)); err == nil && len(data) > 0 {
 			fileVersion := strings.TrimSpace(string(data))
 			return version.NewVersion(fileVersion)
 		}
 	}
-	return version.NewVersion(strings.TrimSpace(store.Val(prefix...).Default("0.0.0").String()))
+	return version.NewVersion(strings.TrimSpace(store.Context(ctx).Val(prefix...).Default("0.0.0").String()))
 }
 
 // updateVersion writes the version string to config, and eventually removes legacy version file
-func updateVersion(store config.Store, serviceName string, v *version.Version, prefix ...string) error {
-	if err := store.Val(prefix...).Set(v.String()); err != nil {
+func updateVersion(ctx context.Context, store config.Store, serviceName string, v *version.Version, prefix ...string) error {
+	if err := store.Context(ctx).Val(prefix...).Set(v.String()); err != nil {
 		return err
 	}
 

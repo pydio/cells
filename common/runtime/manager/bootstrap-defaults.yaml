@@ -257,12 +257,10 @@ defaults:
       runtime: discovery
       connections:
         <<: *connections
-#        config:
-#          uri: file://{{{{ .ApplicationWorkingDir }}}}/pydio.json
         config:
-          uri: mem://
+          uri: file://{{{{ .ApplicationWorkingDir }}}}/pydio.json
           pools:
-            rp: file:///tmp/{{ .Tenant }}.json
+            rp: file://{{{{ .ApplicationWorkingDir }}}}/{{ .Tenant }}.json
         registry:
           uri: mem://?cache=shared
         broker:
@@ -282,7 +280,7 @@ defaults:
         caddy:
           type: caddy
           services:
-            - filter: "{{ .Name }} ~= pydio.rest..* or {{ .Name }} ~= pydio.web.statics or {{ .Name }} = pydio.gateway.websocket"
+            - filter: "{{ .Name }} ~= pydio.rest..* or {{ .Name }} ~= pydio.web.oauth or {{ .Name }} ~= pydio.web.statics or {{ .Name }} = pydio.gateway.websocket"
         generic:
           type: generic
           services:

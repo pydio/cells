@@ -65,7 +65,7 @@ type Saver interface {
 	Save(string, string) error
 }
 
-// Save the config in the hard store
+// Save the config in the hard wrappedStore
 func Save(ctx context.Context, ctxUser string, ctxMessage string) error {
 	if err := propagator.MustWithHint[Store](ctx, ContextKey, "config").Save(ctxUser, ctxMessage); err != nil {
 		return err

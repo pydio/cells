@@ -80,7 +80,7 @@ func (o *URLOpener) Open(ctx context.Context, urlstr string) (config.Store, erro
 		opts = append(opts, configx.WithInitData([]byte(data)))
 	}
 
-	opts = append(opts, config.ReferencePoolOptionsFromURL(ctx, u)...)
+	// opts = append(opts, config.ReferencePoolOptionsFromURL(ctx, u)...)
 
 	store := New(opts...)
 
@@ -107,6 +107,8 @@ func (o *URLOpener) Open(ctx context.Context, urlstr string) (config.Store, erro
 			}
 		}
 	}
+
+	store = config.NewStoreWithReferencePool(store, config.ReferencePoolFromURL(ctx, u))
 
 	return store, nil
 }
@@ -207,6 +209,14 @@ func (m *memory) update() {
 	m.reset <- true
 }
 
+func (m *memory) Key() []string {
+	return m.v.Key()
+}
+
+func (m *memory) Walk(fn func(int, any) any) error {
+	return m.v.Walk(fn)
+}
+
 func (m *memory) Get() any {
 	return m.v.Get()
 }
@@ -223,6 +233,10 @@ func (m *memory) Set(value interface{}) error {
 
 func (m *memory) Context(ctx context.Context) configx.Values {
 	return &values{Values: m.v.Context(ctx), m: m}
+}
+
+func (m *memory) Options() *configx.Options {
+	return m.v.Options()
 }
 
 func (m *memory) Val(path ...string) configx.Values {

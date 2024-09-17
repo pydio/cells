@@ -156,6 +156,18 @@ func (r *remote) Default(data any) configx.Values {
 	return r.values.Default(data)
 }
 
+func (r *remote) Options() *configx.Options {
+	return r.values.Options()
+}
+
+func (r *remote) Key() []string {
+	return r.values.Key()
+}
+
+func (r *remote) Walk(f func(int, any) any) error {
+	return r.values.Walk(f)
+}
+
 func (r *remote) Get() any {
 	return r.values.Get()
 }
@@ -301,12 +313,25 @@ type values struct {
 	k   []string
 }
 
+func (r *values) Walk(f func(i int, v any) any) error {
+	//TODO implement me
+	panic("implement me")
+}
+
 func (r *values) Context(ctx context.Context) configx.Values {
 	return nil
 }
 
 func (r *values) Default(data any) configx.Values {
 	return nil
+}
+
+func (r *values) Options() *configx.Options {
+	return nil
+}
+
+func (r *values) Key() []string {
+	return []string{}
 }
 
 func (v *values) Val(path ...string) configx.Values {
