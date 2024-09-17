@@ -35,7 +35,7 @@ type vault struct {
 	vault  Store
 }
 
-// NewVault creates a new vault with a standard config store and a vault store
+// NewVault creates a new vault with a standard config wrappedStore and a vault wrappedStore
 func NewVault(vaultStore, configStore Store) Store {
 	return &vault{
 		configStore,
@@ -63,6 +63,10 @@ func (v *vault) Close(ctx context.Context) error {
 	}
 
 	return nil
+}
+
+func (v *vault) Key() []string {
+	return v.config.Key()
 }
 
 func (v *vault) Done() <-chan struct{} {
@@ -102,14 +106,22 @@ func (v *vaultStoreLocker) Unlock() {
 	}
 }
 
+func (v *vault) Walk(f func(i int, v any) any) error {
+	return v.config.Walk(f)
+}
+
 // Get access to the underlying structure at a certain path
 func (v *vault) Get() any {
-	return v.vault.Get()
+	return v.config.Get()
 }
 
 // Set new value
 func (v *vault) Set(value interface{}) error {
 	return v.config.Set(value)
+}
+
+func (v *vault) Options() *configx.Options {
+	return v.config.Options()
 }
 
 // Val of the path

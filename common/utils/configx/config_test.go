@@ -89,8 +89,8 @@ func TestSetting(t *testing.T) {
 			return r2, nil
 		})
 
-		r1 := New(WithJSON(), WithReferencePool(rp2))
-		if err := r1.Set([]byte(`{"refparam1":{"$ref": "test2#/refparam2"}}`)); err != nil {
+		r1 := New(WithJSON(), WithReferencePool("rp", rp2))
+		if err := r1.Set([]byte(`{"refparam1":{"$ref": "rp#/refparam2"}}`)); err != nil {
 			panic(err)
 		}
 
@@ -98,7 +98,7 @@ func TestSetting(t *testing.T) {
 			return r1, nil
 		})
 
-		c := New(WithJSON(), WithReferencePool(rp1))
+		c := New(WithJSON(), WithReferencePool("test1", rp1))
 
 		c.Val("test").Set("test")
 		c.Val("test[1]").Set("test")
@@ -110,11 +110,12 @@ func TestSetting(t *testing.T) {
 		So(c.Val("test[0][1]").String(), ShouldEqual, "test")
 		So(c.Val("test[0][2]").String(), ShouldEqual, "refvalue2")
 
+		fmt.Println("Starting replacement here ")
 		c.Val("test[0][2]").Set("newrefvalue1")
 
-		//spew.Dump(*r1.v)
-		//spew.Dump(*r2.v)
-		//spew.Dump(*c.v)
+		spew.Dump(r2.Get())
+		spew.Dump(r1.Get())
+		spew.Dump(c.Get())
 	})
 }
 
@@ -614,35 +615,42 @@ func TestOverride(t *testing.T) {
 
 type implValuesOverride struct {
 	k []string
-	*values
+	Values
 }
 
-func (i implValuesOverride) Val(path ...string) Values {
-	return New(WithStorer(&implValuesOverride{
-		k: StringToKeys(append(i.k, path...)...),
-	}))
+func (i *implValuesOverride) Val(path ...string) Values {
+	return &caster{
+		Storer: &implValuesOverride{
+			k:      StringToKeys(append(i.k, path...)...),
+			Values: i.Values.Val(path...),
+		},
+	}
 }
 
-func (i implValuesOverride) Default(def any) Values {
+func (i *implValuesOverride) Default(def any) Values {
 	return nil
 }
 
-func (i implValuesOverride) Get() any {
-	fmt.Println(i.k)
+func (i *implValuesOverride) Get() any {
+	i.Values.Walk(func(i int, current any) any {
+		spew.Dump(current)
+		return current
+	})
 	return "whatever"
 }
 
-func (i implValuesOverride) Set(value any) error {
-	return nil
+func (i *implValuesOverride) Set(value any) error {
+	return i.Values.Set(value)
 }
 
-func (i implValuesOverride) Del() error {
-	return nil
+func (i *implValuesOverride) Del() error {
+	return i.Values.Del()
 }
 
 func TestStorer(t *testing.T) {
-	v := New(WithStorer(&implValuesOverride{}))
+	v := &implValuesOverride{Values: New(WithJSON())}
 
-	v.Val("whatever").Val("yessir").Set("whatever")
-	fmt.Println(v.Val("whatever").Val("yessir").String())
+	v.Val("whatever").Val("yessir").Val("Again").Set("whatever")
+	fmt.Println(v.Val("whatever").Val("yessir").Val("Again").String())
+	fmt.Println("")
 }

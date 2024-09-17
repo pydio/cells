@@ -30,11 +30,11 @@ import (
 	"github.com/pydio/cells/v4/common/utils/propagator"
 )
 
-type store Store
+type wrappedStore Store
 
 type versionStore struct {
 	revisions.Store
-	store
+	wrappedStore
 }
 
 func RevisionsStore(ctx context.Context) revisions.Store {
@@ -57,7 +57,7 @@ type RevisionsProvider interface {
 	AsRevisionsStore(...RevisionsStoreOption) (Store, revisions.Store)
 }
 
-// NewVersionStore based on a file Version Store and a store
+// NewVersionStore based on a file Version Store and a wrappedStore
 func NewVersionStore(vs revisions.Store, store Store) Store {
 	return &versionStore{
 		vs,
@@ -67,27 +67,27 @@ func NewVersionStore(vs revisions.Store, store Store) Store {
 
 // Val of the path
 func (v *versionStore) Val(path ...string) configx.Values {
-	return v.store.Val(path...)
+	return v.wrappedStore.Val(path...)
 }
 
 // Get access to the underlying structure at a certain path
 func (v *versionStore) Get() any {
-	return v.store.Get()
+	return v.wrappedStore.Get()
 }
 
 // Set new value
 func (v *versionStore) Set(value interface{}) error {
-	return v.store.Set(value)
+	return v.wrappedStore.Set(value)
 }
 
-// Del version store
+// Del version wrappedStore
 func (v *versionStore) Del() error {
-	return v.store.Del()
+	return v.wrappedStore.Del()
 }
 
 // Watch config changes under a path
 func (v *versionStore) Watch(opts ...configx.WatchOption) (configx.Receiver, error) {
-	watcher, ok := v.store.(configx.Watcher)
+	watcher, ok := v.wrappedStore.(configx.Watcher)
 	if !ok {
 		return nil, fmt.Errorf("no watchers")
 	}
@@ -98,16 +98,16 @@ func (v *versionStore) Watch(opts ...configx.WatchOption) (configx.Receiver, err
 func (v *versionStore) As(out any) bool { return false }
 
 func (v *versionStore) Close(ctx context.Context) error {
-	return v.store.Close(ctx)
+	return v.wrappedStore.Close(ctx)
 }
 
 func (v *versionStore) Done() <-chan struct{} {
-	return v.store.Done()
+	return v.wrappedStore.Done()
 }
 
 // Save the config in the underlying storage
 func (v *versionStore) Save(ctxUser string, ctxMessage string) error {
-	data := v.store.Val().Map()
+	data := v.wrappedStore.Val().Map()
 
 	if err := v.Store.Put(&revisions.Version{
 		Date: time.Now(),
@@ -118,13 +118,13 @@ func (v *versionStore) Save(ctxUser string, ctxMessage string) error {
 		return err
 	}
 
-	return v.store.Save(ctxUser, ctxMessage)
+	return v.wrappedStore.Save(ctxUser, ctxMessage)
 }
 
 func (v *versionStore) Lock() {
-	v.store.Lock()
+	v.wrappedStore.Lock()
 }
 
 func (v *versionStore) Unlock() {
-	v.store.Unlock()
+	v.wrappedStore.Unlock()
 }

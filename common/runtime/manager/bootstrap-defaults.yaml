@@ -257,12 +257,10 @@ defaults:
       runtime: discovery
       connections:
         <<: *connections
-#        config:
-#          uri: file://{{{{ .ApplicationWorkingDir }}}}/pydio.json
         config:
-          uri: mem://
+          uri: file://{{{{ .ApplicationWorkingDir }}}}/pydio.json
           pools:
-            rp: file:///tmp/{{ .Tenant }}.json
+            rp: file://{{{{ .ApplicationWorkingDir }}}}/{{ .Tenant }}.json
         registry:
           uri: mem://?cache=shared
         broker:
