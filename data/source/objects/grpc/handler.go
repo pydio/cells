@@ -134,6 +134,9 @@ func (o *ObjectHandler) StartMinioServer(ctx context.Context, minioServiceName s
 	params = append(params, "--config-dir")
 	params = append(params, configFolder)
 
+	params = append(params, "--certs-dir")
+	params = append(params, filepath.Join(configFolder, "certs"))
+
 	if port > 0 {
 		params = append(params, "--address")
 		params = append(params, fmt.Sprintf(":%d", port))

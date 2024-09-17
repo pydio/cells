@@ -1,6 +1,7 @@
 package main
 
 import (
+	"errors"
 	"fmt"
 	"os"
 	"path"
@@ -20,6 +21,7 @@ var (
 	lookupGlob string
 	lookupI    bool
 	lookupType string
+	lookupUuid string
 )
 
 var LookupCmd = &cobra.Command{
@@ -42,13 +44,15 @@ EXAMPLES
   3. List all files under an existing folder /folder/path
   $ ` + os.Args[0] + ` lookup --snapshot file:///var/cells/data/pydiods1/snapshot.db --name "*" --type file --base "/folder/path"
 
+  4. Search file by uuid
+  $ ` + os.Args[0] + ` lookup --snapshot file:///var/cells/data/pydiods1/snapshot.db --uuid "146afdbb-0056-4862-91fe-d996a2d05555"
 `,
 	RunE: func(cmd *cobra.Command, args []string) error {
 		if storageURL == "" {
 			return fmt.Errorf("please provide a snapshot URL")
 		}
-		if lookupGlob == "" {
-			return fmt.Errorf("please provide a filename or a glob matcher like *")
+		if lookupGlob == "" && lookupUuid == ""{
+			return fmt.Errorf("please provide a filename or a glob matcher like * or an uuid")
 		}
 		if lookupI {
 			lookupGlob = strings.ToLower(lookupGlob)
@@ -59,9 +63,11 @@ EXAMPLES
 		}
 		defer snap.CloseAndClear()
 
+		breakErr := errors.New("uuid found")
+
 		gw, er := glob.Compile(lookupGlob)
 		header := false
-		_ = snap.Walk(cmd.Context(), func(pa string, node tree.N, err error) error {
+		err := snap.Walk(cmd.Context(), func(pa string, node tree.N, err error) error {
 			base := path.Base(node.GetPath())
 			if lookupI {
 				base = strings.ToLower(base)
@@ -72,12 +78,15 @@ EXAMPLES
 			if lookupType == "folder" && node.IsLeaf() {
 				return nil
 			}
-			if gw.Match(base) {
+
+			uuidFound := lookupUuid != "" && lookupUuid == node.GetUuid()
+			
+			if gw.Match(base) || uuidFound {
 				if !header {
 					fmt.Println(promptui.IconGood + " Found Matches!")
 					fmt.Println("")
-					fmt.Println("Type \t | MTime \t | Size \t | Path")
-					fmt.Println("----- \t | ----- \t | ----- \t | -----")
+					fmt.Println("Type \t | MTime \t | Size \t | Uuid \t\t\t\t | Path ")
+					fmt.Println("----- \t | ----- \t | ----- \t | ----- \t\t\t\t | -----")
 					header = true
 				}
 				typeName := "Folder"
@@ -85,11 +94,19 @@ EXAMPLES
 					typeName = "File"
 				}
 				mTime := time.Unix(node.GetMTime(), 0).Format("06-01-02")
-				fmt.Println(typeName + "\t | " + mTime + "\t | " + humanize.IBytes(uint64(node.GetSize())) + "\t | " + node.GetPath())
+				fmt.Println(typeName + "\t | " + mTime + "\t | " + humanize.IBytes(uint64(node.GetSize()))  + "\t | " + node.GetUuid() + "\t | " + node.GetPath())
+			}
+			if uuidFound {
+				return breakErr
 			}
 			return nil
 		}, lookupBase, true)
 
+
+		if err != nil && err != breakErr {
+			fmt.Println(promptui.IconWarn + err.Error())
+		}
+		
 		if !header {
 			fmt.Println(promptui.IconBad + " No Matches Found")
 		} else {
@@ -106,5 +123,6 @@ func init() {
 	LookupCmd.Flags().StringVarP(&lookupGlob, "name", "n", "", "Filename to search (using wildcards for glob). Searching for \"*\" will list all files.")
 	LookupCmd.Flags().BoolVarP(&lookupI, "insensitive", "i", false, "Search with insensitive case.")
 	LookupCmd.Flags().StringVarP(&lookupType, "type", "t", "", "Restrict to files ('file') or folders ('folder')")
+	LookupCmd.Flags().StringVarP(&lookupUuid, "uuid", "u", "", "Search by uuid")
 	FuseCmd.AddCommand(LookupCmd)
 }
