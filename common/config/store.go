@@ -65,8 +65,8 @@ func (v *storeWithReferencePool) Default(def any) configx.Values {
 
 // Save the config in the underlying storage
 func (v *storeWithReferencePool) Save(ctxUser string, ctxMessage string) error {
-	for _, v := range v.ReferencePool {
-		store, err := v.Get(context.Background())
+	for _, vv := range v.ReferencePool {
+		store, err := vv.Get(v.Options().Context)
 		if err != nil {
 			return err
 		}

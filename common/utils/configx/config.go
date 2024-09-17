@@ -81,6 +81,68 @@ func New(opts ...Option) Values {
 	}
 }
 
+func Walk(st Storer, fn func(i int, v *any) (bool, error)) error {
+
+	keys := st.Key()
+
+	var current any
+	if len(keys) == 0 {
+		current = st.Get()
+	} else {
+		current = st.Val("#").Get()
+	}
+
+	ok, err := fn(-1, &current)
+	if err != nil {
+		return err
+	}
+
+	if !ok {
+		return nil
+	}
+
+	for i, k := range keys {
+		switch v := current.(type) {
+		case []any:
+			kk, err := strconv.Atoi(k)
+			if err != nil {
+				return err
+			}
+
+			if kk >= len(v) {
+				return errors.New("invalid key")
+			}
+
+			current = v[kk]
+		case map[any]any:
+			if vv, ok := v[k]; ok {
+				current = vv
+			} else {
+				return errors.New("invalid key")
+			}
+		case map[string]any:
+			if vv, ok := v[k]; ok {
+				current = vv
+			} else {
+				return errors.New("invalid key")
+			}
+		default:
+			current = nil
+		}
+
+		ok, err := fn(i, &current)
+		if err != nil {
+			return err
+		}
+
+		if !ok {
+			break
+		}
+	}
+
+	return nil
+}
+
 func (c *storer) Walk(fn func(i int, v any) any) error {
 
 	current := fn(0, *c.v)
@@ -185,10 +247,13 @@ func (c *storer) MarshalJSON() ([]byte, error) {
 func (c *storer) Get() any {
 	var current any
 
-	if err := c.Walk(func(i int, v any) any {
-		current = v
+	if len(c.k) == 0 {
+		return *c.v
+	}
 
-		return current
+	if err := Walk(c, func(i int, v *any) (bool, error) {
+		current = *v
+		return true, nil
 	}); err != nil || current == nil {
 		return c.d
 	}
