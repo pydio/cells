@@ -101,7 +101,10 @@ type Manager interface {
 }
 
 type manager struct {
-	ctx    context.Context
+	ctx       context.Context
+	bootstrap *Bootstrap
+	base      string
+
 	ns     string
 	srcUrl string
 
@@ -154,52 +157,59 @@ func NewManager(ctx context.Context, namespace string, logger log.ZapLogger) (Ma
 
 	m.ctx = ctx
 
-	m.initConfig()
-
-	m.initRegistry()
-
-	var eg errgroup.Group
-	eg.Go(func() error {
-		return m.initProcesses()
-	})
-
-	// Load bootstrap and compute base depending on process
-	bootstrap, err := loadBootstrap(m.ctx)
-	if err != nil {
+	if err := m.initConfig(); err != nil {
 		return nil, err
 	}
-	base := "#"
+
+	if err := m.initRegistry(); err != nil {
+		return nil, err
+	}
+
+	// Load bootstrap and compute base depending on process
+	var err error
+	if m.bootstrap, err = loadBootstrap(m.ctx); err != nil {
+		return nil, err
+	}
+	base := runtime.GetString("bootstrap_root")
 	if name := runtime.Name(); name != "" && name != "default" {
 		base += strings.Join(strings.Split("_"+name, "_"), "/processes/")
 	}
 
+	// fmt.Println("Processes base", base, "Template", runtime.GetString("bootstrap_template"))
+
+	// TODO : this would imply using eg.Wait() somewhere, is normal ?
+	var eg errgroup.Group
+	eg.Go(func() error {
+		return m.initProcesses(m.bootstrap, base)
+	})
+
 	// Initialising listeners
-	if err := m.initListeners(bootstrap, base); err != nil {
+	if err := m.initListeners(m.bootstrap, base); err != nil {
 		return nil, err
 	}
 
 	// Initialising servers
-	if err := m.initServers(bootstrap, base); err != nil {
+	if err := m.initServers(m.bootstrap, base); err != nil {
 		return nil, err
 	}
 
 	// Initialising default connections
-	if err := m.initConnections(bootstrap, base); err != nil {
+	if err := m.initConnections(m.bootstrap, base); err != nil {
 		return nil, err
 	}
 
 	// Initialising storages
-	if err := m.initStorages(bootstrap, base); err != nil {
+	if err := m.initStorages(m.bootstrap, base); err != nil {
 		return nil, err
 	}
 
 	// Initialising queues
-	if err := m.initQueues(bootstrap, base); err != nil {
+	if err := m.initQueues(m.bootstrap, base); err != nil {
 		return nil, err
 	}
 
 	// Initialising caches
-	if err := m.initCaches(bootstrap, base); err != nil {
+	if err := m.initCaches(m.bootstrap, base); err != nil {
 		return nil, err
 	}
 
@@ -479,20 +489,16 @@ func (m *manager) initRegistry() error {
 	return nil
 }
 
-func (m *manager) initProcesses() error {
+func (m *manager) initProcesses(bootstrap *Bootstrap, base string) error {
 	cmds := make(map[string]*fork.Process)
 
-	bootstrap, err := loadBootstrap(m.ctx)
-	if err != nil {
-		return err
+	var baseWatch []string
+	if base != "#" {
+		baseWatch = append(baseWatch, strings.Split(strings.TrimLeft(base, "#/"), "/")...)
 	}
 
-	base := "#"
-	if name := runtime.Name(); name != "default" {
-		base += strings.Join(strings.Split("_"+name, "_"), "/processes/")
-	}
-
-	w, err := bootstrap.Watch(configx.WithPath("processes", "*"), configx.WithChangesOnly())
+	//fmt.Println("Base Watch ON", baseWatch, "/processes/*")
+	w, err := bootstrap.Watch(configx.WithPath(append(baseWatch, "processes", "*")...), configx.WithChangesOnly())
 	if err != nil {
 		return err
 	}
@@ -502,10 +508,10 @@ func (m *manager) initProcesses() error {
 		if err != nil {
 			return err
 		}
-
-		create := diff.(configx.Values).Val("create", "processes")
-		update := diff.(configx.Values).Val("update", "processes")
-		deletes := diff.(configx.Values).Val("delete", "processes")
+		baseRead := append(baseWatch, "processes")
+		create := diff.(configx.Values).Val(append([]string{"create"}, baseRead...)...)
+		update := diff.(configx.Values).Val(append([]string{"update"}, baseRead...)...)
+		deletes := diff.(configx.Values).Val(append([]string{"delete"}, baseRead...)...)
 
 		var processesToStart, processesToStop []string
 
@@ -527,107 +533,110 @@ func (m *manager) initProcesses() error {
 		}
 
 		processes := bootstrap.Val(base + "/processes")
+		fmt.Println("Base Watch Triggered", base, baseWatch, len(processesToStart), len(processes.Map()))
 
 		for _, v := range processesToStart {
 			for name := range processes.Map() {
 				process := bootstrap.Val(base+"/processes", name)
-
-				if name == v {
-					connections := process.Val("connections")
-					env := process.Val("env")
-					servers := process.Val("servers")
-					tags := process.Val("tags")
-					debug := process.Val("debug")
-
-					childBinary := os.Args[0]
-					childArgs := []string{}
-					childEnv := []string{}
-
-					if debug.Bool() {
-						childBinary = "dlv"
-						childArgs = append(childArgs, "--listen=:2345", "--headless=true", "--api-version=2", "--accept-multiclient", "exec", "--", os.Args[0])
-					}
-
-					childArgs = append(childArgs, "start", "--name", name)
-					if sets := runtime.GetString(runtime.KeySetsFile); sets != "" {
-						childArgs = append(childArgs, "--sets", sets)
-					}
-
-					// Adding connections to the environment
-					for k := range connections.Map() {
-						uri := connections.Val(k, "uri").String()
-						u, err := url.Parse(uri)
-						if err != nil {
-							log.Logger(m.ctx).Warn("connection url not right")
-							continue
-						}
-
-						pools := connections.Val(k, "pools").Map()
-						if len(pools) > 0 {
-							var poolSlice []string
-							for k, v := range pools {
-								poolSlice = append(poolSlice, fmt.Sprintf("%s=%s", k, v))
-							}
-							q := u.Query()
-							q.Add("pools", strings.Join(poolSlice, "&"))
-							u.RawQuery = q.Encode()
-						}
-
-						childEnv = append(childEnv, fmt.Sprintf("CELLS_%s=%s", strings.ToUpper(k), u.String()))
-					}
-
-					for k, v := range env.Map() {
-						switch vv := v.(type) {
-						case string:
-							childEnv = append(childEnv, fmt.Sprintf("%s=%s", k, vv))
-						default:
-							vvv, _ := json.Marshal(vv)
-							childEnv = append(childEnv, fmt.Sprintf("%s=%s", k, string(vvv)))
-						}
-					}
-
-					// Adding servers to the environment
-					for k := range servers.Map() {
-						server := servers.Val(k)
-
-						// TODO - should be one bind address per server
-						if bindAddr := server.Val("bind").String(); bindAddr != "" {
-							childEnv = append(childEnv, fmt.Sprintf("CELLS_BIND_ADDRESS=%s", bindAddr))
-						}
-
-						// TODO - should be one advertise address per server
-						if advertiseAddr := server.Val("advertise").String(); advertiseAddr != "" {
-							childEnv = append(childEnv, fmt.Sprintf("CELLS_ADVERTISE_ADDRESS=%s", advertiseAddr))
-						}
-
-						// Adding servers port
-						if port := server.Val("port").String(); port != "" {
-							childEnv = append(childEnv, fmt.Sprintf("CELLS_%s_PORT=%s", strings.ToUpper(k), port))
-						}
-
-						// Adding server type
-						if typ := server.Val("type").String(); typ != "" {
-							childEnv = append(childEnv, fmt.Sprintf("CELLS_%s=%s", strings.ToUpper(k), typ))
-						}
-					}
-
-					// Adding services to the environment
-					tagsList := []string{}
-					for k, v := range tags.Map() {
-						tagsList = append(tagsList, k)
-
-						if vv, ok := v.([]interface{}); ok {
-							for _, vvv := range vv {
-								childArgs = append(childArgs, "^"+vvv.(string)+"$")
-							}
-						}
-					}
-
-					childEnv = append(childEnv, fmt.Sprintf("CELLS_TAGS=%s", strings.Join(tagsList, " ")))
-
-					cmds[name] = fork.NewProcess(m.ctx, []string{}, fork.WithBinary(childBinary), fork.WithName(name), fork.WithArgs(childArgs), fork.WithEnv(childEnv))
-					go cmds[name].StartAndWait(5)
+				if name != v {
+					continue
 				}
+
+				connections := process.Val("connections")
+				env := process.Val("env")
+				servers := process.Val("servers")
+				tags := process.Val("tags")
+				debug := process.Val("debug")
+
+				childBinary := os.Args[0]
+				var childArgs []string
+				var childEnv []string
+
+				if debug.Bool() {
+					childBinary = "dlv"
+					childArgs = append(childArgs, "--listen=:2345", "--headless=true", "--api-version=2", "--accept-multiclient", "exec", "--", os.Args[0])
+				}
+
+				childArgs = append(childArgs, "start", "--name", name)
+				if sets := runtime.GetString(runtime.KeySetsFile); sets != "" {
+					childArgs = append(childArgs, "--sets", sets)
+				}
+
+				// Adding connections to the environment
+				for k := range connections.Map() {
+					uri := connections.Val(k, "uri").String()
+					u, err := url.Parse(uri)
+					if err != nil {
+						log.Logger(m.ctx).Warn("connection url not right")
+						continue
+					}
+
+					pools := connections.Val(k, "pools").Map()
+					if len(pools) > 0 {
+						var poolSlice []string
+						for k, v := range pools {
+							poolSlice = append(poolSlice, fmt.Sprintf("%s=%s", k, v))
+						}
+						q := u.Query()
+						q.Add("pools", strings.Join(poolSlice, "&"))
+						u.RawQuery = q.Encode()
+					}
+
+					childEnv = append(childEnv, fmt.Sprintf("CELLS_%s=%s", strings.ToUpper(k), u.String()))
+				}
+
+				for k, v := range env.Map() {
+					switch vv := v.(type) {
+					case string:
+						childEnv = append(childEnv, fmt.Sprintf("%s=%s", k, vv))
+					default:
+						vvv, _ := json.Marshal(vv)
+						childEnv = append(childEnv, fmt.Sprintf("%s=%s", k, string(vvv)))
+					}
+				}
+
+				// Adding servers to the environment
+				for k := range servers.Map() {
+					server := servers.Val(k)
+
+					// TODO - should be one bind address per server
+					if bindAddr := server.Val("bind").String(); bindAddr != "" {
+						childEnv = append(childEnv, fmt.Sprintf("CELLS_BIND_ADDRESS=%s", bindAddr))
+					}
+
+					// TODO - should be one advertise address per server
+					if advertiseAddr := server.Val("advertise").String(); advertiseAddr != "" {
+						childEnv = append(childEnv, fmt.Sprintf("CELLS_ADVERTISE_ADDRESS=%s", advertiseAddr))
+					}
+
+					// Adding servers port
+					if port := server.Val("port").String(); port != "" {
+						childEnv = append(childEnv, fmt.Sprintf("CELLS_%s_PORT=%s", strings.ToUpper(k), port))
+					}
+
+					// Adding server type
+					if typ := server.Val("type").String(); typ != "" {
+						childEnv = append(childEnv, fmt.Sprintf("CELLS_%s=%s", strings.ToUpper(k), typ))
+					}
+				}
+
+				// Adding services to the environment
+				tagsList := []string{}
+				for k, v := range tags.Map() {
+					tagsList = append(tagsList, k)
+
+					if vv, ok := v.([]interface{}); ok {
+						for _, vvv := range vv {
+							childArgs = append(childArgs, "^"+vvv.(string)+"$")
+						}
+					}
+				}
+
+				childEnv = append(childEnv, fmt.Sprintf("CELLS_TAGS=%s", strings.Join(tagsList, " ")))
+				childEnv = append(childEnv, "CELLS_BOOTSTRAP_ROOT="+base)
+
+				cmds[name] = fork.NewProcess(m.ctx, []string{}, fork.WithBinary(childBinary), fork.WithName(name), fork.WithArgs(childArgs), fork.WithEnv(childEnv))
+				go cmds[name].StartAndWait(5)
 			}
 		}
 	}
@@ -915,17 +924,14 @@ func (m *manager) initCaches(store *Bootstrap, base string) error {
 
 func (m *manager) ServeAll(oo ...server.ServeOption) error {
 
-	bootstrap, err := loadBootstrap(m.ctx)
-	if err != nil {
+	if err := registry.NewMetaWrapper(m.localRegistry, func(meta map[string]string) {
+		meta[registry.MetaTimestampKey] = fmt.Sprintf("%d", time.Now().UnixNano())
+		meta[registry.MetaStatusKey] = string(registry.StatusTransient)
+	}).Register(m.root); err != nil {
 		return err
 	}
 
-	registry.NewMetaWrapper(m.localRegistry, func(meta map[string]string) {
-		meta[registry.MetaTimestampKey] = fmt.Sprintf("%d", time.Now().UnixNano())
-		meta[registry.MetaStatusKey] = string(registry.StatusTransient)
-	}).Register(m.root)
-
-	go bootstrap.WatchConfAndReset(m.ctx, runtime.GetRuntime().GetString(runtime.KeyConfig), func(err error) {
+	go m.bootstrap.WatchConfAndReset(m.ctx, runtime.GetRuntime().GetString(runtime.KeyConfig), func(err error) {
 		fmt.Println("[bootstrap-watcher]" + err.Error())
 	})
 
@@ -977,7 +983,6 @@ func (m *manager) ServeAll(oo ...server.ServeOption) error {
 	eg := &errgroup.Group{}
 	servers := m.serversWithStatus(registry.StatusStopped)
 
-	fmt.Println("All servers ", servers)
 	for _, srv := range servers {
 		func(srv server.Server) {
 			eg.Go(func() error {

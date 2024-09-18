@@ -207,6 +207,8 @@ ENVIRONMENT
 func init() {
 	// Flags for selecting / filtering services
 	StartCmd.Flags().String("file", "", "Name for the file")
+	StartCmd.Flags().String("bootstrap_template", "", "Template to use to generate bootstrap YAML")
+	StartCmd.Flags().String("bootstrap_root", "#", "Lookup path inside bootstrap for this process")
 
 	StartCmd.Flags().String(runtime.KeyName, "default", "Name for the node")
 	StartCmd.Flags().StringArrayP(runtime.KeyArgTags, "t", []string{}, "Select services to start by tags, possible values are 'broker', 'data', 'datasource', 'discovery', 'frontend', 'gateway', 'idm', 'scheduler'")

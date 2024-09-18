@@ -41,7 +41,7 @@ var (
 )
 
 // ListMinioConfigsFromConfig scans configs for objects services configs
-func ListMinioConfigsFromConfig(ctx context.Context) map[string]*object.MinioConfig {
+func ListMinioConfigsFromConfig(ctx context.Context, skipSecret ...bool) map[string]*object.MinioConfig {
 	res := make(map[string]*object.MinioConfig)
 
 	names := SourceNamesForDataServices(ctx, common.ServiceDataObjects)
@@ -49,9 +49,11 @@ func ListMinioConfigsFromConfig(ctx context.Context) map[string]*object.MinioCon
 		var conf *object.MinioConfig
 		if e := Get(ctx, configx.FormatPath("services", common.ServiceGrpcNamespace_+common.ServiceDataObjects_+name)).Scan(&conf); e == nil && conf != nil {
 			res[name] = conf
-			// Replace ApiSecret with value from vault
-			if sec := GetSecret(ctx, conf.ApiSecret).String(); sec != "" {
-				conf.ApiSecret = sec
+			if len(skipSecret) == 0 || !skipSecret[0] {
+				// Replace ApiSecret with value from vault
+				if sec := GetSecret(ctx, conf.ApiSecret).String(); sec != "" {
+					conf.ApiSecret = sec
+				}
 			}
 		}
 	}

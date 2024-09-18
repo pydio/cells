@@ -22,31 +22,46 @@ package manager
 
 import (
 	"context"
+	"fmt"
 	"os"
 	"strings"
 	"text/template"
 
 	"github.com/pydio/cells/v4/common/config"
+	"github.com/pydio/cells/v4/common/proto/object"
 	"github.com/pydio/cells/v4/common/runtime"
+	"github.com/pydio/cells/v4/common/utils/propagator"
 
 	_ "embed"
 )
 
 var (
 	//go:embed bootstrap-defaults.yaml
-	defaultsTemplate string
+	defaultsValues string
 	//go:embed bootstrap.yaml
 	bootstrapTemplate string
+	//go:embed bootstrap-datasources.yaml
+	bootstrapDatasources string
+
+	bsTemplates map[string]string
 )
 
+func init() {
+	bsTemplates = map[string]string{
+		"core":        bootstrapTemplate,
+		"datasources": bootstrapDatasources,
+	}
+}
+
 // SetBootstrapTemplate overrides initial template
-func SetBootstrapTemplate(tpl string) {
-	bootstrapTemplate = tpl
+func SetBootstrapTemplate(tpl, name string) {
+	bsTemplates[name] = tpl
 }
 
 // Bootstrap wraps a config.Store and is loaded from yaml templates or additional environment data
 type Bootstrap struct {
 	config.Store
+	named string
 }
 
 func loadBootstrap(ctx context.Context) (*Bootstrap, error) {
@@ -55,12 +70,22 @@ func loadBootstrap(ctx context.Context) (*Bootstrap, error) {
 		return nil, err
 	}
 
-	bs := &Bootstrap{Store: store}
+	bs := &Bootstrap{
+		Store: store,
+		named: "core",
+	}
+
+	if n := runtime.GetString("bootstrap_template"); n != "" {
+		if _, ok := bsTemplates[n]; !ok {
+			return nil, fmt.Errorf("bootstrap template not found: %s", n)
+		}
+		bs.named = n
+	}
 
 	if err := bs.reload(nil); err != nil {
 		return nil, err
 	}
-	return &Bootstrap{Store: store}, nil
+	return bs, nil
 }
 
 // MustReset triggers a full reload of the config
@@ -93,11 +118,11 @@ func (bs *Bootstrap) WatchConfAndReset(ctx context.Context, configURL string, er
 
 func (bs *Bootstrap) reload(conf config.Store) error {
 	tmpl := strings.Join([]string{
-		defaultsTemplate,
-		bootstrapTemplate,
+		defaultsValues,
+		bsTemplates[bs.named],
 	}, "\n")
 
-	// Then generate the new template based on the config
+	// Optionally override the template based on arguments
 	if file := runtime.GetString("file"); file != "" {
 		b, err := os.ReadFile(file)
 		if err != nil {
@@ -108,7 +133,7 @@ func (bs *Bootstrap) reload(conf config.Store) error {
 		tmpl = yaml
 	}
 
-	fullYaml, er := tplEval(tmpl, "yaml", conf)
+	fullYaml, er := tplEval(tmpl, bs.named+"-yaml", conf)
 	if er != nil {
 		return er
 	}
@@ -136,7 +161,7 @@ func (bs *Bootstrap) reload(conf config.Store) error {
 			continue
 		}
 		//_ = bs.Val(kv[0]).Set(kv[1])
-		if val, er := tplEval(kv[1], kv[0], conf); er == nil {
+		if val, er := tplEval(kv[1], bs.named+kv[0], conf); er == nil {
 			_ = bs.Val(kv[0]).Set(val)
 		} else {
 			return er
@@ -156,6 +181,7 @@ func tplEval(tpl, name string, conf config.Store) (string, error) {
 	}
 
 	var b strings.Builder
+	dss, oss := loadDSData(tpl, conf)
 
 	r := runtime.GetRuntime()
 	if err := t.Execute(&b, struct {
@@ -171,11 +197,15 @@ func tplEval(tpl, name string, conf config.Store) (string, error) {
 		ApplicationLogsDir    string
 		ServiceDataDir        func(string) string
 		Config                config.Store
+		DataSources           map[string]*object.DataSource
+		ObjectsSources        map[string]*object.MinioConfig
 	}{
 		ConfigURL:             runtime.ConfigURL(),
 		RegistryURL:           runtime.RegistryURL(),
 		BrokerURL:             runtime.BrokerURL(),
 		Config:                conf,
+		DataSources:           dss,
+		ObjectsSources:        oss,
 		BindHost:              r.GetString(runtime.KeyBindHost),
 		AdvertiseHost:         r.GetString(runtime.KeyBindHost),
 		DiscoveryPort:         r.GetString(runtime.KeyGrpcDiscoveryPort),
@@ -187,5 +217,17 @@ func tplEval(tpl, name string, conf config.Store) (string, error) {
 		return "", err
 	}
 	return b.String(), nil
+
+}
+
+func loadDSData(tpl string, conf config.Store) (map[string]*object.DataSource, map[string]*object.MinioConfig) {
+	if conf == nil {
+		return nil, nil
+	}
+	if !strings.Contains(tpl, ".ObjectsSources") && !strings.Contains(tpl, ".DataSources") {
+		return nil, nil
+	}
+	ctx := propagator.With(context.Background(), config.ContextKey, conf)
+	return config.ListSourcesFromConfig(ctx), config.ListMinioConfigsFromConfig(ctx, true)
 
 }
