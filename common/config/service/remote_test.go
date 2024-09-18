@@ -83,12 +83,12 @@ func TestManagerConnection(t *testing.T) {
 	v := viper.New()
 	v.Set("config", "mem://")
 	v.Set("yaml", connectionTestTemplate)
+	v.Set(runtime.KeyKeyring, "mem://")
 	runtime.SetRuntime(v)
 
 	ctx := context.Background()
 
 	runtime.Register("test", func(ctx context.Context) {
-		fmt.Println("In here")
 		service.NewService(
 			service.Name("service.test"),
 			service.Context(ctx),

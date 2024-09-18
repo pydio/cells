@@ -7,3 +7,26 @@ name: main
 processes: *processes
 connections: *connections
 env: *env
+
+# --
+# Autre yaml
+# --
+name: {{ .Tenant }}
+processes:
+  #  {{ $indexesVal := .Config.Val "services/pydio.grpc.data.index/sources" }}
+  #  {{ $ := .Config }}
+  #  {{ range $indexesVal.StringArray }}
+  #  {{ if or (lt (len .) 8) (ne (slice . 0 8) ("updated:")) }}
+  #  {{ if not ($.Val "services" (print "pydio.grpc.data.index." .) "Disabled").Bool }}
+  #  index-{{ . }}:
+  #    #{{ if eq . "pydiods1" }}debug: true{{ end }}
+  #    connections: *connections
+  #    servers: *servers
+  #    env: *env
+  #
+  #    services:
+  #      datasource:
+  #        - pydio.grpc.data.index.{{ . }}
+  #  {{ end }}
+  #  {{ end }}
+  #  {{ end }}

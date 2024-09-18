@@ -147,9 +147,6 @@ func RegistryURL() string {
 		u.Path = DefaultRegistrySuffix
 	}
 	return u.String()
-	//}
-	//
-	//return ""
 }
 
 // BrokerURL returns the scheme://address url for Broker

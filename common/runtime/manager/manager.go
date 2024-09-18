@@ -154,8 +154,6 @@ func NewManager(ctx context.Context, namespace string, logger log.ZapLogger) (Ma
 
 	m.ctx = ctx
 
-	m.initConfig()
-
 	m.initRegistry()
 
 	var eg errgroup.Group
@@ -168,6 +166,7 @@ func NewManager(ctx context.Context, namespace string, logger log.ZapLogger) (Ma
 	if err != nil {
 		return nil, err
 	}
+
 	base := "#"
 	if name := runtime.Name(); name != "" && name != "default" {
 		base += strings.Join(strings.Split("_"+name, "_"), "/processes/")
@@ -178,13 +177,17 @@ func NewManager(ctx context.Context, namespace string, logger log.ZapLogger) (Ma
 		return nil, err
 	}
 
-	// Initialising servers
-	if err := m.initServers(bootstrap, base); err != nil {
+	// Initialising default connections
+	if err := m.initConnections(bootstrap, base); err != nil {
 		return nil, err
 	}
 
-	// Initialising default connections
-	if err := m.initConnections(bootstrap, base); err != nil {
+	m.initClusterRegistry()
+
+	m.initConfig()
+
+	// Initialising servers
+	if err := m.initServers(bootstrap, base); err != nil {
 		return nil, err
 	}
 
@@ -405,13 +408,7 @@ func (m *manager) initRegistry() error {
 
 	m.localRegistry = reg
 
-	//if clusterRegistryURL := runtime.RegistryURL(); clusterRegistryURL != "" {
-	//	clusterRegistry, err := registry.OpenRegistry(ctx, clusterRegistryURL)
-	//	if err == nil {
-	//		m.clusterRegistry = clusterRegistry
-	//		//return nil, err
-	//	}
-	//}
+	m.ctx = propagator.With(m.ctx, registry.ContextKey, reg)
 
 	reg = registry.NewTransientWrapper(reg, registry.WithType(pb.ItemType_SERVICE))
 	reg = registry.NewMetaWrapper(reg, server.InitPeerMeta, registry.WithType(pb.ItemType_SERVER), registry.WithType(pb.ItemType_NODE))
@@ -421,20 +418,8 @@ func (m *manager) initRegistry() error {
 		}
 	}, registry.WithType(pb.ItemType_SERVER), registry.WithType(pb.ItemType_SERVICE), registry.WithType(pb.ItemType_NODE))
 
-	reg = registry.NewFuncWrapper(reg,
-		// Adding to cluster registry
-		registry.OnRegister(func(item *registry.Item, opts *[]registry.RegisterOption) {
-			if m.clusterRegistry != nil {
-				m.clusterRegistry.Register(*item, *opts...)
-			}
-		}),
-	)
-
 	reg.Register(m.root)
 
-	// m.ctx = propagator.With(m.ctx, registry.ContextKey, reg)
-
-	// runtime.Register("discovery", func(ctx context.Context) {
 	reg = registry.NewFuncWrapper(reg,
 		registry.OnRegister(func(item *registry.Item, opts *[]registry.RegisterOption) {
 			var node registry.Node
@@ -446,13 +431,6 @@ func (m *manager) initRegistry() error {
 				*opts = append(*opts, registry.WithEdgeTo(m.root.ID(), "Node", nil))
 			} else if (*item).As(&service) {
 				*opts = append(*opts, registry.WithEdgeTo(m.root.ID(), "Node", nil))
-			}
-		}),
-
-		// Adding to cluster registry
-		registry.OnRegister(func(item *registry.Item, opts *[]registry.RegisterOption) {
-			if m.clusterRegistry != nil {
-				m.clusterRegistry.Register(*item, *opts...)
 			}
 		}),
 	)
@@ -474,7 +452,31 @@ func (m *manager) initRegistry() error {
 	}
 
 	m.ctx = propagator.With(m.ctx, registry.ContextKey, reg)
-	// })
+
+	return nil
+}
+
+func (m *manager) initClusterRegistry() error {
+	if clusterRegistryURL := runtime.RegistryURL(); clusterRegistryURL != "" {
+		clusterRegistry, err := registry.OpenRegistry(m.ctx, clusterRegistryURL)
+		if err == nil {
+			m.clusterRegistry = clusterRegistry
+			//return nil, err
+		}
+	}
+
+	reg := m.localRegistry
+
+	reg = registry.NewFuncWrapper(reg,
+		// Adding to cluster registry
+		registry.OnRegister(func(item *registry.Item, opts *[]registry.RegisterOption) {
+			if m.clusterRegistry != nil {
+				m.clusterRegistry.Register(*item, *opts...)
+			}
+		}),
+	)
+
+	m.ctx = propagator.With(m.ctx, registry.ContextKey, reg)
 
 	return nil
 }
