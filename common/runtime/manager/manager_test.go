@@ -50,7 +50,7 @@ func TestManagerStorage(t *testing.T) {
 	v := viper.New()
 	v.Set("name", "discovery")
 	v.Set("tags", "storages")
-	v.Set("yaml", storageTestTemplate)
+	v.Set(runtime.KeyBootstrapYAML, storageTestTemplate)
 	runtime.SetRuntime(v)
 
 	ctx := context.Background()
@@ -130,7 +130,7 @@ func TestManagerStorage(t *testing.T) {
 func TestManagerConnection(t *testing.T) {
 	v := viper.New()
 	v.Set("config", "mem://")
-	v.Set("yaml", connectionTestTemplate)
+	v.Set(runtime.KeyBootstrapYAML, connectionTestTemplate)
 	runtime.SetRuntime(v)
 
 	ctx := context.Background()

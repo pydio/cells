@@ -148,7 +148,7 @@ func configDbMoveOne(cmd *cobra.Command, dry, promptConfig bool, migOption *flat
 	}
 	v := viper.New()
 	v.Set(runtime.KeyConfig, "mem://")
-	v.Set("yaml", b.String())
+	v.Set(runtime.KeyBootstrapYAML, b.String())
 
 	store, er := config.OpenStore(cmd.Context(), "mem://")
 	if er != nil {

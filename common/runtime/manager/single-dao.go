@@ -74,7 +74,7 @@ func DSNtoContextDAO(ctx context.Context, dsn []string, daoFunc any) (context.Co
 	}
 	v := viper.New()
 	v.Set(runtime.KeyConfig, "mem://")
-	v.Set("yaml", b.String())
+	v.Set(runtime.KeyBootstrapYAML, b.String())
 	mem, _ := config.OpenStore(ctx, "mem://")
 	ctx = propagator.With(ctx, config.ContextKey, mem)
 

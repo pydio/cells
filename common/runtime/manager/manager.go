@@ -167,15 +167,13 @@ func NewManager(ctx context.Context, namespace string, logger log.ZapLogger) (Ma
 
 	// Load bootstrap and compute base depending on process
 	var err error
-	if m.bootstrap, err = loadBootstrap(m.ctx); err != nil {
+	if m.bootstrap, err = NewBootstrap(m.ctx, runtime.GetString(runtime.KeyBootstrapTpl)); err != nil {
 		return nil, err
 	}
-	base := runtime.GetString("bootstrap_root")
+	base := runtime.GetString(runtime.KeyBootstrapRoot)
 	if name := runtime.Name(); name != "" && name != "default" {
 		base += strings.Join(strings.Split("_"+name, "_"), "/processes/")
 	}
-
-	// fmt.Println("Processes base", base, "Template", runtime.GetString("bootstrap_template"))
 
 	// TODO : this would imply using eg.Wait() somewhere, is normal ?
 	var eg errgroup.Group
@@ -558,7 +556,7 @@ func (m *manager) initProcesses(bootstrap *Bootstrap, base string) error {
 				}
 
 				childArgs = append(childArgs, "start", "--name", name)
-				if sets := runtime.GetString(runtime.KeySetsFile); sets != "" {
+				if sets := runtime.GetString(runtime.KeyBootstrapSetsFile); sets != "" {
 					childArgs = append(childArgs, "--sets", sets)
 				}
 
@@ -832,7 +830,7 @@ func (m *manager) initStorages(store *Bootstrap, base string) error {
 			continue
 		}
 
-		fmt.Println("initStorages - opened storage with uri " + uri)
+		//fmt.Println("initStorages - opened storage with uri " + uri)
 
 		if conn != nil {
 			registry.NewMetaWrapper(m.localRegistry, func(meta map[string]string) {
@@ -893,7 +891,7 @@ func (m *manager) initQueues(store *Bootstrap, base string) error {
 		if er != nil {
 			fmt.Println("initQueues - cannot register queue pool with URI"+uri, er)
 		} else {
-			fmt.Println("initQueues - Registered " + regKey + " with pool from uri " + uri)
+			//fmt.Println("initQueues - Registered " + regKey + " with pool from uri " + uri)
 		}
 	}
 	return nil
@@ -916,7 +914,7 @@ func (m *manager) initCaches(store *Bootstrap, base string) error {
 		if er != nil {
 			fmt.Println("initCaches - cannot register pool with URI"+uri, er)
 		} else {
-			fmt.Println("initCaches - Registered " + regKey + " with pool from uri " + uri)
+			//fmt.Println("initCaches - Registered " + regKey + " with pool from uri " + uri)
 		}
 	}
 	return nil

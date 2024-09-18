@@ -21,7 +21,15 @@
 package runtime
 
 const (
-	KeyName         = "name"
+	KeyName = "name"
+
+	KeyBootstrapTpl      = "bootstrap_template"
+	KeyBootstrapFile     = "bootstrap_file"
+	KeyBootstrapRoot     = "bootstrap_root"
+	KeyBootstrapYAML     = "bootstrap_yaml"
+	KeyBootstrapSet      = "set"
+	KeyBootstrapSetsFile = "sets"
+
 	KeyCluster      = "cluster"
 	KeyDiscovery    = "discovery"
 	KeyRegistry     = "registry"
@@ -76,9 +84,6 @@ const (
 	KeyLogJson   = "log_json"
 	KeyLogToFile = "log_to_file"
 	KeyLogSQL    = "log_sql"
-
-	KeySet      = "set"
-	KeySetsFile = "sets"
 
 	KeyHttpProxyURL  = "http_proxy"
 	KeyHttpServer    = "http"

@@ -199,7 +199,7 @@ func TestGetServiceInfo(t *testing.T) {
 	v := viper.New()
 	v.Set(runtime.KeyConfig, "mem://")
 	v.Set(runtime.KeyArgTags, "test")
-	v.Set("yaml", b.String())
+	v.Set(runtime.KeyBootstrapYAML, b.String())
 	runtime.SetRuntime(v)
 
 	ctx, cancel := context.WithTimeout(context.Background(), 1*time.Minute)

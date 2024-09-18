@@ -64,7 +64,7 @@ type Bootstrap struct {
 	named string
 }
 
-func loadBootstrap(ctx context.Context) (*Bootstrap, error) {
+func NewBootstrap(ctx context.Context, runtimeTemplate string) (*Bootstrap, error) {
 	store, err := config.OpenStore(ctx, "mem://?encode=yaml")
 	if err != nil {
 		return nil, err
@@ -75,11 +75,11 @@ func loadBootstrap(ctx context.Context) (*Bootstrap, error) {
 		named: "core",
 	}
 
-	if n := runtime.GetString("bootstrap_template"); n != "" {
-		if _, ok := bsTemplates[n]; !ok {
-			return nil, fmt.Errorf("bootstrap template not found: %s", n)
+	if runtimeTemplate != "" {
+		if _, ok := bsTemplates[runtimeTemplate]; !ok {
+			return nil, fmt.Errorf("bootstrap template not found: %s", runtimeTemplate)
 		}
-		bs.named = n
+		bs.named = runtimeTemplate
 	}
 
 	// cfg may be nil, it's ok
@@ -120,19 +120,39 @@ func (bs *Bootstrap) WatchConfAndReset(ctx context.Context, configURL string, er
 }
 
 func (bs *Bootstrap) reload(conf config.Store) error {
+	runtimeDefaults, runtimeOthers := runtimeSetPairs()
+
+	var defaultTemplate = defaultsValues
+	if len(runtimeDefaults) > 0 {
+		var er error
+		for _, def := range runtimeDefaults {
+			if def.val, er = tplEval(def.val, bs.named+def.key, conf); er != nil {
+				return er
+			}
+		}
+		// Update defaults before joining two templates together
+		// Use Yaml.Nodes patching to make sure to keep references
+		defYaml, _ := tplEval(defaultsValues, "default", conf)
+		if patched, er := patchYaml(defYaml, runtimeDefaults); er == nil {
+			defaultTemplate = patched
+		} else {
+			return er
+		}
+	}
+
 	tmpl := strings.Join([]string{
-		defaultsValues,
+		defaultTemplate,
 		bsTemplates[bs.named],
 	}, "\n")
 
-	// Optionally override the template based on arguments
-	if file := runtime.GetString("file"); file != "" {
+	// Optionally fully override the template based on arguments
+	if file := runtime.GetString(runtime.KeyBootstrapFile); file != "" {
 		b, err := os.ReadFile(file)
 		if err != nil {
 			return err
 		}
 		tmpl = string(b)
-	} else if yaml := runtime.GetString("yaml"); yaml != "" {
+	} else if yaml := runtime.GetString(runtime.KeyBootstrapYAML); yaml != "" {
 		tmpl = yaml
 	}
 
@@ -144,8 +164,27 @@ func (bs *Bootstrap) reload(conf config.Store) error {
 		return err
 	}
 
-	var pairs = runtime.GetStringSlice(runtime.KeySet)
-	if sets := runtime.GetString(runtime.KeySetsFile); sets != "" {
+	// Now apply runtimeOther keyPairs
+	for _, pair := range runtimeOthers {
+		if val, er := tplEval(pair.val, bs.named+pair.key, conf); er != nil {
+			return er
+		} else {
+			_ = bs.Val(pair.key).Set(val)
+		}
+	}
+
+	return nil
+
+}
+
+type keyPair struct {
+	key string
+	val string
+}
+
+func runtimeSetPairs() (def, proc []keyPair) {
+	var pairs = runtime.GetStringSlice(runtime.KeyBootstrapSet)
+	if sets := runtime.GetString(runtime.KeyBootstrapSetsFile); sets != "" {
 		if bb, err := os.ReadFile(sets); err == nil {
 			for _, line := range strings.Split(string(bb), "\n") {
 				line = strings.TrimSpace(line)
@@ -163,16 +202,14 @@ func (bs *Bootstrap) reload(conf config.Store) error {
 		if len(kv) != 2 {
 			continue
 		}
-		//_ = bs.Val(kv[0]).Set(kv[1])
-		if val, er := tplEval(kv[1], bs.named+kv[0], conf); er == nil {
-			_ = bs.Val(kv[0]).Set(val)
+		if strings.HasPrefix(kv[0], "defaults/") {
+			def = append(def, keyPair{kv[0], kv[1]})
 		} else {
-			return er
+			proc = append(proc, keyPair{kv[0], kv[1]})
 		}
 	}
 
-	return nil
-
+	return
 }
 
 func tplEval(tpl, name string, conf config.Store) (string, error) {
