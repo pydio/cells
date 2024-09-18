@@ -30,7 +30,6 @@ import (
 	cindex "github.com/pydio/cells/v4/common/sql/indexgorm"
 	"github.com/pydio/cells/v4/common/telemetry/log"
 	"github.com/pydio/cells/v4/common/utils/configx"
-	"github.com/pydio/cells/v4/common/utils/mtree"
 	"github.com/pydio/cells/v4/data/source/index"
 )
 
@@ -76,29 +75,18 @@ func (s *sqlimpl) FixRandHash2(ctx context.Context, excludes ...cindex.LostAndFo
 // Init handler for the SQL DAO
 func (s *sqlimpl) Init(ctx context.Context, options configx.Values) error {
 
-	log.Logger(ctx).Debug("Finished IndexSQL Init")
+	treeNode := &tree.TreeNode{}
+	treeNode.SetNode(&tree.Node{
+		Uuid:  "ROOT",
+		Path:  "/",
+		Type:  tree.NodeType_COLLECTION,
+		MTime: time.Now().Unix(),
+	})
 
-	// Preparing the db statements
-	//if options.Val("prepare").Default(true).Bool() {
-	//	for key, query := range queries {
-	//		if err := s.Prepare(key, query); err != nil {
-	//			return err
-	//		}
-	//	}
-	//}
-
-	log.Logger(ctx).Debug("Local sql Prepares")
-
-	if _, err := s.GetNode(ctx, mtree.NewMPath(1)); err != nil {
-		log.Logger(ctx).Info("Creating root node in index ")
-		treeNode := &tree.TreeNode{}
-		treeNode.SetMPath(tree.NewMPath(1))
-		treeNode.SetNode(&tree.Node{
-			Type:  tree.NodeType_COLLECTION,
-			Uuid:  "ROOT",
-			MTime: time.Now().Unix(),
-		})
-		s.AddNode(ctx, treeNode)
+	if _, created, err := s.IndexSQL.Path(ctx, treeNode, treeNode, true); err != nil {
+		log.Logger(ctx).Error("Error checking root node in index: " + err.Error())
+	} else if len(created) > 0 {
+		log.Logger(ctx).Info("Created root node in index")
 	}
 
 	return nil

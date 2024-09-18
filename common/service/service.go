@@ -22,6 +22,7 @@ package service
 
 import (
 	"context"
+	"fmt"
 	"sync"
 
 	"go.uber.org/zap"
@@ -189,6 +190,7 @@ func (s *service) Start(oo ...registry.RegisterOption) (er error) {
 			if err != nil {
 				s.Opts.Logger().Error("Error unlocking service"+s.Name(), zap.Error(err))
 				locker.Unlock()
+				er = err
 				return err
 			}
 			go func() {
@@ -216,11 +218,11 @@ func (s *service) Start(oo ...registry.RegisterOption) (er error) {
 	}
 
 	defer func() {
-		//if e := recover(); e != nil {
-		//	s.Opts.Logger().Error("panic while starting service", zap.Any("p", e))
-		//	er = fmt.Errorf("panic while starting service %v", e)
-		//}
+		if e := recover(); e != nil {
+			er = fmt.Errorf("panic while starting service %v", e)
+		}
 		if er != nil {
+			s.Opts.Logger().Error("Error while starting service: "+er.Error(), zap.Error(er))
 			er = errors.WithMessagef(errors.ServiceStartError, "starting %s, %w", s.Name(), er)
 			s.updateRegister(registry.StatusError)
 			if s.Opts.runtimeCancel != nil {
@@ -238,12 +240,14 @@ func (s *service) Start(oo ...registry.RegisterOption) (er error) {
 	for _, before := range s.Opts.BeforeStart {
 		var err error
 		if s.Opts.runtimeCtx, err = before(s.Opts.runtimeCtx); err != nil {
+			er = err
 			return err
 		}
 	}
 
 	if s.Opts.serverStart != nil {
 		if err := s.Opts.serverStart(s.Opts.runtimeCtx); err != nil {
+			er = err
 			return err
 		}
 	}

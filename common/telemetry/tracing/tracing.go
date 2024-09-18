@@ -61,7 +61,7 @@ func InitExporters(ctx context.Context, svc otel2.Service, cfg Config) error {
 	}
 	for _, u := range cfg.Outputs {
 		if exp, err := OpenTracing(context.Background(), u); err == nil {
-			fmt.Println("Tracing initialized for ", u)
+			// fmt.Println("Tracing initialized for ", u)
 			dynamic.ee = append(dynamic.ee, exp)
 		} else {
 			fmt.Printf("cannot open tracer %v", err)

@@ -23,7 +23,6 @@ package metrics
 
 import (
 	"context"
-	"fmt"
 
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/attribute"
@@ -88,7 +87,7 @@ func InitReaders(ctx context.Context, svc otel2.Service, cfg Config) error {
 				discoveries = append(discoveries, sd)
 			}
 		} else {
-			fmt.Println("Error while initializing metrics reader ", er)
+			// fmt.Println("Error while initializing metrics reader ", er)
 		}
 	}
 

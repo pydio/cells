@@ -82,7 +82,10 @@ func loadBootstrap(ctx context.Context) (*Bootstrap, error) {
 		bs.named = n
 	}
 
-	if err := bs.reload(nil); err != nil {
+	// cfg may be nil, it's ok
+	var cfg config.Store
+	propagator.Get(ctx, config.ContextKey, &cfg)
+	if err := bs.reload(cfg); err != nil {
 		return nil, err
 	}
 	return bs, nil
