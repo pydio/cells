@@ -197,7 +197,7 @@ func (m *HashHandler) ListNodes(ctx context.Context, in *tree.ListNodesRequest, 
 		for {
 			resp, err := stream.Recv()
 			if err != nil {
-				if err != io.EOF && err != io.ErrUnexpectedEOF {
+				if !errors.IsStreamFinished(err) {
 					_ = s.SendError(err)
 				}
 				break

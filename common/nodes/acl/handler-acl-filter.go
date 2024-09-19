@@ -135,6 +135,7 @@ func (a *FilterHandler) ListNodes(ctx context.Context, in *tree.ListNodesRequest
 	}
 	s := nodes.NewWrappingStreamer(stream.Context())
 	go func() {
+		defer s.CloseSend()
 		for {
 			resp, er := stream.Recv()
 			if er != nil {

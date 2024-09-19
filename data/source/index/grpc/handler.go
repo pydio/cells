@@ -304,6 +304,10 @@ func (s *TreeServer) ReadNode(ctx context.Context, req *tree.ReadNodeRequest) (r
 			// Do not return error, or send a file not exists?
 			return nil, errors.WithMessagef(errors.NodeNotFound, "Could not retrieve node %s", node.GetNode().GetPath())
 		}
+		// Now load proper node from found mpath
+		if node, err = dao.GetNode(ctx, path); err != nil {
+			return nil, errors.WithMessagef(errors.StatusInternalServerError, "Error while retrieving node [%s], cause: %s", path, err.Error())
+		}
 	}
 
 	resp.Success = true

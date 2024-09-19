@@ -397,13 +397,17 @@ func (dao *IndexSQL[T]) GetNodeByUUID(ctx context.Context, uuid string) (tree.IT
 	return node, nil
 }
 
-// GetNodes List
+// GetNodes Find Nodes for a list of MPaths - If MPaths is empty it returns zero nodes
 func (dao *IndexSQL[T]) GetNodes(ctx context.Context, mpathes ...*tree.MPath) chan tree.ITreeNode {
 
 	c := make(chan tree.ITreeNode)
 
 	go func() {
 		defer close(c)
+
+		if len(mpathes) == 0 {
+			return
+		}
 
 		nodes := []T{}
 

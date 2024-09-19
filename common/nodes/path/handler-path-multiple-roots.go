@@ -167,6 +167,7 @@ func (m *MultipleRootsHandler) ListNodes(ctx context.Context, in *tree.ListNodes
 			return streamer, e
 		}
 		go func() {
+			defer streamer.CloseSend()
 			for rKey, rNode := range nn {
 				node := rNode.Clone()
 				node.Path = rKey

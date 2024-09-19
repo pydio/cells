@@ -117,7 +117,7 @@ func openPool(ctx context.Context) *ClientsPool {
 	}
 
 	pool := &ClientsPool{
-		ctx:     ctx,
+		ctx:     propagator.ForkContext(context.Background(), ctx),
 		sources: make(map[string]LoadedSource),
 		aliases: make(map[string]sourceAlias),
 		reload:  make(chan bool),
@@ -261,7 +261,7 @@ func (p *ClientsPool) LoadDataSources() {
 				log.Logger(p.ctx).Warn("Cannot create clients for datasource "+source, zap.Error(e))
 			}
 		} else {
-			log.Logger(p.ctx).Debug("no answer from endpoint, maybe not ready yet? "+common.ServiceDataSyncGRPC_+source, zap.Any("r", response), zap.Error(err))
+			log.Logger(p.ctx).Error("no answer from endpoint, maybe not ready yet? "+common.ServiceDataSyncGRPC_+source, zap.Any("r", response), zap.Error(err))
 		}
 		ca()
 	}
