@@ -321,7 +321,7 @@ func (m *manager) initConfig() error {
 	// Keyring store
 	keyringStore, err := config.OpenStore(ctx, runtime.KeyringURL())
 	if err != nil {
-		fmt.Errorf("could not init keyring store %v", err)
+		return fmt.Errorf("could not init keyring store %v", err)
 	}
 
 	// Keyring start and creation of the master password
@@ -331,7 +331,7 @@ func (m *manager) initConfig() error {
 
 	password, err := kr.Get(common.ServiceGrpcNamespace_+common.ServiceUserKey, common.KeyringMasterKey)
 	if err != nil {
-		fmt.Errorf("could not get master password %v", err)
+		return fmt.Errorf("could not get master password %v", err)
 	}
 
 	runtime.SetVaultMasterKey(password)
