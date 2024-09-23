@@ -22,6 +22,7 @@ package cache_helper
 
 import (
 	"context"
+	"fmt"
 	"net/url"
 
 	"github.com/pydio/cells/v4/common/runtime"
@@ -78,6 +79,10 @@ func RegisterCachePool(scheme string, opener cache.URLOpener) {
 func ResolveCache(ctx context.Context, name string, config cache.Config) (cache.Cache, error) {
 	reg, err := resolver(ctx)
 	if err != nil {
+		if config.DiscardFallback {
+			fmt.Println("Resolving cache "+name+" fails, use a Discard Fallback", err.Error())
+			return cache.MustDiscard(), nil
+		}
 		return nil, err
 	}
 	c, er := reg.GetCache(ctx, name, map[string]interface{}{
@@ -85,11 +90,11 @@ func ResolveCache(ctx context.Context, name string, config cache.Config) (cache.
 		"cleanWindow":  config.CleanWindow,
 		"prefix":       config.Prefix,
 	})
-	if er == nil || !config.DiscardFallback {
-		return c, er
-	} else {
+	if (c == nil || er != nil) && config.DiscardFallback {
+		fmt.Println("Resolving cache " + name + " fails, use a Discard Fallback")
 		return cache.MustDiscard(), nil
 	}
+	return c, er
 }
 
 // MustResolveCache forces the Config.DiscardFallback to true and returns ResolveCache without error

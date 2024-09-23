@@ -28,6 +28,7 @@ import (
 	"time"
 
 	"go.uber.org/zap"
+	"gorm.io/gorm"
 
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/broker"
@@ -151,15 +152,20 @@ func (s *TreeServer) CreateNode(ctx context.Context, req *tree.CreateNodeRequest
 	inSession := req.IndexationSession != ""
 
 	reqUUID := req.GetNode().GetUuid()
-	updateIfExists := req.GetUpdateIfExists() || !req.GetNode().IsLeaf()
+	updateIfExists := req.GetUpdateIfExists() || !req.GetNode().IsLeaf() // For COLLECTION, always UpdateIfExists
 
 	log.Logger(ctx).Debug("CreateNode", req.GetNode().Zap())
 
 	// Updating node based on UUID
 	if reqUUID != "" {
-		if node, err = dao.GetNodeByUUID(ctx, reqUUID); err != nil {
+		node, err = dao.GetNodeByUUID(ctx, reqUUID)
+		if errors.Is(err, errors.NodeNotFound) {
+			// Ignore and carry on searching by path
+		} else if err != nil {
+			// Return error
 			return nil, errors.Tag(err, errors.StatusForbidden)
-		} else if node != nil && updateIfExists {
+		} else if updateIfExists {
+			// Try updating meta
 			if etag, content, err := s.updateMeta(ctx, dao, node, req.GetNode()); err != nil {
 				return nil, errors.Tag(err, errors.StatusForbidden) // Forbidden(name, "Could not replace previous node: %s", err.Error())
 			} else {
@@ -179,28 +185,36 @@ func (s *TreeServer) CreateNode(ctx context.Context, req *tree.CreateNodeRequest
 				resp.Node = node.GetNode()
 				return resp, nil
 			}
-		} else if node != nil {
+		} else {
+			// Do not update if not explicitely set
 			return nil, errors.WithMessagef(errors.StatusConflict, "A node with same UUID already exists. Pass updateIfExists parameter if you are sure to override. %v", err)
 		}
 	}
 
 	reqPath := safePath(req.GetNode().GetPath())
-	node = tree.NewTreeNode(safePath(req.GetNode().GetPath()))
+	lookupNode := tree.NewTreeNode(reqPath, req.GetNode())
+	refNode := tree.EmptyTreeNode()
+
 	var path *tree.MPath
 	var created []tree.ITreeNode
 	var exists bool
 	if updateIfExists {
 		// First search node by path to avoid false created value
-		if existing, _, err := dao.Path(ctx, node, tree.NewTreeNode(""), false); err == nil && existing != nil {
+		if existing, _, err := dao.Path(ctx, lookupNode, refNode, false); err == nil && existing != nil {
 			path = existing
+			node = lookupNode
 			exists = true
 		}
 	}
 	if !exists {
-		path, created, err = dao.Path(ctx, node, tree.NewTreeNode(""), true)
+		path, created, err = dao.Path(ctx, lookupNode, refNode, true)
 		if err != nil {
+			if errors.Is(err, gorm.ErrDuplicatedKey) {
+				return nil, errors.Tag(err, errors.StatusConflict)
+			}
 			return nil, errors.WithMessagef(errors.StatusInternalServerError, "error while inserting node: %w", err)
 		}
+		node = lookupNode
 	}
 
 	// Checking if we have a node with the same path
@@ -235,6 +249,7 @@ func (s *TreeServer) CreateNode(ctx context.Context, req *tree.CreateNodeRequest
 		if err != nil || node == nil {
 			return nil, fmt.Errorf("could not retrieve node %s", reqPath)
 		}
+		node.GetNode().SetPath(reqPath)
 	}
 
 	s.setDataSourceMeta(node)
@@ -279,7 +294,7 @@ func (s *TreeServer) ReadNode(ctx context.Context, req *tree.ReadNodeRequest) (r
 	if req.GetNode().GetPath() == "" && req.GetNode().GetUuid() != "" {
 
 		node, err = dao.GetNodeByUUID(ctx, req.GetNode().GetUuid())
-		if err != nil || node == nil {
+		if err != nil {
 			return nil, errors.WithMessagef(errors.NodeNotFound, "Could not find node by UUID with %s ", req.GetNode().GetUuid())
 		}
 
@@ -307,6 +322,8 @@ func (s *TreeServer) ReadNode(ctx context.Context, req *tree.ReadNodeRequest) (r
 		// Now load proper node from found mpath
 		if node, err = dao.GetNode(ctx, path); err != nil {
 			return nil, errors.WithMessagef(errors.StatusInternalServerError, "Error while retrieving node [%s], cause: %s", path, err.Error())
+		} else {
+			node.GetNode().SetPath(safePath(req.GetNode().GetPath()))
 		}
 	}
 
@@ -370,10 +387,10 @@ func (s *TreeServer) ListNodes(req *tree.ListNodesRequest, resp tree.NodeProvide
 				return errors.WithMessagef(errors.NodeNotFound, "Could not retrieve node %s", node.GetNode().GetPath())
 			}
 
-			//node, err = dao.GetNode(ctx, path)
-			//if err != nil {
-			//	return errors.InternalServerError(name, "cannot get node at %s, cause: %s", node.GetNode().GetPath(), err.Error())
-			//}
+			node, err = dao.GetNode(ctx, path)
+			if err != nil {
+				return errors.WithMessagef(err, "cannot get node at %s, cause: %s", req.GetNode().GetPath())
+			}
 		}
 
 		// Get Ancestors tree and rebuild pathes for each

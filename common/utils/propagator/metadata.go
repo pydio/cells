@@ -173,8 +173,8 @@ func NewBackgroundWithUserKey(contextKey string, userName string) context.Contex
 	})
 }
 
-func NewBackgroundWithMetaCopy(ctx context.Context) context.Context {
-	bgCtx := context.Background()
+func ForkedBackgroundWithMeta(ctx context.Context) context.Context {
+	bgCtx := ForkContext(context.Background(), ctx)
 	if ctxMeta, ok := fromContextCopy(ctx); ok {
 		bgCtx = NewContext(bgCtx, ctxMeta)
 	}

@@ -113,6 +113,7 @@ func NewTestPool(ctx context.Context, presetClient ...SourcesPool) *openurl.Pool
 func openPool(ctx context.Context) *ClientsPool {
 	var mgr manager.Manager
 	if !propagator.Get(ctx, manager.ContextKey, &mgr) {
+		fmt.Println("openPool will panic, missing manager in context")
 		panic("cannot instantiate client pool (missing manager in context)")
 	}
 

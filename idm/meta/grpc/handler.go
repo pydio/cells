@@ -126,8 +126,7 @@ func (h *Handler) UpdateUserMeta(ctx context.Context, request *idm.UpdateUserMet
 	}
 
 	go func() {
-		bgCtx := propagator.NewBackgroundWithMetaCopy(ctx)
-		bgCtx = propagator.ForkContext(bgCtx, ctx)
+		bgCtx := propagator.ForkedBackgroundWithMeta(ctx)
 		subjects, _ := auth.SubjectsForResourcePolicyQuery(bgCtx, nil)
 
 		for nodeId, source := range sources {
@@ -236,10 +235,7 @@ func (h *Handler) ReadNodeStream(stream tree.NodeProviderStreamer_ReadNodeStream
 		return err
 	}
 
-	bgCtx := propagator.NewBackgroundWithMetaCopy(ctx)
-	//bgCtx = clientcontext.WithClientConn(bgCtx, clientcontext.GetClientConn(ctx))
-	//bgCtx = middleware.WithRegistry(bgCtx, middleware.GetRegistry(ctx))
-	bgCtx = propagator.ForkContext(bgCtx, ctx)
+	bgCtx := propagator.ForkedBackgroundWithMeta(ctx)
 	subjects, e := auth.SubjectsForResourcePolicyQuery(bgCtx, nil)
 	if e != nil {
 		return e

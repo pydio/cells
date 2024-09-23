@@ -27,7 +27,6 @@ import (
 	"context"
 	"crypto/md5"
 	"encoding/hex"
-	"errors"
 	"fmt"
 	"path"
 	"reflect"
@@ -44,6 +43,7 @@ import (
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
 
+	"github.com/pydio/cells/v4/common/errors"
 	"github.com/pydio/cells/v4/common/proto/options/orm"
 	"github.com/pydio/cells/v4/common/proto/tree"
 	"github.com/pydio/cells/v4/common/sql"
@@ -269,6 +269,7 @@ func (dao *IndexSQL[T]) ResyncDirtyEtags(ctx context.Context, rootNode tree.ITre
 	var dirtyNodes []tree.ITreeNode
 
 	tx := dao.instance(ctx).
+		Model(dao.factory.Struct()).
 		Where(tree.MPathEqualsOrLike{Value: rootNode.GetMPath()}).
 		Where("level >= ?", rootNode.GetLevel()).
 		Where("etag = '-1'").
@@ -277,6 +278,7 @@ func (dao *IndexSQL[T]) ResyncDirtyEtags(ctx context.Context, rootNode tree.ITre
 			for _, dirtyNode := range dirtyNodes {
 				var etagNodes []tree.ITreeNode
 				dao.instance(ctx).
+					Model(dao.factory.Struct()).
 					Where(tree.MPathLike{Value: dirtyNode.GetMPath()}).
 					Where("level = ?", dirtyNode.GetLevel()+1).
 					Order("name").
@@ -387,11 +389,14 @@ func (dao *IndexSQL[T]) GetNodeByUUID(ctx context.Context, uuid string) (tree.IT
 
 	tx := dao.instance(ctx).Where("uuid = ?", uuid).Find(&node)
 	if err := tx.Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, errors.Tag(err, errors.NodeNotFound)
+		}
 		return nil, err
 	}
 
 	if tx.RowsAffected == 0 {
-		return nil, errors.New("not found")
+		return nil, errors.WithMessage(errors.NodeNotFound, "node not found for UUID "+uuid)
 	}
 
 	return node, nil

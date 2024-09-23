@@ -23,15 +23,17 @@ import (
 
 // authHandler - handles all the incoming authorization headers and validates them if possible.
 type pydioAuthHandler struct {
+	rootCtx         context.Context
 	handler         http.Handler
 	jwtVerifier     *auth.JWTVerifier
 	globalAccessKey string
 }
 
 // GetPydioAuthHandlerFunc validates Pydio authorization headers for the incoming request.
-func GetPydioAuthHandlerFunc(globalAccessKey string) mux.MiddlewareFunc {
+func GetPydioAuthHandlerFunc(ctx context.Context, globalAccessKey string) mux.MiddlewareFunc {
 	return func(h http.Handler) http.Handler {
 		return pydioAuthHandler{
+			rootCtx:         ctx,
 			handler:         h,
 			jwtVerifier:     auth.DefaultJWTVerifier(),
 			globalAccessKey: globalAccessKey,
@@ -44,7 +46,19 @@ func (a pydioAuthHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	//var md map[string]string
 	var userName string
-	ctx := r.Context()
+
+	r, er := middleware.ApplyHTTPIncomingContextModifiers(r)
+	if er != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	ctx := propagator.ForkContext(r.Context(), a.rootCtx)
+	ctx = propagator.WithAdditionalMetadata(ctx, map[string]string{
+		common.XPydioSiteHash: r.Header.Get(common.XPydioSiteHash),
+	})
+
+	r = r.WithContext(ctx)
 	ctx = middleware.HttpRequestInfoToMetadata(ctx, r)
 	ctx = runtime.WithServiceName(ctx, common.ServiceGatewayData)
 

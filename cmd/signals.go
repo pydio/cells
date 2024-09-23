@@ -61,7 +61,7 @@ func handleSignals(args []string) {
 				fallthrough
 			case syscall.SIGINT:
 				// Stopping the main context will trigger the stop of all services
-				log.Debug("Cancelling main context")
+				//log.Debug("Cancelling main context")
 				cancel()
 			case syscall.SIGUSR1, syscall.SIGUSR2:
 

@@ -768,11 +768,22 @@ func (m MPathsEquals) Build(builder clause.Builder) {
 	clause.Or(expr...).Build(builder)
 }
 
-func NewTreeNode(path string) *TreeNode {
+// EmptyTreeNode is a shortcut for NewTreeNode("")
+func EmptyTreeNode() *TreeNode {
+	return &TreeNode{Node: &Node{}}
+}
+
+// NewTreeNode creates an ITreeNode with a path, and optionally more node info for creation
+func NewTreeNode(path string, withNode ...*Node) *TreeNode {
+	var n *Node
+	if len(withNode) > 0 {
+		n = withNode[0].Clone()
+	} else {
+		n = &Node{}
+	}
+	n.SetPath(path)
 	return &TreeNode{
-		Node: &Node{
-			Path: path,
-		},
+		Node: n,
 	}
 }
 

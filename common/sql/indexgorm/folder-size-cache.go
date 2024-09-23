@@ -67,7 +67,7 @@ func (dao *FolderSizeCacheSQL) GetNodeByUUID(ctx context.Context, uuid string) (
 		return nil, err
 	}
 
-	if node != nil && !node.GetNode().IsLeaf() {
+	if !node.GetNode().IsLeaf() {
 		dao.folderSize(node)
 	}
 
