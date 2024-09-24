@@ -25,6 +25,7 @@ import (
 	"fmt"
 	"net/url"
 	"runtime"
+	"strconv"
 	"strings"
 	"sync"
 
@@ -173,6 +174,9 @@ func Subscribe(root context.Context, topic string, handler SubscriberHandler, op
 			so.CalleeLine = line
 		}
 	}
+	root = context.WithValue(root, "CalleeFile", so.CalleeFile)
+	root = context.WithValue(root, "CalleeLine", strconv.Itoa(so.CalleeLine))
+	root = context.WithValue(root, "CalleeTopic", topic)
 
 	// Wrap Handler for counters
 	id := "sub_" + topicReplacer.Replace(topic)

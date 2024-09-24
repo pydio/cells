@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 	"os"
-	"runtime/debug"
+	"strings"
 	"time"
 
 	"github.com/pydio/cells/v4/common/middleware"
@@ -13,7 +13,10 @@ import (
 
 func TimeoutSubscriberInterceptor() SubscriberInterceptor {
 	return func(ctx context.Context, m Message, handler SubscriberHandler) error {
-		dd := debug.Stack()
+		var dd []string
+		dd = append(dd, ctx.Value("CalleeFile").(string))
+		dd = append(dd, ctx.Value("CalleeLine").(string))
+		dd = append(dd, ctx.Value("CalleeTopic").(string))
 
 		d := make(chan bool, 1)
 		defer close(d)
@@ -22,8 +25,7 @@ func TimeoutSubscriberInterceptor() SubscriberInterceptor {
 			case <-d:
 				break
 			case <-time.After(20 * time.Second):
-				// TODO - topic in meta ?
-				fmt.Println(os.Getpid(), "A Handler has not returned after 20s !", string(dd), " - This subscription will be blocked!")
+				fmt.Println(os.Getpid(), "A Handler has not returned after 20s !", strings.Join(dd, "|"), " - This subscription will be blocked!")
 			}
 		}()
 
