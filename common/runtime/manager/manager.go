@@ -92,7 +92,6 @@ type Manager interface {
 	RegisterCache(scheme string, opts ...controller.Option[*openurl.Pool[cache.Cache]])
 
 	GetStorage(ctx context.Context, name string, out any) error
-	GetConfig(ctx context.Context) config.Store
 	GetQueue(ctx context.Context, name string, resolutionData map[string]interface{}, openerID string, openerFunc broker.OpenWrapper) (broker.AsyncQueue, error)
 	GetQueuePool(name string) (broker.AsyncQueuePool, error)
 	GetCache(ctx context.Context, name string, resolutionData map[string]interface{}) (cache.Cache, error)
@@ -125,9 +124,6 @@ type manager struct {
 	config  controller.Controller[*openurl.Pool[config.Store]]
 	queues  controller.Controller[broker.AsyncQueuePool]
 	caches  controller.Controller[*openurl.Pool[cache.Cache]]
-
-	// TODO - adapt this
-	configResolver *openurl.Pool[config.Store]
 
 	logger log.ZapLogger
 }
@@ -248,14 +244,6 @@ func (m *manager) Context() context.Context {
 
 func (m *manager) Registry() registry.Registry {
 	return m.internalRegistry
-}
-
-func (m *manager) GetConfig(ctx context.Context) (out config.Store) {
-	out, err := m.configResolver.Get(ctx)
-	if err != nil {
-		// TODO
-	}
-	return out
 }
 
 func (m *manager) RegisterStorage(scheme string, opts ...controller.Option[storage.Storage]) {
@@ -1566,10 +1554,4 @@ func (m *manager) WatchServerUniques(srv server.Server, ss []service.Service, co
 			}
 		})
 	}
-}
-
-func (m *manager) MustGetConfig(ctx context.Context) (out config.Store) {
-	out, _ = m.configResolver.Get(ctx)
-
-	return
 }
