@@ -48,6 +48,9 @@ var (
 		errors.StatusCancelled,
 		context.Canceled,
 	}
+	commonWarns = []error{
+		errors.NodeNotFound,
+	}
 )
 
 func logRestError(ctx context.Context, err error, prefix string, logLevel zapcore.Level) {
@@ -94,9 +97,16 @@ func handleGrpcError(ctx context.Context, err error, prefix string, infos ...zap
 		errorMsg := strings.ReplaceAll(err.Error(), "\n", " || ")
 
 		ignoreLog := false
+		warnLog := false
 		for _, ig := range commonIgnores {
 			if errors.Is(err, ig) {
 				ignoreLog = true
+				break
+			}
+		}
+		for _, ig := range commonWarns {
+			if errors.Is(err, ig) {
+				warnLog = true
 				break
 			}
 		}
@@ -110,9 +120,12 @@ func handleGrpcError(ctx context.Context, err error, prefix string, infos ...zap
 			if meta := metadata.ValueFromIncomingContext(ctx, common.CtxGrpcClientCaller); len(meta) > 0 {
 				fields = append(fields, zap.String("ClientCaller", strings.Join(meta, "")))
 			}
-			fields = append(fields, errors.Zap(err))
-
-			log.Logger(ctx).Error(prefix+" "+errorMsg, fields...)
+			if warnLog {
+				log.Logger(ctx).Warn(prefix+" "+errorMsg, fields...)
+			} else {
+				fields = append(fields, errors.Zap(err))
+				log.Logger(ctx).Error(prefix+" "+errorMsg, fields...)
+			}
 		}
 
 		if errors.Is(err, context.Canceled) {

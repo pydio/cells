@@ -258,7 +258,7 @@ func (w *WebsocketHandler) BroadcastNodeChangeEvent(ctx context.Context, event *
 			hasData bool
 		)
 
-		metaCtx, err := prepareRemoteContext(w.runtimeCtx, session)
+		metaCtx, err := prepareRemoteContext(ctx, session)
 		if err != nil {
 			log.Logger(ctx).Warn("WebSocket error", zap.Error(err))
 			return false

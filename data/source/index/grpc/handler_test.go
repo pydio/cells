@@ -58,9 +58,6 @@ func TestIndex(t *testing.T) {
 
 		s := NewTreeServer(&object.DataSource{Name: ""}, "")
 
-		//wg.Add(1)
-		//defer wg.Done()
-
 		Convey("Insert a new child at root level", t, func() {
 
 			node1_1 := &tree.Node{Uuid: "test_1_1", Path: "/test_1_1"}
@@ -79,7 +76,9 @@ func TestIndex(t *testing.T) {
 
 			resp, e = send(ctx, s, "GetNode", &tree.ReadNodeRequest{Node: &tree.Node{Path: "/test_1_1"}})
 			So(e, ShouldBeNil)
-			So(resp.(*tree.ReadNodeResponse).Node.Uuid, ShouldEqual, newNodeUUID)
+			outNode := resp.(*tree.ReadNodeResponse).Node
+			So(outNode.Uuid, ShouldEqual, newNodeUUID)
+			So(outNode.Path, ShouldEqual, "/test_1_1")
 		})
 
 		Convey("Inserting concurrent rows", t, func() {

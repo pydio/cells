@@ -202,11 +202,11 @@ func (p *ClientsPool) GetDataSourceInfo(dsName string, retries ...int) (LoadedSo
 		if len(retries) > 0 {
 			retry = retries[0]
 		}
-		delay := (retry + 1) * 2
-
-		log.Logger(p.ctx).Warn(fmt.Sprintf("[ClientsPool] cannot find datasource, retrying in %ds...", delay), zap.String("ds", dsName), zap.Any("retries", retry))
-
-		<-time.After(time.Duration(delay) * time.Second)
+		delay := (retry) * 2
+		if retry > 0 {
+			log.Logger(p.ctx).Warn(fmt.Sprintf("[ClientsPool] cannot find datasource, retrying in %ds...", delay), zap.String("ds", dsName), zap.Any("retries", retry))
+			<-time.After(time.Duration(delay) * time.Second)
+		}
 		p.LoadDataSources()
 		return p.GetDataSourceInfo(dsName, retry+1)
 

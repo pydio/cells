@@ -464,6 +464,10 @@ func (a *AccessList) loadNodePathAcls(ctx context.Context, resolver VirtualPathR
 	}
 	// Retrieving path foreach ids
 	for nodeID, b := range a.masksByUUIDs {
+		// Do not trigger a Read on the internal WS nodes
+		if _, ok := common.IdmWsInternalReservedSlugs[strings.TrimSuffix(nodeID, "-ROOT")]; ok {
+			continue
+		}
 		if n, ok := resolver(ctx, &tree.Node{Uuid: nodeID}); ok {
 			log.Logger(ctx).Debug("Acl.loadNodePathAcls : Loading resolved node", n.Zap())
 			a.masksByPaths[strings.TrimSuffix(n.Path, "/")] = b
@@ -475,6 +479,7 @@ func (a *AccessList) loadNodePathAcls(ctx context.Context, resolver VirtualPathR
 		}
 		resp, err := st.Recv()
 		if err != nil || resp.Node == nil {
+			log.Logger(ctx).Warn("[loadNodePathAcls] Cannot find node "+nodeID+", ignored in masks", zap.Error(err))
 			continue
 		}
 		a.masksByPaths[strings.TrimSuffix(resp.Node.Path, "/")] = b

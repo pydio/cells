@@ -311,13 +311,9 @@ func (s *TreeServer) ReadNode(ctx context.Context, req *tree.ReadNodeRequest) (r
 
 		path, _, err := dao.Path(ctx, node, tree.NewTreeNode(""), false)
 		if err != nil {
-			return nil, errors.WithMessagef(errors.StatusInternalServerError, "Error while retrieving path [%s], cause: %s", node.GetNode().GetPath(), err.Error())
-		}
-
-		if path == nil {
-			//return errors.New("Could not retrieve file path")
-			// Do not return error, or send a file not exists?
-			return nil, errors.WithMessagef(errors.NodeNotFound, "Could not retrieve node %s", node.GetNode().GetPath())
+			return nil, errors.WithMessagef(errors.NodeNotFound, "Could not retrieve path [%s], cause: %s", node.GetNode().GetPath(), err.Error())
+		} else if path == nil {
+			return nil, errors.WithMessagef(errors.NodeNotFound, "Could not retrieve path %s", node.GetNode().GetPath())
 		}
 		// Now load proper node from found mpath
 		if node, err = dao.GetNode(ctx, path); err != nil {
@@ -601,20 +597,20 @@ func (s *TreeServer) UpdateNode(ctx context.Context, req *tree.UpdateNodeRequest
 		dao.Flush(ctx, false)
 	}
 
-	s.setDataSourceMeta(nodeFrom)
-	s.setDataSourceMeta(nodeTo)
-
 	if err = dao.MoveNodeTree(ctx, nodeFrom, nodeTo); err != nil {
 		return nil, err
 	}
 
-	newNode, err := dao.GetNode(ctx, pathTo)
-	if err == nil && newNode != nil {
+	nodeFrom.GetNode().SetPath(reqFromPath)
+	s.setDataSourceMeta(nodeFrom)
+
+	if newNode, err := dao.GetNode(ctx, pathTo); err == nil && newNode != nil {
 		newNode.GetNode().SetPath(reqToPath)
 		s.setDataSourceMeta(newNode)
 		if err := s.UpdateParentsAndNotify(ctx, dao, nodeFrom.GetNode().GetSize(), tree.NodeChangeEvent_UPDATE_PATH, nodeFrom, newNode, req.IndexationSession); err != nil {
 			return nil, errors.WithMessagef(errors.StatusInternalServerError, "error while updating parents:  %s", err.Error())
 		}
+		resp.Node = newNode.GetNode()
 	}
 
 	resp.Success = true
@@ -653,6 +649,7 @@ func (s *TreeServer) DeleteNode(ctx context.Context, req *tree.DeleteNodeRequest
 	if err != nil {
 		return nil, errors.WithMessagef(errors.NodeNotFound, "Could not retrieve node %s", reqPath)
 	}
+	node.GetNode().SetPath(reqPath)
 
 	s.setDataSourceMeta(node)
 	var childrenEvents []*tree.NodeChangeEvent
