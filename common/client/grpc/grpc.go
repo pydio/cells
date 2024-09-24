@@ -182,7 +182,12 @@ func (cc *clientConn) Invoke(ctx context.Context, method string, args interface{
 		if fDesc := runtime2.FuncForPC(pc); fDesc != nil {
 			fName = ":" + path.Base(fDesc.Name()) + "()"
 		}
-		ctx = metadata.AppendToOutgoingContext(ctx, common.CtxGrpcClientCaller, fmt.Sprintf("%s:%d%s", file, line, fName))
+		thisCaller := fmt.Sprintf("%s:%d%s", file, line, fName)
+		if prev := metadata.ValueFromIncomingContext(ctx, common.CtxGrpcClientCaller); len(prev) > 0 {
+			prev = append(prev, thisCaller)
+			thisCaller = strings.Join(prev, "|")
+		}
+		ctx = metadata.AppendToOutgoingContext(ctx, common.CtxGrpcClientCaller, thisCaller)
 	}
 
 	var cancel context.CancelFunc
