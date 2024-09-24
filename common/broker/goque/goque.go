@@ -157,6 +157,9 @@ func (g *gq) OpenURL(ctx context.Context, u *url.URL) (broker.AsyncQueue, error)
 	}
 	queueName := "fifo-" + streamName
 	prefix := u.Query().Get("prefix")
+	if prefix == "<no value>" {
+		prefix = ""
+	}
 
 	ql.Lock()
 	if q, ok := queues[queueName]; ok {
@@ -181,10 +184,12 @@ func (g *gq) OpenURL(ctx context.Context, u *url.URL) (broker.AsyncQueue, error)
 	} else {
 		q, err = goque.OpenQueue(dataDir)
 	}
-	sq = &serviceQueue{q: q, pq: pq, rc: 0}
 	if err != nil {
+		log.Logger(ctx).Error("Could not open GOQUE", zap.String("dataDir", dataDir), zap.Bool("isPrefix", prefix != ""), zap.Error(err))
+		ql.Unlock()
 		return nil, err
 	}
+	sq = &serviceQueue{q: q, pq: pq, rc: 0}
 	queues[queueName] = sq
 	ql.Unlock()
 	go func() {
