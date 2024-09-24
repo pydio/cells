@@ -232,22 +232,11 @@ defaults:
   # Storages
   storages: &storages
     sql:
-      #uri: sqlite://test.db?prefix={{ .Meta.prefix }}&policies={{ .Meta.policies }}&singular={{ .Meta.singular }}
       uri: mysql://root:P@ssw0rd@tcp(localhost:3306)/cells{{ tenantSepWithBlank .Tenant "" "default" }}?parseTime=true&prefix={{ .Meta.prefix }}&policies={{ .Meta.policies }}&singular={{ .Meta.singular }}
-    #      uri: postgres://postgres:cells@localhost:5432/postgres?sslmode=disable&prefix={{ .Value "prefix" }}&policies={{ .Value "policies" }}&singular={{ .Value "singular" }}
     bolt:
       uri: boltdb://{{ autoMkdir (joinPath  ( serviceDataDir .Service ) ( tenantPathWithBlank .Tenant "default" ) ) }}/{{ .Meta.file }}
     bleve:
       uri: bleve://{{ autoMkdir (joinPath  ( serviceDataDir .Service ) ( tenantPathWithBlank .Tenant "default" ) ) }}/{{ .Meta.file }}
-    #  search:
-    #    uri: mongo+indexer://localhost:24017/search
-    #    uri: bleve:///tmp/{{ TODOMustServiceDataDir .Value service }}.bleve?mapping={{ .Value mapping }}&rotationSize={{ .Value rotationSize }}
-    #  fifo:
-    #    uri: goq:///tmp/{{ .Value tenant }}/fifo/{{ .Value prefix }}?evictionTime={{ .evictionTime }}
-    #  user:
-    #    uri: mysql://tcp(localhost:3306)/cells-{{ .Value tenant }}?prefix={{ .Value prefix }}&shardedBy=name
-    #  redis-cache:
-    #    uri: redis://:53535/{{tenant}}
 
   #--------------------------------------------
   # All processes
@@ -292,12 +281,6 @@ defaults:
             - filter: "{{ .Name }} ~= pydio.grpc..*"
             - filter: "{{ .Name }} !~= pydio.grpc.data."
 
-#        http:
-#          type: http
-#          listener: http
-#          services:
-#            - filter: "{{ .Name }} ~= pydio.rest..* or {{ .Name }} ~= pydio.web.statics"
-
       env: *env
 
       storages: *storages
@@ -307,105 +290,3 @@ defaults:
       queues: *queues
 
       caches: *caches
-
-#      tags:
-#        discovery:
-#        gateway:
-#        frontend:
-#        data:
-#        scheduler:
-#        auth:
-#        broker:
-#        idm:
-
-      #  gateway:
-      #    connections:
-      #      <<: *connections
-      #    env: *env
-      #    services:
-      #      gateway:
-      #    servers:
-      #      http:
-      #        type: caddy
-      #        port: 8080
-
-
-      #  data:
-      #    connections: *connections
-      #    servers: *servers
-      #    env: *env
-      #
-      #    services:
-      #      data:
-
-      #  idm:
-      #    connections: *connections
-      #    servers: *servers
-      #    env: *env
-      #
-      #    services:
-
-
-      #  datasource-peer:
-      #    connections: *connections
-      #    servers: *servers
-      #    env: *env
-      #
-      #    services:
-      #      datasource:
-      #        - pydio.grpc.data.objects.peer
-      #
-      #  {{ if .Config }}
-      #  {{ $objectsVal := .Config.Val "services/pydio.grpc.data.objects/sources" }}
-      #  {{ $ := .Config }}
-      #  {{ range $objectsVal.StringArray }}
-      #  {{ if or (lt (len .) 8) (ne (slice . 0 8) ("updated:")) }}
-      #  {{ if not ($.Val "services" (print "pydio.grpc.data.objects." .) "Disabled").Bool }}
-      #  objects-{{ . }}:
-      #    connections: *connections
-      #    servers: *servers
-      #    env: *env
-      #
-      #    services:
-      #      datasource:
-      #        - pydio.grpc.data.objects.{{ . }}
-      #  {{ end }}
-      #  {{ end }}
-      #  {{ end }}
-      #
-      #  {{ $indexesVal := .Config.Val "services/pydio.grpc.data.index/sources" }}
-      #  {{ $ := .Config }}
-      #  {{ range $indexesVal.StringArray }}
-      #  {{ if or (lt (len .) 8) (ne (slice . 0 8) ("updated:")) }}
-      #  {{ if not ($.Val "services" (print "pydio.grpc.data.index." .) "Disabled").Bool }}
-      #  index-{{ . }}:
-      #    #{{ if eq . "pydiods1" }}debug: true{{ end }}
-      #    connections: *connections
-      #    servers: *servers
-      #    env: *env
-      #
-      #    services:
-      #      datasource:
-      #        - pydio.grpc.data.index.{{ . }}
-      #  {{ end }}
-      #  {{ end }}
-      #  {{ end }}
-      #
-      #  {{ $syncVal := .Config.Val "services/pydio.grpc.data.sync/sources" }}
-      #  {{ $ := .Config }}
-      #  {{ range $syncVal.StringArray }}
-      #  {{ if or (lt (len .) 8) (ne (slice . 0 8) ("updated:")) }}
-      #  {{ if not ($.Val "services" (print "pydio.grpc.data.sync." .) "Disabled").Bool }}
-      #  sync-{{ . }}:
-      #    #{{ if eq . "pydiods1" }}debug: true{{ end }}
-      #    connections: *connections
-      #    servers: *servers
-      #    env: *env
-      #
-      #    services:
-      #      datasource:
-      #        - pydio.grpc.data.sync.{{ . }}
-      #  {{ end }}
-      #  {{ end }}
-      #  {{ end }}
-      #  {{ end }}

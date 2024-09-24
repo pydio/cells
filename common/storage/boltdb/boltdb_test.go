@@ -23,9 +23,9 @@ var (
 
 func TestController(t *testing.T) {
 	v := viper.New()
-	v.Set("name", "discovery")
-	v.Set("tags", "storages")
-	v.Set("yaml", storageTestTemplate)
+	v.Set(runtime.KeyName, "discovery")
+	v.Set(runtime.KeyArgTags, "storages")
+	v.Set(runtime.KeyBootstrapYAML, storageTestTemplate)
 	runtime.SetRuntime(v)
 
 	ctx := context.Background()

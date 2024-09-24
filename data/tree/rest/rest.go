@@ -168,12 +168,12 @@ func (h *Handler) CreateNodes(req *restful.Request, resp *restful.Response) erro
 			meta := map[string]string{}
 			if input.TemplateUUID != "" {
 				provider := templates.GetProvider()
-				node, err := provider.ByUUID(h.RuntimeCtx, input.TemplateUUID)
+				node, err := provider.ByUUID(ctx, input.TemplateUUID)
 				if err != nil {
 					return err
 				}
 				var e error
-				reader, length, e = node.Read(h.RuntimeCtx)
+				reader, length, e = node.Read(ctx)
 				if e != nil {
 					return e
 				}
@@ -346,7 +346,7 @@ func (h *Handler) DeleteNodes(req *restful.Request, resp *restful.Response) erro
 
 	cli := jobsc.JobServiceClient(ctx)
 	moveLabel := T("Jobs.User.MoveRecycle")
-	fullPathRouter := compose.PathClientAdmin(h.RuntimeCtx)
+	fullPathRouter := compose.PathClientAdmin(ctx)
 	for recyclePath, rMoves := range deleteJobs.RecycleMoves {
 
 		// Create recycle bins now, to make sure user is notified correctly
@@ -597,8 +597,9 @@ func (h *Handler) ListAdminTree(req *restful.Request, resp *restful.Response) er
 	if err := req.ReadEntity(&input); err != nil {
 		return err
 	}
+	ctx := req.Request.Context()
 
-	parentResp, err := getClient(h.RuntimeCtx).ReadNode(req.Request.Context(), &tree.ReadNodeRequest{
+	parentResp, err := getClient(ctx).ReadNode(ctx, &tree.ReadNodeRequest{
 		Node:      input.Node,
 		StatFlags: input.StatFlags,
 	})
@@ -606,7 +607,7 @@ func (h *Handler) ListAdminTree(req *restful.Request, resp *restful.Response) er
 		return err
 	}
 
-	streamer, err := getClient(h.RuntimeCtx).ListNodes(req.Request.Context(), &input)
+	streamer, err := getClient(ctx).ListNodes(ctx, &input)
 	output := &rest.NodesCollection{
 		Parent: parentResp.Node.WithoutReservedMetas(),
 	}
@@ -627,8 +628,9 @@ func (h *Handler) StatAdminTree(req *restful.Request, resp *restful.Response) er
 	if err := req.ReadEntity(&input); err != nil {
 		return err
 	}
+	ctx := req.Request.Context()
 
-	response, err := getClient(h.RuntimeCtx).ReadNode(req.Request.Context(), &input)
+	response, err := getClient(ctx).ReadNode(ctx, &input)
 	if err != nil {
 		return err
 	}

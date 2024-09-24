@@ -8,6 +8,7 @@ import (
 	"strconv"
 	"sync"
 	"sync/atomic"
+	"time"
 
 	cluster "github.com/envoyproxy/go-control-plane/envoy/config/cluster/v3"
 	core "github.com/envoyproxy/go-control-plane/envoy/config/core/v3"
@@ -24,6 +25,7 @@ import (
 	runtimeservice "github.com/envoyproxy/go-control-plane/envoy/service/runtime/v3"
 	secretservice "github.com/envoyproxy/go-control-plane/envoy/service/secret/v3"
 	clientservice "github.com/envoyproxy/go-control-plane/envoy/service/status/v3"
+	matcherv3 "github.com/envoyproxy/go-control-plane/envoy/type/matcher/v3"
 	"github.com/envoyproxy/go-control-plane/pkg/cache/types"
 	cachev3 "github.com/envoyproxy/go-control-plane/pkg/cache/v3"
 	resource "github.com/envoyproxy/go-control-plane/pkg/resource/v3"
@@ -32,6 +34,7 @@ import (
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/xds/csds"
 	"google.golang.org/protobuf/types/known/anypb"
+	"google.golang.org/protobuf/types/known/durationpb"
 	"google.golang.org/protobuf/types/known/wrapperspb"
 
 	"github.com/pydio/cells/v4/common"
@@ -281,29 +284,29 @@ func init() {
 									},
 								})
 							} else {
-								//for _, svcItem := range svcItems {
-								routes = append(routes, &route.Route{
-									Name: endpointItem.ID(),
-									Match: &route.RouteMatch{
-										PathSpecifier: &route.RouteMatch_Path{
-											Path: endpointItem.Name(),
+								for _, svcItem := range svcItems {
+									routes = append(routes, &route.Route{
+										Name: endpointItem.ID(),
+										Match: &route.RouteMatch{
+											PathSpecifier: &route.RouteMatch_Path{
+												Path: endpointItem.Name(),
+											},
+											Headers: []*route.HeaderMatcher{{
+												Name: common.CtxTargetServiceName,
+												HeaderMatchSpecifier: &route.HeaderMatcher_StringMatch{
+													StringMatch: &matcherv3.StringMatcher{MatchPattern: &matcherv3.StringMatcher_Exact{Exact: svcItem.Name()}},
+												},
+											}},
 										},
-										//Headers: []*route.HeaderMatcher{{
-										//	Name: common.CtxTargetServiceName,
-										//	HeaderMatchSpecifier: &route.HeaderMatcher_StringMatch{
-										//		StringMatch: &matcherv3.StringMatcher{MatchPattern: &matcherv3.StringMatcher_Exact{Exact: svcItem.Name()}},
-										//	},
-										//}},
-									},
-									Action: &route.Route_Route{
-										Route: &route.RouteAction{
-											ClusterSpecifier: &route.RouteAction_Cluster{
-												Cluster: srvItem.ID(),
+										Action: &route.Route_Route{
+											Route: &route.RouteAction{
+												ClusterSpecifier: &route.RouteAction_Cluster{
+													Cluster: srvItem.ID(),
+												},
 											},
 										},
-									},
-								})
-								//}
+									})
+								}
 							}
 						}
 					}
@@ -315,14 +318,14 @@ func init() {
 							Name:    virtualHostName,
 							Domains: domains,
 							Routes:  routes,
-							//RetryPolicy: &route.RetryPolicy{
-							//	RetryOn:    "unavailable",
-							//	NumRetries: wrapperspb.UInt32(20),
-							//	RetryBackOff: &route.RetryPolicy_RetryBackOff{
-							//		BaseInterval: durationpb.New(1 * time.Second),
-							//		MaxInterval:  durationpb.New(2 * time.Second),
-							//	},
-							//},
+							RetryPolicy: &route.RetryPolicy{
+								RetryOn:    "unavailable",
+								NumRetries: wrapperspb.UInt32(20),
+								RetryBackOff: &route.RetryPolicy_RetryBackOff{
+									BaseInterval: durationpb.New(1 * time.Second),
+									MaxInterval:  durationpb.New(2 * time.Second),
+								},
+							},
 						}},
 					}
 

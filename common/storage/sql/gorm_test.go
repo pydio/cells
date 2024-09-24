@@ -48,10 +48,10 @@ func NewDAO(db *gorm.DB) DAO {
 
 func TestController(t *testing.T) {
 	v := viper.New()
-	v.Set("name", "discovery")
-	v.Set("tags", "storages")
-	v.Set("yaml", storageTestTemplate)
-	v.Set("config", "mem://")
+	v.Set(runtime.KeyName, "discovery")
+	v.Set(runtime.KeyArgTags, "storages")
+	v.Set(runtime.KeyBootstrapYAML, storageTestTemplate)
+	v.Set(runtime.KeyConfig, "mem://")
 	runtime.SetRuntime(v)
 
 	var svc service.Service

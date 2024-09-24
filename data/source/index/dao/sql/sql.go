@@ -72,9 +72,10 @@ func (s *sqlimpl) FixRandHash2(ctx context.Context, excludes ...cindex.LostAndFo
 	panic("implement me")
 }
 
-// Init handler for the SQL DAO
-func (s *sqlimpl) Init(ctx context.Context, options configx.Values) error {
-
+func (s *sqlimpl) Migrate(ctx context.Context) error {
+	if er := s.IndexSQL.Migrate(ctx); er != nil {
+		return er
+	}
 	treeNode := &tree.TreeNode{}
 	treeNode.SetNode(&tree.Node{
 		Uuid:  "ROOT",
@@ -85,9 +86,33 @@ func (s *sqlimpl) Init(ctx context.Context, options configx.Values) error {
 
 	if _, created, err := s.IndexSQL.Path(ctx, treeNode, treeNode, true); err != nil {
 		log.Logger(ctx).Error("Error checking root node in index: " + err.Error())
+		return err
 	} else if len(created) > 0 {
 		log.Logger(ctx).Info("Created root node in index")
 	}
+	return nil
+}
+
+// Init handler for the SQL DAO
+func (s *sqlimpl) Init(ctx context.Context, options configx.Values) error {
+
+	// NOT HERE BUT INSIDE Migrate()
+	// SHALL WE READ CONFIG HERE ?
+	/*
+		treeNode := &tree.TreeNode{}
+		treeNode.SetNode(&tree.Node{
+			Uuid:  "ROOT",
+			Path:  "/",
+			Type:  tree.NodeType_COLLECTION,
+			MTime: time.Now().Unix(),
+		})
+
+		if _, created, err := s.IndexSQL.Path(ctx, treeNode, treeNode, true); err != nil {
+			log.Logger(ctx).Error("Error checking root node in index: " + err.Error())
+		} else if len(created) > 0 {
+			log.Logger(ctx).Info("Created root node in index")
+		}
+	*/
 
 	return nil
 }

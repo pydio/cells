@@ -62,7 +62,7 @@ func (f *StructStorageHandler) publish(ctx context.Context, identifier string, e
 	bi, er := nodes.GetBranchInfo(ctx, identifier)
 
 	// Fork context to de-intricate query and publication cancellation
-	ctx = runtimecontext.ForkContext(runtimecontext.NewBackgroundWithMetaCopy(ctx), ctx)
+	ctx = runtimecontext.ForkedBackgroundWithMeta(ctx)
 
 	// Publish only for remote non-minio structured servers
 	if er == nil && bi.FlatStorage {

@@ -208,7 +208,7 @@ func (g *gatewayDataServer) Start(ctx context.Context) error {
 	minio.HookRegisterGlobalHandler(middleware.HttpTracingMiddleware("minio"))
 	minio.HookRegisterGlobalHandler(propagator.HttpContextMiddleware(middleware.ClientConnIncomingContext(ctx)))
 	minio.HookRegisterGlobalHandler(propagator.HttpContextMiddleware(middleware.RegistryIncomingContext(ctx)))
-	minio.HookRegisterGlobalHandler(hooks.GetPydioAuthHandlerFunc("gateway"))
+	minio.HookRegisterGlobalHandler(hooks.GetPydioAuthHandlerFunc(ctx, "gateway"))
 	pydio.PydioGateway = &pydio.Pydio{
 		RuntimeCtx: ctx,
 	}

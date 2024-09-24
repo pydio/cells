@@ -70,7 +70,7 @@ func retryOnDuplicate(callback func() (*tree.CreateNodeResponse, error), retries
 	if len(retries) > 0 {
 		r = retries[0]
 	}
-	if e != nil && strings.Contains(e.Error(), "Duplicate entry") && r < 3 {
+	if e != nil && errors.Is(e, errors.StatusConflict) && r < 3 {
 		<-time.After(100 * time.Millisecond)
 		resp, e = retryOnDuplicate(callback, r+1)
 	}
@@ -107,7 +107,7 @@ func (m *Handler) getOrCreatePutNode(ctx context.Context, nodePath string, reque
 		tmpNode.MustSetMeta(common.MetaNamespaceMime, requestData.MetaContentType())
 	}
 
-	log.Logger(ctx).Debug("[PUT HANDLER] > Create Node", zap.String("UUID", tmpNode.Uuid), zap.String("Path", tmpNode.Path))
+	log.Logger(ctx).Debug("[PUT HANDLER] > Create Node", zap.String("Path", tmpNode.Path))
 	createResp, er := retryOnDuplicate(func() (*tree.CreateNodeResponse, error) {
 		return treeWriter.CreateNode(ctx, &tree.CreateNodeRequest{Node: tmpNode})
 	})

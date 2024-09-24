@@ -1,10 +1,74 @@
-env: &env
-  CELLS_LOG: debug
-  CELLS_FILE: bootstrap-cells.yaml
-  CELLS_USE_REGISTRY_SESSION: true
-  GRPC_EXPERIMENTAL_XDS_FEDERATION: true
-  GRPC_XDS_BOOTSTRAP_CONFIG: {
-          "xds_servers": [
+#--------------------------------------------
+# Default variables
+#--------------------------------------------
+name: test
+
+defaults:
+  bind: &bind 0.0.0.0
+  advertise: &advertise 0.0.0.0
+
+  #--------------------------------------------
+  # Default listeners
+  #--------------------------------------------
+  listeners: &listeners
+    grpc:
+      type: tcp
+      bind: *bind
+      port: 0
+    http:
+      type: tcp
+      bind: *bind
+      addr: 0
+
+  queues: &queues
+    debouncer:
+      uri: mem://?debounce={{ .debounce }}&idle={{ .idle }}&max={{ .max }}&openerID={{ .openerID }}&tenant={{ .Tenant }}
+    persisted:
+      uri: fifo://{{ autoMkdir (joinPath  ( serviceDataDir .Service ) ( tenantPathWithBlank .Tenant "default" ) ) }}?name={{ .name }}&prefix={{ .prefix }}
+
+  caches: &caches
+    short:
+      uri: pm://?evictionTime={{ .evictionTime}}&cleanWindow={{ .cleanWindow }}&tenant={{ .Tenant }}&prefix={{ .prefix }}
+    shared:
+      uri: bigcache://?evictionTime={{ .evictionTime }}&cleanWindow={{ .cleanWindow }}&tenant={{ .Tenant }}&prefix={{ .prefix }}
+
+  #--------------------------------------------
+  # Default connection to runtime functions
+  #--------------------------------------------
+  connections: &connections
+    grpcconn:
+      uri: xds://default.cells.com/cells
+      services:
+        - filter: "{{ .Name }} ~= pydio.grpc..*"
+
+  #--------------------------------------------
+  # Default servers configuration
+  #--------------------------------------------
+  servers: &servers
+    caddy:
+      type: caddy
+      services:
+        - filter: "{{ .Name }} ~= pydio\\.rest\\..*"
+    grpc:
+      type: grpc
+      listener: grpc
+      services:
+        - filter: "{{ .Name }} ~= pydio\\.grpc\\..*"
+    http:
+      type: http
+      listener: http
+      services:
+        - filter: "{{ .Name }} ~= pydio\\.http\\..*"
+
+
+  #--------------------------------------------
+  # Default env configuration
+  #--------------------------------------------
+  env: &env
+    CELLS_USE_REGISTRY_SESSION: true
+    GRPC_EXPERIMENTAL_XDS_FEDERATION: true
+    GRPC_XDS_BOOTSTRAP_CONFIG: {
+      "xds_servers": [
         {
           "server_uri": "0.0.0.0:8030",
           "server_features": [
@@ -48,13 +112,148 @@ env: &env
         }
       }
     }
-  
 
-processes:
-  discovery:
+  #------------------------------------
+  # All services
+  #------------------------------------
+  services: &services
+
+    pydio.grpc.oauth:
+      storages:
+        main:
+          - type: sql
+            prefix: oauth2_
+            singular: "true"
+    pydio.web.oauth:
+      storages:
+        main:
+          - type: sql
+            prefix: oauth2_
+            singular: "true"
+    pydio.rest.frontend:
+      storages:
+        main:
+          - type: sql
+            prefix: idm_
+    pydio.grpc.search:
+      storages:
+        main:
+          - type: search
+            path: chat
+    pydio.grpc.activity:
+      storages:
+        main:
+          - type: bolt
+            file: activities.db
+    pydio.grpc.versions:
+      storages:
+        main:
+          - type: bolt
+            file: versions.db
+    pydio.grpc.mailer:
+      storages:
+        main:
+          - type: bolt
+            file: queue.db
+    pydio.grpc.docstore:
+      storages:
+        main:
+          - type: bolt
+            file: docstore.db
+          - type: bleve
+            file: docstore.bleve?rotationSize=-1
+    pydio.grpc.log:
+      storages:
+        main:
+          - type: bleve
+            file: syslog.bleve?mapping=log&rotationSize=-1
+    pydio.grpc.jobs:
+      storages:
+        main:
+          - type: bolt
+            file: jobs.db
+        logs:
+          - type: bleve
+            file: tasklogs.bleve?mapping=log&rotationSize=-1
+    pydio.grpc.role:
+      storages:
+        main:
+          - type: sql
+            prefix: idm_
+            policies: idm_role_policies
+    pydio.grpc.acl:
+      storages:
+        main:
+          - type: sql
+            prefix: idm_
+    pydio.grpc.user:
+      storages:
+        main:
+          - type: sql
+            prefix: idm_
+            policies: idm_user_policies
+    pydio.grpc.token:
+      storages:
+        main:
+          - type: sql
+            prefix: idm_
+    pydio.grpc.key:
+      storages:
+        main:
+          - type: sql
+            prefix: data_key_
+    pydio.grpc.user-key:
+      storages:
+        main:
+          - type: sql
+            prefix: idm_
+    pydio.grpc.workspace:
+      storages:
+        main:
+          - type: sql
+            prefix: idm_
+            policies: idm_workspace_policies
+    pydio.grpc.meta:
+      storages:
+        main:
+          - type: sql
+            prefix: data_
+    pydio.grpc.policy:
+      storages:
+        main:
+          - type: sql
+            prefix: ladon_
+            singular: "true"
+    pydio.grpc.user-meta:
+      storages:
+        main:
+          - type: sql
+            prefix: idm_usr_
+            policies: idm_usr_meta_policies
+
+  # Storages
+  storages: &storages
+    sql:
+      uri: mysql://root:P@ssw0rd@tcp(localhost:3306)/cells{{ tenantSepWithBlank .Tenant "" "default" }}?parseTime=true&prefix={{ .Meta.prefix }}&policies={{ .Meta.policies }}&singular={{ .Meta.singular }}
+    bolt:
+      uri: boltdb://{{ autoMkdir (joinPath  ( serviceDataDir .Service ) ( tenantPathWithBlank .Tenant "default" ) ) }}/{{ .Meta.file }}
+    bleve:
+      uri: bleve://{{ autoMkdir (joinPath  ( serviceDataDir .Service ) ( tenantPathWithBlank .Tenant "default" ) ) }}/{{ .Meta.file }}
+
+connections: *connections
+
+#--------------------------------------------
+# All processes
+#--------------------------------------------
+processes: &processes
+  discovery: &discovery
+    runtime: discovery
     connections:
+      <<: *connections
       config:
-        uri: mem://?cache=config
+        uri: file://{{{{ .ApplicationWorkingDir }}}}/pydio.json
+        pools:
+          rp: file://{{{{ .ApplicationWorkingDir }}}}/{{ .Tenant }}.json
       registry:
         uri: mem://?cache=shared
       broker:
@@ -65,38 +264,55 @@ processes:
         type: tcp
         bind: 0.0.0.0
         port: 8030
+      http:
+        type: tcp
+        bind: 0.0.0.0
+        port: 0
 
     servers:
+      caddy:
+        type: caddy
+        services:
+          - filter: "{{ .Name }} ~= pydio.rest..* or {{ .Name }} ~= pydio.web.oauth or {{ .Name }} ~= pydio.web.statics or {{ .Name }} = pydio.gateway.websocket"
+      generic:
+        type: generic
+        services:
+          - filter: "{{ .Name }} ~= pydio.generic..*"
       grpc:
         type: grpc
         listener: grpc
         services:
-          # - filter: "{{ .Name }} ~= pydio.grpc.registry"
-          - filter: "{{ .Name }} ~= pydio.grpc.registry or {{ .Name }} ~= pydio.grpc.config or {{ .Name }} ~= pydio.grpc.broker"
-  
-    services:
-      discovery: 
-
+          - filter: "{{ .Name }} ~= pydio.grpc..*"
+          - filter: "{{ .Name }} !~= pydio.grpc.data."
+          - filter: "{{ .Name }} !~= pydio.grpc.acl"
 
     env: *env
 
-  acl:
-    storages:
-      sql:
-        uri: "sqlite://:memory:"
+    storages: *storages
 
+    services: *services
+
+    queues: *queues
+
+    caches: *caches
+
+  acl: &acl
+    runtime: main
     connections:
-      grpcconn:
-        uri: xds://default.cells.com/cells
-        services:
-          - filter: "{{ .Name }} ~= pydio.grpc..*"
+      <<: *connections
       config:
         uri: xds://default.cells.com/cells
       registry:
         uri: xds://default.cells.com/cells
+      broker:
+        uri: xds://default.cells.com/cells
 
     listeners:
       grpc:
+        type: tcp
+        bind: 0.0.0.0
+        port: 8030
+      http:
         type: tcp
         bind: 0.0.0.0
         port: 0
@@ -108,11 +324,13 @@ processes:
         services:
           - filter: "{{ .Name }} ~= pydio.grpc.acl"
 
-    services:
-      pydio.grpc.acl:
-        storages:
-          main:
-            - type: sql
-              prefix: idm_
-
     env: *env
+
+    storages: *storages
+
+    services: *services
+
+    queues: *queues
+
+    caches: *caches
+

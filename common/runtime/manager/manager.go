@@ -45,7 +45,6 @@ import (
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/broker"
 	"github.com/pydio/cells/v4/common/config"
-	"github.com/pydio/cells/v4/common/config/migrations"
 	"github.com/pydio/cells/v4/common/config/revisions"
 	"github.com/pydio/cells/v4/common/crypto"
 	"github.com/pydio/cells/v4/common/middleware"
@@ -57,7 +56,6 @@ import (
 	"github.com/pydio/cells/v4/common/server"
 	"github.com/pydio/cells/v4/common/service"
 	"github.com/pydio/cells/v4/common/storage"
-	"github.com/pydio/cells/v4/common/telemetry"
 	"github.com/pydio/cells/v4/common/telemetry/log"
 	"github.com/pydio/cells/v4/common/utils/cache"
 	"github.com/pydio/cells/v4/common/utils/configx"
@@ -156,6 +154,16 @@ func NewManager(ctx context.Context, namespace string, logger log.ZapLogger) (Ma
 	ctx = propagator.With(ctx, ContextKey, m)
 	runtime.Init(ctx, "system")
 
+	// Load bootstrap and compute base depending on process
+	bootstrap, err := NewBootstrap(m.ctx, runtime.GetString(runtime.KeyBootstrapTpl))
+	if err != nil {
+		return nil, err
+	}
+	base := runtime.GetString(runtime.KeyBootstrapRoot)
+	if name := runtime.Name(); name != "" && name != "default" {
+		base += strings.Join(strings.Split("_"+name, "_"), "/processes/")
+	}
+
 	if reg, err := m.initInternalRegistry(); err != nil {
 		return nil, err
 	} else {
@@ -163,18 +171,25 @@ func NewManager(ctx context.Context, namespace string, logger log.ZapLogger) (Ma
 		ctx = propagator.With(ctx, registry.ContextKey, reg)
 	}
 
-	// Load bootstrap and compute base depending on process
-	bootstrap, err := loadBootstrap(ctx)
-	if err != nil {
+	if store, err := m.initKeyring(ctx); err != nil {
 		return nil, err
+	} else {
+		ctx = propagator.With(ctx, crypto.KeyringContextKey, store)
 	}
 
-	base := runtime.GetString("bootstrap_root")
-	if name := runtime.Name(); name != "" && name != "default" {
-		base += strings.Join(strings.Split("_"+name, "_"), "/processes/")
+	if store, vault, revisions, err := m.initConfig(ctx); err != nil {
+		return nil, err
+	} else {
+		ctx = propagator.With(ctx, config.ContextKey, store)
+		ctx = propagator.With(ctx, config.VaultKey, vault)
+		ctx = propagator.With(ctx, config.RevisionsKey, revisions)
+
+		if err := bootstrap.reload(store); err != nil {
+			return nil, err
+		}
 	}
 
-	// Initialise processes
+	// TODO : this would imply using eg.Wait() somewhere, is normal ?
 	var eg errgroup.Group
 	eg.Go(func() error {
 		return m.initProcesses(ctx, bootstrap, base)
@@ -210,9 +225,6 @@ func NewManager(ctx context.Context, namespace string, logger log.ZapLogger) (Ma
 		return nil, err
 	}
 
-	runtime.Init(ctx, "discovery")
-	runtime.Init(ctx, m.ns)
-
 	if reg, err := m.initSOTWRegistry(ctx); err != nil {
 		return nil, err
 	} else {
@@ -220,23 +232,8 @@ func NewManager(ctx context.Context, namespace string, logger log.ZapLogger) (Ma
 		ctx = propagator.With(ctx, registry.ContextSOTWKey, reg)
 	}
 
-	if store, err := m.initKeyring(ctx); err != nil {
-		return nil, err
-	} else {
-		ctx = propagator.With(ctx, crypto.KeyringContextKey, store)
-	}
-
-	if store, vault, revisions, err := m.initConfig(ctx); err != nil {
-		return nil, err
-	} else {
-		ctx = propagator.With(ctx, config.ContextKey, store)
-		ctx = propagator.With(ctx, config.VaultKey, vault)
-		ctx = propagator.With(ctx, config.RevisionsKey, revisions)
-
-		if err := bootstrap.reload(store); err != nil {
-			return nil, err
-		}
-	}
+	runtime.Init(ctx, "discovery")
+	runtime.Init(ctx, m.ns)
 
 	m.ctx = ctx
 
@@ -343,7 +340,7 @@ func (m *manager) initKeyring(ctx context.Context) (config.Store, error) {
 	// Keyring store
 	keyringStore, err := config.OpenStore(ctx, runtime.KeyringURL())
 	if err != nil {
-		fmt.Errorf("could not init keyring store %v", err)
+		return nil, fmt.Errorf("could not init keyring store %v", err)
 	}
 
 	// Keyring start and creation of the master password
@@ -353,7 +350,7 @@ func (m *manager) initKeyring(ctx context.Context) (config.Store, error) {
 
 	password, err := kr.Get(common.ServiceGrpcNamespace_+common.ServiceUserKey, common.KeyringMasterKey)
 	if err != nil {
-		fmt.Errorf("could not get master password %v", err)
+		return nil, fmt.Errorf("could not get master password %v", err)
 	}
 
 	runtime.SetVaultMasterKey(password)
@@ -375,9 +372,7 @@ func (m *manager) initConfig(ctx context.Context) (config.Store, config.Store, r
 		//if debounceVersions {
 		//	rOpt = append(rOpt, config.WithDebounce(2*time.Second))
 		//}
-		var versionsStore revisions.Store
 		mainStore, versionsStore = revProvider.AsRevisionsStore(rOpt...)
-		ctx = propagator.With(ctx, config.RevisionsKey, versionsStore)
 	}
 
 	// Wrap config with vaultConfig if set
@@ -385,46 +380,47 @@ func (m *manager) initConfig(ctx context.Context) (config.Store, config.Store, r
 	if err != nil {
 		return nil, nil, nil, err
 	}
-	ctx = propagator.With(ctx, config.VaultKey, vaultStore)
+
 	mainStore = config.NewVault(vaultStore, mainStore)
 
 	// Additional Proxy
 	mainStore = config.Proxy(mainStore)
-	ctx = context.WithValue(ctx, config.ContextKey, mainStore)
 
-	if !runtime.IsFork() {
-		if config.Get(ctx, "version").String() == "" && config.Get(ctx, "defaults/database").String() == "" {
-			var data interface{}
-			if err := json.Unmarshal([]byte(config.SampleConfig), &data); err == nil {
-				if err := config.Get(ctx).Set(data); err == nil {
-					_ = config.Save(ctx, common.PydioSystemUsername, "Initialize with sample config")
-				}
-			}
-		}
+	// TODO - should be a migration
+	//if !runtime.IsFork() {
+	//	if config.Get(ctx, "version").String() == "" && config.Get(ctx, "defaults/database").String() == "" {
+	//		var data interface{}
+	//		if err := json.Unmarshal([]byte(config.SampleConfig), &data); err == nil {
+	//			if err := config.Get(ctx).Set(data); err == nil {
+	//				_ = config.Save(ctx, common.PydioSystemUsername, "Initialize with sample config")
+	//			}
+	//		}
+	//	}
+	//
+	//	// Need to do something for the versions
+	//	if save, err := migrations.UpgradeConfigsIfRequired(config.Get(ctx), common.Version()); err == nil && save {
+	//		if err := config.Save(ctx, common.PydioSystemUsername, "Configs upgrades applied"); err != nil {
+	//			return nil, nil, nil, fmt.Errorf("could not save config migrations %v", err)
+	//		}
+	//	}
+	//}
 
-		// Need to do something for the versions
-		if save, err := migrations.UpgradeConfigsIfRequired(config.Get(ctx), common.Version()); err == nil && save {
-			if err := config.Save(ctx, common.PydioSystemUsername, "Configs upgrades applied"); err != nil {
-				return nil, nil, nil, fmt.Errorf("could not save config migrations %v", err)
-			}
-		}
-	}
-
-	cfgPath := []string{"services", common.ServiceGrpcNamespace_ + common.ServiceLog}
-	config.GetAndWatch(ctx, cfgPath, func(values configx.Values) {
-		conf := telemetry.Config{
-			Loggers: []log.LoggerConfig{{
-				Encoding: "console",
-				Level:    "debug",
-				Outputs:  []string{"stdout:///"},
-			}},
-		}
-		if values.Scan(&conf) == nil {
-			if e := conf.Reload(ctx); e != nil {
-				fmt.Println("Error reloading", e)
-			}
-		}
-	})
+	// TODO - same should probably be in a migration
+	//cfgPath := []string{"services", common.ServiceGrpcNamespace_ + common.ServiceLog}
+	//config.GetAndWatch(ctx, cfgPath, func(values configx.Values) {
+	//	conf := telemetry.Config{
+	//		Loggers: []log.LoggerConfig{{
+	//			Encoding: "console",
+	//			Level:    "debug",
+	//			Outputs:  []string{"stdout:///"},
+	//		}},
+	//	}
+	//	if values.Scan(&conf) == nil {
+	//		if e := conf.Reload(ctx); e != nil {
+	//			fmt.Println("Error reloading", e)
+	//		}
+	//	}
+	//})
 
 	return mainStore, vaultStore, versionsStore, nil
 }
@@ -591,7 +587,7 @@ func (m *manager) initProcesses(ctx context.Context, bootstrap *Bootstrap, base 
 				}
 
 				childArgs = append(childArgs, "start", "--name", name)
-				if sets := runtime.GetString(runtime.KeySetsFile); sets != "" {
+				if sets := runtime.GetString(runtime.KeyBootstrapSetsFile); sets != "" {
 					childArgs = append(childArgs, "--sets", sets)
 				}
 
@@ -874,7 +870,7 @@ func (m *manager) initStorages(ctx context.Context, store *Bootstrap, base strin
 			continue
 		}
 
-		fmt.Println("initStorages - opened storage with uri " + uri)
+		//fmt.Println("initStorages - opened storage with uri " + uri)
 
 		if conn != nil {
 			registry.NewMetaWrapper(m.internalRegistry, func(meta map[string]string) {
@@ -935,7 +931,7 @@ func (m *manager) initQueues(ctx context.Context, store *Bootstrap, base string)
 		if er != nil {
 			fmt.Println("initQueues - cannot register queue pool with URI"+uri, er)
 		} else {
-			fmt.Println("initQueues - Registered " + regKey + " with pool from uri " + uri)
+			//fmt.Println("initQueues - Registered " + regKey + " with pool from uri " + uri)
 		}
 	}
 	return nil
@@ -958,7 +954,7 @@ func (m *manager) initCaches(ctx context.Context, store *Bootstrap, base string)
 		if er != nil {
 			fmt.Println("initCaches - cannot register pool with URI"+uri, er)
 		} else {
-			fmt.Println("initCaches - Registered " + regKey + " with pool from uri " + uri)
+			//fmt.Println("initCaches - Registered " + regKey + " with pool from uri " + uri)
 		}
 	}
 	return nil

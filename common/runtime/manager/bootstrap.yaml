@@ -22,8 +22,8 @@ env: *env
 # --
 # Autre yaml
 # --
-name: {{ .Tenant }}
-processes:
+# name: {{ .Tenant }}
+#processes:
   #  {{ $indexesVal := .Config.Val "services/pydio.grpc.data.index/sources" }}
   #  {{ $ := .Config }}
   #  {{ range $indexesVal.StringArray }}

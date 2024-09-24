@@ -24,6 +24,7 @@ import (
 	"context"
 	"fmt"
 	"net/http"
+	"runtime/debug"
 	"strings"
 
 	"google.golang.org/grpc/metadata"
@@ -105,6 +106,7 @@ func init() {
 		} else {
 			if !runtime.IsCoreContext(ctx) {
 				fmt.Println("TemplateInjector - tenant not found in context, not core, using " + defaultTenantID)
+				debug.PrintStack()
 			}
 		}
 		return nil

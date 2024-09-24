@@ -22,7 +22,6 @@ package virtual
 
 import (
 	"context"
-	"io"
 	"strings"
 
 	"go.uber.org/zap"
@@ -94,8 +93,8 @@ func (v *BrowserHandler) ListNodes(ctx context.Context, in *tree.ListNodesReques
 		for {
 			resp, err := stream.Recv()
 			if err != nil {
-				if !errors.Is(err, io.EOF) && !errors.Is(err, io.ErrUnexpectedEOF) {
-					s.SendError(err)
+				if !errors.IsStreamFinished(err) {
+					_ = s.SendError(err)
 				}
 				break
 			}
