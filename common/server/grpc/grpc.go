@@ -143,7 +143,7 @@ func (s *Server) lazyGrpc(rootContext context.Context) *grpc.Server {
 		func(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (interface{}, error) {
 
 			serviceName := runtime.GetServiceName(ctx)
-			if serviceName != "" {
+			if serviceName != "" && serviceName != "default" {
 				var ep registry.Endpoint
 
 				if propagator.Get(ctx, EndpointKey, &ep) {

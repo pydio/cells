@@ -48,7 +48,7 @@ import (
 
 func init() {
 
-	runtime.Register("main", func(ctx context.Context) {
+	runtime.Register("datasource", func(ctx context.Context) {
 
 		sources := config.SourceNamesForDataServices(ctx, common.ServiceDataSync)
 		dss := config.ListSourcesFromConfig(ctx)

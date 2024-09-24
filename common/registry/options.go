@@ -250,6 +250,7 @@ func (o *Options) filterItems(items ...Item) []Item {
 }
 
 type RegisterOptions struct {
+	Context        context.Context
 	Edges          []registerEdge
 	Watch          interface{}
 	FailFast       bool
@@ -262,6 +263,12 @@ type registerEdge struct {
 	Id    string
 	Label string
 	Meta  map[string]string
+}
+
+func WithContextR(ctx context.Context) RegisterOption {
+	return func(o *RegisterOptions) {
+		o.Context = ctx
+	}
 }
 
 func WithEdgeTo(id, label string, meta map[string]string) RegisterOption {

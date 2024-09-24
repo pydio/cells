@@ -33,7 +33,6 @@ import (
 	"github.com/pydio/cells/v4/common/broker"
 	"github.com/pydio/cells/v4/common/runtime"
 	"github.com/pydio/cells/v4/common/runtime/manager"
-	"github.com/pydio/cells/v4/common/server"
 	"github.com/pydio/cells/v4/common/telemetry/log"
 	"github.com/pydio/cells/v4/common/utils/filex"
 
@@ -168,13 +167,6 @@ ENVIRONMENT
 		var span trace.Span
 		ctx, span = otel.GetTracerProvider().Tracer("cells-command").Start(ctx, "start", trace.WithSpanKind(trace.SpanKindInternal))
 
-		/* Init registry
-		reg, err := registry.OpenRegistry(ctx, runtime.RegistryURL())
-		if err != nil {
-			span.End()
-			return err
-		}
-		ctx = propagator.With(ctx, registry.ContextKey, reg)*/
 		ctx = runtime.AsCoreContext(ctx)
 
 		broker.Register(broker.NewBroker(runtime.BrokerURL(), broker.WithContext(ctx)))
@@ -187,14 +179,7 @@ ENVIRONMENT
 
 		span.End()
 
-		m.SetServeOptions(
-			server.WithGrpcBindAddress(runtime.GrpcBindAddress()),
-			server.WithHttpBindAddress(runtime.HttpBindAddress()),
-		)
-		m.ServeAll(
-			server.WithGrpcBindAddress(runtime.GrpcBindAddress()),
-			server.WithHttpBindAddress(runtime.HttpBindAddress()),
-		)
+		m.ServeAll()
 
 		runtime.InitGlobalConnConsumers(m.Context(), "main")
 
@@ -207,6 +192,8 @@ ENVIRONMENT
 func init() {
 	// Flags for selecting / filtering services
 	StartCmd.Flags().String("file", "", "Name for the file")
+	StartCmd.Flags().String("bootstrap_template", "", "Template to use to generate bootstrap YAML")
+	StartCmd.Flags().String("bootstrap_root", "#", "Lookup path inside bootstrap for this process")
 
 	StartCmd.Flags().String(runtime.KeyName, "default", "Name for the node")
 	StartCmd.Flags().StringArrayP(runtime.KeyArgTags, "t", []string{}, "Select services to start by tags, possible values are 'broker', 'data', 'datasource', 'discovery', 'frontend', 'gateway', 'idm', 'scheduler'")

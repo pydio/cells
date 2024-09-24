@@ -1,0 +1,118 @@
+env: &env
+  CELLS_LOG: debug
+  CELLS_FILE: bootstrap-cells.yaml
+  CELLS_USE_REGISTRY_SESSION: true
+  GRPC_EXPERIMENTAL_XDS_FEDERATION: true
+  GRPC_XDS_BOOTSTRAP_CONFIG: {
+          "xds_servers": [
+        {
+          "server_uri": "0.0.0.0:8030",
+          "server_features": [
+            "xds_v3"
+          ],
+          "channel_creds": [
+            {
+              "type": "insecure"
+            }
+          ]
+        }
+      ],
+      "client_default_listener_resource_name_template": "xdstp://default.cells.com/envoy.config.listener.v3.Listener/grpc/client/%s",
+      "server_listener_resource_name_template": "xdstp://default.cells.com/envoy.config.listener.v3.Listener/grpc/server/%s",
+      "node": {
+        "id": "test-id",
+        "locality": {
+          "zone": "us-central1-a"
+        }
+      },
+      "authorities": {
+        "default.cells.com": {
+          "client_listener_resource_name_template": "xdstp://default.cells.com/envoy.config.listener.v3.Listener/grpc/client/%s"
+        },
+        "sub1.cells.com": {
+          "client_listener_resource_name_template": "xdstp://sub1.cells.com/envoy.config.listener.v3.Listener/grpc/client/%s",
+          "server_listener_resource_name_template": "xdstp://sub1.cells.com/envoy.config.listener.v3.Listener/grpc/server/%s",
+          "xds_servers": [
+            {
+              "server_uri": "127.0.0.1:8130",
+              "server_features": [
+                "xds_v3"
+              ],
+              "channel_creds": [
+                {
+                  "type": "insecure"
+                }
+              ]
+            }
+          ]
+        }
+      }
+    }
+  
+
+processes:
+  discovery:
+    connections:
+      config:
+        uri: mem://?cache=config
+      registry:
+        uri: mem://?cache=shared
+      broker:
+        uri: mem://
+
+    listeners:
+      grpc:
+        type: tcp
+        bind: 0.0.0.0
+        port: 8030
+
+    servers:
+      grpc:
+        type: grpc
+        listener: grpc
+        services:
+          # - filter: "{{ .Name }} ~= pydio.grpc.registry"
+          - filter: "{{ .Name }} ~= pydio.grpc.registry or {{ .Name }} ~= pydio.grpc.config or {{ .Name }} ~= pydio.grpc.broker"
+  
+    services:
+      discovery: 
+
+
+    env: *env
+
+  acl:
+    storages:
+      sql:
+        uri: "sqlite://:memory:"
+
+    connections:
+      grpcconn:
+        uri: xds://default.cells.com/cells
+        services:
+          - filter: "{{ .Name }} ~= pydio.grpc..*"
+      config:
+        uri: xds://default.cells.com/cells
+      registry:
+        uri: xds://default.cells.com/cells
+
+    listeners:
+      grpc:
+        type: tcp
+        bind: 0.0.0.0
+        port: 0
+
+    servers:
+      grpc:
+        type: grpc
+        listener: grpc
+        services:
+          - filter: "{{ .Name }} ~= pydio.grpc.acl"
+
+    services:
+      pydio.grpc.acl:
+        storages:
+          main:
+            - type: sql
+              prefix: idm_
+
+    env: *env

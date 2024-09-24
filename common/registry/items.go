@@ -107,27 +107,32 @@ type Generic interface {
 }
 
 type RichItem[T any] struct {
-	id   string
-	name string
-	meta map[string]string
+	UUID     string
+	RichName string
+	Meta     map[string]string
+	Typ      registry.ItemType
 
 	item T
 }
 
 func (r *RichItem[T]) ID() string {
-	return r.id
+	return r.UUID
 }
 
 func (r *RichItem[T]) Name() string {
-	return r.name
+	return r.RichName
 }
 
 func (r *RichItem[T]) Metadata() map[string]string {
-	return r.meta
+	return r.Meta
+}
+
+func (r *RichItem[T]) Type() registry.ItemType {
+	return r.Typ
 }
 
 func (r *RichItem[T]) SetMetadata(meta map[string]string) {
-	r.meta = meta
+	r.Meta = meta
 }
 
 func (r *RichItem[T]) As(t any) bool {
@@ -142,10 +147,11 @@ func (r *RichItem[T]) As(t any) bool {
 	return false
 }
 
-func NewRichItem[T any](id string, name string, base T) Item {
+func NewRichItem[T any](id string, name string, typ registry.ItemType, base T) Item {
 	return &RichItem[T]{
-		item: base,
-		id:   id,
-		name: name,
+		item:     base,
+		UUID:     id,
+		RichName: name,
+		Typ:      typ,
 	}
 }

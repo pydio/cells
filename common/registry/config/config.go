@@ -24,11 +24,12 @@ import (
 	"context"
 	"crypto/tls"
 	"fmt"
-	"go.uber.org/zap"
 	"net/url"
 	"os"
 	"strings"
 	"sync"
+
+	"go.uber.org/zap"
 
 	"github.com/pydio/cells/v4/common/config"
 	"github.com/pydio/cells/v4/common/config/memory"
@@ -292,6 +293,9 @@ func (c *configRegistry) Stop(item registry.Item) error {
 
 func getType(item registry.Item) string {
 	var d registry.Dao
+	if item == nil {
+		return "generic"
+	}
 	if item.As(&d) {
 		return "dao"
 	}
@@ -425,7 +429,8 @@ func (c *configRegistry) List(opts ...registry.Option) ([]registry.Item, error) 
 	}
 
 	if len(o.Types) == 0 {
-		return nil, fmt.Errorf("shoudn't call without a type")
+		o.Types = []pb.ItemType{pb.ItemType_NODE, pb.ItemType_SERVICE, pb.ItemType_SERVER, pb.ItemType_DAO, pb.ItemType_EDGE, pb.ItemType_GENERIC, pb.ItemType_ADDRESS, pb.ItemType_ENDPOINT, pb.ItemType_TAG}
+		// return nil, fmt.Errorf("shoudn't call without a type")
 	}
 
 	var res []registry.Item

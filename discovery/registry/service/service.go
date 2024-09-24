@@ -8,7 +8,6 @@ import (
 	"strconv"
 	"sync"
 	"sync/atomic"
-	"time"
 
 	cluster "github.com/envoyproxy/go-control-plane/envoy/config/cluster/v3"
 	core "github.com/envoyproxy/go-control-plane/envoy/config/core/v3"
@@ -25,7 +24,6 @@ import (
 	runtimeservice "github.com/envoyproxy/go-control-plane/envoy/service/runtime/v3"
 	secretservice "github.com/envoyproxy/go-control-plane/envoy/service/secret/v3"
 	clientservice "github.com/envoyproxy/go-control-plane/envoy/service/status/v3"
-	matcherv3 "github.com/envoyproxy/go-control-plane/envoy/type/matcher/v3"
 	"github.com/envoyproxy/go-control-plane/pkg/cache/types"
 	cachev3 "github.com/envoyproxy/go-control-plane/pkg/cache/v3"
 	resource "github.com/envoyproxy/go-control-plane/pkg/resource/v3"
@@ -34,7 +32,6 @@ import (
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/xds/csds"
 	"google.golang.org/protobuf/types/known/anypb"
-	"google.golang.org/protobuf/types/known/durationpb"
 	"google.golang.org/protobuf/types/known/wrapperspb"
 
 	"github.com/pydio/cells/v4/common"
@@ -68,7 +65,8 @@ func init() {
 			service.Description("Grpc implementation of the registry"),
 			service.WithGRPC(func(ctx context.Context, srv grpc.ServiceRegistrar) error {
 				var reg registry.Registry
-				propagator.Get(ctx, registry.ContextKey, &reg)
+				propagator.Get(ctx, registry.ContextSOTWKey, &reg)
+
 				handler := registry2.NewHandler(reg)
 				pbregistry.RegisterRegistryServer(srv, handler)
 
@@ -80,11 +78,11 @@ func init() {
 				if !discoveryConvertible.As(&discoveryServer) {
 					return nil
 				}
-				var locker sync.Locker
-				if discoveryConvertible.As(&locker) {
-					locker.Lock()
-					defer locker.Unlock()
-				}
+				//var locker sync.Locker
+				//if discoveryConvertible.As(&locker) {
+				//	locker.Lock()
+				//	defer locker.Unlock()
+				//}
 
 				listenerName := fmt.Sprintf(listenerNameTemplate, runtime.Cluster())
 				routeConfigName := fmt.Sprintf(routeConfigNameTemplate, runtime.Cluster())
@@ -105,14 +103,14 @@ func init() {
 					return err
 				}
 
-				discoveryservice.RegisterAggregatedDiscoveryServiceServer(discoveryServer, discoveryHandler)
-				endpointservice.RegisterEndpointDiscoveryServiceServer(discoveryServer, discoveryHandler)
-				clusterservice.RegisterClusterDiscoveryServiceServer(discoveryServer, discoveryHandler)
-				routeservice.RegisterRouteDiscoveryServiceServer(discoveryServer, discoveryHandler)
-				listenerservice.RegisterListenerDiscoveryServiceServer(discoveryServer, discoveryHandler)
-				secretservice.RegisterSecretDiscoveryServiceServer(discoveryServer, discoveryHandler)
-				runtimeservice.RegisterRuntimeDiscoveryServiceServer(discoveryServer, discoveryHandler)
-				clientservice.RegisterClientStatusDiscoveryServiceServer(discoveryServer, csdsHandler)
+				discoveryservice.RegisterAggregatedDiscoveryServiceServer(srv, discoveryHandler)
+				endpointservice.RegisterEndpointDiscoveryServiceServer(srv, discoveryHandler)
+				clusterservice.RegisterClusterDiscoveryServiceServer(srv, discoveryHandler)
+				routeservice.RegisterRouteDiscoveryServiceServer(srv, discoveryHandler)
+				listenerservice.RegisterListenerDiscoveryServiceServer(srv, discoveryHandler)
+				secretservice.RegisterSecretDiscoveryServiceServer(srv, discoveryHandler)
+				runtimeservice.RegisterRuntimeDiscoveryServiceServer(srv, discoveryHandler)
+				clientservice.RegisterClientStatusDiscoveryServiceServer(srv, csdsHandler)
 
 				// TODO - make sure that this is ok
 				cb, err := client.NewResolverCallback(reg)
@@ -120,7 +118,7 @@ func init() {
 					return err
 				}
 
-				var version int32 = 0
+				var version int32 = 3
 
 				nodeId := "test-id"
 
@@ -146,18 +144,21 @@ func init() {
 							registry.WithAdjacentSourceItems([]registry.Item{srvItem}),
 							registry.WithAdjacentTargetOptions(registry.WithType(pbregistry.ItemType_ENDPOINT)),
 						)
+
 						addrItems := reg.ListAdjacentItems(
 							registry.WithAdjacentSourceItems([]registry.Item{srvItem}),
+							registry.WithAdjacentEdgeOptions(registry.WithName("listener")),
 							registry.WithAdjacentTargetOptions(registry.WithType(pbregistry.ItemType_ADDRESS)),
 						)
-						if len(endpointItems) == 0 {
+
+						if len(endpointItems) == 0 || len(addrItems) == 0 {
 							continue
 						}
 
 						var endpoints []*endpoint.LbEndpoint
 
 						for _, addrItem := range addrItems {
-							host, portStr, err := net.SplitHostPort(addrItem.Name())
+							host, portStr, err := net.SplitHostPort(addrItem.Metadata()[registry.MetaDescriptionKey])
 							if err != nil {
 								continue
 							}
@@ -165,6 +166,7 @@ func init() {
 							if err != nil {
 								continue
 							}
+							host = "127.0.0.1"
 							hst := &core.Address{Address: &core.Address_SocketAddress{
 								SocketAddress: &core.SocketAddress{
 									Address:  host,
@@ -217,6 +219,7 @@ func init() {
 							registry.WithAdjacentSourceItems([]registry.Item{srvItem}),
 							registry.WithAdjacentTargetOptions(registry.WithType(pbregistry.ItemType_ENDPOINT)),
 						)
+
 						if len(endpointItems) == 0 {
 							continue
 						}
@@ -278,48 +281,48 @@ func init() {
 									},
 								})
 							} else {
-								for _, svcItem := range svcItems {
-									routes = append(routes, &route.Route{
-										Name: endpointItem.ID(),
-										Match: &route.RouteMatch{
-											PathSpecifier: &route.RouteMatch_Path{
-												Path: endpointItem.Name(),
-											},
-											Headers: []*route.HeaderMatcher{{
-												Name: common.CtxTargetServiceName,
-												HeaderMatchSpecifier: &route.HeaderMatcher_StringMatch{
-													StringMatch: &matcherv3.StringMatcher{MatchPattern: &matcherv3.StringMatcher_Exact{Exact: svcItem.Name()}},
-												},
-											}},
+								//for _, svcItem := range svcItems {
+								routes = append(routes, &route.Route{
+									Name: endpointItem.ID(),
+									Match: &route.RouteMatch{
+										PathSpecifier: &route.RouteMatch_Path{
+											Path: endpointItem.Name(),
 										},
-										Action: &route.Route_Route{
-											Route: &route.RouteAction{
-												ClusterSpecifier: &route.RouteAction_Cluster{
-													Cluster: srvItem.ID(),
-												},
+										//Headers: []*route.HeaderMatcher{{
+										//	Name: common.CtxTargetServiceName,
+										//	HeaderMatchSpecifier: &route.HeaderMatcher_StringMatch{
+										//		StringMatch: &matcherv3.StringMatcher{MatchPattern: &matcherv3.StringMatcher_Exact{Exact: svcItem.Name()}},
+										//	},
+										//}},
+									},
+									Action: &route.Route_Route{
+										Route: &route.RouteAction{
+											ClusterSpecifier: &route.RouteAction_Cluster{
+												Cluster: srvItem.ID(),
 											},
 										},
-									})
-								}
+									},
+								})
+								//}
 							}
 						}
 					}
 
 					routeConfig := &route.RouteConfiguration{
 						Name:             routeConfigName,
-						ValidateClusters: &wrapperspb.BoolValue{Value: true},
+						ValidateClusters: &wrapperspb.BoolValue{Value: false},
 						VirtualHosts: []*route.VirtualHost{{
 							Name:    virtualHostName,
 							Domains: domains,
 							Routes:  routes,
-							RetryPolicy: &route.RetryPolicy{
-								RetryOn:    "unavailable",
-								NumRetries: wrapperspb.UInt32(20),
-								RetryBackOff: &route.RetryPolicy_RetryBackOff{
-									BaseInterval: durationpb.New(1 * time.Second),
-									MaxInterval:  durationpb.New(2 * time.Second),
-								},
-							},
+							//RetryPolicy: &route.RetryPolicy{
+							//	RetryOn:    "unavailable",
+							//	NumRetries: wrapperspb.UInt32(20),
+							//	RetryBackOff: &route.RetryPolicy_RetryBackOff{
+							//		BaseInterval: durationpb.New(1 * time.Second),
+							//		MaxInterval:  durationpb.New(2 * time.Second),
+							//	},
+							//},
 						}},
 					}
 
@@ -434,14 +437,14 @@ func (cb *callbacks) OnStreamRequest(id int64, r *discoveryservice.DiscoveryRequ
 }
 
 func (cb *callbacks) OnStreamResponse(ctx context.Context, id int64, req *discoveryservice.DiscoveryRequest, resp *discoveryservice.DiscoveryResponse) {
-	//fmt.Printf("OnStreamResponse... %d   Request [%v],  Response[%v]\n", id, req.TypeUrl, resp.TypeUrl)
+	// fmt.Printf("OnStreamResponse... %d   Request [%v],  Response[%v]\n", id, req.TypeUrl, resp.TypeUrl)
 
 	// fmt.Println(resp.Resources)
 	cb.Report()
 }
 
 func (cb *callbacks) OnFetchRequest(ctx context.Context, req *discoveryservice.DiscoveryRequest) error {
-	//fmt.Printf("OnFetchRequest... Request [%v]\n", req.TypeUrl)
+	// fmt.Printf("OnFetchRequest... Request [%v]\n", req.TypeUrl)
 	cb.mu.Lock()
 	defer cb.mu.Unlock()
 	cb.fetches++

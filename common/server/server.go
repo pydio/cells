@@ -147,28 +147,28 @@ func (s *server) Serve(oo ...ServeOption) (outErr error) {
 		return er
 	}
 
-	ii, err := s.S.RawServe(opt)
+	_, err := s.S.RawServe(opt)
 	if err != nil {
 		fmt.Println("Cannot RawServe", err)
 		return err
 	}
 
-	// Making sure we register the endpoints
-	var reg registry.Registry
-	if propagator.Get(s.Opts.Context, registry.ContextKey, &reg) {
-		for _, item := range ii {
-			if err := reg.Register(item, registry.WithEdgeTo(s.ID(), "instance", nil)); err != nil {
-				return err
-			}
-
-			s.links = append(s.links, item)
-		}
-
-		// Update for status
-		if err := reg.Register(s); err != nil {
-			return err
-		}
-	}
+	//// Making sure we register the endpoints
+	//var reg registry.Registry
+	//if propagator.Get(s.Opts.Context, registry.ContextKey, &reg) {
+	//	for _, item := range ii {
+	//		if err := reg.Register(item, registry.WithEdgeTo(s.ID(), "instance", nil)); err != nil {
+	//			return err
+	//		}
+	//
+	//		s.links = append(s.links, item)
+	//	}
+	//
+	//	// Update for status
+	//	if err := reg.Register(s); err != nil {
+	//		return err
+	//	}
+	//}
 
 	// Apply AfterServe non-blocking
 	for _, h := range opt.AfterServe {

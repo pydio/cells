@@ -27,9 +27,7 @@ import (
 
 	grpc_recovery "github.com/grpc-ecosystem/go-grpc-middleware/recovery"
 	"google.golang.org/grpc"
-	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/metadata"
-	"google.golang.org/grpc/status"
 
 	"github.com/pydio/cells/v4/common"
 	pb "github.com/pydio/cells/v4/common/proto/registry"
@@ -47,9 +45,9 @@ var (
 	httpIncomingModifiers []HttpContextModifier
 
 	recoverOptions = []grpc_recovery.Option{
-		grpc_recovery.WithRecoveryHandler(func(p interface{}) (err error) {
-			return status.Errorf(codes.Internal, "panic triggered: %v", p)
-		}),
+		//grpc_recovery.WithRecoveryHandler(func(p interface{}) (err error) {
+		//	return status.Errorf(codes.Internal, "panic triggered: %v", p)
+		//}),
 	}
 )
 
@@ -96,7 +94,7 @@ func GrpcStreamClientInterceptors() []grpc.StreamClientInterceptor {
 // GrpcUnaryServerInterceptors returns a list of grpc.UnaryServerInterceptor
 func GrpcUnaryServerInterceptors(rootContext context.Context) []grpc.UnaryServerInterceptor {
 	uu := []grpc.UnaryServerInterceptor{
-		grpc_recovery.UnaryServerInterceptor(recoverOptions...),
+		// grpc_recovery.UnaryServerInterceptor(recoverOptions...),
 		MetricsUnaryServerInterceptor(),
 		propagator.ContextUnaryServerInterceptor(CellsMetadataIncomingContext),
 		propagator.ContextUnaryServerInterceptor(TargetNameToServiceNameContext(rootContext)),
@@ -114,7 +112,7 @@ func GrpcUnaryServerInterceptors(rootContext context.Context) []grpc.UnaryServer
 // GrpcStreamServerInterceptors returns a list of grpc.StreamServerInterceptor
 func GrpcStreamServerInterceptors(rootContext context.Context) []grpc.StreamServerInterceptor {
 	uu := []grpc.StreamServerInterceptor{
-		grpc_recovery.StreamServerInterceptor(recoverOptions...),
+		// grpc_recovery.StreamServerInterceptor(recoverOptions...),
 		MetricsStreamServerInterceptor(),
 		propagator.ContextStreamServerInterceptor(CellsMetadataIncomingContext),
 		propagator.ContextStreamServerInterceptor(TargetNameToServiceNameContext(rootContext)),

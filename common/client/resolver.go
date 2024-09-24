@@ -133,52 +133,6 @@ func (r *resolverCallback) updateState() {
 }
 
 func (r *resolverCallback) sendState() {
-	//r.ml.RLock()
-
-	//// fmt.Println("Sending state - Number of items ", len(r.items))
-	//srvs, _ := r.local.List(registry.WithType(pb.ItemType_SERVER))
-	//
-	//items := make(LinkedItem)
-	//
-	//for _, srv := range srvs {
-	//	// TODO - do something with the attributes
-	//	//atts := attributes.New(attKeyTargetServerID{}, srv.ID())
-	//	//if pid, ok := srv.Metadata()[runtime.NodeMetaPID]; ok {
-	//	//	atts = atts.WithValue(attKeyTargetServerPID{}, pid)
-	//	//}
-	//
-	//	items[srv] = make(LinkedItem)
-	//
-	//	adjacents := r.local.ListAdjacentItems(srv,
-	//		registry.WithType(pb.ItemType_ADDRESS),
-	//		registry.WithType(pb.ItemType_ENDPOINT),
-	//		registry.WithType(pb.ItemType_SERVICE),
-	//	)
-	//
-	//	for _, adjacent := range adjacents {
-	//		switch util.DetectType(adjacent) {
-	//		case pb.ItemType_ADDRESS:
-	//			items[srv][adjacent] = nil
-	//		case pb.ItemType_ENDPOINT:
-	//			items[srv][adjacent] = make(LinkedItem)
-	//
-	//			adjacentServices := r.local.ListAdjacentItems(adjacent, registry.WithType(pb.ItemType_SERVICE))
-	//			for _, adjacentService := range adjacentServices {
-	//				items[srv][adjacent][adjacentService] = nil
-	//			}
-	//		case pb.ItemType_SERVICE:
-	//			items[srv][adjacent] = make(LinkedItem)
-	//
-	//			adjacentEndpoints := r.local.ListAdjacentItems(adjacent, registry.WithType(pb.ItemType_ENDPOINT))
-	//			for _, adjacentEndpoint := range adjacentEndpoints {
-	//				items[srv][adjacent][adjacentEndpoint] = nil
-	//			}
-	//		}
-	//	}
-	//}
-
-	//r.ml.RUnlock()
-
 	for _, cb := range r.cbs {
 		cb(r.local)
 	}

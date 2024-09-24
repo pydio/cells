@@ -270,7 +270,7 @@ func initConfig(ctx context.Context, debounceVersions bool) (context.Context, bo
 		conf := telemetry.Config{
 			Loggers: []log.LoggerConfig{{
 				Encoding: "console",
-				Level:    "info",
+				Level:    "debug",
 				Outputs:  []string{"stdout:///"},
 			}},
 		}

@@ -35,13 +35,14 @@ import (
 	"github.com/pydio/cells/v4/common/proto/sync"
 	"github.com/pydio/cells/v4/common/proto/tree"
 	"github.com/pydio/cells/v4/common/runtime"
+	"github.com/pydio/cells/v4/common/runtime/manager"
 	"github.com/pydio/cells/v4/common/service"
 	"github.com/pydio/cells/v4/data/source/index"
 	grpc2 "github.com/pydio/cells/v4/data/source/index/grpc"
 )
 
 func init() {
-	runtime.Register("main", func(ctx context.Context) {
+	runtime.Register("datasource", func(ctx context.Context) {
 		// Retrieve server from the runtime - TODO
 		sources := config.SourceNamesForDataServices(ctx, common.ServiceDataIndex)
 		for _, source := range sources {
@@ -54,8 +55,14 @@ func init() {
 				service.Description("Datasource indexation service"),
 				service.Source(source),
 				service.WithStorageDrivers(index.Drivers...),
+				service.Migrations([]*service.Migration{
+					{
+						TargetVersion: service.FirstRun(),
+						Up:            manager.StorageMigration(),
+					},
+				}),
 				service.WithGRPC(func(ctx context.Context, srv grpc.ServiceRegistrar) error {
-					dsObject, e := config.GetSourceInfoByName(ctx, name)
+					dsObject, e := config.GetSourceInfoByName(ctx, source)
 					if e != nil {
 						return fmt.Errorf("cannot find datasource configuration for " + name)
 					}

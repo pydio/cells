@@ -91,10 +91,10 @@ func Resolve[T any](ctx context.Context, opts ...ResolveOption) (s T, final erro
 	ctx, span = tracing.StartLocalSpan(ctx, "Resolve")
 	defer span.End()
 
-	// First we get the contextualized registry
+	// First we get the contextualized sotwRegistry
 	var reg registry.Registry
 	if !propagator.Get(ctx, registry.ContextKey, &reg) {
-		return t, errors.WithMessage(errors.ResolveError, "cannot find registry &reg in context")
+		return t, errors.WithMessage(errors.ResolveError, "cannot find sotwRegistry &reg in context")
 	}
 
 	// Then we get the service from the context
@@ -230,7 +230,7 @@ func CloseStoragesForContext(ctx context.Context, opts ...ResolveOption) error {
 		opt(&o)
 	}
 
-	// First we get the contextualized registry
+	// First we get the contextualized sotwRegistry
 	var reg registry.Registry
 	propagator.Get(ctx, registry.ContextKey, &reg)
 
@@ -241,12 +241,12 @@ func CloseStoragesForContext(ctx context.Context, opts ...ResolveOption) error {
 	}
 
 	//ss := reg.ListAdjacentItems(
-	//	registry.WithAdjacentSourceItems([]registry.Item{svc}),
-	//	registry.WithAdjacentTargetOptions(registry.WithType(registry2.ItemType_STORAGE)),
-	//	registry.WithAdjacentEdgeOptions(registry.WithMeta("name", o.Name)),
+	//	sotwRegistry.WithAdjacentSourceItems([]sotwRegistry.Item{svc}),
+	//	sotwRegistry.WithAdjacentTargetOptions(sotwRegistry.WithType(registry2.ItemType_STORAGE)),
+	//	sotwRegistry.WithAdjacentEdgeOptions(sotwRegistry.WithMeta("name", o.Name)),
 	//)
 	//
-	//for _, s := range registry.ItemsAs[storage.Storage[any]](ss) {
+	//for _, s := range sotwRegistry.ItemsAs[storage.Storage[any]](ss) {
 	//	if o.CleanBeforeClose {
 	//		if er := s.CloseConns(ctx, true); er != nil {
 	//			return er

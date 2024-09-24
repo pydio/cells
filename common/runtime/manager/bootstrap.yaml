@@ -4,7 +4,18 @@
 # Defaults variable values are injected at load time
 #------------------------------------------
 name: main
-processes: *processes
+processes:
+  <<: *processes
+  datasource-peer:
+    connections: *connections
+    env:
+      <<: *env
+      CELLS_BOOTSTRAP_TEMPLATE: datasources
+    storages: *storages
+    services: *services
+    queues: *queues
+    caches: *caches
+
 connections: *connections
 env: *env
 

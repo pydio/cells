@@ -1,0 +1,51 @@
+#------------------------------------------
+# Actual Bootstrap Keys
+#
+# Defaults variable values are injected at load time
+#------------------------------------------
+name: datasources
+processes:
+  datasource-peer:
+    processes:{{{{range $k,$v := .ObjectsSources}}}}
+      objects-{{{{$k}}}}:
+        connections: *connections
+        listeners:
+          grpc:
+            type: tcp
+            bind: 0.0.0.0
+            port: 0
+        servers:
+          grpc:
+            type: grpc
+            listener: grpc
+            services:
+              - filter: "{{ .Name }} ~= pydio.grpc.data.objects.{{{{$v.Name}}}}"
+        env: *env
+        queues: *queues
+        caches: *caches{{{{end}}}}
+{{{{range $k,$v := .DataSources}}}}
+      index-{{{{$k}}}}:
+        connections: *connections
+        listeners:
+          grpc:
+            type: tcp
+            bind: 0.0.0.0
+            port: 0
+        servers:
+          grpc:
+            type: grpc
+            listener: grpc
+            services:
+              - filter: "{{ .Name }} ~= pydio.grpc.data.index.{{{{$v.Name}}}}"# or {{ .Name }} ~= pydio.grpc.data.sync.{{{{$v.Name}}}}"
+        env: *env
+        storages: *storages
+        services:
+          pydio.grpc.data.index.{{{{$v.Name}}}}:
+            storages:
+              main:
+                - type: sql
+                  prefix: data_index_{{{{$v.Name}}}}_
+        queues: *queues
+        caches: *caches{{{{end}}}}
+connections: *connections
+env: *env
