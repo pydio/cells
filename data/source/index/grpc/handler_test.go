@@ -678,7 +678,7 @@ func retryOnDuplicate(callback func() (*tree.CreateNodeResponse, error), retries
 	if len(retries) > 0 {
 		r = retries[0]
 	}
-	if e != nil && errors.Is(e, errors.StatusConflict) && r < 5 {
+	if e != nil && errors.Is(e, errors.NodeIndexConflict) && r < 5 {
 		<-time.After(150 * time.Millisecond)
 		resp, e = retryOnDuplicate(callback, r+1)
 	}

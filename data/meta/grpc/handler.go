@@ -260,9 +260,12 @@ func (s *MetaServer) saveNode(ctx context.Context, node *tree.Node, silent, relo
 		return nil, er
 	}
 
-	if err := dao.SetMetadata(ctx, node.Uuid, author, s.filterMetaToStore(ctx, node.MetaStore)); err != nil {
-		log.Logger(ctx).Error("failed to update meta node", zap.Any("error", err))
-		return nil, err
+	ss := s.filterMetaToStore(ctx, node.MetaStore)
+	if len(node.MetaStore) == 0 || len(ss) > 0 {
+		if err := dao.SetMetadata(ctx, node.Uuid, author, s.filterMetaToStore(ctx, node.MetaStore)); err != nil {
+			log.Logger(ctx).Error("failed to update meta node", zap.Any("error", err))
+			return nil, err
+		}
 	}
 
 	out := node.Clone()
@@ -372,7 +375,10 @@ func (s *MetaServer) filterMetaToStore(ctx context.Context, metaStore map[string
 
 	filtered := make(map[string]string)
 	for k, v := range metaStore {
-		if k == common.MetaNamespaceDatasourceName || k == common.MetaNamespaceDatasourcePath || strings.HasPrefix(k, "pydio:meta-loaded") {
+		if k == common.MetaNamespaceDatasourceName ||
+			k == common.MetaNamespaceDatasourcePath ||
+			strings.HasPrefix(k, "pydio:meta-loaded") ||
+			k == common.MetaNamespaceNodeName {
 			continue
 		}
 		filtered[k] = v

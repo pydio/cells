@@ -50,6 +50,7 @@ var (
 	}
 	commonWarns = []error{
 		errors.NodeNotFound,
+		errors.NodeIndexConflict,
 	}
 )
 

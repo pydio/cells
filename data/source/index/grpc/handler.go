@@ -24,6 +24,7 @@ import (
 	"context"
 	"fmt"
 	"runtime/debug"
+	"slices"
 	"strings"
 	"time"
 
@@ -105,6 +106,7 @@ func (s *TreeServer) Name() string {
 // setDataSourceMeta adds the datasource name as metadata, and eventually the internal flag
 func (s *TreeServer) setDataSourceMeta(node tree.ITreeNode) {
 	node.GetNode().MustSetMeta(common.MetaNamespaceDatasourceName, s.dsName)
+	node.GetNode().MustSetMeta(common.MetaNamespaceNodeName, node.GetName())
 	if s.dsInternal {
 		node.GetNode().MustSetMeta(common.MetaNamespaceDatasourceInternal, true)
 	}
@@ -210,7 +212,7 @@ func (s *TreeServer) CreateNode(ctx context.Context, req *tree.CreateNodeRequest
 		path, created, err = dao.Path(ctx, lookupNode, refNode, true)
 		if err != nil {
 			if errors.Is(err, gorm.ErrDuplicatedKey) {
-				return nil, errors.Tag(err, errors.StatusConflict)
+				return nil, errors.Tag(err, errors.NodeIndexConflict)
 			}
 			return nil, errors.WithMessagef(errors.StatusInternalServerError, "error while inserting node: %w", err)
 		}
@@ -395,13 +397,10 @@ func (s *TreeServer) ListNodes(req *tree.ListNodesRequest, resp tree.NodeProvide
 		for pnode := range dao.GetNodes(ctx, node.GetMPath().Parents()...) {
 			path = append(path, pnode.GetName())
 			pnode.GetNode().SetPath(safePath(strings.Join(path, "/")))
+			s.setDataSourceMeta(pnode)
 			nodes = append(nodes, pnode)
 		}
-		// Now Reverse Slice
-		last := len(nodes) - 1
-		for i := 0; i < len(nodes)/2; i++ {
-			nodes[i], nodes[last-i] = nodes[last-i], nodes[i]
-		}
+		slices.Reverse(nodes)
 		for _, n := range nodes {
 			if err := resp.Send(&tree.ListNodesResponse{Node: n.GetNode()}); err != nil {
 				return err
@@ -417,9 +416,7 @@ func (s *TreeServer) ListNodes(req *tree.ListNodesRequest, resp tree.NodeProvide
 		reqPath := safePath(reqNode.GetPath())
 		recursiveCounts := tree.StatFlags(req.StatFlags).RecursiveCount()
 
-		node := tree.NewTreeNode(reqPath)
-
-		path, _, err := dao.Path(ctx, node, tree.NewTreeNode(""), false)
+		path, _, err := dao.Path(ctx, tree.NewTreeNode(reqPath), tree.NewTreeNode(""), false)
 		if err != nil {
 			return errors.WithMessagef(errors.StatusInternalServerError, "cannot resolve path %s, cause: %s", reqPath, err.Error())
 		}

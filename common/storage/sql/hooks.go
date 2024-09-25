@@ -22,12 +22,14 @@ package sql
 
 import (
 	"gorm.io/gorm"
+	"sync"
 
 	"github.com/pydio/cells/v4/common/storage"
 )
 
 var (
 	createdTables = map[string]bool{}
+	ctLock        sync.Mutex
 	hooksRegister = map[string]func(*gorm.DB){}
 )
 
@@ -40,16 +42,20 @@ func cleanTablesHook(db *gorm.DB) {
 	_ = db.Callback().Create().After("gorm:after_create").Register("created_tables", func(db *gorm.DB) {
 		st := db.Statement
 		if st.Table != "" {
+			ctLock.Lock()
 			createdTables[st.Table] = true
+			ctLock.Unlock()
 		}
 	})
 	// Register a FinisherHook to drop registered tables
 	storage.TestFinisherHooks = append(storage.TestFinisherHooks, func() error {
+		ctLock.Lock()
 		for t := range createdTables {
 			if er := db.Migrator().DropTable(t); er != nil {
 				return er
 			}
 		}
+		ctLock.Unlock()
 		return nil
 	})
 }

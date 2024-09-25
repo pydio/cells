@@ -96,11 +96,8 @@ func (j *JobsHandler) PutJob(ctx context.Context, request *proto.PutJobRequest) 
 
 	response := &proto.PutJobResponse{}
 	response.Job = job
-	pubCtx := propagator.ForkContext(context.Background(), ctx)
-	if md, ok := propagator.FromContextCopy(ctx); ok {
-		pubCtx = propagator.NewContext(pubCtx, md)
-	}
-	broker.MustPublish(pubCtx, common.TopicJobConfigEvent, &proto.JobChangeEvent{
+
+	broker.MustPublish(propagator.ForkedBackgroundWithMeta(ctx), common.TopicJobConfigEvent, &proto.JobChangeEvent{
 		JobUpdated: job,
 	})
 	return response, nil

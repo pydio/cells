@@ -65,6 +65,7 @@ var (
 	ShareNotFound      = RegisterBaseSentinel(WorkspaceNotFound, "share not found")
 	DatasourceConflict = RegisterBaseSentinel(StatusConflict, "datasource conflict")
 	NodeTypeConflict   = RegisterBaseSentinel(StatusConflict, "file / folder type conflict")
+	NodeIndexConflict  = RegisterBaseSentinel(StatusConflict, "index mpath conflict")
 
 	UserLocked      = RegisterBaseSentinel(StatusUnauthorized, "user is locked")
 	LoginNotAllowed = RegisterBaseSentinel(StatusUnauthorized, "login not allowed")

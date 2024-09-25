@@ -140,7 +140,7 @@ func (s *IndexSQL[T]) instance(ctx context.Context) *gorm.DB {
 		}
 	}
 
-	return s.DB
+	return s.DB.WithContext(ctx)
 }
 
 func (s *IndexSQL[T]) Migrate(ctx context.Context) error {

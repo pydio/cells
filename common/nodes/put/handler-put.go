@@ -42,6 +42,7 @@ import (
 	"github.com/pydio/cells/v4/common/proto/tree"
 	"github.com/pydio/cells/v4/common/telemetry/log"
 	"github.com/pydio/cells/v4/common/utils/cache"
+	"github.com/pydio/cells/v4/common/utils/propagator"
 )
 
 func WithPutInterceptor() nodes.Option {
@@ -64,15 +65,15 @@ func (m *Handler) Adapt(c nodes.Handler, options nodes.RouterOptions) nodes.Hand
 
 type onCreateErrorFunc func()
 
-func retryOnDuplicate(callback func() (*tree.CreateNodeResponse, error), retries ...int) (*tree.CreateNodeResponse, error) {
-	resp, e := callback()
+func retryOnDuplicate(ctx context.Context, callback func(context.Context) (*tree.CreateNodeResponse, error), retries ...int) (*tree.CreateNodeResponse, error) {
+	resp, e := callback(ctx)
 	var r int
 	if len(retries) > 0 {
 		r = retries[0]
 	}
-	if e != nil && errors.Is(e, errors.StatusConflict) && r < 3 {
+	if e != nil && errors.Is(e, errors.NodeIndexConflict) && r < 3 {
 		<-time.After(100 * time.Millisecond)
-		resp, e = retryOnDuplicate(callback, r+1)
+		resp, e = retryOnDuplicate(ctx, callback, r+1)
 	}
 	return resp, e
 }
@@ -107,9 +108,8 @@ func (m *Handler) getOrCreatePutNode(ctx context.Context, nodePath string, reque
 		tmpNode.MustSetMeta(common.MetaNamespaceMime, requestData.MetaContentType())
 	}
 
-	log.Logger(ctx).Debug("[PUT HANDLER] > Create Node", zap.String("Path", tmpNode.Path))
-	createResp, er := retryOnDuplicate(func() (*tree.CreateNodeResponse, error) {
-		return treeWriter.CreateNode(ctx, &tree.CreateNodeRequest{Node: tmpNode})
+	createResp, er := retryOnDuplicate(ctx, func(c context.Context) (*tree.CreateNodeResponse, error) {
+		return treeWriter.CreateNode(c, &tree.CreateNodeRequest{Node: tmpNode})
 	})
 	if er != nil {
 		return nil, nil, er
@@ -117,7 +117,7 @@ func (m *Handler) getOrCreatePutNode(ctx context.Context, nodePath string, reque
 	delNode := createResp.Node.Clone()
 	errorFunc := func() {
 		if ctx.Err() != nil {
-			ctx = context.Background()
+			ctx = propagator.ForkedBackgroundWithMeta(ctx)
 		}
 		_, e := treeWriter.DeleteNode(ctx, &tree.DeleteNodeRequest{Node: delNode})
 		if e != nil {

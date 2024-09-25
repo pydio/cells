@@ -82,8 +82,8 @@ func NewSubscriber(parentContext context.Context) *Subscriber {
 
 	s.rootCtx = context.WithValue(parentContext, common.PydioContextUserKey, common.PydioSystemUsername)
 
-	queueOpt := broker.Queue("tasks")
-	counterOpt := broker.WithCounterName("tasks")
+	queueOpt := broker.Queue("tasks-" + runtime.MultiContextManager().Current(parentContext))
+	counterOpt := broker.WithCounterName("tasks-" + runtime.MultiContextManager().Current(parentContext))
 
 	treeOpts := []broker.SubscribeOption{
 		queueOpt,
@@ -105,10 +105,13 @@ func NewSubscriber(parentContext context.Context) *Subscriber {
 			metaOpts = append(metaOpts, broker.WithAsyncQueuePool(d, map[string]interface{}{"debounce": "2s", "idle": "20s", "max": "2000"}))
 		}
 	} else {
-		fmt.Println("NO MANAGER ON SUBSCRIBER START")
+		panic("NO MANAGER ON SUBSCRIBER START")
 	}
 
 	_ = broker.SubscribeCancellable(parentContext, common.TopicTreeChanges, func(ctx context.Context, message broker.Message) error {
+		if !runtime.MultiMatches(parentContext, ctx) {
+			return nil
+		}
 		md, bb := message.RawData()
 		event := &tree.NodeChangeEvent{}
 		if e := proto.Unmarshal(bb, event); e == nil {
@@ -140,6 +143,9 @@ func NewSubscriber(parentContext context.Context) *Subscriber {
 	}, queueOpt, counterOpt)
 
 	_ = broker.SubscribeCancellable(parentContext, common.TopicJobConfigEvent, func(c context.Context, message broker.Message) error {
+		if !runtime.MultiMatches(parentContext, c) {
+			return nil
+		}
 		js := &jobs.JobChangeEvent{}
 		if ctx, e := message.Unmarshal(c, js); e == nil {
 			return s.jobsChangeEvent(ctx, js)
@@ -148,6 +154,9 @@ func NewSubscriber(parentContext context.Context) *Subscriber {
 	}, queueOpt, counterOpt)
 
 	_ = broker.SubscribeCancellable(parentContext, common.TopicMetaChanges, func(c context.Context, message broker.Message) error {
+		if !runtime.MultiMatches(parentContext, c) {
+			return nil
+		}
 		target := &tree.NodeChangeEvent{}
 		md, bb := message.RawData()
 		if e := proto.Unmarshal(bb, target); e == nil && (target.Type == tree.NodeChangeEvent_UPDATE_META || target.Type == tree.NodeChangeEvent_UPDATE_USER_META) {
@@ -157,6 +166,9 @@ func NewSubscriber(parentContext context.Context) *Subscriber {
 	}, metaOpts...)
 
 	_ = broker.SubscribeCancellable(parentContext, common.TopicIdmEvent, func(c context.Context, message broker.Message) error {
+		if !runtime.MultiMatches(parentContext, c) {
+			return nil
+		}
 		target := &idm.ChangeEvent{}
 		if ctx, e := message.Unmarshal(c, target); e == nil {
 			return s.idmEvent(ctx, target)
