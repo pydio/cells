@@ -24,12 +24,10 @@ package service
 import (
 	"context"
 
-	"go.uber.org/zap"
 	"google.golang.org/grpc"
 
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/client/commons/docstorec"
-	"github.com/pydio/cells/v4/common/client/commons/jobsc"
 	"github.com/pydio/cells/v4/common/config"
 	"github.com/pydio/cells/v4/common/proto/docstore"
 	"github.com/pydio/cells/v4/common/proto/jobs"
@@ -37,9 +35,7 @@ import (
 	"github.com/pydio/cells/v4/common/runtime"
 	"github.com/pydio/cells/v4/common/service"
 	"github.com/pydio/cells/v4/common/telemetry/log"
-	"github.com/pydio/cells/v4/common/utils/i18n/languages"
 	json "github.com/pydio/cells/v4/common/utils/jsonx"
-	"github.com/pydio/cells/v4/common/utils/propagator"
 	"github.com/pydio/cells/v4/data/versions"
 	grpc2 "github.com/pydio/cells/v4/data/versions/grpc"
 )
@@ -67,32 +63,32 @@ func init() {
 			}),
 			service.WithStorageMigrator(versions.Migrate),
 			service.WithStorageDrivers(versions.Drivers...),
-			service.AfterServe(func(ctx context.Context) error {
-				// return std.Retry(ctx, func() error {
-				bg := propagator.ForkContext(context.Background(), ctx)
-				go func() {
-					jobsClient := jobsc.JobServiceClient(bg)
-
-					// Migration from old prune-versions-job : delete if exists, replaced by composed job
-					var reinsert bool
-					if _, e := jobsClient.GetJob(bg, &jobs.GetJobRequest{JobID: "prune-versions-job"}); e == nil {
-						_, _ = jobsClient.DeleteJob(bg, &jobs.DeleteJobRequest{JobID: "prune-versions-job"})
-						reinsert = true
-					}
-					vJob := grpc2.GetVersioningJob(languages.GetDefaultLanguage(config.Get(ctx)))
-					if _, err := jobsClient.GetJob(bg, &jobs.GetJobRequest{JobID: vJob.ID}); err != nil || reinsert {
-						if _, er := jobsClient.PutJob(bg, &jobs.PutJobRequest{Job: vJob}); er != nil {
-							log.Logger(ctx).Error("Cannot insert versioning job", zap.Error(er))
-						} else {
-							log.Logger(ctx).Info("Inserted versioning job")
-						}
-						return
-					}
-					return
-				}()
-
-				return nil
-			}),
+			// TODO
+			//service.AfterServe(func(ctx context.Context) error {
+			//	bg := propagator.ForkContext(context.Background(), ctx)
+			//	go func() {
+			//		jobsClient := jobsc.JobServiceClient(bg)
+			//
+			//		// Migration from old prune-versions-job : delete if exists, replaced by composed job
+			//		var reinsert bool
+			//		if _, e := jobsClient.GetJob(bg, &jobs.GetJobRequest{JobID: "prune-versions-job"}); e == nil {
+			//			_, _ = jobsClient.DeleteJob(bg, &jobs.DeleteJobRequest{JobID: "prune-versions-job"})
+			//			reinsert = true
+			//		}
+			//		vJob := grpc2.GetVersioningJob(languages.GetDefaultLanguage(config.Get(ctx)))
+			//		if _, err := jobsClient.GetJob(bg, &jobs.GetJobRequest{JobID: vJob.ID}); err != nil || reinsert {
+			//			if _, er := jobsClient.PutJob(bg, &jobs.PutJobRequest{Job: vJob}); er != nil {
+			//				log.Logger(ctx).Error("Cannot insert versioning job", zap.Error(er))
+			//			} else {
+			//				log.Logger(ctx).Info("Inserted versioning job")
+			//			}
+			//			return
+			//		}
+			//		return
+			//	}()
+			//
+			//	return nil
+			//}),
 			service.WithGRPC(func(ctx context.Context, server grpc.ServiceRegistrar) error {
 
 				engine := &grpc2.Handler{}

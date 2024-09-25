@@ -86,15 +86,14 @@ func NewBroker(s string, opts ...Option) Broker {
 			uu := &url.URL{Scheme: u.Scheme, Host: u.Host, Path: namespace + "/" + strings.TrimPrefix(topic, "/"), RawQuery: u.RawQuery}
 			return pubsub.OpenTopic(ctx, uu.String())
 		},
-		subscribeOpener: func(topic string, oo ...SubscribeOption) (*pubsub.Subscription, error) {
+		subscribeOpener: func(ctx context.Context, topic string, oo ...SubscribeOption) (*pubsub.Subscription, error) {
 			// Handle queue for grpc vs. nats vs memory
-			op := &SubscribeOptions{Context: options.Context}
+			op := &SubscribeOptions{Context: ctx}
 			for _, o := range oo {
 				o(op)
 			}
 
 			q, _ := url.ParseQuery(u.RawQuery)
-			ctx := op.Context
 			if op.Queue != "" {
 				switch scheme {
 				case "nats", "grpc", "xds":
@@ -226,15 +225,15 @@ type broker struct {
 
 type TopicOpener func(context.Context, string) (*pubsub.Topic, error)
 
-type SubscribeOpener func(string, ...SubscribeOption) (*pubsub.Subscription, error)
+type SubscribeOpener func(context.Context, string, ...SubscribeOption) (*pubsub.Subscription, error)
 
-func (b *broker) openTopic(topic string) (*pubsub.Topic, error) {
+func (b *broker) openTopic(ctx context.Context, topic string) (*pubsub.Topic, error) {
 	b.Lock()
 	defer b.Unlock()
 	publisher, ok := b.publishers[topic]
 	if !ok {
 		var err error
-		publisher, err = b.publishOpener(b.Options.Context, topic)
+		publisher, err = b.publishOpener(ctx, topic)
 		if err != nil {
 			return nil, err
 		}
@@ -254,7 +253,7 @@ func (b *broker) closeTopics(c context.Context) {
 }
 
 func (b *broker) PublishRaw(ctx context.Context, topic string, body []byte, header map[string]string, opts ...PublishOption) error {
-	publisher, er := b.openTopic(topic)
+	publisher, er := b.openTopic(ctx, topic)
 	if er != nil {
 		return er
 	}
@@ -289,7 +288,7 @@ func (b *broker) Publish(ctx context.Context, topic string, message proto.Messag
 		}
 	}
 
-	publisher, err := b.openTopic(topic)
+	publisher, err := b.openTopic(ctx, topic)
 	if err != nil {
 		return err
 	}
@@ -314,12 +313,12 @@ func (b *broker) Subscribe(ctx context.Context, topic string, handler Subscriber
 	}
 
 	// Making sure topic is opened
-	_, err := b.openTopic(topic)
+	_, err := b.openTopic(ctx, topic)
 	if err != nil {
 		return nil, err
 	}
 
-	sub, err := b.subscribeOpener(topic, opts...)
+	sub, err := b.subscribeOpener(ctx, topic, opts...)
 	if err != nil {
 		return nil, err
 	}

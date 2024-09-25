@@ -173,18 +173,6 @@ func NewManager(ctx context.Context, namespace string, logger log.ZapLogger) (Ma
 		ctx = propagator.With(ctx, crypto.KeyringContextKey, store)
 	}
 
-	if store, vault, revisions, err := m.initConfig(ctx); err != nil {
-		return nil, err
-	} else {
-		ctx = propagator.With(ctx, config.ContextKey, store)
-		ctx = propagator.With(ctx, config.VaultKey, vault)
-		ctx = propagator.With(ctx, config.RevisionsKey, revisions)
-
-		if err := bootstrap.reload(store); err != nil {
-			return nil, err
-		}
-	}
-
 	// TODO : this would imply using eg.Wait() somewhere, is normal ?
 	var eg errgroup.Group
 	eg.Go(func() error {
@@ -199,6 +187,18 @@ func NewManager(ctx context.Context, namespace string, logger log.ZapLogger) (Ma
 	// Initialising default connections
 	if err := m.initConnections(ctx, bootstrap, base); err != nil {
 		return nil, err
+	}
+
+	if store, vault, revisions, err := m.initConfig(ctx); err != nil {
+		return nil, err
+	} else {
+		ctx = propagator.With(ctx, config.ContextKey, store)
+		ctx = propagator.With(ctx, config.VaultKey, vault)
+		ctx = propagator.With(ctx, config.RevisionsKey, revisions)
+
+		if err := bootstrap.reload(store); err != nil {
+			return nil, err
+		}
 	}
 
 	// Initialising servers
@@ -1098,7 +1098,11 @@ func (m *manager) startServer(srv server.Server, oo ...server.ServeOption) error
 		for _, smm := range sm {
 			if filter, ok := smm["filter"]; ok {
 				targetOpts = append(targetOpts, registry.WithFilter(func(item registry.Item) bool {
-					tmpl, err := serviceFilterTemplate.Parse(filter)
+					tmpl, err := serviceFilterTemplate.Funcs(map[string]any{
+						"sliceToRegexpFmt": func(s []string) string {
+							return "^(" + strings.Join(s, "|") + ")$"
+						},
+					}).Parse(filter)
 					if err != nil {
 						return false
 					}
@@ -1110,18 +1114,73 @@ func (m *manager) startServer(srv server.Server, oo ...server.ServeOption) error
 					ors := strings.Split(buf.String(), " or ")
 					for _, or := range ors {
 						f := strings.SplitN(or, " ", 3)
-						var fn func(string, []byte) (bool, error)
+						var fn func(any, any) (bool, error)
 						switch f[1] {
 						case "=":
-							fn = func(s string, i []byte) (bool, error) {
-								return s == string(i), nil
+							fn = func(a any, b any) (bool, error) {
+								aa, ok := a.(string)
+								if !ok {
+									return false, errors.New("wrong format")
+								}
+
+								bb, ok := b.(string)
+								if !ok {
+									return false, errors.New("wrong format")
+								}
+								return aa == bb, nil
+							}
+						case "in":
+							fn = func(a any, b any) (bool, error) {
+								aa, ok := a.([]string)
+								if !ok {
+									return false, errors.New("wrong format")
+								}
+
+								bb, ok := b.(string)
+								if !ok {
+									return false, errors.New("wrong format")
+								}
+
+								for _, aaa := range aa {
+									if bb == aaa {
+										return true, nil
+									}
+								}
+
+								return false, nil
 							}
 						case "~=":
-							fn = regexp.Match
+							fn = func(a any, b any) (bool, error) {
+								aa, ok := a.(string)
+								if !ok {
+									return false, errors.New("wrong format")
+								}
+
+								bb, ok := b.([]byte)
+								if !ok {
+									return false, errors.New("wrong format")
+								}
+
+								return regexp.Match(aa, bb)
+							}
 						case "!~=":
-							fn = func(pattern string, b []byte) (bool, error) {
-								matched, err := regexp.Match(pattern, b)
-								return !matched, err
+							fn = func(a any, b any) (bool, error) {
+								aa, ok := a.(string)
+								if !ok {
+									return false, errors.New("wrong format")
+								}
+
+								bb, ok := b.([]byte)
+								if !ok {
+									return false, errors.New("wrong format")
+								}
+
+								m, err := regexp.Match(aa, bb)
+								if err != nil {
+									return false, err
+								}
+
+								return !m, nil
 							}
 						}
 

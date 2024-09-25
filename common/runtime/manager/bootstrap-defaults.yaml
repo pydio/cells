@@ -38,6 +38,12 @@ defaults:
       uri: xds://default.cells.com/cells
       services:
         - filter: "{{ .Name }} ~= pydio.grpc..*"
+    config:
+      uri: xds://default.cells.com/cells
+    registry:
+      uri: xds://default.cells.com/cells
+    broker:
+      uri: xds://default.cells.com/cells
 
   #--------------------------------------------
   # Default servers configuration
@@ -237,56 +243,3 @@ defaults:
       uri: boltdb://{{ autoMkdir (joinPath  ( serviceDataDir .Service ) ( tenantPathWithBlank .Tenant "default" ) ) }}/{{ .Meta.file }}
     bleve:
       uri: bleve://{{ autoMkdir (joinPath  ( serviceDataDir .Service ) ( tenantPathWithBlank .Tenant "default" ) ) }}/{{ .Meta.file }}
-
-  #--------------------------------------------
-  # All processes
-  #--------------------------------------------
-  processes: &processes
-    discovery: &discovery
-      runtime: discovery
-      connections:
-        <<: *connections
-        config:
-          uri: file://{{{{ .ApplicationWorkingDir }}}}/pydio.json
-          pools:
-            rp: file://{{{{ .ApplicationWorkingDir }}}}/{{ .Tenant }}.json
-        registry:
-          uri: mem://?cache=shared
-        broker:
-          uri: mem://
-
-      listeners:
-        grpc:
-          type: tcp
-          bind: 0.0.0.0
-          port: 8030
-        http:
-          type: tcp
-          bind: 0.0.0.0
-          port: 0
-
-      servers:
-        caddy:
-          type: caddy
-          services:
-            - filter: "{{ .Name }} ~= pydio.rest..* or {{ .Name }} ~= pydio.web.oauth or {{ .Name }} ~= pydio.web.statics or {{ .Name }} = pydio.gateway.websocket"
-        generic:
-          type: generic
-          services:
-            - filter: "{{ .Name }} ~= pydio.generic..*"
-        grpc:
-          type: grpc
-          listener: grpc
-          services:
-            - filter: "{{ .Name }} ~= pydio.grpc..*"
-            - filter: "{{ .Name }} !~= pydio.grpc.data."
-
-      env: *env
-
-      storages: *storages
-
-      services: *services
-
-      queues: *queues
-
-      caches: *caches

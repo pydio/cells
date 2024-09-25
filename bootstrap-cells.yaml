@@ -264,27 +264,25 @@ processes: &processes
         type: tcp
         bind: 0.0.0.0
         port: 8030
-      http:
-        type: tcp
-        bind: 0.0.0.0
-        port: 0
+#      http:
+#        type: tcp
+#        bind: 0.0.0.0
+#        port: 0
 
     servers:
-      caddy:
-        type: caddy
-        services:
-          - filter: "{{ .Name }} ~= pydio.rest..* or {{ .Name }} ~= pydio.web.oauth or {{ .Name }} ~= pydio.web.statics or {{ .Name }} = pydio.gateway.websocket"
-      generic:
-        type: generic
-        services:
-          - filter: "{{ .Name }} ~= pydio.generic..*"
+#      caddy:
+#        type: caddy
+#        services:
+#          - filter: "{{ .Name }} ~= pydio.rest..* or {{ .Name }} ~= pydio.web.oauth or {{ .Name }} ~= pydio.web.statics or {{ .Name }} = pydio.gateway.websocket"
+#      generic:
+#        type: generic
+#        services:
+#          - filter: "{{ .Name }} ~= pydio.generic..*"
       grpc:
         type: grpc
         listener: grpc
         services:
-          - filter: "{{ .Name }} ~= pydio.grpc..*"
-          - filter: "{{ .Name }} !~= pydio.grpc.data."
-          - filter: "{{ .Name }} !~= pydio.grpc.acl"
+          - filter: "{{ .Name }} ~= pydio.grpc.registry or {{ .Name }} ~= pydio.grpc.config"
 
     env: *env
 
