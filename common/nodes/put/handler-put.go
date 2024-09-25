@@ -82,18 +82,29 @@ func retryOnDuplicate(ctx context.Context, callback func(context.Context) (*tree
 // If it is an update, should send back the already existing node.
 // Returns the node, a flag to tell wether it is created or not, and eventually an error
 // The Put event will afterward update the index
-func (m *Handler) getOrCreatePutNode(ctx context.Context, nodePath string, requestData *models.PutRequestData) (*tree.Node, onCreateErrorFunc, error) {
+func (m *Handler) getOrCreatePutNode(ctx context.Context, nodePath string, requestData *models.PutRequestData, preloadedNode ...*tree.Node) (*tree.Node, onCreateErrorFunc, error) {
+	var skipRead bool
+	if len(preloadedNode) > 0 {
+		if preloadedNode[0] != nil {
+			return preloadedNode[0], nil, nil
+		} else {
+			skipRead = true
+		}
+	}
 	treeReader := m.ContextPool(ctx).GetTreeClient()
 	treeWriter := m.ContextPool(ctx).GetTreeClientWrite()
 
 	treePath := strings.TrimLeft(nodePath, "/")
-	existingResp, err := treeReader.ReadNode(ctx, &tree.ReadNodeRequest{
-		Node: &tree.Node{
-			Path: treePath,
-		},
-	})
-	if err == nil && existingResp.Node != nil {
-		return existingResp.Node, nil, nil
+
+	if !skipRead {
+		existingResp, err := treeReader.ReadNode(ctx, &tree.ReadNodeRequest{
+			Node: &tree.Node{
+				Path: treePath,
+			},
+		})
+		if err == nil && existingResp.Node != nil {
+			return existingResp.Node, nil, nil
+		}
 	}
 	// As we are not going through the real FS, make sure to normalize now the file path
 	tmpNode := &tree.Node{
@@ -129,21 +140,21 @@ func (m *Handler) getOrCreatePutNode(ctx context.Context, nodePath string, reque
 }
 
 // checkTypeChange verify if a node is about to be overriden with a different type
-func (m *Handler) checkTypeChange(ctx context.Context, node *tree.Node) error {
+func (m *Handler) checkTypeChange(ctx context.Context, node *tree.Node) (*tree.Node, error) {
 	resp, er := m.ReadNode(ctx, &tree.ReadNodeRequest{Node: node.Clone()})
 	if er != nil || resp == nil || resp.GetNode() == nil {
-		return nil // Node does not already exist, ignore
+		return nil, nil // Node does not already exist, ignore
 	}
 	srcLeaf := node.GetType() == tree.NodeType_LEAF || node.GetType() == tree.NodeType_UNKNOWN
 	tgtLeaf := resp.GetNode().GetType() == tree.NodeType_LEAF
 	if srcLeaf != tgtLeaf {
 		if tgtLeaf {
-			return errors.WithMessagef(errors.NodeTypeConflict, "A file already exists with the same name")
+			return nil, errors.WithMessagef(errors.NodeTypeConflict, "A file already exists with the same name")
 		} else {
-			return errors.WithMessagef(errors.NodeTypeConflict, "A folder already exists with the same name")
+			return nil, errors.WithMessagef(errors.NodeTypeConflict, "A folder already exists with the same name")
 		}
 	}
-	return nil
+	return resp.GetNode(), nil
 }
 
 // createParentIfNotExist Recursively create parents
@@ -222,12 +233,17 @@ func (m *Handler) PutObject(ctx context.Context, node *tree.Node, reader io.Read
 		return m.Next.PutObject(ctx, node, reader, requestData)
 	}
 
-	if e := m.checkTypeChange(ctx, node); e != nil {
+	var updateNode *tree.Node
+	if no, e := m.checkTypeChange(ctx, node); e != nil {
 		return models.ObjectInfo{}, e
+	} else if no != nil {
+		updateNode = no
 	}
 
-	if e := m.createParentIfNotExist(ctx, node, ""); e != nil {
-		return models.ObjectInfo{}, e
+	if updateNode == nil {
+		if e := m.createParentIfNotExist(ctx, node, ""); e != nil {
+			return models.ObjectInfo{}, e
+		}
 	}
 
 	if requestData.Metadata == nil {
@@ -245,7 +261,7 @@ func (m *Handler) PutObject(ctx context.Context, node *tree.Node, reader io.Read
 
 	} else {
 		// PreCreate a node in the tree.
-		newNode, onErrorFunc, nodeErr := m.getOrCreatePutNode(ctx, node.Path, requestData)
+		newNode, onErrorFunc, nodeErr := m.getOrCreatePutNode(ctx, node.Path, requestData, updateNode)
 		log.Logger(ctx).Debug("PreLoad or PreCreate Node in tree", zap.String("path", node.Path), zap.Any("node", newNode), zap.Error(nodeErr))
 		if nodeErr != nil {
 			return models.ObjectInfo{}, nodeErr
@@ -282,16 +298,29 @@ func (m *Handler) MultipartCreate(ctx context.Context, node *tree.Node, requestD
 		return m.Next.MultipartCreate(ctx, node, requestData)
 	}
 
+	var updateNode *tree.Node
+	if no, e := m.checkTypeChange(ctx, node); e != nil {
+		return "", e
+	} else if no != nil {
+		updateNode = no
+	}
+
+	if updateNode == nil {
+		if e := m.createParentIfNotExist(ctx, node, ""); e != nil {
+			return "", e
+		}
+	}
+
 	if requestData.Metadata == nil {
 		requestData.Metadata = make(map[string]string)
 	}
-	var createErroFunc onCreateErrorFunc
+	var createErrorFunc onCreateErrorFunc
 	if node.Uuid == "" { // PreCreate a node in the tree.
 		var size int64
 		if metaSize, ok := requestData.Metadata[common.XAmzMetaClearSize]; ok {
 			size, _ = strconv.ParseInt(metaSize, 10, 64)
 		}
-		newNode, onErrorFunc, nodeErr := m.getOrCreatePutNode(ctx, node.Path, &models.PutRequestData{Size: size})
+		newNode, onErrorFunc, nodeErr := m.getOrCreatePutNode(ctx, node.Path, &models.PutRequestData{Size: size}, updateNode)
 		log.Logger(ctx).Debug("PreLoad or PreCreate Node in tree", zap.String("path", node.Path), zap.Any("node", newNode), zap.Error(nodeErr))
 		if nodeErr != nil {
 			if onErrorFunc != nil {
@@ -301,7 +330,7 @@ func (m *Handler) MultipartCreate(ctx context.Context, node *tree.Node, requestD
 				return "", nodeErr
 			}
 		}
-		createErroFunc = onErrorFunc
+		createErrorFunc = onErrorFunc
 		node.Uuid = newNode.Uuid
 	} else { // Overwrite existing node
 		log.Logger(ctx).Debug("PUT - MULTIPART CREATE: Appending node Uuid to request metadata: " + node.Uuid)
@@ -313,8 +342,8 @@ func (m *Handler) MultipartCreate(ctx context.Context, node *tree.Node, requestD
 	multipartId, err := m.Next.MultipartCreate(ctx, node, requestData)
 	if err != nil {
 		log.Logger(ctx).Debug("minio.MultipartCreate has failed, for node at path: " + node.Path)
-		if createErroFunc != nil {
-			createErroFunc()
+		if createErrorFunc != nil {
+			createErrorFunc()
 		}
 		return "", err
 	}

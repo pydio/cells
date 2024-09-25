@@ -23,12 +23,12 @@ package nodes
 import (
 	"context"
 	"fmt"
-	"io"
 	"path"
 	"strings"
 
 	"google.golang.org/grpc/status"
 
+	"github.com/pydio/cells/v4/common/errors"
 	"github.com/pydio/cells/v4/common/proto/tree"
 	"github.com/pydio/cells/v4/common/utils/cache"
 	cache_helper "github.com/pydio/cells/v4/common/utils/cache/helper"
@@ -96,7 +96,7 @@ func BuildAncestorsList(ctx context.Context, treeClient tree.NodeProviderClient,
 	for {
 		parent, e := ancestorStream.Recv()
 		if e != nil {
-			if e == io.EOF || e == io.ErrUnexpectedEOF {
+			if errors.IsStreamFinished(e) {
 				break
 			} else {
 				if s, o := status.FromError(e); o {
