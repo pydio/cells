@@ -53,14 +53,14 @@ const (
 )
 
 type ChatHandler struct {
-	ctx       context.Context
+	//ctx       context.Context
 	Websocket *melody.Melody
 }
 
 // NewChatHandler creates a new ChatHandler
 func NewChatHandler(ctx context.Context) *ChatHandler {
-	w := &ChatHandler{ctx: ctx}
-	w.initHandlers(ctx)
+	w := &ChatHandler{}
+	w.initHandlers()
 	return w
 }
 
@@ -112,12 +112,13 @@ func (c *ChatHandler) BroadcastChatMessage(ctx context.Context, msg *chat.ChatEv
 
 }
 
-func (c *ChatHandler) initHandlers(ctx context.Context) {
+func (c *ChatHandler) initHandlers() {
 
 	c.Websocket = melody.New()
 	c.Websocket.Config.MaxMessageSize = 2048
 
 	c.Websocket.HandleError(func(session *melody.Session, i error) {
+		ctx := session.Request.Context()
 		if !strings.Contains(i.Error(), "close 1000 (normal)") {
 			log.Logger(ctx).Debug("HandleError", zap.Error(i))
 		}
@@ -133,6 +134,7 @@ func (c *ChatHandler) initHandlers(ctx context.Context) {
 
 	c.Websocket.HandleMessage(func(session *melody.Session, payload []byte) {
 
+		ct := session.Request.Context()
 		msg := &Message{}
 		e := json.Unmarshal(payload, msg)
 		if e == nil {
@@ -140,17 +142,17 @@ func (c *ChatHandler) initHandlers(ctx context.Context) {
 			case MsgSubscribe:
 				if msg.JWT == "" {
 					_ = session.CloseWithMsg(NewErrorMessageString("Empty JWT"))
-					log.Logger(ctx).Debug("empty jwt")
+					log.Logger(ct).Debug("empty jwt")
 					return
 				}
 				verifier := auth.DefaultJWTVerifier()
-				_, claims, e := verifier.Verify(ctx, msg.JWT)
+				_, claims, e := verifier.Verify(ct, msg.JWT)
 				if e != nil {
-					log.Logger(ctx).Error("invalid jwt received from websocket connection")
+					log.Logger(ct).Error("invalid jwt received from websocket connection")
 					_ = session.CloseWithMsg(NewErrorMessage(e))
 					return
 				}
-				updateSessionFromClaims(ctx, session, claims)
+				updateSessionFromClaims(ct, session, claims)
 				return
 
 			case MsgUnsubscribe:
@@ -162,25 +164,25 @@ func (c *ChatHandler) initHandlers(ctx context.Context) {
 		chatMsg := &chat.WebSocketMessage{}
 		e = protojson.Unmarshal(payload, chatMsg)
 		if e != nil {
-			log.Logger(ctx).Debug("Could not unmarshal message", zap.Error(e))
+			log.Logger(ct).Debug("Could not unmarshal message", zap.Error(e))
 			return
 		}
 		// SAVE CTX IN SESSION?
-		// ctx := context.Background()
-		log.Logger(ctx).Debug("Got Message", zap.Any("msg", chatMsg))
+		// ct := context.Background()
+		log.Logger(ct).Debug("Got Message", zap.Any("msg", chatMsg))
 		var userName string
 		if userData, ok := session.Get(SessionUsernameKey); !ok && userData != nil {
-			log.Logger(ctx).Debug("Chat Message requires ws subscription first")
+			log.Logger(ct).Debug("Chat Message requires ws subscription first")
 			return
 		} else {
 			userName, ok = userData.(string)
 			if !ok {
-				log.Logger(ctx).Debug("Chat Message requires ws subscription first")
+				log.Logger(ct).Debug("Chat Message requires ws subscription first")
 				return
 			}
 		}
 
-		chatClient := chat.NewChatServiceClient(grpc.ResolveConn(c.ctx, common.ServiceChatGRPC))
+		chatClient := chat.NewChatServiceClient(grpc.ResolveConn(ct, common.ServiceChatGRPC))
 
 		switch chatMsg.Type {
 
@@ -188,7 +190,7 @@ func (c *ChatHandler) initHandlers(ctx context.Context) {
 
 			sessRoom := &sessionRoom{}
 			if readonly, e := c.auth(session, chatMsg.Room); e != nil {
-				log.Logger(ctx).Error("Not authorized to join this room", zap.Error(e))
+				log.Logger(ct).Error("Not authorized to join this room", zap.Error(e))
 				break
 			} else {
 				sessRoom.readonly = readonly
@@ -197,41 +199,41 @@ func (c *ChatHandler) initHandlers(ctx context.Context) {
 			if chatMsg.Message != nil && chatMsg.Message.Message == "PING" {
 				isPing = true
 			}
-			foundRoom, e1 := c.findOrCreateRoom(ctx, chatMsg.Room, !isPing)
+			foundRoom, e1 := c.findOrCreateRoom(ct, chatMsg.Room, !isPing)
 			if e1 != nil || foundRoom == nil {
-				log.Logger(ctx).Debug("CANNOT JOIN", zap.Any("msg", chatMsg), zap.Any("r", foundRoom), zap.Error(e1))
+				log.Logger(ct).Debug("CANNOT JOIN", zap.Any("msg", chatMsg), zap.Any("r", foundRoom), zap.Error(e1))
 				break
 			}
 			sessRoom.uuid = foundRoom.Uuid
-			c.heartbeat(ctx, userName, foundRoom)
-			c.storeSessionRoom(ctx, session, sessRoom)
+			c.heartbeat(ct, userName, foundRoom)
+			c.storeSessionRoom(ct, session, sessRoom)
 			// Update Room Users
-			if save := c.appendUserToRoom(ctx, foundRoom, userName); save {
+			if save := c.appendUserToRoom(ct, foundRoom, userName); save {
 
-				_, e := chatClient.PutRoom(ctx, &chat.PutRoomRequest{Room: foundRoom})
+				_, e := chatClient.PutRoom(ct, &chat.PutRoomRequest{Room: foundRoom})
 				if e != nil {
-					log.Logger(ctx).Error("Error while putting room", zap.Error(e))
+					log.Logger(ct).Error("Error while putting room", zap.Error(e))
 				}
 			}
 
 		case chat.WsMessageType_LEAVE:
 
-			foundRoom, e1 := c.findOrCreateRoom(ctx, chatMsg.Room, false)
+			foundRoom, e1 := c.findOrCreateRoom(ct, chatMsg.Room, false)
 			if e1 == nil && foundRoom != nil {
-				if save := c.removeUserFromRoom(ctx, foundRoom, userName); save {
-					chatClient.PutRoom(ctx, &chat.PutRoomRequest{Room: foundRoom})
-					log.Logger(ctx).Debug("LEAVE", zap.Any("msg", chatMsg), zap.Any("r", foundRoom))
+				if save := c.removeUserFromRoom(ct, foundRoom, userName); save {
+					chatClient.PutRoom(ct, &chat.PutRoomRequest{Room: foundRoom})
+					log.Logger(ct).Debug("LEAVE", zap.Any("msg", chatMsg), zap.Any("r", foundRoom))
 				}
-				c.removeSessionRoom(ctx, session, foundRoom.Uuid)
+				c.removeSessionRoom(ct, session, foundRoom.Uuid)
 			}
 
 		case chat.WsMessageType_HISTORY:
 			// Must arrive AFTER a JOIN message
-			foundRoom, e1 := c.findOrCreateRoom(ctx, chatMsg.Room, false)
+			foundRoom, e1 := c.findOrCreateRoom(ct, chatMsg.Room, false)
 			if e1 != nil || foundRoom == nil {
 				break
 			}
-			c.sendVideoInfoIfSupported(ctx, foundRoom.Uuid, session)
+			c.sendVideoInfoIfSupported(ct, foundRoom.Uuid, session)
 			request := &chat.ListMessagesRequest{RoomUuid: foundRoom.Uuid}
 			if chatMsg.Message != nil {
 				var offData map[string]int
@@ -254,7 +256,7 @@ func (c *ChatHandler) initHandlers(ctx context.Context) {
 			session.Write(buff)
 
 			// List existing Messages
-			ct, ca := context.WithCancel(ctx)
+			ct, ca := context.WithCancel(ct)
 			defer ca()
 			stream, e2 := chatClient.ListMessages(ct, request)
 			if e2 == nil {
@@ -294,36 +296,36 @@ func (c *ChatHandler) initHandlers(ctx context.Context) {
 
 		case chat.WsMessageType_POST:
 
-			log.Logger(ctx).Debug("POST", zap.Any("msg", chatMsg))
-			if session, found := c.roomInSession(ctx, session, chatMsg.Message.RoomUuid); !found || session.readonly {
-				log.Logger(ctx).Error("Not authorized to post in this room")
+			log.Logger(ct).Debug("POST", zap.Any("msg", chatMsg))
+			if session, found := c.roomInSession(ct, session, chatMsg.Message.RoomUuid); !found || session.readonly {
+				log.Logger(ct).Error("Not authorized to post in this room")
 				break
 			}
 			message := chatMsg.Message
 			message.Author = userName
 			message.Message = bluemonday.UGCPolicy().Sanitize(message.Message)
 			message.Timestamp = time.Now().Unix()
-			_, e := chatClient.PostMessage(ctx, &chat.PostMessageRequest{
+			_, e := chatClient.PostMessage(ct, &chat.PostMessageRequest{
 				Messages: []*chat.ChatMessage{message},
 			})
 			if e != nil {
-				log.Logger(ctx).Error("Error while posting message", zap.Any("msg", message), zap.Error(e))
+				log.Logger(ct).Error("Error while posting message", zap.Any("msg", message), zap.Error(e))
 			}
 
 		case chat.WsMessageType_DELETE_MSG:
 
-			log.Logger(ctx).Debug("Delete", zap.Any("msg", chatMsg))
-			if session, found := c.roomInSession(ctx, session, chatMsg.Message.RoomUuid); !found || session.readonly {
-				log.Logger(ctx).Error("Not authorized to post in this room")
+			log.Logger(ct).Debug("Delete", zap.Any("msg", chatMsg))
+			if session, found := c.roomInSession(ct, session, chatMsg.Message.RoomUuid); !found || session.readonly {
+				log.Logger(ct).Error("Not authorized to post in this room")
 				break
 			}
 			message := chatMsg.Message
 			if message.Author == userName {
-				_, e := chatClient.DeleteMessage(ctx, &chat.DeleteMessageRequest{
+				_, e := chatClient.DeleteMessage(ct, &chat.DeleteMessageRequest{
 					Messages: []*chat.ChatMessage{message},
 				})
 				if e != nil {
-					log.Logger(ctx).Error("Error while deleting message", zap.Any("msg", message), zap.Error(e))
+					log.Logger(ct).Error("Error while deleting message", zap.Any("msg", message), zap.Error(e))
 				}
 			}
 
@@ -463,7 +465,7 @@ var uuidRouter nodes.Client
 func (c *ChatHandler) auth(session *melody.Session, room *chat.ChatRoom) (bool, error) {
 
 	var readonly bool
-	ctx, err := prepareRemoteContext(c.ctx, session)
+	ctx, err := prepareRemoteContext(session.Request.Context(), session)
 	if err != nil {
 		return false, err
 	}
@@ -473,7 +475,7 @@ func (c *ChatHandler) auth(session *melody.Session, room *chat.ChatRoom) (bool, 
 
 		// Check node is readable and writeable
 		if uuidRouter == nil {
-			uuidRouter = compose.UuidClient(c.ctx)
+			uuidRouter = compose.UuidClient(ctx)
 		}
 		resp, e := uuidRouter.ReadNode(ctx, &tree.ReadNodeRequest{Node: &tree.Node{Uuid: room.RoomTypeObject}})
 		if e != nil {

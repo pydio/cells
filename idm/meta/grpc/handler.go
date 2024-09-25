@@ -125,19 +125,18 @@ func (h *Handler) UpdateUserMeta(ctx context.Context, request *idm.UpdateUserMet
 		}
 	}
 
-	go func() {
-		bgCtx := propagator.ForkedBackgroundWithMeta(ctx)
-		subjects, _ := auth.SubjectsForResourcePolicyQuery(bgCtx, nil)
+	go func(ctx context.Context) {
+		subjects, _ := auth.SubjectsForResourcePolicyQuery(ctx, nil)
 
 		for nodeId, source := range sources {
 			// Reload Metas
 			// Try to use resolved node or create fake one
-			nCtx := bgCtx
+			nCtx := ctx
 			target := &tree.Node{Uuid: nodeId, MetaStore: make(map[string]string)}
 			if resolved, ok := nodes[nodeId]; ok {
 				target = resolved
 				if len(resolved.AppearsIn) > 0 {
-					nCtx = propagator.WithAdditionalMetadata(bgCtx, map[string]string{
+					nCtx = propagator.WithAdditionalMetadata(ctx, map[string]string{
 						keys.CtxWorkspaceUuid: resolved.AppearsIn[0].WsUuid,
 					})
 				}
@@ -178,7 +177,7 @@ func (h *Handler) UpdateUserMeta(ctx context.Context, request *idm.UpdateUserMet
 				Target: target,
 			})
 		}
-	}()
+	}(propagator.ForkedBackgroundWithMeta(ctx))
 
 	return response, nil
 
@@ -199,6 +198,9 @@ func (h *Handler) SearchUserMeta(request *idm.SearchUserMetaRequest, stream idm.
 		return err
 	}
 
+	if request.ResourceQuery == nil {
+		request.ResourceQuery = &pbservice.ResourcePolicyQuery{}
+	}
 	request.ResourceQuery.Action = pbservice.ResourcePolicyAction_READ
 	resourceQueryAny, err := anypb.New(request.ResourceQuery)
 	if err != nil {
