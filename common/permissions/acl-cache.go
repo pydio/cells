@@ -44,7 +44,7 @@ var (
 func getAclCache(ctx context.Context) cache.Cache {
 	aclOnce.Do(func() {
 		// Subscribe
-		_, _ = broker.Subscribe(context.Background(), common.TopicIdmEvent, func(ct context.Context, message broker.Message) error {
+		_, _ = broker.Subscribe(ctx, common.TopicIdmEvent, func(ct context.Context, message broker.Message) error {
 			event := &idm.ChangeEvent{}
 			msgCtx, e := message.Unmarshal(ct, event)
 			if e != nil {

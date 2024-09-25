@@ -24,9 +24,12 @@ import (
 	"github.com/pydio/cells/v4/common/utils/propagator"
 )
 
-type registryKey struct{}
+type registryKey int
 
-var ContextKey = registryKey{}
+const (
+	ContextKey registryKey = iota
+	ContextSOTWKey
+)
 
 func init() {
 	propagator.RegisterKeyInjector[Registry](ContextKey)

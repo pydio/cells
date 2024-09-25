@@ -89,13 +89,11 @@ func New(ctx context.Context, conn grpc.ClientConnInterface, id string, path str
 		path:           strings.Split(path, "/"),
 		internalLocker: &sync.RWMutex{},
 		externalLocker: &sync.RWMutex{},
-		values: configx.New(
-			configx.WithJSON(),
-			configx.WithStorer(&values{
-				ctx: ctx,
-				cli: cli,
-				id:  id,
-			})),
+		values: configx.New(configx.WithStorer(&values{
+			ctx: ctx,
+			cli: cli,
+			id:  id,
+		})),
 	}
 
 	go func() {
@@ -311,36 +309,32 @@ type values struct {
 	cli pb.ConfigClient
 	id  string
 	k   []string
+	d   any
 }
 
-func (r *values) Walk(f func(i int, v any) any) error {
-	//TODO implement me
-	panic("implement me")
-}
-
-func (r *values) Context(ctx context.Context) configx.Values {
+func (v *values) Walk(f func(i int, v any) any) error {
 	return nil
 }
 
-func (r *values) Default(data any) configx.Values {
-	return nil
+func (v *values) Context(ctx context.Context) configx.Values {
+	return configx.New(configx.WithStorer(&values{ctx: ctx, cli: v.cli, id: v.id, k: v.k, d: v.d}))
 }
 
-func (r *values) Options() *configx.Options {
-	return nil
+func (v *values) Default(data any) configx.Values {
+	return configx.New(configx.WithStorer(&values{ctx: v.ctx, cli: v.cli, id: v.id, k: v.k, d: data}))
 }
 
-func (r *values) Key() []string {
-	return []string{}
+func (v *values) Options() *configx.Options {
+	c := configx.New(configx.WithJSON())
+	return c.Options()
+}
+
+func (v *values) Key() []string {
+	return v.k
 }
 
 func (v *values) Val(path ...string) configx.Values {
-	return configx.New(configx.WithStorer(&values{
-		ctx: v.ctx,
-		cli: v.cli,
-		id:  v.id,
-		k:   configx.StringToKeys(append(v.k, path...)...),
-	}))
+	return configx.New(configx.WithStorer(&values{ctx: v.ctx, cli: v.cli, id: v.id, k: configx.StringToKeys(append(v.k, path...)...), d: v.d}))
 }
 
 func (v *values) Get() any {
@@ -360,7 +354,12 @@ func (v *values) Get() any {
 		//fmt.Println("And the error is ? ", err)
 	}
 
-	return c.Get()
+	vv := c.Get()
+	if vv == nil {
+		return v.d
+	}
+
+	return vv
 }
 
 func (v *values) Set(value interface{}) error {

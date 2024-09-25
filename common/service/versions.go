@@ -82,7 +82,7 @@ func UpdateServiceVersion(ctx context.Context, opts *ServiceOptions) error {
 
 	var store config.Store
 	if !propagator.Get(ctx, config.ContextKey, &store) {
-		return fmt.Errorf("could not find store for service %s during updateServiceVersion", opts.Name)
+		return fmt.Errorf("could not find config for %s during updateServiceVersion", opts.Name)
 	}
 
 	newVersion, _ := version.NewVersion(opts.Version)

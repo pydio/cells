@@ -30,7 +30,6 @@ import (
 	"google.golang.org/grpc/attributes"
 
 	"github.com/pydio/cells/v4/common/client"
-	"github.com/pydio/cells/v4/common/config"
 	pb "github.com/pydio/cells/v4/common/proto/registry"
 	"github.com/pydio/cells/v4/common/registry"
 )
@@ -43,14 +42,16 @@ type Balancer interface {
 }
 
 func NewBalancer(ctx context.Context, excludeId string) Balancer {
-	var clusterConfig *client.ClusterConfig
-	config.Get(ctx, "cluster").Default(&client.ClusterConfig{}).Scan(&clusterConfig)
-	clientConfig := clusterConfig.GetClientConfig("http")
+	// TODO - lazy loading
+	//var clusterConfig *client.ClusterConfig
+	//config.Get(ctx, "cluster").Default(&client.ClusterConfig{}).Scan(&clusterConfig)
+	//clientConfig := clusterConfig.GetClientConfig("http")
 
 	opts := &client.BalancerOptions{}
-	for _, o := range clientConfig.LBOptions() {
-		o(opts)
-	}
+	//for _, o := range clientConfig.LBOptions() {
+	//	o(opts)
+	//}
+
 	return &balancer{
 		readyProxies: map[string]*reverseProxy{},
 		options:      opts,
@@ -101,6 +102,7 @@ func (b *balancer) Build(reg registry.Registry) error {
 			registry.WithAdjacentSourceItems([]registry.Item{srv}),
 			registry.WithAdjacentTargetOptions(registry.WithType(pb.ItemType_ADDRESS)),
 		)
+
 		var services, endpoints []registry.Item
 		var loaded bool
 
@@ -160,9 +162,11 @@ func (b *balancer) PickService(name string) (*url.URL, error) {
 			}
 		}
 	}
+
 	if len(targets) == 0 {
 		return nil, fmt.Errorf("no proxy found for service %s", name)
 	}
+
 	if b.options != nil && len(b.options.Filters) > 0 {
 		for _, f := range b.options.Filters {
 			targets = b.applyFilter(f, targets)
@@ -171,6 +175,7 @@ func (b *balancer) PickService(name string) (*url.URL, error) {
 			return nil, fmt.Errorf("no proxy found for service %s matching filters", name)
 		}
 	}
+
 	if len(targets) > 1 && b.options != nil && len(b.options.Priority) > 0 {
 		priorityTargets := append([]*proxyBalancerTarget{}, targets...)
 		for _, f := range b.options.Priority {
@@ -181,8 +186,8 @@ func (b *balancer) PickService(name string) (*url.URL, error) {
 			return priorityTargets[rand.Intn(len(priorityTargets))].proxy.URL, nil
 		}
 	}
-	return targets[rand.Intn(len(targets))].proxy.URL, nil
 
+	return targets[rand.Intn(len(targets))].proxy.URL, nil
 }
 
 // ListEndpointTargets finds all corresponding upstream for a given path
@@ -210,9 +215,11 @@ func (b *balancer) ListEndpointTargets(path string, reverse ...bool) ([]*url.URL
 			}
 		}
 	}
+
 	if len(uniques) == 0 {
 		return nil, fmt.Errorf("no proxy found for endpoint %s", path)
 	}
+
 	var targets []*proxyBalancerTarget
 	for _, t := range uniques {
 		targets = append(targets, t)
@@ -226,10 +233,12 @@ func (b *balancer) ListEndpointTargets(path string, reverse ...bool) ([]*url.URL
 			return nil, fmt.Errorf("no proxy found for endpoint %s matching filters", path)
 		}
 	}
+
 	var output []*url.URL
 	for _, t := range targets {
 		output = append(output, t.proxy.URL)
 	}
+
 	return output, nil
 }
 
@@ -239,6 +248,7 @@ func (b *balancer) PickEndpoint(path string) (*url.URL, error) {
 	if er != nil {
 		return nil, er
 	}
+
 	return targets[rand.Intn(len(targets))], nil
 }
 
@@ -249,5 +259,6 @@ func (b *balancer) applyFilter(f client.BalancerTargetFilter, tg []*proxyBalance
 			out = append(out, conn)
 		}
 	}
+
 	return out
 }

@@ -38,7 +38,7 @@ var (
 	publishers  = make(map[string]pb.Broker_PublishClient)
 	pubLock     sync.Mutex
 	subscribers = make(map[string]*sharedSubscriber)
-	subLock     sync.Mutex
+	subLock     sync.RWMutex
 )
 
 type sharedSubscriber struct {
@@ -110,13 +110,8 @@ func (o *URLOpener) OpenTopicURL(ctx context.Context, u *url.URL) (*pubsub.Topic
 	pubLock.Lock()
 	defer pubLock.Unlock()
 	if _, ok := publishers[u.Host]; !ok {
-		conn := runtime.GetClientConn(ctx)
-		if conn == nil {
-			return nil, errors.New("no connection provided")
-		}
-
 		// TODO - should be multi-tenant
-		conn = grpc.ResolveConn(ctx, common.ServiceBrokerGRPC)
+		conn := grpc.ResolveConn(ctx, common.ServiceBrokerGRPC)
 
 		cli := pb.NewBrokerClient(conn)
 		if s, err := cli.Publish(ctx); err != nil {
@@ -141,8 +136,9 @@ func (o *URLOpener) OpenSubscriptionURL(ctx context.Context, u *url.URL) (*pubsu
 	// Use u.Host+u.Path to create one connection per subscription
 	sharedKey := u.Host + u.Path
 
-	subLock.Lock()
+	subLock.RLock()
 	sub, ok := subscribers[sharedKey]
+	subLock.RUnlock()
 	if !ok {
 
 		// TODO - resolveconn should do multi tenancy
@@ -161,10 +157,12 @@ func (o *URLOpener) OpenSubscriptionURL(ctx context.Context, u *url.URL) (*pubsu
 			cancel:                 ca,
 			out:                    make(map[string]chan []*pb.Message),
 		}
+		subLock.Lock()
 		subscribers[sharedKey] = sub
+		subLock.Unlock()
+
 		go sub.Dispatch()
 	}
-	subLock.Unlock()
 
 	return NewSubscription(topicName, WithQueue(queue), WithContext(ctx), WithSubscriber(sub))
 }

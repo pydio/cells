@@ -1,0 +1,14 @@
+env: &env
+  CELLS_USE_REGISTRY_SESSION: true
+  GRPC_EXPERIMENTAL_XDS_FEDERATION: true
+listeners:
+  grpc:
+    type: tcp
+    bind: 0.0.0.0
+    port: 8030
+servers:
+  grpc:
+    type: grpc
+    listener: grpc
+    services:
+      - filter: "{{ .Name }} ~= .*"

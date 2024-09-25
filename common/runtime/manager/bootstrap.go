@@ -82,12 +82,8 @@ func NewBootstrap(ctx context.Context, runtimeTemplate string) (*Bootstrap, erro
 		bs.named = runtimeTemplate
 	}
 
-	// cfg may be nil, it's ok
-	var cfg config.Store
-	propagator.Get(ctx, config.ContextKey, &cfg)
-	if err := bs.reload(cfg); err != nil {
-		return nil, err
-	}
+	bs.reload(nil)
+
 	return bs, nil
 }
 

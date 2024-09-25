@@ -1,6 +1,8 @@
 #--------------------------------------------
 # Default variables
 #--------------------------------------------
+name: test
+
 defaults:
   bind: &bind 0.0.0.0
   advertise: &advertise 0.0.0.0
@@ -20,7 +22,7 @@ defaults:
 
   queues: &queues
     debouncer:
-     uri: mem://?debounce={{ .debounce }}&idle={{ .idle }}&max={{ .max }}&openerID={{ .openerID }}&tenant={{ .Tenant }}
+      uri: mem://?debounce={{ .debounce }}&idle={{ .idle }}&max={{ .max }}&openerID={{ .openerID }}&tenant={{ .Tenant }}
     persisted:
       uri: fifo://{{ autoMkdir (joinPath  ( serviceDataDir .Service ) ( tenantPathWithBlank .Tenant "default" ) ) }}?name={{ .name }}&prefix={{ .prefix }}
 
@@ -38,12 +40,6 @@ defaults:
       uri: xds://default.cells.com/cells
       services:
         - filter: "{{ .Name }} ~= pydio.grpc..*"
-    config:
-      uri: xds://default.cells.com/cells
-    registry:
-      uri: xds://default.cells.com/cells
-    broker:
-      uri: xds://default.cells.com/cells
 
   #--------------------------------------------
   # Default servers configuration
@@ -243,3 +239,96 @@ defaults:
       uri: boltdb://{{ autoMkdir (joinPath  ( serviceDataDir .Service ) ( tenantPathWithBlank .Tenant "default" ) ) }}/{{ .Meta.file }}
     bleve:
       uri: bleve://{{ autoMkdir (joinPath  ( serviceDataDir .Service ) ( tenantPathWithBlank .Tenant "default" ) ) }}/{{ .Meta.file }}
+
+connections: *connections
+
+#--------------------------------------------
+# All processes
+#--------------------------------------------
+processes: &processes
+  discovery: &discovery
+    runtime: discovery
+    connections:
+      <<: *connections
+      config:
+        uri: file://{{{{ .ApplicationWorkingDir }}}}/pydio.json
+        pools:
+          rp: file://{{{{ .ApplicationWorkingDir }}}}/{{ .Tenant }}.json
+      registry:
+        uri: mem://?cache=shared
+      broker:
+        uri: mem://
+
+    listeners:
+      grpc:
+        type: tcp
+        bind: 0.0.0.0
+        port: 8030
+#      http:
+#        type: tcp
+#        bind: 0.0.0.0
+#        port: 0
+
+    servers:
+#      caddy:
+#        type: caddy
+#        services:
+#          - filter: "{{ .Name }} ~= pydio.rest..* or {{ .Name }} ~= pydio.web.oauth or {{ .Name }} ~= pydio.web.statics or {{ .Name }} = pydio.gateway.websocket"
+#      generic:
+#        type: generic
+#        services:
+#          - filter: "{{ .Name }} ~= pydio.generic..*"
+      grpc:
+        type: grpc
+        listener: grpc
+        services:
+          - filter: "{{ .Name }} ~= pydio.grpc.registry or {{ .Name }} ~= pydio.grpc.config"
+
+    env: *env
+
+    storages: *storages
+
+    services: *services
+
+    queues: *queues
+
+    caches: *caches
+
+  acl: &acl
+    runtime: main
+    connections:
+      <<: *connections
+      config:
+        uri: xds://default.cells.com/cells
+      registry:
+        uri: xds://default.cells.com/cells
+      broker:
+        uri: xds://default.cells.com/cells
+
+    listeners:
+      grpc:
+        type: tcp
+        bind: 0.0.0.0
+        port: 8030
+      http:
+        type: tcp
+        bind: 0.0.0.0
+        port: 0
+
+    servers:
+      grpc:
+        type: grpc
+        listener: grpc
+        services:
+          - filter: "{{ .Name }} ~= pydio.grpc.acl"
+
+    env: *env
+
+    storages: *storages
+
+    services: *services
+
+    queues: *queues
+
+    caches: *caches
+

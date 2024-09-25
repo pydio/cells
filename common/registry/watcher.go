@@ -22,6 +22,7 @@ package registry
 
 import (
 	"errors"
+
 	pb "github.com/pydio/cells/v4/common/proto/registry"
 )
 
@@ -139,6 +140,9 @@ func (m *watcher) Next() (Result, error) {
 						var generic Generic
 						if item.As(&generic) &&
 							(itemType == pb.ItemType_GENERIC || itemType == generic.Type()) {
+							foundType = true
+							break L
+						} else {
 							foundType = true
 							break L
 						}

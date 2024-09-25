@@ -181,6 +181,11 @@ func (s *service) As(i interface{}) bool {
 
 // Start runs service and update registry as required
 func (s *service) Start(oo ...registry.RegisterOption) (er error) {
+	ro := &registry.RegisterOptions{}
+	for _, o := range oo {
+		o(ro)
+	}
+
 	// Making sure we only start one at a time for a unique service
 	if s.Options().Unique {
 		reg := s.Opts.GetRegistry()
@@ -234,7 +239,7 @@ func (s *service) Start(oo ...registry.RegisterOption) (er error) {
 
 	s.updateRegister(registry.StatusStarting)
 
-	s.Opts.runtimeCtx, s.Opts.runtimeCancel = context.WithCancel(s.Opts.rootContext)
+	s.Opts.runtimeCtx, s.Opts.runtimeCancel = context.WithCancel(ro.Context)
 	s.Opts.runtimeCtx = propagator.With(s.Opts.runtimeCtx, ContextKey, s)
 
 	for _, before := range s.Opts.BeforeStart {

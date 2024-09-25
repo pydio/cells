@@ -33,7 +33,6 @@ import (
 	"github.com/pydio/cells/v4/common/broker"
 	"github.com/pydio/cells/v4/common/runtime"
 	"github.com/pydio/cells/v4/common/runtime/manager"
-	"github.com/pydio/cells/v4/common/server"
 	"github.com/pydio/cells/v4/common/telemetry/log"
 	"github.com/pydio/cells/v4/common/utils/filex"
 
@@ -168,13 +167,6 @@ ENVIRONMENT
 		var span trace.Span
 		ctx, span = otel.GetTracerProvider().Tracer("cells-command").Start(ctx, "start", trace.WithSpanKind(trace.SpanKindInternal))
 
-		/* Init registry
-		reg, err := registry.OpenRegistry(ctx, runtime.RegistryURL())
-		if err != nil {
-			span.End()
-			return err
-		}
-		ctx = propagator.With(ctx, registry.ContextKey, reg)*/
 		ctx = runtime.AsCoreContext(ctx)
 
 		broker.Register(broker.NewBroker(runtime.BrokerURL(), broker.WithContext(ctx)))
@@ -187,14 +179,7 @@ ENVIRONMENT
 
 		span.End()
 
-		m.SetServeOptions(
-			server.WithGrpcBindAddress(runtime.GrpcBindAddress()),
-			server.WithHttpBindAddress(runtime.HttpBindAddress()),
-		)
-		m.ServeAll(
-			server.WithGrpcBindAddress(runtime.GrpcBindAddress()),
-			server.WithHttpBindAddress(runtime.HttpBindAddress()),
-		)
+		m.ServeAll()
 
 		runtime.InitGlobalConnConsumers(m.Context(), "main")
 
