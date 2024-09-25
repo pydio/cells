@@ -29,6 +29,7 @@ import (
 	"github.com/pydio/cells/v4/common/broker"
 	"github.com/pydio/cells/v4/common/client/grpc"
 	"github.com/pydio/cells/v4/common/proto/jobs"
+	"github.com/pydio/cells/v4/common/runtime"
 	"github.com/pydio/cells/v4/common/telemetry/log"
 	"github.com/pydio/cells/v4/common/utils/schedule"
 )
@@ -52,6 +53,7 @@ func NewEventProducer(rootCtx context.Context) *EventProducer {
 		EventChan: make(chan *jobs.JobTriggerEvent),
 	}
 
+	rootCtx = runtime.WithServiceName(rootCtx, common.ServiceGrpcNamespace_+common.ServiceTimer)
 	e.Context = context.WithValue(rootCtx, common.PydioContextUserKey, common.PydioSystemUsername)
 
 	go func() {

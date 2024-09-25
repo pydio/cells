@@ -80,15 +80,16 @@ func NewDispatcher(rootCtx context.Context, maxWorkers int, job *jobs.Job, tags 
 		var mgr manager.Manager
 		ctx, can := context.WithCancel(rootCtx)
 		if propagator.Get(rootCtx, manager.ContextKey, &mgr) {
-			var fifoQueue chan RunnerFunc
+			fifoQueue := make(chan RunnerFunc)
 			var fifo broker.AsyncQueue
 			var er error
 			data := map[string]interface{}{"name": "jobs", "prefix": job.ID}
 			if fifo, er = mgr.GetQueue(ctx, "persisted", data, "job-"+job.ID, d.Opener(rootCtx, job, fifoQueue, jobQueue)); er != nil {
 				can()
+				close(fifoQueue)
 				log.Logger(rootCtx).Warn("Cannot open fifo for dispatcher - job "+job.ID+", this will run without queue", zap.Error(er))
 			} else {
-				log.Logger(rootCtx).Info("Opening FIFO queue for job " + job.ID)
+				log.Logger(rootCtx).Debug("Opening FIFO queue for job " + job.ID)
 				d.fifo = fifo
 				d.fifoQueue = fifoQueue
 				d.fifoCancel = can
@@ -98,7 +99,7 @@ func NewDispatcher(rootCtx context.Context, maxWorkers int, job *jobs.Job, tags 
 			log.Logger(rootCtx).Warn("No manager found when creating Dispatcher for " + job.ID + ", starting without FIFO")
 		}
 	} else {
-		log.Logger(rootCtx).Info("Starting AutoClean job " + job.ID + " without FIFO")
+		log.Logger(rootCtx).Debug("Starting AutoClean job " + job.ID + " without FIFO")
 	}
 
 	return d

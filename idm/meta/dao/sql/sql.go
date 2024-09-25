@@ -149,7 +149,10 @@ func (s *sqlimpl) Set(ctx context.Context, meta *idm.UserMeta) (*idm.UserMeta, s
 	update := false
 
 	// Attempting to create
-	tx := s.instance(ctx).Clauses(clause.OnConflict{DoNothing: true}).Create(old)
+	tx := s.instance(ctx).Clauses(clause.OnConflict{
+		Columns:   []clause.Column{{Name: "node_uuid"}, {Name: "namespace"}, {Name: "owner"}},
+		DoUpdates: clause.AssignmentColumns([]string{"timestamp", "format", "data"}),
+	}).Create(old)
 	if tx.Error != nil {
 		return nil, "", tag(tx.Error)
 	}
@@ -173,6 +176,8 @@ func (s *sqlimpl) Set(ctx context.Context, meta *idm.UserMeta) (*idm.UserMeta, s
 	var err error
 	if len(meta.Policies) > 0 {
 		for _, p := range meta.Policies {
+			// nullify Id for insertion
+			p.Id = 0
 			p.Resource = meta.Uuid
 		}
 		err = s.resourcesDAO.AddPolicies(ctx, update, meta.Uuid, meta.Policies)

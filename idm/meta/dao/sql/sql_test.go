@@ -35,6 +35,7 @@ import (
 	"github.com/pydio/cells/v4/common/runtime/manager"
 	"github.com/pydio/cells/v4/common/storage/test"
 	"github.com/pydio/cells/v4/common/telemetry/log"
+	"github.com/pydio/cells/v4/common/utils/uuid"
 	"github.com/pydio/cells/v4/idm/meta"
 
 	_ "github.com/pydio/cells/v4/common/utils/cache/gocache"
@@ -55,6 +56,20 @@ func init() {
 	}, nil)
 }
 
+func readableMetaForNode(ctx context.Context, dao meta.DAO, nodeId string) ([]*idm.UserMeta, error) {
+	subQA, _ := anypb.New(&idm.SearchUserMetaRequest{
+		NodeUuids: []string{nodeId},
+	})
+	rq, _ := anypb.New(&service.ResourcePolicyQuery{
+		Subjects: []string{"sub1"},
+		Action:   service.ResourcePolicyAction_READ,
+	})
+	queryA := &service.Query{
+		SubQueries: []*anypb.Any{subQA, rq},
+	}
+	return dao.Search(ctx, queryA)
+}
+
 func TestCrud(t *testing.T) {
 
 	test.RunStorageTests(testcases, t, func(ctx context.Context) {
@@ -62,6 +77,40 @@ func TestCrud(t *testing.T) {
 		if err != nil {
 			panic(err)
 		}
+
+		Convey("CRUD Meta on Node", t, func() {
+			nodeUUID := uuid.New()
+			_, _, err = mockDAO.Set(ctx, &idm.UserMeta{
+				NodeUuid:  nodeUUID,
+				Namespace: "usermeta-tags",
+				JsonValue: "\"test\"",
+				Policies: []*service.ResourcePolicy{
+					{Subject: "*", Action: service.ResourcePolicyAction_READ},
+				},
+			})
+
+			mm, er := readableMetaForNode(ctx, mockDAO, nodeUUID)
+			So(er, ShouldBeNil)
+			So(mm, ShouldHaveLength, 1)
+			So(mm[0].JsonValue, ShouldEqual, "\"test\"")
+
+			So(err, ShouldBeNil)
+			_, _, err = mockDAO.Set(ctx, &idm.UserMeta{
+				NodeUuid:  nodeUUID,
+				Namespace: "usermeta-tags",
+				JsonValue: "\"test2\"",
+				Policies: []*service.ResourcePolicy{
+					{Subject: "*", Action: service.ResourcePolicyAction_READ},
+				},
+			})
+			So(err, ShouldBeNil)
+
+			mm, er = readableMetaForNode(ctx, mockDAO, nodeUUID)
+			So(er, ShouldBeNil)
+			So(mm, ShouldHaveLength, 1)
+			So(mm[0].JsonValue, ShouldEqual, "\"test2\"")
+
+		})
 
 		Convey("Create Meta", t, func() {
 			// Insert a meta

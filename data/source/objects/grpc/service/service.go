@@ -39,7 +39,7 @@ import (
 
 func init() {
 
-	runtime.Register("datasource", func(ctx context.Context) {
+	runtime.Register("main", func(ctx context.Context) {
 
 		sources := config.SourceNamesForDataServices(ctx, common.ServiceDataObjects)
 		mm := config.ListMinioConfigsFromConfig(ctx)

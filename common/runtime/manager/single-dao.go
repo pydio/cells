@@ -75,6 +75,7 @@ func DSNtoContextDAO(ctx context.Context, dsn []string, daoFunc any) (context.Co
 	v := viper.New()
 	v.Set(runtime.KeyLogSQL, false)
 	v.Set(runtime.KeyKeyring, "mem://")
+	v.Set(runtime.KeyRegistry, "mem://")
 	v.Set(runtime.KeyConfig, "mem://")
 	v.Set(runtime.KeyBootstrapYAML, b.String())
 	mem, _ := config.OpenStore(ctx, "mem://")

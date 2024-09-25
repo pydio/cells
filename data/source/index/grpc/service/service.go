@@ -42,7 +42,7 @@ import (
 )
 
 func init() {
-	runtime.Register("datasource", func(ctx context.Context) {
+	runtime.Register("main", func(ctx context.Context) {
 		// Retrieve server from the runtime - TODO
 		sources := config.SourceNamesForDataServices(ctx, common.ServiceDataIndex)
 		for _, source := range sources {

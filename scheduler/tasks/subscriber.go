@@ -264,7 +264,7 @@ func (s *Subscriber) jobsChangeEvent(ctx context.Context, msg *jobs.JobChangeEve
 	if msg.JobRemoved != "" {
 		_ = defCache.Delete(msg.JobRemoved)
 		var disp *Dispatcher
-		if ok := dispCache.Get(msg.JobRemoved, disp); ok {
+		if ok := dispCache.Get(msg.JobRemoved, &disp); ok {
 			disp.Stop()
 			_ = dispCache.Delete(msg.JobRemoved)
 		}
@@ -273,7 +273,7 @@ func (s *Subscriber) jobsChangeEvent(ctx context.Context, msg *jobs.JobChangeEve
 		_ = defCache.Set(msg.JobUpdated.ID, msg.JobUpdated)
 		//s.definitions[msg.JobUpdated.ID] = msg.JobUpdated
 		var disp *Dispatcher
-		if ok := dispCache.Get(msg.JobRemoved, disp); ok {
+		if ok := dispCache.Get(msg.JobRemoved, &disp); ok {
 			disp.Stop()
 			_ = dispCache.Delete(msg.JobRemoved)
 			if !msg.JobUpdated.Inactive {
