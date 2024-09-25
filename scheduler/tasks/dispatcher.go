@@ -67,7 +67,6 @@ type Dispatcher struct {
 func NewDispatcher(rootCtx context.Context, maxWorkers int, job *jobs.Job, tags map[string]string) *Dispatcher {
 	pool := make(chan chan RunnerFunc, maxWorkers)
 	jobQueue := make(chan RunnerFunc)
-	ctx, can := context.WithCancel(rootCtx)
 	d := &Dispatcher{
 		workerPool: pool,
 		maxWorker:  maxWorkers,
@@ -76,34 +75,33 @@ func NewDispatcher(rootCtx context.Context, maxWorkers int, job *jobs.Job, tags 
 		activeChan: make(chan int, 100),
 		quit:       make(chan bool, 1),
 	}
-	var mgr manager.Manager
 
-	if propagator.Get(rootCtx, manager.ContextKey, &mgr) {
-		var fifoQueue chan RunnerFunc
-		var fifo broker.AsyncQueue
-		var er error
-		data := map[string]interface{}{"name": "jobs", "prefix": job.ID}
-		if fifo, er = mgr.GetQueue(ctx, "persisted", data, "job-"+job.ID, d.Opener(rootCtx, job, fifoQueue, jobQueue)); er != nil {
-			can()
-			log.Logger(rootCtx).Warn("Cannot open fifo for dispatcher - job "+job.ID+", this will run without queue", zap.Error(er))
+	if !job.AutoClean {
+		var mgr manager.Manager
+		ctx, can := context.WithCancel(rootCtx)
+		if propagator.Get(rootCtx, manager.ContextKey, &mgr) {
+			var fifoQueue chan RunnerFunc
+			var fifo broker.AsyncQueue
+			var er error
+			data := map[string]interface{}{"name": "jobs", "prefix": job.ID}
+			if fifo, er = mgr.GetQueue(ctx, "persisted", data, "job-"+job.ID, d.Opener(rootCtx, job, fifoQueue, jobQueue)); er != nil {
+				can()
+				log.Logger(rootCtx).Warn("Cannot open fifo for dispatcher - job "+job.ID+", this will run without queue", zap.Error(er))
+			} else {
+				log.Logger(rootCtx).Info("Opening FIFO queue for job " + job.ID)
+				d.fifo = fifo
+				d.fifoQueue = fifoQueue
+				d.fifoCancel = can
+			}
 		} else {
-			d.fifo = fifo
-			d.fifoQueue = fifoQueue
-			d.fifoCancel = can
+			can()
+			log.Logger(rootCtx).Warn("No manager found when creating Dispatcher for " + job.ID + ", starting without FIFO")
 		}
 	} else {
-		can()
-		log.Logger(rootCtx).Warn("No manager found when creating Dispatcher, cannot initialize fifo")
+		log.Logger(rootCtx).Info("Starting AutoClean job " + job.ID + " without FIFO")
 	}
 
-	return &Dispatcher{
-		workerPool: pool,
-		maxWorker:  maxWorkers,
-		jobQueue:   jobQueue,
-		tags:       tags,
-		activeChan: make(chan int, 100),
-		quit:       make(chan bool, 1),
-	}
+	return d
 }
 
 func (d *Dispatcher) Opener(rootCtx context.Context, job *jobs.Job, queues ...chan RunnerFunc) broker.OpenWrapper {
