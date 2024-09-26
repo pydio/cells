@@ -56,6 +56,7 @@ import (
 	"github.com/pydio/cells/v4/common/server"
 	"github.com/pydio/cells/v4/common/service"
 	"github.com/pydio/cells/v4/common/storage"
+	"github.com/pydio/cells/v4/common/telemetry"
 	"github.com/pydio/cells/v4/common/telemetry/log"
 	"github.com/pydio/cells/v4/common/utils/cache"
 	"github.com/pydio/cells/v4/common/utils/configx"
@@ -393,22 +394,23 @@ func (m *manager) initConfig(ctx context.Context) (config.Store, config.Store, r
 	//	}
 	//}
 
-	// TODO - same should probably be in a migration
-	//cfgPath := []string{"services", common.ServiceGrpcNamespace_ + common.ServiceLog}
-	//config.GetAndWatch(ctx, cfgPath, func(values configx.Values) {
-	//	conf := telemetry.Config{
-	//		Loggers: []log.LoggerConfig{{
-	//			Encoding: "console",
-	//			Level:    "debug",
-	//			Outputs:  []string{"stdout:///"},
-	//		}},
-	//	}
-	//	if values.Scan(&conf) == nil {
-	//		if e := conf.Reload(ctx); e != nil {
-	//			fmt.Println("Error reloading", e)
-	//		}
-	//	}
-	//})
+	// TODO - Move this config inside defaults, not in services/pydio.grpc.log
+	// We want to read this from config (not boostrap) as it will be hot-reloaded if config is changed
+	cfgPath := []string{"services", common.ServiceGrpcNamespace_ + common.ServiceLog}
+	config.GetAndWatch(mainStore, cfgPath, func(values configx.Values) {
+		conf := telemetry.Config{
+			Loggers: []log.LoggerConfig{{
+				Encoding: "console",
+				Level:    "debug",
+				Outputs:  []string{"stdout:///"},
+			}},
+		}
+		if values.Scan(&conf) == nil {
+			if e := conf.Reload(ctx); e != nil {
+				fmt.Println("Error reloading", e)
+			}
+		}
+	})
 
 	return mainStore, vaultStore, versionsStore, nil
 }

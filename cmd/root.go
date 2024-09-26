@@ -43,11 +43,9 @@ import (
 	"github.com/pydio/cells/v4/common/crypto"
 	log2 "github.com/pydio/cells/v4/common/proto/log"
 	"github.com/pydio/cells/v4/common/runtime"
-	"github.com/pydio/cells/v4/common/telemetry"
 	"github.com/pydio/cells/v4/common/telemetry/log"
 	cw "github.com/pydio/cells/v4/common/telemetry/log/context-wrapper"
 	"github.com/pydio/cells/v4/common/telemetry/otel"
-	"github.com/pydio/cells/v4/common/utils/configx"
 	"github.com/pydio/cells/v4/common/utils/propagator"
 
 	_ "github.com/pydio/cells/v4/common/config/service"
@@ -264,22 +262,6 @@ func initConfig(ctx context.Context, debounceVersions bool) (context.Context, bo
 			}
 		}
 	}
-
-	cfgPath := []string{"services", common.ServiceGrpcNamespace_ + common.ServiceLog}
-	config.GetAndWatch(ctx, cfgPath, func(values configx.Values) {
-		conf := telemetry.Config{
-			Loggers: []log.LoggerConfig{{
-				Encoding: "console",
-				Level:    "debug",
-				Outputs:  []string{"stdout:///"},
-			}},
-		}
-		if values.Scan(&conf) == nil {
-			if e := conf.Reload(ctx); e != nil {
-				fmt.Println("Error reloading", e)
-			}
-		}
-	})
 
 	return ctx, isNew, nil
 }

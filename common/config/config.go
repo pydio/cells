@@ -111,15 +111,15 @@ func Del(ctx context.Context, path ...string) {
 
 // GetAndWatch applies a callback on a current value, then watch for its changes and re-apply
 // TODO : watcher should be cancellable with context
-func GetAndWatch(ctx context.Context, configPath []string, callback func(values configx.Values)) {
+func GetAndWatch(store Store, configPath []string, callback func(values configx.Values)) {
 	var ii []interface{}
 	for _, s := range configPath {
 		ii = append(ii, s)
 	}
-	values := Get(ctx, configx.FormatPath(ii...))
+	values := store.Val(configx.FormatPath(ii...))
 	callback(values)
 	go func() {
-		watcher, err := Watch(ctx, configx.WithPath(configPath...))
+		watcher, err := store.Watch(configx.WithPath(configPath...))
 		if err != nil {
 			return
 		}
