@@ -166,7 +166,7 @@ export default class WsAutoComplete extends React.Component{
             text        : node.Path,
             node        : node,
             categ       : categ,
-            value       : <MenuItem value={node.Path}><FontIcon className={icon} color="#607d8b" style={{float:'left',marginRight:8, fontSize: 20}}/> {label}</MenuItem>
+            value       : <MenuItem value={node}><FontIcon className={icon} color="#607d8b" style={{float:'left',marginRight:8, fontSize: 20}}/> {label}</MenuItem>
         };
     }
 
@@ -236,8 +236,7 @@ export default class WsAutoComplete extends React.Component{
                     variant={"v2"}
                     fullWidth={true}
                     maxHeight={300}
-                    onChange={(e,i,v) => {
-                        const node = nodes.filter(node => node.Path === v)[0]
+                    onChange={(e,i,node) => {
                         onChange(node.Path, node)
                     }}
                 >
@@ -247,7 +246,7 @@ export default class WsAutoComplete extends React.Component{
             showDelete = false
         } else if(isTemplatePath) {
             const resolutionPart = isTemplatePath.MetaStore["resolution"].split("\n").pop();
-            const fieldValue = value + ' - ' + m('ws.complete.resolves')  + resolutionPart;
+            const fieldValue = value + ' - ' + m('ws.complete.resolves') + ' "'  + resolutionPart + '"';
             field = (
                 <ModernTextField
                     floatingLabelText={label || m('ws.complete.label')}

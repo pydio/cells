@@ -152,6 +152,7 @@ class WsEditor extends Component {
                             this.forceUpdate()
                         }}
                         onChange={(key,node) => {
+                            console.log(roots, key, node)
                             delete(roots[k]);
                             if(key !== '') {
                                 roots[node.Uuid] = node;
