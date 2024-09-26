@@ -146,6 +146,44 @@ func TestQueryBuilder(t *testing.T) {
 
 		})
 
+		Convey("Single Query Builder", t, func() {
+
+			aa := []*idm.ACL{
+				{NodeID: "nU.1", RoleID: "role1", Action: &idm.ACLAction{Name: "a2.1", Value: "v2.1"}},
+				{NodeID: "nU.2", RoleID: "role2", Action: &idm.ACLAction{Name: "a2.2", Value: "v2.2"}},
+			}
+			So(add(t, ctx, dao, aa), ShouldBeNil)
+
+			singleQ1 := new(idm.ACLSingleQuery)
+
+			singleQ1.NodeIDs = []string{"nU.1"}
+			singleQ1.Actions = []*idm.ACLAction{
+				{Name: "a2.1", Value: "v2.1"},
+				{Name: "a2.2", Value: "v2.2"},
+			}
+
+			singleQ1Any, err := anypb.New(singleQ1)
+			So(err, ShouldBeNil)
+
+			simpleQuery := &service.Query{
+				SubQueries: []*anypb.Any{singleQ1Any},
+				Operation:  service.OperationType_OR,
+				Offset:     0,
+				Limit:      10,
+			}
+
+			s, er := service.NewQueryBuilder[*gorm.DB](simpleQuery, new(queryConverter)).Build(ctx, mockDB)
+			So(er, ShouldBeNil)
+			So(s, ShouldNotBeNil)
+
+			var res []interface{}
+			So(dao.Search(ctx, simpleQuery, &res, nil), ShouldBeNil)
+			So(len(res), ShouldEqual, 1)
+			So(res[0].(*idm.ACL).NodeID, ShouldEqual, "nU.1")
+			So(del(t, ctx, dao, aa), ShouldBeNil)
+
+		})
+
 		Convey("Query Builder W/ subquery", t, func() {
 
 			aa := []*idm.ACL{

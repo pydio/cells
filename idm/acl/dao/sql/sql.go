@@ -336,19 +336,22 @@ func (c *queryConverter) Convert(ctx context.Context, val *anypb.Any, db *gorm.D
 			}
 			actionsByName[act.Name] = values
 		}
+
+		tx := db.Session(&gorm.Session{NewDB: true})
 		for actName, actValues := range actionsByName {
 			if len(actValues) > 0 {
 				tx1 := db.Session(&gorm.Session{NewDB: true})
 				if len(actValues) == 1 {
-					db = db.Or(tx1.Where("action_name=?", actName).Where("action_value=?", actValues[0]))
+					tx = tx.Or(tx1.Where("action_name=?", actName).Where("action_value=?", actValues[0]))
 				} else {
-					db = db.Or(tx1.Where("action_name=?", actName).Where("action_value IN ?", actValues))
+					tx = tx.Or(tx1.Where("action_name=?", actName).Where("action_value IN ?", actValues))
 				}
 			} else {
-				db = db.Or("action_name=?", actName)
+				tx = tx.Or("action_name=?", actName)
 			}
 			count++
 		}
+		db = db.Where(tx)
 	}
 
 	return db, count > 0, nil

@@ -81,12 +81,7 @@ func RegisterIndexLen(len int) {
 
 // IndexSQL implementation
 type IndexSQL[T tree.ITreeNode] struct {
-	DB *gorm.DB
-
-	once *sync.Once
-
-	//	sql.Helper
-
+	DB      *gorm.DB
 	factory Factory[T]
 }
 
@@ -123,6 +118,7 @@ func (*treeNodeFactory[T]) RootGroup() string {
 }
 
 func (s *IndexSQL[T]) instance(ctx context.Context) *gorm.DB {
+
 	cachesPlugin := &caches.Caches{Conf: &caches.Config{
 		// Easer: true, // TODO - disabled that at super-fact calls to GetNodeChild() randomly return results
 		// Cacher: NewCacher(c),
@@ -443,7 +439,9 @@ func (dao *IndexSQL[T]) GetNodeChild(ctx context.Context, mPath *tree.MPath, nam
 
 	tx := dao.instance(ctx)
 
-	tx = tx.Where(tree.MPathLike{Value: mPath})
+	if mPath.Length() > 0 {
+		tx = tx.Where(tree.MPathLike{Value: mPath})
+	}
 	tx = tx.Where("level = ?", mPath.Length()+1)
 	tx = tx.Where("name = ?", name)
 
