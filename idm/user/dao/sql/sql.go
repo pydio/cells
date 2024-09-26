@@ -24,7 +24,6 @@ import (
 	"context"
 	"fmt"
 	"strings"
-	"sync"
 	"time"
 	"unicode"
 
@@ -41,9 +40,9 @@ import (
 	"github.com/pydio/cells/v4/common/proto/idm"
 	service "github.com/pydio/cells/v4/common/proto/service"
 	"github.com/pydio/cells/v4/common/proto/tree"
-	"github.com/pydio/cells/v4/common/sql"
-	index "github.com/pydio/cells/v4/common/sql/indexgorm"
-	"github.com/pydio/cells/v4/common/sql/resources"
+	"github.com/pydio/cells/v4/common/storage/sql"
+	"github.com/pydio/cells/v4/common/storage/sql/index"
+	resources2 "github.com/pydio/cells/v4/common/storage/sql/resources"
 	"github.com/pydio/cells/v4/common/telemetry/log"
 	"github.com/pydio/cells/v4/common/utils/configx"
 	"github.com/pydio/cells/v4/idm/user"
@@ -74,8 +73,6 @@ func wrap(err error) error {
 	return errors.Tag(err, DAOError)
 }
 
-type resourcesDAO resources.DAO
-
 type indexDAO index.DAO
 
 func init() {
@@ -84,23 +81,17 @@ func init() {
 
 // NewDAO wraps passed DAO with specific Pydio implementation of User DAO and returns it.
 func NewDAO(ctx context.Context, db *gorm.DB) user.DAO {
-	resDAO := resources.NewDAO(db)
-	idxDAO := index.NewDAO[*user_model.User](db)
-
 	return &sqlimpl{
-		db:           db,
-		resourcesDAO: resDAO,
-		indexDAO:     idxDAO,
+		AbstractResources: sql.NewAbstractResources(db).WithModels(func() []any {
+			return []any{&user_model.User{}, &user_model.UserRole{}, &user_model.UserAttribute{}}
+		}),
+		indexDAO: index.NewDAO[*user_model.User](db),
 	}
 }
 
 // Impl of the SQL interface
 type sqlimpl struct {
-	db *gorm.DB
-
-	once *sync.Once
-
-	resourcesDAO
+	*sql.AbstractResources
 	indexDAO
 
 	// Handle logins in Case-Insensitive fashion
@@ -124,20 +115,8 @@ func safeGroupPath(gPath string) string {
 	return fmt.Sprintf("/%s", strings.Trim(gPath, "/"))
 }
 
-func (s *sqlimpl) instance(ctx context.Context) *gorm.DB {
-	return s.db.Session(&gorm.Session{SkipDefaultTransaction: true}).WithContext(ctx)
-}
-
 func (s *sqlimpl) Migrate(ctx context.Context) error {
-	if err := s.instance(ctx).AutoMigrate(&user_model.User{}, &user_model.UserRole{}, &user_model.UserAttribute{}); err != nil {
-		return err
-	}
-
-	if err := s.resourcesDAO.Migrate(ctx); err != nil {
-		return err
-	}
-
-	return nil
+	return s.AbstractResources.Migrate(ctx)
 }
 
 // Add to the underlying SQL DB.
@@ -277,7 +256,7 @@ func (s *sqlimpl) Add(ctx context.Context, in interface{}) (interface{}, []*idm.
 		}
 	}
 
-	if err := s.instance(ctx).Transaction(func(tx *gorm.DB) error {
+	if err := s.Session(ctx).Transaction(func(tx *gorm.DB) error {
 		delAttributes := tx.Where(&user_model.UserAttribute{UUID: user.Uuid}).Delete(&user_model.UserAttribute{})
 		if delAttributes.Error != nil {
 			return delAttributes.Error
@@ -402,7 +381,7 @@ func (s *sqlimpl) TouchUser(ctx context.Context, userUuid string) error {
 }
 
 // Count counts the number of users matching the passed query in the SQL DB.
-func (s *sqlimpl) Count(ctx context.Context, query sql.Enquirer, includeParents ...bool) (int, error) {
+func (s *sqlimpl) Count(ctx context.Context, query service.Enquirer, includeParents ...bool) (int, error) {
 	var includeParent bool
 	if len(includeParents) > 0 && includeParents[0] {
 		includeParent = includeParents[0]
@@ -413,13 +392,14 @@ func (s *sqlimpl) Count(ctx context.Context, query sql.Enquirer, includeParents 
 		loginCI:       s.loginCI,
 	}
 
-	rqb, err := resources.PrepareQueryBuilder(&user_model.User{}, s.resourcesDAO, s.instance(ctx).NamingStrategy)
+	session := s.Session(ctx)
+	rqb, err := resources2.PrepareQueryBuilder(&user_model.User{}, s.Resources, session.NamingStrategy)
 	if err != nil {
 		return 0, err
 	}
 
 	var total int64
-	db, er := sql.NewQueryBuilder[*gorm.DB](query, converter, rqb).Build(ctx, s.instance(ctx).Model(&user_model.User{}))
+	db, er := service.NewQueryBuilder[*gorm.DB](query, converter, rqb).Build(ctx, session.Model(&user_model.User{}))
 	if er != nil {
 		return 0, wrap(er)
 	}
@@ -433,7 +413,7 @@ func (s *sqlimpl) Count(ctx context.Context, query sql.Enquirer, includeParents 
 }
 
 // Search in the SQL DB
-func (s *sqlimpl) Search(ctx context.Context, query sql.Enquirer, users *[]interface{}, withParents ...bool) error {
+func (s *sqlimpl) Search(ctx context.Context, query service.Enquirer, users *[]interface{}, withParents ...bool) error {
 
 	var includeParents bool
 	if len(withParents) > 0 {
@@ -454,13 +434,14 @@ func (s *sqlimpl) Search(ctx context.Context, query sql.Enquirer, users *[]inter
 		defer can()
 	}
 
-	rqb, err := resources.PrepareQueryBuilder(&user_model.User{}, s.resourcesDAO, s.instance(ctx).NamingStrategy)
+	session := s.Session(ctx)
+	rqb, err := resources2.PrepareQueryBuilder(&user_model.User{}, s.Resources, session.NamingStrategy)
 	if err != nil {
 		return err
 	}
 
 	var rows []*user_model.User
-	db, er := sql.NewQueryBuilder[*gorm.DB](query, converter, rqb).Build(ctx, s.instance(ctx))
+	db, er := service.NewQueryBuilder[*gorm.DB](query, converter, rqb).Build(ctx, session)
 	if er != nil {
 		return wrap(er)
 	}
@@ -484,9 +465,9 @@ func (s *sqlimpl) Search(ctx context.Context, query sql.Enquirer, users *[]inter
 
 			var roles []*user_model.UserRole
 
-			q := user_model.Use(s.instance(ctx))
+			q := user_model.Use(s.Session(ctx))
 
-			s.instance(ctx).Where(q.UserRole.UUID.Eq(userOrGroup.Uuid)).Find(&roles)
+			s.Session(ctx).Where(q.UserRole.UUID.Eq(userOrGroup.Uuid)).Find(&roles)
 
 			for _, role := range roles {
 				userOrGroup.Roles = append(userOrGroup.Roles, &idm.Role{Uuid: role.Role, Label: role.Role})
@@ -500,9 +481,9 @@ func (s *sqlimpl) Search(ctx context.Context, query sql.Enquirer, users *[]inter
 
 		var attributes []*user_model.UserAttribute
 
-		q := user_model.Use(s.instance(ctx))
+		q := user_model.Use(s.Session(ctx))
 
-		s.instance(ctx).Where(q.UserAttribute.UUID.Eq(userOrGroup.Uuid)).Find(&attributes)
+		s.Session(ctx).Where(q.UserAttribute.UUID.Eq(userOrGroup.Uuid)).Find(&attributes)
 
 		for _, attribute := range attributes {
 			userOrGroup.Attributes[attribute.Name] = attribute.Value
@@ -518,7 +499,7 @@ func (s *sqlimpl) Search(ctx context.Context, query sql.Enquirer, users *[]inter
 }
 
 // Del from the SQL DB
-func (s *sqlimpl) Del(ctx context.Context, query sql.Enquirer, users chan *idm.User) (int64, error) {
+func (s *sqlimpl) Del(ctx context.Context, query service.Enquirer, users chan *idm.User) (int64, error) {
 
 	var rows []*user_model.User
 	converter := &queryConverter{
@@ -527,11 +508,12 @@ func (s *sqlimpl) Del(ctx context.Context, query sql.Enquirer, users chan *idm.U
 		loginCI:       s.loginCI,
 	}
 
-	rqb, err := resources.PrepareQueryBuilder(&user_model.User{}, s.resourcesDAO, s.instance(ctx).NamingStrategy)
+	session := s.Session(ctx)
+	rqb, err := resources2.PrepareQueryBuilder(&user_model.User{}, s.Resources, session.NamingStrategy)
 	if err != nil {
 		return 0, err
 	}
-	db, er := sql.NewQueryBuilder[*gorm.DB](query, converter, rqb).Build(ctx, s.instance(ctx))
+	db, er := service.NewQueryBuilder[*gorm.DB](query, converter, rqb).Build(ctx, session)
 	if er != nil {
 		return 0, wrap(er)
 	}
@@ -583,7 +565,7 @@ func (s *sqlimpl) Del(ctx context.Context, query sql.Enquirer, users chan *idm.U
 
 func (s *sqlimpl) CleanRole(ctx context.Context, roleId string) error {
 
-	db := s.instance(ctx)
+	db := s.Session(ctx)
 
 	q := user_model.Use(db)
 
@@ -598,7 +580,7 @@ func (s *sqlimpl) CleanRole(ctx context.Context, roleId string) error {
 
 func (s *sqlimpl) LoginModifiedAttr(ctx context.Context, oldName, newName string) (int64, error) {
 
-	db := s.instance(ctx)
+	db := s.Session(ctx)
 
 	tx := db.Model(&user_model.UserAttribute{}).
 		Where("name = ?", "pydio:labelLike").
@@ -627,7 +609,7 @@ func (s *sqlimpl) skipRoleAsAutoApplies(profile string, role *idm.Role) bool {
 
 func (s *sqlimpl) deleteNodeData(ctx context.Context, node tree.ITreeNode) error {
 
-	db := s.instance(ctx)
+	db := s.Session(ctx)
 
 	subQ := db.Select("uuid").Where(tree.MPathEqualsOrLike{Value: node.GetMPath()}).Model(&user_model.User{})
 

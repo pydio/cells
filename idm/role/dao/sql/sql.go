@@ -22,7 +22,6 @@ package sql
 
 import (
 	"context"
-	"sync"
 	"time"
 
 	"google.golang.org/protobuf/proto"
@@ -31,8 +30,9 @@ import (
 
 	"github.com/pydio/cells/v4/common/errors"
 	"github.com/pydio/cells/v4/common/proto/idm"
-	"github.com/pydio/cells/v4/common/sql"
-	"github.com/pydio/cells/v4/common/sql/resources"
+	"github.com/pydio/cells/v4/common/proto/service"
+	"github.com/pydio/cells/v4/common/storage/sql"
+	resources2 "github.com/pydio/cells/v4/common/storage/sql/resources"
 	"github.com/pydio/cells/v4/common/utils/uuid"
 	"github.com/pydio/cells/v4/idm/role"
 )
@@ -43,83 +43,16 @@ func init() {
 
 func NewDAO(db *gorm.DB) (role.DAO, error) {
 	return &sqlimpl{
-		db:           db,
-		resourcesDAO: resources.NewDAO(db),
+		AbstractResources: sql.NewAbstractResources(db).WithModels(func() []any {
+			return []any{&idm.Role{}}
+		}),
 	}, nil
 }
 
-type resourcesDAO resources.DAO
-
 // Impl of the SQL interface
 type sqlimpl struct {
-	db *gorm.DB
-
-	once *sync.Once
-
-	resourcesDAO
+	*sql.AbstractResources
 }
-
-func (s *sqlimpl) instance(ctx context.Context) *gorm.DB {
-	return s.db.Session(&gorm.Session{SkipDefaultTransaction: true}).WithContext(ctx)
-}
-
-func (s *sqlimpl) Migrate(ctx context.Context) error {
-	if err := s.instance(ctx).AutoMigrate(&idm.Role{}); err != nil {
-		return err
-	}
-
-	if err := s.resourcesDAO.Migrate(ctx); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-// Init handler for the SQL DAO
-//func (s *sqlimpl) Init(ctx context.Context, options configx.Values) error {
-//
-//	db := s.db
-//	s.instance = func() *gorm.DB { return db.Session(&gorm.Session{SkipDefaultTransaction: true}).Table("idm_roles") }
-//
-//	s.instance().AutoMigrate(&idm.RoleORM{})
-//
-//	s.ResourcesGORM = &resources.ResourcesGORM{DB: s.db}
-//	s.ResourcesGORM.Init(ctx, options)
-//
-//	/* super
-//	if er := s.DAO.Init(ctx, options); er != nil {
-//		return er
-//	}
-//
-//	// Preparing the resources
-//	s.ResourcesSQL = resources.NewDAO(s.Handler, "idm_roles.uuid").(*resources.ResourcesSQL)
-//	if err := s.ResourcesSQL.Init(ctx, options); err != nil {
-//		return err
-//	}
-//
-//	// Doing the database migrations
-//	migrations := &sql.FSMigrationSource{
-//		Box:         statics.AsFS(migrationsFS, "migrations"),
-//		Dir:         s.MySQLDriver(),
-//		TablePrefix: s.Prefix(),
-//	}
-//
-//	_, err := sql.ExecMigration(s.DB(), s.MySQLDriver(), migrations, migrate.Up, "idm_role_")
-//	if err != nil {
-//		return err
-//	}
-//
-//	// Preparing the db statements
-//	if options.Val("prepare").Default(true).Bool() {
-//		for key, query := range queries {
-//			if err := s.Prepare(key, query); err != nil {
-//				return err
-//			}
-//		}
-//	}*/
-//
-//	return nil
-//}
 
 // Add to the underlying SQL DB.
 func (s *sqlimpl) Add(ctx context.Context, role *idm.Role) (*idm.Role, bool, error) {
@@ -138,25 +71,27 @@ func (s *sqlimpl) Add(ctx context.Context, role *idm.Role) (*idm.Role, bool, err
 	var update bool
 	exist := &idm.Role{Uuid: role.Uuid}
 	var er error
-	if t := s.instance(ctx).First(exist); t.Error == nil {
+	session := s.Session(ctx)
+	if t := session.First(exist); t.Error == nil {
 		update = true
-		if tx := s.instance(ctx).Updates(role); tx.Error != nil {
+		if tx := session.Updates(role); tx.Error != nil {
 			er = tx.Error
 		}
 	} else {
-		if tx := s.instance(ctx).Create(role); tx.Error != nil {
+		if tx := session.Create(role); tx.Error != nil {
 			er = tx.Error
 		}
 	}
 	return role, update, er
 }
 
-func (s *sqlimpl) Count(ctx context.Context, query sql.Enquirer) (int32, error) {
-	rqb, err := resources.PrepareQueryBuilder(&idm.Role{}, s.resourcesDAO, s.instance(ctx).NamingStrategy)
+func (s *sqlimpl) Count(ctx context.Context, query service.Enquirer) (int32, error) {
+	session := s.Session(ctx)
+	rqb, err := resources2.PrepareQueryBuilder(&idm.Role{}, s.Resources, session.NamingStrategy)
 	if err != nil {
 		return 0, err
 	}
-	db, er := sql.NewQueryBuilder[*gorm.DB](query, new(queryBuilder), rqb).Build(ctx, s.instance(ctx))
+	db, er := service.NewQueryBuilder[*gorm.DB](query, new(queryBuilder), rqb).Build(ctx, session)
 	if er != nil {
 		return 0, er
 	}
@@ -172,13 +107,14 @@ func (s *sqlimpl) Count(ctx context.Context, query sql.Enquirer) (int32, error) 
 }
 
 // Search in the SQL DB.
-func (s *sqlimpl) Search(ctx context.Context, query sql.Enquirer, roles *[]*idm.Role) error {
+func (s *sqlimpl) Search(ctx context.Context, query service.Enquirer, roles *[]*idm.Role) error {
 
-	rqb, err := resources.PrepareQueryBuilder(&idm.Role{}, s.resourcesDAO, s.instance(ctx).NamingStrategy)
+	session := s.Session(ctx)
+	rqb, err := resources2.PrepareQueryBuilder(&idm.Role{}, s.Resources, session.NamingStrategy)
 	if err != nil {
 		return err
 	}
-	db, er := sql.NewQueryBuilder[*gorm.DB](query, new(queryBuilder), rqb).Build(ctx, s.instance(ctx))
+	db, er := service.NewQueryBuilder[*gorm.DB](query, new(queryBuilder), rqb).Build(ctx, session)
 	if er != nil {
 		return er
 	}
@@ -198,8 +134,8 @@ func (s *sqlimpl) Search(ctx context.Context, query sql.Enquirer, roles *[]*idm.
 }
 
 // Delete from the SQL DB
-func (s *sqlimpl) Delete(ctx context.Context, query sql.Enquirer) (int64, error) {
-	db, er := sql.NewQueryBuilder[*gorm.DB](query, new(queryBuilder)).Build(ctx, s.instance(ctx))
+func (s *sqlimpl) Delete(ctx context.Context, query service.Enquirer) (int64, error) {
+	db, er := service.NewQueryBuilder[*gorm.DB](query, new(queryBuilder)).Build(ctx, s.Session(ctx))
 	if er != nil {
 		return 0, er
 	}

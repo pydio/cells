@@ -1,5 +1,4 @@
 //go:build exclude
-// +build exclude
 
 /*
  * Copyright (c) 2019-2021. Abstrium SAS <team (at) pydio.com>
@@ -22,7 +21,7 @@
  */
 
 // Package sql provides tools and DAOs for speaking SQL as well as managing tables migrations
-package sql
+package archived
 
 /*
 // DAO interface definition

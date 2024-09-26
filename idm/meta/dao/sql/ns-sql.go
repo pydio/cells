@@ -22,7 +22,6 @@ package sql
 
 import (
 	"context"
-	"sync"
 
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
@@ -31,7 +30,8 @@ import (
 	"github.com/pydio/cells/v4/common/errors"
 	"github.com/pydio/cells/v4/common/proto/idm"
 	"github.com/pydio/cells/v4/common/proto/service"
-	"github.com/pydio/cells/v4/common/sql/resources"
+	"github.com/pydio/cells/v4/common/storage/sql"
+	"github.com/pydio/cells/v4/common/storage/sql/resources"
 	"github.com/pydio/cells/v4/idm/meta"
 )
 
@@ -75,31 +75,21 @@ func (u *MetaNamespace) From(res *idm.UserMetaNamespace) *MetaNamespace {
 }
 
 func NewNSDAO(db *gorm.DB) meta.NamespaceDAO {
-	resDAO := resources.NewDAO(db)
-	return &nsSqlImpl{db: db, resourcesDAO: resDAO}
+	return &nsSqlImpl{
+		Abstract:     sql.NewAbstract(db),
+		resourcesDAO: resources.NewDAO(db),
+	}
 }
 
 // Impl of the SQL interface
 type nsSqlImpl struct {
-	// *sql.Handler
-
-	db   *gorm.DB
-	once *sync.Once
-
+	*sql.Abstract
 	resourcesDAO
-}
-
-func (s *nsSqlImpl) instance(ctx context.Context) *gorm.DB {
-	if s.once == nil {
-		s.once = &sync.Once{}
-	}
-
-	return s.db.Session(&gorm.Session{SkipDefaultTransaction: true}).WithContext(ctx)
 }
 
 func (s *nsSqlImpl) Migrate(ctx context.Context) error {
 
-	instance := s.instance(ctx)
+	instance := s.Session(ctx)
 	if err := instance.AutoMigrate(&MetaNamespace{}); err != nil {
 		return err
 	}
@@ -124,7 +114,7 @@ func (s *nsSqlImpl) Migrate(ctx context.Context) error {
 
 // Add inserts a namespace
 func (s *nsSqlImpl) Add(ctx context.Context, ns *idm.UserMetaNamespace) error {
-	tx := s.instance(ctx).Clauses(clause.OnConflict{UpdateAll: true}).Create((&MetaNamespace{}).From(ns))
+	tx := s.Session(ctx).Clauses(clause.OnConflict{UpdateAll: true}).Create((&MetaNamespace{}).From(ns))
 	if tx.Error != nil {
 		return nsTag(tx.Error)
 	}
@@ -140,7 +130,7 @@ func (s *nsSqlImpl) Add(ctx context.Context, ns *idm.UserMetaNamespace) error {
 
 // Del removes a namespace
 func (s *nsSqlImpl) Del(ctx context.Context, ns *idm.UserMetaNamespace) (e error) {
-	tx := s.instance(ctx).Where((&MetaNamespace{}).From(ns)).Delete(&MetaNamespace{})
+	tx := s.Session(ctx).Where((&MetaNamespace{}).From(ns)).Delete(&MetaNamespace{})
 	if tx.Error != nil {
 		return nsTag(tx.Error)
 	}
@@ -155,7 +145,7 @@ func (s *nsSqlImpl) Del(ctx context.Context, ns *idm.UserMetaNamespace) (e error
 // List lists all namespaces
 func (s *nsSqlImpl) List(ctx context.Context) (map[string]*idm.UserMetaNamespace, error) {
 	var mm []*MetaNamespace
-	tx := s.instance(ctx).Find(&mm)
+	tx := s.Session(ctx).Find(&mm)
 	if tx.Error != nil {
 		return nil, nsTag(tx.Error)
 	}

@@ -22,7 +22,6 @@ package sql
 
 import (
 	"context"
-	"sync"
 	"time"
 
 	"go.uber.org/zap"
@@ -33,15 +32,15 @@ import (
 
 	"github.com/pydio/cells/v4/common/errors"
 	"github.com/pydio/cells/v4/common/proto/idm"
-	service "github.com/pydio/cells/v4/common/proto/service"
-	"github.com/pydio/cells/v4/common/sql"
-	"github.com/pydio/cells/v4/common/sql/resources"
+	"github.com/pydio/cells/v4/common/proto/service"
+	"github.com/pydio/cells/v4/common/storage/sql"
+	resources2 "github.com/pydio/cells/v4/common/storage/sql/resources"
 	"github.com/pydio/cells/v4/common/telemetry/log"
 	"github.com/pydio/cells/v4/common/utils/uuid"
 	"github.com/pydio/cells/v4/idm/meta"
 )
 
-type resourcesDAO resources.DAO
+type resourcesDAO resources2.DAO
 
 func init() {
 	meta.Drivers.Register(NewDAO)
@@ -56,24 +55,17 @@ func tag(err error) error {
 }
 
 func NewDAO(db *gorm.DB) meta.DAO {
-	resDAO := resources.NewDAO(db)
-	nsDAO := NewNSDAO(db)
-
 	return &sqlimpl{
-		db:           db,
-		resourcesDAO: resDAO,
-		nsDAO:        nsDAO,
+		Abstract:     sql.NewAbstract(db),
+		resourcesDAO: resources2.NewDAO(db),
+		nsDAO:        NewNSDAO(db),
 	}
 }
 
 // Impl of the SQL interface
 type sqlimpl struct {
-	db *gorm.DB
-
-	once *sync.Once
-
+	*sql.Abstract
 	resourcesDAO
-
 	nsDAO meta.NamespaceDAO
 }
 
@@ -117,16 +109,12 @@ func (u *Meta) BeforeCreate(tx *gorm.DB) (err error) {
 	return
 }
 
-func (dao *sqlimpl) GetNamespaceDao() meta.NamespaceDAO {
-	return dao.nsDAO
-}
-
-func (s *sqlimpl) instance(ctx context.Context) *gorm.DB {
-	return s.db.Session(&gorm.Session{SkipDefaultTransaction: true}).WithContext(ctx)
+func (s *sqlimpl) GetNamespaceDao() meta.NamespaceDAO {
+	return s.nsDAO
 }
 
 func (s *sqlimpl) Migrate(ctx context.Context) error {
-	if err := s.instance(ctx).AutoMigrate(&Meta{}, &MetaNamespace{}); err != nil {
+	if err := s.Session(ctx).AutoMigrate(&Meta{}, &MetaNamespace{}); err != nil {
 		return err
 	}
 
@@ -149,7 +137,7 @@ func (s *sqlimpl) Set(ctx context.Context, meta *idm.UserMeta) (*idm.UserMeta, s
 	update := false
 
 	// Attempting to create
-	tx := s.instance(ctx).Clauses(clause.OnConflict{
+	tx := s.Session(ctx).Clauses(clause.OnConflict{
 		Columns:   []clause.Column{{Name: "node_uuid"}, {Name: "namespace"}, {Name: "owner"}},
 		DoUpdates: clause.AssignmentColumns([]string{"timestamp", "format", "data"}),
 	}).Create(old)
@@ -163,9 +151,8 @@ func (s *sqlimpl) Set(ctx context.Context, meta *idm.UserMeta) (*idm.UserMeta, s
 		prev = string(target.Data)
 
 		update = true
-		tx := s.instance(ctx).Where(&Meta{UUID: old.UUID}).Updates(target)
-		if tx.Error != nil {
-			return nil, "", tag(tx.Error)
+		if tx2 := s.Session(ctx).Where(&Meta{UUID: old.UUID}).Updates(target); tx2.Error != nil {
+			return nil, "", tag(tx2.Error)
 		}
 	} else {
 		target = old
@@ -190,14 +177,15 @@ func (s *sqlimpl) Set(ctx context.Context, meta *idm.UserMeta) (*idm.UserMeta, s
 func (s *sqlimpl) Del(ctx context.Context, meta *idm.UserMeta) (previousValue string, e error) {
 	target := (&Meta{}).From(meta)
 	old := &Meta{}
+	sess := s.Session(ctx)
 
-	if tx := s.instance(ctx).Where(&Meta{UUID: target.UUID, Owner: target.Owner, Namespace: target.Namespace, NodeUUID: target.NodeUUID}).Find(&old); tx.Error != nil {
+	if tx := sess.Where(&Meta{UUID: target.UUID, Owner: target.Owner, Namespace: target.Namespace, NodeUUID: target.NodeUUID}).Find(&old); tx.Error != nil {
 		return "", tag(tx.Error)
 	}
 
 	previousValue = string(old.Data)
 
-	if tx := s.instance(ctx).Delete(&old); tx.Error != nil {
+	if tx := sess.Delete(&old); tx.Error != nil {
 		return "", tag(tx.Error)
 	}
 
@@ -210,13 +198,14 @@ func (s *sqlimpl) Del(ctx context.Context, meta *idm.UserMeta) (previousValue st
 
 // Search meta on their conditions
 // func (s *sqlimpl) Search(metaIds []string, nodeUuids []string, namespace string, ownerSubject string, resourceQuery *service.ResourcePolicyQuery) ([]*idm.UserMeta, error) {
-func (s *sqlimpl) Search(ctx context.Context, query sql.Enquirer) ([]*idm.UserMeta, error) {
+func (s *sqlimpl) Search(ctx context.Context, query service.Enquirer) ([]*idm.UserMeta, error) {
 
-	rqb, err := resources.PrepareQueryBuilder(&Meta{}, s.resourcesDAO, s.instance(ctx).NamingStrategy)
+	session := s.Session(ctx)
+	rqb, err := resources2.PrepareQueryBuilder(&Meta{}, s.resourcesDAO, session.NamingStrategy)
 	if err != nil {
 		return nil, err
 	}
-	db, er := sql.NewQueryBuilder[*gorm.DB](query, new(queryBuilder), rqb).Build(ctx, s.instance(ctx))
+	db, er := service.NewQueryBuilder[*gorm.DB](query, new(queryBuilder), rqb).Build(ctx, session)
 	if er != nil {
 		return nil, er
 	}

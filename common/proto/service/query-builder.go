@@ -18,16 +18,27 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-package sql
+package service
 
 import (
 	"context"
+	"fmt"
 
 	"google.golang.org/protobuf/proto"
 	"google.golang.org/protobuf/types/known/anypb"
-
-	"github.com/pydio/cells/v4/common/proto/service"
 )
+
+// Enquirer interface
+type Enquirer interface {
+	GetSubQueries() []*anypb.Any
+	GetOperation() OperationType
+	GetOffset() int64
+	GetLimit() int64
+	GetGroupBy() int32
+	GetResourcePolicyQuery() *ResourcePolicyQuery
+
+	fmt.Stringer
+}
 
 type Collector[T any] interface {
 	Or(query interface{}, args ...interface{}) T
@@ -82,11 +93,11 @@ type wrapConverter[T Collector[T]] struct {
 func (gc *wrapConverter[T]) Convert(ctx context.Context, val *anypb.Any, in T) (out T, ok bool, err error) {
 	out = in
 
-	sub := new(service.Query)
+	sub := new(Query)
 
 	if e := anypb.UnmarshalTo(val, sub, proto.UnmarshalOptions{}); e == nil {
 		if subQuery, er := subQueryBuilder(sub, gc.converters...).Build(ctx, in); er == nil {
-			if gc.enquirer.GetOperation() == service.OperationType_OR {
+			if gc.enquirer.GetOperation() == OperationType_OR {
 				out = out.Or(subQuery)
 			} else {
 				out = out.Where(subQuery)
@@ -117,7 +128,7 @@ func (qb *queryBuilder[T]) Build(ctx context.Context, in T) (out T, e error) {
 
 	out = in
 	for i, subDB := range subDBs {
-		if i > 0 && qb.enquirer.GetOperation() == service.OperationType_OR {
+		if i > 0 && qb.enquirer.GetOperation() == OperationType_OR {
 			out = out.Or(subDB)
 		} else {
 			out = out.Where(subDB)

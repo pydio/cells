@@ -27,7 +27,7 @@ import (
 	"go.uber.org/zap"
 
 	"github.com/pydio/cells/v4/common/proto/idm"
-	"github.com/pydio/cells/v4/common/sql/resources"
+	"github.com/pydio/cells/v4/common/storage/sql/resources"
 	"github.com/pydio/cells/v4/common/telemetry/log"
 )
 

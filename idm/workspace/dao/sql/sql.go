@@ -23,7 +23,6 @@ package sql
 import (
 	"context"
 	"fmt"
-	"sync"
 	"time"
 
 	"google.golang.org/protobuf/proto"
@@ -33,48 +32,29 @@ import (
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/errors"
 	"github.com/pydio/cells/v4/common/proto/idm"
-	"github.com/pydio/cells/v4/common/sql"
-	"github.com/pydio/cells/v4/common/sql/resources"
+	"github.com/pydio/cells/v4/common/proto/service"
+	"github.com/pydio/cells/v4/common/storage/sql"
+	resources2 "github.com/pydio/cells/v4/common/storage/sql/resources"
 	"github.com/pydio/cells/v4/idm/workspace"
 )
 
-type resourcesDAO resources.DAO
+type Resources resources2.DAO
 
 func init() {
 	workspace.Drivers.Register(NewDAO)
 }
 
 func NewDAO(db *gorm.DB) workspace.DAO {
-	resDAO := resources.NewDAO(db)
 	return &sqlimpl{
-		db:           db,
-		resourcesDAO: resDAO,
+		AbstractResources: sql.NewAbstractResources(db).WithModels(func() []any {
+			return []any{&idm.Workspace{}}
+		}),
 	}
 }
 
 // Impl of the SQL interface
 type sqlimpl struct {
-	db *gorm.DB
-
-	once *sync.Once
-
-	resourcesDAO
-}
-
-func (s *sqlimpl) instance(ctx context.Context) *gorm.DB {
-	return s.db.Session(&gorm.Session{SkipDefaultTransaction: true}).WithContext(ctx)
-}
-
-func (s *sqlimpl) Migrate(ctx context.Context) error {
-	if err := s.instance(ctx).AutoMigrate(&idm.Workspace{}); err != nil {
-		return err
-	}
-
-	if err := s.resourcesDAO.Migrate(ctx); err != nil {
-		return err
-	}
-
-	return nil
+	*sql.AbstractResources
 }
 
 // Add to the SQL DB.
@@ -87,7 +67,8 @@ func (s *sqlimpl) Add(ctx context.Context, in interface{}) (bool, error) {
 
 	var exSlug string
 	exist := &idm.Workspace{UUID: ws.UUID}
-	if tx := s.instance(ctx).First(exist); tx.Error == nil {
+	session := s.Session(ctx)
+	if tx := session.First(exist); tx.Error == nil {
 		exSlug = exist.Slug
 	}
 	if (exSlug == "" || exSlug != ws.Slug) && s.slugExists(ctx, ws.Slug) {
@@ -104,7 +85,7 @@ func (s *sqlimpl) Add(ctx context.Context, in interface{}) (bool, error) {
 		ws.Slug = testSlug
 	}
 
-	tx := s.instance(ctx).FirstOrCreate(ws)
+	tx := session.FirstOrCreate(ws)
 	if err := tx.Error; err != nil {
 		return false, err
 	}
@@ -121,18 +102,18 @@ func (s *sqlimpl) slugExists(ctx context.Context, slug string) bool {
 		return true
 	}
 	var count int64
-	s.instance(ctx).Model(idm.Workspace{}).Where("slug = ?", slug).Count(&count)
+	s.Session(ctx).Model(idm.Workspace{}).Where("slug = ?", slug).Count(&count)
 	return count > 0
 }
 
 // Search searches
-func (s *sqlimpl) Search(ctx context.Context, query sql.Enquirer, workspaces *[]interface{}) error {
+func (s *sqlimpl) Search(ctx context.Context, query service.Enquirer, workspaces *[]interface{}) error {
 
-	rqb, er := resources.PrepareQueryBuilder(&idm.Workspace{}, s.resourcesDAO, s.instance(ctx).NamingStrategy)
+	rqb, er := resources2.PrepareQueryBuilder(&idm.Workspace{}, s.Resources, s.Session(ctx).NamingStrategy)
 	if er != nil {
 		return er
 	}
-	db, er := sql.NewQueryBuilder[*gorm.DB](query, new(queryBuilder), rqb).Build(ctx, s.instance(ctx))
+	db, er := service.NewQueryBuilder[*gorm.DB](query, new(queryBuilder), rqb).Build(ctx, s.Session(ctx))
 	if er != nil {
 		return er
 	}
@@ -152,13 +133,13 @@ func (s *sqlimpl) Search(ctx context.Context, query sql.Enquirer, workspaces *[]
 }
 
 // Del from the SQL DB
-func (s *sqlimpl) Del(ctx context.Context, query sql.Enquirer) (int64, error) {
+func (s *sqlimpl) Del(ctx context.Context, query service.Enquirer) (int64, error) {
 
-	rqb, er := resources.PrepareQueryBuilder(&idm.Workspace{}, s.resourcesDAO, s.instance(ctx).NamingStrategy)
+	rqb, er := resources2.PrepareQueryBuilder(&idm.Workspace{}, s.Resources, s.Session(ctx).NamingStrategy)
 	if er != nil {
 		return 0, er
 	}
-	db, er := sql.NewQueryBuilder[*gorm.DB](query, new(queryBuilder), rqb).Build(ctx, s.instance(ctx))
+	db, er := service.NewQueryBuilder[*gorm.DB](query, new(queryBuilder), rqb).Build(ctx, s.Session(ctx))
 	if er != nil {
 		return 0, er
 	}

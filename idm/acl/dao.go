@@ -25,8 +25,8 @@ import (
 	"context"
 	"time"
 
+	service2 "github.com/pydio/cells/v4/common/proto/service"
 	"github.com/pydio/cells/v4/common/service"
-	"github.com/pydio/cells/v4/common/sql"
 )
 
 var Drivers = service.StorageDrivers{}
@@ -59,7 +59,7 @@ func ReadExpirationPeriod(p ExpirationProvider) *ExpirationPeriod {
 type DAO interface {
 	Migrate(context.Context) error
 	Add(context.Context, interface{}) error
-	SetExpiry(context.Context, sql.Enquirer, *time.Time, *ExpirationPeriod) (int64, error)
-	Del(context.Context, sql.Enquirer, *ExpirationPeriod) (numRows int64, e error)
-	Search(context.Context, sql.Enquirer, *[]interface{}, *ExpirationPeriod) error
+	SetExpiry(context.Context, service2.Enquirer, *time.Time, *ExpirationPeriod) (int64, error)
+	Del(context.Context, service2.Enquirer, *ExpirationPeriod) (numRows int64, e error)
+	Search(context.Context, service2.Enquirer, *[]interface{}, *ExpirationPeriod) error
 }

@@ -32,7 +32,6 @@ import (
 	"github.com/pydio/cells/v4/common/proto/idm"
 	"github.com/pydio/cells/v4/common/proto/service"
 	"github.com/pydio/cells/v4/common/runtime/manager"
-	"github.com/pydio/cells/v4/common/sql"
 	"github.com/pydio/cells/v4/common/storage/test"
 	"github.com/pydio/cells/v4/common/utils/uuid"
 	"github.com/pydio/cells/v4/idm/role"
@@ -272,7 +271,7 @@ func TestQueryBuilder(t *testing.T) {
 			panic(err)
 		}
 
-		mockDB := dao.(*sqlimpl).db
+		mockDB := dao.(*sqlimpl).Abstract.DB
 
 		Convey("Query Builder", t, func() {
 
@@ -298,7 +297,7 @@ func TestQueryBuilder(t *testing.T) {
 				Limit:      10,
 			}
 
-			s, er := sql.NewQueryBuilder[*gorm.DB](simpleQuery, new(queryBuilder)).Build(ctx, mockDB)
+			s, er := service.NewQueryBuilder[*gorm.DB](simpleQuery, new(queryBuilder)).Build(ctx, mockDB)
 			So(er, ShouldBeNil)
 			So(s, ShouldNotBeNil)
 
@@ -351,7 +350,7 @@ func TestQueryBuilder(t *testing.T) {
 				Operation: service.OperationType_AND,
 			}
 
-			s, er := sql.NewQueryBuilder[*gorm.DB](composedQuery, new(queryBuilder)).Build(ctx, mockDB)
+			s, er := service.NewQueryBuilder[*gorm.DB](composedQuery, new(queryBuilder)).Build(ctx, mockDB)
 			So(er, ShouldBeNil)
 			So(s, ShouldNotBeNil)
 

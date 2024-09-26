@@ -27,7 +27,6 @@ import (
 	"gorm.io/gorm"
 
 	service "github.com/pydio/cells/v4/common/proto/service"
-	"github.com/pydio/cells/v4/common/sql"
 )
 
 // DAO interface
@@ -45,7 +44,7 @@ type DAO interface {
 
 	BuildPolicyConditionForAction(ctx context.Context, q *service.ResourcePolicyQuery, action service.ResourcePolicyAction) (expr any, e error)
 
-	sql.Converter[*gorm.DB]
+	service.Converter[*gorm.DB]
 }
 
 func NewDAO(db *gorm.DB) DAO {

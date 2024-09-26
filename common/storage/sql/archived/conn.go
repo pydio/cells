@@ -1,4 +1,6 @@
-package sql
+//go:build exclude
+
+package archived
 
 import (
 	"context"

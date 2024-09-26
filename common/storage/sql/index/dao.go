@@ -29,7 +29,6 @@ import (
 	"gorm.io/gorm"
 
 	"github.com/pydio/cells/v4/common/proto/tree"
-	"github.com/pydio/cells/v4/common/sql"
 )
 
 // Errors
@@ -38,6 +37,12 @@ var (
 	errNotFound       = errors.New("not found")
 	errAlreadyExists  = errors.New("already exists")
 )
+
+// BatchSender interface
+type BatchSender interface {
+	Send(interface{})
+	Close() error
+}
 
 // DAO interface
 type DAO interface {
@@ -60,7 +65,7 @@ type DAO interface {
 
 	// Batch Add / Set / Delete
 	GetNodes(context.Context, ...*tree.MPath) chan tree.ITreeNode
-	SetNodes(context.Context, string, int64) sql.BatchSender
+	SetNodes(context.Context, string, int64) BatchSender
 
 	// Getters
 	GetNodeChildren(context.Context, *tree.MPath, ...*tree.MetaFilter) chan interface{}

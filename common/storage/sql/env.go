@@ -1,9 +1,10 @@
 package sql
 
 import (
-	"github.com/pydio/cells/v4/common/runtime"
 	"os"
 	"time"
+
+	"github.com/pydio/cells/v4/common/runtime"
 )
 
 var (

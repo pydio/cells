@@ -28,9 +28,9 @@ import (
 	"context"
 
 	"github.com/pydio/cells/v4/common/proto/idm"
+	service2 "github.com/pydio/cells/v4/common/proto/service"
 	"github.com/pydio/cells/v4/common/service"
-	"github.com/pydio/cells/v4/common/sql"
-	"github.com/pydio/cells/v4/common/sql/resources"
+	"github.com/pydio/cells/v4/common/storage/sql/resources"
 )
 
 var Drivers = service.StorageDrivers{}
@@ -43,7 +43,7 @@ type DAO interface {
 	Migrate(ctx context.Context) error
 	Set(ctx context.Context, meta *idm.UserMeta) (*idm.UserMeta, string, error)
 	Del(ctx context.Context, meta *idm.UserMeta) (prevValue string, e error)
-	Search(ctx context.Context, query sql.Enquirer) ([]*idm.UserMeta, error)
+	Search(ctx context.Context, query service2.Enquirer) ([]*idm.UserMeta, error)
 }
 
 const (

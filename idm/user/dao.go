@@ -27,10 +27,10 @@ import (
 	"context"
 
 	"github.com/pydio/cells/v4/common/proto/idm"
+	service2 "github.com/pydio/cells/v4/common/proto/service"
 	"github.com/pydio/cells/v4/common/service"
-	"github.com/pydio/cells/v4/common/sql"
-	index "github.com/pydio/cells/v4/common/sql/indexgorm"
-	"github.com/pydio/cells/v4/common/sql/resources"
+	"github.com/pydio/cells/v4/common/storage/sql/index"
+	"github.com/pydio/cells/v4/common/storage/sql/resources"
 )
 
 var Drivers = service.StorageDrivers{}
@@ -47,9 +47,9 @@ type DAO interface {
 	// of an existing user and/or an error if something went wrong.
 
 	Add(context.Context, interface{}) (interface{}, []*idm.User, error)
-	Del(context.Context, sql.Enquirer, chan *idm.User) (numRows int64, e error)
-	Search(context.Context, sql.Enquirer, *[]interface{}, ...bool) error
-	Count(context.Context, sql.Enquirer, ...bool) (int, error)
+	Del(context.Context, service2.Enquirer, chan *idm.User) (numRows int64, e error)
+	Search(context.Context, service2.Enquirer, *[]interface{}, ...bool) error
+	Count(context.Context, service2.Enquirer, ...bool) (int, error)
 	Bind(ctx context.Context, userName string, password string) (*idm.User, error)
 	CleanRole(ctx context.Context, roleId string) error
 	TouchUser(ctx context.Context, userUuid string) error

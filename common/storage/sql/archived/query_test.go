@@ -1,3 +1,5 @@
+//go:build exclude
+
 /*
  * Copyright (c) 2019-2021. Abstrium SAS <team (at) pydio.com>
  * This file is part of Pydio Cells.
@@ -18,21 +20,22 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-package sql
+package archived
 
 import (
 	"fmt"
-	"gorm.io/driver/sqlite"
-	"gorm.io/gorm"
-	"gorm.io/gorm/logger"
 	"reflect"
 	"strings"
 	"testing"
 
-	. "github.com/smartystreets/goconvey/convey"
 	"google.golang.org/protobuf/types/known/anypb"
+	"gorm.io/driver/sqlite"
+	"gorm.io/gorm"
+	"gorm.io/gorm/logger"
 
 	"github.com/pydio/cells/v4/common/proto/service"
+
+	. "github.com/smartystreets/goconvey/convey"
 )
 
 type fakeConverter struct{}

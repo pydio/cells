@@ -26,9 +26,9 @@ package workspace
 import (
 	"context"
 
+	service2 "github.com/pydio/cells/v4/common/proto/service"
 	"github.com/pydio/cells/v4/common/service"
-	"github.com/pydio/cells/v4/common/sql"
-	"github.com/pydio/cells/v4/common/sql/resources"
+	"github.com/pydio/cells/v4/common/storage/sql/resources"
 )
 
 var Drivers = service.StorageDrivers{}
@@ -42,6 +42,6 @@ type DAO interface {
 	// Add creates or updates a workspace in the database.
 	// It returns true in case of an update.
 	Add(context.Context, interface{}) (bool, error)
-	Del(context.Context, sql.Enquirer) (numRows int64, e error)
-	Search(context.Context, sql.Enquirer, *[]interface{}) error
+	Del(context.Context, service2.Enquirer) (numRows int64, e error)
+	Search(context.Context, service2.Enquirer, *[]interface{}) error
 }

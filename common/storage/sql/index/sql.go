@@ -46,7 +46,6 @@ import (
 	"github.com/pydio/cells/v4/common/errors"
 	"github.com/pydio/cells/v4/common/proto/options/orm"
 	"github.com/pydio/cells/v4/common/proto/tree"
-	"github.com/pydio/cells/v4/common/sql"
 	storagesql "github.com/pydio/cells/v4/common/storage/sql"
 	"github.com/pydio/cells/v4/common/utils/uuid"
 )
@@ -86,7 +85,7 @@ type IndexSQL[T tree.ITreeNode] struct {
 
 	once *sync.Once
 
-	sql.Helper
+	//	sql.Helper
 
 	factory Factory[T]
 }
@@ -317,7 +316,7 @@ func (dao *IndexSQL[T]) ResyncDirtyEtags(ctx context.Context, rootNode tree.ITre
 }
 
 // SetNodes returns a channel and waits for arriving nodes before updating them in batch.
-func (dao *IndexSQL[T]) SetNodes(ctx context.Context, etag string, deltaSize int64) sql.BatchSender {
+func (dao *IndexSQL[T]) SetNodes(ctx context.Context, etag string, deltaSize int64) BatchSender {
 
 	b := NewBatchSend()
 

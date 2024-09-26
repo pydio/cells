@@ -34,9 +34,9 @@ import (
 
 	"github.com/pydio/cells/v4/common/errors"
 	"github.com/pydio/cells/v4/common/proto/idm"
-	"github.com/pydio/cells/v4/common/sql"
+	"github.com/pydio/cells/v4/common/proto/service"
+	"github.com/pydio/cells/v4/common/storage/sql"
 	"github.com/pydio/cells/v4/common/telemetry/log"
-	"github.com/pydio/cells/v4/common/utils/configx"
 	"github.com/pydio/cells/v4/idm/acl"
 )
 
@@ -45,7 +45,9 @@ func init() {
 }
 
 func NewDAO(db *gorm.DB) acl.DAO {
-	return &sqlimpl{DB: db}
+	return &sqlimpl{
+		Abstract: sql.NewAbstract(db),
+	}
 }
 
 type ACL struct {
@@ -78,7 +80,7 @@ type Node struct {
 }
 
 type sqlimpl struct {
-	DB *gorm.DB
+	*sql.Abstract
 
 	once *sync.Once
 }
@@ -99,27 +101,9 @@ func (*Node) TableName(namer schema.Namer) string {
 	return namer.TableName("acl_nodes")
 }
 
-// Init handler for the SQL DAO
-func (s *sqlimpl) Init(ctx context.Context, options configx.Values) error {
-
-	s.instance(ctx) //.AutoMigrate(&ACL{}, &Role{}, &Workspace{}, &Node{})
-
-	return nil
-}
-
-func (s *sqlimpl) instance(ctx context.Context) *gorm.DB {
-	if s.once == nil {
-		s.once = &sync.Once{}
-	}
-
-	db := s.DB.Session(&gorm.Session{SkipDefaultTransaction: true}).WithContext(ctx)
-
-	return db
-}
-
 func (s *sqlimpl) Migrate(ctx context.Context) error {
-	db := s.instance(ctx)
-	if er := s.instance(ctx).AutoMigrate(&ACL{}, &Role{}, &Workspace{}, &Node{}); er != nil {
+	db := s.Session(ctx)
+	if er := db.AutoMigrate(&ACL{}, &Role{}, &Workspace{}, &Node{}); er != nil {
 		return er
 	}
 	// Create default "-1" values for each tables
@@ -131,12 +115,12 @@ func (s *sqlimpl) Migrate(ctx context.Context) error {
 
 // Add inserts an ACL to the underlying SQL DB
 func (s *sqlimpl) Add(ctx context.Context, in interface{}) error {
-	return s.addWithDupCheck(ctx, in, true)
+	return s.addWithDupCheck(ctx, s.Session(ctx), in, true)
 }
 
 // addWithDupCheck insert and override existing value if it's a
 // duplicate key and the ACL is expired
-func (s *sqlimpl) addWithDupCheck(ctx context.Context, in interface{}, check bool) error {
+func (s *sqlimpl) addWithDupCheck(ctx context.Context, session *gorm.DB, in interface{}, check bool) error {
 
 	val, ok := in.(*idm.ACL)
 	if !ok {
@@ -150,25 +134,21 @@ func (s *sqlimpl) addWithDupCheck(ctx context.Context, in interface{}, check boo
 	workspace := Workspace{UUID: val.GetWorkspaceID()}
 	if workspace.UUID != "" {
 		workspace.UUID = val.GetWorkspaceID()
-
-		tx := s.instance(ctx).Where(workspace).FirstOrCreate(&workspace)
-		if tx.Error != nil {
+		if tx := session.Where(workspace).FirstOrCreate(&workspace); tx.Error != nil {
 			return tx.Error
 		}
 	}
 
 	node := Node{UUID: val.GetNodeID()}
 	if node.UUID != "" {
-		tx := s.instance(ctx).Where(node).FirstOrCreate(&node)
-		if tx.Error != nil {
+		if tx := session.Where(node).FirstOrCreate(&node); tx.Error != nil {
 			return tx.Error
 		}
 	}
 
 	role := Role{UUID: val.GetRoleID()}
 	if role.UUID != "" {
-		tx := s.instance(ctx).Where(role).FirstOrCreate(&role)
-		if tx.Error != nil {
+		if tx := session.Where(role).FirstOrCreate(&role); tx.Error != nil {
 			return tx.Error
 		}
 	}
@@ -183,12 +163,11 @@ func (s *sqlimpl) addWithDupCheck(ctx context.Context, in interface{}, check boo
 		Node:        node,
 	}
 
-	tx := s.instance(ctx).Create(a)
-	if tx.Error != nil {
+	if tx := session.Create(a); tx.Error != nil {
 		if errors.Is(tx.Error, gorm.ErrDuplicatedKey) && check {
-			if tx = s.instance(ctx).Where("expires_at IS NOT NULL AND expires_at < ?", time.Now()).Where(a).Delete(a); tx.Error == nil && tx.RowsAffected > 0 {
+			if tx = session.Where("expires_at IS NOT NULL AND expires_at < ?", time.Now()).Where(a).Delete(a); tx.Error == nil && tx.RowsAffected > 0 {
 				fmt.Println("[AddACL] Replacing one duplicate row that was in fact expired")
-				return s.addWithDupCheck(ctx, in, false)
+				return s.addWithDupCheck(ctx, session, in, false)
 			}
 		}
 		return tx.Error
@@ -200,8 +179,8 @@ func (s *sqlimpl) addWithDupCheck(ctx context.Context, in interface{}, check boo
 }
 
 // Search in the underlying SQL DB.
-func (s *sqlimpl) Search(ctx context.Context, query sql.Enquirer, out *[]interface{}, period *acl.ExpirationPeriod) error {
-	db, er := sql.NewQueryBuilder[*gorm.DB](query, new(queryConverter)).Build(ctx, s.instance(ctx))
+func (s *sqlimpl) Search(ctx context.Context, query service.Enquirer, out *[]interface{}, period *acl.ExpirationPeriod) error {
+	db, er := service.NewQueryBuilder[*gorm.DB](query, new(queryConverter)).Build(ctx, s.Session(ctx))
 	if er != nil {
 		return er
 	}
@@ -239,9 +218,9 @@ func (s *sqlimpl) Search(ctx context.Context, query sql.Enquirer, out *[]interfa
 }
 
 // SetExpiry sets an expiry timestamp on the acl
-func (s *sqlimpl) SetExpiry(ctx context.Context, query sql.Enquirer, t *time.Time, period *acl.ExpirationPeriod) (int64, error) {
+func (s *sqlimpl) SetExpiry(ctx context.Context, query service.Enquirer, t *time.Time, period *acl.ExpirationPeriod) (int64, error) {
 
-	db, er := sql.NewQueryBuilder[*gorm.DB](query, new(queryConverter)).Build(ctx, s.instance(ctx))
+	db, er := service.NewQueryBuilder[*gorm.DB](query, new(queryConverter)).Build(ctx, s.Session(ctx))
 	if er != nil {
 		return 0, er
 	}
@@ -259,9 +238,9 @@ func (s *sqlimpl) SetExpiry(ctx context.Context, query sql.Enquirer, t *time.Tim
 }
 
 // Del from the sql DB.
-func (s *sqlimpl) Del(ctx context.Context, query sql.Enquirer, period *acl.ExpirationPeriod) (int64, error) {
+func (s *sqlimpl) Del(ctx context.Context, query service.Enquirer, period *acl.ExpirationPeriod) (int64, error) {
 
-	db, er := sql.NewQueryBuilder[*gorm.DB](query, new(queryConverter)).Build(ctx, s.instance(ctx))
+	db, er := service.NewQueryBuilder[*gorm.DB](query, new(queryConverter)).Build(ctx, s.Session(ctx))
 	if er != nil {
 		return 0, er
 	}
@@ -276,7 +255,7 @@ func (s *sqlimpl) Del(ctx context.Context, query sql.Enquirer, period *acl.Expir
 	}
 
 	if tx.RowsAffected > 0 {
-		newInstance := s.instance(ctx)
+		newInstance := s.Session(ctx)
 		subQuery := newInstance.Session(&gorm.Session{}).Model(&ACL{}).Distinct("workspace_id")
 		if cleanTx := newInstance.Where("id != -1").Not("id IN (?)", subQuery).Delete(&Workspace{}); cleanTx.Error == nil {
 			fmt.Printf("Cleaned %d workspaces\n", cleanTx.RowsAffected)

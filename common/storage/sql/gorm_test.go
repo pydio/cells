@@ -1,11 +1,10 @@
-package sql
+package sql_test
 
 import (
 	"context"
 	"database/sql"
 	"errors"
 	"fmt"
-	"github.com/pydio/cells/v4/common/utils/openurl"
 	"testing"
 
 	"github.com/spf13/viper"
@@ -21,8 +20,10 @@ import (
 	"github.com/pydio/cells/v4/common/runtime/manager"
 	"github.com/pydio/cells/v4/common/service"
 	"github.com/pydio/cells/v4/common/storage"
+	ssql "github.com/pydio/cells/v4/common/storage/sql"
 	dbresolver "github.com/pydio/cells/v4/common/storage/sql/dbresolver"
 	"github.com/pydio/cells/v4/common/storage/test"
+	"github.com/pydio/cells/v4/common/utils/openurl"
 	"github.com/pydio/cells/v4/common/utils/uuid"
 
 	_ "embed"
@@ -131,7 +132,7 @@ type DataWithPK struct {
 
 func TestDBPool(t *testing.T) {
 	c := controller.NewController[storage.Storage]()
-	c.Register("sqlite", controller.WithCustomOpener(OpenPool))
+	c.Register("sqlite", controller.WithCustomOpener(ssql.OpenPool))
 
 	st, err := c.Open(context.Background(), `sqlite:///tmp/`+uuid.New()+`{{ .Name }}.db?prefix={{ .Name }}_`)
 	if err != nil {

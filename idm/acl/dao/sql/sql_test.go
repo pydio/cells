@@ -33,7 +33,6 @@ import (
 	"github.com/pydio/cells/v4/common/proto/idm"
 	service "github.com/pydio/cells/v4/common/proto/service"
 	"github.com/pydio/cells/v4/common/runtime/manager"
-	"github.com/pydio/cells/v4/common/sql"
 	"github.com/pydio/cells/v4/common/storage/test"
 	"github.com/pydio/cells/v4/idm/acl"
 
@@ -135,7 +134,7 @@ func TestQueryBuilder(t *testing.T) {
 				Limit:      10,
 			}
 
-			s, er := sql.NewQueryBuilder[*gorm.DB](simpleQuery, new(queryConverter)).Build(ctx, mockDB)
+			s, er := service.NewQueryBuilder[*gorm.DB](simpleQuery, new(queryConverter)).Build(ctx, mockDB)
 			So(er, ShouldBeNil)
 			So(s, ShouldNotBeNil)
 
@@ -197,7 +196,7 @@ func TestQueryBuilder(t *testing.T) {
 				Operation: service.OperationType_AND,
 			}
 
-			s, er := sql.NewQueryBuilder[*gorm.DB](composedQuery, new(queryConverter)).Build(ctx, mockDB)
+			s, er := service.NewQueryBuilder[*gorm.DB](composedQuery, new(queryConverter)).Build(ctx, mockDB)
 			So(er, ShouldBeNil)
 			So(s, ShouldNotBeNil)
 
@@ -246,7 +245,7 @@ func TestQueryBuilder(t *testing.T) {
 			//"(action_name=\"read\" AND action_value IN (\"read_val1\",\"read_val2\"))",
 			//"(action_name=\"write\" AND action_value=\"write_val\")",
 			//"action_name=\"action_only\"",
-			s, er := sql.NewQueryBuilder[*gorm.DB](composedQuery, new(queryConverter)).Build(ctx, mockDB)
+			s, er := service.NewQueryBuilder[*gorm.DB](composedQuery, new(queryConverter)).Build(ctx, mockDB)
 			So(er, ShouldBeNil)
 			So(s, ShouldNotBeNil)
 
@@ -294,7 +293,7 @@ func TestQueryBuilder(t *testing.T) {
 				Operation: service.OperationType_AND,
 			}
 
-			s, er := sql.NewQueryBuilder[*gorm.DB](composedQuery, new(queryConverter)).Build(ctx, mockDB)
+			s, er := service.NewQueryBuilder[*gorm.DB](composedQuery, new(queryConverter)).Build(ctx, mockDB)
 			So(er, ShouldBeNil)
 			So(s, ShouldNotBeNil)
 

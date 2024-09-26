@@ -29,15 +29,12 @@ import (
 
 	"github.com/pydio/cells/v4/common/errors"
 	"github.com/pydio/cells/v4/common/proto/encryption"
+	"github.com/pydio/cells/v4/common/storage/sql"
 	"github.com/pydio/cells/v4/idm/key"
 )
 
 func init() {
 	key.Drivers.Register(NewDAO)
-}
-
-func NewDAO(db *gorm.DB) key.DAO {
-	return &sqlimpl{db: db}
 }
 
 type UserKey struct {
@@ -76,21 +73,14 @@ func (u *UserKey) From(res *encryption.Key) *UserKey {
 	return u
 }
 
+func NewDAO(db *gorm.DB) key.DAO {
+	return &sqlimpl{Abstract: sql.NewAbstract(db).WithModels(func() []any {
+		return []any{&UserKey{}}
+	})}
+}
+
 type sqlimpl struct {
-	db *gorm.DB
-}
-
-// Init handler for the SQL DAO
-func (s *sqlimpl) instance(ctx context.Context) *gorm.DB {
-	return s.db.Session(&gorm.Session{SkipDefaultTransaction: true}).WithContext(ctx)
-}
-
-func (s *sqlimpl) Migrate(ctx context.Context) error {
-	if err := s.instance(ctx).AutoMigrate(&UserKey{}); err != nil {
-		return err
-	}
-
-	return nil
+	*sql.Abstract
 }
 
 // SaveKey saves the key to persistence layer
@@ -103,7 +93,7 @@ func (s *sqlimpl) SaveKey(ctx context.Context, key *encryption.Key, version ...i
 	res := (&UserKey{}).From(key)
 	res.Version = ver
 
-	tx := s.instance(ctx).Clauses(clause.OnConflict{UpdateAll: true}).Create(res)
+	tx := s.Session(ctx).Clauses(clause.OnConflict{UpdateAll: true}).Create(res)
 
 	if tx.Error != nil {
 		return tx.Error
@@ -116,7 +106,7 @@ func (s *sqlimpl) SaveKey(ctx context.Context, key *encryption.Key, version ...i
 func (s *sqlimpl) GetKey(ctx context.Context, owner string, keyID string) (res *encryption.Key, version int, err error) {
 	var k *UserKey
 
-	tx := s.instance(ctx).Where(&UserKey{Owner: owner, ID: keyID}).First(&k)
+	tx := s.Session(ctx).Where(&UserKey{Owner: owner, ID: keyID}).First(&k)
 	if tx.Error != nil {
 		if errors.Is(tx.Error, gorm.ErrRecordNotFound) {
 			return nil, 0, errors.WithMessage(errors.KeyNotFound, "cannot find key with id "+keyID)
@@ -131,7 +121,7 @@ func (s *sqlimpl) GetKey(ctx context.Context, owner string, keyID string) (res *
 func (s *sqlimpl) ListKeys(ctx context.Context, owner string) (res []*encryption.Key, err error) {
 	var keys []*UserKey
 
-	tx := s.instance(ctx).Where(&UserKey{Owner: owner}).Find(&keys)
+	tx := s.Session(ctx).Where(&UserKey{Owner: owner}).Find(&keys)
 	if tx.Error != nil {
 		return nil, tx.Error
 	}
@@ -145,7 +135,7 @@ func (s *sqlimpl) ListKeys(ctx context.Context, owner string) (res []*encryption
 
 // DeleteKey removes a key from the persistence layer
 func (s *sqlimpl) DeleteKey(ctx context.Context, owner string, keyID string) error {
-	tx := s.instance(ctx).Where(&UserKey{Owner: owner, ID: keyID}).Delete(&UserKey{})
+	tx := s.Session(ctx).Where(&UserKey{Owner: owner, ID: keyID}).Delete(&UserKey{})
 	if tx.Error != nil {
 		return tx.Error
 	}

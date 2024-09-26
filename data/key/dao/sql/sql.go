@@ -22,13 +22,13 @@ package sql
 
 import (
 	"context"
-	"sync"
 
 	"go.uber.org/zap"
 	"gorm.io/gorm"
 
 	"github.com/pydio/cells/v4/common/errors"
 	"github.com/pydio/cells/v4/common/proto/encryption"
+	"github.com/pydio/cells/v4/common/storage/sql"
 	"github.com/pydio/cells/v4/common/telemetry/log"
 	"github.com/pydio/cells/v4/data/key"
 )
@@ -64,13 +64,13 @@ func init() {
 }
 
 func NewKeyDAO(db *gorm.DB) key.DAO {
-	return &sqlimpl{db: db}
+	return &sqlimpl{Abstract: sql.NewAbstract(db).WithModels(func() []any {
+		return []any{&Node{}, &NodeKey{}, &RangedBlock{}, &RangedBlockLegacy{}}
+	})}
 }
 
 type sqlimpl struct {
-	db *gorm.DB
-
-	once *sync.Once
+	*sql.Abstract
 }
 
 type Node encryption.NodeORM
@@ -89,31 +89,11 @@ func (*RangedBlock) TableName() string { return "enc_node_blocks" }
 
 func (*RangedBlockLegacy) TableName() string { return "enc_legacy_nodes" }
 
-// Init handler for the SQL DAO
-func (s *sqlimpl) instance(ctx context.Context) *gorm.DB {
-	return s.db.Session(&gorm.Session{SkipDefaultTransaction: true}).WithContext(ctx)
-}
-
-func (s *sqlimpl) Migrate(ctx context.Context) error {
-	if err := s.instance(ctx).AutoMigrate(&Node{}, &NodeKey{}, &RangedBlock{}, &RangedBlockLegacy{}); err != nil {
-		return err
-	}
-	return nil
-}
-
-// Init handler for the SQL DAO
-//func (s *sqlimpl) Init(ctx context.Context, options configx.Values) error {
-//	db := s.db
-//	s.instance = func() *gorm.DB { return db.Session(&gorm.Session{SkipDefaultTransaction: true}) }
-//
-//	return s.instance().AutoMigrate(&Node{}, &NodeKey{}, &RangedBlock{}, &RangedBlockLegacy{})
-//}
-
 func (s *sqlimpl) ListEncryptedBlockInfo(ctx context.Context, nodeUuid string) ([]*encryption.RangedBlock, error) {
 	var rows []*RangedBlock
 	var res []*encryption.RangedBlock
 
-	tx := s.instance(ctx).Find(res)
+	tx := s.Session(ctx).Find(res)
 	if err := tx.Error; err != nil {
 		return nil, err
 	}
@@ -126,14 +106,14 @@ func (s *sqlimpl) ListEncryptedBlockInfo(ctx context.Context, nodeUuid string) (
 }
 
 func (s *sqlimpl) SaveEncryptedBlockInfo(ctx context.Context, nodeUuid string, b *encryption.RangedBlock) error {
-	tx := s.instance(ctx).Create(b)
+	tx := s.Session(ctx).Create(b)
 
 	return tx.Error
 }
 
 func (s *sqlimpl) GetEncryptedLegacyBlockInfo(ctx context.Context, nodeUuid string) (*encryption.RangedBlock, error) {
 	var row *RangedBlockLegacy
-	tx := s.instance(ctx).Where(&RangedBlockLegacy{NodeId: nodeUuid}).First(&row)
+	tx := s.Session(ctx).Where(&RangedBlockLegacy{NodeId: nodeUuid}).First(&row)
 	if err := tx.Error; err != nil {
 		return nil, err
 	}
@@ -145,7 +125,7 @@ func (s *sqlimpl) GetEncryptedLegacyBlockInfo(ctx context.Context, nodeUuid stri
 }
 
 func (s *sqlimpl) ClearNodeEncryptedBlockInfo(ctx context.Context, nodeUuid string) error {
-	tx := s.instance(ctx).Delete(&RangedBlock{NodeId: nodeUuid})
+	tx := s.Session(ctx).Delete(&RangedBlock{NodeId: nodeUuid})
 	if tx.Error != nil {
 		return tx.Error
 	}
@@ -153,7 +133,7 @@ func (s *sqlimpl) ClearNodeEncryptedBlockInfo(ctx context.Context, nodeUuid stri
 }
 
 func (s *sqlimpl) ClearNodeEncryptedPartBlockInfo(ctx context.Context, nodeUuid string, partID int) error {
-	tx := s.instance(ctx).Delete(&RangedBlock{NodeId: nodeUuid, PartId: uint32(partID)})
+	tx := s.Session(ctx).Delete(&RangedBlock{NodeId: nodeUuid, PartId: uint32(partID)})
 	if tx.Error != nil {
 		return tx.Error
 	}
@@ -200,14 +180,14 @@ func (s *sqlimpl) CopyNode(ctx context.Context, srcUuid string, targetUuid strin
 
 		newBlock.NodeId = targetUuid
 
-		s.instance(ctx).Create((*RangedBlock)(newBlock))
+		s.Session(ctx).Create((*RangedBlock)(newBlock))
 	}
 
 	return nil
 }
 
 func (s *sqlimpl) SaveNode(ctx context.Context, node *encryption.Node) error {
-	tx := s.instance(ctx).Create((*Node)(node))
+	tx := s.Session(ctx).Create((*Node)(node))
 	if tx.Error != nil {
 		return tx.Error
 	}
@@ -216,7 +196,7 @@ func (s *sqlimpl) SaveNode(ctx context.Context, node *encryption.Node) error {
 }
 
 func (s *sqlimpl) UpgradeNodeVersion(ctx context.Context, nodeUuid string) error {
-	tx := s.instance(ctx).Updates(&Node{NodeId: nodeUuid, Legacy: false})
+	tx := s.Session(ctx).Updates(&Node{NodeId: nodeUuid, Legacy: false})
 	if tx.Error != nil {
 		return tx.Error
 	}
@@ -226,7 +206,7 @@ func (s *sqlimpl) UpgradeNodeVersion(ctx context.Context, nodeUuid string) error
 func (s *sqlimpl) GetNode(ctx context.Context, nodeUuid string) (*encryption.Node, error) {
 	var row *Node
 
-	tx := s.instance(ctx).Where(&Node{NodeId: nodeUuid}).First(&row)
+	tx := s.Session(ctx).Where(&Node{NodeId: nodeUuid}).First(&row)
 	if tx.Error != nil {
 		return nil, tx.Error
 	}
@@ -239,7 +219,7 @@ func (s *sqlimpl) GetNode(ctx context.Context, nodeUuid string) (*encryption.Nod
 }
 
 func (s *sqlimpl) DeleteNode(ctx context.Context, nodeUuid string) error {
-	tx := s.instance(ctx).Where(&Node{NodeId: nodeUuid}).Delete(&Node{})
+	tx := s.Session(ctx).Where(&Node{NodeId: nodeUuid}).Delete(&Node{})
 	if tx.Error != nil {
 		return tx.Error
 	}
@@ -247,7 +227,7 @@ func (s *sqlimpl) DeleteNode(ctx context.Context, nodeUuid string) error {
 }
 
 func (s *sqlimpl) SaveNodeKey(ctx context.Context, key *encryption.NodeKey) error {
-	tx := s.instance(ctx).Create((*NodeKey)(key))
+	tx := s.Session(ctx).Create((*NodeKey)(key))
 	if tx.Error != nil {
 		return tx.Error
 	}
@@ -258,7 +238,7 @@ func (s *sqlimpl) SaveNodeKey(ctx context.Context, key *encryption.NodeKey) erro
 func (s *sqlimpl) GetNodeKey(ctx context.Context, nodeUuid string, user string) (*encryption.NodeKey, error) {
 	var row *NodeKey
 
-	tx := s.instance(ctx).Where(&NodeKey{NodeId: nodeUuid, UserId: user}).First(&row)
+	tx := s.Session(ctx).Where(&NodeKey{NodeId: nodeUuid, UserId: user}).First(&row)
 	if tx.Error != nil {
 		return nil, tx.Error
 	}
@@ -271,7 +251,7 @@ func (s *sqlimpl) GetNodeKey(ctx context.Context, nodeUuid string, user string) 
 }
 
 func (s *sqlimpl) DeleteNodeKey(ctx context.Context, key *encryption.NodeKey) error {
-	tx := s.instance(ctx).Where((*NodeKey)(key)).Delete(&NodeKey{})
+	tx := s.Session(ctx).Where((*NodeKey)(key)).Delete(&NodeKey{})
 	if tx.Error != nil {
 		return tx.Error
 	}
@@ -282,7 +262,7 @@ func (s *sqlimpl) GetAllNodeKey(ctx context.Context, nodeUuid string) ([]*encryp
 	var rows []*NodeKey
 	var res []*encryption.NodeKey
 
-	tx := s.instance(ctx).Find(res)
+	tx := s.Session(ctx).Find(res)
 	if err := tx.Error; err != nil {
 		return nil, err
 	}

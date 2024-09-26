@@ -23,9 +23,12 @@ package service
 import "google.golang.org/protobuf/types/known/anypb"
 
 // Converter interface
+/*
 type Converter interface {
 	Convert(*anypb.Any) (string, bool)
 }
+
+*/
 
 // PrepareResourcePolicyQuery reads ResourcePolicyQuery and append it as a sub-query for further Conversion.
 func PrepareResourcePolicyQuery(query *Query, action ResourcePolicyAction) *Query {

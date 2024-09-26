@@ -35,7 +35,6 @@ import (
 	"github.com/pydio/cells/v4/common/proto/service"
 	"github.com/pydio/cells/v4/common/proto/tree"
 	"github.com/pydio/cells/v4/common/runtime/manager"
-	"github.com/pydio/cells/v4/common/sql"
 	"github.com/pydio/cells/v4/common/storage/test"
 	"github.com/pydio/cells/v4/idm/user"
 	user_model "github.com/pydio/cells/v4/idm/user/dao/sql/model"
@@ -89,10 +88,10 @@ func TestQueryBuilder(t *testing.T) {
 				Limit:      10,
 			}
 
-			tx := mockDAO.(*sqlimpl).db
+			tx := mockDAO.(*sqlimpl).DB
 			tx = tx.Session(&gorm.Session{})
 
-			s, er := sql.NewQueryBuilder[*gorm.DB](simpleQuery, converter).Build(ctx, tx)
+			s, er := service.NewQueryBuilder[*gorm.DB](simpleQuery, converter).Build(ctx, tx)
 			So(er, ShouldBeNil)
 			So(s, ShouldNotBeNil)
 
@@ -132,10 +131,10 @@ func TestQueryBuilder(t *testing.T) {
 				Limit:      10,
 			}
 
-			tx := mockDAO.(*sqlimpl).db
+			tx := mockDAO.(*sqlimpl).DB
 			tx = tx.Session(&gorm.Session{})
 
-			s, er := sql.NewQueryBuilder[*gorm.DB](simpleQuery, converter).Build(ctx, tx)
+			s, er := service.NewQueryBuilder[*gorm.DB](simpleQuery, converter).Build(ctx, tx)
 			So(er, ShouldBeNil)
 			So(s, ShouldNotBeNil)
 
@@ -619,10 +618,10 @@ func TestQueryBuilder(t *testing.T) {
 				Operation: service.OperationType_AND,
 			}
 
-			tx := mockDAO.(*sqlimpl).db
+			tx := mockDAO.(*sqlimpl).DB
 			tx = tx.Session(&gorm.Session{})
 
-			s, er := sql.NewQueryBuilder[*gorm.DB](composedQuery, converter).Build(ctx, tx)
+			s, er := service.NewQueryBuilder[*gorm.DB](composedQuery, converter).Build(ctx, tx)
 			So(er, ShouldBeNil)
 			So(s, ShouldNotBeNil)
 			//So(s, ShouldEqual, "((t.uuid = n.uuid and (n.name='user1' and n.leaf = 1)) OR (t.uuid = n.uuid and (n.name='user2' and n.leaf = 1))) AND (t.uuid = n.uuid and (n.name='user3' and n.leaf = 1))")

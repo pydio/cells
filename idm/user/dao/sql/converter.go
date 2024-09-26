@@ -36,7 +36,7 @@ import (
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/proto/idm"
 	"github.com/pydio/cells/v4/common/proto/tree"
-	index "github.com/pydio/cells/v4/common/sql/indexgorm"
+	"github.com/pydio/cells/v4/common/storage/sql/index"
 	"github.com/pydio/cells/v4/common/telemetry/log"
 	usermodel "github.com/pydio/cells/v4/idm/user/dao/sql/model"
 )

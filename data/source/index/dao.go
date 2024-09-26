@@ -23,7 +23,7 @@ package index
 
 import (
 	"github.com/pydio/cells/v4/common/service"
-	index "github.com/pydio/cells/v4/common/sql/indexgorm"
+	"github.com/pydio/cells/v4/common/storage/sql/index"
 )
 
 var Drivers = service.StorageDrivers{}

@@ -18,14 +18,15 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-package sql
+package archived
 
 import (
 	"context"
 	"database/sql"
-	"github.com/pydio/cells/v4/common/telemetry/log"
 	"strings"
 	"time"
+
+	"github.com/pydio/cells/v4/common/telemetry/log"
 )
 
 var defaultMaxRetries = 3

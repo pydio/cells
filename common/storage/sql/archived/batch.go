@@ -1,3 +1,5 @@
+//go:build exclude
+
 /*
  * Copyright (c) 2019-2021. Abstrium SAS <team (at) pydio.com>
  * This file is part of Pydio Cells.
@@ -18,27 +20,19 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-package sql
+package archived
 
-import "fmt"
-
-type Helper interface {
-	Concat(...string) string
-	Hash(...string) string
-	HashParent(string, ...string) string
+// BatchSender interface
+type BatchSender interface {
+	Send(interface{})
+	Close() error
 }
 
-func newHelper(d string) (Helper, error) {
-	switch d {
-	case "mysql":
-		return new(mysql), nil
-	case "postgres":
-		return new(postgres), nil
-	case "sqlite3":
-		return new(sqliteHelper), nil
-	case "sqlite3_extended":
-		return new(sqliteHelper), nil
-	default:
-		return nil, fmt.Errorf("wrong driver")
-	}
+// BatchReceiver interface
+type BatchReceiver interface {
+	Recv(interface{})
+}
+
+type Scanner interface {
+	Scan(...interface{}) error
 }

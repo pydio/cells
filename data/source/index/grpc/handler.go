@@ -38,7 +38,7 @@ import (
 	"github.com/pydio/cells/v4/common/proto/sync"
 	"github.com/pydio/cells/v4/common/proto/tree"
 	"github.com/pydio/cells/v4/common/runtime/manager"
-	cindex "github.com/pydio/cells/v4/common/sql/indexgorm"
+	cindex "github.com/pydio/cells/v4/common/storage/sql/index"
 	"github.com/pydio/cells/v4/common/telemetry/log"
 	"github.com/pydio/cells/v4/common/utils/propagator"
 	index "github.com/pydio/cells/v4/data/source/index"

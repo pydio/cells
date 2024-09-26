@@ -31,7 +31,7 @@ import (
 	"github.com/pydio/cells/v4/common/proto/idm"
 	service "github.com/pydio/cells/v4/common/proto/service"
 	"github.com/pydio/cells/v4/common/proto/sync"
-	index "github.com/pydio/cells/v4/common/sql/indexgorm"
+	"github.com/pydio/cells/v4/common/storage/sql/index"
 	"github.com/pydio/cells/v4/common/telemetry/log"
 )
 
