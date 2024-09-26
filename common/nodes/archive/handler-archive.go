@@ -77,7 +77,7 @@ func (a *Handler) GetObject(ctx context.Context, node *tree.Node, requestData *m
 
 	originalPath := node.Path
 
-	if ok, format, archivePath, innerPath := a.isArchivePath(originalPath); ok && len(innerPath) > 0 {
+	if ok, format, archivePath, innerPath := a.isArchivePath(ctx, originalPath); ok && len(innerPath) > 0 {
 		extractor := &Reader{Router: a.Next}
 		statResp, _ := a.Next.ReadNode(ctx, &tree.ReadNodeRequest{Node: &tree.Node{Path: archivePath}})
 		archiveNode := statResp.Node
@@ -144,7 +144,7 @@ func (a *Handler) GetObject(ctx context.Context, node *tree.Node, requestData *m
 func (a *Handler) ReadNode(ctx context.Context, in *tree.ReadNodeRequest, opts ...grpc.CallOption) (*tree.ReadNodeResponse, error) {
 	originalPath := in.Node.Path
 
-	if ok, format, archivePath, innerPath := a.isArchivePath(originalPath); ok && len(innerPath) > 0 {
+	if ok, format, archivePath, innerPath := a.isArchivePath(ctx, originalPath); ok && len(innerPath) > 0 {
 		log.Logger(ctx).Debug("[ARCHIVE:READ] " + originalPath + " => " + archivePath + " -- " + innerPath)
 		extractor := &Reader{Router: a.Next}
 		statResp, _ := a.Next.ReadNode(ctx, &tree.ReadNodeRequest{Node: &tree.Node{Path: archivePath}})
@@ -206,7 +206,7 @@ func (a *Handler) ReadNode(ctx context.Context, in *tree.ReadNodeRequest, opts .
 
 func (a *Handler) ListNodes(ctx context.Context, in *tree.ListNodesRequest, opts ...grpc.CallOption) (tree.NodeProvider_ListNodesClient, error) {
 
-	if ok, format, archivePath, innerPath := a.isArchivePath(in.Node.Path); ok {
+	if ok, format, archivePath, innerPath := a.isArchivePath(ctx, in.Node.Path); ok {
 		extractor := &Reader{Router: a.Next}
 		statResp, e := a.Next.ReadNode(ctx, &tree.ReadNodeRequest{Node: &tree.Node{Path: archivePath}})
 		if e != nil {
@@ -254,18 +254,35 @@ func (a *Handler) ListNodes(ctx context.Context, in *tree.ListNodesRequest, opts
 	return a.Next.ListNodes(ctx, in, opts...)
 }
 
-func (a *Handler) isArchivePath(nodePath string) (ok bool, format string, archivePath string, innerPath string) {
+func (a *Handler) isArchivePath(ctx context.Context, nodePath string) (ok bool, format string, archivePath string, innerPath string) {
 	formats := []string{"zip", "tar", "tar.gz"}
 	for _, f := range formats {
 		test := strings.SplitN(nodePath, "."+f+"/", 2)
 		if len(test) == 2 {
-			return true, f, test[0] + "." + f, test[1]
+			archivePath = test[0] + "." + f
+			innerPath = test[1]
+			format = f
+			break
 		}
 		if strings.HasSuffix(nodePath, "."+f) {
-			return true, f, nodePath, ""
+			format = f
+			archivePath = nodePath
+			break
 		}
 	}
-	return false, "", "", ""
+	if archivePath != "" {
+		// TEST CASE ONLY
+		if a.Next == nil {
+			ok = true
+			return
+		}
+		// Read node and make sure it is a zip FILE, not a folder named toto.zip !
+		if resp, er := a.Next.ReadNode(ctx, &tree.ReadNodeRequest{Node: &tree.Node{Path: archivePath}}); er == nil && resp.GetNode().IsLeaf() {
+			ok = true
+			return
+		}
+	}
+	return
 }
 
 func (a *Handler) selectionFakeName(nodePath string) string {

@@ -271,7 +271,7 @@ func TestHandler_isArchivePath(t *testing.T) {
 	Convey("Test isArchivePath", t, func() {
 
 		a := &Handler{}
-		ok, format, archivePath, innerPath := a.isArchivePath("path/to/archive.zip/inner")
+		ok, format, archivePath, innerPath := a.isArchivePath(nil, "path/to/archive.zip/inner")
 		So(ok, ShouldBeTrue)
 		So(format, ShouldEqual, "zip")
 		So(archivePath, ShouldEqual, "path/to/archive.zip")
