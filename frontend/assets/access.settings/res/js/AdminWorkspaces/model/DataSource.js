@@ -31,13 +31,14 @@ class DataSource extends Observable {
             set:((target, p, value) => {
                 let val = value;
                 if(p === 'StorageType') {
-                    target['StorageConfiguration'] = {};
+                    const internal = target.StorageConfiguration && target.StorageConfiguration.cellsInternal=== 'true'
+                    target.StorageConfiguration = internal?{cellsInternal: 'true'}:{};
                     if(val === 'LOCAL'){
-                        target['StorageConfiguration'] = {"folder":"", "normalize":"false"}
+                        target.StorageConfiguration = {"folder":"", "normalize":"false", ...target.StorageConfiguration}
                     } else if(val === 'S3'){
-                        target['StorageConfiguration'] = {"customEndpoint":""}
+                        target.StorageConfiguration = {"customEndpoint":"", ...target.StorageConfiguration}
                     } else if(val === 'GCS') {
-                        target['StorageConfiguration'] = {"jsonCredentials": ""}
+                        target.StorageConfiguration = {"jsonCredentials": "", ...target.StorageConfiguration}
                     }
                     this.internalInvalid = false;
                     target['ApiKey'] = target['ApiSecret'] = ''; // reset values

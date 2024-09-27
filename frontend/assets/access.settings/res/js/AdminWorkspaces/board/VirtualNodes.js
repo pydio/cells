@@ -23,7 +23,7 @@ import Pydio from 'pydio'
 import VirtualNode from '../model/VirtualNode'
 import DataSource from '../model/DataSource'
 import NodeCard from '../virtual/NodeCard'
-import {Paper, Divider, IconButton, FlatButton, RaisedButton, Popover} from 'material-ui'
+import {Paper, Divider, FlatButton, Popover} from 'material-ui'
 const {ModernTextField} = Pydio.requireLib('hoc');
 import {muiThemeable} from 'material-ui/styles'
 const {MaterialTable} = Pydio.requireLib('components');
@@ -57,6 +57,18 @@ class VirtualNodes extends React.Component{
         this.setState({nodes:[...nodes, newNode], selectedNode: newName, newName: null});
     }
 
+    setNewName(n) {
+        const {pydio} = this.props
+        const {dataSources} = this.state;
+        const m  = (id) => pydio.MessageHash['ajxp_admin.virtual.' + id] || id;
+        this.setState({newName: n})
+        if(dataSources.filter(ds => ds.Name === n).length) {
+            this.setState({newNameError: m('create.error')})
+        } else {
+            this.setState({newNameError: null})
+        }
+    }
+
     handleTouchTap(event){
         // This prevents ghost click.
         event.preventDefault();
@@ -74,12 +86,14 @@ class VirtualNodes extends React.Component{
     handleRequestClose(){
         this.setState({
             open: false,
+            newName: '',
+            newNameError: null
         });
     };
 
     render(){
         const {readonly, pydio, muiTheme, accessByName} = this.props;
-        const {nodes, dataSources, nodesLoaded, dataSourcesLoaded, selectedNode} = this.state;
+        const {nodes, dataSources, nodesLoaded, dataSourcesLoaded, selectedNode, newName, newNameError} = this.state;
         const m  = (id) => pydio.MessageHash['ajxp_admin.virtual.' + id] || id;
         const adminStyles = AdminComponents.AdminStyles(muiTheme.palette);
 
@@ -104,7 +118,15 @@ class VirtualNodes extends React.Component{
 
         let headerActions = [];
         if(!readonly && accessByName('Create')){
-            headerActions.push(<FlatButton primary={true} label={m('create')} onClick={this.handleTouchTap.bind(this)} {...adminStyles.props.header.flatButton}/>);
+            headerActions.push(
+                <FlatButton
+                    primary={true}
+                    label={m('create')}
+                    onClick={this.handleTouchTap.bind(this)}
+                    disabled={!dataSourcesLoaded}
+                    {...adminStyles.props.header.flatButton}
+                />
+            );
         }
 
         const  columns = [
@@ -156,17 +178,25 @@ class VirtualNodes extends React.Component{
                 <Popover
                     open={this.state.open}
                     anchorEl={this.state.anchorEl}
-                    anchorOrigin={{horizontal: 'right', vertical: 'top'}}
+                    anchorOrigin={{horizontal: 'right', vertical: 'bottom'}}
                     targetOrigin={{horizontal: 'right', vertical: 'top'}}
                     onRequestClose={this.handleRequestClose.bind(this)}
                 >
-                    <div style={{margin:'0 10px'}}>
-                        <ModernTextField ref="newNode" floatingLabelText={m('label')} value={this.state.newName} onChange={(e,v)=>{this.setState({newName:v})}} hintText={m('label.new')}/>
+                    <div style={{margin:'10px 20px 0', width: 320}}>
+                        <ModernTextField
+                            ref="newNode"
+                            variant={"v2"}
+                            fullWidth={true}
+                            floatingLabelText={m('create')}
+                            value={newName}
+                            onChange={(e,v)=>{this.setNewName(v)}}
+                            hintText={m('label.new')}
+                            errorText={newNameError}
+                        />
                     </div>
-                    <Divider/>
-                    <div style={{textAlign:'right', padding:'4px 10px'}}>
-                        <FlatButton label={pydio.MessageHash['54']}  onClick={this.handleRequestClose.bind(this)}/>
-                        <RaisedButton primary={true}  label={m('create.button')} onClick={this.createNode.bind(this)}/>
+                    <div style={{textAlign:'right', padding:'5px 20px 20px'}}>
+                        <FlatButton label={pydio.MessageHash['54']} onClick={this.handleRequestClose.bind(this)} {...adminStyles.props.header.flatButton}/>
+                        <FlatButton primary={true} label={m('create.button')} onClick={this.createNode.bind(this)} {...adminStyles.props.header.flatButton} disabled={!!newNameError || !newName}/>
                     </div>
                 </Popover>
                 <div className={"layout-fill"} style={{overflowY: 'auto'}}>

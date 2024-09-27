@@ -72,9 +72,16 @@ class ScheduleForm extends React.Component {
         const {schedule, onChange, onChangeState} = this.props;
         if(onChangeState){
             onChangeState(this.state)
-        } else {
+        } else if (onChange) {
             schedule.Iso8601Schedule = ScheduleForm.makeIso8601FromState(this.state);
             onChange(schedule);
+        }
+    }
+
+    componentWillReceiveProps(nextProps, nextContext) {
+        const {schedule:{Iso8601Schedule}, edit} = this.props;
+        if(!edit && nextProps.schedule && nextProps.schedule.Iso8601Schedule !== Iso8601Schedule) {
+            this.setState(ScheduleForm.parseIso8601(nextProps.schedule.Iso8601Schedule))
         }
     }
 
@@ -136,8 +143,7 @@ class ScheduleForm extends React.Component {
                     startDate.setTime(daytime.getTime());
                 }
                 const m = moment(startDate);
-                m.day(weekday === undefined ? 1 : weekday);
-                startDate = m.toDate();
+                startDate = m.day(weekday === undefined ? 1 : weekday).toDate();
                 duration = moment.duration(7, 'days');
                 break;
             case "daily":
