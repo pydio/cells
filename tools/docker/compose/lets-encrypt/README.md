@@ -2,7 +2,7 @@
 
 ## Overview
 
-This sample configuration has following caracteristics:
+This sample configuration has the following characteristics:
 
 - Cells running on https://${PUBLIC_FQDN}
 - The internal web server is directly connected to the internet (no reverse proxy)

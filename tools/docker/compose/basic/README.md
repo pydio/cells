@@ -1,6 +1,6 @@
 # Locally deploy Pydio Cells in no time!
 
-This sample configuration helps you running a Cells server in sandbox mode with docker compose.
+This sample configuration helps you to run a Cells server in sandbox mode with docker compose.
 
 On your workstation, simply:
 

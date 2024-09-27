@@ -21,7 +21,7 @@ By default the server starts in _self-signed_ mode on port 8080. You can modify 
 
 Below are relevant samples of docker-compose files to achieve these use cases.
 
-We also provide a few sample docker compose configurations as examples that are working out-of-the-box, if you only provide your public IP / valid domain name, see `compose` sub-directory.  
+We also provide a few sample docker compose configurations as examples that are working out-of-the-box, if you only provide your public IP / valid domain name, see `compose` subdirectory.  
 
 ## Sample config for the Pydio Cells internal gateway
 

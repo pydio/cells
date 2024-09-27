@@ -1,8 +1,6 @@
-version: '3.8'
-
 # Common variables
 x-cells: &cells-common
-  image: pydio/cells:unstable
+  image: pydio/cells:4
   restart: unless-stopped
   environment:
     - CELLS_WORKING_DIR=/var/cells
@@ -28,7 +26,7 @@ services:
 
   # MySQL DB
   mysql:
-    image: mysql:5.7
+    image: mysql:8
     restart: unless-stopped
     volumes:
       - mysql_data:/var/lib/mysql
@@ -50,9 +48,9 @@ services:
     image: quay.io/coreos/etcd:v3.5.2
     entrypoint: /usr/local/bin/etcd
     ports:
-      - 4001:4001 
-      - 2380:2380 
-      - 2379:2379 
+      - "4001:4001"
+      - "2380:2380"
+      - "2379:2379"
     volumes:
       - etcd_data:/etcd_data
       - /usr/share/ca-certificates/:/etc/ssl/certs 

@@ -15,7 +15,7 @@ proxyconfigs:
           - localhost
 
 
-# Adapt to your convenience and report to the documentation to explore further possibilities.
+# Adapt to your convenience and refer to the documentation to explore further possibilities.
 
 # WebUI Admin definition
 frontendlogin: admin

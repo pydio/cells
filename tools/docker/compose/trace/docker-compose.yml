@@ -1,4 +1,3 @@
-version: '3'
 services:
   tracing:
     image: jaegertracing/all-in-one:latest
