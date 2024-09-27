@@ -1,15 +1,17 @@
-# Changes between v4.4.4 and v4.4.5
+# Changes between v4.4.5 and v4.4.6
 
-[See Full Changelog](https://github.com/pydio/cells/compare/v4.4.4...v4.4.5)
+[See Full Changelog](https://github.com/pydio/cells/compare/v4.4.5...v4.4.6)
 
-- [#544f123](https://github.com/pydio/cells/commit/544f1234d4ac975fd86d9d30d2a298cb717cf5e9): Cell Invitation message : set LinkPath in template data
-- [#eeb1119](https://github.com/pydio/cells/commit/eeb1119a399875518e630e0679fa7f0d44d928b8): Dep update
-- [#af90391](https://github.com/pydio/cells/commit/af90391fba7a8cf0a0b80737dce9ed8343c51d81): archive : handle selection prefixes when there is no common root
-- [#edf5606](https://github.com/pydio/cells/commit/edf56068a56be15525aaeea7c6581df204f9be08): Introduce a new "name_ci" sort field to order case-insensitive
-- [#1f48932](https://github.com/pydio/cells/commit/1f48932cb3f4d95f8fb389c4245096d1f8880dac): New PathPrefix refacto: handle empty case
-- [#6f87632](https://github.com/pydio/cells/commit/6f876327cec19d1a5b8b75becadd77fa5d8ee98a): Force gateway config folder to avoid edge-case when no HOME is set.
-- [#b66d820](https://github.com/pydio/cells/commit/b66d820991fa613fa2ce60e107cb9120f478520d): HealthChecker - add a Retry
-- [#49b8b19](https://github.com/pydio/cells/commit/49b8b19a3f56f4afa8dfec44015f9b183a68b0e7): Search API : support multiple PathPrefixes
-- [#611a1a5](https://github.com/pydio/cells/commit/611a1a58b99b69014e8203879eaec033da1908ff): Fix MetaInfoPanel save status
-- [#d603594](https://github.com/pydio/cells/commit/d603594ce5f434a228d5237b464a151d14839fca): cells-fuse search by uuid
-- [#463538c](https://github.com/pydio/cells/commit/463538cf9062419edd59f14d7d3021540320eb50): Next development cycle
+- [#513a0aa](https://github.com/pydio/cells/commit/513a0aa2b2bdb98ae935bae9796d07c520a26adb): Use Traefik latest version, update docker compose commands
+- [#6f2d832](https://github.com/pydio/cells/commit/6f2d832ccb786c6886d066a64be582bbb0c01549): Improve docker compose samples
+- [#8a33026](https://github.com/pydio/cells/commit/8a33026f58a2a12ff10bcce531e0bea73693fb17): Fix version policy editor display glitch
+- [#073497f](https://github.com/pydio/cells/commit/073497f149e827fed14e51d78375fb0834e193c4): Refix archive writer for slugs/ specific case
+- [#d8230c6](https://github.com/pydio/cells/commit/d8230c613f0e57ea5e22a12183c2d3d40ab7cea7): Forgotten message + DE/FR translation
+- [#ebacac6](https://github.com/pydio/cells/commit/ebacac66bf0b6823a278e52d6635475d269fabd8): Forgotten message + DE/FR translation
+- [#0882ce7](https://github.com/pydio/cells/commit/0882ce72dae7bb34da0bf3bf4a5032e2578d661e): Fixing the admin datasource command which never returned
+- [#73c7fe6](https://github.com/pydio/cells/commit/73c7fe6d7794a183b76fbf36ea3f3d8a9b5384ba): Fix issues with files located inside .zip folders
+- [#39bf96d](https://github.com/pydio/cells/commit/39bf96d3ca63786749c1ef66238daf4e26273e90): Add comments in delete user action
+- [#078dd99](https://github.com/pydio/cells/commit/078dd99c205892f50ba4734fd2d7ffedf63a7180): Fix hardcoded i18n string
+- [#ba44c2b](https://github.com/pydio/cells/commit/ba44c2be5bf0afb6e08e20c8a276dea22054b5ae): Fix internal DS creation when switching to object storage. Prevent creating a template path with an existing datasource name.
+- [#130f0e6](https://github.com/pydio/cells/commit/130f0e6fd16e6c5cf7501dad5184117f39dbea8d): Fix ScheduleForm display and weekly day-pick issue
+- [#bd731eb](https://github.com/pydio/cells/commit/bd731ebc2bc31a81c4f0b2f0b18260494727304b): Next development cycle
