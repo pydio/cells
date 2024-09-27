@@ -1305,7 +1305,7 @@
     "other": "Ieri"
   },
   "494t": {
-    "other": "Tomorrow"
+    "other": "Domani"
   },
   "495": {
     "other": "Settimana scorsa"
@@ -1662,7 +1662,7 @@
     "other": "Aggiungi un utente"
   },
   "599-a": {
-    "other": "All Results"
+    "other": "Tutti i risultati"
   },
   "6": {
     "other": "Rinomina"
@@ -1704,7 +1704,7 @@
     "other": "File GZ"
   },
   "610": {
-    "other": "All workspaces"
+    "other": "Tutte le aree di lavoro"
   },
   "611": {
     "other": "Inizia a digitare per cercare"
@@ -2259,10 +2259,10 @@
     "other": "Non utilizzare / nei nomi dei file!"
   },
   "filename.forbidden.empty": {
-    "other": "You must provide a name!"
+    "other": "È necessario fornire un nome!"
   },
   "filename.trailing-leading.spaces": {
-    "other": "Warning, it seems that the name begins or ends with a blank character (perhaps a typo?)"
+    "other": "Attenzione, sembra che il nome inizi o finisca con un carattere vuoto (forse un battitura?)"
   },
   "rename.newvalue.error.similar": {
     "other": "Si prega di utilizzare un valore diverso per rinominare!"
@@ -2319,7 +2319,7 @@
     "other": "Seleziona gruppo"
   },
   "addressbook.pick.multiple": {
-    "other": "Multiple Selection"
+    "other": "Selezione multipla"
   },
   "confirm.dialog.title": {
     "other": "Conferma"
@@ -2349,7 +2349,7 @@
     "other": "Per favore usa immagini più piccole di 5MB"
   },
   "searchengine.start": {
-    "other": "Start typing to search for files and folders"
+    "other": "Inizia a digitare per cercare file e cartelle"
   },
   "searchengine.searching": {
     "other": "Ricerca in corso..."

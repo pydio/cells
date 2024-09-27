@@ -81,7 +81,7 @@
     "other": "제약없는 상태"
   },
   "dataSelectorSingleQuery.JsonPath": {
-    "other": "JSON Path"
+    "other": "JSON 경로"
   },
   "conditionCIDRCondition.CIDR": {
     "other": "CIDR"
@@ -159,10 +159,10 @@
     "other": "호스트이름 요청"
   },
   "contextMetaField.RequestHost": {
-    "other": "Request Host"
+    "other": "요청 호스트"
   },
   "contextMetaField.RequestPort": {
-    "other": "Request Port"
+    "other": "요청 포트"
   },
   "contextMetaField.RequestMethod": {
     "other": "요청 방법"

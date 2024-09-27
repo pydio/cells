@@ -1349,6 +1349,9 @@
   "virtual.create.button": {
     "other": "创建"
   },
+  "virtual.create.error": {
+    "other": "Must differ from datasources"
+  },
   "virtual.label": {
     "other": "标签"
   },
