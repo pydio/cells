@@ -1,7 +1,8 @@
 # HA setup
 
 Simple docker-compose deployment to experiment with Cells v4 Clustering model.
-It uses `pydio/cells:unstable` docker image, use whatever image by editing the docker-compose.yml file.
+It uses `pydio/cells:4` docker image (that is the latest image of the v4 release train).
+Adapt in the docker-compose.yml file if you want to rather use anoter image.
 
 ## Preparing dependencies
 
@@ -18,7 +19,7 @@ docker-compose up -d mysql mongo nats etcd vault redis minio caddy
 # create buckets in minio 
 docker-compose up createbuckets
 
-# Create a dedicated kvstore for certificates in Vault (configured in DEV mode with a preset VAULT_TOKEN, this should not be the case in production)
+# Create a dedicated KV store for certificates in Vault (configured in DEV mode with a preset VAULT_TOKEN, this should not be the case in production)
 docker-compose exec -e VAULT_ADDR=http://localhost:8200 -e VAULT_TOKEN=secret_vault_token vault vault secrets enable -version=2 -path=caddycerts kv
 ```
 

@@ -1,5 +1,3 @@
-version: '3.7'
-
 volumes:
   cells_data: {}
   mysql_data: {}
@@ -11,7 +9,7 @@ services:
     ports: [80:80, 443:443]
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
-      # Persists certificate locally, otherwise we will recreate new ones at each restarts and quickly hit limits.
+      # Persists certificate locally, otherwise we will recreate new ones at each restart and quickly hit limits.
       # Remember to flush the file if you want to switch from staging CA server to prod
       - ./acme.json:/acme.json  
     command:
@@ -25,7 +23,7 @@ services:
       - --certificatesresolvers.leresolver.acme.storage=/acme.json
       - --certificatesresolvers.leresolver.acme.email=${TLS_MAIL_ADDRESS}
       - --api
-      # Insure to use staging CA server while testing to avoid being black listed => generated cert is un-trusted by browsers. Comment out once everything is correctly configured. 
+      # Insure to use staging CA server while testing to avoid being blacklisted => generated cert is un-trusted by browsers. Comment out once everything is correctly configured.
       - --certificatesresolvers.leresolver.acme.caserver=https://acme-staging-v02.api.letsencrypt.org/directory
     labels:
         # Redirect HTTP traffic to HTTPS
@@ -33,7 +31,7 @@ services:
         - traefik.http.routers.redirs.entrypoints=web
         - traefik.http.routers.redirs.middlewares=redirect-to-https
         - traefik.http.middlewares.redirect-to-https.redirectscheme.scheme=https
-        # Expose the traefik dashboard on the reserved sub path, TLS is provided by the Let's Encrypt cert provider.
+        # Expose the Traefik dashboard on the reserved sub path, TLS is provided by the Let's Encrypt cert provider.
         - traefik.http.routers.reverse.service=api@internal
         - traefik.http.routers.reverse.rule=PathPrefix(`/api`)||PathPrefix(`/dashboard`)
         - traefik.http.routers.reverse.entrypoints=websecure
