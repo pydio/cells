@@ -1,6 +1,6 @@
 # This is the minimal configuration to directly start a pre-configured server in sandbox mode.
-# Simply run 'docker-compose up -d', you can log in with admin/admin at 
-# http://localhost:8081 *and* https://localhost:8082 (after accepting the self-signed certificate)
+# Simply run 'docker compose up -d', you can log in with admin/admin at
+# http://localhost:8081 **and** https://localhost:8082 (after accepting the self-signed certificate)
 
 proxyconfigs:
   - binds:
@@ -15,7 +15,7 @@ proxyconfigs:
           - localhost
 
 
-# Adapt to your convenience and report to the documentation to explore further possibilities.
+# Adapt to your convenience and refer to the documentation to explore further possibilities.
 
 # WebUI Admin definition
 frontendlogin: admin

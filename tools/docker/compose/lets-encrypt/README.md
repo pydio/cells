@@ -2,7 +2,7 @@
 
 ## Overview
 
-This sample configuration has following caracteristics:
+This sample configuration has the following characteristics:
 
 - Cells running on https://${PUBLIC_FQDN}
 - The internal web server is directly connected to the internet (no reverse proxy)
@@ -14,4 +14,4 @@ This sample configuration has following caracteristics:
 ## How to use
 
 - Update `.env` file with your specific values
-- Launch docker compose: `docker-compose up -d; docker-compose logs -f`
+- Launch docker compose: `docker compose up -d; docker compose logs -f`
