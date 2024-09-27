@@ -30,6 +30,22 @@ import VersionPolicyPeriods from './VersionPolicyPeriods'
 const {Manager, FormPanel} = Pydio.requireLib('form');
 const {PaperEditorLayout, AdminStyles} = AdminComponents;
 
+const cssFormSimple = `
+.react-mui-context .pydio-form-panel.form-panel-odd > .pydio-form-group {
+    margin: 2px 10px 0px;
+}
+.react-mui-context .pydio-form-panel.form-panel-odd >.pydio-form-group > h1 {
+    background-color: transparent;
+    color:#607D8B;
+    border-bottom: 1px solid #eceff1;
+    font-size: 13px;
+    font-weight: 500;
+    margin: 0px -16px;
+    letter-spacing: initial;
+    padding: 12px 20px;
+}
+`;
+
 class VersionPolicyEditor extends React.Component{
 
     constructor(props){
@@ -233,7 +249,7 @@ class VersionPolicyEditor extends React.Component{
                     </div>
                 </Paper>
                 {form}
-                {adminStyles.formSimpleCss()}
+                <style type={"text/css"} dangerouslySetInnerHTML={{__html:cssFormSimple}}/>
             </PaperEditorLayout>
         );
     }
