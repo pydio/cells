@@ -63,19 +63,19 @@
     "other": "All'avvio viene creato un datasource predefinito per memorizzare i dati personali degli utenti e le celle. È possibile creare altri datasource in un secondo momento."
   },
   "advanced.mongo.title": {
-    "other": "Configure a MongoDB Connection"
+    "other": "Configura una connessione MongoDB"
   },
   "advanced.mongo.legend": {
-    "other": "This is better for scalability, and required for clustering deployment. If you do not have a Mongo DB ready, this can be done later."
+    "other": "Questo è migliore per la scalabilità, ed è necessario per il cluster di distribuzione. Se non hai un DB Mongo pronto, questo può essere fatto più tardi."
   },
   "advanced.mongo.host": {
-    "other": "Server host"
+    "other": "Host server"
   },
   "advanced.mongo.port": {
-    "other": "Server port"
+    "other": "Porta server"
   },
   "advanced.mongo.db": {
-    "other": "Database Name"
+    "other": "Nome del Database"
   },
   "advanced.mongo.username": {
     "other": "Username"
@@ -87,7 +87,7 @@
     "other": "Auth DB"
   },
   "advanced.mongo.validate": {
-    "other": "Test connection"
+    "other": "Test connessione"
   },
   "license.stepLabel": {
     "other": "Licenza Enterprise"
@@ -117,7 +117,7 @@
     "other": "Applica Installazione"
   },
   "apply.title": {
-    "other": "Please be patient while Pydio Cells is being installed..."
+    "other": "Si prega di essere pazienti mentre Pydio Cells è in fase di installazione..."
   },
   "apply.success": {
     "other": "L'installazione è avvenuta con successo e i servizi sono in fase di avvio, il programma di installazione ricaricherà la pagina quando i servizi sono stati avviati."
