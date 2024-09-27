@@ -507,12 +507,11 @@ func (s *Handler) TriggerResync(c context.Context, req *protosync.ResyncRequest)
 	resp := &protosync.ResyncResponse{}
 
 	var statusChan chan model.Status
-	var doneChan chan interface{}
+	doneChan := make(chan interface{})
 	blocker := make(chan interface{})
 
 	if req.Task != nil {
 		statusChan = make(chan model.Status)
-		doneChan = make(chan interface{})
 
 		subCtx := metadata.WithUserNameMetadata(context.Background(), common.PydioSystemUsername)
 		subCtx = runtime.ForkContext(subCtx, c)
@@ -577,7 +576,13 @@ func (s *Handler) TriggerResync(c context.Context, req *protosync.ResyncRequest)
 			}
 		}()
 	} else {
-		doneChan = blocker
+		go func() {
+			select {
+			case <-doneChan:
+				close(blocker)
+			}
+			close(doneChan)
+		}()
 	}
 
 	// First trigger a Resync on index, to clean potential issues
