@@ -10,13 +10,13 @@ This sample configuration has the following characteristics:
 - Traefik's dashboard is enabled and accessible with admin / admin under https://${PUBLIC_FQDN}/dashboard/
 - DB is running in a separate MySQL docker container
 
-**WARNING**: by using this docker-compose setup, you accept [Let's Encrypt EULA](https://letsencrypt.org/documents/LE-SA-v1.2-November-15-2017.pdf).
+**WARNING**: by using this Docker Compose setup, you accept [Let's Encrypt EULA](https://letsencrypt.org/documents/LE-SA-v1.2-November-15-2017.pdf).
 
 ## How to use
 
 - update `.env` file with your specific values
 - create an empty `acme.json` file in the same folder: `touch acme.json; chmod 600 acme.json`
-- launch docker compose: `docker-compose up -d; docker-compose logs -f`
+- launch docker compose: `docker compose up -d; docker compose logs -f`
 
 By default, the attached docker-compose file is configured to use the staging CA URL of Let's Encrypt, to avoid having your FQDN being blacklisted by Let's Encrypt if something is not correctly configured at first launch.
 

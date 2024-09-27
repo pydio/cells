@@ -1,8 +1,8 @@
 # HA setup
 
-Simple docker-compose deployment to experiment with Cells v4 Clustering model.
+Simple Docker Compose deployment to experiment with Cells v4 Clustering model.
 It uses `pydio/cells:4` docker image (that is the latest image of the v4 release train).
-Adapt in the docker-compose.yml file if you want to rather use anoter image.
+Adapt in the docker-compose.yml file if you want to rather use another image.
 
 ## Preparing dependencies
 
@@ -14,26 +14,26 @@ This Vault requires a manual preparation for a specific key/value store (see bel
 ```sh
 cd <this folder>
 # start all third-party services
-docker-compose up -d mysql mongo nats etcd vault redis minio caddy
+docker compose up -d mysql mongo nats etcd vault redis minio caddy
 
 # create buckets in minio 
-docker-compose up createbuckets
+docker compose up createbuckets
 
 # Create a dedicated KV store for certificates in Vault (configured in DEV mode with a preset VAULT_TOKEN, this should not be the case in production)
-docker-compose exec -e VAULT_ADDR=http://localhost:8200 -e VAULT_TOKEN=secret_vault_token vault vault secrets enable -version=2 -path=caddycerts kv
+docker compose exec -e VAULT_ADDR=http://localhost:8200 -e VAULT_TOKEN=secret_vault_token vault vault secrets enable -version=2 -path=caddycerts kv
 ```
 
 ## Starting Cells Nodes
 
 ```sh
 # Start one node, then open https://localhost:8080 to perform the install, it will read the conf/install-conf.yaml file
-docker-compose up -d cells1; docker-compose logs -f cells1
+docker compose up -d cells1; docker compose logs -f cells1
 ```
 
 Now you can spin more cells nodes:
 ```sh
 # Once install is finished, start other nodes 
-docker-compose up -d cells2 cells3; docker-compose logs -f cells2 cells3
+docker compose up -d cells2 cells3; docker compose logs -f cells2 cells3
 ```
 
 ## Caddy LoadBalancer Access
@@ -49,6 +49,5 @@ Access https://caddy:8585/ to access Cells. Enjoy!
 
 ```sh
 # To clean everything
-docker-compose down -v --remove-orphan
+docker compose down -v --remove-orphans
 ```
-

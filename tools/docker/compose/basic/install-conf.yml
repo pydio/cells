@@ -1,5 +1,5 @@
 # This is the minimal configuration to directly start a pre-configured server in sandbox mode.
-# Simply run 'docker-compose up -d', you can log in with admin/admin at https://localhost:8080 
+# Simply run 'docker compose up -d', you can log in with admin/admin at https://localhost:8080
 # After accepting the self-signed certificate
 
 # Adapt to your convenience and refer to the documentation to explore further possibilities.
