@@ -14,4 +14,4 @@ This sample configuration has the following characteristics:
 ## How to use
 
 - Update `.env` file with your specific values
-- Launch docker compose: `docker-compose up -d; docker-compose logs -f`
+- Launch docker compose: `docker compose up -d; docker compose logs -f`

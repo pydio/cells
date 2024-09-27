@@ -5,7 +5,7 @@ volumes:
 services:
   # Traefik as reverse proxy with dashboard enabled at ${PUBLIC_FQDN}/dashboard/ (trailing slash is important).
   reverse:
-    image: traefik:2.4
+    image: traefik:3.1
     ports: [80:80, 443:443]
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
