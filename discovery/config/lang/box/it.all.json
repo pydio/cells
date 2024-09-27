@@ -81,7 +81,7 @@
     "other": "Condizioni Libere"
   },
   "dataSelectorSingleQuery.JsonPath": {
-    "other": "JSON Path"
+    "other": "Percorso JSON"
   },
   "conditionCIDRCondition.CIDR": {
     "other": "CIDR"
@@ -105,7 +105,7 @@
     "other": "pattern"
   },
   "conditionBooleanCondition.value": {
-    "other": "True"
+    "other": "Vero"
   },
   "contextMetaCondition.CIDRCondition": {
     "other": "Condizione CIDR"
@@ -141,7 +141,7 @@
     "other": "Glob Matcher"
   },
   "contextMetaCondition.BooleanCondition": {
-    "other": "Boolean Value"
+    "other": "Valore Booleano"
   },
   "contextMetaField.ContentType": {
     "other": "Tipo di contenuto"
@@ -159,10 +159,10 @@
     "other": "Richiedi Hostname"
   },
   "contextMetaField.RequestHost": {
-    "other": "Request Host"
+    "other": "Richiedi Host"
   },
   "contextMetaField.RequestPort": {
-    "other": "Request Port"
+    "other": "Richiedi Porta"
   },
   "contextMetaField.RequestMethod": {
     "other": "Richiedi Metodo"
@@ -366,7 +366,7 @@
     "other": "Tipo di Workspace"
   },
   "workspaceSingleQuery.scope.ADMIN": {
-    "other": "Workspace"
+    "other": "Spazio di lavoro"
   },
   "workspaceSingleQuery.scope.ANY": {
     "other": "Qualsiasi"
@@ -453,16 +453,16 @@
     "other": "Trigger Pianificato"
   },
   "triggerFilterQuery.IsApiHook": {
-    "other": "Triggered by Webhook"
+    "other": "Attivato da Webhook"
   },
   "triggerFilterQuery.ApiHookSlug": {
     "other": "Webhook Api Slug"
   },
   "triggerFilterQuery.RunParameterName": {
-    "other": "Run Parameter Name"
+    "other": "Esegui Nome Parametro"
   },
   "triggerFilterQuery.RunParameterValue": {
-    "other": "Run Parameter Value"
+    "other": "Esegui Valore Parametro"
   },
   "triggerFilterQuery.IsManual": {
     "other": "Attivazione Manuale"

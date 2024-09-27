@@ -1349,6 +1349,9 @@
   "virtual.create.button": {
     "other": "Créer"
   },
+  "virtual.create.error": {
+    "other": "Doit différer des Datasources"
+  },
   "virtual.label": {
     "other": "Libellé"
   },
