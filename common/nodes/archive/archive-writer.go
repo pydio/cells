@@ -49,18 +49,6 @@ type Writer struct {
 	WalkFilter nodes.WalkFilterFunc
 }
 
-func (w *Writer) commonRoot(nodes []*tree.Node) string {
-
-	// TODO
-	// Assume nodes have same parent for now
-	if len(nodes) == 1 && !nodes[0].IsLeaf() {
-		return nodes[0].Path
-	} else {
-		return path.Dir(nodes[0].Path)
-	}
-
-}
-
 func (w *Writer) selectionPrefixes(nodes []*tree.Node) (pp []string) {
 	// A unique folder - return full path
 	if len(nodes) == 1 && !nodes[0].IsLeaf() {
@@ -69,13 +57,14 @@ func (w *Writer) selectionPrefixes(nodes []*tree.Node) (pp []string) {
 
 	dirs := map[string]struct{}{}
 	for _, node := range nodes {
-		dirs[path.Dir(node.Path)] = struct{}{}
+		np := strings.TrimSuffix(node.Path, "/")
+		dirs[path.Dir(np)] = struct{}{}
 	}
 
 	// all nodes have a common parent, use it as internal root
 	if len(dirs) == 1 {
 		for range nodes {
-			pp = append(pp, path.Dir(nodes[0].Path))
+			pp = append(pp, path.Dir(strings.TrimSuffix(nodes[0].Path, "/")))
 		}
 		return
 	}
