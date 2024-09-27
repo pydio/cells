@@ -64,6 +64,26 @@ var (
 	}
 )
 
+var shareSampleData = `{
+  "SHARE_TYPE" : "minisite",
+  "EXPIRE_TIME" : 0,
+  "SHORT_FORM_URL" : "",
+  "REPOSITORY" : "b772592a-5b36-4638-89dc-90e6944847c0",
+  "PARENT_REPOSITORY_ID" : "",
+  "DOWNLOAD_DISABLED" : false,
+  "PYDIO_APPLICATION_BASE" : "",
+  "PYDIO_TEMPLATE_NAME" : "pydio_unique_strip",
+  "DOWNLOAD_LIMIT" : 0,
+  "DOWNLOAD_COUNT" : 0,
+  "PRELOG_USER" : "13151508b20240e7",
+  "PRESET_LOGIN" : "",
+  "TARGET" : "",
+  "TARGET_USERS" : null,
+  "RESTRICT_TO_TARGET_USERS" : false,
+  "OWNER_ID" : "admin",
+  "USER_UUID" : "13151508-b202-40e7-8bff-ba2f328b6e3a"
+}`
+
 func TestHandler_CRUD(t *testing.T) {
 
 	h := &Handler{}
@@ -192,6 +212,18 @@ func TestHandler_Search(t *testing.T) {
 			})
 			So(e, ShouldBeNil)
 
+			_, e = h.PutDocument(ctx, &proto.PutDocumentRequest{
+				StoreID: "shares",
+				Document: &proto.Document{
+					ID:            "link-hash",
+					Type:          proto.DocumentType_JSON,
+					Owner:         "any",
+					Data:          shareSampleData,
+					IndexableMeta: shareSampleData,
+				},
+			})
+			So(e, ShouldBeNil)
+
 			streamer := &listDocsTestStreamer{Ctx: ctx}
 			e1 := h.ListDocuments(&proto.ListDocumentsRequest{
 				StoreID: "any-store",
@@ -277,6 +309,16 @@ func TestHandler_Search(t *testing.T) {
 				StoreID: "any-store",
 				Query: &proto.DocumentQuery{
 					MetaQuery: "+key5.keySub:val*",
+				},
+			}, streamer)
+			So(e1, ShouldBeNil)
+			So(streamer.Docs, ShouldHaveLength, 1)
+
+			streamer = &listDocsTestStreamer{Ctx: ctx}
+			e1 = h.ListDocuments(&proto.ListDocumentsRequest{
+				StoreID: "shares",
+				Query: &proto.DocumentQuery{
+					MetaQuery: "+SHARE_TYPE:minisite +REPOSITORY:\"b772592a-5b36-4638-89dc-90e6944847c0\"",
 				},
 			}, streamer)
 			So(e1, ShouldBeNil)

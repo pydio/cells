@@ -24,11 +24,15 @@ import (
 	"context"
 	"sync"
 
+	"go.uber.org/zap"
+
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/broker"
 	"github.com/pydio/cells/v4/common/proto/idm"
+	"github.com/pydio/cells/v4/common/telemetry/log"
 	"github.com/pydio/cells/v4/common/utils/cache"
 	cache_helper "github.com/pydio/cells/v4/common/utils/cache/helper"
+	"github.com/pydio/cells/v4/common/utils/propagator"
 	"github.com/pydio/cells/v4/common/utils/std"
 )
 
@@ -43,8 +47,8 @@ var (
 
 func getAclCache(ctx context.Context) cache.Cache {
 	aclOnce.Do(func() {
-		// Subscribe
-		_, _ = broker.Subscribe(ctx, common.TopicIdmEvent, func(ct context.Context, message broker.Message) error {
+		// Subscribe - use a background context as incoming context could come from a request !
+		_, er := broker.Subscribe(propagator.ForkedBackgroundWithMeta(ctx), common.TopicIdmEvent, func(ct context.Context, message broker.Message) error {
 			event := &idm.ChangeEvent{}
 			msgCtx, e := message.Unmarshal(ct, event)
 			if e != nil {
@@ -54,10 +58,15 @@ func getAclCache(ctx context.Context) cache.Cache {
 			case idm.ChangeEventType_CREATE, idm.ChangeEventType_UPDATE, idm.ChangeEventType_DELETE:
 				if ka, er := cache_helper.ResolveCache(msgCtx, "short", ancestorsConfig); er == nil {
 					return ka.Reset()
+				} else {
+					log.Logger(msgCtx).Error("Cannot resolve Acl Cache for invalidation", zap.Error(er))
 				}
 			}
 			return nil
 		}, broker.WithCounterName("acl-cache"))
+		if er != nil {
+			log.Logger(ctx).Error("Cannot subscribe to TopicIdmEvent for AclCache", zap.Error(er))
+		}
 	})
 	return cache_helper.MustResolveCache(ctx, "short", ancestorsConfig)
 }

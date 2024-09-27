@@ -300,10 +300,11 @@ func AccessListFromContextClaims(ctx context.Context) (accessList *AccessList, e
 		return
 	}
 	if cached, ok := newFromCache(ctx, claims.GetUniqueKey()); ok {
-		log.Logger(ctx).Debug("Returning cached version of AccessList")
 
 		return cached, nil
 	}
+	log.Logger(ctx).Debug("Reloading a new version of AccessList")
+
 	//fmt.Println("Loading AccessList")
 	roles, e := GetRoles(ctx, strings.Split(claims.Roles, ","))
 	if e != nil {

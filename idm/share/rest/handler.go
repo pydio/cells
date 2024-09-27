@@ -291,6 +291,8 @@ func (h *SharesHandler) UpdateSharePolicies(req *restful.Request, rsp *restful.R
 }
 
 func (h *SharesHandler) docStoreStatus(ctx context.Context) error {
+	return nil
+	// TODO - Not Implemented? Returns "the server has been stopped"
 	cli := grpc_health_v1.NewHealthClient(grpc.ResolveConn(ctx, common.ServiceDocStoreGRPC))
 	_, er := cli.Check(context.Background(), &grpc_health_v1.HealthCheckRequest{})
 	return er

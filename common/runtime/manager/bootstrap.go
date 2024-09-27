@@ -54,7 +54,7 @@ func init() {
 }
 
 // SetBootstrapTemplate overrides initial template
-func SetBootstrapTemplate(tpl, name string) {
+func SetBootstrapTemplate(name, tpl string) {
 	bsTemplates[name] = tpl
 }
 
@@ -156,6 +156,7 @@ func (bs *Bootstrap) reload(conf config.Store) error {
 	if er != nil {
 		return er
 	}
+	// fmt.Println("FULL YAML", fullYaml)
 	if err := bs.Set([]byte(fullYaml)); err != nil {
 		return err
 	}
