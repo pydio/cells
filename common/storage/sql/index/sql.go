@@ -686,7 +686,6 @@ func (dao *IndexSQL[T]) GetNodeTree(ctx context.Context, mPath *tree.MPath, filt
 
 	go func() {
 		defer func() {
-			fmt.Println("Closing channel")
 			close(c)
 		}()
 
@@ -721,8 +720,6 @@ func (dao *IndexSQL[T]) GetNodeTree(ctx context.Context, mPath *tree.MPath, filt
 			result := queryDB.Find(&nodes)
 			rowsAffected += result.RowsAffected
 			batch++
-
-			fmt.Println(result.Error, result.RowsAffected)
 
 			if result.Error == nil && result.RowsAffected != 0 {
 				fcTx := result.Session(&gorm.Session{NewDB: true})
