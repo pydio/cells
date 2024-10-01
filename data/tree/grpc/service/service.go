@@ -50,7 +50,11 @@ func init() {
 				eventSubscriber := grpc2.NewEventSubscriber(treeServer)
 
 				ctx = runtime.TODOKnownEmpty(ctx)
-				go treeServer.UpdateServicesList(ctx, 0)
+				_ = runtime.MultiContextManager().Iterate(ctx, func(ct context.Context, s string) error {
+					go treeServer.UpdateServicesList(ct, 0)
+					go treeServer.WatchRegistry(ct)
+					return nil
+				})
 
 				tree.RegisterNodeProviderServer(server, treeServer)
 				tree.RegisterNodeReceiverServer(server, treeServer)
@@ -58,8 +62,6 @@ func init() {
 				tree.RegisterNodeChangesStreamerServer(server, treeServer)
 				tree.RegisterNodeProviderStreamerServer(server, treeServer)
 				service2.RegisterLoginModifierServer(server, treeServer)
-
-				go treeServer.WatchRegistry(ctx)
 
 				if err := broker.SubscribeCancellable(ctx, common.TopicIndexChanges, func(ctx context.Context, message broker.Message) error {
 					msg := &tree.NodeChangeEvent{}

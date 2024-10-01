@@ -32,13 +32,14 @@ import (
 	"gorm.io/gorm"
 	"gorm.io/gorm/schema"
 
+	"github.com/pydio/cells/v4/common/storage/sql"
 	json "github.com/pydio/cells/v4/common/utils/jsonx"
 )
 
 var _ jwk.Manager = new(jwkDriver)
 
 type jwkDriver struct {
-	db *gorm.DB
+	*sql.Abstract
 
 	r jwk.Registry
 }
@@ -50,7 +51,7 @@ func (SqlJWK) TableName(n schema.Namer) string {
 }
 
 func (j *jwkDriver) AutoMigrate() error {
-	return j.db.AutoMigrate(&SqlJWK{})
+	return j.DB.AutoMigrate(&SqlJWK{})
 }
 
 func (j *jwkDriver) GenerateAndPersistKeySet(ctx context.Context, set, kid, alg, use string) (*jose.JSONWebKeySet, error) {
@@ -94,11 +95,11 @@ func (j *jwkDriver) addKey(db *gorm.DB, ctx context.Context, set string, key *jo
 }
 
 func (j *jwkDriver) AddKey(ctx context.Context, set string, key *jose.JSONWebKey) error {
-	return j.addKey(j.db, ctx, set, key)
+	return j.addKey(j.Session(ctx), ctx, set, key)
 }
 
 func (j *jwkDriver) AddKeySet(ctx context.Context, set string, keys *jose.JSONWebKeySet) error {
-	return j.db.Model(SqlJWK{}).Transaction(func(tx *gorm.DB) error {
+	return j.Session(ctx).Model(SqlJWK{}).Transaction(func(tx *gorm.DB) error {
 		for _, key := range keys.Keys {
 			if err := j.addKey(tx, ctx, set, &key); err != nil {
 				return err
@@ -109,7 +110,7 @@ func (j *jwkDriver) AddKeySet(ctx context.Context, set string, keys *jose.JSONWe
 }
 
 func (j *jwkDriver) UpdateKey(ctx context.Context, set string, key *jose.JSONWebKey) error {
-	return j.db.Model(SqlJWK{}).Transaction(func(tx *gorm.DB) error {
+	return j.Session(ctx).Model(SqlJWK{}).Transaction(func(tx *gorm.DB) error {
 		if err := j.DeleteKey(ctx, set, key.KeyID); err != nil {
 			return err
 		}
@@ -122,7 +123,7 @@ func (j *jwkDriver) UpdateKey(ctx context.Context, set string, key *jose.JSONWeb
 }
 
 func (j *jwkDriver) UpdateKeySet(ctx context.Context, set string, keys *jose.JSONWebKeySet) error {
-	return j.db.Model(SqlJWK{}).Transaction(func(tx *gorm.DB) error {
+	return j.Session(ctx).Model(SqlJWK{}).Transaction(func(tx *gorm.DB) error {
 		if err := j.DeleteKeySet(ctx, set); err != nil {
 			return err
 		}
@@ -136,7 +137,7 @@ func (j *jwkDriver) UpdateKeySet(ctx context.Context, set string, keys *jose.JSO
 
 func (j *jwkDriver) GetKey(ctx context.Context, set, kid string) (*jose.JSONWebKeySet, error) {
 	var data *jwk.SQLData
-	if tx := j.db.Model(SqlJWK{}).Where(jwk.SQLData{Set: set, KID: kid}).Order("created_at DESC").First(&data); tx != nil && tx.Error != nil {
+	if tx := j.Session(ctx).Model(SqlJWK{}).Where(jwk.SQLData{Set: set, KID: kid}).Order("created_at DESC").First(&data); tx != nil && tx.Error != nil {
 		return nil, tx.Error
 	}
 
@@ -157,7 +158,7 @@ func (j *jwkDriver) GetKey(ctx context.Context, set, kid string) (*jose.JSONWebK
 
 func (j *jwkDriver) GetKeySet(ctx context.Context, set string) (*jose.JSONWebKeySet, error) {
 	var data []*jwk.SQLData
-	if tx := j.db.Model(SqlJWK{}).Where(jwk.SQLData{Set: set}).Order("created_at DESC").Find(&data); tx != nil && tx.Error != nil {
+	if tx := j.Session(ctx).Model(SqlJWK{}).Where(jwk.SQLData{Set: set}).Order("created_at DESC").Find(&data); tx != nil && tx.Error != nil {
 		return nil, tx.Error
 	}
 
@@ -188,7 +189,7 @@ func (j *jwkDriver) GetKeySet(ctx context.Context, set string) (*jose.JSONWebKey
 
 func (j *jwkDriver) DeleteKey(ctx context.Context, set, kid string) error {
 	var data *jwk.SQLData
-	if tx := j.db.Model(SqlJWK{}).Where(jwk.SQLData{Set: set, KID: kid}).Delete(&data); tx != nil && tx.Error != nil {
+	if tx := j.Session(ctx).Model(SqlJWK{}).Where(jwk.SQLData{Set: set, KID: kid}).Delete(&data); tx != nil && tx.Error != nil {
 		return tx.Error
 	}
 
@@ -197,7 +198,7 @@ func (j *jwkDriver) DeleteKey(ctx context.Context, set, kid string) error {
 
 func (j *jwkDriver) DeleteKeySet(ctx context.Context, set string) error {
 	var data *jwk.SQLData
-	if tx := j.db.Model(SqlJWK{}).Where(jwk.SQLData{Set: set}).Delete(&data); tx != nil && tx.Error != nil {
+	if tx := j.Session(ctx).Model(SqlJWK{}).Where(jwk.SQLData{Set: set}).Delete(&data); tx != nil && tx.Error != nil {
 		return tx.Error
 	}
 

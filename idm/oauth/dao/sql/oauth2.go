@@ -22,6 +22,7 @@ import (
 	"gorm.io/gorm/schema"
 
 	"github.com/pydio/cells/v4/common/errors"
+	sql2 "github.com/pydio/cells/v4/common/storage/sql"
 	"github.com/pydio/cells/v4/common/telemetry/log"
 	"github.com/pydio/cells/v4/common/telemetry/tracing"
 	json "github.com/pydio/cells/v4/common/utils/jsonx"
@@ -81,15 +82,15 @@ var (
 )
 
 type oauth2Driver struct {
-	db *gorm.DB
-	r  oauth.Registry
+	*sql2.Abstract
+	r oauth.Registry
 }
 
 func (o *oauth2Driver) Migrate(ctx context.Context) error {
 	var span trace.Span
 	ctx, span = tracing.StartLocalSpan(ctx, "oAuth2Driver.Migrate")
 	defer span.End()
-	return o.db.AutoMigrate(&OAuth2RequestSQLOIDC{}, &OAuth2RequestSQLAccess{}, &OAuth2RequestSQLRefresh{}, &OAuth2RequestSQLCode{}, &OAuth2RequestSQLPKCE{})
+	return o.DB.AutoMigrate(&OAuth2RequestSQLOIDC{}, &OAuth2RequestSQLAccess{}, &OAuth2RequestSQLRefresh{}, &OAuth2RequestSQLCode{}, &OAuth2RequestSQLPKCE{})
 }
 
 func (o *oauth2Driver) createSession(ctx context.Context, signature string, request fosite.Requester, table tableName) error {
@@ -120,18 +121,19 @@ func (o *oauth2Driver) createSession(ctx context.Context, signature string, requ
 	}
 
 	var tx *gorm.DB
+	db := o.Session(ctx)
 
 	switch table {
 	case sqlTableOpenID:
-		tx = o.db.Create((*OAuth2RequestSQLOIDC)(req))
+		tx = db.Create((*OAuth2RequestSQLOIDC)(req))
 	case sqlTableAccess:
-		tx = o.db.Create((*OAuth2RequestSQLAccess)(req))
+		tx = db.Create((*OAuth2RequestSQLAccess)(req))
 	case sqlTableRefresh:
-		tx = o.db.Create((*OAuth2RequestSQLRefresh)(req))
+		tx = db.Create((*OAuth2RequestSQLRefresh)(req))
 	case sqlTableCode:
-		tx = o.db.Create((*OAuth2RequestSQLCode)(req))
+		tx = db.Create((*OAuth2RequestSQLCode)(req))
 	case sqlTablePKCE:
-		tx = o.db.Create((*OAuth2RequestSQLPKCE)(req))
+		tx = db.Create((*OAuth2RequestSQLPKCE)(req))
 	}
 
 	if tx.Error != nil {
@@ -145,7 +147,7 @@ func (o *oauth2Driver) getSession(ctx context.Context, req interface{}, session 
 	var span trace.Span
 	ctx, span = tracing.StartLocalSpan(ctx, "oAuth2Driver.getSession")
 	defer span.End()
-	tx := o.db.Where(req).Find(&req)
+	tx := o.Session(ctx).Where(req).Find(&req)
 	if tx.Error != nil {
 		return nil, tx.Error
 	}
@@ -207,7 +209,7 @@ func (o *oauth2Driver) getSession(ctx context.Context, req interface{}, session 
 func (o *oauth2Driver) ClientAssertionJWTValid(ctx context.Context, jti string) error {
 	j := oauth2.NewBlacklistedJTI(jti, time.Time{})
 
-	tx := o.db.First(&j)
+	tx := o.Session(ctx).First(&j)
 	if tx.Error != nil {
 		if errors.Is(tx.Error, sql.ErrNoRows) {
 			return nil
@@ -225,7 +227,7 @@ func (o *oauth2Driver) ClientAssertionJWTValid(ctx context.Context, jti string) 
 func (o *oauth2Driver) SetClientAssertionJWT(ctx context.Context, jti string, exp time.Time) error {
 	j := oauth2.NewBlacklistedJTI(jti, exp)
 
-	tx := o.db.Create(&j)
+	tx := o.Session(ctx).Create(&j)
 	if tx.Error != nil {
 		return errors.Tag(tx.Error, OAuthRegistryError)
 	}
@@ -242,7 +244,7 @@ func (o *oauth2Driver) GetAuthorizeCodeSession(ctx context.Context, code string,
 }
 
 func (o *oauth2Driver) InvalidateAuthorizeCodeSession(ctx context.Context, code string) (err error) {
-	tx := o.db.Where(&OAuth2RequestSQLCode{ID: code}).Updates(OAuth2RequestSQLCode{Active: false})
+	tx := o.Session(ctx).Where(&OAuth2RequestSQLCode{ID: code}).Updates(OAuth2RequestSQLCode{Active: false})
 	if tx.Error != nil {
 		return errors.Tag(tx.Error, OAuthRegistryError)
 	}
@@ -260,7 +262,7 @@ func (o *oauth2Driver) GetAccessTokenSession(ctx context.Context, signature stri
 
 func (o *oauth2Driver) DeleteAccessTokenSession(ctx context.Context, signature string) (err error) {
 	r := &OAuth2RequestSQLAccess{ID: signature}
-	tx := o.db.Where(r).Delete(&r)
+	tx := o.Session(ctx).Where(r).Delete(&r)
 	if tx.Error != nil {
 		return errors.Tag(tx.Error, OAuthRegistryError)
 	}
@@ -278,7 +280,7 @@ func (o *oauth2Driver) GetRefreshTokenSession(ctx context.Context, signature str
 
 func (o *oauth2Driver) DeleteRefreshTokenSession(ctx context.Context, signature string) (err error) {
 	r := &OAuth2RequestSQLRefresh{ID: signature}
-	tx := o.db.Where(r).Delete(&r)
+	tx := o.Session(ctx).Where(r).Delete(&r)
 	if tx.Error != nil {
 		return errors.Tag(tx.Error, OAuthRegistryError)
 	}
@@ -304,7 +306,7 @@ func (o *oauth2Driver) CreatePKCERequestSession(ctx context.Context, signature s
 
 func (o *oauth2Driver) DeletePKCERequestSession(ctx context.Context, signature string) error {
 	r := &OAuth2RequestSQLPKCE{ID: signature}
-	tx := o.db.Where(r).Delete(&r)
+	tx := o.Session(ctx).Where(r).Delete(&r)
 	if tx.Error != nil {
 		return errors.Tag(tx.Error, OAuthRegistryError)
 	}
@@ -313,7 +315,7 @@ func (o *oauth2Driver) DeletePKCERequestSession(ctx context.Context, signature s
 }
 
 func (o *oauth2Driver) RevokeRefreshToken(ctx context.Context, requestID string) error {
-	tx := o.db.Where(OAuth2RequestSQLRefresh{Request: requestID}).Updates(OAuth2RequestSQLRefresh{Active: false})
+	tx := o.Session(ctx).Where(OAuth2RequestSQLRefresh{Request: requestID}).Updates(OAuth2RequestSQLRefresh{Active: false})
 	if tx.Error != nil {
 		return errors.Tag(tx.Error, OAuthRegistryError)
 	}
@@ -322,7 +324,7 @@ func (o *oauth2Driver) RevokeRefreshToken(ctx context.Context, requestID string)
 }
 
 func (o *oauth2Driver) RevokeRefreshTokenMaybeGracePeriod(ctx context.Context, requestID string, signature string) error {
-	tx := o.db.Where(OAuth2RequestSQLRefresh{Request: requestID}).Updates(OAuth2RequestSQLRefresh{Active: false})
+	tx := o.Session(ctx).Where(OAuth2RequestSQLRefresh{Request: requestID}).Updates(OAuth2RequestSQLRefresh{Active: false})
 	if tx.Error != nil {
 		return errors.Tag(tx.Error, OAuthRegistryError)
 	}
@@ -331,7 +333,7 @@ func (o *oauth2Driver) RevokeRefreshTokenMaybeGracePeriod(ctx context.Context, r
 }
 
 func (o *oauth2Driver) RevokeAccessToken(ctx context.Context, requestID string) error {
-	tx := o.db.Where(OAuth2RequestSQLAccess{Request: requestID}).Updates(OAuth2RequestSQLAccess{Active: false})
+	tx := o.Session(ctx).Where(OAuth2RequestSQLAccess{Request: requestID}).Updates(OAuth2RequestSQLAccess{Active: false})
 	if tx.Error != nil {
 		return errors.Tag(tx.Error, OAuthRegistryError)
 	}
@@ -345,7 +347,7 @@ func (o *oauth2Driver) FlushInactiveAccessTokens(ctx context.Context, notAfter t
 		notAfter = requestMaxExpire
 	}
 
-	tx := o.db.Where("requested_at < ?", notAfter.UTC()).Limit(limit).Delete(&OAuth2RequestSQLAccess{})
+	tx := o.Session(ctx).Where("requested_at < ?", notAfter.UTC()).Limit(limit).Delete(&OAuth2RequestSQLAccess{})
 	if tx.Error != nil {
 		return errors.Tag(tx.Error, OAuthRegistryError)
 	}
@@ -355,7 +357,7 @@ func (o *oauth2Driver) FlushInactiveAccessTokens(ctx context.Context, notAfter t
 }
 
 func (o *oauth2Driver) DeleteAccessTokens(ctx context.Context, clientID string) error {
-	tx := o.db.Session(&gorm.Session{AllowGlobalUpdate: true}).Delete(&OAuth2RequestSQLAccess{})
+	tx := o.Session(ctx).Session(&gorm.Session{AllowGlobalUpdate: true}).Delete(&OAuth2RequestSQLAccess{})
 	if tx.Error != nil {
 		return errors.Tag(tx.Error, OAuthRegistryError)
 	}
@@ -369,7 +371,7 @@ func (o *oauth2Driver) FlushInactiveRefreshTokens(ctx context.Context, notAfter 
 		notAfter = requestMaxExpire
 	}
 
-	tx := o.db.Where("requested_at < ?", notAfter.UTC()).Limit(limit).Delete(&OAuth2RequestSQLRefresh{})
+	tx := o.Session(ctx).Where("requested_at < ?", notAfter.UTC()).Limit(limit).Delete(&OAuth2RequestSQLRefresh{})
 	if tx.Error != nil {
 		return errors.Tag(tx.Error, OAuthRegistryError)
 	}
@@ -380,7 +382,7 @@ func (o *oauth2Driver) FlushInactiveRefreshTokens(ctx context.Context, notAfter 
 
 func (o *oauth2Driver) DeleteOpenIDConnectSession(ctx context.Context, authorizeCode string) error {
 	r := &OAuth2RequestSQLOIDC{ID: authorizeCode}
-	tx := o.db.Where(r).Delete(&r)
+	tx := o.Session(ctx).Where(r).Delete(&r)
 	if tx.Error != nil {
 		return errors.Tag(tx.Error, OAuthRegistryError)
 	}

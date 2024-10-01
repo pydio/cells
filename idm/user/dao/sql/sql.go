@@ -258,6 +258,7 @@ func (s *sqlimpl) Add(ctx context.Context, in interface{}) (interface{}, []*idm.
 	}
 
 	if err := s.Session(ctx).Transaction(func(tx *gorm.DB) error {
+		tx = tx.WithContext(ctx)
 		delAttributes := tx.Where(&user_model.UserAttribute{UUID: user.Uuid}).Delete(&user_model.UserAttribute{})
 		if delAttributes.Error != nil {
 			return delAttributes.Error

@@ -47,9 +47,9 @@ var (
 		errors.InvalidIDToken,
 		errors.StatusCancelled,
 		context.Canceled,
+		errors.NodeNotFound,
 	}
 	commonWarns = []error{
-		errors.NodeNotFound,
 		errors.NodeIndexConflict,
 	}
 )

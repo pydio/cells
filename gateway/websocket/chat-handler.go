@@ -30,6 +30,7 @@ import (
 	lkauth "github.com/livekit/protocol/auth"
 	"github.com/microcosm-cc/bluemonday"
 	"github.com/olahol/melody"
+	"go.opentelemetry.io/otel/trace"
 	"go.uber.org/zap"
 	"google.golang.org/protobuf/encoding/protojson"
 
@@ -44,6 +45,7 @@ import (
 	"github.com/pydio/cells/v4/common/proto/tree"
 	"github.com/pydio/cells/v4/common/runtime"
 	"github.com/pydio/cells/v4/common/telemetry/log"
+	"github.com/pydio/cells/v4/common/telemetry/tracing"
 	json "github.com/pydio/cells/v4/common/utils/jsonx"
 	"github.com/pydio/cells/v4/common/utils/propagator"
 )
@@ -134,10 +136,14 @@ func (c *ChatHandler) initHandlers() {
 
 	c.Websocket.HandleMessage(func(session *melody.Session, payload []byte) {
 
-		ct := session.Request.Context()
+		ct := propagator.ForkedBackgroundWithMeta(session.Request.Context())
+
+		var span trace.Span
 		msg := &Message{}
 		e := json.Unmarshal(payload, msg)
 		if e == nil {
+			ct, span = tracing.StartLocalSpan(ct, "/ws/chat/"+string(msg.Type))
+			defer span.End()
 			switch msg.Type {
 			case MsgSubscribe:
 				if msg.JWT == "" {
@@ -167,8 +173,9 @@ func (c *ChatHandler) initHandlers() {
 			log.Logger(ct).Debug("Could not unmarshal message", zap.Error(e))
 			return
 		}
-		// SAVE CTX IN SESSION?
-		// ct := context.Background()
+		ct, span = tracing.StartLocalSpan(ct, "/ws/chat/"+chatMsg.Type.String())
+		defer span.End()
+
 		log.Logger(ct).Debug("Got Message", zap.Any("msg", chatMsg))
 		var userName string
 		if userData, ok := session.Get(SessionUsernameKey); !ok && userData != nil {

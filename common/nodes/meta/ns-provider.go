@@ -31,6 +31,10 @@ import (
 	"github.com/pydio/cells/v4/common/proto/tree"
 )
 
+var (
+	TestPresetNamespaces []*idm.UserMetaNamespace
+)
+
 // NsProvider lists all namespaces info from services declared ServiceMetaNsProvider
 // It watches events to maintain the list
 type NsProvider struct {
@@ -46,6 +50,10 @@ type NsProvider struct {
 func NewNsProvider(ctx context.Context) *NsProvider {
 	ns := &NsProvider{
 		Ctx: ctx,
+	}
+	if TestPresetNamespaces != nil {
+		ns.namespaces = TestPresetNamespaces
+		ns.loaded = true
 	}
 	ns.Watch(ctx)
 	return ns
@@ -161,11 +169,15 @@ func (p *NsProvider) ReadNode(node *tree.Node) (*tree.Node, error) {
 		out.MetaStore = make(map[string]string)
 	}
 	for _, s := range p.streamers {
-		s.Send(&tree.ReadNodeRequest{Node: node})
+		if er := s.Send(&tree.ReadNodeRequest{Node: node}); er != nil {
+			return node, er
+		}
 		if resp, e := s.Recv(); e == nil && resp.Node.MetaStore != nil {
 			for k, v := range resp.Node.MetaStore {
 				out.MetaStore[k] = v
 			}
+		} else if e != nil {
+			return node, e
 		}
 	}
 	return out, nil

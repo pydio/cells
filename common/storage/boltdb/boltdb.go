@@ -54,7 +54,7 @@ type pool struct {
 }
 
 func OpenPool(ctx context.Context, uu string) (storage.Storage, error) {
-	p, err := openurl.OpenPool(context.Background(), []string{uu}, func(ctx context.Context, dsn string) (DB, error) {
+	p, err := openurl.OpenPool(ctx, []string{uu}, func(ctx context.Context, dsn string) (DB, error) {
 		u, err := url.Parse(dsn)
 		if err != nil {
 			return nil, err

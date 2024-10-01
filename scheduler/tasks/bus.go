@@ -22,6 +22,7 @@ package tasks
 
 import (
 	"context"
+	"sync"
 	"time"
 
 	"github.com/cskr/pubsub"
@@ -62,11 +63,12 @@ func (ps *Bus) Close(ctx context.Context) error {
 var (
 	TestDisableTaskClient bool
 	busPool               *openurl.Pool[*Bus]
+	busPoolInit           sync.Once
 )
 
 func GetBus(ctx context.Context) *Bus {
-	if busPool == nil {
-		busPool, _ = openurl.OpenPool[*Bus](ctx, []string{"{{ .Tenant }}"}, func(ctx context.Context, url string) (*Bus, error) {
+	busPoolInit.Do(func() {
+		busPool = openurl.MustMemPool[*Bus](ctx, func(ctx context.Context, url string) *Bus {
 			// create pubsub and start listening
 			c := &Bus{
 				PubSub: pubsub.New(0),
@@ -76,9 +78,9 @@ func GetBus(ctx context.Context) *Bus {
 				c.cli = NewTaskReconnectingClient(ctx)
 				c.cli.StartListening(ch)
 			}
-			return c, nil
+			return c
 		})
-	}
+	})
 	ps, er := busPool.Get(ctx)
 	if er != nil {
 		panic(er)

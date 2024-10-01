@@ -42,14 +42,16 @@ import (
 	"github.com/pydio/cells/v4/common/nodes/meta"
 	"github.com/pydio/cells/v4/common/nodes/models"
 	"github.com/pydio/cells/v4/common/proto/tree"
+	"github.com/pydio/cells/v4/common/runtime/manager"
 	"github.com/pydio/cells/v4/common/storage/indexer"
 	"github.com/pydio/cells/v4/common/telemetry/log"
 	"github.com/pydio/cells/v4/common/utils/configx"
 	"github.com/pydio/cells/v4/common/utils/propagator"
+	"github.com/pydio/cells/v4/data/search"
 )
 
-// Batch avoids overflowing bleve index by batching indexation events (index/delete)
-type Batch struct {
+// LocalBatch avoids overflowing bleve index by batching indexation events (index/delete)
+type LocalBatch struct {
 	sync.Mutex
 	inserts    map[string]*tree.IndexableNode
 	deletes    map[string]struct{}
@@ -62,22 +64,18 @@ type Batch struct {
 
 type BatchOptions struct {
 	config configx.Values
-	//IndexContent bool
 }
 
-func NewBatch(ctx context.Context, idx indexer.Indexer, nsProvider *meta.NsProvider, options BatchOptions, iOpts ...indexer.BatchOption) indexer.Batch {
-	wrapper := &Batch{
+func NewBatch(ctx context.Context, nsProvider *meta.NsProvider, options BatchOptions, inputOpts ...indexer.BatchOption) indexer.Batch {
+	wrapper := &LocalBatch{
 		options:    options,
 		inserts:    make(map[string]*tree.IndexableNode),
 		deletes:    make(map[string]struct{}),
 		nsProvider: nsProvider,
 	}
-
 	wrapper.ctx = wrapper.createBackgroundContext(ctx)
 
-	batch, _ := idx.NewBatch(ctx, iOpts...)
-
-	iOpts = append(iOpts,
+	iOpts := append(inputOpts,
 		indexer.WithFlushCondition(func() bool {
 			return len(wrapper.inserts)+len(wrapper.deletes) > BatchSize
 		}),
@@ -106,48 +104,58 @@ func NewBatch(ctx context.Context, idx indexer.Indexer, nsProvider *meta.NsProvi
 			return nil
 		}),
 		indexer.WithFlushCallback(func() error {
-			wrapper.Lock()
-			defer wrapper.Unlock()
-			l := len(wrapper.inserts) + len(wrapper.deletes)
-			if l == 0 {
-				return nil
-			}
-			log.Logger(wrapper.ctx).Info("Flushing search batch", zap.Int("size", l))
-			excludes := wrapper.nsProvider.ExcludeIndexes()
-			var nn []*tree.IndexableNode
-			if er := wrapper.nsProvider.InitStreamers(wrapper.ctx); er != nil {
-				return er
-			}
-			for uuid, node := range wrapper.inserts {
-				if e := wrapper.LoadIndexableNode(node, excludes); e == nil {
-					nn = append(nn, node)
-				}
-				delete(wrapper.inserts, uuid)
-			}
-			if er := wrapper.nsProvider.CloseStreamers(); er != nil {
-				return er
-			}
-			for _, n := range nn {
-				if er := batch.Insert(n); er != nil {
-					fmt.Println("Search batch - InsertOne error", er.Error())
-				}
-			}
-			for uuid := range wrapper.deletes {
-				if er := batch.Delete(uuid); er != nil {
-					fmt.Println("Search batch - DeleteOne error", er.Error())
-				}
-				delete(wrapper.deletes, uuid)
-			}
-			return nil
-		}),
-		indexer.WithForceFlushCallback(func() error {
-			return batch.Flush()
+			return wrapper.Flush(ctx, inputOpts...)
 		}),
 	)
 	return indexer.NewBatch(ctx, iOpts...)
 }
 
-func (b *Batch) LoadIndexableNode(indexNode *tree.IndexableNode, excludes map[string]struct{}) error {
+func (b *LocalBatch) Flush(ctx context.Context, batchOpts ...indexer.BatchOption) error {
+
+	idx, er := manager.Resolve[search.Engine](ctx)
+	if er != nil {
+		return er
+	}
+	b.Lock()
+	defer b.Unlock()
+	l := len(b.inserts) + len(b.deletes)
+	if l == 0 {
+		return nil
+	}
+	log.Logger(b.ctx).Info("Flushing search batch", zap.Int("size", l))
+	excludes := b.nsProvider.ExcludeIndexes()
+	var nn []*tree.IndexableNode
+	if er := b.nsProvider.InitStreamers(b.ctx); er != nil {
+		return er
+	}
+	for uuid, node := range b.inserts {
+		if e := b.LoadIndexableNode(node, excludes); e == nil {
+			nn = append(nn, node)
+		}
+		delete(b.inserts, uuid)
+	}
+	if er := b.nsProvider.CloseStreamers(); er != nil {
+		return er
+	}
+
+	// Now create an indexer batch, fill it and directly flush it
+	batch, _ := idx.NewBatch(ctx, batchOpts...)
+	for _, n := range nn {
+		if er := batch.Insert(n); er != nil {
+			fmt.Println("Search batch - InsertOne error", er.Error())
+		}
+	}
+	for uuid := range b.deletes {
+		if er := batch.Delete(uuid); er != nil {
+			fmt.Println("Search batch - DeleteOne error", er.Error())
+		}
+		delete(b.deletes, uuid)
+	}
+	return batch.Flush()
+
+}
+
+func (b *LocalBatch) LoadIndexableNode(indexNode *tree.IndexableNode, excludes map[string]struct{}) error {
 	if indexNode.ReloadCore {
 		if resp, e := b.getUuidRouter().ReadNode(b.ctx, &tree.ReadNodeRequest{Node: &indexNode.Node}); e != nil {
 			return e
@@ -229,7 +237,7 @@ func (b *Batch) LoadIndexableNode(indexNode *tree.IndexableNode, excludes map[st
 	return nil
 }
 
-func (b *Batch) createBackgroundContext(parent context.Context) context.Context {
+func (b *LocalBatch) createBackgroundContext(parent context.Context) context.Context {
 	ctx := auth.ContextFromClaims(context.Background(), claim.Claims{
 		Name:      common.PydioSystemUsername,
 		Profile:   common.PydioProfileAdmin,
@@ -238,14 +246,14 @@ func (b *Batch) createBackgroundContext(parent context.Context) context.Context 
 	return propagator.ForkContext(ctx, parent)
 }
 
-func (b *Batch) getUuidRouter() nodes.Handler {
+func (b *LocalBatch) getUuidRouter() nodes.Handler {
 	if b.uuidRouter == nil {
 		b.uuidRouter = compose.UuidClient(b.ctx, nodes.AsAdmin())
 	}
 	return b.uuidRouter
 }
 
-func (b *Batch) getStdRouter() nodes.Handler {
+func (b *LocalBatch) getStdRouter() nodes.Handler {
 	if b.stdRouter == nil {
 		b.stdRouter = compose.PathClientAdmin(b.ctx)
 	}

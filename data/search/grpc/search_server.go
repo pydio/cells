@@ -33,7 +33,6 @@ import (
 	"github.com/pydio/cells/v4/common/client/commons/treec"
 	"github.com/pydio/cells/v4/common/config"
 	"github.com/pydio/cells/v4/common/errors"
-	"github.com/pydio/cells/v4/common/nodes/meta"
 	protosync "github.com/pydio/cells/v4/common/proto/sync"
 	"github.com/pydio/cells/v4/common/proto/tree"
 	"github.com/pydio/cells/v4/common/runtime"
@@ -52,7 +51,6 @@ type SearchServer struct {
 	eventsChannel    chan *broker.TypeWithContext[*tree.NodeChangeEvent]
 	TreeClient       tree.NodeProviderClient
 	TreeClientStream tree.NodeProviderStreamerClient
-	NsProvider       *meta.NsProvider
 	ReIndexThrottler chan struct{}
 }
 
@@ -83,7 +81,6 @@ func (s *SearchServer) initEventsChannel() {
 func (s *SearchServer) processEvent(ctx context.Context, e *tree.NodeChangeEvent) {
 
 	log.Logger(ctx).Debug("processEvent", zap.Any("event", e))
-	excludes := s.NsProvider.ExcludeIndexes()
 
 	engine, err := manager.Resolve[search.Engine](ctx)
 	if err != nil {
@@ -96,42 +93,45 @@ func (s *SearchServer) processEvent(ctx context.Context, e *tree.NodeChangeEvent
 		if e.Target.Etag == common.NodeFlagEtagTemporary || tree.IgnoreNodeForOutput(ctx, e.Target) {
 			break
 		}
-		engine.IndexNode(ctx, e.Target, false, excludes)
+		err = engine.IndexNode(ctx, e.Target, false)
 	case tree.NodeChangeEvent_UPDATE_PATH:
 		// Let's extract the basic information from the tree and store it
 		if tree.IgnoreNodeForOutput(ctx, e.Target) {
 			break
 		}
-		engine.IndexNode(ctx, e.Target, false, excludes)
+		err = engine.IndexNode(ctx, e.Target, false)
 		if !e.Target.IsLeaf() {
-			go s.ReindexFolder(ctx, e.Target, excludes)
+			go s.ReindexFolder(ctx, e.Target)
 		}
 	case tree.NodeChangeEvent_UPDATE_META:
 		// Let's extract the basic information from the tree and store it
 		if e.Target.Path != "" && tree.IgnoreNodeForOutput(ctx, e.Target) {
 			break
 		}
-		engine.IndexNode(ctx, e.Target, false, excludes)
+		err = engine.IndexNode(ctx, e.Target, false)
 	case tree.NodeChangeEvent_UPDATE_USER_META:
 		// Let's extract the basic information from the tree and store it
 		if e.Target.Path != "" && tree.IgnoreNodeForOutput(ctx, e.Target) {
 			break
 		}
-		engine.IndexNode(ctx, e.Target, true, excludes)
+		err = engine.IndexNode(ctx, e.Target, true)
 	case tree.NodeChangeEvent_UPDATE_CONTENT:
 		// We may have to store the metadata again
 		if tree.IgnoreNodeForOutput(ctx, e.Target) {
 			break
 		}
-		engine.IndexNode(ctx, e.Target, false, excludes)
+		err = engine.IndexNode(ctx, e.Target, false)
 	case tree.NodeChangeEvent_DELETE:
 		// Lets delete all metadata
 		if tree.IgnoreNodeForOutput(ctx, e.Source) {
 			break
 		}
-		engine.DeleteNode(ctx, e.Source)
+		err = engine.DeleteNode(ctx, e.Source)
 	default:
 		log.Logger(ctx).Error("Could not recognize event type", zap.Any("type", e.GetType()))
+	}
+	if err != nil {
+		log.Logger(ctx).Error("[search_server] Error while processing event", zap.Error(err))
 	}
 }
 
@@ -257,7 +257,6 @@ func (s *SearchServer) TriggerResync(ctx context.Context, req *protosync.ResyncR
 		}
 	}
 
-	excludes := s.NsProvider.ExcludeIndexes()
 	wg := sync.WaitGroup{}
 	bg := context.Background()
 	throttle := make(chan struct{}, 2)
@@ -286,7 +285,7 @@ func (s *SearchServer) TriggerResync(ctx context.Context, req *protosync.ResyncR
 					break
 				}
 				if !strings.HasPrefix(response.Node.GetUuid(), "DATASOURCE:") && !tree.IgnoreNodeForOutput(ctx, response.Node) {
-					engine.IndexNode(bg, response.Node, false, excludes)
+					engine.IndexNode(bg, response.Node, false)
 					count++
 					if count%5000 == 0 {
 						log.Logger(ctx).Info(fmt.Sprintf("[%s] Current Indexation: %d nodes", ro.GetPath(), count))
@@ -300,7 +299,7 @@ func (s *SearchServer) TriggerResync(ctx context.Context, req *protosync.ResyncR
 	return &protosync.ResyncResponse{Success: true}, nil
 }
 
-func (s *SearchServer) ReindexFolder(ctx context.Context, node *tree.Node, excludes map[string]struct{}) {
+func (s *SearchServer) ReindexFolder(ctx context.Context, node *tree.Node) {
 
 	engine, err := manager.Resolve[search.Engine](ctx)
 	if err != nil {
@@ -327,7 +326,7 @@ func (s *SearchServer) ReindexFolder(ctx context.Context, node *tree.Node, exclu
 			break
 		}
 		if !strings.HasPrefix(response.Node.GetUuid(), "DATASOURCE:") && !tree.IgnoreNodeForOutput(ctx, response.Node) {
-			_ = engine.IndexNode(bg, response.Node, false, excludes)
+			_ = engine.IndexNode(bg, response.Node, false)
 			count++
 		}
 	}

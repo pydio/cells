@@ -33,6 +33,8 @@ import (
 
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/config/mock"
+	"github.com/pydio/cells/v4/common/nodes/meta"
+	"github.com/pydio/cells/v4/common/proto/idm"
 	"github.com/pydio/cells/v4/common/proto/tree"
 	"github.com/pydio/cells/v4/common/runtime/manager"
 	"github.com/pydio/cells/v4/common/storage/test"
@@ -60,9 +62,7 @@ func init() {
 	global, _ = mock.RegisterMockConfig(context.Background())
 }
 
-func createNodes(s search.Engine) error {
-
-	ctx := global
+func createNodes(ctx context.Context, s search.Engine) error {
 
 	node := &tree.Node{
 		Uuid:  "docID1",
@@ -79,7 +79,7 @@ func createNodes(s search.Engine) error {
 		"lon": 8.372777777777777,
 	})
 
-	if e := s.IndexNode(ctx, node, false, nil); e != nil {
+	if e := s.IndexNode(ctx, node, false); e != nil {
 		return e
 	}
 
@@ -92,11 +92,11 @@ func createNodes(s search.Engine) error {
 	}
 	node2.MustSetMeta("name", "folder")
 
-	if e := s.IndexNode(ctx, node2, false, nil); e != nil {
+	if e := s.IndexNode(ctx, node2, false); e != nil {
 		log.Println("Error while indexing node", e)
 	}
 
-	if er := s.(*commons.Server).Flush(); er != nil {
+	if er := s.(*commons.Server).Flush(ctx); er != nil {
 		return er
 	}
 
@@ -207,7 +207,7 @@ func TestIndexNode(t *testing.T) {
 				MetaStore: make(map[string]string),
 			}
 
-			e := server.IndexNode(ctx, node, false, nil)
+			e := server.IndexNode(ctx, node, false)
 
 			So(e, ShouldBeNil)
 		})
@@ -220,7 +220,7 @@ func TestIndexNode(t *testing.T) {
 				Type:      1,
 				MetaStore: make(map[string]string),
 			}
-			e := server.IndexNode(global, node, false, nil)
+			e := server.IndexNode(global, node, false)
 
 			So(e, ShouldNotBeNil)
 		})
@@ -235,7 +235,7 @@ func TestSearchNode(t *testing.T) {
 		}
 
 		Convey("Index nodes", t, func() {
-			So(createNodes(server), ShouldBeNil)
+			So(createNodes(ctx, server), ShouldBeNil)
 		})
 
 		Convey("Search Node by name", t, func() {
@@ -274,7 +274,7 @@ func TestSearchNode(t *testing.T) {
 				Type:      tree.NodeType_LEAF,
 				Path:      "/toto.PNG",
 				MetaStore: map[string]string{"name": `"toto.PNG"`},
-			}, false, nil)
+			}, false)
 			So(e, ShouldBeNil)
 			<-time.After(7 * time.Second)
 
@@ -459,7 +459,7 @@ func TestSearchByGeolocation(t *testing.T) {
 			panic(err)
 		}
 
-		if err = createNodes(server); err != nil {
+		if err = createNodes(ctx, server); err != nil {
 			panic(err)
 		}
 
@@ -507,7 +507,7 @@ func TestDeleteNode(t *testing.T) {
 		if err != nil {
 			panic(err)
 		}
-		if er := createNodes(server); er != nil {
+		if er := createNodes(ctx, server); er != nil {
 			panic(err)
 		}
 
@@ -536,7 +536,7 @@ func TestSearchByUuidsMatch(t *testing.T) {
 
 		Convey("Search Node by UUID(s)", t, func() {
 
-			So(createNodes(server), ShouldBeNil)
+			So(createNodes(ctx, server), ShouldBeNil)
 
 			node3 := &tree.Node{
 				Uuid:  "uuidpart1-uuidpart2",
@@ -547,7 +547,7 @@ func TestSearchByUuidsMatch(t *testing.T) {
 			}
 			node3.MustSetMeta("name", "folder")
 
-			e := server.IndexNode(ctx, node3, false, nil)
+			e := server.IndexNode(ctx, node3, false)
 			So(e, ShouldBeNil)
 
 			node4 := &tree.Node{
@@ -559,7 +559,7 @@ func TestSearchByUuidsMatch(t *testing.T) {
 			}
 			node4.MustSetMeta("name", "folder2")
 
-			e = server.IndexNode(ctx, node4, false, nil)
+			e = server.IndexNode(ctx, node4, false)
 			So(e, ShouldBeNil)
 
 			<-time.After(1 * time.Second)
@@ -613,7 +613,7 @@ func TestClearIndex(t *testing.T) {
 
 		Convey("Clear Index", t, func() {
 
-			So(createNodes(server), ShouldBeNil)
+			So(createNodes(ctx, server), ShouldBeNil)
 
 			e := server.ClearIndex(ctx)
 			So(e, ShouldBeNil)
@@ -625,6 +625,63 @@ func TestClearIndex(t *testing.T) {
 			results, e := performSearch(ctx, server, queryObject)
 			So(e, ShouldBeNil)
 			So(results, ShouldHaveLength, 0)
+		})
+	})
+}
+
+func TestExcludedNamespace(t *testing.T) {
+	test.RunStorageTests(testcases, t, func(ctx context.Context) {
+		server, err := manager.Resolve[search.Engine](ctx)
+		if err != nil {
+			panic(err)
+		}
+		Convey("Preset Namespaces", t, func() {
+			meta.TestPresetNamespaces = []*idm.UserMetaNamespace{
+				{
+					Namespace:      "indexable",
+					Label:          "Indexable NS",
+					Order:          0,
+					Indexable:      true,
+					JsonDefinition: "",
+				},
+				{
+					Namespace:      "excluded",
+					Label:          "Excluded NS",
+					Order:          1,
+					Indexable:      false,
+					JsonDefinition: "",
+				},
+			}
+
+			node := &tree.Node{
+				Uuid:  "docID1",
+				Path:  "/path/to/node.txt",
+				MTime: time.Now().Unix(),
+				Type:  1,
+				Size:  24,
+				MetaStore: map[string]string{
+					"indexable": "\"value1\"",
+					"excluded":  "\"value2\"",
+				},
+			}
+			So(server.IndexNode(ctx, node, false), ShouldBeNil)
+			So(server.(*commons.Server).Flush(ctx), ShouldBeNil)
+			<-time.After(100 * time.Millisecond)
+
+			queryObject := &tree.Query{
+				FreeString: "+Meta.indexable:\"value1\"",
+			}
+			nn, er := performSearch(ctx, server, queryObject)
+			So(er, ShouldBeNil)
+			So(nn, ShouldHaveLength, 1)
+
+			queryObject = &tree.Query{
+				FreeString: "+Meta.excluded:\"value2\"",
+			}
+			nn, er = performSearch(ctx, server, queryObject)
+			So(er, ShouldBeNil)
+			So(nn, ShouldHaveLength, 0)
+
 		})
 	})
 }

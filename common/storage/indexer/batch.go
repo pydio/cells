@@ -235,3 +235,74 @@ func (b *batch) Close() error {
 
 	return nil
 }
+
+type stackBatchOptions[T any] struct {
+	BatchOptions
+	stackSize int
+	callback  StackBatchFlush[T]
+}
+
+type StackBatchOption[T any] func(options *stackBatchOptions[T])
+
+func WithStackExpire[T any](expire time.Duration) StackBatchOption[T] {
+	return func(options *stackBatchOptions[T]) {
+		options.Expire = expire
+	}
+}
+
+func WithStackSize[T any](size int) StackBatchOption[T] {
+	return func(options *stackBatchOptions[T]) {
+		options.stackSize = size
+	}
+}
+
+func WithStackFlush[T any](cb StackBatchFlush[T]) StackBatchOption[T] {
+	return func(options *stackBatchOptions[T]) {
+		options.callback = cb
+	}
+}
+
+type stackBatch[T any] struct {
+	Batch
+	stackSize int
+	stack     []T
+}
+
+type StackBatchFlush[T any] func(...T) error
+
+// NewStackBatch creates a batch that simply stacks incoming Inserts and send them as
+// flush value when expiry or stack size is reached.
+func NewStackBatch[T any](ctx context.Context, opts ...StackBatchOption[T]) Batch {
+	sbo := stackBatchOptions[T]{
+		BatchOptions: BatchOptions{},
+	}
+
+	for _, opt := range opts {
+		opt(&sbo)
+	}
+
+	sb := &stackBatch[T]{
+		stackSize: sbo.stackSize,
+		stack:     make([]T, 0, sbo.stackSize),
+	}
+	var bo []BatchOption
+	bo = append(bo,
+		WithExpire(sbo.Expire),
+		WithInsertCallback(func(a any) error {
+			sb.stack = append(sb.stack, a.(T))
+			return nil
+		}),
+		WithFlushCondition(func() bool {
+			return len(sb.stack) > sbo.stackSize
+		}),
+		WithFlushCallback(func() error {
+			if er := sbo.callback(sb.stack...); er != nil {
+				return er
+			}
+			sb.stack = sb.stack[:0]
+			return nil
+		}),
+	)
+	sb.Batch = NewBatch(ctx, bo...)
+	return sb
+}

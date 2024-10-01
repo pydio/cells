@@ -13,6 +13,7 @@ import (
 	"github.com/pydio/cells/v4/common/service/frontend/sessions/sqlsessions"
 	"github.com/pydio/cells/v4/common/service/frontend/sessions/utils"
 	"github.com/pydio/cells/v4/common/storage/sc"
+	"github.com/pydio/cells/v4/common/storage/sql"
 	"github.com/pydio/cells/v4/common/telemetry/log"
 	"github.com/pydio/cells/v4/common/utils/configx"
 )
@@ -60,7 +61,9 @@ func NewSQLDAO(ctx context.Context, db *gorm.DB) DAO {
 	}
 
 	return &sqlsessions.Impl{
-		DB:      db,
+		Abstract: sql.NewAbstract(db).WithModels(func() []any {
+			return []any{&sqlsessions.SessionRow{}}
+		}),
 		Options: defaultOptions,
 	}
 }

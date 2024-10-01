@@ -118,7 +118,7 @@ func openPool(ctx context.Context) *ClientsPool {
 	}
 
 	pool := &ClientsPool{
-		ctx:     propagator.ForkContext(context.Background(), ctx),
+		ctx:     propagator.ForkedBackgroundWithMeta(ctx),
 		sources: make(map[string]LoadedSource),
 		aliases: make(map[string]sourceAlias),
 		reload:  make(chan bool),

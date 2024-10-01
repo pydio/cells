@@ -22,7 +22,6 @@ package sql
 
 import (
 	"context"
-	"github.com/pydio/cells/v4/idm/oauth"
 	"time"
 
 	pop "github.com/gobuffalo/pop/v6"
@@ -32,6 +31,9 @@ import (
 	"github.com/ory/x/networkx"
 	"github.com/ory/x/popx"
 	"gorm.io/gorm"
+
+	"github.com/pydio/cells/v4/common/storage/sql"
+	"github.com/pydio/cells/v4/idm/oauth"
 )
 
 var _ foauth2.TokenRevocationStorage = (*sqlPersister)(nil)
@@ -39,9 +41,9 @@ var _ foauth2.TokenRevocationStorage = (*sqlPersister)(nil)
 func newPersister(ctx context.Context, db *gorm.DB, r oauth.Registry) *sqlPersister {
 	return &sqlPersister{
 		Manager:       oauth.NewClientConfigDriver(ctx),
-		consentDriver: &consentDriver{db, r},
-		oauth2Driver:  &oauth2Driver{db, r},
-		jwkDriver:     &jwkDriver{db, r},
+		consentDriver: &consentDriver{sql.NewAbstract(db), r},
+		oauth2Driver:  &oauth2Driver{sql.NewAbstract(db), r},
+		jwkDriver:     &jwkDriver{sql.NewAbstract(db), r},
 		trustDriver:   &trustDriver{},
 	}
 }

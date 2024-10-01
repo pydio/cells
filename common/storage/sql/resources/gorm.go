@@ -84,7 +84,7 @@ func (s *gormImpl) GetPoliciesForResource(ctx context.Context, resourceId string
 
 	var res []*service.ResourcePolicy
 
-	timeout, cancel := context.WithTimeout(context.Background(), 50*time.Second)
+	timeout, cancel := context.WithTimeout(ctx, 50*time.Second)
 	defer cancel()
 
 	if err := s.instance(ctx).WithContext(timeout).Find(&res, &service.ResourcePolicy{Resource: resourceId}).Error; err != nil {
@@ -104,7 +104,7 @@ func (s *gormImpl) DeletePoliciesForResource(ctx context.Context, resourceId str
 func (s *gormImpl) GetPoliciesForSubject(ctx context.Context, subject string) ([]*service.ResourcePolicy, error) {
 	var res []*service.ResourcePolicy
 
-	timeout, cancel := context.WithTimeout(context.Background(), 50*time.Second)
+	timeout, cancel := context.WithTimeout(ctx, 50*time.Second)
 	defer cancel()
 
 	if err := s.instance(ctx).WithContext(timeout).Find(&res, &service.ResourcePolicy{Subject: subject}).Error; err != nil {
@@ -117,7 +117,7 @@ func (s *gormImpl) GetPoliciesForSubject(ctx context.Context, subject string) ([
 // ReplacePoliciesSubject set a new subject to all policies with the old subject
 func (s *gormImpl) ReplacePoliciesSubject(ctx context.Context, oldSubject, newSubject string) (int, error) {
 
-	timeout, cancel := context.WithTimeout(context.Background(), 50*time.Second)
+	timeout, cancel := context.WithTimeout(ctx, 50*time.Second)
 	defer cancel()
 
 	tx := s.instance(ctx).WithContext(timeout).Where(&service.ResourcePolicy{Subject: oldSubject}).Updates(&service.ResourcePolicy{Subject: newSubject})

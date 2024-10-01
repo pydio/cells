@@ -4,12 +4,14 @@ import (
 	"context"
 
 	grpc_middleware "github.com/grpc-ecosystem/go-grpc-middleware"
+	"go.opentelemetry.io/otel/trace"
 	"google.golang.org/grpc"
 
 	pb "github.com/pydio/cells/v4/common/proto/registry"
 	"github.com/pydio/cells/v4/common/registry"
 	"github.com/pydio/cells/v4/common/runtime"
 	"github.com/pydio/cells/v4/common/service"
+	"github.com/pydio/cells/v4/common/telemetry/tracing"
 	"github.com/pydio/cells/v4/common/utils/propagator"
 )
 
@@ -18,6 +20,11 @@ type endpointKey struct{}
 var EndpointKey = endpointKey{}
 
 func contextEndpointRegistry(ctx context.Context, s registry.Item, reg registry.Registry, fullMethod string) context.Context {
+	if spa := trace.SpanFromContext(ctx); spa != nil && spa.IsRecording() {
+		var sp trace.Span
+		ctx, sp = tracing.StartLocalSpan(ctx, "ContextEndpointRegistry")
+		defer sp.End()
+	}
 
 	serviceName := runtime.GetServiceName(ctx)
 	if serviceName != "" {

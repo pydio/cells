@@ -18,6 +18,7 @@ import (
 
 	"github.com/pydio/cells/v4/common/errors"
 	"github.com/pydio/cells/v4/common/service/frontend/sessions/utils"
+	"github.com/pydio/cells/v4/common/storage/sql"
 	"github.com/pydio/cells/v4/common/telemetry/log"
 	"github.com/pydio/cells/v4/common/utils/configx"
 	"github.com/pydio/cells/v4/common/utils/openurl"
@@ -66,14 +67,15 @@ func init() {
 }
 
 type Impl struct {
-	DB           *gorm.DB
+	*sql.Abstract
+
 	Codecs       []securecookie.Codec
 	Options      *sessions.Options
 	startExpirer sync.Once
 }
 
 func (h *Impl) Migrate(ctx context.Context) error {
-	return h.DB.AutoMigrate(&SessionRow{})
+	return h.Session(ctx).AutoMigrate(&SessionRow{})
 }
 
 // GetSession implements the SessionDAO interface
@@ -133,10 +135,10 @@ func (h *Impl) Save(r *http.Request, w http.ResponseWriter, session *sessions.Se
 	u := utils.RequestURL(r)
 	var err error
 	if session.ID == "" {
-		if err = h.insert(u, session); err != nil {
+		if err = h.insert(r.Context(), u, session); err != nil {
 			return err
 		}
-	} else if err = h.update(u, session); err != nil {
+	} else if err = h.update(r.Context(), u, session); err != nil {
 		return err
 	}
 	encoded, err := securecookie.EncodeMulti(session.Name(), session.ID, h.Codecs...)
@@ -147,7 +149,7 @@ func (h *Impl) Save(r *http.Request, w http.ResponseWriter, session *sessions.Se
 	return nil
 }
 
-func (h *Impl) insert(u *url.URL, session *sessions.Session) error {
+func (h *Impl) insert(ctx context.Context, u *url.URL, session *sessions.Session) error {
 
 	var createdOn time.Time
 	var modifiedOn time.Time
@@ -183,7 +185,7 @@ func (h *Impl) insert(u *url.URL, session *sessions.Session) error {
 		ModifiedOn: modifiedOn,
 		ExpiresOn:  expiresOn,
 	}
-	tx := h.DB.Create(row)
+	tx := h.Session(ctx).Create(row)
 	if err := tx.Error; err != nil {
 		return err
 	}
@@ -204,7 +206,7 @@ func (h *Impl) Delete(r *http.Request, w http.ResponseWriter, session *sessions.
 		delete(session.Values, k)
 	}
 
-	tx := h.DB.Delete(&SessionRow{ID: session.ID})
+	tx := h.Session(r.Context()).Delete(&SessionRow{ID: session.ID})
 	if err := tx.Error; err != nil {
 		return err
 	}
@@ -220,7 +222,7 @@ func (h *Impl) DeleteExpired(ctx context.Context, logger log.ZapLogger) {
 		for {
 			select {
 			case <-ticker.C:
-				if del, er := h.deleteExpired(); er != nil {
+				if del, er := h.deleteExpired(ctx); er != nil {
 					logger.Error("Error while running deleteExpired", zap.Error(er))
 				} else if del > 0 {
 					logger.Info(fmt.Sprintf("Cleaned %d expired sessions", del), zap.Int64("count", del))
@@ -232,8 +234,8 @@ func (h *Impl) DeleteExpired(ctx context.Context, logger log.ZapLogger) {
 	}()
 }
 
-func (h *Impl) deleteExpired() (int64, error) {
-	tx := h.DB.Where(clause.Lt{Column: "expires_on", Value: time.Now()}).Delete(&SessionRow{})
+func (h *Impl) deleteExpired(ctx context.Context) (int64, error) {
+	tx := h.Session(ctx).Where(clause.Lt{Column: "expires_on", Value: time.Now()}).Delete(&SessionRow{})
 	if err := tx.Error; err != nil {
 		return 0, err
 	}
@@ -241,9 +243,9 @@ func (h *Impl) deleteExpired() (int64, error) {
 	return tx.RowsAffected, nil
 }
 
-func (h *Impl) update(u *url.URL, session *sessions.Session) error {
+func (h *Impl) update(ctx context.Context, u *url.URL, session *sessions.Session) error {
 	if session.IsNew == true {
-		return h.insert(u, session)
+		return h.insert(nil, u, session)
 	}
 	var createdOn time.Time
 	var expiresOn time.Time
@@ -272,7 +274,7 @@ func (h *Impl) update(u *url.URL, session *sessions.Session) error {
 		return encErr
 	}
 
-	tx := h.DB.Where(&SessionRow{ID: session.ID}).Updates(&SessionRow{
+	tx := h.Session(ctx).Where(&SessionRow{ID: session.ID}).Updates(&SessionRow{
 		Data:       encoded,
 		URL:        fmt.Sprintf("%s://%s", u.Scheme, u.Host),
 		CreatedOn:  createdOn,
@@ -288,7 +290,7 @@ func (h *Impl) update(u *url.URL, session *sessions.Session) error {
 func (h *Impl) load(ctx context.Context, session *sessions.Session) error {
 
 	var sess SessionRow
-	tx := h.DB.Where(&SessionRow{ID: session.ID}).First(&sess)
+	tx := h.Session(ctx).Where(&SessionRow{ID: session.ID}).First(&sess)
 	if err := tx.Error; err != nil {
 		return err
 	}

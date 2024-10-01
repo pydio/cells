@@ -3,27 +3,30 @@ package sql
 import (
 	"context"
 	"errors"
-	"github.com/pydio/cells/v4/idm/oauth"
 	"strings"
 	"time"
 
-	"github.com/go-jose/go-jose/v3"
+	jose "github.com/go-jose/go-jose/v3"
 	"github.com/ory/hydra/v2/oauth2/trust"
 	"github.com/ory/x/sqlcon"
 	"github.com/ory/x/stringsx"
 	"gorm.io/gorm"
+
+	"github.com/pydio/cells/v4/common/storage/sql"
+	"github.com/pydio/cells/v4/idm/oauth"
 )
 
 var _ trust.GrantManager = new(trustDriver)
 
 type trustDriver struct {
-	db *gorm.DB
+	*sql.Abstract
 
 	r oauth.Registry
 }
 
 func (t trustDriver) CreateGrant(ctx context.Context, g trust.Grant, publicKey jose.JSONWebKey) error {
-	return t.db.Transaction(func(tx *gorm.DB) error {
+	return t.Session(ctx).Transaction(func(tx *gorm.DB) error {
+		tx = tx.WithContext(ctx)
 		if _, err := t.r.KeyManager().GetKey(ctx, g.PublicKey.Set, g.PublicKey.KeyID); err != nil {
 			if !errors.Is(err, sqlcon.ErrNoRows) {
 				return sqlcon.HandleError(err)
@@ -36,7 +39,7 @@ func (t trustDriver) CreateGrant(ctx context.Context, g trust.Grant, publicKey j
 
 		data := t.sqlDataFromJWTGrant(g)
 
-		t.db.Create(&data)
+		t.Session(ctx).Create(&data)
 		return nil
 	})
 }
@@ -46,7 +49,7 @@ func (t trustDriver) GetConcreteGrant(ctx context.Context, id string) (trust.Gra
 		ID: id,
 	}
 
-	tx := t.db.First(&data)
+	tx := t.Session(ctx).First(&data)
 	if tx.Error != nil {
 		return trust.Grant{}, tx.Error
 	}
@@ -59,7 +62,7 @@ func (t trustDriver) DeleteGrant(ctx context.Context, id string) error {
 		ID: id,
 	}
 
-	tx := t.db.Delete(&data)
+	tx := t.Session(ctx).Delete(&data)
 	if tx.Error != nil {
 		return tx.Error
 	}
@@ -69,7 +72,7 @@ func (t trustDriver) DeleteGrant(ctx context.Context, id string) error {
 
 func (t trustDriver) GetGrants(ctx context.Context, limit, offset int, optionalIssuer string) ([]trust.Grant, error) {
 	var grantsData []*trust.SQLData
-	tx := t.db.Offset(offset).Limit(limit).Find(&grantsData)
+	tx := t.Session(ctx).Offset(offset).Limit(limit).Find(&grantsData)
 	if tx.Error != nil {
 		return []trust.Grant{}, tx.Error
 	}
@@ -84,7 +87,7 @@ func (t trustDriver) GetGrants(ctx context.Context, limit, offset int, optionalI
 
 func (t trustDriver) CountGrants(ctx context.Context) (int, error) {
 	var count int64
-	tx := t.db.Model(&trust.SQLData{}).Count(&count)
+	tx := t.Session(ctx).Model(&trust.SQLData{}).Count(&count)
 	if tx.Error != nil {
 		return 0, tx.Error
 	}
@@ -98,7 +101,7 @@ func (t trustDriver) FlushInactiveGrants(ctx context.Context, notAfter time.Time
 	if deleteUntil.After(notAfter) {
 		deleteUntil = notAfter
 	}
-	tx := t.db.Where("expires_at < ?").Delete(&trust.SQLData{})
+	tx := t.Session(ctx).Where("expires_at < ?").Delete(&trust.SQLData{})
 	if tx.Error != nil {
 		return tx.Error
 	}
@@ -109,7 +112,7 @@ func (t trustDriver) FlushInactiveGrants(ctx context.Context, notAfter time.Time
 func (t trustDriver) GetPublicKey(ctx context.Context, issuer string, subject string, keyId string) (*jose.JSONWebKey, error) {
 	var data trust.SQLData
 
-	tx := t.db.
+	tx := t.Session(ctx).
 		Where("issuer = ?", issuer).
 		Where("(subject = ? OR allow_any_subject IS TRUE)", subject).
 		Where("key_id = ?", keyId).
@@ -129,7 +132,7 @@ func (t trustDriver) GetPublicKey(ctx context.Context, issuer string, subject st
 func (t trustDriver) GetPublicKeys(ctx context.Context, issuer string, subject string) (*jose.JSONWebKeySet, error) {
 	var grantsData []trust.SQLData
 
-	tx := t.db.
+	tx := t.Session(ctx).
 		Where("issuer = ?", issuer).
 		Where("(subject = ? OR allow_any_subject IS TRUE)", subject).
 		First(&grantsData)
@@ -161,7 +164,7 @@ func (t trustDriver) GetPublicKeys(ctx context.Context, issuer string, subject s
 func (t trustDriver) GetPublicKeyScopes(ctx context.Context, issuer string, subject string, keyId string) ([]string, error) {
 	var data trust.SQLData
 
-	tx := t.db.
+	tx := t.Session(ctx).
 		Where("issuer = ?", issuer).
 		Where("(subject = ? OR allow_any_subject IS TRUE)", subject).
 		Where("key_id = ?", keyId).

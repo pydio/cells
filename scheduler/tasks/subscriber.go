@@ -112,9 +112,8 @@ func NewSubscriber(parentContext context.Context) *Subscriber {
 		if !runtime.MultiMatches(parentContext, ctx) {
 			return nil
 		}
-		md, bb := message.RawData()
 		event := &tree.NodeChangeEvent{}
-		if e := proto.Unmarshal(bb, event); e == nil {
+		if ct, e := message.Unmarshal(s.rootCtx, event); e == nil {
 			// Ignore events on Temporary nodes and internal nodes and optimistic
 			if event.Optimistic {
 				return nil
@@ -125,7 +124,7 @@ func NewSubscriber(parentContext context.Context) *Subscriber {
 			if event.Type == tree.NodeChangeEvent_DELETE && event.Source.HasMetaKey(common.MetaNamespaceDatasourceInternal) {
 				return nil
 			}
-			return s.processNodeEvent(propagator.NewContext(s.rootCtx, md), event)
+			return s.processNodeEvent(ct, event)
 		} else {
 			return e
 		}
@@ -158,9 +157,8 @@ func NewSubscriber(parentContext context.Context) *Subscriber {
 			return nil
 		}
 		target := &tree.NodeChangeEvent{}
-		md, bb := message.RawData()
-		if e := proto.Unmarshal(bb, target); e == nil && (target.Type == tree.NodeChangeEvent_UPDATE_META || target.Type == tree.NodeChangeEvent_UPDATE_USER_META) {
-			return s.processNodeEvent(propagator.NewContext(s.rootCtx, md), target)
+		if ct, e := message.Unmarshal(s.rootCtx, target); e == nil && (target.Type == tree.NodeChangeEvent_UPDATE_META || target.Type == tree.NodeChangeEvent_UPDATE_USER_META) {
+			return s.processNodeEvent(ct, target)
 		}
 		return nil
 	}, metaOpts...)

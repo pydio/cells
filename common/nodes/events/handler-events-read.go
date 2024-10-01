@@ -122,12 +122,12 @@ func (h *HandlerRead) GetObject(ctx context.Context, node *tree.Node, requestDat
 				logger.Debug("HandlerRead did not find Uuid!", zap.Error(e))
 			}
 		}
+		c := runtimecontext.ForkedBackgroundWithMeta(ctx)
 		if eventNode.Uuid != "" {
 			if eventNode.Type == tree.NodeType_UNKNOWN {
 				// Assume it's a file
 				eventNode.Type = tree.NodeType_LEAF
 			}
-			c := runtimecontext.ForkedBackgroundWithMeta(ctx)
 			go func() {
 				broker.MustPublish(c, common.TopicTreeChanges, &tree.NodeChangeEvent{
 					Type:   tree.NodeChangeEvent_READ,
@@ -137,11 +137,10 @@ func (h *HandlerRead) GetObject(ctx context.Context, node *tree.Node, requestDat
 		}
 		if doc != nil && linkData != nil {
 			go func() {
-				bgContext := context.Background()
 				linkData.DownloadCount++
 				newData, _ := json.Marshal(linkData)
 				doc.Data = string(newData)
-				_, e3 := docstorec.DocStoreClient(ctx).PutDocument(bgContext, &docstore.PutDocumentRequest{StoreID: common.DocStoreIdShares, DocumentID: doc.ID, Document: doc})
+				_, e3 := docstorec.DocStoreClient(ctx).PutDocument(c, &docstore.PutDocumentRequest{StoreID: common.DocStoreIdShares, DocumentID: doc.ID, Document: doc})
 				if e3 == nil {
 					logger.Debug("Updated share download count " + doc.ID)
 				} else {
@@ -165,7 +164,7 @@ func (h *HandlerRead) sharedLinkWithDownloadLimit(ctx context.Context) (doc *doc
 	store := docstorec.DocStoreClient(ctx)
 
 	// First search with preset_login
-	lC, ca := context.WithCancel(runtimecontext.ForkContext(context.Background(), ctx))
+	lC, ca := context.WithCancel(runtimecontext.ForkedBackgroundWithMeta(ctx))
 	defer ca()
 	stream, e := store.ListDocuments(lC, &docstore.ListDocumentsRequest{StoreID: common.DocStoreIdShares, Query: &docstore.DocumentQuery{
 		MetaQuery: "+SHARE_TYPE:minisite +PRESET_LOGIN:" + userLogin + "",

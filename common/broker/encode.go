@@ -34,12 +34,23 @@ import (
 	"github.com/pydio/cells/v4/common/utils/propagator"
 )
 
+const (
+	encodingKey   = "broker_encoding"
+	encodingAnypb = "any"
+	encodingRaw   = "raw"
+)
+
 // EncodeProtoWithContext combines json-encoded context metadata and marshalled proto.Message into a unique []byte
 func EncodeProtoWithContext(ctx context.Context, msg proto.Message) []byte {
-	var hh []byte
-	if md, ok := propagator.FromContextCopy(ctx); ok {
-		hh, _ = json.Marshal(md)
+	mm := map[string]string{
+		encodingKey: encodingAnypb,
 	}
+	if md, ok := propagator.FromContextRead(ctx); ok {
+		for k, v := range md {
+			mm[k] = v
+		}
+	}
+	hh, _ := json.Marshal(mm)
 	a, _ := anypb.New(msg)
 	bb, _ := proto.Marshal(a)
 	return joinWithLengthPrefix(hh, bb)
@@ -48,52 +59,65 @@ func EncodeProtoWithContext(ctx context.Context, msg proto.Message) []byte {
 // EncodeBrokerMessage just joins on the md+bytes raw data from a broker message
 func EncodeBrokerMessage(message Message) []byte {
 	md, bb := message.RawData()
-	var hh []byte
-	if md != nil {
-		hh, _ = json.Marshal(md)
+	mm := map[string]string{
+		encodingKey: encodingRaw,
 	}
+	for k, v := range md {
+		mm[k] = v
+	}
+	hh, _ := json.Marshal(mm)
 	return joinWithLengthPrefix(hh, bb)
 }
 
 // DecodeToBrokerMessage tries to parse a combination of json-encoded metadata and a marshalled protobuf
 func DecodeToBrokerMessage(msg []byte) (Message, error) {
-	if bb, er := splitWithLengthPrefix(msg); er == nil && len(bb) == 2 {
-		headers := bb[0]
-		rawData := bb[1]
-		var mm map[string]string
-		if len(headers) > 0 {
-			md := map[string]string{}
-			if e := json.Unmarshal(headers, &md); e != nil {
-				return nil, e
-			} else {
-				mm = md
-			}
-		}
-		a := &anypb.Any{}
-		if e := proto.Unmarshal(rawData, a); e != nil {
-			return nil, fmt.Errorf("expecting anypb: %v", er)
-		}
-		return &pulledMessage{hh: mm, data: rawData, a: a}, nil
-	} else {
+	bb, er := splitWithLengthPrefix(msg)
+	if er != nil || len(bb) != 2 {
 		return nil, fmt.Errorf("cannot split event %v", er)
 	}
+
+	headers := bb[0]
+	rawData := bb[1]
+	var mm map[string]string
+	var encoding string
+	if len(headers) > 0 {
+		md := map[string]string{}
+		if e := json.Unmarshal(headers, &md); e != nil {
+			return nil, e
+		} else {
+			if enc, ok := md[encodingKey]; ok {
+				encoding = enc
+				delete(md, encodingKey)
+			}
+			mm = md
+		}
+	}
+	return &pulledMessage{
+		hh:   mm,
+		data: rawData,
+		any:  encoding != encodingRaw,
+	}, nil
 
 }
 
 type pulledMessage struct {
 	hh   map[string]string
 	data []byte
-	a    *anypb.Any
+	any  bool
 }
 
 func (p *pulledMessage) Unmarshal(ctx context.Context, target proto.Message) (context.Context, error) {
-	// Try anypb first
-	if e := p.a.UnmarshalTo(target); e != nil {
-		// Try direct proto unmarshalling - TODO recheck
-		/*
-			if er := proto.Unmarshal(p.data, target); er != nil {
-				return ctx, er
-			}*/
+	var e error
+	if p.any {
+		a := &anypb.Any{}
+		if er := proto.Unmarshal(p.data, a); er != nil {
+			return nil, fmt.Errorf("expecting anypb: %v", er)
+		}
+		e = a.UnmarshalTo(target)
+	} else {
+		e = proto.Unmarshal(p.data, target)
+	}
+	if e != nil {
 		return ctx, e
 	}
 	if p.hh != nil {

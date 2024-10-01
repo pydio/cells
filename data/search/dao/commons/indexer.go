@@ -24,6 +24,7 @@ package commons
 import (
 	"context"
 	"fmt"
+	"sync"
 
 	"github.com/pydio/cells/v4/common/nodes/meta"
 	"github.com/pydio/cells/v4/common/proto/tree"
@@ -31,6 +32,7 @@ import (
 	"github.com/pydio/cells/v4/common/storage/indexer"
 	"github.com/pydio/cells/v4/common/telemetry/log"
 	"github.com/pydio/cells/v4/common/utils/configx"
+	"github.com/pydio/cells/v4/common/utils/openurl"
 )
 
 var (
@@ -39,12 +41,16 @@ var (
 
 type QueryCodecProvider func(values configx.Values, metaProvider *meta.NsProvider) indexer.IndexCodex
 
+var (
+	batchPool     *openurl.Pool[indexer.Batch]
+	batchPoolInit sync.Once
+)
+
 type Server struct {
 	indexer.Indexer
 	srvContext         context.Context
-	batch              indexer.Batch
-	batchOptions       []indexer.BatchOption
 	queryCodecProvider QueryCodecProvider
+	batchOptions       []indexer.BatchOption
 }
 
 func NewServer(ctx context.Context, idx indexer.Indexer, provider QueryCodecProvider, batchOptions ...indexer.BatchOption) *Server {
@@ -56,47 +62,25 @@ func NewServer(ctx context.Context, idx indexer.Indexer, provider QueryCodecProv
 		batchOptions:       batchOptions,
 	}
 
-	//go server.watchConfigs(ctx)
-
 	return server
 }
 
-func (s *Server) getBatch() indexer.Batch {
-	if s.batch == nil {
-		s.batch = NewBatch(s.srvContext, s.Indexer, meta.NewNsProvider(s.srvContext), BatchOptions{}, s.batchOptions...)
-	}
-	return s.batch
+func (s *Server) getBatch(ctx context.Context) (indexer.Batch, error) {
+	batchPoolInit.Do(func() {
+		bo := s.batchOptions
+		batchPool = openurl.MustMemPool[indexer.Batch](ctx, func(ct context.Context, url string) indexer.Batch {
+			openContext := context.WithoutCancel(ct)
+			return NewBatch(openContext, meta.NewNsProvider(openContext), BatchOptions{}, bo...)
+		})
+	})
+	return batchPool.Get(ctx)
 }
 
-//func (s *Server) watchConfigs(ctx context.Context) {
-//	serviceName := common.ServiceGrpcNamespace_ + common.ServiceSearch
-//
-//	watcher, e := config.Watch(configx.WithPath("services", serviceName))
-//	if e != nil {
-//		return
-//	}
-//	for {
-//		_, err := watcher.Next()
-//		if err != nil {
-//			break
-//		}
-//
-//		s.confChan <- config.Get("services", serviceName)
-//	}
-//
-//	watcher.Stop()
-//}
-
 func (s *Server) Close(ctx context.Context) error {
-	if s.batch != nil {
-		if err := s.batch.Close(); err != nil {
-			return err
-		}
-	}
 	return s.Indexer.Close(ctx)
 }
 
-func (s *Server) IndexNode(c context.Context, n *tree.Node, reloadCore bool, excludes map[string]struct{}) error {
+func (s *Server) IndexNode(c context.Context, n *tree.Node, reloadCore bool) error {
 	if n.GetUuid() == "" {
 		return fmt.Errorf("missing uuid")
 	}
@@ -111,12 +95,20 @@ func (s *Server) IndexNode(c context.Context, n *tree.Node, reloadCore bool, exc
 		ReloadCore: reloadCore || forceCore,
 		ReloadNs:   !reloadCore,
 	}
+	b, er := s.getBatch(c)
+	if er != nil {
+		return er
+	}
 
-	return s.getBatch().Insert(indexNode)
+	return b.Insert(indexNode)
 }
 
 func (s *Server) DeleteNode(c context.Context, n *tree.Node) error {
-	return s.getBatch().Delete(n.GetUuid())
+	b, er := s.getBatch(c)
+	if er != nil {
+		return er
+	}
+	return b.Delete(n.GetUuid())
 }
 
 func (s *Server) ClearIndex(ctx context.Context) error {
@@ -125,11 +117,12 @@ func (s *Server) ClearIndex(ctx context.Context) error {
 	})
 }
 
-func (s *Server) Flush() error {
-	if s.batch == nil {
-		return nil
+func (s *Server) Flush(ctx context.Context) error {
+	b, er := s.getBatch(ctx)
+	if er != nil {
+		return er
 	}
-	return s.batch.Flush()
+	return b.Flush()
 }
 
 func (s *Server) SearchNodes(ctx context.Context, queryObject *tree.Query, from int32, size int32, sortField string, sortDesc bool, resultChan chan *tree.Node, facets chan *tree.SearchFacet, doneChan chan bool) error {

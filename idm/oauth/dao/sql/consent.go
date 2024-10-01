@@ -14,11 +14,12 @@ import (
 	"gorm.io/gorm/schema"
 
 	"github.com/pydio/cells/v4/common/runtime/manager"
+	"github.com/pydio/cells/v4/common/storage/sql"
 	"github.com/pydio/cells/v4/idm/oauth"
 )
 
 type consentDriver struct {
-	db *gorm.DB
+	*sql.Abstract
 
 	r oauth.Registry
 }
@@ -296,7 +297,7 @@ func FromModel(f *Flow) *flow.Flow {
 }
 
 func (c *consentDriver) AutoMigrate() error {
-	return c.db.AutoMigrate(&Flow{})
+	return c.DB.AutoMigrate(&Flow{})
 }
 
 func (c *consentDriver) CreateConsentRequest(ctx context.Context, f *flow.Flow, req *flow.OAuth2ConsentRequest) error {
@@ -387,7 +388,7 @@ func (c *consentDriver) VerifyAndInvalidateConsentRequest(ctx context.Context, v
 		return nil, err
 	}
 
-	if tx := c.db.Model(Flow{}).Create(ToModel(f)); tx.Error != nil {
+	if tx := c.Session(ctx).Model(Flow{}).Create(ToModel(f)); tx.Error != nil {
 		return nil, tx.Error
 	}
 
@@ -570,7 +571,7 @@ func (c *consentDriver) FlushInactiveLoginConsentRequests(ctx context.Context, n
 		notAfter = requestMaxExpire
 	}
 
-	tx := c.db.Model(&Flow{}).Where("requested_at < ?", notAfter.UTC()).Limit(limit).Delete(&Flow{})
+	tx := c.Session(ctx).Model(&Flow{}).Where("requested_at < ?", notAfter.UTC()).Limit(limit).Delete(&Flow{})
 	if tx.Error != nil {
 		return tx.Error
 	}

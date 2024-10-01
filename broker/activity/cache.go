@@ -22,15 +22,23 @@ package activity
 
 import (
 	"context"
+	"fmt"
+	"sync"
 	"time"
 
+	"go.uber.org/zap"
+
+	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/proto/activity"
+	"github.com/pydio/cells/v4/common/runtime"
 	"github.com/pydio/cells/v4/common/runtime/manager"
+	"github.com/pydio/cells/v4/common/storage/indexer"
+	"github.com/pydio/cells/v4/common/telemetry/log"
 	"github.com/pydio/cells/v4/common/utils/cache"
 	cache_helper "github.com/pydio/cells/v4/common/utils/cache/helper"
-	"github.com/pydio/cells/v4/common/utils/configx"
 	"github.com/pydio/cells/v4/common/utils/jsonx"
-	runtimecontext "github.com/pydio/cells/v4/common/utils/propagator"
+	"github.com/pydio/cells/v4/common/utils/openurl"
+	"github.com/pydio/cells/v4/common/utils/propagator"
 )
 
 var (
@@ -39,19 +47,17 @@ var (
 		Prefix:   "activities",
 		Eviction: "5m",
 	}
+	batchPool     *openurl.Pool[indexer.Batch]
+	batchPoolInit sync.Once
 )
 
 func WithCache(dao DAO, batchTimeout time.Duration) DAO {
 	if noCache {
 		return dao
 	}
-	useBatch := false
-	if _, o := dao.(BatchDAO); o {
-		useBatch = true
-	}
+	_, useBatch := dao.(BatchDAO)
 	return &Cache{
-		DAO: dao,
-		//cachePool:    c,
+		DAO:          dao,
 		useBatch:     useBatch,
 		batchTimeout: batchTimeout,
 	}
@@ -59,88 +65,63 @@ func WithCache(dao DAO, batchTimeout time.Duration) DAO {
 
 type Cache struct {
 	DAO
-
 	useBatch     bool
-	done         chan bool
-	input        chan *BatchActivity
-	inner        []*BatchActivity
 	batchTimeout time.Duration
-
-	closed bool
-}
-
-func (c *Cache) Init(ctx context.Context, values configx.Values) error {
-	if c.useBatch {
-		c.done = make(chan bool)
-		c.input = make(chan *BatchActivity)
-		c.inner = make([]*BatchActivity, 0, 500)
-		go c.startBatching()
-	}
-	if provider, ok := c.DAO.(manager.InitProvider); ok {
-		return provider.Init(ctx, values)
-	} else {
-		return nil
-	}
-}
-
-func (c *Cache) startBatching() {
-	defer func() {
-		c.closed = true
-		close(c.input)
-	}()
-	for {
-		select {
-		case a := <-c.input:
-			c.inner = append(c.inner, a)
-			if len(c.inner) >= 500 {
-				c.flushBatch()
-			}
-		case <-time.After(c.batchTimeout):
-			c.flushBatch()
-		case <-c.done:
-			c.flushBatch()
-			return
-		}
-	}
-}
-
-func (c *Cache) stopBatching() {
-	close(c.done)
-}
-
-func (c *Cache) flushBatch() {
-	if len(c.inner) == 0 {
-		return
-	}
-	c.DAO.(BatchDAO).BatchPost(c.inner)
-	c.inner = c.inner[:0]
 }
 
 func (c *Cache) CloseConn(ctx context.Context) error {
-	if c.useBatch {
-		c.stopBatching()
-	}
-	//return c.DAO.CloseConn(ctx)
+	// Todo how to close batch
 	return nil
 }
 
+func (c *Cache) BatchPost(aa []*BatchActivity) error {
+	return c.DAO.(BatchDAO).BatchPost(aa)
+}
+
 func (c *Cache) PostActivity(ctx context.Context, ownerType activity.OwnerType, ownerId string, boxName BoxName, object *activity.Object, publish bool) error {
-	if !c.useBatch || c.closed {
+	if !c.useBatch {
 		return c.DAO.PostActivity(ctx, ownerType, ownerId, boxName, object, publish)
-	} else {
-		var publishCtx context.Context
-		if publish {
-			publishCtx = runtimecontext.ForkContext(context.Background(), ctx)
-		}
-		c.input <- &BatchActivity{
-			Object:     object,
-			OwnerType:  ownerType,
-			OwnerId:    ownerId,
-			BoxName:    boxName,
-			PublishCtx: publishCtx,
-		}
-		return nil
 	}
+
+	batchPoolInit.Do(func() {
+
+		batchPool = openurl.MustMemPool[indexer.Batch](ctx, func(ct context.Context, url string) indexer.Batch {
+			ct = runtime.WithServiceName(ct, common.ServiceActivityGRPC)
+			openCtx := propagator.ForkedBackgroundWithMeta(ct)
+			return indexer.NewStackBatch[*BatchActivity](openCtx,
+				indexer.WithStackSize[*BatchActivity](500),
+				indexer.WithStackExpire[*BatchActivity](c.batchTimeout),
+				indexer.WithStackFlush[*BatchActivity](func(batchActivity ...*BatchActivity) error {
+					if len(batchActivity) == 0 {
+						return nil
+					}
+					dao, er := manager.Resolve[DAO](ct)
+					if er != nil {
+						return nil
+					}
+					log.Logger(ct).Info(fmt.Sprintf("Batch posting %d activities", len(batchActivity)), zap.Any("ac", batchActivity[0]))
+					return dao.(BatchDAO).BatchPost(batchActivity)
+				}),
+			)
+		})
+	})
+
+	var publishCtx context.Context
+	if publish {
+		publishCtx = propagator.ForkedBackgroundWithMeta(ctx)
+	}
+	b, er := batchPool.Get(ctx)
+	if er != nil {
+		return er
+	}
+	return b.Insert(&BatchActivity{
+		Object:     object,
+		OwnerType:  ownerType,
+		OwnerId:    ownerId,
+		BoxName:    boxName,
+		PublishCtx: publishCtx,
+	})
+
 }
 
 func (c *Cache) UpdateSubscription(ctx context.Context, subscription *activity.Subscription) error {

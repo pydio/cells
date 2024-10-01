@@ -39,6 +39,7 @@ import (
 	"github.com/pydio/cells/v4/common/runtime/manager"
 	"github.com/pydio/cells/v4/common/storage/indexer"
 	log2 "github.com/pydio/cells/v4/common/telemetry/log"
+	"github.com/pydio/cells/v4/common/utils/propagator"
 )
 
 // Handler is the gRPC interface for the log service.
@@ -152,12 +153,12 @@ func (h *Handler) TriggerResync(ctx context.Context, request *sync.ResyncRequest
 	}
 
 	var l log2.ZapLogger
-	var closeTask func(e error)
+	var closeTask func(ct context.Context, e error)
 	if request.Task != nil {
 		l = log2.TasksLogger(ctx)
 		theTask := request.Task
 		theTask.StartTime = int32(time.Now().Unix())
-		closeTask = func(e error) {
+		closeTask = func(ct context.Context, e error) {
 			theTask.EndTime = int32(time.Now().Unix())
 			if e != nil {
 				theTask.StatusMessage = "Error " + e.Error()
@@ -166,13 +167,13 @@ func (h *Handler) TriggerResync(ctx context.Context, request *sync.ResyncRequest
 				theTask.StatusMessage = "Done"
 				theTask.Status = jobs.TaskStatus_Finished
 			}
-			_, err := jobsc.JobServiceClient(ctx).PutTask(context.Background(), &jobs.PutTaskRequest{Task: theTask})
+			_, err := jobsc.JobServiceClient(ct).PutTask(ct, &jobs.PutTaskRequest{Task: theTask})
 			if err != nil {
 				fmt.Println("Cannot post task!", err)
 			}
 		}
 	} else {
-		closeTask = func(e error) {}
+		closeTask = func(ct context.Context, e error) {}
 	}
 
 	if strings.HasPrefix(request.Path, "truncate/") {
@@ -183,11 +184,11 @@ func (h *Handler) TriggerResync(ctx context.Context, request *sync.ResyncRequest
 		} else {
 			er = fmt.Errorf("wrong format for truncate (use bytesize)")
 		}
-		closeTask(er)
+		closeTask(ctx, er)
 		return &sync.ResyncResponse{}, er
 	}
 
-	c := runtime.WithServiceName(context.Background(), runtime.GetServiceName(ctx))
+	c := runtime.WithServiceName(propagator.ForkedBackgroundWithMeta(ctx), runtime.GetServiceName(ctx))
 	go func() {
 		e := repo.Resync(c, l)
 		if e != nil {
@@ -197,7 +198,7 @@ func (h *Handler) TriggerResync(ctx context.Context, request *sync.ResyncRequest
 				fmt.Println("Error while resyncing: " + e.Error())
 			}
 		}
-		closeTask(e)
+		closeTask(c, e)
 	}()
 
 	return &sync.ResyncResponse{}, nil

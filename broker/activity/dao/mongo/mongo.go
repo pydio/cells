@@ -391,9 +391,10 @@ func (m *mongoimpl) AllActivities(ctx context.Context) (chan *activity.BatchActi
 		return nil, 0, er
 	}
 	out := make(chan *activity.BatchActivity, 10000)
+	ct := context.WithoutCancel(ctx)
 	go func() {
 		defer close(out)
-		for cursor.Next(context.Background()) {
+		for cursor.Next(ct) {
 			doc := &docActivity{}
 			if er := cursor.Decode(doc); er != nil {
 				continue

@@ -25,6 +25,7 @@ import (
 	"sync/atomic"
 	"time"
 
+	"go.opentelemetry.io/otel/trace"
 	"go.uber.org/zap"
 	"google.golang.org/protobuf/encoding/protojson"
 
@@ -46,6 +47,7 @@ type Task struct {
 	context  context.Context
 	cancel   context.CancelFunc
 	finished chan bool
+	span     trace.Span
 
 	rci atomic.Int32
 
@@ -75,6 +77,9 @@ func NewTaskFromEvent(runtimeC, ctx context.Context, job *jobs.Job, event interf
 	//c := runtimecontext.WithOperationID(ctx, operationID)
 	c := propagator.WithAdditionalMetadata(ctx, map[string]string{common.CtxSchedulerOperationId: operationID})
 
+	span := trace.SpanFromContext(ctx)
+	c, span = span.TracerProvider().Tracer("cells").Start(ctx, "/scheduler/job-"+operationID, trace.WithNewRoot())
+
 	// Inject evaluated job parameters if it's not already here
 	if c.Value(ContextJobParametersKey{}) == nil {
 		params := jobs.RunParametersComputer(c, &jobs.ActionMessage{}, job, event)
@@ -86,6 +91,7 @@ func NewTaskFromEvent(runtimeC, ctx context.Context, job *jobs.Job, event interf
 		Job:      job,
 		runID:    taskID,
 		finished: make(chan bool, 1),
+		span:     span,
 		event:    event,
 		task: &jobs.Task{
 			ID:            taskID,
@@ -120,6 +126,9 @@ func (t *Task) Queue(queue ...chan RunnerFunc) {
 		for {
 			select {
 			case <-t.finished:
+				if t.span != nil {
+					t.span.End()
+				}
 				return
 			case <-t.RuntimeContext.Done():
 				t.cancel()

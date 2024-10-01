@@ -131,7 +131,7 @@ func CopyMoveNodes(ctx context.Context, router Handler, sourceNode *tree.Node, t
 			go func() {
 				<-time.After(10 * time.Second)
 				log.Logger(ctx).Info("Forcing close session " + session + " and unlock")
-				broker.MustPublish(context.Background(), common.TopicIndexEvent, &tree.IndexEvent{
+				broker.MustPublish(propagator.ForkedBackgroundWithMeta(ctx), common.TopicIndexEvent, &tree.IndexEvent{
 					SessionForceClose: session,
 				})
 				if locker != nil {
@@ -144,7 +144,7 @@ func CopyMoveNodes(ctx context.Context, router Handler, sourceNode *tree.Node, t
 	}()
 
 	publishError := func(dsName, errorPath string) {
-		broker.MustPublish(context.Background(), common.TopicIndexEvent, &tree.IndexEvent{
+		broker.MustPublish(propagator.ForkedBackgroundWithMeta(ctx), common.TopicIndexEvent, &tree.IndexEvent{
 			ErrorDetected:  true,
 			DataSourceName: dsName,
 			ErrorPath:      errorPath,
@@ -449,7 +449,7 @@ func CopyMoveNodes(ctx context.Context, router Handler, sourceNode *tree.Node, t
 
 			if !targetFlat && childrenMoved == 0 {
 				// Moved only an empty folder - make sure to close sync session
-				_ = broker.Publish(context.Background(), common.TopicIndexEvent, &tree.IndexEvent{
+				_ = broker.Publish(propagator.ForkedBackgroundWithMeta(ctx), common.TopicIndexEvent, &tree.IndexEvent{
 					SessionForceClose: session,
 				})
 			}

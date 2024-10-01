@@ -31,6 +31,7 @@ import (
 	"github.com/olahol/melody"
 	"github.com/ory/ladon"
 	"github.com/ory/ladon/manager/memory"
+	"go.opentelemetry.io/otel/trace"
 	"go.uber.org/zap"
 	"golang.org/x/time/rate"
 	"google.golang.org/protobuf/encoding/protojson"
@@ -47,6 +48,7 @@ import (
 	"github.com/pydio/cells/v4/common/proto/tree"
 	"github.com/pydio/cells/v4/common/runtime"
 	"github.com/pydio/cells/v4/common/telemetry/log"
+	"github.com/pydio/cells/v4/common/telemetry/tracing"
 	"github.com/pydio/cells/v4/common/utils/cache"
 	json "github.com/pydio/cells/v4/common/utils/jsonx"
 )
@@ -120,6 +122,11 @@ func (w *WebsocketHandler) InitHandlers(ctx context.Context) {
 			_ = session.CloseWithMsg(NewErrorMessage(e))
 			return
 		}
+
+		var span trace.Span
+		ct, span = tracing.StartLocalSpan(ct, "/ws/event/"+string(msg.Type))
+		defer span.End()
+
 		switch msg.Type {
 		case MsgSubscribe:
 
