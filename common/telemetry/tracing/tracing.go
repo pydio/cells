@@ -36,19 +36,12 @@ import (
 
 	"github.com/pydio/cells/v4/common"
 	otel2 "github.com/pydio/cells/v4/common/telemetry/otel"
-	"github.com/pydio/cells/v4/common/utils/propagator"
 )
 
 var (
 	otelInit = &sync.Once{}
 	dynamic  *dynamicExporter
 )
-
-func init() {
-	propagator.RegisterContextInjector(func(ctx, parent context.Context) context.Context {
-		return trace2.ContextWithSpan(ctx, trace2.SpanFromContext(parent))
-	})
-}
 
 type Config struct {
 	Outputs           []string          `json:"outputs" yaml:"outputs"`
