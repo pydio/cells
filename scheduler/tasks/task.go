@@ -78,7 +78,7 @@ func NewTaskFromEvent(runtimeC, ctx context.Context, job *jobs.Job, event interf
 	c := propagator.WithAdditionalMetadata(ctx, map[string]string{common.CtxSchedulerOperationId: operationID})
 
 	span := trace.SpanFromContext(ctx)
-	c, span = span.TracerProvider().Tracer("cells").Start(ctx, "/scheduler/job-"+operationID, trace.WithNewRoot())
+	c, span = span.TracerProvider().Tracer("cells").Start(c, "/scheduler/job-"+operationID, trace.WithNewRoot())
 
 	// Inject evaluated job parameters if it's not already here
 	if c.Value(ContextJobParametersKey{}) == nil {
