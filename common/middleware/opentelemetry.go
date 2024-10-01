@@ -28,13 +28,15 @@ import (
 	"go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp"
 	"go.opentelemetry.io/otel/trace"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/stats"
+	"google.golang.org/grpc/status"
 )
 
 func init() {
 	RegisterStatsHandler(func(ctx context.Context, isClient bool) stats.Handler {
 		if isClient {
-			return otelgrpc.NewClientHandler()
+			return &CustomClientHandler{Handler: otelgrpc.NewClientHandler()}
 		} else {
 			return otelgrpc.NewServerHandler()
 		}
@@ -79,4 +81,20 @@ func SpanFromContext(ctx context.Context) trace.SpanContext {
 // HttpTracingMiddleware enabled tracing on HTTP server
 func HttpTracingMiddleware(operation string) func(h http.Handler) http.Handler {
 	return otelhttp.NewMiddleware(operation)
+}
+
+type CustomClientHandler struct {
+	stats.Handler
+}
+
+func (cs *CustomClientHandler) HandleRPC(ctx context.Context, s stats.RPCStats) {
+	// Check if this is the end of an RPC call
+	if end, ok := s.(*stats.End); ok {
+		if end.Error != nil && status.Code(end.Error) == codes.Canceled {
+			end.Error = nil
+			cs.Handler.HandleRPC(ctx, end)
+			return
+		}
+	}
+	cs.Handler.HandleRPC(ctx, s)
 }
