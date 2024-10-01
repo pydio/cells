@@ -36,6 +36,7 @@ import (
 	"github.com/pydio/cells/v4/common/telemetry/log"
 	"github.com/pydio/cells/v4/common/utils/cache"
 	cache_helper "github.com/pydio/cells/v4/common/utils/cache/helper"
+	"github.com/pydio/cells/v4/common/utils/configx"
 	"github.com/pydio/cells/v4/common/utils/jsonx"
 	"github.com/pydio/cells/v4/common/utils/openurl"
 	"github.com/pydio/cells/v4/common/utils/propagator"
@@ -48,7 +49,7 @@ var (
 		Eviction: "5m",
 	}
 	batchPool     *openurl.Pool[indexer.Batch]
-	batchPoolInit sync.Once
+	BatchPoolInit sync.Once
 )
 
 func WithCache(dao DAO, batchTimeout time.Duration) DAO {
@@ -69,6 +70,13 @@ type Cache struct {
 	batchTimeout time.Duration
 }
 
+func (c *Cache) Init(ctx context.Context, options configx.Values) error {
+	if ip, ok := c.DAO.(manager.InitProvider); ok {
+		return ip.Init(ctx, options)
+	}
+	return nil
+}
+
 func (c *Cache) CloseConn(ctx context.Context) error {
 	// Todo how to close batch
 	return nil
@@ -83,7 +91,7 @@ func (c *Cache) PostActivity(ctx context.Context, ownerType activity.OwnerType, 
 		return c.DAO.PostActivity(ctx, ownerType, ownerId, boxName, object, publish)
 	}
 
-	batchPoolInit.Do(func() {
+	BatchPoolInit.Do(func() {
 
 		batchPool = openurl.MustMemPool[indexer.Batch](ctx, func(ct context.Context, url string) indexer.Batch {
 			ct = runtime.WithServiceName(ct, common.ServiceActivityGRPC)

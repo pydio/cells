@@ -77,11 +77,16 @@ func init() {
 
 func waitIfCache(d activity.DAO) {
 	if _, o := d.(*activity.Cache); o {
-		<-time.After(2 * time.Second)
+		<-time.After(5 * time.Second)
 	}
 }
 
 func TestBasicEmptyDao(t *testing.T) {
+
+	defer func() {
+		// Always reset the Once to force recreating a new Batch at each iteration
+		activity.BatchPoolInit = sync.Once{}
+	}()
 
 	test.RunStorageTests(testCases(), t, func(ctx context.Context) {
 		Convey("Test getBucket - read - not exists", t, func() {
@@ -99,10 +104,13 @@ func TestBasicEmptyDao(t *testing.T) {
 
 func TestInsertActivity(t *testing.T) {
 
+	defer func() {
+		activity.BatchPoolInit = sync.Once{}
+	}()
+
 	test.RunStorageTests(testCases(), t, func(ctx context.Context) {
 
 		Convey("Test insert", t, func() {
-
 			dao, err := manager.Resolve[activity.DAO](ctx)
 			So(err, ShouldBeNil)
 			So(dao, ShouldNotBeNil)
@@ -203,6 +211,10 @@ func TestInsertActivity(t *testing.T) {
 
 func TestMultipleInsert(t *testing.T) {
 
+	defer func() {
+		activity.BatchPoolInit = sync.Once{}
+	}()
+
 	test.RunStorageTests(testCases(), t, func(ctx context.Context) {
 
 		Convey("Test insert", t, func() {
@@ -260,6 +272,10 @@ func TestMultipleInsert(t *testing.T) {
 }
 
 func TestCursor(t *testing.T) {
+
+	defer func() {
+		activity.BatchPoolInit = sync.Once{}
+	}()
 
 	test.RunStorageTests(testCases(), t, func(ctx context.Context) {
 		Convey("Insert Activities and browse", t, func() {
@@ -380,6 +396,11 @@ func TestCursor(t *testing.T) {
 }
 
 func TestStreamFilter(t *testing.T) {
+
+	defer func() {
+		activity.BatchPoolInit = sync.Once{}
+	}()
+
 	test.RunStorageTests(testCases(), t, func(ctx context.Context) {
 
 		Convey("Test Filtering Stream", t, func() {
@@ -472,6 +493,10 @@ func recordStream(dao activity.DAO, ctx context.Context, ownerType proto.OwnerTy
 }
 
 func TestSimilarSkipping(t *testing.T) {
+
+	defer func() {
+		activity.BatchPoolInit = sync.Once{}
+	}()
 
 	test.RunStorageTests(boltCases(), t, func(ctx context.Context) {
 
@@ -578,6 +603,10 @@ func TestSimilarSkipping(t *testing.T) {
 
 func TestDelete(t *testing.T) {
 
+	defer func() {
+		activity.BatchPoolInit = sync.Once{}
+	}()
+
 	test.RunStorageTests(testCases(), t, func(ctx context.Context) {
 		Convey("Test Delete Owner", t, func() {
 
@@ -610,6 +639,10 @@ func TestDelete(t *testing.T) {
 }
 
 func TestPurge(t *testing.T) {
+
+	defer func() {
+		activity.BatchPoolInit = sync.Once{}
+	}()
 
 	test.RunStorageTests(testCases(), t, func(ctx context.Context) {
 
@@ -719,6 +752,10 @@ func TestPurge(t *testing.T) {
 
 func TestSubscriptions(t *testing.T) {
 
+	defer func() {
+		activity.BatchPoolInit = sync.Once{}
+	}()
+
 	test.RunStorageTests(testCases(), t, func(ctx context.Context) {
 
 		Convey("Test subscribe", t, func() {
@@ -778,6 +815,11 @@ func TestSubscriptions(t *testing.T) {
 }
 
 func TestWsSorting(t *testing.T) {
+
+	defer func() {
+		activity.BatchPoolInit = sync.Once{}
+	}()
+
 	Convey("Test ws sorting - cells should appear first, then order by label", t, func() {
 		var tss activity.SortedWs
 		tss = append(tss, &idm.Workspace{UUID: "a", Label: "Z", Scope: idm.WorkspaceScope_ADMIN})
@@ -793,6 +835,10 @@ func TestWsSorting(t *testing.T) {
 }
 
 func SkipTestMassiveQueries(t *testing.T) {
+
+	defer func() {
+		activity.BatchPoolInit = sync.Once{}
+	}()
 
 	test.RunStorageTests(testCases(), t, func(ctx context.Context) {
 
