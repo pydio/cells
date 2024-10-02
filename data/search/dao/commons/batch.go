@@ -139,7 +139,11 @@ func (b *LocalBatch) Flush(ctx context.Context, batchOpts ...indexer.BatchOption
 	}
 
 	// Now create an indexer batch, fill it and directly flush it
-	batch, _ := idx.NewBatch(ctx, batchOpts...)
+	batch, err := idx.NewBatch(ctx, batchOpts...)
+	if err != nil {
+		fmt.Println("Cannot create indexer.NewBatch!", err.Error())
+		return err
+	}
 	for _, n := range nn {
 		if er := batch.Insert(n); er != nil {
 			fmt.Println("Search batch - InsertOne error", er.Error())

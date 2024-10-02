@@ -113,6 +113,9 @@ func newService(ctx context.Context, dsObject *object.DataSource) {
 
 			go func(syncHandler *grpc_sync.Handler) error {
 
+				serviceName := common.ServiceGrpcNamespace_ + common.ServiceDataSync_ + datasource
+				ctx = runtime.WithServiceName(ctx, serviceName)
+
 				if e := syncHandler.Init(ctx); e != nil {
 					return e
 				}
@@ -121,7 +124,6 @@ func newService(ctx context.Context, dsObject *object.DataSource) {
 				md[common.PydioContextUserKey] = common.PydioSystemUsername
 				jobCtx := propagator.NewContext(ctx, md)
 				jobsClient := jobsc.JobServiceClient(ctx)
-				serviceName := common.ServiceGrpcNamespace_ + common.ServiceDataSync_ + datasource
 
 				if !dsObject.FlatStorage {
 					syncHandler.Start()

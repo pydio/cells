@@ -103,6 +103,8 @@ func init() {
 						if e != nil {
 							return e
 						}
+						ctx = context.WithoutCancel(ctx)
+						ctx = runtime.WithServiceName(ctx, common.ServiceTasksGRPC)
 						return sub.Consume(ctx, topic, msg, false)
 					}, queueOpt, counterOpt); er != nil {
 						return er

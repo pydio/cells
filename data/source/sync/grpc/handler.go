@@ -87,7 +87,7 @@ type Handler struct {
 
 func NewHandler(ctx context.Context, datasource string) *Handler {
 	return &Handler{
-		globalCtx:      ctx,
+		globalCtx:      runtime.WithServiceName(ctx, common.ServiceGrpcNamespace_+common.ServiceDataSync_+datasource),
 		DsName:         datasource,
 		errorsDetected: make(chan string),
 		stop:           make(chan bool),

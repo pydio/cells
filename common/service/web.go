@@ -132,7 +132,7 @@ func WithWeb(handler func(ctx context.Context) WebHandler) ServiceOption {
 				svcId:          o.ID,
 			}
 
-			log.Logger(ctx).Info("starting", zap.String("service", o.Name), zap.String("hook router to", serviceRoute))
+			log.Logger(runtime.WithServiceName(ctx, o.Name)).Info("starting", zap.String("service", o.Name), zap.String("hook router to", serviceRoute))
 
 			ws := new(restful.WebService)
 			ws.Consumes(restful.MIME_JSON, "application/x-www-form-urlencoded", "multipart/form-data")

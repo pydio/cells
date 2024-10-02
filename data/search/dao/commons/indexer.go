@@ -43,7 +43,7 @@ type QueryCodecProvider func(values configx.Values, metaProvider *meta.NsProvide
 
 var (
 	batchPool     *openurl.Pool[indexer.Batch]
-	batchPoolInit sync.Once
+	BatchPoolInit sync.Once
 )
 
 type Server struct {
@@ -66,7 +66,7 @@ func NewServer(ctx context.Context, idx indexer.Indexer, provider QueryCodecProv
 }
 
 func (s *Server) getBatch(ctx context.Context) (indexer.Batch, error) {
-	batchPoolInit.Do(func() {
+	BatchPoolInit.Do(func() {
 		bo := s.batchOptions
 		batchPool = openurl.MustMemPool[indexer.Batch](ctx, func(ct context.Context, url string) indexer.Batch {
 			openContext := context.WithoutCancel(ct)
