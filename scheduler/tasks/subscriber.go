@@ -111,7 +111,7 @@ func (s *Subscriber) getAsyncQueue(ctx context.Context, topic string) (q broker.
 }
 
 func (s *Subscriber) Consume(ctx context.Context, topic string, msg broker.Message, fromQueue bool) (e error) {
-	log.Logger(s.rootCtx).Info("Fan out "+topic+" event to "+s.mm, zap.Bool("fromQueue", fromQueue))
+	log.Logger(s.rootCtx).Debug("Fan out "+topic+" event to "+s.mm, zap.Bool("fromQueue", fromQueue))
 	switch topic {
 	case common.TopicIdmEvent:
 		target := &idm.ChangeEvent{}
