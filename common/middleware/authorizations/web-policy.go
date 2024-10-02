@@ -67,7 +67,7 @@ func HttpWrapperPolicy(ct context.Context, h http.Handler) http.Handler {
 		client := idm.NewPolicyEngineServiceClient(grpc.ResolveConn(ctx, common.ServicePolicyGRPC))
 		request := &idm.PolicyEngineRequest{
 			Subjects: subjects,
-			Resource: "rest:" + strings.TrimPrefix(r.RequestURI, common.DefaultRouteREST),
+			Resource: "rest:" + strings.TrimPrefix(r.RequestURI, common.DefaultRouteREST), // todo - should not use Default
 			Action:   r.Method,
 		}
 

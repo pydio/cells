@@ -62,8 +62,8 @@ var (
 	swaggerJSONStrings    []string
 	swaggerMergedDocument *loads.Document
 
-	wm     []func(context.Context, http.Handler) http.Handler
-	wmOnce = &sync.Once{}
+	wmCore, wmTop []func(context.Context, http.Handler) http.Handler
+	wmOnce        = &sync.Once{}
 )
 
 // RegisterSwaggerJSON receives a json string and adds it to the swagger definition
@@ -85,24 +85,35 @@ type WebHandler interface {
 	Filter() func(string) string
 }
 
-func getWebMiddlewares(serviceName string) []func(ctx context.Context, handler http.Handler) http.Handler {
+func getWebMiddlewares(serviceName string, pos string) []func(ctx context.Context, handler http.Handler) http.Handler {
 	wmOnce.Do(func() {
-		wm = append(wm,
+		wmCore = append(wmCore,
 			middleware.HttpWrapperMetrics,
 			authorizations.HttpWrapperPolicy,
 			authorizations.HttpWrapperJWT,
+		)
+		wmTop = append(wmTop,
 			authorizations.HttpWrapperLanguage,
 			middleware.HttpWrapperMeta,
 		)
 	})
-	// Append dynamic wrapper to append service name to context
-	sw := func(ctx context.Context, handler http.Handler) http.Handler {
-		return http.HandlerFunc(func(writer http.ResponseWriter, request *http.Request) {
-			c := runtime.WithServiceName(request.Context(), serviceName)
-			handler.ServeHTTP(writer, request.WithContext(c))
-		})
+	if serviceName == common.ServiceRestNamespace_+common.ServiceInstall {
+		return []func(ctx context.Context, handler http.Handler) http.Handler{}
 	}
-	return append(wm, sw)
+
+	if pos == "core" {
+		return wmCore
+	} else {
+		// Append dynamic wrapper to append service name to context
+		sw := func(ctx context.Context, handler http.Handler) http.Handler {
+			return http.HandlerFunc(func(writer http.ResponseWriter, request *http.Request) {
+				c := runtime.WithServiceName(request.Context(), serviceName)
+				handler.ServeHTTP(writer, request.WithContext(c))
+			})
+		}
+		return append(wmTop, sw)
+	}
+
 }
 
 type swaggerRestMapper struct {
@@ -175,14 +186,14 @@ func WithWeb(handler func(ctx context.Context) WebHandler) ServiceOption {
 			// var e error
 			wrapped := http.Handler(wc)
 
+			for _, wrap := range getWebMiddlewares(o.Name, "core") {
+				wrapped = wrap(ctx, wrapped)
+			}
 			for _, m := range o.WebMiddlewares {
 				wrapped = m(wrapped)
 			}
-
-			if o.Name != common.ServiceRestNamespace_+common.ServiceInstall {
-				for _, wrap := range getWebMiddlewares(o.Name) {
-					wrapped = wrap(ctx, wrapped)
-				}
+			for _, wrap := range getWebMiddlewares(o.Name, "top") {
+				wrapped = wrap(ctx, wrapped)
 			}
 
 			wrapped = cors.Default().Handler(wrapped)
