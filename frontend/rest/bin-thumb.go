@@ -31,7 +31,7 @@ func readBinary(ctx context.Context, router nodes.Client, node *tree.Node, outpu
 	}
 	if len(resize) == 0 {
 
-		ctx = context.WithValue(context.Background(), common.PydioContextUserKey, common.PydioSystemUsername)
+		ctx = context.WithValue(ctx, common.PydioContextUserKey, common.PydioSystemUsername)
 		reader, e := router.GetObject(ctx, node, &models.GetRequestData{Length: info.Node.Size})
 		if e != nil {
 			return e
