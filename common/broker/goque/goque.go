@@ -161,8 +161,15 @@ func (g *gq) OpenURL(ctx context.Context, u *url.URL) (broker.AsyncQueue, error)
 		prefix = ""
 	}
 
+	// Compute a cached identifier : use full URL, but remove prefix
+	IDU := *u
+	qq := IDU.Query()
+	qq.Del("prefix")
+	IDU.RawQuery = qq.Encode()
+	id := IDU.String()
+
 	ql.Lock()
-	if q, ok := queues[queueName]; ok {
+	if q, ok := queues[id]; ok {
 		q.rc++
 		ql.Unlock()
 		return &gq{
@@ -190,7 +197,7 @@ func (g *gq) OpenURL(ctx context.Context, u *url.URL) (broker.AsyncQueue, error)
 		return nil, err
 	}
 	sq = &serviceQueue{q: q, pq: pq, rc: 0}
-	queues[queueName] = sq
+	queues[id] = sq
 	ql.Unlock()
 	go func() {
 		<-ctx.Done()

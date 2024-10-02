@@ -145,6 +145,11 @@ func MustMemPool[T any](ctx context.Context, opener MustOpener[T], opt ...PoolOp
 	return p
 }
 
+// MemPool opens a pool that differentiate basically by tenant
+func MemPool[T any](ctx context.Context, opener Opener[T], opt ...PoolOption[T]) (*Pool[T], error) {
+	return OpenPool(ctx, []string{"mem://{{ .Tenant }}"}, opener, opt...)
+}
+
 //func (m Pool[T]) Resolve(ctx context.Context, resolutionData ...map[string]interface{}) (string, error) {
 //
 //}
