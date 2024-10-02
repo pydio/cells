@@ -26,19 +26,23 @@ import (
 
 	"go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc"
 	"go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp"
+	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/trace"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/metadata"
 	"google.golang.org/grpc/stats"
 	"google.golang.org/grpc/status"
+
+	"github.com/pydio/cells/v4/common/runtime"
 )
 
 func init() {
 	RegisterStatsHandler(func(ctx context.Context, isClient bool) stats.Handler {
 		if isClient {
-			return &CustomClientHandler{Handler: otelgrpc.NewClientHandler()}
+			return &customHandler{Handler: otelgrpc.NewClientHandler(), isClient: true}
 		} else {
-			return otelgrpc.NewServerHandler()
+			return &customHandler{Handler: otelgrpc.NewServerHandler(), isClient: false}
 		}
 	})
 }
@@ -83,14 +87,30 @@ func HttpTracingMiddleware(operation string) func(h http.Handler) http.Handler {
 	return otelhttp.NewMiddleware(operation)
 }
 
-type CustomClientHandler struct {
+type customHandler struct {
 	stats.Handler
+	isClient bool
 }
 
-func (cs *CustomClientHandler) HandleRPC(ctx context.Context, s stats.RPCStats) {
+func (cs *customHandler) HandleRPC(ctx context.Context, s stats.RPCStats) {
 	// Check if this is the end of an RPC call
 	if end, ok := s.(*stats.End); ok {
-		if end.Error != nil && status.Code(end.Error) == codes.Canceled {
+		if cs.isClient {
+			// Client : find service name
+			if svc := runtime.GetServiceName(ctx); svc != "" {
+				span := trace.SpanFromContext(ctx)
+				span.SetAttributes(attribute.String("pydio.service.name", svc))
+			}
+		} else {
+			// Server, find the service key
+			if md, o := metadata.FromIncomingContext(ctx); o {
+				if svc, set := md["service"]; set {
+					span := trace.SpanFromContext(ctx)
+					span.SetAttributes(attribute.String("pydio.service.name", svc[0]))
+				}
+			}
+		}
+		if cs.isClient && end.Error != nil && status.Code(end.Error) == codes.Canceled {
 			end.Error = nil
 			cs.Handler.HandleRPC(ctx, end)
 			return
