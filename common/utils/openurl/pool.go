@@ -212,6 +212,39 @@ func (m Pool[T]) Get(ctx context.Context, resolutionData ...map[string]interface
 	return res, fmt.Errorf("cannot resolve")
 }
 
+func (m Pool[T]) Del(ctx context.Context, resolutionData ...map[string]interface{}) (bool, error) {
+	last := len(m.resolvers) - 1
+	for i, resolver := range m.resolvers {
+		data := make(map[string]any)
+		for _, d := range resolutionData {
+			for k, v := range d {
+				data[k] = v
+			}
+		}
+
+		// RESOLVE URL
+		realURL, er := resolver.Resolve(ctx, data)
+		if er != nil {
+			if i < last {
+				continue // Try next one provided as fallback
+			}
+			return false, er
+		}
+
+		// Lookup
+		m.lock.RLock()
+		if _, ok := m.pool[realURL]; ok {
+			delete(m.pool, realURL)
+			m.lock.RUnlock()
+			return true, nil
+		}
+		m.lock.RUnlock()
+
+		return false, nil
+	}
+	return false, fmt.Errorf("cannot resolve")
+}
+
 // Close closes all underlying resources
 // TODO - options with close callback
 func (m *Pool[T]) Close(ctx context.Context, iterate ...func(key string, res T) error) error {

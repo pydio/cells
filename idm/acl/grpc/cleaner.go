@@ -78,10 +78,10 @@ func NewNodesCleaner(ctx context.Context, h *Handler) *NodesCleaner {
 	return &NodesCleaner{handler: h}
 }
 
-func (c *NodesCleaner) getQueue(ctx context.Context) (broker.AsyncQueue, error) {
+func (c *NodesCleaner) getQueue(ctx context.Context) (broker.AsyncQueue, func() (bool, error), error) {
 	var mgr manager.Manager
 	if !propagator.Get(ctx, manager.ContextKey, &mgr) {
-		return nil, fmt.Errorf("no manager in context")
+		return nil, nil, fmt.Errorf("no manager in context")
 	}
 	data := map[string]interface{}{
 		"debounce": "750ms",
@@ -108,7 +108,7 @@ func (c *NodesCleaner) Handle(ctx context.Context, msg *tree.NodeChangeEvent) er
 	if msg.Type != tree.NodeChangeEvent_DELETE || msg.Source == nil || msg.Source.Uuid == "" || msg.Optimistic {
 		return nil
 	}
-	q, e := c.getQueue(ctx)
+	q, _, e := c.getQueue(ctx)
 	if e != nil {
 		return e
 	}

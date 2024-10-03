@@ -95,10 +95,10 @@ func (s *Subscriber) getAsyncQueue(ctx context.Context, topic string) (q broker.
 			}
 		})
 	}
-	q, e = mgr.GetQueue(ctx, "persisted", map[string]interface{}{"name": topic}, uuid.New(), consumer)
+	q, _, e = mgr.GetQueue(ctx, "persisted", map[string]interface{}{"name": topic}, uuid.New(), consumer)
 	if e != nil {
 		log.Logger(ctx).Warn("Cannot open persisted queue, using in-memory debouncer instead", zap.Error(e))
-		q, e = mgr.GetQueue(ctx, "debouncer", map[string]interface{}{"debounce": "2s", "idle": "20s", "max": "2000"}, "scheduler-"+topic, consumer)
+		q, _, e = mgr.GetQueue(ctx, "debouncer", map[string]interface{}{"debounce": "2s", "idle": "20s", "max": "2000"}, "scheduler-"+topic, consumer)
 	}
 	if e == nil {
 		if topic == common.TopicTreeChanges {
@@ -111,7 +111,7 @@ func (s *Subscriber) getAsyncQueue(ctx context.Context, topic string) (q broker.
 }
 
 func (s *Subscriber) Consume(ctx context.Context, topic string, msg broker.Message, fromQueue bool) (e error) {
-	log.Logger(s.rootCtx).Debug("Fan out "+topic+" event to "+s.mm, zap.Bool("fromQueue", fromQueue))
+	log.Logger(ctx).Debug("Fan out "+topic+" event to "+s.mm, zap.Bool("fromQueue", fromQueue))
 	switch topic {
 	case common.TopicIdmEvent:
 		target := &idm.ChangeEvent{}
@@ -178,7 +178,7 @@ func (s *Subscriber) Consume(ctx context.Context, topic string, msg broker.Messa
 func (s *Subscriber) Init(ctx context.Context) error {
 
 	// Load Jobs Definitions
-	jobClients := jobs.NewJobServiceClient(grpc.ResolveConn(s.rootCtx, common.ServiceJobsGRPC))
+	jobClients := jobs.NewJobServiceClient(grpc.ResolveConn(ctx, common.ServiceJobsGRPC))
 	streamer, e := jobClients.ListJobs(ctx, &jobs.ListJobsRequest{})
 	if e != nil {
 		return e
@@ -251,9 +251,7 @@ func (s *Subscriber) getDispatcherForJob(ctx context.Context, job *jobs.Job) *Di
 func (s *Subscriber) jobsChangeEvent(ctx context.Context, msg *jobs.JobChangeEvent) error {
 	defCache, _ := s.definitionsPool.Get(ctx)
 	dispCache, _ := s.dispatchersPool.Get(ctx)
-	//s.Lock()
-	//s.dispatcherLock.Lock()
-	// Update config
+
 	if msg.JobRemoved != "" {
 		_ = defCache.Delete(msg.JobRemoved)
 		var disp *Dispatcher
@@ -264,24 +262,22 @@ func (s *Subscriber) jobsChangeEvent(ctx context.Context, msg *jobs.JobChangeEve
 	}
 	if msg.JobUpdated != nil {
 		_ = defCache.Set(msg.JobUpdated.ID, msg.JobUpdated)
-		//s.definitions[msg.JobUpdated.ID] = msg.JobUpdated
 		var disp *Dispatcher
-		if ok := dispCache.Get(msg.JobRemoved, &disp); ok {
+		if ok := dispCache.Get(msg.JobUpdated.ID, &disp); ok {
 			disp.Stop()
-			_ = dispCache.Delete(msg.JobRemoved)
+			_ = dispCache.Delete(msg.JobUpdated.ID)
 			if !msg.JobUpdated.Inactive {
 				s.getDispatcherForJob(ctx, msg.JobUpdated)
 			}
 		}
 	}
-	//s.dispatcherLock.Unlock()
-	//s.Unlock()
+
 	// AutoStart if required
 	if msg.JobUpdated != nil && !msg.JobUpdated.Inactive && msg.JobUpdated.AutoStart {
 		if e := s.timerEvent(ctx, &jobs.JobTriggerEvent{JobID: msg.JobUpdated.ID, RunNow: true}); e != nil {
-			log.Logger(s.rootCtx).Error("Cannot trigger job "+msg.JobUpdated.GetLabel()+" on AutoStart after update", zap.Error(e))
+			log.Logger(ctx).Error("Cannot trigger job "+msg.JobUpdated.GetLabel()+" on AutoStart after update", zap.Error(e))
 		} else {
-			log.Logger(s.rootCtx).Info("AutoStarting Job " + msg.JobUpdated.GetLabel() + " after update")
+			log.Logger(ctx).Info("AutoStarting Job " + msg.JobUpdated.GetLabel() + " after update")
 		}
 	}
 
@@ -320,7 +316,7 @@ func (s *Subscriber) timerEvent(ctx context.Context, event *jobs.JobTriggerEvent
 	var j *jobs.Job
 	if ok := defCache.Get(jobId, &j); !ok {
 		// Not in cache, load definition directly for JobsService
-		jobClients := jobs.NewJobServiceClient(grpc.ResolveConn(s.rootCtx, common.ServiceJobsGRPC))
+		jobClients := jobs.NewJobServiceClient(grpc.ResolveConn(ctx, common.ServiceJobsGRPC))
 		resp, e := jobClients.GetJob(ctx, &jobs.GetJobRequest{JobID: jobId})
 		if e != nil || resp.Job == nil {
 			return e

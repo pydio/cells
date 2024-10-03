@@ -24,6 +24,7 @@ import (
 	"context"
 	"fmt"
 	"path"
+	"runtime/debug"
 	"strings"
 	"sync"
 	"time"
@@ -91,7 +92,7 @@ func NewRunnable(ctx context.Context, parent *Runnable, queue chan RunnerFunc, a
 	}
 	if impl, ok := actions.GetActionsManager().ActionById(action.ID); ok {
 		r.Implementation = impl
-		r.Implementation.SetRuntimeContext(r.Task.GetRuntimeContext())
+		r.Implementation.SetRuntimeContext(r.Task.context)
 		if e := r.Implementation.Init(r.Task.Job, action); e != nil {
 			log.TasksLogger(ctx).Error("Error during initialization of "+action.ID+": "+e.Error(), zap.Error(e))
 		}
@@ -244,12 +245,16 @@ func (r *Runnable) RunAction(queue chan RunnerFunc) {
 		runnableStatus := jobs.TaskStatus_Finished
 		if re := recover(); re != nil {
 			runnableStatus = jobs.TaskStatus_Error
+			buf := debug.Stack()
 			r.Task.SetStatus(jobs.TaskStatus_Error, "Panic inside task")
 			if e, ok := re.(error); ok {
 				r.Task.SetStatus(jobs.TaskStatus_Error, "Panic inside task: "+e.Error())
-				log.TasksLogger(r.Context).Error("Recovered scheduler task "+r.Action.ID, zap.Any("input", r.Message), zap.Error(e))
-				log.Logger(r.Context).Error("Recovered scheduler task "+r.Action.ID, zap.Error(e))
 				r.Task.SetError(e, true)
+				log.TasksLogger(r.Context).Error("Recovered scheduler task "+r.Action.ID, zap.Any("input", r.Message), zap.Error(e), zap.String("stack", string(buf)))
+				log.Logger(r.Context).Error("Recovered scheduler task "+r.Action.ID, zap.Error(e), zap.String("stack", string(buf)))
+			} else {
+				log.TasksLogger(r.Context).Error("Recovered scheduler task "+r.Action.ID, zap.Any("input", r.Message), zap.String("stack", string(buf)))
+				log.Logger(r.Context).Error("Recovered scheduler task "+r.Action.ID, zap.Error(e), zap.String("stack", string(buf)))
 			}
 		} else {
 			label := r.Action.GetLabel()

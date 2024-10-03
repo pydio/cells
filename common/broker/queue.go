@@ -46,7 +46,10 @@ type Consumer func(...Message)
 
 type OpenWrapper func(q AsyncQueue) (AsyncQueue, error)
 
-type AsyncQueuePool openurl.Resolver[AsyncQueue]
+type AsyncQueuePool interface {
+	openurl.Resolver[AsyncQueue]
+	Del(context.Context, ...map[string]interface{}) (bool, error)
+}
 
 type AsyncQueue interface {
 	MessageQueue
@@ -72,7 +75,7 @@ func NewWrappedPool(rootURL string, wrapper func(w OpenWrapper) controller.Opene
 		url:       rootURL,
 		resolver:  resolver,
 		wrapper:   wrapper,
-		pools:     make(map[string]controller.Opener[AsyncQueuePool]),
+		pools:     make(map[string]AsyncQueuePool),
 		poolsLock: &sync.Mutex{},
 	}, nil
 }
@@ -81,11 +84,11 @@ type openerPoolWrapper struct {
 	wrapper   func(w OpenWrapper) controller.Opener[AsyncQueuePool]
 	url       string
 	resolver  openurl.Template
-	pools     map[string]controller.Opener[AsyncQueuePool]
+	pools     map[string]AsyncQueuePool
 	poolsLock *sync.Mutex
 }
 
-func (opw *openerPoolWrapper) Get(ctx context.Context, data ...map[string]interface{}) (AsyncQueue, error) {
+func (opw *openerPoolWrapper) resolveQP(ctx context.Context, data ...map[string]interface{}) (AsyncQueuePool, error) {
 	if len(data) == 0 {
 		return nil, errors.New("no resolution data provided")
 	}
@@ -113,18 +116,35 @@ func (opw *openerPoolWrapper) Get(ctx context.Context, data ...map[string]interf
 	}
 
 	opw.poolsLock.Lock()
+	defer opw.poolsLock.Unlock()
 	var poolOpener controller.Opener[AsyncQueuePool]
 	if p, ok := opw.pools[identifier]; ok {
-		poolOpener = p
+		return p, nil
 	} else {
 		poolOpener = opw.wrapper(op)
-		opw.pools[identifier] = poolOpener
+		po, err := poolOpener(ctx, opw.url)
+		if err != nil {
+			return nil, err
+		}
+		opw.pools[identifier] = po
+		return po, nil
 	}
-	opw.poolsLock.Unlock()
-	qp, _ := poolOpener(ctx, opw.url)
+}
 
+func (opw *openerPoolWrapper) Get(ctx context.Context, data ...map[string]interface{}) (AsyncQueue, error) {
+	qp, er := opw.resolveQP(ctx, data...)
+	if er != nil {
+		return nil, er
+	}
 	return qp.Get(ctx, data...)
+}
 
+func (opw *openerPoolWrapper) Del(ctx context.Context, data ...map[string]interface{}) (bool, error) {
+	qp, er := opw.resolveQP(ctx, data...)
+	if er != nil {
+		return false, er
+	}
+	return qp.Del(ctx, data...)
 }
 
 type pool struct {

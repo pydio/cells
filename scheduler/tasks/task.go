@@ -32,7 +32,6 @@ import (
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/permissions"
 	"github.com/pydio/cells/v4/common/proto/jobs"
-	"github.com/pydio/cells/v4/common/runtime"
 	"github.com/pydio/cells/v4/common/telemetry/log"
 	"github.com/pydio/cells/v4/common/utils/propagator"
 	"github.com/pydio/cells/v4/common/utils/uuid"
@@ -41,7 +40,6 @@ import (
 
 type Task struct {
 	*jobs.Job
-	common.RuntimeHolder
 	runID string
 
 	context  context.Context
@@ -67,18 +65,17 @@ type Task struct {
 
 // NewTaskFromEvent creates a task based on incoming job and event
 func NewTaskFromEvent(runtimeC, ctx context.Context, job *jobs.Job, event interface{}) *Task {
-	log.Logger(ctx).Debug("NewTaskFromEvent "+job.ID, zap.String("RC", runtime.MultiContextManager().Current(runtimeC)), zap.String("C", runtime.MultiContextManager().Current(ctx)))
+	log.Logger(ctx).Debug("NewTaskFromEvent " + job.ID)
 	ctxUserName, _ := permissions.FindUserNameInContext(ctx)
 	taskID := uuid.New()
 	if trigger, ok := event.(*jobs.JobTriggerEvent); ok && trigger.RunTaskId != "" {
 		taskID = trigger.RunTaskId
 	}
 	operationID := job.ID + "-" + taskID[0:8]
-	//c := runtimecontext.WithOperationID(ctx, operationID)
 	c := propagator.WithAdditionalMetadata(ctx, map[string]string{common.CtxSchedulerOperationId: operationID})
 
 	span := trace.SpanFromContext(ctx)
-	c, span = span.TracerProvider().Tracer("cells").Start(c, "/scheduler/job-"+operationID, trace.WithNewRoot())
+	c, span = span.TracerProvider().Tracer("cells").Start(c, "/scheduler/job-"+operationID)
 
 	// Inject evaluated job parameters if it's not already here
 	if c.Value(ContextJobParametersKey{}) == nil {
@@ -102,7 +99,7 @@ func NewTaskFromEvent(runtimeC, ctx context.Context, job *jobs.Job, event interf
 			CanStop:       true,
 		},
 	}
-	t.SetRuntimeContext(runtimeC)
+
 	return t
 }
 
@@ -130,7 +127,7 @@ func (t *Task) Queue(queue ...chan RunnerFunc) {
 					t.span.End()
 				}
 				return
-			case <-t.RuntimeContext.Done():
+			case <-t.context.Done():
 				t.cancel()
 			case val := <-ch:
 				cmd, ok := val.(*jobs.CtrlCommand)
@@ -148,6 +145,11 @@ func (t *Task) Queue(queue ...chan RunnerFunc) {
 				}
 				t.cancel()
 			}
+		}
+	}()
+	defer func() {
+		if e := recover(); e != nil {
+			log.Logger(t.context).Error("could not enqueue task", zap.Any("e", e))
 		}
 	}()
 	r := RootRunnable(t.context, t)

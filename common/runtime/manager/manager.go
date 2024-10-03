@@ -93,7 +93,7 @@ type Manager interface {
 	RegisterCache(scheme string, opts ...controller.Option[*openurl.Pool[cache.Cache]])
 
 	GetStorage(ctx context.Context, name string, out any) error
-	GetQueue(ctx context.Context, name string, resolutionData map[string]interface{}, openerID string, openerFunc broker.OpenWrapper) (broker.AsyncQueue, error)
+	GetQueue(ctx context.Context, name string, resolutionData map[string]interface{}, openerID string, openerFunc broker.OpenWrapper) (broker.AsyncQueue, func() (bool, error), error)
 	GetQueuePool(name string) (broker.AsyncQueuePool, error)
 	GetCache(ctx context.Context, name string, resolutionData map[string]interface{}) (cache.Cache, error)
 }
@@ -291,14 +291,21 @@ func (m *manager) GetStorage(ctx context.Context, name string, out any) error {
 	return nil
 }
 
-func (m *manager) GetQueue(ctx context.Context, name string, resolutionData map[string]interface{}, openerID string, openerFunc broker.OpenWrapper) (broker.AsyncQueue, error) {
+func (m *manager) GetQueue(ctx context.Context, name string, resolutionData map[string]interface{}, openerID string, openerFunc broker.OpenWrapper) (broker.AsyncQueue, func() (bool, error), error) {
 	qp, er := m.GetQueuePool(name)
 	if er != nil {
-		return nil, er
+		return nil, nil, er
 	}
 	resolutionData[broker.OpenerIDKey] = openerID
 	resolutionData[broker.OpenerFuncKey] = openerFunc
-	return qp.Get(ctx, resolutionData)
+	q, er := qp.Get(ctx, resolutionData)
+	if er != nil {
+		return nil, nil, er
+	}
+	remover := func() (bool, error) {
+		return qp.Del(ctx, resolutionData)
+	}
+	return q, remover, nil
 }
 
 func (m *manager) GetQueuePool(name string) (broker.AsyncQueuePool, error) {

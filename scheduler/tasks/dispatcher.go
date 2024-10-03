@@ -37,6 +37,7 @@ import (
 	"github.com/pydio/cells/v4/common/telemetry/log"
 	"github.com/pydio/cells/v4/common/telemetry/metrics"
 	"github.com/pydio/cells/v4/common/utils/propagator"
+	"github.com/pydio/cells/v4/common/utils/uuid"
 )
 
 const (
@@ -52,6 +53,7 @@ type Dispatcher struct {
 	fifo       broker.AsyncQueue
 	fifoCancel context.CancelFunc
 	fifoQueue  chan RunnerFunc
+	fifoRemove func() (bool, error)
 
 	runtime    context.Context
 	jobQueue   chan RunnerFunc
@@ -76,30 +78,31 @@ func NewDispatcher(rootCtx context.Context, maxWorkers int, job *jobs.Job, tags 
 		quit:       make(chan bool, 1),
 	}
 
-	if !job.AutoClean {
-		var mgr manager.Manager
-		ctx, can := context.WithCancel(rootCtx)
-		if propagator.Get(rootCtx, manager.ContextKey, &mgr) {
-			fifoQueue := make(chan RunnerFunc)
-			var fifo broker.AsyncQueue
-			var er error
-			data := map[string]interface{}{"name": "jobs", "prefix": job.ID}
-			if fifo, er = mgr.GetQueue(ctx, "persisted", data, "job-"+job.ID, d.Opener(rootCtx, job, fifoQueue, jobQueue)); er != nil {
-				can()
-				close(fifoQueue)
-				log.Logger(rootCtx).Warn("Cannot open fifo for dispatcher - job "+job.ID+", this will run without queue", zap.Error(er))
-			} else {
-				log.Logger(rootCtx).Debug("Opening FIFO queue for job " + job.ID)
-				d.fifo = fifo
-				d.fifoQueue = fifoQueue
-				d.fifoCancel = can
-			}
-		} else {
-			can()
-			log.Logger(rootCtx).Warn("No manager found when creating Dispatcher for " + job.ID + ", starting without FIFO")
-		}
-	} else {
+	if job.AutoClean {
 		log.Logger(rootCtx).Debug("Starting AutoClean job " + job.ID + " without FIFO")
+		return d
+	}
+
+	var mgr manager.Manager
+	ctx, can := context.WithCancel(rootCtx)
+	if !propagator.Get(rootCtx, manager.ContextKey, &mgr) {
+		can()
+		log.Logger(rootCtx).Warn("No manager found when creating Dispatcher for " + job.ID + ", starting without FIFO")
+	}
+
+	d.fifoQueue = make(chan RunnerFunc)
+	d.fifoCancel = can
+	var er error
+
+	data := map[string]interface{}{"name": "jobs", "prefix": job.ID}
+	d.fifo, d.fifoRemove, er = mgr.GetQueue(ctx, "persisted", data, "job-"+job.ID+"-"+uuid.New()[:12], d.Opener(rootCtx, job, d.fifoQueue, jobQueue))
+
+	if er != nil {
+		can()
+		close(d.fifoQueue)
+		d.fifoQueue = nil
+		d.fifoCancel = nil
+		log.Logger(rootCtx).Warn("Cannot open fifo for dispatcher - job "+job.ID+", this will run without queue", zap.Error(er))
 	}
 
 	return d
@@ -107,11 +110,12 @@ func NewDispatcher(rootCtx context.Context, maxWorkers int, job *jobs.Job, tags 
 
 func (d *Dispatcher) Opener(rootCtx context.Context, job *jobs.Job, queues ...chan RunnerFunc) broker.OpenWrapper {
 	return func(q broker.AsyncQueue) (broker.AsyncQueue, error) {
-		return q, q.Consume(func(ct context.Context, mm ...broker.Message) {
+		return q, q.Consume(func(eventCtx context.Context, mm ...broker.Message) {
 			for _, msg := range mm {
 				var event interface{}
 
-				eventCtx := propagator.ForkContext(context.Background(), rootCtx)
+				eventCtx = propagator.ForkContext(context.Background(), rootCtx)
+
 				tce := &tree.NodeChangeEvent{}
 				ice := &idm.ChangeEvent{}
 				jte := &jobs.JobTriggerEvent{}
@@ -129,6 +133,8 @@ func (d *Dispatcher) Opener(rootCtx context.Context, job *jobs.Job, queues ...ch
 					continue
 				}
 
+				// Copy incoming info while keeping root cancellation
+				// eventCtx = propagator.ForkContext(rootCtx, eventCtx)
 				task := NewTaskFromEvent(rootCtx, eventCtx, job, event)
 				task.Queue(queues...)
 			}
@@ -179,6 +185,10 @@ func (d *Dispatcher) Run() {
 					jobChannel <- jobImpl
 				case <-d.quit:
 					close(d.fifoQueue)
+					r, e := d.fifoRemove()
+					if e == nil && r {
+						fmt.Println("Remove fifo from queue pool")
+					}
 					return
 				}
 			}
