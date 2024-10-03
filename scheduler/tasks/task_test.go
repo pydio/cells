@@ -61,7 +61,7 @@ func TestNewTaskFromEvent(t *testing.T) {
 
 	Convey("Test New Task From Event", t, func() {
 		event := &jobs.JobTriggerEvent{JobID: "ajob"}
-		task := NewTaskFromEvent(runtimeCtx, context.Background(), &jobs.Job{ID: "ajob"}, event)
+		task := NewTaskFromEvent(context.Background(), &jobs.Job{ID: "ajob"}, event)
 		So(task, ShouldNotBeNil)
 		So(task.task, ShouldNotBeNil)
 		So(task.task.Status, ShouldEqual, jobs.TaskStatus_Queued)
@@ -76,7 +76,7 @@ func TestTaskSetters(t *testing.T) {
 	Convey("Test task Setters", t, func() {
 
 		event := &jobs.JobTriggerEvent{JobID: "ajob"}
-		task := NewTaskFromEvent(runtimeCtx, context.Background(), &jobs.Job{ID: "ajob"}, event)
+		task := NewTaskFromEvent(context.Background(), &jobs.Job{ID: "ajob"}, event)
 		So(task, ShouldNotBeNil)
 
 		task.Add(2)
@@ -113,7 +113,7 @@ func SkipTestTaskLogs(t *testing.T) {
 
 		event := &jobs.JobTriggerEvent{JobID: "ajob"}
 		ev, _ := anypb.New(&jobs.JobTriggerEvent{JobID: "ajob"})
-		task := NewTaskFromEvent(runtimeCtx, context.Background(), &jobs.Job{ID: "ajob"}, event)
+		task := NewTaskFromEvent(context.Background(), &jobs.Job{ID: "ajob"}, event)
 		So(task, ShouldNotBeNil)
 
 		a := &jobs.Action{
@@ -192,7 +192,7 @@ func TestTask_Save(t *testing.T) {
 	Convey("Test task SaveStatus", t, func() {
 
 		event := &jobs.JobTriggerEvent{JobID: "ajob"}
-		task := NewTaskFromEvent(runtimeCtx, context.Background(), &jobs.Job{ID: "ajob"}, event)
+		task := NewTaskFromEvent(context.Background(), &jobs.Job{ID: "ajob"}, event)
 		ch := GetBus(runtimeCtx).Sub(PubSubTopicTaskStatuses)
 		task.Save()
 		read := <-ch
@@ -206,7 +206,7 @@ func TestTask_Save(t *testing.T) {
 	Convey("Test task SaveStatus With Context", t, func() {
 
 		event := &jobs.JobTriggerEvent{JobID: "ajob"}
-		task := NewTaskFromEvent(runtimeCtx, context.Background(), &jobs.Job{ID: "ajob"}, event)
+		task := NewTaskFromEvent(context.Background(), &jobs.Job{ID: "ajob"}, event)
 		ch := GetBus(runtimeCtx).Sub(PubSubTopicTaskStatuses)
 		runnableCtx := propagator.WithAdditionalMetadata(runtimeCtx, map[string]string{common.CtxMetaTaskActionPath: "action-path"})
 		task.SaveStatus(runnableCtx, jobs.TaskStatus_Running)
@@ -228,7 +228,7 @@ func TestTask_EnqueueRunnables(t *testing.T) {
 		saveChannel := GetBus(runtimeCtx).Sub(PubSubTopicTaskStatuses)
 		output := make(chan RunnerFunc, 1)
 		event := &jobs.JobTriggerEvent{JobID: "ajob"}
-		task := NewTaskFromEvent(runtimeCtx, context.Background(), &jobs.Job{
+		task := NewTaskFromEvent(context.Background(), &jobs.Job{
 			ID: "ajob",
 			Actions: []*jobs.Action{
 				&jobs.Action{ID: "actions.test.fake"},
@@ -259,7 +259,7 @@ func TestTask_EnqueueRunnables(t *testing.T) {
 
 		output := make(chan RunnerFunc, 1)
 		event := &jobs.JobTriggerEvent{JobID: "ajob"}
-		task := NewTaskFromEvent(runtimeCtx, context.Background(), &jobs.Job{
+		task := NewTaskFromEvent(context.Background(), &jobs.Job{
 			ID: "ajob",
 			Actions: []*jobs.Action{
 				{ID: "unknown action"},

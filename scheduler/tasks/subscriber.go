@@ -220,7 +220,7 @@ func (s *Subscriber) enqueue(ctx context.Context, job *jobs.Job, event proto.Mes
 	if dispatcher.fifo != nil {
 		_ = dispatcher.fifo.Push(ctx, event)
 	} else {
-		task := NewTaskFromEvent(s.rootCtx, ctx, job, event)
+		task := NewTaskFromEvent(ctx, job, event)
 		task.Queue(dispatcher.Queue())
 	}
 }

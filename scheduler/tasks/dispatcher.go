@@ -114,7 +114,7 @@ func (d *Dispatcher) Opener(rootCtx context.Context, job *jobs.Job, queues ...ch
 			for _, msg := range mm {
 				var event interface{}
 
-				eventCtx = propagator.ForkContext(context.Background(), rootCtx)
+				//eventCtx = propagator.ForkContext(context.Background(), rootCtx)
 
 				tce := &tree.NodeChangeEvent{}
 				ice := &idm.ChangeEvent{}
@@ -134,8 +134,8 @@ func (d *Dispatcher) Opener(rootCtx context.Context, job *jobs.Job, queues ...ch
 				}
 
 				// Copy incoming info while keeping root cancellation
-				// eventCtx = propagator.ForkContext(rootCtx, eventCtx)
-				task := NewTaskFromEvent(rootCtx, eventCtx, job, event)
+				eventCtx = propagator.ForkContext(rootCtx, eventCtx)
+				task := NewTaskFromEvent(eventCtx, job, event)
 				task.Queue(queues...)
 			}
 		})

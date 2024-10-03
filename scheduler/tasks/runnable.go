@@ -29,12 +29,14 @@ import (
 	"sync"
 	"time"
 
+	"go.opentelemetry.io/otel/trace"
 	"go.uber.org/zap"
 
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/errors"
 	"github.com/pydio/cells/v4/common/proto/jobs"
 	"github.com/pydio/cells/v4/common/telemetry/log"
+	"github.com/pydio/cells/v4/common/telemetry/tracing"
 	"github.com/pydio/cells/v4/common/utils/propagator"
 	"github.com/pydio/cells/v4/scheduler/actions"
 )
@@ -241,6 +243,15 @@ func (r *Runnable) Dispatch(input *jobs.ActionMessage, aa []*jobs.Action, queue 
 // RunAction creates an action and calls Dispatch
 func (r *Runnable) RunAction(queue chan RunnerFunc) {
 
+	label := r.Action.GetLabel()
+	if label == "" {
+		label = r.Action.ID
+	}
+
+	var span trace.Span
+	r.Context, span = tracing.StartLocalSpan(r.Context, label)
+	defer span.End()
+
 	defer func() {
 		runnableStatus := jobs.TaskStatus_Finished
 		if re := recover(); re != nil {
@@ -257,10 +268,6 @@ func (r *Runnable) RunAction(queue chan RunnerFunc) {
 				log.Logger(r.Context).Error("Recovered scheduler task "+r.Action.ID, zap.Error(e), zap.String("stack", string(buf)))
 			}
 		} else {
-			label := r.Action.GetLabel()
-			if label == "" {
-				label = r.Action.ID
-			}
 			r.Task.SetStatus(jobs.TaskStatus_Running, "Finished "+label)
 		}
 		r.Task.SaveStatus(r.Context, runnableStatus)

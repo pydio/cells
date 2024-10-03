@@ -34,6 +34,7 @@ import (
 	"github.com/pydio/cells/v4/common/proto/jobs"
 	"github.com/pydio/cells/v4/common/telemetry/log"
 	"github.com/pydio/cells/v4/common/utils/propagator"
+	"github.com/pydio/cells/v4/common/utils/slug"
 	"github.com/pydio/cells/v4/common/utils/uuid"
 	"github.com/pydio/cells/v4/scheduler/actions"
 )
@@ -64,7 +65,7 @@ type Task struct {
 }
 
 // NewTaskFromEvent creates a task based on incoming job and event
-func NewTaskFromEvent(runtimeC, ctx context.Context, job *jobs.Job, event interface{}) *Task {
+func NewTaskFromEvent(ctx context.Context, job *jobs.Job, event interface{}) *Task {
 	log.Logger(ctx).Debug("NewTaskFromEvent " + job.ID)
 	ctxUserName, _ := permissions.FindUserNameInContext(ctx)
 	taskID := uuid.New()
@@ -75,7 +76,7 @@ func NewTaskFromEvent(runtimeC, ctx context.Context, job *jobs.Job, event interf
 	c := propagator.WithAdditionalMetadata(ctx, map[string]string{common.CtxSchedulerOperationId: operationID})
 
 	span := trace.SpanFromContext(ctx)
-	c, span = span.TracerProvider().Tracer("cells").Start(c, "/scheduler/job-"+operationID)
+	c, span = span.TracerProvider().Tracer("cells").Start(c, "/scheduler/"+slug.Make(job.Label), trace.WithNewRoot())
 
 	// Inject evaluated job parameters if it's not already here
 	if c.Value(ContextJobParametersKey{}) == nil {
@@ -123,9 +124,6 @@ func (t *Task) Queue(queue ...chan RunnerFunc) {
 		for {
 			select {
 			case <-t.finished:
-				if t.span != nil {
-					t.span.End()
-				}
 				return
 			case <-t.context.Done():
 				t.cancel()
@@ -174,6 +172,9 @@ func (t *Task) CleanUp() {
 		t.SetStatus(jobs.TaskStatus_Error, t.err.Error())
 	} else {
 		t.SetStatus(jobs.TaskStatus_Finished, "Complete")
+	}
+	if t.span != nil {
+		t.span.End()
 	}
 	t.Save()
 	close(t.finished)
