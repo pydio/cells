@@ -185,24 +185,25 @@ func (h *Handler) GetBulkMeta(req *restful.Request, resp *restful.Response) erro
 		if !bulkRequest.Versions {
 			fNode := folderNode.Clone()
 
-			if resp, e := h.GetRouter().ReadNode(ctx, &tree.ReadNodeRequest{Node: fNode}); e == nil {
-				er := h.GetRouter().WrapCallback(func(inputFilter nodes.FilterFunc, outputFilter nodes.FilterFunc) error {
-					c, n, e := inputFilter(ctx, resp.Node, "in")
-					if e != nil {
-						return e
-					}
-					broker.MustPublish(c, common.TopicTreeChanges, &tree.NodeChangeEvent{
-						Type:   tree.NodeChangeEvent_READ,
-						Target: n,
-					})
-					return nil
-				})
-				if er != nil {
-					log.Logger(ctx).Debug("Cannot publish READ event on node", resp.Node.Zap(), zap.Error(er))
+			//todo recheck - why would we re-issue a readnode here ?
+			//if resp, e := h.GetRouter().ReadNode(ctx, &tree.ReadNodeRequest{Node: fNode}); e == nil {
+			er := h.GetRouter().WrapCallback(func(inputFilter nodes.FilterFunc, outputFilter nodes.FilterFunc) error {
+				c, n, e := inputFilter(ctx, fNode, "in")
+				if e != nil {
+					return e
 				}
-			} else {
-				log.Logger(ctx).Error("Cannot publish READ event on node", fNode.Zap(), zap.Error(e))
+				broker.MustPublish(c, common.TopicTreeChanges, &tree.NodeChangeEvent{
+					Type:   tree.NodeChangeEvent_READ,
+					Target: n,
+				})
+				return nil
+			})
+			if er != nil {
+				log.Logger(ctx).Debug("Cannot publish READ event on node", fNode.Zap(), zap.Error(er))
 			}
+			//} else {
+			//	log.Logger(ctx).Error("Cannot publish READ event on node", fNode.Zap(), zap.Error(e))
+			//}
 		}
 
 		// Handle Pagination

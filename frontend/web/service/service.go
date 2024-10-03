@@ -119,7 +119,7 @@ func init() {
 				m.Handle("index.json", fs)
 				m.Handle("plug/", fs, routing.WithStripPrefix())
 				indexHandler := web.NewIndexHandler(ctx, ResetPasswordPath)
-				indexHandler = middleware.HttpWrapperMeta(ctx, indexHandler)
+				indexHandler = middleware.HttpWrapperMeta(indexHandler)
 				indexHandler = middleware.HttpContextWrapper(ctx, indexHandler)
 				indexHandler = timeoutWrap(indexHandler)
 				indexHandler = recoveryWrap(indexHandler)
@@ -134,7 +134,7 @@ func init() {
 
 				// /public endpoint : special handler for index, redirect to /plug/ for the rest
 				ph := web.NewPublicHandler(ctx)
-				handler := middleware.HttpWrapperMeta(ctx, ph)
+				handler := middleware.HttpWrapperMeta(ph)
 				handler = middleware.HttpContextWrapper(ctx, handler)
 				handler = timeoutWrap(handler)
 				handler = recoveryWrap(handler)

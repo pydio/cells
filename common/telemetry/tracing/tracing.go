@@ -24,6 +24,7 @@ package tracing
 import (
 	"context"
 	"fmt"
+	"runtime"
 	"sync"
 
 	"go.opentelemetry.io/otel"
@@ -108,7 +109,13 @@ func newPropagator() propagation.TextMapPropagator {
 }
 
 // StartLocalSpan starts creates a new span and start recording. Do NOT forget to defer its End() method!
-func StartLocalSpan(ctx context.Context, name string) (context.Context, trace2.Span) {
+func StartLocalSpan(ctx context.Context, name string, callerSkip ...int) (context.Context, trace2.Span) {
 	span := trace2.SpanFromContext(ctx)
-	return span.TracerProvider().Tracer("cells").Start(ctx, name)
+	ctx, span = span.TracerProvider().Tracer("cells").Start(ctx, name)
+	if len(callerSkip) > 0 {
+		if _, file, line, ok := runtime.Caller(callerSkip[0] + 1); ok {
+			span.SetAttributes(attribute.String("caller.file", file), attribute.Int("caller.line", line))
+		}
+	}
+	return ctx, span
 }

@@ -121,5 +121,5 @@ func newHandler(ctx context.Context, prefix string, router nodes.Handler, withBa
 		basicAuthenticator := auth.NewBasicAuthenticator(withBasicRealm[0], 10*time.Minute)
 		h = basicAuthenticator.Wrap(h)
 	}
-	return middleware.HttpWrapperMeta(ctx, h)
+	return middleware.HttpWrapperMeta(h)
 }

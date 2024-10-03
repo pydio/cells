@@ -67,6 +67,7 @@ func ReverseClient(ctx context.Context, oo ...nodes.Option) *Reverse {
 			exe.SetClientsPool(pool)
 			return exe
 		}),
+		nodes.WithTracer("Reverse", 2),
 		acl.WithAccessList(),
 		path.WithPermanentPrefix(),
 		path.WithWorkspace(),

@@ -62,7 +62,7 @@ var (
 	swaggerJSONStrings    []string
 	swaggerMergedDocument *loads.Document
 
-	wmCore, wmTop []func(context.Context, http.Handler) http.Handler
+	wmCore, wmTop []func(http.Handler) http.Handler
 	wmOnce        = &sync.Once{}
 )
 
@@ -85,7 +85,7 @@ type WebHandler interface {
 	Filter() func(string) string
 }
 
-func getWebMiddlewares(serviceName string, pos string) []func(ctx context.Context, handler http.Handler) http.Handler {
+func getWebMiddlewares(serviceName string, pos string) []func(handler http.Handler) http.Handler {
 	wmOnce.Do(func() {
 		wmCore = append(wmCore,
 			middleware.HttpWrapperMetrics,
@@ -98,14 +98,14 @@ func getWebMiddlewares(serviceName string, pos string) []func(ctx context.Contex
 		)
 	})
 	if serviceName == common.ServiceRestNamespace_+common.ServiceInstall {
-		return []func(ctx context.Context, handler http.Handler) http.Handler{}
+		return []func(handler http.Handler) http.Handler{}
 	}
 
 	if pos == "core" {
 		return wmCore
 	} else {
 		// Append dynamic wrapper to append service name to context
-		sw := func(ctx context.Context, handler http.Handler) http.Handler {
+		sw := func(handler http.Handler) http.Handler {
 			return http.HandlerFunc(func(writer http.ResponseWriter, request *http.Request) {
 				c := runtime.WithServiceName(request.Context(), serviceName)
 				handler.ServeHTTP(writer, request.WithContext(c))
@@ -183,20 +183,17 @@ func WithWeb(handler func(ctx context.Context) WebHandler) ServiceOption {
 				log.Logger(ctx).Error("Recovered from panic")
 				writer.Write([]byte("Internal Server Error"))
 			})
-			// var e error
+
 			wrapped := http.Handler(wc)
 
-			for _, wrap := range getWebMiddlewares(o.Name, "core") {
-				wrapped = wrap(ctx, wrapped)
-			}
-			for _, m := range o.WebMiddlewares {
-				wrapped = m(wrapped)
-			}
-			for _, wrap := range getWebMiddlewares(o.Name, "top") {
-				wrapped = wrap(ctx, wrapped)
-			}
+			mm := getWebMiddlewares(o.Name, "core")
+			mm = append(mm, o.WebMiddlewares...)
+			mm = append(mm, getWebMiddlewares(o.Name, "top")...)
+			mm = append(mm, cors.Default().Handler)
 
-			wrapped = cors.Default().Handler(wrapped)
+			for _, wrap := range mm {
+				wrapped = wrap(wrapped)
+			}
 
 			if rateLimit, err := strconv.Atoi(os.Getenv("CELLS_WEB_RATE_LIMIT")); err == nil {
 				limiterConfig := &memorystore.Config{

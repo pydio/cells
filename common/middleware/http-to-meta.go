@@ -113,7 +113,7 @@ func HttpRequestInfoToMetadata(ctx context.Context, req *http.Request) context.C
 }
 
 // HttpWrapperMeta extracts data from the request and puts it in a context Metadata field.
-func HttpWrapperMeta(ctx context.Context, h http.Handler) http.Handler {
+func HttpWrapperMeta(h http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		r = r.WithContext(HttpRequestInfoToMetadata(r.Context(), r))
 		h.ServeHTTP(w, r)

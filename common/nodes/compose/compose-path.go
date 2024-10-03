@@ -57,6 +57,7 @@ func pathComposer(oo ...nodes.Option) []nodes.Option {
 			exe.SetClientsPool(pool)
 			return exe
 		}),
+		nodes.WithTracer("PathClient", 2),
 		acl.WithAccessList(),
 		binaries.WithStore(common.PydioThumbstoreNamespace, true, false, false),
 		binaries.WithStore(common.PydioDocstoreBinariesNamespace, false, true, true),

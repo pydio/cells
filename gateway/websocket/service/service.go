@@ -82,7 +82,7 @@ func init() {
 					hf := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 						_ = mel.HandleRequest(w, r)
 					})
-					handler := middleware.HttpWrapperMeta(rootCtx, http.Handler(hf))
+					handler := middleware.HttpWrapperMeta(http.Handler(hf))
 					handler = middleware.WebIncomingContextMiddleware(rootCtx, "", service.ContextKey, o.Server, handler)
 					return handler
 				}
