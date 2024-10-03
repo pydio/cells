@@ -569,7 +569,7 @@ func SearchUniqueWorkspace(ctx context.Context, wsUuid string, wsSlug string, qu
 	if len(queries) == 0 {
 		return nil, errors.BadRequest("bad.request", "please provide at least one of uuid, slug or custom query")
 	}
-	requests := make([]*anypb.Any, len(queries))
+	requests := make([]*anypb.Any, 0, len(queries))
 	for _, q := range queries {
 		pq, _ := anypb.New(q)
 		requests = append(requests, pq)
