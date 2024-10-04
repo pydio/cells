@@ -119,8 +119,8 @@ message CreateNodeResponse {
 }
 
 message UpdateNodeRequest {
-    Node From = 1 [(buf.validate.field).required = true];;
-    Node To = 2 [(buf.validate.field).required = true];;
+    Node From = 1;
+    Node To = 2 [(buf.validate.field).required = true];
     string IndexationSession = 3;
     bool Silent = 4;
 }
