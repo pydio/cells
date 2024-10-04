@@ -21,20 +21,23 @@
 package util
 
 import (
-	"github.com/pydio/cells/v4/common/utils/std"
 	"strings"
+
+	"golang.org/x/exp/maps"
 
 	pb "github.com/pydio/cells/v4/common/proto/registry"
 	"github.com/pydio/cells/v4/common/registry"
 	"github.com/pydio/cells/v4/common/runtime"
 	"github.com/pydio/cells/v4/common/utils/merger"
+	"github.com/pydio/cells/v4/common/utils/std"
 	"github.com/pydio/cells/v4/common/utils/uuid"
-	"golang.org/x/exp/maps"
 )
 
 func CreateNode() registry.Node {
 	builder := strings.Builder{}
 	builder.WriteString("process ")
+	builder.WriteString(runtime.GetString(runtime.KeyName))
+	builder.WriteString(" ")
 	builder.WriteString(runtime.GetHostname())
 	builder.WriteString("/")
 	builder.WriteString(runtime.GetPID())

@@ -22,17 +22,17 @@ package configtest
 
 import (
 	"fmt"
-	"github.com/pydio/cells/v4/common/utils/configx"
-	. "github.com/smartystreets/goconvey/convey"
-	"golang.org/x/exp/maps"
 	"sync"
 	"testing"
 
+	"golang.org/x/exp/maps"
+
 	"github.com/pydio/cells/v4/common/config"
-	// Plugins to test
-	// _ "github.com/pydio/cells/v4/common/config/etcd"
-	// _ "github.com/pydio/cells/v4/common/config/file"
+	"github.com/pydio/cells/v4/common/utils/configx"
+
 	_ "github.com/pydio/cells/v4/common/config/memory"
+
+	. "github.com/smartystreets/goconvey/convey"
 )
 
 func testWatch(t *testing.T, store config.Store) {
@@ -44,8 +44,6 @@ func testWatch(t *testing.T, store config.Store) {
 			w, _ := store.Watch()
 
 			go func() {
-				defer w.Stop()
-
 				for {
 					res, err := w.Next()
 					if err != nil {
@@ -84,6 +82,8 @@ func testWatch(t *testing.T, store config.Store) {
 			wg.Wait()
 
 			fmt.Println("Finished")
+
+			w.Stop()
 		})
 	})
 }

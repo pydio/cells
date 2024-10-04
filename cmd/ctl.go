@@ -34,6 +34,7 @@ import (
 	tcell "github.com/gdamore/tcell/v2"
 	"github.com/rivo/tview"
 	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 
@@ -44,45 +45,18 @@ import (
 	"github.com/pydio/cells/v4/common/registry"
 	"github.com/pydio/cells/v4/common/registry/util"
 	"github.com/pydio/cells/v4/common/runtime"
+	"github.com/pydio/cells/v4/common/runtime/manager"
 	"github.com/pydio/cells/v4/common/utils/configx"
 	json "github.com/pydio/cells/v4/common/utils/jsonx"
 	"github.com/pydio/cells/v4/common/utils/std"
+
+	_ "embed"
 )
 
-type item struct {
-	ri              registry.Item
-	it              pb.ItemType
-	main, secondary string
-	shortcut        rune
-	selected        func()
-	status          string
-}
-
-type itemsByName []item
-
-func (b itemsByName) Len() int { return len(b) }
-
-func (b itemsByName) Less(i, j int) bool {
-	if b[i].main == b[j].main {
-		return b[i].secondary < b[j].secondary
-	}
-	return b[i].main < b[j].main
-}
-
-func (b itemsByName) Swap(i, j int) { b[i], b[j] = b[j], b[i] }
-
-type itemsByType []item
-
-func (b itemsByType) Len() int { return len(b) }
-
-func (b itemsByType) Less(i, j int) bool {
-	if b[i].it == b[j].it {
-		return b[i].ri.Name() < b[j].ri.Name()
-	}
-	return b[i].it < b[j].it
-}
-
-func (b itemsByType) Swap(i, j int) { b[i], b[j] = b[j], b[i] }
+var (
+	//go:embed ctl.yaml
+	ctlBootstrap string
+)
 
 type model struct {
 	ctx        context.Context
@@ -566,10 +540,32 @@ DESCRIPTION
 	},
 	RunE: func(cmd *cobra.Command, args []string) error {
 
+		ctx = runtime.MultiContextManager().RootContext(cmd.Context())
+		var er error
+		ctx, _, er = initConfig(ctx, true)
+		if er != nil {
+			return er
+		}
+
+		v := viper.New()
+		v.Set(runtime.KeyConfig, "mem://")
+		v.Set(runtime.KeyRegistry, "grpc://0.0.0.0:8030")
+		v.Set(runtime.KeyKeyring, "mem://")
+		v.Set(runtime.KeyBootstrapYAML, ctlBootstrap)
+		runtime.SetRuntime(v)
+
+		mgr, err := manager.NewManager(ctx, "cmd", nil)
+		if err != nil {
+			return err
+		}
+
+		ctx = mgr.Context()
+		cmd.SetContext(ctx)
+
 		app := tview.NewApplication()
 
 		m := &model{
-			ctx:        cmd.Context(),
+			ctx:        ctx,
 			app:        app,
 			centerMode: "list",
 			types: []item{
@@ -734,3 +730,38 @@ func init() {
 	addExternalCmdRegistryFlags(ctlCmd.Flags())
 	RootCmd.AddCommand(ctlCmd)
 }
+
+type item struct {
+	ri              registry.Item
+	it              pb.ItemType
+	main, secondary string
+	shortcut        rune
+	selected        func()
+	status          string
+}
+
+type itemsByName []item
+
+func (b itemsByName) Len() int { return len(b) }
+
+func (b itemsByName) Less(i, j int) bool {
+	if b[i].main == b[j].main {
+		return b[i].secondary < b[j].secondary
+	}
+	return b[i].main < b[j].main
+}
+
+func (b itemsByName) Swap(i, j int) { b[i], b[j] = b[j], b[i] }
+
+type itemsByType []item
+
+func (b itemsByType) Len() int { return len(b) }
+
+func (b itemsByType) Less(i, j int) bool {
+	if b[i].it == b[j].it {
+		return b[i].ri.Name() < b[j].ri.Name()
+	}
+	return b[i].it < b[j].it
+}
+
+func (b itemsByType) Swap(i, j int) { b[i], b[j] = b[j], b[i] }

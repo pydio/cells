@@ -104,11 +104,17 @@ func WithMeta(name, value string) Option {
 
 func (o *Options) Matches(name, itemName string) bool {
 	var start, end string
+	hasRegexp := false
 	if !strings.HasPrefix(name, "*") {
 		start = "^"
+		hasRegexp = true
 	}
 	if !strings.HasSuffix(name, "*") {
 		end = "$"
+		hasRegexp = true
+	}
+	if !hasRegexp {
+		return name == itemName
 	}
 	name = strings.Trim(name, "*")
 	res, _ := regexp.MatchString(start+name+end, itemName)

@@ -16,35 +16,34 @@
 #    services:
 #      - filter: "{{ .Name }} ~= .*"
 
+
+listeners:
+  grpc:
+    type: grpc
+    bind: 0.0.0.0
+    port: 8030
+  http:
+    type: http
+    bind: 0.0.0.0
+    port: 8080
+connections:
+  grpc:
+    type: grpc
+    uri: xds://default.cells.com/cells
+    services:
+      - filter: "{{ .Name }} ~= .*"
+servers:
+  grpc:
+    type: grpc
+    listener: grpc
+    services:
+      - filter: "{{ .Name }} ~= .*"
+  http:
+    type: http
+    listener: http
+
 processes:
   child1:
-    listeners:
-      grpc:
-        type: grpc
-        bind: 0.0.0.0
-        port: 8030
-      http:
-        type: http
-        bind: 0.0.0.0
-        port: 8080
-    connections:
-      grpc:
-        type: grpc
-        uri: xds://default.cells.com/cells
-        services:
-          - filter: "{{ .Name }} ~= .*"
-    servers:
-      grpc:
-        type: grpc
-        listener: grpc
-        services:
-          - filter: "{{ .Name }} ~= .*"
-      http:
-        type: http
-        listener: http
-        
-  child2:
-    debug: true
     listeners:
       type: http
       bind: 0.0.0.0

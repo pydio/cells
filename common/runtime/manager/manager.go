@@ -74,10 +74,6 @@ const (
 	CommandRestart = "restart"
 )
 
-var (
-	node = util.CreateNode()
-)
-
 type Manager interface {
 	Context() context.Context
 	Registry() registry.Registry
@@ -92,6 +88,7 @@ type Manager interface {
 	RegisterQueue(scheme string, opts ...controller.Option[broker.AsyncQueuePool])
 	RegisterCache(scheme string, opts ...controller.Option[*openurl.Pool[cache.Cache]])
 
+	GetRootID() string
 	GetStorage(ctx context.Context, name string, out any) error
 	GetQueue(ctx context.Context, name string, resolutionData map[string]interface{}, openerID string, openerFunc broker.OpenWrapper) (broker.AsyncQueue, error)
 	GetQueuePool(name string) (broker.AsyncQueuePool, error)
@@ -140,7 +137,7 @@ func NewManager(ctx context.Context, namespace string, logger log.ZapLogger) (Ma
 		ns:  namespace,
 
 		logger: logger,
-		root:   node,
+		root:   util.CreateNode(),
 
 		storage: controller.NewController[storage.Storage](),
 		config:  controller.NewController[*openurl.Pool[config.Store]](),
@@ -156,15 +153,23 @@ func NewManager(ctx context.Context, namespace string, logger log.ZapLogger) (Ma
 	if err != nil {
 		return nil, err
 	}
+
 	base := runtime.GetString(runtime.KeyBootstrapRoot)
 	if name := runtime.Name(); name != "" && name != "default" {
 		base += strings.Join(strings.Split("_"+name, "_"), "/processes/")
+	}
+
+	if err := m.initNamespace(ctx, bootstrap, base); err != nil {
+		return nil, err
 	}
 
 	if reg, err := m.initInternalRegistry(); err != nil {
 		return nil, err
 	} else {
 		m.internalRegistry = reg
+
+		go m.WatchTransientStatus()
+
 		ctx = propagator.With(ctx, registry.ContextKey, reg)
 	}
 
@@ -202,6 +207,13 @@ func NewManager(ctx context.Context, namespace string, logger log.ZapLogger) (Ma
 		}
 	}
 
+	if reg, err := m.initSOTWRegistry(ctx); err != nil {
+		return nil, err
+	} else {
+		m.sotwRegistry = reg
+		ctx = propagator.With(ctx, registry.ContextSOTWKey, reg)
+	}
+
 	// Initialising servers
 	if err := m.initServers(ctx, bootstrap, base); err != nil {
 		return nil, err
@@ -222,19 +234,10 @@ func NewManager(ctx context.Context, namespace string, logger log.ZapLogger) (Ma
 		return nil, err
 	}
 
-	if reg, err := m.initSOTWRegistry(ctx); err != nil {
-		return nil, err
-	} else {
-		m.sotwRegistry = reg
-		ctx = propagator.With(ctx, registry.ContextSOTWKey, reg)
-	}
-
-	runtime.Init(ctx, "discovery")
+	// runtime.Init(ctx, "discovery")
 	runtime.Init(ctx, m.ns)
 
 	m.ctx = ctx
-
-	go m.WatchTransientStatus()
 
 	return m, nil
 }
@@ -261,6 +264,10 @@ func (m *manager) RegisterQueue(scheme string, opts ...controller.Option[broker.
 
 func (m *manager) RegisterCache(scheme string, opts ...controller.Option[*openurl.Pool[cache.Cache]]) {
 	m.caches.Register(scheme, opts...)
+}
+
+func (m *manager) GetRootID() string {
+	return m.root.ID()
 }
 
 func (m *manager) GetStorage(ctx context.Context, name string, out any) error {
@@ -323,6 +330,12 @@ func (m *manager) GetCache(ctx context.Context, name string, resolutionData map[
 		return nil, errors.New("wrong sotwRegistry item format for cache-" + name)
 	}
 	return pool.Get(ctx, resolutionData)
+}
+
+func (m *manager) initNamespace(ctx context.Context, bootstrap *Bootstrap, base string) error {
+	m.ns = bootstrap.Val(base, "runtime").String()
+
+	return nil
 }
 
 func (m *manager) initKeyring(ctx context.Context) (config.Store, error) {
@@ -423,7 +436,7 @@ func (m *manager) initInternalRegistry() (registry.Registry, error) {
 	}
 
 	reg = registry.NewTransientWrapper(reg, registry.WithType(pb.ItemType_SERVICE))
-	reg = registry.NewMetaWrapper(reg, server.InitPeerMeta, registry.WithType(pb.ItemType_SERVER), registry.WithType(pb.ItemType_NODE))
+	// reg = registry.NewMetaWrapper(reg, server.InitPeerMeta, registry.WithType(pb.ItemType_SERVER), registry.WithType(pb.ItemType_NODE))
 	reg = registry.NewMetaWrapper(reg, func(meta map[string]string) {
 		if _, ok := meta[runtime.NodeRootID]; !ok {
 			meta[runtime.NodeRootID] = m.root.ID()
@@ -456,21 +469,6 @@ func (m *manager) initInternalRegistry() (registry.Registry, error) {
 			}
 		}),
 	)
-
-	// Detect a parent root
-	//var current registry.Item
-	//if ii, er := reg.List(registry.WithType(pb.ItemType_NODE), registry.WithMeta(runtime.NodeMetaHostName, runtime.GetHostname())); er == nil && len(ii) > 0 {
-	//	for _, root := range ii {
-	//		rPID := root.Metadata()[runtime.NodeMetaPID]
-	//		if rPID == strconv.Itoa(os.Getpid()) {
-	//			current = root
-	//		}
-	//	}
-	//}
-	//
-	//if current != nil {
-	//	m.root = current
-	//}
 
 	return reg, nil
 }
@@ -701,7 +699,7 @@ func (m *manager) initListeners(ctx context.Context, store *Bootstrap, base stri
 		if lis != nil {
 			registry.NewMetaWrapper(m.internalRegistry, func(meta map[string]string) {
 				meta[registry.MetaTimestampKey] = fmt.Sprintf("%d", time.Now().UnixNano())
-				meta[registry.MetaStatusKey] = string(registry.StatusTransient)
+				meta[registry.MetaStatusKey] = string(registry.StatusReady)
 
 				meta[registry.MetaDescriptionKey] = addr
 			}).Register(registry.NewRichItem(k, k, pb.ItemType_ADDRESS, lis), registry.WithEdgeTo(m.root.ID(), "listener", nil))
@@ -733,9 +731,7 @@ func (m *manager) initServers(ctx context.Context, store *Bootstrap, base string
 		}
 
 		if srv != nil {
-			regOpts := []registry.RegisterOption{
-				registry.WithEdgeTo(m.root.ID(), "server", nil),
-			}
+			regOpts := []registry.RegisterOption{}
 
 			if l, ok := vv["listener"]; ok {
 				if ll, ok := l.(string); ok {
@@ -860,13 +856,11 @@ func (m *manager) initStorages(ctx context.Context, store *Bootstrap, base strin
 			continue
 		}
 
-		//fmt.Println("initStorages - opened storage with uri " + uri)
-
 		if conn != nil {
 			registry.NewMetaWrapper(m.internalRegistry, func(meta map[string]string) {
 				meta[registry.MetaTimestampKey] = fmt.Sprintf("%d", time.Now().UnixNano())
 				meta[registry.MetaStatusKey] = string(registry.StatusTransient)
-			}).Register(registry.NewRichItem(k, k, pb.ItemType_DAO, conn), registry.WithEdgeTo(m.root.ID(), "storage", nil))
+			}).Register(registry.NewRichItem(k, k, pb.ItemType_STORAGE, conn), registry.WithEdgeTo(m.root.ID(), "storage", nil))
 		}
 	}
 
@@ -1011,7 +1005,6 @@ func (m *manager) ServeAll(oo ...server.ServeOption) error {
 	eg := &errgroup.Group{}
 	servers := m.serversWithStatus(registry.StatusStopped)
 
-	fmt.Println("All servers ", servers)
 	for _, srv := range servers {
 		func(srv server.Server) {
 			eg.Go(func() error {
@@ -1078,8 +1071,9 @@ func (m *manager) startServer(srv server.Server, oo ...server.ServeOption) error
 		registry.WithAdjacentEdgeOptions(registry.WithName("listener")),
 		registry.WithAdjacentTargetOptions(registry.WithType(pb.ItemType_ADDRESS)),
 	)
+
 	if len(listeners) > 1 {
-		return errors.New("Should only have one listener")
+		return errors.New("Should have only one listener")
 	} else if len(listeners) == 1 {
 		var lis net.Listener
 		if listeners[0].As(&lis) {
@@ -1229,31 +1223,6 @@ func (m *manager) startServer(srv server.Server, oo ...server.ServeOption) error
 		svc.Options().Server = srv
 	}
 
-	//var uniques []service.Service
-	//detectedCount := 1
-	//for _, svc := range m.services {
-	//	if svc.Options().Server == srv {
-	//		if svc.Options().Unique {
-	//			uniques = append(uniques, svc)
-	//			if running, count := m.regRunningService(svc.Name()); running {
-	//				detectedCount = count
-	//				// There is already a running service here. Do not start now, watch sotwRegistry and postpone start
-	//				m.logger.Warn("There is already a running instance of " + svc.Name() + ". Do not start now, watch sotwRegistry and postpone start")
-	//				sotwRegistry.NewMetaWrapper(m.internalRegistry, func(meta map[string]string) {
-	//					meta[sotwRegistry.MetaStatusKey] = string(sotwRegistry.StatusWaiting)
-	//				}).Register(svc)
-	//
-	//				continue
-	//			}
-	//		}
-	//
-	//	}
-	//}
-	//
-	//if len(uniques) > 0 {
-	//	go m.WatchServerUniques(srv, uniques, detectedCount)
-	//}
-
 	registry.NewMetaWrapper(m.internalRegistry, func(meta map[string]string) {
 		meta[registry.MetaStatusKey] = string(registry.StatusTransient)
 	}).Register(srv)
@@ -1332,7 +1301,6 @@ func (m *manager) serviceServeOptions(svc service.Service) []server.ServeOption 
 
 func (m *manager) serversWithStatus(status registry.Status) (ss []server.Server) {
 	items := m.internalRegistry.ListAdjacentItems(
-		registry.WithAdjacentEdgeOptions(registry.WithName("server")),
 		registry.WithAdjacentTargetOptions(registry.WithType(pb.ItemType_SERVER)),
 		registry.WithAdjacentSourceItems([]registry.Item{m.root}),
 	)
@@ -1478,21 +1446,6 @@ func (m *manager) WatchTransientStatus() {
 		registry.WithAction(pb.ActionType_UPDATE),
 		registry.WithContext(m.ctx),
 		registry.WithFilter(func(item registry.Item) bool {
-			var node registry.Node
-			if item.As(&node) {
-				if item.ID() != m.root.ID() {
-					return false
-				}
-			}
-
-			var server registry.Server
-			if item.As(&server) {
-				meta := item.Metadata()
-				if rootID, ok := meta[runtime.NodeRootID]; !ok || rootID != m.root.ID() {
-					return false
-				}
-			}
-
 			if status, ok := item.Metadata()[registry.MetaStatusKey]; !ok || status != string(registry.StatusTransient) {
 				return false
 			}
@@ -1523,6 +1476,7 @@ func (m *manager) WatchTransientStatus() {
 				itemStatus := item.Metadata()[registry.MetaStatusKey]
 				if itemStatus != string(registry.StatusReady) && itemStatus != string(registry.StatusWaiting) && itemStatus != string(registry.StatusError) {
 					statusToSet = string(registry.StatusTransient)
+
 					break
 				}
 				if itemStatus == string(registry.StatusError) && statusToSet == string(registry.StatusReady) {

@@ -71,6 +71,7 @@ DESCRIPTION
 		if er != nil {
 			return er
 		}
+
 		mgr, err := manager.NewManager(ctx, "cmd", nil)
 		if err != nil {
 			return err

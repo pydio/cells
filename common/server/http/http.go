@@ -22,6 +22,7 @@ package http
 
 import (
 	"context"
+	"errors"
 	"net"
 	"net/http"
 	"net/url"
@@ -33,8 +34,6 @@ import (
 	"github.com/pydio/cells/v4/common/config/routing"
 	"github.com/pydio/cells/v4/common/middleware"
 	"github.com/pydio/cells/v4/common/registry"
-	"github.com/pydio/cells/v4/common/registry/util"
-	"github.com/pydio/cells/v4/common/runtime"
 	"github.com/pydio/cells/v4/common/server"
 	"github.com/pydio/cells/v4/common/server/http/mux"
 	"github.com/pydio/cells/v4/common/telemetry/log"
@@ -49,21 +48,6 @@ func init() {
 type Opener struct{}
 
 func (o *Opener) OpenURL(ctx context.Context, u *url.URL) (server.Server, error) {
-	return New(ctx), nil
-}
-
-type Server struct {
-	id   string
-	name string
-	meta map[string]string
-
-	cancel context.CancelFunc
-	net.Listener
-	routing.RouteRegistrar
-	*http.Server
-}
-
-func New(ctx context.Context) server.Server {
 	srvID := "http-" + uuid.New()
 	lMux := NewRegistrar(ctx, srvID)
 
@@ -82,25 +66,31 @@ func New(ctx context.Context) server.Server {
 		cancel:         cancel,
 		RouteRegistrar: lMux,
 		Server:         srv,
-	})
+	}), nil
+}
+
+type Server struct {
+	id   string
+	name string
+	meta map[string]string
+
+	cancel context.CancelFunc
+	net.Listener
+	routing.RouteRegistrar
+	*http.Server
 }
 
 func (s *Server) RawServe(opts *server.ServeOptions) (ii []registry.Item, e error) {
-	addr := opts.HttpBindAddress
-	if addr == "" {
-		addr = runtime.HttpBindAddress()
-	}
-	lis, err := net.Listen("tcp", addr)
-	if err != nil {
-		return nil, err
+	if opts.Listener == nil {
+		return nil, errors.New("must have a listener")
 	}
 
-	s.Listener = lis
+	s.Listener = opts.Listener
 
 	go func() {
 		defer s.cancel()
 
-		if err := s.Server.Serve(lis); err != nil {
+		if err := s.Server.Serve(s.Listener); err != nil {
 			if err.Error() == "http: Server closed" || err.Error() == "context canceled" {
 				return
 			}
@@ -108,7 +98,6 @@ func (s *Server) RawServe(opts *server.ServeOptions) (ii []registry.Item, e erro
 		}
 	}()
 
-	ii = append(ii, util.CreateAddress(s.Listener.Addr().String(), nil))
 	return
 }
 

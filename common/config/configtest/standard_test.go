@@ -21,16 +21,14 @@
 package configtest
 
 import (
-	. "github.com/smartystreets/goconvey/convey"
 	"testing"
 
 	"github.com/pydio/cells/v4/common/config"
 	"github.com/pydio/cells/v4/common/utils/configx"
 
-	// Plugins to test
-	// _ "github.com/pydio/cells/v4/common/config/etcd"
-	// _ "github.com/pydio/cells/v4/common/config/file"
 	_ "github.com/pydio/cells/v4/common/config/memory"
+
+	. "github.com/smartystreets/goconvey/convey"
 )
 
 func testGetSet(t *testing.T, store config.Store) {
@@ -94,8 +92,8 @@ func testGetSet(t *testing.T, store config.Store) {
 		Convey("Scan", func() {
 			fakeValue := map[string]interface{}{}
 			m := configx.New()
-			m.Val("fakevalue").Set(&map[string]interface{}{"fake": "value"})
-			m.Val("fakevalue").Scan(fakeValue)
+			m.Val("fakevalue").Set(map[string]interface{}{"fake": "value"})
+			m.Val("fakevalue").Scan(&fakeValue)
 		})
 	})
 }

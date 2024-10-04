@@ -144,7 +144,7 @@ func (s *serviceRegistry) Stop(item registry.Item) error {
 }
 
 func (s *serviceRegistry) Register(item registry.Item, option ...registry.RegisterOption) error {
-	if os.Getenv("CELLS_USE_REGISTRY_SESSION") == "true" {
+	if os.Getenv("CELLS_USE_REGISTRY_SESSION") != "false" {
 		if err := s.sessionClient.Send(&pb.SessionRequest{
 			Type: pb.SessionRequestType_REGISTER,
 			Item: util.ToProtoItem(item),

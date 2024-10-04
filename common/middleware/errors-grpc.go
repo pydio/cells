@@ -45,6 +45,7 @@ func ErrorNoMatchedRouteRetryUnaryClientInterceptor() grpc.UnaryClientIntercepto
 		for {
 			err := invoker(ctx, method, req, reply, cc, opts...)
 			if err != nil && (strings.Contains(err.Error(), "no matched route was found") || strings.Contains(err.Error(), "unknown cluster")) {
+				fmt.Println(err.Error())
 				log.Logger(ctx).Warn("gRPC - no matched route found - Waiting for retry", zap.String("method", method))
 				<-time.After(100 * time.Millisecond)
 				continue

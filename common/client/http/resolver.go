@@ -72,9 +72,11 @@ type resolver struct {
 func (m *resolver) Init(ctx context.Context, serverID string, rr routing.RouteRegistrar) {
 
 	conn := runtime.GetClientConn(ctx)
+
 	var reg registry.Registry
-	propagator.Get(ctx, registry.ContextKey, &reg)
+	propagator.Get(ctx, registry.ContextSOTWKey, &reg)
 	rc, _ := client.NewResolverCallback(reg)
+
 	bal := NewBalancer(ctx, serverID)
 	rc.Add(bal.Build)
 

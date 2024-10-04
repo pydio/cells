@@ -48,6 +48,7 @@ const (
 	ServiceHealthCheck = "healthcheck"
 	ServiceBroker      = "broker"
 	ServiceRegistry    = "registry"
+	ServiceXDS         = "xds"
 
 	ServiceTagBroker     = "broker"
 	ServiceTagData       = "data"

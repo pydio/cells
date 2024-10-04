@@ -45,8 +45,7 @@ import (
 	"github.com/pydio/cells/v4/common/utils/configx"
 	"github.com/pydio/cells/v4/common/utils/std"
 
-	// _ "github.com/pydio/cells/v4/common/config/etcd"
-	// _ "github.com/pydio/cells/v4/common/config/file"
+	_ "github.com/pydio/cells/v4/common/config/file"
 	_ "github.com/pydio/cells/v4/common/config/memory"
 	_ "github.com/pydio/cells/v4/common/config/service"
 )
@@ -126,14 +125,14 @@ func TestGetSetMemory(t *testing.T) {
 		log.Panic(err)
 	}
 
-	//vault, err := config.OpenStore(context.Background(), "mem://")
-	//if err != nil {
-	//	log.Panic(err)
-	//}
+	vault, err := config.OpenStore(context.Background(), "mem://")
+	if err != nil {
+		log.Panic(err)
+	}
 
 	testWatch(t, store)
-	//testGetSet(t, store)
-	//testVault(t, store, vault)
+	testGetSet(t, store)
+	testVault(t, store, vault)
 }
 
 func TestGetSetEtcd(t *testing.T) {

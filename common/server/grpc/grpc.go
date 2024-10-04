@@ -198,7 +198,7 @@ func (s *Server) lazyGrpc(rootContext context.Context) *grpc.Server {
 		func(srv interface{}, ss grpc.ServerStream, info *grpc.StreamServerInfo, handler grpc.StreamHandler) error {
 			ctx := ss.Context()
 			serviceName := runtime.GetServiceName(ctx)
-			if serviceName != "" {
+			if serviceName != "" && serviceName != "default" {
 				var ep registry.Endpoint
 				if propagator.Get(ctx, EndpointKey, &ep) {
 					return handler(ep.Handler(), ss)
@@ -259,19 +259,7 @@ func (s *Server) RawServe(opts *server.ServeOptions) (ii []registry.Item, e erro
 
 	listener := opts.Listener
 	if listener == nil {
-		addr := s.opts.Addr
-		if addr == "" {
-			addr = opts.GrpcBindAddress
-		}
-		if addr == "" {
-			return nil, fmt.Errorf("grpc server: missing config address or runtime address")
-		}
-		lis, err := net.Listen("tcp", addr)
-		if err != nil {
-			return nil, err
-		}
-
-		listener = lis
+		return nil, fmt.Errorf("should have a listener")
 	}
 
 	var externalAddr string
@@ -423,9 +411,7 @@ func (r *serverRegistrar) RegisterService(desc *grpc.ServiceDesc, impl interface
 		endpoint := util.CreateEndpoint("/"+desc.ServiceName+"/"+method.MethodName, impl, map[string]string{})
 
 		r.reg.Register(endpoint,
-			registry.WithEdgeTo(r.id, "server", map[string]string{
-				"serverType": "grpc",
-			}),
+			registry.WithEdgeTo(r.id, "server", map[string]string{"serverType": "grpc"}),
 		)
 	}
 

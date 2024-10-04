@@ -102,7 +102,7 @@ func (s *serviceRegistrar) RegisterService(desc *grpc.ServiceDesc, impl interfac
 
 		s.reg.Register(endpoint,
 			registry.WithEdgeTo(s.id, "handler", nil),
-			registry.WithEdgeTo(srv.ID(), "server", nil),
+			registry.WithEdgeTo(srv.ID(), "server", map[string]string{"serverType": "grpc"}),
 		)
 	}
 
@@ -111,7 +111,7 @@ func (s *serviceRegistrar) RegisterService(desc *grpc.ServiceDesc, impl interfac
 
 		s.reg.Register(endpoint,
 			registry.WithEdgeTo(s.id, "handler", nil),
-			registry.WithEdgeTo(srv.ID(), "server", nil),
+			registry.WithEdgeTo(srv.ID(), "server", map[string]string{"serverType": "grpc"}),
 		)
 	}
 }

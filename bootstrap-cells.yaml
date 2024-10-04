@@ -40,6 +40,8 @@ defaults:
       uri: xds://default.cells.com/cells
       services:
         - filter: "{{ .Name }} ~= pydio.grpc..*"
+    registry:
+      uri: xds://default.cells.com/cells
 
   #--------------------------------------------
   # Default servers configuration
@@ -65,6 +67,7 @@ defaults:
   # Default env configuration
   #--------------------------------------------
   env: &env
+    CELLS_BOOTSTRAP_FILE: /Users/ghecquet/go/src/github.com/pydio/cells/bootstrap-cells.yaml
     CELLS_USE_REGISTRY_SESSION: true
     GRPC_EXPERIMENTAL_XDS_FEDERATION: true
     GRPC_XDS_BOOTSTRAP_CONFIG: {
@@ -246,10 +249,9 @@ connections: *connections
 # All processes
 #--------------------------------------------
 processes: &processes
-  discovery: &discovery
+  discovery:
     runtime: discovery
     connections:
-      <<: *connections
       config:
         uri: file://{{{{ .ApplicationWorkingDir }}}}/pydio.json
         pools:
@@ -258,43 +260,68 @@ processes: &processes
         uri: mem://?cache=shared
       broker:
         uri: mem://
-
     listeners:
-      grpc:
+      grpcd:
         type: tcp
         bind: 0.0.0.0
         port: 8030
-#      http:
-#        type: tcp
-#        bind: 0.0.0.0
-#        port: 0
-
+      httpd:
+        type: tcp
+        bind: 0.0.0.0
+        port: 8080
     servers:
-#      caddy:
-#        type: caddy
-#        services:
-#          - filter: "{{ .Name }} ~= pydio.rest..* or {{ .Name }} ~= pydio.web.oauth or {{ .Name }} ~= pydio.web.statics or {{ .Name }} = pydio.gateway.websocket"
-#      generic:
-#        type: generic
-#        services:
-#          - filter: "{{ .Name }} ~= pydio.generic..*"
       grpc:
         type: grpc
-        listener: grpc
+        listener: grpcd
         services:
-          - filter: "{{ .Name }} ~= pydio.grpc.registry or {{ .Name }} ~= pydio.grpc.config"
-
+#          - filter: "discovery ~= {{ sliceToRegexpFmt .Tags }}"
+          - filter: "{{ .Name }} ~= pydio.grpc..*"
     env: *env
-
     storages: *storages
-
     services: *services
-
     queues: *queues
-
     caches: *caches
 
-  acl: &acl
+#  frontend:
+#    runtime: main
+#    connections:
+#      <<: *connections
+#    servers:
+#      caddy:
+#        type: http
+#        listener: httpd
+#        services:
+#          - filter: "frontend ~= {{ sliceToRegexpFmt .Tags }}"
+#          - filter: "{{ .Name }} ~= pydio\\.rest\\..* or {{ .Name }} ~= pydio.web..*"
+#    env: *env
+#    storages: *storages
+#    services: *services
+#    queues: *queues
+#    caches: *caches
+
+  idm:
+    runtime: main
+    connections:
+      <<: *connections
+    listeners:
+      grpci:
+        type: tcp
+        bind: 0.0.0.0
+        port: 0
+    servers:
+      grpci:
+        type: grpc
+        listener: grpci
+        services:
+          - filter: "idm ~= {{ sliceToRegexpFmt .Tags }}"
+          - filter: "{{ .Name }} ~= pydio\\.grpc\\..*"
+    env: *env
+    storages: *storages
+    services: *services
+    queues: *queues
+    caches: *caches
+
+  data:
     runtime: main
     connections:
       <<: *connections
@@ -304,31 +331,20 @@ processes: &processes
         uri: xds://default.cells.com/cells
       broker:
         uri: xds://default.cells.com/cells
-
     listeners:
-      grpc:
-        type: tcp
-        bind: 0.0.0.0
-        port: 8030
-      http:
+      grpcacl:
         type: tcp
         bind: 0.0.0.0
         port: 0
-
     servers:
       grpc:
         type: grpc
-        listener: grpc
+        listener: grpcacl
         services:
-          - filter: "{{ .Name }} ~= pydio.grpc.acl"
-
+          - filter: "data ~= {{ sliceToRegexpFmt .Tags }}"
+          - filter: "{{ .Name }} ~= pydio\\.grpc\\..*"
     env: *env
-
     storages: *storages
-
     services: *services
-
     queues: *queues
-
     caches: *caches
-
