@@ -25,6 +25,7 @@ import (
 	"strings"
 	"time"
 
+	"go.opentelemetry.io/otel/trace"
 	"go.uber.org/zap"
 	"google.golang.org/protobuf/types/known/anypb"
 
@@ -37,6 +38,7 @@ import (
 	service "github.com/pydio/cells/v4/common/proto/service"
 	"github.com/pydio/cells/v4/common/proto/tree"
 	"github.com/pydio/cells/v4/common/telemetry/log"
+	"github.com/pydio/cells/v4/common/telemetry/tracing"
 	"github.com/pydio/cells/v4/common/utils/cache"
 	cache_helper "github.com/pydio/cells/v4/common/utils/cache/helper"
 	json "github.com/pydio/cells/v4/common/utils/jsonx"
@@ -71,6 +73,10 @@ func GetRolesForUser(ctx context.Context, user *idm.User, createMissing bool) ([
 	if len(roleIds) == 0 {
 		return roles, nil
 	}
+
+	var span trace.Span
+	ctx, span = tracing.StartLocalSpan(ctx, "GetRolesForUser", 1)
+	defer span.End()
 
 	roleClient := idmc.RoleServiceClient(ctx)
 
@@ -134,6 +140,11 @@ func GetRoles(ctx context.Context, names []string) ([]*idm.Role, error) {
 	if len(names) == 0 {
 		return roles, nil
 	}
+
+	var span trace.Span
+	ctx, span = tracing.StartLocalSpan(ctx, "GetRoles", 1)
+	defer span.End()
+
 	query, _ := anypb.New(&idm.RoleSingleQuery{Uuid: names})
 	stream, err := idmc.RoleServiceClient(ctx).SearchRole(ctx, &idm.SearchRoleRequest{Query: &service.Query{SubQueries: []*anypb.Any{query}}})
 	if er := commons.ForEach(stream, err, func(t *idm.SearchRoleResponse) error {
@@ -163,6 +174,10 @@ func GetACLsForRoles(ctx context.Context, roles []*idm.Role, actions ...*idm.ACL
 		return acls, nil
 	}
 
+	var span trace.Span
+	ctx, span = tracing.StartLocalSpan(ctx, "GetACLsForRoles", 1)
+	defer span.End()
+
 	// First we retrieve the roleIDs from the role names
 	var roleIDs []string
 	for _, role := range roles {
@@ -191,6 +206,10 @@ func GetACLsForRoles(ctx context.Context, roles []*idm.Role, actions ...*idm.ACL
 // GetACLsForWorkspace compiles ACLs list attached to a given workspace.
 func GetACLsForWorkspace(ctx context.Context, workspaceIds []string, actions ...*idm.ACLAction) ([]*idm.ACL, error) {
 
+	var span trace.Span
+	ctx, span = tracing.StartLocalSpan(ctx, "GetACLsForWorkspace", 1)
+	defer span.End()
+
 	var subQueries []*anypb.Any
 	q1, _ := anypb.New(&idm.ACLSingleQuery{WorkspaceIDs: workspaceIds})
 	q2, _ := anypb.New(&idm.ACLSingleQuery{Actions: actions})
@@ -204,6 +223,10 @@ func GetACLsForWorkspace(ctx context.Context, workspaceIds []string, actions ...
 
 // GetACLsForActions find all ACLs for a given list of actions
 func GetACLsForActions(ctx context.Context, actions ...*idm.ACLAction) ([]*idm.ACL, error) {
+	var span trace.Span
+	ctx, span = tracing.StartLocalSpan(ctx, "GetACLsForActions", 1)
+	defer span.End()
+
 	var subQueries []*anypb.Any
 	q1, _ := anypb.New(&idm.ACLSingleQuery{Actions: actions})
 	subQueries = append(subQueries, q1)
@@ -268,6 +291,11 @@ func FindUserNameInContext(ctx context.Context) (string, claim.Claims) {
 
 // AccessListForLockedNodes builds a flattened node list containing all currently locked nodes
 func AccessListForLockedNodes(ctx context.Context, resolver VirtualPathResolver) (accessList *AccessList, err error) {
+
+	var span trace.Span
+	ctx, span = tracing.StartLocalSpan(ctx, "AccessListForLockedNodes", 1)
+	defer span.End()
+
 	accessList = NewAccessList()
 
 	acls, _ := GetACLsForActions(ctx, AclLock)
@@ -303,6 +331,11 @@ func AccessListFromContextClaims(ctx context.Context) (accessList *AccessList, e
 
 		return cached, nil
 	}
+
+	var span trace.Span
+	ctx, span = tracing.StartLocalSpan(ctx, "AccessListFromContextClaims", 1)
+	defer span.End()
+
 	log.Logger(ctx).Debug("Reloading a new version of AccessList")
 
 	//fmt.Println("Loading AccessList")
@@ -334,6 +367,10 @@ func AccessListFromContextClaims(ctx context.Context) (accessList *AccessList, e
 
 // AccessListFromUser loads roles for a given user, by name or UUID, and subsequently calls AccessListFromRoles
 func AccessListFromUser(ctx context.Context, userNameOrUuid string, isUuid bool) (accessList *AccessList, user *idm.User, err error) {
+
+	var span trace.Span
+	ctx, span = tracing.StartLocalSpan(ctx, "AccessListFromUser", 1)
+	defer span.End()
 
 	// Prepare a cancellable context as sub-calls will open many streams.
 	var ca context.CancelFunc
@@ -374,6 +411,10 @@ func AccessListFromUser(ctx context.Context, userNameOrUuid string, isUuid bool)
 // AccessListFromRoles loads the Acls and flatten them, eventually loading the discovered workspaces.
 func AccessListFromRoles(ctx context.Context, roles []*idm.Role, countPolicies bool, loadWorkspaces bool) (accessList *AccessList, err error) {
 
+	var span trace.Span
+	ctx, span = tracing.StartLocalSpan(ctx, "AccessListFromRoles", 1)
+	defer span.End()
+
 	accessList = NewAccessList(roles...)
 	search := []*idm.ACLAction{AclRead, AclDeny, AclWrite}
 	if countPolicies {
@@ -408,6 +449,10 @@ func SearchUniqueUser(ctx context.Context, login string, uuid string, queries ..
 			return user, nil
 		}
 	}
+
+	var span trace.Span
+	ctx, span = tracing.StartLocalSpan(ctx, "SearchUniqueUser", 1)
+	defer span.End()
 
 	userCli := idmc.UserServiceClient(ctx)
 	var searchRequests []*anypb.Any
@@ -448,6 +493,11 @@ func SearchUniqueUser(ctx context.Context, login string, uuid string, queries ..
 
 // GroupExists finds a group by its full path
 func GroupExists(ctx context.Context, group string) (*idm.User, bool) {
+
+	var span trace.Span
+	ctx, span = tracing.StartLocalSpan(ctx, "GroupExists", 1)
+	defer span.End()
+
 	userCli := idmc.UserServiceClient(ctx)
 	var searchRequests []*anypb.Any
 	searchRequest, _ := anypb.New(&idm.UserSingleQuery{FullPath: group})
@@ -470,6 +520,10 @@ func GroupExists(ctx context.Context, group string) (*idm.User, bool) {
 
 // SearchUniqueWorkspace is a wrapper of SearchWorkspace to load a unique workspace
 func SearchUniqueWorkspace(ctx context.Context, wsUuid string, wsSlug string, queries ...*idm.WorkspaceSingleQuery) (*idm.Workspace, error) {
+
+	var span trace.Span
+	ctx, span = tracing.StartLocalSpan(ctx, "SearchUniqueWorkspace", 1)
+	defer span.End()
 
 	wsCli := idmc.WorkspaceServiceClient(ctx)
 	if wsUuid != "" {
@@ -570,6 +624,7 @@ func FrontValuesScopesFromWorkspaceRelativePaths(wss []*tree.WorkspaceRelativePa
 
 // CheckContentLock finds if there is a global lock registered in ACLs.
 func CheckContentLock(ctx context.Context, node *tree.Node) error {
+
 	if node.Uuid == "" {
 		return nil
 	}
@@ -577,6 +632,10 @@ func CheckContentLock(ctx context.Context, node *tree.Node) error {
 	if claims, ok := ctx.Value(claim.ContextKey).(claim.Claims); ok {
 		userName = claims.Name
 	}
+
+	var span trace.Span
+	ctx, span = tracing.StartLocalSpan(ctx, "CheckContentLock", 1)
+	defer span.End()
 
 	// Look for "quota" ACLs on this node
 	singleQ := &idm.ACLSingleQuery{NodeIDs: []string{node.Uuid}, Actions: []*idm.ACLAction{{Name: AclContentLock.Name}}}

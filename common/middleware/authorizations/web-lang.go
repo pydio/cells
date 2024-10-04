@@ -1,7 +1,6 @@
 package authorizations
 
 import (
-	"context"
 	"net/http"
 
 	restful "github.com/emicklei/go-restful/v3"
@@ -11,7 +10,7 @@ import (
 	"github.com/pydio/cells/v4/common/utils/i18n/languages"
 )
 
-func HttpWrapperLanguage(_ context.Context, h http.Handler) http.Handler {
+func HttpWrapperLanguage(h http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		ll := languages.UserLanguagesFromRestRequest(&restful.Request{Request: r}, config.Get(r.Context()))
 		ctx := middleware.WithDetectedLanguages(r.Context(), ll)

@@ -28,6 +28,7 @@ import (
 	"google.golang.org/grpc"
 
 	"github.com/pydio/cells/v4/common"
+	"github.com/pydio/cells/v4/common/broker"
 	grpc3 "github.com/pydio/cells/v4/common/client/grpc"
 	"github.com/pydio/cells/v4/common/permissions"
 	"github.com/pydio/cells/v4/common/proto/jobs"
@@ -35,6 +36,7 @@ import (
 	"github.com/pydio/cells/v4/common/runtime"
 	"github.com/pydio/cells/v4/common/service"
 	"github.com/pydio/cells/v4/common/telemetry/log"
+	"github.com/pydio/cells/v4/common/utils/openurl"
 	"github.com/pydio/cells/v4/scheduler/tasks"
 	grpc2 "github.com/pydio/cells/v4/scheduler/tasks/grpc"
 )
@@ -55,26 +57,61 @@ func init() {
 			service.Name(Name),
 			service.Context(ctx),
 			service.Tag(common.ServiceTagScheduler),
-			// service.Fork(true),
 			service.Description("Tasks are running jobs dispatched on multiple workers"),
 			service.WithGRPC(func(c context.Context, server grpc.ServiceRegistrar) error {
-				jobs.RegisterTaskServiceServer(server, new(grpc2.TaskHandler))
-				return runtime.MultiContextManager().Iterate(c, func(tc context.Context, _ string) error {
-					multiplexer := tasks.NewSubscriber(tc)
+				// Prepare opener
+				subs, er := openurl.MemPool[*tasks.Subscriber](c, func(ctx context.Context, url string) (*tasks.Subscriber, error) {
+					multiplexer := tasks.NewSubscriber(ctx)
 					var me error
+					// Start in a go func as it can be blocking waiting for grpc connection to other services
 					go func() {
-						if er := multiplexer.Init(tc); er != nil {
+						if er := multiplexer.Init(ctx); er != nil {
 							log.Logger(c).Error("Could not properly start tasks multiplexer: "+er.Error(), zap.Error(er))
 							me = er
 							return
 						}
-						// Else wait for c.Done()
-						<-c.Done()
+						<-ctx.Done()
 						multiplexer.Stop()
 					}()
-					// Eventually return me if it was fast enough
-					return me
+					return multiplexer, me
 				})
+				if er != nil {
+					return er
+				}
+				jobs.RegisterTaskServiceServer(server, new(grpc2.TaskHandler))
+				er = runtime.MultiContextManager().Iterate(c, func(tc context.Context, _ string) error {
+					// Force initialization of all subscribers now
+					_, e := subs.Get(tc)
+					return e
+				})
+				if er != nil {
+					return er
+				}
+				queueOpt := broker.Queue("tasks")
+				counterOpt := broker.WithCounterName("tasks")
+
+				topics := []string{
+					common.TopicIdmEvent,
+					common.TopicTimerEvent,
+					common.TopicJobConfigEvent,
+					common.TopicTreeChanges,
+					common.TopicMetaChanges,
+				}
+				for _, topic := range topics {
+					if er = broker.SubscribeCancellable(c, topic, func(ctx context.Context, msg broker.Message) error {
+						sub, e := subs.Get(ctx)
+						if e != nil {
+							return e
+						}
+						ctx = context.WithoutCancel(ctx)
+						ctx = runtime.WithServiceName(ctx, common.ServiceTasksGRPC)
+						return sub.Consume(ctx, topic, msg, false)
+					}, queueOpt, counterOpt); er != nil {
+						return er
+					}
+				}
+
+				return nil
 			}),
 		)
 	})

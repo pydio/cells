@@ -64,11 +64,12 @@ var (
 	TestDisableTaskClient bool
 	busPool               *openurl.Pool[*Bus]
 	busPoolInit           sync.Once
+	busPoolCtx            = context.Background()
 )
 
 func GetBus(ctx context.Context) *Bus {
 	busPoolInit.Do(func() {
-		busPool = openurl.MustMemPool[*Bus](ctx, func(ctx context.Context, url string) *Bus {
+		busPool = openurl.MustMemPool[*Bus](busPoolCtx, func(ctx context.Context, url string) *Bus {
 			// create pubsub and start listening
 			c := &Bus{
 				PubSub: pubsub.New(0),
@@ -81,7 +82,7 @@ func GetBus(ctx context.Context) *Bus {
 			return c
 		})
 	})
-	ps, er := busPool.Get(ctx)
+	ps, er := busPool.Get(context.WithoutCancel(ctx))
 	if er != nil {
 		panic(er)
 	}

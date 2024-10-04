@@ -62,8 +62,8 @@ var (
 	swaggerJSONStrings    []string
 	swaggerMergedDocument *loads.Document
 
-	wm     []func(context.Context, http.Handler) http.Handler
-	wmOnce = &sync.Once{}
+	wmCore, wmTop []func(http.Handler) http.Handler
+	wmOnce        = &sync.Once{}
 )
 
 // RegisterSwaggerJSON receives a json string and adds it to the swagger definition
@@ -85,24 +85,35 @@ type WebHandler interface {
 	Filter() func(string) string
 }
 
-func getWebMiddlewares(serviceName string) []func(ctx context.Context, handler http.Handler) http.Handler {
+func getWebMiddlewares(serviceName string, pos string) []func(handler http.Handler) http.Handler {
 	wmOnce.Do(func() {
-		wm = append(wm,
+		wmCore = append(wmCore,
 			middleware.HttpWrapperMetrics,
 			authorizations.HttpWrapperPolicy,
 			authorizations.HttpWrapperJWT,
+		)
+		wmTop = append(wmTop,
 			authorizations.HttpWrapperLanguage,
 			middleware.HttpWrapperMeta,
 		)
 	})
-	// Append dynamic wrapper to append service name to context
-	sw := func(ctx context.Context, handler http.Handler) http.Handler {
-		return http.HandlerFunc(func(writer http.ResponseWriter, request *http.Request) {
-			c := runtime.WithServiceName(request.Context(), serviceName)
-			handler.ServeHTTP(writer, request.WithContext(c))
-		})
+	if serviceName == common.ServiceRestNamespace_+common.ServiceInstall {
+		return []func(handler http.Handler) http.Handler{}
 	}
-	return append(wm, sw)
+
+	if pos == "core" {
+		return wmCore
+	} else {
+		// Append dynamic wrapper to append service name to context
+		sw := func(handler http.Handler) http.Handler {
+			return http.HandlerFunc(func(writer http.ResponseWriter, request *http.Request) {
+				c := runtime.WithServiceName(request.Context(), serviceName)
+				handler.ServeHTTP(writer, request.WithContext(c))
+			})
+		}
+		return append(wmTop, sw)
+	}
+
 }
 
 type swaggerRestMapper struct {
@@ -132,7 +143,7 @@ func WithWeb(handler func(ctx context.Context) WebHandler) ServiceOption {
 				svcId:          o.ID,
 			}
 
-			log.Logger(ctx).Info("starting", zap.String("service", o.Name), zap.String("hook router to", serviceRoute))
+			log.Logger(runtime.WithServiceName(ctx, o.Name)).Info("starting", zap.String("service", o.Name), zap.String("hook router to", serviceRoute))
 
 			ws := new(restful.WebService)
 			ws.Consumes(restful.MIME_JSON, "application/x-www-form-urlencoded", "multipart/form-data")
@@ -172,20 +183,17 @@ func WithWeb(handler func(ctx context.Context) WebHandler) ServiceOption {
 				log.Logger(ctx).Error("Recovered from panic")
 				writer.Write([]byte("Internal Server Error"))
 			})
-			// var e error
+
 			wrapped := http.Handler(wc)
 
-			for _, m := range o.WebMiddlewares {
-				wrapped = m(wrapped)
-			}
+			mm := getWebMiddlewares(o.Name, "core")
+			mm = append(mm, o.WebMiddlewares...)
+			mm = append(mm, getWebMiddlewares(o.Name, "top")...)
+			mm = append(mm, cors.Default().Handler)
 
-			if o.Name != common.ServiceRestNamespace_+common.ServiceInstall {
-				for _, wrap := range getWebMiddlewares(o.Name) {
-					wrapped = wrap(ctx, wrapped)
-				}
+			for _, wrap := range mm {
+				wrapped = wrap(wrapped)
 			}
-
-			wrapped = cors.Default().Handler(wrapped)
 
 			if rateLimit, err := strconv.Atoi(os.Getenv("CELLS_WEB_RATE_LIMIT")); err == nil {
 				limiterConfig := &memorystore.Config{

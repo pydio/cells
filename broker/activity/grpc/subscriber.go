@@ -74,10 +74,10 @@ func NewEventsSubscriber(ctx context.Context, handlerName string) *MicroEventsSu
 
 }
 
-func (e *MicroEventsSubscriber) getQueue(ctx context.Context) (broker.AsyncQueue, error) {
+func (e *MicroEventsSubscriber) getQueue(ctx context.Context) (broker.AsyncQueue, func() (bool, error), error) {
 	var mgr manager.Manager
 	if !propagator.Get(ctx, manager.ContextKey, &mgr) {
-		return nil, fmt.Errorf("no manager in context")
+		return nil, nil, fmt.Errorf("no manager in context")
 	}
 	data := map[string]interface{}{
 		"debounce": "2s",
@@ -232,7 +232,7 @@ func (e *MicroEventsSubscriber) HandleIdmChange(ctx context.Context, msg *idm.Ch
 			msg.Attributes = make(map[string]string)
 		}
 		msg.Attributes["user"] = author
-		q, er := e.getQueue(ctx) //e.muxPool.Get(ctx)
+		q, _, er := e.getQueue(ctx) //e.muxPool.Get(ctx)
 		if er != nil {
 			return er
 		}

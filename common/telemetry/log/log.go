@@ -159,7 +159,7 @@ func SetLoggerInit(f LoggerInitializer, globalConnInit func(ctx context.Context)
 // Logger returns a zap logger with as much context as possible.
 func Logger(ctx context.Context) ZapLogger {
 	ml, _ := (*mainLoggerPool).Get(ctx)
-	return contextWrapper(ctx, ml.get(ctx))
+	return tracingWrapper(ctx, contextWrapper(ctx, ml.get(ctx)))
 }
 
 // SetAuditerInit defines what function to use to init the auditer

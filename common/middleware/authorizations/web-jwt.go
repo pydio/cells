@@ -21,7 +21,6 @@
 package authorizations
 
 import (
-	"context"
 	"net/http"
 	"strings"
 
@@ -40,7 +39,7 @@ func IsRestApiPublicMethod(r *http.Request) bool {
 // HttpWrapperJWT captures and verifies a JWT token if it's present in the headers.
 // Warning: it goes through if there is no JWT => the next handlers
 // must verify if a valid user was found or not.
-func HttpWrapperJWT(ct context.Context, h http.Handler) http.Handler {
+func HttpWrapperJWT(h http.Handler) http.Handler {
 
 	jwtVerifier := auth.DefaultJWTVerifier()
 

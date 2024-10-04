@@ -46,6 +46,7 @@ func uuidComposer(oo ...nodes.Option) []nodes.Option {
 			exe.SetClientsPool(pool)
 			return exe
 		}),
+		nodes.WithTracer("UuidClient", 2),
 		acl.WithAccessList(),
 		uuid.WithWorkspace(),
 		uuid.WithDatasource(),

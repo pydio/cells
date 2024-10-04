@@ -47,6 +47,7 @@ import (
 	"github.com/pydio/cells/v4/common/utils/openurl"
 	"github.com/pydio/cells/v4/common/utils/propagator"
 	"github.com/pydio/cells/v4/common/utils/std"
+	"github.com/pydio/cells/v4/common/utils/uuid"
 )
 
 const (
@@ -59,130 +60,125 @@ type ContextJobParametersKey struct{}
 // Subscriber handles incoming events, applies selectors if any
 // and generates all ActionMessage to trigger actions
 type Subscriber struct {
-	rootCtx context.Context
-
-	//sync.RWMutex
-	//definitions map[string]*jobs.Job
-
-	definitionsPool *openurl.Pool[cache.Cache]
-	dispatchersPool *openurl.Pool[cache.Cache]
-
-	//	dispatcherLock sync.Mutex
-	//	dispatchers    map[string]*Dispatcher
+	rootCtx                          context.Context
+	mm                               string
+	definitionsPool, dispatchersPool *openurl.Pool[cache.Cache]
+	treeQ, metaQ                     broker.AsyncQueue
 }
 
 // NewSubscriber creates a multiplexer for tasks managements and messages
 // by maintaining a map of dispatcher, one for each job definition.
 func NewSubscriber(parentContext context.Context) *Subscriber {
-
-	s := &Subscriber{
+	return &Subscriber{
+		mm:              runtime.MultiContextManager().Current(parentContext),
 		definitionsPool: gocache.MustOpenNonExpirableMemory(),
 		dispatchersPool: gocache.MustOpenNonExpirableMemory(),
+		rootCtx:         context.WithValue(parentContext, common.PydioContextUserKey, common.PydioSystemUsername),
 	}
-
-	s.rootCtx = context.WithValue(parentContext, common.PydioContextUserKey, common.PydioSystemUsername)
-
-	queueOpt := broker.Queue("tasks-" + runtime.MultiContextManager().Current(parentContext))
-	counterOpt := broker.WithCounterName("tasks-" + runtime.MultiContextManager().Current(parentContext))
-
-	treeOpts := []broker.SubscribeOption{
-		queueOpt,
-		counterOpt,
-	}
-	metaOpts := []broker.SubscribeOption{
-		queueOpt,
-		counterOpt,
-	}
-
-	var mgr manager.Manager
-	if propagator.Get(parentContext, manager.ContextKey, &mgr) {
-		if d, e := mgr.GetQueuePool("persisted"); e == nil {
-			treeOpts = append(treeOpts, broker.WithAsyncQueuePool(d, map[string]interface{}{"name": common.TopicTreeChanges}))
-			metaOpts = append(metaOpts, broker.WithAsyncQueuePool(d, map[string]interface{}{"name": common.TopicMetaChanges}))
-		}
-		if d, e := mgr.GetQueuePool("debouncer"); e == nil {
-			treeOpts = append(treeOpts, broker.WithAsyncQueuePool(d, map[string]interface{}{"debounce": "2s", "idle": "20s", "max": "2000"}))
-			metaOpts = append(metaOpts, broker.WithAsyncQueuePool(d, map[string]interface{}{"debounce": "2s", "idle": "20s", "max": "2000"}))
-		}
-	} else {
-		panic("NO MANAGER ON SUBSCRIBER START")
-	}
-
-	_ = broker.SubscribeCancellable(parentContext, common.TopicTreeChanges, func(ctx context.Context, message broker.Message) error {
-		if !runtime.MultiMatches(parentContext, ctx) {
-			return nil
-		}
-		event := &tree.NodeChangeEvent{}
-		if ct, e := message.Unmarshal(s.rootCtx, event); e == nil {
-			// Ignore events on Temporary nodes and internal nodes and optimistic
-			if event.Optimistic {
-				return nil
-			}
-			if event.Target != nil && (event.Target.Etag == common.NodeFlagEtagTemporary || event.Target.HasMetaKey(common.MetaNamespaceDatasourceInternal)) {
-				return nil
-			}
-			if event.Type == tree.NodeChangeEvent_DELETE && event.Source.HasMetaKey(common.MetaNamespaceDatasourceInternal) {
-				return nil
-			}
-			return s.processNodeEvent(ct, event)
-		} else {
-			return e
-		}
-	}, treeOpts...)
-
-	_ = broker.SubscribeCancellable(parentContext, common.TopicTimerEvent, func(c context.Context, message broker.Message) error {
-		if !runtime.MultiMatches(parentContext, c) {
-			return nil
-		}
-		target := &jobs.JobTriggerEvent{}
-		if ctx, e := message.Unmarshal(c, target); e == nil {
-			return s.timerEvent(ctx, target)
-		}
-		return nil
-	}, queueOpt, counterOpt)
-
-	_ = broker.SubscribeCancellable(parentContext, common.TopicJobConfigEvent, func(c context.Context, message broker.Message) error {
-		if !runtime.MultiMatches(parentContext, c) {
-			return nil
-		}
-		js := &jobs.JobChangeEvent{}
-		if ctx, e := message.Unmarshal(c, js); e == nil {
-			return s.jobsChangeEvent(ctx, js)
-		}
-		return nil
-	}, queueOpt, counterOpt)
-
-	_ = broker.SubscribeCancellable(parentContext, common.TopicMetaChanges, func(c context.Context, message broker.Message) error {
-		if !runtime.MultiMatches(parentContext, c) {
-			return nil
-		}
-		target := &tree.NodeChangeEvent{}
-		if ct, e := message.Unmarshal(s.rootCtx, target); e == nil && (target.Type == tree.NodeChangeEvent_UPDATE_META || target.Type == tree.NodeChangeEvent_UPDATE_USER_META) {
-			return s.processNodeEvent(ct, target)
-		}
-		return nil
-	}, metaOpts...)
-
-	_ = broker.SubscribeCancellable(parentContext, common.TopicIdmEvent, func(c context.Context, message broker.Message) error {
-		if !runtime.MultiMatches(parentContext, c) {
-			return nil
-		}
-		target := &idm.ChangeEvent{}
-		if ctx, e := message.Unmarshal(c, target); e == nil {
-			return s.idmEvent(ctx, target)
-		}
-		return nil
-	}, queueOpt, counterOpt)
-
-	return s
 }
 
-// Init subscriber with current list of jobs from Jobs service **for a given Tenant context**
-// Todo: trigger for each tenant....
+func (s *Subscriber) getAsyncQueue(ctx context.Context, topic string) (q broker.AsyncQueue, e error) {
+	if topic == common.TopicTreeChanges && s.treeQ != nil {
+		return s.treeQ, nil
+	}
+	if topic == common.TopicMetaChanges && s.metaQ != nil {
+		return s.metaQ, nil
+	}
+	var mgr manager.Manager
+	if !propagator.Get(ctx, manager.ContextKey, &mgr) {
+		return nil, fmt.Errorf("[susbscriber.getAsyncQueue] cannot find manager in context")
+	}
+	consumer := func(q broker.AsyncQueue) (broker.AsyncQueue, error) {
+		return q, q.Consume(func(ctx context.Context, message ...broker.Message) {
+			for _, msg := range message {
+				_ = s.Consume(ctx, topic, msg, true)
+			}
+		})
+	}
+	q, _, e = mgr.GetQueue(ctx, "persisted", map[string]interface{}{"name": topic}, uuid.New(), consumer)
+	if e != nil {
+		log.Logger(ctx).Warn("Cannot open persisted queue, using in-memory debouncer instead", zap.Error(e))
+		q, _, e = mgr.GetQueue(ctx, "debouncer", map[string]interface{}{"debounce": "2s", "idle": "20s", "max": "2000"}, "scheduler-"+topic, consumer)
+	}
+	if e == nil {
+		if topic == common.TopicTreeChanges {
+			s.treeQ = q
+		} else if topic == common.TopicMetaChanges {
+			s.metaQ = q
+		}
+	}
+	return
+}
+
+func (s *Subscriber) Consume(ctx context.Context, topic string, msg broker.Message, fromQueue bool) (e error) {
+	log.Logger(ctx).Debug("Fan out "+topic+" event to "+s.mm, zap.Bool("fromQueue", fromQueue))
+	switch topic {
+	case common.TopicIdmEvent:
+		target := &idm.ChangeEvent{}
+		if ctx, e = msg.Unmarshal(ctx, target); e == nil {
+			return s.idmEvent(ctx, target)
+		}
+	case common.TopicTimerEvent:
+		target := &jobs.JobTriggerEvent{}
+		if ctx, e = msg.Unmarshal(ctx, target); e == nil {
+			return s.timerEvent(ctx, target)
+		}
+	case common.TopicJobConfigEvent:
+		js := &jobs.JobChangeEvent{}
+		if ctx, e = msg.Unmarshal(ctx, js); e == nil {
+			return s.jobsChangeEvent(ctx, js)
+		}
+	case common.TopicTreeChanges:
+		if fromQueue {
+			event := &tree.NodeChangeEvent{}
+			if ctx, e = msg.Unmarshal(ctx, event); e == nil {
+				// Ignore events on Temporary nodes and internal nodes and optimistic
+				if event.Optimistic {
+					return nil
+				}
+				if event.Target != nil && (event.Target.Etag == common.NodeFlagEtagTemporary || event.Target.HasMetaKey(common.MetaNamespaceDatasourceInternal)) {
+					return nil
+				}
+				if event.Type == tree.NodeChangeEvent_DELETE && event.Source.HasMetaKey(common.MetaNamespaceDatasourceInternal) {
+					return nil
+				}
+				return s.processNodeEvent(ctx, event)
+			} else {
+				return e
+			}
+		} else {
+			if q, er := s.getAsyncQueue(ctx, topic); er == nil {
+				return q.PushRaw(ctx, msg)
+			} else {
+				log.Logger(ctx).Error("consume event without queue", zap.Error(er))
+				return s.Consume(ctx, topic, msg, true)
+			}
+		}
+	case common.TopicMetaChanges:
+		if fromQueue {
+			target := &tree.NodeChangeEvent{}
+			if ctx, e = msg.Unmarshal(ctx, target); e == nil && (target.Type == tree.NodeChangeEvent_UPDATE_META || target.Type == tree.NodeChangeEvent_UPDATE_USER_META) {
+				return s.processNodeEvent(ctx, target)
+			}
+		} else {
+			if q, er := s.getAsyncQueue(ctx, topic); er == nil {
+				return q.PushRaw(ctx, msg)
+			} else {
+				log.Logger(ctx).Error("consume event without queue", zap.Error(er))
+				return s.Consume(ctx, topic, msg, true)
+			}
+		}
+	default:
+		e = fmt.Errorf("unsupported topic %s", topic)
+	}
+	return e
+}
+
+// Init subscriber with current list of jobs from Jobs service
 func (s *Subscriber) Init(ctx context.Context) error {
 
 	// Load Jobs Definitions
-	jobClients := jobs.NewJobServiceClient(grpc.ResolveConn(s.rootCtx, common.ServiceJobsGRPC))
+	jobClients := jobs.NewJobServiceClient(grpc.ResolveConn(ctx, common.ServiceJobsGRPC))
 	streamer, e := jobClients.ListJobs(ctx, &jobs.ListJobsRequest{})
 	if e != nil {
 		return e
@@ -200,7 +196,6 @@ func (s *Subscriber) Init(ctx context.Context) error {
 			continue
 		}
 		_ = defCache.Set(resp.Job.ID, resp.Job)
-		//s.definitions[resp.Job.ID] = resp.Job
 		s.getDispatcherForJob(ctx, resp.Job)
 	}
 
@@ -225,7 +220,7 @@ func (s *Subscriber) enqueue(ctx context.Context, job *jobs.Job, event proto.Mes
 	if dispatcher.fifo != nil {
 		_ = dispatcher.fifo.Push(ctx, event)
 	} else {
-		task := NewTaskFromEvent(s.rootCtx, ctx, job, event)
+		task := NewTaskFromEvent(ctx, job, event)
 		task.Queue(dispatcher.Queue())
 	}
 }
@@ -256,9 +251,7 @@ func (s *Subscriber) getDispatcherForJob(ctx context.Context, job *jobs.Job) *Di
 func (s *Subscriber) jobsChangeEvent(ctx context.Context, msg *jobs.JobChangeEvent) error {
 	defCache, _ := s.definitionsPool.Get(ctx)
 	dispCache, _ := s.dispatchersPool.Get(ctx)
-	//s.Lock()
-	//s.dispatcherLock.Lock()
-	// Update config
+
 	if msg.JobRemoved != "" {
 		_ = defCache.Delete(msg.JobRemoved)
 		var disp *Dispatcher
@@ -269,24 +262,22 @@ func (s *Subscriber) jobsChangeEvent(ctx context.Context, msg *jobs.JobChangeEve
 	}
 	if msg.JobUpdated != nil {
 		_ = defCache.Set(msg.JobUpdated.ID, msg.JobUpdated)
-		//s.definitions[msg.JobUpdated.ID] = msg.JobUpdated
 		var disp *Dispatcher
-		if ok := dispCache.Get(msg.JobRemoved, &disp); ok {
+		if ok := dispCache.Get(msg.JobUpdated.ID, &disp); ok {
 			disp.Stop()
-			_ = dispCache.Delete(msg.JobRemoved)
+			_ = dispCache.Delete(msg.JobUpdated.ID)
 			if !msg.JobUpdated.Inactive {
 				s.getDispatcherForJob(ctx, msg.JobUpdated)
 			}
 		}
 	}
-	//s.dispatcherLock.Unlock()
-	//s.Unlock()
+
 	// AutoStart if required
 	if msg.JobUpdated != nil && !msg.JobUpdated.Inactive && msg.JobUpdated.AutoStart {
 		if e := s.timerEvent(ctx, &jobs.JobTriggerEvent{JobID: msg.JobUpdated.ID, RunNow: true}); e != nil {
-			log.Logger(s.rootCtx).Error("Cannot trigger job "+msg.JobUpdated.GetLabel()+" on AutoStart after update", zap.Error(e))
+			log.Logger(ctx).Error("Cannot trigger job "+msg.JobUpdated.GetLabel()+" on AutoStart after update", zap.Error(e))
 		} else {
-			log.Logger(s.rootCtx).Info("AutoStarting Job " + msg.JobUpdated.GetLabel() + " after update")
+			log.Logger(ctx).Info("AutoStarting Job " + msg.JobUpdated.GetLabel() + " after update")
 		}
 	}
 
@@ -325,7 +316,7 @@ func (s *Subscriber) timerEvent(ctx context.Context, event *jobs.JobTriggerEvent
 	var j *jobs.Job
 	if ok := defCache.Get(jobId, &j); !ok {
 		// Not in cache, load definition directly for JobsService
-		jobClients := jobs.NewJobServiceClient(grpc.ResolveConn(s.rootCtx, common.ServiceJobsGRPC))
+		jobClients := jobs.NewJobServiceClient(grpc.ResolveConn(ctx, common.ServiceJobsGRPC))
 		resp, e := jobClients.GetJob(ctx, &jobs.GetJobRequest{JobID: jobId})
 		if e != nil || resp.Job == nil {
 			return e

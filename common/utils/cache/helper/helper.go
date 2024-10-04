@@ -85,6 +85,7 @@ func ResolveCache(ctx context.Context, name string, config cache.Config) (cache.
 		}
 		return nil, err
 	}
+	ctx = context.WithoutCancel(ctx)
 	c, er := reg.GetCache(ctx, name, map[string]interface{}{
 		"evictionTime": config.Eviction,
 		"cleanWindow":  config.CleanWindow,

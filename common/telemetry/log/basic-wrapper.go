@@ -23,6 +23,7 @@ package log
 import (
 	"context"
 
+	"go.opentelemetry.io/otel/trace"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 
@@ -43,4 +44,20 @@ func BasicContextWrapper(ctx context.Context, logger ZapLogger, fields ...zapcor
 		logger = logger.WithOptions(zap.IncreaseLevel(zap.InfoLevel))
 	}
 	return logger
+}
+
+func tracingWrapper(ctx context.Context, logger ZapLogger, fields ...zapcore.Field) ZapLogger {
+	return &tracingLogger{ZapLogger: logger, Span: trace.SpanFromContext(ctx)}
+}
+
+type tracingLogger struct {
+	ZapLogger
+	trace.Span
+}
+
+func (tl *tracingLogger) Debug(msg string, fields ...zap.Field) {
+	if tl.Span.IsRecording() {
+		tl.Span.AddEvent(msg)
+	}
+	tl.ZapLogger.Debug(msg, fields...)
 }

@@ -116,8 +116,8 @@ func (h *Impl) New(r *http.Request, name string) (*sessions.Session, error) {
 		Secure:   crtURL.Scheme == "https",
 	}
 	session.IsNew = true
-	var err error
 	if cook, errCookie := r.Cookie(name); errCookie == nil {
+		var err error
 		err = securecookie.DecodeMulti(name, cook.Value, &session.ID, h.Codecs...)
 		if err == nil {
 			err = h.load(r.Context(), session)
@@ -128,7 +128,7 @@ func (h *Impl) New(r *http.Request, name string) (*sessions.Session, error) {
 			}
 		}
 	}
-	return session, err
+	return session, nil
 }
 
 func (h *Impl) Save(r *http.Request, w http.ResponseWriter, session *sessions.Session) error {

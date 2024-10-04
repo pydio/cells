@@ -32,7 +32,7 @@ import (
 	"github.com/pydio/cells/v4/common/telemetry/metrics"
 )
 
-func HttpWrapperMetrics(ctx context.Context, h http.Handler) http.Handler {
+func HttpWrapperMetrics(h http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		scope := metrics.ServiceHelper(runtime.GetServiceName(r.Context()))
 		scope.Counter("rest_calls", "Cumulated number of REST API Calls").Inc(1)

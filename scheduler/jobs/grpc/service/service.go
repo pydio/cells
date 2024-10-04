@@ -100,9 +100,10 @@ func init() {
 				proto.RegisterJobServiceServer(server, handler)
 				log2.RegisterLogRecorderServer(server, handler)
 				sync.RegisterSyncEndpointServer(server, handler)
-				logger := log3.Logger(ctx)
 
 				autoStarts := make(map[context.Context][]*proto.Job)
+				ctx = runtime.WithServiceName(ctx, common.ServiceJobsGRPC)
+				logger := log3.Logger(ctx)
 
 				_ = runtime.MultiContextManager().Iterate(ctx, func(c context.Context, _ string) error {
 					for _, j := range defaults {

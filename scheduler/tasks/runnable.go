@@ -24,16 +24,19 @@ import (
 	"context"
 	"fmt"
 	"path"
+	"runtime/debug"
 	"strings"
 	"sync"
 	"time"
 
+	"go.opentelemetry.io/otel/trace"
 	"go.uber.org/zap"
 
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/errors"
 	"github.com/pydio/cells/v4/common/proto/jobs"
 	"github.com/pydio/cells/v4/common/telemetry/log"
+	"github.com/pydio/cells/v4/common/telemetry/tracing"
 	"github.com/pydio/cells/v4/common/utils/propagator"
 	"github.com/pydio/cells/v4/scheduler/actions"
 )
@@ -91,7 +94,7 @@ func NewRunnable(ctx context.Context, parent *Runnable, queue chan RunnerFunc, a
 	}
 	if impl, ok := actions.GetActionsManager().ActionById(action.ID); ok {
 		r.Implementation = impl
-		r.Implementation.SetRuntimeContext(r.Task.GetRuntimeContext())
+		r.Implementation.SetRuntimeContext(r.Task.context)
 		if e := r.Implementation.Init(r.Task.Job, action); e != nil {
 			log.TasksLogger(ctx).Error("Error during initialization of "+action.ID+": "+e.Error(), zap.Error(e))
 		}
@@ -240,22 +243,31 @@ func (r *Runnable) Dispatch(input *jobs.ActionMessage, aa []*jobs.Action, queue 
 // RunAction creates an action and calls Dispatch
 func (r *Runnable) RunAction(queue chan RunnerFunc) {
 
+	label := r.Action.GetLabel()
+	if label == "" {
+		label = r.Action.ID
+	}
+
+	var span trace.Span
+	r.Context, span = tracing.StartLocalSpan(r.Context, label)
+	defer span.End()
+
 	defer func() {
 		runnableStatus := jobs.TaskStatus_Finished
 		if re := recover(); re != nil {
 			runnableStatus = jobs.TaskStatus_Error
+			buf := debug.Stack()
 			r.Task.SetStatus(jobs.TaskStatus_Error, "Panic inside task")
 			if e, ok := re.(error); ok {
 				r.Task.SetStatus(jobs.TaskStatus_Error, "Panic inside task: "+e.Error())
-				log.TasksLogger(r.Context).Error("Recovered scheduler task "+r.Action.ID, zap.Any("input", r.Message), zap.Error(e))
-				log.Logger(r.Context).Error("Recovered scheduler task "+r.Action.ID, zap.Error(e))
 				r.Task.SetError(e, true)
+				log.TasksLogger(r.Context).Error("Recovered scheduler task "+r.Action.ID, zap.Any("input", r.Message), zap.Error(e), zap.String("stack", string(buf)))
+				log.Logger(r.Context).Error("Recovered scheduler task "+r.Action.ID, zap.Error(e), zap.String("stack", string(buf)))
+			} else {
+				log.TasksLogger(r.Context).Error("Recovered scheduler task "+r.Action.ID, zap.Any("input", r.Message), zap.String("stack", string(buf)))
+				log.Logger(r.Context).Error("Recovered scheduler task "+r.Action.ID, zap.Error(e), zap.String("stack", string(buf)))
 			}
 		} else {
-			label := r.Action.GetLabel()
-			if label == "" {
-				label = r.Action.ID
-			}
 			r.Task.SetStatus(jobs.TaskStatus_Running, "Finished "+label)
 		}
 		r.Task.SaveStatus(r.Context, runnableStatus)
