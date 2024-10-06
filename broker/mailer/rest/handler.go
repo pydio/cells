@@ -31,7 +31,6 @@ import (
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/auth/claim"
 	"github.com/pydio/cells/v4/common/client/grpc"
-	"github.com/pydio/cells/v4/common/config"
 	"github.com/pydio/cells/v4/common/errors"
 	"github.com/pydio/cells/v4/common/middleware"
 	"github.com/pydio/cells/v4/common/permissions"
@@ -153,7 +152,7 @@ func (mh *MailerHandler) ResolveUser(ctx context.Context, user *mailer.User) (*m
 			} else {
 				output.Name = emailOrAddress
 			}
-			output.Language = languages.UserLanguage(ctx, u, config.Get(ctx))
+			output.Language = languages.UserLanguage(ctx, u)
 			return output, nil
 		} else {
 			return nil, fmt.Errorf("user %s has no email set", emailOrAddress)

@@ -28,7 +28,6 @@ import (
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/client/commons/docstorec"
 	"github.com/pydio/cells/v4/common/client/grpc"
-	"github.com/pydio/cells/v4/common/config"
 	"github.com/pydio/cells/v4/common/config/routing"
 	"github.com/pydio/cells/v4/common/forms"
 	"github.com/pydio/cells/v4/common/proto/auth"
@@ -84,7 +83,7 @@ func (c *PruneTokensAction) Init(job *jobs.Job, action *jobs.Action) error {
 // Run the actual action code
 func (c *PruneTokensAction) Run(ctx context.Context, channels *actions.RunnableChannels, input *jobs.ActionMessage) (*jobs.ActionMessage, error) {
 
-	T := lang.Bundle().T(languages.GetDefaultLanguage(config.Get(ctx)))
+	T := lang.Bundle().T(languages.GetDefaultLanguage(ctx))
 
 	output := input
 

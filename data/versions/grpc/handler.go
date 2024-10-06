@@ -34,7 +34,6 @@ import (
 	"github.com/pydio/cells/v4/common/client/commons"
 	"github.com/pydio/cells/v4/common/client/commons/docstorec"
 	"github.com/pydio/cells/v4/common/client/commons/treec"
-	"github.com/pydio/cells/v4/common/config"
 	"github.com/pydio/cells/v4/common/errors"
 	"github.com/pydio/cells/v4/common/permissions"
 	activity2 "github.com/pydio/cells/v4/common/proto/activity"
@@ -58,7 +57,7 @@ func (h *Handler) buildVersionDescription(ctx context.Context, version *tree.Cha
 		serverLinks := render.NewServerLinks()
 		serverLinks.URLS[render.ServerUrlTypeUsers], _ = url.Parse("user://")
 		ac, _ := activity.DocumentActivity(version.OwnerUuid, version.Event)
-		description = render.Markdown(ac, activity2.SummaryPointOfView_SUBJECT, languages.UserLanguageFromContext(ctx, config.Get(ctx), true), serverLinks)
+		description = render.Markdown(ac, activity2.SummaryPointOfView_SUBJECT, languages.UserLanguageFromContext(ctx, true), serverLinks)
 	} else {
 		description = "N/A"
 	}

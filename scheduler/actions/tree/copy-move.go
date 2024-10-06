@@ -33,7 +33,6 @@ import (
 
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/client/grpc"
-	"github.com/pydio/cells/v4/common/config"
 	"github.com/pydio/cells/v4/common/errors"
 	"github.com/pydio/cells/v4/common/forms"
 	"github.com/pydio/cells/v4/common/nodes"
@@ -165,7 +164,7 @@ func (c *CopyMoveAction) Run(ctx context.Context, channels *actions.RunnableChan
 		return input.WithIgnore(), nil // Ignore
 	}
 	sourceNode := input.Nodes[0]
-	T := lang.Bundle().T(languages.UserLanguageFromContext(ctx, config.Get(ctx), true))
+	T := lang.Bundle().T(languages.UserLanguageFromContext(ctx, true))
 
 	targetNode := &tree.Node{
 		Path: jobs.EvaluateFieldStr(ctx, input, c.targetPlaceholder),

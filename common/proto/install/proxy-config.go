@@ -77,7 +77,7 @@ func (m *ProxyConfig) GetBindURLs() (addresses []string) {
 	for _, b := range m.Binds {
 		host := b
 		if strings.HasPrefix(b, ":") {
-			host = "localhost" + b
+			host = "0.0.0.0" + b
 		}
 		addresses = append(addresses, fmt.Sprintf("%s://%s", scheme, host))
 	}

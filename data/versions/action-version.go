@@ -32,7 +32,6 @@ import (
 
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/client/grpc"
-	"github.com/pydio/cells/v4/common/config"
 	"github.com/pydio/cells/v4/common/forms"
 	"github.com/pydio/cells/v4/common/nodes"
 	"github.com/pydio/cells/v4/common/nodes/compose"
@@ -100,7 +99,7 @@ func (c *VersionAction) Run(ctx context.Context, channels *actions.RunnableChann
 	if node.Etag == common.NodeFlagEtagTemporary || tree.IgnoreNodeForOutput(ctx, node) {
 		return input.WithIgnore(), nil // Ignore
 	}
-	T := lang.Bundle().T(languages.GetDefaultLanguage(config.Get(ctx)))
+	T := lang.Bundle().T(languages.GetDefaultLanguage(ctx))
 	policy := PolicyForNode(ctx, node)
 	if policy == nil {
 		return input.WithIgnore(), nil

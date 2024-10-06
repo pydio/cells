@@ -68,7 +68,7 @@ func (h *Handler) UpdateRequired(ctx context.Context, request *update.UpdateRequ
 
 func (h *Handler) ApplyUpdate(ctx context.Context, request *update.ApplyUpdateRequest) (*update.ApplyUpdateResponse, error) {
 
-	crtLang := languages.UserLanguageFromContext(ctx, config.Get(ctx), true)
+	crtLang := languages.UserLanguageFromContext(ctx, true)
 	T := lang.Bundle().T(crtLang)
 
 	configs := config.GetUpdatesConfigs(ctx)

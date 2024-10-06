@@ -123,7 +123,7 @@ func (m *MailDigestAction) Run(ctx context.Context, channels *actions.RunnableCh
 	if displayName, has = userObject.Attributes["displayName"]; !has {
 		displayName = userObject.Login
 	}
-	lang := languages.UserLanguage(ctx, userObject, config.Get(ctx))
+	lang := languages.UserLanguage(ctx, userObject)
 
 	query := &activity.StreamActivitiesRequest{
 		Context:     activity.StreamContext_USER_ID,
