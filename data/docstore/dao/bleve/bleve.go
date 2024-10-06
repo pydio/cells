@@ -31,6 +31,7 @@ import (
 
 	"github.com/pydio/cells/v4/common/errors"
 	proto "github.com/pydio/cells/v4/common/proto/docstore"
+	bleve2 "github.com/pydio/cells/v4/common/storage/bleve"
 	"github.com/pydio/cells/v4/common/storage/boltdb"
 	"github.com/pydio/cells/v4/common/storage/indexer"
 	"github.com/pydio/cells/v4/common/telemetry/log"
@@ -217,14 +218,14 @@ func (s *BleveServer) search(ctx context.Context, storeID string, query *proto.D
 
 	docs := []string{}
 	var searchResult []index.Document
-	if err := s.Engine.Search(ctx, searchRequest, &searchResult); err != nil {
+	if err := s.Engine.(*bleve2.Indexer).Search(ctx, searchRequest, &searchResult); err != nil {
 		return docs, 0, err
 	}
 
 	log.Logger(ctx).Debug("SearchDocuments", zap.Any("result", searchResult))
 
 	if countOnly {
-		total, err := s.Engine.Count(ctx, searchRequest)
+		total, err := s.Engine.(*bleve2.Indexer).Count(ctx, searchRequest)
 		if err != nil {
 			return docs, 0, err
 		}

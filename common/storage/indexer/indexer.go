@@ -62,13 +62,13 @@ type Indexer interface {
 	DeleteOne(ctx context.Context, data interface{}) error
 	// DeleteMany deletes documents by a search query.
 	DeleteMany(ctx context.Context, query interface{}) (int32, error)
-
-	// Count performs a query and just get the total number of results
-	Count(ctx context.Context, query interface{}) (int, error)
-	// Search performs a query
-	Search(ctx context.Context, in any, out any) error
 	// FindMany sends a search query to indexer. A custom IndexCodex can be used to accumulate some information during results parsing.
 	FindMany(ctx context.Context, query interface{}, offset, limit int32, sortFields string, sortDesc bool, customCodex IndexCodex) (chan interface{}, error)
+
+	// Count performs a query and just get the total number of results
+	// Count(ctx context.Context, query interface{}) (int, error)
+	// Search performs a query
+	//	Search(ctx context.Context, in any, out any) error
 
 	// SetCodex sets the IndexCodex to be used for marshalling/unmarshalling data. Can be locally overriden during FindMany requests.
 	SetCodex(c IndexCodex)
