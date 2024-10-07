@@ -30,6 +30,7 @@ import (
 	"google.golang.org/protobuf/types/known/anypb"
 
 	"github.com/pydio/cells/v4/common"
+	"github.com/pydio/cells/v4/common/auth"
 	"github.com/pydio/cells/v4/common/client/grpc"
 	"github.com/pydio/cells/v4/common/log"
 	"github.com/pydio/cells/v4/common/proto/idm"
@@ -61,6 +62,10 @@ func (sc *Client) WorkspaceToCellObject(ctx context.Context, workspace *idm.Work
 	rootNodes := sc.LoadDetectedRootNodes(ctx, detectedRoots, accessList)
 	var nodesSlices []*tree.Node
 	for _, node := range rootNodes {
+		if !sc.ContextualizeRootToWorkspace(ctx, node, workspace.UUID) {
+			log.Logger(ctx).Warn("Loaded root node misses workspace relative path, ignoring!", node.Zap())
+			continue
+		}
 		nodesSlices = append(nodesSlices, node)
 	}
 
@@ -523,7 +528,7 @@ func (sc *Client) DeleteLinkWorkspace(ctx context.Context, workspaceId string) e
 
 // DeleteWorkspace deletes a workspace and associated policies and ACLs. It also
 // deletes the room node if necessary.
-func (sc *Client) DeleteWorkspace(ctx context.Context, ownerLogin string, scope idm.WorkspaceScope, workspaceId string) error {
+func (sc *Client) DeleteWorkspace(ctx context.Context, ownerUuid string, scope idm.WorkspaceScope, workspaceId string) error {
 
 	workspace, _, err := sc.GetOrCreateWorkspace(ctx, nil, workspaceId, scope, "", "", "", false)
 	if err != nil {
@@ -531,11 +536,11 @@ func (sc *Client) DeleteWorkspace(ctx context.Context, ownerLogin string, scope 
 	}
 	if scope == idm.WorkspaceScope_ROOM {
 		// check if we must delete the room node
-		acl, _, er := permissions.AccessListFromUser(ctx, ownerLogin, false)
+		acl, ownerUser, er := permissions.AccessListFromUser(ctx, ownerUuid, true)
 		if er != nil {
 			return er
 		}
-		if output, err := sc.WorkspaceToCellObject(ctx, workspace, acl); err == nil {
+		if output, err := sc.WorkspaceToCellObject(auth.WithImpersonate(ctx, ownerUser), workspace, acl); err == nil {
 			log.Logger(ctx).Debug("Will Delete Workspace for Room", zap.Any("room", output))
 			var roomNode *tree.Node
 			for _, node := range output.RootNodes {
@@ -545,7 +550,7 @@ func (sc *Client) DeleteWorkspace(ctx context.Context, ownerLogin string, scope 
 				}
 			}
 			if roomNode != nil {
-				if err := sc.DeleteRootNodeRecursively(ctx, ownerLogin, roomNode); err != nil {
+				if err := sc.DeleteRootNodeRecursively(ctx, ownerUser, roomNode); err != nil {
 					return err
 				}
 			}

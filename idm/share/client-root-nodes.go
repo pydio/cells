@@ -23,13 +23,16 @@ package share
 import (
 	"context"
 	"fmt"
+	"path"
 	"strings"
 	"sync"
+	"time"
 
 	"go.uber.org/zap"
 	"google.golang.org/protobuf/types/known/anypb"
 
 	"github.com/pydio/cells/v4/common"
+	"github.com/pydio/cells/v4/common/auth"
 	"github.com/pydio/cells/v4/common/auth/claim"
 	"github.com/pydio/cells/v4/common/client/grpc"
 	"github.com/pydio/cells/v4/common/log"
@@ -72,10 +75,12 @@ func (sc *Client) getPathRouter() nodes.Handler {
 // LoadDetectedRootNodes find actual nodes in the tree, and enrich their metadata if they appear
 // in many workspaces for the current user.
 func (sc *Client) LoadDetectedRootNodes(ctx context.Context, detectedRoots []string, accessList *permissions.AccessList) (rootNodes map[string]*tree.Node) {
-
+	t := time.Now()
+	defer func() {
+		log.Logger(ctx).Debug("LoadDetectedRootNode", zap.Duration("t", time.Since(t)))
+	}()
 	router := sc.getUuidRouter()
 	throttle := make(chan struct{}, 5)
-	eventFilter := compose.ReverseClient(sc.RuntimeContext, nodes.AsAdmin())
 	wg := &sync.WaitGroup{}
 	wg.Add(len(detectedRoots))
 	var loaded []*tree.Node
@@ -87,29 +92,11 @@ func (sc *Client) LoadDetectedRootNodes(ctx context.Context, detectedRoots []str
 				wg.Done()
 				<-throttle
 			}()
-			request := &tree.ReadNodeRequest{Node: &tree.Node{Uuid: rid}}
+			request := &tree.ReadNodeRequest{Node: &tree.Node{Uuid: rid}, StatFlags: []uint32{tree.StatFlagMetaMinimal}}
 			if resp, err := router.ReadNode(ensureCtx, request); err == nil {
-				node := resp.Node
-				var multipleMeta []*tree.WorkspaceRelativePath
-				for _, ws := range accessList.GetWorkspaces() {
-					if filtered, ok := eventFilter.WorkspaceCanSeeNode(ensureCtx, accessList, ws, resp.Node); ok {
-						multipleMeta = append(multipleMeta, &tree.WorkspaceRelativePath{
-							WsLabel: ws.Label,
-							WsUuid:  ws.UUID,
-							WsSlug:  ws.Slug,
-							Path:    filtered.Path,
-						})
-						node = filtered
-					}
-				}
-				if len(multipleMeta) == 0 {
-					log.Logger(ctx).Error("Trying to load a node that does not correspond to accessible workspace, this is not normal", node.Zap("input"))
-					return
-				}
-				node.AppearsIn = multipleMeta
-				loaded = append(loaded, node.WithoutReservedMetas())
+				loaded = append(loaded, resp.GetNode().WithoutReservedMetas())
 			} else {
-				log.Logger(ctx).Debug("Share Load - Ignoring Root Node, probably not synced yet", zap.String("nodeId", rid), zap.Error(err))
+				log.Logger(ctx).Warn("Share Load - Ignoring Root Node, probably not synced yet", zap.String("nodeId", rid), zap.Error(err))
 			}
 		}(rootId)
 	}
@@ -120,6 +107,17 @@ func (sc *Client) LoadDetectedRootNodes(ctx context.Context, detectedRoots []str
 	}
 	return
 
+}
+
+// ContextualizeRootToWorkspace looks up inside the node AppearsIn metadata to replace absolute path with relative one
+func (sc *Client) ContextualizeRootToWorkspace(ctx context.Context, node *tree.Node, workspaceUUID string) bool {
+	for _, ai := range node.AppearsIn {
+		if ai.WsUuid == workspaceUUID {
+			node.Path = path.Join(ai.WsSlug, ai.Path)
+			return true
+		}
+	}
+	return false
 }
 
 // ParseRootNodes reads the request property to either create a new node using the "rooms" Virtual node,
@@ -276,43 +274,53 @@ func (sc *Client) DetectInheritedPolicy(ctx context.Context, roots []*tree.Node,
 
 // DeleteRootNodeRecursively loads all children of a root node and delete them, including the
 // .pydio hidden files when they are folders.
-func (sc *Client) DeleteRootNodeRecursively(ctx context.Context, ownerName string, roomNode *tree.Node) error {
+func (sc *Client) DeleteRootNodeRecursively(ctx context.Context, ownerUser *idm.User, roomNode *tree.Node) error {
 
 	manager := abstract.GetVirtualNodesManager(sc.RuntimeContext)
-	if root, exists := manager.ByUuid("cells"); exists {
-		parentNode, err := manager.ResolveInContext(ctx, root, true)
-		if err != nil {
-			return err
-		}
-		realNode := &tree.Node{Path: parentNode.Path + "/" + strings.TrimRight(roomNode.Path, "/")}
-		// Now send deletion to scheduler
-		cli := jobs.NewJobServiceClient(grpc.GetClientConnFromCtx(sc.RuntimeContext, common.ServiceJobs))
-		jobUuid := "cells-delete-" + uuid.New()
-		q, _ := anypb.New(&tree.Query{
-			Paths: []string{realNode.Path},
-		})
-		job := &jobs.Job{
-			ID:             jobUuid,
-			Owner:          ownerName,
-			Label:          "Deleting Cell specific data",
-			MaxConcurrency: 1,
-			AutoStart:      true,
-			AutoClean:      true,
-			Actions: []*jobs.Action{
-				{
-					ID:         "actions.tree.delete",
-					Parameters: map[string]string{},
-					NodesSelector: &jobs.NodesSelector{
-						Query: &service.Query{SubQueries: []*anypb.Any{q}},
-					},
+	root, exists := manager.ByUuid("cells")
+	if !exists {
+		return fmt.Errorf("cannot find cells template path")
+	}
+	parentNode, err := manager.ResolveInContext(auth.WithImpersonate(ctx, ownerUser), root, false)
+	if err != nil {
+		return err
+	}
+	resp, er := sc.getUuidAdminRouter().ReadNode(ctx, &tree.ReadNodeRequest{Node: &tree.Node{Uuid: roomNode.GetUuid()}, StatFlags: []uint32{tree.StatFlagNone}})
+	if er != nil {
+		return er
+	}
+	if !strings.HasPrefix(resp.Node.GetPath(), parentNode.GetPath()) {
+		return fmt.Errorf("resolved root node is not a cells template path child, this is not normal")
+	}
+
+	log.Logger(ctx).Info("Cell Deletion implies removing custom node", resp.Node.Zap())
+
+	// Now send deletion to scheduler
+	crtUser, _ := permissions.FindUserNameInContext(ctx)
+	cli := jobs.NewJobServiceClient(grpc.GetClientConnFromCtx(sc.RuntimeContext, common.ServiceJobs))
+	jobUuid := "cells-delete-" + uuid.New()
+	q, _ := anypb.New(&tree.Query{
+		Paths: []string{resp.GetNode().GetPath()},
+	})
+	job := &jobs.Job{
+		ID:             jobUuid,
+		Owner:          crtUser,
+		Label:          "Deleting Cell specific data",
+		MaxConcurrency: 1,
+		AutoStart:      true,
+		AutoClean:      true,
+		Actions: []*jobs.Action{
+			{
+				ID:         "actions.tree.delete",
+				Parameters: map[string]string{},
+				NodesSelector: &jobs.NodesSelector{
+					Query: &service.Query{SubQueries: []*anypb.Any{q}},
 				},
 			},
-		}
-		if _, er := cli.PutJob(ctx, &jobs.PutJobRequest{Job: job}); er != nil {
-			return er
-		}
+		},
 	}
-	return nil
+	_, er = cli.PutJob(ctx, &jobs.PutJobRequest{Job: job})
+	return er
 }
 
 // CheckLinkRootNodes loads the root nodes and check if one of the is readonly. If so, check that

@@ -30,6 +30,7 @@ import (
 	"github.com/pydio/cells/v4/common/auth"
 	"github.com/pydio/cells/v4/common/auth/claim"
 	"github.com/pydio/cells/v4/common/client/grpc"
+	"github.com/pydio/cells/v4/common/log"
 	"github.com/pydio/cells/v4/common/proto/idm"
 	"github.com/pydio/cells/v4/common/proto/rest"
 	service2 "github.com/pydio/cells/v4/common/proto/service"
@@ -121,7 +122,6 @@ func (sc *Client) ListSharedResources(ctx context.Context, subject string, scope
 			continue
 		}
 		if _, has := roots[acl.NodeID]; !has {
-			roots[acl.NodeID] = make(map[string]*idm.Workspace)
 			detectedRoots = append(detectedRoots, acl.NodeID)
 		}
 		if ws, ok := workspaces[acl.WorkspaceID]; ok {
@@ -139,6 +139,17 @@ func (sc *Client) ListSharedResources(ctx context.Context, subject string, scope
 	// Build resources
 	for nodeId, node := range rootNodes {
 
+		// contextualize node to the first workspace found
+		var replaced bool
+		for _, ws := range roots[nodeId] {
+			if replaced = sc.ContextualizeRootToWorkspace(ctx, node, ws.GetUUID()); replaced {
+				break
+			}
+		}
+		if !replaced {
+			log.Logger(ctx).Info("Cannot contextualize node, ignoring node", node.Zap())
+			continue
+		}
 		resource := &SharedResource{
 			Node: node,
 		}
