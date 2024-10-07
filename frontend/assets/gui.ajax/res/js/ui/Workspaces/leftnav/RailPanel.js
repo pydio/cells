@@ -175,17 +175,20 @@ let RailPanel = ({
         window.dispatchEvent(new Event('resize'))
     }
 
-    const activitiesLoader = () => {
+    const activitiesLoader = (notif = false) => {
         if (!ASLib) {
             return
         }
         const {ASClient} = ASLib
         if (hover && hoverBarDef && hoverBarDef.id === 'notifications') {
+            // Reload when opening notification panel
             ASClient.loadActivityStreams('USER_ID', pydio.user.id, 'inbox', '', 0, 10).then((json) => {
                 setASData(json.items)
+                setUnreadCount(0);
             }).catch(e => {
             });
-        } else {
+        } else  if (notif) {
+            // Reload unread count on notif
             ASClient.UnreadInbox(pydio.user.id).then((count) => {
                 setUnreadCount(count);
             }).catch(msg => {
@@ -205,8 +208,8 @@ let RailPanel = ({
     },[hoverBarDef, ASLib])
 
     useEffect(() => {
-        pydio.observe('websocket_event:activity', activitiesLoader)
-        return () => pydio.stopObserving('websocket_event:activity', activitiesLoader)
+        pydio.observe('websocket_event:activity', () => activitiesLoader(true))
+        return () => pydio.stopObserving('websocket_event:activity', () => activitiesLoader(true))
     }, [hover, hoverBarDef, ASLib])
 
     const wsBar = (className = '') => (
