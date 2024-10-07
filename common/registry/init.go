@@ -33,4 +33,5 @@ const (
 
 func init() {
 	propagator.RegisterKeyInjector[Registry](ContextKey)
+	propagator.RegisterKeyInjector[Registry](ContextSOTWKey)
 }

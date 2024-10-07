@@ -23,6 +23,8 @@ package service
 
 import (
 	"context"
+	"fmt"
+	"os"
 
 	"go.uber.org/zap"
 	"google.golang.org/grpc"
@@ -48,30 +50,29 @@ import (
 
 func init() {
 
-	runtime.Register("main", func(ctx context.Context) {
+	runtime.Register("datasource-index", func(ctx context.Context) {
 
-		sources := config.SourceNamesForDataServices(ctx, common.ServiceDataSync)
-		dss := config.ListSourcesFromConfig(ctx)
+		newService(ctx, os.Getenv("DATASOURCE"))
+		//sources := config.SourceNamesForDataServices(ctx, common.ServiceDataSync)
+		//dss := config.ListSourcesFromConfig(ctx)
 
-		for _, datasource := range sources {
-			//if !runtime.IsRequired(datasource) {
-			//	continue
-			//}
-
-			dsObject, ok := dss[datasource]
-			if !ok {
-				log.Error("Could not find datasource in config ", zap.String("datasource", datasource))
-				continue
-			}
-
-			newService(ctx, dsObject)
-			continue
-		}
+		//for _, datasource := range sources {
+		//	if !runtime.IsRequired(datasource) {
+		//		continue
+		//	//}
+		//
+		//	dsObject, ok := dss[datasource]
+		//	if !ok {
+		//		log.Error("Could not find datasource in config ", zap.String("datasource", datasource))
+		//		continue
+		//	}
+		//
+		//	newService(ctx, dsObject)
+		//	continue
 	})
 }
 
-func newService(ctx context.Context, dsObject *object.DataSource) {
-	datasource := dsObject.Name
+func newService(ctx context.Context, datasource string) {
 	var sOptions []service.ServiceOption
 	srvName := common.ServiceGrpcNamespace_ + common.ServiceDataSync_ + datasource
 	sOptions = append(sOptions,
@@ -84,6 +85,11 @@ func newService(ctx context.Context, dsObject *object.DataSource) {
 		//service.Unique(!dsObject.FlatStorage),
 		//service.AutoStart(false),
 		service.WithGRPC(func(ctx context.Context, srv grpc.ServiceRegistrar) error {
+			dsObject, e := config.GetSourceInfoByName(ctx, datasource)
+			if e != nil {
+				return fmt.Errorf("cannot find datasource configuration for " + datasource)
+			}
+
 			syncHandler := grpc_sync.NewHandler(ctx, datasource)
 
 			_ = broker.SubscribeCancellable(ctx, common.TopicIndexEvent, func(syncHandler *grpc_sync.Handler) func(context.Context, broker.Message) error {

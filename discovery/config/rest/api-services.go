@@ -56,11 +56,10 @@ SERVICES MANAGEMENT
 func (h *Handler) ListServices(req *restful.Request, resp *restful.Response) error {
 
 	// Create a list of all plugins
-	pluginsReg, e := registry.OpenRegistry(context.Background(), runtime.RegistryURL())
-	if e != nil {
-		return e
+	var pluginsReg registry.Registry
+	if !propagator.Get(req.Request.Context(), registry.ContextSOTWKey, &pluginsReg) {
+		return errors.New("Should have a registry")
 	}
-	defer pluginsReg.Close()
 
 	services, err := pluginsReg.List(registry.WithType(rpb.ItemType_SERVICE))
 	if err != nil {
@@ -153,7 +152,7 @@ func (h *Handler) ListPeersAddresses(req *restful.Request, resp *restful.Respons
 		PeerAddresses: []string{},
 	}
 	var reg registry.Registry
-	propagator.Get(req.Request.Context(), registry.ContextKey, &reg)
+	propagator.Get(req.Request.Context(), registry.ContextSOTWKey, &reg)
 	nodes, er := reg.List(registry.WithType(rpb.ItemType_SERVER))
 	if er != nil {
 		return er

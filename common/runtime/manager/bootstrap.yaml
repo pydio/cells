@@ -29,7 +29,6 @@ processes:
         services:
           - filter: "discovery ~= {{ sliceToRegexpFmt .Tags }}"
           - filter: "{{ .Name }} ~= pydio.grpc..*"
-
     env: *env
 
   frontend:
@@ -91,11 +90,16 @@ processes:
         bind: 0.0.0.0
         port: 0
     servers:
+#      generic:
+#        type: generic
+#        services:
+#          - filter: "{{ .Name }} ~= pydio.web.sites"
       http:
         type: http
         listener: httpg
         services:
           - filter: "gateway ~= {{ sliceToRegexpFmt .Tags }}"
+          - filter: "{{ .Name }} !~= pydio.web.sites"
     env: *env
     storages: *storages
     services: *services

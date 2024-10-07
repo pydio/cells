@@ -8,6 +8,7 @@ processes:
   datasource-peer:
     processes:{{{{range $k,$v := .ObjectsSources}}}}
       objects-{{{{$k}}}}:
+        runtime: datasource
         connections: *connections
         listeners:
           grpc:
@@ -25,6 +26,7 @@ processes:
         caches: *caches{{{{end}}}}
 {{{{range $k,$v := .DataSources}}}}
       index-{{{{$k}}}}:
+        runtime: datasource
         connections: *connections
         listeners:
           grpc:

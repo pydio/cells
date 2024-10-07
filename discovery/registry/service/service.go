@@ -253,25 +253,8 @@ func init() {
 								registry.WithAdjacentSourceItems([]registry.Item{endpointItem}),
 								registry.WithAdjacentTargetOptions(registry.WithType(pbregistry.ItemType_SERVICE)),
 							)
-							if len(svcItems) == 0 {
-								routes = append(routes, &route.Route{
-									Name: endpointItem.ID(),
-									Match: &route.RouteMatch{
-										PathSpecifier: &route.RouteMatch_Path{
-											Path: endpointItem.Name(),
-										},
-									},
-									Action: &route.Route_Route{
-										Route: &route.RouteAction{
-											ClusterSpecifier: &route.RouteAction_Cluster{
-												Cluster: srvItem.ID(),
-											},
-										},
-									},
-								})
-							} else {
+							if len(svcItems) > 0 {
 								for _, svcItem := range svcItems {
-
 									routes = append(routes, &route.Route{
 										Name: endpointItem.ID(),
 										//RequestHeadersToAdd: []*core.HeaderValueOption{

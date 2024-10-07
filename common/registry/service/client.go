@@ -32,6 +32,7 @@ import (
 
 	"github.com/pydio/cells/v4/common"
 	cgrpc "github.com/pydio/cells/v4/common/client/grpc"
+	"github.com/pydio/cells/v4/common/errors"
 	pb "github.com/pydio/cells/v4/common/proto/registry"
 	"github.com/pydio/cells/v4/common/registry"
 	"github.com/pydio/cells/v4/common/registry/util"
@@ -102,7 +103,7 @@ func (s *serviceRegistry) Init(opts ...Option) error {
 	if c, ok := s.opts.Context.Value(connKey{}).(*grpc.ClientConn); ok {
 		conn = c
 	} else {
-		conn, _ = grpc.Dial(":8000")
+		return errors.New("should have a grpc connection")
 	}
 
 	s.client = pb.NewRegistryClient(conn)
@@ -369,7 +370,7 @@ func NewRegistry(opts ...Option) (registry.Registry, error) {
 	var conn grpc.ClientConnInterface
 	conn, ok := options.Context.Value(connKey{}).(grpc.ClientConnInterface)
 	if !ok {
-		conn, _ = grpc.Dial(":8000")
+		return nil, errors.New("should have a grpc connection")
 	}
 
 	donec := make(chan struct{})

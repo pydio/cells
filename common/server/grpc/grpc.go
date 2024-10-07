@@ -157,8 +157,6 @@ func (s *Server) lazyGrpc(rootContext context.Context) *grpc.Server {
 
 					return resp, nil
 				}
-
-				return nil, grpc.ErrServerStopped
 			}
 
 			return handler(ctx, req)
