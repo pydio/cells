@@ -186,7 +186,7 @@ func (s *RoleHandler) SetRole(req *restful.Request, rsp *restful.Response) error
 	cl := idmc.RoleServiceClient(ctx)
 	log.Logger(ctx).Debug("Received Role.Set", zap.Any("r", &inputRole))
 
-	if checkError := s.IsAllowed(ctx, inputRole.Uuid, serviceproto.ResourcePolicyAction_WRITE, cl); !errors.Is(checkError, errors.StatusNotFound) {
+	if checkError := s.IsAllowed(ctx, inputRole.Uuid, serviceproto.ResourcePolicyAction_WRITE, cl); checkError != nil && !errors.Is(checkError, errors.StatusNotFound) {
 		return checkError
 	}
 	// in fact create or update
