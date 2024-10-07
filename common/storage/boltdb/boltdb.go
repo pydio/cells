@@ -220,7 +220,9 @@ func (d *db) Compact(ctx context.Context, opts map[string]interface{}) (old uint
 				return 0, 0, errors.Wrap(e, "closing current")
 			}
 		}
-
+		if st, e := os.Stat(p); e == nil {
+			new = uint64(st.Size())
+		}
 		return
 	}
 }
