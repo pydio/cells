@@ -49,7 +49,7 @@ class TaskActivity extends Component{
     }
 
     static ignoreZapKeys() {
-        return ['LogType', 'ContentType', 'RequestHost', 'tag', 'SchedulerTaskActionTags'];
+        return ['LogType', 'ContentType', 'RequestHost', 'tag', 'SchedulerTaskActionTags', 'SpanOtel', 'Contextualizer'];
     }
 
     toggleTimeOffset() {
