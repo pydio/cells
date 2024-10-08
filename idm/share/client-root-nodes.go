@@ -110,10 +110,21 @@ func (sc *Client) LoadDetectedRootNodes(ctx context.Context, detectedRoots []str
 }
 
 // ContextualizeRootToWorkspace looks up inside the node AppearsIn metadata to replace absolute path with relative one
-func (sc *Client) ContextualizeRootToWorkspace(ctx context.Context, node *tree.Node, workspaceUUID string) bool {
+func (sc *Client) ContextualizeRootToWorkspace(ctx context.Context, node *tree.Node, workspaceUUID string, pathPrefixes ...string) bool {
 	for _, ai := range node.AppearsIn {
-		if ai.WsUuid == workspaceUUID {
-			node.Path = path.Join(ai.WsSlug, ai.Path)
+		test := path.Join(ai.WsSlug, ai.Path)
+		if ai.Path == "" {
+			test += "/"
+		}
+		if len(pathPrefixes) > 0 {
+			for _, pp := range pathPrefixes {
+				if strings.HasPrefix(test, pp) {
+					node.Path = test
+					return true
+				}
+			}
+		} else if workspaceUUID == "" || ai.WsUuid == workspaceUUID {
+			node.Path = test
 			return true
 		}
 	}

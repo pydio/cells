@@ -45,7 +45,7 @@ type SharedResource struct {
 }
 
 // ListSharedResources lists all links and cells Owned by a given user
-func (sc *Client) ListSharedResources(ctx context.Context, subject string, scope idm.WorkspaceScope, ownedBy bool, p resources.ResourceProviderHandler) ([]*SharedResource, error) {
+func (sc *Client) ListSharedResources(ctx context.Context, subject string, scope idm.WorkspaceScope, ownedBy bool, p resources.ResourceProviderHandler, pathPrefixes ...string) ([]*SharedResource, error) {
 	var out []*SharedResource
 
 	var subjects []string
@@ -139,16 +139,9 @@ func (sc *Client) ListSharedResources(ctx context.Context, subject string, scope
 
 	// Build resources
 	for nodeId, node := range rootNodes {
-
-		// contextualize node to the first workspace found
-		var replaced bool
-		for _, ws := range roots[nodeId] {
-			if replaced = sc.ContextualizeRootToWorkspace(ctx, node, ws.GetUUID()); replaced {
-				break
-			}
-		}
-		if !replaced {
-			log.Logger(ctx).Info("Cannot contextualize node, ignoring node", node.Zap())
+		// contextualize node to the first workspace found, favoring pathPrefixes
+		if replaced := sc.ContextualizeRootToWorkspace(ctx, node, "", pathPrefixes...); !replaced {
+			log.Logger(ctx).Debug("Cannot contextualize node, ignoring node", node.Zap())
 			continue
 		}
 		resource := &SharedResource{
