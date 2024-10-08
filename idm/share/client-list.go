@@ -122,6 +122,7 @@ func (sc *Client) ListSharedResources(ctx context.Context, subject string, scope
 			continue
 		}
 		if _, has := roots[acl.NodeID]; !has {
+			roots[acl.NodeID] = make(map[string]*idm.Workspace)
 			detectedRoots = append(detectedRoots, acl.NodeID)
 		}
 		if ws, ok := workspaces[acl.WorkspaceID]; ok {
