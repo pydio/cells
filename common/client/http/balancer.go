@@ -107,7 +107,7 @@ func (b *balancer) Build(reg registry.Registry) error {
 		var loaded bool
 
 		for _, item := range addrs {
-			addr := item.Name()
+			addr := item.Metadata()[registry.MetaDescriptionKey]
 			usedAddr[addr] = struct{}{}
 			proxy, ok := b.readyProxies[addr]
 			if !ok {

@@ -27,7 +27,7 @@ func contextEndpointRegistry(ctx context.Context, s registry.Item, reg registry.
 	}
 
 	serviceName := runtime.GetServiceName(ctx)
-	if serviceName != "" {
+	if serviceName != "" && serviceName != "default" {
 		endpoints := reg.ListAdjacentItems(
 			registry.WithAdjacentSourceItems([]registry.Item{s}),
 			registry.WithAdjacentTargetOptions(registry.WithName(fullMethod), registry.WithType(pb.ItemType_ENDPOINT)),
@@ -50,7 +50,9 @@ func contextEndpointRegistry(ctx context.Context, s registry.Item, reg registry.
 			}
 
 			if svc == nil {
-				continue
+				if serviceName != "default" {
+					continue
+				}
 			}
 
 			ctx = propagator.With(ctx, service.ContextKey, svc)
@@ -58,8 +60,8 @@ func contextEndpointRegistry(ctx context.Context, s registry.Item, reg registry.
 
 		}
 	}
-	return ctx
 
+	return ctx
 }
 
 func unaryEndpointInterceptor(rootContext context.Context, s registry.Item) grpc.UnaryServerInterceptor {

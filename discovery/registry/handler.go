@@ -122,6 +122,7 @@ func (h *Handler) Get(ctx context.Context, req *pb.GetRequest) (*pb.GetResponse,
 }
 
 func (h *Handler) Register(ctx context.Context, item *pb.Item) (*pb.EmptyResponse, error) {
+
 	if err := h.reg.Register(util.ToItem(item)); err != nil {
 		return nil, err
 	}

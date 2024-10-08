@@ -52,7 +52,7 @@ func (s *TreeServer) UpdateServicesList(ctx context.Context, retry int) {
 	initialLength := len(all)
 
 	var reg registry.Registry
-	propagator.Get(ctx, registry.ContextKey, &reg)
+	propagator.Get(ctx, registry.ContextSOTWKey, &reg)
 
 	items, err := reg.List(registry.WithType(pb.ItemType_SERVICE), registry.WithFilter(func(item registry.Item) bool {
 		return strings.HasPrefix(item.Name(), common.ServiceGrpcNamespace_+common.ServiceDataSync_) && item.Name() != common.ServiceGrpcNamespace_+common.ServiceDataSync_
@@ -94,7 +94,7 @@ func (s *TreeServer) UpdateServicesList(ctx context.Context, retry int) {
 func (s *TreeServer) WatchRegistry(ctx context.Context) {
 
 	var reg registry.Registry
-	propagator.Get(ctx, registry.ContextKey, &reg)
+	propagator.Get(ctx, registry.ContextSOTWKey, &reg)
 
 	w, err := reg.Watch(registry.WithType(pb.ItemType_SERVICE), registry.WithAction(pb.ActionType_FULL_DIFF))
 	if err != nil {

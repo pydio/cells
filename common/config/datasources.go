@@ -46,18 +46,23 @@ func ListMinioConfigsFromConfig(ctx context.Context, skipSecret ...bool) map[str
 
 	names := SourceNamesForDataServices(ctx, common.ServiceDataObjects)
 	for _, name := range names {
-		var conf *object.MinioConfig
-		if e := Get(ctx, configx.FormatPath("services", common.ServiceGrpcNamespace_+common.ServiceDataObjects_+name)).Scan(&conf); e == nil && conf != nil {
-			res[name] = conf
-			if len(skipSecret) == 0 || !skipSecret[0] {
-				// Replace ApiSecret with value from vault
-				if sec := GetSecret(ctx, conf.ApiSecret).String(); sec != "" {
-					conf.ApiSecret = sec
-				}
+		res[name] = GetMinioConfigForName(ctx, name, len(skipSecret) == 1 && skipSecret[0])
+	}
+	return res
+}
+
+func GetMinioConfigForName(ctx context.Context, name string, skipSecret bool) *object.MinioConfig {
+	var conf *object.MinioConfig
+	if e := Get(ctx, configx.FormatPath("services", common.ServiceGrpcNamespace_+common.ServiceDataObjects_+name)).Scan(&conf); e == nil && conf != nil {
+		if skipSecret {
+			// Replace ApiSecret with value from vault
+			if sec := GetSecret(ctx, conf.ApiSecret).String(); sec != "" {
+				conf.ApiSecret = sec
 			}
 		}
 	}
-	return res
+
+	return conf
 }
 
 // ListSourcesFromConfig scans configs for sync services configs

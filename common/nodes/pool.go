@@ -37,7 +37,6 @@ import (
 	pb "github.com/pydio/cells/v4/common/proto/registry"
 	"github.com/pydio/cells/v4/common/proto/tree"
 	"github.com/pydio/cells/v4/common/registry"
-	"github.com/pydio/cells/v4/common/runtime/manager"
 	"github.com/pydio/cells/v4/common/telemetry/log"
 	"github.com/pydio/cells/v4/common/utils/configx"
 	"github.com/pydio/cells/v4/common/utils/openurl"
@@ -111,8 +110,8 @@ func NewTestPool(ctx context.Context, presetClient ...SourcesPool) *openurl.Pool
 }
 
 func openPool(ctx context.Context) *ClientsPool {
-	var mgr manager.Manager
-	if !propagator.Get(ctx, manager.ContextKey, &mgr) {
+	var reg registry.Registry
+	if !propagator.Get(ctx, registry.ContextSOTWKey, &reg) {
 		fmt.Println("openPool will panic, missing manager in context")
 		panic("cannot instantiate client pool (missing manager in context)")
 	}
@@ -122,7 +121,7 @@ func openPool(ctx context.Context) *ClientsPool {
 		sources: make(map[string]LoadedSource),
 		aliases: make(map[string]sourceAlias),
 		reload:  make(chan bool),
-		reg:     mgr.Registry(),
+		reg:     reg,
 	}
 	return pool
 }

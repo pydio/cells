@@ -2,11 +2,14 @@ package manager_test
 
 import (
 	"context"
+	"fmt"
+	"io"
 	"testing"
 
 	"github.com/spf13/viper"
 	"go.etcd.io/bbolt"
 	"go.mongodb.org/mongo-driver/mongo"
+	"go.uber.org/zap"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/examples/helloworld/helloworld"
 	"gorm.io/gorm"
@@ -18,14 +21,18 @@ import (
 	"github.com/pydio/cells/v4/common/server/generic"
 	"github.com/pydio/cells/v4/common/service"
 	"github.com/pydio/cells/v4/common/storage/bleve"
+	"github.com/pydio/cells/v4/common/telemetry/log"
 	"github.com/pydio/cells/v4/common/utils/propagator"
 
 	_ "embed"
 	_ "github.com/pydio/cells/v4/common/registry/config"
+	_ "github.com/pydio/cells/v4/common/registry/service"
 	_ "github.com/pydio/cells/v4/common/server/grpc"
+	_ "github.com/pydio/cells/v4/common/server/http"
 	_ "github.com/pydio/cells/v4/common/storage/boltdb"
 	_ "github.com/pydio/cells/v4/common/storage/mongodb"
 	_ "github.com/pydio/cells/v4/common/storage/sql"
+	_ "github.com/pydio/cells/v4/discovery/registry/service"
 
 	. "github.com/smartystreets/goconvey/convey"
 )
@@ -37,6 +44,15 @@ var (
 	//go:embed config-connection-test.yaml
 	connectionTestTemplate string
 )
+
+func init() {
+	log.SetLoggerInit(func(_ context.Context) (*zap.Logger, []io.Closer) {
+		conf := zap.NewDevelopmentConfig()
+		conf.OutputPaths = []string{"stdout"}
+		logger, _ := conf.Build()
+		return logger, nil
+	}, nil)
+}
 
 type testHandler struct {
 	helloworld.UnimplementedGreeterServer
@@ -129,24 +145,29 @@ func TestManagerStorage(t *testing.T) {
 
 func TestManagerConnection(t *testing.T) {
 	v := viper.New()
-	v.Set("config", "mem://")
+	v.Set(runtime.KeyConfig, "mem://")
+	v.Set(runtime.KeyKeyring, "mem://")
+	v.Set(runtime.KeyRegistry, "mem://")
 	v.Set(runtime.KeyBootstrapYAML, connectionTestTemplate)
+	v.Set(runtime.KeyBootstrapRoot, "processes/child1")
 	runtime.SetRuntime(v)
 
 	ctx := context.Background()
 
-	runtime.Register("test", func(ctx context.Context) {
-		service.NewService(
-			service.Name("service.test"),
-			service.Context(ctx),
-			service.WithGRPC(func(ctx context.Context, registrar grpc.ServiceRegistrar) error {
-				helloworld.RegisterGreeterServer(registrar, &testHandler{})
-				return nil
-			}),
-		)
+	runtime.Register("main", func(ctx context.Context) {
+		for i := 0; i <= 1; i++ {
+			service.NewService(
+				service.Name(fmt.Sprintf("service.%d.test", i)),
+				service.Context(ctx),
+				service.WithGRPC(func(ctx context.Context, registrar grpc.ServiceRegistrar) error {
+					helloworld.RegisterGreeterServer(registrar, &testHandler{})
+					return nil
+				}),
+			)
+		}
 	})
 
-	mg, err := manager.NewManager(ctx, "test", nil)
+	mg, err := manager.NewManager(ctx, "main", nil)
 	if err != nil {
 		t.Error("cannot run test", err)
 		t.Fail()
@@ -156,7 +177,7 @@ func TestManagerConnection(t *testing.T) {
 	mg.ServeAll()
 
 	Convey("Testing the manager connections", t, func() {
-		conn := cgrpc.ResolveConn(mg.Context(), "service.test")
+		conn := cgrpc.ResolveConn(mg.Context(), "service.0.test")
 		So(conn, ShouldNotBeNil)
 
 		cli := helloworld.NewGreeterClient(conn)

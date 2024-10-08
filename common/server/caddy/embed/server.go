@@ -106,7 +106,7 @@ func (s *Server) RawServe(opts *server.ServeOptions) (ii []registry.Item, er err
 	if s.reverseProxy {
 
 		var reg registry.Registry
-		propagator.Get(s.RootContext(), registry.ContextKey, &reg)
+		propagator.Get(s.RootContext(), registry.ContextSOTWKey, &reg)
 		rc, _ := client.NewResolverCallback(reg)
 		s.balancer = clienthttp.NewBalancer(opts.Context, s.ID())
 		rc.Add(s.ReloadProxy)
@@ -125,6 +125,7 @@ func (s *Server) RawServe(opts *server.ServeOptions) (ii []registry.Item, er err
 		for _, a := range aa {
 			ii = append(ii, util.CreateAddress(a, nil))
 		}
+
 		return
 	}
 

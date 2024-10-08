@@ -14,9 +14,15 @@ import (
 func TimeoutSubscriberInterceptor() SubscriberInterceptor {
 	return func(ctx context.Context, m Message, handler SubscriberHandler) error {
 		var dd []string
-		dd = append(dd, ctx.Value("CalleeFile").(string))
-		dd = append(dd, ctx.Value("CalleeLine").(string))
-		dd = append(dd, ctx.Value("CalleeTopic").(string))
+		if cf, ok := ctx.Value("CalleeFile").(string); ok {
+			dd = append(dd, cf)
+		}
+		if cl, ok := ctx.Value("CalleeLine").(string); ok {
+			dd = append(dd, cl)
+		}
+		if ct, ok := ctx.Value("CalleeTopic").(string); ok {
+			dd = append(dd, ct)
+		}
 
 		d := make(chan bool, 1)
 		defer close(d)

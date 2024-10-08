@@ -23,8 +23,8 @@ package service
 
 import (
 	"context"
-	"fmt"
 	"net/url"
+	"os"
 	"strconv"
 
 	"google.golang.org/grpc"
@@ -39,57 +39,60 @@ import (
 
 func init() {
 
-	runtime.Register("main", func(ctx context.Context) {
+	runtime.Register("datasource-objects", func(ctx context.Context) {
 
-		sources := config.SourceNamesForDataServices(ctx, common.ServiceDataObjects)
-		mm := config.ListMinioConfigsFromConfig(ctx)
+		// sources := config.SourceNamesForDataServices(ctx, common.ServiceDataObjects)
+		// mm := config.ListMinioConfigsFromConfig(ctx)
 
-		for _, datasource := range sources {
-			service.NewService(
-				service.Name(common.ServiceGrpcNamespace_+common.ServiceDataObjects_+datasource),
-				service.Context(ctx),
-				service.Tag(common.ServiceTagDatasource),
-				service.Description("S3 Object service for a given datasource"),
-				service.Source(datasource),
-				//service.Fork(true),
-				//service.Unique(true),
-				//service.AutoStart(false),
-				service.WithGRPC(func(datasource string) func(c context.Context, server grpc.ServiceRegistrar) error {
-					return func(c context.Context, server grpc.ServiceRegistrar) error {
-						mc, ok := mm[datasource]
-						if !ok {
-							return fmt.Errorf("cannot find minio config")
+		datasource := os.Getenv("DATASOURCE")
+
+		// for _, datasource := range sources {
+		service.NewService(
+			service.Name(common.ServiceGrpcNamespace_+common.ServiceDataObjects_+datasource),
+			service.Context(ctx),
+			service.Tag(common.ServiceTagDatasource),
+			service.Description("S3 Object service for a given datasource"),
+			service.Source(datasource),
+			//service.Fork(true),
+			//service.Unique(true),
+			//service.AutoStart(false),
+			service.WithGRPC(func(datasource string) func(c context.Context, server grpc.ServiceRegistrar) error {
+				return func(c context.Context, server grpc.ServiceRegistrar) error {
+					mc := config.GetMinioConfigForName(ctx, datasource, false)
+					// mc, ok := mm[datasource]
+					// if !ok {
+					//	return fmt.Errorf("cannot find minio config")
+					//}
+					if mc.StorageType == object.StorageType_LOCAL || mc.StorageType == object.StorageType_GCS {
+						mc.RunningSecure = false
+						mc.RunningHost = runtime.DefaultAdvertiseAddress()
+					} else if mc.StorageType == object.StorageType_S3 && mc.EndpointUrl == "" {
+						mc.RunningHost = object.AmazonS3Endpoint
+						mc.RunningSecure = true
+						mc.RunningPort = 443
+					} else {
+						eu, e := url.Parse(mc.EndpointUrl)
+						if e != nil {
+							return e
 						}
-						if mc.StorageType == object.StorageType_LOCAL || mc.StorageType == object.StorageType_GCS {
-							mc.RunningSecure = false
-							mc.RunningHost = runtime.DefaultAdvertiseAddress()
-						} else if mc.StorageType == object.StorageType_S3 && mc.EndpointUrl == "" {
-							mc.RunningHost = object.AmazonS3Endpoint
-							mc.RunningSecure = true
-							mc.RunningPort = 443
-						} else {
-							eu, e := url.Parse(mc.EndpointUrl)
-							if e != nil {
-								return e
-							}
-							mc.RunningHost = eu.Hostname()
-							p, _ := strconv.Atoi(eu.Port())
-							mc.RunningPort = int32(p)
-							mc.RunningSecure = eu.Scheme == "https"
-						}
-						engine := &grpc2.ObjectHandler{
-							Config: mc,
-						}
-						object.RegisterObjectsEndpointServer(server, engine)
-						object.RegisterResourceCleanerEndpointServer(server, engine)
-						var startErr error
-						go func() {
-							startErr = engine.StartMinioServer(c, datasource)
-						}()
-						return startErr
+						mc.RunningHost = eu.Hostname()
+						p, _ := strconv.Atoi(eu.Port())
+						mc.RunningPort = int32(p)
+						mc.RunningSecure = eu.Scheme == "https"
 					}
-				}(datasource)),
-			)
-		}
+					engine := &grpc2.ObjectHandler{
+						Config: mc,
+					}
+					object.RegisterObjectsEndpointServer(server, engine)
+					object.RegisterResourceCleanerEndpointServer(server, engine)
+					var startErr error
+					go func() {
+						startErr = engine.StartMinioServer(c, datasource)
+					}()
+					return startErr
+				}
+			}(datasource)),
+		)
+		// }
 	})
 }

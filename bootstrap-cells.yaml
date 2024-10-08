@@ -40,6 +40,8 @@ defaults:
       uri: xds://default.cells.com/cells
       services:
         - filter: "{{ .Name }} ~= pydio.grpc..*"
+    registry:
+      uri: xds://default.cells.com/cells
 
   #--------------------------------------------
   # Default servers configuration
@@ -65,6 +67,7 @@ defaults:
   # Default env configuration
   #--------------------------------------------
   env: &env
+    CELLS_BOOTSTRAP_FILE: /Users/ghecquet/go/src/github.com/pydio/cells/bootstrap-cells.yaml
     CELLS_USE_REGISTRY_SESSION: true
     GRPC_EXPERIMENTAL_XDS_FEDERATION: true
     GRPC_XDS_BOOTSTRAP_CONFIG: {
@@ -246,10 +249,9 @@ connections: *connections
 # All processes
 #--------------------------------------------
 processes: &processes
-  discovery: &discovery
+  discovery:
     runtime: discovery
     connections:
-      <<: *connections
       config:
         uri: file://{{{{ .ApplicationWorkingDir }}}}/pydio.json
         pools:
@@ -258,77 +260,123 @@ processes: &processes
         uri: mem://?cache=shared
       broker:
         uri: mem://
-
     listeners:
-      grpc:
+      grpcd:
         type: tcp
         bind: 0.0.0.0
         port: 8030
-#      http:
-#        type: tcp
-#        bind: 0.0.0.0
-#        port: 0
-
     servers:
-#      caddy:
-#        type: caddy
-#        services:
-#          - filter: "{{ .Name }} ~= pydio.rest..* or {{ .Name }} ~= pydio.web.oauth or {{ .Name }} ~= pydio.web.statics or {{ .Name }} = pydio.gateway.websocket"
-#      generic:
-#        type: generic
-#        services:
-#          - filter: "{{ .Name }} ~= pydio.generic..*"
-      grpc:
+      grpcd:
         type: grpc
-        listener: grpc
+        listener: grpcd
         services:
-          - filter: "{{ .Name }} ~= pydio.grpc.registry or {{ .Name }} ~= pydio.grpc.config"
-
+          - filter: "{{ .Name }} ~= pydio.grpc..*"
     env: *env
-
     storages: *storages
-
     services: *services
-
     queues: *queues
-
     caches: *caches
 
-  acl: &acl
+  all:
     runtime: main
     connections:
       <<: *connections
       config:
-        uri: xds://default.cells.com/cells
-      registry:
-        uri: xds://default.cells.com/cells
-      broker:
-        uri: xds://default.cells.com/cells
-
+        uri: file://{{{{ .ApplicationWorkingDir }}}}/pydio.json
+        pools:
+          rp: file://{{{{ .ApplicationWorkingDir }}}}/{{ .Tenant }}.json
     listeners:
-      grpc:
-        type: tcp
-        bind: 0.0.0.0
-        port: 8030
-      http:
+      grpcall:
         type: tcp
         bind: 0.0.0.0
         port: 0
-
     servers:
       grpc:
         type: grpc
-        listener: grpc
+        listener: grpcall
         services:
-          - filter: "{{ .Name }} ~= pydio.grpc.acl"
-
+          - filter: "{{ .Name }} ~= pydio\\.grpc\\..*"
+      caddy:
+        type: caddy
+        services:
+          - filter: "{{ .Name }} ~= pydio\\.web\\..* or {{ .Name }} ~= pydio\\.rest\\..* or {{ .Name }} ~= pydio\\.gateway\\.*"
+          - filter: "{{ .Name }} !~= pydio\\.web\\.sites"
     env: *env
-
     storages: *storages
-
     services: *services
-
     queues: *queues
-
     caches: *caches
 
+  objects-gateway1:
+    runtime: datasource-objects
+    connections:
+      <<: *connections
+      config:
+        uri: file://{{{{ .ApplicationWorkingDir }}}}/pydio.json
+        pools:
+          rp: file://{{{{ .ApplicationWorkingDir }}}}/{{ .Tenant }}.json
+    listeners:
+      grpclisgateway1:
+        type: tcp
+        bind: 0.0.0.0
+        port: 0
+    servers:
+      grpcsrvgateway1:
+        type: grpc
+        listener: grpclisgateway1
+        services:
+          - filter: "{{ .Name }} ~= pydio.grpc.data.objects.*"
+    env:
+     <<: *env
+     DATASOURCE: gateway1
+    queues: *queues
+    caches: *caches
+
+  index-test:
+    runtime: datasource-index
+    connections:
+      <<: *connections
+      config:
+        uri: file://{{{{ .ApplicationWorkingDir }}}}/pydio.json
+        pools:
+          rp: file://{{{{ .ApplicationWorkingDir }}}}/{{ .Tenant }}.json
+    listeners:
+      grpclisindex:
+        type: tcp
+        bind: 0.0.0.0
+        port: 0
+    servers:
+      grpcsrv:
+        type: grpc
+        listener: grpclisindex
+        services:
+          - filter: "{{ .Name }} ~= pydio.grpc.data.index.test or {{ .Name }} ~= pydio.grpc.data.sync.test"
+    env:
+      <<: *env
+      DATASOURCE: test
+    storages: *storages
+    services:
+      pydio.grpc.data.index.test:
+        storages:
+          main:
+            - type: sql
+              prefix: data_index_test_
+    queues: *queues
+    caches: *caches
+
+
+#  datasource-peer:
+#    runtime: main
+#    connections:
+#      <<: *connections
+#      config:
+#        uri: file://{{{{ .ApplicationWorkingDir }}}}/pydio.json
+#        pools:
+#          rp: file://{{{{ .ApplicationWorkingDir }}}}/{{ .Tenant }}.json
+#    env:
+#      <<: *env
+#      CELLS_BOOTSTRAP_TEMPLATE: datasources
+#    storages: *storages
+#    services: *services
+#    queues: *queues
+#    caches: *caches

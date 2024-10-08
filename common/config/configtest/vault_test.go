@@ -42,6 +42,7 @@ func testVault(t *testing.T, std config.Store, vault config.Store) {
 	Convey("Test Set", t, func() {
 		protected.Val("protectedValue").Set("my-secret-data")
 		So(std.Val("protectedValue").Default("").String(), ShouldNotEqual, "my-secret-data")
+		So(vault.Val(protected.Val("protectedValue").String()).String(), ShouldEqual, "my-secret-data")
 
 		protected.Val("unprotectedValue").Set("my-test-config-value")
 
@@ -104,6 +105,7 @@ type encrypter struct {
 func (encrypter) Encrypt(b []byte) (string, error) {
 	return "encrypted : " + string(b), nil
 }
+
 func (encrypter) Decrypt(s string) ([]byte, error) {
 	return []byte(strings.TrimPrefix(s, "encrypted : ")), nil
 }

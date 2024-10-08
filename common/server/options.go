@@ -31,13 +31,10 @@ import (
 type ServeOptions struct {
 	Context         context.Context
 	Listener        net.Listener
-	HttpBindAddress string
-	GrpcBindAddress string
 	ErrorCallback   func(error)
 	BlockUntilServe bool
-
-	BeforeServe []func(oo ...registry.RegisterOption) error
-	AfterServe  []func(oo ...registry.RegisterOption) error
+	BeforeServe     []func(oo ...registry.RegisterOption) error
+	AfterServe      []func(oo ...registry.RegisterOption) error
 
 	RegistryOptions []registry.RegisterOption
 }
@@ -47,18 +44,6 @@ type ServeOption func(options *ServeOptions)
 func WithErrorCallback(cb func(err error)) ServeOption {
 	return func(options *ServeOptions) {
 		options.ErrorCallback = cb
-	}
-}
-
-func WithGrpcBindAddress(a string) ServeOption {
-	return func(o *ServeOptions) {
-		o.GrpcBindAddress = a
-	}
-}
-
-func WithHttpBindAddress(a string) ServeOption {
-	return func(o *ServeOptions) {
-		o.HttpBindAddress = a
 	}
 }
 

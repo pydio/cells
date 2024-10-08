@@ -106,6 +106,9 @@ func Name() string {
 }
 
 func Cluster() string {
+	if !IsSet(KeyCluster) {
+		return "default"
+	}
 	return r.GetString(KeyCluster)
 }
 

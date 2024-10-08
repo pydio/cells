@@ -4,7 +4,7 @@
 # Defaults variable values are injected at load time
 #------------------------------------------
 name: main
-
+connections: *connections
 processes:
   discovery:
     runtime: discovery
@@ -29,10 +29,10 @@ processes:
         services:
           - filter: "discovery ~= {{ sliceToRegexpFmt .Tags }}"
           - filter: "{{ .Name }} ~= pydio.grpc..*"
-
     env: *env
 
   frontend:
+    runtime: main
     connections:
       <<: *connections
     servers:
@@ -48,27 +48,28 @@ processes:
     caches: *caches
 
   broker:
+    runtime: main
     connections:
       <<: *connections
     listeners:
-      grpcb:
+      grpcbroker:
         type: tcp
         bind: 0.0.0.0
         port: 0
-      httpb:
+      httpbroker:
         type: tcp
         bind: 0.0.0.0
         port: 0
     servers:
       http:
         type: http
-        listener: httpb
+        listener: httpbroker
         services:
           - filter: "broker ~= {{ sliceToRegexpFmt .Tags }}"
           - filter: "{{ .Name }} !~= pydio.grpc..*"
       grpc:
         type: grpc
-        listener: grpcb
+        listener: grpcbroker
         services:
           - filter: "broker ~= {{ sliceToRegexpFmt .Tags }}"
           - filter: "{{ .Name }} ~= pydio.grpc..*"
@@ -80,6 +81,7 @@ processes:
     caches: *caches
 
   gateway:
+    runtime: main
     connections:
       <<: *connections
     listeners:
@@ -88,11 +90,16 @@ processes:
         bind: 0.0.0.0
         port: 0
     servers:
+#      generic:
+#        type: generic
+#        services:
+#          - filter: "{{ .Name }} ~= pydio.web.sites"
       http:
         type: http
         listener: httpg
         services:
           - filter: "gateway ~= {{ sliceToRegexpFmt .Tags }}"
+          - filter: "{{ .Name }} !~= pydio.web.sites"
     env: *env
     storages: *storages
     services: *services
@@ -100,7 +107,7 @@ processes:
     caches: *caches
 
   data:
-    runtime: discovery
+    runtime: main
     connections:
       <<: *connections
     listeners:
@@ -132,7 +139,7 @@ processes:
     caches: *caches
 
   idm:
-    runtime: discovery
+    runtime: main
     connections: *connections
     listeners:
       grpca:
@@ -163,6 +170,7 @@ processes:
     caches: *caches
 
   scheduler:
+    runtime: main
     connections:
       <<: *connections
     listeners:
@@ -184,6 +192,7 @@ processes:
     caches: *caches
 
   datasource-peer:
+    runtime: datasource
     connections: *connections
     env:
       <<: *env

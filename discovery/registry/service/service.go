@@ -73,20 +73,6 @@ func init() {
 				handler := registry2.NewHandler(reg)
 				pbregistry.RegisterRegistryServer(srv, handler)
 
-				discoveryConvertible, ok := srv.(Convertible)
-				if !ok {
-					return nil
-				}
-				var discoveryServer *grpc.Server
-				if !discoveryConvertible.As(&discoveryServer) {
-					return nil
-				}
-				//var locker sync.Locker
-				//if discoveryConvertible.As(&locker) {
-				//	locker.Lock()
-				//	defer locker.Unlock()
-				//}
-
 				listenerName := fmt.Sprintf(listenerNameTemplate, runtime.Cluster())
 				routeConfigName := fmt.Sprintf(routeConfigNameTemplate, runtime.Cluster())
 				virtualHostName := fmt.Sprintf(virtualHostNameTemplate, runtime.Cluster())
@@ -169,7 +155,6 @@ func init() {
 							if err != nil {
 								continue
 							}
-							host = "127.0.0.1"
 							hst := &core.Address{Address: &core.Address_SocketAddress{
 								SocketAddress: &core.SocketAddress{
 									Address:  host,
@@ -258,6 +243,7 @@ func init() {
 							registry.WithAdjacentSourceItems([]registry.Item{srvItem}),
 							registry.WithAdjacentTargetOptions(registry.WithType(pbregistry.ItemType_ENDPOINT)),
 						)
+
 						if len(endpointItems) == 0 {
 							continue
 						}
@@ -267,26 +253,18 @@ func init() {
 								registry.WithAdjacentSourceItems([]registry.Item{endpointItem}),
 								registry.WithAdjacentTargetOptions(registry.WithType(pbregistry.ItemType_SERVICE)),
 							)
-							if len(svcItems) == 0 {
-								routes = append(routes, &route.Route{
-									Name: endpointItem.ID(),
-									Match: &route.RouteMatch{
-										PathSpecifier: &route.RouteMatch_Path{
-											Path: endpointItem.Name(),
-										},
-									},
-									Action: &route.Route_Route{
-										Route: &route.RouteAction{
-											ClusterSpecifier: &route.RouteAction_Cluster{
-												Cluster: srvItem.ID(),
-											},
-										},
-									},
-								})
-							} else {
+							if len(svcItems) > 0 {
 								for _, svcItem := range svcItems {
 									routes = append(routes, &route.Route{
 										Name: endpointItem.ID(),
+										//RequestHeadersToAdd: []*core.HeaderValueOption{
+										//	{
+										//		Header: &core.HeaderValue{
+										//			Key:   "x-endpoint",
+										//			Value: "whatever",
+										//		},
+										//	},
+										//},
 										Match: &route.RouteMatch{
 											PathSpecifier: &route.RouteMatch_Path{
 												Path: endpointItem.Name(),
@@ -440,14 +418,14 @@ func (cb *callbacks) OnStreamRequest(id int64, r *discoveryservice.DiscoveryRequ
 }
 
 func (cb *callbacks) OnStreamResponse(ctx context.Context, id int64, req *discoveryservice.DiscoveryRequest, resp *discoveryservice.DiscoveryResponse) {
-	// fmt.Printf("OnStreamResponse... %d   Request [%v],  Response[%v]\n", id, req.TypeUrl, resp.TypeUrl)
+	//fmt.Printf("OnStreamResponse... %d   Request [%v],  Response[%v]\n", id, req.TypeUrl, resp.TypeUrl)
 
 	// fmt.Println(resp.Resources)
 	cb.Report()
 }
 
 func (cb *callbacks) OnFetchRequest(ctx context.Context, req *discoveryservice.DiscoveryRequest) error {
-	// fmt.Printf("OnFetchRequest... Request [%v]\n", req.TypeUrl)
+	//fmt.Printf("OnFetchRequest... Request [%v]\n", req.TypeUrl)
 	cb.mu.Lock()
 	defer cb.mu.Unlock()
 	cb.fetches++
