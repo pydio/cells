@@ -281,7 +281,9 @@ func (m *memory) Watch(opts ...configx.WatchOption) (configx.Receiver, error) {
 		opt(o)
 	}
 
-	regPath, err := regexp.Compile("^" + strings.Join(o.Path, "/"))
+	path := configx.StringToKeys(o.Path...)
+
+	regPath, err := regexp.Compile("^" + strings.Join(path, "/"))
 	if err != nil {
 		return nil, err
 	}
@@ -291,7 +293,7 @@ func (m *memory) Watch(opts ...configx.WatchOption) (configx.Receiver, error) {
 		sendLock:    &sync.Mutex{},
 		ch:          make(chan diff.Change),
 		regPath:     regPath,
-		level:       len(o.Path),
+		level:       len(path),
 		m:           m,
 		changesOnly: o.ChangesOnly,
 	}
@@ -335,10 +337,15 @@ func (r *receiver) call(op diff.Change) error {
 
 		for _, childOp := range childPatch {
 			if len(childOp.Path) > 0 {
-				childOp.Path = append(op.Path, childOp.Path...)
+				path := make([]string, len(op.Path))
+				for i := 0; i < len(op.Path); i++ {
+					path[i] = op.Path[i]
+				}
+				childOp.Path = append(path, childOp.Path...)
 				r.call(childOp)
 			}
 		}
+
 		return nil
 	}
 

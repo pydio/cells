@@ -30,7 +30,6 @@ import (
 	"github.com/pydio/cells/v4/common/config"
 	"github.com/pydio/cells/v4/common/proto/object"
 	"github.com/pydio/cells/v4/common/runtime"
-	"github.com/pydio/cells/v4/common/utils/propagator"
 
 	_ "embed"
 )
@@ -82,14 +81,14 @@ func NewBootstrap(ctx context.Context, runtimeTemplate string) (*Bootstrap, erro
 		bs.named = runtimeTemplate
 	}
 
-	bs.reload(nil)
+	bs.reload(ctx, nil)
 
 	return bs, nil
 }
 
 // MustReset triggers a full reload of the config
-func (bs *Bootstrap) MustReset(conf config.Store) {
-	_ = bs.reload(conf)
+func (bs *Bootstrap) MustReset(ctx context.Context, conf config.Store) {
+	_ = bs.reload(ctx, conf)
 }
 
 // WatchConfAndReset watches any config changes and reload the bootstrap. It is blocking, must be sent in goroutine.
@@ -99,7 +98,7 @@ func (bs *Bootstrap) WatchConfAndReset(ctx context.Context, configURL string, er
 		errorHandler(err)
 		return
 	}
-	bs.MustReset(conf)
+	bs.MustReset(ctx, conf)
 
 	res, err := conf.Watch()
 	if err != nil {
@@ -111,24 +110,24 @@ func (bs *Bootstrap) WatchConfAndReset(ctx context.Context, configURL string, er
 		if _, er := res.Next(); er != nil {
 			return
 		}
-		bs.MustReset(conf)
+		bs.MustReset(ctx, conf)
 	}
 }
 
-func (bs *Bootstrap) reload(conf config.Store) error {
+func (bs *Bootstrap) reload(ctx context.Context, conf config.Store) error {
 	runtimeDefaults, runtimeOthers := runtimeSetPairs()
 
 	var defaultTemplate = defaultsValues
 	if len(runtimeDefaults) > 0 {
 		var er error
 		for _, def := range runtimeDefaults {
-			if def.val, er = tplEval(def.val, bs.named+def.key, conf); er != nil {
+			if def.val, er = tplEval(ctx, def.val, bs.named+def.key, conf); er != nil {
 				return er
 			}
 		}
 		// Update defaults before joining two templates together
 		// Use Yaml.Nodes patching to make sure to keep references
-		defYaml, _ := tplEval(defaultsValues, "default", conf)
+		defYaml, _ := tplEval(ctx, defaultsValues, "default", conf)
 		if patched, er := patchYaml(defYaml, runtimeDefaults); er == nil {
 			defaultTemplate = patched
 		} else {
@@ -152,7 +151,7 @@ func (bs *Bootstrap) reload(conf config.Store) error {
 		tmpl = yaml
 	}
 
-	fullYaml, er := tplEval(tmpl, bs.named+"-yaml", conf)
+	fullYaml, er := tplEval(ctx, tmpl, bs.named+"-yaml", conf)
 	if er != nil {
 		return er
 	}
@@ -163,7 +162,7 @@ func (bs *Bootstrap) reload(conf config.Store) error {
 
 	// Now apply runtimeOther keyPairs
 	for _, pair := range runtimeOthers {
-		if val, er := tplEval(pair.val, bs.named+pair.key, conf); er != nil {
+		if val, er := tplEval(ctx, pair.val, bs.named+pair.key, conf); er != nil {
 			return er
 		} else {
 			_ = bs.Val(pair.key).Set(val)
@@ -209,7 +208,7 @@ func runtimeSetPairs() (def, proc []keyPair) {
 	return
 }
 
-func tplEval(tpl, name string, conf config.Store) (string, error) {
+func tplEval(ctx context.Context, tpl, name string, conf config.Store) (string, error) {
 	t, err := template.New(name).Funcs(map[string]any{
 		"getServiceDataDir": runtime.MustServiceDataDir,
 	}).Delims("{{{{", "}}}}").Parse(tpl)
@@ -218,7 +217,7 @@ func tplEval(tpl, name string, conf config.Store) (string, error) {
 	}
 
 	var b strings.Builder
-	dss, oss := loadDSData(tpl, conf)
+	dss, oss := loadDSData(ctx, tpl, conf)
 
 	r := runtime.GetRuntime()
 	if err := t.Execute(&b, struct {
@@ -257,14 +256,13 @@ func tplEval(tpl, name string, conf config.Store) (string, error) {
 
 }
 
-func loadDSData(tpl string, conf config.Store) (map[string]*object.DataSource, map[string]*object.MinioConfig) {
+func loadDSData(ctx context.Context, tpl string, conf config.Store) (map[string]*object.DataSource, map[string]*object.MinioConfig) {
 	if conf == nil {
 		return nil, nil
 	}
 	if !strings.Contains(tpl, ".ObjectsSources") && !strings.Contains(tpl, ".DataSources") {
 		return nil, nil
 	}
-	ctx := propagator.With(context.Background(), config.ContextKey, conf)
 	return config.ListSourcesFromConfig(ctx), config.ListMinioConfigsFromConfig(ctx, true)
 
 }

@@ -41,6 +41,7 @@ import (
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 	"google.golang.org/grpc/test/bufconn"
+	yaml "gopkg.in/yaml.v3"
 
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/broker"
@@ -155,9 +156,11 @@ func NewManager(ctx context.Context, namespace string, logger log.ZapLogger) (Ma
 	}
 
 	base := runtime.GetString(runtime.KeyBootstrapRoot)
+	// if !runtime.IsSet(runtime.KeyBootstrapRoot) {
 	if name := runtime.Name(); name != "" && name != "default" {
 		base += strings.Join(strings.Split("_"+name, "_"), "/processes/")
 	}
+	//}
 
 	if err := m.initNamespace(ctx, bootstrap, base); err != nil {
 		return nil, err
@@ -202,7 +205,7 @@ func NewManager(ctx context.Context, namespace string, logger log.ZapLogger) (Ma
 		ctx = propagator.With(ctx, config.VaultKey, vault)
 		ctx = propagator.With(ctx, config.RevisionsKey, revisions)
 
-		if err := bootstrap.reload(store); err != nil {
+		if err := bootstrap.reload(ctx, store); err != nil {
 			return nil, err
 		}
 	}
@@ -521,7 +524,7 @@ func (m *manager) initProcesses(ctx context.Context, bootstrap *Bootstrap, base 
 		baseWatch = append(baseWatch, strings.Split(strings.TrimLeft(base, "#/"), "/")...)
 	}
 
-	//fmt.Println("Base Watch ON", baseWatch, "/processes/*")
+	fmt.Println("Base Watch ON", baseWatch, "/processes/*")
 	w, err := bootstrap.Watch(configx.WithPath(append(baseWatch, "processes", "*")...), configx.WithChangesOnly())
 	if err != nil {
 		return err
@@ -557,111 +560,116 @@ func (m *manager) initProcesses(ctx context.Context, bootstrap *Bootstrap, base 
 		}
 
 		processes := bootstrap.Val(base + "/processes")
-		fmt.Println("Base Watch Triggered", base, baseWatch, len(processesToStart), len(processes.Map()))
 
-		for _, v := range processesToStart {
-			for name := range processes.Map() {
-				process := bootstrap.Val(base+"/processes", name)
-				if name != v {
+		for _, name := range processesToStart {
+			process := processes.Val(name)
+
+			childBinary := os.Args[0]
+			var childArgs []string
+			var childEnv []string
+
+			connections := process.Val("connections")
+			env := process.Val("env")
+			servers := process.Val("servers")
+			tags := process.Val("tags")
+			debug := process.Val("debug")
+
+			if debug.Bool() {
+				childBinary = "dlv"
+				childArgs = append(childArgs, "--listen=:2345", "--headless=true", "--api-version=2", "--accept-multiclient", "exec", "--", os.Args[0])
+			}
+
+			childArgs = append(childArgs, "start", "--name", name)
+			if sets := runtime.GetString(runtime.KeyBootstrapSetsFile); sets != "" {
+				childArgs = append(childArgs, "--sets", sets)
+			}
+
+			if runtime.GetString(runtime.KeyBootstrapTpl) != "" {
+				b, err := yaml.Marshal(bootstrap.Val(base).Map())
+				if err != nil {
 					continue
 				}
 
-				connections := process.Val("connections")
-				env := process.Val("env")
-				servers := process.Val("servers")
-				tags := process.Val("tags")
-				debug := process.Val("debug")
-
-				childBinary := os.Args[0]
-				var childArgs []string
-				var childEnv []string
-
-				if debug.Bool() {
-					childBinary = "dlv"
-					childArgs = append(childArgs, "--listen=:2345", "--headless=true", "--api-version=2", "--accept-multiclient", "exec", "--", os.Args[0])
-				}
-
-				childArgs = append(childArgs, "start", "--name", name)
-				if sets := runtime.GetString(runtime.KeyBootstrapSetsFile); sets != "" {
-					childArgs = append(childArgs, "--sets", sets)
-				}
-
-				// Adding connections to the environment
-				for k := range connections.Map() {
-					uri := connections.Val(k, "uri").String()
-					u, err := url.Parse(uri)
-					if err != nil {
-						log.Logger(ctx).Warn("connection url not right")
-						continue
-					}
-
-					pools := connections.Val(k, "pools").Map()
-					if len(pools) > 0 {
-						var poolSlice []string
-						for k, v := range pools {
-							poolSlice = append(poolSlice, fmt.Sprintf("%s=%s", k, v))
-						}
-						q := u.Query()
-						q.Add("pools", strings.Join(poolSlice, "&"))
-						u.RawQuery = q.Encode()
-					}
-
-					childEnv = append(childEnv, fmt.Sprintf("CELLS_%s=%s", strings.ToUpper(k), u.String()))
-				}
-
-				for k, v := range env.Map() {
-					switch vv := v.(type) {
-					case string:
-						childEnv = append(childEnv, fmt.Sprintf("%s=%s", k, vv))
-					default:
-						vvv, _ := json.Marshal(vv)
-						childEnv = append(childEnv, fmt.Sprintf("%s=%s", k, string(vvv)))
-					}
-				}
-
-				// Adding servers to the environment
-				for k := range servers.Map() {
-					server := servers.Val(k)
-
-					// TODO - should be one bind address per server
-					if bindAddr := server.Val("bind").String(); bindAddr != "" {
-						childEnv = append(childEnv, fmt.Sprintf("CELLS_BIND_ADDRESS=%s", bindAddr))
-					}
-
-					// TODO - should be one advertise address per server
-					if advertiseAddr := server.Val("advertise").String(); advertiseAddr != "" {
-						childEnv = append(childEnv, fmt.Sprintf("CELLS_ADVERTISE_ADDRESS=%s", advertiseAddr))
-					}
-
-					// Adding servers port
-					if port := server.Val("port").String(); port != "" {
-						childEnv = append(childEnv, fmt.Sprintf("CELLS_%s_PORT=%s", strings.ToUpper(k), port))
-					}
-
-					// Adding server type
-					if typ := server.Val("type").String(); typ != "" {
-						childEnv = append(childEnv, fmt.Sprintf("CELLS_%s=%s", strings.ToUpper(k), typ))
-					}
-				}
-
-				// Adding services to the environment
-				tagsList := []string{}
-				for k, v := range tags.Map() {
-					tagsList = append(tagsList, k)
-
-					if vv, ok := v.([]interface{}); ok {
-						for _, vvv := range vv {
-							childArgs = append(childArgs, "^"+vvv.(string)+"$")
-						}
-					}
-				}
-
-				childEnv = append(childEnv, fmt.Sprintf("CELLS_TAGS=%s", strings.Join(tagsList, " ")))
+				childEnv = append(childEnv, fmt.Sprintf("CELLS_BOOTSTRAP_YAML=%s", string(b)))
+			} else {
 				childEnv = append(childEnv, "CELLS_BOOTSTRAP_ROOT="+base)
-
-				cmds[name] = fork.NewProcess(m.ctx, []string{}, fork.WithBinary(childBinary), fork.WithName(name), fork.WithArgs(childArgs), fork.WithEnv(childEnv))
-				go cmds[name].StartAndWait(5)
 			}
+
+			// Adding connections to the environment
+			for k := range connections.Map() {
+				uri := connections.Val(k, "uri").String()
+				u, err := url.Parse(uri)
+				if err != nil {
+					log.Logger(ctx).Warn("connection url not right")
+					continue
+				}
+
+				pools := connections.Val(k, "pools").Map()
+				if len(pools) > 0 {
+					var poolSlice []string
+					for k, v := range pools {
+						poolSlice = append(poolSlice, fmt.Sprintf("%s=%s", k, v))
+					}
+					q := u.Query()
+					q.Add("pools", strings.Join(poolSlice, "&"))
+					u.RawQuery = q.Encode()
+				}
+
+				childEnv = append(childEnv, fmt.Sprintf("CELLS_%s=%s", strings.ToUpper(k), u.String()))
+			}
+
+			for k, v := range env.Map() {
+				switch vv := v.(type) {
+				case string:
+					childEnv = append(childEnv, fmt.Sprintf("%s=%s", k, vv))
+				default:
+					vvv, _ := json.Marshal(vv)
+					childEnv = append(childEnv, fmt.Sprintf("%s=%s", k, string(vvv)))
+				}
+			}
+
+			// Adding servers to the environment
+			for k := range servers.Map() {
+				server := servers.Val(k)
+
+				// TODO - should be one bind address per server
+				if bindAddr := server.Val("bind").String(); bindAddr != "" {
+					childEnv = append(childEnv, fmt.Sprintf("CELLS_BIND_ADDRESS=%s", bindAddr))
+				}
+
+				// TODO - should be one advertise address per server
+				if advertiseAddr := server.Val("advertise").String(); advertiseAddr != "" {
+					childEnv = append(childEnv, fmt.Sprintf("CELLS_ADVERTISE_ADDRESS=%s", advertiseAddr))
+				}
+
+				// Adding servers port
+				if port := server.Val("port").String(); port != "" {
+					childEnv = append(childEnv, fmt.Sprintf("CELLS_%s_PORT=%s", strings.ToUpper(k), port))
+				}
+
+				// Adding server type
+				if typ := server.Val("type").String(); typ != "" {
+					childEnv = append(childEnv, fmt.Sprintf("CELLS_%s=%s", strings.ToUpper(k), typ))
+				}
+			}
+
+			// Adding services to the environment
+			tagsList := []string{}
+			for k, v := range tags.Map() {
+				tagsList = append(tagsList, k)
+
+				if vv, ok := v.([]interface{}); ok {
+					for _, vvv := range vv {
+						childArgs = append(childArgs, "^"+vvv.(string)+"$")
+					}
+				}
+			}
+
+			childEnv = append(childEnv, fmt.Sprintf("CELLS_TAGS=%s", strings.Join(tagsList, " ")))
+			// childEnv = append(childEnv, "CELLS_BOOTSTRAP_ROOT="+base)
+
+			cmds[name] = fork.NewProcess(m.ctx, []string{}, fork.WithBinary(childBinary), fork.WithName(name), fork.WithArgs(childArgs), fork.WithEnv(childEnv))
+			go cmds[name].StartAndWait(5)
 		}
 	}
 }

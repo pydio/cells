@@ -44,7 +44,6 @@ import (
 	"github.com/pydio/cells/v4/common/telemetry/metrics"
 	json "github.com/pydio/cells/v4/common/utils/jsonx"
 	"github.com/pydio/cells/v4/common/utils/propagator"
-	"github.com/pydio/cells/v4/common/utils/std"
 
 	_ "google.golang.org/grpc/xds"
 )
@@ -81,77 +80,77 @@ func ResolveConn(ctx context.Context, serviceName string, opt ...Option) grpc.Cl
 		return t, nil
 	}
 
-	er := std.Retry(ctx, func() error {
-		cc, err := reg.List(
-			registry.WithType(pb.ItemType_GENERIC),
-			registry.WithFilter(func(item registry.Item) bool {
-				// Retrieving server services information to see which services we need to start
-				if b, ok := item.Metadata()["services"]; ok {
-					var sm []map[string]string
-					if err := json.Unmarshal([]byte(b), &sm); err != nil {
-						return false
-					}
-					for _, smm := range sm {
-						if filter, ok := smm["filter"]; ok {
-							tmpl, err := getTpl(filter)
+	// er := std.Retry(ctx, func() error {
+	cc, err := reg.List(
+		registry.WithType(pb.ItemType_GENERIC),
+		registry.WithFilter(func(item registry.Item) bool {
+			// Retrieving server services information to see which services we need to start
+			if b, ok := item.Metadata()["services"]; ok {
+				var sm []map[string]string
+				if err := json.Unmarshal([]byte(b), &sm); err != nil {
+					return false
+				}
+				for _, smm := range sm {
+					if filter, ok := smm["filter"]; ok {
+						tmpl, err := getTpl(filter)
+						if err != nil {
+							return false
+						}
+
+						var buf bytes.Buffer
+						if err := tmpl.Execute(&buf, struct {
+							Name string
+						}{
+							Name: serviceName,
+						}); err != nil {
+							return false
+						}
+
+						f := strings.SplitN(buf.String(), " ", 3)
+						var fn func(string, []byte) (bool, error)
+						switch f[1] {
+						case "=":
+						case "~=":
+							fn = regexp.Match
+						}
+
+						if fn != nil {
+							match, err := fn(f[2], []byte(f[0]))
 							if err != nil {
 								return false
 							}
 
-							var buf bytes.Buffer
-							if err := tmpl.Execute(&buf, struct {
-								Name string
-							}{
-								Name: serviceName,
-							}); err != nil {
+							if !match {
 								return false
-							}
-
-							f := strings.SplitN(buf.String(), " ", 3)
-							var fn func(string, []byte) (bool, error)
-							switch f[1] {
-							case "=":
-							case "~=":
-								fn = regexp.Match
-							}
-
-							if fn != nil {
-								match, err := fn(f[2], []byte(f[0]))
-								if err != nil {
-									return false
-								}
-
-								if !match {
-									return false
-								}
 							}
 						}
 					}
-				} else {
-					return false
 				}
+			} else {
+				return false
+			}
 
-				return true
-			}),
-		)
-		if err != nil {
-			return err
-		}
-		if len(cc) != 1 {
-			return fmt.Errorf("expected 1 connection, ResolveConn returns nil for %s", serviceName)
-		}
-		var conn *grpc.ClientConn
-		if !cc[0].As(&conn) {
-			panic("Should be a connection")
-		}
-
-		opts.ClientConn = conn
+			return true
+		}),
+	)
+	if err != nil {
 		return nil
-
-	}, 3*time.Second, 1*time.Minute)
-	if er != nil {
-		panic("Waited for 1 minuted but could not resolve connection: " + er.Error())
 	}
+	if len(cc) != 1 {
+		return nil // fmt.Errorf("expected 1 connection, ResolveConn returns nil for %s", serviceName)
+	}
+	var conn *grpc.ClientConn
+	if !cc[0].As(&conn) {
+		panic("Should be a connection")
+	}
+
+	opts.ClientConn = conn
+	// return nil
+
+	//}, 3*time.Second, 1*time.Minute)
+	//if er != nil {
+	//	panic("Waited for 1 minuted but could not resolve connection: " + er.Error())
+	//}
 
 	return &clientConn{
 		callTimeout:         opts.CallTimeout,

@@ -37,7 +37,42 @@ func TestMemory(t *testing.T) {
 
 		break
 	}
+}
 
+func TestWatch(t *testing.T) {
+	mem := New(configx.WithJSON())
+
+	w, err := mem.Watch(configx.WithPath("processes/test/processes/*"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer w.Stop()
+
+	if err := mem.Set([]byte(`{"processes": {
+		"test": {
+			"processes": {
+				"test1": {
+					"k1": "v1"
+				},
+				"test2": {
+					"k2": "v2"
+				}
+			}
+		}
+	}}`)); err != nil {
+		t.Fail()
+	}
+
+	for {
+		res, err := w.Next()
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		fmt.Println(res)
+
+		break
+	}
 }
 
 func TestReferencePool(t *testing.T) {

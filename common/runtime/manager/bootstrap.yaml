@@ -31,169 +31,204 @@ processes:
           - filter: "{{ .Name }} ~= pydio.grpc..*"
     env: *env
 
-  frontend:
+  all:
     runtime: main
     connections:
       <<: *connections
+      config:
+        uri: file://{{{{ .ApplicationWorkingDir }}}}/pydio.json
+        pools:
+          rp: file://{{{{ .ApplicationWorkingDir }}}}/{{ .Tenant }}.json
+    listeners:
+      grpcall:
+        type: tcp
+        bind: 0.0.0.0
+        port: 0
     servers:
+      grpc:
+        type: grpc
+        listener: grpcall
+        services:
+          - filter: "{{ .Name }} ~= pydio\\.grpc\\..*"
       caddy:
         type: caddy
         services:
-          - filter: "frontend ~= {{ sliceToRegexpFmt .Tags }}"
-          - filter: "{{ .Name }} ~= pydio\\.rest\\..* or {{ .Name }} ~= pydio.web..*"
+          - filter: "{{ .Name }} ~= pydio\\.web\\..* or {{ .Name }} ~= pydio\\.rest\\..* or {{ .Name }} ~= pydio\\.gateway\\.*"
+          - filter: "{{ .Name }} !~= pydio\\.web\\.sites"
     env: *env
     storages: *storages
     services: *services
     queues: *queues
     caches: *caches
 
-  broker:
-    runtime: main
-    connections:
-      <<: *connections
-    listeners:
-      grpcbroker:
-        type: tcp
-        bind: 0.0.0.0
-        port: 0
-      httpbroker:
-        type: tcp
-        bind: 0.0.0.0
-        port: 0
-    servers:
-      http:
-        type: http
-        listener: httpbroker
-        services:
-          - filter: "broker ~= {{ sliceToRegexpFmt .Tags }}"
-          - filter: "{{ .Name }} !~= pydio.grpc..*"
-      grpc:
-        type: grpc
-        listener: grpcbroker
-        services:
-          - filter: "broker ~= {{ sliceToRegexpFmt .Tags }}"
-          - filter: "{{ .Name }} ~= pydio.grpc..*"
-
-    env: *env
-    storages: *storages
-    services: *services
-    queues: *queues
-    caches: *caches
-
-  gateway:
-    runtime: main
-    connections:
-      <<: *connections
-    listeners:
-      httpg:
-        type: tcp
-        bind: 0.0.0.0
-        port: 0
-    servers:
-#      generic:
-#        type: generic
+#  frontend:
+#    runtime: main
+#    connections:
+#      <<: *connections
+#    servers:
+#      caddy:
+#        type: caddy
 #        services:
-#          - filter: "{{ .Name }} ~= pydio.web.sites"
-      http:
-        type: http
-        listener: httpg
-        services:
-          - filter: "gateway ~= {{ sliceToRegexpFmt .Tags }}"
-          - filter: "{{ .Name }} !~= pydio.web.sites"
-    env: *env
-    storages: *storages
-    services: *services
-    queues: *queues
-    caches: *caches
-
-  data:
-    runtime: main
-    connections:
-      <<: *connections
-    listeners:
-      grpcb:
-        type: tcp
-        bind: 0.0.0.0
-        port: 0
-      httpb:
-        type: tcp
-        bind: 0.0.0.0
-        port: 0
-    servers:
-      http:
-        type: http
-        listener: httpb
-        services:
-          - filter: "data ~= {{ sliceToRegexpFmt .Tags }}"
-          - filter: "{{ .Name }} ~= pydio.rest..* or {{ .Name }} ~= pydio.web..*"
-      grpc:
-        type: grpc
-        listener: grpcb
-        services:
-          - filter: "data ~= {{ sliceToRegexpFmt .Tags }}"
-          - filter: "{{ .Name }} ~= pydio.grpc..*"
-    env: *env
-    storages: *storages
-    services: *services
-    queues: *queues
-    caches: *caches
-
-  idm:
-    runtime: main
-    connections: *connections
-    listeners:
-      grpca:
-        type: tcp
-        bind: 0.0.0.0
-        port: 0
-      httpa:
-        type: tcp
-        bind: 0.0.0.0
-        port: 0
-    servers:
-      http:
-        type: http
-        listener: httpa
-        services:
-          - filter: "idm ~= {{ sliceToRegexpFmt .Tags }}"
-          - filter: "{{ .Name }} ~= pydio.rest..* or {{ .Name }} ~= pydio.web..*"
-      grpc:
-        type: grpc
-        listener: grpca
-        services:
-          - filter: "idm ~= {{ sliceToRegexpFmt .Tags }}"
-          - filter: "{{ .Name }} ~= pydio.grpc..*"
-    env: *env
-    storages: *storages
-    services: *services
-    queues: *queues
-    caches: *caches
-
-  scheduler:
-    runtime: main
-    connections:
-      <<: *connections
-    listeners:
-      grpcs:
-        type: tcp
-        bind: 0.0.0.0
-        port: 0
-    servers:
-      grpc:
-        type: grpc
-        listener: grpcs
-        services:
-          - filter: "scheduler ~= {{ sliceToRegexpFmt .Tags }}"
-          - filter: "{{ .Name }} ~= pydio\\.grpc\\..*"
-    env: *env
-    storages: *storages
-    services: *services
-    queues: *queues
-    caches: *caches
+#          - filter: "frontend ~= {{ sliceToRegexpFmt .Tags }}"
+#          - filter: "{{ .Name }} ~= pydio\\.rest\\..* or {{ .Name }} ~= pydio.web..*"
+#    env: *env
+#    storages: *storages
+#    services: *services
+#    queues: *queues
+#    caches: *caches
+#
+#  broker:
+#    runtime: main
+#    connections:
+#      <<: *connections
+#    listeners:
+#      grpcbroker:
+#        type: tcp
+#        bind: 0.0.0.0
+#        port: 0
+#      httpbroker:
+#        type: tcp
+#        bind: 0.0.0.0
+#        port: 0
+#    servers:
+#      http:
+#        type: http
+#        listener: httpbroker
+#        services:
+#          - filter: "broker ~= {{ sliceToRegexpFmt .Tags }}"
+#          - filter: "{{ .Name }} !~= pydio.grpc..*"
+#      grpc:
+#        type: grpc
+#        listener: grpcbroker
+#        services:
+#          - filter: "broker ~= {{ sliceToRegexpFmt .Tags }}"
+#          - filter: "{{ .Name }} ~= pydio.grpc..*"
+#
+#    env: *env
+#    storages: *storages
+#    services: *services
+#    queues: *queues
+#    caches: *caches
+#
+#  gateway:
+#    runtime: main
+#    connections:
+#      <<: *connections
+#    listeners:
+#      httpg:
+#        type: tcp
+#        bind: 0.0.0.0
+#        port: 0
+#    servers:
+##      generic:
+##        type: generic
+##        services:
+##          - filter: "{{ .Name }} ~= pydio.web.sites"
+#      http:
+#        type: http
+#        listener: httpg
+#        services:
+#          - filter: "gateway ~= {{ sliceToRegexpFmt .Tags }}"
+#          - filter: "{{ .Name }} !~= pydio.web.sites"
+#    env: *env
+#    storages: *storages
+#    services: *services
+#    queues: *queues
+#    caches: *caches
+#
+#  data:
+#    runtime: main
+#    connections:
+#      <<: *connections
+#    listeners:
+#      grpcb:
+#        type: tcp
+#        bind: 0.0.0.0
+#        port: 0
+#      httpb:
+#        type: tcp
+#        bind: 0.0.0.0
+#        port: 0
+#    servers:
+#      http:
+#        type: http
+#        listener: httpb
+#        services:
+#          - filter: "data ~= {{ sliceToRegexpFmt .Tags }}"
+#          - filter: "{{ .Name }} ~= pydio.rest..* or {{ .Name }} ~= pydio.web..*"
+#      grpc:
+#        type: grpc
+#        listener: grpcb
+#        services:
+#          - filter: "data ~= {{ sliceToRegexpFmt .Tags }}"
+#          - filter: "{{ .Name }} ~= pydio.grpc..*"
+#    env: *env
+#    storages: *storages
+#    services: *services
+#    queues: *queues
+#    caches: *caches
+#
+#  idm:
+#    runtime: main
+#    connections: *connections
+#    listeners:
+#      grpca:
+#        type: tcp
+#        bind: 0.0.0.0
+#        port: 0
+#      httpa:
+#        type: tcp
+#        bind: 0.0.0.0
+#        port: 0
+#    servers:
+#      http:
+#        type: http
+#        listener: httpa
+#        services:
+#          - filter: "idm ~= {{ sliceToRegexpFmt .Tags }}"
+#          - filter: "{{ .Name }} ~= pydio.rest..* or {{ .Name }} ~= pydio.web..*"
+#      grpc:
+#        type: grpc
+#        listener: grpca
+#        services:
+#          - filter: "idm ~= {{ sliceToRegexpFmt .Tags }}"
+#          - filter: "{{ .Name }} ~= pydio.grpc..*"
+#    env: *env
+#    storages: *storages
+#    services: *services
+#    queues: *queues
+#    caches: *caches
+#
+#  scheduler:
+#    runtime: main
+#    connections:
+#      <<: *connections
+#    listeners:
+#      grpcs:
+#        type: tcp
+#        bind: 0.0.0.0
+#        port: 0
+#    servers:
+#      grpc:
+#        type: grpc
+#        listener: grpcs
+#        services:
+#          - filter: "scheduler ~= {{ sliceToRegexpFmt .Tags }}"
+#          - filter: "{{ .Name }} ~= pydio\\.grpc\\..*"
+#    env: *env
+#    storages: *storages
+#    services: *services
+#    queues: *queues
+#    caches: *caches
 
   datasource-peer:
     runtime: datasource
-    connections: *connections
+    connections:
+      <<: *connections
+      config:
+        uri: file://{{{{ .ApplicationWorkingDir }}}}/pydio.json
+        pools:
+          rp: file://{{{{ .ApplicationWorkingDir }}}}/{{ .Tenant }}.json
     env:
       <<: *env
       CELLS_BOOTSTRAP_TEMPLATE: datasources

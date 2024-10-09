@@ -6,40 +6,58 @@
 name: datasources
 processes:
   datasource-peer:
-    processes:{{{{range $k,$v := .ObjectsSources}}}}
+    connections: *connections
+    {{{{- $ := . }}}}
+    processes:
+      {{{{- range $k,$v := .ObjectsSources}}}}
       objects-{{{{$k}}}}:
-        runtime: datasource
-        connections: *connections
+        runtime: datasource-objects
+        connections:
+          <<: *connections
+          config:
+            uri: file://{{{{ $.ApplicationWorkingDir }}}}/pydio.json
+            pools:
+              rp: file://{{{{ $.ApplicationWorkingDir }}}}/{{ .Tenant }}.json
         listeners:
-          grpc:
+          grpc{{{{$k}}}}:
             type: tcp
             bind: 0.0.0.0
             port: 0
         servers:
-          grpc:
+          grpc{{{{$k}}}}:
             type: grpc
-            listener: grpc
+            listener: grpc{{{{$k}}}}
             services:
               - filter: "{{ .Name }} ~= pydio.grpc.data.objects.{{{{$v.Name}}}}"
-        env: *env
+        env:
+          <<: *env
+          DATASOURCE: "{{{{$v.Name}}}}"
         queues: *queues
-        caches: *caches{{{{end}}}}
-{{{{range $k,$v := .DataSources}}}}
+        caches: *caches
+      {{{{- end}}}}
+      {{{{- range $k,$v := .DataSources}}}}
       index-{{{{$k}}}}:
-        runtime: datasource
-        connections: *connections
+        runtime: datasource-index
+        connections:
+          <<: *connections
+          config:
+            uri: file://{{{{ $.ApplicationWorkingDir }}}}/pydio.json
+            pools:
+              rp: file://{{{{ $.ApplicationWorkingDir }}}}/{{ .Tenant }}.json
         listeners:
-          grpc:
+          grpc{{{{$k}}}}:
             type: tcp
             bind: 0.0.0.0
             port: 0
         servers:
-          grpc:
+          grpc{{{{$k}}}}:
             type: grpc
-            listener: grpc
+            listener: grpc{{{{$k}}}}
             services:
-              - filter: "{{ .Name }} ~= pydio.grpc.data.index.{{{{$v.Name}}}}"# or {{ .Name }} ~= pydio.grpc.data.sync.{{{{$v.Name}}}}"
-        env: *env
+              - filter: "{{ .Name }} ~= pydio.grpc.data.index.{{{{$v.Name}}}} or {{ .Name }} ~= pydio.grpc.data.sync.{{{{$v.Name}}}}"
+        env:
+          <<: *env
+          DATASOURCE: "{{{{$v.Name}}}}"
         storages: *storages
         services:
           pydio.grpc.data.index.{{{{$v.Name}}}}:
@@ -48,6 +66,6 @@ processes:
                 - type: sql
                   prefix: data_index_{{{{$v.Name}}}}_
         queues: *queues
-        caches: *caches{{{{end}}}}
-connections: *connections
+        caches: *caches
+      {{{{- end}}}}
 env: *env
