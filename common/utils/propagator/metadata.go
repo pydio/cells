@@ -167,12 +167,6 @@ func WithAdditionalMetadata(ctx context.Context, meta map[string]string) context
 	return NewContext(ctx, md)
 }
 
-func NewBackgroundWithUserKey(contextKey string, userName string) context.Context {
-	return NewContext(context.Background(), map[string]string{
-		contextKey: userName,
-	})
-}
-
 func ForkedBackgroundWithMeta(ctx context.Context) context.Context {
 	bgCtx := ForkContext(context.Background(), ctx)
 	if ctxMeta, ok := fromContextCopy(ctx); ok {

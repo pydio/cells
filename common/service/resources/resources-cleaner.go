@@ -38,7 +38,6 @@ type PoliciesCleanerOptions struct {
 
 type PoliciesCleaner struct {
 	Options PoliciesCleanerOptions
-	LogCtx  context.Context
 }
 
 // Handle cleans resources in the current DAO based on the delete events
@@ -61,7 +60,7 @@ func (c *PoliciesCleaner) Handle(ctx context.Context, dao resources.DAO, msg *id
 	}
 
 	if len(subject) > 0 {
-		log.Logger(c.LogCtx).Debug("DELETING POLICIES ON EVENT", zap.Any("event", msg), zap.String("subject", subject))
+		log.Logger(ctx).Info("Deleting policies on event", zap.Any("event", msg), zap.String("subject", subject))
 		return dao.DeletePoliciesBySubject(ctx, subject)
 	}
 	return nil

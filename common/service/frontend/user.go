@@ -30,7 +30,6 @@ import (
 
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/auth/claim"
-	"github.com/pydio/cells/v4/common/config"
 	"github.com/pydio/cells/v4/common/nodes/abstract"
 	"github.com/pydio/cells/v4/common/nodes/compose"
 	"github.com/pydio/cells/v4/common/permissions"
@@ -159,7 +158,7 @@ func (u *User) LoadActiveLanguage(ctx context.Context, parameter string) string 
 	if parameter != "" {
 		return parameter
 	}
-	lang := languages.GetDefaultLanguage(config.Get(ctx))
+	lang := languages.GetDefaultLanguage(ctx)
 	if v := u.FlattenedRolesConfigByName("core.conf", "lang"); v != "" {
 		lang = v
 	}

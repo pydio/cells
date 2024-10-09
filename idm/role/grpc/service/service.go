@@ -56,7 +56,7 @@ func init() {
 				handler := grpc2.NewHandler()
 				idm.RegisterRoleServiceServer(server, handler)
 				// Clean role on user deletion
-				cleaner := grpc2.NewCleaner(ctx, handler)
+				cleaner := grpc2.NewCleaner(handler)
 				if e := broker.SubscribeCancellable(ctx, common.TopicIdmEvent, func(ctx context.Context, message broker.Message) error {
 					ic := &idm.ChangeEvent{}
 					if ctx, e := message.Unmarshal(ctx, ic); e == nil {

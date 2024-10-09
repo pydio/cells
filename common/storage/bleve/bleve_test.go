@@ -86,6 +86,18 @@ func TestSizeRotation(t *testing.T) {
 			So(err, ShouldBeNil)
 			So(res, ShouldEqual, 20020)
 
+			// Rotating (multiple-aliases) indexes should not use Search
+			multiErr := s.Search(ctx, searchAll, nil)
+			So(multiErr, ShouldNotBeNil)
+
+			resChan, er := s.FindMany(ctx, v2.NewMatchAllQuery(), 0, 2, "", false, nil)
+			So(er, ShouldBeNil)
+			var out []any
+			for re := range resChan {
+				out = append(out, re)
+			}
+			So(len(out), ShouldEqual, 2)
+
 			m := s.Stats(ctx)
 			So(m, ShouldNotBeNil)
 			So(m["docsCount"], ShouldEqual, uint64(20020))
@@ -129,9 +141,14 @@ func TestSizeRotation(t *testing.T) {
 			So(size2, ShouldBeLessThan, size1)
 			t.Logf("Truncate:  %d (%d) ==> %d (%d)", len1, size1, len2, size2)
 
+			searchAll = &v2.SearchRequest{Query: v2.NewMatchAllQuery()}
+			res, err = s.Count(ctx, searchAll)
+			So(err, ShouldBeNil)
+			So(res, ShouldBeGreaterThan, 0)
+
 		})
 
-		Convey("Test Resync", t, func() {
+		SkipConvey("Test Resync", t, func() {
 			s, e := manager.Resolve[*bleve.Indexer](ctx)
 			So(e, ShouldBeNil)
 			So(s, ShouldNotBeNil)

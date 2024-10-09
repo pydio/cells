@@ -34,9 +34,8 @@ import (
 	"github.com/pydio/cells/v4/idm/role"
 )
 
-func NewCleaner(ctx context.Context, handler idm.RoleServiceServer) *Cleaner {
+func NewCleaner(handler idm.RoleServiceServer) *Cleaner {
 	c := &Cleaner{}
-	c.LogCtx = ctx
 	c.handler = handler
 	c.Options = resources.PoliciesCleanerOptions{SubscribeUsers: true}
 	return c

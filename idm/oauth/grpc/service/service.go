@@ -29,7 +29,6 @@ import (
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/auth"
 	"github.com/pydio/cells/v4/common/client/commons/jobsc"
-	"github.com/pydio/cells/v4/common/config"
 	"github.com/pydio/cells/v4/common/errors"
 	auth2 "github.com/pydio/cells/v4/common/proto/auth"
 	"github.com/pydio/cells/v4/common/proto/jobs"
@@ -137,7 +136,7 @@ func insertPruningJob(ctx context.Context) error {
 
 	log2.Logger(ctx).Info("Inserting pruning job for revoked token and reset password tokens")
 
-	pJob := pruningJob(languages.GetDefaultLanguage(config.Get(ctx)))
+	pJob := pruningJob(languages.GetDefaultLanguage(ctx))
 	cli := jobsc.JobServiceClient(ctx)
 	if resp, e := cli.GetJob(ctx, &jobs.GetJobRequest{JobID: pJob.ID}); e == nil && resp.Job != nil {
 		return nil // Already exists

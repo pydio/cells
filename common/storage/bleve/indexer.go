@@ -374,15 +374,9 @@ func (s *Indexer) Count(ctx context.Context, qu interface{}) (int, error) {
 	return int(sr.Total), nil
 }
 
-func (s *Indexer) Search(ctx context.Context, in any, out any) error {
-	qu, ok := in.(*bleve.SearchRequest)
-	if !ok {
-		return errors.WithMessage(errors.DAO, "Indexer.Search expects a *bleve.SearchRequest as in value")
-	}
-
-	res, ok := out.(*[]index.Document)
-	if !ok {
-		return errors.WithMessage(errors.DAO, "Indexer.Search expects a pointer as out value")
+func (s *Indexer) Search(ctx context.Context, qu *bleve.SearchRequest, res *[]index.Document) error {
+	if s.conf.RotationSize > -1 {
+		return errors.WithMessage(errors.DAO, "Indexer.Search cannot be used on auto-rotating indexes, use FindMany instead")
 	}
 
 	si, err := s.getSearchIndex(ctx)
@@ -398,7 +392,7 @@ func (s *Indexer) Search(ctx context.Context, in any, out any) error {
 	for _, hit := range sr.Hits {
 		doc, err := si.Document(hit.ID)
 		if err != nil {
-			return nil
+			return err
 		}
 
 		*res = append(*res, doc)
@@ -417,13 +411,25 @@ func (s *Indexer) FindMany(ctx context.Context, qu interface{}, offset, limit in
 		var q query.Query
 		var str string
 		var ok bool
-		if str, ok = qu.(string); !ok {
+		if bq, o1 := qu.(query.Query); o1 {
+			q = bq
+		} else if str, ok = qu.(string); !ok {
 			return nil, errors.WithMessage(errors.DAO, "FindMany expects a query string")
 		} else if str == "" {
 			return nil, errors.WithMessage(errors.DAO, "cannot pass an empty query for deletion")
+		} else {
+			q = bleve.NewQueryStringQuery(str)
 		}
-		q = bleve.NewQueryStringQuery(str)
 		request = bleve.NewSearchRequest(q)
+		request.From = int(offset)
+		request.Size = int(limit)
+		if sortFields != "" {
+			if sortDesc {
+				request.SortBy([]string{"-" + sortFields})
+			} else {
+				request.SortBy([]string{sortFields})
+			}
+		}
 	} else {
 		if r, _, err := codec.BuildQuery(qu, offset, limit, sortFields, sortDesc); err != nil {
 			return nil, err
@@ -544,8 +550,10 @@ func (s *Indexer) getSearchIndex(ctx context.Context) (bleve.Index, error) {
 	}
 
 	if len(indexes) == 0 {
-		if err := s.rotate(ctx); err != nil {
-			return nil, err
+		if s.checkRotate(ctx) {
+			if err := s.rotate(ctx); err != nil {
+				return nil, err
+			}
 		}
 
 		return s.getSearchIndex(ctx)

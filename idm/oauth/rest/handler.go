@@ -114,7 +114,7 @@ func (a *TokenHandler) ResetPasswordToken(req *restful.Request, resp *restful.Re
 		response.Message = T("ResetPassword.Err.EmailNotFound")
 		return resp.WriteEntity(response)
 	}
-	uLang := languages.UserLanguage(ctx, u, config.Get(ctx))
+	uLang := languages.UserLanguage(ctx, u)
 	T = lang.Bundle().T(uLang)
 
 	// Create token and store as document
@@ -215,7 +215,7 @@ func (a *TokenHandler) ResetPassword(req *restful.Request, resp *restful.Respons
 		response.Message = T("ResetPassword.Err.UserNotFound")
 		return resp.WriteEntity(response)
 	}
-	uLang := languages.UserLanguage(ctx, u, config.Get(ctx))
+	uLang := languages.UserLanguage(ctx, u)
 	T = lang.Bundle().T(uLang)
 	u.Password = input.NewPassword
 	userClient := idmc.UserServiceClient(ctx)

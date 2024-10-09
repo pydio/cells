@@ -101,7 +101,7 @@ func (c *CleanExpiredACLAction) Run(ctx context.Context, channels *actions.Runna
 		return input.WithError(e), e
 	}
 
-	aclClient := idmc.ACLServiceClient(ctx) // TODO CHECK CONTEXT - was c.RuntimeContext
+	aclClient := idmc.ACLServiceClient(ctx)
 	resp, e := aclClient.DeleteACL(ctx, req)
 	if e != nil {
 		return input.WithError(e), e

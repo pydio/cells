@@ -207,10 +207,11 @@ func (c *ChatHandler) PostMessage(ctx context.Context, req *chat.PostMessageRequ
 	if krs == nil {
 		krs = make(map[string]*chat.ChatRoom)
 	}
+	bgCtx := propagator.ForkedBackgroundWithMeta(ctx)
 	go func() {
 		for _, m := range results {
+			bgCtx = propagator.WithUserNameMetadata(bgCtx, common.PydioContextUserKey, m.Author)
 			kr, _ := c.knownRoomFromUuid(ctx, dao, m.RoomUuid, krs)
-			bgCtx := propagator.NewBackgroundWithUserKey(common.PydioContextUserKey, m.Author)
 			broker.MustPublish(bgCtx, common.TopicChatEvent, &chat.ChatEvent{
 				Message: m.ChatMessage,
 				Room:    kr,
@@ -225,12 +226,15 @@ func (c *ChatHandler) PostMessage(ctx context.Context, req *chat.PostMessageRequ
 						}},
 					})
 					if count, e := dao.CountMessages(bgCtx, room); e == nil {
-						getMetaClient(ctx).UpdateNode(bgCtx, &tree.UpdateNodeRequest{To: &tree.Node{
+						_, e = getMetaClient(ctx).UpdateNode(bgCtx, &tree.UpdateNodeRequest{To: &tree.Node{
 							Uuid: room.RoomTypeObject,
 							MetaStore: map[string]string{
 								"has_comments": fmt.Sprintf("%d", count),
 							},
 						}})
+						if e != nil {
+							log.Logger(bgCtx).Warn("Cannot post room size as meta", zap.Error(e))
+						}
 					}
 				}
 			}
@@ -264,21 +268,25 @@ func (c *ChatHandler) DeleteMessage(ctx context.Context, req *chat.DeleteMessage
 			Details: "DELETE",
 		})
 	}
+	bgCtx := propagator.ForkedBackgroundWithMeta(ctx)
 	go func() {
 		for _, m := range req.Messages {
-			bgCtx := propagator.NewBackgroundWithUserKey(common.PydioContextUserKey, m.Author)
+			bgCtx = propagator.WithUserNameMetadata(bgCtx, common.PydioContextUserKey, m.Author)
 			if room, err := dao.RoomByUuid(bgCtx, chat.RoomType_NODE, m.RoomUuid); err == nil {
 				if count, e := dao.CountMessages(bgCtx, room); e == nil {
 					var meta = ""
 					if count > 0 {
 						meta = fmt.Sprintf("%d", count)
 					}
-					_, _ = getMetaClient(ctx).UpdateNode(bgCtx, &tree.UpdateNodeRequest{To: &tree.Node{
+					_, e = getMetaClient(ctx).UpdateNode(bgCtx, &tree.UpdateNodeRequest{To: &tree.Node{
 						Uuid: room.RoomTypeObject,
 						MetaStore: map[string]string{
 							"has_comments": meta,
 						},
 					}})
+					if e != nil {
+						log.Logger(bgCtx).Warn("Cannot post room size as meta", zap.Error(e))
+					}
 				}
 			}
 		}
