@@ -77,6 +77,7 @@ func init() {
 						if err != nil {
 							return err
 						}
+						ct = runtime.WithServiceName(ct, Name)
 						_ = wsCleaner.Handle(ct, ev)
 						return cleaner.Handle(ct, dao, ev)
 					}

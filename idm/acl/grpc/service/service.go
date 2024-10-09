@@ -72,8 +72,9 @@ func init() {
 				rCleaner := &grpc2.WsRolesCleaner{Handler: handler}
 				if e := broker.SubscribeCancellable(ctx, common.TopicIdmEvent, func(ctx context.Context, message broker.Message) error {
 					ev := &idm.ChangeEvent{}
-					if ctx, e := message.Unmarshal(ctx, ev); e == nil {
-						return rCleaner.Handle(ctx, ev)
+					var e error
+					if ctx, e = message.Unmarshal(ctx, ev); e == nil {
+						return rCleaner.Handle(runtime.WithServiceName(ctx, Name), ev)
 					}
 					return nil
 				}, cn); e != nil {
@@ -83,8 +84,9 @@ func init() {
 				nCleaner := grpc2.NewNodesCleaner(ctx, handler)
 				if e := broker.SubscribeCancellable(ctx, common.TopicTreeChanges, func(ctx context.Context, message broker.Message) error {
 					ev := &tree.NodeChangeEvent{}
-					if ctx, e := message.Unmarshal(ctx, ev); e == nil {
-						return nCleaner.Handle(ctx, ev)
+					var e error
+					if ctx, e = message.Unmarshal(ctx, ev); e == nil {
+						return nCleaner.Handle(runtime.WithServiceName(ctx, Name), ev)
 					}
 					return nil
 				}, cn); e != nil {

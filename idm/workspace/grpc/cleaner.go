@@ -101,7 +101,7 @@ func NewWsCleaner(ctx context.Context, h idm.WorkspaceServiceServer) *WsCleaner 
 		case <-ctx.Done():
 			return
 		case ev := <-listener:
-			if err := w.deleteEmptyWs(ctx, ev.id); err != nil {
+			if err := w.deleteEmptyWs(ev.ctx, ev.id); err != nil {
 				log.Logger(ctx).Info("Error while trying to delete workspace without ACLs (" + ev.id + ")")
 			}
 			lock.Lock()
@@ -145,7 +145,9 @@ func (c *WsCleaner) deleteEmptyWs(ctx context.Context, workspaceId string) error
 	q, _ := anypb.New(&idm.ACLSingleQuery{
 		WorkspaceIDs: []string{workspaceId},
 	})
-	streamer, e := cl.SearchACL(ctx, &idm.SearchACLRequest{
+	ct, ca := context.WithCancel(ctx)
+	defer ca()
+	streamer, e := cl.SearchACL(ct, &idm.SearchACLRequest{
 		Query: &service.Query{SubQueries: []*anypb.Any{q}},
 	})
 	if e != nil {

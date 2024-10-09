@@ -36,6 +36,7 @@ import (
 	"github.com/pydio/cells/v4/common/telemetry/log"
 	"github.com/pydio/cells/v4/common/utils/configx"
 	json "github.com/pydio/cells/v4/common/utils/jsonx"
+	"github.com/pydio/cells/v4/common/utils/propagator"
 	"github.com/pydio/cells/v4/common/utils/std"
 )
 
@@ -443,6 +444,10 @@ func (a *AccessList) Zap() zapcore.Field {
 PRIVATE METHODS
 ****************/
 
+var (
+	flagNone = tree.StatFlags([]uint32{tree.StatFlagNone})
+)
+
 // loadNodePathAcls retrieve each node by UUID, to which an ACL is attached
 func (a *AccessList) loadNodePathAcls(ctx context.Context, resolver VirtualPathResolver) error {
 	a.maskBULock.RLock()
@@ -458,7 +463,7 @@ func (a *AccessList) loadNodePathAcls(ctx context.Context, resolver VirtualPathR
 	cli := treec.NodeProviderStreamerClient(ctx)
 	ct, ca := context.WithCancel(ctx)
 	defer ca()
-	st, e := cli.ReadNodeStream(ct)
+	st, e := cli.ReadNodeStream(propagator.WithAdditionalMetadata(ct, flagNone.AsMeta()))
 	if e != nil {
 		return e
 	}
@@ -473,7 +478,7 @@ func (a *AccessList) loadNodePathAcls(ctx context.Context, resolver VirtualPathR
 			a.masksByPaths[strings.TrimSuffix(n.Path, "/")] = b
 			continue
 		}
-		err := st.Send(&tree.ReadNodeRequest{Node: &tree.Node{Uuid: nodeID}})
+		err := st.Send(&tree.ReadNodeRequest{Node: &tree.Node{Uuid: nodeID}, StatFlags: flagNone})
 		if err != nil {
 			return err
 		}

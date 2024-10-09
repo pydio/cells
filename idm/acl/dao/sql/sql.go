@@ -258,21 +258,21 @@ func (s *sqlimpl) Del(ctx context.Context, query service.Enquirer, period *acl.E
 		newInstance := s.Session(ctx)
 		subQuery := newInstance.Session(&gorm.Session{}).Model(&ACL{}).Distinct("workspace_id")
 		if cleanTx := newInstance.Where("id != -1").Not("id IN (?)", subQuery).Delete(&Workspace{}); cleanTx.Error == nil {
-			fmt.Printf("Cleaned %d workspaces\n", cleanTx.RowsAffected)
+			log.Logger(ctx).Debugf("Cleaned %d workspaces", cleanTx.RowsAffected)
 		} else {
 			return 0, cleanTx.Error
 		}
 
 		subQuery2 := newInstance.Session(&gorm.Session{}).Model(&ACL{}).Distinct("node_id")
 		if cleanTx := newInstance.Where("id != -1").Not("id IN (?)", subQuery2).Delete(&Node{}); cleanTx.Error == nil {
-			fmt.Printf("Cleaned %d nodes\n", cleanTx.RowsAffected)
+			log.Logger(ctx).Debugf("Cleaned %d nodes", cleanTx.RowsAffected)
 		} else {
 			return 0, cleanTx.Error
 		}
 
 		subQuery3 := newInstance.Session(&gorm.Session{}).Model(&ACL{}).Distinct("role_id")
 		if cleanTx := newInstance.Where("id != -1").Not("id IN (?)", subQuery3).Delete(&Role{}); cleanTx.Error == nil {
-			fmt.Printf("Cleaned %d roles\n", cleanTx.RowsAffected)
+			log.Logger(ctx).Debugf("Cleaned %d roles", cleanTx.RowsAffected)
 		} else {
 			return 0, cleanTx.Error
 		}

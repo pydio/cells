@@ -81,14 +81,9 @@ func (t *testHandler) Watch(request *pb.WatchRequest, stream pb.Config_WatchServ
 
 func TestManagerConnection(t *testing.T) {
 	v := viper.New()
-<<<<<<< HEAD
 	v.Set("config", "mem://")
 	v.Set("yaml", connectionTestTemplate)
 	v.Set(runtime.KeyKeyring, "mem://")
-=======
-	v.Set(runtime.KeyConfig, "mem://")
-	v.Set(runtime.KeyBootstrapYAML, connectionTestTemplate)
->>>>>>> fc2ba5cc97af7563f8fc7e5464369f63f2aa90d5
 	runtime.SetRuntime(v)
 
 	ctx := context.Background()

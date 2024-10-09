@@ -31,6 +31,7 @@ import (
 	resource "github.com/envoyproxy/go-control-plane/pkg/resource/v3"
 	xds "github.com/envoyproxy/go-control-plane/pkg/server/v3"
 	"github.com/envoyproxy/go-control-plane/pkg/wellknown"
+	"go.uber.org/zap"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/xds/csds"
 	"google.golang.org/protobuf/types/known/anypb"
@@ -79,7 +80,7 @@ func init() {
 				domains := []string{listenerName, "cells"}
 
 				signal := make(chan struct{})
-				cache := cachev3.NewSnapshotCache(true, cachev3.IDHash{}, log.Logger(ctx))
+				cache := cachev3.NewSnapshotCache(true, cachev3.IDHash{}, log.Logger(runtime.WithServiceName(ctx, common.ServiceGrpcNamespace_+common.ServiceRegistry)).WithOptions(zap.IncreaseLevel(zap.ErrorLevel)))
 
 				discoveryHandler := xds.NewServer(ctx, cache, &callbacks{
 					signal:   signal,

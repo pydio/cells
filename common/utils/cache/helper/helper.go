@@ -22,11 +22,13 @@ package cache_helper
 
 import (
 	"context"
-	"fmt"
 	"net/url"
+
+	"go.uber.org/zap"
 
 	"github.com/pydio/cells/v4/common/runtime"
 	"github.com/pydio/cells/v4/common/runtime/controller"
+	"github.com/pydio/cells/v4/common/telemetry/log"
 	"github.com/pydio/cells/v4/common/utils/cache"
 	"github.com/pydio/cells/v4/common/utils/openurl"
 )
@@ -80,7 +82,7 @@ func ResolveCache(ctx context.Context, name string, config cache.Config) (cache.
 	reg, err := resolver(ctx)
 	if err != nil {
 		if config.DiscardFallback {
-			fmt.Println("Resolving cache "+name+" fails, use a Discard Fallback", err.Error())
+			log.Logger(ctx).Warn("Resolving cache "+name+" fails, use a Discard Fallback", zap.Error(err))
 			return cache.MustDiscard(), nil
 		}
 		return nil, err
@@ -92,7 +94,7 @@ func ResolveCache(ctx context.Context, name string, config cache.Config) (cache.
 		"prefix":       config.Prefix,
 	})
 	if (c == nil || er != nil) && config.DiscardFallback {
-		fmt.Println("Resolving cache " + name + " fails, use a Discard Fallback")
+		log.Logger(ctx).Warn("Resolving cache "+name+" fails, use a Discard Fallback", zap.Error(er))
 		return cache.MustDiscard(), nil
 	}
 	return c, er
