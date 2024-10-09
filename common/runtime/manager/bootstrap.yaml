@@ -27,8 +27,10 @@ processes:
         type: grpc
         listener: grpcd
         services:
-          - filter: "discovery ~= {{ sliceToRegexpFmt .Tags }}"
+          #- filter: "discovery ~= {{ sliceToRegexpFmt .Tags }}"
           - filter: "{{ .Name }} ~= pydio.grpc..*"
+    storages: *storages
+    services: *services
     env: *env
 
   all:
