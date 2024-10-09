@@ -52,6 +52,9 @@ func (sc *Client) WorkspaceToCellObject(ctx context.Context, workspace *idm.Work
 		return nil, err
 	}
 	log.Logger(ctx).Debug("Detected Roots for object", log.DangerouslyZapSmallSlice("roots", detectedRoots))
+	if len(detectedRoots) == 0 {
+		log.Logger(ctx).Warn("EMPTY DETECTED ROOTS FOR CELL WORKSPACE", workspace.Zap())
+	}
 	roomAcls := sc.AclsToCellAcls(ctx, acls)
 
 	log.Logger(ctx).Debug("Computed roomAcls before load", zap.Any("roomAcls", roomAcls))
@@ -60,6 +63,9 @@ func (sc *Client) WorkspaceToCellObject(ctx context.Context, workspace *idm.Work
 		return nil, err
 	}
 	rootNodes := sc.LoadDetectedRootNodes(ctx, detectedRoots, accessList)
+	if len(rootNodes) == 0 {
+		log.Logger(ctx).Warn("EMPTY LOADED ROOTS FOR CELL WORKSPACE", workspace.Zap(), log.DangerouslyZapSmallSlice("roots", detectedRoots))
+	}
 	var nodesSlices []*tree.Node
 	for _, node := range rootNodes {
 		if !sc.ContextualizeRootToWorkspace(ctx, node, workspace.UUID) {
