@@ -143,8 +143,18 @@ defaults:
     pydio.grpc.search:
       storages:
         main:
-          - type: search
-            path: chat
+          - type: bleve
+            file: searchengine.bleve
+    pydio.grpc.chat:
+      storages:
+        main:
+          - type: bolt
+            file: chat.db
+    pydio.grpc.data-key:
+      storages:
+        main:
+          - type: sql
+            prefix: data_
     pydio.grpc.activity:
       storages:
         main:
