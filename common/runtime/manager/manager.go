@@ -343,7 +343,7 @@ func (m *manager) GetCache(ctx context.Context, name string, resolutionData map[
 }
 
 func (m *manager) initNamespace(ctx context.Context, bootstrap *Bootstrap, base string) error {
-	m.ns = bootstrap.Val(base, "runtime").String()
+	m.ns = bootstrap.Val(base, "runtime").Default(m.ns).String()
 
 	return nil
 }
