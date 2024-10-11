@@ -165,8 +165,7 @@ func (v *storeWithReferencePoolValues) Get() any {
 			}
 		}
 
-		ret = current
-		return ret
+		return nil
 	}); err != nil || ret == nil {
 		return v.Values.Get()
 	}

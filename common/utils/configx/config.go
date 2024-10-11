@@ -61,7 +61,7 @@ type storer struct {
 	rLocked bool
 }
 
-func New(opts ...Option) Values {
+func New(opts ...Option) (ret Values) {
 	options := &Options{}
 
 	for _, o := range opts {
@@ -69,16 +69,21 @@ func New(opts ...Option) Values {
 	}
 
 	if st := options.Storer; st != nil {
-		return &caster{Storer: st}
+		ret = caster{Storer: st}
+	} else {
+		var v any
+		ret = caster{Storer: storer{v: &v, opts: options}}
 	}
 
-	var v any
-	return &caster{
-		Storer: &storer{
-			v:    &v,
-			opts: options,
-		},
+	if enc, dec := options.Encrypter, options.Decrypter; enc != nil && dec != nil {
+		ret = encrypter{Values: ret, Encrypter: enc, Decrypter: dec}
 	}
+
+	if mar, unm := options.Marshaller, options.Unmarshaler; mar != nil && unm != nil {
+		ret = marshaller{Values: ret, Marshaller: mar, Unmarshaler: unm}
+	}
+
+	return ret
 }
 
 func Walk(st Storer, fn func(i int, v *any) (bool, error)) error {
@@ -143,7 +148,7 @@ func Walk(st Storer, fn func(i int, v *any) (bool, error)) error {
 	return nil
 }
 
-func (c *storer) Walk(fn func(i int, v any) any) error {
+func (c storer) Walk(fn func(i int, v any) any) error {
 
 	current := fn(0, *c.v)
 
@@ -182,7 +187,7 @@ func (c *storer) Walk(fn func(i int, v any) any) error {
 	return nil
 }
 
-func (c *storer) Context(ctx context.Context) Values {
+func (c storer) Context(ctx context.Context) Values {
 	opts := c.opts
 	opts.Context = ctx
 
@@ -196,9 +201,9 @@ func (c *storer) Context(ctx context.Context) Values {
 	}
 }
 
-func (c *storer) Val(s ...string) Values {
-	return &caster{
-		&storer{
+func (c storer) Val(s ...string) Values {
+	return caster{
+		storer{
 			v:     c.v,
 			k:     StringToKeys(append(c.k, s...)...),
 			opts:  c.opts,
@@ -207,7 +212,7 @@ func (c *storer) Val(s ...string) Values {
 	}
 }
 
-func (c *storer) Default(d any) Values {
+func (c storer) Default(d any) Values {
 	return &caster{
 		&storer{
 			v:     c.v,
@@ -219,15 +224,15 @@ func (c *storer) Default(d any) Values {
 	}
 }
 
-func (c *storer) Key() []string {
+func (c storer) Key() []string {
 	return c.k
 }
 
-func (c *storer) Options() *Options {
+func (c storer) Options() *Options {
 	return c.opts
 }
 
-func (c *storer) UnmarshalJSON(data []byte) error {
+func (c storer) UnmarshalJSON(data []byte) error {
 	var m map[string]interface{}
 
 	err := c.opts.Unmarshaler.Unmarshal(data, &m)
@@ -240,11 +245,11 @@ func (c *storer) UnmarshalJSON(data []byte) error {
 	return nil
 }
 
-func (c *storer) MarshalJSON() ([]byte, error) {
+func (c storer) MarshalJSON() ([]byte, error) {
 	return c.opts.Marshaller.Marshal(c.v)
 }
 
-func (c *storer) Get() any {
+func (c storer) Get() any {
 	var current any
 
 	if len(c.k) == 0 {
@@ -261,54 +266,7 @@ func (c *storer) Get() any {
 	return current
 }
 
-func (c *storer) Set(data any) error {
-	if c == nil {
-		return fmt.Errorf("value doesn't exist")
-	}
-
-	if enc := c.opts.Encrypter; enc != nil {
-		switch vv := data.(type) {
-		case []byte:
-			// Encrypting value
-			str, err := enc.Encrypt(vv)
-			if err != nil {
-				return err
-			}
-
-			data = str
-		case string:
-			// Encrypting value
-			str, err := enc.Encrypt([]byte(vv))
-			if err != nil {
-				return err
-			}
-
-			data = str
-		}
-	}
-
-	var b []byte
-	if c.opts.Marshaller != nil {
-		switch vv := data.(type) {
-		case []byte:
-			b = vv
-		default:
-			if v, err := c.opts.Marshaller.Marshal(data); err != nil {
-				return err
-			} else {
-				b = v
-			}
-		}
-	}
-
-	if c.opts.Unmarshaler != nil {
-		var v any
-		if err := c.opts.Unmarshaler.Unmarshal(b, &v); err != nil {
-			return err
-		} else {
-			data = v
-		}
-	}
+func (c storer) Set(data any) error {
 
 	// Building the keys one by one
 	var current = data
@@ -334,7 +292,7 @@ func (c *storer) Set(data any) error {
 	return nil
 }
 
-func (c *storer) Del() error {
+func (c storer) Del() error {
 
 	if len(c.k) == 0 {
 		*c.v = nil
@@ -463,7 +421,7 @@ type caster struct {
 	Storer
 }
 
-func (c *caster) Bool() bool {
+func (c caster) Bool() bool {
 	v := c.Get()
 	if v == nil {
 		return false
@@ -471,7 +429,7 @@ func (c *caster) Bool() bool {
 	return cast.ToBool(v)
 }
 
-func (c *caster) Bytes() []byte {
+func (c caster) Bytes() []byte {
 	v := c.Interface()
 	if v == nil {
 		return []byte{}
@@ -489,11 +447,11 @@ func (c *caster) Bytes() []byte {
 	return []byte(cast.ToString(v))
 }
 
-func (c *caster) Interface() interface{} {
+func (c caster) Interface() interface{} {
 	return c.Get()
 }
 
-func (c *caster) Int() int {
+func (c caster) Int() int {
 	v := c.Get()
 	if v == nil {
 		return 0
@@ -501,7 +459,7 @@ func (c *caster) Int() int {
 	return cast.ToInt(v)
 }
 
-func (c *caster) Int64() int64 {
+func (c caster) Int64() int64 {
 	v := c.Get()
 	if v == nil {
 		return 0
@@ -509,7 +467,7 @@ func (c *caster) Int64() int64 {
 	return cast.ToInt64(v)
 }
 
-func (c *caster) Duration() time.Duration {
+func (c caster) Duration() time.Duration {
 	v := c.Get()
 	if v == nil {
 		return 0 * time.Second
@@ -517,7 +475,7 @@ func (c *caster) Duration() time.Duration {
 	return cast.ToDuration(v)
 }
 
-func (c *caster) String() string {
+func (c caster) String() string {
 
 	v := c.Get()
 	switch vv := v.(type) {
@@ -537,7 +495,7 @@ func (c *caster) String() string {
 	return cast.ToString(v)
 }
 
-func (c *caster) StringMap() map[string]string {
+func (c caster) StringMap() map[string]string {
 	v := c.Get()
 	if v == nil {
 		return map[string]string{}
@@ -545,7 +503,7 @@ func (c *caster) StringMap() map[string]string {
 	return cast.ToStringMapString(v)
 }
 
-func (c *caster) StringArray() []string {
+func (c caster) StringArray() []string {
 	v := c.Get()
 	vv := reflect.ValueOf(v)
 	if !vv.IsValid() || reflect.ValueOf(v).IsNil() || reflect.ValueOf(v).IsZero() {
@@ -554,7 +512,7 @@ func (c *caster) StringArray() []string {
 	return cast.ToStringSlice(c.Get())
 }
 
-func (c *caster) Slice() []interface{} {
+func (c caster) Slice() []interface{} {
 	v := c.Get()
 	if v == nil {
 		return []interface{}{}
@@ -562,7 +520,7 @@ func (c *caster) Slice() []interface{} {
 	return cast.ToSlice(c.Get())
 }
 
-func (c *caster) Map() map[string]interface{} {
+func (c caster) Map() map[string]interface{} {
 	v := c.Get()
 	if v == nil {
 		return map[string]interface{}{}
@@ -571,7 +529,7 @@ func (c *caster) Map() map[string]interface{} {
 	return r
 }
 
-func (c *caster) Scan(out any, options ...Option) error {
+func (c caster) Scan(out any, options ...Option) error {
 
 	v := c.Get()
 	if v == nil {

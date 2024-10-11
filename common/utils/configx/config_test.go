@@ -495,20 +495,9 @@ func TestStringEncoding(t *testing.T) {
 	})
 }
 
-type encrypter struct {
-}
-
-func (encrypter) Encrypt(b []byte) (string, error) {
-	return "encrypted : " + string(b), nil
-}
-
-func (encrypter) Decrypt(s string) ([]byte, error) {
-	return []byte(strings.TrimPrefix(s, "encrypted : ")), nil
-}
-
 func TestEncrypt(t *testing.T) {
 	Convey("Testing encryption", t, func() {
-		e := encrypter{}
+		e := &mockEncDec{}
 		m := New(WithYAML(), WithEncrypt(e), WithDecrypt(e))
 		err := m.Set(dataYAML)
 		So(err, ShouldBeNil)

@@ -54,7 +54,7 @@ func ListMinioConfigsFromConfig(ctx context.Context, skipSecret ...bool) map[str
 func GetMinioConfigForName(ctx context.Context, name string, skipSecret bool) *object.MinioConfig {
 	var conf *object.MinioConfig
 	if e := Get(ctx, configx.FormatPath("services", common.ServiceGrpcNamespace_+common.ServiceDataObjects_+name)).Scan(&conf); e == nil && conf != nil {
-		if skipSecret {
+		if !skipSecret {
 			// Replace ApiSecret with value from vault
 			if sec := GetSecret(ctx, conf.ApiSecret).String(); sec != "" {
 				conf.ApiSecret = sec

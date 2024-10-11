@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"github.com/pydio/cells/v4/common/crypto"
 	"net/url"
 	"os"
 	"regexp"
@@ -70,6 +71,14 @@ func (o *URLOpener) Open(ctx context.Context, urlstr string) (config.Store, erro
 		opts = append(opts, configx.WithJSON())
 	default:
 		opts = append(opts, configx.WithJSON())
+	}
+
+	if master := u.Query().Get("masterKey"); master != "" {
+		enc, err := crypto.NewVaultCipher(master)
+		if err != nil {
+			return nil, err
+		}
+		opts = append(opts, configx.WithEncrypt(enc), configx.WithDecrypt(enc))
 	}
 
 	if data := u.Query().Get("data"); data != "" {
