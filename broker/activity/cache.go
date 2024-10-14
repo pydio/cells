@@ -32,6 +32,7 @@ import (
 	"github.com/pydio/cells/v4/common/proto/activity"
 	"github.com/pydio/cells/v4/common/runtime"
 	"github.com/pydio/cells/v4/common/runtime/manager"
+	"github.com/pydio/cells/v4/common/storage"
 	"github.com/pydio/cells/v4/common/storage/indexer"
 	"github.com/pydio/cells/v4/common/telemetry/log"
 	"github.com/pydio/cells/v4/common/utils/cache"
@@ -73,6 +74,13 @@ type Cache struct {
 func (c *Cache) Init(ctx context.Context, options configx.Values) error {
 	if ip, ok := c.DAO.(manager.InitProvider); ok {
 		return ip.Init(ctx, options)
+	}
+	return nil
+}
+
+func (c *Cache) Migrate(ctx context.Context) error {
+	if ip, ok := c.DAO.(storage.Migrator); ok {
+		return ip.Migrate(ctx)
 	}
 	return nil
 }
