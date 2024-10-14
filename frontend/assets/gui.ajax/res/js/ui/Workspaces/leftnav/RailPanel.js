@@ -288,11 +288,17 @@ let RailPanel = ({
             icon: 'star-outline',
             position:'top',
             onClick: () => {},
-            hoverBar: () => {
+            hoverBar: (a, b, c, open) => {
                 return (
                     <div style={{height:'100%', display:'flex', flexDirection:'column', width:'100%', overflow:'hidden'}} className={"rail-hover-bar"}>
                         <div style={{fontSize: 20, padding:16}}>{MessageHash['147']}</div>
-                        <BookmarksList pydio={pydio} asPopover={false} useCache={true} onRequestClose={()=>{setHover(false)}}/>
+                        <BookmarksList
+                            pydio={pydio}
+                            open={open}
+                            asPopover={false}
+                            useCache={true}
+                            onRequestClose={()=>{setHover(false)}}
+                        />
                     </div>
                 )
             },
@@ -535,7 +541,7 @@ let RailPanel = ({
                     <div className={"vertical_layout" + (showStickToggle?' with-rail-stick-toggle':'')}
                          style={{flex: 1, height: '100%', position: 'absolute', width: smallScreen ? '100%' : innerWidth, right: 0, zIndex: 901, ...style}}
                          onMouseEnter={() => setHover(true)}
-                         onMouseLeave={hoverBarDef && hoverBarDef.leaveByClickAway ? null : () => setHover(false)}>{hoverBarDef && hoverBarDef.hoverBar(ASLib, ASData, jobs)}</div>
+                         onMouseLeave={hoverBarDef && hoverBarDef.leaveByClickAway ? null : () => setHover(false)}>{hoverBarDef && hoverBarDef.hoverBar(ASLib, ASData, jobs, !!hover)}</div>
                     {showStickToggle && !smallScreen &&
                         <div
                             style={{...closerStyle}}

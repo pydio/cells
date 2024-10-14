@@ -151,6 +151,14 @@ class BookmarksList extends React.Component {
         }
     }
 
+    componentWillReceiveProps(nextProps, nextContext) {
+        if(!this.props.asPopover) {
+            if(nextProps.open && !this.props.open) {
+                this.load(true, this.props.useCache)
+            }
+        }
+    }
+
     load(silent = false, useCache = false){
         if(!silent){
             this.setState({loading: true});
