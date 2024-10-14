@@ -141,73 +141,91 @@ func (s *MetaServer) ProcessEvent(ctx context.Context, e *tree.NodeChangeEvent) 
 	return nil
 }
 
-// ReadNode information off the meta server
-func (s *MetaServer) ReadNode(ctx context.Context, req *tree.ReadNodeRequest) (resp *tree.ReadNodeResponse, err error) {
-	if req.Node == nil || req.Node.Uuid == "" {
-		return resp, errors.WithMessage(errors.InvalidParameters, "Please provide a Node with a Uuid")
+func (s *MetaServer) readNodeCache(ctx context.Context, req *tree.ReadNodeRequest, ca cache.Cache) (*tree.Node, bool) {
+	if ca == nil {
+		return nil, false
 	}
-	resp = &tree.ReadNodeResponse{}
 
-	ca, _ := cache_helper.ResolveCache(ctx, "shared", cache.Config{Eviction: "1m"})
-	if ca != nil {
-		//s.cacheMutex.Lock(req.Node.Uuid)
-		//defer s.cacheMutex.Unlock(req.Node.Uuid)
-		data, ok := ca.GetBytes(req.Node.Uuid)
-		if ok {
-			var metaD map[string]string
-			if er := json.Unmarshal(data, &metaD); er == nil {
-				//log.Logger(ctx).Info("META / Reading from cache for " + req.Node.Uuid)
-				resp.Success = true
-				respNode := req.Node
-				for k, v := range metaD {
-					if k == "name" { // Never read name from cache
-						continue
-					}
-					var metaValue interface{}
-					json.Unmarshal([]byte(v), &metaValue)
-					respNode.MustSetMeta(k, metaValue)
-				}
-				resp.Node = respNode
-				return resp, nil
-			}
+	data, ok := ca.GetBytes(req.Node.Uuid)
+	if !ok {
+		return nil, false
+	}
+
+	var metaD map[string]string
+	if er := json.Unmarshal(data, &metaD); er != nil {
+		return nil, false
+	}
+	respNode := req.Node
+	for k, v := range metaD {
+		if k == "name" { // Never read name from cache
+			continue
 		}
+		var metaValue interface{}
+		_ = json.Unmarshal([]byte(v), &metaValue)
+		respNode.MustSetMeta(k, metaValue)
 	}
+	return respNode, true
+}
 
-	dao, err := manager.Resolve[meta.DAO](ctx)
-	if err != nil {
-		return nil, err
-	}
-
+func (s *MetaServer) readNodeDAO(ctx context.Context, req *tree.ReadNodeRequest, dao meta.DAO, ca cache.Cache) (*tree.Node, error) {
 	metadata, err := dao.GetMetadata(ctx, req.Node.Uuid)
 	if metadata == nil || err != nil {
-		return resp, errors.WithMessage(errors.NodeNotFound, "Node with Uuid "+req.Node.Uuid+" not found")
+		return nil, errors.WithMessage(errors.NodeNotFound, "Node with Uuid "+req.Node.Uuid+" not found")
 	}
 
 	if ca != nil {
 		value, e := json.Marshal(metadata)
 		if e == nil {
 			//log.Logger(ctx).Info("META / Setting cache for " + req.Node.Uuid)
-			ca.Set(req.Node.Uuid, value)
+			_ = ca.Set(req.Node.Uuid, value)
 		}
 	}
-	resp = &tree.ReadNodeResponse{}
-	resp.Success = true
 	respNode := req.Node
 	for k, v := range metadata {
 		var metaValue interface{}
-		json.Unmarshal([]byte(v), &metaValue)
+		_ = json.Unmarshal([]byte(v), &metaValue)
 		respNode.MustSetMeta(k, metaValue)
 	}
-	resp.Node = respNode
+	return respNode, nil
 
-	return resp, nil
+}
+
+// ReadNode information off the meta server
+func (s *MetaServer) ReadNode(ctx context.Context, req *tree.ReadNodeRequest) (resp *tree.ReadNodeResponse, err error) {
+	if req.Node == nil || req.Node.Uuid == "" {
+		return resp, errors.WithMessage(errors.InvalidParameters, "Please provide a Node with a Uuid")
+	}
+	resp = &tree.ReadNodeResponse{}
+	ca, _ := cache_helper.ResolveCache(ctx, "shared", cache.Config{Eviction: "1m"})
+	if n, ok := s.readNodeCache(ctx, req, ca); ok {
+		resp.Success = true
+		resp.Node = n
+		return
+	}
+
+	dao, err := manager.Resolve[meta.DAO](ctx)
+	if err != nil {
+		return nil, err
+	}
+	n, er := s.readNodeDAO(ctx, req, dao, ca)
+	if er != nil {
+		err = er
+	} else {
+		resp.Success = true
+		resp.Node = n
+	}
+	return
 }
 
 // ReadNodeStream implements ReadNode as a bidirectional stream
 func (s *MetaServer) ReadNodeStream(streamer tree.NodeProviderStreamer_ReadNodeStreamServer) error {
 
-	//defer streamer.Close()
 	ctx := streamer.Context()
+	ca, _ := cache_helper.ResolveCache(ctx, "shared", cache.Config{Eviction: "1m"})
+	dao, err := manager.Resolve[meta.DAO](ctx)
+	if err != nil {
+		return err
+	}
 
 	for {
 		request, err := streamer.Recv()
@@ -219,18 +237,31 @@ func (s *MetaServer) ReadNodeStream(streamer tree.NodeProviderStreamer_ReadNodeS
 		}
 
 		log.Logger(ctx).Debug("ReadNodeStream", zap.String("path", request.Node.Path))
-		response, e := s.ReadNode(ctx, &tree.ReadNodeRequest{Node: request.Node})
-		if e != nil {
-			if errors.Is(e, errors.StatusNotFound) {
+		var resp *tree.ReadNodeResponse
+		if n, ok := s.readNodeCache(ctx, request, ca); ok {
+			resp = &tree.ReadNodeResponse{
+				Success: true,
+				Node:    n,
+			}
+			if sendErr := streamer.Send(resp); sendErr != nil {
+				return sendErr
+			}
+		} else if node, er := s.readNodeDAO(ctx, request, dao, ca); er != nil {
+			if errors.Is(er, errors.StatusNotFound) {
 				// There is no metadata, simply return the original node
-				streamer.Send(&tree.ReadNodeResponse{Node: request.Node})
+				if sendErr := streamer.Send(&tree.ReadNodeResponse{Node: request.Node}); sendErr != nil {
+					return sendErr
+				}
 			} else {
-				return e
+				return er
 			}
 		} else {
-			sendErr := streamer.Send(&tree.ReadNodeResponse{Node: response.Node})
-			if sendErr != nil {
-				return e
+			resp = &tree.ReadNodeResponse{
+				Success: true,
+				Node:    node,
+			}
+			if sendErr := streamer.Send(resp); sendErr != nil {
+				return sendErr
 			}
 		}
 	}

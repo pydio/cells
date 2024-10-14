@@ -34,11 +34,11 @@ type DAO interface {
 }
 
 func NewDAOCache(session string, o DAO) DAO {
-	return nil
-	//return index.NewDAOCache(session, 300, o)
+	///return nil
+	return index.NewDAOCache(session, 300, o)
 }
 
 func GetDAOCache(session string) DAO {
 	return nil
-	// return index.GetDAOCache(session)
+	//return index.GetDAOCache(session)
 }

@@ -44,7 +44,7 @@ func (c *Cacher) Store(key string, val interface{}) error {
 
 type daocache struct {
 	DAO
-	session     string
+	cacheConf   cache.Config
 	concurrency int
 }
 
@@ -55,14 +55,17 @@ var (
 		Eviction:    "10m",
 		CleanWindow: "3m",
 	}
-	//	_ dao.DAO = (*daocache)(nil)
 )
 
 // NewDAOCache wraps a cache around the dao
 func NewDAOCache(session string, concurrency int, d DAO) DAO {
 	c := &daocache{
-		DAO:         d,
-		session:     session,
+		DAO: d,
+		cacheConf: cache.Config{
+			Eviction:    cacheConf.Eviction,
+			CleanWindow: cacheConf.CleanWindow,
+			Prefix:      "index-" + session,
+		},
 		concurrency: concurrency,
 	}
 
@@ -231,12 +234,12 @@ func (d *daocache) Flush(ctx context.Context, b bool) error {
 	return nil
 }
 
-func (dao *daocache) Path(ctx context.Context, node tree.ITreeNode, rootNode tree.ITreeNode, create bool) (mpath *tree.MPath, nodeTree []tree.ITreeNode, err error) {
-	initial := proto.Clone(node).(tree.ITreeNode)
+func (dao *daocache) ResolveMPath(ctx context.Context, create bool, node *tree.ITreeNode, rootNode ...tree.ITreeNode) (mpath *tree.MPath, nodeTree []tree.ITreeNode, err error) {
+	initial := proto.Clone(*node).(tree.ITreeNode)
 	initial.SetMPath(nil)
 	initial.GetNode().SetPath("")
 
-	mpath, nodeTree, err = Path(ctx, dao, node, initial, create)
+	mpath, nodeTree, err = toMPath(ctx, dao, *node, initial, create)
 
 	return
 }

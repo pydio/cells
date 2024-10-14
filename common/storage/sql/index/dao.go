@@ -50,7 +50,7 @@ type BatchSender interface {
 type DAO interface {
 	Migrate(ctx context.Context) error
 
-	Path(ctx context.Context, node tree.ITreeNode, rootNode tree.ITreeNode, create bool) (*tree.MPath, []tree.ITreeNode, error)
+	ResolveMPath(ctx context.Context, create bool, node *tree.ITreeNode, rootNode ...tree.ITreeNode) (*tree.MPath, []tree.ITreeNode, error)
 
 	// AddNode adds a node in the tree
 	AddNode(context.Context, tree.ITreeNode) error

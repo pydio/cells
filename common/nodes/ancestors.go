@@ -30,6 +30,7 @@ import (
 
 	"github.com/pydio/cells/v4/common/errors"
 	"github.com/pydio/cells/v4/common/proto/tree"
+	"github.com/pydio/cells/v4/common/telemetry/tracing"
 	"github.com/pydio/cells/v4/common/utils/cache"
 	cache_helper "github.com/pydio/cells/v4/common/utils/cache/helper"
 )
@@ -73,11 +74,13 @@ func BuildAncestorsList(ctx context.Context, treeClient tree.NodeProviderClient,
 			if anc.Get(node.GetPath(), &cachedNode) {
 				parentUuids = append(parentUuids, cachedNode)
 			} else {
+				ctx, span := tracing.StartLocalSpan(ctx, "AncestorsRead")
 				r, er := treeClient.ReadNode(ctx, &tree.ReadNodeRequest{Node: node})
+				span.End()
 				if er != nil {
 					return parentUuids, er
 				}
-				anc.Set(node.GetPath(), r.GetNode())
+				_ = anc.Set(node.GetPath(), r.GetNode())
 				parentUuids = append(parentUuids, r.GetNode())
 			}
 			parentUuids = append(parentUuids, parents...)

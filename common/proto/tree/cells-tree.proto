@@ -371,7 +371,7 @@ message TreeNode {
     option (orm.ormPolicy).options = {type: "mysql", value: "CHARSET=ASCII COLLATE=ascii_general_ci"};
 
     Node Node    = 1 [(orm.orm).gorm = {embedded: true}];
-    string Name  = 2 [(orm.orm).gorm = {column:"name"; index: ""; }];
+    string Name  = 2 [(orm.orm).gorm = {column:"name"; index: ""; type: "VARCHAR(255)"}];
     int64 Level  = 3 [(orm.orm).gorm = {column:"level"; index: ""; type: "SMALLINT;"}];
     MPath MPath  = 4 [(orm.orm).gorm = {embedded: true}];
     string Hash  = 5 [(orm.orm).gorm = {column:"hash"; unique: true; type: "VARCHAR(255)"}];

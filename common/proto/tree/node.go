@@ -769,12 +769,12 @@ func (m MPathsEquals) Build(builder clause.Builder) {
 }
 
 // EmptyTreeNode is a shortcut for NewTreeNode("")
-func EmptyTreeNode() *TreeNode {
+func EmptyTreeNode() ITreeNode {
 	return &TreeNode{Node: &Node{}}
 }
 
 // NewTreeNode creates an ITreeNode with a path, and optionally more node info for creation
-func NewTreeNode(path string, withNode ...*Node) *TreeNode {
+func NewTreeNode(path string, withNode ...*Node) ITreeNode {
 	var n *Node
 	if len(withNode) > 0 {
 		n = withNode[0].Clone()
@@ -785,6 +785,12 @@ func NewTreeNode(path string, withNode ...*Node) *TreeNode {
 	return &TreeNode{
 		Node: n,
 	}
+}
+
+// NewTreeNodePtr creates an ITreeNode with a path, and optionally more node info for creation, and return its pointer
+func NewTreeNodePtr(path string, withNode ...*Node) *ITreeNode {
+	tn := NewTreeNode(path, withNode...)
+	return &tn
 }
 
 func (tn *TreeNode) BeforeCreate(*gorm.DB) error {

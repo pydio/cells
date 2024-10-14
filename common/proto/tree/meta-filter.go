@@ -222,7 +222,7 @@ func (m *MetaFilter) Where() (where string, args []interface{}) {
 		if m.filterType == NodeType_LEAF {
 			args = append(args, 1)
 		} else {
-			args = append(args, 0)
+			args = append(args, 2)
 		}
 	}
 	for _, c := range m.intComps {

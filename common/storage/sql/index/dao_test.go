@@ -50,8 +50,7 @@ import (
 )
 
 var (
-	testcases    = test.TemplateSQL(NewDAO[*tree.TreeNode])
-	ctxWithCache context.Context
+	testcases = test.TemplateSQL(NewDAO[*tree.TreeNode])
 )
 
 type testdao DAO
@@ -95,6 +94,8 @@ func testAllCache(t *testing.T, f func(dao testdao) func(*testing.T)) {
 		dao.DelNode(ctx, &tree.TreeNode{MPath: &tree.MPath{MPath1: "1"}})
 		dao.DelNode(ctx, &tree.TreeNode{MPath: &tree.MPath{MPath1: "2"}})
 
+		// wrap in cache
+		dao = sessionDAO(dao)
 		// Run the test
 		t.Run(testcases[cnt].DSN[0], f(dao))
 	})
@@ -142,54 +143,38 @@ func TestGetNodeChildren(t *testing.T) {
 func TestPath(t *testing.T) {
 	testAll(t, func(dao testdao) func(t *testing.T) {
 		return func(t *testing.T) {
-			mpath, nodes, err := dao.Path(
-				context.Background(),
-				&tree.TreeNode{
-					Node: &tree.Node{
-						Uuid: "ROOT",
-						Type: tree.NodeType_COLLECTION,
-						Path: "/",
-					},
-					Name: "ROOT",
-				}, &tree.TreeNode{
-					Node: &tree.Node{
-						Path: "",
-					},
-				}, true)
+			var tn tree.ITreeNode = &tree.TreeNode{
+				Node: &tree.Node{
+					Uuid: "ROOT",
+					Type: tree.NodeType_COLLECTION,
+					Path: "/",
+				},
+				Name: "ROOT",
+			}
+			mpath, nodes, err := dao.ResolveMPath(context.Background(), true, &tn)
 
 			fmt.Println(mpath, nodes, err)
 
-			mpath2, nodes2, err2 := dao.Path(
-				context.Background(),
-				&tree.TreeNode{
-					Node: &tree.Node{
-						Uuid: "ROOT",
-						Type: tree.NodeType_COLLECTION,
-						Path: "/",
-					},
-					Name: "ROOT",
-				}, &tree.TreeNode{
-					Node: &tree.Node{
-						Path: "",
-					},
-				}, true)
-
+			var tn2 tree.ITreeNode = &tree.TreeNode{
+				Node: &tree.Node{
+					Uuid: "ROOT",
+					Type: tree.NodeType_COLLECTION,
+					Path: "/",
+				},
+				Name: "ROOT",
+			}
+			mpath2, nodes2, err2 := dao.ResolveMPath(context.Background(), true, &tn2)
 			fmt.Println(mpath2, nodes2, err2)
 
-			mpath3, nodes3, err3 := dao.Path(
-				context.Background(),
-				&tree.TreeNode{
-					Node: &tree.Node{
-						Uuid: "ROOT",
-						Type: tree.NodeType_COLLECTION,
-						Path: "/",
-					},
-					Name: "ROOT",
-				}, &tree.TreeNode{
-					Node: &tree.Node{
-						Path: "",
-					},
-				}, true)
+			var tn3 tree.ITreeNode = &tree.TreeNode{
+				Node: &tree.Node{
+					Uuid: "ROOT",
+					Type: tree.NodeType_COLLECTION,
+					Path: "/",
+				},
+				Name: "ROOT",
+			}
+			mpath3, nodes3, err3 := dao.ResolveMPath(context.Background(), true, &tn3)
 
 			fmt.Println(mpath3, nodes3, err3)
 		}
@@ -730,7 +715,8 @@ func TestGetNodeFirstAvailableChildIndex(t *testing.T) {
 				// Creating the fs
 				var nodes []tree.ITreeNode
 				for _, path := range fs {
-					_, createdNodes, err := dao.Path(ctx, tree.NewTreeNode(path), tree.NewTreeNode(""), true)
+					tn := tree.NewTreeNode(path)
+					_, createdNodes, err := dao.ResolveMPath(ctx, true, &tn)
 					So(err, ShouldBeNil)
 
 					nodes = append(nodes, createdNodes...)
@@ -799,7 +785,8 @@ func TestArborescence(t *testing.T) {
 				fileScanner.Split(bufio.ScanLines)
 
 				for fileScanner.Scan() {
-					dao.Path(ctx, tree.NewTreeNode(fileScanner.Text()), tree.NewTreeNode(""), true)
+					tn := tree.NewTreeNode(fileScanner.Text())
+					dao.ResolveMPath(ctx, true, &tn)
 				}
 
 				fmt.Println("Finished scanning")
@@ -836,7 +823,7 @@ func TestSmallArborescence(t *testing.T) {
 				// Creating the arborescence
 				nodes := make(map[string]*tree.MPath)
 				for _, path := range arborescence {
-					mpath, _, err := dao.Path(ctx, tree.NewTreeNode(path), tree.NewTreeNode(""), true)
+					mpath, _, err := dao.ResolveMPath(ctx, true, tree.NewTreeNodePtr(path))
 					So(err, ShouldBeNil)
 					nodes[path] = mpath
 				}
@@ -844,9 +831,9 @@ func TestSmallArborescence(t *testing.T) {
 				dao.Flush(ctx, false)
 
 				// Then we move a node
-				pathFrom, _, err := dao.Path(ctx, tree.NewTreeNode("/test copie/1/2/3/4"), tree.NewTreeNode(""), false)
+				pathFrom, _, err := dao.ResolveMPath(ctx, false, tree.NewTreeNodePtr("/test copie/1/2/3/4"))
 				So(err, ShouldBeNil)
-				pathTo, _, err := dao.Path(ctx, tree.NewTreeNode("/document sans titre/target"), tree.NewTreeNode(""), false)
+				pathTo, _, err := dao.ResolveMPath(ctx, false, tree.NewTreeNodePtr("/document sans titre/target"))
 				So(err, ShouldBeNil)
 
 				dao.Flush(ctx, false)
@@ -866,10 +853,10 @@ func TestSmallArborescence(t *testing.T) {
 				err = dao.MoveNodeTree(ctx, nodeFrom, nodeTo)
 				So(err, ShouldBeNil)
 
-				_, _, err = dao.Path(ctx, tree.NewTreeNode("/document sans titre/target/whatever"), tree.NewTreeNode(""), false)
+				_, _, err = dao.ResolveMPath(ctx, false, tree.NewTreeNodePtr("/document sans titre/target/whatever"))
 				So(err, ShouldBeNil)
 
-				_, _, err = dao.Path(ctx, tree.NewTreeNode("/document sans titre/target/whatever2"), tree.NewTreeNode(""), true)
+				_, _, err = dao.ResolveMPath(ctx, true, tree.NewTreeNodePtr("/document sans titre/target/whatever2"))
 				So(err, ShouldBeNil)
 
 				// printTree(ctxWithCache)
@@ -894,7 +881,7 @@ func TestOtherArborescence(t *testing.T) {
 				}
 
 				for _, path := range arborescence {
-					_, _, err := dao.Path(ctx, tree.NewTreeNode(path), tree.NewTreeNode(""), true)
+					_, _, err := dao.ResolveMPath(ctx, true, tree.NewTreeNodePtr(path))
 					So(err, ShouldBeNil)
 				}
 
@@ -914,7 +901,7 @@ func TestFlatFolderWithMassiveChildren(t *testing.T) {
 				s := time.Now()
 				var nodes []tree.ITreeNode
 				for i = 0; i < 50; i++ {
-					_, node, _ := dao.Path(ctx, tree.NewTreeNode(fmt.Sprintf("/child-%d", i)), tree.NewTreeNode(""), true)
+					_, node, _ := dao.ResolveMPath(ctx, true, tree.NewTreeNodePtr(fmt.Sprintf("/child-%d", i)))
 					nodes = append(nodes, node[0])
 					if i > 0 && i%1000 == 0 {
 						t.Logf("Inserted %d - avg %v\n", i, time.Now().Sub(s)/1000)
@@ -987,16 +974,16 @@ func TestUnderscoreIssue(t *testing.T) {
 				}
 
 				for _, path := range arborescence {
-					_, _, err := dao.Path(ctx, tree.NewTreeNode(path), tree.NewTreeNode(""), true)
+					_, _, err := dao.ResolveMPath(ctx, true, tree.NewTreeNodePtr(path))
 					So(err, ShouldBeNil)
 				}
 				dao.Flush(ctx, true)
 
-				mp, _, err := dao.Path(ctx, tree.NewTreeNode("/Test_Folder"), tree.NewTreeNode(""), false)
+				mp, _, err := dao.ResolveMPath(ctx, false, tree.NewTreeNodePtr("/Test_Folder"))
 				So(err.Error(), ShouldEqual, "not found")
 				So(mp, ShouldBeNil)
 
-				mp, _, err = dao.Path(ctx, tree.NewTreeNode("/Test%Folder"), tree.NewTreeNode(""), false)
+				mp, _, err = dao.ResolveMPath(ctx, false, tree.NewTreeNodePtr("/Test%Folder"))
 				So(err.Error(), ShouldEqual, "not found")
 				So(mp, ShouldBeNil)
 			})

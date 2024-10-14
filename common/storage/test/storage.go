@@ -39,7 +39,7 @@ type StorageTestCase struct {
 }
 
 func init() {
-	sql.TestPrintQueries = true
+	sql.TestPrintQueries = false
 }
 
 // TemplateSQL returns a single SQL test case with the provided DAO func

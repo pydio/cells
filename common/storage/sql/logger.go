@@ -97,7 +97,7 @@ func (l *zapLogger) Trace(ctx context.Context, begin time.Time, fc func() (strin
 		} else {
 			logLine = fmt.Sprintf(l.traceWarnStr, slowLog, float64(elapsed.Nanoseconds())/1e6, rows, sql)
 		}
-	case l.LogLevel == glog.Info:
+	case l.LogLevel == glog.Info || TestPrintQueries:
 		sql, rows := fc()
 		if rows == -1 {
 			logLine = fmt.Sprintf(l.traceStr, float64(elapsed.Nanoseconds())/1e6, "-", sql)

@@ -30,10 +30,12 @@ import (
 
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/client/grpc"
+	"github.com/pydio/cells/v4/common/errors"
 	"github.com/pydio/cells/v4/common/nodes"
 	"github.com/pydio/cells/v4/common/permissions"
 	"github.com/pydio/cells/v4/common/proto/tree"
 	"github.com/pydio/cells/v4/common/telemetry/log"
+	"github.com/pydio/cells/v4/common/telemetry/tracing"
 )
 
 const (
@@ -89,6 +91,8 @@ func initMetaProviderClients(ctx context.Context, flags tree.Flags) ([]tree.Node
 
 func enrichNodesMetaFromProviders(ctx context.Context, streamers []tree.NodeProviderStreamer_ReadNodeStreamClient, names []string, nodes ...*tree.Node) {
 
+	ctx, span := tracing.StartLocalSpan(ctx, "MetaStreamerRead")
+	defer span.End()
 	profiles := make(map[string][]time.Duration)
 
 	for _, node := range nodes {
@@ -103,7 +107,7 @@ func enrichNodesMetaFromProviders(ctx context.Context, streamers []tree.NodeProv
 			start := time.Now()
 			sendError := metaStreamer.Send(&tree.ReadNodeRequest{Node: node})
 			if sendError != nil {
-				if sendError != io.EOF && sendError != io.ErrUnexpectedEOF {
+				if !errors.IsStreamFinished(sendError) {
 					log.Logger(ctx).Error("Error while sending to metaStreamer", zap.String("n", name), node.ZapPath(), node.ZapUuid(), zap.Error(sendError))
 				}
 				continue

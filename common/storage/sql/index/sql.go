@@ -41,12 +41,12 @@ import (
 	"google.golang.org/protobuf/proto"
 	"google.golang.org/protobuf/types/known/anypb"
 	"gorm.io/gorm"
-	"gorm.io/gorm/clause"
 
 	"github.com/pydio/cells/v4/common/errors"
 	"github.com/pydio/cells/v4/common/proto/options/orm"
 	"github.com/pydio/cells/v4/common/proto/tree"
 	storagesql "github.com/pydio/cells/v4/common/storage/sql"
+	"github.com/pydio/cells/v4/common/telemetry/log"
 	"github.com/pydio/cells/v4/common/utils/uuid"
 )
 
@@ -445,8 +445,9 @@ func (dao *IndexSQL[T]) GetNodeChild(ctx context.Context, mPath *tree.MPath, nam
 	tx = tx.Where("level = ?", mPath.Length()+1)
 	tx = tx.Where("name = ?", name)
 
-	tx = tx.Clauses(clause.Locking{Strength: "UPDATE"}).First(&node)
-	//tx = tx.Find(&idxNode)
+	//tx = tx.Clauses(clause.Locking{Strength: "UPDATE"}).First(&node)
+	// Try without Locking
+	tx = tx.First(&node)
 
 	if err := tx.Error; err != nil {
 		return nil, err
@@ -616,6 +617,7 @@ func (dao *IndexSQL[T]) GetNodeChildrenSize(ctx context.Context, mPath *tree.MPa
 }
 
 // GetNodeChildren List
+// TODO - FILTER
 func (dao *IndexSQL[T]) GetNodeChildren(ctx context.Context, mPath *tree.MPath, filter ...*tree.MetaFilter) chan interface{} {
 	c := make(chan interface{})
 
@@ -701,6 +703,8 @@ func (dao *IndexSQL[T]) GetNodeTree(ctx context.Context, mPath *tree.MPath, filt
 			totalSize    int
 		)
 
+		sortSet := false
+
 		if len(filter) > 0 {
 			mfWhere, mfArgs := filter[0].Where()
 
@@ -710,14 +714,18 @@ func (dao *IndexSQL[T]) GetNodeTree(ctx context.Context, mPath *tree.MPath, filt
 
 			if filter[0].HasSort() {
 				tx = tx.Order(filter[0].OrderBy())
+				sortSet = true
 			}
 		}
 
-		queryDB := tx.Session(&gorm.Session{}).Order("mpath1, mpath2, mpath3, mpath4")
+		//queryDB := tx.Session(&gorm.Session{}).Order("mpath1, mpath2, mpath3, mpath4")
+		if !sortSet {
+			tx = tx.Order(tree.MetaSortMPath)
+		}
 
 		for {
 			//result := queryDB.Limit(batchSize).Offset(int(rowsAffected)).Find(&results)
-			result := queryDB.Find(&nodes)
+			result := tx.Find(&nodes)
 			rowsAffected += result.RowsAffected
 			batch++
 
@@ -845,7 +853,7 @@ func (dao *IndexSQL[T]) MoveNodeTree(ctx context.Context, nodeFrom tree.ITreeNod
 	return tx.Error
 }
 
-func Path(ctx context.Context, dao DAO, targetNode tree.ITreeNode, parentNode tree.ITreeNode, create bool) (*tree.MPath, []tree.ITreeNode, error) {
+func toMPath(ctx context.Context, dao DAO, targetNode tree.ITreeNode, parentNode tree.ITreeNode, create bool) (*tree.MPath, []tree.ITreeNode, error) {
 
 	var parentMPath *tree.MPath
 	var remainingPath []string
@@ -897,7 +905,7 @@ func Path(ctx context.Context, dao DAO, targetNode tree.ITreeNode, parentNode tr
 	if existingNode, err := dao.GetNodeChild(ctx, parentMPath, currentName); err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
 		return nil, nil, err
 	} else if existingNode != nil && existingNode.GetMPath() != nil {
-		return Path(ctx, dao, targetNode, existingNode, create)
+		return toMPath(ctx, dao, targetNode, existingNode, create)
 	}
 
 	if !create {
@@ -972,20 +980,37 @@ func Path(ctx context.Context, dao DAO, targetNode tree.ITreeNode, parentNode tr
 		cond.Signal()
 	}()
 
-	mpath, createdNodes, err := Path(ctx, dao, targetNode, currentNode, create)
+	mpath, createdNodes, err := toMPath(ctx, dao, targetNode, currentNode, create)
 
 	return mpath, append(createdNodes, currentNode), err
 }
 
-func (dao *IndexSQL[T]) Path(ctx context.Context, node tree.ITreeNode, rootNode tree.ITreeNode, create bool) (mpath *tree.MPath, nodeTree []tree.ITreeNode, err error) {
-	//dao.instance(ctx).Transaction(func(tx *gorm.DB) error {
+func (dao *IndexSQL[T]) ResolveMPath(ctx context.Context, create bool, node *tree.ITreeNode, rootNode ...tree.ITreeNode) (mpath *tree.MPath, nodeTree []tree.ITreeNode, err error) {
 	clone := *dao
+	origN := (*node).GetNode().Clone()
+	var root tree.ITreeNode
+	if len(rootNode) > 0 {
+		root = rootNode[0]
+	} else {
+		root = tree.EmptyTreeNode()
+	}
 
-	mpath, nodeTree, err = Path(ctx, &clone, node, rootNode, create)
-
-	//return nil
-	//})
-
+	mpath, nodeTree, err = toMPath(ctx, &clone, *node, root, create)
+	// Retry on "Creation + DuplicateKey"
+	if create && err != nil && errors.Is(err, gorm.ErrDuplicatedKey) {
+		r := 0
+		for {
+			<-time.After(time.Duration((r+1)*50) * time.Millisecond)
+			retryNode := &tree.TreeNode{Node: origN.Clone()}
+			mpath, nodeTree, err = toMPath(ctx, &clone, retryNode, root, create)
+			if err == nil || !errors.Is(err, gorm.ErrDuplicatedKey) || r >= 4 {
+				*node = retryNode
+				log.Logger(ctx).Debug("Created mpath after retry", (*node).GetNode().Zap())
+				return
+			}
+			r++
+		}
+	}
 	return
 }
 
