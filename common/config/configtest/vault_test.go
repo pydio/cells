@@ -42,6 +42,7 @@ func testVault(t *testing.T, std config.Store, vault config.Store) {
 	Convey("Test Set", t, func() {
 		protected.Val("protectedValue").Set("my-secret-data")
 		So(std.Val("protectedValue").Default("").String(), ShouldNotEqual, "my-secret-data")
+		So(protected.Val("protectedValue").String(), ShouldNotEqual, "my-secret-data")
 		So(vault.Val(protected.Val("protectedValue").String()).String(), ShouldEqual, "my-secret-data")
 
 		protected.Val("unprotectedValue").Set("my-test-config-value")

@@ -125,7 +125,7 @@ func TestGetSetMemory(t *testing.T) {
 		log.Panic(err)
 	}
 
-	vault, err := config.OpenStore(context.Background(), "mem://")
+	vault, err := config.OpenStore(context.Background(), "mem://?masterKey=whatever")
 	if err != nil {
 		log.Panic(err)
 	}
