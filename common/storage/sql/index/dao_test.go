@@ -23,24 +23,30 @@ import (
 	"bufio"
 	"context"
 	"crypto/md5"
+	"crypto/sha1"
 	"encoding/hex"
 	"fmt"
+	"io"
 	"os"
 	osruntime "runtime"
 	"strconv"
+	"strings"
 	"testing"
 	"time"
 
 	"github.com/spf13/viper"
+	"golang.org/x/text/cases"
+	"golang.org/x/text/language"
 	"gorm.io/gorm"
 
 	"github.com/pydio/cells/v4/common/proto/tree"
 	"github.com/pydio/cells/v4/common/runtime"
 	"github.com/pydio/cells/v4/common/runtime/manager"
+	"github.com/pydio/cells/v4/common/storage/sql"
 	"github.com/pydio/cells/v4/common/storage/test"
 	"github.com/pydio/cells/v4/common/utils/cache/gocache"
 	cache_helper "github.com/pydio/cells/v4/common/utils/cache/helper"
-	"github.com/pydio/cells/v4/common/utils/mtree"
+	"github.com/pydio/cells/v4/common/utils/uuid"
 
 	_ "github.com/pydio/cells/v4/common/utils/cache/bigcache"
 	_ "github.com/pydio/cells/v4/common/utils/cache/gocache"
@@ -51,6 +57,7 @@ import (
 
 var (
 	testcases = test.TemplateSQL(NewDAO[*tree.TreeNode])
+	caser     = cases.Title(language.English)
 )
 
 type testdao DAO
@@ -65,7 +72,7 @@ func TestMain(m *testing.M) {
 	fmt.Println(time.Since(now))
 }
 
-func testAll(t *testing.T, f func(dao testdao) func(*testing.T)) {
+func testAll(t *testing.T, f func(dao testdao) func(*testing.T), cache ...bool) {
 	var cnt = 0
 	test.RunStorageTests(testcases, t, func(ctx context.Context) {
 		dao, err := manager.Resolve[DAO](ctx)
@@ -74,31 +81,35 @@ func testAll(t *testing.T, f func(dao testdao) func(*testing.T)) {
 		}
 
 		// First make sure that we delete everything
-		dao.DelNode(ctx, &tree.TreeNode{MPath: &tree.MPath{MPath1: "1"}})
-		dao.DelNode(ctx, &tree.TreeNode{MPath: &tree.MPath{MPath1: "2"}})
+		_ = dao.DelNode(ctx, &tree.TreeNode{MPath: &tree.MPath{MPath1: "1"}})
+		_ = dao.DelNode(ctx, &tree.TreeNode{MPath: &tree.MPath{MPath1: "2"}})
 
 		// Run the test
-		t.Run(testcases[cnt].DSN[0], f(dao))
+		scheme := strings.SplitN(testcases[cnt].DSN[0], "://", 2)[0]
+		label := caser.String(scheme)
+		t.Run(label+"/NoCache", f(dao))
+		cnt++
 	})
-}
+	if len(cache) > 0 && cache[0] {
+		cnt = 0
+		test.RunStorageTests(testcases, t, func(ctx context.Context) {
+			dao, err := manager.Resolve[DAO](ctx)
+			if err != nil {
+				panic(err)
+			}
 
-func testAllCache(t *testing.T, f func(dao testdao) func(*testing.T)) {
-	var cnt = 0
-	test.RunStorageTests(testcases, t, func(ctx context.Context) {
-		dao, err := manager.Resolve[DAO](ctx)
-		if err != nil {
-			panic(err)
-		}
+			// First make sure that we delete everything
+			_ = dao.DelNode(ctx, &tree.TreeNode{MPath: &tree.MPath{MPath1: "1"}})
+			_ = dao.DelNode(ctx, &tree.TreeNode{MPath: &tree.MPath{MPath1: "2"}})
 
-		// First make sure that we delete everything
-		dao.DelNode(ctx, &tree.TreeNode{MPath: &tree.MPath{MPath1: "1"}})
-		dao.DelNode(ctx, &tree.TreeNode{MPath: &tree.MPath{MPath1: "2"}})
+			// wrap in cache
+			session := uuid.New()
+			dao = NewDAOCache(session, 10, dao)
+			// Run the test
+			t.Run(testcases[cnt].DSN[0], f(dao))
+		})
 
-		// wrap in cache
-		dao = sessionDAO(dao)
-		// Run the test
-		t.Run(testcases[cnt].DSN[0], f(dao))
-	})
+	}
 }
 
 // PrintMemUsage outputs the current, total and OS memory being used. As well as the number
@@ -124,7 +135,7 @@ func TestGetNodeTree(t *testing.T) {
 	testAll(t, func(dao testdao) func(t *testing.T) {
 		return func(t *testing.T) {
 			for node := range dao.GetNodeTree(context.Background(), tree.NewMPath(1)) {
-				fmt.Println(node.(*mtree.TreeNode).MPath)
+				fmt.Println(node.(tree.ITreeNode).GetMPath())
 			}
 		}
 	})
@@ -181,7 +192,7 @@ func TestPath(t *testing.T) {
 	})
 }
 
-func TestMysql(t *testing.T) {
+func TestGenericFeatures(t *testing.T) {
 	ctx := context.Background()
 
 	testAll(t, func(dao testdao) func(t *testing.T) {
@@ -191,7 +202,7 @@ func TestMysql(t *testing.T) {
 				err := dao.AddNode(ctx, mockNode)
 				So(err, ShouldBeNil)
 
-				dao.Flush(ctx, true)
+				So(dao.Flush(ctx, true), ShouldBeNil)
 
 				// printTree()
 				// printNodes()
@@ -219,7 +230,7 @@ func TestMysql(t *testing.T) {
 				err = dao.SetNode(ctx, mockNode)
 				So(err, ShouldBeNil)
 
-				dao.Flush(ctx, true)
+				So(dao.Flush(ctx, true), ShouldBeNil)
 			})
 
 			// Updating a file meta
@@ -227,7 +238,7 @@ func TestMysql(t *testing.T) {
 				err := dao.AddNode(ctx, updateNode)
 				So(err, ShouldBeNil)
 
-				dao.Flush(ctx, false)
+				So(dao.Flush(ctx, false), ShouldBeNil)
 
 				node := updateNode.GetNode()
 
@@ -237,7 +248,7 @@ func TestMysql(t *testing.T) {
 				err = dao.SetNodeMeta(ctx, updateNode)
 				So(err, ShouldBeNil)
 
-				dao.Flush(ctx, false)
+				So(dao.Flush(ctx, false), ShouldBeNil)
 
 				updated, err := dao.GetNode(ctx, updateNode.MPath)
 				So(err, ShouldBeNil)
@@ -247,7 +258,7 @@ func TestMysql(t *testing.T) {
 				err = dao.DelNode(ctx, updateNode)
 				So(err, ShouldBeNil)
 
-				dao.Flush(ctx, true)
+				So(dao.Flush(ctx, true), ShouldBeNil)
 
 			})
 
@@ -257,7 +268,7 @@ func TestMysql(t *testing.T) {
 				err := dao.DelNode(ctx, mockNode)
 				So(err, ShouldBeNil)
 
-				dao.Flush(ctx, true)
+				So(dao.Flush(ctx, true), ShouldBeNil)
 
 				// printTree()
 				// printNodes()
@@ -267,7 +278,7 @@ func TestMysql(t *testing.T) {
 				err := dao.AddNode(ctx, mockNode)
 				So(err, ShouldBeNil)
 
-				dao.Flush(ctx, true)
+				So(dao.Flush(ctx, true), ShouldBeNil)
 
 				//printTree()
 				//printNodes()
@@ -309,7 +320,7 @@ func TestMysql(t *testing.T) {
 
 				So(node.GetNode(), ShouldResemble, mockNode.Node)
 
-				dao.Flush(ctx, true)
+				So(dao.Flush(ctx, true), ShouldBeNil)
 			})
 
 			// Setting a file
@@ -333,7 +344,7 @@ func TestMysql(t *testing.T) {
 				// node.MTime = 0
 				// node.Path = mockLongNodeChild2.Path
 
-				dao.Flush(ctx, true)
+				So(dao.Flush(ctx, true), ShouldBeNil)
 
 				So(node.GetNode(), ShouldResemble, mockLongNodeChild2.Node)
 			})
@@ -347,7 +358,7 @@ func TestMysql(t *testing.T) {
 				node.GetNode().SetSize(0)
 				// node.Path = "mockLongNode"
 
-				dao.Flush(ctx, true)
+				So(dao.Flush(ctx, true), ShouldBeNil)
 
 				So(node.GetNode(), ShouldResemble, mockLongNode.Node)
 			})
@@ -363,7 +374,7 @@ func TestMysql(t *testing.T) {
 				//node.MTime = 0
 				//node.Path = mockLongNodeChild1.Path
 
-				dao.Flush(ctx, true)
+				So(dao.Flush(ctx, true), ShouldBeNil)
 
 				// So(node.Node, ShouldNotResemble, mockLongNodeChild2.Node)
 				So(node.GetNode(), ShouldResemble, mockLongNodeChild1.Node)
@@ -380,7 +391,7 @@ func TestMysql(t *testing.T) {
 				//node.MTime = 0
 				//node.Path = mockLongNodeChild2.Path
 
-				dao.Flush(ctx, true)
+				So(dao.Flush(ctx, true), ShouldBeNil)
 
 				So(node.GetNode(), ShouldNotResemble, mockLongNodeChild1.Node)
 				// So(node.Node, ShouldResemble, mockLongNodeChild2.Node)
@@ -390,7 +401,7 @@ func TestMysql(t *testing.T) {
 			Convey("Test Getting the Children Count of a node", t, func() {
 				folderCount, leafCount := dao.GetNodeChildrenCounts(ctx, mockLongNodeMPath, false)
 
-				dao.Flush(ctx, true)
+				So(dao.Flush(ctx, true), ShouldBeNil)
 
 				So(folderCount, ShouldEqual, 0)
 				So(leafCount, ShouldEqual, 2)
@@ -418,7 +429,7 @@ func TestMysql(t *testing.T) {
 				err := currentDAO.AddNode(ctx, newNode)
 				So(err, ShouldBeNil)
 
-				currentDAO.Flush(ctx, true)
+				So(currentDAO.Flush(ctx, true), ShouldBeNil)
 
 				root, _ = currentDAO.GetNodeByUUID(ctx, "ROOT")
 				parent, _ = currentDAO.GetNode(ctx, mockLongNodeMPath)
@@ -460,7 +471,7 @@ func TestMysql(t *testing.T) {
 			Convey("Test Getting the Children Count of a node", t, func() {
 				folderCount, leafCount := dao.GetNodeChildrenCounts(ctx, mockLongNodeMPath, true)
 
-				dao.Flush(ctx, true)
+				So(dao.Flush(ctx, true), ShouldBeNil)
 
 				So(folderCount, ShouldEqual, 0)
 				So(leafCount, ShouldEqual, 2)
@@ -473,7 +484,7 @@ func TestMysql(t *testing.T) {
 					i++
 				}
 
-				dao.Flush(ctx, true)
+				So(dao.Flush(ctx, true), ShouldBeNil)
 
 				So(i, ShouldEqual, 2)
 			})
@@ -491,10 +502,8 @@ func TestMysql(t *testing.T) {
 
 				So(i, ShouldEqual, 3)
 
-				dao.Flush(ctx, true)
+				So(dao.Flush(ctx, true), ShouldBeNil)
 			})
-
-			return
 
 			// Setting a file
 			Convey("Test Getting Nodes by MPath", t, func() {
@@ -524,7 +533,7 @@ func TestMysql(t *testing.T) {
 
 				So(err, ShouldBeNil)
 
-				dao.Flush(ctx, true)
+				So(dao.Flush(ctx, true), ShouldBeNil)
 			})
 
 			// Setting a mpath multiple times
@@ -577,10 +586,7 @@ func TestMysql(t *testing.T) {
 				e = dao.AddNode(ctx, node21)
 				So(e, ShouldBeNil)
 
-				e = dao.Flush(ctx, true)
-				if e != nil {
-					So(e, ShouldEqual, errNotImplemented)
-				}
+				So(dao.Flush(ctx, true), ShouldBeNil)
 
 				// List Root
 				nodes := dao.GetNodeChildren(context.Background(), tree.NewMPath(1))
@@ -671,10 +677,7 @@ func TestMysql(t *testing.T) {
 				e = dao.AddNode(ctx, node15)
 				So(e, ShouldBeNil)
 
-				e = dao.Flush(ctx, true)
-				if e != nil {
-					So(e, ShouldEqual, errNotImplemented)
-				}
+				So(dao.Flush(ctx, true), ShouldBeNil)
 
 				e = dao.ResyncDirtyEtags(nil, node)
 				So(e, ShouldBeNil)
@@ -729,10 +732,7 @@ func TestGetNodeFirstAvailableChildIndex(t *testing.T) {
 				So(e, ShouldBeNil)
 				So(slot, ShouldEqual, 5)
 
-				e = dao.Flush(ctx, true)
-				if e != nil {
-					So(e, ShouldEqual, errNotImplemented)
-				}
+				So(dao.Flush(ctx, true), ShouldBeNil)
 			})
 		}
 	})
@@ -773,10 +773,16 @@ func TestStreams(t *testing.T) {
 func TestArborescence(t *testing.T) {
 	ctx := context.Background()
 
-	testAllCache(t, func(dao testdao) func(t *testing.T) {
+	testAll(t, func(dao testdao) func(t *testing.T) {
 		return func(t *testing.T) {
-			Convey("Re-adding a file - Success", t, func() {
-				readFile, err := os.Open("/tmp/usr.txt")
+
+			arborescence := []string{
+				"/ROOT",
+			}
+
+			Convey("Load tree from file", t, func() {
+
+				readFile, err := os.Open("./testdata/tree1.txt")
 
 				if err != nil {
 					fmt.Println(err)
@@ -785,23 +791,135 @@ func TestArborescence(t *testing.T) {
 				fileScanner.Split(bufio.ScanLines)
 
 				for fileScanner.Scan() {
-					tn := tree.NewTreeNode(fileScanner.Text())
-					dao.ResolveMPath(ctx, true, &tn)
+					line := fileScanner.Text()
+					arborescence = append(arborescence, "/ROOT/"+line)
 				}
 
-				fmt.Println("Finished scanning")
+				So(len(arborescence), ShouldBeGreaterThan, 2)
+			})
 
-				dao.Flush(ctx, true)
+			Convey("Create Nodes", t, func() {
 
-				readFile.Close()
+				for _, path := range arborescence {
+					t.Logf("Adding node %s", path)
+					_, _, err := dao.ResolveMPath(ctx, true, tree.NewTreeNodePtr(path))
+					So(err, ShouldBeNil)
+				}
 
+				So(dao.Flush(ctx, true), ShouldBeNil)
+
+			})
+
+			Convey("List Arbo w/ conditions", t, func() {
+				c := dao.GetNodeTree(context.Background(), tree.NewMPath(1))
+				var a []string
+				for n := range c {
+					if node, ok := n.(tree.ITreeNode); ok {
+						a = append(a, node.GetName())
+					}
+				}
+
+				So(len(a), ShouldEqual, len(arborescence))
+				So(a[0], ShouldEqual, "ROOT") // Default sorting is MPATH
+			})
+
+			Convey("List Arbo w/ ordering", t, func() {
+				mf := tree.NewMetaFilter(&tree.Node{})
+				mf.AddSort(tree.MetaSortMPath, tree.MetaSortName, true)
+				c := dao.GetNodeTree(context.Background(), tree.NewMPath(1), mf)
+				var a []string
+				for n := range c {
+					if node, ok := n.(tree.ITreeNode); ok {
+						a = append(a, node.GetName())
+						t.Logf("Got node %s:%s", node.GetMPath().ToString(), node.GetName())
+					}
+				}
+				So(len(a), ShouldEqual, len(arborescence))
+				So(a[0], ShouldEqual, "zzz.txt")
 			})
 		}
 	})
 }
 
+func TestSecondArborescence(t *testing.T) {
+	ctx := context.Background()
+
+	testAll(t, func(dao testdao) func(t *testing.T) {
+		return func(t *testing.T) {
+
+			arborescence := []string{
+				"/ROOT",
+			}
+
+			Convey("Load tree from file", t, func() {
+
+				readFile, err := os.Open("./testdata/tree2.txt")
+
+				if err != nil {
+					fmt.Println(err)
+				}
+				fileScanner := bufio.NewScanner(readFile)
+				fileScanner.Split(bufio.ScanLines)
+
+				for fileScanner.Scan() {
+					line := fileScanner.Text()
+					arborescence = append(arborescence, "/ROOT/"+line)
+				}
+
+				So(len(arborescence), ShouldBeGreaterThan, 2)
+			})
+
+			Convey("Create Nodes", t, func() {
+
+				for _, path := range arborescence {
+					t.Logf("Adding node %s", path)
+					_, _, err := dao.ResolveMPath(ctx, true, tree.NewTreeNodePtr(path))
+					So(err, ShouldBeNil)
+				}
+
+				e := dao.Flush(ctx, true)
+				So(e, ShouldBeNil)
+
+			})
+
+			Convey("List Arbo w/o conditions", t, func() {
+				c := dao.GetNodeTree(context.Background(), tree.NewMPath(1))
+				var a []string
+				for n := range c {
+					if node, ok := n.(tree.ITreeNode); ok {
+						a = append(a, node.GetName())
+					}
+				}
+
+				So(len(a), ShouldEqual, len(arborescence))
+				So(a[0], ShouldEqual, "ROOT") // Default sorting is MPATH
+			})
+
+		}
+	})
+}
+
+func hashNode(mpath *tree.MPath) string {
+	ha := sha1.New()
+	ha.Write([]byte(mpath.ToString()))
+	return hex.EncodeToString(ha.Sum(nil))
+}
+
+func hashParent(name string, mpath *tree.MPath) string {
+	h := sha1.New()
+	parent := mpath.Parent()
+	io.WriteString(h, name)
+	io.WriteString(h, "__###PARENT_HASH###__")
+	io.WriteString(h, parent.GetMPath1())
+	io.WriteString(h, parent.GetMPath2())
+	io.WriteString(h, parent.GetMPath3())
+	io.WriteString(h, parent.GetMPath4())
+	return hex.EncodeToString(h.Sum(nil))
+}
+
 func TestSmallArborescence(t *testing.T) {
 	ctx := context.Background()
+	sql.TestPrintQueries = true
 
 	testAll(t, func(dao testdao) func(t *testing.T) {
 		return func(t *testing.T) {
@@ -813,6 +931,9 @@ func TestSmallArborescence(t *testing.T) {
 					"/test copie",
 					"/test copie/.pydio",
 					"/test copie/1/2/3/4/whatever",
+					"/test copie/1/2/3/4/whatever-else",
+					"/test copie/1/2/3/4/whatever-else/child",
+					"/test copie/1/2/3/4/whatever-else/child1",
 					"/document sans titre",
 					"/document sans titre/.pydio",
 					"/document sans titre/target",
@@ -828,15 +949,20 @@ func TestSmallArborescence(t *testing.T) {
 					nodes[path] = mpath
 				}
 
-				dao.Flush(ctx, false)
+				So(dao.Flush(ctx, false), ShouldBeNil)
 
 				// Then we move a node
 				pathFrom, _, err := dao.ResolveMPath(ctx, false, tree.NewTreeNodePtr("/test copie/1/2/3/4"))
 				So(err, ShouldBeNil)
+				originalNode, err := dao.GetNode(ctx, pathFrom)
+				So(err, ShouldBeNil)
+				So(hashNode(pathFrom), ShouldEqual, originalNode.GetHash())
+				So(hashParent(originalNode.GetName(), pathFrom), ShouldEqual, originalNode.GetHash2())
+
 				pathTo, _, err := dao.ResolveMPath(ctx, false, tree.NewTreeNodePtr("/document sans titre/target"))
 				So(err, ShouldBeNil)
 
-				dao.Flush(ctx, false)
+				So(dao.Flush(ctx, false), ShouldBeNil)
 
 				// Then we move a node
 				nodeFrom, _ := dao.GetNode(ctx, pathFrom)
@@ -848,13 +974,22 @@ func TestSmallArborescence(t *testing.T) {
 					So(err, ShouldBeNil)
 				}
 
-				dao.Flush(ctx, false)
+				So(dao.Flush(ctx, false), ShouldBeNil)
 
 				err = dao.MoveNodeTree(ctx, nodeFrom, nodeTo)
 				So(err, ShouldBeNil)
 
-				_, _, err = dao.ResolveMPath(ctx, false, tree.NewTreeNodePtr("/document sans titre/target/whatever"))
+				newPath, _, err := dao.ResolveMPath(ctx, false, tree.NewTreeNodePtr("/document sans titre/target/whatever"))
 				So(err, ShouldBeNil)
+
+				newNode, err := dao.GetNode(ctx, newPath)
+				So(err, ShouldBeNil)
+				So(originalNode.GetHash(), ShouldNotEqual, newNode.GetHash())
+				So(hashNode(newPath), ShouldEqual, newNode.GetHash())
+				So(hashParent(newNode.GetName(), newPath), ShouldEqual, newNode.GetHash2())
+
+				_, _, err = dao.ResolveMPath(ctx, false, tree.NewTreeNodePtr("/document sans titre/target/whatever2"))
+				So(err, ShouldNotBeNil)
 
 				_, _, err = dao.ResolveMPath(ctx, true, tree.NewTreeNodePtr("/document sans titre/target/whatever2"))
 				So(err, ShouldBeNil)
@@ -862,7 +997,7 @@ func TestSmallArborescence(t *testing.T) {
 				// printTree(ctxWithCache)
 				// printNodes(ctxWithCache)
 
-				dao.Flush(ctx, true)
+				So(dao.Flush(ctx, true), ShouldBeNil)
 			})
 		}
 	})
@@ -885,7 +1020,7 @@ func TestOtherArborescence(t *testing.T) {
 					So(err, ShouldBeNil)
 				}
 
-				dao.Flush(ctx, true)
+				So(dao.Flush(ctx, true), ShouldBeNil)
 			})
 		}
 	})
@@ -977,7 +1112,7 @@ func TestUnderscoreIssue(t *testing.T) {
 					_, _, err := dao.ResolveMPath(ctx, true, tree.NewTreeNodePtr(path))
 					So(err, ShouldBeNil)
 				}
-				dao.Flush(ctx, true)
+				So(dao.Flush(ctx, true), ShouldBeNil)
 
 				mp, _, err := dao.ResolveMPath(ctx, false, tree.NewTreeNodePtr("/Test_Folder"))
 				So(err.Error(), ShouldEqual, "not found")
@@ -986,6 +1121,67 @@ func TestUnderscoreIssue(t *testing.T) {
 				mp, _, err = dao.ResolveMPath(ctx, false, tree.NewTreeNodePtr("/Test%Folder"))
 				So(err.Error(), ShouldEqual, "not found")
 				So(mp, ShouldBeNil)
+			})
+		}
+	})
+}
+
+func TestLostAndFoundDuplicates(t *testing.T) {
+	ctx := context.Background()
+
+	testAll(t, func(dao testdao) func(t *testing.T) {
+		return func(t *testing.T) {
+			// Adding a file
+			sql.TestPrintQueries = true
+			Convey("Test LostAndFound - Duplicates", t, func() {
+				// Create Duplicates on purpose
+				_, _, _ = dao.ResolveMPath(ctx, true, tree.NewTreeNodePtr("/folder"))
+				_, _, _ = dao.ResolveMPath(ctx, true, tree.NewTreeNodePtr("/folder/file1"))
+				_, _, _ = dao.ResolveMPath(ctx, true, tree.NewTreeNodePtr("/folder/file2"))
+				// Rename file2 to file1 manually
+				gi := dao.(*gormImpl[*tree.TreeNode])
+				db := gi.instance(ctx)
+				model := gi.factory.Struct()
+				tx := db.Model(model).Where("name=?", "file2").Update("name", "file1")
+				So(tx.Error, ShouldBeNil)
+
+				ll, er := dao.LostAndFounds(ctx)
+				So(er, ShouldBeNil)
+				So(ll, ShouldHaveLength, 1)
+				So(ll[0].GetUUIDs(), ShouldHaveLength, 2)
+			})
+		}
+	})
+
+}
+
+func TestLostAndFoundChildren(t *testing.T) {
+	ctx := context.Background()
+	testAll(t, func(dao testdao) func(t *testing.T) {
+		return func(t *testing.T) {
+			// Adding a file
+			sql.TestPrintQueries = true
+			Convey("Test LostAndFound - Lost Children", t, func() {
+				// Create Duplicates on purpose
+				_, _, _ = dao.ResolveMPath(ctx, true, tree.NewTreeNodePtr("/folder"))
+				_, _, _ = dao.ResolveMPath(ctx, true, tree.NewTreeNodePtr("/folder/file1"))
+				_, _, _ = dao.ResolveMPath(ctx, true, tree.NewTreeNodePtr("/folder/file2"))
+
+				ll, er := dao.LostAndFounds(ctx)
+				So(er, ShouldBeNil)
+				So(ll, ShouldHaveLength, 0)
+
+				// Rename file2 to file1 manually
+				gi := dao.(*gormImpl[*tree.TreeNode])
+				db := gi.instance(ctx)
+				model := gi.factory.Struct()
+				tx := db.Where("name = ?", "folder").Delete(model)
+				So(tx.Error, ShouldBeNil)
+				So(tx.RowsAffected, ShouldEqual, 1)
+
+				ll, er = dao.LostAndFounds(ctx)
+				So(er, ShouldBeNil)
+				So(ll, ShouldHaveLength, 2)
 			})
 		}
 	})
@@ -1046,7 +1242,7 @@ func TestUnderscoreIssue(t *testing.T) {
 //				"admin/Playlist/vendor-folders/github.com/pydio/minio-srv/vendor/go.etcd.io/etcd/etcdserver/api",
 //			}
 //
-//			d := dao.(*daocache)
+//			d := dao.(*sessionDAO)
 //
 //			for _, path := range arborescence {
 //				// Node should NEVER be found here!

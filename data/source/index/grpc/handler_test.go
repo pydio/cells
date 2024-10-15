@@ -473,21 +473,19 @@ func TestIndex(t *testing.T) {
 
 		})
 
-		/*
-			SkipConvey("Test insert two nodes with same Uuid", t, func() {
+		SkipConvey("Test insert two nodes with same Uuid", t, func() {
 
-				f1 := &tree.N{Path: "/root/f1", Uuid: "uuid"}
-				f2 := &tree.N{Path: "/root/f2", Uuid: "uuid"}
-				e1 := s.CreateNode(ctx, &tree.CreateNodeRequest{N: f1}, &tree.CreateNodeResponse{})
-				e2 := s.CreateNode(ctx, &tree.CreateNodeRequest{N: f2}, &tree.CreateNodeResponse{})
-				So(e1, ShouldBeNil)
-				So(e2, ShouldNotBeNil)
+			f1 := &tree.Node{Path: "/root/f1", Uuid: "uuid"}
+			f2 := &tree.Node{Path: "/root/f2", Uuid: "uuid"}
+			_, e1 := s.CreateNode(ctx, &tree.CreateNodeRequest{Node: f1})
+			_, e2 := s.CreateNode(ctx, &tree.CreateNodeRequest{Node: f2})
+			So(e1, ShouldBeNil)
+			So(e2, ShouldNotBeNil)
 
-				f3 := &tree.N{Path: "/root/f2", Uuid: "uuid-renewed"}
-				e3 := s.CreateNode(ctx, &tree.CreateNodeRequest{N: f3}, &tree.CreateNodeResponse{})
-				So(e3, ShouldBeNil)
-			})
-		*/
+			f3 := &tree.Node{Path: "/root/f2", Uuid: "uuid-renewed"}
+			_, e3 := s.CreateNode(ctx, &tree.CreateNodeRequest{Node: f3})
+			So(e3, ShouldBeNil)
+		})
 
 		Convey("Test Delete Create Delete", t, func() {
 

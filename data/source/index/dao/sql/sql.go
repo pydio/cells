@@ -29,7 +29,6 @@ import (
 	"github.com/pydio/cells/v4/common/proto/tree"
 	cindex "github.com/pydio/cells/v4/common/storage/sql/index"
 	"github.com/pydio/cells/v4/common/telemetry/log"
-	"github.com/pydio/cells/v4/common/utils/configx"
 	"github.com/pydio/cells/v4/data/source/index"
 )
 
@@ -77,27 +76,4 @@ func (s *sqlimpl) Migrate(ctx context.Context) error {
 		log.Logger(ctx).Info("Created root node in index")
 	}
 	return nil
-}
-
-// Init handler for the SQL DAO
-func (s *sqlimpl) Init(ctx context.Context, options configx.Values) error {
-
-	// NOT HERE BUT INSIDE Migrate()
-	// SHALL WE READ CONFIG HERE ?
-	return nil
-}
-
-func (s *sqlimpl) LostAndFounds(ctx context.Context) ([]cindex.LostAndFound, error) {
-	//TODO implement me
-	panic("implement me")
-}
-
-func (s *sqlimpl) FixLostAndFound(ctx context.Context, lost cindex.LostAndFound) error {
-	//TODO implement me
-	panic("implement me")
-}
-
-func (s *sqlimpl) FixRandHash2(ctx context.Context, excludes ...cindex.LostAndFound) (int64, error) {
-	//TODO implement me
-	panic("implement me")
 }

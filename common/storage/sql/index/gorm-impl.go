@@ -23,9 +23,9 @@
 package index
 
 import (
-	"bytes"
 	"context"
 	"crypto/md5"
+	"database/sql"
 	"encoding/hex"
 	"fmt"
 	"path"
@@ -38,10 +38,11 @@ import (
 	"time"
 
 	"github.com/go-gorm/caches"
+	"go.uber.org/zap"
 	"google.golang.org/protobuf/proto"
-	"google.golang.org/protobuf/types/known/anypb"
 	"gorm.io/gorm"
 
+	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/errors"
 	"github.com/pydio/cells/v4/common/proto/options/orm"
 	"github.com/pydio/cells/v4/common/proto/tree"
@@ -51,22 +52,12 @@ import (
 )
 
 var (
-	queries   = map[string]interface{}{}
 	inserting atomic.Value
 	cond      *sync.Cond
-
-	ch     = map[string]chan string{}
-	chLock = &sync.RWMutex{}
 
 	batchLen = 20
 	indexLen = 255
 )
-
-// BatchSend sql structure
-type BatchSend struct {
-	in  chan tree.ITreeNode
-	out chan error
-}
 
 func init() {
 	inserting.Store(make(map[string]bool))
@@ -77,113 +68,42 @@ func RegisterIndexLen(len int) {
 	indexLen = len
 }
 
-// var _ DAO = (*IndexSQL[*tree.TreeNode])(nil)
+var _ DAO = (*gormImpl[*tree.TreeNode])(nil)
 
-// IndexSQL implementation
-type IndexSQL[T tree.ITreeNode] struct {
+// gormImpl implementation
+type gormImpl[T tree.ITreeNode] struct {
 	DB      *gorm.DB
 	factory Factory[T]
 }
 
-type Factory[T tree.ITreeNode] interface {
-	Struct() T
-	Slice() []T
-	RootGroupProvider
-}
-
-type RootGroupProvider interface {
-	RootGroup() string
-}
-
-type treeNodeFactory[T tree.ITreeNode] struct{}
-
-func (*treeNodeFactory[T]) Struct() T {
-	var t T
-	tree.NewITreeNode(&t)
-	return t
-}
-
-func (*treeNodeFactory[T]) Slice() []T {
-	return []T{}
-}
-
-func (*treeNodeFactory[T]) RootGroup() string {
-	var t T
-
-	if r, ok := any(t).(RootGroupProvider); ok {
-		return r.RootGroup()
-	}
-
-	return "ROOT"
-}
-
-func (s *IndexSQL[T]) instance(ctx context.Context) *gorm.DB {
+func (dao *gormImpl[T]) instance(ctx context.Context) *gorm.DB {
 
 	cachesPlugin := &caches.Caches{Conf: &caches.Config{
 		// Easer: true, // TODO - disabled that at super-fact calls to GetNodeChild() randomly return results
 		// Cacher: NewCacher(c),
 	}}
 
-	s.DB.Use(cachesPlugin)
+	dao.DB.Use(cachesPlugin)
 
-	t := s.factory.Struct()
+	t := dao.factory.Struct()
 	msg := proto.GetExtension(t.ProtoReflect().Descriptor().Options(), orm.E_OrmPolicy).(*orm.ORMMessagePolicy)
 
 	for _, options := range msg.GetOptions() {
-		if options.GetType() == s.DB.Dialector.Name() {
-			s.DB.Set("gorm:table_options", options.GetValue())
+		if options.GetType() == dao.DB.Dialector.Name() {
+			dao.DB.Set("gorm:table_options", options.GetValue())
 		}
 	}
 
-	return s.DB.WithContext(ctx)
+	return dao.DB.WithContext(ctx)
 }
 
-func (s *IndexSQL[T]) Migrate(ctx context.Context) error {
-	t := s.factory.Struct()
-	return s.instance(ctx).AutoMigrate(t)
-}
-
-// Init handles the db version migration and prepare the statements
-//func (s *IndexSQL[T]) Init(ctx context.Context, options configx.Values) error {
-//
-//	cachesPlugin := &caches.Caches{Conf: &caches.Config{
-//		Easer: true,
-//		// Cacher: NewCacher(c),
-//	}}
-//
-//	s.DB.Use(cachesPlugin)
-//
-//	db := s.DB
-//
-//	if s.DB.Dialector == nil {
-//		return errors.New("wrong dialector")
-//	}
-//
-//	t := s.factory.Struct()
-//	msg := proto.GetExtension(t.ProtoReflect().Descriptor().Options(), orm.E_OrmPolicy).(*orm.ORMMessagePolicy)
-//
-//	for _, options := range msg.GetOptions() {
-//		if options.GetType() == s.DB.Dialector.Name() {
-//			db = s.DB.Set("gorm:table_options", options.GetValue())
-//		}
-//	}
-//
-//	db.AutoMigrate(t)
-//
-//	s.instance = func(ctx context.Context) *gorm.DB {
-//		return db.WithContext(ctx).Model(s.factory.Struct())
-//	}
-//
-//	return nil
-//}
-
-// CleanResourcesOnDeletion revert the creation of the table for a datasource
-func (dao *IndexSQL[T]) CleanResourcesOnDeletion(context.Context) (string, error) {
-	return "Removed tables for index", nil
+func (dao *gormImpl[T]) Migrate(ctx context.Context) error {
+	t := dao.factory.Struct()
+	return dao.instance(ctx).AutoMigrate(t)
 }
 
 // AddNode to the underlying SQL DB.
-func (dao *IndexSQL[T]) AddNode(ctx context.Context, node tree.ITreeNode) error {
+func (dao *gormImpl[T]) AddNode(ctx context.Context, node tree.ITreeNode) error {
 	mTime := node.GetNode().GetMTime()
 	if mTime <= 0 {
 		node.GetNode().SetMTime(mTime)
@@ -193,7 +113,7 @@ func (dao *IndexSQL[T]) AddNode(ctx context.Context, node tree.ITreeNode) error 
 }
 
 // AddNodeStream creates a channel to write to the SQL database
-func (dao *IndexSQL[T]) AddNodeStream(ctx context.Context, max int) (chan tree.ITreeNode, chan error) {
+func (dao *gormImpl[T]) AddNodeStream(ctx context.Context, max int) (chan tree.ITreeNode, chan error) {
 
 	c := make(chan tree.ITreeNode)
 	e := make(chan error)
@@ -244,36 +164,37 @@ func (dao *IndexSQL[T]) AddNodeStream(ctx context.Context, max int) (chan tree.I
 }
 
 // Flush the database in case of cached inserts
-func (dao *IndexSQL[T]) Flush(ctx context.Context, final bool) error {
-	return errNotImplemented
+func (dao *gormImpl[T]) Flush(ctx context.Context, final bool) error {
+	return nil
 }
 
 // SetNode in replacement of previous node
-func (dao *IndexSQL[T]) SetNode(ctx context.Context, node tree.ITreeNode) error {
+func (dao *gormImpl[T]) SetNode(ctx context.Context, node tree.ITreeNode) error {
 	return dao.instance(ctx).Model(node).Updates(node).Error
 }
 
 // SetNodeMeta in replacement of previous node
-func (dao *IndexSQL[T]) SetNodeMeta(ctx context.Context, node tree.ITreeNode) error {
+func (dao *gormImpl[T]) SetNodeMeta(ctx context.Context, node tree.ITreeNode) error {
 	return dao.SetNode(ctx, node)
 }
 
 // ResyncDirtyEtags ensures that etags are rightly calculated
-func (dao *IndexSQL[T]) ResyncDirtyEtags(ctx context.Context, rootNode tree.ITreeNode) error {
+func (dao *gormImpl[T]) ResyncDirtyEtags(ctx context.Context, rootNode tree.ITreeNode) error {
 
-	var dirtyNodes []tree.ITreeNode
+	dirtyNodes := dao.factory.Slice()
+	node := dao.factory.Struct()
 
 	tx := dao.instance(ctx).
-		Model(dao.factory.Struct()).
+		Model(node).
 		Where(tree.MPathEqualsOrLike{Value: rootNode.GetMPath()}).
 		Where("level >= ?", rootNode.GetLevel()).
 		Where("etag = '-1'").
 		Order("level desc").
 		FindInBatches(&dirtyNodes, 100, func(tx *gorm.DB, batch int) error {
 			for _, dirtyNode := range dirtyNodes {
-				var etagNodes []tree.ITreeNode
+				etagNodes := dao.factory.Slice()
 				dao.instance(ctx).
-					Model(dao.factory.Struct()).
+					Model(&node).
 					Where(tree.MPathLike{Value: dirtyNode.GetMPath()}).
 					Where("level = ?", dirtyNode.GetLevel()+1).
 					Order("name").
@@ -312,7 +233,7 @@ func (dao *IndexSQL[T]) ResyncDirtyEtags(ctx context.Context, rootNode tree.ITre
 }
 
 // SetNodes returns a channel and waits for arriving nodes before updating them in batch.
-func (dao *IndexSQL[T]) SetNodes(ctx context.Context, etag string, deltaSize int64) BatchSender {
+func (dao *gormImpl[T]) SetNodes(ctx context.Context, etag string, deltaSize int64) BatchSender {
 
 	b := NewBatchSend()
 
@@ -355,14 +276,14 @@ func (dao *IndexSQL[T]) SetNodes(ctx context.Context, etag string, deltaSize int
 }
 
 // DelNode from database
-func (dao *IndexSQL[T]) DelNode(ctx context.Context, node tree.ITreeNode) error {
+func (dao *gormImpl[T]) DelNode(ctx context.Context, node tree.ITreeNode) error {
 	return dao.instance(ctx).
 		Where(tree.MPathEqualsOrLike{Value: node.GetMPath()}).
 		Delete(&node).Error
 }
 
 // GetNode from path
-func (dao *IndexSQL[T]) GetNode(ctx context.Context, path *tree.MPath) (tree.ITreeNode, error) {
+func (dao *gormImpl[T]) GetNode(ctx context.Context, path *tree.MPath) (tree.ITreeNode, error) {
 	node := dao.factory.Struct()
 
 	tx := dao.instance(ctx).Where(tree.MPathEquals{Value: path}).Find(&node)
@@ -378,7 +299,7 @@ func (dao *IndexSQL[T]) GetNode(ctx context.Context, path *tree.MPath) (tree.ITr
 }
 
 // GetNodeByUUID returns the node stored with the unique uuid
-func (dao *IndexSQL[T]) GetNodeByUUID(ctx context.Context, uuid string) (tree.ITreeNode, error) {
+func (dao *gormImpl[T]) GetNodeByUUID(ctx context.Context, uuid string) (tree.ITreeNode, error) {
 
 	node := dao.factory.Struct()
 
@@ -398,7 +319,7 @@ func (dao *IndexSQL[T]) GetNodeByUUID(ctx context.Context, uuid string) (tree.IT
 }
 
 // GetNodes Find Nodes for a list of MPaths - If MPaths is empty it returns zero nodes
-func (dao *IndexSQL[T]) GetNodes(ctx context.Context, mpathes ...*tree.MPath) chan tree.ITreeNode {
+func (dao *gormImpl[T]) GetNodes(ctx context.Context, mpathes ...*tree.MPath) chan tree.ITreeNode {
 
 	c := make(chan tree.ITreeNode)
 
@@ -409,16 +330,18 @@ func (dao *IndexSQL[T]) GetNodes(ctx context.Context, mpathes ...*tree.MPath) ch
 			return
 		}
 
-		nodes := []T{}
+		nodes := dao.factory.Slice()
 
 		tx := dao.instance(ctx)
+		helper := tx.Dialector.(storagesql.Helper)
 
 		if len(mpathes) > 0 {
 			tx = tx.Where(tree.MPathsEquals{Values: mpathes})
 		}
 
+		sorting := helper.MPathOrdering(strings.Split(tree.MetaSortMPath, ",")...)
 		tx = tx.
-			Order("mpath1, mpath2, mpath3, mpath4").
+			Order(sorting).
 			Find(&nodes)
 
 		if err := tx.Error; err != nil {
@@ -434,7 +357,7 @@ func (dao *IndexSQL[T]) GetNodes(ctx context.Context, mpathes ...*tree.MPath) ch
 }
 
 // GetNodeChild from node path whose name matches
-func (dao *IndexSQL[T]) GetNodeChild(ctx context.Context, mPath *tree.MPath, name string) (tree.ITreeNode, error) {
+func (dao *gormImpl[T]) GetNodeChild(ctx context.Context, mPath *tree.MPath, name string) (tree.ITreeNode, error) {
 	node := dao.factory.Struct()
 
 	tx := dao.instance(ctx)
@@ -461,7 +384,7 @@ func (dao *IndexSQL[T]) GetNodeChild(ctx context.Context, mPath *tree.MPath, nam
 }
 
 // GetNodeLastChild from path
-func (dao *IndexSQL[T]) GetNodeLastChild(ctx context.Context, mPath *tree.MPath) (tree.ITreeNode, error) {
+func (dao *gormImpl[T]) GetNodeLastChild(ctx context.Context, mPath *tree.MPath) (tree.ITreeNode, error) {
 	node := dao.factory.Struct()
 
 	tx := dao.instance(ctx).
@@ -482,7 +405,7 @@ func (dao *IndexSQL[T]) GetNodeLastChild(ctx context.Context, mPath *tree.MPath)
 }
 
 // GetNodeFirstAvailableChildIndex from path
-func (dao *IndexSQL[T]) GetNodeFirstAvailableChildIndex(ctx context.Context, mPath *tree.MPath) (available uint64, e error) {
+func (dao *gormImpl[T]) GetNodeFirstAvailableChildIndex(ctx context.Context, mPath *tree.MPath) (available uint64, e error) {
 
 	node := dao.factory.Struct()
 
@@ -532,10 +455,10 @@ func (dao *IndexSQL[T]) GetNodeFirstAvailableChildIndex(ctx context.Context, mPa
 
 	sort.Ints(all)
 
-	max := all[len(all)-1]
+	maxIdx := all[len(all)-1]
 	// No missing numbers : jump directly to the end
-	if max == len(all)-1 {
-		available = uint64(max + 1)
+	if maxIdx == len(all)-1 {
+		available = uint64(maxIdx + 1)
 		return
 	}
 
@@ -552,13 +475,13 @@ func (dao *IndexSQL[T]) GetNodeFirstAvailableChildIndex(ctx context.Context, mPa
 	}
 
 	// We should not get here !
-	available = uint64(max + 1)
+	available = uint64(maxIdx + 1)
 
 	return
 }
 
 // GetNodeChildrenCounts List
-func (dao *IndexSQL[T]) GetNodeChildrenCounts(ctx context.Context, mPath *tree.MPath, recursive bool) (int, int) {
+func (dao *gormImpl[T]) GetNodeChildrenCounts(ctx context.Context, mPath *tree.MPath, recursive bool) (int, int) {
 
 	var leafCount, folderCount int
 	var node *tree.TreeNode
@@ -595,7 +518,7 @@ func (dao *IndexSQL[T]) GetNodeChildrenCounts(ctx context.Context, mPath *tree.M
 }
 
 // GetNodeChildrenSize List
-func (dao *IndexSQL[T]) GetNodeChildrenSize(ctx context.Context, mPath *tree.MPath) (int, error) {
+func (dao *gormImpl[T]) GetNodeChildrenSize(ctx context.Context, mPath *tree.MPath) (int, error) {
 
 	var sum int
 
@@ -618,7 +541,7 @@ func (dao *IndexSQL[T]) GetNodeChildrenSize(ctx context.Context, mPath *tree.MPa
 
 // GetNodeChildren List
 // TODO - FILTER
-func (dao *IndexSQL[T]) GetNodeChildren(ctx context.Context, mPath *tree.MPath, filter ...*tree.MetaFilter) chan interface{} {
+func (dao *gormImpl[T]) GetNodeChildren(ctx context.Context, mPath *tree.MPath, filter ...*tree.MetaFilter) chan interface{} {
 	c := make(chan interface{})
 
 	go func() {
@@ -646,7 +569,7 @@ func (dao *IndexSQL[T]) GetNodeChildren(ctx context.Context, mPath *tree.MPath, 
 			if result.Error == nil && result.RowsAffected != 0 {
 				fcTx := result.Session(&gorm.Session{NewDB: true})
 				fcTx.RowsAffected = result.RowsAffected
-				tx.AddError(func(fcTx *gorm.DB, batch int) error {
+				_ = tx.AddError(func(fcTx *gorm.DB, batch int) error {
 					for _, node := range nodes {
 						c <- node
 					}
@@ -655,7 +578,7 @@ func (dao *IndexSQL[T]) GetNodeChildren(ctx context.Context, mPath *tree.MPath, 
 					return nil
 				}(fcTx, batch))
 			} else if result.Error != nil {
-				tx.AddError(result.Error)
+				_ = tx.AddError(result.Error)
 			}
 
 			if tx.Error != nil || int(result.RowsAffected) < batchSize {
@@ -681,7 +604,7 @@ func (dao *IndexSQL[T]) GetNodeChildren(ctx context.Context, mPath *tree.MPath, 
 }
 
 // GetNodeTree List from the path
-func (dao *IndexSQL[T]) GetNodeTree(ctx context.Context, mPath *tree.MPath, filter ...*tree.MetaFilter) chan interface{} {
+func (dao *gormImpl[T]) GetNodeTree(ctx context.Context, mPath *tree.MPath, filter ...*tree.MetaFilter) chan interface{} {
 	c := make(chan interface{})
 
 	// Retrieving tree
@@ -704,6 +627,7 @@ func (dao *IndexSQL[T]) GetNodeTree(ctx context.Context, mPath *tree.MPath, filt
 		)
 
 		sortSet := false
+		helper := tx.Dialector.(storagesql.Helper)
 
 		if len(filter) > 0 {
 			mfWhere, mfArgs := filter[0].Where()
@@ -713,14 +637,18 @@ func (dao *IndexSQL[T]) GetNodeTree(ctx context.Context, mPath *tree.MPath, filt
 			}
 
 			if filter[0].HasSort() {
-				tx = tx.Order(filter[0].OrderBy())
+				sField, sDir := filter[0].OrderBy()
+				if sField == tree.MetaSortMPath {
+					sField = helper.MPathOrdering(strings.Split(tree.MetaSortMPath, ",")...)
+				}
+				tx = tx.Order(sField + " " + sDir)
 				sortSet = true
 			}
 		}
 
-		//queryDB := tx.Session(&gorm.Session{}).Order("mpath1, mpath2, mpath3, mpath4")
 		if !sortSet {
-			tx = tx.Order(tree.MetaSortMPath)
+			sorting := helper.MPathOrdering(strings.Split(tree.MetaSortMPath, ",")...)
+			tx = tx.Order(sorting)
 		}
 
 		for {
@@ -732,7 +660,7 @@ func (dao *IndexSQL[T]) GetNodeTree(ctx context.Context, mPath *tree.MPath, filt
 			if result.Error == nil && result.RowsAffected != 0 {
 				fcTx := result.Session(&gorm.Session{NewDB: true})
 				fcTx.RowsAffected = result.RowsAffected
-				tx.AddError(func(fcTx *gorm.DB, batch int) error {
+				_ = tx.AddError(func(fcTx *gorm.DB, batch int) error {
 					for _, node := range nodes {
 						c <- node
 					}
@@ -741,7 +669,7 @@ func (dao *IndexSQL[T]) GetNodeTree(ctx context.Context, mPath *tree.MPath, filt
 					return nil
 				}(fcTx, batch))
 			} else if result.Error != nil {
-				tx.AddError(result.Error)
+				_ = tx.AddError(result.Error)
 			}
 
 			if tx.Error != nil || int(result.RowsAffected) < batchSize {
@@ -767,7 +695,7 @@ func (dao *IndexSQL[T]) GetNodeTree(ctx context.Context, mPath *tree.MPath, filt
 }
 
 // MoveNodeTree move all the nodes belonging to a tree by calculating the new mpathes
-func (dao *IndexSQL[T]) MoveNodeTree(ctx context.Context, nodeFrom tree.ITreeNode, nodeTo tree.ITreeNode) error {
+func (dao *gormImpl[T]) MoveNodeTree(ctx context.Context, nodeFrom tree.ITreeNode, nodeTo tree.ITreeNode) error {
 
 	model := dao.factory.Struct()
 
@@ -796,18 +724,19 @@ func (dao *IndexSQL[T]) MoveNodeTree(ctx context.Context, nodeFrom tree.ITreeNod
 	var (
 		quoMPathTo = totalMPathTo / indexLen
 		modMPathTo = totalMPathTo % indexLen
-		mpathSub   = make(map[string]interface{})
+		updates    []storagesql.OrderedUpdate
 	)
 
 	// rows before
 	for i := 0; i < quoMPathTo; i++ {
-		mpathSub[fmt.Sprintf("mpath%d", i+1)] = mpathTo[i]
+		updates = append(updates, storagesql.OrderedUpdate{Key: fmt.Sprintf("mpath%d", i+1), Value: mpathTo[i]})
 	}
 
 	// for the final rows, we do some clever concatenations based on the length of the origin and the target
 	maxLen := indexLen * 4
 	curIndexFrom := totalMPathFrom
 	curIndexTo := totalMPathTo
+	helper := dao.instance(ctx).Dialector.(storagesql.Helper)
 
 	for cnt := quoMPathTo; cnt < 4; cnt++ {
 		if curIndexFrom >= maxLen || curIndexTo >= maxLen {
@@ -832,25 +761,199 @@ func (dao *IndexSQL[T]) MoveNodeTree(ctx context.Context, nodeFrom tree.ITreeNod
 			concat = append(concat, fmt.Sprintf(`SUBSTR(mpath%d, %d, %d)`, modPart.quo+1, modPart.from+1, modPart.to-modPart.from))
 		}
 
-		helper := dao.instance(ctx).Dialector.(storagesql.Helper)
-
-		mpathSub[fmt.Sprintf("mpath%d", cnt+1)] = gorm.Expr(helper.Concat(concat...))
+		updates = append(updates, storagesql.OrderedUpdate{Key: fmt.Sprintf("mpath%d", cnt+1), Value: gorm.Expr(helper.Concat(concat...))})
 
 		curIndexFrom = tarIndexFrom
 		curIndexTo = curIndexTo + incr
 	}
 
-	mpathSub["level"] = gorm.Expr("level + ?", levelDiff)
+	updates = append(updates, storagesql.OrderedUpdate{Key: "level", Value: gorm.Expr("level + ?", levelDiff)})
 
-	proto.Reset(model)
+	if hash := helper.Hash("mpath1", "mpath2", "mpath3", "mpath4"); hash != "" {
+		updates = append(updates, storagesql.OrderedUpdate{Key: "hash", Value: gorm.Expr(hash)})
+	}
+	if hash2 := helper.HashParent("name", "level", "mpath1", "mpath2", "mpath3", "mpath4"); hash2 != "" {
+		updates = append(updates, storagesql.OrderedUpdate{Key: "hash2", Value: gorm.Expr(hash2)})
+	}
 
-	tx := dao.instance(ctx).
-		Model(model).
-		Where(tree.MPathLike{Value: nodeFromMPath}).
-		Where("level >= ?", mpathFromLevel).
-		Updates(mpathSub)
+	db := dao.instance(ctx)
+	tableName := storagesql.TableNameFromModel(db, model)
+	var wheres []sql.NamedArg
+	wheres = append(wheres, sql.Named("wTreeLike", tree.MPathLike{Value: nodeFromMPath}))
+	wheres = append(wheres, sql.Named("wLevel", gorm.Expr("level >= ?", mpathFromLevel)))
+	rows, er := helper.ApplyOrderedUpdates(db, tableName, updates, wheres)
+	log.Logger(ctx).Debug("Children rows affected by MoveNodeTree", zap.Int64("rows", rows))
+	return er
 
+}
+
+func (dao *gormImpl[T]) ResolveMPath(ctx context.Context, create bool, node *tree.ITreeNode, rootNode ...tree.ITreeNode) (mpath *tree.MPath, nodeTree []tree.ITreeNode, err error) {
+	clone := *dao
+	origN := (*node).GetNode().Clone()
+	var root tree.ITreeNode
+	if len(rootNode) > 0 {
+		root = rootNode[0]
+	} else {
+		root = tree.EmptyTreeNode()
+	}
+
+	mpath, nodeTree, err = toMPath(ctx, &clone, *node, root, create)
+	// Retry on "Creation + DuplicateKey"
+	if create && err != nil && errors.Is(err, gorm.ErrDuplicatedKey) {
+		r := 0
+		for {
+			<-time.After(time.Duration((r+1)*50) * time.Millisecond)
+			retryNode := &tree.TreeNode{Node: origN.Clone()}
+			mpath, nodeTree, err = toMPath(ctx, &clone, retryNode, root, create)
+			if err == nil || !errors.Is(err, gorm.ErrDuplicatedKey) || r >= 4 {
+				*node = retryNode
+				log.Logger(ctx).Debug("Created mpath after retry", (*node).GetNode().Zap())
+				return
+			}
+			r++
+		}
+	}
+	return
+}
+
+// Flatten removes all .pydio from index, at once
+func (dao *gormImpl[T]) Flatten(ctx context.Context) (string, error) {
+
+	model := dao.factory.Struct()
+	model.SetName(common.PydioSyncHiddenFile)
+	model.GetNode().SetType(tree.NodeType_LEAF)
+	tx := dao.instance(ctx).Delete(model)
+	if err := tx.Error; err != nil {
+		return "", err
+	}
+	return fmt.Sprintf("Removed %d .pydio nodes", tx.RowsAffected), nil
+
+}
+
+// CleanResourcesOnDeletion revert the creation of the table for a datasource
+func (dao *gormImpl[T]) CleanResourcesOnDeletion(context.Context) (string, error) {
+	return "Removed tables for index", nil
+}
+
+// LostAndFounds performs a couple of issue detection routines (duplicates, lost-parents)
+func (dao *gormImpl[T]) LostAndFounds(ctx context.Context) ([]LostAndFound, error) {
+	var ll []LostAndFound
+
+	// Find Duplicates
+	tx := dao.instance(ctx)
+	helper := tx.Dialector.(storagesql.Helper)
+	model := dao.factory.Struct()
+
+	type duplicate struct {
+		Safename string
+		Pmpath   string
+		Minmpath string
+	}
+	var duplicates []duplicate
+
+	mpaths := []string{"mpath1", "mpath2", "mpath3", "mpath4"}
+	parentMPathExpr := helper.ParentMPath("level", mpaths...)
+
+	selects := []string{
+		helper.Concat("name", "'_'") + " as safename",
+		parentMPathExpr + " as pmpath",
+		"min(" + helper.Concat(mpaths...) + ") as minmpath",
+	}
+	tx = tx.Model(model).
+		Select(strings.Join(selects, ", ")).
+		Group("safename,pmpath").
+		Having("count("+parentMPathExpr+") > ?", 1). //Pg does not support alias in Having
+		Scan(&duplicates)
+	if tx.Error != nil {
+		return nil, tx.Error
+	}
+	for _, res := range duplicates {
+		// Remove suffix
+		res.Safename = strings.TrimSuffix(res.Safename, "_")
+		nodes := dao.factory.Slice()
+		tx2 := dao.instance(ctx).
+			Model(model).
+			Where("name = ?", res.Safename).
+			Where(parentMPathExpr+"= ?", res.Pmpath).
+			Order(helper.MPathOrdering(mpaths...)).
+			Scan(&nodes)
+		if tx2.Error != nil {
+			return nil, tx2.Error
+		}
+		lf := &lostFoundImpl{}
+		for _, node := range nodes {
+			lf.leaf = node.GetNode().IsLeaf()
+			lf.uuids = append(lf.uuids, node.GetNode().GetUuid())
+		}
+		ll = append(ll, lf)
+	}
+
+	// Now find lost children
+	losts := dao.factory.Slice()
+	txSub := dao.instance(ctx).Model(model)
+	tName := storagesql.TableNameFromModel(txSub, model)
+	tx3 := dao.instance(ctx).
+		Table(txSub.Statement.Quote(tName)+" t1").
+		Where("t1.level > ?", 1).
+		Where("NOT EXISTS (?)",
+			txSub.Table(txSub.Statement.Quote(tName)+" t2").
+				Select("1").
+				Where(helper.Concat("t2.mpath1", "t2.mpath2", "t2.mpath3", "t2.mpath4")+" = "+helper.ParentMPath("t1.level", "t1.mpath1", "t1.mpath2", "t1.mpath3", "t1.mpath4")),
+		).
+		Scan(&losts)
+	if tx3.Error != nil {
+		return nil, tx3.Error
+	}
+	for _, lost := range losts {
+		ll = append(ll, &lostFoundImpl{
+			uuids:     []string{lost.GetNode().GetUuid()},
+			lostMPath: lost.GetMPath().ToString(),
+			leaf:      lost.GetNode().IsLeaf(),
+		})
+		// load children if there are
+		for c := range dao.GetNodeTree(ctx, lost.GetMPath()) {
+			childNode := c.(tree.ITreeNode)
+			ll = append(ll, &lostFoundImpl{
+				uuids:     []string{childNode.GetNode().GetUuid()},
+				lostMPath: childNode.GetMPath().ToString(),
+				leaf:      childNode.GetNode().IsLeaf(),
+			})
+		}
+	}
+
+	return ll, nil
+}
+
+// FixLostAndFound simply gets a list of UUIDs to be deleted
+func (dao *gormImpl[T]) FixLostAndFound(ctx context.Context, lost LostAndFound) error {
+
+	model := dao.factory.Struct()
+	tx := dao.instance(ctx)
+	tx.Model(model).Where("uuid IN ?", lost.GetUUIDs()).Delete(model)
 	return tx.Error
+
+}
+
+// UpdateNameInPlace in replacement of previous node
+func (dao *gormImpl[T]) UpdateNameInPlace(ctx context.Context, oldName, newName string, knownUuid string, knownLevel int) (int64, error) {
+
+	tx := dao.instance(ctx)
+
+	tx = tx.Where("name", oldName)
+
+	if knownLevel > -1 {
+		tx = tx.Where("level", knownLevel)
+	} else if knownUuid != "" {
+		tx = tx.Where("uuid", knownUuid)
+	}
+
+	tx = tx.Update("name", newName)
+	if tx.Error != nil {
+		return 0, tx.Error
+	}
+
+	return tx.RowsAffected, nil
+
 }
 
 func toMPath(ctx context.Context, dao DAO, targetNode tree.ITreeNode, parentNode tree.ITreeNode, create bool) (*tree.MPath, []tree.ITreeNode, error) {
@@ -913,7 +1016,7 @@ func toMPath(ctx context.Context, dao DAO, targetNode tree.ITreeNode, parentNode
 	}
 
 	// We must insert
-	if parentMPath.Length() == 0 {
+	if parentMPath == nil || parentMPath.Length() == 0 {
 		// The current node is the root
 		// We hardcode its values and add it
 
@@ -983,114 +1086,6 @@ func toMPath(ctx context.Context, dao DAO, targetNode tree.ITreeNode, parentNode
 	mpath, createdNodes, err := toMPath(ctx, dao, targetNode, currentNode, create)
 
 	return mpath, append(createdNodes, currentNode), err
-}
-
-func (dao *IndexSQL[T]) ResolveMPath(ctx context.Context, create bool, node *tree.ITreeNode, rootNode ...tree.ITreeNode) (mpath *tree.MPath, nodeTree []tree.ITreeNode, err error) {
-	clone := *dao
-	origN := (*node).GetNode().Clone()
-	var root tree.ITreeNode
-	if len(rootNode) > 0 {
-		root = rootNode[0]
-	} else {
-		root = tree.EmptyTreeNode()
-	}
-
-	mpath, nodeTree, err = toMPath(ctx, &clone, *node, root, create)
-	// Retry on "Creation + DuplicateKey"
-	if create && err != nil && errors.Is(err, gorm.ErrDuplicatedKey) {
-		r := 0
-		for {
-			<-time.After(time.Duration((r+1)*50) * time.Millisecond)
-			retryNode := &tree.TreeNode{Node: origN.Clone()}
-			mpath, nodeTree, err = toMPath(ctx, &clone, retryNode, root, create)
-			if err == nil || !errors.Is(err, gorm.ErrDuplicatedKey) || r >= 4 {
-				*node = retryNode
-				log.Logger(ctx).Debug("Created mpath after retry", (*node).GetNode().Zap())
-				return
-			}
-			r++
-		}
-	}
-	return
-}
-
-// Flatten removes all .pydio from index, at once
-func (dao *IndexSQL[T]) Flatten(context.Context) (string, error) {
-	return "", errors.New("Not implemented")
-}
-
-func (d *IndexSQL[T]) LostAndFounds(ctx context.Context) ([]LostAndFound, error) {
-	return nil, nil
-}
-
-func (d *IndexSQL[T]) FixLostAndFound(ctx context.Context, lost LostAndFound) error {
-	return nil
-}
-
-func (dao *IndexSQL[T]) FixRandHash2(ctx context.Context, excludes ...LostAndFound) (int64, error) {
-	return 0, nil
-}
-
-func (dao *IndexSQL[T]) Convert(val *anypb.Any, in any) (out any, ok bool) {
-	return in, false
-}
-
-// UpdateNameInPlace in replacement of previous node
-func (dao *IndexSQL[T]) UpdateNameInPlace(ctx context.Context, oldName, newName string, knownUuid string, knownLevel int) (int64, error) {
-
-	tx := dao.instance(ctx)
-
-	tx = tx.Where("name", oldName)
-
-	if knownLevel > -1 {
-		tx = tx.Where("level", knownLevel)
-	} else if knownUuid != "" {
-		tx = tx.Where("uuid", knownUuid)
-	}
-
-	tx = tx.Update("name", newName)
-	if tx.Error != nil {
-		return 0, tx.Error
-	}
-
-	return tx.RowsAffected, nil
-
-}
-
-// NewBatchSend Creation of the channels
-func NewBatchSend() *BatchSend {
-	b := new(BatchSend)
-	b.in = make(chan tree.ITreeNode)
-	b.out = make(chan error, 1)
-
-	return b
-}
-
-// Send a node to the batch
-func (b *BatchSend) Send(arg interface{}) {
-	if node, ok := arg.(tree.ITreeNode); ok {
-		b.in <- node
-	}
-}
-
-// Close the Batch
-func (b *BatchSend) Close() error {
-	close(b.in)
-
-	err := <-b.out
-
-	return err
-}
-
-// Split node.MPath into 4 strings for storing in DB
-func prepareMPathParts(str string) (string, string, string, string) {
-	mPath := make([]byte, indexLen*4)
-	copy(mPath, []byte(str))
-	mPath1 := string(bytes.Trim(mPath[(indexLen*0):(indexLen*1)], "\x00"))
-	mPath2 := string(bytes.Trim(mPath[(indexLen*1):(indexLen*2)], "\x00"))
-	mPath3 := string(bytes.Trim(mPath[(indexLen*2):(indexLen*3)], "\x00"))
-	mPath4 := string(bytes.Trim(mPath[(indexLen*3):(indexLen*4)], "\x00"))
-	return mPath1, mPath2, mPath3, mPath4
 }
 
 func firstAvailableSlot(numbers []int, padStart bool) (missing int, has bool, rest []int) {

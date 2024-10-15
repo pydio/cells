@@ -21,24 +21,42 @@
 package sql
 
 import (
-	"fmt"
+	"database/sql"
+	"reflect"
+
+	"gorm.io/gorm"
+	"gorm.io/gorm/schema"
 )
+
+type OrderedUpdate struct {
+	Key   string
+	Value interface{}
+}
 
 type Helper interface {
 	Concat(...string) string
 	Hash(...string) string
-	HashParent(string, ...string) string
+	ParentMPath(levelKey string, mpathes ...string) string
+	HashParent(nameKey string, levelKey string, mpathes ...string) string
+	ApplyOrderedUpdates(db *gorm.DB, tableName string, sets []OrderedUpdate, wheres []sql.NamedArg) (int64, error)
+	MPathOrdering(...string) string
 }
 
-func newHelper(d string) (Helper, error) {
-	switch d {
-	case MySQLDriver:
-		return new(mysqlHelper), nil
-	case PostgreDriver:
-		return new(postgresHelper), nil
-	case SqliteDriver:
-		return new(sqliteHelper), nil
-	default:
-		return nil, fmt.Errorf("wrong driver")
+// TableNameFromModel computes table name from model using standard GORM strategy
+func TableNameFromModel(db *gorm.DB, model any) string {
+	value := reflect.ValueOf(model)
+	if value.Kind() == reflect.Ptr && value.IsNil() {
+		value = reflect.New(value.Type().Elem())
 	}
+	modelType := reflect.Indirect(value).Type()
+
+	tableName := db.NamingStrategy.TableName(modelType.Name())
+	modelValue := reflect.New(modelType)
+	if tabler, ok := modelValue.Interface().(schema.Tabler); ok {
+		tableName = tabler.TableName()
+	}
+	if tabler, ok := modelValue.Interface().(schema.TablerWithNamer); ok {
+		tableName = tabler.TableName(db.NamingStrategy)
+	}
+	return tableName
 }
