@@ -12,12 +12,7 @@ processes:
       {{{{- range $k,$v := .ObjectsSources}}}}
       objects-{{{{$k}}}}:
         runtime: datasource-objects
-        connections:
-          <<: *connections
-          config:
-            uri: file://{{{{ $.ApplicationWorkingDir }}}}/pydio.json
-            pools:
-              rp: file://{{{{ $.ApplicationWorkingDir }}}}/{{ .Tenant }}.json
+        connections: *connections
         listeners:
           grpc{{{{$k}}}}:
             type: tcp
@@ -38,12 +33,7 @@ processes:
       {{{{- range $k,$v := .DataSources}}}}
       index-{{{{$k}}}}:
         runtime: datasource-index
-        connections:
-          <<: *connections
-          config:
-            uri: file://{{{{ $.ApplicationWorkingDir }}}}/pydio.json
-            pools:
-              rp: file://{{{{ $.ApplicationWorkingDir }}}}/{{ .Tenant }}.json
+        connections: *connections
         listeners:
           grpc{{{{$k}}}}:
             type: tcp

@@ -42,8 +42,9 @@ func testVault(t *testing.T, std config.Store, vault config.Store) {
 	Convey("Test Set", t, func() {
 		protected.Val("protectedValue").Set("my-secret-data")
 		So(std.Val("protectedValue").Default("").String(), ShouldNotEqual, "my-secret-data")
-		So(protected.Val("protectedValue").String(), ShouldNotEqual, "my-secret-data")
-		So(vault.Val(protected.Val("protectedValue").String()).String(), ShouldEqual, "my-secret-data")
+		protectedID := protected.Val("protectedValue").String()
+		So(protectedID, ShouldNotEqual, "my-secret-data")
+		So(vault.Val(protectedID).String(), ShouldEqual, "my-secret-data")
 
 		protected.Val("unprotectedValue").Set("my-test-config-value")
 
@@ -97,6 +98,15 @@ func testVault(t *testing.T, std config.Store, vault config.Store) {
 
 		// uuid should have changed
 		So(uuid, ShouldNotEqual, std.Val("myjson/myprotectedmap/myprotectedvalue").Default("").String())
+	})
+
+	Convey("Test Setting a reference", t, func() {
+		config.RegisterVaultKey("reference/key")
+		protected.Val("reference").Set(map[string]any{"$ref": "rp#/reference"})
+		protected.Val("reference/key").Set("val")
+
+		refKey := std.Val("reference/key").String()
+		So(vault.Val(refKey).String(), ShouldEqual, "val")
 	})
 }
 

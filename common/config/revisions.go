@@ -71,8 +71,8 @@ func (v *versionStore) Val(path ...string) configx.Values {
 }
 
 // Get access to the underlying structure at a certain path
-func (v *versionStore) Get() any {
-	return v.wrappedStore.Get()
+func (v *versionStore) Get(wo ...configx.WalkOption) any {
+	return v.wrappedStore.Get(wo...)
 }
 
 // Set new value

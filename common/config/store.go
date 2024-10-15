@@ -22,6 +22,8 @@ package config
 
 import (
 	"context"
+	"github.com/spf13/cast"
+	"strconv"
 	"strings"
 
 	"github.com/pydio/cells/v4/common/errors"
@@ -98,14 +100,17 @@ func (v *storeWithReferencePoolValues) Default(def any) configx.Values {
 	return configx.New(configx.WithStorer(&storeWithReferencePoolValues{ctx: v.ctx, Values: v.Values.Default(def), ReferencePool: v.ReferencePool}))
 }
 
-func (v *storeWithReferencePoolValues) Get() any {
-	var ret any
-
-	if err := v.Values.Walk(func(i int, current any) any {
+func (v *storeWithReferencePoolValues) Get(wo ...configx.WalkOption) any {
+	keys := v.Values.Key()
+	return v.Values.Get(configx.WithInterceptor(func(i int, current any) (bool, any) {
 		switch c := current.(type) {
 		case map[any]any:
 			if refV, ok := c["$ref"]; ok {
-				ref := strings.SplitN(refV.(string), "#", 2)
+				refVStr, err := strconv.Unquote(cast.ToString(refV))
+				if err != nil {
+					refVStr = cast.ToString(refV)
+				}
+				ref := strings.SplitN(refVStr, "#", 2)
 				refTarget, refValue := ref[0], ref[1]
 
 				var configRef configx.Values
@@ -118,7 +123,7 @@ func (v *storeWithReferencePoolValues) Get() any {
 
 							store, err := refTargetPool.Get(v.ctx)
 							if err != nil {
-								return nil
+								return false, err
 							}
 
 							configRef = store.Val("#")
@@ -127,15 +132,18 @@ func (v *storeWithReferencePoolValues) Get() any {
 				}
 
 				if configRef == nil {
-					return nil
+					return false, errors.New("missing ref")
 				}
 
-				ret = configRef.Val(refValue).Get()
-				return ret
+				return true, configRef.Val(refValue).Val(keys[i+1:]...).Get()
 			}
 		case map[string]any:
 			if refV, ok := c["$ref"]; ok {
-				ref := strings.SplitN(refV.(string), "#", 2)
+				refVStr, err := strconv.Unquote(cast.ToString(refV))
+				if err != nil {
+					refVStr = cast.ToString(refV)
+				}
+				ref := strings.SplitN(refVStr, "#", 2)
 				refTarget, refValue := ref[0], ref[1]
 
 				var configRef configx.Values
@@ -148,7 +156,7 @@ func (v *storeWithReferencePoolValues) Get() any {
 
 							store, err := refTargetPool.Get(v.ctx)
 							if err != nil {
-								return nil
+								return false, err
 							}
 
 							configRef = store.Val("#")
@@ -157,20 +165,15 @@ func (v *storeWithReferencePoolValues) Get() any {
 				}
 
 				if configRef == nil {
-					return nil
+					return false, errors.New("missing ref")
 				}
 
-				ret = configRef.Val(refValue).Get()
-				return ret
+				return true, configRef.Val(refValue).Val(keys[i+1:]...).Get()
 			}
 		}
 
-		return nil
-	}); err != nil || ret == nil {
-		return v.Values.Get()
-	}
-
-	return ret
+		return false, nil
+	}))
 }
 
 // Set ensures that the keys that have been target are saved encrypted in the vault
@@ -179,11 +182,15 @@ func (v *storeWithReferencePoolValues) Set(data interface{}) error {
 	refFound := false
 
 	// Checking if we don't have a reference in the parent keys
-	v.Values.Walk(func(i int, current any) any {
+	configx.Walk(v.Values.Key(), v.Values.Val("#").Get(), func(i int, current any) (bool, error) {
 		switch vv := current.(type) {
 		case map[any]any:
 			if refV, ok := vv["$ref"]; ok {
-				ref := strings.SplitN(refV.(string), "#", 2)
+				refVStr, err := strconv.Unquote(cast.ToString(refV))
+				if err != nil {
+					refVStr = cast.ToString(refV)
+				}
+				ref := strings.SplitN(refVStr, "#", 2)
 				refTarget, refValue := ref[0], ref[1]
 
 				var configRef Store
@@ -194,7 +201,7 @@ func (v *storeWithReferencePoolValues) Set(data interface{}) error {
 
 							configRef, err = refTargetPool.Get(v.ctx)
 							if err != nil {
-								return errors.StatusNotFound
+								return false, errors.StatusNotFound
 							}
 						}
 					}
@@ -203,12 +210,16 @@ func (v *storeWithReferencePoolValues) Set(data interface{}) error {
 				if configRef != nil {
 					refFound = true
 					keys := v.Values.Key()[i+1:]
-					return configRef.Val(refValue).Val(keys...).Set(data)
+					return false, configRef.Val(refValue).Val(keys...).Set(data)
 				}
 			}
 		case map[string]any:
 			if refV, ok := vv["$ref"]; ok {
-				ref := strings.SplitN(refV.(string), "#", 2)
+				refVStr, err := strconv.Unquote(cast.ToString(refV))
+				if err != nil {
+					refVStr = cast.ToString(refV)
+				}
+				ref := strings.SplitN(refVStr, "#", 2)
 				refTarget, refValue := ref[0], ref[1]
 
 				var configRef Store
@@ -219,7 +230,7 @@ func (v *storeWithReferencePoolValues) Set(data interface{}) error {
 
 							configRef, err = refTargetPool.Get(v.ctx)
 							if err != nil {
-								return errors.StatusNotFound
+								return false, errors.StatusNotFound
 							}
 						}
 					}
@@ -228,12 +239,12 @@ func (v *storeWithReferencePoolValues) Set(data interface{}) error {
 				if configRef != nil {
 					refFound = true
 					keys := v.Values.Key()[i+1:]
-					return configRef.Val(refValue).Val(keys...).Set(data)
+					return false, configRef.Val(refValue).Val(keys...).Set(data)
 				}
 			}
 		}
 
-		return current
+		return true, nil
 	})
 
 	if !refFound {

@@ -76,6 +76,18 @@ type Options struct {
 	Context context.Context
 }
 
+type WalkOption func(*WalkOptions)
+
+type WalkOptions struct {
+	Interceptor func(i int, v any) (bool, any)
+}
+
+func WithInterceptor(f func(i int, v any) (bool, any)) WalkOption {
+	return func(wo *WalkOptions) {
+		wo.Interceptor = f
+	}
+}
+
 func WithInitData(data interface{}) Option {
 	return func(o *Options) {
 		o.InitData = data

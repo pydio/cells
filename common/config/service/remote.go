@@ -162,12 +162,8 @@ func (r *remote) Key() []string {
 	return r.values.Key()
 }
 
-func (r *remote) Walk(f func(int, any) any) error {
-	return r.values.Walk(f)
-}
-
-func (r *remote) Get() any {
-	return r.values.Get()
+func (r *remote) Get(wo ...configx.WalkOption) any {
+	return r.values.Get(wo...)
 }
 
 func (r *remote) Set(value interface{}) error {
@@ -337,7 +333,7 @@ func (v *values) Val(path ...string) configx.Values {
 	return configx.New(configx.WithStorer(&values{ctx: v.ctx, cli: v.cli, id: v.id, k: configx.StringToKeys(append(v.k, path...)...), d: v.d}))
 }
 
-func (v *values) Get() any {
+func (v *values) Get(wo ...configx.WalkOption) any {
 	c := configx.New(configx.WithJSON())
 
 	rsp, err := v.cli.Get(v.ctx, &pb.GetRequest{
@@ -351,7 +347,8 @@ func (v *values) Get() any {
 	}
 
 	if err := c.Set(rsp.GetValue().GetData()); err != nil {
-		//fmt.Println("And the error is ? ", err)
+		fmt.Println("Config error (could not set value from data ", err.Error(), ")")
+		return nil
 	}
 
 	vv := c.Get()

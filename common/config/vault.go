@@ -106,13 +106,9 @@ func (v *vaultStoreLocker) Unlock() {
 	}
 }
 
-func (v *vault) Walk(f func(i int, v any) any) error {
-	return v.config.Walk(f)
-}
-
 // Get access to the underlying structure at a certain path
-func (v *vault) Get() any {
-	return v.config.Get()
+func (v *vault) Get(wo ...configx.WalkOption) any {
+	return v.config.Get(wo...)
 }
 
 // Set new value
@@ -164,8 +160,8 @@ func (v *vaultvalues) Val(s ...string) configx.Values {
 
 // Get retrieves the value as saved in the config (meaning the uuid if it is a registered key)
 // Data will need to be retrieved from the vault via other means
-func (v *vaultvalues) Get() any {
-	return v.Values.Get()
+func (v *vaultvalues) Get(wo ...configx.WalkOption) any {
+	return v.Values.Get(wo...)
 }
 
 // Set ensures that the keys that have been target are saved encrypted in the vault

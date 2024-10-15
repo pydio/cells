@@ -584,6 +584,18 @@ func (m *manager) initProcesses(ctx context.Context, bootstrap *Bootstrap, base 
 				childArgs = append(childArgs, "--sets", sets)
 			}
 
+			for _, set := range runtime.GetStringSlice(runtime.KeyBootstrapSet) {
+				kv := strings.SplitN(set, "=", 2)
+				if len(kv) != 2 {
+					continue
+				}
+
+				if strings.HasPrefix(kv[0], "processes/"+name+"/") {
+					arg := []string{strings.TrimPrefix(kv[0], base), kv[1]}
+					childArgs = append(childArgs, "--"+runtime.KeyBootstrapSet, strings.Join(arg, "="))
+				}
+			}
+
 			if runtime.GetString(runtime.KeyBootstrapTpl) != "" {
 				b, err := yaml.Marshal(bootstrap.Val(base).Map())
 				if err != nil {

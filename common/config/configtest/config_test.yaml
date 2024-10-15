@@ -1,0 +1,19 @@
+processes:
+  discovery:
+    listeners:
+      bufconn:
+        type: bufconn
+        bufsize: 1048576
+    connections:
+      grpc:
+        type: grpc
+        uri: passthrough://bufnet
+        listener: bufconn
+        services:
+          - filter: "{{ .Name }} ~= .*"
+    servers:
+      grpc:
+        type: grpc
+        listener: bufconn
+        services:
+          - filter: "{{ .Name }} ~= .*"
