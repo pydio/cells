@@ -793,6 +793,10 @@ func NewTreeNodePtr(path string, withNode ...*Node) *ITreeNode {
 	return &tn
 }
 
+func (tn *TreeNode) TableName(namer schema.Namer) string {
+	return namer.TableName("idx_tree")
+}
+
 func (tn *TreeNode) BeforeCreate(*gorm.DB) error {
 	tn.SetLevel(int64(tn.GetMPath().Length()))
 
@@ -812,7 +816,7 @@ func (tn *TreeNode) BeforeSave(*gorm.DB) error {
 
 	parent := tn.GetMPath().Parent()
 	io.WriteString(h, tn.GetName())
-	io.WriteString(h, "'__###PARENT_HASH###__'")
+	io.WriteString(h, "__###PARENT_HASH###__")
 	io.WriteString(h, parent.GetMPath1())
 	io.WriteString(h, parent.GetMPath2())
 	io.WriteString(h, parent.GetMPath3())

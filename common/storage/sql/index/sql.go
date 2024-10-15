@@ -26,6 +26,7 @@ import (
 	"bytes"
 	"context"
 	"crypto/md5"
+	"database/sql"
 	"encoding/hex"
 	"fmt"
 	"path"
@@ -38,6 +39,7 @@ import (
 	"time"
 
 	"github.com/go-gorm/caches"
+	"go.uber.org/zap"
 	"google.golang.org/protobuf/proto"
 	"google.golang.org/protobuf/types/known/anypb"
 	"gorm.io/gorm"
@@ -412,13 +414,15 @@ func (dao *IndexSQL[T]) GetNodes(ctx context.Context, mpathes ...*tree.MPath) ch
 		nodes := []T{}
 
 		tx := dao.instance(ctx)
+		helper := tx.Dialector.(storagesql.Helper)
 
 		if len(mpathes) > 0 {
 			tx = tx.Where(tree.MPathsEquals{Values: mpathes})
 		}
 
+		sorting := helper.MPathOrdering(strings.Split(tree.MetaSortMPath, ",")...)
 		tx = tx.
-			Order("mpath1, mpath2, mpath3, mpath4").
+			Order(sorting).
 			Find(&nodes)
 
 		if err := tx.Error; err != nil {
@@ -704,6 +708,7 @@ func (dao *IndexSQL[T]) GetNodeTree(ctx context.Context, mPath *tree.MPath, filt
 		)
 
 		sortSet := false
+		helper := tx.Dialector.(storagesql.Helper)
 
 		if len(filter) > 0 {
 			mfWhere, mfArgs := filter[0].Where()
@@ -713,14 +718,18 @@ func (dao *IndexSQL[T]) GetNodeTree(ctx context.Context, mPath *tree.MPath, filt
 			}
 
 			if filter[0].HasSort() {
-				tx = tx.Order(filter[0].OrderBy())
+				sField, sDir := filter[0].OrderBy()
+				if sField == tree.MetaSortMPath {
+					sField = helper.MPathOrdering(strings.Split(tree.MetaSortMPath, ",")...)
+				}
+				tx = tx.Order(sField + " " + sDir)
 				sortSet = true
 			}
 		}
 
-		//queryDB := tx.Session(&gorm.Session{}).Order("mpath1, mpath2, mpath3, mpath4")
 		if !sortSet {
-			tx = tx.Order(tree.MetaSortMPath)
+			sorting := helper.MPathOrdering(strings.Split(tree.MetaSortMPath, ",")...)
+			tx = tx.Order(sorting)
 		}
 
 		for {
@@ -796,18 +805,19 @@ func (dao *IndexSQL[T]) MoveNodeTree(ctx context.Context, nodeFrom tree.ITreeNod
 	var (
 		quoMPathTo = totalMPathTo / indexLen
 		modMPathTo = totalMPathTo % indexLen
-		mpathSub   = make(map[string]interface{})
+		updates    []storagesql.OrderedUpdate
 	)
 
 	// rows before
 	for i := 0; i < quoMPathTo; i++ {
-		mpathSub[fmt.Sprintf("mpath%d", i+1)] = mpathTo[i]
+		updates = append(updates, storagesql.OrderedUpdate{Key: fmt.Sprintf("mpath%d", i+1), Value: mpathTo[i]})
 	}
 
 	// for the final rows, we do some clever concatenations based on the length of the origin and the target
 	maxLen := indexLen * 4
 	curIndexFrom := totalMPathFrom
 	curIndexTo := totalMPathTo
+	helper := dao.instance(ctx).Dialector.(storagesql.Helper)
 
 	for cnt := quoMPathTo; cnt < 4; cnt++ {
 		if curIndexFrom >= maxLen || curIndexTo >= maxLen {
@@ -832,25 +842,30 @@ func (dao *IndexSQL[T]) MoveNodeTree(ctx context.Context, nodeFrom tree.ITreeNod
 			concat = append(concat, fmt.Sprintf(`SUBSTR(mpath%d, %d, %d)`, modPart.quo+1, modPart.from+1, modPart.to-modPart.from))
 		}
 
-		helper := dao.instance(ctx).Dialector.(storagesql.Helper)
-
-		mpathSub[fmt.Sprintf("mpath%d", cnt+1)] = gorm.Expr(helper.Concat(concat...))
+		updates = append(updates, storagesql.OrderedUpdate{Key: fmt.Sprintf("mpath%d", cnt+1), Value: gorm.Expr(helper.Concat(concat...))})
 
 		curIndexFrom = tarIndexFrom
 		curIndexTo = curIndexTo + incr
 	}
 
-	mpathSub["level"] = gorm.Expr("level + ?", levelDiff)
+	updates = append(updates, storagesql.OrderedUpdate{Key: "level", Value: gorm.Expr("level + ?", levelDiff)})
 
-	proto.Reset(model)
+	if hash := helper.Hash("mpath1", "mpath2", "mpath3", "mpath4"); hash != "" {
+		updates = append(updates, storagesql.OrderedUpdate{Key: "hash", Value: gorm.Expr(hash)})
+	}
+	if hash2 := helper.HashParent("name", "level", "mpath1", "mpath2", "mpath3", "mpath4"); hash2 != "" {
+		updates = append(updates, storagesql.OrderedUpdate{Key: "hash2", Value: gorm.Expr(hash2)})
+	}
 
-	tx := dao.instance(ctx).
-		Model(model).
-		Where(tree.MPathLike{Value: nodeFromMPath}).
-		Where("level >= ?", mpathFromLevel).
-		Updates(mpathSub)
+	db := dao.instance(ctx)
+	tableName := storagesql.TableNameFromModel(db, model)
+	var wheres []sql.NamedArg
+	wheres = append(wheres, sql.Named("wTreeLike", tree.MPathLike{Value: nodeFromMPath}))
+	wheres = append(wheres, sql.Named("wLevel", gorm.Expr("level >= ?", mpathFromLevel)))
+	rows, er := helper.ApplyOrderedUpdates(db, tableName, updates, wheres)
+	log.Logger(ctx).Debug("Children rows affected by MoveNodeTree", zap.Int64("rows", rows))
+	return er
 
-	return tx.Error
 }
 
 func toMPath(ctx context.Context, dao DAO, targetNode tree.ITreeNode, parentNode tree.ITreeNode, create bool) (*tree.MPath, []tree.ITreeNode, error) {

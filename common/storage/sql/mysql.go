@@ -21,7 +21,11 @@
 package sql
 
 import (
+	"database/sql"
+	"fmt"
 	"strings"
+
+	"gorm.io/gorm"
 )
 
 type mysqlHelper struct{}
@@ -38,9 +42,33 @@ func (m *mysqlHelper) Hash(s ...string) string {
 	return `SHA1(` + m.Concat(s...) + `)`
 }
 
-func (m *mysqlHelper) HashParent(name string, s ...string) string {
-	pmpath := `SUBSTRING_INDEX(` + m.Concat(s...) + `, '.', level-1)`
-	return m.Hash(name, "'__###PARENT_HASH###__'", pmpath)
+func (m *mysqlHelper) HashParent(nameKey string, levelKey string, mpathes ...string) string {
+	pmpath := `SUBSTRING_INDEX(` + m.Concat(mpathes...) + `, '.', ` + levelKey + `-1)`
+	return m.Hash(nameKey, "'__###PARENT_HASH###__'", pmpath)
+}
+
+func (m *mysqlHelper) ApplyOrderedUpdates(db *gorm.DB, tableName string, sets []OrderedUpdate, wheres []sql.NamedArg) (int64, error) {
+	var namedSets []string
+	var namedWheres []string
+	var args []interface{}
+
+	for _, w := range wheres {
+		namedWheres = append(namedWheres, "@"+w.Name)
+		args = append(args, w)
+	}
+
+	for _, u := range sets {
+		namedSets = append(namedSets, fmt.Sprintf("%s=@%s", u.Key, u.Key))
+		args = append(args, sql.Named(u.Key, u.Value))
+	}
+
+	q := fmt.Sprintf("UPDATE `%s` SET %s WHERE %s", tableName, strings.Join(namedSets, ", "), strings.Join(namedWheres, " AND "))
+	tx := db.Exec(q, args...)
+	return tx.RowsAffected, tx.Error
+}
+
+func (m *mysqlHelper) MPathOrdering(mm ...string) string {
+	return strings.Join(mm, ", ")
 }
 
 const (

@@ -101,7 +101,7 @@ func (s *SearchServer) processEvent(ctx context.Context, e *tree.NodeChangeEvent
 		}
 		err = engine.IndexNode(ctx, e.Target, false)
 		if !e.Target.IsLeaf() {
-			go s.ReindexFolder(ctx, e.Target)
+			go s.ReindexFolder(propagator.ForkedBackgroundWithMeta(ctx), e.Target)
 		}
 	case tree.NodeChangeEvent_UPDATE_META:
 		// Let's extract the basic information from the tree and store it
@@ -310,8 +310,7 @@ func (s *SearchServer) ReindexFolder(ctx context.Context, node *tree.Node) {
 	defer func() {
 		<-s.ReIndexThrottler
 	}()
-	bg := context.Background()
-	dsStream, err := s.getTreeClient(ctx).ListNodes(bg, &tree.ListNodesRequest{
+	dsStream, err := s.getTreeClient(ctx).ListNodes(ctx, &tree.ListNodesRequest{
 		Node:      node,
 		Recursive: true,
 	})
@@ -326,7 +325,7 @@ func (s *SearchServer) ReindexFolder(ctx context.Context, node *tree.Node) {
 			break
 		}
 		if !strings.HasPrefix(response.Node.GetUuid(), "DATASOURCE:") && !tree.IgnoreNodeForOutput(ctx, response.Node) {
-			_ = engine.IndexNode(bg, response.Node, false)
+			_ = engine.IndexNode(ctx, response.Node, false)
 			count++
 		}
 	}

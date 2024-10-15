@@ -217,6 +217,7 @@ func (c *DeleteAction) Run(ctx context.Context, channels *actions.RunnableChanne
 				if er != nil {
 					delErr = fmt.Errorf("Cannot delete "+n.GetPath()+": %v", er)
 					log.TasksLogger(ctx).Error(delErr.Error(), zap.Error(delErr))
+					log.Logger(ctx).Error(delErr.Error(), zap.Error(delErr))
 				}
 			}()
 		}

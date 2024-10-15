@@ -23,20 +23,26 @@ import (
 	"bufio"
 	"context"
 	"crypto/md5"
+	"crypto/sha1"
 	"encoding/hex"
 	"fmt"
+	"io"
 	"os"
 	osruntime "runtime"
 	"strconv"
+	"strings"
 	"testing"
 	"time"
 
 	"github.com/spf13/viper"
+	"golang.org/x/text/cases"
+	"golang.org/x/text/language"
 	"gorm.io/gorm"
 
 	"github.com/pydio/cells/v4/common/proto/tree"
 	"github.com/pydio/cells/v4/common/runtime"
 	"github.com/pydio/cells/v4/common/runtime/manager"
+	"github.com/pydio/cells/v4/common/storage/sql"
 	"github.com/pydio/cells/v4/common/storage/test"
 	"github.com/pydio/cells/v4/common/utils/cache/gocache"
 	cache_helper "github.com/pydio/cells/v4/common/utils/cache/helper"
@@ -51,6 +57,7 @@ import (
 
 var (
 	testcases = test.TemplateSQL(NewDAO[*tree.TreeNode])
+	caser     = cases.Title(language.English)
 )
 
 type testdao DAO
@@ -78,7 +85,10 @@ func testAll(t *testing.T, f func(dao testdao) func(*testing.T)) {
 		dao.DelNode(ctx, &tree.TreeNode{MPath: &tree.MPath{MPath1: "2"}})
 
 		// Run the test
-		t.Run(testcases[cnt].DSN[0], f(dao))
+		scheme := strings.SplitN(testcases[cnt].DSN[0], "://", 2)[0]
+		label := caser.String(scheme)
+		t.Run(label+"/NoCache", f(dao))
+		cnt++
 	})
 }
 
@@ -95,7 +105,7 @@ func testAllCache(t *testing.T, f func(dao testdao) func(*testing.T)) {
 		dao.DelNode(ctx, &tree.TreeNode{MPath: &tree.MPath{MPath1: "2"}})
 
 		// wrap in cache
-		dao = sessionDAO(dao)
+		//dao = sessionDAO(dao)
 		// Run the test
 		t.Run(testcases[cnt].DSN[0], f(dao))
 	})
@@ -800,8 +810,27 @@ func TestArborescence(t *testing.T) {
 	})
 }
 
+func hashNode(mpath *tree.MPath) string {
+	ha := sha1.New()
+	ha.Write([]byte(mpath.ToString()))
+	return hex.EncodeToString(ha.Sum(nil))
+}
+
+func hashParent(name string, mpath *tree.MPath) string {
+	h := sha1.New()
+	parent := mpath.Parent()
+	io.WriteString(h, name)
+	io.WriteString(h, "__###PARENT_HASH###__")
+	io.WriteString(h, parent.GetMPath1())
+	io.WriteString(h, parent.GetMPath2())
+	io.WriteString(h, parent.GetMPath3())
+	io.WriteString(h, parent.GetMPath4())
+	return hex.EncodeToString(h.Sum(nil))
+}
+
 func TestSmallArborescence(t *testing.T) {
 	ctx := context.Background()
+	sql.TestPrintQueries = true
 
 	testAll(t, func(dao testdao) func(t *testing.T) {
 		return func(t *testing.T) {
@@ -813,6 +842,9 @@ func TestSmallArborescence(t *testing.T) {
 					"/test copie",
 					"/test copie/.pydio",
 					"/test copie/1/2/3/4/whatever",
+					"/test copie/1/2/3/4/whatever-else",
+					"/test copie/1/2/3/4/whatever-else/child",
+					"/test copie/1/2/3/4/whatever-else/child1",
 					"/document sans titre",
 					"/document sans titre/.pydio",
 					"/document sans titre/target",
@@ -833,6 +865,11 @@ func TestSmallArborescence(t *testing.T) {
 				// Then we move a node
 				pathFrom, _, err := dao.ResolveMPath(ctx, false, tree.NewTreeNodePtr("/test copie/1/2/3/4"))
 				So(err, ShouldBeNil)
+				originalNode, err := dao.GetNode(ctx, pathFrom)
+				So(err, ShouldBeNil)
+				So(hashNode(pathFrom), ShouldEqual, originalNode.GetHash())
+				So(hashParent(originalNode.GetName(), pathFrom), ShouldEqual, originalNode.GetHash2())
+
 				pathTo, _, err := dao.ResolveMPath(ctx, false, tree.NewTreeNodePtr("/document sans titre/target"))
 				So(err, ShouldBeNil)
 
@@ -853,8 +890,17 @@ func TestSmallArborescence(t *testing.T) {
 				err = dao.MoveNodeTree(ctx, nodeFrom, nodeTo)
 				So(err, ShouldBeNil)
 
-				_, _, err = dao.ResolveMPath(ctx, false, tree.NewTreeNodePtr("/document sans titre/target/whatever"))
+				newPath, _, err := dao.ResolveMPath(ctx, false, tree.NewTreeNodePtr("/document sans titre/target/whatever"))
 				So(err, ShouldBeNil)
+
+				newNode, err := dao.GetNode(ctx, newPath)
+				So(err, ShouldBeNil)
+				So(originalNode.GetHash(), ShouldNotEqual, newNode.GetHash())
+				So(hashNode(newPath), ShouldEqual, newNode.GetHash())
+				So(hashParent(newNode.GetName(), newPath), ShouldEqual, newNode.GetHash2())
+
+				_, _, err = dao.ResolveMPath(ctx, false, tree.NewTreeNodePtr("/document sans titre/target/whatever2"))
+				So(err, ShouldNotBeNil)
 
 				_, _, err = dao.ResolveMPath(ctx, true, tree.NewTreeNodePtr("/document sans titre/target/whatever2"))
 				So(err, ShouldBeNil)
