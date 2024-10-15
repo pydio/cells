@@ -46,6 +46,7 @@ import (
 	"github.com/pydio/cells/v4/common/storage/test"
 	"github.com/pydio/cells/v4/common/utils/cache/gocache"
 	cache_helper "github.com/pydio/cells/v4/common/utils/cache/helper"
+	"github.com/pydio/cells/v4/common/utils/uuid"
 
 	_ "github.com/pydio/cells/v4/common/utils/cache/bigcache"
 	_ "github.com/pydio/cells/v4/common/utils/cache/gocache"
@@ -71,7 +72,7 @@ func TestMain(m *testing.M) {
 	fmt.Println(time.Since(now))
 }
 
-func testAll(t *testing.T, f func(dao testdao) func(*testing.T)) {
+func testAll(t *testing.T, f func(dao testdao) func(*testing.T), cache ...bool) {
 	var cnt = 0
 	test.RunStorageTests(testcases, t, func(ctx context.Context) {
 		dao, err := manager.Resolve[DAO](ctx)
@@ -89,25 +90,26 @@ func testAll(t *testing.T, f func(dao testdao) func(*testing.T)) {
 		t.Run(label+"/NoCache", f(dao))
 		cnt++
 	})
-}
+	if len(cache) > 0 && cache[0] {
+		cnt = 0
+		test.RunStorageTests(testcases, t, func(ctx context.Context) {
+			dao, err := manager.Resolve[DAO](ctx)
+			if err != nil {
+				panic(err)
+			}
 
-func testAllCache(t *testing.T, f func(dao testdao) func(*testing.T)) {
-	var cnt = 0
-	test.RunStorageTests(testcases, t, func(ctx context.Context) {
-		dao, err := manager.Resolve[DAO](ctx)
-		if err != nil {
-			panic(err)
-		}
+			// First make sure that we delete everything
+			_ = dao.DelNode(ctx, &tree.TreeNode{MPath: &tree.MPath{MPath1: "1"}})
+			_ = dao.DelNode(ctx, &tree.TreeNode{MPath: &tree.MPath{MPath1: "2"}})
 
-		// First make sure that we delete everything
-		_ = dao.DelNode(ctx, &tree.TreeNode{MPath: &tree.MPath{MPath1: "1"}})
-		_ = dao.DelNode(ctx, &tree.TreeNode{MPath: &tree.MPath{MPath1: "2"}})
+			// wrap in cache
+			session := uuid.New()
+			dao = NewDAOCache(session, 10, dao)
+			// Run the test
+			t.Run(testcases[cnt].DSN[0], f(dao))
+		})
 
-		// wrap in cache
-		//dao = sessionDAO(dao)
-		// Run the test
-		t.Run(testcases[cnt].DSN[0], f(dao))
-	})
+	}
 }
 
 // PrintMemUsage outputs the current, total and OS memory being used. As well as the number
@@ -1124,6 +1126,67 @@ func TestUnderscoreIssue(t *testing.T) {
 	})
 }
 
+func TestLostAndFoundDuplicates(t *testing.T) {
+	ctx := context.Background()
+
+	testAll(t, func(dao testdao) func(t *testing.T) {
+		return func(t *testing.T) {
+			// Adding a file
+			sql.TestPrintQueries = true
+			Convey("Test LostAndFound - Duplicates", t, func() {
+				// Create Duplicates on purpose
+				_, _, _ = dao.ResolveMPath(ctx, true, tree.NewTreeNodePtr("/folder"))
+				_, _, _ = dao.ResolveMPath(ctx, true, tree.NewTreeNodePtr("/folder/file1"))
+				_, _, _ = dao.ResolveMPath(ctx, true, tree.NewTreeNodePtr("/folder/file2"))
+				// Rename file2 to file1 manually
+				gi := dao.(*gormImpl[*tree.TreeNode])
+				db := gi.instance(ctx)
+				model := gi.factory.Struct()
+				tx := db.Model(model).Where("name=?", "file2").Update("name", "file1")
+				So(tx.Error, ShouldBeNil)
+
+				ll, er := dao.LostAndFounds(ctx)
+				So(er, ShouldBeNil)
+				So(ll, ShouldHaveLength, 1)
+				So(ll[0].GetUUIDs(), ShouldHaveLength, 2)
+			})
+		}
+	})
+
+}
+
+func TestLostAndFoundChildren(t *testing.T) {
+	ctx := context.Background()
+	testAll(t, func(dao testdao) func(t *testing.T) {
+		return func(t *testing.T) {
+			// Adding a file
+			sql.TestPrintQueries = true
+			Convey("Test LostAndFound - Lost Children", t, func() {
+				// Create Duplicates on purpose
+				_, _, _ = dao.ResolveMPath(ctx, true, tree.NewTreeNodePtr("/folder"))
+				_, _, _ = dao.ResolveMPath(ctx, true, tree.NewTreeNodePtr("/folder/file1"))
+				_, _, _ = dao.ResolveMPath(ctx, true, tree.NewTreeNodePtr("/folder/file2"))
+
+				ll, er := dao.LostAndFounds(ctx)
+				So(er, ShouldBeNil)
+				So(ll, ShouldHaveLength, 0)
+
+				// Rename file2 to file1 manually
+				gi := dao.(*gormImpl[*tree.TreeNode])
+				db := gi.instance(ctx)
+				model := gi.factory.Struct()
+				tx := db.Where("name = ?", "folder").Delete(model)
+				So(tx.Error, ShouldBeNil)
+				So(tx.RowsAffected, ShouldEqual, 1)
+
+				ll, er = dao.LostAndFounds(ctx)
+				So(er, ShouldBeNil)
+				So(ll, ShouldHaveLength, 2)
+			})
+		}
+	})
+}
+
 //func TestDBInit(t *testing.T) {
 //	st := storage.New("test", cellssqlite.MySQLDriver, cellssqlite.SharedMemDSN)
 //	st.Register(cellssqlite.MySQLDriver, "test.db", "firsttenant", "")
@@ -1179,7 +1242,7 @@ func TestUnderscoreIssue(t *testing.T) {
 //				"admin/Playlist/vendor-folders/github.com/pydio/minio-srv/vendor/go.etcd.io/etcd/etcdserver/api",
 //			}
 //
-//			d := dao.(*daocache)
+//			d := dao.(*sessionDAO)
 //
 //			for _, path := range arborescence {
 //				// Node should NEVER be found here!

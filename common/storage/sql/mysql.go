@@ -38,13 +38,16 @@ func (m *mysqlHelper) Concat(s ...string) string {
 	return `CONCAT(` + strings.Join(s, ", ") + `)`
 }
 
+func (m *mysqlHelper) ParentMPath(levelKey string, mpathes ...string) string {
+	return `SUBSTRING_INDEX(` + m.Concat(mpathes...) + `, '.', ` + levelKey + `-1)`
+}
+
 func (m *mysqlHelper) Hash(s ...string) string {
 	return `SHA1(` + m.Concat(s...) + `)`
 }
 
 func (m *mysqlHelper) HashParent(nameKey string, levelKey string, mpathes ...string) string {
-	pmpath := `SUBSTRING_INDEX(` + m.Concat(mpathes...) + `, '.', ` + levelKey + `-1)`
-	return m.Hash(nameKey, "'__###PARENT_HASH###__'", pmpath)
+	return m.Hash(nameKey, "'__###PARENT_HASH###__'", m.ParentMPath(levelKey, mpathes...))
 }
 
 func (m *mysqlHelper) ApplyOrderedUpdates(db *gorm.DB, tableName string, sets []OrderedUpdate, wheres []sql.NamedArg) (int64, error) {

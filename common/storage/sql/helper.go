@@ -36,6 +36,7 @@ type OrderedUpdate struct {
 type Helper interface {
 	Concat(...string) string
 	Hash(...string) string
+	ParentMPath(levelKey string, mpathes ...string) string
 	HashParent(nameKey string, levelKey string, mpathes ...string) string
 	ApplyOrderedUpdates(db *gorm.DB, tableName string, sets []OrderedUpdate, wheres []sql.NamedArg) (int64, error)
 	MPathOrdering(...string) string

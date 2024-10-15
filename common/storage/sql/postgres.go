@@ -18,13 +18,16 @@ func (p *postgresHelper) Concat(s ...string) string {
 	return `CONCAT(` + strings.Join(s, ", ") + `)`
 }
 
+func (p *postgresHelper) ParentMPath(levelKey string, mpathes ...string) string {
+	return `array_to_string(ARRAY(SELECT unnest(string_to_array(` + p.Concat(mpathes...) + `, '.')) LIMIT ` + levelKey + ` - 1), '.')`
+}
+
 func (p *postgresHelper) Hash(s ...string) string {
 	return `ENCODE(DIGEST(` + p.Concat(s...) + `, 'sha1'), 'hex')`
 }
 
 func (p *postgresHelper) HashParent(nameKey string, levelKey string, mpathes ...string) string {
-	pmpath := `array_to_string(ARRAY(SELECT unnest(string_to_array(` + p.Concat(mpathes...) + `, '.')) LIMIT ` + levelKey + ` - 1), '.')`
-	return p.Hash(nameKey, "'__###PARENT_HASH###__'", pmpath)
+	return p.Hash(nameKey, "'__###PARENT_HASH###__'", p.ParentMPath(levelKey, mpathes...))
 }
 
 func (p *postgresHelper) MPathOrdering(mm ...string) string {

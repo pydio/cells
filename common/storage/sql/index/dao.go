@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2021. Abstrium SAS <team (at) pydio.com>
+ * Copyright (c) 2024. Abstrium SAS <team (at) pydio.com>
  * This file is part of Pydio Cells.
  *
  * Pydio Cells is free software: you can redistribute it and/or modify
@@ -24,13 +24,10 @@ package index
 import (
 	"context"
 	"errors"
-	"fmt"
 
-	"github.com/go-gorm/caches"
 	"gorm.io/gorm"
 
 	"github.com/pydio/cells/v4/common/proto/tree"
-	"github.com/pydio/cells/v4/common/utils/cache"
 )
 
 // Errors
@@ -85,7 +82,7 @@ type DAO interface {
 	CleanResourcesOnDeletion(context.Context) (string, error)
 	LostAndFounds(context.Context) ([]LostAndFound, error)
 	FixLostAndFound(ctx context.Context, lost LostAndFound) error
-	FixRandHash2(ctx context.Context, excludes ...LostAndFound) (int64, error)
+
 	Flatten(context.Context) (string, error)
 	UpdateNameInPlace(ctx context.Context, oldName, newName string, knownUuid string, knownLevel int) (int64, error)
 }
@@ -99,26 +96,4 @@ type CacheDAO interface {
 // NewDAO for the common sql index
 func NewDAO[T tree.ITreeNode](db *gorm.DB) DAO {
 	return &gormImpl[T]{DB: db, factory: &treeNodeFactory[T]{}}
-}
-
-// NewDAOWithCache for the common sql index
-func NewDAOWithCache[T tree.ITreeNode](db *gorm.DB, ca cache.Cache) DAO {
-
-	cachesPlugin := &caches.Caches{Conf: &caches.Config{
-		//Easer: true, // Cannot enable that, it mixes up GetNodeChild results
-		Cacher: NewCacher(ca),
-	}}
-	db.Use(cachesPlugin)
-
-	return &gormImpl[T]{DB: db, factory: &treeNodeFactory[T]{}}
-}
-
-type LostAndFound interface {
-	fmt.Stringer
-	IsDuplicate() bool
-	IsLostParent() bool
-	IsDir() bool
-
-	GetUUIDs() []string
-	MarkForDeletion([]string)
 }

@@ -104,9 +104,12 @@ func (p *sqliteHelper) Hash(s ...string) string {
 	return `hex_sha1(` + p.Concat(s...) + `)`
 }
 
+func (p *sqliteHelper) ParentMPath(levelKey string, mpathes ...string) string {
+	return `substring_index(` + p.Concat(mpathes...) + `, '.', ` + levelKey + `-1)`
+}
+
 func (p *sqliteHelper) HashParent(nameKey string, levelKey string, mpathes ...string) string {
-	pmpath := `substring_index(` + p.Concat(mpathes...) + `, '.', ` + levelKey + `-1)`
-	return p.Hash(nameKey, "'__###PARENT_HASH###__'", pmpath)
+	return p.Hash(nameKey, "'__###PARENT_HASH###__'", p.ParentMPath(levelKey, mpathes...))
 }
 
 /*
