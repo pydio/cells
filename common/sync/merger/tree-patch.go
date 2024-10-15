@@ -31,8 +31,8 @@ import (
 
 	"github.com/pydio/cells/v4/common/sync/model"
 	"github.com/pydio/cells/v4/common/telemetry/log"
+	"github.com/pydio/cells/v4/common/utils/filesystem"
 	json "github.com/pydio/cells/v4/common/utils/jsonx"
-	"github.com/pydio/cells/v4/common/utils/mtree"
 	"github.com/pydio/cells/v4/common/utils/uuid"
 )
 
@@ -146,7 +146,7 @@ func (t *TreePatch) BranchesWithOperations(endpoint model.Endpoint) (branches []
 		branches = append(branches, d)
 	}
 	if len(branches) > 5 {
-		c := mtree.CommonPrefix('/', branches...)
+		c := filesystem.CommonPrefix('/', branches...)
 		if c != "" && c != "." {
 			//fmt.Println("Loading common prefix", c)
 			branches = []string{c}

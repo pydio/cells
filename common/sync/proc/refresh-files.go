@@ -28,7 +28,7 @@ import (
 	"github.com/pydio/cells/v4/common/proto/tree"
 	"github.com/pydio/cells/v4/common/sync/merger"
 	"github.com/pydio/cells/v4/common/sync/model"
-	"github.com/pydio/cells/v4/common/utils/mtree"
+	"github.com/pydio/cells/v4/common/utils/filesystem"
 )
 
 // TODO
@@ -51,7 +51,7 @@ func (pr *Processor) refreshFilesUuid(patch merger.Patch) {
 		refreshesByKey[c.GetRefPath()] = true
 	}
 	if source != nil && target != nil {
-		pref := mtree.CommonPrefix("/"[0], dirs...)
+		pref := filesystem.CommonPrefix("/"[0], dirs...)
 		if pref == "." {
 			pref = ""
 		}

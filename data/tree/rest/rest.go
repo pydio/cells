@@ -52,8 +52,8 @@ import (
 	service2 "github.com/pydio/cells/v4/common/proto/service"
 	"github.com/pydio/cells/v4/common/proto/tree"
 	"github.com/pydio/cells/v4/common/telemetry/log"
+	"github.com/pydio/cells/v4/common/utils/filesystem"
 	json "github.com/pydio/cells/v4/common/utils/jsonx"
-	"github.com/pydio/cells/v4/common/utils/mtree"
 	"github.com/pydio/cells/v4/common/utils/propagator"
 	"github.com/pydio/cells/v4/common/utils/std"
 	"github.com/pydio/cells/v4/common/utils/uuid"
@@ -196,7 +196,7 @@ func (h *Handler) CreateNodes(req *restful.Request, resp *restful.Response) erro
 
 	if session != "" && len(folderPaths) > 0 {
 		log.Logger(ctx).Debug("Blocking request before all folders were created (checking .pydio)", zap.Any("remaining", folderChecks))
-		pref := mtree.CommonPrefix('/', folderPaths...)
+		pref := filesystem.CommonPrefix('/', folderPaths...)
 		if _, ok := folderChecks[pref]; ok {
 			// Check root folder
 			std.Retry(ctx, func() error {

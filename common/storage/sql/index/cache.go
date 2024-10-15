@@ -243,7 +243,3 @@ func (dao *daocache) ResolveMPath(ctx context.Context, create bool, node *tree.I
 
 	return
 }
-
-//func (dao *daocache[T]) Path(ctx context.Context, strpath string, create bool, reqNode ...*tree.Node) (mpath mtree.MPath, nodeTree []*mtree.TreeNode, err error) {
-//	return Path(ctx, dao, "/"+strpath, create, nil, reqNode...)
-//}

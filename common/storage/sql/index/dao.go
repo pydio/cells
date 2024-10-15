@@ -98,7 +98,7 @@ type CacheDAO interface {
 
 // NewDAO for the common sql index
 func NewDAO[T tree.ITreeNode](db *gorm.DB) DAO {
-	return &IndexSQL[T]{DB: db, factory: &treeNodeFactory[T]{}}
+	return &gormImpl[T]{DB: db, factory: &treeNodeFactory[T]{}}
 }
 
 // NewDAOWithCache for the common sql index
@@ -110,7 +110,7 @@ func NewDAOWithCache[T tree.ITreeNode](db *gorm.DB, ca cache.Cache) DAO {
 	}}
 	db.Use(cachesPlugin)
 
-	return &IndexSQL[T]{DB: db, factory: &treeNodeFactory[T]{}}
+	return &gormImpl[T]{DB: db, factory: &treeNodeFactory[T]{}}
 }
 
 type LostAndFound interface {

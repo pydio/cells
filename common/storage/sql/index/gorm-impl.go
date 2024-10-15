@@ -79,10 +79,10 @@ func RegisterIndexLen(len int) {
 	indexLen = len
 }
 
-// var _ DAO = (*IndexSQL[*tree.TreeNode])(nil)
+var _ DAO = (*gormImpl[*tree.TreeNode])(nil)
 
-// IndexSQL implementation
-type IndexSQL[T tree.ITreeNode] struct {
+// gormImpl implementation
+type gormImpl[T tree.ITreeNode] struct {
 	DB      *gorm.DB
 	factory Factory[T]
 }
@@ -119,34 +119,34 @@ func (*treeNodeFactory[T]) RootGroup() string {
 	return "ROOT"
 }
 
-func (s *IndexSQL[T]) instance(ctx context.Context) *gorm.DB {
+func (dao *gormImpl[T]) instance(ctx context.Context) *gorm.DB {
 
 	cachesPlugin := &caches.Caches{Conf: &caches.Config{
 		// Easer: true, // TODO - disabled that at super-fact calls to GetNodeChild() randomly return results
 		// Cacher: NewCacher(c),
 	}}
 
-	s.DB.Use(cachesPlugin)
+	dao.DB.Use(cachesPlugin)
 
-	t := s.factory.Struct()
+	t := dao.factory.Struct()
 	msg := proto.GetExtension(t.ProtoReflect().Descriptor().Options(), orm.E_OrmPolicy).(*orm.ORMMessagePolicy)
 
 	for _, options := range msg.GetOptions() {
-		if options.GetType() == s.DB.Dialector.Name() {
-			s.DB.Set("gorm:table_options", options.GetValue())
+		if options.GetType() == dao.DB.Dialector.Name() {
+			dao.DB.Set("gorm:table_options", options.GetValue())
 		}
 	}
 
-	return s.DB.WithContext(ctx)
+	return dao.DB.WithContext(ctx)
 }
 
-func (s *IndexSQL[T]) Migrate(ctx context.Context) error {
-	t := s.factory.Struct()
-	return s.instance(ctx).AutoMigrate(t)
+func (dao *gormImpl[T]) Migrate(ctx context.Context) error {
+	t := dao.factory.Struct()
+	return dao.instance(ctx).AutoMigrate(t)
 }
 
 // Init handles the db version migration and prepare the statements
-//func (s *IndexSQL[T]) Init(ctx context.Context, options configx.Values) error {
+//func (s *gormImpl[T]) Init(ctx context.Context, options configx.Values) error {
 //
 //	cachesPlugin := &caches.Caches{Conf: &caches.Config{
 //		Easer: true,
@@ -180,12 +180,12 @@ func (s *IndexSQL[T]) Migrate(ctx context.Context) error {
 //}
 
 // CleanResourcesOnDeletion revert the creation of the table for a datasource
-func (dao *IndexSQL[T]) CleanResourcesOnDeletion(context.Context) (string, error) {
+func (dao *gormImpl[T]) CleanResourcesOnDeletion(context.Context) (string, error) {
 	return "Removed tables for index", nil
 }
 
 // AddNode to the underlying SQL DB.
-func (dao *IndexSQL[T]) AddNode(ctx context.Context, node tree.ITreeNode) error {
+func (dao *gormImpl[T]) AddNode(ctx context.Context, node tree.ITreeNode) error {
 	mTime := node.GetNode().GetMTime()
 	if mTime <= 0 {
 		node.GetNode().SetMTime(mTime)
@@ -195,7 +195,7 @@ func (dao *IndexSQL[T]) AddNode(ctx context.Context, node tree.ITreeNode) error 
 }
 
 // AddNodeStream creates a channel to write to the SQL database
-func (dao *IndexSQL[T]) AddNodeStream(ctx context.Context, max int) (chan tree.ITreeNode, chan error) {
+func (dao *gormImpl[T]) AddNodeStream(ctx context.Context, max int) (chan tree.ITreeNode, chan error) {
 
 	c := make(chan tree.ITreeNode)
 	e := make(chan error)
@@ -246,36 +246,37 @@ func (dao *IndexSQL[T]) AddNodeStream(ctx context.Context, max int) (chan tree.I
 }
 
 // Flush the database in case of cached inserts
-func (dao *IndexSQL[T]) Flush(ctx context.Context, final bool) error {
-	return errNotImplemented
+func (dao *gormImpl[T]) Flush(ctx context.Context, final bool) error {
+	return nil
 }
 
 // SetNode in replacement of previous node
-func (dao *IndexSQL[T]) SetNode(ctx context.Context, node tree.ITreeNode) error {
+func (dao *gormImpl[T]) SetNode(ctx context.Context, node tree.ITreeNode) error {
 	return dao.instance(ctx).Model(node).Updates(node).Error
 }
 
 // SetNodeMeta in replacement of previous node
-func (dao *IndexSQL[T]) SetNodeMeta(ctx context.Context, node tree.ITreeNode) error {
+func (dao *gormImpl[T]) SetNodeMeta(ctx context.Context, node tree.ITreeNode) error {
 	return dao.SetNode(ctx, node)
 }
 
 // ResyncDirtyEtags ensures that etags are rightly calculated
-func (dao *IndexSQL[T]) ResyncDirtyEtags(ctx context.Context, rootNode tree.ITreeNode) error {
+func (dao *gormImpl[T]) ResyncDirtyEtags(ctx context.Context, rootNode tree.ITreeNode) error {
 
-	var dirtyNodes []tree.ITreeNode
+	dirtyNodes := dao.factory.Slice()
+	node := dao.factory.Struct()
 
 	tx := dao.instance(ctx).
-		Model(dao.factory.Struct()).
+		Model(node).
 		Where(tree.MPathEqualsOrLike{Value: rootNode.GetMPath()}).
 		Where("level >= ?", rootNode.GetLevel()).
 		Where("etag = '-1'").
 		Order("level desc").
 		FindInBatches(&dirtyNodes, 100, func(tx *gorm.DB, batch int) error {
 			for _, dirtyNode := range dirtyNodes {
-				var etagNodes []tree.ITreeNode
+				etagNodes := dao.factory.Slice()
 				dao.instance(ctx).
-					Model(dao.factory.Struct()).
+					Model(&node).
 					Where(tree.MPathLike{Value: dirtyNode.GetMPath()}).
 					Where("level = ?", dirtyNode.GetLevel()+1).
 					Order("name").
@@ -314,7 +315,7 @@ func (dao *IndexSQL[T]) ResyncDirtyEtags(ctx context.Context, rootNode tree.ITre
 }
 
 // SetNodes returns a channel and waits for arriving nodes before updating them in batch.
-func (dao *IndexSQL[T]) SetNodes(ctx context.Context, etag string, deltaSize int64) BatchSender {
+func (dao *gormImpl[T]) SetNodes(ctx context.Context, etag string, deltaSize int64) BatchSender {
 
 	b := NewBatchSend()
 
@@ -357,14 +358,14 @@ func (dao *IndexSQL[T]) SetNodes(ctx context.Context, etag string, deltaSize int
 }
 
 // DelNode from database
-func (dao *IndexSQL[T]) DelNode(ctx context.Context, node tree.ITreeNode) error {
+func (dao *gormImpl[T]) DelNode(ctx context.Context, node tree.ITreeNode) error {
 	return dao.instance(ctx).
 		Where(tree.MPathEqualsOrLike{Value: node.GetMPath()}).
 		Delete(&node).Error
 }
 
 // GetNode from path
-func (dao *IndexSQL[T]) GetNode(ctx context.Context, path *tree.MPath) (tree.ITreeNode, error) {
+func (dao *gormImpl[T]) GetNode(ctx context.Context, path *tree.MPath) (tree.ITreeNode, error) {
 	node := dao.factory.Struct()
 
 	tx := dao.instance(ctx).Where(tree.MPathEquals{Value: path}).Find(&node)
@@ -380,7 +381,7 @@ func (dao *IndexSQL[T]) GetNode(ctx context.Context, path *tree.MPath) (tree.ITr
 }
 
 // GetNodeByUUID returns the node stored with the unique uuid
-func (dao *IndexSQL[T]) GetNodeByUUID(ctx context.Context, uuid string) (tree.ITreeNode, error) {
+func (dao *gormImpl[T]) GetNodeByUUID(ctx context.Context, uuid string) (tree.ITreeNode, error) {
 
 	node := dao.factory.Struct()
 
@@ -400,7 +401,7 @@ func (dao *IndexSQL[T]) GetNodeByUUID(ctx context.Context, uuid string) (tree.IT
 }
 
 // GetNodes Find Nodes for a list of MPaths - If MPaths is empty it returns zero nodes
-func (dao *IndexSQL[T]) GetNodes(ctx context.Context, mpathes ...*tree.MPath) chan tree.ITreeNode {
+func (dao *gormImpl[T]) GetNodes(ctx context.Context, mpathes ...*tree.MPath) chan tree.ITreeNode {
 
 	c := make(chan tree.ITreeNode)
 
@@ -411,7 +412,7 @@ func (dao *IndexSQL[T]) GetNodes(ctx context.Context, mpathes ...*tree.MPath) ch
 			return
 		}
 
-		nodes := []T{}
+		nodes := dao.factory.Slice()
 
 		tx := dao.instance(ctx)
 		helper := tx.Dialector.(storagesql.Helper)
@@ -438,7 +439,7 @@ func (dao *IndexSQL[T]) GetNodes(ctx context.Context, mpathes ...*tree.MPath) ch
 }
 
 // GetNodeChild from node path whose name matches
-func (dao *IndexSQL[T]) GetNodeChild(ctx context.Context, mPath *tree.MPath, name string) (tree.ITreeNode, error) {
+func (dao *gormImpl[T]) GetNodeChild(ctx context.Context, mPath *tree.MPath, name string) (tree.ITreeNode, error) {
 	node := dao.factory.Struct()
 
 	tx := dao.instance(ctx)
@@ -465,7 +466,7 @@ func (dao *IndexSQL[T]) GetNodeChild(ctx context.Context, mPath *tree.MPath, nam
 }
 
 // GetNodeLastChild from path
-func (dao *IndexSQL[T]) GetNodeLastChild(ctx context.Context, mPath *tree.MPath) (tree.ITreeNode, error) {
+func (dao *gormImpl[T]) GetNodeLastChild(ctx context.Context, mPath *tree.MPath) (tree.ITreeNode, error) {
 	node := dao.factory.Struct()
 
 	tx := dao.instance(ctx).
@@ -486,7 +487,7 @@ func (dao *IndexSQL[T]) GetNodeLastChild(ctx context.Context, mPath *tree.MPath)
 }
 
 // GetNodeFirstAvailableChildIndex from path
-func (dao *IndexSQL[T]) GetNodeFirstAvailableChildIndex(ctx context.Context, mPath *tree.MPath) (available uint64, e error) {
+func (dao *gormImpl[T]) GetNodeFirstAvailableChildIndex(ctx context.Context, mPath *tree.MPath) (available uint64, e error) {
 
 	node := dao.factory.Struct()
 
@@ -536,10 +537,10 @@ func (dao *IndexSQL[T]) GetNodeFirstAvailableChildIndex(ctx context.Context, mPa
 
 	sort.Ints(all)
 
-	max := all[len(all)-1]
+	maxIdx := all[len(all)-1]
 	// No missing numbers : jump directly to the end
-	if max == len(all)-1 {
-		available = uint64(max + 1)
+	if maxIdx == len(all)-1 {
+		available = uint64(maxIdx + 1)
 		return
 	}
 
@@ -556,13 +557,13 @@ func (dao *IndexSQL[T]) GetNodeFirstAvailableChildIndex(ctx context.Context, mPa
 	}
 
 	// We should not get here !
-	available = uint64(max + 1)
+	available = uint64(maxIdx + 1)
 
 	return
 }
 
 // GetNodeChildrenCounts List
-func (dao *IndexSQL[T]) GetNodeChildrenCounts(ctx context.Context, mPath *tree.MPath, recursive bool) (int, int) {
+func (dao *gormImpl[T]) GetNodeChildrenCounts(ctx context.Context, mPath *tree.MPath, recursive bool) (int, int) {
 
 	var leafCount, folderCount int
 	var node *tree.TreeNode
@@ -599,7 +600,7 @@ func (dao *IndexSQL[T]) GetNodeChildrenCounts(ctx context.Context, mPath *tree.M
 }
 
 // GetNodeChildrenSize List
-func (dao *IndexSQL[T]) GetNodeChildrenSize(ctx context.Context, mPath *tree.MPath) (int, error) {
+func (dao *gormImpl[T]) GetNodeChildrenSize(ctx context.Context, mPath *tree.MPath) (int, error) {
 
 	var sum int
 
@@ -622,7 +623,7 @@ func (dao *IndexSQL[T]) GetNodeChildrenSize(ctx context.Context, mPath *tree.MPa
 
 // GetNodeChildren List
 // TODO - FILTER
-func (dao *IndexSQL[T]) GetNodeChildren(ctx context.Context, mPath *tree.MPath, filter ...*tree.MetaFilter) chan interface{} {
+func (dao *gormImpl[T]) GetNodeChildren(ctx context.Context, mPath *tree.MPath, filter ...*tree.MetaFilter) chan interface{} {
 	c := make(chan interface{})
 
 	go func() {
@@ -650,7 +651,7 @@ func (dao *IndexSQL[T]) GetNodeChildren(ctx context.Context, mPath *tree.MPath, 
 			if result.Error == nil && result.RowsAffected != 0 {
 				fcTx := result.Session(&gorm.Session{NewDB: true})
 				fcTx.RowsAffected = result.RowsAffected
-				tx.AddError(func(fcTx *gorm.DB, batch int) error {
+				_ = tx.AddError(func(fcTx *gorm.DB, batch int) error {
 					for _, node := range nodes {
 						c <- node
 					}
@@ -659,7 +660,7 @@ func (dao *IndexSQL[T]) GetNodeChildren(ctx context.Context, mPath *tree.MPath, 
 					return nil
 				}(fcTx, batch))
 			} else if result.Error != nil {
-				tx.AddError(result.Error)
+				_ = tx.AddError(result.Error)
 			}
 
 			if tx.Error != nil || int(result.RowsAffected) < batchSize {
@@ -685,7 +686,7 @@ func (dao *IndexSQL[T]) GetNodeChildren(ctx context.Context, mPath *tree.MPath, 
 }
 
 // GetNodeTree List from the path
-func (dao *IndexSQL[T]) GetNodeTree(ctx context.Context, mPath *tree.MPath, filter ...*tree.MetaFilter) chan interface{} {
+func (dao *gormImpl[T]) GetNodeTree(ctx context.Context, mPath *tree.MPath, filter ...*tree.MetaFilter) chan interface{} {
 	c := make(chan interface{})
 
 	// Retrieving tree
@@ -741,7 +742,7 @@ func (dao *IndexSQL[T]) GetNodeTree(ctx context.Context, mPath *tree.MPath, filt
 			if result.Error == nil && result.RowsAffected != 0 {
 				fcTx := result.Session(&gorm.Session{NewDB: true})
 				fcTx.RowsAffected = result.RowsAffected
-				tx.AddError(func(fcTx *gorm.DB, batch int) error {
+				_ = tx.AddError(func(fcTx *gorm.DB, batch int) error {
 					for _, node := range nodes {
 						c <- node
 					}
@@ -750,7 +751,7 @@ func (dao *IndexSQL[T]) GetNodeTree(ctx context.Context, mPath *tree.MPath, filt
 					return nil
 				}(fcTx, batch))
 			} else if result.Error != nil {
-				tx.AddError(result.Error)
+				_ = tx.AddError(result.Error)
 			}
 
 			if tx.Error != nil || int(result.RowsAffected) < batchSize {
@@ -776,7 +777,7 @@ func (dao *IndexSQL[T]) GetNodeTree(ctx context.Context, mPath *tree.MPath, filt
 }
 
 // MoveNodeTree move all the nodes belonging to a tree by calculating the new mpathes
-func (dao *IndexSQL[T]) MoveNodeTree(ctx context.Context, nodeFrom tree.ITreeNode, nodeTo tree.ITreeNode) error {
+func (dao *gormImpl[T]) MoveNodeTree(ctx context.Context, nodeFrom tree.ITreeNode, nodeTo tree.ITreeNode) error {
 
 	model := dao.factory.Struct()
 
@@ -928,7 +929,7 @@ func toMPath(ctx context.Context, dao DAO, targetNode tree.ITreeNode, parentNode
 	}
 
 	// We must insert
-	if parentMPath.Length() == 0 {
+	if parentMPath == nil || parentMPath.Length() == 0 {
 		// The current node is the root
 		// We hardcode its values and add it
 
@@ -1000,7 +1001,7 @@ func toMPath(ctx context.Context, dao DAO, targetNode tree.ITreeNode, parentNode
 	return mpath, append(createdNodes, currentNode), err
 }
 
-func (dao *IndexSQL[T]) ResolveMPath(ctx context.Context, create bool, node *tree.ITreeNode, rootNode ...tree.ITreeNode) (mpath *tree.MPath, nodeTree []tree.ITreeNode, err error) {
+func (dao *gormImpl[T]) ResolveMPath(ctx context.Context, create bool, node *tree.ITreeNode, rootNode ...tree.ITreeNode) (mpath *tree.MPath, nodeTree []tree.ITreeNode, err error) {
 	clone := *dao
 	origN := (*node).GetNode().Clone()
 	var root tree.ITreeNode
@@ -1030,28 +1031,28 @@ func (dao *IndexSQL[T]) ResolveMPath(ctx context.Context, create bool, node *tre
 }
 
 // Flatten removes all .pydio from index, at once
-func (dao *IndexSQL[T]) Flatten(context.Context) (string, error) {
+func (dao *gormImpl[T]) Flatten(context.Context) (string, error) {
 	return "", errors.New("Not implemented")
 }
 
-func (d *IndexSQL[T]) LostAndFounds(ctx context.Context) ([]LostAndFound, error) {
+func (dao *gormImpl[T]) LostAndFounds(ctx context.Context) ([]LostAndFound, error) {
 	return nil, nil
 }
 
-func (d *IndexSQL[T]) FixLostAndFound(ctx context.Context, lost LostAndFound) error {
+func (dao *gormImpl[T]) FixLostAndFound(ctx context.Context, lost LostAndFound) error {
 	return nil
 }
 
-func (dao *IndexSQL[T]) FixRandHash2(ctx context.Context, excludes ...LostAndFound) (int64, error) {
+func (dao *gormImpl[T]) FixRandHash2(ctx context.Context, excludes ...LostAndFound) (int64, error) {
 	return 0, nil
 }
 
-func (dao *IndexSQL[T]) Convert(val *anypb.Any, in any) (out any, ok bool) {
+func (dao *gormImpl[T]) Convert(val *anypb.Any, in any) (out any, ok bool) {
 	return in, false
 }
 
 // UpdateNameInPlace in replacement of previous node
-func (dao *IndexSQL[T]) UpdateNameInPlace(ctx context.Context, oldName, newName string, knownUuid string, knownLevel int) (int64, error) {
+func (dao *gormImpl[T]) UpdateNameInPlace(ctx context.Context, oldName, newName string, knownUuid string, knownLevel int) (int64, error) {
 
 	tx := dao.instance(ctx)
 
