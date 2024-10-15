@@ -2,7 +2,6 @@ package crypto
 
 import (
 	"encoding/base64"
-	"fmt"
 )
 
 func NewVaultCipher(master string) (VaultCipher, error) {
@@ -27,7 +26,6 @@ func (e VaultCipher) Encrypt(b []byte) (string, error) {
 		return "", err
 	}
 	ret := base64.StdEncoding.EncodeToString(sealed)
-	fmt.Println("DOING AN ENCRYPTION ", ret)
 	return ret, nil
 }
 func (e VaultCipher) Decrypt(s string) ([]byte, error) {

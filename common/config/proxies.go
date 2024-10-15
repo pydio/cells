@@ -90,11 +90,11 @@ func (p *proxyValues) Set(value interface{}) error {
 	return p.Values.Set(value)
 }
 
-func (p *proxyValues) Get() any {
+func (p *proxyValues) Get(wo ...configx.WalkOption) any {
 	if p.getter != nil {
 		return p.getter(p.store, p.path...)
 	}
-	return p.Values.Get()
+	return p.Values.Get(wo...)
 }
 
 func (p *proxyValues) Del() error {

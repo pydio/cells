@@ -82,14 +82,8 @@ func (o *URLOpener) Open(ctx context.Context, urlstr string) (config.Store, erro
 	}
 
 	if data := u.Query().Get("data"); data != "" {
-		//unescapedData, err := url.QueryUnescape(data)
-		//if err != nil {
-		//	return nil, err
-		//}
 		opts = append(opts, configx.WithInitData([]byte(data)))
 	}
-
-	// opts = append(opts, config.ReferencePoolOptionsFromURL(ctx, u)...)
 
 	store := New(opts...)
 
@@ -222,12 +216,8 @@ func (m *memory) Key() []string {
 	return m.v.Key()
 }
 
-func (m *memory) Walk(fn func(int, any) any) error {
-	return m.v.Walk(fn)
-}
-
-func (m *memory) Get() any {
-	return m.v.Get()
+func (m *memory) Get(wo ...configx.WalkOption) any {
+	return m.v.Get(wo...)
 }
 
 func (m *memory) Set(value interface{}) error {

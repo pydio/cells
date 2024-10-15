@@ -22,11 +22,11 @@ package grpc
 
 import (
 	"context"
-
 	"github.com/pydio/cells/v4/common/config"
 	"github.com/pydio/cells/v4/common/errors"
 	pb "github.com/pydio/cells/v4/common/proto/config"
 	"github.com/pydio/cells/v4/common/utils/configx"
+	json "github.com/pydio/cells/v4/common/utils/jsonx"
 	"github.com/pydio/cells/v4/common/utils/propagator"
 )
 
@@ -39,23 +39,50 @@ func NewHandler() *Handler {
 }
 
 func (h *Handler) Get(ctx context.Context, req *pb.GetRequest) (*pb.GetResponse, error) {
+	var v any
+
 	if req.Namespace == "vault" {
 		var vault config.Store
 		if !propagator.Get(ctx, config.VaultKey, &vault) {
 			return nil, errors.WithMessage(errors.StatusInternalServerError, "cannot find vault in context")
 		}
+
+		v = vault.Val(req.GetPath()).Get()
+	} else {
+		v = config.Get(ctx, req.GetPath()).Get()
+	}
+
+	switch vv := v.(type) {
+	case []byte:
 		return &pb.GetResponse{
-			Value: &pb.Value{Data: vault.Val(req.GetPath()).Bytes()},
+			Value: &pb.Value{Data: vv},
 		}, nil
 	}
+
+	b, err := json.Marshal(v)
+	if err != nil {
+		return nil, errors.WithMessage(errors.StatusInternalServerError, err.Error())
+	}
+
 	return &pb.GetResponse{
-		Value: &pb.Value{Data: config.Get(ctx, req.GetPath()).Bytes()},
+		Value: &pb.Value{Data: b},
 	}, nil
 }
 
 func (h *Handler) Set(ctx context.Context, req *pb.SetRequest) (*pb.SetResponse, error) {
-	if err := config.Set(ctx, req.GetValue().GetData(), req.GetPath()); err != nil {
-		return nil, err
+	if req.Namespace == "vault" {
+		var vault config.Store
+		if !propagator.Get(ctx, config.VaultKey, &vault) {
+			return nil, errors.WithMessage(errors.StatusInternalServerError, "cannot find vault in context")
+		}
+
+		if err := vault.Val(req.GetPath()).Set(req.GetValue().GetData()); err != nil {
+			return nil, err
+		}
+	} else {
+		if err := config.Set(ctx, req.GetValue().GetData(), req.GetPath()); err != nil {
+			return nil, err
+		}
 	}
 
 	return &pb.SetResponse{}, nil

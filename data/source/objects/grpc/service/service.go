@@ -63,6 +63,7 @@ func init() {
 					// if !ok {
 					//	return fmt.Errorf("cannot find minio config")
 					//}
+
 					if mc.StorageType == object.StorageType_LOCAL || mc.StorageType == object.StorageType_GCS {
 						mc.RunningSecure = false
 						mc.RunningHost = runtime.DefaultAdvertiseAddress()

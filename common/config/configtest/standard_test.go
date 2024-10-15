@@ -95,5 +95,14 @@ func testGetSet(t *testing.T, store config.Store) {
 			m.Val("fakevalue").Set(map[string]interface{}{"fake": "value"})
 			m.Val("fakevalue").Scan(&fakeValue)
 		})
+
+		Convey("Reference", func() {
+			store.Val("referencevalue").Set(map[string]any{
+				"$ref": "rp#/ref",
+			})
+
+			store.Val("referencevalue/key").Set("val")
+			So(store.Val("referencevalue/key").Get(), ShouldEqual, "val")
+		})
 	})
 }

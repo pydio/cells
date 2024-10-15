@@ -1,6 +1,8 @@
 package discoverytest
 
 import (
+	"github.com/pydio/cells/v4/common"
+	config "github.com/pydio/cells/v4/discovery/config/grpc"
 	"google.golang.org/grpc"
 
 	pb "github.com/pydio/cells/v4/common/proto/config"
@@ -8,8 +10,7 @@ import (
 
 func NewConfigService() grpc.ClientConnInterface {
 	serv := &pb.ConfigStub{
-		// TODO
-		// ConfigServer: config.NewHandler(common.ServiceConfig),
+		ConfigServer: config.NewHandler(),
 	}
 
 	return serv

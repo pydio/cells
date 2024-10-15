@@ -26,10 +26,9 @@ type Storer interface {
 	Key() []string
 	Val(path ...string) Values
 	Default(def any) Values
-	Get() any
+	Get(...WalkOption) any
 	Set(value any) error
 	Del() error
-	Walk(func(i int, v any) any) error
 }
 
 type Caster interface {
@@ -86,23 +85,11 @@ func New(opts ...Option) (ret Values) {
 	return ret
 }
 
-func Walk(st Storer, fn func(i int, v *any) (bool, error)) error {
+func Walk(keys []string, current any, fn func(i int, v any) (bool, error)) error {
 
-	keys := st.Key()
-
-	var current any
-	if len(keys) == 0 {
-		current = st.Get()
-	} else {
-		current = st.Val("#").Get()
-	}
-
-	ok, err := fn(-1, &current)
-	if err != nil {
+	if cont, err := fn(-1, current); err != nil {
 		return err
-	}
-
-	if !ok {
+	} else if !cont {
 		return nil
 	}
 
@@ -135,53 +122,11 @@ func Walk(st Storer, fn func(i int, v *any) (bool, error)) error {
 			current = nil
 		}
 
-		ok, err := fn(i, &current)
-		if err != nil {
+		if cont, err := fn(i, current); err != nil {
 			return err
-		}
-
-		if !ok {
+		} else if !cont {
 			break
 		}
-	}
-
-	return nil
-}
-
-func (c storer) Walk(fn func(i int, v any) any) error {
-
-	current := fn(0, *c.v)
-
-	for i, k := range c.k {
-		switch v := current.(type) {
-		case []any:
-			kk, err := strconv.Atoi(k)
-			if err != nil {
-				return err
-			}
-
-			if kk >= len(v) {
-				return errors.New("invalid key")
-			}
-
-			current = v[kk]
-		case map[any]any:
-			if vv, ok := v[k]; ok {
-				current = vv
-			} else {
-				return errors.New("invalid key")
-			}
-		case map[string]any:
-			if vv, ok := v[k]; ok {
-				current = vv
-			} else {
-				return errors.New("invalid key")
-			}
-		default:
-			current = nil
-		}
-
-		current = fn(i, current)
 	}
 
 	return nil
@@ -213,8 +158,8 @@ func (c storer) Val(s ...string) Values {
 }
 
 func (c storer) Default(d any) Values {
-	return &caster{
-		&storer{
+	return caster{
+		storer{
 			v:     c.v,
 			k:     c.k,
 			opts:  c.opts,
@@ -249,15 +194,28 @@ func (c storer) MarshalJSON() ([]byte, error) {
 	return c.opts.Marshaller.Marshal(c.v)
 }
 
-func (c storer) Get() any {
+func (c storer) Get(wo ...WalkOption) any {
 	var current any
+
+	opts := &WalkOptions{}
+	for _, o := range wo {
+		o(opts)
+	}
 
 	if len(c.k) == 0 {
 		return *c.v
 	}
 
-	if err := Walk(c, func(i int, v *any) (bool, error) {
-		current = *v
+	if err := Walk(c.k, *c.v, func(i int, v any) (bool, error) {
+		if int := opts.Interceptor; int != nil {
+			if ok, vv := int(i, v); ok {
+				current = vv
+				return false, nil
+			}
+		}
+
+		current = v
+
 		return true, nil
 	}); err != nil || current == nil {
 		return c.d
@@ -435,13 +393,16 @@ func (c caster) Bytes() []byte {
 		return []byte{}
 	}
 
-	if m := c.Options().Marshaller; m != nil {
-		data, err := m.Marshal(v)
-		if err != nil {
-			return []byte{}
-		}
+	switch vv := v.(type) {
+	case map[string]any, map[any]any, []any:
+		if m := c.Options().Marshaller; m != nil {
+			data, err := m.Marshal(vv)
+			if err != nil {
+				return []byte{}
+			}
 
-		return data
+			return data
+		}
 	}
 
 	return []byte(cast.ToString(v))

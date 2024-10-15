@@ -258,14 +258,21 @@ func init() {
 								for _, svcItem := range svcItems {
 									routes = append(routes, &route.Route{
 										Name: endpointItem.ID(),
-										//RequestHeadersToAdd: []*core.HeaderValueOption{
-										//	{
-										//		Header: &core.HeaderValue{
-										//			Key:   "x-endpoint",
-										//			Value: "whatever",
-										//		},
+										//Metadata: &core.Metadata{
+										//	FilterMetadata: map[string]*structpb.Struct{
+										//		"envoy.filters.http.router": structpb.NewStruct(
+										//			map[string]interface{}{
+										//				"test": "whatever",
+										//			}),
 										//	},
 										//},
+										RequestHeadersToAdd: []*core.HeaderValueOption{
+											{Header: &core.HeaderValue{
+												Key:   "x-endpoint",
+												Value: "whatever",
+											},
+											},
+										},
 										Match: &route.RouteMatch{
 											PathSpecifier: &route.RouteMatch_Path{
 												Path: endpointItem.Name(),
@@ -282,6 +289,7 @@ func init() {
 												ClusterSpecifier: &route.RouteAction_Cluster{
 													Cluster: srvItem.ID(),
 												},
+												PrefixRewrite: "",
 											},
 										},
 									})

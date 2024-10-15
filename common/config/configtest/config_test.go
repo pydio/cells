@@ -23,6 +23,10 @@ package configtest
 import (
 	"context"
 	"fmt"
+	"github.com/pydio/cells/v4/common/runtime/manager"
+	"github.com/pydio/cells/v4/common/service"
+	"github.com/spf13/viper"
+	"google.golang.org/grpc"
 	"log"
 	"os"
 	"sync"
@@ -34,25 +38,28 @@ import (
 	"github.com/smartystreets/goconvey/convey"
 	"google.golang.org/protobuf/runtime/protoimpl"
 
-	"github.com/pydio/cells/v4/common"
-	"github.com/pydio/cells/v4/common/client/grpc"
 	"github.com/pydio/cells/v4/common/config"
+	pbconfig "github.com/pydio/cells/v4/common/proto/config"
 	"github.com/pydio/cells/v4/common/proto/object"
 	pb "github.com/pydio/cells/v4/common/proto/registry"
 	"github.com/pydio/cells/v4/common/registry/util"
-	clientcontext "github.com/pydio/cells/v4/common/runtime"
-	"github.com/pydio/cells/v4/common/server/stubs/discoverytest"
+	"github.com/pydio/cells/v4/common/runtime"
 	"github.com/pydio/cells/v4/common/utils/configx"
 	"github.com/pydio/cells/v4/common/utils/std"
+	discoveryconfig "github.com/pydio/cells/v4/discovery/config/grpc"
 
+	_ "embed"
 	_ "github.com/pydio/cells/v4/common/config/file"
 	_ "github.com/pydio/cells/v4/common/config/memory"
 	_ "github.com/pydio/cells/v4/common/config/service"
+	_ "github.com/pydio/cells/v4/common/registry/config"
+	_ "github.com/pydio/cells/v4/common/server/grpc"
 )
 
-func init() {
-	grpc.RegisterMock(common.ServiceConfig, discoverytest.NewConfigService())
-}
+var (
+	//go:embed config_test.yaml
+	configTest string
+)
 
 func TestSimpleDiff(t *testing.T) {
 	a := configx.New()
@@ -120,7 +127,7 @@ func TestSyncMapDiff(t *testing.T) {
 }
 
 func TestGetSetMemory(t *testing.T) {
-	store, err := config.OpenStore(context.Background(), "mem://")
+	store, err := config.OpenStore(context.Background(), "mem://?pools=rp%3Dmem%3A%2F%2F")
 	if err != nil {
 		log.Panic(err)
 	}
@@ -195,28 +202,38 @@ func TestGetSetFile(t *testing.T) {
 }
 
 func TestGetSetGRPC(t *testing.T) {
-	//u := os.Getenv("GRPC_ADDR")
-	//if u == "" {
-	//	t.Skip("skipping test: ETCD_SERVER_ADDR not defined")
-	//}
+	v := viper.New()
+	v.Set("name", "discovery")
+	v.Set(runtime.KeyKeyring, "mem://")
+	v.Set(runtime.KeyConfig, "mem://?pools=rp%3Dmem%3A%2F%2F")
+	v.Set(runtime.KeyRegistry, "mem://")
+	v.Set(runtime.KeyBootstrapYAML, configTest)
+	runtime.SetRuntime(v)
 
-	_, err := config.OpenStore(context.Background(), "mem://")
+	ctx := context.Background()
+
+	runtime.Register("discovery", func(ctx context.Context) {
+		service.NewService(
+			service.Name("config"),
+			service.Context(ctx),
+			service.WithGRPC(func(ctx context.Context, srv grpc.ServiceRegistrar) error {
+				pbconfig.RegisterConfigServer(srv, discoveryconfig.NewHandler())
+				return nil
+			}),
+		)
+	})
+
+	mg, err := manager.NewManager(ctx, "discovery", nil)
 	if err != nil {
+		t.Error("cannot run test", err)
 		t.Fail()
+		return
 	}
 
-	vault, err := config.OpenStore(context.Background(), "mem://")
+	go mg.ServeAll()
 
-	//config.Register(mem)
-	//config.RegisterVault(vault)
-
-	conn := grpc.ResolveConn(context.Background(), common.ServiceConfigGRPC)
-	ctx := clientcontext.WithClientConn(context.Background(), conn)
-
-	store, err := config.OpenStore(ctx, "grpc://"+common.ServiceConfigGRPC)
-	if err != nil {
-		t.Fail()
-	}
+	store, _ := config.OpenStore(mg.Context(), "grpc://config")
+	vault, _ := config.OpenStore(mg.Context(), "grpc://config?namespace=vault")
 
 	testGetSet(t, store)
 	testVault(t, store, vault)

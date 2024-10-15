@@ -253,10 +253,6 @@ func (f *file) Key() []string {
 	return f.v.Key()
 }
 
-func (f *file) Walk(f2 func(i int, v any) any) error {
-	return f.v.Walk(f2)
-}
-
 func (f *file) Context(ctx context.Context) configx.Values {
 	return f.v.Context(ctx)
 }
@@ -269,11 +265,11 @@ func (f *file) Default(def any) configx.Values {
 	return f.v.Default(def)
 }
 
-func (f *file) Get() any {
+func (f *file) Get(wo ...configx.WalkOption) any {
 	f.mtx.RLock()
 	defer f.mtx.RUnlock()
 
-	return f.v.Get()
+	return f.v.Get(wo...)
 }
 
 func (f *file) Clone() configx.Values {

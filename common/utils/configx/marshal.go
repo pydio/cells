@@ -25,6 +25,10 @@ func (m marshaller) Set(data any) error {
 		}
 	}
 
+	if len(b) == 0 {
+		return nil
+	}
+
 	if m.Unmarshaler != nil {
 		var v any
 		if err := m.Unmarshaler.Unmarshal(b, &v); err != nil {
