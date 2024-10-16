@@ -28,6 +28,7 @@ import (
 	"regexp"
 	runtime2 "runtime"
 	"runtime/debug"
+	"slices"
 	"strings"
 	"sync"
 	"text/template"
@@ -241,11 +242,19 @@ func (cc *clientConn) NewStream(ctx context.Context, desc *grpc.StreamDesc, meth
 		scope := metrics.TaggedHelper(map[string]string{"target": cc.serviceName, "method": desc.StreamName})
 		gauge := scope.Gauge("open_streams", "Number of GRPC streams currently open")
 		pri := common.LogLevel == zapcore.DebugLevel
-		if cc.serviceName == "pydio.grpc.broker" || cc.serviceName == "pydio.grpc.log" || cc.serviceName == "pydio.grpc.audit" ||
-			cc.serviceName == "pydio.grpc.jobs" || cc.serviceName == "pydio.grpc.registry" ||
-			desc.StreamName == "StreamChanges" || desc.StreamName == "PostNodeChanges" {
-			pri = false
+		silentServices := []string{
+			"pydio.grpc.broker",
+			"pydio.grpc.log",
+			"pydio.grpc.audit",
+			"pydio.grpc.jobs",
+			"pydio.grpc.registry",
+			"pydio.grpc.config",
 		}
+		silentStreams := []string{
+			"StreamChanges",
+			"PostNodeChanges",
+		}
+		pri = !(slices.Contains(silentServices, cc.serviceName) || slices.Contains(silentStreams, desc.StreamName))
 
 		clientRCL.Lock()
 		clientRC[key]++
