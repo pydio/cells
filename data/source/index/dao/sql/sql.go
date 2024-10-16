@@ -29,7 +29,6 @@ import (
 	"github.com/pydio/cells/v4/common/proto/tree"
 	cindex "github.com/pydio/cells/v4/common/storage/sql/index"
 	"github.com/pydio/cells/v4/common/telemetry/log"
-	"github.com/pydio/cells/v4/common/utils/configx"
 	"github.com/pydio/cells/v4/data/source/index"
 )
 
@@ -61,7 +60,8 @@ func (s *sqlimpl) Migrate(ctx context.Context) error {
 	if er := s.IndexSQL.Migrate(ctx); er != nil {
 		return er
 	}
-	treeNode := &tree.TreeNode{}
+	var treeNode tree.ITreeNode
+	treeNode = &tree.TreeNode{}
 	treeNode.SetNode(&tree.Node{
 		Uuid:  "ROOT",
 		Path:  "/",
@@ -69,34 +69,11 @@ func (s *sqlimpl) Migrate(ctx context.Context) error {
 		MTime: time.Now().Unix(),
 	})
 
-	if _, created, err := s.IndexSQL.Path(ctx, treeNode, treeNode, true); err != nil {
+	if _, created, err := s.IndexSQL.ResolveMPath(ctx, true, &treeNode, treeNode); err != nil {
 		log.Logger(ctx).Error("Error checking root node in index: " + err.Error())
 		return err
 	} else if len(created) > 0 {
 		log.Logger(ctx).Info("Created root node in index")
 	}
 	return nil
-}
-
-// Init handler for the SQL DAO
-func (s *sqlimpl) Init(ctx context.Context, options configx.Values) error {
-
-	// NOT HERE BUT INSIDE Migrate()
-	// SHALL WE READ CONFIG HERE ?
-	return nil
-}
-
-func (s *sqlimpl) LostAndFounds(ctx context.Context) ([]cindex.LostAndFound, error) {
-	//TODO implement me
-	panic("implement me")
-}
-
-func (s *sqlimpl) FixLostAndFound(ctx context.Context, lost cindex.LostAndFound) error {
-	//TODO implement me
-	panic("implement me")
-}
-
-func (s *sqlimpl) FixRandHash2(ctx context.Context, excludes ...cindex.LostAndFound) (int64, error) {
-	//TODO implement me
-	panic("implement me")
 }

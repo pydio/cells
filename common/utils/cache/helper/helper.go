@@ -49,11 +49,12 @@ func SetCacheRegistryResolver(r CacheRegistryResolver) {
 }
 
 func SetStaticResolver(url string, opener cache.URLOpener) {
+	st := &staticResolver{
+		url:    url,
+		opener: opener,
+	}
 	resolver = func(ctx context.Context) (CacheRegistry, error) {
-		return &staticResolver{
-			url:    url,
-			opener: opener,
-		}, nil
+		return st, nil
 	}
 }
 

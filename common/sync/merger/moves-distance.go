@@ -21,14 +21,15 @@
 package merger
 
 import (
-	"github.com/pydio/cells/v4/common/proto/tree"
 	"math"
 	"path"
 	"sort"
 	"strings"
 
-	"github.com/pydio/cells/v4/common/utils/mtree"
 	"go.uber.org/zap/zapcore"
+
+	"github.com/pydio/cells/v4/common/proto/tree"
+	"github.com/pydio/cells/v4/common/utils/filesystem"
 )
 
 const (
@@ -63,7 +64,7 @@ func (m *Move) closeness() int {
 	if m.source == m.target {
 		return maxInt
 	}
-	pref := mtree.CommonPrefix(sep[0], m.source, m.target)
+	pref := filesystem.CommonPrefix(sep[0], m.source, m.target)
 	prefFactor := len(strings.Split(pref, sep))
 	// Overall path similarity
 	lParts := strings.Split(m.source, sep)

@@ -222,7 +222,7 @@ func (m *MetaFilter) Where() (where string, args []interface{}) {
 		if m.filterType == NodeType_LEAF {
 			args = append(args, 1)
 		} else {
-			args = append(args, 0)
+			args = append(args, 2)
 		}
 	}
 	for _, c := range m.intComps {
@@ -266,15 +266,15 @@ func (m *MetaFilter) HasSort() bool {
 }
 
 // OrderBy creates SQL instruction to be appended
-func (m *MetaFilter) OrderBy() string {
+func (m *MetaFilter) OrderBy() (string, string) {
 	dir := "ASC"
 	if m.sortDesc {
 		dir = "DESC"
 	}
 	if m.sortField == MetaSortNameCI {
-		return "LOWER(name) " + dir
+		return "LOWER(name)", dir
 	} else {
-		return m.sortField + " " + dir
+		return m.sortField, dir
 	}
 }
 

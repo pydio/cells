@@ -62,6 +62,10 @@ func init() {
 			service.Migrations([]*service.Migration{
 				{
 					TargetVersion: service.FirstRun(),
+					Up:            manager.StorageMigration(),
+				},
+				{
+					TargetVersion: service.FirstRun(),
 					Up:            actions.RegisterDigestJob,
 				},
 			}),

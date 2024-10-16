@@ -110,11 +110,11 @@ func (c *queryConverter) Convert(ctx context.Context, val *anypb.Any, db *gorm.D
 	}
 
 	if groupPath != "" {
-		user := &usermodel.User{}
+		var user tree.ITreeNode = &usermodel.User{}
 		user.SetNode(&tree.Node{
 			Path: groupPath,
 		})
-		mpath, _, err := c.treeDao.Path(ctx, user, tree.NewTreeNode(""), false)
+		mpath, _, err := c.treeDao.ResolveMPath(ctx, false, &user)
 		if err != nil && err.Error() != "not found" {
 			log.Logger(ctx).Error("Error while getting parent mpath", zap.Any("g", groupPath), zap.Error(err))
 			return db, false, err
@@ -279,7 +279,7 @@ func groupToNode(g *idm.User) *usermodel.User {
 	}
 }
 
-func nodeToUser(t *usermodel.User, u *idm.User) {
+func nodeToUser(t tree.ITreeNode, u *idm.User) {
 	u.Uuid = t.GetNode().GetUuid()
 	u.Login = t.GetName()
 	u.Password = t.GetNode().GetEtag()
@@ -297,7 +297,7 @@ func nodeToUser(t *usermodel.User, u *idm.User) {
 	}
 }
 
-func nodeToGroup(t *usermodel.User, u *idm.User) {
+func nodeToGroup(t tree.ITreeNode, u *idm.User) {
 	u.Uuid = t.GetNode().GetUuid()
 	u.IsGroup = true
 	u.GroupLabel = t.GetName()

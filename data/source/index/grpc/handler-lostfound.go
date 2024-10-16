@@ -22,7 +22,6 @@ package grpc
 
 import (
 	"context"
-	"fmt"
 
 	"go.uber.org/zap"
 	"google.golang.org/protobuf/types/known/anypb"
@@ -89,14 +88,16 @@ func (s *TreeServer) TriggerResync(ctx context.Context, request *sync.ResyncRequ
 	}
 
 	// Now recomputing hash2 marked as random
-	a, e := dao.FixRandHash2(ctx, excludeFromRehash...)
-	if e == nil && a > 0 {
-		msg := fmt.Sprintf("[Index] Recomputed parent hash for %d row(s)", a)
-		log.Logger(ctx).Info(msg)
-		log.TasksLogger(ctx).Info(msg)
-	}
+	/*
+		a, e := dao.FixRandHash2(ctx, excludeFromRehash...)
+		if e == nil && a > 0 {
+			msg := fmt.Sprintf("[Index] Recomputed parent hash for %d row(s)", a)
+			log.Logger(ctx).Info(msg)
+			log.TasksLogger(ctx).Info(msg)
+		}
+	*/
 
-	return resp, e
+	return resp, nil
 }
 
 // checkACLs checks all nodes UUIDs against ACLs to make sure that we do not delete a node that has an ACL on it

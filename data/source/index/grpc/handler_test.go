@@ -26,6 +26,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"sort"
 	"sync"
 	"testing"
 	"time"
@@ -101,9 +102,7 @@ func TestIndex(t *testing.T) {
 				go func() {
 					defer wg.Done()
 
-					cr, er := retryOnDuplicate(func() (*tree.CreateNodeResponse, error) {
-						return s.CreateNode(ctx, &tree.CreateNodeRequest{Node: no})
-					})
+					cr, er := s.CreateNode(ctx, &tree.CreateNodeRequest{Node: no})
 					if er != nil {
 						errs = append(errs, errors.WithMessage(er, fmt.Sprintf("concurrent - node %d", idx)))
 					} else {
@@ -115,6 +114,52 @@ func TestIndex(t *testing.T) {
 
 			So(errs, ShouldHaveLength, 0)
 			So(newIds, ShouldHaveLength, len(cc))
+			for _, id := range newIds {
+				r, er := s.ReadNode(ctx, &tree.ReadNodeRequest{Node: &tree.Node{Uuid: id}})
+				So(er, ShouldBeNil)
+				So(r.GetNode().GetUuid(), ShouldEqual, id)
+			}
+		})
+
+		Convey("Inserting concurrent rows and preset IDs", t, func() {
+
+			cc := []*tree.Node{
+				{Path: "/test_1_2_3", Uuid: "u_test_12"},
+				{Path: "/test_1_3_4", Uuid: "u_test_13"},
+				{Path: "/test_1_4_5", Uuid: "u_test_14"},
+				{Path: "/test_1_102_6", Uuid: "u_test_102"},
+				{Path: "/test_1_103_7", Uuid: "u_test_103"},
+				{Path: "/test_1_104_8", Uuid: "u_test_104"},
+				{Path: "/test_1_105_9", Uuid: "u_test_105"},
+			}
+			var knownIDs []string
+			for _, c := range cc {
+				knownIDs = append(knownIDs, c.GetUuid())
+			}
+
+			wg := &sync.WaitGroup{}
+			var errs []error
+			var newIds []string
+			wg.Add(len(cc))
+			for idx, no := range cc {
+				go func() {
+					defer wg.Done()
+
+					cr, er := s.CreateNode(ctx, &tree.CreateNodeRequest{Node: no})
+					if er != nil {
+						errs = append(errs, errors.WithMessage(er, fmt.Sprintf("concurrent - node %d", idx)))
+					} else {
+						newIds = append(newIds, cr.GetNode().GetUuid())
+					}
+				}()
+			}
+			wg.Wait()
+
+			So(errs, ShouldHaveLength, 0)
+			So(newIds, ShouldHaveLength, len(cc))
+			sort.Strings(knownIDs)
+			sort.Strings(newIds)
+			So(newIds, ShouldResemble, knownIDs)
 		})
 
 		Convey("Insert a new child at 1.4.2 level", t, func() {
@@ -242,13 +287,16 @@ func TestIndex(t *testing.T) {
 
 		})
 
-		Convey("Test grep file name", t, func() {
+		Convey("Test grep file name and other SQL filters", t, func() {
 
-			nodeAccent := &tree.Node{Path: "/test.jpg", Uuid: "my-jpg-node"}
+			nodeAccent := &tree.Node{Path: "/test.jpg", Uuid: "my-jpg-node", Type: tree.NodeType_LEAF}
 			resp, err := send(ctx, s, "CreateNode", &tree.CreateNodeRequest{Node: nodeAccent})
 			So(err, ShouldBeNil)
 			So(resp, ShouldNotBeNil)
-			resp, err = send(ctx, s, "CreateNode", &tree.CreateNodeRequest{Node: &tree.Node{Path: "/other/sub/picture.jpg", Uuid: "my-other-jpg-node"}})
+			resp, err = send(ctx, s, "CreateNode", &tree.CreateNodeRequest{Node: &tree.Node{Path: "/other/sub/picture.jpg", Uuid: "my-other-jpg-node", Type: tree.NodeType_LEAF}})
+			So(err, ShouldBeNil)
+			So(resp, ShouldNotBeNil)
+			resp, err = send(ctx, s, "CreateNode", &tree.CreateNodeRequest{Node: &tree.Node{Path: "/other/sub/folder", Uuid: "a-folder", Type: tree.NodeType_COLLECTION}})
 			So(err, ShouldBeNil)
 			So(resp, ShouldNotBeNil)
 
@@ -267,6 +315,46 @@ func TestIndex(t *testing.T) {
 				nodes = append(nodes, response.Node)
 			}
 			So(len(nodes), ShouldEqual, 2)
+			So(nodes[0].Path, ShouldEqual, "/test.jpg")
+			So(nodes[1].Path, ShouldEqual, "/other/sub/picture.jpg")
+
+			// SEARCH ALL LEAFS
+			resp, _ = send(ctx, s, "ListNodes", &tree.ListNodesRequest{
+				Node:       &tree.Node{Path: "/other/sub/"},
+				FilterType: tree.NodeType_LEAF,
+				Recursive:  true,
+			})
+			So(resp.(*List), ShouldNotBeNil)
+
+			nodes = []*tree.Node{}
+			for {
+				response, err := resp.(*List).Recv()
+				if err != nil {
+					break
+				}
+				nodes = append(nodes, response.Node)
+			}
+			So(len(nodes), ShouldEqual, 1)
+			So(nodes[0].Path, ShouldEqual, "/other/sub/picture.jpg")
+
+			// SEARCH ALL COLLECTIONS
+			resp, _ = send(ctx, s, "ListNodes", &tree.ListNodesRequest{
+				Node:       &tree.Node{Path: "/other/sub/"},
+				FilterType: tree.NodeType_COLLECTION,
+				Recursive:  true,
+			})
+			So(resp.(*List), ShouldNotBeNil)
+
+			nodes = []*tree.Node{}
+			for {
+				response, err := resp.(*List).Recv()
+				if err != nil {
+					break
+				}
+				nodes = append(nodes, response.Node)
+			}
+			So(len(nodes), ShouldEqual, 1)
+			So(nodes[0].Path, ShouldEqual, "/other/sub/folder")
 
 		})
 
@@ -385,21 +473,19 @@ func TestIndex(t *testing.T) {
 
 		})
 
-		/*
-			SkipConvey("Test insert two nodes with same Uuid", t, func() {
+		SkipConvey("Test insert two nodes with same Uuid", t, func() {
 
-				f1 := &tree.N{Path: "/root/f1", Uuid: "uuid"}
-				f2 := &tree.N{Path: "/root/f2", Uuid: "uuid"}
-				e1 := s.CreateNode(ctx, &tree.CreateNodeRequest{N: f1}, &tree.CreateNodeResponse{})
-				e2 := s.CreateNode(ctx, &tree.CreateNodeRequest{N: f2}, &tree.CreateNodeResponse{})
-				So(e1, ShouldBeNil)
-				So(e2, ShouldNotBeNil)
+			f1 := &tree.Node{Path: "/root/f1", Uuid: "uuid"}
+			f2 := &tree.Node{Path: "/root/f2", Uuid: "uuid"}
+			_, e1 := s.CreateNode(ctx, &tree.CreateNodeRequest{Node: f1})
+			_, e2 := s.CreateNode(ctx, &tree.CreateNodeRequest{Node: f2})
+			So(e1, ShouldBeNil)
+			So(e2, ShouldNotBeNil)
 
-				f3 := &tree.N{Path: "/root/f2", Uuid: "uuid-renewed"}
-				e3 := s.CreateNode(ctx, &tree.CreateNodeRequest{N: f3}, &tree.CreateNodeResponse{})
-				So(e3, ShouldBeNil)
-			})
-		*/
+			f3 := &tree.Node{Path: "/root/f2", Uuid: "uuid-renewed"}
+			_, e3 := s.CreateNode(ctx, &tree.CreateNodeRequest{Node: f3})
+			So(e3, ShouldBeNil)
+		})
 
 		Convey("Test Delete Create Delete", t, func() {
 

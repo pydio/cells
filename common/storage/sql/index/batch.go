@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2021. Abstrium SAS <team (at) pydio.com>
+ * Copyright (c) 2024. Abstrium SAS <team (at) pydio.com>
  * This file is part of Pydio Cells.
  *
  * Pydio Cells is free software: you can redistribute it and/or modify
@@ -20,20 +20,35 @@
 
 package index
 
-import (
-	"github.com/pydio/cells/v4/common/proto/tree"
-	"github.com/pydio/cells/v4/common/utils/mtree"
-)
+import "github.com/pydio/cells/v4/common/proto/tree"
 
-// NewNode utils
-func NewNode(treeNode *tree.Node, path mtree.MPath, filenames []string) *mtree.TreeNode {
-	node := mtree.NewTreeNode()
-	node.Node = treeNode
+// BatchSend sql structure
+type BatchSend struct {
+	in  chan tree.ITreeNode
+	out chan error
+}
 
-	node.SetMPath(path...)
-	node.SetName(filenames[len(filenames)-1])
+// NewBatchSend Creation of the channels
+func NewBatchSend() *BatchSend {
+	b := new(BatchSend)
+	b.in = make(chan tree.ITreeNode)
+	b.out = make(chan error, 1)
 
-	// node.Path = strings.Join(filenames, "/")
+	return b
+}
 
-	return node
+// Send a node to the batch
+func (b *BatchSend) Send(arg interface{}) {
+	if node, ok := arg.(tree.ITreeNode); ok {
+		b.in <- node
+	}
+}
+
+// Close the Batch
+func (b *BatchSend) Close() error {
+	close(b.in)
+
+	err := <-b.out
+
+	return err
 }

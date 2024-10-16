@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2021. Abstrium SAS <team (at) pydio.com>
+ * Copyright (c) 2024. Abstrium SAS <team (at) pydio.com>
  * This file is part of Pydio Cells.
  *
  * Pydio Cells is free software: you can redistribute it and/or modify
@@ -18,34 +18,38 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-package mtree
+package index
 
-import (
-	"math/big"
-)
+import "github.com/pydio/cells/v4/common/proto/tree"
 
-// Float type
-type Float struct {
-	*big.Float
+type Factory[T tree.ITreeNode] interface {
+	Struct() T
+	Slice() []T
+	RootGroupProvider
 }
 
-// NewFloat returns a big Float with a 512 precision
-func NewFloat() *Float {
-	f := new(Float)
-	f.Float = new(big.Float)
-
-	f.SetPrec(512)
-
-	return f
+type RootGroupProvider interface {
+	RootGroup() string
 }
 
-// Nat representation of a float
-func (f *Float) Nat() Nat {
-	nat := new(Nat)
+type treeNodeFactory[T tree.ITreeNode] struct{}
 
-	b, _ := f.GobEncode()
+func (*treeNodeFactory[T]) Struct() T {
+	var t T
+	tree.NewITreeNode(&t)
+	return t
+}
 
-	*nat = nat.setBytes(b[10:])
+func (*treeNodeFactory[T]) Slice() []T {
+	return []T{}
+}
 
-	return Nat(*nat)
+func (*treeNodeFactory[T]) RootGroup() string {
+	var t T
+
+	if r, ok := any(t).(RootGroupProvider); ok {
+		return r.RootGroup()
+	}
+
+	return "ROOT"
 }

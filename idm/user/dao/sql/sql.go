@@ -136,7 +136,7 @@ func (s *sqlimpl) Add(ctx context.Context, in interface{}) (interface{}, []*idm.
 	user.GroupPath = safeGroupPath(user.GroupPath)
 
 	// Now carry on to potential updates
-	var node *user_model.User
+	var node tree.ITreeNode
 	if !user.IsGroup {
 		if len(user.Login) == 0 {
 			return nil, createdNodes, errors.WithMessage(DAOError, "warning, cannot create a user with an empty login")
@@ -155,7 +155,7 @@ func (s *sqlimpl) Add(ctx context.Context, in interface{}) (interface{}, []*idm.
 		MTime: time.Now().Unix(),
 	})
 
-	mpath, created, err := s.indexDAO.Path(ctx, node, rootNode, true)
+	mpath, created, err := s.indexDAO.ResolveMPath(ctx, true, &node, rootNode)
 	if err != nil && !errors.Is(err, gorm.ErrDuplicatedKey) {
 		return nil, createdNodes, wrap(err)
 	}

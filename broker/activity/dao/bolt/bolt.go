@@ -39,7 +39,6 @@ import (
 	"github.com/pydio/cells/v4/common/broker"
 	acproto "github.com/pydio/cells/v4/common/proto/activity"
 	"github.com/pydio/cells/v4/common/storage/boltdb"
-	"github.com/pydio/cells/v4/common/utils/configx"
 	json "github.com/pydio/cells/v4/common/utils/jsonx"
 )
 
@@ -70,8 +69,8 @@ type boltdbimpl struct {
 	boltdb.DB
 }
 
-// Init the storage
-func (dao *boltdbimpl) Init(ctx context.Context, options configx.Values) error {
+// Migrate Initialize the storage buckets
+func (dao *boltdbimpl) Migrate(ctx context.Context) error {
 
 	return dao.DB.Update(func(tx *bolt.Tx) error {
 		_, err := tx.CreateBucketIfNotExists([]byte(acproto.OwnerType_USER.String()))
