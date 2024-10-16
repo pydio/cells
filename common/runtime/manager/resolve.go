@@ -91,6 +91,7 @@ func Resolve[T any](ctx context.Context, opts ...ResolveOption) (s T, final erro
 	ctx, span = tracing.StartLocalSpan(ctx, "Resolve")
 	defer span.End()
 
+	span.AddEvent("Retrieving from context")
 	// First we get the contextualized sotwRegistry
 	var reg registry.Registry
 	if !propagator.Get(ctx, registry.ContextKey, &reg) {
@@ -113,10 +114,12 @@ func Resolve[T any](ctx context.Context, opts ...ResolveOption) (s T, final erro
 
 	span.AddEvent("Before Listing")
 	edges, err := reg.List(
-		registry.WithName("storage"),
 		registry.WithMeta("name", o.Name),
 		registry.WithType(registry2.ItemType_EDGE),
 		registry.WithFilter(func(item registry.Item) bool {
+			if item.Name() != "storage" {
+				return false
+			}
 			edge, ok := item.(registry.Edge)
 			if !ok {
 				return false
@@ -214,6 +217,8 @@ func Resolve[T any](ctx context.Context, opts ...ResolveOption) (s T, final erro
 				return t, errors.Tag(er, errors.ResolveError)
 			}
 		}
+
+		span.AddEvent("After Init")
 
 		return dao.(T), nil
 	}

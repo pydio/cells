@@ -20,26 +20,35 @@ type endpointKey struct{}
 var EndpointKey = endpointKey{}
 
 func contextEndpointRegistry(ctx context.Context, s registry.Item, reg registry.Registry, fullMethod string) context.Context {
+	var sp trace.Span
 	if spa := trace.SpanFromContext(ctx); spa != nil && spa.IsRecording() {
-		var sp trace.Span
 		ctx, sp = tracing.StartLocalSpan(ctx, "ContextEndpointRegistry")
 		defer sp.End()
 	}
 
 	serviceName := runtime.GetServiceName(ctx)
 	if serviceName != "" && serviceName != "default" {
+		sp.AddEvent("Before adjacent items")
 		endpoints := reg.ListAdjacentItems(
 			registry.WithAdjacentSourceItems([]registry.Item{s}),
-			registry.WithAdjacentTargetOptions(registry.WithName(fullMethod), registry.WithType(pb.ItemType_ENDPOINT)),
+			registry.WithAdjacentTargetOptions(registry.WithType(pb.ItemType_ENDPOINT)),
 		)
 
+		sp.AddEvent("After adjacent items")
+
 		for _, endpoint := range endpoints {
+			if endpoint.Name() != fullMethod {
+				continue
+			}
+
 			ep := endpoint.(registry.Endpoint)
 
+			sp.AddEvent("Before adjacent service")
 			services := reg.ListAdjacentItems(
 				registry.WithAdjacentSourceItems([]registry.Item{endpoint}),
 				registry.WithAdjacentTargetOptions(registry.WithType(pb.ItemType_SERVICE)),
 			)
+			sp.AddEvent("After adjacent service")
 
 			var svc service.Service
 			for _, item := range services {
@@ -55,9 +64,10 @@ func contextEndpointRegistry(ctx context.Context, s registry.Item, reg registry.
 				}
 			}
 
+			sp.AddEvent("Ending")
+
 			ctx = propagator.With(ctx, service.ContextKey, svc)
 			ctx = propagator.With(ctx, EndpointKey, ep)
-
 		}
 	}
 
