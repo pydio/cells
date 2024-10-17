@@ -56,6 +56,10 @@ func contextEndpointRegistry(ctx context.Context, s registry.Item, reg registry.
 				}
 			}
 
+			if svc == nil {
+				continue
+			}
+
 			sp.AddEvent("Ending")
 
 			ctx = propagator.With(ctx, service.ContextKey, svc)
