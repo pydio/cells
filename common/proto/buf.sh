@@ -27,7 +27,6 @@ then
   export PATH=$GOBIN:$PATH
   go install google.golang.org/protobuf/cmd/protoc-gen-go
   go install google.golang.org/grpc/cmd/protoc-gen-go-grpc
-  go install github.com/pydio/cells/cmd/protoc-gen-go-enhanced-grpc@main
   go install github.com/pydio/cells/cmd/protoc-gen-go-client-stub@main
   go install github.com/pydio/cells/cmd/protoc-gen-go-tags
   go install github.com/pydio/cells/cmd/protoc-gen-go-setter

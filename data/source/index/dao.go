@@ -33,9 +33,9 @@ type DAO interface {
 	index.DAO
 }
 
-func NewDAOCache(session string, o DAO) DAO {
+func WrapSessionDAO(session string, o DAO) DAO {
 	///return nil
-	return index.NewDAOCache(session, 300, o)
+	return index.NewSessionDAO(session, 300, o)
 }
 
 func GetDAOCache(session string) DAO {

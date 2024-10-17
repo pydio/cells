@@ -2,7 +2,6 @@ package index
 
 import (
 	"context"
-	"errors"
 	"sort"
 	"strconv"
 	"strings"
@@ -11,6 +10,7 @@ import (
 	"gorm.io/gorm"
 
 	"github.com/pydio/cells/v4/common/proto/tree"
+	"github.com/pydio/cells/v4/common/telemetry/log"
 	"github.com/pydio/cells/v4/common/utils/cache"
 	cache_helper "github.com/pydio/cells/v4/common/utils/cache/helper"
 )
@@ -30,8 +30,8 @@ var (
 	}
 )
 
-// NewDAOCache wraps a cache around the dao
-func NewDAOCache(session string, concurrency int, d DAO) DAO {
+// NewSessionDAO wraps a cache around the dao
+func NewSessionDAO(session string, concurrency int, d DAO) DAO {
 	c := &sessionDAO{
 		DAO: d,
 		cacheConf: cache.Config{
@@ -125,7 +125,7 @@ func (d *sessionDAO) GetNodeChild(ctx context.Context, mPath *tree.MPath, name s
 		return node, err
 	}
 	if ok := d.getCache(ctx).Get(pkey, &pnode); ok {
-		return node, errors.New("not found")
+		return node, nil
 	}
 
 	// Nothing, retrieve from the db and save in cache
@@ -177,7 +177,7 @@ func (d *sessionDAO) GetNodeFirstAvailableChildIndex(ctx context.Context, mPath 
 		}
 	}
 
-	return d.DAO.GetNodeFirstAvailableChildIndex(nil, mPath)
+	return d.DAO.GetNodeFirstAvailableChildIndex(ctx, mPath)
 }
 
 func (d *sessionDAO) Flush(ctx context.Context, b bool) error {
@@ -193,6 +193,8 @@ func (d *sessionDAO) Flush(ctx context.Context, b bool) error {
 	}); err != nil {
 		return err
 	}
+
+	log.Logger(ctx).Infof("Flushed DAOSession with %d creates", count)
 
 	if err := d.getCache(ctx).Reset(); err != nil {
 		return err

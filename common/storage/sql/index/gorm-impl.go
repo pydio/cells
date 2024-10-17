@@ -292,7 +292,7 @@ func (dao *gormImpl[T]) GetNode(ctx context.Context, path *tree.MPath) (tree.ITr
 	}
 
 	if tx.RowsAffected == 0 {
-		return nil, errors.New("not found")
+		return nil, errors.WithStack(errors.NodeNotFound)
 	}
 
 	return node, nil
@@ -377,7 +377,7 @@ func (dao *gormImpl[T]) GetNodeChild(ctx context.Context, mPath *tree.MPath, nam
 	}
 
 	if tx.RowsAffected == 0 {
-		return nil, gorm.ErrRecordNotFound // errors.New("not found")
+		return nil, gorm.ErrRecordNotFound
 	}
 
 	return node, nil
@@ -398,7 +398,7 @@ func (dao *gormImpl[T]) GetNodeLastChild(ctx context.Context, mPath *tree.MPath)
 	}
 
 	if tx.RowsAffected == 0 {
-		return nil, errors.New("not found")
+		return nil, errors.WithStack(errors.NodeNotFound)
 	}
 
 	return node, nil
@@ -1012,7 +1012,7 @@ func toMPath(ctx context.Context, dao DAO, targetNode tree.ITreeNode, parentNode
 	}
 
 	if !create {
-		return nil, nil, errors.New("not found")
+		return nil, nil, errors.WithStack(errors.NodeNotFound)
 	}
 
 	// We must insert

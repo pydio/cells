@@ -23,18 +23,10 @@ package index
 
 import (
 	"context"
-	"errors"
 
 	"gorm.io/gorm"
 
 	"github.com/pydio/cells/v4/common/proto/tree"
-)
-
-// Errors
-var (
-	errNotImplemented = errors.New("not implemented")
-	errNotFound       = errors.New("not found")
-	errAlreadyExists  = errors.New("already exists")
 )
 
 // BatchSender interface

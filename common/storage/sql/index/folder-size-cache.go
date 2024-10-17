@@ -47,7 +47,7 @@ func NewFolderSizeCacheDAO(dao DAO) DAO {
 // GetNode from path
 func (dao *FolderSizeCacheSQL) GetNode(ctx context.Context, path *tree.MPath) (tree.ITreeNode, error) {
 
-	node, err := dao.DAO.GetNode(nil, path)
+	node, err := dao.DAO.GetNode(ctx, path)
 	if err != nil {
 		return nil, err
 	}
@@ -140,19 +140,19 @@ func (dao *FolderSizeCacheSQL) ResolveMPath(ctx context.Context, create bool, no
 // AddNode adds a node in the tree.
 func (dao *FolderSizeCacheSQL) AddNode(ctx context.Context, node tree.ITreeNode) error {
 	dao.invalidateMPathHierarchy(node.GetMPath(), -1)
-	return dao.DAO.AddNode(nil, node)
+	return dao.DAO.AddNode(ctx, node)
 }
 
 // SetNode updates a node, including its tree position
 func (dao *FolderSizeCacheSQL) SetNode(ctx context.Context, node tree.ITreeNode) error {
 	dao.invalidateMPathHierarchy(node.GetMPath(), -1)
-	return dao.DAO.SetNode(nil, node)
+	return dao.DAO.SetNode(ctx, node)
 }
 
 // DelNode removes a node from the tree
 func (dao *FolderSizeCacheSQL) DelNode(ctx context.Context, node tree.ITreeNode) error {
 	dao.invalidateMPathHierarchy(node.GetMPath(), -1)
-	return dao.DAO.DelNode(nil, node)
+	return dao.DAO.DelNode(ctx, node)
 }
 
 // MoveNodeTree move all the nodes belonging to a tree by calculating the new mpathes

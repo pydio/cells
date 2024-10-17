@@ -371,8 +371,8 @@ message TreeNode {
     option (orm.ormPolicy).options = {type: "mysql", value: "CHARSET=ASCII COLLATE=ascii_general_ci"};
 
     Node Node    = 1 [(orm.orm).gorm = {embedded: true}];
-    string Name  = 2 [(orm.orm).gorm = {column:"name"; index: ""; type: "VARCHAR(255)"}];
-    int64 Level  = 3 [(orm.orm).gorm = {column:"level"; index: ""; type: "SMALLINT;"}];
+    string Name  = 2 [(orm.orm).gorm = {column:"name"; index: "name"; type: "VARCHAR(255)"}];
+    int64 Level  = 3 [(orm.orm).gorm = {column:"level"; index: "level"; type: "SMALLINT;"}];
     MPath MPath  = 4 [(orm.orm).gorm = {embedded: true}];
     string Hash  = 5 [(orm.orm).gorm = {column:"hash"; unique: true; type: "VARCHAR(255)"}];
     string Hash2 = 6 [(orm.orm).gorm = {column:"hash2"; unique: true; type: "VARCHAR(255)"}];
@@ -382,10 +382,10 @@ message MPath {
     option (setter.all_fields) = true;
     option (orm.ormPolicy).enabled = true;
 
-    string MPath1 = 1 [(orm.orm).gorm = {column:"mpath1"; index: "";}];
-    string MPath2 = 2 [(orm.orm).gorm = {column:"mpath2"; index: "";}];
-    string MPath3 = 3 [(orm.orm).gorm = {column:"mpath3"; index: "";}];
-    string MPath4 = 4 [(orm.orm).gorm = {column:"mpath4"; index: "";}];
+    string MPath1 = 1 [(orm.orm).gorm = {column:"mpath1"; index: "mpath1_idx";}];
+    string MPath2 = 2 [(orm.orm).gorm = {column:"mpath2"; index: "mpath2_idx";}];
+    string MPath3 = 3 [(orm.orm).gorm = {column:"mpath3"; index: "mpath3_idx";}];
+    string MPath4 = 4 [(orm.orm).gorm = {column:"mpath4"; index: "mpath4_idx";}];
 }
 
 message Node{

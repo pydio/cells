@@ -89,12 +89,7 @@ func (s *TreeServer) getDAO(ctx context.Context, session string) (index.DAO, err
 	}
 
 	if session != "" {
-		/*
-			return index.NewDAOCache(session, dao).(index.DAO), nil
-				if dao := index.GetDAOCache(session); dao != nil {
-					return dao.(index.DAO), nil
-				}
-		*/
+		dao = index.WrapSessionDAO(session, dao)
 	}
 
 	return dao, nil
