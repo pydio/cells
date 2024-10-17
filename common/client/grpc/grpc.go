@@ -60,6 +60,8 @@ func ResolveConn(ctx context.Context, serviceName string, opt ...Option) grpc.Cl
 	propagator.Get(ctx, registry.ContextKey, &reg)
 
 	if reg == nil {
+		fmt.Println("[PANIC] ResolveConn called without a registry - will panic")
+		debug.PrintStack()
 		panic("Should have a registry")
 	}
 

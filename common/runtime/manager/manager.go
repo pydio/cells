@@ -428,7 +428,7 @@ func (m *manager) initConfig(ctx context.Context) (config.Store, config.Store, r
 				Outputs:  []string{"stdout:///"},
 			}},
 		}
-		if values.Scan(&conf) == nil {
+		if values.Context(ctx).Scan(&conf) == nil {
 			if e := conf.Reload(ctx); e != nil {
 				fmt.Println("Error reloading", e)
 			}

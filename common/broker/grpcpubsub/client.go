@@ -53,6 +53,7 @@ func (s *sharedSubscriber) Dispatch() {
 	for {
 		resp, err := s.Recv()
 		if err != nil {
+			// TODO - Reconnect if not Canceled ?
 			return
 		}
 		s.RLock()
@@ -141,20 +142,20 @@ func (o *URLOpener) OpenSubscriptionURL(ctx context.Context, u *url.URL) (*pubsu
 	subLock.RUnlock()
 	if !ok {
 
-		// TODO - resolveconn should do multi tenancy
-		conn := grpc.ResolveConn(ctx, common.ServiceBrokerGRPC)
+		// We will keep this subscription open - remove cancel here and manage our own cancel
+		var cancel context.CancelFunc
+		ctx, cancel = context.WithCancel(context.WithoutCancel(ctx))
 
-		ct, ca := context.WithCancel(ctx)
-		ct = metadata.AppendToOutgoingContext(ct, "cells-subscriber-id", strings.Join(runtime.ProcessStartTags(), " "))
-		cli, err := pb.NewBrokerClient(conn).Subscribe(ct)
+		ctx = metadata.AppendToOutgoingContext(ctx, "cells-subscriber-id", strings.Join(runtime.ProcessStartTags(), " "))
+		cli, err := pb.NewBrokerClient(grpc.ResolveConn(ctx, common.ServiceBrokerGRPC)).Subscribe(ctx)
 		if err != nil {
-			ca()
+			cancel()
 			return nil, err
 		}
 		sub = &sharedSubscriber{
 			Broker_SubscribeClient: cli,
 			sharedKey:              sharedKey,
-			cancel:                 ca,
+			cancel:                 cancel,
 			out:                    make(map[string]chan []*pb.Message),
 		}
 		subLock.Lock()

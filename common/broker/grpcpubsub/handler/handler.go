@@ -88,7 +88,7 @@ func (h *Handler) Subscribe(stream pb.Broker_SubscribeServer) error {
 	if md, ok := metadata.FromIncomingContext(stream.Context()); ok {
 		subPID = strings.Join(md["cells-subscriber-id"], "")
 	}
-
+	mutex := &sync.Mutex{}
 	for {
 		req, err := stream.Recv()
 		if err != nil {
@@ -105,7 +105,7 @@ func (h *Handler) Subscribe(stream pb.Broker_SubscribeServer) error {
 		topicsLock.RLock()
 		if sub, ok := topics[topicKey]; ok {
 			//fmt.Println("Receive subscribe on", topicKey, "from", subPID, "appending stream to existing subscription")
-			sub.streams = append(sub.streams, newStreamWithReqId(id, stream))
+			sub.streams = append(sub.streams, newStreamWithReqId(id, mutex, stream))
 			defer sub.removeStreamById(id)
 			topicsLock.RUnlock()
 			continue
@@ -120,7 +120,7 @@ func (h *Handler) Subscribe(stream pb.Broker_SubscribeServer) error {
 			queue:  queue,
 			ch:     make(chan *pb.SubscribeResponse),
 			streams: []streamWithReqId{
-				newStreamWithReqId(id, stream),
+				newStreamWithReqId(id, mutex, stream),
 			},
 		}
 		topicsLock.Lock()
@@ -149,18 +149,18 @@ func (h *Handler) Subscribe(stream pb.Broker_SubscribeServer) error {
 	}
 }
 
-func newStreamWithReqId(id string, stream pb.Broker_SubscribeServer) streamWithReqId {
+func newStreamWithReqId(id string, m *sync.Mutex, stream pb.Broker_SubscribeServer) streamWithReqId {
 	return streamWithReqId{
-		id:     id,
-		stream: stream,
-		Mutex:  &sync.Mutex{},
+		Broker_SubscribeServer: stream,
+		Mutex:                  m,
+		id:                     id,
 	}
 }
 
 type streamWithReqId struct {
 	*sync.Mutex
-	id     string
-	stream pb.Broker_SubscribeServer
+	pb.Broker_SubscribeServer
+	id string
 }
 
 type subscriber struct {
@@ -190,10 +190,10 @@ func (s *subscriber) dispatch() {
 
 func (s *subscriber) sendWithWarning(streamer streamWithReqId, message *pb.SubscribeResponse) {
 	streamer.Lock()
+	defer streamer.Unlock() // Unlock streamer anyway
 	done := make(chan bool)
 	defer close(done)
 	go func() {
-		defer streamer.Unlock() // Unlock streamer anyway
 		select {
 		case <-done:
 			return
@@ -204,7 +204,7 @@ func (s *subscriber) sendWithWarning(streamer streamWithReqId, message *pb.Subsc
 	}()
 	cop := proto.Clone(message).(*pb.SubscribeResponse)
 	cop.Id = streamer.id
-	if er := streamer.stream.Send(cop); er != nil {
+	if er := streamer.Send(cop); er != nil {
 		fmt.Println(os.Getpid(), "Grpc.sendWithWarning: there was an error while sending to stream : "+er.Error())
 	}
 }

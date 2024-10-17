@@ -2,9 +2,9 @@ package grpc
 
 import (
 	"context"
-	"go.opentelemetry.io/otel/trace"
 
 	grpc_middleware "github.com/grpc-ecosystem/go-grpc-middleware"
+	"go.opentelemetry.io/otel/trace"
 	"google.golang.org/grpc"
 
 	pb "github.com/pydio/cells/v4/common/proto/registry"
@@ -53,12 +53,6 @@ func contextEndpointRegistry(ctx context.Context, s registry.Item, reg registry.
 				if item.Name() == serviceName {
 					item.As(&svc)
 					break
-				}
-			}
-
-			if svc == nil {
-				if serviceName != "default" {
-					continue
 				}
 			}
 

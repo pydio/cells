@@ -355,6 +355,7 @@ func SetArgs(aa []string) {
 func buildProcessStartTag() {
 	xx := r.GetStringSlice(KeyArgExclude)
 	tt := r.GetStringSlice(KeyArgTags)
+	processStartTags = append(processStartTags, "n:"+r.GetString(KeyName))
 	for _, t := range tt {
 		processStartTags = append(processStartTags, "t:"+t)
 	}
