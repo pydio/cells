@@ -26,6 +26,7 @@ import (
 
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
+	"gorm.io/gorm/schema"
 
 	"github.com/pydio/cells/v4/common/errors"
 	"github.com/pydio/cells/v4/common/storage/sql"
@@ -45,7 +46,9 @@ type Meta struct {
 	Format    string `gorm:"column:format;type:varchar(255);index;"`
 }
 
-func (*Meta) TableName() string { return "data_meta" }
+func (*Meta) TableName(namer schema.Namer) string {
+	return namer.TableName("meta")
+}
 
 func NewMetaDAO(db *gorm.DB) meta.DAO {
 	return &sqlImpl{Abstract: sql.NewAbstract(db).WithModels(func() []any {

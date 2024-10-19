@@ -210,11 +210,14 @@ func (d *sessionDAO) Flush(ctx context.Context, b bool) error {
 }
 
 func (d *sessionDAO) ResolveMPath(ctx context.Context, create bool, node *tree.ITreeNode, rootNode ...tree.ITreeNode) (mpath *tree.MPath, nodeTree []tree.ITreeNode, err error) {
-	initial := proto.Clone(*node).(tree.ITreeNode)
-	initial.SetMPath(nil)
-	initial.GetNode().SetPath("")
+	var root tree.ITreeNode
+	if len(rootNode) > 0 {
+		root = rootNode[0]
+	} else {
+		root = tree.EmptyTreeNode()
+	}
 
-	mpath, nodeTree, err = toMPath(ctx, d, *node, initial, create)
+	mpath, nodeTree, err = toMPath(ctx, d, *node, root, create)
 
 	return
 }

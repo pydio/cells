@@ -26,6 +26,8 @@ import (
 	"strings"
 
 	"gorm.io/gorm"
+
+	"github.com/pydio/cells/v4/common/proto/tree"
 )
 
 type mysqlHelper struct{}
@@ -72,6 +74,10 @@ func (m *mysqlHelper) ApplyOrderedUpdates(db *gorm.DB, tableName string, sets []
 
 func (m *mysqlHelper) MPathOrdering(mm ...string) string {
 	return strings.Join(mm, ", ")
+}
+
+func (m *mysqlHelper) FirstAvailableSlot(tableName string, mpath *tree.MPath, levelKey string, mpathes ...string) (string, []any, int64, bool) {
+	return "", nil, 0, false
 }
 
 const (

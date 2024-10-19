@@ -408,6 +408,27 @@ func (dao *gormImpl[T]) GetNodeLastChild(ctx context.Context, mPath *tree.MPath)
 func (dao *gormImpl[T]) GetNodeFirstAvailableChildIndex(ctx context.Context, mPath *tree.MPath) (available uint64, e error) {
 
 	node := dao.factory.Struct()
+	tx := dao.instance(ctx).Model(node)
+	helper := tx.Dialector.(storagesql.Helper)
+	tx = tx.
+		Where(tree.MPathLike{Value: mPath}).
+		Where("level = ?", mPath.Length()+1)
+
+	query, args, limit, supports := helper.FirstAvailableSlot(storagesql.TableNameFromModel(tx, node), mPath, "level", "mpath1", "mpath2", "mpath3", "mpath4")
+
+	if supports {
+		var c int64
+		if limit > 0 {
+			tx.Count(&c)
+		}
+		if limit == 0 || c > limit {
+			tx = tx.Raw(query, args...).Scan(&available)
+			if tx.Error != nil {
+				return 0, tx.Error
+			}
+			return available, nil
+		}
+	}
 
 	var all []int
 	var mpathes []struct {
@@ -417,10 +438,7 @@ func (dao *gormImpl[T]) GetNodeFirstAvailableChildIndex(ctx context.Context, mPa
 		Mpath4 string
 	}
 
-	tx := dao.instance(ctx).
-		Model(node).
-		Where(tree.MPathLike{Value: mPath}).
-		Where("level = ?", mPath.Length()+1).
+	tx = tx.
 		Order("mpath1 desc, mpath2 desc, mpath3 desc, mpath4 desc ").
 		Find(&mpathes)
 

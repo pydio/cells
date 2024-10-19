@@ -25,6 +25,7 @@ import (
 
 	"go.uber.org/zap"
 	"gorm.io/gorm"
+	"gorm.io/gorm/schema"
 
 	"github.com/pydio/cells/v4/common/errors"
 	"github.com/pydio/cells/v4/common/proto/encryption"
@@ -81,13 +82,21 @@ type RangedBlock encryption.RangedBlockORM
 
 type RangedBlockLegacy encryption.RangedBlockORM
 
-func (*Node) TableName() string { return "enc_nodes" }
+func (*Node) TableName(namer schema.Namer) string {
+	return namer.TableName("nodes")
+}
 
-func (*NodeKey) TableName() string { return "enc_node_keys" }
+func (*NodeKey) TableName(namer schema.Namer) string {
+	return namer.TableName("node_keys")
+}
 
-func (*RangedBlock) TableName() string { return "enc_node_blocks" }
+func (*RangedBlock) TableName(namer schema.Namer) string {
+	return namer.TableName("node_blocks")
+}
 
-func (*RangedBlockLegacy) TableName() string { return "enc_legacy_nodes" }
+func (*RangedBlockLegacy) TableName(namer schema.Namer) string {
+	return namer.TableName("legacy_nodes")
+}
 
 func (s *sqlimpl) ListEncryptedBlockInfo(ctx context.Context, nodeUuid string) ([]*encryption.RangedBlock, error) {
 	var rows []*RangedBlock

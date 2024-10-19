@@ -3,6 +3,7 @@ package sql
 import (
 	"context"
 	"database/sql"
+	"fmt"
 	"net/url"
 	"strings"
 	"time"
@@ -43,6 +44,8 @@ func init() {
 		for _, gormType := range Drivers {
 			mgr.RegisterStorage(gormType, controller.WithCustomOpener(OpenPool))
 		}
+		mgr.RegisterStorage("gorm", controller.WithCustomOpener(OpenPool))
+
 	})
 	schema.RegisterSerializer("proto_enum", EnumSerial{})
 	schema.RegisterSerializer("bool_int", BoolInt{})
@@ -68,6 +71,29 @@ func cleanDSN(dsn string, vars map[string]string, parserType string) (string, er
 			}
 		}
 		return conf.FormatDSN(), nil
+	case "gorm":
+		u, er := url.Parse(dsn)
+		if er != nil {
+			return dsn, er
+		}
+		query := u.Query()
+		driver := query.Get("driver")
+		if driver == "" {
+			return "", fmt.Errorf("please provide a driver parameter for gorm scheme")
+		}
+		query.Del("driver")
+		// Replace scheme
+		u.Scheme = driver
+		if u.Scheme == "mysql" {
+			conn := query.Get("conn")
+			query.Del("conn")
+			u.Host = fmt.Sprintf("%s(%s:%s)", conn, u.Hostname(), u.Port())
+			u.RawQuery = query.Encode()
+			return cleanDSN(u.String(), vars, "mysql")
+		} else {
+			u.RawQuery = query.Encode()
+			return cleanDSN(u.String(), vars, "url")
+		}
 	default:
 		u, er := url.Parse(dsn)
 		if er != nil {
@@ -104,12 +130,14 @@ func OpenPool(ctx context.Context, uu string) (storage.Storage, error) {
 		var er error
 		var conn *sql.DB
 		switch scheme {
+		case "gorm":
+			gU, _ := url.Parse(dsn)
+			scheme = gU.Query().Get("driver")
+			clean, er = cleanDSN(dsn, expectedVars, "gorm")
 		case MySQLDriver:
 			clean, er = cleanDSN(dsn, expectedVars, "mysql")
-			clean = strings.TrimPrefix(clean, scheme+"://")
 		case SqliteDriver:
 			clean, er = cleanDSN(dsn, expectedVars, "url")
-			clean = strings.TrimPrefix(clean, scheme+"://")
 		case PostgreDriver:
 			clean, er = cleanDSN(dsn, expectedVars, "url")
 		default:
@@ -117,6 +145,9 @@ func OpenPool(ctx context.Context, uu string) (storage.Storage, error) {
 		}
 		if er != nil {
 			return nil, er
+		}
+		if scheme != PostgreDriver {
+			clean = strings.TrimPrefix(clean, scheme+"://")
 		}
 
 		// Open sql connection pool - special case to force PG to use PGX driver, not PQ

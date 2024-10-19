@@ -69,7 +69,7 @@ defaults:
   # Default env configuration
   #--------------------------------------------
   env: &env
-#    CELLS_LOG: debug
+    CELLS_LOG: info
     CELLS_USE_REGISTRY_SESSION: true
     GRPC_EXPERIMENTAL_XDS_FEDERATION: true
     GRPC_XDS_BOOTSTRAP_CONFIG: {
@@ -216,7 +216,7 @@ defaults:
       storages:
         main:
           - type: sql
-            prefix: data_key_
+            prefix: enc_
     pydio.grpc.user-key:
       storages:
         main:

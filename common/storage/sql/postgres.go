@@ -6,6 +6,8 @@ import (
 	"strings"
 
 	"gorm.io/gorm"
+
+	"github.com/pydio/cells/v4/common/proto/tree"
 )
 
 type postgresHelper struct{}
@@ -37,31 +39,36 @@ func (p *postgresHelper) MPathOrdering(mm ...string) string {
 	return strings.Join(mm, ", ")
 }
 
-/*
-WITH updated_values AS (
-    SELECT
-        id,
-        CONCAT('1.3', SUBSTR(mpath1, 7, 249), SUBSTR(mpath2, 1, 3)) AS new_mpath1,
-        CONCAT(SUBSTR(mpath2, 4, 252), SUBSTR(mpath3, 1, 3)) AS new_mpath2,
-        CONCAT(SUBSTR(mpath3, 4, 252), SUBSTR(mpath4, 1, 3)) AS new_mpath3,
-        SUBSTR(mpath4, 4, 252) AS new_mpath4,
-        level + -1 AS new_level
-    FROM data_index_s3_tree_nodes
-    WHERE mpath1 LIKE '1.11.8.%' AND level >= 3
-)
-UPDATE data_index_s3_tree_nodes
-SET
-    mpath1 = uv.new_mpath1,
-    mpath2 = uv.new_mpath2,
-    mpath3 = uv.new_mpath3,
-    mpath4 = uv.new_mpath4,
-    level = uv.new_level,
-    hash = ENCODE(DIGEST(CONCAT(uv.new_mpath1, uv.new_mpath2, uv.new_mpath3, uv.new_mpath4), 'sha1'), 'hex'),
-    hash2 = ENCODE(DIGEST(CONCAT(name, '__###PARENT_HASH###__', array_to_string(ARRAY(SELECT unnest(string_to_array(CONCAT(uv.new_mpath1, uv.new_mpath2, uv.new_mpath3, uv.new_mpath4), '.')) LIMIT uv.new_level - 1), '.')), 'sha1'), 'hex')
-FROM updated_values uv
-WHERE data_index_s3_tree_nodes.id = uv.id;
+func (p *postgresHelper) SupportsAvailableSlot() bool {
+	return true
+}
 
-*/
+func (p *postgresHelper) FirstAvailableSlot(tableName string, mpath *tree.MPath, levelKey string, mpathes ...string) (string, []any, int64, bool) {
+	var args []any
+	q := `
+WITH parsed_data AS (
+    SELECT
+        SPLIT_PART(` + p.Concat(mpathes...) + `, '.', ?)::int AS numPart
+    FROM "` + tableName + `" tr
+    WHERE level = ? AND ?
+)
+SELECT numPart + 1 AS num
+FROM parsed_data tr
+WHERE NOT EXISTS (
+    SELECT 1
+    FROM parsed_data tr2
+    WHERE tr2.numPart = tr.numPart + 1
+)
+ORDER BY num
+LIMIT 1
+`
+	level := mpath.Length() + 1
+	args = append(args, level)
+	args = append(args, level)
+	args = append(args, tree.MPathLike{Value: mpath})
+
+	return q, args, 3000, true
+}
 
 func (p *postgresHelper) ApplyOrderedUpdates(db *gorm.DB, tableName string, sets []OrderedUpdate, wheres []sql.NamedArg) (int64, error) {
 

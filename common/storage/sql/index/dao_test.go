@@ -1052,17 +1052,20 @@ func TestFlatFolderWithMassiveChildren(t *testing.T) {
 				start := time.Now()
 				s := time.Now()
 				var nodes []tree.ITreeNode
-				for i = 0; i < 500; i++ {
-					_, node, _ := dao.ResolveMPath(ctx, true, tree.NewTreeNodePtr(fmt.Sprintf("/child-%d", i)))
+				for i = 0; i < 5001; i++ {
+					_, node, er := dao.ResolveMPath(ctx, true, tree.NewTreeNodePtr(fmt.Sprintf("/child-%d", i)))
+					if i == 0 {
+						So(er, ShouldBeNil)
+					}
 					nodes = append(nodes, node[0])
-					if i > 0 && i%100 == 0 {
-						t.Logf("Inserted %d - avg %v\n", i, time.Now().Sub(s)/1000)
+					if i > 0 && i%500 == 0 {
+						t.Logf("\nInserted %d - avg %v", i, time.Now().Sub(s)/1000)
 						s = time.Now()
 					}
-					if i == 5 {
+					if i == 5005 {
 						// Create a missing number + cache usage
 						_ = dao.DelNode(ctx, nodes[2])
-					} else if i == 10 {
+					} else if i == 5010 {
 						// Create a missing number and wait for cache to be expired
 						_ = dao.DelNode(ctx, nodes[1])
 					}
