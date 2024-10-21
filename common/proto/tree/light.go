@@ -176,6 +176,10 @@ func (l *lightNode) GetMode() int32 {
 	return int32(l.mode)
 }
 
+func (l *lightNode) GetModeString() string {
+	return strconv.Itoa(int(l.mode))
+}
+
 func (l *lightNode) GetEtag() string {
 	return l.etag
 }
@@ -390,6 +394,11 @@ func (l *lightNode) SetMTime(i int64) {
 
 func (l *lightNode) SetMode(i int32) {
 	l.mode = uint32(i)
+}
+
+func (l *lightNode) SetModeString(m string) {
+	im, _ := strconv.Atoi(m)
+	l.mode = uint32(im)
 }
 
 func (l *lightNode) SetEtag(s string) {

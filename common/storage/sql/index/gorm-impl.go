@@ -99,7 +99,30 @@ func (dao *gormImpl[T]) instance(ctx context.Context) *gorm.DB {
 
 func (dao *gormImpl[T]) Migrate(ctx context.Context) error {
 	t := dao.factory.Struct()
-	return dao.instance(ctx).AutoMigrate(t)
+	db := dao.instance(ctx)
+
+	if db.Name() == storagesql.MySQLDriver {
+		db = db.Set("gorm:table_options", "CHARSET=ascii")
+	}
+
+	if er := db.AutoMigrate(t); er != nil {
+		return er
+	}
+
+	if db.Name() == storagesql.MySQLDriver {
+		tName := storagesql.TableNameFromModel(db, t)
+		var schemaName, collation string
+		db.Raw("SELECT DATABASE()").Scan(&schemaName)
+		if schemaName != "" {
+			// Check current collation
+			db.Raw(`SELECT COLLATION_NAME FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = ? AND TABLE_NAME = ? AND COLUMN_NAME = 'name'`, schemaName, tName).Scan(&collation)
+			if !strings.Contains(strings.ToLower(collation), "utf8mb4") {
+				tx := db.Exec("ALTER TABLE `" + tName + "` MODIFY COLUMN name VARCHAR(255) COLLATE utf8mb4_bin")
+				return tx.Error
+			}
+		}
+	}
+	return nil
 }
 
 // AddNode to the underlying SQL DB.

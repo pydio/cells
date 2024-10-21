@@ -825,5 +825,14 @@ func (tn *TreeNode) BeforeSave(*gorm.DB) error {
 	tn.SetHash2(hex.EncodeToString(h.Sum(nil)))
 	h.Reset()
 
+	tn.GetNode().SetModeString(strconv.Itoa(int(tn.GetNode().GetMode())))
+
+	return nil
+}
+
+func (tn *TreeNode) AfterFind(*gorm.DB) error {
+	if m := tn.GetNode().GetMode(); m > 0 {
+		tn.GetNode().SetModeString(strconv.Itoa(int(m)))
+	}
 	return nil
 }
