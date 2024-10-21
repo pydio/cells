@@ -481,32 +481,32 @@ func TestMysql(t *testing.T) {
 				const etag4 = "qqqq"
 
 				node := tree.NewTreeNode("")
-				node.Node = &tree.Node{Uuid: "etag-parent-folder", Type: tree.NodeType_COLLECTION, Etag: "-1"}
+				node.SetNode(&tree.Node{Uuid: "etag-parent-folder", Type: tree.NodeType_COLLECTION, Etag: "-1"})
 				node.SetMPath(tree.NewMPath(1, 16))
 				node.SetName("etag-parent-folder")
 
 				node11 := tree.NewTreeNode("")
-				node11.Node = &tree.Node{Uuid: "etag-child-1", Type: tree.NodeType_LEAF, Etag: etag1}
+				node11.SetNode(&tree.Node{Uuid: "etag-child-1", Type: tree.NodeType_LEAF, Etag: etag1})
 				node11.SetMPath(tree.NewMPath(1, 16, 1))
 				node11.SetName("bbb")
 
 				node12 := tree.NewTreeNode("")
-				node12.Node = &tree.Node{Uuid: "etag-child-2", Type: tree.NodeType_LEAF, Etag: etag2}
+				node12.SetNode(&tree.Node{Uuid: "etag-child-2", Type: tree.NodeType_LEAF, Etag: etag2})
 				node12.SetMPath(tree.NewMPath(1, 16, 2))
 				node12.SetName("aaa")
 
 				node13 := tree.NewTreeNode("")
-				node13.Node = &tree.Node{Uuid: "etag-child-3", Type: tree.NodeType_COLLECTION, Etag: "-1"}
+				node13.SetNode(&tree.Node{Uuid: "etag-child-3", Type: tree.NodeType_COLLECTION, Etag: "-1"})
 				node13.SetMPath(tree.NewMPath(1, 16, 3))
 				node13.SetName("ccc")
 
 				node14 := tree.NewTreeNode("")
-				node14.Node = &tree.Node{Uuid: "etag-child-child-1", Type: tree.NodeType_LEAF, Etag: etag3}
+				node14.SetNode(&tree.Node{Uuid: "etag-child-child-1", Type: tree.NodeType_LEAF, Etag: etag3})
 				node14.SetMPath(tree.NewMPath(1, 16, 3, 1))
 				node14.SetName("a-aaa")
 
 				node15 := tree.NewTreeNode("")
-				node15.Node = &tree.Node{Uuid: "etag-child-child-2", Type: tree.NodeType_LEAF, Etag: etag4}
+				node15.SetNode(&tree.Node{Uuid: "etag-child-child-2", Type: tree.NodeType_LEAF, Etag: etag4})
 				node15.SetMPath(tree.NewMPath(1, 16, 3, 2))
 				node15.SetName("a-bbb")
 
@@ -527,7 +527,7 @@ func TestMysql(t *testing.T) {
 				// TODO - NOT PASSING, ISSUE WITH MODEL
 				e = dao.ResyncDirtyEtags(ctx, node)
 				So(e, ShouldBeNil)
-				intermediaryNode, e := dao.GetNode(ctx, node13.MPath)
+				intermediaryNode, e := dao.GetNode(ctx, node13.GetMPath())
 				So(e, ShouldBeNil)
 				hash := md5.New()
 				hash.Write([]byte(etag3 + "." + etag4))

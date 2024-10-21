@@ -43,7 +43,6 @@ import (
 	"github.com/pydio/cells/v4/common/proto/tree"
 	"github.com/pydio/cells/v4/common/runtime"
 	"github.com/pydio/cells/v4/common/runtime/manager"
-	"github.com/pydio/cells/v4/common/storage/sql"
 	"github.com/pydio/cells/v4/common/storage/test"
 	"github.com/pydio/cells/v4/common/utils/cache/gocache"
 	cache_helper "github.com/pydio/cells/v4/common/utils/cache/helper"
@@ -734,7 +733,7 @@ func TestGetNodeFirstAvailableChildIndex(t *testing.T) {
 				// Creating the fs
 				var nodes []tree.ITreeNode
 				for _, path := range fs {
-					tn := tree.NewTreeNode(path)
+					tn := tree.NewTreeNode(path, &tree.Node{Uuid: uuid.New()})
 					_, createdNodes, err := dao.ResolveMPath(ctx, true, &tn)
 					So(err, ShouldBeNil)
 
@@ -818,7 +817,7 @@ func TestArborescence(t *testing.T) {
 
 				for _, path := range arborescence {
 					t.Logf("Adding node %s", path)
-					_, _, err := dao.ResolveMPath(ctx, true, tree.NewTreeNodePtr(path))
+					_, _, err := dao.ResolveMPath(ctx, true, tree.NewTreeNodePtr(path, &tree.Node{Uuid: uuid.New()}))
 					So(err, ShouldBeNil)
 				}
 
@@ -889,7 +888,7 @@ func TestSecondArborescence(t *testing.T) {
 
 				for _, path := range arborescence {
 					t.Logf("Adding node %s", path)
-					_, _, err := dao.ResolveMPath(ctx, true, tree.NewTreeNodePtr(path))
+					_, _, err := dao.ResolveMPath(ctx, true, tree.NewTreeNodePtr(path, &tree.Node{Uuid: uuid.New()}))
 					So(err, ShouldBeNil)
 				}
 
@@ -935,7 +934,6 @@ func hashParent(name string, mpath *tree.MPath) string {
 
 func TestSmallArborescence(t *testing.T) {
 	ctx := context.Background()
-	sql.TestPrintQueries = true
 
 	testAll(t, func(dao testdao) func(t *testing.T) {
 		return func(t *testing.T) {
@@ -960,7 +958,7 @@ func TestSmallArborescence(t *testing.T) {
 				// Creating the arborescence
 				nodes := make(map[string]*tree.MPath)
 				for _, path := range arborescence {
-					mpath, _, err := dao.ResolveMPath(ctx, true, tree.NewTreeNodePtr(path))
+					mpath, _, err := dao.ResolveMPath(ctx, true, tree.NewTreeNodePtr(path, &tree.Node{Uuid: uuid.New()}))
 					So(err, ShouldBeNil)
 					nodes[path] = mpath
 				}
@@ -1007,7 +1005,7 @@ func TestSmallArborescence(t *testing.T) {
 				_, _, err = dao.ResolveMPath(ctx, false, tree.NewTreeNodePtr("/document sans titre/target/whatever2"))
 				So(err, ShouldNotBeNil)
 
-				_, _, err = dao.ResolveMPath(ctx, true, tree.NewTreeNodePtr("/document sans titre/target/whatever2"))
+				_, _, err = dao.ResolveMPath(ctx, true, tree.NewTreeNodePtr("/document sans titre/target/whatever2", &tree.Node{Uuid: uuid.New()}))
 				So(err, ShouldBeNil)
 
 				// printTree(ctxWithCache)
@@ -1032,9 +1030,26 @@ func TestOtherArborescence(t *testing.T) {
 				}
 
 				for _, path := range arborescence {
-					_, _, err := dao.ResolveMPath(ctx, true, tree.NewTreeNodePtr(path))
+					_, _, err := dao.ResolveMPath(ctx, true, tree.NewTreeNodePtr(path, &tree.Node{Uuid: uuid.New()}))
 					So(err, ShouldBeNil)
 				}
+
+				So(dao.Flush(ctx, true), ShouldBeNil)
+			})
+		}
+	})
+}
+
+func TestIntermediaryFoldersCreation(t *testing.T) {
+	ctx := context.Background()
+
+	testAll(t, func(dao testdao) func(t *testing.T) {
+		return func(t *testing.T) {
+			Convey("Adding a file with intermediary folders", t, func() {
+
+				_, cc, err := dao.ResolveMPath(ctx, true, tree.NewTreeNodePtr("/pydiods1/some/folder/to/file.txt", &tree.Node{Uuid: uuid.New()}))
+				So(err, ShouldBeNil)
+				So(cc, ShouldHaveLength, 6)
 
 				So(dao.Flush(ctx, true), ShouldBeNil)
 			})
@@ -1053,7 +1068,7 @@ func TestFlatFolderWithMassiveChildren(t *testing.T) {
 				s := time.Now()
 				var nodes []tree.ITreeNode
 				for i = 0; i < 5001; i++ {
-					_, node, er := dao.ResolveMPath(ctx, true, tree.NewTreeNodePtr(fmt.Sprintf("/child-%d", i)))
+					_, node, er := dao.ResolveMPath(ctx, true, tree.NewTreeNodePtr(fmt.Sprintf("/child-%d", i), &tree.Node{Uuid: uuid.New()}))
 					if i == 0 {
 						So(er, ShouldBeNil)
 					}
@@ -1131,7 +1146,7 @@ func TestUnderscoreIssue(t *testing.T) {
 				}
 
 				for _, path := range arborescence {
-					_, _, err := dao.ResolveMPath(ctx, true, tree.NewTreeNodePtr(path))
+					_, _, err := dao.ResolveMPath(ctx, true, tree.NewTreeNodePtr(path, &tree.Node{Uuid: uuid.New()}))
 					So(err, ShouldBeNil)
 				}
 				So(dao.Flush(ctx, true), ShouldBeNil)
@@ -1153,13 +1168,11 @@ func TestLostAndFoundDuplicates(t *testing.T) {
 
 	testAll(t, func(dao testdao) func(t *testing.T) {
 		return func(t *testing.T) {
-			// Adding a file
-			sql.TestPrintQueries = true
 			Convey("Test LostAndFound - Duplicates", t, func() {
 				// Create Duplicates on purpose
-				_, _, _ = dao.ResolveMPath(ctx, true, tree.NewTreeNodePtr("/folder"))
-				_, _, _ = dao.ResolveMPath(ctx, true, tree.NewTreeNodePtr("/folder/file1"))
-				_, _, _ = dao.ResolveMPath(ctx, true, tree.NewTreeNodePtr("/folder/file2"))
+				_, _, _ = dao.ResolveMPath(ctx, true, tree.NewTreeNodePtr("/folder", &tree.Node{Uuid: uuid.New()}))
+				_, _, _ = dao.ResolveMPath(ctx, true, tree.NewTreeNodePtr("/folder/file1", &tree.Node{Uuid: uuid.New()}))
+				_, _, _ = dao.ResolveMPath(ctx, true, tree.NewTreeNodePtr("/folder/file2", &tree.Node{Uuid: uuid.New()}))
 				So(dao.Flush(ctx, true), ShouldBeNil)
 
 				// Rename file2 to file1 manually
@@ -1183,13 +1196,12 @@ func TestLostAndFoundChildren(t *testing.T) {
 	ctx := context.Background()
 	testAll(t, func(dao testdao) func(t *testing.T) {
 		return func(t *testing.T) {
-			// Adding a file
-			sql.TestPrintQueries = true
+
 			Convey("Test LostAndFound - Lost Children", t, func() {
 				// Create Duplicates on purpose
-				_, _, _ = dao.ResolveMPath(ctx, true, tree.NewTreeNodePtr("/folder"))
-				_, _, _ = dao.ResolveMPath(ctx, true, tree.NewTreeNodePtr("/folder/file1"))
-				_, _, _ = dao.ResolveMPath(ctx, true, tree.NewTreeNodePtr("/folder/file2"))
+				_, _, _ = dao.ResolveMPath(ctx, true, tree.NewTreeNodePtr("/folder", &tree.Node{Uuid: uuid.New()}))
+				_, _, _ = dao.ResolveMPath(ctx, true, tree.NewTreeNodePtr("/folder/file1", &tree.Node{Uuid: uuid.New()}))
+				_, _, _ = dao.ResolveMPath(ctx, true, tree.NewTreeNodePtr("/folder/file2", &tree.Node{Uuid: uuid.New()}))
 
 				ll, er := dao.LostAndFounds(ctx)
 				So(er, ShouldBeNil)

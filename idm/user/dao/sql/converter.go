@@ -34,6 +34,7 @@ import (
 	"gorm.io/gorm/clause"
 
 	"github.com/pydio/cells/v4/common"
+	"github.com/pydio/cells/v4/common/errors"
 	"github.com/pydio/cells/v4/common/proto/idm"
 	"github.com/pydio/cells/v4/common/proto/tree"
 	"github.com/pydio/cells/v4/common/storage/sql/index"
@@ -115,7 +116,7 @@ func (c *queryConverter) Convert(ctx context.Context, val *anypb.Any, db *gorm.D
 			Path: groupPath,
 		})
 		mpath, _, err := c.treeDao.ResolveMPath(ctx, false, &user)
-		if err != nil && err.Error() != "not found" {
+		if err != nil && !errors.Is(err, errors.NodeNotFound) {
 			log.Logger(ctx).Error("Error while getting parent mpath", zap.Any("g", groupPath), zap.Error(err))
 			return db, false, err
 		}

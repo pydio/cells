@@ -38,12 +38,12 @@ func init() {
 }
 
 type Meta struct {
-	NodeId    string `gorm:"primaryKey;column:node_id;type:varchar(255);notNull; index:;"`
-	Namespace string `gorm:"primaryKey; column:namespace;type:varchar(255);notNull"`
-	Author    string `gorm:"column:author;type:varchar(255);index;"`
-	Timestamp int64  `gorm:"column:timestamp;"`
+	NodeId    string `gorm:"primaryKey;column:node_id;type:varchar(255);notNull;index;"`
+	Namespace string `gorm:"primaryKey;column:namespace;type:varchar(255);notNull"`
+	Author    string `gorm:"column:author;type:varchar(255);index:,composite:auth;"`
+	Timestamp int64  `gorm:"column:timestamp;index:,composite:ts;"`
 	Data      []byte `gorm:"column:data;"`
-	Format    string `gorm:"column:format;type:varchar(255);index;"`
+	Format    string `gorm:"column:format;type:varchar(255);index:,composite:fmt;"`
 }
 
 func (*Meta) TableName(namer schema.Namer) string {

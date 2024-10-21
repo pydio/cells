@@ -54,9 +54,9 @@ type ACL struct {
 	ID          int64      `gorm:"primaryKey;column:id;autoIncrement;"`
 	ActionName  string     `gorm:"column:action_name;type:varchar(500);uniqueIndex:acls_u1"`
 	ActionValue string     `gorm:"column:action_value;type:varchar(500)"`
-	RoleID      int        `gorm:"column:role_id;default:-1;uniqueIndex:acls_u1"`
-	WorkspaceID int        `gorm:"column:workspace_id; default: -1;uniqueIndex:acls_u1"`
-	NodeID      int        `gorm:"column:node_id; default: -1;uniqueIndex:acls_u1"`
+	RoleID      int        `gorm:"column:role_id;default:0;uniqueIndex:acls_u1"`
+	WorkspaceID int        `gorm:"column:workspace_id; default:0;uniqueIndex:acls_u1"`
+	NodeID      int        `gorm:"column:node_id; default:0;uniqueIndex:acls_u1"`
 	Role        Role       `gorm:"foreignKey:RoleID"`
 	Workspace   Workspace  `gorm:"foreignKey:WorkspaceID"`
 	Node        Node       `gorm:"foreignKey:NodeID"`
@@ -66,17 +66,17 @@ type ACL struct {
 
 type Role struct {
 	ID   int    `gorm:"primaryKey; column:id; autoIncrement;"`
-	UUID string `gorm:"column:uuid; unique"`
+	UUID string `gorm:"column:uuid; unique; type:varchar(500)"`
 }
 
 type Workspace struct {
 	ID   int    `gorm:"primaryKey; column:id; autoIncrement;"`
-	UUID string `gorm:"column:uuid; unique"`
+	UUID string `gorm:"column:uuid; unique; type:varchar(500)"`
 }
 
 type Node struct {
 	ID   int    `gorm:"primaryKey; column:id; autoIncrement;"`
-	UUID string `gorm:"column:uuid; unique"`
+	UUID string `gorm:"column:uuid; unique; type:varchar(500)"`
 }
 
 type sqlimpl struct {

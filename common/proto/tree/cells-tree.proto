@@ -370,8 +370,8 @@ message TreeNode {
     option (orm.ormPolicy).enabled = true;
 
     Node Node    = 1 [(orm.orm).gorm = {embedded: true}];
-    string Name  = 2 [(orm.orm).gorm = {column:"name"; index: "name,length:128"; type: "VARCHAR(255) NOT NULL"}];
-    int64 Level  = 3 [(orm.orm).gorm = {column:"level"; index: "level"; type: "SMALLINT NOT NULL"}];
+    string Name  = 2 [(orm.orm).gorm = {column:"name"; index: ",composite:name,length:128"; type: "VARCHAR(255) NOT NULL"}];
+    int64 Level  = 3 [(orm.orm).gorm = {column:"level"; index: ",composite:level"; type: "SMALLINT NOT NULL"}];
     MPath MPath  = 4 [(orm.orm).gorm = {embedded: true}];
     string Hash  = 5 [(orm.orm).gorm = {column:"hash"; unique: true; type: "VARCHAR(40) NOT NULL"}];
     string Hash2 = 6 [(orm.orm).gorm = {column:"hash2"; unique: true; type: "VARCHAR(50) NOT NULL"}];
@@ -381,10 +381,10 @@ message MPath {
     option (setter.all_fields) = true;
     option (orm.ormPolicy).enabled = true;
 
-    string MPath1 = 1 [(orm.orm).gorm = {column:"mpath1"; index: "mpath1_idx"; type:"varchar(255) NOT NULL"}];
-    string MPath2 = 2 [(orm.orm).gorm = {column:"mpath2"; index: "mpath2_idx"; type:"varchar(255) NOT NULL"}];
-    string MPath3 = 3 [(orm.orm).gorm = {column:"mpath3"; index: "mpath3_idx"; type:"varchar(255) NOT NULL"}];
-    string MPath4 = 4 [(orm.orm).gorm = {column:"mpath4"; index: "mpath4_idx"; type:"varchar(255) NOT NULL"}];
+    string MPath1 = 1 [(orm.orm).gorm = {column:"mpath1"; index: ",composite:mp1"; type:"varchar(255) NOT NULL"}];
+    string MPath2 = 2 [(orm.orm).gorm = {column:"mpath2"; index: ",composite:mp2"; type:"varchar(255) NOT NULL"}];
+    string MPath3 = 3 [(orm.orm).gorm = {column:"mpath3"; index: ",composite:mp3"; type:"varchar(255) NOT NULL"}];
+    string MPath4 = 4 [(orm.orm).gorm = {column:"mpath4"; index: ",composite:mp4"; type:"varchar(255) NOT NULL"}];
 }
 
 message Node{
@@ -402,14 +402,14 @@ message Node{
     int64 Size = 4      [(orm.orm).gorm = {column: "size"; type:"BIGINT NOT NULL"; default: "0"}];
 
     // Last modification Timestamp
-    int64 MTime = 5     [(orm.orm).gorm = {column: "mtime"; type: "INT NOT NULL"}];
+    int64 MTime = 5     [(orm.orm).gorm = {column: "mtime"; type: "INT"}];
 
     // Permission mode, like 0777. Stored as string using custom ModeString field.
     int32 Mode = 6;
     // String representation of Mode
-    string ModeString = 11      [(orm.orm).gorm = {column: "mode"; type: "VARCHAR(10) NOT NULL DEFAULT ''";}];
+    string ModeString = 11      [(orm.orm).gorm = {column: "mode"; type: "VARCHAR(10)"; notNull: true;}];
     // Hash of the content if node is a LEAF, Uuid or
-    string Etag = 7     [(orm.orm).gorm = {column: "etag"; type: "VARCHAR(255) NOT NULL DEFAULT ''"; default: ""}];
+    string Etag = 7     [(orm.orm).gorm = {column: "etag"; type: "VARCHAR(255)"; notNull: true;}];
     // List of successive commits
     repeated ChangeLog Commits = 9 [deprecated=true];
 

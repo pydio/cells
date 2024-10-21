@@ -38,10 +38,10 @@ func init() {
 }
 
 type UserKey struct {
-	Owner        string `gorm:"primaryKey; column:owner; index:,composite:ow;"`
-	ID           string `gorm:"primaryKey; column:key_id"`
-	Label        string `gorm:"column:key_label"`
-	Content      string `gorm:"column:key_data"`
+	Owner        string `gorm:"primaryKey; column:owner; type:varchar(255) not null;index:,composite:ow;"`
+	ID           string `gorm:"primaryKey; column:key_id;type:varchar(255) not null;"`
+	Label        string `gorm:"column:key_label;type:varchar(255);"`
+	Content      string `gorm:"column:key_data;type:varchar(255)"`
 	Info         []byte `gorm:"column:key_info"`
 	Version      int    `gorm:"column:version"`
 	CreationDate int32  `gorm:"column:creation_date"`
@@ -56,7 +56,7 @@ func (u *UserKey) As(res *encryption.Key) *encryption.Key {
 	res.Info = &encryption.KeyInfo{}
 
 	if len(u.Info) > 0 {
-		proto.Unmarshal(u.Info, res.Info)
+		_ = proto.Unmarshal(u.Info, res.Info)
 	}
 
 	return res

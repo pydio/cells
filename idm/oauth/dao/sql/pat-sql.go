@@ -64,15 +64,15 @@ var (
 */
 
 type PersonalToken struct {
-	UUID              string       `gorm:"column:uuid; primaryKey;"`
-	AccessToken       string       `gorm:"column:access_token;"`
+	UUID              string       `gorm:"column:uuid; primaryKey; type:varchar(36) not null;"`
+	AccessToken       string       `gorm:"column:access_token;type:varchar(128) not null;unique;"`
 	Type              auth.PatType `gorm:"column:pat_type;"`
-	Label             string       `gorm:"column:label;"`
-	UserUUID          string       `gorm:"column:user_uuid;"`
-	UserLogin         string       `gorm:"column:user_login;"`
-	AutoRefreshWindow int32        `gorm:"column:auto_refresh;"`
+	Label             string       `gorm:"column:label;type:varchar(255) null;"`
+	UserUUID          string       `gorm:"column:user_uuid;type:varchar(255) not null;index;"`
+	UserLogin         string       `gorm:"column:user_login;type:varchar(255) not null;index;"`
+	AutoRefreshWindow int32        `gorm:"column:auto_refresh;type: int default 0 null;"`
 	ExpiresAt         time.Time    `gorm:"column:expire_at;"`
-	CreatedBy         string       `gorm:"column:created_by;"`
+	CreatedBy         string       `gorm:"column:created_by;type:varchar(128) null;"`
 	Scopes            string       `gorm:"column:scopes;"`
 	UpdatedAt         time.Time    `gorm:"autoUpdateTime"`
 	CreatedAt         time.Time    `gorm:"autoCreateTime"`

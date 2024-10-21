@@ -259,6 +259,7 @@ func (dao *gormImpl[T]) ResyncDirtyEtags(ctx context.Context, rootNode tree.ITre
 func (dao *gormImpl[T]) SetNodes(ctx context.Context, etag string, deltaSize int64) BatchSender {
 
 	b := NewBatchSend()
+	model := dao.factory.Struct()
 
 	go func() {
 		defer func() {
@@ -267,7 +268,7 @@ func (dao *gormImpl[T]) SetNodes(ctx context.Context, etag string, deltaSize int
 
 		insert := func(mpathes ...*tree.MPath) {
 			tx := dao.instance(ctx).
-				Model(&tree.TreeNode{}).
+				Model(model).
 				Where(tree.MPathsEquals{Values: mpathes}).
 				Updates(map[string]interface{}{
 					"mtime": time.Now().Unix(),
@@ -835,7 +836,7 @@ func (dao *gormImpl[T]) ResolveMPath(ctx context.Context, create bool, node *tre
 	if len(rootNode) > 0 {
 		root = rootNode[0]
 	} else {
-		root = tree.EmptyTreeNode()
+		root = dao.factory.Struct() //tree.EmptyTreeNode()
 	}
 
 	mpath, nodeTree, err = toMPath(ctx, &clone, *node, root, create)
@@ -844,7 +845,8 @@ func (dao *gormImpl[T]) ResolveMPath(ctx context.Context, create bool, node *tre
 		r := 0
 		for {
 			<-time.After(time.Duration((r+1)*50) * time.Millisecond)
-			retryNode := &tree.TreeNode{Node: origN.Clone()}
+			retryNode := dao.factory.Struct()
+			retryNode.SetNode(origN.Clone())
 			mpath, nodeTree, err = toMPath(ctx, &clone, retryNode, root, create)
 			if err == nil || !errors.Is(err, gorm.ErrDuplicatedKey) || r >= 4 {
 				*node = retryNode
@@ -1030,7 +1032,6 @@ func toMPath(ctx context.Context, dao DAO, targetNode tree.ITreeNode, parentNode
 	} else {
 		// We're there !
 		currentNode = targetNode
-
 		remainingPath = getPathParts(targetPath)[:]
 	}
 
@@ -1093,6 +1094,11 @@ func toMPath(ctx context.Context, dao DAO, targetNode tree.ITreeNode, parentNode
 			// Should only happen for folders - generate first Etag from uuid+mtime
 			currentNode.GetNode().SetEtag(fmt.Sprintf("%x", md5.Sum([]byte(fmt.Sprintf("%s%d", currentNode.GetNode().GetUuid(), currentNode.GetNode().GetMTime())))))
 		}
+	}
+
+	if currentNode.GetNode() == nil {
+		fmt.Println("Setting UUID HERE, Is it expected?", currentNode.GetMPath().ToString())
+		currentNode.SetNode(&tree.Node{Uuid: uuid.New()})
 	}
 
 	if err := dao.AddNode(ctx, currentNode); err != nil {
