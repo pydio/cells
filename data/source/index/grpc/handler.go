@@ -29,7 +29,6 @@ import (
 	"time"
 
 	"go.uber.org/zap"
-	"gorm.io/gorm"
 
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/broker"
@@ -122,7 +121,7 @@ func (s *TreeServer) updateMeta(ctx context.Context, dao index.DAO, node tree.IT
 	node.GetNode().SetType(reqNode.Type)
 	node.GetNode().SetMTime(reqNode.MTime)
 	node.GetNode().SetMode(reqNode.Mode)
-	err = dao.SetNodeMeta(ctx, node)
+	err = dao.UpdateNode(ctx, node)
 	return
 }
 
@@ -143,7 +142,6 @@ func (s *TreeServer) CreateNode(ctx context.Context, req *tree.CreateNodeRequest
 		return nil, err
 	}
 
-	var node tree.ITreeNode
 	var previousEtag string
 	eventType := tree.NodeChangeEvent_CREATE
 
@@ -156,7 +154,7 @@ func (s *TreeServer) CreateNode(ctx context.Context, req *tree.CreateNodeRequest
 
 	// Updating node based on UUID
 	if reqUUID != "" {
-		node, err = dao.GetNodeByUUID(ctx, reqUUID)
+		node, err := dao.GetNodeByUUID(ctx, reqUUID)
 		if errors.Is(err, errors.NodeNotFound) {
 			// Ignore and carry on searching by path
 		} else if err != nil {
@@ -190,34 +188,14 @@ func (s *TreeServer) CreateNode(ctx context.Context, req *tree.CreateNodeRequest
 	}
 
 	reqPath := safePath(req.GetNode().GetPath())
-	lookupNode := tree.NewTreeNode(reqPath, req.GetNode())
-
-	var path *tree.MPath
-	var created []tree.ITreeNode
-	var exists bool
-	if updateIfExists {
-		// First search node by path to avoid false created value
-		if existing, _, err := dao.ResolveMPath(ctx, false, &lookupNode); err == nil && existing != nil {
-			path = existing
-			node = lookupNode
-			exists = true
-		}
-	}
-	if !exists {
-		path, created, err = dao.ResolveMPath(ctx, true, &lookupNode)
-		if err != nil {
-			if errors.Is(err, gorm.ErrDuplicatedKey) {
-				return nil, errors.Tag(err, errors.NodeIndexConflict)
-			}
-			return nil, errors.WithMessagef(errors.StatusInternalServerError, "error while inserting node: %w", err)
-		}
-		node = lookupNode
+	node, created, err := dao.GetOrCreateNodeByPath(ctx, reqPath, req.GetNode())
+	if err != nil {
+		return nil, errors.WithMessagef(errors.StatusInternalServerError, "error while inserting node: %w", err)
 	}
 
 	// Checking if we have a node with the same path
 	if len(created) == 0 {
 		if updateIfExists {
-			node, _ = dao.GetNode(ctx, path)
 			if etag, content, err := s.updateMeta(ctx, dao, node, req.GetNode()); err != nil {
 				return nil, errors.WithMessagef(errors.StatusForbidden, "Could not replace previous node: %w", err)
 			} else {
@@ -227,7 +205,7 @@ func (s *TreeServer) CreateNode(ctx context.Context, req *tree.CreateNodeRequest
 				}
 			}
 		} else {
-			return nil, errors.WithMessage(errors.StatusConflict, "node path already in use")
+			return nil, errors.WithMessage(errors.NodeIndexConflict, "node path already in use")
 		}
 	} else if len(created) > 1 && !updateIfExists && !inSession {
 		// Special case : when not in indexation mode, if node creation
@@ -241,13 +219,15 @@ func (s *TreeServer) CreateNode(ctx context.Context, req *tree.CreateNodeRequest
 		}
 	}
 
-	if node == nil {
-		node, err = dao.GetNode(ctx, path)
-		if err != nil || node == nil {
-			return nil, fmt.Errorf("could not retrieve node %s", reqPath)
+	/*
+		if node == nil {
+			node, err = dao.GetNode(ctx, path)
+			if err != nil || node == nil {
+				return nil, fmt.Errorf("could not retrieve node %s", reqPath)
+			}
+			node.GetNode().SetPath(reqPath)
 		}
-		node.GetNode().SetPath(reqPath)
-	}
+	*/
 
 	s.setDataSourceMeta(node)
 
@@ -289,7 +269,7 @@ func (s *TreeServer) ReadNode(ctx context.Context, req *tree.ReadNodeRequest) (r
 	var node tree.ITreeNode
 
 	if req.GetNode().GetPath() == "" && req.GetNode().GetUuid() != "" {
-
+		// Retrieve by UUID
 		node, err = dao.GetNodeByUUID(ctx, req.GetNode().GetUuid())
 		if err != nil {
 			return nil, errors.WithMessagef(errors.NodeNotFound, "Could not find node by UUID with %s ", req.GetNode().GetUuid())
@@ -297,26 +277,18 @@ func (s *TreeServer) ReadNode(ctx context.Context, req *tree.ReadNodeRequest) (r
 
 		// In the case we've retrieve the node by uuid, we need to retrieve the path
 		var path []string
-		for pnode := range dao.GetNodes(ctx, node.GetMPath().Parents()...) {
+		for pnode := range dao.GetNodesByMPaths(ctx, node.GetMPath().Parents()...) {
 			path = append(path, pnode.GetName())
 		}
 		path = append(path, node.GetName())
 		node.GetNode().SetPath(safePath(strings.Join(path, "/")))
 
 	} else {
-		node = tree.NewTreeNode(safePath(req.GetNode().GetPath()))
-
-		path, _, err := dao.ResolveMPath(ctx, false, &node)
+		// Retrieve By Path
+		sp := safePath(req.GetNode().GetPath())
+		node, err = dao.GetNodeByPath(ctx, sp)
 		if err != nil {
-			return nil, errors.WithMessagef(errors.NodeNotFound, "Could not retrieve path [%s], cause: %s", node.GetNode().GetPath(), err.Error())
-		} else if path == nil {
-			return nil, errors.WithMessagef(errors.NodeNotFound, "Could not retrieve path %s", node.GetNode().GetPath())
-		}
-		// Now load proper node from found mpath
-		if node, err = dao.GetNode(ctx, path); err != nil {
-			return nil, errors.WithMessagef(errors.StatusInternalServerError, "Error while retrieving node [%s], cause: %s", path, err.Error())
-		} else {
-			node.GetNode().SetPath(safePath(req.GetNode().GetPath()))
+			return nil, errors.WithMessagef(errors.NodeNotFound, "Could not retrieve path [%s], cause: %s", sp, err.Error())
 		}
 	}
 
@@ -361,35 +333,24 @@ func (s *TreeServer) ListNodes(req *tree.ListNodesRequest, resp tree.NodeProvide
 	if req.Ancestors {
 
 		var node tree.ITreeNode
-		var err error
+		var er error
 		if req.GetNode().GetPath() == "" && req.GetNode().GetUuid() != "" {
 
-			node, err = dao.GetNodeByUUID(ctx, req.GetNode().GetUuid())
-			if err != nil {
-				return errors.WithMessagef(errors.NodeNotFound, "could not find node by UUID with %s, cause: %s", req.GetNode().GetUuid(), err.Error())
+			if node, er = dao.GetNodeByUUID(ctx, req.GetNode().GetUuid()); er != nil {
+				return errors.WithMessagef(errors.NodeNotFound, "could not find node by UUID with %s, cause: %s", req.GetNode().GetUuid(), er.Error())
 			}
 
 		} else {
 
-			node = tree.NewTreeNode(safePath(req.GetNode().GetPath()))
-			path, _, err := dao.ResolveMPath(ctx, false, &node)
-			if err != nil {
-				return errors.WithMessagef(errors.StatusInternalServerError, "cannot retrieve path for %s, cause: %s", node.GetNode().GetPath(), err.Error())
-			}
-			if path == nil {
-				return errors.WithMessagef(errors.NodeNotFound, "Could not retrieve node %s", node.GetNode().GetPath())
-			}
-
-			node, err = dao.GetNode(ctx, path)
-			if err != nil {
-				return errors.WithMessagef(err, "cannot get node at %s, cause: %s", req.GetNode().GetPath())
+			if node, er = dao.GetNodeByPath(ctx, safePath(req.GetNode().GetPath())); er != nil {
+				return errors.WithMessagef(errors.NodeNotFound, "cannot get node at %s, cause: %s", req.GetNode().GetPath(), er.Error())
 			}
 		}
 
 		// Get Ancestors tree and rebuild pathes for each
 		var path []string
-		nodes := []tree.ITreeNode{}
-		for pnode := range dao.GetNodes(ctx, node.GetMPath().Parents()...) {
+		var nodes []tree.ITreeNode
+		for pnode := range dao.GetNodesByMPaths(ctx, node.GetMPath().Parents()...) {
 			path = append(path, pnode.GetName())
 			pnode.GetNode().SetPath(safePath(strings.Join(path, "/")))
 			s.setDataSourceMeta(pnode)
@@ -397,8 +358,8 @@ func (s *TreeServer) ListNodes(req *tree.ListNodesRequest, resp tree.NodeProvide
 		}
 		slices.Reverse(nodes)
 		for _, n := range nodes {
-			if err := resp.Send(&tree.ListNodesResponse{Node: n.GetNode()}); err != nil {
-				return err
+			if er := resp.Send(&tree.ListNodesResponse{Node: n.GetNode()}); er != nil {
+				return er
 			}
 		}
 
@@ -411,19 +372,14 @@ func (s *TreeServer) ListNodes(req *tree.ListNodesRequest, resp tree.NodeProvide
 		reqPath := safePath(reqNode.GetPath())
 		recursiveCounts := tree.StatFlags(req.StatFlags).RecursiveCount()
 
-		path, _, err := dao.ResolveMPath(ctx, false, tree.NewTreeNodePtr(reqPath))
-		if err != nil {
-			return errors.WithMessagef(errors.StatusInternalServerError, "cannot resolve path %s, cause: %s", reqPath, err.Error())
-		}
-
-		if path == nil {
-			return errors.WithMessagef(errors.NodeNotFound, "Could not retrieve node %s", reqPath)
+		rootNode, er := dao.GetNodeByPath(ctx, reqPath)
+		if er != nil {
+			return errors.WithMessagef(errors.NodeNotFound, "cannot resolve path %s, cause: %s", reqPath, er.Error())
 		}
 
 		if req.WithCommits {
-			rootNode, _ := dao.GetNode(ctx, path)
-			if err := dao.ResyncDirtyEtags(ctx, rootNode); err != nil {
-				log.Logger(ctx).Error("could not re-sync dirty etags", rootNode.GetNode().Zap(), zap.Error(err))
+			if er = dao.ResyncDirtyEtags(ctx, rootNode); er != nil {
+				log.Logger(ctx).Error("could not re-sync dirty etags", rootNode.GetNode().Zap(), zap.Error(er))
 			}
 		}
 
@@ -441,9 +397,9 @@ func (s *TreeServer) ListNodes(req *tree.ListNodesRequest, resp tree.NodeProvide
 
 		var c chan interface{}
 		if req.Recursive {
-			c = dao.GetNodeTree(ctx, path, metaFilter)
+			c = dao.GetNodeTree(ctx, rootNode.GetMPath(), metaFilter)
 		} else {
-			c = dao.GetNodeChildren(ctx, path, metaFilter)
+			c = dao.GetNodeChildren(ctx, rootNode.GetMPath(), metaFilter)
 		}
 
 		log.Logger(ctx).Debug("Listing nodes on DS with Filter", zap.Int32("req.FilterType", int32(req.FilterType)), zap.Bool("true", req.FilterType == tree.NodeType_COLLECTION))
@@ -477,7 +433,7 @@ func (s *TreeServer) ListNodes(req *tree.ListNodesRequest, resp tree.NodeProvide
 					}
 				}
 				// Load missing ones
-				for pnode := range dao.GetNodes(ctx, lookups...) {
+				for pnode := range dao.GetNodesByMPaths(ctx, lookups...) {
 					parentsCache[pnode.GetMPath().ToString()] = pnode.GetName()
 				}
 				var fullName []string
@@ -548,19 +504,12 @@ func (s *TreeServer) UpdateNode(ctx context.Context, req *tree.UpdateNodeRequest
 	reqFromPath := safePath(req.GetFrom().GetPath())
 	reqToPath := safePath(req.GetTo().GetPath())
 
-	var pathFrom, pathTo *tree.MPath
+	var pathTo *tree.MPath
 	var nodeFrom, nodeTo tree.ITreeNode
 
-	nodeFrom = tree.NewTreeNode(reqFromPath)
 	nodeTo = tree.NewTreeNode(reqToPath)
 
-	if pathFrom, _, err = dao.ResolveMPath(ctx, false, &nodeFrom); err != nil {
-		return nil, errors.WithMessagef(errors.StatusInternalServerError, "cannot resolve pathFrom %s, cause: %s", reqFromPath, err.Error())
-	}
-	if pathFrom == nil {
-		return nil, errors.WithMessagef(errors.NodeNotFound, "Could not retrieve node %s", req.From.Path)
-	}
-	if nodeFrom, err = dao.GetNode(ctx, pathFrom); err != nil {
+	if nodeFrom, err = dao.GetNodeByPath(ctx, reqFromPath); err != nil {
 		return nil, errors.WithMessagef(errors.NodeNotFound, "Could not retrieve node %s", req.From.Path)
 	}
 
@@ -569,24 +518,20 @@ func (s *TreeServer) UpdateNode(ctx context.Context, req *tree.UpdateNodeRequest
 		pathTo, nodeTo, err = cache.PathCreateNoAdd(ctx, reqToPath)
 
 	} else {
-		if pathTo, _, err = dao.ResolveMPath(ctx, true, &nodeTo); err != nil {
-			return nil, errors.WithMessagef(errors.StatusInternalServerError, "cannot resolve pathTo %s, cause: %s", reqToPath, err.Error())
+		if nodeTo, _, err = dao.GetOrCreateNodeByPath(ctx, reqToPath, nil); err != nil {
+			return nil, errors.WithMessagef(errors.NodeNotFound, "Could not retrieve node %s", req.To.Path)
 		}
-		if nodeTo, err = dao.GetNode(ctx, pathTo); err != nil {
-			return nil, errors.WithMessagef(errors.NodeNotFound, "Could not retrieve node %s", req.From.Path)
-		}
+		pathTo = nodeTo.GetMPath()
 
 		// Legacy : to Avoid Duplicate error when using a CacheDAO - Flush now and after delete.
-		dao.Flush(ctx, false)
+		_ = dao.Flush(ctx, false)
 
 		// First of all, we delete the existing node
-		if nodeTo != nil {
-			if err = dao.DelNode(ctx, nodeTo); err != nil {
-				return nil, errors.WithMessagef(errors.StatusInternalServerError, "Could not delete former to node at %s %v", req.To.Path, err)
-			}
+		if err = dao.DelNode(ctx, nodeTo); err != nil {
+			return nil, errors.WithMessagef(errors.StatusInternalServerError, "Could not delete former to node at %s %v", req.To.Path, err)
 		}
 
-		dao.Flush(ctx, false)
+		_ = dao.Flush(ctx, false)
 	}
 
 	if err = dao.MoveNodeTree(ctx, nodeFrom, nodeTo); err != nil {
@@ -596,7 +541,7 @@ func (s *TreeServer) UpdateNode(ctx context.Context, req *tree.UpdateNodeRequest
 	nodeFrom.GetNode().SetPath(reqFromPath)
 	s.setDataSourceMeta(nodeFrom)
 
-	if newNode, err := dao.GetNode(ctx, pathTo); err == nil && newNode != nil {
+	if newNode, err := dao.GetNodeByMPath(ctx, pathTo); err == nil && newNode != nil {
 		newNode.GetNode().SetPath(reqToPath)
 		s.setDataSourceMeta(newNode)
 		if err := s.UpdateParentsAndNotify(ctx, dao, nodeFrom.GetNode().GetSize(), tree.NodeChangeEvent_UPDATE_PATH, nodeFrom, newNode, req.IndexationSession); err != nil {
@@ -630,14 +575,7 @@ func (s *TreeServer) DeleteNode(ctx context.Context, req *tree.DeleteNodeRequest
 
 	reqPath := safePath(req.GetNode().GetPath())
 
-	var node tree.ITreeNode = tree.NewTreeNode(reqPath)
-
-	path, _, pE := dao.ResolveMPath(ctx, false, &node)
-	if pE != nil {
-		return nil, errors.WithMessagef(errors.NodeNotFound, "Could not compute path %s (%s)", reqPath, pE.Error())
-	}
-
-	node, err = dao.GetNode(ctx, path)
+	node, err := dao.GetNodeByPath(ctx, reqPath)
 	if err != nil {
 		return nil, errors.WithMessagef(errors.NodeNotFound, "Could not retrieve node %s", reqPath)
 	}
@@ -646,7 +584,7 @@ func (s *TreeServer) DeleteNode(ctx context.Context, req *tree.DeleteNodeRequest
 	s.setDataSourceMeta(node)
 	var childrenEvents []*tree.NodeChangeEvent
 	if node.GetNode().GetType() == tree.NodeType_COLLECTION {
-		c := dao.GetNodeTree(ctx, path)
+		c := dao.GetNodeTree(ctx, node.GetMPath())
 		names := strings.Split(reqPath, "/")
 		var treeErr error
 		for obj := range c {

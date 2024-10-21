@@ -46,6 +46,7 @@ import (
 	"github.com/pydio/cells/v4/common/storage/test"
 	"github.com/pydio/cells/v4/common/utils/cache/gocache"
 	cache_helper "github.com/pydio/cells/v4/common/utils/cache/helper"
+	"github.com/pydio/cells/v4/common/utils/slug"
 	"github.com/pydio/cells/v4/common/utils/uuid"
 
 	_ "github.com/pydio/cells/v4/common/utils/cache/bigcache"
@@ -158,7 +159,7 @@ func TestPath(t *testing.T) {
 	testAll(t, func(dao testdao) func(t *testing.T) {
 		return func(t *testing.T) {
 
-			Convey("Test ResolveMPath basic cases", t, func() {
+			Convey("Test ByPath basic cases", t, func() {
 
 				var tn tree.ITreeNode = &tree.TreeNode{
 					Node: &tree.Node{
@@ -168,16 +169,15 @@ func TestPath(t *testing.T) {
 					},
 					Name: "ROOT",
 				}
-				mpath0, nodes0, err0 := dao.ResolveMPath(ctx, false, &tn)
+				node0, err0 := dao.GetNodeByPath(ctx, "/")
 				So(err0, ShouldNotBeNil)
 				So(errors.Is(err0, errors.NodeNotFound), ShouldBeTrue)
-				So(nodes0, ShouldBeEmpty)
-				So(mpath0, ShouldBeNil)
+				So(node0, ShouldBeNil)
 
-				mpath, nodes, err := dao.ResolveMPath(ctx, true, &tn)
+				n, nodes, err := dao.GetOrCreateNodeByPath(ctx, tn.GetNode().GetPath(), tn.GetNode())
 
 				So(err, ShouldBeNil)
-				So(mpath.ToString(), ShouldEqual, "1")
+				So(n.GetMPath().ToString(), ShouldEqual, "1")
 				So(len(nodes), ShouldEqual, 1)
 
 				var tn2 tree.ITreeNode = &tree.TreeNode{
@@ -188,17 +188,17 @@ func TestPath(t *testing.T) {
 					},
 					Name: "ROOT",
 				}
-				mpath2, nodes2, err2 := dao.ResolveMPath(ctx, true, &tn2)
+				n2, nodes2, err2 := dao.GetOrCreateNodeByPath(ctx, tn2.GetNode().GetPath(), tn2.GetNode())
 				So(err2, ShouldBeNil)
-				So(mpath2.ToString(), ShouldEqual, "1")
+				So(n2.GetMPath().ToString(), ShouldEqual, "1")
 				So(len(nodes2), ShouldEqual, 0)
 
-				n, err := dao.GetNode(ctx, mpath2)
+				n, err = dao.GetNodeByMPath(ctx, n2.GetMPath())
 				So(err, ShouldBeNil)
 				So(n, ShouldNotBeNil)
 
 				So(dao.Flush(ctx, true), ShouldBeNil)
-				_, err = dao.GetNode(ctx, mpath2)
+				_, err = dao.GetNodeByMPath(ctx, n2.GetMPath())
 				So(err, ShouldBeNil)
 
 			})
@@ -214,7 +214,7 @@ func TestGenericFeatures(t *testing.T) {
 		return func(t *testing.T) {
 			// Adding a file
 			Convey("Test adding a file - Success", t, func() {
-				err := dao.AddNode(ctx, mockNode)
+				err := dao.insertNode(ctx, mockNode)
 				So(err, ShouldBeNil)
 
 				So(dao.Flush(ctx, true), ShouldBeNil)
@@ -236,13 +236,13 @@ func TestGenericFeatures(t *testing.T) {
 					Name:  "",
 				}
 
-				err := dao.SetNode(ctx, newNode)
+				err := dao.UpdateNode(ctx, newNode)
 				So(err, ShouldBeNil)
 
 				// printTree()
 				// printNodes()
 
-				err = dao.SetNode(ctx, mockNode)
+				err = dao.UpdateNode(ctx, mockNode)
 				So(err, ShouldBeNil)
 
 				So(dao.Flush(ctx, true), ShouldBeNil)
@@ -250,7 +250,7 @@ func TestGenericFeatures(t *testing.T) {
 
 			// Updating a file meta
 			Convey("Test updating a file meta", t, func() {
-				err := dao.AddNode(ctx, updateNode)
+				err := dao.insertNode(ctx, updateNode)
 				So(err, ShouldBeNil)
 
 				So(dao.Flush(ctx, false), ShouldBeNil)
@@ -260,12 +260,12 @@ func TestGenericFeatures(t *testing.T) {
 				node.SetEtag("etag2")
 				node.SetSize(24)
 
-				err = dao.SetNodeMeta(ctx, updateNode)
+				err = dao.UpdateNode(ctx, updateNode)
 				So(err, ShouldBeNil)
 
 				So(dao.Flush(ctx, false), ShouldBeNil)
 
-				updated, err := dao.GetNode(ctx, updateNode.MPath)
+				updated, err := dao.GetNodeByMPath(ctx, updateNode.MPath)
 				So(err, ShouldBeNil)
 				So(updated.GetNode().GetEtag(), ShouldEqual, "etag2")
 				So(updated.GetNode().GetSize(), ShouldEqual, 24)
@@ -290,7 +290,7 @@ func TestGenericFeatures(t *testing.T) {
 			})
 
 			Convey("Re-adding a file - Success", t, func() {
-				err := dao.AddNode(ctx, mockNode)
+				err := dao.insertNode(ctx, mockNode)
 				So(err, ShouldBeNil)
 
 				So(dao.Flush(ctx, true), ShouldBeNil)
@@ -300,7 +300,7 @@ func TestGenericFeatures(t *testing.T) {
 			})
 
 			Convey("Re-adding the same file - Failure", t, func() {
-				err := dao.AddNode(ctx, mockNode)
+				err := dao.insertNode(ctx, mockNode)
 				if err != nil {
 					So(err, ShouldEqual, gorm.ErrDuplicatedKey)
 				} else {
@@ -327,7 +327,7 @@ func TestGenericFeatures(t *testing.T) {
 			//})
 
 			Convey("Test Getting a file - Success", t, func() {
-				node, err := dao.GetNode(ctx, tree.NewMPath(1))
+				node, err := dao.GetNodeByMPath(ctx, tree.NewMPath(1))
 				So(err, ShouldBeNil)
 
 				// Setting MTime to 0 so we can compare
@@ -340,19 +340,19 @@ func TestGenericFeatures(t *testing.T) {
 
 			// Setting a file
 			Convey("Test setting a file with a massive path - Success", t, func() {
-				err := dao.AddNode(ctx, mockLongNode)
+				err := dao.insertNode(ctx, mockLongNode)
 				So(err, ShouldBeNil)
 
-				err = dao.AddNode(ctx, mockLongNodeChild1)
+				err = dao.insertNode(ctx, mockLongNodeChild1)
 				So(err, ShouldBeNil)
 
-				err = dao.AddNode(ctx, mockLongNodeChild2)
+				err = dao.insertNode(ctx, mockLongNodeChild2)
 				So(err, ShouldBeNil)
 
 				//printTree()
 				//printNodes()
 
-				node, err := dao.GetNode(ctx, mockLongNodeChild2MPath)
+				node, err := dao.GetNodeByMPath(ctx, mockLongNodeChild2MPath)
 				So(err, ShouldBeNil)
 
 				// TODO - find a way
@@ -381,7 +381,7 @@ func TestGenericFeatures(t *testing.T) {
 			// Getting a file
 			Convey("Test Getting a child node", t, func() {
 
-				node, err := dao.GetNodeChild(ctx, mockLongNodeMPath, "mockLongNodeChild1")
+				node, err := dao.getNodeChild(ctx, mockLongNodeMPath, "mockLongNodeChild1")
 
 				So(err, ShouldBeNil)
 
@@ -398,7 +398,7 @@ func TestGenericFeatures(t *testing.T) {
 			// Setting a file
 			Convey("Test Getting the last child of a node", t, func() {
 
-				node, err := dao.GetNodeLastChild(ctx, mockLongNodeMPath)
+				node, err := dao.getNodeLastChild(ctx, mockLongNodeMPath)
 
 				So(err, ShouldBeNil)
 
@@ -426,7 +426,7 @@ func TestGenericFeatures(t *testing.T) {
 			Convey("Test Getting the Children Cumulated Size", t, func() {
 				currentDAO := NewFolderSizeCacheDAO(dao)
 				root, _ := currentDAO.GetNodeByUUID(ctx, "ROOT")
-				parent, _ := currentDAO.GetNode(ctx, mockLongNodeMPath)
+				parent, _ := currentDAO.GetNodeByMPath(ctx, mockLongNodeMPath)
 
 				So(parent.GetNode().GetSize(), ShouldEqual, mockLongNodeChild1.GetNode().GetSize()+mockLongNodeChild2.GetNode().GetSize())
 				So(root.GetNode().GetSize(), ShouldEqual, parent.GetNode().GetSize())
@@ -441,13 +441,13 @@ func TestGenericFeatures(t *testing.T) {
 				newNode.SetMPath(mockLongNode.GetMPath().Append(37))
 				newNode.SetName("newNodeFolderSize")
 
-				err := currentDAO.AddNode(ctx, newNode)
+				err := currentDAO.insertNode(ctx, newNode)
 				So(err, ShouldBeNil)
 
 				So(currentDAO.Flush(ctx, true), ShouldBeNil)
 
 				root, _ = currentDAO.GetNodeByUUID(ctx, "ROOT")
-				parent, _ = currentDAO.GetNode(ctx, mockLongNodeMPath)
+				parent, _ = currentDAO.GetNodeByMPath(ctx, mockLongNodeMPath)
 
 				So(parent.GetNode().GetSize(), ShouldEqual, mockLongNodeChild1.GetNode().GetSize()+mockLongNodeChild2.GetNode().GetSize()+newNode.GetNode().GetSize())
 				So(root.GetNode().GetSize(), ShouldEqual, parent.GetNode().GetSize())
@@ -466,7 +466,7 @@ func TestGenericFeatures(t *testing.T) {
 				So(err, ShouldBeNil)
 
 				root, _ = currentDAO.GetNodeByUUID(ctx, "ROOT")
-				parent, _ = currentDAO.GetNode(ctx, mockLongNodeMPath)
+				parent, _ = currentDAO.GetNodeByMPath(ctx, mockLongNodeMPath)
 
 				So(parent.GetNode().GetSize(), ShouldEqual, mockLongNodeChild1.GetNode().GetSize()+mockLongNodeChild2.GetNode().GetSize())
 				So(root.GetNode().GetSize(), ShouldEqual, parent.GetNode().GetSize()+newNode.GetNode().GetSize())
@@ -475,7 +475,7 @@ func TestGenericFeatures(t *testing.T) {
 				So(err, ShouldBeNil)
 
 				root, _ = currentDAO.GetNodeByUUID(ctx, "ROOT")
-				parent, _ = currentDAO.GetNode(ctx, mockLongNodeMPath)
+				parent, _ = currentDAO.GetNodeByMPath(ctx, mockLongNodeMPath)
 
 				So(parent.GetNode().GetSize(), ShouldEqual, mockLongNodeChild1.GetNode().GetSize()+mockLongNodeChild2.GetNode().GetSize())
 				So(root.GetNode().GetSize(), ShouldEqual, parent.GetNode().GetSize())
@@ -523,7 +523,7 @@ func TestGenericFeatures(t *testing.T) {
 			// Setting a file
 			Convey("Test Getting Nodes by MPath", t, func() {
 				var i int
-				for _ = range dao.GetNodes(ctx, mockLongNodeChild1MPath, mockLongNodeChild2MPath) {
+				for _ = range dao.GetNodesByMPaths(ctx, mockLongNodeChild1MPath, mockLongNodeChild2MPath) {
 					i++
 				}
 
@@ -556,13 +556,13 @@ func TestGenericFeatures(t *testing.T) {
 				node1 := &tree.TreeNode{}
 				node1.Node = &tree.Node{Uuid: "test-same-mpath", Type: tree.NodeType_LEAF}
 				node1.SetMPath(tree.NewMPath(1, 21, 12, 7))
-				err := dao.AddNode(ctx, node1)
+				err := dao.insertNode(ctx, node1)
 				So(err, ShouldBeNil)
 
 				node2 := &tree.TreeNode{}
 				node2.Node = &tree.Node{Uuid: "test-same-mpath2", Type: tree.NodeType_LEAF}
 				node2.SetMPath(tree.NewMPath(1, 21, 12, 7))
-				err = dao.AddNode(ctx, node2)
+				err = dao.insertNode(ctx, node2)
 				if err != nil {
 					So(err, ShouldEqual, gorm.ErrDuplicatedKey)
 				} else {
@@ -592,13 +592,13 @@ func TestGenericFeatures(t *testing.T) {
 				node21.SetName("child2.1")
 				node21.SetMPath(tree.NewMPath(1, 15, 1))
 
-				e := dao.AddNode(ctx, node1)
+				e := dao.insertNode(ctx, node1)
 				So(e, ShouldBeNil)
-				e = dao.AddNode(ctx, node2)
+				e = dao.insertNode(ctx, node2)
 				So(e, ShouldBeNil)
-				e = dao.AddNode(ctx, node11)
+				e = dao.insertNode(ctx, node11)
 				So(e, ShouldBeNil)
-				e = dao.AddNode(ctx, node21)
+				e = dao.insertNode(ctx, node21)
 				So(e, ShouldBeNil)
 
 				So(dao.Flush(ctx, true), ShouldBeNil)
@@ -679,31 +679,31 @@ func TestGenericFeatures(t *testing.T) {
 				node15.SetMPath(tree.NewMPath(1, 16, 3, 2))
 				node15.SetName("a-bbb")
 
-				e := dao.AddNode(ctx, node)
+				e := dao.insertNode(ctx, node)
 				So(e, ShouldBeNil)
-				e = dao.AddNode(ctx, node11)
+				e = dao.insertNode(ctx, node11)
 				So(e, ShouldBeNil)
-				e = dao.AddNode(ctx, node12)
+				e = dao.insertNode(ctx, node12)
 				So(e, ShouldBeNil)
-				e = dao.AddNode(ctx, node13)
+				e = dao.insertNode(ctx, node13)
 				So(e, ShouldBeNil)
-				e = dao.AddNode(ctx, node14)
+				e = dao.insertNode(ctx, node14)
 				So(e, ShouldBeNil)
-				e = dao.AddNode(ctx, node15)
+				e = dao.insertNode(ctx, node15)
 				So(e, ShouldBeNil)
 
 				So(dao.Flush(ctx, true), ShouldBeNil)
 
 				e = dao.ResyncDirtyEtags(nil, node)
 				So(e, ShouldBeNil)
-				intermediaryNode, e := dao.GetNode(ctx, node13.MPath)
+				intermediaryNode, e := dao.GetNodeByMPath(ctx, node13.MPath)
 				So(e, ShouldBeNil)
 				hash := md5.New()
 				hash.Write([]byte(etag3 + "." + etag4))
 				newEtag := hex.EncodeToString(hash.Sum(nil))
 				So(intermediaryNode.GetNode().GetEtag(), ShouldEqual, newEtag)
 
-				parentNode, e := dao.GetNode(ctx, node.MPath)
+				parentNode, e := dao.GetNodeByMPath(ctx, node.MPath)
 				So(e, ShouldBeNil)
 				hash2 := md5.New()
 				hash2.Write([]byte(etag2 + "." + etag1 + "." + intermediaryNode.GetNode().GetEtag()))
@@ -733,8 +733,7 @@ func TestGetNodeFirstAvailableChildIndex(t *testing.T) {
 				// Creating the fs
 				var nodes []tree.ITreeNode
 				for _, path := range fs {
-					tn := tree.NewTreeNode(path, &tree.Node{Uuid: uuid.New()})
-					_, createdNodes, err := dao.ResolveMPath(ctx, true, &tn)
+					_, createdNodes, err := dao.GetOrCreateNodeByPath(ctx, path, &tree.Node{Uuid: uuid.New()})
 					So(err, ShouldBeNil)
 
 					nodes = append(nodes, createdNodes...)
@@ -743,7 +742,7 @@ func TestGetNodeFirstAvailableChildIndex(t *testing.T) {
 				So(len(nodes), ShouldEqual, 6)
 
 				// No Children yet, should return 1
-				slot, e := dao.GetNodeFirstAvailableChildIndex(ctx, nodes[0].GetMPath())
+				slot, e := dao.getNodeFirstAvailableChildIndex(ctx, nodes[0].GetMPath())
 				So(e, ShouldBeNil)
 				So(slot, ShouldEqual, 5)
 
@@ -777,7 +776,7 @@ func TestStreams(t *testing.T) {
 
 				So(<-e, ShouldBeNil)
 
-				idx, err := dao.GetNodeFirstAvailableChildIndex(ctx, tree.NewMPath(1, 17))
+				idx, err := dao.getNodeFirstAvailableChildIndex(ctx, tree.NewMPath(1, 17))
 				So(err, ShouldBeNil)
 				So(idx, ShouldEqual, count+1)
 			})
@@ -817,7 +816,7 @@ func TestArborescence(t *testing.T) {
 
 				for _, path := range arborescence {
 					t.Logf("Adding node %s", path)
-					_, _, err := dao.ResolveMPath(ctx, true, tree.NewTreeNodePtr(path, &tree.Node{Uuid: uuid.New()}))
+					_, _, err := dao.GetOrCreateNodeByPath(ctx, path, &tree.Node{Uuid: uuid.New()})
 					So(err, ShouldBeNil)
 				}
 
@@ -888,7 +887,7 @@ func TestSecondArborescence(t *testing.T) {
 
 				for _, path := range arborescence {
 					t.Logf("Adding node %s", path)
-					_, _, err := dao.ResolveMPath(ctx, true, tree.NewTreeNodePtr(path, &tree.Node{Uuid: uuid.New()}))
+					_, _, err := dao.GetOrCreateNodeByPath(ctx, path, &tree.Node{Uuid: uuid.New()})
 					So(err, ShouldBeNil)
 				}
 
@@ -958,29 +957,28 @@ func TestSmallArborescence(t *testing.T) {
 				// Creating the arborescence
 				nodes := make(map[string]*tree.MPath)
 				for _, path := range arborescence {
-					mpath, _, err := dao.ResolveMPath(ctx, true, tree.NewTreeNodePtr(path, &tree.Node{Uuid: uuid.New()}))
+					mN, cc, err := dao.GetOrCreateNodeByPath(ctx, path, &tree.Node{Uuid: slug.Make(path)})
 					So(err, ShouldBeNil)
-					nodes[path] = mpath
+					So(len(cc), ShouldBeGreaterThanOrEqualTo, 1) // First is 2 as the ROOT is created, then 1
+					nodes[path] = mN.GetMPath()
 				}
 
 				So(dao.Flush(ctx, false), ShouldBeNil)
 
 				// Then we move a node
-				pathFrom, _, err := dao.ResolveMPath(ctx, false, tree.NewTreeNodePtr("/test copie/1/2/3/4"))
+				originalNode, err := dao.GetNodeByPath(ctx, "/test copie/1/2/3/4")
 				So(err, ShouldBeNil)
-				originalNode, err := dao.GetNode(ctx, pathFrom)
-				So(err, ShouldBeNil)
+				pathFrom := originalNode.GetMPath()
 				So(hashNode(pathFrom), ShouldEqual, originalNode.GetHash())
 				So(hashParent(originalNode.GetName(), pathFrom), ShouldEqual, originalNode.GetHash2())
 
-				pathTo, _, err := dao.ResolveMPath(ctx, false, tree.NewTreeNodePtr("/document sans titre/target"))
+				nodeTo, err := dao.GetNodeByPath(ctx, "/document sans titre/target")
 				So(err, ShouldBeNil)
 
 				So(dao.Flush(ctx, false), ShouldBeNil)
 
 				// Then we move a node
-				nodeFrom, _ := dao.GetNode(ctx, pathFrom)
-				nodeTo, _ := dao.GetNode(ctx, pathTo)
+				nodeFrom, _ := dao.GetNodeByMPath(ctx, pathFrom)
 
 				// First of all, we delete the existing node
 				if nodeTo != nil {
@@ -993,19 +991,18 @@ func TestSmallArborescence(t *testing.T) {
 				err = dao.MoveNodeTree(ctx, nodeFrom, nodeTo)
 				So(err, ShouldBeNil)
 
-				newPath, _, err := dao.ResolveMPath(ctx, false, tree.NewTreeNodePtr("/document sans titre/target/whatever"))
+				newNode, err := dao.GetNodeByPath(ctx, "/document sans titre/target/whatever")
 				So(err, ShouldBeNil)
+				newPath := newNode.GetMPath()
 
-				newNode, err := dao.GetNode(ctx, newPath)
-				So(err, ShouldBeNil)
 				So(originalNode.GetHash(), ShouldNotEqual, newNode.GetHash())
 				So(hashNode(newPath), ShouldEqual, newNode.GetHash())
 				So(hashParent(newNode.GetName(), newPath), ShouldEqual, newNode.GetHash2())
 
-				_, _, err = dao.ResolveMPath(ctx, false, tree.NewTreeNodePtr("/document sans titre/target/whatever2"))
+				_, err = dao.GetNodeByPath(ctx, "/document sans titre/target/whatever2")
 				So(err, ShouldNotBeNil)
 
-				_, _, err = dao.ResolveMPath(ctx, true, tree.NewTreeNodePtr("/document sans titre/target/whatever2", &tree.Node{Uuid: uuid.New()}))
+				_, _, err = dao.GetOrCreateNodeByPath(ctx, "/document sans titre/target/whatever2", &tree.Node{Uuid: uuid.New()})
 				So(err, ShouldBeNil)
 
 				// printTree(ctxWithCache)
@@ -1030,7 +1027,7 @@ func TestOtherArborescence(t *testing.T) {
 				}
 
 				for _, path := range arborescence {
-					_, _, err := dao.ResolveMPath(ctx, true, tree.NewTreeNodePtr(path, &tree.Node{Uuid: uuid.New()}))
+					_, _, err := dao.GetOrCreateNodeByPath(ctx, path, &tree.Node{Uuid: uuid.New()})
 					So(err, ShouldBeNil)
 				}
 
@@ -1047,7 +1044,7 @@ func TestIntermediaryFoldersCreation(t *testing.T) {
 		return func(t *testing.T) {
 			Convey("Adding a file with intermediary folders", t, func() {
 
-				_, cc, err := dao.ResolveMPath(ctx, true, tree.NewTreeNodePtr("/pydiods1/some/folder/to/file.txt", &tree.Node{Uuid: uuid.New()}))
+				_, cc, err := dao.GetOrCreateNodeByPath(ctx, "/pydiods1/some/folder/to/file.txt", &tree.Node{Uuid: uuid.New()})
 				So(err, ShouldBeNil)
 				So(cc, ShouldHaveLength, 6)
 
@@ -1068,7 +1065,7 @@ func TestFlatFolderWithMassiveChildren(t *testing.T) {
 				s := time.Now()
 				var nodes []tree.ITreeNode
 				for i = 0; i < 5001; i++ {
-					_, node, er := dao.ResolveMPath(ctx, true, tree.NewTreeNodePtr(fmt.Sprintf("/child-%d", i), &tree.Node{Uuid: uuid.New()}))
+					_, node, er := dao.GetOrCreateNodeByPath(ctx, fmt.Sprintf("/child-%d", i), &tree.Node{Uuid: uuid.New()})
 					if i == 0 {
 						So(er, ShouldBeNil)
 					}
@@ -1146,16 +1143,16 @@ func TestUnderscoreIssue(t *testing.T) {
 				}
 
 				for _, path := range arborescence {
-					_, _, err := dao.ResolveMPath(ctx, true, tree.NewTreeNodePtr(path, &tree.Node{Uuid: uuid.New()}))
+					_, _, err := dao.GetOrCreateNodeByPath(ctx, path, &tree.Node{Uuid: uuid.New()})
 					So(err, ShouldBeNil)
 				}
 				So(dao.Flush(ctx, true), ShouldBeNil)
 
-				mp, _, err := dao.ResolveMPath(ctx, false, tree.NewTreeNodePtr("/Test_Folder"))
+				mp, err := dao.GetNodeByPath(ctx, "/Test_Folder")
 				So(errors.Is(err, errors.NodeNotFound), ShouldBeTrue)
 				So(mp, ShouldBeNil)
 
-				mp, _, err = dao.ResolveMPath(ctx, false, tree.NewTreeNodePtr("/Test%Folder"))
+				mp, err = dao.GetNodeByPath(ctx, "/Test%Folder")
 				So(errors.Is(err, errors.NodeNotFound), ShouldBeTrue)
 				So(mp, ShouldBeNil)
 			})
@@ -1170,9 +1167,9 @@ func TestLostAndFoundDuplicates(t *testing.T) {
 		return func(t *testing.T) {
 			Convey("Test LostAndFound - Duplicates", t, func() {
 				// Create Duplicates on purpose
-				_, _, _ = dao.ResolveMPath(ctx, true, tree.NewTreeNodePtr("/folder", &tree.Node{Uuid: uuid.New()}))
-				_, _, _ = dao.ResolveMPath(ctx, true, tree.NewTreeNodePtr("/folder/file1", &tree.Node{Uuid: uuid.New()}))
-				_, _, _ = dao.ResolveMPath(ctx, true, tree.NewTreeNodePtr("/folder/file2", &tree.Node{Uuid: uuid.New()}))
+				_, _, _ = dao.GetOrCreateNodeByPath(ctx, "/folder", &tree.Node{Uuid: uuid.New()})
+				_, _, _ = dao.GetOrCreateNodeByPath(ctx, "/folder/file1", &tree.Node{Uuid: uuid.New()})
+				_, _, _ = dao.GetOrCreateNodeByPath(ctx, "/folder/file2", &tree.Node{Uuid: uuid.New()})
 				So(dao.Flush(ctx, true), ShouldBeNil)
 
 				// Rename file2 to file1 manually
@@ -1199,9 +1196,9 @@ func TestLostAndFoundChildren(t *testing.T) {
 
 			Convey("Test LostAndFound - Lost Children", t, func() {
 				// Create Duplicates on purpose
-				_, _, _ = dao.ResolveMPath(ctx, true, tree.NewTreeNodePtr("/folder", &tree.Node{Uuid: uuid.New()}))
-				_, _, _ = dao.ResolveMPath(ctx, true, tree.NewTreeNodePtr("/folder/file1", &tree.Node{Uuid: uuid.New()}))
-				_, _, _ = dao.ResolveMPath(ctx, true, tree.NewTreeNodePtr("/folder/file2", &tree.Node{Uuid: uuid.New()}))
+				_, _, _ = dao.GetOrCreateNodeByPath(ctx, "/folder", &tree.Node{Uuid: uuid.New()})
+				_, _, _ = dao.GetOrCreateNodeByPath(ctx, "/folder/file1", &tree.Node{Uuid: uuid.New()})
+				_, _, _ = dao.GetOrCreateNodeByPath(ctx, "/folder/file2", &tree.Node{Uuid: uuid.New()})
 
 				ll, er := dao.LostAndFounds(ctx)
 				So(er, ShouldBeNil)

@@ -111,26 +111,18 @@ func (c *queryConverter) Convert(ctx context.Context, val *anypb.Any, db *gorm.D
 	}
 
 	if groupPath != "" {
-		var user tree.ITreeNode = &usermodel.User{}
-		user.SetNode(&tree.Node{
-			Path: groupPath,
-		})
-		mpath, _, err := c.treeDao.ResolveMPath(ctx, false, &user)
+
+		parentNode, err := c.treeDao.GetNodeByPath(ctx, groupPath)
 		if err != nil && !errors.Is(err, errors.NodeNotFound) {
 			log.Logger(ctx).Error("Error while getting parent mpath", zap.Any("g", groupPath), zap.Error(err))
 			return db, false, err
 		}
-		if mpath == nil {
+		if parentNode == nil {
 			// We do not want to break, but just make sure no results are returned.
 			// => Return a Where clause that always resolves to FALSE
 			log.Logger(ctx).Error("Nil MPath On Convert, add 1 = 0 condition", zap.Any("g", groupPath))
 			db = db.Where("1 = 0")
 			return db, true, nil
-		}
-		parentNode, err := c.treeDao.GetNode(ctx, mpath)
-		if err != nil {
-			log.Logger(ctx).Error("Error while getting parent node", zap.Any("g", groupPath), zap.Error(err))
-			return db, false, err
 		}
 		if fullPath {
 			wheres = append(wheres, buildMPathEquals(db, []byte(parentNode.GetMPath().ToString())))
@@ -277,6 +269,14 @@ func groupToNode(g *idm.User) *usermodel.User {
 		TreeNode: tree.TreeNode{
 			Node: n,
 		},
+	}
+}
+
+func nodeToUserOrGroup(t tree.ITreeNode, u *idm.User) {
+	if t.GetNode().IsLeaf() {
+		nodeToUser(t, u)
+	} else {
+		nodeToGroup(t, u)
 	}
 }
 

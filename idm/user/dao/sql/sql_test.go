@@ -25,6 +25,7 @@ package sql
 import (
 	"context"
 	"log"
+	"path"
 	"testing"
 
 	"google.golang.org/protobuf/types/known/anypb"
@@ -48,7 +49,7 @@ var (
 	testcases = test.TemplateSQL(NewDAO)
 )
 
-func TestQueryBuilder(t *testing.T) {
+func TestUserDao(t *testing.T) {
 
 	test.RunStorageTests(testcases, t, func(ctx context.Context) {
 		mockDAO, err := manager.Resolve[user.DAO](ctx)
@@ -505,7 +506,8 @@ func TestQueryBuilder(t *testing.T) {
 				u.GroupPath = "/anotherGroup"
 				addedGroup, _, e := mockDAO.Add(context.TODO(), u)
 				So(e, ShouldBeNil)
-				So(addedGroup.(*idm.User).GroupPath, ShouldEqual, "/anotherGroup")
+				ad := addedGroup.(*idm.User)
+				So(path.Join(ad.GroupPath, ad.GroupLabel), ShouldEqual, "/anotherGroup")
 
 				users2 := new([]interface{})
 				userQueryAny2, _ := anypb.New(&idm.UserSingleQuery{

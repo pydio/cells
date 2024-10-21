@@ -424,7 +424,7 @@ func (m *manager) initConfig(ctx context.Context) (config.Store, config.Store, r
 		conf := telemetry.Config{
 			Loggers: []log.LoggerConfig{{
 				Encoding: "console",
-				Level:    "debug",
+				Level:    "info",
 				Outputs:  []string{"stdout:///"},
 			}},
 		}
