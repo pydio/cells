@@ -191,13 +191,21 @@ func (m *AbstractRegistry) GetJWKSFetcherStrategy() fosite.JWKSFetcherStrategy {
 	return fosite.NewDefaultJWKSFetcherStrategy()
 }
 
+var (
+	emptyProvider *configx.Provider
+)
+
+func init() {
+	emptyProvider, _ = configx.New(context.TODO(), spec.ConfigValidationSchema)
+}
+
 func (m *AbstractRegistry) Config() *hconfig.DefaultProvider {
 	if m.cfg != nil {
 		return m.cfg
 	}
 
-	emptyProvider, _ := configx.New(context.TODO(), spec.ConfigValidationSchema)
-	m.cfg = hconfig.NewCustom(m.Logger(), emptyProvider, GetProviderContextualizer())
+	//emptyProvider, _ := configx.New(context.TODO(), spec.ConfigValidationSchema)
+	m.cfg = hconfig.NewCustom(m.Logger(), emptyProvider, cacheProvider)
 
 	return m.cfg
 }

@@ -51,6 +51,7 @@ import (
 	"github.com/pydio/cells/v4/common/middleware/keys"
 	pauth "github.com/pydio/cells/v4/common/proto/auth"
 	"github.com/pydio/cells/v4/common/runtime/manager"
+	"github.com/pydio/cells/v4/common/telemetry/tracing"
 	json "github.com/pydio/cells/v4/common/utils/jsonx"
 	"github.com/pydio/cells/v4/common/utils/uuid"
 	"github.com/pydio/cells/v4/idm/oauth"
@@ -526,14 +527,16 @@ func (h *Handler) AcceptLogout(ctx context.Context, in *pauth.AcceptLogoutReques
 
 // Verify checks if the token is valid for hydra
 func (h *Handler) Verify(ctx context.Context, in *pauth.VerifyTokenRequest) (*pauth.VerifyTokenResponse, error) {
-	span := trace.SpanFromContext(ctx)
+	var span trace.Span
+	ctx, span = tracing.StartLocalSpan(ctx, "Handler.VerifyToken")
+	defer span.End()
 	reg, err := manager.Resolve[oauth.Registry](ctx)
 	if err != nil {
 		return nil, err
 	}
 	span.AddEvent("Registry Resolved")
-
-	session := oauth2.NewSession("")
+	cfg := reg.Config()
+	session := oauth2.NewSessionWithCustomClaims(ctx, cfg, "")
 	span.AddEvent("Session Created")
 
 	tokenType, ar, err := reg.OAuth2Provider().IntrospectToken(ctx, in.GetToken(), fosite.AccessToken, session)

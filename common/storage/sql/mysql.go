@@ -77,6 +77,33 @@ func (m *mysqlHelper) MPathOrdering(mm ...string) string {
 }
 
 func (m *mysqlHelper) FirstAvailableSlot(tableName string, mpath *tree.MPath, levelKey string, mpathes ...string) (string, []any, int64, bool) {
+	// Not performant, linearly growing
+	/*
+			var args []any
+			q := `
+		SELECT MIN(num + 1) AS first_missing
+		FROM (
+		         SELECT
+		             CAST(SUBSTRING_INDEX(` + m.Concat(mpathes...) + `, '.', -1) AS UNSIGNED) AS num
+		         FROM ` + tableName + `
+		         WHERE ? AND level = ?
+		     ) t
+		WHERE NOT EXISTS (
+		    SELECT 1
+		    FROM ` + tableName + `
+		    WHERE ? AND level = ?
+		      AND CAST(SUBSTRING_INDEX(` + m.Concat(mpathes...) + `, '.', -1) AS UNSIGNED) = t.num + 1
+		);
+		`
+			level := mpath.Length() + 1
+			args = append(args, tree.MPathLike{Value: mpath})
+			args = append(args, level)
+			args = append(args, tree.MPathLike{Value: mpath})
+			args = append(args, level)
+
+			return q, args, 3000, true
+
+	*/
 	return "", nil, 0, false
 }
 
