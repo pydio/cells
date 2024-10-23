@@ -30,14 +30,23 @@ import (
 	"testing"
 
 	"github.com/pydio/cells/v4/common"
+	"github.com/pydio/cells/v4/common/client/grpc"
+	"github.com/pydio/cells/v4/common/errors"
 	"github.com/pydio/cells/v4/common/nodes"
 	"github.com/pydio/cells/v4/common/nodes/abstract"
 	"github.com/pydio/cells/v4/common/nodes/models"
+	"github.com/pydio/cells/v4/common/proto/encryption"
 	"github.com/pydio/cells/v4/common/proto/object"
 	"github.com/pydio/cells/v4/common/proto/tree"
+	"github.com/pydio/cells/v4/common/storage/sql"
+	"github.com/pydio/cells/v4/common/storage/test"
+	srv_dao "github.com/pydio/cells/v4/data/key/dao/sql"
+	srv "github.com/pydio/cells/v4/data/key/grpc"
 
 	. "github.com/smartystreets/goconvey/convey"
 )
+
+var testcases = test.TemplateSQL(srv_dao.NewKeyDAO)
 
 func TestHandler_GetObject(t *testing.T) {
 
@@ -54,7 +63,7 @@ func TestHandler_GetObject(t *testing.T) {
 	// 	branchInfo.Encrypted = true
 	ctx = nodes.WithBranchInfo(ctx, "in", branchInfo)
 
-	Convey("Test Get Object w. Enc", t, func() {
+	Convey("Test Get Object without enc", t, func() {
 
 		reqData := &models.GetRequestData{}
 		reader, e := handler.GetObject(ctx, &tree.Node{Path: "test"}, reqData)
@@ -63,7 +72,7 @@ func TestHandler_GetObject(t *testing.T) {
 
 	})
 
-	Convey("Test Put Object w. Enc", t, func() {
+	Convey("Test Put Object without enc", t, func() {
 
 		reqData := &models.PutRequestData{}
 		_, e := handler.PutObject(ctx, &tree.Node{Path: "test2"}, strings.NewReader(""), reqData)
@@ -73,28 +82,7 @@ func TestHandler_GetObject(t *testing.T) {
 
 	})
 
-	emptyCtx := context.Background()
-
-	Convey("Test Get Object wo. Enc", t, func() {
-
-		reqData := &models.GetRequestData{}
-		reader, e := handler.GetObject(emptyCtx, &tree.Node{Path: "test"}, reqData)
-		So(reader, ShouldNotBeNil)
-		So(e, ShouldBeNil)
-
-	})
-
-	Convey("Test Put Object wp. Enc", t, func() {
-
-		reqData := &models.PutRequestData{}
-		_, e := handler.PutObject(emptyCtx, &tree.Node{Path: "test2"}, strings.NewReader(""), reqData)
-		So(e, ShouldBeNil)
-		So(mock.Nodes["in"], ShouldNotBeNil)
-		So(mock.Nodes["in"].Path, ShouldEqual, "test2")
-
-	})
-
-	Convey("Test Copy Object w. Enc", t, func() {
+	Convey("Test Copy Object without Enc", t, func() {
 
 		ctx = nodes.WithBranchInfo(ctx, "from", branchInfo)
 		ctx = nodes.WithBranchInfo(ctx, "to", branchInfo)
@@ -106,17 +94,11 @@ func TestHandler_GetObject(t *testing.T) {
 
 	})
 
-	Convey("Test Copy Object wo Enc", t, func() {
-
-		reqData := &models.CopyRequestData{}
-		_, e := handler.CopyObject(emptyCtx, &tree.Node{Path: "test2"}, &tree.Node{Path: "test2"}, reqData)
-		So(e, ShouldNotBeNil)
-
-	})
-
 }
 
-func TestHandler_Encrypted(t *testing.T) {
+func TestHandler_GetPut_Encrypted(t *testing.T) {
+	sql.TestPrintQueries = false
+
 	handler := &Handler{
 		Handler: abstract.Handler{
 			Next: nodes.NewHandlerMock(),
@@ -125,6 +107,7 @@ func TestHandler_Encrypted(t *testing.T) {
 
 	var err error
 	mock := nodes.NewHandlerMock()
+	mock.Nodes["blank"] = &tree.Node{Path: "blank", Uuid: "blank", Size: 12}
 
 	dataFolder := filepath.Join(os.TempDir(), "cells", "tests", "encryption")
 	err = os.MkdirAll(dataFolder, os.ModePerm)
@@ -135,110 +118,128 @@ func TestHandler_Encrypted(t *testing.T) {
 
 	handler.SetNextHandler(mock)
 	handler.SetUserKeyTool(NewMockUserKeyTool())
-	handler.SetNodeKeyManagerClient(NewMockNodeKeyManagerClient())
+	grpc.RegisterMock(common.ServiceEncKeyGRPC, &encryption.NodeKeyManagerStub{
+		NodeKeyManagerServer: srv.NewNodeKeyManagerHandler(),
+	})
 
-	ctx := context.Background()
 	branchInfo := nodes.BranchInfo{}
 	branchInfo.DataSource = &object.DataSource{
+		Name:           "test",
 		EncryptionMode: object.EncryptionMode_MASTER,
 	}
-	ctx = nodes.WithBranchInfo(ctx, "in", branchInfo)
-
 	data := "blamekhkds sdsfsdfdsfdblamekhkds sdsdzkjdqzkhgiàrjv=iu=éàioeruopée"
 
-	Convey("Test Put Object w. Enc", t, func() {
-		reqData := &models.PutRequestData{}
-		node := tree.Node{Path: "test", Uuid: "test"}
-		node.MustSetMeta(common.MetaNamespaceDatasourceName, "test")
-		_, e := handler.PutObject(ctx, &node, strings.NewReader(data), reqData)
-		So(e, ShouldBeNil)
+	test.RunStorageTests(testcases, t, func(ctx context.Context) {
+
+		ctx = nodes.WithBranchInfo(ctx, "in", branchInfo)
+
+		// Trigger first a GetNodeInfo() call, to make sure DB is properly initialized
+		// before calling streams that are launched in GO func
+		Convey("Force DB resolution and migration", t, func() {
+			_, e := handler.GetObject(ctx, &tree.Node{Path: "blank"}, &models.GetRequestData{})
+			So(e, ShouldNotBeNil)
+			So(errors.Is(e, errors.KeyNotFound), ShouldBeTrue)
+
+		})
+
+		Convey("Test Put Object w. Enc", t, func() {
+
+			reqData := &models.PutRequestData{}
+			node := tree.Node{Path: "test", Uuid: "test"}
+			node.MustSetMeta(common.MetaNamespaceDatasourceName, "test")
+			_, e := handler.PutObject(ctx, &node, strings.NewReader(data), reqData)
+			So(e, ShouldBeNil)
+		})
+
+		Convey("Test Get Object w. encryption", t, func() {
+			reqData := &models.GetRequestData{StartOffset: 0, Length: -1}
+			node := tree.Node{Path: "test", Uuid: "test", Size: int64(len(data))}
+			node.MustSetMeta(common.MetaNamespaceDatasourceName, "test")
+			reader, e := handler.GetObject(ctx, &node, reqData)
+			So(reader, ShouldNotBeNil)
+			So(e, ShouldBeNil)
+
+			readData, err := io.ReadAll(reader)
+			So(err, ShouldBeNil)
+			So(string(readData), ShouldEqual, data)
+		})
+
+		Convey("Test Get with supported range 1", t, func() {
+			rangeOffset := 7
+			length := -1
+			reqData := &models.GetRequestData{
+				Length:      int64(length),
+				StartOffset: int64(rangeOffset),
+			}
+			node := tree.Node{Path: "test", Uuid: "test", Size: int64(len(data))}
+			node.MustSetMeta(common.MetaNamespaceDatasourceName, "test")
+			reader, e := handler.GetObject(ctx, &node, reqData)
+			So(e, ShouldBeNil)
+			So(reader, ShouldNotBeNil)
+
+			readData, err := io.ReadAll(reader)
+			So(err, ShouldBeNil)
+			So(string(readData), ShouldEqual, data[rangeOffset:])
+		})
+
+		Convey("Test Get Object with supported range 2", t, func() {
+			rangeOffset := 15
+			length := 30
+			reqData := &models.GetRequestData{
+				Length:      int64(length),
+				StartOffset: int64(rangeOffset),
+			}
+			node := tree.Node{Path: "test", Uuid: "test", Size: int64(len(data))}
+			node.MustSetMeta(common.MetaNamespaceDatasourceName, "test")
+			reader, e := handler.GetObject(ctx, &node, reqData)
+			So(reader, ShouldNotBeNil)
+			So(e, ShouldBeNil)
+
+			readData, err := io.ReadAll(reader)
+			So(err, ShouldBeNil)
+			So(string(readData), ShouldEqual, data[rangeOffset:rangeOffset+length])
+		})
+
+		Convey("Test Get Object with supported range 3", t, func() {
+			rangeOffset := 0
+			length := -1
+			reqData := &models.GetRequestData{
+				Length:      int64(length),
+				StartOffset: int64(rangeOffset),
+			}
+			node := tree.Node{Path: "test", Uuid: "test", Size: int64(len(data))}
+			node.MustSetMeta(common.MetaNamespaceDatasourceName, "test")
+			reader, e := handler.GetObject(ctx, &node, reqData)
+			So(reader, ShouldNotBeNil)
+			So(e, ShouldBeNil)
+
+			readData, err := io.ReadAll(reader)
+			So(err, ShouldBeNil)
+			So(string(readData), ShouldEqual, data)
+		})
+
+		Convey("Test Get with not supported range", t, func() {
+			rangeOffset := -1
+			length := 0
+			reqData := &models.GetRequestData{
+				Length:      int64(length),
+				StartOffset: int64(rangeOffset),
+			}
+			node := tree.Node{Path: "test", Uuid: "test", Size: int64(len(data))}
+			node.MustSetMeta(common.MetaNamespaceDatasourceName, "test")
+			reader, e := handler.GetObject(ctx, &node, reqData)
+			So(e, ShouldNotBeNil)
+			So(reader, ShouldBeNil)
+		})
 	})
 
-	Convey("Test Get Object w. encryption", t, func() {
-		reqData := &models.GetRequestData{StartOffset: 0, Length: -1}
-		node := tree.Node{Path: "test", Uuid: "test", Size: int64(len(data))}
-		node.MustSetMeta(common.MetaNamespaceDatasourceName, "test")
-		reader, e := handler.GetObject(ctx, &node, reqData)
-		So(reader, ShouldNotBeNil)
-		So(e, ShouldBeNil)
-
-		readData, err := io.ReadAll(reader)
-		So(err, ShouldBeNil)
-		So(string(readData), ShouldEqual, data)
-	})
-
-	Convey("Test Get with supported range 1", t, func() {
-		rangeOffset := 7
-		length := -1
-		reqData := &models.GetRequestData{
-			Length:      int64(length),
-			StartOffset: int64(rangeOffset),
-		}
-		node := tree.Node{Path: "test", Uuid: "test", Size: int64(len(data))}
-		node.MustSetMeta(common.MetaNamespaceDatasourceName, "test")
-		reader, e := handler.GetObject(ctx, &node, reqData)
-		So(reader, ShouldNotBeNil)
-		So(e, ShouldBeNil)
-
-		readData, err := io.ReadAll(reader)
-		So(err, ShouldBeNil)
-		So(string(readData), ShouldEqual, data[rangeOffset:])
-	})
-
-	Convey("Test Get Object with supported range 2", t, func() {
-		rangeOffset := 15
-		length := 30
-		reqData := &models.GetRequestData{
-			Length:      int64(length),
-			StartOffset: int64(rangeOffset),
-		}
-		node := tree.Node{Path: "test", Uuid: "test", Size: int64(len(data))}
-		node.MustSetMeta(common.MetaNamespaceDatasourceName, "test")
-		reader, e := handler.GetObject(ctx, &node, reqData)
-		So(reader, ShouldNotBeNil)
-		So(e, ShouldBeNil)
-
-		readData, err := io.ReadAll(reader)
-		So(err, ShouldBeNil)
-		So(string(readData), ShouldEqual, data[rangeOffset:rangeOffset+length])
-	})
-
-	Convey("Test Get Object with supported range 3", t, func() {
-		rangeOffset := 0
-		length := -1
-		reqData := &models.GetRequestData{
-			Length:      int64(length),
-			StartOffset: int64(rangeOffset),
-		}
-		node := tree.Node{Path: "test", Uuid: "test", Size: int64(len(data))}
-		node.MustSetMeta(common.MetaNamespaceDatasourceName, "test")
-		reader, e := handler.GetObject(ctx, &node, reqData)
-		So(reader, ShouldNotBeNil)
-		So(e, ShouldBeNil)
-
-		readData, err := io.ReadAll(reader)
-		So(err, ShouldBeNil)
-		So(string(readData), ShouldEqual, data)
-	})
-
-	Convey("Test Get with not supported range", t, func() {
-		rangeOffset := -1
-		length := 0
-		reqData := &models.GetRequestData{
-			Length:      int64(length),
-			StartOffset: int64(rangeOffset),
-		}
-		node := tree.Node{Path: "test", Uuid: "test", Size: int64(len(data))}
-		node.MustSetMeta(common.MetaNamespaceDatasourceName, "test")
-		reader, e := handler.GetObject(ctx, &node, reqData)
-		So(e, ShouldNotBeNil)
-		So(reader, ShouldBeNil)
-	})
 }
 
 func TestRangeHandler_Encrypted(t *testing.T) {
 
 	mock := nodes.NewHandlerMock()
+	mock.Nodes["blank"] = &tree.Node{Path: "blank", Uuid: "blank", Size: 12}
+
 	dataFolder := filepath.Join(os.TempDir(), "cells", "tests", "encryption")
 	err := os.MkdirAll(dataFolder, os.ModePerm)
 	if err != nil {
@@ -270,64 +271,79 @@ func TestRangeHandler_Encrypted(t *testing.T) {
 
 	handler.SetNextHandler(mock)
 	handler.SetUserKeyTool(NewMockUserKeyTool())
-	handler.SetNodeKeyManagerClient(NewMockNodeKeyManagerClient())
-
-	ctx := context.Background()
-	branchInfo := nodes.BranchInfo{}
-	branchInfo.DataSource = &object.DataSource{
-		EncryptionMode: object.EncryptionMode_MASTER,
-	}
-	ctx = nodes.WithBranchInfo(ctx, "in", branchInfo)
-
-	Convey("Test Put Object w. Enc", t, func() {
-		file, err := os.Open(filepath.Join(dataFolder, "plain"))
-		So(err, ShouldBeNil)
-
-		reqData := &models.PutRequestData{}
-		node := tree.Node{Path: "encTest", Uuid: "encTest"}
-		node.MustSetMeta(common.MetaNamespaceDatasourceName, "test")
-		_, e := handler.PutObject(ctx, &node, file, reqData)
-		_ = file.Close()
-		So(e, ShouldBeNil)
+	grpc.RegisterMock(common.ServiceEncKeyGRPC, &encryption.NodeKeyManagerStub{
+		NodeKeyManagerServer: srv.NewNodeKeyManagerHandler(),
 	})
 
-	Convey("Test Get Object wo. Enc", t, func() {
+	branchInfo := nodes.BranchInfo{}
+	branchInfo.DataSource = &object.DataSource{
+		Name:           "test",
+		EncryptionMode: object.EncryptionMode_MASTER,
+	}
 
-		for i := 0; i < fileSize; i = i + 10 {
-			rangeOffset := i
-			length := 300
+	test.RunStorageTests(testcases, t, func(ctx context.Context) {
 
-			reqData := &models.GetRequestData{
-				Length:      int64(length),
-				StartOffset: int64(rangeOffset),
-			}
+		ctx = nodes.WithBranchInfo(ctx, "in", branchInfo)
 
+		// Trigger first a GetNodeInfo() call, to make sure DB is properly initialized
+		// before calling streams that are launched in GO func
+		Convey("Force DB resolution and migration", t, func() {
+			_, e := handler.GetObject(ctx, &tree.Node{Path: "blank"}, &models.GetRequestData{})
+			So(e, ShouldNotBeNil)
+			So(errors.Is(e, errors.KeyNotFound), ShouldBeTrue)
+
+		})
+
+		Convey("Test Put Object w. Enc", t, func() {
 			file, err := os.Open(filepath.Join(dataFolder, "plain"))
 			So(err, ShouldBeNil)
 
-			buff := make([]byte, 300)
-			read, err := file.ReadAt(buff, int64(i))
-			So(err == nil || err == io.EOF, ShouldBeTrue)
-
-			err = file.Close()
-			So(err, ShouldBeNil)
-
-			buff = buff[:read]
-			reqData.Length = int64(len(buff))
-
-			node := tree.Node{Path: "encTest", Uuid: "encTest", Size: int64(fileSize)}
+			reqData := &models.PutRequestData{}
+			node := tree.Node{Path: "encTest", Uuid: "encTest"}
 			node.MustSetMeta(common.MetaNamespaceDatasourceName, "test")
-			reader, e := handler.GetObject(ctx, &node, reqData)
+			_, e := handler.PutObject(ctx, &node, file, reqData)
+			_ = file.Close()
 			So(e, ShouldBeNil)
-			So(reader, ShouldNotBeNil)
+		})
 
-			readData, err := io.ReadAll(reader)
-			So(err == nil || err == io.EOF, ShouldBeTrue)
+		Convey("Test Get Object wo. Enc", t, func() {
 
-			readDataStr := string(readData)
-			expectedDataStr := string(buff)
+			for i := 0; i < fileSize; i = i + 10 {
+				rangeOffset := i
+				length := 300
 
-			So(readDataStr, ShouldEqual, expectedDataStr)
-		}
+				reqData := &models.GetRequestData{
+					Length:      int64(length),
+					StartOffset: int64(rangeOffset),
+				}
+
+				file, err := os.Open(filepath.Join(dataFolder, "plain"))
+				So(err, ShouldBeNil)
+
+				buff := make([]byte, 300)
+				read, err := file.ReadAt(buff, int64(i))
+				So(err == nil || err == io.EOF, ShouldBeTrue)
+
+				err = file.Close()
+				So(err, ShouldBeNil)
+
+				buff = buff[:read]
+				reqData.Length = int64(len(buff))
+
+				node := tree.Node{Path: "encTest", Uuid: "encTest", Size: int64(fileSize)}
+				node.MustSetMeta(common.MetaNamespaceDatasourceName, "test")
+				reader, e := handler.GetObject(ctx, &node, reqData)
+				So(e, ShouldBeNil)
+				So(reader, ShouldNotBeNil)
+
+				readData, err := io.ReadAll(reader)
+				So(err == nil || err == io.EOF, ShouldBeTrue)
+
+				readDataStr := string(readData)
+				expectedDataStr := string(buff)
+
+				So(readDataStr, ShouldEqual, expectedDataStr)
+			}
+		})
 	})
 }

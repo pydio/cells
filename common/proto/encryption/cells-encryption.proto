@@ -166,6 +166,8 @@ message Node {
 
     string NodeId = 1 [(orm.orm).gorm = {column: "node_id";type:"varchar(255)";primaryKey:true}];
     bool Legacy = 2   [(orm.orm).gorm = {column: "legacy";}];
+    repeated RangedBlock Blocks = 9  [(orm.orm).gorm = {foreignKey:"NodeId";}];
+
 }
 
 message NodeInfo {

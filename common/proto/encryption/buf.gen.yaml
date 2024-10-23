@@ -6,3 +6,6 @@ plugins:
   - name: go-grpc
     opt: module=github.com/pydio/cells/v4/common/proto/encryption
     out: .
+  - name: go-client-stub
+    opt: module=github.com/pydio/cells/v4/common/proto/encryption
+    out: .

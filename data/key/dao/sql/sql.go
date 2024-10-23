@@ -76,7 +76,12 @@ func (*RangedBlockLegacy) TableName(namer schema.Namer) string {
 
 func NewKeyDAO(db *gorm.DB) key.DAO {
 	return &sqlimpl{Abstract: sql.NewAbstract(db).WithModels(func() []any {
-		return []any{&encryption.Node{}, &encryption.NodeKey{}, &encryption.RangedBlock{}, &RangedBlockLegacy{}}
+		return []any{
+			&encryption.Node{},
+			&encryption.NodeKey{},
+			&encryption.RangedBlock{},
+			&RangedBlockLegacy{},
+		}
 	})}
 }
 
@@ -88,7 +93,7 @@ func (s *sqlimpl) ListEncryptedBlockInfo(ctx context.Context, nodeUuid string) (
 
 	var res []*encryption.RangedBlock
 
-	tx := s.Session(ctx).Find(&res)
+	tx := s.Session(ctx).Find(&res).Where("node_uuid = ?", nodeUuid)
 	if err := tx.Error; err != nil {
 		return nil, err
 	}
@@ -97,6 +102,7 @@ func (s *sqlimpl) ListEncryptedBlockInfo(ctx context.Context, nodeUuid string) (
 }
 
 func (s *sqlimpl) SaveEncryptedBlockInfo(ctx context.Context, nodeUuid string, b *encryption.RangedBlock) error {
+	b.NodeId = nodeUuid
 	tx := s.Session(ctx).Create(b)
 
 	return tx.Error
@@ -204,6 +210,9 @@ func (s *sqlimpl) GetNode(ctx context.Context, nodeUuid string) (*encryption.Nod
 
 	tx := s.Session(ctx).Where(&encryption.Node{NodeId: nodeUuid}).First(&row)
 	if tx.Error != nil {
+		if errors.Is(tx.Error, gorm.ErrRecordNotFound) {
+			return nil, errors.Tag(tx.Error, errors.KeyNotFound)
+		}
 		return nil, tx.Error
 	}
 
@@ -211,7 +220,7 @@ func (s *sqlimpl) GetNode(ctx context.Context, nodeUuid string) (*encryption.Nod
 		return nil, errors.WithMessagef(errors.KeyNotFound, "no entry for %s key", nodeUuid)
 	}
 
-	return (*encryption.Node)(row), nil
+	return row, nil
 }
 
 func (s *sqlimpl) DeleteNode(ctx context.Context, nodeUuid string) error {
@@ -236,6 +245,9 @@ func (s *sqlimpl) GetNodeKey(ctx context.Context, nodeUuid string, user string) 
 
 	tx := s.Session(ctx).Where(&encryption.NodeKey{NodeId: nodeUuid, UserId: user}).First(&row)
 	if tx.Error != nil {
+		if errors.Is(tx.Error, gorm.ErrRecordNotFound) {
+			return nil, errors.Tag(tx.Error, errors.KeyNotFound)
+		}
 		return nil, tx.Error
 	}
 
@@ -259,6 +271,9 @@ func (s *sqlimpl) GetAllNodeKey(ctx context.Context, nodeUuid string) ([]*encryp
 
 	tx := s.Session(ctx).Find(&res)
 	if err := tx.Error; err != nil {
+		if errors.Is(tx.Error, gorm.ErrRecordNotFound) {
+			return nil, errors.Tag(tx.Error, errors.KeyNotFound)
+		}
 		return nil, err
 	}
 

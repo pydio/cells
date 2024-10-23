@@ -263,7 +263,11 @@ func (km *NodeKeyManagerHandler) SetNodeInfo(stream encryption.NodeKeyManager_Se
 		case "close":
 			sessionOpened = false
 			if rangedBlocks != nil {
-				dao.SaveEncryptedBlockInfo(ctx, nodeUuid, rangedBlocks)
+				err = dao.SaveEncryptedBlockInfo(ctx, nodeUuid, rangedBlocks)
+				if err != nil {
+					rsp.ErrorText = err.Error()
+					log.Logger(ctx).Error("data.key.handler.SetNodeInfo: failed to save block", zap.Error(err))
+				}
 				rangedBlocks = nil
 			}
 		}
