@@ -64,9 +64,19 @@ func init() {
 	key.Drivers.Register(NewKeyDAO)
 }
 
+type RangedBlockLegacy struct {
+	NodeId    string `json:"NodeId,omitempty" gorm:"column:node_id;primaryKey;type:varchar(255)"`
+	Nonce     []byte `json:"Nonce,omitempty" gorm:"column:nonce;"`
+	BlockSize uint32 `json:"BlockSize,omitempty" gorm:"column:block_data_size;type:int"`
+}
+
+func (*RangedBlockLegacy) TableName(namer schema.Namer) string {
+	return namer.TableName("legacy_nodes")
+}
+
 func NewKeyDAO(db *gorm.DB) key.DAO {
 	return &sqlimpl{Abstract: sql.NewAbstract(db).WithModels(func() []any {
-		return []any{&Node{}, &NodeKey{}, &RangedBlock{}, &RangedBlockLegacy{}}
+		return []any{&encryption.Node{}, &encryption.NodeKey{}, &encryption.RangedBlock{}, &RangedBlockLegacy{}}
 	})}
 }
 
@@ -74,41 +84,13 @@ type sqlimpl struct {
 	*sql.Abstract
 }
 
-type Node encryption.NodeORM
-
-type NodeKey encryption.NodeKeyORM
-
-type RangedBlock encryption.RangedBlockORM
-
-type RangedBlockLegacy encryption.RangedBlockORM
-
-func (*Node) TableName(namer schema.Namer) string {
-	return namer.TableName("nodes")
-}
-
-func (*NodeKey) TableName(namer schema.Namer) string {
-	return namer.TableName("node_keys")
-}
-
-func (*RangedBlock) TableName(namer schema.Namer) string {
-	return namer.TableName("node_blocks")
-}
-
-func (*RangedBlockLegacy) TableName(namer schema.Namer) string {
-	return namer.TableName("legacy_nodes")
-}
-
 func (s *sqlimpl) ListEncryptedBlockInfo(ctx context.Context, nodeUuid string) ([]*encryption.RangedBlock, error) {
-	var rows []*RangedBlock
+
 	var res []*encryption.RangedBlock
 
-	tx := s.Session(ctx).Find(res)
+	tx := s.Session(ctx).Find(&res)
 	if err := tx.Error; err != nil {
 		return nil, err
-	}
-
-	for _, row := range rows {
-		res = append(res, (*encryption.RangedBlock)(row))
 	}
 
 	return res, nil
@@ -130,11 +112,16 @@ func (s *sqlimpl) GetEncryptedLegacyBlockInfo(ctx context.Context, nodeUuid stri
 		return nil, errors.WithMessagef(errors.KeyNotFound, "no info found for node %s", nodeUuid)
 	}
 
-	return (*encryption.RangedBlock)(row), nil
+	rb := &encryption.RangedBlock{
+		BlockSize: row.BlockSize,
+		Nonce:     row.Nonce,
+		NodeId:    row.NodeId,
+	}
+	return rb, nil
 }
 
 func (s *sqlimpl) ClearNodeEncryptedBlockInfo(ctx context.Context, nodeUuid string) error {
-	tx := s.Session(ctx).Delete(&RangedBlock{NodeId: nodeUuid})
+	tx := s.Session(ctx).Delete(&encryption.RangedBlock{NodeId: nodeUuid})
 	if tx.Error != nil {
 		return tx.Error
 	}
@@ -142,7 +129,7 @@ func (s *sqlimpl) ClearNodeEncryptedBlockInfo(ctx context.Context, nodeUuid stri
 }
 
 func (s *sqlimpl) ClearNodeEncryptedPartBlockInfo(ctx context.Context, nodeUuid string, partID int) error {
-	tx := s.Session(ctx).Delete(&RangedBlock{NodeId: nodeUuid, PartId: uint32(partID)})
+	tx := s.Session(ctx).Delete(&encryption.RangedBlock{NodeId: nodeUuid, PartId: uint32(partID)})
 	if tx.Error != nil {
 		return tx.Error
 	}
@@ -189,14 +176,14 @@ func (s *sqlimpl) CopyNode(ctx context.Context, srcUuid string, targetUuid strin
 
 		newBlock.NodeId = targetUuid
 
-		s.Session(ctx).Create((*RangedBlock)(newBlock))
+		s.Session(ctx).Create(newBlock)
 	}
 
 	return nil
 }
 
 func (s *sqlimpl) SaveNode(ctx context.Context, node *encryption.Node) error {
-	tx := s.Session(ctx).Create((*Node)(node))
+	tx := s.Session(ctx).Create(node)
 	if tx.Error != nil {
 		return tx.Error
 	}
@@ -205,7 +192,7 @@ func (s *sqlimpl) SaveNode(ctx context.Context, node *encryption.Node) error {
 }
 
 func (s *sqlimpl) UpgradeNodeVersion(ctx context.Context, nodeUuid string) error {
-	tx := s.Session(ctx).Updates(&Node{NodeId: nodeUuid, Legacy: false})
+	tx := s.Session(ctx).Updates(&encryption.Node{NodeId: nodeUuid, Legacy: false})
 	if tx.Error != nil {
 		return tx.Error
 	}
@@ -213,9 +200,9 @@ func (s *sqlimpl) UpgradeNodeVersion(ctx context.Context, nodeUuid string) error
 }
 
 func (s *sqlimpl) GetNode(ctx context.Context, nodeUuid string) (*encryption.Node, error) {
-	var row *Node
+	var row *encryption.Node
 
-	tx := s.Session(ctx).Where(&Node{NodeId: nodeUuid}).First(&row)
+	tx := s.Session(ctx).Where(&encryption.Node{NodeId: nodeUuid}).First(&row)
 	if tx.Error != nil {
 		return nil, tx.Error
 	}
@@ -228,7 +215,7 @@ func (s *sqlimpl) GetNode(ctx context.Context, nodeUuid string) (*encryption.Nod
 }
 
 func (s *sqlimpl) DeleteNode(ctx context.Context, nodeUuid string) error {
-	tx := s.Session(ctx).Where(&Node{NodeId: nodeUuid}).Delete(&Node{})
+	tx := s.Session(ctx).Where(&encryption.Node{NodeId: nodeUuid}).Delete(&encryption.Node{})
 	if tx.Error != nil {
 		return tx.Error
 	}
@@ -236,7 +223,7 @@ func (s *sqlimpl) DeleteNode(ctx context.Context, nodeUuid string) error {
 }
 
 func (s *sqlimpl) SaveNodeKey(ctx context.Context, key *encryption.NodeKey) error {
-	tx := s.Session(ctx).Create((*NodeKey)(key))
+	tx := s.Session(ctx).Create(key)
 	if tx.Error != nil {
 		return tx.Error
 	}
@@ -245,9 +232,9 @@ func (s *sqlimpl) SaveNodeKey(ctx context.Context, key *encryption.NodeKey) erro
 }
 
 func (s *sqlimpl) GetNodeKey(ctx context.Context, nodeUuid string, user string) (*encryption.NodeKey, error) {
-	var row *NodeKey
+	var row *encryption.NodeKey
 
-	tx := s.Session(ctx).Where(&NodeKey{NodeId: nodeUuid, UserId: user}).First(&row)
+	tx := s.Session(ctx).Where(&encryption.NodeKey{NodeId: nodeUuid, UserId: user}).First(&row)
 	if tx.Error != nil {
 		return nil, tx.Error
 	}
@@ -256,11 +243,11 @@ func (s *sqlimpl) GetNodeKey(ctx context.Context, nodeUuid string, user string) 
 		return nil, errors.WithMessagef(errors.KeyNotFound, "no key found for node id %s", nodeUuid)
 	}
 
-	return (*encryption.NodeKey)(row), nil
+	return row, nil
 }
 
 func (s *sqlimpl) DeleteNodeKey(ctx context.Context, key *encryption.NodeKey) error {
-	tx := s.Session(ctx).Where((*NodeKey)(key)).Delete(&NodeKey{})
+	tx := s.Session(ctx).Where(key).Delete(&encryption.NodeKey{})
 	if tx.Error != nil {
 		return tx.Error
 	}
@@ -268,16 +255,11 @@ func (s *sqlimpl) DeleteNodeKey(ctx context.Context, key *encryption.NodeKey) er
 }
 
 func (s *sqlimpl) GetAllNodeKey(ctx context.Context, nodeUuid string) ([]*encryption.NodeKey, error) {
-	var rows []*NodeKey
 	var res []*encryption.NodeKey
 
-	tx := s.Session(ctx).Find(res)
+	tx := s.Session(ctx).Find(&res)
 	if err := tx.Error; err != nil {
 		return nil, err
-	}
-
-	for _, row := range rows {
-		res = append(res, (*encryption.NodeKey)(row))
 	}
 
 	return res, nil

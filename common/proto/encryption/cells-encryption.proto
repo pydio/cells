@@ -4,7 +4,7 @@ import "orm.proto";
 
 package encryption;
 
-option go_package="github.com/pydio/cells/common/proto/encryption";
+option go_package="github.com/pydio/cells/v4/common/proto/encryption";
 
 message Export {
     // Name of exporter
@@ -154,16 +154,17 @@ service NodeKeyManager {
 message NodeKey {
     option (orm.ormPolicy).enabled = true;
 
-    string NodeId = 1  [(orm.orm).gorm = {column: "node_id";}];
-    string UserId = 2  [(orm.orm).gorm = {column: "user_id";}];
-    string OwnerId = 3 [(orm.orm).gorm = {column: "owner_id";}];
+    uint64 Id = 1      [(orm.orm).gorm = {column: "id";primaryKey:true;autoIncrement:true}];
+    string NodeId = 2  [(orm.orm).gorm = {column: "node_id";type:"varchar(255)";index:",composite:node";}];
+    string UserId = 4  [(orm.orm).gorm = {column: "user_id";type:"varchar(255)"}];
+    string OwnerId = 5 [(orm.orm).gorm = {column: "owner_id";type:"varchar(255)"}];
     bytes KeyData = 6  [(orm.orm).gorm = {column: "key_data";}];
 }
 
 message Node {
     option (orm.ormPolicy).enabled = true;
 
-    string NodeId = 1 [(orm.orm).gorm = {column: "node_id";}];
+    string NodeId = 1 [(orm.orm).gorm = {column: "node_id";type:"varchar(255)";primaryKey:true}];
     bool Legacy = 2   [(orm.orm).gorm = {column: "legacy";}];
 }
 
@@ -185,15 +186,16 @@ message Block {
 message RangedBlock {
     option (orm.ormPolicy).enabled = true;
 
-    string OwnerId = 1    [(orm.orm).gorm = {column: "owner";}];
+    uint64 Id = 10        [(orm.orm).gorm = {column: "id";primaryKey:true;autoIncrement:true}];
+    string OwnerId = 1    [(orm.orm).gorm = {column: "owner";type:"varchar(255)"}];
     uint32 PartId = 2     [(orm.orm).gorm = {column: "part_id";}];
     uint32 SeqStart = 3   [(orm.orm).gorm = {column: "seq_start";}];
     uint32 SeqEnd = 4     [(orm.orm).gorm = {column: "seq_end";}];
     uint32 HeaderSize = 5 [(orm.orm).gorm = {column: "block_header_size";}];
     uint32 BlockSize = 6  [(orm.orm).gorm = {column: "block_data_size";}];
 
-    string NodeId = 7      [(orm.orm).gorm = {column: "node_id";}];
-    bytes Nonce = 8       [(orm.orm).gorm = {column: "nonce";}];
+    bytes Nonce = 8;
+    string NodeId = 7     [(orm.orm).gorm = {column: "node_id";type:"varchar(255)";index:",composite:node"}];
 }
 
 message GetNodeInfoRequest {

@@ -91,8 +91,8 @@ func (km *NodeKeyManagerHandler) GetNodeInfo(ctx context.Context, req *encryptio
 		}
 		rsp.NodeInfo.Block = &encryption.Block{
 			BlockSize: block.BlockSize,
-			OwnerId:   block.OwnerId,
-			Nonce:     block.Nonce,
+			//OwnerId:   block.OwnerId,
+			Nonce: block.Nonce,
 		}
 	} else if req.WithRange {
 		blocks, err := dao.ListEncryptedBlockInfo(ctx, req.NodeId)

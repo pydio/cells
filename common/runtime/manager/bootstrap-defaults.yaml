@@ -154,7 +154,7 @@ defaults:
       storages:
         main:
           - type: sql
-            prefix: data_
+            prefix: enc_
     pydio.grpc.activity:
       storages:
         main:
