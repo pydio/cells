@@ -23,6 +23,7 @@ package sql
 import (
 	"database/sql"
 	"reflect"
+	"strings"
 
 	"gorm.io/gorm"
 	"gorm.io/gorm/schema"
@@ -62,4 +63,11 @@ func TableNameFromModel(db *gorm.DB, model any) string {
 		tableName = tabler.TableName(db.NamingStrategy)
 	}
 	return tableName
+}
+
+// QuoteTo is a shortcut to db.QuoteTo
+func QuoteTo(db *gorm.DB, s string) string {
+	buf := &strings.Builder{}
+	db.QuoteTo(buf, s)
+	return buf.String()
 }

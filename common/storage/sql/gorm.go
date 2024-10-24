@@ -2,6 +2,7 @@ package sql
 
 import (
 	"context"
+	"crypto/tls"
 	"database/sql"
 	"fmt"
 	"net/url"
@@ -19,6 +20,7 @@ import (
 	"gorm.io/gorm/schema"
 	otel "gorm.io/plugin/opentelemetry/tracing"
 
+	"github.com/pydio/cells/v4/common/crypto"
 	"github.com/pydio/cells/v4/common/errors"
 	"github.com/pydio/cells/v4/common/runtime"
 	"github.com/pydio/cells/v4/common/runtime/controller"
@@ -26,6 +28,7 @@ import (
 	"github.com/pydio/cells/v4/common/storage"
 	"github.com/pydio/cells/v4/common/utils/openurl"
 	"github.com/pydio/cells/v4/common/utils/propagator"
+	"github.com/pydio/cells/v4/common/utils/uuid"
 
 	_ "github.com/jackc/pgx/v5"
 )
@@ -113,6 +116,18 @@ func cleanDSN(dsn string, vars map[string]string, parserType string) (string, er
 	}
 }
 
+func varsToTLSConfig(vars map[string]string) (*tls.Config, error) {
+	u := &url.URL{}
+	q := u.Query()
+	q.Add(crypto.KeyCertStoreName, vars[crypto.KeyCertStoreName])
+	q.Add(crypto.KeyCertInsecureHost, vars[crypto.KeyCertInsecureHost])
+	q.Add(crypto.KeyCertUUID, vars[crypto.KeyCertUUID])
+	q.Add(crypto.KeyCertKeyUUID, vars[crypto.KeyCertKeyUUID])
+	q.Add(crypto.KeyCertCAUUID, vars[crypto.KeyCertCAUUID])
+	u.RawQuery = q.Encode()
+	return crypto.TLSConfigFromURL(u)
+}
+
 func OpenPool(ctx context.Context, uu string) (storage.Storage, error) {
 	p, err := openurl.OpenPool(ctx, []string{uu}, func(ctx context.Context, dsn string) (*gorm.DB, error) {
 		parts := strings.SplitN(dsn, "://", 2)
@@ -121,14 +136,21 @@ func OpenPool(ctx context.Context, uu string) (storage.Storage, error) {
 		}
 		scheme := parts[0]
 		expectedVars := map[string]string{
-			"prefix":    "",
-			"policies":  "",
-			"singular":  "",
-			"hookNames": "",
+			"prefix":                   "",
+			"policies":                 "",
+			"singular":                 "",
+			"hookNames":                "",
+			"ssl":                      "",
+			crypto.KeyCertUUID:         "",
+			crypto.KeyCertCAUUID:       "",
+			crypto.KeyCertKeyUUID:      "",
+			crypto.KeyCertStoreName:    "",
+			crypto.KeyCertInsecureHost: "",
 		}
 		var clean string
 		var er error
 		var conn *sql.DB
+		var tlsConfig *tls.Config
 		switch scheme {
 		case "gorm":
 			gU, _ := url.Parse(dsn)
@@ -150,6 +172,13 @@ func OpenPool(ctx context.Context, uu string) (storage.Storage, error) {
 			clean = strings.TrimPrefix(clean, scheme+"://")
 		}
 
+		if expectedVars["ssl"] == "true" {
+			tlsConfig, er = varsToTLSConfig(expectedVars)
+			if er != nil {
+				return nil, er
+			}
+		}
+
 		// Open sql connection pool - special case to force PG to use PGX driver, not PQ
 		switch scheme {
 		case PostgreDriver:
@@ -157,9 +186,26 @@ func OpenPool(ctx context.Context, uu string) (storage.Storage, error) {
 			if err != nil {
 				return nil, err
 			}
+			if tlsConfig != nil {
+				pgxConfig.TLSConfig = tlsConfig
+			}
 			conn = stdlib.OpenDB(*pgxConfig)
+		case MySQLDriver:
+			if tlsConfig != nil {
+				configID := uuid.New()
+				if err := mysql2.RegisterTLSConfig(configID, &tls.Config{}); err != nil {
+					return nil, err
+				}
+				if !strings.Contains(clean, "?") {
+					clean += "?tls=" + configID
+				} else {
+					clean += "&tls=" + configID
+				}
+			}
+			conn, er = sql.Open(scheme, clean)
 		default:
 			conn, er = sql.Open(scheme, clean)
+
 		}
 		if er != nil {
 			return nil, er

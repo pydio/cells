@@ -616,7 +616,7 @@ message PolicySubject {
 
     string ID = 1        [(orm.orm).gorm = {column:"id"; type: "varchar(64)"; primaryKey: true; notNull: true}];
     bool HasRegex = 2    [(orm.orm).gorm = {column:"has_regex";index:',composite:regex'}];
-    string Compiled = 3  [(orm.orm).gorm = {column:"compiled";type: "varchar(511)";unique: true; index:',class:FULLTEXT,composite:compiled' }];
+    string Compiled = 3  [(orm.orm).gorm = {column:"compiled";type: "varchar(511)";unique: true; index:',composite:compiled' }];
     string Template = 4  [(orm.orm).gorm = {column:"template";type: "varchar(511)";unique: true;}];
 }
 
@@ -626,7 +626,7 @@ message PolicyResource {
 
     string ID = 1        [(orm.orm).gorm = {column:"id"; type: "varchar(64)"; primaryKey: true; notNull: true}];
     bool HasRegex = 2    [(orm.orm).gorm = {column:"has_regex";index:',composite:regex'}];
-    string Compiled = 3  [(orm.orm).gorm = {column:"compiled";type: "varchar(511)";unique: true; index:',class:FULLTEXT,composite:compiled' }];
+    string Compiled = 3  [(orm.orm).gorm = {column:"compiled";type: "varchar(511)";unique: true; index:',composite:compiled' }];
     string Template = 4  [(orm.orm).gorm = {column:"template";type: "varchar(511)";unique: true;}];
 }
 
@@ -636,7 +636,7 @@ message PolicyAction {
 
     string ID = 1        [(orm.orm).gorm = {column:"id"; type: "varchar(64)"; primaryKey: true; notNull: true}];
     bool HasRegex = 2    [(orm.orm).gorm = {column:"has_regex"; index:',composite:regex'}];
-    string Compiled = 3  [(orm.orm).gorm = {column:"compiled";type: "varchar(511)";unique: true; index:',class:FULLTEXT,composite:compiled' }];
+    string Compiled = 3  [(orm.orm).gorm = {column:"compiled";type: "varchar(511)";unique: true; index:',composite:compiled' }];
     string Template = 4  [(orm.orm).gorm = {column:"template";type: "varchar(511)";unique: true;}];
 }
 

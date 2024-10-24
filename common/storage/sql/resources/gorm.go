@@ -144,36 +144,9 @@ func (s *gormImpl) BuildPolicyConditionForAction(ctx context.Context, q *service
 
 	return nil, errors.WithMessage(errors.StatusNotImplemented, "should use Convert API instead")
 
-	if q == nil || q.Any {
-		return nil, nil
-	}
-
-	//leftIdentifier := s.LeftIdentifier
-	leftIdentifier := ""
-	subjects := q.GetSubjects()
-
-	if q.Empty {
-
-		subQuery := s.instance(ctx).Model(&service.ResourcePolicy{}).Select("1").Where(&service.ResourcePolicy{Resource: leftIdentifier, Action: action})
-		return s.instance(ctx).Not("EXISTS(?)", subQuery), nil
-
-	} else {
-
-		subQuery := s.DB.Model(&service.ResourcePolicy{}).Select("1").Where(&service.ResourcePolicy{Resource: leftIdentifier, Action: action})
-		if len(subjects) > 0 {
-			subjectQuery := s.DB
-			for _, subject := range subjects {
-				subjectQuery = subjectQuery.Or(&service.ResourcePolicy{Subject: subject})
-			}
-			subQuery = subQuery.Where(subjectQuery)
-		}
-
-		return s.instance(ctx).Where("EXISTS(?)", subQuery), nil
-	}
 }
 
 // Convert a policy query to conditions from claims toward the associated resource table
-// TODO - See BuildPolicyConditionForAction
 // This ends up doing UUID IN (SELECT) whereas a Left Join is probably faster
 func (s *gormImpl) Convert(ctx context.Context, val *anypb.Any, db *gorm.DB) (*gorm.DB, bool, error) {
 

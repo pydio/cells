@@ -24,6 +24,7 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
+	"slices"
 	"sync"
 
 	"github.com/ory/ladon"
@@ -31,6 +32,7 @@ import (
 	"gorm.io/gorm/clause"
 
 	"github.com/pydio/cells/v4/common/proto/idm"
+	storagesql "github.com/pydio/cells/v4/common/storage/sql"
 	"github.com/pydio/cells/v4/idm/policy/converter"
 )
 
@@ -54,52 +56,6 @@ type managerWithContext struct {
 	*gormManager
 	ctx context.Context
 }
-
-//type Policy struct {
-//	ID          string     `gorm:"column:id;type:varchar(255);primaryKey;notNull"`
-//	Description string     `gorm:"column:description;"`
-//	Effect      string     `gorm:"column:effect;"`
-//	Conditions  string     `gorm:"column:conditions;"`
-//	Actions     []Action   `gorm:"many2many:policy_action_rel;foreignKey:ID;joinForeignKey:Policy;References:ID;joinReferences:Action;constraint:OnDelete:CASCADE;"`
-//	Resources   []Resource `gorm:"many2many:policy_resource_rel;foreignKey:ID;joinForeignKey:Policy;References:ID;joinReferences:Resource;constraint:OnDelete:CASCADE;"`
-//	Subjects    []Subject  `gorm:"many2many:policy_subject_rel;foreignKey:ID;joinForeignKey:Policy;References:ID;joinReferences:Subject;constraint:OnDelete:CASCADE;"`
-//}
-//
-//type Resource struct {
-//	ID       string `gorm:"column:id;type:varchar(64);primaryKey;notNull"`
-//	HasRegex bool   `gorm:"column:has_regex;"`
-//	Compiled string `gorm:"column:compiled; unique"`
-//	Template string `gorm:"column:template; unique"`
-//}
-//
-//type Subject struct {
-//	ID       string `gorm:"column:id;type:varchar(64);primaryKey;notNull"`
-//	HasRegex bool   `gorm:"column:has_regex;"`
-//	Compiled string `gorm:"column:compiled; unique"`
-//	Template string `gorm:"column:template; unique"`
-//}
-//
-//type Action struct {
-//	ID       string `gorm:"column:id;type:varchar(64);primaryKey;notNull"`
-//	HasRegex bool   `gorm:"column:has_regex;"`
-//	Compiled string `gorm:"column:compiled; unique"`
-//	Template string `gorm:"column:template; unique"`
-//}
-//
-//type PolicyResourceRel struct {
-//	Policy   string `gorm:"column:policy; primaryKey"`
-//	Resource string `gorm:"column:resource; primaryKey"`
-//}
-//
-//type PolicySubjectRel struct {
-//	Policy  string `gorm:"column:policy; primaryKey"`
-//	Subject string `gorm:"column:subject; primaryKey"`
-//}
-//
-//type PolicyActionRel struct {
-//	Policy string `gorm:"column:policy; primaryKey"`
-//	Action string `gorm:"column:action; primaryKey"`
-//}
 
 // NewManager initializes a new SQLManager for given db instance.
 func NewManager(db *gorm.DB) Manager {
@@ -191,77 +147,109 @@ func (s *managerWithContext) Update(policy ladon.Policy) error {
 	return nil
 }
 
+type ScanPolicy struct {
+	ID          string                          `gorm:"column:id"`
+	Description string                          `gorm:"column:description;"`
+	Subject     string                          `gorm:"column:subject;"`
+	Resource    string                          `gorm:"column:resource;"`
+	Action      string                          `gorm:"column:action;"`
+	Effect      idm.PolicyEffect                `gorm:"column:effect;"`
+	Conditions  map[string]*idm.PolicyCondition `gorm:"column:conditions;serializer:json;"`
+}
+
 func (s *managerWithContext) FindRequestCandidates(r *ladon.Request) (ladon.Policies, error) {
-	var policies []*idm.Policy
+	var policies []*ScanPolicy
 
 	db := s.instance(s.ctx)
+	polTable := storagesql.TableNameFromModel(db, &idm.Policy{})
+	acTable := storagesql.TableNameFromModel(db, &idm.PolicyAction{})
+	resTable := storagesql.TableNameFromModel(db, &idm.PolicyResource{})
+	subTable := storagesql.TableNameFromModel(db, &idm.PolicySubject{})
+	acTableRel := storagesql.TableNameFromModel(db, &idm.PolicyActionRel{})
+	resTableRel := storagesql.TableNameFromModel(db, &idm.PolicyResourceRel{})
+	subTableRel := storagesql.TableNameFromModel(db, &idm.PolicySubjectRel{})
 
-	tx := db.Model(&idm.Policy{}).Preload("OrmActions").Preload("OrmResources").Preload("OrmSubjects")
+	polTable = storagesql.QuoteTo(db, polTable)
+	acTable = storagesql.QuoteTo(db, acTable)
+	resTable = storagesql.QuoteTo(db, resTable)
+	subTable = storagesql.QuoteTo(db, subTable)
+	acTableRel = storagesql.QuoteTo(db, acTableRel)
+	resTableRel = storagesql.QuoteTo(db, resTableRel)
+	subTableRel = storagesql.QuoteTo(db, subTableRel)
 
-	if r.Subject != "" {
-		qs1 := db.Model(&idm.PolicySubjectRel{}).Select("policy as rel_policy_id, subject as rel_subject_id")
-		qs2 := db.Model(&idm.PolicySubject{}).Select("id as subject_id, has_regex as subject_regex, template as subject_template, compiled as subject_compiled")
-		tx = tx.
-			InnerJoins("inner join(?) qs1 on id = qs1.rel_policy_id", qs1).
-			InnerJoins("inner join(?) qs2 on qs1.rel_subject_id = qs2.subject_id", qs2)
-	}
+	query := db.Model(&idm.Policy{}).
+		Select(fmt.Sprintf("%s.id, %s.effect, %s.conditions, %s.description, "+
+			"subject.template AS subject, resource.template AS resource, action.template AS action", polTable, polTable, polTable, polTable)).
+		Joins(fmt.Sprintf("INNER JOIN %s AS rs ON rs.policy = %s.id", subTableRel, polTable)).
+		Joins(fmt.Sprintf("LEFT JOIN %s AS ra ON ra.policy = %s.id", acTableRel, polTable)).
+		Joins(fmt.Sprintf("LEFT JOIN %s AS action ON ra.action = action.id", acTable)).
+		Joins(fmt.Sprintf("INNER JOIN %s AS subject ON rs.subject = subject.id", subTable)).
+		Joins(fmt.Sprintf("LEFT JOIN %s AS rr ON rr.policy = %s.id", resTableRel, polTable)).
+		Joins(fmt.Sprintf("LEFT JOIN %s AS resource ON rr.resource = resource.id", resTable))
 
-	if r.Resource != "" {
-		qr1 := db.Model(&idm.PolicyResourceRel{}).Select("policy as rel_policy_id, resource as rel_resource_id")
-		qr2 := db.Model(&idm.PolicyResource{}).Select("id as resource_id, has_regex as resource_regex, template as resource_template, compiled as resource_compiled")
-		tx = tx.
-			InnerJoins("inner join(?) qr1 on id = qr1.rel_policy_id", qr1).
-			InnerJoins("inner join(?) qr2 on qr1.rel_resource_id = qr2.resource_id", qr2) //.
-	}
-
-	if r.Action != "" {
-		qa1 := db.Model(&idm.PolicyActionRel{}).Select("policy as rel_policy_id, action as rel_action_id")
-		qa2 := db.Model(&idm.PolicyAction{}).Select("id as action_id, has_regex as action_regex, template as action_template, compiled as action_compiled")
-		tx = tx.
-			InnerJoins("inner join(?) qa1 on id = qa1.rel_policy_id", qa1).
-			InnerJoins("inner join(?) qa2 on qa1.rel_action_id = qa2.action_id", qa2) //.
-	}
-
-	regexpBuilder := func(table, key string) string {
-		return fmt.Sprintf("%s = true and CAST(? AS BINARY) REGEXP BINARY %s", table+"."+key+"_regex", table+"."+key+"_compiled")
-	}
-	if db.Name() == "sqlite" || db.Name() == "postgres" {
-		// Warning, this requires sqlite3-extended driver with injected function REGEXP_LIKE
-		regexpBuilder = func(table, key string) string {
-			return fmt.Sprintf("%s = true and REGEXP_LIKE(?, %s)", table+"."+key+"_regex", table+"."+key+"_compiled")
+	var reg func(string) string
+	switch db.Name() {
+	case storagesql.PostgreDriver:
+		reg = func(s string) string {
+			return fmt.Sprintf("? ~ %s", s)
+		}
+	case storagesql.SqliteDriver:
+		reg = func(s string) string {
+			return fmt.Sprintf("REGEXP_LIKE(?, %s)", s)
+		}
+	default:
+		reg = func(s string) string {
+			return fmt.Sprintf("CAST(? AS BINARY) REGEXP BINARY %s", s)
 		}
 	}
-
 	if r.Subject != "" {
-		// This is required to force AND (a OR b) AND (c OR d), etc...
-		tx1 := tx.Session(&gorm.Session{NewDB: true})
-		tx = tx.Where(
-			tx1.Where("qs2.subject_regex = false and qs2.subject_template = ?", r.Subject).
-				Or(regexpBuilder("qs2", "subject"), r.Subject))
+		query = query.Where("(subject.has_regex = ? AND subject.template = ?) OR (subject.has_regex = ? AND "+reg("subject.compiled")+")", false, r.Subject, true, r.Subject)
 	}
 	if r.Resource != "" {
-		tx2 := tx.Session(&gorm.Session{NewDB: true})
-		tx = tx.Where(
-			tx2.Where("qr2.resource_regex = false and qr2.resource_template = ?", r.Resource).
-				Or(regexpBuilder("qr2", "resource"), r.Resource))
+		query = query.Where("(resource.has_regex = ? AND resource.template = ?) OR (resource.has_regex = ? AND "+reg("resource.compiled")+")", false, r.Resource, true, r.Resource)
 	}
 	if r.Action != "" {
-		tx3 := tx.Session(&gorm.Session{NewDB: true})
-		tx = tx.Where(
-			tx3.Where("qa2.action_regex = false and qa2.action_template = ?", r.Action).
-				Or(regexpBuilder("qa2", "action"), r.Action))
+		query = query.Where("(action.has_regex = ? AND action.template = ?) OR (action.has_regex = ? AND "+reg("action.compiled")+")", false, r.Action, true, r.Action)
 	}
-	tx = tx.Find(&policies)
+	tx := query.Find(&policies)
 	if tx.Error != nil {
 		return nil, tx.Error
 	}
 
-	var res ladon.Policies
+	// Now regroup retrieved rows by ID
+	byID := make(map[string]*ladon.DefaultPolicy)
 	for _, policy := range policies {
-		res = append(res, converter.ProtoToLadonPolicy(policy))
+		if pol, ok := byID[policy.ID]; ok {
+			pol.Actions = merge(pol.Actions, policy.Action)
+			pol.Subjects = merge(pol.Subjects, policy.Subject)
+			pol.Resources = merge(pol.Resources, policy.Resource)
+		} else {
+			idmPol := &idm.Policy{
+				ID:          policy.ID,
+				Description: policy.Description,
+				Subjects:    []string{policy.Subject},
+				Resources:   []string{policy.Resource},
+				Actions:     []string{policy.Action},
+				Effect:      policy.Effect,
+				Conditions:  policy.Conditions,
+			}
+			byID[policy.ID] = converter.ProtoToLadonPolicy(idmPol).(*ladon.DefaultPolicy)
+		}
+	}
+
+	var res ladon.Policies
+	for _, policy := range byID {
+		res = append(res, policy)
 	}
 
 	return res, nil
+}
+
+func merge(s1 []string, s2 string) []string {
+	if !slices.Contains(s1, s2) {
+		s1 = append(s1, s2)
+	}
+	return s1
 }
 
 func (s *managerWithContext) FindPoliciesForResource(resource string) (ladon.Policies, error) {
