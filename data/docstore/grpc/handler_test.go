@@ -58,7 +58,7 @@ var (
 	testcases = []test.StorageTestCase{
 		{DSN: []string{
 			"boltdb://" + filepath.Join(os.TempDir(), "docstore_bolt_"+uuid.New()[:6]+".db"),
-			"bleve://" + filepath.Join(os.TempDir(), "docstore_bleve_"+uuid.New()[:6]+".bleve"),
+			"bleve://" + filepath.Join(os.TempDir(), "docstore_bleve_"+uuid.New()[:6]+".bleve?rotationSize=-1"),
 		}, Condition: true, DAO: bleve.NewBleveDAO, Label: "Bolt_Bleve"},
 		test.TemplateMongoEnvWithPrefix(mongo.NewMongoDAO, "test_docstore_"+uuid.New()[:6]+"_"),
 	}
