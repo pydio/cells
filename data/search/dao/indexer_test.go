@@ -233,10 +233,10 @@ func TestIndexNode(t *testing.T) {
 }
 
 func TestSearchNode(t *testing.T) {
-	defer func() {
-		commons.BatchPoolInit = sync.Once{}
-	}()
 	test.RunStorageTests(testcases(), t, func(ctx context.Context) {
+		defer func() {
+			commons.BatchPoolInit = sync.Once{}
+		}()
 		server, err := manager.Resolve[search.Engine](ctx)
 		if err != nil {
 			panic(err)
@@ -460,11 +460,11 @@ func TestSearchNode(t *testing.T) {
 }
 
 func TestSearchByGeolocation(t *testing.T) {
-	defer func() {
-		commons.BatchPoolInit = sync.Once{}
-	}()
 
 	test.RunStorageTests(testcases(), t, func(ctx context.Context) {
+		defer func() {
+			commons.BatchPoolInit = sync.Once{}
+		}()
 
 		server, err := manager.Resolve[search.Engine](ctx)
 		if err != nil {
@@ -514,11 +514,11 @@ func TestSearchByGeolocation(t *testing.T) {
 }
 
 func TestDeleteNode(t *testing.T) {
-	defer func() {
-		commons.BatchPoolInit = sync.Once{}
-	}()
 
 	test.RunStorageTests(testcases(), t, func(ctx context.Context) {
+		defer func() {
+			commons.BatchPoolInit = sync.Once{}
+		}()
 		server, err := manager.Resolve[search.Engine](ctx)
 		if err != nil {
 			panic(err)
@@ -544,11 +544,11 @@ func TestDeleteNode(t *testing.T) {
 }
 
 func TestSearchByUuidsMatch(t *testing.T) {
-	defer func() {
-		commons.BatchPoolInit = sync.Once{}
-	}()
 
 	test.RunStorageTests(testcases(), t, func(ctx context.Context) {
+		defer func() {
+			commons.BatchPoolInit = sync.Once{}
+		}()
 		server, err := manager.Resolve[search.Engine](ctx)
 		if err != nil {
 			panic(err)
@@ -625,11 +625,11 @@ func TestSearchByUuidsMatch(t *testing.T) {
 }
 
 func TestClearIndex(t *testing.T) {
-	defer func() {
-		commons.BatchPoolInit = sync.Once{}
-	}()
 
 	test.RunStorageTests(testcases(), t, func(ctx context.Context) {
+		defer func() {
+			commons.BatchPoolInit = sync.Once{}
+		}()
 		server, err := manager.Resolve[search.Engine](ctx)
 		if err != nil {
 			panic(err)
@@ -656,11 +656,11 @@ func TestClearIndex(t *testing.T) {
 }
 
 func TestExcludedNamespace(t *testing.T) {
-	defer func() {
-		commons.BatchPoolInit = sync.Once{}
-	}()
 
 	test.RunStorageTests(testcases(), t, func(ctx context.Context) {
+		defer func() {
+			commons.BatchPoolInit = sync.Once{}
+		}()
 		server, err := manager.Resolve[search.Engine](ctx)
 		if err != nil {
 			panic(err)
@@ -696,7 +696,7 @@ func TestExcludedNamespace(t *testing.T) {
 			}
 			So(server.IndexNode(ctx, node, false), ShouldBeNil)
 			So(server.(*commons.Server).Flush(ctx), ShouldBeNil)
-			<-time.After(100 * time.Millisecond)
+			<-time.After(2 * time.Second)
 
 			queryObject := &tree.Query{
 				FreeString: "+Meta.indexable:\"value1\"",
