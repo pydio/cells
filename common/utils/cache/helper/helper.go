@@ -22,7 +22,9 @@ package cache_helper
 
 import (
 	"context"
+	"fmt"
 	"net/url"
+	"strings"
 
 	"go.uber.org/zap"
 
@@ -52,6 +54,7 @@ func SetStaticResolver(url string, opener cache.URLOpener) {
 	st := &staticResolver{
 		url:    url,
 		opener: opener,
+		caches: make(map[string]cache.Cache),
 	}
 	resolver = func(ctx context.Context) (CacheRegistry, error) {
 		return st, nil
@@ -110,7 +113,7 @@ func MustResolveCache(ctx context.Context, name string, config cache.Config) cac
 }
 
 type staticResolver struct {
-	cache.Cache
+	caches map[string]cache.Cache
 	opener cache.URLOpener
 	url    string
 }
@@ -119,9 +122,22 @@ func (c *staticResolver) RegisterCache(scheme string, opts ...controller.Option[
 }
 
 func (c *staticResolver) GetCache(ctx context.Context, name string, resolutionData map[string]interface{}) (cache.Cache, error) {
-	if c.Cache == nil {
-		u, _ := url.Parse(c.url)
-		c.Cache, _ = c.opener.Open(ctx, u)
+	var q string
+	for k, v := range resolutionData {
+		q = fmt.Sprintf("%s&%s=%v", q, k, v)
 	}
-	return c, nil
+	ur := c.url
+	if strings.Contains(c.url, "?") {
+		ur += "&" + q
+	} else {
+		ur += "?" + q
+	}
+	u, _ := url.Parse(ur)
+	if ca, ok := c.caches[u.String()]; ok {
+		return ca, nil
+	} else {
+		ca, _ = c.opener.Open(ctx, u)
+		c.caches[u.String()] = ca
+		return ca, nil
+	}
 }

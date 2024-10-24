@@ -17,11 +17,11 @@ func TestBroker(t *testing.T) {
 		var ev *tree.NodeChangeEvent
 
 		ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
-		unsub, err := Subscribe(ctx, "test", func(msg Message) error {
+		unsub, err := Subscribe(ctx, "test", func(ctx context.Context, msg Message) error {
 			defer cancel()
 
 			ev = new(tree.NodeChangeEvent)
-			msg.Unmarshal(ev)
+			msg.Unmarshal(ctx, ev)
 
 			return nil
 		})
@@ -46,11 +46,11 @@ func TestBrokerResub(t *testing.T) {
 		var ev *tree.NodeChangeEvent
 
 		ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
-		unsub, err := Subscribe(ctx, "test", func(msg Message) error {
+		unsub, err := Subscribe(ctx, "test", func(ctx context.Context, msg Message) error {
 			defer cancel()
 
 			ev = new(tree.NodeChangeEvent)
-			msg.Unmarshal(ev)
+			msg.Unmarshal(ctx, ev)
 
 			return nil
 		})
@@ -73,11 +73,11 @@ func TestBrokerResub(t *testing.T) {
 
 		ctx, cancel = context.WithTimeout(context.Background(), 10*time.Second)
 		t.Log("Resubscribing")
-		unsub, err = Subscribe(ctx, "test", func(msg Message) error {
+		unsub, err = Subscribe(ctx, "test", func(ctx context.Context, msg Message) error {
 			defer cancel()
 
 			ev2 = new(tree.NodeChangeEvent)
-			msg.Unmarshal(ev2)
+			msg.Unmarshal(ctx, ev2)
 
 			return nil
 		})

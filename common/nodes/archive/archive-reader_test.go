@@ -429,7 +429,8 @@ func TestReader_ExtractAll(t *testing.T) {
 			Router: nodes.NewHandlerMock(),
 		}
 
-		er := archiveReader.ExtractAllTar(context.Background(), false, archiveNode, &tree.Node{
+		glob, _ := mock.RegisterMockConfig(context.Background())
+		er := archiveReader.ExtractAllTar(glob, false, archiveNode, &tree.Node{
 			Path: "path/to/target",
 		})
 		So(er, ShouldBeNil)
@@ -446,7 +447,8 @@ func TestReader_ExtractAll(t *testing.T) {
 			Router: nodes.NewHandlerMock(),
 		}
 
-		er := archiveReader.ExtractAllTar(context.Background(), true, archiveNode, &tree.Node{
+		glob, _ := mock.RegisterMockConfig(context.Background())
+		er := archiveReader.ExtractAllTar(glob, true, archiveNode, &tree.Node{
 			Path: "path/to/target",
 		})
 		So(er, ShouldBeNil)

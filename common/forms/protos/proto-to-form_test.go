@@ -29,6 +29,7 @@ import (
 	"github.com/ory/ladon"
 
 	"github.com/pydio/cells/v4/common/forms"
+	keys2 "github.com/pydio/cells/v4/common/middleware/keys"
 	"github.com/pydio/cells/v4/common/proto/idm"
 	"github.com/pydio/cells/v4/common/proto/jobs"
 	"github.com/pydio/cells/v4/common/proto/tree"
@@ -98,17 +99,17 @@ func SkipTestGenerateJsonLanguagesFiles(t *testing.T) {
 		GenerateProtoToForm("contextMetaSingleQuery", &jobs.ContextMetaSingleQuery{}, false, keys)
 
 		ctxMeta := []string{
-			keys.HttpMetaRemoteAddress,
-			keys.HttpMetaUserAgent,
-			keys.HttpMetaContentType,
-			keys.HttpMetaProtocol,
-			keys.HttpMetaHost,
-			keys.HttpMetaPort,
-			keys.HttpMetaHostname,
-			keys.HttpMetaRequestMethod,
-			keys.HttpMetaRequestURI,
-			keys.HttpMetaCookiesString,
-			keys.ServerTime,
+			keys2.HttpMetaRemoteAddress,
+			keys2.HttpMetaUserAgent,
+			keys2.HttpMetaContentType,
+			keys2.HttpMetaProtocol,
+			keys2.HttpMetaHost,
+			keys2.HttpMetaPort,
+			keys2.HttpMetaHostname,
+			keys2.HttpMetaRequestMethod,
+			keys2.HttpMetaRequestURI,
+			keys2.HttpMetaCookiesString,
+			keys2.ServerTime,
 		}
 		for _, k := range ctxMeta {
 			keys["contextMetaField."+k] = k
