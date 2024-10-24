@@ -348,7 +348,7 @@ func (m *manager) initNamespace(ctx context.Context, bootstrap *Bootstrap, base 
 	return nil
 }
 
-func (m *manager) initKeyring(ctx context.Context) (config.Store, error) {
+func (m *manager) initKeyring(ctx context.Context) (crypto.Keyring, error) {
 	// Keyring store
 	keyringStore, err := config.OpenStore(ctx, runtime.KeyringURL())
 	if err != nil {
@@ -367,7 +367,7 @@ func (m *manager) initKeyring(ctx context.Context) (config.Store, error) {
 
 	runtime.SetVaultMasterKey(password)
 
-	return keyringStore, nil
+	return kr, nil
 }
 
 func (m *manager) initConfig(ctx context.Context) (config.Store, config.Store, revisions.Store, error) {
