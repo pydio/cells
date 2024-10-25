@@ -22,7 +22,6 @@ package cache_helper
 
 import (
 	"context"
-	"fmt"
 	"net/url"
 	"strings"
 
@@ -122,15 +121,15 @@ func (c *staticResolver) RegisterCache(scheme string, opts ...controller.Option[
 }
 
 func (c *staticResolver) GetCache(ctx context.Context, name string, resolutionData map[string]interface{}) (cache.Cache, error) {
-	var q string
-	for k, v := range resolutionData {
-		q = fmt.Sprintf("%s&%s=%v", q, k, v)
+	var prefix string
+	if p, ok := resolutionData["prefix"]; ok {
+		prefix = p.(string)
 	}
 	ur := c.url
 	if strings.Contains(c.url, "?") {
-		ur += "&" + q
+		ur += "&prefix=" + prefix
 	} else {
-		ur += "?" + q
+		ur += "?prefix=" + prefix
 	}
 	u, _ := url.Parse(ur)
 	if ca, ok := c.caches[u.String()]; ok {
