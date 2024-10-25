@@ -26,30 +26,24 @@ import (
 	"google.golang.org/grpc"
 
 	"github.com/pydio/cells/v4/common/proto/idm"
+	"github.com/pydio/cells/v4/common/server/stubs/inject"
+	"github.com/pydio/cells/v4/common/service"
+	"github.com/pydio/cells/v4/common/utils/propagator"
 	srv "github.com/pydio/cells/v4/idm/workspace/grpc"
 )
 
-func NewWorkspacesService(ww ...*idm.Workspace) (grpc.ClientConnInterface, error) {
-	ctx := context.Background()
-
-	/*
-		// todo
-		mockDAO, e := dao.InitDAO(ctx, sqlite.Driver, sqlite.SharedMemDSN, "idm_workspace", workspace.NewDAO, configx.New())
-		if e != nil {
-			return nil, e
-		}
-		ctx = servicecontext.WithDAO(ctx, mockDAO)
-
-	*/
-
+func NewWorkspacesService(ctx context.Context, svc service.Service, ww ...*idm.Workspace) (grpc.ClientConnInterface, error) {
 	serv := &idm.WorkspaceServiceStub{
 		WorkspaceServiceServer: srv.NewHandler(),
 	}
+	mock := &inject.SvcInjectorMock{ClientConnInterface: serv, Svc: svc}
+	ctx = propagator.With(ctx, service.ContextKey, svc)
+
 	for _, u := range ww {
 		_, er := serv.WorkspaceServiceServer.CreateWorkspace(ctx, &idm.CreateWorkspaceRequest{Workspace: u})
 		if er != nil {
 			return nil, er
 		}
 	}
-	return serv, nil
+	return mock, nil
 }

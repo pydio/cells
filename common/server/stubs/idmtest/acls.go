@@ -26,30 +26,26 @@ import (
 	"google.golang.org/grpc"
 
 	"github.com/pydio/cells/v4/common/proto/idm"
+	"github.com/pydio/cells/v4/common/server/stubs/inject"
+	"github.com/pydio/cells/v4/common/service"
+	"github.com/pydio/cells/v4/common/utils/propagator"
 	srv "github.com/pydio/cells/v4/idm/acl/grpc"
 )
 
-func NewACLService(acls ...*idm.ACL) (grpc.ClientConnInterface, error) {
+func NewACLService(ctx context.Context, svc service.Service, acls ...*idm.ACL) (grpc.ClientConnInterface, error) {
 
-	/*
-		// todo
-				mockDAO, e := dao.InitDAO(ctx, sqlite.Driver, sqlite.SharedMemDSN, "idm_acl", acl.NewDAO, configx.New())
-				if e != nil {
-					return nil, e
-				}
-			ctx = servicecontext.WithDAO(ctx, mockDAO)
-
-	*/
-	ctx := context.Background()
 	h := srv.NewHandler(nil)
 	serv := &idm.ACLServiceStub{
 		ACLServiceServer: h,
 	}
+	mock := &inject.SvcInjectorMock{ClientConnInterface: serv, Svc: svc}
+	ctx = propagator.With(ctx, service.ContextKey, svc)
+
 	for _, u := range acls {
 		_, er := serv.ACLServiceServer.CreateACL(ctx, &idm.CreateACLRequest{ACL: u})
 		if er != nil {
 			return nil, er
 		}
 	}
-	return serv, nil
+	return mock, nil
 }

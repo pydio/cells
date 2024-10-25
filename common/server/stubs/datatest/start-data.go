@@ -21,42 +21,71 @@
 package datatest
 
 import (
+	"context"
+	"fmt"
+	"strings"
+
+	grpc2 "google.golang.org/grpc"
+
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/client/grpc"
+	pb "github.com/pydio/cells/v4/common/proto/registry"
 	"github.com/pydio/cells/v4/common/proto/tree"
+	"github.com/pydio/cells/v4/common/registry"
+	"github.com/pydio/cells/v4/common/service"
+	"github.com/pydio/cells/v4/common/utils/propagator"
 )
 
-func RegisterTreeAndDatasources(treeNodes ...*tree.Node) error {
-	mX, er := NewMetaService()
-	if er != nil {
-		return er
-	}
-	grpc.RegisterMock(common.ServiceMeta, mX)
+func RegisterDataServices(ctx context.Context, nodes ...*tree.Node) error {
 
-	dss := []string{
-		"pydiods1",
-		"personal",
-		"cellsdata",
-		"thumbnails",
-		"versions",
+	var reg registry.Registry
+	if !propagator.Get(ctx, registry.ContextKey, &reg) {
+		return fmt.Errorf("cannot find registry in context")
 	}
-
-	for _, ds := range dss {
-		idx, e := NewIndexService(ds)
+	ii, _ := reg.List(registry.WithType(pb.ItemType_SERVICE))
+	var treeSvc service.Service
+	idxs := map[string]service.Service{}
+	for _, item := range ii {
+		svc := item.(service.Service)
+		var cc grpc2.ClientConnInterface
+		var err error
+		if item.Name() == common.ServiceDocStoreGRPC {
+			cc, err = NewDocStoreService(ctx, svc)
+		} else if item.Name() == common.ServiceMetaGRPC {
+			cc, err = NewMetaService(ctx, svc, nodes...)
+		} else if item.Name() == common.ServiceTreeGRPC {
+			treeSvc = svc
+		} else if strings.HasPrefix(item.Name(), common.ServiceDataIndexGRPC_) {
+			idxs[item.Name()] = svc
+		}
+		if err != nil {
+			return err
+		}
+		if cc != nil {
+			grpc.RegisterMock(item.Name(), cc)
+		}
+	}
+	var dss []string
+	for dsName, svc := range idxs {
+		idx, e := NewIndexService(ctx, svc)
 		if e != nil {
 			return e
 		}
-		grpc.RegisterMock(common.ServiceDataIndex_+ds, idx)
-		// TODO Context With Config
-		dsServ := NewDataSourceService(nil, ds)
-		grpc.RegisterMock(common.ServiceDataSync_+ds, dsServ)
+		grpc.RegisterMock(dsName, idx)
+		// Register a pure mock for Sync
+		ds := strings.TrimPrefix(dsName, common.ServiceDataIndexGRPC_)
+		dss = append(dss, ds)
+		dsServ := NewDataSourceService(ctx, ds)
+		grpc.RegisterMock(common.ServiceDataSyncGRPC_+ds, dsServ)
 	}
 
-	treeX, e := NewTreeService(dss, treeNodes...)
-	if e != nil {
-		return e
+	if treeSvc != nil {
+		ts, e := NewTreeService(ctx, treeSvc, dss, nodes...)
+		if e != nil {
+			return e
+		}
+		grpc.RegisterMock(common.ServiceTreeGRPC, ts)
 	}
-	grpc.RegisterMock(common.ServiceTree, treeX)
 
 	return nil
 }

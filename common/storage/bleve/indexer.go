@@ -550,10 +550,19 @@ func (s *Indexer) getSearchIndex(ctx context.Context) (bleve.Index, error) {
 	}
 
 	if len(indexes) == 0 {
-		if s.checkRotate(ctx) {
-			if err := s.rotate(ctx); err != nil {
-				return nil, err
+		if s.conf.RotationSize > 0 {
+			if s.checkRotate(ctx) {
+				if err := s.rotate(ctx); err != nil {
+					return nil, err
+				}
 			}
+		} else {
+			ix, e := s.openOneIndex(fullPath, s.conf.MappingName)
+			if e != nil {
+				return nil, e
+			}
+			s.indexes = append(s.indexes, ix)
+			return ix, e
 		}
 
 		return s.getSearchIndex(ctx)

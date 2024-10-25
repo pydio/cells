@@ -38,6 +38,13 @@ type StorageTestCase struct {
 	Label     string
 }
 
+type ServicesStorageTestCase struct {
+	DSN       map[string]string
+	Condition bool
+	Services  map[string]map[string]any
+	Label     string
+}
+
 func init() {
 	sql.TestPrintQueries = false
 }
@@ -234,6 +241,47 @@ func RunStorageTests(testCases []StorageTestCase, t *testing.T, f func(context.C
 		}
 		if t != nil {
 			t.Run(label, runner)
+		} else {
+			runner(nil)
+		}
+
+		//_ = manager.CloseStoragesForContext(ctx, manager.WithCleanBeforeClose())
+	}
+}
+
+// RunServicesTests initialize a runtime and run the tests cases with correct DAOs in context
+func RunServicesTests(testCases []ServicesStorageTestCase, t *testing.T, f func(context.Context)) {
+	for _, tc := range testCases {
+		if !tc.Condition {
+			continue
+		}
+		runner := func(t *testing.T) {
+			ctx, err := manager.MockServicesToContextDAO(context.Background(), tc.DSN, tc.Services)
+			if err != nil {
+				panic(err)
+			}
+			f(ctx)
+
+			// Clean up hooks - we cannot resolve gorm.DB as a Closer or Dropper...
+			for _, tf := range storage.TestFinisherHooks {
+				if er := tf(); er != nil {
+					panic(er)
+				}
+			}
+
+			// Close and drop, or just close
+			if dropper, er := manager.Resolve[storage.Dropper](ctx); er == nil {
+				if er = dropper.CloseAndDrop(ctx); er != nil {
+					panic(er)
+				}
+			} else if cl, er := manager.Resolve[storage.Closer](ctx); er == nil {
+				if er = cl.Close(ctx); er != nil {
+					panic(er)
+				}
+			}
+		}
+		if t != nil {
+			t.Run(tc.Label, runner)
 		} else {
 			runner(nil)
 		}

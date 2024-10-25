@@ -63,7 +63,7 @@ func init() {
 			service.WithStorageDrivers(user.Drivers...),
 			service.WithGRPC(func(ctx context.Context, server grpc.ServiceRegistrar) error {
 
-				handler := grpc2.NewHandler(ctx)
+				handler := grpc2.NewHandler()
 				idm.RegisterUserServiceServer(server, handler)
 				service2.RegisterLoginModifierServer(server, handler)
 

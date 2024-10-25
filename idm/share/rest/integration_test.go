@@ -84,7 +84,7 @@ func TestMain(m *testing.M) {
 	if er := datatest.RegisterTreeAndDatasources(); er != nil {
 		log.Fatal(er)
 	}
-	if er := idmtest.RegisterIdmMocksWithData(testData); er != nil {
+	if er := idmtest.RegisterIdmMocksWithData(nil, testData); er != nil {
 		log.Fatal(er)
 	}
 

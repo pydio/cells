@@ -22,6 +22,7 @@ package datatest
 
 import (
 	"context"
+	"strings"
 
 	"google.golang.org/grpc"
 
@@ -29,23 +30,15 @@ import (
 	"github.com/pydio/cells/v4/common/proto/object"
 	"github.com/pydio/cells/v4/common/proto/tree"
 	"github.com/pydio/cells/v4/common/server/stubs"
+	"github.com/pydio/cells/v4/common/server/stubs/inject"
+	"github.com/pydio/cells/v4/common/service"
+	"github.com/pydio/cells/v4/common/utils/propagator"
 	srv "github.com/pydio/cells/v4/data/source/index/grpc"
 )
 
-func NewIndexService(dsName string, nodes ...*tree.Node) (grpc.ClientConnInterface, error) {
+func NewIndexService(ctx context.Context, svc service.Service, nodes ...*tree.Node) (grpc.ClientConnInterface, error) {
 
-	ctx := context.Background()
-
-	/*
-		TODO
-		mockDAO, er := dao.InitDAO(ctx, sqlite.Driver, sqlite.SharedMemDSN, "data_index_"+dsName, index.NewDAO, configx.New())
-		if er != nil {
-			return nil, er
-		}
-			ctx = servicecontext.WithDAO(ctx, mockDAO)
-	*/
-
-	ts := srv.NewTreeServer(&object.DataSource{Name: dsName}, common.ServiceGrpcNamespace_+common.ServiceTree)
+	ts := srv.NewTreeServer(&object.DataSource{Name: strings.TrimPrefix(svc.Name(), common.ServiceDataIndexGRPC_)}, svc.Name())
 
 	srv1 := &tree.NodeProviderStub{}
 	srv1.NodeProviderServer = ts
@@ -55,12 +48,14 @@ func NewIndexService(dsName string, nodes ...*tree.Node) (grpc.ClientConnInterfa
 	serv := &stubs.MuxService{}
 	serv.Register("tree.NodeProvider", srv1)
 	serv.Register("tree.NodeReceiver", srv2)
+	mock := &inject.SvcInjectorMock{ClientConnInterface: serv, Svc: svc}
 
+	ctx = propagator.With(ctx, service.ContextKey, svc)
 	for _, u := range nodes {
 		_, er := ts.CreateNode(ctx, &tree.CreateNodeRequest{Node: u})
 		if er != nil {
 			return nil, er
 		}
 	}
-	return serv, nil
+	return mock, nil
 }

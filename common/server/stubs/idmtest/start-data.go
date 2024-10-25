@@ -21,17 +21,24 @@
 package idmtest
 
 import (
+	"context"
+	"fmt"
 	"os"
 	"path"
 	"runtime"
 	"sync"
 
+	grpc2 "google.golang.org/grpc"
 	"google.golang.org/protobuf/encoding/protojson"
 
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/client/grpc"
 	"github.com/pydio/cells/v4/common/proto/idm"
+	pb "github.com/pydio/cells/v4/common/proto/registry"
 	"github.com/pydio/cells/v4/common/proto/rest"
+	"github.com/pydio/cells/v4/common/registry"
+	"github.com/pydio/cells/v4/common/service"
+	"github.com/pydio/cells/v4/common/utils/propagator"
 )
 
 type TestData struct {
@@ -102,30 +109,33 @@ func GetStartData() (*TestData, error) {
 	return startData, parseErr
 }
 
-func RegisterIdmMocksWithData(testData *TestData) error {
-	us, er := NewUsersService(testData.Users...)
-	if er != nil {
-		return er
-	}
-	grpc.RegisterMock(common.ServiceUser, us)
+func RegisterIdmMocksWithData(ctx context.Context, testData *TestData) error {
 
-	rs, er := NewRolesService(testData.Roles...)
-	if er != nil {
-		return nil
+	var reg registry.Registry
+	if !propagator.Get(ctx, registry.ContextKey, &reg) {
+		return fmt.Errorf("cannot find registry in context")
 	}
-	grpc.RegisterMock(common.ServiceRole, rs)
-
-	as, er := NewACLService(testData.ACLs...)
-	if er != nil {
-		return er
+	ii, _ := reg.List(registry.WithType(pb.ItemType_SERVICE))
+	for _, item := range ii {
+		svc := item.(service.Service)
+		var cc grpc2.ClientConnInterface
+		var err error
+		switch item.Name() {
+		case common.ServiceUserGRPC:
+			cc, err = NewUsersService(ctx, svc, testData.Users...)
+		case common.ServiceRoleGRPC:
+			cc, err = NewRolesService(ctx, svc, testData.Roles...)
+		case common.ServiceAclGRPC:
+			cc, err = NewACLService(ctx, svc, testData.ACLs...)
+		case common.ServiceWorkspaceGRPC:
+			cc, err = NewWorkspacesService(ctx, svc, testData.Workspaces...)
+		default:
+			continue
+		}
+		if err != nil {
+			return err
+		}
+		grpc.RegisterMock(item.Name(), cc)
 	}
-	grpc.RegisterMock(common.ServiceAcl, as)
-
-	ws, er := NewWorkspacesService(testData.Workspaces...)
-	if er != nil {
-		return er
-	}
-	grpc.RegisterMock(common.ServiceWorkspace, ws)
-
 	return nil
 }

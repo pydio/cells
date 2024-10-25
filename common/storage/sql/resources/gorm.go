@@ -32,7 +32,6 @@ import (
 	"gorm.io/gorm/clause"
 	"gorm.io/gorm/schema"
 
-	"github.com/pydio/cells/v4/common/errors"
 	"github.com/pydio/cells/v4/common/proto/service"
 )
 
@@ -137,13 +136,6 @@ func (s *gormImpl) DeletePoliciesBySubject(ctx context.Context, subject string) 
 // DeletePoliciesForResourceAndAction removes policies for a given resource only if they have the corresponding action
 func (s *gormImpl) DeletePoliciesForResourceAndAction(ctx context.Context, resourceId string, action service.ResourcePolicyAction) error {
 	return s.instance(ctx).Delete(&service.ResourcePolicy{}, &service.ResourcePolicy{Resource: resourceId, Action: action}).Error
-}
-
-// BuildPolicyConditionForAction builds an ResourcesSQL condition from claims toward the associated resource table
-func (s *gormImpl) BuildPolicyConditionForAction(ctx context.Context, q *service.ResourcePolicyQuery, action service.ResourcePolicyAction) (out any, e error) {
-
-	return nil, errors.WithMessage(errors.StatusNotImplemented, "should use Convert API instead")
-
 }
 
 // Convert a policy query to conditions from claims toward the associated resource table

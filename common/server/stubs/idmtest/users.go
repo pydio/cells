@@ -26,30 +26,25 @@ import (
 	"google.golang.org/grpc"
 
 	"github.com/pydio/cells/v4/common/proto/idm"
+	"github.com/pydio/cells/v4/common/server/stubs/inject"
+	"github.com/pydio/cells/v4/common/service"
+	"github.com/pydio/cells/v4/common/utils/propagator"
 	srv "github.com/pydio/cells/v4/idm/user/grpc"
 )
 
-func NewUsersService(users ...*idm.User) (grpc.ClientConnInterface, error) {
-	ctx := context.Background()
-
-	/*
-		// TODO
-		mockDAO, e := dao.InitDAO(ctx, sqlite.Driver, sqlite.SharedMemDSN, "idm_user", user.NewDAO, configx.New())
-		if e != nil {
-			return nil, e
-		}
-		ctx = servicecontext.WithDAO(ctx, mockDAO)
-
-	*/
+// NewUsersService registers a mock - Warning, passed context must contain necessary data to resolve DAO
+func NewUsersService(ctx context.Context, svc service.Service, users ...*idm.User) (grpc.ClientConnInterface, error) {
 
 	serv := &idm.UserServiceStub{
-		UserServiceServer: srv.NewHandler(ctx),
+		UserServiceServer: srv.NewHandler(),
 	}
+	mock := &inject.SvcInjectorMock{ClientConnInterface: serv, Svc: svc}
+	ctx = propagator.With(ctx, service.ContextKey, svc)
 	for _, u := range users {
 		_, er := serv.UserServiceServer.CreateUser(ctx, &idm.CreateUserRequest{User: u})
 		if er != nil {
 			return nil, er
 		}
 	}
-	return serv, nil
+	return mock, nil
 }

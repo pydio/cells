@@ -1,5 +1,3 @@
-//go:build exclude
-
 /*
  * Copyright (c) 2019-2021. Abstrium SAS <team (at) pydio.com>
  * This file is part of Pydio Cells.
@@ -24,28 +22,36 @@ package compose_test
 
 import (
 	"context"
-	"log"
+	"os"
 	"strings"
 	"testing"
 
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/auth"
 	"github.com/pydio/cells/v4/common/client/grpc"
-	"github.com/pydio/cells/v4/common/config/mock"
 	"github.com/pydio/cells/v4/common/nodes"
 	"github.com/pydio/cells/v4/common/nodes/compose"
 	nodescontext "github.com/pydio/cells/v4/common/nodes/context"
 	"github.com/pydio/cells/v4/common/nodes/models"
 	omock "github.com/pydio/cells/v4/common/nodes/objects/mock"
 	"github.com/pydio/cells/v4/common/permissions"
+	"github.com/pydio/cells/v4/common/proto/docstore"
 	"github.com/pydio/cells/v4/common/proto/tree"
-	"github.com/pydio/cells/v4/common/registry"
 	"github.com/pydio/cells/v4/common/server/stubs/datatest"
 	"github.com/pydio/cells/v4/common/server/stubs/idmtest"
+	"github.com/pydio/cells/v4/common/storage/sql"
+	"github.com/pydio/cells/v4/common/storage/test"
 	"github.com/pydio/cells/v4/common/utils/cache/gocache"
 	cache_helper "github.com/pydio/cells/v4/common/utils/cache/helper"
 	"github.com/pydio/cells/v4/common/utils/configx"
-	"github.com/pydio/cells/v4/common/utils/propagator"
+	"github.com/pydio/cells/v4/common/utils/uuid"
+	dcdao "github.com/pydio/cells/v4/data/docstore/dao/bleve"
+	metadao "github.com/pydio/cells/v4/data/meta/dao/sql"
+	idxdao "github.com/pydio/cells/v4/data/source/index/dao/sql"
+	acldao "github.com/pydio/cells/v4/idm/acl/dao/sql"
+	roledao "github.com/pydio/cells/v4/idm/role/dao/sql"
+	usrdao "github.com/pydio/cells/v4/idm/user/dao/sql"
+	wsdao "github.com/pydio/cells/v4/idm/workspace/dao/sql"
 
 	_ "github.com/pydio/cells/v4/common/utils/cache/gocache"
 	_ "gocloud.dev/pubsub/mempubsub"
@@ -58,64 +64,110 @@ func TestMain(m *testing.M) {
 	cache_helper.SetStaticResolver("pm://", &gocache.URLOpener{})
 
 	nodes.UseMockStorageClientType()
-
 	// Override default
 	nodes.RegisterStorageClient("mock", func(cfg configx.Values) (nodes.StorageClient, error) {
-		return omock.New("pydiods1", "personal", "cellsdata", "thumbnails", "versions"), nil
+		return mockClient, nil
 	})
-
-	if e := mock.RegisterMockConfig(); e != nil {
-		log.Fatal(e)
-	}
-
-	testData, er := idmtest.GetStartData()
-	if er != nil {
-		log.Fatal(er)
-	}
-
-	ds, er := datatest.NewDocStoreService()
-	if er != nil {
-		log.Fatal(er)
-	}
-	grpc.RegisterMock(common.ServiceDocStore, ds)
-
-	if er := datatest.RegisterTreeAndDatasources(); er != nil {
-		log.Fatal(er)
-	}
-	if er := idmtest.RegisterIdmMocksWithData(testData); er != nil {
-		log.Fatal(er)
-	}
 
 	m.Run()
 }
 
+var (
+	testServices = map[string]map[string]any{
+		common.ServiceUserGRPC: {
+			"sql": usrdao.NewDAO,
+		},
+		common.ServiceRoleGRPC: {
+			"sql": roledao.NewDAO,
+		},
+		common.ServiceAclGRPC: {
+			"sql": acldao.NewDAO,
+		},
+		common.ServiceWorkspaceGRPC: {
+			"sql": wsdao.NewDAO,
+		},
+		common.ServiceDocStoreGRPC: {
+			"dcbolt":  dcdao.NewBleveDAO,
+			"dcbleve": dcdao.NewBleveDAO,
+		},
+		common.ServiceMetaGRPC: {
+			"sql": metadao.NewMetaDAO,
+		},
+		common.ServiceTreeGRPC: {},
+	}
+	dss        = []string{"pydiods1", "personal", "cellsdata", "thumbnails", "versions"}
+	mockClient = omock.New(dss...)
+	testcases  []test.ServicesStorageTestCase
+)
+
+func init() {
+	tmpPath := os.TempDir()
+	unique := uuid.New()[:6] + "_"
+
+	for _, ds := range dss {
+		testServices[common.ServiceDataIndexGRPC_+ds] = map[string]any{"sql": idxdao.NewDAO}
+	}
+
+	testcases = []test.ServicesStorageTestCase{
+		{
+			DSN: map[string]string{
+				"sql":     sql.SqliteDriver + "://" + sql.SharedMemDSN + "&hookNames=cleanTables&prefix=" + unique,
+				"dcbolt":  "boltdb://" + tmpPath + "/docstore-" + unique + ".db",
+				"dcbleve": "bleve://" + tmpPath + "/docstore-" + unique + ".bleve?rotationSize=-1",
+			},
+			Condition: true,
+			Services:  testServices,
+			Label:     "Sqlite",
+		},
+	}
+}
+
 func TestPersonalResolution(t *testing.T) {
 
-	ctx := context.Background()
-	reg, _ := registry.OpenRegistry(ctx, "mem:///")
-	ctx = propagator.With(ctx, registry.ContextKey, reg)
-	ctx = nodescontext.WithSourcesPool(ctx, nodes.NewTestPool(ctx))
-	client := compose.PathClient(ctx)
+	test.RunServicesTests(testcases, t, func(ctx context.Context) {
 
-	Convey("Test personal file", t, func() {
-		user, e := permissions.SearchUniqueUser(ctx, "admin", "")
-		So(e, ShouldBeNil)
-		userCtx := auth.WithImpersonate(ctx, user)
-		resp, e := client.ReadNode(userCtx, &tree.ReadNodeRequest{Node: &tree.Node{Path: "/personal-files"}})
-		So(e, ShouldBeNil)
-		t.Log("Output node is", resp.GetNode().Zap())
+		Convey("Setup Mock Data", t, func() {
+			sd, er := idmtest.GetStartData()
+			So(er, ShouldBeNil)
+			er = idmtest.RegisterIdmMocksWithData(ctx, sd)
+			So(er, ShouldBeNil)
+			er = datatest.RegisterDataServices(ctx)
+			So(er, ShouldBeNil)
 
-		cResp, e := client.CreateNode(userCtx, &tree.CreateNodeRequest{Node: &tree.Node{Path: "/personal-files/AdminFolder", Type: tree.NodeType_COLLECTION}})
-		So(e, ShouldBeNil)
-		t.Log("Created node is", cResp.GetNode().Zap())
+			// test docstore
+			dcc := docstore.NewDocStoreClient(grpc.ResolveConn(ctx, common.ServiceDocStoreGRPC))
+			dc, er := dcc.GetDocument(ctx, &docstore.GetDocumentRequest{
+				StoreID:    common.DocStoreIdVirtualNodes,
+				DocumentID: "my-files",
+			})
+			So(er, ShouldBeNil)
+			So(dc.Document, ShouldNotBeNil)
 
-		contentString := "content"
-		contentSize := int64(len(contentString))
-		written, er := client.PutObject(userCtx, &tree.Node{Path: "/personal-files/AdminFolder/file.txt"}, strings.NewReader(contentString), &models.PutRequestData{
-			Size: contentSize,
 		})
-		So(er, ShouldBeNil)
-		So(written.Size, ShouldEqual, contentSize)
+
+		ctx = nodescontext.WithSourcesPool(ctx, nodes.NewTestPoolWithDataSources(ctx, mockClient, dss...))
+		client := compose.PathClient(ctx)
+
+		Convey("Test personal file", t, func() {
+			user, e := permissions.SearchUniqueUser(ctx, "admin", "")
+			So(e, ShouldBeNil)
+			userCtx := auth.WithImpersonate(ctx, user)
+			resp, e := client.ReadNode(userCtx, &tree.ReadNodeRequest{Node: &tree.Node{Path: "/personal-files"}})
+			So(e, ShouldBeNil)
+			t.Log("Output node is", resp.GetNode().Zap())
+
+			cResp, e := client.CreateNode(userCtx, &tree.CreateNodeRequest{Node: &tree.Node{Path: "/personal-files/AdminFolder", Type: tree.NodeType_COLLECTION}})
+			So(e, ShouldBeNil)
+			t.Log("Created node is", cResp.GetNode().Zap())
+
+			contentString := "content"
+			contentSize := int64(len(contentString))
+			written, er := client.PutObject(userCtx, &tree.Node{Path: "/personal-files/AdminFolder/file.txt"}, strings.NewReader(contentString), &models.PutRequestData{
+				Size: contentSize,
+			})
+			So(er, ShouldBeNil)
+			So(written.Size, ShouldEqual, contentSize)
+		})
 	})
 
 }

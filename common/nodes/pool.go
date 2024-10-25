@@ -109,6 +109,25 @@ func NewTestPool(ctx context.Context, presetClient ...SourcesPool) *openurl.Pool
 	})
 }
 
+func NewTestPoolWithDataSources(ctx context.Context, sc StorageClient, dss ...string) *openurl.Pool[SourcesPool] {
+	return openurl.MustMemPool[SourcesPool](ctx, func(ctx context.Context, url string) SourcesPool {
+		cp := &ClientsPool{
+			ctx:     ctx,
+			sources: make(map[string]LoadedSource),
+			aliases: make(map[string]sourceAlias),
+			reload:  make(chan bool),
+		}
+		for _, ds := range dss {
+			cp.sources[ds] = LoadedSource{
+				DataSource: &object.DataSource{Name: ds, ObjectsBucket: ds},
+				Client:     sc,
+			}
+		}
+		return cp
+	})
+
+}
+
 func openPool(ctx context.Context) *ClientsPool {
 	var reg registry.Registry
 	if !propagator.Get(ctx, registry.ContextSOTWKey, &reg) {

@@ -69,7 +69,7 @@ func TestLoginCIDAO(t *testing.T) {
 			So(e, ShouldBeNil)
 		})
 
-		h := NewHandler(ctx)
+		h := NewHandler()
 
 		Convey("Test LoginCI support", t, func() {
 			_, e := h.CreateUser(ctx, &idm.CreateUserRequest{User: &idm.User{Login: "MixedLogin", Password: "azerty"}})
@@ -114,7 +114,7 @@ func TestUser(t *testing.T) {
 			"autoApplyProfile": {{Uuid: "auto-apply", AutoApplies: []string{"autoApplyProfile"}}},
 		})
 
-		h := NewHandler(ctx)
+		h := NewHandler()
 
 		Convey("Create one user", t, func() {
 			resp, err := h.CreateUser(ctx, &idm.CreateUserRequest{User: &idm.User{Login: "user1"}})

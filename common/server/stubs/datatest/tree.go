@@ -29,10 +29,13 @@ import (
 	grpc2 "github.com/pydio/cells/v4/common/client/grpc"
 	"github.com/pydio/cells/v4/common/proto/tree"
 	"github.com/pydio/cells/v4/common/server/stubs"
+	"github.com/pydio/cells/v4/common/server/stubs/inject"
+	"github.com/pydio/cells/v4/common/service"
+	"github.com/pydio/cells/v4/common/utils/propagator"
 	srv "github.com/pydio/cells/v4/data/tree/grpc"
 )
 
-func NewTreeService(dss []string, nodes ...*tree.Node) (grpc.ClientConnInterface, error) {
+func NewTreeService(ctx context.Context, svc service.Service, dss []string, nodes ...*tree.Node) (grpc.ClientConnInterface, error) {
 
 	ct := context.Background()
 	server := srv.NewTreeServer("")
@@ -51,11 +54,14 @@ func NewTreeService(dss []string, nodes ...*tree.Node) (grpc.ClientConnInterface
 	serv.Register("tree.NodeProvider", serv1)
 	serv.Register("tree.NodeReceiver", serv2)
 
+	mock := &inject.SvcInjectorMock{ClientConnInterface: serv, Svc: svc}
+	ctx = propagator.With(ctx, service.ContextKey, svc)
+
 	for _, u := range nodes {
 		_, er := server.CreateNode(context.Background(), &tree.CreateNodeRequest{Node: u})
 		if er != nil {
 			return nil, er
 		}
 	}
-	return serv, nil
+	return mock, nil
 }
