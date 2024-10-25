@@ -857,11 +857,11 @@ func (dao *gormImpl[T]) GetOrCreateNodeByPath(ctx context.Context, nodePath stri
 		err = errors.Tag(err, errors.StatusConflict)
 		r := 0
 		for {
-			<-time.After(time.Duration((r+1)*50) * time.Millisecond)
+			<-time.After(time.Duration(100+(r)*50) * time.Millisecond)
 			retryNode := dao.factory.Struct()
 			retryNode.SetNode(info.Clone())
 			newNode, allCreated, err = toMPath(ctx, &clone, retryNode, root, true)
-			if err == nil || !errors.Is(err, gorm.ErrDuplicatedKey) || r >= 4 {
+			if err == nil || !errors.Is(err, gorm.ErrDuplicatedKey) || r >= 5 {
 				log.Logger(ctx).Debug("Created mpath after retry")
 				if errors.Is(err, gorm.ErrDuplicatedKey) {
 					err = errors.Tag(err, errors.StatusConflict)

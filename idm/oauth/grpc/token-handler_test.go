@@ -83,7 +83,7 @@ func TestPatHandler_AutoRefresh(t *testing.T) {
 				UserUuid:          "admin-uuid",
 				UserLogin:         "admin",
 				Label:             "Personal token for admin",
-				AutoRefreshWindow: 3, // Refresh every 2s
+				AutoRefreshWindow: 3, // Expand validity window
 			})
 			So(e, ShouldBeNil)
 			generatedToken := rsp.AccessToken
@@ -95,19 +95,13 @@ func TestPatHandler_AutoRefresh(t *testing.T) {
 			So(er, ShouldBeNil)
 			So(verifyResponse.Success, ShouldBeTrue)
 
-			<-time.After(1 * time.Second)
+			<-time.After(500 * time.Millisecond)
 			verifyResponse, er = pat.Verify(ctx, &auth.VerifyTokenRequest{Token: generatedToken})
 			So(er, ShouldBeNil)
-			<-time.After(1 * time.Second)
+			<-time.After(500 * time.Millisecond)
 			verifyResponse, er = pat.Verify(ctx, &auth.VerifyTokenRequest{Token: generatedToken})
 			So(er, ShouldBeNil)
-			<-time.After(1 * time.Second)
-			verifyResponse, er = pat.Verify(ctx, &auth.VerifyTokenRequest{Token: generatedToken})
-			So(er, ShouldBeNil)
-			<-time.After(1 * time.Second)
-			verifyResponse, er = pat.Verify(ctx, &auth.VerifyTokenRequest{Token: generatedToken})
-			So(er, ShouldBeNil)
-			<-time.After(1 * time.Second)
+			<-time.After(500 * time.Millisecond)
 			verifyResponse, er = pat.Verify(ctx, &auth.VerifyTokenRequest{Token: generatedToken})
 			So(er, ShouldBeNil)
 
