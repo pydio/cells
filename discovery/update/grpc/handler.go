@@ -40,7 +40,6 @@ import (
 	"github.com/pydio/cells/v4/common/proto/update"
 	"github.com/pydio/cells/v4/common/telemetry/log"
 	"github.com/pydio/cells/v4/common/utils/i18n/languages"
-	"github.com/pydio/cells/v4/common/utils/propagator"
 	"github.com/pydio/cells/v4/common/utils/uuid"
 	update2 "github.com/pydio/cells/v4/discovery/update"
 	"github.com/pydio/cells/v4/discovery/update/lang"
@@ -122,7 +121,7 @@ func (h *Handler) ApplyUpdate(ctx context.Context, request *update.ApplyUpdateRe
 		Job:         job,
 	}
 	broker.MustPublish(ctx, common.TopicJobTaskEvent, event)
-	ct := propagator.ForkContext(context.Background(), ctx)
+	ct := context.WithoutCancel(ctx)
 	go func() {
 		defer close(pgChan)
 		defer close(errorChan)

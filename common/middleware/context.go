@@ -214,7 +214,7 @@ func ServiceIncomingContext(serverRuntimeContext context.Context) func(ctx conte
 
 func WebIncomingContextMiddleware(ctx context.Context, endpoint string, serviceContextKey any, srv server.Server, h http.Handler) http.Handler {
 	return http.HandlerFunc(func(rw http.ResponseWriter, req *http.Request) {
-		ctx := propagator.ForkContext(req.Context(), ctx)
+		ctx = propagator.ForkContext(req.Context(), ctx)
 
 		var reg registry.Registry
 		propagator.Get(ctx, registry.ContextKey, &reg)

@@ -52,15 +52,15 @@ func TestDAO_CRUD(t *testing.T) {
 			bs, err := manager.Resolve[versions.DAO](ctx)
 			So(err, ShouldBeNil)
 
-			e := bs.StoreVersion("uuid", &tree.ChangeLog{Uuid: "version1", Data: []byte("etag1")})
+			e := bs.StoreVersion(ctx, "uuid", &tree.ChangeLog{Uuid: "version1", Data: []byte("etag1")})
 			So(e, ShouldBeNil)
-			e = bs.StoreVersion("uuid", &tree.ChangeLog{Uuid: "version2", Data: []byte("etag2")})
+			e = bs.StoreVersion(ctx, "uuid", &tree.ChangeLog{Uuid: "version2", Data: []byte("etag2")})
 			So(e, ShouldBeNil)
-			e = bs.StoreVersion("uuid", &tree.ChangeLog{Uuid: "version3", Data: []byte("etag3")})
+			e = bs.StoreVersion(ctx, "uuid", &tree.ChangeLog{Uuid: "version3", Data: []byte("etag3")})
 			So(e, ShouldBeNil)
 
 			var results []*tree.ChangeLog
-			logs, _ := bs.GetVersions("uuid")
+			logs, _ := bs.GetVersions(ctx, "uuid")
 			for log := range logs {
 				results = append(results, log)
 			}
@@ -68,7 +68,7 @@ func TestDAO_CRUD(t *testing.T) {
 			So(results, ShouldHaveLength, 3)
 
 			var versionIds []string
-			versions, finish, errChan := bs.ListAllVersionedNodesUuids()
+			versions, finish, errChan := bs.ListAllVersionedNodesUuids(ctx)
 		loop2:
 			for {
 				select {
@@ -83,27 +83,27 @@ func TestDAO_CRUD(t *testing.T) {
 
 			So(versionIds, ShouldHaveLength, 1)
 
-			last, e := bs.GetLastVersion("uuid")
+			last, e := bs.GetLastVersion(ctx, "uuid")
 			So(last.Uuid, ShouldEqual, "version3")
 			So(string(last.Data), ShouldEqual, "etag3")
 
-			specific, e := bs.GetVersion("uuid", "version2")
+			specific, e := bs.GetVersion(ctx, "uuid", "version2")
 			So(specific.Uuid, ShouldEqual, "version2")
 			So(string(specific.Data), ShouldEqual, "etag2")
 
-			nonExisting, e := bs.GetLastVersion("noid")
+			nonExisting, e := bs.GetLastVersion(ctx, "noid")
 			So(e, ShouldBeNil)
 			So(nonExisting, ShouldBeNil)
 
-			nonExisting, e = bs.GetVersion("uuid", "wrongVersion")
+			nonExisting, e = bs.GetVersion(ctx, "uuid", "wrongVersion")
 			So(e, ShouldBeNil)
 			So(nonExisting.Uuid, ShouldEqual, "")
 
-			ee := bs.DeleteVersionsForNode("uuid")
+			ee := bs.DeleteVersionsForNode(ctx, "uuid")
 			So(ee, ShouldBeNil)
 
 			results = []*tree.ChangeLog{}
-			logs, _ = bs.GetVersions("uuid")
+			logs, _ = bs.GetVersions(ctx, "uuid")
 			for log := range logs {
 				results = append(results, log)
 			}
@@ -118,18 +118,18 @@ func TestDAO_CRUD(t *testing.T) {
 			bs, err := manager.Resolve[versions.DAO](ctx)
 			So(err, ShouldBeNil)
 
-			e := bs.StoreVersion("uuid", &tree.ChangeLog{Uuid: "version1", Data: []byte("etag1")})
+			e := bs.StoreVersion(ctx, "uuid", &tree.ChangeLog{Uuid: "version1", Data: []byte("etag1")})
 			So(e, ShouldBeNil)
-			e = bs.StoreVersion("uuid", &tree.ChangeLog{Uuid: "version2", Data: []byte("etag2")})
+			e = bs.StoreVersion(ctx, "uuid", &tree.ChangeLog{Uuid: "version2", Data: []byte("etag2")})
 			So(e, ShouldBeNil)
-			e = bs.StoreVersion("uuid", &tree.ChangeLog{Uuid: "version3", Data: []byte("etag3")})
+			e = bs.StoreVersion(ctx, "uuid", &tree.ChangeLog{Uuid: "version3", Data: []byte("etag3")})
 			So(e, ShouldBeNil)
 
-			err = bs.DeleteVersionsForNode("uuid", &tree.ChangeLog{Uuid: "version2"})
+			err = bs.DeleteVersionsForNode(ctx, "uuid", &tree.ChangeLog{Uuid: "version2"})
 			So(err, ShouldBeNil)
 
 			var results []*tree.ChangeLog
-			logs, _ := bs.GetVersions("uuid")
+			logs, _ := bs.GetVersions(ctx, "uuid")
 			for log := range logs {
 				results = append(results, log)
 			}

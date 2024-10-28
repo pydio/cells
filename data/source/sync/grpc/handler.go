@@ -507,7 +507,7 @@ func (s *Handler) TriggerResync(c context.Context, req *protosync.ResyncRequest)
 	if req.Task != nil {
 		statusChan = make(chan model.Status)
 
-		subCtx := propagator.ForkContext(context.Background(), c)
+		subCtx := context.WithoutCancel(c)
 		subCtx = propagator.WithUserNameMetadata(subCtx, common.PydioContextUserKey, common.PydioSystemUsername)
 
 		theTask := req.Task

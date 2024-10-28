@@ -133,7 +133,7 @@ func (j *JobsHandler) DeleteJob(ctx context.Context, request *proto.DeleteJobReq
 			response.Success = false
 			return nil, err
 		}
-		bg := propagator.ForkContext(context.Background(), ctx)
+		bg := context.WithoutCancel(ctx)
 		broker.MustPublish(bg, common.TopicJobConfigEvent, &proto.JobChangeEvent{
 			JobRemoved: request.JobID,
 		})
@@ -174,7 +174,7 @@ func (j *JobsHandler) DeleteJob(ctx context.Context, request *proto.DeleteJobReq
 			if e := store.DeleteJob(id); e == nil {
 				deleted++
 				log.Logger(ctx).Info("Deleting AutoClean Job " + id)
-				bg := propagator.ForkContext(context.Background(), ctx)
+				bg := context.WithoutCancel(ctx)
 				broker.MustPublish(bg, common.TopicJobConfigEvent, &proto.JobChangeEvent{
 					JobRemoved: id,
 				})
@@ -241,7 +241,7 @@ func (j *JobsHandler) PutTask(ctx context.Context, request *proto.PutTaskRequest
 	T := lang.Bundle().T()
 	job.Label = T(job.Label)
 	if !job.TasksSilentUpdate {
-		broker.MustPublish(propagator.ForkContext(context.Background(), ctx), common.TopicJobTaskEvent, &proto.TaskChangeEvent{
+		broker.MustPublish(context.WithoutCancel(ctx), common.TopicJobTaskEvent, &proto.TaskChangeEvent{
 			TaskUpdated: request.Task,
 			Job:         job,
 			NanoStamp:   time.Now().UnixNano(),
@@ -351,7 +351,7 @@ func (j *JobsHandler) PutTaskStream(streamer proto.JobService_PutTaskStreamServe
 		T := lang.Bundle().T()
 		tJob.Label = T(tJob.Label)
 		if !tJob.TasksSilentUpdate {
-			broker.MustPublish(propagator.ForkContext(context.Background(), ctx), common.TopicJobTaskEvent, &proto.TaskChangeEvent{
+			broker.MustPublish(context.WithoutCancel(ctx), common.TopicJobTaskEvent, &proto.TaskChangeEvent{
 				TaskUpdated: request.Task,
 				Job:         tJob,
 				NanoStamp:   time.Now().UnixNano(),
@@ -437,7 +437,7 @@ func (j *JobsHandler) DeleteTasks(ctx context.Context, request *proto.DeleteTask
 				return nil, e
 			}
 			response.Deleted = append(response.Deleted, tasks...)
-			bg := propagator.ForkContext(context.Background(), ctx)
+			bg := context.WithoutCancel(ctx)
 			go func(jI string, tt ...string) {
 				j.DeleteLogsFor(bg, jI, tt...)
 			}(jId, tasks...)
@@ -448,7 +448,7 @@ func (j *JobsHandler) DeleteTasks(ctx context.Context, request *proto.DeleteTask
 
 		if e := store.DeleteTasks(request.JobId, request.TaskID); e == nil {
 			response.Deleted = append(response.Deleted, request.TaskID...)
-			bg := propagator.ForkContext(context.Background(), ctx)
+			bg := context.WithoutCancel(ctx)
 			go func() {
 				j.DeleteLogsFor(bg, request.JobId, request.TaskID...)
 			}()
