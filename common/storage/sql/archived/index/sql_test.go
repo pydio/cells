@@ -25,7 +25,7 @@ package index
 import (
 	"testing"
 
-	"github.com/pydio/cells/v4/common/utils/mtree"
+	//"github.com/pydio/cells/v4/common/utils/mtree"
 
 	. "github.com/smartystreets/goconvey/convey"
 )

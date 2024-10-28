@@ -44,11 +44,11 @@ import (
 
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/proto/tree"
-	"github.com/pydio/cells/v4/common/sql"
+	//"github.com/pydio/cells/v4/common/sql"
 	"github.com/pydio/cells/v4/common/telemetry/log"
 	cache2 "github.com/pydio/cells/v4/common/utils/cache"
 	"github.com/pydio/cells/v4/common/utils/configx"
-	"github.com/pydio/cells/v4/common/utils/mtree"
+	//"github.com/pydio/cells/v4/common/utils/mtree"
 	"github.com/pydio/cells/v4/common/utils/statics"
 )
 

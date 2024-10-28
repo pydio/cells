@@ -23,7 +23,9 @@ package metrics
 
 import (
 	"context"
+	"time"
 
+	"go.opentelemetry.io/contrib/instrumentation/runtime"
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/sdk/metric"
@@ -94,6 +96,7 @@ func InitReaders(ctx context.Context, svc otel2.Service, cfg Config) error {
 	provider := metric.NewMeterProvider(opts...)
 
 	otel.SetMeterProvider(provider)
+	_ = runtime.Start(runtime.WithMeterProvider(provider), runtime.WithMinimumReadMemStatsInterval(time.Second))
 	return nil
 }
 
