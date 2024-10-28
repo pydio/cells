@@ -59,7 +59,6 @@ type FlatStorageHandler struct {
 
 func (f *FlatStorageHandler) Adapt(h nodes.Handler, options nodes.RouterOptions) nodes.Handler {
 	f.Next = h
-	f.ClientsPool = options.Pool
 	return f
 }
 
@@ -76,7 +75,7 @@ func (f *FlatStorageHandler) CreateNode(ctx context.Context, in *tree.CreateNode
 		rNode.MustSetMeta(common.MetaFlagIndexed, true)
 		return &tree.CreateNodeResponse{Node: rNode}, nil
 	}
-	cResp, cErr := f.ContextPool(ctx).GetTreeClientWrite().CreateNode(ctx, in, opts...)
+	cResp, cErr := nodes.GetSourcesPool(ctx).GetTreeClientWrite().CreateNode(ctx, in, opts...)
 	if cErr == nil && cResp.GetNode() != nil {
 		cResp.GetNode().MustSetMeta(common.MetaFlagIndexed, true)
 	}
@@ -86,12 +85,12 @@ func (f *FlatStorageHandler) CreateNode(ctx context.Context, in *tree.CreateNode
 func (f *FlatStorageHandler) DeleteNode(ctx context.Context, in *tree.DeleteNodeRequest, opts ...grpc.CallOption) (*tree.DeleteNodeResponse, error) {
 	isFlat := nodes.IsFlatStorage(ctx, "in")
 	if isFlat && !in.GetNode().IsLeaf() {
-		return f.ContextPool(ctx).GetTreeClientWrite().DeleteNode(ctx, in)
+		return nodes.GetSourcesPool(ctx).GetTreeClientWrite().DeleteNode(ctx, in)
 	}
 	resp, e := f.Next.DeleteNode(ctx, in, opts...)
 	if isFlat && e == nil && resp.Success {
 		// Update index directly
-		return f.ContextPool(ctx).GetTreeClientWrite().DeleteNode(ctx, in)
+		return nodes.GetSourcesPool(ctx).GetTreeClientWrite().DeleteNode(ctx, in)
 	}
 	return resp, e
 }
@@ -133,7 +132,7 @@ func (f *FlatStorageHandler) CopyObject(ctx context.Context, from *tree.Node, to
 			if ctype := from.GetStringMeta(common.MetaNamespaceMime); ctype != "" {
 				temporary.MustSetMeta(common.MetaNamespaceMime, ctype)
 			}
-			if _, er := f.ContextPool(ctx).GetTreeClientWrite().CreateNode(ctx, &tree.CreateNodeRequest{Node: temporary}); er != nil {
+			if _, er := nodes.GetSourcesPool(ctx).GetTreeClientWrite().CreateNode(ctx, &tree.CreateNodeRequest{Node: temporary}); er != nil {
 				return models.ObjectInfo{}, er
 			}
 			// Attach Uuid to target node
@@ -155,7 +154,7 @@ func (f *FlatStorageHandler) CopyObject(ctx context.Context, from *tree.Node, to
 			return objectInfo, er
 		}
 	} else if e != nil && revertNode != nil {
-		if _, de := f.ContextPool(ctx).GetTreeClientWrite().DeleteNode(ctx, &tree.DeleteNodeRequest{Node: revertNode}); de != nil {
+		if _, de := nodes.GetSourcesPool(ctx).GetTreeClientWrite().DeleteNode(ctx, &tree.DeleteNodeRequest{Node: revertNode}); de != nil {
 			log.Logger(ctx).Error("Error while copying object and error while reverting index node", zap.Error(de), revertNode.ZapPath())
 		} else {
 			log.Logger(ctx).Warn("Error while copying object, reverted index node", revertNode.ZapPath())
@@ -292,7 +291,7 @@ func (f *FlatStorageHandler) postCreate(ctx context.Context, node *tree.Node, re
 			updateNode.MustSetMeta(common.MetaNamespaceMime, cTypeL)
 		}
 	}
-	_, er := f.ContextPool(ctx).GetTreeClientWrite().CreateNode(ctx, &tree.CreateNodeRequest{Node: updateNode, UpdateIfExists: true})
+	_, er := nodes.GetSourcesPool(ctx).GetTreeClientWrite().CreateNode(ctx, &tree.CreateNodeRequest{Node: updateNode, UpdateIfExists: true})
 	return er
 }
 

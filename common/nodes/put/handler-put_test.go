@@ -37,6 +37,7 @@ import (
 	"github.com/pydio/cells/v4/common/nodes/models"
 	"github.com/pydio/cells/v4/common/proto/tree"
 	"github.com/pydio/cells/v4/common/utils/hasher"
+	"github.com/pydio/cells/v4/common/utils/openurl"
 
 	. "github.com/smartystreets/goconvey/convey"
 )
@@ -52,13 +53,15 @@ func testMkFileResources() (*Handler, context.Context, *nodes.HandlerMock) {
 		}},
 	}
 	tw := &tree.NodeReceiverMock{}
-	pool := nodes.NewTestPool(context.Background(), nodes.MakeFakeClientsPool(tc, tw))
+	preset := nodes.MakeFakeClientsPool(tc, tw)
+	nodes.SetSourcesPoolOpener(func(ctx context.Context) *openurl.Pool[nodes.SourcesPool] {
+		return nodes.NewTestPool(ctx, preset)
+	})
 
 	// create dummy handler
 	h := &Handler{}
 	mock := nodes.NewHandlerMock()
 	h.Next = mock
-	h.SetClientsPool(pool)
 
 	ctx := context.Background()
 

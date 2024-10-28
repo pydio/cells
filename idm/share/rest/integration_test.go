@@ -39,7 +39,6 @@ import (
 	"github.com/pydio/cells/v4/common/config/mock"
 	"github.com/pydio/cells/v4/common/nodes"
 	"github.com/pydio/cells/v4/common/nodes/compose"
-	nodescontext "github.com/pydio/cells/v4/common/nodes/context"
 	"github.com/pydio/cells/v4/common/permissions"
 	"github.com/pydio/cells/v4/common/proto/idm"
 	"github.com/pydio/cells/v4/common/proto/rest"
@@ -47,6 +46,7 @@ import (
 	"github.com/pydio/cells/v4/common/server/stubs/datatest"
 	"github.com/pydio/cells/v4/common/server/stubs/idmtest"
 	"github.com/pydio/cells/v4/common/server/stubs/resttest"
+	"github.com/pydio/cells/v4/common/utils/openurl"
 	grpc2 "github.com/pydio/cells/v4/data/tree/grpc"
 	"github.com/pydio/cells/v4/idm/share"
 	rest2 "github.com/pydio/cells/v4/idm/share/rest"
@@ -96,6 +96,10 @@ func TestMain(m *testing.M) {
 		return nil
 	}, broker.WithCounterName("share"))
 
+	nodes.SetSourcesPoolOpener(func(ctx context.Context) *openurl.Pool[nodes.SourcesPool] {
+		return nodes.NewTestPool(ctx)
+	})
+
 	m.Run()
 }
 
@@ -104,7 +108,7 @@ func TestShareLinks(t *testing.T) {
 	Convey("Test CRUD Share Link on File", t, func() {
 
 		ctx := context.Background()
-		ctx = nodescontext.WithSourcesPool(ctx, nodes.NewTestPool(ctx))
+
 		u, e := permissions.SearchUniqueUser(ctx, "admin", "")
 		So(e, ShouldBeNil)
 		ctx = auth.WithImpersonate(ctx, u)

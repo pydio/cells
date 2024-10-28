@@ -31,7 +31,6 @@ import (
 	"github.com/pydio/cells/v4/common/client/grpc"
 	"github.com/pydio/cells/v4/common/nodes"
 	"github.com/pydio/cells/v4/common/nodes/compose"
-	nodescontext "github.com/pydio/cells/v4/common/nodes/context"
 	"github.com/pydio/cells/v4/common/nodes/models"
 	omock "github.com/pydio/cells/v4/common/nodes/objects/mock"
 	"github.com/pydio/cells/v4/common/permissions"
@@ -44,6 +43,7 @@ import (
 	"github.com/pydio/cells/v4/common/utils/cache/gocache"
 	cache_helper "github.com/pydio/cells/v4/common/utils/cache/helper"
 	"github.com/pydio/cells/v4/common/utils/configx"
+	"github.com/pydio/cells/v4/common/utils/openurl"
 	"github.com/pydio/cells/v4/common/utils/uuid"
 	dcdao "github.com/pydio/cells/v4/data/docstore/dao/bleve"
 	metadao "github.com/pydio/cells/v4/data/meta/dao/sql"
@@ -120,6 +120,9 @@ func init() {
 			Label:     "Sqlite",
 		},
 	}
+	nodes.SetSourcesPoolOpener(func(ctx context.Context) *openurl.Pool[nodes.SourcesPool] {
+		return nodes.NewTestPoolWithDataSources(ctx, mockClient, dss...)
+	})
 }
 
 func TestPersonalResolution(t *testing.T) {
@@ -145,9 +148,7 @@ func TestPersonalResolution(t *testing.T) {
 
 		})
 
-		ctx = nodescontext.WithSourcesPool(ctx, nodes.NewTestPoolWithDataSources(ctx, mockClient, dss...))
 		client := compose.PathClient(ctx)
-
 		Convey("Test personal file", t, func() {
 			user, e := permissions.SearchUniqueUser(ctx, "admin", "")
 			So(e, ShouldBeNil)

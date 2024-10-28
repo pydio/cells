@@ -135,19 +135,21 @@ func (h *Handler) StreamActivities(request *proto.StreamActivitiesRequest, strea
 		boxName = activity.BoxInbox
 	}
 
+	var er error
+
 	if request.Context == proto.StreamContext_NODE_ID {
-		dao.ActivitiesFor(nil, proto.OwnerType_NODE, request.ContextData, boxName, "", request.Offset, request.Limit, "", result, done)
+		er = dao.ActivitiesFor(ctx, proto.OwnerType_NODE, request.ContextData, boxName, "", request.Offset, request.Limit, "", result, done)
 		wg.Wait()
 	} else if request.Context == proto.StreamContext_USER_ID {
 		var refBoxOffset activity.BoxName
 		if request.AsDigest {
 			refBoxOffset = activity.BoxLastSent
 		}
-		dao.ActivitiesFor(nil, proto.OwnerType_USER, request.ContextData, boxName, refBoxOffset, request.Offset, request.Limit, "", result, done)
+		er = dao.ActivitiesFor(ctx, proto.OwnerType_USER, request.ContextData, boxName, refBoxOffset, request.Offset, request.Limit, "", result, done)
 		wg.Wait()
 	}
 
-	return nil
+	return er
 }
 
 func (h *Handler) Subscribe(ctx context.Context, request *proto.SubscribeRequest) (*proto.SubscribeResponse, error) {

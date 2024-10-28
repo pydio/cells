@@ -29,9 +29,9 @@ import (
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/config/mock"
 	"github.com/pydio/cells/v4/common/nodes"
-	nodescontext "github.com/pydio/cells/v4/common/nodes/context"
 	"github.com/pydio/cells/v4/common/proto/jobs"
 	"github.com/pydio/cells/v4/common/proto/tree"
+	"github.com/pydio/cells/v4/common/utils/openurl"
 	"github.com/pydio/cells/v4/common/utils/uuid"
 	"github.com/pydio/cells/v4/scheduler/actions"
 
@@ -46,6 +46,9 @@ func init() {
 	// Ignore client pool for unit tests
 	nodes.IsUnitTestEnv = true
 	global, _ = mock.RegisterMockConfig(context.Background())
+	nodes.SetSourcesPoolOpener(func(ctx context.Context) *openurl.Pool[nodes.SourcesPool] {
+		return nodes.NewTestPool(ctx)
+	})
 }
 
 func TestWGetAction_GetName(t *testing.T) {
@@ -61,7 +64,7 @@ func TestWGetAction_Init(t *testing.T) {
 
 		action := &WGetAction{}
 		ctx := global
-		action.SetRuntimeContext(nodescontext.WithSourcesPool(ctx, nodes.NewTestPool(ctx)))
+		action.SetRuntimeContext(ctx)
 		job := &jobs.Job{}
 		// Missing Parameters
 		e := action.Init(job, &jobs.Action{})
@@ -96,7 +99,6 @@ func TestWGetAction_Run(t *testing.T) {
 
 		action := &WGetAction{}
 		ctx := global
-		ctx = nodescontext.WithSourcesPool(ctx, nodes.NewTestPool(ctx))
 		action.SetRuntimeContext(ctx)
 
 		job := &jobs.Job{}

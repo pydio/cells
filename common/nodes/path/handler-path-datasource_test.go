@@ -44,19 +44,20 @@ import (
 )
 
 var (
-	ctx  context.Context
-	pool *openurl.Pool[nodes.SourcesPool]
+	ctx context.Context
 )
 
 func TestMain(m *testing.M) {
 	cache_helper.SetStaticResolver("pm://?evictionTime=20s&cleanWindow=10s", &gocache.URLOpener{})
 	mem, _ := config.OpenStore(context.Background(), "mem://")
 	ctx = propagator.With(context.Background(), config.ContextKey, mem)
-	pool = nodes.NewTestPool(ctx, nodes.MakeFakeClientsPool(nil, nil))
+	nodes.SetSourcesPoolOpener(func(ctx context.Context) *openurl.Pool[nodes.SourcesPool] {
+		return nodes.NewTestPool(ctx, nodes.MakeFakeClientsPool(nil, nil))
+	})
 	m.Run()
 }
 
-func newTestHandlerBranchTranslator(pool *openurl.Pool[nodes.SourcesPool]) (*DataSourceHandler, *nodes.HandlerMock) {
+func newTestHandlerBranchTranslator() (*DataSourceHandler, *nodes.HandlerMock) {
 
 	testRootNode := &tree.Node{
 		Uuid:      "root-node-uuid",
@@ -78,7 +79,6 @@ func newTestHandlerBranchTranslator(pool *openurl.Pool[nodes.SourcesPool]) (*Dat
 		Uuid: "other-uuid",
 	}
 	b.SetNextHandler(mock)
-	b.SetClientsPool(pool)
 
 	return b, mock
 
@@ -107,7 +107,7 @@ func TestBranchTranslator_ReadNode(t *testing.T) {
 
 	Convey("Test Readnode without context", t, func() {
 
-		b, _ := newTestHandlerBranchTranslator(pool)
+		b, _ := newTestHandlerBranchTranslator()
 		_, e := b.ReadNode(ctx, &tree.ReadNodeRequest{})
 		So(errors.Is(e, errors.BranchInfoMissing), ShouldBeTrue)
 
@@ -115,7 +115,7 @@ func TestBranchTranslator_ReadNode(t *testing.T) {
 
 	Convey("Test Readnode with wrong context", t, func() {
 
-		b, _ := newTestHandlerBranchTranslator(pool)
+		b, _ := newTestHandlerBranchTranslator()
 		c := nodes.WithBranchInfo(ctx, "in", nodes.BranchInfo{
 			Workspace: &idm.Workspace{
 				UUID:  "another-workspace",
@@ -130,7 +130,7 @@ func TestBranchTranslator_ReadNode(t *testing.T) {
 
 	Convey("Test Readnode with admin context", t, func() {
 
-		b, mock := newTestHandlerBranchTranslator(pool)
+		b, mock := newTestHandlerBranchTranslator()
 		adminCtx := nodes.WithBranchInfo(ctx, "in", nodes.BranchInfo{
 			Workspace: &idm.Workspace{UUID: "ROOT"},
 		})
@@ -150,7 +150,7 @@ func TestBranchTranslator_ReadNode(t *testing.T) {
 
 	Convey("Test Readnode with user context", t, func() {
 
-		b, mock := newTestHandlerBranchTranslator(pool)
+		b, mock := newTestHandlerBranchTranslator()
 
 		ctx := makeFakeTestContext("in")
 		resp, er := b.ReadNode(ctx, &tree.ReadNodeRequest{Node: &tree.Node{
@@ -173,7 +173,7 @@ func TestBranchTranslator_ReadNode(t *testing.T) {
 
 	Convey("Test update Output Node", t, func() {
 
-		b, _ := newTestHandlerBranchTranslator(pool)
+		b, _ := newTestHandlerBranchTranslator()
 		ctx := makeFakeTestContext("in", &tree.Node{Path: "datasource/root"})
 		node := &tree.Node{Path: "datasource/root/sub/path"}
 		b.updateOutputNode(ctx, node, "in")
@@ -183,7 +183,7 @@ func TestBranchTranslator_ReadNode(t *testing.T) {
 
 	Convey("Test update Output Node - Admin", t, func() {
 
-		b, _ := newTestHandlerBranchTranslator(pool)
+		b, _ := newTestHandlerBranchTranslator()
 		adminCtx := nodes.WithBranchInfo(ctx, "in", nodes.BranchInfo{
 			Workspace: &idm.Workspace{UUID: "ROOT"},
 		})
@@ -199,7 +199,7 @@ func TestBranchTranslator_ListNodes(t *testing.T) {
 
 	Convey("Test ListNodes with user context", t, func() {
 
-		b, _ := newTestHandlerBranchTranslator(pool)
+		b, _ := newTestHandlerBranchTranslator()
 
 		ctx := makeFakeTestContext("in")
 		client, er := b.ListNodes(ctx, &tree.ListNodesRequest{Node: &tree.Node{
@@ -228,7 +228,7 @@ func TestBranchTranslator_OtherMethods(t *testing.T) {
 
 	Convey("Test CreateNode", t, func() {
 
-		b, _ := newTestHandlerBranchTranslator(pool)
+		b, _ := newTestHandlerBranchTranslator()
 		ctx := makeFakeTestContext("in")
 		_, er := b.CreateNode(ctx, &tree.CreateNodeRequest{Node: &tree.Node{
 			Path:      "test-workspace/inner/path",
@@ -240,7 +240,7 @@ func TestBranchTranslator_OtherMethods(t *testing.T) {
 
 	Convey("Test DeleteNode", t, func() {
 
-		b, _ := newTestHandlerBranchTranslator(pool)
+		b, _ := newTestHandlerBranchTranslator()
 		ctx := makeFakeTestContext("in")
 		_, er := b.DeleteNode(ctx, &tree.DeleteNodeRequest{Node: &tree.Node{
 			Path:      "test-workspace/inner/path",
@@ -252,7 +252,7 @@ func TestBranchTranslator_OtherMethods(t *testing.T) {
 
 	Convey("Test GetObject", t, func() {
 
-		b, _ := newTestHandlerBranchTranslator(pool)
+		b, _ := newTestHandlerBranchTranslator()
 		ctx := makeFakeTestContext("in")
 		_, er := b.GetObject(ctx, &tree.Node{
 			Path:      "datasource/root/inner/path",
@@ -264,7 +264,7 @@ func TestBranchTranslator_OtherMethods(t *testing.T) {
 
 	Convey("Test PutObject", t, func() {
 
-		b, _ := newTestHandlerBranchTranslator(pool)
+		b, _ := newTestHandlerBranchTranslator()
 		ctx := makeFakeTestContext("in")
 		_, er := b.PutObject(ctx, &tree.Node{
 			Path:      "test-workspace/inner/path",
@@ -276,7 +276,7 @@ func TestBranchTranslator_OtherMethods(t *testing.T) {
 
 	Convey("Test CopyObject", t, func() {
 
-		b, _ := newTestHandlerBranchTranslator(pool)
+		b, _ := newTestHandlerBranchTranslator()
 		ctx := makeFakeTestContext("from")
 		bI, _ := nodes.GetBranchInfo(ctx, "from")
 		ctx = nodes.WithBranchInfo(ctx, "to", bI)
@@ -293,7 +293,7 @@ func TestBranchTranslator_OtherMethods(t *testing.T) {
 
 	Convey("Test UpdateNode", t, func() {
 
-		b, _ := newTestHandlerBranchTranslator(pool)
+		b, _ := newTestHandlerBranchTranslator()
 		ctx := makeFakeTestContext("from")
 		bI, _ := nodes.GetBranchInfo(ctx, "from")
 		ctx = nodes.WithBranchInfo(ctx, "to", bI)

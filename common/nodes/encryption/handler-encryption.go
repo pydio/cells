@@ -379,7 +379,7 @@ func (e *Handler) CopyObject(ctx context.Context, from *tree.Node, to *tree.Node
 			// Insert in tree as temporary
 			cloneTo.Type = tree.NodeType_LEAF
 			cloneTo.Etag = common.NodeFlagEtagTemporary
-			if _, er := e.ContextPool(ctx).GetTreeClientWrite().CreateNode(writeCtx, &tree.CreateNodeRequest{Node: cloneTo}); er != nil {
+			if _, er := nodes.GetSourcesPool(ctx).GetTreeClientWrite().CreateNode(writeCtx, &tree.CreateNodeRequest{Node: cloneTo}); er != nil {
 				return models.ObjectInfo{}, er
 			}
 		}

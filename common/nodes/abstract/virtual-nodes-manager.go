@@ -39,7 +39,6 @@ import (
 	"github.com/pydio/cells/v4/common/config"
 	"github.com/pydio/cells/v4/common/errors"
 	"github.com/pydio/cells/v4/common/nodes"
-	nodescontext "github.com/pydio/cells/v4/common/nodes/context"
 	"github.com/pydio/cells/v4/common/nodes/models"
 	"github.com/pydio/cells/v4/common/permissions"
 	"github.com/pydio/cells/v4/common/proto/docstore"
@@ -84,7 +83,7 @@ func (m *VirtualNodesManager) Load(forceReload ...bool) (vNodes []*tree.Node, lo
 			return
 		}
 	}
-	log.Logger(ctx).Info("Reloading virtual nodes to cache")
+	log.Logger(ctx).Debug("Reloading virtual nodes to cache")
 	stream, er := docstorec.DocStoreClient(ctx).ListDocuments(ctx, &docstore.ListDocumentsRequest{
 		StoreID: common.DocStoreIdVirtualNodes,
 		Query:   &docstore.DocumentQuery{},
@@ -154,7 +153,7 @@ func (m *VirtualNodesManager) ListNodes() []*tree.Node {
 func (m *VirtualNodesManager) ResolveInContext(ctx context.Context, vNode *tree.Node, create bool, retry ...bool) (*tree.Node, error) {
 
 	ca := cache_helper.MustResolveCache(ctx, "short", cacheConfig)
-	pool := nodescontext.GetSourcesPool(ctx)
+	pool := nodes.GetSourcesPool(ctx)
 	userName, claims := permissions.FindUserNameInContext(ctx) // We may use Claims returned to grab role or user groupPath
 	if userName == "" {
 		log.Logger(ctx).Error("No UserName found in context, cannot resolve virtual node", zap.Any("ctx", ctx))

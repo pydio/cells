@@ -85,7 +85,7 @@ func GetBranchInfo(ctx context.Context, identifier string) (BranchInfo, error) {
 }
 
 // AncestorsListFromContext tries to load ancestors or get them from cache
-func AncestorsListFromContext(ctx context.Context, node *tree.Node, identifier string, p SourcesPool, orParents bool) (updatedContext context.Context, parentsList []*tree.Node, e error) {
+func AncestorsListFromContext(ctx context.Context, node *tree.Node, identifier string, orParents bool) (updatedContext context.Context, parentsList []*tree.Node, e error) {
 
 	branchInfo, be := GetBranchInfo(ctx, identifier)
 	hasBranchInfo := be == nil
@@ -100,7 +100,7 @@ func AncestorsListFromContext(ctx context.Context, node *tree.Node, identifier s
 		n.Uuid = "" // Make sure to look by path
 		searchFunc = BuildAncestorsListOrParent
 	}
-	parents, err := searchFunc(ctx, p.GetTreeClient(), n)
+	parents, err := searchFunc(ctx, GetSourcesPool(ctx).GetTreeClient(), n)
 	if err != nil {
 		return ctx, nil, err
 	}

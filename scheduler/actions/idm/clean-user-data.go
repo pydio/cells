@@ -12,7 +12,6 @@ import (
 	"github.com/pydio/cells/v4/common/nodes"
 	"github.com/pydio/cells/v4/common/nodes/abstract"
 	"github.com/pydio/cells/v4/common/nodes/compose"
-	nodescontext "github.com/pydio/cells/v4/common/nodes/context"
 	"github.com/pydio/cells/v4/common/proto/jobs"
 	"github.com/pydio/cells/v4/common/proto/tree"
 	"github.com/pydio/cells/v4/common/telemetry/log"
@@ -115,9 +114,6 @@ func (c *CleanUserDataAction) Run(ctx context.Context, channels *actions.Runnabl
 		tp = jobs.EvaluateFieldStr(ctx, input, tp)
 	}
 
-	// Prepare clients pool
-	cPool := nodes.NewPool(ctx)
-	ctx = nodescontext.WithSourcesPool(ctx, cPool)
 	router := compose.PathClient(ctx, nodes.AsAdmin(), nodes.WithSynchronousTasks())
 	clientsPool := router.GetClientsPool(ctx)
 

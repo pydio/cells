@@ -37,7 +37,7 @@ type Adapter interface {
 type RouterOptions struct {
 	Context context.Context
 
-	CoreClient func(pool *openurl.Pool[SourcesPool]) Handler
+	CoreClient Handler
 
 	AdminView     bool
 	WatchRegistry bool
@@ -62,9 +62,9 @@ func WithContext(ctx context.Context) Option {
 	}
 }
 
-func WithCore(init func(pool *openurl.Pool[SourcesPool]) Handler) Option {
+func WithCore(h Handler) Option {
 	return func(options *RouterOptions) {
-		options.CoreClient = init
+		options.CoreClient = h
 	}
 }
 

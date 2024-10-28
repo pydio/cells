@@ -30,6 +30,7 @@ import (
 	"github.com/pydio/cells/v4/common/nodes"
 	"github.com/pydio/cells/v4/common/nodes/models"
 	"github.com/pydio/cells/v4/common/proto/tree"
+	"github.com/pydio/cells/v4/common/utils/openurl"
 
 	. "github.com/smartystreets/goconvey/convey"
 )
@@ -85,8 +86,9 @@ func TestWrapper(t *testing.T) {
 
 	Convey("Test clients pool", t, func() {
 
-		fakeWrapperHandler, _ := emptyFakeWrapper()
-		fakeWrapperHandler.SetClientsPool(nodes.NewTestPool(context.Background()))
+		nodes.SetSourcesPoolOpener(func(ctx context.Context) *openurl.Pool[nodes.SourcesPool] {
+			return nodes.NewTestPool(ctx)
+		})
 
 	})
 

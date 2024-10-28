@@ -29,11 +29,9 @@ import (
 	"google.golang.org/grpc"
 
 	"github.com/pydio/cells/v4/common/nodes"
-	nodescontext "github.com/pydio/cells/v4/common/nodes/context"
 	"github.com/pydio/cells/v4/common/nodes/models"
 	"github.com/pydio/cells/v4/common/proto/tree"
 	"github.com/pydio/cells/v4/common/telemetry/log"
-	"github.com/pydio/cells/v4/common/utils/openurl"
 )
 
 type ContextWrapper func(ctx context.Context) (context.Context, error)
@@ -41,20 +39,17 @@ type ContextWrapper func(ctx context.Context) (context.Context, error)
 // Handler provides the simplest implementation of Handler and forwards
 // all calls to the Next handler
 type Handler struct {
-	Next        nodes.Handler
-	ClientsPool *openurl.Pool[nodes.SourcesPool]
-	RuntimeCtx  context.Context
-	CtxWrapper  ContextWrapper
+	Next       nodes.Handler
+	RuntimeCtx context.Context
+	CtxWrapper ContextWrapper
 }
 
 func (a *Handler) AdaptOptions(h nodes.Handler, options nodes.RouterOptions) {
 	a.Next = h
 	a.RuntimeCtx = options.Context
-	a.ClientsPool = options.Pool
 }
 
 func (a *Handler) WrapContext(ctx context.Context) (context.Context, error) {
-	ctx = nodescontext.WithSourcesPool(ctx, a.ClientsPool)
 	if a.CtxWrapper != nil {
 		return a.CtxWrapper(ctx)
 	} else {
@@ -64,15 +59,6 @@ func (a *Handler) WrapContext(ctx context.Context) (context.Context, error) {
 
 func (a *Handler) SetNextHandler(h nodes.Handler) {
 	a.Next = h
-}
-
-func (a *Handler) SetClientsPool(p *openurl.Pool[nodes.SourcesPool]) {
-	a.ClientsPool = p
-}
-
-func (a *Handler) ContextPool(ctx context.Context) nodes.SourcesPool {
-	p, _ := a.ClientsPool.Get(ctx)
-	return p
 }
 
 func (a *Handler) ExecuteWrapped(inputFilter nodes.FilterFunc, outputFilter nodes.FilterFunc, provider nodes.CallbackFunc) error {

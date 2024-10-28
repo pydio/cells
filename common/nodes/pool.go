@@ -43,6 +43,12 @@ import (
 	"github.com/pydio/cells/v4/common/utils/propagator"
 )
 
+var (
+	poolPool   *openurl.Pool[SourcesPool]
+	poolOnce   sync.Once
+	poolOpener = NewPool
+)
+
 type sourceAlias struct {
 	dataSource string
 	bucket     string
@@ -88,17 +94,36 @@ type ClientsPool struct {
 	reload chan bool
 }
 
+// SetSourcesPoolOpener replaces the internal standard opener, used for testing
+func SetSourcesPoolOpener(o func(ctx context.Context) *openurl.Pool[SourcesPool]) {
+	poolOpener = o
+}
+
+// GetSourcesPool lazily resolves a SourcesPool for a given context
+func GetSourcesPool(ctx context.Context) SourcesPool {
+	poolOnce.Do(func() {
+		poolPool = poolOpener(ctx)
+	})
+	p, e := poolPool.Get(ctx)
+	if e != nil {
+		panic(e)
+	}
+	p.Once()
+	return p
+}
+
+// NewPool provides a simple memory-based contextualized pool
 func NewPool(ctx context.Context) *openurl.Pool[SourcesPool] {
 	return openurl.MustMemPool[SourcesPool](ctx, func(ctx context.Context, url string) SourcesPool {
 		return openPool(ctx)
 	})
 }
 
-// NewTestPool creates a client Pool and initialises it by calling the registry.
-func NewTestPool(ctx context.Context, presetClient ...SourcesPool) *openurl.Pool[SourcesPool] {
+// NewTestPool creates a pool of empty stubs, eventually forcing to return always the same preset
+func NewTestPool(ctx context.Context, presetSource ...SourcesPool) *openurl.Pool[SourcesPool] {
 	return openurl.MustMemPool[SourcesPool](ctx, func(ctx context.Context, url string) SourcesPool {
-		if len(presetClient) > 0 {
-			return presetClient[0]
+		if len(presetSource) > 0 {
+			return presetSource[0]
 		}
 		return &ClientsPool{
 			ctx:     ctx,
@@ -109,6 +134,7 @@ func NewTestPool(ctx context.Context, presetClient ...SourcesPool) *openurl.Pool
 	})
 }
 
+// NewTestPoolWithDataSources will provide a list of LoadedSource with preset mock data
 func NewTestPoolWithDataSources(ctx context.Context, sc StorageClient, dss ...string) *openurl.Pool[SourcesPool] {
 	return openurl.MustMemPool[SourcesPool](ctx, func(ctx context.Context, url string) SourcesPool {
 		cp := &ClientsPool{

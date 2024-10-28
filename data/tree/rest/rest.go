@@ -269,7 +269,7 @@ func (h *Handler) DeleteNodes(req *restful.Request, resp *restful.Response) erro
 		}
 		e := router.WrapCallback(func(inputFilter nodes.FilterFunc, outputFilter nodes.FilterFunc) error {
 			ctx, filtered, _ := inputFilter(ctx, node, "in")
-			_, ancestors, e := nodes.AncestorsListFromContext(ctx, filtered, "in", router.GetClientsPool(ctx), false)
+			_, ancestors, e := nodes.AncestorsListFromContext(ctx, filtered, "in", false)
 			if e != nil {
 				return e
 			}
@@ -529,7 +529,7 @@ func (h *Handler) RestoreNodes(req *restful.Request, resp *restful.Response) err
 				moveLabel = T("Jobs.User.DirMove")
 			}
 			targetNode := &tree.Node{Path: originalFullPath}
-			_, ancestors, e := nodes.AncestorsListFromContext(ctx, targetNode, "in", router.GetClientsPool(ctx), true)
+			_, ancestors, e := nodes.AncestorsListFromContext(ctx, targetNode, "in", true)
 			if e != nil {
 				return e
 			}

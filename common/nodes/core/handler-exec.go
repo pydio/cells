@@ -83,7 +83,7 @@ func (e *Executor) ReadNode(ctx context.Context, in *tree.ReadNodeRequest, opts 
 		}
 	} else {
 
-		resp, err := e.ContextPool(ctx).GetTreeClient().ReadNode(ctx, in, opts...)
+		resp, err := nodes.GetSourcesPool(ctx).GetTreeClient().ReadNode(ctx, in, opts...)
 		/*
 			// Todo - check, should be handled at upper level
 			if err != nil {
@@ -102,16 +102,16 @@ func (e *Executor) ReadNode(ctx context.Context, in *tree.ReadNodeRequest, opts 
 
 func (e *Executor) ListNodes(ctx context.Context, in *tree.ListNodesRequest, opts ...grpc.CallOption) (tree.NodeProvider_ListNodesClient, error) {
 	log.Logger(ctx).Debug("ROUTER LISTING WITH TREE CLIENT", zap.String("path", in.Node.Path))
-	return e.ContextPool(ctx).GetTreeClient().ListNodes(ctx, in, opts...)
+	return nodes.GetSourcesPool(ctx).GetTreeClient().ListNodes(ctx, in, opts...)
 }
 
 func (e *Executor) CreateNode(ctx context.Context, in *tree.CreateNodeRequest, opts ...grpc.CallOption) (*tree.CreateNodeResponse, error) {
 	log.Logger(ctx).Debug("Exec.CreateNode", zap.String("p", in.Node.Path))
-	return e.ContextPool(ctx).GetTreeClientWrite().CreateNode(ctx, in, opts...)
+	return nodes.GetSourcesPool(ctx).GetTreeClientWrite().CreateNode(ctx, in, opts...)
 }
 
 func (e *Executor) UpdateNode(ctx context.Context, in *tree.UpdateNodeRequest, opts ...grpc.CallOption) (*tree.UpdateNodeResponse, error) {
-	return e.ContextPool(ctx).GetTreeClientWrite().UpdateNode(ctx, in, opts...)
+	return nodes.GetSourcesPool(ctx).GetTreeClientWrite().UpdateNode(ctx, in, opts...)
 }
 
 func (e *Executor) DeleteNode(ctx context.Context, in *tree.DeleteNodeRequest, opts ...grpc.CallOption) (*tree.DeleteNodeResponse, error) {
