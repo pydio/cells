@@ -127,7 +127,7 @@ func (s *sqlimpl) GetEncryptedLegacyBlockInfo(ctx context.Context, nodeUuid stri
 }
 
 func (s *sqlimpl) ClearNodeEncryptedBlockInfo(ctx context.Context, nodeUuid string) error {
-	tx := s.Session(ctx).Delete(&encryption.RangedBlock{NodeId: nodeUuid})
+	tx := s.Session(ctx).Where(&encryption.RangedBlock{NodeId: nodeUuid}).Delete(&encryption.RangedBlock{})
 	if tx.Error != nil {
 		return tx.Error
 	}
@@ -135,7 +135,7 @@ func (s *sqlimpl) ClearNodeEncryptedBlockInfo(ctx context.Context, nodeUuid stri
 }
 
 func (s *sqlimpl) ClearNodeEncryptedPartBlockInfo(ctx context.Context, nodeUuid string, partID int) error {
-	tx := s.Session(ctx).Delete(&encryption.RangedBlock{NodeId: nodeUuid, PartId: uint32(partID)})
+	tx := s.Session(ctx).Where(&encryption.RangedBlock{NodeId: nodeUuid, PartId: uint32(partID)}).Delete(&encryption.RangedBlock{})
 	if tx.Error != nil {
 		return tx.Error
 	}
