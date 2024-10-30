@@ -92,10 +92,11 @@ func VersionHash(ctx context.Context) string {
 		return versionHash
 	}
 	// Create version seed
-	vSeed := config.Get(ctx, "frontend", "versionSeed").Default("").String()
+	vSeedVal := config.Get(ctx, "frontend", "versionSeed")
+	vSeed := vSeedVal.Default("").String()
 	if vSeed == "" {
 		vSeed = uuid.New()
-		config.Set(ctx, vSeed, "frontend", "versionSeed")
+		vSeedVal.Set(vSeed)
 		config.Save(ctx, common.PydioSystemUsername, "Generating version seed")
 	}
 	md := md5.New()

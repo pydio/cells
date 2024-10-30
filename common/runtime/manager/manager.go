@@ -1028,18 +1028,27 @@ func (m *manager) initStorages(ctx context.Context, store *Bootstrap, base strin
 				}
 
 				for name, stores := range namedStores {
-					linked := false
 					for _, st := range stores {
 						for _, storageItem := range storageItems {
 							if st["type"] == storageItem.Name() {
 								st["name"] = name
 								_, _ = m.internalRegistry.RegisterEdge(ss.ID(), storageItem.ID(), "storage", st)
-								linked = true
 							}
 						}
 					}
+				}
+			}
 
-					if !linked {
+			// Now going through all the linked storages to update the versions if needed
+			for _, storageItem := range storageItems {
+				svcItems := m.internalRegistry.ListAdjacentItems(
+					registry.WithAdjacentSourceItems([]registry.Item{storageItem}),
+					registry.WithAdjacentTargetOptions(registry.WithType(pb.ItemType_SERVICE)),
+				)
+
+				for _, svcItem := range svcItems {
+					var svc service.Service
+					if !svcItem.As(&svc) {
 						continue
 					}
 

@@ -63,17 +63,18 @@ func (s *Handler) PutConfig(req *restful.Request, resp *restful.Response) error 
 	}
 	var parsed map[string]interface{}
 	if e := json.Unmarshal([]byte(configuration.Data), &parsed); e == nil {
+		val := config.Get(ctx, path...)
 		var original map[string]interface{}
-		if o := config.Get(ctx, path...).Map(); len(o) > 0 {
+		if o := val.Map(); len(o) > 0 {
 			original = o
 			// Delete was there to prevent a merge - now done directly in the config lib
 			// config.Del(path...)
 		}
-		config.Set(ctx, parsed, path...)
+		val.Set(parsed)
 		if err := config.Save(ctx, u, "Setting config via API"); err != nil {
 			log.Logger(ctx).Error("Put", zap.Error(err))
 			if original != nil {
-				config.Set(ctx, original, path...)
+				val.Set(original)
 			}
 			return err
 		}

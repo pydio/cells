@@ -198,10 +198,12 @@ func Resolve[T any](ctx context.Context, opts ...ResolveOption) (s T, final erro
 		span.AddEvent("Before Service Version")
 
 		// Double-checking all migrations
-		//if err := service.UpdateServiceVersion(ctx, svc.Options()); err != nil {
-		//	return t, errors.Tag(err, errors.ResolveError)
-		//}
+		if err := service.UpdateServiceVersion(ctx, svc.Options()); err != nil {
+			return t, errors.Tag(err, errors.ResolveError)
+		}
 
+		// TODO - if we don't have all storages yet, we should wait for them to become available
+		// The context timeout should decide how long we wait for the storage to become available
 		if handlerT.NumIn() != assigned {
 			return t, errors.WithMessagef(errors.ResolveError, "number of connections (%d) differs from what is requested by handler %s (%d)", assigned, runtime.FuncForPC(handlerV.Pointer()).Name(), handlerT.NumIn())
 		}

@@ -44,6 +44,41 @@ import (
 
 func init() {
 	runtime.Register("datasource-index", func(ctx context.Context) {
+		name := common.ServiceGrpcNamespace_ + common.ServiceDataIndex
+
+		service.NewService(
+			service.Name(name),
+			service.Context(ctx),
+			service.Tag(common.ServiceTagDatasource),
+			service.Description("Datasource indexation service"),
+			service.WithStorageDrivers(index.Drivers...),
+			service.Migrations([]*service.Migration{
+				{
+					TargetVersion: service.FirstRun(),
+					Up:            manager.StorageMigration(),
+				},
+			}),
+			service.WithGRPC(func(ctx context.Context, srv grpc.ServiceRegistrar) error {
+				dsObject, e := config.GetSourceInfoByName(ctx, source)
+				if e != nil {
+					return fmt.Errorf("cannot find datasource configuration for " + name)
+				}
+				engine := grpc2.NewTreeServer(dsObject, name)
+				tree.RegisterNodeReceiverServer(srv, engine)
+				tree.RegisterNodeProviderServer(srv, engine)
+				tree.RegisterNodeReceiverStreamServer(srv, engine)
+				tree.RegisterNodeProviderStreamerServer(srv, engine)
+				tree.RegisterSessionIndexerServer(srv, engine)
+
+				object.RegisterResourceCleanerEndpointServer(srv, engine)
+				sync.RegisterSyncEndpointServer(srv, engine)
+
+				return nil
+			}),
+		)
+	})
+
+	runtime.Register("datasource-index", func(ctx context.Context) {
 		source := os.Getenv("DATASOURCE")
 		name := common.ServiceGrpcNamespace_ + common.ServiceDataIndex_ + source
 
