@@ -43,7 +43,7 @@ var (
 	testcases = []test.StorageTestCase{
 		{DSN: []string{
 			"boltdb://" + filepath.Join(os.TempDir(), "docstore_bolt_"+uuid.New()+".db"),
-			"bleve://" + filepath.Join(os.TempDir(), "docstore_bleve_"+uuid.New()+".db"),
+			"bleve://" + filepath.Join(os.TempDir(), "docstore_bleve_"+uuid.New()+".db?rotationSize=-1"),
 		}, Condition: true, DAO: bleve.NewBleveEngine, Label: "Bolt_Bleve"},
 		test.TemplateMongoEnvWithPrefix(mongo.NewMongoDAO, "test_docstore_"),
 	}
@@ -67,10 +67,30 @@ func TestDocStore(t *testing.T) {
 				ID: "1",
 			})
 			So(er, ShouldBeNil)
+			var count int
 			for doc := range byId {
+				count++
 				So(doc.Data, ShouldEqual, "Data")
 			}
+			So(count, ShouldEqual, 1)
+		})
+	})
 
+	test.RunStorageTests(testcases, t, func(ctx context.Context) {
+		Convey("Test Search without previous write", t, func() {
+			dao, err := manager.Resolve[docstore.DAO](ctx)
+			So(err, ShouldBeNil)
+
+			byId, er := dao.QueryDocuments(ctx, "mystore", &proto.DocumentQuery{
+				ID:        "1",
+				MetaQuery: "ID:*",
+			})
+			So(er, ShouldBeNil)
+			var count int
+			for range byId {
+				count++
+			}
+			So(count, ShouldEqual, 0)
 		})
 	})
 

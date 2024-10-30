@@ -615,9 +615,9 @@ message PolicySubject {
     option (orm.ormPolicy).enabled = true;
 
     string ID = 1        [(orm.orm).gorm = {column:"id"; type: "varchar(64)"; primaryKey: true; notNull: true}];
-    bool HasRegex = 2    [(orm.orm).gorm = {column:"has_regex";}];
-    string Compiled = 3  [(orm.orm).gorm = {column:"compiled";}];
-    string Template = 4  [(orm.orm).gorm = {column:"template";}];
+    bool HasRegex = 2    [(orm.orm).gorm = {column:"has_regex";index:',composite:regex'}];
+    string Compiled = 3  [(orm.orm).gorm = {column:"compiled";type: "varchar(511)";unique: true; index:',composite:compiled' }];
+    string Template = 4  [(orm.orm).gorm = {column:"template";type: "varchar(511)";unique: true;}];
 }
 
 message PolicyResource {
@@ -625,9 +625,9 @@ message PolicyResource {
     option (orm.ormPolicy).enabled = true;
 
     string ID = 1        [(orm.orm).gorm = {column:"id"; type: "varchar(64)"; primaryKey: true; notNull: true}];
-    bool HasRegex = 2    [(orm.orm).gorm = {column:"has_regex";}];
-    string Compiled = 3  [(orm.orm).gorm = {column:"compiled";}];
-    string Template = 4  [(orm.orm).gorm = {column:"template";}];
+    bool HasRegex = 2    [(orm.orm).gorm = {column:"has_regex";index:',composite:regex'}];
+    string Compiled = 3  [(orm.orm).gorm = {column:"compiled";type: "varchar(511)";unique: true; index:',composite:compiled' }];
+    string Template = 4  [(orm.orm).gorm = {column:"template";type: "varchar(511)";unique: true;}];
 }
 
 message PolicyAction {
@@ -635,37 +635,37 @@ message PolicyAction {
     option (orm.ormPolicy).enabled = true;
 
     string ID = 1        [(orm.orm).gorm = {column:"id"; type: "varchar(64)"; primaryKey: true; notNull: true}];
-    bool HasRegex = 2    [(orm.orm).gorm = {column:"has_regex";}];
-    string Compiled = 3  [(orm.orm).gorm = {column:"compiled";}];
-    string Template = 4  [(orm.orm).gorm = {column:"template";}];
+    bool HasRegex = 2    [(orm.orm).gorm = {column:"has_regex"; index:',composite:regex'}];
+    string Compiled = 3  [(orm.orm).gorm = {column:"compiled";type: "varchar(511)";unique: true; index:',composite:compiled' }];
+    string Template = 4  [(orm.orm).gorm = {column:"template";type: "varchar(511)";unique: true;}];
 }
 
 message PolicyResourceRel {
     option (orm.ormPolicy).enabled = true;
-    string Policy   = 1 [(orm.orm).gorm = {column:"policy"; primaryKey: true;}];
+    string Policy   = 1 [(orm.orm).gorm = {column:"policy"; primaryKey: true; index:',composite:res'}];
     string Resource = 2 [(orm.orm).gorm = {column:"resource"; primaryKey: true;}];
 }
 
 message PolicySubjectRel {
     option (orm.ormPolicy).enabled = true;
 
-    string Policy  = 1  [(orm.orm).gorm = {column:"policy"; primaryKey: true;}];
+    string Policy  = 1  [(orm.orm).gorm = {column:"policy"; primaryKey: true; index:',composite:sub'}];
     string Subject = 2  [(orm.orm).gorm = {column:"subject"; primaryKey: true;}];
 }
 
 message PolicyActionRel {
     option (orm.ormPolicy).enabled = true;
 
-    string Policy = 1   [(orm.orm).gorm = {column:"policy"; primaryKey: true;}];
+    string Policy = 1   [(orm.orm).gorm = {column:"policy"; primaryKey: true; index:',composite:ac'}];
     string Action = 2   [(orm.orm).gorm = {column:"action"; primaryKey: true;}];
 }
 
 message PolicyRel {
     option (orm.ormPolicy).enabled = true;
 
-    int64 ID = 1          [(orm.orm).gorm = {column:"policy"; primaryKey: true; autoIncrement: true;}];
-    string GroupUUID = 2  [(orm.orm).gorm = {column:"group_uuid"; type:"varchar(255)"; notNull: true;}];
-    string PolicyID = 3   [(orm.orm).gorm = {column:"policy_id"; type:"varchar(255)"; notNull: true;}];
+    int64 ID = 1          [(orm.orm).gorm = {column:"id"; primaryKey: true; autoIncrement: true;}];
+    string GroupUUID = 2  [(orm.orm).gorm = {column:"group_uuid"; type:"varchar(255)"; notNull: true; index:',composite:group'}];
+    string PolicyID = 3   [(orm.orm).gorm = {column:"policy_id"; type:"varchar(255)"; notNull: true; index:',composite:pol'}];
 }
 
 message PolicyGroup {

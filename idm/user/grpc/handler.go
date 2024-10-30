@@ -99,15 +99,12 @@ func resolveCache(ctx context.Context) (cache.Cache, error) {
 
 // Handler definition
 type Handler struct {
-	ctx context.Context
 	idm.UnimplementedUserServiceServer
 	service.UnimplementedLoginModifierServer
 }
 
-func NewHandler(ctx context.Context) *Handler {
-	return &Handler{
-		ctx: ctx,
-	}
+func NewHandler() *Handler {
+	return &Handler{}
 }
 
 // BindUser binds a user with login/password

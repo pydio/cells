@@ -32,13 +32,13 @@ import (
 var Drivers = service.StorageDrivers{}
 
 type DAO interface {
-	GetLastVersion(nodeUuid string) (*tree.ChangeLog, error)
-	GetVersions(nodeUuid string) (chan *tree.ChangeLog, error)
-	GetVersion(nodeUuid string, versionId string) (*tree.ChangeLog, error)
-	StoreVersion(nodeUuid string, log *tree.ChangeLog) error
-	DeleteVersionsForNode(nodeUuid string, versions ...*tree.ChangeLog) error
-	DeleteVersionsForNodes(nodeUuid []string) error
-	ListAllVersionedNodesUuids() (chan string, chan bool, chan error)
+	GetLastVersion(ctx context.Context, nodeUuid string) (*tree.ChangeLog, error)
+	GetVersions(ctx context.Context, nodeUuid string) (chan *tree.ChangeLog, error)
+	GetVersion(ctx context.Context, nodeUuid string, versionId string) (*tree.ChangeLog, error)
+	StoreVersion(ctx context.Context, nodeUuid string, log *tree.ChangeLog) error
+	DeleteVersionsForNode(ctx context.Context, nodeUuid string, versions ...*tree.ChangeLog) error
+	DeleteVersionsForNodes(ctx context.Context, nodeUuid []string) error
+	ListAllVersionedNodesUuids(ctx context.Context) (chan string, chan bool, chan error)
 }
 
 func Migrate(main, fromCtx, toCtx context.Context, dryRun bool, status chan service.MigratorStatus) (map[string]int, error) {
@@ -53,17 +53,17 @@ func Migrate(main, fromCtx, toCtx context.Context, dryRun bool, status chan serv
 	if er != nil {
 		return nil, er
 	}
-	uuids, done, errs := from.ListAllVersionedNodesUuids()
+	uuids, done, errs := from.ListAllVersionedNodesUuids(fromCtx)
 	var e error
 loop1:
 	for {
 		select {
 		case id := <-uuids:
-			versions, _ := from.GetVersions(id)
+			versions, _ := from.GetVersions(fromCtx, id)
 			for version := range versions {
 				if dryRun {
 					out["Versions"]++
-				} else if er := to.StoreVersion(id, version); er == nil {
+				} else if er := to.StoreVersion(toCtx, id, version); er == nil {
 					out["Versions"]++
 				} else {
 					continue

@@ -18,6 +18,18 @@ defaults:
       bind: *bind
       addr: 0
 
+  queues: &queues
+    debouncer:
+     uri: mem://?debounce={{ .debounce }}&idle={{ .idle }}&max={{ .max }}&openerID={{ .openerID }}&tenant={{ .Tenant }}
+    persisted:
+      uri: fifo://{{ autoMkdir (joinPath  ( serviceDataDir .Service ) ( tenantPathWithBlank .Tenant "default" ) ) }}?name={{ .name }}&prefix={{ .prefix }}
+
+  caches: &caches
+    short:
+      uri: pm://?evictionTime={{ .evictionTime}}&cleanWindow={{ .cleanWindow }}&tenant={{ .Tenant }}&prefix={{ .prefix }}
+    shared:
+      uri: bigcache://?evictionTime={{ .evictionTime }}&cleanWindow={{ .cleanWindow }}&tenant={{ .Tenant }}&prefix={{ .prefix }}
+
   #--------------------------------------------
   # Default connection to runtime functions
   #--------------------------------------------
@@ -57,90 +69,8 @@ defaults:
   # Default env configuration
   #--------------------------------------------
   env: &env
+    CELLS_LOG: info
     CELLS_USE_REGISTRY_SESSION: true
-    PYDIO_ADMIN_USER_LOGIN: admin
-    PYDIO_ADMIN_USER_PASSWORD: admin
-    CELLS_GLOBAL_SECRET: a-very-insecure-secret-for-checking-out-the-demo
-    CELLS_OAUTH_CONNECTORS: [
-          {
-            "type": "pydio",
-            "id": "pydio",
-            "name": "Pydio Cells"
-          }
-        ]
-    CELLS_OAUTH_CORS: {
-      "public": {
-        "allowedOrigins": "*"
-      }
-    }
-    CELLS_OAUTH_CLIENTS: [
-       {
-            "client_id": "cells-frontend",
-            "client_name": "CellsFrontend Application",
-            "revokeRefreshTokenAfterInactivity": "2h",
-            "grant_types": [
-              "authorization_code",
-              "refresh_token"
-            ],
-            "redirect_uris": [
-              "#default_bind#/auth/callback"
-            ],
-            "post_logout_redirect_uris": [
-              "#default_bind#/auth/logout"
-            ],
-            "response_types": [ "code", "token", "id_token" ],
-            "scope": "openid email profile pydio offline"
-          },
-          {
-            "client_id": "cells-sync",
-            "client_name": "CellsSync Application",
-            "grant_types": [
-              "authorization_code",
-              "refresh_token"
-            ],
-            "redirect_uris": [
-              "http://localhost:3000/servers/callback",
-              "http://localhost:[3636-3666]/servers/callback"
-            ],
-            "response_types": [ "code", "token", "id_token" ],
-            "scope": "openid email profile pydio offline"
-          },
-          {
-            "client_id": "cells-client",
-            "client_name": "Cells Client CLI Tool",
-            "grant_types": [
-              "authorization_code",
-              "refresh_token"
-            ],
-            "redirect_uris": [
-              "http://localhost:3000/servers/callback",
-              "#binds...#/oauth2/oob"
-            ],
-            "response_types": [
-              "code",
-              "token",
-              "id_token"
-            ],
-            "scope": "openid email profile pydio offline"
-          },
-          {
-            "client_id": "cells-mobile",
-            "client_name": "Mobile Applications",
-            "grant_types": [
-              "authorization_code",
-              "refresh_token"
-            ],
-            "redirect_uris": [
-              "cellsauth://callback"
-            ],
-            "response_types": [
-              "code",
-              "token",
-              "id_token"
-            ],
-            "scope": "openid email profile pydio offline"
-          }
-        ]
     GRPC_EXPERIMENTAL_XDS_FEDERATION: true
     GRPC_XDS_BOOTSTRAP_CONFIG: {
       "xds_servers": [
@@ -156,16 +86,24 @@ defaults:
           ]
         }
       ],
+      "client_default_listener_resource_name_template": "xdstp://default.cells.com/envoy.config.listener.v3.Listener/grpc/client/%s",
+      "server_listener_resource_name_template": "xdstp://default.cells.com/envoy.config.listener.v3.Listener/grpc/server/%s",
       "node": {
-        "id": "test-id"
+        "id": "test-id",
+        "locality": {
+          "zone": "us-central1-a"
+        }
       },
       "authorities": {
         "default.cells.com": {
-          "client_listener_resource_name_template": "xdstp://default.cells.com/envoy.config.listener.v3.Listener/grpc/client/%s",
-          "server_listener_resource_name_template": "xdstp://default.cells.com/envoy.config.listener.v3.Listener/grpc/server/%s",
+          "client_listener_resource_name_template": "xdstp://default.cells.com/envoy.config.listener.v3.Listener/grpc/client/%s"
+        },
+        "sub1.cells.com": {
+          "client_listener_resource_name_template": "xdstp://sub1.cells.com/envoy.config.listener.v3.Listener/grpc/client/%s",
+          "server_listener_resource_name_template": "xdstp://sub1.cells.com/envoy.config.listener.v3.Listener/grpc/server/%s",
           "xds_servers": [
             {
-              "server_uri": "127.0.0.1:8030",
+              "server_uri": "127.0.0.1:8130",
               "server_features": [
                 "xds_v3"
               ],
@@ -180,18 +118,11 @@ defaults:
       }
     }
 
-#    ,
-#    "locality": {
-#      "zone": "us-central1-a"
-#    }
-#
-#      "client_default_listener_resource_name_template": "xdstp://default.cells.com/envoy.config.listener.v3.Listener/grpc/client/%s",
-#      "server_listener_resource_name_template": "xdstp://default.cells.com/envoy.config.listener.v3.Listener/grpc/server/%s",
-
   #------------------------------------
   # All services
   #------------------------------------
   services: &services
+
     pydio.grpc.oauth:
       storages:
         main:
@@ -223,7 +154,7 @@ defaults:
       storages:
         main:
           - type: sql
-            prefix: data_
+            prefix: enc_
     pydio.grpc.activity:
       storages:
         main:
@@ -285,7 +216,7 @@ defaults:
       storages:
         main:
           - type: sql
-            prefix: data_key_
+            prefix: enc_
     pydio.grpc.user-key:
       storages:
         main:
@@ -315,19 +246,11 @@ defaults:
             prefix: idm_usr_
             policies: idm_usr_meta_policies
 
-  #------------------------------------
-  # All storages
-  #------------------------------------
+  # Storages
   storages: &storages
     sql:
-      uri: "sqlite://file::memory:?cache=shared&prefix={{ .Meta.prefix }}&policies={{ .Meta.policies }}&singular={{ .Meta.singular }}"
-#    bolt:
-#      uri: "boltdbdiscard://"
-    bleve:
-      uri: bleve://{{ autoMkdir (joinPath (serviceDataDir .Service) (tenantPathWithBlank .Tenant "default")) }}/{{ .Meta.file }}
-#    sql:
-#      uri: mysql://root:P@ssw0rd@tcp(localhost:3306)/cells{{ tenantSepWithBlank .Tenant "" "default" }}?parseTime=true&prefix={{ .Meta.prefix }}&policies={{ .Meta.policies }}&singular={{ .Meta.singular }}
+      uri: mysql://root:P@ssw0rd@tcp(localhost:3306)/cells{{ tenantSepWithBlank .Tenant "" "default" }}?parseTime=true&prefix={{ .Meta.prefix }}&policies={{ .Meta.policies }}&singular={{ .Meta.singular }}
     bolt:
-      uri: boltdb://{{ autoMkdir (joinPath (serviceDataDir .Service) (tenantPathWithBlank .Tenant "default")) }}/{{ .Meta.file }}
-#    bleve:
-#      uri: bleve://{{ autoMkdir (joinPath (serviceDataDir .Service) (tenantPathWithBlank .Tenant "default")) }}/{{ .Meta.file }}
+      uri: boltdb://{{ autoMkdir (joinPath  ( serviceDataDir .Service ) ( tenantPathWithBlank .Tenant "default" ) ) }}/{{ .Meta.file }}
+    bleve:
+      uri: bleve://{{ autoMkdir (joinPath  ( serviceDataDir .Service ) ( tenantPathWithBlank .Tenant "default" ) ) }}/{{ .Meta.file }}

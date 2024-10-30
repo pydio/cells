@@ -31,6 +31,7 @@ import (
 
 	"github.com/pydio/cells/v4/common/proto/tree"
 	"github.com/pydio/cells/v4/common/storage/mongodb"
+	"github.com/pydio/cells/v4/common/telemetry/log"
 	"github.com/pydio/cells/v4/data/versions"
 )
 
@@ -77,9 +78,8 @@ type mongoStore struct {
 //	return m.DAO.Init(ctx, values)
 //}
 
-func (m *mongoStore) GetLastVersion(nodeUuid string) (*tree.ChangeLog, error) {
-	c := context.Background()
-	res := m.Collection(collVersions).FindOne(c, bson.D{{"node_uuid", nodeUuid}}, &options.FindOneOptions{
+func (m *mongoStore) GetLastVersion(ctx context.Context, nodeUuid string) (*tree.ChangeLog, error) {
+	res := m.Collection(collVersions).FindOne(ctx, bson.D{{"node_uuid", nodeUuid}}, &options.FindOneOptions{
 		Sort: bson.M{"ts": -1},
 	})
 	if res.Err() != nil {
@@ -96,18 +96,17 @@ func (m *mongoStore) GetLastVersion(nodeUuid string) (*tree.ChangeLog, error) {
 	}
 }
 
-func (m *mongoStore) GetVersions(nodeUuid string) (chan *tree.ChangeLog, error) {
+func (m *mongoStore) GetVersions(ctx context.Context, nodeUuid string) (chan *tree.ChangeLog, error) {
 	logs := make(chan *tree.ChangeLog)
 	go func() {
 		defer close(logs)
-		c := context.Background()
-		cursor, er := m.Collection(collVersions).Find(c, bson.D{{"node_uuid", nodeUuid}}, &options.FindOptions{
+		cursor, er := m.Collection(collVersions).Find(ctx, bson.D{{"node_uuid", nodeUuid}}, &options.FindOptions{
 			Sort: bson.M{"ts": -1},
 		})
 		if er != nil {
 			return
 		}
-		for cursor.Next(c) {
+		for cursor.Next(ctx) {
 			mv := &mVersion{}
 			if e := cursor.Decode(mv); e != nil {
 				continue
@@ -118,9 +117,8 @@ func (m *mongoStore) GetVersions(nodeUuid string) (chan *tree.ChangeLog, error) 
 	return logs, nil
 }
 
-func (m *mongoStore) GetVersion(nodeUuid string, versionId string) (*tree.ChangeLog, error) {
-	c := context.Background()
-	res := m.Collection(collVersions).FindOne(c, bson.D{{"node_uuid", nodeUuid}, {"version_id", versionId}})
+func (m *mongoStore) GetVersion(ctx context.Context, nodeUuid string, versionId string) (*tree.ChangeLog, error) {
+	res := m.Collection(collVersions).FindOne(ctx, bson.D{{"node_uuid", nodeUuid}, {"version_id", versionId}})
 	if res.Err() != nil {
 		if strings.Contains(res.Err().Error(), "no documents in result") {
 			return &tree.ChangeLog{}, nil
@@ -135,20 +133,18 @@ func (m *mongoStore) GetVersion(nodeUuid string, versionId string) (*tree.Change
 	}
 }
 
-func (m *mongoStore) StoreVersion(nodeUuid string, log *tree.ChangeLog) error {
+func (m *mongoStore) StoreVersion(ctx context.Context, nodeUuid string, log *tree.ChangeLog) error {
 	mv := &mVersion{
 		NodeUuid:  nodeUuid,
 		VersionId: log.Uuid,
 		Timestamp: time.Now().UnixNano(),
 		ChangeLog: log,
 	}
-	c := context.Background()
-	_, e := m.Collection(collVersions).InsertOne(c, mv)
+	_, e := m.Collection(collVersions).InsertOne(ctx, mv)
 	return e
 }
 
-func (m *mongoStore) DeleteVersionsForNode(nodeUuid string, versions ...*tree.ChangeLog) error {
-	c := context.Background()
+func (m *mongoStore) DeleteVersionsForNode(ctx context.Context, nodeUuid string, versions ...*tree.ChangeLog) error {
 	filter := bson.D{
 		{"node_uuid", nodeUuid},
 	}
@@ -159,27 +155,25 @@ func (m *mongoStore) DeleteVersionsForNode(nodeUuid string, versions ...*tree.Ch
 		}
 		filter = append(filter, bson.E{Key: "version_id", Value: bson.M{"$in": versionsIds}})
 	}
-	res, e := m.Collection(collVersions).DeleteMany(c, filter)
+	res, e := m.Collection(collVersions).DeleteMany(ctx, filter)
 	if e != nil {
 		return e
 	}
-	fmt.Println("Deleted", res.DeletedCount, "versions for node", nodeUuid)
+	log.Logger(ctx).Info(fmt.Sprintf("Deleted %d versions for node %s", res.DeletedCount, nodeUuid))
 	return nil
 
 }
 
-func (m *mongoStore) DeleteVersionsForNodes(nodeUuid []string) error {
-	c := context.Background()
-	res, e := m.Collection(collVersions).DeleteMany(c, bson.D{{"node_uuid", bson.M{"$in": nodeUuid}}})
+func (m *mongoStore) DeleteVersionsForNodes(ctx context.Context, nodeUuid []string) error {
+	res, e := m.Collection(collVersions).DeleteMany(ctx, bson.D{{"node_uuid", bson.M{"$in": nodeUuid}}})
 	if e != nil {
 		return e
 	}
-	fmt.Println("Deleted", res.DeletedCount, "for node", nodeUuid)
+	log.Logger(ctx).Info(fmt.Sprintf("Deleted %d versions for %d nodes", res.DeletedCount, len(nodeUuid)))
 	return nil
 }
 
-func (m *mongoStore) ListAllVersionedNodesUuids() (chan string, chan bool, chan error) {
-	c := context.Background()
+func (m *mongoStore) ListAllVersionedNodesUuids(ctx context.Context) (chan string, chan bool, chan error) {
 	logs := make(chan string)
 	done := make(chan bool, 1)
 	errs := make(chan error)
@@ -188,12 +182,12 @@ func (m *mongoStore) ListAllVersionedNodesUuids() (chan string, chan bool, chan 
 		pipeline := bson.A{}
 		pipeline = append(pipeline, bson.M{"$group": bson.M{"_id": "$node_uuid"}})
 		allowDiskUse := true
-		cursor, e := m.Collection(collVersions).Aggregate(c, pipeline, &options.AggregateOptions{AllowDiskUse: &allowDiskUse})
+		cursor, e := m.Collection(collVersions).Aggregate(ctx, pipeline, &options.AggregateOptions{AllowDiskUse: &allowDiskUse})
 		if e != nil {
 			errs <- e
 			return
 		}
-		for cursor.Next(c) {
+		for cursor.Next(ctx) {
 			doc := make(map[string]interface{})
 			if er := cursor.Decode(&doc); er != nil {
 				continue

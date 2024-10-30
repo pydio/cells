@@ -42,7 +42,6 @@ import (
 	"github.com/pydio/cells/v4/common/telemetry/log"
 	"github.com/pydio/cells/v4/common/utils/cache"
 	cache_helper "github.com/pydio/cells/v4/common/utils/cache/helper"
-	"github.com/pydio/cells/v4/common/utils/openurl"
 )
 
 var (
@@ -62,11 +61,7 @@ type Reverse struct {
 func ReverseClient(ctx context.Context, oo ...nodes.Option) *Reverse {
 	opts := append(oo,
 		nodes.WithContext(ctx),
-		nodes.WithCore(func(pool *openurl.Pool[nodes.SourcesPool]) nodes.Handler {
-			exe := &core.Executor{}
-			exe.SetClientsPool(pool)
-			return exe
-		}),
+		nodes.WithCore(&core.Executor{}),
 		nodes.WithTracer("Reverse", 2),
 		acl.WithAccessList(),
 		path.WithPermanentPrefix(),
@@ -104,7 +99,7 @@ func (r *Reverse) WorkspaceCanSeeNode(ctx context.Context, accessList *permissio
 			if accessList != nil {
 				if !ancestorsLoaded {
 					var e error
-					if ancestors, e = nodes.BuildAncestorsList(ctx, r.GetClientsPool(ctx).GetTreeClient(), node); e != nil {
+					if ancestors, e = nodes.BuildAncestorsList(ctx, nodes.GetSourcesPool(ctx).GetTreeClient(), node); e != nil {
 						log.Logger(ctx).Debug("Cannot list ancestors list for", node.Zap(), zap.Error(e))
 						return node, false
 					} else {

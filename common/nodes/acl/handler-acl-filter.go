@@ -74,7 +74,7 @@ func (a *FilterHandler) ReadNode(ctx context.Context, in *tree.ReadNodeRequest, 
 	accessList := ctx.Value(ctxUserAccessListKey{}).(*permissions.AccessList)
 
 	// First load ancestors or grab them from BranchInfo
-	ctx, parents, err := nodes.AncestorsListFromContext(ctx, in.Node, "in", a.ContextPool(ctx), false)
+	ctx, parents, err := nodes.AncestorsListFromContext(ctx, in.Node, "in", false)
 	if err != nil {
 		return nil, a.recheckParents(ctx, err, in.Node, true, false)
 	}
@@ -120,7 +120,7 @@ func (a *FilterHandler) ListNodes(ctx context.Context, in *tree.ListNodesRequest
 	}
 	accessList := ctx.Value(ctxUserAccessListKey{}).(*permissions.AccessList)
 	// First load ancestors or grab them from BranchInfo
-	ctx, parents, err := nodes.AncestorsListFromContext(ctx, in.Node, "in", a.ContextPool(ctx), false)
+	ctx, parents, err := nodes.AncestorsListFromContext(ctx, in.Node, "in", false)
 	if err != nil {
 		return nil, a.recheckParents(ctx, err, in.Node, true, false)
 	}
@@ -170,7 +170,7 @@ func (a *FilterHandler) CreateNode(ctx context.Context, in *tree.CreateNodeReque
 		return a.Next.CreateNode(ctx, in, opts...)
 	}
 	accessList := ctx.Value(ctxUserAccessListKey{}).(*permissions.AccessList)
-	ctx, toParents, err := nodes.AncestorsListFromContext(ctx, in.Node, "in", a.ContextPool(ctx), true)
+	ctx, toParents, err := nodes.AncestorsListFromContext(ctx, in.Node, "in", true)
 	if err != nil {
 		return nil, err
 	}
@@ -185,14 +185,14 @@ func (a *FilterHandler) UpdateNode(ctx context.Context, in *tree.UpdateNodeReque
 		return a.Next.UpdateNode(ctx, in, opts...)
 	}
 	accessList := ctx.Value(ctxUserAccessListKey{}).(*permissions.AccessList)
-	ctx, fromParents, err := nodes.AncestorsListFromContext(ctx, in.From, "from", a.ContextPool(ctx), false)
+	ctx, fromParents, err := nodes.AncestorsListFromContext(ctx, in.From, "from", false)
 	if err != nil {
 		return nil, a.recheckParents(ctx, err, in.From, true, false)
 	}
 	if !accessList.CanRead(ctx, fromParents...) {
 		return nil, errors.PathNotReadable
 	}
-	ctx, toParents, err := nodes.AncestorsListFromContext(ctx, in.To, "to", a.ContextPool(ctx), true)
+	ctx, toParents, err := nodes.AncestorsListFromContext(ctx, in.To, "to", true)
 	if err != nil {
 		return nil, err
 	}
@@ -207,7 +207,7 @@ func (a *FilterHandler) DeleteNode(ctx context.Context, in *tree.DeleteNodeReque
 		return a.Next.DeleteNode(ctx, in, opts...)
 	}
 	accessList := ctx.Value(ctxUserAccessListKey{}).(*permissions.AccessList)
-	ctx, delParents, err := nodes.AncestorsListFromContext(ctx, in.Node, "in", a.ContextPool(ctx), false)
+	ctx, delParents, err := nodes.AncestorsListFromContext(ctx, in.Node, "in", false)
 	if err != nil {
 		return nil, a.recheckParents(ctx, err, in.Node, true, false)
 	}
@@ -226,7 +226,7 @@ func (a *FilterHandler) GetObject(ctx context.Context, node *tree.Node, requestD
 	}
 	accessList := ctx.Value(ctxUserAccessListKey{}).(*permissions.AccessList)
 	// First load ancestors or grab them from BranchInfo
-	ctx, parents, err := nodes.AncestorsListFromContext(ctx, node, "in", a.ContextPool(ctx), false)
+	ctx, parents, err := nodes.AncestorsListFromContext(ctx, node, "in", false)
 	if err != nil {
 		return nil, a.recheckParents(ctx, err, node, true, false)
 	}
@@ -248,7 +248,7 @@ func (a *FilterHandler) PutObject(ctx context.Context, node *tree.Node, reader i
 	checkNode := node.Clone()
 	checkNode.Type = tree.NodeType_LEAF
 	checkNode.Size = requestData.Size
-	ctx, parents, err := nodes.AncestorsListFromContext(ctx, checkNode, "in", a.ContextPool(ctx), true)
+	ctx, parents, err := nodes.AncestorsListFromContext(ctx, checkNode, "in", true)
 	if err != nil {
 		return models.ObjectInfo{}, err
 	}
@@ -267,7 +267,7 @@ func (a *FilterHandler) MultipartCreate(ctx context.Context, node *tree.Node, re
 	}
 	accessList := ctx.Value(ctxUserAccessListKey{}).(*permissions.AccessList)
 	// First load ancestors or grab them from BranchInfo
-	ctx, parents, err := nodes.AncestorsListFromContext(ctx, node, "in", a.ContextPool(ctx), true)
+	ctx, parents, err := nodes.AncestorsListFromContext(ctx, node, "in", true)
 	if err != nil {
 		return "", err
 	}
@@ -285,14 +285,14 @@ func (a *FilterHandler) CopyObject(ctx context.Context, from *tree.Node, to *tre
 		return a.Next.CopyObject(ctx, from, to, requestData)
 	}
 	accessList := ctx.Value(ctxUserAccessListKey{}).(*permissions.AccessList)
-	ctx, fromParents, err := nodes.AncestorsListFromContext(ctx, from, "from", a.ContextPool(ctx), false)
+	ctx, fromParents, err := nodes.AncestorsListFromContext(ctx, from, "from", false)
 	if err != nil {
 		return models.ObjectInfo{}, a.recheckParents(ctx, err, from, true, false)
 	}
 	if !accessList.CanRead(ctx, fromParents...) {
 		return models.ObjectInfo{}, errors.WithStack(errors.PathNotReadable)
 	}
-	ctx, toParents, err := nodes.AncestorsListFromContext(ctx, to, "to", a.ContextPool(ctx), true)
+	ctx, toParents, err := nodes.AncestorsListFromContext(ctx, to, "to", true)
 	if err != nil {
 		return models.ObjectInfo{}, err
 	}
@@ -357,7 +357,7 @@ func (a *FilterHandler) checkPerm(c context.Context, node *tree.Node, identifier
 		return errors.WithStack(errors.AccessListNotFound)
 	}
 	accessList := val.(*permissions.AccessList)
-	ctx, parents, err := nodes.AncestorsListFromContext(c, node, identifier, a.ContextPool(c), orParents)
+	ctx, parents, err := nodes.AncestorsListFromContext(c, node, identifier, orParents)
 	if err != nil {
 		return a.recheckParents(c, err, node, read, write)
 	}
@@ -386,7 +386,7 @@ func (a *FilterHandler) recheckParents(c context.Context, originalError error, n
 	}
 	accessList := val.(*permissions.AccessList)
 
-	parents, e := nodes.BuildAncestorsListOrParent(c, a.ContextPool(c).GetTreeClient(), node)
+	parents, e := nodes.BuildAncestorsListOrParent(c, nodes.GetSourcesPool(c).GetTreeClient(), node)
 	if e != nil {
 		return e
 	}

@@ -157,9 +157,8 @@ func createApp2(reg registry.Registry) {
 
 func TestServiceRegistry(t *testing.T) {
 
-	_ = mock2.RegisterMockConfig()
+	ctx, _ := mock2.RegisterMockConfig(context.Background())
 
-	ctx := context.Background()
 	mem, err := registry.OpenRegistry(ctx, "mem:///")
 	if err != nil {
 		log.Fatal("could not create memory registry", err)

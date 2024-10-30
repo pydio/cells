@@ -91,8 +91,8 @@ func (m *Handler) getOrCreatePutNode(ctx context.Context, nodePath string, reque
 			skipRead = true
 		}
 	}
-	treeReader := m.ContextPool(ctx).GetTreeClient()
-	treeWriter := m.ContextPool(ctx).GetTreeClientWrite()
+	treeReader := nodes.GetSourcesPool(ctx).GetTreeClient()
+	treeWriter := nodes.GetSourcesPool(ctx).GetTreeClientWrite()
 
 	treePath := strings.TrimLeft(nodePath, "/")
 
@@ -189,7 +189,7 @@ func (m *Handler) createParentIfNotExist(ctx context.Context, node *tree.Node, s
 				Type:  tree.NodeType_COLLECTION,
 				Etag:  "-1",
 			}
-			treeWriter := m.ContextPool(ctx).GetTreeClientWrite()
+			treeWriter := nodes.GetSourcesPool(ctx).GetTreeClientWrite()
 			log.Logger(ctx).Debug("[PUT HANDLER] > Create Parent Node In Index", zap.String("UUID", tmpNode.Uuid), zap.String("Path", tmpNode.Path))
 			_, er := treeWriter.CreateNode(ctx, &tree.CreateNodeRequest{Node: tmpNode, IndexationSession: session})
 			if er != nil {
@@ -352,7 +352,7 @@ func (m *Handler) MultipartCreate(ctx context.Context, node *tree.Node, requestD
 
 func (m *Handler) MultipartPutObjectPart(ctx context.Context, target *tree.Node, uploadID string, partNumberMarker int, reader io.Reader, requestData *models.PutRequestData) (models.MultipartObjectPart, error) {
 	// Feed target node with pre-created one
-	resp, err := m.ContextPool(ctx).GetTreeClient().ReadNode(ctx, &tree.ReadNodeRequest{
+	resp, err := nodes.GetSourcesPool(ctx).GetTreeClient().ReadNode(ctx, &tree.ReadNodeRequest{
 		Node: &tree.Node{
 			Path: strings.TrimLeft(target.Path, "/"),
 		},
@@ -373,7 +373,7 @@ func (m *Handler) MultipartPutObjectPart(ctx context.Context, target *tree.Node,
 func (m *Handler) MultipartComplete(ctx context.Context, target *tree.Node, uploadID string, uploadedParts []models.MultipartObjectPart) (models.ObjectInfo, error) {
 
 	// Feed target node with pre-created one
-	resp, err := m.ContextPool(ctx).GetTreeClient().ReadNode(ctx, &tree.ReadNodeRequest{
+	resp, err := nodes.GetSourcesPool(ctx).GetTreeClient().ReadNode(ctx, &tree.ReadNodeRequest{
 		Node: &tree.Node{
 			Path: strings.TrimLeft(target.Path, "/"),
 		},
@@ -389,8 +389,8 @@ func (m *Handler) MultipartComplete(ctx context.Context, target *tree.Node, uplo
 func (m *Handler) MultipartAbort(ctx context.Context, target *tree.Node, uploadID string, requestData *models.MultipartRequestData) error {
 
 	deleteTemporary := func() {
-		treeReader := m.ContextPool(ctx).GetTreeClient()
-		treeWriter := m.ContextPool(ctx).GetTreeClientWrite()
+		treeReader := nodes.GetSourcesPool(ctx).GetTreeClient()
+		treeWriter := nodes.GetSourcesPool(ctx).GetTreeClientWrite()
 		treePath := strings.TrimLeft(target.Path, "/")
 		existingResp, err := treeReader.ReadNode(ctx, &tree.ReadNodeRequest{
 			Node: &tree.Node{

@@ -203,6 +203,7 @@ type NodeGetter interface {
 	GetSize() int64
 	GetMTime() int64
 	GetMode() int32
+	GetModeString() string
 	GetEtag() string
 	GetCommits() []*ChangeLog
 	GetMetaStore() map[string]string
@@ -216,6 +217,7 @@ type NodeSetter interface {
 	SetSize(int64)
 	SetMTime(int64)
 	SetMode(int32)
+	SetModeString(string)
 	SetEtag(string)
 	SetCommits([]*ChangeLog)
 	SetMetaStore(map[string]string)
@@ -263,6 +265,13 @@ func (x *Node) SetMode(v int32) {
 	}
 
 	x.Mode = v
+}
+func (x *Node) SetModeString(v string) {
+	if x == nil {
+		x = new(Node)
+	}
+
+	x.ModeString = v
 }
 func (x *Node) SetEtag(v string) {
 	if x == nil {

@@ -24,12 +24,14 @@ import (
 	"context"
 	"fmt"
 	"strings"
+	"sync"
 
 	"github.com/ory/ladon"
 	"go.uber.org/zap"
 
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/broker"
+	"github.com/pydio/cells/v4/common/errors"
 	"github.com/pydio/cells/v4/common/proto/idm"
 	"github.com/pydio/cells/v4/common/runtime/manager"
 	"github.com/pydio/cells/v4/common/telemetry/log"
@@ -65,37 +67,50 @@ func (h *Handler) IsAllowed(ctx context.Context, request *idm.PolicyEngineReques
 		reqContext[k] = v
 	}
 	var allowed bool
+	var explicitDeny bool
+	var checkError error
+
+	wg := &sync.WaitGroup{}
+	wg.Add(len(request.Subjects))
+	var can context.CancelFunc
+	ctx, can = context.WithCancel(ctx)
+	defer can()
 
 	for _, subject := range request.Subjects {
 
-		ladonRequest := &ladon.Request{
-			Subject:  subject,
-			Resource: request.Resource,
-			Action:   request.Action,
-			Context:  reqContext,
-		}
-
-		if err := dao.IsAllowed(ctx, ladonRequest); err == nil {
-			// Explicit allow
-			allowed = true
-		} else if strings.Contains(err.Error(), "Request was denied by default") {
-			// This is a deny because no match: it does nothing but waits for
-			// the loop to finish and see if there is an explicit allow or deny
-		} else if strings.Contains(err.Error(), "Request was forcefully denied") {
-			// Explicitly Deny : break and return false, ignoring following policies
-			response.ExplicitDeny = true
-			// log.Logger(ctx).Error("IsAllowed: explicitly denied", zap.Any("ladonRequest", ladonRequest))
-			return response, nil
-		} else {
-			if strings.Contains(err.Error(), "connection refused") {
-				log.Logger(ctx).Error("Connection to DB error", zap.String("error", err.Error()))
-				err = fmt.Errorf("DAO error received")
+		go func(sub string) {
+			defer wg.Done()
+			ladonRequest := &ladon.Request{
+				Subject:  sub,
+				Resource: request.Resource,
+				Action:   request.Action,
+				Context:  reqContext,
 			}
-			return response, err
-		}
+			if err := dao.IsAllowed(ctx, ladonRequest); err == nil {
+				// Explicit allow
+				allowed = true
+			} else if errors.Is(err, ladon.ErrRequestForcefullyDenied) {
+				// Explicitly Deny : break and return false, cancel other policies
+				explicitDeny = true
+				can()
+			} else if !errors.Is(err, ladon.ErrRequestDenied) && !errors.Is(err, context.Canceled) {
+				if strings.Contains(err.Error(), "connection refused") {
+					log.Logger(ctx).Error("Connection to DB error", zap.String("error", err.Error()))
+					err = fmt.Errorf("DAO error received")
+				}
+				checkError = err
+				can()
+			}
+		}(subject)
 	}
+	wg.Wait()
 
-	if allowed {
+	if checkError != nil {
+		return response, checkError
+	}
+	if explicitDeny {
+		response.ExplicitDeny = true
+	} else if allowed {
 		response.Allowed = true
 	} else {
 		response.DefaultDeny = true

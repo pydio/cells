@@ -2,7 +2,6 @@ package index
 
 import (
 	"context"
-	"errors"
 	"sort"
 	"strconv"
 	"strings"
@@ -11,6 +10,7 @@ import (
 	"gorm.io/gorm"
 
 	"github.com/pydio/cells/v4/common/proto/tree"
+	"github.com/pydio/cells/v4/common/telemetry/log"
 	"github.com/pydio/cells/v4/common/utils/cache"
 	cache_helper "github.com/pydio/cells/v4/common/utils/cache/helper"
 )
@@ -22,21 +22,18 @@ type sessionDAO struct {
 }
 
 var (
-	_         DAO = (*sessionDAO)(nil)
-	cacheConf     = cache.Config{
-		Prefix:      "index",
-		Eviction:    "10m",
-		CleanWindow: "3m",
-	}
+	_             DAO = (*sessionDAO)(nil)
+	cacheEviction     = "10m"
+	cacheWindow       = "3m"
 )
 
-// NewDAOCache wraps a cache around the dao
-func NewDAOCache(session string, concurrency int, d DAO) DAO {
+// NewSessionDAO wraps a cache around the dao
+func NewSessionDAO(session string, concurrency int, d DAO) DAO {
 	c := &sessionDAO{
 		DAO: d,
 		cacheConf: cache.Config{
-			Eviction:    cacheConf.Eviction,
-			CleanWindow: cacheConf.CleanWindow,
+			Eviction:    cacheEviction,
+			CleanWindow: cacheWindow,
 			Prefix:      "index-" + session,
 		},
 		concurrency: concurrency,
@@ -46,48 +43,52 @@ func NewDAOCache(session string, concurrency int, d DAO) DAO {
 }
 
 func (d *sessionDAO) getCache(ctx context.Context) cache.Cache {
-	return cache_helper.MustResolveCache(ctx, "short", cacheConf)
+	return cache_helper.MustResolveCache(ctx, "short", d.cacheConf)
 }
 
-func (d *sessionDAO) AddNode(ctx context.Context, node tree.ITreeNode) error {
+func (d *sessionDAO) insertNode(ctx context.Context, node tree.ITreeNode) error {
 
 	clone := proto.Clone(node).(tree.ITreeNode)
 
 	mpathStr := clone.GetMPath().ToString()
 	parentMpathStr := clone.GetMPath().Parent().ToString()
 
-	if d.getCache(ctx).Exists(getKey("add_", mpathStr)) {
+	ca := d.getCache(ctx)
+	if ca.Exists(getKey("add_", mpathStr)) {
 		return gorm.ErrDuplicatedKey
 	}
 
 	// Adding to list
-	if err := d.getCache(ctx).Set(getKey("add_", mpathStr), node); err != nil {
+	if err := ca.Set(getKey("add_", mpathStr), node); err != nil {
+		return err
+	}
+	if err := ca.Set(getKey("pa_", node.GetNode().GetPath()), node); err != nil {
 		return err
 	}
 
-	// Saving GetNodeChild
-	if err := d.getCache(ctx).Set(getKey("nc_", parentMpathStr, "_", clone.GetName()), node); err != nil {
+	// Saving getNodeChild
+	if err := ca.Set(getKey("nc_", parentMpathStr, "_", clone.GetName()), node); err != nil {
 		return err
 	}
 
 	// Saving AvailableChildIndex
-	if err := d.getCache(ctx).Set(getKey("ac_", mpathStr), []int{0}); err != nil {
+	if err := ca.Set(getKey("ac_", mpathStr), []int{0}); err != nil {
 		return err
 	}
 
 	// Set Parent AvailableChildIndex List
 	var all []int
-	if ok := d.getCache(ctx).Get(getKey("ac_", parentMpathStr), &all); ok {
+	if ok := ca.Get(getKey("ac_", parentMpathStr), &all); ok {
 		i, _ := strconv.Atoi(mpathStr[len(parentMpathStr)+1:])
 		all = append(all, i)
 	}
 
-	_ = d.getCache(ctx).Set(getKey("ac_", parentMpathStr), all)
+	_ = ca.Set(getKey("ac_", parentMpathStr), all)
 
 	return nil
 }
 
-func (d *sessionDAO) GetNode(ctx context.Context, mPath *tree.MPath) (tree.ITreeNode, error) {
+func (d *sessionDAO) GetNodeByMPath(ctx context.Context, mPath *tree.MPath) (tree.ITreeNode, error) {
 	key := getKey("add_", mPath.ToString())
 
 	// Check if we have something in the cache
@@ -96,14 +97,15 @@ func (d *sessionDAO) GetNode(ctx context.Context, mPath *tree.MPath) (tree.ITree
 	if err != nil {
 		return node, err
 	}
-	if ok := d.getCache(ctx).Get(key, &node); ok {
+	ca := d.getCache(ctx)
+	if ok := ca.Get(key, &node); ok {
 		return node, nil
 	}
 
-	return d.DAO.GetNode(nil, mPath)
+	return d.DAO.GetNodeByMPath(ctx, mPath)
 }
 
-func (d *sessionDAO) GetNodeChild(ctx context.Context, mPath *tree.MPath, name string) (tree.ITreeNode, error) {
+func (d *sessionDAO) getNodeChild(ctx context.Context, mPath *tree.MPath, name string) (tree.ITreeNode, error) {
 
 	// Check if we have something in the cache
 	key := getKey("nc_", mPath.ToString(), "_", name)
@@ -112,8 +114,8 @@ func (d *sessionDAO) GetNodeChild(ctx context.Context, mPath *tree.MPath, name s
 	if err := tree.NewITreeNode(&node); err != nil {
 		return node, err
 	}
-
-	if ok := d.getCache(ctx).Get(key, &node); ok {
+	ca := d.getCache(ctx)
+	if ok := ca.Get(key, &node); ok {
 		return node, nil
 	}
 
@@ -124,17 +126,17 @@ func (d *sessionDAO) GetNodeChild(ctx context.Context, mPath *tree.MPath, name s
 	if err := tree.NewITreeNode(&pnode); err != nil {
 		return node, err
 	}
-	if ok := d.getCache(ctx).Get(pkey, &pnode); ok {
-		return node, errors.New("not found")
+	if ok := ca.Get(pkey, &pnode); ok {
+		return node, nil
 	}
 
 	// Nothing, retrieve from the db and save in cache
-	node, err := d.DAO.GetNodeChild(nil, mPath, name)
+	node, err := d.DAO.getNodeChild(nil, mPath, name)
 	if err != nil {
 		return node, err
 	}
 
-	return node, d.getCache(ctx).Set(key, node)
+	return node, ca.Set(key, node)
 }
 
 func getKey(parts ...string) string {
@@ -148,7 +150,7 @@ func getKey(parts ...string) string {
 }
 
 // GetNodeFirstAvailableChildIndex from path
-func (d *sessionDAO) GetNodeFirstAvailableChildIndex(ctx context.Context, mPath *tree.MPath) (available uint64, e error) {
+func (d *sessionDAO) getNodeFirstAvailableChildIndex(ctx context.Context, mPath *tree.MPath) (available uint64, e error) {
 
 	var all []int
 	if ok := d.getCache(ctx).Get(getKey("ac_", mPath.ToString()), &all); ok {
@@ -177,15 +179,15 @@ func (d *sessionDAO) GetNodeFirstAvailableChildIndex(ctx context.Context, mPath 
 		}
 	}
 
-	return d.DAO.GetNodeFirstAvailableChildIndex(nil, mPath)
+	return d.DAO.getNodeFirstAvailableChildIndex(ctx, mPath)
 }
 
 func (d *sessionDAO) Flush(ctx context.Context, b bool) error {
 
 	ic, ec := d.DAO.AddNodeStream(ctx, d.concurrency)
-
+	ca := d.getCache(ctx)
 	var count = 0
-	if err := d.getCache(ctx).Iterate(func(key string, value interface{}) {
+	if err := ca.Iterate(func(key string, value interface{}) {
 		if strings.HasPrefix(key, "add_") {
 			count++
 			ic <- value.(tree.ITreeNode)
@@ -194,7 +196,9 @@ func (d *sessionDAO) Flush(ctx context.Context, b bool) error {
 		return err
 	}
 
-	if err := d.getCache(ctx).Reset(); err != nil {
+	log.Logger(ctx).Infof("Flushed DAOSession with %d creates", count)
+
+	if err := ca.Reset(); err != nil {
 		return err
 	}
 
@@ -207,12 +211,45 @@ func (d *sessionDAO) Flush(ctx context.Context, b bool) error {
 	return nil
 }
 
-func (d *sessionDAO) ResolveMPath(ctx context.Context, create bool, node *tree.ITreeNode, rootNode ...tree.ITreeNode) (mpath *tree.MPath, nodeTree []tree.ITreeNode, err error) {
-	initial := proto.Clone(*node).(tree.ITreeNode)
-	initial.SetMPath(nil)
-	initial.GetNode().SetPath("")
+func (d *sessionDAO) GetNodeByPath(ctx context.Context, nodePath string) (tree.ITreeNode, error) {
+	var caNode tree.ITreeNode
+	if d.getCache(ctx).Get(getKey("pa_", nodePath), &caNode) {
+		return caNode, nil
+	}
+	clone := *d
+	lookup := tree.EmptyTreeNode()
+	lookup.SetNode(&tree.Node{Path: nodePath})
+	foundNode, _, er := toMPath(ctx, &clone, lookup, nil, false)
+	if er == nil {
+		foundNode.GetNode().SetPath(nodePath)
+	}
+	return foundNode, er
+}
 
-	mpath, nodeTree, err = toMPath(ctx, d, *node, initial, create)
+func (d *sessionDAO) GetOrCreateNodeByPath(ctx context.Context, nodePath string, info *tree.Node, rootInfo ...*tree.Node) (newNode tree.ITreeNode, allCreated []tree.ITreeNode, err error) {
 
-	return
+	var caNode tree.ITreeNode
+	if d.getCache(ctx).Get(getKey("pa_", nodePath), &caNode) {
+		return caNode, nil, nil
+	}
+
+	clone := *d
+	lookup := tree.EmptyTreeNode()
+	if info == nil {
+		info = &tree.Node{}
+	}
+	info.SetPath(nodePath)
+	lookup.SetNode(info)
+
+	root := tree.EmptyTreeNode()
+	if len(rootInfo) > 0 {
+		root.SetNode(rootInfo[0])
+	}
+
+	foundNode, cc, er := toMPath(ctx, &clone, lookup, root, true)
+	if er == nil {
+		foundNode.GetNode().SetPath(nodePath)
+	}
+	return foundNode, cc, er
+
 }

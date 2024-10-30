@@ -41,6 +41,7 @@ import (
 	"github.com/pydio/cells/v4/common/config"
 	"github.com/pydio/cells/v4/common/errors"
 	"github.com/pydio/cells/v4/common/storage/indexer"
+	"github.com/pydio/cells/v4/common/telemetry/log"
 	"github.com/pydio/cells/v4/common/utils/configx"
 	"github.com/pydio/cells/v4/common/utils/filesystem"
 	"github.com/pydio/cells/v4/common/utils/uuid"
@@ -550,10 +551,19 @@ func (s *Indexer) getSearchIndex(ctx context.Context) (bleve.Index, error) {
 	}
 
 	if len(indexes) == 0 {
-		if s.checkRotate(ctx) {
-			if err := s.rotate(ctx); err != nil {
-				return nil, err
+		if s.conf.RotationSize > 0 {
+			if s.checkRotate(ctx) {
+				if err := s.rotate(ctx); err != nil {
+					return nil, err
+				}
 			}
+		} else {
+			ix, e := s.openOneIndex(fullPath, s.conf.MappingName)
+			if e != nil {
+				return nil, e
+			}
+			s.indexes = append(s.indexes, ix)
+			return ix, e
 		}
 
 		return s.getSearchIndex(ctx)
@@ -824,6 +834,7 @@ func (s *Indexer) openOneIndex(fullPath string, mappingName string) (bleve.Index
 			idx, err = bleve.NewUsing(fullPath, indexMapping, scorch.Name, boltdb.Name, nil)
 		}
 		if err != nil {
+			log.Logger(context.Background()).Error("Cannot open index on " + fullPath)
 			return nil, err
 		}
 	}

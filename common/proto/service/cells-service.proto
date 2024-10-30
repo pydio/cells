@@ -44,9 +44,9 @@ message ResourcePolicy {
     option (orm.ormPolicy).enabled = true;
 
     int64 id = 1                    [(orm.orm).gorm = {column: "id"; autoIncrement: true;}];
-    string Resource = 2             [(orm.orm).gorm = {column: "resource";}];
-    ResourcePolicyAction Action = 3 [(orm.orm).gorm = {column: "action";type: "varchar(255)"; size:255; serializer: "proto_enum"}];
-    string Subject = 4              [(orm.orm).gorm = {column: "subject";type:"varchar(255)"; size:255}];
+    string Resource = 2             [(orm.orm).gorm = {column: "resource";type: "varchar(255)";index:',composite:res'}];
+    ResourcePolicyAction Action = 3 [(orm.orm).gorm = {column: "action";type: "varchar(255)"; size:255; serializer: "proto_enum"; index:',composite:ac'}];
+    string Subject = 4              [(orm.orm).gorm = {column: "subject";type:"varchar(255)"; size:255; index:',composite:sub'}];
     enum PolicyEffect {
         deny = 0;
         allow = 1;

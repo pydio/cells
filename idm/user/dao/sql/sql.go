@@ -123,12 +123,11 @@ func (s *sqlimpl) Migrate(ctx context.Context) error {
 // Add to the underlying SQL DB.
 func (s *sqlimpl) Add(ctx context.Context, in interface{}) (interface{}, []*idm.User, error) {
 
-	var createdNodes []*idm.User
-
+	var created []tree.ITreeNode
 	var user *idm.User
 
 	if u, ok := in.(*idm.User); !ok {
-		return nil, createdNodes, errors.WithMessage(DAOError, "invalid format, expecting idm.User")
+		return nil, nil, errors.WithMessage(DAOError, "invalid format, expecting idm.User")
 	} else {
 		user = proto.Clone(u).(*idm.User)
 	}
@@ -139,66 +138,80 @@ func (s *sqlimpl) Add(ctx context.Context, in interface{}) (interface{}, []*idm.
 	var node tree.ITreeNode
 	if !user.IsGroup {
 		if len(user.Login) == 0 {
-			return nil, createdNodes, errors.WithMessage(DAOError, "warning, cannot create a user with an empty login")
+			return nil, nil, errors.WithMessage(DAOError, "warning, cannot create a user with an empty login")
 		}
 		node = userToNode(user)
 	} else {
 		node = groupToNode(user)
 	}
 
-	rootNode := &user_model.User{}
-	rootNode.SetNode(&tree.Node{
+	rootInfo := &tree.Node{
 		Uuid:  "ROOT_GROUP",
 		Path:  "/",
 		Type:  tree.NodeType_COLLECTION,
 		Mode:  0777,
 		MTime: time.Now().Unix(),
-	})
-
-	mpath, created, err := s.indexDAO.ResolveMPath(ctx, true, &node, rootNode)
-	if err != nil && !errors.Is(err, gorm.ErrDuplicatedKey) {
-		return nil, createdNodes, wrap(err)
 	}
 
-	if errors.Is(err, gorm.ErrDuplicatedKey) {
-		// Node uuid already exists somewhere else, we just need to move it to its new location
-		nodeFrom, err := s.indexDAO.GetNodeByUUID(ctx, node.GetNode().GetUuid())
-		if err != nil {
-			return nil, createdNodes, wrap(err)
-		}
-		s.rebuildGroupPath(ctx, nodeFrom)
+	replaced := false
 
-		if nodeFrom.GetNode().GetPath() != node.GetNode().GetPath() {
-			log.Logger(ctx).Debug("MOVE TREE", zap.Any("from", nodeFrom), zap.Any("to", node))
-			if err := s.indexDAO.MoveNodeTree(ctx, nodeFrom, node); err != nil {
-				return nil, createdNodes, wrap(err)
+	if node.GetNode().GetUuid() != "" {
+		if existing, err := s.indexDAO.GetNodeByUUID(ctx, node.GetNode().GetUuid()); err == nil {
+			s.rebuildGroupPath(ctx, existing)
+			targetPath := node.GetNode().GetPath()
+			sourcePath := existing.GetNode().GetPath()
+			if existing.GetNode().GetPath() != targetPath {
+				// Move in Tree, user or group
+				nodeTo, cc, er := s.indexDAO.GetOrCreateNodeByPath(ctx, targetPath, nil)
+				if er != nil || len(cc) == 0 { // Error or already existing, this is not expected
+					return nil, nil, wrap(er)
+				}
+				pathTo := nodeTo.GetMPath()
+				created = append(created, cc...)
+				// Delete target before moving to it
+				_ = s.indexDAO.DelNode(ctx, nodeTo)
+				log.Logger(ctx).Debug("MOVE TREE", zap.Any("from", existing), zap.Any("to", nodeTo))
+				if err = s.indexDAO.MoveNodeTree(ctx, existing, nodeTo); err != nil {
+					return nil, nil, wrap(err)
+				}
+				if reload, er := s.indexDAO.GetNodeByMPath(ctx, pathTo); er != nil {
+					return nil, nil, wrap(er)
+				} else {
+					reload.GetNode().SetPath(targetPath)
+					nodeToUserOrGroup(reload, user)
+					user.Attributes["original_group"] = sourcePath
+				}
+			} else {
+				// Simple Update
+				node.SetMPath(existing.GetMPath())
+				if er := s.indexDAO.UpdateNode(ctx, node); er != nil {
+					return nil, nil, wrap(er)
+				}
+				nodeToUserOrGroup(node, user)
 			}
-		} else {
-			// TODO - this is a simple update
+			replaced = true
 		}
-	} else if len(created) == 0 {
-		// A node already exists at the target path, we just need to update it
-		nodeFrom, err := s.indexDAO.GetNode(ctx, mpath)
+	}
+
+	if !replaced {
+		retrieved, cc, err := s.indexDAO.GetOrCreateNodeByPath(ctx, node.GetNode().GetPath(), node.GetNode(), rootInfo)
 		if err != nil {
-			return nil, createdNodes, wrap(err)
+			return nil, nil, wrap(err)
 		}
+		if len(cc) == 0 {
+			// A node already exists at the target path, we just need to update it
+			node.GetNode().SetUuid(retrieved.GetNode().GetUuid())
+			node.SetMPath(retrieved.GetMPath())
+			node.SetName(retrieved.GetName())
 
-		node.GetNode().SetUuid(nodeFrom.GetNode().GetUuid())
-		node.SetMPath(nodeFrom.GetMPath())
-		node.SetName(nodeFrom.GetName())
-
-		if err := s.indexDAO.SetNode(ctx, node); err != nil {
-			return nil, createdNodes, wrap(err)
-		}
-
-		nodeToUser(node, user)
-	} else {
-		node = created[0].(*user_model.User)
-		user.Uuid = node.GetNode().GetUuid()
-		if node.GetNode().IsLeaf() {
-			nodeToUser(node, user)
+			if err := s.indexDAO.UpdateNode(ctx, node); err != nil {
+				return nil, nil, wrap(err)
+			}
+			nodeToUserOrGroup(node, user)
 		} else {
-			nodeToGroup(node, user)
+			user.Uuid = retrieved.GetNode().GetUuid()
+			nodeToUserOrGroup(retrieved, user)
+			created = append(created, cc...)
 		}
 	}
 
@@ -305,16 +318,14 @@ func (s *sqlimpl) Add(ctx context.Context, in interface{}) (interface{}, []*idm.
 		return nil, nil, wrap(err)
 	}
 
+	var createdNodes []*idm.User
 	for _, n := range created {
-		um := n.(*user_model.User)
-		createdNodes = append(createdNodes, &idm.User{
-			Uuid:      um.GetNode().GetUuid(),
-			GroupPath: um.GetNode().GetPath(),
-			Login:     um.GetName(),
-			IsGroup:   um.GetNode().GetType() == tree.NodeType_COLLECTION,
-		})
+		cu := &idm.User{}
+		nodeToUserOrGroup(n, cu)
+		createdNodes = append(createdNodes, cu)
 	}
 
+	// TODO ?
 	//if movedOriginalPath != "" {
 	//	user.Attributes["original_group"] = movedOriginalPath
 	//}
@@ -378,7 +389,7 @@ func (s *sqlimpl) TouchUser(ctx context.Context, userUuid string) error {
 		return wrap(er)
 	}
 	nodeSrc.GetNode().SetMTime(time.Now().Unix())
-	return wrap(s.indexDAO.SetNode(ctx, nodeSrc))
+	return wrap(s.indexDAO.UpdateNode(ctx, nodeSrc))
 
 }
 
@@ -630,7 +641,7 @@ func (s *sqlimpl) rebuildGroupPath(ctx context.Context, node tree.ITreeNode) {
 	if len(node.GetNode().GetPath()) == 0 {
 		var path []string
 		roles := []string{}
-		for pNode := range s.indexDAO.GetNodes(ctx, node.GetMPath().Parents()...) {
+		for pNode := range s.indexDAO.GetNodesByMPaths(ctx, node.GetMPath().Parents()...) {
 			path = append(path, pNode.GetName())
 			roles = append(roles, pNode.GetNode().GetUuid())
 		}

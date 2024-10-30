@@ -695,6 +695,7 @@ func (me MPathEquals) Build(builder clause.Builder) {
 // MPathLike greater than for where
 type MPathLike struct {
 	Value *MPath
+	Alias string
 }
 
 func (me MPathLike) Build(builder clause.Builder) {
@@ -707,7 +708,7 @@ func (me MPathLike) Build(builder clause.Builder) {
 			val += ".%"
 			done = true
 		}
-		expr = append(expr, clause.Like{Column: "mpath4", Value: val})
+		expr = append(expr, clause.Like{Column: me.Alias + "mpath4", Value: val})
 	}
 	if me.Value.GetMPath3() != "" {
 		val := me.Value.GetMPath3()
@@ -715,7 +716,7 @@ func (me MPathLike) Build(builder clause.Builder) {
 			val += ".%"
 			done = true
 		}
-		expr = append(expr, clause.Like{Column: "mpath3", Value: val})
+		expr = append(expr, clause.Like{Column: me.Alias + "mpath3", Value: val})
 	}
 	if me.Value.GetMPath2() != "" {
 		val := me.Value.GetMPath2()
@@ -723,7 +724,7 @@ func (me MPathLike) Build(builder clause.Builder) {
 			val += ".%"
 			done = true
 		}
-		expr = append(expr, clause.Like{Column: "mpath2", Value: val})
+		expr = append(expr, clause.Like{Column: me.Alias + "mpath2", Value: val})
 	}
 	if me.Value.GetMPath1() != "" {
 		val := me.Value.GetMPath1()
@@ -731,11 +732,11 @@ func (me MPathLike) Build(builder clause.Builder) {
 			val += ".%"
 			done = true
 		}
-		expr = append(expr, clause.Like{Column: "mpath1", Value: val})
+		expr = append(expr, clause.Like{Column: me.Alias + "mpath1", Value: val})
 	}
 
 	if len(expr) == 0 {
-		expr = append(expr, clause.Like{Column: "mpath1", Value: "%"})
+		expr = append(expr, clause.Like{Column: me.Alias + "mpath1", Value: "%"})
 	}
 
 	clause.And(expr...).Build(builder)
@@ -824,5 +825,14 @@ func (tn *TreeNode) BeforeSave(*gorm.DB) error {
 	tn.SetHash2(hex.EncodeToString(h.Sum(nil)))
 	h.Reset()
 
+	tn.GetNode().SetModeString(strconv.Itoa(int(tn.GetNode().GetMode())))
+
+	return nil
+}
+
+func (tn *TreeNode) AfterFind(*gorm.DB) error {
+	if m := tn.GetNode().GetMode(); m > 0 {
+		tn.GetNode().SetModeString(strconv.Itoa(int(m)))
+	}
 	return nil
 }

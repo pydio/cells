@@ -22,15 +22,14 @@ package datatest
 
 import (
 	"context"
-	"os"
 
 	"google.golang.org/grpc"
 
 	"github.com/pydio/cells/v4/common"
 	proto "github.com/pydio/cells/v4/common/proto/docstore"
-	"github.com/pydio/cells/v4/common/runtime/manager"
-	"github.com/pydio/cells/v4/common/utils/uuid"
-	"github.com/pydio/cells/v4/data/docstore/dao/bleve"
+	"github.com/pydio/cells/v4/common/server/stubs/inject"
+	"github.com/pydio/cells/v4/common/service"
+	"github.com/pydio/cells/v4/common/utils/propagator"
 	srv "github.com/pydio/cells/v4/data/docstore/grpc"
 )
 
@@ -43,31 +42,13 @@ func defaults() map[string]string {
 
 }
 
-func NewDocStoreService() (grpc.ClientConnInterface, error) {
+func NewDocStoreService(ctx context.Context, svc service.Service) (grpc.ClientConnInterface, error) {
 
-	/*
-		pBolt := newPath("docstore" + uuid.New() + ".db")
-		d, _, e := test.OnFileTestDAO("boltdb", pBolt, "", "docstore-test1", false, docstore2.NewDAO)
-		if e != nil {
-			return nil, e
-		}
-
-		h := &srv.Handler{
-			DAO: d.(*docstore2.BleveServer),
-		}*/
-	tmpPath := os.TempDir()
-	short := uuid.New()[:6]
-	conns := []string{
-		"bolt://" + tmpPath + "/docstore-" + short + ".db",
-		"bleve://" + tmpPath + "/docstore-" + short + ".bleve",
-	}
-	ctx, err := manager.DSNtoContextDAO(context.Background(), conns, bleve.NewBleveDAO)
-	if err != nil {
-		return nil, err
-	}
 	serv := &proto.DocStoreStub{}
 	serv.DocStoreServer = &srv.Handler{}
+	mock := &inject.SvcInjectorMock{ClientConnInterface: serv, Svc: svc}
 
+	ctx = propagator.With(ctx, service.ContextKey, svc)
 	for id, json := range defaults() {
 		_, er := serv.DocStoreServer.PutDocument(ctx, &proto.PutDocumentRequest{
 			StoreID:    common.DocStoreIdVirtualNodes,
@@ -83,5 +64,5 @@ func NewDocStoreService() (grpc.ClientConnInterface, error) {
 			return nil, er
 		}
 	}
-	return serv, nil
+	return mock, nil
 }

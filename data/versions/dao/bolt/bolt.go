@@ -25,6 +25,7 @@ import (
 	"encoding/binary"
 
 	"go.etcd.io/bbolt"
+	"go.uber.org/multierr"
 	"go.uber.org/zap"
 	"google.golang.org/protobuf/proto"
 
@@ -69,7 +70,7 @@ func (b *BoltStore) Close() error {
 }
 
 // GetLastVersion retrieves the last version registered for this node.
-func (b *BoltStore) GetLastVersion(nodeUuid string) (log *tree.ChangeLog, err error) {
+func (b *BoltStore) GetLastVersion(ctx context.Context, nodeUuid string) (log *tree.ChangeLog, err error) {
 
 	err = b.View(func(tx *bbolt.Tx) error {
 
@@ -97,7 +98,7 @@ func (b *BoltStore) GetLastVersion(nodeUuid string) (log *tree.ChangeLog, err er
 }
 
 // GetVersions returns all versions from the node bucket, in reverse order (last inserted first).
-func (b *BoltStore) GetVersions(nodeUuid string) (chan *tree.ChangeLog, error) {
+func (b *BoltStore) GetVersions(ctx context.Context, nodeUuid string) (chan *tree.ChangeLog, error) {
 
 	logChan := make(chan *tree.ChangeLog)
 
@@ -123,14 +124,14 @@ func (b *BoltStore) GetVersions(nodeUuid string) (chan *tree.ChangeLog, error) {
 				if e != nil {
 					return e
 				}
-				log.Logger(context.Background()).Debug("Versions:Bolt", aLog.Zap())
+				log.Logger(ctx).Debug("Versions:Bolt", aLog.Zap())
 				logChan <- aLog
 			}
 
 			return nil
 		})
 		if e != nil {
-			log.Logger(runtime.WithServiceName(context.Background(), common.ServiceGrpcNamespace_+common.ServiceVersions)).Warn("ListVersions", zap.Error(e))
+			log.Logger(runtime.WithServiceName(ctx, common.ServiceGrpcNamespace_+common.ServiceVersions)).Warn("ListVersions", zap.Error(e))
 		}
 
 	}()
@@ -139,7 +140,7 @@ func (b *BoltStore) GetVersions(nodeUuid string) (chan *tree.ChangeLog, error) {
 }
 
 // StoreVersion stores a version in the node bucket.
-func (b *BoltStore) StoreVersion(nodeUuid string, log *tree.ChangeLog) error {
+func (b *BoltStore) StoreVersion(ctx context.Context, nodeUuid string, log *tree.ChangeLog) error {
 
 	return b.Update(func(tx *bbolt.Tx) error {
 
@@ -165,7 +166,7 @@ func (b *BoltStore) StoreVersion(nodeUuid string, log *tree.ChangeLog) error {
 }
 
 // GetVersion retrieves a specific version from the node bucket.
-func (b *BoltStore) GetVersion(nodeUuid string, versionId string) (*tree.ChangeLog, error) {
+func (b *BoltStore) GetVersion(ctx context.Context, nodeUuid string, versionId string) (*tree.ChangeLog, error) {
 
 	version := &tree.ChangeLog{}
 
@@ -195,7 +196,7 @@ func (b *BoltStore) GetVersion(nodeUuid string, versionId string) (*tree.ChangeL
 }
 
 // DeleteVersionsForNode deletes whole node bucket at once.
-func (b *BoltStore) DeleteVersionsForNode(nodeUuid string, versions ...*tree.ChangeLog) error {
+func (b *BoltStore) DeleteVersionsForNode(ctx context.Context, nodeUuid string, versions ...*tree.ChangeLog) error {
 
 	return b.Update(func(tx *bbolt.Tx) error {
 
@@ -204,6 +205,7 @@ func (b *BoltStore) DeleteVersionsForNode(nodeUuid string, versions ...*tree.Cha
 			return errors.WithStack(errors.BucketNotFound)
 		}
 		nodeBucket := bucket.Bucket([]byte(nodeUuid))
+		var ee []error
 		if nodeBucket != nil {
 			if len(versions) > 0 { // delete some specific versions
 				c := nodeBucket.Cursor()
@@ -219,31 +221,31 @@ func (b *BoltStore) DeleteVersionsForNode(nodeUuid string, versions ...*tree.Cha
 					}
 				}
 				for _, key := range keys {
-					nodeBucket.Delete(key)
+					ee = append(ee, nodeBucket.Delete(key))
 				}
-
 			} else { // delete whole bucket
 				return bucket.DeleteBucket([]byte(nodeUuid))
 			}
 		}
-		return nil
+		return multierr.Combine(ee...)
 	})
 }
 
 // DeleteVersionsForNodes delete versions in a batch
-func (b *BoltStore) DeleteVersionsForNodes(nodeUuid []string) error {
+func (b *BoltStore) DeleteVersionsForNodes(ctx context.Context, nodeUuid []string) error {
 	er := b.Batch(func(tx *bbolt.Tx) error {
 		bucket := tx.Bucket(bucketName)
+		var ee []error
 		for _, uuid := range nodeUuid {
-			bucket.DeleteBucket([]byte(uuid))
+			ee = append(ee, bucket.DeleteBucket([]byte(uuid)))
 		}
-		return nil
+		return multierr.Combine(ee...)
 	})
 	return er
 }
 
 // ListAllVersionedNodesUuids lists all nodes uuids
-func (b *BoltStore) ListAllVersionedNodesUuids() (chan string, chan bool, chan error) {
+func (b *BoltStore) ListAllVersionedNodesUuids(ctx context.Context) (chan string, chan bool, chan error) {
 	idsChan := make(chan string)
 	done := make(chan bool, 1)
 	errChan := make(chan error)

@@ -28,7 +28,6 @@ import (
 
 	"github.com/pydio/cells/v4/common/nodes"
 	"github.com/pydio/cells/v4/common/nodes/abstract"
-	nodescontext "github.com/pydio/cells/v4/common/nodes/context"
 	"github.com/pydio/cells/v4/common/nodes/models"
 	"github.com/pydio/cells/v4/common/proto/tree"
 	"github.com/pydio/cells/v4/common/utils/openurl"
@@ -51,13 +50,16 @@ func newClient(opts ...nodes.Option) *clientImpl {
 	}
 
 	var handler nodes.Handler
-	// Pool may be already set
-	if p, b := nodescontext.GetPool(options.Context); b {
-		options.Pool = p
-	} else {
-		options.Pool = nodes.NewPool(options.Context)
-	}
-	handler = options.CoreClient(options.Pool)
+	/*
+		// Pool may be already set
+		if p, b := nodescontext.GetPool(options.Context); b {
+			options.Pool = p
+		} else {
+			options.Pool = nodes.NewPool(options.Context)
+		}
+
+	*/
+	handler = options.CoreClient
 
 	// wrap in reverse
 	for i := len(options.Wrappers); i > 0; i-- {
@@ -213,11 +215,15 @@ func (v *clientImpl) SetClientsPool(pool *openurl.Pool[nodes.SourcesPool]) {}
 
 // GetClientsPool returns internal pool
 func (v *clientImpl) GetClientsPool(ctx context.Context) nodes.SourcesPool {
-	p, e := v.pool.Get(ctx)
-	if e != nil {
-		panic(e)
-	}
-	return p
+	return nodes.GetSourcesPool(ctx)
+	/*
+		p, e := v.pool.Get(ctx)
+		if e != nil {
+			panic(e)
+		}
+		return p
+
+	*/
 }
 
 // ListNodesWithCallback performs a ListNodes request and applied callback with optional filters. This hides the complexity of streams handling.

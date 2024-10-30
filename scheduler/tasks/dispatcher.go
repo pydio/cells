@@ -134,7 +134,7 @@ func (d *Dispatcher) Opener(rootCtx context.Context, job *jobs.Job, queues ...ch
 				}
 
 				// Copy incoming info while keeping root cancellation
-				eventCtx = propagator.ForkContext(rootCtx, eventCtx)
+				eventCtx = propagator.ForkContext(eventCtx, rootCtx)
 				task := NewTaskFromEvent(eventCtx, job, event)
 				task.Queue(queues...)
 			}

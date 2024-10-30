@@ -309,7 +309,7 @@ func (dao *boltdbimpl) ActivitiesFor(ctx context.Context, ownerType acproto.Owne
 				break
 			}
 			if len(lastRead) == 0 {
-				lastRead = k
+				lastRead = append(lastRead, k...)
 			}
 			acObject, err := dao.UnmarshalActivity(v)
 			if err != nil {
@@ -374,7 +374,7 @@ func (dao *boltdbimpl) ReadLastUserInbox(userId string, boxName activity.BoxName
 		if bucket == nil {
 			return nil
 		}
-		last = bucket.Get([]byte("last"))
+		last = append(last, bucket.Get([]byte("last"))...)
 		return nil
 	})
 	if len(last) > 0 {

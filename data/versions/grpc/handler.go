@@ -73,6 +73,9 @@ func NewChangeLogFromNode(ctx context.Context, node *tree.Node, event *tree.Node
 	c.Size = node.Size
 	c.Event = event
 	c.OwnerUuid, _ = permissions.FindUserNameInContext(ctx)
+	if c.OwnerUuid == "" {
+		log.Logger(ctx).Warn("Cannot find username in context when creating version, this is unexpected")
+	}
 	return c
 
 }
@@ -87,7 +90,7 @@ func (h *Handler) ListVersions(request *tree.ListVersionsRequest, versionsStream
 	}
 
 	log.Logger(ctx).Debug("[VERSION] ListVersions for node ", request.Node.Zap())
-	logs, _ := dao.GetVersions(request.Node.Uuid)
+	logs, _ := dao.GetVersions(ctx, request.Node.Uuid)
 
 	for l := range logs {
 		if l.GetLocation() == nil {
@@ -108,7 +111,7 @@ func (h *Handler) HeadVersion(ctx context.Context, request *tree.HeadVersionRequ
 		return nil, err
 	}
 
-	v, e := dao.GetVersion(request.Node.Uuid, request.VersionId)
+	v, e := dao.GetVersion(ctx, request.Node.Uuid, request.VersionId)
 	if e != nil {
 		return nil, e
 	}
@@ -129,7 +132,7 @@ func (h *Handler) CreateVersion(ctx context.Context, request *tree.CreateVersion
 		return nil, err
 	}
 
-	last, err := dao.GetLastVersion(request.Node.Uuid)
+	last, err := dao.GetLastVersion(ctx, request.Node.Uuid)
 	if err != nil {
 		return nil, err
 	}
@@ -156,7 +159,7 @@ func (h *Handler) StoreVersion(ctx context.Context, request *tree.StoreVersionRe
 		return nil, err
 	}
 
-	if err := dao.StoreVersion(request.Node.Uuid, request.Version); err == nil {
+	if err := dao.StoreVersion(ctx, request.Node.Uuid, request.Version); err == nil {
 		resp.Success = true
 	}
 
@@ -164,7 +167,7 @@ func (h *Handler) StoreVersion(ctx context.Context, request *tree.StoreVersionRe
 	if err != nil {
 		log.Logger(ctx).Error("cannot prepare periods for versions policy", p.Zap(), zap.Error(err))
 	}
-	logs, _ := dao.GetVersions(request.Node.Uuid)
+	logs, _ := dao.GetVersions(ctx, request.Node.Uuid)
 	pruningPeriods, err = versions.DispatchChangeLogsByPeriod(pruningPeriods, logs)
 	log.Logger(ctx).Debug("[VERSION] Pruning Periods", log.DangerouslyZapSmallSlice("p", pruningPeriods))
 	var toRemove []*tree.ChangeLog
@@ -178,7 +181,7 @@ func (h *Handler) StoreVersion(ctx context.Context, request *tree.StoreVersionRe
 	}
 	if len(toRemove) > 0 {
 		log.Logger(ctx).Debug("[VERSION] Pruning should remove", zap.Int("number", len(toRemove)))
-		if err := dao.DeleteVersionsForNode(request.Node.Uuid, toRemove...); err != nil {
+		if err := dao.DeleteVersionsForNode(ctx, request.Node.Uuid, toRemove...); err != nil {
 			return nil, err
 		}
 		resp.PruneVersions = toRemove
@@ -224,7 +227,7 @@ func (h *Handler) PruneVersions(ctx context.Context, request *tree.PruneVersions
 		wg.Add(1)
 		runner := func() error {
 			defer wg.Done()
-			uuids, done, errs := dao.ListAllVersionedNodesUuids()
+			uuids, done, errs := dao.ListAllVersionedNodesUuids(ctx)
 			for {
 				select {
 				case id := <-uuids:
@@ -256,7 +259,7 @@ func (h *Handler) PruneVersions(ctx context.Context, request *tree.PruneVersions
 
 	resp := &tree.PruneVersionsResponse{}
 	for _, i := range idsToDelete {
-		allLogs, _ := dao.GetVersions(i)
+		allLogs, _ := dao.GetVersions(ctx, i)
 		wg := &sync.WaitGroup{}
 		wg.Add(1)
 		go func() {
@@ -273,7 +276,7 @@ func (h *Handler) PruneVersions(ctx context.Context, request *tree.PruneVersions
 		wg.Wait()
 	}
 
-	if e := dao.DeleteVersionsForNodes(idsToDelete); e != nil {
+	if e := dao.DeleteVersionsForNodes(ctx, idsToDelete); e != nil {
 		return nil, e
 	}
 

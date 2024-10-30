@@ -45,7 +45,6 @@ type LockFilter struct {
 
 func (a *LockFilter) Adapt(h nodes.Handler, options nodes.RouterOptions) nodes.Handler {
 	a.Next = h
-	a.ClientsPool = options.Pool
 	return a
 }
 
@@ -139,7 +138,7 @@ func (a *LockFilter) WrappedCanApply(srcCtx context.Context, targetCtx context.C
 	}
 
 	// First load ancestors or grab them from BranchInfo
-	_, parents, err := nodes.AncestorsListFromContext(ctx, node, "in", a.ContextPool(ctx), false)
+	_, parents, err := nodes.AncestorsListFromContext(ctx, node, "in", false)
 	if err != nil {
 		return err
 	}

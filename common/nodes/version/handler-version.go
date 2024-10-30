@@ -170,7 +170,7 @@ func (v *Handler) GetObject(ctx context.Context, node *tree.Node, requestData *m
 		node.MTime = vResp.Version.MTime
 		// Refresh context from location
 		dsName := node.GetStringMeta(common.MetaNamespaceDatasourceName)
-		source, e := v.ContextPool(ctx).GetDataSourceInfo(dsName)
+		source, e := nodes.GetSourcesPool(ctx).GetDataSourceInfo(dsName)
 		if e != nil {
 			return nil, e
 		}
@@ -213,7 +213,7 @@ func (v *Handler) CopyObject(ctx context.Context, from *tree.Node, to *tree.Node
 		}
 		from = vResp.GetVersion().GetLocation()
 		// Refresh context from location
-		source, e := v.ContextPool(ctx).GetDataSourceInfo(from.GetStringMeta(common.MetaNamespaceDatasourceName))
+		source, e := nodes.GetSourcesPool(ctx).GetDataSourceInfo(from.GetStringMeta(common.MetaNamespaceDatasourceName))
 		if e != nil {
 			return models.ObjectInfo{}, e
 		}

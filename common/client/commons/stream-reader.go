@@ -21,6 +21,8 @@
 package commons
 
 import (
+	"runtime/debug"
+
 	"google.golang.org/grpc"
 
 	"github.com/pydio/cells/v4/common/errors"
@@ -42,6 +44,15 @@ func ForEach[T any](streamClient StreamClient[T], openError error, handler Respo
 	if openError != nil {
 		return openError
 	}
+	var wr ResponseHandler[T] = func(t T) (oe error) {
+		defer func() {
+			if err := recover(); err != nil {
+				debug.PrintStack()
+				oe = err.(error)
+			}
+		}()
+		return handler(t)
+	}
 	for {
 		resp, err := streamClient.Recv()
 		if errors.IsStreamFinished(err) {
@@ -50,7 +61,7 @@ func ForEach[T any](streamClient StreamClient[T], openError error, handler Respo
 		if err != nil {
 			return err
 		}
-		if er := handler(resp); er != nil {
+		if er := wr(resp); er != nil {
 			return er
 		}
 	}

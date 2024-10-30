@@ -89,7 +89,7 @@ func (a *Handler) ListNodes(ctx context.Context, in *tree.ListNodesRequest, opts
 // ReadNode N Info & N Content : send by UUID,
 func (a *Handler) ReadNode(ctx context.Context, in *tree.ReadNodeRequest, opts ...grpc.CallOption) (*tree.ReadNodeResponse, error) {
 	if a.isStorePath(in.Node.Path) {
-		source, er := a.ContextPool(ctx).GetDataSourceInfo(a.StoreName)
+		source, er := nodes.GetSourcesPool(ctx).GetDataSourceInfo(a.StoreName)
 		if er != nil {
 			return nil, er
 		}
@@ -120,7 +120,7 @@ func (a *Handler) ReadNode(ctx context.Context, in *tree.ReadNodeRequest, opts .
 		}
 		// Special case if DS is encrypted - update node with clear size
 		if a.TransparentGet && source.EncryptionMode != object.EncryptionMode_CLEAR {
-			if rn, e := a.ContextPool(ctx).GetTreeClient().ReadNode(ctx, &tree.ReadNodeRequest{Node: &tree.Node{Path: path.Join(source.Name, path.Base(in.Node.Path))}}, opts...); e == nil {
+			if rn, e := nodes.GetSourcesPool(ctx).GetTreeClient().ReadNode(ctx, &tree.ReadNodeRequest{Node: &tree.Node{Path: path.Join(source.Name, path.Base(in.Node.Path))}}, opts...); e == nil {
 				node.Size = rn.GetNode().GetSize()
 			} else {
 				log.Logger(ctx).Debug("Could not update clear size for binary store in read node", zap.Error(e))
@@ -137,7 +137,7 @@ func (a *Handler) ReadNode(ctx context.Context, in *tree.ReadNodeRequest, opts .
 
 func (a *Handler) GetObject(ctx context.Context, node *tree.Node, requestData *models.GetRequestData) (io.ReadCloser, error) {
 	if a.isStorePath(node.Path) {
-		source, er := a.ContextPool(ctx).GetDataSourceInfo(a.StoreName)
+		source, er := nodes.GetSourcesPool(ctx).GetDataSourceInfo(a.StoreName)
 		if e := a.checkContextForAnonRead(ctx); e != nil {
 			return nil, e
 		}
@@ -185,7 +185,7 @@ func (a *Handler) DeleteNode(ctx context.Context, in *tree.DeleteNodeRequest, op
 			return nil, errors.WithMessage(errors.BinaryCannotWriteStore, a.StoreName)
 		}
 		var er error
-		if source, er = a.ContextPool(ctx).GetDataSourceInfo(a.StoreName); er == nil {
+		if source, er = nodes.GetSourcesPool(ctx).GetDataSourceInfo(a.StoreName); er == nil {
 			ctx = nodes.WithBranchInfo(ctx, "in", nodes.BranchInfo{LoadedSource: source, Binary: true})
 			clone := in.Node.Clone()
 			dsKey = path.Base(in.Node.Path)
@@ -212,7 +212,7 @@ func (a *Handler) PutObject(ctx context.Context, node *tree.Node, reader io.Read
 		if !a.AllowPut {
 			return models.ObjectInfo{}, errors.WithMessage(errors.BinaryCannotWriteStore, a.StoreName)
 		}
-		source, er := a.ContextPool(ctx).GetDataSourceInfo(a.StoreName)
+		source, er := nodes.GetSourcesPool(ctx).GetDataSourceInfo(a.StoreName)
 		if er == nil {
 			ctx = nodes.WithBranchInfo(ctx, "in", nodes.BranchInfo{LoadedSource: source, Binary: true})
 			clone := node.Clone()

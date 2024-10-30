@@ -38,7 +38,7 @@ func (c *Cacher) Store(key string, val interface{}) error {
 func NewDAOWithCache[T tree.ITreeNode](db *gorm.DB, ca cache.Cache) DAO {
 
 	cachesPlugin := &caches.Caches{Conf: &caches.Config{
-		//Easer: true, // Cannot enable that, it mixes up GetNodeChild results
+		//Easer: true, // Cannot enable that, it mixes up getNodeChild results
 		Cacher: NewCacher(ca),
 	}}
 	db.Use(cachesPlugin)

@@ -81,7 +81,6 @@ func (h *Handler) UpdateUserMeta(ctx context.Context, request *idm.UpdateUserMet
 	nodes := make(map[string]*tree.Node)
 	sources := make(map[string]*tree.Node)
 	for _, metaData := range request.MetaDatas {
-		h.clearCacheForNode(ctx, metaData.NodeUuid)
 		var prevValue string
 		if request.Operation == idm.UpdateUserMetaRequest_PUT {
 			// Check JsonValue is valid json
@@ -104,6 +103,7 @@ func (h *Handler) UpdateUserMeta(ctx context.Context, request *idm.UpdateUserMet
 				return nil, err
 			}
 		}
+		h.clearCacheForNode(ctx, metaData.NodeUuid)
 		var src *tree.Node
 		if s, o := sources[metaData.NodeUuid]; o {
 			src = s
@@ -129,6 +129,7 @@ func (h *Handler) UpdateUserMeta(ctx context.Context, request *idm.UpdateUserMet
 		subjects, _ := auth.SubjectsForResourcePolicyQuery(ctx, nil)
 
 		for nodeId, source := range sources {
+
 			// Reload Metas
 			// Try to use resolved node or create fake one
 			nCtx := ctx

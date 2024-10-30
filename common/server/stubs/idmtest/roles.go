@@ -26,28 +26,23 @@ import (
 	"google.golang.org/grpc"
 
 	"github.com/pydio/cells/v4/common/proto/idm"
+	"github.com/pydio/cells/v4/common/server/stubs/inject"
+	"github.com/pydio/cells/v4/common/service"
+	"github.com/pydio/cells/v4/common/utils/propagator"
 	srv "github.com/pydio/cells/v4/idm/role/grpc"
 )
 
-func NewRolesService(roles ...*idm.Role) (grpc.ClientConnInterface, error) {
-
-	ctx := context.Background()
-	/*
-		// TODO
-		mockRDAO, e := dao.InitDAO(ctx, sqlite.Driver, sqlite.SharedMemDSN, "idm_roles", role.NewDAO, configx.New())
-		if e != nil {
-			return nil, e
-		}
-		ctx = servicecontext.WithDAO(ctx, mockRDAO)
-	*/
+func NewRolesService(ctx context.Context, svc service.Service, roles ...*idm.Role) (grpc.ClientConnInterface, error) {
 	serv := &idm.RoleServiceStub{
 		RoleServiceServer: srv.NewHandler(),
 	}
+	mock := &inject.SvcInjectorMock{ClientConnInterface: serv, Svc: svc}
+	ctx = propagator.With(ctx, service.ContextKey, svc)
 	for _, r := range roles {
 		_, er := serv.RoleServiceServer.CreateRole(ctx, &idm.CreateRoleRequest{Role: r})
 		if er != nil {
 			return nil, er
 		}
 	}
-	return serv, nil
+	return mock, nil
 }

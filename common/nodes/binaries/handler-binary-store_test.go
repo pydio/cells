@@ -30,6 +30,7 @@ import (
 	"github.com/pydio/cells/v4/common/nodes/models"
 	"github.com/pydio/cells/v4/common/proto/object"
 	"github.com/pydio/cells/v4/common/proto/tree"
+	"github.com/pydio/cells/v4/common/utils/openurl"
 
 	. "github.com/smartystreets/goconvey/convey"
 )
@@ -37,6 +38,13 @@ import (
 var (
 	testBinaryStoreName = "store"
 )
+
+func init() {
+	nodes.SetSourcesPoolOpener(func(ctx context.Context) *openurl.Pool[nodes.SourcesPool] {
+		return nodes.NewTestPool(ctx)
+	})
+
+}
 
 func getStoreTestMock() (nodes.Handler, *nodes.HandlerMock) {
 	mock := nodes.NewHandlerMock()
@@ -47,10 +55,10 @@ func getStoreTestMock() (nodes.Handler, *nodes.HandlerMock) {
 
 	nodes.IsUnitTestEnv = true
 	ctx := context.TODO()
-	cPool := nodes.NewTestPool(ctx)
-	cl, _ := cPool.Get(ctx)
+	// TODO
+	cl := nodes.GetSourcesPool(ctx)
 	_ = cl.(*nodes.ClientsPool).CreateClientsForDataSource(testBinaryStoreName, &object.DataSource{})
-	handler.SetClientsPool(cPool)
+
 	mock.Nodes["/test/file"] = &tree.Node{Path: "/test/file"}
 	mock.Nodes[testBinaryStoreName+"/thumb1"] = &tree.Node{Path: testBinaryStoreName + "/thumb1"}
 	return handler, mock

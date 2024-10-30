@@ -36,9 +36,7 @@ import (
 	"github.com/pydio/cells/v4/common/auth"
 	grpc2 "github.com/pydio/cells/v4/common/client/grpc"
 	"github.com/pydio/cells/v4/common/errors"
-	"github.com/pydio/cells/v4/common/nodes"
 	"github.com/pydio/cells/v4/common/nodes/abstract"
-	nodescontext "github.com/pydio/cells/v4/common/nodes/context"
 	"github.com/pydio/cells/v4/common/nodes/meta"
 	"github.com/pydio/cells/v4/common/nodes/mocks"
 	"github.com/pydio/cells/v4/common/permissions"
@@ -772,7 +770,6 @@ loop:
 
 // ModifyLogin should detect TemplatePaths using the User.Name variable, resolve them and forward the request to the corresponding index
 func (s *TreeServer) ModifyLogin(ctx context.Context, req *service.ModifyLoginRequest) (*service.ModifyLoginResponse, error) {
-	ctx = nodescontext.WithSourcesPool(ctx, nodes.NewPool(ctx))
 	m := abstract.GetVirtualNodesManager(ctx)
 	resp := &service.ModifyLoginResponse{}
 	originalUser, er := permissions.SearchUniqueUser(ctx, req.OldLogin, "")

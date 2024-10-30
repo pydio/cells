@@ -45,9 +45,9 @@ func NewFolderSizeCacheDAO(dao DAO) DAO {
 }
 
 // GetNode from path
-func (dao *FolderSizeCacheSQL) GetNode(ctx context.Context, path *tree.MPath) (tree.ITreeNode, error) {
+func (dao *FolderSizeCacheSQL) GetNodeByMPath(ctx context.Context, path *tree.MPath) (tree.ITreeNode, error) {
 
-	node, err := dao.DAO.GetNode(nil, path)
+	node, err := dao.DAO.GetNodeByMPath(ctx, path)
 	if err != nil {
 		return nil, err
 	}
@@ -127,32 +127,30 @@ func (dao *FolderSizeCacheSQL) GetNodeTree(ctx context.Context, path *tree.MPath
 	return c
 }
 
-func (dao *FolderSizeCacheSQL) ResolveMPath(ctx context.Context, create bool, node *tree.ITreeNode, rootNode ...tree.ITreeNode) (*tree.MPath, []tree.ITreeNode, error) {
-	mpath, nodes, err := dao.DAO.ResolveMPath(ctx, create, node, rootNode...)
-
-	if create {
-		go dao.invalidateMPathHierarchy(mpath, -1)
+func (dao *FolderSizeCacheSQL) GetOrCreateNodeByPath(ctx context.Context, nodePath string, info *tree.Node, rootInfo ...*tree.Node) (tree.ITreeNode, []tree.ITreeNode, error) {
+	n, cc, e := dao.DAO.GetOrCreateNodeByPath(ctx, nodePath, info, rootInfo...)
+	if n != nil && len(cc) > 0 {
+		go dao.invalidateMPathHierarchy(n.GetMPath(), -1)
 	}
-
-	return mpath, nodes, err
+	return n, cc, e
 }
 
 // AddNode adds a node in the tree.
-func (dao *FolderSizeCacheSQL) AddNode(ctx context.Context, node tree.ITreeNode) error {
+func (dao *FolderSizeCacheSQL) insertNode(ctx context.Context, node tree.ITreeNode) error {
 	dao.invalidateMPathHierarchy(node.GetMPath(), -1)
-	return dao.DAO.AddNode(nil, node)
+	return dao.DAO.insertNode(ctx, node)
 }
 
 // SetNode updates a node, including its tree position
-func (dao *FolderSizeCacheSQL) SetNode(ctx context.Context, node tree.ITreeNode) error {
+func (dao *FolderSizeCacheSQL) UpdateNode(ctx context.Context, node tree.ITreeNode) error {
 	dao.invalidateMPathHierarchy(node.GetMPath(), -1)
-	return dao.DAO.SetNode(nil, node)
+	return dao.DAO.UpdateNode(ctx, node)
 }
 
 // DelNode removes a node from the tree
 func (dao *FolderSizeCacheSQL) DelNode(ctx context.Context, node tree.ITreeNode) error {
 	dao.invalidateMPathHierarchy(node.GetMPath(), -1)
-	return dao.DAO.DelNode(nil, node)
+	return dao.DAO.DelNode(ctx, node)
 }
 
 // MoveNodeTree move all the nodes belonging to a tree by calculating the new mpathes

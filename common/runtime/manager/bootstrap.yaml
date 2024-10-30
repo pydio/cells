@@ -10,12 +10,9 @@ processes:
     runtime: discovery
     connections:
       config:
-        uri: mem://
+        uri: file://{{{{ .ApplicationWorkingDir }}}}/pydio.json
         pools:
-          rp: mem://
-#        uri: file://{{{{ .ApplicationWorkingDir }}}}/pydio.json
-#        pools:
-#          rp: file://{{{{ .ApplicationWorkingDir }}}}/{{ .Tenant }}.json
+          rp: file://{{{{ .ApplicationWorkingDir }}}}/{{ .Tenant }}.json
       registry:
         uri: mem://?cache=shared
       broker:
@@ -32,7 +29,7 @@ processes:
         services:
           #- filter: "discovery ~= {{ sliceToRegexpFmt .Tags }}"
           - filter: "{{ .Name }} ~= pydio.grpc..*"
-#    storages: *storages
+    storages: *storages
     services: *services
     env: *env
 
@@ -56,10 +53,10 @@ processes:
           - filter: "{{ .Name }} ~= pydio\\.web\\..* or {{ .Name }} ~= pydio\\.rest\\..* or {{ .Name }} ~= pydio\\.gateway\\.*"
           - filter: "{{ .Name }} !~= pydio\\.web\\.sites"
     env: *env
-#    storages: *storages
+    storages: *storages
     services: *services
-#    queues: *queues
-#    caches: *caches
+    queues: *queues
+    caches: *caches
 
   datasource-peer:
     runtime: datasource
@@ -71,3 +68,4 @@ processes:
     services: *services
     queues: *queues
     caches: *caches
+

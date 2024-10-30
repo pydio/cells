@@ -32,6 +32,8 @@ import (
 	sqlite "github.com/glebarez/go-sqlite"
 	"gorm.io/gorm"
 
+	"github.com/pydio/cells/v4/common/proto/tree"
+
 	_ "github.com/glebarez/sqlite"
 )
 
@@ -135,6 +137,10 @@ WHERE data_index_s3_tree_nodes.id = updated_nodes.id;
 
 func (p *sqliteHelper) MPathOrdering(mm ...string) string {
 	return strings.Join(mm, ", ")
+}
+
+func (p *sqliteHelper) FirstAvailableSlot(tableName string, mpath *tree.MPath, levelKey string, mpathes ...string) (string, []any, int64, bool) {
+	return "", nil, 0, false
 }
 
 func (p *sqliteHelper) ApplyOrderedUpdates(db *gorm.DB, tableName string, sets []OrderedUpdate, wheres []sql.NamedArg) (int64, error) {

@@ -22,11 +22,8 @@ package nodes
 
 import (
 	"context"
-	"fmt"
 	"path"
 	"strings"
-
-	"google.golang.org/grpc/status"
 
 	"github.com/pydio/cells/v4/common/errors"
 	"github.com/pydio/cells/v4/common/proto/tree"
@@ -102,9 +99,6 @@ func BuildAncestorsList(ctx context.Context, treeClient tree.NodeProviderClient,
 			if errors.IsStreamFinished(e) {
 				break
 			} else {
-				if s, o := status.FromError(e); o {
-					return nil, fmt.Errorf(s.Message())
-				}
 				return nil, e
 			}
 		}

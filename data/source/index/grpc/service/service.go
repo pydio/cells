@@ -43,7 +43,7 @@ import (
 )
 
 func init() {
-	runtime.Register("datasource-index", func(ctx context.Context) {
+	runtime.Register("main", func(ctx context.Context) {
 		name := common.ServiceGrpcNamespace_ + common.ServiceDataIndex
 
 		service.NewService(
@@ -59,11 +59,11 @@ func init() {
 				},
 			}),
 			service.WithGRPC(func(ctx context.Context, srv grpc.ServiceRegistrar) error {
-				dsObject, e := config.GetSourceInfoByName(ctx, source)
-				if e != nil {
-					return fmt.Errorf("cannot find datasource configuration for " + name)
-				}
-				engine := grpc2.NewTreeServer(dsObject, name)
+				//dsObject, e := config.GetSourceInfoByName(ctx, source)
+				//if e != nil {
+				//	return fmt.Errorf("cannot find datasource configuration for " + name)
+				//}
+				engine := grpc2.NewTreeServer(nil, name)
 				tree.RegisterNodeReceiverServer(srv, engine)
 				tree.RegisterNodeProviderServer(srv, engine)
 				tree.RegisterNodeReceiverStreamServer(srv, engine)

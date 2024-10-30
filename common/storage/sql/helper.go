@@ -23,9 +23,12 @@ package sql
 import (
 	"database/sql"
 	"reflect"
+	"strings"
 
 	"gorm.io/gorm"
 	"gorm.io/gorm/schema"
+
+	"github.com/pydio/cells/v4/common/proto/tree"
 )
 
 type OrderedUpdate struct {
@@ -40,6 +43,7 @@ type Helper interface {
 	HashParent(nameKey string, levelKey string, mpathes ...string) string
 	ApplyOrderedUpdates(db *gorm.DB, tableName string, sets []OrderedUpdate, wheres []sql.NamedArg) (int64, error)
 	MPathOrdering(...string) string
+	FirstAvailableSlot(tableName string, mpath *tree.MPath, levelKey string, mpathes ...string) (string, []any, int64, bool)
 }
 
 // TableNameFromModel computes table name from model using standard GORM strategy
@@ -59,4 +63,11 @@ func TableNameFromModel(db *gorm.DB, model any) string {
 		tableName = tabler.TableName(db.NamingStrategy)
 	}
 	return tableName
+}
+
+// QuoteTo is a shortcut to db.QuoteTo
+func QuoteTo(db *gorm.DB, s string) string {
+	buf := &strings.Builder{}
+	db.QuoteTo(buf, s)
+	return buf.String()
 }

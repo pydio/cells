@@ -60,16 +60,13 @@ func (s *sqlimpl) Migrate(ctx context.Context) error {
 	if er := s.IndexSQL.Migrate(ctx); er != nil {
 		return er
 	}
-	var treeNode tree.ITreeNode
-	treeNode = &tree.TreeNode{}
-	treeNode.SetNode(&tree.Node{
+	treeNode := &tree.Node{
 		Uuid:  "ROOT",
 		Path:  "/",
 		Type:  tree.NodeType_COLLECTION,
 		MTime: time.Now().Unix(),
-	})
-
-	if _, created, err := s.IndexSQL.ResolveMPath(ctx, true, &treeNode, treeNode); err != nil {
+	}
+	if _, created, err := s.IndexSQL.GetOrCreateNodeByPath(ctx, "/", treeNode); err != nil {
 		log.Logger(ctx).Error("Error checking root node in index: " + err.Error())
 		return err
 	} else if len(created) > 0 {

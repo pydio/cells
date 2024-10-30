@@ -220,7 +220,7 @@ func (m *MultipleRootsHandler) ReadNode(ctx context.Context, in *tree.ReadNodeRe
 				fakeNode.MTime = node.MTime
 			}
 			if dsName := node.GetStringMeta(common.MetaNamespaceDatasourceName); dsName != "" {
-				if ls, er := m.ContextPool(ctx).GetDataSourceInfo(dsName); er == nil {
+				if ls, er := nodes.GetSourcesPool(ctx).GetDataSourceInfo(dsName); er == nil {
 					h, _ := ls.ConfigurationByKey(object.StorageKeyHashingVersion)
 					if hashingVersion != "" && h != hashingVersion {
 						hashingVersion = "mixed"

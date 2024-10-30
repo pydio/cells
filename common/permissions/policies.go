@@ -67,7 +67,7 @@ var polCacheOnce sync.Once
 
 func getCheckersCache(ctx context.Context) cache.Cache {
 	polCacheOnce.Do(func() {
-		_, _ = broker.Subscribe(context.Background(), common.TopicIdmPolicies, func(ct context.Context, message broker.Message) error {
+		_, _ = broker.Subscribe(context.WithoutCancel(ctx), common.TopicIdmPolicies, func(ct context.Context, message broker.Message) error {
 			polCache := cache_helper.MustResolveCache(ct, "short", polCacheConfig)
 			_ = polCache.Delete("acl")
 			_ = polCache.Delete("oidc")

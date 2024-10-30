@@ -39,18 +39,31 @@ const Name = common.ServiceGrpcNamespace_ + common.ServicePolicy
 
 func init() {
 	runtime.Register("main", func(ctx context.Context) {
+
+		migs := append([]*service.Migration{
+			{
+				TargetVersion: service.FirstRun(),
+				Up:            manager.StorageMigration(),
+			},
+		}, policy.GrpcServiceMigrations...)
+		migs = append(migs, &service.Migration{
+			TargetVersion: service.ValidVersion("4.5.0"),
+			Up: func(ctx context.Context) error {
+				dao, er := manager.Resolve[policy.DAO](ctx)
+				if er != nil {
+					return er
+				}
+				return dao.MigrateLegacy(ctx)
+			},
+		})
+
 		service.NewService(
 			service.Name(Name),
 			service.Context(ctx),
 			service.Tag(common.ServiceTagIdm),
 			service.Description("Policy Engine Service"),
 			service.WithStorageDrivers(policy.Drivers...),
-			service.Migrations(append([]*service.Migration{
-				{
-					TargetVersion: service.FirstRun(),
-					Up:            manager.StorageMigration(),
-				},
-			}, policy.GrpcServiceMigrations...)),
+			service.Migrations(migs),
 			service.WithGRPC(func(ctx context.Context, srv grpc.ServiceRegistrar) error {
 				handler := grpc2.NewHandler()
 				idm.RegisterPolicyEngineServiceServer(srv, handler)

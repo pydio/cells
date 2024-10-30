@@ -23,6 +23,7 @@ var (
 
 func TestController(t *testing.T) {
 	v := viper.New()
+	v.Set(runtime.KeyConfig, "mem://")
 	v.Set(runtime.KeyName, "discovery")
 	v.Set(runtime.KeyArgTags, "storages")
 	v.Set(runtime.KeyBootstrapYAML, storageTestTemplate)

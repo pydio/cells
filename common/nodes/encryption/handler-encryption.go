@@ -50,8 +50,8 @@ func WithEncryption() nodes.Option {
 // Handler encryption node middleware
 type Handler struct {
 	abstract.Handler
-	userKeyTool          UserKeyTool
-	nodeKeyManagerClient encryption.NodeKeyManagerClient
+	userKeyTool UserKeyTool
+	//nodeKeyManagerClient encryption.NodeKeyManagerClient
 }
 
 func (e *Handler) Adapt(h nodes.Handler, options nodes.RouterOptions) nodes.Handler {
@@ -63,9 +63,12 @@ func (e *Handler) SetUserKeyTool(keyTool UserKeyTool) {
 	e.userKeyTool = keyTool
 }
 
+/*
 func (e *Handler) SetNodeKeyManagerClient(nodeKeyManagerClient encryption.NodeKeyManagerClient) {
 	e.nodeKeyManagerClient = nodeKeyManagerClient
 }
+
+*/
 
 // GetObject enriches request metadata for GetObject with Encryption Materials, if required by the datasource.
 func (e *Handler) GetObject(ctx context.Context, node *tree.Node, requestData *models.GetRequestData) (io.ReadCloser, error) {
@@ -216,7 +219,7 @@ func (e *Handler) PutObject(ctx context.Context, node *tree.Node, reader io.Read
 
 	//	ct, ca := context.WithCancel(ctx)
 	//	defer ca()
-	streamClient, err := e.getNodeKeyManagerClient().SetNodeInfo(ctx)
+	streamClient, err := e.getNodeKeyManagerClient(ctx).SetNodeInfo(ctx)
 	if err != nil {
 		log.Logger(ctx).Error("views.handler.encryption.PutObject: failed to save node encryption info", zap.Error(err))
 		return models.ObjectInfo{}, err
@@ -376,7 +379,7 @@ func (e *Handler) CopyObject(ctx context.Context, from *tree.Node, to *tree.Node
 			// Insert in tree as temporary
 			cloneTo.Type = tree.NodeType_LEAF
 			cloneTo.Etag = common.NodeFlagEtagTemporary
-			if _, er := e.ContextPool(ctx).GetTreeClientWrite().CreateNode(writeCtx, &tree.CreateNodeRequest{Node: cloneTo}); er != nil {
+			if _, er := nodes.GetSourcesPool(ctx).GetTreeClientWrite().CreateNode(writeCtx, &tree.CreateNodeRequest{Node: cloneTo}); er != nil {
 				return models.ObjectInfo{}, er
 			}
 		}
@@ -442,7 +445,7 @@ func (e *Handler) MultipartCreate(ctx context.Context, target *tree.Node, reques
 		return "", err
 	}
 
-	streamClient, err := e.getNodeKeyManagerClient().SetNodeInfo(ctx)
+	streamClient, err := e.getNodeKeyManagerClient(ctx).SetNodeInfo(ctx)
 	if err != nil {
 		log.Logger(ctx).Error("views.handler.encryption.MultiPartCreate: failed to get data.key stream client", zap.Error(err))
 		return "", err
@@ -527,7 +530,7 @@ func (e *Handler) MultipartPutObjectPart(ctx context.Context, target *tree.Node,
 		return models.MultipartObjectPart{}, err
 	}
 
-	streamClient, err := e.getNodeKeyManagerClient().SetNodeInfo(ctx)
+	streamClient, err := e.getNodeKeyManagerClient(ctx).SetNodeInfo(ctx)
 	if err != nil {
 		log.Logger(ctx).Error("views.handler.encryption.MultiPartPutObject: failed to save node encryption info", zap.Error(err))
 		return models.MultipartObjectPart{}, err
@@ -573,7 +576,7 @@ func (e *Handler) MultipartPutObjectPart(ctx context.Context, target *tree.Node,
 }
 
 func (e *Handler) copyNodeEncryptionData(ctx context.Context, source *tree.Node, copy *tree.Node) error {
-	_, err := e.getNodeKeyManagerClient().CopyNodeInfo(ctx, &encryption.CopyNodeInfoRequest{
+	_, err := e.getNodeKeyManagerClient(ctx).CopyNodeInfo(ctx, &encryption.CopyNodeInfoRequest{
 		NodeUuid:     source.Uuid,
 		NodeCopyUuid: copy.Uuid,
 	})
@@ -581,7 +584,7 @@ func (e *Handler) copyNodeEncryptionData(ctx context.Context, source *tree.Node,
 }
 
 func (e *Handler) getNodeInfoForRead(ctx context.Context, node *tree.Node, requestData *models.GetRequestData) (*encryption.NodeInfo, int64, int64, int64, error) {
-	nodeEncryptionClient := e.getNodeKeyManagerClient()
+	nodeEncryptionClient := e.getNodeKeyManagerClient(ctx)
 	fullRead := requestData.StartOffset == 0 && (requestData.Length <= 0 || requestData.Length == node.Size)
 	dsName := node.GetStringMeta(common.MetaNamespaceDatasourceName)
 	rsp, err := nodeEncryptionClient.GetNodeInfo(ctx, &encryption.GetNodeInfoRequest{
@@ -598,7 +601,7 @@ func (e *Handler) getNodeInfoForRead(ctx context.Context, node *tree.Node, reque
 }
 
 func (e *Handler) getNodeInfoForWrite(ctx context.Context, node *tree.Node) (*encryption.NodeInfo, error) {
-	nodeEncryptionClient := e.getNodeKeyManagerClient()
+	nodeEncryptionClient := e.getNodeKeyManagerClient(ctx)
 	dsName := node.GetStringMeta(common.MetaNamespaceDatasourceName)
 	rsp, err := nodeEncryptionClient.GetNodeInfo(ctx, &encryption.GetNodeInfoRequest{
 		UserId:    fmt.Sprintf("ds:%s", dsName),
@@ -648,12 +651,8 @@ func (e *Handler) getKeyProtectionTool(ctx context.Context) (UserKeyTool, error)
 	return tool, err
 }
 
-func (e *Handler) getNodeKeyManagerClient() encryption.NodeKeyManagerClient {
-	nodeEncryptionClient := e.nodeKeyManagerClient
-	if nodeEncryptionClient == nil {
-		nodeEncryptionClient = encryption.NewNodeKeyManagerClient(grpc.ResolveConn(e.RuntimeCtx, common.ServiceEncKeyGRPC))
-	}
-	return nodeEncryptionClient
+func (e *Handler) getNodeKeyManagerClient(ctx context.Context) encryption.NodeKeyManagerClient {
+	return encryption.NewNodeKeyManagerClient(grpc.ResolveConn(ctx, common.ServiceEncKeyGRPC))
 }
 
 // setBlockStream

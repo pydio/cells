@@ -27,28 +27,15 @@ import (
 
 	"github.com/pydio/cells/v4/common/proto/tree"
 	"github.com/pydio/cells/v4/common/server/stubs"
+	"github.com/pydio/cells/v4/common/server/stubs/inject"
+	"github.com/pydio/cells/v4/common/service"
+	"github.com/pydio/cells/v4/common/utils/propagator"
 	srv "github.com/pydio/cells/v4/data/meta/grpc"
 )
 
-func NewMetaService(nodes ...*tree.Node) (grpc.ClientConnInterface, error) {
-	ctx := context.Background()
+func NewMetaService(ctx context.Context, svc service.Service, nodes ...*tree.Node) (grpc.ClientConnInterface, error) {
 
-	/*
-		// TODO
-		sqlDao, er := sql.NewDAO(ctx, "sqlite3", "file::memory:?mode=memory&cache=shared", "data_meta_")
-		if er != nil {
-			return nil, er
-		}
-		mockDAO, _ := meta.NewDAO(ctx, sqlDao)
-		var options = configx.New()
-		if err := mockDAO.Init(ctx, options); err != nil {
-			return nil, fmt.Errorf("could not start test: unable to initialise index DAO, error: %v", err)
-		}
-		ctx = servicecontext.WithDAO(ctx, mockDAO)
-
-	*/
-
-	ts := srv.NewMetaServer(context.Background(), "sample")
+	ts := srv.NewMetaServer(ctx, "sample")
 
 	srv1 := &tree.NodeProviderStub{}
 	srv1.NodeProviderServer = ts
@@ -62,11 +49,13 @@ func NewMetaService(nodes ...*tree.Node) (grpc.ClientConnInterface, error) {
 	mux.Register("tree.NodeReceiver", srv2)
 	mux.Register("tree.NodeProviderStreamer", srv3)
 
+	mock := &inject.SvcInjectorMock{ClientConnInterface: mux, Svc: svc}
+	ctx = propagator.With(ctx, service.ContextKey, svc)
 	for _, u := range nodes {
 		_, er := ts.CreateNode(ctx, &tree.CreateNodeRequest{Node: u})
 		if er != nil {
 			return nil, er
 		}
 	}
-	return mux, nil
+	return mock, nil
 }

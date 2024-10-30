@@ -58,56 +58,8 @@ type StructStorageHandler struct {
 	abstract.Handler
 }
 
-func (f *StructStorageHandler) publish(ctx context.Context, identifier string, eventType tree.NodeChangeEvent_EventType, node *tree.Node) {
-	bi, er := nodes.GetBranchInfo(ctx, identifier)
-
-	// Fork context to de-intricate query and publication cancellation
-	ctx = runtimecontext.ForkedBackgroundWithMeta(ctx)
-
-	// Publish only for remote non-minio structured servers
-	if er == nil && bi.FlatStorage {
-		return
-	}
-	event := &tree.NodeChangeEvent{Type: eventType}
-	if mm, ok := runtimecontext.MinioMetaFromContext(ctx, common.PydioContextUserKey, true); ok {
-		event.Metadata = mm
-	}
-	switch eventType {
-	case tree.NodeChangeEvent_DELETE:
-		node.Path = strings.TrimPrefix(node.Path, bi.Name+"/")
-		event.Source = node
-	case tree.NodeChangeEvent_CREATE:
-		// Re-put BranchInfo in context
-		if r, e := f.ReadNode(nodes.WithBranchInfo(ctx, "in", bi), &tree.ReadNodeRequest{ObjectStats: true, Node: node}); e == nil {
-			node = r.GetNode()
-			node.Type = tree.NodeType_LEAF
-		} else {
-			log.Logger(ctx).Warn("DS Struct event publication, cannot re-read created node: "+e.Error(), zap.Error(e))
-		}
-		node.Path = strings.TrimPrefix(node.Path, bi.Name+"/")
-		event.Target = node
-	}
-	if cl, e := getPostNodeChangeClient(ctx, bi.Name, false); e != nil {
-		log.Logger(ctx).Error("[struct] cannot get stream client", zap.Error(e))
-	} else if er := cl.Send(event); er != nil && er != io.EOF {
-		log.Logger(ctx).Error("[struct] cannot publish event on stream", zap.Error(er))
-	} else if er == io.EOF {
-		cl, e = getPostNodeChangeClient(ctx, bi.Name, true)
-		if e != nil {
-			log.Logger(ctx).Error("[struct] cannot get new stream client after retry", zap.Error(e))
-		} else if e2 := cl.Send(event); e2 != nil {
-			log.Logger(ctx).Error("[struct] cannot still publish event on stream after retry", zap.Error(er))
-		} else {
-			log.Logger(ctx).Debug("[struct] Published Event on stream after retry "+eventType.String(), node.ZapPath())
-		}
-	} else {
-		log.Logger(ctx).Debug("[struct] Published Event on stream "+eventType.String(), node.ZapPath())
-	}
-}
-
 func (f *StructStorageHandler) Adapt(h nodes.Handler, options nodes.RouterOptions) nodes.Handler {
 	f.Next = h
-	f.ClientsPool = options.Pool
 	return f
 }
 
@@ -216,4 +168,51 @@ func getPostNodeChangeClient(ctx context.Context, serviceName string, refresh bo
 	}
 	pncClients[serviceName] = c
 	return c, nil
+}
+
+func (f *StructStorageHandler) publish(ctx context.Context, identifier string, eventType tree.NodeChangeEvent_EventType, node *tree.Node) {
+	bi, er := nodes.GetBranchInfo(ctx, identifier)
+
+	// Fork context to de-intricate query and publication cancellation
+	ctx = runtimecontext.ForkedBackgroundWithMeta(ctx)
+
+	// Publish only for remote non-minio structured servers
+	if er == nil && bi.FlatStorage {
+		return
+	}
+	event := &tree.NodeChangeEvent{Type: eventType}
+	if mm, ok := runtimecontext.MinioMetaFromContext(ctx, common.PydioContextUserKey, true); ok {
+		event.Metadata = mm
+	}
+	switch eventType {
+	case tree.NodeChangeEvent_DELETE:
+		node.Path = strings.TrimPrefix(node.Path, bi.Name+"/")
+		event.Source = node
+	case tree.NodeChangeEvent_CREATE:
+		// Re-put BranchInfo in context
+		if r, e := f.ReadNode(nodes.WithBranchInfo(ctx, "in", bi), &tree.ReadNodeRequest{ObjectStats: true, Node: node}); e == nil {
+			node = r.GetNode()
+			node.Type = tree.NodeType_LEAF
+		} else {
+			log.Logger(ctx).Warn("DS Struct event publication, cannot re-read created node: "+e.Error(), zap.Error(e))
+		}
+		node.Path = strings.TrimPrefix(node.Path, bi.Name+"/")
+		event.Target = node
+	}
+	if cl, e := getPostNodeChangeClient(ctx, bi.Name, false); e != nil {
+		log.Logger(ctx).Error("[struct] cannot get stream client", zap.Error(e))
+	} else if er := cl.Send(event); er != nil && er != io.EOF {
+		log.Logger(ctx).Error("[struct] cannot publish event on stream", zap.Error(er))
+	} else if er == io.EOF {
+		cl, e = getPostNodeChangeClient(ctx, bi.Name, true)
+		if e != nil {
+			log.Logger(ctx).Error("[struct] cannot get new stream client after retry", zap.Error(e))
+		} else if e2 := cl.Send(event); e2 != nil {
+			log.Logger(ctx).Error("[struct] cannot still publish event on stream after retry", zap.Error(er))
+		} else {
+			log.Logger(ctx).Debug("[struct] Published Event on stream after retry "+eventType.String(), node.ZapPath())
+		}
+	} else {
+		log.Logger(ctx).Debug("[struct] Published Event on stream "+eventType.String(), node.ZapPath())
+	}
 }
