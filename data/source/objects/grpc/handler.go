@@ -29,14 +29,13 @@ import (
 	"time"
 
 	minio "github.com/minio/minio/cmd"
-	"github.com/pkg/errors"
+	"github.com/minio/minio/pkg/auth"
 
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/config"
 	"github.com/pydio/cells/v4/common/proto/object"
 	"github.com/pydio/cells/v4/common/runtime"
 	"github.com/pydio/cells/v4/common/telemetry/log"
-	json "github.com/pydio/cells/v4/common/utils/jsonx"
 	"github.com/pydio/cells/v4/data/source/objects"
 
 	_ "github.com/minio/minio/cmd/gateway"
@@ -57,7 +56,10 @@ type ObjectHandler struct {
 // StartMinioServer handler
 func (o *ObjectHandler) StartMinioServer(ctx context.Context, minioServiceName string) error {
 
-	if o.Config.StorageType != object.StorageType_LOCAL && o.Config.StorageType != object.StorageType_GCS {
+	if o.Config.StorageType == object.StorageType_GCS {
+		return fmt.Errorf("GCS Gateway is not supported anymore, use Google Storage S3 API instead")
+	} else if o.Config.StorageType != object.StorageType_LOCAL {
+		// Ignore
 		return nil
 	}
 
@@ -72,97 +74,17 @@ func (o *ObjectHandler) StartMinioServer(ctx context.Context, minioServiceName s
 	if e != nil {
 		return e
 	}
-
-	var gateway, folderName, customEndpoint string
-	if o.Config.StorageType == object.StorageType_S3 {
-		gateway = "s3"
-		customEndpoint = o.Config.EndpointUrl
-	} else if o.Config.StorageType == object.StorageType_AZURE {
-		gateway = "azure"
-	} else if o.Config.StorageType == object.StorageType_GCS {
-		gateway = "gcs"
-		var credsUuid string
-		if o.Config.GatewayConfiguration != nil {
-			if jsonCred, ok := o.Config.GatewayConfiguration["jsonCredentials"]; ok {
-				credsUuid = jsonCred
-			}
-		}
-		if credsUuid == "" {
-			return errors.New("missing google application credentials to start GCS gateway")
-		}
-		creds := config.GetSecret(ctx, credsUuid).Bytes()
-		if len(creds) == 0 {
-			return errors.New("missing google application credentials to start GCS gateway (cannot find inside vault)")
-		}
-		var strjs string
-		if e := json.Unmarshal(creds, &strjs); e == nil && len(strjs) > 0 {
-			// Consider the internal string value as the json
-			creds = []byte(strjs)
-		}
-
-		// Create gcs-credentials.json and pass it as env variable
-		fName := filepath.Join(configFolder, "gcs-credentials.json")
-		if er := os.WriteFile(fName, creds, 0600); er != nil {
-			return errors.New("cannot prepare gcs-credentials.json file: " + e.Error())
-		}
-		_ = os.Setenv("GOOGLE_APPLICATION_CREDENTIALS", fName)
-	} else {
-		folderName = o.Config.LocalFolder
+	globals := minio.NewGlobals()
+	globals.ActiveCred, _ = auth.CreateCredentials(accessKey, secretKey)
+	globals.ConfigEncrypted = true
+	globals.CliContext = &minio.CliContext{
+		Quiet:      true,
+		Addr:       fmt.Sprintf(":%d", o.Config.RunningPort),
+		ConfigDir:  minio.NewConfigDir(configFolder),
+		CertsDir:   minio.NewConfigDir(filepath.Join(configFolder, "certs")),
+		CertsCADir: minio.NewConfigDir(filepath.Join(configFolder, "certs", "CAs")),
 	}
-
-	port := o.Config.RunningPort
-
-	params := []string{"minio"}
-	if gateway != "" {
-		params = append(params, "gateway")
-		params = append(params, gateway)
-	} else {
-		params = append(params, "server")
-	}
-
-	if accessKey == "" {
-		return errors.New("missing accessKey to start minio service")
-	}
-
-	params = append(params, "--quiet")
-	if o.MinioConsolePort > 0 {
-		params = append(params, "--console-address", fmt.Sprintf(":%d", o.MinioConsolePort))
-	} else {
-		_ = os.Setenv("MINIO_BROWSER", "off")
-	}
-
-	params = append(params, "--config-dir")
-	params = append(params, configFolder)
-
-	params = append(params, "--certs-dir")
-	params = append(params, filepath.Join(configFolder, "certs"))
-
-	if port > 0 {
-		params = append(params, "--address")
-		params = append(params, fmt.Sprintf(":%d", port))
-	}
-
-	if folderName != "" {
-		params = append(params, folderName)
-		log.Logger(ctx).Info("Starting local objects service " + minioServiceName + " on " + folderName)
-		go o.MinioStaleDataCleaner(ctx, folderName)
-	} else if customEndpoint != "" {
-		params = append(params, customEndpoint)
-		log.Logger(ctx).Info("Starting gateway objects service " + minioServiceName + " to " + customEndpoint)
-	} else if gateway == "s3" && customEndpoint == "" {
-		params = append(params, "https://s3.amazonaws.com", "pydio-ds")
-		log.Logger(ctx).Info("Starting gateway objects service " + minioServiceName + " to Amazon S3")
-	}
-
-	_ = os.Setenv("MINIO_ROOT_USER", accessKey)
-	_ = os.Setenv("MINIO_ROOT_PASSWORD", secretKey)
-
-	minio.HookRegisterGlobalHandler(func(handler http.Handler) http.Handler {
-		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			handler.ServeHTTP(w, r)
-		})
-	})
-	minio.HookExtractReqParams(func(req *http.Request, m map[string]string) {
+	globals.ReqParamExtractors = append(globals.ReqParamExtractors, func(req *http.Request, m map[string]string) {
 		if v := req.Header.Get(common.PydioContextUserKey); v != "" {
 			m[common.PydioContextUserKey] = v
 		}
@@ -174,10 +96,44 @@ func (o *ObjectHandler) StartMinioServer(ctx context.Context, minioServiceName s
 			}
 		}
 	})
-
-	minio.Main(params)
+	minio.StartServerWithGlobals(globals, o.Config.LocalFolder)
 
 	return nil
+	/*
+		var gateway string
+		if o.Config.StorageType == object.StorageType_GCS {
+			gateway = "gcs"
+			var credsUuid string
+			if o.Config.GatewayConfiguration != nil {
+				if jsonCred, ok := o.Config.GatewayConfiguration["jsonCredentials"]; ok {
+					credsUuid = jsonCred
+				}
+			}
+			if credsUuid == "" {
+				return errors.New("missing google application credentials to start GCS gateway")
+			}
+			creds := config.GetSecret(ctx, credsUuid).Bytes()
+			if len(creds) == 0 {
+				return errors.New("missing google application credentials to start GCS gateway (cannot find inside vault)")
+			}
+			var strjs string
+			if e := json.Unmarshal(creds, &strjs); e == nil && len(strjs) > 0 {
+				// Consider the internal string value as the json
+				creds = []byte(strjs)
+			}
+
+			// Create gcs-credentials.json and pass it as env variable
+			fName := filepath.Join(configFolder, "gcs-credentials.json")
+			if er := os.WriteFile(fName, creds, 0600); er != nil {
+				return errors.New("cannot prepare gcs-credentials.json file: " + e.Error())
+			}
+			_ = os.Setenv("GOOGLE_APPLICATION_CREDENTIALS", fName)
+		} else {
+			folderName = o.Config.LocalFolder
+		}
+
+	*/
+
 }
 
 // GetMinioConfig returns current configuration
