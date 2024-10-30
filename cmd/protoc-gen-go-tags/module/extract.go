@@ -73,7 +73,7 @@ func (v *tagExtractor) VisitField(f pgs.Field) (pgs.Visitor, error) {
 
 	if err := tags.Set(&structtag.Tag{
 		Key:     "gorm",
-		Name:    fieldGORMTagValue(f),
+		Name:    fieldGORMTagValue(f, v),
 		Options: []string{},
 	}); err != nil {
 		v.DebuggerCommon.Fail("Error with tag: ", err)
@@ -92,7 +92,7 @@ func (v *tagExtractor) Extract(f pgs.File) StructTags {
 	return v.tags
 }
 
-func fieldGORMTagValue(f pgs.Field) string {
+func fieldGORMTagValue(f pgs.Field, logger pgs.DebuggerCommon) string {
 	var tval *orm.ORMFieldOptions
 	ok, err := f.Extension(orm.E_Orm, &tval)
 	if err != nil || !ok {
@@ -106,6 +106,9 @@ func fieldGORMTagValue(f pgs.Field) string {
 
 	str := ""
 	protorange.Range(gorm.ProtoReflect(), func(p protopath.Values) error {
+
+		logger.Log(fmt.Sprintf("going in there %v", p))
+
 		last := p.Index(-1)
 		switch last.Value.Interface().(type) {
 		case int, int8, int16, int32, int64:

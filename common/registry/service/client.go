@@ -22,8 +22,8 @@ package service
 
 import (
 	"context"
+	cgrpc "github.com/pydio/cells/v4/common/client/grpc"
 	"net/url"
-	"os"
 	"sync"
 	"time"
 
@@ -31,7 +31,6 @@ import (
 	healthpb "google.golang.org/grpc/health/grpc_health_v1"
 
 	"github.com/pydio/cells/v4/common"
-	cgrpc "github.com/pydio/cells/v4/common/client/grpc"
 	"github.com/pydio/cells/v4/common/errors"
 	pb "github.com/pydio/cells/v4/common/proto/registry"
 	"github.com/pydio/cells/v4/common/registry"
@@ -52,7 +51,6 @@ func init() {
 }
 
 func (o *URLOpener) OpenURL(ctx context.Context, u *url.URL) (registry.Registry, error) {
-	// TODO - should use multi tenancy
 	conn := cgrpc.ResolveConn(ctx, common.ServiceRegistryGRPC)
 
 	return NewRegistry(WithConn(conn))
@@ -144,71 +142,56 @@ func (s *serviceRegistry) Stop(item registry.Item) error {
 	return nil
 }
 
+func (s *serviceRegistry) lazyClient() error {
+	sessionClient, err := s.client.Session(s.opts.Context, s.callOpts()...)
+	if err != nil {
+		return err
+	}
+
+	s.sessionClient = sessionClient
+
+	return nil
+}
+
 func (s *serviceRegistry) Register(item registry.Item, option ...registry.RegisterOption) error {
-	if os.Getenv("CELLS_USE_REGISTRY_SESSION") != "false" {
-		if err := s.sessionClient.Send(&pb.SessionRequest{
-			Type: pb.SessionRequestType_REGISTER,
-			Item: util.ToProtoItem(item),
-		}); err != nil {
+	if s.sessionClient == nil {
+		if err := s.lazyClient(); err != nil {
 			return err
 		}
+	}
 
-		if _, err := s.sessionClient.Recv(); err != nil {
-			return err
-		}
-	} else {
-		var opts = &registry.RegisterOptions{}
-		for _, o := range option {
-			o(opts)
-		}
-		callOpts := s.callOpts()
-		ctx := s.opts.Context
-		if opts.FailFast {
-			var cancel context.CancelFunc
-			ctx, cancel = context.WithTimeout(ctx, 1*time.Second)
-			defer cancel()
-			callOpts = append(callOpts, grpc.WaitForReady(false))
-		}
+	if err := s.sessionClient.Send(&pb.SessionRequest{
+		Type: pb.SessionRequestType_REGISTER,
+		Item: util.ToProtoItem(item),
+	}); err != nil {
+		return err
+	}
 
-		_, err := s.client.Register(ctx, util.ToProtoItem(item), callOpts...)
-		if err != nil {
-			return err
-		}
+	if _, err := s.sessionClient.Recv(); err != nil {
+		return err
 	}
 
 	return nil
 }
 
 func (s *serviceRegistry) Deregister(item registry.Item, option ...registry.RegisterOption) error {
-	if os.Getenv("CELLS_USE_REGISTRY_SESSION") == "true" {
-		if err := s.sessionClient.Send(&pb.SessionRequest{
-			Type: pb.SessionRequestType_DEREGISTER,
-			Item: util.ToProtoItem(item),
-		}); err != nil {
-			return err
-		}
-
-		if _, err := s.sessionClient.Recv(); err != nil {
-			return err
-		}
-	} else {
-		var opts = &registry.RegisterOptions{}
-		for _, o := range option {
-			o(opts)
-		}
-		callOpts := s.callOpts()
-		ctx := s.opts.Context
-		if opts.FailFast {
-			var cancel context.CancelFunc
-			ctx, cancel = context.WithTimeout(ctx, 1*time.Second)
-			defer cancel()
-			callOpts = append(callOpts, grpc.WaitForReady(false))
-		}
-		_, err := s.client.Deregister(ctx, util.ToProtoItem(item), callOpts...)
-		if err != nil {
+	if s.sessionClient == nil {
+		if err := s.lazyClient(); err != nil {
 			return err
 		}
 	}
+
+	if err := s.sessionClient.Send(&pb.SessionRequest{
+		Type: pb.SessionRequestType_DEREGISTER,
+		Item: util.ToProtoItem(item),
+	}); err != nil {
+		return err
+	}
+
+	if _, err := s.sessionClient.Recv(); err != nil {
+		return err
+	}
+
 	return nil
 }
 
@@ -224,6 +207,7 @@ func (s *serviceRegistry) Get(id string, opts ...registry.Option) (registry.Item
 			Types: options.Types,
 		},
 	}, s.callOpts()...)
+
 	if err != nil {
 		return nil, err
 	}
@@ -396,16 +380,11 @@ func NewRegistry(opts ...Option) (registry.Registry, error) {
 	}()
 
 	cli := pb.NewRegistryClient(conn)
-	sessionClient, err := cli.Session(options.Context)
-	if err != nil {
-		return nil, err
-	}
 
 	r := &serviceRegistry{
-		opts:          options,
-		client:        cli,
-		sessionClient: sessionClient,
-		donec:         donec,
+		opts:   options,
+		client: cli,
+		donec:  donec,
 	}
 
 	return registry.GraphRegistry(r), nil

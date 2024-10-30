@@ -49,12 +49,13 @@ func init() {
 				treeServer := grpc2.NewTreeServer(Name)
 				eventSubscriber := grpc2.NewEventSubscriber(treeServer)
 
-				ctx = runtime.TODOKnownEmpty(ctx)
-				_ = runtime.MultiContextManager().Iterate(ctx, func(ct context.Context, s string) error {
-					go treeServer.UpdateServicesList(ct, 0)
-					go treeServer.WatchRegistry(ct)
-					return nil
-				})
+				// TODO - re-enable that
+				//ctx = runtime.TODOKnownEmpty(ctx)
+				//_ = runtime.MultiContextManager().Iterate(ctx, func(ct context.Context, s string) error {
+				//	go treeServer.UpdateServicesList(ct, 0)
+				//	go treeServer.WatchRegistry(ct)
+				//	return nil
+				//})
 
 				tree.RegisterNodeProviderServer(server, treeServer)
 				tree.RegisterNodeReceiverServer(server, treeServer)

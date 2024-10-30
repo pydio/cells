@@ -29,6 +29,7 @@ func init() {
 		}
 
 		mgr.RegisterStorage("boltdb", controller.WithCustomOpener(OpenPool))
+		mgr.RegisterStorage("boltdbdiscard", controller.WithCustomOpener(OpenDiscard))
 	})
 }
 
@@ -51,6 +52,20 @@ type DB interface {
 
 type pool struct {
 	*openurl.Pool[DB]
+}
+
+func OpenDiscard(ctx context.Context, uu string) (storage.Storage, error) {
+	p, err := openurl.OpenPool(ctx, []string{uu}, func(ctx context.Context, dsn string) (DB, error) {
+		return &discard{}, nil
+	})
+
+	if err != nil {
+		return nil, err
+	}
+
+	return &pool{
+		Pool: p,
+	}, nil
 }
 
 func OpenPool(ctx context.Context, uu string) (storage.Storage, error) {
@@ -251,4 +266,64 @@ func copyValuesOrBucket(bW, bR *bbolt.Bucket) error {
 			return bW.Put(k, v)
 		}
 	})
+}
+
+var _ DB = (*discard)(nil)
+
+type discard struct{}
+
+func (d discard) Batch(fn func(*bbolt.Tx) error) error {
+	return nil
+}
+
+func (d discard) Begin(writable bool) (*bbolt.Tx, error) {
+	return nil, errors.New("discarded")
+}
+
+func (d discard) Compact(ctx context.Context, opts map[string]interface{}) (old uint64, new uint64, err error) {
+	return 0, 0, errors.New("discarded")
+}
+
+func (d discard) Close(ctx context.Context) error {
+	return nil
+}
+
+func (d discard) CloseAndDrop(ctx context.Context) error {
+	return nil
+}
+
+func (d discard) GoString() string {
+	return ""
+}
+
+func (d discard) Info() *bbolt.Info {
+	return nil
+}
+
+func (d discard) IsReadOnly() bool {
+	return true
+}
+
+func (d discard) Path() string {
+	return ""
+}
+
+func (d discard) Stats() bbolt.Stats {
+	return bbolt.Stats{}
+}
+
+func (d discard) String() string {
+	return ""
+}
+
+func (d discard) Sync() error {
+	return nil
+}
+
+func (d discard) Update(fn func(*bbolt.Tx) error) error {
+	return nil
+}
+
+func (d discard) View(fn func(*bbolt.Tx) error) error {
+	return nil
 }

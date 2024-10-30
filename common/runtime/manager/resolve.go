@@ -92,6 +92,7 @@ func Resolve[T any](ctx context.Context, opts ...ResolveOption) (s T, final erro
 	defer span.End()
 
 	span.AddEvent("Retrieving from context")
+
 	// First we get the contextualized sotwRegistry
 	var reg registry.Registry
 	if !propagator.Get(ctx, registry.ContextKey, &reg) {
@@ -197,9 +198,9 @@ func Resolve[T any](ctx context.Context, opts ...ResolveOption) (s T, final erro
 		span.AddEvent("Before Service Version")
 
 		// Double-checking all migrations
-		if err := service.UpdateServiceVersion(ctx, svc.Options()); err != nil {
-			return t, errors.Tag(err, errors.ResolveError)
-		}
+		//if err := service.UpdateServiceVersion(ctx, svc.Options()); err != nil {
+		//	return t, errors.Tag(err, errors.ResolveError)
+		//}
 
 		if handlerT.NumIn() != assigned {
 			return t, errors.WithMessagef(errors.ResolveError, "number of connections (%d) differs from what is requested by handler %s (%d)", assigned, runtime.FuncForPC(handlerV.Pointer()).Name(), handlerT.NumIn())

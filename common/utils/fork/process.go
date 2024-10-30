@@ -111,7 +111,7 @@ func (p *Process) Err() error {
 }
 
 func (p *Process) Stop() {
-	if p.cmd != nil {
+	if p.cmd != nil && p.cmd.Process != nil {
 		if e := p.cmd.Process.Signal(syscall.SIGINT); e != nil {
 			p.cmd.Process.Kill()
 		}

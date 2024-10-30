@@ -24,9 +24,11 @@ import (
 	"bytes"
 	"context"
 	"fmt"
+	"github.com/pydio/cells/v4/common/config/migrations"
 	"net"
 	"net/url"
 	"os"
+	"reflect"
 	"regexp"
 	"strconv"
 	"strings"
@@ -57,7 +59,6 @@ import (
 	"github.com/pydio/cells/v4/common/server"
 	"github.com/pydio/cells/v4/common/service"
 	"github.com/pydio/cells/v4/common/storage"
-	"github.com/pydio/cells/v4/common/telemetry"
 	"github.com/pydio/cells/v4/common/telemetry/log"
 	"github.com/pydio/cells/v4/common/utils/cache"
 	"github.com/pydio/cells/v4/common/utils/configx"
@@ -107,8 +108,9 @@ type manager struct {
 	// registries
 	// - internal
 	internalRegistry registry.Registry
+
 	// - state of the world
-	sotwRegistry registry.Registry
+	sotwRegistry *openurl.Pool[registry.Registry]
 
 	root       registry.Item
 	rootIsFork bool
@@ -133,6 +135,11 @@ var ContextKey = managerKey{}
 
 func NewManager(ctx context.Context, namespace string, logger log.ZapLogger) (Manager, error) {
 
+	registryPool, err := openurl.OpenPool(ctx, []string{"xds://default.cells.com"}, registry.OpenRegistry)
+	if err != nil {
+		return nil, err
+	}
+
 	m := &manager{
 		ctx: ctx,
 		ns:  namespace,
@@ -144,6 +151,8 @@ func NewManager(ctx context.Context, namespace string, logger log.ZapLogger) (Ma
 		config:  controller.NewController[*openurl.Pool[config.Store]](),
 		queues:  controller.NewController[broker.AsyncQueuePool](),
 		caches:  controller.NewController[*openurl.Pool[cache.Cache]](),
+
+		sotwRegistry: registryPool,
 	}
 
 	ctx = propagator.With(ctx, ContextKey, m)
@@ -166,7 +175,7 @@ func NewManager(ctx context.Context, namespace string, logger log.ZapLogger) (Ma
 		return nil, err
 	}
 
-	if reg, err := m.initInternalRegistry(); err != nil {
+	if reg, err := m.initInternalRegistry(ctx, bootstrap, base); err != nil {
 		return nil, err
 	} else {
 		m.internalRegistry = reg
@@ -198,6 +207,55 @@ func NewManager(ctx context.Context, namespace string, logger log.ZapLogger) (Ma
 		return nil, err
 	}
 
+	if err := runtime.MultiContextManager().Iterate(ctx, func(ctx context.Context, name string) error {
+		go func() {
+			// TODO - We should watch the config connection so that we can remove the storages when the session is idle
+			reg, err := registry.OpenRegistry(ctx, "grpc://pydio.grpc.registry")
+			if err != nil {
+				return
+			}
+
+			items, err := m.internalRegistry.List(registry.WithType(pb.ItemType_NODE), registry.WithType(pb.ItemType_ADDRESS), registry.WithType(pb.ItemType_EDGE))
+
+			for _, item := range items {
+				if err := reg.Register(item); err != nil {
+					return
+				}
+			}
+		}()
+
+		return nil
+	}); err != nil {
+		return nil, err
+	}
+
+	reg := registry.NewFuncWrapper(m.internalRegistry,
+		// Adding to cluster sotwRegistry
+		registry.OnRegister(func(item *registry.Item, opts *[]registry.RegisterOption) {
+			if err := runtime.MultiContextManager().Iterate(ctx, func(ctx context.Context, name string) error {
+				go func() {
+					// TODO - We should watch the config connection so that we can remove the storages when the session is idle
+					reg, err := registry.OpenRegistry(ctx, "grpc://pydio.grpc.registry")
+					if err != nil {
+						return
+					}
+
+					if err := reg.Register(*item, *opts...); err != nil {
+						return
+					}
+				}()
+
+				return nil
+			}); err != nil {
+				fmt.Println("Registry is not yet ready")
+			}
+		}),
+	)
+
+	m.internalRegistry = reg
+
+	ctx = propagator.With(ctx, registry.ContextKey, reg)
+
 	if store, vault, revisions, err := m.initConfig(ctx); err != nil {
 		return nil, err
 	} else {
@@ -205,17 +263,48 @@ func NewManager(ctx context.Context, namespace string, logger log.ZapLogger) (Ma
 		ctx = propagator.With(ctx, config.VaultKey, vault)
 		ctx = propagator.With(ctx, config.RevisionsKey, revisions)
 
-		if err := bootstrap.reload(ctx, store); err != nil {
-			return nil, err
-		}
+		go func() {
+			if err := runtime.MultiContextManager().Iterate(ctx, func(ctx context.Context, name string) error {
+				var configStore config.Store
+				if ok := propagator.Get(ctx, config.ContextKey, &configStore); !ok {
+					return errors.New("config not reachable")
+				}
+
+				var data any
+				if err := json.Unmarshal([]byte(config.SampleConfig), &data); err == nil {
+					if err := configStore.Val().Set(data); err == nil {
+						if err := configStore.Save(common.PydioSystemUsername, "Initialize with sample config"); err != nil {
+							return err
+						}
+					}
+				}
+
+				if save, err := migrations.UpgradeConfigsIfRequired(configStore.Val(), common.Version()); err == nil && save {
+					if err := configStore.Save(common.PydioSystemUsername, "Configs upgrades applied"); err != nil {
+						return fmt.Errorf("could not save config migrations %v", err)
+					}
+				}
+
+				return nil
+			}); err != nil {
+				return
+			}
+			// TODO - must iterate somehow
+			//if err := bootstrap.reload(ctx, store); err != nil {
+			//	return nil, err
+			//}
+		}()
 	}
 
-	if reg, err := m.initSOTWRegistry(ctx); err != nil {
-		return nil, err
-	} else {
-		m.sotwRegistry = reg
-		ctx = propagator.With(ctx, registry.ContextSOTWKey, reg)
-	}
+	// Add all registries in the multi context
+	//if reg, err := m.initSOTWRegistry(ctx); err != nil {
+	//	//return nil, err
+	//} else {
+	//
+	//	fmt.Println("At this point I'm initialising the sotw registry")
+	//	m.sotwRegistry = reg
+	//	ctx = propagator.With(ctx, registry.ContextSOTWKey, reg)
+	//}
 
 	// Initialising servers
 	if err := m.initServers(ctx, bootstrap, base); err != nil {
@@ -279,7 +368,7 @@ func (m *manager) GetStorage(ctx context.Context, name string, out any) error {
 		return err
 	}
 
-	var pool controller.Resolver[storage.Storage]
+	var pool storage.Storage
 	if done := item.As(&pool); !done {
 		return errors.New("wrong item format")
 	}
@@ -289,14 +378,7 @@ func (m *manager) GetStorage(ctx context.Context, name string, out any) error {
 		return err
 	}
 
-	out = st
-	//if done := item.As(&store); !done {
-	//	return errors.New("wrong item format")
-	//}
-	//
-	////if done, _ := store.Get(ctx, out); !done {
-	////	return errors.New("wrong out format")
-	////}
+	reflect.ValueOf(out).Elem().Set(reflect.ValueOf(st))
 
 	return nil
 }
@@ -370,77 +452,83 @@ func (m *manager) initKeyring(ctx context.Context) (config.Store, error) {
 	return keyringStore, nil
 }
 
-func (m *manager) initConfig(ctx context.Context) (config.Store, config.Store, revisions.Store, error) {
+func (m *manager) initConfig(ctx context.Context) (*openurl.Pool[config.Store], *openurl.Pool[config.Store], *openurl.Pool[revisions.Store], error) {
 
-	mainStore, err := config.OpenStore(ctx, runtime.ConfigURL())
+	mainStorePool, err := openurl.OpenPool(ctx, []string{runtime.ConfigURL()}, func(ctx context.Context, url string) (config.Store, error) {
+		mainStore, err := config.OpenStore(ctx, url)
+		if err != nil {
+			return nil, err
+		}
+
+		// Additional Proxy
+		mainStore = config.Proxy(mainStore)
+
+		return mainStore, nil
+	})
 	if err != nil {
-		return nil, nil, nil, err
+		return nil, nil, nil, errors.Wrap(err, "cannot open config store pool")
 	}
 
-	// Init RevisionsStore if config is config.RevisionsProvider
-	var versionsStore revisions.Store
-	if revProvider, ok := mainStore.(config.RevisionsProvider); ok {
-		var rOpt []config.RevisionsStoreOption
-		//if debounceVersions {
-		//	rOpt = append(rOpt, config.WithDebounce(2*time.Second))
-		//}
-		mainStore, versionsStore = revProvider.AsRevisionsStore(rOpt...)
-	}
+	vaultStorePool, err := openurl.OpenPool(ctx, []string{runtime.VaultURL()}, func(ctx context.Context, url string) (config.Store, error) {
+		mainStore, err := mainStorePool.Get(ctx)
+		if err != nil {
+			return nil, err
+		}
 
-	// Wrap config with vaultConfig if set
-	vaultStore, err := config.OpenStore(ctx, runtime.VaultURL())
+		vaultStore, err := config.OpenStore(ctx, url)
+		if err != nil {
+			return nil, err
+		}
+
+		return config.NewVault(vaultStore, mainStore), nil
+	})
 	if err != nil {
-		return nil, nil, nil, err
+		return nil, nil, nil, errors.Wrap(err, "cannot open vault store pool")
 	}
 
-	mainStore = config.NewVault(vaultStore, mainStore)
+	versionsStorePool, err := openurl.OpenPool(ctx, []string{runtime.ConfigURL()}, func(ctx context.Context, url string) (revisions.Store, error) {
+		mainStore, err := mainStorePool.Get(ctx)
+		if err != nil {
+			return nil, err
+		}
 
-	// Additional Proxy
-	mainStore = config.Proxy(mainStore)
+		// Init RevisionsStore if config is config.RevisionsProvider
+		var versionsStore revisions.Store
+		if revProvider, ok := mainStore.(config.RevisionsProvider); ok {
+			var rOpt []config.RevisionsStoreOption
+			//if debounceVersions {
+			//	rOpt = append(rOpt, config.WithDebounce(2*time.Second))
+			//}
+			mainStore, versionsStore = revProvider.AsRevisionsStore(rOpt...)
+		}
 
-	// TODO - should be a migration
-	//if !runtime.IsFork() {
-	//	if config.Get(ctx, "version").String() == "" && config.Get(ctx, "defaults/database").String() == "" {
-	//		var data interface{}
-	//		if err := json.Unmarshal([]byte(config.SampleConfig), &data); err == nil {
-	//			if err := config.Get(ctx).Set(data); err == nil {
-	//				_ = config.Save(ctx, common.PydioSystemUsername, "Initialize with sample config")
-	//			}
-	//		}
-	//	}
-	//
-	//	// Need to do something for the versions
-	//	if save, err := migrations.UpgradeConfigsIfRequired(config.Get(ctx), common.Version()); err == nil && save {
-	//		if err := config.Save(ctx, common.PydioSystemUsername, "Configs upgrades applied"); err != nil {
-	//			return nil, nil, nil, fmt.Errorf("could not save config migrations %v", err)
-	//		}
-	//	}
-	//}
+		return versionsStore, nil
+	})
 
 	// TODO - Move this config inside defaults, not in services/pydio.grpc.log
 	// We want to read this from config (not boostrap) as it will be hot-reloaded if config is changed
-	cfgPath := []string{"services", common.ServiceGrpcNamespace_ + common.ServiceLog}
-	config.GetAndWatch(mainStore, cfgPath, func(values configx.Values) {
-		conf := telemetry.Config{
-			Loggers: []log.LoggerConfig{{
-				Encoding: "console",
-				Level:    "debug",
-				Outputs:  []string{"stdout:///"},
-			}},
-		}
-		if values.Scan(&conf) == nil {
-			if e := conf.Reload(ctx); e != nil {
-				fmt.Println("Error reloading", e)
-			}
-		}
-	})
+	//cfgPath := []string{"services", common.ServiceGrpcNamespace_ + common.ServiceLog}
+	//config.GetAndWatch(mainStore, cfgPath, func(values configx.Values) {
+	//	conf := telemetry.Config{
+	//		Loggers: []log.LoggerConfig{{
+	//			Encoding: "console",
+	//			Level:    "info",
+	//			Outputs:  []string{"stdout:///"},
+	//		}},
+	//	}
+	//	if values.Scan(&conf) == nil {
+	//		if e := conf.Reload(ctx); e != nil {
+	//			fmt.Println("Error reloading", e)
+	//		}
+	//	}
+	//})
 
-	return mainStore, vaultStore, versionsStore, nil
+	return mainStorePool, vaultStorePool, versionsStorePool, nil
 }
 
-func (m *manager) initInternalRegistry() (registry.Registry, error) {
+func (m *manager) initInternalRegistry(ctx context.Context, bootstrap *Bootstrap, base string) (registry.Registry, error) {
 
-	reg, err := registry.OpenRegistry(m.ctx, "mem:///?cache="+m.ns)
+	reg, err := registry.OpenRegistry(ctx, "mem:///?cache="+m.ns)
 	if err != nil {
 		return nil, err
 	}
@@ -453,28 +541,28 @@ func (m *manager) initInternalRegistry() (registry.Registry, error) {
 		}
 	}, registry.WithType(pb.ItemType_SERVER), registry.WithType(pb.ItemType_SERVICE), registry.WithType(pb.ItemType_NODE))
 
-	reg = registry.NewFuncWrapper(reg,
-		// Adding to cluster sotwRegistry
-		registry.OnRegister(func(item *registry.Item, opts *[]registry.RegisterOption) {
-			if m.sotwRegistry != nil {
-				m.sotwRegistry.Register(*item, *opts...)
-			}
-		}),
-	)
+	b, err := json.Marshal(bootstrap.Val().Get())
+	if err != nil {
+		return nil, err
+	}
 
-	reg.Register(m.root)
+	if err := registry.NewMetaWrapper(reg, func(meta map[string]string) {
+		meta["bootstrap"] = string(b)
+	}).Register(m.root); err != nil {
+		return nil, err
+	}
 
 	// runtime.Register("discovery", func(ctx context.Context) {
 	reg = registry.NewFuncWrapper(reg,
 		registry.OnRegister(func(item *registry.Item, opts *[]registry.RegisterOption) {
 			var node registry.Node
-			var server server.Server
-			var service service.Service
+			var srv server.Server
+			var svc service.Service
 			if (*item).As(&node) && node.ID() != m.root.ID() {
 				*opts = append(*opts, registry.WithEdgeTo(m.root.ID(), "Node", nil))
-			} else if (*item).As(&server) {
+			} else if (*item).As(&srv) {
 				*opts = append(*opts, registry.WithEdgeTo(m.root.ID(), "Node", nil))
-			} else if (*item).As(&service) {
+			} else if (*item).As(&svc) {
 				*opts = append(*opts, registry.WithEdgeTo(m.root.ID(), "Node", nil))
 			}
 		}),
@@ -491,26 +579,30 @@ func (m *manager) initSOTWRegistry(ctx context.Context) (registry.Registry, erro
 		return nil, err
 	}
 
-	// Making sure the listeners are being copied, todo improve that
-	items, err := m.internalRegistry.List()
-	if err != nil {
-		return nil, err
-	}
-
-	for _, item := range items {
-		if err := reg.Register(item); err != nil {
-			return nil, err
+	go func() {
+		// Making sure the listeners are being copied, todo improve that
+		items, err := m.internalRegistry.List()
+		if err != nil {
+			// return nil, err
+			return
 		}
-	}
 
-	m.internalRegistry = registry.NewFuncWrapper(m.internalRegistry,
-		// Adding to cluster sotwRegistry
-		registry.OnRegister(func(item *registry.Item, opts *[]registry.RegisterOption) {
-			if reg != nil {
-				reg.Register(*item, *opts...)
+		for _, item := range items {
+			if err := reg.Register(item); err != nil {
+				// return nil, err
+				return
 			}
-		}),
-	)
+		}
+
+		m.internalRegistry = registry.NewFuncWrapper(m.internalRegistry,
+			// Adding to cluster sotwRegistry
+			registry.OnRegister(func(item *registry.Item, opts *[]registry.RegisterOption) {
+				if reg != nil {
+					reg.Register(*item, *opts...)
+				}
+			}),
+		)
+	}()
 
 	// Switching to the main sotwRegistry for outside the manager
 	return reg, nil
@@ -524,7 +616,6 @@ func (m *manager) initProcesses(ctx context.Context, bootstrap *Bootstrap, base 
 		baseWatch = append(baseWatch, strings.Split(strings.TrimLeft(base, "#/"), "/")...)
 	}
 
-	fmt.Println("Base Watch ON", baseWatch, "/processes/*")
 	w, err := bootstrap.Watch(configx.WithPath(append(baseWatch, "processes", "*")...), configx.WithChangesOnly())
 	if err != nil {
 		return err
@@ -569,6 +660,9 @@ func (m *manager) initProcesses(ctx context.Context, bootstrap *Bootstrap, base 
 			var childEnv []string
 
 			connections := process.Val("connections")
+			// TODO
+			//binary := process.Val("binary")
+			//args := process.Val("args")
 			env := process.Val("env")
 			servers := process.Val("servers")
 			tags := process.Val("tags")
@@ -594,6 +688,10 @@ func (m *manager) initProcesses(ctx context.Context, bootstrap *Bootstrap, base 
 					arg := []string{strings.TrimPrefix(kv[0], base), kv[1]}
 					childArgs = append(childArgs, "--"+runtime.KeyBootstrapSet, strings.Join(arg, "="))
 				}
+			}
+
+			if runtime.GetString(runtime.KeyBootstrapFile) != "" {
+				childEnv = append(childEnv, "CELLS_BOOTSTRAP_FILE="+runtime.GetString(runtime.KeyBootstrapFile))
 			}
 
 			if runtime.GetString(runtime.KeyBootstrapTpl) != "" {
@@ -817,157 +915,370 @@ func (m *manager) initConnections(ctx context.Context, store *Bootstrap, base st
 			continue
 		}
 
-		switch vv["type"] {
-		default:
-			var dialOptions []grpc.DialOption
-			// Checking if we need to retrieve a listener
-			if listenerName, ok := vv["listener"]; ok {
-				var lis net.Listener
-				listener, err := m.internalRegistry.Get(listenerName.(string), registry.WithType(pb.ItemType_ADDRESS))
+		pool, err := openurl.OpenPool(ctx, []string{vv["uri"].(string)}, func(ctx context.Context, url string) (grpc.ClientConnInterface, error) {
+			switch vv["type"] {
+			default:
+				var dialOptions []grpc.DialOption
+				// Checking if we need to retrieve a listener
+				if listenerName, ok := vv["listener"]; ok {
+					var lis net.Listener
+					listener, err := m.internalRegistry.Get(listenerName.(string), registry.WithType(pb.ItemType_ADDRESS))
+					if err != nil {
+						return nil, err
+					}
+
+					if listener.As(&lis) {
+						// If it is a bufconn, adding a context dialer
+						switch vlis := lis.(type) {
+						case *bufconn.Listener:
+							dialOptions = append(dialOptions,
+								grpc.WithContextDialer(func(ctx context.Context, address string) (net.Conn, error) {
+									return vlis.Dial()
+								}),
+								grpc.WithTransportCredentials(insecure.NewCredentials()),
+							)
+						}
+					}
+				} else {
+					dialOptions = append(dialOptions, grpc.WithTransportCredentials(insecure.NewCredentials()))
+				}
+
+				dialOptions = append(dialOptions,
+					grpc.WithChainUnaryInterceptor(middleware.GrpcUnaryClientInterceptors()...),
+					grpc.WithChainStreamInterceptor(middleware.GrpcStreamClientInterceptors()...),
+				)
+
+				dialOptions = append(dialOptions, middleware.GrpcClientStatsHandler(nil)...)
+
+				conn, err := grpc.NewClient(vv["uri"].(string), dialOptions...)
 				if err != nil {
-					return err
+					return nil, err
 				}
 
-				if listener.As(&lis) {
-					// If it is a bufconn, adding a context dialer
-					switch vlis := lis.(type) {
-					case *bufconn.Listener:
-						dialOptions = append(dialOptions,
-							grpc.WithContextDialer(func(ctx context.Context, address string) (net.Conn, error) {
-								return vlis.Dial()
-							}),
-							grpc.WithTransportCredentials(insecure.NewCredentials()),
-						)
-					}
-				}
-			} else {
-				dialOptions = append(dialOptions, grpc.WithTransportCredentials(insecure.NewCredentials()))
+				return conn, nil
 			}
+		})
 
-			dialOptions = append(dialOptions,
-				grpc.WithChainUnaryInterceptor(middleware.GrpcUnaryClientInterceptors()...),
-				grpc.WithChainStreamInterceptor(middleware.GrpcStreamClientInterceptors()...),
-			)
-
-			dialOptions = append(dialOptions, middleware.GrpcClientStatsHandler(nil)...)
-
-			conn, err := grpc.NewClient(vv["uri"].(string), dialOptions...)
-			if err != nil {
-				return err
-			}
-
-			if conn != nil {
-				registry.NewMetaWrapper(m.internalRegistry, func(meta map[string]string) {
-					meta[registry.MetaTimestampKey] = fmt.Sprintf("%d", time.Now().UnixNano())
-					meta[registry.MetaStatusKey] = string(registry.StatusTransient)
-
-					if s, ok := vv["services"]; ok {
-						b, _ := json.Marshal(s)
-						meta["services"] = string(b)
-					}
-				}).Register(registry.NewRichItem(k, k, pb.ItemType_GENERIC, conn), registry.WithEdgeTo(m.root.ID(), "connection", nil))
-			}
+		if err != nil {
+			return err
 		}
+
+		registry.NewMetaWrapper(m.internalRegistry, func(meta map[string]string) {
+			meta[registry.MetaTimestampKey] = fmt.Sprintf("%d", time.Now().UnixNano())
+			meta[registry.MetaStatusKey] = string(registry.StatusTransient)
+
+			if s, ok := vv["services"]; ok {
+				b, _ := json.Marshal(s)
+				meta["services"] = string(b)
+			}
+		}).Register(registry.NewRichItem(k, k, pb.ItemType_GENERIC, pool), registry.WithEdgeTo(m.root.ID(), "connection", nil))
 	}
 
 	return nil
 }
 
 func (m *manager) initStorages(ctx context.Context, store *Bootstrap, base string) error {
-	storages := store.Val(base + "/storages")
-	for k := range storages.Map() {
-		uri := storages.Val(k, "uri").String()
-		conn, err := m.storage.Open(ctx, uri)
-		if err != nil {
-			fmt.Println("initStorages - cannot open storage with uri "+uri, err)
-			continue
-		}
-
-		if conn != nil {
-			registry.NewMetaWrapper(m.internalRegistry, func(meta map[string]string) {
-				meta[registry.MetaTimestampKey] = fmt.Sprintf("%d", time.Now().UnixNano())
-				meta[registry.MetaStatusKey] = string(registry.StatusTransient)
-			}).Register(registry.NewRichItem(k, k, pb.ItemType_STORAGE, conn), registry.WithEdgeTo(m.root.ID(), "storage", nil))
-		}
-	}
-
 	runtime.Register(m.ns, func(ctx context.Context) {
-		storageItems, err := m.internalRegistry.List(registry.WithType(pb.ItemType_STORAGE))
-		if err != nil {
-			return
-		}
+		go func() {
+			storages := store.Val(base + "/storages")
+			for k := range storages.Map() {
+				uri := storages.Val(k, "uri").String()
+				pool, err := m.storage.Open(ctx, uri)
+				if err != nil {
+					fmt.Println("initStorages - cannot open pool with URI"+uri, err)
+					continue
+				}
+				regKey := k
+				er := registry.NewMetaWrapper(m.internalRegistry, func(meta map[string]string) {
+					meta[registry.MetaTimestampKey] = fmt.Sprintf("%d", time.Now().UnixNano())
+					meta[registry.MetaStatusKey] = string(registry.StatusTransient)
+				}).Register(registry.NewRichItem(regKey, regKey, pb.ItemType_GENERIC, pool), registry.WithEdgeTo(m.root.ID(), "storage", nil))
+				if er != nil {
+					fmt.Println("initQueues - cannot register queue pool with URI"+uri, er)
+				} else {
+					//fmt.Println("initQueues - Registered " + regKey + " with pool from uri " + uri)
+				}
+			}
 
-		services, err := m.internalRegistry.List(registry.WithType(pb.ItemType_SERVICE))
-		if err != nil {
-			return
-		}
-
-		for _, ss := range services {
-			// Find storage and link it
-			var namedStores map[string][]map[string]string
-			if err := store.Val(base, "services", ss.Name(), "storages").Scan(&namedStores); err != nil {
+			storageItems, err := m.internalRegistry.List(registry.WithType(pb.ItemType_STORAGE))
+			if err != nil {
 				return
 			}
 
-			for name, stores := range namedStores {
-				for _, st := range stores {
-					for _, item := range storageItems {
-						if st["type"] == item.Name() {
-							st["name"] = name
-							_, _ = m.internalRegistry.RegisterEdge(ss.ID(), item.ID(), "storage", st)
+			services, err := m.internalRegistry.List(registry.WithType(pb.ItemType_SERVICE))
+			if err != nil {
+				return
+			}
+
+			for _, ss := range services {
+				var svc service.Service
+				if !ss.As(&svc) {
+					continue
+				}
+
+				// Find storage and link it
+				// TODO - Named stores should come from the config then ?
+				var namedStores map[string][]map[string]string
+				if err := store.Val(base, "services", ss.Name(), "storages").Scan(&namedStores); err != nil {
+					return
+				}
+
+				if len(namedStores) == 0 {
+					continue
+				}
+
+				for name, stores := range namedStores {
+					linked := false
+					for _, st := range stores {
+						for _, storageItem := range storageItems {
+							if st["type"] == storageItem.Name() {
+								st["name"] = name
+								_, _ = m.internalRegistry.RegisterEdge(ss.ID(), storageItem.ID(), "storage", st)
+								linked = true
+							}
 						}
 					}
+
+					if !linked {
+						continue
+					}
+
+					runtime.MultiContextManager().Iterate(ctx, func(ctx context.Context, name string) error {
+						ctx = propagator.With(ctx, service.ContextKey, svc)
+
+						if err := service.UpdateServiceVersion(ctx, svc.Options()); err != nil {
+							fmt.Println("I have an error here ", err)
+						}
+
+						return nil
+					})
 				}
 			}
-		}
+
+			runtime.MultiContextManager().Iterate(ctx, func(ctx context.Context, name string) error {
+				var configStore config.Store
+				propagator.Get(ctx, config.ContextKey, &configStore)
+
+				if configStore == nil {
+					return nil
+				}
+
+				go func() {
+					storages := configStore.Val("storages").Map()
+
+					fmt.Println("Retrieved that list of storages ", storages)
+
+					for k := range storages {
+						uri, ok := storages["uri"]
+						if !ok {
+							continue
+						}
+
+						uristr, ok := uri.(string)
+						if !ok {
+							continue
+						}
+
+						conn, err := m.storage.Open(ctx, uristr)
+						if err != nil {
+							fmt.Println("initStorages - cannot open storage with uri "+uristr, err)
+							continue
+						}
+
+						fmt.Println("Inited storage ", uristr)
+
+						if conn != nil {
+							registry.NewMetaWrapper(m.internalRegistry, func(meta map[string]string) {
+								meta[registry.MetaTimestampKey] = fmt.Sprintf("%d", time.Now().UnixNano())
+								meta[registry.MetaStatusKey] = string(registry.StatusTransient)
+							}).Register(registry.NewRichItem(k, k, pb.ItemType_STORAGE, conn), registry.WithEdgeTo(m.root.ID(), "storage", nil))
+						}
+					}
+
+					storageItems, err := m.internalRegistry.List(registry.WithType(pb.ItemType_STORAGE))
+					if err != nil {
+						return
+					}
+
+					services, err := m.internalRegistry.List(registry.WithType(pb.ItemType_SERVICE))
+					if err != nil {
+						return
+					}
+
+					for _, ss := range services {
+						var svc service.Service
+						if !ss.As(&svc) {
+							continue
+						}
+
+						// Find storage and link it
+						// TODO - Named stores should come from the config then ?
+						var namedStores map[string][]map[string]string
+						if err := store.Val(base, "services", ss.Name(), "storages").Scan(&namedStores); err != nil {
+							return
+						}
+
+						if len(namedStores) == 0 {
+							continue
+						}
+
+						for name, stores := range namedStores {
+							linked := false
+							for _, st := range stores {
+								for _, storageItem := range storageItems {
+									if st["type"] == storageItem.Name() {
+										st["name"] = name
+										_, _ = m.internalRegistry.RegisterEdge(ss.ID(), storageItem.ID(), "storage", st)
+										linked = true
+									}
+								}
+							}
+
+							if !linked {
+								continue
+							}
+
+							go func() {
+								ctx = propagator.With(ctx, service.ContextKey, svc)
+
+								if err := service.UpdateServiceVersion(ctx, svc.Options()); err != nil {
+									fmt.Println("I have an error here ", err)
+								}
+
+							}()
+						}
+					}
+
+					return
+				}()
+
+				return nil
+			})
+
+			return
+		}()
 	})
 
 	return nil
 }
 
 func (m *manager) initQueues(ctx context.Context, store *Bootstrap, base string) error {
-	queues := store.Val(base + "/queues")
-	for k := range queues.Map() {
-		uri := queues.Val(k, "uri").String()
-		pool, err := m.queues.Open(ctx, uri)
-		if err != nil {
-			fmt.Println("initQueues - cannot open pool with URI"+uri, err)
-			continue
+	runtime.Register(m.ns, func(ctx context.Context) {
+		queues := store.Val(base + "/queues")
+		for k := range queues.Map() {
+			uri := queues.Val(k, "uri").String()
+			pool, err := m.queues.Open(ctx, uri)
+			if err != nil {
+				fmt.Println("initQueues - cannot open pool with URI"+uri, err)
+				continue
+			}
+			regKey := "queue-" + k
+			er := registry.NewMetaWrapper(m.internalRegistry, func(meta map[string]string) {
+				meta[registry.MetaTimestampKey] = fmt.Sprintf("%d", time.Now().UnixNano())
+				meta[registry.MetaStatusKey] = string(registry.StatusTransient)
+			}).Register(registry.NewRichItem(regKey, regKey, pb.ItemType_GENERIC, pool), registry.WithEdgeTo(m.root.ID(), "queue", nil))
+			if er != nil {
+				fmt.Println("initQueues - cannot register queue pool with URI"+uri, er)
+			} else {
+				//fmt.Println("initQueues - Registered " + regKey + " with pool from uri " + uri)
+			}
 		}
-		regKey := "queue-" + k
-		er := registry.NewMetaWrapper(m.internalRegistry, func(meta map[string]string) {
-			meta[registry.MetaTimestampKey] = fmt.Sprintf("%d", time.Now().UnixNano())
-			meta[registry.MetaStatusKey] = string(registry.StatusTransient)
-		}).Register(registry.NewRichItem(regKey, regKey, pb.ItemType_GENERIC, pool), registry.WithEdgeTo(m.root.ID(), "queue", nil))
-		if er != nil {
-			fmt.Println("initQueues - cannot register queue pool with URI"+uri, er)
-		} else {
-			//fmt.Println("initQueues - Registered " + regKey + " with pool from uri " + uri)
+	})
+
+	// TODO - we should watch the multi context manager to see if a new context has been added
+	runtime.MultiContextManager().Iterate(ctx, func(ctx context.Context, name string) error {
+		var configStore config.Store
+		propagator.Get(ctx, config.ContextKey, &configStore)
+
+		if configStore == nil {
+			return nil
 		}
-	}
+
+		go func() {
+			queues := configStore.Val("queues")
+			for k := range queues.Map() {
+				uri := queues.Val(k, "uri").String()
+				pool, err := m.queues.Open(ctx, uri)
+				if err != nil {
+					fmt.Println("initQueues - cannot open pool with URI"+uri, err)
+					continue
+				}
+				regKey := "queue-" + k
+				er := registry.NewMetaWrapper(m.internalRegistry, func(meta map[string]string) {
+					meta[registry.MetaTimestampKey] = fmt.Sprintf("%d", time.Now().UnixNano())
+					meta[registry.MetaStatusKey] = string(registry.StatusTransient)
+				}).Register(registry.NewRichItem(regKey, regKey, pb.ItemType_GENERIC, pool), registry.WithEdgeTo(m.root.ID(), "queue", nil))
+				if er != nil {
+					fmt.Println("initQueues - cannot register queue pool with URI"+uri, er)
+				} else {
+					//fmt.Println("initQueues - Registered " + regKey + " with pool from uri " + uri)
+				}
+			}
+		}()
+
+		return nil
+	})
+
 	return nil
 }
 
 func (m *manager) initCaches(ctx context.Context, store *Bootstrap, base string) error {
-	caches := store.Val(base + "/caches")
-	for k := range caches.Map() {
-		uri := caches.Val(k, "uri").String()
-		pool, err := m.caches.Open(ctx, uri)
-		if err != nil {
-			fmt.Println("initCaches - cannot open cache pool with URI"+uri, err)
-			continue
+	runtime.Register(m.ns, func(ctx context.Context) {
+		caches := store.Val(base + "/caches")
+		for k := range caches.Map() {
+			uri := caches.Val(k, "uri").String()
+			pool, err := m.caches.Open(ctx, uri)
+			if err != nil {
+				fmt.Println("initCaches - cannot open cache pool with URI"+uri, err)
+				continue
+			}
+			regKey := "cache-" + k
+			er := registry.NewMetaWrapper(m.Registry(), func(meta map[string]string) {
+				meta[registry.MetaTimestampKey] = fmt.Sprintf("%d", time.Now().UnixNano())
+				meta[registry.MetaStatusKey] = string(registry.StatusTransient)
+			}).Register(registry.NewRichItem(regKey, regKey, pb.ItemType_GENERIC, pool), registry.WithEdgeTo(m.root.ID(), "cache", nil))
+			if er != nil {
+				fmt.Println("initCaches - cannot register pool with URI"+uri, er)
+			} else {
+				//fmt.Println("initCaches - Registered " + regKey + " with pool from uri " + uri)
+			}
 		}
-		regKey := "cache-" + k
-		er := registry.NewMetaWrapper(m.Registry(), func(meta map[string]string) {
-			meta[registry.MetaTimestampKey] = fmt.Sprintf("%d", time.Now().UnixNano())
-			meta[registry.MetaStatusKey] = string(registry.StatusTransient)
-		}).Register(registry.NewRichItem(regKey, regKey, pb.ItemType_GENERIC, pool), registry.WithEdgeTo(m.root.ID(), "cache", nil))
-		if er != nil {
-			fmt.Println("initCaches - cannot register pool with URI"+uri, er)
-		} else {
-			//fmt.Println("initCaches - Registered " + regKey + " with pool from uri " + uri)
+	})
+
+	// TODO - we should watch the multi context manager to see if a new context has been added
+	runtime.MultiContextManager().Iterate(ctx, func(ctx context.Context, name string) error {
+		var configStore config.Store
+		propagator.Get(ctx, config.ContextKey, &configStore)
+
+		if configStore == nil {
+			return nil
 		}
-	}
+
+		go func() {
+			caches := configStore.Val("caches")
+			for k := range caches.Map() {
+				uri := caches.Val(k, "uri").String()
+				pool, err := m.caches.Open(ctx, uri)
+				if err != nil {
+					fmt.Println("initCaches - cannot open cache pool with URI"+uri, err)
+					continue
+				}
+				regKey := "cache-" + k
+				er := registry.NewMetaWrapper(m.Registry(), func(meta map[string]string) {
+					meta[registry.MetaTimestampKey] = fmt.Sprintf("%d", time.Now().UnixNano())
+					meta[registry.MetaStatusKey] = string(registry.StatusTransient)
+				}).Register(registry.NewRichItem(regKey, regKey, pb.ItemType_GENERIC, pool), registry.WithEdgeTo(m.root.ID(), "cache", nil))
+				if er != nil {
+					fmt.Println("initCaches - cannot register pool with URI"+uri, er)
+				} else {
+					//fmt.Println("initCaches - Registered " + regKey + " with pool from uri " + uri)
+				}
+			}
+		}()
+
+		return nil
+	})
+
 	return nil
 }
 
@@ -1320,7 +1631,19 @@ func (m *manager) serviceServeOptions(svc service.Service) []server.ServeOption 
 		server.WithBeforeServe(func(...registry.RegisterOption) error {
 			return svc.Start(registry.WithContextR(m.ctx))
 		}),
-		server.WithAfterServe(func(...registry.RegisterOption) error {
+		server.WithAfterServe(func(oo ...registry.RegisterOption) error {
+			//if er := runtime.MultiContextManager().Iterate(m.ctx, func(ctx context.Context, _ string) error {
+			//	log.Logger(ctx).Info("After Server update")
+			//	if locker := m.internalRegistry.NewLocker("update-service-version-" + svc.Name()); locker != nil {
+			//		locker.Lock()
+			//		defer locker.Unlock()
+			//	}
+			//
+			//	return service.UpdateServiceVersion(ctx, svc.Options())
+			//}); er != nil {
+			//	log.Logger(m.ctx).Error("Error while updating service version", zap.Error(er))
+			//}
+
 			return svc.OnServe(registry.WithContextR(m.ctx))
 		}),
 	}

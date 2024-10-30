@@ -22,6 +22,8 @@ package config
 
 import (
 	"context"
+	"github.com/pydio/cells/v4/common/errors"
+	"github.com/pydio/cells/v4/common/utils/openurl"
 	"sync"
 
 	"github.com/pydio/cells/v4/common/utils/configx"
@@ -41,9 +43,9 @@ var (
 )
 
 func init() {
-	propagator.RegisterKeyInjector[Store](ContextKey)
-	propagator.RegisterKeyInjector[Store](VaultKey)
-	propagator.RegisterKeyInjector[Store](RevisionsKey)
+	propagator.RegisterKeyInjector[*openurl.Pool[Store]](ContextKey)
+	propagator.RegisterKeyInjector[*openurl.Pool[Store]](VaultKey)
+	propagator.RegisterKeyInjector[*openurl.Pool[Store]](RevisionsKey)
 }
 
 // Store defines the functionality a config must provide
@@ -67,7 +69,18 @@ type Saver interface {
 
 // Save the config in the hard wrappedStore
 func Save(ctx context.Context, ctxUser string, ctxMessage string) error {
-	if err := propagator.MustWithHint[Store](ctx, ContextKey, "config").Save(ctxUser, ctxMessage); err != nil {
+	storePool := propagator.MustWithHint[*openurl.Pool[Store]](ctx, ContextKey, "config")
+
+	store, err := storePool.Get(ctx)
+	if err != nil {
+		return err
+	}
+
+	if store == nil {
+		return errors.New("store is nil")
+	}
+
+	if err := store.Save(ctxUser, ctxMessage); err != nil {
 		return err
 	}
 
@@ -76,16 +89,37 @@ func Save(ctx context.Context, ctxUser string, ctxMessage string) error {
 
 // Watch for config changes for a specific path or underneath
 func Watch(ctx context.Context, opts ...configx.WatchOption) (configx.Receiver, error) {
-	return propagator.MustWithHint[Store](ctx, ContextKey, "config").Watch(opts...)
+	storePool := propagator.MustWithHint[*openurl.Pool[Store]](ctx, ContextKey, "config")
+
+	store, err := storePool.Get(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	if store == nil {
+		return nil, errors.New("store is nil")
+	}
+
+	return store.Watch(opts...)
 }
 
 // WatchCombined watches for different config paths
 func WatchCombined(ctx context.Context, paths [][]string, opts ...configx.WatchOption) (configx.Receiver, error) {
-	cfg := propagator.MustWithHint[Store](ctx, ContextKey, "config")
+	storePool := propagator.MustWithHint[*openurl.Pool[Store]](ctx, ContextKey, "config")
+
+	store, err := storePool.Get(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	if store == nil {
+		return nil, errors.New("store is nil")
+	}
+
 	var rr []configx.Receiver
 	for _, path := range paths {
 		oo := append([]configx.WatchOption{configx.WithPath(path...)}, opts...)
-		if r, e := cfg.Watch(oo...); e != nil {
+		if r, e := store.Watch(oo...); e != nil {
 			return nil, e
 		} else {
 			rr = append(rr, r)
@@ -96,17 +130,50 @@ func WatchCombined(ctx context.Context, paths [][]string, opts ...configx.WatchO
 
 // Get access to the underlying structure at a certain path
 func Get(ctx context.Context, path ...string) configx.Values {
-	return propagator.MustWithHint[Store](ctx, ContextKey, "config").Context(ctx).Val(path...)
+	storePool := propagator.MustWithHint[*openurl.Pool[Store]](ctx, ContextKey, "config")
+
+	store, err := storePool.Get(ctx)
+	if err != nil {
+		return nil
+	}
+
+	if store == nil {
+		return nil
+	}
+	return store.Context(ctx).Val(path...)
 }
 
 // Set new values at a certain path
 func Set(ctx context.Context, val interface{}, path ...string) error {
-	return propagator.MustWithHint[Store](ctx, ContextKey, "config").Context(ctx).Val(path...).Set(val)
+	storePool := propagator.MustWithHint[*openurl.Pool[Store]](ctx, ContextKey, "config")
+
+	store, err := storePool.Get(ctx)
+	if err != nil {
+		return err
+	}
+
+	if store == nil {
+		return errors.New("store is nil")
+	}
+
+	return store.Context(ctx).Set(val)
 }
 
 // Del value at a certain path
+// TODO - surely there should be an error returned
 func Del(ctx context.Context, path ...string) {
-	propagator.MustWithHint[Store](ctx, ContextKey, "config").Context(ctx).Val(path...).Del()
+	storePool := propagator.MustWithHint[*openurl.Pool[Store]](ctx, ContextKey, "config")
+
+	store, err := storePool.Get(ctx)
+	if err != nil {
+		return
+	}
+
+	if store == nil {
+		return
+	}
+
+	store.Context(ctx).Val(path...).Del()
 }
 
 // GetAndWatch applies a callback on a current value, then watch for its changes and re-apply

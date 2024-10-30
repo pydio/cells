@@ -22,6 +22,7 @@ package propagator
 
 import (
 	"context"
+	"github.com/pydio/cells/v4/common/utils/openurl"
 )
 
 type ContextInjector func(ctx, parent context.Context) context.Context
@@ -79,7 +80,15 @@ func Get[T any](ctx context.Context, key any, out *T) bool {
 
 	c, ok := i.(T)
 	if !ok {
-		return false
+		if p, ok := i.(*openurl.Pool[T]); ok {
+			if cc, err := p.Get(ctx); err != nil {
+				return false
+			} else {
+				c = cc
+			}
+		} else {
+			return false
+		}
 	}
 
 	*out = c

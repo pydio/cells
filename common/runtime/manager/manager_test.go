@@ -64,8 +64,11 @@ func (*testHandler) SayHello(ctx context.Context, req *helloworld.HelloRequest) 
 
 func TestManagerStorage(t *testing.T) {
 	v := viper.New()
-	v.Set("name", "discovery")
 	v.Set("tags", "storages")
+	v.Set(runtime.KeyKeyring, "mem://")
+	v.Set(runtime.KeyConfig, "mem://")
+	v.Set(runtime.KeyRegistry, "mem://")
+	v.Set(runtime.KeyBootstrapRoot, "")
 	v.Set(runtime.KeyBootstrapYAML, storageTestTemplate)
 	runtime.SetRuntime(v)
 

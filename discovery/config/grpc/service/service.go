@@ -22,9 +22,6 @@ package service
 
 import (
 	"context"
-	"github.com/pydio/cells/v4/common/config"
-	json "github.com/pydio/cells/v4/common/utils/jsonx"
-
 	"google.golang.org/grpc"
 
 	"github.com/pydio/cells/v4/common"
@@ -45,26 +42,6 @@ func init() {
 			service.Context(ctx),
 			service.Tag(common.ServiceTagDiscovery),
 			service.Description("Grpc service for serving configurations to forks"),
-			// service.WithStorageDrivers(configsql.NewDAO),
-			service.Migrations([]*service.Migration{
-				//{
-				//	TargetVersion: service.FirstRun(),
-				//	Up:            manager.StorageMigration(),
-				//},
-				{
-					TargetVersion: service.FirstRun(),
-					Up: func(ctx context.Context) error {
-						var data any
-						if err := json.Unmarshal([]byte(config.SampleConfig), &data); err == nil {
-							if err := config.Get(ctx).Set(data); err == nil {
-								_ = config.Save(ctx, common.PydioSystemUsername, "Initialize with sample config")
-							}
-						}
-
-						return nil
-					},
-				},
-			}),
 			service.WithGRPC(func(c context.Context, srv grpc.ServiceRegistrar) error {
 				pb.RegisterConfigServer(srv, grpc2.NewHandler())
 

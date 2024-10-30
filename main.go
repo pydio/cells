@@ -193,6 +193,9 @@ import (
 	_ "github.com/pydio/cells/v4/common/server/grpc"
 	_ "github.com/pydio/cells/v4/common/server/http"
 
+	// Storages
+	_ "github.com/pydio/cells/v4/common/storage/sql"
+
 	// Import Command Package after all Mux Registers
 	"github.com/pydio/cells/v4/cmd"
 )

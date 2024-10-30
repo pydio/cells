@@ -322,20 +322,6 @@ func (s *service) OnServe(oo ...registry.RegisterOption) error {
 		refCtx = s.Opts.rootContext
 	}
 
-	go func() {
-		if locker := s.Opts.GetRegistry().NewLocker("update-service-version-" + s.Opts.Name); locker != nil {
-			locker.Lock()
-			defer locker.Unlock()
-		}
-
-		defer w.Done()
-		if er := runtime.MultiContextManager().Iterate(refCtx, func(ctx context.Context, _ string) error {
-			return UpdateServiceVersion(ctx, s.Opts)
-		}); er != nil {
-			log.Logger(refCtx).Error("Error while updating service version", zap.Error(er))
-		}
-	}()
-
 	for _, after := range s.Opts.AfterServe {
 		go func(f func(context.Context) error) {
 			defer w.Done()

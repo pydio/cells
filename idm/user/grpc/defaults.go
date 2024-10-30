@@ -27,9 +27,12 @@ const (
 func InitDefaults(ctx context.Context) error {
 	var login, pwd string
 
-	var cfg config.Store
-
 	dao, err := manager.Resolve[user.DAO](ctx)
+	if err != nil {
+		return err
+	}
+
+	var cfg config.Store
 	if !propagator.Get(ctx, config.ContextKey, &cfg) {
 		return fmt.Errorf("no config")
 	}

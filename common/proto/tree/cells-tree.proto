@@ -382,7 +382,7 @@ message MPath {
     option (setter.all_fields) = true;
     option (orm.ormPolicy).enabled = true;
 
-    string MPath1 = 1 [(orm.orm).gorm = {column:"mpath1"; index: "";}];
+    string MPath1 = 1 [(orm.orm).gorm = {column:"mpath1"; index: true;}];
     string MPath2 = 2 [(orm.orm).gorm = {column:"mpath2"; index: "";}];
     string MPath3 = 3 [(orm.orm).gorm = {column:"mpath3"; index: "";}];
     string MPath4 = 4 [(orm.orm).gorm = {column:"mpath4"; index: "";}];

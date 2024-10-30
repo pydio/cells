@@ -24,11 +24,8 @@ import (
 	"context"
 	"fmt"
 	"net/url"
-	"os"
 	"path"
 	"sync"
-
-	"github.com/pydio/cells/v4/common/runtime"
 )
 
 type StringTemplate interface {
@@ -55,21 +52,6 @@ func init() {
 	tplRegister = make(map[string]TemplateOpener)
 	tplRegLock = &sync.RWMutex{}
 	tplFuncs = make(map[string]any)
-	tplFuncs["autoMkdir"] = func(dir string) string {
-		if s, e := os.Stat(dir); e == nil {
-			if !s.IsDir() {
-				panic(fmt.Errorf("%s is not a directory", dir))
-			}
-			return dir
-		} else if er := os.MkdirAll(dir, 0755); er == nil {
-			return dir
-		} else {
-			panic(fmt.Errorf("cannot create directory %s: %v", dir, e))
-		}
-	}
-	tplFuncs["serviceDataDir"] = func(dir string) string {
-		return runtime.MustServiceDataDir(dir)
-	}
 	tplFuncs["joinPath"] = path.Join
 
 	RegisterURLTemplate("gotpl", openGoTemplate, true)

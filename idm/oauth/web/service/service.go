@@ -24,6 +24,7 @@ package service
 import (
 	"context"
 	"encoding/base64"
+	"fmt"
 	"net/http"
 	"strings"
 
@@ -61,7 +62,7 @@ func init() {
 			service.Migrations([]*service.Migration{{
 				TargetVersion: service.FirstRun(),
 				Up: func(ctx context.Context) error {
-					config.Get(ctx, "services", common.ServiceWebNamespace_+common.ServiceOAuth).Set(map[string]any{
+					if err := config.Get(ctx, "services", common.ServiceWebNamespace_+common.ServiceOAuth).Set(map[string]any{
 						"secret": "a-very-insecure-secret-for-checking-out-the-demo",
 						"connectors": []any{
 							map[string]any{
@@ -111,7 +112,13 @@ func init() {
 								"scope":          "openid email profile pydio offline",
 							},
 						},
-					})
+					}); err != nil {
+						return err
+					}
+
+					if err := config.Save(ctx, common.PydioSystemUsername, "Oauth initialised"); err != nil {
+						return fmt.Errorf("could not save config migrations %v", err)
+					}
 
 					return nil
 				},

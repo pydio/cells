@@ -30,10 +30,10 @@ import (
 
 var (
 	tm Manager = &basicManager{
-		tt: []Tenant{
+		tt: []runtime.ContextProvider{
 			&basicTenant{id: "default"},
 			&basicTenant{id: "sub1"},
-			&basicTenant{id: "sub2"},
+			//&basicTenant{id: "sub2"},
 		},
 	}
 	ErrNotFound = errors.RegisterBaseSentinel(errors.StatusUnauthorized, "tenant not found")
@@ -47,10 +47,10 @@ type Tenant interface {
 type Manager interface {
 	runtime.MultiContextProvider
 
-	GetMaster() Tenant
-	IsMaster(Tenant) bool
-	ListTenants() []Tenant
-	TenantByID(id string) (Tenant, error)
+	GetMaster() runtime.ContextProvider
+	IsMaster(runtime.ContextProvider) bool
+	ListTenants() []runtime.ContextProvider
+	TenantByID(id string) (runtime.ContextProvider, error)
 }
 
 type basicTenant struct {
@@ -68,8 +68,8 @@ func (b *basicTenant) Context(ctx context.Context) context.Context {
 }
 
 type basicManager struct {
-	master Tenant
-	tt     []Tenant
+	master runtime.ContextProvider
+	tt     []runtime.ContextProvider
 }
 
 func (b *basicManager) Current(ctx context.Context) string {
@@ -102,20 +102,20 @@ func (b *basicManager) Watch(ctx context.Context, add func(context.Context, stri
 	return nil
 }
 
-func (b *basicManager) GetMaster() Tenant {
+func (b *basicManager) GetMaster() runtime.ContextProvider {
 	m, _ := b.TenantByID("default")
 	return m
 }
 
-func (b *basicManager) IsMaster(t Tenant) bool {
+func (b *basicManager) IsMaster(t runtime.ContextProvider) bool {
 	return t.ID() == "default"
 }
 
-func (b *basicManager) ListTenants() []Tenant {
+func (b *basicManager) ListTenants() []runtime.ContextProvider {
 	return b.tt
 }
 
-func (b *basicManager) TenantByID(id string) (Tenant, error) {
+func (b *basicManager) TenantByID(id string) (runtime.ContextProvider, error) {
 	for _, t := range b.tt {
 		if t.ID() == id {
 			return t, nil

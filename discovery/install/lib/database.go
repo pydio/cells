@@ -26,15 +26,20 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
+	pb "github.com/pydio/cells/v4/common/proto/registry"
+	"github.com/pydio/cells/v4/common/registry"
+	"github.com/pydio/cells/v4/common/storage"
+	"gorm.io/gorm"
 	"io"
 	"regexp"
 	"strings"
-	"time"
+	"text/template"
 
 	"github.com/go-sql-driver/mysql"
-
 	"github.com/pydio/cells/v4/common/config"
 	"github.com/pydio/cells/v4/common/proto/install"
+	"github.com/pydio/cells/v4/common/runtime"
+	"github.com/pydio/cells/v4/common/runtime/manager"
 	"github.com/pydio/cells/v4/common/telemetry/log"
 	uuid2 "github.com/pydio/cells/v4/common/utils/uuid"
 )
@@ -192,63 +197,157 @@ func addDatabaseManualConnection(c *install.InstallConfig) (*mysql.Config, error
 }
 
 func checkConnection(dsn string) error {
+
+	ctx := context.Background()
+	tmpl, err := template.New("storages").Parse(`
+storages:
+  root:
+    uri: {{ .Root }}
+  main:
+    uri: {{ .Main }}
+`)
+	if err != nil {
+		return err
+	}
+
+	rootconf, _ := mysql.ParseDSN(dsn)
+	dbname := rootconf.DBName
+	rootconf.DBName = ""
+
+	rootdsn := rootconf.FormatDSN()
+
+	var str strings.Builder
+	if err := tmpl.Execute(&str, struct {
+		Root string
+		Main string
+	}{
+		Root: "mysql://" + rootdsn,
+		Main: "mysql://" + dsn,
+	}); err != nil {
+		return err
+	}
+
+	runtime.SetDefault(runtime.KeyBootstrapYAML, str.String())
+
+	mgr, err := manager.NewManager(context.Background(), "install", nil)
+	if err != nil {
+		return err
+	}
+
+	item, err := mgr.Registry().Get("main", registry.WithType(pb.ItemType_STORAGE))
+	if err != nil {
+		return err
+	}
+
 	for {
-		if db, err := sql.Open("mysql+tls", dsn); err != nil {
-			return err
-		} else {
-			// Open doesn't open a connection. Validate DSN data:
-			c, cf := context.WithTimeout(context.Background(), 3*time.Second)
-			defer cf()
-			if err := db.PingContext(c); err != nil && strings.HasPrefix(err.Error(), "Error 1049") {
-				rootconf, _ := mysql.ParseDSN(dsn)
-				dbname := rootconf.DBName
-				rootconf.DBName = ""
+		var st storage.Storage
+		item.As(&st)
 
-				rootdsn := rootconf.FormatDSN()
-
-				if rootdb, rooterr := sql.Open("mysql+tls", rootdsn); rooterr != nil {
-					return rooterr
-				} else {
-					version, err := getMysqlVersion(rootdb)
-					if err != nil {
-						return err
-					}
-
-					if err := checkMysqlCompat(version); err != nil {
-						return err
-					}
-
-					errCharset := checkMysqlCharset(rootdb, version)
-					switch {
-					case errCharset == ErrMySQLCharsetNotSupported:
-						dbname = dbname + " CHARACTER SET utf8 COLLATE utf8_general_ci"
-					case errCharset != nil:
-						return errCharset
-					}
-
-					if _, err = rootdb.Exec(fmt.Sprintf("create database if not exists %s", dbname)); err != nil {
-						return err
-					}
-				}
-			} else if err != nil {
+		db, err := st.Get(ctx)
+		if err != nil {
+			item, err := mgr.Registry().Get("root", registry.WithType(pb.ItemType_STORAGE))
+			if err != nil {
 				return err
-			} else {
-				version, err := getMysqlVersion(db)
-				if err != nil {
-					return err
-				}
+			}
 
-				if err := checkMysqlCompat(version); err != nil {
-					return err
-				}
-				if err := checkMysqlCharset(db, version); err != nil {
-					return err
-				}
+			var st storage.Storage
+			item.As(&st)
 
-				break
+			db, err := st.Get(ctx)
+			if err != nil {
+				return errors.New("couldn't get root storage")
+			}
+
+			gormDB, ok := db.(*gorm.DB)
+			if !ok {
+				return errors.New("not a gorm DB")
+			}
+
+			if tx := gormDB.Exec(fmt.Sprintf("create database if not exists %s", dbname)); tx.Error != nil {
+				return tx.Error
+			}
+
+			continue
+		}
+
+		gormDB, ok := db.(*gorm.DB)
+		if !ok {
+			return errors.New("not a gorm DB")
+		}
+
+		sqlDB, err := gormDB.DB()
+		if err != nil {
+			return err
+		}
+
+		if err := sqlDB.Ping(); err != nil {
+			return err
+		}
+
+		break
+	}
+
+	//for {
+	//	st, err := ctrl.Open(context.Background(), "mysql://"+dsn)
+	//	if err != nil {
+	//		return err
+	//	} else {
+	/* Open doesn't open a connection. Validate DSN data:
+	c, cf := context.WithTimeout(context.Background(), 3*time.Second)
+	defer cf()
+	if err := db.PingContext(c); err != nil && strings.HasPrefix(err.Error(), "Error 1049") {
+		rootconf, _ := mysql.ParseDSN(dsn)
+		dbname := rootconf.DBName
+		rootconf.DBName = ""
+
+		rootdsn := rootconf.FormatDSN()
+
+		if rootdb, rooterr := sql.Open("mysql+tls", rootdsn); rooterr != nil {
+			return rooterr
+		} else {
+			version, err := getMysqlVersion(rootdb)
+			if err != nil {
+				return err
+			}
+
+			if err := checkMysqlCompat(version); err != nil {
+				return err
+			}
+
+			errCharset := checkMysqlCharset(rootdb, version)
+			switch {
+			case errCharset == ErrMySQLCharsetNotSupported:
+				dbname = dbname + " CHARACTER SET utf8 COLLATE utf8_general_ci"
+			case errCharset != nil:
+				return errCharset
+			}
+
+			if _, err = rootdb.Exec(fmt.Sprintf("create database if not exists %s", dbname)); err != nil {
+				return err
 			}
 		}
+	} else if err != nil {
+		return err
+	} else {
+		version, err := getMysqlVersion(db)
+		if err != nil {
+			return err
+		}
+
+		if err := checkMysqlCompat(version); err != nil {
+			return err
+		}
+		if err := checkMysqlCharset(db, version); err != nil {
+			return err
+		}
+
+		break
 	}
+	*/
+	//	}
+	//
+	//	fmt.Println(st)
+	//}
 	return nil
 }
 

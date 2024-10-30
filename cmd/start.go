@@ -22,21 +22,17 @@ package cmd
 
 import (
 	"context"
-	"os"
-	"path/filepath"
-
 	"github.com/spf13/cobra"
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/trace"
+	"os"
 
+	_ "embed"
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/broker"
 	"github.com/pydio/cells/v4/common/runtime"
 	"github.com/pydio/cells/v4/common/runtime/manager"
 	"github.com/pydio/cells/v4/common/telemetry/log"
-	"github.com/pydio/cells/v4/common/utils/filex"
-
-	_ "embed"
 )
 
 var (
@@ -132,14 +128,14 @@ ENVIRONMENT
 		ctx, cancel := context.WithCancel(cmd.Context())
 		defer cancel()
 
-		configFile := filepath.Join(runtime.ApplicationWorkingDir(), runtime.DefaultConfigFileName)
-		if runtime.ConfigIsLocalFile() && !filex.Exists(configFile) {
-			return nil
-			//return triggerInstall(
-			//	"We cannot find a configuration file ... "+configFile,
-			//	"Do you want to create one now",
-			//	cmd, args)
-		}
+		//configFile := filepath.Join(runtime.ApplicationWorkingDir(), runtime.DefaultConfigFileName)
+		//if runtime.ConfigIsLocalFile() && !filex.Exists(configFile) {
+		//	return nil
+		//	//return triggerInstall(
+		//	//	"We cannot find a configuration file ... "+configFile,
+		//	//	"Do you want to create one now",
+		//	//	cmd, args)
+		//}
 
 		/* Init config
 		var er error

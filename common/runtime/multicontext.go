@@ -2,6 +2,7 @@ package runtime
 
 import (
 	"context"
+	"sync"
 
 	"github.com/pydio/cells/v4/common/utils/propagator"
 )
@@ -49,6 +50,11 @@ func MultiMatches(ctx1, ctx2 context.Context) bool {
 	return mcManager.Current(ctx1) == mcManager.Current(ctx2)
 }
 
+type ContextProvider interface {
+	ID() string
+	Context(ctx context.Context) context.Context
+}
+
 type MultiContextProvider interface {
 	Current(ctx context.Context) string
 	RootContext(ctx context.Context) context.Context
@@ -56,7 +62,9 @@ type MultiContextProvider interface {
 	Watch(ctx context.Context, add func(context.Context, string) error, remove func(context.Context, string) error, iterate bool) error
 }
 
-type basicMulti struct{}
+type basicMulti struct {
+	once *sync.Once
+}
 
 func (b *basicMulti) Current(ctx context.Context) string {
 	return "default"
@@ -68,6 +76,7 @@ func (b *basicMulti) RootContext(ctx context.Context) context.Context {
 
 func (b *basicMulti) Iterate(ctx context.Context, add func(context.Context, string) error) error {
 	ctx = propagator.With(ctx, MultiContextKey, "default")
+
 	return add(ctx, "default")
 }
 

@@ -23,6 +23,10 @@ package service
 
 import (
 	"context"
+	"fmt"
+	"github.com/pydio/cells/v4/common/config"
+	json "github.com/pydio/cells/v4/common/utils/jsonx"
+	"os"
 
 	"google.golang.org/grpc"
 
@@ -60,6 +64,10 @@ func init() {
 					TargetVersion: service.FirstRun(),
 					Up:            manager.StorageMigration(),
 				},
+				//{
+				//	TargetVersion: service.FirstRun(),
+				//	Up:            initDefaults,
+				//},
 				{
 					TargetVersion: service.FirstRun(),
 					Up:            insertPruningJob,
@@ -147,4 +155,51 @@ func insertPruningJob(ctx context.Context) error {
 	_, e := cli.PutJob(ctx, &jobs.PutJobRequest{Job: pJob})
 
 	return e
+}
+
+func initDefaults(ctx context.Context) error {
+
+	if secret := os.Getenv("CELLS_GLOBAL_SECRET"); secret != "" {
+		if err := config.Get(ctx).Val("services/pydio.web.oauth/secret").Set(secret); err != nil {
+			return err
+		}
+	}
+	if connectors := os.Getenv("CELLS_OAUTH_CONNECTORS"); connectors != "" {
+		var c any
+		if err := json.Unmarshal([]byte(connectors), &c); err != nil {
+			return err
+		} else {
+			if err := config.Get(ctx).Val("services/pydio.web.oauth/connectors").Set(c); err != nil {
+				return err
+			}
+		}
+	}
+
+	if cors := os.Getenv("CELLS_OAUTH_CORS"); cors != "" {
+		var c any
+		if err := json.Unmarshal([]byte(cors), &c); err != nil {
+			return err
+		} else {
+			if err := config.Get(ctx).Val("services/pydio.web.oauth/cors").Set(c); err != nil {
+				return err
+			}
+		}
+	}
+
+	if clients := os.Getenv("CELLS_OAUTH_CLIENTS"); clients != "" {
+		var c any
+		if err := json.Unmarshal([]byte(clients), &c); err != nil {
+			return err
+		} else {
+			if err := config.Get(ctx).Val("services/pydio.web.oauth/staticClients").Set(c); err != nil {
+				return err
+			}
+		}
+	}
+
+	if err := config.Save(ctx, common.PydioSystemUsername, "Oauth initialised"); err != nil {
+		return fmt.Errorf("could not save config migrations %v", err)
+	}
+
+	return nil
 }

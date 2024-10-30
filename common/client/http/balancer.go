@@ -109,35 +109,35 @@ func (b *balancer) Build(reg registry.Registry) error {
 		for _, item := range addrs {
 			addr := item.Metadata()[registry.MetaDescriptionKey]
 			usedAddr[addr] = struct{}{}
-			proxy, ok := b.readyProxies[addr]
-			if !ok {
-				scheme := "http://"
-				// TODO - do that in a better way
-				if srv.Name() == "grpcs" {
-					scheme = "https://"
-				}
-				u, err := url.Parse(scheme + strings.Replace(addr, "[::]", "", -1))
-				if err != nil {
-					return err
-				}
-				if !loaded {
-					services = reg.ListAdjacentItems(
-						registry.WithAdjacentSourceItems([]registry.Item{srv}),
-						registry.WithAdjacentTargetOptions(registry.WithType(pb.ItemType_SERVICE)),
-					)
-					endpoints = reg.ListAdjacentItems(
-						registry.WithAdjacentSourceItems([]registry.Item{srv}),
-						registry.WithAdjacentTargetOptions(registry.WithType(pb.ItemType_ENDPOINT)),
-					)
-					loaded = true
-				}
-				proxy = &reverseProxy{
-					URL:       u,
-					services:  services,
-					endpoints: endpoints,
-				}
-				b.readyProxies[addr] = proxy
+			//proxy, ok := b.readyProxies[addr]
+			//if !ok {
+			scheme := "http://"
+			// TODO - do that in a better way
+			if srv.Name() == "grpcs" {
+				scheme = "https://"
 			}
+			u, err := url.Parse(scheme + strings.Replace(addr, "[::]", "", -1))
+			if err != nil {
+				return err
+			}
+			if !loaded {
+				services = reg.ListAdjacentItems(
+					registry.WithAdjacentSourceItems([]registry.Item{srv}),
+					registry.WithAdjacentTargetOptions(registry.WithType(pb.ItemType_SERVICE)),
+				)
+				endpoints = reg.ListAdjacentItems(
+					registry.WithAdjacentSourceItems([]registry.Item{srv}),
+					registry.WithAdjacentTargetOptions(registry.WithType(pb.ItemType_ENDPOINT)),
+				)
+				loaded = true
+			}
+			proxy := &reverseProxy{
+				URL:       u,
+				services:  services,
+				endpoints: endpoints,
+			}
+			b.readyProxies[addr] = proxy
+			//}
 		}
 	}
 	for addr, _ := range b.readyProxies {

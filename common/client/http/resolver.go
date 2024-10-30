@@ -73,16 +73,16 @@ func (m *resolver) Init(ctx context.Context, serverID string, rr routing.RouteRe
 
 	conn := runtime.GetClientConn(ctx)
 
-	var reg registry.Registry
-	propagator.Get(ctx, registry.ContextSOTWKey, &reg)
-	rc, _ := client.NewResolverCallback(reg)
+	//var reg registry.Registry
+	//propagator.Get(ctx, registry.ContextSOTWKey, &reg)
+	//rc, _ := client.NewResolverCallback(reg)
 
 	bal := NewBalancer(ctx, serverID)
-	rc.Add(bal.Build)
+	//rc.Add(bal.Build)
 
 	m.c = conn
-	m.rc = rc
-	m.r = reg
+	//m.rc = rc
+	//m.r = reg
 	m.rr = rr
 	m.b = bal
 

@@ -23,6 +23,7 @@ package grpc
 import (
 	"context"
 	"fmt"
+	"google.golang.org/grpc/xds"
 	"net"
 	"net/url"
 	"reflect"
@@ -63,6 +64,13 @@ func (o *Opener) OpenURL(ctx context.Context, u *url.URL) (server.Server, error)
 	return New(ctx, WithName(name)), nil
 }
 
+type IServer interface {
+	RegisterService(sd *grpc.ServiceDesc, ss any)
+	GetServiceInfo() map[string]grpc.ServiceInfo
+	Serve(lis net.Listener) error
+	Stop()
+	GracefulStop()
+}
 type Server struct {
 	id   string
 	name string
@@ -72,8 +80,8 @@ type Server struct {
 	cancel context.CancelFunc
 	opts   *Options
 
-	*grpc.Server
-	regI grpc.ServiceRegistrar
+	Server IServer
+	regI   grpc.ServiceRegistrar
 
 	handlerUnaryInterceptors  []grpc.UnaryServerInterceptor
 	handlerStreamInterceptors []grpc.StreamServerInterceptor
@@ -126,7 +134,7 @@ func NewWithServer(ctx context.Context, name string, s *grpc.Server, listen stri
 	})
 }
 
-func (s *Server) lazyGrpc(rootContext context.Context) *grpc.Server {
+func (s *Server) lazyGrpc(rootContext context.Context) IServer {
 	s.Lock()
 	defer s.Unlock()
 
@@ -223,8 +231,18 @@ func (s *Server) lazyGrpc(rootContext context.Context) *grpc.Server {
 		grpc.ChainUnaryInterceptor(unaryMiddlewares...),
 		grpc.ChainStreamInterceptor(streamMiddlewares...),
 	}
+
 	// Append stats handlers if there are registered ones
 	serverOptions = append(serverOptions, middleware.GrpcServerStatsHandler(rootContext)...)
+
+	serverOptions = append(serverOptions, xds.ServingModeCallback(func(addr net.Addr, args xds.ServingModeChangeArgs) {
+		fmt.Println("Changed mode ", addr, args)
+	}))
+
+	//gs, err := xds.NewGRPCServer(serverOptions...)
+	//if err != nil {
+	//	return nil
+	//}
 
 	gs := grpc.NewServer(serverOptions...)
 
@@ -307,7 +325,7 @@ func (s *Server) Metadata() map[string]string {
 
 func (s *Server) As(i interface{}) bool {
 	if p, ok := i.(**grpc.Server); ok {
-		*p = s.lazyGrpc(s.ctx)
+		*p = s.lazyGrpc(s.ctx).(*grpc.Server)
 		return true
 	}
 	if sr, ok2 := i.(*grpc.ServiceRegistrar); ok2 {
@@ -347,10 +365,10 @@ func (h *Handler) Watch(req *grpc_health_v1.HealthCheckRequest, w grpc_health_v1
 }
 
 type serverRegistrar struct {
-	*grpc.Server
-	id   string
-	name string
-	reg  registry.Registry
+	Server IServer
+	id     string
+	name   string
+	reg    registry.Registry
 
 	unaryInterceptors  *[]grpc.UnaryServerInterceptor
 	streamInterceptors *[]grpc.StreamServerInterceptor
@@ -437,7 +455,7 @@ func (r *serverRegistrar) Metadata() map[string]string {
 
 func (r *serverRegistrar) As(i interface{}) bool {
 	if p, ok := i.(**grpc.Server); ok {
-		*p = r.Server
+		*p = r.Server.(*grpc.Server)
 		return true
 	}
 	if p, ok := i.(*grpc.ServiceRegistrar); ok {

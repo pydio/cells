@@ -48,13 +48,14 @@ const (
 
 func init() {
 	runtime.RegisterMultiContextManager(tm)
+
 	cmd.AdminCmd.PersistentFlags().StringVar(&adminCmdTenantID, "tenant_id", "default", "Tenant ID to apply command")
 
 	// GRPC OUTGOING
 	middleware.RegisterModifier(propagator.OutgoingContextModifier(func(ctx context.Context) context.Context {
 		tenantID := defaultTenantID
 		var t string
-		if propagator.Get[string](ctx, runtime.MultiContextKey, &t) {
+		if propagator.Get(ctx, runtime.MultiContextKey, &t) {
 			tenantID = t
 		}
 		ctx = metadata.AppendToOutgoingContext(ctx, metadataKey, tenantID)
@@ -71,6 +72,7 @@ func init() {
 				tenantID = strings.Join(t, "")
 			}
 		}
+
 		// Check that it does exist
 		tenant, err := tm.TenantByID(tenantID)
 		if err != nil {

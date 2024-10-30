@@ -24,6 +24,7 @@ import (
 	"bytes"
 	"context"
 	"fmt"
+	"github.com/pydio/cells/v4/common/utils/openurl"
 	"path"
 	"regexp"
 	runtime2 "runtime"
@@ -81,7 +82,6 @@ func ResolveConn(ctx context.Context, serviceName string, opt ...Option) grpc.Cl
 		return t, nil
 	}
 
-	// er := std.Retry(ctx, func() error {
 	cc, err := reg.List(
 		registry.WithType(pb.ItemType_GENERIC),
 		registry.WithFilter(func(item registry.Item) bool {
@@ -140,18 +140,17 @@ func ResolveConn(ctx context.Context, serviceName string, opt ...Option) grpc.Cl
 	if len(cc) != 1 {
 		return nil // fmt.Errorf("expected 1 connection, ResolveConn returns nil for %s", serviceName)
 	}
-	var conn *grpc.ClientConn
-	if !cc[0].As(&conn) {
+	var pool *openurl.Pool[grpc.ClientConnInterface]
+	if !cc[0].As(&pool) {
 		panic("Should be a connection")
 	}
 
-	opts.ClientConn = conn
-	// return nil
+	conn, err := pool.Get(ctx)
+	if err != nil {
+		panic("Connection should be valid")
+	}
 
-	//}, 3*time.Second, 1*time.Minute)
-	//if er != nil {
-	//	panic("Waited for 1 minuted but could not resolve connection: " + er.Error())
-	//}
+	opts.ClientConn = conn
 
 	return &clientConn{
 		callTimeout:         opts.CallTimeout,

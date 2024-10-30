@@ -541,11 +541,12 @@ DESCRIPTION
 	RunE: func(cmd *cobra.Command, args []string) error {
 
 		ctx = runtime.MultiContextManager().RootContext(cmd.Context())
-		var er error
+
+		/*var er error
 		ctx, _, er = initConfig(ctx, true)
 		if er != nil {
 			return er
-		}
+		}*/
 
 		v := viper.New()
 		v.Set(runtime.KeyConfig, "mem://")

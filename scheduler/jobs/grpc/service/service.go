@@ -24,7 +24,6 @@ package service
 import (
 	"context"
 
-	"go.uber.org/zap"
 	"google.golang.org/grpc"
 
 	"github.com/pydio/cells/v4/broker/log"
@@ -94,6 +93,7 @@ func init() {
 			service.WithGRPC(func(ctx context.Context, server grpc.ServiceRegistrar) error {
 
 				handler := grpc3.NewJobsHandler(ctx, Name)
+
 				// Used by the upper-level logcore.Handler to resolve the storage driver
 				handler.ResolveOptions = append(handler.ResolveOptions, manager.WithName("logs"))
 
@@ -105,74 +105,75 @@ func init() {
 				ctx = runtime.WithServiceName(ctx, common.ServiceJobsGRPC)
 				logger := log3.Logger(ctx)
 
-				_ = runtime.MultiContextManager().Iterate(ctx, func(c context.Context, _ string) error {
-					for _, j := range defaults {
-						if _, e := handler.GetJob(c, &proto.GetJobRequest{JobID: j.ID}); e != nil {
-							_, _ = handler.PutJob(c, &proto.PutJobRequest{Job: j})
-						}
-						// Force re-adding thumbs job
-						if Migration230 && j.ID == "thumbs-job" {
-							_, _ = handler.PutJob(c, &proto.PutJobRequest{Job: j})
-						}
-					}
-					// Clean tasks stuck in "Running" status
-					if _, er := handler.CleanStuckTasks(c, true, logger); er != nil {
-						logger.Warn("Could not run CleanStuckTasks: "+er.Error(), zap.Error(er))
-					}
-
-					// Clean user-jobs (AutoStart+AutoClean) without any tasks
-					if er := handler.CleanDeadUserJobs(c); er != nil {
-						logger.Warn("Could not run CleanDeadUserJobs: "+er.Error(), zap.Error(er))
-					}
-
-					if Migration140 {
-						if resp, e := handler.DeleteTasks(c, &proto.DeleteTasksRequest{
-							JobId:      "users-activity-digest",
-							Status:     []proto.TaskStatus{proto.TaskStatus_Any},
-							PruneLimit: 1,
-						}); e == nil {
-							logger.Info("Migration 1.4.0: removed tasks on job users-activity-digest that could fill up the scheduler", zap.Int("number", len(resp.Deleted)))
-						} else {
-							logger.Error("Error while trying to prune tasks for job users-activity-digest", zap.Error(e))
-						}
-						if resp, e := handler.DeleteTasks(c, &proto.DeleteTasksRequest{
-							JobId:      "resync-changes-job",
-							Status:     []proto.TaskStatus{proto.TaskStatus_Any},
-							PruneLimit: 1,
-						}); e == nil {
-							logger.Info("Migration 1.4.0: removed tasks on job resync-changes-job that could fill up the scheduler", zap.Int("number", len(resp.Deleted)))
-						} else {
-							logger.Error("Error while trying to prune tasks for job resync-changes-job", zap.Error(e))
-						}
-					}
-					if Migration150 {
-						// Remove archive-changes-job
-						if _, e := handler.DeleteJob(c, &proto.DeleteJobRequest{JobID: "archive-changes-job"}); e != nil {
-							logger.Error("Could not remove archive-changes-job", zap.Error(e))
-						} else {
-							logger.Info("[Migration] Removed archive-changes-job")
-						}
-						// Remove resync-changes-job
-						if _, e := handler.DeleteJob(c, &proto.DeleteJobRequest{JobID: "resync-changes-job"}); e != nil {
-							logger.Error("Could not remove resync-changes-job", zap.Error(e))
-						} else {
-							logger.Info("[Migration] Removed resync-changes-job")
-						}
-					}
-					if Migration230 {
-						// Remove clean thumbs job and re-insert thumbs job
-						if _, e := handler.DeleteJob(c, &proto.DeleteJobRequest{JobID: "clean-thumbs-job"}); e != nil {
-							logger.Error("Could not remove clean-thumbs-job", zap.Error(e))
-						} else {
-							logger.Info("[Migration] Removed clean-thumbs-job")
-						}
-					}
-
-					if jj, e := handler.ListAutoRestartJobs(c); e == nil && len(jj) > 0 {
-						autoStarts[c] = jj
-					}
-					return nil
-				})
+				// TODO - put it in the migrations (there are run after start)
+				//_ = runtime.MultiContextManager().Iterate(ctx, func(c context.Context, _ string) error {
+				//	for _, j := range defaults {
+				//		if _, e := handler.GetJob(c, &proto.GetJobRequest{JobID: j.ID}); e != nil {
+				//			_, _ = handler.PutJob(c, &proto.PutJobRequest{Job: j})
+				//		}
+				//		// Force re-adding thumbs job
+				//		if Migration230 && j.ID == "thumbs-job" {
+				//			_, _ = handler.PutJob(c, &proto.PutJobRequest{Job: j})
+				//		}
+				//	}
+				//	// Clean tasks stuck in "Running" status
+				//	if _, er := handler.CleanStuckTasks(c, true, logger); er != nil {
+				//		logger.Warn("Could not run CleanStuckTasks: "+er.Error(), zap.Error(er))
+				//	}
+				//
+				//	// Clean user-jobs (AutoStart+AutoClean) without any tasks
+				//	if er := handler.CleanDeadUserJobs(c); er != nil {
+				//		logger.Warn("Could not run CleanDeadUserJobs: "+er.Error(), zap.Error(er))
+				//	}
+				//
+				//	if Migration140 {
+				//		if resp, e := handler.DeleteTasks(c, &proto.DeleteTasksRequest{
+				//			JobId:      "users-activity-digest",
+				//			Status:     []proto.TaskStatus{proto.TaskStatus_Any},
+				//			PruneLimit: 1,
+				//		}); e == nil {
+				//			logger.Info("Migration 1.4.0: removed tasks on job users-activity-digest that could fill up the scheduler", zap.Int("number", len(resp.Deleted)))
+				//		} else {
+				//			logger.Error("Error while trying to prune tasks for job users-activity-digest", zap.Error(e))
+				//		}
+				//		if resp, e := handler.DeleteTasks(c, &proto.DeleteTasksRequest{
+				//			JobId:      "resync-changes-job",
+				//			Status:     []proto.TaskStatus{proto.TaskStatus_Any},
+				//			PruneLimit: 1,
+				//		}); e == nil {
+				//			logger.Info("Migration 1.4.0: removed tasks on job resync-changes-job that could fill up the scheduler", zap.Int("number", len(resp.Deleted)))
+				//		} else {
+				//			logger.Error("Error while trying to prune tasks for job resync-changes-job", zap.Error(e))
+				//		}
+				//	}
+				//	if Migration150 {
+				//		// Remove archive-changes-job
+				//		if _, e := handler.DeleteJob(c, &proto.DeleteJobRequest{JobID: "archive-changes-job"}); e != nil {
+				//			logger.Error("Could not remove archive-changes-job", zap.Error(e))
+				//		} else {
+				//			logger.Info("[Migration] Removed archive-changes-job")
+				//		}
+				//		// Remove resync-changes-job
+				//		if _, e := handler.DeleteJob(c, &proto.DeleteJobRequest{JobID: "resync-changes-job"}); e != nil {
+				//			logger.Error("Could not remove resync-changes-job", zap.Error(e))
+				//		} else {
+				//			logger.Info("[Migration] Removed resync-changes-job")
+				//		}
+				//	}
+				//	if Migration230 {
+				//		// Remove clean thumbs job and re-insert thumbs job
+				//		if _, e := handler.DeleteJob(c, &proto.DeleteJobRequest{JobID: "clean-thumbs-job"}); e != nil {
+				//			logger.Error("Could not remove clean-thumbs-job", zap.Error(e))
+				//		} else {
+				//			logger.Info("[Migration] Removed clean-thumbs-job")
+				//		}
+				//	}
+				//
+				//	if jj, e := handler.ListAutoRestartJobs(c); e == nil && len(jj) > 0 {
+				//		autoStarts[c] = jj
+				//	}
+				//	return nil
+				//})
 
 				// We should wait for service task to be started, then start jobs
 				var hc grpc2.HealthMonitor

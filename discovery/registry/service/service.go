@@ -3,13 +3,6 @@ package service
 import (
 	"context"
 	"fmt"
-	"net"
-	"sort"
-	"strconv"
-	"sync"
-	"sync/atomic"
-	"time"
-
 	cluster "github.com/envoyproxy/go-control-plane/envoy/config/cluster/v3"
 	core "github.com/envoyproxy/go-control-plane/envoy/config/core/v3"
 	endpoint "github.com/envoyproxy/go-control-plane/envoy/config/endpoint/v3"
@@ -30,13 +23,18 @@ import (
 	cachev3 "github.com/envoyproxy/go-control-plane/pkg/cache/v3"
 	resource "github.com/envoyproxy/go-control-plane/pkg/resource/v3"
 	xds "github.com/envoyproxy/go-control-plane/pkg/server/v3"
+	"github.com/envoyproxy/go-control-plane/pkg/test/v3"
 	"github.com/envoyproxy/go-control-plane/pkg/wellknown"
 	"go.uber.org/zap"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/xds/csds"
 	"google.golang.org/protobuf/types/known/anypb"
-	"google.golang.org/protobuf/types/known/durationpb"
 	"google.golang.org/protobuf/types/known/wrapperspb"
+	"net"
+	"sort"
+	"strconv"
+	"sync"
+	"sync/atomic"
 
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/client"
@@ -54,10 +52,10 @@ type Convertible interface {
 }
 
 const (
-	listenerNameTemplate    = "xdstp://%s.cells.com/envoy.config.listener.v3.Listener/grpc/client/cells"
-	routeConfigNameTemplate = "xdstp://%s.cells.com/envoy.config.listener.v3.Listener/grpc/client/cells-route"
-	clusterNameTemplate     = "xdstp://%s.cells.com/envoy.config.listener.v3.Listener/grpc/client/cells-cluster"
-	virtualHostNameTemplate = "xdstp://%s.cells.com/envoy.config.listener.v3.Listener/grpc/client/cells-cluster"
+	listenerNameTemplate    = "xdstp://%s.cells.com/envoy.config.listener.v3.Listener/grpc/client/%s"
+	routeConfigNameTemplate = "xdstp://%s.cells.com/envoy.config.listener.v3.Listener/grpc/client/%s-route"
+	clusterNameTemplate     = "xdstp://%s.cells.com/envoy.config.listener.v3.Listener/grpc/client/%s-cluster"
+	virtualHostNameTemplate = "xdstp://%s.cells.com/envoy.config.listener.v3.Listener/grpc/client/%s-cluster"
 )
 
 func init() {
@@ -69,24 +67,16 @@ func init() {
 			service.Description("Grpc implementation of the registry"),
 			service.WithGRPC(func(ctx context.Context, srv grpc.ServiceRegistrar) error {
 				var reg registry.Registry
-				propagator.Get(ctx, registry.ContextSOTWKey, &reg)
+				propagator.Get(ctx, registry.ContextKey, &reg)
 
 				handler := registry2.NewHandler(reg)
 				pbregistry.RegisterRegistryServer(srv, handler)
 
-				listenerName := fmt.Sprintf(listenerNameTemplate, runtime.Cluster())
-				routeConfigName := fmt.Sprintf(routeConfigNameTemplate, runtime.Cluster())
-				virtualHostName := fmt.Sprintf(virtualHostNameTemplate, runtime.Cluster())
-				domains := []string{listenerName, "cells"}
+				//signal := make(chan struct{})
+				cache := cachev3.NewSnapshotCache(false, cachev3.IDHash{}, log.Logger(runtime.WithServiceName(ctx, common.ServiceGrpcNamespace_+common.ServiceRegistry)).WithOptions(zap.IncreaseLevel(zap.ErrorLevel)))
 
-				signal := make(chan struct{})
-				cache := cachev3.NewSnapshotCache(true, cachev3.IDHash{}, log.Logger(runtime.WithServiceName(ctx, common.ServiceGrpcNamespace_+common.ServiceRegistry)).WithOptions(zap.IncreaseLevel(zap.ErrorLevel)))
-
-				discoveryHandler := xds.NewServer(ctx, cache, &callbacks{
-					signal:   signal,
-					fetches:  0,
-					requests: 0,
-				})
+				tcb := &test.Callbacks{Debug: true}
+				discoveryHandler := xds.NewServer(ctx, cache, tcb)
 
 				csdsHandler, err := csds.NewClientStatusDiscoveryServer()
 				if err != nil {
@@ -113,266 +103,379 @@ func init() {
 				nodeId := "test-id"
 
 				cb.Add(func(reg registry.Registry) error {
-					// -------------------------------------------
-					// Creating the Endpoint Discovery Service
-					// -------------------------------------------
-					eds := []types.Resource{}
-					srvs, err := reg.List(registry.WithType(pbregistry.ItemType_SERVER))
 
-					// We sort because we want a priority on the route chosen, must be part of the current cluster
-					sort.Sort(ByCluster(srvs))
+					// var eds []types.Resource
+					var cds []types.Resource
+					var rds []types.Resource
+					var lds []types.Resource
 
-					if err != nil {
-						return err
-					}
-					for _, srvItem := range srvs {
-						if srvItem.Name() != "grpc" {
-							continue
+					runtime.MultiContextManager().Iterate(ctx, func(ctx context.Context, name string) error {
+						// -------------------------------------------
+						// Creating the Endpoint Discovery Service
+						// -------------------------------------------
+						srvs, err := reg.List(registry.WithType(pbregistry.ItemType_SERVER))
+
+						// We sort because we want a priority on the route chosen, must be part of the current cluster
+						sort.Sort(ByCluster(srvs))
+
+						if err != nil {
+							return err
 						}
+						//for _, srvItem := range srvs {
+						//	if srvItem.Name() != "grpc" {
+						//
+						//
+						//			}
+						//
+						//	endpointItems := reg.ListAdjacentItems(
+						//		registry.WithAdjacentSourceItems([]registry.Item{srvItem}),
+						//		registry.WithAdjacentTargetOptions(registry.WithType(pbregistry.ItemType_ENDPOINT)),
+						//	)
+						//
+						//	addrItems := reg.ListAdjacentItems(
+						//		registry.WithAdjacentSourceItems([]registry.Item{srvItem}),
+						//		registry.WithAdjacentEdgeOptions(registry.WithName("listener")),
+						//		registry.WithAdjacentTargetOptions(registry.WithType(pbregistry.ItemType_ADDRESS)),
+						//	)
+						//
+						//	if len(endpointItems) == 0 || len(addrItems) == 0 {
+						//		continue
+						//	}
+						//
+						//	var endpoints []*endpoint.LbEndpoint
+						//
+						//	for _, addrItem := range addrItems {
+						//		_, portStr, err := net.SplitHostPort(addrItem.Metadata()[registry.MetaDescriptionKey])
+						//		if err != nil {
+						//			continue
+						//		}
+						//		port, err := strconv.Atoi(portStr)
+						//		if err != nil {
+						//			continue
+						//		}
+						//		hst := &core.Address{Address: &core.Address_SocketAddress{
+						//			SocketAddress: &core.SocketAddress{
+						//				Address:  "127.0.0.1",
+						//				Protocol: core.SocketAddress_TCP,
+						//				PortSpecifier: &core.SocketAddress_PortValue{
+						//					PortValue: uint32(port),
+						//				},
+						//			},
+						//		}}
+						//
+						//		epp := &endpoint.LbEndpoint{
+						//			HostIdentifier: &endpoint.LbEndpoint_Endpoint{
+						//				Endpoint: &endpoint.Endpoint{
+						//					Address: hst,
+						//				}},
+						//			HealthStatus: core.HealthStatus_HEALTHY,
+						//		}
+						//		endpoints = append(endpoints, epp)
+						//	}
+						//
+						//	var priority uint32 = 0
+						//	if srvItem.Metadata()[runtime.NodeMetaCluster] != runtime.Cluster() && false {
+						//		priority = 1
+						//	}
+						//
+						//	eds = append(eds, &endpoint.ClusterLoadAssignment{
+						//		ClusterName: srvItem.ID(),
+						//		Endpoints: []*endpoint.LocalityLbEndpoints{{
+						//			Locality: &core.Locality{
+						//				Region: "us-central1",
+						//				Zone:   "us-central1-a",
+						//			},
+						//			Priority:            priority,
+						//			LoadBalancingWeight: &wrapperspb.UInt32Value{Value: uint32(1000)},
+						//			LbEndpoints:         endpoints,
+						//		}},
+						//	})
+						//}
 
-						endpointItems := reg.ListAdjacentItems(
-							registry.WithAdjacentSourceItems([]registry.Item{srvItem}),
-							registry.WithAdjacentTargetOptions(registry.WithType(pbregistry.ItemType_ENDPOINT)),
-						)
-
-						addrItems := reg.ListAdjacentItems(
-							registry.WithAdjacentSourceItems([]registry.Item{srvItem}),
-							registry.WithAdjacentEdgeOptions(registry.WithName("listener")),
-							registry.WithAdjacentTargetOptions(registry.WithType(pbregistry.ItemType_ADDRESS)),
-						)
-
-						if len(endpointItems) == 0 || len(addrItems) == 0 {
-							continue
-						}
-
-						var endpoints []*endpoint.LbEndpoint
-
-						for _, addrItem := range addrItems {
-							host, portStr, err := net.SplitHostPort(addrItem.Metadata()[registry.MetaDescriptionKey])
-							if err != nil {
+						// -------------------------------------------
+						// Creating the Cluster Discovery Service
+						// -------------------------------------------
+						for _, srvItem := range srvs {
+							if srvItem.Name() != "grpc" {
 								continue
 							}
-							port, err := strconv.Atoi(portStr)
-							if err != nil {
+
+							endpointItems := reg.ListAdjacentItems(
+								registry.WithAdjacentSourceItems([]registry.Item{srvItem}),
+								registry.WithAdjacentTargetOptions(registry.WithType(pbregistry.ItemType_ENDPOINT)),
+							)
+
+							addrItems := reg.ListAdjacentItems(
+								registry.WithAdjacentSourceItems([]registry.Item{srvItem}),
+								registry.WithAdjacentEdgeOptions(registry.WithName("listener")),
+								registry.WithAdjacentTargetOptions(registry.WithType(pbregistry.ItemType_ADDRESS)),
+							)
+
+							if len(endpointItems) == 0 || len(addrItems) == 0 {
 								continue
 							}
-							hst := &core.Address{Address: &core.Address_SocketAddress{
-								SocketAddress: &core.SocketAddress{
-									Address:  host,
-									Protocol: core.SocketAddress_TCP,
-									PortSpecifier: &core.SocketAddress_PortValue{
-										PortValue: uint32(port),
-									},
-								},
-							}}
 
-							epp := &endpoint.LbEndpoint{
-								HostIdentifier: &endpoint.LbEndpoint_Endpoint{
-									Endpoint: &endpoint.Endpoint{
-										Address: hst,
-									}},
-								HealthStatus: core.HealthStatus_HEALTHY,
-							}
-							endpoints = append(endpoints, epp)
-						}
-
-						var priority uint32 = 0
-						if srvItem.Metadata()[runtime.NodeMetaCluster] != runtime.Cluster() && false {
-							priority = 1
-						}
-
-						eds = append(eds, &endpoint.ClusterLoadAssignment{
-							ClusterName: srvItem.ID(),
-							Endpoints: []*endpoint.LocalityLbEndpoints{{
-								Locality: &core.Locality{
-									Region: "us-central1",
-									Zone:   "us-central1-a",
-								},
-								Priority:            priority,
-								LoadBalancingWeight: &wrapperspb.UInt32Value{Value: uint32(1000)},
-								LbEndpoints:         endpoints,
-							}},
-						})
-					}
-
-					// -------------------------------------------
-					// Creating the Cluster Discovery Service
-					// -------------------------------------------
-					cds := []types.Resource{}
-					for _, srvItem := range srvs {
-						if srvItem.Name() != "grpc" {
-							continue
-						}
-
-						endpointItems := reg.ListAdjacentItems(
-							registry.WithAdjacentSourceItems([]registry.Item{srvItem}),
-							registry.WithAdjacentTargetOptions(registry.WithType(pbregistry.ItemType_ENDPOINT)),
-						)
-
-						if len(endpointItems) == 0 {
-							continue
-						}
-
-						cds = append(cds, &cluster.Cluster{
-							Name:                 srvItem.ID(),
-							LbPolicy:             cluster.Cluster_ROUND_ROBIN,
-							ClusterDiscoveryType: &cluster.Cluster_Type{Type: cluster.Cluster_EDS},
-
-							EdsClusterConfig: &cluster.Cluster_EdsClusterConfig{
-								EdsConfig: &core.ConfigSource{
-									ResourceApiVersion: resource.DefaultAPIVersion,
-									ConfigSourceSpecifier: &core.ConfigSource_Self{
-										Self: &core.SelfConfigSource{
-											TransportApiVersion: core.ApiVersion_V3,
+							var endpoints []*endpoint.LbEndpoint
+							for _, addrItem := range addrItems {
+								_, portStr, err := net.SplitHostPort(addrItem.Metadata()[registry.MetaDescriptionKey])
+								if err != nil {
+									continue
+								}
+								port, err := strconv.Atoi(portStr)
+								if err != nil {
+									continue
+								}
+								hst := &core.Address{Address: &core.Address_SocketAddress{
+									SocketAddress: &core.SocketAddress{
+										Address:  "127.0.0.1",
+										Protocol: core.SocketAddress_TCP,
+										PortSpecifier: &core.SocketAddress_PortValue{
+											PortValue: uint32(port),
 										},
 									},
-								},
-							},
-						})
-					}
+								}}
 
-					// -------------------------------------------
-					// Creating the Route Discovery Service
-					// -------------------------------------------
-					routes := []*route.Route{}
-					for _, srvItem := range srvs {
-						if srvItem.Name() != "grpc" {
-							continue
+								epp := &endpoint.LbEndpoint{
+									HostIdentifier: &endpoint.LbEndpoint_Endpoint{
+										Endpoint: &endpoint.Endpoint{
+											Address: hst,
+										}},
+									HealthStatus: core.HealthStatus_HEALTHY,
+								}
+
+								endpoints = append(endpoints, epp)
+							}
+
+							loadAssignment := &endpoint.ClusterLoadAssignment{
+								ClusterName: srvItem.ID(),
+								Endpoints: []*endpoint.LocalityLbEndpoints{{
+									Locality: &core.Locality{
+										Region: "us-central1",
+										Zone:   "us-central1-a",
+									},
+									Priority:            1,
+									LoadBalancingWeight: &wrapperspb.UInt32Value{Value: uint32(1000)},
+									LbEndpoints:         endpoints,
+								}},
+							}
+
+							cds = append(cds, &cluster.Cluster{
+								Name:     srvItem.ID(),
+								LbPolicy: cluster.Cluster_ROUND_ROBIN,
+
+								ClusterDiscoveryType: &cluster.Cluster_Type{Type: cluster.Cluster_LOGICAL_DNS},
+								DnsLookupFamily:      cluster.Cluster_V4_ONLY,
+								LoadAssignment:       loadAssignment,
+								//ClusterDiscoveryType: &cluster.Cluster_Type{Type: cluster.Cluster_EDS},
+
+								//EdsClusterConfig: &cluster.Cluster_EdsClusterConfig{
+								//	EdsConfig: &core.ConfigSource{
+								//		ResourceApiVersion: resource.DefaultAPIVersion,
+								//		ConfigSourceSpecifier: &core.ConfigSource_Self{
+								//			Self: &core.SelfConfigSource{
+								//				TransportApiVersion: core.ApiVersion_V3,
+								//			},
+								//		},
+								//	},
+								//},
+							})
 						}
 
-						endpointItems := reg.ListAdjacentItems(
-							registry.WithAdjacentSourceItems([]registry.Item{srvItem}),
-							registry.WithAdjacentTargetOptions(registry.WithType(pbregistry.ItemType_ENDPOINT)),
-						)
+						// -------------------------------------------
+						// Creating the Route Discovery Service
+						// -------------------------------------------
+						var routes []*route.Route
+						for _, srvItem := range srvs {
+							if srvItem.Name() != "grpc" {
+								continue
+							}
 
-						if len(endpointItems) == 0 {
-							continue
-						}
-
-						for _, endpointItem := range endpointItems {
-							svcItems := reg.ListAdjacentItems(
-								registry.WithAdjacentSourceItems([]registry.Item{endpointItem}),
-								registry.WithAdjacentTargetOptions(registry.WithType(pbregistry.ItemType_SERVICE)),
+							endpointItems := reg.ListAdjacentItems(
+								registry.WithAdjacentSourceItems([]registry.Item{srvItem}),
+								registry.WithAdjacentTargetOptions(registry.WithType(pbregistry.ItemType_ENDPOINT)),
 							)
-							if len(svcItems) > 0 {
-								for _, svcItem := range svcItems {
+
+							if len(endpointItems) == 0 {
+								continue
+							}
+
+							for _, endpointItem := range endpointItems {
+								svcItems := reg.ListAdjacentItems(
+									registry.WithAdjacentSourceItems([]registry.Item{endpointItem}),
+									registry.WithAdjacentTargetOptions(registry.WithType(pbregistry.ItemType_SERVICE)),
+								)
+								if len(svcItems) > 0 {
+									for _, svcItem := range svcItems {
+										routes = append(routes, &route.Route{
+											// Name: endpointItem.ID(),
+											Match: &route.RouteMatch{
+												PathSpecifier: &route.RouteMatch_Path{
+													Path: endpointItem.Name(),
+												},
+												Headers: []*route.HeaderMatcher{{
+													Name: common.CtxTargetServiceName,
+													HeaderMatchSpecifier: &route.HeaderMatcher_StringMatch{
+														StringMatch: &matcherv3.StringMatcher{MatchPattern: &matcherv3.StringMatcher_Exact{Exact: svcItem.Name()}},
+													},
+												}},
+											},
+											Action: &route.Route_Route{
+												Route: &route.RouteAction{
+													ClusterSpecifier: &route.RouteAction_Cluster{
+														Cluster: srvItem.ID(),
+													},
+												},
+											},
+										})
+									}
+								} else {
 									routes = append(routes, &route.Route{
 										Name: endpointItem.ID(),
-										//Metadata: &core.Metadata{
-										//	FilterMetadata: map[string]*structpb.Struct{
-										//		"envoy.filters.http.router": structpb.NewStruct(
-										//			map[string]interface{}{
-										//				"test": "whatever",
-										//			}),
-										//	},
-										//},
-										RequestHeadersToAdd: []*core.HeaderValueOption{
-											{Header: &core.HeaderValue{
-												Key:   "x-endpoint",
-												Value: "whatever",
-											},
-											},
-										},
 										Match: &route.RouteMatch{
 											PathSpecifier: &route.RouteMatch_Path{
 												Path: endpointItem.Name(),
 											},
-											Headers: []*route.HeaderMatcher{{
-												Name: common.CtxTargetServiceName,
-												HeaderMatchSpecifier: &route.HeaderMatcher_StringMatch{
-													StringMatch: &matcherv3.StringMatcher{MatchPattern: &matcherv3.StringMatcher_Exact{Exact: svcItem.Name()}},
-												},
-											}},
 										},
 										Action: &route.Route_Route{
 											Route: &route.RouteAction{
 												ClusterSpecifier: &route.RouteAction_Cluster{
 													Cluster: srvItem.ID(),
 												},
-												PrefixRewrite: "",
 											},
 										},
 									})
 								}
 							}
 						}
-					}
 
-					routeConfig := &route.RouteConfiguration{
-						Name:             routeConfigName,
-						ValidateClusters: &wrapperspb.BoolValue{Value: false},
-						VirtualHosts: []*route.VirtualHost{{
-							Name:    virtualHostName,
-							Domains: domains,
-							Routes:  routes,
-							RetryPolicy: &route.RetryPolicy{
-								RetryOn:    "unavailable",
-								NumRetries: wrapperspb.UInt32(20),
-								RetryBackOff: &route.RetryPolicy_RetryBackOff{
-									BaseInterval: durationpb.New(1 * time.Second),
-									MaxInterval:  durationpb.New(2 * time.Second),
+						listenerName := fmt.Sprintf(listenerNameTemplate, name, name)
+						routeConfigName := fmt.Sprintf(routeConfigNameTemplate, name, name)
+						virtualHostName := fmt.Sprintf(virtualHostNameTemplate, name, name)
+
+						//domains := []string{listenerName, name}
+						domains := []string{"*"}
+
+						routeConfig := &route.RouteConfiguration{
+							Name:             routeConfigName,
+							ValidateClusters: &wrapperspb.BoolValue{Value: false},
+							VirtualHosts: []*route.VirtualHost{{
+								Name:    virtualHostName,
+								Domains: domains,
+								Routes:  routes,
+								//RetryPolicy: &route.RetryPolicy{
+								//	RetryOn:    "unavailable",
+								//	NumRetries: wrapperspb.UInt32(1),
+								//	RetryBackOff: &route.RetryPolicy_RetryBackOff{
+								//		BaseInterval: durationpb.New(1 * time.Second),
+								//		MaxInterval:  durationpb.New(2 * time.Second),
+								//	},
+								//},
+							}},
+						}
+
+						rds = append(rds, routeConfig)
+
+						var grpcServices []*core.GrpcService
+						for _, srv := range srvs {
+							if srv.Name() != "grpc" {
+								continue
+							}
+							grpcServices = append(grpcServices, &core.GrpcService{
+								TargetSpecifier: &core.GrpcService_EnvoyGrpc_{
+									EnvoyGrpc: &core.GrpcService_EnvoyGrpc{ClusterName: srv.ID()},
 								},
-							},
-						}},
-					}
+							})
+						}
 
-					var rds []types.Resource
-					rds = append(rds, routeConfig)
-
-					// -------------------------------------------
-					// Creating the Listener Discovery Service
-					// -------------------------------------------
-					hcRds := &hcm.HttpConnectionManager_Rds{
-						Rds: &hcm.Rds{
-							RouteConfigName: routeConfigName,
-							ConfigSource: &core.ConfigSource{
-								ResourceApiVersion: resource.DefaultAPIVersion,
-								ConfigSourceSpecifier: &core.ConfigSource_Self{
-									Self: &core.SelfConfigSource{
-										TransportApiVersion: core.ApiVersion_V3,
+						// -------------------------------------------
+						// Creating the Listener Discovery Service
+						// -------------------------------------------
+						hcRds := &hcm.HttpConnectionManager_Rds{
+							Rds: &hcm.Rds{
+								RouteConfigName: routeConfigName,
+								ConfigSource: &core.ConfigSource{
+									ResourceApiVersion: resource.DefaultAPIVersion,
+									//ConfigSourceSpecifier: &core.ConfigSource_Ads{
+									//	Ads: &core.AggregatedConfigSource{},
+									//},
+									ConfigSourceSpecifier: &core.ConfigSource_Self{
+										Self: &core.SelfConfigSource{
+											TransportApiVersion: core.ApiVersion_V3,
+										},
 									},
 								},
+								//ConfigSource: &core.ConfigSource{
+								//	ResourceApiVersion: resource.DefaultAPIVersion,
+								//	ConfigSourceSpecifier: &core.ConfigSource_ApiConfigSource{
+								//		ApiConfigSource: &core.ApiConfigSource{
+								//			TransportApiVersion:       resource.DefaultAPIVersion,
+								//			ApiType:                   core.ApiConfigSource_GRPC,
+								//			SetNodeOnFirstMessageOnly: true,
+								//			GrpcServices:              grpcServices,
+								//		},
+								//	},
+
+								//},
 							},
-						},
-					}
+						}
 
-					hff := &router.Router{}
-					hffTypedConfig, err := anypb.New(hff)
-					if err != nil {
-						return err
-					}
+						hff := &router.Router{}
+						hffTypedConfig, err := anypb.New(hff)
+						if err != nil {
+							return err
+						}
 
-					manager := &hcm.HttpConnectionManager{
-						CodecType:      hcm.HttpConnectionManager_AUTO,
-						RouteSpecifier: hcRds,
-						HttpFilters: []*hcm.HttpFilter{{
-							Name: wellknown.Router,
-							ConfigType: &hcm.HttpFilter_TypedConfig{
-								TypedConfig: hffTypedConfig,
-							},
-						}},
-					}
+						manager := &hcm.HttpConnectionManager{
+							CodecType:      hcm.HttpConnectionManager_AUTO,
+							RouteSpecifier: hcRds,
+							HttpFilters: []*hcm.HttpFilter{{
+								Name: wellknown.Router,
+								ConfigType: &hcm.HttpFilter_TypedConfig{
+									TypedConfig: hffTypedConfig,
+								},
+							}},
+						}
 
-					apiListener, err := anypb.New(manager)
-					if err != nil {
-						panic(err)
-					}
+						apiListener, err := anypb.New(manager)
+						if err != nil {
+							panic(err)
+						}
 
-					lds := []types.Resource{
-						&listener.Listener{
+						lds = append(lds, &listener.Listener{
 							Name: listenerName,
 							ApiListener: &listener.ApiListener{
 								ApiListener: apiListener,
 							},
-						},
-					}
+							//	Address: &core.Address{
+							//		Address: &core.Address_SocketAddress{
+							//			SocketAddress: &core.SocketAddress{
+							//				Protocol: core.SocketAddress_TCP,
+							//				Address:  "0.0.0.0",
+							//				PortSpecifier: &core.SocketAddress_PortValue{
+							//					PortValue: 8030,
+							//				},
+							//			},
+							//		},
+							//	},
+							//	FilterChains: []*listener.FilterChain{{
+							//		Filters: []*listener.Filter{{
+							//			Name: "http-connection-manager",
+							//			ConfigType: &listener.Filter_TypedConfig{
+							//				TypedConfig: apiListener,
+							//			},
+							//		}},
+							//	}},
+						})
+
+						return nil
+					})
 
 					atomic.AddInt32(&version, 1)
 					resources := make(map[resource.Type][]types.Resource, 4)
 					resources[resource.ListenerType] = lds
 					resources[resource.RouteType] = rds
 					resources[resource.ClusterType] = cds
-					resources[resource.EndpointType] = eds
+					// resources[resource.EndpointType] = eds
 
 					snap, err := cachev3.NewSnapshot(fmt.Sprint(version), resources)
 					if err != nil {
@@ -415,7 +518,7 @@ func (cb *callbacks) OnStreamClosed(id int64, node *core.Node) {
 }
 
 func (cb *callbacks) OnStreamRequest(id int64, r *discoveryservice.DiscoveryRequest) error {
-	//fmt.Printf("OnStreamRequest %d  Request[%v]\n", id, r.TypeUrl)
+	fmt.Printf("OnStreamRequest %d  Request[%v]\n", id, r.TypeUrl)
 	cb.mu.Lock()
 	defer cb.mu.Unlock()
 	cb.requests++
@@ -427,9 +530,9 @@ func (cb *callbacks) OnStreamRequest(id int64, r *discoveryservice.DiscoveryRequ
 }
 
 func (cb *callbacks) OnStreamResponse(ctx context.Context, id int64, req *discoveryservice.DiscoveryRequest, resp *discoveryservice.DiscoveryResponse) {
-	//fmt.Printf("OnStreamResponse... %d   Request [%v],  Response[%v]\n", id, req.TypeUrl, resp.TypeUrl)
+	fmt.Printf("OnStreamResponse... %d   Request [%v],  Response[%v]\n", id, req.TypeUrl, resp.TypeUrl)
 
-	// fmt.Println(resp.Resources)
+	fmt.Println(resp.Resources)
 	cb.Report()
 }
 

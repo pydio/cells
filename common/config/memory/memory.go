@@ -89,12 +89,13 @@ func (o *URLOpener) Open(ctx context.Context, urlstr string) (config.Store, erro
 
 	envPrefix := u.Query().Get("env")
 	if envPrefix != "" {
+		envPrefixU := strings.ToUpper(envPrefix)
 		env := os.Environ()
 		for _, v := range env {
-			if strings.HasPrefix(v, envPrefix) {
+			if strings.HasPrefix(v, envPrefixU) {
 				vv := strings.SplitN(v, "=", 2)
 				if len(vv) == 2 {
-					k := strings.TrimPrefix(vv[0], envPrefix)
+					k := strings.TrimPrefix(vv[0], envPrefixU)
 					k = strings.ReplaceAll(k, "_", "/")
 					k = strings.ToLower(k)
 
