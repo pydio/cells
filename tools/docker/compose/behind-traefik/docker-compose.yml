@@ -64,8 +64,8 @@ services:
       - ./install-conf.yml:/pydio/config/install.yml:ro
     environment:
       - CELLS_INSTALL_YAML=/pydio/config/install.yml
-      - CELLS_BIND=0.0.0.0:443
-      - CELLS_EXTERNAL=https://${PUBLIC_FQDN}
+      - CELLS_SITE_BIND=0.0.0.0:443
+      - CELLS_SITE_EXTERNAL=https://${PUBLIC_FQDN}
       # Injected in install conf at run time
       - CELLS_ADMIN_PWD=${CELLS_ADMIN_PWD}
       - MYSQL_USER_LOGIN=${MYSQL_USER_LOGIN}
