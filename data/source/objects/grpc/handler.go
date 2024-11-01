@@ -24,18 +24,26 @@ import (
 	"context"
 	"fmt"
 	"net/http"
+	"net/url"
 	"os"
 	"path/filepath"
+	"strconv"
 	"time"
 
 	minio "github.com/minio/minio/cmd"
 	"github.com/minio/minio/pkg/auth"
+	"google.golang.org/protobuf/proto"
 
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/config"
+	"github.com/pydio/cells/v4/common/errors"
 	"github.com/pydio/cells/v4/common/proto/object"
 	"github.com/pydio/cells/v4/common/runtime"
 	"github.com/pydio/cells/v4/common/telemetry/log"
+	"github.com/pydio/cells/v4/common/utils/cache"
+	"github.com/pydio/cells/v4/common/utils/cache/gocache"
+	"github.com/pydio/cells/v4/common/utils/openurl"
+	"github.com/pydio/cells/v4/data/source"
 	"github.com/pydio/cells/v4/data/source/objects"
 
 	_ "github.com/minio/minio/cmd/gateway"
@@ -45,32 +53,66 @@ func init() {
 	runtime.RegisterEnvVariable("CELLS_MINIO_STALE_DATA_EXPIRY", "48h", "Expiration of stale data produced by objects upload parts")
 }
 
+func NewObjectHandlerWithPreset(mc *object.MinioConfig) *ObjectHandler {
+	return &ObjectHandler{
+		PresetConfig: mc,
+	}
+}
+
+func NewSharedObjectHandler() *ObjectHandler {
+	return &ObjectHandler{
+		Cache: gocache.MustOpenNonExpirableMemory(),
+	}
+}
+
 // ObjectHandler definition
 type ObjectHandler struct {
 	object.UnimplementedObjectsEndpointServer
 	object.UnimplementedResourceCleanerEndpointServer
-	Config           *object.MinioConfig
-	MinioConsolePort int
+	PresetConfig *object.MinioConfig
+	Cache        *openurl.Pool[cache.Cache]
+}
+
+func (o *ObjectHandler) getConfig(ctx context.Context) (*object.MinioConfig, bool) {
+	if o.PresetConfig != nil {
+		return o.PresetConfig, true
+	}
+	if ds, ok := source.DatasourceFromContext(ctx); ok {
+		var cfg *object.MinioConfig
+		ka, er := o.Cache.Get(ctx)
+		if er != nil {
+			return nil, false
+		}
+		if ka.Get(ds, &cfg) {
+			return cfg, true
+		}
+	}
+	return nil, false
+}
+
+func (o *ObjectHandler) RegisterConfig(ctx context.Context, name string, conf *object.MinioConfig) {
+	ka, _ := o.Cache.Get(ctx)
+	_ = ka.Set(name, conf)
 }
 
 // StartMinioServer handler
-func (o *ObjectHandler) StartMinioServer(ctx context.Context, minioServiceName string) error {
+func (o *ObjectHandler) StartMinioServer(ctx context.Context, conf *object.MinioConfig, minioServiceName string) error {
 
-	if o.Config.StorageType == object.StorageType_GCS {
+	if conf.StorageType == object.StorageType_GCS {
 		return fmt.Errorf("GCS Gateway is not supported anymore, use Google Storage S3 API instead")
-	} else if o.Config.StorageType != object.StorageType_LOCAL {
+	} else if conf.StorageType != object.StorageType_LOCAL {
 		// Ignore
 		return nil
 	}
 
-	accessKey := o.Config.ApiKey
-	secretKey := o.Config.ApiSecret
+	accessKey := conf.ApiKey
+	secretKey := conf.ApiSecret
 
 	// Replace secretKey on the fly
 	if sec := config.GetSecret(ctx, secretKey).String(); sec != "" {
 		secretKey = sec
 	}
-	configFolder, e := objects.CreateMinioConfigFile(minioServiceName, accessKey, secretKey)
+	configFolder, e := objects.CreateMinioConfigFile(ctx, minioServiceName, accessKey, secretKey)
 	if e != nil {
 		return e
 	}
@@ -79,7 +121,7 @@ func (o *ObjectHandler) StartMinioServer(ctx context.Context, minioServiceName s
 	globals.ConfigEncrypted = true
 	globals.CliContext = &minio.CliContext{
 		Quiet:      true,
-		Addr:       fmt.Sprintf(":%d", o.Config.RunningPort),
+		Addr:       fmt.Sprintf(":%d", conf.RunningPort),
 		ConfigDir:  minio.NewConfigDir(configFolder),
 		CertsDir:   minio.NewConfigDir(filepath.Join(configFolder, "certs")),
 		CertsCADir: minio.NewConfigDir(filepath.Join(configFolder, "certs", "CAs")),
@@ -96,64 +138,40 @@ func (o *ObjectHandler) StartMinioServer(ctx context.Context, minioServiceName s
 			}
 		}
 	})
-	minio.StartServerWithGlobals(globals, o.Config.LocalFolder)
+	log.Logger(ctx).Info("Starting local minio server with config dir " + globals.CliContext.ConfigDir.Get() + " and local folder " + conf.LocalFolder)
+	minio.StartServerWithGlobals(globals, conf.LocalFolder)
 
 	return nil
-	/*
-		var gateway string
-		if o.Config.StorageType == object.StorageType_GCS {
-			gateway = "gcs"
-			var credsUuid string
-			if o.Config.GatewayConfiguration != nil {
-				if jsonCred, ok := o.Config.GatewayConfiguration["jsonCredentials"]; ok {
-					credsUuid = jsonCred
-				}
-			}
-			if credsUuid == "" {
-				return errors.New("missing google application credentials to start GCS gateway")
-			}
-			creds := config.GetSecret(ctx, credsUuid).Bytes()
-			if len(creds) == 0 {
-				return errors.New("missing google application credentials to start GCS gateway (cannot find inside vault)")
-			}
-			var strjs string
-			if e := json.Unmarshal(creds, &strjs); e == nil && len(strjs) > 0 {
-				// Consider the internal string value as the json
-				creds = []byte(strjs)
-			}
-
-			// Create gcs-credentials.json and pass it as env variable
-			fName := filepath.Join(configFolder, "gcs-credentials.json")
-			if er := os.WriteFile(fName, creds, 0600); er != nil {
-				return errors.New("cannot prepare gcs-credentials.json file: " + e.Error())
-			}
-			_ = os.Setenv("GOOGLE_APPLICATION_CREDENTIALS", fName)
-		} else {
-			folderName = o.Config.LocalFolder
-		}
-
-	*/
 
 }
 
 // GetMinioConfig returns current configuration
-func (o *ObjectHandler) GetMinioConfig(_ context.Context, _ *object.GetMinioConfigRequest) (*object.GetMinioConfigResponse, error) {
+func (o *ObjectHandler) GetMinioConfig(ctx context.Context, _ *object.GetMinioConfigRequest) (*object.GetMinioConfigResponse, error) {
 
-	return &object.GetMinioConfigResponse{
-		MinioConfig: o.Config,
-	}, nil
+	if conf, ok := o.getConfig(ctx); ok {
+		return &object.GetMinioConfigResponse{
+			MinioConfig: conf,
+		}, nil
+	} else {
+		return nil, errors.WithMessage(errors.StatusInternalServerError, "cannot find datasource in context")
+	}
 
 }
 
 // StorageStats returns statistics about storage
-func (o *ObjectHandler) StorageStats(_ context.Context, _ *object.StorageStatsRequest) (*object.StorageStatsResponse, error) {
+func (o *ObjectHandler) StorageStats(ctx context.Context, _ *object.StorageStatsRequest) (*object.StorageStatsResponse, error) {
+
+	conf, ok := o.getConfig(ctx)
+	if !ok {
+		return nil, errors.WithMessage(errors.StatusInternalServerError, "cannot find datasource in context")
+	}
 
 	resp := &object.StorageStatsResponse{}
 	resp.Stats = make(map[string]string)
-	resp.Stats["StorageType"] = o.Config.StorageType.String()
-	switch o.Config.StorageType {
+	resp.Stats["StorageType"] = conf.StorageType.String()
+	switch conf.StorageType {
 	case object.StorageType_LOCAL:
-		folder := o.Config.LocalFolder
+		folder := conf.LocalFolder
 		if stats, e := minio.ExposedDiskStats(context.Background(), folder, false); e != nil {
 			return nil, e
 		} else {
@@ -168,14 +186,20 @@ func (o *ObjectHandler) StorageStats(_ context.Context, _ *object.StorageStatsRe
 
 // CleanResourcesBeforeDelete removes the .minio.sys/config folder if it exists
 func (o *ObjectHandler) CleanResourcesBeforeDelete(ctx context.Context, request *object.CleanResourcesRequest) (resp *object.CleanResourcesResponse, err error) {
+
+	conf, ok := o.getConfig(ctx)
+	if !ok {
+		return nil, errors.WithMessage(errors.StatusInternalServerError, "cannot find datasource in context")
+	}
+
 	resp = &object.CleanResourcesResponse{
 		Success: true,
 		Message: "Nothing to do",
 	}
-	if o.Config.StorageType != object.StorageType_LOCAL {
+	if conf.StorageType != object.StorageType_LOCAL {
 		return
 	}
-	configFolder := filepath.Join(o.Config.LocalFolder, ".minio.sys", "config")
+	configFolder := filepath.Join(conf.LocalFolder, ".minio.sys", "config")
 	if _, er := os.Stat(configFolder); er == nil {
 		if err = os.RemoveAll(configFolder); err == nil {
 			resp.Message = "Removed minio config folder"
@@ -185,6 +209,28 @@ func (o *ObjectHandler) CleanResourcesBeforeDelete(ctx context.Context, request 
 		}
 	}
 	return
+}
+
+func InitMinioConfig(conf *object.MinioConfig) (*object.MinioConfig, error) {
+	mc := proto.Clone(conf).(*object.MinioConfig)
+	if mc.StorageType == object.StorageType_LOCAL || mc.StorageType == object.StorageType_GCS {
+		mc.RunningSecure = false
+		mc.RunningHost = runtime.DefaultAdvertiseAddress()
+	} else if mc.StorageType == object.StorageType_S3 && mc.EndpointUrl == "" {
+		mc.RunningHost = object.AmazonS3Endpoint
+		mc.RunningSecure = true
+		mc.RunningPort = 443
+	} else {
+		eu, e := url.Parse(mc.EndpointUrl)
+		if e != nil {
+			return nil, e
+		}
+		mc.RunningHost = eu.Hostname()
+		p, _ := strconv.Atoi(eu.Port())
+		mc.RunningPort = int32(p)
+		mc.RunningSecure = eu.Scheme == "https"
+	}
+	return mc, nil
 }
 
 // MinioStaleDataCleaner looks up for stala data inside .minio.sys/tmp and .minio.sys/multipart on a regular basis.

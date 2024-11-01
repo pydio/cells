@@ -40,19 +40,19 @@ import (
 func (s *Handler) FlatScanEmpty(ctx context.Context, syncStatus chan model.Status, syncDone chan interface{}) (model.Stater, error) {
 	// No snapshot passed, read the bucket content and index each node with its path Uuid
 	stats := &flatSyncStater{source: "storage", target: "index"}
-	source, ok := s.s3client.(model.PathSyncSource)
+	source, ok := s.S3client.(model.PathSyncSource)
 	if !ok {
 		return nil, fmt.Errorf("cannot convert client to PathSyncSource")
 	}
 	session := &tree.IndexationSession{Uuid: uuid.New()}
-	s.indexClientSession.OpenSession(ctx, &tree.OpenSessionRequest{Session: session})
-	defer s.indexClientSession.CloseSession(ctx, &tree.CloseSessionRequest{Session: session})
+	s.IndexClientSession.OpenSession(ctx, &tree.OpenSessionRequest{Session: session})
+	defer s.IndexClientSession.CloseSession(ctx, &tree.CloseSessionRequest{Session: session})
 	var nodesCreated int
 	e := source.Walk(ctx, func(path string, node tree.N, err error) error {
 		// If set, N.Uuid is read from s3 metadata. Set the Path as Uuid instead.
 		clone := node.AsProto().Clone()
 		clone.Uuid = node.GetPath()
-		_, e := s.indexClientWrite.CreateNode(ctx, &tree.CreateNodeRequest{
+		_, e := s.IndexClientWrite.CreateNode(ctx, &tree.CreateNodeRequest{
 			Node:              clone,
 			UpdateIfExists:    true,
 			IndexationSession: session.Uuid,
@@ -84,7 +84,7 @@ func (s *Handler) FlatSyncSnapshot(ctx context.Context, dsObject *object.DataSou
 	}
 
 	if mode == "delete" {
-		e := deleteSnapshot(s.s3client, snapName)
+		e := deleteSnapshot(s.S3client, snapName)
 		if syncStatus != nil {
 			var status *model.ProcessingStatus
 			if e != nil {
@@ -101,8 +101,8 @@ func (s *Handler) FlatSyncSnapshot(ctx context.Context, dsObject *object.DataSou
 		return &flatSyncStater{source: s.DsName, target: "snapshot:delete"}, e
 	}
 
-	indexClient := index.NewClient(s.DsName, s.indexClientRead, s.indexClientWrite, s.indexClientSession)
-	snapshotClient, e := newFlatSnapshot(ctx, dsObject, s.s3client, common.ServiceGrpcNamespace_+common.ServiceDataSync_+s.DsName, snapName, mode)
+	indexClient := index.NewClient(s.DsName, s.IndexClientRead, s.IndexClientWrite, s.IndexClientSession)
+	snapshotClient, e := newFlatSnapshot(ctx, dsObject, s.S3client, common.ServiceGrpcNamespace_+common.ServiceDataSync_+s.DsName, snapName, mode)
 	if e != nil {
 		return nil, e
 	}

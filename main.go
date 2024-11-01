@@ -72,13 +72,15 @@ import (
 	_ "github.com/pydio/cells/v4/data/source/index/dao/sql"
 	_ "github.com/pydio/cells/v4/data/source/sync/dao/sql"
 
-	// DataSources
-	_ "github.com/pydio/cells/v4/data/source/index"
-	_ "github.com/pydio/cells/v4/data/source/index/grpc/service"
-	_ "github.com/pydio/cells/v4/data/source/objects"
-	_ "github.com/pydio/cells/v4/data/source/objects/grpc/service"
-	_ "github.com/pydio/cells/v4/data/source/sync"
-	_ "github.com/pydio/cells/v4/data/source/sync/grpc/service"
+	// DataSources - shared services
+	_ "github.com/pydio/cells/v4/data/source/index/service"
+	_ "github.com/pydio/cells/v4/data/source/objects/service"
+	_ "github.com/pydio/cells/v4/data/source/sync/service"
+	//	_ "github.com/pydio/cells/v4/data/source/index"
+	//_ "github.com/pydio/cells/v4/data/source/index/grpc/service"
+	//_ "github.com/pydio/cells/v4/data/source/objects/grpc/service"
+	//	_ "github.com/pydio/cells/v4/data/source/sync"
+	//	_ "github.com/pydio/cells/v4/data/source/sync/grpc/service"
 
 	// ETL Stores
 	_ "github.com/pydio/cells/v4/common/etl/stores/cells/local"

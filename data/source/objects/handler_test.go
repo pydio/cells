@@ -38,7 +38,7 @@ import (
 var (
 	fs      = afero.NewMemMapFs()
 	buffer  = make([]byte, 1024)
-	handler TreeHandler
+	handler FsBrowser
 	ctx     = context.Background()
 )
 
@@ -81,7 +81,7 @@ func initTree() {
 
 func TestHandler(t *testing.T) {
 
-	handler = TreeHandler{FS: fs}
+	handler = FsBrowser{FS: fs}
 	initTree()
 
 	Convey("Create Node", t, func() {
@@ -137,7 +137,7 @@ func TestHandler(t *testing.T) {
 func TestHandlerWithPrefix(t *testing.T) {
 	initTree()
 	rootedFs := afero.NewBasePathFs(fs, "folder1")
-	handler = TreeHandler{FS: rootedFs}
+	handler = FsBrowser{FS: rootedFs}
 
 	Convey("Create Node", t, func() {
 		_, err := handler.CreateNode(ctx, &tree.CreateNodeRequest{Node: &tree.Node{

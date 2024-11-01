@@ -246,7 +246,7 @@ func (s *TreeServer) CreateNode(ctx context.Context, req *tree.CreateNodeRequest
 		return resp, nil
 	}
 
-	return nil, errors.WithMessage(errors.StatusForbidden, "Unknown datasource %s", dsName)
+	return nil, errors.WithMessagef(errors.StatusForbidden, "Unknown datasource %s", dsName)
 }
 
 // ReadNode implementation for the TreeServer
@@ -639,7 +639,7 @@ func (s *TreeServer) UpdateNode(ctx context.Context, req *tree.UpdateNodeRequest
 
 	}
 
-	return nil, errors.WithMessage(errors.StatusForbidden, "Unknown datasource %s", dsNameTo)
+	return nil, errors.WithMessagef(errors.StatusForbidden, "Unknown datasource %s", dsNameTo)
 }
 
 // DeleteNode implementation for the TreeServer
@@ -664,7 +664,7 @@ func (s *TreeServer) DeleteNode(ctx context.Context, req *tree.DeleteNodeRequest
 		return resp, nil
 	}
 
-	return nil, errors.WithMessage(errors.StatusForbidden, "Unknown datasource %s", dsName)
+	return nil, errors.WithMessagef(errors.StatusForbidden, "Unknown datasource %s", dsName)
 }
 
 func (s *TreeServer) PublishChange(ctx context.Context, change *tree.NodeChangeEvent) {

@@ -117,7 +117,9 @@ func GetAndWatch(store Store, configPath []string, callback func(values configx.
 		ii = append(ii, s)
 	}
 	values := store.Val(configx.FormatPath(ii...))
-	callback(values)
+	if values.Get() != nil {
+		callback(values)
+	}
 	go func() {
 		watcher, err := store.Watch(configx.WithPath(configPath...))
 		if err != nil {

@@ -245,11 +245,16 @@ defaults:
           - type: sql
             prefix: idm_usr_
             policies: idm_usr_meta_policies
+    pydio.grpc.data.index:
+      storages:
+        main:
+          - type: sql
+            prefix: data_index_
 
   # Storages
   storages: &storages
     sql:
-      uri: mysql://root:P@ssw0rd@tcp(localhost:3306)/cells{{ tenantSepWithBlank .Tenant "" "default" }}?parseTime=true&prefix={{ .Meta.prefix }}&policies={{ .Meta.policies }}&singular={{ .Meta.singular }}
+      uri: mysql://root:P@ssw0rd@tcp(localhost:3306)/cells{{ tenantSepWithBlank .Tenant "" "default" }}?parseTime=true&prefix={{ .Meta.prefix }}{{if ne .DataSource ""}}{{ .DataSource }}_{{end}}&policies={{ .Meta.policies }}&singular={{ .Meta.singular }}
     bolt:
       uri: boltdb://{{ autoMkdir (joinPath  ( serviceDataDir .Service ) ( tenantPathWithBlank .Tenant "default" ) ) }}/{{ .Meta.file }}
     bleve:

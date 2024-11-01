@@ -88,7 +88,9 @@ const (
 	ServiceDataObjectsGRPC_    = ServiceGrpcNamespace_ + ServiceDataObjects_
 	ServiceDataObjectsPeerGRPC = ServiceGrpcNamespace_ + ServiceDataObjectsPeer
 	ServiceDataIndexGRPC_      = ServiceGrpcNamespace_ + ServiceDataIndex_
+	ServiceDataIndexGRPC       = ServiceGrpcNamespace_ + ServiceDataIndex
 	ServiceDataSyncGRPC_       = ServiceGrpcNamespace_ + ServiceDataSync_
+	ServiceDataSyncGRPC        = ServiceGrpcNamespace_ + ServiceDataSync
 	ServiceEncKeyGRPC          = ServiceGrpcNamespace_ + ServiceEncKey
 	ServiceVersionsGRPC        = ServiceGrpcNamespace_ + ServiceVersions
 	ServiceRegistryGRPC        = ServiceGrpcNamespace_ + ServiceRegistry

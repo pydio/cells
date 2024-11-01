@@ -27,7 +27,7 @@ import (
 	"strings"
 	"time"
 
-	"go.uber.org/zap"
+	grpc_retry "github.com/grpc-ecosystem/go-grpc-middleware/retry"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -40,14 +40,19 @@ import (
 
 var HandledError = errors.RegisterBaseSentinel(errors.CellsError, "handled")
 
+var (
+	bo = grpc_retry.BackoffExponential(100 * time.Millisecond)
+)
+
 func ErrorNoMatchedRouteRetryUnaryClientInterceptor() grpc.UnaryClientInterceptor {
 	return func(ctx context.Context, method string, req, reply interface{}, cc *grpc.ClientConn, invoker grpc.UnaryInvoker, opts ...grpc.CallOption) error {
+		var retry uint = 0
 		for {
 			err := invoker(ctx, method, req, reply, cc, opts...)
 			if err != nil && (strings.Contains(err.Error(), "no matched route was found") || strings.Contains(err.Error(), "unknown cluster")) {
-				fmt.Println(err.Error())
-				log.Logger(ctx).Warn("gRPC - no matched route found - Waiting for retry", zap.String("method", method))
-				<-time.After(100 * time.Millisecond)
+				log.Logger(ctx).Warn("No matched route found for " + method)
+				retry++
+				<-time.After(bo(retry))
 				continue
 			}
 			return err
@@ -57,10 +62,12 @@ func ErrorNoMatchedRouteRetryUnaryClientInterceptor() grpc.UnaryClientIntercepto
 
 func ErrorNoMatchedRouteRetryStreamClientInterceptor() grpc.StreamClientInterceptor {
 	return func(ctx context.Context, desc *grpc.StreamDesc, cc *grpc.ClientConn, method string, streamer grpc.Streamer, opts ...grpc.CallOption) (grpc.ClientStream, error) {
+		var retry uint = 0
 		for {
 			str, err := streamer(ctx, desc, cc, method, opts...)
 			if err != nil && (strings.Contains(err.Error(), "no matched route was found") || strings.Contains(err.Error(), "unknown cluster")) {
-				<-time.After(100 * time.Millisecond)
+				retry++
+				<-time.After(bo(retry))
 				continue
 			}
 			return str, err

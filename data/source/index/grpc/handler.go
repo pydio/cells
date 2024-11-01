@@ -32,6 +32,7 @@ import (
 
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/broker"
+	"github.com/pydio/cells/v4/common/config"
 	"github.com/pydio/cells/v4/common/errors"
 	"github.com/pydio/cells/v4/common/proto/object"
 	"github.com/pydio/cells/v4/common/proto/sync"
@@ -40,6 +41,7 @@ import (
 	cindex "github.com/pydio/cells/v4/common/storage/sql/index"
 	"github.com/pydio/cells/v4/common/telemetry/log"
 	"github.com/pydio/cells/v4/common/utils/propagator"
+	"github.com/pydio/cells/v4/data/source"
 	index "github.com/pydio/cells/v4/data/source/index"
 	"github.com/pydio/cells/v4/data/source/index/sessions"
 )
@@ -47,10 +49,7 @@ import (
 // TreeServer definition.
 type TreeServer struct {
 	sessionStore sessions.DAO
-
-	handlerName string
-	dsName      string
-	dsInternal  bool
+	datasource   *object.DataSource
 
 	tree.UnimplementedNodeReceiverServer
 	tree.UnimplementedNodeProviderServer
@@ -68,15 +67,19 @@ type TreeServer struct {
 func init() {}
 
 // NewTreeServer factory.
-func NewTreeServer(ds *object.DataSource, handlerName string) *TreeServer {
+func NewTreeServer(ds *object.DataSource) *TreeServer {
 
 	// TODO
 	// dao = cindex.NewFolderSizeCacheDAO(cindex.NewHiddenFileDuplicateRemoverDAO(dao))
 
 	return &TreeServer{
-		dsName:       ds.Name,
-		dsInternal:   ds.IsInternal(),
-		handlerName:  handlerName,
+		datasource:   ds,
+		sessionStore: sessions.NewSessionMemoryStore(),
+	}
+}
+
+func NewSharedTreeServer() *TreeServer {
+	return &TreeServer{
 		sessionStore: sessions.NewSessionMemoryStore(),
 	}
 }
@@ -94,17 +97,27 @@ func (s *TreeServer) getDAO(ctx context.Context, session string) (index.DAO, err
 	return dao, nil
 }
 
-func (s *TreeServer) Name() string {
-	return s.handlerName
-}
-
 // setDataSourceMeta adds the datasource name as metadata, and eventually the internal flag
-func (s *TreeServer) setDataSourceMeta(node tree.ITreeNode) {
-	node.GetNode().MustSetMeta(common.MetaNamespaceDatasourceName, s.dsName)
+func (s *TreeServer) setDataSourceMeta(ctx context.Context, node tree.ITreeNode) error {
+	var ds *object.DataSource
+	if s.datasource == nil {
+		if dsName, ok := source.DatasourceFromContext(ctx); !ok {
+			return errors.WithMessage(errors.StatusInternalServerError, "missing datasource in context")
+		} else {
+			var err error
+			if ds, err = config.GetSourceInfoByName(ctx, dsName); err != nil {
+				return err
+			}
+		}
+	} else {
+		ds = s.datasource
+	}
+	node.GetNode().MustSetMeta(common.MetaNamespaceDatasourceName, ds.GetName())
 	node.GetNode().MustSetMeta(common.MetaNamespaceNodeName, node.GetName())
-	if s.dsInternal {
+	if ds.IsInternal() {
 		node.GetNode().MustSetMeta(common.MetaNamespaceDatasourceInternal, true)
 	}
+	return nil
 }
 
 // updateMeta simplifies the dao.SetNodeMeta call
@@ -173,7 +186,7 @@ func (s *TreeServer) CreateNode(ctx context.Context, req *tree.CreateNodeRequest
 				if h := req.GetNode().GetStringMeta(common.MetaNamespaceHash); h != "" {
 					node.GetNode().MustSetMeta(common.MetaNamespaceHash, h)
 				}
-				s.setDataSourceMeta(node)
+				s.setDataSourceMeta(ctx, node)
 				if err := s.UpdateParentsAndNotify(ctx, dao, req.GetNode().GetSize(), eventType, nil, node, req.IndexationSession); err != nil {
 					return nil, errors.Tag(err, errors.StatusInternalServerError) // InternalServerError(common.ServiceDataIndex_, "Error while updating parents: %s", err.Error())
 				}
@@ -211,7 +224,7 @@ func (s *TreeServer) CreateNode(ctx context.Context, req *tree.CreateNodeRequest
 		// Special case : when not in indexation mode, if node creation
 		// has triggered creation of parents, send notifications for parents as well
 		for _, parent := range created[:len(created)-1] {
-			s.setDataSourceMeta(parent)
+			s.setDataSourceMeta(ctx, parent)
 			broker.MustPublish(ctx, common.TopicIndexChanges, &tree.NodeChangeEvent{
 				Type:   tree.NodeChangeEvent_CREATE,
 				Target: parent.GetNode(),
@@ -229,7 +242,7 @@ func (s *TreeServer) CreateNode(ctx context.Context, req *tree.CreateNodeRequest
 		}
 	*/
 
-	s.setDataSourceMeta(node)
+	s.setDataSourceMeta(ctx, node)
 
 	// Propagate mime meta
 	if mime := req.GetNode().GetStringMeta(common.MetaNamespaceMime); mime != "" {
@@ -294,7 +307,7 @@ func (s *TreeServer) ReadNode(ctx context.Context, req *tree.ReadNodeRequest) (r
 
 	resp.Success = true
 
-	s.setDataSourceMeta(node)
+	s.setDataSourceMeta(ctx, node)
 
 	if (req.WithExtendedStats || tree.StatFlags(req.StatFlags).FolderCounts()) && !node.GetNode().IsLeaf() {
 		folderCount, fileCount := dao.GetNodeChildrenCounts(ctx, node.GetMPath(), false)
@@ -353,7 +366,7 @@ func (s *TreeServer) ListNodes(req *tree.ListNodesRequest, resp tree.NodeProvide
 		for pnode := range dao.GetNodesByMPaths(ctx, node.GetMPath().Parents()...) {
 			path = append(path, pnode.GetName())
 			pnode.GetNode().SetPath(safePath(strings.Join(path, "/")))
-			s.setDataSourceMeta(pnode)
+			s.setDataSourceMeta(ctx, pnode)
 			nodes = append(nodes, pnode)
 		}
 		slices.Reverse(nodes)
@@ -458,7 +471,7 @@ func (s *TreeServer) ListNodes(req *tree.ListNodesRequest, resp tree.NodeProvide
 				node.GetNode().SetPath(safePath(strings.Join(names, "/")))
 			}
 
-			s.setDataSourceMeta(node)
+			s.setDataSourceMeta(ctx, node)
 
 			if !metaFilter.MatchForceGrep(node.GetName()) {
 				continue
@@ -539,11 +552,11 @@ func (s *TreeServer) UpdateNode(ctx context.Context, req *tree.UpdateNodeRequest
 	}
 
 	nodeFrom.GetNode().SetPath(reqFromPath)
-	s.setDataSourceMeta(nodeFrom)
+	s.setDataSourceMeta(ctx, nodeFrom)
 
 	if newNode, err := dao.GetNodeByMPath(ctx, pathTo); err == nil && newNode != nil {
 		newNode.GetNode().SetPath(reqToPath)
-		s.setDataSourceMeta(newNode)
+		s.setDataSourceMeta(ctx, newNode)
 		if err := s.UpdateParentsAndNotify(ctx, dao, nodeFrom.GetNode().GetSize(), tree.NodeChangeEvent_UPDATE_PATH, nodeFrom, newNode, req.IndexationSession); err != nil {
 			return nil, errors.WithMessagef(errors.StatusInternalServerError, "error while updating parents:  %s", err.Error())
 		}
@@ -581,7 +594,7 @@ func (s *TreeServer) DeleteNode(ctx context.Context, req *tree.DeleteNodeRequest
 	}
 	node.GetNode().SetPath(reqPath)
 
-	s.setDataSourceMeta(node)
+	s.setDataSourceMeta(ctx, node)
 	var childrenEvents []*tree.NodeChangeEvent
 	if node.GetNode().GetType() == tree.NodeType_COLLECTION {
 		c := dao.GetNodeTree(ctx, node.GetMPath())
@@ -607,7 +620,7 @@ func (s *TreeServer) DeleteNode(ctx context.Context, req *tree.DeleteNodeRequest
 			names = names[0:child.GetLevel()]
 			names[child.GetLevel()-1] = child.GetName()
 			child.GetNode().SetPath(safePath(strings.Join(names, "/")))
-			s.setDataSourceMeta(child)
+			s.setDataSourceMeta(ctx, child)
 			childrenEvents = append(childrenEvents, &tree.NodeChangeEvent{
 				Type:   tree.NodeChangeEvent_DELETE,
 				Source: child.GetNode(),

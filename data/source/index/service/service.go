@@ -18,8 +18,7 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-// Package objects is in charge of exposing the content of the datasource with the S3 protocol.
-package objects
+package service
 
 import (
 	"context"
@@ -27,42 +26,40 @@ import (
 	"google.golang.org/grpc"
 
 	"github.com/pydio/cells/v4/common"
-	"github.com/pydio/cells/v4/common/config"
+	"github.com/pydio/cells/v4/common/proto/object"
+	"github.com/pydio/cells/v4/common/proto/sync"
 	"github.com/pydio/cells/v4/common/proto/tree"
 	"github.com/pydio/cells/v4/common/runtime"
 	"github.com/pydio/cells/v4/common/service"
-	"github.com/pydio/cells/v4/common/telemetry/log"
+	"github.com/pydio/cells/v4/data/source/index"
+	grpc2 "github.com/pydio/cells/v4/data/source/index/grpc"
 )
 
 var (
-	Name        = common.ServiceGrpcNamespace_ + common.ServiceDataObjects
-	BrowserName = common.ServiceGrpcNamespace_ + common.ServiceDataObjectsPeer
-	ChildPrefix = common.ServiceGrpcNamespace_ + common.ServiceDataObjects_
+	// Name of the current plugin
+	Name = common.ServiceGrpcNamespace_ + common.ServiceDataIndex
 )
 
 func init() {
 	runtime.Register("main", func(ctx context.Context) {
 		service.NewService(
-			service.Name(BrowserName),
+			service.Name(Name),
 			service.Context(ctx),
 			service.Tag(common.ServiceTagDatasource),
-			service.Description("Starter for different sources objects"),
-			service.WithGRPC(func(ctx context.Context, server grpc.ServiceRegistrar) error {
-				conf := config.Get(ctx, "services", BrowserName)
-				treeServer := NewTreeHandler(conf)
-				tree.RegisterNodeProviderServer(server, treeServer)
-				tree.RegisterNodeReceiverServer(server, treeServer)
+			service.WithStorageDrivers(index.Drivers...),
+			service.Description("Starter for data sources indexes"),
+			service.WithGRPC(func(ctx context.Context, srv grpc.ServiceRegistrar) error {
+				// This will expect to find datasource in context
+				shared := grpc2.NewSharedTreeServer()
+				tree.RegisterNodeReceiverServer(srv, shared)
+				tree.RegisterNodeProviderServer(srv, shared)
+				tree.RegisterNodeReceiverStreamServer(srv, shared)
+				tree.RegisterNodeProviderStreamerServer(srv, shared)
+				tree.RegisterSessionIndexerServer(srv, shared)
+				object.RegisterResourceCleanerEndpointServer(srv, shared)
+				sync.RegisterSyncEndpointServer(srv, shared)
 				return nil
 			}),
 		)
 	})
-}
-
-// Manage datasources deletion operations : clean minio server configuration folder
-func onDeleteObjectsConfig(ctx context.Context, objectConfigName string) {
-	if err := DeleteMinioConfigDir(objectConfigName); err != nil {
-		log.Logger(ctx).Error("Could not remove configuration folder for object service " + objectConfigName)
-	} else {
-		log.Logger(ctx).Info("Removed configuration folder for object service " + objectConfigName)
-	}
 }

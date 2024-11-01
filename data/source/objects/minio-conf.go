@@ -21,6 +21,7 @@
 package objects
 
 import (
+	"context"
 	"os"
 	"path/filepath"
 
@@ -167,7 +168,7 @@ var legacyConfTemplate = `{
 `
 
 // CreateMinioConfigFile generates a legacy config file
-func CreateMinioConfigFile(serviceId string, accessKey string, secretKey string) (configDir string, err error) {
+func CreateMinioConfigFile(ctx context.Context, serviceId string, accessKey string, secretKey string) (configDir string, err error) {
 
 	var e error
 	configDir, e = runtime.ServiceDataDir(common.ServiceGrpcNamespace_ + common.ServiceDataObjects)
@@ -175,7 +176,7 @@ func CreateMinioConfigFile(serviceId string, accessKey string, secretKey string)
 		return "", e
 	}
 
-	gatewayDir := filepath.Join(configDir, serviceId)
+	gatewayDir := filepath.Join(configDir, runtime.MultiContextManager().Current(ctx), serviceId)
 	gatewayFile := filepath.Join(gatewayDir, "config.json")
 
 	// Create path to folder

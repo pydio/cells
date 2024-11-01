@@ -208,6 +208,8 @@ func NewManager(ctx context.Context, namespace string, logger log.ZapLogger) (Ma
 		if err := bootstrap.reload(ctx, store); err != nil {
 			return nil, err
 		}
+
+		m.initTelemetry(ctx, bootstrap, store)
 	}
 
 	if reg, err := m.initSOTWRegistry(ctx); err != nil {
@@ -417,25 +419,36 @@ func (m *manager) initConfig(ctx context.Context) (config.Store, config.Store, r
 	//	}
 	//}
 
-	// TODO - Move this config inside defaults, not in services/pydio.grpc.log
-	// We want to read this from config (not boostrap) as it will be hot-reloaded if config is changed
-	cfgPath := []string{"services", common.ServiceGrpcNamespace_ + common.ServiceLog}
-	config.GetAndWatch(mainStore, cfgPath, func(values configx.Values) {
-		conf := telemetry.Config{
-			Loggers: []log.LoggerConfig{{
-				Encoding: "console",
-				Level:    "info",
-				Outputs:  []string{"stdout:///"},
-			}},
-		}
-		if values.Context(ctx).Scan(&conf) == nil {
+	return mainStore, vaultStore, versionsStore, nil
+}
+
+func (m *manager) initTelemetry(ctx context.Context, bootstrap *Bootstrap, store config.Store) {
+	// Default is taken from bootstrap
+	conf := &telemetry.Config{
+		Loggers: []log.LoggerConfig{{
+			Encoding: "console",
+			Level:    "info",
+			Outputs:  []string{"stdout:///"},
+		}},
+	}
+	// Then read from bootstrap
+	_ = bootstrap.Val("#/telemetry").Scan(&conf)
+
+	var configLoaded bool
+	// And finally from config, it will be hot-reloaded if config is changed
+	config.GetAndWatch(store, []string{"defaults", "telemetry"}, func(values configx.Values) {
+		if values.Context(ctx).Scan(conf) == nil {
 			if e := conf.Reload(ctx); e != nil {
-				fmt.Println("Error reloading", e)
+				fmt.Println("Error loading telemetry setup", e)
 			}
+			configLoaded = true
 		}
 	})
-
-	return mainStore, vaultStore, versionsStore, nil
+	if !configLoaded {
+		if e := conf.Reload(ctx); e != nil {
+			fmt.Println("Error loading telemetry setup", e)
+		}
+	}
 }
 
 func (m *manager) initInternalRegistry() (registry.Registry, error) {
