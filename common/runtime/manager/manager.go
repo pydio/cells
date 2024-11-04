@@ -25,6 +25,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/pydio/cells/v4/common/config/migrations"
+	"github.com/pydio/cells/v4/common/telemetry"
 	"net"
 	"net/url"
 	"os"
@@ -108,7 +109,6 @@ type manager struct {
 	// registries
 	// - internal
 	internalRegistry registry.Registry
-
 	// - state of the world
 	sotwRegistry *openurl.Pool[registry.Registry]
 
@@ -262,6 +262,12 @@ func NewManager(ctx context.Context, namespace string, logger log.ZapLogger) (Ma
 		ctx = propagator.With(ctx, config.ContextKey, store)
 		ctx = propagator.With(ctx, config.VaultKey, vault)
 		ctx = propagator.With(ctx, config.RevisionsKey, revisions)
+
+		if err := bootstrap.reload(ctx, store); err != nil {
+			return nil, err
+		}
+
+		m.initTelemetry(ctx, bootstrap, store)
 
 		go func() {
 			if err := runtime.MultiContextManager().Iterate(ctx, func(ctx context.Context, name string) error {
@@ -505,25 +511,42 @@ func (m *manager) initConfig(ctx context.Context) (*openurl.Pool[config.Store], 
 		return versionsStore, nil
 	})
 
-	// TODO - Move this config inside defaults, not in services/pydio.grpc.log
-	// We want to read this from config (not boostrap) as it will be hot-reloaded if config is changed
-	//cfgPath := []string{"services", common.ServiceGrpcNamespace_ + common.ServiceLog}
-	//config.GetAndWatch(mainStore, cfgPath, func(values configx.Values) {
-	//	conf := telemetry.Config{
-	//		Loggers: []log.LoggerConfig{{
-	//			Encoding: "console",
-	//			Level:    "info",
-	//			Outputs:  []string{"stdout:///"},
-	//		}},
-	//	}
-	//	if values.Scan(&conf) == nil {
-	//		if e := conf.Reload(ctx); e != nil {
-	//			fmt.Println("Error reloading", e)
-	//		}
-	//	}
-	//})
-
 	return mainStorePool, vaultStorePool, versionsStorePool, nil
+}
+
+func (m *manager) initTelemetry(ctx context.Context, bootstrap *Bootstrap, storePool *openurl.Pool[config.Store]) {
+	// Default is taken from bootstrap
+	conf := &telemetry.Config{
+		Loggers: []log.LoggerConfig{{
+			Encoding: "console",
+			Level:    "info",
+			Outputs:  []string{"stdout:///"},
+		}},
+	}
+
+	// Then read from bootstrap
+	_ = bootstrap.Val("#/telemetry").Scan(&conf)
+
+	store, err := storePool.Get(ctx)
+	if err != nil {
+		return
+	}
+
+	var configLoaded bool
+	// And finally from config, it will be hot-reloaded if config is changed
+	config.GetAndWatch(store, []string{"defaults", "telemetry"}, func(values configx.Values) {
+		if values.Context(ctx).Scan(conf) == nil {
+			if e := conf.Reload(ctx); e != nil {
+				fmt.Println("Error loading telemetry setup", e)
+			}
+			configLoaded = true
+		}
+	})
+	if !configLoaded {
+		if e := conf.Reload(ctx); e != nil {
+			fmt.Println("Error loading telemetry setup", e)
+		}
+	}
 }
 
 func (m *manager) initInternalRegistry(ctx context.Context, bootstrap *Bootstrap, base string) (registry.Registry, error) {
@@ -1640,19 +1663,7 @@ func (m *manager) serviceServeOptions(svc service.Service) []server.ServeOption 
 		server.WithBeforeServe(func(...registry.RegisterOption) error {
 			return svc.Start(registry.WithContextR(m.ctx))
 		}),
-		server.WithAfterServe(func(oo ...registry.RegisterOption) error {
-			//if er := runtime.MultiContextManager().Iterate(m.ctx, func(ctx context.Context, _ string) error {
-			//	log.Logger(ctx).Info("After Server update")
-			//	if locker := m.internalRegistry.NewLocker("update-service-version-" + svc.Name()); locker != nil {
-			//		locker.Lock()
-			//		defer locker.Unlock()
-			//	}
-			//
-			//	return service.UpdateServiceVersion(ctx, svc.Options())
-			//}); er != nil {
-			//	log.Logger(m.ctx).Error("Error while updating service version", zap.Error(er))
-			//}
-
+		server.WithAfterServe(func(...registry.RegisterOption) error {
 			return svc.OnServe(registry.WithContextR(m.ctx))
 		}),
 	}

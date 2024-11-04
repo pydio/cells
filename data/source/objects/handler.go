@@ -31,36 +31,39 @@ import (
 	"github.com/spf13/afero"
 	"go.uber.org/zap"
 
+	"github.com/pydio/cells/v4/common"
+	"github.com/pydio/cells/v4/common/config"
 	"github.com/pydio/cells/v4/common/errors"
 	"github.com/pydio/cells/v4/common/proto/tree"
 	"github.com/pydio/cells/v4/common/telemetry/log"
-	"github.com/pydio/cells/v4/common/utils/configx"
 	"github.com/pydio/cells/v4/common/utils/filesystem"
 )
 
-func NewTreeHandler(conf configx.Values) *TreeHandler {
-	t := &TreeHandler{}
-	t.FS = afero.NewOsFs()
-	restrict := conf.Val("allowedLocalDsFolder").String()
-	if t.hasRootRef = restrict != ""; t.hasRootRef {
-		f := restrict
-		t.FS = afero.NewBasePathFs(t.FS, f)
-	}
+const (
+	BrowserName = common.ServiceGrpcNamespace_ + common.ServiceDataObjectsPeer
+)
+
+func NewFsBrowser() *FsBrowser {
+	t := &FsBrowser{}
 	return t
 }
 
-type TreeHandler struct {
+type FsBrowser struct {
 	tree.UnimplementedNodeProviderServer
 	tree.UnimplementedNodeReceiverServer
-	FS         afero.Fs
-	hasRootRef bool
 }
 
-func (t *TreeHandler) Name() string {
-	return BrowserName
+func (t *FsBrowser) getFS(ctx context.Context) (fs afero.Fs, hasRootRef bool) {
+	conf := config.Get(ctx, "services", BrowserName)
+	fs = afero.NewOsFs()
+	restrict := conf.Val("allowedLocalDsFolder").String()
+	if hasRootRef = restrict != ""; hasRootRef {
+		fs = afero.NewBasePathFs(fs, restrict)
+	}
+	return
 }
 
-func (t *TreeHandler) SymlinkInfo(path string, info os.FileInfo) (bool, tree.NodeType, string) {
+func (t *FsBrowser) SymlinkInfo(path string, info os.FileInfo) (bool, tree.NodeType, string) {
 	if info.Mode()&os.ModeSymlink != 0 {
 		if t, e := os.Readlink(path); e == nil {
 			target, er := os.Stat(t)
@@ -82,7 +85,7 @@ func (t *TreeHandler) SymlinkInfo(path string, info os.FileInfo) (bool, tree.Nod
 	return false, tree.NodeType_UNKNOWN, ""
 }
 
-func (t *TreeHandler) FileInfoToNode(nodePath string, fileInfo os.FileInfo) *tree.Node {
+func (t *FsBrowser) FileInfoToNode(nodePath string, fileInfo os.FileInfo) *tree.Node {
 	node := &tree.Node{
 		Path:  filesystem.ToNodePath(nodePath),
 		Size:  fileInfo.Size(),
@@ -105,10 +108,11 @@ func (t *TreeHandler) FileInfoToNode(nodePath string, fileInfo os.FileInfo) *tre
 	return node
 }
 
-func (t *TreeHandler) ReadNode(ctx context.Context, request *tree.ReadNodeRequest) (*tree.ReadNodeResponse, error) {
+func (t *FsBrowser) ReadNode(ctx context.Context, request *tree.ReadNodeRequest) (*tree.ReadNodeResponse, error) {
 	response := &tree.ReadNodeResponse{}
 	p := filesystem.ToFilePath(request.Node.Path)
-	if fileInfo, e := t.FS.Stat(p); e != nil {
+	fs, _ := t.getFS(ctx)
+	if fileInfo, e := fs.Stat(p); e != nil {
 		return nil, e
 	} else {
 		response.Node = t.FileInfoToNode(request.Node.Path, fileInfo)
@@ -116,10 +120,11 @@ func (t *TreeHandler) ReadNode(ctx context.Context, request *tree.ReadNodeReques
 	return response, nil
 }
 
-func (t *TreeHandler) ListNodes(request *tree.ListNodesRequest, stream tree.NodeProvider_ListNodesServer) error {
+func (t *FsBrowser) ListNodes(request *tree.ListNodesRequest, stream tree.NodeProvider_ListNodesServer) error {
 
+	fs, hasRootRef := t.getFS(stream.Context())
 	ctx := stream.Context()
-	if !t.hasRootRef && runtime.GOOS == "windows" && (request.Node.Path == "" || request.Node.Path == "/") {
+	if !hasRootRef && runtime.GOOS == "windows" && (request.Node.Path == "" || request.Node.Path == "/") {
 		request.Node.Path = "/"
 		volumes := filesystem.BrowseVolumes(ctx)
 		var err error
@@ -145,7 +150,7 @@ func (t *TreeHandler) ListNodes(request *tree.ListNodesRequest, stream tree.Node
 			p = "/"
 		}
 		log.Logger(ctx).Debug("ListNodes on file path", zap.String("p", p))
-		if fileInfos, e := afero.ReadDir(t.FS, p); e == nil {
+		if fileInfos, e := afero.ReadDir(fs, p); e == nil {
 			for _, info := range fileInfos {
 				fullPath := path.Join(p, info.Name())
 				if isSymLink, _, _ := t.SymlinkInfo(fullPath, info); !isSymLink && (strings.HasPrefix(info.Name(), ".") || !info.IsDir()) {
@@ -162,34 +167,36 @@ func (t *TreeHandler) ListNodes(request *tree.ListNodesRequest, stream tree.Node
 	return nil
 }
 
-func (t *TreeHandler) CreateNode(ctx context.Context, request *tree.CreateNodeRequest) (*tree.CreateNodeResponse, error) {
+func (t *FsBrowser) CreateNode(ctx context.Context, request *tree.CreateNodeRequest) (*tree.CreateNodeResponse, error) {
+	fs, _ := t.getFS(ctx)
 	response := &tree.CreateNodeResponse{}
 	p := filesystem.ToFilePath(request.Node.Path)
 	if request.Node.IsLeaf() {
-		if file, e := t.FS.Create(p); e != nil {
+		if file, e := fs.Create(p); e != nil {
 			return nil, e
 		} else {
 			fileInfo, _ := file.Stat()
 			response.Node = t.FileInfoToNode(request.Node.Path, fileInfo)
 		}
 	} else {
-		if e := t.FS.MkdirAll(p, 0755); e != nil {
+		if e := fs.MkdirAll(p, 0755); e != nil {
 			return nil, e
 		} else {
-			fileInfo, _ := t.FS.Stat(p)
+			fileInfo, _ := fs.Stat(p)
 			response.Node = t.FileInfoToNode(request.Node.Path, fileInfo)
 		}
 	}
 	return response, nil
 }
 
-func (t *TreeHandler) UpdateNode(ctx context.Context, request *tree.UpdateNodeRequest) (*tree.UpdateNodeResponse, error) {
+func (t *FsBrowser) UpdateNode(ctx context.Context, request *tree.UpdateNodeRequest) (*tree.UpdateNodeResponse, error) {
 	return nil, errors.WithStack(errors.StatusNotImplemented)
 }
 
-func (t *TreeHandler) DeleteNode(ctx context.Context, request *tree.DeleteNodeRequest) (*tree.DeleteNodeResponse, error) {
+func (t *FsBrowser) DeleteNode(ctx context.Context, request *tree.DeleteNodeRequest) (*tree.DeleteNodeResponse, error) {
+	fs, _ := t.getFS(ctx)
 	p := filesystem.ToFilePath(request.Node.Path)
-	if e := t.FS.Remove(p); e != nil {
+	if e := fs.Remove(p); e != nil {
 		return nil, e
 	}
 	return &tree.DeleteNodeResponse{Success: true}, nil

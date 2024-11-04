@@ -100,7 +100,7 @@ func init() {
 				if e != nil {
 					return fmt.Errorf("cannot find datasource configuration for " + name)
 				}
-				engine := grpc2.NewTreeServer(dsObject, name)
+				engine := grpc2.NewTreeServer(dsObject)
 				tree.RegisterNodeReceiverServer(srv, engine)
 				tree.RegisterNodeProviderServer(srv, engine)
 				tree.RegisterNodeReceiverStreamServer(srv, engine)

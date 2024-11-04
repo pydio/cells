@@ -29,6 +29,7 @@ import (
 
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/client/grpc"
+	"github.com/pydio/cells/v4/common/config"
 	pb "github.com/pydio/cells/v4/common/proto/registry"
 	"github.com/pydio/cells/v4/common/proto/tree"
 	"github.com/pydio/cells/v4/common/registry"
@@ -40,6 +41,7 @@ var (
 	UnitTests = false
 )
 
+// TODO - changed for registry listing to config listing
 func (s *TreeServer) UpdateServicesList(ctx context.Context, retry int) {
 
 	if UnitTests {
@@ -51,24 +53,33 @@ func (s *TreeServer) UpdateServicesList(ctx context.Context, retry int) {
 	_ = k.Reset()
 	initialLength := len(all)
 
-	var reg registry.Registry
-	propagator.Get(ctx, registry.ContextSOTWKey, &reg)
+	/*
+		var reg registry.Registry
+		propagator.Get(ctx, registry.ContextSOTWKey, &reg)
 
-	items, err := reg.List(registry.WithType(pb.ItemType_SERVICE), registry.WithFilter(func(item registry.Item) bool {
-		return strings.HasPrefix(item.Name(), common.ServiceGrpcNamespace_+common.ServiceDataSync_) && item.Name() != common.ServiceGrpcNamespace_+common.ServiceDataSync_
-	}))
-	if err != nil {
-		return
-	}
+		items, err := reg.List(registry.WithType(pb.ItemType_SERVICE), registry.WithFilter(func(item registry.Item) bool {
+			return strings.HasPrefix(item.Name(), common.ServiceGrpcNamespace_+common.ServiceDataSync_) && item.Name() != common.ServiceGrpcNamespace_+common.ServiceDataSync_
+		}))
+		if err != nil {
+			return
+		}
+
+	*/
+	ss := config.ListSourcesFromConfig(ctx)
 
 	var dsKeys []string
 
-	for _, i := range items {
-		var syncService registry.Service
-		if !i.As(&syncService) {
+	//	for _, i := range items {
+	//		var syncService registry.Service
+	//		if !i.As(&syncService) {
+	//			continue
+	//		}
+	//		dataSourceName := strings.TrimPrefix(syncService.Name(), common.ServiceDataSyncGRPC_)
+	for _, s := range ss {
+		if s.Disabled {
 			continue
 		}
-		dataSourceName := strings.TrimPrefix(syncService.Name(), common.ServiceDataSyncGRPC_)
+		dataSourceName := s.GetName()
 		indexService := common.ServiceDataIndexGRPC_ + dataSourceName
 		obj := DataSource{
 			Name:   dataSourceName,

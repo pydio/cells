@@ -3,9 +3,6 @@
 #
 # Defaults variable values are injected at load time
 #------------------------------------------
-#name: main
-#processes:
-#  all:
 runtime: main
 connections:
   grpcconn:
@@ -311,9 +308,3 @@ services: &services
         - type: sql
           prefix: idm_usr_
           policies: idm_usr_meta_policies
-
-#  {{ range .Iterate tenantgroup ( = discoveries ) }}
-#  default:
-#    env:
-#      CELLS_BOOTSTRAP_FILE: bootstrap-default.yaml
-#  {{ end }}

@@ -55,7 +55,7 @@ func TemplateSQL(daoFunc any) []StorageTestCase {
 	ss := []StorageTestCase{
 		{
 			DSN:       []string{sql.SqliteDriver + "://" + sql.SharedMemDSN + "&hookNames=cleanTables&prefix=" + unique},
-			Condition: true,
+			Condition: os.Getenv("CELLS_TEST_SKIP_SQLITE") != "true",
 			DAO:       daoFunc,
 		},
 	}
@@ -102,7 +102,7 @@ func TemplateMongoEnvWithPrefixAndIndexerCollection(daoFunc any, prefix, collect
 func TemplateBoltWithPrefix(daoFunc any, prefix string) StorageTestCase {
 	return StorageTestCase{
 		DSN:       []string{"boltdb://" + filepath.Join(os.TempDir(), prefix+uuid.New()+".db")},
-		Condition: true,
+		Condition: os.Getenv("CELLS_TEST_SKIP_LOCAL_INDEX") != "true",
 		DAO:       daoFunc,
 	}
 }
@@ -111,7 +111,7 @@ func TemplateBoltWithPrefix(daoFunc any, prefix string) StorageTestCase {
 func TemplateBleveWithPrefix(daoFunc any, prefix string) StorageTestCase {
 	return StorageTestCase{
 		DSN:       []string{"bleve://" + filepath.Join(os.TempDir(), prefix+uuid.New()+".db")},
-		Condition: true,
+		Condition: os.Getenv("CELLS_TEST_SKIP_LOCAL_INDEX") != "true",
 		DAO:       daoFunc,
 	}
 }

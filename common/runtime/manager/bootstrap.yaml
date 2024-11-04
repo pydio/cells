@@ -5,6 +5,21 @@
 #------------------------------------------
 name: main
 connections: *connections
+telemetry:
+  loggers:
+    - encoding: console
+      level: info
+      outputs:
+        - stdout:///
+    - encoding: json
+      level: info
+      outputs:
+        - file:///Users/charles/Library/Application Support/Pydio/cells5/logs{{ tenantPathWithBlank .Tenant "default" }}/pydio.log
+        - service:///?service=pydio.grpc.log
+    - encoding: json
+      level: error
+      outputs:
+        - file:///Users/charles/Library/Application Support/Pydio/cells5/logs{{ tenantPathWithBlank .Tenant "default" }}/pydio_err.log
 processes:
   discovery:
     runtime: discovery
@@ -58,14 +73,14 @@ processes:
     queues: *queues
     caches: *caches
 
-  datasource-peer:
-    runtime: datasource
-    connections: *connections
-    env:
-      <<: *env
-      CELLS_BOOTSTRAP_TEMPLATE: datasources
-    storages: *storages
-    services: *services
-    queues: *queues
-    caches: *caches
+#  datasource-peer:
+#    runtime: datasource
+#    connections: *connections
+#    env:
+#      <<: *env
+#      CELLS_BOOTSTRAP_TEMPLATE: datasources
+#    storages: *storages
+#    services: *services
+#    queues: *queues
+#    caches: *caches
 

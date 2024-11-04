@@ -23,6 +23,7 @@ package manager
 import (
 	"context"
 	"fmt"
+	"github.com/pydio/cells/v4/common/utils/openurl"
 	"os"
 	"strings"
 	"text/template"
@@ -87,47 +88,58 @@ func NewBootstrap(ctx context.Context, runtimeTemplate string) (*Bootstrap, erro
 }
 
 // MustReset triggers a full reload of the config
-func (bs *Bootstrap) MustReset(ctx context.Context, conf config.Store) {
+func (bs *Bootstrap) MustReset(ctx context.Context, conf *openurl.Pool[config.Store]) {
 	_ = bs.reload(ctx, conf)
 }
 
 // WatchConfAndReset watches any config changes and reload the bootstrap. It is blocking, must be sent in goroutine.
-func (bs *Bootstrap) WatchConfAndReset(ctx context.Context, configURL string, errorHandler func(error)) {
-	conf, err := config.OpenStore(ctx, configURL)
-	if err != nil {
-		errorHandler(err)
-		return
-	}
-	bs.MustReset(ctx, conf)
+//func (bs *Bootstrap) WatchConfAndReset(ctx context.Context, configURL string, errorHandler func(error)) {
+//	conf, err := config.OpenStore(ctx, configURL)
+//	if err != nil {
+//		errorHandler(err)
+//		return
+//	}
+//	bs.MustReset(ctx, conf)
+//
+//	res, err := conf.Watch()
+//	if err != nil {
+//		errorHandler(err)
+//		return
+//	}
+//
+//	for {
+//		if _, er := res.Next(); er != nil {
+//			return
+//		}
+//		bs.MustReset(ctx, conf)
+//	}
+//}
 
-	res, err := conf.Watch()
-	if err != nil {
-		errorHandler(err)
-		return
-	}
+func (bs *Bootstrap) reload(ctx context.Context, storePool *openurl.Pool[config.Store]) error {
+	var store config.Store
 
-	for {
-		if _, er := res.Next(); er != nil {
-			return
+	if storePool != nil {
+		if st, err := storePool.Get(ctx); err != nil {
+			return err
+		} else {
+			store = st
 		}
-		bs.MustReset(ctx, conf)
 	}
-}
 
-func (bs *Bootstrap) reload(ctx context.Context, conf config.Store) error {
 	runtimeDefaults, runtimeOthers := runtimeSetPairs()
 
 	var defaultTemplate = defaultsValues
 	if len(runtimeDefaults) > 0 {
+
 		var er error
 		for _, def := range runtimeDefaults {
-			if def.val, er = tplEval(ctx, def.val, bs.named+def.key, conf); er != nil {
+			if def.val, er = tplEval(ctx, def.val, bs.named+def.key, store); er != nil {
 				return er
 			}
 		}
 		// Update defaults before joining two templates together
 		// Use Yaml.Nodes patching to make sure to keep references
-		defYaml, _ := tplEval(ctx, defaultsValues, "default", conf)
+		defYaml, _ := tplEval(ctx, defaultsValues, "default", store)
 		if patched, er := patchYaml(defYaml, runtimeDefaults); er == nil {
 			defaultTemplate = patched
 		} else {
@@ -151,7 +163,7 @@ func (bs *Bootstrap) reload(ctx context.Context, conf config.Store) error {
 		tmpl = yaml
 	}
 
-	fullYaml, er := tplEval(ctx, tmpl, bs.named+"-yaml", conf)
+	fullYaml, er := tplEval(ctx, tmpl, bs.named+"-yaml", store)
 	if er != nil {
 		return er
 	}
@@ -162,7 +174,7 @@ func (bs *Bootstrap) reload(ctx context.Context, conf config.Store) error {
 
 	// Now apply runtimeOther keyPairs
 	for _, pair := range runtimeOthers {
-		if val, er := tplEval(ctx, pair.val, bs.named+pair.key, conf); er != nil {
+		if val, er := tplEval(ctx, pair.val, bs.named+pair.key, store); er != nil {
 			return er
 		} else {
 			_ = bs.Val(pair.key).Set(val)

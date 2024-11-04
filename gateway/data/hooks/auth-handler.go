@@ -84,7 +84,7 @@ func (a pydioAuthHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		r.URL.RawQuery = rq.Encode()
 		_ = r.ParseForm()
 		// If PresignedV4, flag for re-signing
-		if signedKey, err := cmd.ExposedParsePresignV4(r.Form); err == nil && (signedKey != a.globalAccessKey || checkResignV4) {
+		if signedKey, err := cmd.ExposedParsePresignV4(ctx, r.Form); err == nil && (signedKey != a.globalAccessKey || checkResignV4) {
 			resignRequestV4Presigned = true
 		}
 
@@ -94,7 +94,7 @@ func (a pydioAuthHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		// Save authorization header.
 		v4Auth := req.Header.Get("Authorization")
 		// Parse signature version '4' header.
-		if signedKey, err := cmd.ExposedParseSignV4(v4Auth); err == nil && signedKey != a.globalAccessKey {
+		if signedKey, err := cmd.ExposedParseSignV4(ctx, v4Auth); err == nil && signedKey != a.globalAccessKey {
 			log.Logger(ctx).Debug("Use AWS Api Key as JWT: " + signedKey)
 			resignRequestV4 = true
 			r.Header.Set("X-Pydio-Bearer", signedKey)
