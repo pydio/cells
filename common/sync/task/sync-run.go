@@ -47,7 +47,7 @@ func (s *Sync) run(ctx context.Context, dryRun bool, force bool) (model.Stater, 
 	}
 
 	// Create a background-based context as sessionContext will be used inside the patch processor.
-	sessionCtx := context.Background()
+	sessionCtx := context.WithoutCancel(ctx)
 	if mm, ok := propagator.FromContextCopy(ctx); ok {
 		sessionCtx = propagator.NewContext(sessionCtx, mm)
 	}

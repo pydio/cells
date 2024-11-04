@@ -65,7 +65,7 @@ func (i *Client) Walk(ctx context.Context, walknFc model.WalkNodesFunc, root str
 	if root == "/" {
 		root = ""
 	}
-	ctx, cancel := context.WithCancel(context.Background())
+	ctx, cancel := context.WithCancel(ctx)
 	defer cancel()
 	responseClient, e := i.readerClient.ListNodes(ctx, &tree.ListNodesRequest{
 		Node: &tree.Node{

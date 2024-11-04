@@ -54,7 +54,7 @@ func NewClientWithMeta(ctx context.Context, dsName string, reader tree.NodeProvi
 func (m *ClientWithMeta) Walk(ctx context.Context, walknFc model.WalkNodesFunc, root string, recursive bool) (err error) {
 
 	metaClient := tree.NewNodeProviderStreamerClient(grpc.ResolveConn(m.runtimeCtx, common.ServiceMetaGRPC))
-	ctx, cancel := context.WithCancel(context.Background())
+	ctx, cancel := context.WithCancel(ctx)
 	defer cancel()
 	metaStreamer, e := metaClient.ReadNodeStream(ctx)
 	if e != nil {
