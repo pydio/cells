@@ -5,7 +5,9 @@ import (
 	"sort"
 	"strconv"
 	"strings"
+	"sync"
 
+	"go.uber.org/multierr"
 	"google.golang.org/protobuf/proto"
 	"gorm.io/gorm"
 
@@ -81,9 +83,8 @@ func (d *sessionDAO) insertNode(ctx context.Context, node tree.ITreeNode) error 
 	if ok := ca.Get(getKey("ac_", parentMpathStr), &all); ok {
 		i, _ := strconv.Atoi(mpathStr[len(parentMpathStr)+1:])
 		all = append(all, i)
+		_ = ca.Set(getKey("ac_", parentMpathStr), all)
 	}
-
-	_ = ca.Set(getKey("ac_", parentMpathStr), all)
 
 	return nil
 }
@@ -154,12 +155,15 @@ func (d *sessionDAO) getNodeFirstAvailableChildIndex(ctx context.Context, mPath 
 
 	var all []int
 	if ok := d.getCache(ctx).Get(getKey("ac_", mPath.ToString()), &all); ok {
+		if len(all) == 0 {
+			return 1, nil
+		}
 		sort.Ints(all)
 
 		maxIdx := all[len(all)-1]
 
 		// No missing numbers : jump directly to the end
-		if maxIdx == len(all)-1 {
+		if maxIdx == len(all) {
 			available = uint64(maxIdx + 1)
 			return
 		}
@@ -178,13 +182,37 @@ func (d *sessionDAO) getNodeFirstAvailableChildIndex(ctx context.Context, mPath 
 			return
 		}
 	}
+	// If not found in cache, find the LAST available slot currently in DB and put it inside cache
+	chi, er := d.DAO.getNodeLastChild(ctx, mPath)
+	if er != nil {
+		return 1, er
+	}
+	strIdx := strings.TrimPrefix(chi.GetMPath().ToString(), mPath.ToString()+".")
+	intIdx, _ := strconv.ParseInt(strIdx, 10, 64)
+	// Go to next position
+	intIdx++
+	// Create cache entry
+	for i := 1; i <= int(intIdx)-1; i++ {
+		all = append(all, i)
+	}
+	_ = d.getCache(ctx).Set(getKey("ac_", mPath.ToString()), all)
 
-	return d.DAO.getNodeFirstAvailableChildIndex(ctx, mPath)
+	return uint64(intIdx), nil
 }
 
 func (d *sessionDAO) Flush(ctx context.Context, b bool) error {
 
 	ic, ec := d.DAO.AddNodeStream(ctx, d.concurrency)
+	var errs []error
+	erGroup := &sync.WaitGroup{}
+	erGroup.Add(1)
+	go func() {
+		defer erGroup.Done()
+		for er := range ec {
+			errs = append(errs, er)
+		}
+	}()
+
 	ca := d.getCache(ctx)
 	var count = 0
 	if err := ca.Iterate(func(key string, value interface{}) {
@@ -195,20 +223,16 @@ func (d *sessionDAO) Flush(ctx context.Context, b bool) error {
 	}); err != nil {
 		return err
 	}
+	close(ic)
 
 	log.Logger(ctx).Infof("Flushed DAOSession with %d creates", count)
-
 	if err := ca.Reset(); err != nil {
 		return err
 	}
 
-	close(ic)
+	erGroup.Wait()
 
-	if err, ok := <-ec; ok && err != nil {
-		return err
-	}
-
-	return nil
+	return multierr.Combine(errs...)
 }
 
 func (d *sessionDAO) GetNodeByPath(ctx context.Context, nodePath string) (tree.ITreeNode, error) {
