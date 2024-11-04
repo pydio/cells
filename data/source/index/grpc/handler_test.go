@@ -57,7 +57,7 @@ func TestIndex(t *testing.T) {
 
 		cache_helper.SetStaticResolver("pm://", &gocache.URLOpener{})
 
-		s := NewTreeServer(&object.DataSource{Name: ""}, "")
+		s := NewTreeServer(&object.DataSource{Name: ""})
 
 		Convey("Insert a new child at root level", t, func() {
 
@@ -606,7 +606,7 @@ func SkipTestIndexLongNode(t *testing.T) {
 
 	test.RunStorageTests(testcases, t, func(ctx context.Context) {
 
-		s := NewTreeServer(&object.DataSource{Name: ""}, "")
+		s := NewTreeServer(&object.DataSource{Name: ""})
 
 		//wg.Add(1)
 		//defer wg.Done()
