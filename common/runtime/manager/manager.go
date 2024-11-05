@@ -239,10 +239,11 @@ func NewManager(ctx context.Context, namespace string, logger log.ZapLogger) (Ma
 		return nil, err
 	}
 
-	// runtime.Init(ctx, "discovery")
 	runtime.Init(ctx, m.ns)
 
 	m.ctx = ctx
+
+	runtime.Init(ctx, runtime.NsConnReady)
 
 	return m, nil
 }

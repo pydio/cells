@@ -50,23 +50,25 @@ func init() {
 			service.Tag(common.ServiceTagDatasource),
 			service.Description("Starter for different sources objects"),
 			service.WithGRPC(func(ctx context.Context, server grpc.ServiceRegistrar) error {
+
 				fsBrowser := objects.NewFsBrowser()
 				tree.RegisterNodeProviderServer(server, fsBrowser)
 				tree.RegisterNodeReceiverServer(server, fsBrowser)
+
 				sharedHandler := grpc2.NewSharedObjectHandler()
 				var mErr []error
 				_ = runtime.MultiContextManager().Iterate(ctx, func(ctx context.Context, s string) error {
 					ss := config.ListMinioConfigsFromConfig(ctx, true)
-					for _, object := range ss {
-						mc, er := grpc2.InitMinioConfig(object)
+					for _, obj := range ss {
+						mc, er := grpc2.InitMinioConfig(obj)
 						if er != nil {
 							mErr = append(mErr, er)
 							continue
 						}
-						sharedHandler.RegisterConfig(ctx, object.Name, mc)
+						sharedHandler.RegisterConfig(ctx, obj.Name, mc)
 						var startErr error
 						go func() {
-							startErr = sharedHandler.StartMinioServer(ctx, mc, object.Name)
+							startErr = sharedHandler.StartMinioServer(ctx, mc, obj.Name)
 						}()
 						if startErr != nil {
 							mErr = append(mErr, startErr)

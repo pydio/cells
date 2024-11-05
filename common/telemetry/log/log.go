@@ -133,7 +133,7 @@ func initLoggerPool(f LoggerInitializer, globalConnInit func(ctx context.Context
 		l := newLogger()
 		l.set(f)
 		if globalConnInit != nil {
-			runtime.RegisterGlobalConnConsumer("main", func(ctx context.Context) {
+			runtime.Register(runtime.NsConnReady, func(ctx context.Context) {
 				globalConnInit(ctx)
 				l.forceReset()
 			})

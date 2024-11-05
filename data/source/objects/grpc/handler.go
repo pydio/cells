@@ -153,7 +153,9 @@ func (o *ObjectHandler) startMinioServer(ctx context.Context, minioServiceName, 
 			}
 		}
 	})
-	log.Logger(ctx).Info("Starting local minio server with config dir " + globals.CliContext.ConfigDir.Get() + " and local folder " + localFolder)
+
+	globals.Context = ctx // will monitor
+	log.Logger(ctx).Infof("Serving %s as minio server with config dir %s on port %d", localFolder, globals.CliContext.ConfigDir.Get(), runningPort)
 	minio.StartServerWithGlobals(globals, localFolder)
 
 	return nil
