@@ -96,6 +96,13 @@ func InitReaders(ctx context.Context, svc otel2.Service, cfg Config) error {
 	provider := metric.NewMeterProvider(opts...)
 
 	otel.SetMeterProvider(provider)
+
+	TaggedHelper(map[string]string{
+		"version":       common.Version().String(),
+		"package_label": common.PackageLabel,
+		"package_type":  common.PackageType,
+	}).Gauge("version_info").Update(1)
+
 	_ = runtime.Start(runtime.WithMeterProvider(provider), runtime.WithMinimumReadMemStatsInterval(time.Second))
 	return nil
 }

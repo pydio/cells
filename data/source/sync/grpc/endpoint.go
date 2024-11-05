@@ -41,9 +41,7 @@ import (
 	"github.com/pydio/cells/v4/common/sync/merger"
 	"github.com/pydio/cells/v4/common/sync/model"
 	"github.com/pydio/cells/v4/common/telemetry/log"
-	"github.com/pydio/cells/v4/common/utils/cache"
 	"github.com/pydio/cells/v4/common/utils/jsonx"
-	"github.com/pydio/cells/v4/common/utils/openurl"
 	"github.com/pydio/cells/v4/common/utils/propagator"
 	"github.com/pydio/cells/v4/data/source"
 	sync2 "github.com/pydio/cells/v4/data/source/sync"
@@ -52,7 +50,7 @@ import (
 
 type Endpoint struct {
 	PresetSync *Handler
-	Cache      *openurl.Pool[cache.Cache]
+	*source.Resolver[*Handler]
 
 	tree.UnimplementedNodeProviderServer
 	tree.UnimplementedNodeReceiverServer
@@ -66,20 +64,9 @@ func (e *Endpoint) getSyncHandler(ctx context.Context) (*Handler, bool) {
 	if e.PresetSync != nil {
 		return e.PresetSync, true
 	} else {
-		dsName, _ := source.DatasourceFromContext(ctx)
-		ka, _ := e.Cache.Get(ctx)
-		var h *Handler
-		ok := ka.Get(dsName, &h)
-		if ok {
-			return h, true
-		}
+		h, er := e.Resolve(ctx)
+		return h, er == nil
 	}
-	return nil, false
-}
-
-func (e *Endpoint) RegisterSyncHandler(ctx context.Context, name string, h *Handler) {
-	ka, _ := e.Cache.Get(ctx)
-	_ = ka.Set(name, h)
 }
 
 // TriggerResync sets 2 servers in sync

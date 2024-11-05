@@ -40,10 +40,7 @@ import (
 	"github.com/pydio/cells/v4/common/proto/object"
 	"github.com/pydio/cells/v4/common/runtime"
 	"github.com/pydio/cells/v4/common/telemetry/log"
-	"github.com/pydio/cells/v4/common/utils/cache"
-	"github.com/pydio/cells/v4/common/utils/cache/gocache"
 	"github.com/pydio/cells/v4/common/utils/net"
-	"github.com/pydio/cells/v4/common/utils/openurl"
 	"github.com/pydio/cells/v4/data/source"
 	"github.com/pydio/cells/v4/data/source/objects"
 
@@ -60,9 +57,9 @@ func NewObjectHandlerWithPreset(mc *object.MinioConfig) *ObjectHandler {
 	}
 }
 
-func NewSharedObjectHandler() *ObjectHandler {
+func NewSharedObjectHandler(resolver *source.Resolver[*object.MinioConfig]) *ObjectHandler {
 	return &ObjectHandler{
-		Cache: gocache.MustOpenNonExpirableMemory(),
+		Resolver: resolver,
 	}
 }
 
@@ -70,31 +67,42 @@ func NewSharedObjectHandler() *ObjectHandler {
 type ObjectHandler struct {
 	object.UnimplementedObjectsEndpointServer
 	object.UnimplementedResourceCleanerEndpointServer
+	*source.Resolver[*object.MinioConfig]
 	PresetConfig *object.MinioConfig
-	Cache        *openurl.Pool[cache.Cache]
 }
 
-func (o *ObjectHandler) getConfig(ctx context.Context) (*object.MinioConfig, bool) {
+func (o *ObjectHandler) getConfig(ctx context.Context) (*object.MinioConfig, string, bool) {
 	if o.PresetConfig != nil {
-		return o.PresetConfig, true
+		return o.PresetConfig, "", true
 	}
-	if ds, ok := source.DatasourceFromContext(ctx); ok {
-		var cfg *object.MinioConfig
-		ka, er := o.Cache.Get(ctx)
-		if er != nil {
-			return nil, false
-		}
-		if ka.Get(ds, &cfg) {
-			return cfg, true
-		}
+	obj, er := o.Resolve(ctx)
+	if er != nil {
+		return nil, "", false
+	} else {
+		return obj, "", true
 	}
-	return nil, false
+	/*
+		if ds, ok := source.DatasourceFromContext(ctx); ok {
+			var cfg *object.MinioConfig
+			ka, er := o.Cache.Get(ctx)
+			if er != nil {
+				return nil, ds, false
+			}
+			if ka.Get(ds, &cfg) {
+				return cfg, ds, true
+			}
+			return nil, ds, false
+		}
+		return nil, "-", false
+
+	*/
 }
 
+/*
 func (o *ObjectHandler) RegisterConfig(ctx context.Context, name string, conf *object.MinioConfig) {
 	ka, _ := o.Cache.Get(ctx)
 	_ = ka.Set(name, conf)
-}
+}*/
 
 // StartMinioServer handler
 func (o *ObjectHandler) StartMinioServer(ctx context.Context, conf *object.MinioConfig, minioServiceName string) error {
@@ -165,12 +173,12 @@ func (o *ObjectHandler) startMinioServer(ctx context.Context, minioServiceName, 
 // GetMinioConfig returns current configuration
 func (o *ObjectHandler) GetMinioConfig(ctx context.Context, _ *object.GetMinioConfigRequest) (*object.GetMinioConfigResponse, error) {
 
-	if conf, ok := o.getConfig(ctx); ok {
+	if conf, ds, ok := o.getConfig(ctx); ok {
 		return &object.GetMinioConfigResponse{
 			MinioConfig: conf,
 		}, nil
 	} else {
-		return nil, errors.WithMessage(errors.StatusInternalServerError, "cannot find datasource in context")
+		return nil, errors.WithMessage(errors.StatusInternalServerError, "cannot find datasource "+ds+" in context")
 	}
 
 }
@@ -178,9 +186,9 @@ func (o *ObjectHandler) GetMinioConfig(ctx context.Context, _ *object.GetMinioCo
 // StorageStats returns statistics about storage
 func (o *ObjectHandler) StorageStats(ctx context.Context, _ *object.StorageStatsRequest) (*object.StorageStatsResponse, error) {
 
-	conf, ok := o.getConfig(ctx)
+	conf, ds, ok := o.getConfig(ctx)
 	if !ok {
-		return nil, errors.WithMessage(errors.StatusInternalServerError, "cannot find datasource in context")
+		return nil, errors.WithMessage(errors.StatusInternalServerError, "cannot find datasource "+ds+" in context")
 	}
 
 	resp := &object.StorageStatsResponse{}
@@ -204,9 +212,9 @@ func (o *ObjectHandler) StorageStats(ctx context.Context, _ *object.StorageStats
 // CleanResourcesBeforeDelete removes the .minio.sys/config folder if it exists
 func (o *ObjectHandler) CleanResourcesBeforeDelete(ctx context.Context, request *object.CleanResourcesRequest) (resp *object.CleanResourcesResponse, err error) {
 
-	conf, ok := o.getConfig(ctx)
+	conf, ds, ok := o.getConfig(ctx)
 	if !ok {
-		return nil, errors.WithMessage(errors.StatusInternalServerError, "cannot find datasource in context")
+		return nil, errors.WithMessage(errors.StatusInternalServerError, "cannot find datasource "+ds+" in context")
 	}
 
 	resp = &object.CleanResourcesResponse{

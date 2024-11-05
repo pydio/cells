@@ -63,8 +63,7 @@ func (o *URLOpener) Open(ctx context.Context, urlstr string) (config.Store, erro
 		return nil, err
 	}
 
-	// TODO - resolveconn should do multi tenancy
-	store := New(context.Background(), cgrpc.ResolveConn(ctx, common.ServiceConfigGRPC), u.Query().Get("namespace"), "/")
+	store := New(ctx, cgrpc.ResolveConn(ctx, common.ServiceConfigGRPC), u.Query().Get("namespace"), "/")
 
 	return store, nil
 }
@@ -121,7 +120,7 @@ func New(ctx context.Context, conn grpc.ClientConnInterface, id string, path str
 				}
 
 				c := configx.New(configx.WithJSON())
-				c.Set(rsp.GetValue().GetData())
+				_ = c.Set(rsp.GetValue().GetData())
 
 				r.internalLocker.RLock()
 				for _, w := range r.watchers {
@@ -135,7 +134,7 @@ func New(ctx context.Context, conn grpc.ClientConnInterface, id string, path str
 				r.internalLocker.RUnlock()
 			}
 
-			stream.CloseSend()
+			_ = stream.CloseSend()
 		}
 	}()
 
@@ -342,12 +341,14 @@ func (v *values) Get(wo ...configx.WalkOption) any {
 	})
 
 	if err != nil {
-		fmt.Println("Config error (fork cannot contact remote gRPC service: ", err.Error(), ")")
+		if !errors.Is(err, context.Canceled) {
+			log.Logger(v.ctx).Warn("Config error (fork cannot contact remote gRPC service", zap.Error(err))
+		}
 		return nil
 	}
 
-	if err := c.Set(rsp.GetValue().GetData()); err != nil {
-		fmt.Println("Config error (could not set value from data ", err.Error(), ")")
+	if err = c.Set(rsp.GetValue().GetData()); err != nil {
+		log.Logger(v.ctx).Error("Remote config error (could not set value from data ", zap.Error(err))
 		return nil
 	}
 
@@ -365,7 +366,7 @@ func (v *values) Set(value interface{}) error {
 		return err
 	}
 
-	if _, err := v.cli.Set(v.ctx, &pb.SetRequest{
+	if _, err = v.cli.Set(v.ctx, &pb.SetRequest{
 		Namespace: v.id,
 		Path:      strings.Join(v.k, "/"),
 		Value:     &pb.Value{Data: b},

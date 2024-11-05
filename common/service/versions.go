@@ -65,42 +65,48 @@ func Latest() *version.Version {
 func UpdateServiceVersion(ctx context.Context, opts *ServiceOptions) error {
 
 	var err error
-	prefix := []string{"versions", opts.Name}
-	runtime.MultiContextManager()
 	tID := runtime.MultiContextManager().Current(ctx)
-
+	refName := opts.Name
+	if opts.MigrateIterator.ContextKey != nil {
+		var s string
+		if propagator.Get[string](ctx, opts.MigrateIterator.ContextKey, &s) {
+			refName += "." + s
+		}
+	}
 	var run bool
 	opts.migrateOnceL.Lock()
-	if !opts.migrateOnce[tID] {
+	if !opts.migrateOnce[tID+"-"+refName] {
 		run = true
-		opts.migrateOnce[tID] = true
+		opts.migrateOnce[tID+"-"+refName] = true
 	}
 	opts.migrateOnceL.Unlock()
 	if !run {
 		return nil
 	}
 
+	prefix := []string{"versions", refName}
+
 	var store config.Store
 	if !propagator.Get(ctx, config.ContextKey, &store) {
-		return fmt.Errorf("could not find config for %s during updateServiceVersion", opts.Name)
+		return fmt.Errorf("could not find config for %s during updateServiceVersion", refName)
 	}
 
 	newVersion, _ := version.NewVersion(opts.Version)
-	lastVersion, e := lastKnownVersion(ctx, store, opts.Name, prefix...)
+	lastVersion, e := lastKnownVersion(ctx, store, refName, prefix...)
 	if e != nil {
-		err = fmt.Errorf("cannot update service version for %s (%v)", opts.Name, e)
+		err = fmt.Errorf("cannot update service version for %s (%v)", refName, e)
 		return err
 	}
 
 	if len(opts.Migrations) > 0 {
 		writeVersion, err := applyMigrations(ctx, lastVersion, newVersion, opts.Migrations)
 		if writeVersion != nil {
-			if e := updateVersion(ctx, store, opts.Name, writeVersion, prefix...); e != nil {
+			if e := updateVersion(ctx, store, refName, writeVersion, prefix...); e != nil {
 				log.Logger(ctx).Error("could not write version file", zap.Error(e))
 			}
 		}
 		if err != nil {
-			err = fmt.Errorf("cannot update service version for %s (%v)", opts.Name, err)
+			err = fmt.Errorf("cannot update service version for %s (%v)", refName, err)
 			return err
 		}
 	}

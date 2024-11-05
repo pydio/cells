@@ -25,6 +25,7 @@ import (
 	"fmt"
 	"sync"
 
+	"go.uber.org/multierr"
 	"go.uber.org/zap"
 	"golang.org/x/exp/maps"
 
@@ -331,7 +332,19 @@ func (s *service) OnServe(oo ...registry.RegisterOption) error {
 
 		defer w.Done()
 		if er := runtime.MultiContextManager().Iterate(refCtx, func(ctx context.Context, _ string) error {
-			return UpdateServiceVersion(ctx, s.Opts)
+			if s.Opts.MigrateIterator.Lister != nil {
+				var errs []error
+				for _, key := range s.Opts.MigrateIterator.Lister(ctx) {
+					ctx = propagator.With(ctx, s.Opts.MigrateIterator.ContextKey, key)
+					errs = append(errs, UpdateServiceVersion(ctx, s.Opts))
+				}
+				if outE := multierr.Combine(errs...); outE != nil {
+					log.Logger(ctx).Error("One specific upgrade was not performed successfully, but process is continued", zap.Error(outE))
+				}
+			} else {
+				return UpdateServiceVersion(ctx, s.Opts)
+			}
+			return nil
 		}); er != nil {
 			log.Logger(refCtx).Error("Error while updating service version", zap.Error(er))
 		}

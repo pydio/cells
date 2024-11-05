@@ -29,11 +29,13 @@ import (
 
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/config"
+	"github.com/pydio/cells/v4/common/errors"
 	"github.com/pydio/cells/v4/common/proto/object"
 	"github.com/pydio/cells/v4/common/proto/tree"
 	"github.com/pydio/cells/v4/common/runtime"
 	"github.com/pydio/cells/v4/common/service"
 	"github.com/pydio/cells/v4/common/telemetry/log"
+	"github.com/pydio/cells/v4/data/source"
 	"github.com/pydio/cells/v4/data/source/objects"
 	grpc2 "github.com/pydio/cells/v4/data/source/objects/grpc"
 )
@@ -43,6 +45,7 @@ var (
 )
 
 func init() {
+
 	runtime.Register("main", func(ctx context.Context) {
 		service.NewService(
 			service.Name(BrowserName),
@@ -55,26 +58,25 @@ func init() {
 				tree.RegisterNodeProviderServer(server, fsBrowser)
 				tree.RegisterNodeReceiverServer(server, fsBrowser)
 
-				sharedHandler := grpc2.NewSharedObjectHandler()
+				resolver := source.NewResolver[*object.MinioConfig](source.ListObjects)
+				sharedHandler := grpc2.NewSharedObjectHandler(resolver)
+				resolver.SetLoader(func(ctx context.Context, s string) (*object.MinioConfig, error) {
+					var er error
+					mc := config.GetMinioConfigForName(ctx, s, true)
+					if mc == nil {
+						return nil, errors.New("no config for " + s)
+					}
+					mc, er = grpc2.InitMinioConfig(mc)
+					if er == nil {
+						go func() {
+							er = sharedHandler.StartMinioServer(ctx, mc, s)
+						}()
+					}
+					return mc, er
+				})
 				var mErr []error
 				_ = runtime.MultiContextManager().Iterate(ctx, func(ctx context.Context, s string) error {
-					ss := config.ListMinioConfigsFromConfig(ctx, true)
-					for _, obj := range ss {
-						mc, er := grpc2.InitMinioConfig(obj)
-						if er != nil {
-							mErr = append(mErr, er)
-							continue
-						}
-						sharedHandler.RegisterConfig(ctx, obj.Name, mc)
-						var startErr error
-						go func() {
-							startErr = sharedHandler.StartMinioServer(ctx, mc, obj.Name)
-						}()
-						if startErr != nil {
-							mErr = append(mErr, startErr)
-						}
-					}
-					return nil
+					return resolver.HeatCache(ctx)
 				})
 				object.RegisterObjectsEndpointServer(server, sharedHandler)
 				object.RegisterResourceCleanerEndpointServer(server, sharedHandler)
