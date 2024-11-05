@@ -242,7 +242,7 @@ func (i *Client) GetCachedBranches(ctx context.Context, roots ...string) (model.
 		rts[root] = root
 	}
 	for _, root := range rts {
-		e := i.Walk(nil, func(path string, node tree.N, err error) error {
+		e := i.Walk(ctx, func(path string, node tree.N, err error) error {
 			if err == nil {
 				err = memDB.CreateNode(ctx, node, false)
 			}

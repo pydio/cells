@@ -11,6 +11,7 @@ import (
 	"google.golang.org/protobuf/proto"
 	"gorm.io/gorm"
 
+	"github.com/pydio/cells/v4/common/errors"
 	"github.com/pydio/cells/v4/common/proto/tree"
 	"github.com/pydio/cells/v4/common/telemetry/log"
 	"github.com/pydio/cells/v4/common/utils/cache"
@@ -74,7 +75,7 @@ func (d *sessionDAO) insertNode(ctx context.Context, node tree.ITreeNode) error 
 	}
 
 	// Saving AvailableChildIndex
-	if err := ca.Set(getKey("ac_", mpathStr), []int{0}); err != nil {
+	if err := ca.Set(getKey("ac_", mpathStr), []int{}); err != nil {
 		return err
 	}
 
@@ -184,8 +185,12 @@ func (d *sessionDAO) getNodeFirstAvailableChildIndex(ctx context.Context, mPath 
 	}
 	// If not found in cache, find the LAST available slot currently in DB and put it inside cache
 	chi, er := d.DAO.getNodeLastChild(ctx, mPath)
-	if er != nil {
-		return 1, er
+	if errors.Is(er, gorm.ErrRecordNotFound) {
+		// Return 1 and cache an empty array
+		_ = d.getCache(ctx).Set(getKey("ac_", mPath.ToString()), []int{})
+		return 1, nil
+	} else if er != nil {
+		return 0, er
 	}
 	strIdx := strings.TrimPrefix(chi.GetMPath().ToString(), mPath.ToString()+".")
 	intIdx, _ := strconv.ParseInt(strIdx, 10, 64)

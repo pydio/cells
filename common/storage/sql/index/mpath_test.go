@@ -67,8 +67,9 @@ func init() {
 
 	mockLongNode = &tree.TreeNode{
 		Node: &tree.Node{
-			Uuid: "mockLongNode",
-			Type: tree.NodeType_COLLECTION,
+			Uuid:       "mockLongNode",
+			Type:       tree.NodeType_COLLECTION,
+			ModeString: "0",
 		},
 		MPath: mockLongNodeMPath,
 		Name:  "mockLongNode",
@@ -76,9 +77,10 @@ func init() {
 
 	mockLongNodeChild1 = &tree.TreeNode{
 		Node: &tree.Node{
-			Uuid: "mockLongNodeChild1",
-			Type: tree.NodeType_LEAF,
-			Size: 25,
+			Uuid:       "mockLongNodeChild1",
+			Type:       tree.NodeType_LEAF,
+			Size:       25,
+			ModeString: "0",
 		},
 		MPath: mockLongNodeChild1MPath,
 		Name:  "mockLongNodeChild1",
@@ -86,9 +88,10 @@ func init() {
 
 	mockLongNodeChild2 = &tree.TreeNode{
 		Node: &tree.Node{
-			Uuid: "mockLongNodeChild2",
-			Type: tree.NodeType_LEAF,
-			Size: 27,
+			Uuid:       "mockLongNodeChild2",
+			Type:       tree.NodeType_LEAF,
+			Size:       27,
+			ModeString: "0",
 		},
 		MPath: mockLongNodeChild2MPath,
 		Name:  "mockLongNodeChild2",

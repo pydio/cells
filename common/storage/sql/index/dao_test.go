@@ -37,6 +37,7 @@ import (
 	"github.com/spf13/viper"
 	"golang.org/x/text/cases"
 	"golang.org/x/text/language"
+	"google.golang.org/protobuf/proto"
 	"gorm.io/gorm"
 
 	"github.com/pydio/cells/v4/common/errors"
@@ -110,6 +111,7 @@ func testAll(t *testing.T, f func(dao testdao) func(*testing.T), cache ...bool) 
 			scheme := strings.SplitN(testcases[cnt].DSN[0], "://", 2)[0]
 			label := caser.String(scheme)
 			t.Run("Session/"+label, f(dao))
+			cnt++
 		})
 
 	}
@@ -284,9 +286,6 @@ func TestGenericFeatures(t *testing.T) {
 				So(err, ShouldBeNil)
 
 				So(dao.Flush(ctx, true), ShouldBeNil)
-
-				// printTree()
-				// printNodes()
 			})
 
 			Convey("Re-adding a file - Success", t, func() {
@@ -294,9 +293,6 @@ func TestGenericFeatures(t *testing.T) {
 				So(err, ShouldBeNil)
 
 				So(dao.Flush(ctx, true), ShouldBeNil)
-
-				//printTree()
-				//printNodes()
 			})
 
 			Convey("Re-adding the same file - Failure", t, func() {
@@ -308,9 +304,6 @@ func TestGenericFeatures(t *testing.T) {
 					err = dao.Flush(ctx, true)
 					So(err, ShouldEqual, gorm.ErrDuplicatedKey)
 				}
-
-				// printTree()
-				// printNodes()
 			})
 
 			//Convey("Create combined error", t, func() {
@@ -340,13 +333,13 @@ func TestGenericFeatures(t *testing.T) {
 
 			// Setting a file
 			Convey("Test setting a file with a massive path - Success", t, func() {
-				err := dao.insertNode(ctx, mockLongNode)
+				err := dao.insertNode(ctx, proto.Clone(mockLongNode).(*tree.TreeNode))
 				So(err, ShouldBeNil)
 
-				err = dao.insertNode(ctx, mockLongNodeChild1)
+				err = dao.insertNode(ctx, proto.Clone(mockLongNodeChild1).(*tree.TreeNode))
 				So(err, ShouldBeNil)
 
-				err = dao.insertNode(ctx, mockLongNodeChild2)
+				err = dao.insertNode(ctx, proto.Clone(mockLongNodeChild2).(*tree.TreeNode))
 				So(err, ShouldBeNil)
 
 				//printTree()
@@ -355,12 +348,10 @@ func TestGenericFeatures(t *testing.T) {
 				node, err := dao.GetNodeByMPath(ctx, mockLongNodeChild2MPath)
 				So(err, ShouldBeNil)
 
-				// TODO - find a way
-				// node.MTime = 0
-				// node.Path = mockLongNodeChild2.Path
-
 				So(dao.Flush(ctx, true), ShouldBeNil)
 
+				// Reset for comparison
+				node.GetNode().SetMTime(0)
 				So(node.GetNode(), ShouldResemble, mockLongNodeChild2.Node)
 			})
 
@@ -368,13 +359,7 @@ func TestGenericFeatures(t *testing.T) {
 				node, err := dao.GetNodeByUUID(ctx, "mockLongNode")
 				So(err, ShouldBeNil)
 
-				// Setting MTime to 0 so we can compare
 				node.GetNode().SetMTime(0)
-				node.GetNode().SetSize(0)
-				// node.Path = "mockLongNode"
-
-				So(dao.Flush(ctx, true), ShouldBeNil)
-
 				So(node.GetNode(), ShouldResemble, mockLongNode.Node)
 			})
 
@@ -385,13 +370,7 @@ func TestGenericFeatures(t *testing.T) {
 
 				So(err, ShouldBeNil)
 
-				// TODO - find a way
-				//node.MTime = 0
-				//node.Path = mockLongNodeChild1.Path
-
-				So(dao.Flush(ctx, true), ShouldBeNil)
-
-				// So(node.Node, ShouldNotResemble, mockLongNodeChild2.Node)
+				node.GetNode().SetMTime(0)
 				So(node.GetNode(), ShouldResemble, mockLongNodeChild1.Node)
 			})
 
@@ -402,14 +381,9 @@ func TestGenericFeatures(t *testing.T) {
 
 				So(err, ShouldBeNil)
 
-				// TODO - find a way
-				//node.MTime = 0
-				//node.Path = mockLongNodeChild2.Path
-
-				So(dao.Flush(ctx, true), ShouldBeNil)
-
+				node.GetNode().SetMTime(0)
 				So(node.GetNode(), ShouldNotResemble, mockLongNodeChild1.Node)
-				// So(node.Node, ShouldResemble, mockLongNodeChild2.Node)
+				So(node.GetNode(), ShouldResemble, mockLongNodeChild2.Node)
 			})
 
 			// Getting children count
