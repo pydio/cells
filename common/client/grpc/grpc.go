@@ -45,7 +45,6 @@ import (
 	"github.com/pydio/cells/v4/common/telemetry/metrics"
 	json "github.com/pydio/cells/v4/common/utils/jsonx"
 	"github.com/pydio/cells/v4/common/utils/propagator"
-	"github.com/pydio/cells/v4/data/source"
 
 	_ "google.golang.org/grpc/xds"
 )
@@ -53,21 +52,24 @@ import (
 type ctxBalancerFilterKey struct{}
 
 var (
-	CallTimeoutShort = 1 * time.Second
+	CallTimeoutShort    = 1 * time.Second
+	serviceTransformers []ServiceTransformer
 )
+
+type ServiceTransformer func(context.Context, string) (string, []string, bool)
+
+func RegisterServiceTransformer(transformer ServiceTransformer) {
+	serviceTransformers = append(serviceTransformers, transformer)
+}
 
 func ResolveConn(ctx context.Context, serviceName string, opt ...Option) grpc.ClientConnInterface {
 
-	var dsName string
-	if strings.HasPrefix(serviceName, common.ServiceDataIndexGRPC_) {
-		dsName = strings.TrimPrefix(serviceName, common.ServiceDataIndexGRPC_)
-		serviceName = common.ServiceDataIndexGRPC
-	} else if strings.HasPrefix(serviceName, common.ServiceDataObjectsGRPC_) {
-		dsName = strings.TrimPrefix(serviceName, common.ServiceDataObjectsGRPC_)
-		serviceName = common.ServiceDataObjectsPeerGRPC
-	} else if strings.HasPrefix(serviceName, common.ServiceDataSyncGRPC_) {
-		dsName = strings.TrimPrefix(serviceName, common.ServiceDataSyncGRPC_)
-		serviceName = common.ServiceDataSyncGRPC
+	var headerKVs []string
+	for _, tr := range serviceTransformers {
+		if newServiceName, headers, ok := tr(ctx, serviceName); ok {
+			serviceName = newServiceName
+			headerKVs = append(headerKVs, headers...)
+		}
 	}
 
 	var reg registry.Registry
@@ -101,7 +103,6 @@ func ResolveConn(ctx context.Context, serviceName string, opt ...Option) grpc.Cl
 		return t, nil
 	}
 
-	// er := std.Retry(ctx, func() error {
 	cc, err := reg.List(
 		registry.WithType(pb.ItemType_GENERIC),
 		registry.WithFilter(func(item registry.Item) bool {
@@ -166,26 +167,20 @@ func ResolveConn(ctx context.Context, serviceName string, opt ...Option) grpc.Cl
 	}
 
 	opts.ClientConn = conn
-	// return nil
-
-	//}, 3*time.Second, 1*time.Minute)
-	//if er != nil {
-	//	panic("Waited for 1 minuted but could not resolve connection: " + er.Error())
-	//}
 
 	return &clientConn{
 		callTimeout:         opts.CallTimeout,
 		ClientConnInterface: opts.ClientConn,
 		balancerFilter:      opts.BalancerFilter,
 		serviceName:         serviceName,
-		dsName:              dsName,
+		headerKVs:           headerKVs,
 	}
 }
 
 type clientConn struct {
 	grpc.ClientConnInterface
 	serviceName    string
-	dsName         string
+	headerKVs      []string
 	callTimeout    time.Duration
 	balancerFilter client.BalancerTargetFilter
 }
@@ -198,8 +193,10 @@ func (cc *clientConn) Invoke(ctx context.Context, method string, args interface{
 		grpc.WaitForReady(true),
 	}, opts...)
 
-	if cc.dsName != "" {
-		ctx = metadata.AppendToOutgoingContext(ctx, source.DatasourceHeader, cc.dsName)
+	if len(cc.headerKVs) > 0 {
+		for i := 0; i < len(cc.headerKVs)-1; i = i + 2 {
+			ctx = metadata.AppendToOutgoingContext(ctx, cc.headerKVs[i], cc.headerKVs[i+1])
+		}
 	}
 
 	ctx = metadata.AppendToOutgoingContext(ctx, common.CtxTargetServiceName, cc.serviceName)
@@ -241,8 +238,10 @@ func (cc *clientConn) NewStream(ctx context.Context, desc *grpc.StreamDesc, meth
 		grpc.WaitForReady(true),
 	}, opts...)
 
-	if cc.dsName != "" {
-		ctx = metadata.AppendToOutgoingContext(ctx, source.DatasourceHeader, cc.dsName)
+	if len(cc.headerKVs) > 0 {
+		for i := 0; i < len(cc.headerKVs)-1; i = i + 2 {
+			ctx = metadata.AppendToOutgoingContext(ctx, cc.headerKVs[i], cc.headerKVs[i+1])
+		}
 	}
 
 	ctx = metadata.AppendToOutgoingContext(ctx, common.CtxTargetServiceName, cc.serviceName)

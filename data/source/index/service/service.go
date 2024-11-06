@@ -56,11 +56,11 @@ func init() {
 					Up:            manager.StorageMigration(),
 				},
 			}),
-			service.WithMigrateIterator(source.DatasourceContextKey, source.ListSources),
+			service.WithMigrateIterator(source.DataSourceContextKey, source.ListSources),
 			service.Description("Starter for data sources indexes"),
 			service.WithGRPC(func(ctx context.Context, srv grpc.ServiceRegistrar) error {
 
-				resolver := source.NewResolver[*object.DataSource](source.ListSources)
+				resolver := source.NewResolver[*object.DataSource](source.DataSourceContextKey, source.ListSources)
 				resolver.SetLoader(func(ctx context.Context, s string) (*object.DataSource, error) {
 					return config.GetSourceInfoByName(ctx, s)
 				})

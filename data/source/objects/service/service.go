@@ -58,7 +58,7 @@ func init() {
 				tree.RegisterNodeProviderServer(server, fsBrowser)
 				tree.RegisterNodeReceiverServer(server, fsBrowser)
 
-				resolver := source.NewResolver[*object.MinioConfig](source.ListObjects)
+				resolver := source.NewResolver[*object.MinioConfig](source.ObjectServiceContextKey, source.ListObjects)
 				sharedHandler := grpc2.NewSharedObjectHandler(resolver)
 				resolver.SetLoader(func(ctx context.Context, s string) (*object.MinioConfig, error) {
 					var er error

@@ -47,9 +47,9 @@ func init() {
 			service.Context(ctx),
 			service.Tag(common.ServiceTagDatasource),
 			service.Description("Starter for data sources synchronizations"),
-			service.WithMigrateIterator(source.DatasourceContextKey, source.ListSources),
+			service.WithMigrateIterator(source.DataSourceContextKey, source.ListSources),
 			service.WithGRPC(func(ctx context.Context, registrar grpc.ServiceRegistrar) error {
-				resolver := source.NewResolver[*grpc_sync.Handler](source.ListSources)
+				resolver := source.NewResolver[*grpc_sync.Handler](source.DataSourceContextKey, source.ListSources)
 				endpoint := &grpc_sync.Endpoint{
 					Resolver: resolver,
 				}
