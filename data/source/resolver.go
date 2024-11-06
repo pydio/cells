@@ -2,10 +2,14 @@ package source
 
 import (
 	"context"
+	"regexp"
+	"strings"
 
 	"go.uber.org/multierr"
 	"google.golang.org/grpc/metadata"
 
+	"github.com/pydio/cells/v4/common"
+	"github.com/pydio/cells/v4/common/client/grpc"
 	"github.com/pydio/cells/v4/common/config"
 	"github.com/pydio/cells/v4/common/errors"
 	"github.com/pydio/cells/v4/common/middleware"
@@ -16,57 +20,87 @@ import (
 )
 
 const (
-	DatasourceHeader = "datasource"
+	dataSourceServiceHeader = "datasource-srv"
+	objectServiceHeader     = "object-srv"
+	DatasourceTplKey        = "DataSource"
+	ObjectServiceTplKey     = "Object"
 )
 
-type contextKey struct{}
+type dsContextKey struct{}
 
-var DatasourceContextKey = contextKey{}
+type objContextKey struct{}
+
+var (
+	DataSourceContextKey    = dsContextKey{}
+	ObjectServiceContextKey = objContextKey{}
+
+	escIdx  = strings.ReplaceAll(common.ServiceDataIndexGRPC_, ".", "\\.")
+	escObj  = strings.ReplaceAll(common.ServiceDataObjectsGRPC_, ".", "\\.")
+	escSync = strings.ReplaceAll(common.ServiceDataSyncGRPC_, ".", "\\.")
+	parser  = regexp.MustCompile(`^(` + escIdx + `|` + escObj + `|` + escSync + `)(.*)`)
+)
 
 func init() {
-	// GRPC OUTGOING
-	middleware.RegisterModifier(propagator.OutgoingContextModifier(func(ctx context.Context) context.Context {
-		var ds string
-		if propagator.Get[string](ctx, DatasourceContextKey, &ds) {
-			ctx = metadata.AppendToOutgoingContext(ctx, DatasourceHeader, ds)
+
+	// GRPC OUTGOING Modifier - directly injected in the ClientConn resolution
+	grpc.RegisterServiceTransformer(func(ctx context.Context, serviceName string) (string, []string, bool) {
+		matches := parser.FindStringSubmatch(serviceName)
+		if len(matches) < 3 {
+			return serviceName, nil, false
 		}
-		return ctx
-	}))
-	// GRPC INCOMING
+
+		var hh []string
+		prefix := matches[1]
+		suffix := matches[2]
+		switch prefix {
+		case common.ServiceDataIndexGRPC_:
+			hh = append(hh, dataSourceServiceHeader, suffix)
+			serviceName = common.ServiceDataIndexGRPC
+		case common.ServiceDataSyncGRPC_:
+			hh = append(hh, dataSourceServiceHeader, suffix)
+			serviceName = common.ServiceDataSyncGRPC
+		case common.ServiceDataObjectsGRPC_:
+			hh = append(hh, objectServiceHeader, suffix)
+			serviceName = common.ServiceDataObjectsPeerGRPC
+		}
+		return serviceName, hh, true
+	})
+
+	// GRPC INCOMING - no need to add outgoing the OutgoingContext is directly patched in the CC resolution (see above)
 	middleware.RegisterModifier(propagator.IncomingContextModifier(func(ctx context.Context) (context.Context, bool, error) {
-		var ds string
 		// Make sure to check meta first if IncomingContext is not set
-		if ca, ok := propagator.CanonicalMeta(ctx, DatasourceHeader); ok {
-			ds = ca
-		} else if md, ok2 := metadata.FromIncomingContext(ctx); ok2 {
-			if t := md.Get(DatasourceHeader); len(t) > 0 {
-				ds = t[0]
-			}
-		}
-		if ds != "" {
-			ctx = propagator.With(ctx, DatasourceContextKey, ds)
-			return ctx, true, nil
-		} else {
+		md, ok := metadata.FromIncomingContext(ctx)
+		if !ok {
 			return ctx, false, nil
 		}
+		var update bool
+		if t := md.Get(dataSourceServiceHeader); len(t) > 0 {
+			update = true
+			ds := t[len(t)-1]
+			ctx = propagator.With(ctx, DataSourceContextKey, ds)
+		}
+		if t := md.Get(objectServiceHeader); len(t) > 0 {
+			update = true
+			ob := t[len(t)-1]
+			ctx = propagator.With(ctx, ObjectServiceContextKey, ob)
+		}
+		return ctx, update, nil
 	}))
 
 	// DAO TEMPLATE
 	openurl.RegisterTemplateInjector(func(ctx context.Context, m map[string]interface{}) error {
-		m["DataSource"] = ""
-		if ds, ok := DatasourceFromContext(ctx); ok {
-			m["DataSource"] = ds
+		m[DatasourceTplKey] = ""
+		m[ObjectServiceTplKey] = ""
+		var s, o string
+		if ok := propagator.Get[string](ctx, DataSourceContextKey, &s); ok {
+			m[DatasourceTplKey] = s
+		}
+		if ok := propagator.Get[string](ctx, ObjectServiceContextKey, &o); ok {
+			m[ObjectServiceTplKey] = o
 		}
 		return nil
 	})
 
-}
-
-// DatasourceFromContext resolves current datasource from context
-func DatasourceFromContext(ctx context.Context) (string, bool) {
-	var dsName string
-	ok := propagator.Get[string](ctx, DatasourceContextKey, &dsName)
-	return dsName, ok
 }
 
 // ListSources is a SourcesProvider returning *object.Datasource list
@@ -93,13 +127,15 @@ type Resolver[T any] struct {
 	cachePool       *openurl.Pool[cache.Cache]
 	sourcesProvider SourcesProvider
 	loader          func(context.Context, string) (T, error)
+	ContextKey      any
 }
 
 // NewResolver creates a new resolver with a SourcesProvider
-func NewResolver[T any](provider SourcesProvider) *Resolver[T] {
+func NewResolver[T any](ctxKey any, provider SourcesProvider) *Resolver[T] {
 	return &Resolver[T]{
 		cachePool:       gocache.MustOpenNonExpirableMemory(),
 		sourcesProvider: provider,
+		ContextKey:      ctxKey,
 	}
 }
 
@@ -120,7 +156,8 @@ func (r *Resolver[T]) cache(ctx context.Context, source string, data T) error {
 // Resolve tries to load from cache or using loader
 func (r *Resolver[T]) Resolve(ctx context.Context) (T, error) {
 	var t T
-	s, ok := DatasourceFromContext(ctx)
+	var s string
+	ok := propagator.Get[string](ctx, r.ContextKey, &s)
 	if !ok {
 		return t, errors.WithMessage(errors.StatusInternalServerError, "cannot find source in context")
 	}
@@ -147,7 +184,7 @@ func (r *Resolver[T]) HeatCache(ctx context.Context) error {
 	}
 	var errs []error
 	for _, s := range r.sourcesProvider(ctx) {
-		ctx = propagator.With(ctx, DatasourceContextKey, s)
+		ctx = propagator.With(ctx, r.ContextKey, s)
 		t, er := r.loader(ctx, s)
 		if er != nil {
 			errs = append(errs, er)
