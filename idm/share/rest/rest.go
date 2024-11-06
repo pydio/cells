@@ -165,8 +165,7 @@ func (h *SharesHandler) DeleteCell(req *restful.Request, rsp *restful.Response) 
 
 	ctx := req.Request.Context()
 	id := req.PathParameter("Uuid")
-	ownerLogin, _ := permissions.FindUserNameInContext(ctx)
-	err := h.sc.DeleteCell(ctx, id, ownerLogin)
+	err := h.sc.DeleteCell(ctx, id, "")
 	if err != nil {
 		service.RestErrorDetect(req, rsp, err)
 		return
