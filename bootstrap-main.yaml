@@ -162,9 +162,9 @@ env: &env
 
 storages:
   sql:
-    uri: "sqlite:///tmp/pydio/pydio.db?cache=shared&prefix={{ .Meta.prefix }}&policies={{ .Meta.policies }}&singular={{ .Meta.singular }}"
+    uri: "sqlite:///tmp/pydio/{{.Tenant}}.db?cache=shared&prefix={{ .Meta.prefix }}&policies={{ .Meta.policies }}&singular={{ .Meta.singular }}"
   dssql:
-    uri: sqlite:///tmp/pydio/pydio.db?ache=shared&prefix={{ .Meta.prefix }}{{if ne .DataSource ""}}{{ .DataSource }}_{{end}}&policies={{ .Meta.policies }}&singular={{ .Meta.singular }}
+    uri: sqlite:///tmp/pydio/{{.Tenant}}.db?ache=shared&prefix={{ .Meta.prefix }}{{if ne .DataSource ""}}{{ .DataSource }}_{{end}}&policies={{ .Meta.policies }}&singular={{ .Meta.singular }}
   bleve:
     uri: "bleve://{{ autoMkdir (joinPath (serviceDataDir .Service) (tenantPathWithBlank .Tenant \"default\")) }}/{{ .Meta.file }}"
   bolt:

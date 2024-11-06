@@ -24,7 +24,6 @@ import (
 	"bytes"
 	"context"
 	"fmt"
-	"github.com/pydio/cells/v4/common/client"
 	"github.com/pydio/cells/v4/common/config/migrations"
 	"github.com/pydio/cells/v4/common/telemetry"
 	"net"
@@ -452,11 +451,31 @@ func (m *manager) initKeyring(ctx context.Context) (config.Store, error) {
 
 func (m *manager) initConfig(ctx context.Context) (*openurl.Pool[config.Store], *openurl.Pool[config.Store], *openurl.Pool[revisions.Store], error) {
 
+	vaultStorePool, err := openurl.OpenPool(ctx, []string{runtime.VaultURL()}, func(ctx context.Context, url string) (config.Store, error) {
+		vaultStore, err := config.OpenStore(ctx, url)
+		if err != nil {
+			return nil, err
+		}
+
+		return vaultStore, nil
+	})
+	if err != nil {
+		return nil, nil, nil, errors.Wrap(err, "cannot open vault store pool")
+	}
+
 	mainStorePool, err := openurl.OpenPool(ctx, []string{runtime.ConfigURL()}, func(ctx context.Context, url string) (config.Store, error) {
 		mainStore, err := config.OpenStore(ctx, url)
 		if err != nil {
 			return nil, err
 		}
+
+		// Adding vault store
+		vaultStore, err := vaultStorePool.Get(ctx)
+		if err != nil {
+			return nil, err
+		}
+
+		config.NewVault(vaultStore, mainStore)
 
 		// Additional Proxy
 		mainStore = config.Proxy(mainStore)
@@ -465,23 +484,6 @@ func (m *manager) initConfig(ctx context.Context) (*openurl.Pool[config.Store], 
 	})
 	if err != nil {
 		return nil, nil, nil, errors.Wrap(err, "cannot open config store pool")
-	}
-
-	vaultStorePool, err := openurl.OpenPool(ctx, []string{runtime.VaultURL()}, func(ctx context.Context, url string) (config.Store, error) {
-		mainStore, err := mainStorePool.Get(ctx)
-		if err != nil {
-			return nil, err
-		}
-
-		vaultStore, err := config.OpenStore(ctx, url)
-		if err != nil {
-			return nil, err
-		}
-
-		return config.NewVault(vaultStore, mainStore), nil
-	})
-	if err != nil {
-		return nil, nil, nil, errors.Wrap(err, "cannot open vault store pool")
 	}
 
 	versionsStorePool, err := openurl.OpenPool(ctx, []string{runtime.ConfigURL()}, func(ctx context.Context, url string) (revisions.Store, error) {
@@ -840,7 +842,6 @@ func (m *manager) initListeners(ctx context.Context, store *Bootstrap, base stri
 			registry.NewMetaWrapper(m.internalRegistry, func(meta map[string]string) {
 				meta[registry.MetaTimestampKey] = fmt.Sprintf("%d", time.Now().UnixNano())
 				meta[registry.MetaStatusKey] = string(registry.StatusReady)
-
 				meta[registry.MetaDescriptionKey] = addr
 			}).Register(registry.NewRichItem(k, k, pb.ItemType_ADDRESS, lis), registry.WithEdgeTo(m.root.ID(), "listener", nil))
 		}
@@ -879,45 +880,20 @@ func (m *manager) initServers(ctx context.Context, store *Bootstrap, base string
 				}
 			}
 
-			registry.NewMetaWrapper(m.internalRegistry, func(meta map[string]string) {
+			if err := registry.NewMetaWrapper(m.internalRegistry, func(meta map[string]string) {
 				meta[registry.MetaTimestampKey] = fmt.Sprintf("%d", time.Now().UnixNano())
 				meta[registry.MetaStatusKey] = string(registry.StatusStopped)
 
+				// Adding the services filters as meta of the item for later resolution
 				if s, ok := vv["services"]; ok {
 					b, _ := json.Marshal(s)
 					meta["services"] = string(b)
 				}
-			}).Register(srv, regOpts...)
+			}).Register(srv, regOpts...); err != nil {
+				return err
+			}
 		}
 	}
-
-	runtime.Register(m.ns, func(ctx context.Context) {
-		serverItems, err := m.internalRegistry.List(registry.WithType(pb.ItemType_SERVER))
-		if err != nil {
-			return
-		}
-
-		services, err := m.internalRegistry.List(registry.WithType(pb.ItemType_SERVICE))
-		if err != nil {
-			return
-		}
-
-		for _, ss := range services {
-			// Find storage and link it
-			var namedStores []string
-			if err := store.Val(base, "services", ss.Name(), "servers").Scan(&namedStores); err != nil {
-				return
-			}
-
-			for _, name := range namedStores {
-				for _, item := range serverItems {
-					if name == item.Name() {
-						_, _ = m.internalRegistry.RegisterEdge(ss.ID(), item.ID(), "service", nil)
-					}
-				}
-			}
-		}
-	})
 
 	return nil
 }
@@ -978,15 +954,18 @@ func (m *manager) initConnections(ctx context.Context, store *Bootstrap, base st
 			return err
 		}
 
-		registry.NewMetaWrapper(m.internalRegistry, func(meta map[string]string) {
+		if err := registry.NewMetaWrapper(m.internalRegistry, func(meta map[string]string) {
 			meta[registry.MetaTimestampKey] = fmt.Sprintf("%d", time.Now().UnixNano())
-			meta[registry.MetaStatusKey] = string(registry.StatusTransient)
+			meta[registry.MetaStatusKey] = string(registry.StatusReady)
 
+			// Adding the services filters as meta of the item for later resolution
 			if s, ok := vv["services"]; ok {
 				b, _ := json.Marshal(s)
 				meta["services"] = string(b)
 			}
-		}).Register(registry.NewRichItem(k, k, pb.ItemType_GENERIC, pool), registry.WithEdgeTo(m.root.ID(), "connection", nil))
+		}).Register(registry.NewRichItem(k, k, pb.ItemType_GENERIC, pool), registry.WithEdgeTo(m.root.ID(), "connection", nil)); err != nil {
+			return err
+		}
 	}
 
 	return nil
@@ -1010,8 +989,6 @@ func (m *manager) initStorages(ctx context.Context, store *Bootstrap, base strin
 				}).Register(registry.NewRichItem(regKey, regKey, pb.ItemType_GENERIC, pool), registry.WithEdgeTo(m.root.ID(), "storage", nil))
 				if er != nil {
 					fmt.Println("initQueues - cannot register queue pool with URI"+uri, er)
-				} else {
-					//fmt.Println("initQueues - Registered " + regKey + " with pool from uri " + uri)
 				}
 			}
 
@@ -1108,8 +1085,6 @@ func (m *manager) initStorages(ctx context.Context, store *Bootstrap, base strin
 							fmt.Println("initStorages - cannot open storage with uri "+uristr, err)
 							continue
 						}
-
-						fmt.Println("Inited storage ", uristr)
 
 						if conn != nil {
 							registry.NewMetaWrapper(m.internalRegistry, func(meta map[string]string) {
@@ -1363,44 +1338,35 @@ func (m *manager) ServeAll(oo ...server.ServeOption) error {
 		o(opt)
 	}
 
-	cb, err := client.NewResolverCallback(m.internalRegistry)
-	if err != nil {
-		return err
+	// Starting servers attached to this node that are currently stopped
+	eg := &errgroup.Group{}
+	servers := serversWithStatus(m.internalRegistry, m.root, registry.StatusStopped)
+
+	for _, srv := range servers {
+		func(srv server.Server) {
+			eg.Go(func() error {
+				if err := m.startServer(srv, oo...); err != nil {
+					return errors.Wrap(err, " from "+srv.ID()+srv.Name())
+				}
+
+				return nil
+			})
+		}(srv)
 	}
 
-	cb.Add(func(reg registry.Registry) error {
-		// Starting servers attached to this node that are currently stopped
-		eg := &errgroup.Group{}
-		servers := serversWithStatus(reg, m.root, registry.StatusStopped)
-
-		for _, srv := range servers {
-			func(srv server.Server) {
-				eg.Go(func() error {
-					if err := m.startServer(srv, oo...); err != nil {
-						return errors.Wrap(err, " from "+srv.ID()+srv.Name())
-					}
-
-					return nil
-				})
-			}(srv)
+	waitAndServe := func() {
+		if err := eg.Wait(); err != nil && opt.ErrorCallback != nil {
+			log.Logger(m.ctx).Error("Server couldn't start ", zap.Error(err))
+			opt.ErrorCallback(err)
 		}
+	}
 
-		waitAndServe := func() {
-			if err := eg.Wait(); err != nil && opt.ErrorCallback != nil {
-				log.Logger(m.ctx).Error("Server couldn't start ", zap.Error(err))
-				opt.ErrorCallback(err)
-			}
-		}
-
-		if opt.BlockUntilServe {
-			waitAndServe()
-			return nil
-		} else {
-			go waitAndServe()
-		}
-
+	if opt.BlockUntilServe {
+		waitAndServe()
 		return nil
-	})
+	} else {
+		go waitAndServe()
+	}
 
 	return nil
 }

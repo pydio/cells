@@ -157,7 +157,7 @@ func NewTestPoolWithDataSources(ctx context.Context, sc StorageClient, dss ...st
 
 func openPool(ctx context.Context) *ClientsPool {
 	var reg registry.Registry
-	if !propagator.Get(ctx, registry.ContextSOTWKey, &reg) {
+	if !propagator.Get(ctx, registry.ContextKey, &reg) {
 		fmt.Println("openPool will panic, missing manager in context")
 		panic("cannot instantiate client pool (missing manager in context)")
 	}

@@ -63,8 +63,8 @@ func (s *TreeServer) UpdateServicesList(ctx context.Context, retry int) {
 		if err != nil {
 			return
 		}
-
 	*/
+
 	ss := config.ListSourcesFromConfig(ctx)
 
 	var dsKeys []string
@@ -75,6 +75,7 @@ func (s *TreeServer) UpdateServicesList(ctx context.Context, retry int) {
 	//			continue
 	//		}
 	//		dataSourceName := strings.TrimPrefix(syncService.Name(), common.ServiceDataSyncGRPC_)
+
 	for _, s := range ss {
 		if s.Disabled {
 			continue
@@ -105,7 +106,7 @@ func (s *TreeServer) UpdateServicesList(ctx context.Context, retry int) {
 func (s *TreeServer) WatchRegistry(ctx context.Context) {
 
 	var reg registry.Registry
-	propagator.Get(ctx, registry.ContextSOTWKey, &reg)
+	propagator.Get(ctx, registry.ContextKey, &reg)
 
 	w, err := reg.Watch(registry.WithType(pb.ItemType_SERVICE), registry.WithAction(pb.ActionType_FULL_DIFF))
 	if err != nil {

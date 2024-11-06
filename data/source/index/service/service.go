@@ -26,11 +26,14 @@ import (
 	"google.golang.org/grpc"
 
 	"github.com/pydio/cells/v4/common"
+	"github.com/pydio/cells/v4/common/config"
 	"github.com/pydio/cells/v4/common/proto/object"
 	"github.com/pydio/cells/v4/common/proto/sync"
 	"github.com/pydio/cells/v4/common/proto/tree"
 	"github.com/pydio/cells/v4/common/runtime"
+	"github.com/pydio/cells/v4/common/runtime/manager"
 	"github.com/pydio/cells/v4/common/service"
+	"github.com/pydio/cells/v4/data/source"
 	"github.com/pydio/cells/v4/data/source/index"
 	grpc2 "github.com/pydio/cells/v4/data/source/index/grpc"
 )
@@ -47,10 +50,26 @@ func init() {
 			service.Context(ctx),
 			service.Tag(common.ServiceTagDatasource),
 			service.WithStorageDrivers(index.Drivers...),
+			service.Migrations([]*service.Migration{
+				{
+					TargetVersion: service.FirstRun(),
+					Up:            manager.StorageMigration(),
+				},
+			}),
+			service.WithMigrateIterator(source.DatasourceContextKey, source.ListSources),
 			service.Description("Starter for data sources indexes"),
 			service.WithGRPC(func(ctx context.Context, srv grpc.ServiceRegistrar) error {
-				// This will expect to find datasource in context
-				shared := grpc2.NewSharedTreeServer()
+
+				resolver := source.NewResolver[*object.DataSource](source.ListSources)
+				resolver.SetLoader(func(ctx context.Context, s string) (*object.DataSource, error) {
+					return config.GetSourceInfoByName(ctx, s)
+				})
+
+				shared := grpc2.NewSharedTreeServer(resolver)
+				_ = runtime.MultiContextManager().Iterate(ctx, func(ctx context.Context, s string) error {
+					return resolver.HeatCache(ctx)
+				})
+
 				tree.RegisterNodeReceiverServer(srv, shared)
 				tree.RegisterNodeProviderServer(srv, shared)
 				tree.RegisterNodeReceiverStreamServer(srv, shared)

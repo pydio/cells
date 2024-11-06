@@ -23,7 +23,8 @@ package service
 
 import (
 	"context"
-
+	"github.com/pydio/cells/v4/common/config"
+	"github.com/pydio/cells/v4/common/utils/configx"
 	"google.golang.org/grpc"
 
 	"github.com/pydio/cells/v4/common"
@@ -49,13 +50,30 @@ func init() {
 				treeServer := grpc2.NewTreeServer(Name)
 				eventSubscriber := grpc2.NewEventSubscriber(treeServer)
 
-				// TODO - re-enable that
-				//ctx = runtime.TODOKnownEmpty(ctx)
-				//_ = runtime.MultiContextManager().Iterate(ctx, func(ct context.Context, s string) error {
-				//	go treeServer.UpdateServicesList(ct, 0)
-				//	go treeServer.WatchRegistry(ct)
-				//	return nil
-				//})
+				_ = runtime.MultiContextManager().Iterate(ctx, func(ct context.Context, s string) error {
+					// TODO - should be a callback
+					go func() {
+						w, err := config.Watch(ctx, configx.WithPath("services", common.ServiceDataSyncGRPC, "sources"))
+						if err != nil {
+							return
+						}
+
+						defer w.Stop()
+
+						for {
+							_, err := w.Next()
+							if err != nil {
+								return
+							}
+
+							treeServer.UpdateServicesList(ct, 0)
+						}
+					}()
+
+					go treeServer.UpdateServicesList(ct, 0)
+					go treeServer.WatchRegistry(ct)
+					return nil
+				})
 
 				tree.RegisterNodeProviderServer(server, treeServer)
 				tree.RegisterNodeReceiverServer(server, treeServer)

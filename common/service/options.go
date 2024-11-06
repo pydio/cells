@@ -50,9 +50,13 @@ type ServiceOptions struct {
 	runtimeCtx    context.Context
 	runtimeCancel context.CancelFunc
 
-	migrateOnce  map[string]bool
-	migrateOnceL *sync.Mutex
-	Migrations   []*Migration `json:"-"`
+	migrateOnce     map[string]bool
+	migrateOnceL    *sync.Mutex
+	Migrations      []*Migration `json:"-"`
+	MigrateIterator struct {
+		ContextKey any
+		Lister     func(ctx context.Context) []string
+	} `json:"-"`
 
 	// Port      string
 	TLSConfig *tls.Config
@@ -221,6 +225,14 @@ func Unique(b bool) ServiceOption {
 func Migrations(migrations []*Migration) ServiceOption {
 	return func(o *ServiceOptions) {
 		o.Migrations = migrations
+	}
+}
+
+// WithMigrateIterator injects an additional level of iteration for update service version
+func WithMigrateIterator(ctxKey any, lister func(ctx context.Context) []string) ServiceOption {
+	return func(o *ServiceOptions) {
+		o.MigrateIterator.ContextKey = ctxKey
+		o.MigrateIterator.Lister = lister
 	}
 }
 

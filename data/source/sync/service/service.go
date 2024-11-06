@@ -29,14 +29,13 @@ import (
 
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/broker"
-	"github.com/pydio/cells/v4/common/config"
 	"github.com/pydio/cells/v4/common/proto/object"
 	protosync "github.com/pydio/cells/v4/common/proto/sync"
 	"github.com/pydio/cells/v4/common/proto/tree"
 	"github.com/pydio/cells/v4/common/runtime"
 	"github.com/pydio/cells/v4/common/service"
 	"github.com/pydio/cells/v4/common/telemetry/log"
-	"github.com/pydio/cells/v4/common/utils/cache/gocache"
+	"github.com/pydio/cells/v4/data/source"
 	grpc_sync "github.com/pydio/cells/v4/data/source/sync/grpc"
 )
 
@@ -48,26 +47,22 @@ func init() {
 			service.Context(ctx),
 			service.Tag(common.ServiceTagDatasource),
 			service.Description("Starter for data sources synchronizations"),
+			service.WithMigrateIterator(source.DatasourceContextKey, source.ListSources),
 			service.WithGRPC(func(ctx context.Context, registrar grpc.ServiceRegistrar) error {
+				resolver := source.NewResolver[*grpc_sync.Handler](source.ListSources)
 				endpoint := &grpc_sync.Endpoint{
-					Cache: gocache.MustOpenNonExpirableMemory(),
+					Resolver: resolver,
 				}
 				var errs []error
+				resolver.SetLoader(func(ctx context.Context, s string) (*grpc_sync.Handler, error) {
+					sync := grpc_sync.NewHandler(ctx, s)
+					go func() {
+						errs = append(errs, sync.InitAndStart())
+					}()
+					return sync, nil
+				})
 				_ = runtime.MultiContextManager().Iterate(ctx, func(ctx context.Context, s string) error {
-					ss := config.ListSourcesFromConfig(ctx)
-					for _, s := range ss {
-						sync := grpc_sync.NewHandler(ctx, s.GetName())
-						var err error
-						go func() {
-							err = sync.InitAndStart()
-						}()
-						if err != nil {
-							errs = append(errs, err)
-							continue
-						}
-						endpoint.RegisterSyncHandler(ctx, s.GetName(), sync)
-					}
-					return nil
+					return resolver.HeatCache(ctx)
 				})
 				tree.RegisterNodeProviderServer(registrar, endpoint)
 				tree.RegisterNodeReceiverServer(registrar, endpoint)

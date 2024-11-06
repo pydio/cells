@@ -180,7 +180,9 @@ func ConfigURL() string {
 			}
 		}
 
-		v = u.String()
+		str, _ := url.PathUnescape(u.String())
+		v = str
+
 	}
 	return v
 }
@@ -209,20 +211,24 @@ func SetVaultMasterKey(masterKey string) {
 		u, e = url.Parse(r.GetString(KeyVault))
 	} else {
 		u, e = url.Parse(ConfigURL())
+		if u.Scheme == "file" {
+			// Replace basename with pydio-vault.json
+			u.Path = path.Join(path.Dir(u.Path), DefaultVaultFileName)
+		}
+
 	}
 	if e != nil {
 		return
 	}
-	if u.Scheme == "file" {
-		// Replace basename with pydio-vault.json
-		u.Path = path.Join(path.Dir(u.Path), DefaultVaultFileName)
-	}
 
 	q := u.Query()
 	q.Set("namespace", "vault")
-	q.Set("masterKey", masterKey)
+	q.Set("masterKey", url.QueryEscape(masterKey))
 	u.RawQuery = q.Encode()
-	r.SetDefault("computedVaultURL", u.String())
+
+	str, _ := url.PathUnescape(u.String())
+
+	r.SetDefault("computedVaultURL", str)
 }
 
 func VaultURL() string {

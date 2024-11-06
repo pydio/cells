@@ -57,7 +57,7 @@ func (h *Handler) ListServices(req *restful.Request, resp *restful.Response) err
 
 	// Create a list of all plugins
 	var pluginsReg registry.Registry
-	if !propagator.Get(req.Request.Context(), registry.ContextSOTWKey, &pluginsReg) {
+	if !propagator.Get(req.Request.Context(), registry.ContextKey, &pluginsReg) {
 		return errors.WithMessage(errors.StatusInternalServerError, "Should have a registry")
 	}
 
@@ -104,7 +104,7 @@ func (h *Handler) ListRegistry(req *restful.Request, resp *restful.Response) err
 	}
 
 	var pluginsReg registry.Registry
-	if !propagator.Get(req.Request.Context(), registry.ContextSOTWKey, &pluginsReg) {
+	if !propagator.Get(req.Request.Context(), registry.ContextKey, &pluginsReg) {
 		return errors.WithMessage(errors.StatusInternalServerError, "Should have a registry")
 	}
 
@@ -151,7 +151,7 @@ func (h *Handler) ListPeersAddresses(req *restful.Request, resp *restful.Respons
 		PeerAddresses: []string{},
 	}
 	var reg registry.Registry
-	propagator.Get(req.Request.Context(), registry.ContextSOTWKey, &reg)
+	propagator.Get(req.Request.Context(), registry.ContextKey, &reg)
 	nodes, er := reg.List(registry.WithType(rpb.ItemType_SERVER))
 	if er != nil {
 		return errors.Tag(er, errors.StatusInternalServerError)

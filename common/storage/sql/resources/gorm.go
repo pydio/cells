@@ -54,7 +54,7 @@ func (s *gormImpl) AddPolicy(ctx context.Context, resourceId string, policy *ser
 	pol := proto.Clone(policy).(*service.ResourcePolicy)
 	pol.Resource = resourceId
 
-	return s.instance(ctx).Clauses(clause.OnConflict{DoNothing: true}).Create(pol).Error
+	return s.instance(ctx).Create(pol).Error
 }
 
 // AddPolicies persists a set of policies. If update is true, it replace them by deleting existing ones
@@ -69,7 +69,7 @@ func (s *gormImpl) AddPolicies(ctx context.Context, update bool, resourceId stri
 		for _, policy := range policies {
 			pol := proto.Clone(policy).(*service.ResourcePolicy)
 			pol.Resource = resourceId
-			if err := tx.Clauses(clause.OnConflict{DoNothing: true}).Create(pol).Error; err != nil {
+			if err := tx.Create(pol).Error; err != nil {
 				return err
 			}
 		}

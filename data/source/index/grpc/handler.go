@@ -32,7 +32,6 @@ import (
 
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/broker"
-	"github.com/pydio/cells/v4/common/config"
 	"github.com/pydio/cells/v4/common/errors"
 	"github.com/pydio/cells/v4/common/proto/object"
 	"github.com/pydio/cells/v4/common/proto/sync"
@@ -50,6 +49,7 @@ import (
 type TreeServer struct {
 	sessionStore sessions.DAO
 	datasource   *object.DataSource
+	*source.Resolver[*object.DataSource]
 
 	tree.UnimplementedNodeReceiverServer
 	tree.UnimplementedNodeProviderServer
@@ -78,9 +78,10 @@ func NewTreeServer(ds *object.DataSource) *TreeServer {
 	}
 }
 
-func NewSharedTreeServer() *TreeServer {
+func NewSharedTreeServer(resolver *source.Resolver[*object.DataSource]) *TreeServer {
 	return &TreeServer{
 		sessionStore: sessions.NewSessionMemoryStore(),
+		Resolver:     resolver,
 	}
 }
 
@@ -99,18 +100,12 @@ func (s *TreeServer) getDAO(ctx context.Context, session string) (index.DAO, err
 
 // setDataSourceMeta adds the datasource name as metadata, and eventually the internal flag
 func (s *TreeServer) setDataSourceMeta(ctx context.Context, node tree.ITreeNode) error {
-	var ds *object.DataSource
+	ds := s.datasource
+	var er error
 	if s.datasource == nil {
-		if dsName, ok := source.DatasourceFromContext(ctx); !ok {
-			return errors.WithMessage(errors.StatusInternalServerError, "missing datasource in context")
-		} else {
-			var err error
-			if ds, err = config.GetSourceInfoByName(ctx, dsName); err != nil {
-				return err
-			}
+		if ds, er = s.Resolve(ctx); er != nil {
+			return er
 		}
-	} else {
-		ds = s.datasource
 	}
 	node.GetNode().MustSetMeta(common.MetaNamespaceDatasourceName, ds.GetName())
 	node.GetNode().MustSetMeta(common.MetaNamespaceNodeName, node.GetName())

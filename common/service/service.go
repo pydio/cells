@@ -23,6 +23,7 @@ package service
 import (
 	"context"
 	"fmt"
+	"go.uber.org/multierr"
 	"sync"
 
 	"go.uber.org/zap"
@@ -322,6 +323,32 @@ func (s *service) OnServe(oo ...registry.RegisterOption) error {
 	if refCtx == nil {
 		refCtx = s.Opts.rootContext
 	}
+
+	go func() {
+		if locker := s.Opts.GetRegistry().NewLocker("update-service-version-" + s.Opts.Name); locker != nil {
+			locker.Lock()
+			defer locker.Unlock()
+		}
+
+		defer w.Done()
+		if er := runtime.MultiContextManager().Iterate(refCtx, func(ctx context.Context, _ string) error {
+			if s.Opts.MigrateIterator.Lister != nil {
+				var errs []error
+				for _, key := range s.Opts.MigrateIterator.Lister(ctx) {
+					ctx = propagator.With(ctx, s.Opts.MigrateIterator.ContextKey, key)
+					errs = append(errs, UpdateServiceVersion(ctx, s.Opts))
+				}
+				if outE := multierr.Combine(errs...); outE != nil {
+					log.Logger(ctx).Error("One specific upgrade was not performed successfully, but process is continued", zap.Error(outE))
+				}
+			} else {
+				return UpdateServiceVersion(ctx, s.Opts)
+			}
+			return nil
+		}); er != nil {
+			log.Logger(refCtx).Error("Error while updating service version", zap.Error(er))
+		}
+	}()
 
 	for _, after := range s.Opts.AfterServe {
 		go func(f func(context.Context) error) {

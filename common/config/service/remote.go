@@ -68,8 +68,7 @@ func (o *URLOpener) Open(ctx context.Context, urlstr string) (config.Store, erro
 		return nil, errors.New("empty connection")
 	}
 
-	// TODO - resolveconn should do multi tenancy
-	store := New(context.Background(), conn, u.Query().Get("namespace"), "/")
+	store := New(ctx, conn, u.Query().Get("namespace"), "/")
 
 	return store, nil
 }
