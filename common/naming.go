@@ -85,6 +85,7 @@ const (
 	ServiceGraphGRPC           = ServiceGrpcNamespace_ + ServiceGraph
 	ServiceUserMetaGRPC        = ServiceGrpcNamespace_ + ServiceUserMeta
 	ServiceUserKeyGRPC         = ServiceGrpcNamespace_ + ServiceUserKey
+	ServiceDataGRPC            = ServiceGrpcNamespace_ + ServiceData_
 	ServiceDataObjectsGRPC_    = ServiceGrpcNamespace_ + ServiceDataObjects_
 	ServiceDataObjectsPeerGRPC = ServiceGrpcNamespace_ + ServiceDataObjectsPeer
 	ServiceDataIndexGRPC_      = ServiceGrpcNamespace_ + ServiceDataIndex_

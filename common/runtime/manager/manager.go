@@ -24,6 +24,7 @@ import (
 	"bytes"
 	"context"
 	"fmt"
+	"github.com/pydio/cells/v4/common/client"
 	"github.com/pydio/cells/v4/common/config/migrations"
 	"github.com/pydio/cells/v4/common/telemetry"
 	"net"
@@ -302,16 +303,6 @@ func NewManager(ctx context.Context, namespace string, logger log.ZapLogger) (Ma
 		}()
 	}
 
-	// Add all registries in the multi context
-	//if reg, err := m.initSOTWRegistry(ctx); err != nil {
-	//	//return nil, err
-	//} else {
-	//
-	//	fmt.Println("At this point I'm initialising the sotw registry")
-	//	m.sotwRegistry = reg
-	//	ctx = propagator.With(ctx, registry.ContextSOTWKey, reg)
-	//}
-
 	// Initialising servers
 	if err := m.initServers(ctx, bootstrap, base); err != nil {
 		return nil, err
@@ -332,10 +323,11 @@ func NewManager(ctx context.Context, namespace string, logger log.ZapLogger) (Ma
 		return nil, err
 	}
 
-	// runtime.Init(ctx, "discovery")
 	runtime.Init(ctx, m.ns)
 
 	m.ctx = ctx
+
+	runtime.Init(ctx, runtime.NsConnReady)
 
 	return m, nil
 }
@@ -594,42 +586,42 @@ func (m *manager) initInternalRegistry(ctx context.Context, bootstrap *Bootstrap
 	return reg, nil
 }
 
-func (m *manager) initSOTWRegistry(ctx context.Context) (registry.Registry, error) {
-	registryURL := runtime.RegistryURL()
-
-	reg, err := registry.OpenRegistry(ctx, registryURL)
-	if err != nil {
-		return nil, err
-	}
-
-	go func() {
-		// Making sure the listeners are being copied, todo improve that
-		items, err := m.internalRegistry.List()
-		if err != nil {
-			// return nil, err
-			return
-		}
-
-		for _, item := range items {
-			if err := reg.Register(item); err != nil {
-				// return nil, err
-				return
-			}
-		}
-
-		m.internalRegistry = registry.NewFuncWrapper(m.internalRegistry,
-			// Adding to cluster sotwRegistry
-			registry.OnRegister(func(item *registry.Item, opts *[]registry.RegisterOption) {
-				if reg != nil {
-					reg.Register(*item, *opts...)
-				}
-			}),
-		)
-	}()
-
-	// Switching to the main sotwRegistry for outside the manager
-	return reg, nil
-}
+//func (m *manager) initSOTWRegistry(ctx context.Context) (registry.Registry, error) {
+//	registryURL := runtime.RegistryURL()
+//
+//	reg, err := registry.OpenRegistry(ctx, registryURL)
+//	if err != nil {
+//		return nil, err
+//	}
+//
+//	go func() {
+//		// Making sure the listeners are being copied, todo improve that
+//		items, err := m.internalRegistry.List()
+//		if err != nil {
+//			// return nil, err
+//			return
+//		}
+//
+//		for _, item := range items {
+//			if err := reg.Register(item); err != nil {
+//				// return nil, err
+//				return
+//			}
+//		}
+//
+//		m.internalRegistry = registry.NewFuncWrapper(m.internalRegistry,
+//			// Adding to cluster sotwRegistry
+//			registry.OnRegister(func(item *registry.Item, opts *[]registry.RegisterOption) {
+//				if reg != nil {
+//					reg.Register(*item, *opts...)
+//				}
+//			}),
+//		)
+//	}()
+//
+//	// Switching to the main sotwRegistry for outside the manager
+//	return reg, nil
+//}
 
 func (m *manager) initProcesses(ctx context.Context, bootstrap *Bootstrap, base string) error {
 	cmds := make(map[string]*fork.Process)
@@ -1371,35 +1363,44 @@ func (m *manager) ServeAll(oo ...server.ServeOption) error {
 		o(opt)
 	}
 
-	// Starting servers attached to this node that are currently stopped
-	eg := &errgroup.Group{}
-	servers := m.serversWithStatus(registry.StatusStopped)
-
-	for _, srv := range servers {
-		func(srv server.Server) {
-			eg.Go(func() error {
-				if err := m.startServer(srv, oo...); err != nil {
-					return errors.Wrap(err, " from "+srv.ID()+srv.Name())
-				}
-
-				return nil
-			})
-		}(srv)
+	cb, err := client.NewResolverCallback(m.internalRegistry)
+	if err != nil {
+		return err
 	}
 
-	waitAndServe := func() {
-		if err := eg.Wait(); err != nil && opt.ErrorCallback != nil {
-			log.Logger(m.ctx).Error("Server couldn't start ", zap.Error(err))
-			opt.ErrorCallback(err)
+	cb.Add(func(reg registry.Registry) error {
+		// Starting servers attached to this node that are currently stopped
+		eg := &errgroup.Group{}
+		servers := serversWithStatus(reg, m.root, registry.StatusStopped)
+
+		for _, srv := range servers {
+			func(srv server.Server) {
+				eg.Go(func() error {
+					if err := m.startServer(srv, oo...); err != nil {
+						return errors.Wrap(err, " from "+srv.ID()+srv.Name())
+					}
+
+					return nil
+				})
+			}(srv)
 		}
-	}
 
-	if opt.BlockUntilServe {
-		waitAndServe()
+		waitAndServe := func() {
+			if err := eg.Wait(); err != nil && opt.ErrorCallback != nil {
+				log.Logger(m.ctx).Error("Server couldn't start ", zap.Error(err))
+				opt.ErrorCallback(err)
+			}
+		}
+
+		if opt.BlockUntilServe {
+			waitAndServe()
+			return nil
+		} else {
+			go waitAndServe()
+		}
+
 		return nil
-	} else {
-		go waitAndServe()
-	}
+	})
 
 	return nil
 }
@@ -1410,7 +1411,7 @@ func (m *manager) SetServeOptions(oo ...server.ServeOption) {
 
 func (m *manager) StopAll() {
 	eg := &errgroup.Group{}
-	for _, srv := range m.serversWithStatus(registry.StatusReady) {
+	for _, srv := range serversWithStatus(m.internalRegistry, m.root, registry.StatusReady) {
 		func(sr server.Server) {
 			eg.Go(func() error {
 				if err := m.stopServer(sr, registry.WithDeregisterFull()); err != nil {
@@ -1435,6 +1436,7 @@ func (m *manager) startServer(srv server.Server, oo ...server.ServeOption) error
 
 	opts = append(opts, server.WithContext(m.Context()))
 
+	// TODO - we should watch the listeners here
 	// Associating listener
 	listeners := m.Registry().ListAdjacentItems(
 		registry.WithAdjacentSourceItems([]registry.Item{srv}),
@@ -1451,6 +1453,7 @@ func (m *manager) startServer(srv server.Server, oo ...server.ServeOption) error
 		}
 	}
 
+	// Generate the filters the server will use to determine which service to start
 	serviceFilterTemplate := template.New("serviceFilter")
 
 	var targetOpts []registry.Option
@@ -1566,36 +1569,35 @@ func (m *manager) startServer(srv server.Server, oo ...server.ServeOption) error
 				}))
 			}
 		}
+
+		services := m.Registry().ListAdjacentItems(
+			registry.WithAdjacentSourceItems([]registry.Item{m.root}),
+			registry.WithAdjacentEdgeOptions(registry.WithName("Node")),
+			registry.WithAdjacentTargetOptions(
+				append(targetOpts, registry.WithType(pb.ItemType_SERVICE))...,
+			),
+		)
+
+		for _, svcItem := range services {
+			var svc service.Service
+
+			if !svcItem.As(&svc) {
+				continue
+			}
+
+			opts = append(opts, m.serviceServeOptions(svc)...)
+
+			svc.Options().Server = srv
+		}
 	}
 
-	// Associating services
-	services := m.Registry().ListAdjacentItems(
-		registry.WithAdjacentSourceItems([]registry.Item{m.root}),
-		registry.WithAdjacentEdgeOptions(registry.WithName("Node")),
-		registry.WithAdjacentTargetOptions(
-			append(targetOpts, registry.WithType(pb.ItemType_SERVICE))...,
-		),
-	)
-
-	for _, svcv := range services {
-		var svc service.Service
-
-		if !svcv.As(&svc) {
-			continue
-		}
-
-		if !runtime.IsRequired(svc.Name()) {
-			continue
-		}
-
-		opts = append(opts, m.serviceServeOptions(svc)...)
-
-		svc.Options().Server = srv
-	}
-
-	registry.NewMetaWrapper(m.internalRegistry, func(meta map[string]string) {
+	if err := registry.NewMetaWrapper(m.internalRegistry, func(meta map[string]string) {
 		meta[registry.MetaStatusKey] = string(registry.StatusTransient)
-	}).Register(srv)
+	}).Register(srv); err != nil {
+		return err
+	}
+
+	fmt.Println("SERVING SERVER ", srv.Name())
 
 	return srv.Serve(opts...)
 }
@@ -1669,10 +1671,10 @@ func (m *manager) serviceServeOptions(svc service.Service) []server.ServeOption 
 	}
 }
 
-func (m *manager) serversWithStatus(status registry.Status) (ss []server.Server) {
-	items := m.internalRegistry.ListAdjacentItems(
+func serversWithStatus(reg registry.Registry, root registry.Item, status registry.Status) (ss []server.Server) {
+	items := reg.ListAdjacentItems(
 		registry.WithAdjacentTargetOptions(registry.WithType(pb.ItemType_SERVER)),
-		registry.WithAdjacentSourceItems([]registry.Item{m.root}),
+		registry.WithAdjacentSourceItems([]registry.Item{root}),
 	)
 
 	for _, item := range items {

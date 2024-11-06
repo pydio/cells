@@ -40,10 +40,38 @@ type ResolverCallback interface {
 	Stop()
 }
 
+type ResolverCallbackOptions struct {
+	Timer   time.Duration
+	Types   []pb.ItemType
+	Actions []pb.ActionType
+}
+
+type ResolverCallbackOption func(*ResolverCallbackOptions)
+
+func WithTimer(timer time.Duration) ResolverCallbackOption {
+	return func(opts *ResolverCallbackOptions) {
+		opts.Timer = timer
+	}
+}
+
+func WithTypes(types ...pb.ItemType) ResolverCallbackOption {
+	return func(opts *ResolverCallbackOptions) {
+		opts.Types = append(opts.Types, types...)
+	}
+}
+
+func WithActions(actions ...pb.ActionType) ResolverCallbackOption {
+	return func(opts *ResolverCallbackOptions) {
+		opts.Actions = append(opts.Actions, actions...)
+	}
+}
+
 type resolverCallback struct {
 	localAddr string
 	reg       registry.Registry
 	ml        *sync.RWMutex
+
+	opts ResolverCallbackOptions
 
 	local registry.Registry
 
@@ -55,20 +83,39 @@ type resolverCallback struct {
 }
 
 // NewResolverCallback creates a new ResolverCallback watching the passed registry.Registry
-func NewResolverCallback(reg registry.Registry) (ResolverCallback, error) {
+func NewResolverCallback(reg registry.Registry, opts ...ResolverCallbackOption) (ResolverCallback, error) {
 	local, err := registry.OpenRegistry(context.Background(), "mem://")
 	if err != nil {
 		return nil, err
+	}
+
+	o := ResolverCallbackOptions{}
+	for _, opt := range opts {
+		opt(&o)
+	}
+
+	if len(o.Types) == 0 {
+		o.Types = []pb.ItemType{
+			pb.ItemType_SERVER,
+			pb.ItemType_SERVICE,
+			pb.ItemType_EDGE,
+			pb.ItemType_ADDRESS,
+			pb.ItemType_ENDPOINT,
+		}
+	}
+	if o.Timer == 0 {
+		o.Timer = 50 * time.Millisecond
 	}
 
 	r := &resolverCallback{
 		localAddr: runtime.DefaultAdvertiseAddress(),
 		done:      make(chan bool, 1),
 		local:     local,
+		opts:      o,
 	}
 	r.reg = reg
 	r.ml = &sync.RWMutex{}
-	r.updatedStateTimer = time.NewTimer(50 * time.Millisecond)
+	r.updatedStateTimer = time.NewTimer(o.Timer)
 
 	go r.updateState()
 	go r.watch()
@@ -88,13 +135,20 @@ func (r *resolverCallback) Add(cb UpdateStateCallback) {
 }
 
 func (r *resolverCallback) watch() {
-	w, err := r.reg.Watch(
-		registry.WithType(pb.ItemType_SERVER),
-		registry.WithType(pb.ItemType_SERVICE),
-		registry.WithType(pb.ItemType_EDGE),
-		registry.WithType(pb.ItemType_ADDRESS),
-		registry.WithType(pb.ItemType_ENDPOINT),
-	)
+	var opts []registry.Option
+	if len(r.opts.Types) > 0 {
+		for _, t := range r.opts.Types {
+			opts = append(opts, registry.WithType(t))
+		}
+	}
+
+	if len(r.opts.Actions) > 0 {
+		for _, a := range r.opts.Actions {
+			opts = append(opts, registry.WithAction(a))
+		}
+	}
+
+	w, err := r.reg.Watch(opts...)
 	if err != nil {
 		return
 	}
@@ -117,7 +171,7 @@ func (r *resolverCallback) watch() {
 		}
 		r.ml.Unlock()
 
-		r.updatedStateTimer.Reset(50 * time.Millisecond)
+		r.updatedStateTimer.Reset(r.opts.Timer)
 	}
 }
 

@@ -139,10 +139,8 @@ func ClientConnIncomingContext(serverRuntimeContext context.Context) func(ctx co
 
 // RegistryIncomingContext injects the registry in context
 func RegistryIncomingContext(serverRuntimeContext context.Context) func(ctx context.Context) (context.Context, bool, error) {
-	var reg registry.Registry
-	propagator.Get(serverRuntimeContext, registry.ContextKey, &reg)
 	return func(ctx context.Context) (context.Context, bool, error) {
-		return propagator.With(ctx, registry.ContextKey, reg), true, nil
+		return propagator.ForkContext(ctx, serverRuntimeContext), true, nil
 	}
 }
 

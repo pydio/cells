@@ -147,7 +147,7 @@ func (m *MultiBucketClient) Walk(ctx context.Context, walknFc model.WalkNodesFun
 			fNode := &tree.Node{Uuid: uid, Path: bucket.Name, Type: tree.NodeType_COLLECTION, MTime: bucket.CreationDate.Unix()}
 			// Additional read of bucket tagging if configured
 			if len(m.bucketMetas) > 0 && taggingError == nil {
-				if tags, err := c.Oc.BucketTags(context.Background(), bucket.Name); err == nil && tags != nil {
+				if tags, err := c.Oc.BucketTags(ctx, bucket.Name); err == nil && tags != nil {
 					for key, value := range tags {
 						tKey := s3BucketTagPrefix + key
 						for _, g := range m.bucketMetas {

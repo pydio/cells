@@ -30,16 +30,12 @@ import (
 	"github.com/pydio/cells/v4/common/utils/propagator"
 )
 
-type configKey struct{}
+type configKey int
 
-type vaultKey struct{}
-
-type revisionsKey struct{}
-
-var (
-	ContextKey   = configKey{}
-	VaultKey     = vaultKey{}
-	RevisionsKey = revisionsKey{}
+const (
+	ContextKey configKey = iota
+	VaultKey
+	RevisionsKey
 )
 
 func init() {
@@ -156,7 +152,7 @@ func Set(ctx context.Context, val interface{}, path ...string) error {
 		return errors.New("store is nil")
 	}
 
-	return store.Context(ctx).Set(val)
+	return store.Context(ctx).Val(path...).Set(val)
 }
 
 // Del value at a certain path

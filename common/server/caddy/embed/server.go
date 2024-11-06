@@ -114,7 +114,7 @@ func (s *Server) RawServe(opts *server.ServeOptions) (ii []registry.Item, er err
 
 	} else {
 
-		caddyFile, aa, err := caddy.ResolveSites(s.RootContext(), nil, false)
+		caddyFile, aa, err := caddy.ResolveSites(opts.Context, nil, false)
 		if err != nil {
 			return nil, err
 		}

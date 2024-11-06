@@ -33,7 +33,7 @@ var (
 		tt: []runtime.ContextProvider{
 			&basicTenant{id: "default"},
 			&basicTenant{id: "sub1"},
-			//&basicTenant{id: "sub2"},
+			&basicTenant{id: "sub2"},
 		},
 	}
 	ErrNotFound = errors.RegisterBaseSentinel(errors.StatusUnauthorized, "tenant not found")

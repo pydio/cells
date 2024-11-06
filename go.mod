@@ -535,6 +535,6 @@ retract v4.0.0
 //replace github.com/minio/minio => /Users/charles/Sources/go/src/github.com/pydio/minio
 //replace github.com/pydio/caddyvault => /Users/charles/Sources/go/src/github.com/pydio/caddyvault
 
-replace github.com/minio/minio => github.com/pydio/minio v0.0.0-20241031104937-d04bb90b6e8f
+replace github.com/minio/minio => github.com/pydio/minio v0.0.0-20241105095009-24f518af3b8c
 
 //replace github.com/mattn/go-sqlite3 => github.com/mattn/go-sqlite3 v1.14.16

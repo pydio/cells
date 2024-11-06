@@ -138,48 +138,24 @@ func (dao *gormImpl[T]) insertNode(ctx context.Context, node tree.ITreeNode) err
 // AddNodeStream creates a channel to write to the SQL database
 func (dao *gormImpl[T]) AddNodeStream(ctx context.Context, max int) (chan tree.ITreeNode, chan error) {
 
-	c := make(chan tree.ITreeNode)
-	e := make(chan error)
+	c := make(chan tree.ITreeNode, max)
+	e := make(chan error, 10)
 
 	go func() {
-
 		defer close(e)
-
 		nodes := dao.factory.Slice()
-
-		for {
-			select {
-			case node, ok := <-c:
-				if !ok {
-					tx := dao.instance(ctx).CreateInBatches(nodes, max)
-
-					//fmt.Println("Creating all nodes ", tx.Error)
-					nodes = nil
-
-					e <- tx.Error
-					return
-				}
-
-				if len(nodes) >= max {
-					// Need to insert
-					tx := dao.instance(ctx).CreateInBatches(nodes, max)
-					// fmt.Println("Creating all nodes by cap ", len(nodes), cap(c), tx.Error)
-
-					nodes = nil
-
-					if tx.Error != nil {
-						e <- tx.Error
-						return
-					}
-				}
-
-				mTime := node.GetNode().GetMTime()
-				if mTime <= 0 {
-					node.GetNode().SetMTime(mTime)
-				}
-
-				nodes = append(nodes, node.(T))
+		for node := range c {
+			if node.GetNode().GetMTime() <= 0 {
+				node.GetNode().SetMTime(time.Now().Unix())
 			}
+			nodes = append(nodes, node.(T))
+		}
+		tx := dao.instance(ctx).CreateInBatches(nodes, max)
+		if tx.Error != nil {
+			e <- tx.Error
+		} else {
+			fmt.Println("Batched", len(nodes))
+
 		}
 	}()
 
@@ -405,11 +381,12 @@ func (dao *gormImpl[T]) getNodeChild(ctx context.Context, mPath *tree.MPath, nam
 // GetNodeLastChild from path
 func (dao *gormImpl[T]) getNodeLastChild(ctx context.Context, mPath *tree.MPath) (tree.ITreeNode, error) {
 	node := dao.factory.Struct()
-
-	tx := dao.instance(ctx).
+	tx := dao.instance(ctx).Model(node)
+	helper := tx.Dialector.(storagesql.Helper)
+	tx = tx.
 		Where(tree.MPathLike{Value: mPath}).
 		Where("level = ?", mPath.Length()+1).
-		Order("mpath4, mpath3, mpath2, mpath1 desc").
+		Order(helper.MPathOrdering("mpath4", "mpath3", "mpath2", "mpath1") + " desc").
 		First(&node)
 
 	if err := tx.Error; err != nil {

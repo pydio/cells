@@ -28,7 +28,6 @@ servers:
     listener: grpcall
     services:
       - filter: "{{ .Name }} ~= pydio\\.grpc\\..*"
-      - filter: "{{ .Name }} !~= pydio.grpc.tree"
   httpall:
     type: http
     listener: httpall
@@ -163,7 +162,9 @@ env: &env
 
 storages:
   sql:
-    uri: "sqlite://file::memory:?cache=shared&prefix={{ .Meta.prefix }}&policies={{ .Meta.policies }}&singular={{ .Meta.singular }}"
+    uri: "sqlite:///tmp/pydio/pydio.db?cache=shared&prefix={{ .Meta.prefix }}&policies={{ .Meta.policies }}&singular={{ .Meta.singular }}"
+  dssql:
+    uri: sqlite:///tmp/pydio/pydio.db?ache=shared&prefix={{ .Meta.prefix }}{{if ne .DataSource ""}}{{ .DataSource }}_{{end}}&policies={{ .Meta.policies }}&singular={{ .Meta.singular }}
   bleve:
     uri: "bleve://{{ autoMkdir (joinPath (serviceDataDir .Service) (tenantPathWithBlank .Tenant \"default\")) }}/{{ .Meta.file }}"
   bolt:
@@ -308,3 +309,8 @@ services: &services
         - type: sql
           prefix: idm_usr_
           policies: idm_usr_meta_policies
+  pydio.grpc.data.index:
+    storages:
+      main:
+        - type: dssql
+          prefix: data_index_

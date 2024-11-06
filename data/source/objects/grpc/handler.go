@@ -42,6 +42,7 @@ import (
 	"github.com/pydio/cells/v4/common/telemetry/log"
 	"github.com/pydio/cells/v4/common/utils/cache"
 	"github.com/pydio/cells/v4/common/utils/cache/gocache"
+	"github.com/pydio/cells/v4/common/utils/net"
 	"github.com/pydio/cells/v4/common/utils/openurl"
 	"github.com/pydio/cells/v4/data/source"
 	"github.com/pydio/cells/v4/data/source/objects"
@@ -112,16 +113,30 @@ func (o *ObjectHandler) StartMinioServer(ctx context.Context, conf *object.Minio
 	if sec := config.GetSecret(ctx, secretKey).String(); sec != "" {
 		secretKey = sec
 	}
-	configFolder, e := objects.CreateMinioConfigFile(ctx, minioServiceName, accessKey, secretKey)
-	if e != nil {
-		return e
+
+	return o.startMinioServer(ctx, minioServiceName, accessKey, secretKey, conf.LocalFolder, conf.RunningPort)
+
+}
+
+// StartMinioServer handler
+func (o *ObjectHandler) startMinioServer(ctx context.Context, minioServiceName, accessKey, secretKey, localFolder string, runningPort int32) error {
+
+	// Create a config file
+	configFolder := filepath.Join(
+		runtime.MustServiceDataDir(common.ServiceDataObjectsPeerGRPC),
+		runtime.MultiContextManager().Current(ctx),
+		minioServiceName,
+	)
+	if err := objects.CreateMinioConfigFile(configFolder, accessKey, secretKey); err != nil {
+		return err
 	}
+
 	globals := minio.NewGlobals()
 	globals.ActiveCred, _ = auth.CreateCredentials(accessKey, secretKey)
 	globals.ConfigEncrypted = true
 	globals.CliContext = &minio.CliContext{
 		Quiet:      true,
-		Addr:       fmt.Sprintf(":%d", conf.RunningPort),
+		Addr:       fmt.Sprintf(":%d", runningPort),
 		ConfigDir:  minio.NewConfigDir(configFolder),
 		CertsDir:   minio.NewConfigDir(filepath.Join(configFolder, "certs")),
 		CertsCADir: minio.NewConfigDir(filepath.Join(configFolder, "certs", "CAs")),
@@ -138,8 +153,10 @@ func (o *ObjectHandler) StartMinioServer(ctx context.Context, conf *object.Minio
 			}
 		}
 	})
-	log.Logger(ctx).Info("Starting local minio server with config dir " + globals.CliContext.ConfigDir.Get() + " and local folder " + conf.LocalFolder)
-	minio.StartServerWithGlobals(globals, conf.LocalFolder)
+
+	globals.Context = ctx // will monitor
+	log.Logger(ctx).Infof("Serving %s as minio server with config dir %s on port %d", localFolder, globals.CliContext.ConfigDir.Get(), runningPort)
+	minio.StartServerWithGlobals(globals, localFolder)
 
 	return nil
 
@@ -216,6 +233,7 @@ func InitMinioConfig(conf *object.MinioConfig) (*object.MinioConfig, error) {
 	if mc.StorageType == object.StorageType_LOCAL || mc.StorageType == object.StorageType_GCS {
 		mc.RunningSecure = false
 		mc.RunningHost = runtime.DefaultAdvertiseAddress()
+		mc.RunningPort = int32(net.GetAvailablePort())
 	} else if mc.StorageType == object.StorageType_S3 && mc.EndpointUrl == "" {
 		mc.RunningHost = object.AmazonS3Endpoint
 		mc.RunningSecure = true

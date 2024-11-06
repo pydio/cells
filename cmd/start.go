@@ -167,7 +167,7 @@ ENVIRONMENT
 
 		broker.Register(broker.NewBroker(runtime.BrokerURL(), broker.WithContext(ctx)))
 
-		m, err := manager.NewManager(ctx, "main", log.Logger(runtime.WithServiceName(ctx, "pydio.server.manager")))
+		m, err := manager.NewManager(ctx, runtime.NsMain, log.Logger(runtime.WithServiceName(ctx, "pydio.server.manager")))
 		if err != nil {
 			span.End()
 			return err
@@ -177,9 +177,9 @@ ENVIRONMENT
 
 		m.ServeAll()
 
-		runtime.InitGlobalConnConsumers(m.Context(), "main")
-
 		<-ctx.Done()
+
+		m.StopAll()
 
 		return nil
 	},

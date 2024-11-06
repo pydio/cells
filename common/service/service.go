@@ -241,6 +241,7 @@ func (s *service) Start(oo ...registry.RegisterOption) (er error) {
 
 	s.Opts.runtimeCtx, s.Opts.runtimeCancel = context.WithCancel(ro.Context)
 	s.Opts.runtimeCtx = propagator.With(s.Opts.runtimeCtx, ContextKey, s)
+	s.Opts.runtimeCtx = runtime.WithServiceName(s.Opts.runtimeCtx, s.Opts.Name)
 
 	for _, before := range s.Opts.BeforeStart {
 		var err error

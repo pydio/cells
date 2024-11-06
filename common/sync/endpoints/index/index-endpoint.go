@@ -65,7 +65,7 @@ func (i *Client) Walk(ctx context.Context, walknFc model.WalkNodesFunc, root str
 	if root == "/" {
 		root = ""
 	}
-	ctx, cancel := context.WithCancel(context.Background())
+	ctx, cancel := context.WithCancel(ctx)
 	defer cancel()
 	responseClient, e := i.readerClient.ListNodes(ctx, &tree.ListNodesRequest{
 		Node: &tree.Node{
@@ -242,7 +242,7 @@ func (i *Client) GetCachedBranches(ctx context.Context, roots ...string) (model.
 		rts[root] = root
 	}
 	for _, root := range rts {
-		e := i.Walk(nil, func(path string, node tree.N, err error) error {
+		e := i.Walk(ctx, func(path string, node tree.N, err error) error {
 			if err == nil {
 				err = memDB.CreateNode(ctx, node, false)
 			}

@@ -26,6 +26,13 @@ import (
 	"sync"
 )
 
+const (
+	NsMain      = "main"
+	NsDiscovery = "discovery"
+	NsInstall   = "install"
+	NsConnReady = "conn-ready"
+)
+
 var (
 	initializers  = make(map[string][]func(ctx context.Context))
 	innLock       = &sync.RWMutex{}
@@ -45,7 +52,9 @@ func Register(typ string, y ...func(ctx context.Context)) {
 func Init(ctx context.Context, typ string) {
 	innLock.RLock()
 	defer innLock.RUnlock()
-	lastInit = typ
+	if typ != NsConnReady {
+		lastInit = typ
+	}
 	for _, init := range initializers[typ] {
 		init(ctx)
 	}
@@ -53,20 +62,4 @@ func Init(ctx context.Context, typ string) {
 
 func LastInitType() string {
 	return lastInit
-}
-
-func RegisterGlobalConnConsumer(typ string, y ...func(ctx context.Context)) {
-	connLock.Lock()
-	defer connLock.Unlock()
-	for _, t := range strings.Split(typ, ",") {
-		connConsumers[t] = append(connConsumers[t], y...)
-	}
-}
-
-func InitGlobalConnConsumers(ctx context.Context, typ string) {
-	connLock.RLock()
-	defer connLock.RUnlock()
-	for _, init := range connConsumers[typ] {
-		init(ctx)
-	}
 }

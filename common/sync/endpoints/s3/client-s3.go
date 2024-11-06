@@ -207,7 +207,7 @@ func (c *Client) MoveNode(ctx context.Context, oldPath string, newPath string) (
 		targetKey := newPath + strings.TrimPrefix(object.Key, oldPath)
 		// Switch to multipart for copy
 		if object.Size > c.Oc.CopyObjectMultipartThreshold() {
-			if er := c.Oc.CopyObjectMultipart(context.Background(), object, c.Bucket, object.Key, c.Bucket, targetKey, nil, nil); er != nil {
+			if er := c.Oc.CopyObjectMultipart(ctx, object, c.Bucket, object.Key, c.Bucket, targetKey, nil, nil); er != nil {
 				return er
 			}
 		} else {
@@ -611,7 +611,7 @@ func (c *Client) UpdateNodeUuid(ctx context.Context, node tree.N) (tree.N, error
 
 	if node.IsLeaf() {
 		_, err := c.Oc.CopyObject(
-			context.Background(),
+			ctx,
 			c.Bucket,
 			c.getFullPath(node.GetPath()),
 			c.Bucket,
@@ -625,7 +625,7 @@ func (c *Client) UpdateNodeUuid(ctx context.Context, node tree.N) (tree.N, error
 		return node, err
 	} else {
 		hiddenPath := fmt.Sprintf("%v/%s", c.getFullPath(node.GetPath()), common.PydioSyncHiddenFile)
-		_, err := c.Oc.PutObject(context.Background(), c.Bucket, hiddenPath, strings.NewReader(uid), int64(len(uid)), models.PutMeta{ContentType: "text/plain"})
+		_, err := c.Oc.PutObject(ctx, c.Bucket, hiddenPath, strings.NewReader(uid), int64(len(uid)), models.PutMeta{ContentType: "text/plain"})
 		return node, err
 	}
 
@@ -676,7 +676,7 @@ func (c *Client) readOrCreateFolderId(ctx context.Context, folderPath string) (u
 	uid = uuid.New()
 	eTag := model.StringContentToETag(uid)
 	log.Logger(c.globalContext).Info("Create Hidden File for folder", zap.String("path", hiddenPath))
-	ui, e := c.Oc.PutObject(context.Background(), c.Bucket, hiddenPath, strings.NewReader(uid), int64(len(uid)), models.PutMeta{ContentType: "text/plain"})
+	ui, e := c.Oc.PutObject(ctx, c.Bucket, hiddenPath, strings.NewReader(uid), int64(len(uid)), models.PutMeta{ContentType: "text/plain"})
 	if e != nil {
 		return "", models.ObjectInfo{}, e
 	}
@@ -729,7 +729,7 @@ func (c *Client) Watch(recursivePath string) (*model.WatchObject, error) {
 	events = append(events, string(notification.ObjectCreatedAll))
 	events = append(events, string(notification.ObjectRemovedAll))
 
-	ctx, cancel := context.WithCancel(context.Background())
+	ctx, cancel := context.WithCancel(context.TODO())
 	wConn := make(chan model.WatchConnectionInfo)
 
 	// Start listening on all bucket events.
