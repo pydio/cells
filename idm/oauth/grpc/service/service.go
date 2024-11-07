@@ -24,8 +24,6 @@ package service
 import (
 	"context"
 	"fmt"
-	"github.com/pydio/cells/v4/common/config"
-	json "github.com/pydio/cells/v4/common/utils/jsonx"
 	"os"
 
 	"google.golang.org/grpc"
@@ -33,6 +31,7 @@ import (
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/auth"
 	"github.com/pydio/cells/v4/common/client/commons/jobsc"
+	"github.com/pydio/cells/v4/common/config"
 	"github.com/pydio/cells/v4/common/errors"
 	auth2 "github.com/pydio/cells/v4/common/proto/auth"
 	"github.com/pydio/cells/v4/common/proto/jobs"
@@ -41,6 +40,7 @@ import (
 	"github.com/pydio/cells/v4/common/service"
 	log2 "github.com/pydio/cells/v4/common/telemetry/log"
 	"github.com/pydio/cells/v4/common/utils/i18n/languages"
+	json "github.com/pydio/cells/v4/common/utils/jsonx"
 	"github.com/pydio/cells/v4/idm/oauth"
 	grpc2 "github.com/pydio/cells/v4/idm/oauth/grpc"
 	"github.com/pydio/cells/v4/idm/oauth/lang"
@@ -157,6 +157,7 @@ func insertPruningJob(ctx context.Context) error {
 	return e
 }
 
+// TODO - still need that ?
 func initDefaults(ctx context.Context) error {
 
 	if secret := os.Getenv("CELLS_GLOBAL_SECRET"); secret != "" {

@@ -542,12 +542,6 @@ DESCRIPTION
 
 		ctx = runtime.MultiContextManager().RootContext(cmd.Context())
 
-		/*var er error
-		ctx, _, er = initConfig(ctx, true)
-		if er != nil {
-			return er
-		}*/
-
 		v := viper.New()
 		v.Set(runtime.KeyConfig, "mem://")
 		v.Set(runtime.KeyRegistry, "grpc://0.0.0.0:8030")

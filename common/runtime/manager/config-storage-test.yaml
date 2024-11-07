@@ -1,6 +1,6 @@
 storages:
   sql:
-    uri: "sqlite:///tmp/sqlite"
+    uri: "sqlite3-extended:///tmp/sqlite"
   mongo:
     uri: mongodb://localhost:27017/test
   bleve:

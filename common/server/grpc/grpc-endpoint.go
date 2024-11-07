@@ -2,6 +2,7 @@ package grpc
 
 import (
 	"context"
+
 	grpc_middleware "github.com/grpc-ecosystem/go-grpc-middleware"
 	"go.opentelemetry.io/otel/trace"
 	"google.golang.org/grpc"

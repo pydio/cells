@@ -23,7 +23,6 @@ package grpc
 import (
 	"context"
 	"fmt"
-	"google.golang.org/grpc/xds"
 	"net"
 	"net/url"
 	"reflect"
@@ -37,6 +36,7 @@ import (
 	"google.golang.org/grpc/health"
 	"google.golang.org/grpc/health/grpc_health_v1"
 	"google.golang.org/grpc/reflection"
+	"google.golang.org/grpc/xds"
 	"google.golang.org/protobuf/proto"
 
 	"github.com/pydio/cells/v4/common/middleware"
@@ -71,6 +71,7 @@ type IServer interface {
 	Stop()
 	GracefulStop()
 }
+
 type Server struct {
 	id   string
 	name string

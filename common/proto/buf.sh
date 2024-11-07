@@ -32,7 +32,6 @@ then
   go install github.com/pydio/cells/cmd/protoc-gen-go-setter
   go install github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-grpc-gateway
   go install github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-openapiv2
-  go install github.com/lyft/protoc-gen-star/protoc-gen-debug
 else
   export GOBIN=$PWD/bin
   export PATH=$GOBIN:$PATH
@@ -43,7 +42,7 @@ cd $1
 echo "Generate protobufs for $1"
 buf generate --output .
 if [ -f  "buf.gen.tag.yaml" ]; then
-  buf generate --debug --template=buf.gen.tag.yaml --output .
+  buf generate --template=buf.gen.tag.yaml --output .
 fi
 #go run ../patch-imports.go
 

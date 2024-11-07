@@ -2,7 +2,6 @@ package runtime
 
 import (
 	"context"
-	"sync"
 
 	"github.com/pydio/cells/v4/common/utils/propagator"
 )
@@ -62,9 +61,7 @@ type MultiContextProvider interface {
 	Watch(ctx context.Context, add func(context.Context, string) error, remove func(context.Context, string) error, iterate bool) error
 }
 
-type basicMulti struct {
-	once *sync.Once
-}
+type basicMulti struct{}
 
 func (b *basicMulti) Current(ctx context.Context) string {
 	return "default"
@@ -76,7 +73,6 @@ func (b *basicMulti) RootContext(ctx context.Context) context.Context {
 
 func (b *basicMulti) Iterate(ctx context.Context, add func(context.Context, string) error) error {
 	ctx = propagator.With(ctx, MultiContextKey, "default")
-
 	return add(ctx, "default")
 }
 

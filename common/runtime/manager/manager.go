@@ -24,8 +24,6 @@ import (
 	"bytes"
 	"context"
 	"fmt"
-	"github.com/pydio/cells/v4/common/config/migrations"
-	"github.com/pydio/cells/v4/common/telemetry"
 	"net"
 	"net/url"
 	"os"
@@ -49,6 +47,7 @@ import (
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/broker"
 	"github.com/pydio/cells/v4/common/config"
+	"github.com/pydio/cells/v4/common/config/migrations"
 	"github.com/pydio/cells/v4/common/config/revisions"
 	"github.com/pydio/cells/v4/common/crypto"
 	"github.com/pydio/cells/v4/common/middleware"
@@ -60,6 +59,7 @@ import (
 	"github.com/pydio/cells/v4/common/server"
 	"github.com/pydio/cells/v4/common/service"
 	"github.com/pydio/cells/v4/common/storage"
+	"github.com/pydio/cells/v4/common/telemetry"
 	"github.com/pydio/cells/v4/common/telemetry/log"
 	"github.com/pydio/cells/v4/common/utils/cache"
 	"github.com/pydio/cells/v4/common/utils/configx"
@@ -109,8 +109,6 @@ type manager struct {
 	// registries
 	// - internal
 	internalRegistry registry.Registry
-	// - state of the world
-	sotwRegistry *openurl.Pool[registry.Registry]
 
 	root       registry.Item
 	rootIsFork bool
@@ -135,11 +133,6 @@ var ContextKey = managerKey{}
 
 func NewManager(ctx context.Context, namespace string, logger log.ZapLogger) (Manager, error) {
 
-	registryPool, err := openurl.OpenPool(ctx, []string{"xds://default.cells.com"}, registry.OpenRegistry)
-	if err != nil {
-		return nil, err
-	}
-
 	m := &manager{
 		ctx: ctx,
 		ns:  namespace,
@@ -151,8 +144,6 @@ func NewManager(ctx context.Context, namespace string, logger log.ZapLogger) (Ma
 		config:  controller.NewController[*openurl.Pool[config.Store]](),
 		queues:  controller.NewController[broker.AsyncQueuePool](),
 		caches:  controller.NewController[*openurl.Pool[cache.Cache]](),
-
-		sotwRegistry: registryPool,
 	}
 
 	ctx = propagator.With(ctx, ContextKey, m)
@@ -206,55 +197,6 @@ func NewManager(ctx context.Context, namespace string, logger log.ZapLogger) (Ma
 	if err := m.initConnections(ctx, bootstrap, base); err != nil {
 		return nil, err
 	}
-
-	if err := runtime.MultiContextManager().Iterate(ctx, func(ctx context.Context, name string) error {
-		go func() {
-			// TODO - We should watch the config connection so that we can remove the storages when the session is idle
-			reg, err := registry.OpenRegistry(ctx, "grpc://pydio.grpc.registry")
-			if err != nil {
-				return
-			}
-
-			items, err := m.internalRegistry.List(registry.WithType(pb.ItemType_NODE), registry.WithType(pb.ItemType_ADDRESS), registry.WithType(pb.ItemType_EDGE))
-
-			for _, item := range items {
-				if err := reg.Register(item); err != nil {
-					return
-				}
-			}
-		}()
-
-		return nil
-	}); err != nil {
-		return nil, err
-	}
-
-	reg := registry.NewFuncWrapper(m.internalRegistry,
-		// Adding to cluster sotwRegistry
-		registry.OnRegister(func(item *registry.Item, opts *[]registry.RegisterOption) {
-			if err := runtime.MultiContextManager().Iterate(ctx, func(ctx context.Context, name string) error {
-				go func() {
-					// TODO - We should watch the config connection so that we can remove the storages when the session is idle
-					reg, err := registry.OpenRegistry(ctx, "grpc://pydio.grpc.registry")
-					if err != nil {
-						return
-					}
-
-					if err := reg.Register(*item, *opts...); err != nil {
-						return
-					}
-				}()
-
-				return nil
-			}); err != nil {
-				fmt.Println("Registry is not yet ready")
-			}
-		}),
-	)
-
-	m.internalRegistry = reg
-
-	ctx = propagator.With(ctx, registry.ContextKey, reg)
 
 	if store, vault, revisions, err := m.initConfig(ctx); err != nil {
 		return nil, err
@@ -400,11 +342,11 @@ func (m *manager) GetQueue(ctx context.Context, name string, resolutionData map[
 func (m *manager) GetQueuePool(name string) (broker.AsyncQueuePool, error) {
 	item, err := m.internalRegistry.Get("queue-"+name, registry.WithType(pb.ItemType_GENERIC))
 	if err != nil {
-		return nil, errors.Wrap(err, "cannot get queue-"+name+" from sotwRegistry")
+		return nil, errors.Wrap(err, "cannot get queue-"+name+" from registry")
 	}
 	var pool broker.AsyncQueuePool
 	if ok := item.As(&pool); !ok {
-		return nil, errors.New("wrong sotwRegistry item format for queue-" + name)
+		return nil, errors.New("wrong registry item format for queue-" + name)
 	}
 	return pool, nil
 }
@@ -412,11 +354,11 @@ func (m *manager) GetQueuePool(name string) (broker.AsyncQueuePool, error) {
 func (m *manager) GetCache(ctx context.Context, name string, resolutionData map[string]interface{}) (cache.Cache, error) {
 	item, err := m.internalRegistry.Get("cache-"+name, registry.WithType(pb.ItemType_GENERIC))
 	if err != nil {
-		return nil, errors.Wrap(err, "cannot get cache-"+name+" from sotwRegistry")
+		return nil, errors.Wrap(err, "cannot get cache-"+name+" from registry")
 	}
 	var pool *openurl.Pool[cache.Cache]
 	if ok := item.As(&pool); !ok {
-		return nil, errors.New("wrong sotwRegistry item format for cache-" + name)
+		return nil, errors.New("wrong registry item format for cache-" + name)
 	}
 	return pool.Get(ctx, resolutionData)
 }
@@ -587,43 +529,6 @@ func (m *manager) initInternalRegistry(ctx context.Context, bootstrap *Bootstrap
 
 	return reg, nil
 }
-
-//func (m *manager) initSOTWRegistry(ctx context.Context) (registry.Registry, error) {
-//	registryURL := runtime.RegistryURL()
-//
-//	reg, err := registry.OpenRegistry(ctx, registryURL)
-//	if err != nil {
-//		return nil, err
-//	}
-//
-//	go func() {
-//		// Making sure the listeners are being copied, todo improve that
-//		items, err := m.internalRegistry.List()
-//		if err != nil {
-//			// return nil, err
-//			return
-//		}
-//
-//		for _, item := range items {
-//			if err := reg.Register(item); err != nil {
-//				// return nil, err
-//				return
-//			}
-//		}
-//
-//		m.internalRegistry = registry.NewFuncWrapper(m.internalRegistry,
-//			// Adding to cluster sotwRegistry
-//			registry.OnRegister(func(item *registry.Item, opts *[]registry.RegisterOption) {
-//				if reg != nil {
-//					reg.Register(*item, *opts...)
-//				}
-//			}),
-//		)
-//	}()
-//
-//	// Switching to the main sotwRegistry for outside the manager
-//	return reg, nil
-//}
 
 func (m *manager) initProcesses(ctx context.Context, bootstrap *Bootstrap, base string) error {
 	cmds := make(map[string]*fork.Process)

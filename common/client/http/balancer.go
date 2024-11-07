@@ -109,8 +109,6 @@ func (b *balancer) Build(reg registry.Registry) error {
 		for _, item := range addrs {
 			addr := item.Metadata()[registry.MetaDescriptionKey]
 			usedAddr[addr] = struct{}{}
-			//proxy, ok := b.readyProxies[addr]
-			//if !ok {
 			scheme := "http://"
 			// TODO - do that in a better way
 			if srv.Name() == "grpcs" {
@@ -137,7 +135,6 @@ func (b *balancer) Build(reg registry.Registry) error {
 				endpoints: endpoints,
 			}
 			b.readyProxies[addr] = proxy
-			//}
 		}
 	}
 	for addr, _ := range b.readyProxies {

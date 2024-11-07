@@ -23,7 +23,6 @@ package manager
 import (
 	"context"
 	"fmt"
-	"github.com/pydio/cells/v4/common/utils/openurl"
 	"os"
 	"strings"
 	"text/template"
@@ -31,6 +30,7 @@ import (
 	"github.com/pydio/cells/v4/common/config"
 	"github.com/pydio/cells/v4/common/proto/object"
 	"github.com/pydio/cells/v4/common/runtime"
+	"github.com/pydio/cells/v4/common/utils/openurl"
 
 	_ "embed"
 )

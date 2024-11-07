@@ -103,7 +103,6 @@ func ResolveConn(ctx context.Context, serviceName string, opt ...Option) grpc.Cl
 		return t, nil
 	}
 
-	// er := std.Retry(ctx, func() error {
 	cc, err := reg.List(
 		registry.WithType(pb.ItemType_GENERIC),
 		registry.WithFilter(func(item registry.Item) bool {

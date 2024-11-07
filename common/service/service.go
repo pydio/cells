@@ -23,9 +23,9 @@ package service
 import (
 	"context"
 	"fmt"
-	"go.uber.org/multierr"
 	"sync"
 
+	"go.uber.org/multierr"
 	"go.uber.org/zap"
 	"golang.org/x/exp/maps"
 

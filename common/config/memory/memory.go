@@ -74,11 +74,7 @@ func (o *URLOpener) Open(ctx context.Context, urlstr string) (config.Store, erro
 	}
 
 	if master := u.Query().Get("masterKey"); master != "" {
-		mk, err := url.QueryUnescape(master)
-		if err != nil {
-			return nil, err
-		}
-		enc, err := crypto.NewVaultCipher(mk)
+		enc, err := crypto.NewVaultCipher(master)
 		if err != nil {
 			return nil, err
 		}
