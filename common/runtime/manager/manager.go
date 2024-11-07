@@ -220,7 +220,7 @@ func NewManager(ctx context.Context, namespace string, logger log.ZapLogger) (Ma
 
 				var data any
 				if err := json.Unmarshal([]byte(config.SampleConfig), &data); err == nil {
-					if err := configStore.Val().Set(data); err == nil {
+					if err := configStore.Context(ctx).Val().Set(data); err == nil {
 						if err := configStore.Save(common.PydioSystemUsername, "Initialize with sample config"); err != nil {
 							return err
 						}
@@ -470,7 +470,7 @@ func (m *manager) initTelemetry(ctx context.Context, bootstrap *Bootstrap, store
 
 	var configLoaded bool
 	// And finally from config, it will be hot-reloaded if config is changed
-	config.GetAndWatch(store, []string{"defaults", "telemetry"}, func(values configx.Values) {
+	config.GetAndWatch(ctx, store, []string{"defaults", "telemetry"}, func(values configx.Values) {
 		if values.Context(ctx).Scan(conf) == nil {
 			if e := conf.Reload(ctx); e != nil {
 				fmt.Println("Error loading telemetry setup", e)

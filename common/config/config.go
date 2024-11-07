@@ -22,11 +22,11 @@ package config
 
 import (
 	"context"
-	"github.com/pydio/cells/v4/common/errors"
-	"github.com/pydio/cells/v4/common/utils/openurl"
 	"sync"
 
+	"github.com/pydio/cells/v4/common/errors"
 	"github.com/pydio/cells/v4/common/utils/configx"
+	"github.com/pydio/cells/v4/common/utils/openurl"
 	"github.com/pydio/cells/v4/common/utils/propagator"
 )
 
@@ -174,12 +174,12 @@ func Del(ctx context.Context, path ...string) {
 
 // GetAndWatch applies a callback on a current value, then watch for its changes and re-apply
 // TODO : watcher should be cancellable with context
-func GetAndWatch(store Store, configPath []string, callback func(values configx.Values)) {
+func GetAndWatch(ctx context.Context, store Store, configPath []string, callback func(values configx.Values)) {
 	var ii []interface{}
 	for _, s := range configPath {
 		ii = append(ii, s)
 	}
-	values := store.Val(configx.FormatPath(ii...))
+	values := store.Context(ctx).Val(configx.FormatPath(ii...))
 	if values.Get() != nil {
 		callback(values)
 	}
