@@ -878,189 +878,162 @@ func (m *manager) initConnections(ctx context.Context, store *Bootstrap, base st
 
 func (m *manager) initStorages(ctx context.Context, store *Bootstrap, base string) error {
 	runtime.Register(m.ns, func(ctx context.Context) {
-		go func() {
-			storages := store.Val(base + "/storages")
-			for k := range storages.Map() {
-				uri := storages.Val(k, "uri").String()
-				pool, err := m.storage.Open(ctx, uri)
-				if err != nil {
-					fmt.Println("initStorages - cannot open pool with URI"+uri, err)
-					continue
-				}
-				regKey := k
-				er := registry.NewMetaWrapper(m.internalRegistry, func(meta map[string]string) {
-					meta[registry.MetaTimestampKey] = fmt.Sprintf("%d", time.Now().UnixNano())
-					meta[registry.MetaStatusKey] = string(registry.StatusTransient)
-				}).Register(registry.NewRichItem(regKey, regKey, pb.ItemType_GENERIC, pool), registry.WithEdgeTo(m.root.ID(), "storage", nil))
-				if er != nil {
-					fmt.Println("initQueues - cannot register queue pool with URI"+uri, er)
-				}
-			}
-
-			storageItems, err := m.internalRegistry.List(registry.WithType(pb.ItemType_STORAGE))
+		storages := store.Val(base + "/storages")
+		for k := range storages.Map() {
+			uri := storages.Val(k, "uri").String()
+			pool, err := m.storage.Open(ctx, uri)
 			if err != nil {
-				return
+				fmt.Println("initStorages - cannot open pool with URI"+uri, err)
+				continue
 			}
-
-			services, err := m.internalRegistry.List(registry.WithType(pb.ItemType_SERVICE))
-			if err != nil {
-				return
+			regKey := k
+			er := registry.NewMetaWrapper(m.internalRegistry, func(meta map[string]string) {
+				meta[registry.MetaTimestampKey] = fmt.Sprintf("%d", time.Now().UnixNano())
+				meta[registry.MetaStatusKey] = string(registry.StatusTransient)
+			}).Register(registry.NewRichItem(regKey, regKey, pb.ItemType_GENERIC, pool), registry.WithEdgeTo(m.root.ID(), "storage", nil))
+			if er != nil {
+				fmt.Println("initQueues - cannot register queue pool with URI"+uri, er)
 			}
+		}
 
-			for _, ss := range services {
-				var svc service.Service
-				if !ss.As(&svc) {
-					continue
-				}
-
-				// Find storage and link it
-				// TODO - Named stores should come from the config then ?
-				var namedStores map[string][]map[string]string
-				if err := store.Val(base, "services", ss.Name(), "storages").Scan(&namedStores); err != nil {
-					return
-				}
-
-				if len(namedStores) == 0 {
-					continue
-				}
-
-				for name, stores := range namedStores {
-					for _, st := range stores {
-						for _, storageItem := range storageItems {
-							if st["type"] == storageItem.Name() {
-								st["name"] = name
-								_, _ = m.internalRegistry.RegisterEdge(ss.ID(), storageItem.ID(), "storage", st)
-							}
-						}
-					}
-				}
-			}
-
-			// Now going through all the linked storages to update the versions if needed
-			for _, storageItem := range storageItems {
-				svcItems := m.internalRegistry.ListAdjacentItems(
-					registry.WithAdjacentSourceItems([]registry.Item{storageItem}),
-					registry.WithAdjacentTargetOptions(registry.WithType(pb.ItemType_SERVICE)),
-				)
-
-				for _, svcItem := range svcItems {
-					var svc service.Service
-					if !svcItem.As(&svc) {
-						continue
-					}
-
-					runtime.MultiContextManager().Iterate(ctx, func(ctx context.Context, name string) error {
-						ctx = propagator.With(ctx, service.ContextKey, svc)
-
-						if err := service.UpdateServiceVersion(ctx, svc.Options()); err != nil {
-							fmt.Println("I have an error here ", err)
-						}
-
-						return nil
-					})
-				}
-			}
-
-			runtime.MultiContextManager().Iterate(ctx, func(ctx context.Context, name string) error {
-				var configStore config.Store
-				propagator.Get(ctx, config.ContextKey, &configStore)
-
-				if configStore == nil {
-					return nil
-				}
-
-				go func() {
-					storages := configStore.Val("storages").Map()
-
-					fmt.Println("Retrieved that list of storages ", storages)
-
-					for k := range storages {
-						uri, ok := storages["uri"]
-						if !ok {
-							continue
-						}
-
-						uristr, ok := uri.(string)
-						if !ok {
-							continue
-						}
-
-						conn, err := m.storage.Open(ctx, uristr)
-						if err != nil {
-							fmt.Println("initStorages - cannot open storage with uri "+uristr, err)
-							continue
-						}
-
-						if conn != nil {
-							registry.NewMetaWrapper(m.internalRegistry, func(meta map[string]string) {
-								meta[registry.MetaTimestampKey] = fmt.Sprintf("%d", time.Now().UnixNano())
-								meta[registry.MetaStatusKey] = string(registry.StatusTransient)
-							}).Register(registry.NewRichItem(k, k, pb.ItemType_STORAGE, conn), registry.WithEdgeTo(m.root.ID(), "storage", nil))
-						}
-					}
-
-					storageItems, err := m.internalRegistry.List(registry.WithType(pb.ItemType_STORAGE))
-					if err != nil {
-						return
-					}
-
-					services, err := m.internalRegistry.List(registry.WithType(pb.ItemType_SERVICE))
-					if err != nil {
-						return
-					}
-
-					for _, ss := range services {
-						var svc service.Service
-						if !ss.As(&svc) {
-							continue
-						}
-
-						// Find storage and link it
-						// TODO - Named stores should come from the config then ?
-						var namedStores map[string][]map[string]string
-						if err := store.Val(base, "services", ss.Name(), "storages").Scan(&namedStores); err != nil {
-							return
-						}
-
-						if len(namedStores) == 0 {
-							continue
-						}
-
-						for name, stores := range namedStores {
-							linked := false
-							for _, st := range stores {
-								for _, storageItem := range storageItems {
-									if st["type"] == storageItem.Name() {
-										st["name"] = name
-										_, _ = m.internalRegistry.RegisterEdge(ss.ID(), storageItem.ID(), "storage", st)
-										linked = true
-									}
-								}
-							}
-
-							if !linked {
-								continue
-							}
-
-							go func() {
-								ctx = propagator.With(ctx, service.ContextKey, svc)
-
-								if err := service.UpdateServiceVersion(ctx, svc.Options()); err != nil {
-									fmt.Println("I have an error here ", err)
-								}
-
-							}()
-						}
-					}
-
-					return
-				}()
-
-				return nil
-			})
-
+		storageItems, err := m.internalRegistry.List(registry.WithType(pb.ItemType_STORAGE))
+		if err != nil {
 			return
-		}()
+		}
+
+		services, err := m.internalRegistry.List(registry.WithType(pb.ItemType_SERVICE))
+		if err != nil {
+			return
+		}
+
+		for _, ss := range services {
+			var svc service.Service
+			if !ss.As(&svc) {
+				continue
+			}
+
+			// Find storage and link it
+			// TODO - Named stores should come from the config then ?
+			var namedStores map[string][]map[string]string
+			if err := store.Val(base, "services", ss.Name(), "storages").Scan(&namedStores); err != nil {
+				return
+			}
+
+			if len(namedStores) == 0 {
+				continue
+			}
+
+			for name, stores := range namedStores {
+				for _, st := range stores {
+					for _, storageItem := range storageItems {
+						if st["type"] == storageItem.Name() {
+							st["name"] = name
+							_, _ = m.internalRegistry.RegisterEdge(ss.ID(), storageItem.ID(), "storage", st)
+						}
+					}
+				}
+			}
+		}
+
+		//runtime.MultiContextManager().Iterate(ctx, func(ctx context.Context, name string) error {
+		//	var configStore config.Store
+		//	propagator.Get(ctx, config.ContextKey, &configStore)
+		//
+		//	if configStore == nil {
+		//		return nil
+		//	}
+		//
+		//	go func() {
+		//		storages := configStore.Val("storages").Map()
+		//
+		//		fmt.Println("Retrieved that list of storages ", storages)
+		//
+		//		for k := range storages {
+		//			uri, ok := storages["uri"]
+		//			if !ok {
+		//				continue
+		//			}
+		//
+		//			uristr, ok := uri.(string)
+		//			if !ok {
+		//				continue
+		//			}
+		//
+		//			conn, err := m.storage.Open(ctx, uristr)
+		//			if err != nil {
+		//				fmt.Println("initStorages - cannot open storage with uri "+uristr, err)
+		//				continue
+		//			}
+		//
+		//			if conn != nil {
+		//				registry.NewMetaWrapper(m.internalRegistry, func(meta map[string]string) {
+		//					meta[registry.MetaTimestampKey] = fmt.Sprintf("%d", time.Now().UnixNano())
+		//					meta[registry.MetaStatusKey] = string(registry.StatusTransient)
+		//				}).Register(registry.NewRichItem(k, k, pb.ItemType_STORAGE, conn), registry.WithEdgeTo(m.root.ID(), "storage", nil))
+		//			}
+		//		}
+		//
+		//		storageItems, err := m.internalRegistry.List(registry.WithType(pb.ItemType_STORAGE))
+		//		if err != nil {
+		//			return
+		//		}
+		//
+		//		services, err := m.internalRegistry.List(registry.WithType(pb.ItemType_SERVICE))
+		//		if err != nil {
+		//			return
+		//		}
+		//
+		//		for _, ss := range services {
+		//			var svc service.Service
+		//			if !ss.As(&svc) {
+		//				continue
+		//			}
+		//
+		//			// Find storage and link it
+		//			// TODO - Named stores should come from the config then ?
+		//			var namedStores map[string][]map[string]string
+		//			if err := store.Val(base, "services", ss.Name(), "storages").Scan(&namedStores); err != nil {
+		//				return
+		//			}
+		//
+		//			if len(namedStores) == 0 {
+		//				continue
+		//			}
+		//
+		//			for name, stores := range namedStores {
+		//				linked := false
+		//				for _, st := range stores {
+		//					for _, storageItem := range storageItems {
+		//						if st["type"] == storageItem.Name() {
+		//							st["name"] = name
+		//							_, _ = m.internalRegistry.RegisterEdge(ss.ID(), storageItem.ID(), "storage", st)
+		//							linked = true
+		//						}
+		//					}
+		//				}
+		//
+		//				if !linked {
+		//					continue
+		//				}
+		//
+		//				go func() {
+		//					ctx = propagator.With(ctx, service.ContextKey, svc)
+		//
+		//					if err := service.UpdateServiceVersion(ctx, svc.Options()); err != nil {
+		//						fmt.Println("I have an error here ", err)
+		//					}
+		//
+		//				}()
+		//			}
+		//		}
+		//
+		//		return
+		//	}()
+		//
+		//	return nil
+		//})
+
+		return
 	})
 
 	return nil
@@ -1535,6 +1508,17 @@ func (m *manager) serviceServeOptions(svc service.Service) []server.ServeOption 
 	return []server.ServeOption{
 		server.WithBeforeServe(func(...registry.RegisterOption) error {
 			return svc.Start(registry.WithContextR(m.ctx))
+		}),
+		server.WithAfterServe(func(...registry.RegisterOption) error {
+			return runtime.MultiContextManager().Iterate(m.ctx, func(ctx context.Context, name string) error {
+				ctx = propagator.With(ctx, service.ContextKey, svc)
+
+				if err := service.UpdateServiceVersion(ctx, svc.Options()); err != nil {
+					fmt.Println("I have an error here ", err)
+				}
+
+				return nil
+			})
 		}),
 		server.WithAfterServe(func(...registry.RegisterOption) error {
 			return svc.OnServe(registry.WithContextR(m.ctx))

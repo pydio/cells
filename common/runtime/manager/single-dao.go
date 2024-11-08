@@ -67,6 +67,12 @@ storages:
   storage{{ $idx }}: 
     uri: {{ $dsn }}
   {{- end }}
+servers:
+  grpc:
+	type: grpc
+	listener: bufconn
+	services:
+	  - filter: "{{ .Name }} ~= .*"
 services:
   {{- range $name, $storage := .Services }}
   {{$name}}:
@@ -133,6 +139,10 @@ func DSNtoContextDAO(ctx context.Context, dsn []string, daoFunc any) (context.Co
 	ctx = mgr.Context()
 	ctx = propagator.With(ctx, service.ContextKey, svc)
 	ctx = runtime.MultiContextManager().RootContext(ctx)
+
+	if err := mgr.ServeAll(); err != nil {
+		return nil, err
+	}
 
 	return ctx, nil
 }
