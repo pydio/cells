@@ -24,7 +24,6 @@ package service
 import (
 	"context"
 
-	"go.uber.org/zap"
 	"google.golang.org/grpc"
 
 	mailer2 "github.com/pydio/cells/v4/broker/mailer"
@@ -36,6 +35,7 @@ import (
 	"github.com/pydio/cells/v4/common/runtime"
 	"github.com/pydio/cells/v4/common/service"
 	"github.com/pydio/cells/v4/common/telemetry/log"
+	"github.com/pydio/cells/v4/common/utils/configx"
 )
 
 var (
@@ -67,23 +67,19 @@ func init() {
 			}),
 			service.WithStorageDrivers(mailer2.Drivers...),
 			service.WithStorageMigrator(mailer2.MigrateQueue),
-			/*
-				service.WithStorage(mailer2.NewQueueDAO,
-					service.WithStoragePrefix("mailer"),
-					service.WithStorageSupport(boltdb.Driver, mongodb.Driver),
-					service.WithStorageMigrator(mailer2.MigrateQueue),
-					service.WithStorageDefaultDriver(func() (string, string) {
-						return "boltdb", filepath.Join(runtime.MustServiceDataDir(Name), "queue.db")
-					}),
-				),*/
 			service.WithGRPC(func(c context.Context, server grpc.ServiceRegistrar) error {
 
-				handler, err := grpc2.NewHandler(c, Name)
-				if err != nil {
-					log.Logger(ctx).Error("Init handler", zap.Error(err))
-					return err
-				}
-				log.Logger(ctx).Debug("Init handler OK", zap.Any("h", handler))
+				handler := grpc2.NewHandler(Name)
+				_ = runtime.MultiContextManager().Iterate(ctx, func(ctx context.Context, s string) error {
+					config.GetAndWatch(ctx, nil, []string{"services", Name}, func(values configx.Values) {
+						if er := handler.CheckSender(ctx, values); er == nil {
+							log.Logger(ctx).Info("Enabling mailer status for " + s)
+						} else {
+							log.Logger(ctx).Warn("No mailer enabled for " + s)
+						}
+					})
+					return nil
+				})
 
 				mailer.RegisterMailerServiceServer(server, handler)
 

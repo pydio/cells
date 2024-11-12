@@ -175,6 +175,16 @@ func Del(ctx context.Context, path ...string) {
 // GetAndWatch applies a callback on a current value, then watch for its changes and re-apply
 // TODO : watcher should be cancellable with context
 func GetAndWatch(ctx context.Context, store Store, configPath []string, callback func(values configx.Values)) {
+	if store == nil {
+		// get store from context
+		var err error
+		storePool := propagator.MustWithHint[*openurl.Pool[Store]](ctx, ContextKey, "config")
+		store, err = storePool.Get(ctx)
+		if err != nil {
+			return
+		}
+
+	}
 	var ii []interface{}
 	for _, s := range configPath {
 		ii = append(ii, s)

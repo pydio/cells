@@ -27,13 +27,10 @@ package mailer
 import (
 	"context"
 
-	"go.uber.org/zap"
-
 	"github.com/pydio/cells/v4/common/errors"
 	"github.com/pydio/cells/v4/common/proto/mailer"
 	"github.com/pydio/cells/v4/common/runtime/manager"
 	"github.com/pydio/cells/v4/common/service"
-	"github.com/pydio/cells/v4/common/telemetry/log"
 	"github.com/pydio/cells/v4/common/utils/configx"
 )
 
@@ -77,8 +74,7 @@ func GetSender(ctx context.Context, t string, conf configx.Values) (Sender, erro
 
 	err := sender.Configure(ctx, conf)
 	if err != nil {
-		log.Logger(ctx).Error("Error while configuring sender", zap.Error(err))
-		return nil, errors.WithMessagef(errors.StatusInternalServerError, "cannot configure sender for type %s", t)
+		return nil, errors.WithMessagef(errors.StatusInternalServerError, "cannot configure sender for type %s (%v)", t, err)
 	}
 
 	return sender, nil
