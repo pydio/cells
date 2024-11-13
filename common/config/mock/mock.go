@@ -27,6 +27,7 @@ import (
 
 	"github.com/pydio/cells/v4/common/config"
 	"github.com/pydio/cells/v4/common/utils/configx"
+	"github.com/pydio/cells/v4/common/utils/openurl"
 	"github.com/pydio/cells/v4/common/utils/propagator"
 )
 
@@ -461,6 +462,11 @@ func RegisterMockConfig(ctx context.Context) (context.Context, error) {
 		return ctx, er
 	}
 	store := &MockStore{Values: cfg}
-	ctx = propagator.With(ctx, config.ContextKey, store)
+
+	mockPool, _ := openurl.OpenPool[config.Store](ctx, []string{"mem://"}, func(ctx context.Context, url string) (config.Store, error) {
+		return store, nil
+	})
+
+	ctx = propagator.With(ctx, config.ContextKey, mockPool)
 	return ctx, nil
 }
