@@ -24,6 +24,7 @@ import (
 	"context"
 	"fmt"
 	"go.uber.org/zap/zapcore"
+	"os"
 	"runtime/debug"
 	"strings"
 	"sync"
@@ -52,7 +53,13 @@ type ctxBalancerFilterKey struct{}
 var (
 	CallTimeoutShort         = 1 * time.Second
 	WarnMissingConnInContext = false
+	authorityHeader          = ""
 )
+
+func init() {
+	runtime.RegisterEnvVariable("CELLS_GRPC_AUTHORITY", "", ":authority header value passed in all GRPC clients calls", false)
+	authorityHeader = os.Getenv("CELLS_GRPC_AUTHORITY")
+}
 
 func DialOptionsForRegistry(reg registry.Registry, options ...grpc.DialOption) []grpc.DialOption {
 
@@ -61,6 +68,9 @@ func DialOptionsForRegistry(reg registry.Registry, options ...grpc.DialOption) [
 	clientConfig := clusterConfig.GetClientConfig("grpc")
 
 	backoffConfig := backoff.DefaultConfig
+	if authorityHeader != "" {
+		options = append(options, grpc.WithAuthority(authorityHeader))
+	}
 
 	return append([]grpc.DialOption{
 		grpc.WithTransportCredentials(insecure.NewCredentials()),
