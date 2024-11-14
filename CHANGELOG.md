@@ -1,17 +1,16 @@
-# Changes between v4.4.5 and v4.4.6
+# Changes between v4.4.6 and v4.4.7
 
-[See Full Changelog](https://github.com/pydio/cells/compare/v4.4.5...v4.4.6)
+[See Full Changelog](https://github.com/pydio/cells/compare/v4.4.6...v4.4.7)
 
-- [#513a0aa](https://github.com/pydio/cells/commit/513a0aa2b2bdb98ae935bae9796d07c520a26adb): Use Traefik latest version, update docker compose commands
-- [#6f2d832](https://github.com/pydio/cells/commit/6f2d832ccb786c6886d066a64be582bbb0c01549): Improve docker compose samples
-- [#8a33026](https://github.com/pydio/cells/commit/8a33026f58a2a12ff10bcce531e0bea73693fb17): Fix version policy editor display glitch
-- [#073497f](https://github.com/pydio/cells/commit/073497f149e827fed14e51d78375fb0834e193c4): Refix archive writer for slugs/ specific case
-- [#d8230c6](https://github.com/pydio/cells/commit/d8230c613f0e57ea5e22a12183c2d3d40ab7cea7): Forgotten message + DE/FR translation
-- [#ebacac6](https://github.com/pydio/cells/commit/ebacac66bf0b6823a278e52d6635475d269fabd8): Forgotten message + DE/FR translation
-- [#0882ce7](https://github.com/pydio/cells/commit/0882ce72dae7bb34da0bf3bf4a5032e2578d661e): Fixing the admin datasource command which never returned
-- [#73c7fe6](https://github.com/pydio/cells/commit/73c7fe6d7794a183b76fbf36ea3f3d8a9b5384ba): Fix issues with files located inside .zip folders
-- [#39bf96d](https://github.com/pydio/cells/commit/39bf96d3ca63786749c1ef66238daf4e26273e90): Add comments in delete user action
-- [#078dd99](https://github.com/pydio/cells/commit/078dd99c205892f50ba4734fd2d7ffedf63a7180): Fix hardcoded i18n string
-- [#ba44c2b](https://github.com/pydio/cells/commit/ba44c2be5bf0afb6e08e20c8a276dea22054b5ae): Fix internal DS creation when switching to object storage. Prevent creating a template path with an existing datasource name.
-- [#130f0e6](https://github.com/pydio/cells/commit/130f0e6fd16e6c5cf7501dad5184117f39dbea8d): Fix ScheduleForm display and weekly day-pick issue
-- [#bd731eb](https://github.com/pydio/cells/commit/bd731ebc2bc31a81c4f0b2f0b18260494727304b): Next development cycle
+- [#628fcf9](https://github.com/pydio/cells/commit/628fcf9dae464bcaebbee455b372d6e84d1a819d): Do not use legacy variables in sample files
+- [#9e6973f](https://github.com/pydio/cells/commit/9e6973fa6f9e3d61a6ac960653ab07cfe1624e83): Attach debug.Stack to error when recovering a job.
+- [#a391a79](https://github.com/pydio/cells/commit/a391a79869f1f138765532a4d2ab1b622de3ed8a): Fix scheduler JS issue
+- [#5bc9305](https://github.com/pydio/cells/commit/5bc9305502c7a4490ab51d533aceeb97ae7d09ef): New CELLS_GRPC_AUTHORITY env variable to set grpc :authority header
+- [#bc31856](https://github.com/pydio/cells/commit/bc31856dd3979f96e51831bfe6e44815f2e87b4d): Batch revert PoC to handle massive amount of cells
+- [#9bb6460](https://github.com/pydio/cells/commit/9bb646049f67e3c6b9b12acfd5879d55adff1a87): Do not use legac y variables in sample files
+- [#52c42b2](https://github.com/pydio/cells/commit/52c42b2cbcdeb37381d95a87ed381610be6d4d82): Update dao_test.go - Massive inserts to 10000
+- [#f189af6](https://github.com/pydio/cells/commit/f189af682d5fee50300dbd463dfe2eb65ce1255a): try to understand race-cond on cells roots reloading after creation
+- [#cf08dc3](https://github.com/pydio/cells/commit/cf08dc3595d4368f2b061b68a0ed9ad310f571e8): Re-adapt search engine to the shared resources loading
+- [#cc35328](https://github.com/pydio/cells/commit/cc353284cefe557c93c5e0e005b5be0bf2e9baca): Forgotten map initialization
+- [#6880a50](https://github.com/pydio/cells/commit/6880a5096b58d7007387c92f3a23e7d427129c29): Optimize Cells roots loading
+- [#3c5d0f6](https://github.com/pydio/cells/commit/3c5d0f6d188afbd1297f86e926164122d0aef6f4): Next development cycle
