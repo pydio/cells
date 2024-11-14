@@ -80,7 +80,7 @@ func ReverseClient(ctx context.Context, oo ...nodes.Option) *Reverse {
 	}
 }
 
-// WorkspaceCanSeeNode checks if a node appears inside a workspace, and if so, returns the node with its path relative to this workspace
+// WorkspaceCanSeeNode will check workspaces roots to see if a node in below one of them
 func (r *Reverse) WorkspaceCanSeeNode(ctx context.Context, accessList *permissions.AccessList, workspace *idm.Workspace, node *tree.Node) (*tree.Node, bool) {
 	if node == nil {
 		return node, false
@@ -109,7 +109,7 @@ func (r *Reverse) WorkspaceCanSeeNode(ctx context.Context, accessList *permissio
 				}
 			}
 			newNode := node.Clone()
-			_ = r.WrapCallback(func(inputFilter nodes.FilterFunc, outputFilter nodes.FilterFunc) error {
+			r.WrapCallback(func(inputFilter nodes.FilterFunc, outputFilter nodes.FilterFunc) error {
 				branchInfo := nodes.BranchInfo{}
 				branchInfo.Workspace = workspace
 				branchInfo.Root = parent
@@ -148,10 +148,7 @@ func (r *Reverse) getRoot(ctx context.Context, rootId string) *tree.Node {
 	if r.rootsCache.Get(rootId, &node) {
 		return node
 	}
-	resp, e := r.GetClientsPool().GetTreeClient().ReadNode(ctx, &tree.ReadNodeRequest{
-		Node:      &tree.Node{Uuid: rootId},
-		StatFlags: []uint32{tree.StatFlagNone},
-	})
+	resp, e := r.GetClientsPool().GetTreeClient().ReadNode(ctx, &tree.ReadNodeRequest{Node: &tree.Node{Uuid: rootId}})
 	if e == nil && resp.Node != nil {
 		resp.Node.Path = strings.Trim(resp.Node.Path, "/")
 		r.rootsCache.Set(rootId, resp.Node.Clone())

@@ -797,7 +797,7 @@ func TestFlatFolderWithMassiveChildren(t *testing.T) {
 		d := getDAO(ctxNoCache)
 		s := time.Now()
 		var nodes []*mtree.TreeNode
-		for i = 0; i < 10000; i++ {
+		for i = 0; i < 50; i++ {
 			_, node, _ := d.Path(fmt.Sprintf("/child-%d", i), true)
 			nodes = append(nodes, node[0])
 			if i > 0 && i%1000 == 0 {

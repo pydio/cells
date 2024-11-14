@@ -6,10 +6,10 @@ services:
     ports: ["80:80","443:443"]
     environment:
       # Internal Web Server Configuration
-      - CELLS_SITE_BIND=${PUBLIC_FQDN}:443
-      - CELLS_SITE_EXTERNAL=https://${PUBLIC_FQDN}
-      - CELLS_SITE_LE_AGREE=1
-      - CELLS_SITE_LE_EMAIL=${ADMIN_EMAIL}
+      - CELLS_BIND=${PUBLIC_FQDN}:443
+      - CELLS_EXTERNAL=https://${PUBLIC_FQDN}
+      - CELLS_LE_AGREE=1
+      - CELLS_LE_EMAIL=${ADMIN_EMAIL}
       # Directly pass server configuration as yaml file
       - CELLS_INSTALL_YAML=/pydio/config/install.yml
       # Pass env var to yaml install conf

@@ -22,10 +22,10 @@ package permissions
 
 import (
 	"context"
+	"github.com/pydio/cells/v4/common/utils/std"
 	"sort"
 	"strings"
 	"sync"
-	"time"
 
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
@@ -35,10 +35,8 @@ import (
 	"github.com/pydio/cells/v4/common/log"
 	"github.com/pydio/cells/v4/common/proto/idm"
 	"github.com/pydio/cells/v4/common/proto/tree"
-	"github.com/pydio/cells/v4/common/service/context/metadata"
 	"github.com/pydio/cells/v4/common/utils/configx"
 	json "github.com/pydio/cells/v4/common/utils/jsonx"
-	"github.com/pydio/cells/v4/common/utils/std"
 )
 
 // PolicyResolver implements the check of an object against a set of ACL policies
@@ -452,8 +450,6 @@ func (a *AccessList) loadNodePathAcls(ctx context.Context, resolver VirtualPathR
 	a.maskBPLock.Lock()
 	defer a.maskBPLock.Unlock()
 
-	flagNone := tree.StatFlags([]uint32{tree.StatFlagNone})
-
 	a.masksByPaths = make(map[string]Bitmask, len(a.masksByUUIDs))
 	if len(a.masksByUUIDs) == 0 {
 		// Do not open an unnecessary stream...
@@ -462,12 +458,10 @@ func (a *AccessList) loadNodePathAcls(ctx context.Context, resolver VirtualPathR
 	cli := tree.NewNodeProviderStreamerClient(grpc.GetClientConnFromCtx(ctx, common.ServiceTree))
 	ct, ca := context.WithCancel(ctx)
 	defer ca()
-	// Set StatFlagNone in context for meta streamer underlying initialization
-	st, e := cli.ReadNodeStream(metadata.WithAdditionalMetadata(ct, flagNone.AsMeta()))
+	st, e := cli.ReadNodeStream(ct)
 	if e != nil {
 		return e
 	}
-	t := time.Now()
 	// Retrieving path foreach ids
 	for nodeID, b := range a.masksByUUIDs {
 		if n, ok := resolver(ctx, &tree.Node{Uuid: nodeID}); ok {
@@ -475,10 +469,7 @@ func (a *AccessList) loadNodePathAcls(ctx context.Context, resolver VirtualPathR
 			a.masksByPaths[strings.TrimSuffix(n.Path, "/")] = b
 			continue
 		}
-		err := st.Send(&tree.ReadNodeRequest{
-			Node:      &tree.Node{Uuid: nodeID},
-			StatFlags: flagNone,
-		})
+		err := st.Send(&tree.ReadNodeRequest{Node: &tree.Node{Uuid: nodeID}})
 		if err != nil {
 			return err
 		}
@@ -488,7 +479,6 @@ func (a *AccessList) loadNodePathAcls(ctx context.Context, resolver VirtualPathR
 		}
 		a.masksByPaths[strings.TrimSuffix(resp.Node.Path, "/")] = b
 	}
-	log.Logger(ctx).Debug("Acl.loadNodePathAcls : LoadNodePathACls End", zap.Duration("t", time.Since(t)))
 	return nil
 }
 
