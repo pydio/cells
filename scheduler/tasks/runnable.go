@@ -24,6 +24,7 @@ import (
 	"context"
 	"fmt"
 	"path"
+	"runtime/debug"
 	"strings"
 	"sync"
 	"time"
@@ -244,12 +245,16 @@ func (r *Runnable) RunAction(queue chan RunnerFunc) {
 		runnableStatus := jobs.TaskStatus_Finished
 		if re := recover(); re != nil {
 			runnableStatus = jobs.TaskStatus_Error
-			r.Task.SetStatus(jobs.TaskStatus_Error, "Panic inside task")
+			buf := debug.Stack()
 			if e, ok := re.(error); ok {
 				r.Task.SetStatus(jobs.TaskStatus_Error, "Panic inside task: "+e.Error())
-				log.TasksLogger(r.Context).Error("Recovered scheduler task "+r.Action.ID, zap.Any("input", r.Message), zap.Error(e))
-				log.Logger(r.Context).Error("Recovered scheduler task "+r.Action.ID, zap.Error(e))
 				r.Task.SetError(e, true)
+				log.TasksLogger(r.Context).Error("Recovered scheduler task "+r.Action.ID, zap.Any("input", r.Message), zap.Error(e), zap.String("stack", string(buf)))
+				log.Logger(r.Context).Error("Recovered scheduler task "+r.Action.ID, zap.Error(e), zap.String("stack", string(buf)))
+			} else {
+				r.Task.SetStatus(jobs.TaskStatus_Error, "Panic inside task")
+				log.TasksLogger(r.Context).Error("Recovered scheduler task "+r.Action.ID, zap.Any("input", r.Message), zap.String("stack", string(buf)))
+				log.Logger(r.Context).Error("Recovered scheduler task "+r.Action.ID, zap.Error(e), zap.String("stack", string(buf)))
 			}
 		} else {
 			label := r.Action.GetLabel()
