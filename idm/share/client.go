@@ -99,7 +99,7 @@ func (sc *Client) LinksForNode(ctx context.Context, node *tree.Node, owner *idm.
 		return nil, er
 	}
 	for _, ws := range wss {
-		if l, er := sc.WorkspaceToShareLinkObject(ctx, ws); e == nil {
+		if l, er := sc.WorkspaceToShareLinkObject(ctx, ws); er == nil {
 			ll = append(ll, l)
 		} else {
 			return nil, er
@@ -382,7 +382,7 @@ func (sc *Client) CellsForNode(ctx context.Context, node *tree.Node, owner *idm.
 		return nil, er
 	}
 	for _, ws := range wss {
-		if l, er := sc.WorkspaceToCellObject(ctx, ws, acl); e == nil {
+		if l, er := sc.WorkspaceToCellObject(ctx, ws, acl); er == nil {
 			ll = append(ll, l)
 		} else {
 			return nil, er
@@ -553,20 +553,34 @@ func (sc *Client) UpsertCell(ctx context.Context, cell *rest.Cell, ownerUser *id
 }
 
 // DeleteCell deletes a Cell by its ID
-func (sc *Client) DeleteCell(ctx context.Context, id string, ownerLogin string) error {
+func (sc *Client) DeleteCell(ctx context.Context, id string, ownerUUID string) error {
 
 	ws, e := sc.GetCellWorkspace(ctx, id)
-	if e != nil || ws == nil {
+	if e != nil {
 		return errors.NotFound("cell.not.found", e.Error())
+	} else if ws == nil {
+		return errors.NotFound("cell.not.found", "nil workspace")
 	} else if !sc.checker.IsContextEditable(ctx, id, ws.Policies) {
 		return errors.Forbidden("cell.not.editable", "you are not allowed to edit this room")
 	}
 
 	currWsLabel := ws.Label
 
+	if ownerUUID == "" {
+		for _, p := range ws.Policies {
+			if p.Action == service2.ResourcePolicyAction_OWNER {
+				ownerUUID = p.Subject
+				break
+			}
+		}
+	}
+	if ownerUUID == "" {
+		return fmt.Errorf("cannot find original owner UUID")
+	}
+
 	log.Logger(ctx).Debug("Delete share room", zap.Any("workspaceId", id))
 	// This will load the workspace and its root, and eventually remove the Room root totally
-	if err := sc.DeleteWorkspace(ctx, ownerLogin, idm.WorkspaceScope_ROOM, id); err != nil {
+	if err := sc.DeleteWorkspace(ctx, ownerUUID, idm.WorkspaceScope_ROOM, id); err != nil {
 		return err
 	}
 

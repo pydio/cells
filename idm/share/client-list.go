@@ -30,6 +30,7 @@ import (
 	"github.com/pydio/cells/v4/common/auth"
 	"github.com/pydio/cells/v4/common/auth/claim"
 	"github.com/pydio/cells/v4/common/client/grpc"
+	"github.com/pydio/cells/v4/common/log"
 	"github.com/pydio/cells/v4/common/proto/idm"
 	"github.com/pydio/cells/v4/common/proto/rest"
 	service2 "github.com/pydio/cells/v4/common/proto/service"
@@ -44,7 +45,7 @@ type SharedResource struct {
 }
 
 // ListSharedResources lists all links and cells Owned by a given user
-func (sc *Client) ListSharedResources(ctx context.Context, subject string, scope idm.WorkspaceScope, ownedBy bool, p resources.ResourceProviderHandler) ([]*SharedResource, error) {
+func (sc *Client) ListSharedResources(ctx context.Context, subject string, scope idm.WorkspaceScope, ownedBy bool, p resources.ResourceProviderHandler, pathPrefixes ...string) ([]*SharedResource, error) {
 	var out []*SharedResource
 
 	var subjects []string
@@ -138,7 +139,11 @@ func (sc *Client) ListSharedResources(ctx context.Context, subject string, scope
 
 	// Build resources
 	for nodeId, node := range rootNodes {
-
+		// contextualize node to the first workspace found, favoring pathPrefixes
+		if replaced := sc.contextualizeRootToWorkspace(node, "", pathPrefixes...); !replaced {
+			log.Logger(ctx).Debug("Cannot contextualize node, ignoring node", node.Zap())
+			continue
+		}
 		resource := &SharedResource{
 			Node: node,
 		}

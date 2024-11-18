@@ -155,7 +155,7 @@ func (h *SharesHandler) GetCell(req *restful.Request, rsp *restful.Response) {
 	if output, err := h.sc.WorkspaceToCellObject(ctx, workspace, acl); err != nil {
 		service.RestError500(req, rsp, err)
 	} else {
-		rsp.WriteEntity(output)
+		_ = rsp.WriteEntity(output)
 	}
 
 }
@@ -164,10 +164,8 @@ func (h *SharesHandler) GetCell(req *restful.Request, rsp *restful.Response) {
 func (h *SharesHandler) DeleteCell(req *restful.Request, rsp *restful.Response) {
 
 	ctx := req.Request.Context()
-	id := req.PathParameter("Uuid")
-	ownerLogin, _ := permissions.FindUserNameInContext(ctx)
-	err := h.sc.DeleteCell(ctx, id, ownerLogin)
-	if err != nil {
+	// Permission checks are done by the client library
+	if err := h.sc.DeleteCell(ctx, req.PathParameter("Uuid"), ""); err != nil {
 		service.RestErrorDetect(req, rsp, err)
 		return
 	}
@@ -318,7 +316,7 @@ func (h *SharesHandler) UpdateSharePolicies(req *restful.Request, rsp *restful.R
 		Policies:                resp.Workspace.Policies,
 		PoliciesContextEditable: resp.Workspace.PoliciesContextEditable,
 	}
-	rsp.WriteEntity(response)
+	_ = rsp.WriteEntity(response)
 }
 
 func (h *SharesHandler) docStoreStatus(ctx context.Context) error {

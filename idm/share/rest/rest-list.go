@@ -28,6 +28,7 @@ import (
 )
 
 // ListSharedResources implements the corresponding Rest API operation
+// This API can be used either by admin to list all users resources, or by users to list their own resources
 func (h *SharesHandler) ListSharedResources(req *restful.Request, rsp *restful.Response) {
 
 	var request rest.ListSharedResourcesRequest
