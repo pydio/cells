@@ -22,13 +22,13 @@ package cmd
 
 import (
 	"bytes"
+	"context"
 	"fmt"
 	"log"
 	"os"
 	"strings"
 	"time"
 
-	"github.com/spf13/cobra"
 	yaml "gopkg.in/yaml.v2"
 
 	"github.com/pydio/cells/v4/common"
@@ -42,13 +42,12 @@ import (
 type NiInstallConfig struct {
 	install.InstallConfig `yaml:",inline"`
 	ProxyConfigs          []*install.ProxyConfig `json:"proxyConfigs" yaml:"proxyconfigs"`
-	CustomConfigs         map[string]interface{} `json:"customConfigs" yaml:"customconfigs"`
 }
 
-func nonInteractiveInstall(cmd *cobra.Command, args []string) (*install.InstallConfig, error) {
+func nonInteractiveInstall(ctx context.Context) (*install.InstallConfig, error) {
 
 	if niYamlFile != "" || niJsonFile != "" {
-		return installFromConf()
+		return installFromConf(ctx)
 	}
 
 	pconf, err := proxyConfigFromArgs()
@@ -56,7 +55,7 @@ func nonInteractiveInstall(cmd *cobra.Command, args []string) (*install.InstallC
 		return nil, err
 	}
 
-	err = applyProxySites([]*install.ProxyConfig{pconf})
+	err = applyProxySites(ctx, []*install.ProxyConfig{pconf})
 	if err != nil {
 		return nil, err
 	}
@@ -133,7 +132,7 @@ func proxyConfigFromArgs() (*install.ProxyConfig, error) {
 	return proxyConfig, nil
 }
 
-func installFromConf() (*install.InstallConfig, error) {
+func installFromConf(ctx context.Context) (*install.InstallConfig, error) {
 
 	fmt.Printf("\033[1m## Performing Installation\033[0m \n")
 
@@ -161,7 +160,7 @@ func installFromConf() (*install.InstallConfig, error) {
 	if updateMultiple {
 		installConf.ProxyConfigs = append(installConf.ProxyConfigs, installConf.ProxyConfig)
 	}
-	err = applyProxySites(installConf.ProxyConfigs)
+	err = applyProxySites(ctx, installConf.ProxyConfigs)
 	if err != nil {
 		return nil, fmt.Errorf("could not preconfigure proxy: %s", err.Error())
 	}
@@ -272,10 +271,10 @@ func unmarshallConf() (*NiInstallConfig, error) {
 
 	if confFromFile.CustomConfigs != nil {
 		if title, o := confFromFile.CustomConfigs["frontend/plugin/core.pydio/APPLICATION_TITLE"]; o {
-			confFromFile.FrontendApplicationTitle = title.(string)
+			confFromFile.FrontendApplicationTitle = title
 		}
 		if lang, o := confFromFile.CustomConfigs["frontend/plugin/core.pydio/DEFAULT_LANGUAGE"]; o {
-			confFromFile.FrontendDefaultLanguage = lang.(string)
+			confFromFile.FrontendDefaultLanguage = lang
 		}
 	}
 
@@ -284,7 +283,7 @@ func unmarshallConf() (*NiInstallConfig, error) {
 	return confFromFile, nil
 }
 
-func applyProxySites(sites []*install.ProxyConfig) error {
+func applyProxySites(ctx context.Context, sites []*install.ProxyConfig) error {
 
 	// Save configs
 	config.Set(ctx, sites, "defaults", "sites")

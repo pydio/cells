@@ -4,7 +4,7 @@ package install;
 
 option go_package="github.com/pydio/cells/v4/common/proto/install";
 
-import "cells-setter.proto";
+// import "cells-setter.proto";
 
 message InstallConfig {
     string internalUrl = 32;
@@ -50,8 +50,11 @@ message InstallConfig {
     bool   licenseRequired = 29;
     string licenseString = 30;
     repeated CheckResult CheckResults = 31;
+
     // Additional proxy config (optional)
     ProxyConfig ProxyConfig = 34;
+
+    map<string, string> CustomConfigs = 40;
 }
 
 enum RuleEffect {
@@ -60,7 +63,7 @@ enum RuleEffect {
 }
 
 message Rule {
-    option (setter.all_fields) = true;
+    //option (setter.all_fields) = true;
     // Matcher matches one or more routes or *
     string Matcher = 1;
     // Effect accepts or denies
@@ -110,18 +113,20 @@ message HeaderMod {
 
 // ProxyConfig gives necessary URL and TLS configurations to start proxy
 message ProxyConfig {
-    option (setter.all_fields) = true;
+    //option (setter.all_fields) = true;
 
     // A list of [host]:port to bind to
     repeated string Binds = 1;
     // Optional URL of reverse proxy exposing this site
     string ReverseProxyURL = 3;
+
     // TLS configuration used for this site
     oneof TLSConfig {
         TLSSelfSigned SelfSigned = 4;
         TLSLetsEncrypt LetsEncrypt = 5;
         TLSCertificate Certificate = 6;
     }
+
     // If TLS is set, whether to automatically redirect each http://host:port to https://host:port
     bool SSLRedirect = 2;
 

@@ -25,9 +25,16 @@ import "net"
 type Option func(*Options)
 
 type Options struct {
+	Scheme   string
 	Name     string
 	Addr     string
 	Listener net.Listener
+}
+
+func WithScheme(scheme string) Option {
+	return func(o *Options) {
+		o.Scheme = scheme
+	}
 }
 
 func WithName(name string) Option {

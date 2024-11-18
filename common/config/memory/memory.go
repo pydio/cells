@@ -96,17 +96,20 @@ func (o *URLOpener) Open(ctx context.Context, urlstr string) (config.Store, erro
 				vv := strings.SplitN(v, "=", 2)
 				if len(vv) == 2 {
 					k := strings.TrimPrefix(vv[0], envPrefixU)
-					k = strings.ReplaceAll(k, "_", "/")
-					k = strings.ToLower(k)
+					//k = strings.ReplaceAll(k, "_", "/")
+					//k = strings.ToLower(k)
 
-					var m map[string]interface{}
 					msg, err := strconv.Unquote(vv[1])
 					if err != nil {
 						msg = vv[1]
 					}
 
-					json.Unmarshal([]byte(msg), &m)
-					store.Val(k).Set(m)
+					var m any
+					if err := json.Unmarshal([]byte(msg), &m); err != nil {
+						store.Val(k).Set(msg)
+					} else {
+						store.Val(k).Set(m)
+					}
 				}
 			}
 		}

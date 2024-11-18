@@ -466,8 +466,7 @@ func (c caster) StringMap() map[string]string {
 
 func (c caster) StringArray() []string {
 	v := c.Get()
-	vv := reflect.ValueOf(v)
-	if !vv.IsValid() || reflect.ValueOf(v).IsNil() || reflect.ValueOf(v).IsZero() {
+	if v == nil {
 		return []string{}
 	}
 	return cast.ToStringSlice(c.Get())

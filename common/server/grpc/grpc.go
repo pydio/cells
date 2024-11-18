@@ -54,14 +54,16 @@ import (
 
 func init() {
 	server.DefaultURLMux().Register("grpc", &Opener{})
+	server.DefaultURLMux().Register("xds", &Opener{})
 }
 
-type Opener struct{}
+type Opener struct {
+}
 
 func (o *Opener) OpenURL(ctx context.Context, u *url.URL) (server.Server, error) {
 	// TODO : transform url parameters to options?
 	name := u.Query().Get("name")
-	return New(ctx, WithName(name)), nil
+	return New(ctx, WithScheme(u.Scheme), WithName(name)), nil
 }
 
 type IServer interface {
@@ -240,12 +242,17 @@ func (s *Server) lazyGrpc(rootContext context.Context) IServer {
 		fmt.Println("Changed mode ", addr, args)
 	}))
 
-	//gs, err := xds.NewGRPCServer(serverOptions...)
-	//if err != nil {
-	//	return nil
-	//}
+	var gs IServer
+	if s.opts.Scheme == "xds" {
+		if srv, err := xds.NewGRPCServer(serverOptions...); err != nil {
+			return nil
+		} else {
+			gs = srv
+		}
 
-	gs := grpc.NewServer(serverOptions...)
+	} else {
+		gs = grpc.NewServer(serverOptions...)
+	}
 
 	wrappedGS := &serverRegistrar{
 		Server:             gs,

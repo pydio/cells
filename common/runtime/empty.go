@@ -39,6 +39,10 @@ func (e *emptyRuntime) IsSet(key string) bool {
 	return false
 }
 
+func (e *emptyRuntime) Set(key string, value interface{}) {
+
+}
+
 func (e *emptyRuntime) SetDefault(key string, value interface{}) {
 
 }

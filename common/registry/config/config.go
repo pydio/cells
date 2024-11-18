@@ -429,8 +429,17 @@ func (c *configRegistry) List(opts ...registry.Option) ([]registry.Item, error) 
 	}
 
 	if len(o.Types) == 0 {
-		o.Types = []pb.ItemType{pb.ItemType_NODE, pb.ItemType_SERVICE, pb.ItemType_SERVER, pb.ItemType_DAO, pb.ItemType_EDGE, pb.ItemType_GENERIC, pb.ItemType_ADDRESS, pb.ItemType_ENDPOINT, pb.ItemType_TAG}
-		// return nil, fmt.Errorf("shoudn't call without a type")
+		o.Types = []pb.ItemType{
+			pb.ItemType_NODE,
+			pb.ItemType_SERVICE,
+			pb.ItemType_SERVER,
+			pb.ItemType_DAO,
+			pb.ItemType_EDGE,
+			pb.ItemType_GENERIC,
+			pb.ItemType_ADDRESS,
+			pb.ItemType_ENDPOINT,
+			pb.ItemType_TAG,
+		}
 	}
 
 	var res []registry.Item

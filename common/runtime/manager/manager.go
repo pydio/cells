@@ -198,6 +198,33 @@ func NewManager(ctx context.Context, namespace string, logger log.ZapLogger) (Ma
 		return nil, err
 	}
 
+	// Connecting to the control plane if necessary
+	reg, err := registry.OpenRegistry(ctx, runtime.RegistryURL())
+	if err != nil {
+		return nil, err
+	}
+
+	// Registering everything
+	items, err := m.internalRegistry.List()
+	if err != nil {
+		return nil, err
+	}
+	for _, item := range items {
+		fmt.Println("Initially Registering ", (item).Name())
+		reg.Register(item)
+	}
+
+	m.internalRegistry = registry.NewFuncWrapper(m.internalRegistry,
+		registry.OnRegister(func(item *registry.Item, opts *[]registry.RegisterOption) {
+			//fmt.Println("Registering ", (*item).Name())
+			if err := reg.Register(*item, *opts...); err != nil {
+				fmt.Println("I have an error")
+			}
+		}),
+	)
+
+	ctx = propagator.With(ctx, registry.ContextKey, m.internalRegistry)
+
 	if store, vault, revisions, err := m.initConfig(ctx); err != nil {
 		return nil, err
 	} else {
