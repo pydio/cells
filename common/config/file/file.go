@@ -321,6 +321,8 @@ func (f *file) Save(ctxUser string, ctxMessage string) error {
 	f.mtx.RLock()
 	defer f.mtx.RUnlock()
 
+	f.update()
+
 	return filex.Save(f.path, f.v.Bytes())
 }
 

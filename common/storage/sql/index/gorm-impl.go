@@ -867,8 +867,10 @@ func (dao *gormImpl[T]) Flatten(ctx context.Context) (string, error) {
 }
 
 // CleanResourcesOnDeletion revert the creation of the table for a datasource
-func (dao *gormImpl[T]) CleanResourcesOnDeletion(context.Context) (string, error) {
-	return "Removed tables for index", nil
+func (dao *gormImpl[T]) CleanResourcesOnDeletion(ctx context.Context) (string, error) {
+	model := dao.factory.Struct()
+	er := dao.instance(ctx).Migrator().DropTable(model)
+	return "Removed tables for index", er
 }
 
 // LostAndFounds performs a couple of issue detection routines (duplicates, lost-parents)

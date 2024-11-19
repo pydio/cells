@@ -35,6 +35,7 @@ import (
 	"github.com/pydio/cells/v4/common/runtime"
 	"github.com/pydio/cells/v4/common/service"
 	"github.com/pydio/cells/v4/common/telemetry/log"
+	"github.com/pydio/cells/v4/common/utils/configx"
 	"github.com/pydio/cells/v4/data/source"
 	"github.com/pydio/cells/v4/data/source/objects"
 	grpc2 "github.com/pydio/cells/v4/data/source/objects/grpc"
@@ -58,25 +59,33 @@ func init() {
 				tree.RegisterNodeProviderServer(server, fsBrowser)
 				tree.RegisterNodeReceiverServer(server, fsBrowser)
 
-				resolver := source.NewResolver[*object.MinioConfig](source.ObjectServiceContextKey, source.ListObjects)
+				resolver := source.NewResolver[*grpc2.RunningMinioHandler](source.ObjectServiceContextKey, source.ListObjects)
 				sharedHandler := grpc2.NewSharedObjectHandler(resolver)
-				resolver.SetLoader(func(ctx context.Context, s string) (*object.MinioConfig, error) {
+				resolver.SetLoader(func(ctx context.Context, s string) (*grpc2.RunningMinioHandler, error) {
 					var er error
 					mc := config.GetMinioConfigForName(ctx, s, true)
 					if mc == nil {
 						return nil, errors.New("no config for " + s)
 					}
 					mc, er = grpc2.InitMinioConfig(mc)
-					if er == nil {
-						go func() {
-							er = sharedHandler.StartMinioServer(ctx, mc, s)
-						}()
+					if er != nil {
+						return nil, er
 					}
-					return mc, er
+					mCtx, mCan := context.WithCancel(ctx)
+					go func() {
+						er = sharedHandler.StartMinioServer(mCtx, mc, s)
+					}()
+					return &grpc2.RunningMinioHandler{MinioConfig: mc, Cancel: mCan}, er
+				})
+				resolver.SetCleaner(func(ctx context.Context, s string, handler *grpc2.RunningMinioHandler) error {
+					// Stop minio service with Cancel
+					handler.Cancel()
+					_, er := sharedHandler.CleanResourcesBeforeDelete(ctx, &object.CleanResourcesRequest{})
+					return er
 				})
 				var mErr []error
 				_ = runtime.MultiContextManager().Iterate(ctx, func(ctx context.Context, s string) error {
-					return resolver.HeatCache(ctx)
+					return resolver.HeatCacheAndWatch(ctx, configx.WithPath("services", common.ServiceGrpcNamespace_+common.ServiceDataObjects, "sources"))
 				})
 				object.RegisterObjectsEndpointServer(server, sharedHandler)
 				object.RegisterResourceCleanerEndpointServer(server, sharedHandler)

@@ -35,6 +35,7 @@ import (
 	"github.com/pydio/cells/v4/common/runtime"
 	"github.com/pydio/cells/v4/common/service"
 	"github.com/pydio/cells/v4/common/telemetry/log"
+	"github.com/pydio/cells/v4/common/utils/configx"
 	"github.com/pydio/cells/v4/data/source"
 	grpc_sync "github.com/pydio/cells/v4/data/source/sync/grpc"
 )
@@ -61,8 +62,12 @@ func init() {
 					}()
 					return sync, nil
 				})
+				resolver.SetCleaner(func(ctx context.Context, s string, _ *grpc_sync.Handler) error {
+					_, er := endpoint.CleanResourcesBeforeDelete(ctx, &object.CleanResourcesRequest{})
+					return er
+				})
 				_ = runtime.MultiContextManager().Iterate(ctx, func(ctx context.Context, s string) error {
-					return resolver.HeatCache(ctx)
+					return resolver.HeatCacheAndWatch(ctx, configx.WithPath("services", common.ServiceGrpcNamespace_+common.ServiceDataSync, "sources"))
 				})
 				tree.RegisterNodeProviderServer(registrar, endpoint)
 				tree.RegisterNodeReceiverServer(registrar, endpoint)

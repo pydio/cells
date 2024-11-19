@@ -716,7 +716,7 @@ func (s *TreeServer) CloseSession(ctx context.Context, req *tree.CloseSessionReq
 
 }
 
-// CleanResourcesBeforeDelete ensure all resources are cleant before deleting.
+// CleanResourcesBeforeDelete ensure all resources are cleaned before deleting.
 func (s *TreeServer) CleanResourcesBeforeDelete(ctx context.Context, request *object.CleanResourcesRequest) (resp *object.CleanResourcesResponse, err error) {
 	resp = &object.CleanResourcesResponse{}
 

@@ -51,13 +51,19 @@ func init() {
 	runtime.RegisterEnvVariable("CELLS_MINIO_STALE_DATA_EXPIRY", "48h", "Expiration of stale data produced by objects upload parts")
 }
 
+type RunningMinioHandler struct {
+	*object.MinioConfig
+	Cancel context.CancelFunc
+}
+
 func NewObjectHandlerWithPreset(mc *object.MinioConfig) *ObjectHandler {
 	return &ObjectHandler{
 		PresetConfig: mc,
 	}
 }
 
-func NewSharedObjectHandler(resolver *source.Resolver[*object.MinioConfig]) *ObjectHandler {
+// NewSharedObjectHandler creates a stateless handler for exposing configs
+func NewSharedObjectHandler(resolver *source.Resolver[*RunningMinioHandler]) *ObjectHandler {
 	return &ObjectHandler{
 		Resolver: resolver,
 	}
@@ -67,7 +73,7 @@ func NewSharedObjectHandler(resolver *source.Resolver[*object.MinioConfig]) *Obj
 type ObjectHandler struct {
 	object.UnimplementedObjectsEndpointServer
 	object.UnimplementedResourceCleanerEndpointServer
-	*source.Resolver[*object.MinioConfig]
+	*source.Resolver[*RunningMinioHandler]
 	PresetConfig *object.MinioConfig
 }
 
@@ -79,30 +85,9 @@ func (o *ObjectHandler) getConfig(ctx context.Context) (*object.MinioConfig, str
 	if er != nil {
 		return nil, "", false
 	} else {
-		return obj, "", true
+		return obj.MinioConfig, "", true
 	}
-	/*
-		if ds, ok := source.DatasourceFromContext(ctx); ok {
-			var cfg *object.MinioConfig
-			ka, er := o.Cache.Get(ctx)
-			if er != nil {
-				return nil, ds, false
-			}
-			if ka.Get(ds, &cfg) {
-				return cfg, ds, true
-			}
-			return nil, ds, false
-		}
-		return nil, "-", false
-
-	*/
 }
-
-/*
-func (o *ObjectHandler) RegisterConfig(ctx context.Context, name string, conf *object.MinioConfig) {
-	ka, _ := o.Cache.Get(ctx)
-	_ = ka.Set(name, conf)
-}*/
 
 // StartMinioServer handler
 func (o *ObjectHandler) StartMinioServer(ctx context.Context, conf *object.MinioConfig, minioServiceName string) error {

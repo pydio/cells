@@ -2,10 +2,12 @@ package std
 
 import (
 	"fmt"
-	"google.golang.org/protobuf/proto"
 	"reflect"
+	"slices"
 	"strings"
 	"sync"
+
+	"google.golang.org/protobuf/proto"
 )
 
 type cloneable interface {
@@ -228,4 +230,19 @@ func CloneSlice[S ~[]E, E any](s S) S {
 		return nil
 	}
 	return append(S([]E{}), s...)
+}
+
+// DiffSlices finds added and removed values between previous and next
+func DiffSlices[S ~[]E, E comparable](prev S, next S) (added S, removed S) {
+	for _, source := range next {
+		if !slices.Contains(prev, source) {
+			added = append(added, source)
+		}
+	}
+	for _, source := range prev {
+		if !slices.Contains(next, source) {
+			removed = append(removed, source)
+		}
+	}
+	return
 }

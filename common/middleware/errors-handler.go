@@ -48,6 +48,7 @@ var (
 		errors.StatusCancelled,
 		context.Canceled,
 		errors.NodeNotFound,
+		errors.JobNotFound,
 	}
 	commonWarns = []error{
 		errors.NodeIndexConflict,

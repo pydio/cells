@@ -33,6 +33,7 @@ import (
 	"github.com/pydio/cells/v4/common/runtime"
 	"github.com/pydio/cells/v4/common/runtime/manager"
 	"github.com/pydio/cells/v4/common/service"
+	"github.com/pydio/cells/v4/common/utils/configx"
 	"github.com/pydio/cells/v4/data/source"
 	"github.com/pydio/cells/v4/data/source/index"
 	grpc2 "github.com/pydio/cells/v4/data/source/index/grpc"
@@ -64,10 +65,14 @@ func init() {
 				resolver.SetLoader(func(ctx context.Context, s string) (*object.DataSource, error) {
 					return config.GetSourceInfoByName(ctx, s)
 				})
-
 				shared := grpc2.NewSharedTreeServer(resolver)
+				resolver.SetCleaner(func(ctx context.Context, s string, dataSource *object.DataSource) error {
+					_, er := shared.CleanResourcesBeforeDelete(ctx, &object.CleanResourcesRequest{})
+					return er
+				})
+
 				_ = runtime.MultiContextManager().Iterate(ctx, func(ctx context.Context, s string) error {
-					return resolver.HeatCache(ctx)
+					return resolver.HeatCacheAndWatch(ctx, configx.WithPath("services", Name, "sources"))
 				})
 
 				tree.RegisterNodeReceiverServer(srv, shared)
