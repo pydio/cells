@@ -23,8 +23,12 @@ package service
 
 import (
 	"context"
-
+	"github.com/pydio/cells/v4/common/proto/tree"
+	"github.com/pydio/cells/v4/common/runtime/manager"
+	"github.com/pydio/cells/v4/common/telemetry/log"
+	"go.uber.org/zap"
 	"google.golang.org/grpc"
+	"google.golang.org/protobuf/encoding/protojson"
 
 	"github.com/pydio/cells/v4/common"
 	proto "github.com/pydio/cells/v4/common/proto/docstore"
@@ -41,6 +45,8 @@ var (
 
 func init() {
 	runtime.Register("main", func(ctx context.Context) {
+		handler := &grpc2.Handler{}
+
 		service.NewService(
 			service.Name(Name),
 			service.Context(ctx),
@@ -48,49 +54,58 @@ func init() {
 			service.Description("Generic document store"),
 			service.WithStorageDrivers(docstore.Drivers...),
 			service.WithStorageMigrator(docstore.Migrate),
-			service.WithGRPC(func(ctx context.Context, srv grpc.ServiceRegistrar) error {
-				handler := &grpc2.Handler{}
+			service.Migrations([]*service.Migration{{
+				TargetVersion: service.FirstRun(),
+				Up: func(ctx context.Context) error {
 
+					// TODO v5 - should be in the install so that we can define which template paths we want to set
+					dao, err := manager.Resolve[docstore.DAO](ctx)
+					if err != nil {
+						return err
+					}
+
+					for id, json := range defaults() {
+						if doc, e := dao.GetDocument(ctx, common.DocStoreIdVirtualNodes, id); e == nil && doc != nil {
+							var reStore bool
+							if id == "my-files" {
+								// Check if my-files is up-to-date
+								var vNode tree.Node
+								if e := protojson.Unmarshal([]byte(doc.Data), &vNode); e == nil {
+									if _, ok := vNode.MetaStore["onDelete"]; !ok {
+										log.Logger(ctx).Info("Upgrading my-files template path for onDelete policy")
+										vNode.MetaStore["onDelete"] = "rename-uuid"
+										bb, _ := protojson.Marshal(&vNode)
+										json = string(bb)
+										reStore = true
+									}
+								} else {
+									log.Logger(ctx).Warn("Cannot unmarshall", zap.Error(e))
+								}
+							}
+							if !reStore {
+								continue
+							}
+						}
+						_, e := handler.PutDocument(ctx,
+							&proto.PutDocumentRequest{StoreID: common.DocStoreIdVirtualNodes, DocumentID: id, Document: &proto.Document{
+								ID:    id,
+								Owner: common.PydioSystemUsername,
+								Data:  json,
+							}})
+						if e != nil {
+							log.Logger(ctx).Warn("Cannot insert initial docs", zap.Error(e))
+						}
+					}
+					return nil
+				},
+			}}),
+			service.WithGRPC(func(ctx context.Context, srv grpc.ServiceRegistrar) error {
 				proto.RegisterDocStoreServer(srv, handler)
 				sync.RegisterSyncEndpointServer(srv, handler)
 
 				return nil
 			}),
 		)
-
-		// TODO v5
-		//for id, json := range defaults() {
-		//	if doc, e := dao.GetDocument(common.DocStoreIdVirtualNodes, id); e == nil && doc != nil {
-		//		var reStore bool
-		//		if id == "my-files" {
-		//			// Check if my-files is up-to-date
-		//			var vNode tree.Node
-		//			if e := protojson.Unmarshal([]byte(doc.Data), &vNode); e == nil {
-		//				if _, ok := vNode.MetaStore["onDelete"]; !ok {
-		//					log.Logger(ctx).Info("Upgrading my-files template path for onDelete policy")
-		//					vNode.MetaStore["onDelete"] = "rename-uuid"
-		//					bb, _ := protojson.Marshal(&vNode)
-		//					json = string(bb)
-		//					reStore = true
-		//				}
-		//			} else {
-		//				log.Logger(ctx).Warn("Cannot unmarshall", zap.Error(e))
-		//			}
-		//		}
-		//		if !reStore {
-		//			continue
-		//		}
-		//	}
-		//	_, e := handler.PutDocument(context.Background(),
-		//		&proto.PutDocumentRequest{StoreID: common.DocStoreIdVirtualNodes, DocumentID: id, Document: &proto.Document{
-		//			ID:    id,
-		//			Owner: common.PydioSystemUsername,
-		//			Data:  json,
-		//		}})
-		//	if e != nil {
-		//		log.Logger(ctx).Warn("Cannot insert initial docs", zap.Error(e))
-		//	}
-		//}
 
 	})
 }
