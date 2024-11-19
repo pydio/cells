@@ -275,7 +275,7 @@ ENVIRONMENT
 
 		str := &strings.Builder{}
 
-		err = yml.Execute(str, installConf)
+		err = yml.Execute(str, *installConf)
 		fatalIfError(cmd, err)
 
 		bin := os.Args[0]

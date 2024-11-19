@@ -28,9 +28,9 @@ servers:
 
 storages:
   sql:
-    uri: "sqlite:///tmp/pydio/{{`{{.Tenant}}`}}.db?cache=shared&prefix={{`{{ .Meta.prefix }}`}}&policies={{`{{ .Meta.policies }}`}}&singular={{`{{ .Meta.singular }}`}}"
+    uri: "{{ .DbManualDSN }}?parseTime=True&prefix={{`{{ .Meta.prefix }}`}}&policies={{`{{ .Meta.policies }}`}}&singular={{`{{ .Meta.singular }}`}}"
   dssql:
-    uri: sqlite:///tmp/pydio/{{`{{.Tenant}}`}}.db?ache=shared&prefix={{`{{ .Meta.prefix }}`}}{{`{{if ne .DataSource ""}}`}}{{`{{ .DataSource }}`}}_{{`{{end}}`}}&policies={{`{{ .Meta.policies }}`}}&singular={{`{{ .Meta.singular }}`}}
+    uri: {{ .DbManualDSN }}?parseTime=True&prefix={{`{{ .Meta.prefix }}`}}{{`{{if ne .DataSource ""}}`}}{{`{{ .DataSource }}`}}_{{`{{end}}`}}&policies={{`{{ .Meta.policies }}`}}&singular={{`{{ .Meta.singular }}`}}
   index:
     uri:
       "bleve://{{`{{ autoMkdir (joinPath (serviceDataDir .Service) (tenantPathWithBlank .Tenant \"default\")) }}`}}/{{`{{  .Meta.prefix }}`}}.db"

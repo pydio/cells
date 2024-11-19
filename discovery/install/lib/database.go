@@ -202,6 +202,10 @@ func checkConnection(dsn string) error {
 	ctx := context.Background()
 	tmpl, err := template.New("storages").Parse(`
 storages:
+  {{ with .Root }}
+  root:
+    uri: {{ . }}
+  {{ end }}
   main:
     uri: {{ .Main }}
 `)
@@ -209,20 +213,32 @@ storages:
 		return err
 	}
 
-	// TODO - do that to create database automatically
-	//rootconf, _ := mysql.ParseDSN(dsn)
-	//dbname := rootconf.DBName
-	//rootconf.DBName = ""
-	//
-	//rootdsn := rootconf.FormatDSN()
-
 	var str strings.Builder
-	if err := tmpl.Execute(&str, struct {
-		Main string
-	}{
-		Main: dsn,
-	}); err != nil {
-		return err
+
+	if strings.HasPrefix(dsn, "mysql") {
+		rootconf, _ := mysql.ParseDSN(dsn)
+		rootconf.DBName = ""
+
+		rootdsn := rootconf.FormatDSN()
+
+		if err := tmpl.Execute(&str, struct {
+			Root string
+			Main string
+		}{
+			Root: rootdsn,
+			Main: dsn,
+		}); err != nil {
+			return err
+		}
+	} else {
+		if err := tmpl.Execute(&str, struct {
+			Main string
+			Root string
+		}{
+			Main: dsn,
+		}); err != nil {
+			return err
+		}
 	}
 
 	runtime.SetDefault(runtime.KeyBootstrapYAML, str.String())
@@ -237,37 +253,32 @@ storages:
 		return err
 	}
 
-	// TODO - do that to create database automatically
-	//for {
-	//	var st storage.Storage
-	//	item.As(&st)
-	//
-	//	db, err := st.Get(ctx)
-	//	if err != nil {
-	//		item, err := mgr.Registry().Get("root", registry.WithType(pb.ItemType_STORAGE))
-	//		if err != nil {
-	//			return err
-	//		}
-	//
-	//		var st storage.Storage
-	//		item.As(&st)
-	//
-	//		db, err := st.Get(ctx)
-	//		if err != nil {
-	//			return errors.New("couldn't get root storage")
-	//		}
-	//
-	//		gormDB, ok := db.(*gorm.DB)
-	//		if !ok {
-	//			return errors.New("not a gorm DB")
-	//		}
-	//
-	//		if tx := gormDB.Exec(fmt.Sprintf("create database if not exists %s", dbname)); tx.Error != nil {
-	//			return tx.Error
-	//		}
-	//
-	//		continue
-	//	}
+	if strings.HasPrefix(dsn, "mysql") {
+		rootconf, _ := mysql.ParseDSN(dsn)
+		dbname := rootconf.DBName
+
+		item, err := mgr.Registry().Get("root", registry.WithType(pb.ItemType_STORAGE))
+		if err != nil {
+			return err
+		}
+
+		var st storage.Storage
+		item.As(&st)
+
+		db, err := st.Get(ctx)
+		if err != nil {
+			return errors.New("couldn't get root storage")
+		}
+
+		gormDB, ok := db.(*gorm.DB)
+		if !ok {
+			return errors.New("not a gorm DB")
+		}
+
+		if tx := gormDB.Exec(fmt.Sprintf("create database if not exists %s", dbname)); tx.Error != nil {
+			return tx.Error
+		}
+	}
 
 	var st storage.Storage
 	if item.As(&st) {
