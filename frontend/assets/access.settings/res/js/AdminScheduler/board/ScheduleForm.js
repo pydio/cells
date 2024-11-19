@@ -69,7 +69,7 @@ class ScheduleForm extends React.Component {
     }
 
     onUpdate(){
-        const {schedule, onChange, onChangeState} = this.props;
+        const {schedule = {}, onChange, onChangeState} = this.props;
         if(onChangeState){
             onChangeState(this.state)
         } else if (onChange) {
@@ -79,8 +79,12 @@ class ScheduleForm extends React.Component {
     }
 
     componentWillReceiveProps(nextProps, nextContext) {
-        const {schedule:{Iso8601Schedule}, edit} = this.props;
-        if(!edit && nextProps.schedule && nextProps.schedule.Iso8601Schedule !== Iso8601Schedule) {
+        let crtSchedule;
+        const {schedule, edit} = this.props;
+        if(schedule && schedule.Iso8601Schedule) {
+            crtSchedule = schedule.Iso8601Schedule;
+        }
+        if(!edit && nextProps.schedule && nextProps.schedule.Iso8601Schedule !== crtSchedule) {
             this.setState(ScheduleForm.parseIso8601(nextProps.schedule.Iso8601Schedule))
         }
     }
@@ -92,7 +96,7 @@ class ScheduleForm extends React.Component {
     }
 
     static parseIso8601(value){
-        if (value === '' || value.indexOf('/') === -1){
+        if (!value || value.indexOf('/') === -1){
             return {frequency: 'manual'};
         }
         const [R, d, i] = value.split('/');

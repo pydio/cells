@@ -60,7 +60,7 @@
     "react-placeholder": "^4.1.0",
     "react-redux": "5.0.7",
     "react-router": "^3.2.6",
-    "react-router-dom": "*",
+    "react-router-dom": "^5.3.4",
     "react-scrollbar": "^0.5.1",
     "react-string-replace": "^1.1.0",
     "react-textfit": "^1.1.1",
