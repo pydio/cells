@@ -34,18 +34,23 @@ import (
 )
 
 func CreateNode() registry.Node {
+	pid := runtime.GetPID()
+	hn := runtime.GetHostname()
 	builder := strings.Builder{}
 	builder.WriteString("process ")
 	builder.WriteString(runtime.GetString(runtime.KeyName))
 	builder.WriteString(" ")
-	builder.WriteString(runtime.GetHostname())
+	builder.WriteString(hn)
 	builder.WriteString("/")
-	builder.WriteString(runtime.GetPID())
+	builder.WriteString(pid)
 
 	i := &pb.Item{
-		Id:       uuid.New(),
-		Name:     builder.String(),
-		Metadata: make(map[string]string),
+		Id:   uuid.New(),
+		Name: builder.String(),
+		Metadata: map[string]string{
+			runtime.NodeMetaPID:      pid,
+			runtime.NodeMetaHostName: hn,
+		},
 	}
 	n := &pb.Node{}
 	return &node{I: i, D: n}

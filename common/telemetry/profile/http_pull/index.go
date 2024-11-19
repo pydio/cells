@@ -64,7 +64,9 @@ func (p *pprofHandler) ServeHTTP(writer http.ResponseWriter, request *http.Reque
 		var node registry.Node
 		if n.As(&node) {
 			if _, ok := node.Metadata()[runtime.NodeMetaPID]; ok {
-				processes = append(processes, node.Metadata())
+				cp := node.Metadata()
+				cp["start"] = node.Name()
+				processes = append(processes, cp)
 			}
 		}
 	}

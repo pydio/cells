@@ -632,7 +632,7 @@ func (m *manager) initProcesses(ctx context.Context, bootstrap *Bootstrap, base 
 				uri := connections.Val(k, "uri").String()
 				u, err := url.Parse(uri)
 				if err != nil {
-					log.Logger(ctx).Warn("connection url not right")
+					log.Logger(ctx).Warn("connection url not right: " + uri)
 					continue
 				}
 
