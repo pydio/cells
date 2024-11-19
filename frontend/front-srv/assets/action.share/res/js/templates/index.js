@@ -17,7 +17,7 @@
  *
  * The latest code can be found at <https://pydio.com>.
  */
-import React from 'react'
+import React, {Fragment} from 'react'
 const {Textfit} = require('react-textfit');
 import PropTypes from 'prop-types';
 import createReactClass from 'create-react-class'
@@ -26,7 +26,7 @@ const Color = require('color');
 import {muiThemeable} from 'material-ui/styles';
 import {connect} from 'react-redux';
 import {compose} from 'redux';
-import {Paper, IconButton} from 'material-ui'
+import {Paper, IconButton, FontIcon} from 'material-ui'
 import PathUtils from 'pydio/util/path'
 import DOMUtils from 'pydio/util/dom'
 import FuncUtils from 'pydio/util/func'
@@ -218,7 +218,7 @@ let StandardLayout = createReactClass({
 
     render(){
 
-        const {showSearchForm, searchView, onUpdateSearchView, uniqueNode, skipDisplayToolbar, bgStyle, emptyUser, pydio, muiTheme} = this.props;
+        const {showSearchForm, searchView, searchTools, onUpdateSearchView, uniqueNode, skipDisplayToolbar, bgStyle, emptyUser, pydio, muiTheme} = this.props;
 
         const styles = {
             appBarStyle : {
@@ -255,6 +255,30 @@ let StandardLayout = createReactClass({
         const onRequestOpen = () => {
             onUpdateSearchView(true)
             dm.setContextNode(dm.getSearchNode());
+        }
+        let loadMoreButton;
+        if(searchTools.searchLoading) {
+            loadMoreButton = (
+                <FontIcon className={"mdi mdi-loading mdi-spin"} style={{color: 'white', marginRight:-8}}/>
+            )
+        } else if(searchTools.resultsCount) {
+            const hasMore = searchTools.resultsCount >= searchTools.limit
+            loadMoreButton = (
+                <span style={{opacity: 0.7,  color: 'white',  fontSize: 13,  float: 'left', marginTop: 13}}>{pydio.MessageHash['searchengine.results.'+(hasMore?'withMore':'foundN')].replace('%1', searchTools.resultsCount)}</span>
+            )
+            if(hasMore) {
+                loadMoreButton = (
+                    <Fragment>
+                        {loadMoreButton}
+                        <IconButton
+                            onClick={()=>{searchTools.setLimit(searchTools.limit+30)}}
+                            style={{marginRight:-20}}
+                            iconClassName={"mdi mdi-magnify-plus-outline"}
+                            tooltip={pydio.MessageHash['share_center.242']}
+                            iconStyle={{color:'white'}}/>
+                    </Fragment>
+                );
+            }
         }
 
         return (
@@ -293,6 +317,7 @@ let StandardLayout = createReactClass({
                             }}
                             onRequestOpen={onRequestOpen}
                             onRequestClose={onRequestClose}
+                            additionalRightButton={loadMoreButton}
                             closeButton={<IconButton onClick={onRequestClose} iconClassName={"mdi mdi-close"} iconStyle={{color:'white'}}/>}
                             uniqueSearchScope={pydio.user.getActiveRepositoryObject().getSlug()}
                             style={{marginTop: 2, marginRight: 3}}
