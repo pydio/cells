@@ -151,7 +151,7 @@ func actionDatabaseAdd(ctx context.Context, c *install.InstallConfig, flags byte
 		return err
 	}
 
-	if e := checkConnection(dsn); e != nil {
+	if e := checkConnection(ctx, dsn); e != nil {
 		return e
 	}
 
@@ -159,7 +159,7 @@ func actionDatabaseAdd(ctx context.Context, c *install.InstallConfig, flags byte
 	_, _ = io.WriteString(h, dsn)
 	id := fmt.Sprintf("%x", h.Sum(nil))
 
-	if e := config.SetDatabase(ctx, id, "mysql", dsn, "database"); e != nil {
+	if e := config.SetDatabase(ctx, id, "sql", dsn, "database"); e != nil {
 		return e
 	}
 
@@ -197,9 +197,8 @@ func addDatabaseManualConnection(c *install.InstallConfig) (*mysql.Config, error
 	return conf, nil
 }
 
-func checkConnection(dsn string) error {
+func checkConnection(ctx context.Context, dsn string) error {
 
-	ctx := context.Background()
 	tmpl, err := template.New("storages").Parse(`
 storages:
   {{ with .Root }}
@@ -243,7 +242,7 @@ storages:
 
 	runtime.SetDefault(runtime.KeyBootstrapYAML, str.String())
 
-	mgr, err := manager.NewManager(context.Background(), "install", nil)
+	mgr, err := manager.NewManager(ctx, "install", nil)
 	if err != nil {
 		return err
 	}

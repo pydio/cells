@@ -187,8 +187,6 @@ ENVIRONMENT
 		if niYamlFile != "" || niJsonFile != "" {
 
 			ctx = cruntime.MultiContextManager().RootContext(cmd.Context())
-			//cruntime.GetRuntime().Set(cruntime.KeyConfig, "file:///tmp/pydio/pydio.json")
-			//cruntime.GetRuntime().Set(cruntime.KeyVault, "file:///tmp/pydio/vault.json")
 
 			mgr, err := manager.NewManager(ctx, "cmd", nil)
 			if err != nil {
@@ -362,8 +360,6 @@ ENVIRONMENT
 		//cruntime.GetRuntime().Set("PYDIO_ADMIN_USER_PASSWORD", installConf.FrontendPassword)
 		//os.Setenv("PYDIO_ADMIN_USER_LOGIN", installConf.FrontendLogin)
 		//os.Setenv("PYDIO_ADMIN_USER_PASSWORD", installConf.FrontendPassword)
-
-		fmt.Println("HERE IS THE BOOTSTRAP YAML", str.String())
 
 		os.Args = []string{bin, "start"}
 

@@ -94,7 +94,7 @@ func actionDatasourceAdd(ctx context.Context, c *install.InstallConfig) error {
 		return er
 	}
 
-	syncSourcesVal := config.Get(ctx, "services", "pydio.grpc.data.index", "sources")
+	syncSourcesVal := config.Get(ctx, "services", "pydio.grpc.data.sync", "sources")
 	syncSources := syncSourcesVal.StringArray()
 	syncSources = append(syncSources, sources...)
 	syncSources = std.Unique(syncSources)

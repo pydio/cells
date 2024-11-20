@@ -186,7 +186,6 @@ func (bs *Bootstrap) reload(ctx context.Context, storePool *openurl.Pool[config.
 	}
 
 	return nil
-
 }
 
 type keyPair struct {

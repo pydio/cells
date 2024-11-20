@@ -22,7 +22,12 @@ package cmd
 
 import (
 	"context"
+	"fmt"
+	"github.com/pydio/cells/v4/common/config"
+	"github.com/pydio/cells/v4/common/proto/install"
 	"os"
+	"strings"
+	"text/template"
 
 	"github.com/spf13/cobra"
 	"go.opentelemetry.io/otel"
@@ -116,12 +121,84 @@ ENVIRONMENT
 `,
 	PreRunE: func(cmd *cobra.Command, args []string) error {
 		bindViperFlags(cmd.Flags(), map[string]string{
-			runtime.KeyFork: runtime.KeyForkLegacy,
+			runtime.KeyFork:              runtime.KeyForkLegacy,
+			runtime.KeyInstallYamlLegacy: runtime.KeyInstallYaml,
+			runtime.KeyInstallJsonLegacy: runtime.KeyInstallJson,
+			runtime.KeyInstallCliLegacy:  runtime.KeyInstallCli,
 		})
+
+		// Manually bind to viper instead of flags.StringVar, flags.BoolVar, etc
+		niModeCli = runtime.GetBool(runtime.KeyInstallCli)
+		niYamlFile = runtime.GetString(runtime.KeyInstallYaml)
+		niJsonFile = runtime.GetString(runtime.KeyInstallJson)
+		niExitAfterInstall = runtime.GetBool(runtime.KeyInstallExitAfter)
+
+		niBindUrl = runtime.GetString(runtime.KeySiteBind)
+		niExtUrl = runtime.GetString(runtime.KeySiteExternal)
+		niNoTls = runtime.GetBool(runtime.KeySiteNoTLS)
+		niCertFile = runtime.GetString(runtime.KeySiteTlsCertFile)
+		niKeyFile = runtime.GetString(runtime.KeySiteTlsKeyFile)
+		niLeEmailContact = runtime.GetString(runtime.KeySiteLetsEncryptEmail)
+		niLeAcceptEula = runtime.GetBool(runtime.KeySiteLetsEncryptAgree)
+		niLeUseStagingCA = runtime.GetBool(runtime.KeySiteLetsEncryptStaging)
 
 		runtime.SetArgs(args)
 		initLogLevel()
 		handleSignals(args)
+
+		cmd.Println("")
+		cmd.Println("\033[1mWelcome to " + common.PackageLabel + " installation\033[0m ")
+		cmd.Println(common.PackageLabel + " (v" + common.Version().String() + ") will be configured to run on this machine.")
+		cmd.Println("Make sure to prepare access and credentials to a MySQL 5.6+ (or MariaDB equivalent) server.")
+		cmd.Println("Pick your installation mode when you are ready.")
+		cmd.Println("")
+
+		installConf := &install.InstallConfig{}
+		var proxyConf *install.ProxyConfig
+
+		ctx := runtime.MultiContextManager().RootContext(cmd.Context())
+
+		// Create a manager for the pre-run
+		mgr, err := manager.NewManager(ctx, "cmd", nil)
+		if err != nil {
+			return err
+		}
+
+		ctx = mgr.Context()
+		cmd.SetContext(ctx)
+
+		// Checking if we need to install something
+		if niYamlFile != "" || niJsonFile != "" {
+
+			installConf, err = nonInteractiveInstall(ctx)
+			fatalIfError(cmd, err)
+
+			// we only non-interactively configured the proxy, launching browser install
+			// make sure default bind is set here
+			proxyConf = installConf.GetProxyConfig()
+			if len(proxyConf.Binds) == 0 {
+				fatalIfError(cmd, fmt.Errorf("no bind was found in default site, non interactive install probably has a wrong format"))
+			}
+		} else {
+			// We don't have anything to install, we are going to populate the InstallConf with the config we have to prepare the environment
+			installConf.DbManualDSN = config.Get(ctx, "defaults/database/dsn").String()
+		}
+
+		// Reading template
+		tmpl := template.New("bootstrap")
+		yml, err := tmpl.Parse(BootstrapYAML)
+		fatalIfError(cmd, err)
+
+		str := &strings.Builder{}
+
+		err = yml.Execute(str, *installConf)
+		fatalIfError(cmd, err)
+
+		runtime.GetRuntime().Set(runtime.KeyBootstrapYAML, str.String())
+
+		for k, v := range installConf.CustomConfigs {
+			os.Setenv("CELLS_CONFIG_"+k, v)
+		}
 
 		return nil
 	},
@@ -234,6 +311,13 @@ func init() {
 	//StartCmd.Flags().Int(runtime.KeyHealthCheckPort, 0, "Healthcheck port number")
 	StartCmd.Flags().StringSlice(runtime.KeyBootstrapSet, []string{}, "Set value")
 	StartCmd.Flags().String(runtime.KeyBootstrapSetsFile, "", "File containing one key=value per line as would be passed by multiple --set flags")
+
+	flags := StartCmd.Flags()
+
+	flags.Bool(runtime.KeyInstallCliLegacy, false, "Do not prompt for install mode, use CLI mode by default")
+	flags.String(runtime.KeyInstallYamlLegacy, "", "Points toward a configuration in YAML format")
+	flags.String(runtime.KeyInstallJsonLegacy, "", "Points toward a configuration in JSON format")
+	flags.Bool(runtime.KeyInstallExitAfter, false, "Simply exits main process after the installation is done")
 
 	RootCmd.AddCommand(StartCmd)
 }

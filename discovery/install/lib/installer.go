@@ -115,7 +115,7 @@ func PerformCheck(ctx context.Context, name string, c *install.InstallConfig) (*
 			wrapError(e)
 			break
 		}
-		if e := checkConnection(dsn); e != nil {
+		if e := checkConnection(ctx, dsn); e != nil {
 			wrapError(e)
 			break
 		}

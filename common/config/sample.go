@@ -123,14 +123,15 @@ var SampleConfig = `{
 			}
 		  }
 		]
-	},
-    "frontend":{
-		"$ref": "rp#/frontend"
-    },
-    "services":{
-		"$ref": "rp#/services"
-    },
-	"versions": {
-		"$ref": "rp#/versions"
 	}
 }`
+
+//"frontend":{
+//"$ref": "rp#/frontend"
+//},
+//"services":{
+//"$ref": "rp#/services"
+//},
+//"versions": {
+//"$ref": "rp#/versions"
+//}

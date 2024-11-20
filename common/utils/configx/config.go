@@ -207,8 +207,8 @@ func (c storer) Get(wo ...WalkOption) any {
 	}
 
 	if err := Walk(c.k, *c.v, func(i int, v any) (bool, error) {
-		if int := opts.Interceptor; int != nil {
-			if ok, vv := int(i, v); ok {
+		if interceptor := opts.Interceptor; interceptor != nil {
+			if ok, vv := interceptor(i, v); ok {
 				current = vv
 				return false, nil
 			}
