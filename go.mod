@@ -106,7 +106,6 @@ require (
 	github.com/robertkrimen/otto v0.4.0
 	github.com/rs/cors v1.11.1
 	github.com/rs/xid v1.6.0
-	github.com/rubenv/sql-migrate v1.7.0
 	github.com/rwcarlsen/goexif v0.0.0-20190401172101-9e8deecbddbd
 	github.com/schollz/progressbar/v3 v3.17.0
 	github.com/sendgrid/sendgrid-go v3.14.0+incompatible
@@ -266,7 +265,6 @@ require (
 	github.com/go-chi/chi/v5 v5.0.12 // indirect
 	github.com/go-errors/errors v1.4.2 // indirect
 	github.com/go-faker/faker/v4 v4.1.1 // indirect
-	github.com/go-gorp/gorp/v3 v3.1.0 // indirect
 	github.com/go-ini/ini v1.67.0 // indirect
 	github.com/go-jose/go-jose/v4 v4.0.2 // indirect
 	github.com/go-kit/kit v0.13.0 // indirect
@@ -369,7 +367,6 @@ require (
 	github.com/lucasb-eyer/go-colorful v1.2.0 // indirect
 	github.com/lufia/plan9stats v0.0.0-20211012122336-39d0f177ccd0 // indirect
 	github.com/luna-duclos/instrumentedsql v1.1.3 // indirect
-	github.com/lyft/protoc-gen-star v0.6.2 // indirect
 	github.com/magiconair/properties v1.8.7 // indirect
 	github.com/mailru/easyjson v0.7.7 // indirect
 	github.com/mattn/go-colorable v0.1.13 // indirect
@@ -532,9 +529,8 @@ require (
 // That one was published 6 months before official release ;-)
 retract v4.0.0
 
-//replace github.com/minio/minio => /Users/charles/Sources/go/src/github.com/pydio/minio
 //replace github.com/pydio/caddyvault => /Users/charles/Sources/go/src/github.com/pydio/caddyvault
 
-replace github.com/minio/minio => github.com/pydio/minio v0.0.0-20241105095009-24f518af3b8c
+replace github.com/minio/minio => github.com/pydio/minio v0.0.0-20241119162755-05990bd7bf52
 
 //replace github.com/mattn/go-sqlite3 => github.com/mattn/go-sqlite3 v1.14.16
