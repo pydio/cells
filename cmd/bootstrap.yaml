@@ -28,9 +28,9 @@ servers:
 
 storages:
   sql:
-    uri: "{{ .DbManualDSN }}?parseTime=True&prefix={{`{{ .Meta.prefix }}`}}&policies={{`{{ .Meta.policies }}`}}&singular={{`{{ .Meta.singular }}`}}"
+    uri: "{{ .DbManualDSN }}&prefix={{`{{ .Meta.prefix }}`}}&policies={{`{{ .Meta.policies }}`}}&singular={{`{{ .Meta.singular }}`}}"
   dssql:
-    uri: {{ .DbManualDSN }}?parseTime=True&prefix={{`{{ .Meta.prefix }}`}}{{`{{if ne .DataSource ""}}`}}{{`{{ .DataSource }}`}}_{{`{{end}}`}}&policies={{`{{ .Meta.policies }}`}}&singular={{`{{ .Meta.singular }}`}}
+    uri: {{ .DbManualDSN }}&prefix={{`{{ .Meta.prefix }}`}}{{`{{if ne .DataSource ""}}`}}{{`{{ .DataSource }}`}}_{{`{{end}}`}}&policies={{`{{ .Meta.policies }}`}}&singular={{`{{ .Meta.singular }}`}}
   index:
     uri:
       "bleve://{{`{{ autoMkdir (joinPath (serviceDataDir .Service) (tenantPathWithBlank .Tenant \"default\")) }}`}}/{{`{{  .Meta.prefix }}`}}.db"
