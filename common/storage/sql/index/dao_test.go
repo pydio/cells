@@ -1029,6 +1029,10 @@ func TestIntermediaryFoldersCreation(t *testing.T) {
 }
 
 func TestFlatFolderWithMassiveChildren(t *testing.T) {
+	if testing.Short() {
+		t.Skip("skipping test in short mode.")
+	}
+
 	ctx := context.Background()
 
 	testAll(t, func(dao testdao) func(t *testing.T) {
