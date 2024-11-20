@@ -37,6 +37,7 @@ import (
 	"github.com/pydio/cells/v4/common/telemetry/log"
 	"github.com/pydio/cells/v4/common/utils/configx"
 	"github.com/pydio/cells/v4/data/source"
+	"github.com/pydio/cells/v4/data/source/sync"
 	grpc_sync "github.com/pydio/cells/v4/data/source/sync/grpc"
 )
 
@@ -49,6 +50,7 @@ func init() {
 			service.Tag(common.ServiceTagDatasource),
 			service.Description("Starter for data sources synchronizations"),
 			service.WithMigrateIterator(source.DataSourceContextKey, source.ListSources),
+			service.WithStorageDrivers(sync.Drivers...),
 			service.WithGRPC(func(ctx context.Context, registrar grpc.ServiceRegistrar) error {
 				resolver := source.NewResolver[*grpc_sync.Handler](source.DataSourceContextKey, common.ServiceDataSyncGRPC_, source.ListSources)
 				endpoint := &grpc_sync.Endpoint{

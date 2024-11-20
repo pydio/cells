@@ -148,23 +148,6 @@ func InitEndpoints(ctx context.Context, syncConfig *object.DataSource, clientRea
 	if syncConfig.Watch {
 		return nil, nil, nil, fmt.Errorf("datasource watch is not implemented yet")
 	}
-	normalizeS3, _ := strconv.ParseBool(syncConfig.StorageConfiguration[object.StorageKeyNormalize])
-	var computer func(string) (int64, error)
-	if syncConfig.EncryptionMode != object.EncryptionMode_CLEAR {
-		keyClient := encryption.NewNodeKeyManagerClient(grpccli.ResolveConn(ctx, common.ServiceEncKeyGRPC))
-		computer = func(nodeUUID string) (i int64, e error) {
-			if resp, e := keyClient.GetNodePlainSize(ctx, &encryption.GetNodePlainSizeRequest{
-				NodeId: nodeUUID,
-				UserId: "ds:" + syncConfig.Name,
-			}); e == nil {
-				log.Logger(ctx).Debug("Loaded plain size from data-key service")
-				return resp.GetSize(), nil
-			} else {
-				log.Logger(ctx).Error("Cannot loaded plain size from data-key service", zap.Error(e))
-				return 0, e
-			}
-		}
-	}
 	options := model.EndpointOptions{}
 	bucketTags, o1 := syncConfig.StorageConfiguration[object.StorageKeyBucketsTags]
 	o1 = o1 && bucketTags != ""
@@ -184,57 +167,54 @@ func InitEndpoints(ctx context.Context, syncConfig *object.DataSource, clientRea
 	if readOnly, o := syncConfig.StorageConfiguration[object.StorageKeyReadonly]; o && readOnly == "true" {
 		options.BrowseOnly = true
 	}
-	var keepNativeEtags bool
-	if k, o := syncConfig.StorageConfiguration[object.StorageKeyNativeEtags]; o && k == "true" {
-		keepNativeEtags = true
-	}
+
 	if syncConfig.ObjectsBucket == "" {
 		var bucketsFilter string
 		if f, o := syncConfig.StorageConfiguration[object.StorageKeyBucketsRegexp]; o {
 			bucketsFilter = f
-
 		}
-		multiClient, errs3 := s3.NewMultiBucketClient(ctx, oc, minioConfig.RunningHost, bucketsFilter, options)
-		if errs3 != nil {
+		var errs3 error
+		if source, errs3 = s3.NewMultiBucketClient(ctx, oc, minioConfig.RunningHost, bucketsFilter, options); errs3 != nil {
 			return nil, nil, nil, errs3
 		}
-		if normalizeS3 {
-			multiClient.SetServerRequiresNormalization()
-		}
-		if computer != nil {
-			multiClient.SetPlainSizeComputer(computer)
-		}
-
-		if dao, er := manager.Resolve[s3.ChecksumMapper](ctx); er == nil {
-			multiClient.SetChecksumMapper(dao)
-		} else {
-			log.Logger(ctx).Debug("No specific ChecksumMapper found as DAO")
-		}
-
-		if keepNativeEtags {
-			multiClient.SkipRecomputeEtagByCopy()
-		}
-
-		source = multiClient
-
 	} else {
-		s3client := s3.NewObjectClient(ctx, oc, minioConfig.BuildUrl(), syncConfig.ObjectsBucket, syncConfig.ObjectsBaseFolder, options)
-		if normalizeS3 {
-			s3client.SetServerRequiresNormalization()
-		}
-		if computer != nil {
-			s3client.SetPlainSizeComputer(computer)
-		}
-		if /*syncConfig.StorageType == object.StorageType_GCS ||*/ keepNativeEtags {
-			s3client.SkipRecomputeEtagByCopy()
-		}
-		if dao, er := manager.Resolve[s3.ChecksumMapper](ctx); er == nil {
-			s3client.SetChecksumMapper(dao, true)
-		} else {
-			log.Logger(ctx).Debug("No specific ChecksumMapper found as DAO")
-		}
+		source = s3.NewObjectClient(ctx, oc, minioConfig.BuildUrl(), syncConfig.ObjectsBucket, syncConfig.ObjectsBaseFolder, options)
+	}
 
-		source = s3client
+	// Setup normalization
+	if normalizeS3, _ := strconv.ParseBool(syncConfig.StorageConfiguration[object.StorageKeyNormalize]); normalizeS3 {
+		source.(s3.ClientConfigurator).SetServerRequiresNormalization()
+	}
+	// Setup Native Etags
+	if k, o := syncConfig.StorageConfiguration[object.StorageKeyNativeEtags]; o && k == "true" {
+		source.(s3.ClientConfigurator).SkipRecomputeEtagByCopy()
+	}
+	// Setup PlainSize computer
+	if syncConfig.EncryptionMode != object.EncryptionMode_CLEAR {
+		keyClient := encryption.NewNodeKeyManagerClient(grpccli.ResolveConn(ctx, common.ServiceEncKeyGRPC))
+		computer := func(nodeUUID string) (i int64, e error) {
+			if resp, e := keyClient.GetNodePlainSize(ctx, &encryption.GetNodePlainSizeRequest{
+				NodeId: nodeUUID,
+				UserId: "ds:" + syncConfig.Name,
+			}); e == nil {
+				log.Logger(ctx).Debug("Loaded plain size from data-key service")
+				return resp.GetSize(), nil
+			} else {
+				log.Logger(ctx).Error("Cannot loaded plain size from data-key service", zap.Error(e))
+				return 0, e
+			}
+		}
+		source.(s3.ClientConfigurator).SetPlainSizeComputer(computer)
+	}
+	// Setup custom ChecksumMapper
+	if cst, ok := syncConfig.StorageConfiguration["checksumMapper"]; ok && cst == "dao" {
+		if csm, er := manager.Resolve[s3.ChecksumMapper](ctx); er != nil {
+			log.Logger(ctx).Warn("Cannot resolve s3 checksum mapper service", zap.Error(er))
+		} else {
+			purge := syncConfig.ObjectsBucket != ""
+			source.(s3.ClientConfigurator).SetChecksumMapper(csm, purge)
+			log.Logger(ctx).Info("Attaching s3 checksum mapper")
+		}
 	}
 
 	var target model.Endpoint

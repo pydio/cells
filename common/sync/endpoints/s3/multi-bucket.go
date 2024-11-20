@@ -396,9 +396,9 @@ func (m *MultiBucketClient) SetServerRequiresNormalization() {
 	m.mainClient.SetServerRequiresNormalization()
 }
 
-func (m *MultiBucketClient) SetChecksumMapper(cs ChecksumMapper) {
+func (m *MultiBucketClient) SetChecksumMapper(cs ChecksumMapper, purgeAfterWalk bool) {
 	m.checksumMapper = cs
-	m.mainClient.SetChecksumMapper(cs, false)
+	m.mainClient.SetChecksumMapper(cs, purgeAfterWalk)
 }
 
 // SkipRecomputeEtagByCopy sets a special behavior to avoir recomputing etags by in-place copying

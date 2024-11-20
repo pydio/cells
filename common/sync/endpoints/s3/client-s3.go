@@ -54,6 +54,13 @@ const (
 	UserAgentVersion = "1.0"
 )
 
+type ClientConfigurator interface {
+	SetPlainSizeComputer(computer func(nodeUUID string) (int64, error))
+	SetServerRequiresNormalization()
+	SkipRecomputeEtagByCopy()
+	SetChecksumMapper(mapper ChecksumMapper, purgeAfterWalk bool)
+}
+
 // Client wraps a Minio Client to speak with an S3-compatible backend
 type Client struct {
 	Oc                          nodes.StorageClient
