@@ -66,7 +66,7 @@ func init() {
 			serviceName = common.ServiceDataSyncGRPC
 		case common.ServiceDataObjectsGRPC_:
 			hh = append(hh, objectServiceHeader, suffix)
-			serviceName = common.ServiceDataObjectsPeerGRPC
+			serviceName = common.ServiceDataObjectsGRPC
 		}
 		return serviceName, hh, true
 	})

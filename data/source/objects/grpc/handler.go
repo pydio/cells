@@ -116,7 +116,7 @@ func (o *ObjectHandler) startMinioServer(ctx context.Context, minioServiceName, 
 
 	// Create a config file
 	configFolder := filepath.Join(
-		runtime.MustServiceDataDir(common.ServiceDataObjectsPeerGRPC),
+		runtime.MustServiceDataDir(common.ServiceDataObjectsGRPC),
 		runtime.MultiContextManager().Current(ctx),
 		minioServiceName,
 	)

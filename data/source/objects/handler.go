@@ -39,10 +39,6 @@ import (
 	"github.com/pydio/cells/v4/common/utils/filesystem"
 )
 
-const (
-	BrowserName = common.ServiceGrpcNamespace_ + common.ServiceDataObjectsPeer
-)
-
 func NewFsBrowser() *FsBrowser {
 	t := &FsBrowser{}
 	return t
@@ -54,9 +50,12 @@ type FsBrowser struct {
 }
 
 func (t *FsBrowser) getFS(ctx context.Context) (fs afero.Fs, hasRootRef bool) {
-	conf := config.Get(ctx, "services", BrowserName)
+	// Backward-compat
+	confLegacy := config.Get(ctx, "services", common.ServiceDataObjectsGRPC+".peer").String()
+
+	conf := config.Get(ctx, "services", common.ServiceDataObjectsGRPC)
 	fs = afero.NewOsFs()
-	restrict := conf.Val("allowedLocalDsFolder").String()
+	restrict := conf.Val("allowedLocalDsFolder").Default(confLegacy).String()
 	if hasRootRef = restrict != ""; hasRootRef {
 		fs = afero.NewBasePathFs(fs, restrict)
 	}

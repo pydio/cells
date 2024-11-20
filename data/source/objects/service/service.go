@@ -41,15 +41,11 @@ import (
 	grpc2 "github.com/pydio/cells/v4/data/source/objects/grpc"
 )
 
-var (
-	BrowserName = common.ServiceGrpcNamespace_ + common.ServiceDataObjectsPeer
-)
-
 func init() {
 
 	runtime.Register("main", func(ctx context.Context) {
 		service.NewService(
-			service.Name(BrowserName),
+			service.Name(common.ServiceDataObjectsGRPC),
 			service.Context(ctx),
 			service.Tag(common.ServiceTagDatasource),
 			service.Description("Starter for different sources objects"),

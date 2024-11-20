@@ -33,12 +33,17 @@ import (
 
 var (
 /*
-	queries = map[string]string{
-		"insertOne": `INSERT INTO %%PREFIX%%_checksums (etag,csum) VALUES (?,?)`,
-		"selectAll": `SELECT etag FROM %%PREFIX%%_checksums`,
-		"deleteOne": `DELETE FROM %%PREFIX%%_checksums WHERE etag=?`,
-		"selectOne": `SELECT csum FROM %%PREFIX%%_checksums WHERE etag=?`,
-	}
+	   CREATE TABLE IF NOT EXISTS %%PREFIX%%_checksums (
+	        etag varchar(255) primary key not null,
+	        csum varchar(255) not null
+	   );
+
+		queries = map[string]string{
+			"insertOne": `INSERT INTO %%PREFIX%%_checksums (etag,csum) VALUES (?,?)`,
+			"selectAll": `SELECT etag FROM %%PREFIX%%_checksums`,
+			"deleteOne": `DELETE FROM %%PREFIX%%_checksums WHERE etag=?`,
+			"selectOne": `SELECT csum FROM %%PREFIX%%_checksums WHERE etag=?`,
+		}
 */
 )
 

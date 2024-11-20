@@ -77,7 +77,7 @@ func newService(ctx context.Context, datasource string) {
 		}),
 	)
 
-	// Todo Ctx should be tenant-ized
+	// Todo - HOW TO PASS IT FOR SHARED HANDLER
 	if storage := WithStorage(ctx, datasource); storage != nil {
 		sOptions = append(sOptions, storage)
 	}
@@ -85,6 +85,7 @@ func newService(ctx context.Context, datasource string) {
 
 }
 
+// Todo - HOW TO PASS IT FOR SHARED HANDLER
 func WithStorage(ctx context.Context, source string) service.ServiceOption {
 	mapperType := config.Get(ctx, "services", common.ServiceGrpcNamespace_+common.ServiceDataSync_+source, "StorageConfiguration", "checksumMapper").String()
 	switch mapperType {

@@ -197,7 +197,7 @@ func (h *Handler) ListPeerFolders(req *restful.Request, resp *restful.Response) 
 		opts = append(opts, grpc.WithPeerSelector(listReq.PeerAddress))
 	}
 	ctx := req.Request.Context()
-	cl := treec.ServiceNodeProviderClient(ctx, common.ServiceDataObjectsPeer, opts...)
+	cl := treec.ServiceNodeProviderClient(ctx, common.ServiceDataObjects, opts...)
 
 	// Use a selector to make sure to we call the service that is running on the specific node
 	streamer, e := cl.ListNodes(ctx, &tree.ListNodesRequest{
@@ -230,7 +230,7 @@ func (h *Handler) CreatePeerFolder(req *restful.Request, resp *restful.Response)
 	if createReq.PeerAddress != "" {
 		opts = append(opts, grpc.WithPeerSelector(createReq.PeerAddress))
 	}
-	cl := tree.NewNodeReceiverClient(grpc.ResolveConn(req.Request.Context(), common.ServiceDataObjectsPeerGRPC, opts...))
+	cl := tree.NewNodeReceiverClient(grpc.ResolveConn(req.Request.Context(), common.ServiceDataObjectsGRPC, opts...))
 	cr, e := cl.CreateNode(req.Request.Context(), &tree.CreateNodeRequest{Node: &tree.Node{Path: createReq.Path}})
 	if e != nil {
 		return e
@@ -288,7 +288,7 @@ func (h *Handler) ValidateLocalDSFolderOnPeer(ctx context.Context, newSource *ob
 	if newSource.PeerAddress != "" {
 		opts = append(opts, grpc.WithPeerSelector(newSource.PeerAddress))
 	}
-	conn := grpc.ResolveConn(ctx, common.ServiceDataObjectsPeerGRPC, opts...)
+	conn := grpc.ResolveConn(ctx, common.ServiceDataObjectsGRPC, opts...)
 
 	cl := tree.NewNodeProviderClient(conn)
 	wCl := tree.NewNodeReceiverClient(conn)
