@@ -156,7 +156,7 @@ require (
 	golang.org/x/text v0.19.0
 	golang.org/x/time v0.5.0
 	google.golang.org/genproto/googleapis/api v0.0.0-20241021214115-324edc3d5d38
-	google.golang.org/grpc v1.67.1
+	google.golang.org/grpc v1.68.0
 	google.golang.org/grpc/cmd/protoc-gen-go-grpc v1.1.0
 	google.golang.org/grpc/examples v0.0.0-20220706173102-a6dcb714b2fe
 	google.golang.org/protobuf v1.35.1
@@ -175,7 +175,7 @@ require (
 )
 
 require (
-	cel.dev/expr v0.16.0 // indirect
+	cel.dev/expr v0.16.1 // indirect
 	cloud.google.com/go/compute/metadata v0.5.0 // indirect
 	cloud.google.com/go/pubsub v1.38.0 // indirect
 	code.dny.dev/ssrf v0.2.0 // indirect
@@ -229,7 +229,7 @@ require (
 	github.com/cheggaaa/pb v1.0.29 // indirect
 	github.com/chzyer/readline v1.5.1 // indirect
 	github.com/clbanning/mxj/v2 v2.7.0 // indirect
-	github.com/cncf/xds/go v0.0.0-20240723142845-024c85f92f20 // indirect
+	github.com/cncf/xds/go v0.0.0-20240905190251-b4127c9b8d78 // indirect
 	github.com/cockroachdb/cockroach-go/v2 v2.3.5 // indirect
 	github.com/colinmarc/hdfs/v2 v2.2.0 // indirect
 	github.com/coreos/go-semver v0.3.1 // indirect

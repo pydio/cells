@@ -62,7 +62,7 @@ func dsnFromInstallConfig(c *install.InstallConfig) (string, error) {
 	case "socket":
 		conf, err = addDatabaseSocketConnection(c)
 	case "manual":
-		conf, err = addDatabaseManualConnection(c)
+		return c.GetDbManualDSN(), nil
 	default:
 		return "", fmt.Errorf("Unknown type")
 	}
@@ -151,7 +151,7 @@ func actionDatabaseAdd(ctx context.Context, c *install.InstallConfig, flags byte
 		return err
 	}
 
-	if e := checkConnection(dsn); e != nil {
+	if e := checkConnection(ctx, dsn); e != nil {
 		return e
 	}
 
@@ -159,7 +159,7 @@ func actionDatabaseAdd(ctx context.Context, c *install.InstallConfig, flags byte
 	_, _ = io.WriteString(h, dsn)
 	id := fmt.Sprintf("%x", h.Sum(nil))
 
-	if e := config.SetDatabase(ctx, id, "mysql", dsn, "database"); e != nil {
+	if e := config.SetDatabase(ctx, id, "sql", dsn, "database"); e != nil {
 		return e
 	}
 
@@ -197,13 +197,14 @@ func addDatabaseManualConnection(c *install.InstallConfig) (*mysql.Config, error
 	return conf, nil
 }
 
-func checkConnection(dsn string) error {
+func checkConnection(ctx context.Context, dsn string) error {
 
-	ctx := context.Background()
 	tmpl, err := template.New("storages").Parse(`
 storages:
+  {{ with .Root }}
   root:
-    uri: {{ .Root }}
+    uri: {{ . }}
+  {{ end }}
   main:
     uri: {{ .Main }}
 `)
@@ -211,26 +212,37 @@ storages:
 		return err
 	}
 
-	rootconf, _ := mysql.ParseDSN(dsn)
-	dbname := rootconf.DBName
-	rootconf.DBName = ""
-
-	rootdsn := rootconf.FormatDSN()
-
 	var str strings.Builder
-	if err := tmpl.Execute(&str, struct {
-		Root string
-		Main string
-	}{
-		Root: "mysql://" + rootdsn,
-		Main: "mysql://" + dsn,
-	}); err != nil {
-		return err
+
+	if strings.HasPrefix(dsn, "mysql") {
+		rootconf, _ := mysql.ParseDSN(dsn)
+		rootconf.DBName = ""
+
+		rootdsn := rootconf.FormatDSN()
+
+		if err := tmpl.Execute(&str, struct {
+			Root string
+			Main string
+		}{
+			Root: rootdsn,
+			Main: dsn,
+		}); err != nil {
+			return err
+		}
+	} else {
+		if err := tmpl.Execute(&str, struct {
+			Main string
+			Root string
+		}{
+			Main: dsn,
+		}); err != nil {
+			return err
+		}
 	}
 
 	runtime.SetDefault(runtime.KeyBootstrapYAML, str.String())
 
-	mgr, err := manager.NewManager(context.Background(), "install", nil)
+	mgr, err := manager.NewManager(ctx, "install", nil)
 	if err != nil {
 		return err
 	}
@@ -240,35 +252,38 @@ storages:
 		return err
 	}
 
-	for {
+	if strings.HasPrefix(dsn, "mysql") {
+		rootconf, _ := mysql.ParseDSN(dsn)
+		dbname := rootconf.DBName
+
+		item, err := mgr.Registry().Get("root", registry.WithType(pb.ItemType_STORAGE))
+		if err != nil {
+			return err
+		}
+
 		var st storage.Storage
 		item.As(&st)
 
 		db, err := st.Get(ctx)
 		if err != nil {
-			item, err := mgr.Registry().Get("root", registry.WithType(pb.ItemType_STORAGE))
-			if err != nil {
-				return err
-			}
+			return errors.New("couldn't get root storage")
+		}
 
-			var st storage.Storage
-			item.As(&st)
+		gormDB, ok := db.(*gorm.DB)
+		if !ok {
+			return errors.New("not a gorm DB")
+		}
 
-			db, err := st.Get(ctx)
-			if err != nil {
-				return errors.New("couldn't get root storage")
-			}
+		if tx := gormDB.Exec(fmt.Sprintf("create database if not exists %s", dbname)); tx.Error != nil {
+			return tx.Error
+		}
+	}
 
-			gormDB, ok := db.(*gorm.DB)
-			if !ok {
-				return errors.New("not a gorm DB")
-			}
-
-			if tx := gormDB.Exec(fmt.Sprintf("create database if not exists %s", dbname)); tx.Error != nil {
-				return tx.Error
-			}
-
-			continue
+	var st storage.Storage
+	if item.As(&st) {
+		db, err := st.Get(ctx)
+		if err != nil {
+			return err
 		}
 
 		gormDB, ok := db.(*gorm.DB)
@@ -284,8 +299,6 @@ storages:
 		if err := sqlDB.Ping(); err != nil {
 			return err
 		}
-
-		break
 	}
 
 	//for {

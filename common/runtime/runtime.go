@@ -49,6 +49,7 @@ type Runtime interface {
 	GetString(key string) string
 	GetStringSlice(key string) []string
 	IsSet(key string) bool
+	Set(key string, value interface{})
 	SetDefault(key string, value interface{})
 }
 

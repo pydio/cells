@@ -1,6 +1,3 @@
-//go:build exclude
-// +build exclude
-
 /*
  * Copyright (c) 2019-2021. Abstrium SAS <team (at) pydio.com>
  * This file is part of Pydio Cells.
@@ -25,6 +22,7 @@ package cmd
 
 import (
 	"context"
+	_ "embed"
 	"fmt"
 	"github.com/pydio/cells/v4/common/runtime/manager"
 	"net/url"
@@ -32,6 +30,8 @@ import (
 	"os/exec"
 	"os/user"
 	"runtime"
+	"strings"
+	"text/template"
 	"time"
 
 	"github.com/manifoldco/promptui"
@@ -50,6 +50,9 @@ func init() {
 }
 
 var (
+	//go:embed bootstrap.yaml
+	BootstrapYAML string
+
 	DefaultStartCmd *cobra.Command
 
 	niBindUrl          string
@@ -176,11 +179,12 @@ ENVIRONMENT
 		cmd.Println("Pick your installation mode when you are ready.")
 		cmd.Println("")
 
+		var installConf *install.InstallConfig
 		var proxyConf *install.ProxyConfig
 
 		ctx := cmd.Context()
 
-		if niYamlFile != "" || niJsonFile != "" || niBindUrl != "" {
+		if niYamlFile != "" || niJsonFile != "" {
 
 			ctx = cruntime.MultiContextManager().RootContext(cmd.Context())
 
@@ -195,14 +199,8 @@ ENVIRONMENT
 			//ctx, _, er = initConfig(ctx, false)
 			//fatalIfError(cmd, er)
 
-			installConf, err := nonInteractiveInstall(ctx)
+			installConf, err = nonInteractiveInstall(ctx)
 			fatalIfError(cmd, err)
-			if installConf.FrontendLogin != "" {
-				// We assume we have completely configured Cells. Exit.
-				// Allow time for config to be saved - probably a better way ?
-				<-time.After(1 * time.Second)
-				return nil
-			}
 
 			// we only non-interactively configured the proxy, launching browser install
 			// make sure default bind is set here
@@ -243,30 +241,128 @@ ENVIRONMENT
 				}
 			}
 		}
+
 		cmd.SetContext(ctx)
 
 		// Prompt for config with CLI, apply and exit
-		if niModeCli {
-			_, err := cliInstall(cmd, proxyConf)
-			fatalIfError(cmd, err)
-		} else {
-			// Prepare Context and run browser install
-			performBrowserInstall(cmd, ctx, proxyConf)
-		}
+		//if niModeCli {
+		//	_, err := cliInstall(cmd, proxyConf)
+		//	fatalIfError(cmd, err)
+		//} else {
+		//	// Prepare Context and run browser install
+		//	performBrowserInstall(cmd, ctx, proxyConf)
+		//}
+		//
+		//// TODO - allow time for config to be saved - probably a better way ?
+		//<-time.After(1 * time.Second)
+		//
+		//if niExitAfterInstall || (niModeCli && cmd.Name() != "start") {
+		//	cmd.Println("")
+		//	cmd.Println(promptui.IconGood + "\033[1m Installation Finished\033[0m")
+		//	cmd.Println("")
+		//	return nil
+		//}
 
-		// TODO - allow time for config to be saved - probably a better way ?
-		<-time.After(1 * time.Second)
-
-		if niExitAfterInstall || (niModeCli && cmd.Name() != "start") {
-			cmd.Println("")
-			cmd.Println(promptui.IconGood + "\033[1m Installation Finished\033[0m")
-			cmd.Println("")
-			return nil
-		}
 		// Reset runtime and hardcode new command to run
 		initViperRuntime()
+
+		// Reading template
+		tmpl := template.New("bootstrap")
+		yml, err := tmpl.Parse(BootstrapYAML)
+		fatalIfError(cmd, err)
+
+		str := &strings.Builder{}
+
+		err = yml.Execute(str, *installConf)
+		fatalIfError(cmd, err)
+
 		bin := os.Args[0]
+		cruntime.GetRuntime().Set(cruntime.KeyBootstrapYAML, str.String())
+		//cruntime.GetRuntime().Set(cruntime.KeyConfig, "mem://?config=true&env=CELLS_CONFIG_")
+		//cruntime.GetRuntime().Set(cruntime.KeyVault, "mem://?vault=true")
+
+		//cruntime.GetRuntime().Set(cruntime.KeyConfig, "file:///tmp/pydio/pydio.json?env=CELLS_CONFIG_")
+		//cruntime.GetRuntime().Set(cruntime.KeyVault, "file:///tmp/pydio/vault.json")
+
+		for k, v := range installConf.CustomConfigs {
+			os.Setenv("CELLS_CONFIG_"+k, v)
+		}
+
+		//dsObjectsMap := map[string]any{
+		//	"Name":        installConf.DsName,
+		//	"StorageType": object.StorageType_S3,
+		//	"RunningPort": installConf.DsPort,
+		//	"EndpointURL": installConf.DsS3Custom,
+		//	"ApiKey":      installConf.DsS3ApiKey,
+		//	"ApiSecret":   installConf.DsS3ApiSecret,
+		//	"GatewayConfiguration": map[string]string{
+		//		object.StorageKeySignatureVersion: "v4",
+		//	},
+		//	"LocalFolder": installConf.DsFolder,
+		//}
+		//dsObjectsMapStr, _ := json.Marshal(dsObjectsMap)
+		//
+		//dsSyncStorageConfiguration := map[string]string{
+		//	object.StorageKeyFolder:           installConf.DsFolder,
+		//	object.StorageKeyFolderCreate:     "true",
+		//	object.StorageKeyCellsInternal:    "false",
+		//	object.StorageKeyCustomEndpoint:   installConf.DsS3Custom,
+		//	object.StorageKeySignatureVersion: "v4",
+		//	object.StorageKeyMinioServer:      "true",
+		//	object.StorageKeyBucketsTags:      "",
+		//	object.StorageKeyObjectsTags:      "",
+		//	object.StorageKeyNativeEtags:      "",
+		//	object.StorageKeyBucketsRegexp:    "",
+		//	object.StorageKeyReadonly:         "false",
+		//	object.StorageKeyStorageClass:     "STANDARD",
+		//}
+		//
+		//dsSyncMap := map[string]any{
+		//	"Name":                 installConf.DsName,
+		//	"StorageType":          object.StorageType_S3,
+		//	"StorageConfiguration": dsSyncStorageConfiguration,
+		//	"ObjectsServiceName":   installConf.DsName,
+		//	"ObjectsBucket":        "test",
+		//	"ApiKey":               installConf.DsS3ApiKey,
+		//	"ApiSecret":            installConf.DsS3ApiSecret,
+		//	"FlatStorage":          true,
+		//}
+		//dsSyncMapStr, _ := json.Marshal(dsSyncMap)
+		//
+		//dsThumbsStore := map[string]string{
+		//	"bucket":     "thumbs",
+		//	"datasource": installConf.DsName,
+		//}
+		//dsThumbsStoreStr, _ := json.Marshal(dsThumbsStore)
+		//
+		//dsVersionsStore := map[string]string{
+		//	"bucket":     "versions",
+		//	"datasource": installConf.DsName,
+		//}
+		//
+		//dsVersionsStoreStr, _ := json.Marshal(dsVersionsStore)
+		//
+		//dsSources := []string{
+		//	installConf.DsName,
+		//}
+		//dsSourcesStr, _ := json.Marshal(dsSources)
+		//
+		//os.Setenv("CELLS_CONFIG_"+"services/pydio.grpc.data.sync."+installConf.DsName, string(dsSyncMapStr))
+		//os.Setenv("CELLS_CONFIG_"+"services/pydio.grpc.data.objects."+installConf.DsName, string(dsObjectsMapStr))
+		//os.Setenv("CELLS_CONFIG_"+"services/pydio.thumbs_store", string(dsThumbsStoreStr))
+		//os.Setenv("CELLS_CONFIG_"+"services/pydio.versions-store", string(dsVersionsStoreStr))
+		//os.Setenv("CELLS_CONFIG_"+"services/pydio.grpc.data.objects/sources", string(dsSourcesStr))
+		//os.Setenv("CELLS_CONFIG_"+"services/pydio.grpc.data.index/sources", string(dsSourcesStr))
+		//os.Setenv("CELLS_CONFIG_"+"services/pydio.grpc.data.sync/sources", string(dsSourcesStr))
+		//
+		//// TODO - align with idm/user/grpc/defaults.go
+		//cruntime.GetRuntime().Set("PYDIO_ADMIN_USER_LOGIN", installConf.FrontendLogin)
+		//cruntime.GetRuntime().Set("PYDIO_ADMIN_USER_PASSWORD", installConf.FrontendPassword)
+		//os.Setenv("PYDIO_ADMIN_USER_LOGIN", installConf.FrontendLogin)
+		//os.Setenv("PYDIO_ADMIN_USER_PASSWORD", installConf.FrontendPassword)
+
 		os.Args = []string{bin, "start"}
+
 		e := DefaultStartCmd.ExecuteContext(ctx)
 		if e != nil {
 			panic(e)

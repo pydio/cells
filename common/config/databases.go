@@ -22,6 +22,7 @@ package config
 
 import (
 	"context"
+	"github.com/pydio/cells/v4/common/utils/configx"
 )
 
 // HasDatabase checks if DB key is set
@@ -63,9 +64,10 @@ func SetDatabase(ctx context.Context, key string, driver string, dsn string, def
 	if e != nil {
 		return e
 	}
+
 	// If defaultsKey is set and value is not already set, add it
 	if defaultsKey != "" && Get(ctx, "defaults", defaultsKey).String() == "" {
-		return Set(ctx, Get(ctx, "#/databases/"+key).Get(), "defaults", defaultsKey)
+		return Set(ctx, configx.Reference("#/databases/"+key), "defaults", defaultsKey)
 	}
 	return nil
 }

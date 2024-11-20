@@ -161,6 +161,10 @@ func (bs *Bootstrap) reload(ctx context.Context, storePool *openurl.Pool[config.
 		tmpl = string(b)
 	} else if yaml := runtime.GetString(runtime.KeyBootstrapYAML); yaml != "" {
 		tmpl = yaml
+	} else {
+
+		// TODO - shouldn't run a bootstrap if we haven't given one
+		return nil
 	}
 
 	fullYaml, er := tplEval(ctx, tmpl, bs.named+"-yaml", store)
@@ -182,7 +186,6 @@ func (bs *Bootstrap) reload(ctx context.Context, storePool *openurl.Pool[config.
 	}
 
 	return nil
-
 }
 
 type keyPair struct {

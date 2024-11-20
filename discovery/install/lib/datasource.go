@@ -73,18 +73,36 @@ func actionDatasourceAdd(ctx context.Context, c *install.InstallConfig) error {
 	if er := config.Set(ctx, minioConfig, "services", fmt.Sprintf(`pydio.grpc.data.objects.%s`, minioConfig.Name)); er != nil {
 		return er
 	}
-	if er := config.Set(ctx, []string{minioConfig.Name}, "services", "pydio.grpc.data.objects", "sources"); er != nil {
+
+	objectSourcesVal := config.Get(ctx, "services", "pydio.grpc.data.objects", "sources")
+	objectSources := objectSourcesVal.StringArray()
+	objectSources = append(objectSources, minioConfig.Name)
+	objectSources = std.Unique(objectSources)
+	if er := objectSourcesVal.Set(objectSources); er != nil {
 		return er
 	}
 
-	// Store keys
 	sources := []string{conf.Name, "personal", "cellsdata", "versions", "thumbnails"}
-	if er := config.Set(ctx, sources, "services", "pydio.grpc.data.index", "sources"); er != nil {
+
+	// Store keys
+	indexSourcesVal := config.Get(ctx, "services", "pydio.grpc.data.index", "sources")
+	indexSources := indexSourcesVal.StringArray()
+	indexSources = append(indexSources, sources...)
+	indexSources = std.Unique(indexSources)
+
+	if er := indexSourcesVal.Set(indexSources); er != nil {
 		return er
 	}
-	if er := config.Set(ctx, sources, "services", "pydio.grpc.data.sync", "sources"); er != nil {
+
+	syncSourcesVal := config.Get(ctx, "services", "pydio.grpc.data.sync", "sources")
+	syncSources := syncSourcesVal.StringArray()
+	syncSources = append(syncSources, sources...)
+	syncSources = std.Unique(syncSources)
+
+	if er := syncSourcesVal.Set(syncSources); er != nil {
 		return er
 	}
+
 	s3buckets := make(map[string]string, len(sources))
 	if conf.StorageType == object.StorageType_LOCAL {
 		storageFolder = filepath.Dir(conf.StorageConfiguration[object.StorageKeyFolder])
