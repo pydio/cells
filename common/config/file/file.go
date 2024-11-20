@@ -134,9 +134,7 @@ func (o *URLOpener) Open(ctx context.Context, urlstr string) (config.Store, erro
 		return New(u.Path, opts...)
 	}
 
-	if u.Query().Has("pools") {
-		store = config.NewStoreWithReferencePool(store, config.ReferencePoolFromURL(ctx, u))
-	}
+	store = config.NewStoreWithReferencePool(store, config.ReferencePoolFromURL(ctx, u))
 
 	return store, nil
 }
