@@ -59,7 +59,7 @@ func init() {
 				tree.RegisterNodeProviderServer(server, fsBrowser)
 				tree.RegisterNodeReceiverServer(server, fsBrowser)
 
-				resolver := source.NewResolver[*grpc2.RunningMinioHandler](source.ObjectServiceContextKey, source.ListObjects)
+				resolver := source.NewResolver[*grpc2.RunningMinioHandler](source.ObjectServiceContextKey, common.ServiceDataObjectsGRPC_, source.ListObjects)
 				sharedHandler := grpc2.NewSharedObjectHandler(resolver)
 				resolver.SetLoader(func(ctx context.Context, s string) (*grpc2.RunningMinioHandler, error) {
 					var er error
@@ -81,10 +81,6 @@ func init() {
 					// Stop minio service with Cancel
 					handler.Cancel()
 					_, er := sharedHandler.CleanResourcesBeforeDelete(ctx, &object.CleanResourcesRequest{})
-					if er == nil {
-						config.Del(ctx, "versions", common.ServiceDataObjectsGRPC_+s)
-						_ = config.Save(ctx, common.PydioSystemUsername, "Remove service version for deleted datasource (objects)")
-					}
 					return er
 				})
 				var mErr []error

@@ -208,7 +208,7 @@ func InitEndpoints(ctx context.Context, syncConfig *object.DataSource, clientRea
 		if dao, er := manager.Resolve[s3.ChecksumMapper](ctx); er == nil {
 			multiClient.SetChecksumMapper(dao)
 		} else {
-			log.Logger(ctx).Warn("No specific ChecksumMapper found as DAO")
+			log.Logger(ctx).Debug("No specific ChecksumMapper found as DAO")
 		}
 
 		if keepNativeEtags {
@@ -231,7 +231,7 @@ func InitEndpoints(ctx context.Context, syncConfig *object.DataSource, clientRea
 		if dao, er := manager.Resolve[s3.ChecksumMapper](ctx); er == nil {
 			s3client.SetChecksumMapper(dao, true)
 		} else {
-			log.Logger(ctx).Warn("No specific ChecksumMapper found as DAO")
+			log.Logger(ctx).Debug("No specific ChecksumMapper found as DAO")
 		}
 
 		source = s3client

@@ -29,7 +29,6 @@ import (
 
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/broker"
-	"github.com/pydio/cells/v4/common/config"
 	"github.com/pydio/cells/v4/common/proto/object"
 	protosync "github.com/pydio/cells/v4/common/proto/sync"
 	"github.com/pydio/cells/v4/common/proto/tree"
@@ -45,13 +44,13 @@ func init() {
 
 	runtime.Register("main", func(ctx context.Context) {
 		service.NewService(
-			service.Name(common.ServiceGrpcNamespace_+common.ServiceDataSync),
+			service.Name(common.ServiceDataSyncGRPC),
 			service.Context(ctx),
 			service.Tag(common.ServiceTagDatasource),
 			service.Description("Starter for data sources synchronizations"),
 			service.WithMigrateIterator(source.DataSourceContextKey, source.ListSources),
 			service.WithGRPC(func(ctx context.Context, registrar grpc.ServiceRegistrar) error {
-				resolver := source.NewResolver[*grpc_sync.Handler](source.DataSourceContextKey, source.ListSources)
+				resolver := source.NewResolver[*grpc_sync.Handler](source.DataSourceContextKey, common.ServiceDataSyncGRPC_, source.ListSources)
 				endpoint := &grpc_sync.Endpoint{
 					Resolver: resolver,
 				}
@@ -65,14 +64,10 @@ func init() {
 				})
 				resolver.SetCleaner(func(ctx context.Context, s string, _ *grpc_sync.Handler) error {
 					_, er := endpoint.CleanResourcesBeforeDelete(ctx, &object.CleanResourcesRequest{})
-					if er == nil {
-						config.Del(ctx, "versions", common.ServiceDataSyncGRPC_+s)
-						_ = config.Save(ctx, common.PydioSystemUsername, "Remove service version for deleted datasource (sync)")
-					}
 					return er
 				})
 				_ = runtime.MultiContextManager().Iterate(ctx, func(ctx context.Context, s string) error {
-					return resolver.HeatCacheAndWatch(ctx, configx.WithPath("services", common.ServiceGrpcNamespace_+common.ServiceDataSync, "sources"))
+					return resolver.HeatCacheAndWatch(ctx, configx.WithPath("services", common.ServiceDataSyncGRPC, "sources"))
 				})
 				tree.RegisterNodeProviderServer(registrar, endpoint)
 				tree.RegisterNodeReceiverServer(registrar, endpoint)

@@ -61,17 +61,13 @@ func init() {
 			service.Description("Starter for data sources indexes"),
 			service.WithGRPC(func(ctx context.Context, srv grpc.ServiceRegistrar) error {
 
-				resolver := source.NewResolver[*object.DataSource](source.DataSourceContextKey, source.ListSources)
+				resolver := source.NewResolver[*object.DataSource](source.DataSourceContextKey, common.ServiceDataIndexGRPC_, source.ListSources)
 				resolver.SetLoader(func(ctx context.Context, s string) (*object.DataSource, error) {
 					return config.GetSourceInfoByName(ctx, s)
 				})
 				shared := grpc2.NewSharedTreeServer(resolver)
 				resolver.SetCleaner(func(ctx context.Context, s string, dataSource *object.DataSource) error {
 					_, er := shared.CleanResourcesBeforeDelete(ctx, &object.CleanResourcesRequest{})
-					if er == nil {
-						config.Del(ctx, "versions", common.ServiceDataIndexGRPC_+s)
-						_ = config.Save(ctx, common.PydioSystemUsername, "Remove service version for deleted datasource (index)")
-					}
 					return er
 				})
 

@@ -14,6 +14,7 @@ import (
 	"github.com/pydio/cells/v4/common/config"
 	"github.com/pydio/cells/v4/common/errors"
 	"github.com/pydio/cells/v4/common/middleware"
+	"github.com/pydio/cells/v4/common/runtime"
 	"github.com/pydio/cells/v4/common/telemetry/log"
 	"github.com/pydio/cells/v4/common/utils/cache"
 	"github.com/pydio/cells/v4/common/utils/cache/gocache"
@@ -132,15 +133,17 @@ type Resolver[T any] struct {
 	sourcesProvider SourcesProvider
 	loader          func(context.Context, string) (T, error)
 	cleaner         func(context.Context, string, T) error
-	ContextKey      any
+	contextKey      any
+	servicePrefix   string
 }
 
 // NewResolver creates a new resolver with a SourcesProvider
-func NewResolver[T any](ctxKey any, provider SourcesProvider) *Resolver[T] {
+func NewResolver[T any](ctxKey any, srvPrefix string, provider SourcesProvider) *Resolver[T] {
 	return &Resolver[T]{
 		cachePool:       gocache.MustOpenNonExpirableMemory(),
 		sourcesProvider: provider,
-		ContextKey:      ctxKey,
+		contextKey:      ctxKey,
+		servicePrefix:   srvPrefix,
 	}
 }
 
@@ -167,7 +170,7 @@ func (r *Resolver[T]) cache(ctx context.Context, source string, data T) error {
 func (r *Resolver[T]) Resolve(ctx context.Context) (T, error) {
 	var t T
 	var s string
-	ok := propagator.Get[string](ctx, r.ContextKey, &s)
+	ok := propagator.Get[string](ctx, r.contextKey, &s)
 	if !ok {
 		return t, errors.WithMessage(errors.StatusInternalServerError, "cannot find source in context")
 	}
@@ -194,7 +197,8 @@ func (r *Resolver[T]) HeatCacheAndWatch(ctx context.Context, watchOpts ...config
 	}
 	var errs []error
 	for _, s := range r.sourcesProvider(ctx) {
-		ctx = propagator.With(ctx, r.ContextKey, s)
+		ctx = runtime.WithServiceName(ctx, r.servicePrefix+s)
+		ctx = propagator.With(ctx, r.contextKey, s)
 		t, er := r.loader(ctx, s)
 		if er != nil {
 			errs = append(errs, er)
@@ -234,7 +238,8 @@ func (r *Resolver[T]) WatchConfig(ctx context.Context, opts ...configx.WatchOpti
 		add, remove := std.DiffSlices(oldSources, newSources)
 		// Heat newly added values
 		for _, a := range add {
-			ctx = propagator.With(ctx, r.ContextKey, a)
+			ctx = runtime.WithServiceName(ctx, r.servicePrefix+a)
+			ctx = propagator.With(ctx, r.contextKey, a)
 			log.Logger(ctx).Info("Config changed, heating and adding to cache " + a)
 			if t, er := r.loader(ctx, a); er == nil {
 				_ = ka.Set(a, t)
@@ -249,11 +254,16 @@ func (r *Resolver[T]) WatchConfig(ctx context.Context, opts ...configx.WatchOpti
 			}
 			var t T
 			if ka.Get(rem, &t) {
-				ctx = propagator.With(ctx, r.ContextKey, rem)
+				virtualService := r.servicePrefix + rem
+				ctx = runtime.WithServiceName(ctx, virtualService)
+				ctx = propagator.With(ctx, r.contextKey, rem)
 				if ce := r.cleaner(ctx, rem, t); ce != nil {
 					log.Logger(ctx).Error("Config changed, cannot clean resources for "+rem, zap.Error(ce))
 					continue
 				}
+				// Remove versions key
+				config.Del(ctx, "versions", virtualService)
+				_ = config.Save(ctx, common.PydioSystemUsername, "Remove service version for "+virtualService)
 				_ = ka.Delete(rem)
 				log.Logger(ctx).Info("Config changed, cleaned and removed from cache " + rem)
 			}
