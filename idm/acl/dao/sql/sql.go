@@ -61,7 +61,7 @@ type ACL struct {
 	Workspace   Workspace  `gorm:"foreignKey:WorkspaceID"`
 	Node        Node       `gorm:"foreignKey:NodeID"`
 	Creation    time.Time  `gorm:"column:created_at;type:timestamp;default:current_timestamp;"`
-	Expiry      *time.Time `gorm:"column:expires_at;type:timestamp;default:null"`
+	Expiry      *time.Time `gorm:"column:expires_at;type:TIMESTAMP NULL DEFAULT NULL"`
 }
 
 type Role struct {
