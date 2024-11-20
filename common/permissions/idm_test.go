@@ -78,7 +78,7 @@ func init() {
 	testcases = []test.ServicesStorageTestCase{
 		{
 			DSN:       map[string]string{"sql": sql.SqliteDriver + "://" + sql.SharedMemDSN + "&hookNames=cleanTables&prefix=" + unique},
-			Condition: true,
+			Condition: os.Getenv("CELLS_TEST_SKIP_SQLITE") != "true",
 			Services:  testServices,
 			Label:     "Sqlite",
 		},

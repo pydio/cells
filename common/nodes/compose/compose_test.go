@@ -115,7 +115,7 @@ func init() {
 				"dcbolt":  "boltdb://" + tmpPath + "/docstore-" + unique + ".db",
 				"dcbleve": "bleve://" + tmpPath + "/docstore-" + unique + ".bleve?rotationSize=-1",
 			},
-			Condition: true,
+			Condition: os.Getenv("CELLS_TEST_SKIP_SQLITE") != "true",
 			Services:  testServices,
 			Label:     "Sqlite",
 		},

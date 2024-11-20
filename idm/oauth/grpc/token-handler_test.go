@@ -4,6 +4,7 @@ package grpc
 
 import (
 	"context"
+	"os"
 	"testing"
 	"time"
 
@@ -33,7 +34,7 @@ func init() {
 	testCases = []test.StorageTestCase{
 		{
 			DSN:       []string{sql2.SqliteDriver + "://" + sql2.SharedMemDSN + "&hookNames=cleanTables&prefix=" + uuid.New()},
-			Condition: true,
+			Condition: os.Getenv("CELLS_TEST_SKIP_SQLITE") != "true",
 			DAO:       sql.NewPatDAO,
 		},
 	}
