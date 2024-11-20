@@ -81,6 +81,10 @@ func init() {
 					// Stop minio service with Cancel
 					handler.Cancel()
 					_, er := sharedHandler.CleanResourcesBeforeDelete(ctx, &object.CleanResourcesRequest{})
+					if er == nil {
+						config.Del(ctx, "versions", common.ServiceDataObjectsGRPC_+s)
+						_ = config.Save(ctx, common.PydioSystemUsername, "Remove service version for deleted datasource (objects)")
+					}
 					return er
 				})
 				var mErr []error

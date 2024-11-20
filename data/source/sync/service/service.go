@@ -29,6 +29,7 @@ import (
 
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/broker"
+	"github.com/pydio/cells/v4/common/config"
 	"github.com/pydio/cells/v4/common/proto/object"
 	protosync "github.com/pydio/cells/v4/common/proto/sync"
 	"github.com/pydio/cells/v4/common/proto/tree"
@@ -64,6 +65,10 @@ func init() {
 				})
 				resolver.SetCleaner(func(ctx context.Context, s string, _ *grpc_sync.Handler) error {
 					_, er := endpoint.CleanResourcesBeforeDelete(ctx, &object.CleanResourcesRequest{})
+					if er == nil {
+						config.Del(ctx, "versions", common.ServiceDataSyncGRPC_+s)
+						_ = config.Save(ctx, common.PydioSystemUsername, "Remove service version for deleted datasource (sync)")
+					}
 					return er
 				})
 				_ = runtime.MultiContextManager().Iterate(ctx, func(ctx context.Context, s string) error {

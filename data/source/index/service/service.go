@@ -68,6 +68,10 @@ func init() {
 				shared := grpc2.NewSharedTreeServer(resolver)
 				resolver.SetCleaner(func(ctx context.Context, s string, dataSource *object.DataSource) error {
 					_, er := shared.CleanResourcesBeforeDelete(ctx, &object.CleanResourcesRequest{})
+					if er == nil {
+						config.Del(ctx, "versions", common.ServiceDataIndexGRPC_+s)
+						_ = config.Save(ctx, common.PydioSystemUsername, "Remove service version for deleted datasource (index)")
+					}
 					return er
 				})
 
