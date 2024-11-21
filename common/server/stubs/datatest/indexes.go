@@ -38,7 +38,7 @@ import (
 
 func NewIndexService(ctx context.Context, svc service.Service, nodes ...*tree.Node) (grpc.ClientConnInterface, error) {
 
-	ts := srv.NewTreeServer(&object.DataSource{Name: strings.TrimPrefix(svc.Name(), common.ServiceDataIndexGRPC_)}, svc.Name())
+	ts := srv.NewTreeServer(&object.DataSource{Name: strings.TrimPrefix(svc.Name(), common.ServiceDataIndexGRPC_)})
 
 	srv1 := &tree.NodeProviderStub{}
 	srv1.NodeProviderServer = ts

@@ -92,7 +92,7 @@ func (a *WorkspaceHandler) extractWs(ctx context.Context, node *tree.Node) (*idm
 				}
 			}
 			// There is a workspace in path, but it is not in the ACL!
-			return nil, false, errors.WithMessagef(errors.WorkspaceNotFound, "Workspace %s is not found", parts[0])
+			return nil, false, errors.WithMessagef(errors.WorkspaceNotFound, "Workspace %s is not found in accessList", parts[0])
 		} else {
 			// Root without workspace part
 			return nil, false, nil

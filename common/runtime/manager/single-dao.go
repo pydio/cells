@@ -67,12 +67,6 @@ storages:
   storage{{ $idx }}: 
     uri: {{ $dsn }}
   {{- end }}
-servers:
-  grpc:
-	type: grpc
-	listener: bufconn
-	services:
-	  - filter: "{{ .Name }} ~= .*"
 services:
   {{- range $name, $storage := .Services }}
   {{$name}}:
@@ -80,6 +74,7 @@ services:
       main:
 	    {{- range $idx, $dsn := $storage }}
         - type: storage{{ $idx }}
+          {{if eq $name "pydio.grpc.user"}}policies: user_policies{{else if eq $name "pydio.grpc.role"}}policies: roles_policies{{else if eq $name "pydio.grpc.workspace"}}policies: ws_policies{{end}}
 	    {{- end }}
   {{- end }}
 `
@@ -198,6 +193,10 @@ func MockServicesToContextDAO(ctx context.Context, dsn map[string]string, servic
 	ctx = mgr.Context()
 	//ctx = propagator.With(ctx, service.ContextKey, svc)
 	ctx = runtime.MultiContextManager().RootContext(ctx)
+
+	if err := mgr.ServeAll(); err != nil {
+		return nil, err
+	}
 
 	return ctx, nil
 }

@@ -22,6 +22,7 @@ package compose_test
 
 import (
 	"context"
+	"fmt"
 	"os"
 	"strings"
 	"testing"
@@ -103,6 +104,7 @@ var (
 func init() {
 	tmpPath := os.TempDir()
 	unique := uuid.New()[:6] + "_"
+	sql.TestPrintQueries = false
 
 	for _, ds := range dss {
 		testServices[common.ServiceDataIndexGRPC_+ds] = map[string]any{"sql": idxdao.NewDAO}
@@ -111,7 +113,7 @@ func init() {
 	testcases = []test.ServicesStorageTestCase{
 		{
 			DSN: map[string]string{
-				"sql":     sql.SqliteDriver + "://" + sql.SharedMemDSN + "&hookNames=cleanTables&prefix=" + unique,
+				"sql":     sql.SqliteDriver + "://" + sql.SharedMemDSN + "&hookNames=cleanTables&prefix=" + unique + "&policies=" + unique + "{{ .Meta.policies }}",
 				"dcbolt":  "boltdb://" + tmpPath + "/docstore-" + unique + ".db",
 				"dcbleve": "bleve://" + tmpPath + "/docstore-" + unique + ".bleve?rotationSize=-1",
 			},
@@ -163,9 +165,13 @@ func TestPersonalResolution(t *testing.T) {
 
 			contentString := "content"
 			contentSize := int64(len(contentString))
+			// Warning - if this fails with a path.not.writeable error, this might be linked to an issue in the stub
 			written, er := client.PutObject(userCtx, &tree.Node{Path: "/personal-files/AdminFolder/file.txt"}, strings.NewReader(contentString), &models.PutRequestData{
 				Size: contentSize,
 			})
+			if er != nil {
+				fmt.Printf("%+v", er)
+			}
 			So(er, ShouldBeNil)
 			So(written.Size, ShouldEqual, contentSize)
 		})
