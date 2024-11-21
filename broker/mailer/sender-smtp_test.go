@@ -44,12 +44,12 @@ func TestSmtp_Send(t *testing.T) {
 	Convey("Test Sending w/ SMTP over gmail", t, func() {
 
 		conf := configx.New()
-		conf.Val("host").Set("smtp.gmail.com")
-		conf.Val("port").Set(float64(587))
+		_ = conf.Val("host").Set("smtp.gmail.com")
+		_ = conf.Val("port").Set(float64(587))
 
 		// Put a working user/when testing on your workstation. Beware to *not* commit your password
-		conf.Val("user").Set(test_username)
-		conf.Val("clearPass").Set(test_pwd)
+		_ = conf.Val("user").Set(test_username)
+		_ = conf.Val("clearPass").Set(test_pwd)
 
 		email := &mailer.Mail{}
 		email.From = &mailer.User{
@@ -64,7 +64,7 @@ func TestSmtp_Send(t *testing.T) {
 		email.Subject = "Test Email Sent from Go w. SMTP"
 		email.ContentPlain = "Hey, how are you ? This is now a success test."
 
-		buildFromWelcomeTemplate(email, email.To[0])
+		So(buildFromWelcomeTemplate(email, email.To[0]), ShouldBeNil)
 
 		smtp := &Smtp{}
 		err := smtp.Configure(context.Background(), conf)

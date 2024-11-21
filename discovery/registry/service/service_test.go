@@ -3,6 +3,7 @@ package service
 import (
 	"context"
 	"fmt"
+	"os"
 	"testing"
 
 	"github.com/spf13/viper"
@@ -24,6 +25,13 @@ var (
 )
 
 func TestRegistryXDS(t *testing.T) {
+
+	if os.Getenv("GRPC_XDS_BOOTSTRAP") == "" {
+		t.Logf("Skipping this test as no GRPC_XDS_BOOTSTRAP environment variable set")
+		t.Skip()
+		return
+	}
+
 	v := viper.New()
 	v.Set("yaml", serviceTestTemplate)
 	v.Set("config", "mem://")
