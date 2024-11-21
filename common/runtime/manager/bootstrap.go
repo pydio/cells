@@ -21,8 +21,12 @@
 package manager
 
 import (
+	"bytes"
 	"context"
 	"fmt"
+	"github.com/spf13/viper"
+	"gopkg.in/yaml.v3"
+	"log"
 	"os"
 	"strings"
 	"text/template"
@@ -126,31 +130,8 @@ func (bs *Bootstrap) reload(ctx context.Context, storePool *openurl.Pool[config.
 		}
 	}
 
-	runtimeDefaults, runtimeOthers := runtimeSetPairs()
-
-	var defaultTemplate = defaultsValues
-	if len(runtimeDefaults) > 0 {
-
-		var er error
-		for _, def := range runtimeDefaults {
-			if def.val, er = tplEval(ctx, def.val, bs.named+def.key, store); er != nil {
-				return er
-			}
-		}
-		// Update defaults before joining two templates together
-		// Use Yaml.Nodes patching to make sure to keep references
-		defYaml, _ := tplEval(ctx, defaultsValues, "default", store)
-		if patched, er := patchYaml(defYaml, runtimeDefaults); er == nil {
-			defaultTemplate = patched
-		} else {
-			return er
-		}
-	}
-
-	tmpl := strings.Join([]string{
-		defaultTemplate,
-		bsTemplates[bs.named],
-	}, "\n")
+	runtimeConfig := viper.NewWithOptions(viper.KeyDelimiter("::"))
+	runtimeConfig.SetConfigType("yaml")
 
 	// Optionally fully override the template based on arguments
 	if file := runtime.GetString(runtime.KeyBootstrapFile); file != "" {
@@ -158,31 +139,58 @@ func (bs *Bootstrap) reload(ctx context.Context, storePool *openurl.Pool[config.
 		if err != nil {
 			return err
 		}
-		tmpl = string(b)
-	} else if yaml := runtime.GetString(runtime.KeyBootstrapYAML); yaml != "" {
-		tmpl = yaml
-	} else {
 
-		// TODO - shouldn't run a bootstrap if we haven't given one
-		return nil
+		if err := runtimeConfig.MergeConfig(bytes.NewBuffer(b)); err != nil {
+			return err
+		}
+	} else if yaml := runtime.GetString(runtime.KeyBootstrapYAML); yaml != "" {
+		if err := runtimeConfig.MergeConfig(bytes.NewBuffer([]byte(yaml))); err != nil {
+			return err
+		}
+	} else {
+		// TODO
+		//tmpl := strings.Join([]string{
+		//	defaultTemplate,
+		//	bsTemplates[bs.named],
+		//}, "\n")
 	}
 
-	fullYaml, er := tplEval(ctx, tmpl, bs.named+"-yaml", store)
+	// Finally we're adding any flags we can have in the --sets
+	if sets := runtime.GetString(runtime.KeyBootstrapSetsFile); sets != "" {
+		if b, err := os.ReadFile(sets); err == nil {
+			if err := runtimeConfig.MergeConfig(bytes.NewBuffer(b)); err != nil {
+				return err
+			}
+		}
+	}
+
+	// Or in the --set flags
+	if sets := runtime.GetStringSlice(runtime.KeyBootstrapSet); len(sets) > 0 {
+		c := viper.NewWithOptions(viper.KeyDelimiter("/"))
+		for _, v := range sets {
+			vv := strings.SplitN(v, "=", 2)
+			k, vvv := vv[0], vv[1]
+			c.Set(k, vvv)
+		}
+
+		if err := runtimeConfig.MergeConfigMap(c.AllSettings()); err != nil {
+			return err
+		}
+	}
+
+	// Marshal the map to YAML
+	fullYamlData, err := yaml.Marshal(runtimeConfig.AllSettings())
+	if err != nil {
+		log.Fatalf("Error marshaling config to YAML: %v", err)
+	}
+
+	fullYaml, er := tplEval(ctx, string(fullYamlData), bs.named+"-yaml", store)
 	if er != nil {
 		return er
 	}
-	// fmt.Println("FULL YAML", fullYaml)
+
 	if err := bs.Set([]byte(fullYaml)); err != nil {
 		return err
-	}
-
-	// Now apply runtimeOther keyPairs
-	for _, pair := range runtimeOthers {
-		if val, er := tplEval(ctx, pair.val, bs.named+pair.key, store); er != nil {
-			return er
-		} else {
-			_ = bs.Val(pair.key).Set(val)
-		}
 	}
 
 	return nil
@@ -199,6 +207,9 @@ func runtimeSetPairs() (def, proc []keyPair) {
 		if bb, err := os.ReadFile(sets); err == nil {
 			for _, line := range strings.Split(string(bb), "\n") {
 				line = strings.TrimSpace(line)
+				if len(line) == 0 {
+					continue
+				}
 				if line[0] == '#' || line == "" {
 					continue
 				}

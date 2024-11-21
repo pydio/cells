@@ -25,6 +25,7 @@ import (
 	"fmt"
 	"github.com/pydio/cells/v4/common/config"
 	"github.com/pydio/cells/v4/common/proto/install"
+	"go.uber.org/zap/exp/zapfield"
 	"os"
 	"strings"
 	"text/template"
@@ -193,6 +194,8 @@ ENVIRONMENT
 
 		err = yml.Execute(str, *installConf)
 		fatalIfError(cmd, err)
+
+		log.Logger(ctx).Debug("bootstrap", zapfield.Str("bootstrap", str.String()))
 
 		runtime.GetRuntime().Set(runtime.KeyBootstrapYAML, str.String())
 
