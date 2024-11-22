@@ -1,4 +1,4 @@
-//go:build storage
+//go:build storage || sql
 
 package grpc
 

@@ -1,4 +1,4 @@
-//go:build storage
+//go:build storage || kv
 
 /*
  * Copyright (c) 2018. Abstrium SAS <team (at) pydio.com>
