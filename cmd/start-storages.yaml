@@ -1,12 +1,11 @@
 storages:
   sql:
-    uri: "{{ .DbManualDSN }}?prefix={{`{{ .Meta.prefix }}`}}&policies={{`{{ .Meta.policies }}`}}&singular={{`{{ .Meta.singular }}`}}"
+    uri: "{{{{ .DbManualDSN }}}}&prefix={{ .Meta.prefix }}&policies={{ .Meta.policies }}&singular={{ .Meta.singular }}"
   dssql:
-    uri: {{ .DbManualDSN }}?prefix={{`{{ .Meta.prefix }}`}}{{`{{if ne .DataSource ""}}`}}{{`{{ .DataSource }}`}}_{{`{{end}}`}}&policies={{`{{ .Meta.policies }}`}}&singular={{`{{ .Meta.singular }}`}}
+    uri: "{{{{ .DbManualDSN }}}}&prefix={{ .Meta.prefix }}{{if ne .DataSource \"\"}}{{ .DataSource }}_{{end}}&policies={{ .Meta.policies }}&singular={{ .Meta.singular }}"
   index:
-    uri:
-      "bleve://{{`{{ autoMkdir (joinPath (serviceDataDir .Service) (tenantPathWithBlank .Tenant \"default\")) }}`}}/{{`{{  .Meta.prefix }}`}}.db"
+    uri: "bleve://{{ autoMkdir (serviceDataDir .Service) }}/{{  .Meta.prefix }}.db"
   bleve:
-    uri: "bleve://{{`{{ autoMkdir (joinPath (serviceDataDir .Service) (tenantPathWithBlank .Tenant \"default\")) }}`}}/{{`{{  .Meta.file }}`}}"
+    uri: "bleve://{{ autoMkdir (serviceDataDir .Service) }}/{{  .Meta.file }}"
   bolt:
-    uri: "boltdb://{{`{{ autoMkdir (joinPath (serviceDataDir .Service) (tenantPathWithBlank .Tenant \"default\")) }}`}}/{{`{{ .Meta.file }}`}}"
+    uri: "boltdb://{{ autoMkdir (serviceDataDir .Service) }}/{{ .Meta.file }}"

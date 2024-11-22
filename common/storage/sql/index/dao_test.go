@@ -1198,26 +1198,6 @@ func TestLostAndFoundChildren(t *testing.T) {
 	})
 }
 
-//func TestDBInit(t *testing.T) {
-//	st := storage.New("test", cellssqlite.MySQLDriver, cellssqlite.SharedMemDSN)
-//	st.Register(cellssqlite.MySQLDriver, "test.db", "firsttenant", "")
-//	st.Register(cellssqlite.MySQLDriver, "test2.db", "secondtenant", "")
-//
-//	ctxWithFirstTenant := context.WithValue(context.TODO(), "tenant", "firsttenant")
-//	ctxWithSecondTenant := context.WithValue(context.TODO(), "tenant", "secondtenant")
-//
-//	var db *gorm.DB
-//	st.Get(&db)
-//
-//	txFirstTenant := db.WithContext(ctxWithFirstTenant).Table("test")
-//	txFirstTenant.AutoMigrate(struct{ Test string }{})
-//	txFirstTenant.Create(struct{ Test string }{"test"})
-//
-//	txSecondTenant := db.WithContext(ctxWithSecondTenant).Table("test")
-//	txSecondTenant.AutoMigrate(struct{ Whatever string }{})
-//	txSecondTenant.Create(struct{ Whatever string }{"whatever"})
-//}
-
 //	func TestGettingNodeByPathBeforeCreationWithCache(t *testing.T) {
 //		Convey("Re-adding a file - Success", t, func() {
 //			arborescence := []string{

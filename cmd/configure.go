@@ -36,6 +36,7 @@ import (
 
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/config/routing"
+	"github.com/pydio/cells/v4/common/errors"
 	"github.com/pydio/cells/v4/common/proto/install"
 	cruntime "github.com/pydio/cells/v4/common/runtime"
 	"github.com/pydio/cells/v4/common/runtime/manager"
@@ -382,7 +383,7 @@ func open(url string) error {
 
 func fatalIfError(cmd *cobra.Command, err error) {
 	if err != nil {
-		if err == promptui.ErrInterrupt {
+		if errors.Is(err, promptui.ErrInterrupt) {
 			fmt.Println(promptui.IconBad, "Operation aborted by user")
 			<-time.After(10 * time.Millisecond)
 			os.Exit(1)

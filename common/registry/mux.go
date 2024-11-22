@@ -23,7 +23,6 @@ package registry
 import (
 	"context"
 	"net/url"
-	"strings"
 
 	"github.com/pydio/cells/v4/common/utils/openurl"
 )
@@ -66,30 +65,10 @@ func (mux *URLMux) OpenRegistry(ctx context.Context, urlstr string) (Registry, e
 	if err != nil {
 		return nil, err
 	}
-
-	// TODO - Was "tenant" - Does not seem to be used
-	tKey := "scope"
-	tenant := ""
-	if strings.Contains(u.Scheme, "+restricted") {
-		if u.Query().Has(tKey) {
-			tenant = u.Query().Get(tKey)
-			u.Query().Del(tKey)
-		}
-	}
-
 	reg, err := opener.(URLOpener).OpenURL(ctx, u)
 	if err != nil {
 		return nil, err
 	}
-
-	if tenant != "" {
-		reg = NewMetaWrapper(reg, func(meta map[string]string) {
-			if _, ok := meta[tKey]; !ok {
-				meta[tKey] = tenant
-			}
-		})
-	}
-
 	return reg, nil
 }
 

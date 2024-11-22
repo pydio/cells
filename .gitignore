@@ -1,6 +1,7 @@
 /cells-*
 /main
 /cells
+/local-*.yaml
 
 CHANGELOG.html
 

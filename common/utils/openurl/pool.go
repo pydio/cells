@@ -31,6 +31,18 @@ import (
 	"github.com/pydio/cells/v4/common/errors"
 )
 
+var (
+	memPoolShardExpr = ""
+)
+
+func SetMemPoolShardExpr(v string) {
+	memPoolShardExpr = v
+}
+
+func GetMemPoolShardExpr() string {
+	return memPoolShardExpr
+}
+
 type ResourceClosable interface {
 	Close(context.Context) error
 }
@@ -135,24 +147,20 @@ func OpenPool[T any](ctx context.Context, uu []string, opener Opener[T], opt ...
 	return pool, nil
 }
 
-// MustMemPool opens a pool that differentiate basically by tenant, and does not trigger any errors
+// MustMemPool opens a pool that differentiate based on memPoolShardExpr, and does not trigger any errors
 func MustMemPool[T any](ctx context.Context, opener MustOpener[T], opt ...PoolOption[T]) *Pool[T] {
 	op := func(ctx context.Context, url string) (T, error) {
 		mo := opener(ctx, url)
 		return mo, nil
 	}
-	p, _ := OpenPool(ctx, []string{"mem://{{ .Tenant }}"}, op, opt...)
+	p, _ := OpenPool(ctx, []string{"mem://" + memPoolShardExpr}, op, opt...)
 	return p
 }
 
-// MemPool opens a pool that differentiate basically by tenant
+// MemPool opens a pool that differentiate based on memPoolShardExpr
 func MemPool[T any](ctx context.Context, opener Opener[T], opt ...PoolOption[T]) (*Pool[T], error) {
-	return OpenPool(ctx, []string{"mem://{{ .Tenant }}"}, opener, opt...)
+	return OpenPool(ctx, []string{"mem://" + memPoolShardExpr}, opener, opt...)
 }
-
-//func (m Pool[T]) Resolve(ctx context.Context, resolutionData ...map[string]interface{}) (string, error) {
-//
-//}
 
 func (m Pool[T]) Get(ctx context.Context, resolutionData ...map[string]interface{}) (T, error) {
 	last := len(m.resolvers) - 1

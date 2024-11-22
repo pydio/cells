@@ -18,7 +18,7 @@ var (
           "SelfSigned": {}
         },
         "HeaderMods": [
-          { "Key": "X-Pydio-Tenant", "Value": "sub1" }
+          { "Key": "X-Pydio-Header", "Value": "header-value1" }
         ],
         "Routing": [
            {"Matcher": "*", "Effect": 1},
@@ -51,6 +51,7 @@ func TestProxyUnmarshal(t *testing.T) {
 		})
 
 		So(p.HeaderMods, ShouldHaveLength, 1)
-		So(p.HeaderMods[0].Key, ShouldEqual, "X-Pydio-Tenant")
+		So(p.HeaderMods[0].Key, ShouldEqual, "X-Pydio-Header")
+		So(p.HeaderMods[0].Value, ShouldEqual, "header-value1")
 	})
 }

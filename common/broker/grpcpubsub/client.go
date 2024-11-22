@@ -111,7 +111,7 @@ func (o *URLOpener) OpenTopicURL(ctx context.Context, u *url.URL) (*pubsub.Topic
 	pubLock.Lock()
 	defer pubLock.Unlock()
 	if _, ok := publishers[u.Host]; !ok {
-		// TODO - should be multi-tenant
+		// TODO - should handle multicontext
 		conn := grpc.ResolveConn(ctx, common.ServiceBrokerGRPC)
 
 		cli := pb.NewBrokerClient(conn)

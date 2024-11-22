@@ -39,7 +39,7 @@ func MustOpenNonExpirableMemory(watchForReset ...WatcherOpener) *openurl.Pool[ca
 	if len(watchForReset) > 0 {
 		opener = autoResetOpener(opener, watchForReset[0])
 	}
-	p, _ := openurl.OpenPool[cache.Cache](nil, []string{"pm://?tenant={{ .Tenant }}"}, opener)
+	p, _ := openurl.OpenPool[cache.Cache](nil, []string{"pm://" + openurl.GetMemPoolShardExpr()}, opener)
 	return p
 }
 

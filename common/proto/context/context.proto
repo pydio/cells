@@ -1,6 +1,0 @@
-syntax = "proto3";
-
-message Context {
-  string Service = 1;
-  optional string Tenant = 2;
-}

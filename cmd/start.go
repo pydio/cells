@@ -55,6 +55,7 @@ var (
 	allSettingsYAML string
 	bootstrap       *manager.Bootstrap
 	configChecks    []func(ctx context.Context) error
+	bootstrapHooks  []*bootstrapHook
 )
 
 var (
@@ -72,8 +73,17 @@ var (
 	niExitAfterInstall bool
 )
 
+type bootstrapHook struct {
+	Name     string
+	Callback func(ctx context.Context, bs *manager.Bootstrap) error
+}
+
 func RegisterConfigChecker(f func(ctx context.Context) error) {
 	configChecks = append(configChecks, f)
+}
+
+func RegisterBootstrapHook(hookName string, cb func(ctx context.Context, bs *manager.Bootstrap) error) {
+	bootstrapHooks = append(bootstrapHooks, &bootstrapHook{Name: hookName, Callback: cb})
 }
 
 // StartCmd represents the start command
@@ -223,16 +233,19 @@ ENVIRONMENT
 		} else {
 			// We don't have anything to install, we are going to populate the InstallConf with the config we have to prepare the environment
 			installConf.DbManualDSN = config.Get(ctx, "defaults/database/dsn").String()
+			if !strings.Contains(installConf.DbManualDSN, "?") {
+				installConf.DbManualDSN += "?" // URL maybe appended with &key=value string
+			}
 		}
 
 		// Reading template
-		tmpl := template.New("storages")
+		tmpl := template.New("storages").Delims("{{{{", "}}}}")
 		yml, err := tmpl.Parse(storagesYAML)
 		fatalIfError(cmd, err)
 
 		str := &strings.Builder{}
 
-		err = yml.Execute(str, *installConf)
+		err = yml.Execute(str, installConf)
 		fatalIfError(cmd, err)
 
 		runtime.Register("system", func(ctx context.Context) {
@@ -243,11 +256,11 @@ ENVIRONMENT
 
 		})
 
-		os.Setenv(grpc.EnvPydioAdminUserLogin, installConf.FrontendLogin)
-		os.Setenv(grpc.EnvPydioAdminUserPassword, installConf.FrontendPassword)
+		_ = os.Setenv(grpc.EnvPydioAdminUserLogin, installConf.FrontendLogin)
+		_ = os.Setenv(grpc.EnvPydioAdminUserPassword, installConf.FrontendPassword)
 
 		for k, v := range installConf.CustomConfigs {
-			os.Setenv("CELLS_CONFIG_"+k, v)
+			_ = os.Setenv("CELLS_CONFIG_"+k, v)
 		}
 
 		return nil
@@ -309,7 +322,7 @@ ENVIRONMENT
 			//		return err
 			//	}
 		} else {
-			tmpl := template.New("bootstrap")
+			tmpl := template.New("bootstrap").Delims("{{{{", "}}}}")
 			if _, err := tmpl.Parse(bootstrapYAML); err != nil {
 				return err
 			}
@@ -324,7 +337,17 @@ ENVIRONMENT
 			}
 		}
 
-		bootstrap.RegisterTemplate("yaml", string(allSettingsYAML))
+		for _, bh := range bootstrapHooks {
+			if bh.Name == "loaded" {
+				if er := bh.Callback(ctx, bootstrap); er != nil {
+					return er
+				}
+			}
+		}
+
+		if er := bootstrap.RegisterTemplate("yaml", string(allSettingsYAML)); er != nil {
+			return er
+		}
 		bootstrap.MustReset(ctx, nil)
 
 		runtime.GetRuntime().Set(runtime.KeyBootstrapYAML, bootstrap)

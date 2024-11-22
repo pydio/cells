@@ -77,9 +77,9 @@ func init() {
 							if producer, ok := producers[cID]; ok {
 								return producer.Handle(ct, msg)
 							}
-							return fmt.Errorf("cannot find timer.Producer for corresponding tenant")
+							return fmt.Errorf("cannot find timer.Producer for corresponding context")
 						} else {
-							return fmt.Errorf("cannot find tenant in broker event context")
+							return fmt.Errorf("cannot find info in broker event context")
 						}
 					}
 					return nil

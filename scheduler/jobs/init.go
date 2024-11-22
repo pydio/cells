@@ -19,21 +19,22 @@ func init() {
 	log.SetTasksLoggerInit(initTasksLogger, func(ctx context.Context) {})
 }
 
+var TasksLogsDirProvider = func() string {
+	return rt.ApplicationWorkingDir(rt.ApplicationDirLogs)
+}
+
 func initTasksLogger(ctx context.Context) (*zap.Logger, []io.Closer) {
 
 	level := "info"
 	if os.Getenv("CELLS_JOBS_LOG_LEVEL") == "debug" {
 		level = "debug"
 	}
-	logDir := rt.ApplicationWorkingDir(rt.ApplicationDirLogs)
-	logDir += "{{ tenantPathWithBlank .Tenant \"default\" }}"
-
 	cfg := []log.LoggerConfig{
 		{
 			Level:    level,
 			Encoding: "json",
 			Outputs: []string{
-				"file://" + filepath.Join(logDir, "tasks.log"),
+				"file://" + filepath.Join(TasksLogsDirProvider(), "tasks.log"),
 				"service:///?service=pydio.grpc.jobs",
 			},
 		},
