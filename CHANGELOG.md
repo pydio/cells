@@ -1,16 +1,11 @@
-# Changes between v4.4.6 and v4.4.7
+# Changes between v4.4.7 and v4.4.8-alpha1
 
-[See Full Changelog](https://github.com/pydio/cells/compare/v4.4.6...v4.4.7)
+[See Full Changelog](https://github.com/pydio/cells/compare/v4.4.7...v4.4.8-alpha1)
 
-- [#628fcf9](https://github.com/pydio/cells/commit/628fcf9dae464bcaebbee455b372d6e84d1a819d): Do not use legacy variables in sample files
-- [#9e6973f](https://github.com/pydio/cells/commit/9e6973fa6f9e3d61a6ac960653ab07cfe1624e83): Attach debug.Stack to error when recovering a job.
-- [#a391a79](https://github.com/pydio/cells/commit/a391a79869f1f138765532a4d2ab1b622de3ed8a): Fix scheduler JS issue
-- [#5bc9305](https://github.com/pydio/cells/commit/5bc9305502c7a4490ab51d533aceeb97ae7d09ef): New CELLS_GRPC_AUTHORITY env variable to set grpc :authority header
-- [#bc31856](https://github.com/pydio/cells/commit/bc31856dd3979f96e51831bfe6e44815f2e87b4d): Batch revert PoC to handle massive amount of cells
-- [#9bb6460](https://github.com/pydio/cells/commit/9bb646049f67e3c6b9b12acfd5879d55adff1a87): Do not use legac y variables in sample files
-- [#52c42b2](https://github.com/pydio/cells/commit/52c42b2cbcdeb37381d95a87ed381610be6d4d82): Update dao_test.go - Massive inserts to 10000
-- [#f189af6](https://github.com/pydio/cells/commit/f189af682d5fee50300dbd463dfe2eb65ce1255a): try to understand race-cond on cells roots reloading after creation
-- [#cf08dc3](https://github.com/pydio/cells/commit/cf08dc3595d4368f2b061b68a0ed9ad310f571e8): Re-adapt search engine to the shared resources loading
-- [#cc35328](https://github.com/pydio/cells/commit/cc353284cefe557c93c5e0e005b5be0bf2e9baca): Forgotten map initialization
-- [#6880a50](https://github.com/pydio/cells/commit/6880a5096b58d7007387c92f3a23e7d427129c29): Optimize Cells roots loading
-- [#3c5d0f6](https://github.com/pydio/cells/commit/3c5d0f6d188afbd1297f86e926164122d0aef6f4): Next development cycle
+- [#b852a07](https://github.com/pydio/cells/commit/b852a079b1a26ea1ed24a5a19f8d91e094df7dce): Missing externals js after recompile
+- [#091b6d1](https://github.com/pydio/cells/commit/091b6d17bc072f52e2483289537e5b0413e2d753): Update some dependencies
+- [#67c01eb](https://github.com/pydio/cells/commit/67c01eb53ffd4ed1915785fd5ae8116300759579): Improve minisites search engine, fix react-router dep constraint.
+- [#5d9d4f9](https://github.com/pydio/cells/commit/5d9d4f908c6734d4dd4e25f5963bd3addb7cd86c): Fix wrong uploader confirm dialog display
+- [#56a4c7c](https://github.com/pydio/cells/commit/56a4c7c9639e330e248c9001a4885b96bc200c4b): Fix some users not being able to edit their own preferences.
+- [#ad720a4](https://github.com/pydio/cells/commit/ad720a45da6560690b28c5e61c01e0bd48aeda89): Clean share client library and optimize root nodes loading
+- [#7d12a28](https://github.com/pydio/cells/commit/7d12a28d7dad823e68c0984aada44e364073fc5a): Next development cycle
