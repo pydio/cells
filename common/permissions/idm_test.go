@@ -77,7 +77,7 @@ func init() {
 	unique := uuid.New()[:6] + "_"
 	testcases = []test.ServicesStorageTestCase{
 		{
-			DSN:       map[string]string{"sql": sql.SqliteDriver + "://" + sql.SharedMemDSN + "&hookNames=cleanTables&prefix=" + unique},
+			DSN:       map[string]string{"sql": sql.SqliteDriver + "://" + sql.SharedMemDSN + "&hookNames=cleanTables&prefix=" + unique + "&policies=" + unique + "{{ .Meta.policies }}"},
 			Condition: os.Getenv("CELLS_TEST_SKIP_SQLITE") != "true",
 			Services:  testServices,
 			Label:     "Sqlite",
@@ -86,7 +86,7 @@ func init() {
 	if other := os.Getenv("CELLS_TEST_MYSQL_DSN"); other != "" {
 		for _, dsn := range strings.Split(other, ";") {
 			testcases = append(testcases, test.ServicesStorageTestCase{
-				DSN:       map[string]string{"sql": strings.TrimSpace(dsn) + "?parseTime=true&hookNames=cleanTables&prefix=" + unique},
+				DSN:       map[string]string{"sql": strings.TrimSpace(dsn) + "?parseTime=true&hookNames=cleanTables&prefix=" + unique + "&policies=" + unique + "{{ .Meta.policies }}"},
 				Condition: true,
 				Services:  testServices,
 				Label:     "MySQL",
@@ -96,7 +96,7 @@ func init() {
 	if other := os.Getenv("CELLS_TEST_PGSQL_DSN"); other != "" {
 		for _, dsn := range strings.Split(other, ";") {
 			testcases = append(testcases, test.ServicesStorageTestCase{
-				DSN:       map[string]string{"sql": strings.TrimSpace(dsn) + "&hookNames=cleanTables&prefix=" + unique},
+				DSN:       map[string]string{"sql": strings.TrimSpace(dsn) + "&hookNames=cleanTables&prefix=" + unique + "&policies=" + unique + "{{ .Meta.policies }}"},
 				Condition: true,
 				Services:  testServices,
 				Label:     "Postgres",
@@ -109,6 +109,7 @@ func init() {
 func TestSearchUniqueUser(t *testing.T) {
 
 	test.RunServicesTests(testcases, t, func(ctx context.Context) {
+
 		Convey("Setup Mock Data", t, func() {
 			sd, er := idmtest.GetStartData()
 			So(er, ShouldBeNil)

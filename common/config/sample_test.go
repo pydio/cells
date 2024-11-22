@@ -23,9 +23,9 @@ package config
 import (
 	"testing"
 
-	. "github.com/smartystreets/goconvey/convey"
-
 	json "github.com/pydio/cells/v4/common/utils/jsonx"
+
+	. "github.com/smartystreets/goconvey/convey"
 )
 
 func TestLoadSampleConf(t *testing.T) {
@@ -34,7 +34,7 @@ func TestLoadSampleConf(t *testing.T) {
 		var data map[string]interface{}
 		e := json.Unmarshal([]byte(SampleConfig), &data)
 		So(e, ShouldBeNil)
-		_, ok := data["services"]
+		_, ok := data["defaults"]
 		So(ok, ShouldBeTrue)
 	})
 

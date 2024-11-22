@@ -35,6 +35,7 @@ var (
 	hooksRegister = map[string]func(options *options.ClientOptions) *options.ClientOptions{}
 
 	createdCollections = map[string]bool{}
+	ccLock             = &sync.Mutex{}
 	cleaners           []func(ctx context.Context, cl *mongo.Client) error
 	cleanersOnce       sync.Once
 )
@@ -43,6 +44,8 @@ func init() {
 	hooksRegister["cleanCollections"] = func(options *options.ClientOptions) *options.ClientOptions {
 		cleanersOnce.Do(func() {
 			cleaners = append(cleaners, func(ctx context.Context, cl *mongo.Client) error {
+				ccLock.Lock()
+				defer ccLock.Unlock()
 				for coll := range createdCollections {
 					parts := strings.Split(coll, ":::")
 					fmt.Println("Dropping collection " + parts[1] + " from DB " + parts[0])
@@ -59,7 +62,9 @@ func init() {
 					cmd := startedEvent.Command
 					var collName string
 					_ = cmd.Lookup("create").Unmarshal(&collName)
+					ccLock.Lock()
 					createdCollections[startedEvent.DatabaseName+":::"+collName] = true
+					ccLock.Unlock()
 				}
 			},
 		})

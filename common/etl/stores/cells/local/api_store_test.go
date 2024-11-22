@@ -1,3 +1,4 @@
+//go:build integration
 // +build integration
 
 /*
@@ -29,26 +30,16 @@ import (
 	. "github.com/smartystreets/goconvey/convey"
 )
 
-func init() {
-	nats.Enable()
-}
+var (
+	testCtx = context.Background()
+)
 
 func TestAPIGetAllUsers(t *testing.T) {
 	Convey("Test get all users", t, func() {
-		apiStore := NewAPIStore()
+		apiStore := NewAPIStore(testCtx)
 
 		users, err := apiStore.ListUsers(context.Background(), nil, nil)
 		So(err, ShouldBeNil)
 		So(len(users), ShouldBeGreaterThan, 0)
-	})
-}
-
-func TestAPIGetAllConfig(t *testing.T) {
-	Convey("Test get all config", t, func() {
-		apiStore := NewAPIStore()
-
-		config, err := apiStore.ListConfig(context.Background(), nil)
-
-		So(err, ShouldBeNil)
 	})
 }

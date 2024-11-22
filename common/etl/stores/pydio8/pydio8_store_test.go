@@ -1,3 +1,4 @@
+//go:build integration
 // +build integration
 
 /*
@@ -50,19 +51,8 @@ func TestPydio8GetAllUsers(t *testing.T) {
 
 		pydio8Store := NewPydio8UserStore(config)
 
-		users, err := pydio8Store.ListUsers(context.Background(), nil)
+		users, err := pydio8Store.ListUsers(context.Background(), nil, nil)
 		So(err, ShouldBeNil)
 		So(len(users), ShouldBeGreaterThan, 0)
-	})
-}
-
-func TestPydio8GetAllConfig(t *testing.T) {
-	Convey("Test get all users", t, func() {
-		config := getPydio8Config()
-
-		pydio8Store := NewPydio8UserStore(config)
-
-		_, err := pydio8Store.ListConfig(context.Background(), nil)
-		So(err, ShouldBeNil)
 	})
 }

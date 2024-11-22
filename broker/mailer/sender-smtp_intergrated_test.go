@@ -1,3 +1,4 @@
+//go:build integration
 // +build integration
 
 /*
@@ -27,10 +28,10 @@ import (
 	"fmt"
 	"testing"
 
-	. "github.com/smartystreets/goconvey/convey"
-
-	"github.com/pydio/cells/v4/common/config"
 	"github.com/pydio/cells/v4/common/proto/mailer"
+	"github.com/pydio/cells/v4/common/utils/configx"
+
+	. "github.com/smartystreets/goconvey/convey"
 )
 
 const (
@@ -46,15 +47,15 @@ const (
 func TestSmtpIntergrated_Send(t *testing.T) {
 	Convey("Test Sending w/ SMTP over local smtp server", t, func() {
 
-		conf := config.NewMap()
-		conf.Set("host", "smtp.vpydio.fr")
-		conf.Set("port", float64(465))
+		conf := configx.New()
+		_ = conf.Val("host").Set("smtp.vpydio.fr")
+		_ = conf.Val("port").Set(float64(465))
 		// Should add self-signed CA cert into system trusted list
 		// https://askubuntu.com/questions/1024300/set-company-certificate-as-trusted
-		conf.Set("insecureSkipVerify", true)
+		_ = conf.Val("insecureSkipVerify").Set(true)
 		// Put a working user/when testing on your workstation. Beware to *not* commit your password
-		conf.Set("user", test_inte_username)
-		conf.Set("password", test_inte_pwd)
+		_ = conf.Val("user").Set(test_inte_username)
+		_ = conf.Val("password").Set(test_inte_pwd)
 
 		email := &mailer.Mail{}
 		email.From = &mailer.User{
@@ -69,13 +70,13 @@ func TestSmtpIntergrated_Send(t *testing.T) {
 		email.Subject = "Test Email Sent from Go w. SMTP"
 		email.ContentPlain = "Hey, how are you ? This is now a success test."
 
-		buildFromWelcomeTemplate(email, email.To[0])
+		So(buildFromWelcomeTemplate(email, email.To[0]), ShouldBeNil)
 
 		smtp := &Smtp{}
-		err := smtp.Configure(context.Background(), *conf)
+		err := smtp.Configure(context.Background(), conf)
 		So(err, ShouldBeNil)
 
-		err = smtp.Send(email)
+		err = smtp.Send(context.Background(), email)
 		fmt.Printf("Error %v", err)
 		So(err, ShouldBeNil)
 	})

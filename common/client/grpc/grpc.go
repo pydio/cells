@@ -24,7 +24,6 @@ import (
 	"bytes"
 	"context"
 	"fmt"
-	"github.com/pydio/cells/v4/common/utils/openurl"
 	"path"
 	"regexp"
 	runtime2 "runtime"
@@ -45,7 +44,9 @@ import (
 	"github.com/pydio/cells/v4/common/registry"
 	"github.com/pydio/cells/v4/common/telemetry/metrics"
 	json "github.com/pydio/cells/v4/common/utils/jsonx"
+	"github.com/pydio/cells/v4/common/utils/openurl"
 	"github.com/pydio/cells/v4/common/utils/propagator"
+
 	_ "google.golang.org/grpc/xds"
 )
 
@@ -64,6 +65,10 @@ func RegisterServiceTransformer(transformer ServiceTransformer) {
 
 func ResolveConn(ctx context.Context, serviceName string, opt ...Option) grpc.ClientConnInterface {
 
+	if cc, ok := mox[serviceName]; ok {
+		return cc
+	}
+
 	var headerKVs []string
 	for _, tr := range serviceTransformers {
 		if newServiceName, headers, ok := tr(ctx, serviceName); ok {
@@ -74,10 +79,6 @@ func ResolveConn(ctx context.Context, serviceName string, opt ...Option) grpc.Cl
 
 	var reg registry.Registry
 	propagator.Get(ctx, registry.ContextKey, &reg)
-
-	if cc, ok := mox[serviceName]; ok {
-		return cc
-	}
 
 	if reg == nil {
 		fmt.Println("[PANIC] ResolveConn called without a registry - will panic")
