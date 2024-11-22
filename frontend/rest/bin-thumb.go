@@ -13,12 +13,12 @@ import (
 	"go.uber.org/zap"
 	"golang.org/x/image/colornames"
 
-	"github.com/pydio/cells/v4/common"
-	"github.com/pydio/cells/v4/common/nodes"
-	"github.com/pydio/cells/v4/common/nodes/models"
-	"github.com/pydio/cells/v4/common/proto/tree"
-	"github.com/pydio/cells/v4/common/telemetry/log"
-	exi "github.com/pydio/cells/v4/common/utils/exif"
+	"github.com/pydio/cells/v5/common"
+	"github.com/pydio/cells/v5/common/nodes"
+	"github.com/pydio/cells/v5/common/nodes/models"
+	"github.com/pydio/cells/v5/common/proto/tree"
+	"github.com/pydio/cells/v5/common/telemetry/log"
+	exi "github.com/pydio/cells/v5/common/utils/exif"
 )
 
 func readBinary(ctx context.Context, router nodes.Client, node *tree.Node, output io.Writer, headers http.Header, extension string, resize ...int) error {

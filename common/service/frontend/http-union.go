@@ -29,9 +29,9 @@ import (
 	"strings"
 	"time"
 
-	"github.com/pydio/cells/v4/common"
-	"github.com/pydio/cells/v4/common/service"
-	json "github.com/pydio/cells/v4/common/utils/jsonx"
+	"github.com/pydio/cells/v5/common"
+	"github.com/pydio/cells/v5/common/service"
+	json "github.com/pydio/cells/v5/common/utils/jsonx"
 )
 
 type UnionHttpFs struct {

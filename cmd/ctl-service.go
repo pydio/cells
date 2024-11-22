@@ -28,10 +28,10 @@ import (
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 
-	"github.com/pydio/cells/v4/common"
-	"github.com/pydio/cells/v4/common/broker"
-	"github.com/pydio/cells/v4/common/proto/log"
-	"github.com/pydio/cells/v4/common/runtime"
+	"github.com/pydio/cells/v5/common"
+	"github.com/pydio/cells/v5/common/broker"
+	"github.com/pydio/cells/v5/common/proto/log"
+	"github.com/pydio/cells/v5/common/runtime"
 )
 
 var (

@@ -8,7 +8,7 @@ require (
 	github.com/hanwen/go-fuse/v2 v2.3.0
 	github.com/hashicorp/go-version v1.4.0
 	github.com/manifoldco/promptui v0.9.0
-	github.com/pydio/cells/v4 v4.2.7
+	github.com/pydio/cells/v5 v0.0.0
 	github.com/schollz/progressbar/v3 v3.13.1
 	github.com/spf13/cobra v1.7.0
 	go.etcd.io/bbolt v1.3.7

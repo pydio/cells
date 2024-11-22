@@ -24,7 +24,7 @@ import (
 	"gorm.io/gorm"
 	"sync"
 
-	"github.com/pydio/cells/v4/common/storage"
+	"github.com/pydio/cells/v5/common/storage"
 )
 
 var (

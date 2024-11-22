@@ -1,3 +1,4 @@
+//go:build !arm
 // +build !arm
 
 /*
@@ -23,7 +24,7 @@
 package actions
 
 import (
-"github.com/pydio/cells/v4/scheduler/actions"
+	"github.com/pydio/cells/v5/scheduler/actions"
 )
 
 func init() {

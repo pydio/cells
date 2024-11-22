@@ -24,8 +24,8 @@ package key
 import (
 	"context"
 
-	"github.com/pydio/cells/v4/common/proto/encryption"
-	"github.com/pydio/cells/v4/common/service"
+	"github.com/pydio/cells/v5/common/proto/encryption"
+	"github.com/pydio/cells/v5/common/service"
 )
 
 var Drivers service.StorageDrivers

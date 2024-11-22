@@ -3,9 +3,9 @@ package file
 import (
 	"path/filepath"
 
-	"github.com/pydio/cells/v4/common/config"
-	"github.com/pydio/cells/v4/common/config/revisions"
-	"github.com/pydio/cells/v4/common/utils/filex"
+	"github.com/pydio/cells/v5/common/config"
+	"github.com/pydio/cells/v5/common/config/revisions"
+	"github.com/pydio/cells/v5/common/utils/filex"
 )
 
 // AsRevisionsStore implements RevisionsProvider interface

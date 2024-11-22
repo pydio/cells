@@ -31,12 +31,12 @@ import (
 	toposort "github.com/philopon/go-toposort"
 	"go.uber.org/zap"
 
-	"github.com/pydio/cells/v4/common/config"
-	"github.com/pydio/cells/v4/common/runtime"
-	"github.com/pydio/cells/v4/common/telemetry/log"
-	"github.com/pydio/cells/v4/common/utils/configx"
-	"github.com/pydio/cells/v4/common/utils/i18n/languages"
-	json "github.com/pydio/cells/v4/common/utils/jsonx"
+	"github.com/pydio/cells/v5/common/config"
+	"github.com/pydio/cells/v5/common/runtime"
+	"github.com/pydio/cells/v5/common/telemetry/log"
+	"github.com/pydio/cells/v5/common/utils/configx"
+	"github.com/pydio/cells/v5/common/utils/i18n/languages"
+	json "github.com/pydio/cells/v5/common/utils/jsonx"
 )
 
 type PluginsPool struct {

@@ -23,7 +23,7 @@ package indexer
 import (
 	"context"
 
-	"github.com/pydio/cells/v4/common/utils/configx"
+	"github.com/pydio/cells/v5/common/utils/configx"
 )
 
 // IndexCodex is the coder/decoder used by an Indexer.

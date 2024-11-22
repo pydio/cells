@@ -28,8 +28,8 @@ import (
 
 	"github.com/rjeczalik/notify"
 
-	"github.com/pydio/cells/v4/common/sync/model"
-	"github.com/pydio/cells/v4/common/utils/filesystem"
+	"github.com/pydio/cells/v5/common/sync/model"
+	"github.com/pydio/cells/v5/common/utils/filesystem"
 )
 
 var (

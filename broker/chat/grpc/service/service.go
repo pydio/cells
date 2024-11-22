@@ -26,12 +26,12 @@ import (
 
 	"google.golang.org/grpc"
 
-	"github.com/pydio/cells/v4/broker/chat"
-	grpc2 "github.com/pydio/cells/v4/broker/chat/grpc"
-	"github.com/pydio/cells/v4/common"
-	proto "github.com/pydio/cells/v4/common/proto/chat"
-	"github.com/pydio/cells/v4/common/runtime"
-	"github.com/pydio/cells/v4/common/service"
+	"github.com/pydio/cells/v5/broker/chat"
+	grpc2 "github.com/pydio/cells/v5/broker/chat/grpc"
+	"github.com/pydio/cells/v5/common"
+	proto "github.com/pydio/cells/v5/common/proto/chat"
+	"github.com/pydio/cells/v5/common/runtime"
+	"github.com/pydio/cells/v5/common/service"
 )
 
 func init() {

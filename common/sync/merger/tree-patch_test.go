@@ -26,10 +26,10 @@ import (
 	"runtime"
 	"testing"
 
-	"github.com/pydio/cells/v4/common/proto/tree"
-	"github.com/pydio/cells/v4/common/sync/endpoints/memory"
-	"github.com/pydio/cells/v4/common/sync/model"
-	json "github.com/pydio/cells/v4/common/utils/jsonx"
+	"github.com/pydio/cells/v5/common/proto/tree"
+	"github.com/pydio/cells/v5/common/sync/endpoints/memory"
+	"github.com/pydio/cells/v5/common/sync/model"
+	json "github.com/pydio/cells/v5/common/utils/jsonx"
 	. "github.com/smartystreets/goconvey/convey"
 )
 

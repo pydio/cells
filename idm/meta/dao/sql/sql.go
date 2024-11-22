@@ -30,14 +30,14 @@ import (
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
 
-	"github.com/pydio/cells/v4/common/errors"
-	"github.com/pydio/cells/v4/common/proto/idm"
-	"github.com/pydio/cells/v4/common/proto/service"
-	"github.com/pydio/cells/v4/common/storage/sql"
-	resources2 "github.com/pydio/cells/v4/common/storage/sql/resources"
-	"github.com/pydio/cells/v4/common/telemetry/log"
-	"github.com/pydio/cells/v4/common/utils/uuid"
-	"github.com/pydio/cells/v4/idm/meta"
+	"github.com/pydio/cells/v5/common/errors"
+	"github.com/pydio/cells/v5/common/proto/idm"
+	"github.com/pydio/cells/v5/common/proto/service"
+	"github.com/pydio/cells/v5/common/storage/sql"
+	resources2 "github.com/pydio/cells/v5/common/storage/sql/resources"
+	"github.com/pydio/cells/v5/common/telemetry/log"
+	"github.com/pydio/cells/v5/common/utils/uuid"
+	"github.com/pydio/cells/v5/idm/meta"
 )
 
 type resourcesDAO resources2.DAO

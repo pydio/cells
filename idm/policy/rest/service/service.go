@@ -24,10 +24,10 @@ package service
 import (
 	"context"
 
-	"github.com/pydio/cells/v4/common"
-	"github.com/pydio/cells/v4/common/runtime"
-	"github.com/pydio/cells/v4/common/service"
-	"github.com/pydio/cells/v4/idm/policy/rest"
+	"github.com/pydio/cells/v5/common"
+	"github.com/pydio/cells/v5/common/runtime"
+	"github.com/pydio/cells/v5/common/service"
+	"github.com/pydio/cells/v5/idm/policy/rest"
 )
 
 func init() {

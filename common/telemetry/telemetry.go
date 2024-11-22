@@ -28,13 +28,13 @@ import (
 
 	"go.uber.org/multierr"
 
-	"github.com/pydio/cells/v4/common"
-	"github.com/pydio/cells/v4/common/runtime"
-	"github.com/pydio/cells/v4/common/telemetry/log"
-	"github.com/pydio/cells/v4/common/telemetry/metrics"
-	"github.com/pydio/cells/v4/common/telemetry/otel"
-	"github.com/pydio/cells/v4/common/telemetry/profile"
-	"github.com/pydio/cells/v4/common/telemetry/tracing"
+	"github.com/pydio/cells/v5/common"
+	"github.com/pydio/cells/v5/common/runtime"
+	"github.com/pydio/cells/v5/common/telemetry/log"
+	"github.com/pydio/cells/v5/common/telemetry/metrics"
+	"github.com/pydio/cells/v5/common/telemetry/otel"
+	"github.com/pydio/cells/v5/common/telemetry/profile"
+	"github.com/pydio/cells/v5/common/telemetry/tracing"
 )
 
 /*

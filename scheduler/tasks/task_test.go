@@ -27,13 +27,13 @@ import (
 
 	"google.golang.org/protobuf/types/known/anypb"
 
-	"github.com/pydio/cells/v4/common"
-	"github.com/pydio/cells/v4/common/proto/jobs"
-	"github.com/pydio/cells/v4/common/proto/tree"
-	"github.com/pydio/cells/v4/common/runtime"
-	"github.com/pydio/cells/v4/common/utils/propagator"
+	"github.com/pydio/cells/v5/common"
+	"github.com/pydio/cells/v5/common/proto/jobs"
+	"github.com/pydio/cells/v5/common/proto/tree"
+	"github.com/pydio/cells/v5/common/runtime"
+	"github.com/pydio/cells/v5/common/utils/propagator"
 
-	_ "github.com/pydio/cells/v4/scheduler/actions/scheduler"
+	_ "github.com/pydio/cells/v5/scheduler/actions/scheduler"
 
 	. "github.com/smartystreets/goconvey/convey"
 )

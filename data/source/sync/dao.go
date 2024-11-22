@@ -24,8 +24,8 @@ package sync
 import (
 	"context"
 
-	"github.com/pydio/cells/v4/common/service"
-	"github.com/pydio/cells/v4/common/sync/endpoints/s3"
+	"github.com/pydio/cells/v5/common/service"
+	"github.com/pydio/cells/v5/common/sync/endpoints/s3"
 )
 
 var Drivers = service.StorageDrivers{}

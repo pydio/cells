@@ -23,7 +23,7 @@ package config
 import (
 	"strings"
 
-	"github.com/pydio/cells/v4/common"
+	"github.com/pydio/cells/v5/common"
 )
 
 var (

@@ -27,11 +27,11 @@ import (
 	"gorm.io/gorm"
 	"gorm.io/gorm/schema"
 
-	"github.com/pydio/cells/v4/common/errors"
-	"github.com/pydio/cells/v4/common/proto/encryption"
-	"github.com/pydio/cells/v4/common/storage/sql"
-	"github.com/pydio/cells/v4/common/telemetry/log"
-	"github.com/pydio/cells/v4/data/key"
+	"github.com/pydio/cells/v5/common/errors"
+	"github.com/pydio/cells/v5/common/proto/encryption"
+	"github.com/pydio/cells/v5/common/storage/sql"
+	"github.com/pydio/cells/v5/common/telemetry/log"
+	"github.com/pydio/cells/v5/data/key"
 )
 
 var (

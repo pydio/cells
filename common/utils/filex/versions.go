@@ -21,17 +21,17 @@
 package filex
 
 import (
+	"encoding/binary"
 	"fmt"
 	"path/filepath"
 	"time"
 
-	"encoding/binary"
 	"github.com/bep/debounce"
 	bolt "go.etcd.io/bbolt"
 	"go.uber.org/zap"
 
-	"github.com/pydio/cells/v4/common/config/revisions"
-	json "github.com/pydio/cells/v4/common/utils/jsonx"
+	"github.com/pydio/cells/v5/common/config/revisions"
+	json "github.com/pydio/cells/v5/common/utils/jsonx"
 )
 
 var (

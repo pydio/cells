@@ -25,10 +25,10 @@ import (
 	"encoding/base64"
 	"sync"
 
-	"github.com/pydio/cells/v4/common"
-	"github.com/pydio/cells/v4/common/client/grpc"
-	"github.com/pydio/cells/v4/common/crypto"
-	"github.com/pydio/cells/v4/common/proto/encryption"
+	"github.com/pydio/cells/v5/common"
+	"github.com/pydio/cells/v5/common/client/grpc"
+	"github.com/pydio/cells/v5/common/crypto"
+	"github.com/pydio/cells/v5/common/proto/encryption"
 )
 
 // UserKeyTool describes a tool that can encrypt/decrypt data based on user context

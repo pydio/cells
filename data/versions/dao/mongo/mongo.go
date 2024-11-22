@@ -29,10 +29,10 @@ import (
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo/options"
 
-	"github.com/pydio/cells/v4/common/proto/tree"
-	"github.com/pydio/cells/v4/common/storage/mongodb"
-	"github.com/pydio/cells/v4/common/telemetry/log"
-	"github.com/pydio/cells/v4/data/versions"
+	"github.com/pydio/cells/v5/common/proto/tree"
+	"github.com/pydio/cells/v5/common/storage/mongodb"
+	"github.com/pydio/cells/v5/common/telemetry/log"
+	"github.com/pydio/cells/v5/data/versions"
 )
 
 const (

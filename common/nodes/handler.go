@@ -4,8 +4,8 @@ import (
 	"context"
 	"io"
 
-	"github.com/pydio/cells/v4/common/nodes/models"
-	"github.com/pydio/cells/v4/common/proto/tree"
+	"github.com/pydio/cells/v5/common/nodes/models"
+	"github.com/pydio/cells/v5/common/proto/tree"
 )
 
 type FilterFunc func(ctx context.Context, inputNode *tree.Node, identifier string) (context.Context, *tree.Node, error)

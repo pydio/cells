@@ -28,8 +28,8 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/pydio/cells/v4/common"
-	runtime2 "github.com/pydio/cells/v4/common/runtime"
+	"github.com/pydio/cells/v5/common"
+	runtime2 "github.com/pydio/cells/v5/common/runtime"
 )
 
 var cellsVersionTpl = `{{.PackageLabel}}

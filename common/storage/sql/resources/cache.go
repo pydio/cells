@@ -23,9 +23,9 @@ package resources
 import (
 	"context"
 
-	"github.com/pydio/cells/v4/common/proto/service"
-	"github.com/pydio/cells/v4/common/utils/cache"
-	cache_helper "github.com/pydio/cells/v4/common/utils/cache/helper"
+	"github.com/pydio/cells/v5/common/proto/service"
+	"github.com/pydio/cells/v5/common/utils/cache"
+	cache_helper "github.com/pydio/cells/v5/common/utils/cache/helper"
 )
 
 var (

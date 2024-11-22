@@ -24,8 +24,8 @@ import (
 	"context"
 	"net/url"
 
-	"github.com/pydio/cells/v4/common/telemetry/otel"
-	"github.com/pydio/cells/v4/common/utils/openurl"
+	"github.com/pydio/cells/v5/common/telemetry/otel"
+	"github.com/pydio/cells/v5/common/utils/openurl"
 )
 
 // URLOpener represents types than can open Registries based on a URL.

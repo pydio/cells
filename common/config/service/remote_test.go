@@ -8,18 +8,18 @@ import (
 	"github.com/spf13/viper"
 	"google.golang.org/grpc"
 
-	cgrpc "github.com/pydio/cells/v4/common/client/grpc"
-	"github.com/pydio/cells/v4/common/config"
-	"github.com/pydio/cells/v4/common/config/memory"
-	pb "github.com/pydio/cells/v4/common/proto/config"
-	"github.com/pydio/cells/v4/common/runtime"
-	"github.com/pydio/cells/v4/common/runtime/manager"
-	"github.com/pydio/cells/v4/common/service"
-	"github.com/pydio/cells/v4/common/utils/configx"
+	cgrpc "github.com/pydio/cells/v5/common/client/grpc"
+	"github.com/pydio/cells/v5/common/config"
+	"github.com/pydio/cells/v5/common/config/memory"
+	pb "github.com/pydio/cells/v5/common/proto/config"
+	"github.com/pydio/cells/v5/common/runtime"
+	"github.com/pydio/cells/v5/common/runtime/manager"
+	"github.com/pydio/cells/v5/common/service"
+	"github.com/pydio/cells/v5/common/utils/configx"
 
 	_ "embed"
-	_ "github.com/pydio/cells/v4/common/registry/config"
-	_ "github.com/pydio/cells/v4/common/server/grpc"
+	_ "github.com/pydio/cells/v5/common/registry/config"
+	_ "github.com/pydio/cells/v5/common/server/grpc"
 
 	. "github.com/smartystreets/goconvey/convey"
 )

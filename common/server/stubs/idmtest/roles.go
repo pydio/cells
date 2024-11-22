@@ -25,11 +25,11 @@ import (
 
 	"google.golang.org/grpc"
 
-	"github.com/pydio/cells/v4/common/proto/idm"
-	"github.com/pydio/cells/v4/common/server/stubs/inject"
-	"github.com/pydio/cells/v4/common/service"
-	"github.com/pydio/cells/v4/common/utils/propagator"
-	srv "github.com/pydio/cells/v4/idm/role/grpc"
+	"github.com/pydio/cells/v5/common/proto/idm"
+	"github.com/pydio/cells/v5/common/server/stubs/inject"
+	"github.com/pydio/cells/v5/common/service"
+	"github.com/pydio/cells/v5/common/utils/propagator"
+	srv "github.com/pydio/cells/v5/idm/role/grpc"
 )
 
 func NewRolesService(ctx context.Context, svc service.Service, roles ...*idm.Role) (grpc.ClientConnInterface, error) {

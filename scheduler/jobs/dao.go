@@ -24,12 +24,12 @@ import (
 	"context"
 	"time"
 
-	"github.com/pydio/cells/v4/common/proto/activity"
-	"github.com/pydio/cells/v4/common/proto/idm"
-	"github.com/pydio/cells/v4/common/proto/jobs"
-	"github.com/pydio/cells/v4/common/proto/tree"
-	"github.com/pydio/cells/v4/common/runtime/manager"
-	"github.com/pydio/cells/v4/common/service"
+	"github.com/pydio/cells/v5/common/proto/activity"
+	"github.com/pydio/cells/v5/common/proto/idm"
+	"github.com/pydio/cells/v5/common/proto/jobs"
+	"github.com/pydio/cells/v5/common/proto/tree"
+	"github.com/pydio/cells/v5/common/runtime/manager"
+	"github.com/pydio/cells/v5/common/service"
 )
 
 var Drivers = service.StorageDrivers{}

@@ -21,7 +21,7 @@
 package test
 
 import (
-	json "github.com/pydio/cells/v4/common/utils/jsonx"
+	json "github.com/pydio/cells/v5/common/utils/jsonx"
 )
 
 // NewTestResult creates a new TestResult

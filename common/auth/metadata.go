@@ -24,9 +24,9 @@ import (
 	"context"
 	"strings"
 
-	"github.com/pydio/cells/v4/common"
-	"github.com/pydio/cells/v4/common/auth/claim"
-	"github.com/pydio/cells/v4/common/utils/propagator"
+	"github.com/pydio/cells/v5/common"
+	"github.com/pydio/cells/v5/common/auth/claim"
+	"github.com/pydio/cells/v5/common/utils/propagator"
 )
 
 // ContextFromClaims feeds context with correct Keys and Metadata for a given Claims

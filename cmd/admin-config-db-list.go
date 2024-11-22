@@ -26,9 +26,9 @@ import (
 	"github.com/olekukonko/tablewriter"
 	"github.com/spf13/cobra"
 
-	"github.com/pydio/cells/v4/common/config"
-	"github.com/pydio/cells/v4/common/telemetry/log"
-	"github.com/pydio/cells/v4/discovery/install/lib"
+	"github.com/pydio/cells/v5/common/config"
+	"github.com/pydio/cells/v5/common/telemetry/log"
+	"github.com/pydio/cells/v5/discovery/install/lib"
 )
 
 type configDatabase struct {

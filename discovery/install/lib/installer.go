@@ -33,13 +33,13 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/readpref"
 	"go.uber.org/zap"
 
-	"github.com/pydio/cells/v4/common/nodes"
-	"github.com/pydio/cells/v4/common/proto/install"
-	"github.com/pydio/cells/v4/common/proto/object"
-	"github.com/pydio/cells/v4/common/telemetry/log"
-	"github.com/pydio/cells/v4/common/utils/configx"
-	json "github.com/pydio/cells/v4/common/utils/jsonx"
-	"github.com/pydio/cells/v4/common/utils/uuid"
+	"github.com/pydio/cells/v5/common/nodes"
+	"github.com/pydio/cells/v5/common/proto/install"
+	"github.com/pydio/cells/v5/common/proto/object"
+	"github.com/pydio/cells/v5/common/telemetry/log"
+	"github.com/pydio/cells/v5/common/utils/configx"
+	json "github.com/pydio/cells/v5/common/utils/jsonx"
+	"github.com/pydio/cells/v5/common/utils/uuid"
 )
 
 const (

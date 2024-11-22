@@ -33,9 +33,9 @@ import (
 	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/protoadapt"
 
-	"github.com/pydio/cells/v4/common/errors"
-	"github.com/pydio/cells/v4/common/proto/service"
-	"github.com/pydio/cells/v4/common/telemetry/log"
+	"github.com/pydio/cells/v5/common/errors"
+	"github.com/pydio/cells/v5/common/proto/service"
+	"github.com/pydio/cells/v5/common/telemetry/log"
 )
 
 var HandledError = errors.RegisterBaseSentinel(errors.CellsError, "handled")

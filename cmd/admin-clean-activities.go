@@ -32,13 +32,13 @@ import (
 	pu "github.com/manifoldco/promptui"
 	"github.com/spf13/cobra"
 
-	"github.com/pydio/cells/v4/broker/activity"
-	"github.com/pydio/cells/v4/broker/activity/dao/bolt"
-	"github.com/pydio/cells/v4/common/client/commons/jobsc"
-	activity2 "github.com/pydio/cells/v4/common/proto/activity"
-	"github.com/pydio/cells/v4/common/proto/jobs"
-	"github.com/pydio/cells/v4/common/runtime/manager"
-	"github.com/pydio/cells/v4/common/utils/uuid"
+	"github.com/pydio/cells/v5/broker/activity"
+	"github.com/pydio/cells/v5/broker/activity/dao/bolt"
+	"github.com/pydio/cells/v5/common/client/commons/jobsc"
+	activity2 "github.com/pydio/cells/v5/common/proto/activity"
+	"github.com/pydio/cells/v5/common/proto/jobs"
+	"github.com/pydio/cells/v5/common/runtime/manager"
+	"github.com/pydio/cells/v5/common/utils/uuid"
 )
 
 var (

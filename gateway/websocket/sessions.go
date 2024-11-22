@@ -30,17 +30,17 @@ import (
 	"golang.org/x/time/rate"
 	"google.golang.org/protobuf/proto"
 
-	"github.com/pydio/cells/v4/common"
-	"github.com/pydio/cells/v4/common/auth"
-	"github.com/pydio/cells/v4/common/auth/claim"
-	"github.com/pydio/cells/v4/common/middleware"
-	"github.com/pydio/cells/v4/common/nodes/abstract"
-	"github.com/pydio/cells/v4/common/permissions"
-	"github.com/pydio/cells/v4/common/proto/idm"
-	"github.com/pydio/cells/v4/common/proto/tree"
-	"github.com/pydio/cells/v4/common/runtime"
-	"github.com/pydio/cells/v4/common/telemetry/log"
-	"github.com/pydio/cells/v4/common/utils/propagator"
+	"github.com/pydio/cells/v5/common"
+	"github.com/pydio/cells/v5/common/auth"
+	"github.com/pydio/cells/v5/common/auth/claim"
+	"github.com/pydio/cells/v5/common/middleware"
+	"github.com/pydio/cells/v5/common/nodes/abstract"
+	"github.com/pydio/cells/v5/common/permissions"
+	"github.com/pydio/cells/v5/common/proto/idm"
+	"github.com/pydio/cells/v5/common/proto/tree"
+	"github.com/pydio/cells/v5/common/runtime"
+	"github.com/pydio/cells/v5/common/telemetry/log"
+	"github.com/pydio/cells/v5/common/utils/propagator"
 )
 
 const (

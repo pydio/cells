@@ -30,8 +30,8 @@ import (
 	"google.golang.org/protobuf/proto"
 	yaml "gopkg.in/yaml.v2"
 
-	json "github.com/pydio/cells/v4/common/utils/jsonx"
-	"github.com/pydio/cells/v4/common/utils/openurl"
+	json "github.com/pydio/cells/v5/common/utils/jsonx"
+	"github.com/pydio/cells/v5/common/utils/openurl"
 )
 
 type Getter func() any

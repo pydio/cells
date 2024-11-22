@@ -25,9 +25,9 @@ import (
 	"net/http"
 	"time"
 
-	commonauth "github.com/pydio/cells/v4/common/auth"
-	"github.com/pydio/cells/v4/common/auth/claim"
-	"github.com/pydio/cells/v4/common/telemetry/log"
+	commonauth "github.com/pydio/cells/v5/common/auth"
+	"github.com/pydio/cells/v5/common/auth/claim"
+	"github.com/pydio/cells/v5/common/telemetry/log"
 )
 
 func auth(inner http.Handler) http.Handler {

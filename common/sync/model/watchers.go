@@ -24,8 +24,8 @@ import (
 	"context"
 	"time"
 
-	"github.com/pydio/cells/v4/common/proto/tree"
-	"github.com/pydio/cells/v4/common/utils/propagator"
+	"github.com/pydio/cells/v5/common/proto/tree"
+	"github.com/pydio/cells/v5/common/utils/propagator"
 )
 
 // EventType represents the type of the event occurred.

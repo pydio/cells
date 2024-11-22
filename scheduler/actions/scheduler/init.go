@@ -21,7 +21,7 @@
 // Package scheduler provides default implementation for basic scheduler tasks.
 package scheduler
 
-import "github.com/pydio/cells/v4/scheduler/actions"
+import "github.com/pydio/cells/v5/scheduler/actions"
 
 func init() {
 

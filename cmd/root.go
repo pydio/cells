@@ -35,20 +35,20 @@ import (
 	"github.com/spf13/viper"
 	"go.uber.org/zap"
 
-	"github.com/pydio/cells/v4/common"
-	"github.com/pydio/cells/v4/common/broker"
-	"github.com/pydio/cells/v4/common/config"
-	"github.com/pydio/cells/v4/common/config/migrations"
-	"github.com/pydio/cells/v4/common/config/revisions"
-	"github.com/pydio/cells/v4/common/crypto"
-	log2 "github.com/pydio/cells/v4/common/proto/log"
-	"github.com/pydio/cells/v4/common/runtime"
-	"github.com/pydio/cells/v4/common/telemetry/log"
-	cw "github.com/pydio/cells/v4/common/telemetry/log/context-wrapper"
-	"github.com/pydio/cells/v4/common/telemetry/otel"
-	"github.com/pydio/cells/v4/common/utils/propagator"
+	"github.com/pydio/cells/v5/common"
+	"github.com/pydio/cells/v5/common/broker"
+	"github.com/pydio/cells/v5/common/config"
+	"github.com/pydio/cells/v5/common/config/migrations"
+	"github.com/pydio/cells/v5/common/config/revisions"
+	"github.com/pydio/cells/v5/common/crypto"
+	log2 "github.com/pydio/cells/v5/common/proto/log"
+	"github.com/pydio/cells/v5/common/runtime"
+	"github.com/pydio/cells/v5/common/telemetry/log"
+	cw "github.com/pydio/cells/v5/common/telemetry/log/context-wrapper"
+	"github.com/pydio/cells/v5/common/telemetry/otel"
+	"github.com/pydio/cells/v5/common/utils/propagator"
 
-	_ "github.com/pydio/cells/v4/common/config/service"
+	_ "github.com/pydio/cells/v5/common/config/service"
 )
 
 var (

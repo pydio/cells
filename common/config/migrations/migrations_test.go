@@ -26,8 +26,8 @@ import (
 
 	. "github.com/smartystreets/goconvey/convey"
 
-	configx2 "github.com/pydio/cells/v4/common/utils/configx"
-	json "github.com/pydio/cells/v4/common/utils/jsonx"
+	configx2 "github.com/pydio/cells/v5/common/utils/configx"
+	json "github.com/pydio/cells/v5/common/utils/jsonx"
 )
 
 func PrettyPrint(v interface{}) (err error) {

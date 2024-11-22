@@ -30,14 +30,14 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 	"go.uber.org/zap"
 
-	"github.com/pydio/cells/v4/broker/activity"
-	"github.com/pydio/cells/v4/common"
-	"github.com/pydio/cells/v4/common/broker"
-	proto "github.com/pydio/cells/v4/common/proto/activity"
-	"github.com/pydio/cells/v4/common/storage/mongodb"
-	"github.com/pydio/cells/v4/common/telemetry/log"
-	"github.com/pydio/cells/v4/common/utils/configx"
-	"github.com/pydio/cells/v4/common/utils/uuid"
+	"github.com/pydio/cells/v5/broker/activity"
+	"github.com/pydio/cells/v5/common"
+	"github.com/pydio/cells/v5/common/broker"
+	proto "github.com/pydio/cells/v5/common/proto/activity"
+	"github.com/pydio/cells/v5/common/storage/mongodb"
+	"github.com/pydio/cells/v5/common/telemetry/log"
+	"github.com/pydio/cells/v5/common/utils/configx"
+	"github.com/pydio/cells/v5/common/utils/uuid"
 )
 
 const (

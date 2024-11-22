@@ -11,14 +11,14 @@ import (
 	"github.com/minio/minio-go/v7/pkg/signer"
 	"github.com/minio/minio/cmd"
 
-	"github.com/pydio/cells/v4/common"
-	"github.com/pydio/cells/v4/common/auth"
-	"github.com/pydio/cells/v4/common/auth/claim"
-	"github.com/pydio/cells/v4/common/middleware"
-	"github.com/pydio/cells/v4/common/permissions"
-	"github.com/pydio/cells/v4/common/runtime"
-	"github.com/pydio/cells/v4/common/telemetry/log"
-	"github.com/pydio/cells/v4/common/utils/propagator"
+	"github.com/pydio/cells/v5/common"
+	"github.com/pydio/cells/v5/common/auth"
+	"github.com/pydio/cells/v5/common/auth/claim"
+	"github.com/pydio/cells/v5/common/middleware"
+	"github.com/pydio/cells/v5/common/permissions"
+	"github.com/pydio/cells/v5/common/runtime"
+	"github.com/pydio/cells/v5/common/telemetry/log"
+	"github.com/pydio/cells/v5/common/utils/propagator"
 )
 
 // authHandler - handles all the incoming authorization headers and validates them if possible.

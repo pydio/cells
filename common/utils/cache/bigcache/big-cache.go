@@ -32,10 +32,10 @@ import (
 
 	bigcache "github.com/allegro/bigcache/v3"
 
-	"github.com/pydio/cells/v4/common/runtime"
-	"github.com/pydio/cells/v4/common/telemetry/metrics"
-	"github.com/pydio/cells/v4/common/utils/cache"
-	cache_helper "github.com/pydio/cells/v4/common/utils/cache/helper"
+	"github.com/pydio/cells/v5/common/runtime"
+	"github.com/pydio/cells/v5/common/telemetry/metrics"
+	"github.com/pydio/cells/v5/common/utils/cache"
+	cache_helper "github.com/pydio/cells/v5/common/utils/cache/helper"
 )
 
 var (

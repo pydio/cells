@@ -29,8 +29,8 @@ import (
 	redis "github.com/go-redis/redis/v8"
 	"go.uber.org/zap"
 
-	"github.com/pydio/cells/v4/common/telemetry/log"
-	"github.com/pydio/cells/v4/common/utils/std"
+	"github.com/pydio/cells/v5/common/telemetry/log"
+	"github.com/pydio/cells/v5/common/utils/std"
 )
 
 var (

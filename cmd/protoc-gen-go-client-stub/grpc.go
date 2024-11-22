@@ -11,7 +11,7 @@ const (
 	contextPackage = protogen.GoImportPath("context")
 	ioPackage      = protogen.GoImportPath("io")
 	grpcPackage    = protogen.GoImportPath("google.golang.org/grpc")
-	stubsPackage   = protogen.GoImportPath("github.com/pydio/cells/v4/common/server/stubs")
+	stubsPackage   = protogen.GoImportPath("github.com/pydio/cells/v5/common/server/stubs")
 )
 
 // generateFile generates a _grpc.pb.go file containing gRPC service definitions.

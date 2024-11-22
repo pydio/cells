@@ -29,10 +29,11 @@ import (
 
 	"google.golang.org/grpc/attributes"
 
-	"github.com/pydio/cells/v4/common/runtime"
+	"github.com/pydio/cells/v5/common/runtime"
 )
 
 type attKeyTargetServerID struct{}
+
 type attKeyTargetServerPID struct{}
 
 var (

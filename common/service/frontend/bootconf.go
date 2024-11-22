@@ -31,12 +31,12 @@ import (
 	"sync"
 	"time"
 
-	"github.com/pydio/cells/v4/common"
-	"github.com/pydio/cells/v4/common/config"
-	"github.com/pydio/cells/v4/common/config/routing"
-	runtime2 "github.com/pydio/cells/v4/common/runtime"
-	"github.com/pydio/cells/v4/common/utils/i18n/languages"
-	"github.com/pydio/cells/v4/common/utils/uuid"
+	"github.com/pydio/cells/v5/common"
+	"github.com/pydio/cells/v5/common/config"
+	"github.com/pydio/cells/v5/common/config/routing"
+	runtime2 "github.com/pydio/cells/v5/common/runtime"
+	"github.com/pydio/cells/v5/common/utils/i18n/languages"
+	"github.com/pydio/cells/v5/common/utils/uuid"
 )
 
 type BackendConf struct {

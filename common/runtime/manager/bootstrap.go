@@ -31,10 +31,10 @@ import (
 	"github.com/spf13/viper"
 	yaml "gopkg.in/yaml.v3"
 
-	"github.com/pydio/cells/v4/common/config"
-	"github.com/pydio/cells/v4/common/proto/object"
-	"github.com/pydio/cells/v4/common/runtime"
-	"github.com/pydio/cells/v4/common/utils/openurl"
+	"github.com/pydio/cells/v5/common/config"
+	"github.com/pydio/cells/v5/common/proto/object"
+	"github.com/pydio/cells/v5/common/runtime"
+	"github.com/pydio/cells/v5/common/utils/openurl"
 
 	_ "embed"
 )

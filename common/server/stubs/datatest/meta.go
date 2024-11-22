@@ -25,12 +25,12 @@ import (
 
 	"google.golang.org/grpc"
 
-	"github.com/pydio/cells/v4/common/proto/tree"
-	"github.com/pydio/cells/v4/common/server/stubs"
-	"github.com/pydio/cells/v4/common/server/stubs/inject"
-	"github.com/pydio/cells/v4/common/service"
-	"github.com/pydio/cells/v4/common/utils/propagator"
-	srv "github.com/pydio/cells/v4/data/meta/grpc"
+	"github.com/pydio/cells/v5/common/proto/tree"
+	"github.com/pydio/cells/v5/common/server/stubs"
+	"github.com/pydio/cells/v5/common/server/stubs/inject"
+	"github.com/pydio/cells/v5/common/service"
+	"github.com/pydio/cells/v5/common/utils/propagator"
+	srv "github.com/pydio/cells/v5/data/meta/grpc"
 )
 
 func NewMetaService(ctx context.Context, svc service.Service, nodes ...*tree.Node) (grpc.ClientConnInterface, error) {

@@ -24,7 +24,7 @@ import (
 	"context"
 	"os"
 
-	"github.com/pydio/cells/v4/common/proto/tree"
+	"github.com/pydio/cells/v5/common/proto/tree"
 )
 
 func CanonicalPath(path string) (string, error) {

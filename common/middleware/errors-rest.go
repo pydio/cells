@@ -26,9 +26,9 @@ import (
 	restful "github.com/emicklei/go-restful/v3"
 	"go.uber.org/zap/zapcore"
 
-	"github.com/pydio/cells/v4/common/errors"
-	"github.com/pydio/cells/v4/common/errors/langerr"
-	"github.com/pydio/cells/v4/common/proto/rest"
+	"github.com/pydio/cells/v5/common/errors"
+	"github.com/pydio/cells/v5/common/errors/langerr"
+	"github.com/pydio/cells/v5/common/proto/rest"
 )
 
 type httpStatus struct {

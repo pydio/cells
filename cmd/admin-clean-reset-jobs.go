@@ -29,9 +29,9 @@ import (
 	"github.com/olekukonko/tablewriter"
 	"github.com/spf13/cobra"
 
-	"github.com/pydio/cells/v4/common/client/commons/jobsc"
-	"github.com/pydio/cells/v4/common/proto/jobs"
-	"github.com/pydio/cells/v4/scheduler/lang"
+	"github.com/pydio/cells/v5/common/client/commons/jobsc"
+	"github.com/pydio/cells/v5/common/proto/jobs"
+	"github.com/pydio/cells/v5/scheduler/lang"
 )
 
 var ResetJobCmd = &cobra.Command{

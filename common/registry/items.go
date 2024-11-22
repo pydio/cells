@@ -20,7 +20,7 @@
 
 package registry
 
-import "github.com/pydio/cells/v4/common/proto/registry"
+import "github.com/pydio/cells/v5/common/proto/registry"
 
 type Convertible interface {
 	As(interface{}) bool

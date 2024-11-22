@@ -24,10 +24,10 @@ import (
 	"context"
 	"sync"
 
-	"github.com/pydio/cells/v4/common"
-	"github.com/pydio/cells/v4/common/errors"
-	"github.com/pydio/cells/v4/common/forms"
-	"github.com/pydio/cells/v4/common/proto/jobs"
+	"github.com/pydio/cells/v5/common"
+	"github.com/pydio/cells/v5/common/errors"
+	"github.com/pydio/cells/v5/common/forms"
+	"github.com/pydio/cells/v5/common/proto/jobs"
 )
 
 var (

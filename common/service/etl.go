@@ -21,7 +21,7 @@
 package service
 
 import (
-	"github.com/pydio/cells/v4/common/utils/merger"
+	"github.com/pydio/cells/v5/common/utils/merger"
 )
 
 func (s *service) Equals(differ merger.Differ) bool {

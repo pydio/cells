@@ -26,9 +26,9 @@ import (
 	"strings"
 	"time"
 
-	"github.com/pydio/cells/v4/common/proto/service"
-	json "github.com/pydio/cells/v4/common/utils/jsonx"
-	"github.com/pydio/cells/v4/common/utils/std"
+	"github.com/pydio/cells/v5/common/proto/service"
+	json "github.com/pydio/cells/v5/common/utils/jsonx"
+	"github.com/pydio/cells/v5/common/utils/std"
 )
 
 func (m *RoleSingleQuery) Matches(idmObject interface{}) bool {

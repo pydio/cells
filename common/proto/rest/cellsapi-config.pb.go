@@ -7,10 +7,10 @@
 package rest
 
 import (
-	ctl "github.com/pydio/cells/v4/common/proto/ctl"
-	install "github.com/pydio/cells/v4/common/proto/install"
-	object "github.com/pydio/cells/v4/common/proto/object"
-	tree "github.com/pydio/cells/v4/common/proto/tree"
+	ctl "github.com/pydio/cells/v5/common/proto/ctl"
+	install "github.com/pydio/cells/v5/common/proto/install"
+	object "github.com/pydio/cells/v5/common/proto/object"
+	tree "github.com/pydio/cells/v5/common/proto/tree"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	reflect "reflect"

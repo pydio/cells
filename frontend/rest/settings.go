@@ -1,6 +1,6 @@
 package rest
 
-import "github.com/pydio/cells/v4/common/proto/rest"
+import "github.com/pydio/cells/v5/common/proto/rest"
 
 var settingsNode = &rest.SettingsMenuResponse{
 	RootMetadata: &rest.SettingsEntryMeta{

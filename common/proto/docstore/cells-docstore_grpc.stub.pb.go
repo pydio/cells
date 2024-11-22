@@ -9,7 +9,7 @@ package docstore
 import (
 	context "context"
 	fmt "fmt"
-	stubs "github.com/pydio/cells/v4/common/server/stubs"
+	stubs "github.com/pydio/cells/v5/common/server/stubs"
 	grpc "google.golang.org/grpc"
 	time "time"
 )

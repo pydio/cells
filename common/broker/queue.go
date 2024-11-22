@@ -28,9 +28,9 @@ import (
 
 	"google.golang.org/protobuf/proto"
 
-	"github.com/pydio/cells/v4/common/errors"
-	"github.com/pydio/cells/v4/common/runtime/controller"
-	"github.com/pydio/cells/v4/common/utils/openurl"
+	"github.com/pydio/cells/v5/common/errors"
+	"github.com/pydio/cells/v5/common/runtime/controller"
+	"github.com/pydio/cells/v5/common/utils/openurl"
 )
 
 const (

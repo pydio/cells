@@ -25,13 +25,13 @@ import (
 
 	"go.uber.org/zap"
 
-	"github.com/pydio/cells/v4/common"
-	"github.com/pydio/cells/v4/common/broker"
-	"github.com/pydio/cells/v4/common/client/grpc"
-	"github.com/pydio/cells/v4/common/proto/jobs"
-	"github.com/pydio/cells/v4/common/runtime"
-	"github.com/pydio/cells/v4/common/telemetry/log"
-	"github.com/pydio/cells/v4/common/utils/schedule"
+	"github.com/pydio/cells/v5/common"
+	"github.com/pydio/cells/v5/common/broker"
+	"github.com/pydio/cells/v5/common/client/grpc"
+	"github.com/pydio/cells/v5/common/proto/jobs"
+	"github.com/pydio/cells/v5/common/runtime"
+	"github.com/pydio/cells/v5/common/telemetry/log"
+	"github.com/pydio/cells/v5/common/utils/schedule"
 )
 
 // EventProducer gathers all Tickers in a pool and provides a single entry point

@@ -26,13 +26,13 @@ import (
 	"context"
 	"testing"
 
-	"github.com/pydio/cells/v4/common/proto/tree"
-	"github.com/pydio/cells/v4/common/runtime/manager"
-	"github.com/pydio/cells/v4/common/storage/test"
-	"github.com/pydio/cells/v4/common/utils/uuid"
-	"github.com/pydio/cells/v4/data/versions"
-	"github.com/pydio/cells/v4/data/versions/dao/bolt"
-	"github.com/pydio/cells/v4/data/versions/dao/mongo"
+	"github.com/pydio/cells/v5/common/proto/tree"
+	"github.com/pydio/cells/v5/common/runtime/manager"
+	"github.com/pydio/cells/v5/common/storage/test"
+	"github.com/pydio/cells/v5/common/utils/uuid"
+	"github.com/pydio/cells/v5/data/versions"
+	"github.com/pydio/cells/v5/data/versions/dao/bolt"
+	"github.com/pydio/cells/v5/data/versions/dao/mongo"
 
 	. "github.com/smartystreets/goconvey/convey"
 )

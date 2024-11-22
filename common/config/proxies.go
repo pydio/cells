@@ -4,7 +4,7 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/pydio/cells/v4/common/utils/configx"
+	"github.com/pydio/cells/v5/common/utils/configx"
 )
 
 type ProxySetter func(Store, interface{}, ...string) error

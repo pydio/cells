@@ -20,7 +20,7 @@
 
 package service
 
-import "github.com/pydio/cells/v4/common"
+import "github.com/pydio/cells/v5/common"
 
 // ResourcePoliciesBuilder is a helper for building ResourcePolicies lists
 type ResourcePoliciesBuilder struct {

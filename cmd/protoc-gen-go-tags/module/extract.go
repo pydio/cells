@@ -9,7 +9,7 @@ import (
 	"google.golang.org/protobuf/reflect/protorange"
 	"strings"
 
-	orm "github.com/pydio/cells/v4/common/proto/options/orm"
+	orm "github.com/pydio/cells/v5/common/proto/options/orm"
 )
 
 type tagExtractor struct {

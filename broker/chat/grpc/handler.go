@@ -30,16 +30,16 @@ import (
 	"google.golang.org/protobuf/proto"
 	"google.golang.org/protobuf/types/known/timestamppb"
 
-	chat2 "github.com/pydio/cells/v4/broker/chat"
-	"github.com/pydio/cells/v4/common"
-	"github.com/pydio/cells/v4/common/broker"
-	"github.com/pydio/cells/v4/common/client/commons/treec"
-	"github.com/pydio/cells/v4/common/proto/activity"
-	"github.com/pydio/cells/v4/common/proto/chat"
-	"github.com/pydio/cells/v4/common/proto/tree"
-	"github.com/pydio/cells/v4/common/runtime/manager"
-	"github.com/pydio/cells/v4/common/telemetry/log"
-	"github.com/pydio/cells/v4/common/utils/propagator"
+	chat2 "github.com/pydio/cells/v5/broker/chat"
+	"github.com/pydio/cells/v5/common"
+	"github.com/pydio/cells/v5/common/broker"
+	"github.com/pydio/cells/v5/common/client/commons/treec"
+	"github.com/pydio/cells/v5/common/proto/activity"
+	"github.com/pydio/cells/v5/common/proto/chat"
+	"github.com/pydio/cells/v5/common/proto/tree"
+	"github.com/pydio/cells/v5/common/runtime/manager"
+	"github.com/pydio/cells/v5/common/telemetry/log"
+	"github.com/pydio/cells/v5/common/utils/propagator"
 )
 
 func getMetaClient(ctx context.Context) tree.NodeReceiverClient {

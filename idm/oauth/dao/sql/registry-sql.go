@@ -25,7 +25,7 @@ import (
 
 	"gorm.io/gorm"
 
-	"github.com/pydio/cells/v4/idm/oauth"
+	"github.com/pydio/cells/v5/idm/oauth"
 )
 
 func init() {

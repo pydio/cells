@@ -3,9 +3,9 @@ package docstorec
 import (
 	"context"
 
-	"github.com/pydio/cells/v4/common"
-	"github.com/pydio/cells/v4/common/client/grpc"
-	"github.com/pydio/cells/v4/common/proto/docstore"
+	"github.com/pydio/cells/v5/common"
+	"github.com/pydio/cells/v5/common/client/grpc"
+	"github.com/pydio/cells/v5/common/proto/docstore"
 )
 
 // DocStoreClient provides a default client for common.ServiceDocStore

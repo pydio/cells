@@ -25,8 +25,8 @@ import (
 	"fmt"
 	"net/http"
 
-	clienthttp "github.com/pydio/cells/v4/common/client/http"
-	"github.com/pydio/cells/v4/common/config/routing"
+	clienthttp "github.com/pydio/cells/v5/common/client/http"
+	"github.com/pydio/cells/v5/common/config/routing"
 )
 
 type Middleware struct {

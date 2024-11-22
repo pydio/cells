@@ -1,8 +1,8 @@
 package registry
 
 import (
-	"github.com/pydio/cells/v4/common/utils/merger"
-	"github.com/pydio/cells/v4/common/utils/std"
+	"github.com/pydio/cells/v5/common/utils/merger"
+	"github.com/pydio/cells/v5/common/utils/std"
 )
 
 type edge struct {

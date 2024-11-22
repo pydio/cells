@@ -23,8 +23,8 @@ package rest
 import (
 	restful "github.com/emicklei/go-restful/v3"
 
-	"github.com/pydio/cells/v4/common/proto/idm"
-	"github.com/pydio/cells/v4/common/proto/rest"
+	"github.com/pydio/cells/v5/common/proto/idm"
+	"github.com/pydio/cells/v5/common/proto/rest"
 )
 
 // ListSharedResources implements the corresponding Rest API operation

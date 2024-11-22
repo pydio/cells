@@ -28,10 +28,10 @@ import (
 	"go.uber.org/zap"
 	"gocloud.dev/pubsub"
 
-	"github.com/pydio/cells/v4/common/errors"
-	"github.com/pydio/cells/v4/common/middleware"
-	"github.com/pydio/cells/v4/common/telemetry/log"
-	"github.com/pydio/cells/v4/common/utils/uuid"
+	"github.com/pydio/cells/v5/common/errors"
+	"github.com/pydio/cells/v5/common/middleware"
+	"github.com/pydio/cells/v5/common/telemetry/log"
+	"github.com/pydio/cells/v5/common/utils/uuid"
 )
 
 type SubscriptionErrorHandler func(context.Context, *SubscribeOptions, error) error

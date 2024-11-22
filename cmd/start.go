@@ -33,14 +33,14 @@ import (
 	"go.opentelemetry.io/otel/trace"
 	yaml "gopkg.in/yaml.v3"
 
-	"github.com/pydio/cells/v4/common"
-	"github.com/pydio/cells/v4/common/broker"
-	"github.com/pydio/cells/v4/common/config"
-	"github.com/pydio/cells/v4/common/proto/install"
-	"github.com/pydio/cells/v4/common/runtime"
-	"github.com/pydio/cells/v4/common/runtime/manager"
-	"github.com/pydio/cells/v4/common/telemetry/log"
-	"github.com/pydio/cells/v4/idm/user/grpc"
+	"github.com/pydio/cells/v5/common"
+	"github.com/pydio/cells/v5/common/broker"
+	"github.com/pydio/cells/v5/common/config"
+	"github.com/pydio/cells/v5/common/proto/install"
+	"github.com/pydio/cells/v5/common/runtime"
+	"github.com/pydio/cells/v5/common/runtime/manager"
+	"github.com/pydio/cells/v5/common/telemetry/log"
+	"github.com/pydio/cells/v5/idm/user/grpc"
 
 	_ "embed"
 )

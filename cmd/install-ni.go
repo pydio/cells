@@ -31,12 +31,12 @@ import (
 
 	yaml "gopkg.in/yaml.v2"
 
-	"github.com/pydio/cells/v4/common"
-	"github.com/pydio/cells/v4/common/config"
-	"github.com/pydio/cells/v4/common/config/routing"
-	"github.com/pydio/cells/v4/common/proto/install"
-	json "github.com/pydio/cells/v4/common/utils/jsonx"
-	"github.com/pydio/cells/v4/discovery/install/lib"
+	"github.com/pydio/cells/v5/common"
+	"github.com/pydio/cells/v5/common/config"
+	"github.com/pydio/cells/v5/common/config/routing"
+	"github.com/pydio/cells/v5/common/proto/install"
+	json "github.com/pydio/cells/v5/common/utils/jsonx"
+	"github.com/pydio/cells/v5/discovery/install/lib"
 )
 
 type NiInstallConfig struct {

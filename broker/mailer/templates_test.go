@@ -25,7 +25,7 @@ import (
 
 	"github.com/smartystreets/goconvey/convey"
 
-	"github.com/pydio/cells/v4/common/proto/mailer"
+	"github.com/pydio/cells/v5/common/proto/mailer"
 )
 
 func TestBuildFromWelcomeTemplate(t *testing.T) {

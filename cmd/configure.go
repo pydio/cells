@@ -34,13 +34,13 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
 
-	"github.com/pydio/cells/v4/common"
-	"github.com/pydio/cells/v4/common/config/routing"
-	"github.com/pydio/cells/v4/common/errors"
-	"github.com/pydio/cells/v4/common/proto/install"
-	cruntime "github.com/pydio/cells/v4/common/runtime"
-	"github.com/pydio/cells/v4/common/runtime/manager"
-	unet "github.com/pydio/cells/v4/common/utils/net"
+	"github.com/pydio/cells/v5/common"
+	"github.com/pydio/cells/v5/common/config/routing"
+	"github.com/pydio/cells/v5/common/errors"
+	"github.com/pydio/cells/v5/common/proto/install"
+	cruntime "github.com/pydio/cells/v5/common/runtime"
+	"github.com/pydio/cells/v5/common/runtime/manager"
+	unet "github.com/pydio/cells/v5/common/utils/net"
 )
 
 func init() {

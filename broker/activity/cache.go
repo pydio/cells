@@ -28,19 +28,19 @@ import (
 
 	"go.uber.org/zap"
 
-	"github.com/pydio/cells/v4/common"
-	"github.com/pydio/cells/v4/common/proto/activity"
-	"github.com/pydio/cells/v4/common/runtime"
-	"github.com/pydio/cells/v4/common/runtime/manager"
-	"github.com/pydio/cells/v4/common/storage"
-	"github.com/pydio/cells/v4/common/storage/indexer"
-	"github.com/pydio/cells/v4/common/telemetry/log"
-	"github.com/pydio/cells/v4/common/utils/cache"
-	cache_helper "github.com/pydio/cells/v4/common/utils/cache/helper"
-	"github.com/pydio/cells/v4/common/utils/configx"
-	"github.com/pydio/cells/v4/common/utils/jsonx"
-	"github.com/pydio/cells/v4/common/utils/openurl"
-	"github.com/pydio/cells/v4/common/utils/propagator"
+	"github.com/pydio/cells/v5/common"
+	"github.com/pydio/cells/v5/common/proto/activity"
+	"github.com/pydio/cells/v5/common/runtime"
+	"github.com/pydio/cells/v5/common/runtime/manager"
+	"github.com/pydio/cells/v5/common/storage"
+	"github.com/pydio/cells/v5/common/storage/indexer"
+	"github.com/pydio/cells/v5/common/telemetry/log"
+	"github.com/pydio/cells/v5/common/utils/cache"
+	cache_helper "github.com/pydio/cells/v5/common/utils/cache/helper"
+	"github.com/pydio/cells/v5/common/utils/configx"
+	"github.com/pydio/cells/v5/common/utils/jsonx"
+	"github.com/pydio/cells/v5/common/utils/openurl"
+	"github.com/pydio/cells/v5/common/utils/propagator"
 )
 
 var (

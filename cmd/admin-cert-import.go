@@ -22,8 +22,8 @@ package cmd
 
 import (
 	"errors"
-	"github.com/pydio/cells/v4/common/crypto/storage"
-	"github.com/pydio/cells/v4/common/runtime"
+	"github.com/pydio/cells/v5/common/crypto/storage"
+	"github.com/pydio/cells/v5/common/runtime"
 	"github.com/spf13/cobra"
 	"os"
 	"path"

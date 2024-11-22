@@ -25,7 +25,7 @@ import (
 	"strings"
 	"text/template"
 
-	"github.com/pydio/cells/v4/common/utils/uuid"
+	"github.com/pydio/cells/v5/common/utils/uuid"
 )
 
 type goTpl struct {

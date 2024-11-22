@@ -21,12 +21,14 @@
 package cmd
 
 import (
-	"github.com/manifoldco/promptui"
-	"github.com/pydio/cells/v4/common/config"
-	"github.com/pydio/cells/v4/common/runtime"
-	"github.com/spf13/cobra"
 	"os"
 	"strings"
+
+	"github.com/manifoldco/promptui"
+	"github.com/spf13/cobra"
+
+	"github.com/pydio/cells/v5/common/config"
+	"github.com/pydio/cells/v5/common/runtime"
 )
 
 var (

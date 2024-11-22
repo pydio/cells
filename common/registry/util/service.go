@@ -22,15 +22,15 @@ package util
 
 import (
 	"errors"
-	"github.com/pydio/cells/v4/common/utils/std"
+	"github.com/pydio/cells/v5/common/utils/std"
 	"strings"
 
 	"golang.org/x/exp/maps"
 
-	"github.com/pydio/cells/v4/common"
-	pb "github.com/pydio/cells/v4/common/proto/registry"
-	"github.com/pydio/cells/v4/common/registry"
-	"github.com/pydio/cells/v4/common/utils/merger"
+	"github.com/pydio/cells/v5/common"
+	pb "github.com/pydio/cells/v5/common/proto/registry"
+	"github.com/pydio/cells/v5/common/registry"
+	"github.com/pydio/cells/v5/common/utils/merger"
 )
 
 func ToProtoService(s registry.Service) *pb.Service {

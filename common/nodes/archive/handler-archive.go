@@ -30,17 +30,17 @@ import (
 	"go.uber.org/zap"
 	"google.golang.org/grpc"
 
-	"github.com/pydio/cells/v4/common"
-	"github.com/pydio/cells/v4/common/client/commons/docstorec"
-	"github.com/pydio/cells/v4/common/errors"
-	"github.com/pydio/cells/v4/common/nodes"
-	"github.com/pydio/cells/v4/common/nodes/abstract"
-	"github.com/pydio/cells/v4/common/nodes/models"
-	"github.com/pydio/cells/v4/common/permissions"
-	"github.com/pydio/cells/v4/common/proto/docstore"
-	"github.com/pydio/cells/v4/common/proto/tree"
-	"github.com/pydio/cells/v4/common/telemetry/log"
-	json "github.com/pydio/cells/v4/common/utils/jsonx"
+	"github.com/pydio/cells/v5/common"
+	"github.com/pydio/cells/v5/common/client/commons/docstorec"
+	"github.com/pydio/cells/v5/common/errors"
+	"github.com/pydio/cells/v5/common/nodes"
+	"github.com/pydio/cells/v5/common/nodes/abstract"
+	"github.com/pydio/cells/v5/common/nodes/models"
+	"github.com/pydio/cells/v5/common/permissions"
+	"github.com/pydio/cells/v5/common/proto/docstore"
+	"github.com/pydio/cells/v5/common/proto/tree"
+	"github.com/pydio/cells/v5/common/telemetry/log"
+	json "github.com/pydio/cells/v5/common/utils/jsonx"
 )
 
 func WithArchives() nodes.Option {

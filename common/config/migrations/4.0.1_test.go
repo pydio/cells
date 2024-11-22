@@ -22,7 +22,7 @@ package migrations
 
 import (
 	"github.com/hashicorp/go-version"
-	"github.com/pydio/cells/v4/common/utils/configx"
+	"github.com/pydio/cells/v5/common/utils/configx"
 	. "github.com/smartystreets/goconvey/convey"
 	"testing"
 )

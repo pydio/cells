@@ -4,10 +4,10 @@ import (
 	"context"
 	"net/http"
 
-	"github.com/pydio/cells/v4/common"
-	"github.com/pydio/cells/v4/common/config/routing"
-	"github.com/pydio/cells/v4/common/runtime"
-	"github.com/pydio/cells/v4/common/service"
+	"github.com/pydio/cells/v5/common"
+	"github.com/pydio/cells/v5/common/config/routing"
+	"github.com/pydio/cells/v5/common/runtime"
+	"github.com/pydio/cells/v5/common/service"
 )
 
 func init() {

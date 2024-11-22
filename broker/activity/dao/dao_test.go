@@ -35,18 +35,18 @@ import (
 
 	"google.golang.org/protobuf/types/known/timestamppb"
 
-	"github.com/pydio/cells/v4/broker/activity"
-	"github.com/pydio/cells/v4/broker/activity/dao/bolt"
-	"github.com/pydio/cells/v4/broker/activity/dao/mongo"
-	proto "github.com/pydio/cells/v4/common/proto/activity"
-	"github.com/pydio/cells/v4/common/proto/idm"
-	"github.com/pydio/cells/v4/common/runtime/manager"
-	"github.com/pydio/cells/v4/common/storage/test"
-	"github.com/pydio/cells/v4/common/utils/configx"
-	"github.com/pydio/cells/v4/common/utils/uuid"
+	"github.com/pydio/cells/v5/broker/activity"
+	"github.com/pydio/cells/v5/broker/activity/dao/bolt"
+	"github.com/pydio/cells/v5/broker/activity/dao/mongo"
+	proto "github.com/pydio/cells/v5/common/proto/activity"
+	"github.com/pydio/cells/v5/common/proto/idm"
+	"github.com/pydio/cells/v5/common/runtime/manager"
+	"github.com/pydio/cells/v5/common/storage/test"
+	"github.com/pydio/cells/v5/common/utils/configx"
+	"github.com/pydio/cells/v5/common/utils/uuid"
 
-	_ "github.com/pydio/cells/v4/common/storage/boltdb"
-	_ "github.com/pydio/cells/v4/common/storage/mongodb"
+	_ "github.com/pydio/cells/v5/common/storage/boltdb"
+	_ "github.com/pydio/cells/v5/common/storage/mongodb"
 
 	. "github.com/smartystreets/goconvey/convey"
 )

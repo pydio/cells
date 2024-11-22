@@ -21,11 +21,12 @@
 package discoverytest
 
 import (
-	"github.com/pydio/cells/v4/common/broker/grpcpubsub/handler"
 	"google.golang.org/grpc"
 
-	cb "github.com/pydio/cells/v4/common/broker"
-	pb "github.com/pydio/cells/v4/common/proto/broker"
+	cb "github.com/pydio/cells/v5/common/broker"
+	"github.com/pydio/cells/v5/common/broker/grpcpubsub/handler"
+	pb "github.com/pydio/cells/v5/common/proto/broker"
+
 	_ "gocloud.dev/pubsub/mempubsub"
 )
 

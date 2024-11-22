@@ -29,17 +29,17 @@ import (
 
 	"google.golang.org/protobuf/proto"
 
-	mailer2 "github.com/pydio/cells/v4/broker/mailer"
-	"github.com/pydio/cells/v4/broker/mailer/dao/bolt"
-	"github.com/pydio/cells/v4/broker/mailer/dao/mongo"
-	"github.com/pydio/cells/v4/common/proto/mailer"
-	"github.com/pydio/cells/v4/common/runtime/manager"
-	"github.com/pydio/cells/v4/common/storage/test"
-	"github.com/pydio/cells/v4/common/utils/configx"
-	"github.com/pydio/cells/v4/common/utils/uuid"
+	mailer2 "github.com/pydio/cells/v5/broker/mailer"
+	"github.com/pydio/cells/v5/broker/mailer/dao/bolt"
+	"github.com/pydio/cells/v5/broker/mailer/dao/mongo"
+	"github.com/pydio/cells/v5/common/proto/mailer"
+	"github.com/pydio/cells/v5/common/runtime/manager"
+	"github.com/pydio/cells/v5/common/storage/test"
+	"github.com/pydio/cells/v5/common/utils/configx"
+	"github.com/pydio/cells/v5/common/utils/uuid"
 
-	_ "github.com/pydio/cells/v4/common/storage/boltdb"
-	_ "github.com/pydio/cells/v4/common/storage/mongodb"
+	_ "github.com/pydio/cells/v5/common/storage/boltdb"
+	_ "github.com/pydio/cells/v5/common/storage/mongodb"
 
 	. "github.com/smartystreets/goconvey/convey"
 )

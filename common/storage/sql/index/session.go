@@ -11,11 +11,11 @@ import (
 	"google.golang.org/protobuf/proto"
 	"gorm.io/gorm"
 
-	"github.com/pydio/cells/v4/common/errors"
-	"github.com/pydio/cells/v4/common/proto/tree"
-	"github.com/pydio/cells/v4/common/telemetry/log"
-	"github.com/pydio/cells/v4/common/utils/cache"
-	cache_helper "github.com/pydio/cells/v4/common/utils/cache/helper"
+	"github.com/pydio/cells/v5/common/errors"
+	"github.com/pydio/cells/v5/common/proto/tree"
+	"github.com/pydio/cells/v5/common/telemetry/log"
+	"github.com/pydio/cells/v5/common/utils/cache"
+	cache_helper "github.com/pydio/cells/v5/common/utils/cache/helper"
 )
 
 type sessionDAO struct {

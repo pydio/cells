@@ -23,9 +23,9 @@ package tree
 import (
 	"testing"
 
-	. "github.com/smartystreets/goconvey/convey"
+	"github.com/pydio/cells/v5/common"
 
-	"github.com/pydio/cells/v4/common"
+	. "github.com/smartystreets/goconvey/convey"
 )
 
 func TestNodeMeta(t *testing.T) {

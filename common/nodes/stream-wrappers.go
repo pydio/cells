@@ -30,7 +30,7 @@ import (
 	"google.golang.org/grpc/metadata"
 	"google.golang.org/protobuf/proto"
 
-	"github.com/pydio/cells/v4/common/proto/tree"
+	"github.com/pydio/cells/v5/common/proto/tree"
 )
 
 // NodeWrappingStreamer wraps an existing N Streamer.

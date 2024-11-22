@@ -24,9 +24,9 @@ package chat
 import (
 	"context"
 
-	"github.com/pydio/cells/v4/common/proto/chat"
-	"github.com/pydio/cells/v4/common/runtime/manager"
-	"github.com/pydio/cells/v4/common/service"
+	"github.com/pydio/cells/v5/common/proto/chat"
+	"github.com/pydio/cells/v5/common/runtime/manager"
+	"github.com/pydio/cells/v5/common/service"
 )
 
 var (

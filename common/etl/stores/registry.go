@@ -24,8 +24,8 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/pydio/cells/v4/common/etl/models"
-	"github.com/pydio/cells/v4/common/proto/jobs"
+	"github.com/pydio/cells/v5/common/etl/models"
+	"github.com/pydio/cells/v5/common/proto/jobs"
 )
 
 // Options passes params and merge options when initializing stores

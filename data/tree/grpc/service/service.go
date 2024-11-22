@@ -26,15 +26,15 @@ import (
 
 	"google.golang.org/grpc"
 
-	"github.com/pydio/cells/v4/common"
-	"github.com/pydio/cells/v4/common/broker"
-	"github.com/pydio/cells/v4/common/config"
-	service2 "github.com/pydio/cells/v4/common/proto/service"
-	"github.com/pydio/cells/v4/common/proto/tree"
-	"github.com/pydio/cells/v4/common/runtime"
-	"github.com/pydio/cells/v4/common/service"
-	"github.com/pydio/cells/v4/common/utils/configx"
-	grpc2 "github.com/pydio/cells/v4/data/tree/grpc"
+	"github.com/pydio/cells/v5/common"
+	"github.com/pydio/cells/v5/common/broker"
+	"github.com/pydio/cells/v5/common/config"
+	service2 "github.com/pydio/cells/v5/common/proto/service"
+	"github.com/pydio/cells/v5/common/proto/tree"
+	"github.com/pydio/cells/v5/common/runtime"
+	"github.com/pydio/cells/v5/common/service"
+	"github.com/pydio/cells/v5/common/utils/configx"
+	grpc2 "github.com/pydio/cells/v5/data/tree/grpc"
 )
 
 var Name = common.ServiceGrpcNamespace_ + common.ServiceTree

@@ -31,17 +31,17 @@ import (
 	"go.uber.org/zap"
 	"google.golang.org/grpc/health/grpc_health_v1"
 
-	"github.com/pydio/cells/v4/common"
-	"github.com/pydio/cells/v4/common/auth/claim"
-	"github.com/pydio/cells/v4/common/client/grpc"
-	"github.com/pydio/cells/v4/common/errors"
-	"github.com/pydio/cells/v4/common/permissions"
-	"github.com/pydio/cells/v4/common/proto/idm"
-	"github.com/pydio/cells/v4/common/proto/rest"
-	service2 "github.com/pydio/cells/v4/common/proto/service"
-	"github.com/pydio/cells/v4/common/service/resources"
-	"github.com/pydio/cells/v4/common/telemetry/log"
-	"github.com/pydio/cells/v4/idm/share"
+	"github.com/pydio/cells/v5/common"
+	"github.com/pydio/cells/v5/common/auth/claim"
+	"github.com/pydio/cells/v5/common/client/grpc"
+	"github.com/pydio/cells/v5/common/errors"
+	"github.com/pydio/cells/v5/common/permissions"
+	"github.com/pydio/cells/v5/common/proto/idm"
+	"github.com/pydio/cells/v5/common/proto/rest"
+	service2 "github.com/pydio/cells/v5/common/proto/service"
+	"github.com/pydio/cells/v5/common/service/resources"
+	"github.com/pydio/cells/v5/common/telemetry/log"
+	"github.com/pydio/cells/v5/idm/share"
 )
 
 // SharesHandler implements handler methods for the share REST service.

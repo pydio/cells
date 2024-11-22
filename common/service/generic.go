@@ -24,8 +24,8 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/pydio/cells/v4/common/server"
-	"github.com/pydio/cells/v4/common/server/generic"
+	"github.com/pydio/cells/v5/common/server"
+	"github.com/pydio/cells/v5/common/server/generic"
 )
 
 // WithGeneric adds a http micro service handler to the current service

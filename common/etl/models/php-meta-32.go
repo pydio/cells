@@ -26,7 +26,7 @@ package models
 import (
 	"fmt"
 
-	json "github.com/pydio/cells/v4/common/utils/jsonx"
+	json "github.com/pydio/cells/v5/common/utils/jsonx"
 )
 
 type phpMeta map[string]interface{}

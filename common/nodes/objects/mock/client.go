@@ -27,7 +27,7 @@ import (
 	"io"
 	"time"
 
-	"github.com/pydio/cells/v4/common/nodes/models"
+	"github.com/pydio/cells/v5/common/nodes/models"
 )
 
 // New creates a new mock Client with an optional list of buckets

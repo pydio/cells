@@ -24,7 +24,7 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/pydio/cells/v4/common/proto/service"
+	"github.com/pydio/cells/v5/common/proto/service"
 )
 
 func ModifyLogin(ctx context.Context, dao DAO, req *service.ModifyLoginRequest) (*service.ModifyLoginResponse, error) {

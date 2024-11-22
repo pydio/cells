@@ -27,16 +27,16 @@ import (
 
 	"github.com/pkg/errors"
 
-	"github.com/pydio/cells/v4/common"
-	"github.com/pydio/cells/v4/common/nodes"
-	"github.com/pydio/cells/v4/common/nodes/compose"
-	"github.com/pydio/cells/v4/common/proto/tree"
-	"github.com/pydio/cells/v4/common/registry"
-	"github.com/pydio/cells/v4/common/runtime"
-	"github.com/pydio/cells/v4/common/sync/endpoints/cells"
-	"github.com/pydio/cells/v4/common/sync/model"
-	"github.com/pydio/cells/v4/common/utils/propagator"
-	"github.com/pydio/cells/v4/common/utils/uuid"
+	"github.com/pydio/cells/v5/common"
+	"github.com/pydio/cells/v5/common/nodes"
+	"github.com/pydio/cells/v5/common/nodes/compose"
+	"github.com/pydio/cells/v5/common/proto/tree"
+	"github.com/pydio/cells/v5/common/registry"
+	"github.com/pydio/cells/v5/common/runtime"
+	"github.com/pydio/cells/v5/common/sync/endpoints/cells"
+	"github.com/pydio/cells/v5/common/sync/model"
+	"github.com/pydio/cells/v5/common/utils/propagator"
+	"github.com/pydio/cells/v5/common/utils/uuid"
 )
 
 var (

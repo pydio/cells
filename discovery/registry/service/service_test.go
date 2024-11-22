@@ -10,13 +10,13 @@ import (
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 
-	"github.com/pydio/cells/v4/common/proto/registry"
-	"github.com/pydio/cells/v4/common/runtime"
-	"github.com/pydio/cells/v4/common/runtime/manager"
+	"github.com/pydio/cells/v5/common/proto/registry"
+	"github.com/pydio/cells/v5/common/runtime"
+	"github.com/pydio/cells/v5/common/runtime/manager"
 
 	_ "embed"
-	_ "github.com/pydio/cells/v4/common/registry/config"
-	_ "github.com/pydio/cells/v4/common/server/grpc"
+	_ "github.com/pydio/cells/v5/common/registry/config"
+	_ "github.com/pydio/cells/v5/common/server/grpc"
 )
 
 var (

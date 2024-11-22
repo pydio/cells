@@ -9,8 +9,8 @@ import (
 	"github.com/ory/ladon"
 	"github.com/ory/ladon/compiler"
 
-	"github.com/pydio/cells/v4/common/proto/idm"
-	json "github.com/pydio/cells/v4/common/utils/jsonx"
+	"github.com/pydio/cells/v5/common/proto/idm"
+	json "github.com/pydio/cells/v5/common/utils/jsonx"
 )
 
 func ProtoToLadonPolicy(p *idm.Policy) ladon.Policy {

@@ -36,15 +36,15 @@ import (
 	"github.com/go-sql-driver/mysql"
 	"gorm.io/gorm"
 
-	"github.com/pydio/cells/v4/common/config"
-	"github.com/pydio/cells/v4/common/proto/install"
-	pb "github.com/pydio/cells/v4/common/proto/registry"
-	"github.com/pydio/cells/v4/common/registry"
-	"github.com/pydio/cells/v4/common/runtime"
-	"github.com/pydio/cells/v4/common/runtime/manager"
-	"github.com/pydio/cells/v4/common/storage"
-	"github.com/pydio/cells/v4/common/telemetry/log"
-	uuid2 "github.com/pydio/cells/v4/common/utils/uuid"
+	"github.com/pydio/cells/v5/common/config"
+	"github.com/pydio/cells/v5/common/proto/install"
+	pb "github.com/pydio/cells/v5/common/proto/registry"
+	"github.com/pydio/cells/v5/common/registry"
+	"github.com/pydio/cells/v5/common/runtime"
+	"github.com/pydio/cells/v5/common/runtime/manager"
+	"github.com/pydio/cells/v5/common/storage"
+	"github.com/pydio/cells/v5/common/telemetry/log"
+	uuid2 "github.com/pydio/cells/v5/common/utils/uuid"
 )
 
 var (

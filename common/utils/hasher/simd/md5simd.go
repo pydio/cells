@@ -8,7 +8,7 @@ import (
 
 	md5simd "github.com/minio/md5-simd"
 
-	"github.com/pydio/cells/v4/common/runtime"
+	"github.com/pydio/cells/v5/common/runtime"
 )
 
 var (

@@ -22,8 +22,8 @@
 package index
 
 import (
-	"github.com/pydio/cells/v4/common/service"
-	"github.com/pydio/cells/v4/common/storage/sql/index"
+	"github.com/pydio/cells/v5/common/service"
+	"github.com/pydio/cells/v5/common/storage/sql/index"
 )
 
 var Drivers = service.StorageDrivers{}

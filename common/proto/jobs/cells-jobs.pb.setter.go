@@ -26,7 +26,7 @@ import (
 	"errors"
 	"reflect"
 
-	"github.com/pydio/cells/v4/common/proto/service"
+	"github.com/pydio/cells/v5/common/proto/service"
 	"google.golang.org/protobuf/proto"
 	"google.golang.org/protobuf/types/known/anypb"
 )

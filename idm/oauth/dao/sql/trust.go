@@ -12,8 +12,8 @@ import (
 	"github.com/ory/x/stringsx"
 	"gorm.io/gorm"
 
-	"github.com/pydio/cells/v4/common/storage/sql"
-	"github.com/pydio/cells/v4/idm/oauth"
+	"github.com/pydio/cells/v5/common/storage/sql"
+	"github.com/pydio/cells/v5/idm/oauth"
 )
 
 var _ trust.GrantManager = new(trustDriver)

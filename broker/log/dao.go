@@ -28,12 +28,12 @@ import (
 	"context"
 	"time"
 
-	"github.com/pydio/cells/v4/common/proto/log"
-	"github.com/pydio/cells/v4/common/runtime/manager"
-	"github.com/pydio/cells/v4/common/service"
-	"github.com/pydio/cells/v4/common/storage/indexer"
-	log2 "github.com/pydio/cells/v4/common/telemetry/log"
-	json "github.com/pydio/cells/v4/common/utils/jsonx"
+	"github.com/pydio/cells/v5/common/proto/log"
+	"github.com/pydio/cells/v5/common/runtime/manager"
+	"github.com/pydio/cells/v5/common/service"
+	"github.com/pydio/cells/v5/common/storage/indexer"
+	log2 "github.com/pydio/cells/v5/common/telemetry/log"
+	json "github.com/pydio/cells/v5/common/utils/jsonx"
 )
 
 var Drivers = service.StorageDrivers{}

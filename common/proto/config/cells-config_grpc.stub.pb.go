@@ -9,7 +9,7 @@ package config
 import (
 	context "context"
 	fmt "fmt"
-	stubs "github.com/pydio/cells/v4/common/server/stubs"
+	stubs "github.com/pydio/cells/v5/common/server/stubs"
 	grpc "google.golang.org/grpc"
 	io "io"
 	time "time"
@@ -67,14 +67,15 @@ func (s *ConfigStub) NewStream(ctx context.Context, desc *grpc.StreamDesc, metho
 	case "/config.Config/Watch":
 		st := &ConfigStub_WatchStreamer{}
 		st.Init(ctx, func(i interface{}) error {
+			var e error
 			go func() {
 				defer func() {
 					close(st.RespChan)
 				}()
-				s.ConfigServer.Watch(i.(*WatchRequest), st)
+				e = s.ConfigServer.Watch(i.(*WatchRequest), st)
 			}()
 			<-time.After(100 * time.Millisecond)
-			return nil
+			return e
 		})
 		return st, nil
 	case "/config.Config/NewLocker":

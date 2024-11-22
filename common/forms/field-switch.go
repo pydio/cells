@@ -20,7 +20,7 @@
 
 package forms
 
-import "github.com/pydio/cells/v4/common/utils/i18n"
+import "github.com/pydio/cells/v5/common/utils/i18n"
 
 const (
 	SwitchFieldValueKey   = "@value"

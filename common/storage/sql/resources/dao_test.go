@@ -24,9 +24,9 @@ import (
 	"context"
 	"testing"
 
-	"github.com/pydio/cells/v4/common/runtime/manager"
-	"github.com/pydio/cells/v4/common/storage/sql/resources"
-	"github.com/pydio/cells/v4/common/storage/test"
+	"github.com/pydio/cells/v5/common/runtime/manager"
+	"github.com/pydio/cells/v5/common/storage/sql/resources"
+	"github.com/pydio/cells/v5/common/storage/test"
 
 	. "github.com/smartystreets/goconvey/convey"
 )

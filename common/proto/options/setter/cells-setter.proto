@@ -2,7 +2,7 @@ syntax = "proto3";
 
 package setter;
 
-option go_package="github.com/pydio/cells/v4/common/proto/options/setter";
+option go_package="github.com/pydio/cells/v5/common/proto/options/setter";
 
 import "google/protobuf/descriptor.proto";
 

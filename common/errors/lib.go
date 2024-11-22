@@ -30,7 +30,7 @@ import (
 	"go.uber.org/zap"
 	"google.golang.org/grpc/balancer"
 
-	"github.com/pydio/cells/v4/common/utils/jsonx"
+	"github.com/pydio/cells/v5/common/utils/jsonx"
 )
 
 // E is an alias to original library

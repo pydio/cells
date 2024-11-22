@@ -26,18 +26,18 @@ import (
 
 	restful "github.com/emicklei/go-restful/v3"
 
-	activity2 "github.com/pydio/cells/v4/broker/activity"
-	"github.com/pydio/cells/v4/broker/activity/render"
-	"github.com/pydio/cells/v4/common"
-	"github.com/pydio/cells/v4/common/client/commons"
-	"github.com/pydio/cells/v4/common/client/grpc"
-	"github.com/pydio/cells/v4/common/errors"
-	"github.com/pydio/cells/v4/common/middleware"
-	"github.com/pydio/cells/v4/common/nodes/compose"
-	"github.com/pydio/cells/v4/common/permissions"
-	"github.com/pydio/cells/v4/common/proto/activity"
-	"github.com/pydio/cells/v4/common/proto/rest"
-	"github.com/pydio/cells/v4/common/proto/tree"
+	activity2 "github.com/pydio/cells/v5/broker/activity"
+	"github.com/pydio/cells/v5/broker/activity/render"
+	"github.com/pydio/cells/v5/common"
+	"github.com/pydio/cells/v5/common/client/commons"
+	"github.com/pydio/cells/v5/common/client/grpc"
+	"github.com/pydio/cells/v5/common/errors"
+	"github.com/pydio/cells/v5/common/middleware"
+	"github.com/pydio/cells/v5/common/nodes/compose"
+	"github.com/pydio/cells/v5/common/permissions"
+	"github.com/pydio/cells/v5/common/proto/activity"
+	"github.com/pydio/cells/v5/common/proto/rest"
+	"github.com/pydio/cells/v5/common/proto/tree"
 )
 
 // ActivityHandler responds to activity REST requests

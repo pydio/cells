@@ -24,12 +24,13 @@ import (
 	"context"
 	"testing"
 
-	. "github.com/smartystreets/goconvey/convey"
 	"google.golang.org/protobuf/types/known/anypb"
 
-	"github.com/pydio/cells/v4/common/proto/jobs/bleveimpl"
-	"github.com/pydio/cells/v4/common/proto/service"
-	"github.com/pydio/cells/v4/common/proto/tree"
+	"github.com/pydio/cells/v5/common/proto/jobs/bleveimpl"
+	"github.com/pydio/cells/v5/common/proto/service"
+	"github.com/pydio/cells/v5/common/proto/tree"
+
+	. "github.com/smartystreets/goconvey/convey"
 )
 
 func init() {

@@ -26,7 +26,7 @@ import (
 	"github.com/spf13/cobra"
 
 	// Required to register client
-	_ "github.com/pydio/cells/v4/common/nodes/objects/mc"
+	_ "github.com/pydio/cells/v5/common/nodes/objects/mc"
 )
 
 var (

@@ -5,8 +5,8 @@ import (
 
 	"google.golang.org/grpc"
 
-	"github.com/pydio/cells/v4/common/service"
-	"github.com/pydio/cells/v4/common/utils/propagator"
+	"github.com/pydio/cells/v5/common/service"
+	"github.com/pydio/cells/v5/common/utils/propagator"
 )
 
 type SvcInjectorMock struct {

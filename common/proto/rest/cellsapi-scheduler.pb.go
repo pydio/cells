@@ -7,7 +7,7 @@
 package rest
 
 import (
-	jobs "github.com/pydio/cells/v4/common/proto/jobs"
+	jobs "github.com/pydio/cells/v5/common/proto/jobs"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	reflect "reflect"

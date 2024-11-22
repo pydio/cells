@@ -29,8 +29,8 @@ import (
 
 	"github.com/spf13/cobra"
 
-	i18n2 "github.com/pydio/cells/v4/common/utils/i18n/languages"
-	json "github.com/pydio/cells/v4/common/utils/jsonx"
+	i18n2 "github.com/pydio/cells/v5/common/utils/i18n/languages"
+	json "github.com/pydio/cells/v5/common/utils/jsonx"
 )
 
 type singleCounter struct {

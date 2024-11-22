@@ -24,11 +24,11 @@ package service
 import (
 	"context"
 
-	"github.com/pydio/cells/v4/common"
-	"github.com/pydio/cells/v4/common/nodes/compose"
-	"github.com/pydio/cells/v4/common/runtime"
-	"github.com/pydio/cells/v4/common/service"
-	"github.com/pydio/cells/v4/scheduler/jobs/rest"
+	"github.com/pydio/cells/v5/common"
+	"github.com/pydio/cells/v5/common/nodes/compose"
+	"github.com/pydio/cells/v5/common/runtime"
+	"github.com/pydio/cells/v5/common/service"
+	"github.com/pydio/cells/v5/scheduler/jobs/rest"
 )
 
 func init() {

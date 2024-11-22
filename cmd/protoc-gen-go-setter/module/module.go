@@ -27,7 +27,7 @@ import (
 
 	pgs "github.com/lyft/protoc-gen-star/v2"
 	pgsgo "github.com/lyft/protoc-gen-star/v2/lang/go"
-	"github.com/pydio/cells/v4/common/proto/options/setter"
+	"github.com/pydio/cells/v5/common/proto/options/setter"
 	"golang.org/x/text/cases"
 	"golang.org/x/text/language"
 	"google.golang.org/protobuf/types/descriptorpb"

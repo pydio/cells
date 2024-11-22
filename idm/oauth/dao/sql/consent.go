@@ -13,9 +13,9 @@ import (
 	"gorm.io/gorm"
 	"gorm.io/gorm/schema"
 
-	"github.com/pydio/cells/v4/common/runtime/manager"
-	"github.com/pydio/cells/v4/common/storage/sql"
-	"github.com/pydio/cells/v4/idm/oauth"
+	"github.com/pydio/cells/v5/common/runtime/manager"
+	"github.com/pydio/cells/v5/common/storage/sql"
+	"github.com/pydio/cells/v5/idm/oauth"
 )
 
 type consentDriver struct {

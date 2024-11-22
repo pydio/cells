@@ -28,15 +28,15 @@ import (
 	"go.uber.org/zap"
 	protobuf "google.golang.org/protobuf/proto"
 
-	"github.com/pydio/cells/v4/broker/mailer"
-	"github.com/pydio/cells/v4/broker/mailer/templates"
-	"github.com/pydio/cells/v4/common"
-	"github.com/pydio/cells/v4/common/config"
-	"github.com/pydio/cells/v4/common/errors"
-	proto "github.com/pydio/cells/v4/common/proto/mailer"
-	"github.com/pydio/cells/v4/common/runtime/manager"
-	"github.com/pydio/cells/v4/common/telemetry/log"
-	"github.com/pydio/cells/v4/common/utils/configx"
+	"github.com/pydio/cells/v5/broker/mailer"
+	"github.com/pydio/cells/v5/broker/mailer/templates"
+	"github.com/pydio/cells/v5/common"
+	"github.com/pydio/cells/v5/common/config"
+	"github.com/pydio/cells/v5/common/errors"
+	proto "github.com/pydio/cells/v5/common/proto/mailer"
+	"github.com/pydio/cells/v5/common/runtime/manager"
+	"github.com/pydio/cells/v5/common/telemetry/log"
+	"github.com/pydio/cells/v5/common/utils/configx"
 )
 
 type Handler struct {

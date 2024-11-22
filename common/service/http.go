@@ -24,8 +24,8 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/pydio/cells/v4/common/config/routing"
-	"github.com/pydio/cells/v4/common/server"
+	"github.com/pydio/cells/v5/common/config/routing"
+	"github.com/pydio/cells/v5/common/server"
 )
 
 // WithHTTP adds a http micro service handler to the current service

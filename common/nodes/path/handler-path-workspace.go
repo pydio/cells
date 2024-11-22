@@ -28,16 +28,16 @@ import (
 	"google.golang.org/grpc"
 	"google.golang.org/protobuf/proto"
 
-	"github.com/pydio/cells/v4/common"
-	"github.com/pydio/cells/v4/common/errors"
-	"github.com/pydio/cells/v4/common/middleware/keys"
-	"github.com/pydio/cells/v4/common/nodes"
-	"github.com/pydio/cells/v4/common/nodes/abstract"
-	"github.com/pydio/cells/v4/common/nodes/acl"
-	"github.com/pydio/cells/v4/common/proto/idm"
-	"github.com/pydio/cells/v4/common/proto/tree"
-	"github.com/pydio/cells/v4/common/telemetry/log"
-	"github.com/pydio/cells/v4/common/utils/propagator"
+	"github.com/pydio/cells/v5/common"
+	"github.com/pydio/cells/v5/common/errors"
+	"github.com/pydio/cells/v5/common/middleware/keys"
+	"github.com/pydio/cells/v5/common/nodes"
+	"github.com/pydio/cells/v5/common/nodes/abstract"
+	"github.com/pydio/cells/v5/common/nodes/acl"
+	"github.com/pydio/cells/v5/common/proto/idm"
+	"github.com/pydio/cells/v5/common/proto/tree"
+	"github.com/pydio/cells/v5/common/telemetry/log"
+	"github.com/pydio/cells/v5/common/utils/propagator"
 )
 
 func WithWorkspace() nodes.Option {

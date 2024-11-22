@@ -9,7 +9,7 @@ package idm
 import (
 	context "context"
 	fmt "fmt"
-	stubs "github.com/pydio/cells/v4/common/server/stubs"
+	stubs "github.com/pydio/cells/v5/common/server/stubs"
 	grpc "google.golang.org/grpc"
 	io "io"
 	time "time"
@@ -60,14 +60,15 @@ func (s *RoleServiceStub) NewStream(ctx context.Context, desc *grpc.StreamDesc, 
 	case "/idm.RoleService/SearchRole":
 		st := &RoleServiceStub_SearchRoleStreamer{}
 		st.Init(ctx, func(i interface{}) error {
+			var e error
 			go func() {
 				defer func() {
 					close(st.RespChan)
 				}()
-				s.RoleServiceServer.SearchRole(i.(*SearchRoleRequest), st)
+				e = s.RoleServiceServer.SearchRole(i.(*SearchRoleRequest), st)
 			}()
 			<-time.After(100 * time.Millisecond)
-			return nil
+			return e
 		})
 		return st, nil
 	case "/idm.RoleService/StreamRole":
@@ -158,14 +159,15 @@ func (s *UserServiceStub) NewStream(ctx context.Context, desc *grpc.StreamDesc, 
 	case "/idm.UserService/SearchUser":
 		st := &UserServiceStub_SearchUserStreamer{}
 		st.Init(ctx, func(i interface{}) error {
+			var e error
 			go func() {
 				defer func() {
 					close(st.RespChan)
 				}()
-				s.UserServiceServer.SearchUser(i.(*SearchUserRequest), st)
+				e = s.UserServiceServer.SearchUser(i.(*SearchUserRequest), st)
 			}()
 			<-time.After(100 * time.Millisecond)
-			return nil
+			return e
 		})
 		return st, nil
 	case "/idm.UserService/StreamUser":
@@ -235,14 +237,15 @@ func (s *WorkspaceServiceStub) NewStream(ctx context.Context, desc *grpc.StreamD
 	case "/idm.WorkspaceService/SearchWorkspace":
 		st := &WorkspaceServiceStub_SearchWorkspaceStreamer{}
 		st.Init(ctx, func(i interface{}) error {
+			var e error
 			go func() {
 				defer func() {
 					close(st.RespChan)
 				}()
-				s.WorkspaceServiceServer.SearchWorkspace(i.(*SearchWorkspaceRequest), st)
+				e = s.WorkspaceServiceServer.SearchWorkspace(i.(*SearchWorkspaceRequest), st)
 			}()
 			<-time.After(100 * time.Millisecond)
-			return nil
+			return e
 		})
 		return st, nil
 	case "/idm.WorkspaceService/StreamWorkspace":
@@ -326,14 +329,15 @@ func (s *ACLServiceStub) NewStream(ctx context.Context, desc *grpc.StreamDesc, m
 	case "/idm.ACLService/SearchACL":
 		st := &ACLServiceStub_SearchACLStreamer{}
 		st.Init(ctx, func(i interface{}) error {
+			var e error
 			go func() {
 				defer func() {
 					close(st.RespChan)
 				}()
-				s.ACLServiceServer.SearchACL(i.(*SearchACLRequest), st)
+				e = s.ACLServiceServer.SearchACL(i.(*SearchACLRequest), st)
 			}()
 			<-time.After(100 * time.Millisecond)
-			return nil
+			return e
 		})
 		return st, nil
 	case "/idm.ACLService/StreamACL":
@@ -403,27 +407,29 @@ func (s *UserMetaServiceStub) NewStream(ctx context.Context, desc *grpc.StreamDe
 	case "/idm.UserMetaService/SearchUserMeta":
 		st := &UserMetaServiceStub_SearchUserMetaStreamer{}
 		st.Init(ctx, func(i interface{}) error {
+			var e error
 			go func() {
 				defer func() {
 					close(st.RespChan)
 				}()
-				s.UserMetaServiceServer.SearchUserMeta(i.(*SearchUserMetaRequest), st)
+				e = s.UserMetaServiceServer.SearchUserMeta(i.(*SearchUserMetaRequest), st)
 			}()
 			<-time.After(100 * time.Millisecond)
-			return nil
+			return e
 		})
 		return st, nil
 	case "/idm.UserMetaService/ListUserMetaNamespace":
 		st := &UserMetaServiceStub_ListUserMetaNamespaceStreamer{}
 		st.Init(ctx, func(i interface{}) error {
+			var e error
 			go func() {
 				defer func() {
 					close(st.RespChan)
 				}()
-				s.UserMetaServiceServer.ListUserMetaNamespace(i.(*ListUserMetaNamespaceRequest), st)
+				e = s.UserMetaServiceServer.ListUserMetaNamespace(i.(*ListUserMetaNamespaceRequest), st)
 			}()
 			<-time.After(100 * time.Millisecond)
-			return nil
+			return e
 		})
 		return st, nil
 	}
@@ -495,14 +501,15 @@ func (s *PolicyEngineServiceStub) NewStream(ctx context.Context, desc *grpc.Stre
 	case "/idm.PolicyEngineService/StreamPolicyGroups":
 		st := &PolicyEngineServiceStub_StreamPolicyGroupsStreamer{}
 		st.Init(ctx, func(i interface{}) error {
+			var e error
 			go func() {
 				defer func() {
 					close(st.RespChan)
 				}()
-				s.PolicyEngineServiceServer.StreamPolicyGroups(i.(*ListPolicyGroupsRequest), st)
+				e = s.PolicyEngineServiceServer.StreamPolicyGroups(i.(*ListPolicyGroupsRequest), st)
 			}()
 			<-time.After(100 * time.Millisecond)
-			return nil
+			return e
 		})
 		return st, nil
 	}

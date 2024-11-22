@@ -32,13 +32,13 @@ import (
 	"go.opentelemetry.io/otel/trace"
 	"go.uber.org/zap"
 
-	"github.com/pydio/cells/v4/common"
-	"github.com/pydio/cells/v4/common/errors"
-	"github.com/pydio/cells/v4/common/proto/jobs"
-	"github.com/pydio/cells/v4/common/telemetry/log"
-	"github.com/pydio/cells/v4/common/telemetry/tracing"
-	"github.com/pydio/cells/v4/common/utils/propagator"
-	"github.com/pydio/cells/v4/scheduler/actions"
+	"github.com/pydio/cells/v5/common"
+	"github.com/pydio/cells/v5/common/errors"
+	"github.com/pydio/cells/v5/common/proto/jobs"
+	"github.com/pydio/cells/v5/common/telemetry/log"
+	"github.com/pydio/cells/v5/common/telemetry/tracing"
+	"github.com/pydio/cells/v5/common/utils/propagator"
+	"github.com/pydio/cells/v5/scheduler/actions"
 )
 
 // Runnable represents the runnable instance of a given task

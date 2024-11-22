@@ -27,8 +27,8 @@ import (
 
 	pyroscope "github.com/grafana/pyroscope-go"
 
-	"github.com/pydio/cells/v4/common/telemetry/otel"
-	"github.com/pydio/cells/v4/common/telemetry/profile"
+	"github.com/pydio/cells/v5/common/telemetry/otel"
+	"github.com/pydio/cells/v5/common/telemetry/profile"
 )
 
 func init() {

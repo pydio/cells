@@ -26,9 +26,9 @@ import (
 
 	"google.golang.org/grpc"
 
-	"github.com/pydio/cells/v4/common"
-	"github.com/pydio/cells/v4/common/config"
-	"github.com/pydio/cells/v4/common/proto/object"
+	"github.com/pydio/cells/v5/common"
+	"github.com/pydio/cells/v5/common/config"
+	"github.com/pydio/cells/v5/common/proto/object"
 )
 
 func NewDataSourceService(ctx context.Context, dsName string) *DataSourceService {

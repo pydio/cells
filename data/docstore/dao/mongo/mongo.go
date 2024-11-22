@@ -27,11 +27,11 @@ import (
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 
-	proto "github.com/pydio/cells/v4/common/proto/docstore"
-	"github.com/pydio/cells/v4/common/storage/mongodb"
-	"github.com/pydio/cells/v4/common/utils/configx"
-	json "github.com/pydio/cells/v4/common/utils/jsonx"
-	"github.com/pydio/cells/v4/data/docstore"
+	proto "github.com/pydio/cells/v5/common/proto/docstore"
+	"github.com/pydio/cells/v5/common/storage/mongodb"
+	"github.com/pydio/cells/v5/common/utils/configx"
+	json "github.com/pydio/cells/v5/common/utils/jsonx"
+	"github.com/pydio/cells/v5/data/docstore"
 )
 
 const (

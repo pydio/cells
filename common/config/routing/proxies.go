@@ -26,8 +26,8 @@ import (
 
 	"google.golang.org/protobuf/proto"
 
-	"github.com/pydio/cells/v4/common"
-	"github.com/pydio/cells/v4/common/proto/install"
+	"github.com/pydio/cells/v5/common"
+	"github.com/pydio/cells/v5/common/proto/install"
 )
 
 type ActiveRoute struct {

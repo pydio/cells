@@ -29,10 +29,10 @@ import (
 
 	"go.etcd.io/bbolt"
 
-	mailer2 "github.com/pydio/cells/v4/broker/mailer"
-	"github.com/pydio/cells/v4/common/proto/mailer"
-	"github.com/pydio/cells/v4/common/storage/boltdb"
-	json "github.com/pydio/cells/v4/common/utils/jsonx"
+	mailer2 "github.com/pydio/cells/v5/broker/mailer"
+	"github.com/pydio/cells/v5/common/proto/mailer"
+	"github.com/pydio/cells/v5/common/storage/boltdb"
+	json "github.com/pydio/cells/v5/common/utils/jsonx"
 )
 
 // BOLT DAO MANAGEMENT

@@ -7,8 +7,8 @@ import (
 	"path"
 	"time"
 
-	"github.com/pydio/cells/v4/common"
-	"github.com/pydio/cells/v4/common/proto/tree"
+	"github.com/pydio/cells/v5/common"
+	"github.com/pydio/cells/v5/common/proto/tree"
 )
 
 var _ fs.FileInfo = &FileInfo{}

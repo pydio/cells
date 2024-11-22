@@ -23,8 +23,8 @@ package config
 import (
 	"context"
 
-	"github.com/pydio/cells/v4/common"
-	configx2 "github.com/pydio/cells/v4/common/utils/configx"
+	"github.com/pydio/cells/v5/common"
+	configx2 "github.com/pydio/cells/v5/common/utils/configx"
 )
 
 // GetUpdatesConfigs gather update configs from correct location

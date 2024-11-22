@@ -38,14 +38,14 @@ import (
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/metadata"
 
-	"github.com/pydio/cells/v4/common"
-	"github.com/pydio/cells/v4/common/client"
-	pb "github.com/pydio/cells/v4/common/proto/registry"
-	"github.com/pydio/cells/v4/common/registry"
-	"github.com/pydio/cells/v4/common/telemetry/metrics"
-	json "github.com/pydio/cells/v4/common/utils/jsonx"
-	"github.com/pydio/cells/v4/common/utils/openurl"
-	"github.com/pydio/cells/v4/common/utils/propagator"
+	"github.com/pydio/cells/v5/common"
+	"github.com/pydio/cells/v5/common/client"
+	pb "github.com/pydio/cells/v5/common/proto/registry"
+	"github.com/pydio/cells/v5/common/registry"
+	"github.com/pydio/cells/v5/common/telemetry/metrics"
+	json "github.com/pydio/cells/v5/common/utils/jsonx"
+	"github.com/pydio/cells/v5/common/utils/openurl"
+	"github.com/pydio/cells/v5/common/utils/propagator"
 
 	_ "google.golang.org/grpc/xds"
 )

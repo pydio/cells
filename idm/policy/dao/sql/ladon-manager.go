@@ -31,9 +31,9 @@ import (
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
 
-	"github.com/pydio/cells/v4/common/proto/idm"
-	storagesql "github.com/pydio/cells/v4/common/storage/sql"
-	"github.com/pydio/cells/v4/idm/policy/converter"
+	"github.com/pydio/cells/v5/common/proto/idm"
+	storagesql "github.com/pydio/cells/v5/common/storage/sql"
+	"github.com/pydio/cells/v5/idm/policy/converter"
 )
 
 var _ ladon.Manager = (*gormManager)(nil)

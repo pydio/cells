@@ -23,7 +23,7 @@ package storage
 import (
 	"context"
 
-	"github.com/pydio/cells/v4/common/utils/openurl"
+	"github.com/pydio/cells/v5/common/utils/openurl"
 )
 
 type Storage openurl.Resolver[any]

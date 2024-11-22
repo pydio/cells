@@ -29,12 +29,12 @@ import (
 
 	"go.uber.org/zap"
 
-	pb "github.com/pydio/cells/v4/common/proto/registry"
-	"github.com/pydio/cells/v4/common/registry"
-	"github.com/pydio/cells/v4/common/runtime"
-	"github.com/pydio/cells/v4/common/telemetry/log"
-	json "github.com/pydio/cells/v4/common/utils/jsonx"
-	"github.com/pydio/cells/v4/common/utils/propagator"
+	pb "github.com/pydio/cells/v5/common/proto/registry"
+	"github.com/pydio/cells/v5/common/registry"
+	"github.com/pydio/cells/v5/common/runtime"
+	"github.com/pydio/cells/v5/common/telemetry/log"
+	json "github.com/pydio/cells/v5/common/utils/jsonx"
+	"github.com/pydio/cells/v5/common/utils/propagator"
 )
 
 // targetGroup is a serialization of target group

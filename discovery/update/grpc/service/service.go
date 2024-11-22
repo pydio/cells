@@ -26,12 +26,12 @@ import (
 
 	"google.golang.org/grpc"
 
-	"github.com/pydio/cells/v4/common"
-	"github.com/pydio/cells/v4/common/config"
-	"github.com/pydio/cells/v4/common/proto/update"
-	"github.com/pydio/cells/v4/common/runtime"
-	"github.com/pydio/cells/v4/common/service"
-	grpc2 "github.com/pydio/cells/v4/discovery/update/grpc"
+	"github.com/pydio/cells/v5/common"
+	"github.com/pydio/cells/v5/common/config"
+	"github.com/pydio/cells/v5/common/proto/update"
+	"github.com/pydio/cells/v5/common/runtime"
+	"github.com/pydio/cells/v5/common/service"
+	grpc2 "github.com/pydio/cells/v5/discovery/update/grpc"
 )
 
 var Name = common.ServiceGrpcNamespace_ + common.ServiceUpdate

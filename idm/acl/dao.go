@@ -25,8 +25,8 @@ import (
 	"context"
 	"time"
 
-	service2 "github.com/pydio/cells/v4/common/proto/service"
-	"github.com/pydio/cells/v4/common/service"
+	service2 "github.com/pydio/cells/v5/common/proto/service"
+	"github.com/pydio/cells/v5/common/service"
 )
 
 var Drivers = service.StorageDrivers{}

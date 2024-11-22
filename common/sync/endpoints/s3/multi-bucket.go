@@ -32,12 +32,12 @@ import (
 	"go.uber.org/zap"
 	"google.golang.org/protobuf/proto"
 
-	"github.com/pydio/cells/v4/common"
-	"github.com/pydio/cells/v4/common/errors"
-	"github.com/pydio/cells/v4/common/nodes"
-	"github.com/pydio/cells/v4/common/proto/tree"
-	"github.com/pydio/cells/v4/common/sync/model"
-	"github.com/pydio/cells/v4/common/telemetry/log"
+	"github.com/pydio/cells/v5/common"
+	"github.com/pydio/cells/v5/common/errors"
+	"github.com/pydio/cells/v5/common/nodes"
+	"github.com/pydio/cells/v5/common/proto/tree"
+	"github.com/pydio/cells/v5/common/sync/model"
+	"github.com/pydio/cells/v5/common/telemetry/log"
 )
 
 const s3BucketTagPrefix = "pydio:s3-bucket-tag-"

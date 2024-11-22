@@ -26,18 +26,18 @@ import (
 
 	"google.golang.org/grpc"
 
-	"github.com/pydio/cells/v4/common"
-	"github.com/pydio/cells/v4/common/client/commons/docstorec"
-	"github.com/pydio/cells/v4/common/config"
-	"github.com/pydio/cells/v4/common/proto/docstore"
-	"github.com/pydio/cells/v4/common/proto/jobs"
-	"github.com/pydio/cells/v4/common/proto/tree"
-	"github.com/pydio/cells/v4/common/runtime"
-	"github.com/pydio/cells/v4/common/service"
-	"github.com/pydio/cells/v4/common/telemetry/log"
-	json "github.com/pydio/cells/v4/common/utils/jsonx"
-	"github.com/pydio/cells/v4/data/versions"
-	grpc2 "github.com/pydio/cells/v4/data/versions/grpc"
+	"github.com/pydio/cells/v5/common"
+	"github.com/pydio/cells/v5/common/client/commons/docstorec"
+	"github.com/pydio/cells/v5/common/config"
+	"github.com/pydio/cells/v5/common/proto/docstore"
+	"github.com/pydio/cells/v5/common/proto/jobs"
+	"github.com/pydio/cells/v5/common/proto/tree"
+	"github.com/pydio/cells/v5/common/runtime"
+	"github.com/pydio/cells/v5/common/service"
+	"github.com/pydio/cells/v5/common/telemetry/log"
+	json "github.com/pydio/cells/v5/common/utils/jsonx"
+	"github.com/pydio/cells/v5/data/versions"
+	grpc2 "github.com/pydio/cells/v5/data/versions/grpc"
 )
 
 var (

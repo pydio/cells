@@ -24,10 +24,10 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/pydio/cells/v4/common"
-	"github.com/pydio/cells/v4/common/etl"
-	"github.com/pydio/cells/v4/common/etl/stores"
-	"github.com/pydio/cells/v4/common/proto/jobs"
+	"github.com/pydio/cells/v5/common"
+	"github.com/pydio/cells/v5/common/etl"
+	"github.com/pydio/cells/v5/common/etl/stores"
+	"github.com/pydio/cells/v5/common/proto/jobs"
 )
 
 type etlAction struct {

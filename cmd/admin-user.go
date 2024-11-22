@@ -28,9 +28,9 @@ import (
 	"github.com/spf13/cobra"
 	"google.golang.org/protobuf/types/known/anypb"
 
-	"github.com/pydio/cells/v4/common/client/commons/idmc"
-	"github.com/pydio/cells/v4/common/proto/idm"
-	service2 "github.com/pydio/cells/v4/common/proto/service"
+	"github.com/pydio/cells/v5/common/client/commons/idmc"
+	"github.com/pydio/cells/v5/common/proto/idm"
+	service2 "github.com/pydio/cells/v5/common/proto/service"
 )
 
 var UserCmd = &cobra.Command{

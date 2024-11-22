@@ -23,10 +23,10 @@ package virtual
 import (
 	"context"
 
-	"github.com/pydio/cells/v4/common/nodes"
-	"github.com/pydio/cells/v4/common/nodes/abstract"
-	"github.com/pydio/cells/v4/common/nodes/acl"
-	"github.com/pydio/cells/v4/common/proto/tree"
+	"github.com/pydio/cells/v5/common/nodes"
+	"github.com/pydio/cells/v5/common/nodes/abstract"
+	"github.com/pydio/cells/v5/common/nodes/acl"
+	"github.com/pydio/cells/v5/common/proto/tree"
 )
 
 func WithResolver() nodes.Option {

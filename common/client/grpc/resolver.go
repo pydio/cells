@@ -29,9 +29,9 @@ import (
 	"google.golang.org/grpc/resolver"
 	"google.golang.org/grpc/serviceconfig"
 
-	"github.com/pydio/cells/v4/common/client"
-	"github.com/pydio/cells/v4/common/registry"
-	"github.com/pydio/cells/v4/common/utils/uuid"
+	"github.com/pydio/cells/v5/common/client"
+	"github.com/pydio/cells/v5/common/registry"
+	"github.com/pydio/cells/v5/common/utils/uuid"
 )
 
 var (

@@ -23,19 +23,19 @@ package compose
 import (
 	"context"
 
-	"github.com/pydio/cells/v4/common"
-	"github.com/pydio/cells/v4/common/nodes"
-	"github.com/pydio/cells/v4/common/nodes/acl"
-	"github.com/pydio/cells/v4/common/nodes/archive"
-	"github.com/pydio/cells/v4/common/nodes/binaries"
-	"github.com/pydio/cells/v4/common/nodes/core"
-	"github.com/pydio/cells/v4/common/nodes/encryption"
-	"github.com/pydio/cells/v4/common/nodes/events"
-	"github.com/pydio/cells/v4/common/nodes/path"
-	"github.com/pydio/cells/v4/common/nodes/put"
-	"github.com/pydio/cells/v4/common/nodes/sync"
-	"github.com/pydio/cells/v4/common/nodes/version"
-	"github.com/pydio/cells/v4/common/nodes/virtual"
+	"github.com/pydio/cells/v5/common"
+	"github.com/pydio/cells/v5/common/nodes"
+	"github.com/pydio/cells/v5/common/nodes/acl"
+	"github.com/pydio/cells/v5/common/nodes/archive"
+	"github.com/pydio/cells/v5/common/nodes/binaries"
+	"github.com/pydio/cells/v5/common/nodes/core"
+	"github.com/pydio/cells/v5/common/nodes/encryption"
+	"github.com/pydio/cells/v5/common/nodes/events"
+	"github.com/pydio/cells/v5/common/nodes/path"
+	"github.com/pydio/cells/v5/common/nodes/put"
+	"github.com/pydio/cells/v5/common/nodes/sync"
+	"github.com/pydio/cells/v5/common/nodes/version"
+	"github.com/pydio/cells/v5/common/nodes/virtual"
 )
 
 func PathClient(ctx context.Context, oo ...nodes.Option) nodes.Client {

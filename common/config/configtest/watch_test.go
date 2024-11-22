@@ -27,10 +27,10 @@ import (
 
 	"golang.org/x/exp/maps"
 
-	"github.com/pydio/cells/v4/common/config"
-	"github.com/pydio/cells/v4/common/utils/configx"
+	"github.com/pydio/cells/v5/common/config"
+	"github.com/pydio/cells/v5/common/utils/configx"
 
-	_ "github.com/pydio/cells/v4/common/config/memory"
+	_ "github.com/pydio/cells/v5/common/config/memory"
 
 	. "github.com/smartystreets/goconvey/convey"
 )

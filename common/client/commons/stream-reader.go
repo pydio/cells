@@ -25,7 +25,7 @@ import (
 
 	"google.golang.org/grpc"
 
-	"github.com/pydio/cells/v4/common/errors"
+	"github.com/pydio/cells/v5/common/errors"
 )
 
 type ResponseHandler[T any] func(T) error

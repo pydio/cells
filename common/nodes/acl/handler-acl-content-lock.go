@@ -24,11 +24,11 @@ import (
 	"context"
 	"io"
 
-	"github.com/pydio/cells/v4/common/nodes"
-	"github.com/pydio/cells/v4/common/nodes/abstract"
-	"github.com/pydio/cells/v4/common/nodes/models"
-	"github.com/pydio/cells/v4/common/permissions"
-	"github.com/pydio/cells/v4/common/proto/tree"
+	"github.com/pydio/cells/v5/common/nodes"
+	"github.com/pydio/cells/v5/common/nodes/abstract"
+	"github.com/pydio/cells/v5/common/nodes/models"
+	"github.com/pydio/cells/v5/common/permissions"
+	"github.com/pydio/cells/v5/common/proto/tree"
 )
 
 func WithContentLockFilter() nodes.Option {

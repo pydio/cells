@@ -25,8 +25,8 @@ import (
 
 	"github.com/ory/ladon"
 
-	"github.com/pydio/cells/v4/common/proto/idm"
-	"github.com/pydio/cells/v4/idm/policy/conditions"
+	"github.com/pydio/cells/v5/common/proto/idm"
+	"github.com/pydio/cells/v5/idm/policy/conditions"
 
 	. "github.com/smartystreets/goconvey/convey"
 )

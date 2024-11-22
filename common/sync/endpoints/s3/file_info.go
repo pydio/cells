@@ -25,7 +25,7 @@ import (
 	"path"
 	"time"
 
-	"github.com/pydio/cells/v4/common/nodes/models"
+	"github.com/pydio/cells/v5/common/nodes/models"
 )
 
 type fileInfo struct {

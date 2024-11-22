@@ -27,7 +27,7 @@ import (
 	"go.opentelemetry.io/otel/exporters/stdout/stdouttrace"
 	tracesdk "go.opentelemetry.io/otel/sdk/trace"
 
-	"github.com/pydio/cells/v4/common/telemetry/tracing"
+	"github.com/pydio/cells/v5/common/telemetry/tracing"
 )
 
 func init() {

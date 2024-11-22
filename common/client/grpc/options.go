@@ -23,9 +23,10 @@ package grpc
 import (
 	"time"
 
-	"github.com/pydio/cells/v4/common/client"
-	"github.com/pydio/cells/v4/common/registry"
 	"google.golang.org/grpc"
+
+	"github.com/pydio/cells/v5/common/client"
+	"github.com/pydio/cells/v5/common/registry"
 )
 
 type Option func(*Options)

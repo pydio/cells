@@ -27,9 +27,9 @@ import (
 
 	clientv3 "go.etcd.io/etcd/client/v3"
 
-	"github.com/pydio/cells/v4/common/config"
-	"github.com/pydio/cells/v4/common/config/revisions"
-	json "github.com/pydio/cells/v4/common/utils/jsonx"
+	"github.com/pydio/cells/v5/common/config"
+	"github.com/pydio/cells/v5/common/config/revisions"
+	json "github.com/pydio/cells/v5/common/utils/jsonx"
 )
 
 // AsRevisionsStore implements RevisionsProvider interface

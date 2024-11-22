@@ -26,14 +26,14 @@ import (
 
 	"google.golang.org/protobuf/types/known/anypb"
 
-	"github.com/pydio/cells/v4/common"
-	"github.com/pydio/cells/v4/common/client/commons/idmc"
-	"github.com/pydio/cells/v4/common/errors"
-	"github.com/pydio/cells/v4/common/permissions"
-	"github.com/pydio/cells/v4/common/proto/idm"
-	service "github.com/pydio/cells/v4/common/proto/service"
-	"github.com/pydio/cells/v4/common/proto/tree"
-	"github.com/pydio/cells/v4/common/telemetry/log"
+	"github.com/pydio/cells/v5/common"
+	"github.com/pydio/cells/v5/common/client/commons/idmc"
+	"github.com/pydio/cells/v5/common/errors"
+	"github.com/pydio/cells/v5/common/permissions"
+	"github.com/pydio/cells/v5/common/proto/idm"
+	service "github.com/pydio/cells/v5/common/proto/service"
+	"github.com/pydio/cells/v5/common/proto/tree"
+	"github.com/pydio/cells/v5/common/telemetry/log"
 )
 
 type recycleMoves struct {

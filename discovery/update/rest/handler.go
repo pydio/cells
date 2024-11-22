@@ -23,10 +23,10 @@ package rest
 import (
 	restful "github.com/emicklei/go-restful/v3"
 
-	"github.com/pydio/cells/v4/common"
-	"github.com/pydio/cells/v4/common/client/grpc"
-	"github.com/pydio/cells/v4/common/errors"
-	"github.com/pydio/cells/v4/common/proto/update"
+	"github.com/pydio/cells/v5/common"
+	"github.com/pydio/cells/v5/common/client/grpc"
+	"github.com/pydio/cells/v5/common/errors"
+	"github.com/pydio/cells/v5/common/proto/update"
 )
 
 type Handler struct{}

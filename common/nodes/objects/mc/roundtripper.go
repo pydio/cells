@@ -25,9 +25,9 @@ import (
 
 	minio "github.com/minio/minio-go/v7"
 
-	"github.com/pydio/cells/v4/common"
-	"github.com/pydio/cells/v4/common/permissions"
-	"github.com/pydio/cells/v4/common/utils/propagator"
+	"github.com/pydio/cells/v5/common"
+	"github.com/pydio/cells/v5/common/permissions"
+	"github.com/pydio/cells/v5/common/utils/propagator"
 )
 
 func customHeadersTransport(secure bool) (http.RoundTripper, error) {

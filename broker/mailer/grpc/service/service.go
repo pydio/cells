@@ -26,16 +26,16 @@ import (
 
 	"google.golang.org/grpc"
 
-	mailer2 "github.com/pydio/cells/v4/broker/mailer"
-	grpc2 "github.com/pydio/cells/v4/broker/mailer/grpc"
-	"github.com/pydio/cells/v4/common"
-	"github.com/pydio/cells/v4/common/config"
-	"github.com/pydio/cells/v4/common/proto/jobs"
-	"github.com/pydio/cells/v4/common/proto/mailer"
-	"github.com/pydio/cells/v4/common/runtime"
-	"github.com/pydio/cells/v4/common/service"
-	"github.com/pydio/cells/v4/common/telemetry/log"
-	"github.com/pydio/cells/v4/common/utils/configx"
+	mailer2 "github.com/pydio/cells/v5/broker/mailer"
+	grpc2 "github.com/pydio/cells/v5/broker/mailer/grpc"
+	"github.com/pydio/cells/v5/common"
+	"github.com/pydio/cells/v5/common/config"
+	"github.com/pydio/cells/v5/common/proto/jobs"
+	"github.com/pydio/cells/v5/common/proto/mailer"
+	"github.com/pydio/cells/v5/common/runtime"
+	"github.com/pydio/cells/v5/common/service"
+	"github.com/pydio/cells/v5/common/telemetry/log"
+	"github.com/pydio/cells/v5/common/utils/configx"
 )
 
 var (

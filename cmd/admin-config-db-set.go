@@ -30,8 +30,8 @@ import (
 	"github.com/manifoldco/promptui"
 	"github.com/spf13/cobra"
 
-	"github.com/pydio/cells/v4/common/config"
-	"github.com/pydio/cells/v4/common/utils/configx"
+	"github.com/pydio/cells/v5/common/config"
+	"github.com/pydio/cells/v5/common/utils/configx"
 )
 
 // configDatabaseSetCmd assigns a database connection to a service.

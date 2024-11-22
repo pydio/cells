@@ -5,7 +5,7 @@ import (
 	"github.com/dustin/go-humanize"
 	"github.com/manifoldco/promptui"
 	fs2 "github.com/pydio/cells-fuse/fs"
-	"github.com/pydio/cells/v4/common/nodes/models"
+	"github.com/pydio/cells/v5/common/nodes/models"
 	"github.com/spf13/cobra"
 	"io"
 	"os"

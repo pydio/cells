@@ -34,7 +34,7 @@ import (
 	"go.opentelemetry.io/otel/sdk/metric/metricdata"
 	"google.golang.org/grpc/encoding/gzip"
 
-	"github.com/pydio/cells/v4/common/telemetry/metrics"
+	"github.com/pydio/cells/v5/common/telemetry/metrics"
 )
 
 func init() {

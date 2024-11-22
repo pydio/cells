@@ -2,7 +2,7 @@ syntax = "proto3";
 
 package registry;
 
-option go_package = "github.com/pydio/cells/common/proto/registry";
+option go_package = "github.com/pydio/cells/v5/common/proto/registry";
 
 service Registry {
   rpc Session(stream SessionRequest) returns (stream EmptyResponse) {};
@@ -37,6 +37,7 @@ enum ItemType {
   PROCESS = 9;
   ENDPOINT = 10;
   STATS = 11;
+  STORAGE = 12;
 }
 
 enum ActionType {

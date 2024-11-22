@@ -29,16 +29,16 @@ import (
 
 	"go.uber.org/zap"
 
-	"github.com/pydio/cells/v4/common/etl"
-	"github.com/pydio/cells/v4/common/etl/models"
-	"github.com/pydio/cells/v4/common/etl/stores"
-	"github.com/pydio/cells/v4/common/forms"
-	"github.com/pydio/cells/v4/common/permissions"
-	"github.com/pydio/cells/v4/common/proto/idm"
-	"github.com/pydio/cells/v4/common/proto/jobs"
-	"github.com/pydio/cells/v4/common/telemetry/log"
-	json "github.com/pydio/cells/v4/common/utils/jsonx"
-	"github.com/pydio/cells/v4/scheduler/actions"
+	"github.com/pydio/cells/v5/common/etl"
+	"github.com/pydio/cells/v5/common/etl/models"
+	"github.com/pydio/cells/v5/common/etl/stores"
+	"github.com/pydio/cells/v5/common/forms"
+	"github.com/pydio/cells/v5/common/permissions"
+	"github.com/pydio/cells/v5/common/proto/idm"
+	"github.com/pydio/cells/v5/common/proto/jobs"
+	"github.com/pydio/cells/v5/common/telemetry/log"
+	json "github.com/pydio/cells/v5/common/utils/jsonx"
+	"github.com/pydio/cells/v5/scheduler/actions"
 )
 
 type SyncWorkspacesAction struct {

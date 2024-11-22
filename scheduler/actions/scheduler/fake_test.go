@@ -25,7 +25,7 @@ import (
 
 	. "github.com/smartystreets/goconvey/convey"
 
-	"github.com/pydio/cells/v4/scheduler/actions"
+	"github.com/pydio/cells/v5/scheduler/actions"
 )
 
 func TestGetActionsManager(t *testing.T) {

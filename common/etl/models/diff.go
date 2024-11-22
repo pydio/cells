@@ -21,7 +21,7 @@
 package models
 
 import (
-	"github.com/pydio/cells/v4/common/proto/idm"
+	"github.com/pydio/cells/v5/common/proto/idm"
 )
 
 type ShareDiff struct {

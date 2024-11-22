@@ -28,15 +28,15 @@ import (
 
 	"go.opentelemetry.io/otel/trace"
 
-	"github.com/pydio/cells/v4/common/config"
-	"github.com/pydio/cells/v4/common/errors"
-	registry2 "github.com/pydio/cells/v4/common/proto/registry"
-	"github.com/pydio/cells/v4/common/registry"
-	"github.com/pydio/cells/v4/common/service"
-	"github.com/pydio/cells/v4/common/storage"
-	"github.com/pydio/cells/v4/common/telemetry/tracing"
-	"github.com/pydio/cells/v4/common/utils/configx"
-	"github.com/pydio/cells/v4/common/utils/propagator"
+	"github.com/pydio/cells/v5/common/config"
+	"github.com/pydio/cells/v5/common/errors"
+	registry2 "github.com/pydio/cells/v5/common/proto/registry"
+	"github.com/pydio/cells/v5/common/registry"
+	"github.com/pydio/cells/v5/common/service"
+	"github.com/pydio/cells/v5/common/storage"
+	"github.com/pydio/cells/v5/common/telemetry/tracing"
+	"github.com/pydio/cells/v5/common/utils/configx"
+	"github.com/pydio/cells/v5/common/utils/propagator"
 )
 
 func init() {

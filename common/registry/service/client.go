@@ -29,12 +29,12 @@ import (
 	"google.golang.org/grpc"
 	healthpb "google.golang.org/grpc/health/grpc_health_v1"
 
-	"github.com/pydio/cells/v4/common"
-	cgrpc "github.com/pydio/cells/v4/common/client/grpc"
-	"github.com/pydio/cells/v4/common/errors"
-	pb "github.com/pydio/cells/v4/common/proto/registry"
-	"github.com/pydio/cells/v4/common/registry"
-	"github.com/pydio/cells/v4/common/registry/util"
+	"github.com/pydio/cells/v5/common"
+	cgrpc "github.com/pydio/cells/v5/common/client/grpc"
+	"github.com/pydio/cells/v5/common/errors"
+	pb "github.com/pydio/cells/v5/common/proto/registry"
+	"github.com/pydio/cells/v5/common/registry"
+	"github.com/pydio/cells/v5/common/registry/util"
 )
 
 var schemes = []string{"grpc", "xds"}

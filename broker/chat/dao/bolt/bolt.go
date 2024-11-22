@@ -27,14 +27,14 @@ import (
 
 	"go.etcd.io/bbolt"
 
-	"github.com/pydio/cells/v4/broker/chat"
-	"github.com/pydio/cells/v4/common/errors"
-	proto "github.com/pydio/cells/v4/common/proto/chat"
-	"github.com/pydio/cells/v4/common/storage/boltdb"
-	"github.com/pydio/cells/v4/common/telemetry/log"
-	"github.com/pydio/cells/v4/common/utils/configx"
-	json "github.com/pydio/cells/v4/common/utils/jsonx"
-	"github.com/pydio/cells/v4/common/utils/uuid"
+	"github.com/pydio/cells/v5/broker/chat"
+	"github.com/pydio/cells/v5/common/errors"
+	proto "github.com/pydio/cells/v5/common/proto/chat"
+	"github.com/pydio/cells/v5/common/storage/boltdb"
+	"github.com/pydio/cells/v5/common/telemetry/log"
+	"github.com/pydio/cells/v5/common/utils/configx"
+	json "github.com/pydio/cells/v5/common/utils/jsonx"
+	"github.com/pydio/cells/v5/common/utils/uuid"
 )
 
 func init() {

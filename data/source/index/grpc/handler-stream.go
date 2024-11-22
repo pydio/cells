@@ -21,7 +21,7 @@
 package grpc
 
 import (
-	"github.com/pydio/cells/v4/common/proto/tree"
+	"github.com/pydio/cells/v5/common/proto/tree"
 )
 
 // CreateNodeStream implementation for the TreeServer.

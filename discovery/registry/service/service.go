@@ -39,15 +39,15 @@ import (
 	"google.golang.org/protobuf/types/known/anypb"
 	"google.golang.org/protobuf/types/known/wrapperspb"
 
-	"github.com/pydio/cells/v4/common"
-	"github.com/pydio/cells/v4/common/client"
-	pbregistry "github.com/pydio/cells/v4/common/proto/registry"
-	"github.com/pydio/cells/v4/common/registry"
-	"github.com/pydio/cells/v4/common/runtime"
-	"github.com/pydio/cells/v4/common/service"
-	"github.com/pydio/cells/v4/common/telemetry/log"
-	"github.com/pydio/cells/v4/common/utils/propagator"
-	registry2 "github.com/pydio/cells/v4/discovery/registry"
+	"github.com/pydio/cells/v5/common"
+	"github.com/pydio/cells/v5/common/client"
+	pbregistry "github.com/pydio/cells/v5/common/proto/registry"
+	"github.com/pydio/cells/v5/common/registry"
+	"github.com/pydio/cells/v5/common/runtime"
+	"github.com/pydio/cells/v5/common/service"
+	"github.com/pydio/cells/v5/common/telemetry/log"
+	"github.com/pydio/cells/v5/common/utils/propagator"
+	registry2 "github.com/pydio/cells/v5/discovery/registry"
 )
 
 type Convertible interface {

@@ -26,9 +26,9 @@ package workspace
 import (
 	"context"
 
-	service2 "github.com/pydio/cells/v4/common/proto/service"
-	"github.com/pydio/cells/v4/common/service"
-	"github.com/pydio/cells/v4/common/storage/sql/resources"
+	service2 "github.com/pydio/cells/v5/common/proto/service"
+	"github.com/pydio/cells/v5/common/service"
+	"github.com/pydio/cells/v5/common/storage/sql/resources"
 )
 
 var Drivers = service.StorageDrivers{}

@@ -31,8 +31,8 @@ import (
 
 	hermes "github.com/matcornic/hermes/v2"
 
-	"github.com/pydio/cells/v4/broker/mailer/lang"
-	"github.com/pydio/cells/v4/common/proto/mailer"
+	"github.com/pydio/cells/v5/broker/mailer/lang"
+	"github.com/pydio/cells/v5/common/proto/mailer"
 )
 
 func GetHermes(ctx context.Context, languages ...string) hermes.Hermes {

@@ -29,8 +29,8 @@ import (
 
 	vault "github.com/hashicorp/vault/api"
 
-	"github.com/pydio/cells/v4/common/config"
-	"github.com/pydio/cells/v4/common/utils/configx"
+	"github.com/pydio/cells/v5/common/config"
+	"github.com/pydio/cells/v5/common/utils/configx"
 )
 
 func init() {

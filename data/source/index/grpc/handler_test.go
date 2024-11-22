@@ -33,15 +33,15 @@ import (
 
 	"google.golang.org/grpc/metadata"
 
-	"github.com/pydio/cells/v4/common/errors"
-	"github.com/pydio/cells/v4/common/proto/object"
-	"github.com/pydio/cells/v4/common/proto/tree"
-	"github.com/pydio/cells/v4/common/storage/test"
-	"github.com/pydio/cells/v4/common/utils/cache/gocache"
-	cache_helper "github.com/pydio/cells/v4/common/utils/cache/helper"
-	"github.com/pydio/cells/v4/data/source/index/dao/sql"
+	"github.com/pydio/cells/v5/common/errors"
+	"github.com/pydio/cells/v5/common/proto/object"
+	"github.com/pydio/cells/v5/common/proto/tree"
+	"github.com/pydio/cells/v5/common/storage/test"
+	"github.com/pydio/cells/v5/common/utils/cache/gocache"
+	cache_helper "github.com/pydio/cells/v5/common/utils/cache/helper"
+	"github.com/pydio/cells/v5/data/source/index/dao/sql"
 
-	_ "github.com/pydio/cells/v4/common/utils/cache/gocache"
+	_ "github.com/pydio/cells/v5/common/utils/cache/gocache"
 	_ "gocloud.dev/pubsub/mempubsub"
 
 	. "github.com/smartystreets/goconvey/convey"

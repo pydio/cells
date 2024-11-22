@@ -5,12 +5,12 @@ import (
 
 	"google.golang.org/protobuf/types/known/anypb"
 
-	"github.com/pydio/cells/v4/common"
-	"github.com/pydio/cells/v4/common/client/commons/jobsc"
-	"github.com/pydio/cells/v4/common/proto/idm"
-	"github.com/pydio/cells/v4/common/proto/jobs"
-	"github.com/pydio/cells/v4/common/proto/service"
-	"github.com/pydio/cells/v4/common/telemetry/log"
+	"github.com/pydio/cells/v5/common"
+	"github.com/pydio/cells/v5/common/client/commons/jobsc"
+	"github.com/pydio/cells/v5/common/proto/idm"
+	"github.com/pydio/cells/v5/common/proto/jobs"
+	"github.com/pydio/cells/v5/common/proto/service"
+	"github.com/pydio/cells/v5/common/telemetry/log"
 )
 
 func DigestJob() *jobs.Job {

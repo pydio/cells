@@ -32,10 +32,10 @@ import (
 	"github.com/pkg/errors"
 	"go.uber.org/zap"
 
-	"github.com/pydio/cells/v4/common/sync/merger"
-	"github.com/pydio/cells/v4/common/sync/model"
-	"github.com/pydio/cells/v4/common/telemetry/log"
-	"github.com/pydio/cells/v4/common/utils/propagator"
+	"github.com/pydio/cells/v5/common/sync/merger"
+	"github.com/pydio/cells/v5/common/sync/model"
+	"github.com/pydio/cells/v5/common/telemetry/log"
+	"github.com/pydio/cells/v5/common/utils/propagator"
 )
 
 func (s *Sync) run(ctx context.Context, dryRun bool, force bool) (model.Stater, error) {

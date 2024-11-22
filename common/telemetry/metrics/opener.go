@@ -26,7 +26,7 @@ import (
 
 	"go.opentelemetry.io/otel/sdk/metric"
 
-	"github.com/pydio/cells/v4/common/utils/openurl"
+	"github.com/pydio/cells/v5/common/utils/openurl"
 )
 
 type ReaderProvider interface {

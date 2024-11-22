@@ -30,8 +30,8 @@ import (
 	"io"
 	"strings"
 
-	"github.com/pydio/cells/v4/common"
-	"github.com/pydio/cells/v4/common/proto/encryption"
+	"github.com/pydio/cells/v5/common"
+	"github.com/pydio/cells/v5/common/proto/encryption"
 )
 
 // defaultBlockSize minimal size of block files are chunk into

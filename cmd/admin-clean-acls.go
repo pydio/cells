@@ -28,9 +28,9 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/pydio/cells/v4/common"
-	"github.com/pydio/cells/v4/common/client/grpc"
-	"github.com/pydio/cells/v4/common/proto/idm"
+	"github.com/pydio/cells/v5/common"
+	"github.com/pydio/cells/v5/common/client/grpc"
+	"github.com/pydio/cells/v5/common/proto/idm"
 )
 
 var (

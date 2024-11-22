@@ -24,7 +24,7 @@ import (
 	"context"
 	"net/http"
 
-	"github.com/pydio/cells/v4/common/utils/configx"
+	"github.com/pydio/cells/v5/common/utils/configx"
 )
 
 type RequestStatus struct {

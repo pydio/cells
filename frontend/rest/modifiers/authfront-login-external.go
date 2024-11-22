@@ -27,10 +27,10 @@ import (
 	restful "github.com/emicklei/go-restful/v3"
 	"github.com/gorilla/sessions"
 
-	"github.com/pydio/cells/v4/common/auth"
-	"github.com/pydio/cells/v4/common/proto/rest"
-	"github.com/pydio/cells/v4/common/service/frontend"
-	"github.com/pydio/cells/v4/idm/oauth"
+	"github.com/pydio/cells/v5/common/auth"
+	"github.com/pydio/cells/v5/common/proto/rest"
+	"github.com/pydio/cells/v5/common/service/frontend"
+	"github.com/pydio/cells/v5/idm/oauth"
 )
 
 // LoginExternalAuth allows users having a valid Cells session to create an authorization code directly

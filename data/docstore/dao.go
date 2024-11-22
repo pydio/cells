@@ -27,9 +27,9 @@ package docstore
 import (
 	"context"
 
-	"github.com/pydio/cells/v4/common/proto/docstore"
-	"github.com/pydio/cells/v4/common/runtime/manager"
-	"github.com/pydio/cells/v4/common/service"
+	"github.com/pydio/cells/v5/common/proto/docstore"
+	"github.com/pydio/cells/v5/common/runtime/manager"
+	"github.com/pydio/cells/v5/common/service"
 )
 
 var (

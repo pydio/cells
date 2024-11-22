@@ -24,9 +24,10 @@ import (
 	"sync"
 	"testing"
 
-	"github.com/pydio/cells/v4/common/sync/model"
-
 	"github.com/rjeczalik/notify"
+
+	"github.com/pydio/cells/v5/common/sync/model"
+
 	. "github.com/smartystreets/goconvey/convey"
 )
 

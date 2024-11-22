@@ -23,10 +23,11 @@ package sessions
 
 import (
 	"context"
+
 	"google.golang.org/protobuf/proto"
 
-	"github.com/pydio/cells/v4/common/proto/tree"
-	"github.com/pydio/cells/v4/data/source/index"
+	"github.com/pydio/cells/v5/common/proto/tree"
+	"github.com/pydio/cells/v5/data/source/index"
 )
 
 type SessionBatcher interface {

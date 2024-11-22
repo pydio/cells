@@ -34,12 +34,12 @@ import (
 	bolt "go.etcd.io/bbolt"
 	"google.golang.org/protobuf/proto"
 
-	"github.com/pydio/cells/v4/broker/activity"
-	"github.com/pydio/cells/v4/common"
-	"github.com/pydio/cells/v4/common/broker"
-	acproto "github.com/pydio/cells/v4/common/proto/activity"
-	"github.com/pydio/cells/v4/common/storage/boltdb"
-	json "github.com/pydio/cells/v4/common/utils/jsonx"
+	"github.com/pydio/cells/v5/broker/activity"
+	"github.com/pydio/cells/v5/common"
+	"github.com/pydio/cells/v5/common/broker"
+	acproto "github.com/pydio/cells/v5/common/proto/activity"
+	"github.com/pydio/cells/v5/common/storage/boltdb"
+	json "github.com/pydio/cells/v5/common/utils/jsonx"
 )
 
 func init() {

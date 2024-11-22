@@ -26,11 +26,11 @@ import (
 
 	"google.golang.org/grpc"
 
-	"github.com/pydio/cells/v4/common/errors"
-	"github.com/pydio/cells/v4/common/registry"
-	"github.com/pydio/cells/v4/common/registry/util"
-	"github.com/pydio/cells/v4/common/server"
-	"github.com/pydio/cells/v4/common/utils/propagator"
+	"github.com/pydio/cells/v5/common/errors"
+	"github.com/pydio/cells/v5/common/registry"
+	"github.com/pydio/cells/v5/common/registry/util"
+	"github.com/pydio/cells/v5/common/server"
+	"github.com/pydio/cells/v5/common/utils/propagator"
 )
 
 // WithGRPC adds a GRPC service handler to the current service

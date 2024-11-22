@@ -23,7 +23,7 @@ package server
 import (
 	"strings"
 
-	"github.com/pydio/cells/v4/common/runtime"
+	"github.com/pydio/cells/v5/common/runtime"
 )
 
 func InitPeerMeta(meta map[string]string) {

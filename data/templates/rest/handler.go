@@ -24,9 +24,9 @@ package rest
 import (
 	restful "github.com/emicklei/go-restful/v3"
 
-	"github.com/pydio/cells/v4/common/proto/rest"
-	"github.com/pydio/cells/v4/common/service"
-	"github.com/pydio/cells/v4/data/templates"
+	"github.com/pydio/cells/v5/common/proto/rest"
+	"github.com/pydio/cells/v5/common/service"
+	"github.com/pydio/cells/v5/data/templates"
 )
 
 func NewTemplatesHandler(dao templates.DAO) service.WebHandler {

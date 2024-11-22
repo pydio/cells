@@ -30,11 +30,11 @@ import (
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 
-	"github.com/pydio/cells/v4/common/errors"
-	proto "github.com/pydio/cells/v4/common/proto/jobs"
-	"github.com/pydio/cells/v4/common/storage/mongodb"
-	"github.com/pydio/cells/v4/common/utils/configx"
-	"github.com/pydio/cells/v4/scheduler/jobs"
+	"github.com/pydio/cells/v5/common/errors"
+	proto "github.com/pydio/cells/v5/common/proto/jobs"
+	"github.com/pydio/cells/v5/common/storage/mongodb"
+	"github.com/pydio/cells/v5/common/utils/configx"
+	"github.com/pydio/cells/v5/scheduler/jobs"
 )
 
 const (

@@ -36,12 +36,12 @@ import (
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 
-	"github.com/pydio/cells/v4/common"
-	cgrpc "github.com/pydio/cells/v4/common/client/grpc"
-	"github.com/pydio/cells/v4/common/config"
-	pb "github.com/pydio/cells/v4/common/proto/config"
-	"github.com/pydio/cells/v4/common/telemetry/log"
-	"github.com/pydio/cells/v4/common/utils/configx"
+	"github.com/pydio/cells/v5/common"
+	cgrpc "github.com/pydio/cells/v5/common/client/grpc"
+	"github.com/pydio/cells/v5/common/config"
+	pb "github.com/pydio/cells/v5/common/proto/config"
+	"github.com/pydio/cells/v5/common/telemetry/log"
+	"github.com/pydio/cells/v5/common/utils/configx"
 )
 
 var (

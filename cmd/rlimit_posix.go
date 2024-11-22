@@ -1,3 +1,4 @@
+//go:build !windows && !plan9 && !nacl
 // +build !windows,!plan9,!nacl
 
 /*
@@ -26,7 +27,7 @@ import (
 	"fmt"
 	"syscall"
 
-	"github.com/pydio/cells/v4/common"
+	"github.com/pydio/cells/v5/common"
 )
 
 // checkFdlimit issues a warning if the OS limit for

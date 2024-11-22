@@ -29,16 +29,16 @@ import (
 
 	"go.uber.org/zap"
 
-	"github.com/pydio/cells/v4/common"
-	"github.com/pydio/cells/v4/common/forms"
-	"github.com/pydio/cells/v4/common/nodes/archive"
-	"github.com/pydio/cells/v4/common/nodes/models"
-	"github.com/pydio/cells/v4/common/proto/jobs"
-	"github.com/pydio/cells/v4/common/proto/tree"
-	"github.com/pydio/cells/v4/common/telemetry/log"
-	json "github.com/pydio/cells/v4/common/utils/jsonx"
-	"github.com/pydio/cells/v4/scheduler/actions"
-	"github.com/pydio/cells/v4/scheduler/actions/tools"
+	"github.com/pydio/cells/v5/common"
+	"github.com/pydio/cells/v5/common/forms"
+	"github.com/pydio/cells/v5/common/nodes/archive"
+	"github.com/pydio/cells/v5/common/nodes/models"
+	"github.com/pydio/cells/v5/common/proto/jobs"
+	"github.com/pydio/cells/v5/common/proto/tree"
+	"github.com/pydio/cells/v5/common/telemetry/log"
+	json "github.com/pydio/cells/v5/common/utils/jsonx"
+	"github.com/pydio/cells/v5/scheduler/actions"
+	"github.com/pydio/cells/v5/scheduler/actions/tools"
 )
 
 var (

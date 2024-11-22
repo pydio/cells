@@ -29,14 +29,14 @@ import (
 
 	"github.com/pydio/caddyvault"
 
-	"github.com/pydio/cells/v4/common"
-	"github.com/pydio/cells/v4/common/config/routing"
-	"github.com/pydio/cells/v4/common/crypto/providers"
-	"github.com/pydio/cells/v4/common/crypto/storage"
-	"github.com/pydio/cells/v4/common/proto/install"
-	"github.com/pydio/cells/v4/common/runtime"
-	"github.com/pydio/cells/v4/common/telemetry/metrics"
-	"github.com/pydio/cells/v4/common/utils/uuid"
+	"github.com/pydio/cells/v5/common"
+	"github.com/pydio/cells/v5/common/config/routing"
+	"github.com/pydio/cells/v5/common/crypto/providers"
+	"github.com/pydio/cells/v5/common/crypto/storage"
+	"github.com/pydio/cells/v5/common/proto/install"
+	"github.com/pydio/cells/v5/common/runtime"
+	"github.com/pydio/cells/v5/common/telemetry/metrics"
+	"github.com/pydio/cells/v5/common/utils/uuid"
 )
 
 type ActiveSite struct {

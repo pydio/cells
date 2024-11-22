@@ -3,7 +3,7 @@ syntax = "proto3";
 import "google/protobuf/timestamp.proto";
 import "cells-setter.proto";
 
-option go_package="github.com/pydio/cells/v4/common/proto/activity";
+option go_package="github.com/pydio/cells/v5/common/proto/activity";
 
 package activity;
 

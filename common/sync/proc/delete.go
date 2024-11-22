@@ -23,7 +23,7 @@ package proc
 import (
 	"context"
 
-	"github.com/pydio/cells/v4/common/sync/merger"
+	"github.com/pydio/cells/v5/common/sync/merger"
 )
 
 func (pr *Processor) processDelete(canceler context.Context, operation merger.Operation, operationId string, pg chan int64) error {

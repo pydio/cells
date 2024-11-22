@@ -4,7 +4,7 @@ import (
 	"context"
 	"google.golang.org/grpc"
 
-	"github.com/pydio/cells/v4/common/proto/tree"
+	"github.com/pydio/cells/v5/common/proto/tree"
 )
 
 type NodeReceiverClient struct {

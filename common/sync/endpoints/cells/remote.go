@@ -36,15 +36,15 @@ import (
 	"google.golang.org/grpc/credentials"
 	"google.golang.org/grpc/metadata"
 
-	"github.com/pydio/cells/v4/common"
-	"github.com/pydio/cells/v4/common/proto/tree"
-	"github.com/pydio/cells/v4/common/runtime"
-	"github.com/pydio/cells/v4/common/sync/endpoints/cells/transport"
-	"github.com/pydio/cells/v4/common/sync/endpoints/cells/transport/mc"
-	"github.com/pydio/cells/v4/common/sync/endpoints/cells/transport/oidc"
-	"github.com/pydio/cells/v4/common/sync/model"
-	"github.com/pydio/cells/v4/common/utils/jsonx"
-	"github.com/pydio/cells/v4/common/utils/uuid"
+	"github.com/pydio/cells/v5/common"
+	"github.com/pydio/cells/v5/common/proto/tree"
+	"github.com/pydio/cells/v5/common/runtime"
+	"github.com/pydio/cells/v5/common/sync/endpoints/cells/transport"
+	"github.com/pydio/cells/v5/common/sync/endpoints/cells/transport/mc"
+	"github.com/pydio/cells/v5/common/sync/endpoints/cells/transport/oidc"
+	"github.com/pydio/cells/v5/common/sync/model"
+	"github.com/pydio/cells/v5/common/utils/jsonx"
+	"github.com/pydio/cells/v5/common/utils/uuid"
 )
 
 var (

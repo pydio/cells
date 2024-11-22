@@ -26,7 +26,7 @@ package log
 import (
 	"context"
 	"fmt"
-	"github.com/pydio/cells/v4/common/log/service"
+	"github.com/pydio/cells/v5/common/log/service"
 	"log"
 	"testing"
 	"time"
@@ -36,8 +36,8 @@ import (
 	"go.uber.org/zap/zapcore"
 	"gopkg.in/natefinch/lumberjack.v2"
 
-	"github.com/pydio/cells/v4/common"
-	"github.com/pydio/cells/v4/common/utils/mtree"
+	"github.com/pydio/cells/v5/common"
+	"github.com/pydio/cells/v5/common/utils/mtree"
 )
 
 func TestLogMassiveObject(t *testing.T) {

@@ -27,7 +27,7 @@ import (
 	"github.com/olekukonko/tablewriter"
 	"github.com/spf13/cobra"
 
-	"github.com/pydio/cells/v4/common/config"
+	"github.com/pydio/cells/v5/common/config"
 )
 
 var listConfigCmd = &cobra.Command{

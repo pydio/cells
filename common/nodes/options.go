@@ -23,8 +23,8 @@ package nodes
 import (
 	"context"
 
-	"github.com/pydio/cells/v4/common/registry"
-	"github.com/pydio/cells/v4/common/utils/openurl"
+	"github.com/pydio/cells/v5/common/registry"
+	"github.com/pydio/cells/v5/common/utils/openurl"
 )
 
 type Option func(options *RouterOptions)

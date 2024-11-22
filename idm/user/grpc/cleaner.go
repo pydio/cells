@@ -23,9 +23,9 @@ package grpc
 import (
 	"context"
 
-	"github.com/pydio/cells/v4/common/proto/idm"
-	"github.com/pydio/cells/v4/common/runtime/manager"
-	"github.com/pydio/cells/v4/idm/user"
+	"github.com/pydio/cells/v5/common/proto/idm"
+	"github.com/pydio/cells/v5/common/runtime/manager"
+	"github.com/pydio/cells/v5/idm/user"
 )
 
 func HandleClean(ctx context.Context, msg *idm.ChangeEvent) error {

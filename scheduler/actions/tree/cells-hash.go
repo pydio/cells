@@ -34,17 +34,17 @@ import (
 
 	"golang.org/x/crypto/md4"
 
-	"github.com/pydio/cells/v4/common"
-	"github.com/pydio/cells/v4/common/client/grpc"
-	"github.com/pydio/cells/v4/common/forms"
-	"github.com/pydio/cells/v4/common/nodes/models"
-	"github.com/pydio/cells/v4/common/proto/jobs"
-	"github.com/pydio/cells/v4/common/proto/tree"
-	"github.com/pydio/cells/v4/common/telemetry/log"
-	"github.com/pydio/cells/v4/common/utils/hasher"
-	"github.com/pydio/cells/v4/common/utils/hasher/simd"
-	"github.com/pydio/cells/v4/scheduler/actions"
-	"github.com/pydio/cells/v4/scheduler/actions/tools"
+	"github.com/pydio/cells/v5/common"
+	"github.com/pydio/cells/v5/common/client/grpc"
+	"github.com/pydio/cells/v5/common/forms"
+	"github.com/pydio/cells/v5/common/nodes/models"
+	"github.com/pydio/cells/v5/common/proto/jobs"
+	"github.com/pydio/cells/v5/common/proto/tree"
+	"github.com/pydio/cells/v5/common/telemetry/log"
+	"github.com/pydio/cells/v5/common/utils/hasher"
+	"github.com/pydio/cells/v5/common/utils/hasher/simd"
+	"github.com/pydio/cells/v5/scheduler/actions"
+	"github.com/pydio/cells/v5/scheduler/actions/tools"
 )
 
 var (

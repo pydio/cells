@@ -28,9 +28,9 @@ import (
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 
-	"github.com/pydio/cells/v4/broker/log"
-	"github.com/pydio/cells/v4/common/storage/mongodb"
-	"github.com/pydio/cells/v4/common/utils/configx"
+	"github.com/pydio/cells/v5/broker/log"
+	"github.com/pydio/cells/v5/common/storage/mongodb"
+	"github.com/pydio/cells/v5/common/utils/configx"
 )
 
 func init() {

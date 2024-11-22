@@ -11,10 +11,10 @@ import (
 
 	"github.com/davecgh/go-spew/spew"
 
-	"github.com/pydio/cells/v4/common/config/revisions"
-	"github.com/pydio/cells/v4/common/proto/docstore"
-	"github.com/pydio/cells/v4/common/utils/openurl"
-	"github.com/pydio/cells/v4/common/utils/std"
+	"github.com/pydio/cells/v5/common/config/revisions"
+	"github.com/pydio/cells/v5/common/proto/docstore"
+	"github.com/pydio/cells/v5/common/utils/openurl"
+	"github.com/pydio/cells/v5/common/utils/std"
 
 	. "github.com/smartystreets/goconvey/convey"
 )

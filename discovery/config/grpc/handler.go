@@ -22,12 +22,12 @@ package grpc
 
 import (
 	"context"
-	"github.com/pydio/cells/v4/common/config"
-	"github.com/pydio/cells/v4/common/errors"
-	pb "github.com/pydio/cells/v4/common/proto/config"
-	"github.com/pydio/cells/v4/common/utils/configx"
-	json "github.com/pydio/cells/v4/common/utils/jsonx"
-	"github.com/pydio/cells/v4/common/utils/propagator"
+	"github.com/pydio/cells/v5/common/config"
+	"github.com/pydio/cells/v5/common/errors"
+	pb "github.com/pydio/cells/v5/common/proto/config"
+	"github.com/pydio/cells/v5/common/utils/configx"
+	json "github.com/pydio/cells/v5/common/utils/jsonx"
+	"github.com/pydio/cells/v5/common/utils/propagator"
 )
 
 type Handler struct {

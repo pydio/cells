@@ -29,7 +29,7 @@ import (
 	"go.opentelemetry.io/otel/sdk/trace"
 	"google.golang.org/grpc/encoding/gzip"
 
-	"github.com/pydio/cells/v4/common/telemetry/tracing"
+	"github.com/pydio/cells/v5/common/telemetry/tracing"
 )
 
 func init() {

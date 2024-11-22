@@ -32,13 +32,13 @@ import (
 	"go.uber.org/zap"
 	"golang.org/x/net/webdav"
 
-	"github.com/pydio/cells/v4/common"
-	"github.com/pydio/cells/v4/common/auth"
-	"github.com/pydio/cells/v4/common/auth/claim"
-	"github.com/pydio/cells/v4/common/middleware"
-	"github.com/pydio/cells/v4/common/nodes"
-	"github.com/pydio/cells/v4/common/runtime"
-	"github.com/pydio/cells/v4/common/telemetry/log"
+	"github.com/pydio/cells/v5/common"
+	"github.com/pydio/cells/v5/common/auth"
+	"github.com/pydio/cells/v5/common/auth/claim"
+	"github.com/pydio/cells/v5/common/middleware"
+	"github.com/pydio/cells/v5/common/nodes"
+	"github.com/pydio/cells/v5/common/runtime"
+	"github.com/pydio/cells/v5/common/telemetry/log"
 )
 
 type ValidUser struct {

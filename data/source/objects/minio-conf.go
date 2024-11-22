@@ -24,9 +24,9 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/pydio/cells/v4/common"
-	"github.com/pydio/cells/v4/common/runtime"
-	json "github.com/pydio/cells/v4/common/utils/jsonx"
+	"github.com/pydio/cells/v5/common"
+	"github.com/pydio/cells/v5/common/runtime"
+	json "github.com/pydio/cells/v5/common/utils/jsonx"
 )
 
 var legacyConfTemplate = `{

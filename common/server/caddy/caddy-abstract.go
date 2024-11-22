@@ -25,8 +25,8 @@ import (
 
 	"golang.org/x/exp/maps"
 
-	"github.com/pydio/cells/v4/common/config/routing"
-	"github.com/pydio/cells/v4/common/server"
+	"github.com/pydio/cells/v5/common/config/routing"
+	"github.com/pydio/cells/v5/common/server"
 )
 
 // RawServer partially implements server.RawServer interface to be used by various caddy implementations

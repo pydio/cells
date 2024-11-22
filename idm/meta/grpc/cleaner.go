@@ -26,12 +26,12 @@ import (
 
 	"google.golang.org/protobuf/types/known/anypb"
 
-	"github.com/pydio/cells/v4/common/proto/idm"
-	pbservice "github.com/pydio/cells/v4/common/proto/service"
-	"github.com/pydio/cells/v4/common/runtime"
-	"github.com/pydio/cells/v4/common/runtime/manager"
-	"github.com/pydio/cells/v4/common/telemetry/log"
-	"github.com/pydio/cells/v4/idm/meta"
+	"github.com/pydio/cells/v5/common/proto/idm"
+	pbservice "github.com/pydio/cells/v5/common/proto/service"
+	"github.com/pydio/cells/v5/common/runtime"
+	"github.com/pydio/cells/v5/common/runtime/manager"
+	"github.com/pydio/cells/v5/common/telemetry/log"
+	"github.com/pydio/cells/v5/idm/meta"
 )
 
 // Cleaner cleans bookmarks on user deletion

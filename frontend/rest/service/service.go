@@ -4,12 +4,12 @@ import (
 	"context"
 	"net/http"
 
-	"github.com/pydio/cells/v4/common"
-	"github.com/pydio/cells/v4/common/runtime"
-	"github.com/pydio/cells/v4/common/runtime/manager"
-	"github.com/pydio/cells/v4/common/service"
-	"github.com/pydio/cells/v4/common/service/frontend/sessions"
-	"github.com/pydio/cells/v4/frontend/rest"
+	"github.com/pydio/cells/v5/common"
+	"github.com/pydio/cells/v5/common/runtime"
+	"github.com/pydio/cells/v5/common/runtime/manager"
+	"github.com/pydio/cells/v5/common/service"
+	"github.com/pydio/cells/v5/common/service/frontend/sessions"
+	"github.com/pydio/cells/v5/frontend/rest"
 )
 
 func init() {

@@ -29,11 +29,11 @@ import (
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo/options"
 
-	mailer2 "github.com/pydio/cells/v4/broker/mailer"
-	"github.com/pydio/cells/v4/common/proto/mailer"
-	"github.com/pydio/cells/v4/common/storage/mongodb"
-	"github.com/pydio/cells/v4/common/utils/configx"
-	"github.com/pydio/cells/v4/common/utils/uuid"
+	mailer2 "github.com/pydio/cells/v5/broker/mailer"
+	"github.com/pydio/cells/v5/common/proto/mailer"
+	"github.com/pydio/cells/v5/common/storage/mongodb"
+	"github.com/pydio/cells/v5/common/utils/configx"
+	"github.com/pydio/cells/v5/common/utils/uuid"
 )
 
 type mongoQueue struct {

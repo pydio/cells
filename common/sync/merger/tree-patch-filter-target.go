@@ -26,8 +26,8 @@ import (
 
 	"go.uber.org/zap"
 
-	"github.com/pydio/cells/v4/common/sync/model"
-	"github.com/pydio/cells/v4/common/telemetry/log"
+	"github.com/pydio/cells/v5/common/sync/model"
+	"github.com/pydio/cells/v5/common/telemetry/log"
 )
 
 // FilterToTarget tries to detect unnecessary operations based on the target status.

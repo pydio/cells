@@ -21,8 +21,8 @@
 package websocket
 
 import (
-	"github.com/pydio/cells/v4/common/proto/chat"
-	json "github.com/pydio/cells/v4/common/utils/jsonx"
+	"github.com/pydio/cells/v5/common/proto/chat"
+	json "github.com/pydio/cells/v5/common/utils/jsonx"
 )
 
 type MessageType string

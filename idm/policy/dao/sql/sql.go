@@ -31,12 +31,12 @@ import (
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
 
-	"github.com/pydio/cells/v4/common/proto/idm"
-	"github.com/pydio/cells/v4/common/storage/sql"
-	"github.com/pydio/cells/v4/common/telemetry/log"
-	"github.com/pydio/cells/v4/common/utils/uuid"
-	"github.com/pydio/cells/v4/idm/policy"
-	"github.com/pydio/cells/v4/idm/policy/converter"
+	"github.com/pydio/cells/v5/common/proto/idm"
+	"github.com/pydio/cells/v5/common/storage/sql"
+	"github.com/pydio/cells/v5/common/telemetry/log"
+	"github.com/pydio/cells/v5/common/utils/uuid"
+	"github.com/pydio/cells/v5/idm/policy"
+	"github.com/pydio/cells/v5/idm/policy/converter"
 )
 
 func init() {

@@ -3,13 +3,13 @@ package manager
 import (
 	"context"
 	"fmt"
-	"github.com/pydio/cells/v4/common/runtime"
-	"github.com/pydio/cells/v4/common/utils/openurl"
+	"github.com/pydio/cells/v5/common/runtime"
+	"github.com/pydio/cells/v5/common/utils/openurl"
 	"os"
 
-	"github.com/pydio/cells/v4/common/errors"
-	cache_helper "github.com/pydio/cells/v4/common/utils/cache/helper"
-	"github.com/pydio/cells/v4/common/utils/propagator"
+	"github.com/pydio/cells/v5/common/errors"
+	cache_helper "github.com/pydio/cells/v5/common/utils/cache/helper"
+	"github.com/pydio/cells/v5/common/utils/propagator"
 )
 
 func init() {

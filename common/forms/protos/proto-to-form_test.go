@@ -28,12 +28,12 @@ import (
 
 	"github.com/ory/ladon"
 
-	"github.com/pydio/cells/v4/common/forms"
-	keys2 "github.com/pydio/cells/v4/common/middleware/keys"
-	"github.com/pydio/cells/v4/common/proto/idm"
-	"github.com/pydio/cells/v4/common/proto/jobs"
-	"github.com/pydio/cells/v4/common/proto/tree"
-	json "github.com/pydio/cells/v4/common/utils/jsonx"
+	"github.com/pydio/cells/v5/common/forms"
+	keys2 "github.com/pydio/cells/v5/common/middleware/keys"
+	"github.com/pydio/cells/v5/common/proto/idm"
+	"github.com/pydio/cells/v5/common/proto/jobs"
+	"github.com/pydio/cells/v5/common/proto/tree"
+	json "github.com/pydio/cells/v5/common/utils/jsonx"
 
 	. "github.com/smartystreets/goconvey/convey"
 )

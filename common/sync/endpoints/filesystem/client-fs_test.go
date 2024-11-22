@@ -33,12 +33,12 @@ import (
 	"github.com/rjeczalik/notify"
 	"github.com/spf13/afero"
 
-	servicescommon "github.com/pydio/cells/v4/common"
-	"github.com/pydio/cells/v4/common/errors"
-	"github.com/pydio/cells/v4/common/proto/tree"
-	"github.com/pydio/cells/v4/common/sync/model"
-	"github.com/pydio/cells/v4/common/utils/hasher"
-	"github.com/pydio/cells/v4/common/utils/hasher/simd"
+	servicescommon "github.com/pydio/cells/v5/common"
+	"github.com/pydio/cells/v5/common/errors"
+	"github.com/pydio/cells/v5/common/proto/tree"
+	"github.com/pydio/cells/v5/common/sync/model"
+	"github.com/pydio/cells/v5/common/utils/hasher"
+	"github.com/pydio/cells/v5/common/utils/hasher/simd"
 
 	. "github.com/smartystreets/goconvey/convey"
 )

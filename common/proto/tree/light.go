@@ -9,9 +9,9 @@ import (
 	"go.uber.org/zap/zapcore"
 	"google.golang.org/protobuf/reflect/protoreflect"
 
-	"github.com/pydio/cells/v4/common"
-	json "github.com/pydio/cells/v4/common/utils/jsonx"
-	"github.com/pydio/cells/v4/common/utils/uuid"
+	"github.com/pydio/cells/v5/common"
+	json "github.com/pydio/cells/v5/common/utils/jsonx"
+	"github.com/pydio/cells/v5/common/utils/uuid"
 )
 
 // N is the extracted interface from Node

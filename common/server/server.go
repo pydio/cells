@@ -29,9 +29,9 @@ import (
 	"golang.org/x/exp/maps"
 	"golang.org/x/sync/errgroup"
 
-	"github.com/pydio/cells/v4/common/registry"
-	"github.com/pydio/cells/v4/common/utils/propagator"
-	"github.com/pydio/cells/v4/common/utils/std"
+	"github.com/pydio/cells/v5/common/registry"
+	"github.com/pydio/cells/v5/common/utils/propagator"
+	"github.com/pydio/cells/v5/common/utils/std"
 )
 
 type CoreServer interface {

@@ -24,9 +24,9 @@ package search
 import (
 	"context"
 
-	"github.com/pydio/cells/v4/common/proto/tree"
-	"github.com/pydio/cells/v4/common/service"
-	"github.com/pydio/cells/v4/common/storage/indexer"
+	"github.com/pydio/cells/v5/common/proto/tree"
+	"github.com/pydio/cells/v5/common/service"
+	"github.com/pydio/cells/v5/common/storage/indexer"
 )
 
 type Engine interface {

@@ -31,18 +31,18 @@ import (
 
 	"go.uber.org/zap"
 
-	"github.com/pydio/cells/v4/common"
-	"github.com/pydio/cells/v4/common/broker"
-	"github.com/pydio/cells/v4/common/config"
-	"github.com/pydio/cells/v4/common/config/routing"
-	"github.com/pydio/cells/v4/common/permissions"
-	"github.com/pydio/cells/v4/common/proto/jobs"
-	"github.com/pydio/cells/v4/common/proto/update"
-	"github.com/pydio/cells/v4/common/telemetry/log"
-	"github.com/pydio/cells/v4/common/utils/i18n/languages"
-	"github.com/pydio/cells/v4/common/utils/uuid"
-	update2 "github.com/pydio/cells/v4/discovery/update"
-	"github.com/pydio/cells/v4/discovery/update/lang"
+	"github.com/pydio/cells/v5/common"
+	"github.com/pydio/cells/v5/common/broker"
+	"github.com/pydio/cells/v5/common/config"
+	"github.com/pydio/cells/v5/common/config/routing"
+	"github.com/pydio/cells/v5/common/permissions"
+	"github.com/pydio/cells/v5/common/proto/jobs"
+	"github.com/pydio/cells/v5/common/proto/update"
+	"github.com/pydio/cells/v5/common/telemetry/log"
+	"github.com/pydio/cells/v5/common/utils/i18n/languages"
+	"github.com/pydio/cells/v5/common/utils/uuid"
+	update2 "github.com/pydio/cells/v5/discovery/update"
+	"github.com/pydio/cells/v5/discovery/update/lang"
 )
 
 type Handler struct {

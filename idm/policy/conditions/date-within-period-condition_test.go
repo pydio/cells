@@ -27,7 +27,7 @@ import (
 	"github.com/ory/ladon/manager/memory"
 	"github.com/stretchr/testify/require"
 
-	errors "github.com/pydio/cells/v4/common/middleware/keys"
+	errors "github.com/pydio/cells/v5/common/middleware/keys"
 
 	. "github.com/smartystreets/goconvey/convey"
 )

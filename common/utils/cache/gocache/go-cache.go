@@ -29,8 +29,8 @@ import (
 
 	pm "github.com/patrickmn/go-cache"
 
-	"github.com/pydio/cells/v4/common/utils/cache"
-	cache_helper "github.com/pydio/cells/v4/common/utils/cache/helper"
+	"github.com/pydio/cells/v5/common/utils/cache"
+	cache_helper "github.com/pydio/cells/v5/common/utils/cache/helper"
 )
 
 var (

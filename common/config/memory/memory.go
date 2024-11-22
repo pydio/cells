@@ -4,7 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"github.com/pydio/cells/v4/common/crypto"
+	"github.com/pydio/cells/v5/common/crypto"
 	"net/url"
 	"os"
 	"regexp"
@@ -15,10 +15,10 @@ import (
 
 	diff "github.com/r3labs/diff/v3"
 
-	"github.com/pydio/cells/v4/common/config"
-	"github.com/pydio/cells/v4/common/utils/configx"
-	json "github.com/pydio/cells/v4/common/utils/jsonx"
-	"github.com/pydio/cells/v4/common/utils/std"
+	"github.com/pydio/cells/v5/common/config"
+	"github.com/pydio/cells/v5/common/utils/configx"
+	json "github.com/pydio/cells/v5/common/utils/jsonx"
+	"github.com/pydio/cells/v5/common/utils/std"
 )
 
 var (

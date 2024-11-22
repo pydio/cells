@@ -27,10 +27,10 @@ import (
 
 	"google.golang.org/protobuf/encoding/protojson"
 
-	pb "github.com/pydio/cells/v4/common/proto/registry"
-	"github.com/pydio/cells/v4/common/registry"
-	"github.com/pydio/cells/v4/common/registry/util"
-	"github.com/pydio/cells/v4/common/utils/configx"
+	pb "github.com/pydio/cells/v5/common/proto/registry"
+	"github.com/pydio/cells/v5/common/registry"
+	"github.com/pydio/cells/v5/common/registry/util"
+	"github.com/pydio/cells/v5/common/utils/configx"
 )
 
 func WithJSONItemMap() configx.Option {

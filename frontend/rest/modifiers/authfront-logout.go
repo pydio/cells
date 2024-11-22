@@ -24,12 +24,12 @@ import (
 	restful "github.com/emicklei/go-restful/v3"
 	"github.com/gorilla/sessions"
 
-	"github.com/pydio/cells/v4/common"
-	"github.com/pydio/cells/v4/common/auth"
-	"github.com/pydio/cells/v4/common/broker"
-	"github.com/pydio/cells/v4/common/proto/idm"
-	"github.com/pydio/cells/v4/common/proto/rest"
-	"github.com/pydio/cells/v4/common/service/frontend"
+	"github.com/pydio/cells/v5/common"
+	"github.com/pydio/cells/v5/common/auth"
+	"github.com/pydio/cells/v5/common/broker"
+	"github.com/pydio/cells/v5/common/proto/idm"
+	"github.com/pydio/cells/v5/common/proto/rest"
+	"github.com/pydio/cells/v5/common/service/frontend"
 )
 
 func LogoutAuth(middleware frontend.AuthMiddleware) frontend.AuthMiddleware {

@@ -28,8 +28,8 @@ import (
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 
-	"github.com/pydio/cells/v4/common"
-	"github.com/pydio/cells/v4/common/runtime"
+	"github.com/pydio/cells/v5/common"
+	"github.com/pydio/cells/v5/common/runtime"
 )
 
 var (

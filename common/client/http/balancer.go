@@ -29,9 +29,9 @@ import (
 
 	"google.golang.org/grpc/attributes"
 
-	"github.com/pydio/cells/v4/common/client"
-	pb "github.com/pydio/cells/v4/common/proto/registry"
-	"github.com/pydio/cells/v4/common/registry"
+	"github.com/pydio/cells/v5/common/client"
+	pb "github.com/pydio/cells/v5/common/proto/registry"
+	"github.com/pydio/cells/v5/common/registry"
 )
 
 type Balancer interface {

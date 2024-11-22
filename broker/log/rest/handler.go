@@ -25,11 +25,11 @@ import (
 
 	restful "github.com/emicklei/go-restful/v3"
 
-	"github.com/pydio/cells/v4/common"
-	"github.com/pydio/cells/v4/common/client/commons"
-	"github.com/pydio/cells/v4/common/client/grpc"
-	"github.com/pydio/cells/v4/common/proto/log"
-	"github.com/pydio/cells/v4/common/proto/rest"
+	"github.com/pydio/cells/v5/common"
+	"github.com/pydio/cells/v5/common/client/commons"
+	"github.com/pydio/cells/v5/common/client/grpc"
+	"github.com/pydio/cells/v5/common/proto/log"
+	"github.com/pydio/cells/v5/common/proto/rest"
 )
 
 type Handler struct {

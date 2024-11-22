@@ -24,11 +24,11 @@ import (
 	restful "github.com/emicklei/go-restful/v3"
 	"google.golang.org/protobuf/encoding/protojson"
 
-	"github.com/pydio/cells/v4/common"
-	"github.com/pydio/cells/v4/common/client/commons/docstorec"
-	"github.com/pydio/cells/v4/common/proto/docstore"
-	"github.com/pydio/cells/v4/common/proto/rest"
-	"github.com/pydio/cells/v4/common/proto/tree"
+	"github.com/pydio/cells/v5/common"
+	"github.com/pydio/cells/v5/common/client/commons/docstorec"
+	"github.com/pydio/cells/v5/common/proto/docstore"
+	"github.com/pydio/cells/v5/common/proto/rest"
+	"github.com/pydio/cells/v5/common/proto/tree"
 )
 
 /****************************

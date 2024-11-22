@@ -15,19 +15,19 @@ import (
 	"gorm.io/gorm/schema"
 	gdb "gorm.io/plugin/dbresolver"
 
-	"github.com/pydio/cells/v4/common/runtime"
-	"github.com/pydio/cells/v4/common/runtime/controller"
-	"github.com/pydio/cells/v4/common/runtime/manager"
-	"github.com/pydio/cells/v4/common/service"
-	"github.com/pydio/cells/v4/common/storage"
-	ssql "github.com/pydio/cells/v4/common/storage/sql"
-	dbresolver "github.com/pydio/cells/v4/common/storage/sql/dbresolver"
-	"github.com/pydio/cells/v4/common/storage/test"
-	"github.com/pydio/cells/v4/common/utils/openurl"
-	"github.com/pydio/cells/v4/common/utils/uuid"
+	"github.com/pydio/cells/v5/common/runtime"
+	"github.com/pydio/cells/v5/common/runtime/controller"
+	"github.com/pydio/cells/v5/common/runtime/manager"
+	"github.com/pydio/cells/v5/common/service"
+	"github.com/pydio/cells/v5/common/storage"
+	ssql "github.com/pydio/cells/v5/common/storage/sql"
+	dbresolver "github.com/pydio/cells/v5/common/storage/sql/dbresolver"
+	"github.com/pydio/cells/v5/common/storage/test"
+	"github.com/pydio/cells/v5/common/utils/openurl"
+	"github.com/pydio/cells/v5/common/utils/uuid"
 
 	_ "embed"
-	_ "github.com/pydio/cells/v4/common/registry/config"
+	_ "github.com/pydio/cells/v5/common/registry/config"
 )
 
 var (

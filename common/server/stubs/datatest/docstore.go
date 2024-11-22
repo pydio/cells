@@ -25,12 +25,12 @@ import (
 
 	"google.golang.org/grpc"
 
-	"github.com/pydio/cells/v4/common"
-	proto "github.com/pydio/cells/v4/common/proto/docstore"
-	"github.com/pydio/cells/v4/common/server/stubs/inject"
-	"github.com/pydio/cells/v4/common/service"
-	"github.com/pydio/cells/v4/common/utils/propagator"
-	srv "github.com/pydio/cells/v4/data/docstore/grpc"
+	"github.com/pydio/cells/v5/common"
+	proto "github.com/pydio/cells/v5/common/proto/docstore"
+	"github.com/pydio/cells/v5/common/server/stubs/inject"
+	"github.com/pydio/cells/v5/common/service"
+	"github.com/pydio/cells/v5/common/utils/propagator"
+	srv "github.com/pydio/cells/v5/data/docstore/grpc"
 )
 
 func defaults() map[string]string {

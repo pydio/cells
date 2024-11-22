@@ -27,8 +27,8 @@ import (
 
 	. "github.com/smartystreets/goconvey/convey"
 
-	"github.com/pydio/cells/v4/common/proto/idm"
-	"github.com/pydio/cells/v4/common/proto/tree"
+	"github.com/pydio/cells/v5/common/proto/idm"
+	"github.com/pydio/cells/v5/common/proto/tree"
 )
 
 var (

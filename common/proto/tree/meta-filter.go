@@ -27,7 +27,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/pydio/cells/v4/common"
+	"github.com/pydio/cells/v5/common"
 )
 
 const (

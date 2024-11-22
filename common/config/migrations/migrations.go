@@ -24,10 +24,10 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/hashicorp/go-version"
+	version "github.com/hashicorp/go-version"
 
-	"github.com/pydio/cells/v4/common/utils/configx"
-	"github.com/pydio/cells/v4/common/utils/migrations"
+	"github.com/pydio/cells/v5/common/utils/configx"
+	"github.com/pydio/cells/v5/common/utils/migrations"
 )
 
 type migrationConfig struct {
@@ -36,6 +36,7 @@ type migrationConfig struct {
 }
 
 type migrationConfigFunc func(*configx.Values) func(context.Context) error
+
 type migrationFunc func(configx.Values) error
 
 var (

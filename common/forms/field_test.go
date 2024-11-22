@@ -25,9 +25,9 @@ import (
 	"log"
 	"testing"
 
-	. "github.com/smartystreets/goconvey/convey"
+	json "github.com/pydio/cells/v5/common/utils/jsonx"
 
-	json "github.com/pydio/cells/v4/common/utils/jsonx"
+	. "github.com/smartystreets/goconvey/convey"
 )
 
 func TestFormField_Serialize(t *testing.T) {

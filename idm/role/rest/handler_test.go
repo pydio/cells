@@ -26,9 +26,9 @@ import (
 
 	"google.golang.org/protobuf/types/known/anypb"
 
-	"github.com/pydio/cells/v4/common/proto/idm"
-	serviceproto "github.com/pydio/cells/v4/common/proto/service"
-	json "github.com/pydio/cells/v4/common/utils/jsonx"
+	"github.com/pydio/cells/v5/common/proto/idm"
+	serviceproto "github.com/pydio/cells/v5/common/proto/service"
+	json "github.com/pydio/cells/v5/common/utils/jsonx"
 )
 
 // Simple dummy tests to play with gRPC format that is used for role queries

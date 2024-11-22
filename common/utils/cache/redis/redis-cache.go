@@ -31,10 +31,10 @@ import (
 	redisc "github.com/go-redis/cache/v8"
 	redis "github.com/go-redis/redis/v8"
 
-	"github.com/pydio/cells/v4/common/crypto"
-	cache "github.com/pydio/cells/v4/common/utils/cache"
-	cache_helper "github.com/pydio/cells/v4/common/utils/cache/helper"
-	standard "github.com/pydio/cells/v4/common/utils/std"
+	"github.com/pydio/cells/v5/common/crypto"
+	cache "github.com/pydio/cells/v5/common/utils/cache"
+	cache_helper "github.com/pydio/cells/v5/common/utils/cache/helper"
+	standard "github.com/pydio/cells/v5/common/utils/std"
 )
 
 var (

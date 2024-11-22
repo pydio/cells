@@ -23,8 +23,8 @@ package grpc
 import (
 	"context"
 
-	"github.com/pydio/cells/v4/common/proto/jobs"
-	"github.com/pydio/cells/v4/scheduler/tasks"
+	"github.com/pydio/cells/v5/common/proto/jobs"
+	"github.com/pydio/cells/v5/scheduler/tasks"
 )
 
 // TaskHandler implements the TaskService API

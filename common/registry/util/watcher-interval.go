@@ -24,9 +24,9 @@ import (
 	"fmt"
 	"time"
 
-	pb "github.com/pydio/cells/v4/common/proto/registry"
-	"github.com/pydio/cells/v4/common/registry"
-	json "github.com/pydio/cells/v4/common/utils/jsonx"
+	pb "github.com/pydio/cells/v5/common/proto/registry"
+	"github.com/pydio/cells/v5/common/registry"
+	json "github.com/pydio/cells/v5/common/utils/jsonx"
 )
 
 func NewIntervalStatusWatcher(item registry.Item, interval time.Duration, callback func() (registry.Item, bool)) registry.StatusWatcher {

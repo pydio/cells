@@ -26,8 +26,8 @@ import (
 
 	"github.com/ory/ladon"
 
-	"github.com/pydio/cells/v4/common/proto/idm"
-	"github.com/pydio/cells/v4/common/service"
+	"github.com/pydio/cells/v5/common/proto/idm"
+	"github.com/pydio/cells/v5/common/service"
 )
 
 var Drivers = service.StorageDrivers{}

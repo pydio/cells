@@ -3,7 +3,7 @@ package rest
 import (
 	"testing"
 
-	"github.com/pydio/cells/v4/common/proto/idm"
+	"github.com/pydio/cells/v5/common/proto/idm"
 
 	. "github.com/smartystreets/goconvey/convey"
 )

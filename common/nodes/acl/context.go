@@ -23,7 +23,7 @@ package acl
 import (
 	"context"
 
-	"github.com/pydio/cells/v4/common/permissions"
+	"github.com/pydio/cells/v5/common/permissions"
 )
 
 type ctxUserAccessListKey struct{}

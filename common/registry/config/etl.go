@@ -21,9 +21,9 @@
 package configregistry
 
 import (
-	"github.com/pydio/cells/v4/common/etl"
-	"github.com/pydio/cells/v4/common/registry"
-	"github.com/pydio/cells/v4/common/utils/merger"
+	"github.com/pydio/cells/v5/common/etl"
+	"github.com/pydio/cells/v5/common/registry"
+	"github.com/pydio/cells/v5/common/utils/merger"
 )
 
 func init() {

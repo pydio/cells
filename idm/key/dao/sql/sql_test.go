@@ -30,10 +30,10 @@ import (
 
 	"github.com/smartystreets/goconvey/convey"
 
-	"github.com/pydio/cells/v4/common/proto/encryption"
-	"github.com/pydio/cells/v4/common/runtime/manager"
-	"github.com/pydio/cells/v4/common/storage/test"
-	"github.com/pydio/cells/v4/idm/key"
+	"github.com/pydio/cells/v5/common/proto/encryption"
+	"github.com/pydio/cells/v5/common/runtime/manager"
+	"github.com/pydio/cells/v5/common/storage/test"
+	"github.com/pydio/cells/v5/idm/key"
 )
 
 var (

@@ -5,8 +5,8 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/pydio/cells/v4/common/proto/jobs"
-	cmd2 "github.com/pydio/cells/v4/scheduler/actions/cmd"
+	"github.com/pydio/cells/v5/common/proto/jobs"
+	cmd2 "github.com/pydio/cells/v5/scheduler/actions/cmd"
 )
 
 var JsonRequest = &cobra.Command{

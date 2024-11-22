@@ -28,7 +28,7 @@ import (
 	"github.com/nicksnyder/go-i18n/v2/i18n"
 	"golang.org/x/text/language"
 
-	"github.com/pydio/cells/v4/common/utils/statics"
+	"github.com/pydio/cells/v5/common/utils/statics"
 )
 
 type I18nBundle struct {

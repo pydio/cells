@@ -26,14 +26,14 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/pydio/cells/v4/common"
-	"github.com/pydio/cells/v4/common/config/mock"
-	"github.com/pydio/cells/v4/common/nodes"
-	"github.com/pydio/cells/v4/common/proto/jobs"
-	"github.com/pydio/cells/v4/common/proto/tree"
-	"github.com/pydio/cells/v4/common/utils/openurl"
-	"github.com/pydio/cells/v4/common/utils/uuid"
-	"github.com/pydio/cells/v4/scheduler/actions"
+	"github.com/pydio/cells/v5/common"
+	"github.com/pydio/cells/v5/common/config/mock"
+	"github.com/pydio/cells/v5/common/nodes"
+	"github.com/pydio/cells/v5/common/proto/jobs"
+	"github.com/pydio/cells/v5/common/proto/tree"
+	"github.com/pydio/cells/v5/common/utils/openurl"
+	"github.com/pydio/cells/v5/common/utils/uuid"
+	"github.com/pydio/cells/v5/scheduler/actions"
 
 	. "github.com/smartystreets/goconvey/convey"
 )

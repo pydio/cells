@@ -27,7 +27,7 @@ import (
 
 	. "github.com/smartystreets/goconvey/convey"
 
-	"github.com/pydio/cells/v4/common/proto/encryption"
+	"github.com/pydio/cells/v5/common/proto/encryption"
 )
 
 var data *encryption.Key

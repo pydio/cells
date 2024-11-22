@@ -24,13 +24,13 @@ package merger
 import (
 	"context"
 	"fmt"
-	"github.com/pydio/cells/v4/common/proto/tree"
+	"github.com/pydio/cells/v5/common/proto/tree"
 	"time"
 
 	"github.com/gobwas/glob"
 
-	"github.com/pydio/cells/v4/common"
-	"github.com/pydio/cells/v4/common/sync/model"
+	"github.com/pydio/cells/v5/common"
+	"github.com/pydio/cells/v5/common/sync/model"
 )
 
 type ConflictType int

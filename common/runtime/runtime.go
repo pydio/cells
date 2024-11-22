@@ -33,7 +33,7 @@ import (
 	"github.com/manifoldco/promptui"
 	utilnet "k8s.io/apimachinery/pkg/util/net"
 
-	net2 "github.com/pydio/cells/v4/common/utils/net"
+	net2 "github.com/pydio/cells/v5/common/utils/net"
 )
 
 var (

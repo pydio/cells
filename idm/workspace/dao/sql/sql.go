@@ -29,13 +29,13 @@ import (
 	"google.golang.org/protobuf/types/known/anypb"
 	"gorm.io/gorm"
 
-	"github.com/pydio/cells/v4/common"
-	"github.com/pydio/cells/v4/common/errors"
-	"github.com/pydio/cells/v4/common/proto/idm"
-	"github.com/pydio/cells/v4/common/proto/service"
-	"github.com/pydio/cells/v4/common/storage/sql"
-	resources2 "github.com/pydio/cells/v4/common/storage/sql/resources"
-	"github.com/pydio/cells/v4/idm/workspace"
+	"github.com/pydio/cells/v5/common"
+	"github.com/pydio/cells/v5/common/errors"
+	"github.com/pydio/cells/v5/common/proto/idm"
+	"github.com/pydio/cells/v5/common/proto/service"
+	"github.com/pydio/cells/v5/common/storage/sql"
+	resources2 "github.com/pydio/cells/v5/common/storage/sql/resources"
+	"github.com/pydio/cells/v5/idm/workspace"
 )
 
 type Resources resources2.DAO

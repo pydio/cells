@@ -26,8 +26,8 @@ import (
 
 	"github.com/mssola/user_agent"
 
-	"github.com/pydio/cells/v4/common/config"
-	"github.com/pydio/cells/v4/common/service/frontend"
+	"github.com/pydio/cells/v5/common/config"
+	"github.com/pydio/cells/v5/common/service/frontend"
 )
 
 // MobileRegModifier enables or disable gui.mobile depending on User-Agent request Header.

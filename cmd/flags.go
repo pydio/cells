@@ -27,9 +27,9 @@ import (
 	"github.com/spf13/pflag"
 	"gocloud.dev/pubsub"
 
-	"github.com/pydio/cells/v4/common/config"
-	"github.com/pydio/cells/v4/common/registry"
-	"github.com/pydio/cells/v4/common/runtime"
+	"github.com/pydio/cells/v5/common/config"
+	"github.com/pydio/cells/v5/common/registry"
+	"github.com/pydio/cells/v5/common/runtime"
 )
 
 const (

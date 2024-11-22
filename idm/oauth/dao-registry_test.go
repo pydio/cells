@@ -26,12 +26,12 @@ import (
 	"context"
 	"testing"
 
-	"github.com/pydio/cells/v4/common/config"
-	"github.com/pydio/cells/v4/common/runtime/manager"
-	"github.com/pydio/cells/v4/common/storage/test"
-	"github.com/pydio/cells/v4/common/utils/propagator"
-	"github.com/pydio/cells/v4/idm/oauth"
-	"github.com/pydio/cells/v4/idm/oauth/dao/sql"
+	"github.com/pydio/cells/v5/common/config"
+	"github.com/pydio/cells/v5/common/runtime/manager"
+	"github.com/pydio/cells/v5/common/storage/test"
+	"github.com/pydio/cells/v5/common/utils/propagator"
+	"github.com/pydio/cells/v5/idm/oauth"
+	"github.com/pydio/cells/v5/idm/oauth/dao/sql"
 
 	. "github.com/smartystreets/goconvey/convey"
 )

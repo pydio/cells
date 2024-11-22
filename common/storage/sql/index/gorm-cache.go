@@ -4,8 +4,8 @@ import (
 	"github.com/go-gorm/caches"
 	"gorm.io/gorm"
 
-	"github.com/pydio/cells/v4/common/proto/tree"
-	"github.com/pydio/cells/v4/common/utils/cache"
+	"github.com/pydio/cells/v5/common/proto/tree"
+	"github.com/pydio/cells/v5/common/utils/cache"
 )
 
 var _ caches.Cacher = (*Cacher)(nil)

@@ -32,7 +32,7 @@ import (
 	"gorm.io/gorm/clause"
 	"gorm.io/gorm/schema"
 
-	"github.com/pydio/cells/v4/common/proto/service"
+	"github.com/pydio/cells/v5/common/proto/service"
 )
 
 // gormImpl implements the SQL interface.

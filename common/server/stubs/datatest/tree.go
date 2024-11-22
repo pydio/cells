@@ -25,14 +25,14 @@ import (
 
 	"google.golang.org/grpc"
 
-	"github.com/pydio/cells/v4/common"
-	grpc2 "github.com/pydio/cells/v4/common/client/grpc"
-	"github.com/pydio/cells/v4/common/proto/tree"
-	"github.com/pydio/cells/v4/common/server/stubs"
-	"github.com/pydio/cells/v4/common/server/stubs/inject"
-	"github.com/pydio/cells/v4/common/service"
-	"github.com/pydio/cells/v4/common/utils/propagator"
-	srv "github.com/pydio/cells/v4/data/tree/grpc"
+	"github.com/pydio/cells/v5/common"
+	grpc2 "github.com/pydio/cells/v5/common/client/grpc"
+	"github.com/pydio/cells/v5/common/proto/tree"
+	"github.com/pydio/cells/v5/common/server/stubs"
+	"github.com/pydio/cells/v5/common/server/stubs/inject"
+	"github.com/pydio/cells/v5/common/service"
+	"github.com/pydio/cells/v5/common/utils/propagator"
+	srv "github.com/pydio/cells/v5/data/tree/grpc"
 )
 
 func NewTreeService(ctx context.Context, svc service.Service, dss []string, nodes ...*tree.Node) (grpc.ClientConnInterface, error) {

@@ -23,14 +23,14 @@ package compose
 import (
 	"context"
 
-	"github.com/pydio/cells/v4/common/nodes"
-	"github.com/pydio/cells/v4/common/nodes/acl"
-	"github.com/pydio/cells/v4/common/nodes/core"
-	"github.com/pydio/cells/v4/common/nodes/encryption"
-	"github.com/pydio/cells/v4/common/nodes/events"
-	"github.com/pydio/cells/v4/common/nodes/put"
-	"github.com/pydio/cells/v4/common/nodes/uuid"
-	"github.com/pydio/cells/v4/common/nodes/version"
+	"github.com/pydio/cells/v5/common/nodes"
+	"github.com/pydio/cells/v5/common/nodes/acl"
+	"github.com/pydio/cells/v5/common/nodes/core"
+	"github.com/pydio/cells/v5/common/nodes/encryption"
+	"github.com/pydio/cells/v5/common/nodes/events"
+	"github.com/pydio/cells/v5/common/nodes/put"
+	"github.com/pydio/cells/v5/common/nodes/uuid"
+	"github.com/pydio/cells/v5/common/nodes/version"
 )
 
 func UuidClient(ctx context.Context, oo ...nodes.Option) nodes.Client {

@@ -35,8 +35,8 @@ import (
 
 	"go.uber.org/zap"
 
-	"github.com/pydio/cells/v4/common/runtime"
-	"github.com/pydio/cells/v4/common/telemetry/log"
+	"github.com/pydio/cells/v5/common/runtime"
+	"github.com/pydio/cells/v5/common/telemetry/log"
 )
 
 var (

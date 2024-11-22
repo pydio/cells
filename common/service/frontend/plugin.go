@@ -28,9 +28,9 @@ import (
 
 	"github.com/jinzhu/copier"
 
-	"github.com/pydio/cells/v4/common"
-	"github.com/pydio/cells/v4/common/config"
-	json "github.com/pydio/cells/v4/common/utils/jsonx"
+	"github.com/pydio/cells/v5/common"
+	"github.com/pydio/cells/v5/common/config"
+	json "github.com/pydio/cells/v5/common/utils/jsonx"
 )
 
 type Plugin interface {
@@ -61,33 +61,43 @@ type Plugin interface {
 func (plugin *Cplugin) GetDescription() string {
 	return plugin.Attrdescription
 }
+
 func (plugin *Cplugin) GetEnabled() string {
 	return plugin.Attrenabled
 }
+
 func (plugin *Cplugin) GetId() string {
 	return plugin.Attrid
 }
+
 func (plugin *Cplugin) GetLabel() string {
 	return plugin.Attrlabel
 }
+
 func (plugin *Cplugin) GetName() string {
 	return plugin.Attrname
 }
+
 func (plugin *Cplugin) GetClientSettings() *Cclient_settings {
 	return plugin.Cclient_settings
 }
+
 func (plugin *Cplugin) GetPluginConfigs() *Cplugin_configs {
 	return plugin.Cplugin_configs
 }
+
 func (plugin *Cplugin) GetPluginInfo() *Cplugin_info {
 	return plugin.Cplugin_info
 }
+
 func (plugin *Cplugin) GetServerSettings() *Cserver_settings {
 	return plugin.Cserver_settings
 }
+
 func (plugin *Cplugin) GetRegistryContributions() *Cregistry_contributions {
 	return plugin.Cregistry_contributions
 }
+
 func (plugin *Cplugin) GetDependencies() *Cdependencies {
 	return plugin.Cdependencies
 }

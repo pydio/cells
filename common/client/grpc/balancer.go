@@ -32,8 +32,8 @@ import (
 	"google.golang.org/grpc/balancer/base"
 	"google.golang.org/grpc/metadata"
 
-	"github.com/pydio/cells/v4/common"
-	"github.com/pydio/cells/v4/common/client"
+	"github.com/pydio/cells/v5/common"
+	"github.com/pydio/cells/v5/common/client"
 
 	_ "google.golang.org/grpc/balancer/grpclb"
 )

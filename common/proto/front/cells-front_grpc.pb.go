@@ -31,7 +31,7 @@ func NewManifestServiceClient(cc grpc.ClientConnInterface) ManifestServiceClient
 
 func (c *manifestServiceClient) ExposedParameters(ctx context.Context, in *ExposedParametersRequest, opts ...grpc.CallOption) (*ExposedParametersResponse, error) {
 	out := new(ExposedParametersResponse)
-	err := c.cc.Invoke(ctx, "/ManifestService/ExposedParameters", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/front.ManifestService/ExposedParameters", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -76,7 +76,7 @@ func _ManifestService_ExposedParameters_Handler(srv interface{}, ctx context.Con
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/ManifestService/ExposedParameters",
+		FullMethod: "/front.ManifestService/ExposedParameters",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(ManifestServiceServer).ExposedParameters(ctx, req.(*ExposedParametersRequest))
@@ -88,7 +88,7 @@ func _ManifestService_ExposedParameters_Handler(srv interface{}, ctx context.Con
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
 var ManifestService_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "ManifestService",
+	ServiceName: "front.ManifestService",
 	HandlerType: (*ManifestServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{

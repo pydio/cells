@@ -27,8 +27,8 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/pydio/cells/v4/common/config/routing"
-	"github.com/pydio/cells/v4/common/proto/install"
+	"github.com/pydio/cells/v5/common/config/routing"
+	"github.com/pydio/cells/v5/common/proto/install"
 )
 
 func init() {

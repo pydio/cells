@@ -30,15 +30,15 @@ import (
 	"go.uber.org/zap"
 	"google.golang.org/protobuf/types/known/anypb"
 
-	"github.com/pydio/cells/v4/common/proto/idm"
-	service "github.com/pydio/cells/v4/common/proto/service"
-	"github.com/pydio/cells/v4/common/runtime/manager"
-	"github.com/pydio/cells/v4/common/storage/test"
-	"github.com/pydio/cells/v4/common/telemetry/log"
-	"github.com/pydio/cells/v4/common/utils/uuid"
-	"github.com/pydio/cells/v4/idm/meta"
+	"github.com/pydio/cells/v5/common/proto/idm"
+	service "github.com/pydio/cells/v5/common/proto/service"
+	"github.com/pydio/cells/v5/common/runtime/manager"
+	"github.com/pydio/cells/v5/common/storage/test"
+	"github.com/pydio/cells/v5/common/telemetry/log"
+	"github.com/pydio/cells/v5/common/utils/uuid"
+	"github.com/pydio/cells/v5/idm/meta"
 
-	_ "github.com/pydio/cells/v4/common/utils/cache/gocache"
+	_ "github.com/pydio/cells/v5/common/utils/cache/gocache"
 
 	. "github.com/smartystreets/goconvey/convey"
 )

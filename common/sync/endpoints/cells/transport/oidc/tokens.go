@@ -32,12 +32,12 @@ import (
 	"strings"
 	"time"
 
-	"github.com/pydio/cells/v4/common/sync/endpoints/cells/transport"
-	http2 "github.com/pydio/cells/v4/common/sync/endpoints/cells/transport/http"
-	"github.com/pydio/cells/v4/common/utils/cache"
-	"github.com/pydio/cells/v4/common/utils/cache/gocache"
+	"github.com/pydio/cells/v5/common/sync/endpoints/cells/transport"
+	http2 "github.com/pydio/cells/v5/common/sync/endpoints/cells/transport/http"
+	"github.com/pydio/cells/v5/common/utils/cache"
+	"github.com/pydio/cells/v5/common/utils/cache/gocache"
 
-	_ "github.com/pydio/cells/v4/common/utils/cache/gocache"
+	_ "github.com/pydio/cells/v5/common/utils/cache/gocache"
 )
 
 var (

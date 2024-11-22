@@ -26,9 +26,9 @@ import (
 
 	"go.uber.org/zap"
 
-	"github.com/pydio/cells/v4/common/proto/tree"
-	"github.com/pydio/cells/v4/common/sync/merger"
-	"github.com/pydio/cells/v4/common/sync/model"
+	"github.com/pydio/cells/v5/common/proto/tree"
+	"github.com/pydio/cells/v5/common/sync/merger"
+	"github.com/pydio/cells/v5/common/sync/model"
 )
 
 func (pr *Processor) processCreateFolder(cancelCtx context.Context, operation merger.Operation, operationId string, pg chan int64) error {

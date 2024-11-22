@@ -26,7 +26,7 @@ import (
 	"errors"
 	"reflect"
 
-	"github.com/pydio/cells/v4/common/proto/activity"
+	"github.com/pydio/cells/v5/common/proto/activity"
 	"google.golang.org/protobuf/proto"
 )
 

@@ -22,18 +22,18 @@ package mc
 
 import (
 	"context"
-	"github.com/minio/minio-go/v7/pkg/credentials"
-	"github.com/pydio/cells/v4/common"
 	"io"
 	"net/http"
 	"net/url"
 
 	minio "github.com/minio/minio-go/v7"
+	"github.com/minio/minio-go/v7/pkg/credentials"
 
-	"github.com/pydio/cells/v4/common/nodes/models"
-	"github.com/pydio/cells/v4/common/proto/tree"
-	"github.com/pydio/cells/v4/common/sync/endpoints/cells/transport"
-	"github.com/pydio/cells/v4/common/sync/endpoints/cells/transport/oidc"
+	"github.com/pydio/cells/v5/common"
+	"github.com/pydio/cells/v5/common/nodes/models"
+	"github.com/pydio/cells/v5/common/proto/tree"
+	"github.com/pydio/cells/v5/common/sync/endpoints/cells/transport"
+	"github.com/pydio/cells/v5/common/sync/endpoints/cells/transport/oidc"
 )
 
 type S3Client struct {

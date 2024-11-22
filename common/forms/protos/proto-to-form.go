@@ -27,7 +27,7 @@ import (
 	"google.golang.org/protobuf/proto"
 	"google.golang.org/protobuf/reflect/protoreflect"
 
-	"github.com/pydio/cells/v4/common/forms"
+	"github.com/pydio/cells/v5/common/forms"
 )
 
 func GenerateProtoToForm(prefix string, msg interface{}, makeSwitch bool, i18nKeys ...map[string]string) *forms.Form {

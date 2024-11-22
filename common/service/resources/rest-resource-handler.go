@@ -28,10 +28,10 @@ import (
 	"github.com/ory/ladon"
 	"github.com/ory/ladon/manager/memory"
 
-	"github.com/pydio/cells/v4/common/auth"
-	"github.com/pydio/cells/v4/common/errors"
-	"github.com/pydio/cells/v4/common/proto/rest"
-	"github.com/pydio/cells/v4/common/proto/service"
+	"github.com/pydio/cells/v5/common/auth"
+	"github.com/pydio/cells/v5/common/errors"
+	"github.com/pydio/cells/v5/common/proto/rest"
+	"github.com/pydio/cells/v5/common/proto/service"
 )
 
 // PoliciesLoaderFunc is a signature for a function that can load policies from a given resource

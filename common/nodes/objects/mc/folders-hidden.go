@@ -8,11 +8,11 @@ import (
 	"path"
 	"strings"
 
-	"github.com/minio/minio-go/v7"
+	minio "github.com/minio/minio-go/v7"
 	"github.com/pborman/uuid"
 
-	"github.com/pydio/cells/v4/common"
-	"github.com/pydio/cells/v4/common/nodes/models"
+	"github.com/pydio/cells/v5/common"
+	"github.com/pydio/cells/v5/common/nodes/models"
 )
 
 const (

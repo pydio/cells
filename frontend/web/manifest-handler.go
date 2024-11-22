@@ -23,8 +23,8 @@ package web
 import (
 	"context"
 
-	"github.com/pydio/cells/v4/common/proto/front"
-	"github.com/pydio/cells/v4/common/service/frontend"
+	"github.com/pydio/cells/v5/common/proto/front"
+	"github.com/pydio/cells/v5/common/service/frontend"
 )
 
 type ManifestHandler struct {

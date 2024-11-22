@@ -30,8 +30,8 @@ import (
 	"github.com/caddyserver/caddy/v2/caddyconfig/httpcaddyfile"
 	"github.com/caddyserver/caddy/v2/modules/caddyhttp"
 
-	clienthttp "github.com/pydio/cells/v4/common/client/http"
-	"github.com/pydio/cells/v4/common/config/routing"
+	clienthttp "github.com/pydio/cells/v5/common/client/http"
+	"github.com/pydio/cells/v5/common/config/routing"
 )
 
 var (

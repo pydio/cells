@@ -23,7 +23,7 @@ package filters
 import (
 	"strings"
 
-	"github.com/pydio/cells/v4/common/sync/model"
+	"github.com/pydio/cells/v5/common/sync/model"
 )
 
 // SelectiveRootsFilter is a Pipe filtering events that are outside of the selective roots

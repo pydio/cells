@@ -24,8 +24,8 @@ import (
 	"net/http/httputil"
 	"net/url"
 	"sync"
-	
-	pb "github.com/pydio/cells/v4/common/proto/registry"
+
+	pb "github.com/pydio/cells/v5/common/proto/registry"
 )
 
 type Balancer struct {

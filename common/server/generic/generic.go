@@ -22,13 +22,14 @@ package generic
 
 import (
 	"context"
-	"golang.org/x/exp/maps"
 	"net/url"
 
-	"github.com/pydio/cells/v4/common/registry"
-	"github.com/pydio/cells/v4/common/registry/util"
-	"github.com/pydio/cells/v4/common/server"
-	"github.com/pydio/cells/v4/common/utils/uuid"
+	"golang.org/x/exp/maps"
+
+	"github.com/pydio/cells/v5/common/registry"
+	"github.com/pydio/cells/v5/common/registry/util"
+	"github.com/pydio/cells/v5/common/server"
+	"github.com/pydio/cells/v5/common/utils/uuid"
 )
 
 type Server struct {

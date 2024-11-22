@@ -2,7 +2,7 @@ syntax = "proto3";
 
 package auth;
 
-option go_package="github.com/pydio/cells/v4/common/proto/auth";
+option go_package="github.com/pydio/cells/v5/common/proto/auth";
 
 message Token {
     string AccessToken = 1;

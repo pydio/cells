@@ -30,15 +30,15 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/pydio/cells/v4/common"
-	"github.com/pydio/cells/v4/common/client/grpc"
-	"github.com/pydio/cells/v4/common/config"
-	"github.com/pydio/cells/v4/common/proto/object"
-	"github.com/pydio/cells/v4/common/proto/tree"
-	"github.com/pydio/cells/v4/common/sync/endpoints/memory"
-	"github.com/pydio/cells/v4/common/sync/endpoints/snapshot"
-	model2 "github.com/pydio/cells/v4/common/sync/model"
-	"github.com/pydio/cells/v4/data/source/sync/clients"
+	"github.com/pydio/cells/v5/common"
+	"github.com/pydio/cells/v5/common/client/grpc"
+	"github.com/pydio/cells/v5/common/config"
+	"github.com/pydio/cells/v5/common/proto/object"
+	"github.com/pydio/cells/v5/common/proto/tree"
+	"github.com/pydio/cells/v5/common/sync/endpoints/memory"
+	"github.com/pydio/cells/v5/common/sync/endpoints/snapshot"
+	model2 "github.com/pydio/cells/v5/common/sync/model"
+	"github.com/pydio/cells/v5/data/source/sync/clients"
 )
 
 var (

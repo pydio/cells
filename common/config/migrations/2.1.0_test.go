@@ -24,9 +24,10 @@ import (
 	"testing"
 
 	hashiversion "github.com/hashicorp/go-version"
-	. "github.com/smartystreets/goconvey/convey"
 
-	"github.com/pydio/cells/v4/common/utils/configx"
+	"github.com/pydio/cells/v5/common/utils/configx"
+
+	. "github.com/smartystreets/goconvey/convey"
 )
 
 var (

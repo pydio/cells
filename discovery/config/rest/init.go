@@ -20,7 +20,7 @@
 
 package rest
 
-import "github.com/pydio/cells/v4/common/config"
+import "github.com/pydio/cells/v5/common/config"
 
 func init() {
 

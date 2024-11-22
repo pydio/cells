@@ -2,6 +2,7 @@ version: v1
 directories:
   - activity
   - auth
+  - chat
   - broker
   - ctl
   - config
@@ -18,5 +19,6 @@ directories:
   - tree
   - update
   - registry
+  - sync
   - options/orm
   - options/setter

@@ -26,13 +26,13 @@ import (
 	"fmt"
 	"sync"
 
-	"github.com/pydio/cells/v4/common"
-	"github.com/pydio/cells/v4/common/broker"
-	"github.com/pydio/cells/v4/common/proto/jobs"
-	"github.com/pydio/cells/v4/common/runtime"
-	"github.com/pydio/cells/v4/common/server/generic"
-	"github.com/pydio/cells/v4/common/service"
-	"github.com/pydio/cells/v4/scheduler/timer"
+	"github.com/pydio/cells/v5/common"
+	"github.com/pydio/cells/v5/common/broker"
+	"github.com/pydio/cells/v5/common/proto/jobs"
+	"github.com/pydio/cells/v5/common/runtime"
+	"github.com/pydio/cells/v5/common/server/generic"
+	"github.com/pydio/cells/v5/common/service"
+	"github.com/pydio/cells/v5/scheduler/timer"
 )
 
 var (

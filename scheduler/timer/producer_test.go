@@ -28,7 +28,7 @@ import (
 
 	. "github.com/smartystreets/goconvey/convey"
 
-	"github.com/pydio/cells/v4/common/proto/jobs"
+	"github.com/pydio/cells/v5/common/proto/jobs"
 )
 
 func TestProducer(t *testing.T) {

@@ -29,7 +29,7 @@ import (
 	"go.uber.org/zap/buffer"
 	"go.uber.org/zap/zapcore"
 
-	"github.com/pydio/cells/v4/common"
+	"github.com/pydio/cells/v5/common"
 )
 
 const (

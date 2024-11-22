@@ -23,20 +23,20 @@ package service
 
 import (
 	"context"
-	"github.com/pydio/cells/v4/common/proto/tree"
-	"github.com/pydio/cells/v4/common/runtime/manager"
-	"github.com/pydio/cells/v4/common/telemetry/log"
+	"github.com/pydio/cells/v5/common/proto/tree"
+	"github.com/pydio/cells/v5/common/runtime/manager"
+	"github.com/pydio/cells/v5/common/telemetry/log"
 	"go.uber.org/zap"
 	"google.golang.org/grpc"
 	"google.golang.org/protobuf/encoding/protojson"
 
-	"github.com/pydio/cells/v4/common"
-	proto "github.com/pydio/cells/v4/common/proto/docstore"
-	"github.com/pydio/cells/v4/common/proto/sync"
-	"github.com/pydio/cells/v4/common/runtime"
-	"github.com/pydio/cells/v4/common/service"
-	"github.com/pydio/cells/v4/data/docstore"
-	grpc2 "github.com/pydio/cells/v4/data/docstore/grpc"
+	"github.com/pydio/cells/v5/common"
+	proto "github.com/pydio/cells/v5/common/proto/docstore"
+	"github.com/pydio/cells/v5/common/proto/sync"
+	"github.com/pydio/cells/v5/common/runtime"
+	"github.com/pydio/cells/v5/common/service"
+	"github.com/pydio/cells/v5/data/docstore"
+	grpc2 "github.com/pydio/cells/v5/data/docstore/grpc"
 )
 
 var (

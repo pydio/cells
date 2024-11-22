@@ -21,13 +21,13 @@
 package util
 
 import (
-	"github.com/pydio/cells/v4/common/utils/std"
+	"github.com/pydio/cells/v5/common/utils/std"
 	"golang.org/x/exp/maps"
 
-	pb "github.com/pydio/cells/v4/common/proto/registry"
-	"github.com/pydio/cells/v4/common/registry"
-	"github.com/pydio/cells/v4/common/utils/merger"
-	"github.com/pydio/cells/v4/common/utils/uuid"
+	pb "github.com/pydio/cells/v5/common/proto/registry"
+	"github.com/pydio/cells/v5/common/registry"
+	"github.com/pydio/cells/v5/common/utils/merger"
+	"github.com/pydio/cells/v5/common/utils/uuid"
 )
 
 func CreateAddress(addr string, meta map[string]string) registry.Generic {

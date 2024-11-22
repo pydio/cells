@@ -23,7 +23,7 @@ package templates
 import (
 	"context"
 
-	"github.com/pydio/cells/v4/common/errors"
+	"github.com/pydio/cells/v5/common/errors"
 )
 
 var (

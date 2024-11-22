@@ -27,7 +27,7 @@ import (
 
 	"google.golang.org/grpc/health/grpc_health_v1"
 
-	"github.com/pydio/cells/v4/common/utils/std"
+	"github.com/pydio/cells/v5/common/utils/std"
 )
 
 // HealthMonitor blocks a connection to a specific service health

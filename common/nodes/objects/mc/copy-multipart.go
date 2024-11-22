@@ -30,9 +30,9 @@ import (
 	minio "github.com/minio/minio-go/v7"
 	"go.uber.org/zap"
 
-	"github.com/pydio/cells/v4/common/nodes/models"
-	"github.com/pydio/cells/v4/common/telemetry/log"
-	"github.com/pydio/cells/v4/common/utils/propagator"
+	"github.com/pydio/cells/v5/common/nodes/models"
+	"github.com/pydio/cells/v5/common/telemetry/log"
+	"github.com/pydio/cells/v5/common/utils/propagator"
 )
 
 // minPartSize - minimum part size 64MiB per object after which

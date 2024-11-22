@@ -25,9 +25,9 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/pydio/cells/v4/common/config/revisions"
-	"github.com/pydio/cells/v4/common/utils/configx"
-	"github.com/pydio/cells/v4/common/utils/propagator"
+	"github.com/pydio/cells/v5/common/config/revisions"
+	"github.com/pydio/cells/v5/common/utils/configx"
+	"github.com/pydio/cells/v5/common/utils/propagator"
 )
 
 type wrappedStore Store

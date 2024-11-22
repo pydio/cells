@@ -1,4 +1,5 @@
-// +build !386, !arm
+//go:build (!386 && ignore) || !arm
+// +build !386,ignore !arm
 
 /*
  * Copyright (c) 2019-2021. Abstrium SAS <team (at) pydio.com>
@@ -27,12 +28,15 @@ import (
 
 	"github.com/yvasiyarov/php_session_decoder/php_serialize"
 
-	json "github.com/pydio/cells/v4/common/utils/jsonx"
+	json "github.com/pydio/cells/v5/common/utils/jsonx"
 )
 
 type phpMeta map[string]interface{}
+
 type phpUsers map[string]phpMeta
+
 type phpNodes map[string]phpUsers
+
 type phpLocalMeta map[string]phpNodes
 
 type PhpUserMeta struct {

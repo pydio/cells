@@ -32,8 +32,8 @@ import (
 	"gorm.io/gorm"
 	"gorm.io/gorm/schema"
 
-	"github.com/pydio/cells/v4/common/storage/sql"
-	json "github.com/pydio/cells/v4/common/utils/jsonx"
+	"github.com/pydio/cells/v5/common/storage/sql"
+	json "github.com/pydio/cells/v5/common/utils/jsonx"
 )
 
 var _ jwk.Manager = new(jwkDriver)

@@ -27,7 +27,7 @@ import (
 
 	"github.com/pydio/go/docs"
 
-	"github.com/pydio/cells/v4/common"
+	"github.com/pydio/cells/v5/common"
 )
 
 var docPath string

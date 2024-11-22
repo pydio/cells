@@ -5,7 +5,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/pydio/cells/v4/common/proto/tree"
+	"github.com/pydio/cells/v5/common/proto/tree"
 
 	_ "gocloud.dev/pubsub/mempubsub"
 

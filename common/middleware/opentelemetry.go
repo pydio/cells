@@ -34,7 +34,7 @@ import (
 	"google.golang.org/grpc/stats"
 	"google.golang.org/grpc/status"
 
-	"github.com/pydio/cells/v4/common/runtime"
+	"github.com/pydio/cells/v5/common/runtime"
 )
 
 func init() {

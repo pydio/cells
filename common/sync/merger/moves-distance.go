@@ -28,8 +28,8 @@ import (
 
 	"go.uber.org/zap/zapcore"
 
-	"github.com/pydio/cells/v4/common/proto/tree"
-	"github.com/pydio/cells/v4/common/utils/filesystem"
+	"github.com/pydio/cells/v5/common/proto/tree"
+	"github.com/pydio/cells/v5/common/utils/filesystem"
 )
 
 const (

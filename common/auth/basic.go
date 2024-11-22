@@ -25,9 +25,9 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/pydio/cells/v4/common"
-	"github.com/pydio/cells/v4/common/auth/claim"
-	"github.com/pydio/cells/v4/common/utils/propagator"
+	"github.com/pydio/cells/v5/common"
+	"github.com/pydio/cells/v5/common/auth/claim"
+	"github.com/pydio/cells/v5/common/utils/propagator"
 )
 
 func NewBasicAuthenticator(realm string, ttl time.Duration) *BasicAuthenticator {

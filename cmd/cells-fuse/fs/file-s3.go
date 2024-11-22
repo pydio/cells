@@ -30,8 +30,8 @@ import (
 
 	"github.com/hanwen/go-fuse/v2/fs"
 
-	"github.com/pydio/cells/v4/common/nodes"
-	"github.com/pydio/cells/v4/common/nodes/models"
+	"github.com/pydio/cells/v5/common/nodes"
+	"github.com/pydio/cells/v5/common/nodes/models"
 )
 
 type fileS3 struct {

@@ -26,11 +26,11 @@ import (
 	"context"
 	"testing"
 
-	"github.com/pydio/cells/v4/common/proto/encryption"
-	"github.com/pydio/cells/v4/common/runtime/manager"
-	"github.com/pydio/cells/v4/common/storage/sql"
-	"github.com/pydio/cells/v4/common/storage/test"
-	"github.com/pydio/cells/v4/data/key"
+	"github.com/pydio/cells/v5/common/proto/encryption"
+	"github.com/pydio/cells/v5/common/runtime/manager"
+	"github.com/pydio/cells/v5/common/storage/sql"
+	"github.com/pydio/cells/v5/common/storage/test"
+	"github.com/pydio/cells/v5/data/key"
 
 	. "github.com/smartystreets/goconvey/convey"
 )

@@ -1,9 +1,11 @@
 package registry
 
 import (
-	"github.com/pydio/cells/v4/common/config"
-	"github.com/r3labs/diff/v3"
 	"reflect"
+
+	diff "github.com/r3labs/diff/v3"
+
+	"github.com/pydio/cells/v5/common/config"
 )
 
 func init() {

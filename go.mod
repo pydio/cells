@@ -1,4 +1,4 @@
-module github.com/pydio/cells/v4
+module github.com/pydio/cells/v5
 
 go 1.23
 
@@ -525,9 +525,6 @@ require (
 	modernc.org/memory v1.8.0 // indirect
 	modernc.org/sqlite v1.30.1 // indirect
 )
-
-// That one was published 6 months before official release ;-)
-retract v4.0.0
 
 //replace github.com/pydio/caddyvault => /Users/charles/Sources/go/src/github.com/pydio/caddyvault
 

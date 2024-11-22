@@ -24,7 +24,7 @@ import (
 	"context"
 	"crypto/rand"
 
-	"github.com/pydio/cells/v4/common/crypto"
+	"github.com/pydio/cells/v5/common/crypto"
 )
 
 // mockUserKeyTool

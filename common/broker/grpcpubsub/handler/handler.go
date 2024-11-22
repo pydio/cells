@@ -32,9 +32,9 @@ import (
 	"google.golang.org/grpc/metadata"
 	"google.golang.org/protobuf/proto"
 
-	"github.com/pydio/cells/v4/common"
-	"github.com/pydio/cells/v4/common/broker"
-	pb "github.com/pydio/cells/v4/common/proto/broker"
+	"github.com/pydio/cells/v5/common"
+	"github.com/pydio/cells/v5/common/broker"
+	pb "github.com/pydio/cells/v5/common/proto/broker"
 )
 
 var (

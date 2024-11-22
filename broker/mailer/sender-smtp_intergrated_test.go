@@ -28,8 +28,8 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/pydio/cells/v4/common/proto/mailer"
-	"github.com/pydio/cells/v4/common/utils/configx"
+	"github.com/pydio/cells/v5/common/proto/mailer"
+	"github.com/pydio/cells/v5/common/utils/configx"
 
 	. "github.com/smartystreets/goconvey/convey"
 )

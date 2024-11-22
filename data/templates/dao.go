@@ -24,7 +24,7 @@ import (
 	"context"
 	"io"
 
-	"github.com/pydio/cells/v4/common/proto/rest"
+	"github.com/pydio/cells/v5/common/proto/rest"
 )
 
 type DAO interface {

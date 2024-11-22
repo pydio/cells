@@ -23,8 +23,8 @@ package middleware
 import (
 	"context"
 
-	"github.com/pydio/cells/v4/common"
-	"github.com/pydio/cells/v4/common/utils/propagator"
+	"github.com/pydio/cells/v5/common"
+	"github.com/pydio/cells/v5/common/utils/propagator"
 )
 
 func CellsMetadataIncomingContext(ctx context.Context) (context.Context, bool, error) {

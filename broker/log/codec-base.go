@@ -25,10 +25,10 @@ import (
 	"strings"
 	"time"
 
-	"github.com/pydio/cells/v4/common"
-	"github.com/pydio/cells/v4/common/middleware/keys"
-	"github.com/pydio/cells/v4/common/proto/log"
-	json "github.com/pydio/cells/v4/common/utils/jsonx"
+	"github.com/pydio/cells/v5/common"
+	"github.com/pydio/cells/v5/common/middleware/keys"
+	"github.com/pydio/cells/v5/common/proto/log"
+	json "github.com/pydio/cells/v5/common/utils/jsonx"
 )
 
 // IndexableLog extends default log.LogMessage struct to add index specific methods

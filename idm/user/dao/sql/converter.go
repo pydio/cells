@@ -33,13 +33,13 @@ import (
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
 
-	"github.com/pydio/cells/v4/common"
-	"github.com/pydio/cells/v4/common/errors"
-	"github.com/pydio/cells/v4/common/proto/idm"
-	"github.com/pydio/cells/v4/common/proto/tree"
-	"github.com/pydio/cells/v4/common/storage/sql/index"
-	"github.com/pydio/cells/v4/common/telemetry/log"
-	usermodel "github.com/pydio/cells/v4/idm/user/dao/sql/model"
+	"github.com/pydio/cells/v5/common"
+	"github.com/pydio/cells/v5/common/errors"
+	"github.com/pydio/cells/v5/common/proto/idm"
+	"github.com/pydio/cells/v5/common/proto/tree"
+	"github.com/pydio/cells/v5/common/storage/sql/index"
+	"github.com/pydio/cells/v5/common/telemetry/log"
+	usermodel "github.com/pydio/cells/v5/idm/user/dao/sql/model"
 )
 
 type queryConverter struct {

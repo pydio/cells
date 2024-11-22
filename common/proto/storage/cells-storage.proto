@@ -2,7 +2,7 @@ syntax="proto3";
 
 package storage;
 
-option go_package="github.com/pydio/cells/common/proto/storage";
+option go_package="github.com/pydio/cells/v5/common/proto/storage";
 
 service StorageEndpoint {
   rpc Propose(ProposeRequest) returns (ProposeResponse){};

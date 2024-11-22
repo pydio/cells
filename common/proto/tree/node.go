@@ -37,11 +37,11 @@ import (
 	"gorm.io/gorm/clause"
 	"gorm.io/gorm/schema"
 
-	"github.com/pydio/cells/v4/common"
-	json "github.com/pydio/cells/v4/common/utils/jsonx"
-	"github.com/pydio/cells/v4/common/utils/math"
-	"github.com/pydio/cells/v4/common/utils/std"
-	"github.com/pydio/cells/v4/common/utils/uuid"
+	"github.com/pydio/cells/v5/common"
+	json "github.com/pydio/cells/v5/common/utils/jsonx"
+	"github.com/pydio/cells/v5/common/utils/math"
+	"github.com/pydio/cells/v5/common/utils/std"
+	"github.com/pydio/cells/v5/common/utils/uuid"
 )
 
 const (

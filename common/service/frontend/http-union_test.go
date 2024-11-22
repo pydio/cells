@@ -25,8 +25,8 @@ import (
 	"io"
 	"testing"
 
-	"github.com/pydio/cells/v4/common/service"
-	"github.com/pydio/cells/v4/common/utils/statics"
+	"github.com/pydio/cells/v5/common/service"
+	"github.com/pydio/cells/v5/common/utils/statics"
 
 	. "github.com/smartystreets/goconvey/convey"
 )

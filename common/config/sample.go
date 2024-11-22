@@ -20,7 +20,7 @@
 
 package config
 
-import "github.com/pydio/cells/v4/common"
+import "github.com/pydio/cells/v5/common"
 
 // SampleConfig is the default config used during the first install
 var SampleConfig = `{

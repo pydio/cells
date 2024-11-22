@@ -12,7 +12,7 @@ import (
 
 	"github.com/spf13/cast"
 
-	"github.com/pydio/cells/v4/common/errors"
+	"github.com/pydio/cells/v5/common/errors"
 )
 
 type Values interface {

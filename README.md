@@ -4,8 +4,12 @@
 [Issue-Tracker](https://github.com/pydio/cells/issues)
 
 [![License Badge](https://img.shields.io/badge/License-AGPL%203%2B-blue.svg)](LICENSE)
-[![GoDoc](https://godoc.org/github.com/pydio/cells/v4?status.svg)](https://godoc.org/github.com/pydio/cells/v4)
-[![Go Report Card](https://goreportcard.com/badge/github.com/pydio/cells/v4?rand=6)](https://goreportcard.com/report/github.com/pydio/cells/v4)
+[![GoDoc](https://godoc.org/github.com/pydio/cells/v5?status.svg)](https://godoc.org/github.com/pydio/cells/v5)
+[![Go Report Card](https://goreportcard.com/badge/github.com/pydio/cells/v5?rand=6)](https://goreportcard.com/report/github.com/pydio/cells/v5)
+
+**-------------**  
+**WORK IN PROGRESS - CELLS V5 - USE THIS BRANCH AT YOUR OWN RISKS**  
+**-------------**
 
 Pydio Cells is the nextgen file sharing platform for organizations. It is a full rewrite of the Pydio project using the Go language following a micro-service architecture.
 

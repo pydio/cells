@@ -25,12 +25,12 @@ import (
 	"encoding/gob"
 	"os"
 
-	"github.com/pydio/cells/v4/common/config"
-	"github.com/pydio/cells/v4/common/runtime"
-	"github.com/pydio/cells/v4/common/service"
-	"github.com/pydio/cells/v4/common/service/frontend"
-	front "github.com/pydio/cells/v4/frontend"
-	"github.com/pydio/cells/v4/frontend/rest/modifiers"
+	"github.com/pydio/cells/v5/common/config"
+	"github.com/pydio/cells/v5/common/runtime"
+	"github.com/pydio/cells/v5/common/service"
+	"github.com/pydio/cells/v5/common/service/frontend"
+	front "github.com/pydio/cells/v5/frontend"
+	"github.com/pydio/cells/v5/frontend/rest/modifiers"
 )
 
 var BasePluginsBox = service.PluginBox{

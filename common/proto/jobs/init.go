@@ -25,9 +25,9 @@ import (
 
 	grpc2 "google.golang.org/grpc"
 
-	"github.com/pydio/cells/v4/common/auth/claim"
-	"github.com/pydio/cells/v4/common/proto/idm"
-	"github.com/pydio/cells/v4/common/proto/tree"
+	"github.com/pydio/cells/v5/common/auth/claim"
+	"github.com/pydio/cells/v5/common/proto/idm"
+	"github.com/pydio/cells/v5/common/proto/tree"
 )
 
 type FreeStringEvaluator func(ctx context.Context, query string, node *tree.Node) bool

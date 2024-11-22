@@ -28,12 +28,12 @@ import (
 
 	restful "github.com/emicklei/go-restful/v3"
 
-	"github.com/pydio/cells/v4/common/auth/claim"
-	"github.com/pydio/cells/v4/common/config"
-	"github.com/pydio/cells/v4/common/permissions"
-	"github.com/pydio/cells/v4/common/proto/idm"
-	runtime2 "github.com/pydio/cells/v4/common/runtime"
-	json "github.com/pydio/cells/v4/common/utils/jsonx"
+	"github.com/pydio/cells/v5/common/auth/claim"
+	"github.com/pydio/cells/v5/common/config"
+	"github.com/pydio/cells/v5/common/permissions"
+	"github.com/pydio/cells/v5/common/proto/idm"
+	runtime2 "github.com/pydio/cells/v5/common/runtime"
+	json "github.com/pydio/cells/v5/common/utils/jsonx"
 )
 
 var (

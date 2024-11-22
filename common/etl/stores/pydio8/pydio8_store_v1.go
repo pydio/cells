@@ -27,7 +27,7 @@ import (
 	"path"
 
 	"github.com/go-openapi/runtime"
-	json "github.com/pydio/cells/v4/common/utils/jsonx"
+	json "github.com/pydio/cells/v5/common/utils/jsonx"
 	"github.com/pydio/pydio-sdk-go/config"
 )
 

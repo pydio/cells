@@ -23,9 +23,9 @@ package s3
 import (
 	"bytes"
 	"context"
-	"github.com/pydio/cells/v4/common/nodes/models"
-	"github.com/pydio/cells/v4/common/nodes/objects/mock"
-	"github.com/pydio/cells/v4/common/sync/model"
+	"github.com/pydio/cells/v5/common/nodes/models"
+	"github.com/pydio/cells/v5/common/nodes/objects/mock"
+	"github.com/pydio/cells/v5/common/sync/model"
 )
 
 func NewS3Mock(bucketName ...string) *Client {

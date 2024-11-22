@@ -26,7 +26,7 @@ import (
 
 	"gorm.io/gorm"
 
-	service "github.com/pydio/cells/v4/common/proto/service"
+	service "github.com/pydio/cells/v5/common/proto/service"
 )
 
 // DAO interface

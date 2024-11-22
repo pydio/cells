@@ -25,10 +25,10 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/pydio/cells/v4/common/proto/tree"
-
-	"github.com/pydio/cells/v4/common/sync/model"
 	"github.com/smartystreets/goconvey/convey"
+
+	"github.com/pydio/cells/v5/common/proto/tree"
+	"github.com/pydio/cells/v5/common/sync/model"
 )
 
 func TestSortClosestMove(t *testing.T) {

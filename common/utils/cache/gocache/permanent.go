@@ -24,9 +24,9 @@ import (
 	"context"
 	"net/url"
 
-	"github.com/pydio/cells/v4/common/telemetry/log"
-	"github.com/pydio/cells/v4/common/utils/cache"
-	"github.com/pydio/cells/v4/common/utils/openurl"
+	"github.com/pydio/cells/v5/common/telemetry/log"
+	"github.com/pydio/cells/v5/common/utils/cache"
+	"github.com/pydio/cells/v5/common/utils/openurl"
 )
 
 // MustOpenNonExpirableMemory opens a permanent cache using gocache and can accept a WatcherOpener to reset cache

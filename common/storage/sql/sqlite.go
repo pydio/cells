@@ -32,7 +32,7 @@ import (
 	sqlite "github.com/glebarez/go-sqlite"
 	"gorm.io/gorm"
 
-	"github.com/pydio/cells/v4/common/proto/tree"
+	"github.com/pydio/cells/v5/common/proto/tree"
 
 	_ "github.com/glebarez/sqlite"
 )

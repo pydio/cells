@@ -22,9 +22,9 @@
 package actions
 
 import (
-	"github.com/pydio/cells/v4/common"
-	"github.com/pydio/cells/v4/common/proto/jobs"
-	"github.com/pydio/cells/v4/scheduler/actions"
+	"github.com/pydio/cells/v5/common"
+	"github.com/pydio/cells/v5/common/proto/jobs"
+	"github.com/pydio/cells/v5/scheduler/actions"
 )
 
 func init() {

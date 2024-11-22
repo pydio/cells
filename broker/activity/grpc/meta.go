@@ -25,13 +25,13 @@ import (
 
 	"go.uber.org/zap"
 
-	"github.com/pydio/cells/v4/broker/activity"
-	"github.com/pydio/cells/v4/common"
-	activity2 "github.com/pydio/cells/v4/common/proto/activity"
-	"github.com/pydio/cells/v4/common/proto/tree"
-	"github.com/pydio/cells/v4/common/runtime/manager"
-	"github.com/pydio/cells/v4/common/telemetry/log"
-	"github.com/pydio/cells/v4/common/utils/propagator"
+	"github.com/pydio/cells/v5/broker/activity"
+	"github.com/pydio/cells/v5/common"
+	activity2 "github.com/pydio/cells/v5/common/proto/activity"
+	"github.com/pydio/cells/v5/common/proto/tree"
+	"github.com/pydio/cells/v5/common/runtime/manager"
+	"github.com/pydio/cells/v5/common/telemetry/log"
+	"github.com/pydio/cells/v5/common/utils/propagator"
 )
 
 type MetaProvider struct {

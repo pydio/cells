@@ -5,12 +5,12 @@ import (
 
 	"google.golang.org/grpc"
 
-	"github.com/pydio/cells/v4/common"
-	"github.com/pydio/cells/v4/common/broker"
-	"github.com/pydio/cells/v4/common/broker/grpcpubsub/handler"
-	pb "github.com/pydio/cells/v4/common/proto/broker"
-	"github.com/pydio/cells/v4/common/runtime"
-	"github.com/pydio/cells/v4/common/service"
+	"github.com/pydio/cells/v5/common"
+	"github.com/pydio/cells/v5/common/broker"
+	"github.com/pydio/cells/v5/common/broker/grpcpubsub/handler"
+	pb "github.com/pydio/cells/v5/common/proto/broker"
+	"github.com/pydio/cells/v5/common/runtime"
+	"github.com/pydio/cells/v5/common/service"
 )
 
 func init() {

@@ -39,18 +39,18 @@ import (
 	"github.com/sethvargo/go-limiter/memorystore"
 	"go.uber.org/zap"
 
-	"github.com/pydio/cells/v4/common"
-	"github.com/pydio/cells/v4/common/config/routing"
-	"github.com/pydio/cells/v4/common/middleware"
-	"github.com/pydio/cells/v4/common/runtime"
-	"github.com/pydio/cells/v4/common/service"
-	"github.com/pydio/cells/v4/common/telemetry/log"
-	"github.com/pydio/cells/v4/common/utils/net"
-	"github.com/pydio/cells/v4/common/utils/propagator"
-	pydio "github.com/pydio/cells/v4/gateway/data/gw"
-	"github.com/pydio/cells/v4/gateway/data/hooks"
+	"github.com/pydio/cells/v5/common"
+	"github.com/pydio/cells/v5/common/config/routing"
+	"github.com/pydio/cells/v5/common/middleware"
+	"github.com/pydio/cells/v5/common/runtime"
+	"github.com/pydio/cells/v5/common/service"
+	"github.com/pydio/cells/v5/common/telemetry/log"
+	"github.com/pydio/cells/v5/common/utils/net"
+	"github.com/pydio/cells/v5/common/utils/propagator"
+	pydio "github.com/pydio/cells/v5/gateway/data/gw"
+	"github.com/pydio/cells/v5/gateway/data/hooks"
 
-	_ "github.com/pydio/cells/v4/gateway/data/gw"
+	_ "github.com/pydio/cells/v5/gateway/data/gw"
 )
 
 func patchListBucketRequest(request *http.Request) {

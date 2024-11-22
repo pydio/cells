@@ -27,7 +27,7 @@ import (
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 
-	"github.com/pydio/cells/v4/common/runtime"
+	"github.com/pydio/cells/v5/common/runtime"
 )
 
 // BasicContextWrapper creates a Named logger from serviceName found in context

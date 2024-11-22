@@ -1,6 +1,6 @@
 package rest
 
-import "github.com/pydio/cells/v4/common/forms"
+import "github.com/pydio/cells/v5/common/forms"
 
 var formDevelConfigs = &forms.Form{
 	Groups: []*forms.Group{{

@@ -2,7 +2,7 @@ syntax = "proto3";
 
 package orm;
 
-option go_package="github.com/pydio/cells/v4/common/proto/options/orm";
+option go_package="github.com/pydio/cells/v5/common/proto/options/orm";
 
 import "google/protobuf/descriptor.proto";
 

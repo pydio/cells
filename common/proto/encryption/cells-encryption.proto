@@ -4,7 +4,7 @@ import "orm.proto";
 
 package encryption;
 
-option go_package="github.com/pydio/cells/v4/common/proto/encryption";
+option go_package="github.com/pydio/cells/v5/common/proto/encryption";
 
 message Export {
     // Name of exporter

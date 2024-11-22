@@ -30,13 +30,13 @@ import (
 	"go.uber.org/zap"
 	"golang.org/x/net/context"
 
-	"github.com/pydio/cells/v4/broker/activity"
-	"github.com/pydio/cells/v4/common/client/commons/treec"
-	"github.com/pydio/cells/v4/common/errors"
-	proto "github.com/pydio/cells/v4/common/proto/activity"
-	"github.com/pydio/cells/v4/common/proto/tree"
-	"github.com/pydio/cells/v4/common/runtime/manager"
-	"github.com/pydio/cells/v4/common/telemetry/log"
+	"github.com/pydio/cells/v5/broker/activity"
+	"github.com/pydio/cells/v5/common/client/commons/treec"
+	"github.com/pydio/cells/v5/common/errors"
+	proto "github.com/pydio/cells/v5/common/proto/activity"
+	"github.com/pydio/cells/v5/common/proto/tree"
+	"github.com/pydio/cells/v5/common/runtime/manager"
+	"github.com/pydio/cells/v5/common/telemetry/log"
 )
 
 type Handler struct {

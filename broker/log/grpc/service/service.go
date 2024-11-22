@@ -28,16 +28,16 @@ import (
 	"go.uber.org/zap"
 	"google.golang.org/grpc"
 
-	"github.com/pydio/cells/v4/broker/log"
-	grpc2 "github.com/pydio/cells/v4/broker/log/grpc"
-	"github.com/pydio/cells/v4/common"
-	"github.com/pydio/cells/v4/common/config"
-	proto "github.com/pydio/cells/v4/common/proto/log"
-	"github.com/pydio/cells/v4/common/proto/sync"
-	"github.com/pydio/cells/v4/common/runtime"
-	"github.com/pydio/cells/v4/common/service"
-	log2 "github.com/pydio/cells/v4/common/telemetry/log"
-	json "github.com/pydio/cells/v4/common/utils/jsonx"
+	"github.com/pydio/cells/v5/broker/log"
+	grpc2 "github.com/pydio/cells/v5/broker/log/grpc"
+	"github.com/pydio/cells/v5/common"
+	"github.com/pydio/cells/v5/common/config"
+	proto "github.com/pydio/cells/v5/common/proto/log"
+	"github.com/pydio/cells/v5/common/proto/sync"
+	"github.com/pydio/cells/v5/common/runtime"
+	"github.com/pydio/cells/v5/common/service"
+	log2 "github.com/pydio/cells/v5/common/telemetry/log"
+	json "github.com/pydio/cells/v5/common/utils/jsonx"
 )
 
 const (

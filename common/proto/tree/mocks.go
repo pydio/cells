@@ -29,7 +29,7 @@ import (
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/metadata"
 
-	"github.com/pydio/cells/v4/common/errors"
+	"github.com/pydio/cells/v5/common/errors"
 )
 
 type ErrorThrower func(string, string, ...interface{}) error

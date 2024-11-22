@@ -28,13 +28,13 @@ import (
 	"path/filepath"
 	"testing"
 
-	proto "github.com/pydio/cells/v4/common/proto/docstore"
-	"github.com/pydio/cells/v4/common/runtime/manager"
-	"github.com/pydio/cells/v4/common/storage/test"
-	"github.com/pydio/cells/v4/common/utils/uuid"
-	"github.com/pydio/cells/v4/data/docstore"
-	"github.com/pydio/cells/v4/data/docstore/dao/bleve"
-	"github.com/pydio/cells/v4/data/docstore/dao/mongo"
+	proto "github.com/pydio/cells/v5/common/proto/docstore"
+	"github.com/pydio/cells/v5/common/runtime/manager"
+	"github.com/pydio/cells/v5/common/storage/test"
+	"github.com/pydio/cells/v5/common/utils/uuid"
+	"github.com/pydio/cells/v5/data/docstore"
+	"github.com/pydio/cells/v5/data/docstore/dao/bleve"
+	"github.com/pydio/cells/v5/data/docstore/dao/mongo"
 
 	. "github.com/smartystreets/goconvey/convey"
 )

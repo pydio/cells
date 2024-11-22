@@ -29,7 +29,7 @@ import (
 	"google.golang.org/protobuf/encoding/protojson"
 	"google.golang.org/protobuf/proto"
 
-	"github.com/pydio/cells/v4/common/errors"
+	"github.com/pydio/cells/v5/common/errors"
 )
 
 type detectedLanguagesKey struct{}

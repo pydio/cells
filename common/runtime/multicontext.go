@@ -3,7 +3,7 @@ package runtime
 import (
 	"context"
 
-	"github.com/pydio/cells/v4/common/utils/propagator"
+	"github.com/pydio/cells/v5/common/utils/propagator"
 )
 
 type mCtxKey struct{}

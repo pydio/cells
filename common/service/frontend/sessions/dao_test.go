@@ -9,8 +9,8 @@ import (
 
 	"github.com/gorilla/sessions"
 
-	"github.com/pydio/cells/v4/common/runtime/manager"
-	"github.com/pydio/cells/v4/common/storage/test"
+	"github.com/pydio/cells/v5/common/runtime/manager"
+	"github.com/pydio/cells/v5/common/storage/test"
 
 	. "github.com/smartystreets/goconvey/convey"
 )

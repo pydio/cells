@@ -33,8 +33,8 @@ import (
 	semconv "go.opentelemetry.io/otel/semconv/v1.20.0"
 	"go.opentelemetry.io/otel/trace"
 
-	"github.com/pydio/cells/v4/common/telemetry/tracing"
-	"github.com/pydio/cells/v4/common/utils/uuid"
+	"github.com/pydio/cells/v5/common/telemetry/tracing"
+	"github.com/pydio/cells/v5/common/utils/uuid"
 )
 
 const (

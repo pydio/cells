@@ -24,8 +24,8 @@ import (
 	"context"
 	"time"
 
-	"github.com/pydio/cells/v4/common/sync/merger"
-	"github.com/pydio/cells/v4/common/sync/model"
+	"github.com/pydio/cells/v5/common/sync/merger"
+	"github.com/pydio/cells/v5/common/sync/model"
 )
 
 // ConnectedProcessor is an extended flavour of Processor that listens to a PatchChan and sends LockEvents and Requeue Scan Events

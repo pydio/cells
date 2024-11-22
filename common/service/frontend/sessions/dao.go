@@ -9,13 +9,13 @@ import (
 	"github.com/gorilla/sessions"
 	"gorm.io/gorm"
 
-	"github.com/pydio/cells/v4/common/config"
-	"github.com/pydio/cells/v4/common/service/frontend/sessions/sqlsessions"
-	"github.com/pydio/cells/v4/common/service/frontend/sessions/utils"
-	"github.com/pydio/cells/v4/common/storage/sc"
-	"github.com/pydio/cells/v4/common/storage/sql"
-	"github.com/pydio/cells/v4/common/telemetry/log"
-	"github.com/pydio/cells/v4/common/utils/configx"
+	"github.com/pydio/cells/v5/common/config"
+	"github.com/pydio/cells/v5/common/service/frontend/sessions/sqlsessions"
+	"github.com/pydio/cells/v5/common/service/frontend/sessions/utils"
+	"github.com/pydio/cells/v5/common/storage/sc"
+	"github.com/pydio/cells/v5/common/storage/sql"
+	"github.com/pydio/cells/v5/common/telemetry/log"
+	"github.com/pydio/cells/v5/common/utils/configx"
 )
 
 // NewCookieDAO creates an encrypted cookies carried along with requests

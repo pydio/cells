@@ -2,7 +2,7 @@ syntax="proto3";
 
 package sync;
 
-option go_package="github.com/pydio/cells/common/proto/sync";
+option go_package="github.com/pydio/cells/v5/common/proto/sync";
 
 import "cells-jobs.proto";
 

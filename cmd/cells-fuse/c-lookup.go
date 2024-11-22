@@ -12,7 +12,7 @@ import (
 	"github.com/gobwas/glob"
 	"github.com/manifoldco/promptui"
 	fs2 "github.com/pydio/cells-fuse/fs"
-	"github.com/pydio/cells/v4/common/proto/tree"
+	"github.com/pydio/cells/v5/common/proto/tree"
 	"github.com/spf13/cobra"
 )
 
@@ -51,7 +51,7 @@ EXAMPLES
 		if storageURL == "" {
 			return fmt.Errorf("please provide a snapshot URL")
 		}
-		if lookupGlob == "" && lookupUuid == ""{
+		if lookupGlob == "" && lookupUuid == "" {
 			return fmt.Errorf("please provide a filename or a glob matcher like * or an uuid")
 		}
 		if lookupI {
@@ -80,7 +80,7 @@ EXAMPLES
 			}
 
 			uuidFound := lookupUuid != "" && lookupUuid == node.GetUuid()
-			
+
 			if gw.Match(base) || uuidFound {
 				if !header {
 					fmt.Println(promptui.IconGood + " Found Matches!")
@@ -94,7 +94,7 @@ EXAMPLES
 					typeName = "File"
 				}
 				mTime := time.Unix(node.GetMTime(), 0).Format("06-01-02")
-				fmt.Println(typeName + "\t | " + mTime + "\t | " + humanize.IBytes(uint64(node.GetSize()))  + "\t | " + node.GetUuid() + "\t | " + node.GetPath())
+				fmt.Println(typeName + "\t | " + mTime + "\t | " + humanize.IBytes(uint64(node.GetSize())) + "\t | " + node.GetUuid() + "\t | " + node.GetPath())
 			}
 			if uuidFound {
 				return breakErr
@@ -102,11 +102,10 @@ EXAMPLES
 			return nil
 		}, lookupBase, true)
 
-
 		if err != nil && err != breakErr {
 			fmt.Println(promptui.IconWarn + err.Error())
 		}
-		
+
 		if !header {
 			fmt.Println(promptui.IconBad + " No Matches Found")
 		} else {

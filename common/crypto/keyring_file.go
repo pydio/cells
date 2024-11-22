@@ -3,7 +3,7 @@ package crypto
 import (
 	"fmt"
 
-	"github.com/pydio/cells/v4/common/config"
+	"github.com/pydio/cells/v5/common/config"
 )
 
 type configProvider struct {

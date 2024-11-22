@@ -28,7 +28,7 @@ import (
 	"os"
 	"sync"
 
-	"github.com/pydio/cells/v4/common/utils/configx"
+	"github.com/pydio/cells/v5/common/utils/configx"
 )
 
 var (

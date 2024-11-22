@@ -20,7 +20,7 @@
 
 package idm
 
-import "github.com/pydio/cells/v4/scheduler/actions"
+import "github.com/pydio/cells/v5/scheduler/actions"
 
 func init() {
 

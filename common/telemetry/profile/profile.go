@@ -25,7 +25,7 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/pydio/cells/v4/common/telemetry/otel"
+	"github.com/pydio/cells/v5/common/telemetry/otel"
 )
 
 // PProfProvider is the interface for a profile provider

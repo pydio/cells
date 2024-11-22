@@ -24,7 +24,7 @@ import (
 	"context"
 	"sync"
 
-	"github.com/pydio/cells/v4/common/proto/tree"
+	"github.com/pydio/cells/v5/common/proto/tree"
 )
 
 var (

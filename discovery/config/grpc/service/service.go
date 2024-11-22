@@ -25,11 +25,11 @@ import (
 
 	"google.golang.org/grpc"
 
-	"github.com/pydio/cells/v4/common"
-	pb "github.com/pydio/cells/v4/common/proto/config"
-	"github.com/pydio/cells/v4/common/runtime"
-	"github.com/pydio/cells/v4/common/service"
-	grpc2 "github.com/pydio/cells/v4/discovery/config/grpc"
+	"github.com/pydio/cells/v5/common"
+	pb "github.com/pydio/cells/v5/common/proto/config"
+	"github.com/pydio/cells/v5/common/runtime"
+	"github.com/pydio/cells/v5/common/service"
+	grpc2 "github.com/pydio/cells/v5/discovery/config/grpc"
 )
 
 const (

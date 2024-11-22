@@ -13,13 +13,13 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 	"google.golang.org/protobuf/proto"
 
-	"github.com/pydio/cells/v4/common/nodes/meta"
-	"github.com/pydio/cells/v4/common/proto/tree"
-	"github.com/pydio/cells/v4/common/storage/indexer"
-	"github.com/pydio/cells/v4/common/storage/mongodb"
-	"github.com/pydio/cells/v4/common/utils/configx"
-	"github.com/pydio/cells/v4/data/search"
-	"github.com/pydio/cells/v4/data/search/dao/commons"
+	"github.com/pydio/cells/v5/common/nodes/meta"
+	"github.com/pydio/cells/v5/common/proto/tree"
+	"github.com/pydio/cells/v5/common/storage/indexer"
+	"github.com/pydio/cells/v5/common/storage/mongodb"
+	"github.com/pydio/cells/v5/common/utils/configx"
+	"github.com/pydio/cells/v5/data/search"
+	"github.com/pydio/cells/v5/data/search/dao/commons"
 )
 
 const (

@@ -22,21 +22,25 @@ package model
 
 import (
 	"fmt"
-	"google.golang.org/protobuf/proto"
 	"math"
 
-	"github.com/pydio/cells/v4/common/proto/tree"
-	json "github.com/pydio/cells/v4/common/utils/jsonx"
+	"google.golang.org/protobuf/proto"
+
+	"github.com/pydio/cells/v5/common/proto/tree"
+	json "github.com/pydio/cells/v5/common/utils/jsonx"
 )
 
 type TaskStatus int
+
 type ErrorType int
+
 type StatusScope int
 
 const (
 	StatusScopeTask = iota
 	StatusScopeProcessing
 )
+
 const (
 	TaskStatusIdle TaskStatus = iota
 	TaskStatusPaused
@@ -47,6 +51,7 @@ const (
 	TaskStatusStopping
 	TaskStatusRemoved
 )
+
 const (
 	SyncErrorUnknown ErrorType = iota
 	SyncErrorNetworking

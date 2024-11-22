@@ -2,7 +2,7 @@ syntax = "proto3";
 
 package service;
 
-option go_package="github.com/pydio/cells/v4/common/proto/service";
+option go_package="github.com/pydio/cells/v5/common/proto/service";
 
 import "google/protobuf/any.proto";
 import "google/protobuf/empty.proto";

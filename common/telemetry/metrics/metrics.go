@@ -32,8 +32,8 @@ import (
 	"go.opentelemetry.io/otel/sdk/resource"
 	semconv "go.opentelemetry.io/otel/semconv/v1.20.0"
 
-	"github.com/pydio/cells/v4/common"
-	otel2 "github.com/pydio/cells/v4/common/telemetry/otel"
+	"github.com/pydio/cells/v5/common"
+	otel2 "github.com/pydio/cells/v5/common/telemetry/otel"
 )
 
 // Config is a serializable representation of a list of Readers.

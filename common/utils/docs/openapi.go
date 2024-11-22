@@ -23,12 +23,12 @@ package docs
 import (
 	"strings"
 
-	"github.com/pydio/cells/v4/common"
+	"github.com/pydio/cells/v5/common"
 
 	"github.com/go-openapi/loads"
 	"github.com/go-openapi/spec"
 
-	"github.com/pydio/cells/v4/common/service"
+	"github.com/pydio/cells/v5/common/service"
 )
 
 func loadJsonSpec() map[string][]Op {

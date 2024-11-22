@@ -1,11 +1,12 @@
 syntax="proto3";
 
-package chat;
-
-option go_package="github.com/pydio/cells/v4/common/proto/chat";
+import "google/protobuf/timestamp.proto";
 
 import "cells-setter.proto";
 import "cells-activitystream.proto";
+
+option go_package="github.com/pydio/cells/v5/common/proto/chat";
+package chat;
 
 enum RoomType {
     GLOBAL    = 0;

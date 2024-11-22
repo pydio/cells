@@ -24,7 +24,7 @@ import (
 	"context"
 	"html/template"
 
-	"github.com/pydio/cells/v4/common/utils/i18n/languages"
+	"github.com/pydio/cells/v5/common/utils/i18n/languages"
 )
 
 // TplConfFilterFunc takes a TplConf and modifies it

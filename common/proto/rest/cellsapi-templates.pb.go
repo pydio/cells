@@ -7,8 +7,8 @@
 package rest
 
 import (
-	service "github.com/pydio/cells/v4/common/proto/service"
-	tree "github.com/pydio/cells/v4/common/proto/tree"
+	service "github.com/pydio/cells/v5/common/proto/service"
+	tree "github.com/pydio/cells/v5/common/proto/tree"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	reflect "reflect"

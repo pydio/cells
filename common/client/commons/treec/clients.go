@@ -23,9 +23,9 @@ package treec
 import (
 	"context"
 
-	"github.com/pydio/cells/v4/common"
-	"github.com/pydio/cells/v4/common/client/grpc"
-	"github.com/pydio/cells/v4/common/proto/tree"
+	"github.com/pydio/cells/v5/common"
+	"github.com/pydio/cells/v5/common/client/grpc"
+	"github.com/pydio/cells/v5/common/proto/tree"
 )
 
 // NodeProviderClient resolves a tree.NodeProviderClient pointing to ServiceTree by default

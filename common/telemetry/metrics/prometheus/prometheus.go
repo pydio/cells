@@ -30,8 +30,8 @@ import (
 
 	otelprom "go.opentelemetry.io/otel/exporters/prometheus"
 
-	"github.com/pydio/cells/v4/common/runtime"
-	"github.com/pydio/cells/v4/common/telemetry/metrics"
+	"github.com/pydio/cells/v5/common/runtime"
+	"github.com/pydio/cells/v5/common/telemetry/metrics"
 )
 
 func init() {

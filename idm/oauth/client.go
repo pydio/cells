@@ -8,7 +8,7 @@ import (
 	"github.com/ory/fosite"
 	"github.com/ory/hydra/v2/client"
 
-	"github.com/pydio/cells/v4/common/config"
+	"github.com/pydio/cells/v5/common/config"
 )
 
 var _ client.Manager = (*clientConfigDriver)(nil)

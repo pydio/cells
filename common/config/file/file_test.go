@@ -5,7 +5,7 @@ import (
 	"os"
 	"testing"
 
-	"github.com/pydio/cells/v4/common/utils/filex"
+	"github.com/pydio/cells/v5/common/utils/filex"
 )
 
 func TestFile(t *testing.T) {

@@ -27,8 +27,8 @@ import (
 	"net/url"
 	"strings"
 
-	json "github.com/pydio/cells/v4/common/utils/jsonx"
-	"github.com/pydio/cells/v4/common/utils/net"
+	json "github.com/pydio/cells/v5/common/utils/jsonx"
+	"github.com/pydio/cells/v5/common/utils/net"
 )
 
 func (r *Rule) Accept() bool {

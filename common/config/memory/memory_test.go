@@ -7,9 +7,9 @@ import (
 
 	"github.com/davecgh/go-spew/spew"
 
-	"github.com/pydio/cells/v4/common/config"
-	"github.com/pydio/cells/v4/common/utils/configx"
-	"github.com/pydio/cells/v4/common/utils/openurl"
+	"github.com/pydio/cells/v5/common/config"
+	"github.com/pydio/cells/v5/common/utils/configx"
+	"github.com/pydio/cells/v5/common/utils/openurl"
 
 	. "github.com/smartystreets/goconvey/convey"
 )

@@ -25,8 +25,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/pydio/cells/v4/common"
-	"github.com/pydio/cells/v4/common/proto/tree"
+	"github.com/pydio/cells/v5/common"
+	"github.com/pydio/cells/v5/common/proto/tree"
 )
 
 // HandlerListNodesWithCallback is a generic implementation of ListNodesWithCallback for any Handler. Used by Client, Handler and HandlerMock

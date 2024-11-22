@@ -24,10 +24,10 @@ package role
 import (
 	"context"
 
-	"github.com/pydio/cells/v4/common/proto/idm"
-	service2 "github.com/pydio/cells/v4/common/proto/service"
-	"github.com/pydio/cells/v4/common/service"
-	"github.com/pydio/cells/v4/common/storage/sql/resources"
+	"github.com/pydio/cells/v5/common/proto/idm"
+	service2 "github.com/pydio/cells/v5/common/proto/service"
+	"github.com/pydio/cells/v5/common/service"
+	"github.com/pydio/cells/v5/common/storage/sql/resources"
 )
 
 var Drivers = service.StorageDrivers{}

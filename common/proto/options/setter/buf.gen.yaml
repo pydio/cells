@@ -1,8 +1,8 @@
 version: v1
 plugins:
   - name: go
-    opt: module=github.com/pydio/cells/v4/common/proto/options/setter
+    opt: module=github.com/pydio/cells/v5/common/proto/options/setter
     out: .
   - name: go-grpc
-    opt: module=github.com/pydio/cells/v4/common/proto/options/setter
+    opt: module=github.com/pydio/cells/v5/common/proto/options/setter
     out: .

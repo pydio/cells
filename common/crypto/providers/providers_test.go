@@ -25,8 +25,8 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/pydio/cells/v4/common/proto/install"
-	"github.com/pydio/cells/v4/common/utils/uuid"
+	"github.com/pydio/cells/v5/common/proto/install"
+	"github.com/pydio/cells/v5/common/utils/uuid"
 
 	. "github.com/smartystreets/goconvey/convey"
 )

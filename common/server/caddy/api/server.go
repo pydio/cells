@@ -27,14 +27,14 @@ import (
 	"net/http"
 	"net/url"
 
-	"github.com/pydio/cells/v4/common/client"
-	clienthttp "github.com/pydio/cells/v4/common/client/http"
-	"github.com/pydio/cells/v4/common/config/routing"
-	"github.com/pydio/cells/v4/common/registry"
-	"github.com/pydio/cells/v4/common/server"
-	"github.com/pydio/cells/v4/common/server/caddy"
-	"github.com/pydio/cells/v4/common/utils/propagator"
-	"github.com/pydio/cells/v4/common/utils/uuid"
+	"github.com/pydio/cells/v5/common/client"
+	clienthttp "github.com/pydio/cells/v5/common/client/http"
+	"github.com/pydio/cells/v5/common/config/routing"
+	"github.com/pydio/cells/v5/common/registry"
+	"github.com/pydio/cells/v5/common/server"
+	"github.com/pydio/cells/v5/common/server/caddy"
+	"github.com/pydio/cells/v5/common/utils/propagator"
+	"github.com/pydio/cells/v5/common/utils/uuid"
 )
 
 func init() {

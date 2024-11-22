@@ -23,9 +23,9 @@ package util
 import (
 	"fmt"
 
-	pb "github.com/pydio/cells/v4/common/proto/registry"
-	"github.com/pydio/cells/v4/common/registry"
-	json "github.com/pydio/cells/v4/common/utils/jsonx"
+	pb "github.com/pydio/cells/v5/common/proto/registry"
+	"github.com/pydio/cells/v5/common/registry"
+	json "github.com/pydio/cells/v5/common/utils/jsonx"
 )
 
 func NewChanStatusWatcher(item registry.Item, input chan map[string]interface{}) registry.StatusWatcher {

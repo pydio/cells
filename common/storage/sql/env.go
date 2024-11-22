@@ -4,7 +4,7 @@ import (
 	"os"
 	"time"
 
-	"github.com/pydio/cells/v4/common/runtime"
+	"github.com/pydio/cells/v5/common/runtime"
 )
 
 var (

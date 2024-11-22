@@ -22,14 +22,15 @@ package s3
 
 import (
 	"context"
-	"google.golang.org/protobuf/proto"
 	"path"
 	"testing"
 
-	"github.com/pydio/cells/v4/common"
-	"github.com/pydio/cells/v4/common/nodes/objects/mock"
-	"github.com/pydio/cells/v4/common/proto/tree"
-	"github.com/pydio/cells/v4/common/sync/model"
+	"google.golang.org/protobuf/proto"
+
+	"github.com/pydio/cells/v5/common"
+	"github.com/pydio/cells/v5/common/nodes/objects/mock"
+	"github.com/pydio/cells/v5/common/proto/tree"
+	"github.com/pydio/cells/v5/common/sync/model"
 
 	. "github.com/smartystreets/goconvey/convey"
 )

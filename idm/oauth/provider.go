@@ -32,15 +32,15 @@ import (
 	"github.com/ory/x/contextx"
 	"go.opentelemetry.io/otel/trace"
 
-	"github.com/pydio/cells/v4/common"
-	"github.com/pydio/cells/v4/common/config"
-	"github.com/pydio/cells/v4/common/config/routing"
-	"github.com/pydio/cells/v4/common/proto/install"
-	"github.com/pydio/cells/v4/common/telemetry/tracing"
-	"github.com/pydio/cells/v4/common/utils/cache"
-	"github.com/pydio/cells/v4/common/utils/cache/gocache"
-	"github.com/pydio/cells/v4/common/utils/configx"
-	"github.com/pydio/cells/v4/common/utils/openurl"
+	"github.com/pydio/cells/v5/common"
+	"github.com/pydio/cells/v5/common/config"
+	"github.com/pydio/cells/v5/common/config/routing"
+	"github.com/pydio/cells/v5/common/proto/install"
+	"github.com/pydio/cells/v5/common/telemetry/tracing"
+	"github.com/pydio/cells/v5/common/utils/cache"
+	"github.com/pydio/cells/v5/common/utils/cache/gocache"
+	"github.com/pydio/cells/v5/common/utils/configx"
+	"github.com/pydio/cells/v5/common/utils/openurl"
 )
 
 var (

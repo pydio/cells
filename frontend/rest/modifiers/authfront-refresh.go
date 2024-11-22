@@ -28,10 +28,10 @@ import (
 	restful "github.com/emicklei/go-restful/v3"
 	"github.com/gorilla/sessions"
 
-	"github.com/pydio/cells/v4/common/auth/hydra"
-	pauth "github.com/pydio/cells/v4/common/proto/auth"
-	"github.com/pydio/cells/v4/common/proto/rest"
-	"github.com/pydio/cells/v4/common/service/frontend"
+	"github.com/pydio/cells/v5/common/auth/hydra"
+	pauth "github.com/pydio/cells/v5/common/proto/auth"
+	"github.com/pydio/cells/v5/common/proto/rest"
+	"github.com/pydio/cells/v5/common/service/frontend"
 )
 
 func RefreshAuth(middleware frontend.AuthMiddleware) frontend.AuthMiddleware {

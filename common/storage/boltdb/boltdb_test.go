@@ -9,11 +9,11 @@ import (
 	"github.com/spf13/viper"
 	"go.etcd.io/bbolt"
 
-	"github.com/pydio/cells/v4/common/runtime"
-	"github.com/pydio/cells/v4/common/runtime/manager"
+	"github.com/pydio/cells/v5/common/runtime"
+	"github.com/pydio/cells/v5/common/runtime/manager"
 
 	_ "embed"
-	_ "github.com/pydio/cells/v4/common/registry/config"
+	_ "github.com/pydio/cells/v5/common/registry/config"
 )
 
 var (

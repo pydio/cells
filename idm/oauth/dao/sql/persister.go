@@ -32,8 +32,8 @@ import (
 	"github.com/ory/x/popx"
 	"gorm.io/gorm"
 
-	"github.com/pydio/cells/v4/common/storage/sql"
-	"github.com/pydio/cells/v4/idm/oauth"
+	"github.com/pydio/cells/v5/common/storage/sql"
+	"github.com/pydio/cells/v5/idm/oauth"
 )
 
 var _ foauth2.TokenRevocationStorage = (*sqlPersister)(nil)

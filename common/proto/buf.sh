@@ -42,9 +42,9 @@ cd $1
 echo "Generate protobufs for $1"
 buf generate --output .
 if [ -f  "buf.gen.tag.yaml" ]; then
+  # Debug mode if required add --debug
   buf generate --template=buf.gen.tag.yaml --output .
 fi
-#go run ../patch-imports.go
 
 if [ $1 == "rest" ]
 then

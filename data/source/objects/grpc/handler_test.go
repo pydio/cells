@@ -8,8 +8,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/pydio/cells/v4/common/utils/net"
-	"github.com/pydio/cells/v4/common/utils/uuid"
+	"github.com/pydio/cells/v5/common/utils/net"
+	"github.com/pydio/cells/v5/common/utils/uuid"
 
 	. "github.com/smartystreets/goconvey/convey"
 )

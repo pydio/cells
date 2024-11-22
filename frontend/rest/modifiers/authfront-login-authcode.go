@@ -26,10 +26,10 @@ import (
 	restful "github.com/emicklei/go-restful/v3"
 	"github.com/gorilla/sessions"
 
-	"github.com/pydio/cells/v4/common/auth"
-	pauth "github.com/pydio/cells/v4/common/proto/auth"
-	"github.com/pydio/cells/v4/common/proto/rest"
-	"github.com/pydio/cells/v4/common/service/frontend"
+	"github.com/pydio/cells/v5/common/auth"
+	pauth "github.com/pydio/cells/v5/common/proto/auth"
+	"github.com/pydio/cells/v5/common/proto/rest"
+	"github.com/pydio/cells/v5/common/service/frontend"
 )
 
 // AuthorizationCodeAuth allows users having a valid AuthCode to register a session

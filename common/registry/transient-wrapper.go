@@ -6,7 +6,7 @@ import (
 
 	"golang.org/x/exp/maps"
 
-	pb "github.com/pydio/cells/v4/common/proto/registry"
+	pb "github.com/pydio/cells/v5/common/proto/registry"
 )
 
 var _ Registry = (*TransientWrapper)(nil)

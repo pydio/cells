@@ -27,7 +27,7 @@ package assets
 import (
 	"embed"
 
-	"github.com/pydio/cells/v4/common/utils/statics"
+	"github.com/pydio/cells/v5/common/utils/statics"
 )
 
 var (

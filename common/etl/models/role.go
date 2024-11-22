@@ -21,8 +21,8 @@
 package models
 
 import (
-	"github.com/pydio/cells/v4/common/proto/idm"
-	"github.com/pydio/cells/v4/common/utils/merger"
+	"github.com/pydio/cells/v5/common/proto/idm"
+	"github.com/pydio/cells/v5/common/utils/merger"
 )
 
 type Role idm.Role

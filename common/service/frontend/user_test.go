@@ -25,9 +25,9 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/pydio/cells/v4/common/permissions"
-	"github.com/pydio/cells/v4/common/proto/idm"
-	"github.com/pydio/cells/v4/common/utils/configx"
+	"github.com/pydio/cells/v5/common/permissions"
+	"github.com/pydio/cells/v5/common/proto/idm"
+	"github.com/pydio/cells/v5/common/utils/configx"
 
 	. "github.com/smartystreets/goconvey/convey"
 )

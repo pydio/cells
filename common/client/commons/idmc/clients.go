@@ -3,9 +3,9 @@ package idmc
 import (
 	"context"
 
-	"github.com/pydio/cells/v4/common"
-	"github.com/pydio/cells/v4/common/client/grpc"
-	"github.com/pydio/cells/v4/common/proto/idm"
+	"github.com/pydio/cells/v5/common"
+	"github.com/pydio/cells/v5/common/client/grpc"
+	"github.com/pydio/cells/v5/common/proto/idm"
 )
 
 // UserServiceClient provides a resolved idm.UserServiceClient pointing to ServiceUser by default

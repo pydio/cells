@@ -30,14 +30,14 @@ import (
 
 	"google.golang.org/grpc"
 
-	"github.com/pydio/cells/v4/common"
-	"github.com/pydio/cells/v4/common/auth/claim"
-	"github.com/pydio/cells/v4/common/errors"
-	tree "github.com/pydio/cells/v4/common/proto/tree"
-	"github.com/pydio/cells/v4/common/storage/test"
-	"github.com/pydio/cells/v4/data/meta/dao/sql"
+	"github.com/pydio/cells/v5/common"
+	"github.com/pydio/cells/v5/common/auth/claim"
+	"github.com/pydio/cells/v5/common/errors"
+	tree "github.com/pydio/cells/v5/common/proto/tree"
+	"github.com/pydio/cells/v5/common/storage/test"
+	"github.com/pydio/cells/v5/data/meta/dao/sql"
 
-	_ "github.com/pydio/cells/v4/common/broker/debounce"
+	_ "github.com/pydio/cells/v5/common/broker/debounce"
 
 	. "github.com/smartystreets/goconvey/convey"
 )

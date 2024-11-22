@@ -26,9 +26,9 @@ import (
 	"google.golang.org/protobuf/proto"
 	"google.golang.org/protobuf/types/known/anypb"
 
-	"github.com/pydio/cells/v4/common/config"
-	"github.com/pydio/cells/v4/common/proto/object"
-	service "github.com/pydio/cells/v4/common/proto/service"
+	"github.com/pydio/cells/v5/common/config"
+	"github.com/pydio/cells/v5/common/proto/object"
+	service "github.com/pydio/cells/v5/common/proto/service"
 )
 
 func (m *DataSourceSelector) FilterID() string {

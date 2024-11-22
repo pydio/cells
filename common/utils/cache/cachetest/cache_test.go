@@ -26,9 +26,9 @@ import (
 	"testing"
 	"time"
 
-	"github.com/pydio/cells/v4/common/utils/cache"
-	"github.com/pydio/cells/v4/common/utils/cache/bigcache"
-	"github.com/pydio/cells/v4/common/utils/cache/gocache"
+	"github.com/pydio/cells/v5/common/utils/cache"
+	"github.com/pydio/cells/v5/common/utils/cache/bigcache"
+	"github.com/pydio/cells/v5/common/utils/cache/gocache"
 
 	. "github.com/smartystreets/goconvey/convey"
 )

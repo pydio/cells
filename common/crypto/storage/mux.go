@@ -27,7 +27,7 @@ import (
 
 	"github.com/caddyserver/certmagic"
 
-	"github.com/pydio/cells/v4/common/utils/openurl"
+	"github.com/pydio/cells/v5/common/utils/openurl"
 )
 
 // URLOpener represents types than can open Registries based on a URL.

@@ -24,10 +24,10 @@ import (
 	"context"
 	"net/url"
 
-	"github.com/pydio/cells/v4/common"
-	"github.com/pydio/cells/v4/common/middleware/keys"
-	"github.com/pydio/cells/v4/common/proto/install"
-	"github.com/pydio/cells/v4/common/utils/propagator"
+	"github.com/pydio/cells/v5/common"
+	"github.com/pydio/cells/v5/common/middleware/keys"
+	"github.com/pydio/cells/v5/common/proto/install"
+	"github.com/pydio/cells/v5/common/utils/propagator"
 )
 
 // SiteFromContext lookups for siteHash in the context

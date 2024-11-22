@@ -6,7 +6,7 @@ import (
 
 	"gorm.io/gorm"
 
-	"github.com/pydio/cells/v4/common/storage/sql/resources"
+	"github.com/pydio/cells/v5/common/storage/sql/resources"
 )
 
 // NewAbstract initializes a new Abstract to be used by DAO implementation

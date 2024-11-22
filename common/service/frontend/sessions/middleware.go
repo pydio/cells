@@ -26,9 +26,9 @@ import (
 
 	"go.uber.org/zap"
 
-	"github.com/pydio/cells/v4/common/auth"
-	"github.com/pydio/cells/v4/common/runtime/manager"
-	"github.com/pydio/cells/v4/common/telemetry/log"
+	"github.com/pydio/cells/v5/common/auth"
+	"github.com/pydio/cells/v5/common/runtime/manager"
+	"github.com/pydio/cells/v5/common/telemetry/log"
 )
 
 // NewSessionWrapper creates a Http middleware checking if a cookie is passed

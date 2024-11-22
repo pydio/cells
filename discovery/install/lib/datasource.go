@@ -30,11 +30,11 @@ import (
 
 	"google.golang.org/protobuf/proto"
 
-	"github.com/pydio/cells/v4/common/config"
-	"github.com/pydio/cells/v4/common/proto/install"
-	"github.com/pydio/cells/v4/common/proto/object"
-	runtime2 "github.com/pydio/cells/v4/common/runtime"
-	"github.com/pydio/cells/v4/common/utils/std"
+	"github.com/pydio/cells/v5/common/config"
+	"github.com/pydio/cells/v5/common/proto/install"
+	"github.com/pydio/cells/v5/common/proto/object"
+	runtime2 "github.com/pydio/cells/v5/common/runtime"
+	"github.com/pydio/cells/v5/common/utils/std"
 )
 
 func init() {

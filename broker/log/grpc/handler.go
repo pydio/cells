@@ -29,17 +29,17 @@ import (
 
 	"go.uber.org/zap"
 
-	"github.com/pydio/cells/v4/broker/log"
-	"github.com/pydio/cells/v4/common/client/commons/jobsc"
-	"github.com/pydio/cells/v4/common/errors"
-	"github.com/pydio/cells/v4/common/proto/jobs"
-	proto "github.com/pydio/cells/v4/common/proto/log"
-	"github.com/pydio/cells/v4/common/proto/sync"
-	"github.com/pydio/cells/v4/common/runtime"
-	"github.com/pydio/cells/v4/common/runtime/manager"
-	"github.com/pydio/cells/v4/common/storage/indexer"
-	log2 "github.com/pydio/cells/v4/common/telemetry/log"
-	"github.com/pydio/cells/v4/common/utils/propagator"
+	"github.com/pydio/cells/v5/broker/log"
+	"github.com/pydio/cells/v5/common/client/commons/jobsc"
+	"github.com/pydio/cells/v5/common/errors"
+	"github.com/pydio/cells/v5/common/proto/jobs"
+	proto "github.com/pydio/cells/v5/common/proto/log"
+	"github.com/pydio/cells/v5/common/proto/sync"
+	"github.com/pydio/cells/v5/common/runtime"
+	"github.com/pydio/cells/v5/common/runtime/manager"
+	"github.com/pydio/cells/v5/common/storage/indexer"
+	log2 "github.com/pydio/cells/v5/common/telemetry/log"
+	"github.com/pydio/cells/v5/common/utils/propagator"
 )
 
 // Handler is the gRPC interface for the log service.

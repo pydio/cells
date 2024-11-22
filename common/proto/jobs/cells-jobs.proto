@@ -11,7 +11,7 @@ import "cells-setter.proto";
 
 package jobs;
 
-option go_package="github.com/pydio/cells/common/proto/jobs";
+option go_package="github.com/pydio/cells/v5/common/proto/jobs";
 
 message SelectorRange {
     // Limit number of results - use string to allow templating

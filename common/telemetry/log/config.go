@@ -30,8 +30,8 @@ import (
 	"github.com/manifoldco/promptui"
 	"go.uber.org/zap/zapcore"
 
-	"github.com/pydio/cells/v4/common/telemetry/otel"
-	"github.com/pydio/cells/v4/common/utils/openurl"
+	"github.com/pydio/cells/v5/common/telemetry/otel"
+	"github.com/pydio/cells/v5/common/utils/openurl"
 )
 
 type LoggerConfig struct {

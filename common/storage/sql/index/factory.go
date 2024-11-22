@@ -20,7 +20,7 @@
 
 package index
 
-import "github.com/pydio/cells/v4/common/proto/tree"
+import "github.com/pydio/cells/v5/common/proto/tree"
 
 type Factory[T tree.ITreeNode] interface {
 	Struct() T

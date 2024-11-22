@@ -24,9 +24,9 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/pydio/cells/v4/common"
-	"github.com/pydio/cells/v4/common/config"
-	"github.com/pydio/cells/v4/common/utils/configx"
+	"github.com/pydio/cells/v5/common"
+	"github.com/pydio/cells/v5/common/config"
+	"github.com/pydio/cells/v5/common/utils/configx"
 )
 
 // GetGenericStoreClientConfig finds datasource/bucket for a given store.

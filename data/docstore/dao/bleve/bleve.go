@@ -29,14 +29,14 @@ import (
 	index "github.com/blevesearch/bleve_index_api"
 	"go.uber.org/zap"
 
-	"github.com/pydio/cells/v4/common/errors"
-	proto "github.com/pydio/cells/v4/common/proto/docstore"
-	bleve2 "github.com/pydio/cells/v4/common/storage/bleve"
-	"github.com/pydio/cells/v4/common/storage/boltdb"
-	"github.com/pydio/cells/v4/common/storage/indexer"
-	"github.com/pydio/cells/v4/common/telemetry/log"
-	json "github.com/pydio/cells/v4/common/utils/jsonx"
-	"github.com/pydio/cells/v4/data/docstore"
+	"github.com/pydio/cells/v5/common/errors"
+	proto "github.com/pydio/cells/v5/common/proto/docstore"
+	bleve2 "github.com/pydio/cells/v5/common/storage/bleve"
+	"github.com/pydio/cells/v5/common/storage/boltdb"
+	"github.com/pydio/cells/v5/common/storage/indexer"
+	"github.com/pydio/cells/v5/common/telemetry/log"
+	json "github.com/pydio/cells/v5/common/utils/jsonx"
+	"github.com/pydio/cells/v5/data/docstore"
 )
 
 var _ docstore.DAO = (*BleveServer)(nil)

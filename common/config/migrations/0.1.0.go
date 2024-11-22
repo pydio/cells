@@ -23,8 +23,8 @@ package migrations
 import (
 	"github.com/hashicorp/go-version"
 
-	"github.com/pydio/cells/v4/common"
-	"github.com/pydio/cells/v4/common/utils/configx"
+	"github.com/pydio/cells/v5/common"
+	"github.com/pydio/cells/v5/common/utils/configx"
 )
 
 func init() {

@@ -21,8 +21,8 @@
 package grpc
 
 import (
-	"github.com/pydio/cells/v4/broker/mailer/lang"
-	"github.com/pydio/cells/v4/common/forms"
+	"github.com/pydio/cells/v5/broker/mailer/lang"
+	"github.com/pydio/cells/v5/common/forms"
 )
 
 var ExposedConfigs = &forms.Form{

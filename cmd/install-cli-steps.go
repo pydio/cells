@@ -20,7 +20,7 @@
 
 package cmd
 
-import "github.com/pydio/cells/v4/common/proto/install"
+import "github.com/pydio/cells/v5/common/proto/install"
 
 type CellsCliPromptStep struct {
 	Step   string

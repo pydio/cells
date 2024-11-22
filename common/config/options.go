@@ -5,8 +5,8 @@ import (
 	"net/url"
 	"strings"
 
-	"github.com/pydio/cells/v4/common/utils/configx"
-	"github.com/pydio/cells/v4/common/utils/openurl"
+	"github.com/pydio/cells/v5/common/utils/configx"
+	"github.com/pydio/cells/v5/common/utils/openurl"
 )
 
 // ReferencePoolOptionsFromURL returns the options needed to set multiple reference pool

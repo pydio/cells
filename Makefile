@@ -1,4 +1,4 @@
-DEV_VERSION=4.5.0
+DEV_VERSION=4.9.99
 ENV=env GOOS=linux
 TODAY:=$(shell date -u +%Y-%m-%dT%H:%M:%S)
 TIMESTAMP:=$(shell date -u +%Y%m%d%H%M%S)
@@ -14,41 +14,41 @@ build: main
 
 main:
 	env CGO_ENABLED=0 ${GOBIN} build -a -trimpath\
-	 -ldflags "-X github.com/pydio/cells/v4/common.version=${CELLS_VERSION}\
-	 -X github.com/pydio/cells/v4/common.BuildStamp=${TODAY}\
-	 -X github.com/pydio/cells/v4/common.BuildRevision=${GITREV}"\
+	 -ldflags "-X github.com/pydio/cells/v5/common.version=${CELLS_VERSION}\
+	 -X github.com/pydio/cells/v5/common.BuildStamp=${TODAY}\
+	 -X github.com/pydio/cells/v5/common.BuildRevision=${GITREV}"\
 	 -o cells\
 	 .
 
 arm:
 	env CGO_ENABLED=0 GOOS=linux GOARM=7 GOARCH=arm ${GOBIN} build -a -trimpath\
-	 -ldflags "-X github.com/pydio/cells/v4/common.version=${CELLS_VERSION}\
-	 -X github.com/pydio/cells/v4/common.BuildStamp=${TODAY}\
-	 -X github.com/pydio/cells/v4/common.BuildRevision=${GITREV}"\
+	 -ldflags "-X github.com/pydio/cells/v5/common.version=${CELLS_VERSION}\
+	 -X github.com/pydio/cells/v5/common.BuildStamp=${TODAY}\
+	 -X github.com/pydio/cells/v5/common.BuildRevision=${GITREV}"\
 	 -o cells\
 	 .
 
 arm64:
 	env CGO_ENABLED=0 GOOS=linux GOARCH=arm64 ${GOBIN} build -a -trimpath\
-	 -ldflags "-X github.com/pydio/cells/v4/common.version=${CELLS_VERSION}\
-	 -X github.com/pydio/cells/v4/common.BuildStamp=${TODAY}\
-	 -X github.com/pydio/cells/v4/common.BuildRevision=${GITREV}"\
+	 -ldflags "-X github.com/pydio/cells/v5/common.version=${CELLS_VERSION}\
+	 -X github.com/pydio/cells/v5/common.BuildStamp=${TODAY}\
+	 -X github.com/pydio/cells/v5/common.BuildRevision=${GITREV}"\
 	 -o cells\
 	 .
 
 darwin:
 	env CGO_ENABLED=0 GOOS=darwin GOARCH=amd64 ${GOBIN} build -a -trimpath\
-	 -ldflags "-X github.com/pydio/cells/v4/common.version=${CELLS_VERSION}\
-	 -X github.com/pydio/cells/v4/common.BuildStamp=${TODAY}\
-	 -X github.com/pydio/cells/v4/common.BuildRevision=${GITREV}"\
+	 -ldflags "-X github.com/pydio/cells/v5/common.version=${CELLS_VERSION}\
+	 -X github.com/pydio/cells/v5/common.BuildStamp=${TODAY}\
+	 -X github.com/pydio/cells/v5/common.BuildRevision=${GITREV}"\
 	 -o cells\
 	 .
 
 win:
 	env CGO_ENABLED=0 GOOS=windows GOARCH=amd64 ${GOBIN} build -a -trimpath\
-	 -ldflags "-X github.com/pydio/cells/v4/common.version=${CELLS_VERSION}\
-	 -X github.com/pydio/cells/v4/common.BuildStamp=${TODAY}\
-	 -X github.com/pydio/cells/v4/common.BuildRevision=${GITREV}"\
+	 -ldflags "-X github.com/pydio/cells/v5/common.version=${CELLS_VERSION}\
+	 -X github.com/pydio/cells/v5/common.BuildStamp=${TODAY}\
+	 -X github.com/pydio/cells/v5/common.BuildRevision=${GITREV}"\
 	 -o cells.exe\
 	 .
 
@@ -56,33 +56,24 @@ dev:
 	env CGO_ENABLED=0 ${GOBIN} build\
 	 -tags dev\
 	 -gcflags "all=-N -l"\
-	 -ldflags "-X github.com/pydio/cells/v4/common.version=${DEV_VERSION}\
-	 -X github.com/pydio/cells/v4/common.BuildStamp=2022-01-01T00:00:00\
-	 -X github.com/pydio/cells/v4/common.BuildRevision=dev\
-	 -X github.com/pydio/cells/v4/common.LogFileDefaultValue=true\
+	 -ldflags "-X github.com/pydio/cells/v5/common.version=${DEV_VERSION}\
+	 -X github.com/pydio/cells/v5/common.BuildStamp=2022-01-01T00:00:00\
+	 -X github.com/pydio/cells/v5/common.BuildRevision=dev\
+	 -X github.com/pydio/cells/v5/common.LogFileDefaultValue=true\
 	 -X google.golang.org/protobuf/reflect/protoregistry.conflictPolicy=warn"\
 	 -o cells\
 	 .
 
 docker:
 	GOARCH=amd64 GOOS=linux ${GOBIN} build -trimpath\
-	 -ldflags "-X github.com/pydio/cells/v4/common.version=${CELLS_VERSION}\
-	 -X github.com/pydio/cells/v4/common.BuildStamp=${TODAY}\
-	 -X github.com/pydio/cells/v4/common.BuildRevision=${GITREV}"\
+	 -ldflags "-X github.com/pydio/cells/v5/common.version=${CELLS_VERSION}\
+	 -X github.com/pydio/cells/v5/common.BuildStamp=${TODAY}\
+	 -X github.com/pydio/cells/v5/common.BuildRevision=${GITREV}"\
 	 -o cells-linux\
 	 .
 
 dockercp:
 	docker stop ${CONTAINER}; docker cp ./cells-linux ${CONTAINER}:/bin/cells; docker start ${CONTAINER}
-
-#//// to be removed ?
-#thirtytwo:
-#	GOARCH=386 GOOS=linux ${GOBIN} build -trimpath\
-#	 -ldflags "-X github.com/pydio/cells/v4/common.version=${CELLS_VERSION}\
-#	 -X github.com/pydio/cells/v4/common.BuildStamp=${TODAY}\
-#	 -X github.com/pydio/cells/v4/common.BuildRevision=${GITREV}"\
-#	 -o cells-32bits\
-#	 .
 
 start:
 	./cells start

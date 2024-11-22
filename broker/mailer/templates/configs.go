@@ -27,9 +27,9 @@ import (
 
 	hermes "github.com/matcornic/hermes/v2"
 
-	"github.com/pydio/cells/v4/broker/mailer/lang"
-	"github.com/pydio/cells/v4/common/config"
-	"github.com/pydio/cells/v4/common/config/routing"
+	"github.com/pydio/cells/v5/broker/mailer/lang"
+	"github.com/pydio/cells/v5/common/config"
+	"github.com/pydio/cells/v5/common/config/routing"
 )
 
 var templateFilters []FilterFunc

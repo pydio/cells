@@ -3,9 +3,9 @@ package jobsc
 import (
 	"context"
 
-	"github.com/pydio/cells/v4/common"
-	"github.com/pydio/cells/v4/common/client/grpc"
-	"github.com/pydio/cells/v4/common/proto/jobs"
+	"github.com/pydio/cells/v5/common"
+	"github.com/pydio/cells/v5/common/client/grpc"
+	"github.com/pydio/cells/v5/common/proto/jobs"
 )
 
 // JobServiceClient provides a resolved jobs.JobServiceClient pointing to ServiceJobs by default

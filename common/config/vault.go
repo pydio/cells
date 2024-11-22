@@ -26,7 +26,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/pydio/cells/v4/common/utils/configx"
+	"github.com/pydio/cells/v5/common/utils/configx"
 )
 
 // Config holds the main structure of a configuration

@@ -38,13 +38,13 @@ import (
 	index "github.com/blevesearch/bleve_index_api"
 	"github.com/rs/xid"
 
-	"github.com/pydio/cells/v4/common/config"
-	"github.com/pydio/cells/v4/common/errors"
-	"github.com/pydio/cells/v4/common/storage/indexer"
-	"github.com/pydio/cells/v4/common/telemetry/log"
-	"github.com/pydio/cells/v4/common/utils/configx"
-	"github.com/pydio/cells/v4/common/utils/filesystem"
-	"github.com/pydio/cells/v4/common/utils/uuid"
+	"github.com/pydio/cells/v5/common/config"
+	"github.com/pydio/cells/v5/common/errors"
+	"github.com/pydio/cells/v5/common/storage/indexer"
+	"github.com/pydio/cells/v5/common/telemetry/log"
+	"github.com/pydio/cells/v5/common/utils/configx"
+	"github.com/pydio/cells/v5/common/utils/filesystem"
+	"github.com/pydio/cells/v5/common/utils/uuid"
 )
 
 const (

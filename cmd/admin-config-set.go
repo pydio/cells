@@ -30,7 +30,7 @@ import (
 	"github.com/manifoldco/promptui"
 	"github.com/spf13/cobra"
 
-	"github.com/pydio/cells/v4/common/config"
+	"github.com/pydio/cells/v5/common/config"
 )
 
 // updateConfigCmd updates a configuration parameter both in the pydio.json file and in the database.

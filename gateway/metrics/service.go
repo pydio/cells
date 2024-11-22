@@ -23,10 +23,10 @@ package metrics
 import (
 	"context"
 
-	"github.com/pydio/cells/v4/common/config/routing"
-	"github.com/pydio/cells/v4/common/runtime"
-	"github.com/pydio/cells/v4/common/telemetry/metrics"
-	"github.com/pydio/cells/v4/common/telemetry/profile"
+	"github.com/pydio/cells/v5/common/config/routing"
+	"github.com/pydio/cells/v5/common/runtime"
+	"github.com/pydio/cells/v5/common/telemetry/metrics"
+	"github.com/pydio/cells/v5/common/telemetry/profile"
 )
 
 const (

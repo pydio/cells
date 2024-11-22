@@ -23,7 +23,7 @@ package service
 import (
 	"context"
 
-	json "github.com/pydio/cells/v4/common/utils/jsonx"
+	json "github.com/pydio/cells/v5/common/utils/jsonx"
 )
 
 type StorageDrivers []any

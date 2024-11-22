@@ -2,7 +2,7 @@ syntax = "proto3";
 
 package install;
 
-option go_package="github.com/pydio/cells/v4/common/proto/install";
+option go_package="github.com/pydio/cells/v5/common/proto/install";
 
 // import "cells-setter.proto";
 

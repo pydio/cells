@@ -26,8 +26,8 @@ import (
 
 	"go.uber.org/zap"
 
-	"github.com/pydio/cells/v4/common/telemetry/log"
-	json "github.com/pydio/cells/v4/common/utils/jsonx"
+	"github.com/pydio/cells/v5/common/telemetry/log"
+	json "github.com/pydio/cells/v5/common/utils/jsonx"
 
 	. "github.com/smartystreets/goconvey/convey"
 )

@@ -5,8 +5,8 @@ import (
 
 	restful "github.com/emicklei/go-restful/v3"
 
-	"github.com/pydio/cells/v4/common/middleware"
-	"github.com/pydio/cells/v4/common/utils/i18n/languages"
+	"github.com/pydio/cells/v5/common/middleware"
+	"github.com/pydio/cells/v5/common/utils/i18n/languages"
 )
 
 func HttpWrapperLanguage(h http.Handler) http.Handler {

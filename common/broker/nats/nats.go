@@ -19,10 +19,10 @@ import (
 	"gocloud.dev/pubsub/batcher"
 	"gocloud.dev/pubsub/driver"
 
-	"github.com/pydio/cells/v4/common/crypto"
-	pb "github.com/pydio/cells/v4/common/proto/broker"
-	"github.com/pydio/cells/v4/common/telemetry/log"
-	"github.com/pydio/cells/v4/common/utils/std"
+	"github.com/pydio/cells/v5/common/crypto"
+	pb "github.com/pydio/cells/v5/common/proto/broker"
+	"github.com/pydio/cells/v5/common/telemetry/log"
+	"github.com/pydio/cells/v5/common/utils/std"
 )
 
 var errNotInitialized = errors.New("natspubsub: topic not initialized")

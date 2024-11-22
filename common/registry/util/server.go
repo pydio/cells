@@ -21,12 +21,12 @@
 package util
 
 import (
-	"github.com/pydio/cells/v4/common/utils/std"
 	"golang.org/x/exp/maps"
 
-	pb "github.com/pydio/cells/v4/common/proto/registry"
-	"github.com/pydio/cells/v4/common/registry"
-	"github.com/pydio/cells/v4/common/utils/merger"
+	pb "github.com/pydio/cells/v5/common/proto/registry"
+	"github.com/pydio/cells/v5/common/registry"
+	"github.com/pydio/cells/v5/common/utils/merger"
+	"github.com/pydio/cells/v5/common/utils/std"
 )
 
 func ToProtoServer(s registry.Server) *pb.Server {

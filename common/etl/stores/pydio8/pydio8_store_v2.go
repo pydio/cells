@@ -32,10 +32,11 @@ import (
 	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
 
-	json "github.com/pydio/cells/v4/common/utils/jsonx"
 	"github.com/pydio/pydio-sdk-go/client"
 	"github.com/pydio/pydio-sdk-go/client/provisioning"
 	"github.com/pydio/pydio-sdk-go/models"
+
+	json "github.com/pydio/cells/v5/common/utils/jsonx"
 )
 
 type Client struct {
@@ -64,7 +65,8 @@ func (a *Client) GetPeople(params *GetPeopleParams) (*GetPeopleOK, error) {
 
 }
 
-/*GetPeopleParams contains all the parameters to send to the API endpoint
+/*
+GetPeopleParams contains all the parameters to send to the API endpoint
 for the get people operation typically these are written to a http.Request
 */
 type GetPeopleParams struct {
@@ -197,7 +199,7 @@ func NewGetPeopleOK() *GetPeopleOK {
 	return &GetPeopleOK{}
 }
 
-//GetPeopleOK handles this case with default header values.
+// GetPeopleOK handles this case with default header values.
 type GetPeopleOK struct {
 	Payload *models.NodeList
 }
@@ -268,7 +270,8 @@ func NewGetRolesOK() *GetRolesOK {
 	return &GetRolesOK{}
 }
 
-/*GetRolesOK handles this case with default header values.
+/*
+GetRolesOK handles this case with default header values.
 
 A list of roles represented as standard nodes
 */

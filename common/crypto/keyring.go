@@ -27,7 +27,7 @@ import (
 
 	keyring "github.com/zalando/go-keyring"
 
-	"github.com/pydio/cells/v4/common/utils/propagator"
+	"github.com/pydio/cells/v5/common/utils/propagator"
 )
 
 type keyringKey struct{}

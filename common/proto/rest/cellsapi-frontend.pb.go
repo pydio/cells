@@ -7,7 +7,7 @@
 package rest
 
 import (
-	auth "github.com/pydio/cells/v4/common/proto/auth"
+	auth "github.com/pydio/cells/v5/common/proto/auth"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	reflect "reflect"

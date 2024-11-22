@@ -29,11 +29,11 @@ import (
 	"github.com/blevesearch/bleve/v2/search"
 	"github.com/blevesearch/bleve/v2/search/query"
 
-	log2 "github.com/pydio/cells/v4/broker/log"
-	"github.com/pydio/cells/v4/common"
-	"github.com/pydio/cells/v4/common/proto/log"
-	bleve2 "github.com/pydio/cells/v4/common/storage/bleve"
-	"github.com/pydio/cells/v4/common/utils/configx"
+	log2 "github.com/pydio/cells/v5/broker/log"
+	"github.com/pydio/cells/v5/common"
+	"github.com/pydio/cells/v5/common/proto/log"
+	bleve2 "github.com/pydio/cells/v5/common/storage/bleve"
+	"github.com/pydio/cells/v5/common/utils/configx"
 )
 
 func init() {

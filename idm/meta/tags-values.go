@@ -3,9 +3,9 @@ package meta
 import (
 	"context"
 
-	"github.com/pydio/cells/v4/common/client/commons/docstorec"
-	"github.com/pydio/cells/v4/common/proto/docstore"
-	json "github.com/pydio/cells/v4/common/utils/jsonx"
+	"github.com/pydio/cells/v5/common/client/commons/docstorec"
+	"github.com/pydio/cells/v5/common/proto/docstore"
+	json "github.com/pydio/cells/v5/common/utils/jsonx"
 )
 
 const TagsDocStoreId = "user_meta_tags"
