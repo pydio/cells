@@ -28,12 +28,11 @@ servers:
 
 storages:
   sql:
-    uri: "{{ .DbManualDSN }}&prefix={{`{{ .Meta.prefix }}`}}&policies={{`{{ .Meta.policies }}`}}&singular={{`{{ .Meta.singular }}`}}"
+    uri: "{{ .DbManualDSN }}?prefix={{`{{ .Meta.prefix }}`}}&policies={{`{{ .Meta.policies }}`}}&singular={{`{{ .Meta.singular }}`}}"
   dssql:
-    uri: {{ .DbManualDSN }}&prefix={{`{{ .Meta.prefix }}`}}{{`{{if ne .DataSource ""}}`}}{{`{{ .DataSource }}`}}_{{`{{end}}`}}&policies={{`{{ .Meta.policies }}`}}&singular={{`{{ .Meta.singular }}`}}
+    uri: "{{ .DbManualDSN }}?prefix={{`{{ .Meta.prefix }}`}}{{`{{if ne .DataSource \"\"}}`}}{{`{{ .DataSource }}`}}_{{`{{end}}`}}&policies={{`{{ .Meta.policies }}`}}&singular={{`{{ .Meta.singular }}`}}"
   index:
-    uri:
-      "bleve://{{`{{ autoMkdir (joinPath (serviceDataDir .Service) (tenantPathWithBlank .Tenant \"default\")) }}`}}/{{`{{  .Meta.prefix }}`}}.db"
+    uri: "bleve://{{`{{ autoMkdir (joinPath (serviceDataDir .Service) (tenantPathWithBlank .Tenant \"default\")) }}`}}/{{`{{  .Meta.prefix }}`}}.db"
   bleve:
     uri: "bleve://{{`{{ autoMkdir (joinPath (serviceDataDir .Service) (tenantPathWithBlank .Tenant \"default\")) }}`}}/{{`{{  .Meta.file }}`}}"
   bolt:
@@ -183,3 +182,8 @@ services: &services
       main:
         - type: dssql
           prefix: data_index_
+  pydio.grpc.data.sync:
+    storages:
+      main:
+        - type: dssql
+          prefix: data_sync_

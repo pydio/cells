@@ -1,0 +1,12 @@
+storages:
+  sql:
+    uri: "{{ .DbManualDSN }}?prefix={{`{{ .Meta.prefix }}`}}&policies={{`{{ .Meta.policies }}`}}&singular={{`{{ .Meta.singular }}`}}"
+  dssql:
+    uri: {{ .DbManualDSN }}?prefix={{`{{ .Meta.prefix }}`}}{{`{{if ne .DataSource ""}}`}}{{`{{ .DataSource }}`}}_{{`{{end}}`}}&policies={{`{{ .Meta.policies }}`}}&singular={{`{{ .Meta.singular }}`}}
+  index:
+    uri:
+      "bleve://{{`{{ autoMkdir (joinPath (serviceDataDir .Service) (tenantPathWithBlank .Tenant \"default\")) }}`}}/{{`{{  .Meta.prefix }}`}}.db"
+  bleve:
+    uri: "bleve://{{`{{ autoMkdir (joinPath (serviceDataDir .Service) (tenantPathWithBlank .Tenant \"default\")) }}`}}/{{`{{  .Meta.file }}`}}"
+  bolt:
+    uri: "boltdb://{{`{{ autoMkdir (joinPath (serviceDataDir .Service) (tenantPathWithBlank .Tenant \"default\")) }}`}}/{{`{{ .Meta.file }}`}}"

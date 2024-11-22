@@ -23,13 +23,13 @@ package manager
 import (
 	"bytes"
 	"context"
-	"fmt"
-	"github.com/spf13/viper"
-	"gopkg.in/yaml.v3"
 	"log"
 	"os"
 	"strings"
 	"text/template"
+
+	"github.com/spf13/viper"
+	yaml "gopkg.in/yaml.v3"
 
 	"github.com/pydio/cells/v4/common/config"
 	"github.com/pydio/cells/v4/common/proto/object"
@@ -39,56 +39,50 @@ import (
 	_ "embed"
 )
 
-var (
-	//go:embed bootstrap-defaults.yaml
-	defaultsValues string
-	//go:embed bootstrap.yaml
-	bootstrapTemplate string
-	//go:embed bootstrap-datasources.yaml
-	bootstrapDatasources string
-
-	bsTemplates map[string]string
-)
-
-func init() {
-	bsTemplates = map[string]string{
-		"core":        bootstrapTemplate,
-		"datasources": bootstrapDatasources,
-	}
-}
-
-// SetBootstrapTemplate overrides initial template
-func SetBootstrapTemplate(name, tpl string) {
-	bsTemplates[name] = tpl
-}
-
 // Bootstrap wraps a config.Store and is loaded from yaml templates or additional environment data
 type Bootstrap struct {
 	config.Store
-	named string
+
+	viper     *Viper
+	templates []*viper.Viper
 }
 
-func NewBootstrap(ctx context.Context, runtimeTemplate string) (*Bootstrap, error) {
+type Viper struct {
+	*viper.Viper
+}
+
+func NewBootstrap(ctx context.Context) (*Bootstrap, error) {
 	store, err := config.OpenStore(ctx, "mem://?encode=yaml")
 	if err != nil {
 		return nil, err
 	}
 
+	v := viper.NewWithOptions(viper.KeyDelimiter("::"))
+	v.SetConfigType("yaml")
+
 	bs := &Bootstrap{
+		viper: &Viper{v},
 		Store: store,
-		named: "core",
 	}
 
-	if runtimeTemplate != "" {
-		if _, ok := bsTemplates[runtimeTemplate]; !ok {
-			return nil, fmt.Errorf("bootstrap template not found: %s", runtimeTemplate)
-		}
-		bs.named = runtimeTemplate
+	if err := bs.reload(ctx, nil); err != nil {
+		return nil, err
 	}
-
-	bs.reload(ctx, nil)
 
 	return bs, nil
+}
+
+// RegisterTemplate adds a new template to the list
+func (bs *Bootstrap) RegisterTemplate(typ string, tpl string) error {
+	v := viper.NewWithOptions(viper.KeyDelimiter("/"))
+	v.SetConfigType(typ)
+	if err := v.ReadConfig(bytes.NewBufferString(tpl)); err != nil {
+		return err
+	}
+
+	bs.templates = append(bs.templates, v)
+
+	return nil
 }
 
 // MustReset triggers a full reload of the config
@@ -119,40 +113,28 @@ func (bs *Bootstrap) MustReset(ctx context.Context, conf *openurl.Pool[config.St
 //	}
 //}
 
-func (bs *Bootstrap) reload(ctx context.Context, storePool *openurl.Pool[config.Store]) error {
-	var store config.Store
+func (bs *Bootstrap) Viper() *Viper {
+	return bs.viper
+}
 
-	if storePool != nil {
+func (bs *Bootstrap) reload(ctx context.Context, storePool *openurl.Pool[config.Store]) error {
+	// var store config.Store
+
+	runtimeConfig := viper.NewWithOptions(viper.KeyDelimiter("::"))
+	runtimeConfig.SetConfigType("yaml")
+
+	/*if storePool != nil {
 		if st, err := storePool.Get(ctx); err != nil {
 			return err
 		} else {
 			store = st
 		}
-	}
+	}*/
 
-	runtimeConfig := viper.NewWithOptions(viper.KeyDelimiter("::"))
-	runtimeConfig.SetConfigType("yaml")
-
-	// Optionally fully override the template based on arguments
-	if file := runtime.GetString(runtime.KeyBootstrapFile); file != "" {
-		b, err := os.ReadFile(file)
-		if err != nil {
+	for _, c := range bs.templates {
+		if err := runtimeConfig.MergeConfigMap(c.AllSettings()); err != nil {
 			return err
 		}
-
-		if err := runtimeConfig.MergeConfig(bytes.NewBuffer(b)); err != nil {
-			return err
-		}
-	} else if yaml := runtime.GetString(runtime.KeyBootstrapYAML); yaml != "" {
-		if err := runtimeConfig.MergeConfig(bytes.NewBuffer([]byte(yaml))); err != nil {
-			return err
-		}
-	} else {
-		// TODO
-		//tmpl := strings.Join([]string{
-		//	defaultTemplate,
-		//	bsTemplates[bs.named],
-		//}, "\n")
 	}
 
 	// Finally we're adding any flags we can have in the --sets
@@ -178,60 +160,24 @@ func (bs *Bootstrap) reload(ctx context.Context, storePool *openurl.Pool[config.
 		}
 	}
 
+	bs.viper.Viper = runtimeConfig
+
+	return nil
+}
+
+func (bs *Bootstrap) String() string {
 	// Marshal the map to YAML
-	fullYamlData, err := yaml.Marshal(runtimeConfig.AllSettings())
+	fullYamlData, err := yaml.Marshal(bs.viper.AllSettings())
 	if err != nil {
 		log.Fatalf("Error marshaling config to YAML: %v", err)
 	}
 
-	fullYaml, er := tplEval(ctx, string(fullYamlData), bs.named+"-yaml", store)
-	if er != nil {
-		return er
-	}
-
-	if err := bs.Set([]byte(fullYaml)); err != nil {
-		return err
-	}
-
-	return nil
+	return string(fullYamlData)
 }
 
 type keyPair struct {
 	key string
 	val string
-}
-
-func runtimeSetPairs() (def, proc []keyPair) {
-	var pairs = runtime.GetStringSlice(runtime.KeyBootstrapSet)
-	if sets := runtime.GetString(runtime.KeyBootstrapSetsFile); sets != "" {
-		if bb, err := os.ReadFile(sets); err == nil {
-			for _, line := range strings.Split(string(bb), "\n") {
-				line = strings.TrimSpace(line)
-				if len(line) == 0 {
-					continue
-				}
-				if line[0] == '#' || line == "" {
-					continue
-				}
-				pairs = append(pairs, line)
-			}
-		}
-	}
-
-	// Assign keys passed by arguments, by evaluating their value through templating as well
-	for _, pair := range pairs {
-		kv := strings.SplitN(pair, "=", 2)
-		if len(kv) != 2 {
-			continue
-		}
-		if strings.HasPrefix(kv[0], "defaults/") {
-			def = append(def, keyPair{kv[0], kv[1]})
-		} else {
-			proc = append(proc, keyPair{kv[0], kv[1]})
-		}
-	}
-
-	return
 }
 
 func tplEval(ctx context.Context, tpl, name string, conf config.Store) (string, error) {
@@ -290,5 +236,4 @@ func loadDSData(ctx context.Context, tpl string, conf config.Store) (map[string]
 		return nil, nil
 	}
 	return config.ListSourcesFromConfig(ctx), config.ListMinioConfigsFromConfig(ctx, true)
-
 }

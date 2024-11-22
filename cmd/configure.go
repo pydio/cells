@@ -1,6 +1,3 @@
-//go:build exclude
-// +build exclude
-
 /*
  * Copyright (c) 2019-2021. Abstrium SAS <team (at) pydio.com>
  * This file is part of Pydio Cells.
@@ -26,7 +23,6 @@ package cmd
 import (
 	"context"
 	"fmt"
-	"github.com/pydio/cells/v4/common/runtime/manager"
 	"net/url"
 	"os"
 	"os/exec"
@@ -42,6 +38,7 @@ import (
 	"github.com/pydio/cells/v4/common/config/routing"
 	"github.com/pydio/cells/v4/common/proto/install"
 	cruntime "github.com/pydio/cells/v4/common/runtime"
+	"github.com/pydio/cells/v4/common/runtime/manager"
 	unet "github.com/pydio/cells/v4/common/utils/net"
 )
 
@@ -51,19 +48,6 @@ func init() {
 
 var (
 	DefaultStartCmd *cobra.Command
-
-	niBindUrl          string
-	niExtUrl           string
-	niNoTls            bool
-	niModeCli          bool
-	niCertFile         string
-	niKeyFile          string
-	niLeEmailContact   string
-	niLeAcceptEula     bool
-	niLeUseStagingCA   bool
-	niYamlFile         string
-	niJsonFile         string
-	niExitAfterInstall bool
 )
 
 // ConfigureCmd launches a wizard (either in this CLI or in your web browser) to configure a new instance of Pydio Cells.

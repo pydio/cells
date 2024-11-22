@@ -45,6 +45,7 @@ var (
 )
 
 type Runtime interface {
+	AllSettings() map[string]interface{}
 	GetBool(key string) bool
 	GetString(key string) string
 	GetStringSlice(key string) []string

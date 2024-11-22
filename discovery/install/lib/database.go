@@ -27,6 +27,8 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"os"
+	"path"
 	"regexp"
 	"strings"
 	"text/template"
@@ -198,7 +200,7 @@ func addDatabaseManualConnection(c *install.InstallConfig) (*mysql.Config, error
 }
 
 func checkConnection(ctx context.Context, dsn string) error {
-
+	// return nil
 	tmpl, err := template.New("storages").Parse(`
 storages:
   {{ with .Root }}
@@ -240,7 +242,18 @@ storages:
 		}
 	}
 
-	runtime.SetDefault(runtime.KeyBootstrapYAML, str.String())
+	bootstrap, err := manager.NewBootstrap(ctx)
+	if err != nil {
+		return err
+	}
+
+	if err := bootstrap.RegisterTemplate("yaml", str.String()); err != nil {
+		return err
+	}
+
+	bootstrap.MustReset(ctx, nil)
+
+	runtime.GetRuntime().Set(runtime.KeyBootstrapYAML, bootstrap)
 
 	mgr, err := manager.NewManager(ctx, "install", nil)
 	if err != nil {
@@ -250,6 +263,18 @@ storages:
 	item, err := mgr.Registry().Get("main", registry.WithType(pb.ItemType_STORAGE))
 	if err != nil {
 		return err
+	}
+
+	if strings.HasPrefix(dsn, "sqlite") {
+		dir := path.Dir(dsn[9:])
+		if s, e := os.Stat(dir); e == nil {
+			if !s.IsDir() {
+				return fmt.Errorf("%s is not a directory", dir)
+			}
+		} else if er := os.MkdirAll(dir, 0755); er == nil {
+		} else {
+			return fmt.Errorf("cannot create directory %s: %v", dir, e)
+		}
 	}
 
 	if strings.HasPrefix(dsn, "mysql") {

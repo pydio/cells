@@ -86,6 +86,7 @@ type Manager interface {
 	WatchServicesConfigs()
 	WatchBroker(ctx context.Context, br broker.Broker) error
 
+	RegisterBootstrapTemplate(typ string, data string) error
 	RegisterStorage(scheme string, options ...controller.Option[storage.Storage])
 	RegisterConfig(scheme string, config ...controller.Option[*openurl.Pool[config.Store]])
 	RegisterQueue(scheme string, opts ...controller.Option[broker.AsyncQueuePool])
@@ -149,11 +150,22 @@ func NewManager(ctx context.Context, namespace string, logger log.ZapLogger) (Ma
 	ctx = propagator.With(ctx, ContextKey, m)
 	runtime.Init(ctx, "system")
 
-	// Load bootstrap and compute base depending on process
-	bootstrap, err := NewBootstrap(m.ctx, runtime.GetString(runtime.KeyBootstrapTpl))
+	bootstrapYAML := runtime.GetRuntime().GetString(runtime.KeyBootstrapYAML)
+	bootstrap, err := config.OpenStore(ctx, "mem://?encode=yaml")
 	if err != nil {
 		return nil, err
 	}
+
+	str, err := tplEval(ctx, bootstrapYAML, "bootstrap", nil)
+	if err != nil {
+		return nil, err
+	} else {
+		if err := bootstrap.Set([]byte(str)); err != nil {
+			return nil, err
+		}
+	}
+
+	fmt.Println("YAML ", str)
 
 	base := runtime.GetString(runtime.KeyBootstrapRoot)
 	// if !runtime.IsSet(runtime.KeyBootstrapRoot) {
@@ -200,28 +212,27 @@ func NewManager(ctx context.Context, namespace string, logger log.ZapLogger) (Ma
 
 	// Connecting to the control plane if necessary
 	reg, err := registry.OpenRegistry(ctx, runtime.RegistryURL())
-	if err != nil {
-		return nil, err
-	}
+	if err == nil {
 
-	// Registering everything
-	items, err := m.internalRegistry.List()
-	if err != nil {
-		return nil, err
-	}
-	for _, item := range items {
-		fmt.Println("Initially Registering ", (item).Name())
-		reg.Register(item)
-	}
+		// Registering everything
+		items, err := m.internalRegistry.List()
+		if err != nil {
+			return nil, err
+		}
+		for _, item := range items {
+			fmt.Println("Initially Registering ", (item).Name())
+			reg.Register(item)
+		}
 
-	m.internalRegistry = registry.NewFuncWrapper(m.internalRegistry,
-		registry.OnRegister(func(item *registry.Item, opts *[]registry.RegisterOption) {
-			//fmt.Println("Registering ", (*item).Name())
-			if err := reg.Register(*item, *opts...); err != nil {
-				fmt.Println("I have an error")
-			}
-		}),
-	)
+		m.internalRegistry = registry.NewFuncWrapper(m.internalRegistry,
+			registry.OnRegister(func(item *registry.Item, opts *[]registry.RegisterOption) {
+				//fmt.Println("Registering ", (*item).Name())
+				if err := reg.Register(*item, *opts...); err != nil {
+					fmt.Println("I have an error")
+				}
+			}),
+		)
+	}
 
 	ctx = propagator.With(ctx, registry.ContextKey, m.internalRegistry)
 
@@ -232,9 +243,8 @@ func NewManager(ctx context.Context, namespace string, logger log.ZapLogger) (Ma
 		ctx = propagator.With(ctx, config.VaultKey, vault)
 		ctx = propagator.With(ctx, config.RevisionsKey, revisions)
 
-		if err := bootstrap.reload(ctx, store); err != nil {
-			return nil, err
-		}
+		// TODO - reload here with config
+		// bootstrapYAML := runtime.GetRuntime().GetString(runtime.KeyBootstrapYAML)
 
 		m.initTelemetry(ctx, bootstrap, store)
 
@@ -306,6 +316,15 @@ func (m *manager) Context() context.Context {
 
 func (m *manager) Registry() registry.Registry {
 	return m.internalRegistry
+}
+
+func (m *manager) RegisterBootstrapTemplate(typ string, data string) error {
+	if err := m.bootstrap.RegisterTemplate(typ, data); err != nil {
+		return err
+	}
+
+	m.bootstrap.MustReset(m.ctx, nil)
+	return nil
 }
 
 func (m *manager) RegisterStorage(scheme string, opts ...controller.Option[storage.Storage]) {
@@ -390,15 +409,20 @@ func (m *manager) GetCache(ctx context.Context, name string, resolutionData map[
 	return pool.Get(ctx, resolutionData)
 }
 
-func (m *manager) initNamespace(ctx context.Context, bootstrap *Bootstrap, base string) error {
+func (m *manager) initNamespace(ctx context.Context, bootstrap config.Store, base string) error {
 	m.ns = bootstrap.Val(base, "runtime").Default(m.ns).String()
 
 	return nil
 }
 
 func (m *manager) initKeyring(ctx context.Context) (config.Store, error) {
+	keyringURL := runtime.KeyringURL()
+	if keyringURL == "" {
+		return nil, nil
+	}
+
 	// Keyring store
-	keyringStore, err := config.OpenStore(ctx, runtime.KeyringURL())
+	keyringStore, err := config.OpenStore(ctx, keyringURL)
 	if err != nil {
 		return nil, fmt.Errorf("could not init keyring store %v", err)
 	}
@@ -477,7 +501,7 @@ func (m *manager) initConfig(ctx context.Context) (*openurl.Pool[config.Store], 
 	return mainStorePool, vaultStorePool, versionsStorePool, nil
 }
 
-func (m *manager) initTelemetry(ctx context.Context, bootstrap *Bootstrap, storePool *openurl.Pool[config.Store]) {
+func (m *manager) initTelemetry(ctx context.Context, bootstrap config.Store, storePool *openurl.Pool[config.Store]) {
 	// Default is taken from bootstrap
 	conf := &telemetry.Config{
 		Loggers: []log.LoggerConfig{{
@@ -512,7 +536,7 @@ func (m *manager) initTelemetry(ctx context.Context, bootstrap *Bootstrap, store
 	}
 }
 
-func (m *manager) initInternalRegistry(ctx context.Context, bootstrap *Bootstrap, base string) (registry.Registry, error) {
+func (m *manager) initInternalRegistry(ctx context.Context, bootstrap config.Store, base string) (registry.Registry, error) {
 
 	reg, err := registry.OpenRegistry(ctx, "mem:///?cache="+m.ns)
 	if err != nil {
@@ -557,7 +581,7 @@ func (m *manager) initInternalRegistry(ctx context.Context, bootstrap *Bootstrap
 	return reg, nil
 }
 
-func (m *manager) initProcesses(ctx context.Context, bootstrap *Bootstrap, base string) error {
+func (m *manager) initProcesses(ctx context.Context, bootstrap config.Store, base string) error {
 	cmds := make(map[string]*fork.Process)
 
 	var baseWatch []string
@@ -733,7 +757,7 @@ func (m *manager) initProcesses(ctx context.Context, bootstrap *Bootstrap, base 
 	}
 }
 
-func (m *manager) initListeners(ctx context.Context, store *Bootstrap, base string) error {
+func (m *manager) initListeners(ctx context.Context, store config.Store, base string) error {
 	listeners := store.Val(base + "/listeners")
 	for k, v := range listeners.Map() {
 		vv, ok := v.(map[any]any)
@@ -782,7 +806,7 @@ func (m *manager) initListeners(ctx context.Context, store *Bootstrap, base stri
 	return nil
 }
 
-func (m *manager) initServers(ctx context.Context, store *Bootstrap, base string) error {
+func (m *manager) initServers(ctx context.Context, store config.Store, base string) error {
 
 	servers := store.Val(base + "/servers")
 	for _, v := range servers.Map() {
@@ -830,7 +854,7 @@ func (m *manager) initServers(ctx context.Context, store *Bootstrap, base string
 	return nil
 }
 
-func (m *manager) initConnections(ctx context.Context, store *Bootstrap, base string) error {
+func (m *manager) initConnections(ctx context.Context, store config.Store, base string) error {
 	connections := store.Val(base + "/connections")
 	for k, v := range connections.Map() {
 		vv, ok := v.(map[any]any)
@@ -903,7 +927,7 @@ func (m *manager) initConnections(ctx context.Context, store *Bootstrap, base st
 	return nil
 }
 
-func (m *manager) initStorages(ctx context.Context, store *Bootstrap, base string) error {
+func (m *manager) initStorages(ctx context.Context, store config.Store, base string) error {
 	runtime.Register(m.ns, func(ctx context.Context) {
 		storages := store.Val(base + "/storages")
 		for k := range storages.Map() {
@@ -1066,7 +1090,7 @@ func (m *manager) initStorages(ctx context.Context, store *Bootstrap, base strin
 	return nil
 }
 
-func (m *manager) initQueues(ctx context.Context, store *Bootstrap, base string) error {
+func (m *manager) initQueues(ctx context.Context, store config.Store, base string) error {
 	runtime.Register(m.ns, func(ctx context.Context) {
 		queues := store.Val(base + "/queues")
 		for k := range queues.Map() {
@@ -1126,7 +1150,7 @@ func (m *manager) initQueues(ctx context.Context, store *Bootstrap, base string)
 	return nil
 }
 
-func (m *manager) initCaches(ctx context.Context, store *Bootstrap, base string) error {
+func (m *manager) initCaches(ctx context.Context, store config.Store, base string) error {
 	runtime.Register(m.ns, func(ctx context.Context) {
 		caches := store.Val(base + "/caches")
 		for k := range caches.Map() {
@@ -1440,7 +1464,6 @@ func (m *manager) startServer(srv server.Server, oo ...server.ServeOption) error
 				}))
 			}
 		}
-
 		services := m.Registry().ListAdjacentItems(
 			registry.WithAdjacentSourceItems([]registry.Item{m.root}),
 			registry.WithAdjacentEdgeOptions(registry.WithName("Node")),

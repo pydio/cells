@@ -23,28 +23,53 @@ package cmd
 import (
 	"context"
 	"fmt"
-	"github.com/pydio/cells/v4/common/config"
-	"github.com/pydio/cells/v4/common/proto/install"
-	"go.uber.org/zap/exp/zapfield"
 	"os"
+	"path/filepath"
 	"strings"
 	"text/template"
 
 	"github.com/spf13/cobra"
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/trace"
+	yaml "gopkg.in/yaml.v3"
 
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/broker"
+	"github.com/pydio/cells/v4/common/config"
+	"github.com/pydio/cells/v4/common/proto/install"
 	"github.com/pydio/cells/v4/common/runtime"
 	"github.com/pydio/cells/v4/common/runtime/manager"
 	"github.com/pydio/cells/v4/common/telemetry/log"
+	"github.com/pydio/cells/v4/idm/user/grpc"
 
 	_ "embed"
 )
 
 var (
-	configChecks []func(ctx context.Context) error
+	//go:embed start-bootstrap.yaml
+	bootstrapYAML string
+
+	//go:embed start-storages.yaml
+	storagesYAML string
+
+	allSettingsYAML string
+	bootstrap       *manager.Bootstrap
+	configChecks    []func(ctx context.Context) error
+)
+
+var (
+	niBindUrl          string
+	niExtUrl           string
+	niNoTls            bool
+	niModeCli          bool
+	niCertFile         string
+	niKeyFile          string
+	niLeEmailContact   string
+	niLeAcceptEula     bool
+	niLeUseStagingCA   bool
+	niYamlFile         string
+	niJsonFile         string
+	niExitAfterInstall bool
 )
 
 func RegisterConfigChecker(f func(ctx context.Context) error) {
@@ -121,12 +146,19 @@ ENVIRONMENT
 
 `,
 	PreRunE: func(cmd *cobra.Command, args []string) error {
+
 		bindViperFlags(cmd.Flags(), map[string]string{
 			runtime.KeyFork:              runtime.KeyForkLegacy,
 			runtime.KeyInstallYamlLegacy: runtime.KeyInstallYaml,
 			runtime.KeyInstallJsonLegacy: runtime.KeyInstallJson,
 			runtime.KeyInstallCliLegacy:  runtime.KeyInstallCli,
 		})
+
+		b, err := yaml.Marshal(runtime.GetRuntime().AllSettings())
+		if err != nil {
+			return err
+		}
+		allSettingsYAML = string(b)
 
 		// Manually bind to viper instead of flags.StringVar, flags.BoolVar, etc
 		niModeCli = runtime.GetBool(runtime.KeyInstallCli)
@@ -159,6 +191,13 @@ ENVIRONMENT
 
 		ctx := runtime.MultiContextManager().RootContext(cmd.Context())
 
+		bootstrap, err = manager.NewBootstrap(ctx)
+		if err != nil {
+			return err
+		}
+
+		runtime.GetRuntime().Set(runtime.KeyBootstrapYAML, bootstrap)
+
 		// Create a manager for the pre-run
 		mgr, err := manager.NewManager(ctx, "cmd", nil)
 		if err != nil {
@@ -171,6 +210,7 @@ ENVIRONMENT
 		// Checking if we need to install something
 		if niYamlFile != "" || niJsonFile != "" {
 
+			var err error
 			installConf, err = nonInteractiveInstall(ctx)
 			fatalIfError(cmd, err)
 
@@ -186,8 +226,8 @@ ENVIRONMENT
 		}
 
 		// Reading template
-		tmpl := template.New("bootstrap")
-		yml, err := tmpl.Parse(BootstrapYAML)
+		tmpl := template.New("storages")
+		yml, err := tmpl.Parse(storagesYAML)
 		fatalIfError(cmd, err)
 
 		str := &strings.Builder{}
@@ -195,9 +235,16 @@ ENVIRONMENT
 		err = yml.Execute(str, *installConf)
 		fatalIfError(cmd, err)
 
-		log.Logger(ctx).Debug("bootstrap", zapfield.Str("bootstrap", str.String()))
+		runtime.Register("system", func(ctx context.Context) {
+			if err := bootstrap.RegisterTemplate("yaml", str.String()); err != nil {
+				fatalIfError(cmd, err)
+			}
+			bootstrap.MustReset(ctx, nil)
 
-		runtime.GetRuntime().Set(runtime.KeyBootstrapYAML, str.String())
+		})
+
+		os.Setenv(grpc.EnvPydioAdminUserLogin, installConf.FrontendLogin)
+		os.Setenv(grpc.EnvPydioAdminUserPassword, installConf.FrontendPassword)
 
 		for k, v := range installConf.CustomConfigs {
 			os.Setenv("CELLS_CONFIG_"+k, v)
@@ -247,6 +294,41 @@ ENVIRONMENT
 
 		ctx = runtime.AsCoreContext(ctx)
 
+		// Optionally fully override the template based on arguments
+		if file := runtime.GetString(runtime.KeyBootstrapFile); file != "" {
+			b, err := os.ReadFile(file)
+			if err != nil {
+				return err
+			}
+
+			if err := bootstrap.RegisterTemplate(filepath.Ext(runtime.KeyBootstrapFile), string(b)); err != nil {
+				return err
+			}
+			//} else if data := runtime.GetString(runtime.KeyBootstrapYAML); data != "" {
+			//	if err := bootstrap.RegisterTemplate("yaml", data); err != nil {
+			//		return err
+			//	}
+		} else {
+			tmpl := template.New("bootstrap")
+			if _, err := tmpl.Parse(bootstrapYAML); err != nil {
+				return err
+			}
+
+			var b strings.Builder
+			if err := tmpl.Execute(&b, nil); err != nil {
+				return err
+			}
+
+			if err := bootstrap.RegisterTemplate("yaml", b.String()); err != nil {
+				return err
+			}
+		}
+
+		bootstrap.RegisterTemplate("yaml", string(allSettingsYAML))
+		bootstrap.MustReset(ctx, nil)
+
+		runtime.GetRuntime().Set(runtime.KeyBootstrapYAML, bootstrap)
+
 		broker.Register(broker.NewBroker(runtime.BrokerURL(), broker.WithContext(ctx)))
 
 		m, err := manager.NewManager(ctx, runtime.NsMain, log.Logger(runtime.WithServiceName(ctx, "pydio.server.manager")))
@@ -257,7 +339,9 @@ ENVIRONMENT
 
 		span.End()
 
-		m.ServeAll()
+		if err := m.ServeAll(); err != nil {
+			return err
+		}
 
 		<-ctx.Done()
 
