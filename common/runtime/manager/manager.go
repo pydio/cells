@@ -165,8 +165,6 @@ func NewManager(ctx context.Context, namespace string, logger log.ZapLogger) (Ma
 		}
 	}
 
-	fmt.Println("YAML ", str)
-
 	base := runtime.GetString(runtime.KeyBootstrapRoot)
 	// if !runtime.IsSet(runtime.KeyBootstrapRoot) {
 	if name := runtime.Name(); name != "" && name != "default" {
@@ -220,7 +218,6 @@ func NewManager(ctx context.Context, namespace string, logger log.ZapLogger) (Ma
 			return nil, err
 		}
 		for _, item := range items {
-			fmt.Println("Initially Registering ", (item).Name())
 			reg.Register(item)
 		}
 
@@ -1490,8 +1487,6 @@ func (m *manager) startServer(srv server.Server, oo ...server.ServeOption) error
 	}).Register(srv); err != nil {
 		return err
 	}
-
-	fmt.Println("SERVING SERVER ", srv.Name())
 
 	return srv.Serve(opts...)
 }
