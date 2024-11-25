@@ -33,9 +33,11 @@ func init() {
 			panic(fmt.Errorf("cannot create directory %s: %v", dir, e))
 		}
 	})
+
 	openurl.RegisterTplFunc("applicationDataDir", func() string {
 		return runtime.ApplicationWorkingDir(runtime.ApplicationDirData)
 	})
+
 	openurl.RegisterTplFunc("serviceDataDir", func(dir string) string {
 		return runtime.MustServiceDataDir(dir)
 	})

@@ -1,9 +1,9 @@
 storages:
   sql:
-    uri: "sqlite3-extended:///tmp/sqlite"
+    uri: sqlite://{{ autoMkdirTmp "sqlite" }}/test.db
   mongo:
     uri: mongodb://localhost:27017/test
   bleve:
-    uri: bleve:///tmp/bleve/test
+    uri: bleve://{{ autoMkdirTmp "bleve" }}
   bolt:
-    uri: boltdb:///tmp/bolt/test
+    uri: boltdb://{{ autoMkdirTmp "bolt" }}/test.bolt

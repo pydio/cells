@@ -4,11 +4,11 @@ import (
 	"context"
 	"fmt"
 	"io"
+	"os"
 	"testing"
 
 	"github.com/spf13/viper"
 	"go.etcd.io/bbolt"
-	"go.mongodb.org/mongo-driver/mongo"
 	"go.uber.org/zap"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/examples/helloworld/helloworld"
@@ -18,10 +18,12 @@ import (
 	"github.com/pydio/cells/v5/common/registry"
 	"github.com/pydio/cells/v5/common/runtime"
 	"github.com/pydio/cells/v5/common/runtime/manager"
-	"github.com/pydio/cells/v5/common/server/generic"
 	"github.com/pydio/cells/v5/common/service"
 	"github.com/pydio/cells/v5/common/storage/bleve"
+	"github.com/pydio/cells/v5/common/storage/boltdb"
+	"github.com/pydio/cells/v5/common/storage/mongodb"
 	"github.com/pydio/cells/v5/common/telemetry/log"
+	"github.com/pydio/cells/v5/common/utils/openurl"
 	"github.com/pydio/cells/v5/common/utils/propagator"
 
 	_ "embed"
@@ -52,6 +54,16 @@ func init() {
 		logger, _ := conf.Build()
 		return logger, nil
 	}, nil)
+
+	// TODO - remove storage
+	openurl.RegisterTplFunc("autoMkdirTmp", func(dir string) string {
+		dirname, err := os.MkdirTemp("", dir)
+		if err != nil {
+			panic(err)
+		}
+
+		return dirname
+	})
 }
 
 type testHandler struct {
@@ -100,7 +112,7 @@ func TestManagerStorage(t *testing.T) {
 		})
 
 		Convey("Mongo", func() {
-			var cli *mongo.Database
+			var cli *mongodb.Indexer
 			err := mg.GetStorage(ctx, "mongo", &cli)
 			So(err, ShouldBeNil)
 
@@ -108,7 +120,7 @@ func TestManagerStorage(t *testing.T) {
 		})
 
 		Convey("Bolt", func() {
-			var cli *bbolt.DB
+			var cli boltdb.DB
 			err := mg.GetStorage(ctx, "bolt", &cli)
 			So(err, ShouldBeNil)
 
@@ -119,7 +131,7 @@ func TestManagerStorage(t *testing.T) {
 		})
 
 		Convey("Bleve", func() {
-			var cli bleve.Indexer
+			var cli *bleve.Indexer
 			err := mg.GetStorage(ctx, "bleve", &cli)
 			So(err, ShouldBeNil)
 
@@ -128,22 +140,6 @@ func TestManagerStorage(t *testing.T) {
 
 		})
 	})
-
-	// Add service
-	svc := service.NewService(
-		service.Name("service.test"),
-		service.Context(ctx),
-		/*
-			service.WithStorage("sqlite", func(db *gorm.DB) {
-				fmt.Println("db")
-			}),
-		*/
-		service.WithGeneric(func(c context.Context, srv *generic.Server) error {
-			return nil
-		}),
-	)
-
-	svc.Start()
 }
 
 func TestManagerConnection(t *testing.T) {
@@ -152,7 +148,6 @@ func TestManagerConnection(t *testing.T) {
 	v.Set(runtime.KeyKeyring, "mem://")
 	v.Set(runtime.KeyRegistry, "mem://")
 	v.Set(runtime.KeyBootstrapYAML, connectionTestTemplate)
-	v.Set(runtime.KeyBootstrapRoot, "processes/child1")
 	runtime.SetRuntime(v)
 
 	ctx := context.Background()
