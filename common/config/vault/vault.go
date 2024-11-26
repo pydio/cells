@@ -120,7 +120,15 @@ func (s *store) Context(ctx context.Context) configx.Values {
 	}
 }
 
-func (s *store) Get() any {
+func (s *store) Options() *configx.Options {
+	return s.v.Options()
+}
+
+func (s *store) Key() []string {
+	return s.v.Key()
+}
+
+func (s *store) Get(option ...configx.WalkOption) any {
 	s.read()
 	return s.v
 }

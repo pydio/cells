@@ -22,6 +22,7 @@ package grpc
 
 import (
 	"context"
+
 	"github.com/pydio/cells/v5/common/config"
 	"github.com/pydio/cells/v5/common/errors"
 	pb "github.com/pydio/cells/v5/common/proto/config"
@@ -80,7 +81,11 @@ func (h *Handler) Set(ctx context.Context, req *pb.SetRequest) (*pb.SetResponse,
 			return nil, err
 		}
 	} else {
-		if err := config.Set(ctx, req.GetValue().GetData(), req.GetPath()); err != nil {
+		var data any
+		if err := json.Unmarshal(req.GetValue().GetData(), &data); err != nil {
+			return nil, errors.WithMessage(errors.StatusInternalServerError, err.Error())
+		}
+		if err := config.Set(ctx, data, req.GetPath()); err != nil {
 			return nil, err
 		}
 	}

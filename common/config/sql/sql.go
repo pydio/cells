@@ -145,6 +145,22 @@ func New(ctx context.Context, driver string, dsn string, prefix string) (config.
 	}, nil
 }
 
+func (s *SQL) Context(ctx context.Context) configx.Values {
+	return s.config.Context(ctx)
+}
+
+func (s *SQL) Options() *configx.Options {
+	return s.config.Options()
+}
+
+func (s *SQL) Key() []string {
+	return s.config.Key()
+}
+
+func (s *SQL) Default(def any) configx.Values {
+	return s.config.Default(def)
+}
+
 func (s *SQL) Val(path ...string) configx.Values {
 	if s.config == nil {
 		s.Get()
@@ -152,7 +168,7 @@ func (s *SQL) Val(path ...string) configx.Values {
 	return &wrappedConfig{s.config.Val(path...), s}
 }
 
-func (s *SQL) Get() configx.Value {
+func (s *SQL) Get(option ...configx.WalkOption) any {
 	dao := s.dao.(DAO)
 
 	v := configx.New(configx.WithJSON())
@@ -166,7 +182,7 @@ func (s *SQL) Get() configx.Value {
 
 	s.config = v
 
-	return v
+	return v.Get(option...)
 }
 
 func (s *SQL) Set(value interface{}) error {

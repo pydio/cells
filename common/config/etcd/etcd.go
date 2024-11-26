@@ -326,7 +326,23 @@ func (m *etcd) watch(ctx context.Context) {
 	}
 }
 
-func (m *etcd) Get() any {
+func (m *etcd) Context(ctx context.Context) configx.Values {
+	return m.values.Context(ctx)
+}
+
+func (m *etcd) Options() *configx.Options {
+	return m.values.Options()
+}
+
+func (m *etcd) Key() []string {
+	return m.values.Key()
+}
+
+func (m *etcd) Default(def any) configx.Values {
+	return m.values.Default(def)
+}
+
+func (m *etcd) Get(option ...configx.WalkOption) any {
 	m.valuesLocker.RLock()
 	defer m.valuesLocker.RUnlock()
 
@@ -582,6 +598,14 @@ type values struct {
 	opts   []configx.Option
 }
 
+func (v *values) Context(ctx context.Context) configx.Values {
+	return &values{values: v.values.Context(ctx), valuesLocker: v.valuesLocker, withKeys: v.withKeys, ops: v.ops, prefix: v.prefix, path: v.path, leaseID: v.leaseID, opts: v.opts}
+}
+
+func (v *values) Options() *configx.Options {
+	return v.values.Options()
+}
+
 func (v *values) Set(value interface{}) error {
 	v.valuesLocker.Lock()
 	defer v.valuesLocker.Unlock()
@@ -599,14 +623,14 @@ func (v *values) Set(value interface{}) error {
 	return nil
 }
 
-func (v *values) Get() any {
+func (v *values) Get(option ...configx.WalkOption) any {
 	v.valuesLocker.RLock()
 	defer v.valuesLocker.RUnlock()
 
 	return v.values.Val(v.path).Get()
 }
 
-func (v *values) Clone() configx.Value {
+func (v *values) Clone() configx.Values {
 	v.valuesLocker.RLock()
 	defer v.valuesLocker.RUnlock()
 

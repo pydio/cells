@@ -338,8 +338,6 @@ func (v *values) Val(path ...string) configx.Values {
 }
 
 func (v *values) Get(wo ...configx.WalkOption) any {
-	c := configx.New(configx.WithJSON())
-
 	rsp, err := v.cli.Get(v.ctx, &pb.GetRequest{
 		Namespace: v.id,
 		Path:      strings.Join(v.k, "/"),
@@ -350,17 +348,12 @@ func (v *values) Get(wo ...configx.WalkOption) any {
 		return nil
 	}
 
-	if err := c.Set(rsp.GetValue().GetData()); err != nil {
-		fmt.Println("Config error (could not set value from data ", err.Error(), ")")
+	var val any
+	if err := json.Unmarshal(rsp.GetValue().GetData(), &val); err != nil {
 		return nil
 	}
 
-	vv := c.Get()
-	if vv == nil {
-		return v.d
-	}
-
-	return vv
+	return val
 }
 
 func (v *values) Set(value interface{}) error {

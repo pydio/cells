@@ -2,6 +2,7 @@ package test
 
 import (
 	"context"
+	"io"
 	"os"
 	"path/filepath"
 	"strings"
@@ -9,6 +10,7 @@ import (
 	"text/template"
 
 	"github.com/spf13/viper"
+	"go.uber.org/zap"
 	"golang.org/x/text/cases"
 	"golang.org/x/text/language"
 
@@ -17,6 +19,7 @@ import (
 	"github.com/pydio/cells/v5/common/runtime/manager"
 	"github.com/pydio/cells/v5/common/storage"
 	"github.com/pydio/cells/v5/common/storage/sql"
+	"github.com/pydio/cells/v5/common/telemetry/log"
 	"github.com/pydio/cells/v5/common/utils/propagator"
 	"github.com/pydio/cells/v5/common/utils/uuid"
 
@@ -127,18 +130,18 @@ listeners:
     type: bufconn
     bufsize: 1048576
 connections:
-  pydio.grpc.broker:
+  grpc:
     type: grpc
     uri: passthrough://bufnet
     listener: bufconn
+    services:
+      - filter: "{{ .Name }} ~= .*"
 servers:
   grpc:
-    uri: grpc://
+    type: grpc
     listener: bufconn
-services:
-  pydio.grpc.broker:
-    servers:
-      - grpc
+    services:
+      - filter: "{{ .Name }} ~= .*"
 caches:
   short:
     uri: pm://
@@ -157,28 +160,24 @@ func init() {
 	}
 }
 
-func RunTests(t *testing.T, f func(context.Context)) {
+func RunTests(t *testing.T, init func(context.Context), f func(context.Context)) {
 	ctx, cancel := context.WithCancel(context.Background())
 
-	// read template
-	b := &strings.Builder{}
-	err := singleTpl.Execute(b, nil)
-	if err != nil {
-		return
-	}
 	v := viper.New()
 	v.Set(runtime.KeyConfig, "mem://")
 	v.SetDefault(runtime.KeyArgTags, []string{"test"})
-	v.Set("yaml", b.String())
+	v.Set(runtime.KeyBootstrapYAML, singleYAML)
 
 	mem, _ := config.OpenStore(ctx, "mem://")
 	ctx = propagator.With(ctx, config.ContextKey, mem)
 
 	runtime.SetRuntime(v)
 
+	init(ctx)
+
 	mgr, err := manager.NewManager(ctx, "test", nil)
 	if err != nil {
-		return
+		t.Fatal(err)
 	}
 
 	ctx = mgr.Context()
@@ -186,13 +185,14 @@ func RunTests(t *testing.T, f func(context.Context)) {
 
 	mgr.ServeAll()
 
-	/*log.SetLoggerInit(func() *zap.Logger {
+	log.SetLoggerInit(func(ctx context.Context) (*zap.Logger, []io.Closer) {
 		cfg := zap.NewDevelopmentConfig()
 		cfg.OutputPaths = []string{"stdout"}
+		cfg.Level = zap.NewAtomicLevelAt(zap.DebugLevel)
 		z, _ := cfg.Build()
 
-		return z
-	}, nil)*/
+		return z, nil
+	}, nil)
 
 	t.Run("Testing with server", func(t *testing.T) {
 		f(ctx)

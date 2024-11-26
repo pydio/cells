@@ -2,10 +2,9 @@ package service
 
 import (
 	"context"
-	"fmt"
+	"encoding/json"
 	"testing"
 
-	"github.com/spf13/viper"
 	"google.golang.org/grpc"
 
 	cgrpc "github.com/pydio/cells/v5/common/client/grpc"
@@ -13,8 +12,8 @@ import (
 	"github.com/pydio/cells/v5/common/config/memory"
 	pb "github.com/pydio/cells/v5/common/proto/config"
 	"github.com/pydio/cells/v5/common/runtime"
-	"github.com/pydio/cells/v5/common/runtime/manager"
 	"github.com/pydio/cells/v5/common/service"
+	"github.com/pydio/cells/v5/common/storage/test"
 	"github.com/pydio/cells/v5/common/utils/configx"
 
 	_ "embed"
@@ -35,8 +34,12 @@ type testHandler struct {
 }
 
 func (t *testHandler) Get(ctx context.Context, request *pb.GetRequest) (*pb.GetResponse, error) {
+	b, err := json.Marshal(t.store.Val(request.GetPath()).Get())
+	if err != nil {
+		return nil, err
+	}
 	return &pb.GetResponse{Value: &pb.Value{
-		Data: t.store.Val(request.GetPath()).Bytes(),
+		Data: b,
 	}}, nil
 }
 
@@ -80,56 +83,34 @@ func (t *testHandler) Watch(request *pb.WatchRequest, stream pb.Config_WatchServ
 }
 
 func TestManagerConnection(t *testing.T) {
-	v := viper.New()
-	v.Set("config", "mem://")
-	v.Set("yaml", connectionTestTemplate)
-	v.Set(runtime.KeyKeyring, "mem://")
-	runtime.SetRuntime(v)
 
-	ctx := context.Background()
+	test.RunTests(t, func(ctx context.Context) {
+		runtime.Register("test", func(ctx context.Context) {
+			service.NewService(
+				service.Name("service.test"),
+				service.Context(ctx),
+				service.WithGRPC(func(ctx context.Context, registrar grpc.ServiceRegistrar) error {
+					pb.RegisterConfigServer(registrar, &testHandler{
+						store: memory.New(configx.WithJSON()),
+					})
+					return nil
+				}),
+			)
+		})
+	}, func(ctx context.Context) {
 
-	runtime.Register("test", func(ctx context.Context) {
-		service.NewService(
-			service.Name("service.test"),
-			service.Context(ctx),
-			service.WithGRPC(func(ctx context.Context, registrar grpc.ServiceRegistrar) error {
-				fmt.Println("Registering test handler")
-				pb.RegisterConfigServer(registrar, &testHandler{
-					store: memory.New(configx.WithJSON()),
-				})
-				return nil
-			}),
-		)
-	})
+		Convey("Testing the manager connections", t, func() {
 
-	// Setting up manager
-	fmt.Println("Setting up manager")
-	mg, err := manager.NewManager(ctx, "test", nil)
-	if err != nil {
-		t.Error("cannot run test", err)
-		t.Fail()
-		return
-	}
+			conn := cgrpc.ResolveConn(ctx, "service.test")
+			So(conn, ShouldNotBeNil)
 
-	// Serving all
-	fmt.Println("Serving all")
-	if err := mg.ServeAll(); err != nil {
-		fmt.Println("Error is ", err)
-	}
+			c := New(ctx, conn, "", "")
+			err := c.Val("whatever").Set("whatever")
+			So(err, ShouldBeNil)
 
-	Convey("Testing the manager connections", t, func() {
+			str := c.Val("whatever").String()
+			So(str, ShouldEqual, "whatever")
 
-		fmt.Println("Resolving conn")
-		conn := cgrpc.ResolveConn(mg.Context(), "service.test")
-		So(conn, ShouldNotBeNil)
-
-		fmt.Println("Setting up new connection")
-		c := New(ctx, conn, "", "")
-		err := c.Val("whatever").Set("whatever")
-		So(err, ShouldBeNil)
-
-		str := c.Val("whatever").String()
-		So(str, ShouldEqual, "whatever")
-
+		})
 	})
 }

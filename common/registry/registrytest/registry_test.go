@@ -22,6 +22,7 @@ package registrytest
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"log"
 	"math/rand"
@@ -31,14 +32,18 @@ import (
 	"testing"
 	"time"
 
+	ggrpc "google.golang.org/grpc"
+
 	pb "github.com/pydio/cells/v5/common/proto/registry"
 	"github.com/pydio/cells/v5/common/registry"
 	"github.com/pydio/cells/v5/common/registry/util"
 	clientcontext "github.com/pydio/cells/v5/common/runtime"
+	"github.com/pydio/cells/v5/common/runtime/manager"
 	"github.com/pydio/cells/v5/common/server"
 	"github.com/pydio/cells/v5/common/server/grpc"
 	"github.com/pydio/cells/v5/common/server/stubs/discoverytest"
 	"github.com/pydio/cells/v5/common/service"
+	"github.com/pydio/cells/v5/common/utils/openurl"
 	"github.com/pydio/cells/v5/common/utils/propagator"
 
 	_ "github.com/pydio/cells/v5/common/registry/config"
@@ -85,12 +90,27 @@ func TestService(t *testing.T) {
 	if testSkipMem {
 		t.Skip("skipping test: no mem registry")
 	}
+	ctx := context.Background()
 
 	conn := discoverytest.NewRegistryService(testMemRegistry)
 
-	ctx := clientcontext.WithClientConn(context.Background(), conn)
+	pool, err := openurl.OpenPool(ctx, []string{""}, func(ctx context.Context, url string) (ggrpc.ClientConnInterface, error) {
+		return conn, nil
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
 
-	reg, err := registry.OpenRegistry(ctx, "grpc://")
+	m, err := manager.NewManager(ctx, "test", nil)
+	registry.NewMetaWrapper(m.Registry(), func(m map[string]string) {
+		b, _ := json.Marshal([]map[string]string{{
+			"filter": "\"{{ .Name }} ~= .*\"",
+		}})
+		m["services"] = string(b)
+
+	}).Register(registry.NewRichItem("testconn", "testconn", pb.ItemType_GENERIC, pool))
+
+	reg, err := registry.OpenRegistry(m.Context(), "grpc://")
 	if err != nil {
 		log.Panic(err)
 	}
