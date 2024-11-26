@@ -49,7 +49,7 @@ func init() {
 }
 
 func TestServiceBroker(t *testing.T) {
-	test.RunTests(t, func(ctx context.Context) {
+	test.RunTests(t, func(ctx context.Context) {}, func(ctx context.Context) {
 		Convey("Test Service Broker", t, func() {
 
 			numMessagesToSend := 1000
@@ -98,7 +98,7 @@ func TestServiceBroker(t *testing.T) {
 						return
 					}
 
-					fmt.Println("Received message")
+					fmt.Println("Received message ", numMessagesReceived)
 
 					numMessagesReceived++
 
@@ -106,6 +106,10 @@ func TestServiceBroker(t *testing.T) {
 
 					ev := &tree.NodeChangeEvent{}
 					if err := proto.Unmarshal(msg.Body, ev); err != nil {
+						return
+					}
+
+					if numMessagesReceived == numMessagesToSend {
 						return
 					}
 				}
@@ -136,7 +140,9 @@ func TestServiceBroker(t *testing.T) {
 				So(err, ShouldBeNil)
 			}
 
-			topic.Shutdown(ctx)
+			if err := topic.Shutdown(ctx); err != nil {
+				So(err, ShouldBeNil)
+			}
 
 			wg.Wait()
 			fmt.Println(cancel)
