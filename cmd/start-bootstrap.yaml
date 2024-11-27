@@ -68,8 +68,8 @@ services: &services
   pydio.grpc.chat:
     storages:
       main:
-        - type: kv
-          prefix: chat
+        - type: bolt
+          prefix: chat.db
   pydio.grpc.data-key:
     storages:
       main:
