@@ -1,4 +1,4 @@
-DEV_VERSION=4.9.99
+DEV_VERSION=4.9.90-dev
 ENV=env GOOS=linux
 TODAY:=$(shell date -u +%Y-%m-%dT%H:%M:%S)
 TIMESTAMP:=$(shell date -u +%Y%m%d%H%M%S)
@@ -38,6 +38,14 @@ arm64:
 
 darwin:
 	env CGO_ENABLED=0 GOOS=darwin GOARCH=amd64 ${GOBIN} build -a -trimpath\
+	 -ldflags "-X github.com/pydio/cells/v5/common.version=${CELLS_VERSION}\
+	 -X github.com/pydio/cells/v5/common.BuildStamp=${TODAY}\
+	 -X github.com/pydio/cells/v5/common.BuildRevision=${GITREV}"\
+	 -o cells\
+	 .
+
+darwin-arm64:
+	env CGO_ENABLED=0 GOOS=darwin GOARCH=arm64 ${GOBIN} build -a -trimpath\
 	 -ldflags "-X github.com/pydio/cells/v5/common.version=${CELLS_VERSION}\
 	 -X github.com/pydio/cells/v5/common.BuildStamp=${TODAY}\
 	 -X github.com/pydio/cells/v5/common.BuildRevision=${GITREV}"\

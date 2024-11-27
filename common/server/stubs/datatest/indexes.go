@@ -36,9 +36,11 @@ import (
 	srv "github.com/pydio/cells/v5/data/source/index/grpc"
 )
 
-func NewIndexService(ctx context.Context, svc service.Service, nodes ...*tree.Node) (grpc.ClientConnInterface, error) {
+func NewIndexService(ctx context.Context, svc service.Service) (grpc.ClientConnInterface, error) {
 
-	ts := srv.NewTreeServer(&object.DataSource{Name: strings.TrimPrefix(svc.Name(), common.ServiceDataIndexGRPC_)})
+	dsName := strings.TrimPrefix(svc.Name(), common.ServiceDataIndexGRPC_)
+	ts := srv.NewTreeServer(&object.DataSource{Name: dsName})
+	ctx = propagator.With(ctx, service.ContextKey, svc)
 
 	srv1 := &tree.NodeProviderStub{}
 	srv1.NodeProviderServer = ts
@@ -48,14 +50,7 @@ func NewIndexService(ctx context.Context, svc service.Service, nodes ...*tree.No
 	serv := &stubs.MuxService{}
 	serv.Register("tree.NodeProvider", srv1)
 	serv.Register("tree.NodeReceiver", srv2)
-	mock := &inject.SvcInjectorMock{ClientConnInterface: serv, Svc: svc}
+	mock := &inject.SvcInjectorMock{ClientConnInterface: serv, Svc: svc, DataSource: dsName}
 
-	ctx = propagator.With(ctx, service.ContextKey, svc)
-	for _, u := range nodes {
-		_, er := ts.CreateNode(ctx, &tree.CreateNodeRequest{Node: u})
-		if er != nil {
-			return nil, er
-		}
-	}
 	return mock, nil
 }

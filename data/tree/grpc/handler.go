@@ -542,18 +542,18 @@ func (s *TreeServer) ListNodesWithLimit(ctx context.Context, metaStreamer meta.L
 			return err
 		}
 		for {
-			clientResponse, err := stream.Recv()
+			clientResponse, clientErr := stream.Recv()
 
 			if clientResponse == nil {
 				break
 			}
 
-			if err == io.EOF || err == io.ErrUnexpectedEOF {
+			if errors.Is(clientErr, io.EOF) || errors.Is(clientErr, io.ErrUnexpectedEOF) {
 				break
 			}
 
-			if err != nil {
-				return err
+			if clientErr != nil {
+				return clientErr
 			}
 
 			isHidden := strings.HasSuffix(clientResponse.Node.GetPath(), common.PydioSyncHiddenFile)
