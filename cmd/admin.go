@@ -63,14 +63,11 @@ DESCRIPTION
 `,
 	PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
 
+		// TODO - Should do better with the runtime
 		bindViperFlags(cmd.Flags())
+		cellsViper.Set(runtime.KeyBootstrapYAML, ctlBootstrap)
 
 		ctx = runtime.MultiContextManager().RootContext(cmd.Context())
-		var er error
-		ctx, _, er = initConfig(ctx, true)
-		if er != nil {
-			return er
-		}
 
 		mgr, err := manager.NewManager(ctx, "cmd", nil)
 		if err != nil {
@@ -80,7 +77,7 @@ DESCRIPTION
 		ctx = mgr.Context()
 		cmd.SetContext(ctx)
 
-		return er
+		return nil
 	},
 	Run: func(cmd *cobra.Command, args []string) {
 		cmd.Help()
