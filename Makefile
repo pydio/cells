@@ -44,6 +44,14 @@ darwin:
 	 -o cells\
 	 .
 
+darwin-arm64:
+	env CGO_ENABLED=0 GOOS=darwin GOARCH=arm64 ${GOBIN} build -a -trimpath\
+	 -ldflags "-X github.com/pydio/cells/v5/common.version=${CELLS_VERSION}\
+	 -X github.com/pydio/cells/v5/common.BuildStamp=${TODAY}\
+	 -X github.com/pydio/cells/v5/common.BuildRevision=${GITREV}"\
+	 -o cells\
+	 .
+
 win:
 	env CGO_ENABLED=0 GOOS=windows GOARCH=amd64 ${GOBIN} build -a -trimpath\
 	 -ldflags "-X github.com/pydio/cells/v5/common.version=${CELLS_VERSION}\
