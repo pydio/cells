@@ -99,7 +99,7 @@ func (dao *gormImpl[T]) instance(ctx context.Context) *gorm.DB {
 
 func (dao *gormImpl[T]) Migrate(ctx context.Context) error {
 	t := dao.factory.Struct()
-	db := dao.instance(ctx)
+	db := dao.instance(ctx).WithContext(context.WithoutCancel(ctx))
 
 	if db.Name() == storagesql.MySQLDriver {
 		db = db.Set("gorm:table_options", "CHARSET=ascii")
