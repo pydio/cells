@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"strings"
 	"time"
 
 	"go.uber.org/zap"
@@ -81,7 +82,10 @@ func (l *zapLogger) Trace(ctx context.Context, begin time.Time, fc func() (strin
 		zap.String("layer", "sql"),
 	}
 	switch {
-	case err != nil && l.LogLevel >= glog.Error && (!errors.Is(err, glog.ErrRecordNotFound) || !l.IgnoreRecordNotFoundError) && !errors.Is(err, context.Canceled):
+	case err != nil && l.LogLevel >= glog.Error &&
+		(!errors.Is(err, glog.ErrRecordNotFound) || !l.IgnoreRecordNotFoundError) &&
+		!errors.Is(err, context.Canceled) &&
+		!strings.Contains(err.Error(), "operation was canceled"):
 		sql, rows := fc()
 		if rows == -1 {
 			logLine = fmt.Sprintf(l.traceErrStr, err, float64(elapsed.Nanoseconds())/1e6, "-", sql)

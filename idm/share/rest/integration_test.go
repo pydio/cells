@@ -266,31 +266,6 @@ func TestShareLinks(t *testing.T) {
 			So(statusCode, ShouldEqual, http.StatusOK)
 
 		})
-	})
-}
-
-func TestBasicMocks(t *testing.T) {
-
-	test.RunServicesTests(testcases, t, func(ctx context.Context) {
-
-		Convey("Setup Mock Data", t, func() {
-			sd, er := idmtest.GetStartData()
-			So(er, ShouldBeNil)
-			er = idmtest.RegisterIdmMocksWithData(ctx, sd)
-			So(er, ShouldBeNil)
-			er = datatest.RegisterDataServices(ctx)
-			So(er, ShouldBeNil)
-
-			// test docstore
-			dcc := docstore.NewDocStoreClient(grpc.ResolveConn(ctx, common.ServiceDocStoreGRPC))
-			dc, er := dcc.GetDocument(ctx, &docstore.GetDocumentRequest{
-				StoreID:    common.DocStoreIdVirtualNodes,
-				DocumentID: "my-files",
-			})
-			So(er, ShouldBeNil)
-			So(dc.Document, ShouldNotBeNil)
-
-		})
 
 		Convey("Test Basic Docstore Mock", t, func() {
 			sc := share.NewClient(ctx, nil)
