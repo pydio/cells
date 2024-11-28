@@ -20,7 +20,10 @@
 
 package config
 
-import "github.com/pydio/cells/v5/common"
+import (
+	"github.com/pydio/cells/v5/common"
+	"github.com/pydio/cells/v5/common/runtime"
+)
 
 // SampleConfig is the default config used during the first install
 var SampleConfig = `{
@@ -53,7 +56,43 @@ var SampleConfig = `{
 			  "SelfSigned": {}
 			}
 		  }
-		]
+		],
+        "telemetry": {
+		  "loggers": [
+			{
+			  "encoding": "console",
+			  "level": "info",
+			  "outputs": [
+				"stdout:///"
+			  ]
+			},
+			{
+			  "encoding": "json",
+			  "level": "info",
+			  "outputs": [
+				"file://` + runtime.ApplicationWorkingDir(runtime.ApplicationDirLogs) + `/pydio.log",
+				"service:///?service=pydio.grpc.log"
+			  ]
+			}
+		  ],
+		  "metrics": {
+			"readers": []
+		  },
+		  "otelService": {
+			"attributes": {
+			  "deployment": "local"
+			},
+			"name": "cells"
+		  },
+		  "profiling": {
+			"publishers": [
+			  "pull://"
+			]
+		  },
+		  "tracing": {
+			"outputs": []
+		  }
+		}
 	}
 }`
 
