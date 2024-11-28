@@ -83,6 +83,8 @@ func testWatch(t *testing.T, store config.Store) {
 
 			fmt.Println("Finished")
 
+			fmt.Println(store.Val("val").Get())
+
 			w.Stop()
 		})
 	})

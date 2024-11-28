@@ -88,7 +88,6 @@ func (c Config) Reload(ctx context.Context) error {
 		c.OTelService.Name = common.PackageType
 	}
 
-	fmt.Println("Reloading", len(c.Loggers), "loggers from configuration")
 	log.ReloadMainLogger(c.OTelService, c.Loggers)
 
 	var errs []error

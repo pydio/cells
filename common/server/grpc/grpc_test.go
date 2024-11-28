@@ -55,10 +55,14 @@ import (
 
 var (
 	yaml = `
+listeners:
+  bufconn:
+    type: bufconn
+    bufsize: 1048576
 servers:
   grpc:
-    bind: 0.0.0.0
-    port: 0
+    type: grpc
+    listener: bufconn
 services:
   test:
 `
@@ -227,36 +231,59 @@ func TestGetServiceInfo(t *testing.T) {
 		var mgr manager.Manager
 		if propagator.Get(ctx, manager.ContextKey, &mgr) {
 			for i := 0; i < 100; i++ {
-				mgr.Registry().Register(endpoint,
-					registry.WithEdgeTo(svc.ID(), "handler", map[string]string{
-						"modtime": time.Now().String(),
-					}),
-					registry.WithEdgeTo(srv.ID(), "server", map[string]string{
-						"modtime": time.Now().String(),
-					}),
-				)
-			}
-			go func() {
-				for {
-					select {
-					case <-time.After(1 * time.Nanosecond):
-						endpoint := util.CreateEndpoint("/tests/test", nil, map[string]string{})
+				endpoint := util.CreateEndpoint("/tests/test", nil, map[string]string{})
 
+				go func(endpoint registry.Item) {
+					duration := 5 * time.Second
+					ticker := time.NewTicker(10 * time.Millisecond)
+					defer ticker.Stop()
+
+					start := time.Now()
+
+					for range ticker.C {
+						// Check if the total duration has elapsed
+						if time.Since(start) >= duration {
+							break
+						}
+
+						mgr.Registry().Register(endpoint,
+							registry.WithEdgeTo(svc.ID(), "handler", map[string]string{
+								"modtime": time.Now().String(),
+							}),
+							registry.WithEdgeTo(srv.ID(), "server", map[string]string{
+								"modtime": time.Now().String(),
+							}),
+						)
 					}
-				}
-			}()
+					for {
+						select {
+						case <-time.After(1 * time.Nanosecond):
+
+						}
+					}
+				}(endpoint)
+			}
 		}
 
 		var grpcServer *grpc.Server
 		if srv.As(&grpcServer) {
 			go func() {
+				start := time.Now()
+				duration := 5 * time.Second
+				ticker := time.NewTicker(10 * time.Millisecond)
+				defer ticker.Stop()
 
-				for {
-					select {
-					case <-time.After(1 * time.Nanosecond):
-						fmt.Println("Geting service info ", grpcServer.GetServiceInfo())
+				for range ticker.C {
+					// Check if the total duration has elapsed
+					if time.Since(start) >= duration {
+						break
 					}
+
+					fmt.Println("Geting service info ", grpcServer.GetServiceInfo())
 				}
+
+				// Cancelling context
+				cancel()
 			}()
 		}
 	})

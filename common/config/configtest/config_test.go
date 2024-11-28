@@ -23,10 +23,6 @@ package configtest
 import (
 	"context"
 	"fmt"
-	"github.com/pydio/cells/v5/common/runtime/manager"
-	"github.com/pydio/cells/v5/common/service"
-	"github.com/spf13/viper"
-	"google.golang.org/grpc"
 	"log"
 	"os"
 	"sync"
@@ -36,6 +32,8 @@ import (
 	"github.com/google/go-cmp/cmp/cmpopts"
 	diff "github.com/r3labs/diff/v3"
 	"github.com/smartystreets/goconvey/convey"
+	"github.com/spf13/viper"
+	"google.golang.org/grpc"
 	"google.golang.org/protobuf/runtime/protoimpl"
 
 	"github.com/pydio/cells/v5/common/config"
@@ -44,6 +42,8 @@ import (
 	pb "github.com/pydio/cells/v5/common/proto/registry"
 	"github.com/pydio/cells/v5/common/registry/util"
 	"github.com/pydio/cells/v5/common/runtime"
+	"github.com/pydio/cells/v5/common/runtime/manager"
+	"github.com/pydio/cells/v5/common/service"
 	"github.com/pydio/cells/v5/common/utils/configx"
 	"github.com/pydio/cells/v5/common/utils/std"
 	discoveryconfig "github.com/pydio/cells/v5/discovery/config/grpc"
@@ -52,6 +52,7 @@ import (
 	_ "github.com/pydio/cells/v5/common/config/file"
 	_ "github.com/pydio/cells/v5/common/config/memory"
 	_ "github.com/pydio/cells/v5/common/config/service"
+	_ "github.com/pydio/cells/v5/common/config/viper"
 	_ "github.com/pydio/cells/v5/common/registry/config"
 	_ "github.com/pydio/cells/v5/common/server/grpc"
 )
@@ -142,24 +143,15 @@ func TestGetSetMemory(t *testing.T) {
 	testVault(t, store, vault)
 }
 
-func TestGetSetEtcd(t *testing.T) {
-	u := os.Getenv("ETCD_SERVER_ADDR")
-	if u == "" {
-		t.Skip("skipping test: ETCD_SERVER_ADDR not defined")
-	}
-
-	store, err := config.OpenStore(context.Background(), "etcd://"+u+"/configtest")
-	if err != nil {
-		log.Panic(err)
-	}
-
-	vault, err := config.OpenStore(context.Background(), "etcd://"+u+"/configtestvault")
+func TestGetSetViper(t *testing.T) {
+	store, err := config.OpenStore(context.Background(), "viper://")
 	if err != nil {
 		log.Panic(err)
 	}
 
 	testGetSet(t, store)
-	testVault(t, store, vault)
+	// testVault(t, store, vault)
+	testWatch(t, store)
 }
 
 func TestGetSetFile(t *testing.T) {
