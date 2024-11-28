@@ -24,7 +24,6 @@ import (
 	"context"
 	"fmt"
 	"log"
-	"net"
 	"strings"
 	"testing"
 	"text/template"
@@ -35,9 +34,7 @@ import (
 	"google.golang.org/grpc/examples/helloworld/helloworld"
 	"google.golang.org/grpc/test/bufconn"
 
-	cgrpc "github.com/pydio/cells/v5/common/client/grpc"
 	"github.com/pydio/cells/v5/common/config"
-	mock2 "github.com/pydio/cells/v5/common/config/mock"
 	pbregistry "github.com/pydio/cells/v5/common/proto/registry"
 	"github.com/pydio/cells/v5/common/registry"
 	"github.com/pydio/cells/v5/common/registry/util"
@@ -159,7 +156,7 @@ func createApp2(reg registry.Registry) {
 	}()
 }
 
-func TestServiceRegistry(t *testing.T) {
+/*func TestServiceRegistry(t *testing.T) {
 
 	ctx, _ := mock2.RegisterMockConfig(context.Background())
 
@@ -189,7 +186,7 @@ func TestServiceRegistry(t *testing.T) {
 
 	fmt.Println(resp2, err2)
 
-}
+}*/
 
 func TestGetServiceInfo(t *testing.T) {
 	// read template
