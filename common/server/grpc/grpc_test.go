@@ -156,6 +156,7 @@ func createApp2(reg registry.Registry) {
 	}()
 }
 
+// TODO - not used anymore ?
 /*func TestServiceRegistry(t *testing.T) {
 
 	ctx, _ := mock2.RegisterMockConfig(context.Background())
