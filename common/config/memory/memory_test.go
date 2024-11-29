@@ -3,9 +3,8 @@ package memory
 import (
 	"context"
 	"fmt"
+	"sync"
 	"testing"
-
-	"github.com/davecgh/go-spew/spew"
 
 	"github.com/pydio/cells/v5/common/config"
 	"github.com/pydio/cells/v5/common/utils/configx"
@@ -23,7 +22,9 @@ func TestMemory(t *testing.T) {
 	}
 	defer w.Stop()
 
-	mem.Val("hello").Set("world")
+	go func() {
+		mem.Val("hello").Set("world")
+	}()
 
 	for {
 		res, err := w.Next()
@@ -48,6 +49,23 @@ func TestWatch(t *testing.T) {
 	}
 	defer w.Stop()
 
+	wg := sync.WaitGroup{}
+	wg.Add(1)
+	go func() {
+		for {
+			res, err := w.Next()
+			if err != nil {
+				t.Fatal(err)
+			}
+
+			fmt.Println(res)
+
+			break
+		}
+
+		wg.Done()
+	}()
+
 	if err := mem.Set([]byte(`{"processes": {
 		"test": {
 			"processes": {
@@ -63,16 +81,7 @@ func TestWatch(t *testing.T) {
 		t.Fail()
 	}
 
-	for {
-		res, err := w.Next()
-		if err != nil {
-			t.Fatal(err)
-		}
-
-		fmt.Println(res)
-
-		break
-	}
+	wg.Wait()
 }
 
 func TestReferencePool(t *testing.T) {
@@ -108,12 +117,11 @@ func TestReferencePool(t *testing.T) {
 		So(c.Val("test[0][1]").String(), ShouldEqual, "test")
 		So(c.Val("test[0][2]").String(), ShouldEqual, "refvalue2")
 
-		fmt.Println("Starting replacement here ")
 		c.Val("test[0][2]").Set("newrefvalue1")
 
-		spew.Dump(r2.Get())
-		spew.Dump(r1.Get())
-		spew.Dump(c.Get())
+		//spew.Dump(r2.Get())
+		//spew.Dump(r1.Get())
+		//spew.Dump(c.Get())
 	})
 }
 
@@ -124,5 +132,5 @@ func TestMarshal(t *testing.T) {
 
 	r2.Val("whatever").Get()
 
-	spew.Dump(r2)
+	//spew.Dump(r2)
 }

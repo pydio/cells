@@ -4,7 +4,6 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"github.com/pydio/cells/v5/common/crypto"
 	"net/url"
 	"os"
 	"regexp"
@@ -16,6 +15,7 @@ import (
 	diff "github.com/r3labs/diff/v3"
 
 	"github.com/pydio/cells/v5/common/config"
+	"github.com/pydio/cells/v5/common/crypto"
 	"github.com/pydio/cells/v5/common/utils/configx"
 	json "github.com/pydio/cells/v5/common/utils/jsonx"
 	"github.com/pydio/cells/v5/common/utils/std"
@@ -149,14 +149,11 @@ func New(opt ...configx.Option) config.Store {
 
 	go m.flush()
 
-	m.timer = time.NewTimer(timeout)
-
 	return m
 }
 
 func (m *memory) flush() {
 	snap := configx.New()
-	snap.Set(std.DeepClone(m.v.Interface()))
 
 	// Waiting for first call to start the timeout
 	select {
@@ -168,7 +165,6 @@ func (m *memory) flush() {
 	for {
 		select {
 		case <-m.reset:
-
 			m.timer.Stop()
 			select {
 			case <-m.timer.C:
@@ -201,8 +197,8 @@ func (m *memory) flush() {
 							updated = append(updated, r)
 						}
 					}
-					m.receiversLocker.RUnlock()
 
+					m.receiversLocker.RUnlock()
 					m.receiversLocker.Lock()
 					m.receivers = updated
 					m.receiversLocker.Unlock()
@@ -363,6 +359,7 @@ func (r *receiver) call(op diff.Change) error {
 	}
 
 	r.sendLock.Unlock()
+
 	return nil
 }
 
@@ -371,6 +368,10 @@ func (r *receiver) Next() (interface{}, error) {
 
 	select {
 	case op := <-r.ch:
+		//if !ok {
+		//	return nil, errClosedChannel
+		//}
+
 		if r.closed {
 			return nil, errClosedChannel
 		}
@@ -387,6 +388,10 @@ func (r *receiver) Next() (interface{}, error) {
 	for {
 		select {
 		case op := <-r.ch:
+			//if !ok {
+			//	return nil, errClosedChannel
+			//}
+
 			if r.closed {
 				return nil, errClosedChannel
 			}
