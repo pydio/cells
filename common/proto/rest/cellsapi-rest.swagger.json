@@ -3,32 +3,6 @@
     "application/json"
   ],
   "definitions": {
-    "ConfigServiceCreatePeerFolderBody": {
-      "properties": {
-        "Path": {
-          "title": "Path to the folder to be created",
-          "type": "string"
-        }
-      },
-      "type": "object"
-    },
-    "ConfigServiceCreateStorageBucketBody": {
-      "properties": {
-        "DataSource": {
-          "$ref": "#/definitions/objectDataSource"
-        }
-      },
-      "type": "object"
-    },
-    "ConfigServiceListPeerFoldersBody": {
-      "properties": {
-        "Path": {
-          "title": "Path to the parent folder for listing",
-          "type": "string"
-        }
-      },
-      "type": "object"
-    },
     "ConfigServicePutConfigBody": {
       "properties": {
         "Data": {
@@ -131,15 +105,6 @@
       "title": "DataSource Object description",
       "type": "object"
     },
-    "JobsServiceUserCreateJobBody": {
-      "properties": {
-        "JsonParameters": {
-          "title": "Json-encoded parameters for this job",
-          "type": "string"
-        }
-      },
-      "type": "object"
-    },
     "ListLogRequestLogFormat": {
       "default": "JSON",
       "enum": [
@@ -178,42 +143,6 @@
       "title": "Container for ShareLink or Cell",
       "type": "object"
     },
-    "MetaServiceDeleteMetaBody": {
-      "properties": {
-        "Namespace": {
-          "items": {
-            "type": "string"
-          },
-          "title": "List of namespaces to load",
-          "type": "array"
-        }
-      },
-      "type": "object"
-    },
-    "MetaServiceGetMetaBody": {
-      "properties": {
-        "Namespace": {
-          "items": {
-            "type": "string"
-          },
-          "title": "List of namespaces to load",
-          "type": "array"
-        }
-      },
-      "type": "object"
-    },
-    "MetaServiceSetMetaBody": {
-      "properties": {
-        "Metadatas": {
-          "items": {
-            "$ref": "#/definitions/restMetadata",
-            "type": "object"
-          },
-          "type": "array"
-        }
-      },
-      "type": "object"
-    },
     "PackagePackageStatus": {
       "default": "Draft",
       "enum": [
@@ -232,6 +161,74 @@
         "USER"
       ],
       "type": "string"
+    },
+    "RestCreatePeerFolderRequest": {
+      "properties": {
+        "Path": {
+          "title": "Path to the folder to be created",
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    "RestCreateStorageBucketRequest": {
+      "properties": {
+        "DataSource": {
+          "$ref": "#/definitions/objectDataSource"
+        }
+      },
+      "type": "object"
+    },
+    "RestListPeerFoldersRequest": {
+      "properties": {
+        "Path": {
+          "title": "Path to the parent folder for listing",
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    "RestMetaCollection": {
+      "properties": {
+        "Metadatas": {
+          "items": {
+            "$ref": "#/definitions/restMetadata",
+            "type": "object"
+          },
+          "type": "array"
+        }
+      },
+      "type": "object"
+    },
+    "RestMetaNamespaceRequest": {
+      "properties": {
+        "Namespace": {
+          "items": {
+            "type": "string"
+          },
+          "title": "List of namespaces to load",
+          "type": "array"
+        }
+      },
+      "type": "object"
+    },
+    "RestPutUserMetaTagRequest": {
+      "properties": {
+        "Tag": {
+          "title": "New tag value",
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    "RestUserJobRequest": {
+      "properties": {
+        "JsonParameters": {
+          "title": "Json-encoded parameters for this job",
+          "type": "string"
+        }
+      },
+      "type": "object"
     },
     "RoleServiceSetRoleBody": {
       "description": "Role represents a generic set of permissions that can be applied to any users or groups.",
@@ -291,7 +288,7 @@
       },
       "type": "object"
     },
-    "UpdateServiceApplyUpdateBody": {
+    "UpdateApplyUpdateRequest": {
       "properties": {
         "PackageName": {
           "title": "Name of the package if it's not the same as the current binary",
@@ -315,15 +312,6 @@
         "DELETE"
       ],
       "type": "string"
-    },
-    "UserMetaServicePutUserMetaTagBody": {
-      "properties": {
-        "Tag": {
-          "title": "New tag value",
-          "type": "string"
-        }
-      },
-      "type": "object"
     },
     "UserServicePutRolesBody": {
       "properties": {
@@ -7188,8 +7176,7 @@
             "name": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/ConfigServiceCreateStorageBucketBody",
-              "title": "RestCreateStorageBucketRequest"
+              "$ref": "#/definitions/RestCreateStorageBucketRequest"
             }
           }
         ],
@@ -8319,8 +8306,7 @@
             "name": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/ConfigServiceListPeerFoldersBody",
-              "title": "RestListPeerFoldersRequest"
+              "$ref": "#/definitions/RestListPeerFoldersRequest"
             }
           }
         ],
@@ -8376,8 +8362,7 @@
             "name": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/ConfigServiceCreatePeerFolderBody",
-              "title": "RestCreatePeerFolderRequest"
+              "$ref": "#/definitions/RestCreatePeerFolderRequest"
             }
           }
         ],
@@ -10238,8 +10223,7 @@
             "name": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/JobsServiceUserCreateJobBody",
-              "title": "RestUserJobRequest"
+              "$ref": "#/definitions/RestUserJobRequest"
             }
           }
         ],
@@ -10451,8 +10435,7 @@
             "name": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/MetaServiceDeleteMetaBody",
-              "title": "RestMetaNamespaceRequest"
+              "$ref": "#/definitions/RestMetaNamespaceRequest"
             }
           }
         ],
@@ -10510,8 +10493,7 @@
             "name": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/MetaServiceGetMetaBody",
-              "title": "RestMetaNamespaceRequest"
+              "$ref": "#/definitions/RestMetaNamespaceRequest"
             }
           }
         ],
@@ -10568,8 +10550,7 @@
             "name": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/MetaServiceSetMetaBody",
-              "title": "RestMetaCollection"
+              "$ref": "#/definitions/RestMetaCollection"
             }
           }
         ],
@@ -11963,8 +11944,7 @@
             "name": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/UpdateServiceApplyUpdateBody",
-              "title": "UpdateApplyUpdateRequest"
+              "$ref": "#/definitions/UpdateApplyUpdateRequest"
             }
           }
         ],
@@ -12313,8 +12293,7 @@
             "name": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/UserMetaServicePutUserMetaTagBody",
-              "title": "RestPutUserMetaTagRequest"
+              "$ref": "#/definitions/RestPutUserMetaTagRequest"
             }
           }
         ],
@@ -12928,6 +12907,7 @@
             "type": "array"
           },
           {
+            "type": "array",
             "description": "List of the Root Nodes in the tree that compose this workspace\n\nThis is a request variable of the map type. The query format is \"map_name[key]=value\", e.g. If the map name is Age, the key type is string, and the value type is integer, the query parameter is expressed as Age[\"bob\"]=18",
             "in": "query",
             "name": "RootNodes",

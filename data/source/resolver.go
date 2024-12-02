@@ -190,6 +190,24 @@ func (r *Resolver[T]) Resolve(ctx context.Context) (T, error) {
 	return t, errors.WithMessage(errors.StatusInternalServerError, "cannot find data for source "+s+" in cache")
 }
 
+// Lookup tries to load from cache and return an error if not found, without triggering loader
+func (r *Resolver[T]) Lookup(ctx context.Context) (T, error) {
+	var t T
+	var s string
+	ok := propagator.Get[string](ctx, r.contextKey, &s)
+	if !ok {
+		return t, errors.WithMessage(errors.StatusInternalServerError, "cannot find source in context")
+	}
+	ka, er := r.cachePool.Get(ctx)
+	if er != nil {
+		return t, errors.WithMessage(errors.StatusInternalServerError, er.Error())
+	}
+	if ka.Get(s, &t) {
+		return t, nil
+	}
+	return t, errors.WithMessage(errors.StatusInternalServerError, "cannot find data for source "+s+" in cache")
+}
+
 // HeatCacheAndWatch use internal loader and SourcesProvider to put all data in cache. WatchOptions are used to start a watch on config
 func (r *Resolver[T]) HeatCacheAndWatch(ctx context.Context, watchOpts ...configx.WatchOption) error {
 	if r.loader == nil {

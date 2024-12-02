@@ -101,8 +101,8 @@ func (h *Handler) Ready(ctx context.Context, req *server.ReadyCheckRequest) (*se
 		defer cLock.Unlock()
 		resp.Components[sName] = st
 	}
-	conf, ok := h.getSyncer(ctx)
-	if conf == nil || !ok {
+	conf, er := h.Lookup(ctx)
+	if er != nil {
 		resp.ReadyStatus = server.ReadyStatus_Unknown
 		return resp, er
 	}

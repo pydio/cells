@@ -107,7 +107,7 @@ func (s *boltStore) GetJob(jobId string, withTasks proto.TaskStatus) (*proto.Job
 		bucket := tx.Bucket(jobsBucketKey)
 		data := bucket.Get([]byte(jobId))
 		if data == nil {
-			return errors.WithMessage(errors.StatusNotFound, "Job ID not found")
+			return errors.WithMessage(errors.JobNotFound, "Job ID not found")
 		}
 		err := json.Unmarshal(data, j)
 		if err != nil {

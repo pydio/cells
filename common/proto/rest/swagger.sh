@@ -25,7 +25,7 @@
 
 echo "Generating Javascript client"
 
-/usr/local/bin/openapi-generator generate -i $BRANCH_PATH/src/github.com/pydio/cells/common/proto/rest/cellsapi-rest.swagger.json -g javascript -c swagger-jsclient.json -o /tmp/js-client
+openapi-generator generate -i $BRANCH_PATH/src/github.com/pydio/cells/common/proto/rest/cellsapi-rest.swagger.json -g javascript -c swagger-jsclient.json -o /tmp/js-client
 rm -rf $MODULE_SRC_PATH
 mv /tmp/js-client/src $MODULE_SRC_PATH
 

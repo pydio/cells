@@ -1,1 +1,5 @@
-{"useES6":true, "usePromises":true, "modelPropertyNaming": "original"}
+{
+  "useES6":true,
+  "usePromises":true,
+  "modelPropertyNaming": "original"
+}

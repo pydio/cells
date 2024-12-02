@@ -27,8 +27,9 @@ import (
 	"path/filepath"
 	"strings"
 
-	json "github.com/pydio/cells/v5/common/utils/jsonx"
 	"github.com/tomwright/dasel"
+
+	json "github.com/pydio/cells/v5/common/utils/jsonx"
 )
 
 var (
@@ -98,15 +99,15 @@ var (
 	}
 
 	inlineTitles = map[string]string{
-		"paths.\\/config\\/peers\\/{PeerAddress}.post.parameters.[1].schema.title": "RestListPeerFoldersRequest",
-		"paths.\\/config\\/peers\\/{PeerAddress}.put.parameters.[1].schema.title":  "RestCreatePeerFolderRequest",
-		"paths.\\/config\\/buckets\\/{BucketName}.put.parameters.[1].schema.title": "RestCreateStorageBucketRequest",
-		"paths.\\/jobs\\/user\\/{JobName}.put.parameters.[1].schema.title":         "RestUserJobRequest",
-		"paths.\\/meta\\/delete\\/{NodePath}.post.parameters.[1].schema.title":     "RestMetaNamespaceRequest",
-		"paths.\\/meta\\/get\\/{NodePath}.post.parameters.[1].schema.title":        "RestMetaNamespaceRequest",
-		"paths.\\/meta\\/set\\/{NodePath}.post.parameters.[1].schema.title":        "RestMetaCollection",
-		"paths.\\/user-meta\\/tags\\/{Namespace}.post.parameters.[1].schema.title": "RestPutUserMetaTagRequest",
-		"paths.\\/update\\/{TargetVersion}.patch.parameters.[1].schema.title":      "UpdateApplyUpdateRequest",
+		"paths.\\/config\\/peers\\/{PeerAddress}.post.parameters.[1].schema": "RestListPeerFoldersRequest",
+		"paths.\\/config\\/peers\\/{PeerAddress}.put.parameters.[1].schema":  "RestCreatePeerFolderRequest",
+		"paths.\\/config\\/buckets\\/{BucketName}.put.parameters.[1].schema": "RestCreateStorageBucketRequest",
+		"paths.\\/jobs\\/user\\/{JobName}.put.parameters.[1].schema":         "RestUserJobRequest",
+		"paths.\\/meta\\/delete\\/{NodePath}.post.parameters.[1].schema":     "RestMetaNamespaceRequest",
+		"paths.\\/meta\\/get\\/{NodePath}.post.parameters.[1].schema":        "RestMetaNamespaceRequest",
+		"paths.\\/meta\\/set\\/{NodePath}.post.parameters.[1].schema":        "RestMetaCollection",
+		"paths.\\/user-meta\\/tags\\/{Namespace}.post.parameters.[1].schema": "RestPutUserMetaTagRequest",
+		"paths.\\/update\\/{TargetVersion}.patch.parameters.[1].schema":      "UpdateApplyUpdateRequest",
 	}
 )
 
@@ -124,11 +125,29 @@ func main() {
 		rootNode := dasel.New(data)
 
 		for k, v := range inlineTitles {
-			e := rootNode.Put(k, v)
+			n, e := rootNode.Query(k + ".$ref")
+			if e != nil {
+				fmt.Println("Got error", e)
+				continue
+			}
+			bodyName := strings.TrimPrefix(n.String(), "#/definitions/")
+			fmt.Println(bodyName)
+			refNode, e := rootNode.Query("definitions." + bodyName)
+			if e != nil {
+				fmt.Println("No ref node", e)
+			} else {
+				fmt.Println("Replace ref node", bodyName, "with", v)
+				_ = rootNode.Put("definitions."+v, refNode.InterfaceValue())
+				_ = rootNode.Delete("definitions." + bodyName)
+				_ = rootNode.Put(k+".$ref", "#/definitions/"+v)
+			}
+
+			//e := rootNode.Put(k, v)
 			if e != nil {
 				fmt.Println("Got error")
 			}
 		}
+
 		output, _ := json.MarshalIndent(rootNode.InterfaceValue(), "", "  ")
 		_ = os.WriteFile(filepath.Join(base, "cellsapi-rest.swagger.json"), output, 0777)
 

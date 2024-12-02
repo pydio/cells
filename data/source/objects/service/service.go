@@ -68,7 +68,8 @@ func init() {
 					if er != nil {
 						return nil, er
 					}
-					mCtx, mCan := context.WithCancel(ctx)
+					// unlink current cancel and replace with a controlled one
+					mCtx, mCan := context.WithCancel(context.WithoutCancel(ctx))
 					go func() {
 						er = sharedHandler.StartMinioServer(mCtx, mc, s)
 					}()

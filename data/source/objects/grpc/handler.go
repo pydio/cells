@@ -174,8 +174,7 @@ func (o *ObjectHandler) Ready(ctx context.Context, req *server.ReadyCheckRequest
 	if er != nil {
 		return nil, er
 	}
-	conf, er := o.getConfig(ctx)
-	if er != nil || conf == nil {
+	if _, er = o.Lookup(ctx); er != nil {
 		return &server.ReadyCheckResponse{HealthCheckResponse: hsR, ReadyStatus: server.ReadyStatus_NotReady}, er
 	} else {
 		return &server.ReadyCheckResponse{HealthCheckResponse: hsR, ReadyStatus: server.ReadyStatus_Ready}, nil
