@@ -162,7 +162,7 @@ func CheckSubServices(ctx context.Context, syncConfig *object.DataSource, cb ...
 				} else {
 					log.Logger(ctx).Info(fmt.Sprintf("Successfully retrieved first object from bucket %s (%s)", syncConfig.ObjectsBucket, time.Since(t)))
 					if serviceCallback != nil {
-						serviceCallback("storage", false, "S3 successfully list objects in bucket")
+						serviceCallback("storage", true, "S3 successfully list objects in bucket")
 					}
 					return nil
 				}
