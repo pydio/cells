@@ -1,0 +1,32 @@
+syntax = "proto3";
+
+package server;
+
+option go_package="github.com/pydio/cells/v5/common/proto/server";
+
+import "grpc/health/v1/health.proto";
+
+enum ReadyStatus {
+  Unknown = 0;
+  Ready = 1;
+  NotReady = 2;
+}
+
+message ComponentStatus {
+  ReadyStatus ReadyStatus = 1;
+  string Details = 2;
+}
+
+message ReadyCheckRequest {
+  grpc.health.v1.HealthCheckRequest HealthCheckRequest = 1;
+}
+
+message ReadyCheckResponse {
+  grpc.health.v1.HealthCheckResponse HealthCheckResponse = 1;
+  ReadyStatus ReadyStatus = 2;
+  map<string,ComponentStatus> Components = 3;
+}
+
+service Readyz {
+  rpc Ready(ReadyCheckRequest) returns (ReadyCheckResponse);
+}

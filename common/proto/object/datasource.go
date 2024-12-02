@@ -21,6 +21,7 @@
 package object
 
 import (
+	"context"
 	"fmt"
 	"path"
 	"strconv"
@@ -59,7 +60,7 @@ const (
 	CurrentHashingVersion = "v4"
 )
 
-func (d *DataSource) ClientConfig() configx.Values {
+func (d *DataSource) ClientConfig(ctx context.Context, p SecretProvider) configx.Values {
 	cfg := configx.New()
 	_ = cfg.Val("type").Set("mc")
 	if d.StorageType == StorageType_AZURE {
@@ -68,6 +69,9 @@ func (d *DataSource) ClientConfig() configx.Values {
 	_ = cfg.Val("endpoint").Set(d.BuildUrl())
 	_ = cfg.Val("key").Set(d.GetApiKey())
 	_ = cfg.Val("secret").Set(d.GetApiSecret())
+	if sec := p(ctx, d.ApiSecret).String(); sec != "" {
+		_ = cfg.Val("secret").Set(sec)
+	}
 	_ = cfg.Val("secure").Set(d.GetObjectsSecure())
 	_ = cfg.Val("minioServer").Set(d.ServerIsMinio())
 	if d.StorageConfiguration != nil {
@@ -120,13 +124,26 @@ func (d *DataSource) ConfigurationByKey(k string) (string, bool) {
 	return v, o
 }
 
-func (d *MinioConfig) ClientConfig() configx.Values {
+type SecretProvider func(ctx context.Context, uuid string) configx.Values
+
+func (d *MinioConfig) ClientConfig(ctx context.Context, p SecretProvider, agentName, agentVersion string) configx.Values {
 	cfg := configx.New()
 	_ = cfg.Val("type").Set("mc")
 	_ = cfg.Val("endpoint").Set(d.BuildUrl())
 	_ = cfg.Val("key").Set(d.GetApiKey())
 	_ = cfg.Val("secret").Set(d.GetApiSecret())
+	if sec := p(ctx, d.ApiSecret).String(); sec != "" {
+		_ = cfg.Val("secret").Set(sec)
+	}
+
 	_ = cfg.Val("secure").Set(d.GetRunningSecure())
+	if agentName != "" {
+		_ = cfg.Val("userAgentAppName").Set(agentName)
+	}
+	if agentVersion != "" {
+		_ = cfg.Val("userAgentVersion").Set(agentVersion)
+	}
+
 	if d.StorageType == StorageType_LOCAL {
 		_ = cfg.Val("minioServer").Set(true)
 	} else if d.StorageType == StorageType_AZURE {

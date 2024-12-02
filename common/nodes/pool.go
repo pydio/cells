@@ -412,7 +412,7 @@ func (p *ClientsPool) CreateClientsForDataSource(dataSourceName string, dataSour
 	loaded := LoadedSource{
 		DataSource: dataSource,
 	}
-	client, err := NewStorageClient(dataSource.ClientConfig())
+	client, err := NewStorageClient(dataSource.ClientConfig(p.ctx, config.GetSecret))
 	if err != nil {
 		return err
 	}

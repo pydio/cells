@@ -32,15 +32,19 @@ import (
 
 	minio "github.com/minio/minio/cmd"
 	"github.com/minio/minio/pkg/auth"
+	"google.golang.org/grpc/health"
+	"google.golang.org/grpc/health/grpc_health_v1"
 	"google.golang.org/protobuf/proto"
 
 	"github.com/pydio/cells/v5/common"
 	"github.com/pydio/cells/v5/common/config"
 	"github.com/pydio/cells/v5/common/errors"
 	"github.com/pydio/cells/v5/common/proto/object"
+	"github.com/pydio/cells/v5/common/proto/server"
 	"github.com/pydio/cells/v5/common/runtime"
 	"github.com/pydio/cells/v5/common/telemetry/log"
 	"github.com/pydio/cells/v5/common/utils/net"
+	"github.com/pydio/cells/v5/common/utils/propagator"
 	"github.com/pydio/cells/v5/data/source"
 	"github.com/pydio/cells/v5/data/source/objects"
 
@@ -59,33 +63,42 @@ type RunningMinioHandler struct {
 func NewObjectHandlerWithPreset(mc *object.MinioConfig) *ObjectHandler {
 	return &ObjectHandler{
 		PresetConfig: mc,
+		HealthServer: health.NewServer(),
 	}
 }
 
 // NewSharedObjectHandler creates a stateless handler for exposing configs
 func NewSharedObjectHandler(resolver *source.Resolver[*RunningMinioHandler]) *ObjectHandler {
 	return &ObjectHandler{
-		Resolver: resolver,
+		Resolver:     resolver,
+		HealthServer: health.NewServer(),
 	}
 }
 
 // ObjectHandler definition
 type ObjectHandler struct {
+	grpc_health_v1.HealthServer
 	object.UnimplementedObjectsEndpointServer
 	object.UnimplementedResourceCleanerEndpointServer
 	*source.Resolver[*RunningMinioHandler]
 	PresetConfig *object.MinioConfig
+	server.UnimplementedReadyzServer
 }
 
-func (o *ObjectHandler) getConfig(ctx context.Context) (*object.MinioConfig, string, bool) {
+func (o *ObjectHandler) getConfig(ctx context.Context) (*object.MinioConfig, error) {
 	if o.PresetConfig != nil {
-		return o.PresetConfig, "", true
+		return o.PresetConfig, nil
 	}
 	obj, er := o.Resolve(ctx)
 	if er != nil {
-		return nil, "", false
+		var ds string
+		if propagator.Get(ctx, source.DataSourceContextKey, &ds) {
+			return nil, errors.WithMessage(errors.StatusInternalServerError, "cannot find config for "+ds)
+		} else {
+			return nil, errors.WithMessage(errors.StatusInternalServerError, "cannot find context key for datasource")
+		}
 	} else {
-		return obj.MinioConfig, "", true
+		return obj.MinioConfig, nil
 	}
 }
 
@@ -155,15 +168,29 @@ func (o *ObjectHandler) startMinioServer(ctx context.Context, minioServiceName, 
 
 }
 
+// Ready overrides ReadyzServer.Ready by getting minio config
+func (o *ObjectHandler) Ready(ctx context.Context, req *server.ReadyCheckRequest) (*server.ReadyCheckResponse, error) {
+	hsR, er := o.HealthServer.Check(ctx, &grpc_health_v1.HealthCheckRequest{})
+	if er != nil {
+		return nil, er
+	}
+	conf, er := o.getConfig(ctx)
+	if er != nil || conf == nil {
+		return &server.ReadyCheckResponse{HealthCheckResponse: hsR, ReadyStatus: server.ReadyStatus_NotReady}, er
+	} else {
+		return &server.ReadyCheckResponse{HealthCheckResponse: hsR, ReadyStatus: server.ReadyStatus_Ready}, nil
+	}
+}
+
 // GetMinioConfig returns current configuration
 func (o *ObjectHandler) GetMinioConfig(ctx context.Context, _ *object.GetMinioConfigRequest) (*object.GetMinioConfigResponse, error) {
 
-	if conf, ds, ok := o.getConfig(ctx); ok {
+	if conf, er := o.getConfig(ctx); er == nil {
 		return &object.GetMinioConfigResponse{
 			MinioConfig: conf,
 		}, nil
 	} else {
-		return nil, errors.WithMessage(errors.StatusInternalServerError, "cannot find datasource "+ds+" in context")
+		return nil, er
 	}
 
 }
@@ -171,9 +198,9 @@ func (o *ObjectHandler) GetMinioConfig(ctx context.Context, _ *object.GetMinioCo
 // StorageStats returns statistics about storage
 func (o *ObjectHandler) StorageStats(ctx context.Context, _ *object.StorageStatsRequest) (*object.StorageStatsResponse, error) {
 
-	conf, ds, ok := o.getConfig(ctx)
-	if !ok {
-		return nil, errors.WithMessage(errors.StatusInternalServerError, "cannot find datasource "+ds+" in context")
+	conf, er := o.getConfig(ctx)
+	if er != nil {
+		return nil, er
 	}
 
 	resp := &object.StorageStatsResponse{}
@@ -197,9 +224,9 @@ func (o *ObjectHandler) StorageStats(ctx context.Context, _ *object.StorageStats
 // CleanResourcesBeforeDelete removes the .minio.sys/config folder if it exists
 func (o *ObjectHandler) CleanResourcesBeforeDelete(ctx context.Context, request *object.CleanResourcesRequest) (resp *object.CleanResourcesResponse, err error) {
 
-	conf, ds, ok := o.getConfig(ctx)
-	if !ok {
-		return nil, errors.WithMessage(errors.StatusInternalServerError, "cannot find datasource "+ds+" in context")
+	conf, er := o.getConfig(ctx)
+	if er != nil {
+		return nil, er
 	}
 
 	resp = &object.CleanResourcesResponse{

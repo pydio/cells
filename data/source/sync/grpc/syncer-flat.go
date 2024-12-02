@@ -37,7 +37,7 @@ import (
 )
 
 // FlatScanEmpty uses s3 client to feed index from bucket (basic mono-directional sync)
-func (s *Handler) FlatScanEmpty(ctx context.Context, syncStatus chan model.Status, syncDone chan interface{}) (model.Stater, error) {
+func (s *Syncer) FlatScanEmpty(ctx context.Context, syncStatus chan model.Status, syncDone chan interface{}) (model.Stater, error) {
 	// No snapshot passed, read the bucket content and index each node with its path Uuid
 	stats := &flatSyncStater{source: "storage", target: "index"}
 	source, ok := s.S3client.(model.PathSyncSource)
@@ -74,7 +74,7 @@ func (s *Handler) FlatScanEmpty(ctx context.Context, syncStatus chan model.Statu
 }
 
 // FlatSyncSnapshot can read or write a snapshot of the index inside the storage
-func (s *Handler) FlatSyncSnapshot(ctx context.Context, dsObject *object.DataSource, mode string, snapName string, syncStatus chan model.Status, syncDone chan interface{}) (model.Stater, error) {
+func (s *Syncer) FlatSyncSnapshot(ctx context.Context, dsObject *object.DataSource, mode string, snapName string, syncStatus chan model.Status, syncDone chan interface{}) (model.Stater, error) {
 
 	if mode != "read" && mode != "write" && mode != "delete" {
 		return nil, fmt.Errorf("please use one of read, write or delete for snapshoting mode")

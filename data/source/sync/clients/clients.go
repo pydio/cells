@@ -28,14 +28,16 @@ import (
 	"time"
 
 	"go.uber.org/zap"
+	"google.golang.org/grpc/health/grpc_health_v1"
+	"google.golang.org/protobuf/proto"
 
 	"github.com/pydio/cells/v5/common"
-	"github.com/pydio/cells/v5/common/client/commons/treec"
 	grpccli "github.com/pydio/cells/v5/common/client/grpc"
 	"github.com/pydio/cells/v5/common/config"
 	"github.com/pydio/cells/v5/common/nodes"
 	"github.com/pydio/cells/v5/common/proto/encryption"
 	"github.com/pydio/cells/v5/common/proto/object"
+	"github.com/pydio/cells/v5/common/proto/server"
 	"github.com/pydio/cells/v5/common/proto/tree"
 	"github.com/pydio/cells/v5/common/runtime/manager"
 	"github.com/pydio/cells/v5/common/sync/endpoints/index"
@@ -46,13 +48,13 @@ import (
 	"github.com/pydio/cells/v5/common/utils/std"
 )
 
-// InitEndpoints creates two model.Endpoint to be used in synchronisation or in a capture task
-func InitEndpoints(ctx context.Context, syncConfig *object.DataSource, clientRead tree.NodeProviderClient, clientWrite tree.NodeReceiverClient, clientSession tree.SessionIndexerClient) (model.Endpoint, model.Endpoint, *object.MinioConfig, error) {
-
+func CheckSubServices(ctx context.Context, syncConfig *object.DataSource, cb ...func(sName string, status bool, detail string)) (minioConfig *object.MinioConfig, oc nodes.StorageClient, cErr error) {
 	dataSource := syncConfig.Name
+	var serviceCallback func(sName string, status bool, detail string)
+	if len(cb) > 0 {
+		serviceCallback = cb[0]
+	}
 
-	// Making sure Object AND underlying S3 is started
-	var minioConfig *object.MinioConfig
 	var indexOK bool
 	wg := &sync2.WaitGroup{}
 	wg.Add(2)
@@ -61,46 +63,71 @@ func InitEndpoints(ctx context.Context, syncConfig *object.DataSource, clientRea
 	go func() {
 		defer wg.Done()
 		log.Logger(ctx).Debug("Sync " + dataSource + " - Try to contact Index")
-		cli := treec.ServiceNodeProviderClient(ctx, common.ServiceDataIndex_+dataSource)
-		if _, e := cli.ReadNode(ctx, &tree.ReadNodeRequest{Node: &tree.Node{Path: "/"}}); e != nil {
-			return
+		cc := grpccli.ResolveConn(ctx, common.ServiceGrpcNamespace_+common.ServiceDataIndex_+dataSource)
+		readyzClient := server.NewReadyzClient(cc)
+		hsR, hsE := readyzClient.Ready(ctx, &server.ReadyCheckRequest{HealthCheckRequest: &grpc_health_v1.HealthCheckRequest{}})
+		if hsE != nil {
+			log.Logger(ctx).Error("Index Healthcheck Error", zap.Error(hsE))
+			if serviceCallback != nil {
+				serviceCallback("index", false, "Error: "+hsE.Error())
+			}
+		} else if hsR.GetReadyStatus() != server.ReadyStatus_Ready {
+			log.Logger(ctx).Error("Index Not Ready " + hsR.GetReadyStatus().String())
+			if serviceCallback != nil {
+				serviceCallback("index", false, "index not ready")
+				for k, v := range hsR.Components {
+					serviceCallback("index."+k, v.ReadyStatus == server.ReadyStatus_Ready, v.Details)
+				}
+			}
+		} else {
+			log.Logger(ctx).Info("Index Connected", zap.Any("res", hsR))
+			if serviceCallback != nil {
+				serviceCallback("index", true, "index ready")
+				for k, v := range hsR.Components {
+					serviceCallback("index."+k, true, v.Details)
+				}
+			}
+			indexOK = true
 		}
-		log.Logger(ctx).Info("Index connected")
-		indexOK = true
 	}()
 
-	var oc nodes.StorageClient
-
 	// Making sure Objects is started
-	var minioErr error
 	go func() {
 		defer wg.Done()
 		cli := object.NewObjectsEndpointClient(grpccli.ResolveConn(ctx, common.ServiceDataObjectsGRPC_+syncConfig.ObjectsServiceName))
 		resp, err := cli.GetMinioConfig(ctx, &object.GetMinioConfigRequest{})
 		if err != nil {
 			log.Logger(ctx).Warn(common.ServiceDataObjects_+syncConfig.ObjectsServiceName+" not yet available", zap.Error(err))
-			minioErr = err
+			cErr = err
+			if serviceCallback != nil {
+				serviceCallback("object", false, "Object not ready: "+err.Error())
+			}
 			return
 		} else if resp.MinioConfig == nil {
 			log.Logger(ctx).Debug(common.ServiceDataObjects_ + syncConfig.ObjectsServiceName + " not yet available")
-			minioErr = fmt.Errorf("empty config")
+			cErr = fmt.Errorf("empty config")
+			if serviceCallback != nil {
+				serviceCallback("object", false, "Object not ready: "+cErr.Error())
+			}
 			return
 		}
-		minioConfig = resp.MinioConfig
-		if sec := config.GetSecret(ctx, minioConfig.ApiSecret).String(); sec != "" {
-			minioConfig.ApiSecret = sec
+		minioConfig = proto.Clone(resp.MinioConfig).(*object.MinioConfig)
+		if serviceCallback != nil {
+			serviceCallback("object", true, "Object is ready (retrieved config)")
 		}
-		cfg := minioConfig.ClientConfig()
+
+		ocCfg := minioConfig.ClientConfig(ctx, config.GetSecret, s3.UserAgentAppName, s3.UserAgentVersion)
 
 		var retryCount int
-		minioErr = std.Retry(ctx, func() error {
+		cErr = std.Retry(ctx, func() error {
 			retryCount++
 			var e error
-			_ = cfg.Val("userAgentAppName").Set(s3.UserAgentAppName)
-			_ = cfg.Val("userAgentVersion").Set(s3.UserAgentVersion)
-			oc, e = nodes.NewStorageClient(cfg)
+			oc, e = nodes.NewStorageClient(ocCfg)
 			if e != nil {
 				log.Logger(ctx).Error("Cannot create objects client "+e.Error(), zap.Error(e))
+				if serviceCallback != nil {
+					serviceCallback("storage", false, "S3 client cannot be configured: "+e.Error())
+				}
 				return e
 			}
 			testCtx := propagator.NewContext(ctx, map[string]string{common.PydioContextUserKey: common.PydioSystemUsername})
@@ -108,11 +135,14 @@ func InitEndpoints(ctx context.Context, syncConfig *object.DataSource, clientRea
 				log.Logger(ctx).Debug("Sending ListBuckets", zap.Any("config", syncConfig))
 				_, err = oc.ListBuckets(testCtx)
 				if err != nil {
-					//if retryCount > 1 {
-					//	log.Logger(ctx).Warn("Cannot contact s3 service (list buckets), will retry in 4s", zap.Error(err))
-					//}
+					if serviceCallback != nil {
+						serviceCallback("storage", false, "S3 cannot list buckets: "+err.Error())
+					}
 					return err
 				} else {
+					if serviceCallback != nil {
+						serviceCallback("storage", true, "S3 successfully list buckets")
+					}
 					log.Logger(ctx).Info("Successfully listed buckets")
 					return nil
 				}
@@ -125,9 +155,15 @@ func InitEndpoints(ctx context.Context, syncConfig *object.DataSource, clientRea
 					if retryCount > 1 {
 						log.Logger(ctx).Warn("Cannot contact s3 service (bucket "+syncConfig.ObjectsBucket+"), will retry in 1s", zap.Error(err))
 					}
+					if serviceCallback != nil {
+						serviceCallback("storage", false, "S3 cannot list objects in bucket: "+err.Error())
+					}
 					return err
 				} else {
 					log.Logger(ctx).Info(fmt.Sprintf("Successfully retrieved first object from bucket %s (%s)", syncConfig.ObjectsBucket, time.Since(t)))
+					if serviceCallback != nil {
+						serviceCallback("storage", false, "S3 successfully list objects in bucket")
+					}
 					return nil
 				}
 			}
@@ -136,13 +172,27 @@ func InitEndpoints(ctx context.Context, syncConfig *object.DataSource, clientRea
 
 	wg.Wait()
 
-	if minioErr != nil {
-		return nil, nil, nil, fmt.Errorf("objects not reachable: %v", minioErr)
+	if cErr != nil {
+		cErr = fmt.Errorf("objects not reachable: %v", cErr)
 	} else if minioConfig == nil || oc == nil {
-		return nil, nil, nil, fmt.Errorf("objects not reachable")
+		cErr = fmt.Errorf("objects not reachable")
 	} else if !indexOK {
-		return nil, nil, nil, fmt.Errorf("index not reachable")
+		cErr = fmt.Errorf("index not reachable")
 	}
+
+	return
+}
+
+// InitEndpoints creates two model.Endpoint to be used in synchronisation or in a capture task
+func InitEndpoints(ctx context.Context, syncConfig *object.DataSource, clientRead tree.NodeProviderClient, clientWrite tree.NodeReceiverClient, clientSession tree.SessionIndexerClient) (model.Endpoint, model.Endpoint, *object.MinioConfig, error) {
+
+	// Making sure Object AND underlying S3 is started
+	minioConfig, oc, err := CheckSubServices(ctx, syncConfig)
+	if err != nil {
+		return nil, nil, nil, err
+	}
+
+	dataSource := syncConfig.Name
 
 	var source model.PathSyncSource
 	if syncConfig.Watch {
@@ -174,7 +224,7 @@ func InitEndpoints(ctx context.Context, syncConfig *object.DataSource, clientRea
 			bucketsFilter = f
 		}
 		var errs3 error
-		if source, errs3 = s3.NewMultiBucketClient(ctx, oc, minioConfig.RunningHost, bucketsFilter, options); errs3 != nil {
+		if source, errs3 = s3.NewMultiBucketClient(ctx, oc, minioConfig.BuildUrl(), bucketsFilter, options); errs3 != nil {
 			return nil, nil, nil, errs3
 		}
 	} else {

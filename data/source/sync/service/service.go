@@ -26,10 +26,12 @@ import (
 
 	"go.uber.org/multierr"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/health"
 
 	"github.com/pydio/cells/v5/common"
 	"github.com/pydio/cells/v5/common/broker"
 	"github.com/pydio/cells/v5/common/proto/object"
+	"github.com/pydio/cells/v5/common/proto/server"
 	protosync "github.com/pydio/cells/v5/common/proto/sync"
 	"github.com/pydio/cells/v5/common/proto/tree"
 	"github.com/pydio/cells/v5/common/runtime"
@@ -52,31 +54,36 @@ func init() {
 			service.WithMigrateIterator(source.DataSourceContextKey, source.ListSources),
 			service.WithStorageDrivers(sync.Drivers...),
 			service.WithGRPC(func(ctx context.Context, registrar grpc.ServiceRegistrar) error {
-				resolver := source.NewResolver[*grpc_sync.Handler](source.DataSourceContextKey, common.ServiceDataSyncGRPC_, source.ListSources)
-				endpoint := &grpc_sync.Endpoint{
-					Resolver: resolver,
+				resolver := source.NewResolver[*grpc_sync.Syncer](source.DataSourceContextKey, common.ServiceDataSyncGRPC_, source.ListSources)
+				handler := &grpc_sync.Handler{
+					Resolver:     resolver,
+					HealthServer: health.NewServer(),
 				}
 				var errs []error
-				resolver.SetLoader(func(ctx context.Context, s string) (*grpc_sync.Handler, error) {
-					sync := grpc_sync.NewHandler(ctx, s)
+				resolver.SetLoader(func(ctx context.Context, s string) (*grpc_sync.Syncer, error) {
+					syncer, err := grpc_sync.NewSyncer(ctx, s)
+					if err != nil {
+						return nil, err
+					}
 					go func() {
-						errs = append(errs, sync.InitAndStart())
+						errs = append(errs, syncer.InitAndStart())
 					}()
-					return sync, nil
+					return syncer, nil
 				})
-				resolver.SetCleaner(func(ctx context.Context, s string, _ *grpc_sync.Handler) error {
-					_, er := endpoint.CleanResourcesBeforeDelete(ctx, &object.CleanResourcesRequest{})
+				resolver.SetCleaner(func(ctx context.Context, s string, _ *grpc_sync.Syncer) error {
+					_, er := handler.CleanResourcesBeforeDelete(ctx, &object.CleanResourcesRequest{})
 					return er
 				})
 				_ = runtime.MultiContextManager().Iterate(ctx, func(ctx context.Context, s string) error {
 					return resolver.HeatCacheAndWatch(ctx, configx.WithPath("services", common.ServiceDataSyncGRPC, "sources"))
 				})
-				tree.RegisterNodeProviderServer(registrar, endpoint)
-				tree.RegisterNodeReceiverServer(registrar, endpoint)
-				tree.RegisterNodeChangesReceiverStreamerServer(registrar, endpoint)
-				protosync.RegisterSyncEndpointServer(registrar, endpoint)
-				object.RegisterDataSourceEndpointServer(registrar, endpoint)
-				object.RegisterResourceCleanerEndpointServer(registrar, endpoint)
+				tree.RegisterNodeProviderServer(registrar, handler)
+				tree.RegisterNodeReceiverServer(registrar, handler)
+				tree.RegisterNodeChangesReceiverStreamerServer(registrar, handler)
+				protosync.RegisterSyncEndpointServer(registrar, handler)
+				object.RegisterDataSourceEndpointServer(registrar, handler)
+				object.RegisterResourceCleanerEndpointServer(registrar, handler)
+				server.RegisterReadyzServer(registrar, handler)
 
 				return multierr.Combine(errs...)
 			}),

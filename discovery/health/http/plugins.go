@@ -17,8 +17,7 @@ func init() {
 			service.Name(common.ServiceWebNamespace_+common.ServiceHealthCheck),
 			service.Context(ctx),
 			service.Tag(common.ServiceTagDiscovery),
-			service.Description("Service launching a test discovery server."),
-			// service.WithStorage(config.NewDAO),
+			service.Description("Performs a health test on a the designated service"),
 			service.WithHTTP(func(c context.Context, mux routing.RouteRegistrar) error {
 				mux.Route("health").Handle("/", http.HandlerFunc(func(rw http.ResponseWriter, r *http.Request) {
 					_, _ = rw.Write([]byte("this is a test"))

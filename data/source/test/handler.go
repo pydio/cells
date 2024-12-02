@@ -78,7 +78,7 @@ func (h *Handler) Run(ctx context.Context, req *test.RunTestsRequest) (*test.Run
 	dsConf.ApiSecret = "mycustomapisecret"
 	dsConf.ObjectsHost = "127.0.0.1"
 	dsConf.ObjectsPort = 9000
-	oc, e := nodes.NewStorageClient(dsConf.ClientConfig())
+	oc, e := nodes.NewStorageClient(dsConf.ClientConfig(ctx, config.GetSecret))
 	if e != nil {
 		return nil, fmt.Errorf("cannot initialize client: %v", e)
 	}

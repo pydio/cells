@@ -29,7 +29,7 @@ import "cells-registry.proto";
 import "google/api/annotations.proto";
 import "protoc-gen-openapiv2/options/annotations.proto";
 
-option go_package ="github.com/pydio/cells/common/proto/rest";
+option go_package ="github.com/pydio/cells/v5/common/proto/rest";
 
 option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_swagger) = {
   info: {
@@ -867,4 +867,52 @@ service FrontendService {
             get: "/frontend/settings-menu"
         };
     }
+}
+
+
+message HealthServiceRequest {
+    string ServiceName = 1;
+}
+message ComponentStatus {
+    string Status = 1;
+    string Details = 2;
+}
+
+message HealthServiceResponse {
+    string Status = 1;
+    map<string,ComponentStatus> Components = 2;
+}
+
+// Graph Service provides utilitaries describing relations between users
+service HealthService {
+    // Does nothing except responding
+    rpc ApiPing (HealthServiceRequest) returns (HealthServiceResponse) {
+        option (google.api.http) = {
+            get: "/health/ping"
+        };
+    };
+    // Check overall liveness of this API
+    rpc ApiLive (HealthServiceRequest) returns (HealthServiceResponse) {
+        option (google.api.http) = {
+            get: "/health/live"
+        };
+    };
+    // Check overally readyness ot this API, with details
+    rpc ApiReady (HealthServiceRequest) returns (HealthServiceResponse) {
+        option (google.api.http) = {
+            get: "/health/ready"
+        };
+    };
+    // Check overall liveness of this API
+    rpc ServiceLive (HealthServiceRequest) returns (HealthServiceResponse) {
+        option (google.api.http) = {
+            get: "/health/{ServiceName}/live"
+        };
+    };
+    // Check overally readyness ot this API, with details
+    rpc ServiceReady (HealthServiceRequest) returns (HealthServiceResponse) {
+        option (google.api.http) = {
+            get: "/health/{ServiceName}/ready"
+        };
+    };
 }

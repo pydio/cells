@@ -28,6 +28,7 @@ import (
 	"github.com/pydio/cells/v5/common"
 	"github.com/pydio/cells/v5/common/config"
 	"github.com/pydio/cells/v5/common/proto/object"
+	"github.com/pydio/cells/v5/common/proto/server"
 	"github.com/pydio/cells/v5/common/proto/sync"
 	"github.com/pydio/cells/v5/common/proto/tree"
 	"github.com/pydio/cells/v5/common/runtime"
@@ -82,6 +83,7 @@ func init() {
 				tree.RegisterSessionIndexerServer(srv, shared)
 				object.RegisterResourceCleanerEndpointServer(srv, shared)
 				sync.RegisterSyncEndpointServer(srv, shared)
+				server.RegisterReadyzServer(srv, shared)
 				return nil
 			}),
 		)

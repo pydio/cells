@@ -1,0 +1,9 @@
+version: v1
+plugins:
+  - name: go
+    opt: module=github.com/pydio/cells/v5/common/proto/server
+    out: .
+  - name: go-grpc
+    opt: module=github.com/pydio/cells/v5/common/proto/server
+    out: .
+

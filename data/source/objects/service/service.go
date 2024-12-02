@@ -31,6 +31,7 @@ import (
 	"github.com/pydio/cells/v5/common/config"
 	"github.com/pydio/cells/v5/common/errors"
 	"github.com/pydio/cells/v5/common/proto/object"
+	server2 "github.com/pydio/cells/v5/common/proto/server"
 	"github.com/pydio/cells/v5/common/proto/tree"
 	"github.com/pydio/cells/v5/common/runtime"
 	"github.com/pydio/cells/v5/common/service"
@@ -85,6 +86,7 @@ func init() {
 				})
 				object.RegisterObjectsEndpointServer(server, sharedHandler)
 				object.RegisterResourceCleanerEndpointServer(server, sharedHandler)
+				server2.RegisterReadyzServer(server, sharedHandler)
 
 				return multierr.Combine(mErr...)
 			}),

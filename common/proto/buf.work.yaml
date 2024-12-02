@@ -16,6 +16,7 @@ directories:
   - object
   - rest
   - service
+  - server
   - tree
   - update
   - registry

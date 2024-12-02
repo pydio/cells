@@ -23,390 +23,441 @@ package grpc
 import (
 	"context"
 	"fmt"
-	"math"
 	"strings"
-	sync2 "sync"
+	sync3 "sync"
 	"time"
 
 	"go.uber.org/zap"
+	"google.golang.org/grpc/health/grpc_health_v1"
 	"google.golang.org/protobuf/proto"
 
 	"github.com/pydio/cells/v5/common"
-	"github.com/pydio/cells/v5/common/broker"
 	"github.com/pydio/cells/v5/common/client/commons/jobsc"
-	grpccli "github.com/pydio/cells/v5/common/client/grpc"
-	"github.com/pydio/cells/v5/common/config"
 	"github.com/pydio/cells/v5/common/errors"
 	"github.com/pydio/cells/v5/common/proto/jobs"
 	"github.com/pydio/cells/v5/common/proto/object"
-	protosync "github.com/pydio/cells/v5/common/proto/sync"
+	"github.com/pydio/cells/v5/common/proto/server"
+	"github.com/pydio/cells/v5/common/proto/sync"
 	"github.com/pydio/cells/v5/common/proto/tree"
 	"github.com/pydio/cells/v5/common/runtime"
-	"github.com/pydio/cells/v5/common/sync/endpoints/chanwatcher"
+	"github.com/pydio/cells/v5/common/runtime/manager"
+	"github.com/pydio/cells/v5/common/sync/merger"
 	"github.com/pydio/cells/v5/common/sync/model"
-	"github.com/pydio/cells/v5/common/sync/task"
 	"github.com/pydio/cells/v5/common/telemetry/log"
-	"github.com/pydio/cells/v5/common/utils/configx"
+	"github.com/pydio/cells/v5/common/utils/jsonx"
 	"github.com/pydio/cells/v5/common/utils/propagator"
+	"github.com/pydio/cells/v5/data/source"
+	sync2 "github.com/pydio/cells/v5/data/source/sync"
 	"github.com/pydio/cells/v5/data/source/sync/clients"
-	grpc_jobs "github.com/pydio/cells/v5/scheduler/jobs/grpc"
+	"github.com/pydio/cells/v5/scheduler/tasks"
 )
 
-// Handler structure
 type Handler struct {
-	GlobalCtx      context.Context
-	DsName         string
-	errorsDetected chan string
+	grpc_health_v1.HealthServer
+	PresetSync *Syncer
+	*source.Resolver[*Syncer]
 
-	IndexClientRead    tree.NodeProviderClient
-	IndexClientWrite   tree.NodeReceiverClient
-	IndexClientClean   protosync.SyncEndpointClient
-	IndexClientSession tree.SessionIndexerClient
-	S3client           model.Endpoint
-
-	SyncTask     *task.Sync
-	StMux        *sync2.Mutex
-	SyncConfig   *object.DataSource
-	ObjectConfig *object.MinioConfig
-
-	watcher configx.Receiver
-	stop    chan bool
-
-	ChangeEventsFallback chan *tree.NodeChangeEvent
+	tree.UnimplementedNodeProviderServer
+	tree.UnimplementedNodeReceiverServer
+	tree.UnimplementedNodeChangesReceiverStreamerServer
+	sync.UnimplementedSyncEndpointServer
+	object.UnimplementedDataSourceEndpointServer
+	object.UnimplementedResourceCleanerEndpointServer
+	server.UnimplementedReadyzServer
 }
 
-func NewHandler(ctx context.Context, datasource string) *Handler {
-	h := &Handler{
-		GlobalCtx:      runtime.WithServiceName(ctx, common.ServiceGrpcNamespace_+common.ServiceDataSync_+datasource),
-		DsName:         datasource,
-		errorsDetected: make(chan string),
-		stop:           make(chan bool),
-		StMux:          &sync2.Mutex{},
-	}
-	_ = broker.SubscribeCancellable(ctx, common.TopicIndexEvent, func(c context.Context, message broker.Message) error {
-		if !runtime.MultiMatches(c, ctx) {
-			return nil
-		}
-		event := &tree.IndexEvent{}
-		if _, e := message.Unmarshal(ctx, event); e == nil {
-			if event.SessionForceClose != "" {
-				h.BroadcastCloseSession(event.SessionForceClose)
-			}
-			if event.ErrorDetected && event.DataSourceName == h.DsName {
-				h.NotifyError(event.ErrorPath)
-			}
-		}
-		return nil
-	}, broker.WithCounterName("sync"))
-
-	return h
-}
-
-func (s *Handler) InitAndStart() error {
-
-	serviceName := common.ServiceGrpcNamespace_ + common.ServiceDataSync_ + s.DsName
-	ctx := runtime.WithServiceName(s.GlobalCtx, serviceName)
-
-	if e := s.Init(ctx); e != nil {
-		return e
-	}
-
-	md := make(map[string]string)
-	md[common.PydioContextUserKey] = common.PydioSystemUsername
-	jobCtx := propagator.NewContext(ctx, md)
-	jobsClient := jobsc.JobServiceClient(ctx)
-
-	if !s.SyncConfig.FlatStorage {
-		s.Start()
-		if _, err := jobsClient.GetJob(jobCtx, &jobs.GetJobRequest{JobID: "resync-ds-" + s.DsName}); err == nil {
-			if !s.SyncConfig.SkipSyncOnRestart {
-				log.Logger(jobCtx).Debug("Sending event to start trigger re-indexation")
-				broker.MustPublish(jobCtx, common.TopicTimerEvent, &jobs.JobTriggerEvent{
-					JobID:  "resync-ds-" + s.DsName,
-					RunNow: true,
-				})
-			}
-		} else if errors.Is(err, errors.StatusNotFound) {
-			log.Logger(jobCtx).Info("Creating job in scheduler to trigger re-indexation")
-			job := grpc_jobs.BuildDataSourceSyncJob(s.DsName, false, !s.SyncConfig.SkipSyncOnRestart)
-			_, e := jobsClient.PutJob(jobCtx, &jobs.PutJobRequest{
-				Job: job,
-			})
-			return e
-		} else {
-			log.Logger(jobCtx).Debug("Could not get info about job, retrying...")
-			return err
-		}
-		return nil
+func (h *Handler) getSyncer(ctx context.Context) (*Syncer, bool) {
+	if h.PresetSync != nil {
+		return h.PresetSync, true
 	} else {
-		s.StartConfigsOnly()
+		h, er := h.Resolve(ctx)
+		return h, er == nil
+	}
+}
 
-		var clearConfigKey string
-
-		// Create an authenticated context for sync operations if any
-		bg := context.Background()
-		bg = propagator.WithUserNameMetadata(bg, common.PydioContextUserKey, common.PydioSystemUsername)
-		bg = propagator.ForkOneKey(runtime.ServiceNameKey, bg, ctx)
-
-		if _, has := s.SyncConfig.StorageConfiguration[object.StorageKeyInitFromBucket]; has {
-			if _, e := s.FlatScanEmpty(bg, nil, nil); e != nil {
-				log.Logger(ctx).Warn("Could not scan storage bucket after start", zap.Error(e))
-			} else {
-				clearConfigKey = object.StorageKeyInitFromBucket
-			}
-		} else if snapKey, has := s.SyncConfig.StorageConfiguration[object.StorageKeyInitFromSnapshot]; has {
-			if _, e := s.FlatSyncSnapshot(bg, s.SyncConfig, "read", snapKey, nil, nil); e != nil {
-				log.Logger(ctx).Warn("Could not init index from stored snapshot after start", zap.Error(e))
-			} else {
-				clearConfigKey = object.StorageKeyInitFromSnapshot
-			}
+// Ready implements a custom Readyness healthcheck API
+func (h *Handler) Ready(ctx context.Context, req *server.ReadyCheckRequest) (*server.ReadyCheckResponse, error) {
+	hsResp, er := h.HealthServer.Check(ctx, req.HealthCheckRequest)
+	if er != nil {
+		return nil, er
+	}
+	resp := &server.ReadyCheckResponse{
+		HealthCheckResponse: hsResp,
+		ReadyStatus:         server.ReadyStatus_NotReady,
+		Components:          make(map[string]*server.ComponentStatus, 3),
+	}
+	if hsResp.Status != grpc_health_v1.HealthCheckResponse_SERVING {
+		return resp, nil
+	}
+	cLock := &sync3.Mutex{}
+	callback := func(sName string, status bool, detail string) {
+		st := &server.ComponentStatus{Details: detail}
+		if status {
+			st.ReadyStatus = server.ReadyStatus_Ready
+		} else {
+			st.ReadyStatus = server.ReadyStatus_NotReady
 		}
-		if clearConfigKey != "" {
-			// Now save config without "initFromBucket" key
-			newValue := proto.Clone(s.SyncConfig).(*object.DataSource)
-			delete(newValue.StorageConfiguration, clearConfigKey)
-			if ce := config.Set(ctx, newValue, "services", serviceName); ce != nil {
-				log.Logger(jobCtx).Error("[initFromBucket] Removing "+clearConfigKey+" key from datasource", zap.Error(ce))
-			} else {
-				if err := config.Save(ctx, "system", "Removing "+clearConfigKey+" key from datasource "+serviceName); err != nil {
-					log.Logger(jobCtx).Error("[initFromBucket] Saving "+clearConfigKey+" key removal from datasource", zap.Error(err))
-				} else {
-					log.Logger(jobCtx).Info("[initFromBucket] Removed "+clearConfigKey+" key from datasource", zap.Object("ds", newValue))
+		cLock.Lock()
+		defer cLock.Unlock()
+		resp.Components[sName] = st
+	}
+	conf, ok := h.getSyncer(ctx)
+	if conf == nil || !ok {
+		resp.ReadyStatus = server.ReadyStatus_Unknown
+		return resp, er
+	}
+	_, _, er = clients.CheckSubServices(ctx, conf.SyncConfig, callback)
+	if er == nil {
+		resp.ReadyStatus = server.ReadyStatus_Ready
+	}
+
+	return resp, nil
+}
+
+// TriggerResync sets 2 servers in sync
+func (h *Handler) TriggerResync(c context.Context, req *sync.ResyncRequest) (*sync.ResyncResponse, error) {
+
+	sh, ok := h.getSyncer(c)
+	if !ok {
+		return nil, errors.WithMessage(errors.StatusInternalServerError, "cannot find datasource in context")
+	}
+
+	resp := &sync.ResyncResponse{}
+
+	var statusChan chan model.Status
+	doneChan := make(chan interface{})
+	blocker := make(chan interface{})
+
+	if req.Task != nil {
+		statusChan = make(chan model.Status)
+
+		subCtx := context.WithoutCancel(c)
+		subCtx = propagator.WithUserNameMetadata(subCtx, common.PydioContextUserKey, common.PydioSystemUsername)
+
+		theTask := req.Task
+		autoClient := tasks.NewTaskReconnectingClient(subCtx)
+		taskChan := make(chan interface{}, 1000)
+		autoClient.StartListening(taskChan)
+
+		theTask.StatusMessage = "Starting"
+		theTask.HasProgress = true
+		theTask.Progress = 0
+		theTask.Status = jobs.TaskStatus_Running
+		theTask.StartTime = int32(time.Now().Unix())
+
+		log.TasksLogger(c).Info("Starting Resync")
+		taskChan <- theTask
+
+		go func() {
+			defer func() {
+				close(doneChan)
+				<-time.After(2 * time.Second)
+				close(statusChan)
+				close(blocker)
+				autoClient.Stop()
+			}()
+			for {
+				select {
+				case status := <-statusChan:
+					ta := proto.Clone(theTask).(*jobs.Task)
+					ta.StatusMessage = status.String()
+					ta.HasProgress = true
+					ta.Progress = status.Progress()
+					ta.Status = jobs.TaskStatus_Running
+					if status.IsError() && status.Error() != nil {
+						log.TasksLogger(c).Error(status.String(), zap.Error(status.Error()))
+					} else if status.String() != "" {
+						log.TasksLogger(c).Info(status.String())
+					}
+					taskChan <- ta
+				case data := <-doneChan:
+					ta := proto.Clone(theTask).(*jobs.Task)
+					ta.HasProgress = true
+					ta.Progress = 1
+					ta.StatusMessage = "Resync Completed"
+					ta.EndTime = int32(time.Now().Unix())
+					//ta.Status = jobs.TaskStatus_Finished
+					if patch, ok := data.(merger.Patch); ok {
+						if errs, has := patch.HasErrors(); has {
+							ta.StatusMessage = "Error: " + errs[0].Error()
+							ta.Status = jobs.TaskStatus_Error
+							log.TasksLogger(c).Info("Sync finished on error : " + errs[0].Error())
+						} else {
+							log.TasksLogger(c).Info("Sync completed")
+						}
+					} else {
+						log.TasksLogger(c).Info("Sync completed")
+					}
+					taskChan <- ta
+					return
 				}
 			}
-
-		}
-
-		// Post a job to dump snapshot manually (Flat, non-internal only)
-		if !s.SyncConfig.IsInternal() {
-			if _, err := jobsClient.GetJob(jobCtx, &jobs.GetJobRequest{JobID: "snapshot-" + s.DsName}); err != nil {
-				if errors.Is(err, errors.StatusNotFound) {
-					log.Logger(jobCtx).Info("Creating job in scheduler to dump snapshot for " + s.DsName)
-					job := grpc_jobs.BuildDataSourceSyncJob(s.DsName, true, false)
-					_, e := jobsClient.PutJob(jobCtx, &jobs.PutJobRequest{
-						Job: job,
-					})
-					return e
-				} else {
-					log.Logger(jobCtx).Info("Could not get info about job, retrying...", zap.Error(err))
-					return err
-				}
+		}()
+	} else {
+		go func() {
+			select {
+			case <-doneChan:
+				close(blocker)
 			}
-			return nil
+			close(doneChan)
+		}()
+	}
+
+	// First trigger a Resync on index, to clean potential issues
+	if _, err := sh.IndexClientClean.TriggerResync(c, req); err != nil {
+		if req.Task != nil {
+			log.TasksLogger(c).Error("Could not run index Lost+found "+err.Error(), zap.Error(err))
+		} else {
+			log.Logger(c).Error("Could not run index Lost+found "+err.Error(), zap.Error(err))
 		}
 	}
 
-	return nil
-}
+	// Context extends request Context, which allows sync.Run cancellation from within the scheduler.
+	// Internal context used for SessionData is re-extended from context.Background
+	bg := propagator.WithUserNameMetadata(c, common.PydioContextUserKey, common.PydioSystemUsername)
+	bg = propagator.ForkOneKey(runtime.ServiceNameKey, bg, c)
+	/*
+		if s, o := servicecontext.SpanFromContext(c); o {
+			bg = servicecontext.WithSpan(bg, s)
+		}
+	*/
 
-func (s *Handler) Init(ctx context.Context) error {
+	var result model.Stater
+	var err error
+	if sh.SyncConfig.FlatStorage {
+		pathParts := strings.Split(strings.Trim(req.GetPath(), "/"), "/")
+		if len(pathParts) == 2 {
+			dir := pathParts[0]
+			snapName := pathParts[1]
+			result, err = sh.FlatSyncSnapshot(bg, sh.SyncConfig, dir, snapName, statusChan, doneChan)
+		} else if len(pathParts) == 1 && pathParts[0] == "init" {
+			result, err = sh.FlatScanEmpty(bg, statusChan, doneChan)
+		} else {
+			// Nothing to do, just close doneChan
+			if doneChan != nil {
+				doneChan <- true
+			}
 
-	var syncConfig *object.DataSource
-	if err := config.Get(ctx, "services", common.ServiceGrpcNamespace_+common.ServiceDataSync_+s.DsName).Scan(&syncConfig); err != nil {
-		return err
+			resp.Success = true
+			return resp, nil
+		}
+	} else {
+		sh.StMux.Lock()
+		sh.SyncTask.SetupEventsChan(statusChan, doneChan, nil)
+		result, err = sh.SyncTask.Run(bg, req.DryRun, false)
+		sh.StMux.Unlock()
 	}
-	if sec := config.GetSecret(ctx, syncConfig.ApiSecret).String(); sec != "" {
-		syncConfig.ApiSecret = sec
-	}
 
-	return s.initSync(syncConfig)
-
-}
-
-func (s *Handler) Start() {
-	s.StMux.Lock()
-	s.SyncTask.Start(s.GlobalCtx, !s.SyncConfig.FlatStorage)
-	s.StMux.Unlock()
-	go s.watchConfigs()
-	go s.watchErrors()
-	go s.watchDisconnection()
-	go func() {
-		<-s.GlobalCtx.Done()
-		s.Stop()
-	}()
-}
-
-func (s *Handler) Stop() {
-	s.stop <- true
-	s.StMux.Lock()
-	s.SyncTask.Shutdown()
-	s.StMux.Unlock()
-	if s.watcher != nil {
-		s.watcher.Stop()
+	if err != nil {
+		if req.Task != nil {
+			theTask := req.Task
+			taskClient := jobsc.JobServiceClient(sh.GlobalCtx) //jobs.NewJobServiceClient(grpccli.ResolveConn(s.GlobalCtx, common.ServiceJobs))
+			theTask.StatusMessage = "Error"
+			theTask.HasProgress = true
+			theTask.Progress = 1
+			theTask.EndTime = int32(time.Now().Unix())
+			theTask.Status = jobs.TaskStatus_Error
+			log.TasksLogger(c).Error("Error during sync task", zap.Error(err))
+			_, _ = taskClient.PutTask(c, &jobs.PutTaskRequest{Task: theTask})
+		}
+		return nil, err
+	} else if result != nil {
+		if blocker != nil {
+			<-blocker
+		}
+		data, _ := jsonx.Marshal(result.Stats())
+		resp.JsonDiff = string(data)
+		resp.Success = true
+		return resp, nil
+	} else {
+		return nil, fmt.Errorf("empty result")
 	}
 }
 
-func (s *Handler) StartConfigsOnly() {
-	go s.watchConfigs()
-	go func() {
-		<-s.GlobalCtx.Done()
-		s.StopConfigsOnly()
-	}()
-}
+// GetDataSourceConfig implements the S3Endpoint Interface by using the real object configs + the local datasource configs for bucket and base folder.
+func (h *Handler) GetDataSourceConfig(ctx context.Context, _ *object.GetDataSourceConfigRequest) (*object.GetDataSourceConfigResponse, error) {
 
-func (s *Handler) StopConfigsOnly() {
-	if s.watcher != nil {
-		s.watcher.Stop()
+	sh, ok := h.getSyncer(ctx)
+	if !ok {
+		return nil, errors.WithMessage(errors.StatusInternalServerError, "cannot find datasource in context")
 	}
-}
 
-// BroadcastCloseSession forwards session id to underlying sync task
-func (s *Handler) BroadcastCloseSession(sessionUuid string) {
-	s.StMux.Lock()
-	defer s.StMux.Unlock()
-	if s.SyncTask == nil {
-		return
+	if sh.SyncConfig == nil {
+		return nil, errors.WithMessage(errors.StatusServiceUnavailable, "syncConfig not initialized yet")
 	}
-	s.SyncTask.BroadcastCloseSession(sessionUuid)
+	sh.SyncConfig.ObjectsHost = sh.ObjectConfig.RunningHost
+	sh.SyncConfig.ObjectsPort = sh.ObjectConfig.RunningPort
+	sh.SyncConfig.ObjectsSecure = sh.ObjectConfig.RunningSecure
+	sh.SyncConfig.ApiKey = sh.ObjectConfig.ApiKey
+	sh.SyncConfig.ApiSecret = sh.ObjectConfig.ApiSecret
+
+	return &object.GetDataSourceConfigResponse{
+		DataSource: sh.SyncConfig,
+	}, nil
+}
+
+// CleanResourcesBeforeDelete gracefully stops the sync task and remove the associated resync job
+func (h *Handler) CleanResourcesBeforeDelete(ctx context.Context, _ *object.CleanResourcesRequest) (*object.CleanResourcesResponse, error) {
+	sh, ok := h.getSyncer(ctx)
+	if !ok {
+		return nil, errors.WithMessage(errors.StatusInternalServerError, "cannot find datasource in context")
+	}
+
+	response := &object.CleanResourcesResponse{}
+	sh.StMux.Lock()
+	sh.SyncTask.Shutdown()
+	sh.StMux.Unlock()
+
+	var mm []string
+	var ee []string
+
+	if dao, er := manager.Resolve[sync2.DAO](ctx); er == nil {
+		if m, e := dao.CleanResourcesOnDeletion(ctx); e != nil {
+			ee = append(ee, e.Error())
+		} else {
+			mm = append(mm, m)
+		}
+	}
+
+	serviceName := runtime.GetServiceName(ctx)
+	dsName := strings.TrimPrefix(serviceName, common.ServiceGrpcNamespace_+common.ServiceDataSync_)
+	taskClient := jobsc.JobServiceClient(ctx)
+	log.Logger(ctx).Info("Removing job for datasource " + dsName)
+	if _, err := taskClient.DeleteJob(ctx, &jobs.DeleteJobRequest{
+		JobID: "resync-ds-" + dsName,
+	}); err != nil {
+		ee = append(ee, err.Error())
+	} else {
+		mm = append(mm, "Removed associated job for datasource")
+	}
+	if len(ee) > 0 {
+		response.Success = false
+		return nil, fmt.Errorf(strings.Join(ee, ", "))
+	} else if len(mm) > 0 {
+		response.Success = true
+		response.Message = strings.Join(mm, ", ")
+		return response, nil
+	}
+
+	return response, nil
+}
+
+// CreateNode Forwards to Index
+func (h *Handler) CreateNode(ctx context.Context, req *tree.CreateNodeRequest) (*tree.CreateNodeResponse, error) {
+
+	sh, ok := h.getSyncer(ctx)
+	if !ok {
+		return nil, errors.WithMessage(errors.StatusInternalServerError, "cannot find datasource in context")
+	}
+
+	resp := &tree.CreateNodeResponse{}
+	err := sh.S3client.(model.PathSyncTarget).CreateNode(ctx, req.Node, req.UpdateIfExists)
+	if err != nil {
+		return nil, err
+	}
+	resp.Node = req.Node
+	return resp, nil
+}
+
+// UpdateNode Forwards to S3
+func (h *Handler) UpdateNode(ctx context.Context, req *tree.UpdateNodeRequest) (*tree.UpdateNodeResponse, error) {
+
+	sh, ok := h.getSyncer(ctx)
+	if !ok {
+		return nil, errors.WithMessage(errors.StatusInternalServerError, "cannot find datasource in context")
+	}
+
+	resp := &tree.UpdateNodeResponse{}
+	err := sh.S3client.(model.PathSyncTarget).MoveNode(ctx, req.From.Path, req.To.Path)
+	if err != nil {
+		resp.Success = false
+		return resp, err
+	}
+	resp.Success = true
+	return resp, nil
+}
+
+// DeleteNode Forwards to S3
+func (h *Handler) DeleteNode(ctx context.Context, req *tree.DeleteNodeRequest) (*tree.DeleteNodeResponse, error) {
+	sh, ok := h.getSyncer(ctx)
+	if !ok {
+		return nil, errors.WithMessage(errors.StatusInternalServerError, "cannot find datasource in context")
+	}
+
+	resp := &tree.DeleteNodeResponse{}
+	err := sh.S3client.(model.PathSyncTarget).DeleteNode(ctx, req.Node.Path)
+	if err != nil {
+		resp.Success = false
+		return resp, err
+	}
+	resp.Success = true
+	return resp, nil
+}
+
+// ReadNode Forwards to Index
+func (h *Handler) ReadNode(ctx context.Context, req *tree.ReadNodeRequest) (*tree.ReadNodeResponse, error) {
+
+	sh, ok := h.getSyncer(ctx)
+	if !ok {
+		return nil, errors.WithMessage(errors.StatusInternalServerError, "cannot find datasource in context")
+	}
+
+	resp := &tree.ReadNodeResponse{}
+	r, err := sh.IndexClientRead.ReadNode(ctx, req)
+	if err != nil {
+		return nil, err
+	}
+	resp.Success = true
+	resp.Node = r.Node
+	return resp, nil
 
 }
 
-func (s *Handler) NotifyError(errorPath string) {
-	s.errorsDetected <- errorPath
-}
+// ListNodes Forward to index
+func (h *Handler) ListNodes(req *tree.ListNodesRequest, resp tree.NodeProvider_ListNodesServer) error {
 
-func (s *Handler) initSync(syncConfig *object.DataSource) error {
+	sh, ok := h.getSyncer(resp.Context())
+	if !ok {
+		return errors.WithMessage(errors.StatusInternalServerError, "cannot find datasource in context")
+	}
 
-	conn := grpccli.ResolveConn(s.GlobalCtx, common.ServiceDataIndexGRPC_+syncConfig.Name)
-	s.IndexClientWrite = tree.NewNodeReceiverClient(conn)
-	s.IndexClientRead = tree.NewNodeProviderClient(conn)
-	s.IndexClientClean = protosync.NewSyncEndpointClient(conn)
-	s.IndexClientSession = tree.NewSessionIndexerClient(conn)
-
-	source, target, minioConfig, err := clients.InitEndpoints(s.GlobalCtx, syncConfig, s.IndexClientRead, s.IndexClientWrite, s.IndexClientSession)
+	ctx := resp.Context()
+	client, err := sh.IndexClientRead.ListNodes(ctx, req)
 	if err != nil {
 		return err
 	}
-
-	if !syncConfig.FlatStorage {
-		cw := chanwatcher.NewWatcher(s.GlobalCtx, source.(model.PathSyncSource), "")
-		s.ChangeEventsFallback = cw.NodeChanges
-		source = cw
+	defer client.CloseSend()
+	for {
+		nodeResp, re := client.Recv()
+		if nodeResp == nil {
+			break
+		}
+		if re != nil {
+			return re
+		}
+		se := resp.Send(nodeResp)
+		if se != nil {
+			return se
+		}
 	}
-
-	s.S3client = source
-	s.SyncConfig = syncConfig
-	s.ObjectConfig = minioConfig
-	s.StMux.Lock()
-	s.SyncTask = task.NewSync(source, target, model.DirectionRight)
-	s.SyncTask.SkipTargetChecks = true
-	s.SyncTask.FailsafeDeletes = true
-	s.StMux.Unlock()
 
 	return nil
-
 }
 
-func (s *Handler) watchDisconnection() {
-	//defer close(watchOnce)
-	watchOnce := make(chan interface{})
-	s.StMux.Lock()
-	s.SyncTask.SetupEventsChan(nil, nil, watchOnce)
-	s.StMux.Unlock()
-
-	for w := range watchOnce {
-		if m, ok := w.(*model.EndpointStatus); ok && m.WatchConnection == model.WatchDisconnected {
-			log.Logger(s.GlobalCtx).Error("Watcher disconnected! Will try to restart sync now.")
-			s.StMux.Lock()
-			s.SyncTask.Shutdown()
-			s.StMux.Unlock()
-			<-time.After(3 * time.Second)
-			var syncConfig *object.DataSource
-			sName := runtime.GetServiceName(s.GlobalCtx)
-			if err := config.Get(s.GlobalCtx, "services", sName).Scan(&syncConfig); err != nil {
-				log.Logger(s.GlobalCtx).Error("Cannot read config to reinitialize sync")
-			}
-			if sec := config.GetSecret(s.GlobalCtx, syncConfig.ApiSecret).String(); sec != "" {
-				syncConfig.ApiSecret = sec
-			}
-			if e := s.initSync(syncConfig); e != nil {
-				log.Logger(s.GlobalCtx).Error("Error while restarting sync")
-			}
-			s.StMux.Lock()
-			s.SyncTask.Start(s.GlobalCtx, true)
-			s.StMux.Unlock()
-			return
-		}
+// PostNodeChanges receives NodeChangesEvents, to be used with FallbackWatcher
+func (h *Handler) PostNodeChanges(server tree.NodeChangesReceiverStreamer_PostNodeChangesServer) error {
+	sh, ok := h.getSyncer(server.Context())
+	if !ok {
+		return errors.WithMessage(errors.StatusInternalServerError, "cannot find datasource in context")
 	}
-}
-
-func (s *Handler) watchErrors() {
-	var branch string
 	for {
-		select {
-		case e := <-s.errorsDetected:
-			e = "/" + strings.TrimLeft(e, "/")
-			if len(branch) == 0 {
-				branch = e
-			} else {
-				path := strings.Split(e, "/")
-				stack := strings.Split(branch, "/")
-				max := math.Min(float64(len(stack)), float64(len(path)))
-				var commonParent []string
-				for i := 0; i < int(max); i++ {
-					if stack[i] == path[i] {
-						commonParent = append(commonParent, stack[i])
-					}
-				}
-				branch = "/" + strings.TrimLeft(strings.Join(commonParent, "/"), "/")
-			}
-		case <-time.After(5 * time.Second):
-			if len(branch) > 0 {
-				log.Logger(context.Background()).Info(fmt.Sprintf("Got errors on datasource, should resync now branch: %s", branch))
-				branch = ""
-				md := make(map[string]string)
-				md[common.PydioContextUserKey] = common.PydioSystemUsername
-				ctx := propagator.NewContext(context.Background(), md)
-				broker.MustPublish(ctx, common.TopicTimerEvent, &jobs.JobTriggerEvent{
-					JobID:  "resync-ds-" + s.DsName,
-					RunNow: true,
-				})
-			}
-		case <-s.stop:
-			return
+		event, err := server.Recv()
+		if err != nil {
+			return err
+		}
+		if sh.ChangeEventsFallback != nil {
+			sh.ChangeEventsFallback <- event
 		}
 	}
-}
 
-func (s *Handler) watchConfigs() {
-	serviceName := common.ServiceGrpcNamespace_ + common.ServiceDataSync_ + s.DsName
-
-	// TODO - should be linked to context
-	for {
-		watcher, e := config.Watch(s.GlobalCtx, configx.WithPath("services", serviceName))
-		if e != nil {
-			time.Sleep(1 * time.Second)
-			continue
-		}
-
-		s.watcher = watcher
-		for {
-			event, err := watcher.Next()
-			if err != nil {
-				break
-			}
-
-			var cfg object.DataSource
-
-			if err := event.(configx.Values).Scan(&cfg); err == nil && cfg.Name == s.DsName {
-				log.Logger(s.GlobalCtx).Info("Config changed on "+serviceName+", comparing", zap.Object("old", s.SyncConfig), zap.Object("new", &cfg))
-				if s.SyncConfig.ObjectsBaseFolder != cfg.ObjectsBaseFolder || s.SyncConfig.ObjectsBucket != cfg.ObjectsBucket {
-					// @TODO - Object service must be restarted before restarting sync
-					log.Logger(s.GlobalCtx).Info("Path changed on " + serviceName + ", should reload sync task entirely - Please restart service")
-				} else if s.SyncConfig.VersioningPolicyName != cfg.VersioningPolicyName || s.SyncConfig.EncryptionMode != cfg.EncryptionMode {
-					log.Logger(s.GlobalCtx).Info("Versioning policy changed on "+serviceName+", updating internal config", zap.Object("cfg", &cfg))
-					s.SyncConfig.VersioningPolicyName = cfg.VersioningPolicyName
-					s.SyncConfig.EncryptionMode = cfg.EncryptionMode
-					s.SyncConfig.EncryptionKey = cfg.EncryptionKey
-					<-time.After(2 * time.Second)
-					config.TouchSourceNamesForDataServices(s.GlobalCtx, common.ServiceDataSync)
-				}
-			} else if err != nil {
-				log.Logger(s.GlobalCtx).Error("Could not scan event", zap.Error(err))
-			}
-		}
-
-		watcher.Stop()
-		time.Sleep(1 * time.Second)
-	}
 }

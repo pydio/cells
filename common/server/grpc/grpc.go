@@ -41,6 +41,7 @@ import (
 
 	"github.com/pydio/cells/v5/common/middleware"
 	pb "github.com/pydio/cells/v5/common/proto/registry"
+	server2 "github.com/pydio/cells/v5/common/proto/server"
 	"github.com/pydio/cells/v5/common/registry"
 	"github.com/pydio/cells/v5/common/registry/util"
 	"github.com/pydio/cells/v5/common/runtime"
@@ -265,7 +266,9 @@ func (s *Server) lazyGrpc(rootContext context.Context) IServer {
 	}
 
 	channelz.RegisterChannelzServiceToServer(wrappedGS)
-	grpc_health_v1.RegisterHealthServer(wrappedGS, health.NewServer())
+	hs := health.NewServer()
+	grpc_health_v1.RegisterHealthServer(wrappedGS, hs)
+	server2.RegisterReadyzServer(wrappedGS, server2.NewReadyzServer(hs))
 	reflection.Register(wrappedGS)
 
 	s.Server = gs

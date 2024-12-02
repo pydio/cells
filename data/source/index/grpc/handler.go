@@ -29,11 +29,14 @@ import (
 	"time"
 
 	"go.uber.org/zap"
+	"google.golang.org/grpc/health"
+	"google.golang.org/grpc/health/grpc_health_v1"
 
 	"github.com/pydio/cells/v5/common"
 	"github.com/pydio/cells/v5/common/broker"
 	"github.com/pydio/cells/v5/common/errors"
 	"github.com/pydio/cells/v5/common/proto/object"
+	"github.com/pydio/cells/v5/common/proto/server"
 	"github.com/pydio/cells/v5/common/proto/sync"
 	"github.com/pydio/cells/v5/common/proto/tree"
 	"github.com/pydio/cells/v5/common/runtime/manager"
@@ -47,17 +50,20 @@ import (
 
 // TreeServer definition.
 type TreeServer struct {
+	*source.Resolver[*object.DataSource]
+	grpc_health_v1.HealthServer
+	tree.UnimplementedNodeReceiverServer
+
 	sessionStore sessions.DAO
 	datasource   *object.DataSource
-	*source.Resolver[*object.DataSource]
 
-	tree.UnimplementedNodeReceiverServer
 	tree.UnimplementedNodeProviderServer
 	tree.UnimplementedNodeReceiverStreamServer
 	tree.UnimplementedNodeProviderStreamerServer
 	tree.UnimplementedSessionIndexerServer
 	object.UnimplementedResourceCleanerEndpointServer
 	sync.UnimplementedSyncEndpointServer
+	server.UnimplementedReadyzServer
 }
 
 /* =============================================================================
@@ -75,6 +81,7 @@ func NewTreeServer(ds *object.DataSource) *TreeServer {
 	return &TreeServer{
 		datasource:   ds,
 		sessionStore: sessions.NewSessionMemoryStore(),
+		HealthServer: health.NewServer(),
 	}
 }
 
@@ -82,6 +89,7 @@ func NewSharedTreeServer(resolver *source.Resolver[*object.DataSource]) *TreeSer
 	return &TreeServer{
 		sessionStore: sessions.NewSessionMemoryStore(),
 		Resolver:     resolver,
+		HealthServer: health.NewServer(),
 	}
 }
 

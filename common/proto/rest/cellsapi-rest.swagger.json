@@ -3,6 +3,143 @@
     "application/json"
   ],
   "definitions": {
+    "ConfigServiceCreatePeerFolderBody": {
+      "properties": {
+        "Path": {
+          "title": "Path to the folder to be created",
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    "ConfigServiceCreateStorageBucketBody": {
+      "properties": {
+        "DataSource": {
+          "$ref": "#/definitions/objectDataSource"
+        }
+      },
+      "type": "object"
+    },
+    "ConfigServiceListPeerFoldersBody": {
+      "properties": {
+        "Path": {
+          "title": "Path to the parent folder for listing",
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    "ConfigServicePutConfigBody": {
+      "properties": {
+        "Data": {
+          "title": "JSON-encoded data to store",
+          "type": "string"
+        }
+      },
+      "title": "Configuration message. Data is an Json representation of any value",
+      "type": "object"
+    },
+    "ConfigServicePutDataSourceBody": {
+      "properties": {
+        "ApiKey": {
+          "title": "Corresponding objects service api key",
+          "type": "string"
+        },
+        "ApiSecret": {
+          "title": "Corresponding objects service api secret",
+          "type": "string"
+        },
+        "CreationDate": {
+          "format": "int32",
+          "title": "Data Source creation date",
+          "type": "integer"
+        },
+        "Disabled": {
+          "title": "Whether this data source is disabled or running",
+          "type": "boolean"
+        },
+        "EncryptionKey": {
+          "title": "Encryption key used for encrypting data",
+          "type": "string"
+        },
+        "EncryptionMode": {
+          "$ref": "#/definitions/objectEncryptionMode",
+          "title": "Type of encryption applied before sending data to storage"
+        },
+        "FlatStorage": {
+          "title": "Store data in flat format (object-storage like)",
+          "type": "boolean"
+        },
+        "LastSynchronizationDate": {
+          "format": "int32",
+          "title": "Data Source last synchronization date",
+          "type": "integer"
+        },
+        "ObjectsBaseFolder": {
+          "title": "Corresponding objects service base folder inside the bucket",
+          "type": "string"
+        },
+        "ObjectsBucket": {
+          "title": "Corresponding objects service bucket",
+          "type": "string"
+        },
+        "ObjectsHost": {
+          "title": "Corresponding objects service host",
+          "type": "string"
+        },
+        "ObjectsPort": {
+          "format": "int32",
+          "title": "Corresponding objects service port",
+          "type": "integer"
+        },
+        "ObjectsSecure": {
+          "title": "Corresponding objects service connection type",
+          "type": "boolean"
+        },
+        "ObjectsServiceName": {
+          "title": "Corresponding objects service name (underlying s3 service)",
+          "type": "string"
+        },
+        "PeerAddress": {
+          "title": "Peer address of the data source",
+          "type": "string"
+        },
+        "SkipSyncOnRestart": {
+          "title": "Do not trigger resync at start",
+          "type": "boolean"
+        },
+        "StorageConfiguration": {
+          "additionalProperties": {
+            "type": "string"
+          },
+          "title": "List of key values describing storage configuration",
+          "type": "object"
+        },
+        "StorageType": {
+          "$ref": "#/definitions/objectStorageType",
+          "title": "Type of underlying storage (LOCAL, S3, AZURE, GCS)"
+        },
+        "VersioningPolicyName": {
+          "title": "Versioning policy describes how files are kept in the versioning queue",
+          "type": "string"
+        },
+        "Watch": {
+          "title": "Not implemented, whether to watch for underlying changes on the FS",
+          "type": "boolean"
+        }
+      },
+      "title": "DataSource Object description",
+      "type": "object"
+    },
+    "JobsServiceUserCreateJobBody": {
+      "properties": {
+        "JsonParameters": {
+          "title": "Json-encoded parameters for this job",
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
     "ListLogRequestLogFormat": {
       "default": "JSON",
       "enum": [
@@ -26,7 +163,8 @@
       "properties": {
         "Cells": {
           "items": {
-            "$ref": "#/definitions/restCell"
+            "$ref": "#/definitions/restCell",
+            "type": "object"
           },
           "type": "array"
         },
@@ -38,6 +176,42 @@
         }
       },
       "title": "Container for ShareLink or Cell",
+      "type": "object"
+    },
+    "MetaServiceDeleteMetaBody": {
+      "properties": {
+        "Namespace": {
+          "items": {
+            "type": "string"
+          },
+          "title": "List of namespaces to load",
+          "type": "array"
+        }
+      },
+      "type": "object"
+    },
+    "MetaServiceGetMetaBody": {
+      "properties": {
+        "Namespace": {
+          "items": {
+            "type": "string"
+          },
+          "title": "List of namespaces to load",
+          "type": "array"
+        }
+      },
+      "type": "object"
+    },
+    "MetaServiceSetMetaBody": {
+      "properties": {
+        "Metadatas": {
+          "items": {
+            "$ref": "#/definitions/restMetadata",
+            "type": "object"
+          },
+          "type": "array"
+        }
+      },
       "type": "object"
     },
     "PackagePackageStatus": {
@@ -59,6 +233,73 @@
       ],
       "type": "string"
     },
+    "RoleServiceSetRoleBody": {
+      "description": "Role represents a generic set of permissions that can be applied to any users or groups.",
+      "properties": {
+        "AutoApplies": {
+          "items": {
+            "type": "string"
+          },
+          "title": "List of profiles (standard, shared, admin) on which the role will be automatically applied",
+          "type": "array"
+        },
+        "ForceOverride": {
+          "description": "Is used in a stack of roles, this one will always be applied last.",
+          "type": "boolean"
+        },
+        "GroupRole": {
+          "title": "Whether this role is attached to a Group object",
+          "type": "boolean"
+        },
+        "IsTeam": {
+          "title": "Whether this role represents a user team or not",
+          "type": "boolean"
+        },
+        "Label": {
+          "title": "Label of this role",
+          "type": "string"
+        },
+        "LastUpdated": {
+          "format": "int32",
+          "title": "Last modification date of the role",
+          "type": "integer"
+        },
+        "Policies": {
+          "items": {
+            "$ref": "#/definitions/serviceResourcePolicy",
+            "type": "object"
+          },
+          "title": "List of policies for securing this role access",
+          "type": "array"
+        },
+        "PoliciesContextEditable": {
+          "title": "Whether the policies resolve into an editable state",
+          "type": "boolean"
+        },
+        "UserRole": {
+          "title": "Whether this role is attached to a User object",
+          "type": "boolean"
+        }
+      },
+      "type": "object"
+    },
+    "TokenServiceResetPasswordTokenBody": {
+      "properties": {
+        "Create": {
+          "type": "boolean"
+        }
+      },
+      "type": "object"
+    },
+    "UpdateServiceApplyUpdateBody": {
+      "properties": {
+        "PackageName": {
+          "title": "Name of the package if it's not the same as the current binary",
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
     "UpdateUserMetaNamespaceRequestUserMetaNsOp": {
       "default": "PUT",
       "enum": [
@@ -74,6 +315,196 @@
         "DELETE"
       ],
       "type": "string"
+    },
+    "UserMetaServicePutUserMetaTagBody": {
+      "properties": {
+        "Tag": {
+          "title": "New tag value",
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    "UserServicePutRolesBody": {
+      "properties": {
+        "Attributes": {
+          "additionalProperties": {
+            "type": "string"
+          },
+          "title": "A free list of attributes",
+          "type": "object"
+        },
+        "GroupLabel": {
+          "title": "Label of the group, field is empty for users",
+          "type": "string"
+        },
+        "GroupPath": {
+          "title": "Path to the parent group",
+          "type": "string"
+        },
+        "IsGroup": {
+          "title": "Whether this object is a group or a user",
+          "type": "boolean"
+        },
+        "LastConnected": {
+          "format": "int32",
+          "title": "Last successful connection timestamp",
+          "type": "integer"
+        },
+        "OldPassword": {
+          "title": "OldPassword must be set when a user updates her own password",
+          "type": "string"
+        },
+        "Password": {
+          "title": "Password can be passed to be updated (but never read back), field is empty for groups",
+          "type": "string"
+        },
+        "Policies": {
+          "items": {
+            "$ref": "#/definitions/serviceResourcePolicy",
+            "type": "object"
+          },
+          "title": "Policies securing access to this user",
+          "type": "array"
+        },
+        "PoliciesContextEditable": {
+          "description": "Context-resolved to quickly check if user is editable or not.",
+          "type": "boolean"
+        },
+        "Roles": {
+          "items": {
+            "$ref": "#/definitions/idmRole",
+            "type": "object"
+          },
+          "title": "List of roles applied to this user or group",
+          "type": "array"
+        },
+        "Uuid": {
+          "title": "User unique identifier",
+          "type": "string"
+        }
+      },
+      "title": "User can represent either a User or a Group",
+      "type": "object"
+    },
+    "UserServicePutUserBody": {
+      "properties": {
+        "Attributes": {
+          "additionalProperties": {
+            "type": "string"
+          },
+          "title": "A free list of attributes",
+          "type": "object"
+        },
+        "GroupLabel": {
+          "title": "Label of the group, field is empty for users",
+          "type": "string"
+        },
+        "GroupPath": {
+          "title": "Path to the parent group",
+          "type": "string"
+        },
+        "IsGroup": {
+          "title": "Whether this object is a group or a user",
+          "type": "boolean"
+        },
+        "LastConnected": {
+          "format": "int32",
+          "title": "Last successful connection timestamp",
+          "type": "integer"
+        },
+        "OldPassword": {
+          "title": "OldPassword must be set when a user updates her own password",
+          "type": "string"
+        },
+        "Password": {
+          "title": "Password can be passed to be updated (but never read back), field is empty for groups",
+          "type": "string"
+        },
+        "Policies": {
+          "items": {
+            "$ref": "#/definitions/serviceResourcePolicy",
+            "type": "object"
+          },
+          "title": "Policies securing access to this user",
+          "type": "array"
+        },
+        "PoliciesContextEditable": {
+          "description": "Context-resolved to quickly check if user is editable or not.",
+          "type": "boolean"
+        },
+        "Roles": {
+          "items": {
+            "$ref": "#/definitions/idmRole",
+            "type": "object"
+          },
+          "title": "List of roles applied to this user or group",
+          "type": "array"
+        },
+        "Uuid": {
+          "title": "User unique identifier",
+          "type": "string"
+        }
+      },
+      "title": "User can represent either a User or a Group",
+      "type": "object"
+    },
+    "WorkspaceServicePutWorkspaceBody": {
+      "description": "A Workspace is composed of a set of nodes UUIDs and is used to provide accesses to the tree via ACLs.",
+      "properties": {
+        "Attributes": {
+          "title": "JSON-encoded list of attributes",
+          "type": "string"
+        },
+        "Description": {
+          "title": "Description of the workspace (max length 1000)",
+          "type": "string"
+        },
+        "Label": {
+          "title": "Label of the workspace (max length 500)",
+          "type": "string"
+        },
+        "LastUpdated": {
+          "format": "int32",
+          "title": "Last modification time",
+          "type": "integer"
+        },
+        "Policies": {
+          "items": {
+            "$ref": "#/definitions/serviceResourcePolicy",
+            "type": "object"
+          },
+          "title": "Policies for securing access",
+          "type": "array"
+        },
+        "PoliciesContextEditable": {
+          "title": "Context-resolved to quickly check if workspace is editable or not",
+          "type": "boolean"
+        },
+        "RootNodes": {
+          "additionalProperties": {
+            "$ref": "#/definitions/treeNode"
+          },
+          "title": "List of the Root Nodes in the tree that compose this workspace",
+          "type": "object"
+        },
+        "RootUUIDs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Quick list of the RootNodes uuids",
+          "type": "array"
+        },
+        "Scope": {
+          "$ref": "#/definitions/idmWorkspaceScope",
+          "title": "Scope can be ADMIN, ROOM (=CELL) or LINK"
+        },
+        "UUID": {
+          "title": "Unique identifier of the workspace",
+          "type": "string"
+        }
+      },
+      "type": "object"
     },
     "activityObject": {
       "properties": {
@@ -177,7 +608,8 @@
         },
         "items": {
           "items": {
-            "$ref": "#/definitions/activityObject"
+            "$ref": "#/definitions/activityObject",
+            "type": "object"
           },
           "title": "Collection Properties",
           "type": "array"
@@ -538,7 +970,8 @@
         },
         "RunningPeers": {
           "items": {
-            "$ref": "#/definitions/ctlPeer"
+            "$ref": "#/definitions/ctlPeer",
+            "type": "object"
           },
           "type": "array"
         },
@@ -669,7 +1102,8 @@
       "properties": {
         "Keys": {
           "items": {
-            "$ref": "#/definitions/encryptionKey"
+            "$ref": "#/definitions/encryptionKey",
+            "type": "object"
           },
           "type": "array"
         }
@@ -738,13 +1172,15 @@
       "properties": {
         "Exports": {
           "items": {
-            "$ref": "#/definitions/encryptionExport"
+            "$ref": "#/definitions/encryptionExport",
+            "type": "object"
           },
           "type": "array"
         },
         "Imports": {
           "items": {
-            "$ref": "#/definitions/encryptionImport"
+            "$ref": "#/definitions/encryptionImport",
+            "type": "object"
           },
           "type": "array"
         }
@@ -794,7 +1230,8 @@
       "properties": {
         "Actions": {
           "items": {
-            "$ref": "#/definitions/idmACLAction"
+            "$ref": "#/definitions/idmACLAction",
+            "type": "object"
           },
           "title": "List of Actions to lookup",
           "type": "array"
@@ -839,7 +1276,8 @@
       "properties": {
         "PolicyGroups": {
           "items": {
-            "$ref": "#/definitions/idmPolicyGroup"
+            "$ref": "#/definitions/idmPolicyGroup",
+            "type": "object"
           },
           "type": "array"
         },
@@ -861,6 +1299,27 @@
     },
     "idmPolicy": {
       "properties": {
+        "OrmActions": {
+          "items": {
+            "$ref": "#/definitions/idmPolicyAction",
+            "type": "object"
+          },
+          "type": "array"
+        },
+        "OrmResources": {
+          "items": {
+            "$ref": "#/definitions/idmPolicyResource",
+            "type": "object"
+          },
+          "type": "array"
+        },
+        "OrmSubjects": {
+          "items": {
+            "$ref": "#/definitions/idmPolicySubject",
+            "type": "object"
+          },
+          "type": "array"
+        },
         "actions": {
           "items": {
             "type": "string"
@@ -893,6 +1352,23 @@
             "type": "string"
           },
           "type": "array"
+        }
+      },
+      "type": "object"
+    },
+    "idmPolicyAction": {
+      "properties": {
+        "Compiled": {
+          "type": "string"
+        },
+        "HasRegex": {
+          "type": "boolean"
+        },
+        "ID": {
+          "type": "string"
+        },
+        "Template": {
+          "type": "string"
         }
       },
       "type": "object"
@@ -934,7 +1410,8 @@
         },
         "Policies": {
           "items": {
-            "$ref": "#/definitions/idmPolicy"
+            "$ref": "#/definitions/idmPolicy",
+            "type": "object"
           },
           "type": "array"
         },
@@ -942,6 +1419,23 @@
           "$ref": "#/definitions/idmPolicyResourceGroup"
         },
         "Uuid": {
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    "idmPolicyResource": {
+      "properties": {
+        "Compiled": {
+          "type": "string"
+        },
+        "HasRegex": {
+          "type": "boolean"
+        },
+        "ID": {
+          "type": "string"
+        },
+        "Template": {
           "type": "string"
         }
       },
@@ -955,6 +1449,23 @@
         "oidc"
       ],
       "type": "string"
+    },
+    "idmPolicySubject": {
+      "properties": {
+        "Compiled": {
+          "type": "string"
+        },
+        "HasRegex": {
+          "type": "boolean"
+        },
+        "ID": {
+          "type": "string"
+        },
+        "Template": {
+          "type": "string"
+        }
+      },
+      "type": "object"
     },
     "idmRole": {
       "description": "Role represents a generic set of permissions that can be applied to any users or groups.",
@@ -989,7 +1500,8 @@
         },
         "Policies": {
           "items": {
-            "$ref": "#/definitions/serviceResourcePolicy"
+            "$ref": "#/definitions/serviceResourcePolicy",
+            "type": "object"
           },
           "title": "List of policies for securing this role access",
           "type": "array"
@@ -1082,7 +1594,8 @@
       "properties": {
         "Namespaces": {
           "items": {
-            "$ref": "#/definitions/idmUserMetaNamespace"
+            "$ref": "#/definitions/idmUserMetaNamespace",
+            "type": "object"
           },
           "type": "array"
         },
@@ -1097,7 +1610,8 @@
       "properties": {
         "Namespaces": {
           "items": {
-            "$ref": "#/definitions/idmUserMetaNamespace"
+            "$ref": "#/definitions/idmUserMetaNamespace",
+            "type": "object"
           },
           "type": "array"
         }
@@ -1109,7 +1623,8 @@
       "properties": {
         "MetaDatas": {
           "items": {
-            "$ref": "#/definitions/idmUserMeta"
+            "$ref": "#/definitions/idmUserMeta",
+            "type": "object"
           },
           "title": "List of metadatas to update or delete",
           "type": "array"
@@ -1126,7 +1641,8 @@
       "properties": {
         "MetaDatas": {
           "items": {
-            "$ref": "#/definitions/idmUserMeta"
+            "$ref": "#/definitions/idmUserMeta",
+            "type": "object"
           },
           "title": "List of metadatas",
           "type": "array"
@@ -1175,7 +1691,8 @@
         },
         "Policies": {
           "items": {
-            "$ref": "#/definitions/serviceResourcePolicy"
+            "$ref": "#/definitions/serviceResourcePolicy",
+            "type": "object"
           },
           "title": "Policies securing access to this user",
           "type": "array"
@@ -1186,7 +1703,8 @@
         },
         "Roles": {
           "items": {
-            "$ref": "#/definitions/idmRole"
+            "$ref": "#/definitions/idmRole",
+            "type": "object"
           },
           "title": "List of roles applied to this user or group",
           "type": "array"
@@ -1215,7 +1733,8 @@
         },
         "Policies": {
           "items": {
-            "$ref": "#/definitions/serviceResourcePolicy"
+            "$ref": "#/definitions/serviceResourcePolicy",
+            "type": "object"
           },
           "title": "Policies for securing access",
           "type": "array"
@@ -1261,7 +1780,8 @@
         },
         "Policies": {
           "items": {
-            "$ref": "#/definitions/serviceResourcePolicy"
+            "$ref": "#/definitions/serviceResourcePolicy",
+            "type": "object"
           },
           "title": "Policies securing this namespace",
           "type": "array"
@@ -1357,7 +1877,8 @@
         },
         "Policies": {
           "items": {
-            "$ref": "#/definitions/serviceResourcePolicy"
+            "$ref": "#/definitions/serviceResourcePolicy",
+            "type": "object"
           },
           "title": "Policies for securing access",
           "type": "array"
@@ -1480,13 +2001,62 @@
       },
       "type": "object"
     },
+    "installHeaderMod": {
+      "properties": {
+        "Action": {
+          "$ref": "#/definitions/installHeaderModAction",
+          "title": "One of the HeaderModAction"
+        },
+        "ApplyTo": {
+          "$ref": "#/definitions/installHeaderModApplyTo",
+          "title": "Mod on Request or Response header"
+        },
+        "Key": {
+          "title": "Header key",
+          "type": "string"
+        },
+        "Value": {
+          "title": "Header value - not used if action is REMOVE",
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    "installHeaderModAction": {
+      "default": "APPEND_IF_EXISTS_OR_ADD",
+      "enum": [
+        "APPEND_IF_EXISTS_OR_ADD",
+        "ADD_IF_ABSENT",
+        "OVERWRITE_IF_EXISTS_OR_ADD",
+        "OVERWRITE_IF_EXISTS",
+        "REMOVE"
+      ],
+      "title": "- APPEND_IF_EXISTS_OR_ADD: This action will append the specified value to the existing values if the header\nalready exists. If the header doesn't exist then this will add the header with\nspecified key and value.\n - ADD_IF_ABSENT: This action will add the header if it doesn't already exist. If the header\nalready exists then this will be a no-op.\n - OVERWRITE_IF_EXISTS_OR_ADD: This action will overwrite the specified value by discarding any existing values if\nthe header already exists. If the header doesn't exist then this will add the header\nwith specified key and value.\n - OVERWRITE_IF_EXISTS: This action will overwrite the specified value by discarding any existing values if\nthe header already exists. If the header doesn't exist then this will be no-op.\n - REMOVE: This action will purely remove the header if it exists, no-op otherwise",
+      "type": "string"
+    },
+    "installHeaderModApplyTo": {
+      "default": "REQUEST",
+      "enum": [
+        "REQUEST",
+        "RESPONSE"
+      ],
+      "title": "- REQUEST: Apply header modification to incoming request\n - RESPONSE: Apply header modification to outgoing response",
+      "type": "string"
+    },
     "installInstallConfig": {
       "properties": {
         "CheckResults": {
           "items": {
-            "$ref": "#/definitions/installCheckResult"
+            "$ref": "#/definitions/installCheckResult",
+            "type": "object"
           },
           "type": "array"
+        },
+        "CustomConfigs": {
+          "additionalProperties": {
+            "type": "string"
+          },
+          "type": "object"
         },
         "DocumentsDSN": {
           "title": "Additional Documents DSN data",
@@ -1651,6 +2221,7 @@
       "type": "object"
     },
     "installProxyConfig": {
+      "description": "option (setter.all_fields) = true;",
       "properties": {
         "Binds": {
           "items": {
@@ -1661,6 +2232,18 @@
         },
         "Certificate": {
           "$ref": "#/definitions/installTLSCertificate"
+        },
+        "ComputedHash": {
+          "title": "Hash dynamically computed from Binds and ReverseProxyURL",
+          "type": "string"
+        },
+        "HeaderMods": {
+          "items": {
+            "$ref": "#/definitions/installHeaderMod",
+            "type": "object"
+          },
+          "title": "Optional headers modifications",
+          "type": "array"
         },
         "LetsEncrypt": {
           "$ref": "#/definitions/installTLSLetsEncrypt"
@@ -1680,6 +2263,14 @@
           "title": "Optional URL of reverse proxy exposing this site",
           "type": "string"
         },
+        "Routing": {
+          "items": {
+            "$ref": "#/definitions/installRule",
+            "type": "object"
+          },
+          "title": "Optional matching rules for main routes - special empty case means Match All, but if any routes are defined\nthey are evaluated with a Deny-by-default and ExplicitDeny-wins approach",
+          "type": "array"
+        },
         "SSLRedirect": {
           "title": "If TLS is set, whether to automatically redirect each http://host:port to https://host:port",
           "type": "boolean"
@@ -1690,6 +2281,35 @@
       },
       "title": "ProxyConfig gives necessary URL and TLS configurations to start proxy",
       "type": "object"
+    },
+    "installRule": {
+      "properties": {
+        "Action": {
+          "description": "Action can be Rewrite, Redirect, etc...",
+          "type": "string"
+        },
+        "Effect": {
+          "$ref": "#/definitions/installRuleEffect",
+          "title": "Effect accepts or denies"
+        },
+        "Matcher": {
+          "title": "option (setter.all_fields) = true;\nMatcher matches one or more routes or *",
+          "type": "string"
+        },
+        "Value": {
+          "title": "Value may add additional parameters to the action",
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    "installRuleEffect": {
+      "default": "DENY",
+      "enum": [
+        "DENY",
+        "ACCEPT"
+      ],
+      "type": "string"
     },
     "installTLSCertificate": {
       "properties": {
@@ -1749,14 +2369,11 @@
         },
         "ChainedActions": {
           "items": {
-            "$ref": "#/definitions/jobsAction"
+            "$ref": "#/definitions/jobsAction",
+            "type": "object"
           },
           "title": "Other actions to perform after this one is finished,\nusing the Output of this action as Input for the next.\nIf there are many, it is considered they can be triggered\nin parallel",
           "type": "array"
-        },
-        "ChatEventFilter": {
-          "$ref": "#/definitions/jobsChatEventFilter",
-          "title": "Filter values from ChatEvent"
         },
         "ContextMetaFilter": {
           "$ref": "#/definitions/jobsContextMetaFilter",
@@ -1784,7 +2401,8 @@
         },
         "FailedFilterActions": {
           "items": {
-            "$ref": "#/definitions/jobsAction"
+            "$ref": "#/definitions/jobsAction",
+            "type": "object"
           },
           "title": "If any Filter is used, next actions can be triggered on Failure\nThis adds ability to create conditional Yes/No branches",
           "type": "array"
@@ -1861,21 +2479,24 @@
       "properties": {
         "Acls": {
           "items": {
-            "$ref": "#/definitions/idmACL"
+            "$ref": "#/definitions/idmACL",
+            "type": "object"
           },
           "title": "One or more ACL",
           "type": "array"
         },
         "Activities": {
           "items": {
-            "$ref": "#/definitions/activityObject"
+            "$ref": "#/definitions/activityObject",
+            "type": "object"
           },
           "title": "One or more Activity",
           "type": "array"
         },
         "DataSources": {
           "items": {
-            "$ref": "#/definitions/objectDataSource"
+            "$ref": "#/definitions/objectDataSource",
+            "type": "object"
           },
           "title": "One or more DataSource",
           "type": "array"
@@ -1886,35 +2507,40 @@
         },
         "Nodes": {
           "items": {
-            "$ref": "#/definitions/treeNode"
+            "$ref": "#/definitions/treeNode",
+            "type": "object"
           },
           "title": "One or more Node",
           "type": "array"
         },
         "OutputChain": {
           "items": {
-            "$ref": "#/definitions/jobsActionOutput"
+            "$ref": "#/definitions/jobsActionOutput",
+            "type": "object"
           },
           "title": "Stack of ActionOutput messages appended by all previous actions",
           "type": "array"
         },
         "Roles": {
           "items": {
-            "$ref": "#/definitions/idmRole"
+            "$ref": "#/definitions/idmRole",
+            "type": "object"
           },
           "title": "One or more Role",
           "type": "array"
         },
         "Users": {
           "items": {
-            "$ref": "#/definitions/idmUser"
+            "$ref": "#/definitions/idmUser",
+            "type": "object"
           },
           "title": "One or more User",
           "type": "array"
         },
         "Workspaces": {
           "items": {
-            "$ref": "#/definitions/idmWorkspace"
+            "$ref": "#/definitions/idmWorkspace",
+            "type": "object"
           },
           "title": "One or more Workspace",
           "type": "array"
@@ -1983,23 +2609,6 @@
         }
       },
       "title": "ActionOutputFilter can be used to filter last message output",
-      "type": "object"
-    },
-    "jobsChatEventFilter": {
-      "properties": {
-        "Description": {
-          "title": "Selector additional description",
-          "type": "string"
-        },
-        "Label": {
-          "title": "Selector custom label",
-          "type": "string"
-        },
-        "Query": {
-          "$ref": "#/definitions/serviceQuery",
-          "title": "Query used to compute output object or list of objects"
-        }
-      },
       "type": "object"
     },
     "jobsCommand": {
@@ -2267,7 +2876,8 @@
       "properties": {
         "Actions": {
           "items": {
-            "$ref": "#/definitions/jobsAction"
+            "$ref": "#/definitions/jobsAction",
+            "type": "object"
           },
           "title": "Chain of actions to perform",
           "type": "array"
@@ -2283,10 +2893,6 @@
         "AutoStart": {
           "title": "Start task as soon as job is inserted",
           "type": "boolean"
-        },
-        "ChatEventFilter": {
-          "$ref": "#/definitions/jobsChatEventFilter",
-          "title": "Filter values from ChatEvent"
         },
         "ContextMetaFilter": {
           "$ref": "#/definitions/jobsContextMetaFilter",
@@ -2314,7 +2920,8 @@
         },
         "Hooks": {
           "items": {
-            "$ref": "#/definitions/jobsJobHook"
+            "$ref": "#/definitions/jobsJobHook",
+            "type": "object"
           },
           "title": "Expose this job through one or more-userspace APIs",
           "type": "array"
@@ -2373,14 +2980,16 @@
         },
         "Parameters": {
           "items": {
-            "$ref": "#/definitions/jobsJobParameter"
+            "$ref": "#/definitions/jobsJobParameter",
+            "type": "object"
           },
           "title": "Job-level parameters that can be passed to underlying actions",
           "type": "array"
         },
         "ResourcesDependencies": {
           "items": {
-            "$ref": "#/definitions/protobufAny"
+            "$ref": "#/definitions/protobufAny",
+            "type": "object"
           },
           "title": "Additional dependencies that may be required when running the job",
           "type": "array"
@@ -2391,7 +3000,8 @@
         },
         "Tasks": {
           "items": {
-            "$ref": "#/definitions/jobsTask"
+            "$ref": "#/definitions/jobsTask",
+            "type": "object"
           },
           "title": "Filled with currently running tasks",
           "type": "array"
@@ -2437,7 +3047,8 @@
         },
         "Policies": {
           "items": {
-            "$ref": "#/definitions/serviceResourcePolicy"
+            "$ref": "#/definitions/serviceResourcePolicy",
+            "type": "object"
           },
           "title": "Set permissions for accessing this endpoint",
           "type": "array"
@@ -2607,7 +3218,8 @@
       "properties": {
         "ActionsLogs": {
           "items": {
-            "$ref": "#/definitions/jobsActionLog"
+            "$ref": "#/definitions/jobsActionLog",
+            "type": "object"
           },
           "title": "Logs of all the actions performed",
           "type": "array"
@@ -2721,7 +3333,8 @@
         },
         "Users": {
           "items": {
-            "$ref": "#/definitions/idmUser"
+            "$ref": "#/definitions/idmUser",
+            "type": "object"
           },
           "title": "Preset set of Users",
           "type": "array"
@@ -2864,7 +3477,8 @@
         },
         "Cc": {
           "items": {
-            "$ref": "#/definitions/mailerUser"
+            "$ref": "#/definitions/mailerUser",
+            "type": "object"
           },
           "title": "List of target users to put in CC",
           "type": "array"
@@ -2924,7 +3538,8 @@
         },
         "To": {
           "items": {
-            "$ref": "#/definitions/mailerUser"
+            "$ref": "#/definitions/mailerUser",
+            "type": "object"
           },
           "title": "List of target users to send the mail to",
           "type": "array"
@@ -3089,10 +3704,10 @@
     },
     "protobufAny": {
       "additionalProperties": {},
-      "description": "`Any` contains an arbitrary serialized protocol buffer message along with a\nURL that describes the type of the serialized message.\n\nProtobuf library provides support to pack/unpack Any values in the form\nof utility functions or additional generated methods of the Any type.\n\nExample 1: Pack and unpack a message in C++.\n\n    Foo foo = ...;\n    Any any;\n    any.PackFrom(foo);\n    ...\n    if (any.UnpackTo(\u0026foo)) {\n      ...\n    }\n\nExample 2: Pack and unpack a message in Java.\n\n    Foo foo = ...;\n    Any any = Any.pack(foo);\n    ...\n    if (any.is(Foo.class)) {\n      foo = any.unpack(Foo.class);\n    }\n\nExample 3: Pack and unpack a message in Python.\n\n    foo = Foo(...)\n    any = Any()\n    any.Pack(foo)\n    ...\n    if any.Is(Foo.DESCRIPTOR):\n      any.Unpack(foo)\n      ...\n\nExample 4: Pack and unpack a message in Go\n\n     foo := \u0026pb.Foo{...}\n     any, err := anypb.New(foo)\n     if err != nil {\n       ...\n     }\n     ...\n     foo := \u0026pb.Foo{}\n     if err := any.UnmarshalTo(foo); err != nil {\n       ...\n     }\n\nThe pack methods provided by protobuf library will by default use\n'type.googleapis.com/full.type.name' as the type URL and the unpack\nmethods only use the fully qualified type name after the last '/'\nin the type URL, for example \"foo.bar.com/x/y.z\" will yield type\nname \"y.z\".\n\n\nJSON\n\nThe JSON representation of an `Any` value uses the regular\nrepresentation of the deserialized, embedded message, with an\nadditional field `@type` which contains the type URL. Example:\n\n    package google.profile;\n    message Person {\n      string first_name = 1;\n      string last_name = 2;\n    }\n\n    {\n      \"@type\": \"type.googleapis.com/google.profile.Person\",\n      \"firstName\": \u003cstring\u003e,\n      \"lastName\": \u003cstring\u003e\n    }\n\nIf the embedded message type is well-known and has a custom JSON\nrepresentation, that representation will be embedded adding a field\n`value` which holds the custom JSON in addition to the `@type`\nfield. Example (for message [google.protobuf.Duration][]):\n\n    {\n      \"@type\": \"type.googleapis.com/google.protobuf.Duration\",\n      \"value\": \"1.212s\"\n    }",
+      "description": "`Any` contains an arbitrary serialized protocol buffer message along with a\nURL that describes the type of the serialized message.\n\nProtobuf library provides support to pack/unpack Any values in the form\nof utility functions or additional generated methods of the Any type.\n\nExample 1: Pack and unpack a message in C++.\n\n    Foo foo = ...;\n    Any any;\n    any.PackFrom(foo);\n    ...\n    if (any.UnpackTo(\u0026foo)) {\n      ...\n    }\n\nExample 2: Pack and unpack a message in Java.\n\n    Foo foo = ...;\n    Any any = Any.pack(foo);\n    ...\n    if (any.is(Foo.class)) {\n      foo = any.unpack(Foo.class);\n    }\n    // or ...\n    if (any.isSameTypeAs(Foo.getDefaultInstance())) {\n      foo = any.unpack(Foo.getDefaultInstance());\n    }\n\n Example 3: Pack and unpack a message in Python.\n\n    foo = Foo(...)\n    any = Any()\n    any.Pack(foo)\n    ...\n    if any.Is(Foo.DESCRIPTOR):\n      any.Unpack(foo)\n      ...\n\n Example 4: Pack and unpack a message in Go\n\n     foo := \u0026pb.Foo{...}\n     any, err := anypb.New(foo)\n     if err != nil {\n       ...\n     }\n     ...\n     foo := \u0026pb.Foo{}\n     if err := any.UnmarshalTo(foo); err != nil {\n       ...\n     }\n\nThe pack methods provided by protobuf library will by default use\n'type.googleapis.com/full.type.name' as the type URL and the unpack\nmethods only use the fully qualified type name after the last '/'\nin the type URL, for example \"foo.bar.com/x/y.z\" will yield type\nname \"y.z\".\n\nJSON\n====\nThe JSON representation of an `Any` value uses the regular\nrepresentation of the deserialized, embedded message, with an\nadditional field `@type` which contains the type URL. Example:\n\n    package google.profile;\n    message Person {\n      string first_name = 1;\n      string last_name = 2;\n    }\n\n    {\n      \"@type\": \"type.googleapis.com/google.profile.Person\",\n      \"firstName\": \u003cstring\u003e,\n      \"lastName\": \u003cstring\u003e\n    }\n\nIf the embedded message type is well-known and has a custom JSON\nrepresentation, that representation will be embedded adding a field\n`value` which holds the custom JSON in addition to the `@type`\nfield. Example (for message [google.protobuf.Duration][]):\n\n    {\n      \"@type\": \"type.googleapis.com/google.protobuf.Duration\",\n      \"value\": \"1.212s\"\n    }",
       "properties": {
         "@type": {
-          "description": "A URL/resource name that uniquely identifies the type of the serialized\nprotocol buffer message. This string must contain at least\none \"/\" character. The last segment of the URL's path must represent\nthe fully qualified name of the type (as in\n`path/google.protobuf.Duration`). The name should be in a canonical form\n(e.g., leading \".\" is not accepted).\n\nIn practice, teams usually precompile into the binary all types that they\nexpect it to use in the context of Any. However, for URLs which use the\nscheme `http`, `https`, or no scheme, one can optionally set up a type\nserver that maps type URLs to message definitions as follows:\n\n* If no scheme is provided, `https` is assumed.\n* An HTTP GET on the URL must yield a [google.protobuf.Type][]\n  value in binary format, or produce an error.\n* Applications are allowed to cache lookup results based on the\n  URL, or have them precompiled into a binary to avoid any\n  lookup. Therefore, binary compatibility needs to be preserved\n  on changes to types. (Use versioned type names to manage\n  breaking changes.)\n\nNote: this functionality is not currently available in the official\nprotobuf release, and it is not used for type URLs beginning with\ntype.googleapis.com.\n\nSchemes other than `http`, `https` (or the empty scheme) might be\nused with implementation specific semantics.",
+          "description": "A URL/resource name that uniquely identifies the type of the serialized\nprotocol buffer message. This string must contain at least\none \"/\" character. The last segment of the URL's path must represent\nthe fully qualified name of the type (as in\n`path/google.protobuf.Duration`). The name should be in a canonical form\n(e.g., leading \".\" is not accepted).\n\nIn practice, teams usually precompile into the binary all types that they\nexpect it to use in the context of Any. However, for URLs which use the\nscheme `http`, `https`, or no scheme, one can optionally set up a type\nserver that maps type URLs to message definitions as follows:\n\n* If no scheme is provided, `https` is assumed.\n* An HTTP GET on the URL must yield a [google.protobuf.Type][]\n  value in binary format, or produce an error.\n* Applications are allowed to cache lookup results based on the\n  URL, or have them precompiled into a binary to avoid any\n  lookup. Therefore, binary compatibility needs to be preserved\n  on changes to types. (Use versioned type names to manage\n  breaking changes.)\n\nNote: this functionality is not currently available in the official\nprotobuf release, and it is not used for type URLs beginning with\ntype.googleapis.com. As of May 2023, there are no widely used type server\nimplementations and no plans to implement one.\n\nSchemes other than `http`, `https` (or the empty scheme) might be\nused with implementation specific semantics.",
           "type": "string"
         }
       },
@@ -3144,7 +3759,8 @@
       "properties": {
         "adjacents": {
           "items": {
-            "$ref": "#/definitions/registryItem"
+            "$ref": "#/definitions/registryItem",
+            "type": "object"
           },
           "type": "array"
         },
@@ -3195,7 +3811,8 @@
         "TAG",
         "PROCESS",
         "ENDPOINT",
-        "STATS"
+        "STATS",
+        "STORAGE"
       ],
       "type": "string"
     },
@@ -3214,7 +3831,8 @@
       "properties": {
         "items": {
           "items": {
-            "$ref": "#/definitions/registryItem"
+            "$ref": "#/definitions/registryItem",
+            "type": "object"
           },
           "type": "array"
         }
@@ -3312,7 +3930,8 @@
       "properties": {
         "ACLs": {
           "items": {
-            "$ref": "#/definitions/idmACL"
+            "$ref": "#/definitions/idmACL",
+            "type": "object"
           },
           "title": "List of ACLs",
           "type": "array"
@@ -3401,7 +4020,8 @@
       "properties": {
         "Nodes": {
           "items": {
-            "$ref": "#/definitions/treeNode"
+            "$ref": "#/definitions/treeNode",
+            "type": "object"
           },
           "type": "array"
         },
@@ -3435,7 +4055,8 @@
         },
         "Policies": {
           "items": {
-            "$ref": "#/definitions/serviceResourcePolicy"
+            "$ref": "#/definitions/serviceResourcePolicy",
+            "type": "object"
           },
           "title": "Associated access policies",
           "type": "array"
@@ -3446,7 +4067,8 @@
         },
         "RootNodes": {
           "items": {
-            "$ref": "#/definitions/treeNode"
+            "$ref": "#/definitions/treeNode",
+            "type": "object"
           },
           "title": "Nodes attached as roots to this Cell",
           "type": "array"
@@ -3463,7 +4085,8 @@
       "properties": {
         "Actions": {
           "items": {
-            "$ref": "#/definitions/idmACLAction"
+            "$ref": "#/definitions/idmACLAction",
+            "type": "object"
           },
           "title": "List of Acl Actions and their effect",
           "type": "array"
@@ -3490,6 +4113,17 @@
         }
       },
       "title": "Group collected acls by subjects",
+      "type": "object"
+    },
+    "restComponentStatus": {
+      "properties": {
+        "Details": {
+          "type": "string"
+        },
+        "Status": {
+          "type": "string"
+        }
+      },
       "type": "object"
     },
     "restConfiguration": {
@@ -3527,7 +4161,8 @@
       "properties": {
         "Nodes": {
           "items": {
-            "$ref": "#/definitions/treeNode"
+            "$ref": "#/definitions/treeNode",
+            "type": "object"
           },
           "title": "A list of nodes that must be created",
           "type": "array"
@@ -3558,7 +4193,8 @@
       "properties": {
         "Nodes": {
           "items": {
-            "$ref": "#/definitions/treeNode"
+            "$ref": "#/definitions/treeNode",
+            "type": "object"
           },
           "title": "Create a temporary selection out of this list of nodes",
           "type": "array"
@@ -3578,7 +4214,8 @@
       "properties": {
         "Nodes": {
           "items": {
-            "$ref": "#/definitions/treeNode"
+            "$ref": "#/definitions/treeNode",
+            "type": "object"
           },
           "type": "array"
         },
@@ -3603,7 +4240,8 @@
       "properties": {
         "DataSources": {
           "items": {
-            "$ref": "#/definitions/objectDataSource"
+            "$ref": "#/definitions/objectDataSource",
+            "type": "object"
           },
           "type": "array"
         },
@@ -3636,7 +4274,8 @@
       "properties": {
         "Nodes": {
           "items": {
-            "$ref": "#/definitions/treeNode"
+            "$ref": "#/definitions/treeNode",
+            "type": "object"
           },
           "title": "List of nodes to delete",
           "type": "array"
@@ -3656,7 +4295,8 @@
       "properties": {
         "DeleteJobs": {
           "items": {
-            "$ref": "#/definitions/restBackgroundJobResult"
+            "$ref": "#/definitions/restBackgroundJobResult",
+            "type": "object"
           },
           "type": "array"
         }
@@ -3960,6 +4600,20 @@
       },
       "type": "object"
     },
+    "restHealthServiceResponse": {
+      "properties": {
+        "Components": {
+          "additionalProperties": {
+            "$ref": "#/definitions/restComponentStatus"
+          },
+          "type": "object"
+        },
+        "Status": {
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
     "restListPeersAddressesResponse": {
       "properties": {
         "PeerAddresses": {
@@ -3989,7 +4643,8 @@
       "properties": {
         "Processes": {
           "items": {
-            "$ref": "#/definitions/restProcess"
+            "$ref": "#/definitions/restProcess",
+            "type": "object"
           },
           "type": "array"
         }
@@ -4036,7 +4691,8 @@
         },
         "Resources": {
           "items": {
-            "$ref": "#/definitions/ListSharedResourcesResponseSharedResource"
+            "$ref": "#/definitions/ListSharedResourcesResponseSharedResource",
+            "type": "object"
           },
           "title": "Actual results",
           "type": "array"
@@ -4052,7 +4708,8 @@
       "properties": {
         "Sites": {
           "items": {
-            "$ref": "#/definitions/installProxyConfig"
+            "$ref": "#/definitions/installProxyConfig",
+            "type": "object"
           },
           "type": "array"
         }
@@ -4075,7 +4732,8 @@
       "properties": {
         "Templates": {
           "items": {
-            "$ref": "#/definitions/restTemplate"
+            "$ref": "#/definitions/restTemplate",
+            "type": "object"
           },
           "type": "array"
         }
@@ -4098,7 +4756,8 @@
       "properties": {
         "Logs": {
           "items": {
-            "$ref": "#/definitions/logLogMessage"
+            "$ref": "#/definitions/logLogMessage",
+            "type": "object"
           },
           "type": "array"
         }
@@ -4121,7 +4780,8 @@
       "properties": {
         "Children": {
           "items": {
-            "$ref": "#/definitions/treeNode"
+            "$ref": "#/definitions/treeNode",
+            "type": "object"
           },
           "type": "array"
         },
@@ -4289,7 +4949,8 @@
       "properties": {
         "Nodes": {
           "items": {
-            "$ref": "#/definitions/treeNode"
+            "$ref": "#/definitions/treeNode",
+            "type": "object"
           },
           "type": "array"
         }
@@ -4300,13 +4961,15 @@
       "properties": {
         "BelongsToTeams": {
           "items": {
-            "$ref": "#/definitions/idmRole"
+            "$ref": "#/definitions/idmRole",
+            "type": "object"
           },
           "type": "array"
         },
         "SharedCells": {
           "items": {
-            "$ref": "#/definitions/idmWorkspace"
+            "$ref": "#/definitions/idmWorkspace",
+            "type": "object"
           },
           "type": "array"
         }
@@ -4370,7 +5033,8 @@
       "properties": {
         "Nodes": {
           "items": {
-            "$ref": "#/definitions/treeNode"
+            "$ref": "#/definitions/treeNode",
+            "type": "object"
           },
           "title": "Restore this node from the recycle bin to its original location",
           "type": "array"
@@ -4382,7 +5046,8 @@
       "properties": {
         "RestoreJobs": {
           "items": {
-            "$ref": "#/definitions/restBackgroundJobResult"
+            "$ref": "#/definitions/restBackgroundJobResult",
+            "type": "object"
           },
           "type": "array"
         }
@@ -4415,7 +5080,8 @@
       "properties": {
         "Roles": {
           "items": {
-            "$ref": "#/definitions/idmRole"
+            "$ref": "#/definitions/idmRole",
+            "type": "object"
           },
           "title": "List of Roles",
           "type": "array"
@@ -4476,7 +5142,8 @@
         },
         "Queries": {
           "items": {
-            "$ref": "#/definitions/idmACLSingleQuery"
+            "$ref": "#/definitions/idmACLSingleQuery",
+            "type": "object"
           },
           "title": "Atomic queries that will be combined using the OperationType (AND or OR)",
           "type": "array"
@@ -4489,13 +5156,15 @@
       "properties": {
         "Facets": {
           "items": {
-            "$ref": "#/definitions/treeSearchFacet"
+            "$ref": "#/definitions/treeSearchFacet",
+            "type": "object"
           },
           "type": "array"
         },
         "Results": {
           "items": {
-            "$ref": "#/definitions/treeNode"
+            "$ref": "#/definitions/treeNode",
+            "type": "object"
           },
           "type": "array"
         },
@@ -4533,7 +5202,8 @@
         },
         "Queries": {
           "items": {
-            "$ref": "#/definitions/idmRoleSingleQuery"
+            "$ref": "#/definitions/idmRoleSingleQuery",
+            "type": "object"
           },
           "title": "List of atomic queries that will be combined using the Operation type (AND / OR)",
           "type": "array"
@@ -4573,7 +5243,8 @@
         },
         "Queries": {
           "items": {
-            "$ref": "#/definitions/idmUserSingleQuery"
+            "$ref": "#/definitions/idmUserSingleQuery",
+            "type": "object"
           },
           "title": "Atomic queries that will be combined using the Operation Type (AND or OR)",
           "type": "array"
@@ -4613,7 +5284,8 @@
         },
         "Queries": {
           "items": {
-            "$ref": "#/definitions/idmWorkspaceSingleQuery"
+            "$ref": "#/definitions/idmWorkspaceSingleQuery",
+            "type": "object"
           },
           "title": "Atomic queries that will be combined using the OperationType (AND or OR)",
           "type": "array"
@@ -4630,7 +5302,8 @@
       "properties": {
         "Services": {
           "items": {
-            "$ref": "#/definitions/ctlService"
+            "$ref": "#/definitions/ctlService",
+            "type": "object"
           },
           "type": "array"
         },
@@ -4651,7 +5324,8 @@
         },
         "Policies": {
           "items": {
-            "$ref": "#/definitions/restSettingsAccessRestPolicy"
+            "$ref": "#/definitions/restSettingsAccessRestPolicy",
+            "type": "object"
           },
           "type": "array"
         }
@@ -4728,7 +5402,8 @@
       "properties": {
         "Sections": {
           "items": {
-            "$ref": "#/definitions/restSettingsSection"
+            "$ref": "#/definitions/restSettingsSection",
+            "type": "object"
           },
           "type": "array"
         },
@@ -4742,7 +5417,8 @@
       "properties": {
         "CHILDREN": {
           "items": {
-            "$ref": "#/definitions/restSettingsEntry"
+            "$ref": "#/definitions/restSettingsEntry",
+            "type": "object"
           },
           "type": "array"
         },
@@ -4809,7 +5485,8 @@
         },
         "Policies": {
           "items": {
-            "$ref": "#/definitions/serviceResourcePolicy"
+            "$ref": "#/definitions/serviceResourcePolicy",
+            "type": "object"
           },
           "title": "Security policies",
           "type": "array"
@@ -4824,7 +5501,8 @@
         },
         "RootNodes": {
           "items": {
-            "$ref": "#/definitions/treeNode"
+            "$ref": "#/definitions/treeNode",
+            "type": "object"
           },
           "title": "Nodes in the tree that serve as root to this link",
           "type": "array"
@@ -4883,7 +5561,8 @@
       "properties": {
         "subscriptions": {
           "items": {
-            "$ref": "#/definitions/activitySubscription"
+            "$ref": "#/definitions/activitySubscription",
+            "type": "object"
           },
           "type": "array"
         }
@@ -4906,7 +5585,8 @@
         },
         "Policies": {
           "items": {
-            "$ref": "#/definitions/serviceResourcePolicy"
+            "$ref": "#/definitions/serviceResourcePolicy",
+            "type": "object"
           },
           "title": "Associated policies",
           "type": "array"
@@ -4940,7 +5620,8 @@
       "properties": {
         "Policies": {
           "items": {
-            "$ref": "#/definitions/serviceResourcePolicy"
+            "$ref": "#/definitions/serviceResourcePolicy",
+            "type": "object"
           },
           "title": "List of policies to update",
           "type": "array"
@@ -4956,7 +5637,8 @@
       "properties": {
         "Policies": {
           "items": {
-            "$ref": "#/definitions/serviceResourcePolicy"
+            "$ref": "#/definitions/serviceResourcePolicy",
+            "type": "object"
           },
           "type": "array"
         },
@@ -4989,7 +5671,8 @@
       "properties": {
         "Jobs": {
           "items": {
-            "$ref": "#/definitions/jobsJob"
+            "$ref": "#/definitions/jobsJob",
+            "type": "object"
           },
           "type": "array"
         }
@@ -5000,7 +5683,8 @@
       "properties": {
         "Metadatas": {
           "items": {
-            "$ref": "#/definitions/idmUserMeta"
+            "$ref": "#/definitions/idmUserMeta",
+            "type": "object"
           },
           "type": "array"
         }
@@ -5012,7 +5696,8 @@
       "properties": {
         "Namespaces": {
           "items": {
-            "$ref": "#/definitions/idmUserMetaNamespace"
+            "$ref": "#/definitions/idmUserMetaNamespace",
+            "type": "object"
           },
           "title": "List of user meta Namespaces",
           "type": "array"
@@ -5025,7 +5710,8 @@
       "properties": {
         "Workspaces": {
           "items": {
-            "$ref": "#/definitions/idmWorkspace"
+            "$ref": "#/definitions/idmWorkspace",
+            "type": "object"
           },
           "type": "array"
         },
@@ -5042,7 +5728,8 @@
       "properties": {
         "Groups": {
           "items": {
-            "$ref": "#/definitions/idmUser"
+            "$ref": "#/definitions/idmUser",
+            "type": "object"
           },
           "title": "List of Groups",
           "type": "array"
@@ -5054,7 +5741,8 @@
         },
         "Users": {
           "items": {
-            "$ref": "#/definitions/idmUser"
+            "$ref": "#/definitions/idmUser",
+            "type": "object"
           },
           "title": "List of Users",
           "type": "array"
@@ -5067,7 +5755,8 @@
       "properties": {
         "Policies": {
           "items": {
-            "$ref": "#/definitions/treeVersioningPolicy"
+            "$ref": "#/definitions/treeVersioningPolicy",
+            "type": "object"
           },
           "type": "array"
         }
@@ -5083,7 +5772,8 @@
         },
         "Workspaces": {
           "items": {
-            "$ref": "#/definitions/idmWorkspace"
+            "$ref": "#/definitions/idmWorkspace",
+            "type": "object"
           },
           "title": "List of workspaces",
           "type": "array"
@@ -5100,7 +5790,8 @@
         },
         "details": {
           "items": {
-            "$ref": "#/definitions/protobufAny"
+            "$ref": "#/definitions/protobufAny",
+            "type": "object"
           },
           "type": "array"
         },
@@ -5142,7 +5833,8 @@
         },
         "SubQueries": {
           "items": {
-            "$ref": "#/definitions/protobufAny"
+            "$ref": "#/definitions/protobufAny",
+            "type": "object"
           },
           "type": "array"
         },
@@ -5198,11 +5890,17 @@
     },
     "serviceResourcePolicyQuery": {
       "properties": {
+        "Action": {
+          "$ref": "#/definitions/serviceResourcePolicyAction"
+        },
         "Any": {
           "type": "boolean"
         },
         "Empty": {
           "type": "boolean"
+        },
+        "LeftIdentifier": {
+          "type": "string"
         },
         "Subjects": {
           "items": {
@@ -5345,14 +6043,16 @@
       "properties": {
         "AppearsIn": {
           "items": {
-            "$ref": "#/definitions/treeWorkspaceRelativePath"
+            "$ref": "#/definitions/treeWorkspaceRelativePath",
+            "type": "object"
           },
           "title": "Can be used for output when node is appearing in multiple workspaces",
           "type": "array"
         },
         "Commits": {
           "items": {
-            "$ref": "#/definitions/treeChangeLog"
+            "$ref": "#/definitions/treeChangeLog",
+            "type": "object"
           },
           "title": "List of successive commits",
           "type": "array"
@@ -5374,9 +6074,13 @@
           "type": "object"
         },
         "Mode": {
+          "description": "Permission mode, like 0777. Stored as string using custom ModeString field.",
           "format": "int32",
-          "title": "Permission mode, like 0777",
           "type": "integer"
+        },
+        "ModeString": {
+          "title": "String representation of Mode",
+          "type": "string"
         },
         "Path": {
           "type": "string"
@@ -5689,7 +6393,8 @@
         },
         "KeepPeriods": {
           "items": {
-            "$ref": "#/definitions/treeVersioningKeepPeriod"
+            "$ref": "#/definitions/treeVersioningKeepPeriod",
+            "type": "object"
           },
           "type": "array"
         },
@@ -5874,7 +6579,8 @@
       "properties": {
         "AvailableBinaries": {
           "items": {
-            "$ref": "#/definitions/updatePackage"
+            "$ref": "#/definitions/updatePackage",
+            "type": "object"
           },
           "title": "List of available binaries",
           "type": "array"
@@ -6272,12 +6978,7 @@
             "name": "body",
             "required": true,
             "schema": {
-              "properties": {
-                "Create": {
-                  "type": "boolean"
-                }
-              },
-              "type": "object"
+              "$ref": "#/definitions/TokenServiceResetPasswordTokenBody"
             }
           }
         ],
@@ -6487,13 +7188,8 @@
             "name": "body",
             "required": true,
             "schema": {
-              "properties": {
-                "DataSource": {
-                  "$ref": "#/definitions/objectDataSource"
-                }
-              },
-              "title": "RestCreateStorageBucketRequest",
-              "type": "object"
+              "$ref": "#/definitions/ConfigServiceCreateStorageBucketBody",
+              "title": "RestCreateStorageBucketRequest"
             }
           }
         ],
@@ -6721,6 +7417,13 @@
             "type": "string"
           },
           {
+            "description": "List of key values describing storage configuration\n\nThis is a request variable of the map type. The query format is \"map_name[key]=value\", e.g. If the map name is Age, the key type is string, and the value type is integer, the query parameter is expressed as Age[\"bob\"]=18",
+            "in": "query",
+            "name": "StorageConfiguration",
+            "required": false,
+            "type": "string"
+          },
+          {
             "description": "Corresponding objects service name (underlying s3 service)",
             "in": "query",
             "name": "ObjectsServiceName",
@@ -6924,6 +7627,13 @@
             "type": "string"
           },
           {
+            "description": "List of key values describing storage configuration\n\nThis is a request variable of the map type. The query format is \"map_name[key]=value\", e.g. If the map name is Age, the key type is string, and the value type is integer, the query parameter is expressed as Age[\"bob\"]=18",
+            "in": "query",
+            "name": "StorageConfiguration",
+            "required": false,
+            "type": "string"
+          },
+          {
             "description": "Corresponding objects service name (underlying s3 service)",
             "in": "query",
             "name": "ObjectsServiceName",
@@ -7105,96 +7815,7 @@
             "name": "body",
             "required": true,
             "schema": {
-              "properties": {
-                "ApiKey": {
-                  "title": "Corresponding objects service api key",
-                  "type": "string"
-                },
-                "ApiSecret": {
-                  "title": "Corresponding objects service api secret",
-                  "type": "string"
-                },
-                "CreationDate": {
-                  "format": "int32",
-                  "title": "Data Source creation date",
-                  "type": "integer"
-                },
-                "Disabled": {
-                  "title": "Whether this data source is disabled or running",
-                  "type": "boolean"
-                },
-                "EncryptionKey": {
-                  "title": "Encryption key used for encrypting data",
-                  "type": "string"
-                },
-                "EncryptionMode": {
-                  "$ref": "#/definitions/objectEncryptionMode",
-                  "title": "Type of encryption applied before sending data to storage"
-                },
-                "FlatStorage": {
-                  "title": "Store data in flat format (object-storage like)",
-                  "type": "boolean"
-                },
-                "LastSynchronizationDate": {
-                  "format": "int32",
-                  "title": "Data Source last synchronization date",
-                  "type": "integer"
-                },
-                "ObjectsBaseFolder": {
-                  "title": "Corresponding objects service base folder inside the bucket",
-                  "type": "string"
-                },
-                "ObjectsBucket": {
-                  "title": "Corresponding objects service bucket",
-                  "type": "string"
-                },
-                "ObjectsHost": {
-                  "title": "Corresponding objects service host",
-                  "type": "string"
-                },
-                "ObjectsPort": {
-                  "format": "int32",
-                  "title": "Corresponding objects service port",
-                  "type": "integer"
-                },
-                "ObjectsSecure": {
-                  "title": "Corresponding objects service connection type",
-                  "type": "boolean"
-                },
-                "ObjectsServiceName": {
-                  "title": "Corresponding objects service name (underlying s3 service)",
-                  "type": "string"
-                },
-                "PeerAddress": {
-                  "title": "Peer address of the data source",
-                  "type": "string"
-                },
-                "SkipSyncOnRestart": {
-                  "title": "Do not trigger resync at start",
-                  "type": "boolean"
-                },
-                "StorageConfiguration": {
-                  "additionalProperties": {
-                    "type": "string"
-                  },
-                  "title": "List of key values describing storage configuration",
-                  "type": "object"
-                },
-                "StorageType": {
-                  "$ref": "#/definitions/objectStorageType",
-                  "title": "Type of underlying storage (LOCAL, S3, AZURE, GCS)"
-                },
-                "VersioningPolicyName": {
-                  "title": "Versioning policy describes how files are kept in the versioning queue",
-                  "type": "string"
-                },
-                "Watch": {
-                  "title": "Not implemented, whether to watch for underlying changes on the FS",
-                  "type": "boolean"
-                }
-              },
-              "title": "DataSource Object description",
-              "type": "object"
+              "$ref": "#/definitions/ConfigServicePutDataSourceBody"
             }
           }
         ],
@@ -7698,14 +8319,8 @@
             "name": "body",
             "required": true,
             "schema": {
-              "properties": {
-                "Path": {
-                  "title": "Path to the parent folder for listing",
-                  "type": "string"
-                }
-              },
-              "title": "RestListPeerFoldersRequest",
-              "type": "object"
+              "$ref": "#/definitions/ConfigServiceListPeerFoldersBody",
+              "title": "RestListPeerFoldersRequest"
             }
           }
         ],
@@ -7761,14 +8376,8 @@
             "name": "body",
             "required": true,
             "schema": {
-              "properties": {
-                "Path": {
-                  "title": "Path to the folder to be created",
-                  "type": "string"
-                }
-              },
-              "title": "RestCreatePeerFolderRequest",
-              "type": "object"
+              "$ref": "#/definitions/ConfigServiceCreatePeerFolderBody",
+              "title": "RestCreatePeerFolderRequest"
             }
           }
         ],
@@ -8310,14 +8919,7 @@
             "name": "body",
             "required": true,
             "schema": {
-              "properties": {
-                "Data": {
-                  "title": "JSON-encoded data to store",
-                  "type": "string"
-                }
-              },
-              "title": "Configuration message. Data is an Json representation of any value",
-              "type": "object"
+              "$ref": "#/definitions/ConfigServicePutConfigBody"
             }
           }
         ],
@@ -8950,6 +9552,251 @@
         ]
       }
     },
+    "/health/live": {
+      "get": {
+        "operationId": "ApiLive",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "ServiceName",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/restHealthServiceResponse"
+            }
+          },
+          "401": {
+            "description": "User is not authenticated",
+            "schema": {
+              "$ref": "#/definitions/restError"
+            }
+          },
+          "403": {
+            "description": "User has no permission to access this particular resource",
+            "schema": {
+              "$ref": "#/definitions/restError"
+            }
+          },
+          "404": {
+            "description": "Resource does not exist in the system",
+            "schema": {
+              "$ref": "#/definitions/restError"
+            }
+          },
+          "500": {
+            "description": "An internal error occurred in the backend",
+            "schema": {
+              "$ref": "#/definitions/restError"
+            }
+          }
+        },
+        "summary": "Check overall liveness of this API",
+        "tags": [
+          "HealthService"
+        ]
+      }
+    },
+    "/health/ping": {
+      "get": {
+        "operationId": "ApiPing",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "ServiceName",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/restHealthServiceResponse"
+            }
+          },
+          "401": {
+            "description": "User is not authenticated",
+            "schema": {
+              "$ref": "#/definitions/restError"
+            }
+          },
+          "403": {
+            "description": "User has no permission to access this particular resource",
+            "schema": {
+              "$ref": "#/definitions/restError"
+            }
+          },
+          "404": {
+            "description": "Resource does not exist in the system",
+            "schema": {
+              "$ref": "#/definitions/restError"
+            }
+          },
+          "500": {
+            "description": "An internal error occurred in the backend",
+            "schema": {
+              "$ref": "#/definitions/restError"
+            }
+          }
+        },
+        "summary": "Does nothing except responding",
+        "tags": [
+          "HealthService"
+        ]
+      }
+    },
+    "/health/ready": {
+      "get": {
+        "operationId": "ApiReady",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "ServiceName",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/restHealthServiceResponse"
+            }
+          },
+          "401": {
+            "description": "User is not authenticated",
+            "schema": {
+              "$ref": "#/definitions/restError"
+            }
+          },
+          "403": {
+            "description": "User has no permission to access this particular resource",
+            "schema": {
+              "$ref": "#/definitions/restError"
+            }
+          },
+          "404": {
+            "description": "Resource does not exist in the system",
+            "schema": {
+              "$ref": "#/definitions/restError"
+            }
+          },
+          "500": {
+            "description": "An internal error occurred in the backend",
+            "schema": {
+              "$ref": "#/definitions/restError"
+            }
+          }
+        },
+        "summary": "Check overally readyness ot this API, with details",
+        "tags": [
+          "HealthService"
+        ]
+      }
+    },
+    "/health/{ServiceName}/live": {
+      "get": {
+        "operationId": "ServiceLive",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "ServiceName",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/restHealthServiceResponse"
+            }
+          },
+          "401": {
+            "description": "User is not authenticated",
+            "schema": {
+              "$ref": "#/definitions/restError"
+            }
+          },
+          "403": {
+            "description": "User has no permission to access this particular resource",
+            "schema": {
+              "$ref": "#/definitions/restError"
+            }
+          },
+          "404": {
+            "description": "Resource does not exist in the system",
+            "schema": {
+              "$ref": "#/definitions/restError"
+            }
+          },
+          "500": {
+            "description": "An internal error occurred in the backend",
+            "schema": {
+              "$ref": "#/definitions/restError"
+            }
+          }
+        },
+        "summary": "Check overall liveness of this API",
+        "tags": [
+          "HealthService"
+        ]
+      }
+    },
+    "/health/{ServiceName}/ready": {
+      "get": {
+        "operationId": "ServiceReady",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "ServiceName",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/restHealthServiceResponse"
+            }
+          },
+          "401": {
+            "description": "User is not authenticated",
+            "schema": {
+              "$ref": "#/definitions/restError"
+            }
+          },
+          "403": {
+            "description": "User has no permission to access this particular resource",
+            "schema": {
+              "$ref": "#/definitions/restError"
+            }
+          },
+          "404": {
+            "description": "Resource does not exist in the system",
+            "schema": {
+              "$ref": "#/definitions/restError"
+            }
+          },
+          "500": {
+            "description": "An internal error occurred in the backend",
+            "schema": {
+              "$ref": "#/definitions/restError"
+            }
+          }
+        },
+        "summary": "Check overally readyness ot this API, with details",
+        "tags": [
+          "HealthService"
+        ]
+      }
+    },
     "/install": {
       "get": {
         "operationId": "GetInstall",
@@ -9391,14 +10238,8 @@
             "name": "body",
             "required": true,
             "schema": {
-              "properties": {
-                "JsonParameters": {
-                  "title": "Json-encoded parameters for this job",
-                  "type": "string"
-                }
-              },
-              "title": "RestUserJobRequest",
-              "type": "object"
+              "$ref": "#/definitions/JobsServiceUserCreateJobBody",
+              "title": "RestUserJobRequest"
             }
           }
         ],
@@ -9610,17 +10451,8 @@
             "name": "body",
             "required": true,
             "schema": {
-              "properties": {
-                "Namespace": {
-                  "items": {
-                    "type": "string"
-                  },
-                  "title": "List of namespaces to load",
-                  "type": "array"
-                }
-              },
-              "title": "RestMetaNamespaceRequest",
-              "type": "object"
+              "$ref": "#/definitions/MetaServiceDeleteMetaBody",
+              "title": "RestMetaNamespaceRequest"
             }
           }
         ],
@@ -9678,17 +10510,8 @@
             "name": "body",
             "required": true,
             "schema": {
-              "properties": {
-                "Namespace": {
-                  "items": {
-                    "type": "string"
-                  },
-                  "title": "List of namespaces to load",
-                  "type": "array"
-                }
-              },
-              "title": "RestMetaNamespaceRequest",
-              "type": "object"
+              "$ref": "#/definitions/MetaServiceGetMetaBody",
+              "title": "RestMetaNamespaceRequest"
             }
           }
         ],
@@ -9745,16 +10568,8 @@
             "name": "body",
             "required": true,
             "schema": {
-              "properties": {
-                "Metadatas": {
-                  "items": {
-                    "$ref": "#/definitions/restMetadata"
-                  },
-                  "type": "array"
-                }
-              },
-              "title": "RestMetaCollection",
-              "type": "object"
+              "$ref": "#/definitions/MetaServiceSetMetaBody",
+              "title": "RestMetaCollection"
             }
           }
         ],
@@ -10132,53 +10947,7 @@
             "name": "body",
             "required": true,
             "schema": {
-              "description": "Role represents a generic set of permissions that can be applied to any users or groups.",
-              "properties": {
-                "AutoApplies": {
-                  "items": {
-                    "type": "string"
-                  },
-                  "title": "List of profiles (standard, shared, admin) on which the role will be automatically applied",
-                  "type": "array"
-                },
-                "ForceOverride": {
-                  "description": "Is used in a stack of roles, this one will always be applied last.",
-                  "type": "boolean"
-                },
-                "GroupRole": {
-                  "title": "Whether this role is attached to a Group object",
-                  "type": "boolean"
-                },
-                "IsTeam": {
-                  "title": "Whether this role represents a user team or not",
-                  "type": "boolean"
-                },
-                "Label": {
-                  "title": "Label of this role",
-                  "type": "string"
-                },
-                "LastUpdated": {
-                  "format": "int32",
-                  "title": "Last modification date of the role",
-                  "type": "integer"
-                },
-                "Policies": {
-                  "items": {
-                    "$ref": "#/definitions/serviceResourcePolicy"
-                  },
-                  "title": "List of policies for securing this role access",
-                  "type": "array"
-                },
-                "PoliciesContextEditable": {
-                  "title": "Whether the policies resolve into an editable state",
-                  "type": "boolean"
-                },
-                "UserRole": {
-                  "title": "Whether this role is attached to a User object",
-                  "type": "boolean"
-                }
-              },
-              "type": "object"
+              "$ref": "#/definitions/RoleServiceSetRoleBody"
             }
           }
         ],
@@ -11194,14 +11963,8 @@
             "name": "body",
             "required": true,
             "schema": {
-              "properties": {
-                "PackageName": {
-                  "title": "Name of the package if it's not the same as the current binary",
-                  "type": "string"
-                }
-              },
-              "title": "UpdateApplyUpdateRequest",
-              "type": "object"
+              "$ref": "#/definitions/UpdateServiceApplyUpdateBody",
+              "title": "UpdateApplyUpdateRequest"
             }
           }
         ],
@@ -11550,14 +12313,8 @@
             "name": "body",
             "required": true,
             "schema": {
-              "properties": {
-                "Tag": {
-                  "title": "New tag value",
-                  "type": "string"
-                }
-              },
-              "title": "RestPutUserMetaTagRequest",
-              "type": "object"
+              "$ref": "#/definitions/UserMetaServicePutUserMetaTagBody",
+              "title": "RestPutUserMetaTagRequest"
             }
           }
         ],
@@ -11723,64 +12480,7 @@
             "name": "body",
             "required": true,
             "schema": {
-              "properties": {
-                "Attributes": {
-                  "additionalProperties": {
-                    "type": "string"
-                  },
-                  "title": "A free list of attributes",
-                  "type": "object"
-                },
-                "GroupLabel": {
-                  "title": "Label of the group, field is empty for users",
-                  "type": "string"
-                },
-                "GroupPath": {
-                  "title": "Path to the parent group",
-                  "type": "string"
-                },
-                "IsGroup": {
-                  "title": "Whether this object is a group or a user",
-                  "type": "boolean"
-                },
-                "LastConnected": {
-                  "format": "int32",
-                  "title": "Last successful connection timestamp",
-                  "type": "integer"
-                },
-                "OldPassword": {
-                  "title": "OldPassword must be set when a user updates her own password",
-                  "type": "string"
-                },
-                "Password": {
-                  "title": "Password can be passed to be updated (but never read back), field is empty for groups",
-                  "type": "string"
-                },
-                "Policies": {
-                  "items": {
-                    "$ref": "#/definitions/serviceResourcePolicy"
-                  },
-                  "title": "Policies securing access to this user",
-                  "type": "array"
-                },
-                "PoliciesContextEditable": {
-                  "description": "Context-resolved to quickly check if user is editable or not.",
-                  "type": "boolean"
-                },
-                "Roles": {
-                  "items": {
-                    "$ref": "#/definitions/idmRole"
-                  },
-                  "title": "List of roles applied to this user or group",
-                  "type": "array"
-                },
-                "Uuid": {
-                  "title": "User unique identifier",
-                  "type": "string"
-                }
-              },
-              "title": "User can represent either a User or a Group",
-              "type": "object"
+              "$ref": "#/definitions/UserServicePutRolesBody"
             }
           }
         ],
@@ -11844,6 +12544,13 @@
             "description": "Path to the parent group",
             "in": "query",
             "name": "GroupPath",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "description": "A free list of attributes\n\nThis is a request variable of the map type. The query format is \"map_name[key]=value\", e.g. If the map name is Age, the key type is string, and the value type is integer, the query parameter is expressed as Age[\"bob\"]=18",
+            "in": "query",
+            "name": "Attributes",
             "required": false,
             "type": "string"
           },
@@ -11953,6 +12660,13 @@
             "type": "string"
           },
           {
+            "description": "A free list of attributes\n\nThis is a request variable of the map type. The query format is \"map_name[key]=value\", e.g. If the map name is Age, the key type is string, and the value type is integer, the query parameter is expressed as Age[\"bob\"]=18",
+            "in": "query",
+            "name": "Attributes",
+            "required": false,
+            "type": "string"
+          },
+          {
             "description": "Password can be passed to be updated (but never read back), field is empty for groups",
             "in": "query",
             "name": "Password",
@@ -12048,64 +12762,7 @@
             "name": "body",
             "required": true,
             "schema": {
-              "properties": {
-                "Attributes": {
-                  "additionalProperties": {
-                    "type": "string"
-                  },
-                  "title": "A free list of attributes",
-                  "type": "object"
-                },
-                "GroupLabel": {
-                  "title": "Label of the group, field is empty for users",
-                  "type": "string"
-                },
-                "GroupPath": {
-                  "title": "Path to the parent group",
-                  "type": "string"
-                },
-                "IsGroup": {
-                  "title": "Whether this object is a group or a user",
-                  "type": "boolean"
-                },
-                "LastConnected": {
-                  "format": "int32",
-                  "title": "Last successful connection timestamp",
-                  "type": "integer"
-                },
-                "OldPassword": {
-                  "title": "OldPassword must be set when a user updates her own password",
-                  "type": "string"
-                },
-                "Password": {
-                  "title": "Password can be passed to be updated (but never read back), field is empty for groups",
-                  "type": "string"
-                },
-                "Policies": {
-                  "items": {
-                    "$ref": "#/definitions/serviceResourcePolicy"
-                  },
-                  "title": "Policies securing access to this user",
-                  "type": "array"
-                },
-                "PoliciesContextEditable": {
-                  "description": "Context-resolved to quickly check if user is editable or not.",
-                  "type": "boolean"
-                },
-                "Roles": {
-                  "items": {
-                    "$ref": "#/definitions/idmRole"
-                  },
-                  "title": "List of roles applied to this user or group",
-                  "type": "array"
-                },
-                "Uuid": {
-                  "title": "User unique identifier",
-                  "type": "string"
-                }
-              },
-              "title": "User can represent either a User or a Group",
-              "type": "object"
+              "$ref": "#/definitions/UserServicePutUserBody"
             }
           }
         ],
@@ -12271,6 +12928,12 @@
             "type": "array"
           },
           {
+            "description": "List of the Root Nodes in the tree that compose this workspace\n\nThis is a request variable of the map type. The query format is \"map_name[key]=value\", e.g. If the map name is Age, the key type is string, and the value type is integer, the query parameter is expressed as Age[\"bob\"]=18",
+            "in": "query",
+            "name": "RootNodes",
+            "required": false
+          },
+          {
             "description": "Context-resolved to quickly check if workspace is editable or not",
             "in": "query",
             "name": "PoliciesContextEditable",
@@ -12330,60 +12993,7 @@
             "name": "body",
             "required": true,
             "schema": {
-              "description": "A Workspace is composed of a set of nodes UUIDs and is used to provide accesses to the tree via ACLs.",
-              "properties": {
-                "Attributes": {
-                  "title": "JSON-encoded list of attributes",
-                  "type": "string"
-                },
-                "Description": {
-                  "title": "Description of the workspace (max length 1000)",
-                  "type": "string"
-                },
-                "Label": {
-                  "title": "Label of the workspace (max length 500)",
-                  "type": "string"
-                },
-                "LastUpdated": {
-                  "format": "int32",
-                  "title": "Last modification time",
-                  "type": "integer"
-                },
-                "Policies": {
-                  "items": {
-                    "$ref": "#/definitions/serviceResourcePolicy"
-                  },
-                  "title": "Policies for securing access",
-                  "type": "array"
-                },
-                "PoliciesContextEditable": {
-                  "title": "Context-resolved to quickly check if workspace is editable or not",
-                  "type": "boolean"
-                },
-                "RootNodes": {
-                  "additionalProperties": {
-                    "$ref": "#/definitions/treeNode"
-                  },
-                  "title": "List of the Root Nodes in the tree that compose this workspace",
-                  "type": "object"
-                },
-                "RootUUIDs": {
-                  "items": {
-                    "type": "string"
-                  },
-                  "title": "Quick list of the RootNodes uuids",
-                  "type": "array"
-                },
-                "Scope": {
-                  "$ref": "#/definitions/idmWorkspaceScope",
-                  "title": "Scope can be ADMIN, ROOM (=CELL) or LINK"
-                },
-                "UUID": {
-                  "title": "Unique identifier of the workspace",
-                  "type": "string"
-                }
-              },
-              "type": "object"
+              "$ref": "#/definitions/WorkspaceServicePutWorkspaceBody"
             }
           }
         ],
@@ -12501,6 +13111,9 @@
     },
     {
       "name": "FrontendService"
+    },
+    {
+      "name": "HealthService"
     }
   ]
 }
