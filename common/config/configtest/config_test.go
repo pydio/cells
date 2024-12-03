@@ -52,7 +52,6 @@ import (
 	_ "github.com/pydio/cells/v5/common/config/file"
 	_ "github.com/pydio/cells/v5/common/config/memory"
 	_ "github.com/pydio/cells/v5/common/config/service"
-	_ "github.com/pydio/cells/v5/common/config/viper"
 	_ "github.com/pydio/cells/v5/common/registry/config"
 	_ "github.com/pydio/cells/v5/common/server/grpc"
 )
