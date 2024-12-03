@@ -67,25 +67,28 @@ func CheckSubServices(ctx context.Context, syncConfig *object.DataSource, cb ...
 		readyzClient := server.NewReadyzClient(cc)
 		hsR, hsE := readyzClient.Ready(ctx, &server.ReadyCheckRequest{HealthCheckRequest: &grpc_health_v1.HealthCheckRequest{}})
 		if hsE != nil {
-			log.Logger(ctx).Error("Index Healthcheck Error", zap.Error(hsE))
 			if serviceCallback != nil {
 				serviceCallback("index", false, "Error: "+hsE.Error())
+			} else {
+				log.Logger(ctx).Error("Index Healthcheck Error", zap.Error(hsE))
 			}
 		} else if hsR.GetReadyStatus() != server.ReadyStatus_Ready {
-			log.Logger(ctx).Error("Index Not Ready " + hsR.GetReadyStatus().String())
 			if serviceCallback != nil {
 				serviceCallback("index", false, "index not ready")
 				for k, v := range hsR.Components {
 					serviceCallback("index."+k, v.ReadyStatus == server.ReadyStatus_Ready, v.Details)
 				}
+			} else {
+				log.Logger(ctx).Error("Index Not Ready " + hsR.GetReadyStatus().String())
 			}
 		} else {
-			log.Logger(ctx).Info("Index Connected", zap.Any("res", hsR))
 			if serviceCallback != nil {
 				serviceCallback("index", true, "index ready")
 				for k, v := range hsR.Components {
 					serviceCallback("index."+k, true, v.Details)
 				}
+			} else {
+				log.Logger(ctx).Info("Index Connected", zap.Any("res", hsR))
 			}
 			indexOK = true
 		}
@@ -97,17 +100,19 @@ func CheckSubServices(ctx context.Context, syncConfig *object.DataSource, cb ...
 		cli := object.NewObjectsEndpointClient(grpccli.ResolveConn(ctx, common.ServiceDataObjectsGRPC_+syncConfig.ObjectsServiceName))
 		resp, err := cli.GetMinioConfig(ctx, &object.GetMinioConfigRequest{})
 		if err != nil {
-			log.Logger(ctx).Warn(common.ServiceDataObjects_+syncConfig.ObjectsServiceName+" not yet available", zap.Error(err))
 			cErr = err
 			if serviceCallback != nil {
 				serviceCallback("object", false, "Object not ready: "+err.Error())
+			} else {
+				log.Logger(ctx).Warn(common.ServiceDataObjects_+syncConfig.ObjectsServiceName+" not yet available", zap.Error(err))
 			}
 			return
 		} else if resp.MinioConfig == nil {
-			log.Logger(ctx).Debug(common.ServiceDataObjects_ + syncConfig.ObjectsServiceName + " not yet available")
 			cErr = fmt.Errorf("empty config")
 			if serviceCallback != nil {
 				serviceCallback("object", false, "Object not ready: "+cErr.Error())
+			} else {
+				log.Logger(ctx).Debug(common.ServiceDataObjects_ + syncConfig.ObjectsServiceName + " not yet available")
 			}
 			return
 		}
@@ -124,9 +129,10 @@ func CheckSubServices(ctx context.Context, syncConfig *object.DataSource, cb ...
 			var e error
 			oc, e = nodes.NewStorageClient(ocCfg)
 			if e != nil {
-				log.Logger(ctx).Error("Cannot create objects client "+e.Error(), zap.Error(e))
 				if serviceCallback != nil {
 					serviceCallback("storage", false, "S3 client cannot be configured: "+e.Error())
+				} else {
+					log.Logger(ctx).Error("Cannot create objects client "+e.Error(), zap.Error(e))
 				}
 				return e
 			}
@@ -142,8 +148,9 @@ func CheckSubServices(ctx context.Context, syncConfig *object.DataSource, cb ...
 				} else {
 					if serviceCallback != nil {
 						serviceCallback("storage", true, "S3 successfully list buckets")
+					} else {
+						log.Logger(ctx).Info("Successfully listed buckets")
 					}
-					log.Logger(ctx).Info("Successfully listed buckets")
 					return nil
 				}
 			} else {
@@ -152,17 +159,17 @@ func CheckSubServices(ctx context.Context, syncConfig *object.DataSource, cb ...
 				_, err = oc.ListObjects(testCtx, syncConfig.ObjectsBucket, "", "/", "/", 1)
 				log.Logger(ctx).Debug("Sent ListObjects")
 				if err != nil {
-					if retryCount > 1 {
-						log.Logger(ctx).Warn("Cannot contact s3 service (bucket "+syncConfig.ObjectsBucket+"), will retry in 1s", zap.Error(err))
-					}
 					if serviceCallback != nil {
 						serviceCallback("storage", false, "S3 cannot list objects in bucket: "+err.Error())
+					} else if retryCount > 1 {
+						log.Logger(ctx).Warn("Cannot contact s3 service (bucket "+syncConfig.ObjectsBucket+"), will retry in 1s", zap.Error(err))
 					}
 					return err
 				} else {
-					log.Logger(ctx).Info(fmt.Sprintf("Successfully retrieved first object from bucket %s (%s)", syncConfig.ObjectsBucket, time.Since(t)))
 					if serviceCallback != nil {
 						serviceCallback("storage", true, "S3 successfully list objects in bucket")
+					} else {
+						log.Logger(ctx).Info(fmt.Sprintf("Successfully retrieved first object from bucket %s (%s)", syncConfig.ObjectsBucket, time.Since(t)))
 					}
 					return nil
 				}

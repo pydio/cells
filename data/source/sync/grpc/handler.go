@@ -106,7 +106,12 @@ func (h *Handler) Ready(ctx context.Context, req *server.ReadyCheckRequest) (*se
 		resp.ReadyStatus = server.ReadyStatus_Unknown
 		return resp, er
 	}
-	_, _, er = clients.CheckSubServices(ctx, conf.SyncConfig, callback)
+	sc, e := conf.Config(ctx)
+	if e != nil {
+		resp.ReadyStatus = server.ReadyStatus_Unknown
+		return resp, er
+	}
+	_, _, er = clients.CheckSubServices(ctx, sc, callback)
 	if er == nil {
 		resp.ReadyStatus = server.ReadyStatus_Ready
 	}
