@@ -56,7 +56,7 @@ class DataSourcesBoard extends React.Component {
             showImportKey: false,
             importResult: null,
             keyOperationError: null,
-            startedServices: [],
+            readyStatuses:{},
             peerAddresses:[],
             m: (id) => props.pydio.MessageHash["ajxp_admin.ds." + id] || id,
         };
@@ -69,20 +69,17 @@ class DataSourcesBoard extends React.Component {
             if(!pydio.WebSocketClient.getStatus()){
                 return
             }
-            DataSource.loadStatuses().then(data => {
-                this.setState({startedServices: data.Services || []});
-            });
             api.listPeersAddresses().then(res => {
                 this.setState({peerAddresses: res.PeerAddresses || []});
             })
-        }, 2500);
+        }, 3500);
         setTimeout(() => {
             this.syncPoller = setInterval(() => {
                 if(!pydio.WebSocketClient.getStatus()){
                     return
                 }
                 this.syncStatuses();
-            }, 2500);
+            }, 3500);
         }, 1250)
         this.load();
     }
@@ -104,9 +101,6 @@ class DataSourcesBoard extends React.Component {
         DataSource.loadVersioningPolicies().then((data) => {
             this.setState({versioningPolicies: data.Policies || [], versionsLoaded: true});
         });
-        DataSource.loadStatuses().then(data => {
-            this.setState({startedServices: data.Services});
-        });
         if(this.refs && this.refs.encKeys){
             this.refs.encKeys.load();
         }
@@ -117,6 +111,21 @@ class DataSourcesBoard extends React.Component {
         if(!dataSources.length){
             return;
         }
+        const readyStat = {}
+        Promise.all(dataSources.map((d) => {
+            return DataSource.datasourceReady("pydio.grpc.data.sync." + d.Name)
+                .then((res) => readyStat[d.Name] = res)
+                .catch(e => {
+                    if(e.message && e.message.Status) {
+                        readyStat[d.Name] = {...e.message, Status: 'Ready'}
+                    } else {
+                        readyStat[d.Name] = {Status: 'NotReady', Components: {}}
+                    }
+            })
+        })).then(() => {
+            this.setState({readyStatuses: readyStat})
+        })
+
         JobsStore.getInstance().getAdminJobs(null, null, dataSources.map(d => 'resync-ds-' + d.Name), 1).then(response => {
             const resyncJobs = {};
             const jobs = response.Jobs || []
@@ -155,6 +164,8 @@ class DataSourcesBoard extends React.Component {
 
     makeStatusLabel(level, message){
         switch (level){
+            case 'loading':
+                return <span style={{color:'#999'}}><span className={"mdi mdi-loading mdi-spin"}/> {message}</span>
             case 'error':
                 return <span style={{color:'#e53935'}}><span className={"mdi mdi-alert"}/> {message}</span>
             case 'running':
@@ -168,20 +179,19 @@ class DataSourcesBoard extends React.Component {
         if(asNumber && dataSource.Disabled){
             return -1;
         }
-        const {startedServices = [], peerAddresses = [], m, newDsName} = this.state;
-        if(!startedServices.length){
-            return m('status.na');
-        }
+        const {peerAddresses = [], m, newDsName, readyStatuses} = this.state;
         let index, sync, object;
-        startedServices.map(service => {
-            if (service.Name === 'pydio.grpc.data.sync.' + dataSource.Name && service.Status === 'STARTED'){
-                sync = true;
-            } else if (service.Name === 'pydio.grpc.data.index.' + dataSource.Name && service.Status === 'STARTED'){
-                index = true;
-            } else if (service.Name === 'pydio.grpc.data.objects.' + dataSource.ObjectsServiceName && service.Status === 'STARTED'){
-                object = true;
+        if(readyStatuses[dataSource.Name]) {
+            const {Components={}, Status=''} = readyStatuses[dataSource.Name]
+            sync = Status === 'Ready'
+            index = Components.index && Components.index.Status === 'Ready'
+            object = Components.storage && Components.storage.Status === 'Ready'
+        } else {
+            if (asNumber){
+                return -1
             }
-        });
+            return this.makeStatusLabel('loading', '')
+        }
         if(index && sync && object) {
             if (newDsName && dataSource.Name === newDsName) {
                 setTimeout(() => {this.setState({newDsName: null})}, 100);
@@ -197,7 +207,7 @@ class DataSourcesBoard extends React.Component {
             return this.makeStatusLabel('running', m('status.starting'));
         } else if (!index && !sync && !object) {
             let koMessage = m('status.ko');
-            if(peerAddresses && peerAddresses.indexOf(dataSource.PeerAddress) === -1){
+            if(peerAddresses && peerAddresses.length && peerAddresses.indexOf(dataSource.PeerAddress) === -1){
                 koMessage = m('status.ko-peers').replace('%s', dataSource.PeerAddress);
             }
             if(asNumber){

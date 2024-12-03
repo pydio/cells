@@ -21,7 +21,7 @@
 const Observable = require('pydio/lang/observable');
 const PydioApi = require('pydio/http/api');
 import LangUtils from 'pydio/util/lang'
-import {ConfigServiceApi, ObjectDataSource, ObjectEncryptionMode, ObjectStorageType,
+import {ConfigServiceApi, HealthServiceApi, ObjectDataSource, ObjectEncryptionMode, ObjectStorageType,
     JobsServiceApi, RestUserJobRequest,EncryptionAdminListKeysRequest, RestListStorageBucketsRequest, RestCreateStorageBucketRequest} from 'cells-sdk';
 
 class DataSource extends Observable {
@@ -164,6 +164,11 @@ class DataSource extends Observable {
     static loadStatuses(){
         const api = new ConfigServiceApi(PydioApi.getRestClient());
         return api.listServices('STARTED');
+    }
+
+    static datasourceReady(dsName) {
+        const api = new HealthServiceApi(PydioApi.getRestClient({silent: true}));
+        return api.serviceReady(dsName)
     }
 
     static loadEncryptionKeys(){
