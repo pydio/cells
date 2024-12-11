@@ -1020,6 +1020,227 @@
       "title": "Possible values for IdmSelector.Type",
       "type": "string"
     },
+    "jobsJob": {
+      "properties": {
+        "Actions": {
+          "items": {
+            "$ref": "#/definitions/jobsAction",
+            "type": "object"
+          },
+          "title": "Chain of actions to perform",
+          "type": "array"
+        },
+        "AutoClean": {
+          "title": "Remove job automatically once it is finished (success only)",
+          "type": "boolean"
+        },
+        "AutoRestart": {
+          "title": "Start task as soon as server is started",
+          "type": "boolean"
+        },
+        "AutoStart": {
+          "title": "Start task as soon as job is inserted",
+          "type": "boolean"
+        },
+        "ContextMetaFilter": {
+          "$ref": "#/definitions/jobsContextMetaFilter",
+          "title": "Event Context Filter"
+        },
+        "CreatedAt": {
+          "format": "int32",
+          "title": "Timestamp for creation time",
+          "type": "integer"
+        },
+        "Custom": {
+          "title": "Job created by application or by administrator",
+          "type": "boolean"
+        },
+        "DataSourceFilter": {
+          "$ref": "#/definitions/jobsDataSourceSelector",
+          "title": "DataSource objects filter"
+        },
+        "EventNames": {
+          "items": {
+            "type": "string"
+          },
+          "title": "How the job will be triggered.\nOne of these must be set (not exclusive)\nListen to a given set of events",
+          "type": "array"
+        },
+        "Hooks": {
+          "items": {
+            "$ref": "#/definitions/jobsJobHook",
+            "type": "object"
+          },
+          "title": "Expose this job through one or more-userspace APIs",
+          "type": "array"
+        },
+        "ID": {
+          "title": "Unique ID for this Job",
+          "type": "string"
+        },
+        "IdmFilter": {
+          "$ref": "#/definitions/jobsIdmSelector",
+          "title": "Idm objects filter"
+        },
+        "Inactive": {
+          "title": "Admin can temporarily disable this job",
+          "type": "boolean"
+        },
+        "Label": {
+          "title": "Human-readable Label",
+          "type": "string"
+        },
+        "Languages": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Optional list of languages detected in the context at launch time",
+          "type": "array"
+        },
+        "MaxConcurrency": {
+          "format": "int32",
+          "title": "Task properties",
+          "type": "integer"
+        },
+        "MergeAction": {
+          "$ref": "#/definitions/jobsAction",
+          "title": "Collect chain of actions into a merged output"
+        },
+        "Metadata": {
+          "additionalProperties": {
+            "type": "string"
+          },
+          "description": "Additional user-defined metadata, can be used for icon, documentation, pre-requisites, etc.",
+          "type": "object"
+        },
+        "ModifiedAt": {
+          "format": "int32",
+          "title": "Timestamp for modification time",
+          "type": "integer"
+        },
+        "NodeEventFilter": {
+          "$ref": "#/definitions/jobsNodesSelector",
+          "title": "Filter out specific events"
+        },
+        "Owner": {
+          "title": "Who created this Job",
+          "type": "string"
+        },
+        "Parameters": {
+          "items": {
+            "$ref": "#/definitions/jobsJobParameter",
+            "type": "object"
+          },
+          "title": "Job-level parameters that can be passed to underlying actions",
+          "type": "array"
+        },
+        "ResourcesDependencies": {
+          "items": {
+            "$ref": "#/definitions/protobufAny",
+            "type": "object"
+          },
+          "title": "Additional dependencies that may be required when running the job",
+          "type": "array"
+        },
+        "Schedule": {
+          "$ref": "#/definitions/jobsSchedule",
+          "title": "Schedule a periodic repetition"
+        },
+        "Tasks": {
+          "items": {
+            "$ref": "#/definitions/jobsTask",
+            "type": "object"
+          },
+          "title": "Filled with currently running tasks",
+          "type": "array"
+        },
+        "TasksSilentUpdate": {
+          "title": "Do not send notification on task update",
+          "type": "boolean"
+        },
+        "Timeout": {
+          "title": "Optional Timeout any running job",
+          "type": "string"
+        },
+        "UserEventFilter": {
+          "$ref": "#/definitions/jobsUsersSelector",
+          "title": "Deprecated in favor of more generic IdmSelector"
+        },
+        "VersionMeta": {
+          "additionalProperties": {
+            "type": "string"
+          },
+          "title": "Additional Versioning Metadata",
+          "type": "object"
+        }
+      },
+      "type": "object"
+    },
+    "jobsJobHook": {
+      "properties": {
+        "AllowOverridePresets": {
+          "title": "Allow trigger parameters to override default presets",
+          "type": "boolean"
+        },
+        "ApiSlug": {
+          "title": "Custom ApiSlug, otherwise use the job UUID",
+          "type": "string"
+        },
+        "Metadata": {
+          "additionalProperties": {
+            "type": "string"
+          },
+          "title": "Additional arbitrary metadata attached to this hook",
+          "type": "object"
+        },
+        "Policies": {
+          "items": {
+            "$ref": "#/definitions/serviceResourcePolicy",
+            "type": "object"
+          },
+          "title": "Set permissions for accessing this endpoint",
+          "type": "array"
+        },
+        "PresetParameters": {
+          "additionalProperties": {
+            "type": "string"
+          },
+          "title": "Preset parameters values when calling this endpoint. May be overriden by a map[string]string in the body",
+          "type": "object"
+        }
+      },
+      "title": "Dynamically expose a job trigger via API",
+      "type": "object"
+    },
+    "jobsJobParameter": {
+      "properties": {
+        "Description": {
+          "title": "Additional description",
+          "type": "string"
+        },
+        "JsonChoices": {
+          "title": "Additional data used by GUI elements",
+          "type": "string"
+        },
+        "Mandatory": {
+          "title": "If mandatory, job cannot start without a value",
+          "type": "boolean"
+        },
+        "Name": {
+          "title": "Parameter name",
+          "type": "string"
+        },
+        "Type": {
+          "title": "Parameter type used in GUI forms",
+          "type": "string"
+        },
+        "Value": {
+          "title": "Value saved for this parameter",
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
     "jobsNodesSelector": {
       "properties": {
         "All": {
@@ -1067,6 +1288,19 @@
         }
       },
       "title": "/////////////////\nJOB  SERVICE  //\n/////////////////",
+      "type": "object"
+    },
+    "jobsSchedule": {
+      "properties": {
+        "Iso8601MinDelta": {
+          "title": "Minimum time between two runs",
+          "type": "string"
+        },
+        "Iso8601Schedule": {
+          "description": "ISO 8601 Description of the scheduling for instance \"R2/2015-06-04T19:25:16.828696-07:00/PT4S\"\nwhere first part is the number of repetitions (if 0, infinite repetition), \nsecond part the starting date and last part, the duration between 2 occurrences.",
+          "type": "string"
+        }
+      },
       "type": "object"
     },
     "jobsSelectorRange": {
@@ -1388,7 +1622,7 @@
         },
         "Jobs": {
           "items": {
-            "$ref": "#/definitions/restJobInfo",
+            "$ref": "#/definitions/jobsJob",
             "type": "object"
           },
           "type": "array"
@@ -1572,21 +1806,6 @@
       },
       "type": "object"
     },
-    "restJobInfo": {
-      "properties": {
-        "JobUuid": {
-          "type": "string"
-        },
-        "Tasks": {
-          "items": {
-            "$ref": "#/definitions/jobsTask",
-            "type": "object"
-          },
-          "type": "array"
-        }
-      },
-      "type": "object"
-    },
     "restJsonMeta": {
       "properties": {
         "Namespace": {
@@ -1712,13 +1931,6 @@
         },
         "IsRecycled": {
           "type": "boolean"
-        },
-        "Jobs": {
-          "items": {
-            "$ref": "#/definitions/restJobInfo",
-            "type": "object"
-          },
-          "type": "array"
         },
         "Metadata": {
           "items": {
@@ -1869,6 +2081,17 @@
         }
       },
       "title": "Generic container for responses sending pagination information",
+      "type": "object"
+    },
+    "restPublicLinkDeleteSuccess": {
+      "properties": {
+        "Message": {
+          "type": "string"
+        },
+        "Uuid": {
+          "type": "string"
+        }
+      },
       "type": "object"
     },
     "restSelection": {
@@ -2054,6 +2277,33 @@
         }
       },
       "title": "A template node is representing a file or a folder",
+      "type": "object"
+    },
+    "restUpsertPublicLinkRequest": {
+      "properties": {
+        "CreatePassword": {
+          "title": "Set if switching from no password to password",
+          "type": "string"
+        },
+        "Link": {
+          "$ref": "#/definitions/restShareLink"
+        },
+        "PasswordEnabled": {
+          "title": "Whether it has Password enabled",
+          "type": "boolean"
+        },
+        "UpdateCustomHash": {
+          "title": "Change the ShareLink Hash with a custom value",
+          "type": "string"
+        },
+        "UpdatePassword": {
+          "title": "Set if updating an existing password",
+          "type": "string"
+        },
+        "Uuid": {
+          "type": "string"
+        }
+      },
       "type": "object"
     },
     "restUserActionType": {
@@ -2714,7 +2964,7 @@
           "200": {
             "description": "A successful response.",
             "schema": {
-              "$ref": "#/definitions/restJobInfo"
+              "$ref": "#/definitions/jobsJob"
             }
           },
           "401": {
@@ -2783,7 +3033,7 @@
           "200": {
             "description": "A successful response.",
             "schema": {
-              "$ref": "#/definitions/restJobInfo"
+              "$ref": "#/definitions/jobsJob"
             }
           },
           "401": {
@@ -2877,7 +3127,7 @@
             "name": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/restShareLink"
+              "$ref": "#/definitions/restUpsertPublicLinkRequest"
             }
           }
         ],
@@ -2934,7 +3184,7 @@
           "200": {
             "description": "A successful response.",
             "schema": {
-              "$ref": "#/definitions/restShareLink"
+              "$ref": "#/definitions/restPublicLinkDeleteSuccess"
             }
           },
           "401": {
@@ -3030,6 +3280,34 @@
             "schema": {
               "$ref": "#/definitions/restShareLink"
             }
+          },
+          {
+            "description": "Whether it has Password enabled",
+            "in": "query",
+            "name": "PasswordEnabled",
+            "required": false,
+            "type": "boolean"
+          },
+          {
+            "description": "Set if switching from no password to password",
+            "in": "query",
+            "name": "CreatePassword",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "description": "Set if updating an existing password",
+            "in": "query",
+            "name": "UpdatePassword",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "description": "Change the ShareLink Hash with a custom value",
+            "in": "query",
+            "name": "UpdateCustomHash",
+            "required": false,
+            "type": "string"
           }
         ],
         "responses": {

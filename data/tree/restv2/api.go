@@ -12,14 +12,19 @@ import (
 	"github.com/pydio/cells/v5/common/proto/tree"
 	json "github.com/pydio/cells/v5/common/utils/jsonx"
 	searcher "github.com/pydio/cells/v5/data/search/rest"
+	"github.com/pydio/cells/v5/data/templates"
+	tpl "github.com/pydio/cells/v5/data/templates/rest"
 	treeer "github.com/pydio/cells/v5/data/tree/rest"
 	"github.com/pydio/cells/v5/idm/meta"
+	shares "github.com/pydio/cells/v5/idm/share/rest"
 	"github.com/pydio/cells/v5/scheduler/actions/images"
 )
 
 type Handler struct {
-	SearchHandler *searcher.Handler
-	TreeHandler   *treeer.Handler
+	SearchHandler    *searcher.Handler
+	TreeHandler      *treeer.Handler
+	TemplatesHandler *tpl.Handler
+	SharesHandler    *shares.SharesHandler
 }
 
 // TODO REMOVE RUNTIME CONTEXT!
@@ -27,8 +32,10 @@ func NewHandler(ctx context.Context) *Handler {
 	th := &treeer.Handler{}
 	th.RuntimeCtx = ctx
 	return &Handler{
-		SearchHandler: &searcher.Handler{},
-		TreeHandler:   th,
+		SearchHandler:    &searcher.Handler{},
+		TreeHandler:      th,
+		TemplatesHandler: &tpl.Handler{Dao: templates.GetProvider()},
+		SharesHandler:    shares.NewSharesHandler(ctx),
 	}
 }
 
@@ -44,6 +51,7 @@ func (h *Handler) Filter() func(string) string {
 	}
 }
 
+// TreeNodeToNode converts a tree.Node to rest.Node
 func (h *Handler) TreeNodeToNode(n *tree.Node) *rest.Node {
 	rn := &rest.Node{
 		Uuid:        n.GetUuid(),
@@ -57,7 +65,6 @@ func (h *Handler) TreeNodeToNode(n *tree.Node) *rest.Node {
 		// TODO Not Impl Yet
 		IsRecycled: false,
 		Activities: nil,
-		Jobs:       nil,
 	}
 	for k, v := range n.GetMetaStore() {
 		if strings.HasPrefix(k, common.MetaNamespaceReservedPrefix_) {
@@ -137,6 +144,7 @@ func (h *Handler) TreeNodeToNode(n *tree.Node) *rest.Node {
 	return rn
 }
 
+// Thumbnails feeds a rest.FilePreview struct with incoming metadata
 func (h *Handler) Thumbnails(bucket, nodeId, jsonThumbs string) (ff []*rest.FilePreview) {
 	var thumbs *images.ThumbnailsMeta
 	e := json.Unmarshal([]byte(jsonThumbs), &thumbs)
@@ -154,6 +162,7 @@ func (h *Handler) Thumbnails(bucket, nodeId, jsonThumbs string) (ff []*rest.File
 	return
 }
 
+// ImageMeta feeds a rest.ImageMeta struct with incoming metadata
 func (h *Handler) ImageMeta(m *rest.ImageMeta, k, v string) *rest.ImageMeta {
 	if m == nil {
 		m = &rest.ImageMeta{}
@@ -181,6 +190,7 @@ func (h *Handler) ImageMeta(m *rest.ImageMeta, k, v string) *rest.ImageMeta {
 	return m
 }
 
+// ContextWorkspace feeds a rest.ContextWorkspace struct with incoming metadata
 func (h *Handler) ContextWorkspace(ws *rest.ContextWorkspace, k, v string) *rest.ContextWorkspace {
 	if ws == nil {
 		ws = &rest.ContextWorkspace{}
@@ -211,6 +221,7 @@ func (h *Handler) ContextWorkspace(ws *rest.ContextWorkspace, k, v string) *rest
 	return ws
 }
 
+// TreeNodesToNodes applies TreeNodeToNode to all incoming nodes
 func (h *Handler) TreeNodesToNodes(nn []*tree.Node) (out []*rest.Node) {
 	for _, n := range nn {
 		out = append(out, h.TreeNodeToNode(n))

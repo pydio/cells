@@ -72,6 +72,10 @@ func (h *SharesHandler) Filter() func(string) string {
 	return nil
 }
 
+func (h *SharesHandler) GetShareClient() *share.Client {
+	return h.sc
+}
+
 func (h *SharesHandler) IdmUserFromClaims(ctx context.Context) (*idm.User, error) {
 	claims := ctx.Value(claim.ContextKey).(claim.Claims)
 	if claims.Subject == "" {
@@ -175,38 +179,12 @@ func (h *SharesHandler) PutShareLink(req *restful.Request, rsp *restful.Response
 	if err := req.ReadEntity(&putRequest); err != nil {
 		return err
 	}
-	if err := h.docStoreStatus(ctx); err != nil {
-		return err
-	}
 
-	link := putRequest.ShareLink
-	rootWorkspaces, files, folders, e := h.sc.CheckLinkRootNodes(ctx, link)
-	if e != nil {
-		return e
-	}
-	parentPolicy, e := h.sc.DetectInheritedPolicy(ctx, link.RootNodes, rootWorkspaces)
-	if e != nil {
-		return e
-	}
-
-	pluginOptions, e := h.sc.CheckLinkOptionsAgainstConfigs(ctx, link, rootWorkspaces, files, folders)
-	if e != nil {
-		return e
-	} else if pluginOptions.ShareForcePassword && !putRequest.PasswordEnabled {
-		return errors.WithStack(errors.ShareLinkPasswordRequired)
-	}
-
-	ownerUser, er := h.IdmUserFromClaims(ctx)
+	newLink, er := h.PutOrUpdateShareLink(ctx, putRequest.GetShareLink(), &putRequest)
 	if er != nil {
 		return er
 	}
-
-	output, er := h.sc.UpsertLink(ctx, link, &putRequest, ownerUser, parentPolicy, pluginOptions)
-	if er != nil {
-		return er
-	} else {
-		return rsp.WriteEntity(output)
-	}
+	return rsp.WriteEntity(newLink)
 
 }
 
@@ -287,6 +265,42 @@ func (h *SharesHandler) UpdateSharePolicies(req *restful.Request, rsp *restful.R
 		PoliciesContextEditable: resp.Workspace.PoliciesContextEditable,
 	}
 	return rsp.WriteEntity(response)
+
+}
+
+func (h *SharesHandler) PutOrUpdateShareLink(ctx context.Context, link *rest.ShareLink, linkOptions share.LinkOptioner) (*rest.ShareLink, error) {
+
+	if err := h.docStoreStatus(ctx); err != nil {
+		return nil, err
+	}
+
+	rootWorkspaces, files, folders, e := h.sc.CheckLinkRootNodes(ctx, link)
+	if e != nil {
+		return nil, e
+	}
+	parentPolicy, e := h.sc.DetectInheritedPolicy(ctx, link.RootNodes, rootWorkspaces)
+	if e != nil {
+		return nil, e
+	}
+
+	pluginOptions, e := h.sc.CheckLinkOptionsAgainstConfigs(ctx, link, rootWorkspaces, files, folders)
+	if e != nil {
+		return nil, e
+	} else if pluginOptions.ShareForcePassword && !linkOptions.GetPasswordEnabled() {
+		return nil, errors.WithStack(errors.ShareLinkPasswordRequired)
+	}
+
+	ownerUser, er := h.IdmUserFromClaims(ctx)
+	if er != nil {
+		return nil, er
+	}
+
+	output, er := h.sc.UpsertLink(ctx, link, linkOptions, ownerUser, parentPolicy, pluginOptions)
+	if er != nil {
+		return nil, er
+	} else {
+		return output, nil
+	}
 
 }
 

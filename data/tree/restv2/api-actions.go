@@ -3,17 +3,175 @@ package restv2
 import (
 	restful "github.com/emicklei/go-restful/v3"
 
+	"github.com/pydio/cells/v5/common/client/commons/jobsc"
 	"github.com/pydio/cells/v5/common/errors"
+	"github.com/pydio/cells/v5/common/middleware"
+	"github.com/pydio/cells/v5/common/proto/jobs"
+	"github.com/pydio/cells/v5/common/proto/rest"
+	json "github.com/pydio/cells/v5/common/utils/jsonx"
+	"github.com/pydio/cells/v5/common/utils/std"
+	rest2 "github.com/pydio/cells/v5/scheduler/jobs/rest"
+	"github.com/pydio/cells/v5/scheduler/jobs/userspace"
 )
 
+// PerformAction answers to POST /node/action/{Name}
 func (h *Handler) PerformAction(req *restful.Request, resp *restful.Response) error {
-	return errors.WithMessage(errors.StatusNotImplemented, "method not implemented yet")
+	actionName := req.PathParameter("Name")
+	var actionID rest.UserActionType
+	if id, ok := rest.UserActionType_value[actionName]; ok {
+		actionID = rest.UserActionType(id)
+	} else {
+		return errors.WithMessage(errors.StatusNotFound, "action not found")
+	}
+	input := &rest.ActionRequest{}
+	if err := req.ReadEntity(input); err != nil {
+		return err
+	}
+	input.Name = actionID
+	ctx := req.Request.Context()
+	ll := middleware.DetectedLanguages(ctx)
+	var jj []*jobs.Job
+	router := h.TreeHandler.GetRouter()
+
+	var inPaths []string
+	var outPath string
+	var params map[string]interface{}
+
+	// Pre-parse params
+	if pp := input.GetParameters(); pp != nil {
+		for _, n := range pp.GetNodes() {
+			inPaths = append(inPaths, n.GetPath())
+		}
+		// deduplicate just in case
+		inPaths = std.Unique(inPaths)
+
+		if input.GetParameters().GetTargetNode() != nil {
+			outPath = input.GetParameters().GetTargetNode().GetPath()
+		}
+		if input.GetParameters().GetJsonParameters() != "" {
+			if er := json.Unmarshal([]byte(input.GetParameters().GetJsonParameters()), &params); er != nil {
+				return errors.Tag(er, errors.UnmarshalError)
+			}
+		}
+	}
+
+	switch actionID {
+	case rest.UserActionType_copy, rest.UserActionType_move:
+
+		if len(inPaths) == 0 || outPath == "" {
+			return errors.WithMessage(errors.StatusBadRequest, "invalid action parameters")
+		}
+		var targetIsParent bool
+		if params != nil {
+			p, ok := params["targetParent"]
+			targetIsParent = ok && p == true
+		}
+		j, er := userspace.CopyMoveTask(ctx, router, inPaths, outPath, targetIsParent, actionID == rest.UserActionType_move, ll...)
+		if er != nil {
+			return errors.Tag(er, errors.StatusInternalServerError)
+		}
+		jj = append(jj, j)
+
+	case rest.UserActionType_compress, rest.UserActionType_extract:
+
+		if len(inPaths) == 0 || outPath == "" || params == nil {
+			return errors.WithMessage(errors.StatusBadRequest, "invalid action parameters")
+		}
+		format, ok := params["format"]
+		if !ok {
+			return errors.WithMessage(errors.StatusBadRequest, "invalid action parameters (missing format)")
+		}
+		var job *jobs.Job
+		var er error
+		if actionID == rest.UserActionType_compress {
+			job, er = userspace.CompressTask(ctx, router, inPaths, outPath, format.(string), ll...)
+		} else {
+			job, er = userspace.ExtractTask(ctx, router, inPaths[0], outPath, format.(string), ll...)
+		}
+		if er != nil {
+			return errors.Tag(er, errors.StatusInternalServerError)
+		}
+		jj = append(jj, job)
+
+	case rest.UserActionType_delete:
+
+		if len(inPaths) == 0 {
+			return errors.WithMessage(errors.StatusBadRequest, "invalid action parameters")
+		}
+		var removePermanently bool
+		if params != nil {
+			p, ok := params["permanent"]
+			removePermanently = ok && p == true
+		}
+		delJobs, er := userspace.DeleteNodesTask(ctx, router, inPaths, removePermanently, ll...)
+		if er != nil {
+			return errors.Tag(er, errors.StatusInternalServerError)
+		}
+		jj = append(jj, delJobs...)
+
+	case rest.UserActionType_restore:
+
+		if len(inPaths) == 0 {
+			return errors.WithMessage(errors.StatusBadRequest, "invalid action parameters")
+		}
+		resJobs, er := userspace.RestoreTask(ctx, router, inPaths, ll...)
+		if er != nil {
+			return errors.Tag(er, errors.StatusInternalServerError)
+		}
+		jj = append(jj, resJobs...)
+
+	}
+
+	if input.GetParameters().GetAwait() {
+		// Todo - new feature
+		// Monitor Job and block until it's done!
+	}
+
+	return resp.WriteEntity(&rest.ActionResponse{
+		Status: rest.ActionStatus_Background,
+		Jobs:   jj,
+	})
 }
 
+// GetActionJob answers to GET /node/action/{Name}/{JobUuid}
 func (h *Handler) GetActionJob(req *restful.Request, resp *restful.Response) error {
-	return errors.WithMessage(errors.StatusNotImplemented, "method not implemented yet")
+	var ar rest.ActionRequest
+	if err := req.ReadEntity(&ar); err != nil {
+		return err
+	}
+	ctx := req.Request.Context()
+	cli := jobsc.JobServiceClient(ctx)
+	j, e := cli.GetJob(ctx, &jobs.GetJobRequest{
+		JobID:     req.PathParameter("JobUuid"),
+		LoadTasks: jobs.TaskStatus_Running,
+	})
+	if e != nil {
+		return e
+	}
+	return resp.WriteEntity(j)
 }
 
+// ControlActionJob answers to PATCH /node/action/{Name}/{JobUuid}
 func (h *Handler) ControlActionJob(req *restful.Request, resp *restful.Response) error {
-	return errors.WithMessage(errors.StatusNotImplemented, "method not implemented yet")
+	var cr rest.ControlActionRequest
+	if err := req.ReadEntity(&cr); err != nil {
+		return err
+	}
+	ctx := req.Request.Context()
+
+	_, err := rest2.SendControlCommand(ctx, cr.GetCommand())
+	if err != nil {
+		return errors.Tag(err, errors.StatusInternalServerError)
+	}
+
+	cli := jobsc.JobServiceClient(ctx)
+	j, e := cli.GetJob(ctx, &jobs.GetJobRequest{
+		JobID:     req.PathParameter("JobUuid"),
+		LoadTasks: jobs.TaskStatus_Running,
+	})
+	if e != nil {
+		return e
+	}
+
+	return resp.WriteEntity(j)
 }

@@ -130,7 +130,6 @@ message Node {
   repeated ShareLink Shares = 17;
   repeated activity.Object Activities = 18;
   repeated activity.Subscription Subscriptions = 19;
-  repeated JobInfo Jobs = 20;
 
   ImageMeta ImageMeta = 25;
   repeated JsonMeta Metadata = 21;
@@ -172,11 +171,6 @@ message LookupRequest {
   repeated uint32 StatFlags = 7;
 }
 
-message JobInfo{
-  string JobUuid = 1;
-  repeated jobs.Task Tasks = 2;
-}
-
 enum UserActionType {
   delete = 0;
   restore = 1;
@@ -214,7 +208,7 @@ enum ActionStatus {
 message ActionResponse {
   ActionStatus Status = 1;
   repeated Node AffectedNodes = 2;
-  repeated JobInfo Jobs = 3;
+  repeated jobs.Job Jobs = 3;
 }
 
 message Selection {
@@ -222,13 +216,26 @@ message Selection {
   repeated Node Nodes = 2;
 }
 
-message UpdatePublicLinkRequest {
+message UpsertPublicLinkRequest {
   string Uuid = 1;
   ShareLink Link = 2;
+  // Whether it has Password enabled
+  bool PasswordEnabled = 3;
+  // Set if switching from no password to password
+  string CreatePassword = 4;
+  // Set if updating an existing password
+  string UpdatePassword = 5;
+  // Change the ShareLink Hash with a custom value
+  string UpdateCustomHash = 6;
 }
 
-message GetPublicLinkRequest {
+message PublicLinkUuidRequest {
   string Uuid = 1;
+}
+
+message PublicLinkDeleteSuccess {
+  string Uuid = 1;
+  string Message = 2;
 }
 
 service NodeService {
@@ -266,27 +273,27 @@ service NodeService {
   };
 
   // Create a public link on a given node
-  rpc CreatePublicLink(ShareLink) returns (ShareLink) {
+  rpc CreatePublicLink(UpsertPublicLinkRequest) returns (ShareLink) {
     option (google.api.http) = {
       post: "/node/link"
       body: "*"
     };
   }
   // Load public link information by Uuid
-  rpc GetPublicLink(GetPublicLinkRequest) returns (ShareLink) {
+  rpc GetPublicLink(PublicLinkUuidRequest) returns (ShareLink) {
     option (google.api.http) = {
       get: "/node/link/{Uuid}"
     };
   }
   // Update public link settings
-  rpc UpdatePublicLink(UpdatePublicLinkRequest) returns (ShareLink) {
+  rpc UpdatePublicLink(UpsertPublicLinkRequest) returns (ShareLink) {
     option (google.api.http) = {
       patch: "/node/link/{Uuid}"
       body: "Link"
     };
   }
   // Remove a public link
-  rpc DeletePublicLink(GetPublicLinkRequest) returns (ShareLink) {
+  rpc DeletePublicLink(PublicLinkUuidRequest) returns (PublicLinkDeleteSuccess) {
     option (google.api.http) = {
       delete: "/node/link/{Uuid}"
     };
@@ -300,13 +307,13 @@ service NodeService {
     };
   }
   // Retrieve information about an action running in background
-  rpc GetActionJob(ActionRequest) returns (JobInfo) {
+  rpc GetActionJob(ActionRequest) returns (jobs.Job) {
     option (google.api.http) = {
       get: "/node/action/{Name}/{JobUuid}"
     };
   }
   // Send control commands to a background job
-  rpc ControlActionJob(ControlActionRequest) returns (JobInfo) {
+  rpc ControlActionJob(ControlActionRequest) returns (jobs.Job) {
     option (google.api.http) = {
       patch: "/node/action/{Name}/{JobUuid}"
       body:"Command"

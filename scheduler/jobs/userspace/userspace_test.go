@@ -18,12 +18,13 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-package rest
+package userspace
 
 import (
 	"testing"
 
 	"github.com/pydio/cells/v5/common/proto/tree"
+
 	. "github.com/smartystreets/goconvey/convey"
 )
 
@@ -40,8 +41,7 @@ func TestHandler_deduplication(t *testing.T) {
 			{Path: "/toto"},
 		}
 
-		h := &Handler{}
-		n2 := h.deduplicateByPath(nn)
+		n2 := DeduplicateNodes(nn)
 
 		So(n2, ShouldHaveLength, 3)
 		t.Log(n2)

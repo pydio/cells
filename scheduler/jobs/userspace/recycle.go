@@ -18,7 +18,7 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-package rest
+package userspace
 
 import (
 	"context"
@@ -36,25 +36,25 @@ import (
 	"github.com/pydio/cells/v5/common/telemetry/log"
 )
 
-type recycleMoves struct {
-	sources   []string
-	workspace *idm.Workspace
+type RecycleMoves struct {
+	Sources   []string
+	Workspace *idm.Workspace
 }
 
-type deleteJobs struct {
+type DeleteJobs struct {
 	RecyclesNodes map[string]*tree.Node
-	RecycleMoves  map[string]*recycleMoves
+	RecycleMoves  map[string]*RecycleMoves
 	Deletes       []string
 }
 
-func newDeleteJobs() *deleteJobs {
-	return &deleteJobs{
-		RecycleMoves:  make(map[string]*recycleMoves),
+func NewDeleteJobs() *DeleteJobs {
+	return &DeleteJobs{
+		RecycleMoves:  make(map[string]*RecycleMoves),
 		RecyclesNodes: make(map[string]*tree.Node),
 	}
 }
 
-func sourceInRecycle(ctx context.Context, source *tree.Node, ancestors []*tree.Node) bool {
+func SourceInRecycle(ctx context.Context, source *tree.Node, ancestors []*tree.Node) bool {
 
 	for _, n := range ancestors {
 		if n.GetStringMeta(common.MetaNamespaceNodeName) == common.RecycleBinName {
@@ -65,7 +65,7 @@ func sourceInRecycle(ctx context.Context, source *tree.Node, ancestors []*tree.N
 	return false
 }
 
-func findRecycleForSource(ctx context.Context, source *tree.Node, ancestors []*tree.Node) (recycle *tree.Node, err error) {
+func FindRecycleForSource(ctx context.Context, source *tree.Node, ancestors []*tree.Node) (recycle *tree.Node, err error) {
 
 	var ids []string
 	for _, n := range ancestors {

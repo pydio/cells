@@ -6,9 +6,11 @@ import (
 	"github.com/pydio/cells/v5/common"
 	"github.com/pydio/cells/v5/common/proto/rest"
 	"github.com/pydio/cells/v5/common/proto/tree"
+	"github.com/pydio/cells/v5/scheduler/jobs/userspace"
 )
 
 // Create creates folders or files - Files are empty or hydrated from a template
+// Api Endpoint: POST /node/create
 func (h *Handler) Create(req *restful.Request, resp *restful.Response) error {
 	input := &rest.CreateRequest{}
 	if err := req.ReadEntity(input); err != nil {
@@ -16,29 +18,26 @@ func (h *Handler) Create(req *restful.Request, resp *restful.Response) error {
 	}
 	ctx := req.Request.Context()
 
-	legacyReq := &rest.CreateNodesRequest{
-		Recursive: input.Recursive,
-	}
+	byTpl := map[string][]*tree.Node{}
 	for _, n := range input.GetInputs() {
 		node := &tree.Node{
 			Path: n.GetLocator().GetPath(),
 			Type: n.GetType(),
 		}
-		// Todo - if multiple templates, run multiple times
-		if tpl := n.GetTemplateUuid(); tpl != "" {
-			legacyReq.TemplateUUID = tpl
-		}
 		if cType := n.GetContentType(); cType != "" {
 			node.MustSetMeta(common.MetaNamespaceMime, cType)
 		}
-		legacyReq.Nodes = append(legacyReq.Nodes, node)
+		tpl := n.GetTemplateUuid()
+		byTpl[tpl] = append(byTpl[tpl], node)
 	}
-	nn, er := h.TreeHandler.MkDirsOrFiles(ctx, legacyReq)
-	if er != nil {
-		return er
-	}
-	output := &rest.NodeCollection{
-		Nodes: h.TreeNodesToNodes(nn),
+	output := &rest.NodeCollection{}
+	// tpl may be an empty string
+	for tpl, nodes := range byTpl {
+		nn, er := userspace.MkDirsOrFiles(ctx, h.TreeHandler.GetRouter(), nodes, input.Recursive, tpl)
+		if er != nil {
+			return er
+		}
+		output.Nodes = append(output.Nodes, h.TreeNodesToNodes(nn)...)
 	}
 	return resp.WriteEntity(output)
 }

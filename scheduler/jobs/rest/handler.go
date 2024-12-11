@@ -42,6 +42,7 @@ import (
 	"github.com/pydio/cells/v5/common/proto/rest"
 	"github.com/pydio/cells/v5/common/telemetry/log"
 	json "github.com/pydio/cells/v5/common/utils/jsonx"
+	"github.com/pydio/cells/v5/scheduler/jobs/userspace"
 	"github.com/pydio/cells/v5/scheduler/lang"
 )
 
@@ -136,6 +137,15 @@ func (s *JobsHandler) UserControlJob(req *restful.Request, rsp *restful.Response
 		return err
 	}
 	ctx := req.Request.Context()
+	resp, er := SendControlCommand(ctx, &cmd)
+	if er != nil {
+		return errors.Tag(er, errors.StatusInternalServerError)
+	}
+	return rsp.WriteEntity(resp)
+
+}
+
+func SendControlCommand(ctx context.Context, cmd *jobs.CtrlCommand) (*jobs.CtrlCommandResponse, error) {
 	if cmd.Cmd == jobs.Command_Delete {
 		cli := jobsc.JobServiceClient(ctx)
 		delRequest := &jobs.DeleteTasksRequest{
@@ -143,9 +153,9 @@ func (s *JobsHandler) UserControlJob(req *restful.Request, rsp *restful.Response
 			TaskID: []string{cmd.TaskId},
 		}
 		if response, err := cli.DeleteTasks(ctx, delRequest); err != nil {
-			return err
+			return nil, err
 		} else {
-			return rsp.WriteEntity(&jobs.CtrlCommandResponse{Msg: fmt.Sprintf("Deleted %v tasks", len(response.Deleted))})
+			return &jobs.CtrlCommandResponse{Msg: fmt.Sprintf("Deleted %v tasks", len(response.Deleted))}, nil
 		}
 
 	} else if cmd.Cmd == jobs.Command_RunOnce {
@@ -156,7 +166,7 @@ func (s *JobsHandler) UserControlJob(req *restful.Request, rsp *restful.Response
 			RunTaskId:     cmd.TaskId,
 			RunParameters: cmd.RunParameters,
 		})
-		return nil
+		return &jobs.CtrlCommandResponse{Msg: "message sent"}, nil
 
 	} else if cmd.Cmd == jobs.Command_Active || cmd.Cmd == jobs.Command_Inactive {
 
@@ -170,22 +180,20 @@ func (s *JobsHandler) UserControlJob(req *restful.Request, rsp *restful.Response
 				job.Inactive = false
 			}
 			if _, err := cli.PutJob(ctx, &jobs.PutJobRequest{Job: job}); err != nil {
-				return err
+				return nil, err
 			} else {
-				return rsp.WriteEntity(&jobs.CtrlCommandResponse{Msg: "Updated Job State"})
+				return &jobs.CtrlCommandResponse{Msg: "Updated Job State"}, nil
 			}
 
 		} else {
-			return err
+			return nil, err
 		}
 
 	} else {
+
 		cli := jobs.NewTaskServiceClient(grpc.ResolveConn(ctx, common.ServiceTasksGRPC))
-		if response, err := cli.Control(ctx, &cmd); err == nil {
-			return rsp.WriteEntity(response)
-		} else {
-			return err
-		}
+		return cli.Control(ctx, cmd)
+
 	}
 
 }
@@ -228,8 +236,10 @@ func (s *JobsHandler) UserCreateJob(req *restful.Request, rsp *restful.Response)
 			return errors.Tag(er, errors.UnmarshalError)
 		}
 	}
+	router := getRouter()
 
-	var jobUuid string
+	var job *jobs.Job
+	var multipleIds []string
 
 	log.Logger(ctx).Debug("User.CreateJob", zap.Any("p", jsonParams))
 
@@ -241,12 +251,12 @@ func (s *JobsHandler) UserCreateJob(req *restful.Request, rsp *restful.Response)
 		}
 		archiveName := jsonParams["archiveName"].(string)
 		format := jsonParams["format"].(string)
-		jobUuid, err = compress(ctx, nn, archiveName, format, ll...)
+		job, err = userspace.CompressTask(ctx, router, nn, archiveName, format, ll...)
 	case "extract":
 		node := jsonParams["node"].(string)
 		target := jsonParams["target"].(string)
 		format := jsonParams["format"].(string)
-		jobUuid, err = extract(ctx, node, target, format, ll...)
+		job, err = userspace.ExtractTask(ctx, router, node, target, format, ll...)
 	case "remote-download":
 		// Reparse json to expected structure
 		type params struct {
@@ -260,8 +270,10 @@ func (s *JobsHandler) UserCreateJob(req *restful.Request, rsp *restful.Response)
 		target := structParams.Target
 		urls := structParams.Urls
 		log.Logger(ctx).Info("Wget Task with params", zap.Any("params", structParams))
-		uuids, e := wgetTasks(ctx, target, urls, ll...)
-		jobUuid = strings.Join(uuids, ",")
+		jj, e := userspace.WgetTask(ctx, router, target, urls, ll...)
+		for _, j := range jj {
+			multipleIds = append(multipleIds, j.ID)
+		}
 		err = e
 	case "copy", "move":
 		var nn []string
@@ -277,12 +289,12 @@ func (s *JobsHandler) UserCreateJob(req *restful.Request, rsp *restful.Response)
 		if request.JobName == "move" {
 			move = true
 		}
-		jobUuid, err = dirCopy(ctx, nn, target, targetIsParent, move, ll...)
+		job, err = userspace.CopyMoveTask(ctx, router, nn, target, targetIsParent, move, ll...)
 	case "datasource-resync":
 		dsName := jsonParams["dsName"].(string)
-		jobUuid, err = syncDatasource(ctx, dsName, ll...)
+		job, err = userspace.SyncDatasourceTask(ctx, dsName, ll...)
 	case "import-p8":
-		jobUuid, err = p8migration(ctx, request.JsonParameters)
+		job, err = userspace.P8migrationTask(ctx, request.JsonParameters)
 	default:
 		err = errors.WithMessagef(errors.InvalidParameters, "unknown job name %s", request.JobName)
 	}
@@ -291,10 +303,15 @@ func (s *JobsHandler) UserCreateJob(req *restful.Request, rsp *restful.Response)
 		return err
 	}
 
-	response := &rest.UserJobResponse{
-		JobUuid: jobUuid,
+	if len(multipleIds) > 0 {
+		return rsp.WriteEntity(&rest.UserJobResponse{
+			JobUuid: strings.Join(multipleIds, ","),
+		})
+	} else if job != nil {
+		return rsp.WriteEntity(&rest.UserJobResponse{JobUuid: job.ID})
+	} else {
+		return errors.WithMessage(errors.StatusInternalServerError, "no job triggered after action")
 	}
-	return rsp.WriteEntity(response)
 
 }
 
