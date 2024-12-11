@@ -348,6 +348,10 @@ service PolicyService {
     }
 }
 
+message DeleteWorkspaceRequest {
+    string Slug = 1;
+}
+
 // Workspace Service
 service WorkspaceService {
     // Create or update a workspace
@@ -358,7 +362,7 @@ service WorkspaceService {
         };
     }
     // Delete an existing workspace
-    rpc DeleteWorkspace(idm.Workspace) returns (DeleteResponse) {
+    rpc DeleteWorkspace(DeleteWorkspaceRequest) returns (DeleteResponse) {
         option (google.api.http) =  {
             delete: "/workspace/{Slug}"
         };

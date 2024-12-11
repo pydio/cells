@@ -5770,25 +5770,6 @@
       "title": "Rest response for workspace search",
       "type": "object"
     },
-    "rpcStatus": {
-      "properties": {
-        "code": {
-          "format": "int32",
-          "type": "integer"
-        },
-        "details": {
-          "items": {
-            "$ref": "#/definitions/protobufAny",
-            "type": "object"
-          },
-          "type": "array"
-        },
-        "message": {
-          "type": "string"
-        }
-      },
-      "type": "object"
-    },
     "serviceOperationType": {
       "default": "OR",
       "enum": [
@@ -12839,86 +12820,10 @@
         "operationId": "DeleteWorkspace",
         "parameters": [
           {
-            "description": "Slug is an url-compatible form of the workspace label, or can be freely modified (max length 500)",
             "in": "path",
             "name": "Slug",
             "required": true,
             "type": "string"
-          },
-          {
-            "description": "Unique identifier of the workspace",
-            "in": "query",
-            "name": "UUID",
-            "required": false,
-            "type": "string"
-          },
-          {
-            "description": "Label of the workspace (max length 500)",
-            "in": "query",
-            "name": "Label",
-            "required": false,
-            "type": "string"
-          },
-          {
-            "description": "Description of the workspace (max length 1000)",
-            "in": "query",
-            "name": "Description",
-            "required": false,
-            "type": "string"
-          },
-          {
-            "default": "ANY",
-            "description": "Scope can be ADMIN, ROOM (=CELL) or LINK",
-            "enum": [
-              "ANY",
-              "ADMIN",
-              "ROOM",
-              "LINK"
-            ],
-            "in": "query",
-            "name": "Scope",
-            "required": false,
-            "type": "string"
-          },
-          {
-            "description": "Last modification time",
-            "format": "int32",
-            "in": "query",
-            "name": "LastUpdated",
-            "required": false,
-            "type": "integer"
-          },
-          {
-            "description": "JSON-encoded list of attributes",
-            "in": "query",
-            "name": "Attributes",
-            "required": false,
-            "type": "string"
-          },
-          {
-            "collectionFormat": "multi",
-            "description": "Quick list of the RootNodes uuids",
-            "in": "query",
-            "items": {
-              "type": "string"
-            },
-            "name": "RootUUIDs",
-            "required": false,
-            "type": "array"
-          },
-          {
-            "type": "array",
-            "description": "List of the Root Nodes in the tree that compose this workspace\n\nThis is a request variable of the map type. The query format is \"map_name[key]=value\", e.g. If the map name is Age, the key type is string, and the value type is integer, the query parameter is expressed as Age[\"bob\"]=18",
-            "in": "query",
-            "name": "RootNodes",
-            "required": false
-          },
-          {
-            "description": "Context-resolved to quickly check if workspace is editable or not",
-            "in": "query",
-            "name": "PoliciesContextEditable",
-            "required": false,
-            "type": "boolean"
           }
         ],
         "responses": {

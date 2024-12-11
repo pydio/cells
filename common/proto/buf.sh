@@ -49,8 +49,8 @@ fi
 if [ $1 == "rest" ]
 then
   echo "Generate OpenAPIv2 JSON specification"
-  #buf generate --path cellsapi-rest.proto --template buf.openapi.yaml
-  #go run cmd/main.go ./cellsapi-rest.swagger.json
+  buf generate --path cellsapi-rest.proto --template buf.openapi.yaml
+  go run cmd/main.go ./cellsapi-rest.swagger.json
   buf generate --path cellsapi-rest-v2.proto --template buf.openapi.yaml
   go run cmd/main.go ./cellsapi-rest-v2.swagger.json
 fi

@@ -126,7 +126,8 @@ func main() {
 		_ = rootNode.Put("definitions.restError", restError)
 		pathsNode, e := rootNode.Query("paths")
 		if e != nil {
-			fmt.Println("Error while querying path", e)
+			fmt.Println("Error while querying path")
+			return
 		}
 
 		for k := range pathsNode.InterfaceValue().(map[string]interface{}) {
@@ -151,9 +152,9 @@ func main() {
 			bodyName := strings.TrimPrefix(n.String(), "#/definitions/")
 			refNode, e := rootNode.Query("definitions." + bodyName)
 			if e != nil {
-				fmt.Println("No ref node", e)
+				fmt.Println("No ref node")
 			} else {
-				fmt.Println("Replace ref node", bodyName, "with", v)
+				fmt.Println("Replace ref node")
 				_ = rootNode.Put("definitions."+v, refNode.InterfaceValue())
 				_ = rootNode.Delete("definitions." + bodyName)
 				_ = rootNode.Put(k+".$ref", "#/definitions/"+v)
