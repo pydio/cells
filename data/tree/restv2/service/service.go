@@ -18,12 +18,29 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-package rest
+package service
 
-import _ "embed"
+import (
+	"context"
 
-//go:embed cellsapi-rest.swagger.json
-var SwaggerJson string
+	"github.com/pydio/cells/v5/common"
+	"github.com/pydio/cells/v5/common/runtime"
+	"github.com/pydio/cells/v5/common/service"
+	"github.com/pydio/cells/v5/data/tree/restv2"
+)
 
-//go:embed cellsapi-rest-v2.swagger.json
-var SwaggerV2 string
+const Name = "node"
+
+func init() {
+	runtime.Register("main", func(ctx context.Context) {
+		service.NewService(
+			service.Name(common.ServiceRestNamespace_+Name),
+			service.Context(ctx),
+			service.Tag(common.ServiceTagData),
+			service.Description("RESTful Gateway to Rest API v2"),
+			service.WithWeb(func(c context.Context) service.WebHandler {
+				return restv2.NewHandler(c)
+			}),
+		)
+	})
+}

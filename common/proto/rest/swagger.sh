@@ -23,8 +23,12 @@
 [ -z "$BRANCH_PATH" ] && BRANCH_PATH=$GOPATH
 [ -z "$MODULE_SRC_PATH" ] && MODULE_SRC_PATH=~/Sources/cells-sdk-js/src
 
-echo "Generating Javascript client"
+echo "Generate YAML v3 version"
 
+openapi-generator generate -i ./cellsapi-rest-v2.swagger.json -g openapi-yaml -o .
+
+echo "Generating Javascript client"
+exit
 openapi-generator generate -i $BRANCH_PATH/src/github.com/pydio/cells/common/proto/rest/cellsapi-rest.swagger.json -g javascript -c swagger-jsclient.json -o /tmp/js-client
 rm -rf $MODULE_SRC_PATH
 mv /tmp/js-client/src $MODULE_SRC_PATH

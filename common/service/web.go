@@ -292,7 +292,7 @@ func containsTags(operation *spec.Operation, filtersTags []string) (found bool) 
 func SwaggerSpec() *loads.Document {
 	swaggerSyncOnce.Do(func() {
 		var swaggerDocuments []*loads.Document
-		for _, data := range append([]string{rest.SwaggerJson}, swaggerJSONStrings...) {
+		for _, data := range append([]string{rest.SwaggerJson, rest.SwaggerV2}, swaggerJSONStrings...) {
 			// Reading swagger json
 			rawMessage := new(json.RawMessage)
 			if e := json.Unmarshal([]byte(data), rawMessage); e != nil {
@@ -329,6 +329,9 @@ func SwaggerSpec() *loads.Document {
 						}
 						if i.Head != nil {
 							existing.Head = i.Head
+						}
+						if i.Patch != nil {
+							existing.Patch = i.Patch
 						}
 						swaggerMergedDocument.Spec().Paths.Paths[p] = existing
 					} else {

@@ -298,7 +298,7 @@ func (node *Node) AllMetaDeserialized(excludes map[string]struct{}) map[string]i
 	}
 	m := make(map[string]interface{}, len(node.MetaStore))
 	for k := range node.MetaStore {
-		if strings.HasPrefix(k, "pydio:") {
+		if strings.HasPrefix(k, common.MetaNamespaceReservedPrefix_) {
 			continue
 		}
 		if excludes != nil {
@@ -318,7 +318,7 @@ func (node *Node) AllMetaDeserialized(excludes map[string]struct{}) map[string]i
 func (node *Node) WithoutReservedMetas() *Node {
 	newNode := proto.Clone(node).(*Node)
 	for k := range newNode.MetaStore {
-		if strings.HasPrefix(k, "pydio:") {
+		if strings.HasPrefix(k, common.MetaNamespaceReservedPrefix_) {
 			delete(newNode.MetaStore, k)
 		}
 	}

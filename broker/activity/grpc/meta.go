@@ -63,12 +63,17 @@ func (m *MetaProvider) ReadNodeStream(streamer tree.NodeProviderStreamer_ReadNod
 		node := request.Node
 		if userId != "" { // No user found, just skip
 			if subs, err := dao.ListSubscriptions(nil, activity2.OwnerType_NODE, []string{node.Uuid}); err == nil {
+				var ss []*activity2.Subscription
 				for _, sub := range subs {
 					if sub.UserId == userId && len(sub.Events) > 0 {
+						ss = append(ss, sub)
 						events := strings.Join(sub.Events, ",")
 						log.Logger(ctx).Debug("ReadNodeStream - Adding meta", zap.String("user_subscriptions", events))
-						node.MustSetMeta(common.MetaFlagUserSubscriptions, events)
+						node.MustSetMeta(common.MetaFlagUserSubscriptionsJoined, events)
 					}
+				}
+				if len(ss) > 0 {
+					node.MustSetMeta(common.MetaFlagUserSubscriptions, ss)
 				}
 			} else {
 				log.Logger(ctx).Error("cannot list subscriptions for "+userId, node.Zap(), zap.Error(err))

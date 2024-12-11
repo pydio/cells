@@ -340,11 +340,11 @@ func (h *GraphHandler) Recommend(req *restful.Request, rsp *restful.Response) er
 		pr := compose.PathClient(h.runtimeContext)
 		_ = pr.ListNodesWithCallback(ctx, &tree.ListNodesRequest{Node: &tree.Node{Path: "/"}}, func(ctx context.Context, node *tree.Node, err error) error {
 			if err == nil && node.Type != tree.NodeType_UNKNOWN {
-				if wsu := node.GetStringMeta("ws_uuid"); wsu != "" {
+				if wsu := node.GetStringMeta(common.MetaFlagWorkspaceUuid); wsu != "" {
 					node.MustSetMeta("repository_id", wsu)
 					node.MustSetMeta("reco-annotation", "workspace")
 				}
-				if wsl := node.GetStringMeta("ws_label"); wsl != "" {
+				if wsl := node.GetStringMeta(common.MetaFlagWorkspaceLabel); wsl != "" {
 					node.MustSetMeta("name", wsl)
 				}
 				resp.Nodes = append(resp.Nodes, node)

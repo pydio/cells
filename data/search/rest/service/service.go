@@ -37,9 +37,7 @@ func init() {
 			service.Tag(common.ServiceTagData),
 			service.Description("RESTful Gateway to search engine"),
 			service.WithWeb(func(c context.Context) service.WebHandler {
-				return &rest.Handler{
-					RuntimeCtx: c,
-				}
+				return &rest.Handler{}
 			}),
 		)
 	})

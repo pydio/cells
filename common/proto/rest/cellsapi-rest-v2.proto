@@ -1,0 +1,329 @@
+syntax = "proto3";
+
+package rest;
+
+import "cellsapi-common.proto";
+import "cellsapi-data.proto";
+import "cellsapi-idm.proto";
+import "cellsapi-broker.proto";
+import "cellsapi-config.proto";
+import "cellsapi-scheduler.proto";
+import "cellsapi-graph.proto";
+import "cellsapi-share.proto";
+import "cellsapi-frontend.proto";
+import "cellsapi-templates.proto";
+
+import "cells-tree.proto";
+import "cells-idm.proto";
+import "cells-mailer.proto";
+import "cells-activitystream.proto";
+import "cells-jobs.proto";
+import "cells-encryption.proto";
+import "cells-log.proto";
+import "cells-object.proto";
+import "cells-install.proto";
+import "cells-ctl.proto";
+import "cells-update.proto";
+import "cells-registry.proto";
+
+import "google/api/annotations.proto";
+import "protoc-gen-openapiv2/options/annotations.proto";
+
+option go_package ="github.com/pydio/cells/v5/common/proto/rest";
+
+option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_swagger) = {
+  info: {
+    title: "Pydio Cells Rest API";
+    version: "v2";
+    contact: {
+      name: "Pydio";
+      url: "https://pydio.com";
+    };
+  };
+  external_docs: {
+    url: "https://pydio.com";
+    description: "More about Pydio Cells Apis";
+  }
+  schemes: HTTP;
+  schemes: HTTPS;
+  schemes: WSS;
+  consumes: "application/json";
+  produces: "application/json";
+};
+
+enum Mode {
+  Default = 0;
+  NodeReadOnly = 1;
+  NodeWriteOnly = 2;
+  LevelReadOnly = 3;
+}
+
+message LockInfo{
+  bool IsLocked = 1;
+  string Owner = 2;
+}
+message ContextWorkspace{
+  bool IsRoot = 1;
+  string Uuid = 2;
+  string Slug = 3;
+  idm.WorkspaceScope Scope = 4;
+  string Permissions = 5;
+  string Label = 6;
+  string Description = 7;
+  bool Syncable = 8;
+  bool IsVirtualRoot = 9;
+  bool SkipRecycle = 10;
+  int64 Quota = 11;
+  int64 QuotaUsage = 12;
+}
+message DataSourceFeatures{
+  bool Encrypted = 1;
+  bool Versioned = 2;
+}
+
+message ImageMeta {
+  int32 Width = 1;
+  int32 Height = 2;
+  int32 Orientation = 3;
+  string JsonEXIF = 4;
+}
+
+message FilePreview{
+  bool Processing = 1;
+  string ContentType = 2;
+  string URL = 3;
+  int32 Dimension = 4;
+}
+
+message JsonMeta {
+  string Namespace = 1;
+  string Value = 2;
+}
+
+message CountMeta {
+  string Namespace = 1;
+  int32 Value = 2;
+}
+
+message Node {
+
+  string Uuid = 1;
+  string Path = 2;
+  tree.NodeType Type = 3;
+  Mode Mode = 4;
+  int64 Size = 5;
+  int64 Modified = 6; // Date instead of TS ?
+
+  string ContentType = 7;
+  string ContentsHash = 8;
+  string HashingMethod = 23;
+  string StorageETag = 9;
+
+  bool IsRecycleBin = 10;
+  bool IsRecycled = 11;
+  bool IsBookmarked = 12;
+  ContextWorkspace ContextWorkspace = 13;
+  DataSourceFeatures DataSourceFeatures = 24;
+  LockInfo ContentLock = 14;
+
+  repeated FilePreview Previews = 16;
+  repeated ShareLink Shares = 17;
+  repeated activity.Object Activities = 18;
+  repeated activity.Subscription Subscriptions = 19;
+  repeated JobInfo Jobs = 20;
+
+  ImageMeta ImageMeta = 25;
+  repeated JsonMeta Metadata = 21;
+  repeated CountMeta FolderMeta = 15;
+  repeated JsonMeta UserMetadata = 22;
+
+}
+
+message NodeLocator{
+  string Uuid = 1;
+  string Path = 2;
+}
+
+message IncomingNode {
+  NodeLocator Locator = 1;
+  tree.NodeType Type = 2;
+  string ContentType = 3;
+  string TemplateUuid = 4;
+}
+
+message NodeCollection {
+  repeated Node Nodes = 1;
+  repeated tree.SearchFacet Facets = 3;
+  Pagination Pagination = 2;
+}
+
+message CreateRequest {
+  repeated IncomingNode Inputs = 1;
+  bool Recursive = 2;
+}
+
+message LookupRequest {
+  repeated NodeLocator Locators = 1;
+  tree.Query Query = 2;
+  int64 Offset = 3;
+  int64 Limit = 4;
+  string SortField = 5;
+  bool SortDirDesc = 6;
+  repeated uint32 StatFlags = 7;
+}
+
+message JobInfo{
+  string JobUuid = 1;
+  repeated jobs.Task Tasks = 2;
+}
+
+enum UserActionType {
+  delete = 0;
+  restore = 1;
+  copy = 2;
+  move = 3;
+  extract = 4;
+  compress = 5;
+}
+
+message ActionParameters {
+  repeated NodeLocator Nodes = 2;
+  NodeLocator TargetNode = 3;
+  string SelectionUuid = 4;
+  string JsonParameters = 5;
+  bool Await = 6;
+}
+
+message ActionRequest {
+  UserActionType Name = 1;
+  string JobUuid = 2;
+  ActionParameters Parameters = 3;
+}
+
+message ControlActionRequest {
+  UserActionType Name = 1;
+  string JobUuid = 2;
+  jobs.CtrlCommand Command = 3;
+}
+
+enum ActionStatus {
+  Performed = 0;
+  Background = 1;
+}
+
+message ActionResponse {
+  ActionStatus Status = 1;
+  repeated Node AffectedNodes = 2;
+  repeated JobInfo Jobs = 3;
+}
+
+message Selection {
+  string Uuid = 1;
+  repeated Node Nodes = 2;
+}
+
+message UpdatePublicLinkRequest {
+  string Uuid = 1;
+  ShareLink Link = 2;
+}
+
+message GetPublicLinkRequest {
+  string Uuid = 1;
+}
+
+service NodeService {
+  // Create one or many files (empty or hydrated from a TemplateUuid) or folders
+  rpc Create(CreateRequest) returns (NodesCollection) {
+    option (google.api.http) = {
+      post: "/node/create"
+      body: "*"
+    };
+  }
+  // Generic request to either list (using Locators) or search (using Query) for nodes
+  rpc Lookup(LookupRequest) returns (NodesCollection) {
+    option (google.api.http) = {
+      post: "/node"
+      body: "*"
+    };
+  }
+  // Load a node by its path
+  rpc GetByPath(NodeLocator) returns (Node){
+    option (google.api.http) = {
+      get: "/node/p/{Path}"
+    };
+  };
+  // Load a node by its Uuid
+  rpc GetByUuid(NodeLocator) returns (Node){
+    option (google.api.http) = {
+      get: "/node/u/{Uuid}"
+    };
+  };
+  // List all known versions of a node
+  rpc ListVersions(NodeLocator) returns (NodeCollection){
+    option (google.api.http) = {
+      get: "/node/v/{Uuid}"
+    };
+  };
+
+  // Create a public link on a given node
+  rpc CreatePublicLink(ShareLink) returns (ShareLink) {
+    option (google.api.http) = {
+      post: "/node/link"
+      body: "*"
+    };
+  }
+  // Load public link information by Uuid
+  rpc GetPublicLink(GetPublicLinkRequest) returns (ShareLink) {
+    option (google.api.http) = {
+      get: "/node/link/{Uuid}"
+    };
+  }
+  // Update public link settings
+  rpc UpdatePublicLink(UpdatePublicLinkRequest) returns (ShareLink) {
+    option (google.api.http) = {
+      patch: "/node/link/{Uuid}"
+      body: "Link"
+    };
+  }
+  // Remove a public link
+  rpc DeletePublicLink(GetPublicLinkRequest) returns (ShareLink) {
+    option (google.api.http) = {
+      delete: "/node/link/{Uuid}"
+    };
+  }
+
+  // Trigger an action on the tree. Returns a JobInfo describing a background task.
+  rpc PerformAction(ActionRequest) returns (ActionResponse) {
+    option (google.api.http) = {
+      post: "/node/action/{Name}"
+      body: "Parameters"
+    };
+  }
+  // Retrieve information about an action running in background
+  rpc GetActionJob(ActionRequest) returns (JobInfo) {
+    option (google.api.http) = {
+      get: "/node/action/{Name}/{JobUuid}"
+    };
+  }
+  // Send control commands to a background job
+  rpc ControlActionJob(ControlActionRequest) returns (JobInfo) {
+    option (google.api.http) = {
+      patch: "/node/action/{Name}/{JobUuid}"
+      body:"Command"
+    };
+  }
+  // Create and persist a temporary selection of nodes, that can be used by other actions
+  rpc CreateSelection(Selection) returns (Selection) {
+    option (google.api.http) = {
+      post: "/node/selection"
+      body: "*"
+    };
+  }
+  // List available templates for hydrating empty files
+  rpc Templates(ListTemplatesRequest) returns (ListTemplatesResponse) {
+    option (google.api.http) = {
+      get: "/node/templates"
+    };
+  }
+
+}

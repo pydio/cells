@@ -65,6 +65,7 @@ import (
 	_ "github.com/pydio/cells/v5/data/templates/rest/service"
 	_ "github.com/pydio/cells/v5/data/tree/grpc/service"
 	_ "github.com/pydio/cells/v5/data/tree/rest/service"
+	_ "github.com/pydio/cells/v5/data/tree/restv2/service"
 	_ "github.com/pydio/cells/v5/data/versions/grpc/service"
 
 	// DataSources DAOs

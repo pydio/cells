@@ -83,8 +83,19 @@ func (h *Handler) GetBulkMeta(req *restful.Request, resp *restful.Response) erro
 	}
 	output := &rest.BulkMetaResponse{}
 	ctx := req.Request.Context()
-	var folderNodes []*tree.Node
+	nn, pag, err := h.LoadNodes(ctx, &bulkRequest)
+	if err != nil {
+		return err
+	}
+	for _, n := range nn {
+		output.Nodes = append(output.Nodes, n.WithoutReservedMetas())
+	}
+	output.Pagination = pag
+	return resp.WriteEntity(output)
+}
 
+func (h *Handler) LoadNodes(ctx context.Context, bulkRequest *rest.GetBulkMetaRequest) (nn []*tree.Node, pagination *rest.Pagination, er error) {
+	var folderNodes []*tree.Node
 	for _, p := range bulkRequest.NodePaths {
 		if strings.HasSuffix(p, "/*") || bulkRequest.Versions {
 			if readResp, err := h.loadNodeByPath(ctx, strings.TrimSuffix(p, "/*"), true); err == nil {
@@ -101,10 +112,11 @@ func (h *Handler) GetBulkMeta(req *restful.Request, resp *restful.Response) erro
 					}
 				}
 				if inRequest && !bulkRequest.Versions {
-					output.Nodes = append(output.Nodes, readResp.WithoutReservedMetas())
+					nn = append(nn, readResp.WithoutReservedMetas())
 				}
 			} else {
-				return errors.Tag(err, errors.NodeNotFound)
+				er = errors.Tag(err, errors.NodeNotFound)
+				return
 			}
 		} else {
 			var asFolder bool
@@ -119,25 +131,21 @@ func (h *Handler) GetBulkMeta(req *restful.Request, resp *restful.Response) erro
 				continue
 			}
 			if node, err := h.loadNodeByPath(ctx, p, bulkRequest.AllMetaProviders); err == nil {
-				output.Nodes = append(output.Nodes, node.WithoutReservedMetas())
+				nn = append(nn, node.WithoutReservedMetas())
 			}
 		}
 	}
 
-	if len(output.Nodes) > 0 {
-		for i, n := range output.Nodes {
+	if len(nn) > 0 {
+		for i, n := range nn {
 			if n.Uuid != "" {
-				output.Nodes[i] = n.WithoutReservedMetas()
+				nn[i] = n.WithoutReservedMetas()
 			}
 		}
 	}
 
 	if len(folderNodes) == 0 {
-		reservedOutput := &rest.BulkMetaResponse{}
-		for _, n := range output.Nodes {
-			reservedOutput.Nodes = append(reservedOutput.Nodes, n.WithoutReservedMetas())
-		}
-		return resp.WriteEntity(reservedOutput)
+		return
 	}
 
 	for _, folderNode := range folderNodes {
@@ -175,12 +183,13 @@ func (h *Handler) GetBulkMeta(req *restful.Request, resp *restful.Response) erro
 				}
 			}
 		}
-		cc, countDiffers, er := h.fillChildren(ctx, listRequest, childrenCount)
-		if er != nil {
-			return er
+		cc, countDiffers, err := h.fillChildren(ctx, listRequest, childrenCount)
+		if err != nil {
+			er = err
+			return
 		}
 		childrenLoaded = int32(len(cc))
-		output.Nodes = append(output.Nodes, cc...)
+		nn = append(nn, cc...)
 
 		if !bulkRequest.Versions {
 			fNode := folderNode.Clone()
@@ -228,7 +237,7 @@ func (h *Handler) GetBulkMeta(req *restful.Request, resp *restful.Response) erro
 					totalPages = -1
 				}
 			}
-			output.Pagination = &rest.Pagination{
+			pagination = &rest.Pagination{
 				Limit:         pageSize,
 				CurrentOffset: bulkRequest.Offset,
 				Total:         total,
@@ -241,7 +250,7 @@ func (h *Handler) GetBulkMeta(req *restful.Request, resp *restful.Response) erro
 
 	}
 
-	return resp.WriteEntity(output)
+	return
 
 }
 

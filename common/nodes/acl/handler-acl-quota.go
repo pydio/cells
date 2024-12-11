@@ -30,6 +30,7 @@ import (
 	"google.golang.org/grpc"
 	"google.golang.org/protobuf/types/known/anypb"
 
+	"github.com/pydio/cells/v5/common"
 	"github.com/pydio/cells/v5/common/auth/claim"
 	"github.com/pydio/cells/v5/common/client/commons/idmc"
 	"github.com/pydio/cells/v5/common/client/commons/treec"
@@ -98,16 +99,16 @@ func (a *QuotaFilter) ReadNode(ctx context.Context, in *tree.ReadNodeRequest, op
 				return resp, nil
 			}
 			n := resp.Node.Clone()
-			n.MustSetMeta("ws_quota", qc.q)
-			n.MustSetMeta("ws_quota_usage", qc.u)
+			n.MustSetMeta(common.MetaFlagWorkspaceQuota, qc.q)
+			n.MustSetMeta(common.MetaFlagWorkspaceQuotaUsage, qc.u)
 			resp.Node = n
 			return resp, nil
 		}
 	}
 	if q, u, e := a.ComputeQuota(ctx, branch.Workspace); e == nil && q > 0 {
 		n := resp.Node.Clone()
-		n.MustSetMeta("ws_quota", q)
-		n.MustSetMeta("ws_quota_usage", u)
+		n.MustSetMeta(common.MetaFlagWorkspaceQuota, q)
+		n.MustSetMeta(common.MetaFlagWorkspaceQuotaUsage, u)
 		resp.Node = n
 		if ca != nil && cacheKey != "" {
 			_ = ca.Set(cacheKey, &qCache{q: q, u: u})

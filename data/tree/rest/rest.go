@@ -127,7 +127,15 @@ func (h *Handler) CreateNodes(req *restful.Request, resp *restful.Response) erro
 	}
 
 	ctx := req.Request.Context()
-	output := &rest.NodesCollection{}
+	nn, er := h.MkDirsOrFiles(ctx, &input)
+	if er != nil {
+		return er
+	}
+	return resp.WriteEntity(&rest.NodesCollection{Children: nn})
+
+}
+
+func (h *Handler) MkDirsOrFiles(ctx context.Context, input *rest.CreateNodesRequest) (nn []*tree.Node, er error) {
 
 	log.Logger(ctx).Debug("Got CreateNodes Request", zap.Any("request", &input))
 	router := h.GetRouter()
@@ -142,7 +150,8 @@ func (h *Handler) CreateNodes(req *restful.Request, resp *restful.Response) erro
 		if !n.IsLeaf() {
 			// Additional folders checks for non-flat storages
 			if info, err := router.BranchInfoForNode(ctx, n); err != nil {
-				return err
+				er = err
+				return
 			} else if !info.FlatStorage {
 				folderPaths = append(folderPaths, n.Path)
 				folderChecks[n.Path] = n.Path
@@ -159,9 +168,10 @@ func (h *Handler) CreateNodes(req *restful.Request, resp *restful.Response) erro
 						SessionForceClose: session,
 					})
 				}
-				return e
+				er = e
+				return
 			}
-			output.Children = append(output.Children, r.Node.WithoutReservedMetas())
+			nn = append(nn, r.Node.WithoutReservedMetas())
 		} else {
 			var reader io.Reader
 			var length int64
@@ -170,12 +180,14 @@ func (h *Handler) CreateNodes(req *restful.Request, resp *restful.Response) erro
 				provider := templates.GetProvider()
 				node, err := provider.ByUUID(ctx, input.TemplateUUID)
 				if err != nil {
-					return err
+					er = err
+					return
 				}
 				var e error
 				reader, length, e = node.Read(ctx)
 				if e != nil {
-					return e
+					er = e
+					return
 				}
 
 			} else {
@@ -187,10 +199,10 @@ func (h *Handler) CreateNodes(req *restful.Request, resp *restful.Response) erro
 				length = int64(len(contents))
 				reader = strings.NewReader(contents)
 			}
-			if _, e := router.PutObject(ctx, n, reader, &models.PutRequestData{Size: length, Metadata: meta}); e != nil {
-				return e
+			if _, er = router.PutObject(ctx, n, reader, &models.PutRequestData{Size: length, Metadata: meta}); er != nil {
+				return
 			}
-			output.Children = append(output.Children, n.WithoutReservedMetas())
+			nn = append(nn, n.WithoutReservedMetas())
 		}
 	}
 
@@ -233,7 +245,7 @@ func (h *Handler) CreateNodes(req *restful.Request, resp *restful.Response) erro
 			log.Logger(ctx).Info("Rest CreateNodes successfully passed folders creation checks", zap.Int("created number", len(folderPaths)))
 		}
 	}
-	return resp.WriteEntity(output)
+	return
 
 }
 

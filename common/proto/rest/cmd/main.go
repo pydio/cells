@@ -24,7 +24,6 @@ package main
 import (
 	"fmt"
 	"os"
-	"path/filepath"
 	"strings"
 
 	"github.com/tomwright/dasel"
@@ -33,15 +32,9 @@ import (
 )
 
 var (
-	base     = filepath.Join(os.Getenv("GOPATH"), "src", "github.com", "pydio", "cells", "common", "proto", "rest")
-	replaces = map[string]string{
-		`          "default": {
-            "description": "An unexpected error response.",
-            "schema": {
-              "$ref": "#/definitions/rpcStatus"
-            }
-          }
-`: `		  "401":{
+	defResponses     map[string]interface{}
+	restError        map[string]interface{}
+	defResponsesJSON = `{"401":{
 		    "description":"User is not authenticated",
 		    "schema":{
 			  "$ref": "#/definitions/restError"
@@ -64,9 +57,8 @@ var (
 		    "schema":{
 			  "$ref": "#/definitions/restError"
 		    }
-		  }
-`,
-		`    "restDeleteResponse":`: `    "restError": {
+		  }}`
+	restErrorJSON = `{
       "type": "object",
       "properties": {
         "Code": {
@@ -94,10 +86,9 @@ var (
         }
       },
       "title": "Generic error message"
-    },
-    "restDeleteResponse":`,
-	}
+    }`
 
+	// Used for rest V1 - Body management creates xxxBody models
 	inlineTitles = map[string]string{
 		"paths.\\/config\\/peers\\/{PeerAddress}.post.parameters.[1].schema": "RestListPeerFoldersRequest",
 		"paths.\\/config\\/peers\\/{PeerAddress}.put.parameters.[1].schema":  "RestCreatePeerFolderRequest",
@@ -111,27 +102,53 @@ var (
 	}
 )
 
+func init() {
+	if er := json.Unmarshal([]byte(defResponsesJSON), &defResponses); er != nil {
+		panic(er)
+	}
+	if er := json.Unmarshal([]byte(restErrorJSON), &restError); er != nil {
+		panic(er)
+	}
+}
+
 func main() {
-	if content, err := os.ReadFile(filepath.Join(base, "cellsapi-rest.swagger.json")); err == nil {
-		fmt.Println("** Monkey Patching json file with error responses")
-		c1 := string(content)
-		for k, v := range replaces {
-			c1 = strings.ReplaceAll(c1, k, v)
-		}
-		content = []byte(c1)
+	if content, err := os.ReadFile(os.Args[1]); err == nil {
 
 		var data interface{}
-		_ = json.Unmarshal(content, &data)
+		er := json.Unmarshal(content, &data)
+		if er != nil {
+			panic(er)
+		}
 		rootNode := dasel.New(data)
+
+		fmt.Println("** Monkey Patching json file with error responses")
+		_ = rootNode.Delete("definitions.rpcStatus")
+		_ = rootNode.Put("definitions.restError", restError)
+		pathsNode, e := rootNode.Query("paths")
+		if e != nil {
+			fmt.Println("Error while querying path", e)
+		}
+
+		for k := range pathsNode.InterfaceValue().(map[string]interface{}) {
+			pNode, _ := pathsNode.Query(k)
+			for k2 := range pNode.InterfaceValue().(map[string]interface{}) {
+				if _, e := pNode.Query(k2 + ".responses.default"); e == nil {
+					fmt.Println("Patching", "paths."+k+"."+k2+".responses.default")
+					_ = pNode.Delete(k2 + ".responses.default")
+					for code, resp := range defResponses {
+						_ = pNode.Put(k2+".responses."+code, resp)
+					}
+				}
+			}
+		}
 
 		for k, v := range inlineTitles {
 			n, e := rootNode.Query(k + ".$ref")
 			if e != nil {
-				fmt.Println("Got error", e)
+				// not found, ignore
 				continue
 			}
 			bodyName := strings.TrimPrefix(n.String(), "#/definitions/")
-			fmt.Println(bodyName)
 			refNode, e := rootNode.Query("definitions." + bodyName)
 			if e != nil {
 				fmt.Println("No ref node", e)
@@ -149,7 +166,7 @@ func main() {
 		}
 
 		output, _ := json.MarshalIndent(rootNode.InterfaceValue(), "", "  ")
-		_ = os.WriteFile(filepath.Join(base, "cellsapi-rest.swagger.json"), output, 0777)
+		_ = os.WriteFile(os.Args[1], output, 0777)
 
 	} else {
 		fmt.Println("Cannot read original file" + err.Error())

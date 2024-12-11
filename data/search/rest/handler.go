@@ -44,11 +44,7 @@ import (
 	"github.com/pydio/cells/v5/idm/share"
 )
 
-type Handler struct {
-	RuntimeCtx context.Context
-	router     nodes.Client
-	client     tree.SearcherClient
-}
+type Handler struct{}
 
 // SwaggerTags list the names of the service tags declared in the swagger json implemented by this service
 func (s *Handler) SwaggerTags() []string {
@@ -60,18 +56,12 @@ func (s *Handler) Filter() func(string) string {
 	return nil
 }
 
-func (s *Handler) getRouter() nodes.Client {
-	if s.router == nil {
-		s.router = compose.PathClient(s.RuntimeCtx)
-	}
-	return s.router
+func (s *Handler) getRouter(ctx context.Context) nodes.Client {
+	return compose.PathClient(ctx)
 }
 
-func (s *Handler) getClient() tree.SearcherClient {
-	if s.client == nil {
-		s.client = tree.NewSearcherClient(grpc.ResolveConn(s.RuntimeCtx, common.ServiceSearchGRPC))
-	}
-	return s.client
+func (s *Handler) getClient(ctx context.Context) tree.SearcherClient {
+	return tree.NewSearcherClient(grpc.ResolveConn(ctx, common.ServiceSearchGRPC))
 }
 
 func (s *Handler) sharedResourcesAsNodes(ctx context.Context, query *tree.Query) ([]*tree.Node, bool, error) {
@@ -82,7 +72,7 @@ func (s *Handler) sharedResourcesAsNodes(ctx context.Context, query *tree.Query)
 	// Replace FS
 	query.FreeString = freeString
 
-	sc := share.NewClient(s.RuntimeCtx, nil)
+	sc := share.NewClient(ctx, nil)
 	rr, e := sc.ListSharedResources(ctx, "", scope, true, resources.ResourceProviderHandler{})
 	if e != nil {
 		return nil, false, e
@@ -165,16 +155,28 @@ func (s *Handler) Nodes(req *restful.Request, rsp *restful.Response) error {
 	if err := req.ReadEntity(&searchRequest); err != nil {
 		return err
 	}
-
 	query := searchRequest.Query
 	if query == nil {
 		return rsp.WriteEntity(&rest.SearchResults{Total: 0})
 	}
+	nn, ff, pag, er := s.PerformSearch(ctx, &searchRequest)
+	if er != nil {
+		return er
+	}
+	result := &rest.SearchResults{
+		Results: nn,
+		Facets:  ff,
+		Total:   pag.Total,
+	}
+	return rsp.WriteEntity(result)
 
-	router := s.getRouter()
+}
 
-	var nn []*tree.Node
-	var facets []*tree.SearchFacet
+func (s *Handler) PerformSearch(ctx context.Context, searchRequest *tree.SearchRequest) (nn []*tree.Node, facets []*tree.SearchFacet, pagination *rest.Pagination, err error) {
+
+	query := searchRequest.GetQuery()
+	router := s.getRouter(ctx)
+
 	var prefixes []string
 	nodesPrefixes := map[string]string{}
 	inputPrefixes := s.factorizePathPrefixes(query.PathPrefix)
@@ -188,10 +190,11 @@ func (s *Handler) Nodes(req *restful.Request, rsp *restful.Response) error {
 	// TMP Load shared
 	sharedNodes, shared, er := s.sharedResourcesAsNodes(ctx, query)
 	if er != nil {
-		return er
+		err = er
+		return
 	}
 
-	err := router.WrapCallback(func(inputFilter nodes.FilterFunc, outputFilter nodes.FilterFunc) error {
+	err = router.WrapCallback(func(inputFilter nodes.FilterFunc, outputFilter nodes.FilterFunc) error {
 
 		var userWorkspaces map[string]*idm.Workspace
 		// Fill a context with current user info
@@ -254,7 +257,7 @@ func (s *Handler) Nodes(req *restful.Request, rsp *restful.Response) error {
 			query.PathPrefix = append(query.PathPrefix, rootNode.Path)
 		}
 
-		sClient, err := s.getClient().Search(ctx, &searchRequest)
+		sClient, err := s.getClient(ctx).Search(ctx, searchRequest)
 		if err != nil {
 			return err
 		}
@@ -306,16 +309,9 @@ func (s *Handler) Nodes(req *restful.Request, rsp *restful.Response) error {
 		return nil
 
 	})
-
 	if err != nil {
-		return err
+		return
 	}
-
-	result := &rest.SearchResults{
-		Results: nn,
-		Facets:  facets,
-		Total:   int32(len(nn)),
-	}
-	return rsp.WriteEntity(result)
-
+	pagination = &rest.Pagination{Total: int32(len(nn))}
+	return
 }
