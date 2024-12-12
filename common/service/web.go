@@ -189,7 +189,7 @@ func WithWeb(handler func(ctx context.Context) WebHandler) ServiceOption {
 			mm := getWebMiddlewares(o.Name, "core")
 			mm = append(mm, o.WebMiddlewares...)
 			mm = append(mm, getWebMiddlewares(o.Name, "top")...)
-			mm = append(mm, cors.Default().Handler)
+			mm = append(mm, cors.AllowAll().Handler)
 
 			for _, wrap := range mm {
 				wrapped = wrap(wrapped)

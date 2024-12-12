@@ -3,6 +3,14 @@
     "application/json"
   ],
   "definitions": {
+    "MetaUpdateOp": {
+      "default": "PUT",
+      "enum": [
+        "PUT",
+        "DELETE"
+      ],
+      "type": "string"
+    },
     "activityObject": {
       "properties": {
         "@context": {
@@ -412,6 +420,38 @@
       },
       "type": "object"
     },
+    "idmSearchUserMetaRequest": {
+      "properties": {
+        "MetaUuids": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Look for meta by their unique identifier",
+          "type": "array"
+        },
+        "Namespace": {
+          "title": "Filter meta by their namespace",
+          "type": "string"
+        },
+        "NodeUuids": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Look for all meta for a list of nodes",
+          "type": "array"
+        },
+        "ResourceQuery": {
+          "$ref": "#/definitions/serviceResourcePolicyQuery",
+          "title": "Filter meta by policies query"
+        },
+        "ResourceSubjectOwner": {
+          "title": "Filter meta by owner (in the sense of the policies)",
+          "type": "string"
+        }
+      },
+      "title": "Request for searching UserMeta by NodeUuid or by Namespace",
+      "type": "object"
+    },
     "idmUser": {
       "properties": {
         "Attributes": {
@@ -476,6 +516,45 @@
         }
       },
       "title": "User can represent either a User or a Group",
+      "type": "object"
+    },
+    "idmUserMetaNamespace": {
+      "properties": {
+        "Indexable": {
+          "title": "Whether a modification of a metadata value for this namespace should trigger an indexation by the search engine",
+          "type": "boolean"
+        },
+        "JsonDefinition": {
+          "title": "Json-encoded type to provide accurate interface for edition",
+          "type": "string"
+        },
+        "Label": {
+          "title": "Human-readable Label",
+          "type": "string"
+        },
+        "Namespace": {
+          "title": "Namespace identifier, must be unique",
+          "type": "string"
+        },
+        "Order": {
+          "format": "int32",
+          "title": "Order is used for sorting lists of namesapces",
+          "type": "integer"
+        },
+        "Policies": {
+          "items": {
+            "$ref": "#/definitions/serviceResourcePolicy",
+            "type": "object"
+          },
+          "title": "Policies securing this namespace",
+          "type": "array"
+        },
+        "PoliciesContextEditable": {
+          "title": "Context-resolved to quickly check if this meta is editable or not",
+          "type": "boolean"
+        }
+      },
+      "title": "Globally declared Namespace with associated policies",
       "type": "object"
     },
     "idmWorkspace": {
@@ -1609,6 +1688,7 @@
           "$ref": "#/definitions/restNodeLocator"
         }
       },
+      "title": "Parameters used by actions. Some may use Nodes/TargetNode, but not necessarily",
       "type": "object"
     },
     "restActionResponse": {
@@ -1631,6 +1711,7 @@
           "$ref": "#/definitions/restActionStatus"
         }
       },
+      "title": "Response to an action triggered",
       "type": "object"
     },
     "restActionStatus": {
@@ -1639,7 +1720,21 @@
         "Performed",
         "Background"
       ],
+      "title": "Used in an ActionResponse - currently always Background",
       "type": "string"
+    },
+    "restBatchUpdateMetaList": {
+      "properties": {
+        "Updates": {
+          "items": {
+            "$ref": "#/definitions/restMetaUpdate",
+            "type": "object"
+          },
+          "type": "array"
+        }
+      },
+      "title": "Update directly metadata in batch",
+      "type": "object"
     },
     "restContextWorkspace": {
       "properties": {
@@ -1682,6 +1777,7 @@
           "type": "string"
         }
       },
+      "title": "Current workspace information",
       "type": "object"
     },
     "restCountMeta": {
@@ -1694,6 +1790,7 @@
           "type": "integer"
         }
       },
+      "title": "Open definition for a key/value metadata, value is a number\nUsing int32 to avoid json strings (for int64)",
       "type": "object"
     },
     "restCreateRequest": {
@@ -1709,6 +1806,7 @@
           "type": "boolean"
         }
       },
+      "title": "Request for creating nodes",
       "type": "object"
     },
     "restDataSourceFeatures": {
@@ -1720,6 +1818,7 @@
           "type": "boolean"
         }
       },
+      "title": "Current datasource features",
       "type": "object"
     },
     "restError": {
@@ -1763,10 +1862,11 @@
         "Processing": {
           "type": "boolean"
         },
-        "URL": {
+        "Url": {
           "type": "string"
         }
       },
+      "title": "Description of an available preview",
       "type": "object"
     },
     "restImageMeta": {
@@ -1787,6 +1887,7 @@
           "type": "integer"
         }
       },
+      "title": "If file is an image, extracted information about this image",
       "type": "object"
     },
     "restIncomingNode": {
@@ -1804,6 +1905,7 @@
           "$ref": "#/definitions/treeNodeType"
         }
       },
+      "title": "Lightweight node representation for creation, exposing a NodeLocator and additional data",
       "type": "object"
     },
     "restJsonMeta": {
@@ -1815,6 +1917,7 @@
           "type": "string"
         }
       },
+      "title": "Open definition for a key/value metadata, value stored in json",
       "type": "object"
     },
     "restListTemplatesResponse": {
@@ -1838,6 +1941,7 @@
           "type": "string"
         }
       },
+      "title": "Info about content locking",
       "type": "object"
     },
     "restLookupRequest": {
@@ -1874,6 +1978,28 @@
           "type": "array"
         }
       },
+      "title": "Request for list/search. Accepts either\n- a list of Locators (using path/* will list a folder's first level children) to retrieve stats about nodes\n- a Query to search nodes in a more flexible way",
+      "type": "object"
+    },
+    "restMetaToggle": {
+      "properties": {
+        "Value": {
+          "type": "boolean"
+        }
+      },
+      "title": "Boolean value used for special metadata (bookmark,content_lock)",
+      "type": "object"
+    },
+    "restMetaUpdate": {
+      "properties": {
+        "Operation": {
+          "$ref": "#/definitions/MetaUpdateOp"
+        },
+        "UserMeta": {
+          "$ref": "#/definitions/restUserMeta"
+        }
+      },
+      "title": "Update operation on Metadata",
       "type": "object"
     },
     "restMode": {
@@ -1884,7 +2010,36 @@
         "NodeWriteOnly",
         "LevelReadOnly"
       ],
+      "title": "Special permission modes for Nodes",
       "type": "string"
+    },
+    "restNamespaceValuesOperation": {
+      "properties": {
+        "Operation": {
+          "$ref": "#/definitions/restNsOp"
+        },
+        "Values": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        }
+      },
+      "title": "Operations on namespaces that can persist values (typically, tags known values)",
+      "type": "object"
+    },
+    "restNamespaceValuesResponse": {
+      "properties": {
+        "Values": {
+          "items": {
+            "type": "string"
+          },
+          "title": "List of existing values",
+          "type": "array"
+        }
+      },
+      "title": "Response for Namespaces values",
+      "type": "object"
     },
     "restNode": {
       "properties": {
@@ -1983,7 +2138,7 @@
         },
         "UserMetadata": {
           "items": {
-            "$ref": "#/definitions/restJsonMeta",
+            "$ref": "#/definitions/restUserMeta",
             "type": "object"
           },
           "type": "array"
@@ -1992,6 +2147,7 @@
           "type": "string"
         }
       },
+      "title": "Representation of a file or folder",
       "type": "object"
     },
     "restNodeCollection": {
@@ -2014,6 +2170,7 @@
           "$ref": "#/definitions/restPagination"
         }
       },
+      "title": "List of nodes, as returned by list/search operations. Facets and Pagination may be empty",
       "type": "object"
     },
     "restNodeLocator": {
@@ -2025,7 +2182,39 @@
           "type": "string"
         }
       },
+      "title": "Simple Uuid/Path discriminator to locate a node",
       "type": "object"
+    },
+    "restNodeUpdates": {
+      "properties": {
+        "Bookmark": {
+          "$ref": "#/definitions/restMetaToggle",
+          "title": "Shortcut to special \"bookmark\" usermeta"
+        },
+        "ContentLock": {
+          "$ref": "#/definitions/restMetaToggle",
+          "title": "Shortcut to special \"content_lock\" usermeta"
+        },
+        "MetaUpdates": {
+          "items": {
+            "$ref": "#/definitions/restMetaUpdate",
+            "type": "object"
+          },
+          "title": "Updates to metadata",
+          "type": "array"
+        }
+      },
+      "title": "Set of updates to apply to metadata",
+      "type": "object"
+    },
+    "restNsOp": {
+      "default": "PUT",
+      "enum": [
+        "PUT",
+        "DELETE"
+      ],
+      "title": "Operation on namespaces",
+      "type": "string"
     },
     "restPagination": {
       "properties": {
@@ -2077,9 +2266,11 @@
           "type": "string"
         }
       },
+      "title": "Response to public link deletion",
       "type": "object"
     },
     "restSelection": {
+      "description": "Request to create a selection from a list of nodes.",
       "properties": {
         "Nodes": {
           "items": {
@@ -2271,7 +2462,8 @@
           "type": "string"
         },
         "Link": {
-          "$ref": "#/definitions/restShareLink"
+          "$ref": "#/definitions/restShareLink",
+          "title": "Public link definition"
         },
         "PasswordEnabled": {
           "title": "Whether it has Password enabled",
@@ -2286,9 +2478,11 @@
           "type": "string"
         },
         "Uuid": {
+          "title": "For Updates only",
           "type": "string"
         }
       },
+      "title": "Create or update a public link on a node",
       "type": "object"
     },
     "restUserActionType": {
@@ -2301,7 +2495,53 @@
         "extract",
         "compress"
       ],
+      "title": "Authorized actions that user can trigger",
       "type": "string"
+    },
+    "restUserMeta": {
+      "properties": {
+        "Editable": {
+          "type": "boolean"
+        },
+        "JsonValue": {
+          "type": "string"
+        },
+        "Namespace": {
+          "type": "string"
+        },
+        "NodeUuid": {
+          "type": "string"
+        }
+      },
+      "title": "Userspace metadata (namespaces are defined by admin)",
+      "type": "object"
+    },
+    "restUserMetaList": {
+      "properties": {
+        "UserMeta": {
+          "items": {
+            "$ref": "#/definitions/restUserMeta",
+            "type": "object"
+          },
+          "type": "array"
+        }
+      },
+      "title": "List of UserMeta",
+      "type": "object"
+    },
+    "restUserMetaNamespaceCollection": {
+      "properties": {
+        "Namespaces": {
+          "items": {
+            "$ref": "#/definitions/idmUserMetaNamespace",
+            "type": "object"
+          },
+          "title": "List of user meta Namespaces",
+          "type": "array"
+        }
+      },
+      "title": "Collection of Meta Namespaces",
+      "type": "object"
     },
     "serviceOperationType": {
       "default": "OR",
@@ -3052,6 +3292,55 @@
         ]
       }
     },
+    "/node/bookmarks": {
+      "get": {
+        "operationId": "UserBookmarks",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "All",
+            "required": false,
+            "type": "boolean"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/restNodeCollection"
+            }
+          },
+          "401": {
+            "description": "User is not authenticated",
+            "schema": {
+              "$ref": "#/definitions/restError"
+            }
+          },
+          "403": {
+            "description": "User has no permission to access this particular resource",
+            "schema": {
+              "$ref": "#/definitions/restError"
+            }
+          },
+          "404": {
+            "description": "Resource does not exist in the system",
+            "schema": {
+              "$ref": "#/definitions/restError"
+            }
+          },
+          "500": {
+            "description": "An internal error occurred in the backend",
+            "schema": {
+              "$ref": "#/definitions/restError"
+            }
+          }
+        },
+        "summary": "Special API for Bookmarks, will load userMeta and the associated nodes, and return\nas a node list",
+        "tags": [
+          "NodeService"
+        ]
+      }
+    },
     "/node/create": {
       "post": {
         "operationId": "Create",
@@ -3253,12 +3542,14 @@
         "operationId": "UpdatePublicLink",
         "parameters": [
           {
+            "description": "For Updates only",
             "in": "path",
             "name": "Uuid",
             "required": true,
             "type": "string"
           },
           {
+            "description": "Public link definition",
             "in": "body",
             "name": "Link",
             "required": true,
@@ -3333,6 +3624,276 @@
         ]
       }
     },
+    "/node/meta": {
+      "post": {
+        "operationId": "SearchMeta",
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/idmSearchUserMetaRequest"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/restUserMetaList"
+            }
+          },
+          "401": {
+            "description": "User is not authenticated",
+            "schema": {
+              "$ref": "#/definitions/restError"
+            }
+          },
+          "403": {
+            "description": "User has no permission to access this particular resource",
+            "schema": {
+              "$ref": "#/definitions/restError"
+            }
+          },
+          "404": {
+            "description": "Resource does not exist in the system",
+            "schema": {
+              "$ref": "#/definitions/restError"
+            }
+          },
+          "500": {
+            "description": "An internal error occurred in the backend",
+            "schema": {
+              "$ref": "#/definitions/restError"
+            }
+          }
+        },
+        "summary": "Search a list of meta by node Id or by User id and by namespace",
+        "tags": [
+          "NodeService"
+        ]
+      }
+    },
+    "/node/meta/batch": {
+      "patch": {
+        "operationId": "BatchUpdateMeta",
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/restBatchUpdateMetaList"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/restBatchUpdateMetaList"
+            }
+          },
+          "401": {
+            "description": "User is not authenticated",
+            "schema": {
+              "$ref": "#/definitions/restError"
+            }
+          },
+          "403": {
+            "description": "User has no permission to access this particular resource",
+            "schema": {
+              "$ref": "#/definitions/restError"
+            }
+          },
+          "404": {
+            "description": "Resource does not exist in the system",
+            "schema": {
+              "$ref": "#/definitions/restError"
+            }
+          },
+          "500": {
+            "description": "An internal error occurred in the backend",
+            "schema": {
+              "$ref": "#/definitions/restError"
+            }
+          }
+        },
+        "summary": "Update/delete user meta in batch. Passed UserMetas must contain a NodeUuid",
+        "tags": [
+          "NodeService"
+        ]
+      }
+    },
+    "/node/meta/namespace": {
+      "get": {
+        "operationId": "ListNamespaces",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/restUserMetaNamespaceCollection"
+            }
+          },
+          "401": {
+            "description": "User is not authenticated",
+            "schema": {
+              "$ref": "#/definitions/restError"
+            }
+          },
+          "403": {
+            "description": "User has no permission to access this particular resource",
+            "schema": {
+              "$ref": "#/definitions/restError"
+            }
+          },
+          "404": {
+            "description": "Resource does not exist in the system",
+            "schema": {
+              "$ref": "#/definitions/restError"
+            }
+          },
+          "500": {
+            "description": "An internal error occurred in the backend",
+            "schema": {
+              "$ref": "#/definitions/restError"
+            }
+          }
+        },
+        "summary": "List defined meta namespaces",
+        "tags": [
+          "NodeService"
+        ]
+      }
+    },
+    "/node/meta/namespace/{Namespace}": {
+      "get": {
+        "operationId": "ListNamespaceValues",
+        "parameters": [
+          {
+            "description": "List persisted values for this namespace",
+            "in": "path",
+            "name": "Namespace",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "default": "PUT",
+            "enum": [
+              "PUT",
+              "DELETE"
+            ],
+            "in": "query",
+            "name": "Operation.Operation",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "collectionFormat": "multi",
+            "in": "query",
+            "items": {
+              "type": "string"
+            },
+            "name": "Operation.Values",
+            "required": false,
+            "type": "array"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/restNamespaceValuesResponse"
+            }
+          },
+          "401": {
+            "description": "User is not authenticated",
+            "schema": {
+              "$ref": "#/definitions/restError"
+            }
+          },
+          "403": {
+            "description": "User has no permission to access this particular resource",
+            "schema": {
+              "$ref": "#/definitions/restError"
+            }
+          },
+          "404": {
+            "description": "Resource does not exist in the system",
+            "schema": {
+              "$ref": "#/definitions/restError"
+            }
+          },
+          "500": {
+            "description": "An internal error occurred in the backend",
+            "schema": {
+              "$ref": "#/definitions/restError"
+            }
+          }
+        },
+        "summary": "List values for a given namespace",
+        "tags": [
+          "NodeService"
+        ]
+      },
+      "patch": {
+        "operationId": "UpdateNamespaceValues",
+        "parameters": [
+          {
+            "description": "List persisted values for this namespace",
+            "in": "path",
+            "name": "Namespace",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "in": "body",
+            "name": "Operation",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/restNamespaceValuesOperation"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/restNamespaceValuesResponse"
+            }
+          },
+          "401": {
+            "description": "User is not authenticated",
+            "schema": {
+              "$ref": "#/definitions/restError"
+            }
+          },
+          "403": {
+            "description": "User has no permission to access this particular resource",
+            "schema": {
+              "$ref": "#/definitions/restError"
+            }
+          },
+          "404": {
+            "description": "Resource does not exist in the system",
+            "schema": {
+              "$ref": "#/definitions/restError"
+            }
+          },
+          "500": {
+            "description": "An internal error occurred in the backend",
+            "schema": {
+              "$ref": "#/definitions/restError"
+            }
+          }
+        },
+        "summary": "Add/delete a values for a given namespace",
+        "tags": [
+          "NodeService"
+        ]
+      }
+    },
     "/node/p/{Path}": {
       "get": {
         "operationId": "GetByPath",
@@ -3393,6 +3954,7 @@
         "operationId": "CreateSelection",
         "parameters": [
           {
+            "description": "Request to create a selection from a list of nodes.",
             "in": "body",
             "name": "body",
             "required": true,
@@ -3538,6 +4100,61 @@
           }
         },
         "summary": "Load a node by its Uuid",
+        "tags": [
+          "NodeService"
+        ]
+      },
+      "patch": {
+        "operationId": "PatchNode",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "Uuid",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "in": "body",
+            "name": "NodeUpdates",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/restNodeUpdates"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/restNode"
+            }
+          },
+          "401": {
+            "description": "User is not authenticated",
+            "schema": {
+              "$ref": "#/definitions/restError"
+            }
+          },
+          "403": {
+            "description": "User has no permission to access this particular resource",
+            "schema": {
+              "$ref": "#/definitions/restError"
+            }
+          },
+          "404": {
+            "description": "Resource does not exist in the system",
+            "schema": {
+              "$ref": "#/definitions/restError"
+            }
+          },
+          "500": {
+            "description": "An internal error occurred in the backend",
+            "schema": {
+              "$ref": "#/definitions/restError"
+            }
+          }
+        },
+        "summary": "UpdateUserMeta is used to update a node specific meta. It is used for reserved meta as well (bookmarks, contentLock)",
         "tags": [
           "NodeService"
         ]

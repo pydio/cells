@@ -51,6 +51,7 @@ option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_swagger) = {
   produces: "application/json";
 };
 
+// Special permission modes for Nodes
 enum Mode {
   Default = 0;
   NodeReadOnly = 1;
@@ -58,10 +59,13 @@ enum Mode {
   LevelReadOnly = 3;
 }
 
+// Info about content locking
 message LockInfo{
   bool IsLocked = 1;
   string Owner = 2;
 }
+
+// Current workspace information
 message ContextWorkspace{
   bool IsRoot = 1;
   string Uuid = 2;
@@ -76,11 +80,14 @@ message ContextWorkspace{
   int64 Quota = 11;
   int64 QuotaUsage = 12;
 }
+
+// Current datasource features
 message DataSourceFeatures{
   bool Encrypted = 1;
   bool Versioned = 2;
 }
 
+// If file is an image, extracted information about this image
 message ImageMeta {
   int32 Width = 1;
   int32 Height = 2;
@@ -88,23 +95,41 @@ message ImageMeta {
   string JsonEXIF = 4;
 }
 
+// Description of an available preview
 message FilePreview{
   bool Processing = 1;
   string ContentType = 2;
-  string URL = 3;
+  string Url = 3;
   int32 Dimension = 4;
 }
 
+// Open definition for a key/value metadata, value stored in json
 message JsonMeta {
   string Namespace = 1;
   string Value = 2;
 }
 
+// Open definition for a key/value metadata, value is a number
+// Using int32 to avoid json strings (for int64)
 message CountMeta {
   string Namespace = 1;
   int32 Value = 2;
 }
 
+// Userspace metadata (namespaces are defined by admin)
+message UserMeta {
+  string NodeUuid = 1;
+  string Namespace = 2;
+  string JsonValue = 3;
+  bool Editable = 4;
+}
+
+// List of UserMeta
+message UserMetaList {
+  repeated UserMeta UserMeta = 1;
+}
+
+// Representation of a file or folder
 message Node {
 
   string Uuid = 1;
@@ -134,15 +159,24 @@ message Node {
   ImageMeta ImageMeta = 25;
   repeated JsonMeta Metadata = 21;
   repeated CountMeta FolderMeta = 15;
-  repeated JsonMeta UserMetadata = 22;
+  repeated UserMeta UserMetadata = 22;
 
 }
 
+// Simple Uuid/Path discriminator to locate a node
 message NodeLocator{
   string Uuid = 1;
   string Path = 2;
 }
 
+// List of nodes, as returned by list/search operations. Facets and Pagination may be empty
+message NodeCollection {
+  repeated Node Nodes = 1;
+  repeated tree.SearchFacet Facets = 3;
+  Pagination Pagination = 2;
+}
+
+// Lightweight node representation for creation, exposing a NodeLocator and additional data
 message IncomingNode {
   NodeLocator Locator = 1;
   tree.NodeType Type = 2;
@@ -150,17 +184,15 @@ message IncomingNode {
   string TemplateUuid = 4;
 }
 
-message NodeCollection {
-  repeated Node Nodes = 1;
-  repeated tree.SearchFacet Facets = 3;
-  Pagination Pagination = 2;
-}
-
+// Request for creating nodes
 message CreateRequest {
   repeated IncomingNode Inputs = 1;
   bool Recursive = 2;
 }
 
+// Request for list/search. Accepts either
+// - a list of Locators (using path/* will list a folder's first level children) to retrieve stats about nodes
+// - a Query to search nodes in a more flexible way
 message LookupRequest {
   repeated NodeLocator Locators = 1;
   tree.Query Query = 2;
@@ -171,6 +203,7 @@ message LookupRequest {
   repeated uint32 StatFlags = 7;
 }
 
+// Authorized actions that user can trigger
 enum UserActionType {
   delete = 0;
   restore = 1;
@@ -180,6 +213,7 @@ enum UserActionType {
   compress = 5;
 }
 
+// Parameters used by actions. Some may use Nodes/TargetNode, but not necessarily
 message ActionParameters {
   repeated NodeLocator Nodes = 2;
   NodeLocator TargetNode = 3;
@@ -188,36 +222,44 @@ message ActionParameters {
   bool Await = 6;
 }
 
+// Request used for Actions-related endpoints
 message ActionRequest {
   UserActionType Name = 1;
   string JobUuid = 2;
   ActionParameters Parameters = 3;
 }
 
+// Send a start/pause/resume on background jobs that support it
 message ControlActionRequest {
   UserActionType Name = 1;
   string JobUuid = 2;
   jobs.CtrlCommand Command = 3;
 }
 
+// Used in an ActionResponse - currently always Background
 enum ActionStatus {
   Performed = 0;
   Background = 1;
 }
 
+// Response to an action triggered
 message ActionResponse {
   ActionStatus Status = 1;
   repeated Node AffectedNodes = 2;
   repeated jobs.Job Jobs = 3;
 }
 
+// Request to create a selection from a list of nodes.
 message Selection {
   string Uuid = 1;
   repeated Node Nodes = 2;
 }
 
+// Create or update a public link on a node
 message UpsertPublicLinkRequest {
+  // For Updates only
   string Uuid = 1;
+  // Public link definition
   ShareLink Link = 2;
   // Whether it has Password enabled
   bool PasswordEnabled = 3;
@@ -229,16 +271,82 @@ message UpsertPublicLinkRequest {
   string UpdateCustomHash = 6;
 }
 
+// Locate a public link by UUID
 message PublicLinkUuidRequest {
   string Uuid = 1;
 }
 
+// Response to public link deletion
 message PublicLinkDeleteSuccess {
   string Uuid = 1;
   string Message = 2;
 }
 
+// Update operation on Metadata
+message MetaUpdate {
+  enum Op {
+    PUT = 0;
+    DELETE = 1;
+  }
+  Op Operation = 1;
+  UserMeta UserMeta = 2;
+}
+
+// Boolean value used for special metadata (bookmark,content_lock)
+message MetaToggle {
+  bool Value = 1;
+}
+
+// Set of updates to apply to metadata
+message NodeUpdates {
+  // Updates to metadata
+  repeated MetaUpdate MetaUpdates = 1;
+  // Shortcut to special "bookmark" usermeta
+  MetaToggle Bookmark = 2;
+  // Shortcut to special "content_lock" usermeta
+  MetaToggle ContentLock = 3;
+}
+
+// Update a specific node's metadata
+message PatchNodeRequest {
+  string Uuid = 1;
+  NodeUpdates NodeUpdates = 2;
+}
+
+// Update directly metadata in batch
+message BatchUpdateMetaList {
+  repeated MetaUpdate Updates = 1;
+}
+
+// Operation on namespaces
+enum NsOp {
+  PUT = 0;
+  DELETE = 1;
+}
+
+// Operations on namespaces that can persist values (typically, tags known values)
+message NamespaceValuesOperation {
+  NsOp Operation = 1;
+  repeated string Values = 2;
+}
+
+// Request on namespaces values
+message NamespaceValuesRequest{
+  // List persisted values for this namespace
+  string Namespace = 1;
+  NamespaceValuesOperation Operation = 2;
+}
+
+// Response for Namespaces values
+message NamespaceValuesResponse{
+  // List of existing values
+  repeated string Values = 1;
+}
+
+
+// This RestAPI gather various aspects in one /node API
 service NodeService {
+
   // Create one or many files (empty or hydrated from a TemplateUuid) or folders
   rpc Create(CreateRequest) returns (NodeCollection) {
     option (google.api.http) = {
@@ -265,12 +373,55 @@ service NodeService {
       get: "/node/u/{Uuid}"
     };
   };
+  // UpdateUserMeta is used to update a node specific meta. It is used for reserved meta as well (bookmarks, contentLock)
+  rpc PatchNode(PatchNodeRequest) returns (Node){
+    option (google.api.http) = {
+      patch: "/node/u/{Uuid}"
+      body: "NodeUpdates"
+    };
+  };
   // List all known versions of a node
   rpc ListVersions(NodeLocator) returns (NodeCollection){
     option (google.api.http) = {
       get: "/node/v/{Uuid}"
     };
   };
+
+
+  // Search a list of meta by node Id or by User id and by namespace
+  rpc SearchMeta(idm.SearchUserMetaRequest) returns (UserMetaList) {
+    option (google.api.http) = {
+      post: "/node/meta"
+      body: "*"
+    };
+  }
+  // Update/delete user meta in batch. Passed UserMetas must contain a NodeUuid
+  rpc BatchUpdateMeta(BatchUpdateMetaList) returns (BatchUpdateMetaList) {
+    option (google.api.http) = {
+      patch: "/node/meta/batch"
+      body: "*"
+    };
+  }
+  // List defined meta namespaces
+  rpc ListNamespaces(idm.ListUserMetaNamespaceRequest) returns (UserMetaNamespaceCollection){
+    option (google.api.http) = {
+      get: "/node/meta/namespace"
+    };
+  }
+  // List values for a given namespace
+  rpc ListNamespaceValues(NamespaceValuesRequest) returns (NamespaceValuesResponse){
+    option (google.api.http) = {
+      get: "/node/meta/namespace/{Namespace}"
+    };
+  }
+  // Add/delete a values for a given namespace
+  rpc UpdateNamespaceValues(NamespaceValuesRequest) returns (NamespaceValuesResponse){
+    option (google.api.http) = {
+      patch: "/node/meta/namespace/{Namespace}"
+      body: "Operation"
+    };
+  }
+
 
   // Create a public link on a given node
   rpc CreatePublicLink(UpsertPublicLinkRequest) returns (ShareLink) {
@@ -330,6 +481,13 @@ service NodeService {
   rpc Templates(ListTemplatesRequest) returns (ListTemplatesResponse) {
     option (google.api.http) = {
       get: "/node/templates"
+    };
+  }
+  // Special API for Bookmarks, will load userMeta and the associated nodes, and return
+  // as a node list
+  rpc UserBookmarks(UserBookmarksRequest) returns (NodeCollection) {
+    option (google.api.http) = {
+      get: "/node/bookmarks"
     };
   }
 

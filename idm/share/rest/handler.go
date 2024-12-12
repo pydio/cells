@@ -46,16 +46,14 @@ import (
 
 // SharesHandler implements handler methods for the share REST service.
 type SharesHandler struct {
-	sc  *share.Client
-	ctx context.Context
+	sc *share.Client
 	resources.ResourceProviderHandler
 }
 
 // NewSharesHandler simply creates a new SharesHandler.
-func NewSharesHandler(ctx context.Context) *SharesHandler {
+func NewSharesHandler() *SharesHandler {
 	h := new(SharesHandler)
-	h.ctx = ctx
-	h.sc = share.NewClient(ctx, h)
+	h.sc = share.NewClient(h)
 	h.ServiceName = common.ServiceWorkspace
 	h.ResourceName = "rooms"
 	//h.PoliciesLoader = h.loadPoliciesForResource
@@ -239,7 +237,7 @@ func (h *SharesHandler) UpdateSharePolicies(req *restful.Request, rsp *restful.R
 	if err := h.docStoreStatus(ctx); err != nil {
 		return err
 	}
-	cli := idm.NewWorkspaceServiceClient(grpc.ResolveConn(h.ctx, common.ServiceWorkspaceGRPC))
+	cli := idm.NewWorkspaceServiceClient(grpc.ResolveConn(ctx, common.ServiceWorkspaceGRPC))
 	ws, err := permissions.SearchUniqueWorkspace(ctx, input.Uuid, "")
 	if err != nil {
 		return err

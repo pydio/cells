@@ -181,7 +181,7 @@ func (c *WsCleaner) deleteEmptyWs(ctx context.Context, workspaceId string) error
 
 func (c *WsCleaner) cleanSharedDocStoreOnWsDelete(ctx context.Context, ws *idm.Workspace) error {
 	if c.shareClient == nil {
-		c.shareClient = share.NewClient(ctx, nil)
+		c.shareClient = share.NewClient(nil)
 	}
 	storedLink := &rest.ShareLink{Uuid: ws.GetUUID()}
 	if er := c.shareClient.LoadHashDocumentData(ctx, storedLink, []*idm.ACL{}); er == nil {

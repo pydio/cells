@@ -50,34 +50,17 @@ import (
 	"github.com/pydio/cells/v5/common/utils/uuid"
 )
 
-func (sc *Client) getUuidRouter() nodes.Handler {
-	if sc.uuidRouter == nil {
-		sc.uuidRouter = compose.UuidClient(sc.GetRuntimeContext())
-	}
-	return sc.uuidRouter
-}
-
-func (sc *Client) getUuidAdminRouter() nodes.Handler {
-	if sc.uuidAdmin == nil {
-		sc.uuidAdmin = compose.UuidClient(sc.GetRuntimeContext(), nodes.AsAdmin())
-	}
-	return sc.uuidAdmin
-}
-
-func (sc *Client) getPathRouter() nodes.Handler {
-	if sc.pathRouter == nil {
-		sc.pathRouter = compose.PathClient(sc.GetRuntimeContext())
-	}
-	return sc.pathRouter
+func (sc *Client) getUuidRouter(ctx context.Context) nodes.Handler {
+	return compose.UuidClient(ctx)
 }
 
 // LoadDetectedRootNodes find actual nodes in the tree, and enrich their metadata if they appear
 // in many workspaces for the current user.
 func (sc *Client) LoadDetectedRootNodes(ctx context.Context, detectedRoots []string, accessList *permissions.AccessList) (rootNodes map[string]*tree.Node) {
 
-	router := sc.getUuidRouter()
+	router := sc.getUuidRouter(ctx)
 	throttle := make(chan struct{}, 5)
-	eventFilter := compose.ReverseClient(sc.RuntimeContext, nodes.AsAdmin())
+	eventFilter := compose.ReverseClient(ctx, nodes.AsAdmin())
 	wg := &sync.WaitGroup{}
 	wg.Add(len(detectedRoots))
 	var loaded []*tree.Node
@@ -128,7 +111,7 @@ func (sc *Client) LoadDetectedRootNodes(ctx context.Context, detectedRoots []str
 // or just verify that the root nodes are not empty.
 func (sc *Client) ParseRootNodes(ctx context.Context, cell *rest.Cell, createEmpty bool) (bool, error) {
 
-	router := sc.getPathRouter()
+	router := compose.PathClient(ctx)
 	for i, n := range cell.RootNodes {
 		r, e := router.ReadNode(ctx, &tree.ReadNodeRequest{Node: n})
 		if e != nil {
@@ -142,8 +125,8 @@ func (sc *Client) ParseRootNodes(ctx context.Context, cell *rest.Cell, createEmp
 	}
 	if createEmpty {
 
-		manager := abstract.GetVirtualNodesManager(sc.RuntimeContext)
-		internalRouter := compose.PathClientAdmin(sc.RuntimeContext)
+		manager := abstract.GetVirtualNodesManager(ctx)
+		internalRouter := compose.PathClientAdmin(ctx)
 		if root, exists := manager.ByUuid("cells"); exists {
 			parentNode, err := manager.ResolveInContext(ctx, root, true)
 			if err != nil {
@@ -169,7 +152,7 @@ func (sc *Client) ParseRootNodes(ctx context.Context, cell *rest.Cell, createEmp
 			}
 			// Update node meta
 			createResp.Node.MustSetMeta(common.MetaFlagCellNode, true)
-			metaClient := tree.NewNodeReceiverClient(grpc.ResolveConn(sc.RuntimeContext, common.ServiceMetaGRPC))
+			metaClient := tree.NewNodeReceiverClient(grpc.ResolveConn(ctx, common.ServiceMetaGRPC))
 			metaClient.CreateNode(ctx, &tree.CreateNodeRequest{Node: createResp.Node})
 			cell.RootNodes = append(cell.RootNodes, createResp.Node)
 		} else {
@@ -280,7 +263,7 @@ func (sc *Client) DetectInheritedPolicy(ctx context.Context, roots []*tree.Node,
 // .pydio hidden files when they are folders.
 func (sc *Client) DeleteRootNodeRecursively(ctx context.Context, ownerName string, roomNode *tree.Node) error {
 
-	manager := abstract.GetVirtualNodesManager(sc.RuntimeContext)
+	manager := abstract.GetVirtualNodesManager(ctx)
 	if root, exists := manager.ByUuid("cells"); exists {
 		parentNode, err := manager.ResolveInContext(ctx, root, true)
 		if err != nil {
@@ -321,7 +304,7 @@ func (sc *Client) DeleteRootNodeRecursively(ctx context.Context, ownerName strin
 // link permissions do not try to set the Upload mode.
 func (sc *Client) CheckLinkRootNodes(ctx context.Context, link *rest.ShareLink) (workspaces []*tree.WorkspaceRelativePath, files, folders bool, e error) {
 
-	router := sc.getUuidRouter()
+	router := sc.getUuidRouter(ctx)
 	var hasReadonly bool
 	for i, r := range link.RootNodes {
 		resp, er := router.ReadNode(ctx, &tree.ReadNodeRequest{Node: r})
@@ -358,7 +341,7 @@ func (sc *Client) CheckLinkRootNodes(ctx context.Context, link *rest.ShareLink) 
 
 // RootsParentWorkspaces reads parents and find the root node of the workspace
 func (sc *Client) RootsParentWorkspaces(ctx context.Context, rr []*tree.Node) (ww []*tree.WorkspaceRelativePath, e error) {
-	router := sc.getUuidRouter()
+	router := sc.getUuidRouter(ctx)
 	for _, r := range rr {
 		if r.GetMetaBool(common.MetaFlagCellNode) {
 			continue
@@ -382,8 +365,8 @@ func (sc *Client) RootsParentWorkspaces(ctx context.Context, rr []*tree.Node) (w
 func (sc *Client) LoadAdminRootNodes(ctx context.Context, detectedRoots []string) (rootNodes map[string]*tree.Node) {
 
 	rootNodes = make(map[string]*tree.Node)
-	router := sc.getUuidAdminRouter()
-	metaClient := treec.ServiceNodeProviderClient(sc.GetRuntimeContext(), common.ServiceMeta)
+	router := compose.UuidClient(ctx, nodes.AsAdmin())
+	metaClient := treec.ServiceNodeProviderClient(ctx, common.ServiceMeta)
 	for _, rootId := range detectedRoots {
 		request := &tree.ReadNodeRequest{Node: &tree.Node{Uuid: rootId}}
 		if resp, err := router.ReadNode(ctx, request); err == nil {

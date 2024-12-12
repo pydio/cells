@@ -50,13 +50,12 @@ const (
 	ReservedNSBookmark = meta.ReservedNamespaceBookmark
 )
 
-func NewUserMetaHandler(ctx context.Context) *UserMetaHandler {
+func NewUserMetaHandler() *UserMetaHandler {
 	handler := new(UserMetaHandler)
-	handler.ctx = ctx
 	handler.ServiceName = common.ServiceUserMeta
 	handler.ResourceName = "userMeta"
 	handler.PoliciesLoader = handler.PoliciesForMeta
-	handler.tvc = &meta.TagsValuesClient{}
+	handler.ValuesClient = &meta.TagsValuesClient{}
 	return handler
 }
 
@@ -65,8 +64,7 @@ func userMetaClient(ctx context.Context) idm.UserMetaServiceClient {
 }
 
 type UserMetaHandler struct {
-	ctx context.Context
-	tvc *meta.TagsValuesClient
+	ValuesClient *meta.TagsValuesClient
 	resources.ResourceProviderHandler
 }
 
@@ -134,12 +132,21 @@ func (s *UserMetaHandler) UpdateUserMeta(req *restful.Request, rsp *restful.Resp
 		return err
 	}
 	ctx := req.Request.Context()
-	nsList, e := s.ListAllNamespaces(ctx, userMetaClient(req.Request.Context()))
+	response, err := s.PerformUserMetaUpdate(ctx, &input)
+	if err != nil {
+		return err
+	}
+	return rsp.WriteEntity(response)
+
+}
+
+func (s *UserMetaHandler) PerformUserMetaUpdate(ctx context.Context, input *idm.UpdateUserMetaRequest) (*idm.UpdateUserMetaResponse, error) {
+	nsList, e := s.ListAllNamespaces(ctx, userMetaClient(ctx))
 	if e != nil {
-		return e
+		return nil, e
 	}
 	var loadUuids []string
-	router := compose.UuidClient(s.ctx)
+	router := compose.UuidClient(ctx)
 
 	// First check if the namespaces are globally accessible
 	for _, meta := range input.MetaDatas {
@@ -147,11 +154,11 @@ func (s *UserMetaHandler) UpdateUserMeta(req *restful.Request, rsp *restful.Resp
 		var exists bool
 		resp, er := router.ReadNode(ctx, &tree.ReadNodeRequest{Node: &tree.Node{Uuid: meta.NodeUuid}})
 		if er != nil {
-			return er
+			return nil, er
 		}
 		if meta.Namespace != ReservedNSBookmark {
 			if _, er := router.CanApply(ctx, &tree.NodeChangeEvent{Type: tree.NodeChangeEvent_UPDATE_CONTENT, Target: resp.Node}); er != nil {
-				return errors.Tag(er, errors.StatusForbidden)
+				return nil, errors.Tag(er, errors.StatusForbidden)
 			}
 		}
 		meta.ResolvedNode = resp.Node.Clone()
@@ -160,16 +167,16 @@ func (s *UserMetaHandler) UpdateUserMeta(req *restful.Request, rsp *restful.Resp
 		}
 		if meta.Namespace == permissions.AclContentLock.Name {
 			if e = s.updateLock(ctx, meta, input.Operation); e != nil {
-				return e
+				return nil, e
 			}
-			return rsp.WriteEntity(&idm.UpdateUserMetaResponse{MetaDatas: []*idm.UserMeta{meta}})
+			return &idm.UpdateUserMetaResponse{MetaDatas: []*idm.UserMeta{meta}}, nil
 		}
 		if ns, exists = nsList[meta.Namespace]; !exists {
-			return errors.WithMessagef(errors.StatusNotFound, "Namespace %s is not defined!", meta.Namespace)
+			return nil, errors.WithMessagef(errors.StatusNotFound, "Namespace %s is not defined!", meta.Namespace)
 		}
 
 		if !s.MatchPolicies(ctx, meta.Namespace, ns.Policies, serviceproto.ResourcePolicyAction_WRITE) {
-			return errors.WithMessagef(errors.NamespaceNotAllowed, "Updating namespace %s is not allowed!", meta.Namespace)
+			return nil, errors.WithMessagef(errors.NamespaceNotAllowed, "Updating namespace %s is not allowed!", meta.Namespace)
 		}
 		if meta.Uuid != "" {
 			loadUuids = append(loadUuids, meta.Uuid)
@@ -179,14 +186,14 @@ func (s *UserMetaHandler) UpdateUserMeta(req *restful.Request, rsp *restful.Resp
 			if nsDef, jE := ns.UnmarshallDefinition(); jE == nil && nsDef.GetType() == "tags" {
 				var currentValue string
 				if e := json.Unmarshal([]byte(meta.JsonValue), &currentValue); e != nil {
-					return errors.Tag(e, errors.UnmarshalError)
+					return nil, errors.Tag(e, errors.UnmarshalError)
 				}
 				log.Logger(ctx).Debug("jsonDef for namespace "+ns.Namespace, zap.Any("d", nsDef), zap.Any("v", currentValue))
-				if e := s.tvc.StoreNewTags(ctx, ns.Namespace, strings.Split(currentValue, ",")); e != nil {
-					return errors.WithMessagef(errors.StatusInternalServerError, "could not store meta tag for namespace %s: %v", ns.Namespace, e)
+				if e := s.ValuesClient.StoreNewTags(ctx, ns.Namespace, strings.Split(currentValue, ",")); e != nil {
+					return nil, errors.WithMessagef(errors.StatusInternalServerError, "could not store meta tag for namespace %s: %v", ns.Namespace, e)
 				}
 			} else if jE != nil {
-				return errors.WithMessagef(errors.UnmarshalError, "cannot decode json definition for namespace %s (%s): %v", ns.Namespace, ns.JsonDefinition, jE)
+				return nil, errors.WithMessagef(errors.UnmarshalError, "cannot decode json definition for namespace %s (%s): %v", ns.Namespace, ns.JsonDefinition, jE)
 			}
 		}
 		// Now update policies for input Meta
@@ -212,15 +219,10 @@ func (s *UserMetaHandler) UpdateUserMeta(req *restful.Request, rsp *restful.Resp
 			}
 			return nil
 		}); e != nil {
-			return e
+			return nil, e
 		}
 	}
-	if response, err := umc.UpdateUserMeta(ctx, &input); err != nil {
-		return err
-	} else {
-		return rsp.WriteEntity(response)
-	}
-
+	return umc.UpdateUserMeta(ctx, input)
 }
 
 // SearchUserMeta performs a search on user metadata
@@ -245,8 +247,8 @@ func (s *UserMetaHandler) UserBookmarks(req *restful.Request, rsp *restful.Respo
 	searchRequest := &idm.SearchUserMetaRequest{
 		Namespace: ReservedNSBookmark,
 	}
-	router := compose.UuidClient(s.ctx)
 	ctx := req.Request.Context()
+	router := compose.UuidClient(ctx)
 	output, e := s.PerformSearchMetaRequest(ctx, searchRequest)
 	if e != nil {
 		return e
@@ -327,7 +329,7 @@ func (s *UserMetaHandler) ListUserMetaTags(req *restful.Request, rsp *restful.Re
 	if _, ok := nss[ns]; !ok { // ns not found or filtered by policies
 		return errors.WithMessagef(errors.StatusNotFound, "namespace %s does not exist", ns)
 	}
-	tags, _ := s.tvc.ListTags(ctx, ns)
+	tags, _ := s.ValuesClient.ListTags(ctx, ns)
 	return rsp.WriteEntity(&rest.ListUserMetaTagsResponse{
 		Tags: tags,
 	})
@@ -353,7 +355,7 @@ func (s *UserMetaHandler) PutUserMetaTag(req *restful.Request, rsp *restful.Resp
 		return errors.WithMessagef(errors.StatusForbidden, "updating namespace %s is not allowed", r.Namespace)
 	}
 
-	if e := s.tvc.StoreNewTags(ctx, r.Namespace, []string{r.Tag}); e != nil {
+	if e := s.ValuesClient.StoreNewTags(ctx, r.Namespace, []string{r.Tag}); e != nil {
 		return e
 	} else {
 		return rsp.WriteEntity(&rest.PutUserMetaTagResponse{Success: true})
@@ -366,7 +368,7 @@ func (s *UserMetaHandler) DeleteUserMetaTags(req *restful.Request, rsp *restful.
 	ctx := req.Request.Context()
 	log.Logger(ctx).Debug("Delete tags for namespace "+ns, zap.String("tag", tag))
 	if tag == "*" {
-		if e := s.tvc.DeleteAllTags(ctx, ns); e != nil {
+		if e := s.ValuesClient.DeleteAllTags(ctx, ns); e != nil {
 			return e
 		}
 	} else {

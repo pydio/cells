@@ -31,7 +31,6 @@ import (
 
 	"github.com/pydio/cells/v5/common"
 	"github.com/pydio/cells/v5/common/client/commons/idmc"
-	"github.com/pydio/cells/v5/common/client/grpc"
 	"github.com/pydio/cells/v5/common/errors"
 	"github.com/pydio/cells/v5/common/permissions"
 	"github.com/pydio/cells/v5/common/proto/idm"
@@ -85,7 +84,7 @@ func (sc *Client) WorkspaceToShareLinkObject(ctx context.Context, workspace *idm
 		return nil, err
 	}
 	if workspace.Label == "{{RefLabel}}" && len(detectedRoots) == 1 {
-		if resp, er := sc.getUuidRouter().ReadNode(ctx, &tree.ReadNodeRequest{Node: &tree.Node{Uuid: detectedRoots[0]}}); er == nil && resp != nil {
+		if resp, er := sc.getUuidRouter(ctx).ReadNode(ctx, &tree.ReadNodeRequest{Node: &tree.Node{Uuid: detectedRoots[0]}}); er == nil && resp != nil {
 			workspace.Label = path.Base(resp.GetNode().GetPath())
 		}
 	}
@@ -447,7 +446,7 @@ func (sc *Client) GetOrCreateWorkspace(ctx context.Context, ownerUser *idm.User,
 
 	log.Logger(ctx).Debug("GetOrCreateWorkspace", zap.String("wsUuid", wsUuid), zap.Any("scope", scope.String()), zap.Bool("updateIfNeeded", updateIfNeeded))
 
-	wsClient := idm.NewWorkspaceServiceClient(grpc.ResolveConn(sc.RuntimeContext, common.ServiceWorkspaceGRPC))
+	wsClient := idmc.WorkspaceServiceClient(ctx)
 	var create bool
 	if wsUuid == "" {
 		if label == "" {
@@ -553,7 +552,7 @@ func (sc *Client) DeleteWorkspace(ctx context.Context, ownerLogin string, scope 
 		}
 	}
 	// Deleting workspace will delete associated policies and associated ACLs
-	wsClient := idm.NewWorkspaceServiceClient(grpc.ResolveConn(sc.RuntimeContext, common.ServiceWorkspaceGRPC))
+	wsClient := idmc.WorkspaceServiceClient(ctx)
 	q, _ := anypb.New(&idm.WorkspaceSingleQuery{
 		Uuid: workspaceId,
 	})

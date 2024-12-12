@@ -33,7 +33,7 @@ import (
 
 // InheritPolicies find possible SecurityPolicy currently implied and compute a new one based on it.
 func (sc *Client) InheritPolicies(ctx context.Context, policyName string, read, write bool) (string, error) {
-	polClient := idm.NewPolicyEngineServiceClient(grpc.ResolveConn(sc.RuntimeContext, common.ServicePolicyGRPC))
+	polClient := idm.NewPolicyEngineServiceClient(grpc.ResolveConn(ctx, common.ServicePolicyGRPC))
 	parent, err := sc.policyByName(ctx, polClient, policyName)
 	if err != nil {
 		return "", err
@@ -138,7 +138,7 @@ func (sc *Client) policyByName(ctx context.Context, cl idm.PolicyEngineServiceCl
 
 // InterpretInheritedPolicy translates a SecurityPolicy to read/write permissions for user readability
 func (sc *Client) InterpretInheritedPolicy(ctx context.Context, name string) (read, write bool, e error) {
-	polClient := idm.NewPolicyEngineServiceClient(grpc.ResolveConn(sc.RuntimeContext, common.ServicePolicyGRPC))
+	polClient := idm.NewPolicyEngineServiceClient(grpc.ResolveConn(ctx, common.ServicePolicyGRPC))
 	parent, er := sc.policyByName(ctx, polClient, name)
 	if er != nil {
 		return false, false, er

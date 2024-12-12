@@ -28,7 +28,7 @@ import (
 	"github.com/pydio/cells/v5/common"
 	"github.com/pydio/cells/v5/common/auth"
 	"github.com/pydio/cells/v5/common/auth/claim"
-	"github.com/pydio/cells/v5/common/client/grpc"
+	"github.com/pydio/cells/v5/common/client/commons/idmc"
 	"github.com/pydio/cells/v5/common/errors"
 	"github.com/pydio/cells/v5/common/permissions"
 	"github.com/pydio/cells/v5/common/proto/idm"
@@ -76,7 +76,7 @@ func (sc *Client) ListSharedResources(ctx context.Context, subject string, scope
 		qs = append(qs, q)
 	}
 
-	cl := idm.NewWorkspaceServiceClient(grpc.ResolveConn(sc.RuntimeContext, common.ServiceWorkspaceGRPC))
+	cl := idmc.WorkspaceServiceClient(ctx)
 	streamer, err := cl.SearchWorkspace(ctx, &idm.SearchWorkspaceRequest{
 		Query: &service2.Query{
 			SubQueries: qs,

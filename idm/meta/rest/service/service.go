@@ -38,7 +38,7 @@ func init() {
 			service.Tag(common.ServiceTagIdm),
 			service.Description("RESTful gateway for editable metadata"),
 			service.WithWeb(func(c context.Context) service.WebHandler {
-				return rest.NewUserMetaHandler(c)
+				return rest.NewUserMetaHandler()
 			}),
 		)
 	})

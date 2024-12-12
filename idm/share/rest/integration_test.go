@@ -218,7 +218,7 @@ func TestShareLinks(t *testing.T) {
 			newNode = cR.GetNode()
 			So(newNode.Uuid, ShouldNotBeEmpty)
 
-			h := rest2.NewSharesHandler(ctx)
+			h := rest2.NewSharesHandler()
 			payload := &rest.PutShareLinkRequest{
 				ShareLink: &rest.ShareLink{
 					Label:     "Link to File.ex",
@@ -270,7 +270,7 @@ func TestShareLinks(t *testing.T) {
 		})
 
 		Convey("Test Basic Docstore Mock", t, func() {
-			sc := share.NewClient(ctx, nil)
+			sc := share.NewClient(nil)
 			e := sc.StoreHashDocument(ctx, &idm.User{Uuid: "uuid", Login: "login"}, &rest.ShareLink{
 				Uuid:             "link-uuid",
 				LinkHash:         "hash",

@@ -516,7 +516,7 @@ func (apiStore *ApiStore) createShareLink(ctx context.Context, ownerUser *idm.Us
 	var user *idm.User
 	var err error
 	aclClient := idm.NewACLServiceClient(grpc.ResolveConn(apiStore.runtime, common.ServiceAclGRPC))
-	shareClient := share.NewClient(apiStore.runtime, nil)
+	shareClient := share.NewClient(nil)
 
 	workspace, _, err = shareClient.GetOrCreateWorkspace(ctx, ownerUser, "", idm.WorkspaceScope_LINK, link.Label, "", link.Description, false)
 	if err != nil {
@@ -573,7 +573,7 @@ func (apiStore *ApiStore) createShareLink(ctx context.Context, ownerUser *idm.Us
 
 func (apiStore *ApiStore) createCell(ctx context.Context, ownerUser *idm.User, cell *rest.Cell) error {
 
-	shareClient := share.NewClient(apiStore.runtime, nil)
+	shareClient := share.NewClient(nil)
 	workspace, _, err := shareClient.GetOrCreateWorkspace(ctx, ownerUser, "", idm.WorkspaceScope_ROOM, cell.Label, "", cell.Description, false)
 	if err != nil {
 		return err

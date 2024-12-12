@@ -62,19 +62,17 @@ func (*EmptyContextChecker) IsContextEditable(ctx context.Context, resourceId st
 }
 
 // NewClient creates a new share client. Leave checker nil to use default implementation (returning always true)
-func NewClient(ctx context.Context, checker ContextEditableChecker) *Client {
+func NewClient(checker ContextEditableChecker) *Client {
 	if checker == nil {
 		checker = &EmptyContextChecker{}
 	}
 	c := &Client{
 		checker: checker,
 	}
-	c.RuntimeContext = ctx
 	return c
 }
 
 type Client struct {
-	common.RuntimeHolder
 	checker    ContextEditableChecker
 	pathRouter nodes.Handler
 	uuidRouter nodes.Handler
@@ -408,7 +406,7 @@ func (sc *Client) UpsertCell(ctx context.Context, cell *rest.Cell, ownerUser *id
 	var currentRoots []string
 	if !wsCreated {
 		var err error
-		currentAcls, currentRoots, err = sc.CommonAclsForWorkspace(sc.RuntimeContext, workspace.UUID)
+		currentAcls, currentRoots, err = sc.CommonAclsForWorkspace(ctx, workspace.UUID)
 		if err != nil {
 			return nil, err
 		}

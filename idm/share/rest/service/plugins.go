@@ -42,13 +42,13 @@ func init() {
 				{
 					TargetVersion: service.ValidVersion("1.6.2"),
 					Up: func(ctx context.Context) error {
-						sc := share.NewClient(ctx, nil)
+						sc := share.NewClient(nil)
 						return sc.ClearLostHiddenUsers(ctx)
 					},
 				},
 			}),
 			service.WithWeb(func(c context.Context) service.WebHandler {
-				return rest.NewSharesHandler(c)
+				return rest.NewSharesHandler()
 			}),
 		)
 	})

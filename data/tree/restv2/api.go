@@ -1,3 +1,23 @@
+/*
+ * Copyright (c) 2024. Abstrium SAS <team (at) pydio.com>
+ * This file is part of Pydio Cells.
+ *
+ * Pydio Cells is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Pydio Cells is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with Pydio Cells.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ * The latest code can be found at <https://pydio.com>.
+ */
+
 package restv2
 
 import (
@@ -6,16 +26,20 @@ import (
 	"strconv"
 	"strings"
 
+	"go.uber.org/zap"
+
 	"github.com/pydio/cells/v5/common"
 	"github.com/pydio/cells/v5/common/proto/idm"
 	"github.com/pydio/cells/v5/common/proto/rest"
 	"github.com/pydio/cells/v5/common/proto/tree"
+	"github.com/pydio/cells/v5/common/telemetry/log"
 	json "github.com/pydio/cells/v5/common/utils/jsonx"
 	searcher "github.com/pydio/cells/v5/data/search/rest"
 	"github.com/pydio/cells/v5/data/templates"
 	tpl "github.com/pydio/cells/v5/data/templates/rest"
 	treeer "github.com/pydio/cells/v5/data/tree/rest"
 	"github.com/pydio/cells/v5/idm/meta"
+	umeta "github.com/pydio/cells/v5/idm/meta/rest"
 	shares "github.com/pydio/cells/v5/idm/share/rest"
 	"github.com/pydio/cells/v5/scheduler/actions/images"
 )
@@ -25,6 +49,7 @@ type Handler struct {
 	TreeHandler      *treeer.Handler
 	TemplatesHandler *tpl.Handler
 	SharesHandler    *shares.SharesHandler
+	UserMetaHandler  *umeta.UserMetaHandler
 }
 
 // TODO REMOVE RUNTIME CONTEXT!
@@ -35,7 +60,8 @@ func NewHandler(ctx context.Context) *Handler {
 		SearchHandler:    &searcher.Handler{},
 		TreeHandler:      th,
 		TemplatesHandler: &tpl.Handler{Dao: templates.GetProvider()},
-		SharesHandler:    shares.NewSharesHandler(ctx),
+		SharesHandler:    shares.NewSharesHandler(),
+		UserMetaHandler:  umeta.NewUserMetaHandler(),
 	}
 }
 
@@ -116,16 +142,19 @@ func (h *Handler) TreeNodeToNode(n *tree.Node) *rest.Node {
 			rn.Previews = append(rn.Previews, h.Thumbnails(common.PydioThumbstoreNamespace, n.GetUuid(), v)...)
 
 		case common.MetaFlagWorkspacesShares:
-			// Todo - option to load more info about shares?
-			var shares []*idm.Workspace
-			if err := json.Unmarshal([]byte(v), &shares); err != nil {
-				for _, w := range shares {
-					rn.Shares = append(rn.Shares, &rest.ShareLink{
-						Uuid:        w.UUID,
-						Label:       w.Label,
-						Description: w.Description,
-					})
+			var share []*idm.Workspace
+			if err := json.Unmarshal([]byte(v), &share); err == nil {
+				for _, w := range share {
+					if w.Scope == idm.WorkspaceScope_LINK {
+						// Todo - use flags to load more about this share?
+						rn.Shares = append(rn.Shares, &rest.ShareLink{
+							Uuid:  w.UUID,
+							Label: w.Label,
+						})
+					}
 				}
+			} else {
+				log.Logger(context.Background()).Error("Cannot unmarshall shares, this is not normal", zap.Error(err))
 			}
 		default:
 			if strings.HasPrefix(k, "ws_") || strings.HasPrefix(k, "repository_") {
@@ -133,7 +162,7 @@ func (h *Handler) TreeNodeToNode(n *tree.Node) *rest.Node {
 				rn.ContextWorkspace = h.ContextWorkspace(rn.ContextWorkspace, k, v)
 			} else if strings.HasPrefix(k, "usermeta-") {
 				// UserMeta
-				rn.UserMetadata = append(rn.UserMetadata, &rest.JsonMeta{Namespace: k, Value: v})
+				rn.UserMetadata = append(rn.UserMetadata, &rest.UserMeta{Namespace: k, JsonValue: v})
 			} else {
 				// OtherMeta
 				rn.Metadata = append(rn.Metadata, &rest.JsonMeta{Namespace: k, Value: v})
@@ -155,7 +184,7 @@ func (h *Handler) Thumbnails(bucket, nodeId, jsonThumbs string) (ff []*rest.File
 		ff = append(ff, &rest.FilePreview{
 			Processing:  thumbs.Processing,
 			ContentType: "image/" + t.Format,
-			URL:         fmt.Sprintf("/io/%s/%s-%d.%s", bucket, nodeId, t.Size, t.Format),
+			Url:         fmt.Sprintf("/io/%s/%s-%d.%s", bucket, nodeId, t.Size, t.Format),
 			Dimension:   int32(t.Size),
 		})
 	}
