@@ -2027,21 +2027,6 @@
       },
       "type": "object"
     },
-    "restNodesCollection": {
-      "properties": {
-        "Children": {
-          "items": {
-            "$ref": "#/definitions/treeNode",
-            "type": "object"
-          },
-          "type": "array"
-        },
-        "Parent": {
-          "$ref": "#/definitions/treeNode"
-        }
-      },
-      "type": "object"
-    },
     "restPagination": {
       "properties": {
         "CurrentOffset": {
@@ -2800,7 +2785,7 @@
           "200": {
             "description": "A successful response.",
             "schema": {
-              "$ref": "#/definitions/restNodesCollection"
+              "$ref": "#/definitions/restNodeCollection"
             }
           },
           "401": {
@@ -3084,7 +3069,7 @@
           "200": {
             "description": "A successful response.",
             "schema": {
-              "$ref": "#/definitions/restNodesCollection"
+              "$ref": "#/definitions/restNodeCollection"
             }
           },
           "401": {

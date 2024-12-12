@@ -240,14 +240,14 @@ message PublicLinkDeleteSuccess {
 
 service NodeService {
   // Create one or many files (empty or hydrated from a TemplateUuid) or folders
-  rpc Create(CreateRequest) returns (NodesCollection) {
+  rpc Create(CreateRequest) returns (NodeCollection) {
     option (google.api.http) = {
       post: "/node/create"
       body: "*"
     };
   }
   // Generic request to either list (using Locators) or search (using Query) for nodes
-  rpc Lookup(LookupRequest) returns (NodesCollection) {
+  rpc Lookup(LookupRequest) returns (NodeCollection) {
     option (google.api.http) = {
       post: "/node"
       body: "*"
