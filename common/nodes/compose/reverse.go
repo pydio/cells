@@ -55,12 +55,10 @@ var (
 // Reverse is an extended clientImpl used mainly to filter events sent from inside to outside the application
 type Reverse struct {
 	nodes.Client
-	runtimeCtx context.Context
 }
 
-func ReverseClient(ctx context.Context, oo ...nodes.Option) *Reverse {
+func ReverseClient(oo ...nodes.Option) *Reverse {
 	opts := append(oo,
-		nodes.WithContext(ctx),
 		nodes.WithCore(&core.Executor{}),
 		nodes.WithTracer("Reverse", 2),
 		acl.WithAccessList(),
@@ -77,8 +75,7 @@ func ReverseClient(ctx context.Context, oo ...nodes.Option) *Reverse {
 	)
 	cl := newClient(opts...)
 	return &Reverse{
-		Client:     cl,
-		runtimeCtx: cl.runtimeCtx,
+		Client: cl,
 	}
 }
 
@@ -93,7 +90,7 @@ func (r *Reverse) WorkspaceCanSeeNode(ctx context.Context, accessList *permissio
 	roots := workspace.RootUUIDs
 	var ancestors []*tree.Node
 	var ancestorsLoaded bool
-	resolver := abstract.GetVirtualNodesManager(r.runtimeCtx).GetResolver(false)
+	resolver := abstract.GetVirtualProvider().GetResolver(false)
 	for _, root := range roots {
 		if parent, ok := r.NodeIsChildOfRoot(ctx, node, root); ok {
 			if accessList != nil {
@@ -129,8 +126,8 @@ func (r *Reverse) WorkspaceCanSeeNode(ctx context.Context, accessList *permissio
 // NodeIsChildOfRoot compares pathes between possible parent and child
 func (r *Reverse) NodeIsChildOfRoot(ctx context.Context, node *tree.Node, rootId string) (*tree.Node, bool) {
 
-	vManager := abstract.GetVirtualNodesManager(r.runtimeCtx)
-	if virtualNode, exists := vManager.ByUuid(rootId); exists {
+	vManager := abstract.GetVirtualProvider()
+	if virtualNode, exists := vManager.ByUuid(ctx, rootId); exists {
 		if resolved, e := vManager.ResolveInContext(ctx, virtualNode, false); e == nil {
 			//log.Logger(ctx).Info("NodeIsChildOfRoot, Comparing Pathes on resolved", zap.String("node", node.Path), zap.String("root", resolved.Path))
 			return resolved, node.Path == resolved.Path || strings.HasPrefix(node.Path, strings.TrimRight(resolved.Path, "/")+"/")

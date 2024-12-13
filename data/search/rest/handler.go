@@ -57,7 +57,7 @@ func (s *Handler) Filter() func(string) string {
 }
 
 func (s *Handler) getRouter(ctx context.Context) nodes.Client {
-	return compose.PathClient(ctx)
+	return compose.PathClient()
 }
 
 func (s *Handler) getClient(ctx context.Context) tree.SearcherClient {

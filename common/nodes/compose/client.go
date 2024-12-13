@@ -34,8 +34,8 @@ import (
 )
 
 func init() {
-	abstract.AdminClientProvider = func(runtime context.Context) nodes.Client {
-		return NewClient(pathComposer(nodes.WithContext(runtime), nodes.AsAdmin())...)
+	abstract.AdminClientProvider = func() nodes.Client {
+		return NewClient(pathComposer(nodes.AsAdmin())...)
 	}
 }
 
@@ -50,15 +50,6 @@ func newClient(opts ...nodes.Option) *clientImpl {
 	}
 
 	var handler nodes.Handler
-	/*
-		// Pool may be already set
-		if p, b := nodescontext.GetPool(options.Context); b {
-			options.Pool = p
-		} else {
-			options.Pool = nodes.NewPool(options.Context)
-		}
-
-	*/
 	handler = options.CoreClient
 
 	// wrap in reverse
@@ -66,16 +57,14 @@ func newClient(opts ...nodes.Option) *clientImpl {
 		handler = options.Wrappers[i-1].Adapt(handler, options)
 	}
 	return &clientImpl{
-		handler:    handler,
-		pool:       options.Pool,
-		runtimeCtx: options.Context,
+		handler: handler,
+		pool:    options.Pool,
 	}
 }
 
 type clientImpl struct {
-	handler    nodes.Handler
-	runtimeCtx context.Context
-	pool       *openurl.Pool[nodes.SourcesPool]
+	handler nodes.Handler
+	pool    *openurl.Pool[nodes.SourcesPool]
 }
 
 func (v *clientImpl) WrapCallback(provider nodes.CallbackFunc) error {

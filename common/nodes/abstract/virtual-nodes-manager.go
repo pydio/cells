@@ -59,23 +59,29 @@ var (
 		DiscardFallback: true,
 	}
 
-	AdminClientProvider func(runtime context.Context) nodes.Client
+	AdminClientProvider func() nodes.Client
 )
 
-// VirtualNodesManager keeps an internal list of virtual nodes.
-// They are cached for one minute to avoid too many requests on docstore service.
-type VirtualNodesManager struct {
-	ctx context.Context
+type VirtualProvider interface {
+	Load(ctx context.Context, forceReload ...bool) (vNodes []*tree.Node, loginLower bool, e error)
+	ByUuid(ctx context.Context, uuid string) (*tree.Node, bool)
+	ByPath(ctx context.Context, path string) (*tree.Node, bool)
+	ListNodes(ctx context.Context) []*tree.Node
+	ResolveInContext(ctx context.Context, vNode *tree.Node, create bool, retry ...bool) (*tree.Node, error)
+	GetResolver(createIfNotExists bool) func(context.Context, *tree.Node) (*tree.Node, bool)
 }
 
-// GetVirtualNodesManager creates a new VirtualNodesManager.
-func GetVirtualNodesManager(ctx context.Context) *VirtualNodesManager {
-	return &VirtualNodesManager{ctx: ctx}
+// virtualNodesManager keeps an internal list of virtual nodes.
+// They are cached for one minute to avoid too many requests on docstore service.
+type virtualNodesManager struct{}
+
+// GetVirtualProvider creates a VirtualProvider.
+func GetVirtualProvider() VirtualProvider {
+	return &virtualNodesManager{}
 }
 
 // Load requests the virtual nodes from the DocStore service.
-func (m *VirtualNodesManager) Load(forceReload ...bool) (vNodes []*tree.Node, loginLower bool, e error) {
-	ctx := m.ctx
+func (m *virtualNodesManager) Load(ctx context.Context, forceReload ...bool) (vNodes []*tree.Node, loginLower bool, e error) {
 	ca := cache_helper.MustResolveCache(ctx, "short", cacheConfig)
 
 	if len(forceReload) == 0 || !forceReload[0] {
@@ -109,10 +115,10 @@ func (m *VirtualNodesManager) Load(forceReload ...bool) (vNodes []*tree.Node, lo
 }
 
 // ByUuid finds a VirtualNode by its Uuid.
-func (m *VirtualNodesManager) ByUuid(uuid string) (*tree.Node, bool) {
-	nn, _, er := m.Load()
+func (m *virtualNodesManager) ByUuid(ctx context.Context, uuid string) (*tree.Node, bool) {
+	nn, _, er := m.Load(ctx)
 	if er != nil {
-		log.Logger(m.ctx).Error("Error while loading virtual nodes", zap.Error(er))
+		log.Logger(ctx).Error("Error while loading virtual nodes", zap.Error(er))
 	}
 	for _, n := range nn {
 		if n.Uuid == uuid {
@@ -124,11 +130,11 @@ func (m *VirtualNodesManager) ByUuid(uuid string) (*tree.Node, bool) {
 }
 
 // ByPath finds a VirtualNode by its Path.
-func (m *VirtualNodesManager) ByPath(path string) (*tree.Node, bool) {
+func (m *virtualNodesManager) ByPath(ctx context.Context, path string) (*tree.Node, bool) {
 
-	nn, _, er := m.Load()
+	nn, _, er := m.Load(ctx)
 	if er != nil {
-		log.Logger(m.ctx).Error("Error while loading virtual nodes", zap.Error(er))
+		log.Logger(ctx).Error("Error while loading virtual nodes", zap.Error(er))
 	}
 	for _, n := range nn {
 		if strings.Trim(n.Path, "/") == strings.Trim(path, "/") {
@@ -140,17 +146,17 @@ func (m *VirtualNodesManager) ByPath(path string) (*tree.Node, bool) {
 }
 
 // ListNodes returns a copy of the internally cached list.
-func (m *VirtualNodesManager) ListNodes() []*tree.Node {
-	nn, _, er := m.Load()
+func (m *virtualNodesManager) ListNodes(ctx context.Context) []*tree.Node {
+	nn, _, er := m.Load(ctx)
 	if er != nil {
-		log.Logger(m.ctx).Error("Error while loading virtual nodes", zap.Error(er))
+		log.Logger(ctx).Error("Error while loading virtual nodes", zap.Error(er))
 	}
 	return append([]*tree.Node{}, nn...)
 }
 
 // ResolveInContext computes the actual node Path based on the resolution metadata of the virtual node
 // and the current metadata contained in context.
-func (m *VirtualNodesManager) ResolveInContext(ctx context.Context, vNode *tree.Node, create bool, retry ...bool) (*tree.Node, error) {
+func (m *virtualNodesManager) ResolveInContext(ctx context.Context, vNode *tree.Node, create bool, retry ...bool) (*tree.Node, error) {
 
 	ca := cache_helper.MustResolveCache(ctx, "short", cacheConfig)
 	pool := nodes.GetSourcesPool(ctx)
@@ -193,12 +199,12 @@ func (m *VirtualNodesManager) ResolveInContext(ctx context.Context, vNode *tree.
 			return nil, err
 		} else {
 			if AdminClientProvider == nil {
-				log.Logger(ctx).Error("Oops, VirtualNodesManager AdminClient is empty ! ")
+				log.Logger(ctx).Error("Oops, virtualNodesManager AdminClient is empty ! ")
 				return nil, fmt.Errorf("cancel create")
 			}
 			resolved = createResp.GetNode()
 			isFlat := false
-			client := AdminClientProvider(ctx)
+			client := AdminClientProvider()
 			if bI, e := client.BranchInfoForNode(ctx, resolved); e == nil {
 				isFlat = bI.FlatStorage
 			}
@@ -226,9 +232,9 @@ func (m *VirtualNodesManager) ResolveInContext(ctx context.Context, vNode *tree.
 }
 
 // GetResolver injects some dependencies to generate a simple resolver function
-func (m *VirtualNodesManager) GetResolver(createIfNotExists bool) func(context.Context, *tree.Node) (*tree.Node, bool) {
+func (m *virtualNodesManager) GetResolver(createIfNotExists bool) func(context.Context, *tree.Node) (*tree.Node, bool) {
 	return func(ctx context.Context, node *tree.Node) (*tree.Node, bool) {
-		if virtualNode, exists := m.ByUuid(node.Uuid); exists {
+		if virtualNode, exists := m.ByUuid(ctx, node.Uuid); exists {
 			if resolved, e := m.ResolveInContext(ctx, virtualNode, createIfNotExists); e == nil {
 				return resolved, true
 			}
@@ -238,10 +244,10 @@ func (m *VirtualNodesManager) GetResolver(createIfNotExists bool) func(context.C
 }
 
 // toJsUser transforms claims to JsUser
-func (m *VirtualNodesManager) toJsUser(c claim.Claims) *permissions.JsUser {
-	_, loginLower, er := m.Load()
+func (m *virtualNodesManager) toJsUser(ctx context.Context, c claim.Claims) *permissions.JsUser {
+	_, loginLower, er := m.Load(ctx)
 	if er != nil {
-		log.Logger(m.ctx).Error("Error while loading virtual nodes", zap.Error(er))
+		log.Logger(ctx).Error("Error while loading virtual nodes", zap.Error(er))
 	}
 	uName := c.Name
 	if loginLower {
@@ -265,10 +271,10 @@ func (m *VirtualNodesManager) toJsUser(c claim.Claims) *permissions.JsUser {
 }
 
 // resolvePathWithClaims performs the actual Path resolution and returns a node. There is no guarantee that the node exists.
-func (m *VirtualNodesManager) resolvePathWithClaims(ctx context.Context, vNode *tree.Node, c claim.Claims, clientsPool nodes.SourcesPool) (*tree.Node, error) {
+func (m *virtualNodesManager) resolvePathWithClaims(ctx context.Context, vNode *tree.Node, c claim.Claims, clientsPool nodes.SourcesPool) (*tree.Node, error) {
 
 	resolved := &tree.Node{}
-	jsUser := m.toJsUser(c)
+	jsUser := m.toJsUser(ctx, c)
 	resolutionString := vNode.MetaStore["resolution"]
 	if cType, exists := vNode.MetaStore["contentType"]; exists && cType == "text/javascript" {
 
@@ -309,7 +315,7 @@ func (m *VirtualNodesManager) resolvePathWithClaims(ctx context.Context, vNode *
 }
 
 // copyRecycleRootAcl creates recycle_root ACL on newly created node
-func (m *VirtualNodesManager) copyRecycleRootAcl(ctx context.Context, vNode *tree.Node, resolved *tree.Node) error {
+func (m *virtualNodesManager) copyRecycleRootAcl(ctx context.Context, vNode *tree.Node, resolved *tree.Node) error {
 	cl := idmc.ACLServiceClient(ctx)
 
 	// Check if vNode has this flag set

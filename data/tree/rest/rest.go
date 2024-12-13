@@ -48,7 +48,7 @@ var (
 
 func getClient(ctx context.Context) tree.NodeProviderClient {
 	if providerClient == nil {
-		providerClient = compose.PathClient(ctx, nodes.AsAdmin(), nodes.WithVirtualNodesBrowsing())
+		providerClient = compose.PathClient(nodes.AsAdmin(), nodes.WithVirtualNodesBrowsing())
 	}
 	return providerClient
 }

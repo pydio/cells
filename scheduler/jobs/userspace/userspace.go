@@ -159,7 +159,7 @@ func DeleteNodesTask(ctx context.Context, router nodes.Client, selectedPaths []s
 
 	cli := jobsc.JobServiceClient(ctx)
 	moveLabel := T("Jobs.User.MoveRecycle")
-	fullPathRouter := compose.PathClientAdmin(ctx)
+	fullPathRouter := compose.PathClientAdmin()
 	for recyclePath, rMoves := range delJobs.RecycleMoves {
 
 		// Create recycle bins now, to make sure user is notified correctly

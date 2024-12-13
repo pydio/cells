@@ -75,7 +75,7 @@ func init() {
 			service.WithHTTPOptions(func(rootCtx context.Context, mux routing.RouteRegistrar, o *service.ServiceOptions) error {
 				ws = websocket.NewWebSocketHandler(rootCtx)
 				chat = websocket.NewChatHandler(rootCtx)
-				ws.EventRouter = compose.ReverseClient(rootCtx)
+				ws.EventRouter = compose.ReverseClient()
 
 				sub := mux.Route(RouteWebsocket)
 				melodyAsHandler := func(mel *melody.Melody) http.Handler {

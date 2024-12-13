@@ -41,7 +41,7 @@ func init() {
 			service.Tag(common.ServiceTagData),
 			service.Description("RESTful Gateway to metadata storage"),
 			service.WithWeb(func(c context.Context) service.WebHandler {
-				return &rest.Handler{RuntimeCtx: c}
+				return &rest.Handler{}
 			}),
 		)
 	})

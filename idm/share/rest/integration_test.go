@@ -249,7 +249,7 @@ func TestShareLinks(t *testing.T) {
 			rand := hex.EncodeToString(hash.Sum(nil))
 			rootKey := rand[0:8] + "-" + path.Base(newNode.GetPath())
 
-			read, e := compose.PathClient(ctx).ReadNode(hiddenCtx, &tree.ReadNodeRequest{Node: &tree.Node{Path: path.Join(slugRoot, rootKey)}})
+			read, e := compose.PathClient().ReadNode(hiddenCtx, &tree.ReadNodeRequest{Node: &tree.Node{Path: path.Join(slugRoot, rootKey)}})
 			So(e, ShouldBeNil)
 			So(read, ShouldNotBeEmpty)
 			t.Log("Router Accessed File from Hidden User", read.Node)

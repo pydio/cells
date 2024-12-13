@@ -259,7 +259,7 @@ func (h *PublicHandler) ServeDAV(w http.ResponseWriter, r *http.Request, linkId 
 			return er
 		}
 		resolver := func(ctx context.Context, node *tree.Node) (*tree.Node, bool) {
-			return abstract.GetVirtualNodesManager(h.runtimeContext).ByUuid(node.Uuid)
+			return abstract.GetVirtualProvider().ByUuid(ctx, node.Uuid)
 		}
 		wss := map[string]*idm.Workspace{workspace.GetUUID(): workspace}
 		er = permissions.LoadRootNodesForWorkspaces(ctx, []string{workspace.GetUUID()}, wss, resolver)

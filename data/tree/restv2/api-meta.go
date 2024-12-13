@@ -127,7 +127,7 @@ func (h *Handler) PatchNode(req *restful.Request, resp *restful.Response) error 
 	}
 
 	// Return updated Node
-	router := compose.UuidClient(ctx)
+	router := compose.UuidClient()
 	node, er := router.ReadNode(ctx, &tree.ReadNodeRequest{Node: &tree.Node{Uuid: nodeUuid}})
 	if er != nil {
 		return er
@@ -159,7 +159,7 @@ func (h *Handler) UserBookmarks(req *restful.Request, resp *restful.Response) er
 		Namespace: rest2.ReservedNSBookmark,
 	}
 	ctx := req.Request.Context()
-	router := compose.UuidClient(ctx)
+	router := compose.UuidClient()
 	res, e := h.UserMetaHandler.PerformSearchMetaRequest(ctx, searchRequest)
 	if e != nil {
 		return e

@@ -216,7 +216,7 @@ func (e *MicroEventsSubscriber) HandleNodeChange(ctx context.Context, msg *tree.
 }
 
 func (e *MicroEventsSubscriber) vNodeResolver(ctx context.Context, n *tree.Node) (*tree.Node, bool) {
-	return abstract.GetVirtualNodesManager(e.RuntimeCtx).GetResolver(false)(ctx, n)
+	return abstract.GetVirtualProvider().GetResolver(false)(ctx, n)
 }
 
 func (e *MicroEventsSubscriber) HandleIdmChange(ctx context.Context, msg *idm.ChangeEvent) error {

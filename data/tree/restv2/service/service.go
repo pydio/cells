@@ -39,7 +39,7 @@ func init() {
 			service.Tag(common.ServiceTagData),
 			service.Description("RESTful Gateway to Rest API v2"),
 			service.WithWeb(func(c context.Context) service.WebHandler {
-				return restv2.NewHandler(c)
+				return restv2.NewHandler()
 			}),
 		)
 	})

@@ -54,11 +54,8 @@ func (v *Handler) Adapt(c nodes.Handler, options nodes.RouterOptions) nodes.Hand
 	return v
 }
 
-func (v *Handler) getVersionClient() tree.NodeVersionerClient {
-	if v.versionClient == nil {
-		v.versionClient = tree.NewNodeVersionerClient(grpc2.ResolveConn(v.RuntimeCtx, common.ServiceVersionsGRPC))
-	}
-	return v.versionClient
+func (v *Handler) getVersionClient(ctx context.Context) tree.NodeVersionerClient {
+	return tree.NewNodeVersionerClient(grpc2.ResolveConn(ctx, common.ServiceVersionsGRPC))
 }
 
 // ListNodes creates a list of nodes if the Versions are required
@@ -74,7 +71,7 @@ func (v *Handler) ListNodes(ctx context.Context, in *tree.ListNodesRequest, opts
 		if e != nil {
 			return streamer, e
 		}
-		versionStream, er := v.getVersionClient().ListVersions(ctx, &tree.ListVersionsRequest{Node: resp.Node})
+		versionStream, er := v.getVersionClient(ctx).ListVersions(ctx, &tree.ListVersionsRequest{Node: resp.Node})
 		if er != nil {
 			return streamer, er
 		}
@@ -128,7 +125,7 @@ func (v *Handler) ReadNode(ctx context.Context, req *tree.ReadNodeRequest, opts 
 			node = resp.Node
 		}
 		log.Logger(ctx).Debug("Reading Node with Version ID - Found node")
-		vResp, err := v.getVersionClient().HeadVersion(ctx, &tree.HeadVersionRequest{Node: node, VersionId: vId})
+		vResp, err := v.getVersionClient(ctx).HeadVersion(ctx, &tree.HeadVersionRequest{Node: node, VersionId: vId})
 		if err != nil {
 			return nil, err
 		}
@@ -159,7 +156,7 @@ func (v *Handler) GetObject(ctx context.Context, node *tree.Node, requestData *m
 			}
 			node = resp.Node
 		}
-		vResp, err := v.getVersionClient().HeadVersion(ctx, &tree.HeadVersionRequest{Node: node, VersionId: requestData.VersionId})
+		vResp, err := v.getVersionClient(ctx).HeadVersion(ctx, &tree.HeadVersionRequest{Node: node, VersionId: requestData.VersionId})
 		if err != nil {
 			return nil, err
 		}
@@ -199,7 +196,7 @@ func (v *Handler) CopyObject(ctx context.Context, from *tree.Node, to *tree.Node
 			}
 			from = resp.Node
 		}
-		vResp, err := v.getVersionClient().HeadVersion(ctx, &tree.HeadVersionRequest{Node: from, VersionId: requestData.SrcVersionId})
+		vResp, err := v.getVersionClient(ctx).HeadVersion(ctx, &tree.HeadVersionRequest{Node: from, VersionId: requestData.SrcVersionId})
 		if err != nil {
 			return models.ObjectInfo{}, err
 		}

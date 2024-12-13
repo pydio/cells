@@ -40,7 +40,7 @@ func init() {
 			service.Description("REST gateway to the scheduler service"),
 			service.WithWeb(func(ctx context.Context) service.WebHandler {
 				// Init router with current registry
-				rest.TODORouter = compose.PathClient(ctx)
+				rest.TODORouter = compose.PathClient()
 				return &rest.JobsHandler{RuntimeContext: ctx}
 			}),
 		)

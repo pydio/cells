@@ -49,7 +49,7 @@ type ActivityHandler struct {
 func NewActivityHandler(ctx context.Context) *ActivityHandler {
 	return &ActivityHandler{
 		RuntimeCtx: ctx,
-		router:     compose.ReverseClient(ctx),
+		router:     compose.ReverseClient(),
 	}
 }
 

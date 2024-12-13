@@ -44,18 +44,13 @@ const (
 
 func RouterWithOptionalPrefix(runtime context.Context, s ...string) nodes.Handler {
 	if davRouter == nil {
-		davRouter = compose.PathClient(
-			runtime,
-			nodes.WithAuditEventsLogging(),
-			nodes.WithSynchronousCaching(),
-			nodes.WithSynchronousTasks(),
-		)
+		davRouter = compose.PathClient(nodes.WithAuditEventsLogging(), nodes.WithSynchronousCaching(), nodes.WithSynchronousTasks())
 	}
 	if len(s) == 0 {
 		return davRouter
 	}
 	pf := path.NewPermanentPrefix(s[0])
-	return pf.Adapt(davRouter, nodes.RouterOptions{Context: runtime})
+	return pf.Adapt(davRouter, nodes.RouterOptions{})
 }
 
 // GetHandler is public to let external package spinning a DAV http handler

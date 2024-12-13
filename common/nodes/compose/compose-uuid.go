@@ -21,8 +21,6 @@
 package compose
 
 import (
-	"context"
-
 	"github.com/pydio/cells/v5/common/nodes"
 	"github.com/pydio/cells/v5/common/nodes/acl"
 	"github.com/pydio/cells/v5/common/nodes/core"
@@ -33,8 +31,7 @@ import (
 	"github.com/pydio/cells/v5/common/nodes/version"
 )
 
-func UuidClient(ctx context.Context, oo ...nodes.Option) nodes.Client {
-	oo = append(oo, nodes.WithContext(ctx))
+func UuidClient(oo ...nodes.Option) nodes.Client {
 	return NewClient(uuidComposer(oo...)...)
 }
 

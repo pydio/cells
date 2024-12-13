@@ -80,12 +80,7 @@ func NewLocal(root string, options cells.Options) *Local {
 		},
 	}
 	l.Factory = &localRouterFactory{
-		router: compose.PathClient(
-			l.GlobalCtx,
-			nodes.AsAdmin(),
-			nodes.WithSynchronousTasks(),
-			nodes.WithHashesAsETags(),
-		),
+		router: compose.PathClient(nodes.AsAdmin(), nodes.WithSynchronousTasks(), nodes.WithHashesAsETags()),
 	}
 	l.Source = l
 	l.GlobalCtx = runtime.WithServiceName(l.GlobalCtx, "endpoint.cells.local")

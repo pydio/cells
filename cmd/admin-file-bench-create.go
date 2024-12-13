@@ -70,7 +70,7 @@ EXAMPLE
 		//var reg registry.Registry
 		//propagator.Get(ctx, registry.ContextKey, &reg)
 		//router := compose.PathClientAdmin(nodescontext.WithSourcesPool(ctx, nodes.NewPool(ctx, reg)))
-		router := compose.PathClientAdmin(ctx)
+		router := compose.PathClientAdmin()
 		c := auth.WithImpersonate(cmd.Context(), &idm.User{Login: benchUser})
 		bar := progressbar.Default(int64(benchNumber), "# files created")
 		for i := 0; i < benchNumber; i++ {

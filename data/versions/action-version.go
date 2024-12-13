@@ -73,7 +73,7 @@ var (
 
 func getRouter(runtime context.Context) nodes.Client {
 	if router == nil {
-		router = compose.PathClient(runtime, nodes.AsAdmin())
+		router = compose.PathClient(nodes.AsAdmin())
 	}
 	return router
 }

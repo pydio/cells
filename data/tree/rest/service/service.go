@@ -38,9 +38,7 @@ func init() {
 			service.Description("RESTful Gateway to tree service"),
 			//service.RouterDependencies(),
 			service.WithWeb(func(c context.Context) service.WebHandler {
-				h := &rest.Handler{}
-				h.RuntimeCtx = c
-				return h
+				return &rest.Handler{}
 			}),
 		)
 	})

@@ -267,11 +267,7 @@ func (t *TreeHandler) DeleteNode(ctx context.Context, req *tree.DeleteNodeReques
 
 func (t *TreeHandler) getRouter() nodes.Handler {
 	t.rOnce.Do(func() {
-		t.router = compose.PathClient(
-			t.runtimeCtx,
-			nodes.WithSynchronousTasks(),
-			nodes.WithHashesAsETags(),
-		)
+		t.router = compose.PathClient(nodes.WithSynchronousTasks(), nodes.WithHashesAsETags())
 	})
 	return t.router
 }

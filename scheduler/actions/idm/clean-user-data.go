@@ -114,13 +114,13 @@ func (c *CleanUserDataAction) Run(ctx context.Context, channels *actions.Runnabl
 		tp = jobs.EvaluateFieldStr(ctx, input, tp)
 	}
 
-	router := compose.PathClient(ctx, nodes.AsAdmin(), nodes.WithSynchronousTasks())
+	router := compose.PathClient(nodes.AsAdmin(), nodes.WithSynchronousTasks())
 	clientsPool := router.GetClientsPool(ctx)
 
 	var cleaned bool
 	// For the moment, just rename personal folder to user UUID to collision with new user with same Login
-	vNodesManager := abstract.GetVirtualNodesManager(c.GetRuntimeContext())
-	for _, vNode := range vNodesManager.ListNodes() {
+	vNodesManager := abstract.GetVirtualProvider()
+	for _, vNode := range vNodesManager.ListNodes(ctx) {
 		onDelete, ok := vNode.MetaStore["onDelete"]
 		if !ok || onDelete != "rename-uuid" {
 			continue

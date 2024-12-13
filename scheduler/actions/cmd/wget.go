@@ -113,7 +113,7 @@ func (w *WGetAction) Init(job *jobs.Job, action *jobs.Action) error {
 	} else {
 		return errors.WithMessage(errors.InvalidParameters, "missing parameter url in Action")
 	}
-	w.Router = compose.PathClientAdmin(w.GetRuntimeContext())
+	w.Router = compose.PathClientAdmin()
 	return nil
 }
 

@@ -482,7 +482,7 @@ func (c *ChatHandler) auth(session *melody.Session, room *chat.ChatRoom) (bool, 
 
 		// Check node is readable and writeable
 		if uuidRouter == nil {
-			uuidRouter = compose.UuidClient(ctx)
+			uuidRouter = compose.UuidClient()
 		}
 		resp, e := uuidRouter.ReadNode(ctx, &tree.ReadNodeRequest{Node: &tree.Node{Uuid: room.RoomTypeObject}})
 		if e != nil {

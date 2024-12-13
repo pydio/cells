@@ -337,7 +337,7 @@ func (a *FrontendHandler) FrontServeBinary(req *restful.Request, rsp *restful.Re
 	binaryUuid := req.PathParameter("Uuid")
 	ctx := req.Request.Context()
 
-	router := compose.PathClient(ctx)
+	router := compose.PathClient()
 	var readNode *tree.Node
 	var extension string
 
@@ -409,7 +409,7 @@ func (a *FrontendHandler) FrontPutBinary(req *restful.Request, rsp *restful.Resp
 	ctxUser, ctxClaims := permissions.FindUserNameInContext(ctx)
 
 	log.Logger(ctx).Debug("Upload Binary", zap.String("type", binaryType), zap.Any("header", f2))
-	router := compose.PathClient(ctx)
+	router := compose.PathClient()
 	ctx = ctxWithoutCookies(ctx)
 
 	defer func() {
@@ -471,7 +471,7 @@ func (a *FrontendHandler) FrontPutBinary(req *restful.Request, rsp *restful.Resp
 		}
 	} else if binaryType == "GLOBAL" {
 
-		router := compose.PathClient(ctx)
+		router := compose.PathClient()
 		node := &tree.Node{
 			Path: common.PydioDocstoreBinariesNamespace + "/global_binaries." + binaryId,
 		}

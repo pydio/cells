@@ -52,7 +52,7 @@ func init() {
 			service.Description("WOPI REST Gateway to tree service"),
 			//service.RouterDependencies(),
 			service.WithHTTP(func(ctx context.Context, mux routing.RouteRegistrar) error {
-				client = compose.UuidClient(ctx, nodes.WithAuditEventsLogging())
+				client = compose.UuidClient(nodes.WithAuditEventsLogging())
 				wopiRouter := NewRouter()
 				mux.Route(RouteWOPI).Handle("/", wopiRouter, routing.WithStripPrefix())
 				return nil

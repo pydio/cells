@@ -770,13 +770,13 @@ loop:
 
 // ModifyLogin should detect TemplatePaths using the User.Name variable, resolve them and forward the request to the corresponding index
 func (s *TreeServer) ModifyLogin(ctx context.Context, req *service.ModifyLoginRequest) (*service.ModifyLoginResponse, error) {
-	m := abstract.GetVirtualNodesManager(ctx)
+	m := abstract.GetVirtualProvider()
 	resp := &service.ModifyLoginResponse{}
 	originalUser, er := permissions.SearchUniqueUser(ctx, req.OldLogin, "")
 	if er != nil {
 		return nil, fmt.Errorf("cannot find original user %s. Make sure to run this command first while modifying a login", req.OldLogin)
 	}
-	for _, vn := range m.ListNodes() {
+	for _, vn := range m.ListNodes(ctx) {
 		if resolution, ok := vn.MetaStore["resolution"]; ok && strings.Contains(resolution, "User.Name") {
 			// Impersonate context
 			userCtx := auth.WithImpersonate(ctx, originalUser)

@@ -100,6 +100,7 @@ func (a *Handler) GetObject(ctx context.Context, node *tree.Node, requestData *m
 	}
 
 	readCloser, err := a.Next.GetObject(ctx, node, requestData)
+	deferedCtx := context.WithoutCancel(ctx)
 	if err != nil {
 		if selectionUuid := a.selectionFakeName(originalPath); selectionUuid != "" {
 			ok, selection, er := a.selectionProvider.getSelectionByUuid(ctx, selectionUuid)
@@ -113,7 +114,7 @@ func (a *Handler) GetObject(ctx context.Context, node *tree.Node, requestData *m
 					defer w.Close()
 					defer func() {
 						// Delete selection after download
-						a.selectionProvider.deleteSelectionByUuid(a.RuntimeCtx, selectionUuid)
+						a.selectionProvider.deleteSelectionByUuid(deferedCtx, selectionUuid)
 					}()
 					a.generateArchiveFromSelection(ctx, w, selection, ext)
 				}()

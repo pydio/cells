@@ -35,7 +35,7 @@ type Adapter interface {
 
 // RouterOptions holds configuration flags to pass to a router constructor easily.
 type RouterOptions struct {
-	Context context.Context
+	//Context context.Context
 
 	CoreClient Handler
 
@@ -58,7 +58,7 @@ type RouterOptions struct {
 
 func WithContext(ctx context.Context) Option {
 	return func(options *RouterOptions) {
-		options.Context = ctx
+		//options.Context = ctx
 	}
 }
 

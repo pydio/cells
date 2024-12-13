@@ -202,7 +202,7 @@ func (c *CaptureAction) Run(ctx context.Context, channels *actions.RunnableChann
 	targetAsSource, _ := model.AsPathSyncSource(target)
 	targetAsSource = &sourceProgressWrapper{PathSyncSource: targetAsSource, sName: "index", logger: infoLogger}
 
-	router := compose.PathClientAdmin(ctx)
+	router := compose.PathClientAdmin()
 
 	if format == "json" {
 

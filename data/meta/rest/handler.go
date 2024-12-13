@@ -44,8 +44,7 @@ import (
 )
 
 type Handler struct {
-	RuntimeCtx context.Context
-	router     nodes.Client
+	router nodes.Client
 }
 
 // SwaggerTags list the names of the service tags declared in the swagger json implemented by this service
@@ -327,7 +326,7 @@ func (h *Handler) DeleteMeta(req *restful.Request, resp *restful.Response) error
 
 func (h *Handler) GetRouter() nodes.Client {
 	if h.router == nil {
-		h.router = compose.PathClient(h.RuntimeCtx, nodes.WithAuditEventsLogging())
+		h.router = compose.PathClient(nodes.WithAuditEventsLogging())
 	}
 	return h.router
 }

@@ -204,7 +204,7 @@ func (h *GraphHandler) Recommend(req *restful.Request, rsp *restful.Response) er
 	ak := map[string]struct{}{}
 	var an, bn []*tree.Node
 
-	router := compose.UuidClient(h.runtimeContext)
+	router := compose.UuidClient()
 
 	showActivities := config.Get(ctx, "services", common.ServiceRestNamespace_+common.ServiceGraph, "recommendations", "activities").Default(true).Bool()
 	showBookmarks := config.Get(ctx, "services", common.ServiceRestNamespace_+common.ServiceGraph, "recommendations", "bookmarks").Default(true).Bool()
@@ -337,7 +337,7 @@ func (h *GraphHandler) Recommend(req *restful.Request, rsp *restful.Response) er
 
 	// Not enough data, load accessible workspaces as nodes
 	if len(resp.Nodes) < int(request.Limit) {
-		pr := compose.PathClient(h.runtimeContext)
+		pr := compose.PathClient()
 		_ = pr.ListNodesWithCallback(ctx, &tree.ListNodesRequest{Node: &tree.Node{Path: "/"}}, func(ctx context.Context, node *tree.Node, err error) error {
 			if err == nil && node.Type != tree.NodeType_UNKNOWN {
 				if wsu := node.GetStringMeta(common.MetaFlagWorkspaceUuid); wsu != "" {

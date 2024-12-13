@@ -21,8 +21,6 @@
 package compose
 
 import (
-	"context"
-
 	"github.com/pydio/cells/v5/common"
 	"github.com/pydio/cells/v5/common/nodes"
 	"github.com/pydio/cells/v5/common/nodes/acl"
@@ -38,13 +36,11 @@ import (
 	"github.com/pydio/cells/v5/common/nodes/virtual"
 )
 
-func PathClient(ctx context.Context, oo ...nodes.Option) nodes.Client {
-	oo = append(oo, nodes.WithContext(ctx))
+func PathClient(oo ...nodes.Option) nodes.Client {
 	return NewClient(pathComposer(oo...)...)
 }
 
-func PathClientAdmin(ctx context.Context, oo ...nodes.Option) nodes.Client {
-	oo = append(oo, nodes.WithContext(ctx))
+func PathClientAdmin(oo ...nodes.Option) nodes.Client {
 	return NewClient(append(oo, pathComposer(nodes.AsAdmin())...)...)
 }
 

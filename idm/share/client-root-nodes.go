@@ -51,7 +51,7 @@ import (
 )
 
 func (sc *Client) getUuidRouter(ctx context.Context) nodes.Handler {
-	return compose.UuidClient(ctx)
+	return compose.UuidClient()
 }
 
 // LoadDetectedRootNodes find actual nodes in the tree, and enrich their metadata if they appear
@@ -60,7 +60,7 @@ func (sc *Client) LoadDetectedRootNodes(ctx context.Context, detectedRoots []str
 
 	router := sc.getUuidRouter(ctx)
 	throttle := make(chan struct{}, 5)
-	eventFilter := compose.ReverseClient(ctx, nodes.AsAdmin())
+	eventFilter := compose.ReverseClient(nodes.AsAdmin())
 	wg := &sync.WaitGroup{}
 	wg.Add(len(detectedRoots))
 	var loaded []*tree.Node
@@ -111,7 +111,7 @@ func (sc *Client) LoadDetectedRootNodes(ctx context.Context, detectedRoots []str
 // or just verify that the root nodes are not empty.
 func (sc *Client) ParseRootNodes(ctx context.Context, cell *rest.Cell, createEmpty bool) (bool, error) {
 
-	router := compose.PathClient(ctx)
+	router := compose.PathClient()
 	for i, n := range cell.RootNodes {
 		r, e := router.ReadNode(ctx, &tree.ReadNodeRequest{Node: n})
 		if e != nil {
@@ -125,9 +125,9 @@ func (sc *Client) ParseRootNodes(ctx context.Context, cell *rest.Cell, createEmp
 	}
 	if createEmpty {
 
-		manager := abstract.GetVirtualNodesManager(ctx)
-		internalRouter := compose.PathClientAdmin(ctx)
-		if root, exists := manager.ByUuid("cells"); exists {
+		manager := abstract.GetVirtualProvider()
+		internalRouter := compose.PathClientAdmin()
+		if root, exists := manager.ByUuid(ctx, "cells"); exists {
 			parentNode, err := manager.ResolveInContext(ctx, root, true)
 			if err != nil {
 				return false, err
@@ -263,8 +263,8 @@ func (sc *Client) DetectInheritedPolicy(ctx context.Context, roots []*tree.Node,
 // .pydio hidden files when they are folders.
 func (sc *Client) DeleteRootNodeRecursively(ctx context.Context, ownerName string, roomNode *tree.Node) error {
 
-	manager := abstract.GetVirtualNodesManager(ctx)
-	if root, exists := manager.ByUuid("cells"); exists {
+	manager := abstract.GetVirtualProvider()
+	if root, exists := manager.ByUuid(ctx, "cells"); exists {
 		parentNode, err := manager.ResolveInContext(ctx, root, true)
 		if err != nil {
 			return err
@@ -365,7 +365,7 @@ func (sc *Client) RootsParentWorkspaces(ctx context.Context, rr []*tree.Node) (w
 func (sc *Client) LoadAdminRootNodes(ctx context.Context, detectedRoots []string) (rootNodes map[string]*tree.Node) {
 
 	rootNodes = make(map[string]*tree.Node)
-	router := compose.UuidClient(ctx, nodes.AsAdmin())
+	router := compose.UuidClient(nodes.AsAdmin())
 	metaClient := treec.ServiceNodeProviderClient(ctx, common.ServiceMeta)
 	for _, rootId := range detectedRoots {
 		request := &tree.ReadNodeRequest{Node: &tree.Node{Uuid: rootId}}

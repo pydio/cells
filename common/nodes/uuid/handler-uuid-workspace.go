@@ -83,8 +83,8 @@ func (h *WorkspaceHandler) updateInputBranch(ctx context.Context, node *tree.Nod
 	}
 
 	// Update Access List with resolved virtual nodes
-	virtualManager := abstract.GetVirtualNodesManager(h.RuntimeCtx)
-	for _, vNode := range virtualManager.ListNodes() {
+	virtualManager := abstract.GetVirtualProvider()
+	for _, vNode := range virtualManager.ListNodes(ctx) {
 		if _, has := accessList.GetNodesBitmasks()[vNode.Uuid]; has {
 			if resolvedRoot, err := virtualManager.ResolveInContext(ctx, vNode, false); err == nil {
 				log.Logger(ctx).Debug("Updating Access List with resolved node Uuid", zap.Any("virtual", vNode), zap.Any("resolved", resolvedRoot))

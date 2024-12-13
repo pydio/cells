@@ -55,7 +55,7 @@ func init() {
 
 // getRouter provides a singleton-initialized StandardRouter in AdminView.
 func getRouter(runtime context.Context) nodes.Client {
-	return compose.PathClient(runtime, nodes.AsAdmin())
+	return compose.PathClient(nodes.AsAdmin())
 }
 
 // getThumbLocation returns a node with the correct ds name for pydio thumbs store.

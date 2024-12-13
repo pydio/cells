@@ -252,14 +252,14 @@ func (b *LocalBatch) createBackgroundContext(parent context.Context) context.Con
 
 func (b *LocalBatch) getUuidRouter() nodes.Handler {
 	if b.uuidRouter == nil {
-		b.uuidRouter = compose.UuidClient(b.ctx, nodes.AsAdmin())
+		b.uuidRouter = compose.UuidClient(nodes.AsAdmin())
 	}
 	return b.uuidRouter
 }
 
 func (b *LocalBatch) getStdRouter() nodes.Handler {
 	if b.stdRouter == nil {
-		b.stdRouter = compose.PathClientAdmin(b.ctx)
+		b.stdRouter = compose.PathClientAdmin()
 	}
 	return b.stdRouter
 }

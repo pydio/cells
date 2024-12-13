@@ -332,7 +332,7 @@ func (u *User) publishWorkspaces(ctx context.Context, status RequestStatus, pool
 	}
 
 	// Used to detect "personal files"-like workspace
-	vNodeManager := abstract.GetVirtualNodesManager(ctx)
+	vNodeManager := abstract.GetVirtualProvider()
 	var skipReserved bool
 	if status.Request != nil {
 		skipReserved = strings.Contains(status.Request.Header.Get("User-Agent"), "com.pydio.PydioPro;")
@@ -369,7 +369,7 @@ func (u *User) publishWorkspaces(ctx context.Context, status RequestStatus, pool
 			repo.Attrrepository_type = "link"
 			if ws.Label == "{{RefLabel}}" && len(ws.RootUUIDs) == 1 {
 				// Load unique node to re-build label
-				router := compose.UuidClient(status.RuntimeCtx)
+				router := compose.UuidClient()
 				if rsp, e := router.ReadNode(status.Request.Context(), &tree.ReadNodeRequest{Node: &tree.Node{Uuid: ws.RootUUIDs[0]}}); e == nil {
 					repo.Clabel = &Clabel{Cdata: path.Base(rsp.GetNode().GetPath())}
 				}
@@ -377,7 +377,7 @@ func (u *User) publishWorkspaces(ctx context.Context, status RequestStatus, pool
 		} else {
 			repo.Attrrepository_type = "workspace"
 			if len(ws.RootUUIDs) == 1 {
-				if _, ok := vNodeManager.ByUuid(ws.RootUUIDs[0]); ok {
+				if _, ok := vNodeManager.ByUuid(ctx, ws.RootUUIDs[0]); ok {
 					repo.Attrrepository_type = "workspace-personal"
 				}
 			}

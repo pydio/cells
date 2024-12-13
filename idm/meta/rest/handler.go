@@ -146,7 +146,7 @@ func (s *UserMetaHandler) PerformUserMetaUpdate(ctx context.Context, input *idm.
 		return nil, e
 	}
 	var loadUuids []string
-	router := compose.UuidClient(ctx)
+	router := compose.UuidClient()
 
 	// First check if the namespaces are globally accessible
 	for _, meta := range input.MetaDatas {
@@ -248,7 +248,7 @@ func (s *UserMetaHandler) UserBookmarks(req *restful.Request, rsp *restful.Respo
 		Namespace: ReservedNSBookmark,
 	}
 	ctx := req.Request.Context()
-	router := compose.UuidClient(ctx)
+	router := compose.UuidClient()
 	output, e := s.PerformSearchMetaRequest(ctx, searchRequest)
 	if e != nil {
 		return e

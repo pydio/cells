@@ -255,7 +255,7 @@ func (a *TokenHandler) GenerateDocumentAccessToken(req *restful.Request, resp *r
 		return e
 	}
 	ctx := req.Request.Context()
-	router := compose.PathClient(a.RuntimeCtx)
+	router := compose.PathClient()
 	readResp, e := router.ReadNode(ctx, &tree.ReadNodeRequest{Node: &tree.Node{Path: datRequest.Path}})
 	if e != nil {
 		return e

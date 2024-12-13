@@ -52,10 +52,8 @@ type Handler struct {
 	UserMetaHandler  *umeta.UserMetaHandler
 }
 
-// TODO REMOVE RUNTIME CONTEXT!
-func NewHandler(ctx context.Context) *Handler {
+func NewHandler() *Handler {
 	th := &treeer.Handler{}
-	th.RuntimeCtx = ctx
 	return &Handler{
 		SearchHandler:    &searcher.Handler{},
 		TreeHandler:      th,
@@ -97,8 +95,12 @@ func (h *Handler) TreeNodeToNode(n *tree.Node) *rest.Node {
 			continue
 		}
 		switch k {
-		case common.MetaFlagUserSubscriptionsJoined, common.MetaNamespaceNodeName:
+		case common.MetaFlagUserSubscriptionsJoined:
 			continue
+		case common.MetaNamespaceNodeName:
+			if v == `"`+common.RecycleBinName+`"` {
+				rn.IsRecycleBin = true
+			}
 		case common.MetaNamespaceMime:
 			rn.ContentType = strings.ReplaceAll(v, "\"", "")
 		case common.MetaNamespaceHash:
@@ -113,8 +115,6 @@ func (h *Handler) TreeNodeToNode(n *tree.Node) *rest.Node {
 			rn.Mode = rest.Mode_LevelReadOnly
 		case common.MetaFlagContentLock:
 			rn.ContentLock = &rest.LockInfo{IsLocked: true, Owner: strings.ReplaceAll(v, "\"", "")}
-		case common.RecycleBinName:
-			rn.IsRecycleBin = true
 		case meta.ReservedNamespaceBookmark:
 			rn.IsBookmarked = true
 		case common.MetaFlagUserSubscriptions:

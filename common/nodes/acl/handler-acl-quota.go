@@ -267,7 +267,7 @@ func (a *QuotaFilter) FindParentWorkspaces(ctx context.Context, workspace *idm.W
 		GroupPath: userObject.GroupPath,
 	}
 	parentContext = context.WithValue(ctx, claim.ContextKey, claims)
-	vResolver := abstract.GetVirtualNodesManager(a.RuntimeCtx).GetResolver(false)
+	vResolver := abstract.GetVirtualProvider().GetResolver(false)
 	ownerWsRoots := make(map[string]*idm.Workspace)
 
 	for _, ws := range ownerAcls.GetWorkspaces() {
@@ -353,7 +353,7 @@ func (a *QuotaFilter) QuotaForWorkspace(ctx context.Context, workspace *idm.Work
 	if maxQuota > 0 {
 		log.Logger(ctx).Debug("Found Quota", zap.Any("q", maxQuota), zap.Any("roots", detectedRoots))
 		treeClient := treec.NodeProviderClient(ctx)
-		resolver := abstract.GetVirtualNodesManager(a.RuntimeCtx).GetResolver(false)
+		resolver := abstract.GetVirtualProvider().GetResolver(false)
 		for nodeId := range detectedRoots {
 			var rootNode *tree.Node
 			if n, o := resolver(ctx, &tree.Node{Uuid: nodeId}); o {

@@ -59,10 +59,10 @@ func NewVirtualNodesHandler() *ResolverHandler {
 // updateInput Updates BranchInfo and AccessList in context with resolved values for virtual nodes
 func (v *ResolverHandler) updateInput(ctx context.Context, node *tree.Node, identifier string) (context.Context, *tree.Node, error) {
 
-	virtualManager := abstract.GetVirtualNodesManager(v.RuntimeCtx)
+	virtualManager := abstract.GetVirtualProvider()
 	if branchInfo, er := nodes.GetBranchInfo(ctx, identifier); er == nil && !branchInfo.Binary && branchInfo.Root != nil {
 		originalUuid := branchInfo.Root.Uuid
-		if virtual, exists := virtualManager.ByUuid(branchInfo.Root.Uuid); exists {
+		if virtual, exists := virtualManager.ByUuid(ctx, branchInfo.Root.Uuid); exists {
 			resolvedRoot, e := virtualManager.ResolveInContext(ctx, virtual, true)
 			if e != nil {
 				return ctx, node, e

@@ -74,7 +74,7 @@ func (h *WorkspaceHandler) Filter() func(string) string {
 func (h *WorkspaceHandler) virtualPathResolver() permissions.VirtualPathResolver {
 	if h.runtimeVirtualPathResolver == nil {
 		h.runtimeVirtualPathResolver = func(ctx context.Context, node *tree.Node) (*tree.Node, bool) {
-			return abstract.GetVirtualNodesManager(h.runtimeCtx).ByUuid(node.Uuid)
+			return abstract.GetVirtualProvider().ByUuid(ctx, node.Uuid)
 		}
 	}
 	return h.runtimeVirtualPathResolver

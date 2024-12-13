@@ -150,7 +150,7 @@ func TestPersonalResolution(t *testing.T) {
 
 		})
 
-		client := compose.PathClient(ctx)
+		client := compose.PathClient()
 		Convey("Test personal file", t, func() {
 			user, e := permissions.SearchUniqueUser(ctx, "admin", "")
 			So(e, ShouldBeNil)
