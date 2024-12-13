@@ -23,17 +23,29 @@ package restv2
 import (
 	restful "github.com/emicklei/go-restful/v3"
 
+	"github.com/pydio/cells/v5/common/nodes/compose"
 	"github.com/pydio/cells/v5/common/proto/rest"
+	"github.com/pydio/cells/v5/common/proto/tree"
 )
 
-// CreatePublicLink responds to POST /node/link
-// Input rest.ShareLink | Output rest.ShareLink
+// CreatePublicLink responds to POST /node/link/{Uuid}/link
+// InputBody rest.PublicLinkRequest | Output rest.ShareLink
 func (h *Handler) CreatePublicLink(req *restful.Request, resp *restful.Response) error {
-	in := &rest.UpsertPublicLinkRequest{}
+	nodeUuid := req.PathParameter("Uuid")
+	in := &rest.PublicLinkRequest{}
 	if err := req.ReadEntity(in); err != nil {
 		return err
 	}
 	ctx := req.Request.Context()
+	// Find node by Uuid and append it to root node
+	router := compose.UuidClient()
+	rr, er := router.ReadNode(ctx, &tree.ReadNodeRequest{Node: &tree.Node{Uuid: nodeUuid}})
+	if er != nil {
+		return er
+	}
+	if len(in.Link.RootNodes) == 0 {
+		in.Link.RootNodes = append(in.Link.RootNodes, rr.GetNode())
+	}
 
 	link, er := h.SharesHandler.PutOrUpdateShareLink(ctx, in.GetLink(), in)
 	if er != nil {
@@ -43,15 +55,15 @@ func (h *Handler) CreatePublicLink(req *restful.Request, resp *restful.Response)
 	return resp.WriteEntity(link)
 }
 
-// UpdatePublicLink responds to PATCH /node/link/{Uuid}
-// Input rest.UpdatePublicLinkRequest | Output rest.ShareLink, Path Parameters {Uuid}
+// UpdatePublicLink responds to PATCH /node/link/{LinkUuid}
+// Input rest.PublicLinkRequest | Output rest.ShareLink, Path Parameters {Uuid}
 func (h *Handler) UpdatePublicLink(req *restful.Request, resp *restful.Response) error {
-	in := &rest.UpsertPublicLinkRequest{}
+	in := &rest.PublicLinkRequest{}
 	if err := req.ReadEntity(in); err != nil {
 		return err
 	}
 	if in.Link.Uuid == "" {
-		in.Link.Uuid = req.PathParameter("Uuid")
+		in.Link.Uuid = req.PathParameter("LinkUuid")
 	}
 
 	ctx := req.Request.Context()
@@ -64,10 +76,10 @@ func (h *Handler) UpdatePublicLink(req *restful.Request, resp *restful.Response)
 	return resp.WriteEntity(link)
 }
 
-// GetPublicLink responds to GET /node/link/{Uuid}
-// Input rest.PublicLinkUuidRequest | Output rest.ShareLink
+// GetPublicLink responds to GET /node/link/{LinkUuid}
+// Output rest.ShareLink
 func (h *Handler) GetPublicLink(req *restful.Request, resp *restful.Response) error {
-	uuid := req.PathParameter("Uuid")
+	uuid := req.PathParameter("LinkUuid")
 	ctx := req.Request.Context()
 
 	link, er := h.SharesHandler.GetShareClient().LinkById(ctx, uuid)
@@ -78,9 +90,9 @@ func (h *Handler) GetPublicLink(req *restful.Request, resp *restful.Response) er
 }
 
 // DeletePublicLink responds to DELETE /node/link/{Uuid}
-// Input rest.PublicLinkUuidRequest | Output rest.PublicLinkDeleteSuccess
+// Output rest.PublicLinkDeleteSuccess
 func (h *Handler) DeletePublicLink(req *restful.Request, resp *restful.Response) error {
-	uuid := req.PathParameter("Uuid")
+	uuid := req.PathParameter("LinkUuid")
 	ctx := req.Request.Context()
 
 	err := h.SharesHandler.GetShareClient().DeleteLink(ctx, uuid)

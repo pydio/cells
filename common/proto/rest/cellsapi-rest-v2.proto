@@ -190,12 +190,18 @@ message CreateRequest {
   bool Recursive = 2;
 }
 
+message NodeLocators {
+  repeated NodeLocator Many = 1;
+}
+
 // Request for list/search. Accepts either
 // - a list of Locators (using path/* will list a folder's first level children) to retrieve stats about nodes
 // - a Query to search nodes in a more flexible way
 message LookupRequest {
-  repeated NodeLocator Locators = 1;
-  tree.Query Query = 2;
+  oneof Input {
+    NodeLocators Locators = 1;
+    tree.Query Query = 2;
+  }
   int64 Offset = 3;
   int64 Limit = 4;
   string SortField = 5;
@@ -256,9 +262,7 @@ message Selection {
 }
 
 // Create or update a public link on a node
-message UpsertPublicLinkRequest {
-  // For Updates only
-  string Uuid = 1;
+message PublicLinkRequest {
   // Public link definition
   ShareLink Link = 2;
   // Whether it has Password enabled
@@ -271,9 +275,19 @@ message UpsertPublicLinkRequest {
   string UpdateCustomHash = 6;
 }
 
+message NodePublicLinkRequest {
+  string Uuid = 1;
+  PublicLinkRequest PublicLinkRequest = 2;
+}
+
+message UpdatePublicLinkRequest {
+  string LinkUuid = 1;
+  PublicLinkRequest PublicLinkRequest = 2;
+}
+
 // Locate a public link by UUID
 message PublicLinkUuidRequest {
-  string Uuid = 1;
+  string LinkUuid = 1;
 }
 
 // Response to public link deletion
@@ -347,147 +361,143 @@ message NamespaceValuesResponse{
 // This RestAPI gather various aspects in one /node API
 service NodeService {
 
-  // Create one or many files (empty or hydrated from a TemplateUuid) or folders
-  rpc Create(CreateRequest) returns (NodeCollection) {
-    option (google.api.http) = {
-      post: "/node/create"
-      body: "*"
-    };
-  }
   // Generic request to either list (using Locators) or search (using Query) for nodes
   rpc Lookup(LookupRequest) returns (NodeCollection) {
     option (google.api.http) = {
-      post: "/node"
+      post: "/n/nodes"
       body: "*"
     };
   }
-  // Load a node by its path
-  rpc GetByPath(NodeLocator) returns (Node){
+  // Create one or many files (empty or hydrated from a TemplateUuid) or folders
+  rpc Create(CreateRequest) returns (NodeCollection) {
     option (google.api.http) = {
-      get: "/node/p/{Path}"
-    };
-  };
-  // Load a node by its Uuid
-  rpc GetByUuid(NodeLocator) returns (Node){
-    option (google.api.http) = {
-      get: "/node/u/{Uuid}"
-    };
-  };
-  // UpdateUserMeta is used to update a node specific meta. It is used for reserved meta as well (bookmarks, contentLock)
-  rpc PatchNode(PatchNodeRequest) returns (Node){
-    option (google.api.http) = {
-      patch: "/node/u/{Uuid}"
-      body: "NodeUpdates"
-    };
-  };
-  // List all known versions of a node
-  rpc ListVersions(NodeLocator) returns (NodeCollection){
-    option (google.api.http) = {
-      get: "/node/v/{Uuid}"
-    };
-  };
-
-
-  // Search a list of meta by node Id or by User id and by namespace
-  rpc SearchMeta(idm.SearchUserMetaRequest) returns (UserMetaList) {
-    option (google.api.http) = {
-      post: "/node/meta"
+      post: "/n/nodes/create"
       body: "*"
-    };
-  }
-  // Update/delete user meta in batch. Passed UserMetas must contain a NodeUuid
-  rpc BatchUpdateMeta(BatchUpdateMetaList) returns (BatchUpdateMetaList) {
-    option (google.api.http) = {
-      patch: "/node/meta/batch"
-      body: "*"
-    };
-  }
-  // List defined meta namespaces
-  rpc ListNamespaces(idm.ListUserMetaNamespaceRequest) returns (UserMetaNamespaceCollection){
-    option (google.api.http) = {
-      get: "/node/meta/namespace"
-    };
-  }
-  // List values for a given namespace
-  rpc ListNamespaceValues(NamespaceValuesRequest) returns (NamespaceValuesResponse){
-    option (google.api.http) = {
-      get: "/node/meta/namespace/{Namespace}"
-    };
-  }
-  // Add/delete a values for a given namespace
-  rpc UpdateNamespaceValues(NamespaceValuesRequest) returns (NamespaceValuesResponse){
-    option (google.api.http) = {
-      patch: "/node/meta/namespace/{Namespace}"
-      body: "Operation"
-    };
-  }
-
-
-  // Create a public link on a given node
-  rpc CreatePublicLink(UpsertPublicLinkRequest) returns (ShareLink) {
-    option (google.api.http) = {
-      post: "/node/link"
-      body: "*"
-    };
-  }
-  // Load public link information by Uuid
-  rpc GetPublicLink(PublicLinkUuidRequest) returns (ShareLink) {
-    option (google.api.http) = {
-      get: "/node/link/{Uuid}"
-    };
-  }
-  // Update public link settings
-  rpc UpdatePublicLink(UpsertPublicLinkRequest) returns (ShareLink) {
-    option (google.api.http) = {
-      patch: "/node/link/{Uuid}"
-      body: "Link"
-    };
-  }
-  // Remove a public link
-  rpc DeletePublicLink(PublicLinkUuidRequest) returns (PublicLinkDeleteSuccess) {
-    option (google.api.http) = {
-      delete: "/node/link/{Uuid}"
-    };
-  }
-
-  // Trigger an action on the tree. Returns a JobInfo describing a background task.
-  rpc PerformAction(ActionRequest) returns (ActionResponse) {
-    option (google.api.http) = {
-      post: "/node/action/{Name}"
-      body: "Parameters"
-    };
-  }
-  // Retrieve information about an action running in background
-  rpc GetActionJob(ActionRequest) returns (jobs.Job) {
-    option (google.api.http) = {
-      get: "/node/action/{Name}/{JobUuid}"
-    };
-  }
-  // Send control commands to a background job
-  rpc ControlActionJob(ControlActionRequest) returns (jobs.Job) {
-    option (google.api.http) = {
-      patch: "/node/action/{Name}/{JobUuid}"
-      body:"Command"
-    };
-  }
-  // Create and persist a temporary selection of nodes, that can be used by other actions
-  rpc CreateSelection(Selection) returns (Selection) {
-    option (google.api.http) = {
-      post: "/node/selection"
-      body: "*"
-    };
-  }
-  // List available templates for hydrating empty files
-  rpc Templates(ListTemplatesRequest) returns (ListTemplatesResponse) {
-    option (google.api.http) = {
-      get: "/node/templates"
     };
   }
   // Special API for Bookmarks, will load userMeta and the associated nodes, and return
   // as a node list
   rpc UserBookmarks(UserBookmarksRequest) returns (NodeCollection) {
     option (google.api.http) = {
-      get: "/node/bookmarks"
+      get: "/n/nodes/bookmarks"
+    };
+  }
+
+  // Load a node by its Uuid
+  rpc GetByUuid(NodeLocator) returns (Node){
+    option (google.api.http) = {
+      get: "/n/node/{Uuid}"
+    };
+  };
+  // PatchNode is used to update a node specific meta. It is used for reserved meta as well (bookmarks, contentLock)
+  rpc PatchNode(PatchNodeRequest) returns (Node){
+    option (google.api.http) = {
+      patch: "/n/node/{Uuid}"
+      body: "NodeUpdates"
+    };
+  };
+  // List all known versions of a node
+  rpc ListVersions(NodeLocator) returns (NodeCollection){
+    option (google.api.http) = {
+      get: "/n/node/{Uuid}/versions"
+    };
+  };
+
+  // Create a public link on a given node
+  rpc CreatePublicLink(NodePublicLinkRequest) returns (ShareLink) {
+    option (google.api.http) = {
+      post: "/n/node/{Uuid}/link"
+      body: "PublicLinkRequest"
+    };
+  }
+
+
+  // Search a list of meta by node Id or by User id and by namespace
+  rpc SearchMeta(idm.SearchUserMetaRequest) returns (UserMetaList) {
+    option (google.api.http) = {
+      post: "/n/meta/find"
+      body: "*"
+    };
+  }
+  // Update/delete user meta in batch. Passed UserMetas must contain a NodeUuid
+  rpc BatchUpdateMeta(BatchUpdateMetaList) returns (BatchUpdateMetaList) {
+    option (google.api.http) = {
+      patch: "/n/meta/batch"
+      body: "*"
+    };
+  }
+  // List defined meta namespaces
+  rpc ListNamespaces(idm.ListUserMetaNamespaceRequest) returns (UserMetaNamespaceCollection){
+    option (google.api.http) = {
+      get: "/n/meta/namespace"
+    };
+  }
+  // List values for a given namespace
+  rpc ListNamespaceValues(NamespaceValuesRequest) returns (NamespaceValuesResponse){
+    option (google.api.http) = {
+      get: "/n/meta/namespace/{Namespace}"
+    };
+  }
+  // Add/delete a values for a given namespace
+  rpc UpdateNamespaceValues(NamespaceValuesRequest) returns (NamespaceValuesResponse){
+    option (google.api.http) = {
+      patch: "/n/meta/namespace/{Namespace}"
+      body: "Operation"
+    };
+  }
+
+
+  // Load public link information by Uuid
+  rpc GetPublicLink(PublicLinkUuidRequest) returns (ShareLink) {
+    option (google.api.http) = {
+      get: "/n/link/{LinkUuid}"
+    };
+  }
+  // Update public link settings
+  rpc UpdatePublicLink(UpdatePublicLinkRequest) returns (ShareLink) {
+    option (google.api.http) = {
+      patch: "/n/link/{LinkUuid}"
+      body: "PublicLinkRequest"
+    };
+  }
+  // Remove a public link
+  rpc DeletePublicLink(PublicLinkUuidRequest) returns (PublicLinkDeleteSuccess) {
+    option (google.api.http) = {
+      delete: "/n/link/{LinkUuid}"
+    };
+  }
+
+  // Trigger an action on the tree. Returns a JobInfo describing a background task.
+  rpc PerformAction(ActionRequest) returns (ActionResponse) {
+    option (google.api.http) = {
+      post: "/n/action/{Name}"
+      body: "Parameters"
+    };
+  }
+  // Retrieve information about an action running in background
+  rpc GetActionJob(ActionRequest) returns (jobs.Job) {
+    option (google.api.http) = {
+      get: "/n/action/{Name}/{JobUuid}"
+    };
+  }
+  // Send control commands to a background job
+  rpc ControlActionJob(ControlActionRequest) returns (jobs.Job) {
+    option (google.api.http) = {
+      patch: "/n/action/{Name}/{JobUuid}"
+      body:"Command"
+    };
+  }
+  // Create and persist a temporary selection of nodes, that can be used by other actions
+  rpc CreateSelection(Selection) returns (Selection) {
+    option (google.api.http) = {
+      post: "/n/selection"
+      body: "*"
+    };
+  }
+  // List available templates for hydrating empty files
+  rpc Templates(ListTemplatesRequest) returns (ListTemplatesResponse) {
+    option (google.api.http) = {
+      get: "/n/templates"
     };
   }
 

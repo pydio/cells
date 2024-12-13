@@ -1951,11 +1951,7 @@
           "type": "string"
         },
         "Locators": {
-          "items": {
-            "$ref": "#/definitions/restNodeLocator",
-            "type": "object"
-          },
-          "type": "array"
+          "$ref": "#/definitions/restNodeLocators"
         },
         "Offset": {
           "format": "int64",
@@ -2185,6 +2181,18 @@
       "title": "Simple Uuid/Path discriminator to locate a node",
       "type": "object"
     },
+    "restNodeLocators": {
+      "properties": {
+        "Many": {
+          "items": {
+            "$ref": "#/definitions/restNodeLocator",
+            "type": "object"
+          },
+          "type": "array"
+        }
+      },
+      "type": "object"
+    },
     "restNodeUpdates": {
       "properties": {
         "Bookmark": {
@@ -2267,6 +2275,32 @@
         }
       },
       "title": "Response to public link deletion",
+      "type": "object"
+    },
+    "restPublicLinkRequest": {
+      "properties": {
+        "CreatePassword": {
+          "title": "Set if switching from no password to password",
+          "type": "string"
+        },
+        "Link": {
+          "$ref": "#/definitions/restShareLink",
+          "title": "Public link definition"
+        },
+        "PasswordEnabled": {
+          "title": "Whether it has Password enabled",
+          "type": "boolean"
+        },
+        "UpdateCustomHash": {
+          "title": "Change the ShareLink Hash with a custom value",
+          "type": "string"
+        },
+        "UpdatePassword": {
+          "title": "Set if updating an existing password",
+          "type": "string"
+        }
+      },
+      "title": "Create or update a public link on a node",
       "type": "object"
     },
     "restSelection": {
@@ -2453,36 +2487,6 @@
         }
       },
       "title": "A template node is representing a file or a folder",
-      "type": "object"
-    },
-    "restUpsertPublicLinkRequest": {
-      "properties": {
-        "CreatePassword": {
-          "title": "Set if switching from no password to password",
-          "type": "string"
-        },
-        "Link": {
-          "$ref": "#/definitions/restShareLink",
-          "title": "Public link definition"
-        },
-        "PasswordEnabled": {
-          "title": "Whether it has Password enabled",
-          "type": "boolean"
-        },
-        "UpdateCustomHash": {
-          "title": "Change the ShareLink Hash with a custom value",
-          "type": "string"
-        },
-        "UpdatePassword": {
-          "title": "Set if updating an existing password",
-          "type": "string"
-        },
-        "Uuid": {
-          "title": "For Updates only",
-          "type": "string"
-        }
-      },
-      "title": "Create or update a public link on a node",
       "type": "object"
     },
     "restUserActionType": {
@@ -3008,58 +3012,7 @@
     "version": "v2"
   },
   "paths": {
-    "/node": {
-      "post": {
-        "operationId": "Lookup",
-        "parameters": [
-          {
-            "in": "body",
-            "name": "body",
-            "required": true,
-            "schema": {
-              "$ref": "#/definitions/restLookupRequest"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {
-              "$ref": "#/definitions/restNodeCollection"
-            }
-          },
-          "401": {
-            "description": "User is not authenticated",
-            "schema": {
-              "$ref": "#/definitions/restError"
-            }
-          },
-          "403": {
-            "description": "User has no permission to access this particular resource",
-            "schema": {
-              "$ref": "#/definitions/restError"
-            }
-          },
-          "404": {
-            "description": "Resource does not exist in the system",
-            "schema": {
-              "$ref": "#/definitions/restError"
-            }
-          },
-          "500": {
-            "description": "An internal error occurred in the backend",
-            "schema": {
-              "$ref": "#/definitions/restError"
-            }
-          }
-        },
-        "summary": "Generic request to either list (using Locators) or search (using Query) for nodes",
-        "tags": [
-          "NodeService"
-        ]
-      }
-    },
-    "/node/action/{Name}": {
+    "/n/action/{Name}": {
       "post": {
         "operationId": "PerformAction",
         "parameters": [
@@ -3130,7 +3083,7 @@
         ]
       }
     },
-    "/node/action/{Name}/{JobUuid}": {
+    "/n/action/{Name}/{JobUuid}": {
       "get": {
         "operationId": "GetActionJob",
         "parameters": [
@@ -3292,164 +3245,13 @@
         ]
       }
     },
-    "/node/bookmarks": {
-      "get": {
-        "operationId": "UserBookmarks",
-        "parameters": [
-          {
-            "in": "query",
-            "name": "All",
-            "required": false,
-            "type": "boolean"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {
-              "$ref": "#/definitions/restNodeCollection"
-            }
-          },
-          "401": {
-            "description": "User is not authenticated",
-            "schema": {
-              "$ref": "#/definitions/restError"
-            }
-          },
-          "403": {
-            "description": "User has no permission to access this particular resource",
-            "schema": {
-              "$ref": "#/definitions/restError"
-            }
-          },
-          "404": {
-            "description": "Resource does not exist in the system",
-            "schema": {
-              "$ref": "#/definitions/restError"
-            }
-          },
-          "500": {
-            "description": "An internal error occurred in the backend",
-            "schema": {
-              "$ref": "#/definitions/restError"
-            }
-          }
-        },
-        "summary": "Special API for Bookmarks, will load userMeta and the associated nodes, and return\nas a node list",
-        "tags": [
-          "NodeService"
-        ]
-      }
-    },
-    "/node/create": {
-      "post": {
-        "operationId": "Create",
-        "parameters": [
-          {
-            "in": "body",
-            "name": "body",
-            "required": true,
-            "schema": {
-              "$ref": "#/definitions/restCreateRequest"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {
-              "$ref": "#/definitions/restNodeCollection"
-            }
-          },
-          "401": {
-            "description": "User is not authenticated",
-            "schema": {
-              "$ref": "#/definitions/restError"
-            }
-          },
-          "403": {
-            "description": "User has no permission to access this particular resource",
-            "schema": {
-              "$ref": "#/definitions/restError"
-            }
-          },
-          "404": {
-            "description": "Resource does not exist in the system",
-            "schema": {
-              "$ref": "#/definitions/restError"
-            }
-          },
-          "500": {
-            "description": "An internal error occurred in the backend",
-            "schema": {
-              "$ref": "#/definitions/restError"
-            }
-          }
-        },
-        "summary": "Create one or many files (empty or hydrated from a TemplateUuid) or folders",
-        "tags": [
-          "NodeService"
-        ]
-      }
-    },
-    "/node/link": {
-      "post": {
-        "operationId": "CreatePublicLink",
-        "parameters": [
-          {
-            "in": "body",
-            "name": "body",
-            "required": true,
-            "schema": {
-              "$ref": "#/definitions/restUpsertPublicLinkRequest"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {
-              "$ref": "#/definitions/restShareLink"
-            }
-          },
-          "401": {
-            "description": "User is not authenticated",
-            "schema": {
-              "$ref": "#/definitions/restError"
-            }
-          },
-          "403": {
-            "description": "User has no permission to access this particular resource",
-            "schema": {
-              "$ref": "#/definitions/restError"
-            }
-          },
-          "404": {
-            "description": "Resource does not exist in the system",
-            "schema": {
-              "$ref": "#/definitions/restError"
-            }
-          },
-          "500": {
-            "description": "An internal error occurred in the backend",
-            "schema": {
-              "$ref": "#/definitions/restError"
-            }
-          }
-        },
-        "summary": "Create a public link on a given node",
-        "tags": [
-          "NodeService"
-        ]
-      }
-    },
-    "/node/link/{Uuid}": {
+    "/n/link/{LinkUuid}": {
       "delete": {
         "operationId": "DeletePublicLink",
         "parameters": [
           {
             "in": "path",
-            "name": "Uuid",
+            "name": "LinkUuid",
             "required": true,
             "type": "string"
           }
@@ -3496,7 +3298,7 @@
         "parameters": [
           {
             "in": "path",
-            "name": "Uuid",
+            "name": "LinkUuid",
             "required": true,
             "type": "string"
           }
@@ -3542,48 +3344,18 @@
         "operationId": "UpdatePublicLink",
         "parameters": [
           {
-            "description": "For Updates only",
             "in": "path",
-            "name": "Uuid",
+            "name": "LinkUuid",
             "required": true,
             "type": "string"
           },
           {
-            "description": "Public link definition",
             "in": "body",
-            "name": "Link",
+            "name": "PublicLinkRequest",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/restShareLink"
+              "$ref": "#/definitions/restPublicLinkRequest"
             }
-          },
-          {
-            "description": "Whether it has Password enabled",
-            "in": "query",
-            "name": "PasswordEnabled",
-            "required": false,
-            "type": "boolean"
-          },
-          {
-            "description": "Set if switching from no password to password",
-            "in": "query",
-            "name": "CreatePassword",
-            "required": false,
-            "type": "string"
-          },
-          {
-            "description": "Set if updating an existing password",
-            "in": "query",
-            "name": "UpdatePassword",
-            "required": false,
-            "type": "string"
-          },
-          {
-            "description": "Change the ShareLink Hash with a custom value",
-            "in": "query",
-            "name": "UpdateCustomHash",
-            "required": false,
-            "type": "string"
           }
         ],
         "responses": {
@@ -3624,58 +3396,7 @@
         ]
       }
     },
-    "/node/meta": {
-      "post": {
-        "operationId": "SearchMeta",
-        "parameters": [
-          {
-            "in": "body",
-            "name": "body",
-            "required": true,
-            "schema": {
-              "$ref": "#/definitions/idmSearchUserMetaRequest"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {
-              "$ref": "#/definitions/restUserMetaList"
-            }
-          },
-          "401": {
-            "description": "User is not authenticated",
-            "schema": {
-              "$ref": "#/definitions/restError"
-            }
-          },
-          "403": {
-            "description": "User has no permission to access this particular resource",
-            "schema": {
-              "$ref": "#/definitions/restError"
-            }
-          },
-          "404": {
-            "description": "Resource does not exist in the system",
-            "schema": {
-              "$ref": "#/definitions/restError"
-            }
-          },
-          "500": {
-            "description": "An internal error occurred in the backend",
-            "schema": {
-              "$ref": "#/definitions/restError"
-            }
-          }
-        },
-        "summary": "Search a list of meta by node Id or by User id and by namespace",
-        "tags": [
-          "NodeService"
-        ]
-      }
-    },
-    "/node/meta/batch": {
+    "/n/meta/batch": {
       "patch": {
         "operationId": "BatchUpdateMeta",
         "parameters": [
@@ -3726,7 +3447,58 @@
         ]
       }
     },
-    "/node/meta/namespace": {
+    "/n/meta/find": {
+      "post": {
+        "operationId": "SearchMeta",
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/idmSearchUserMetaRequest"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/restUserMetaList"
+            }
+          },
+          "401": {
+            "description": "User is not authenticated",
+            "schema": {
+              "$ref": "#/definitions/restError"
+            }
+          },
+          "403": {
+            "description": "User has no permission to access this particular resource",
+            "schema": {
+              "$ref": "#/definitions/restError"
+            }
+          },
+          "404": {
+            "description": "Resource does not exist in the system",
+            "schema": {
+              "$ref": "#/definitions/restError"
+            }
+          },
+          "500": {
+            "description": "An internal error occurred in the backend",
+            "schema": {
+              "$ref": "#/definitions/restError"
+            }
+          }
+        },
+        "summary": "Search a list of meta by node Id or by User id and by namespace",
+        "tags": [
+          "NodeService"
+        ]
+      }
+    },
+    "/n/meta/namespace": {
       "get": {
         "operationId": "ListNamespaces",
         "responses": {
@@ -3767,7 +3539,7 @@
         ]
       }
     },
-    "/node/meta/namespace/{Namespace}": {
+    "/n/meta/namespace/{Namespace}": {
       "get": {
         "operationId": "ListNamespaceValues",
         "parameters": [
@@ -3894,163 +3666,7 @@
         ]
       }
     },
-    "/node/p/{Path}": {
-      "get": {
-        "operationId": "GetByPath",
-        "parameters": [
-          {
-            "in": "path",
-            "name": "Path",
-            "required": true,
-            "type": "string"
-          },
-          {
-            "in": "query",
-            "name": "Uuid",
-            "required": false,
-            "type": "string"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {
-              "$ref": "#/definitions/restNode"
-            }
-          },
-          "401": {
-            "description": "User is not authenticated",
-            "schema": {
-              "$ref": "#/definitions/restError"
-            }
-          },
-          "403": {
-            "description": "User has no permission to access this particular resource",
-            "schema": {
-              "$ref": "#/definitions/restError"
-            }
-          },
-          "404": {
-            "description": "Resource does not exist in the system",
-            "schema": {
-              "$ref": "#/definitions/restError"
-            }
-          },
-          "500": {
-            "description": "An internal error occurred in the backend",
-            "schema": {
-              "$ref": "#/definitions/restError"
-            }
-          }
-        },
-        "summary": "Load a node by its path",
-        "tags": [
-          "NodeService"
-        ]
-      }
-    },
-    "/node/selection": {
-      "post": {
-        "operationId": "CreateSelection",
-        "parameters": [
-          {
-            "description": "Request to create a selection from a list of nodes.",
-            "in": "body",
-            "name": "body",
-            "required": true,
-            "schema": {
-              "$ref": "#/definitions/restSelection"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {
-              "$ref": "#/definitions/restSelection"
-            }
-          },
-          "401": {
-            "description": "User is not authenticated",
-            "schema": {
-              "$ref": "#/definitions/restError"
-            }
-          },
-          "403": {
-            "description": "User has no permission to access this particular resource",
-            "schema": {
-              "$ref": "#/definitions/restError"
-            }
-          },
-          "404": {
-            "description": "Resource does not exist in the system",
-            "schema": {
-              "$ref": "#/definitions/restError"
-            }
-          },
-          "500": {
-            "description": "An internal error occurred in the backend",
-            "schema": {
-              "$ref": "#/definitions/restError"
-            }
-          }
-        },
-        "summary": "Create and persist a temporary selection of nodes, that can be used by other actions",
-        "tags": [
-          "NodeService"
-        ]
-      }
-    },
-    "/node/templates": {
-      "get": {
-        "operationId": "Templates",
-        "parameters": [
-          {
-            "in": "query",
-            "name": "TemplateType",
-            "required": false,
-            "type": "string"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {
-              "$ref": "#/definitions/restListTemplatesResponse"
-            }
-          },
-          "401": {
-            "description": "User is not authenticated",
-            "schema": {
-              "$ref": "#/definitions/restError"
-            }
-          },
-          "403": {
-            "description": "User has no permission to access this particular resource",
-            "schema": {
-              "$ref": "#/definitions/restError"
-            }
-          },
-          "404": {
-            "description": "Resource does not exist in the system",
-            "schema": {
-              "$ref": "#/definitions/restError"
-            }
-          },
-          "500": {
-            "description": "An internal error occurred in the backend",
-            "schema": {
-              "$ref": "#/definitions/restError"
-            }
-          }
-        },
-        "summary": "List available templates for hydrating empty files",
-        "tags": [
-          "NodeService"
-        ]
-      }
-    },
-    "/node/u/{Uuid}": {
+    "/n/node/{Uuid}": {
       "get": {
         "operationId": "GetByUuid",
         "parameters": [
@@ -4154,13 +3770,70 @@
             }
           }
         },
-        "summary": "UpdateUserMeta is used to update a node specific meta. It is used for reserved meta as well (bookmarks, contentLock)",
+        "summary": "PatchNode is used to update a node specific meta. It is used for reserved meta as well (bookmarks, contentLock)",
         "tags": [
           "NodeService"
         ]
       }
     },
-    "/node/v/{Uuid}": {
+    "/n/node/{Uuid}/link": {
+      "post": {
+        "operationId": "CreatePublicLink",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "Uuid",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "in": "body",
+            "name": "PublicLinkRequest",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/restPublicLinkRequest"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/restShareLink"
+            }
+          },
+          "401": {
+            "description": "User is not authenticated",
+            "schema": {
+              "$ref": "#/definitions/restError"
+            }
+          },
+          "403": {
+            "description": "User has no permission to access this particular resource",
+            "schema": {
+              "$ref": "#/definitions/restError"
+            }
+          },
+          "404": {
+            "description": "Resource does not exist in the system",
+            "schema": {
+              "$ref": "#/definitions/restError"
+            }
+          },
+          "500": {
+            "description": "An internal error occurred in the backend",
+            "schema": {
+              "$ref": "#/definitions/restError"
+            }
+          }
+        },
+        "summary": "Create a public link on a given node",
+        "tags": [
+          "NodeService"
+        ]
+      }
+    },
+    "/n/node/{Uuid}/versions": {
       "get": {
         "operationId": "ListVersions",
         "parameters": [
@@ -4210,6 +3883,258 @@
           }
         },
         "summary": "List all known versions of a node",
+        "tags": [
+          "NodeService"
+        ]
+      }
+    },
+    "/n/nodes": {
+      "post": {
+        "operationId": "Lookup",
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/restLookupRequest"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/restNodeCollection"
+            }
+          },
+          "401": {
+            "description": "User is not authenticated",
+            "schema": {
+              "$ref": "#/definitions/restError"
+            }
+          },
+          "403": {
+            "description": "User has no permission to access this particular resource",
+            "schema": {
+              "$ref": "#/definitions/restError"
+            }
+          },
+          "404": {
+            "description": "Resource does not exist in the system",
+            "schema": {
+              "$ref": "#/definitions/restError"
+            }
+          },
+          "500": {
+            "description": "An internal error occurred in the backend",
+            "schema": {
+              "$ref": "#/definitions/restError"
+            }
+          }
+        },
+        "summary": "Generic request to either list (using Locators) or search (using Query) for nodes",
+        "tags": [
+          "NodeService"
+        ]
+      }
+    },
+    "/n/nodes/bookmarks": {
+      "get": {
+        "operationId": "UserBookmarks",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "All",
+            "required": false,
+            "type": "boolean"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/restNodeCollection"
+            }
+          },
+          "401": {
+            "description": "User is not authenticated",
+            "schema": {
+              "$ref": "#/definitions/restError"
+            }
+          },
+          "403": {
+            "description": "User has no permission to access this particular resource",
+            "schema": {
+              "$ref": "#/definitions/restError"
+            }
+          },
+          "404": {
+            "description": "Resource does not exist in the system",
+            "schema": {
+              "$ref": "#/definitions/restError"
+            }
+          },
+          "500": {
+            "description": "An internal error occurred in the backend",
+            "schema": {
+              "$ref": "#/definitions/restError"
+            }
+          }
+        },
+        "summary": "Special API for Bookmarks, will load userMeta and the associated nodes, and return\nas a node list",
+        "tags": [
+          "NodeService"
+        ]
+      }
+    },
+    "/n/nodes/create": {
+      "post": {
+        "operationId": "Create",
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/restCreateRequest"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/restNodeCollection"
+            }
+          },
+          "401": {
+            "description": "User is not authenticated",
+            "schema": {
+              "$ref": "#/definitions/restError"
+            }
+          },
+          "403": {
+            "description": "User has no permission to access this particular resource",
+            "schema": {
+              "$ref": "#/definitions/restError"
+            }
+          },
+          "404": {
+            "description": "Resource does not exist in the system",
+            "schema": {
+              "$ref": "#/definitions/restError"
+            }
+          },
+          "500": {
+            "description": "An internal error occurred in the backend",
+            "schema": {
+              "$ref": "#/definitions/restError"
+            }
+          }
+        },
+        "summary": "Create one or many files (empty or hydrated from a TemplateUuid) or folders",
+        "tags": [
+          "NodeService"
+        ]
+      }
+    },
+    "/n/selection": {
+      "post": {
+        "operationId": "CreateSelection",
+        "parameters": [
+          {
+            "description": "Request to create a selection from a list of nodes.",
+            "in": "body",
+            "name": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/restSelection"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/restSelection"
+            }
+          },
+          "401": {
+            "description": "User is not authenticated",
+            "schema": {
+              "$ref": "#/definitions/restError"
+            }
+          },
+          "403": {
+            "description": "User has no permission to access this particular resource",
+            "schema": {
+              "$ref": "#/definitions/restError"
+            }
+          },
+          "404": {
+            "description": "Resource does not exist in the system",
+            "schema": {
+              "$ref": "#/definitions/restError"
+            }
+          },
+          "500": {
+            "description": "An internal error occurred in the backend",
+            "schema": {
+              "$ref": "#/definitions/restError"
+            }
+          }
+        },
+        "summary": "Create and persist a temporary selection of nodes, that can be used by other actions",
+        "tags": [
+          "NodeService"
+        ]
+      }
+    },
+    "/n/templates": {
+      "get": {
+        "operationId": "Templates",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "TemplateType",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/restListTemplatesResponse"
+            }
+          },
+          "401": {
+            "description": "User is not authenticated",
+            "schema": {
+              "$ref": "#/definitions/restError"
+            }
+          },
+          "403": {
+            "description": "User has no permission to access this particular resource",
+            "schema": {
+              "$ref": "#/definitions/restError"
+            }
+          },
+          "404": {
+            "description": "Resource does not exist in the system",
+            "schema": {
+              "$ref": "#/definitions/restError"
+            }
+          },
+          "500": {
+            "description": "An internal error occurred in the backend",
+            "schema": {
+              "$ref": "#/definitions/restError"
+            }
+          }
+        },
+        "summary": "List available templates for hydrating empty files",
         "tags": [
           "NodeService"
         ]

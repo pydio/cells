@@ -24,6 +24,7 @@ import (
 	restful "github.com/emicklei/go-restful/v3"
 
 	"github.com/pydio/cells/v5/common/errors"
+	"github.com/pydio/cells/v5/common/nodes/compose"
 	"github.com/pydio/cells/v5/common/proto/rest"
 	"github.com/pydio/cells/v5/common/proto/tree"
 )
@@ -40,8 +41,8 @@ func (h *Handler) Lookup(req *restful.Request, resp *restful.Response) error {
 	var nn []*tree.Node
 	var er error
 
-	if input.GetQuery() != nil {
-
+	switch input.Input.(type) {
+	case *rest.LookupRequest_Query:
 		// Should switch to search
 		searchRequest := &tree.SearchRequest{
 			Query:       input.GetQuery(),
@@ -57,8 +58,7 @@ func (h *Handler) Lookup(req *restful.Request, resp *restful.Response) error {
 		}
 		coll.Nodes = h.TreeNodesToNodes(nn)
 
-	} else {
-
+	case *rest.LookupRequest_Locators:
 		// Switch to Tree Nodes
 		metaRequest := &rest.GetBulkMetaRequest{
 			AllMetaProviders: !tree.StatFlags(input.GetStatFlags()).MinimalMetas(),
@@ -68,7 +68,7 @@ func (h *Handler) Lookup(req *restful.Request, resp *restful.Response) error {
 			SortDirDesc:      input.GetSortDirDesc(),
 		}
 		// Todo: Handle Uuid Case
-		for _, l := range input.GetLocators() {
+		for _, l := range input.GetLocators().Many {
 			metaRequest.NodePaths = append(metaRequest.NodePaths, l.GetPath())
 		}
 		nn, coll.Pagination, er = h.TreeHandler.LoadNodes(ctx, metaRequest)
@@ -82,24 +82,16 @@ func (h *Handler) Lookup(req *restful.Request, resp *restful.Response) error {
 
 }
 
-func (h *Handler) GetByPath(req *restful.Request, resp *restful.Response) error {
-	nPath := req.PathParameter("Path")
-	nn, _, er := h.TreeHandler.LoadNodes(req.Request.Context(), &rest.GetBulkMetaRequest{
-		NodePaths:        []string{nPath},
-		AllMetaProviders: true,
-	})
+// GetByUuid is a simple call on a node
+func (h *Handler) GetByUuid(req *restful.Request, resp *restful.Response) error {
+	nodeUuid := req.PathParameter("Uuid")
+	router := compose.UuidClient()
+	ctx := req.Request.Context()
+	rr, er := router.ReadNode(ctx, &tree.ReadNodeRequest{Node: &tree.Node{Uuid: nodeUuid}})
 	if er != nil {
 		return er
 	}
-	if len(nn) == 0 {
-		return errors.Tag(er, errors.NodeNotFound)
-	}
-	return resp.WriteEntity(h.TreeNodeToNode(nn[0]))
-}
-
-func (h *Handler) GetByUuid(req *restful.Request, resp *restful.Response) error {
-	//nPath := req.PathParameter("Uuid")
-	return errors.WithMessage(errors.StatusNotImplemented, "method not implemented yet")
+	return resp.WriteEntity(h.TreeNodeToNode(rr.GetNode()))
 }
 
 func (h *Handler) ListVersions(req *restful.Request, resp *restful.Response) error {

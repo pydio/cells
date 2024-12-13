@@ -29,7 +29,7 @@ import (
 	"github.com/pydio/cells/v5/data/tree/restv2"
 )
 
-const Name = "node"
+const Name = "n"
 
 func init() {
 	runtime.Register("main", func(ctx context.Context) {
