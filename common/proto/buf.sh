@@ -53,6 +53,7 @@ then
   go run cmd/main.go ./cellsapi-rest.swagger.json
   buf generate --path cellsapi-rest-v2.proto --template buf.openapi.yaml
   go run cmd/main.go ./cellsapi-rest-v2.swagger.json
+  ./swagger.sh
 fi
 
 cd -

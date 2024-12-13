@@ -115,7 +115,7 @@ func (c *Cache) PostActivity(ctx context.Context, ownerType activity.OwnerType, 
 					if er != nil {
 						return nil
 					}
-					log.Logger(ct).Info(fmt.Sprintf("Batch posting %d activities", len(batchActivity)), zap.Any("ac", batchActivity[0]))
+					log.Logger(ct).Debug(fmt.Sprintf("Batch posting %d activities", len(batchActivity)), zap.Any("ac", batchActivity[0]))
 					return dao.(BatchDAO).BatchPost(batchActivity)
 				}),
 			)

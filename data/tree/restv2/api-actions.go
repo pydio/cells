@@ -43,11 +43,10 @@ func (h *Handler) PerformAction(req *restful.Request, resp *restful.Response) er
 	} else {
 		return errors.WithMessage(errors.StatusNotFound, "action not found")
 	}
-	input := &rest.ActionRequest{}
+	input := &rest.ActionParameters{}
 	if err := req.ReadEntity(input); err != nil {
 		return err
 	}
-	input.Name = actionID
 	ctx := req.Request.Context()
 	ll := middleware.DetectedLanguages(ctx)
 	var jj []*jobs.Job
@@ -58,20 +57,18 @@ func (h *Handler) PerformAction(req *restful.Request, resp *restful.Response) er
 	var params map[string]interface{}
 
 	// Pre-parse params
-	if pp := input.GetParameters(); pp != nil {
-		for _, n := range pp.GetNodes() {
-			inPaths = append(inPaths, n.GetPath())
-		}
-		// deduplicate just in case
-		inPaths = std.Unique(inPaths)
+	for _, n := range input.GetNodes() {
+		inPaths = append(inPaths, n.GetPath())
+	}
+	// deduplicate just in case
+	inPaths = std.Unique(inPaths)
 
-		if input.GetParameters().GetTargetNode() != nil {
-			outPath = input.GetParameters().GetTargetNode().GetPath()
-		}
-		if input.GetParameters().GetJsonParameters() != "" {
-			if er := json.Unmarshal([]byte(input.GetParameters().GetJsonParameters()), &params); er != nil {
-				return errors.Tag(er, errors.UnmarshalError)
-			}
+	if input.GetTargetNode() != nil {
+		outPath = input.GetTargetNode().GetPath()
+	}
+	if input.GetJsonParameters() != "" {
+		if er := json.Unmarshal([]byte(input.GetJsonParameters()), &params); er != nil {
+			return errors.Tag(er, errors.UnmarshalError)
 		}
 	}
 
@@ -142,15 +139,20 @@ func (h *Handler) PerformAction(req *restful.Request, resp *restful.Response) er
 
 	}
 
-	if input.GetParameters().GetAwait() {
+	if input.GetAwait() {
 		// Todo - new feature
 		// Monitor Job and block until it's done!
 	}
-
-	return resp.WriteEntity(&rest.ActionResponse{
+	ar := &rest.ActionResponse{
 		Status: rest.ActionStatus_Background,
-		Jobs:   jj,
-	})
+	}
+	for _, j := range jj {
+		ar.Jobs = append(ar.Jobs, &rest.BackgroundJobResult{
+			Uuid:  j.GetID(),
+			Label: j.GetLabel(),
+		})
+	}
+	return resp.WriteEntity(ar)
 }
 
 // GetActionJob answers to GET /node/action/{Name}/{JobUuid}
@@ -168,7 +170,7 @@ func (h *Handler) GetActionJob(req *restful.Request, resp *restful.Response) err
 	if e != nil {
 		return e
 	}
-	return resp.WriteEntity(j)
+	return resp.WriteEntity(&rest.BackgroundJobResult{Uuid: j.GetJob().GetID(), Label: j.GetJob().GetLabel()})
 }
 
 // ControlActionJob answers to PATCH /node/action/{Name}/{JobUuid}
@@ -193,5 +195,5 @@ func (h *Handler) ControlActionJob(req *restful.Request, resp *restful.Response)
 		return e
 	}
 
-	return resp.WriteEntity(j)
+	return resp.WriteEntity(&rest.BackgroundJobResult{Uuid: j.GetJob().GetID(), Label: j.GetJob().GetLabel()})
 }

@@ -73,7 +73,7 @@ func (h *Handler) BatchUpdateMeta(req *restful.Request, resp *restful.Response) 
 // PatchNode PATCH /node/u/{Uuid}
 func (h *Handler) PatchNode(req *restful.Request, resp *restful.Response) error {
 	nodeUuid := req.PathParameter("Uuid")
-	input := &rest.PatchNodeRequest{}
+	input := &rest.NodeUpdates{}
 	if err := req.ReadEntity(input); err != nil {
 		return err
 	}
@@ -81,7 +81,7 @@ func (h *Handler) PatchNode(req *restful.Request, resp *restful.Response) error 
 	putReq := &idm.UpdateUserMetaRequest{Operation: idm.UpdateUserMetaRequest_PUT}
 	delReq := &idm.UpdateUserMetaRequest{Operation: idm.UpdateUserMetaRequest_DELETE}
 
-	if toggle := input.GetNodeUpdates().GetBookmark(); toggle != nil {
+	if toggle := input.GetBookmark(); toggle != nil {
 		// Create a bookmark update
 		if toggle.Value {
 			putReq.MetaDatas = append(putReq.MetaDatas, &idm.UserMeta{
@@ -96,7 +96,7 @@ func (h *Handler) PatchNode(req *restful.Request, resp *restful.Response) error 
 			})
 		}
 	}
-	if toggle := input.GetNodeUpdates().GetContentLock(); toggle != nil {
+	if toggle := input.GetContentLock(); toggle != nil {
 		// Create a contentLock update - Value will be overriden by username automatically
 		cLock := &idm.UserMeta{
 			NodeUuid:  nodeUuid,
@@ -108,9 +108,9 @@ func (h *Handler) PatchNode(req *restful.Request, resp *restful.Response) error 
 			delReq.MetaDatas = append(delReq.MetaDatas, cLock)
 		}
 	}
-	for _, u := range input.GetNodeUpdates().GetMetaUpdates() {
+	for _, u := range input.GetMetaUpdates() {
 		m := &idm.UserMeta{
-			NodeUuid:  u.GetUserMeta().GetNodeUuid(),
+			NodeUuid:  nodeUuid,
 			Namespace: u.GetUserMeta().GetNamespace(),
 			JsonValue: u.GetUserMeta().GetJsonValue(),
 		}
