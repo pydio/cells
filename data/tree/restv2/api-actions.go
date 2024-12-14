@@ -21,6 +21,10 @@
 package restv2
 
 import (
+	"context"
+	"fmt"
+	"time"
+
 	restful "github.com/emicklei/go-restful/v3"
 
 	"github.com/pydio/cells/v5/common/client/commons/jobsc"
@@ -139,61 +143,114 @@ func (h *Handler) PerformAction(req *restful.Request, resp *restful.Response) er
 
 	}
 
-	if input.GetAwait() {
-		// Todo - new feature
-		// Monitor Job and block until it's done!
-	}
-	ar := &rest.ActionResponse{
-		Status: rest.ActionStatus_Background,
-	}
-	for _, j := range jj {
-		ar.Jobs = append(ar.Jobs, &rest.BackgroundJobResult{
-			Uuid:  j.GetID(),
-			Label: j.GetLabel(),
+	// Monitor Job and block until it's done!
+	if input.GetAwaitStatus() > 0 {
+		duration, er := time.ParseDuration(input.GetAwaitTimeout())
+		if er != nil {
+			return errors.Tag(er, errors.StatusBadRequest)
+		}
+		interval := duration / 5
+		var bb []*rest.BackgroundAction
+		er = std.Retry(ctx, func() error {
+			var tasks []*rest.BackgroundAction
+			for _, j := range jj {
+				a, t, e := h.backgroundActionForJob(ctx, j.GetID())
+				if e != nil || t == "" || a.Status != input.GetAwaitStatus() {
+					return fmt.Errorf("not ready")
+				}
+				tasks = append(tasks, a)
+			}
+			bb = tasks
+			return nil
+		}, interval, duration)
+		if er != nil {
+			return errors.WithMessage(errors.StatusRequestTimeout, "could not receive a task status in the requested time frame")
+		}
+		return resp.WriteEntity(&rest.PerformActionResponse{
+			Status: rest.ActionStatus_Performed,
+			Tasks:  bb,
 		})
+	} else {
+		ar := &rest.PerformActionResponse{
+			Status: rest.ActionStatus_Background,
+		}
+		for _, j := range jj {
+			ar.Tasks = append(ar.Tasks, &rest.BackgroundAction{
+				JobUuid: j.GetID(),
+				Label:   j.GetLabel(),
+				Status:  jobs.TaskStatus_Unknown,
+			})
+		}
+		return resp.WriteEntity(ar)
 	}
-	return resp.WriteEntity(ar)
 }
 
-// GetActionJob answers to GET /node/action/{Name}/{JobUuid}
-func (h *Handler) GetActionJob(req *restful.Request, resp *restful.Response) error {
-	var ar rest.ActionRequest
-	if err := req.ReadEntity(&ar); err != nil {
-		return err
-	}
+// BackgroundActionInfo answers to GET /node/action/{Name}/{JobUuid}
+func (h *Handler) BackgroundActionInfo(req *restful.Request, resp *restful.Response) error {
 	ctx := req.Request.Context()
-	cli := jobsc.JobServiceClient(ctx)
-	j, e := cli.GetJob(ctx, &jobs.GetJobRequest{
-		JobID:     req.PathParameter("JobUuid"),
-		LoadTasks: jobs.TaskStatus_Running,
-	})
-	if e != nil {
-		return e
+	ba, _, er := h.backgroundActionForJob(ctx, req.PathParameter("JobUuid"))
+	if er != nil {
+		return er
 	}
-	return resp.WriteEntity(&rest.BackgroundJobResult{Uuid: j.GetJob().GetID(), Label: j.GetJob().GetLabel()})
+	return resp.WriteEntity(ba)
 }
 
-// ControlActionJob answers to PATCH /node/action/{Name}/{JobUuid}
-func (h *Handler) ControlActionJob(req *restful.Request, resp *restful.Response) error {
-	var cr rest.ControlActionRequest
+// ControlBackgroundAction answers to PATCH /node/action/{Name}/{JobUuid}
+func (h *Handler) ControlBackgroundAction(req *restful.Request, resp *restful.Response) error {
+	var cr jobs.CtrlCommand
 	if err := req.ReadEntity(&cr); err != nil {
 		return err
 	}
 	ctx := req.Request.Context()
-
-	_, err := rest2.SendControlCommand(ctx, cr.GetCommand())
+	jobUuid := req.PathParameter("JobUuid")
+	// Find corresponding task
+	_, task, er := h.backgroundActionForJob(ctx, jobUuid)
+	if er != nil {
+		return er
+	}
+	if task == "" {
+		return errors.WithMessage(errors.StatusNotFound, "cannot find task for this job")
+	}
+	cr.JobId = jobUuid
+	cr.TaskId = task
+	_, err := rest2.SendControlCommand(ctx, &cr)
 	if err != nil {
 		return errors.Tag(err, errors.StatusInternalServerError)
 	}
 
-	cli := jobsc.JobServiceClient(ctx)
-	j, e := cli.GetJob(ctx, &jobs.GetJobRequest{
-		JobID:     req.PathParameter("JobUuid"),
-		LoadTasks: jobs.TaskStatus_Running,
-	})
-	if e != nil {
-		return e
+	ba, _, er := h.backgroundActionForJob(ctx, jobUuid)
+	if er != nil {
+		return er
 	}
 
-	return resp.WriteEntity(&rest.BackgroundJobResult{Uuid: j.GetJob().GetID(), Label: j.GetJob().GetLabel()})
+	return resp.WriteEntity(ba)
+}
+
+func (h *Handler) backgroundActionForJob(ctx context.Context, id string) (*rest.BackgroundAction, string, error) {
+	cli := jobsc.JobServiceClient(ctx)
+	j, e := cli.GetJob(ctx, &jobs.GetJobRequest{
+		JobID:     id,
+		LoadTasks: jobs.TaskStatus_Any,
+	})
+	if e != nil {
+		return nil, "", e
+	}
+	var taskUuid string
+	ba := &rest.BackgroundAction{
+		JobUuid: j.GetJob().GetID(),
+		Label:   j.GetJob().GetLabel(),
+	}
+	if len(j.GetJob().GetTasks()) > 0 {
+		t := j.GetJob().GetTasks()[0]
+		taskUuid = t.GetID()
+		ba.Status = t.GetStatus()
+		ba.StatusMessage = t.GetStatusMessage()
+		ba.HasProgress = t.GetHasProgress()
+		ba.Progress = t.GetProgress()
+		ba.CanStop = t.GetCanStop()
+		ba.CanPause = t.GetCanPause()
+		ba.StartTime = t.GetStartTime()
+		ba.EndTime = t.GetEndTime()
+	}
+	return ba, taskUuid, nil
 }

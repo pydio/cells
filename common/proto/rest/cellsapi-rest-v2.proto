@@ -225,11 +225,20 @@ message ActionParameters {
   NodeLocator TargetNode = 3;
   string SelectionUuid = 4;
   string JsonParameters = 5;
-  bool Await = 6;
+
+  // Optionally wait for the task to exist with a specific status
+  jobs.TaskStatus AwaitStatus = 6;
+  // Define a golang duration to wait for
+  string AwaitTimeout = 7;
 }
 
 // Request used for Actions-related endpoints
 message ActionRequest {
+  UserActionType Name = 1;
+  string JobUuid = 2;
+}
+
+message PerformActionRequest {
   UserActionType Name = 1;
   string JobUuid = 2;
   ActionParameters Parameters = 3;
@@ -242,17 +251,40 @@ message ControlActionRequest {
   jobs.CtrlCommand Command = 3;
 }
 
-// Used in an ActionResponse - currently always Background
+// Used in an PerformActionResponse - currently always Background
 enum ActionStatus {
   Performed = 0;
   Background = 1;
 }
 
 // Response to an action triggered
-message ActionResponse {
+message PerformActionResponse {
   ActionStatus Status = 1;
   repeated Node AffectedNodes = 2;
-  repeated BackgroundJobResult Jobs = 3;
+  repeated BackgroundAction Tasks = 3;
+}
+
+// Publishes a status about a background action
+message BackgroundAction {
+  string Name = 1;
+  string JobUuid = 2;
+  string Label = 3;
+
+  jobs.TaskStatus Status = 4;
+  string StatusMessage = 5;
+
+  int32 StartTime = 6;
+  int32 EndTime = 7;
+
+  // Can be interrupted
+  bool CanStop = 8;
+  // Can be paused/resumed
+  bool CanPause = 9;
+
+  // Task publishes a progress
+  bool HasProgress = 10;
+  // Float value of the progress between 0 and 1
+  float Progress = 11;
 }
 
 // Request to create a selection from a list of nodes.
@@ -468,20 +500,20 @@ service NodeService {
   }
 
   // Trigger an action on the tree. Returns a JobInfo describing a background task.
-  rpc PerformAction(ActionRequest) returns (ActionResponse) {
+  rpc PerformAction(PerformActionRequest) returns (PerformActionResponse) {
     option (google.api.http) = {
       post: "/n/action/{Name}"
       body: "Parameters"
     };
   }
   // Retrieve information about an action running in background
-  rpc GetActionJob(ActionRequest) returns (BackgroundJobResult) {
+  rpc BackgroundActionInfo(ActionRequest) returns (BackgroundAction) {
     option (google.api.http) = {
       get: "/n/action/{Name}/{JobUuid}"
     };
   }
   // Send control commands to a background job
-  rpc ControlActionJob(ControlActionRequest) returns (BackgroundJobResult) {
+  rpc ControlBackgroundAction(ControlActionRequest) returns (BackgroundAction) {
     option (google.api.http) = {
       patch: "/n/action/{Name}/{JobUuid}"
       body:"Command"

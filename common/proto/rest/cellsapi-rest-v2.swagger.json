@@ -451,6 +451,22 @@
       "title": "Command sent to control a job or a task",
       "type": "object"
     },
+    "jobsTaskStatus": {
+      "default": "Unknown",
+      "enum": [
+        "Unknown",
+        "Idle",
+        "Running",
+        "Finished",
+        "Interrupted",
+        "Paused",
+        "Any",
+        "Error",
+        "Queued"
+      ],
+      "title": "/////////////////\nTASK SERVICE  //\n/////////////////",
+      "type": "string"
+    },
     "protobufAny": {
       "additionalProperties": {},
       "description": "`Any` contains an arbitrary serialized protocol buffer message along with a\nURL that describes the type of the serialized message.\n\nProtobuf library provides support to pack/unpack Any values in the form\nof utility functions or additional generated methods of the Any type.\n\nExample 1: Pack and unpack a message in C++.\n\n    Foo foo = ...;\n    Any any;\n    any.PackFrom(foo);\n    ...\n    if (any.UnpackTo(\u0026foo)) {\n      ...\n    }\n\nExample 2: Pack and unpack a message in Java.\n\n    Foo foo = ...;\n    Any any = Any.pack(foo);\n    ...\n    if (any.is(Foo.class)) {\n      foo = any.unpack(Foo.class);\n    }\n    // or ...\n    if (any.isSameTypeAs(Foo.getDefaultInstance())) {\n      foo = any.unpack(Foo.getDefaultInstance());\n    }\n\n Example 3: Pack and unpack a message in Python.\n\n    foo = Foo(...)\n    any = Any()\n    any.Pack(foo)\n    ...\n    if any.Is(Foo.DESCRIPTOR):\n      any.Unpack(foo)\n      ...\n\n Example 4: Pack and unpack a message in Go\n\n     foo := \u0026pb.Foo{...}\n     any, err := anypb.New(foo)\n     if err != nil {\n       ...\n     }\n     ...\n     foo := \u0026pb.Foo{}\n     if err := any.UnmarshalTo(foo); err != nil {\n       ...\n     }\n\nThe pack methods provided by protobuf library will by default use\n'type.googleapis.com/full.type.name' as the type URL and the unpack\nmethods only use the fully qualified type name after the last '/'\nin the type URL, for example \"foo.bar.com/x/y.z\" will yield type\nname \"y.z\".\n\nJSON\n====\nThe JSON representation of an `Any` value uses the regular\nrepresentation of the deserialized, embedded message, with an\nadditional field `@type` which contains the type URL. Example:\n\n    package google.profile;\n    message Person {\n      string first_name = 1;\n      string last_name = 2;\n    }\n\n    {\n      \"@type\": \"type.googleapis.com/google.profile.Person\",\n      \"firstName\": \u003cstring\u003e,\n      \"lastName\": \u003cstring\u003e\n    }\n\nIf the embedded message type is well-known and has a custom JSON\nrepresentation, that representation will be embedded adding a field\n`value` which holds the custom JSON in addition to the `@type`\nfield. Example (for message [google.protobuf.Duration][]):\n\n    {\n      \"@type\": \"type.googleapis.com/google.protobuf.Duration\",\n      \"value\": \"1.212s\"\n    }",
@@ -464,8 +480,13 @@
     },
     "restActionParameters": {
       "properties": {
-        "Await": {
-          "type": "boolean"
+        "AwaitStatus": {
+          "$ref": "#/definitions/jobsTaskStatus",
+          "title": "Optionally wait for the task to exist with a specific status"
+        },
+        "AwaitTimeout": {
+          "title": "Define a golang duration to wait for",
+          "type": "string"
         },
         "JsonParameters": {
           "type": "string"
@@ -487,50 +508,59 @@
       "title": "Parameters used by actions. Some may use Nodes/TargetNode, but not necessarily",
       "type": "object"
     },
-    "restActionResponse": {
-      "properties": {
-        "AffectedNodes": {
-          "items": {
-            "$ref": "#/definitions/restNode",
-            "type": "object"
-          },
-          "type": "array"
-        },
-        "Jobs": {
-          "items": {
-            "$ref": "#/definitions/restBackgroundJobResult",
-            "type": "object"
-          },
-          "type": "array"
-        },
-        "Status": {
-          "$ref": "#/definitions/restActionStatus"
-        }
-      },
-      "title": "Response to an action triggered",
-      "type": "object"
-    },
     "restActionStatus": {
       "default": "Performed",
       "enum": [
         "Performed",
         "Background"
       ],
-      "title": "Used in an ActionResponse - currently always Background",
+      "title": "Used in an PerformActionResponse - currently always Background",
       "type": "string"
     },
-    "restBackgroundJobResult": {
+    "restBackgroundAction": {
       "properties": {
+        "CanPause": {
+          "title": "Can be paused/resumed",
+          "type": "boolean"
+        },
+        "CanStop": {
+          "title": "Can be interrupted",
+          "type": "boolean"
+        },
+        "EndTime": {
+          "format": "int32",
+          "type": "integer"
+        },
+        "HasProgress": {
+          "title": "Task publishes a progress",
+          "type": "boolean"
+        },
+        "JobUuid": {
+          "type": "string"
+        },
         "Label": {
           "type": "string"
         },
-        "NodeUuid": {
+        "Name": {
           "type": "string"
         },
-        "Uuid": {
+        "Progress": {
+          "format": "float",
+          "title": "Float value of the progress between 0 and 1",
+          "type": "number"
+        },
+        "StartTime": {
+          "format": "int32",
+          "type": "integer"
+        },
+        "Status": {
+          "$ref": "#/definitions/jobsTaskStatus"
+        },
+        "StatusMessage": {
           "type": "string"
         }
       },
+      "title": "Publishes a status about a background action",
       "type": "object"
     },
     "restBatchUpdateMetaList": {
@@ -1073,6 +1103,29 @@
         }
       },
       "title": "Generic container for responses sending pagination information",
+      "type": "object"
+    },
+    "restPerformActionResponse": {
+      "properties": {
+        "AffectedNodes": {
+          "items": {
+            "$ref": "#/definitions/restNode",
+            "type": "object"
+          },
+          "type": "array"
+        },
+        "Status": {
+          "$ref": "#/definitions/restActionStatus"
+        },
+        "Tasks": {
+          "items": {
+            "$ref": "#/definitions/restBackgroundAction",
+            "type": "object"
+          },
+          "type": "array"
+        }
+      },
+      "title": "Response to an action triggered",
       "type": "object"
     },
     "restPublicLinkDeleteSuccess": {
@@ -1815,7 +1868,7 @@
           "200": {
             "description": "A successful response.",
             "schema": {
-              "$ref": "#/definitions/restActionResponse"
+              "$ref": "#/definitions/restPerformActionResponse"
             }
           },
           "401": {
@@ -1851,7 +1904,7 @@
     },
     "/n/action/{Name}/{JobUuid}": {
       "get": {
-        "operationId": "GetActionJob",
+        "operationId": "BackgroundActionInfo",
         "parameters": [
           {
             "enum": [
@@ -1872,43 +1925,13 @@
             "name": "JobUuid",
             "required": true,
             "type": "string"
-          },
-          {
-            "in": "query",
-            "name": "Parameters.TargetNode.Uuid",
-            "required": false,
-            "type": "string"
-          },
-          {
-            "in": "query",
-            "name": "Parameters.TargetNode.Path",
-            "required": false,
-            "type": "string"
-          },
-          {
-            "in": "query",
-            "name": "Parameters.SelectionUuid",
-            "required": false,
-            "type": "string"
-          },
-          {
-            "in": "query",
-            "name": "Parameters.JsonParameters",
-            "required": false,
-            "type": "string"
-          },
-          {
-            "in": "query",
-            "name": "Parameters.Await",
-            "required": false,
-            "type": "boolean"
           }
         ],
         "responses": {
           "200": {
             "description": "A successful response.",
             "schema": {
-              "$ref": "#/definitions/restBackgroundJobResult"
+              "$ref": "#/definitions/restBackgroundAction"
             }
           },
           "401": {
@@ -1942,7 +1965,7 @@
         ]
       },
       "patch": {
-        "operationId": "ControlActionJob",
+        "operationId": "ControlBackgroundAction",
         "parameters": [
           {
             "enum": [
@@ -1977,7 +2000,7 @@
           "200": {
             "description": "A successful response.",
             "schema": {
-              "$ref": "#/definitions/restBackgroundJobResult"
+              "$ref": "#/definitions/restBackgroundAction"
             }
           },
           "401": {
