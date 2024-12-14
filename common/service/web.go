@@ -76,6 +76,7 @@ func init() {
 	// Instanciate restful framework
 	routing.RegisterRoute(APIRoute, "Main REST API Endpoint", common.DefaultRouteREST)
 	runtime.RegisterEnvVariable("CELLS_WEB_RATE_LIMIT", "0", "Http API rate-limiter, as a number of token allowed per seconds. 0 means no limit.")
+	runtime.RegisterEnvVariable("CELLS_WEB_CORS_ALLOW_ALL", "false", "Should be used for DEV only, allow all CORS requests")
 	restful.RegisterEntityAccessor("application/json", new(middleware.ProtoEntityReaderWriter))
 }
 
@@ -189,9 +190,12 @@ func WithWeb(handler func(ctx context.Context) WebHandler) ServiceOption {
 			mm := getWebMiddlewares(o.Name, "core")
 			mm = append(mm, o.WebMiddlewares...)
 			mm = append(mm, getWebMiddlewares(o.Name, "top")...)
-			// To be used in dev only
-			// mm = append(mm, cors.AllowAll().Handler)
-			mm = append(mm, cors.Default().Handler)
+			if co := os.Getenv("CELLS_WEB_CORS_ALLOW_ALL"); co == "true" {
+				// To be used in dev mode only !
+				mm = append(mm, cors.AllowAll().Handler)
+			} else {
+				mm = append(mm, cors.Default().Handler)
+			}
 
 			for _, wrap := range mm {
 				wrapped = wrap(wrapped)
