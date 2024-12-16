@@ -29,6 +29,9 @@ import (
 	"go.uber.org/zap"
 
 	"github.com/pydio/cells/v5/common"
+	"github.com/pydio/cells/v5/common/nodes"
+	"github.com/pydio/cells/v5/common/nodes/compose"
+	"github.com/pydio/cells/v5/common/nodes/uuid"
 	"github.com/pydio/cells/v5/common/proto/idm"
 	"github.com/pydio/cells/v5/common/proto/rest"
 	"github.com/pydio/cells/v5/common/proto/tree"
@@ -75,6 +78,11 @@ func (h *Handler) Filter() func(string) string {
 	}
 }
 
+// UuidClient returns a properly initialized handler
+func (h *Handler) UuidClient() nodes.Handler {
+	return compose.UuidClient(uuid.WithExternalPath())
+}
+
 // TreeNodeToNode converts a tree.Node to rest.Node
 func (h *Handler) TreeNodeToNode(n *tree.Node) *rest.Node {
 	rn := &rest.Node{
@@ -101,6 +109,8 @@ func (h *Handler) TreeNodeToNode(n *tree.Node) *rest.Node {
 			if v == `"`+common.RecycleBinName+`"` {
 				rn.IsRecycleBin = true
 			}
+		case common.MetaNamespaceInsideRecycle:
+			rn.IsRecycled = true
 		case common.MetaNamespaceMime:
 			rn.ContentType = strings.ReplaceAll(v, "\"", "")
 		case common.MetaNamespaceHash:
@@ -127,6 +137,27 @@ func (h *Handler) TreeNodeToNode(n *tree.Node) *rest.Node {
 			common.MetaFlagRecursiveCount:
 			if i, e := strconv.ParseInt(v, 10, 64); e == nil {
 				rn.FolderMeta = append(rn.FolderMeta, &rest.CountMeta{Namespace: k, Value: int32(i)})
+			}
+
+		case common.MetaFlagEncrypted, common.MetaFlagVersioning:
+			if rn.DataSourceFeatures == nil {
+				rn.DataSourceFeatures = &rest.DataSourceFeatures{}
+			}
+			if k == common.MetaFlagEncrypted {
+				rn.DataSourceFeatures.Encrypted = true
+			} else {
+				rn.DataSourceFeatures.Versioned = true
+			}
+
+		case common.MetaNamespaceVersionId, common.MetaNamespaceVersionDesc:
+			if rn.RevisionMeta == nil {
+				rn.RevisionMeta = &rest.RevisionMeta{}
+			}
+			value := strings.ReplaceAll(v, "\"", "")
+			if k == common.MetaNamespaceVersionId {
+				rn.RevisionMeta.Uuid = value
+			} else {
+				rn.RevisionMeta.Description = value
 			}
 
 		case images.MetadataImageDimensions,

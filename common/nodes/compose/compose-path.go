@@ -60,6 +60,7 @@ func pathComposer(oo ...nodes.Option) []nodes.Option {
 		virtual.WithBrowser(),  // options.BrowseVirtualNodes
 		path.WithRootResolver(),
 		path.WithDatasource(),
+		path.WithRecyclePathHandler(),
 		sync.WithCache(), // options.SynchronousCache
 		events.WithAudit(),
 		acl.WithFilter(),

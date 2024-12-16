@@ -195,6 +195,7 @@ const (
 	MetaNamespaceDatasourceInternal  = MetaNamespaceReservedPrefix_ + "meta-data-source-internal"
 	MetaNamespaceNodeTestLocalFolder = MetaNamespaceReservedPrefix_ + "test:local-folder-storage"
 	MetaNamespaceRecycleRestore      = MetaNamespaceReservedPrefix_ + "recycle_restore"
+	MetaNamespaceInsideRecycle       = "inside_recycle"
 	MetaNamespaceNodeName            = "name"
 	MetaNamespaceMime                = "mime"
 	MetaNamespaceHash                = "x-cells-hash"

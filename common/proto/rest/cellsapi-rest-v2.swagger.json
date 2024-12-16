@@ -948,6 +948,9 @@
           },
           "type": "array"
         },
+        "RevisionMeta": {
+          "$ref": "#/definitions/restRevisionMeta"
+        },
         "Shares": {
           "items": {
             "$ref": "#/definitions/restShareLink",
@@ -1164,6 +1167,17 @@
         }
       },
       "title": "Create or update a public link on a node",
+      "type": "object"
+    },
+    "restRevisionMeta": {
+      "properties": {
+        "Description": {
+          "type": "string"
+        },
+        "Uuid": {
+          "type": "string"
+        }
+      },
       "type": "object"
     },
     "restSelection": {

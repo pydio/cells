@@ -52,6 +52,8 @@ type RouterOptions struct {
 	HashesAsETags    bool
 	PermanentPrefix  string
 
+	UuidExternalPath bool
+
 	Wrappers []Adapter
 	Pool     *openurl.Pool[SourcesPool]
 }

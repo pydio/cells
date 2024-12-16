@@ -21,9 +21,11 @@
 package restv2
 
 import (
+	"path"
+
 	restful "github.com/emicklei/go-restful/v3"
 
-	"github.com/pydio/cells/v5/common/errors"
+	"github.com/pydio/cells/v5/common/client/commons"
 	"github.com/pydio/cells/v5/common/nodes/compose"
 	"github.com/pydio/cells/v5/common/proto/rest"
 	"github.com/pydio/cells/v5/common/proto/tree"
@@ -67,7 +69,7 @@ func (h *Handler) Lookup(req *restful.Request, resp *restful.Response) error {
 			SortField:        input.GetSortField(),
 			SortDirDesc:      input.GetSortDirDesc(),
 		}
-		// Todo: Handle Uuid Case
+		// Todo: Handle Uuid Case ?
 		for _, l := range input.GetLocators().Many {
 			metaRequest.NodePaths = append(metaRequest.NodePaths, l.GetPath())
 		}
@@ -85,7 +87,7 @@ func (h *Handler) Lookup(req *restful.Request, resp *restful.Response) error {
 // GetByUuid is a simple call on a node
 func (h *Handler) GetByUuid(req *restful.Request, resp *restful.Response) error {
 	nodeUuid := req.PathParameter("Uuid")
-	router := compose.UuidClient()
+	router := h.UuidClient()
 	ctx := req.Request.Context()
 	rr, er := router.ReadNode(ctx, &tree.ReadNodeRequest{Node: &tree.Node{Uuid: nodeUuid}})
 	if er != nil {
@@ -94,6 +96,32 @@ func (h *Handler) GetByUuid(req *restful.Request, resp *restful.Response) error 
 	return resp.WriteEntity(h.TreeNodeToNode(rr.GetNode()))
 }
 
+// ListVersions lists all versions of a node
 func (h *Handler) ListVersions(req *restful.Request, resp *restful.Response) error {
-	return errors.WithMessage(errors.StatusNotImplemented, "method not implemented yet")
+	nodeUuid := req.PathParameter("Uuid")
+	ctx := req.Request.Context()
+	rn, er := h.UuidClient().ReadNode(ctx, &tree.ReadNodeRequest{Node: &tree.Node{Uuid: nodeUuid}})
+	if er != nil {
+		return er
+	}
+	node := rn.GetNode()
+	ws := node.GetAppearsIn()[0]
+	nP := path.Join(ws.GetWsSlug(), ws.GetPath())
+	st, er := compose.PathClient().ListNodes(ctx, &tree.ListNodesRequest{
+		Node:         &tree.Node{Path: nP},
+		WithVersions: true,
+	})
+	if er != nil {
+		return er
+	}
+	var nn []*rest.Node
+	er = commons.ForEach(st, er, func(response *tree.ListNodesResponse) error {
+		vNode := response.GetNode()
+		nn = append(nn, h.TreeNodeToNode(vNode))
+		return nil
+	})
+	if er != nil {
+		return er
+	}
+	return resp.WriteEntity(&rest.NodeCollection{Nodes: nn})
 }

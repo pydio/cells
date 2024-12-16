@@ -28,6 +28,7 @@ import (
 	"go.uber.org/zap"
 	"google.golang.org/protobuf/proto"
 
+	"github.com/pydio/cells/v5/common"
 	"github.com/pydio/cells/v5/common/errors"
 	"github.com/pydio/cells/v5/common/middleware/keys"
 	"github.com/pydio/cells/v5/common/nodes"
@@ -42,6 +43,9 @@ import (
 
 func WithWorkspace() nodes.Option {
 	return func(options *nodes.RouterOptions) {
+		if options.UuidExternalPath {
+			options.Wrappers = append(options.Wrappers, newExternalPathHandler())
+		}
 		options.Wrappers = append(options.Wrappers, newWorkspaceHandler())
 	}
 }
@@ -137,6 +141,15 @@ func (h *WorkspaceHandler) updateOutputBranch(ctx context.Context, node *tree.No
 				})
 			} else {
 				log.Logger(ctx).Error("Error while computing relative path to root", zap.Error(e))
+			}
+		}
+		// Add "InsideRecycle" flag by scanning ancestors
+		for _, p := range ancestors {
+			if p.GetUuid() == node.GetUuid() {
+				continue
+			}
+			if p.GetStringMeta(common.MetaNamespaceNodeName) == common.RecycleBinName {
+				out.MustSetMeta(common.MetaNamespaceInsideRecycle, "true")
 			}
 		}
 		return ctx, out, nil

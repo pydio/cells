@@ -29,7 +29,6 @@ import (
 
 	"github.com/pydio/cells/v5/common/client/commons/idmc"
 	"github.com/pydio/cells/v5/common/errors"
-	"github.com/pydio/cells/v5/common/nodes/compose"
 	"github.com/pydio/cells/v5/common/permissions"
 	"github.com/pydio/cells/v5/common/proto/idm"
 	"github.com/pydio/cells/v5/common/proto/rest"
@@ -127,7 +126,7 @@ func (h *Handler) PatchNode(req *restful.Request, resp *restful.Response) error 
 	}
 
 	// Return updated Node
-	router := compose.UuidClient()
+	router := h.UuidClient()
 	node, er := router.ReadNode(ctx, &tree.ReadNodeRequest{Node: &tree.Node{Uuid: nodeUuid}})
 	if er != nil {
 		return er
@@ -159,7 +158,7 @@ func (h *Handler) UserBookmarks(req *restful.Request, resp *restful.Response) er
 		Namespace: rest2.ReservedNSBookmark,
 	}
 	ctx := req.Request.Context()
-	router := compose.UuidClient()
+	router := h.UuidClient()
 	res, e := h.UserMetaHandler.PerformSearchMetaRequest(ctx, searchRequest)
 	if e != nil {
 		return e

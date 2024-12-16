@@ -21,9 +21,11 @@
 package restv2
 
 import (
+	"slices"
+
 	restful "github.com/emicklei/go-restful/v3"
 
-	"github.com/pydio/cells/v5/common/nodes/compose"
+	"github.com/pydio/cells/v5/common/errors"
 	"github.com/pydio/cells/v5/common/proto/rest"
 	"github.com/pydio/cells/v5/common/proto/tree"
 )
@@ -38,14 +40,13 @@ func (h *Handler) CreatePublicLink(req *restful.Request, resp *restful.Response)
 	}
 	ctx := req.Request.Context()
 	// Find node by Uuid and append it to root node
-	router := compose.UuidClient()
-	rr, er := router.ReadNode(ctx, &tree.ReadNodeRequest{Node: &tree.Node{Uuid: nodeUuid}})
+	rr, er := h.UuidClient().ReadNode(ctx, &tree.ReadNodeRequest{Node: &tree.Node{Uuid: nodeUuid}})
 	if er != nil {
 		return er
 	}
-	if len(in.Link.RootNodes) == 0 {
-		in.Link.RootNodes = append(in.Link.RootNodes, rr.GetNode())
-	}
+	// Update defaults
+	in.Link.ViewTemplateName = h.linkTemplateName(in.Link, rr.GetNode())
+	in.Link.RootNodes = []*tree.Node{rr.GetNode()}
 
 	link, er := h.SharesHandler.PutOrUpdateShareLink(ctx, in.GetLink(), in)
 	if er != nil {
@@ -62,12 +63,21 @@ func (h *Handler) UpdatePublicLink(req *restful.Request, resp *restful.Response)
 	if err := req.ReadEntity(in); err != nil {
 		return err
 	}
-	if in.Link.Uuid == "" {
-		in.Link.Uuid = req.PathParameter("LinkUuid")
+	in.Link.Uuid = req.PathParameter("LinkUuid")
+	// Load root node to check
+	if len(in.Link.RootNodes) == 0 {
+		return errors.WithMessage(errors.StatusBadRequest, "cannot update link without root")
 	}
-
 	ctx := req.Request.Context()
+	router := h.UuidClient()
+	rr, er := router.ReadNode(ctx, &tree.ReadNodeRequest{Node: in.Link.RootNodes[0]})
+	if er != nil {
+		return er
+	}
+	// Update defaults (permissions may have changed)
+	in.Link.ViewTemplateName = h.linkTemplateName(in.Link, rr.GetNode())
 
+	// Update Link
 	link, er := h.SharesHandler.PutOrUpdateShareLink(ctx, in.GetLink(), in)
 	if er != nil {
 		return er
@@ -104,4 +114,28 @@ func (h *Handler) DeletePublicLink(req *restful.Request, resp *restful.Response)
 		Uuid:    uuid,
 		Message: "Successfully deleted",
 	})
+}
+
+func (h *Handler) linkTemplateName(link *rest.ShareLink, node *tree.Node) string {
+	// If a custom value is used, ignore
+	if link.ViewTemplateName != "" && !slices.Contains([]string{"pydio_unique_strip", "pydio_unique_dl", "pydio_shared_folder"}, link.ViewTemplateName) {
+		return link.ViewTemplateName
+	}
+	// Otherwise recheck match between node type and permissions
+	if node.IsLeaf() {
+		var preview bool
+		for _, perm := range link.Permissions {
+			if perm == rest.ShareLinkAccessType_Preview {
+				preview = true
+				break
+			}
+		}
+		if preview {
+			return "pydio_unique_strip"
+		} else {
+			return "pydio_unique_dl"
+		}
+	} else {
+		return "pydio_shared_folder"
+	}
 }

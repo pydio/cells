@@ -124,6 +124,11 @@ message UserMeta {
   bool Editable = 4;
 }
 
+message RevisionMeta {
+  string Uuid = 1;
+  string Description = 2;
+}
+
 // List of UserMeta
 message UserMetaList {
   repeated UserMeta UserMeta = 1;
@@ -157,6 +162,7 @@ message Node {
   repeated activity.Subscription Subscriptions = 19;
 
   ImageMeta ImageMeta = 25;
+  RevisionMeta RevisionMeta = 26;
   repeated JsonMeta Metadata = 21;
   repeated CountMeta FolderMeta = 15;
   repeated UserMeta UserMetadata = 22;
