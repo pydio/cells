@@ -22,7 +22,6 @@ package restv2
 
 import (
 	"context"
-	"path"
 
 	restful "github.com/emicklei/go-restful/v3"
 	"go.uber.org/zap"
@@ -126,7 +125,7 @@ func (h *Handler) PatchNode(req *restful.Request, resp *restful.Response) error 
 	}
 
 	// Return updated Node
-	router := h.UuidClient()
+	router := h.UuidClient(true)
 	node, er := router.ReadNode(ctx, &tree.ReadNodeRequest{Node: &tree.Node{Uuid: nodeUuid}})
 	if er != nil {
 		return er
@@ -158,7 +157,7 @@ func (h *Handler) UserBookmarks(req *restful.Request, resp *restful.Response) er
 		Namespace: rest2.ReservedNSBookmark,
 	}
 	ctx := req.Request.Context()
-	router := h.UuidClient()
+	router := h.UuidClient(true)
 	res, e := h.UserMetaHandler.PerformSearchMetaRequest(ctx, searchRequest)
 	if e != nil {
 		return e
@@ -167,12 +166,8 @@ func (h *Handler) UserBookmarks(req *restful.Request, resp *restful.Response) er
 		node := &tree.Node{
 			Uuid: metadata.NodeUuid,
 		}
-		if resp, e := router.ReadNode(ctx, &tree.ReadNodeRequest{Node: node}); e == nil {
-			n := resp.Node
-			if len(n.AppearsIn) == 0 {
-				continue
-			}
-			n.Path = path.Join(n.AppearsIn[0].WsSlug, n.AppearsIn[0].Path)
+		if rr, e := router.ReadNode(ctx, &tree.ReadNodeRequest{Node: node}); e == nil {
+			n := rr.GetNode()
 			output.Nodes = append(output.Nodes, h.TreeNodeToNode(n))
 		} else {
 			log.Logger(ctx).Debug("Ignoring Bookmark: ", zap.Error(e))

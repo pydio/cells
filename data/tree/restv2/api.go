@@ -79,8 +79,12 @@ func (h *Handler) Filter() func(string) string {
 }
 
 // UuidClient returns a properly initialized handler
-func (h *Handler) UuidClient() nodes.Handler {
-	return compose.UuidClient(uuid.WithExternalPath())
+func (h *Handler) UuidClient(external bool) nodes.Handler {
+	if external {
+		return compose.UuidClient(uuid.WithExternalPath())
+	} else {
+		return compose.UuidClient()
+	}
 }
 
 // TreeNodeToNode converts a tree.Node to rest.Node

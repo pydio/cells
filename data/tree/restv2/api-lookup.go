@@ -21,8 +21,6 @@
 package restv2
 
 import (
-	"path"
-
 	restful "github.com/emicklei/go-restful/v3"
 
 	"github.com/pydio/cells/v5/common/client/commons"
@@ -87,7 +85,7 @@ func (h *Handler) Lookup(req *restful.Request, resp *restful.Response) error {
 // GetByUuid is a simple call on a node
 func (h *Handler) GetByUuid(req *restful.Request, resp *restful.Response) error {
 	nodeUuid := req.PathParameter("Uuid")
-	router := h.UuidClient()
+	router := h.UuidClient(true)
 	ctx := req.Request.Context()
 	rr, er := router.ReadNode(ctx, &tree.ReadNodeRequest{Node: &tree.Node{Uuid: nodeUuid}})
 	if er != nil {
@@ -100,15 +98,13 @@ func (h *Handler) GetByUuid(req *restful.Request, resp *restful.Response) error 
 func (h *Handler) ListVersions(req *restful.Request, resp *restful.Response) error {
 	nodeUuid := req.PathParameter("Uuid")
 	ctx := req.Request.Context()
-	rn, er := h.UuidClient().ReadNode(ctx, &tree.ReadNodeRequest{Node: &tree.Node{Uuid: nodeUuid}})
+	rn, er := h.UuidClient(true).ReadNode(ctx, &tree.ReadNodeRequest{Node: &tree.Node{Uuid: nodeUuid}})
 	if er != nil {
 		return er
 	}
 	node := rn.GetNode()
-	ws := node.GetAppearsIn()[0]
-	nP := path.Join(ws.GetWsSlug(), ws.GetPath())
 	st, er := compose.PathClient().ListNodes(ctx, &tree.ListNodesRequest{
-		Node:         &tree.Node{Path: nP},
+		Node:         node,
 		WithVersions: true,
 	})
 	if er != nil {

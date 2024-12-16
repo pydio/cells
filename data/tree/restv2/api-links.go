@@ -40,7 +40,7 @@ func (h *Handler) CreatePublicLink(req *restful.Request, resp *restful.Response)
 	}
 	ctx := req.Request.Context()
 	// Find node by Uuid and append it to root node
-	rr, er := h.UuidClient().ReadNode(ctx, &tree.ReadNodeRequest{Node: &tree.Node{Uuid: nodeUuid}})
+	rr, er := h.UuidClient(false).ReadNode(ctx, &tree.ReadNodeRequest{Node: &tree.Node{Uuid: nodeUuid}})
 	if er != nil {
 		return er
 	}
@@ -69,7 +69,7 @@ func (h *Handler) UpdatePublicLink(req *restful.Request, resp *restful.Response)
 		return errors.WithMessage(errors.StatusBadRequest, "cannot update link without root")
 	}
 	ctx := req.Request.Context()
-	router := h.UuidClient()
+	router := h.UuidClient(false)
 	rr, er := router.ReadNode(ctx, &tree.ReadNodeRequest{Node: in.Link.RootNodes[0]})
 	if er != nil {
 		return er
