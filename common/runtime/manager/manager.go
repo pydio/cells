@@ -186,10 +186,10 @@ func NewManager(ctx context.Context, namespace string, logger log.ZapLogger) (Ma
 		ctx = propagator.With(ctx, registry.ContextKey, reg)
 	}
 
-	if store, err := m.initKeyring(ctx); err != nil {
+	if kr, err := m.initKeyring(ctx); err != nil {
 		return nil, err
 	} else {
-		ctx = propagator.With(ctx, crypto.KeyringContextKey, store)
+		ctx = propagator.With(ctx, crypto.KeyringContextKey, kr)
 	}
 
 	// TODO : this would imply using eg.Wait() somewhere, is normal ?
@@ -412,7 +412,7 @@ func (m *manager) initNamespace(ctx context.Context, bootstrap config.Store, bas
 	return nil
 }
 
-func (m *manager) initKeyring(ctx context.Context) (config.Store, error) {
+func (m *manager) initKeyring(ctx context.Context) (crypto.Keyring, error) {
 	keyringURL := runtime.KeyringURL()
 	if keyringURL == "" {
 		return nil, nil
@@ -436,7 +436,7 @@ func (m *manager) initKeyring(ctx context.Context) (config.Store, error) {
 
 	runtime.SetVaultMasterKey(password)
 
-	return keyringStore, nil
+	return kr, nil
 }
 
 func (m *manager) initConfig(ctx context.Context) (*openurl.Pool[config.Store], *openurl.Pool[config.Store], *openurl.Pool[revisions.Store], error) {
