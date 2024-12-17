@@ -44,6 +44,7 @@ func init() {
 func NewDAO(db *gorm.DB) index.DAO {
 
 	indexDAO := cindex.NewDAO[*tree.TreeNode](db)
+	indexDAO = cindex.NewFolderSizeCacheDAO(indexDAO)
 
 	return &sqlimpl{db: db, IndexSQL: indexDAO.(IndexSQL)}
 }
