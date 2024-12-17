@@ -27,6 +27,7 @@ import "cells-update.proto";
 import "cells-registry.proto";
 
 import "google/api/annotations.proto";
+import "google/api/field_behavior.proto";
 import "protoc-gen-openapiv2/options/annotations.proto";
 
 option go_package ="github.com/pydio/cells/v5/common/proto/rest";
@@ -49,6 +50,23 @@ option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_swagger) = {
   schemes: WSS;
   consumes: "application/json";
   produces: "application/json";
+  security_definitions:     {
+    security:{
+      key:'Bearer'
+      value:{
+        name:"Authorization"
+        description: "Expected value is 'Bearer {TOKEN}'"
+        type: TYPE_API_KEY
+        in: IN_HEADER
+      }
+    }
+  }
+  security: {
+    security_requirement: {
+      key: 'Bearer'
+      value: {}
+    }
+  }
 };
 
 // Special permission modes for Nodes
@@ -65,11 +83,13 @@ message LockInfo{
   string Owner = 2;
 }
 
-// Current workspace information
+// ContextWorkspace
+//
+// Current workspace information, maybe published on the root node of a workspace
 message ContextWorkspace{
   bool IsRoot = 1;
-  string Uuid = 2;
-  string Slug = 3;
+  string Uuid = 2 [(google.api.field_behavior) = REQUIRED];
+  string Slug = 3 [(google.api.field_behavior) = REQUIRED];
   idm.WorkspaceScope Scope = 4;
   string Permissions = 5;
   string Label = 6;
@@ -105,27 +125,27 @@ message FilePreview{
 
 // Open definition for a key/value metadata, value stored in json
 message JsonMeta {
-  string Namespace = 1;
-  string Value = 2;
+  string Namespace = 1 [(google.api.field_behavior) = REQUIRED];
+  string Value = 2 [(google.api.field_behavior) = REQUIRED];
 }
 
 // Open definition for a key/value metadata, value is a number
 // Using int32 to avoid json strings (for int64)
 message CountMeta {
-  string Namespace = 1;
-  int32 Value = 2;
+  string Namespace = 1 [(google.api.field_behavior) = REQUIRED];
+  int32 Value = 2 [(google.api.field_behavior) = REQUIRED];
 }
 
 // Userspace metadata (namespaces are defined by admin)
 message UserMeta {
   string NodeUuid = 1;
-  string Namespace = 2;
-  string JsonValue = 3;
+  string Namespace = 2 [(google.api.field_behavior) = REQUIRED];
+  string JsonValue = 3 [(google.api.field_behavior) = REQUIRED];
   bool Editable = 4;
 }
 
 message RevisionMeta {
-  string Uuid = 1;
+  string Uuid = 1 [(google.api.field_behavior) = REQUIRED];
   string Description = 2;
 }
 
@@ -134,37 +154,63 @@ message UserMetaList {
   repeated UserMeta UserMeta = 1;
 }
 
+// Node
+//
 // Representation of a file or folder
 message Node {
-
-  string Uuid = 1;
-  string Path = 2;
+  // Unique Identifier
+  string Uuid = 1 [(google.api.field_behavior) = REQUIRED];
+  // Node Path - Always starting with a workspace slug
+  string Path = 2 [(google.api.field_behavior) = REQUIRED];
+  // Whether it's a folder ('COLLECTION') or a file ('LEAF')
   tree.NodeType Type = 3;
+  // Default is read/write, Mode can provide additional restrictions
   Mode Mode = 4;
+  // Known contents size
   int64 Size = 5;
+  // Last modification date
   int64 Modified = 6; // Date instead of TS ?
 
+  // ContentType in the form of application/mime
   string ContentType = 7;
+  // ContentsHash is a server-computed file signature
   string ContentsHash = 8;
+  // HashingMethod refers to the method used for computing ContentsHash
   string HashingMethod = 23;
+  // StorageEtag refers to the storage underlying hash
   string StorageETag = 9;
 
+  // If this node is a RecycleBin folder
   bool IsRecycleBin = 10;
+  // If this node is *inside* a RecycleBin folder
   bool IsRecycled = 11;
+  // This node is bookmarked by the user
   bool IsBookmarked = 12;
+  // Additional information about the current workspace. Only published on the root node of a workspace/cell
   ContextWorkspace ContextWorkspace = 13;
+  // Additional features set at the datasource level
   DataSourceFeatures DataSourceFeatures = 24;
+  // Flag set if a file is manually locked by a user
   LockInfo ContentLock = 14;
 
+  // List of available previews generated server-side
   repeated FilePreview Previews = 16;
+  // List of public links created on this file. Should be one but server supports multiple links
   repeated ShareLink Shares = 17;
+  // All file activities
   repeated activity.Object Activities = 18;
+  // File subscriptions (watches)
   repeated activity.Subscription Subscriptions = 19;
 
+  // Additional metadata extracted by the server if file is an image
   ImageMeta ImageMeta = 25;
+  // Additional metadata attached to a Version node
   RevisionMeta RevisionMeta = 26;
+  // Open map of metadata, values are JSON-encoded
   repeated JsonMeta Metadata = 21;
+  // Open map of integers metadata published on folders
   repeated CountMeta FolderMeta = 15;
+  // User-defined metadata
   repeated UserMeta UserMetadata = 22;
 
 }
@@ -177,22 +223,22 @@ message NodeLocator{
 
 // List of nodes, as returned by list/search operations. Facets and Pagination may be empty
 message NodeCollection {
-  repeated Node Nodes = 1;
+  repeated Node Nodes = 1 [(google.api.field_behavior) = REQUIRED];
   repeated tree.SearchFacet Facets = 3;
   Pagination Pagination = 2;
 }
 
 // Lightweight node representation for creation, exposing a NodeLocator and additional data
 message IncomingNode {
-  NodeLocator Locator = 1;
-  tree.NodeType Type = 2;
+  NodeLocator Locator = 1 [(google.api.field_behavior) = REQUIRED];
+  tree.NodeType Type = 2 [(google.api.field_behavior) = REQUIRED];
   string ContentType = 3;
   string TemplateUuid = 4;
 }
 
 // Request for creating nodes
 message CreateRequest {
-  repeated IncomingNode Inputs = 1;
+  repeated IncomingNode Inputs = 1 [(google.api.field_behavior) = REQUIRED];
   bool Recursive = 2;
 }
 
@@ -240,20 +286,20 @@ message ActionParameters {
 
 // Request used for Actions-related endpoints
 message ActionRequest {
-  UserActionType Name = 1;
+  UserActionType Name = 1 [(google.api.field_behavior) = REQUIRED];
   string JobUuid = 2;
 }
 
 message PerformActionRequest {
-  UserActionType Name = 1;
+  UserActionType Name = 1 [(google.api.field_behavior) = REQUIRED];
   string JobUuid = 2;
   ActionParameters Parameters = 3;
 }
 
 // Send a start/pause/resume on background jobs that support it
 message ControlActionRequest {
-  UserActionType Name = 1;
-  string JobUuid = 2;
+  UserActionType Name = 1 [(google.api.field_behavior) = REQUIRED];
+  string JobUuid = 2 [(google.api.field_behavior) = REQUIRED];
   jobs.CtrlCommand Command = 3;
 }
 
@@ -267,13 +313,13 @@ enum ActionStatus {
 message PerformActionResponse {
   ActionStatus Status = 1;
   repeated Node AffectedNodes = 2;
-  repeated BackgroundAction Tasks = 3;
+  repeated BackgroundAction BackgroundActions = 3;
 }
 
 // Publishes a status about a background action
 message BackgroundAction {
-  string Name = 1;
-  string JobUuid = 2;
+  string Name = 1 [(google.api.field_behavior) = REQUIRED];
+  string JobUuid = 2 [(google.api.field_behavior) = REQUIRED];
   string Label = 3;
 
   jobs.TaskStatus Status = 4;
@@ -295,14 +341,14 @@ message BackgroundAction {
 
 // Request to create a selection from a list of nodes.
 message Selection {
-  string Uuid = 1;
-  repeated Node Nodes = 2;
+  string Uuid = 1 [(google.api.field_behavior) = OUTPUT_ONLY];
+  repeated Node Nodes = 2 [(google.api.field_behavior) = REQUIRED];
 }
 
 // Create or update a public link on a node
 message PublicLinkRequest {
   // Public link definition
-  ShareLink Link = 2;
+  ShareLink Link = 2 [(google.api.field_behavior) = REQUIRED];
   // Whether it has Password enabled
   bool PasswordEnabled = 3;
   // Set if switching from no password to password
@@ -314,18 +360,18 @@ message PublicLinkRequest {
 }
 
 message NodePublicLinkRequest {
-  string Uuid = 1;
+  string Uuid = 1 [(google.api.field_behavior) = REQUIRED];
   PublicLinkRequest PublicLinkRequest = 2;
 }
 
 message UpdatePublicLinkRequest {
-  string LinkUuid = 1;
+  string LinkUuid = 1 [(google.api.field_behavior) = REQUIRED];
   PublicLinkRequest PublicLinkRequest = 2;
 }
 
 // Locate a public link by UUID
 message PublicLinkUuidRequest {
-  string LinkUuid = 1;
+  string LinkUuid = 1 [(google.api.field_behavior) = REQUIRED];
 }
 
 // Response to public link deletion
@@ -340,13 +386,13 @@ message MetaUpdate {
     PUT = 0;
     DELETE = 1;
   }
-  Op Operation = 1;
-  UserMeta UserMeta = 2;
+  Op Operation = 1 [(google.api.field_behavior) = REQUIRED];
+  UserMeta UserMeta = 2 [(google.api.field_behavior) = REQUIRED];
 }
 
 // Boolean value used for special metadata (bookmark,content_lock)
 message MetaToggle {
-  bool Value = 1;
+  bool Value = 1 [(google.api.field_behavior) = REQUIRED];
 }
 
 // Set of updates to apply to metadata
@@ -361,13 +407,13 @@ message NodeUpdates {
 
 // Update a specific node's metadata
 message PatchNodeRequest {
-  string Uuid = 1;
+  string Uuid = 1 [(google.api.field_behavior) = REQUIRED];
   NodeUpdates NodeUpdates = 2;
 }
 
 // Update directly metadata in batch
 message BatchUpdateMetaList {
-  repeated MetaUpdate Updates = 1;
+  repeated MetaUpdate Updates = 1 [(google.api.field_behavior) = REQUIRED];
 }
 
 // Operation on namespaces
@@ -378,14 +424,14 @@ enum NsOp {
 
 // Operations on namespaces that can persist values (typically, tags known values)
 message NamespaceValuesOperation {
-  NsOp Operation = 1;
-  repeated string Values = 2;
+  NsOp Operation = 1 [(google.api.field_behavior) = REQUIRED];
+  repeated string Values = 2 [(google.api.field_behavior) = REQUIRED];
 }
 
 // Request on namespaces values
 message NamespaceValuesRequest{
   // List persisted values for this namespace
-  string Namespace = 1;
+  string Namespace = 1 [(google.api.field_behavior) = REQUIRED];
   NamespaceValuesOperation Operation = 2;
 }
 
@@ -404,6 +450,14 @@ service NodeService {
     option (google.api.http) = {
       post: "/n/nodes"
       body: "*"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      security: {
+        security_requirement: {
+          key: "Bearer"
+          value: {}
+        }
+      }
     };
   }
   // Create one or many files (empty or hydrated from a TemplateUuid) or folders

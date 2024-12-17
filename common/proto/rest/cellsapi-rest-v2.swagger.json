@@ -464,7 +464,7 @@
         "Error",
         "Queued"
       ],
-      "title": "/////////////////\nTASK SERVICE  //\n/////////////////",
+      "title": "Known statuses",
       "type": "string"
     },
     "protobufAny": {
@@ -560,6 +560,10 @@
           "type": "string"
         }
       },
+      "required": [
+        "Name",
+        "JobUuid"
+      ],
       "title": "Publishes a status about a background action",
       "type": "object"
     },
@@ -573,10 +577,14 @@
           "type": "array"
         }
       },
+      "required": [
+        "Updates"
+      ],
       "title": "Update directly metadata in batch",
       "type": "object"
     },
     "restContextWorkspace": {
+      "description": "Current workspace information, maybe published on the root node of a workspace",
       "properties": {
         "Description": {
           "type": "string"
@@ -617,7 +625,11 @@
           "type": "string"
         }
       },
-      "title": "Current workspace information",
+      "required": [
+        "Uuid",
+        "Slug"
+      ],
+      "title": "ContextWorkspace",
       "type": "object"
     },
     "restCountMeta": {
@@ -630,6 +642,10 @@
           "type": "integer"
         }
       },
+      "required": [
+        "Namespace",
+        "Value"
+      ],
       "title": "Open definition for a key/value metadata, value is a number\nUsing int32 to avoid json strings (for int64)",
       "type": "object"
     },
@@ -646,6 +662,9 @@
           "type": "boolean"
         }
       },
+      "required": [
+        "Inputs"
+      ],
       "title": "Request for creating nodes",
       "type": "object"
     },
@@ -745,6 +764,10 @@
           "$ref": "#/definitions/treeNodeType"
         }
       },
+      "required": [
+        "Locator",
+        "Type"
+      ],
       "title": "Lightweight node representation for creation, exposing a NodeLocator and additional data",
       "type": "object"
     },
@@ -757,6 +780,10 @@
           "type": "string"
         }
       },
+      "required": [
+        "Namespace",
+        "Value"
+      ],
       "title": "Open definition for a key/value metadata, value stored in json",
       "type": "object"
     },
@@ -823,6 +850,9 @@
           "type": "boolean"
         }
       },
+      "required": [
+        "Value"
+      ],
       "title": "Boolean value used for special metadata (bookmark,content_lock)",
       "type": "object"
     },
@@ -835,6 +865,10 @@
           "$ref": "#/definitions/restUserMeta"
         }
       },
+      "required": [
+        "Operation",
+        "UserMeta"
+      ],
       "title": "Update operation on Metadata",
       "type": "object"
     },
@@ -861,6 +895,10 @@
           "type": "array"
         }
       },
+      "required": [
+        "Operation",
+        "Values"
+      ],
       "title": "Operations on namespaces that can persist values (typically, tags known values)",
       "type": "object"
     },
@@ -878,49 +916,62 @@
       "type": "object"
     },
     "restNode": {
+      "description": "Representation of a file or folder",
       "properties": {
         "Activities": {
           "items": {
             "$ref": "#/definitions/activityObject",
             "type": "object"
           },
+          "title": "All file activities",
           "type": "array"
         },
         "ContentLock": {
-          "$ref": "#/definitions/restLockInfo"
+          "$ref": "#/definitions/restLockInfo",
+          "title": "Flag set if a file is manually locked by a user"
         },
         "ContentType": {
+          "title": "ContentType in the form of application/mime",
           "type": "string"
         },
         "ContentsHash": {
+          "title": "ContentsHash is a server-computed file signature",
           "type": "string"
         },
         "ContextWorkspace": {
-          "$ref": "#/definitions/restContextWorkspace"
+          "$ref": "#/definitions/restContextWorkspace",
+          "title": "Additional information about the current workspace. Only published on the root node of a workspace/cell"
         },
         "DataSourceFeatures": {
-          "$ref": "#/definitions/restDataSourceFeatures"
+          "$ref": "#/definitions/restDataSourceFeatures",
+          "title": "Additional features set at the datasource level"
         },
         "FolderMeta": {
           "items": {
             "$ref": "#/definitions/restCountMeta",
             "type": "object"
           },
+          "title": "Open map of integers metadata published on folders",
           "type": "array"
         },
         "HashingMethod": {
+          "title": "HashingMethod refers to the method used for computing ContentsHash",
           "type": "string"
         },
         "ImageMeta": {
-          "$ref": "#/definitions/restImageMeta"
+          "$ref": "#/definitions/restImageMeta",
+          "title": "Additional metadata extracted by the server if file is an image"
         },
         "IsBookmarked": {
+          "title": "This node is bookmarked by the user",
           "type": "boolean"
         },
         "IsRecycleBin": {
+          "title": "If this node is a RecycleBin folder",
           "type": "boolean"
         },
         "IsRecycled": {
+          "title": "If this node is *inside* a RecycleBin folder",
           "type": "boolean"
         },
         "Metadata": {
@@ -928,17 +979,21 @@
             "$ref": "#/definitions/restJsonMeta",
             "type": "object"
           },
+          "title": "Open map of metadata, values are JSON-encoded",
           "type": "array"
         },
         "Mode": {
-          "$ref": "#/definitions/restMode"
+          "$ref": "#/definitions/restMode",
+          "title": "Default is read/write, Mode can provide additional restrictions"
         },
         "Modified": {
+          "description": "Date instead of TS ?",
           "format": "int64",
-          "title": "Date instead of TS ?",
+          "title": "Last modification date",
           "type": "string"
         },
         "Path": {
+          "title": "Node Path - Always starting with a workspace slug",
           "type": "string"
         },
         "Previews": {
@@ -946,23 +1001,28 @@
             "$ref": "#/definitions/restFilePreview",
             "type": "object"
           },
+          "title": "List of available previews generated server-side",
           "type": "array"
         },
         "RevisionMeta": {
-          "$ref": "#/definitions/restRevisionMeta"
+          "$ref": "#/definitions/restRevisionMeta",
+          "title": "Additional metadata attached to a Version node"
         },
         "Shares": {
           "items": {
             "$ref": "#/definitions/restShareLink",
             "type": "object"
           },
+          "title": "List of public links created on this file. Should be one but server supports multiple links",
           "type": "array"
         },
         "Size": {
           "format": "int64",
+          "title": "Known contents size",
           "type": "string"
         },
         "StorageETag": {
+          "title": "StorageEtag refers to the storage underlying hash",
           "type": "string"
         },
         "Subscriptions": {
@@ -970,23 +1030,31 @@
             "$ref": "#/definitions/activitySubscription",
             "type": "object"
           },
+          "title": "File subscriptions (watches)",
           "type": "array"
         },
         "Type": {
-          "$ref": "#/definitions/treeNodeType"
+          "$ref": "#/definitions/treeNodeType",
+          "title": "Whether it's a folder ('COLLECTION') or a file ('LEAF')"
         },
         "UserMetadata": {
           "items": {
             "$ref": "#/definitions/restUserMeta",
             "type": "object"
           },
+          "title": "User-defined metadata",
           "type": "array"
         },
         "Uuid": {
+          "title": "Unique Identifier",
           "type": "string"
         }
       },
-      "title": "Representation of a file or folder",
+      "required": [
+        "Uuid",
+        "Path"
+      ],
+      "title": "Node",
       "type": "object"
     },
     "restNodeCollection": {
@@ -1009,6 +1077,9 @@
           "$ref": "#/definitions/restPagination"
         }
       },
+      "required": [
+        "Nodes"
+      ],
       "title": "List of nodes, as returned by list/search operations. Facets and Pagination may be empty",
       "type": "object"
     },
@@ -1117,15 +1188,15 @@
           },
           "type": "array"
         },
-        "Status": {
-          "$ref": "#/definitions/restActionStatus"
-        },
-        "Tasks": {
+        "BackgroundActions": {
           "items": {
             "$ref": "#/definitions/restBackgroundAction",
             "type": "object"
           },
           "type": "array"
+        },
+        "Status": {
+          "$ref": "#/definitions/restActionStatus"
         }
       },
       "title": "Response to an action triggered",
@@ -1166,6 +1237,9 @@
           "type": "string"
         }
       },
+      "required": [
+        "Link"
+      ],
       "title": "Create or update a public link on a node",
       "type": "object"
     },
@@ -1178,6 +1252,9 @@
           "type": "string"
         }
       },
+      "required": [
+        "Uuid"
+      ],
       "type": "object"
     },
     "restSelection": {
@@ -1191,9 +1268,13 @@
           "type": "array"
         },
         "Uuid": {
+          "readOnly": true,
           "type": "string"
         }
       },
+      "required": [
+        "Nodes"
+      ],
       "type": "object"
     },
     "restShareLink": {
@@ -1394,6 +1475,10 @@
           "type": "string"
         }
       },
+      "required": [
+        "Namespace",
+        "JsonValue"
+      ],
       "title": "Userspace metadata (namespaces are defined by admin)",
       "type": "object"
     },
@@ -2361,7 +2446,7 @@
             ],
             "in": "query",
             "name": "Operation.Operation",
-            "required": false,
+            "required": true,
             "type": "string"
           },
           {
@@ -2371,7 +2456,7 @@
               "type": "string"
             },
             "name": "Operation.Values",
-            "required": false,
+            "required": true,
             "type": "array"
           }
         ],
@@ -2736,6 +2821,11 @@
             }
           }
         },
+        "security": [
+          {
+            "Bearer": []
+          }
+        ],
         "summary": "Generic request to either list (using Locators) or search (using Query) for nodes",
         "tags": [
           "NodeService"
@@ -2952,6 +3042,19 @@
     "https",
     "wss"
   ],
+  "security": [
+    {
+      "Bearer": []
+    }
+  ],
+  "securityDefinitions": {
+    "Bearer": {
+      "description": "Expected value is 'Bearer {TOKEN}'",
+      "in": "header",
+      "name": "Authorization",
+      "type": "apiKey"
+    }
+  },
   "swagger": "2.0",
   "tags": [
     {

@@ -1,7 +1,7 @@
 #!/bin/bash
 
 #
-# Copyright (c) 2019-2021. Abstrium SAS <team (at) pydio.com>
+# Copyright (c) 2024. Abstrium SAS <team (at) pydio.com>
 # This file is part of Pydio Cells.
 #
 # Pydio Cells is free software: you can redistribute it and/or modify
@@ -19,23 +19,43 @@
 #
 # The latest code can be found at <https://pydio.com>.
 #
+if [[ -n "${GENERATE_SDKS_V2}" ]]; then
+  echo "Generate TS version with fetch"
 
-[ -z "$BRANCH_PATH" ] && BRANCH_PATH=$GOPATH
-[ -z "$MODULE_SRC_PATH" ] && MODULE_SRC_PATH=~/Sources/cells-sdk-js/src
+  openapi-generator generate -i ./cellsapi-rest-v2.swagger.json -g typescript-fetch -o $GENERATE_SDKS_V2/cells-sdk-ts/fetch
 
-echo "Generate YAML v3 version"
+  echo "Generate TS version with axios"
 
-openapi-generator generate -i ./cellsapi-rest-v2.swagger.json -g openapi-yaml -o .
+  openapi-generator generate -i ./cellsapi-rest-v2.swagger.json -g typescript-axios -c swagger-ts-axios.json -o $GENERATE_SDKS_V2/cells-sdk-ts/axios
 
-echo "Generating Javascript client"
-exit
-openapi-generator generate -i $BRANCH_PATH/src/github.com/pydio/cells/common/proto/rest/cellsapi-rest.swagger.json -g javascript -c swagger-jsclient.json -o /tmp/js-client
-rm -rf $MODULE_SRC_PATH
-mv /tmp/js-client/src $MODULE_SRC_PATH
+  echo "Generate Swift version"
 
-echo "GIT: Revert cyclic models and add new ones"
+  openapi-generator generate -i ./cellsapi-rest-v2.swagger.json -g swift6 -c swagger-swift.json -o $GENERATE_SDKS_V2/cells-sdk-swift
+else
 
-cd $MODULE_SRC_PATH
-git checkout -- model/ProtobufAny.js
-git add .
-cd -
+  echo "Skipping SDK v2 generation - Use GENERATE_SDKS_V2 flag to generate TS and Swift"
+
+fi;
+
+
+if [[ -n "${GENERATE_SDKS_V1}" ]]; then
+
+  echo "Generate Javascript version"
+  [ -z "$BRANCH_PATH" ] && BRANCH_PATH=$GOPATH
+  [ -z "$MODULE_SRC_PATH" ] && MODULE_SRC_PATH=~/Sources/cells-sdk-js/src
+
+  openapi-generator generate -i $BRANCH_PATH/src/github.com/pydio/cells/common/proto/rest/cellsapi-rest.swagger.json -g javascript -c swagger-jsclient.json -o /tmp/js-client
+  rm -rf $MODULE_SRC_PATH
+  mv /tmp/js-client/src $MODULE_SRC_PATH
+
+  echo "GIT: Revert cyclic models and add new ones"
+
+  cd $MODULE_SRC_PATH || exit
+  git checkout -- model/ProtobufAny.js
+  git add .
+  cd -  || exit
+else
+
+  echo "Skipping SDK v1 generation - Use GENERATE_SDKS_V1 flag to generate v1 Javascript client"
+
+fi;

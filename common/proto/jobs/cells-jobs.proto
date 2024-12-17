@@ -526,6 +526,8 @@ service JobService {
 ///////////////////
 // TASK SERVICE  //
 ///////////////////
+
+// Known statuses
 enum TaskStatus {
     Unknown     = 0;
     Idle        = 1;

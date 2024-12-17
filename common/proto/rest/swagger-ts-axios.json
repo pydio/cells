@@ -1,0 +1,7 @@
+{
+  "withInterfaces": true,
+  "withSeparateModelsAndApi":true,
+  "apiPackage": "api",
+  "modelPackage": "models",
+  "license": "Apache-2.0"
+}

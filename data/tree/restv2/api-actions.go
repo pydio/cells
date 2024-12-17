@@ -167,15 +167,15 @@ func (h *Handler) PerformAction(req *restful.Request, resp *restful.Response) er
 			return errors.WithMessage(errors.StatusRequestTimeout, "could not receive a task status in the requested time frame")
 		}
 		return resp.WriteEntity(&rest.PerformActionResponse{
-			Status: rest.ActionStatus_Performed,
-			Tasks:  bb,
+			Status:            rest.ActionStatus_Performed,
+			BackgroundActions: bb,
 		})
 	} else {
 		ar := &rest.PerformActionResponse{
 			Status: rest.ActionStatus_Background,
 		}
 		for _, j := range jj {
-			ar.Tasks = append(ar.Tasks, &rest.BackgroundAction{
+			ar.BackgroundActions = append(ar.BackgroundActions, &rest.BackgroundAction{
 				JobUuid: j.GetID(),
 				Label:   j.GetLabel(),
 				Status:  jobs.TaskStatus_Unknown,

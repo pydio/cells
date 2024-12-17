@@ -3268,7 +3268,7 @@
         "Error",
         "Queued"
       ],
-      "title": "/////////////////\nTASK SERVICE  //\n/////////////////",
+      "title": "Known statuses",
       "type": "string"
     },
     "jobsTriggerFilter": {
