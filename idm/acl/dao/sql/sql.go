@@ -23,6 +23,7 @@ package sql
 import (
 	"context"
 	"fmt"
+	"strings"
 	"sync"
 	"time"
 
@@ -347,7 +348,11 @@ func (c *queryConverter) Convert(ctx context.Context, val *anypb.Any, db *gorm.D
 					tx = tx.Or(tx1.Where("action_name=?", actName).Where("action_value IN ?", actValues))
 				}
 			} else {
-				tx = tx.Or("action_name=?", actName)
+				if strings.Contains(actName, "*") {
+					tx = tx.Or("action_name LIKE ?", strings.ReplaceAll(actName, "*", "%"))
+				} else {
+					tx = tx.Or("action_name=?", actName)
+				}
 			}
 			count++
 		}

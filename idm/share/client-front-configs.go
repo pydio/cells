@@ -152,7 +152,9 @@ func (sc *Client) aclParams(ctx context.Context) (configx.Values, error) {
 	if e != nil {
 		return nil, e
 	}
-	permissions.AccessListLoadFrontValues(ctx, acl)
+	if er := permissions.AccessListLoadFrontValues(ctx, acl); er != nil {
+		return nil, er
+	}
 	return acl.FlattenedFrontValues().Val("parameters", "action.share"), nil
 }
 
