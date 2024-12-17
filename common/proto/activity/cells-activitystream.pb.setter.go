@@ -58,7 +58,6 @@ type ObjectGetter interface {
 	GetName() string
 	GetSummary() string
 	GetMarkdown() string
-	GetContext() *Object
 	GetAttachment() *Object
 	GetAttributedTo() *Object
 	GetAudience() *Object
@@ -123,7 +122,6 @@ type ObjectSetter interface {
 	SetName(string)
 	SetSummary(string)
 	SetMarkdown(string)
-	SetContext(*Object)
 	SetAttachment(*Object)
 	SetAttributedTo(*Object)
 	SetAudience(*Object)
@@ -222,13 +220,6 @@ func (x *Object) SetMarkdown(v string) {
 	}
 
 	x.Markdown = v
-}
-func (x *Object) SetContext(v *Object) {
-	if x == nil {
-		x = new(Object)
-	}
-
-	x.Context = v
 }
 func (x *Object) SetAttachment(v *Object) {
 	if x == nil {

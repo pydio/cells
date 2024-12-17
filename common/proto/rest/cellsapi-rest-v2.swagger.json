@@ -57,9 +57,6 @@
         "content": {
           "$ref": "#/definitions/activityObject"
         },
-        "context": {
-          "$ref": "#/definitions/activityObject"
-        },
         "current": {
           "$ref": "#/definitions/activityObject"
         },
@@ -134,6 +131,7 @@
           "type": "number"
         },
         "markdown": {
+          "title": "Object objectContext = 5;",
           "type": "string"
         },
         "mediaType": {

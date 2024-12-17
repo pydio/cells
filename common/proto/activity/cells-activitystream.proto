@@ -92,7 +92,7 @@ message Object{
     string name = 3;
     string summary = 4;
     string markdown = 62;
-    Object context = 5;
+//    Object objectContext = 5;
 
     Object attachment = 6;
     Object attributedTo = 7;
