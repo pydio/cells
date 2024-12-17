@@ -525,11 +525,11 @@ func (h *PublicHandler) loadLink(ctx context.Context, linkUuid string) (*docstor
 
 	resp, e := docstorec.DocStoreClient(ctx).GetDocument(ctx, &docstore.GetDocumentRequest{DocumentID: linkUuid, StoreID: common.DocStoreIdShares})
 	if e != nil {
-		return nil, fmt.Errorf("cannot find document")
+		return nil, e
 	}
 	linkDoc := resp.Document
 	if linkDoc == nil {
-		return nil, fmt.Errorf("cannot find document")
+		return nil, errors.WithStack(errors.DocStoreDocNotFound)
 	}
 	var linkData *docstore.ShareDocument
 

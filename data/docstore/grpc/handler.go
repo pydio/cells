@@ -22,10 +22,10 @@ package grpc
 
 import (
 	"context"
-	"fmt"
 
 	"go.uber.org/zap"
 
+	"github.com/pydio/cells/v5/common/errors"
 	proto "github.com/pydio/cells/v5/common/proto/docstore"
 	"github.com/pydio/cells/v5/common/proto/sync"
 	"github.com/pydio/cells/v5/common/runtime/manager"
@@ -62,7 +62,7 @@ func (h *Handler) GetDocument(ctx context.Context, request *proto.GetDocumentReq
 	log.Logger(ctx).Debug("GetDocument", zap.String("store", request.StoreID), zap.String("docId", request.DocumentID))
 	doc, e := dao.GetDocument(ctx, request.StoreID, request.DocumentID)
 	if e != nil {
-		return nil, fmt.Errorf("document not found")
+		return nil, errors.WithStack(errors.DocStoreDocNotFound)
 	}
 	return &proto.GetDocumentResponse{Document: doc}, nil
 }
@@ -107,7 +107,7 @@ func (h *Handler) CountDocuments(ctx context.Context, request *proto.ListDocumen
 	}
 
 	if request.Query == nil || request.Query.MetaQuery == "" {
-		return nil, fmt.Errorf("Please provide at least a meta query")
+		return nil, errors.WithMessage(errors.StatusBadRequest, "Please provide at least a meta query")
 	}
 	total, err := dao.CountDocuments(ctx, request.StoreID, request.Query)
 	if err != nil {
