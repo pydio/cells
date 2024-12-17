@@ -180,11 +180,11 @@ func (s *sqlimpl) StorePolicyGroup(ctx context.Context, group *idm.PolicyGroup) 
 
 	if storeGroup.GetUuid() == "" {
 		storeGroup.Uuid = uuid.New()
-	} else {
+	} /*else {
 		if err := s.DeletePolicyGroup(ctx, storeGroup); err != nil {
 			return nil, err
 		}
-	}
+	}*/
 
 	for _, p := range storeGroup.Policies {
 		for _, template := range p.GetActions() {

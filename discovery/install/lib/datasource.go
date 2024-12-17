@@ -163,15 +163,18 @@ func actionDatasourceAdd(ctx context.Context, c *install.InstallConfig) error {
 		}
 	}
 
-	// For S3 Case, technical buckets are generally custom ones
+	binariesBucket := "binaries"
 	if conf.StorageType == object.StorageType_S3 {
-		if er := config.Set(ctx, c.GetDsS3BucketBinaries(), "services", "pydio.docstore-binaries", "bucket"); er != nil {
-			return er
-		}
-		if er := config.Set(ctx, c.GetDsS3BucketThumbs(), "services", "pydio.thumbs_store", "bucket"); er != nil {
-			return er
-		}
+		binariesBucket = c.GetDsS3BucketBinaries()
 	}
+	bStoreConf := map[string]string{
+		"datasource": "default",
+		"bucket":     binariesBucket,
+	}
+	if er := config.Set(ctx, bStoreConf, "services", "pydio.docstore-binaries"); er != nil {
+		return er
+	}
+
 	vStoreConf := map[string]string{
 		"datasource": "versions",
 		"bucket":     s3buckets["versions"],

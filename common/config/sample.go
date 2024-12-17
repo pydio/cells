@@ -42,14 +42,6 @@ var SampleConfig = `{
 			  {
 				"Effect": 1,
 				"Matcher": "*"
-			  },
-			  {
-				"Effect": 0,
-				"Matcher": "io"
-			  },
-			  {
-				"Effect": 0,
-				"Matcher": "data"
 			  }
 			],
 			"TLSConfig": {

@@ -39,3 +39,5 @@ frontend/front-srv/*
 /common/proto/rest/.openapi-generator/FILES
 /common/proto/rest/.openapi-generator/VERSION
 /common/proto/rest/openapi/openapi.yaml
+
+install.yaml
