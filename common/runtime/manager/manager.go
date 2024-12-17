@@ -1555,9 +1555,8 @@ func (m *manager) serviceServeOptions(svc service.Service) []server.ServeOption 
 			return svc.Start(registry.WithContextR(m.ctx))
 		}),
 		server.WithAfterServe(func(...registry.RegisterOption) error {
-			return runtime.MultiContextManager().Iterate(m.ctx, func(ctx context.Context, name string) error {
+			return runtime.MultiContextManager().Iterate(svc.Options().RuntimeContext(), func(ctx context.Context, name string) error {
 				ctx = propagator.With(ctx, service.ContextKey, svc)
-
 				if err := service.UpdateServiceVersion(ctx, svc.Options()); err != nil {
 					fmt.Println("I have an error here ", err)
 				}

@@ -28,7 +28,7 @@ servers:
 
 queues:
   debouncer:
-    uri: "mem://?debounce={{ .debounce }}&idle={{ .idle }} }&max={{ .max }}&openerID={{ .openerID }}"
+    uri: "mem://?debounce={{ .debounce }}&idle={{ .idle }}&max={{ .max }}&openerID={{ .openerID }}"
   persisted:
     uri: "fifo://{{ autoMkdir ( serviceDataDir .Service ) }}?name={{ .name }}&prefix={{ .prefix }}"
 

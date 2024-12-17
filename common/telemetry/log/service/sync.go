@@ -24,6 +24,7 @@ import (
 	"context"
 	"fmt"
 	"net/url"
+	"sync"
 	"sync/atomic"
 	"time"
 
@@ -49,12 +50,23 @@ func (o *opener) OpenSync(ctx context.Context, u *url.URL) (log2.WriteSyncerClos
 
 func init() {
 	log2.DefaultURLMux().RegisterSync("service", &opener{})
+	sBufLoc = &sync.Mutex{}
 }
 
+type buffered struct {
+	serviceName string
+	*log.Log
+}
+
+var (
+	servicesBuf []*buffered
+	sBufLoc     *sync.Mutex
+)
+
 type LogSyncer struct {
-	serverServiceName string
-	ctx               context.Context
-	cli               log.LogRecorder_PutLogClient
+	serviceName string
+	ctx         context.Context
+	cli         log.LogRecorder_PutLogClient
 
 	logSyncerMessages chan *log.Log
 	buf               []*log.Log
@@ -64,10 +76,21 @@ type LogSyncer struct {
 
 func NewLogSyncer(ctx context.Context, serviceName string) *LogSyncer {
 	syncer := &LogSyncer{
-		serverServiceName: serviceName,
+		serviceName:       serviceName,
 		ctx:               ctx,
 		logSyncerMessages: make(chan *log.Log, 100),
 	}
+	var cleared []*buffered
+	for _, pending := range servicesBuf {
+		if pending.serviceName == serviceName {
+			syncer.buf = append(syncer.buf, pending.Log)
+		} else {
+			cleared = append(cleared, pending)
+		}
+	}
+	sBufLoc.Lock()
+	servicesBuf = cleared
+	sBufLoc.Unlock()
 
 	go syncer.logSyncerWatch()
 	go syncer.logSyncerClientReconnect()
@@ -82,12 +105,12 @@ func (syncer *LogSyncer) logSyncerClientReconnect() {
 
 	atomic.StoreInt32(&syncer.reconnecting, 1)
 
-	conn := grpc.ResolveConn(syncer.ctx, syncer.serverServiceName)
+	conn := grpc.ResolveConn(syncer.ctx, syncer.serviceName)
 	if conn == nil {
 		return
 	}
 
-	c := log.NewLogRecorderClient(grpc.ResolveConn(syncer.ctx, syncer.serverServiceName))
+	c := log.NewLogRecorderClient(grpc.ResolveConn(syncer.ctx, syncer.serviceName))
 
 	cli, err := c.PutLog(syncer.ctx)
 	if err != nil {
@@ -147,16 +170,18 @@ func (syncer *LogSyncer) Close() error {
 // Write implements the io.Writer interface to be used as a Syncer by zap logging.
 // We must copy the []byte as a underlying buffer can mess up things if logs are called very quickly.
 func (syncer *LogSyncer) Write(p []byte) (n int, err error) {
-	if syncer.closed {
-		return 0, fmt.Errorf("log syncer is closed")
-	}
 	clone := make([]byte, len(p))
 	written := copy(clone, p)
-	select {
-	case syncer.logSyncerMessages <- &log.Log{
+	l := &log.Log{
 		Nano:    int32(time.Now().Nanosecond()),
 		Message: clone,
-	}:
+	}
+	if syncer.closed {
+		servicesBuf = append(servicesBuf, &buffered{serviceName: syncer.serviceName, Log: l})
+		return written, nil
+	}
+	select {
+	case syncer.logSyncerMessages <- l:
 	default:
 	}
 	return written, nil

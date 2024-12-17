@@ -540,17 +540,14 @@ func SearchUniqueWorkspace(ctx context.Context, wsUuid string, wsSlug string, qu
 		requests = append(requests, pq)
 	}
 	st, e := wsCli.SearchWorkspace(ctx, &idm.SearchWorkspaceRequest{Query: &service.Query{SubQueries: requests, Limit: 1}})
+	resp, ok, e := commons.MustStreamOne(st, e)
 	if e != nil {
 		return nil, e
-	}
-	resp, e := st.Recv()
-	if errors.IsStreamFinished(e) {
+	} else if ok {
+		return resp.GetWorkspace(), nil
+	} else {
 		return nil, errors.WithMessage(errors.WorkspaceNotFound, "cannot find workspace with these queries")
-	} else if e != nil {
-		return nil, e
 	}
-	return resp.GetWorkspace(), nil
-
 }
 
 // IsUserLocked checks if the passed user has a logout attribute defined.

@@ -97,6 +97,14 @@ func (o *ServiceOptions) RootContext() context.Context {
 	return o.rootContext
 }
 
+// RuntimeContext returns runtime context or root context
+func (o *ServiceOptions) RuntimeContext() context.Context {
+	if o.runtimeCtx == nil {
+		return o.rootContext
+	}
+	return o.runtimeCtx
+}
+
 // Logger returns a local logger
 func (o *ServiceOptions) Logger() log.ZapLogger {
 	if o.localLogger == nil {
