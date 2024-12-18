@@ -534,7 +534,7 @@ func (dao *gormImpl[T]) GetNodeChildrenCounts(ctx context.Context, mPath *tree.M
 // GetNodeChildrenSize List
 func (dao *gormImpl[T]) GetNodeChildrenSize(ctx context.Context, mPath *tree.MPath) (int, error) {
 
-	var sum int
+	var sum *int
 
 	node := dao.factory.Struct()
 
@@ -549,12 +549,14 @@ func (dao *gormImpl[T]) GetNodeChildrenSize(ctx context.Context, mPath *tree.MPa
 	if tx.Error != nil {
 		return 0, tx.Error
 	}
-
-	return sum, nil
+	if sum == nil {
+		return 0, nil
+	} else {
+		return *sum, nil
+	}
 }
 
 // GetNodeChildren List
-// TODO - FILTER
 func (dao *gormImpl[T]) GetNodeChildren(ctx context.Context, mPath *tree.MPath, filter ...*tree.MetaFilter) chan interface{} {
 	c := make(chan interface{})
 
@@ -575,8 +577,20 @@ func (dao *gormImpl[T]) GetNodeChildren(ctx context.Context, mPath *tree.MPath, 
 
 		queryDB := tx.Session(&gorm.Session{})
 
+		var sortingSet bool
+		if len(filter) > 0 && filter[0].HasSQLFilters() {
+			f := filter[0]
+			sortingSet = f.HasSort()
+			builder := &filterBuilder{tx: queryDB}
+			f.Build(builder)
+			queryDB = builder.tx
+		}
+		if !sortingSet {
+			queryDB = queryDB.Order("name")
+		}
+
 		for {
-			result := queryDB.Order("name").Limit(batchSize).Offset(int(rowsAffected)).Find(&nodes)
+			result := queryDB.Limit(batchSize).Offset(int(rowsAffected)).Find(&nodes)
 			rowsAffected += result.RowsAffected
 			batch++
 
@@ -643,26 +657,16 @@ func (dao *gormImpl[T]) GetNodeTree(ctx context.Context, mPath *tree.MPath, filt
 		sortSet := false
 		helper := tx.Dialector.(storagesql.Helper)
 
-		if len(filter) > 0 {
-			mfWhere, mfArgs := filter[0].Where()
-
-			if mfWhere != "" {
-				tx = tx.Where(mfWhere, mfArgs)
-			}
-
-			if filter[0].HasSort() {
-				sField, sDir := filter[0].OrderBy()
-				if sField == tree.MetaSortMPath {
-					sField = helper.MPathOrdering(strings.Split(tree.MetaSortMPath, ",")...)
-				}
-				tx = tx.Order(sField + " " + sDir)
-				sortSet = true
-			}
+		if len(filter) > 0 && filter[0].HasSQLFilters() {
+			f := filter[0]
+			sortSet = f.HasSort()
+			builder := &filterBuilder{tx: tx}
+			f.Build(builder)
+			tx = builder.tx
 		}
 
 		if !sortSet {
-			sorting := helper.MPathOrdering(strings.Split(tree.MetaSortMPath, ",")...)
-			tx = tx.Order(sorting)
+			tx = tx.Order(helper.MPathOrdering(strings.Split(tree.MetaSortMPath, ",")...))
 		}
 
 		for {
@@ -1226,4 +1230,28 @@ func getPathParts(strpath string) (path []string) {
 	}
 
 	return
+}
+
+type filterBuilder struct {
+	tx *gorm.DB
+}
+
+func (f *filterBuilder) And(query interface{}, args ...interface{}) {
+	f.tx = f.tx.Where(query, args...)
+}
+
+func (f *filterBuilder) OrderBy(sField string, sDir string) {
+	if sField == tree.MetaSortMPath {
+		helper := f.tx.Dialector.(storagesql.Helper)
+		sField = helper.MPathOrdering(strings.Split(tree.MetaSortMPath, ",")...)
+	}
+	f.tx = f.tx.Order(sField + " " + strings.ToLower(sDir))
+}
+
+func (f *filterBuilder) Ors(queries []string, args []interface{}) interface{} {
+	q := f.tx.Session(&gorm.Session{NewDB: true})
+	for idx, query := range queries {
+		q = q.Or(query, args[idx])
+	}
+	return q
 }

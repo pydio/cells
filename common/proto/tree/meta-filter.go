@@ -79,6 +79,16 @@ type MetaFilter struct {
 	sortDesc  bool
 }
 
+// FilterBuilder interfaces a DB clause builder
+type FilterBuilder interface {
+	// And appends an AND query
+	And(query interface{}, args ...interface{})
+	// OrderBy appends an ORDER BY instruction
+	OrderBy(fieldName string, dir string)
+	// Ors creates a combined query of ORS
+	Ors(queries []string, args []interface{}) interface{}
+}
+
 // NewMetaFilter creates a meta filter looking for request node metadata specific keys.
 func NewMetaFilter(node *Node) *MetaFilter {
 	return &MetaFilter{reqNode: node}
@@ -118,6 +128,50 @@ func (m *MetaFilter) LimitDepth() int {
 		return d
 	}
 	return 0
+}
+
+// Build uses appends all clauses to a FilterBuilder
+func (m *MetaFilter) Build(builder FilterBuilder) {
+
+	if m.grep != nil && !m.forceGrep {
+		m.grepToLikes("name", m.reqNode.GetStringMeta(MetaFilterGrep), false, builder)
+	}
+	if m.negativeGrep != nil {
+		m.grepToLikes("name", m.reqNode.GetStringMeta(MetaFilterNoGrep), true, builder)
+	}
+	if m.eTag != nil {
+		m.grepToLikes("etag", m.reqNode.GetStringMeta(MetaFilterETag), false, builder)
+	}
+	if m.filterType != NodeType_UNKNOWN {
+		if m.filterType == NodeType_LEAF {
+			builder.And("leaf = ?", 1)
+		} else {
+			builder.And("leaf = ?", 2)
+		}
+	}
+	for _, c := range m.intComps {
+		field := c.field
+		if c.field == MetaFilterTime {
+			field = "mtime"
+		}
+		comp := c.dir
+		if c.eq {
+			comp += "="
+		}
+		builder.And(field+" "+comp+" ?", c.val)
+	}
+	// Add orderBy
+	dir := "ASC"
+	if m.sortDesc {
+		dir = "DESC"
+	}
+	if m.sortField == MetaSortNameCI {
+		builder.OrderBy("LOWER(name)", dir)
+	} else {
+		builder.OrderBy(m.sortField, dir)
+	}
+	return
+
 }
 
 // HasSQLFilters returns true if MetaFilter has one of grep (unless forced), negativeGrep, filterType or int comparators set.
@@ -199,47 +253,6 @@ func (m *MetaFilter) Match(name string, n *Node) bool {
 	return true
 }
 
-// Where transforms registered conditions into a set of SQL statement (joined by AND).
-func (m *MetaFilter) Where() (where string, args []interface{}) {
-	var ww []string
-	if m.grep != nil && !m.forceGrep {
-		pp, aa := m.grepToLikes("name", m.reqNode.GetStringMeta(MetaFilterGrep), false)
-		ww = append(ww, pp)
-		args = append(args, aa...)
-	}
-	if m.negativeGrep != nil {
-		pp, aa := m.grepToLikes("name", m.reqNode.GetStringMeta(MetaFilterNoGrep), true)
-		ww = append(ww, pp)
-		args = append(args, aa...)
-	}
-	if m.eTag != nil {
-		pp, aa := m.grepToLikes("etag", m.reqNode.GetStringMeta(MetaFilterETag), false)
-		ww = append(ww, pp)
-		args = append(args, aa...)
-	}
-	if m.filterType != NodeType_UNKNOWN {
-		ww = append(ww, "leaf = ?")
-		if m.filterType == NodeType_LEAF {
-			args = append(args, 1)
-		} else {
-			args = append(args, 2)
-		}
-	}
-	for _, c := range m.intComps {
-		field := c.field
-		if c.field == MetaFilterTime {
-			field = "mtime"
-		}
-		comp := c.dir
-		if c.eq {
-			comp += "="
-		}
-		ww = append(ww, field+" "+comp+" ?")
-		args = append(args, c.val)
-	}
-	return strings.Join(ww, " and "), args
-}
-
 // AddSort adds a sort instruction
 func (m *MetaFilter) AddSort(defaultField, sortField string, sortDesc bool) {
 	var filtered []string
@@ -265,20 +278,7 @@ func (m *MetaFilter) HasSort() bool {
 	return m.sortField != ""
 }
 
-// OrderBy creates SQL instruction to be appended
-func (m *MetaFilter) OrderBy() (string, string) {
-	dir := "ASC"
-	if m.sortDesc {
-		dir = "DESC"
-	}
-	if m.sortField == MetaSortNameCI {
-		return "LOWER(name)", dir
-	} else {
-		return m.sortField, dir
-	}
-}
-
-func (m *MetaFilter) grepToLikes(field, g string, neg bool) (string, []interface{}) {
+func (m *MetaFilter) grepToLikes(field, g string, neg bool, builder FilterBuilder) {
 	var parts []string
 	var arguments []interface{}
 	not := ""
@@ -290,9 +290,13 @@ func (m *MetaFilter) grepToLikes(field, g string, neg bool) (string, []interface
 		arguments = append(arguments, m.grepToLike(p))
 	}
 	if len(parts) > 1 {
-		return "(" + strings.Join(parts, " OR ") + ")", arguments
+		if builder != nil {
+			builder.And(builder.Ors(parts, arguments))
+		}
 	} else {
-		return parts[0], arguments
+		if builder != nil {
+			builder.And(parts[0], arguments...)
+		}
 	}
 }
 
