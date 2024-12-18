@@ -161,8 +161,12 @@ func (m *MetaFilter) Build(builder FilterBuilder) {
 		builder.And(field+" "+comp+" ?", c.val)
 	}
 	// Add orderBy
+	sortDesc := m.sortDesc
+	if m.sortField == MetaSortType { // Switch for backward compat on "leaf" : v4 was 0/1, v5 is 1/2
+		sortDesc = !sortDesc
+	}
 	dir := "ASC"
-	if m.sortDesc {
+	if sortDesc {
 		dir = "DESC"
 	}
 	if m.sortField == MetaSortNameCI {

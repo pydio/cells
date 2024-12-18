@@ -177,14 +177,15 @@ func (h *Handler) RestoreNodes(req *restful.Request, resp *restful.Response) err
 		pp = append(pp, n.GetPath())
 	}
 
-	jj, er := userspace.RestoreTask(ctx, router, pp, languages...)
+	jj, nn, er := userspace.RestoreTask(ctx, router, pp, languages...)
 	if er != nil {
 		return errors.Tag(er, errors.StatusInternalServerError)
 	}
-	for _, j := range jj {
+	for idx, j := range jj {
 		output.RestoreJobs = append(output.RestoreJobs, &rest.BackgroundJobResult{
-			Uuid:  j.GetID(),
-			Label: j.GetLabel(),
+			Uuid:     j.GetID(),
+			Label:    j.GetLabel(),
+			NodeUuid: nn[idx].GetUuid(),
 		})
 	}
 	return resp.WriteEntity(output)

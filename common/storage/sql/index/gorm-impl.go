@@ -108,6 +108,10 @@ func (dao *gormImpl[T]) Migrate(ctx context.Context) error {
 	if er := db.AutoMigrate(t); er != nil {
 		return er
 	}
+	// This is a migration for backward compat with v4
+	if tx := db.Model(t).Where("leaf = ?", 0).UpdateColumn("leaf", 2); tx.Error != nil {
+		return tx.Error
+	}
 
 	if db.Name() == storagesql.MySQLDriver {
 		tName := storagesql.TableNameFromModel(db, t)

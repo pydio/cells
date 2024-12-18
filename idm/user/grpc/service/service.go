@@ -24,6 +24,7 @@ package service
 import (
 	"context"
 
+	version "github.com/hashicorp/go-version"
 	"google.golang.org/grpc"
 
 	"github.com/pydio/cells/v5/common"
@@ -44,6 +45,7 @@ const (
 func init() {
 
 	runtime.Register("main", func(ctx context.Context) {
+		v490, _ := version.NewVersion("4.9.0")
 		service.NewService(
 			service.Name(Name),
 			service.Context(ctx),
@@ -58,6 +60,10 @@ func init() {
 					TargetVersion: service.FirstRun(),
 					//TargetVersion: service.Latest(),
 					Up: grpc2.InitDefaults,
+				},
+				{
+					TargetVersion: v490,
+					Up:            manager.StorageMigration(), // Trigger Migration
 				},
 			}),
 			service.WithStorageDrivers(user.Drivers...),

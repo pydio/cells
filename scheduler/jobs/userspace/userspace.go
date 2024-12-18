@@ -813,9 +813,10 @@ func disallowTemplate(params map[string]string) error {
 	return nil
 }
 
-func RestoreTask(ctx context.Context, router nodes.Client, paths []string, languages ...string) ([]*jobs.Job, error) {
+func RestoreTask(ctx context.Context, router nodes.Client, paths []string, languages ...string) ([]*jobs.Job, []*tree.Node, error) {
 	paths = std.Unique(paths)
 	var jj []*jobs.Job
+	var nn []*tree.Node
 
 	username, _ := permissions.FindUserNameInContext(ctx)
 	T := lang.Bundle().T(languages...)
@@ -836,6 +837,7 @@ func RestoreTask(ctx context.Context, router nodes.Client, paths []string, langu
 			if er != nil {
 				return er
 			}
+			nn = append(nn, r.GetNode())
 			currentFullPath := filtered.Path
 			originalFullPath := r.GetNode().GetStringMeta(common.MetaNamespaceRecycleRestore)
 			if originalFullPath == "" {
@@ -902,9 +904,9 @@ func RestoreTask(ctx context.Context, router nodes.Client, paths []string, langu
 	})
 
 	if e != nil {
-		return nil, e
+		return nil, nil, e
 	} else {
-		return jj, nil
+		return jj, nn, nil
 	}
 
 }

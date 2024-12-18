@@ -135,7 +135,7 @@ func (h *Handler) PerformAction(req *restful.Request, resp *restful.Response) er
 		if len(inPaths) == 0 {
 			return errors.WithMessage(errors.StatusBadRequest, "invalid action parameters")
 		}
-		resJobs, er := userspace.RestoreTask(ctx, router, inPaths, ll...)
+		resJobs, _, er := userspace.RestoreTask(ctx, router, inPaths, ll...)
 		if er != nil {
 			return errors.Tag(er, errors.StatusInternalServerError)
 		}
