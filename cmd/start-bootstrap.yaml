@@ -63,8 +63,8 @@ services: &services
   pydio.grpc.search:
     storages:
       main:
-        - type: index
-          file: searchengine
+        - type: bleve
+          file: search.bleve?mapping=node&rotationSize=-1
   pydio.grpc.chat:
     storages:
       main:
