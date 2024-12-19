@@ -239,7 +239,9 @@ func (g *gatewayDataServer) Init(ctx context.Context, mux routing.RouteRegistrar
 	// Wrap to patch list bucket request
 	handler := http.HandlerFunc(func(writer http.ResponseWriter, request *http.Request) {
 		patchListBucketRequest(request)
-		router.ServeHTTP(writer, request)
+		// Underlying Gateway middlewares expect the ResponseWriter to be http.Flusher
+		// Make sure it conforms to this interface
+		router.ServeHTTP(&flusher{ResponseWriter: writer}, request)
 	})
 	mux.Route(BucketIO).Handle("/", handler)
 	mux.Route(BucketData).Handle("/", handler)
@@ -254,4 +256,14 @@ func (g *gatewayDataServer) Stop() error {
 	}
 
 	return nil
+}
+
+type flusher struct {
+	http.ResponseWriter
+}
+
+func (f *flusher) Flush() {
+	if fl, ok := f.ResponseWriter.(http.Flusher); ok {
+		fl.Flush()
+	}
 }
