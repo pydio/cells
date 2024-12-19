@@ -183,6 +183,8 @@ func (s *sqlimpl) Add(ctx context.Context, in interface{}) (interface{}, []*idm.
 				}
 			} else {
 				// Simple Update
+				node.SetName(existing.GetName())
+				node.SetLevel(existing.GetLevel())
 				node.SetMPath(existing.GetMPath())
 				if er := s.indexDAO.UpdateNode(ctx, node); er != nil {
 					return nil, nil, wrap(er)

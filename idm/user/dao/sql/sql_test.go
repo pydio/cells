@@ -362,7 +362,7 @@ func TestUserDao(t *testing.T) {
 				So(users, ShouldHaveLength, 1)
 			}
 
-			_, _, err3 := mockDAO.Add(context.TODO(), &idm.User{
+			added, _, err3 := mockDAO.Add(context.TODO(), &idm.User{
 				Login:     "admin",
 				Password:  "xxxxxxx",
 				GroupPath: "/path/to/group",
@@ -376,8 +376,29 @@ func TestUserDao(t *testing.T) {
 					{Uuid: "4", Label: "Role4"},
 				},
 			})
-
 			So(err3, ShouldBeNil)
+
+			// Perform an update
+			So(added, ShouldNotBeNil)
+			au, ok := added.(*idm.User)
+			So(ok, ShouldBeTrue)
+			au.Attributes[idm.UserAttrDisplayName] = "NewDisplayName"
+			_, _, err31 := mockDAO.Add(context.TODO(), &idm.User{
+				Uuid:      au.GetUuid(),
+				Login:     "admin",
+				Password:  "yyyyyyy",
+				GroupPath: "/path/to/group",
+				Attributes: map[string]string{
+					idm.UserAttrDisplayName: "Administrator",
+					idm.UserAttrHidden:      "false",
+					"active":                "true",
+				},
+				Roles: []*idm.Role{
+					{Uuid: "1", Label: "Role1"},
+					{Uuid: "4", Label: "Role4"},
+				},
+			})
+			So(err31, ShouldBeNil)
 
 			{
 				users := new([]interface{})
