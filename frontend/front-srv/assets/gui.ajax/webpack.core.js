@@ -1,6 +1,8 @@
 // Generated using webpack-cli https://github.com/webpack/webpack-cli
 const path = require("path");
 const CompressionPlugin = require("compression-webpack-plugin");
+const webpack = require("webpack");
+
 
 const config = {
     mode: process.env.NODE_ENV === 'production'?'production':'development',
@@ -20,6 +22,10 @@ const config = {
         new CompressionPlugin({
             test: /\.js(\?.*)?$/i,
         }),
+        new webpack.NormalModuleReplacementPlugin(
+            /node_modules\/react-dnd-html5-backend\/lib\/NativeDragSources.js/,
+            path.resolve(__dirname, 'res/js/vendor/dnd-html5-backend-patch/NativeDragSources.js')
+        )
     ],
     optimization:{
         splitChunks: {
