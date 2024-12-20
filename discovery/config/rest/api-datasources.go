@@ -164,9 +164,6 @@ func (s *Handler) PutDataSource(req *restful.Request, resp *restful.Response) er
 	} else {
 		config.Del(ctx, "services", "pydio.grpc.data.index."+dsName, "PeerAddress")
 	}
-	config.Get(ctx).Map()
-	config.Set(ctx, "default", "services", "pydio.grpc.data.index."+dsName, "dsn")
-	config.Set(ctx, config.IndexServiceTableNames(dsName), "services", "pydio.grpc.data.index."+dsName, "tables")
 	// UPDATE SYNC
 	config.Set(ctx, ds, "services", "pydio.grpc.data.sync."+dsName)
 	// UPDATE OBJECTS

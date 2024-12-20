@@ -55,7 +55,15 @@ func init() {
 			service.Context(ctx),
 			service.Tag(common.ServiceTagData),
 			service.Description("Search Engine"),
-			// service.Fork(true),
+			service.Migrations([]*service.Migration{
+				service.DefaultConfigMigration(Name, map[string]interface{}{
+					"indexContent":        false,
+					"basenameAnalyzer":    "standard",
+					"contentAnalyzer":     "en",
+					"contentRef":          "pydio:ContentRef",
+					"plainTextExtensions": "text,md",
+				}),
+			}),
 			service.WithStorageDrivers(search.Drivers...),
 			service.WithGRPC(func(c context.Context, server grpc.ServiceRegistrar) error {
 

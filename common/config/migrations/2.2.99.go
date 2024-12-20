@@ -73,10 +73,7 @@ func updateVersionsStore(conf configx.Values) error {
 		dsCopy.StorageConfiguration[object.StorageKeyFolder] = path.Join(path.Dir(f), bucket)
 	}
 	conf.Val("services", common.ServiceGrpcNamespace_+common.ServiceDataSync_+newDsName).Set(dsCopy)
-	conf.Val("services", common.ServiceGrpcNamespace_+common.ServiceDataIndex_+newDsName).Set(map[string]interface{}{
-		"dsn":    "default",
-		"tables": config.IndexServiceTableNames(newDsName),
-	})
+
 	// Reset sync > sources
 	syncSrcVal := conf.Val("services", common.ServiceGrpcNamespace_+common.ServiceDataSync, "sources")
 	indexSrcVal := conf.Val("services", common.ServiceGrpcNamespace_+common.ServiceDataIndex, "sources")
@@ -125,10 +122,12 @@ func updateThumbsStore(conf configx.Values) error {
 		dsCopy.StorageConfiguration[object.StorageKeyFolder] = path.Join(path.Dir(f), bucket)
 	}
 	conf.Val("services", common.ServiceGrpcNamespace_+common.ServiceDataSync_+newDsName).Set(dsCopy)
-	conf.Val("services", common.ServiceGrpcNamespace_+common.ServiceDataIndex_+newDsName).Set(map[string]interface{}{
-		"dsn":    "default",
-		"tables": config.IndexServiceTableNames(newDsName),
-	})
+	/*
+		conf.Val("services", common.ServiceGrpcNamespace_+common.ServiceDataIndex_+newDsName).Set(map[string]interface{}{
+			"dsn":    "default",
+			"tables": config.IndexServiceTableNames(newDsName),
+		})
+	*/
 	// Reset sync > sources
 	syncSrcVal := conf.Val("services", common.ServiceGrpcNamespace_+common.ServiceDataSync, "sources")
 	indexSrcVal := conf.Val("services", common.ServiceGrpcNamespace_+common.ServiceDataIndex, "sources")

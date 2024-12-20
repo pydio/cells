@@ -46,6 +46,11 @@ func init() {
 			service.Context(ctx),
 			service.Tag(common.ServiceTagDiscovery),
 			service.Description("Update checker service"),
+			service.Migrations([]*service.Migration{
+				service.DefaultConfigMigration(Name, map[string]interface{}{
+					"channel": common.UpdateDefaultChannel,
+				}),
+			}),
 			service.WithGRPC(func(ctx context.Context, server grpc.ServiceRegistrar) error {
 				handler := new(grpc2.Handler)
 				update.RegisterUpdateServiceServer(server, handler)

@@ -122,17 +122,10 @@ func actionDatasourceAdd(ctx context.Context, c *install.InstallConfig) error {
 	for _, source := range sources {
 		// Store indexes tables
 		index := fmt.Sprintf(`pydio.grpc.data.index.%s`, source)
-		if er := config.Set(ctx, "default", "services", index, "dsn"); er != nil {
-			return er
-		}
 		if conf.PeerAddress != "" {
 			if er := config.Set(ctx, conf.PeerAddress, "services", index, "PeerAddress"); er != nil {
 				return er
 			}
-		}
-		tableNames := config.IndexServiceTableNames(source)
-		if er := config.Set(ctx, tableNames, "services", index, "tables"); er != nil {
-			return er
 		}
 
 		// Clone conf with specific source attributes

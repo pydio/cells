@@ -99,6 +99,24 @@ func init() {
 			service.Description("WEB service for serving statics"),
 			service.Migrations([]*service.Migration{
 				{
+					TargetVersion: service.FirstRun(),
+					Up: func(ctx context.Context) error {
+						data := map[string]interface{}{
+							"secureHeaders": map[string]interface{}{
+								"X-XSS-Protection": "1; mode=block",
+							},
+							"plugin": map[string]interface{}{
+								"editor.libreoffice": map[string]interface{}{
+									"LIBREOFFICE_HOST": "localhost",
+									"LIBREOFFICE_PORT": "9980",
+									"LIBREOFFICE_SSL":  true,
+								},
+							},
+						}
+						return config.Set(ctx, data, "frontend")
+					},
+				},
+				{
 					TargetVersion: service.ValidVersion("1.2.0"),
 					Up:            DropLegacyStatics,
 				},

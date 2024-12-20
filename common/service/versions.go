@@ -56,6 +56,16 @@ func FirstRun() *version.Version {
 	return obj
 }
 
+// DefaultConfigMigration registers a FirstRun to set configuration for service
+func DefaultConfigMigration(serviceName string, data interface{}) *Migration {
+	return &Migration{
+		TargetVersion: FirstRun(),
+		Up: func(ctx context.Context) error {
+			return config.Set(ctx, data, "services", serviceName)
+		},
+	}
+}
+
 // Latest retrieves current common Cells version.
 func Latest() *version.Version {
 	return common.Version()
