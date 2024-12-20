@@ -71,7 +71,7 @@ var (
 	router            nodes.Client
 )
 
-func getRouter(runtime context.Context) nodes.Client {
+func getRouter() nodes.Client {
 	if router == nil {
 		router = compose.PathClient(nodes.AsAdmin())
 	}
@@ -106,12 +106,12 @@ func (c *VersionAction) Run(ctx context.Context, channels *actions.RunnableChann
 	}
 
 	// TODO: find clients from pool so that they are considered the same by the CopyObject request
-	source, e := DataSourceForPolicy(c.GetRuntimeContext(), policy) //getRouter().GetClientsPool().GetDataSourceInfo(common.PydioVersionsNamespace)
+	source, e := DataSourceForPolicy(ctx, policy)
 	if e != nil {
 		return input.WithError(e), e
 	}
 
-	versionClient := tree.NewNodeVersionerClient(grpc.ResolveConn(c.GetRuntimeContext(), common.ServiceVersionsGRPC))
+	versionClient := tree.NewNodeVersionerClient(grpc.ResolveConn(ctx, common.ServiceVersionsGRPC))
 	request := &tree.CreateVersionRequest{Node: node}
 	if input.Event != nil {
 		ce := &tree.NodeChangeEvent{}
@@ -144,7 +144,7 @@ func (c *VersionAction) Run(ctx context.Context, channels *actions.RunnableChann
 		},
 	}
 
-	objectInfo, err := getRouter(c.GetRuntimeContext()).CopyObject(ctx, sourceNode, targetNode, &models.CopyRequestData{})
+	objectInfo, err := getRouter().CopyObject(ctx, sourceNode, targetNode, &models.CopyRequestData{})
 	if err != nil {
 		err = errors.Wrap(err, fmt.Sprintf("Copying %s -> %s", sourceNode.GetPath(), targetNode.GetUuid()))
 		return input.WithError(err), err
@@ -171,7 +171,7 @@ func (c *VersionAction) Run(ctx context.Context, channels *actions.RunnableChann
 		output.AppendOutput(&jobs.ActionOutput{Success: true})
 		ctx = nodes.WithBranchInfo(ctx, "in", branchInfo)
 		for _, version := range response.PruneVersions {
-			_, errDel := getRouter(c.GetRuntimeContext()).DeleteNode(ctx, &tree.DeleteNodeRequest{Node: version.GetLocation()})
+			_, errDel := getRouter().DeleteNode(ctx, &tree.DeleteNodeRequest{Node: version.GetLocation()})
 			if errDel != nil {
 				return input.WithError(errDel), errDel
 			}

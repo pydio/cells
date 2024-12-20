@@ -29,7 +29,6 @@ import (
 	"github.com/pydio/cells/v5/common/client/grpc"
 	"github.com/pydio/cells/v5/common/config"
 	"github.com/pydio/cells/v5/common/forms"
-	"github.com/pydio/cells/v5/common/nodes"
 	"github.com/pydio/cells/v5/common/proto/jobs"
 	"github.com/pydio/cells/v5/common/proto/object"
 	"github.com/pydio/cells/v5/common/proto/tree"
@@ -43,8 +42,6 @@ var (
 
 type PruneVersionsAction struct {
 	common.RuntimeHolder
-	Handler nodes.Handler
-	Pool    nodes.SourcesPool
 }
 
 func (c *PruneVersionsAction) GetDescription(lang ...string) actions.ActionDescription {
@@ -71,9 +68,6 @@ func (c *PruneVersionsAction) GetName() string {
 
 // Init passes the parameters to a newly created PruneVersionsAction.
 func (c *PruneVersionsAction) Init(job *jobs.Job, action *jobs.Action) error {
-
-	c.Pool = getRouter(c.GetRuntimeContext()).GetClientsPool(c.GetRuntimeContext())
-	c.Handler = getRouter(c.GetRuntimeContext())
 	return nil
 }
 
@@ -103,7 +97,7 @@ func (c *PruneVersionsAction) Run(ctx context.Context, channels *actions.Runnabl
 	if response, err := versionClient.PruneVersions(ctx, &tree.PruneVersionsRequest{AllDeletedNodes: true}); err == nil {
 		for _, version := range response.DeletedVersions {
 			deleteNode := version.GetLocation()
-			_, err := c.Handler.DeleteNode(ctx, &tree.DeleteNodeRequest{Node: deleteNode}) // source.Handler.RemoveObjectWithContext(ctx, source.ObjectsBucket, versionFileId)
+			_, err = getRouter().DeleteNode(ctx, &tree.DeleteNodeRequest{Node: deleteNode}) // source.Handler.RemoveObjectWithContext(ctx, source.ObjectsBucket, versionFileId)
 			if err != nil {
 				log.TasksLogger(ctx).Error("Error while trying to remove file "+deleteNode.Uuid, zap.String("fileId", deleteNode.Uuid), zap.Error(err))
 			} else {

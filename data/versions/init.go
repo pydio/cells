@@ -31,6 +31,7 @@ import (
 	"github.com/pydio/cells/v5/common/config"
 	"github.com/pydio/cells/v5/common/nodes"
 	"github.com/pydio/cells/v5/common/proto/docstore"
+	"github.com/pydio/cells/v5/common/proto/object"
 	"github.com/pydio/cells/v5/common/proto/tree"
 	"github.com/pydio/cells/v5/common/telemetry/log"
 	"github.com/pydio/cells/v5/common/utils/cache"
@@ -69,7 +70,11 @@ func init() {
 func PolicyForNode(ctx context.Context, node *tree.Node) *tree.VersioningPolicy {
 
 	dataSourceName := node.GetStringMeta(common.MetaNamespaceDatasourceName)
-	policyName := config.Get(ctx, "services", common.ServiceGrpcNamespace_+common.ServiceDataSync_+dataSourceName, "VersioningPolicyName").String()
+	var dsConfig *object.DataSource
+	if er := config.Get(ctx, "services", common.ServiceGrpcNamespace_+common.ServiceDataSync_+dataSourceName).Scan(&dsConfig); er != nil {
+		log.Logger(ctx).Error("cannot scan datasource config when reading PolicyForNode")
+	}
+	policyName := dsConfig.GetVersioningPolicyName()
 	if policyName == "" {
 		return nil
 	}
@@ -103,9 +108,9 @@ func PolicyForNode(ctx context.Context, node *tree.Node) *tree.VersioningPolicy 
 // backward compatibility.
 func DataSourceForPolicy(ctx context.Context, policy *tree.VersioningPolicy) (nodes.LoadedSource, error) {
 	if policy.VersionsDataSourceName == "default" {
-		return getRouter(ctx).GetClientsPool(ctx).GetDataSourceInfo(common.PydioVersionsNamespace)
+		return getRouter().GetClientsPool(ctx).GetDataSourceInfo(common.PydioVersionsNamespace)
 	}
-	if ls, err := getRouter(ctx).GetClientsPool(ctx).GetDataSourceInfo(policy.VersionsDataSourceName); err == nil {
+	if ls, err := getRouter().GetClientsPool(ctx).GetDataSourceInfo(policy.VersionsDataSourceName); err == nil {
 		if policy.VersionsDataSourceBucket != "" {
 			ls.ObjectsBucket = policy.VersionsDataSourceBucket
 		}
