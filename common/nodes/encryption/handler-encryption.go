@@ -217,9 +217,11 @@ func (e *Handler) PutObject(ctx context.Context, node *tree.Node, reader io.Read
 		return models.ObjectInfo{}, err
 	}
 
-	//	ct, ca := context.WithCancel(ctx)
-	//	defer ca()
-	streamClient, err := e.getNodeKeyManagerClient(ctx).SetNodeInfo(ctx)
+	ct, cancel := context.WithCancel(ctx)
+	defer func() {
+		cancel()
+	}()
+	streamClient, err := e.getNodeKeyManagerClient(ctx).SetNodeInfo(ct)
 	if err != nil {
 		log.Logger(ctx).Error("views.handler.encryption.PutObject: failed to save node encryption info", zap.Error(err))
 		return models.ObjectInfo{}, err
@@ -233,7 +235,7 @@ func (e *Handler) PutObject(ctx context.Context, node *tree.Node, reader io.Read
 
 	var encryptionKeyPlainBytes []byte
 
-	info, err := e.getNodeInfoForWrite(ctx, clone)
+	info, err := e.getNodeInfoForWrite(ctx, clone, true)
 	if err != nil {
 		if !errors.Is(err, errors.StatusNotFound) {
 			return models.ObjectInfo{}, err
@@ -458,7 +460,7 @@ func (e *Handler) MultipartCreate(ctx context.Context, target *tree.Node, reques
 		ctx:      ctx,
 	}
 
-	_, err = e.getNodeInfoForWrite(ctx, clone)
+	_, err = e.getNodeInfoForWrite(ctx, clone, true)
 	if err != nil {
 		if !errors.Is(err, errors.StatusNotFound) {
 			return "", err
@@ -543,7 +545,7 @@ func (e *Handler) MultipartPutObjectPart(ctx context.Context, target *tree.Node,
 		partId:   uint32(partNumberMarker),
 		ctx:      ctx,
 	}
-	info, err := e.getNodeInfoForWrite(ctx, clone)
+	info, err := e.getNodeInfoForWrite(ctx, clone, false)
 	if err != nil {
 		log.Logger(ctx).Error("views.handler.encryption.MultiPartPutObject: failed to get node info", zap.Error(err))
 		return models.MultipartObjectPart{}, err
@@ -600,8 +602,12 @@ func (e *Handler) getNodeInfoForRead(ctx context.Context, node *tree.Node, reque
 	return rsp.NodeInfo, rsp.EncryptedOffset, rsp.EncryptedCount, rsp.HeadSKippedPlainBytesCount, nil
 }
 
-func (e *Handler) getNodeInfoForWrite(ctx context.Context, node *tree.Node) (*encryption.NodeInfo, error) {
-	nodeEncryptionClient := e.getNodeKeyManagerClient(ctx)
+func (e *Handler) getNodeInfoForWrite(ctx context.Context, node *tree.Node, silentNotFound bool) (*encryption.NodeInfo, error) {
+	var opts []grpc.Option
+	if silentNotFound {
+		opts = append(opts, grpc.WithSilentNotFound())
+	}
+	nodeEncryptionClient := encryption.NewNodeKeyManagerClient(grpc.ResolveConn(ctx, common.ServiceEncKeyGRPC, opts...))
 	dsName := node.GetStringMeta(common.MetaNamespaceDatasourceName)
 	rsp, err := nodeEncryptionClient.GetNodeInfo(ctx, &encryption.GetNodeInfoRequest{
 		UserId:    fmt.Sprintf("ds:%s", dsName),

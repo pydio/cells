@@ -245,6 +245,7 @@ const (
 	CtxTargetServiceName       = "service"
 	CtxCellsMetaPrefix         = "x-cells-"
 	CtxGrpcClientCaller        = "grpc-client-caller"
+	CtxGrpcSilentNotFound      = "grpc-silent-not-found"
 	CtxSchedulerOperationId    = "Scheduler-Operation-Id"
 	CtxSchedulerOperationLabel = "Scheduler-Operation-Label"
 	CtxMetaJobUuid             = "X-Pydio-Job-Uuid"

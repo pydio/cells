@@ -37,6 +37,7 @@ type Options struct {
 	CallTimeout    time.Duration
 	DialOptions    []grpc.DialOption
 	BalancerFilter client.BalancerTargetFilter
+	SilentNotFound bool
 }
 
 func WithPeerSelector(host string) Option {
@@ -44,6 +45,12 @@ func WithPeerSelector(host string) Option {
 		o.BalancerFilter = func(info client.BalancerTarget) bool {
 			return client.TargetHostMatches(info, host)
 		}
+	}
+}
+
+func WithSilentNotFound() Option {
+	return func(o *Options) {
+		o.SilentNotFound = true
 	}
 }
 

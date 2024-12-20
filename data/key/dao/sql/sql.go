@@ -228,7 +228,9 @@ func (s *sqlimpl) DeleteNode(ctx context.Context, nodeUuid string) error {
 	if tx.Error != nil {
 		return tx.Error
 	}
-	return nil
+	// Delete corresponding NodeKeys
+	tx2 := s.Session(ctx).Where(&encryption.NodeKey{NodeId: nodeUuid}).Delete(&encryption.NodeKey{})
+	return tx2.Error
 }
 
 func (s *sqlimpl) SaveNodeKey(ctx context.Context, key *encryption.NodeKey) error {

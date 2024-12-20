@@ -96,6 +96,10 @@ func handleGrpcError(ctx context.Context, err error, prefix string, infos ...zap
 	if err == nil {
 		return nil
 	}
+	testIgnores := commonIgnores[:]
+	if len(metadata.ValueFromIncomingContext(ctx, common.CtxGrpcSilentNotFound)) > 0 {
+		testIgnores = append(testIgnores, errors.StatusNotFound)
+	}
 	if !errors.Is(err, HandledError) {
 		var details []any
 
@@ -104,7 +108,7 @@ func handleGrpcError(ctx context.Context, err error, prefix string, infos ...zap
 
 		ignoreLog := false
 		warnLog := false
-		for _, ig := range commonIgnores {
+		for _, ig := range testIgnores {
 			if errors.Is(err, ig) {
 				ignoreLog = true
 				break

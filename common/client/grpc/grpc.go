@@ -178,6 +178,7 @@ func ResolveConn(ctx context.Context, serviceName string, opt ...Option) grpc.Cl
 		callTimeout:         opts.CallTimeout,
 		ClientConnInterface: opts.ClientConn,
 		balancerFilter:      opts.BalancerFilter,
+		silentNotFound:      opts.SilentNotFound,
 		serviceName:         serviceName,
 		headerKVs:           headerKVs,
 	}
@@ -189,6 +190,7 @@ type clientConn struct {
 	headerKVs      []string
 	callTimeout    time.Duration
 	balancerFilter client.BalancerTargetFilter
+	silentNotFound bool
 }
 
 // Invoke performs a unary RPC and returns after the response is received
@@ -217,6 +219,10 @@ func (cc *clientConn) Invoke(ctx context.Context, method string, args interface{
 			thisCaller = strings.Join(prev, "|")
 		}
 		ctx = metadata.AppendToOutgoingContext(ctx, common.CtxGrpcClientCaller, thisCaller)
+	}
+
+	if cc.silentNotFound {
+		ctx = metadata.AppendToOutgoingContext(ctx, common.CtxGrpcSilentNotFound, "true")
 	}
 
 	var cancel context.CancelFunc
