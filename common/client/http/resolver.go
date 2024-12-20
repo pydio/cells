@@ -118,13 +118,9 @@ func (m *resolver) ServeHTTP(w http.ResponseWriter, r *http.Request) (bool, erro
 		return false, er
 	}
 
-	ctx := propagator.WithAdditionalMetadata(r.Context(), map[string]string{
-		common.XPydioSiteHash: r.Header.Get(common.XPydioSiteHash),
-	})
-
-	r = r.WithContext(ctx)
 	// This may rewrite the request, by resolving the underlying endpoints
 	m.rr.ApplyRewrites(r)
+	ctx := r.Context()
 
 	// Special case for application/grpc
 	if strings.Contains(r.Header.Get("Content-Type"), "application/grpc") {

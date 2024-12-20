@@ -35,6 +35,7 @@ import (
 	"github.com/pydio/cells/v5/common"
 	"github.com/pydio/cells/v5/common/auth"
 	"github.com/pydio/cells/v5/common/auth/claim"
+	"github.com/pydio/cells/v5/common/config/routing"
 	"github.com/pydio/cells/v5/common/middleware"
 	"github.com/pydio/cells/v5/common/nodes"
 	"github.com/pydio/cells/v5/common/runtime"
@@ -55,6 +56,19 @@ func logRequest(handler http.Handler) http.Handler {
 		c = context.WithValue(c, contextHeaderKey{}, r.Header)
 		r = r.WithContext(c)
 		log.Logger(c).Debug("-- DAV ENTER", zap.String("Method", r.Method), zap.String("path", r.URL.Path))
+		handler.ServeHTTP(w, r)
+	})
+}
+
+func patchDestinationURI(handler http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if dest := r.Header.Get("Destination"); dest != "" {
+			if u, err2 := url.Parse(dest); err2 == nil {
+				resolvedURI := routing.ResolvedURIFromContext(r.Context())
+				u.Path = strings.TrimPrefix(u.Path, resolvedURI)
+				r.Header.Set("Destination", u.String())
+			}
+		}
 		handler.ServeHTTP(w, r)
 	})
 }
@@ -117,9 +131,10 @@ func newHandler(ctx context.Context, prefix string, router nodes.Handler, withBa
 	}
 
 	h := logRequest(dav)
+	h = patchDestinationURI(h)
 	if len(withBasicRealm) > 0 {
 		basicAuthenticator := auth.NewBasicAuthenticator(withBasicRealm[0], 10*time.Minute)
 		h = basicAuthenticator.Wrap(h)
 	}
-	return middleware.HttpWrapperMeta(h)
+	return middleware.HttpContextWrapper(ctx, h)
 }

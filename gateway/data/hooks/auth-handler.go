@@ -54,13 +54,8 @@ func (a pydioAuthHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 
 	ctx := propagator.ForkContext(r.Context(), a.rootCtx)
-	ctx = propagator.WithAdditionalMetadata(ctx, map[string]string{
-		common.XPydioSiteHash: r.Header.Get(common.XPydioSiteHash),
-	})
-
-	r = r.WithContext(ctx)
-	ctx = middleware.HttpRequestInfoToMetadata(ctx, r)
 	ctx = runtime.WithServiceName(ctx, common.ServiceGatewayData)
+	r = r.WithContext(ctx)
 
 	resignRequestV4 := false
 	resignRequestV4Presigned := false

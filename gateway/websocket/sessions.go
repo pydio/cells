@@ -102,7 +102,7 @@ func updateSessionFromClaims(ctx context.Context, session *melody.Session, claim
 	session.Set(SessionClaimsKey, claims)
 	session.Set(SessionSubjectsKey, append([]string{"*"}, auth.SubjectsFromClaim(claims)...))
 	session.Set(SessionLimiterKey, rate.NewLimiter(LimiterRate, LimiterBurst))
-	ctx = middleware.HttpRequestInfoToMetadata(context.Background(), session.Request)
+	ctx = middleware.HttpRequestInfoToMetadata(session.Request)
 	if md, ok := propagator.FromContextCopy(ctx); ok {
 		session.Set(SessionMetaContext, md)
 	}

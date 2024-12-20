@@ -42,11 +42,16 @@ func init() {
 		keys.HttpMetaProtocol,
 		keys.HttpMetaHost,
 	)
+	httpIncomingModifiers = append(httpIncomingModifiers, func(r *http.Request) (*http.Request, error) {
+		ctx := HttpRequestInfoToMetadata(r)
+		return r.WithContext(ctx), nil
+	})
 }
 
 // HttpRequestInfoToMetadata extracts as much HTTP metadata as possible and stores it in the context as metadata.
-func HttpRequestInfoToMetadata(ctx context.Context, req *http.Request) context.Context {
+func HttpRequestInfoToMetadata(req *http.Request) context.Context {
 
+	ctx := req.Context()
 	meta := map[string]string{}
 	if existing, ok := propagator.FromContextRead(ctx); ok {
 		if _, already := existing[keys.HttpMetaExtracted]; already {
@@ -57,6 +62,10 @@ func HttpRequestInfoToMetadata(ctx context.Context, req *http.Request) context.C
 		}
 	}
 	meta[keys.HttpMetaExtracted] = keys.HttpMetaExtracted
+
+	if hash := req.Header.Get(common.XPydioSiteHash); hash != "" {
+		meta[common.XPydioSiteHash] = hash
+	}
 
 	layout := "2006-01-02T15:04-0700"
 	t := time.Now()
@@ -115,7 +124,7 @@ func HttpRequestInfoToMetadata(ctx context.Context, req *http.Request) context.C
 // HttpWrapperMeta extracts data from the request and puts it in a context Metadata field.
 func HttpWrapperMeta(h http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		r = r.WithContext(HttpRequestInfoToMetadata(r.Context(), r))
+		r = r.WithContext(HttpRequestInfoToMetadata(r))
 		h.ServeHTTP(w, r)
 	})
 }

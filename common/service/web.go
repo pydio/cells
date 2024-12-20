@@ -95,7 +95,6 @@ func getWebMiddlewares(serviceName string, pos string) []func(handler http.Handl
 		)
 		wmTop = append(wmTop,
 			authorizations.HttpWrapperLanguage,
-			middleware.HttpWrapperMeta,
 		)
 	})
 	if serviceName == common.ServiceRestNamespace_+common.ServiceInstall {
