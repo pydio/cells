@@ -31,17 +31,20 @@ func (r *RecyclePathHandler) updateInputBranch(ctx context.Context, node *tree.N
 	return ctx, node, nil
 }
 
+// updateOutputNode adds "InsideRecycle" flag by scanning ancestors, if they are present in branch info
 func (r *RecyclePathHandler) updateOutputNode(ctx context.Context, node *tree.Node, identifier string) (context.Context, *tree.Node, error) {
-	if _, ancestors, err := nodes.AncestorsListFromContext(ctx, node, identifier, false); err == nil {
-		// Add "InsideRecycle" flag by scanning ancestors
-		for _, p := range ancestors {
-			if p.GetUuid() == node.GetUuid() {
-				continue
-			}
-			if p.GetStringMeta(common.MetaNamespaceNodeName) == common.RecycleBinName {
-				out := node.Clone()
-				out.MustSetMeta(common.MetaNamespaceInsideRecycle, "true")
-				return ctx, out, nil
+	// Just lookup in cache - do not trigger another load of ancestores
+	if branchInfo, be := nodes.GetBranchInfo(ctx, identifier); be == nil && branchInfo.AncestorsList != nil {
+		if ancestors, ok := branchInfo.AncestorsList[node.Path]; ok {
+			for _, p := range ancestors {
+				if p.GetUuid() == node.GetUuid() {
+					continue
+				}
+				if p.GetStringMeta(common.MetaNamespaceNodeName) == common.RecycleBinName {
+					out := node.Clone()
+					out.MustSetMeta(common.MetaNamespaceInsideRecycle, "true")
+					return ctx, out, nil
+				}
 			}
 		}
 	}

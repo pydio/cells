@@ -340,19 +340,22 @@ func (c *queryConverter) Convert(ctx context.Context, val *anypb.Any, db *gorm.D
 
 		tx := db.Session(&gorm.Session{NewDB: true})
 		for actName, actValues := range actionsByName {
+			nameQuery := "action_name = ?"
+			nameValue := actName
+			if strings.Contains(actName, "*") {
+				nameQuery = "action_name LIKE ?"
+				nameValue = strings.ReplaceAll(actName, "*", "%")
+			}
+
 			if len(actValues) > 0 {
 				tx1 := db.Session(&gorm.Session{NewDB: true})
 				if len(actValues) == 1 {
-					tx = tx.Or(tx1.Where("action_name=?", actName).Where("action_value=?", actValues[0]))
+					tx = tx.Or(tx1.Where(nameQuery, nameValue).Where("action_value=?", actValues[0]))
 				} else {
-					tx = tx.Or(tx1.Where("action_name=?", actName).Where("action_value IN ?", actValues))
+					tx = tx.Or(tx1.Where(nameQuery, nameValue).Where("action_value IN ?", actValues))
 				}
 			} else {
-				if strings.Contains(actName, "*") {
-					tx = tx.Or("action_name LIKE ?", strings.ReplaceAll(actName, "*", "%"))
-				} else {
-					tx = tx.Or("action_name=?", actName)
-				}
+				tx = tx.Or(nameQuery, nameValue)
 			}
 			count++
 		}
