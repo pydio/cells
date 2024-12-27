@@ -79,7 +79,7 @@ func (h *Handler) getSyncer(ctx context.Context) (*Syncer, bool) {
 func (h *Handler) Ready(ctx context.Context, req *server.ReadyCheckRequest) (*server.ReadyCheckResponse, error) {
 	hsResp, er := h.HealthServer.Check(ctx, req.HealthCheckRequest)
 	if er != nil {
-		return nil, er
+		return nil, errors.Tag(er, errors.HealthCheckError)
 	}
 	resp := &server.ReadyCheckResponse{
 		HealthCheckResponse: hsResp,
@@ -104,19 +104,19 @@ func (h *Handler) Ready(ctx context.Context, req *server.ReadyCheckRequest) (*se
 	conf, er := h.Lookup(ctx)
 	if er != nil {
 		resp.ReadyStatus = server.ReadyStatus_Unknown
-		return resp, er
+		return resp, errors.Tag(er, errors.HealthCheckError)
 	}
 	sc, e := conf.Config(ctx)
 	if e != nil {
 		resp.ReadyStatus = server.ReadyStatus_Unknown
-		return resp, er
+		return resp, errors.Tag(e, errors.HealthCheckError)
 	}
 	_, _, er = clients.CheckSubServices(ctx, sc, callback)
 	if er == nil {
 		resp.ReadyStatus = server.ReadyStatus_Ready
 	}
 
-	return resp, nil
+	return resp, errors.Tag(er, errors.HealthCheckError)
 }
 
 // TriggerResync sets 2 servers in sync

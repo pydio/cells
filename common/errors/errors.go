@@ -130,4 +130,5 @@ var (
 	ServiceError            = RegisterBaseSentinel(StatusInternalServerError, "service error")
 	ServiceStartError       = RegisterBaseSentinel(ServiceError, "service start error")
 	ServiceNoServerAttached = RegisterBaseSentinel(ServiceError, "no server attached")
+	HealthCheckError        = RegisterBaseSentinel(StatusServiceUnavailable, "healthcheck service error")
 )

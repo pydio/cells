@@ -172,9 +172,10 @@ func (o *ObjectHandler) startMinioServer(ctx context.Context, minioServiceName, 
 func (o *ObjectHandler) Ready(ctx context.Context, req *server.ReadyCheckRequest) (*server.ReadyCheckResponse, error) {
 	hsR, er := o.HealthServer.Check(ctx, &grpc_health_v1.HealthCheckRequest{})
 	if er != nil {
-		return nil, er
+		return nil, errors.Tag(er, errors.HealthCheckError)
 	}
 	if _, er = o.Lookup(ctx); er != nil {
+		er = errors.Tag(er, errors.HealthCheckError)
 		return &server.ReadyCheckResponse{HealthCheckResponse: hsR, ReadyStatus: server.ReadyStatus_NotReady}, er
 	} else {
 		return &server.ReadyCheckResponse{HealthCheckResponse: hsR, ReadyStatus: server.ReadyStatus_Ready}, nil

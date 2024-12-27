@@ -55,6 +55,7 @@ var (
 	}
 	commonWarns = []error{
 		errors.NodeIndexConflict,
+		errors.HealthCheckError,
 		errors.StatusServiceUnavailable,
 	}
 )
