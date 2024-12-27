@@ -1,0 +1,7 @@
+#storages/sql/uri=gorm://{{if eq .Tenant "sub2"}}root:cells@localhost:3306/cells?driver=mysql&conn=tcp&parseTime=true{{else}}postgres:cells@localhost:5432/postgres?driver=postgres&sslmode=disable{{end}}&prefix={{ tenantSepWithBlank .Tenant "_" "default"}}{{ .Meta.prefix }}&policies={{ tenantSepWithBlank .Tenant "_" "default"}}{{ .Meta.policies }}&singular={{ .Meta.singular }}
+
+storages:
+  sql:
+    uri: sqlite:///tmp/pydio2/pydio.db?prefix={{ .Meta.prefix }}&policies={{ .Meta.policies }}&singular={{ .Meta.singular }}
+  dssql:
+    uri: sqlite:///tmp/pydio2/pydio.db?prefix={{ .Meta.prefix }}{{if ne .DataSource ""}}{{ .DataSource }}_{{end}}&policies={{ .Meta.policies }}&singular={{ .Meta.singular }}

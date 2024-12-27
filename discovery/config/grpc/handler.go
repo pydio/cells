@@ -29,6 +29,7 @@ import (
 	"github.com/pydio/cells/v5/common/utils/configx"
 	json "github.com/pydio/cells/v5/common/utils/jsonx"
 	"github.com/pydio/cells/v5/common/utils/propagator"
+	"github.com/pydio/cells/v5/common/utils/watch"
 )
 
 type Handler struct {
@@ -102,9 +103,9 @@ func (h *Handler) Delete(ctx context.Context, req *pb.DeleteRequest) (*pb.Delete
 }
 
 func (h *Handler) Watch(req *pb.WatchRequest, stream pb.Config_WatchServer) error {
-	var opts []configx.WatchOption
+	var opts []watch.WatchOption
 	if req.GetPath() != "" && req.GetPath() != "/" {
-		opts = append(opts, configx.WithPath(req.GetPath()))
+		opts = append(opts, watch.WithPath(req.GetPath()))
 	}
 	w, err := config.Watch(stream.Context(), opts...)
 	if err != nil {

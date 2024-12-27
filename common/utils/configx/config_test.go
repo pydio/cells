@@ -1,6 +1,7 @@
 package configx
 
 import (
+	"fmt"
 	"net/http"
 	"strings"
 	"sync"
@@ -22,7 +23,19 @@ func TestMerge(t *testing.T) {
 		So(err, ShouldBeNil)
 		So(c, ShouldHaveSameTypeAs, a)
 	})
+}
 
+func TestMergeDelete(t *testing.T) {
+	a := map[string]any{"1": 1}
+	b := map[string]any{"1": nil}
+
+	Convey("Testing merge", t, func() {
+		c, err := merge(a, b)
+		So(err, ShouldBeNil)
+		So(c, ShouldHaveSameTypeAs, a)
+
+		fmt.Println(c)
+	})
 }
 
 func TestMergeSlices(t *testing.T) {
@@ -456,8 +469,8 @@ func TestScan(t *testing.T) {
 
 func TestDefault(t *testing.T) {
 	Convey("Testing reference", t, func() {
-		So(strings.Join(StringToKeys("1/2/#/3"), "/"), ShouldEqual, "3")
-		So(strings.Join(StringToKeys("1/2/#/3/#/4"), "/"), ShouldEqual, "4")
+		So(strings.Join(std.StringToKeys("1/2/#/3"), "/"), ShouldEqual, "3")
+		So(strings.Join(std.StringToKeys("1/2/#/3/#/4"), "/"), ShouldEqual, "4")
 	})
 }
 
@@ -619,7 +632,7 @@ type implValuesOverride struct {
 func (i *implValuesOverride) Val(path ...string) Values {
 	return &caster{
 		Storer: &implValuesOverride{
-			k:      StringToKeys(append(i.k, path...)...),
+			k:      std.StringToKeys(append(i.k, path...)...),
 			Values: i.Values.Val(path...),
 		},
 	}

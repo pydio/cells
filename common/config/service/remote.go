@@ -26,6 +26,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"github.com/pydio/cells/v5/common/utils/std"
 	"net/url"
 	"strings"
 	"sync"
@@ -334,7 +335,7 @@ func (v *values) Key() []string {
 }
 
 func (v *values) Val(path ...string) configx.Values {
-	return configx.New(configx.WithStorer(&values{ctx: v.ctx, cli: v.cli, id: v.id, k: configx.StringToKeys(append(v.k, path...)...), d: v.d}))
+	return configx.New(configx.WithStorer(&values{ctx: v.ctx, cli: v.cli, id: v.id, k: std.StringToKeys(append(v.k, path...)...), d: v.d}))
 }
 
 func (v *values) Get(wo ...configx.WalkOption) any {

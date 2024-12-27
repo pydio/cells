@@ -1,0 +1,24 @@
+# Basic no-TLS config for the embedded gateway
+#proxyconfig:
+#  binds:
+#    - localhost:8080
+frontendlogin: admin
+frontendpassword: admin
+dbconnectiontype: manual
+dbmanualdsn: sqlite:///tmp/pydio/pydio.db
+#dbmanualdsn: mysql://root:P@ssw0rd@tcp(0.0.0.0:3306)/cells
+
+#dsname: pydiods1
+#dsport: 8040
+#dss3custom: http://localhost:9000
+#dss3apikey: minioadmin
+#dss3apisecret: minioadmin
+##dss3folder: /Users/ghecquet/Library/Application Support/Pydio/cells/data
+#
+## Custom title
+#customconfigs:
+#  frontend/plugin/core.pydio/APPLICATION_TITLE: Cells Demo v4
+#  # Enable specific login for the demo
+#  frontend/plugin/authfront.oauth/PYDIO_PLUGIN_ENABLED: false
+#  # display a countdown before reset
+#  frontend/plugin/action.demo_counter/PYDIO_PLUGIN_ENABLED: true

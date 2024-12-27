@@ -42,6 +42,7 @@ import (
 	"github.com/pydio/cells/v5/common/utils/configx"
 	"github.com/pydio/cells/v5/common/utils/openurl"
 	"github.com/pydio/cells/v5/common/utils/propagator"
+	"github.com/pydio/cells/v5/common/utils/watch"
 )
 
 var (
@@ -90,7 +91,7 @@ type ClientsPool struct {
 	treeClientWrite tree.NodeReceiverClient
 
 	regWatcher  registry.Watcher
-	confWatcher configx.Receiver
+	confWatcher watch.Receiver
 
 	reload chan bool
 }
@@ -380,7 +381,7 @@ func (p *ClientsPool) reloadDebounced() {
 
 func (p *ClientsPool) watchConfigChanges() {
 	for {
-		watcher, err := config.Watch(p.ctx, configx.WithPath("services", common.ServiceGrpcNamespace_+common.ServiceDataSync, "sources"))
+		watcher, err := config.Watch(p.ctx, watch.WithPath("services", common.ServiceGrpcNamespace_+common.ServiceDataSync, "sources"))
 		if err != nil {
 			// Cool-off period
 			time.Sleep(1 * time.Second)

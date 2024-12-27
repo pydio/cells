@@ -37,22 +37,19 @@ func ReferencePoolOptionsFromURL(ctx context.Context, u *url.URL) (opts []config
 	return opts
 }
 
-func ReferencePoolFromURL(ctx context.Context, u *url.URL) map[string]*openurl.Pool[Store] {
+func PoolFromURL[T any](ctx context.Context, u *url.URL, opener openurl.Opener[T]) map[string]*openurl.Pool[T] {
 
-	m := make(map[string]*openurl.Pool[Store])
+	m := make(map[string]*openurl.Pool[T])
 
 	if pools := u.Query().Get("pools"); pools != "" {
 		rps := strings.Split(pools, "&")
 		for _, rp := range rps {
 			kv := strings.SplitN(rp, "=", 2)
 
-			rp, _ := openurl.OpenPool(ctx, []string{kv[1]}, func(ctx context.Context, u string) (Store, error) {
-				st, err := OpenStore(ctx, u)
-				if err != nil {
-					return nil, err
-				}
+			rp, _ := openurl.OpenPool(ctx, []string{kv[1]}, func(ctx context.Context, u string) (st T, err error) {
+				st, err = opener(ctx, u)
 
-				return st, nil
+				return
 			})
 
 			m[kv[0]] = rp

@@ -21,6 +21,7 @@
 package util
 
 import (
+	"encoding/gob"
 	"strings"
 
 	"golang.org/x/exp/maps"
@@ -32,6 +33,10 @@ import (
 	"github.com/pydio/cells/v5/common/utils/std"
 	"github.com/pydio/cells/v5/common/utils/uuid"
 )
+
+func init() {
+	gob.Register(&node{})
+}
 
 func CreateNode() registry.Node {
 	pid := runtime.GetPID()

@@ -21,6 +21,7 @@
 package configtest
 
 import (
+	"github.com/pydio/cells/v5/common/utils/std"
 	"testing"
 
 	"github.com/pydio/cells/v5/common/config"
@@ -35,9 +36,9 @@ func testGetSet(t *testing.T, store config.Store) {
 	Convey("Given a default config initialised in a temp directory", t, func() {
 		Convey("Simple GetSet Works", func() {
 			testVal := "This is a test"
-			err := store.Val(configx.FormatPath("test", "val1")).Set(testVal)
+			err := store.Val(std.FormatPath("test", "val1")).Set(testVal)
 			So(err, ShouldBeNil)
-			retVal := store.Val(configx.FormatPath("test", "val1")).String()
+			retVal := store.Val(std.FormatPath("test", "val1")).String()
 			So(retVal, ShouldEqual, testVal)
 		})
 
@@ -46,25 +47,25 @@ func testGetSet(t *testing.T, store config.Store) {
 			certEmail := "test@example.com"
 			caUrl := "https://acme-staging.api.example.com/directory"
 
-			store.Val(configx.FormatPath("cert", "proxy", "email")).Set(certEmail)
-			store.Val(configx.FormatPath("cert", "proxy", "caUrl")).Set(caUrl)
+			store.Val(std.FormatPath("cert", "proxy", "email")).Set(certEmail)
+			store.Val(std.FormatPath("cert", "proxy", "caUrl")).Set(caUrl)
 
-			resCe := store.Val(configx.FormatPath("cert", "proxy", "email")).String()
-			resCa := store.Val(configx.FormatPath("cert", "proxy", "caUrl")).String()
+			resCe := store.Val(std.FormatPath("cert", "proxy", "email")).String()
+			resCa := store.Val(std.FormatPath("cert", "proxy", "caUrl")).String()
 			So(resCe, ShouldEqual, certEmail)
 			So(resCa, ShouldEqual, caUrl)
 
-			store.Val(configx.FormatPath("cert", "proxy", "httpRedir")).Set(true)
+			store.Val(std.FormatPath("cert", "proxy", "httpRedir")).Set(true)
 
-			resCe2 := store.Val(configx.FormatPath("cert", "proxy", "email")).String()
-			resCa2 := store.Val(configx.FormatPath("cert", "proxy", "caUrl")).String()
+			resCe2 := store.Val(std.FormatPath("cert", "proxy", "email")).String()
+			resCa2 := store.Val(std.FormatPath("cert", "proxy", "caUrl")).String()
 			So(resCe2, ShouldEqual, certEmail)
 			So(resCa2, ShouldEqual, caUrl)
 
-			store.Val(configx.FormatPath("cert", "proxy", "httpRedir")).Del()
+			store.Val(std.FormatPath("cert", "proxy", "httpRedir")).Del()
 
-			resCe2 = store.Val(configx.FormatPath("cert", "proxy", "email")).String()
-			resCa2 = store.Val(configx.FormatPath("cert", "proxy", "caUrl")).String()
+			resCe2 = store.Val(std.FormatPath("cert", "proxy", "email")).String()
+			resCa2 = store.Val(std.FormatPath("cert", "proxy", "caUrl")).String()
 			So(resCe2, ShouldEqual, certEmail)
 			So(resCa2, ShouldEqual, caUrl)
 
@@ -74,17 +75,17 @@ func testGetSet(t *testing.T, store config.Store) {
 
 			pwd := "This is a p@$$w0rd"
 
-			store.Val(configx.FormatPath("services", "pydio.grpc.mailer", "sender", "password")).Set(pwd)
-			So(store.Val(configx.FormatPath("services", "pydio.grpc.mailer", "sender", "password")).String(), ShouldEqual, pwd)
+			store.Val(std.FormatPath("services", "pydio.grpc.mailer", "sender", "password")).Set(pwd)
+			So(store.Val(std.FormatPath("services", "pydio.grpc.mailer", "sender", "password")).String(), ShouldEqual, pwd)
 
-			store.Val(configx.FormatPath("services", "pydio.grpc.mailer", "sender", "password")).Del()
-			So(store.Val(configx.FormatPath("services", "pydio.grpc.mailer", "sender", "password")).String(), ShouldEqual, "")
+			store.Val(std.FormatPath("services", "pydio.grpc.mailer", "sender", "password")).Del()
+			So(store.Val(std.FormatPath("services", "pydio.grpc.mailer", "sender", "password")).String(), ShouldEqual, "")
 
-			config.RegisterVaultKey(configx.FormatPath("services", "pydio.grpc.mailer", "sender", "password"))
+			config.RegisterVaultKey(std.FormatPath("services", "pydio.grpc.mailer", "sender", "password"))
 
-			store.Val(configx.FormatPath("services", "pydio.grpc.mailer", "sender", "password")).Set(pwd)
+			store.Val(std.FormatPath("services", "pydio.grpc.mailer", "sender", "password")).Set(pwd)
 
-			resPwd := store.Val(configx.FormatPath("services", "pydio.grpc.mailer", "sender", "password")).String()
+			resPwd := store.Val(std.FormatPath("services", "pydio.grpc.mailer", "sender", "password")).String()
 			//So(resPwd, ShouldNotEqual, pwd)
 			So(resPwd, ShouldNotEqual, "")
 		})

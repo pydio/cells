@@ -29,6 +29,7 @@ import (
 	"time"
 
 	"github.com/pydio/cells/v5/common/errors"
+	"github.com/pydio/cells/v5/common/utils/uuid"
 )
 
 var (
@@ -71,6 +72,8 @@ type Pool[T any] struct {
 	provider  Provider[T]
 	pool      map[string]*namedT[T]
 	lock      *sync.RWMutex
+
+	watchers map[PoolAction][]watcher[T]
 
 	options *PoolOptions[T]
 
@@ -132,6 +135,7 @@ func OpenPool[T any](ctx context.Context, uu []string, opener Opener[T], opt ...
 
 	pool := &Pool[T]{
 		resolvers: rs,
+		watchers:  make(map[PoolAction][]watcher[T]),
 		pool:      make(map[string]*namedT[T]),
 		lock:      &sync.RWMutex{},
 
@@ -214,8 +218,11 @@ func (m Pool[T]) Get(ctx context.Context, resolutionData ...map[string]interface
 		}
 		m.lock.Unlock()
 
+		m.on(ADD, realURL, q)
+
 		return q, err
 	}
+
 	var res T
 	return res, fmt.Errorf("cannot resolve")
 }
@@ -241,7 +248,9 @@ func (m Pool[T]) Del(ctx context.Context, resolutionData ...map[string]interface
 
 		// Lookup
 		m.lock.RLock()
-		if _, ok := m.pool[realURL]; ok {
+		if q, ok := m.pool[realURL]; ok {
+			m.on(DELETE, realURL, q.t)
+
 			delete(m.pool, realURL)
 			m.lock.RUnlock()
 			return true, nil
@@ -291,6 +300,40 @@ func (m *Pool[T]) Iterate(ctx context.Context, it func(key string, res T) error)
 		}
 	}
 	return errors.Join(errs...)
+}
+
+type PoolAction int32
+
+const (
+	ADD PoolAction = iota
+	IDLE
+	DELETE
+)
+
+type Stopper func()
+
+type watcher[T any] struct {
+	uuid string
+	f    func(k string, t T)
+}
+
+func (m *Pool[T]) On(action PoolAction, f func(k string, t T)) Stopper {
+	uid := uuid.New()
+	m.watchers[action] = append(m.watchers[action], watcher[T]{uuid: uuid.New(), f: f})
+
+	return func() {
+		for i, w := range m.watchers[action] {
+			if uid == w.uuid {
+				m.watchers[action] = append(m.watchers[action][:i], m.watchers[action][i+1:]...)
+			}
+		}
+	}
+}
+
+func (m *Pool[T]) on(action PoolAction, key string, t T) {
+	for _, w := range m.watchers[action] {
+		w.f(key, t)
+	}
 }
 
 func (m *Pool[T]) janitor(ctx context.Context, tickerTime, maxIdleTime time.Duration) {

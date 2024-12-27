@@ -53,7 +53,7 @@ func ListMinioConfigsFromConfig(ctx context.Context, skipSecret ...bool) map[str
 
 func GetMinioConfigForName(ctx context.Context, name string, skipSecret bool) *object.MinioConfig {
 	var conf *object.MinioConfig
-	if e := Get(ctx, configx.FormatPath("services", common.ServiceGrpcNamespace_+common.ServiceDataObjects_+name)).Scan(&conf); e == nil && conf != nil {
+	if e := Get(ctx, standard.FormatPath("services", common.ServiceGrpcNamespace_+common.ServiceDataObjects_+name)).Scan(&conf); e == nil && conf != nil {
 		if !skipSecret {
 			// Replace ApiSecret with value from vault
 			if sec := GetSecret(ctx, conf.ApiSecret).String(); sec != "" {
@@ -79,7 +79,7 @@ func ListSourcesFromConfig(ctx context.Context) map[string]*object.DataSource {
 
 func GetSourceInfoByName(ctx context.Context, dsName string) (*object.DataSource, error) {
 	var conf *object.DataSource
-	c := Get(ctx, configx.FormatPath("services", common.ServiceGrpcNamespace_+common.ServiceDataSync_+dsName))
+	c := Get(ctx, standard.FormatPath("services", common.ServiceGrpcNamespace_+common.ServiceDataSync_+dsName))
 	if e := c.Scan(&conf); e == nil {
 		if conf == nil {
 			return nil, fmt.Errorf("cannot load source by name " + dsName)
@@ -92,7 +92,7 @@ func GetSourceInfoByName(ctx context.Context, dsName string) (*object.DataSource
 
 // SourceNamesForDataServices list sourceNames from the config, excluding the timestamp key
 func SourceNamesForDataServices(ctx context.Context, dataSrvType string) []string {
-	return SourceNamesFromDataConfigs(Get(ctx, configx.FormatPath("services", common.ServiceGrpcNamespace_+dataSrvType)))
+	return SourceNamesFromDataConfigs(Get(ctx, standard.FormatPath("services", common.ServiceGrpcNamespace_+dataSrvType)))
 }
 
 // SourceNamesFromDataConfigs list sourceNames from the config, excluding the timestamp key
@@ -120,15 +120,15 @@ func SourceNamesToConfig(ctx context.Context, sources map[string]*object.DataSou
 	}
 	// Append a timestamped value to make sure it modifies the sources and triggers a config.Watch() event
 	sourcesJsonKey = append(sourcesJsonKey, fmt.Sprintf("%s%v", sourcesTimestampPrefix, time.Now().Unix()))
-	Set(ctx, sourcesJsonKey, configx.FormatPath("services", common.ServiceGrpcNamespace_+common.ServiceDataSync, "sources"))
-	Set(ctx, sourcesJsonKey, configx.FormatPath("services", common.ServiceGrpcNamespace_+common.ServiceDataIndex, "sources"))
+	Set(ctx, sourcesJsonKey, standard.FormatPath("services", common.ServiceGrpcNamespace_+common.ServiceDataSync, "sources"))
+	Set(ctx, sourcesJsonKey, standard.FormatPath("services", common.ServiceGrpcNamespace_+common.ServiceDataIndex, "sources"))
 }
 
 // TouchSourceNamesForDataServices update the timestamp set with the source list
 func TouchSourceNamesForDataServices(ctx context.Context, dataSrvType string) {
 	sources := SourceNamesForDataServices(ctx, dataSrvType)
 	sources = append(sources, fmt.Sprintf("%s%v", sourcesTimestampPrefix, time.Now().Unix()))
-	Set(ctx, sources, configx.FormatPath("services", common.ServiceGrpcNamespace_+dataSrvType, "sources"))
+	Set(ctx, sources, standard.FormatPath("services", common.ServiceGrpcNamespace_+dataSrvType, "sources"))
 	Save(ctx, common.PydioSystemUsername, "Touch sources update date for "+dataSrvType)
 }
 
@@ -140,7 +140,7 @@ func MinioConfigNamesToConfig(ctx context.Context, sources map[string]*object.Mi
 	}
 	// Append a timestamped value to make sure it modifies the sources and triggers a config.Watch() event
 	sourcesJSONKey = append(sourcesJSONKey, fmt.Sprintf("%s%v", sourcesTimestampPrefix, time.Now().Unix()))
-	Set(ctx, sourcesJSONKey, configx.FormatPath("services", common.ServiceGrpcNamespace_+common.ServiceDataObjects, "sources"))
+	Set(ctx, sourcesJSONKey, standard.FormatPath("services", common.ServiceGrpcNamespace_+common.ServiceDataObjects, "sources"))
 }
 
 // UnusedMinioServers searches for existing minio configs that are not used anywhere in datasources

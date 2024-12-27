@@ -32,14 +32,15 @@ import (
 	"go.uber.org/zap"
 
 	"github.com/pydio/cells/v5/common/config"
-	"github.com/pydio/cells/v5/common/config/memory"
 	"github.com/pydio/cells/v5/common/crypto"
 	pb "github.com/pydio/cells/v5/common/proto/registry"
 	"github.com/pydio/cells/v5/common/registry"
 	"github.com/pydio/cells/v5/common/registry/util"
 	"github.com/pydio/cells/v5/common/telemetry/log"
 	"github.com/pydio/cells/v5/common/utils/configx"
+	"github.com/pydio/cells/v5/common/utils/kv"
 	"github.com/pydio/cells/v5/common/utils/uuid"
+	"github.com/pydio/cells/v5/common/utils/watch"
 )
 
 var (
@@ -148,7 +149,7 @@ func (o *URLOpener) openURL(ctx context.Context, u *url.URL) (registry.Registry,
 	//	}
 	//	reg = NewConfigRegistry(store, byName)
 	case "mem":
-		store := memory.New(opts...)
+		store := kv.NewStore()
 
 		reg = NewConfigRegistry(store, byName)
 	}
@@ -211,7 +212,7 @@ func NewConfigRegistry(store config.Store, byName bool) registry.RawRegistry {
 }
 
 func (c *configRegistry) watch() error {
-	w, err := c.store.Watch(configx.WithPath("*", "*"), configx.WithChangesOnly())
+	w, err := c.store.Watch(watch.WithPath("*", "*"), watch.WithChangesOnly())
 	if err != nil {
 		return err
 	}
@@ -251,11 +252,13 @@ func (c *configRegistry) scanAndBroadcast(res configx.Values, bc broadcaster, bc
 	values := res.Val(keyName)
 	val := values.Val(getFromItemType(bcType))
 	if val.Get() != nil {
+
 		itemsMap := map[string]interface{}{}
 		if err := val.Scan(&itemsMap); err != nil {
 			log.Error("Error while scanning registry watch event to sync map", zap.Error(err))
 			return err
 		}
+
 		var items []registry.Item
 		for k, v := range itemsMap {
 			if item, ok := v.(registry.Item); ok {
@@ -380,7 +383,6 @@ func (c *configRegistry) Register(item registry.Item, option ...registry.Registe
 		return err
 	}
 
-	// fmt.Println(c.store.Val(getType(item)).Val(item.ID()).Get())
 	if err := c.store.Save("system", "register"); err != nil {
 		return err
 	}
@@ -415,6 +417,9 @@ func (c *configRegistry) Get(id string, opts ...registry.Option) (registry.Item,
 	}
 
 	for _, v := range items {
+		if v == nil {
+			continue
+		}
 		if id == v.ID() {
 			return v, nil
 		}
@@ -481,7 +486,6 @@ func (c *configRegistry) List(opts ...registry.Option) ([]registry.Item, error) 
 
 		rawItems, ok := store.Default(map[string]any{}).Interface().(map[string]any)
 		if !ok {
-			fmt.Println("We have a problem here ", store.Interface())
 			continue
 		}
 

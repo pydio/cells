@@ -36,7 +36,7 @@ import (
 	"github.com/pydio/cells/v5/common/runtime"
 	"github.com/pydio/cells/v5/common/service"
 	"github.com/pydio/cells/v5/common/telemetry/log"
-	"github.com/pydio/cells/v5/common/utils/configx"
+	"github.com/pydio/cells/v5/common/utils/watch"
 	"github.com/pydio/cells/v5/data/source"
 	"github.com/pydio/cells/v5/data/source/objects"
 	grpc2 "github.com/pydio/cells/v5/data/source/objects/grpc"
@@ -83,7 +83,7 @@ func init() {
 				})
 				var mErr []error
 				_ = runtime.MultiContextManager().Iterate(ctx, func(ctx context.Context, s string) error {
-					return resolver.HeatCacheAndWatch(ctx, configx.WithPath("services", common.ServiceGrpcNamespace_+common.ServiceDataObjects, "sources"))
+					return resolver.HeatCacheAndWatch(ctx, watch.WithPath("services", common.ServiceGrpcNamespace_+common.ServiceDataObjects, "sources"))
 				})
 				object.RegisterObjectsEndpointServer(server, sharedHandler)
 				object.RegisterResourceCleanerEndpointServer(server, sharedHandler)
