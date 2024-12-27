@@ -18,10 +18,10 @@ import (
 	"github.com/pydio/cells/v5/common/telemetry/log"
 	"github.com/pydio/cells/v5/common/utils/cache"
 	"github.com/pydio/cells/v5/common/utils/cache/gocache"
-	"github.com/pydio/cells/v5/common/utils/configx"
 	"github.com/pydio/cells/v5/common/utils/openurl"
 	"github.com/pydio/cells/v5/common/utils/propagator"
 	"github.com/pydio/cells/v5/common/utils/std"
+	"github.com/pydio/cells/v5/common/utils/watch"
 )
 
 const (
@@ -209,7 +209,7 @@ func (r *Resolver[T]) Lookup(ctx context.Context) (T, error) {
 }
 
 // HeatCacheAndWatch use internal loader and SourcesProvider to put all data in cache. WatchOptions are used to start a watch on config
-func (r *Resolver[T]) HeatCacheAndWatch(ctx context.Context, watchOpts ...configx.WatchOption) error {
+func (r *Resolver[T]) HeatCacheAndWatch(ctx context.Context, watchOpts ...watch.WatchOption) error {
 	if r.loader == nil {
 		return errors.WithMessage(errors.StatusInternalServerError, "cannot pre heat without a loader")
 	}
@@ -234,7 +234,7 @@ func (r *Resolver[T]) HeatCacheAndWatch(ctx context.Context, watchOpts ...config
 }
 
 // WatchConfig watches sources and triggers loader/cleaner for new/removed sources
-func (r *Resolver[T]) WatchConfig(ctx context.Context, opts ...configx.WatchOption) {
+func (r *Resolver[T]) WatchConfig(ctx context.Context, opts ...watch.WatchOption) {
 	w, e := config.Watch(ctx, opts...)
 	if e != nil {
 		return

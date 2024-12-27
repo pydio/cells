@@ -280,7 +280,7 @@ func (m *memory) Watch(opts ...configx.WatchOption) (configx.Receiver, error) {
 		opt(o)
 	}
 
-	path := configx.StringToKeys(o.Path...)
+	path := std.StringToKeys(o.Path...)
 
 	regPath, err := regexp.Compile("^" + strings.Join(path, "/"))
 	if err != nil {

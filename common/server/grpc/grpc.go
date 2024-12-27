@@ -22,6 +22,7 @@ package grpc
 
 import (
 	"context"
+	"encoding/gob"
 	"fmt"
 	"net"
 	"net/url"
@@ -54,6 +55,7 @@ import (
 )
 
 func init() {
+	gob.Register(&grpc.Server{})
 	server.DefaultURLMux().Register("grpc", &Opener{})
 	server.DefaultURLMux().Register("xds", &Opener{})
 }
@@ -90,7 +92,7 @@ type Server struct {
 	handlerUnaryInterceptors  []grpc.UnaryServerInterceptor
 	handlerStreamInterceptors []grpc.StreamServerInterceptor
 
-	sync.Mutex
+	lock sync.Mutex
 }
 
 // New creates the generic grpc.Server
@@ -139,8 +141,8 @@ func NewWithServer(ctx context.Context, name string, s *grpc.Server, listen stri
 }
 
 func (s *Server) lazyGrpc(rootContext context.Context) IServer {
-	s.Lock()
-	defer s.Unlock()
+	s.lock.Lock()
+	defer s.lock.Unlock()
 
 	if s.Server != nil {
 		return s.Server
@@ -437,18 +439,22 @@ func (r *serverRegistrar) RegisterService(desc *grpc.ServiceDesc, impl interface
 	for _, method := range desc.Methods {
 		endpoint := util.CreateEndpoint("/"+desc.ServiceName+"/"+method.MethodName, impl, map[string]string{})
 
-		r.reg.Register(endpoint,
-			registry.WithEdgeTo(r.id, "server", map[string]string{"serverType": "grpc"}),
-		)
+		if r.reg != nil {
+			r.reg.Register(endpoint,
+				registry.WithEdgeTo(r.id, "server", map[string]string{"serverType": "grpc"}),
+			)
+		}
 	}
 
 	for _, method := range desc.Streams {
 		endpoint := util.CreateEndpoint("/"+desc.ServiceName+"/"+method.StreamName, impl, map[string]string{})
 
-		r.reg.Register(endpoint,
-			registry.WithEdgeTo(r.id, "server", map[string]string{
-				"serverType": "grpc",
-			}))
+		if r.reg != nil {
+			r.reg.Register(endpoint,
+				registry.WithEdgeTo(r.id, "server", map[string]string{
+					"serverType": "grpc",
+				}))
+		}
 	}
 }
 

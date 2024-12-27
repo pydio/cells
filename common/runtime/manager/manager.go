@@ -37,6 +37,7 @@ import (
 	"github.com/bep/debounce"
 	"github.com/manifoldco/promptui"
 	"github.com/pkg/errors"
+	"github.com/spf13/cast"
 	"go.uber.org/zap"
 	"golang.org/x/sync/errgroup"
 	"google.golang.org/grpc"
@@ -67,6 +68,7 @@ import (
 	json "github.com/pydio/cells/v5/common/utils/jsonx"
 	"github.com/pydio/cells/v5/common/utils/openurl"
 	"github.com/pydio/cells/v5/common/utils/propagator"
+	"github.com/pydio/cells/v5/common/utils/watch"
 
 	_ "embed"
 )
@@ -271,6 +273,7 @@ func NewManager(ctx context.Context, namespace string, logger log.ZapLogger) (Ma
 			}); err != nil {
 				return
 			}
+
 			// TODO - must iterate somehow
 			//if err := bootstrap.reload(ctx, store); err != nil {
 			//	return nil, err
@@ -586,7 +589,7 @@ func (m *manager) initProcesses(ctx context.Context, bootstrap config.Store, bas
 		baseWatch = append(baseWatch, strings.Split(strings.TrimLeft(base, "#/"), "/")...)
 	}
 
-	w, err := bootstrap.Watch(configx.WithPath(append(baseWatch, "processes", "*")...), configx.WithChangesOnly())
+	w, err := bootstrap.Watch(watch.WithPath(append(baseWatch, "processes", "*")...), watch.WithChangesOnly())
 	if err != nil {
 		return err
 	}
@@ -757,9 +760,9 @@ func (m *manager) initProcesses(ctx context.Context, bootstrap config.Store, bas
 func (m *manager) initListeners(ctx context.Context, store config.Store, base string) error {
 	listeners := store.Val(base + "/listeners")
 	for k, v := range listeners.Map() {
-		vv, ok := v.(map[any]any)
-		if !ok {
-			continue
+		vv, err := cast.ToStringMapE(v)
+		if err != nil {
+			return err
 		}
 
 		var lis net.Listener
@@ -807,9 +810,9 @@ func (m *manager) initServers(ctx context.Context, store config.Store, base stri
 
 	servers := store.Val(base + "/servers")
 	for _, v := range servers.Map() {
-		vv, ok := v.(map[any]any)
-		if !ok {
-			continue
+		vv, err := cast.ToStringMapE(v)
+		if err != nil {
+			return err
 		}
 
 		var uri string
@@ -854,9 +857,9 @@ func (m *manager) initServers(ctx context.Context, store config.Store, base stri
 func (m *manager) initConnections(ctx context.Context, store config.Store, base string) error {
 	connections := store.Val(base + "/connections")
 	for k, v := range connections.Map() {
-		vv, ok := v.(map[any]any)
-		if !ok {
-			continue
+		vv, err := cast.ToStringMapE(v)
+		if err != nil {
+			return err
 		}
 
 		pool, err := openurl.OpenPool(ctx, []string{vv["uri"].(string)}, func(ctx context.Context, url string) (grpc.ClientConnInterface, error) {
@@ -1267,6 +1270,8 @@ func (m *manager) ServeAll(oo ...server.ServeOption) error {
 	// Starting servers attached to this node that are currently stopped
 	eg := &errgroup.Group{}
 	servers := serversWithStatus(m.internalRegistry, m.root, registry.StatusStopped)
+
+	fmt.Println("List of servers ", servers)
 
 	for _, srv := range servers {
 		func(srv server.Server) {

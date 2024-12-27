@@ -17,7 +17,6 @@ type customValueDiffer struct {
 }
 
 func (c *customValueDiffer) Match(a, b reflect.Value) bool {
-
 	if a.IsValid() && a.CanInterface() && b.IsValid() && b.CanInterface() {
 		_, okA := a.Interface().(Item)
 		_, okB := b.Interface().(Item)

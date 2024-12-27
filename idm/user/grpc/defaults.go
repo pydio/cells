@@ -37,6 +37,7 @@ func InitDefaults(ctx context.Context) error {
 		return fmt.Errorf("no config")
 	}
 
+	fmt.Println("HERE WE ARE ", os.Getenv(EnvPydioAdminUserLogin), os.Getenv(EnvPydioAdminUserPassword))
 	if os.Getenv(EnvPydioAdminUserLogin) != "" && os.Getenv(EnvPydioAdminUserPassword) != "" {
 		login = os.Getenv(EnvPydioAdminUserLogin)
 		pwd = os.Getenv(EnvPydioAdminUserPassword)

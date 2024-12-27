@@ -23,6 +23,7 @@ package manager
 import (
 	"context"
 	"fmt"
+	"github.com/pydio/cells/v5/common/utils/std"
 	"reflect"
 	"runtime"
 
@@ -215,7 +216,7 @@ func Resolve[T any](ctx context.Context, opts ...ResolveOption) (s T, final erro
 		span.AddEvent("After Handler.Call")
 
 		if initProvider, ok := dao.(InitProvider); ok {
-			serviceConfigs := cfg.Context(ctx).Val(configx.FormatPath("services", svc.Name()))
+			serviceConfigs := cfg.Context(ctx).Val(std.FormatPath("services", svc.Name()))
 			if er := initProvider.Init(ctx, serviceConfigs); er != nil {
 				return t, errors.Tag(er, errors.ResolveError)
 			}

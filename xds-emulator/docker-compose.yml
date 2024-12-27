@@ -1,0 +1,54 @@
+version: '3.8'
+services:
+  server_a:
+    build:
+      context: ./grpc_services
+      dockerfile: Dockerfile
+    ports:
+      - "50051:50051"
+    environment:
+      - GRPC_XDS_BOOTSTRAP=/var/server/xds_bootstrap.json  # Replace with the correct path
+    volumes:
+      - ./xds_bootstrap.json:/var/server/xds_bootstrap.json
+    networks:
+      - xds_network
+    command: ["/server_a"]
+
+  server_b:
+    build:
+      context: ./grpc_services
+      dockerfile: Dockerfile
+    ports:
+      - "50052:50052"
+    environment:
+      - GRPC_XDS_BOOTSTRAP=/var/server/xds_bootstrap.json  # Replace with the correct path
+    volumes:
+      - ./xds_bootstrap.json:/var/server/xds_bootstrap.json
+    networks:
+      - xds_network
+    command: ["/server_b"]
+
+  control_plane:
+    build:
+      context: ./control_plane
+      dockerfile: Dockerfile
+    ports:
+      - "18000:18000"
+    networks:
+      - xds_network
+
+  envoy:
+    build:
+      context: ./envoy
+      dockerfile: Dockerfile
+    ports:
+      - "9901:9901"  # Admin interface
+      - "10000:10000"  # Service port
+    networks:
+      - xds_network
+    command: ["envoy", "-c", "/etc/envoy/envoy.yaml", "-l", "debug"]
+
+
+networks:
+  xds_network:
+    driver: bridge

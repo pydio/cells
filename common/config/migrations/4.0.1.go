@@ -22,6 +22,7 @@ package migrations
 
 import (
 	"fmt"
+	"github.com/pydio/cells/v5/common/utils/std"
 
 	"github.com/hashicorp/go-version"
 
@@ -40,14 +41,14 @@ func init() {
 // duplicated because of PeerAddress
 func cleanOverlappingObjectsServices(conf configx.Values) error {
 
-	core := conf.Val(configx.FormatPath("services", common.ServiceGrpcNamespace_+common.ServiceDataObjects))
+	core := conf.Val(std.FormatPath("services", common.ServiceGrpcNamespace_+common.ServiceDataObjects))
 	sources := config.SourceNamesFiltered(core.Val("sources").StringArray())
 
 	var res []*object.MinioConfig
 
 	for _, src := range sources {
 		var obj *object.MinioConfig
-		if e := conf.Val(configx.FormatPath("services", common.ServiceGrpcNamespace_+common.ServiceDataObjects_+src)).Scan(&obj); e == nil && obj != nil {
+		if e := conf.Val(std.FormatPath("services", common.ServiceGrpcNamespace_+common.ServiceDataObjects_+src)).Scan(&obj); e == nil && obj != nil {
 			if obj.StorageType == object.StorageType_LOCAL {
 				res = append(res, obj)
 			}
@@ -80,7 +81,7 @@ func cleanOverlappingObjectsServices(conf configx.Values) error {
 
 	for _, o := range toRemove {
 		fmt.Println("[WARN] Migration is removing objects service " + o.Name + " to avoid starting conflicts")
-		_ = conf.Val(configx.FormatPath("services", common.ServiceGrpcNamespace_+common.ServiceDataObjects_+o.Name)).Del()
+		_ = conf.Val(std.FormatPath("services", common.ServiceGrpcNamespace_+common.ServiceDataObjects_+o.Name)).Del()
 	}
 
 	var newSources []string

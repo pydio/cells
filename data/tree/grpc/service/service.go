@@ -33,7 +33,7 @@ import (
 	"github.com/pydio/cells/v5/common/proto/tree"
 	"github.com/pydio/cells/v5/common/runtime"
 	"github.com/pydio/cells/v5/common/service"
-	"github.com/pydio/cells/v5/common/utils/configx"
+	"github.com/pydio/cells/v5/common/utils/watch"
 	grpc2 "github.com/pydio/cells/v5/data/tree/grpc"
 )
 
@@ -54,7 +54,7 @@ func init() {
 				_ = runtime.MultiContextManager().Iterate(ctx, func(ct context.Context, s string) error {
 					// TODO - should be a callback
 					go func() {
-						w, err := config.Watch(ctx, configx.WithPath("services", common.ServiceDataSyncGRPC, "sources"))
+						w, err := config.Watch(ctx, watch.WithPath("services", common.ServiceDataSyncGRPC, "sources"))
 						if err != nil {
 							return
 						}

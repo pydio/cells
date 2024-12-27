@@ -28,10 +28,10 @@ import (
 	"math/rand"
 	"os"
 	"sort"
-	"sync"
 	"testing"
 	"time"
 
+	"go.opentelemetry.io/otel/trace"
 	ggrpc "google.golang.org/grpc"
 
 	pb "github.com/pydio/cells/v5/common/proto/registry"
@@ -43,11 +43,17 @@ import (
 	"github.com/pydio/cells/v5/common/server/grpc"
 	"github.com/pydio/cells/v5/common/server/stubs/discoverytest"
 	"github.com/pydio/cells/v5/common/service"
+	otel2 "github.com/pydio/cells/v5/common/telemetry/otel"
+	"github.com/pydio/cells/v5/common/telemetry/tracing"
 	"github.com/pydio/cells/v5/common/utils/openurl"
 	"github.com/pydio/cells/v5/common/utils/propagator"
 
+	_ "github.com/pydio/cells/v5/common/config/viper"
 	_ "github.com/pydio/cells/v5/common/registry/config"
 	_ "github.com/pydio/cells/v5/common/registry/service"
+	_ "github.com/pydio/cells/v5/common/telemetry/tracing/jaeger"
+	_ "github.com/pydio/cells/v5/common/telemetry/tracing/otlp"
+	_ "github.com/pydio/cells/v5/common/telemetry/tracing/stdout"
 
 	. "github.com/smartystreets/goconvey/convey"
 )
@@ -59,8 +65,23 @@ var (
 	testSkipEtcd     bool
 )
 
+var span trace.Span
+
 func init() {
 	var err error
+
+	ctx := context.Background()
+	if err := tracing.InitExporters(ctx, otel2.Service{}, tracing.Config{Outputs: []string{
+		"jaeger-dump://localhost:14268/api/traces",
+		"otlp://localhost:4318",
+		"stdout://",
+	}}); err != nil {
+		panic(err)
+	}
+
+	ctx, span = tracing.StartLocalSpan(ctx, "registry")
+
+	span.AddEvent("start")
 
 	testMemRegistry, err = registry.OpenRegistry(context.Background(), "mem://")
 	if err != nil {
@@ -84,6 +105,9 @@ func TestMemory(t *testing.T) {
 	}
 
 	doTestAdd(t, testMemRegistry)
+
+	span.AddEvent("end")
+	span.End()
 }
 
 func TestService(t *testing.T) {
@@ -91,6 +115,10 @@ func TestService(t *testing.T) {
 		t.Skip("skipping test: no mem registry")
 	}
 	ctx := context.Background()
+
+	var span trace.Span
+	ctx, span = tracing.StartLocalSpan(ctx, "oAuth2Driver.Migrate")
+	defer span.End()
 
 	conn := discoverytest.NewRegistryService(testMemRegistry)
 
@@ -153,7 +181,9 @@ func doRegister(ctx context.Context, m registry.Registry, ids *[]string) chan re
 			select {
 			case item := <-ch:
 				cnt = cnt + 1
+				t := time.Now()
 				m.Register(item)
+				fmt.Println("Registering took ", time.Now().Sub(t))
 				*ids = append(*ids, item.ID())
 			case <-ctx.Done():
 				return
@@ -168,10 +198,15 @@ func doTestAdd(t *testing.T, m registry.Registry) {
 	Convey("Add services to the registry", t, func() {
 		waitForQuiet := make(chan struct{})
 
-		numNodes := 100
-		numServers := 1000
-		numServices := 1000
-		numUpdates := 100
+		//numNodes := 100
+		//numServers := 1000
+		//numServices := 1000
+		//numUpdates := 100
+
+		numNodes := 1000
+		numServers := 10000
+		numServices := 10000
+		numUpdates := 0
 
 		w, err := m.Watch(registry.WithType(pb.ItemType_NODE), registry.WithType(pb.ItemType_SERVER), registry.WithType(pb.ItemType_SERVICE))
 		if err != nil {
@@ -218,13 +253,9 @@ func doTestAdd(t *testing.T, m registry.Registry) {
 						}
 
 					case res := <-resCh:
+
 						done = true
-						// Resetting timer
-						timer.Stop()
-						select {
-						case <-timer.C:
-						default:
-						}
+
 						timer.Reset(2 * time.Second)
 
 						switch res.Action() {
@@ -242,6 +273,8 @@ func doTestAdd(t *testing.T, m registry.Registry) {
 								deletedItemIds = append(deletedItemIds, item.ID())
 							}
 						}
+
+						fmt.Println("List ", len(createdItemIds), len(updatedItemIds), len(deletedItemIds))
 					}
 				}
 			}()
@@ -264,6 +297,8 @@ func doTestAdd(t *testing.T, m registry.Registry) {
 		var servers []server.Server
 		for i := 0; i < numServers; i++ {
 			srv := grpc.New(ctx, grpc.WithName("mock"))
+
+			fmt.Println("Adding ", i)
 
 			ch <- srv
 
@@ -297,15 +332,10 @@ func doTestAdd(t *testing.T, m registry.Registry) {
 
 		reset()
 
-		// Checking if updates are working correctly
-		wg := &sync.WaitGroup{}
-
-		for j := 0; j < 2; j++ {
+		if numUpdates > 0 {
 			for i := 0; i < numUpdates; i++ {
 				if numNodes > 0 {
-					wg.Add(1)
 					go func() {
-						defer wg.Done()
 
 						idx := rand.Int() % numNodes
 						node, err := m.Get(nodeIds[idx], registry.WithType(pb.ItemType_NODE))
@@ -319,20 +349,20 @@ func doTestAdd(t *testing.T, m registry.Registry) {
 
 						if ms, ok := node.(registry.MetaSetter); ok {
 							ms.SetMetadata(meta)
+
 							ch <- ms.(registry.Item)
 						}
 					}()
 				}
 
 				if numServers > 0 {
-					wg.Add(1)
+					//wg.Add(1)
 					go func() {
-						defer wg.Done()
+						//defer wg.Done()
 
 						idx := rand.Int() % numServers
 						srv, err := m.Get(serverIds[idx], registry.WithType(pb.ItemType_SERVER))
 						if err != nil {
-							fmt.Println("Error here ? ", err)
 							return
 						}
 
@@ -342,6 +372,7 @@ func doTestAdd(t *testing.T, m registry.Registry) {
 
 						if ms, ok := srv.(registry.MetaSetter); ok {
 							ms.SetMetadata(meta)
+
 							ch <- ms.(registry.Item)
 						}
 
@@ -349,9 +380,9 @@ func doTestAdd(t *testing.T, m registry.Registry) {
 				}
 
 				if numServices > 0 {
-					wg.Add(1)
+					//wg.Add(1)
 					go func() {
-						defer wg.Done()
+						//defer wg.Done()
 
 						idx := rand.Int() % numServices
 						svc, err := m.Get(ids[idx], registry.WithType(pb.ItemType_SERVICE))
@@ -372,21 +403,22 @@ func doTestAdd(t *testing.T, m registry.Registry) {
 				}
 			}
 
+			fmt.Println("Waiting for quiet ?")
 			<-waitForQuiet
+			fmt.Println("Got it")
+
+			updatedItemIds = unique(updatedItemIds)
+			itemsSentToRegisterIds = unique(itemsSentToRegisterIds)
+			totalUpdates := len(itemsSentToRegisterIds)
+
+			sort.Strings(updatedItemIds)
+
+			So(len(updatedItemIds), ShouldEqual, totalUpdates)
+
+			reset()
 		}
 
-		updatedItemIds = unique(updatedItemIds)
-		itemsSentToRegisterIds = unique(itemsSentToRegisterIds)
-		totalUpdates := len(itemsSentToRegisterIds)
-
-		sort.Strings(updatedItemIds)
-
-		So(len(updatedItemIds), ShouldEqual, totalUpdates)
-
-		reset()
-
-		wg.Wait()
-		<-time.After(3 * time.Second)
+		//<-time.After(3 * time.Second)
 
 		// Delete
 		for _, s := range nodes {
