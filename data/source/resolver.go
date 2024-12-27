@@ -182,7 +182,8 @@ func (r *Resolver[T]) Resolve(ctx context.Context) (T, error) {
 		return t, nil
 	}
 	if r.loader != nil {
-		if t, er = r.loader(ctx, s); er == nil {
+		// Make sure that this context will not be canceled
+		if t, er = r.loader(context.WithoutCancel(ctx), s); er == nil {
 			_ = ka.Set(s, t)
 		}
 		return t, er
