@@ -158,7 +158,7 @@ func (h *Handler) Subscribe(ctx context.Context, request *proto.SubscribeRequest
 	if err != nil {
 		return nil, err
 	}
-	if e := dao.UpdateSubscription(nil, request.Subscription); e != nil {
+	if e := dao.UpdateSubscription(ctx, request.Subscription); e != nil {
 		return nil, e
 	}
 	return &proto.SubscribeResponse{
@@ -182,7 +182,7 @@ func (h *Handler) SearchSubscriptions(request *proto.SearchSubscriptionsRequest,
 	if len(request.UserIds) > 0 {
 		userId = request.UserIds[0]
 	}
-	users, err := dao.ListSubscriptions(nil, objectType, request.ObjectIds)
+	users, err := dao.ListSubscriptions(ctx, objectType, request.ObjectIds)
 	if err != nil {
 		return err
 	}
@@ -206,7 +206,7 @@ func (h *Handler) UnreadActivitiesNumber(ctx context.Context, request *proto.Unr
 	if err != nil {
 		return nil, err
 	}
-	number := dao.CountUnreadForUser(nil, request.UserId)
+	number := dao.CountUnreadForUser(ctx, request.UserId)
 	return &proto.UnreadActivitiesResponse{
 		Number: int32(number),
 	}, nil
@@ -228,7 +228,7 @@ func (h *Handler) SetUserLastActivity(ctx context.Context, request *proto.UserLa
 		return nil, fmt.Errorf("invalid box name")
 	}
 
-	if err := dao.StoreLastUserInbox(nil, request.UserId, boxName, request.ActivityId); err == nil {
+	if err := dao.StoreLastUserInbox(ctx, request.UserId, boxName, request.ActivityId); err == nil {
 		return &proto.UserLastActivityResponse{Success: true}, nil
 	} else {
 		return nil, err
