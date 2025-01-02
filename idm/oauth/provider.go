@@ -22,6 +22,8 @@ package oauth
 
 import (
 	"context"
+	"regexp"
+	"strconv"
 	"strings"
 
 	"github.com/gofrs/uuid"
@@ -146,8 +148,8 @@ func mapConfigValues(rootURL string, values configx.Values) configx.Values {
 	if secret := values.Val("secret").String(); secret != "" {
 		_ = val.Val(hconf.KeyGetSystemSecret).Set([]string{values.Val("secret").String()})
 	}
-	_ = val.Val(hconf.KeyPublicURL).Set(rootURL + "/oidc")
-	_ = val.Val(hconf.KeyIssuerURL).Set(rootURL + "/oidc")
+	_ = val.Val(hconf.KeyPublicURL).Set(rootURL + "/oidc/")
+	_ = val.Val(hconf.KeyIssuerURL).Set(rootURL + "/oidc/")
 	_ = val.Val(hconf.KeyLoginURL).Set(rootURL + "/oauth2/login")
 	_ = val.Val(hconf.KeyLogoutURL).Set(rootURL + "/oauth2/logout")
 	_ = val.Val(hconf.KeyConsentURL).Set(rootURL + "/oauth2/consent")
@@ -195,6 +197,44 @@ func varsFromStr(s string, sites []*install.ProxyConfig, site *install.ProxyConf
 
 		res = append(res, s)
 
+	}
+	return res
+}
+
+// Todo - not used ?
+func rangeFromStr(s string) []string {
+
+	var res []string
+	re := regexp.MustCompile(`\[([0-9]+)-([0-9]+)\]`)
+
+	r := re.FindStringSubmatch(s)
+
+	if len(r) < 3 {
+		return []string{s}
+	}
+
+	min, err := strconv.Atoi(r[1])
+	if err != nil {
+		return []string{s}
+	}
+
+	max, err := strconv.Atoi(r[2])
+	if err != nil {
+		return []string{s}
+	}
+
+	if min > max {
+		return []string{s}
+	}
+
+	for {
+		if min > max {
+			break
+		}
+
+		res = append(res, re.ReplaceAllString(s, strconv.Itoa(min)))
+
+		min = min + 1
 	}
 	return res
 }

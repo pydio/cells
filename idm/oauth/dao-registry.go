@@ -27,9 +27,7 @@ import (
 	"net/http"
 	"net/url"
 	"os"
-	"regexp"
 	"runtime"
-	"strconv"
 	"strings"
 	"sync"
 
@@ -496,44 +494,6 @@ func (m *AbstractRegistry) Connectors(ctx context.Context) []auth.ConnectorConfi
 	}
 
 	return m.connectors
-}
-
-// Todo - not used ?
-func rangeFromStr(s string) []string {
-
-	var res []string
-	re := regexp.MustCompile(`\[([0-9]+)-([0-9]+)\]`)
-
-	r := re.FindStringSubmatch(s)
-
-	if len(r) < 3 {
-		return []string{s}
-	}
-
-	min, err := strconv.Atoi(r[1])
-	if err != nil {
-		return []string{s}
-	}
-
-	max, err := strconv.Atoi(r[2])
-	if err != nil {
-		return []string{s}
-	}
-
-	if min > max {
-		return []string{s}
-	}
-
-	for {
-		if min > max {
-			break
-		}
-
-		res = append(res, re.ReplaceAllString(s, strconv.Itoa(min)))
-
-		min = min + 1
-	}
-	return res
 }
 
 /*

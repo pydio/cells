@@ -22,8 +22,6 @@ package grpc
 
 import (
 	"context"
-	"crypto/sha256"
-	"encoding/base64"
 	"fmt"
 	"net/http"
 	"net/url"
@@ -356,19 +354,21 @@ func (h *Handler) CreateAuthCode(ctx context.Context, in *pauth.CreateAuthCodeRe
 	values.Set("response_type", "code")
 	values.Set("consent_verifier", in.GetConsent().GetChallenge())
 	values.Set("state", uuid.New())
+	if in.GetCodeChallenge() != "" {
+		values.Set("code_challenge", in.GetCodeChallenge())
+		values.Set("code_challenge_method", in.GetCodeChallengeMethod())
+	}
 
 	req, err := http.NewRequestWithContext(ctx, "POST", "http://"+host, strings.NewReader(values.Encode()))
 	if err != nil {
 		return nil, err
 	}
 
+	// Replicate Post values to URL Query
 	query := req.URL.Query()
-	query.Set("client_id", in.GetClientID())
-	query.Set("redirect_uri", in.GetRedirectURI())
-	query.Set("response_type", "code")
-	query.Set("consent_verifier", in.GetConsent().GetChallenge())
-	query.Set("state", uuid.New())
-
+	for k, v := range values {
+		query[k] = v
+	}
 	req.URL.RawQuery = query.Encode()
 
 	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
@@ -1025,15 +1025,11 @@ func (h *Handler) loginToCode(ctx context.Context, challenge string, identity au
 	if err != nil {
 		return "", err
 	}
-
-	verifier := cst.Challenge // Must be > 43 characters
-	hash := sha256.New()
-	if _, err = hash.Write([]byte(verifier)); err != nil {
-		return "", err
+	var codeChallenge, codeChallengeMethod string
+	if cs := requestURLValues.Get("code_challenge"); cs != "" {
+		codeChallenge = cs
+		codeChallengeMethod = requestURLValues.Get("code_challenge_method")
 	}
-
-	codeChallenge := base64.RawURLEncoding.EncodeToString(hash.Sum([]byte{}))
-	codeChallengeMethod := "S256"
 
 	codeResponse, err := h.CreateAuthCode(ctx, &pauth.CreateAuthCodeRequest{
 		Consent:             cst,

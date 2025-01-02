@@ -76,7 +76,10 @@ func (c clientConfigDriver) GetConcreteClient(ctx context.Context, id string) (*
 				// Todo - check r.Host against current site
 				var redirectURIs []string
 				for _, redirectURI := range []string(cli.RedirectURIs) {
-					redirectURIs = append(redirectURIs, strings.Replace(redirectURI, "#default_bind#", "https://"+r.Host, 1))
+					redirectURI = strings.Replace(redirectURI, "#default_bind#", "https://"+r.Host, 1)
+					for _, rU := range rangeFromStr(redirectURI) {
+						redirectURIs = append(redirectURIs, rU)
+					}
 				}
 
 				ctxCli.RedirectURIs = redirectURIs
