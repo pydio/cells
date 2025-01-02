@@ -7,6 +7,7 @@ import (
 	"github.com/spf13/viper"
 
 	"github.com/pydio/cells/v5/common/config"
+	"github.com/pydio/cells/v5/common/crypto"
 	"github.com/pydio/cells/v5/common/utils/configx"
 	"github.com/pydio/cells/v5/common/utils/kv"
 	"github.com/pydio/cells/v5/common/utils/watch"
@@ -42,16 +43,15 @@ func (o *MemOpener) Open(ctx context.Context, urlstr string) (config.Store, erro
 	default:
 		opts = append(opts, configx.WithJSON())
 	}
-	//
-	//if master := u.Query().Get("masterKey"); master != "" {
-	//
-	//	enc, err := crypto.NewVaultCipher(master)
-	//	if err != nil {
-	//		return nil, err
-	//	}
-	//	opts = append(opts, configx.WithEncrypt(enc), configx.WithDecrypt(enc))
-	//}
-	//
+
+	if master := u.Query().Get("masterKey"); master != "" {
+		enc, err := crypto.NewVaultCipher(master)
+		if err != nil {
+			return nil, err
+		}
+		opts = append(opts, configx.WithEncrypt(enc), configx.WithDecrypt(enc))
+	}
+
 	//if data := u.Query().Get("data"); data != "" {
 	//	opts = append(opts, configx.WithInitData([]byte(data)))
 	//}

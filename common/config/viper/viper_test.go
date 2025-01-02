@@ -10,6 +10,7 @@ import (
 
 	"github.com/pydio/cells/v5/common/config"
 	"github.com/pydio/cells/v5/common/utils/configx"
+	"github.com/pydio/cells/v5/common/utils/kv"
 	"github.com/pydio/cells/v5/common/utils/openurl"
 	"github.com/pydio/cells/v5/common/utils/watch"
 )
@@ -197,7 +198,7 @@ func TestViperWithRefPool_Get(t *testing.T) {
 	}
 
 	// Create storeWithRefPool instance
-	vwrp := newStoreWithRefPool(newViper(mainViper), refPool)
+	vwrp := kv.newStoreWithRefPool(newViper(mainViper), refPool)
 
 	// Table-driven tests
 	tests := []struct {
@@ -271,7 +272,7 @@ func TestViperWithRefPool_Set(t *testing.T) {
 	}
 
 	// Create the storeWithRefPool instance
-	vwrp := newStoreWithRefPool(newViper(mainViper), refPool)
+	vwrp := kv.newStoreWithRefPool(newViper(mainViper), refPool)
 
 	// Table-driven tests
 	tests := []struct {
@@ -371,8 +372,8 @@ func TestViperWithRefPool_Watch(t *testing.T) {
 	}
 
 	// Create the storeWithRefPool instance
-	vwrp := &memStore{Store: newStoreWithRefPool(newViper(mainViper), refPool), clone: func(store config.Store) config.Store {
-		return &storeWithRefPool{Store: store, refPool: refPool}
+	vwrp := &memStore{Store: kv.newStoreWithRefPool(newViper(mainViper), refPool), clone: func(store config.Store) config.Store {
+		return &kv.storeWithRefPool{Store: store, refPool: refPool}
 	}}
 
 	for _, tt := range tests {
