@@ -120,7 +120,11 @@ func (e *MicroEventsSubscriber) HandleNodeChange(ctx context.Context, msg *tree.
 
 	loadedNode, parentUuids, err := e.parentsFromCache(ctx, node, msg.Type == tree.NodeChangeEvent_DELETE)
 	if err != nil {
-		log.Logger(ctx).Error("Error while loading parentsFromCache for node", zap.Error(err), node.ZapPath(), zap.String("eventType", msg.Type.String()))
+		if errors.Is(err, errors.StatusRequestTimeout) {
+			log.Logger(ctx).Warn("Skipping activity as deadline exceeded", node.ZapPath(), zap.String("eventType", msg.Type.String()))
+		} else {
+			log.Logger(ctx).Error("Error while loading parentsFromCache for node", zap.Error(err), node.ZapPath(), zap.String("eventType", msg.Type.String()))
+		}
 		return err
 	}
 	// Use reloaded node
