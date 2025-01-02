@@ -103,6 +103,8 @@ func (s *JobsHandler) UserListJobs(req *restful.Request, rsp *restful.Response) 
 		if request.TasksLimit == 1 && len(j.Tasks) > 0 && j.Tasks[0].Status == jobs.TaskStatus_Running {
 			hasRunning = append(hasRunning, j.ID)
 		}
+		// Clear job definition, this should not be published to user
+		j.Actions = []*jobs.Action{}
 		output.Jobs = append(output.Jobs, j)
 		loadedJobs[j.ID] = j
 		return nil

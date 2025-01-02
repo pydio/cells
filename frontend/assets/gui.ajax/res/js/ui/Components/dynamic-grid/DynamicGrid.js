@@ -18,6 +18,8 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
+import {Fragment} from "react";
+
 const React = require('react')
 const Pydio = require('pydio')
 import PydioApi from 'pydio/http/api'
@@ -209,6 +211,7 @@ class CardsGrid extends React.Component {
 
         const ResponsiveGridLayout = WidthProvider(Responsive);
         return (
+            <Fragment>
             <ResponsiveGridLayout
                 className="dashboard-layout"
                 cols={this.props.cols || {lg: 10, md: 8, sm: 8, xs: 4, xxs: 2}}
@@ -221,6 +224,12 @@ class CardsGrid extends React.Component {
             >
                 {cards}
             </ResponsiveGridLayout>
+            <style type={"text/css"} dangerouslySetInnerHTML={{__html:`
+            .react-grid-item.react-grid-placeholder{
+                pointer-events:none;
+            }
+            `}}/>
+            </Fragment>
         );
     }
 }
