@@ -143,6 +143,19 @@ func MinioConfigNamesToConfig(ctx context.Context, sources map[string]*object.Mi
 	Set(ctx, sourcesJSONKey, standard.FormatPath("services", common.ServiceGrpcNamespace_+common.ServiceDataObjects, "sources"))
 }
 
+// IndexServiceTableNames returns table names for indexes
+func IndexServiceTableNames(dsName string) map[string]string {
+	dsName = strings.Replace(dsName, "-", "_", -1)
+	if len(dsName) > 51 {
+		dsName = dsName[0:50] // table names must be limited
+	}
+	return map[string]string{
+		"commits": "data_" + dsName + "_commits",
+		"nodes":   "data_" + dsName + "_nodes",
+		"tree":    "data_" + dsName + "_tree",
+	}
+}
+
 // UnusedMinioServers searches for existing minio configs that are not used anywhere in datasources
 func UnusedMinioServers(minios map[string]*object.MinioConfig, sources map[string]*object.DataSource) []string {
 	var unused []string
