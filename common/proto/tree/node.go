@@ -702,34 +702,42 @@ func (me MPathLike) Build(builder clause.Builder) {
 	var done bool
 	var expr []clause.Expression
 
-	if me.Value.GetMPath4() != "" {
-		val := me.Value.GetMPath4()
+	if val := me.Value.GetMPath4(); val != "" {
 		if !done {
-			val += ".%"
+			if val != "" && len(val) < 255 {
+				val += "."
+			}
+			val += "%"
 			done = true
 		}
 		expr = append(expr, clause.Like{Column: me.Alias + "mpath4", Value: val})
 	}
-	if me.Value.GetMPath3() != "" {
-		val := me.Value.GetMPath3()
+	if val := me.Value.GetMPath3(); val != "" {
 		if !done {
-			val += ".%"
+			if val != "" && len(val) < 255 {
+				val += "."
+			}
+			val += "%"
 			done = true
 		}
 		expr = append(expr, clause.Like{Column: me.Alias + "mpath3", Value: val})
 	}
-	if me.Value.GetMPath2() != "" {
-		val := me.Value.GetMPath2()
+	if val := me.Value.GetMPath2(); val != "" {
 		if !done {
-			val += ".%"
+			if val != "" && len(val) < 255 {
+				val += "."
+			}
+			val += "%"
 			done = true
 		}
 		expr = append(expr, clause.Like{Column: me.Alias + "mpath2", Value: val})
 	}
-	if me.Value.GetMPath1() != "" {
-		val := me.Value.GetMPath1()
+	if val := me.Value.GetMPath1(); val != "" {
 		if !done {
-			val += ".%"
+			if val != "" && len(val) < 255 {
+				val += "."
+			}
+			val += "%"
 			done = true
 		}
 		expr = append(expr, clause.Like{Column: me.Alias + "mpath1", Value: val})

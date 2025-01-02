@@ -1176,7 +1176,7 @@ func TestVeryDeepPath(t *testing.T) {
 	}
 	fPath1 := "/" + strings.Join(pp1, "/")
 	var pp []string
-	for i := 0; i < 255; i++ {
+	for i := 0; i < 510; i++ {
 		pp = append(pp, "1")
 	}
 	fPath := "/" + strings.Join(pp, "/")
@@ -1191,7 +1191,7 @@ func TestVeryDeepPath(t *testing.T) {
 				So(tn, ShouldNotBeNil)
 			})
 			// todo @ghecquet
-			SkipConvey("Test Very Deep Path 255", t, func() {
+			Convey("Test Very Deep Path 255", t, func() {
 				_, _, er := dao.GetOrCreateNodeByPath(ctx, fPath, &tree.Node{Uuid: uuid.New(), Type: tree.NodeType_COLLECTION})
 				So(er, ShouldBeNil)
 				tn, er := dao.GetNodeByPath(ctx, fPath)
