@@ -1,4 +1,4 @@
-package viper
+package config
 
 import (
 	"context"
@@ -8,7 +8,6 @@ import (
 	diff "github.com/r3labs/diff/v3"
 	"github.com/spf13/cast"
 
-	"github.com/pydio/cells/v5/common/config"
 	"github.com/pydio/cells/v5/common/utils/configx"
 	"github.com/pydio/cells/v5/common/utils/openurl"
 	"github.com/pydio/cells/v5/common/utils/watch"
@@ -16,10 +15,10 @@ import (
 
 // storeWithRefPool embeds Viper to extend its behavior
 type storeWithRefPool struct {
-	config.Store
+	Store
 
 	ctx     context.Context
-	refPool map[string]*openurl.Pool[config.Store]
+	refPool map[string]*openurl.Pool[Store]
 
 	watchers []watch.Watcher
 
@@ -27,7 +26,7 @@ type storeWithRefPool struct {
 }
 
 // newStoreWithRefPool creates a new instance of storeWithRefPool
-func newStoreWithRefPool(v config.Store, rp map[string]*openurl.Pool[config.Store]) config.Store {
+func newStoreWithRefPool(v Store, rp map[string]*openurl.Pool[Store]) Store {
 	var watchers []watch.Watcher
 
 	// Adding pool watchers
@@ -44,7 +43,7 @@ func newStoreWithRefPool(v config.Store, rp map[string]*openurl.Pool[config.Stor
 }
 
 // resolveRef resolves a $ref value and returns the referenced data.
-func (ev *storeWithRefPool) resolveRef(ref any) (config.Store, string, bool) {
+func (ev *storeWithRefPool) resolveRef(ref any) (Store, string, bool) {
 	refStr, err := strconv.Unquote(cast.ToString(ref))
 	if err != nil {
 		refStr = cast.ToString(ref)
@@ -174,7 +173,7 @@ func (ev *storeWithRefPool) Val(path ...string) configx.Values {
 
 type storeWithRefPoolValues struct {
 	configx.Values
-	refPool map[string]*openurl.Pool[config.Store]
+	refPool map[string]*openurl.Pool[Store]
 }
 
 // resolveRef resolves a $ref value and returns the referenced data.
@@ -321,7 +320,7 @@ type Getter interface {
 }
 
 type receiverWithRefPool struct {
-	config.Store
+	Store
 	watch.Receiver
 }
 

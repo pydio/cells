@@ -1,13 +1,12 @@
-package viper
+package config
 
 import (
-	"github.com/pydio/cells/v5/common/config"
 	"github.com/pydio/cells/v5/common/utils/configx"
 )
 
 // storeWithEncoder embeds Viper to extend its behavior
 type storeWithEncoder struct {
-	config.Store
+	Store
 
 	configx.Unmarshaler
 }

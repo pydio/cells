@@ -301,6 +301,7 @@ func NewManager(ctx context.Context, namespace string, logger log.ZapLogger) (Ma
 		return nil, err
 	}
 
+	fmt.Println("Initinng ", m.ns)
 	runtime.Init(ctx, m.ns)
 
 	m.ctx = ctx

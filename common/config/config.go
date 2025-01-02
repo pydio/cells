@@ -32,6 +32,10 @@ import (
 	"github.com/pydio/cells/v5/common/utils/watch"
 )
 
+const (
+	delimiter = "/"
+)
+
 type configKey int
 
 const (

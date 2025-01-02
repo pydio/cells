@@ -2,6 +2,9 @@ package viper
 
 import (
 	"context"
+	"github.com/pydio/cells/v5/common/config/etcd"
+	"github.com/pydio/cells/v5/common/config/file"
+	"github.com/pydio/cells/v5/common/config/memory"
 	"testing"
 	"time"
 
@@ -16,7 +19,7 @@ import (
 )
 
 func TestMemory(t *testing.T) {
-	u := &MemOpener{}
+	u := &memory.MemOpener{}
 
 	store, err := u.Open(context.Background(), "mem://")
 	if err != nil {
@@ -28,7 +31,7 @@ func TestMemory(t *testing.T) {
 }
 
 func TestFile(t *testing.T) {
-	u := &FileOpener{}
+	u := &file.FileOpener{}
 
 	store, err := u.Open(context.Background(), "file:///tmp/test/cells.json")
 	if err != nil {
@@ -44,7 +47,7 @@ func TestFile(t *testing.T) {
 }
 
 func TestETCD(t *testing.T) {
-	u := &EtcdOpener{}
+	u := &etcd.EtcdOpener{}
 
 	store, err := u.Open(context.Background(), "etcd://0.0.0.0:23379/config")
 	if err != nil {
@@ -372,7 +375,7 @@ func TestViperWithRefPool_Watch(t *testing.T) {
 	}
 
 	// Create the storeWithRefPool instance
-	vwrp := &memStore{Store: kv.newStoreWithRefPool(newViper(mainViper), refPool), clone: func(store config.Store) config.Store {
+	vwrp := &memory.memStore{Store: kv.newStoreWithRefPool(newViper(mainViper), refPool), clone: func(store config.Store) config.Store {
 		return &kv.storeWithRefPool{Store: store, refPool: refPool}
 	}}
 

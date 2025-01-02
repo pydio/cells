@@ -115,6 +115,7 @@ func DSNtoContextDAO(ctx context.Context, dsn []string, daoFunc any) (context.Co
 
 	var svc service.Service
 	runtime.Register("test", func(ctx context.Context) {
+		fmt.Println("Registering service ?")
 		svc = service.NewService(
 			service.Name("test"),
 			service.Context(ctx),
@@ -125,6 +126,8 @@ func DSNtoContextDAO(ctx context.Context, dsn []string, daoFunc any) (context.Co
 			}}),
 		)
 	})
+
+	fmt.Println("Registering manager")
 
 	mgr, err := NewManager(ctx, "test", nil)
 	if err != nil {

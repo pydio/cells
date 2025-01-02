@@ -1,4 +1,4 @@
-package viper
+package file
 
 import (
 	"context"
@@ -7,16 +7,13 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/spf13/afero"
-	"github.com/spf13/viper"
-
 	"github.com/pydio/cells/v5/common/config"
 	"github.com/pydio/cells/v5/common/crypto"
 	"github.com/pydio/cells/v5/common/utils/configx"
 	"github.com/pydio/cells/v5/common/utils/filex"
 	json "github.com/pydio/cells/v5/common/utils/jsonx"
 	"github.com/pydio/cells/v5/common/utils/kv"
-	"github.com/pydio/cells/v5/common/utils/watch"
+	"github.com/spf13/afero"
 )
 
 const (
@@ -159,31 +156,6 @@ type fileStore struct {
 	config.Store
 
 	clone func(config.Store) config.Store
-}
-
-func (f *fileStore) Watch(opts ...watch.WatchOption) (watch.Receiver, error) {
-	wo := &watch.WatchOptions{}
-	for _, o := range opts {
-		o(wo)
-	}
-
-	r, err := f.Store.Watch(opts...)
-	if err != nil {
-		return nil, err
-	}
-
-	if wo.ChangesOnly {
-		return &receiverWithStoreChangesOnly{
-			Receiver: r,
-			Values:   f.clone(newViper(viper.New())).Val(),
-			level:    len(wo.Path),
-		}, nil
-	} else {
-		return &receiverWithStore{
-			Receiver: r,
-			Values:   f.clone(newViper(viper.New())).Val(),
-		}, nil
-	}
 }
 
 func (f *fileStore) Save(a string, b string) error {
