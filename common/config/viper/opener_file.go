@@ -11,6 +11,8 @@ import (
 	"github.com/spf13/viper"
 
 	"github.com/pydio/cells/v5/common/config"
+	"github.com/pydio/cells/v5/common/crypto"
+	"github.com/pydio/cells/v5/common/utils/configx"
 	"github.com/pydio/cells/v5/common/utils/filex"
 	json "github.com/pydio/cells/v5/common/utils/jsonx"
 	"github.com/pydio/cells/v5/common/utils/kv"
@@ -48,15 +50,7 @@ func (o *FileOpener) Open(ctx context.Context, urlstr string) (config.Store, err
 	//	opts = append(opts, configx.WithJSON())
 	//}
 	//
-	//if master := u.Query().Get("masterKey"); master != "" {
-	//
-	//	enc, err := crypto.NewVaultCipher(master)
-	//	if err != nil {
-	//		return nil, err
-	//	}
-	//	opts = append(opts, configx.WithEncrypt(enc), configx.WithDecrypt(enc))
-	//}
-	//
+
 	//if data := u.Query().Get("data"); data != "" {
 	//	opts = append(opts, configx.WithInitData([]byte(data)))
 	//}
@@ -87,7 +81,19 @@ func (o *FileOpener) Open(ctx context.Context, urlstr string) (config.Store, err
 	//
 	//store = clone(store)
 
-	store := kv.NewStore()
+	var opts []configx.Option
+
+	if master := u.Query().Get("masterKey"); master != "" {
+		enc, err := crypto.NewVaultCipher(master)
+		if err != nil {
+			return nil, err
+		}
+
+		opts = append(opts, configx.WithEncrypt(enc))
+		opts = append(opts, configx.WithDecrypt(enc))
+	}
+
+	store := kv.NewStore(opts...)
 
 	var a any
 	b, err := filex.Read(u.Path)

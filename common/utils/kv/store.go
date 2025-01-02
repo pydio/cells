@@ -25,12 +25,7 @@ type store struct {
 	externalLock *sync.RWMutex
 }
 
-func newStore(opt ...configx.Option) *store {
-	opts := configx.Options{}
-	for _, o := range opt {
-		o(&opts)
-	}
-
+func newStore() *store {
 	var a any
 
 	return &store{
@@ -40,11 +35,26 @@ func newStore(opt ...configx.Option) *store {
 	}
 }
 
-func NewStore(opt ...configx.Option) config.Store {
-	s := newStore(opt...)
+func NewStore(opt ...configx.Option) (st config.Store) {
+	opts := configx.Options{}
+	for _, o := range opt {
+		o(&opts)
+	}
+
+	s := newStore()
 	w := watch.NewWatcher(&clone{m: s.m, lock: s.lock})
 
-	return newStoreWithWatcher(s, w)
+	st = newStoreWithWatcher(s, w)
+
+	if opts.Encrypter != nil {
+		st = &storeWithEncrypter{
+			Store:     s,
+			Encrypter: opts.Encrypter,
+			Decrypter: opts.Decrypter,
+		}
+	}
+
+	return st
 }
 
 func (m *store) Watch(opts ...watch.WatchOption) (watch.Receiver, error) {
