@@ -49,9 +49,7 @@ func WithDetectedLanguages(ctx context.Context, ll []string) context.Context {
 }
 
 // ProtoEntityReaderWriter can read and write values using an encoding such as JSON,XML.
-type ProtoEntityReaderWriter struct {
-	validator protovalidate.Validator
-}
+type ProtoEntityReaderWriter struct{}
 
 // Read a serialized version of the value from the request.
 // The Request may have a decompressing reader. Depends on Content-Encoding.
@@ -64,12 +62,7 @@ func (e *ProtoEntityReaderWriter) Read(req *restful.Request, v interface{}) erro
 	if err = protojson.Unmarshal(bb, pb); err != nil {
 		return errors.Tag(err, errors.RestInputError)
 	}
-	// todo - do we need to allocate on each call ?
-	validator, er := protovalidate.New()
-	if er != nil {
-		return errors.Tag(er, errors.RestInputError)
-	}
-	if err = validator.Validate(pb); err != nil {
+	if err = protovalidate.Validate(pb); err != nil {
 		return errors.Tag(err, errors.RestInputError)
 	}
 	return nil

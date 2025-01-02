@@ -44,6 +44,7 @@ import (
 	"github.com/pydio/cells/v5/common/proto/tree"
 	"github.com/pydio/cells/v5/common/runtime"
 	"github.com/pydio/cells/v5/common/runtime/manager"
+	"github.com/pydio/cells/v5/common/storage/sql"
 	"github.com/pydio/cells/v5/common/storage/test"
 	"github.com/pydio/cells/v5/common/utils/cache/gocache"
 	cache_helper "github.com/pydio/cells/v5/common/utils/cache/helper"
@@ -1165,6 +1166,40 @@ func TestLostAndFoundDuplicates(t *testing.T) {
 		}
 	})
 
+}
+
+func TestVeryDeepPath(t *testing.T) {
+	ctx := context.Background()
+	var pp1 []string
+	for i := 0; i < 127; i++ {
+		pp1 = append(pp1, "1")
+	}
+	fPath1 := "/" + strings.Join(pp1, "/")
+	var pp []string
+	for i := 0; i < 255; i++ {
+		pp = append(pp, "1")
+	}
+	fPath := "/" + strings.Join(pp, "/")
+	sql.TestPrintQueries = true
+	testAll(t, func(dao testdao) func(t *testing.T) {
+		return func(t *testing.T) {
+			Convey("VeryDeepPath 127 - TODO Bigger is failing", t, func() {
+				_, _, er := dao.GetOrCreateNodeByPath(ctx, fPath1, &tree.Node{Uuid: uuid.New(), Type: tree.NodeType_COLLECTION})
+				So(er, ShouldBeNil)
+				tn, er := dao.GetNodeByPath(ctx, fPath1)
+				So(er, ShouldBeNil)
+				So(tn, ShouldNotBeNil)
+			})
+			// todo @ghecquet
+			SkipConvey("Test Very Deep Path 255", t, func() {
+				_, _, er := dao.GetOrCreateNodeByPath(ctx, fPath, &tree.Node{Uuid: uuid.New(), Type: tree.NodeType_COLLECTION})
+				So(er, ShouldBeNil)
+				tn, er := dao.GetNodeByPath(ctx, fPath)
+				So(er, ShouldBeNil)
+				So(tn, ShouldNotBeNil)
+			})
+		}
+	})
 }
 
 func TestLostAndFoundChildren(t *testing.T) {

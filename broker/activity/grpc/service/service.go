@@ -30,7 +30,6 @@ import (
 	"time"
 
 	"google.golang.org/grpc"
-	"google.golang.org/protobuf/proto"
 
 	"github.com/pydio/cells/v5/broker/activity"
 	"github.com/pydio/cells/v5/broker/activity/actions"
@@ -95,9 +94,9 @@ func init() {
 				}
 
 				if e := broker.SubscribeCancellable(c, common.TopicTreeChanges, func(ctx context.Context, message broker.Message) error {
-					md, bb := message.RawData()
 					msg := &tree.NodeChangeEvent{}
-					if e := proto.Unmarshal(bb, msg); e == nil {
+					var e error
+					if ctx, e = message.Unmarshal(ctx, msg); e == nil {
 						if msg.Target != nil && (msg.Target.Etag == common.NodeFlagEtagTemporary || msg.Target.HasMetaKey(common.MetaNamespaceDatasourceInternal)) {
 							return nil
 						}
@@ -107,7 +106,7 @@ func init() {
 						if msg.Optimistic {
 							return nil
 						}
-						return processOneWithTimeout(propagator.NewContext(ctx, md), msg)
+						return processOneWithTimeout(ctx, msg)
 					}
 					return nil
 				}, opts...); e != nil {
@@ -115,8 +114,9 @@ func init() {
 				}
 
 				if e := broker.SubscribeCancellable(c, common.TopicMetaChanges, func(ctx context.Context, message broker.Message) error {
+					var e error
 					msg := &tree.NodeChangeEvent{}
-					if ctx, e := message.Unmarshal(ctx, msg); e == nil {
+					if ctx, e = message.Unmarshal(ctx, msg); e == nil {
 						if msg.Optimistic || msg.Type != tree.NodeChangeEvent_UPDATE_USER_META {
 							return nil
 						}
