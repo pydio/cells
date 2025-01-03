@@ -22,6 +22,7 @@ package config
 
 import (
 	"context"
+	"github.com/pydio/cells/v5/common/utils/std"
 
 	"github.com/pydio/cells/v5/common/utils/configx"
 	"github.com/pydio/cells/v5/common/utils/propagator"
@@ -35,7 +36,7 @@ var (
 // RegisterVaultKey adds a key to the configuration so that the value
 // associated with the key is swapped to an encrypted value
 func RegisterVaultKey(s ...string) {
-	registeredVaultKeys = append(registeredVaultKeys, configx.FormatPath(s))
+	registeredVaultKeys = append(registeredVaultKeys, std.FormatPath(s))
 }
 
 // NewKeyForSecret creates a new random key

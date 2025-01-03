@@ -219,6 +219,7 @@ func RunStorageTests(testCases []StorageTestCase, t *testing.T, f func(context.C
 			if err != nil {
 				panic(err)
 			}
+
 			f(ctx)
 
 			// Clean up hooks - we cannot resolve gorm.DB as a Closer or Dropper...

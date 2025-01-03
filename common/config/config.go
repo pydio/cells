@@ -28,6 +28,12 @@ import (
 	"github.com/pydio/cells/v5/common/utils/configx"
 	"github.com/pydio/cells/v5/common/utils/openurl"
 	"github.com/pydio/cells/v5/common/utils/propagator"
+	"github.com/pydio/cells/v5/common/utils/std"
+	"github.com/pydio/cells/v5/common/utils/watch"
+)
+
+const (
+	delimiter = "/"
 )
 
 type configKey int
@@ -47,7 +53,7 @@ func init() {
 // Store defines the functionality a config must provide
 type Store interface {
 	configx.Storer
-	configx.Watcher
+	watch.Watcher
 	As(out any) bool
 	Close(ctx context.Context) error
 	Done() <-chan struct{}
@@ -84,7 +90,7 @@ func Save(ctx context.Context, ctxUser string, ctxMessage string) error {
 }
 
 // Watch for config changes for a specific path or underneath
-func Watch(ctx context.Context, opts ...configx.WatchOption) (configx.Receiver, error) {
+func Watch(ctx context.Context, opts ...watch.WatchOption) (watch.Receiver, error) {
 	storePool := propagator.MustWithHint[*openurl.Pool[Store]](ctx, ContextKey, "config")
 
 	store, err := storePool.Get(ctx)
@@ -100,7 +106,7 @@ func Watch(ctx context.Context, opts ...configx.WatchOption) (configx.Receiver, 
 }
 
 // WatchCombined watches for different config paths
-func WatchCombined(ctx context.Context, paths [][]string, opts ...configx.WatchOption) (configx.Receiver, error) {
+func WatchCombined(ctx context.Context, paths [][]string, opts ...watch.WatchOption) (watch.Receiver, error) {
 	storePool := propagator.MustWithHint[*openurl.Pool[Store]](ctx, ContextKey, "config")
 
 	store, err := storePool.Get(ctx)
@@ -112,16 +118,16 @@ func WatchCombined(ctx context.Context, paths [][]string, opts ...configx.WatchO
 		return nil, errors.New("store is nil")
 	}
 
-	var rr []configx.Receiver
+	var rr []watch.Receiver
 	for _, path := range paths {
-		oo := append([]configx.WatchOption{configx.WithPath(path...)}, opts...)
+		oo := append([]watch.WatchOption{watch.WithPath(path...)}, opts...)
 		if r, e := store.Watch(oo...); e != nil {
 			return nil, e
 		} else {
 			rr = append(rr, r)
 		}
 	}
-	return configx.NewCombinedWatcher(rr), nil
+	return watch.NewCombinedReceiver(rr), nil
 }
 
 // Get access to the underlying structure at a certain path
@@ -189,12 +195,12 @@ func GetAndWatch(ctx context.Context, store Store, configPath []string, callback
 	for _, s := range configPath {
 		ii = append(ii, s)
 	}
-	values := store.Context(ctx).Val(configx.FormatPath(ii...))
+	values := store.Context(ctx).Val(std.FormatPath(ii...))
 	if values.Get() != nil {
 		callback(values)
 	}
 	go func() {
-		watcher, err := store.Watch(configx.WithPath(configPath...))
+		watcher, err := store.Watch(watch.WithPath(configPath...))
 		if err != nil {
 			return
 		}

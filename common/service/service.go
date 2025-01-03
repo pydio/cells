@@ -22,6 +22,7 @@ package service
 
 import (
 	"context"
+	"encoding/gob"
 	"fmt"
 	"sync"
 
@@ -59,6 +60,7 @@ var (
 )
 
 func init() {
+	gob.Register(&service{})
 	propagator.RegisterKeyInjector[Service](ContextKey)
 	openurl.RegisterTemplateInjector(func(ctx context.Context, m map[string]interface{}) error {
 		var svc Service

@@ -25,10 +25,9 @@ import (
 	"crypto/tls"
 	"crypto/x509"
 	"fmt"
+	"github.com/pydio/cells/v5/common/utils/std"
 	"os"
 	"sync"
-
-	"github.com/pydio/cells/v5/common/utils/configx"
 )
 
 var (
@@ -100,11 +99,11 @@ func GetTLSClientConfig(ctx context.Context, t string) *tls.Config {
 }
 
 func getTLSServerConfig(ctx context.Context, t string) {
-	ssl := Get(ctx, configx.FormatPath("cert", t, "ssl")).Default(false).Bool()
-	selfSigned := Get(ctx, configx.FormatPath("cert", t, "self")).Default(false).Bool()
-	certFile := Get(ctx, configx.FormatPath("cert", t, "certFile")).String()
-	keyFile := Get(ctx, configx.FormatPath("cert", t, "keyFile")).String()
-	caUrl := Get(ctx, configx.FormatPath("cert", t, "caUrl")).String()
+	ssl := Get(ctx, std.FormatPath("cert", t, "ssl")).Default(false).Bool()
+	selfSigned := Get(ctx, std.FormatPath("cert", t, "self")).Default(false).Bool()
+	certFile := Get(ctx, std.FormatPath("cert", t, "certFile")).String()
+	keyFile := Get(ctx, std.FormatPath("cert", t, "keyFile")).String()
+	caUrl := Get(ctx, std.FormatPath("cert", t, "caUrl")).String()
 
 	if !ssl {
 		return
@@ -160,9 +159,9 @@ func getTLSServerConfig(ctx context.Context, t string) {
 }
 
 func getTLSClientConfig(ctx context.Context, t string) {
-	ssl := Get(ctx, configx.FormatPath("cert", t, "ssl")).Default(false).Bool()
-	selfSigned := Get(ctx, configx.FormatPath("cert", t, "self")).Default(false).Bool()
-	certFile := Get(ctx, configx.FormatPath("cert", t, "certFile")).String()
+	ssl := Get(ctx, std.FormatPath("cert", t, "ssl")).Default(false).Bool()
+	selfSigned := Get(ctx, std.FormatPath("cert", t, "self")).Default(false).Bool()
+	certFile := Get(ctx, std.FormatPath("cert", t, "certFile")).String()
 
 	if !ssl {
 		return

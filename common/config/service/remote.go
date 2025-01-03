@@ -42,6 +42,8 @@ import (
 	pb "github.com/pydio/cells/v5/common/proto/config"
 	"github.com/pydio/cells/v5/common/telemetry/log"
 	"github.com/pydio/cells/v5/common/utils/configx"
+	"github.com/pydio/cells/v5/common/utils/std"
+	"github.com/pydio/cells/v5/common/utils/watch"
 )
 
 var (
@@ -82,6 +84,16 @@ type remote struct {
 	internalLocker *sync.RWMutex
 	externalLocker *sync.RWMutex
 	watchers       []*receiver
+}
+
+func (r *remote) Reset() {
+	//TODO implement me
+	panic("implement me")
+}
+
+func (r *remote) Flush() {
+	//TODO implement me
+	panic("implement me")
 }
 
 func New(ctx context.Context, conn grpc.ClientConnInterface, id string, path string) config.Store {
@@ -244,8 +256,8 @@ func (s *remoteLock) Unlock() {
 	}
 }
 
-func (r *remote) Watch(opts ...configx.WatchOption) (configx.Receiver, error) {
-	o := &configx.WatchOptions{}
+func (r *remote) Watch(opts ...watch.WatchOption) (watch.Receiver, error) {
+	o := &watch.WatchOptions{}
 	for _, opt := range opts {
 		opt(o)
 	}
@@ -334,7 +346,7 @@ func (v *values) Key() []string {
 }
 
 func (v *values) Val(path ...string) configx.Values {
-	return configx.New(configx.WithStorer(&values{ctx: v.ctx, cli: v.cli, id: v.id, k: configx.StringToKeys(append(v.k, path...)...), d: v.d}))
+	return configx.New(configx.WithStorer(&values{ctx: v.ctx, cli: v.cli, id: v.id, k: std.StringToKeys(append(v.k, path...)...), d: v.d}))
 }
 
 func (v *values) Get(wo ...configx.WalkOption) any {

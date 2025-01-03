@@ -37,7 +37,7 @@ import (
 	"github.com/pydio/cells/v5/common/runtime"
 	"github.com/pydio/cells/v5/common/service"
 	"github.com/pydio/cells/v5/common/telemetry/log"
-	"github.com/pydio/cells/v5/common/utils/configx"
+	"github.com/pydio/cells/v5/common/utils/watch"
 	"github.com/pydio/cells/v5/data/source"
 	"github.com/pydio/cells/v5/data/source/sync"
 	grpc_sync "github.com/pydio/cells/v5/data/source/sync/grpc"
@@ -75,7 +75,7 @@ func init() {
 					return er
 				})
 				_ = runtime.MultiContextManager().Iterate(ctx, func(ctx context.Context, s string) error {
-					return resolver.HeatCacheAndWatch(ctx, configx.WithPath("services", common.ServiceDataSyncGRPC, "sources"))
+					return resolver.HeatCacheAndWatch(ctx, watch.WithPath("services", common.ServiceDataSyncGRPC, "sources"))
 				})
 				tree.RegisterNodeProviderServer(registrar, handler)
 				tree.RegisterNodeReceiverServer(registrar, handler)

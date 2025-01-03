@@ -48,6 +48,7 @@ import (
 	"github.com/pydio/cells/v5/common/telemetry/log"
 	"github.com/pydio/cells/v5/common/utils/configx"
 	"github.com/pydio/cells/v5/common/utils/propagator"
+	"github.com/pydio/cells/v5/common/utils/watch"
 	"github.com/pydio/cells/v5/data/source/sync/clients"
 	grpc_jobs "github.com/pydio/cells/v5/scheduler/jobs/grpc"
 )
@@ -69,7 +70,7 @@ type Syncer struct {
 	SyncConfig   *object.DataSource
 	ObjectConfig *object.MinioConfig
 
-	watcher configx.Receiver
+	watcher watch.Receiver
 	stop    chan bool
 
 	ChangeEventsFallback chan *tree.NodeChangeEvent
@@ -373,7 +374,7 @@ func (s *Syncer) watchConfigs() {
 
 	// TODO - should be linked to context
 	for {
-		watcher, e := config.Watch(s.GlobalCtx, configx.WithPath("services", serviceName))
+		watcher, e := config.Watch(s.GlobalCtx, watch.WithPath("services", serviceName))
 		if e != nil {
 			time.Sleep(1 * time.Second)
 			continue

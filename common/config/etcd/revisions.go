@@ -33,22 +33,22 @@ import (
 )
 
 // AsRevisionsStore implements RevisionsProvider interface
-func (m *etcd) AsRevisionsStore(...config.RevisionsStoreOption) (config.Store, revisions.Store) {
+func (m *etcdStore) AsRevisionsStore(...config.RevisionsStoreOption) (config.Store, revisions.Store) {
 	r := &revs{
-		etcd: m,
+		etcdStore: m,
 	}
 	return r, r
 }
 
 type revs struct {
-	*etcd
+	*etcdStore
 }
 
 func (r *revs) Put(version *revisions.Version) error {
 	if er := r.Val("revision").Set(version); er != nil {
 		return er
 	}
-	return r.etcd.Save("", "")
+	return r.etcdStore.Save("", "")
 }
 
 func (r *revs) unmarshallVersion(id int64, data []byte) (*revisions.Version, error) {
@@ -84,7 +84,7 @@ func (r *revs) List(offset uint64, limit uint64) ([]*revisions.Version, error) {
 
 	ct, can := context.WithCancel(ctx)
 	defer can()
-	watcher := r.cli.Watch(ct, r.prefix, clientv3.WithRev(1))
+	watcher := r.cli.Watch(ct, r.path, clientv3.WithRev(1))
 	for resp := range watcher {
 		for _, ev := range resp.Events {
 			if ev.Kv.Version == 0 { // If key was emptied and recreated, we ignore the previous history
@@ -109,7 +109,7 @@ func (r *revs) List(offset uint64, limit uint64) ([]*revisions.Version, error) {
 
 func (r *revs) Retrieve(id uint64) (*revisions.Version, error) {
 
-	resp, err := r.cli.Get(context.Background(), r.prefix, clientv3.WithLease(r.leaseID), clientv3.WithPrefix(), clientv3.WithRev(int64(id)))
+	resp, err := r.cli.Get(context.Background(), r.path, clientv3.WithLease(r.leaseID), clientv3.WithPrefix(), clientv3.WithRev(int64(id)))
 	if err != nil {
 		return nil, err
 	}

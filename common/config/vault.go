@@ -27,6 +27,7 @@ import (
 	"time"
 
 	"github.com/pydio/cells/v5/common/utils/configx"
+	"github.com/pydio/cells/v5/common/utils/watch"
 )
 
 // Config holds the main structure of a configuration
@@ -133,8 +134,16 @@ func (v *vault) Default(d any) configx.Values {
 	return nil
 }
 
+func (v *vault) Flush() {
+	v.config.Flush()
+}
+
+func (v *vault) Reset() {
+	v.config.Reset()
+}
+
 // Watch changes to the path
-func (v *vault) Watch(opts ...configx.WatchOption) (configx.Receiver, error) {
+func (v *vault) Watch(opts ...watch.WatchOption) (watch.Receiver, error) {
 	return v.config.Watch(opts...)
 }
 

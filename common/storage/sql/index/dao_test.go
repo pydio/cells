@@ -1202,6 +1202,45 @@ func TestVeryDeepPath(t *testing.T) {
 	})
 }
 
+func TestMoveVeryDeepPath(t *testing.T) {
+	ctx := context.Background()
+	var pp []string
+	for i := 0; i < 510; i++ {
+		pp = append(pp, "1")
+	}
+	fPath := "/" + strings.Join(pp, "/")
+	//fPath := "/This/is/a/test"
+	uid := uuid.New()
+	sql.TestPrintQueries = true
+	testAll(t, func(dao testdao) func(t *testing.T) {
+		return func(t *testing.T) {
+			Convey("Test MoveVeryDeepPath", t, func() {
+				node, _, er := dao.GetOrCreateNodeByPath(ctx, fPath, &tree.Node{Uuid: uid, Type: tree.NodeType_LEAF})
+				So(er, ShouldBeNil)
+
+				newNode, _, er := dao.GetOrCreateNodeByPath(ctx, "/root", &tree.Node{Uuid: uuid.New(), Type: tree.NodeType_LEAF})
+				So(er, ShouldBeNil)
+
+				movedNewNode := &tree.TreeNode{}
+				movedNewNode.SetNode(&tree.Node{
+					Uuid: uid,
+					Type: tree.NodeType_LEAF,
+				})
+				movedNewNode.SetMPath(newNode.GetMPath().Append(1))
+				movedNewNode.SetName("testleaf")
+
+				if er := dao.MoveNodeTree(ctx, node, movedNewNode); er != nil {
+					So(er, ShouldBeNil)
+				}
+
+				testNode, er := dao.GetNodeByUUID(ctx, uid)
+				So(er, ShouldBeNil)
+				So(testNode.GetMPath().MPath2, ShouldBeEmpty)
+			})
+		}
+	})
+}
+
 func TestLostAndFoundChildren(t *testing.T) {
 	ctx := context.Background()
 	testAll(t, func(dao testdao) func(t *testing.T) {
