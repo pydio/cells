@@ -209,18 +209,23 @@ class CardsGrid extends React.Component {
 
         const ResponsiveGridLayout = WidthProvider(Responsive);
         return (
-            <ResponsiveGridLayout
-                className="dashboard-layout"
-                cols={this.props.cols || {lg: 10, md: 8, sm: 8, xs: 4, xxs: 2}}
-                layouts={layouts}
-                rowHeight={5}
-                onLayoutChange={this.onLayoutChange.bind(this)}
-                isDraggable={!this.props.disableDrag}
-                style={this.props.style}
-                autoSize={false}
-            >
-                {cards}
-            </ResponsiveGridLayout>
+            <React.Fragment>
+                <ResponsiveGridLayout
+                    className="dashboard-layout"
+                    cols={this.props.cols || {lg: 10, md: 8, sm: 8, xs: 4, xxs: 2}}
+                    layouts={layouts}
+                    rowHeight={5}
+                    onLayoutChange={this.onLayoutChange.bind(this)}
+                    isDraggable={!this.props.disableDrag}
+                    style={this.props.style}
+                    autoSize={false}
+                >
+                    {cards}
+                </ResponsiveGridLayout>
+                <style type={"text/css"} dangerouslySetInnerHTML={{
+                    __html: `.react-grid-item.react-grid-placeholder{ pointer-events:none; }`
+                }}/>
+            </React.Fragment>
         );
     }
 }
