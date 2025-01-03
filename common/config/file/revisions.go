@@ -9,7 +9,7 @@ import (
 )
 
 // AsRevisionsStore implements RevisionsProvider interface
-func (f *file) AsRevisionsStore(oo ...config.RevisionsStoreOption) (config.Store, revisions.Store) {
+func (f *fileStore) AsRevisionsStore(oo ...config.RevisionsStoreOption) (config.Store, revisions.Store) {
 	opt := &config.RevisionsStoreOptions{}
 	for _, o := range oo {
 		o(opt)

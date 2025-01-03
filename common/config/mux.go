@@ -91,10 +91,12 @@ func OpenStore(ctx context.Context, urlstr string) (Store, error) {
 		configx.WithYAML()(&opts)
 	case "json":
 		configx.WithJSON()(&opts)
+	default:
+		configx.WithJSON()(&opts)
 	}
 
 	if opts.Unmarshaler != nil {
-		st = &storeWithEncoder{Store: st, Unmarshaler: opts.Unmarshaler}
+		st = &storeWithEncoder{Store: st, Unmarshaler: opts.Unmarshaler, Marshaller: opts.Marshaller}
 	}
 
 	if data := u.Query().Get("data"); data != "" {

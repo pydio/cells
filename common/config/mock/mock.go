@@ -29,6 +29,7 @@ import (
 	"github.com/pydio/cells/v5/common/utils/configx"
 	"github.com/pydio/cells/v5/common/utils/openurl"
 	"github.com/pydio/cells/v5/common/utils/propagator"
+	"github.com/pydio/cells/v5/common/utils/watch"
 )
 
 var json = `{
@@ -430,11 +431,15 @@ func (m *MockStore) Unlock() {
 	// noop
 }
 
+func (m *MockStore) Reset() {}
+
+func (m *MockStore) Flush() {}
+
 func (m *MockStore) NewLocker(name string) sync.Locker {
 	return nil
 }
 
-func (m *MockStore) Watch(opts ...configx.WatchOption) (configx.Receiver, error) {
+func (m *MockStore) Watch(opts ...watch.WatchOption) (watch.Receiver, error) {
 	return &Receiver{stop: make(chan struct{}, 1)}, nil
 }
 
