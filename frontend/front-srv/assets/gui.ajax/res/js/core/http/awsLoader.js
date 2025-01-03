@@ -75,6 +75,14 @@ export default () => {
                 });
             }
 
+            cleanup(err){
+                PydioApi.getRestClient().getOrUpdateJwt().then(jwt => {
+                    // Update accessKeyId
+                    this.service.config.credentials.accessKeyId = jwt;
+                    super.cleanup(err);
+                });
+            }
+
         }
 
         return {...aws, ManagedMultipart}
