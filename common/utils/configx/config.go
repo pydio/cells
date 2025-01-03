@@ -13,6 +13,7 @@ import (
 	"github.com/spf13/cast"
 
 	"github.com/pydio/cells/v5/common/errors"
+	"github.com/pydio/cells/v5/common/utils/std"
 )
 
 type Values interface {
@@ -150,7 +151,7 @@ func (c storer) Val(s ...string) Values {
 	return caster{
 		storer{
 			v:     c.v,
-			k:     StringToKeys(append(c.k, s...)...),
+			k:     std.StringToKeys(append(c.k, s...)...),
 			opts:  c.opts,
 			mutex: c.mutex,
 		},
@@ -287,8 +288,9 @@ func merge(dst any, src any) (any, error) {
 		return src, nil
 	}
 
+	// If the src is nil, then it's a delete
 	if src == nil {
-		return dst, nil
+		return nil, nil
 	}
 
 	var current any

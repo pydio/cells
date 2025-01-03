@@ -1,9 +1,10 @@
 package config
 
 import (
-	"github.com/r3labs/diff/v3"
 	"reflect"
 	"sync"
+
+	diff "github.com/r3labs/diff/v3"
 )
 
 var CustomValueDiffers []diff.ValueDiffer

@@ -2,7 +2,13 @@ package config
 
 import (
 	"context"
+	"encoding/json"
+	"net/url"
+	"os"
+	"strconv"
+	"strings"
 
+	"github.com/pydio/cells/v5/common/utils/configx"
 	"github.com/pydio/cells/v5/common/utils/openurl"
 )
 
@@ -62,5 +68,91 @@ func DefaultURLMux() *URLMux {
 // details on supported URL formats, and https://gocloud.dev/concepts/urls
 // for more information.
 func OpenStore(ctx context.Context, urlstr string) (Store, error) {
-	return defaultURLMux.OpenStore(ctx, urlstr)
+	u, err := url.Parse(urlstr)
+	if err != nil {
+		return nil, err
+	}
+
+	st, err := defaultURLMux.OpenStore(ctx, urlstr)
+	if err != nil {
+		return nil, err
+	}
+
+	//st = NewStoreWithReferencePool(st, PoolFromURL(ctx, u, OpenStore))
+
+	opts := configx.Options{}
+
+	encode := u.Query().Get("encode")
+	switch encode {
+	case "string":
+		configx.WithString()(&opts)
+	case "yaml":
+		configx.WithYAML()(&opts)
+	case "json":
+		configx.WithJSON()(&opts)
+	default:
+		configx.WithJSON()(&opts)
+	}
+
+	if opts.Unmarshaler != nil {
+		st = &storeWithEncoder{Store: st, Unmarshaler: opts.Unmarshaler, Marshaller: opts.Marshaller}
+	}
+
+	if data := u.Query().Get("data"); data != "" {
+		if err := st.Set(data); err != nil {
+			return nil, err
+		}
+	}
+
+	envPrefix := u.Query().Get("env")
+	if envPrefix != "" {
+		envPrefixU := strings.ToUpper(envPrefix)
+		env := os.Environ()
+		for _, v := range env {
+			if strings.HasPrefix(v, envPrefixU) {
+				vv := strings.SplitN(v, "=", 2)
+				if len(vv) == 2 {
+					k := strings.TrimPrefix(vv[0], envPrefixU)
+					//k = strings.ReplaceAll(k, "_", "/")
+					//k = strings.ToLower(k)
+
+					msg, err := strconv.Unquote(vv[1])
+					if err != nil {
+						msg = vv[1]
+					}
+
+					var m any
+					if err := json.Unmarshal([]byte(msg), &m); err != nil {
+						if err := st.Val(k).Set(msg); err != nil {
+							return nil, err
+						}
+					} else {
+						if err := st.Val(k).Set(m); err != nil {
+							return nil, err
+						}
+					}
+				}
+			}
+		}
+	}
+
+	return st, nil
 }
+
+//type store struct {
+//	Store
+//}
+//
+//func (s *store) Watch(opts ...watch.WatchOption) (watch.Receiver, error) {
+//	wo := &watch.WatchOptions{}
+//	for _, o := range opts {
+//		o(wo)
+//	}
+//
+//	r, err := s.Store.Watch(opts...)
+//	if err != nil {
+//		return nil, err
+//	}
+//
+//	return r, nil
+//}

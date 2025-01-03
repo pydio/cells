@@ -185,7 +185,9 @@ import (
 
 	// Config drivers
 	_ "github.com/pydio/cells/v5/common/config/file"
+	_ "github.com/pydio/cells/v5/common/config/memory"
 	// _ "github.com/pydio/cells/v5/common/config/sql"
+	//_ "github.com/pydio/cells/v5/common/config/viper"
 
 	// Servers
 	_ "github.com/pydio/cells/v5/common/server/caddy/api"

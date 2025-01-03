@@ -5,11 +5,11 @@ import (
 
 	diff "github.com/r3labs/diff/v3"
 
-	"github.com/pydio/cells/v5/common/config"
+	"github.com/pydio/cells/v5/common/utils/watch"
 )
 
 func init() {
-	config.RegisterCustomValueDiffer(&customValueDiffer{})
+	watch.RegisterCustomValueDiffer(&customValueDiffer{})
 }
 
 type customValueDiffer struct {
@@ -19,9 +19,8 @@ type customValueDiffer struct {
 func (c *customValueDiffer) Match(a, b reflect.Value) bool {
 
 	if a.IsValid() && a.CanInterface() && b.IsValid() && b.CanInterface() {
-		_, okA := a.Interface().(Item)
-		_, okB := b.Interface().(Item)
-		return okA && okB
+		interfaceType := reflect.TypeOf((*Item)(nil)).Elem()
+		return a.Type().Implements(interfaceType) || b.Type().Implements(interfaceType)
 	}
 
 	return false

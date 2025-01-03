@@ -22,6 +22,7 @@ package routing
 
 import (
 	"context"
+	"github.com/pydio/cells/v5/common/utils/std"
 	"net/url"
 
 	"github.com/pkg/errors"
@@ -29,7 +30,6 @@ import (
 	"github.com/pydio/cells/v5/common/config"
 	"github.com/pydio/cells/v5/common/proto/install"
 	"github.com/pydio/cells/v5/common/runtime"
-	"github.com/pydio/cells/v5/common/utils/configx"
 	"github.com/pydio/cells/v5/common/utils/slug"
 )
 
@@ -41,7 +41,7 @@ var (
 		SSLRedirect: false,
 	}
 	ConfigPath         = []string{"defaults", "sites"}
-	ConfigPathFormated = configx.FormatPath("defaults", "sites")
+	ConfigPathFormated = std.FormatPath("defaults", "sites")
 )
 
 // GetDefaultSiteURL returns the first available bindURL of all available sites
@@ -118,12 +118,12 @@ func SaveSites(ctx context.Context, sites []*install.ProxyConfig, user, msg stri
 
 // GetPublicBaseUri returns the default public uri
 func GetPublicBaseUri(ctx context.Context) string {
-	return "/" + slug.Make(config.Get(ctx, configx.FormatPath("frontend", "plugin", "action.share", "LINK_PUBLIC_URI_BASE")).Default("public").String())
+	return "/" + slug.Make(config.Get(ctx, std.FormatPath("frontend", "plugin", "action.share", "LINK_PUBLIC_URI_BASE")).Default("public").String())
 }
 
 // GetPublicBaseDavSegment returns the segment used to exposed minisites through DAV
 func GetPublicBaseDavSegment(ctx context.Context) string {
-	return slug.Make(config.Get(ctx, configx.FormatPath("frontend", "plugin", "action.share", "LINK_PUBLIC_URI_DAV_SEGMENT")).Default("dav").String())
+	return slug.Make(config.Get(ctx, std.FormatPath("frontend", "plugin", "action.share", "LINK_PUBLIC_URI_DAV_SEGMENT")).Default("dav").String())
 }
 
 func EnvOverrideDefaultBind() bool {

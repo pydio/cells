@@ -47,8 +47,6 @@ import (
 	cw "github.com/pydio/cells/v5/common/telemetry/log/context-wrapper"
 	"github.com/pydio/cells/v5/common/telemetry/otel"
 	"github.com/pydio/cells/v5/common/utils/propagator"
-
-	_ "github.com/pydio/cells/v5/common/config/service"
 )
 
 var (

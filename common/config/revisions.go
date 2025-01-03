@@ -28,6 +28,7 @@ import (
 	"github.com/pydio/cells/v5/common/config/revisions"
 	"github.com/pydio/cells/v5/common/utils/configx"
 	"github.com/pydio/cells/v5/common/utils/propagator"
+	"github.com/pydio/cells/v5/common/utils/watch"
 )
 
 type wrappedStore Store
@@ -86,8 +87,8 @@ func (v *versionStore) Del() error {
 }
 
 // Watch config changes under a path
-func (v *versionStore) Watch(opts ...configx.WatchOption) (configx.Receiver, error) {
-	watcher, ok := v.wrappedStore.(configx.Watcher)
+func (v *versionStore) Watch(opts ...watch.WatchOption) (watch.Receiver, error) {
+	watcher, ok := v.wrappedStore.(watch.Watcher)
 	if !ok {
 		return nil, fmt.Errorf("no watchers")
 	}

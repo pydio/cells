@@ -57,7 +57,7 @@ func NewBootstrap(ctx context.Context) (*Bootstrap, error) {
 		return nil, err
 	}
 
-	v := viper.NewWithOptions(viper.KeyDelimiter("::"))
+	v := viper.NewWithOptions(viper.KeyDelimiter("/"))
 	v.SetConfigType("yaml")
 
 	bs := &Bootstrap{
@@ -120,7 +120,7 @@ func (bs *Bootstrap) Viper() *Viper {
 func (bs *Bootstrap) reload(ctx context.Context, storePool *openurl.Pool[config.Store]) error {
 	// var store config.Store
 
-	runtimeConfig := viper.NewWithOptions(viper.KeyDelimiter("::"))
+	runtimeConfig := viper.NewWithOptions(viper.KeyDelimiter("/"))
 	runtimeConfig.SetConfigType("yaml")
 
 	/*if storePool != nil {
