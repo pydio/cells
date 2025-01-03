@@ -26,7 +26,6 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/pydio/cells/v5/common/utils/std"
 	"net/url"
 	"strings"
 	"sync"
@@ -43,6 +42,8 @@ import (
 	pb "github.com/pydio/cells/v5/common/proto/config"
 	"github.com/pydio/cells/v5/common/telemetry/log"
 	"github.com/pydio/cells/v5/common/utils/configx"
+	"github.com/pydio/cells/v5/common/utils/std"
+	"github.com/pydio/cells/v5/common/utils/watch"
 )
 
 var (
@@ -83,6 +84,16 @@ type remote struct {
 	internalLocker *sync.RWMutex
 	externalLocker *sync.RWMutex
 	watchers       []*receiver
+}
+
+func (r *remote) Reset() {
+	//TODO implement me
+	panic("implement me")
+}
+
+func (r *remote) Flush() {
+	//TODO implement me
+	panic("implement me")
 }
 
 func New(ctx context.Context, conn grpc.ClientConnInterface, id string, path string) config.Store {
@@ -245,8 +256,8 @@ func (s *remoteLock) Unlock() {
 	}
 }
 
-func (r *remote) Watch(opts ...configx.WatchOption) (configx.Receiver, error) {
-	o := &configx.WatchOptions{}
+func (r *remote) Watch(opts ...watch.WatchOption) (watch.Receiver, error) {
+	o := &watch.WatchOptions{}
 	for _, opt := range opts {
 		opt(o)
 	}

@@ -1,6 +1,7 @@
 package kv
 
 import (
+	"context"
 	"errors"
 	"strings"
 
@@ -25,6 +26,10 @@ func newStoreWithWatcher(store config.Store, watcher watch.Watcher) config.Store
 	return s
 }
 
+func (m *storeWithWatcher) Context(ctx context.Context) configx.Values {
+	return m.Val().Context(ctx)
+}
+
 func (m *storeWithWatcher) Val(path ...string) configx.Values {
 	return &storeWithWatcherValues{
 		Values: m.Store.Val(path...),
@@ -46,13 +51,13 @@ func (m *storeWithWatcher) Watch(opts ...watch.WatchOption) (watch.Receiver, err
 	if wo.ChangesOnly {
 		return &receiverWithStoreChangesOnly{
 			Receiver: r,
-			Values:   m.Val(),
+			Values:   NewStore().Val(),
 			level:    len(wo.Path),
 		}, nil
 	} else {
 		return &receiverWithStore{
 			Receiver: r,
-			Values:   m.Val(),
+			Values:   NewStore().Val(),
 		}, nil
 	}
 }
@@ -60,6 +65,18 @@ func (m *storeWithWatcher) Watch(opts ...watch.WatchOption) (watch.Receiver, err
 type storeWithWatcherValues struct {
 	configx.Values
 	w watch.Watcher
+}
+
+func (m *storeWithWatcherValues) Context(ctx context.Context) configx.Values {
+	m.Values = m.Values.Context(ctx)
+
+	return m
+}
+
+func (m *storeWithWatcherValues) Default(d any) configx.Values {
+	m.Values = m.Values.Default(d)
+
+	return m
 }
 
 func (m *storeWithWatcherValues) Val(path ...string) configx.Values {

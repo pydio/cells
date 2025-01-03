@@ -10,7 +10,6 @@ import (
 
 	"github.com/pydio/cells/v5/common/utils/configx"
 	"github.com/pydio/cells/v5/common/utils/openurl"
-	"github.com/pydio/cells/v5/common/utils/watch"
 )
 
 // URLOpener represents types than can open Registries based on a URL.
@@ -137,36 +136,23 @@ func OpenStore(ctx context.Context, urlstr string) (Store, error) {
 		}
 	}
 
-	return &store{
-		Store: st,
-	}, nil
+	return st, nil
 }
 
-type store struct {
-	Store
-}
-
-func (s *store) Watch(opts ...watch.WatchOption) (watch.Receiver, error) {
-	wo := &watch.WatchOptions{}
-	for _, o := range opts {
-		o(wo)
-	}
-
-	r, err := s.Store.Watch(opts...)
-	if err != nil {
-		return nil, err
-	}
-
-	if wo.ChangesOnly {
-		return &receiverWithStoreChangesOnly{
-			Receiver: r,
-			Values:   s.Val(),
-			level:    len(wo.Path),
-		}, nil
-	} else {
-		return &receiverWithStore{
-			Receiver: r,
-			Values:   s.Val(),
-		}, nil
-	}
-}
+//type store struct {
+//	Store
+//}
+//
+//func (s *store) Watch(opts ...watch.WatchOption) (watch.Receiver, error) {
+//	wo := &watch.WatchOptions{}
+//	for _, o := range opts {
+//		o(wo)
+//	}
+//
+//	r, err := s.Store.Watch(opts...)
+//	if err != nil {
+//		return nil, err
+//	}
+//
+//	return r, nil
+//}

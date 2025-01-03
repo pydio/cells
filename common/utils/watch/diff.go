@@ -1,7 +1,6 @@
 package watch
 
 import (
-	"fmt"
 	"reflect"
 	"sync"
 
@@ -11,7 +10,6 @@ import (
 var CustomValueDiffers []diff.ValueDiffer
 
 func init() {
-	fmt.Println("In here")
 	RegisterCustomValueDiffer(&noopDiffer{})
 	RegisterCustomValueDiffer(&syncMapDiffer{})
 }
