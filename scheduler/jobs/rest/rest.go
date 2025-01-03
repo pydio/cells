@@ -109,6 +109,7 @@ func (s *JobsHandler) UserListJobs(req *restful.Request, rsp *restful.Response) 
 		}
 		j := resp.GetJob()
 		j.Label = T(j.Label)
+		j.Actions = []*jobs.Action{}
 		if request.TasksLimit == 1 && len(j.Tasks) > 0 && j.Tasks[0].Status == jobs.TaskStatus_Running {
 			hasRunning = append(hasRunning, j.ID)
 		}
