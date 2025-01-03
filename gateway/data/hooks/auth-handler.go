@@ -6,6 +6,7 @@ import (
 	"net/url"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/gorilla/mux"
 	"github.com/minio/minio-go/v7/pkg/signer"
@@ -103,7 +104,19 @@ func (a pydioAuthHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		var claims claim.Claims
 		ctx, claims, err = a.jwtVerifier.Verify(ctx, rawIDToken)
 		if err != nil {
-			cmd.ExposedWriteErrorResponse(ctx, w, cmd.ErrAccessDenied, r.URL)
+			if amzDate := r.Header.Get("X-Amz-Date"); amzDate != "" {
+				// Parse header as ISO8861 format - It is set at signature time, so more or less represents the request issue time.
+				// If it's too far from now, request body has probably been buffered too long and now the token is invalid
+				// In that case, trigger a 504 GatewayTimeout code so that it is interpreted as a retryable error.
+				if reqTime, e := time.Parse("20060102T150405Z", amzDate); e == nil {
+					// todo we should compare here with the underlying client token lifespan
+					if reqTime.Before(time.Now().Add(-20 * time.Second)) {
+						cmd.ExposedWriteErrorResponse(ctx, w, cmd.ErrTokenTimeMismatch, r.URL)
+						return
+					}
+				}
+			}
+			cmd.ExposedWriteErrorResponse(ctx, w, cmd.ErrUnauthorizedAccess, r.URL)
 			return
 		}
 		userName = claims.Name

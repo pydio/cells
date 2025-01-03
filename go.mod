@@ -293,7 +293,7 @@ require (
 	github.com/goccy/go-yaml v1.11.0 // indirect
 	github.com/godbus/dbus/v5 v5.1.0 // indirect
 	github.com/gogo/protobuf v1.3.2 // indirect
-	github.com/golang-jwt/jwt/v4 v4.5.0 // indirect
+	github.com/golang-jwt/jwt/v4 v4.5.1 // indirect
 	github.com/golang-jwt/jwt/v5 v5.2.1 // indirect
 	github.com/golang/gddo v0.0.0-20190904175337-72a348e765d2 // indirect
 	github.com/golang/geo v0.0.0-20230421003525-6adc56603217 // indirect
@@ -526,8 +526,10 @@ require (
 	modernc.org/sqlite v1.34.4 // indirect
 )
 
-//replace github.com/pydio/caddyvault => /Users/charles/Sources/go/src/github.com/pydio/caddyvault
+//replace github.com/pydio/caddyvault => ../caddyvault
 
-replace github.com/minio/minio => github.com/pydio/minio v0.0.0-20241119162755-05990bd7bf52
+replace github.com/minio/minio => github.com/pydio/minio v0.0.0-20250103143016-fcf4fedc377e
+
+//replace github.com/minio/minio => ../minio
 
 //replace github.com/mattn/go-sqlite3 => github.com/mattn/go-sqlite3 v1.14.16
