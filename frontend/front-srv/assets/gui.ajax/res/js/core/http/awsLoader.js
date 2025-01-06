@@ -6,6 +6,8 @@ export default () => {
 
         class ManagedMultipart extends aws.S3.ManagedUpload{
 
+            _partsRetries = []
+
             progress(info, data) {
                 const upload = this._managedUpload;
                 if (this.operation === 'putObject') {
@@ -54,7 +56,60 @@ export default () => {
                 PydioApi.getRestClient().getOrUpdateJwt().then(jwt => {
                     // Update accessKeyId
                     this.service.config.credentials.accessKeyId = jwt;
-                    super.uploadPart(chunk, partNumber);
+
+                    const self = this;
+                    self._partsRetries[partNumber] = (self._partsRetries[partNumber]||0) + 1
+
+                    const partParams = {
+                        Body: chunk,
+                        ContentLength: aws.util.string.byteLength(chunk),
+                        PartNumber: partNumber
+                    };
+
+                    const partInfo = {ETag: null, PartNumber: partNumber};
+                    self.completeInfo[partNumber] = partInfo;
+
+                    const req = self.service.uploadPart(partParams);
+                    self.parts[partNumber] = req;
+                    req._lastUploadedBytes = 0;
+                    req._managedUpload = self;
+                    req.on('httpUploadProgress', self.progress);
+                    req.send(function(err, data) {
+                        delete self.parts[partParams.PartNumber];
+                        self.activeParts--;
+
+                        if (!err && (!data || !data.ETag)) {
+                            var message = 'No access to ETag property on response.';
+                            if (aws.util.isBrowser()) {
+                                message += ' Check CORS configuration to expose ETag header.';
+                            }
+
+                            err = aws.util.error(new Error(message), {
+                                code: 'ETagMissing', retryable: false
+                            });
+                        }
+                        if(err) {
+                            // Retry 3 times to renew the token on failure
+                            if ((err.retryable || err.statusCode === 401) && self._partsRetries[partNumber] <= 3) {
+                                self.uploadPart(chunk, partNumber);
+                                return err
+                            } else {
+                                return self.cleanup(err)
+                            }
+                        }
+
+                        //prevent sending part being returned twice (https://github.com/aws/aws-sdk-js/issues/2304)
+                        if (self.completeInfo[partNumber] && self.completeInfo[partNumber].ETag !== null) return null;
+                        partInfo.ETag = data.ETag;
+                        self.doneParts++;
+                        if (self.isDoneChunking && self.doneParts === self.totalPartNumbers) {
+                            self.finishMultiPart();
+                        } else {
+                            self.fillQueue.call(self);
+                        }
+                    });
+
+
                 });
             }
 
