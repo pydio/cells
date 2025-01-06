@@ -118,18 +118,9 @@ func (bs *Bootstrap) Viper() *Viper {
 }
 
 func (bs *Bootstrap) reload(ctx context.Context, storePool *openurl.Pool[config.Store]) error {
-	// var store config.Store
 
 	runtimeConfig := viper.NewWithOptions(viper.KeyDelimiter("/"))
 	runtimeConfig.SetConfigType("yaml")
-
-	/*if storePool != nil {
-		if st, err := storePool.Get(ctx); err != nil {
-			return err
-		} else {
-			store = st
-		}
-	}*/
 
 	for _, c := range bs.templates {
 		if err := runtimeConfig.MergeConfigMap(c.AllSettings()); err != nil {
