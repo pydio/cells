@@ -110,7 +110,7 @@ func (b *balancer) Build(m map[string]*client.ServerAttributes) error {
 					if err.Error() == "context canceled" {
 						return
 					}
-					log.Logger(request.Context()).Error("Proxy Error :"+err.Error(), zap.Error(err))
+					log.Logger(request.Context()).Error(fmt.Sprintf("Proxy Error (request %s %s) : %s", request.Method, request.URL.String(), err.Error()), zap.Error(err))
 					writer.WriteHeader(http.StatusBadGateway)
 				}
 				b.readyProxies[addr] = proxy
