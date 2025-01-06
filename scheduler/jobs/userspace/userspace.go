@@ -971,7 +971,7 @@ func MkDirsOrFiles(ctx context.Context, router nodes.Client, nodes []*tree.Node,
 				er = e
 				return
 			}
-			nn = append(nn, r.Node.WithoutReservedMetas())
+			nn = append(nn, r.GetNode().WithoutReservedMetas())
 		} else {
 			var reader io.Reader
 			var length int64
@@ -1001,8 +1001,12 @@ func MkDirsOrFiles(ctx context.Context, router nodes.Client, nodes []*tree.Node,
 			}
 			if _, er = router.PutObject(ctx, n, reader, &models.PutRequestData{Size: length, Metadata: meta}); er != nil {
 				return
+			} else if newN, err := router.ReadNode(ctx, &tree.ReadNodeRequest{Node: n}); err != nil {
+				er = err
+				return
+			} else {
+				nn = append(nn, newN.GetNode().WithoutReservedMetas())
 			}
-			nn = append(nn, n.WithoutReservedMetas())
 		}
 	}
 
