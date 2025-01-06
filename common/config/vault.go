@@ -177,7 +177,7 @@ func (v *vaultvalues) Get(wo ...configx.WalkOption) any {
 func (v *vaultvalues) Set(value interface{}) error {
 	// Checking we have a registered value
 	for _, p := range registeredVaultKeys {
-		if v.path == p {
+		if strings.TrimPrefix(v.path, "/") == p {
 			return v.set(value)
 		}
 

@@ -1,7 +1,7 @@
 package kv
 
 import (
-	"github.com/go-jose/go-jose/v3/json"
+	"context"
 
 	"github.com/pydio/cells/v5/common/config"
 	"github.com/pydio/cells/v5/common/utils/configx"
@@ -19,6 +19,10 @@ func (s *storeWithEncrypter) Set(data any) error {
 	return s.Val().Set(data)
 }
 
+func (s *storeWithEncrypter) Context(ctx context.Context) configx.Values {
+	return s.Val().Context(ctx)
+}
+
 func (s *storeWithEncrypter) Val(path ...string) configx.Values {
 	return &storeWithEncrypterValues{
 		Values:    s.Store.Val(path...),
@@ -32,6 +36,12 @@ type storeWithEncrypterValues struct {
 
 	configx.Encrypter
 	configx.Decrypter
+}
+
+func (s *storeWithEncrypterValues) Context(ctx context.Context) configx.Values {
+	s.Values = s.Values.Context(ctx)
+
+	return s
 }
 
 func (s *storeWithEncrypterValues) Val(path ...string) configx.Values {
@@ -55,24 +65,19 @@ func (s *storeWithEncrypterValues) Get(...configx.WalkOption) any {
 		return nil
 	}
 
-	var a any
-	if err := json.Unmarshal(b, &a); err != nil {
-		return nil
-	}
-
-	return a
+	return b
 }
 
 func (s *storeWithEncrypterValues) Set(data any) error {
-	b, err := json.Marshal(data)
-	if err != nil {
-		return err
+	switch v := data.(type) {
+	case string:
+		str, err := s.Encrypter.Encrypt([]byte(v))
+		if err != nil {
+			return err
+		}
+
+		return s.Values.Set(str)
 	}
 
-	str, err := s.Encrypter.Encrypt(b)
-	if err != nil {
-		return err
-	}
-
-	return s.Values.Set(str)
+	return s.Values.Set(data)
 }

@@ -469,7 +469,7 @@ func (m *manager) initConfig(ctx context.Context) (*openurl.Pool[config.Store], 
 			return nil, err
 		}
 
-		config.NewVault(vaultStore, mainStore)
+		mainStore = config.NewVault(vaultStore, mainStore)
 
 		// Additional Proxy
 		mainStore = config.Proxy(mainStore)
