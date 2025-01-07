@@ -249,7 +249,6 @@ ENVIRONMENT
 		fatalIfError(cmd, err)
 
 		runtime.Register("system", func(ctx context.Context) {
-			fmt.Println("In install ", str.String())
 			if err := bootstrap.RegisterTemplate("yaml", str.String()); err != nil {
 				fatalIfError(cmd, err)
 			}
@@ -333,7 +332,6 @@ ENVIRONMENT
 				return err
 			}
 
-			fmt.Println("In start ", b.String())
 			if err := bootstrap.RegisterTemplate("yaml", b.String()); err != nil {
 				return err
 			}

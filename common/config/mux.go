@@ -136,6 +136,10 @@ func OpenStore(ctx context.Context, urlstr string) (Store, error) {
 		}
 	}
 
+	rp := PoolFromURL(ctx, u, OpenStore)
+
+	st = newStoreWithRefPool(st, rp)
+
 	return st, nil
 }
 

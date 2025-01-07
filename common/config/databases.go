@@ -22,6 +22,7 @@ package config
 
 import (
 	"context"
+
 	"github.com/pydio/cells/v5/common/utils/configx"
 )
 
@@ -66,7 +67,7 @@ func SetDatabase(ctx context.Context, key string, driver string, dsn string, def
 	}
 
 	// If defaultsKey is set and value is not already set, add it
-	if defaultsKey != "" && Get(ctx, "defaults", defaultsKey).String() == "" {
+	if defaultsKey != "" && Get(ctx, "defaults", defaultsKey).Get() == nil {
 		return Set(ctx, configx.Reference("#/databases/"+key), "defaults", defaultsKey)
 	}
 	return nil
