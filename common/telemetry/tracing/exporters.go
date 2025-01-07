@@ -2,7 +2,6 @@ package tracing
 
 import (
 	"context"
-	"fmt"
 
 	"go.opentelemetry.io/otel/sdk/trace"
 	"go.uber.org/multierr"
@@ -22,7 +21,6 @@ func (d *dynamicExporter) ExportSpans(ctx context.Context, spans []trace.ReadOnl
 }
 
 func (d *dynamicExporter) Shutdown(ctx context.Context) error {
-	fmt.Println("Closing all tracing providers")
 	var err []error
 	for _, e := range d.ee {
 		err = append(err, e.Shutdown(ctx))
