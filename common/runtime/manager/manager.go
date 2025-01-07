@@ -254,11 +254,13 @@ func NewManager(ctx context.Context, namespace string, logger log.ZapLogger) (Ma
 					return errors.New("config not reachable")
 				}
 
-				var data any
-				if err := json.Unmarshal([]byte(config.SampleConfig), &data); err == nil {
-					if err := configStore.Context(ctx).Val().Set(data); err == nil {
-						if err := configStore.Save(common.PydioSystemUsername, "Initialize with sample config"); err != nil {
-							return err
+				if configStore.Context(ctx).Val().Get() == nil {
+					var data any
+					if err := json.Unmarshal([]byte(config.SampleConfig), &data); err == nil {
+						if err := configStore.Context(ctx).Val().Set(data); err == nil {
+							if err := configStore.Save(common.PydioSystemUsername, "Initialize with sample config"); err != nil {
+								return err
+							}
 						}
 					}
 				}
