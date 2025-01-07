@@ -29,6 +29,8 @@ import {RestCreateSelectionRequest, TreeNode, TreeServiceApi} from 'cells-sdk';
 import awsLoader from "./awsLoader";
 import {debounce} from 'lodash'
 
+const DUMMY_SECRET='gatewaysecret'
+
 /**
  * API Client
  */
@@ -45,10 +47,10 @@ class PydioApi{
             if (PydioApi._PydioRestClient) {
                 return PydioApi._PydioRestClient;
             }
-    
+
             const client = new RestClient(this.getClient()._pydioObject, {});
             PydioApi._PydioRestClient = client
-            return client 
+            return client
         }
 
         return new RestClient(this.getClient()._pydioObject, options);
@@ -126,8 +128,27 @@ class PydioApi{
         c.send();
     }
 
+    // See https://docs.aws.amazon.com/AWSJavaScriptSDK/latest/AWS/S3.html#constructor-property for all options
+    s3Options(token, timeout=undefined, options={}) {
+        const frontU = this.getPydioObject().getFrontendUrl();
+        const url = `${frontU.protocol}//${frontU.host}`;
+        if(timeout) {
+            options.httpOptions = {
+                timeout: timeout
+            };
+        }
+        return {
+            endpoint:url,
+            accessKeyId: token,
+            secretAccessKey: DUMMY_SECRET,
+            s3ForcePathStyle: true,
+            signatureVersion:'v4',
+            ...options
+        }
+    }
+
     /**
-     * 
+     *
      * @param file
      * @param fileParameterName
      * @param queryStringParams
@@ -258,8 +279,6 @@ class PydioApi{
         if(targetPath[0] === "/"){
             targetPath = targetPath.substring(1);
         }
-        const fUrl = this.getPydioObject().getFrontendUrl();
-        const url = fUrl.protocol + '//' + fUrl.host;
         const params = {
             Bucket: 'io',
             Key: targetPath,
@@ -271,15 +290,7 @@ class PydioApi{
         return new Promise(resolve => {
             PydioApi.getRestClient().getOrUpdateJwt().then(jwt => {
                 awsLoader().then(({config, ManagedMultipart}) => {
-                    config.update({
-                        accessKeyId: jwt,
-                        secretAccessKey: 'gatewaysecret',
-                        s3ForcePathStyle: true,
-                        httpOptions:{
-                            timeout:PydioApi.getMultipartUploadTimeout()
-                        },
-                        endpoint:url,
-                    });
+                    config.update(this.s3Options(jwt, PydioApi.getMultipartUploadTimeout()))
                     const managed = new ManagedMultipart({
                         params: {...params, Body: file},
                         partSize: PydioApi.getMultipartPartSize(),
@@ -316,8 +327,6 @@ class PydioApi{
         if(targetPath[0] === "/"){
             targetPath = targetPath.substring(1);
         }
-        const frontU = this.getPydioObject().getFrontendUrl();
-        const url = `${frontU.protocol}//${frontU.host}`;
         const params = {
             Bucket: 'io',
             Key: targetPath,
@@ -329,15 +338,7 @@ class PydioApi{
 
         return PydioApi.getRestClient().getOrUpdateJwt().then(jwt => {
             return awsLoader().then(({config, S3}) => {
-                config.update({
-                    accessKeyId: 'gateway',
-                    secretAccessKey: 'gatewaysecret',
-                    s3ForcePathStyle: true,
-                    httpOptions:{
-                        timeout:PydioApi.getMultipartUploadTimeout()
-                    },
-                });
-                const s3 = new S3({endpoint:url});
+                const s3 = new S3(this.s3Options(jwt), PydioApi.getMultipartUploadTimeout());
                 const signed = s3.getSignedUrl('putObject', params);
                 let metaHeaders = {};
                 if(userMeta){
@@ -346,7 +347,6 @@ class PydioApi{
                 return {
                     url: signed,
                     headers: {
-                        'X-Pydio-Bearer': jwt,
                         'Content-Type': 'application/octet-stream',
                         ...metaHeaders
                     }
@@ -367,10 +367,8 @@ class PydioApi{
      * @return {Promise}|null Return a Promise if callback is null, or call the callback
      */
     buildPresignedGetUrl(node, callback = null, presetType = '', bucketParams = null, attachmentName = '') {
-        const frontU = this.getPydioObject().getFrontendUrl();
-        const url = `${frontU.protocol}//${frontU.host}`;
-        let slug = this.getSlugForNode(node)
 
+        const slug = this.getSlugForNode(node)
         let cType = '', cDisposition;
         let longExpire = false;
 
@@ -445,16 +443,10 @@ class PydioApi{
                 return;
             }
 
-            AWS.config.update({
-                accessKeyId: 'gateway',
-                secretAccessKey: 'gatewaysecret',
-                s3ForcePathStyle: true
-            });
-            const s3 = new AWS.S3({endpoint:url});
+            const s3 = new AWS.S3(this.s3Options(jwt));
             const signed = s3.getSignedUrl('getObject', params);
-            const output = signed + '&pydio_jwt=' + jwt;
 
-            cb(output);
+            cb(signed);
 
             lscache.set(cacheKey, output, 10);
             if(Math.random() < 0.1) {
@@ -490,22 +482,15 @@ class PydioApi{
 
     getPlainContent(node, contentCallback) {
         PydioApi.getRestClient().getOrUpdateJwt().then(jwt => {
-            const frontU = this.getPydioObject().getFrontendUrl();
-            const url = `${frontU.protocol}//${frontU.host}`;
             const slug = this.getSlugForNode(node)
-            awsLoader().then(({config, S3}) => {
-                config.update({
-                    accessKeyId: jwt,
-                    secretAccessKey: 'gatewaysecret',
-                    s3ForcePathStyle: true
-                });
+            awsLoader().then(({S3}) => {
                 const params = {
                     Bucket: "io",
                     Key: slug + node.getPath(),
                     ResponseContentType: 'text/plain',
                     ResponseCacheControl: "no-cache",
                 };
-                const s3 = new S3({endpoint:url});
+                const s3 = new S3(this.s3Options(jwt));
                 s3.getObject(params, (err,data) => {
                     if (!err) {
                         contentCallback(data.Body.toString('utf-8'));
@@ -521,20 +506,13 @@ class PydioApi{
     postPlainTextContent(node, content, finishedCallback){
 
         PydioApi.getRestClient().getOrUpdateJwt().then(jwt => {
-            const frontU = this.getPydioObject().getFrontendUrl();
-            const url = `${frontU.protocol}//${frontU.host}`;
-            awsLoader().then(({config, S3}) => {
-                config.update({
-                    accessKeyId: jwt,
-                    secretAccessKey: 'gatewaysecret',
-                    s3ForcePathStyle: true
-                });
+            awsLoader().then(({S3}) => {
                 const params = {
                     Bucket: "io",
                     Key: this.getSlugForNode(node) + node.getPath(),
                     Body: content,
                 };
-                const s3 = new S3({endpoint:url});
+                const s3 = new S3(this.s3Options(jwt));
                 s3.putObject(params, (err) => {
                     if (err) {
                         this.getPydioObject().UI.displayMessage('ERROR', err.message);
@@ -585,21 +563,14 @@ class PydioApi{
 
     revertToVersion(node, versionId, callback){
         PydioApi.getRestClient().getOrUpdateJwt().then(jwt => {
-            const frontU = this.getPydioObject().getFrontendUrl();
-            const url = `${frontU.protocol}//${frontU.host}`;
             const slug = this.getPydioObject().user.getActiveRepositoryObject().getSlug();
-            awsLoader().then(({config, S3}) => {
-                config.update({
-                    accessKeyId: jwt,
-                    secretAccessKey: 'gatewaysecret',
-                    s3ForcePathStyle: true
-                });
+            awsLoader().then(({S3}) => {
                 const params = {
                     Bucket: "io",
                     Key: slug + node.getPath(),
                     CopySource:encodeURIComponent('io/' + slug + node.getPath() + '?versionId=' + versionId)
                 };
-                const s3 = new S3({endpoint:url});
+                const s3 = new S3(this.s3Options(jwt));
                 s3.copyObject(params, (err) => {
                     if (err) {
                         this.getPydioObject().UI.displayMessage('ERROR', err.message);
