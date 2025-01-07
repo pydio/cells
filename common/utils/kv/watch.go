@@ -27,7 +27,17 @@ func newStoreWithWatcher(store config.Store, watcher watch.Watcher) config.Store
 }
 
 func (m *storeWithWatcher) Context(ctx context.Context) configx.Values {
-	return m.Val().Context(ctx)
+	return &storeWithWatcherValues{
+		Values: m.Store.Context(ctx),
+		w:      m.w,
+	}
+}
+
+func (m *storeWithWatcher) Default(d any) configx.Values {
+	return &storeWithWatcherValues{
+		Values: m.Store.Default(d),
+		w:      m.w,
+	}
 }
 
 func (m *storeWithWatcher) Val(path ...string) configx.Values {
@@ -68,15 +78,17 @@ type storeWithWatcherValues struct {
 }
 
 func (m *storeWithWatcherValues) Context(ctx context.Context) configx.Values {
-	m.Values = m.Values.Context(ctx)
-
-	return m
+	return &storeWithWatcherValues{
+		Values: m.Values.Context(ctx),
+		w:      m.w,
+	}
 }
 
 func (m *storeWithWatcherValues) Default(d any) configx.Values {
-	m.Values = m.Values.Default(d)
-
-	return m
+	return &storeWithWatcherValues{
+		Values: m.Values.Default(d),
+		w:      m.w,
+	}
 }
 
 func (m *storeWithWatcherValues) Val(path ...string) configx.Values {

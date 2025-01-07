@@ -1,6 +1,8 @@
 package config
 
 import (
+	"context"
+
 	"github.com/spf13/cast"
 
 	"github.com/pydio/cells/v5/common/utils/configx"
@@ -18,14 +20,50 @@ func (s *storeWithEncoder) Set(data any) error {
 	return s.Val().Set(data)
 }
 
+func (s *storeWithEncoder) Context(ctx context.Context) configx.Values {
+	return &storeWithEncoderValues{
+		Values:      s.Store.Context(ctx),
+		Unmarshaler: s.Unmarshaler,
+		Marshaller:  s.Marshaller,
+	}
+}
+
+func (s *storeWithEncoder) Default(d any) configx.Values {
+	return &storeWithEncoderValues{
+		Values:      s.Store.Default(d),
+		Unmarshaler: s.Unmarshaler,
+		Marshaller:  s.Marshaller,
+	}
+}
+
 func (s *storeWithEncoder) Val(path ...string) configx.Values {
-	return &storeWithEncoderValues{Values: s.Store.Val(path...), Unmarshaler: s.Unmarshaler}
+	return &storeWithEncoderValues{
+		Values:      s.Store.Val(path...),
+		Unmarshaler: s.Unmarshaler,
+		Marshaller:  s.Marshaller,
+	}
 }
 
 type storeWithEncoderValues struct {
 	configx.Values
 	configx.Unmarshaler
 	configx.Marshaller
+}
+
+func (s *storeWithEncoderValues) Context(ctx context.Context) configx.Values {
+	return &storeWithEncoderValues{
+		Values:      s.Values.Context(ctx),
+		Unmarshaler: s.Unmarshaler,
+		Marshaller:  s.Marshaller,
+	}
+}
+
+func (s *storeWithEncoderValues) Default(d any) configx.Values {
+	return &storeWithEncoderValues{
+		Values:      s.Values.Default(d),
+		Unmarshaler: s.Unmarshaler,
+		Marshaller:  s.Marshaller,
+	}
 }
 
 func (s *storeWithEncoderValues) Val(path ...string) configx.Values {

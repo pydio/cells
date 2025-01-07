@@ -154,32 +154,32 @@ func (v *values) Get(option ...configx.WalkOption) any {
 	current := *v.v.m
 
 	for _, k := range v.k {
-		switch v := current.(type) {
+		switch vv := current.(type) {
 		case []any:
 			kk, err := strconv.Atoi(k)
 			if err != nil {
 				return err
 			}
 
-			if kk >= len(v) {
+			if kk >= len(vv) {
 				return nil
 			}
 
-			current = v[kk]
+			current = vv[kk]
 		case map[any]any:
-			if vv, ok := v[k]; ok {
+			if vv, ok := vv[k]; ok {
 				current = vv
 			} else {
-				return nil
+				return v.d
 			}
 		case map[string]any:
-			if vv, ok := v[k]; ok {
+			if vv, ok := vv[k]; ok {
 				current = vv
 			} else {
-				return nil
+				return v.d
 			}
 		default:
-			current = nil
+			current = v.d
 		}
 	}
 

@@ -20,7 +20,19 @@ func (s *storeWithEncrypter) Set(data any) error {
 }
 
 func (s *storeWithEncrypter) Context(ctx context.Context) configx.Values {
-	return s.Val().Context(ctx)
+	return &storeWithEncrypterValues{
+		Values:    s.Store.Context(ctx),
+		Encrypter: s.Encrypter,
+		Decrypter: s.Decrypter,
+	}
+}
+
+func (s *storeWithEncrypter) Default(d any) configx.Values {
+	return &storeWithEncrypterValues{
+		Values:    s.Store.Default(d),
+		Encrypter: s.Encrypter,
+		Decrypter: s.Decrypter,
+	}
 }
 
 func (s *storeWithEncrypter) Val(path ...string) configx.Values {
@@ -39,9 +51,19 @@ type storeWithEncrypterValues struct {
 }
 
 func (s *storeWithEncrypterValues) Context(ctx context.Context) configx.Values {
-	s.Values = s.Values.Context(ctx)
+	return &storeWithEncrypterValues{
+		Values:    s.Values.Context(ctx),
+		Encrypter: s.Encrypter,
+		Decrypter: s.Decrypter,
+	}
+}
 
-	return s
+func (s *storeWithEncrypterValues) Default(d any) configx.Values {
+	return &storeWithEncrypterValues{
+		Values:    s.Values.Default(d),
+		Encrypter: s.Encrypter,
+		Decrypter: s.Decrypter,
+	}
 }
 
 func (s *storeWithEncrypterValues) Val(path ...string) configx.Values {
