@@ -376,7 +376,29 @@ var (
 )
 
 const (
-	DefaultRouteREST = "/a"
+	RouteApiREST    = "api"
+	RoutePublic     = "public"
+	RouteFrontend   = "frontend"
+	RouteBucketIO   = "io"
+	RouteBucketData = "data"
+	RouteDAV        = "webdav"
+	RouteMetrics    = "metrics"
+	RouteProfile    = "debug"
+	RouteWebsocket  = "websocket"
+	RouteOIDC       = "oidc"
+	RouteInstall    = "install"
+
+	DefaultRouteFrontend   = "/"
+	DefaultRouteInstall    = "/"
+	DefaultRouteREST       = "/a"
+	DefaultRoutePublic     = "/public"
+	DefaultRouteBucketIO   = "/io"
+	DefaultRouteBucketData = "/data"
+	DefaultRouteDAV        = "/dav"
+	DefaultRouteMetrics    = "/metrics"
+	DefaultRouteProfile    = "/debug"
+	DefaultRouteWebsocket  = "/ws"
+	DefaultRouteOIDC       = "/oidc"
 )
 
 // Version returns the current code version as an object.

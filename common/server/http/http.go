@@ -52,6 +52,7 @@ func (o *Opener) OpenURL(ctx context.Context, u *url.URL) (server.Server, error)
 	lMux := NewRegistrar(ctx, srvID)
 
 	srv := &http.Server{}
+	srv.BaseContext = func(_ net.Listener) context.Context { return ctx }
 	srv.Handler = mux.NewMiddleware(ctx, srvID, lMux)
 	srv.Handler = propagator.HttpContextMiddleware(middleware.ClientConnIncomingContext(ctx))(srv.Handler)
 	srv.Handler = propagator.HttpContextMiddleware(middleware.RegistryIncomingContext(ctx))(srv.Handler)

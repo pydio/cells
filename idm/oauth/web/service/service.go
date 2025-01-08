@@ -45,13 +45,9 @@ import (
 	"github.com/pydio/cells/v5/idm/oauth"
 )
 
-const (
-	RouteOIDC = "oidc"
-)
-
 func init() {
 
-	routing.RegisterRoute(RouteOIDC, "OpenID Connect service", "/oidc")
+	routing.RegisterRoute(common.RouteOIDC, "OpenID Connect service", common.DefaultRouteOIDC)
 
 	runtime.Register("main", func(ctx context.Context) {
 		service.NewService(
@@ -137,7 +133,7 @@ func init() {
 				handler := TokenMethodWrapper(ctx, handlerFunc)
 				handler = middleware.WebIncomingContextMiddleware(ctx, "/oidc", service.ContextKey, o.Server, handler)
 
-				serveMux.Route(RouteOIDC).Handle("/", cors.New(cors.Options{
+				serveMux.Route(common.RouteOIDC).Handle("/", cors.New(cors.Options{
 					AllowedMethods:   []string{"GET", "POST", "PUT", "PATCH", "DELETE"},
 					AllowedHeaders:   []string{"Authorization", "Content-Type"},
 					ExposedHeaders:   []string{"Content-Type"},
@@ -146,7 +142,7 @@ func init() {
 				return nil
 			}),
 			service.WithHTTPStop(func(ctx context.Context, mux routing.RouteRegistrar) error {
-				mux.DeregisterRoute(RouteOIDC)
+				mux.DeregisterRoute(common.RouteOIDC)
 				return nil
 			}),
 		)

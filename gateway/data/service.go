@@ -71,7 +71,7 @@ func rewriteListBucketRequest(request *http.Request, registrar routing.RouteRegi
 	ctx := request.Context()
 	if strings.Contains(auth, "AWS4-HMAC-SHA256") && (pa == "/" || strings.HasPrefix(pa, "/probe-bucket-sign")) {
 		// Find resolved pattern for main bucket (.e.g /io)
-		if pp := registrar.Patterns(BucketIO); len(pp) > 0 {
+		if pp := registrar.Patterns(common.RouteBucketIO); len(pp) > 0 {
 			resolvedPattern := pp[0]
 			log.Logger(ctx).Info("S3 - Recognized ListBucket request on root, re-attach to correct endpoint " + resolvedPattern)
 			request.URL.Path = path.Join(resolvedPattern, pa)
@@ -81,19 +81,14 @@ func rewriteListBucketRequest(request *http.Request, registrar routing.RouteRegi
 	}
 }
 
-const (
-	BucketIO   = "io"
-	BucketData = "data"
-)
-
 var (
 	srv *gatewayDataServer
 )
 
 func init() {
 
-	routing.RegisterRoute(BucketIO, "Main I/O bucket for transferring data", "/io")
-	routing.RegisterRoute(BucketData, "Secondary I/O bucket with name longer than 3 characters, may be required by some AWS clients", "/data")
+	routing.RegisterRoute(common.RouteBucketIO, "Main I/O bucket for transferring data", common.DefaultRouteBucketIO)
+	routing.RegisterRoute(common.RouteBucketData, "Secondary I/O bucket with name longer than 3 characters, may be required by some AWS clients", common.DefaultRouteBucketData)
 
 	runtime.Register("main", func(ctx context.Context) {
 
@@ -167,8 +162,8 @@ func init() {
 
 			}),
 			service.WithHTTPStop(func(ctx context.Context, mux routing.RouteRegistrar) error {
-				mux.DeregisterRoute(BucketIO)
-				mux.DeregisterRoute(BucketData)
+				mux.DeregisterRoute(common.RouteBucketIO)
+				mux.DeregisterRoute(common.RouteBucketData)
 				mux.DeregisterRewrite("ListBucket")
 				if srv != nil {
 					_ = srv.Stop()
@@ -243,8 +238,8 @@ func (g *gatewayDataServer) Init(ctx context.Context, mux routing.RouteRegistrar
 		// Make sure it conforms to this interface
 		router.ServeHTTP(&flusher{ResponseWriter: writer}, request)
 	})
-	mux.Route(BucketIO).Handle("/", handler)
-	mux.Route(BucketData).Handle("/", handler)
+	mux.Route(common.RouteBucketIO).Handle("/", handler)
+	mux.Route(common.RouteBucketData).Handle("/", handler)
 	mux.RegisterRewrite("ListBucket", rewriteListBucketRequest)
 
 	return nil

@@ -53,10 +53,6 @@ import (
 	"github.com/pydio/cells/v5/common/telemetry/log"
 )
 
-const (
-	APIRoute = "api"
-)
-
 var (
 	swaggerSyncOnce       = &sync.Once{}
 	swaggerJSONStrings    []string
@@ -74,7 +70,7 @@ func RegisterSwaggerJSON(json string) {
 
 func init() {
 	// Instanciate restful framework
-	routing.RegisterRoute(APIRoute, "Main REST API Endpoint", common.DefaultRouteREST)
+	routing.RegisterRoute(common.RouteApiREST, "Main REST API Endpoint", common.DefaultRouteREST)
 	runtime.RegisterEnvVariable("CELLS_WEB_RATE_LIMIT", "0", "Http API rate-limiter, as a number of token allowed per seconds. 0 means no limit.")
 	runtime.RegisterEnvVariable("CELLS_WEB_CORS_ALLOW_ALL", "false", "Should be used for DEV only, allow all CORS requests")
 	restful.RegisterEntityAccessor("application/json", new(middleware.ProtoEntityReaderWriter))
@@ -221,7 +217,7 @@ func WithWeb(handler func(ctx context.Context) WebHandler) ServiceOption {
 
 			wrapped = middleware.WebIncomingContextMiddleware(ctx, "", ContextKey, o.Server, wrapped)
 
-			sub := mux.Route(APIRoute)
+			sub := mux.Route(common.RouteApiREST)
 			sub.Handle(serviceRoute, wrapped, routing.WithStripPrefix(), routing.WithEnsureTrailing())
 			return nil
 		}
@@ -231,7 +227,7 @@ func WithWeb(handler func(ctx context.Context) WebHandler) ServiceOption {
 			if !o.Server.As(&mux) {
 				return fmt.Errorf("server %s is not a mux", o.Name)
 			}
-			mux.Route(APIRoute).Deregister(serviceRoute)
+			mux.Route(common.RouteApiREST).Deregister(serviceRoute)
 			return nil
 		}
 

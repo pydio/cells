@@ -34,7 +34,7 @@ import (
 )
 
 func init() {
-	routing.RegisterRoute("install", "Installation Frontend", "/")
+	routing.RegisterRoute(common.RouteInstall, "Installation Frontend", common.DefaultRouteInstall)
 
 	runtime.Register("install", func(ctx context.Context) {
 		service.NewService(
@@ -51,14 +51,14 @@ func init() {
 				}
 				fs = wrap(fs)
 
-				root := mux.Route("install")
+				root := mux.Route(common.RouteInstall)
 				root.Handle("/res/", fs)
 				root.Handle("/", fs)
 
 				return nil
 			}),
 			service.WithHTTPStop(func(ctx context.Context, mux routing.RouteRegistrar) error {
-				mux.DeregisterRoute("install")
+				mux.DeregisterRoute(common.RouteInstall)
 				return nil
 			}),
 		)

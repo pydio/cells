@@ -38,10 +38,6 @@ var (
 	davRouter nodes.Handler
 )
 
-const (
-	RouteDAV = "webdav"
-)
-
 func RouterWithOptionalPrefix(runtime context.Context, s ...string) nodes.Handler {
 	if davRouter == nil {
 		davRouter = compose.PathClient(nodes.WithAuditEventsLogging(), nodes.WithSynchronousCaching(), nodes.WithSynchronousTasks())
@@ -62,7 +58,7 @@ func GetHandler(ctx context.Context, davPrefix, routerPrefix string) (http.Handl
 
 func init() {
 
-	routing.RegisterRoute(RouteDAV, "WebDAV API", "/dav")
+	routing.RegisterRoute(common.RouteDAV, "WebDAV API", common.DefaultRouteDAV)
 
 	runtime.Register("main", func(ctx context.Context) {
 		service.NewService(
@@ -73,11 +69,11 @@ func init() {
 			service.WithHTTP(func(runtimeCtx context.Context, mux routing.RouteRegistrar) error {
 				// TODO CHECK PREFIX MANAGEMENT
 				handler := newHandler(runtimeCtx, "", RouterWithOptionalPrefix(ctx), "Cells DAV")
-				mux.Route(RouteDAV).Handle("/", handler, routing.WithStripPrefix())
+				mux.Route(common.RouteDAV).Handle("/", handler, routing.WithStripPrefix())
 				return nil
 			}),
 			service.WithHTTPStop(func(ctx context.Context, mux routing.RouteRegistrar) error {
-				mux.DeregisterRoute(RouteDAV)
+				mux.DeregisterRoute(common.RouteDAV)
 				return nil
 			}),
 		)

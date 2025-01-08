@@ -9,7 +9,9 @@ import (
 	"github.com/gorilla/sessions"
 	"gorm.io/gorm"
 
+	"github.com/pydio/cells/v5/common"
 	"github.com/pydio/cells/v5/common/config"
+	"github.com/pydio/cells/v5/common/config/routing"
 	"github.com/pydio/cells/v5/common/service/frontend/sessions/sqlsessions"
 	"github.com/pydio/cells/v5/common/service/frontend/sessions/utils"
 	"github.com/pydio/cells/v5/common/storage/sc"
@@ -21,9 +23,10 @@ import (
 // NewCookieDAO creates an encrypted cookies carried along with requests
 func NewCookieDAO(ctx context.Context, some *sc.Conn) DAO {
 
+	restApi := routing.RouteIngressURIContext(ctx, common.RouteApiREST, common.DefaultRouteREST)
 	timeout := config.Get(ctx, "frontend", "plugin", "gui.ajax", "SESSION_TIMEOUT").Default(60).Int()
 	defaultOptions := &sessions.Options{
-		Path:     "/a/frontend",
+		Path:     restApi + "/frontend",
 		MaxAge:   60 * timeout,
 		HttpOnly: true,
 	}
@@ -53,9 +56,10 @@ func NewCookieDAO(ctx context.Context, some *sc.Conn) DAO {
 
 // NewSQLDAO stores sessions in DB
 func NewSQLDAO(ctx context.Context, db *gorm.DB) DAO {
+	restApi := routing.RouteIngressURIContext(ctx, common.RouteApiREST, common.DefaultRouteREST)
 	timeout := config.Get(ctx, "frontend", "plugin", "gui.ajax", "SESSION_TIMEOUT").Default(60).Int()
 	defaultOptions := &sessions.Options{
-		Path:     "/a/frontend",
+		Path:     restApi + "/frontend",
 		MaxAge:   60 * timeout,
 		HttpOnly: true,
 	}

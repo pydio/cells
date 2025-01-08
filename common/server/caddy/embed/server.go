@@ -51,7 +51,6 @@ var (
 
 func init() {
 	server.DefaultURLMux().Register("caddy", &Opener{})
-	server.ProxyURLMux().Register("caddy", &Opener{proxy: true})
 }
 
 type Server struct {
@@ -60,12 +59,11 @@ type Server struct {
 	balancer     clienthttp.Balancer
 }
 
-type Opener struct {
-	proxy bool
-}
+type Opener struct{}
 
 func (o *Opener) OpenURL(ctx context.Context, u *url.URL) (server.Server, error) {
-	return New(ctx, o.proxy)
+	asProxy := u.Scheme == "caddy+proxy"
+	return New(ctx, asProxy)
 }
 
 func New(ctx context.Context, asProxy bool) (server.Server, error) {
@@ -82,7 +80,11 @@ func New(ctx context.Context, asProxy bool) (server.Server, error) {
 	if asProxy {
 		srvName = "proxy"
 		srvID = "proxy" + "-" + uuid.New()
+		log.Logger(runtime.WithServiceName(context.Background(), "pydio.web.proxy")).Info("Starting caddy as reverse-proxy")
+	} else {
+		log.Logger(runtime.WithServiceName(context.Background(), "pydio.web.mux")).Info("Starting caddy server")
 	}
+
 	s := &Server{
 		RawServer:    caddy.New(ctx, srvID, srvName, map[string]string{}),
 		reverseProxy: asProxy,

@@ -51,9 +51,6 @@ const (
 	RobotsString = `User-agent: *
 Disallow: /`
 	ResetPasswordPath = "/user/reset-password/"
-
-	RouteFrontend = "frontend"
-	RoutePublic   = "public"
 )
 
 type recoveryLogger struct {
@@ -75,10 +72,8 @@ func (r *recoveryLogger) Println(vv ...interface{}) {
 
 func init() {
 
-	routing.RegisterRoute(RouteFrontend, "Main Frontend", "/")
-	routing.RegisterRoute(RoutePublic, "Public links access", "/public", routing.WithCustomResolver(func(ctx context.Context) string {
-		return routing.GetPublicBaseUri(ctx)
-	}))
+	routing.RegisterRoute(common.RouteFrontend, "Main Frontend", common.DefaultRouteFrontend)
+	routing.RegisterRoute(common.RoutePublic, "Public links access", common.DefaultRoutePublic)
 
 	runtime.Register("main", func(ctx context.Context) {
 		service.NewService(
@@ -133,7 +128,7 @@ func init() {
 				fs = timeoutWrap(fs)
 				fs = recoveryWrap(fs)
 
-				m := mux.Route(RouteFrontend)
+				m := mux.Route(common.RouteFrontend)
 				m.Handle("index.json", fs)
 				m.Handle("plug/", fs, routing.WithStripPrefix())
 				indexHandler := web.NewIndexHandler(ctx, ResetPasswordPath)
@@ -155,7 +150,7 @@ func init() {
 				handler = timeoutWrap(handler)
 				handler = recoveryWrap(handler)
 
-				pub := mux.Route(RoutePublic)
+				pub := mux.Route(common.RoutePublic)
 				pub.Handle("/", handler)
 				pub.Handle("plug/", fs, routing.WithStripPrefix())
 
@@ -170,8 +165,8 @@ func init() {
 				return nil
 			}),
 			service.WithHTTPStop(func(ctx context.Context, reg routing.RouteRegistrar) error {
-				reg.DeregisterRoute(RouteFrontend)
-				reg.DeregisterRoute(RoutePublic)
+				reg.DeregisterRoute(common.RouteFrontend)
+				reg.DeregisterRoute(common.RoutePublic)
 				return nil
 			}),
 		)

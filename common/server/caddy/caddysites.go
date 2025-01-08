@@ -24,6 +24,7 @@ import (
 	"context"
 	"fmt"
 	"net"
+	"os"
 	"path/filepath"
 	"strings"
 
@@ -118,6 +119,11 @@ func ResolveSites(ctx context.Context, resolver routing.UpstreamsResolver, exter
 func sitesToCaddySites(sites []*install.ProxyConfig, upstreamResolver routing.UpstreamsResolver) (caddySites []*ActiveSite, er error) {
 
 	rewriteResolver := func(cr *routing.ActiveRoute, route routing.Route, rule *install.Rule) {
+		if rule.Action == "Forbidden" {
+			cr.Path = strings.TrimSuffix(cr.Path, "/") + "/*"
+			cr.RewriteRules = append(cr.RewriteRules, "respond 403")
+			return
+		}
 		// Transform []*install.HeaderMods to []string for CaddyFile
 		var stringMods []any
 		stringMods = append(stringMods, "request_header X-Real-Ip {http.request.remote}")
@@ -172,8 +178,12 @@ func sitesToCaddySites(sites []*install.ProxyConfig, upstreamResolver routing.Up
 				if err != nil {
 					return err
 				}
-				site.TLSCert = certFile
-				site.TLSKey = keyFile
+				site.TLS = fmt.Sprintf(`"%s" "%s"`, certFile, keyFile)
+				if os.Getenv("CELLS_LOCAL_ALPN_V1") == "true" {
+					site.TLS += `{
+	alpn http/1.1
+}`
+				}
 			case *install.ProxyConfig_LetsEncrypt:
 				caUrl := common.DefaultCaUrl
 				if v.LetsEncrypt.StagingCA {

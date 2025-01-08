@@ -30,7 +30,6 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/pydio/cells/v5/common/runtime"
 	"github.com/pydio/cells/v5/common/telemetry/log"
 )
 
@@ -52,7 +51,6 @@ func RegisterRoute(id, description, defaultURI string, opts ...RouteOption) {
 		id:             id,
 		description:    description,
 		uri:            defaultURI,
-		customResolver: opt.CustomResolver,
 		subPathSupport: !opt.NoSubPath,
 	})
 }
@@ -85,7 +83,7 @@ type RouteRegistrar interface {
 	Patterns(routeIDs ...string) []string
 	ApplyRewrites(req *http.Request)
 	CanRewriteAndCatchAll(req *http.Request) (b bool)
-	IteratePatterns(func(pattern string, handler http.Handler))
+	IteratePatterns(context.Context, func(pattern string, handler http.Handler))
 }
 
 // Route can be seen as a Router for a given route ID
@@ -103,20 +101,12 @@ type Route interface {
 
 // RouteOptions are used to pass options to the route declaration
 type RouteOptions struct {
-	DefaultURI     string
-	CustomResolver func(ctx context.Context) string
-	NoSubPath      bool
+	DefaultURI string
+	NoSubPath  bool
 }
 
 // RouteOption is the functional access to RouteOptions
 type RouteOption func(o *RouteOptions)
-
-// WithCustomResolver sets a dynamic resolver to compute default URI value
-func WithCustomResolver(r func(ctx context.Context) string) RouteOption {
-	return func(o *RouteOptions) {
-		o.CustomResolver = r
-	}
-}
 
 // WithoutSubPathSupport declares this route as not being able to be served on a sub-folder URI
 func WithoutSubPathSupport() RouteOption {
@@ -176,17 +166,16 @@ type registrar struct {
 }
 
 // IteratePatterns performs a callback on all actual patterns and their corresponding handler
-func (h *registrar) IteratePatterns(it func(pattern string, handler http.Handler)) {
-	logCtx := runtime.WithServiceName(runtime.AsCoreContext(context.Background()), "pydio.web.mux")
+func (h *registrar) IteratePatterns(ctx context.Context, it func(pattern string, handler http.Handler)) {
 	for _, r := range h.routes {
-		log.Logger(logCtx).Info("ROUTE " + r.id)
+		log.Logger(ctx).Info("ROUTE " + r.id)
 		r.patternsMutex.RLock()
 		for routePattern, registered := range r.patternsCache {
 			pattern, handler, prefix := registered.attach(r, routePattern)
 			if prefix != "" {
-				log.Logger(logCtx).Info(" - attach " + pattern + " (strip prefix " + prefix + ")")
+				log.Logger(ctx).Info(" - attach " + pattern + " (strip prefix " + prefix + ")")
 			} else {
-				log.Logger(logCtx).Info(" - attach " + pattern)
+				log.Logger(ctx).Info(" - attach " + pattern)
 			}
 			it(pattern, handler)
 		}
@@ -244,7 +233,6 @@ func (h *registrar) Route(id string) Route {
 			sr := &subRoute{
 				id:             id,
 				uri:            d.uri,
-				customResolver: d.customResolver,
 				subPathSupport: d.subPathSupport,
 				patternsCache:  map[string]*registeredHandler{},
 				registrar:      h,
@@ -293,7 +281,6 @@ func (h *registrar) ApplyRewrites(req *http.Request) {
 type subRoute struct {
 	id             string
 	uri            string
-	customResolver func(ctx context.Context) string
 	description    string
 	subPathSupport bool
 
@@ -356,14 +343,6 @@ func (s *subRoute) Deregister(pattern string) {
 		delete(s.patternsCache, pattern+"/")
 	}
 
-}
-
-// URI returns resolved uri - TODO default should be read from config or XDS ?
-func (s *subRoute) URI(ctx context.Context) string {
-	if s.customResolver != nil {
-		return s.customResolver(ctx)
-	}
-	return s.uri
 }
 
 type registeredHandler struct {

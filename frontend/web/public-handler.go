@@ -44,7 +44,6 @@ import (
 	"github.com/pydio/cells/v5/common/auth"
 	"github.com/pydio/cells/v5/common/client/commons/docstorec"
 	"github.com/pydio/cells/v5/common/config"
-	"github.com/pydio/cells/v5/common/config/routing"
 	"github.com/pydio/cells/v5/common/errors"
 	"github.com/pydio/cells/v5/common/nodes"
 	"github.com/pydio/cells/v5/common/nodes/abstract"
@@ -61,6 +60,8 @@ import (
 	cache_helper "github.com/pydio/cells/v5/common/utils/cache/helper"
 	json "github.com/pydio/cells/v5/common/utils/jsonx"
 	"github.com/pydio/cells/v5/common/utils/propagator"
+	"github.com/pydio/cells/v5/common/utils/slug"
+	"github.com/pydio/cells/v5/common/utils/std"
 	"github.com/pydio/cells/v5/gateway/dav"
 )
 
@@ -282,7 +283,7 @@ func (h *PublicHandler) ServeDAV(w http.ResponseWriter, r *http.Request, linkId 
 		return fmt.Errorf("[404] cannot find dav path")
 	}
 
-	davPrefix := path.Join(routing.GetPublicBaseUri(ctx), linkId, routing.GetPublicBaseDavSegment(ctx))
+	davPrefix := path.Join(common.DefaultRoutePublic, linkId, GetPublicBaseDavSegment(ctx))
 	log.Logger(ctx).Debug("processing dav request on public link", zap.String("inputPath", inputPath), zap.String("davPrefix", davPrefix), zap.String("routerPrefix", innerPrefix), zap.String("davPath", davPath))
 	davHandler, prefixRouter := dav.GetHandler(h.runtimeContext, davPrefix, innerPrefix)
 
@@ -306,9 +307,9 @@ func (h *PublicHandler) ServeDAV(w http.ResponseWriter, r *http.Request, linkId 
 
 func (h *PublicHandler) parseLinkId(r *http.Request) (linkId, davPath string) {
 	ctx := r.Context()
-	linkId = strings.Trim(strings.TrimPrefix(r.URL.Path, routing.GetPublicBaseUri(ctx)), "/")
+	linkId = strings.Trim(strings.TrimPrefix(r.URL.Path, common.DefaultRoutePublic), "/")
 	parts := strings.Split(linkId, "/")
-	davSegment := routing.GetPublicBaseDavSegment(ctx)
+	davSegment := GetPublicBaseDavSegment(ctx)
 	if len(parts) > 1 && parts[1] == davSegment {
 		linkId = parts[0]
 		if len(parts) > 2 {
@@ -546,4 +547,9 @@ func (h *PublicHandler) virtualRootKey(n *tree.Node) string {
 	hash.Write([]byte(n.GetUuid()))
 	rand := hex.EncodeToString(hash.Sum(nil))
 	return rand[0:8] + "-" + n.GetStringMeta("name")
+}
+
+// GetPublicBaseDavSegment returns the segment used to exposed minisites through DAV
+func GetPublicBaseDavSegment(ctx context.Context) string {
+	return slug.Make(config.Get(ctx, std.FormatPath("frontend", "plugin", "action.share", "LINK_PUBLIC_URI_DAV_SEGMENT")).Default("dav").String())
 }
