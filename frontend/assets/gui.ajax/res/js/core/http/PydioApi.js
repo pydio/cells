@@ -445,10 +445,8 @@ class PydioApi{
 
             const s3 = new AWS.S3(this.s3Options(jwt));
             const signed = s3.getSignedUrl('getObject', params);
-
             cb(signed);
-
-            lscache.set(cacheKey, output, 10);
+            lscache.set(cacheKey, signed, 10);
             if(Math.random() < 0.1) {
                 cb = debounce(()=>{
                     lscache.flushExpired();
