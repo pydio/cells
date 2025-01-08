@@ -16,28 +16,28 @@ type storeWithEncoder struct {
 	configx.Marshaller
 }
 
-func (s *storeWithEncoder) Set(data any) error {
+func (s storeWithEncoder) Set(data any) error {
 	return s.Val().Set(data)
 }
 
-func (s *storeWithEncoder) Context(ctx context.Context) configx.Values {
-	return &storeWithEncoderValues{
+func (s storeWithEncoder) Context(ctx context.Context) configx.Values {
+	return storeWithEncoderValues{
 		Values:      s.Store.Context(ctx),
 		Unmarshaler: s.Unmarshaler,
 		Marshaller:  s.Marshaller,
 	}
 }
 
-func (s *storeWithEncoder) Default(d any) configx.Values {
-	return &storeWithEncoderValues{
+func (s storeWithEncoder) Default(d any) configx.Values {
+	return storeWithEncoderValues{
 		Values:      s.Store.Default(d),
 		Unmarshaler: s.Unmarshaler,
 		Marshaller:  s.Marshaller,
 	}
 }
 
-func (s *storeWithEncoder) Val(path ...string) configx.Values {
-	return &storeWithEncoderValues{
+func (s storeWithEncoder) Val(path ...string) configx.Values {
+	return storeWithEncoderValues{
 		Values:      s.Store.Val(path...),
 		Unmarshaler: s.Unmarshaler,
 		Marshaller:  s.Marshaller,
@@ -50,31 +50,31 @@ type storeWithEncoderValues struct {
 	configx.Marshaller
 }
 
-func (s *storeWithEncoderValues) Context(ctx context.Context) configx.Values {
-	return &storeWithEncoderValues{
+func (s storeWithEncoderValues) Context(ctx context.Context) configx.Values {
+	return storeWithEncoderValues{
 		Values:      s.Values.Context(ctx),
 		Unmarshaler: s.Unmarshaler,
 		Marshaller:  s.Marshaller,
 	}
 }
 
-func (s *storeWithEncoderValues) Default(d any) configx.Values {
-	return &storeWithEncoderValues{
+func (s storeWithEncoderValues) Default(d any) configx.Values {
+	return storeWithEncoderValues{
 		Values:      s.Values.Default(d),
 		Unmarshaler: s.Unmarshaler,
 		Marshaller:  s.Marshaller,
 	}
 }
 
-func (s *storeWithEncoderValues) Val(path ...string) configx.Values {
-	return &storeWithEncoderValues{
+func (s storeWithEncoderValues) Val(path ...string) configx.Values {
+	return storeWithEncoderValues{
 		Values:      s.Values.Val(path...),
 		Unmarshaler: s.Unmarshaler,
 		Marshaller:  s.Marshaller,
 	}
 }
 
-func (s *storeWithEncoderValues) Bytes() []byte {
+func (s storeWithEncoderValues) Bytes() []byte {
 	data := s.Values.Get()
 	if data == nil {
 		return []byte{}
@@ -92,7 +92,7 @@ func (s *storeWithEncoderValues) Bytes() []byte {
 	return []byte(cast.ToString(data))
 }
 
-func (s *storeWithEncoderValues) String() string {
+func (s storeWithEncoderValues) String() string {
 	data := s.Values.Get()
 
 	switch v := data.(type) {
@@ -110,7 +110,7 @@ func (s *storeWithEncoderValues) String() string {
 	return cast.ToString(data)
 }
 
-func (s *storeWithEncoderValues) Set(data any) error {
+func (s storeWithEncoderValues) Set(data any) error {
 	switch v := data.(type) {
 	case []byte:
 		var a any
