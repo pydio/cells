@@ -13,6 +13,7 @@ import (
 	"gorm.io/gorm/clause"
 	"gorm.io/gorm/logger"
 	"gorm.io/gorm/schema"
+	"gorm.io/plugin/dbresolver"
 	gdb "gorm.io/plugin/dbresolver"
 
 	"github.com/pydio/cells/v5/common/runtime"
@@ -21,7 +22,6 @@ import (
 	"github.com/pydio/cells/v5/common/service"
 	"github.com/pydio/cells/v5/common/storage"
 	ssql "github.com/pydio/cells/v5/common/storage/sql"
-	dbresolver "github.com/pydio/cells/v5/common/storage/sql/dbresolver"
 	"github.com/pydio/cells/v5/common/storage/test"
 	"github.com/pydio/cells/v5/common/utils/openurl"
 	"github.com/pydio/cells/v5/common/utils/uuid"
