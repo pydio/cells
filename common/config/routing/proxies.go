@@ -35,6 +35,7 @@ type ActiveRoute struct {
 	HeaderMods   []any
 	RewriteRules []any
 	Upstreams    []any
+	WebSocket    bool
 }
 
 type ActiveProxy struct {
@@ -156,6 +157,7 @@ func ResolveProxy(proxyConfig *install.ProxyConfig, tlsResolver TLSResolver, rew
 					for _, t := range tt {
 						cr.Upstreams = append(cr.Upstreams, t)
 					}
+					cr.WebSocket = route.IsWebSocket()
 				} else {
 					//fmt.Println("Skip registering route " + route.GetURI() + " as no target is found")
 					continue

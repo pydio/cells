@@ -52,6 +52,7 @@ func RegisterRoute(id, description, defaultURI string, opts ...RouteOption) {
 		description:    description,
 		uri:            defaultURI,
 		subPathSupport: !opt.NoSubPath,
+		websocket:      opt.WebSocket,
 	})
 }
 
@@ -91,6 +92,7 @@ type Route interface {
 	GetID() string
 	GetDescription() string
 	GetURI() string
+	IsWebSocket() bool
 	SupportSubPath() bool
 	Endpoint(pattern string) string
 	// Handle registers a handler
@@ -103,10 +105,18 @@ type Route interface {
 type RouteOptions struct {
 	DefaultURI string
 	NoSubPath  bool
+	WebSocket  bool
 }
 
 // RouteOption is the functional access to RouteOptions
 type RouteOption func(o *RouteOptions)
+
+// WithWebSocket defines this route as supporting HTTP1 only
+func WithWebSocket() RouteOption {
+	return func(o *RouteOptions) {
+		o.WebSocket = true
+	}
+}
 
 // WithoutSubPathSupport declares this route as not being able to be served on a sub-folder URI
 func WithoutSubPathSupport() RouteOption {
@@ -283,6 +293,7 @@ type subRoute struct {
 	uri            string
 	description    string
 	subPathSupport bool
+	websocket      bool
 
 	patternsCache map[string]*registeredHandler
 	patternsMutex sync.RWMutex
@@ -303,6 +314,10 @@ func (s *subRoute) GetURI() string {
 
 func (s *subRoute) SupportSubPath() bool {
 	return s.subPathSupport
+}
+
+func (s *subRoute) IsWebSocket() bool {
+	return s.websocket
 }
 
 func (s *subRoute) Endpoint(pattern string) string {

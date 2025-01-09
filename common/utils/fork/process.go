@@ -222,22 +222,3 @@ func (p *Process) pipeOutputs(cmd *exec.Cmd) error {
 	}()
 	return nil
 }
-
-func (p *Process) buildForkStartParams() []string {
-	// Get generic flags
-	params := runtime.BuildForkParams("start")
-
-	// Append debug flag
-	if p.o.debugFork {
-		params = append(params, "--"+runtime.KeyLog, "debug")
-		params = append(params, "^pydio.grpc.registry$")
-	}
-	// Use regexp to specify that we want to start that specific service
-	for _, sName := range p.serviceNames {
-		params = append(params, "^"+sName+"$")
-	}
-	if len(p.o.customFlags) > 0 {
-		params = append(params, p.o.customFlags...)
-	}
-	return params
-}
