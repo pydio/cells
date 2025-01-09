@@ -98,10 +98,10 @@ func (m *ProxyConfig) HasRouting() bool {
 }
 
 func (m *ProxyConfig) DefaultRouting() (all *Rule, other []*Rule) {
+	all = &Rule{Effect: RuleEffect_DENY}
 	if !m.HasRouting() {
 		all = &Rule{Matcher: "*", Effect: RuleEffect_ACCEPT}
 	}
-	all = &Rule{Effect: RuleEffect_DENY}
 	// Detect a default rule and stack other rules
 	for _, r := range m.Routing {
 		if r.Matcher == "*" {
