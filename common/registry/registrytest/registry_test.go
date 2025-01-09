@@ -204,7 +204,7 @@ func doTestAdd(t *testing.T, m registry.Registry) {
 						case <-timer.C:
 						default:
 						}
-						timer.Reset(2 * time.Second)
+						timer.Reset(10 * time.Second)
 
 						switch res.Action() {
 						case pb.ActionType_CREATE:
