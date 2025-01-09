@@ -733,7 +733,7 @@ func (dao *gormImpl[T]) MoveNodeTree(ctx context.Context, nodeFrom tree.ITreeNod
 
 	if tx := dao.instance(ctx).
 		Model(model).
-		Omit("uuid").
+		Omit("uuid", "leaf", "size", "mtime", "mode", "etag").
 		Select("name", "leaf", "size", "mtime", "mode", "etag", "level", "mpath1", "mpath2", "mpath3", "mpath4", "hash", "hash2").
 		Where(nodeFrom).
 		Updates(nodeTo); tx.Error != nil {
