@@ -106,8 +106,8 @@ func (h *IndexHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	tplConf := &TplConf{
 		ApplicationTitle: config.Get(ctx, "frontend", "plugin", "core.pydio", "APPLICATION_TITLE").Default("Cells").String(),
 		Rebase:           "/",
-		ResourcesFolder:  "/plug/gui.ajax/res",
-		Favicon:          "/plug/gui.ajax/res/themes/common/images/favicon.png",
+		ResourcesFolder:  bootConf.AjxpResourcesFolder,
+		Favicon:          bootConf.AjxpResourcesFolder + "/themes/common/images/favicon.png",
 		Theme:            "material",
 		Version:          frontend.VersionHash(ctx),
 		LoadingString:    GetLoadingString(bootConf.CurrentLanguage),
@@ -142,10 +142,10 @@ func (h *IndexHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		defer out.Close()
 		w.Header().Set("Content-Encoding", "gzip")
 		w.WriteHeader(200)
-		tpl.Execute(out, tplConf)
+		_ = tpl.Execute(out, tplConf)
 	} else {
 		w.WriteHeader(200)
-		tpl.Execute(w, tplConf)
+		_ = tpl.Execute(w, tplConf)
 	}
 
 }

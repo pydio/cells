@@ -122,7 +122,6 @@ import (
 	_ "github.com/pydio/cells/v5/gateway/data"
 	_ "github.com/pydio/cells/v5/gateway/dav"
 	_ "github.com/pydio/cells/v5/gateway/metrics"
-	_ "github.com/pydio/cells/v5/gateway/sites"
 	_ "github.com/pydio/cells/v5/gateway/websocket/service"
 	_ "github.com/pydio/cells/v5/gateway/wopi"
 

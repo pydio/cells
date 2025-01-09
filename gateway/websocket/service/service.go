@@ -50,8 +50,7 @@ var (
 )
 
 const (
-	name           = common.ServiceGatewayNamespace_ + common.ServiceWebSocket
-	RouteWebsocket = "websocket"
+	name = common.ServiceGatewayNamespace_ + common.ServiceWebSocket
 )
 
 func wrap(ctx context.Context) context.Context {
@@ -60,7 +59,7 @@ func wrap(ctx context.Context) context.Context {
 
 func init() {
 
-	routing.RegisterRoute(RouteWebsocket, "Websocket Endpoint", "/ws")
+	routing.RegisterRoute(common.RouteWebsocket, "Websocket Endpoint", common.DefaultRouteWebsocket)
 
 	runtime.Register("main", func(ctx context.Context) {
 		service.NewService(
@@ -69,7 +68,7 @@ func init() {
 			service.Tag(common.ServiceTagGateway),
 			service.Description("WebSocket server pushing event to the clients"),
 			service.WithHTTPStop(func(ctx context.Context, mux routing.RouteRegistrar) error {
-				mux.DeregisterRoute(RouteWebsocket)
+				mux.DeregisterRoute(common.RouteWebsocket)
 				return nil
 			}),
 			service.WithHTTPOptions(func(rootCtx context.Context, mux routing.RouteRegistrar, o *service.ServiceOptions) error {
@@ -77,7 +76,7 @@ func init() {
 				chat = websocket.NewChatHandler(rootCtx)
 				ws.EventRouter = compose.ReverseClient()
 
-				sub := mux.Route(RouteWebsocket)
+				sub := mux.Route(common.RouteWebsocket)
 				melodyAsHandler := func(mel *melody.Melody) http.Handler {
 					hf := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 						_ = mel.HandleRequest(w, r)

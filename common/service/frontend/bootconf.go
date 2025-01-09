@@ -141,12 +141,15 @@ func ComputeBootConf(ctx context.Context, pool *PluginsPool, showVersion ...bool
 		}
 	}
 
+	restApi := routing.RouteIngressURIContext(ctx, common.RouteApiREST, common.DefaultRouteREST)
+	pubApi := routing.RouteIngressURIContext(ctx, common.RoutePublic, common.DefaultRoutePublic)
+
 	b := &BootConf{
 		AjxpResourcesFolder:          "/plug/gui.ajax/res",
-		ENDPOINT_REST_API:            common.DefaultRouteREST,
+		ENDPOINT_REST_API:            restApi,
 		ENDPOINT_S3_GATEWAY:          "/io",
 		ENDPOINT_WEBSOCKET:           "/ws/event",
-		PUBLIC_BASEURI:               routing.GetPublicBaseUri(ctx),
+		PUBLIC_BASEURI:               pubApi,
 		ZipEnabled:                   true,
 		MultipleFilesDownloadEnabled: true,
 		UsersEditable:                true,

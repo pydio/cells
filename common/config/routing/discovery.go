@@ -22,11 +22,13 @@ package routing
 
 import (
 	"context"
+	"fmt"
 	"net/url"
 
 	"github.com/pydio/cells/v5/common"
 	"github.com/pydio/cells/v5/common/middleware/keys"
 	"github.com/pydio/cells/v5/common/proto/install"
+	"github.com/pydio/cells/v5/common/telemetry/log"
 	"github.com/pydio/cells/v5/common/utils/propagator"
 )
 
@@ -61,6 +63,7 @@ func SiteFromContext(ctx context.Context, ss []*install.ProxyConfig) (*install.P
 	return found, u, found != nil
 }
 
+// SiteContextDiscoveryRoutes lists all external urls for each registered routes, in the current site context
 func SiteContextDiscoveryRoutes(ctx context.Context, uriForSameSite ...bool) (map[string][]*url.URL, error) {
 	ss, er := LoadSites(ctx)
 	if er != nil {
@@ -111,4 +114,34 @@ func sitesRuleUrl(route Route, site *install.ProxyConfig, rule *install.Rule) (o
 		out = append(out, v)
 	}
 	return
+}
+
+// RouteIngressURIContext traces back the current external URI for context, returning a default and logging error
+func RouteIngressURIContext(ctx context.Context, routeID, defaultURI string) string {
+	r, er := RouteIngressURIContextErr(ctx, routeID)
+	if er != nil {
+		log.Logger(ctx).Warn(er.Error())
+		return defaultURI
+	}
+	return r
+}
+
+// RouteIngressURIContextErr traces back the current external URI for context, returning an error
+func RouteIngressURIContextErr(ctx context.Context, routeID string) (string, error) {
+	route, ok := RouteById(routeID)
+	if !ok {
+		return "", fmt.Errorf("cannot find route by id %s", routeID)
+	}
+	ss, er := LoadSites(ctx)
+	if er != nil {
+		return "", er
+	}
+	crtSite, _, ok := SiteFromContext(ctx, ss)
+	if !ok {
+		return "", fmt.Errorf("cannot find site from context")
+	}
+	if rule := crtSite.FindRouteRule(routeID); rule.Accept() {
+		return rule.IngressURI(route.GetURI()), nil
+	}
+	return "", fmt.Errorf("cannot find any accepting route id %s in this context", routeID)
 }

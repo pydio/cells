@@ -25,7 +25,9 @@ var (
 )
 
 const (
+	RouteMainV6    = "collabora-main-v6"
 	RouteMain      = "collabora-main"
+	RouteWsV6      = "collabora-websocket-v6"
 	RouteWs        = "collabora-websocket"
 	RouteDiscovery = "collabora-discovery"
 )
@@ -40,24 +42,10 @@ func init() {
 		return s.Val(pa...).Set(val)
 	}))
 
-	routing.RegisterRoute(RouteMain, "Collabora Leaflet API", "/leaflet", routing.WithCustomResolver(func(ctx context.Context) string {
-		version := config.Get(ctx, "frontend", "plugin", "editor.libreoffice").Val("LIBREOFFICE_CODE_VERSION").Default("v6").String()
-		if version != "v6" {
-			return "/browser"
-		} else {
-			return "/leaflet"
-		}
-	}))
-
-	routing.RegisterRoute(RouteWs, "Collabora Websocket API", "/lool", routing.WithCustomResolver(func(ctx context.Context) string {
-		version := config.Get(ctx, "frontend", "plugin", "editor.libreoffice").Val("LIBREOFFICE_CODE_VERSION").Default("v6").String()
-		if version != "v6" {
-			return "/cool"
-		} else {
-			return "/lool"
-		}
-	}))
-
+	routing.RegisterRoute(RouteMainV6, "Collabora Leaflet API", "/leaflet")
+	routing.RegisterRoute(RouteMain, "Collabora Leaflet API", "/browser")
+	routing.RegisterRoute(RouteWsV6, "Collabora Websocket API", "/lool")
+	routing.RegisterRoute(RouteWs, "Collabora Websocket API", "/cool")
 	routing.RegisterRoute(RouteDiscovery, "Collabora Discovery API", "/hosting/discovery")
 
 	runtime.Register("main", func(ctx context.Context) {
@@ -99,11 +87,17 @@ func init() {
 				if useTls && skipVerify {
 					proxy.Transport = &http.Transport{TLSClientConfig: &tls.Config{InsecureSkipVerify: true}}
 				}
-				mux.Route(RouteMain).Handle("/", proxy)
-				mux.Route(RouteWs).Handle("/", proxy)
-				mux.Route(RouteDiscovery).Handle("/", proxy)
-
-				registeredRoutes = append(registeredRoutes, RouteMain, RouteWs, RouteDiscovery)
+				routes := []string{
+					RouteMain,
+					RouteWs,
+					RouteDiscovery,
+					RouteMainV6,
+					RouteWsV6,
+				}
+				for _, route := range routes {
+					mux.Route(route).Handle("/", proxy)
+				}
+				registeredRoutes = append(registeredRoutes, routes...)
 
 				return nil
 			}),

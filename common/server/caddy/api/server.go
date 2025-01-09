@@ -38,8 +38,7 @@ import (
 )
 
 func init() {
-	server.ProxyURLMux().Register("caddy-api", &Opener{})
-	server.ProxyURLMux().Register("caddy-api+tls", &Opener{tls: true})
+	server.DefaultURLMux().Register("caddy-api", &Opener{})
 }
 
 type Opener struct {
@@ -50,7 +49,7 @@ func (o *Opener) OpenURL(ctx context.Context, u *url.URL) (server.Server, error)
 	if u.Host == "" {
 		return nil, fmt.Errorf("empty host for proxy caddy-api")
 	}
-	if o.tls {
+	if u.Scheme == "caddy-api+tls" {
 		return New(ctx, "https://"+u.Host)
 	} else {
 		return New(ctx, "http://"+u.Host)

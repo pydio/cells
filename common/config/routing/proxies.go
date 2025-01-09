@@ -42,9 +42,7 @@ type ActiveProxy struct {
 	Routes []*ActiveRoute
 
 	// Resolved values
-	TLS     string
-	TLSCert string
-	TLSKey  string
+	TLS string
 }
 
 // TLSResolver converts TLS config into runtime-usable tls directives
@@ -108,6 +106,7 @@ func ResolveProxy(proxyConfig *install.ProxyConfig, tlsResolver TLSResolver, rew
 	}
 
 	site.Routes = []*ActiveRoute{}
+	var lastRoute *ActiveRoute
 	for _, route := range ListRoutes() {
 		rule := site.FindRouteRule(route.GetID())
 		if !site.HasRouting() || rule.Accept() {
@@ -138,6 +137,14 @@ func ResolveProxy(proxyConfig *install.ProxyConfig, tlsResolver TLSResolver, rew
 					Key:     "X-Pydio-Site-RouteURI",
 					Value:   rule.Value,
 				})
+				// Append another route for denying original route
+				if route.GetURI() != "/" {
+					dcr := &ActiveRoute{
+						Path: route.GetURI(),
+					}
+					rewriteResolver(dcr, route, &install.Rule{Action: "Forbidden"})
+					site.Routes = append(site.Routes, dcr)
+				}
 			}
 			rewriteResolver(cr, route, rule)
 			if upstreamResolver != nil {
@@ -154,8 +161,17 @@ func ResolveProxy(proxyConfig *install.ProxyConfig, tlsResolver TLSResolver, rew
 					continue
 				}
 			}
-			site.Routes = append(site.Routes, cr)
+			if route.GetURI() == "/" {
+				lastRoute = cr
+			} else {
+				site.Routes = append(site.Routes, cr)
+			}
 		}
+	}
+
+	// Push "/*" to last position
+	if lastRoute != nil {
+		site.Routes = append(site.Routes, lastRoute)
 	}
 
 	return site, nil

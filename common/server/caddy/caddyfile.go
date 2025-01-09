@@ -59,8 +59,6 @@ const (
 {{$MaintenanceConditions := .MaintenanceConditions}}
 {{range .Binds}}{{.}} {{end}} {
 
-	#root * "{{$SiteHash}}"
-
 	{{range .Routes}}
 	route {{.Path}} {
 		{{range .HeaderMods}}{{.}}
@@ -96,7 +94,6 @@ const (
 	{{end}}
 
 	{{if .TLS}}tls {{.TLS}}{{end}}
-	{{if .TLSCert}}tls "{{.TLSCert}}" "{{.TLSKey}}"{{end}}
 }
 {{if .SSLRedirect}}
 {{range $k,$v := .Redirects}}

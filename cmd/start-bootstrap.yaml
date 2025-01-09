@@ -14,12 +14,25 @@ listeners:
     type: tcp
     bind: 0.0.0.0
     port: 8030
+# See below, required for option 2
+#  http:
+#    type: tcp
+#    bind: 0.0.0.0
+#    port: 8040
 servers:
+# Option 1 - directly use caddy as mux server
   caddy:
     type: caddy
     services:
       - filter: "{{ .Name }} ~= pydio\\.web\\.* or {{ .Name }} ~= pydio\\.rest\\.* or {{ .Name }} ~= pydio\\.gateway\\.*"
-      - filter: "{{ .Name }} !~= pydio\\.web\\.sites"
+# Option 2 - start caddy as proxy and native http server as mux
+#  proxy:
+#    type: caddy+proxy
+#  http:
+#    type: http
+#    listener: http
+#    services:
+#      - filter: "{{ .Name }} ~= pydio\\.web\\.* or {{ .Name }} ~= pydio\\.rest\\.* or {{ .Name }} ~= pydio\\.gateway\\.*"
   grpcall:
     type: grpc
     listener: grpcall

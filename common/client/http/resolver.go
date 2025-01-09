@@ -13,7 +13,6 @@ import (
 	"google.golang.org/grpc"
 
 	"github.com/pydio/cells/v5/common"
-	"github.com/pydio/cells/v5/common/client"
 	grpc2 "github.com/pydio/cells/v5/common/client/grpc"
 	"github.com/pydio/cells/v5/common/config/routing"
 	"github.com/pydio/cells/v5/common/middleware"
@@ -24,7 +23,6 @@ import (
 	"github.com/pydio/cells/v5/common/server/caddy/maintenance"
 	"github.com/pydio/cells/v5/common/telemetry/log"
 	json "github.com/pydio/cells/v5/common/utils/jsonx"
-	"github.com/pydio/cells/v5/common/utils/propagator"
 )
 
 var grpcTransport = &http.Transport{
@@ -56,12 +54,13 @@ type cachedProxy struct {
 }
 
 type resolver struct {
-	c            grpc.ClientConnInterface
-	r            registry.Registry
-	rr           routing.RouteRegistrar
-	s            Mux
-	b            Balancer
-	rc           client.ResolverCallback
+	c       grpc.ClientConnInterface
+	r       registry.Registry
+	coreCtx context.Context
+	rr      routing.RouteRegistrar
+	s       Mux
+	b       Balancer
+	//rc           client.ResolverCallback
 	monitorOAuth grpc2.HealthMonitor
 	monitorUser  grpc2.HealthMonitor
 	userReady    bool
@@ -73,16 +72,9 @@ func (m *resolver) Init(ctx context.Context, serverID string, rr routing.RouteRe
 
 	conn := runtime.GetClientConn(ctx)
 
-	//var reg registry.Registry
-	//propagator.Get(ctx, registry.ContextSOTWKey, &reg)
-	//rc, _ := client.NewResolverCallback(reg)
-
 	bal := NewBalancer(ctx, serverID)
-	//rc.Add(bal.Build)
-
+	m.coreCtx = runtime.WithServiceName(runtime.AsCoreContext(ctx), "pydio.web.mux")
 	m.c = conn
-	//m.rc = rc
-	//m.r = reg
 	m.rr = rr
 	m.b = bal
 
@@ -100,9 +92,6 @@ func (m *resolver) Init(ctx context.Context, serverID string, rr routing.RouteRe
 }
 
 func (m *resolver) Stop() {
-	if m.rc != nil {
-		m.rc.Stop()
-	}
 	if m.monitorOAuth != nil {
 		m.monitorOAuth.Stop()
 	}
@@ -134,7 +123,6 @@ func (m *resolver) ServeHTTP(w http.ResponseWriter, r *http.Request) (bool, erro
 		proxy.Transport = grpcTransport
 		// Wrap context and server request
 		ctx = runtime.WithClientConn(ctx, m.c)
-		ctx = propagator.With(ctx, registry.ContextKey, m.r)
 		proxy.ServeHTTP(w, r.WithContext(ctx))
 		return true, nil
 	}
@@ -174,13 +162,11 @@ func (m *resolver) ServeHTTP(w http.ResponseWriter, r *http.Request) (bool, erro
 		return true, er
 	}
 
-	// try to find it in the current mux
 	ctx = runtime.WithClientConn(ctx, m.c)
-	ctx = propagator.With(ctx, registry.ContextKey, m.r)
 
 	if m.s == nil {
 		mu := http.NewServeMux()
-		m.rr.IteratePatterns(func(pattern string, handler http.Handler) {
+		m.rr.IteratePatterns(m.coreCtx, func(pattern string, handler http.Handler) {
 			// Wrap handler in OTEL middleware
 			otl := middleware.HttpTracingMiddleware(pattern)
 			mu.Handle(pattern, otl(handler))

@@ -144,7 +144,7 @@ class ConfigLogo extends React.Component{
             logo = pydio.Parameters.get('ajxpResourcesFolder') + '/themes/common/images/PydioLogoSquare.png';
         }
         if(logo){
-            if(logo.indexOf('plug/') === 0){
+            if(logo.indexOf('plug/') > -1){
                 url = logo;
             }else{
                 url = pydio.Parameters.get('ENDPOINT_REST_API') + "/frontend/binaries/GLOBAL/" + logo;

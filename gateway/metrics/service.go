@@ -23,33 +23,29 @@ package metrics
 import (
 	"context"
 
+	"github.com/pydio/cells/v5/common"
 	"github.com/pydio/cells/v5/common/config/routing"
 	"github.com/pydio/cells/v5/common/runtime"
 	"github.com/pydio/cells/v5/common/telemetry/metrics"
 	"github.com/pydio/cells/v5/common/telemetry/profile"
 )
 
-const (
-	RouteMetrics = "metrics"
-	RouteProfile = "debug"
-)
-
 func init() {
 
-	routing.RegisterRoute(RouteMetrics, "Metrics Pull API", "/metrics")
-	routing.RegisterRoute(RouteProfile, "Profiling Pull API", "/debug")
+	routing.RegisterRoute(common.RouteMetrics, "Metrics Pull API", common.DefaultRouteMetrics)
+	routing.RegisterRoute(common.RouteProfile, "Profiling Pull API", common.DefaultRouteProfile)
 
 	runtime.Register("main", func(ctx context.Context) {
 
 		if metrics.HasPullServices() {
 			for _, svc := range metrics.GetPullServices() {
-				svc.InitHTTPPullService(ctx, RouteMetrics)
+				svc.InitHTTPPullService(ctx, common.RouteMetrics)
 			}
 		}
 
 		if profile.HasPullServices() {
 			for _, svc := range profile.GetPullServices() {
-				svc.InitHTTPPullService(ctx, RouteProfile)
+				svc.InitHTTPPullService(ctx, common.RouteProfile)
 			}
 		}
 

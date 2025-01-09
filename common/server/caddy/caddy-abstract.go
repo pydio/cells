@@ -26,8 +26,13 @@ import (
 	"golang.org/x/exp/maps"
 
 	"github.com/pydio/cells/v5/common/config/routing"
+	"github.com/pydio/cells/v5/common/runtime"
 	"github.com/pydio/cells/v5/common/server"
 )
+
+func init() {
+	runtime.RegisterEnvVariable("CELLS_LOCAL_ALPN_V1", "", "Append alpn http/1.1 to TLS setting to improve websocket support", true)
+}
 
 // RawServer partially implements server.RawServer interface to be used by various caddy implementations
 type RawServer struct {

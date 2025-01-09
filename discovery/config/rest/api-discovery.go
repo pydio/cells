@@ -100,9 +100,11 @@ func (s *Handler) EndpointsDiscovery(req *restful.Request, resp *restful.Respons
 		wsProtocol = "wss"
 	}
 
-	endpointResponse.Endpoints["rest"] = withPath(urlParsed, common.DefaultRouteREST).String()
-	endpointResponse.Endpoints["openapi"] = withPath(urlParsed, "/a/config/discovery/openapi").String()
-	endpointResponse.Endpoints["forms"] = withPath(urlParsed, "/a/config/discovery/forms").String() + "/{serviceName}"
+	restApi := routing.RouteIngressURIContext(req.Request.Context(), common.RouteApiREST, common.DefaultRouteREST)
+
+	endpointResponse.Endpoints["rest"] = withPath(urlParsed, restApi).String()
+	endpointResponse.Endpoints["openapi"] = withPath(urlParsed, restApi+"/config/discovery/openapi").String()
+	endpointResponse.Endpoints["forms"] = withPath(urlParsed, restApi+"/config/discovery/forms").String() + "/{serviceName}"
 	endpointResponse.Endpoints["oidc"] = withPath(urlParsed, "/auth").String()
 	endpointResponse.Endpoints["s3"] = withPath(urlParsed, "/io").String()
 	endpointResponse.Endpoints["chats"] = withScheme(withPath(urlParsed, "/ws/chat"), wsProtocol).String()
@@ -159,6 +161,8 @@ func (s *Handler) EndpointsDiscovery(req *restful.Request, resp *restful.Respons
 // OpenApiDiscovery prints out the Swagger Spec in JSON format
 func (s *Handler) OpenApiDiscovery(req *restful.Request, resp *restful.Response) error {
 
+	restApi := routing.RouteIngressURIContext(req.Request.Context(), common.RouteApiREST, common.DefaultRouteREST)
+
 	p := net.ExternalDomainFromRequest(req.Request)
 	p.Path = ""
 
@@ -187,10 +191,10 @@ func (s *Handler) OpenApiDiscovery(req *restful.Request, resp *restful.Response)
 		s.documentOpResponse(ops.Post)
 		s.documentOpResponse(ops.Delete)
 		s.documentOpResponse(ops.Put)
-		if strings.HasPrefix(path, common.DefaultRouteREST+"/") {
+		if strings.HasPrefix(path, restApi+"/") {
 			continue
 		}
-		outPath := common.DefaultRouteREST + path
+		outPath := restApi + path
 		delete(jsonSpec.Spec().Paths.Paths, path)
 		jsonSpec.Spec().Paths.Paths[outPath] = ops
 	}
