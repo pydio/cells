@@ -2,7 +2,7 @@ module github.com/pydio/cells/v4
 
 go 1.22.0
 
-toolchain go1.23.2
+toolchain go1.22.10
 
 require (
 	github.com/Masterminds/sprig/v3 v3.2.3
