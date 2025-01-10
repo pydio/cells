@@ -88,6 +88,12 @@ func (p *postgresHelper) ApplyOrderedUpdates(db *gorm.DB, tableName string, sets
 
 	var assigns []string
 	//var assignsArgs []interface{}
+	assigns = append(assigns,
+		"mpath1 as new_mpath1",
+		"mpath2 as new_mpath2",
+		"mpath3 as new_mpath3",
+		"mpath4 as new_mpath4",
+	)
 
 	assigns = append(assigns, "uuid")
 	for _, u := range sets {
