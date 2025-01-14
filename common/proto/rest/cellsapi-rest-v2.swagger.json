@@ -581,6 +581,24 @@
       "title": "Update directly metadata in batch",
       "type": "object"
     },
+    "restCheckResult": {
+      "properties": {
+        "Exists": {
+          "type": "boolean"
+        },
+        "InputLocator": {
+          "$ref": "#/definitions/restNodeLocator"
+        },
+        "NextPath": {
+          "type": "string"
+        },
+        "Node": {
+          "$ref": "#/definitions/restNode"
+        }
+      },
+      "title": "Check result for one given Location",
+      "type": "object"
+    },
     "restContextWorkspace": {
       "description": "Current workspace information, maybe published on the root node of a workspace",
       "properties": {
@@ -645,6 +663,41 @@
         "Value"
       ],
       "title": "Open definition for a key/value metadata, value is a number\nUsing int32 to avoid json strings (for int64)",
+      "type": "object"
+    },
+    "restCreateCheckRequest": {
+      "description": "Request for pre-checking nodes before uploading or creating them.",
+      "properties": {
+        "FindAvailablePath": {
+          "type": "boolean"
+        },
+        "Inputs": {
+          "items": {
+            "$ref": "#/definitions/restIncomingNode",
+            "type": "object"
+          },
+          "type": "array"
+        }
+      },
+      "required": [
+        "Inputs"
+      ],
+      "type": "object"
+    },
+    "restCreateCheckResponse": {
+      "properties": {
+        "Results": {
+          "items": {
+            "$ref": "#/definitions/restCheckResult",
+            "type": "object"
+          },
+          "type": "array"
+        }
+      },
+      "required": [
+        "Results"
+      ],
+      "title": "Returns as many CheckResult as IncomingNodes passed in request",
       "type": "object"
     },
     "restCreateRequest": {
@@ -750,6 +803,10 @@
     "restIncomingNode": {
       "properties": {
         "ContentType": {
+          "type": "string"
+        },
+        "KnownSize": {
+          "format": "int64",
           "type": "string"
         },
         "Locator": {
@@ -1103,6 +1160,7 @@
           "type": "array"
         }
       },
+      "title": "Collection of NodeLocator",
       "type": "object"
     },
     "restNodeUpdates": {
@@ -2925,6 +2983,58 @@
           }
         },
         "summary": "Create one or many files (empty or hydrated from a TemplateUuid) or folders",
+        "tags": [
+          "NodeService"
+        ]
+      }
+    },
+    "/n/nodes/create/precheck": {
+      "post": {
+        "operationId": "CreateCheck",
+        "parameters": [
+          {
+            "description": "Request for pre-checking nodes before uploading or creating them.",
+            "in": "body",
+            "name": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/restCreateCheckRequest"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/restCreateCheckResponse"
+            }
+          },
+          "401": {
+            "description": "User is not authenticated",
+            "schema": {
+              "$ref": "#/definitions/restError"
+            }
+          },
+          "403": {
+            "description": "User has no permission to access this particular resource",
+            "schema": {
+              "$ref": "#/definitions/restError"
+            }
+          },
+          "404": {
+            "description": "Resource does not exist in the system",
+            "schema": {
+              "$ref": "#/definitions/restError"
+            }
+          },
+          "500": {
+            "description": "An internal error occurred in the backend",
+            "schema": {
+              "$ref": "#/definitions/restError"
+            }
+          }
+        },
+        "summary": "Apply some pre-validation checks on node name before sending an upload",
         "tags": [
           "NodeService"
         ]

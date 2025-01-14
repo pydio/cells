@@ -22,6 +22,9 @@ package nodes
 
 import (
 	"context"
+	"fmt"
+	"path"
+	"regexp"
 	"strings"
 	"time"
 
@@ -81,4 +84,52 @@ loop:
 // WalkFilterSkipPydioHiddenFile is a preset filter ignoring PydioSyncHiddenFile entries
 func WalkFilterSkipPydioHiddenFile(_ context.Context, node *tree.Node) bool {
 	return !strings.HasSuffix(node.Path, common.PydioSyncHiddenFile)
+}
+
+// SuffixPathIfNecessary finds the next available path on targetNode
+// It directly modifies the targetNode.Path property
+func SuffixPathIfNecessary(ctx context.Context, cli Handler, targetNode *tree.Node, targetIsFolder bool, knownLocks ...string) error {
+	// Look for registered child locks : children that are currently in creation
+	searchNode := &tree.Node{Path: path.Dir(targetNode.Path)}
+	excludes := make(map[string]struct{})
+	for _, lock := range knownLocks {
+		excludes[lock] = struct{}{}
+	}
+	//t := time.Now()
+
+	ext := ""
+	if !targetIsFolder {
+		ext = path.Ext(targetNode.Path)
+	}
+	noExt := strings.TrimSuffix(targetNode.Path, ext)
+	noExtBaseQuoted := regexp.QuoteMeta(path.Base(noExt))
+
+	// List basenames with regexp "(?i)^(toto-[[:digit:]]*|toto).txt$" to look for same name or same base-DIGIT.ext (case-insensitive)
+	searchNode.MustSetMeta(tree.MetaFilterForceGrep, "(?i)^("+noExtBaseQuoted+"\\-[[:digit:]]*|"+noExtBaseQuoted+")"+ext+"$")
+	listReq := &tree.ListNodesRequest{Node: searchNode, Recursive: false}
+	_ = cli.ListNodesWithCallback(ctx, listReq, func(ctx context.Context, node *tree.Node, err error) error {
+		if node.Path == searchNode.Path {
+			return nil
+		}
+		basename := strings.ToLower(path.Base(node.Path))
+		excludes[basename] = struct{}{}
+		return nil
+	}, true)
+
+	//fmt.Println("TOOK", time.Now().Sub(t), excludes)
+	exists := func(node *tree.Node) bool {
+		_, ok := excludes[strings.ToLower(path.Base(node.Path))]
+		return ok
+	}
+	i := 1
+	for {
+		if exists(targetNode) {
+			targetNode.Path = fmt.Sprintf("%s-%d%s", noExt, i, ext)
+			targetNode.MustSetMeta(common.MetaNamespaceNodeName, path.Base(targetNode.Path))
+			i++
+		} else {
+			break
+		}
+	}
+	return nil
 }

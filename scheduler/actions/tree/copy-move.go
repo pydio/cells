@@ -24,22 +24,17 @@ import (
 	"context"
 	"fmt"
 	"path"
-	"regexp"
 	"strconv"
 	"strings"
 
 	"go.uber.org/zap"
-	"google.golang.org/protobuf/types/known/anypb"
 
 	"github.com/pydio/cells/v5/common"
-	"github.com/pydio/cells/v5/common/client/grpc"
 	"github.com/pydio/cells/v5/common/errors"
 	"github.com/pydio/cells/v5/common/forms"
 	"github.com/pydio/cells/v5/common/nodes"
 	"github.com/pydio/cells/v5/common/permissions"
-	"github.com/pydio/cells/v5/common/proto/idm"
 	"github.com/pydio/cells/v5/common/proto/jobs"
-	"github.com/pydio/cells/v5/common/proto/service"
 	"github.com/pydio/cells/v5/common/proto/tree"
 	"github.com/pydio/cells/v5/common/telemetry/log"
 	"github.com/pydio/cells/v5/common/utils/i18n/languages"
@@ -190,8 +185,16 @@ func (c *CopyMoveAction) Run(ctx context.Context, channels *actions.RunnableChan
 	}
 	sourceNode = readR.Node
 
-	// Handle already existing
-	if er := c.suffixPathIfNecessary(ctx, cli, targetNode, !sourceNode.IsLeaf()); er != nil {
+	// Handle already existing - Feed with parent folder children locks
+	var childrenLocks []string
+	if parentResp, er := cli.ReadNode(ctx, &tree.ReadNodeRequest{Node: &tree.Node{Path: path.Dir(targetNode.Path)}}); er == nil && !nodes.IsUnitTestEnv {
+		if cl, err := permissions.GetChildrenLocks(ctx, parentResp.GetNode()); err != nil {
+			return input.WithError(err), nil
+		} else {
+			childrenLocks = append(childrenLocks, cl...)
+		}
+	}
+	if er := nodes.SuffixPathIfNecessary(ctx, cli, targetNode, !sourceNode.IsLeaf(), childrenLocks...); er != nil {
 		return input.WithError(er), er
 	}
 
@@ -234,72 +237,4 @@ func (c *CopyMoveAction) Run(ctx context.Context, channels *actions.RunnableChan
 	})
 	return output, nil
 
-}
-
-func (c *CopyMoveAction) suffixPathIfNecessary(ctx context.Context, cli nodes.Handler, targetNode *tree.Node, folder bool) error {
-	// Look for registered child locks : children that are currently in creation
-	pNode := &tree.Node{Path: path.Dir(targetNode.Path)}
-	compares := make(map[string]struct{})
-
-	if r, e := cli.ReadNode(ctx, &tree.ReadNodeRequest{Node: pNode}); e == nil && !nodes.IsUnitTestEnv {
-		pNode = r.GetNode()
-		aclClient := idm.NewACLServiceClient(grpc.ResolveConn(c.GetRuntimeContext(), common.ServiceAclGRPC))
-		q, _ := anypb.New(&idm.ACLSingleQuery{
-			Actions: []*idm.ACLAction{{Name: permissions.AclChildLock.Name + ":*"}},
-			NodeIDs: []string{pNode.GetUuid()},
-		})
-		if st, e := aclClient.SearchACL(ctx, &idm.SearchACLRequest{Query: &service.Query{SubQueries: []*anypb.Any{q}}}); e == nil {
-			for {
-				r, er := st.Recv()
-				if er != nil {
-					break
-				}
-				aName := r.GetACL().GetAction().GetName()
-				aName = strings.TrimPrefix(aName, permissions.AclChildLock.Name+":")
-				log.Logger(ctx).Debug("-- SuffixPath : adding value from ChildLock " + aName)
-				compares[strings.ToLower(aName)] = struct{}{}
-			}
-		} else {
-			return e
-		}
-	}
-
-	//t := time.Now()
-	searchNode := pNode.Clone()
-
-	ext := ""
-	if !folder {
-		ext = path.Ext(targetNode.Path)
-	}
-	noExt := strings.TrimSuffix(targetNode.Path, ext)
-	noExtBaseQuoted := regexp.QuoteMeta(path.Base(noExt))
-
-	// List basenames with regexp "(?i)^(toto-[[:digit:]]*|toto).txt$" to look for same name or same base-DIGIT.ext (case-insensitive)
-	searchNode.MustSetMeta(tree.MetaFilterForceGrep, "(?i)^("+noExtBaseQuoted+"\\-[[:digit:]]*|"+noExtBaseQuoted+")"+ext+"$")
-	listReq := &tree.ListNodesRequest{Node: searchNode, Recursive: false}
-	_ = cli.ListNodesWithCallback(ctx, listReq, func(ctx context.Context, node *tree.Node, err error) error {
-		if node.Path == searchNode.Path {
-			return nil
-		}
-		basename := strings.ToLower(path.Base(node.Path))
-		compares[basename] = struct{}{}
-		return nil
-	}, true)
-
-	//fmt.Println("TOOK", time.Now().Sub(t), compares)
-	exists := func(node *tree.Node) bool {
-		_, ok := compares[strings.ToLower(path.Base(node.Path))]
-		return ok
-	}
-	i := 1
-	for {
-		if exists(targetNode) {
-			targetNode.Path = fmt.Sprintf("%s-%d%s", noExt, i, ext)
-			targetNode.MustSetMeta(common.MetaNamespaceNodeName, path.Base(targetNode.Path))
-			i++
-		} else {
-			break
-		}
-	}
-	return nil
 }

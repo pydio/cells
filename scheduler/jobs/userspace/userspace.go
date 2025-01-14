@@ -102,7 +102,7 @@ func DeleteNodesTask(ctx context.Context, router nodes.Client, selectedPaths []s
 					return er
 				}
 				// Additional check for child locks to secure recycle bin empty operation
-				if permissions.HasChildLocks(ctx, filtered) {
+				if permissions.HasChildrenLocks(ctx, filtered) {
 					return errors.WithStack(errors.StatusLocked)
 				}
 				log.Logger(ctx).Info(fmt.Sprintf("Definitively deleting [%s]", node.GetPath()))
