@@ -216,10 +216,13 @@ func (h *Handler) Thumbnails(bucket, nodeId, jsonThumbs string) (ff []*rest.File
 		return
 	}
 	for _, t := range thumbs.Thumbnails {
+		key := fmt.Sprintf("%s/%s-%d.%s", bucket, nodeId, t.Size, t.Format)
 		ff = append(ff, &rest.FilePreview{
 			Processing:  thumbs.Processing,
 			ContentType: "image/" + t.Format,
-			Url:         fmt.Sprintf("/io/%s/%s-%d.%s", bucket, nodeId, t.Size, t.Format),
+			Bucket:      strings.TrimPrefix(common.DefaultRouteBucketIO, "/"),
+			Key:         key,
+			Url:         common.DefaultRouteBucketIO + "/" + key,
 			Dimension:   int32(t.Size),
 		})
 	}

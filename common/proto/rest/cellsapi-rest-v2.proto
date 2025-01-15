@@ -119,8 +119,10 @@ message ImageMeta {
 message FilePreview{
   bool Processing = 1;
   string ContentType = 2;
-  string Url = 3;
-  int32 Dimension = 4;
+  string Bucket = 3;
+  string Key = 4;
+  string Url = 5;
+  int32 Dimension = 6;
 }
 
 // Open definition for a key/value metadata, value stored in json

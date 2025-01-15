@@ -762,12 +762,18 @@
     },
     "restFilePreview": {
       "properties": {
+        "Bucket": {
+          "type": "string"
+        },
         "ContentType": {
           "type": "string"
         },
         "Dimension": {
           "format": "int32",
           "type": "integer"
+        },
+        "Key": {
+          "type": "string"
         },
         "Processing": {
           "type": "boolean"
