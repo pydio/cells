@@ -150,7 +150,7 @@ func (m *viperStore) Key() []string {
 	return m.Val().Key()
 }
 
-func (m *viperStore) Get(wo ...configx.WalkOption) any {
+func (m *viperStore) Get() any {
 	m.locker.RLock()
 	res := m.v.AllSettings()
 	m.locker.RUnlock()
@@ -213,7 +213,7 @@ type values struct {
 	ctx context.Context
 }
 
-func (v *values) Get(option ...configx.WalkOption) any {
+func (v *values) Get() any {
 	if len(v.k) == 0 {
 		return v.v.v.AllSettings()
 	} else {

@@ -54,13 +54,6 @@ func (h *Handler) Get(ctx context.Context, req *pb.GetRequest) (*pb.GetResponse,
 		v = config.Get(ctx, req.GetPath()).Get()
 	}
 
-	switch vv := v.(type) {
-	case []byte:
-		return &pb.GetResponse{
-			Value: &pb.Value{Data: vv},
-		}, nil
-	}
-
 	b, err := json.Marshal(v)
 	if err != nil {
 		return nil, errors.WithMessage(errors.StatusInternalServerError, err.Error())

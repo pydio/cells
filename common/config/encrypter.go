@@ -1,15 +1,14 @@
-package kv
+package config
 
 import (
 	"context"
 
-	"github.com/pydio/cells/v5/common/config"
 	"github.com/pydio/cells/v5/common/utils/configx"
 )
 
 // storeWithEncrypter embeds Viper to extend its behavior
 type storeWithEncrypter struct {
-	config.Store
+	Store
 
 	configx.Encrypter
 	configx.Decrypter
@@ -74,7 +73,7 @@ func (s storeWithEncrypterValues) Val(path ...string) configx.Values {
 	}
 }
 
-func (s storeWithEncrypterValues) Get(...configx.WalkOption) any {
+func (s storeWithEncrypterValues) Get() any {
 	v := s.Values.Get()
 
 	str, ok := v.(string)

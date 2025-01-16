@@ -59,7 +59,7 @@ func init() {
 	}
 }
 
-func (o *URLOpener) Open(ctx context.Context, urlstr string) (config.Store, error) {
+func (o *URLOpener) Open(ctx context.Context, urlstr string, base config.Store) (config.Store, error) {
 	u, err := url.Parse(urlstr)
 	if err != nil {
 		return nil, err
@@ -178,8 +178,8 @@ func (r *remote) Key() []string {
 	return r.values.Key()
 }
 
-func (r *remote) Get(wo ...configx.WalkOption) any {
-	return r.values.Get(wo...)
+func (r *remote) Get() any {
+	return r.values.Get()
 }
 
 func (r *remote) Set(value interface{}) error {
@@ -349,7 +349,7 @@ func (v *values) Val(path ...string) configx.Values {
 	return configx.New(configx.WithStorer(&values{ctx: v.ctx, cli: v.cli, id: v.id, k: std.StringToKeys(append(v.k, path...)...), d: v.d}))
 }
 
-func (v *values) Get(wo ...configx.WalkOption) any {
+func (v *values) Get() any {
 	rsp, err := v.cli.Get(v.ctx, &pb.GetRequest{
 		Namespace: v.id,
 		Path:      strings.Join(v.k, "/"),

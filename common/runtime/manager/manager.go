@@ -50,7 +50,7 @@ import (
 	"github.com/pydio/cells/v5/common/config"
 	"github.com/pydio/cells/v5/common/config/migrations"
 	"github.com/pydio/cells/v5/common/config/revisions"
-	"github.com/pydio/cells/v5/common/crypto"
+	"github.com/pydio/cells/v5/common/crypto/keyring"
 	"github.com/pydio/cells/v5/common/middleware"
 	pb "github.com/pydio/cells/v5/common/proto/registry"
 	"github.com/pydio/cells/v5/common/registry"
@@ -134,7 +134,7 @@ type managerKey struct{}
 
 var ContextKey = managerKey{}
 
-func NewManager(ctx context.Context, namespace string, logger log.ZapLogger) (Manager, error) {
+func NewManager(ctx context.Context, namespace string, logger log.ZapLogger, r ...runtime.Runtime) (Manager, error) {
 
 	m := &manager{
 		ctx: ctx,
@@ -149,16 +149,21 @@ func NewManager(ctx context.Context, namespace string, logger log.ZapLogger) (Ma
 		caches:  controller.NewController[*openurl.Pool[cache.Cache]](),
 	}
 
+	localRuntime := runtime.GetRuntime()
+	if len(r) > 0 {
+		localRuntime = r[0]
+	}
+
 	ctx = propagator.With(ctx, ContextKey, m)
 	runtime.Init(ctx, "system")
 
-	bootstrapYAML := runtime.GetRuntime().GetString(runtime.KeyBootstrapYAML)
+	bootstrapYAML := localRuntime.GetString(runtime.KeyBootstrapYAML)
 	bootstrap, err := config.OpenStore(ctx, "mem://?encode=yaml")
 	if err != nil {
 		return nil, err
 	}
 
-	str, err := tplEval(ctx, bootstrapYAML, "bootstrap", nil)
+	str, err := tplEval(ctx, bootstrapYAML, "bootstrap", nil, localRuntime)
 	if err != nil {
 		return nil, err
 	} else {
@@ -167,7 +172,7 @@ func NewManager(ctx context.Context, namespace string, logger log.ZapLogger) (Ma
 		}
 	}
 
-	base := runtime.GetString(runtime.KeyBootstrapRoot)
+	base := localRuntime.GetString(runtime.KeyBootstrapRoot)
 	// if !runtime.IsSet(runtime.KeyBootstrapRoot) {
 	if name := runtime.Name(); name != "" && name != "default" {
 		base += strings.Join(strings.Split("_"+name, "_"), "/processes/")
@@ -191,7 +196,7 @@ func NewManager(ctx context.Context, namespace string, logger log.ZapLogger) (Ma
 	if kr, err := m.initKeyring(ctx); err != nil {
 		return nil, err
 	} else {
-		ctx = propagator.With(ctx, crypto.KeyringContextKey, kr)
+		ctx = propagator.With(ctx, keyring.KeyringContextKey, kr)
 	}
 
 	// TODO : this would imply using eg.Wait() somewhere, is normal ?
@@ -227,7 +232,7 @@ func NewManager(ctx context.Context, namespace string, logger log.ZapLogger) (Ma
 			registry.OnRegister(func(item *registry.Item, opts *[]registry.RegisterOption) {
 				//fmt.Println("Registering ", (*item).Name())
 				if err := reg.Register(*item, *opts...); err != nil {
-					fmt.Println("I have an error")
+					fmt.Println("I have an error ", err)
 				}
 			}),
 		)
@@ -418,7 +423,7 @@ func (m *manager) initNamespace(ctx context.Context, bootstrap config.Store, bas
 	return nil
 }
 
-func (m *manager) initKeyring(ctx context.Context) (crypto.Keyring, error) {
+func (m *manager) initKeyring(ctx context.Context) (keyring.Keyring, error) {
 	keyringURL := runtime.KeyringURL()
 	if keyringURL == "" {
 		return nil, nil
@@ -431,7 +436,7 @@ func (m *manager) initKeyring(ctx context.Context) (crypto.Keyring, error) {
 	}
 
 	// Keyring start and creation of the master password
-	kr := crypto.NewConfigKeyring(keyringStore, crypto.WithAutoCreate(true, func(s string) {
+	kr := keyring.NewConfigKeyring(keyringStore, keyring.WithAutoCreate(true, func(s string) {
 		fmt.Println(promptui.IconWarn + " [Keyring] " + s)
 	}))
 

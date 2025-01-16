@@ -12,125 +12,110 @@ import (
 
 	"github.com/spf13/cast"
 
-	"github.com/pydio/cells/v5/common/config"
 	"github.com/pydio/cells/v5/common/utils/configx"
 	json "github.com/pydio/cells/v5/common/utils/jsonx"
 	"github.com/pydio/cells/v5/common/utils/std"
 	"github.com/pydio/cells/v5/common/utils/watch"
 )
 
-type store struct {
+type Store struct {
 	m            *any
 	lock         *sync.RWMutex
 	externalLock *sync.RWMutex
 }
 
-func newStore() *store {
+func NewStore() Store {
 	var a any
 
-	return &store{
+	return Store{
 		m:            &a,
 		lock:         new(sync.RWMutex),
 		externalLock: new(sync.RWMutex),
 	}
 }
 
-func NewStore(opt ...configx.Option) (st config.Store) {
-	opts := configx.Options{}
-	for _, o := range opt {
-		o(&opts)
-	}
-
-	s := newStore()
-	w := watch.NewWatcher(&clone{m: s.m, lock: s.lock})
-
-	st = newStoreWithWatcher(s, w)
-
-	if opts.Encrypter != nil {
-		st = &storeWithEncrypter{
-			Store:     s,
-			Encrypter: opts.Encrypter,
-			Decrypter: opts.Decrypter,
-		}
-	}
-
-	return st
+func (c Store) Clone() Store {
+	return Store{m: std.DeepClone(c.m), lock: c.lock, externalLock: c.externalLock}
 }
 
-func (m *store) Watch(opts ...watch.WatchOption) (watch.Receiver, error) {
+func (c Store) Empty() {
+	c.m = nil
+}
+
+func (m Store) Watch(opts ...watch.WatchOption) (watch.Receiver, error) {
 	return nil, errors.New("watch is not set on this")
 }
 
-func (m *store) update() {
+func (m Store) update() {
 	// Do nothing
 }
 
-func (m *store) Key() []string {
+func (m Store) Key() []string {
 	return m.Val().Key()
 }
 
-func (m *store) Get(wo ...configx.WalkOption) any {
+func (m Store) Get() any {
 	return m.Val().Get()
 }
 
-func (m *store) Set(value any) error {
+func (m Store) Set(value any) error {
 	return m.Val().Set(value)
 }
 
-func (m *store) Context(ctx context.Context) configx.Values {
+func (m Store) Context(ctx context.Context) configx.Values {
 	return m.Val().Context(ctx)
 }
 
-func (m *store) Options() *configx.Options {
+func (m Store) Options() *configx.Options {
 	return m.Val().Options()
 }
 
-func (m *store) Val(path ...string) configx.Values {
-	return &values{v: m, k: std.StringToKeys(path...), lock: m.lock}
+func (m Store) Val(path ...string) configx.Values {
+	return values{v: m, k: std.StringToKeys(path...), lock: m.lock}
 }
 
-func (m *store) Default(d any) configx.Values {
+func (m Store) Default(d any) configx.Values {
 	return m.Val().Default(d)
 }
 
-func (m *store) Del() error {
+func (m Store) Del() error {
 	return fmt.Errorf("not implemented")
 }
 
-func (m *store) As(out any) bool { return false }
+func (m Store) As(out any) bool { return false }
 
-func (m *store) Close(_ context.Context) error {
+func (m Store) Close(_ context.Context) error {
 	return nil
 }
 
-func (m *store) Done() <-chan struct{} {
+func (m Store) Done() <-chan struct{} {
 	// Never returns
 	return nil
 }
 
-func (m *store) Save(string, string) error {
+func (m Store) Save(string, string) error {
 	return nil
 }
 
-func (m *store) Lock() {
+func (m Store) Lock() {
 	m.externalLock.Lock()
 }
 
-func (m *store) Unlock() {
+func (m Store) Unlock() {
 	m.externalLock.Unlock()
 }
 
-func (m *store) Flush() {
+func (m Store) Flush() {
 	// Do nothing
 }
 
-func (m *store) Reset() {
+func (m Store) Reset() {
 	// do nothing
 }
 
 type values struct {
 	k []string
-	v *store
+	v Store
 
 	d any
 
@@ -139,15 +124,16 @@ type values struct {
 	ctx context.Context
 }
 
-func (v *values) get() any {
+func (v values) get() any {
 	vv := v.Get()
 	if vv == nil {
 		vv = v.d
 	}
+
 	return vv
 }
 
-func (v *values) Get(option ...configx.WalkOption) any {
+func (v values) Get() any {
 	v.lock.RLock()
 	defer v.lock.RUnlock()
 
@@ -186,7 +172,7 @@ func (v *values) Get(option ...configx.WalkOption) any {
 	return current
 }
 
-func (v *values) Set(value any) error {
+func (v values) Set(value any) error {
 	// Building the keys one by one
 	var current = value
 	for i := len(v.k); i >= 1; i-- {
@@ -213,7 +199,7 @@ func (v *values) Set(value any) error {
 	return nil
 }
 
-func (v *values) Del() error {
+func (v values) Del() error {
 	if err := v.Set(nil); err != nil {
 		return err
 	}
@@ -223,75 +209,74 @@ func (v *values) Del() error {
 	return nil
 }
 
-func (v *values) Context(ctx context.Context) configx.Values {
-	return &values{v: v.v, k: v.k, ctx: ctx, lock: v.lock}
+func (v values) Context(ctx context.Context) configx.Values {
+	return values{v: v.v, k: v.k, ctx: ctx, lock: v.lock}
 }
 
-func (v *values) Val(path ...string) configx.Values {
-	return &values{v: v.v, k: std.StringToKeys(append(v.k, path...)...), ctx: v.ctx, lock: v.v.lock}
+func (v values) Val(path ...string) configx.Values {
+	return values{v: v.v, k: std.StringToKeys(append(v.k, path...)...), ctx: v.ctx, lock: v.v.lock}
 }
 
-func (v *values) Default(d any) configx.Values {
-	return &values{v: v.v, k: v.k, d: d, ctx: v.ctx, lock: v.v.lock}
+func (v values) Default(d any) configx.Values {
+	return values{v: v.v, k: v.k, d: d, ctx: v.ctx, lock: v.v.lock}
 }
 
-func (v *values) Options() *configx.Options {
+func (v values) Options() *configx.Options {
 	return &configx.Options{
 		Context: v.ctx,
 	}
 }
 
-func (v *values) Key() []string {
+func (v values) Key() []string {
 	return v.k
 }
 
-func (v *values) Bool() bool {
+func (v values) Bool() bool {
 	return cast.ToBool(v.get())
 }
 
-func (v *values) Bytes() []byte {
-	// TODO - context
-	return []byte{}
+func (v values) Bytes() []byte {
+	return []byte(cast.ToString(v.get()))
 }
 
-func (v *values) Interface() any {
+func (v values) Interface() any {
 	return v.get()
 }
 
-func (v *values) Int() int {
+func (v values) Int() int {
 	return cast.ToInt(v.get())
 
 }
 
-func (v *values) Int64() int64 {
+func (v values) Int64() int64 {
 	return cast.ToInt64(v.get())
 }
 
-func (v *values) Duration() time.Duration {
+func (v values) Duration() time.Duration {
 	return cast.ToDuration(v.get())
 }
 
-func (v *values) String() string {
+func (v values) String() string {
 	return cast.ToString(v.get())
 }
 
-func (v *values) StringMap() map[string]string {
+func (v values) StringMap() map[string]string {
 	return cast.ToStringMapString(v.get())
 }
 
-func (v *values) StringArray() []string {
+func (v values) StringArray() []string {
 	return cast.ToStringSlice(v.get())
 }
 
-func (v *values) Slice() []any {
+func (v values) Slice() []any {
 	return cast.ToSlice(v.get())
 }
 
-func (v *values) Map() map[string]any {
+func (v values) Map() map[string]any {
 	return cast.ToStringMap(v.get())
 }
 
-func (v *values) Scan(out any, options ...configx.Option) error {
+func (v values) Scan(out any, options ...configx.Option) error {
 	vin := v.get()
 	if vin == nil {
 		return nil

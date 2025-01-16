@@ -40,7 +40,7 @@ import (
 	"github.com/pydio/cells/v5/common/config"
 	"github.com/pydio/cells/v5/common/config/migrations"
 	"github.com/pydio/cells/v5/common/config/revisions"
-	"github.com/pydio/cells/v5/common/crypto"
+	"github.com/pydio/cells/v5/common/crypto/keyring"
 	log2 "github.com/pydio/cells/v5/common/proto/log"
 	"github.com/pydio/cells/v5/common/runtime"
 	"github.com/pydio/cells/v5/common/telemetry/log"
@@ -203,7 +203,7 @@ func initConfig(ctx context.Context, debounceVersions bool) (context.Context, bo
 		return ctx, false, fmt.Errorf("could not init keyring store %v", err)
 	}
 	// Keyring start and creation of the master password
-	kr := crypto.NewConfigKeyring(keyringStore, crypto.WithAutoCreate(true, func(s string) {
+	kr := keyring.NewConfigKeyring(keyringStore, keyring.WithAutoCreate(true, func(s string) {
 		fmt.Println(promptui.IconWarn + " [Keyring] " + s)
 	}))
 	password, err := kr.Get(common.ServiceGrpcNamespace_+common.ServiceUserKey, common.KeyringMasterKey)
@@ -211,7 +211,7 @@ func initConfig(ctx context.Context, debounceVersions bool) (context.Context, bo
 		return ctx, false, fmt.Errorf("could not get master password %v", err)
 	}
 	runtime.SetVaultMasterKey(password)
-	ctx = propagator.With(ctx, crypto.KeyringContextKey, kr)
+	ctx = propagator.With(ctx, keyring.KeyringContextKey, kr)
 
 	mainConfig, err := config.OpenStore(ctx, runtime.ConfigURL())
 	if err != nil {

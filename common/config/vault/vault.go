@@ -31,6 +31,7 @@ import (
 
 	"github.com/pydio/cells/v5/common/config"
 	"github.com/pydio/cells/v5/common/utils/configx"
+	"github.com/pydio/cells/v5/common/utils/watch"
 )
 
 func init() {
@@ -128,7 +129,7 @@ func (s *store) Key() []string {
 	return s.v.Key()
 }
 
-func (s *store) Get(option ...configx.WalkOption) any {
+func (s *store) Get() any {
 	s.read()
 	return s.v
 }
@@ -159,7 +160,7 @@ func (s *store) Default(def any) configx.Values {
 	return &val{Values: s.v.Default(def), store: s}
 }
 
-func (s *store) Watch(opts ...configx.WatchOption) (configx.Receiver, error) {
+func (s *store) Watch(opts ...watch.WatchOption) (watch.Receiver, error) {
 	return nil, fmt.Errorf("vault.watch is not implemented")
 }
 

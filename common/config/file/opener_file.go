@@ -10,11 +10,8 @@ import (
 	"github.com/spf13/afero"
 
 	"github.com/pydio/cells/v5/common/config"
-	"github.com/pydio/cells/v5/common/crypto"
-	"github.com/pydio/cells/v5/common/utils/configx"
 	"github.com/pydio/cells/v5/common/utils/filex"
 	json "github.com/pydio/cells/v5/common/utils/jsonx"
-	"github.com/pydio/cells/v5/common/utils/kv"
 )
 
 const (
@@ -27,71 +24,12 @@ func init() {
 
 type FileOpener struct{}
 
-func (o *FileOpener) Open(ctx context.Context, urlstr string) (config.Store, error) {
+func (o *FileOpener) Open(ctx context.Context, urlstr string, base config.Store) (config.Store, error) {
 
 	u, err := url.Parse(urlstr)
 	if err != nil {
 		return nil, err
 	}
-
-	//var opts []configx.Option
-
-	//encode := u.Query().Get("encode")
-	//switch encode {
-	//case "string":
-	//	opts = append(opts, configx.WithString())
-	//case "yaml":
-	//	opts = append(opts, configx.WithYAML())
-	//case "json":
-	//	opts = append(opts, configx.WithJSON())
-	//default:
-	//	opts = append(opts, configx.WithJSON())
-	//}
-	//
-
-	//if data := u.Query().Get("data"); data != "" {
-	//	opts = append(opts, configx.WithInitData([]byte(data)))
-	//}
-
-	//v := viper.NewWithOptions(viper.KeyDelimiter(delimiter))
-	//v.SetConfigFile(u.Path)
-	//v.AddConfigPath(filepath.Dir(u.Path))
-	//v.ReadInConfig()
-	//
-	//store := newViper(v, opts...)
-	//
-	//clone := func(store config.Store) config.Store {
-	//	return newStoreWithRefPool(store, config.PoolFromURL(ctx, u, func(ctx context.Context, urlstr string) (config.Store, error) {
-	//		u, err := url.Parse(urlstr)
-	//		if err != nil {
-	//			return nil, err
-	//		}
-	//
-	//		var v Viper
-	//		v = viper.NewWithOptions(viper.KeyDelimiter(delimiter))
-	//		v.SetConfigFile(u.Path)
-	//		v.AddConfigPath(filepath.Dir(u.Path))
-	//		v.ReadInConfig()
-	//
-	//		return nil, nil
-	//	}))
-	//}
-	//
-	//store = clone(store)
-
-	var opts []configx.Option
-
-	if master := u.Query().Get("masterKey"); master != "" {
-		enc, err := crypto.NewVaultCipher(master)
-		if err != nil {
-			return nil, err
-		}
-
-		opts = append(opts, configx.WithEncrypt(enc))
-		opts = append(opts, configx.WithDecrypt(enc))
-	}
-
-	store := kv.NewStore(opts...)
 
 	var a any
 	b, err := filex.Read(u.Path)
@@ -104,49 +42,19 @@ func (o *FileOpener) Open(ctx context.Context, urlstr string) (config.Store, err
 			return nil, err
 		}
 
-		if err := store.Set(a); err != nil {
+		if err := base.Set(a); err != nil {
 			return nil, err
 		}
 	}
 
 	clone := func(config.Store) config.Store {
-		return store
+		return base
 	}
-
-	//envPrefix := u.Query().Get("env")
-	//if envPrefix != "" {
-	//	envPrefixU := strings.ToUpper(envPrefix)
-	//	env := os.Environ()
-	//	for _, v := range env {
-	//		if strings.HasPrefix(v, envPrefixU) {
-	//			vv := strings.SplitN(v, "=", 2)
-	//			if len(vv) == 2 {
-	//				k := strings.TrimPrefix(vv[0], envPrefixU)
-	//				//k = strings.ReplaceAll(k, "_", "/")
-	//				//k = strings.ToLower(k)
-	//
-	//				msg, err := strconv.Unquote(vv[1])
-	//				if err != nil {
-	//					msg = vv[1]
-	//				}
-	//
-	//				var m any
-	//				if err := json.Unmarshal([]byte(msg), &m); err != nil {
-	//					store.Val(k).Set(msg)
-	//				} else {
-	//					store.Val(k).Set(m)
-	//				}
-	//			}
-	//		}
-	//	}
-	//}
-
-	//store = config.NewStoreWithReferencePool(store, config.ReferencePoolFromURL(ctx, u))
 
 	return &fileStore{
 		fs:    afero.NewOsFs(),
 		path:  u.Path,
-		Store: store,
+		Store: base,
 		clone: clone,
 	}, nil
 }

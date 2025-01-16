@@ -43,6 +43,8 @@ import (
 type Bootstrap struct {
 	config.Store
 
+	runtime runtime.Runtime
+
 	viper     *Viper
 	templates []*viper.Viper
 }
@@ -51,7 +53,7 @@ type Viper struct {
 	*viper.Viper
 }
 
-func NewBootstrap(ctx context.Context) (*Bootstrap, error) {
+func NewBootstrap(ctx context.Context, r ...runtime.Runtime) (*Bootstrap, error) {
 	store, err := config.OpenStore(ctx, "mem://?encode=yaml")
 	if err != nil {
 		return nil, err
@@ -60,9 +62,15 @@ func NewBootstrap(ctx context.Context) (*Bootstrap, error) {
 	v := viper.NewWithOptions(viper.KeyDelimiter("/"))
 	v.SetConfigType("yaml")
 
+	localRuntime := runtime.GetRuntime()
+	if len(r) > 0 {
+		localRuntime = r[0]
+	}
+
 	bs := &Bootstrap{
-		viper: &Viper{v},
-		Store: store,
+		runtime: localRuntime,
+		viper:   &Viper{v},
+		Store:   store,
 	}
 
 	if err := bs.reload(ctx, nil); err != nil {
@@ -129,7 +137,7 @@ func (bs *Bootstrap) reload(ctx context.Context, storePool *openurl.Pool[config.
 	}
 
 	// Finally we're adding any flags we can have in the --sets
-	if sets := runtime.GetString(runtime.KeyBootstrapSetsFile); sets != "" {
+	if sets := bs.runtime.GetString(runtime.KeyBootstrapSetsFile); sets != "" {
 		if b, err := os.ReadFile(sets); err == nil {
 			if err := runtimeConfig.MergeConfig(bytes.NewBuffer(b)); err != nil {
 				return err
@@ -138,7 +146,7 @@ func (bs *Bootstrap) reload(ctx context.Context, storePool *openurl.Pool[config.
 	}
 
 	// Or in the --set flags
-	if sets := runtime.GetStringSlice(runtime.KeyBootstrapSet); len(sets) > 0 {
+	if sets := bs.runtime.GetStringSlice(runtime.KeyBootstrapSet); len(sets) > 0 {
 		c := viper.NewWithOptions(viper.KeyDelimiter("/"))
 		for _, v := range sets {
 			vv := strings.SplitN(v, "=", 2)
@@ -171,7 +179,7 @@ type keyPair struct {
 	val string
 }
 
-func tplEval(ctx context.Context, tpl, name string, conf config.Store) (string, error) {
+func tplEval(ctx context.Context, tpl, name string, conf config.Store, r runtime.Runtime) (string, error) {
 	t, err := template.New(name).Funcs(map[string]any{
 		"getServiceDataDir": runtime.MustServiceDataDir,
 	}).Delims("{{{{", "}}}}").Parse(tpl)
@@ -182,7 +190,6 @@ func tplEval(ctx context.Context, tpl, name string, conf config.Store) (string, 
 	var b strings.Builder
 	dss, oss := loadDSData(ctx, tpl, conf)
 
-	r := runtime.GetRuntime()
 	if err := t.Execute(&b, struct {
 		ConfigURL             string
 		RegistryURL           string

@@ -344,12 +344,12 @@ func (ev storeWithRefPoolValues) Set(data any) error {
 	return ev.Values.Set(data)
 }
 
-func (ev storeWithRefPoolValues) Get(opts ...configx.WalkOption) any {
+func (ev storeWithRefPoolValues) Get() any {
 	if vv := ev.get(); vv != nil {
-		return vv.Get(opts...)
+		return vv.Get()
 	}
 
-	return ev.Values.Get(opts...)
+	return ev.Values.Get()
 }
 
 func (ev storeWithRefPoolValues) Bool() bool {

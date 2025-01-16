@@ -27,7 +27,7 @@ type Storer interface {
 	Key() []string
 	Val(path ...string) Values
 	Default(def any) Values
-	Get(...WalkOption) any
+	Get() any
 	Set(value any) error
 	Del() error
 }
@@ -195,26 +195,14 @@ func (c storer) MarshalJSON() ([]byte, error) {
 	return c.opts.Marshaller.Marshal(c.v)
 }
 
-func (c storer) Get(wo ...WalkOption) any {
+func (c storer) Get() any {
 	var current any
-
-	opts := &WalkOptions{}
-	for _, o := range wo {
-		o(opts)
-	}
 
 	if len(c.k) == 0 {
 		return *c.v
 	}
 
 	if err := Walk(c.k, *c.v, func(i int, v any) (bool, error) {
-		if interceptor := opts.Interceptor; interceptor != nil {
-			if ok, vv := interceptor(i, v); ok {
-				current = vv
-				return false, nil
-			}
-		}
-
 		current = v
 
 		return true, nil

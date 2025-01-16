@@ -183,6 +183,7 @@ import (
 	_ "gocloud.dev/pubsub/rabbitpubsub"
 
 	// Config drivers
+	_ "github.com/pydio/cells/v5/common/config/etcd"
 	_ "github.com/pydio/cells/v5/common/config/file"
 	_ "github.com/pydio/cells/v5/common/config/memory"
 	// _ "github.com/pydio/cells/v5/common/config/sql"

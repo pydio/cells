@@ -201,13 +201,6 @@ ENVIRONMENT
 
 		ctx := runtime.MultiContextManager().RootContext(cmd.Context())
 
-		bootstrap, err = manager.NewBootstrap(ctx)
-		if err != nil {
-			return err
-		}
-
-		runtime.GetRuntime().Set(runtime.KeyBootstrapYAML, bootstrap)
-
 		// Create a manager for the pre-run
 		mgr, err := manager.NewManager(ctx, "cmd", nil)
 		if err != nil {
@@ -220,7 +213,6 @@ ENVIRONMENT
 		// Checking if we need to install something
 		if niYamlFile != "" || niJsonFile != "" {
 
-			var err error
 			installConf, err = nonInteractiveInstall(ctx)
 			fatalIfError(cmd, err)
 
@@ -238,6 +230,13 @@ ENVIRONMENT
 			}
 		}
 
+		bootstrap, err = manager.NewBootstrap(ctx)
+		if err != nil {
+			return err
+		}
+
+		runtime.GetRuntime().Set(runtime.KeyBootstrapYAML, bootstrap)
+
 		// Reading template
 		tmpl := template.New("storages").Delims("{{{{", "}}}}")
 		yml, err := tmpl.Parse(storagesYAML)
@@ -253,7 +252,6 @@ ENVIRONMENT
 				fatalIfError(cmd, err)
 			}
 			bootstrap.MustReset(ctx, nil)
-
 		})
 
 		_ = os.Setenv(grpc.EnvPydioAdminUserLogin, installConf.FrontendLogin)

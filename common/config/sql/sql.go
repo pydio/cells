@@ -168,7 +168,7 @@ func (s *SQL) Val(path ...string) configx.Values {
 	return &wrappedConfig{s.config.Val(path...), s}
 }
 
-func (s *SQL) Get(option ...configx.WalkOption) any {
+func (s *SQL) Get() any {
 	dao := s.dao.(DAO)
 
 	v := configx.New(configx.WithJSON())

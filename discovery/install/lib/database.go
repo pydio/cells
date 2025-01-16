@@ -34,6 +34,7 @@ import (
 	"text/template"
 
 	"github.com/go-sql-driver/mysql"
+	"github.com/spf13/viper"
 	"gorm.io/gorm"
 
 	"github.com/pydio/cells/v5/common/config"
@@ -242,7 +243,9 @@ storages:
 		}
 	}
 
-	bootstrap, err := manager.NewBootstrap(ctx)
+	localRuntime := viper.New()
+
+	bootstrap, err := manager.NewBootstrap(ctx, localRuntime)
 	if err != nil {
 		return err
 	}
@@ -253,9 +256,10 @@ storages:
 
 	bootstrap.MustReset(ctx, nil)
 
+	localRuntime.Set(runtime.KeyBootstrapYAML, bootstrap)
 	runtime.GetRuntime().Set(runtime.KeyBootstrapYAML, bootstrap)
 
-	mgr, err := manager.NewManager(ctx, "install", nil)
+	mgr, err := manager.NewManager(ctx, "install", nil, localRuntime)
 	if err != nil {
 		return err
 	}

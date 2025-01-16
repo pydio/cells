@@ -2,14 +2,15 @@ package etcd
 
 import (
 	"context"
-	"fmt"
+	"errors"
 	"net/url"
+	"strconv"
+	"strings"
 
 	clientv3 "go.etcd.io/etcd/client/v3"
 
 	"github.com/pydio/cells/v5/common/config"
-	json "github.com/pydio/cells/v5/common/utils/jsonx"
-	"github.com/pydio/cells/v5/common/utils/kv"
+	"github.com/pydio/cells/v5/common/utils/kv/etcd"
 )
 
 const (
@@ -22,13 +23,11 @@ func init() {
 
 type EtcdOpener struct{}
 
-func (o *EtcdOpener) Open(ctx context.Context, urlstr string) (config.Store, error) {
+func (o *EtcdOpener) Open(ctx context.Context, urlstr string, base config.Store) (config.Store, error) {
 	u, err := url.Parse(urlstr)
 	if err != nil {
 		return nil, err
 	}
-
-	st := kv.NewStore()
 
 	cli, err := clientv3.New(clientv3.Config{
 		Endpoints: []string{u.Host},
@@ -38,33 +37,19 @@ func (o *EtcdOpener) Open(ctx context.Context, urlstr string) (config.Store, err
 		return nil, err
 	}
 
-	return &etcdStore{
-		cli:   cli,
-		path:  u.Path,
-		Store: st,
-	}, nil
-}
+	sessionTTL := -1
+	if u.Query().Has("ttl") {
+		if s, err := strconv.Atoi(u.Query().Get("ttl")); err != nil {
+			return nil, errors.New("not a valid time to live")
+		} else {
+			sessionTTL = s
+		}
+	}
 
-type etcdStore struct {
-	cli  *clientv3.Client
-	path string
-	config.Store
-}
-
-func (s *etcdStore) Save(a string, b string) error {
-	v := s.Store.Val().Get()
-
-	// TODO - encoder here
-	c, err := json.Marshal(v)
+	m, err := etcd.NewStore(ctx, base.Val(), cli, strings.TrimLeft(u.Path, "/"), sessionTTL)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
-	if resp, err := s.cli.Put(context.Background(), s.path, string(c)); err != nil {
-		return err
-	} else {
-		fmt.Println(resp.PrevKv)
-	}
-
-	return nil
+	return m, nil
 }
