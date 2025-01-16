@@ -85,9 +85,7 @@ const (
 	KeyLogToFile = "log_to_file"
 	KeyLogSQL    = "log_sql"
 
-	KeyHttpProxyURL  = "http_proxy"
 	KeyHttpServer    = "http"
-	HttpServerCaddy  = "caddy"
 	HttpServerNative = "http"
 
 	DefaultDiscoveryPort   = "8030"

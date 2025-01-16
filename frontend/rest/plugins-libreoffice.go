@@ -44,8 +44,8 @@ func init() {
 
 	routing.RegisterRoute(RouteMainV6, "Collabora Leaflet API", "/leaflet")
 	routing.RegisterRoute(RouteMain, "Collabora Leaflet API", "/browser")
-	routing.RegisterRoute(RouteWsV6, "Collabora Websocket API", "/lool")
-	routing.RegisterRoute(RouteWs, "Collabora Websocket API", "/cool")
+	routing.RegisterRoute(RouteWsV6, "Collabora Websocket API", "/lool", routing.WithWebSocket())
+	routing.RegisterRoute(RouteWs, "Collabora Websocket API", "/cool", routing.WithWebSocket())
 	routing.RegisterRoute(RouteDiscovery, "Collabora Discovery API", "/hosting/discovery")
 
 	runtime.Register("main", func(ctx context.Context) {

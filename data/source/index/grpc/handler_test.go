@@ -187,6 +187,26 @@ func TestIndex(t *testing.T) {
 
 		})
 
+		Convey("Renaming a file", t, func() {
+			nodeB := mustCreateNodeReadResponse(ctx, s, &tree.Node{Path: "/test_1_4/test_1_4_2/file.txt", Size: 10, Type: tree.NodeType_LEAF, Etag: "node-etag"})
+
+			_, err := send(ctx, s, "UpdateNode", &tree.UpdateNodeRequest{From: nodeB, To: &tree.Node{Uuid: nodeB.Uuid, Path: "/test_1_4/test_1_4_2/file-renamed.txt", Size: nodeB.Size, Type: nodeB.Type}})
+			So(err, ShouldBeNil)
+
+			resp, er := send(ctx, s, "GetNode", &tree.ReadNodeRequest{Node: &tree.Node{Uuid: nodeB.Uuid}})
+			So(er, ShouldBeNil)
+			So(resp.(*tree.ReadNodeResponse).Node, ShouldNotBeNil)
+			rn := resp.(*tree.ReadNodeResponse).Node
+			So(rn.Path, ShouldEqual, "/test_1_4/test_1_4_2/file-renamed.txt")
+			So(rn.Uuid, ShouldEqual, nodeB.Uuid)
+			So(rn.Type, ShouldEqual, nodeB.Type)
+			So(rn.Size, ShouldEqual, nodeB.Size)
+			So(rn.Etag, ShouldEqual, nodeB.Etag)
+
+			_, er = send(ctx, s, "DeleteNode", &tree.DeleteNodeRequest{Node: rn})
+			So(er, ShouldBeNil)
+		})
+
 		Convey("Moving a child from 1.4.2 to 1.6.5", t, func() {
 			node1_4_2 := &tree.Node{Uuid: "test_1_4_2", Path: "/test_1_4/test_1_4_2"}
 			nodeA := mustCreateNodeReadResponse(ctx, s, &tree.Node{Path: "/test_1_4/test_1_4_2/A", Type: tree.NodeType_COLLECTION})

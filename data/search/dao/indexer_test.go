@@ -193,10 +193,10 @@ func performSearch(ctx context.Context, index search.Engine, queryObject *tree.Q
 //}
 
 func TestIndexNode(t *testing.T) {
-	defer func() {
-		commons.BatchPoolInit = sync.Once{}
-	}()
 	test.RunStorageTests(testcases(), t, func(ctx context.Context) {
+		defer func() {
+			commons.BatchPoolInit = sync.Once{}
+		}()
 		server, err := manager.Resolve[search.Engine](ctx)
 		if err != nil {
 			panic(err)

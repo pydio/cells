@@ -20,9 +20,9 @@
 # The latest code can be found at <https://pydio.com>.
 #
 if [[ -n "${GENERATE_SDKS_V2}" ]]; then
-  echo "Generate TS version with fetch"
 
-  openapi-generator generate -i ./cellsapi-rest-v2.swagger.json -g typescript-fetch -o $GENERATE_SDKS_V2/cells-sdk-ts/fetch
+#  echo "Generate TS version with fetch"
+#  openapi-generator generate -i ./cellsapi-rest-v2.swagger.json -g typescript-fetch -o $GENERATE_SDKS_V2/cells-sdk-ts/fetch
 
   echo "Generate TS version with axios"
 

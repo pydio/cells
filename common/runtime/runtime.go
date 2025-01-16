@@ -27,7 +27,6 @@ import (
 	"os"
 	"path"
 	"path/filepath"
-	"regexp"
 	"strings"
 
 	"github.com/manifoldco/promptui"
@@ -187,14 +186,6 @@ func ConfigURL() string {
 
 	}
 	return v
-}
-
-// ProxyServerURL defines which proxy to use for serving Sites
-func ProxyServerURL() string {
-	if HttpServerType() == HttpServerCaddy {
-		return ""
-	}
-	return r.GetString(KeyHttpProxyURL)
 }
 
 // ConfigIsLocalFile checks if ConfigURL scheme is file
@@ -373,106 +364,6 @@ func buildProcessStartTag() {
 	for _, x := range xx {
 		processStartTags = append(processStartTags, "x:"+x)
 	}
-}
-
-// BuildForkParams creates --key=value arguments from runtime parameters
-func BuildForkParams(cmd string) []string {
-	discovery := fmt.Sprintf("grpc://" + GrpcDiscoveryBindAddress())
-	params := []string{
-		cmd,
-		"--" + KeyFork,
-		"--" + KeyDiscovery, discovery,
-		"--" + KeyGrpcPort, "0",
-		"--" + KeyGrpcDiscoveryPort, "0",
-		"--" + KeyHttpServer, HttpServerNative,
-		//"--" + KeyHttpPort, "0", // This is already the default
-	}
-
-	// Copy string arguments
-	strArgs := []string{
-		KeyBindHost,
-		KeyAdvertiseAddress,
-	}
-
-	strArgsWithDefaults := map[string]string{
-		KeyKeyring: DefaultKeyKeyring,
-	}
-
-	// Copy bool arguments
-	boolArgs := []string{
-		KeyEnablePprof,
-		KeyEnableMetrics,
-	}
-
-	// Copy slices arguments
-	sliceArgs := []string{
-		KeyNodeCapacity,
-	}
-
-	for _, s := range strArgs {
-		if IsSet(s) {
-			params = append(params, "--"+s, GetString(s))
-		}
-	}
-	for _, bo := range boolArgs {
-		if GetBool(bo) {
-			params = append(params, "--"+bo)
-		}
-	}
-	for _, sl := range sliceArgs {
-		if IsSet(sl) {
-			for _, a := range GetStringSlice(sl) {
-				params = append(params, "--"+sl, a)
-			}
-		}
-	}
-	// Set these only if they differ from their default value
-	for k, v := range strArgsWithDefaults {
-		if IsSet(k) && GetString(k) != v {
-			params = append(params, "--"+k, GetString(k))
-		}
-	}
-
-	return params
-}
-
-// IsRequired checks arguments, --tags and --exclude against a service name
-func IsRequired(name string, tags ...string) bool {
-	xx := r.GetStringSlice(KeyArgExclude)
-	tt := r.GetStringSlice(KeyArgTags)
-	if len(tt) > 0 {
-		var hasTag bool
-		for _, t := range tt {
-			for _, st := range tags {
-				if st == t {
-					hasTag = true
-					break
-				}
-			}
-		}
-		if !hasTag {
-			return false
-		}
-	}
-	for _, x := range xx {
-		re := regexp.MustCompile(x)
-		if re.MatchString(name) {
-			return false
-		}
-	}
-
-	if len(args) == 0 {
-		return true
-	}
-
-	for _, arg := range args {
-		re := regexp.MustCompile(arg)
-		if re.MatchString(name) {
-			return true
-		}
-	}
-
-	return false
 }
 
 // GetHostname wraps os.Hostname, could be overwritten by env or parameter.

@@ -21,9 +21,14 @@
 package restv2
 
 import (
+	"path"
+
 	restful "github.com/emicklei/go-restful/v3"
 
 	"github.com/pydio/cells/v5/common"
+	"github.com/pydio/cells/v5/common/errors"
+	"github.com/pydio/cells/v5/common/nodes"
+	"github.com/pydio/cells/v5/common/permissions"
 	"github.com/pydio/cells/v5/common/proto/rest"
 	"github.com/pydio/cells/v5/common/proto/tree"
 	"github.com/pydio/cells/v5/scheduler/jobs/userspace"
@@ -58,6 +63,59 @@ func (h *Handler) Create(req *restful.Request, resp *restful.Response) error {
 			return er
 		}
 		output.Nodes = append(output.Nodes, h.TreeNodesToNodes(nn)...)
+	}
+	return resp.WriteEntity(output)
+}
+
+// CreateCheck performs some validation checks before creating resources
+// Api Endpoint: POST /node/create/precheck
+func (h *Handler) CreateCheck(req *restful.Request, resp *restful.Response) error {
+	input := &rest.CreateCheckRequest{}
+	if err := req.ReadEntity(input); err != nil {
+		return err
+	}
+	ctx := req.Request.Context()
+	findNext := input.GetFindAvailablePath()
+	output := &rest.CreateCheckResponse{}
+	pathRouter := h.TreeHandler.GetRouter()
+	uuidRouter := h.UuidClient(true)
+	for _, n := range input.GetInputs() {
+		var handler nodes.Handler
+		targetNode := &tree.Node{}
+		pa := n.GetLocator().GetPath()
+		if pa != "" {
+			handler = pathRouter
+			targetNode.SetPath(pa)
+		} else {
+			handler = uuidRouter
+			targetNode.SetUuid(n.GetLocator().GetUuid())
+		}
+		cr := &rest.CheckResult{InputLocator: n.GetLocator(), Exists: false}
+		if rr, er := handler.ReadNode(ctx, &tree.ReadNodeRequest{Node: targetNode, StatFlags: []uint32{tree.StatFlagMetaMinimal}}); er == nil {
+			cr.Exists = true
+			cr.Node = h.TreeNodeToNode(rr.GetNode())
+			if pa != "" && findNext {
+				// Find next available name
+				var childrenLocks []string
+				if parentResp, er := pathRouter.ReadNode(ctx, &tree.ReadNodeRequest{Node: &tree.Node{Path: path.Dir(targetNode.Path)}}); er == nil {
+					if cl, err := permissions.GetChildrenLocks(ctx, parentResp.GetNode()); err != nil {
+						return errors.WithMessage(err, "cannot find next available path (children locks)")
+					} else {
+						childrenLocks = append(childrenLocks, cl...)
+					}
+				}
+				if err := nodes.SuffixPathIfNecessary(ctx, pathRouter, targetNode, n.Type == tree.NodeType_COLLECTION, childrenLocks...); err == nil {
+					cr.NextPath = targetNode.GetPath()
+				} else {
+					return errors.WithMessage(err, "cannot find next available path")
+				}
+			}
+			output.Results = append(output.Results, cr)
+		} else if errors.Is(er, errors.NodeNotFound) {
+			output.Results = append(output.Results, cr)
+		} else {
+			return er
+		}
 	}
 	return resp.WriteEntity(output)
 }

@@ -1205,17 +1205,86 @@ func TestVeryDeepPath(t *testing.T) {
 func TestMoveVeryDeepPath(t *testing.T) {
 	ctx := context.Background()
 	var pp []string
-	for i := 0; i < 510; i++ {
+	for i := 0; i < 510; i++ { // This creates a 1020 = 255*4 mpath = max index length
 		pp = append(pp, "1")
 	}
 	fPath := "/" + strings.Join(pp, "/")
-	//fPath := "/This/is/a/test"
+	fPathChild := fPath + "/child"
 	uid := uuid.New()
-	sql.TestPrintQueries = true
+	uidChild := uuid.New()
 	testAll(t, func(dao testdao) func(t *testing.T) {
 		return func(t *testing.T) {
-			Convey("Test MoveVeryDeepPath", t, func() {
-				node, _, er := dao.GetOrCreateNodeByPath(ctx, fPath, &tree.Node{Uuid: uid, Type: tree.NodeType_LEAF})
+			Convey("Test MoveVeryDeepPath - Max Length", t, func() {
+				node, _, er := dao.GetOrCreateNodeByPath(ctx, fPath, &tree.Node{Uuid: uid, Type: tree.NodeType_COLLECTION})
+				So(er, ShouldBeNil)
+
+				var childNode tree.ITreeNode
+				if len(pp) < 508 {
+					childNode, _, er = dao.GetOrCreateNodeByPath(ctx, fPathChild, &tree.Node{Uuid: uidChild, Type: tree.NodeType_LEAF})
+					So(er, ShouldBeNil)
+				}
+
+				newNode, _, er := dao.GetOrCreateNodeByPath(ctx, "/root", &tree.Node{Uuid: uuid.New(), Type: tree.NodeType_LEAF})
+				So(er, ShouldBeNil)
+
+				movedNewNode := &tree.TreeNode{}
+				movedNewNode.SetNode(&tree.Node{
+					Uuid: uid,
+					Type: tree.NodeType_LEAF,
+				})
+				movedNewNode.SetMPath(newNode.GetMPath().Append(1))
+				movedNewNode.SetName("testleaf")
+				targetMpath1 := movedNewNode.GetMPath().MPath1
+				targetMpath2 := movedNewNode.GetMPath().MPath2
+				targetMpath3 := movedNewNode.GetMPath().MPath3
+				targetMpath4 := movedNewNode.GetMPath().MPath4
+
+				sql.TestPrintQueries = true
+				if er := dao.MoveNodeTree(ctx, node, movedNewNode); er != nil {
+					So(er, ShouldBeNil)
+				}
+				sql.TestPrintQueries = false
+
+				testNode, er := dao.GetNodeByUUID(ctx, uid)
+				So(er, ShouldBeNil)
+				So(testNode.GetMPath().MPath1, ShouldEqual, targetMpath1)
+				So(testNode.GetMPath().MPath2, ShouldEqual, targetMpath2)
+				So(testNode.GetMPath().MPath3, ShouldEqual, targetMpath3)
+				So(testNode.GetMPath().MPath4, ShouldEqual, targetMpath4)
+
+				if childNode != nil {
+					testChildNode, er := dao.GetNodeByUUID(ctx, uidChild)
+					So(er, ShouldBeNil)
+					So(testChildNode.GetNode().GetType(), ShouldEqual, childNode.GetNode().GetType())
+					So(testChildNode.GetMPath().MPath1, ShouldEqual, "1.2.1.1")
+					So(testChildNode.GetMPath().MPath2, ShouldEqual, "")
+					So(testChildNode.GetMPath().MPath3, ShouldEqual, "")
+					So(testChildNode.GetMPath().MPath4, ShouldEqual, "")
+				}
+
+			})
+		}
+	})
+}
+
+func TestMoveVeryDeepPathWithChildren(t *testing.T) {
+	ctx := context.Background()
+	var pp []string
+	for i := 0; i < 500; i++ {
+		pp = append(pp, "1")
+	}
+	fPath := "/" + strings.Join(pp, "/")
+	fPathChild := fPath + "/child"
+	uid := uuid.New()
+	uidChild := uuid.New()
+	testAll(t, func(dao testdao) func(t *testing.T) {
+		return func(t *testing.T) {
+			Convey("Test MoveVeryDeepPath - With Children", t, func() {
+				node, _, er := dao.GetOrCreateNodeByPath(ctx, fPath, &tree.Node{Uuid: uid, Type: tree.NodeType_COLLECTION})
+				So(er, ShouldBeNil)
+
+				var childNode tree.ITreeNode
+				childNode, _, er = dao.GetOrCreateNodeByPath(ctx, fPathChild, &tree.Node{Uuid: uidChild, Type: tree.NodeType_LEAF})
 				So(er, ShouldBeNil)
 
 				newNode, _, er := dao.GetOrCreateNodeByPath(ctx, "/root", &tree.Node{Uuid: uuid.New(), Type: tree.NodeType_LEAF})
@@ -1228,14 +1297,32 @@ func TestMoveVeryDeepPath(t *testing.T) {
 				})
 				movedNewNode.SetMPath(newNode.GetMPath().Append(1))
 				movedNewNode.SetName("testleaf")
+				targetMpath1 := movedNewNode.GetMPath().MPath1
+				targetMpath2 := movedNewNode.GetMPath().MPath2
+				targetMpath3 := movedNewNode.GetMPath().MPath3
+				targetMpath4 := movedNewNode.GetMPath().MPath4
 
+				sql.TestPrintQueries = true
 				if er := dao.MoveNodeTree(ctx, node, movedNewNode); er != nil {
 					So(er, ShouldBeNil)
 				}
+				sql.TestPrintQueries = false
 
 				testNode, er := dao.GetNodeByUUID(ctx, uid)
 				So(er, ShouldBeNil)
-				So(testNode.GetMPath().MPath2, ShouldBeEmpty)
+				So(testNode.GetMPath().MPath1, ShouldEqual, targetMpath1)
+				So(testNode.GetMPath().MPath2, ShouldEqual, targetMpath2)
+				So(testNode.GetMPath().MPath3, ShouldEqual, targetMpath3)
+				So(testNode.GetMPath().MPath4, ShouldEqual, targetMpath4)
+
+				testChildNode, er := dao.GetNodeByUUID(ctx, uidChild)
+				So(er, ShouldBeNil)
+				So(testChildNode.GetNode().GetType(), ShouldEqual, childNode.GetNode().GetType())
+				So(testChildNode.GetMPath().MPath1, ShouldEqual, "1.2.1.1")
+				So(testChildNode.GetMPath().MPath2, ShouldEqual, "")
+				So(testChildNode.GetMPath().MPath3, ShouldEqual, "")
+				So(testChildNode.GetMPath().MPath4, ShouldEqual, "")
+
 			})
 		}
 	})

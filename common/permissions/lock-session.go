@@ -22,10 +22,12 @@ package permissions
 
 import (
 	"context"
+	"strings"
 	"time"
 
 	"google.golang.org/protobuf/types/known/anypb"
 
+	"github.com/pydio/cells/v5/common/client/commons"
 	"github.com/pydio/cells/v5/common/client/commons/idmc"
 	"github.com/pydio/cells/v5/common/proto/idm"
 	service "github.com/pydio/cells/v5/common/proto/service"
@@ -170,23 +172,33 @@ func (l *LockSession) updateExpiration(ctx context.Context, cli idm.ACLServiceCl
 	return err
 }
 
-func HasChildLocks(ctx context.Context, node *tree.Node) bool {
+// HasChildrenLocks checks if there are any child_lock for a parent folder
+func HasChildrenLocks(ctx context.Context, node *tree.Node) bool {
 	aclClient := idmc.ACLServiceClient(ctx)
 	q, _ := anypb.New(&idm.ACLSingleQuery{
 		Actions: []*idm.ACLAction{{Name: AclChildLock.Name + ":*"}},
 		NodeIDs: []string{node.GetUuid()},
 	})
-	if st, e := aclClient.SearchACL(ctx, &idm.SearchACLRequest{Query: &service.Query{SubQueries: []*anypb.Any{q}}}); e == nil {
-		defer st.CloseSend()
-		for {
-			_, er := st.Recv()
-			if er != nil {
-				break
-			}
-			log.Logger(ctx).Info("Found childLock on ", node.Zap())
-			return true
-		}
-	}
-	log.Logger(ctx).Debug("No childLock on ", node.Zap())
-	return false
+	_, has, _ := commons.MustStreamOne(aclClient.SearchACL(ctx, &idm.SearchACLRequest{Query: &service.Query{SubQueries: []*anypb.Any{q}}}))
+	return has
+}
+
+// GetChildrenLocks retrieves the existing child_lock for a parent folder
+func GetChildrenLocks(ctx context.Context, node *tree.Node) (ll []string, err error) {
+	aclClient := idmc.ACLServiceClient(ctx)
+	q, _ := anypb.New(&idm.ACLSingleQuery{
+		Actions: []*idm.ACLAction{{Name: AclChildLock.Name + ":*"}},
+		NodeIDs: []string{node.GetUuid()},
+	})
+
+	st, er := aclClient.SearchACL(ctx, &idm.SearchACLRequest{Query: &service.Query{SubQueries: []*anypb.Any{q}}})
+	err = commons.ForEach(st, er, func(resp *idm.SearchACLResponse) error {
+		aName := resp.GetACL().GetAction().GetName()
+		aName = strings.TrimPrefix(aName, AclChildLock.Name+":")
+		log.Logger(ctx).Debug("-- SuffixPath : adding value from ChildLock " + aName)
+		ll = append(ll, strings.ToLower(aName))
+		return nil
+	})
+	return
+
 }

@@ -119,8 +119,10 @@ message ImageMeta {
 message FilePreview{
   bool Processing = 1;
   string ContentType = 2;
-  string Url = 3;
-  int32 Dimension = 4;
+  string Bucket = 3;
+  string Key = 4;
+  string Url = 5;
+  int32 Dimension = 6;
 }
 
 // Open definition for a key/value metadata, value stored in json
@@ -234,6 +236,7 @@ message IncomingNode {
   tree.NodeType Type = 2 [(google.api.field_behavior) = REQUIRED];
   string ContentType = 3;
   string TemplateUuid = 4;
+  int64 KnownSize = 5;
 }
 
 // Request for creating nodes
@@ -242,6 +245,26 @@ message CreateRequest {
   bool Recursive = 2;
 }
 
+// Request for pre-checking nodes before uploading or creating them.
+message CreateCheckRequest {
+  repeated IncomingNode Inputs = 1 [(google.api.field_behavior) = REQUIRED];
+  bool FindAvailablePath = 2;
+}
+
+// Check result for one given Location
+message CheckResult {
+  NodeLocator InputLocator = 1;
+  bool Exists = 2;
+  Node Node = 3;
+  string NextPath = 4;
+}
+
+// Returns as many CheckResult as IncomingNodes passed in request
+message CreateCheckResponse {
+  repeated CheckResult Results = 1 [(google.api.field_behavior) = REQUIRED];
+}
+
+// Collection of NodeLocator
 message NodeLocators {
   repeated NodeLocator Many = 1;
 }
@@ -464,6 +487,13 @@ service NodeService {
   rpc Create(CreateRequest) returns (NodeCollection) {
     option (google.api.http) = {
       post: "/n/nodes/create"
+      body: "*"
+    };
+  }
+  // Apply some pre-validation checks on node name before sending an upload
+  rpc CreateCheck(CreateCheckRequest) returns (CreateCheckResponse) {
+    option (google.api.http) = {
+      post: "/n/nodes/create/precheck"
       body: "*"
     };
   }

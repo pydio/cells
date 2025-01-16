@@ -728,12 +728,14 @@ func (dao *gormImpl[T]) MoveNodeTree(ctx context.Context, nodeFrom tree.ITreeNod
 	mpathFromLevel := nodeFromMPath.Length()
 	mpathToLevel := nodeToMPath.Length()
 	levelDiff := mpathToLevel - mpathFromLevel
+	const mpathNumber = 4
+	maxLen := indexLen * mpathNumber
 
 	mpathTo := []string{nodeToMPath.GetMPath1(), nodeToMPath.GetMPath2(), nodeToMPath.GetMPath3(), nodeToMPath.GetMPath4()}
 
 	if tx := dao.instance(ctx).
 		Model(model).
-		Omit("uuid").
+		Omit("uuid", "leaf", "size", "mtime", "mode", "etag").
 		Select("name", "leaf", "size", "mtime", "mode", "etag", "level", "mpath1", "mpath2", "mpath3", "mpath4", "hash", "hash2").
 		Where(nodeFrom).
 		Updates(nodeTo); tx.Error != nil {
@@ -744,24 +746,32 @@ func (dao *gormImpl[T]) MoveNodeTree(ctx context.Context, nodeFrom tree.ITreeNod
 	totalMPathFrom := len(mpathFromStr)
 	totalMPathTo := len(mpathToStr)
 
+	if totalMPathFrom > maxLen {
+		// There cannot be any children, do not bother with moving children
+		return nil
+	}
+
 	var (
-		quoMPathTo = totalMPathTo / indexLen
-		modMPathTo = totalMPathTo % indexLen
-		updates    []storagesql.OrderedUpdate
+		quoMPathTo   = totalMPathTo / indexLen
+		modMPathTo   = totalMPathTo % indexLen
+		updates      []storagesql.OrderedUpdate
+		mpathUpdates = map[string]storagesql.OrderedUpdate{}
 	)
 
+	//fmt.Println("quoMPath, modMPath", quoMPathTo, modMPathTo)
 	// rows before
 	for i := 0; i < quoMPathTo; i++ {
-		updates = append(updates, storagesql.OrderedUpdate{Key: fmt.Sprintf("mpath%d", i+1), Value: mpathTo[i]})
+		mp := fmt.Sprintf("mpath%d", i+1)
+		//fmt.Println("MoveNodeTree - before - updates " + mp)
+		mpathUpdates[mp] = storagesql.OrderedUpdate{Key: fmt.Sprintf("mpath%d", i+1), Value: mpathTo[i]}
 	}
 
 	// for the final rows, we do some clever concatenations based on the length of the origin and the target
-	maxLen := indexLen * 4
 	curIndexFrom := totalMPathFrom
 	curIndexTo := totalMPathTo
 	helper := dao.instance(ctx).Dialector.(storagesql.Helper)
 
-	for cnt := quoMPathTo; cnt < 4; cnt++ {
+	for cnt := quoMPathTo; cnt < mpathNumber; cnt++ {
 		if curIndexFrom >= maxLen || curIndexTo >= maxLen {
 			break
 		}
@@ -784,10 +794,22 @@ func (dao *gormImpl[T]) MoveNodeTree(ctx context.Context, nodeFrom tree.ITreeNod
 			concat = append(concat, fmt.Sprintf(`SUBSTR(mpath%d, %d, %d)`, modPart.quo+1, modPart.from+1, modPart.to-modPart.from))
 		}
 
-		updates = append(updates, storagesql.OrderedUpdate{Key: fmt.Sprintf("mpath%d", cnt+1), Value: gorm.Expr(helper.Concat(concat...))})
+		mp := fmt.Sprintf("mpath%d", cnt+1)
+		//fmt.Println("MoveNodeTree - after - updates ", mp)
+		mpathUpdates[mp] = storagesql.OrderedUpdate{Key: mp, Value: gorm.Expr(helper.Concat(concat...))}
 
 		curIndexFrom = tarIndexFrom
 		curIndexTo = curIndexTo + incr
+	}
+
+	// Clear remaining mpaths with empty
+	for i := 0; i < mpathNumber; i++ {
+		mp := fmt.Sprintf("mpath%d", i+1)
+		if up, ok := mpathUpdates[mp]; ok {
+			updates = append(updates, up)
+		} else {
+			updates = append(updates, storagesql.OrderedUpdate{Key: mp, Value: ""})
+		}
 	}
 
 	updates = append(updates, storagesql.OrderedUpdate{Key: "level", Value: gorm.Expr("level + ?", levelDiff)})

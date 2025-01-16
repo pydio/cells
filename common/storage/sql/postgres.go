@@ -87,8 +87,6 @@ func (p *postgresHelper) ApplyOrderedUpdates(db *gorm.DB, tableName string, sets
 	}
 
 	var assigns []string
-	//var assignsArgs []interface{}
-
 	assigns = append(assigns, "uuid")
 	for _, u := range sets {
 		if u.Key == "hash" {

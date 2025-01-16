@@ -59,7 +59,7 @@ func wrap(ctx context.Context) context.Context {
 
 func init() {
 
-	routing.RegisterRoute(common.RouteWebsocket, "Websocket Endpoint", common.DefaultRouteWebsocket)
+	routing.RegisterRoute(common.RouteWebsocket, "Websocket Endpoint", common.DefaultRouteWebsocket, routing.WithWebSocket())
 
 	runtime.Register("main", func(ctx context.Context) {
 		service.NewService(
@@ -79,7 +79,9 @@ func init() {
 				sub := mux.Route(common.RouteWebsocket)
 				melodyAsHandler := func(mel *melody.Melody) http.Handler {
 					hf := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-						_ = mel.HandleRequest(w, r)
+						if er := mel.HandleRequest(w, r); er != nil {
+							log.Logger(ctx).Warn("websocket error", zap.Error(er))
+						}
 					})
 					handler := middleware.HttpWrapperMeta(http.Handler(hf))
 					handler = middleware.WebIncomingContextMiddleware(rootCtx, "", service.ContextKey, o.Server, handler)
