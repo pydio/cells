@@ -178,11 +178,6 @@ func sitesToCaddySites(sites []*install.ProxyConfig, upstreamResolver routing.Up
 					return err
 				}
 				site.TLS = fmt.Sprintf(`"%s" "%s"`, certFile, keyFile)
-				if os.Getenv("CELLS_LOCAL_ALPN_V1") == "true" {
-					site.TLS += `{
-	alpn http/1.1
-}`
-				}
 			case *install.ProxyConfig_LetsEncrypt:
 				caUrl := common.DefaultCaUrl
 				if v.LetsEncrypt.StagingCA {

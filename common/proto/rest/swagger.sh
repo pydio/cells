@@ -26,7 +26,7 @@ if [[ -n "${GENERATE_SDKS_V2}" ]]; then
 
   echo "Generate TS version with axios"
 
-  openapi-generator generate -i ./cellsapi-rest-v2.swagger.json -g typescript-axios -c swagger-ts-axios.json -o $GENERATE_SDKS_V2/cells-sdk-ts/axios
+  openapi-generator generate -i ./cellsapi-rest-v2.swagger.json -g typescript-axios -c swagger-ts-axios.json -o $GENERATE_SDKS_V2/cells-sdk-ts
 
   echo "Generate Swift version"
 
