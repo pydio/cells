@@ -52,6 +52,34 @@ const (
   }{{end}}
 }
 
+{{$CorsAllowAll := .CorsAllowAll}}
+{{if .CorsAllowAll}}
+(cors) {
+  @cors_preflight {
+	method OPTIONS
+	header_regexp acr Access-Control-Request-Method .+
+  }
+  @cors header Origin {args[0]}
+
+  handle @cors_preflight {
+    header {
+		Access-Control-Allow-Origin "{args[0]}"
+		Access-Control-Allow-Methods "OPTIONS,HEAD,GET,POST,PUT,PATCH,DELETE"
+		Access-Control-Allow-Headers "*"
+		Access-Control-Max-Age "3600"
+	}
+    respond "" 204
+  }
+
+  handle @cors {
+    header Access-Control-Allow-Origin "{args[0]}"
+	header Vary Origin
+    header Access-Control-Expose-Headers "Authorization"
+	header Access-Control-Allow-Credentials "true"
+  }
+}
+{{end}}
+
 {{range .Sites}}
 {{$MuxMode := .MuxMode}}
 {{$SiteHash := .Hash}}
@@ -61,6 +89,8 @@ const (
 
 	{{range .Routes}}
 	route {{.Path}} {
+
+		{{if $CorsAllowAll}}import cors {header.origin}{{end}}
 		{{range .HeaderMods}}{{.}}
 		{{end}}
 
@@ -81,7 +111,9 @@ const (
 		# Apply mux
 		mux
 		{{else}}
-		reverse_proxy {{joinUpstreams .Upstreams " "}}
+		reverse_proxy {{joinUpstreams .Upstreams " "}} {{if $CorsAllowAll}}{
+			header_down -Access-Control-Allow-Origin
+		}{{end}}
 		{{end}}
 	}
 	{{end}}
@@ -108,12 +140,12 @@ const (
 
 type TplData struct {
 	Sites             []*ActiveSite
-	WebRoot           string
 	Storage           string
 	MuxMode           bool
 	EnableMetrics     bool
 	DisableAdmin      bool
 	RedirectLogWriter bool
+	CorsAllowAll      bool
 }
 
 var (

@@ -185,13 +185,10 @@ func WithWeb(handler func(ctx context.Context) WebHandler) ServiceOption {
 			mm := getWebMiddlewares(o.Name, "core")
 			mm = append(mm, o.WebMiddlewares...)
 			mm = append(mm, getWebMiddlewares(o.Name, "top")...)
-			if co := os.Getenv("CELLS_WEB_CORS_ALLOW_ALL"); co == "true" {
-				// To be used in dev mode only !
-				mm = append(mm, cors.AllowAll().Handler)
-			} else {
+			// If CORS "*" is expected, do not set cors defaults
+			if co := os.Getenv("CELLS_WEB_CORS_ALLOW_ALL"); co != "true" {
 				mm = append(mm, cors.Default().Handler)
 			}
-
 			for _, wrap := range mm {
 				wrapped = wrap(wrapped)
 			}

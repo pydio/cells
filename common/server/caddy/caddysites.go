@@ -37,7 +37,6 @@ import (
 	"github.com/pydio/cells/v5/common/proto/install"
 	"github.com/pydio/cells/v5/common/runtime"
 	"github.com/pydio/cells/v5/common/telemetry/metrics"
-	"github.com/pydio/cells/v5/common/utils/uuid"
 )
 
 type ActiveSite struct {
@@ -65,11 +64,11 @@ func ResolveSites(ctx context.Context, resolver routing.UpstreamsResolver, exter
 
 	tplData := TplData{
 		Sites:             caddySites,
-		WebRoot:           uuid.New(), // non-existing path to make sure we don't statically serve local folder
 		EnableMetrics:     metrics.HasProviders(),
 		DisableAdmin:      !external,
 		RedirectLogWriter: !external,
 		MuxMode:           resolver == nil,
+		CorsAllowAll:      os.Getenv("CELLS_WEB_CORS_ALLOW_ALL") == "true",
 	}
 
 	k, e := storage.OpenStore(ctx, runtime.CertsStoreURL())
