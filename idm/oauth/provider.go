@@ -37,12 +37,14 @@ import (
 	"github.com/pydio/cells/v5/common"
 	"github.com/pydio/cells/v5/common/config"
 	"github.com/pydio/cells/v5/common/config/routing"
+	"github.com/pydio/cells/v5/common/middleware/keys"
 	"github.com/pydio/cells/v5/common/proto/install"
 	"github.com/pydio/cells/v5/common/telemetry/tracing"
 	"github.com/pydio/cells/v5/common/utils/cache"
 	"github.com/pydio/cells/v5/common/utils/cache/gocache"
 	"github.com/pydio/cells/v5/common/utils/configx"
 	"github.com/pydio/cells/v5/common/utils/openurl"
+	"github.com/pydio/cells/v5/common/utils/propagator"
 )
 
 var (
@@ -99,7 +101,8 @@ func (pc *ProviderContextualizer) Config(ctx context.Context, provider *hconfx.P
 	}
 	site, rootURL, ok := routing.SiteFromContext(ctx, sites)
 	if !ok || rootURL == nil {
-		panic("cannot find site from context")
+		h, _ := propagator.CanonicalMeta(ctx, keys.HttpMetaHost)
+		panic("cannot find site from context - incoming host was: '" + h + "'")
 	}
 
 	prov := &hconfx.Provider{}
