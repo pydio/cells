@@ -24,6 +24,7 @@ import (
 	restful "github.com/emicklei/go-restful/v3"
 
 	"github.com/pydio/cells/v5/common/client/commons"
+	"github.com/pydio/cells/v5/common/errors"
 	"github.com/pydio/cells/v5/common/nodes/compose"
 	"github.com/pydio/cells/v5/common/proto/rest"
 	"github.com/pydio/cells/v5/common/proto/tree"
@@ -40,6 +41,9 @@ func (h *Handler) Lookup(req *restful.Request, resp *restful.Response) error {
 	coll := &rest.NodeCollection{}
 	var nn []*tree.Node
 	var er error
+	if input.Input == nil {
+		return errors.WithMessage(errors.InvalidParameters, "please provide at least Locators or Query")
+	}
 
 	switch input.Input.(type) {
 	case *rest.LookupRequest_Query:
@@ -59,23 +63,46 @@ func (h *Handler) Lookup(req *restful.Request, resp *restful.Response) error {
 		coll.Nodes = h.TreeNodesToNodes(nn)
 
 	case *rest.LookupRequest_Locators:
-		// Switch to Tree Nodes
-		metaRequest := &rest.GetBulkMetaRequest{
-			AllMetaProviders: !tree.StatFlags(input.GetStatFlags()).MinimalMetas(),
-			Offset:           int32(input.GetOffset()),
-			Limit:            int32(input.GetLimit()),
-			SortField:        input.GetSortField(),
-			SortDirDesc:      input.GetSortDirDesc(),
+		if len(input.GetLocators().Many) == 0 {
+			return errors.WithMessage(errors.InvalidParameters, "please provide at least path or uuid for locators")
 		}
-		// Todo: Handle Uuid Case ?
+		var byUuids []string
+		var byPaths []string
 		for _, l := range input.GetLocators().Many {
-			metaRequest.NodePaths = append(metaRequest.NodePaths, l.GetPath())
+			if l.GetPath() != "" {
+				byPaths = append(byPaths, l.GetPath())
+			} else if u := l.GetUuid(); u != "" {
+				byUuids = append(byUuids, u)
+			}
 		}
-		nn, coll.Pagination, er = h.TreeHandler.LoadNodes(ctx, metaRequest)
-		if er != nil {
-			return er
+		if len(byPaths) > 0 && len(byUuids) > 0 {
+			return errors.WithMessage(errors.InvalidParameters, "do not mix uuid and path locators")
+		} else if len(byPaths) == 0 && len(byUuids) == 0 {
+			return errors.WithMessage(errors.InvalidParameters, "please provide at least path or uuid for locators")
+		} else if len(byPaths) > 0 {
+			// Use TreeHandler
+			nn, coll.Pagination, er = h.TreeHandler.LoadNodes(ctx, &rest.GetBulkMetaRequest{
+				NodePaths:        byPaths,
+				AllMetaProviders: !tree.StatFlags(input.GetStatFlags()).MinimalMetas(),
+				Offset:           int32(input.GetOffset()),
+				Limit:            int32(input.GetLimit()),
+				SortField:        input.GetSortField(),
+				SortDirDesc:      input.GetSortDirDesc(),
+			})
+			if er != nil {
+				return er
+			}
+			coll.Nodes = h.TreeNodesToNodes(nn)
+		} else {
+			router := h.UuidClient(true)
+			for _, u := range byUuids {
+				if rr, er := router.ReadNode(ctx, &tree.ReadNodeRequest{Node: &tree.Node{Uuid: u}}); er != nil {
+					return er
+				} else {
+					coll.Nodes = append(coll.Nodes, h.TreeNodeToNode(rr.GetNode()))
+				}
+			}
 		}
-		coll.Nodes = h.TreeNodesToNodes(nn)
 	}
 
 	return resp.WriteEntity(coll)
