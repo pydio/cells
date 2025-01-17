@@ -26,6 +26,7 @@ import (
 
 	"github.com/pydio/cells/v5/common/errors"
 	"github.com/pydio/cells/v5/common/utils/configx"
+	"github.com/pydio/cells/v5/common/utils/kv"
 	"github.com/pydio/cells/v5/common/utils/openurl"
 	"github.com/pydio/cells/v5/common/utils/propagator"
 	"github.com/pydio/cells/v5/common/utils/std"
@@ -217,4 +218,26 @@ func GetAndWatch(ctx context.Context, store Store, configPath []string, callback
 		}
 		watcher.Stop()
 	}()
+}
+
+func NewStore(opt ...configx.Option) (st Store) {
+	opts := configx.Options{}
+	for _, o := range opt {
+		o(&opts)
+	}
+
+	s := kv.NewStore()
+	w := watch.NewWatcher(s)
+
+	st = newStoreWithWatcher(s, w)
+
+	if opts.Encrypter != nil {
+		st = storeWithEncrypter{
+			Store:     s,
+			Encrypter: opts.Encrypter,
+			Decrypter: opts.Decrypter,
+		}
+	}
+
+	return st
 }

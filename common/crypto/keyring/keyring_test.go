@@ -1,3 +1,4 @@
+//go:build ignore
 // +build ignore
 
 /*
@@ -20,7 +21,7 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-package crypto
+package keyring
 
 // These tests are currently disabled for the build:
 // 1. they do not pass on the automated build and CI environment,
@@ -32,7 +33,7 @@ package crypto
 import (
 	"testing"
 
-	"github.com/zalando/go-keyring"
+	keyring "github.com/zalando/go-keyring"
 
 	. "github.com/smartystreets/goconvey/convey"
 )

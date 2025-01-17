@@ -1,6 +1,8 @@
-package crypto
+package keyring
 
-import "github.com/zalando/go-keyring"
+import (
+	keyring "github.com/zalando/go-keyring"
+)
 
 type stdProvider struct {
 }

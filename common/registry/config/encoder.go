@@ -1,16 +1,17 @@
-package config
+package configregistry
 
 import (
 	"context"
 
 	"github.com/spf13/cast"
 
+	"github.com/pydio/cells/v5/common/config"
 	"github.com/pydio/cells/v5/common/utils/configx"
 )
 
 // storeWithEncoder embeds Viper to extend its behavior
 type storeWithEncoder struct {
-	Store
+	config.Store
 
 	configx.Unmarshaler
 	configx.Marshaller
@@ -111,15 +112,10 @@ func (s storeWithEncoderValues) String() string {
 }
 
 func (s storeWithEncoderValues) Set(data any) error {
-	switch v := data.(type) {
-	case []byte:
-		var a any
-		if err := s.Unmarshaler.Unmarshal(v, &a); err != nil {
-			return err
-		}
-
-		return s.Values.Set(a)
+	b, err := s.Marshaller.Marshal(data)
+	if err != nil {
+		return err
 	}
 
-	return s.Values.Set(data)
+	return s.Values.Set(b)
 }

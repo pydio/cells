@@ -23,6 +23,7 @@ package server
 import (
 	"context"
 	"fmt"
+	"sync"
 	"time"
 
 	"github.com/pkg/errors"
@@ -73,6 +74,9 @@ type server struct {
 	S     RawServer
 	Opts  *Options
 	links []registry.Item
+
+	lock    sync.Mutex
+	stopped bool
 }
 
 var servers []Server
@@ -181,10 +185,17 @@ func (s *server) Serve(oo ...ServeOption) (outErr error) {
 }
 
 func (s *server) Stop(oo ...registry.RegisterOption) error {
+	s.lock.Lock()
+	defer s.lock.Unlock()
+	if s.stopped {
+		return nil
+	}
 
 	if err := s.S.Stop(); err != nil {
 		return err
 	}
+
+	s.stopped = true
 
 	opts := &registry.RegisterOptions{}
 	for _, o := range oo {

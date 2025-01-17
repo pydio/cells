@@ -16,8 +16,8 @@ func (e encrypter) Set(data any) error {
 	return e.Values.Set(data)
 }
 
-func (e encrypter) Get(wo ...WalkOption) any {
-	v := e.Values.Get(wo...)
+func (e encrypter) Get() any {
+	v := e.Values.Get()
 
 	switch vv := v.(type) {
 	case []byte:

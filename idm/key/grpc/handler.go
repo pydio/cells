@@ -32,6 +32,7 @@ import (
 
 	"github.com/pydio/cells/v5/common"
 	"github.com/pydio/cells/v5/common/crypto"
+	"github.com/pydio/cells/v5/common/crypto/keyring"
 	"github.com/pydio/cells/v5/common/errors"
 	enc "github.com/pydio/cells/v5/common/proto/encryption"
 	"github.com/pydio/cells/v5/common/runtime/manager"
@@ -325,8 +326,8 @@ func (ukm *userKeyStore) masterFromCache(ctx context.Context) (master []byte, er
 	}
 
 	// Compute and cache
-	var kr crypto.Keyring
-	if !propagator.Get(ctx, crypto.KeyringContextKey, &kr) {
+	var kr keyring.Keyring
+	if !propagator.Get(ctx, keyring.KeyringContextKey, &kr) {
 		return nil, fmt.Errorf("cannot find Keyring in context")
 	}
 	masterPasswordStr, err := kr.Get(common.ServiceGrpcNamespace_+common.ServiceUserKey, common.KeyringMasterKey)

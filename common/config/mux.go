@@ -8,6 +8,7 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/pydio/cells/v5/common/crypto"
 	"github.com/pydio/cells/v5/common/utils/configx"
 	"github.com/pydio/cells/v5/common/utils/openurl"
 )
@@ -18,7 +19,7 @@ import (
 //
 // This interface is generally implemented by types in driver packages.
 type URLOpener interface {
-	Open(ctx context.Context, urlstr string) (Store, error)
+	Open(ctx context.Context, urlstr string, base Store) (Store, error)
 }
 
 // URLMux is a URL opener multiplexer. It matches the scheme of the URLs
@@ -45,12 +46,12 @@ func (mux *URLMux) Register(scheme string, opener URLOpener) {
 
 // OpenStore calls OpenURL with the URL parsed from urlstr.
 // OpenStore is safe to call from multiple goroutines.
-func (mux *URLMux) OpenStore(ctx context.Context, urlstr string) (Store, error) {
+func (mux *URLMux) OpenStore(ctx context.Context, urlstr string, base Store) (Store, error) {
 	opener, _, err := mux.schemes.FromString("Config", urlstr)
 	if err != nil {
 		return nil, err
 	}
-	return opener.(URLOpener).Open(ctx, urlstr)
+	return opener.(URLOpener).Open(ctx, urlstr, base)
 }
 
 var defaultURLMux = &URLMux{}
@@ -73,13 +74,6 @@ func OpenStore(ctx context.Context, urlstr string) (Store, error) {
 		return nil, err
 	}
 
-	st, err := defaultURLMux.OpenStore(ctx, urlstr)
-	if err != nil {
-		return nil, err
-	}
-
-	//st = NewStoreWithReferencePool(st, PoolFromURL(ctx, u, OpenStore))
-
 	opts := configx.Options{}
 
 	encode := u.Query().Get("encode")
@@ -93,6 +87,11 @@ func OpenStore(ctx context.Context, urlstr string) (Store, error) {
 	default:
 		configx.WithJSON()(&opts)
 	}
+
+	var st Store
+
+	st = NewStore()
+	//st = kv.NewStore()
 
 	if opts.Unmarshaler != nil {
 		st = &storeWithEncoder{Store: st, Unmarshaler: opts.Unmarshaler, Marshaller: opts.Marshaller}
@@ -136,9 +135,23 @@ func OpenStore(ctx context.Context, urlstr string) (Store, error) {
 		}
 	}
 
+	if master := u.Query().Get("masterKey"); master != "" {
+		enc, err := crypto.NewVaultCipher(master)
+		if err != nil {
+			return nil, err
+		}
+
+		st = storeWithEncrypter{Store: st, Encrypter: enc, Decrypter: enc}
+	}
+
 	rp := PoolFromURL(ctx, u, OpenStore)
 
 	st = newStoreWithRefPool(st, rp)
+
+	st, err = defaultURLMux.OpenStore(ctx, urlstr, st)
+	if err != nil {
+		return nil, err
+	}
 
 	return st, nil
 }

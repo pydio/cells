@@ -288,6 +288,9 @@ func (r *receiver) Next() (interface{}, error) {
 }
 
 func (r *receiver) Stop() {
+	if r.closed {
+		return
+	}
 	r.sendLock.Lock()
 	r.closed = true
 	close(r.ch)

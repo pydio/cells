@@ -1,4 +1,4 @@
-package kv
+package configregistry
 
 import (
 	"context"
@@ -9,6 +9,7 @@ import (
 
 	"github.com/pydio/cells/v5/common/config"
 	"github.com/pydio/cells/v5/common/utils/configx"
+	"github.com/pydio/cells/v5/common/utils/kv"
 	"github.com/pydio/cells/v5/common/utils/watch"
 )
 
@@ -18,7 +19,7 @@ type storeWithWatcher struct {
 }
 
 func newStoreWithWatcher(store config.Store, watcher watch.Watcher) config.Store {
-	s := &storeWithWatcher{
+	s := storeWithWatcher{
 		Store: store,
 		w:     watcher,
 	}
@@ -26,28 +27,28 @@ func newStoreWithWatcher(store config.Store, watcher watch.Watcher) config.Store
 	return s
 }
 
-func (m *storeWithWatcher) Context(ctx context.Context) configx.Values {
-	return &storeWithWatcherValues{
+func (m storeWithWatcher) Context(ctx context.Context) configx.Values {
+	return storeWithWatcherValues{
 		Values: m.Store.Context(ctx),
 		w:      m.w,
 	}
 }
 
-func (m *storeWithWatcher) Default(d any) configx.Values {
-	return &storeWithWatcherValues{
+func (m storeWithWatcher) Default(d any) configx.Values {
+	return storeWithWatcherValues{
 		Values: m.Store.Default(d),
 		w:      m.w,
 	}
 }
 
-func (m *storeWithWatcher) Val(path ...string) configx.Values {
-	return &storeWithWatcherValues{
+func (m storeWithWatcher) Val(path ...string) configx.Values {
+	return storeWithWatcherValues{
 		Values: m.Store.Val(path...),
 		w:      m.w,
 	}
 }
 
-func (m *storeWithWatcher) Watch(opts ...watch.WatchOption) (watch.Receiver, error) {
+func (m storeWithWatcher) Watch(opts ...watch.WatchOption) (watch.Receiver, error) {
 	wo := &watch.WatchOptions{}
 	for _, o := range opts {
 		o(wo)
@@ -61,13 +62,13 @@ func (m *storeWithWatcher) Watch(opts ...watch.WatchOption) (watch.Receiver, err
 	if wo.ChangesOnly {
 		return &receiverWithStoreChangesOnly{
 			Receiver: r,
-			Values:   NewStore().Val(),
+			Values:   kv.NewStore().Val(),
 			level:    len(wo.Path),
 		}, nil
 	} else {
 		return &receiverWithStore{
 			Receiver: r,
-			Values:   NewStore().Val(),
+			Values:   kv.NewStore().Val(),
 		}, nil
 	}
 }
@@ -77,28 +78,28 @@ type storeWithWatcherValues struct {
 	w watch.Watcher
 }
 
-func (m *storeWithWatcherValues) Context(ctx context.Context) configx.Values {
-	return &storeWithWatcherValues{
+func (m storeWithWatcherValues) Context(ctx context.Context) configx.Values {
+	return storeWithWatcherValues{
 		Values: m.Values.Context(ctx),
 		w:      m.w,
 	}
 }
 
-func (m *storeWithWatcherValues) Default(d any) configx.Values {
-	return &storeWithWatcherValues{
+func (m storeWithWatcherValues) Default(d any) configx.Values {
+	return storeWithWatcherValues{
 		Values: m.Values.Default(d),
 		w:      m.w,
 	}
 }
 
-func (m *storeWithWatcherValues) Val(path ...string) configx.Values {
-	return &storeWithWatcherValues{
+func (m storeWithWatcherValues) Val(path ...string) configx.Values {
+	return storeWithWatcherValues{
 		Values: m.Values.Val(path...),
 		w:      m.w,
 	}
 }
 
-func (m *storeWithWatcherValues) Set(value any) error {
+func (m storeWithWatcherValues) Set(value any) error {
 	if err := m.Values.Set(value); err != nil {
 		return err
 	}
@@ -108,7 +109,7 @@ func (m *storeWithWatcherValues) Set(value any) error {
 	return nil
 }
 
-func (m *storeWithWatcherValues) Del() error {
+func (m storeWithWatcherValues) Del() error {
 	if err := m.Values.Del(); err != nil {
 		return err
 	}
@@ -156,7 +157,7 @@ func (r *receiverWithStoreChangesOnly) Next() (any, error) {
 		return nil, err
 	}
 
-	res := newStore()
+	res := kv.NewStore().Val()
 
 	changes, ok := a.([]diff.Change)
 	if !ok {

@@ -28,7 +28,9 @@ import (
 	"os"
 	"strings"
 	"sync"
+	"time"
 
+	clientv3 "go.etcd.io/etcd/client/v3"
 	"go.uber.org/zap"
 
 	"github.com/pydio/cells/v5/common/config"
@@ -39,6 +41,7 @@ import (
 	"github.com/pydio/cells/v5/common/telemetry/log"
 	"github.com/pydio/cells/v5/common/utils/configx"
 	"github.com/pydio/cells/v5/common/utils/kv"
+	"github.com/pydio/cells/v5/common/utils/kv/etcd"
 	"github.com/pydio/cells/v5/common/utils/uuid"
 	"github.com/pydio/cells/v5/common/utils/watch"
 )
@@ -80,68 +83,44 @@ func (o *URLOpener) openURL(ctx context.Context, u *url.URL) (registry.Registry,
 
 	byName := u.Query().Get("byname") == "true"
 
-	var opts []configx.Option
-	encode := u.Query().Get("encoding")
-	switch encode {
-	case "string":
-		opts = append(opts, configx.WithString())
-	case "yaml":
-		opts = append(opts, configx.WithYAML())
-	case "json":
-		opts = append(opts, configx.WithJSON())
-	case "jsonitem":
-		opts = append(opts, WithJSONItem())
-	default:
-		if strings.HasPrefix(u.Scheme, "etcd") {
-			opts = append(opts, WithJSONItem())
-		}
-	}
-
-	// Init store
-	opts = append(opts, configx.WithInitData(map[string]interface{}{
-		//"node":     &sync.Map{},
-		//"service":  &sync.Map{},
-		//"edge":     &sync.Map{},
-		//"dao":      &sync.Map{},
-		//"server":   &sync.Map{},
-		//"address":  &sync.Map{},
-		//"endpoint": &sync.Map{},
-		//"tag":      &sync.Map{},
-		//"stats":    &sync.Map{},
-		//"generic":  &sync.Map{},
-		//"other":    &sync.Map{},
-	}))
-
 	switch strings.TrimSuffix(u.Scheme, "+tls") {
-	//case "etcd":
-	//	addr := "://" + u.Host
-	//	if o.tlsConfig == nil {
-	//		addr = "http" + addr
-	//	} else {
-	//		addr = "https" + addr
-	//	}
-	//
-	//	// Registry via etcd
-	//	pwd, _ := u.User.Password()
-	//
-	//	// Registry via etcd
-	//	etcdConn, err := clientv3.New(clientv3.Config{
-	//		Endpoints:   []string{addr},
-	//		DialTimeout: 2 * time.Second,
-	//		Username:    u.User.Username(),
-	//		Password:    pwd,
-	//		TLS:         o.tlsConfig,
-	//	})
-	//
-	//	if err != nil {
-	//		return nil, err
-	//	}
-	//
-	//	store, err := etcd.NewSource(ctx, etcdConn, u.Path, 10, true, opts...)
-	//	if err != nil {
-	//		return nil, err
-	//	}
-	//	reg = NewConfigRegistry(store, byName)
+	case "etcd":
+		addr := "://" + u.Host
+		if o.tlsConfig == nil {
+			addr = "http" + addr
+		} else {
+			addr = "https" + addr
+		}
+
+		// Registry via etcd
+		pwd, _ := u.User.Password()
+
+		// Registry via etcd
+		etcdConn, err := clientv3.New(clientv3.Config{
+			Endpoints:   []string{addr},
+			DialTimeout: 2 * time.Second,
+			Username:    u.User.Username(),
+			Password:    pwd,
+			TLS:         o.tlsConfig,
+		})
+
+		if err != nil {
+			return nil, err
+		}
+
+		opts := configx.Options{}
+		WithJSONItem()(&opts)
+
+		var store config.Store
+
+		store, err = etcd.NewStore(ctx, kv.NewStore().Val(), etcdConn, u.Path, 10)
+		if err != nil {
+			return nil, err
+		}
+		// TODO - move the store with encoder in kv ?
+		store = storeWithEncoder{Store: store, Unmarshaler: opts.Unmarshaler, Marshaller: opts.Marshaller}
+
+		reg = NewConfigRegistry(store, byName)
 	//case "file":
 	//	store, err := file.New(u.Path, opts...)
 	//	if err != nil {
@@ -150,8 +129,8 @@ func (o *URLOpener) openURL(ctx context.Context, u *url.URL) (registry.Registry,
 	//	reg = NewConfigRegistry(store, byName)
 	case "mem":
 		store := kv.NewStore()
-
-		reg = NewConfigRegistry(store, byName)
+		st := newStoreWithWatcher(store, watch.NewWatcher(store))
+		reg = NewConfigRegistry(st, byName)
 	}
 
 	return registry.GraphRegistry(reg), nil

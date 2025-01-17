@@ -36,7 +36,7 @@ func newStoreWithRefPool(v Store, rp map[string]*openurl.Pool[Store]) Store {
 	}
 
 	// Adding wrapper to have a watcher for each pool of stores
-	return &storeWithRefPool{
+	return storeWithRefPool{
 		Store:    v,
 		refPool:  rp,
 		watchers: watchers,
@@ -44,7 +44,7 @@ func newStoreWithRefPool(v Store, rp map[string]*openurl.Pool[Store]) Store {
 }
 
 // resolveRef resolves a $ref value and returns the referenced data.
-func (ev *storeWithRefPool) resolveRef(ref any) (Store, string, bool) {
+func (ev storeWithRefPool) resolveRef(ref any) (Store, string, bool) {
 	refStr, err := strconv.Unquote(cast.ToString(ref))
 	if err != nil {
 		refStr = cast.ToString(ref)
@@ -64,7 +64,7 @@ func (ev *storeWithRefPool) resolveRef(ref any) (Store, string, bool) {
 	return nil, "", false
 }
 
-func (ev *storeWithRefPool) Watch(opts ...watch.WatchOption) (watch.Receiver, error) {
+func (ev storeWithRefPool) Watch(opts ...watch.WatchOption) (watch.Receiver, error) {
 	wo := &watch.WatchOptions{}
 	for _, o := range opts {
 		o(wo)
@@ -157,7 +157,7 @@ func (ev *storeWithRefPool) Watch(opts ...watch.WatchOption) (watch.Receiver, er
 	return watch.NewCombinedReceiver(receivers), nil
 }
 
-func (ev *storeWithRefPool) Close(ctx context.Context) error {
+func (ev storeWithRefPool) Close(ctx context.Context) error {
 	for _, onClose := range ev.onClose {
 		onClose()
 	}
@@ -165,22 +165,22 @@ func (ev *storeWithRefPool) Close(ctx context.Context) error {
 	return ev.Store.Close(ctx)
 }
 
-func (ev *storeWithRefPool) Context(ctx context.Context) configx.Values {
-	return &storeWithRefPoolValues{
+func (ev storeWithRefPool) Context(ctx context.Context) configx.Values {
+	return storeWithRefPoolValues{
 		Values:  ev.Store.Context(ctx),
 		refPool: ev.refPool,
 	}
 }
 
-func (ev *storeWithRefPool) Default(d any) configx.Values {
-	return &storeWithRefPoolValues{
+func (ev storeWithRefPool) Default(d any) configx.Values {
+	return storeWithRefPoolValues{
 		Values:  ev.Store.Default(d),
 		refPool: ev.refPool,
 	}
 }
 
-func (ev *storeWithRefPool) Val(path ...string) configx.Values {
-	return &storeWithRefPoolValues{
+func (ev storeWithRefPool) Val(path ...string) configx.Values {
+	return storeWithRefPoolValues{
 		Values:  ev.Store.Val(path...),
 		refPool: ev.refPool,
 	}
@@ -192,7 +192,7 @@ type storeWithRefPoolValues struct {
 }
 
 // resolveRef resolves a $ref value and returns the referenced data.
-func (ev *storeWithRefPoolValues) resolveRef(ref any) (configx.Values, string, bool) {
+func (ev storeWithRefPoolValues) resolveRef(ref any) (configx.Values, string, bool) {
 	refStr, err := strconv.Unquote(cast.ToString(ref))
 	if err != nil {
 		refStr = cast.ToString(ref)
@@ -213,29 +213,29 @@ func (ev *storeWithRefPoolValues) resolveRef(ref any) (configx.Values, string, b
 	return nil, "", false
 }
 
-func (ev *storeWithRefPoolValues) Context(ctx context.Context) configx.Values {
-	return &storeWithRefPoolValues{
+func (ev storeWithRefPoolValues) Context(ctx context.Context) configx.Values {
+	return storeWithRefPoolValues{
 		Values:  ev.Values.Context(ctx),
 		refPool: ev.refPool,
 	}
 }
 
-func (ev *storeWithRefPoolValues) Default(d any) configx.Values {
-	return &storeWithRefPoolValues{
+func (ev storeWithRefPoolValues) Default(d any) configx.Values {
+	return storeWithRefPoolValues{
 		Values:  ev.Values.Default(d),
 		refPool: ev.refPool,
 	}
 }
 
-func (ev *storeWithRefPoolValues) Val(path ...string) configx.Values {
-	return &storeWithRefPoolValues{
+func (ev storeWithRefPoolValues) Val(path ...string) configx.Values {
+	return storeWithRefPoolValues{
 		Values:  ev.Values.Val(path...),
 		refPool: ev.refPool,
 	}
 }
 
 // Get overrides the Viper Get method to support slice indexing
-func (ev *storeWithRefPoolValues) get() configx.Values {
+func (ev storeWithRefPoolValues) get() configx.Values {
 	parts := ev.Key()
 
 	var current any = ev.Values.Val("#").Get() // Start from the root configuration
@@ -286,7 +286,7 @@ func (ev *storeWithRefPoolValues) get() configx.Values {
 }
 
 // Set overrides the Viper Set method to support slice indexing
-func (ev *storeWithRefPoolValues) Set(data any) error {
+func (ev storeWithRefPoolValues) Set(data any) error {
 	parts := ev.Key()
 
 	// Start with the root settings
@@ -344,15 +344,15 @@ func (ev *storeWithRefPoolValues) Set(data any) error {
 	return ev.Values.Set(data)
 }
 
-func (ev *storeWithRefPoolValues) Get(opts ...configx.WalkOption) any {
+func (ev storeWithRefPoolValues) Get() any {
 	if vv := ev.get(); vv != nil {
-		return vv.Get(opts...)
+		return vv.Get()
 	}
 
-	return ev.Values.Get(opts...)
+	return ev.Values.Get()
 }
 
-func (ev *storeWithRefPoolValues) Bool() bool {
+func (ev storeWithRefPoolValues) Bool() bool {
 	if vv := ev.get(); vv != nil {
 		return vv.Bool()
 	}
@@ -360,7 +360,7 @@ func (ev *storeWithRefPoolValues) Bool() bool {
 	return ev.Values.Bool()
 }
 
-func (ev *storeWithRefPoolValues) Bytes() []byte {
+func (ev storeWithRefPoolValues) Bytes() []byte {
 	if vv := ev.get(); vv != nil {
 		return vv.Bytes()
 	}
@@ -368,7 +368,7 @@ func (ev *storeWithRefPoolValues) Bytes() []byte {
 	return ev.Values.Bytes()
 }
 
-func (ev *storeWithRefPoolValues) Interface() interface{} {
+func (ev storeWithRefPoolValues) Interface() interface{} {
 	if vv := ev.get(); vv != nil {
 		return vv.Interface()
 	}
@@ -376,7 +376,7 @@ func (ev *storeWithRefPoolValues) Interface() interface{} {
 	return ev.Values.Interface()
 }
 
-func (ev *storeWithRefPoolValues) Int() int {
+func (ev storeWithRefPoolValues) Int() int {
 	if vv := ev.get(); vv != nil {
 		return vv.Int()
 	}
@@ -384,7 +384,7 @@ func (ev *storeWithRefPoolValues) Int() int {
 	return ev.Values.Int()
 }
 
-func (ev *storeWithRefPoolValues) Int64() int64 {
+func (ev storeWithRefPoolValues) Int64() int64 {
 	if vv := ev.get(); vv != nil {
 		return vv.Int64()
 	}
@@ -392,7 +392,7 @@ func (ev *storeWithRefPoolValues) Int64() int64 {
 	return ev.Values.Int64()
 }
 
-func (ev *storeWithRefPoolValues) Duration() time.Duration {
+func (ev storeWithRefPoolValues) Duration() time.Duration {
 	if vv := ev.get(); vv != nil {
 		return vv.Duration()
 	}
@@ -400,7 +400,7 @@ func (ev *storeWithRefPoolValues) Duration() time.Duration {
 	return ev.Values.Duration()
 }
 
-func (ev *storeWithRefPoolValues) StringMap() map[string]string {
+func (ev storeWithRefPoolValues) StringMap() map[string]string {
 	if vv := ev.get(); vv != nil {
 		return vv.StringMap()
 	}
@@ -408,7 +408,7 @@ func (ev *storeWithRefPoolValues) StringMap() map[string]string {
 	return ev.Values.StringMap()
 }
 
-func (ev *storeWithRefPoolValues) StringArray() []string {
+func (ev storeWithRefPoolValues) StringArray() []string {
 	if vv := ev.get(); vv != nil {
 		return vv.StringArray()
 	}
@@ -416,7 +416,7 @@ func (ev *storeWithRefPoolValues) StringArray() []string {
 	return ev.Values.StringArray()
 }
 
-func (ev *storeWithRefPoolValues) Slice() []interface{} {
+func (ev storeWithRefPoolValues) Slice() []interface{} {
 	if vv := ev.get(); vv != nil {
 		return vv.Slice()
 	}
@@ -424,7 +424,7 @@ func (ev *storeWithRefPoolValues) Slice() []interface{} {
 	return ev.Values.Slice()
 }
 
-func (ev *storeWithRefPoolValues) Map() map[string]interface{} {
+func (ev storeWithRefPoolValues) Map() map[string]interface{} {
 	if vv := ev.get(); vv != nil {
 		return vv.Map()
 	}
@@ -432,7 +432,7 @@ func (ev *storeWithRefPoolValues) Map() map[string]interface{} {
 	return ev.Values.Map()
 }
 
-func (ev *storeWithRefPoolValues) Scan(out any, options ...configx.Option) error {
+func (ev storeWithRefPoolValues) Scan(out any, options ...configx.Option) error {
 	if vv := ev.get(); vv != nil {
 		return vv.Scan(out, options...)
 	}
@@ -440,7 +440,7 @@ func (ev *storeWithRefPoolValues) Scan(out any, options ...configx.Option) error
 	return ev.Values.Scan(out, options...)
 }
 
-func (ev *storeWithRefPoolValues) String() string {
+func (ev storeWithRefPoolValues) String() string {
 	if vv := ev.get(); vv != nil {
 		return vv.String()
 	}

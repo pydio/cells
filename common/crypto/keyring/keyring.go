@@ -18,7 +18,7 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-package crypto
+package keyring
 
 import (
 	"encoding/base64"
@@ -27,6 +27,7 @@ import (
 
 	keyring "github.com/zalando/go-keyring"
 
+	"github.com/pydio/cells/v5/common/crypto"
 	"github.com/pydio/cells/v5/common/utils/propagator"
 )
 
@@ -80,7 +81,7 @@ func (k *autoCreateKeyring) Get(service string, user string) (string, error) {
 		return password, nil
 	}
 
-	b, err := RandomBytes(50)
+	b, err := crypto.RandomBytes(50)
 	if err != nil {
 		return "", err
 	}
@@ -117,7 +118,7 @@ func GetKeyringPassword(service string, user string, createIfNotExist bool) ([]b
 		return nil, nil
 	}
 
-	k, err := RandomBytes(50)
+	k, err := crypto.RandomBytes(50)
 	if err != nil {
 		return nil, err
 	}

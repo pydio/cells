@@ -2,6 +2,7 @@ package watch
 
 import (
 	"io"
+	"sync"
 )
 
 var _ Receiver = (*combinedReceiver)(nil)
@@ -15,6 +16,8 @@ type combinedReceiver struct {
 	rr   []Receiver
 	n    chan *event
 	done chan struct{}
+
+	stopOnce sync.Once
 }
 
 func NewCombinedReceiver(rr []Receiver) Receiver {
@@ -55,7 +58,9 @@ func (c *combinedReceiver) Next() (interface{}, error) {
 }
 
 func (c *combinedReceiver) Stop() {
-	close(c.done)
+	c.stopOnce.Do(func() {
+		close(c.done)
+	})
 
 	for _, r := range c.rr {
 		r.Stop()

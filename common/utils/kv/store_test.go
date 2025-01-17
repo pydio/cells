@@ -6,7 +6,6 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
-	"github.com/pydio/cells/v5/common/config"
 	"github.com/pydio/cells/v5/common/utils/configx"
 	"github.com/pydio/cells/v5/common/utils/watch"
 )
@@ -15,11 +14,6 @@ func TestMemory(t *testing.T) {
 
 	store := NewStore()
 
-	// Define test cases
-	testSetAndGet(t, store)
-}
-
-func testSetAndGet(t *testing.T, store config.Store) {
 	tests := []struct {
 		name           string
 		setKey         string
