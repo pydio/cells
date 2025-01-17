@@ -129,8 +129,8 @@ func (o *URLOpener) openURL(ctx context.Context, u *url.URL) (registry.Registry,
 	//	reg = NewConfigRegistry(store, byName)
 	case "mem":
 		store := kv.NewStore()
-
-		reg = NewConfigRegistry(store, byName)
+		st := newStoreWithWatcher(store, watch.NewWatcher(store))
+		reg = NewConfigRegistry(st, byName)
 	}
 
 	return registry.GraphRegistry(reg), nil
