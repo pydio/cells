@@ -133,9 +133,8 @@ func TestRoleWithRules(t *testing.T) {
 			So(err, ShouldBeNil)
 			So(resp.GetRole().GetUuid(), ShouldEqual, "role-res")
 
-			err = dao.AddPolicy(ctx, "role-res", &service.ResourcePolicy{
-				Action:  service.ResourcePolicyAction_READ,
-				Subject: "user:subject-name",
+			_, err = dao.AddPolicies(ctx, false, "role-res", []*service.ResourcePolicy{
+				{Action: service.ResourcePolicyAction_READ, Subject: "user:subject-name"},
 			})
 			So(err, ShouldBeNil)
 

@@ -58,19 +58,23 @@ func (s *gormImpl) AddPolicy(ctx context.Context, resourceId string, policy *ser
 }
 
 // AddPolicies persists a set of policies. If update is true, it replace them by deleting existing ones
-func (s *gormImpl) AddPolicies(ctx context.Context, update bool, resourceId string, policies []*service.ResourcePolicy) error {
-	return s.instance(ctx).Transaction(func(tx *gorm.DB) error {
+func (s *gormImpl) AddPolicies(ctx context.Context, update bool, resourceId string, rules []*service.ResourcePolicy) ([]*service.ResourcePolicy, error) {
+	var out []*service.ResourcePolicy
+	return out, s.instance(ctx).Transaction(func(tx *gorm.DB) error {
 		if update {
 			if err := tx.Where(&service.ResourcePolicy{Resource: resourceId}).Delete(&service.ResourcePolicy{}).Error; err != nil {
 				return err
 			}
 		}
 
-		for _, policy := range policies {
+		for _, policy := range rules {
 			pol := proto.Clone(policy).(*service.ResourcePolicy)
+			pol.Id = 0
 			pol.Resource = resourceId
 			if err := tx.Create(pol).Error; err != nil {
 				return err
+			} else {
+				out = append(out, pol)
 			}
 		}
 

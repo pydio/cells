@@ -61,8 +61,8 @@ func (h *Handler) CreateWorkspace(ctx context.Context, req *idm.CreateWorkspaceR
 	update, err := dao.Add(ctx, req.Workspace)
 	// ADD POLICIES
 	if len(req.Workspace.Policies) > 0 {
-		if e := dao.AddPolicies(ctx, update, req.Workspace.UUID, req.Workspace.Policies); e != nil {
-			return nil, e
+		if req.Workspace.Policies, err = dao.AddPolicies(ctx, update, req.Workspace.UUID, req.Workspace.Policies); err != nil {
+			return nil, err
 		}
 	}
 	resp := &idm.CreateWorkspaceResponse{

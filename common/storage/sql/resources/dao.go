@@ -33,8 +33,7 @@ import (
 type DAO interface {
 	Migrate(ctx context.Context) error
 
-	AddPolicy(ctx context.Context, resourceId string, policy *service.ResourcePolicy) error
-	AddPolicies(ctx context.Context, update bool, resourceId string, rules []*service.ResourcePolicy) error
+	AddPolicies(ctx context.Context, update bool, resourceId string, rules []*service.ResourcePolicy) ([]*service.ResourcePolicy, error)
 	GetPoliciesForResource(ctx context.Context, resourceId string) ([]*service.ResourcePolicy, error)
 	GetPoliciesForSubject(ctx context.Context, subject string) ([]*service.ResourcePolicy, error)
 	ReplacePoliciesSubject(ctx context.Context, oldSubject, newSubject string) (int, error)

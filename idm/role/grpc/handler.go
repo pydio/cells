@@ -39,7 +39,7 @@ import (
 )
 
 var (
-	defaultPolicies = []pbservice.ResourcePolicy{
+	defaultPolicies = []*pbservice.ResourcePolicy{
 		{Subject: "profile:standard", Action: pbservice.ResourcePolicyAction_READ, Effect: pbservice.ResourcePolicy_allow},
 		{Subject: "profile:admin", Action: pbservice.ResourcePolicyAction_WRITE, Effect: pbservice.ResourcePolicy_allow},
 	}
@@ -74,16 +74,12 @@ func (h *Handler) CreateRole(ctx context.Context, req *idm.CreateRoleRequest) (*
 		return nil, err
 	}
 	resp.Role = r
-	if len(r.Policies) == 0 {
-		r.Policies = make([]*pbservice.ResourcePolicy, len(defaultPolicies))
-		for i, p := range defaultPolicies {
-			v := p
-			r.Policies[i] = &v
-		}
+	insertPols := r.Policies
+	if len(insertPols) == 0 {
+		insertPols = defaultPolicies
 	}
 
-	err = dao.AddPolicies(ctx, update, r.Uuid, r.Policies)
-	if err != nil {
+	if r.Policies, err = dao.AddPolicies(ctx, update, r.Uuid, insertPols); err != nil {
 		return nil, err
 	}
 

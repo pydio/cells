@@ -690,7 +690,7 @@ func TestUserPolicies(t *testing.T) {
 			u, _, err := mockDAO.Add(ctx, us)
 			So(err, ShouldBeNil)
 			So(u, ShouldNotBeNil)
-			err = mockDAO.AddPolicies(ctx, false, u.(*idm.User).Uuid, us.Policies)
+			_, err = mockDAO.AddPolicies(ctx, false, u.(*idm.User).Uuid, us.Policies)
 			So(err, ShouldBeNil)
 
 			// List without ResourcePolicyQuery

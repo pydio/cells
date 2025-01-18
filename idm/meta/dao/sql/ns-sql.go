@@ -120,8 +120,10 @@ func (s *nsSqlImpl) Add(ctx context.Context, ns *idm.UserMetaNamespace) error {
 	}
 
 	if len(ns.Policies) > 0 {
-		if err := s.AddPolicies(ctx, false, ns.Namespace, ns.Policies); err != nil {
+		if pols, err := s.AddPolicies(ctx, false, ns.Namespace, ns.Policies); err != nil {
 			return nsTag(err)
+		} else {
+			ns.Policies = pols
 		}
 	}
 

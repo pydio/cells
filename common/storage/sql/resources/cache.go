@@ -51,14 +51,9 @@ func (c *cacheImpl) getCache(ctx context.Context) cache.Cache {
 	return cache_helper.MustResolveCache(ctx, "short", cacheConfig)
 }
 
-func (c *cacheImpl) AddPolicy(ctx context.Context, resourceId string, policy *service.ResourcePolicy) error {
+func (c *cacheImpl) AddPolicies(ctx context.Context, update bool, resourceId string, rules []*service.ResourcePolicy) ([]*service.ResourcePolicy, error) {
 	_ = c.getCache(ctx).Delete(resourceId)
-	return c.DAO.AddPolicy(ctx, resourceId, policy)
-}
-
-func (c *cacheImpl) AddPolicies(ctx context.Context, update bool, resourceId string, policies []*service.ResourcePolicy) error {
-	_ = c.getCache(ctx).Delete(resourceId)
-	return c.DAO.AddPolicies(ctx, update, resourceId, policies)
+	return c.DAO.AddPolicies(ctx, update, resourceId, rules)
 }
 
 func (c *cacheImpl) DeletePoliciesForResource(ctx context.Context, resourceId string) error {

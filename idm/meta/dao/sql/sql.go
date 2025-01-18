@@ -162,12 +162,11 @@ func (s *sqlimpl) Set(ctx context.Context, meta *idm.UserMeta) (*idm.UserMeta, s
 
 	var err error
 	if len(meta.Policies) > 0 {
-		for _, p := range meta.Policies {
-			// nullify Id for insertion
-			p.Id = 0
-			p.Resource = meta.Uuid
+		if pols, err := s.resourcesDAO.AddPolicies(ctx, update, meta.Uuid, meta.Policies); err != nil {
+			return nil, "", tag(err)
+		} else {
+			meta.Policies = pols
 		}
-		err = s.resourcesDAO.AddPolicies(ctx, update, meta.Uuid, meta.Policies)
 	}
 
 	return meta, prev, tag(err)

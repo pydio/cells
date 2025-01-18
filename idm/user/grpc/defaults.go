@@ -69,7 +69,7 @@ func InitDefaults(ctx context.Context) error {
 			builder = builder.WithProfileRead(common.PydioProfileStandard)
 			builder = builder.WithUserWrite(login)
 			builder = builder.WithProfileWrite(common.PydioProfileAdmin)
-			if err := dao.AddPolicies(ctx, false, newUser.Uuid, builder.Policies()); err != nil {
+			if _, err := dao.AddPolicies(ctx, false, newUser.Uuid, builder.Policies()); err != nil {
 				return err
 			}
 			// Create user role
@@ -101,7 +101,7 @@ func InitDefaults(ctx context.Context) error {
 		builder = builder.WithUserRead(common.PydioS3AnonUsername)
 		builder = builder.WithProfileRead(common.PydioProfileAdmin)
 		builder = builder.WithProfileWrite(common.PydioProfileAdmin)
-		if err := dao.AddPolicies(ctx, false, newAnon.Uuid, builder.Policies()); err != nil {
+		if _, err := dao.AddPolicies(ctx, false, newAnon.Uuid, builder.Policies()); err != nil {
 			return err
 		}
 		// Create user role

@@ -169,7 +169,7 @@ func InitRoles(ctx context.Context) error {
 			continue
 		}
 		log.Logger(ctx).Info(fmt.Sprintf("Created default role %s", insert.Role.Label))
-		if e = dao.AddPolicies(ctx, false, insert.Role.Uuid, insert.Role.Policies); e == nil {
+		if _, e = dao.AddPolicies(ctx, false, insert.Role.Uuid, insert.Role.Policies); e == nil {
 			log.Logger(ctx).Info(fmt.Sprintf(" - Policies added for role %s", insert.Role.Label))
 		} else {
 			break
@@ -240,7 +240,7 @@ func UpgradeTo12(ctx context.Context) error {
 			continue
 		}
 		log.Logger(ctx).Info(fmt.Sprintf("Created role %s", insert.Role.Label))
-		if e = dao.AddPolicies(ctx, false, insert.Role.Uuid, insert.Role.Policies); e == nil {
+		if _, e = dao.AddPolicies(ctx, false, insert.Role.Uuid, insert.Role.Policies); e == nil {
 			log.Logger(ctx).Info(fmt.Sprintf(" - Policies added for role %s", insert.Role.Label))
 		} else {
 			break

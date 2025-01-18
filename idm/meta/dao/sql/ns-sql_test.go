@@ -93,7 +93,7 @@ func TestNSResourceRules(t *testing.T) {
 
 		Convey("Test Add Rule", t, func() {
 
-			err := mockDAO.AddPolicy(ctx, "resource-id-ns", &service.ResourcePolicy{Action: service.ResourcePolicyAction_READ, Subject: "subject1"})
+			_, err := mockDAO.AddPolicies(ctx, false, "resource-id-ns", []*service.ResourcePolicy{{Action: service.ResourcePolicyAction_READ, Subject: "subject1"}})
 			So(err, ShouldBeNil)
 
 		})
@@ -119,9 +119,10 @@ func TestNSResourceRules(t *testing.T) {
 
 		Convey("Delete Rules For Action", t, func() {
 
-			e := mockDAO.AddPolicy(ctx, "resource-id-ns", &service.ResourcePolicy{Action: service.ResourcePolicyAction_READ, Subject: "subject1"})
-			So(e, ShouldBeNil)
-			e = mockDAO.AddPolicy(ctx, "resource-id-ns", &service.ResourcePolicy{Action: service.ResourcePolicyAction_WRITE, Subject: "subject1"})
+			_, e := mockDAO.AddPolicies(ctx, false, "resource-id-ns", []*service.ResourcePolicy{
+				{Action: service.ResourcePolicyAction_READ, Subject: "subject1"},
+				{Action: service.ResourcePolicyAction_WRITE, Subject: "subject1"},
+			})
 			So(e, ShouldBeNil)
 
 			rules, err := mockDAO.GetPoliciesForResource(ctx, "resource-id-ns")

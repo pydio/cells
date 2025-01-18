@@ -173,28 +173,27 @@ func (h *Handler) CreateUser(ctx context.Context, req *idm.CreateUserRequest) (*
 	}
 	out.Password = ""
 	resp.User = out
-	if len(req.User.Policies) == 0 {
-		var userPolicies []*pbservice.ResourcePolicy
-		userPolicies = append(userPolicies, defaultPolicies...)
+	insertPolicies := req.User.Policies
+	if len(insertPolicies) == 0 {
+		insertPolicies = append(insertPolicies, defaultPolicies...)
 		if !req.User.IsGroup {
 			// A user must be able to edit his own profile!
-			userPolicies = append(userPolicies, &pbservice.ResourcePolicy{
+			insertPolicies = append(insertPolicies, &pbservice.ResourcePolicy{
 				Subject: "user:" + out.Login,
 				Action:  pbservice.ResourcePolicyAction_WRITE,
 				Effect:  pbservice.ResourcePolicy_allow,
 			})
 		}
-		req.User.Policies = userPolicies
 	}
-	log.Logger(ctx).Debug("ADDING POLICIES NOW", zap.Int("p length", len(req.User.Policies)), zap.Int("createdNodes length", len(createdNodes)))
-	if err := dao.AddPolicies(ctx, len(createdNodes) == 0, out.Uuid, req.User.Policies); err != nil {
+	log.Logger(ctx).Debug("ADDING POLICIES NOW", zap.Int("p length", len(insertPolicies)), zap.Int("createdNodes length", len(createdNodes)))
+	if out.Policies, err = dao.AddPolicies(ctx, len(createdNodes) == 0, out.Uuid, insertPolicies); err != nil {
 		return nil, err
 	}
 	for _, g := range createdNodes {
 		if g.GetUuid() != out.Uuid && g.GetIsGroup() {
 			// Groups where created in the process, add default policies on them
 			log.Logger(ctx).Info("Setting Default Policies on groups that were created automatically", zap.String("groupPath", g.GetGroupPath()))
-			if err := dao.AddPolicies(ctx, false, g.GetUuid(), defaultPolicies); err != nil {
+			if _, err := dao.AddPolicies(ctx, false, g.GetUuid(), defaultPolicies); err != nil {
 				return nil, err
 			}
 		}

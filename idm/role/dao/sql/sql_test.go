@@ -107,10 +107,8 @@ func TestCrud(t *testing.T) {
 				ForceOverride: true,
 			})
 			So(err4, ShouldBeNil)
-			err5 := mockDAO.AddPolicy(ctx, roleUuid, &service.ResourcePolicy{
-				Action:  service.ResourcePolicyAction_ANY,
-				Subject: "policytest",
-				Effect:  service.ResourcePolicy_allow,
+			_, err5 := mockDAO.AddPolicies(ctx, false, roleUuid, []*service.ResourcePolicy{
+				{Action: service.ResourcePolicyAction_ANY, Subject: "policytest", Effect: service.ResourcePolicy_allow},
 			})
 			So(err5, ShouldBeNil)
 
@@ -372,7 +370,9 @@ func TestResourceRules(t *testing.T) {
 
 		Convey("Test Add Rule", t, func() {
 
-			err := mockDAO.AddPolicy(ctx, "resource-id", &service.ResourcePolicy{Action: service.ResourcePolicyAction_READ, Subject: "subject1"})
+			_, err := mockDAO.AddPolicies(ctx, false, "resource-id", []*service.ResourcePolicy{
+				{Action: service.ResourcePolicyAction_READ, Subject: "subject1"},
+			})
 			So(err, ShouldBeNil)
 
 		})
@@ -398,10 +398,11 @@ func TestResourceRules(t *testing.T) {
 
 		Convey("Delete Rules For Action", t, func() {
 
-			e := mockDAO.AddPolicy(ctx, "resource-id", &service.ResourcePolicy{Action: service.ResourcePolicyAction_READ, Subject: "subject1"})
-			So(e, ShouldBeNil)
-			e = mockDAO.AddPolicy(ctx, "resource-id", &service.ResourcePolicy{Action: service.ResourcePolicyAction_WRITE, Subject: "subject1"})
-			So(e, ShouldBeNil)
+			_, err := mockDAO.AddPolicies(ctx, false, "resource-id", []*service.ResourcePolicy{
+				{Action: service.ResourcePolicyAction_READ, Subject: "subject1"},
+				{Action: service.ResourcePolicyAction_WRITE, Subject: "subject1"},
+			})
+			So(err, ShouldBeNil)
 
 			rules, err := mockDAO.GetPoliciesForResource(ctx, "resource-id")
 			So(rules, ShouldHaveLength, 2)
