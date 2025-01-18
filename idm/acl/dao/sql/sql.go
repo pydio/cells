@@ -27,6 +27,7 @@ import (
 	"sync"
 	"time"
 
+	grpc_retry "github.com/grpc-ecosystem/go-grpc-middleware/retry"
 	"go.uber.org/zap"
 	"google.golang.org/protobuf/proto"
 	"google.golang.org/protobuf/types/known/anypb"
@@ -119,6 +120,22 @@ func (s *sqlimpl) Add(ctx context.Context, in interface{}) error {
 	return s.addWithDupCheck(ctx, s.Session(ctx), in, true)
 }
 
+var (
+	backoff = grpc_retry.BackoffExponential(10 * time.Millisecond)
+)
+
+func (s *sqlimpl) firstOrCreateWithRetry(ctx context.Context, session *gorm.DB, in interface{}, retry uint) error {
+	tx := session.Where(in).FirstOrCreate(in)
+	if tx.Error == nil {
+		return nil
+	}
+	if errors.Is(tx.Error, gorm.ErrDuplicatedKey) && retry < 5 {
+		<-time.After(backoff(retry))
+		return s.firstOrCreateWithRetry(ctx, session, in, retry+1)
+	}
+	return tx.Error
+}
+
 // addWithDupCheck insert and override existing value if it's a
 // duplicate key and the ACL is expired
 func (s *sqlimpl) addWithDupCheck(ctx context.Context, session *gorm.DB, in interface{}, check bool) error {
@@ -134,23 +151,22 @@ func (s *sqlimpl) addWithDupCheck(ctx context.Context, session *gorm.DB, in inte
 
 	workspace := Workspace{UUID: val.GetWorkspaceID()}
 	if workspace.UUID != "" {
-		workspace.UUID = val.GetWorkspaceID()
-		if tx := session.Where(workspace).FirstOrCreate(&workspace); tx.Error != nil {
-			return tx.Error
+		if err := s.firstOrCreateWithRetry(ctx, session, &workspace, 0); err != nil {
+			return err
 		}
 	}
 
 	node := Node{UUID: val.GetNodeID()}
 	if node.UUID != "" {
-		if tx := session.Where(node).FirstOrCreate(&node); tx.Error != nil {
-			return tx.Error
+		if err := s.firstOrCreateWithRetry(ctx, session, &node, 0); err != nil {
+			return err
 		}
 	}
 
 	role := Role{UUID: val.GetRoleID()}
 	if role.UUID != "" {
-		if tx := session.Where(role).FirstOrCreate(&role); tx.Error != nil {
-			return tx.Error
+		if err := s.firstOrCreateWithRetry(ctx, session, &role, 0); err != nil {
+			return err
 		}
 	}
 

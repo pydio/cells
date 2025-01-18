@@ -25,6 +25,7 @@ package sql
 import (
 	"context"
 	"fmt"
+	"sync"
 	"testing"
 
 	"google.golang.org/protobuf/types/known/anypb"
@@ -56,6 +57,40 @@ func TestSimpleCrud(t *testing.T) {
 
 		Convey("Simple CRUD", t, func() {
 			So(simpleCrud(t, ctx, dao, "node", "role", "workspace", "actionName", "actionValue"), ShouldBeNil)
+		})
+
+	})
+}
+
+func TestParallelAdds(t *testing.T) {
+	test.RunStorageTests(testcases, t, func(ctx context.Context) {
+
+		dao, err := manager.Resolve[acl.DAO](ctx)
+		if err != nil {
+			panic(err)
+		}
+
+		Convey("Parallel Adds", t, func() {
+			wg := sync.WaitGroup{}
+			var errs []error
+			for i := 0; i < 10; i++ {
+				wg.Add(1)
+				a := &idm.ACL{
+					NodeID: "node-id",
+					//RoleID:      "role-id",
+					WorkspaceID: "ws-id",
+					Action:      &idm.ACLAction{Name: fmt.Sprintf("action-%d", i), Value: "1"},
+				}
+				go func() {
+					defer wg.Done()
+					if e := dao.Add(ctx, a); e != nil {
+						t.Log(e.Error())
+						errs = append(errs, e)
+					}
+				}()
+			}
+			wg.Wait()
+			So(len(errs), ShouldEqual, 0)
 		})
 
 	})
