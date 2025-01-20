@@ -31,7 +31,6 @@ import (
 	"sync"
 
 	protovalidate "github.com/bufbuild/protovalidate-go"
-	"go.opentelemetry.io/otel/trace"
 	"go.uber.org/zap"
 	"google.golang.org/grpc"
 	channelz "google.golang.org/grpc/channelz/service"
@@ -49,7 +48,6 @@ import (
 	"github.com/pydio/cells/v5/common/runtime"
 	"github.com/pydio/cells/v5/common/server"
 	"github.com/pydio/cells/v5/common/telemetry/log"
-	"github.com/pydio/cells/v5/common/telemetry/tracing"
 	"github.com/pydio/cells/v5/common/utils/propagator"
 	"github.com/pydio/cells/v5/common/utils/uuid"
 
@@ -157,9 +155,6 @@ func (s *Server) lazyGrpc(rootContext context.Context) IServer {
 
 		// this is the final handler - endpoint has been found earlier in the chain
 		func(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (interface{}, error) {
-			var span trace.Span
-			ctx, span = tracing.StartLocalSpan(ctx, "UnaryInterceptor.Final")
-			defer span.End()
 
 			serviceName := runtime.GetServiceName(ctx)
 			if serviceName != "" && serviceName != "default" {
@@ -182,19 +177,9 @@ func (s *Server) lazyGrpc(rootContext context.Context) IServer {
 		},
 
 		func(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (interface{}, error) {
-			var span trace.Span
-			ctx, span = tracing.StartLocalSpan(ctx, "UnaryInterceptor.Validate")
-			defer span.End()
-
-			v, err := protovalidate.New()
-			if err != nil {
+			if err := protovalidate.Validate(req.(proto.Message)); err != nil {
 				return nil, err
 			}
-
-			if err = v.Validate(req.(proto.Message)); err != nil {
-				return nil, err
-			}
-
 			return handler(ctx, req)
 		},
 	}
