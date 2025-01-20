@@ -29,6 +29,7 @@ import (
 	"strings"
 	"time"
 
+	"google.golang.org/protobuf/proto"
 	yaml "gopkg.in/yaml.v2"
 
 	"github.com/pydio/cells/v5/common"
@@ -72,8 +73,9 @@ func proxyConfigFromArgs() (*install.ProxyConfig, error) {
 	}
 
 	if niBindUrl == "default" {
-		def := *routing.DefaultBindingSite
-		proxyConfig = &def
+
+		proxyConfig = proto.Clone(routing.DefaultBindingSite).(*install.ProxyConfig)
+
 	} else if p := strings.Split(niBindUrl, ":"); len(p) != 2 {
 		return nil, fmt.Errorf("Bind URL %s is not valid. Please correct to use an [IP|DOMAIN]:[PORT] string", niBindUrl)
 	} else {
@@ -168,9 +170,19 @@ func installFromConf(ctx context.Context) (*install.InstallConfig, error) {
 	// Preconfiguring any custom value passed in Json/Yaml
 	if installConf.CustomConfigs != nil {
 		for k, v := range installConf.CustomConfigs {
-			fmt.Println(".... Setting custom configuration key " + k)
+			var val interface{}
+			if strings.HasSuffix(k, "#json") {
+				k = strings.TrimSuffix(k, "#json")
+				if er := json.Unmarshal([]byte(v), &val); er != nil {
+					return nil, fmt.Errorf("could not unmarshal custom config %s: %s", k, er.Error())
+				}
+				fmt.Println(".... Setting custom configuration key " + k + " (JSON format)")
+			} else {
+				val = v
+				fmt.Println(".... Setting custom configuration key " + k)
+			}
 			cPath := strings.Split(k, "/")
-			if e := config.Set(ctx, v, cPath...); e != nil {
+			if e := config.Set(ctx, val, cPath...); e != nil {
 				return nil, fmt.Errorf("could not set value for config key " + k)
 			}
 		}
