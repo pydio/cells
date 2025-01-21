@@ -1328,6 +1328,53 @@ func TestMoveVeryDeepPathWithChildren(t *testing.T) {
 	})
 }
 
+func SkipTestMoveVeryDeepPathScenario(t *testing.T) {
+	ctx := context.Background()
+	var pp []string
+	for i := 0; i < 255; i++ {
+		pp = append(pp, "1")
+	}
+	fPath := "/personal/user/source/" + strings.Join(pp, "/")
+
+	testAll(t, func(dao testdao) func(t *testing.T) {
+		return func(t *testing.T) {
+			Convey("Test MoveVeryDeepPath - Scenario", t, func() {
+				_, created, er := dao.GetOrCreateNodeByPath(ctx, fPath, &tree.Node{Type: tree.NodeType_COLLECTION})
+				So(er, ShouldBeNil)
+				So(len(created), ShouldEqual, 259)
+
+				nodeFrom, cc, er := dao.GetOrCreateNodeByPath(ctx, "/personal/user/source", &tree.Node{})
+				So(er, ShouldBeNil)
+				So(len(cc), ShouldEqual, 0)
+				So(nodeFrom, ShouldNotBeNil)
+
+				// Create target to find the MPath
+				nodeTo, cc2, er := dao.GetOrCreateNodeByPath(ctx, "/personal/user/inside/target", &tree.Node{})
+				So(er, ShouldBeNil)
+				So(len(cc2), ShouldEqual, 2)
+				So(nodeTo, ShouldNotBeNil)
+				// And delete it
+				er = dao.DelNode(ctx, nodeTo)
+				So(er, ShouldBeNil)
+
+				er = dao.MoveNodeTree(ctx, nodeFrom, nodeTo)
+				So(er, ShouldBeNil)
+				sql.TestPrintQueries = true
+				c := dao.GetNodeTree(ctx, nodeTo.GetMPath())
+				count := 0
+				for i := range c {
+					if er, ok := i.(error); ok {
+						So(er, ShouldBeNil)
+					}
+					count++
+				}
+				So(count, ShouldEqual, len(pp))
+
+			})
+		}
+	})
+}
+
 func TestLostAndFoundChildren(t *testing.T) {
 	ctx := context.Background()
 	testAll(t, func(dao testdao) func(t *testing.T) {

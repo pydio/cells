@@ -733,15 +733,6 @@ func (dao *gormImpl[T]) MoveNodeTree(ctx context.Context, nodeFrom tree.ITreeNod
 
 	mpathTo := []string{nodeToMPath.GetMPath1(), nodeToMPath.GetMPath2(), nodeToMPath.GetMPath3(), nodeToMPath.GetMPath4()}
 
-	if tx := dao.instance(ctx).
-		Model(model).
-		Omit("uuid", "leaf", "size", "mtime", "mode", "etag").
-		Select("name", "leaf", "size", "mtime", "mode", "etag", "level", "mpath1", "mpath2", "mpath3", "mpath4", "hash", "hash2").
-		Where(nodeFrom).
-		Updates(nodeTo); tx.Error != nil {
-		return tx.Error
-	}
-
 	// Getting the total index for mpath
 	totalMPathFrom := len(mpathFromStr)
 	totalMPathTo := len(mpathToStr)
@@ -821,14 +812,31 @@ func (dao *gormImpl[T]) MoveNodeTree(ctx context.Context, nodeFrom tree.ITreeNod
 		updates = append(updates, storagesql.OrderedUpdate{Key: "hash2", Value: gorm.Expr(hash2)})
 	}
 
-	db := dao.instance(ctx)
-	tableName := storagesql.TableNameFromModel(db, model)
+	ist := dao.instance(ctx)
+
+	tableName := storagesql.TableNameFromModel(ist, model)
 	var wheres []sql.NamedArg
 	wheres = append(wheres, sql.Named("wTreeLike", tree.MPathLike{Value: nodeFromMPath}))
 	wheres = append(wheres, sql.Named("wLevel", gorm.Expr("level >= ?", mpathFromLevel)))
-	rows, er := helper.ApplyOrderedUpdates(db, tableName, updates, wheres)
-	log.Logger(ctx).Debug("Children rows affected by MoveNodeTree", zap.Int64("rows", rows))
-	return er
+
+	return ist.Transaction(func(tx *gorm.DB) error {
+
+		t1 := tx.
+			Model(model).
+			Omit("uuid", "leaf", "size", "mtime", "mode", "etag").
+			Select("name", "leaf", "size", "mtime", "mode", "etag", "level", "mpath1", "mpath2", "mpath3", "mpath4", "hash", "hash2").
+			Where(nodeFrom).
+			Updates(nodeTo)
+
+		if t1.Error != nil {
+			return t1.Error
+		}
+
+		rows, er := helper.ApplyOrderedUpdates(tx, tableName, updates, wheres)
+		log.Logger(ctx).Debug("Children rows affected by MoveNodeTree", zap.Int64("rows", rows))
+		return er
+
+	})
 
 }
 
