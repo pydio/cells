@@ -1,7 +1,10 @@
-# Changes between v4.4.7 and v4.4.8-alpha2
+# Changes between v4.4.7 and v4.4.8
 
-[See Full Changelog](https://github.com/pydio/cells/compare/v4.4.7...v4.4.8-alpha2)
+[See Full Changelog](https://github.com/pydio/cells/compare/v4.4.7...v4.4.8)
 
+- [#7f16292](https://github.com/pydio/cells/commit/7f162924042ce95a4ee627ce94d0e32ad0ac3732): Rollback x/net version to avoid websocket over http2 issue.
+- [#abcf5a3](https://github.com/pydio/cells/commit/abcf5a30bdada3b681c62ce69cc712cbc6d43cb3): Try to wait more in registry test
+- [#1f0e084](https://github.com/pydio/cells/commit/1f0e084cf50e9dfc04fde741b3204f249f7855bc): Release v4.4.8-alpha2
 - [#55f2c94](https://github.com/pydio/cells/commit/55f2c94e12be6cf5525ea6ffe7e4d16aa496782c): Rather use go 1.22.10 toolchain
 - [#692a219](https://github.com/pydio/cells/commit/692a219e0a9b1ae466098d77c2fe4dfde6c2bb77): Log more info on proxy error - Fix a side-effect when a datasource used in a template path is disabled.
 - [#ca25f43](https://github.com/pydio/cells/commit/ca25f43b93addc09c2262724d6297375fb9a75a0): Override uploadPart to trigger retry including jwt token refresh
