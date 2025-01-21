@@ -450,9 +450,9 @@ func SearchUniqueUser(ctx context.Context, login string, uuid string, queries ..
 		}
 	}
 
-	var span trace.Span
-	ctx, span = tracing.StartLocalSpan(ctx, "SearchUniqueUser", 1)
-	defer span.End()
+	//var span trace.Span
+	//ctx, span = tracing.StartLocalSpan(ctx, "SearchUniqueUser", 1)
+	//defer span.End()
 
 	userCli := idmc.UserServiceClient(ctx)
 	var searchRequests []*anypb.Any

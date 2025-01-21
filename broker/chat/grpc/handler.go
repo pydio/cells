@@ -207,7 +207,7 @@ func (c *ChatHandler) PostMessage(ctx context.Context, req *chat.PostMessageRequ
 	if krs == nil {
 		krs = make(map[string]*chat.ChatRoom)
 	}
-	bgCtx := propagator.ForkedBackgroundWithMeta(ctx)
+	bgCtx := context.WithoutCancel(ctx)
 	go func() {
 		for _, m := range results {
 			bgCtx = propagator.WithUserNameMetadata(bgCtx, common.PydioContextUserKey, m.Author)
@@ -268,7 +268,7 @@ func (c *ChatHandler) DeleteMessage(ctx context.Context, req *chat.DeleteMessage
 			Details: "DELETE",
 		})
 	}
-	bgCtx := propagator.ForkedBackgroundWithMeta(ctx)
+	bgCtx := context.WithoutCancel(ctx)
 	go func() {
 		for _, m := range req.Messages {
 			bgCtx = propagator.WithUserNameMetadata(bgCtx, common.PydioContextUserKey, m.Author)

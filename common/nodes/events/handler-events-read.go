@@ -104,7 +104,7 @@ func (h *HandlerRead) GetObject(ctx context.Context, node *tree.Node, requestDat
 		linkData *docstore.ShareDocument
 	)
 
-	if doc, linkData = h.sharedLinkWithDownloadLimit(ctx); doc != nil && linkData != nil {
+	if doc, linkData = h.sharedLinkWithDownloadLimit(context.WithoutCancel(ctx)); doc != nil && linkData != nil {
 		// Check download limit!
 		if linkData.DownloadCount >= linkData.DownloadLimit {
 			return nil, errors.WithMessage(errors.StatusForbidden, "You are not allowed to download this document")
@@ -164,7 +164,7 @@ func (h *HandlerRead) sharedLinkWithDownloadLimit(ctx context.Context) (doc *doc
 	store := docstorec.DocStoreClient(ctx)
 
 	// First search with preset_login
-	lC, ca := context.WithCancel(runtimecontext.ForkedBackgroundWithMeta(ctx))
+	lC, ca := context.WithCancel(ctx)
 	defer ca()
 	stream, e := store.ListDocuments(lC, &docstore.ListDocumentsRequest{StoreID: common.DocStoreIdShares, Query: &docstore.DocumentQuery{
 		MetaQuery: "+SHARE_TYPE:minisite +PRESET_LOGIN:" + userLogin + "",

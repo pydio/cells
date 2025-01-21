@@ -45,7 +45,6 @@ import (
 	resources2 "github.com/pydio/cells/v5/common/storage/sql/resources"
 	"github.com/pydio/cells/v5/common/telemetry/log"
 	"github.com/pydio/cells/v5/common/utils/configx"
-	"github.com/pydio/cells/v5/common/utils/propagator"
 	"github.com/pydio/cells/v5/idm/user"
 	user_model "github.com/pydio/cells/v5/idm/user/dao/sql/model"
 )
@@ -445,7 +444,7 @@ func (s *sqlimpl) Search(ctx context.Context, query service.Enquirer, users *[]i
 	var can context.CancelFunc
 	// Unless limit is exactly one, switch to LongConnectionTimeout
 	if query.GetLimit() != 1 {
-		ctx, can = context.WithTimeout(propagator.ForkedBackgroundWithMeta(ctx), sql.LongConnectionTimeout)
+		ctx, can = context.WithTimeout(context.WithoutCancel(ctx), sql.LongConnectionTimeout)
 		defer can()
 	}
 

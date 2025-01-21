@@ -178,7 +178,7 @@ func (h *Handler) UpdateUserMeta(ctx context.Context, request *idm.UpdateUserMet
 				Target: target,
 			})
 		}
-	}(propagator.ForkedBackgroundWithMeta(ctx))
+	}(context.WithoutCancel(ctx))
 
 	return response, nil
 
@@ -238,8 +238,7 @@ func (h *Handler) ReadNodeStream(stream tree.NodeProviderStreamer_ReadNodeStream
 		return err
 	}
 
-	bgCtx := propagator.ForkedBackgroundWithMeta(ctx)
-	subjects, e := auth.SubjectsForResourcePolicyQuery(bgCtx, nil)
+	subjects, e := auth.SubjectsForResourcePolicyQuery(context.WithoutCancel(ctx), nil)
 	if e != nil {
 		return e
 	}

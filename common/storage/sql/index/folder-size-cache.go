@@ -53,7 +53,7 @@ func (dao *FolderSizeCacheSQL) GetNodeByMPath(ctx context.Context, path *tree.MP
 	}
 
 	if node != nil && !node.GetNode().IsLeaf() {
-		dao.folderSize(node)
+		dao.folderSize(ctx, node)
 	}
 
 	return node, nil
@@ -68,7 +68,7 @@ func (dao *FolderSizeCacheSQL) GetNodeByUUID(ctx context.Context, uuid string) (
 	}
 
 	if !node.GetNode().IsLeaf() {
-		dao.folderSize(node)
+		dao.folderSize(ctx, node)
 	}
 
 	return node, nil
@@ -86,7 +86,7 @@ func (dao *FolderSizeCacheSQL) GetNodeChildren(ctx context.Context, path *tree.M
 		for obj := range cc {
 			if node, ok := obj.(*tree.TreeNode); ok {
 				if node != nil && !node.GetNode().IsLeaf() {
-					dao.folderSize(node)
+					dao.folderSize(ctx, node)
 				}
 			}
 
@@ -113,7 +113,7 @@ func (dao *FolderSizeCacheSQL) GetNodeTree(ctx context.Context, path *tree.MPath
 		for obj := range cc {
 			if node, ok := obj.(*tree.TreeNode); ok {
 				if node != nil && !node.GetNode().IsLeaf() {
-					dao.folderSize(node)
+					dao.folderSize(ctx, node)
 				}
 			}
 			select {
@@ -183,7 +183,7 @@ func (dao *FolderSizeCacheSQL) invalidateMPathHierarchy(mpath *tree.MPath, level
 
 // Compute sizes from children files - Does not handle lock, should be
 // used by other functions handling lock
-func (dao *FolderSizeCacheSQL) folderSize(node tree.ITreeNode) {
+func (dao *FolderSizeCacheSQL) folderSize(ctx context.Context, node tree.ITreeNode) {
 
 	mpath := node.GetMPath().ToString()
 
@@ -196,7 +196,7 @@ func (dao *FolderSizeCacheSQL) folderSize(node tree.ITreeNode) {
 		return
 	}
 
-	size, err := dao.GetNodeChildrenSize(nil, node.GetMPath())
+	size, err := dao.GetNodeChildrenSize(ctx, node.GetMPath())
 	if err != nil {
 		return
 	}

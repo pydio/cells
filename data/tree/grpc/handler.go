@@ -147,7 +147,7 @@ func (s *TreeServer) ReadNodeStream(streamer tree.NodeProviderStreamer_ReadNodeS
 	// In some cases, initial ctx could be canceled _before_ this function is called
 	// We must make sure that metaStreamers are using a proper context at creation
 	// otherwise it can create a goroutine leak on linux.
-	ctx := propagator.ForkedBackgroundWithMeta(streamer.Context())
+	ctx := context.WithoutCancel(streamer.Context())
 	var flags tree.Flags
 	if sf, o := propagator.CanonicalMeta(streamer.Context(), tree.StatFlagHeaderName); o {
 		flags = tree.StatFlagsFromString(sf)
