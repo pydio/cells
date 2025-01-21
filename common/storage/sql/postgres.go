@@ -33,10 +33,7 @@ func (p *postgresHelper) HashParent(nameKey string, levelKey string, mpathes ...
 }
 
 func (p *postgresHelper) MPathOrdering(mm ...string) string {
-	for i, m := range mm {
-		mm[i] = `(string_to_array("` + m + `", '.'))::int[]`
-	}
-	return strings.Join(mm, ", ")
+	return `(string_to_array(` + p.Concat(mm...) + `,'.'))::int[]`
 }
 
 func (p *postgresHelper) SupportsAvailableSlot() bool {
