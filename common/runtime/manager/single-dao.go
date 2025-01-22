@@ -38,7 +38,7 @@ import (
 var (
 	singleYAML = `
 caches:
-  short:
+  local:
     uri: pm://
   shared:
     uri: pm://
@@ -58,7 +58,7 @@ services:
 
 	multipleYAML = `
 caches:
-  short:
+  local:
     uri: pm://
   shared:
     uri: pm://
