@@ -794,7 +794,7 @@ func (dao *gormImpl[T]) MoveNodeTree(ctx context.Context, nodeFrom tree.ITreeNod
 	}
 
 	// Clear remaining mpaths with empty
-	for i := 0; i < mpathNumber; i++ {
+	for i := mpathNumber - 1; i >= 0; i-- {
 		mp := fmt.Sprintf("mpath%d", i+1)
 		if up, ok := mpathUpdates[mp]; ok {
 			updates = append(updates, up)
@@ -824,7 +824,7 @@ func (dao *gormImpl[T]) MoveNodeTree(ctx context.Context, nodeFrom tree.ITreeNod
 		t1 := tx.
 			Model(model).
 			Omit("uuid", "leaf", "size", "mtime", "mode", "etag").
-			Select("name", "leaf", "size", "mtime", "mode", "etag", "level", "mpath1", "mpath2", "mpath3", "mpath4", "hash", "hash2").
+			Select("name", "leaf", "size", "mtime", "mode", "etag", "level", "mpath4", "mpath3", "mpath2", "mpath1", "hash", "hash2").
 			Where(nodeFrom).
 			Updates(nodeTo)
 
