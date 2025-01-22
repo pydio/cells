@@ -78,7 +78,7 @@ func PolicyForNode(ctx context.Context, node *tree.Node) *tree.VersioningPolicy 
 	if policyName == "" {
 		return nil
 	}
-	pk := cache_helper.MustResolveCache(ctx, "short", policiesCacheConf)
+	pk := cache_helper.MustResolveCache(ctx, common.CacheTypeLocal, policiesCacheConf)
 
 	var v *tree.VersioningPolicy
 	if pk.Get(policyName, &v) {

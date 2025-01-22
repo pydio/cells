@@ -253,7 +253,7 @@ func (h *PublicHandler) ServeDAV(w http.ResponseWriter, r *http.Request, linkId 
 
 	// Load workspace and its root nodes
 	var ws *idm.Workspace
-	ca := cache_helper.MustResolveCache(ctx, "short", cacheConfig)
+	ca := cache_helper.MustResolveCache(ctx, common.CacheTypeLocal, cacheConfig)
 	if !ca.Get(linkData.RepositoryId, &ws) {
 		workspace, er := permissions.SearchUniqueWorkspace(ctx, linkData.RepositoryId, "")
 		if er != nil {

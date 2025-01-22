@@ -26,6 +26,7 @@ import (
 
 	"go.uber.org/zap"
 
+	"github.com/pydio/cells/v5/common"
 	"github.com/pydio/cells/v5/common/nodes"
 	"github.com/pydio/cells/v5/common/nodes/abstract"
 	"github.com/pydio/cells/v5/common/nodes/acl"
@@ -144,7 +145,7 @@ func (r *Reverse) NodeIsChildOfRoot(ctx context.Context, node *tree.Node, rootId
 // getRoot provides a loaded root node from the cache or from the treeClient
 func (r *Reverse) getRoot(ctx context.Context, rootId string) *tree.Node {
 	var node *tree.Node
-	ca := cache_helper.MustResolveCache(ctx, "short", revCacheConfig)
+	ca := cache_helper.MustResolveCache(ctx, common.CacheTypeLocal, revCacheConfig)
 	if ca.Get(rootId, &node) {
 		return node
 	}

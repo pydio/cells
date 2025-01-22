@@ -23,6 +23,7 @@ package resources
 import (
 	"context"
 
+	"github.com/pydio/cells/v5/common"
 	"github.com/pydio/cells/v5/common/proto/service"
 	"github.com/pydio/cells/v5/common/utils/cache"
 	cache_helper "github.com/pydio/cells/v5/common/utils/cache/helper"
@@ -48,7 +49,7 @@ func withCache(dao DAO) DAO {
 }
 
 func (c *cacheImpl) getCache(ctx context.Context) cache.Cache {
-	return cache_helper.MustResolveCache(ctx, "short", cacheConfig)
+	return cache_helper.MustResolveCache(ctx, common.CacheTypeLocal, cacheConfig)
 }
 
 func (c *cacheImpl) AddPolicies(ctx context.Context, update bool, resourceId string, rules []*service.ResourcePolicy) ([]*service.ResourcePolicy, error) {

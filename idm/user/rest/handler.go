@@ -846,7 +846,7 @@ var paramsCacheConfig = cache.Config{
 
 func allowedAclKey(ctx context.Context, k string, contextEditable bool) bool {
 	var params []*front.ExposedParameter
-	ca := cache_helper.MustResolveCache(ctx, "short", paramsCacheConfig)
+	ca := cache_helper.MustResolveCache(ctx, common.CacheTypeLocal, paramsCacheConfig)
 	if !ca.Get("params", &params) {
 		mC := front.NewManifestServiceClient(grpc2.ResolveConn(ctx, common.ServiceFrontStaticsGRPC))
 		resp, e := mC.ExposedParameters(ctx, &front.ExposedParametersRequest{

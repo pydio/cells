@@ -82,7 +82,7 @@ func GetVirtualProvider() VirtualProvider {
 
 // Load requests the virtual nodes from the DocStore service.
 func (m *virtualNodesManager) Load(ctx context.Context, forceReload ...bool) (vNodes []*tree.Node, loginLower bool, e error) {
-	ca := cache_helper.MustResolveCache(ctx, "short", cacheConfig)
+	ca := cache_helper.MustResolveCache(ctx, common.CacheTypeLocal, cacheConfig)
 
 	if len(forceReload) == 0 || !forceReload[0] {
 		if ca.Get("###virtual-nodes###", &vNodes) && ca.Get("###login-lower###", &loginLower) {
@@ -158,7 +158,7 @@ func (m *virtualNodesManager) ListNodes(ctx context.Context) []*tree.Node {
 // and the current metadata contained in context.
 func (m *virtualNodesManager) ResolveInContext(ctx context.Context, vNode *tree.Node, create bool, retry ...bool) (*tree.Node, error) {
 
-	ca := cache_helper.MustResolveCache(ctx, "short", cacheConfig)
+	ca := cache_helper.MustResolveCache(ctx, common.CacheTypeLocal, cacheConfig)
 	pool := nodes.GetSourcesPool(ctx)
 	userName, claims := permissions.FindUserNameInContext(ctx) // We may use Claims returned to grab role or user groupPath
 	if userName == "" {
