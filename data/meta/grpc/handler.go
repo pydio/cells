@@ -196,7 +196,7 @@ func (s *MetaServer) ReadNode(ctx context.Context, req *tree.ReadNodeRequest) (r
 		return resp, errors.WithMessage(errors.InvalidParameters, "Please provide a Node with a Uuid")
 	}
 	resp = &tree.ReadNodeResponse{}
-	ca, _ := cache_helper.ResolveCache(ctx, "shared", cache.Config{Eviction: "1m"})
+	ca, _ := cache_helper.ResolveCache(ctx, common.CacheTypeShared, cache.Config{Eviction: "1m"})
 	if n, ok := s.readNodeCache(ctx, req, ca); ok {
 		resp.Success = true
 		resp.Node = n
@@ -221,7 +221,7 @@ func (s *MetaServer) ReadNode(ctx context.Context, req *tree.ReadNodeRequest) (r
 func (s *MetaServer) ReadNodeStream(streamer tree.NodeProviderStreamer_ReadNodeStreamServer) error {
 
 	ctx := streamer.Context()
-	ca, _ := cache_helper.ResolveCache(ctx, "shared", cache.Config{Eviction: "1m"})
+	ca, _ := cache_helper.ResolveCache(ctx, common.CacheTypeShared, cache.Config{Eviction: "1m"})
 	dao, err := manager.Resolve[meta.DAO](ctx)
 	if err != nil {
 		return err
@@ -282,7 +282,7 @@ func (s *MetaServer) saveNode(ctx context.Context, node *tree.Node, silent, relo
 		author = claims.Name
 	}
 
-	if ca, _ := cache_helper.ResolveCache(ctx, "shared", cache.Config{Eviction: "1m"}); ca != nil {
+	if ca, _ := cache_helper.ResolveCache(ctx, common.CacheTypeShared, cache.Config{Eviction: "1m"}); ca != nil {
 		_ = ca.Delete(node.Uuid)
 	}
 
@@ -346,7 +346,7 @@ func (s *MetaServer) UpdateNode(ctx context.Context, req *tree.UpdateNodeRequest
 // DeleteNode metadata (Not implemented)
 func (s *MetaServer) DeleteNode(ctx context.Context, request *tree.DeleteNodeRequest) (result *tree.DeleteNodeResponse, err error) {
 
-	ca, _ := cache_helper.ResolveCache(ctx, "shared", cache.Config{Eviction: "1m"})
+	ca, _ := cache_helper.ResolveCache(ctx, common.CacheTypeShared, cache.Config{Eviction: "1m"})
 	if ca != nil {
 		_ = ca.Delete(request.Node.Uuid)
 	}

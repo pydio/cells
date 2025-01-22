@@ -363,7 +363,7 @@ func (h *Handler) ModifyLogin(ctx context.Context, req *pbservice.ModifyLoginReq
 
 func (h *Handler) resultsToCache(ctx context.Context, nodeId string, searchSubjects []string, results []*idm.UserMeta) {
 
-	sc, _ := cache_helper.ResolveCache(ctx, "shared", cacheConfig)
+	sc, _ := cache_helper.ResolveCache(ctx, common.CacheTypeShared, cacheConfig)
 	if sc == nil {
 		return
 	}
@@ -374,7 +374,7 @@ func (h *Handler) resultsToCache(ctx context.Context, nodeId string, searchSubje
 }
 
 func (h *Handler) resultsFromCache(ctx context.Context, nodeId string, searchSubjects []string) (results []*idm.UserMeta, found bool) {
-	sc, _ := cache_helper.ResolveCache(ctx, "shared", cacheConfig)
+	sc, _ := cache_helper.ResolveCache(ctx, common.CacheTypeShared, cacheConfig)
 	if sc == nil {
 		return
 	}
@@ -389,7 +389,7 @@ func (h *Handler) resultsFromCache(ctx context.Context, nodeId string, searchSub
 }
 
 func (h *Handler) clearCacheForNode(ctx context.Context, nodeId string) {
-	sc, _ := cache_helper.ResolveCache(ctx, "shared", cacheConfig)
+	sc, _ := cache_helper.ResolveCache(ctx, common.CacheTypeShared, cacheConfig)
 	if sc == nil {
 		return
 	}

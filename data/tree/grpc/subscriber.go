@@ -64,7 +64,7 @@ func (s *EventSubscriber) enqueueInCache(ctx context.Context, moveUuid string, e
 	} else {
 		opposite = moveUuid + "-" + tree.NodeChangeEvent_CREATE.String()
 	}
-	ca, _ := cache_helper.ResolveCache(ctx, "shared", cacheConfig)
+	ca, _ := cache_helper.ResolveCache(ctx, common.CacheTypeShared, cacheConfig)
 	if d, o := ca.GetBytes(opposite); o {
 		_ = json.Unmarshal(d, &other)
 		update := &tree.NodeChangeEvent{

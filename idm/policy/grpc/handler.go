@@ -144,7 +144,7 @@ func (h *Handler) ListPolicyGroups(ctx context.Context, request *idm.ListPolicyG
 
 	response := &idm.ListPolicyGroupsResponse{}
 
-	ka, er := cache_helper.ResolveCache(ctx, "short", groupsCacheConfig)
+	ka, er := cache_helper.ResolveCache(ctx, common.CacheTypeLocal, groupsCacheConfig)
 
 	if er == nil && request.Filter == "" && ka.Get("policyGroup", &response.PolicyGroups) {
 		response.Total = int32(len(response.PolicyGroups))
@@ -172,7 +172,7 @@ func (h *Handler) StorePolicyGroup(ctx context.Context, request *idm.StorePolicy
 		return nil, er
 	}
 
-	if ka, er := cache_helper.ResolveCache(ctx, "short", groupsCacheConfig); er == nil {
+	if ka, er := cache_helper.ResolveCache(ctx, common.CacheTypeLocal, groupsCacheConfig); er == nil {
 		_ = ka.Delete("policyGroup")
 	}
 
@@ -201,7 +201,7 @@ func (h *Handler) DeletePolicyGroup(ctx context.Context, request *idm.DeletePoli
 		return nil, er
 	}
 
-	if ka, er := cache_helper.ResolveCache(ctx, "short", groupsCacheConfig); er == nil {
+	if ka, er := cache_helper.ResolveCache(ctx, common.CacheTypeLocal, groupsCacheConfig); er == nil {
 		_ = ka.Delete("policyGroup")
 	}
 

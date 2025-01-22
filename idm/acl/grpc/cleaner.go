@@ -27,6 +27,7 @@ import (
 
 	"google.golang.org/protobuf/types/known/anypb"
 
+	"github.com/pydio/cells/v5/common"
 	"github.com/pydio/cells/v5/common/broker"
 	"github.com/pydio/cells/v5/common/proto/idm"
 	service "github.com/pydio/cells/v5/common/proto/service"
@@ -88,7 +89,7 @@ func (c *NodesCleaner) getQueue(ctx context.Context) (broker.AsyncQueue, func() 
 		"idle":     "2s",
 		"max":      "5000",
 	}
-	return mgr.GetQueue(ctx, "debouncer", data, "activity", func(q broker.AsyncQueue) (broker.AsyncQueue, error) {
+	return mgr.GetQueue(ctx, common.QueueTypeDebouncer, data, "activity", func(q broker.AsyncQueue) (broker.AsyncQueue, error) {
 		er := q.Consume(func(ct context.Context, events ...broker.Message) {
 			var uu []string
 			for _, e := range events {

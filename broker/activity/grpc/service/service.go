@@ -79,7 +79,7 @@ func init() {
 				idmOpts := []broker.SubscribeOption{counterName}
 				var mgr manager.Manager
 				if propagator.Get(c, manager.ContextKey, &mgr) {
-					if d, e := mgr.GetQueuePool("persisted"); e == nil {
+					if d, e := mgr.GetQueuePool(common.QueueTypePersistent); e == nil {
 						opts = append(opts, broker.WithAsyncQueuePool(d, map[string]interface{}{"name": "treeChanges"}))
 						// TODO - USED FOR TESTING QUEUING ON IDM EVENTS
 						//idmOpts = append(idmOpts, broker.WithAsyncQueuePool(d, map[string]interface{}{"name": "idmChanges"}))

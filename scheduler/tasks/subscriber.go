@@ -95,10 +95,10 @@ func (s *Subscriber) getAsyncQueue(ctx context.Context, topic string) (q broker.
 			}
 		})
 	}
-	q, _, e = mgr.GetQueue(ctx, "persisted", map[string]interface{}{"name": topic}, uuid.New(), consumer)
+	q, _, e = mgr.GetQueue(ctx, common.QueueTypePersistent, map[string]interface{}{"name": topic}, uuid.New(), consumer)
 	if e != nil {
 		log.Logger(ctx).Warn("Cannot open persisted queue, using in-memory debouncer instead", zap.Error(e))
-		q, _, e = mgr.GetQueue(ctx, "debouncer", map[string]interface{}{"debounce": "2s", "idle": "20s", "max": "2000"}, "scheduler-"+topic, consumer)
+		q, _, e = mgr.GetQueue(ctx, common.QueueTypeDebouncer, map[string]interface{}{"debounce": "2s", "idle": "20s", "max": "2000"}, "scheduler-"+topic, consumer)
 	}
 	if e == nil {
 		if topic == common.TopicTreeChanges {

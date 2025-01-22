@@ -36,16 +36,16 @@ servers:
     type: grpc
     listener: grpcall
     services:
-      - filter: "{{ .Name }} ~= pydio\\.grpc\\..*"
+      - filter: "{{ .Name }} ~= pydio\\.grpc\\.*"
 
 queues:
   debouncer:
     uri: "mem://?debounce={{ .debounce }}&idle={{ .idle }}&max={{ .max }}&openerID={{ .openerID }}"
-  persisted:
+  persistent:
     uri: "fifo://{{ autoMkdir ( serviceDataDir .Service ) }}?name={{ .name }}&prefix={{ .prefix }}"
 
 caches:
-  short:
+  local:
     uri: "pm://?evictionTime={{ .evictionTime }}&cleanWindow={{ .cleanWindow }}&prefix={{ .prefix }}"
   shared:
     uri: "bigcache://?evictionTime={{ .evictionTime }}&cleanWindow={{ .cleanWindow }}&prefix={{ .prefix }}"

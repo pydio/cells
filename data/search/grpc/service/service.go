@@ -82,7 +82,7 @@ func init() {
 				}
 				var mgr manager.Manager
 				if propagator.Get(c, manager.ContextKey, &mgr) {
-					if d, e := mgr.GetQueuePool("persisted"); e == nil {
+					if d, e := mgr.GetQueuePool(common.QueueTypePersistent); e == nil {
 						opts = append(opts, broker.WithAsyncQueuePool(d, map[string]interface{}{"name": "search"}))
 					}
 				}
