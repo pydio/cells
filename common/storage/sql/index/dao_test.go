@@ -1328,7 +1328,7 @@ func TestMoveVeryDeepPathWithChildren(t *testing.T) {
 	})
 }
 
-func SkipTestMoveVeryDeepPathScenario(t *testing.T) {
+func TestMoveVeryDeepPathScenario(t *testing.T) {
 	ctx := context.Background()
 	var pp []string
 	for i := 0; i < 255; i++ {
