@@ -23,7 +23,7 @@ func init() {
 			service.WithStorageDrivers(sessions.NewSQLDAO, sessions.NewCookieDAO),
 			service.Migrations([]*service.Migration{
 				{
-					TargetVersion: service.FirstRun(),
+					TargetVersion: service.FirstRunOrChange(),
 					Up:            manager.StorageMigration(),
 				},
 			}),

@@ -60,7 +60,7 @@ func init() {
 			service.Metadata(meta.ServiceMetaProvider, "stream"),
 			service.Migrations([]*service.Migration{
 				{
-					TargetVersion: service.FirstRun(),
+					TargetVersion: service.FirstRunOrChange(),
 					Up:            manager.StorageMigration(),
 				},
 				{

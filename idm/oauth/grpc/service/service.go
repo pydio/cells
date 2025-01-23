@@ -61,7 +61,7 @@ func init() {
 			service.Description("OAuth Provider"),
 			service.Migrations([]*service.Migration{
 				{
-					TargetVersion: service.FirstRun(),
+					TargetVersion: service.FirstRunOrChange(),
 					Up:            manager.StorageMigration(),
 				},
 				//{
@@ -101,7 +101,7 @@ func init() {
 			service.Description("Personal Access Token Provider"),
 			service.WithStorageDrivers(oauth.PatDrivers...),
 			service.Migrations([]*service.Migration{{
-				TargetVersion: service.FirstRun(),
+				TargetVersion: service.FirstRunOrChange(),
 				Up:            manager.StorageMigration(),
 			}}),
 			service.WithGRPC(func(ctx context.Context, server grpc.ServiceRegistrar) error {

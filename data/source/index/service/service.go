@@ -23,7 +23,6 @@ package service
 import (
 	"context"
 
-	version "github.com/hashicorp/go-version"
 	"google.golang.org/grpc"
 
 	"github.com/pydio/cells/v5/common"
@@ -48,7 +47,6 @@ var (
 
 func init() {
 	runtime.Register("main", func(ctx context.Context) {
-		v490, _ := version.NewVersion("4.9.0")
 		service.NewService(
 			service.Name(Name),
 			service.Context(ctx),
@@ -56,11 +54,7 @@ func init() {
 			service.WithStorageDrivers(index.Drivers...),
 			service.Migrations([]*service.Migration{
 				{
-					TargetVersion: service.FirstRun(),
-					Up:            manager.StorageMigration(),
-				},
-				{
-					TargetVersion: v490,
+					TargetVersion: service.FirstRunOrChange(),
 					Up:            manager.StorageMigration(),
 				},
 			}),

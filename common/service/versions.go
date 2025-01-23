@@ -37,6 +37,16 @@ import (
 	"github.com/pydio/cells/v5/common/utils/propagator"
 )
 
+var (
+	firstRun   *version.Version
+	allUpdates *version.Version
+)
+
+func init() {
+	firstRun, _ = version.NewVersion("0.0.0")
+	allUpdates, _ = version.NewVersion("0.0.0+all")
+}
+
 // Migration defines a target version and functions to upgrade and/or downgrade.
 type Migration struct {
 	TargetVersion *version.Version
@@ -52,8 +62,12 @@ func ValidVersion(v string) *version.Version {
 
 // FirstRun returns version "zero".
 func FirstRun() *version.Version {
-	obj, _ := version.NewVersion("0.0.0")
-	return obj
+	return firstRun
+}
+
+// FirstRunOrChange is interpreted to run on each version change
+func FirstRunOrChange() *version.Version {
+	return allUpdates
 }
 
 // DefaultConfigMigration registers a FirstRun to set configuration for service
@@ -64,11 +78,6 @@ func DefaultConfigMigration(serviceName string, data interface{}) *Migration {
 			return config.Set(ctx, data, "services", serviceName)
 		},
 	}
-}
-
-// Latest retrieves current common Cells version.
-func Latest() *version.Version {
-	return common.Version()
 }
 
 // UpdateServiceVersion applies migration(s) if necessary and stores new current version for future use.
@@ -187,6 +196,34 @@ func applyMigrations(ctx context.Context, current *version.Version, target *vers
 
 	if migrations == nil {
 		return target, nil
+	}
+
+	// Handle AllUpdates case, a.k.a run at every versions updates
+	// If first run, make it a FirstRun() and prepend it to the beginning,
+	// otherwise make it a Latest() and push it to the end of the list
+	var mm, tcs, fr []*Migration
+	isFirstRun := current.Equal(FirstRun())
+	for _, m := range migrations {
+		// if AllUpdates && firstRun, consider it as a FirstRun() and replace it to make sure it
+		// appears in the right order
+		if m.TargetVersion == allUpdates && isFirstRun {
+			m = &Migration{TargetVersion: FirstRun(), Up: m.Up, Down: m.Down}
+		}
+		if m.TargetVersion == FirstRun() {
+			fr = append(fr, m)
+		} else if m.TargetVersion == allUpdates {
+			// not first run, register for current and push to the end
+			tcs = append(tcs, &Migration{TargetVersion: common.Version(), Up: m.Up, Down: m.Down})
+		} else {
+			mm = append(mm, m)
+		}
+	}
+	if isFirstRun {
+		// first runs + migrations
+		migrations = append(fr, mm...)
+	} else {
+		// migrations + latest updates
+		migrations = append(mm, tcs...)
 	}
 
 	// corner case of the fresh install, returns the current target version to be stored

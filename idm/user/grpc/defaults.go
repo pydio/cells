@@ -48,14 +48,13 @@ func InitDefaults(ctx context.Context) error {
 		login = parts[0]
 		pwd = parts[1]
 		// Now remove from configs
-		cfg.Val("defaults", "root").Del()
+		_ = cfg.Val("defaults", "root").Del()
 		if err := cfg.Save("cli", "First Run / Creating default root user"); err != nil {
 			return err
 		}
 	}
 
 	if login != "" && pwd != "" {
-		log.Logger(ctx).Info("Initialization: creating admin user: " + login)
 		// Check if user exists
 		newUser, err := CreateIfNotExists(ctx, dao, &idm.User{
 			Login:      login,
@@ -82,10 +81,9 @@ func InitDefaults(ctx context.Context) error {
 			}}); err != nil {
 				return err
 			}
+			log.Logger(ctx).Info("Initialization: created admin user: " + login + " and its associated role")
 		}
 	}
-
-	log.Logger(ctx).Info("Initialization: creating s3 anonymous user")
 
 	newAnon, err := CreateIfNotExists(ctx, dao, &idm.User{
 		Login:      common.PydioS3AnonUsername,
@@ -114,6 +112,7 @@ func InitDefaults(ctx context.Context) error {
 		}}); err != nil {
 			return err
 		}
+		log.Logger(ctx).Info("Initialization: created s3 anonymous user and its associated role...")
 	}
 
 	return nil

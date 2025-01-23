@@ -23,7 +23,6 @@ package manager
 import (
 	"context"
 	"fmt"
-	"github.com/pydio/cells/v5/common/utils/std"
 	"reflect"
 	"runtime"
 
@@ -35,9 +34,11 @@ import (
 	"github.com/pydio/cells/v5/common/registry"
 	"github.com/pydio/cells/v5/common/service"
 	"github.com/pydio/cells/v5/common/storage"
+	"github.com/pydio/cells/v5/common/telemetry/log"
 	"github.com/pydio/cells/v5/common/telemetry/tracing"
 	"github.com/pydio/cells/v5/common/utils/configx"
 	"github.com/pydio/cells/v5/common/utils/propagator"
+	"github.com/pydio/cells/v5/common/utils/std"
 )
 
 func init() {
@@ -285,6 +286,7 @@ func StorageMigration(opts ...ResolveOption) func(ctx2 context.Context) error {
 		if err != nil {
 			return nil
 		}
+		log.Logger(ctx).Info("Running storage migration")
 		return mig.Migrate(ctx)
 	}
 }
