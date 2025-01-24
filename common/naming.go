@@ -186,6 +186,7 @@ const (
 // Define constants for metadata and fixed datasources
 const (
 	MetaNamespaceReservedPrefix_     = "pydio:"
+	MetaNamespaceUserspacePrefix     = "usermeta-"
 	MetaNamespaceDatasourceName      = MetaNamespaceReservedPrefix_ + "meta-data-source-name"
 	MetaNamespaceDatasourcePath      = MetaNamespaceReservedPrefix_ + "meta-data-source-path"
 	MetaNamespaceDatasourceInternal  = MetaNamespaceReservedPrefix_ + "meta-data-source-internal"

@@ -98,7 +98,7 @@ func init() {
 
 func defaultMetas(ctx context.Context, dao meta.DAO) error {
 	err := dao.GetNamespaceDao().Add(ctx, &idm.UserMetaNamespace{
-		Namespace:      "usermeta-tags",
+		Namespace:      common.MetaNamespaceUserspacePrefix + "tags",
 		Label:          "Tags",
 		Indexable:      true,
 		JsonDefinition: "{\"type\":\"tags\"}",

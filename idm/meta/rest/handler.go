@@ -282,8 +282,8 @@ func (s *UserMetaHandler) UpdateUserMetaNamespace(req *restful.Request, rsp *res
 	ctx := req.Request.Context()
 	// Validate input
 	for _, ns := range input.Namespaces {
-		if !strings.HasPrefix(ns.Namespace, "usermeta-") {
-			return errors.WithMessage(errors.InvalidParameters, "user defined meta must start with usermeta- prefix")
+		if !strings.HasPrefix(ns.Namespace, common.MetaNamespaceUserspacePrefix) {
+			return errors.WithMessage(errors.InvalidParameters, "user defined meta must start with "+common.MetaNamespaceUserspacePrefix+" prefix")
 		}
 		if _, e := ns.UnmarshallDefinition(); e != nil {
 			return errors.WithMessagef(errors.UnmarshalError, "invalid json definition for namespace: %s, %v", ns.Namespace, e)

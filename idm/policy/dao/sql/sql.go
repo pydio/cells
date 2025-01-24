@@ -177,14 +177,12 @@ func (s *sqlimpl) StorePolicyGroup(ctx context.Context, group *idm.PolicyGroup) 
 
 	storeGroup := proto.Clone(group).(*idm.PolicyGroup)
 	storeGroup.LastUpdated = int32(time.Now().Unix())
+	deleteFirst := true
 
 	if storeGroup.GetUuid() == "" {
 		storeGroup.Uuid = uuid.New()
-	} /*else {
-		if err := s.DeletePolicyGroup(ctx, storeGroup); err != nil {
-			return nil, err
-		}
-	}*/
+		deleteFirst = false
+	}
 
 	for _, p := range storeGroup.Policies {
 		for _, template := range p.GetActions() {
@@ -208,12 +206,20 @@ func (s *sqlimpl) StorePolicyGroup(ctx context.Context, group *idm.PolicyGroup) 
 	}
 
 	// Insert Policy Group
-	s.instance(ctx).Clauses(clause.OnConflict{
-		Columns:   []clause.Column{{Name: "uuid"}},
-		DoUpdates: clause.AssignmentColumns([]string{"name", "description", "owner_uuid", "resource_group", "last_updated"}), // column needed to be updated
-	}).Create(storeGroup)
+	er := s.instance(ctx).Transaction(func(tx *gorm.DB) error {
+		if deleteFirst {
+			if er := s.deleteInTransaction(ctx, tx, storeGroup); er != nil {
+				return er
+			}
+		}
+		tx = tx.Clauses(clause.OnConflict{
+			Columns:   []clause.Column{{Name: "uuid"}},
+			DoUpdates: clause.AssignmentColumns([]string{"name", "description", "owner_uuid", "resource_group", "last_updated"}), // column needed to be updated
+		}).Create(storeGroup)
+		return tx.Error
+	})
 
-	return storeGroup, nil
+	return storeGroup, er
 
 }
 
@@ -264,12 +270,49 @@ func (s *sqlimpl) ListPolicyGroups(ctx context.Context, filter string) (groups [
 func (s *sqlimpl) DeletePolicyGroup(ctx context.Context, group *idm.PolicyGroup) error {
 
 	// TODO - cascade ?
-	tx := s.instance(ctx).Where(&idm.PolicyGroup{Uuid: group.GetUuid()}).Delete(&idm.PolicyGroup{})
-	if tx.Error != nil {
-		return tx.Error
-	}
+	return s.instance(ctx).Transaction(func(tx *gorm.DB) error {
+		return s.deleteInTransaction(ctx, tx, group)
+	})
 
-	return nil
+}
+
+func (s *sqlimpl) deleteInTransaction(ctx context.Context, tx *gorm.DB, group *idm.PolicyGroup) error {
+	var rels []*idm.PolicyRel
+	tx1 := tx.Where(&idm.PolicyRel{GroupUUID: group.GetUuid()}).Find(&rels)
+	if tx1.Error != nil {
+		return tx1.Error
+	}
+	tx2 := tx.Where(&idm.PolicyRel{GroupUUID: group.GetUuid()}).Delete(&idm.PolicyRel{})
+	if tx2.Error != nil {
+		return tx2.Error
+	}
+	for _, rel := range rels {
+		if err := s.deletePolicyById(ctx, tx, rel.PolicyID); err != nil {
+			return err
+		}
+	}
+	tx = tx.Where(&idm.PolicyGroup{Uuid: group.GetUuid()}).Delete(&idm.PolicyGroup{})
+	return tx.Error
+}
+
+func (s *sqlimpl) deletePolicyById(ctx context.Context, tx *gorm.DB, id string) error {
+	var aa []*idm.PolicyActionRel
+	tx.Where(&idm.PolicyActionRel{Policy: id}).Find(&aa)
+	for _, a := range aa {
+		tx.Where(&idm.PolicyAction{ID: a.Action}).Delete(&idm.PolicyAction{})
+	}
+	var ss []*idm.PolicySubjectRel
+	tx.Where(&idm.PolicySubjectRel{Policy: id}).Find(&ss)
+	for _, sub := range ss {
+		tx.Where(&idm.PolicySubject{ID: sub.Subject}).Delete(&idm.PolicySubject{})
+	}
+	var rr []*idm.PolicyResourceRel
+	tx.Where(&idm.PolicyResourceRel{Policy: id}).Find(&rr)
+	for _, r := range rr {
+		tx.Where(&idm.PolicyResource{ID: r.Resource}).Delete(&idm.PolicyResource{})
+	}
+	tx2 := tx.Where(&idm.Policy{ID: id}).Delete(&idm.Policy{})
+	return tx2.Error
 }
 
 // IsAllowed implements API

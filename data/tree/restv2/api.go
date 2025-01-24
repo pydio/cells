@@ -195,7 +195,7 @@ func (h *Handler) TreeNodeToNode(n *tree.Node) *rest.Node {
 			if strings.HasPrefix(k, "ws_") || strings.HasPrefix(k, "repository_") {
 				// Build WorkspaceRoot
 				rn.ContextWorkspace = h.ContextWorkspace(rn.ContextWorkspace, k, v)
-			} else if strings.HasPrefix(k, "usermeta-") {
+			} else if strings.HasPrefix(k, common.MetaNamespaceUserspacePrefix) {
 				// UserMeta
 				rn.UserMetadata = append(rn.UserMetadata, &rest.UserMeta{Namespace: k, JsonValue: v})
 			} else {

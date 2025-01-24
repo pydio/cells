@@ -999,6 +999,12 @@ func MkDirsOrFiles(ctx context.Context, router nodes.Client, nodes []*tree.Node,
 				length = int64(len(contents))
 				reader = strings.NewReader(contents)
 			}
+			for k, v := range n.GetMetaStore() {
+				// Translate node usermeta to PutRequestData.Meta
+				if strings.HasPrefix(k, common.MetaNamespaceUserspacePrefix) {
+					meta["X-Amz-Meta-"+k] = v
+				}
+			}
 			if _, er = router.PutObject(ctx, n, reader, &models.PutRequestData{Size: length, Metadata: meta}); er != nil {
 				return
 			} else if newN, err := router.ReadNode(ctx, &tree.ReadNodeRequest{Node: n}); err != nil {
