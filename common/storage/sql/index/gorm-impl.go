@@ -824,11 +824,7 @@ func (dao *gormImpl[T]) MoveNodeTree(ctx context.Context, nodeFrom tree.ITreeNod
 		// TODO - ApplyOrderedUpdates should really be handled in the hooks of the respective models
 		_, err := helper.ApplyOrderedUpdates(tx, tableName, []storagesql.OrderedUpdate{
 			{Key: "name", Value: nodeTo.GetName()},
-			{Key: "size", Value: nodeTo.GetNode().GetSize()},
-			{Key: "etag", Value: nodeTo.GetNode().GetEtag()},
 			{Key: "level", Value: nodeTo.GetMPath().Length()},
-			{Key: "mtime", Value: nodeTo.GetNode().GetMTime()},
-			{Key: "mode", Value: nodeTo.GetNode().GetMode()},
 			{Key: "mpath1", Value: nodeTo.GetMPath().GetMPath1()},
 			{Key: "mpath2", Value: nodeTo.GetMPath().GetMPath2()},
 			{Key: "mpath3", Value: nodeTo.GetMPath().GetMPath3()},
