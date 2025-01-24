@@ -795,6 +795,7 @@ func (dao *gormImpl[T]) MoveNodeTree(ctx context.Context, nodeFrom tree.ITreeNod
 
 	// Clear remaining mpaths with empty
 	for i := mpathNumber - 1; i >= 0; i-- {
+		//for i := 0; i < mpathNumber; i++ {
 		mp := fmt.Sprintf("mpath%d", i+1)
 		if up, ok := mpathUpdates[mp]; ok {
 			updates = append(updates, up)
@@ -820,16 +821,19 @@ func (dao *gormImpl[T]) MoveNodeTree(ctx context.Context, nodeFrom tree.ITreeNod
 	wheres = append(wheres, sql.Named("wLevel", gorm.Expr("level >= ?", mpathFromLevel)))
 
 	return ist.Transaction(func(tx *gorm.DB) error {
-
-		t1 := tx.
-			Model(model).
-			Omit("uuid", "leaf", "size", "mtime", "mode", "etag").
-			Select("name", "leaf", "size", "mtime", "mode", "etag", "level", "mpath4", "mpath3", "mpath2", "mpath1", "hash", "hash2").
-			Where(nodeFrom).
-			Updates(nodeTo)
-
-		if t1.Error != nil {
-			return t1.Error
+		_, err := helper.ApplyOrderedUpdates(tx, tableName, []storagesql.OrderedUpdate{
+			{Key: "level", Value: nodeTo.GetMPath().Length()},
+			{Key: "mpath1", Value: nodeTo.GetMPath().GetMPath1()},
+			{Key: "mpath2", Value: nodeTo.GetMPath().GetMPath2()},
+			{Key: "mpath3", Value: nodeTo.GetMPath().GetMPath3()},
+			{Key: "mpath4", Value: nodeTo.GetMPath().GetMPath4()},
+			{Key: "hash", Value: gorm.Expr(helper.Hash("mpath1", "mpath2", "mpath3", "mpath4"))},
+			{Key: "hash2", Value: gorm.Expr(helper.HashParent("mpath1", "level", "mpath2", "mpath3", "mpath4"))},
+		}, []sql.NamedArg{
+			sql.Named("wUuid", gorm.Expr("uuid = ?", nodeFrom.GetNode().GetUuid())),
+		})
+		if err != nil {
+			return err
 		}
 
 		rows, er := helper.ApplyOrderedUpdates(tx, tableName, updates, wheres)

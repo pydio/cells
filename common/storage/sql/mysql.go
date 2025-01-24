@@ -62,12 +62,23 @@ func (m *mysqlHelper) ApplyOrderedUpdates(db *gorm.DB, tableName string, sets []
 		args = append(args, w)
 	}
 
+	var assigns []string
+	assigns = append(assigns, "uuid AS new_uuid")
 	for _, u := range sets {
-		namedSets = append(namedSets, fmt.Sprintf("%s=@%s", u.Key, u.Key))
+		if u.Key == "hash" {
+			u.Value = gorm.Expr(m.Hash("uv.new_mpath1", "uv.new_mpath2", "uv.new_mpath3", "uv.new_mpath4"))
+			namedSets = append(namedSets, fmt.Sprintf("%s=@%s", u.Key, u.Key))
+		} else if u.Key == "hash2" {
+			u.Value = gorm.Expr(m.HashParent("name", "uv.new_level", "uv.new_mpath1", "uv.new_mpath2", "uv.new_mpath3", "uv.new_mpath4"))
+			namedSets = append(namedSets, fmt.Sprintf("%s=@%s", u.Key, u.Key))
+		} else {
+			assigns = append(assigns, fmt.Sprintf("@%s AS new_%s", u.Key, u.Key))
+			namedSets = append(namedSets, fmt.Sprintf("%s=uv.new_%s", u.Key, u.Key))
+		}
 		args = append(args, sql.Named(u.Key, u.Value))
 	}
 
-	q := fmt.Sprintf("UPDATE `%s` SET %s WHERE %s", tableName, strings.Join(namedSets, ", "), strings.Join(namedWheres, " AND "))
+	q := fmt.Sprintf("UPDATE `%s` JOIN (SELECT %s FROM %s) AS uv ON %s.uuid = uv.new_uuid SET %s WHERE %s", tableName, strings.Join(assigns, ", "), tableName, tableName, strings.Join(namedSets, ", "), strings.Join(namedWheres, " AND "))
 	tx := db.Exec(q, args...)
 	return tx.RowsAffected, tx.Error
 }

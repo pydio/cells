@@ -97,7 +97,6 @@ func (p *postgresHelper) ApplyOrderedUpdates(db *gorm.DB, tableName string, sets
 			namedSets = append(namedSets, fmt.Sprintf("\"%s\"=uv.new_%s", u.Key, u.Key))
 		}
 		args = append(args, sql.Named(u.Key, u.Value))
-
 	}
 
 	q := fmt.Sprintf("WITH updated_values AS ( SELECT %s FROM \"%s\" WHERE %s )", strings.Join(assigns, ", "), tableName, strings.Join(namedWheres, " AND "))
