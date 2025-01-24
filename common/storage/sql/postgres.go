@@ -94,8 +94,12 @@ func (p *postgresHelper) ApplyOrderedUpdates(db *gorm.DB, tableName string, sets
 			namedSets = append(namedSets, fmt.Sprintf("%s=@%s", u.Key, u.Key))
 		} else {
 			switch u.Value.(type) {
-			case int, int8, int16, int32, int64:
+			case int8, int16:
 				assigns = append(assigns, fmt.Sprintf("CAST(@%s AS SMALLINT) AS new_%s", u.Key, u.Key))
+			case int, int32, int64:
+				assigns = append(assigns, fmt.Sprintf("CAST(@%s AS INT) AS new_%s", u.Key, u.Key))
+			case bool:
+				assigns = append(assigns, fmt.Sprintf("CAST(@%s AS BOOL) AS new_%s", u.Key, u.Key))
 			default:
 				assigns = append(assigns, fmt.Sprintf("@%s AS new_%s", u.Key, u.Key))
 			}
