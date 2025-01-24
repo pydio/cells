@@ -57,7 +57,7 @@ func TemplateSQL(daoFunc any) []StorageTestCase {
 	unique := uuid.New()[:6]
 	ss := []StorageTestCase{
 		{
-			DSN:       []string{sql.SqliteDriver + "://" + sql.SharedMemDSN + "&hookNames=cleanTables&prefix=" + unique},
+			DSN:       []string{sql.SqliteDriver + "://" + sql.SharedMemDSN + "&hookNames=cleanTables&prefix=test_" + unique},
 			Condition: os.Getenv("CELLS_TEST_SKIP_SQLITE") != "true",
 			DAO:       daoFunc,
 		},
@@ -65,7 +65,7 @@ func TemplateSQL(daoFunc any) []StorageTestCase {
 	if other := os.Getenv("CELLS_TEST_MYSQL_DSN"); other != "" {
 		for _, dsn := range strings.Split(other, ";") {
 			ss = append(ss, StorageTestCase{
-				DSN:       []string{strings.TrimSpace(dsn) + "?parseTime=true&hookNames=cleanTables&prefix=" + unique},
+				DSN:       []string{strings.TrimSpace(dsn) + "?parseTime=true&hookNames=cleanTables&prefix=test_" + unique},
 				Condition: true,
 				DAO:       daoFunc,
 			})
@@ -74,7 +74,7 @@ func TemplateSQL(daoFunc any) []StorageTestCase {
 	if other := os.Getenv("CELLS_TEST_PGSQL_DSN"); other != "" {
 		for _, dsn := range strings.Split(other, ";") {
 			ss = append(ss, StorageTestCase{
-				DSN:       []string{strings.TrimSpace(dsn) + "&hookNames=cleanTables&prefix=" + unique},
+				DSN:       []string{strings.TrimSpace(dsn) + "&hookNames=cleanTables&prefix=test_" + unique},
 				Condition: true,
 				DAO:       daoFunc,
 			})
@@ -86,7 +86,7 @@ func TemplateSQL(daoFunc any) []StorageTestCase {
 // TemplateMongoEnvWithPrefix creates a StorageTestCase for MongoDB
 func TemplateMongoEnvWithPrefix(daoFunc any, prefix string) StorageTestCase {
 	return StorageTestCase{
-		DSN:       []string{os.Getenv("CELLS_TEST_MONGODB_DSN") + "?hookNames=cleanCollections&prefix=" + prefix},
+		DSN:       []string{os.Getenv("CELLS_TEST_MONGODB_DSN") + "?hookNames=cleanCollections&prefix=test_" + prefix},
 		Condition: os.Getenv("CELLS_TEST_MONGODB_DSN") != "",
 		DAO:       daoFunc,
 	}
@@ -95,7 +95,7 @@ func TemplateMongoEnvWithPrefix(daoFunc any, prefix string) StorageTestCase {
 // TemplateMongoEnvWithPrefixAndIndexerCollection creates a StorageTestCase for MongoDB
 func TemplateMongoEnvWithPrefixAndIndexerCollection(daoFunc any, prefix, collection string) StorageTestCase {
 	return StorageTestCase{
-		DSN:       []string{os.Getenv("CELLS_TEST_MONGODB_DSN") + "?hookNames=cleanCollections&prefix=" + prefix + "&collection=" + collection},
+		DSN:       []string{os.Getenv("CELLS_TEST_MONGODB_DSN") + "?hookNames=cleanCollections&prefix=test_" + prefix + "&collection=" + collection},
 		Condition: os.Getenv("CELLS_TEST_MONGODB_DSN") != "",
 		DAO:       daoFunc,
 	}
@@ -158,6 +158,58 @@ func init() {
 	if err != nil {
 		panic(err)
 	}
+}
+
+type Testable interface {
+	Label() string
+}
+
+type T testing.T
+
+func (t *T) Run(name string, f func(*testing.T)) bool {
+	return (*testing.T)(t).Run(name, f)
+}
+
+func RunGenericTests[T Testable](testcases []T, t *testing.T, f func(ctx context.Context, testcase T)) {
+
+	ctx := context.Background()
+
+	v := viper.New()
+	v.Set(runtime.KeyConfig, "mem://")
+	v.SetDefault(runtime.KeyArgTags, []string{"test"})
+	v.Set(runtime.KeyBootstrapYAML, singleYAML)
+
+	mem, _ := config.OpenStore(ctx, "mem://")
+	ctx = propagator.With(ctx, config.ContextKey, mem)
+
+	runtime.SetRuntime(v)
+
+	mgr, err := manager.NewManager(ctx, "test", nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	ctx = mgr.Context()
+	ctx = runtime.MultiContextManager().RootContext(ctx)
+
+	mgr.ServeAll()
+
+	log.SetLoggerInit(func(ctx context.Context) (*zap.Logger, []io.Closer) {
+		cfg := zap.NewDevelopmentConfig()
+		cfg.OutputPaths = []string{"stdout"}
+		cfg.Level = zap.NewAtomicLevelAt(zap.DebugLevel)
+		z, _ := cfg.Build()
+
+		return z, nil
+	}, nil)
+
+	for _, testcase := range testcases {
+		t.Run(testcase.Label(), func(_ *testing.T) {
+			f(ctx, testcase)
+		})
+	}
+
+	return
 }
 
 func RunTests(t *testing.T, init func(context.Context), f func(context.Context)) {
