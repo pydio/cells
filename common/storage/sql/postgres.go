@@ -93,7 +93,12 @@ func (p *postgresHelper) ApplyOrderedUpdates(db *gorm.DB, tableName string, sets
 			u.Value = gorm.Expr(p.HashParent("name", "uv.new_level", "uv.new_mpath1", "uv.new_mpath2", "uv.new_mpath3", "uv.new_mpath4"))
 			namedSets = append(namedSets, fmt.Sprintf("%s=@%s", u.Key, u.Key))
 		} else {
-			assigns = append(assigns, fmt.Sprintf("@%s AS new_%s", u.Key, u.Key))
+			switch u.Value.(type) {
+			case int, int8, int16, int32, int64:
+				assigns = append(assigns, fmt.Sprintf("CAST(@%s AS SMALLINT) AS new_%s", u.Key, u.Key))
+			default:
+				assigns = append(assigns, fmt.Sprintf("@%s AS new_%s", u.Key, u.Key))
+			}
 			namedSets = append(namedSets, fmt.Sprintf("\"%s\"=uv.new_%s", u.Key, u.Key))
 		}
 		args = append(args, sql.Named(u.Key, u.Value))
