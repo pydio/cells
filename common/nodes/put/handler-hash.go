@@ -243,7 +243,7 @@ func (m *HashHandler) StreamChanges(ctx context.Context, in *tree.StreamChangesR
 
 // getPartsCache initializes a cache for multipart hashes
 func (m *HashHandler) getPartsCache(ctx context.Context) (c cache.Cache, e error) {
-	return cache_helper.ResolveCache(ctx, "shared", partsCacheConf)
+	return cache_helper.ResolveCache(ctx, common.CacheTypeShared, partsCacheConf)
 }
 
 // clearMultipartCachedHashes removes any stored parts from the cache

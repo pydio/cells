@@ -52,7 +52,7 @@ func init() {
 			service.WithStorageDrivers(workspace.Drivers...),
 			service.Migrations([]*service.Migration{
 				{
-					TargetVersion: service.FirstRun(),
+					TargetVersion: service.FirstRunOrChange(),
 					Up:            manager.StorageMigration(),
 				},
 			}),

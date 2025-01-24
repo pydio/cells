@@ -56,7 +56,7 @@ func getAclCache(ctx context.Context) cache.Cache {
 			}
 			switch event.Type {
 			case idm.ChangeEventType_CREATE, idm.ChangeEventType_UPDATE, idm.ChangeEventType_DELETE:
-				if ka, er := cache_helper.ResolveCache(msgCtx, "short", ancestorsConfig); er == nil {
+				if ka, er := cache_helper.ResolveCache(msgCtx, common.CacheTypeLocal, ancestorsConfig); er == nil {
 					return ka.Reset()
 				} else {
 					log.Logger(msgCtx).Error("Cannot resolve Acl Cache for invalidation", zap.Error(er))
@@ -68,7 +68,7 @@ func getAclCache(ctx context.Context) cache.Cache {
 			log.Logger(ctx).Error("Cannot subscribe to TopicIdmEvent for AclCache", zap.Error(er))
 		}
 	})
-	return cache_helper.MustResolveCache(ctx, "short", ancestorsConfig)
+	return cache_helper.MustResolveCache(ctx, common.CacheTypeLocal, ancestorsConfig)
 }
 
 type CachedAccessList struct {

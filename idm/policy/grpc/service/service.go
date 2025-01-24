@@ -42,7 +42,7 @@ func init() {
 
 		migs := append([]*service.Migration{
 			{
-				TargetVersion: service.FirstRun(),
+				TargetVersion: service.FirstRunOrChange(),
 				Up:            manager.StorageMigration(),
 			},
 		}, policy.GrpcServiceMigrations...)

@@ -31,6 +31,7 @@ import (
 	"google.golang.org/grpc"
 	"google.golang.org/protobuf/proto"
 
+	"github.com/pydio/cells/v5/common"
 	"github.com/pydio/cells/v5/common/errors"
 	"github.com/pydio/cells/v5/common/nodes"
 	"github.com/pydio/cells/v5/common/nodes/models"
@@ -60,7 +61,7 @@ func (v *BranchFilter) LookupRoot(ctx context.Context, uuid string) (*tree.Node,
 		return virtualNode, nil
 	}
 
-	ca, _ := cache_helper.ResolveCache(ctx, "short", rootNodesCacheConfig)
+	ca, _ := cache_helper.ResolveCache(ctx, common.CacheTypeLocal, rootNodesCacheConfig)
 
 	var n *tree.Node
 	if ca != nil && ca.Get(uuid, &n) {

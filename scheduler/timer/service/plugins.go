@@ -26,11 +26,12 @@ import (
 	"fmt"
 	"sync"
 
+	"google.golang.org/grpc"
+
 	"github.com/pydio/cells/v5/common"
 	"github.com/pydio/cells/v5/common/broker"
 	"github.com/pydio/cells/v5/common/proto/jobs"
 	"github.com/pydio/cells/v5/common/runtime"
-	"github.com/pydio/cells/v5/common/server/generic"
 	"github.com/pydio/cells/v5/common/service"
 	"github.com/pydio/cells/v5/scheduler/timer"
 )
@@ -45,13 +46,12 @@ func init() {
 	runtime.Register("main", func(ctx context.Context) {
 
 		service.NewService(
-			service.Name(common.ServiceGenericNamespace_+common.ServiceTimer),
+			service.Name(common.ServiceGrpcNamespace_+common.ServiceTimer),
 			service.Context(ctx),
 			service.Tag(common.ServiceTagScheduler),
 			service.Description("Triggers events based on a scheduler pattern"),
 			service.Unique(true),
-			service.WithGeneric(func(c context.Context, server *generic.Server) error {
-
+			service.WithGRPC(func(c context.Context, _ grpc.ServiceRegistrar) error {
 				tm := runtime.MultiContextManager()
 
 				_ = tm.Watch(c, func(ct context.Context, id string) error {
@@ -90,7 +90,7 @@ func init() {
 				return nil
 
 			}),
-			service.WithGenericStop(func(c context.Context, server *generic.Server) error {
+			service.WithGRPCStop(func(c context.Context, _ grpc.ServiceRegistrar) error {
 				pLocks.RLock()
 				defer pLocks.RUnlock()
 				for _, p := range producers {

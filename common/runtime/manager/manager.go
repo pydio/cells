@@ -1102,10 +1102,14 @@ func (m *manager) initQueues(ctx context.Context, store config.Store, base strin
 	runtime.Register(m.ns, func(ctx context.Context) {
 		queues := store.Val(base + "/queues")
 		for k := range queues.Map() {
+			if k != common.QueueTypeDebouncer && k != common.QueueTypePersistent {
+				log.Logger(ctx).Error("WARNING - Cache key should be one of ['" + common.QueueTypeDebouncer + "', '" + common.QueueTypePersistent + "']. Key " + k + " will be useless")
+				continue
+			}
 			uri := queues.Val(k, "uri").String()
 			pool, err := m.queues.Open(ctx, uri)
 			if err != nil {
-				fmt.Println("initQueues - cannot open pool with URI"+uri, err)
+				log.Logger(ctx).Error("initQueues - cannot open pool with URI"+uri, zap.Error(err))
 				continue
 			}
 			regKey := "queue-" + k
@@ -1114,9 +1118,9 @@ func (m *manager) initQueues(ctx context.Context, store config.Store, base strin
 				meta[registry.MetaStatusKey] = string(registry.StatusTransient)
 			}).Register(registry.NewRichItem(regKey, regKey, pb.ItemType_GENERIC, pool), registry.WithEdgeTo(m.root.ID(), "queue", nil))
 			if er != nil {
-				fmt.Println("initQueues - cannot register queue pool with URI"+uri, er)
+				log.Logger(ctx).Error("initQueues - cannot register queue pool with URI"+uri, zap.Error(er))
 			} else {
-				//fmt.Println("initQueues - Registered " + regKey + " with pool from uri " + uri)
+				log.Logger(ctx).Info("Registered Queue " + regKey + " with pool from uri " + uri)
 			}
 		}
 	})
@@ -1162,10 +1166,14 @@ func (m *manager) initCaches(ctx context.Context, store config.Store, base strin
 	runtime.Register(m.ns, func(ctx context.Context) {
 		caches := store.Val(base + "/caches")
 		for k := range caches.Map() {
+			if k != common.CacheTypeShared && k != common.CacheTypeLocal {
+				log.Logger(ctx).Error("WARNING - Cache key should be one of ['" + common.CacheTypeLocal + "', '" + common.CacheTypeShared + "']. Key " + k + " will be useless")
+				continue
+			}
 			uri := caches.Val(k, "uri").String()
 			pool, err := m.caches.Open(ctx, uri)
 			if err != nil {
-				fmt.Println("initCaches - cannot open cache pool with URI"+uri, err)
+				log.Logger(ctx).Error("initCaches - cannot open cache pool with URI"+uri, zap.Error(err))
 				continue
 			}
 			regKey := "cache-" + k
@@ -1174,9 +1182,9 @@ func (m *manager) initCaches(ctx context.Context, store config.Store, base strin
 				meta[registry.MetaStatusKey] = string(registry.StatusTransient)
 			}).Register(registry.NewRichItem(regKey, regKey, pb.ItemType_GENERIC, pool), registry.WithEdgeTo(m.root.ID(), "cache", nil))
 			if er != nil {
-				fmt.Println("initCaches - cannot register pool with URI"+uri, er)
+				log.Logger(ctx).Error("initCaches - cannot register pool with URI"+uri, zap.Error(er))
 			} else {
-				//fmt.Println("initCaches - Registered " + regKey + " with pool from uri " + uri)
+				log.Logger(ctx).Info("Registered Cache " + regKey + " with pool from uri " + uri)
 			}
 		}
 	})

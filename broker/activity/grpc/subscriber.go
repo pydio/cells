@@ -84,7 +84,7 @@ func (e *MicroEventsSubscriber) getQueue(ctx context.Context) (broker.AsyncQueue
 		"idle":     "20s",
 		"max":      "2000",
 	}
-	return mgr.GetQueue(ctx, "debouncer", data, "activity", func(q broker.AsyncQueue) (broker.AsyncQueue, error) {
+	return mgr.GetQueue(ctx, common.QueueTypeDebouncer, data, "activity", func(q broker.AsyncQueue) (broker.AsyncQueue, error) {
 		er := q.Consume(e.ProcessIdmBatch)
 		return q, er
 	})
@@ -260,7 +260,7 @@ func (e *MicroEventsSubscriber) parentsFromCache(ctx context.Context, node *tree
 	e.Lock()
 	defer e.Unlock()
 
-	kach, err := cache_helper.ResolveCache(ctx, "short", e.cacheConfig)
+	kach, err := cache_helper.ResolveCache(ctx, common.CacheTypeLocal, e.cacheConfig)
 	if err != nil {
 		return nil, nil, err
 	}

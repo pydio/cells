@@ -101,7 +101,7 @@ func (s *CacheHandler) getCtxCache(ctx context.Context) cache.Cache {
 			return nil
 		}, broker.WithCounterName("nodes-cache"))
 	})
-	return cache_helper.MustResolveCache(ctx, "shared", syncCacheConfig)
+	return cache_helper.MustResolveCache(ctx, common.CacheTypeShared, syncCacheConfig)
 }
 
 func (s *CacheHandler) cacheEvent(ctx context.Context, event *tree.NodeChangeEvent) {

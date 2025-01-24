@@ -90,7 +90,7 @@ func (a *QuotaFilter) ReadNode(ctx context.Context, in *tree.ReadNodeRequest, op
 	}
 
 	var cacheKey string
-	ca := cache_helper.MustResolveCache(ctx, "short", cacheConfig)
+	ca := cache_helper.MustResolveCache(ctx, common.CacheTypeLocal, cacheConfig)
 	if claims, ok := ctx.Value(claim.ContextKey).(claim.Claims); ok {
 		cacheKey = branch.Workspace.UUID + "-" + claims.Name
 		var qc *qCache

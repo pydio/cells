@@ -89,7 +89,7 @@ func (a ByOverride) Less(i, j int) bool { return !a[i].ForceOverride && a[j].For
 func resolveCache(ctx context.Context) (cache.Cache, error) {
 	var mgr manager.Manager
 	if propagator.Get(ctx, manager.ContextKey, &mgr) {
-		return mgr.GetCache(ctx, "short", map[string]interface{}{
+		return mgr.GetCache(ctx, common.CacheTypeLocal, map[string]interface{}{
 			"evictionTime": "10s",
 			"cleanWindow":  "20s",
 		})
@@ -560,7 +560,7 @@ func (h *Handler) applyAutoApplies(usr *idm.User, autoApplies map[string][]*idm.
 func (h *Handler) loadAutoAppliesRoles(ctx context.Context) (autoApplies map[string][]*idm.Role, err error) {
 
 	// Check if it's not already cached
-	ca, cer := cache_helper.ResolveCache(ctx, "short", cacheConfig)
+	ca, cer := cache_helper.ResolveCache(ctx, common.CacheTypeLocal, cacheConfig)
 	if cer == nil && ca.Get("autoApplies", &autoApplies) {
 		return
 	}

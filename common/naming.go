@@ -39,8 +39,6 @@ type (
 
 // Defines all constants for services names.
 const (
-	ServiceNats = "nats"
-
 	ServiceLog         = "log"
 	ServiceConfig      = "config"
 	ServiceInstall     = "install"
@@ -75,17 +73,14 @@ const (
 	ServiceAclGRPC          = ServiceGrpcNamespace_ + ServiceAcl
 	ServiceMetaGRPC         = ServiceGrpcNamespace_ + ServiceMeta
 	ServiceTreeGRPC         = ServiceGrpcNamespace_ + ServiceTree
-	ServiceShareGRPC        = ServiceGrpcNamespace_ + ServiceShare
 	ServiceRoleGRPC         = ServiceGrpcNamespace_ + ServiceRole
 	ServiceUserGRPC         = ServiceGrpcNamespace_ + ServiceUser
 	ServiceOAuthGRPC        = ServiceGrpcNamespace_ + ServiceOAuth
 	ServiceTokenGRPC        = ServiceGrpcNamespace_ + ServiceToken
 	ServiceWorkspaceGRPC    = ServiceGrpcNamespace_ + ServiceWorkspace
 	ServicePolicyGRPC       = ServiceGrpcNamespace_ + ServicePolicy
-	ServiceGraphGRPC        = ServiceGrpcNamespace_ + ServiceGraph
 	ServiceUserMetaGRPC     = ServiceGrpcNamespace_ + ServiceUserMeta
 	ServiceUserKeyGRPC      = ServiceGrpcNamespace_ + ServiceUserKey
-	ServiceDataGRPC         = ServiceGrpcNamespace_ + ServiceData_
 	ServiceDataObjectsGRPC  = ServiceGrpcNamespace_ + ServiceDataObjects
 	ServiceDataObjectsGRPC_ = ServiceGrpcNamespace_ + ServiceDataObjects_
 	ServiceDataIndexGRPC_   = ServiceGrpcNamespace_ + ServiceDataIndex_
@@ -113,8 +108,6 @@ const (
 	ServiceMeta      = "meta"
 	ServiceEncKey    = "data-key"
 	ServiceSearch    = "search"
-	ServiceChanges   = "changes"
-	ServiceSync      = "sync"
 	ServiceTemplates = "templates"
 
 	ServiceActivity     = "activity"
@@ -129,7 +122,6 @@ const (
 	ServiceTasks    = "tasks"
 	ServiceVersions = "versions"
 	ServiceDocStore = "docstore"
-	ServiceMetrics  = "metrics"
 	ServicePprof    = "pprof"
 
 	ServiceData_        = "data."
@@ -145,7 +137,6 @@ const (
 	ServiceRestNamespace_    = "pydio.rest."
 	ServiceGatewayNamespace_ = "pydio.gateway."
 	ServiceTestNamespace_    = "pydio.test."
-	ServiceStorageNamespace_ = "pydio.storage."
 	ServiceGenericNamespace_ = "pydio.generic."
 
 	ServiceGatewayProxy     = ServiceGatewayNamespace_ + "proxy"
@@ -155,6 +146,11 @@ const (
 	ServiceGatewayDav       = ServiceGatewayNamespace_ + "dav"
 	ServiceGatewayWopi      = ServiceGatewayNamespace_ + "wopi"
 	ServiceMicroApi         = ServiceGatewayNamespace_ + "rest"
+
+	CacheTypeShared     = "shared"
+	CacheTypeLocal      = "local"
+	QueueTypePersistent = "persistent"
+	QueueTypeDebouncer  = "debouncer"
 )
 
 // Define constants for Event Bus Topics

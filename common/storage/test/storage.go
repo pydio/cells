@@ -143,7 +143,7 @@ servers:
     services:
       - filter: "{{ .Name }} ~= .*"
 caches:
-  short:
+  local:
     uri: pm://
   shared:
     uri: pm://

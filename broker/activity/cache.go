@@ -142,7 +142,7 @@ func (c *Cache) PostActivity(ctx context.Context, ownerType activity.OwnerType, 
 
 func (c *Cache) UpdateSubscription(ctx context.Context, subscription *activity.Subscription) error {
 	// Clear cache
-	if ca, er := cache_helper.ResolveCache(ctx, "shared", cacheConf); er == nil {
+	if ca, er := cache_helper.ResolveCache(ctx, common.CacheTypeShared, cacheConf); er == nil {
 		_ = ca.Delete(subscription.ObjectType.String() + "-" + subscription.ObjectId)
 	}
 	return c.DAO.UpdateSubscription(ctx, subscription)
@@ -152,7 +152,7 @@ func (c *Cache) ListSubscriptions(ctx context.Context, objectType activity.Owner
 
 	var filtered []string
 	toCache := make(map[string][]*activity.Subscription)
-	ca, _ := cache_helper.ResolveCache(ctx, "shared", cacheConf)
+	ca, _ := cache_helper.ResolveCache(ctx, common.CacheTypeShared, cacheConf)
 
 	for _, id := range objectIds {
 		// We'll cache an empty slice by default

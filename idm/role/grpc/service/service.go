@@ -48,7 +48,7 @@ func init() {
 			service.WithStorageDrivers(role.Drivers...),
 			service.Migrations(append([]*service.Migration{
 				{
-					TargetVersion: service.FirstRun(),
+					TargetVersion: service.FirstRunOrChange(),
 					Up:            manager.StorageMigration(),
 				},
 			}, grpc2.GrpcServiceMigrations...)),

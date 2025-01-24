@@ -28,6 +28,7 @@ import (
 
 	"go.uber.org/zap"
 
+	"github.com/pydio/cells/v5/common"
 	"github.com/pydio/cells/v5/common/broker"
 	"github.com/pydio/cells/v5/common/proto/chat"
 	"github.com/pydio/cells/v5/common/proto/idm"
@@ -95,7 +96,7 @@ func NewDispatcher(rootCtx context.Context, maxWorkers int, job *jobs.Job, tags 
 	var er error
 
 	data := map[string]interface{}{"name": "jobs", "prefix": job.ID}
-	d.fifo, d.fifoRemove, er = mgr.GetQueue(ctx, "persisted", data, "job-"+job.ID+"-"+uuid.New()[:12], d.Opener(rootCtx, job, d.fifoQueue, jobQueue))
+	d.fifo, d.fifoRemove, er = mgr.GetQueue(ctx, common.QueueTypePersistent, data, "job-"+job.ID+"-"+uuid.New()[:12], d.Opener(rootCtx, job, d.fifoQueue, jobQueue))
 
 	if er != nil {
 		can()

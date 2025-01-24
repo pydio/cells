@@ -316,7 +316,7 @@ func (ukm *userKeyStore) createSystemKey(ctx context.Context, keyID string, keyL
 }
 
 func (ukm *userKeyStore) masterFromCache(ctx context.Context) (master []byte, err error) {
-	ka, er := cache_helper.ResolveCache(ctx, "short", keyCacheConfig)
+	ka, er := cache_helper.ResolveCache(ctx, common.CacheTypeLocal, keyCacheConfig)
 	if er != nil {
 		return nil, er
 	}
@@ -345,7 +345,7 @@ func (ukm *userKeyStore) masterFromCache(ctx context.Context) (master []byte, er
 }
 
 func (ukm *userKeyStore) legacyFromCache(ctx context.Context, master []byte) (legacy []byte, err error) {
-	ka, er := cache_helper.ResolveCache(ctx, "short", keyCacheConfig)
+	ka, er := cache_helper.ResolveCache(ctx, common.CacheTypeLocal, keyCacheConfig)
 	if er != nil {
 		return nil, er
 	}

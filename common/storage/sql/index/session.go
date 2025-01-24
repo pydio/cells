@@ -11,6 +11,7 @@ import (
 	"google.golang.org/protobuf/proto"
 	"gorm.io/gorm"
 
+	"github.com/pydio/cells/v5/common"
 	"github.com/pydio/cells/v5/common/errors"
 	"github.com/pydio/cells/v5/common/proto/tree"
 	"github.com/pydio/cells/v5/common/telemetry/log"
@@ -46,7 +47,7 @@ func NewSessionDAO(session string, concurrency int, d DAO) DAO {
 }
 
 func (d *sessionDAO) getCache(ctx context.Context) cache.Cache {
-	return cache_helper.MustResolveCache(ctx, "short", d.cacheConf)
+	return cache_helper.MustResolveCache(ctx, common.CacheTypeLocal, d.cacheConf)
 }
 
 func (d *sessionDAO) insertNode(ctx context.Context, node tree.ITreeNode) error {

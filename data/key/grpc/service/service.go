@@ -49,7 +49,7 @@ func init() {
 			service.WithStorageDrivers(key.Drivers...),
 			service.Migrations([]*service.Migration{
 				{
-					TargetVersion: service.FirstRun(),
+					TargetVersion: service.FirstRunOrChange(),
 					Up:            manager.StorageMigration(),
 				},
 			}),

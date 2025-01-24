@@ -106,7 +106,7 @@ func TestUser(t *testing.T) {
 
 	test.RunStorageTests(testcases, t, func(ctx context.Context) {
 		// Store some data in cache
-		c, err := cache_helper.ResolveCache(ctx, "short", cache.Config{Eviction: "3600s", CleanWindow: "7200s"})
+		c, err := cache_helper.ResolveCache(ctx, common.CacheTypeLocal, cache.Config{Eviction: "3600s", CleanWindow: "7200s"})
 		if err != nil {
 			panic(err)
 		}

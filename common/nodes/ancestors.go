@@ -25,6 +25,7 @@ import (
 	"path"
 	"strings"
 
+	"github.com/pydio/cells/v5/common"
 	"github.com/pydio/cells/v5/common/errors"
 	"github.com/pydio/cells/v5/common/proto/tree"
 	"github.com/pydio/cells/v5/common/telemetry/tracing"
@@ -46,11 +47,11 @@ var (
 )
 
 func getAncestorsParentsCache(ctx context.Context) cache.Cache {
-	return cache_helper.MustResolveCache(ctx, "short", ancestorsParentsConfig)
+	return cache_helper.MustResolveCache(ctx, common.CacheTypeLocal, ancestorsParentsConfig)
 }
 
 func getAncestorsNodesCache(ctx context.Context) cache.Cache {
-	return cache_helper.MustResolveCache(ctx, "short", ancestorsConfig)
+	return cache_helper.MustResolveCache(ctx, common.CacheTypeLocal, ancestorsConfig)
 }
 
 // BuildAncestorsList uses ListNodes with "Ancestors" flag to build the list of parent nodes.

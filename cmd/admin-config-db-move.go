@@ -48,7 +48,7 @@ var (
 
 	moveYAML = `
 caches:
-  short:
+  local:
     uri: pm://
   shared:
     uri: pm://

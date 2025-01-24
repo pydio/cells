@@ -56,7 +56,7 @@ var (
 )
 
 func getUsersCache(ctx context.Context) cache.Cache {
-	return cache_helper.MustResolveCache(ctx, "short", usersCacheConfig)
+	return cache_helper.MustResolveCache(ctx, common.CacheTypeLocal, usersCacheConfig)
 }
 
 // GetRolesForUser loads the roles of a given user.

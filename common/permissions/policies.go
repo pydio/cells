@@ -68,13 +68,13 @@ var polCacheOnce sync.Once
 func getCheckersCache(ctx context.Context) cache.Cache {
 	polCacheOnce.Do(func() {
 		_, _ = broker.Subscribe(context.WithoutCancel(ctx), common.TopicIdmPolicies, func(ct context.Context, message broker.Message) error {
-			polCache := cache_helper.MustResolveCache(ct, "short", polCacheConfig)
+			polCache := cache_helper.MustResolveCache(ct, common.CacheTypeLocal, polCacheConfig)
 			_ = polCache.Delete("acl")
 			_ = polCache.Delete("oidc")
 			return nil
 		}, broker.WithCounterName("policies-cache"))
 	})
-	return cache_helper.MustResolveCache(ctx, "short", polCacheConfig)
+	return cache_helper.MustResolveCache(ctx, common.CacheTypeLocal, polCacheConfig)
 }
 
 // PolicyRequestSubjectsFromUser builds an array of string subjects from the passed User.
