@@ -24,6 +24,7 @@ package service
 import (
 	"context"
 
+	"go.uber.org/zap"
 	"google.golang.org/grpc"
 
 	mailer2 "github.com/pydio/cells/v5/broker/mailer"
@@ -75,7 +76,7 @@ func init() {
 						if er := handler.CheckSender(ctx, values); er == nil {
 							log.Logger(ctx).Info("Enabling mailer status for " + s)
 						} else {
-							log.Logger(ctx).Warn("No mailer enabled for " + s)
+							log.Logger(ctx).Warn("No mailer enabled for "+s, zap.Error(er))
 						}
 					})
 					return nil

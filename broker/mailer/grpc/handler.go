@@ -205,10 +205,8 @@ func (h *Handler) ConsumeQueue(ctx context.Context, req *proto.ConsumeQueueReque
 
 func (h *Handler) parseConf(conf configx.Values) (senderName string, senderConfig configx.Values) {
 
-	// Defaults
-	senderName = "sendmail"
 	senderConfig = conf.Val("sender")
-	senderName = senderConfig.Val("@value").Default("sendmail").String()
+	senderName = senderConfig.Val("@value").Default("noop").String()
 
 	return
 }
