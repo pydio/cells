@@ -227,7 +227,7 @@ func NewStore(opt ...configx.Option) (st Store) {
 	}
 
 	s := kv.NewStore()
-	w := watch.NewWatcher(s)
+	w := watch.NewWatcher[kv.Store](s)
 
 	st = newStoreWithWatcher(s, w)
 
