@@ -33,7 +33,7 @@ import (
 	"github.com/pydio/cells/v5/common/proto/rest"
 	"github.com/pydio/cells/v5/common/proto/tree"
 	"github.com/pydio/cells/v5/common/telemetry/log"
-	rest2 "github.com/pydio/cells/v5/idm/meta/rest"
+	"github.com/pydio/cells/v5/idm/meta"
 )
 
 // BatchUpdateMeta PATCH /node/meta/batch
@@ -84,13 +84,13 @@ func (h *Handler) PatchNode(req *restful.Request, resp *restful.Response) error 
 		if toggle.Value {
 			putReq.MetaDatas = append(putReq.MetaDatas, &idm.UserMeta{
 				NodeUuid:  nodeUuid,
-				Namespace: rest2.ReservedNSBookmark,
+				Namespace: meta.ReservedNamespaceBookmark,
 				JsonValue: "true",
 			})
 		} else {
 			delReq.MetaDatas = append(delReq.MetaDatas, &idm.UserMeta{
 				NodeUuid:  nodeUuid,
-				Namespace: rest2.ReservedNSBookmark,
+				Namespace: meta.ReservedNamespaceBookmark,
 			})
 		}
 	}
@@ -154,7 +154,7 @@ func (h *Handler) UserBookmarks(req *restful.Request, resp *restful.Response) er
 	output := &rest.NodeCollection{}
 
 	searchRequest := &idm.SearchUserMetaRequest{
-		Namespace: rest2.ReservedNSBookmark,
+		Namespace: meta.ReservedNamespaceBookmark,
 	}
 	ctx := req.Request.Context()
 	router := h.UuidClient(true)
@@ -215,7 +215,7 @@ func (h *Handler) ListNamespaceValues(req *restful.Request, resp *restful.Respon
 		return errors.WithMessagef(errors.StatusNotFound, "namespace %s does not exist", ns)
 	}
 	out := &rest.NamespaceValuesResponse{}
-	out.Values, _ = h.UserMetaHandler.ValuesClient.ListTags(ctx, ns)
+	out.Values, _ = h.UserMetaHandler.TagValuesHandler().ListTags(ctx, ns)
 	return resp.WriteEntity(out)
 }
 
@@ -242,7 +242,7 @@ func (h *Handler) UpdateNamespaceValues(req *restful.Request, resp *restful.Resp
 	} else if !nsObject.PoliciesContextEditable {
 		return errors.WithMessagef(errors.StatusForbidden, "updating namespace %s is not allowed", namespace)
 	}
-	tc := h.UserMetaHandler.ValuesClient
+	tc := h.UserMetaHandler.TagValuesHandler()
 
 	var err error
 	switch op.Operation {

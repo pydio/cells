@@ -237,6 +237,7 @@ message IncomingNode {
   string ContentType = 3;
   string TemplateUuid = 4;
   int64 KnownSize = 5;
+  repeated UserMeta Metadata = 6;
 }
 
 // Request for creating nodes

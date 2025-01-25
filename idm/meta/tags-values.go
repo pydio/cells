@@ -1,3 +1,23 @@
+/*
+ * Copyright (c) 2025. Abstrium SAS <team (at) pydio.com>
+ * This file is part of Pydio Cells.
+ *
+ * Pydio Cells is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Pydio Cells is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with Pydio Cells.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ * The latest code can be found at <https://pydio.com>.
+ */
+
 package meta
 
 import (
@@ -10,15 +30,25 @@ import (
 
 const TagsDocStoreId = "user_meta_tags"
 
-// TagsValuesClient is an utilitary used for listing/storing a set of values used in a given usermeta namespace
-type TagsValuesClient struct{}
+type TagsValuesClient interface {
+	ListTags(ctx context.Context, namespace string) ([]string, *docstore.Document)
+	StoreNewTags(ctx context.Context, namespace string, tags []string) error
+	DeleteAllTags(ctx context.Context, namespace string) error
+}
 
-func (s *TagsValuesClient) getClient(ctx context.Context) docstore.DocStoreClient {
+func NewTagsValuesClient() TagsValuesClient {
+	return &tgClient{}
+}
+
+// tgClient is an utilitary used for listing/storing a set of values used in a given usermeta namespace
+type tgClient struct{}
+
+func (s *tgClient) getClient(ctx context.Context) docstore.DocStoreClient {
 	return docstorec.DocStoreClient(ctx)
 }
 
 // ListTags retrieves all values from the docstore
-func (s *TagsValuesClient) ListTags(ctx context.Context, namespace string) ([]string, *docstore.Document) {
+func (s *tgClient) ListTags(ctx context.Context, namespace string) ([]string, *docstore.Document) {
 	var tags []string
 	var doc *docstore.Document
 	r, e := s.getClient(ctx).GetDocument(ctx, &docstore.GetDocumentRequest{
@@ -36,7 +66,7 @@ func (s *TagsValuesClient) ListTags(ctx context.Context, namespace string) ([]st
 }
 
 // StoreNewTags checks if there are new values and update the list in the docstore accordingly
-func (s *TagsValuesClient) StoreNewTags(ctx context.Context, namespace string, tags []string) error {
+func (s *tgClient) StoreNewTags(ctx context.Context, namespace string, tags []string) error {
 	// Store new tags
 	currentTags, storeDocument := s.ListTags(ctx, namespace)
 	changes := false
@@ -77,7 +107,7 @@ func (s *TagsValuesClient) StoreNewTags(ctx context.Context, namespace string, t
 }
 
 // DeleteAllTags can be used to clear all values for this namespace
-func (s *TagsValuesClient) DeleteAllTags(ctx context.Context, namespace string) error {
+func (s *tgClient) DeleteAllTags(ctx context.Context, namespace string) error {
 	if _, e := s.getClient(ctx).DeleteDocuments(ctx, &docstore.DeleteDocumentsRequest{
 		StoreID:    TagsDocStoreId,
 		DocumentID: namespace,

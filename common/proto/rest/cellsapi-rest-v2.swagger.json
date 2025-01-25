@@ -818,6 +818,13 @@
         "Locator": {
           "$ref": "#/definitions/restNodeLocator"
         },
+        "Metadata": {
+          "items": {
+            "$ref": "#/definitions/restUserMeta",
+            "type": "object"
+          },
+          "type": "array"
+        },
         "TemplateUuid": {
           "type": "string"
         },

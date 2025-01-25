@@ -31,6 +31,7 @@ import (
 	"github.com/pydio/cells/v5/common/permissions"
 	"github.com/pydio/cells/v5/common/proto/rest"
 	"github.com/pydio/cells/v5/common/proto/tree"
+	json "github.com/pydio/cells/v5/common/utils/jsonx"
 	"github.com/pydio/cells/v5/scheduler/jobs/userspace"
 )
 
@@ -51,6 +52,13 @@ func (h *Handler) Create(req *restful.Request, resp *restful.Response) error {
 		}
 		if cType := n.GetContentType(); cType != "" {
 			node.MustSetMeta(common.MetaNamespaceMime, cType)
+		}
+		for _, meta := range n.GetMetadata() {
+			var i interface{}
+			if er := json.Unmarshal([]byte(meta.JsonValue), &i); er != nil {
+				return errors.Tag(er, errors.InvalidParameters)
+			}
+			node.MustSetMeta(meta.GetNamespace(), i)
 		}
 		tpl := n.GetTemplateUuid()
 		byTpl[tpl] = append(byTpl[tpl], node)

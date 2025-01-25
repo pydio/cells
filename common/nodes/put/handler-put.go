@@ -43,6 +43,7 @@ import (
 	"github.com/pydio/cells/v5/common/telemetry/log"
 	"github.com/pydio/cells/v5/common/utils/cache"
 	"github.com/pydio/cells/v5/common/utils/propagator"
+	"github.com/pydio/cells/v5/idm/meta"
 )
 
 func WithPutInterceptor() nodes.Option {
@@ -56,6 +57,7 @@ func WithPutInterceptor() nodes.Option {
 type Handler struct {
 	abstract.Handler
 	partsCache cache.Cache
+	metaClient meta.UserMetaClient
 }
 
 func (m *Handler) Adapt(c nodes.Handler, options nodes.RouterOptions) nodes.Handler {
@@ -80,7 +82,7 @@ func retryOnDuplicate(ctx context.Context, callback func(context.Context) (*tree
 
 // getOrCreatePutNode creates a temporary node before calling a Put request.
 // If it is an update, should send back the already existing node.
-// Returns the node, a flag to tell wether it is created or not, and eventually an error
+// Returns the node, a flag to tell whether it is created or not, and eventually an error
 // The Put event will afterward update the index
 func (m *Handler) getOrCreatePutNode(ctx context.Context, nodePath string, requestData *models.PutRequestData, preloadedNode ...*tree.Node) (*tree.Node, onCreateErrorFunc, error) {
 	var skipRead bool
@@ -125,6 +127,11 @@ func (m *Handler) getOrCreatePutNode(ctx context.Context, nodePath string, reque
 	if er != nil {
 		return nil, nil, er
 	}
+
+	if _, er = m.getMetaClient().ExtractAndPut(ctx, createResp.GetNode(), requestData.Metadata, meta.ExtractAmzHeaders); er != nil {
+		return nil, nil, er
+	}
+
 	delNode := createResp.Node.Clone()
 	errorFunc := func() {
 		if ctx.Err() != nil {
@@ -207,7 +214,13 @@ func (m *Handler) createParentIfNotExist(ctx context.Context, node *tree.Node, s
 // Only applicable to COLLECTION inside a structured storage (need to create .pydio hidden files)
 func (m *Handler) CreateNode(ctx context.Context, in *tree.CreateNodeRequest, opts ...grpc.CallOption) (*tree.CreateNodeResponse, error) {
 	if info, er := nodes.GetBranchInfo(ctx, "in"); er == nil && (info.FlatStorage || info.Binary || info.IsInternal()) || in.Node.IsLeaf() {
-		return m.Next.CreateNode(ctx, in, opts...)
+		resp, err := m.Next.CreateNode(ctx, in, opts...)
+		if err != nil || !nodes.IsFlatStorage(ctx, "in") {
+			return resp, err
+		}
+		// Handle input metadata if set
+		_, err = m.getMetaClient().ExtractAndPut(ctx, resp.GetNode(), in.GetNode().GetMetaStore(), meta.ExtractNodeMetadata)
+		return resp, err
 	}
 	if e := m.createParentIfNotExist(ctx, in.GetNode().Clone(), in.GetIndexationSession()); e != nil {
 		return nil, e
@@ -415,4 +428,15 @@ func (m *Handler) MultipartAbort(ctx context.Context, target *tree.Node, uploadI
 		deleteTemporary()
 	}
 	return e
+}
+
+func (m *Handler) getMetaClient() meta.UserMetaClient {
+	if m.metaClient == nil {
+		m.metaClient = meta.NewUserMetaClient(cache.Config{
+			Prefix:      "namespaces",
+			Eviction:    "10s",
+			CleanWindow: "3m",
+		})
+	}
+	return m.metaClient
 }
