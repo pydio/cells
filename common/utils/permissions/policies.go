@@ -142,8 +142,12 @@ func PolicyContextFromNode(policyContext map[string]string, node *tree.Node) {
 	if ms == nil {
 		return
 	}
-	for k := range ms {
-		policyContext[PolicyNodeMeta_+k] = node.GetStringMeta(k)
+	for k, v := range ms {
+		if s := node.GetStringMeta(k); s != "" {
+			policyContext[PolicyNodeMeta_+k] = s
+		} else {
+			policyContext[PolicyNodeMeta_+k] = v
+		}
 	}
 }
 
@@ -232,7 +236,9 @@ func CachedPoliciesChecker(ctx context.Context, resType string, requestContext m
 		}
 		if len(replaces) > 0 {
 			pol = proto.Clone(pol).(*idm.Policy)
-			pol.Conditions = replaces
+			for k, c := range replaces {
+				pol.Conditions[k] = c
+			}
 		}
 		_ = w.Manager.Create(converter.ProtoToLadonPolicy(pol))
 	}
