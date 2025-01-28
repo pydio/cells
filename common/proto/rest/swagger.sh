@@ -31,6 +31,20 @@ if [[ -n "${GENERATE_SDKS_V2}" ]]; then
   echo "Generate Swift version"
 
   openapi-generator generate -i ./cellsapi-rest-v2.swagger.json -g swift6 -c swagger-swift.json -o $GENERATE_SDKS_V2/cells-sdk-swift
+
+  echo "Generate Swift Classes version"
+
+  openapi-generator generate -i ./cellsapi-rest-v2.swagger.json -g swift6 -c swagger-swift-classes.json -o $GENERATE_SDKS_V2/cells-sdk-swift-classes
+
+echo "Patching Swift ActivityObject Struct as Sendable Class"
+
+  mv $GENERATE_SDKS_V2/cells-sdk-swift-classes/Sources/CellsSDK/Models/ActivityObject.swift $GENERATE_SDKS_V2/cells-sdk-swift/Sources/CellsSDK/Models/ActivityObject.swift
+  rm -r $GENERATE_SDKS_V2/cells-sdk-swift-classes
+  # Cross-platform version
+  sed -i.bak -e 's/Hashable/Hashable, Sendable/g' -e 's/public var/public let/g' $GENERATE_SDKS_V2/cells-sdk-swift/Sources/CellsSDK/Models/ActivityObject.swift && rm -f $GENERATE_SDKS_V2/cells-sdk-swift/Sources/CellsSDK/Models/ActivityObject.swift.bak
+
+
+
 else
 
   echo "Skipping SDK v2 generation - Use GENERATE_SDKS_V2 flag to generate TS and Swift"
