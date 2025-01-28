@@ -1168,6 +1168,48 @@ func TestLostAndFoundDuplicates(t *testing.T) {
 
 }
 
+func TestMoveAutoRename(t *testing.T) {
+	ctx := context.Background()
+
+	testAll(t, func(dao testdao) func(t *testing.T) {
+		return func(t *testing.T) {
+			Convey("Test Move AutoRename", t, func() {
+				// Create Duplicates on purpose
+				_, _, _ = dao.GetOrCreateNodeByPath(ctx, "/folder", &tree.Node{Uuid: uuid.New(), Type: tree.NodeType_COLLECTION})
+				fileNode, _, _ := dao.GetOrCreateNodeByPath(ctx, "/folder/file", &tree.Node{Uuid: uuid.New(), Type: tree.NodeType_LEAF})
+				recycleNode, _, _ := dao.GetOrCreateNodeByPath(ctx, "/recycle", &tree.Node{Uuid: uuid.New(), Type: tree.NodeType_COLLECTION})
+				So(dao.Flush(ctx, true), ShouldBeNil)
+
+				movedNewNode := &tree.TreeNode{}
+				movedNewNode.SetNode(&tree.Node{
+					Uuid: uuid.New(),
+					Type: tree.NodeType_LEAF,
+				})
+				movedNewNode.SetMPath(recycleNode.GetMPath().Append(1))
+				movedNewNode.SetName("file")
+
+				err := dao.MoveNodeTree(ctx, fileNode, movedNewNode)
+				So(err, ShouldBeNil)
+
+				fileNode2, _, _ := dao.GetOrCreateNodeByPath(ctx, "/folder/file", &tree.Node{Uuid: uuid.New(), Type: tree.NodeType_LEAF})
+
+				movedNewNode = &tree.TreeNode{}
+				movedNewNode.SetNode(&tree.Node{
+					Uuid: uuid.New(),
+					Type: tree.NodeType_LEAF,
+				})
+				movedNewNode.SetMPath(recycleNode.GetMPath().Append(2))
+				movedNewNode.SetName("file-1")
+				sql.TestPrintQueries = true
+				err = dao.MoveNodeTree(ctx, fileNode2, movedNewNode)
+				So(err, ShouldBeNil)
+
+			})
+		}
+	})
+
+}
+
 func TestVeryDeepPath(t *testing.T) {
 	ctx := context.Background()
 	var pp1 []string

@@ -64,14 +64,22 @@ func (m *mysqlHelper) ApplyOrderedUpdates(db *gorm.DB, tableName string, sets []
 
 	var assigns []string
 	assigns = append(assigns, "uuid AS new_uuid")
+	var hasName bool
 	for _, u := range sets {
 		if u.Key == "hash" {
 			u.Value = gorm.Expr(m.Hash("uv.new_mpath1", "uv.new_mpath2", "uv.new_mpath3", "uv.new_mpath4"))
 			namedSets = append(namedSets, fmt.Sprintf("%s=@%s", u.Key, u.Key))
 		} else if u.Key == "hash2" {
-			u.Value = gorm.Expr(m.HashParent("name", "uv.new_level", "uv.new_mpath1", "uv.new_mpath2", "uv.new_mpath3", "uv.new_mpath4"))
+			cName := "name"
+			if hasName {
+				cName = "uv.new_name"
+			}
+			u.Value = gorm.Expr(m.HashParent(cName, "uv.new_level", "uv.new_mpath1", "uv.new_mpath2", "uv.new_mpath3", "uv.new_mpath4"))
 			namedSets = append(namedSets, fmt.Sprintf("%s=@%s", u.Key, u.Key))
 		} else {
+			if u.Key == "name" {
+				hasName = true
+			}
 			assigns = append(assigns, fmt.Sprintf("@%s AS new_%s", u.Key, u.Key))
 			namedSets = append(namedSets, fmt.Sprintf("%s=uv.new_%s", u.Key, u.Key))
 		}
