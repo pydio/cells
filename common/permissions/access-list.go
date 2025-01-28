@@ -36,6 +36,7 @@ import (
 	"github.com/pydio/cells/v5/common/telemetry/log"
 	"github.com/pydio/cells/v5/common/utils/configx"
 	json "github.com/pydio/cells/v5/common/utils/jsonx"
+	"github.com/pydio/cells/v5/common/utils/kv"
 	"github.com/pydio/cells/v5/common/utils/propagator"
 	"github.com/pydio/cells/v5/common/utils/std"
 )
@@ -405,7 +406,7 @@ func (a *AccessList) BelongsToWorkspaces(ctx context.Context, nodes ...*tree.Nod
 
 // FlattenedFrontValues generates a configx.Values with frontend actions/parameters configs
 func (a *AccessList) FlattenedFrontValues() configx.Values {
-	output := configx.New()
+	output := kv.NewStore()
 	for _, role := range a.orderedRoles {
 		for _, acl := range a.frontACLs {
 			if acl.RoleID != role.Uuid {
@@ -432,7 +433,7 @@ func (a *AccessList) FlattenedFrontValues() configx.Values {
 		}
 	}
 
-	return output
+	return output.Val()
 }
 
 // Zap simply returns a zapcore.Field object populated with this aggregated AccessList under a standard key

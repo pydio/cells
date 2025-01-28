@@ -33,6 +33,7 @@ package nodes
 
 import (
 	"context"
+	"strings"
 	"sync"
 
 	"go.uber.org/zap"
@@ -80,21 +81,32 @@ func CoreMetaWriter(ctx context.Context) tree.NodeReceiverClient {
 }
 
 // CoreMetaSet directly saves a core metadata associated with a node UUID
-func CoreMetaSet(ctx context.Context, nodeUUID string, metaKey, metaValue string, internalDS bool) error {
-	node := &tree.Node{Uuid: nodeUUID}
+func CoreMetaSet(ctx context.Context, n *tree.Node, metaKey, metaValue string, internalDS bool) error {
+	node := &tree.Node{
+		Uuid:      n.GetUuid(),
+		Type:      n.GetType(),
+		Size:      n.GetSize(),
+		MTime:     n.GetMTime(),
+		MetaStore: map[string]string{},
+	}
 	node.MustSetMeta(metaKey, metaValue)
 	if internalDS {
 		node.MustSetMeta(common.MetaNamespaceDatasourceInternal, true)
+	}
+	for k, v := range n.MetaStore {
+		if strings.HasPrefix(k, common.MetaNamespaceUserspacePrefix) {
+			node.MetaStore[k] = v
+		}
 	}
 	_, e := CoreMetaWriter(ctx).CreateNode(ctx, &tree.CreateNodeRequest{Node: node, UpdateIfExists: true})
 	return e
 }
 
 // MustCoreMetaSet saves a core metadata without returning errors
-func MustCoreMetaSet(ctx context.Context, nodeUUID string, metaKey, metaValue string, internalDS bool) {
-	if nodeUUID == "" {
+func MustCoreMetaSet(ctx context.Context, node *tree.Node, metaKey, metaValue string, internalDS bool) {
+	if node.GetUuid() == "" {
 		log.Logger(ctx).Error("Error while trying to set Meta " + metaKey + " to " + metaValue + ": nodeUUID is empty!")
-	} else if e := CoreMetaSet(ctx, nodeUUID, metaKey, metaValue, internalDS); e == nil {
+	} else if e := CoreMetaSet(ctx, node, metaKey, metaValue, internalDS); e == nil {
 		log.Logger(ctx).Debug("Set Meta " + metaKey + " to " + metaValue)
 	} else {
 		log.Logger(ctx).Error("Error while trying to set Meta "+metaKey+" to "+metaValue, zap.Error(e))

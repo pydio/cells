@@ -136,10 +136,11 @@ func (m *TeeMimeReader) Read(p []byte) (n int, err error) {
 }
 
 // WrapReaderForMime wraps a reader in a TeeMimeReader with a preset callback that stores detected mime in Metadata.
-func WrapReaderForMime(ctx context.Context, clone *tree.Node, reader io.Reader) io.Reader {
+func WrapReaderForMime(ctx context.Context, node *tree.Node, reader io.Reader) io.Reader {
 	if IsUnitTestEnv {
 		return reader
 	}
+	clone := node.Clone()
 	bgCtx := propagator.ForkedBackgroundWithMeta(ctx)
 	return NewTeeMimeReader(reader, func(result *MimeResult) {
 		mime := "application/octet-stream"
@@ -147,7 +148,7 @@ func WrapReaderForMime(ctx context.Context, clone *tree.Node, reader io.Reader) 
 			mime = result.GetMime()
 		}
 		// Store in metadata service
-		MustCoreMetaSet(bgCtx, clone.Uuid, common.MetaNamespaceMime, mime, clone.HasMetaKey(common.MetaNamespaceDatasourceInternal))
+		MustCoreMetaSet(bgCtx, clone, common.MetaNamespaceMime, mime, clone.HasMetaKey(common.MetaNamespaceDatasourceInternal))
 	})
 }
 

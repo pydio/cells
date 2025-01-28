@@ -21,9 +21,12 @@
 package meta
 
 import (
+	"bytes"
 	"context"
 	"fmt"
+	"strconv"
 	"strings"
+	"text/template"
 
 	"go.uber.org/zap"
 	"google.golang.org/protobuf/types/known/anypb"
@@ -32,6 +35,7 @@ import (
 	"github.com/pydio/cells/v5/common/client/commons"
 	"github.com/pydio/cells/v5/common/client/commons/idmc"
 	"github.com/pydio/cells/v5/common/client/grpc"
+	"github.com/pydio/cells/v5/common/config"
 	"github.com/pydio/cells/v5/common/errors"
 	"github.com/pydio/cells/v5/common/permissions"
 	"github.com/pydio/cells/v5/common/proto/idm"
@@ -44,6 +48,18 @@ import (
 	json "github.com/pydio/cells/v5/common/utils/jsonx"
 )
 
+// This is used to manually set up default metadata values on any incoming resource
+type defaultMetaDefinition struct {
+	Namespace    string `json:"namespace"`
+	Value        any    `json:"value"`
+	NodeType     string `json:"nodeType"`
+	Override     bool   `json:"override"`
+	TemplateType string `json:"templateType"`
+
+	ResolvedNS    *idm.UserMetaNamespace `json:"-"`
+	ResolvedValue any                    `json:"-"`
+}
+
 type ExtractionSource string
 
 var (
@@ -55,9 +71,7 @@ type UserMetaClient interface {
 	UpdateMetaResolved(ctx context.Context, input *idm.UpdateUserMetaRequest) (*idm.UpdateUserMetaResponse, error)
 	UpdateLock(ctx context.Context, meta *idm.UserMeta, operation idm.UpdateUserMetaRequest_UserMetaOp) error
 	Namespaces(ctx context.Context) (map[string]*idm.UserMetaNamespace, error)
-	ExtractAndPut(ctx context.Context, resolved *tree.Node, meta map[string]string, source ExtractionSource) (*idm.UpdateUserMetaResponse, error)
-	FromNodeMeta(ctx context.Context, resolved *tree.Node, meta map[string]string) (out []*idm.UserMeta, err error)
-	FromAmzHeaders(ctx context.Context, resolved *tree.Node, meta map[string]string) (out []*idm.UserMeta, err error)
+	ExtractAndPut(ctx context.Context, resolved *tree.Node, ctxWorkspace *idm.Workspace, meta map[string]string, source ExtractionSource) (*idm.UpdateUserMetaResponse, error)
 	ServiceClient(ctx context.Context) idm.UserMetaServiceClient
 	TagValuesHandler() TagsValuesClient
 
@@ -222,20 +236,39 @@ func (u *umClient) Namespaces(ctx context.Context) (map[string]*idm.UserMetaName
 }
 
 // ExtractAndPut is used on newly created resources to set metadata directly during the creation flow
-func (u *umClient) ExtractAndPut(ctx context.Context, resolved *tree.Node, meta map[string]string, source ExtractionSource) (*idm.UpdateUserMetaResponse, error) {
+func (u *umClient) ExtractAndPut(ctx context.Context, resolved *tree.Node, ctxWorkspace *idm.Workspace, meta map[string]string, source ExtractionSource) (*idm.UpdateUserMetaResponse, error) {
 	var um []*idm.UserMeta
 	var er error
+	id, err := u.incomingDefaults(ctx, resolved.Type, ctxWorkspace)
+	if err != nil {
+		return nil, err
+	}
 	if source == ExtractAmzHeaders {
-		if um, er = u.FromAmzHeaders(ctx, resolved, meta); er != nil {
+		if um, er = u.fromAmzHeaders(ctx, resolved, meta, id); er != nil {
 			return nil, er
 		}
 	} else if source == ExtractNodeMetadata {
-		if um, er = u.FromNodeMeta(ctx, resolved, meta); er != nil {
+		if um, er = u.fromNodeMeta(ctx, resolved, meta, id); er != nil {
 			return nil, er
 		}
 	} else {
 		return nil, fmt.Errorf("unknown extraction source: %s", source)
 	}
+	if len(id) > 0 {
+		for _, i := range id {
+			log.Logger(ctx).Info("Applying default meta value", zap.String("ns", i.Namespace), zap.Any("value", i.ResolvedValue))
+			resolved.MustSetMeta(i.ResolvedNS.GetNamespace(), i.ResolvedValue)
+			jsonValue, _ := json.Marshal(i.ResolvedValue)
+			um = append(um, &idm.UserMeta{
+				NodeUuid:     resolved.GetUuid(),
+				Namespace:    i.ResolvedNS.GetNamespace(),
+				Policies:     i.ResolvedNS.GetPolicies(),
+				JsonValue:    string(jsonValue),
+				ResolvedNode: resolved,
+			})
+		}
+	}
+
 	if len(um) == 0 {
 		return nil, nil
 	}
@@ -245,8 +278,23 @@ func (u *umClient) ExtractAndPut(ctx context.Context, resolved *tree.Node, meta 
 	})
 }
 
-// FromNodeMeta matches allowed namespaces from incoming node Metadata
-func (u *umClient) FromNodeMeta(ctx context.Context, resolved *tree.Node, meta map[string]string) (out []*idm.UserMeta, err error) {
+// ServiceClient lazily creates a client to the usermeta service
+func (u *umClient) ServiceClient(ctx context.Context) idm.UserMetaServiceClient {
+	return idm.NewUserMetaServiceClient(grpc.ResolveConn(ctx, common.ServiceUserMetaGRPC))
+}
+
+// TagValuesHandler returns a client for listing/updating tags values
+func (u *umClient) TagValuesHandler() TagsValuesClient {
+	return u.valuesClient
+}
+
+// PoliciesForMeta is an empty handler for PolicyChecker
+func (u *umClient) PoliciesForMeta(_ context.Context, _ string, _ interface{}) (policies []*serviceproto.ResourcePolicy, e error) {
+	return
+}
+
+// fromNodeMeta matches allowed namespaces from incoming node Metadata
+func (u *umClient) fromNodeMeta(ctx context.Context, resolved *tree.Node, meta map[string]string, def map[string]*defaultMetaDefinition) (out []*idm.UserMeta, err error) {
 	var nss map[string]*idm.UserMetaNamespace
 	for k, v := range meta {
 		if strings.HasPrefix(k, common.MetaNamespaceUserspacePrefix) {
@@ -263,6 +311,13 @@ func (u *umClient) FromNodeMeta(ctx context.Context, resolved *tree.Node, meta m
 				}
 			}
 			if foundNS != nil {
+				if d, ok := def[foundNS.Namespace]; ok {
+					if !d.Override {
+						return nil, errors.WithMessagef(errors.StatusForbidden, "You are not allowed to override this metadata namespace %s", foundNS.Namespace)
+					} else {
+						delete(def, foundNS.Namespace) // remove from defaults
+					}
+				}
 				out = append(out, &idm.UserMeta{
 					NodeUuid:     resolved.GetUuid(),
 					Namespace:    foundNS.GetNamespace(),
@@ -276,8 +331,8 @@ func (u *umClient) FromNodeMeta(ctx context.Context, resolved *tree.Node, meta m
 	return out, nil
 }
 
-// FromAmzHeaders matches allowed namespaces from incoming request headers, sent as X-Amz-Meta-{Namespace} headers
-func (u *umClient) FromAmzHeaders(ctx context.Context, resolved *tree.Node, meta map[string]string) (out []*idm.UserMeta, err error) {
+// fromAmzHeaders matches allowed namespaces from incoming request headers, sent as X-Amz-Meta-{Namespace} headers
+func (u *umClient) fromAmzHeaders(ctx context.Context, resolved *tree.Node, meta map[string]string, def map[string]*defaultMetaDefinition) (out []*idm.UserMeta, err error) {
 	var nss map[string]*idm.UserMetaNamespace
 	for k, v := range meta {
 		if strings.HasPrefix(k, "X-Amz-Meta-") {
@@ -295,6 +350,13 @@ func (u *umClient) FromAmzHeaders(ctx context.Context, resolved *tree.Node, meta
 			}
 			if namespace == nil {
 				continue // ignore
+			}
+			if d, ok := def[namespace.GetNamespace()]; ok {
+				if !d.Override {
+					return nil, errors.WithMessagef(errors.StatusForbidden, "You are not allowed to override this metadata namespace %s", namespace.GetNamespace())
+				} else {
+					delete(def, namespace.GetNamespace()) // remove from defaults
+				}
 			}
 			// Check value
 			var i interface{}
@@ -314,17 +376,101 @@ func (u *umClient) FromAmzHeaders(ctx context.Context, resolved *tree.Node, meta
 	return
 }
 
-// ServiceClient lazily creates a client to the usermeta service
-func (u *umClient) ServiceClient(ctx context.Context) idm.UserMetaServiceClient {
-	return idm.NewUserMetaServiceClient(grpc.ResolveConn(ctx, common.ServiceUserMetaGRPC))
-}
-
-// TagValuesHandler returns a client for listing/updating tags values
-func (u *umClient) TagValuesHandler() TagsValuesClient {
-	return u.valuesClient
-}
-
-// PoliciesForMeta is an empty handler for PolicyChecker
-func (u *umClient) PoliciesForMeta(_ context.Context, _ string, _ interface{}) (policies []*serviceproto.ResourcePolicy, e error) {
+// incomingDefaults parses configured defaults for the current scope
+func (u *umClient) incomingDefaults(ctx context.Context, inputType tree.NodeType, ws *idm.Workspace) (d map[string]*defaultMetaDefinition, err error) {
+	d = make(map[string]*defaultMetaDefinition)
+	pluginName := "meta.user"
+	varName := "USERMETA_DEFAULTS"
+	var jsonDefs string
+	// Global config first
+	if v := config.Get(ctx, "frontend", "plugin", pluginName).String(); v != "" {
+		jsonDefs = v
+	}
+	// Contextual roles then
+	if ws != nil {
+		acl, e := permissions.AccessListFromContextClaims(ctx)
+		if e != nil {
+			err = e
+			return
+		}
+		if e = permissions.AccessListLoadFrontValues(ctx, acl); e != nil {
+			err = e
+			return
+		}
+		aclParams := acl.FlattenedFrontValues().Val("parameters", pluginName)
+		log.Logger(ctx).Debug("Checking default metadata " + aclParams.String())
+		scopes := permissions.FrontValuesScopesFromWorkspaces([]*idm.Workspace{ws})
+		for _, s := range scopes {
+			jsonDefs = aclParams.Val(varName, s).Default(jsonDefs).String()
+		}
+	}
+	if jsonDefs != "" {
+		var dd []*defaultMetaDefinition
+		if er := json.Unmarshal([]byte(jsonDefs), &dd); er != nil {
+			log.Logger(ctx).Warn("Cannot correctly parse defaults metadata definition, this will be ignored!", zap.Error(er))
+			return
+		}
+		if len(dd) == 0 {
+			return
+		}
+		nn, e := u.Namespaces(ctx)
+		if e != nil {
+			err = e
+			return
+		}
+		for _, def := range dd {
+			if def.NodeType != "" && def.NodeType != inputType.String() {
+				// This does not apply to current type
+				continue
+			}
+			for _, ns := range nn {
+				if ns.Namespace == def.Namespace {
+					def.ResolvedNS = ns
+					break
+				}
+			}
+			if def.ResolvedNS == nil {
+				log.Logger(ctx).Warn(fmt.Sprintf("Defaults metadata point to an invalid namespace %s. Did you define it?", def.Namespace))
+				continue
+			}
+			// Template case - evaluate value
+			if def.TemplateType != "" {
+				tpl, erT := template.New("ns." + def.Namespace).Parse(def.Value.(string))
+				if erT != nil {
+					log.Logger(ctx).Warn(fmt.Sprintf("Could not parse Go Template for namespace default %s", def.Namespace), zap.Error(erT))
+					continue
+				}
+				tplData := make(map[string]string)
+				permissions.PolicyContextFromClaims(tplData, ctx)
+				permissions.PolicyContextFromMetadata(tplData, ctx)
+				buf := bytes.NewBuffer(nil)
+				if er := tpl.Execute(buf, tplData); er != nil {
+					log.Logger(ctx).Warn(fmt.Sprintf("Could not execute Go Template for namespace default %s", def.Namespace), zap.Error(er))
+					continue
+				}
+				out := buf.String()
+				var outErr error
+				var value any
+				switch def.TemplateType {
+				case "bool":
+					value, outErr = strconv.ParseBool(out)
+				case "int":
+					value, outErr = strconv.Atoi(out)
+				case "json":
+					outErr = json.Unmarshal([]byte(out), &value)
+				default:
+					value = out
+				}
+				if outErr != nil {
+					log.Logger(ctx).Warn(fmt.Sprintf("Could not convert Go Template output for namespace default %s to type %s", def.Namespace, def.TemplateType), zap.Error(outErr))
+					continue
+				}
+				def.ResolvedValue = value
+			} else {
+				def.ResolvedValue = def.Value
+			}
+			d[def.Namespace] = def
+		}
+	}
 	return
 }

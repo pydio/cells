@@ -39,6 +39,7 @@ import (
 	"github.com/pydio/cells/v5/common/nodes"
 	"github.com/pydio/cells/v5/common/nodes/abstract"
 	"github.com/pydio/cells/v5/common/nodes/models"
+	"github.com/pydio/cells/v5/common/proto/idm"
 	"github.com/pydio/cells/v5/common/proto/tree"
 	"github.com/pydio/cells/v5/common/telemetry/log"
 	"github.com/pydio/cells/v5/common/utils/cache"
@@ -128,11 +129,16 @@ func (m *Handler) getOrCreatePutNode(ctx context.Context, nodePath string, reque
 		return nil, nil, er
 	}
 
-	if _, er = m.getMetaClient().ExtractAndPut(ctx, createResp.GetNode(), requestData.Metadata, meta.ExtractAmzHeaders); er != nil {
+	var ctxWs *idm.Workspace
+	if i, e := nodes.GetBranchInfo(ctx, "in"); e == nil && i.Workspace != nil {
+		ctxWs = i.Workspace
+	}
+	createdNode := createResp.GetNode()
+	if _, er = m.getMetaClient().ExtractAndPut(ctx, createdNode, ctxWs, requestData.Metadata, meta.ExtractAmzHeaders); er != nil {
 		return nil, nil, er
 	}
 
-	delNode := createResp.Node.Clone()
+	delNode := createdNode.Clone()
 	errorFunc := func() {
 		if ctx.Err() != nil {
 			ctx = propagator.ForkedBackgroundWithMeta(ctx)
@@ -142,7 +148,7 @@ func (m *Handler) getOrCreatePutNode(ctx context.Context, nodePath string, reque
 			log.Logger(ctx).Error("Error while trying to delete temporary node after upload failure", zap.Error(e), delNode.Zap())
 		}
 	}
-	return createResp.Node, errorFunc, nil
+	return createdNode, errorFunc, nil
 
 }
 
@@ -218,8 +224,12 @@ func (m *Handler) CreateNode(ctx context.Context, in *tree.CreateNodeRequest, op
 		if err != nil || !nodes.IsFlatStorage(ctx, "in") {
 			return resp, err
 		}
+		var ctxWs *idm.Workspace
+		if er == nil && info.Workspace != nil {
+			ctxWs = info.Workspace
+		}
 		// Handle input metadata if set
-		_, err = m.getMetaClient().ExtractAndPut(ctx, resp.GetNode(), in.GetNode().GetMetaStore(), meta.ExtractNodeMetadata)
+		_, err = m.getMetaClient().ExtractAndPut(ctx, resp.GetNode(), ctxWs, in.GetNode().GetMetaStore(), meta.ExtractNodeMetadata)
 		return resp, err
 	}
 	if e := m.createParentIfNotExist(ctx, in.GetNode().Clone(), in.GetIndexationSession()); e != nil {

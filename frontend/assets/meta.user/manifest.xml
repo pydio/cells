@@ -6,6 +6,9 @@
 			<js file="plug/meta.user/res/dist/ReactMeta.min.js" className="ReactMeta"/>
 		</resources>
 	</client_settings>
+	<server_settings>
+		<global_param name="USERMETA_DEFAULTS" type="textarea" label="CONF_MESSAGE[Default Metadata]" description="CONF_MESSAGE[Default metadata values to be set on any new resource. JSON array of objects with keys {namespace*,value*,nodeType,templateType,override} ]" default="{}" expose="false"/>
+	</server_settings>
 	<registry_contributions>
 		<client_configs>
 			<component_config component="InfoPanel">
