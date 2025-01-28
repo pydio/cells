@@ -137,7 +137,7 @@ func init() {
 
 // GetDefaultLanguage reads default language from config
 func GetDefaultLanguage(ctx context.Context) string {
-	return config.Get(ctx, "frontend", "plugin", "core.pydio", "DEFAULT_LANGUAGE").Default("en-us").String()
+	return config.Get(ctx, config.FrontendPluginPath(config.KeyFrontPluginCorePydio, config.KeyFrontDefaultLanguage)...).Default("en-us").String()
 }
 
 // UserLanguagesFromRestRequest tries to find user language from various sources:

@@ -648,7 +648,7 @@ func SyncDatasourceTask(ctx context.Context, dsName string, languages ...string)
 // WgetTask launch one or many background task for downloading URL to the storage
 func WgetTask(ctx context.Context, router nodes.Client, parentPath string, urls []string, languages ...string) ([]*jobs.Job, error) {
 
-	if !config.Get(ctx, "frontend", "plugin", "uploader.http", config.KeyFrontPluginEnabled).Bool() {
+	if !config.Get(ctx, config.FrontendPluginPath("uploader.http", config.KeyFrontPluginEnabled)...).Bool() {
 		return nil, fmt.Errorf("you are not allowed to use this feature")
 	}
 	T := lang.Bundle().T(languages...)
@@ -673,8 +673,8 @@ func WgetTask(ctx context.Context, router nodes.Client, parentPath string, urls 
 	}
 
 	var whiteList, blackList []string
-	wl := config.Get(ctx, "frontend", "plugin", "uploader.http", "REMOTE_UPLOAD_WHITELIST").Default("").String()
-	bl := config.Get(ctx, "frontend", "plugin", "uploader.http", "REMOTE_UPLOAD_BLACKLIST").Default("localhost").String()
+	wl := config.Get(ctx, config.FrontendPluginPath("uploader.http", "REMOTE_UPLOAD_WHITELIST")...).Default("").String()
+	bl := config.Get(ctx, config.FrontendPluginPath("uploader.http", "REMOTE_UPLOAD_BLACKLIST")...).Default("localhost").String()
 	if wl != "" {
 		whiteList = strings.Split(wl, ",")
 	}

@@ -422,7 +422,7 @@ func (s *UserHandler) PutUser(req *restful.Request, rsp *restful.Response) error
 
 		// For creation by non-admin, check USER_CREATE_USERS plugins permission.
 		if !inputUser.IsHidden() {
-			global := config.Get(ctx, "frontend", "plugin", "core.auth", "USER_CREATE_USERS").Default(true).Bool()
+			global := config.Get(ctx, config.FrontendPluginPath("core.auth", "USER_CREATE_USERS")...).Default(true).Bool()
 			acl, e := permissions.AccessListFromContextClaims(ctx)
 			if e != nil {
 				return e

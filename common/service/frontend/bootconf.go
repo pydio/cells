@@ -113,10 +113,10 @@ var packagingData []byte
 // There is no proto associated
 func ComputeBootConf(ctx context.Context, pool *PluginsPool, showVersion ...bool) (*BootConf, error) {
 
-	lang := config.Get(ctx, "frontend", "plugin", "core.pydio", "DEFAULT_LANGUAGE").Default("en-us").String()
-	sessionTimeout := config.Get(ctx, "frontend", "plugin", "gui.ajax", "SESSION_TIMEOUT").Default(60).Int()
-	clientSession := config.Get(ctx, "frontend", "plugin", "gui.ajax", "CLIENT_TIMEOUT").Default(24).Int()
-	timeoutWarn := config.Get(ctx, "frontend", "plugin", "gui.ajax", "CLIENT_TIMEOUT_WARN").Default(3).Int()
+	lang := config.Get(ctx, config.FrontendPluginPath(config.KeyFrontPluginCorePydio, config.KeyFrontDefaultLanguage)...).Default("en-us").String()
+	sessionTimeout := config.Get(ctx, config.FrontendPluginPath(config.KeyFrontPluginGuiAjax, "SESSION_TIMEOUT")...).Default(60).Int()
+	clientSession := config.Get(ctx, config.FrontendPluginPath(config.KeyFrontPluginGuiAjax, "CLIENT_TIMEOUT")...).Default(24).Int()
+	timeoutWarn := config.Get(ctx, config.FrontendPluginPath(config.KeyFrontPluginGuiAjax, "CLIENT_TIMEOUT_WARN")...).Default(3).Int()
 
 	vHash := VersionHash(ctx)
 	vDate := ""
@@ -165,7 +165,7 @@ func ComputeBootConf(ctx context.Context, pool *PluginsPool, showVersion ...bool
 		Theme:                        "material",
 		AjxpImagesCommon:             true,
 		CustomWording: CustomWording{
-			Title: config.Get(ctx, "frontend", "plugin", "core.pydio", "APPLICATION_TITLE").Default("Pydio Cells").String(),
+			Title: config.Get(ctx, config.FrontendPluginPath(config.KeyFrontPluginCorePydio, config.KeyFrontApplicationTitle)...).Default("Pydio Cells").String(),
 			Icon:  "plug/gui.ajax/res/themes/common/images/LoginBoxLogo.png",
 		},
 		AvailableLanguages: languages.AvailableLanguages,
@@ -182,7 +182,7 @@ func ComputeBootConf(ctx context.Context, pool *PluginsPool, showVersion ...bool
 		},
 	}
 
-	if icBinary := config.Get(ctx, "frontend", "plugin", "gui.ajax", "CUSTOM_ICON_BINARY").Default("").String(); icBinary != "" {
+	if icBinary := config.Get(ctx, config.FrontendPluginPath(config.KeyFrontPluginGuiAjax, "CUSTOM_ICON_BINARY")...).Default("").String(); icBinary != "" {
 		b.CustomWording.IconBinary = icBinary
 	}
 

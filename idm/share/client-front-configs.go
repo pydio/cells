@@ -131,7 +131,7 @@ func (sc *Client) CheckCellOptionsAgainstConfigs(ctx context.Context, cell *rest
 // DefaultOptions loads the plugin default options, without further context-based filtering
 func (sc *Client) DefaultOptions(ctx context.Context) PluginOptions {
 	// Defaults
-	configParams := config.Get(ctx, "frontend", "plugin", "action.share")
+	configParams := config.Get(ctx, config.FrontendPluginPath("action.share")...)
 	options := PluginOptions{
 		MaxExpiration:           configParams.Val("FILE_MAX_EXPIRATION").Default(-1).Int(),
 		MaxDownloads:            configParams.Val("FILE_MAX_DOWNLOAD").Default(-1).Int(),

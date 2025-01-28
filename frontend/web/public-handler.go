@@ -61,7 +61,6 @@ import (
 	json "github.com/pydio/cells/v5/common/utils/jsonx"
 	"github.com/pydio/cells/v5/common/utils/propagator"
 	"github.com/pydio/cells/v5/common/utils/slug"
-	"github.com/pydio/cells/v5/common/utils/std"
 	"github.com/pydio/cells/v5/gateway/dav"
 )
 
@@ -93,13 +92,13 @@ func (h *PublicHandler) computeTplConf(req *http.Request, linkId string) (status
 	ctx := req.Context()
 
 	tplConf = &TplConf{
-		ApplicationTitle: config.Get(ctx, "frontend", "plugin", "core.pydio", "APPLICATION_TITLE").Default("Pydio Cells").String(),
+		ApplicationTitle: config.Get(ctx, config.FrontendPluginPath(config.KeyFrontPluginCorePydio, config.KeyFrontApplicationTitle)...).Default("Pydio Cells").String(),
 		ResourcesFolder:  "plug/gui.ajax/res",
 		Favicon:          "plug/gui.ajax/res/themes/common/images/favicon.png",
 		Theme:            "material",
 		Version:          frontend.VersionHash(ctx),
 	}
-	if customHeader := config.Get(ctx, "frontend", "plugin", "gui.ajax", "HTML_CUSTOM_HEADER").String(); customHeader != "" {
+	if customHeader := config.Get(ctx, config.FrontendPluginPath(config.KeyFrontPluginGuiAjax, "HTML_CUSTOM_HEADER")...).String(); customHeader != "" {
 		tplConf.CustomHTMLHeader = template.HTML(customHeader)
 	}
 
@@ -393,7 +392,7 @@ func (h *PublicHandler) davDirectoryIndex(w http.ResponseWriter, r *http.Request
 	}
 	ctx := r.Context()
 
-	indexConf := config.Get(ctx, "frontend", "plugin", "action.share", "LINK_PUBLIC_DIRECTORY_INDEXES").Default("_cells_index.html,_cells_listing.phtml,_cells_listing.json").String()
+	indexConf := config.Get(ctx, config.FrontendPluginPath("action.share", "LINK_PUBLIC_DIRECTORY_INDEXES")...).Default("_cells_index.html,_cells_listing.phtml,_cells_listing.json").String()
 	if indexConf == "" {
 		return
 	}
@@ -441,11 +440,11 @@ func (h *PublicHandler) davDirectoryIndex(w http.ResponseWriter, r *http.Request
 		break
 	}
 	if cType == "" && (hasTemplate || hasJson) { // No content found, maybe default ?
-		if defPhtml := config.Get(ctx, "frontend", "plugin", "action.share", "LINK_PUBLIC_DIRECTORY_LISTING_PHTML").String(); defPhtml != "" {
+		if defPhtml := config.Get(ctx, config.FrontendPluginPath("action.share", "LINK_PUBLIC_DIRECTORY_LISTING_PHTML")...).String(); defPhtml != "" {
 			content = []byte(defPhtml)
 			cType = "text/html"
 			evalT = true
-		} else if defJson := config.Get(ctx, "frontend", "plugin", "action.share", "LINK_PUBLIC_DIRECTORY_LISTING_PHTML").String(); defJson != "" {
+		} else if defJson := config.Get(ctx, config.FrontendPluginPath("action.share", "LINK_PUBLIC_DIRECTORY_LISTING_PHTML")...).String(); defJson != "" {
 			content = []byte(defJson)
 			cType = "application/json"
 			evalT = true
@@ -551,5 +550,5 @@ func (h *PublicHandler) virtualRootKey(n *tree.Node) string {
 
 // GetPublicBaseDavSegment returns the segment used to exposed minisites through DAV
 func GetPublicBaseDavSegment(ctx context.Context) string {
-	return slug.Make(config.Get(ctx, std.FormatPath("frontend", "plugin", "action.share", "LINK_PUBLIC_URI_DAV_SEGMENT")).Default("dav").String())
+	return slug.Make(config.Get(ctx, config.FrontendPluginPath("action.share", "LINK_PUBLIC_URI_DAV_SEGMENT")...).Default("dav").String())
 }

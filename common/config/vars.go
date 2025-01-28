@@ -23,7 +23,16 @@ package config
 
 const (
 	// KeyFrontPluginEnabled is the frontend config to enable/disable plugins
-	KeyFrontPluginEnabled = "PYDIO_PLUGIN_ENABLED"
+	KeyFrontPluginEnabled    = "PYDIO_PLUGIN_ENABLED"
+	KeyFrontPluginCorePydio  = "core.pydio"
+	KeyFrontPluginGuiAjax    = "gui.ajax"
+	KeyFrontApplicationTitle = "APPLICATION_TITLE"
+	KeyFrontDefaultLanguage  = "DEFAULT_LANGUAGE"
 	// DefaultOAuthClientID set the default client id to use
 	DefaultOAuthClientID = "cells-frontend"
 )
+
+// FrontendPluginPath creates the configuration key paths for any frontend plugin
+func FrontendPluginPath(keys ...string) []string {
+	return append([]string{"frontend", "plugin"}, keys...)
+}

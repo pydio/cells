@@ -383,7 +383,7 @@ func (u *umClient) incomingDefaults(ctx context.Context, inputType tree.NodeType
 	varName := "USERMETA_DEFAULTS"
 	var jsonDefs string
 	// Global config first
-	if v := config.Get(ctx, "frontend", "plugin", pluginName).String(); v != "" {
+	if v := config.Get(ctx, config.FrontendPluginPath(pluginName)...).String(); v != "" {
 		jsonDefs = v
 	}
 	// Contextual roles then

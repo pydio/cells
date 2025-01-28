@@ -25,6 +25,7 @@ import (
 	"fmt"
 	"testing"
 
+	"github.com/pydio/cells/v5/common/config"
 	"github.com/pydio/cells/v5/common/permissions"
 	"github.com/pydio/cells/v5/common/proto/idm"
 	"github.com/pydio/cells/v5/common/utils/configx"
@@ -131,8 +132,8 @@ func TestUser_FlattenedFrontValues(t *testing.T) {
 		So(lang, ShouldEqual, "fr")
 
 		cfg := configx.New()
-		cfg.Val("frontend", "plugin", "plugin.name", "STRING_PARAMETER").Set("globalValue1")
-		cfg.Val("frontend", "plugin", "plugin.name", "NOT_REFINED_PARAMETER").Set("globalValue2")
+		_ = cfg.Val(config.FrontendPluginPath("plugin.name", "STRING_PARAMETER")...).Set("globalValue1")
+		_ = cfg.Val(config.FrontendPluginPath("plugin.name", "NOT_REFINED_PARAMETER")...).Set("globalValue2")
 
 		status := RequestStatus{
 			Config:        cfg,

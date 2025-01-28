@@ -79,13 +79,13 @@ func actionFrontendsAdd(ctx context.Context, c *install.InstallConfig) error {
 	}
 
 	if c.FrontendApplicationTitle != "" {
-		if err := config.Set(ctx, c.FrontendApplicationTitle, "frontend", "plugin", "core.pydio", "APPLICATION_TITLE"); err != nil {
+		if err := config.Set(ctx, c.FrontendApplicationTitle, config.FrontendPluginPath(config.KeyFrontPluginCorePydio, config.KeyFrontApplicationTitle)...); err != nil {
 			return err
 		}
 	}
 
 	if c.FrontendDefaultLanguage != "" {
-		if err := config.Set(ctx, c.FrontendDefaultLanguage, "frontend", "plugin", "core.pydio", "DEFAULT_LANGUAGE"); err != nil {
+		if err := config.Set(ctx, c.FrontendDefaultLanguage, config.FrontendPluginPath(config.KeyFrontPluginCorePydio, config.KeyFrontDefaultLanguage)...); err != nil {
 			return err
 		}
 	}

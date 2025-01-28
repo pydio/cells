@@ -24,7 +24,7 @@ import (
 func NewCookieDAO(ctx context.Context, some *sc.Conn) DAO {
 
 	restApi := routing.RouteIngressURIContext(ctx, common.RouteApiREST, common.DefaultRouteREST)
-	timeout := config.Get(ctx, "frontend", "plugin", "gui.ajax", "SESSION_TIMEOUT").Default(60).Int()
+	timeout := config.Get(ctx, config.FrontendPluginPath(config.KeyFrontPluginGuiAjax, "SESSION_TIMEOUT")...).Default(60).Int()
 	defaultOptions := &sessions.Options{
 		Path:     restApi + "/frontend",
 		MaxAge:   60 * timeout,
@@ -57,7 +57,7 @@ func NewCookieDAO(ctx context.Context, some *sc.Conn) DAO {
 // NewSQLDAO stores sessions in DB
 func NewSQLDAO(ctx context.Context, db *gorm.DB) DAO {
 	restApi := routing.RouteIngressURIContext(ctx, common.RouteApiREST, common.DefaultRouteREST)
-	timeout := config.Get(ctx, "frontend", "plugin", "gui.ajax", "SESSION_TIMEOUT").Default(60).Int()
+	timeout := config.Get(ctx, config.FrontendPluginPath(config.KeyFrontPluginGuiAjax, "SESSION_TIMEOUT")...).Default(60).Int()
 	defaultOptions := &sessions.Options{
 		Path:     restApi + "/frontend",
 		MaxAge:   60 * timeout,

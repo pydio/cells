@@ -21,8 +21,9 @@
 package migrations
 
 import (
-	"github.com/hashicorp/go-version"
+	version "github.com/hashicorp/go-version"
 
+	"github.com/pydio/cells/v5/common/config"
 	"github.com/pydio/cells/v5/common/utils/configx"
 )
 
@@ -34,7 +35,7 @@ func init() {
 // upgradeDefaultWebTheme change preset theme value to material
 func upgradeDefaultWebTheme(conf configx.Values) error {
 
-	theme := conf.Val("frontend", "plugin", "gui.ajax", "GUI_THEME")
+	theme := conf.Val(config.FrontendPluginPath(config.KeyFrontPluginGuiAjax, "GUI_THEME")...)
 	if theme.String() == "light" {
 		_ = theme.Set("mui3")
 	}

@@ -56,7 +56,7 @@ func init() {
 			service.AutoRestart(true),
 			service.Description("Grpc service for internal requests about frontend manifest"),
 			service.WithHTTP(func(ctx context.Context, mux routing.RouteRegistrar) error {
-				pconf := config.Get(ctx, "frontend", "plugin", "editor.libreoffice")
+				pconf := config.Get(ctx, config.FrontendPluginPath("editor.libreoffice")...)
 				enabled := pconf.Val(config.KeyFrontPluginEnabled).Default(false).Bool()
 				if !enabled {
 					log.Logger(ctx).Info("Skipping LibreOffice plugin as not enabled")

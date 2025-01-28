@@ -104,7 +104,7 @@ func (h *IndexHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 
 	tplConf := &TplConf{
-		ApplicationTitle: config.Get(ctx, "frontend", "plugin", "core.pydio", "APPLICATION_TITLE").Default("Cells").String(),
+		ApplicationTitle: config.Get(ctx, config.FrontendPluginPath(config.KeyFrontPluginCorePydio, config.KeyFrontApplicationTitle)...).Default("Cells").String(),
 		Rebase:           "/",
 		ResourcesFolder:  bootConf.AjxpResourcesFolder,
 		Favicon:          bootConf.AjxpResourcesFolder + "/themes/common/images/favicon.png",
@@ -113,7 +113,7 @@ func (h *IndexHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		LoadingString:    GetLoadingString(bootConf.CurrentLanguage),
 		StartParameters:  startParameters,
 	}
-	if customHeader := config.Get(ctx, "frontend", "plugin", "gui.ajax", "HTML_CUSTOM_HEADER").String(); customHeader != "" {
+	if customHeader := config.Get(ctx, config.FrontendPluginPath(config.KeyFrontPluginGuiAjax, "HTML_CUSTOM_HEADER")...).String(); customHeader != "" {
 		tplConf.CustomHTMLHeader = template.HTML(customHeader)
 	}
 

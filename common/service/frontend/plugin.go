@@ -248,7 +248,7 @@ func (plugin *Cplugin) Translate(messages I18nMessages) {
 
 func (plugin *Cplugin) PluginEnabled(status RequestStatus) bool {
 
-	enabled := status.Config.Val("frontend", "plugin", plugin.GetId(), config.KeyFrontPluginEnabled).Default(plugin.DefaultEnabled()).Bool()
+	enabled := status.Config.Val(config.FrontendPluginPath(plugin.GetId(), config.KeyFrontPluginEnabled)...).Default(plugin.DefaultEnabled()).Bool()
 
 	values := status.AclParameters.Val(plugin.GetId(), config.KeyFrontPluginEnabled)
 	for _, scope := range status.WsScopes {
@@ -320,7 +320,7 @@ func (plugin *Cplugin) PluginConfig(status RequestStatus, param *Cglobal_param) 
 		}
 
 		// First we look in the main config
-		val = status.Config.Val("frontend", "plugin", plugin.GetId(), param.Attrname).Default(val).Bool()
+		val = status.Config.Val(config.FrontendPluginPath(plugin.GetId(), param.Attrname)...).Default(val).Bool()
 
 		// Then we lookin foreach scope and get the last one set
 		for _, scope := range status.WsScopes {
@@ -334,7 +334,7 @@ func (plugin *Cplugin) PluginConfig(status RequestStatus, param *Cglobal_param) 
 		}
 
 		// First we look in the main config
-		val = status.Config.Val("frontend", "plugin", plugin.GetId(), param.Attrname).Default(val).Int()
+		val = status.Config.Val(config.FrontendPluginPath(plugin.GetId(), param.Attrname)...).Default(val).Int()
 
 		// Then we lookin foreach scope and get the last one set
 		for _, scope := range status.WsScopes {
@@ -344,7 +344,7 @@ func (plugin *Cplugin) PluginConfig(status RequestStatus, param *Cglobal_param) 
 		val = param.Attrdefault
 
 		// First we look in the main config
-		val = status.Config.Val("frontend", "plugin", plugin.GetId(), param.Attrname).Default(val).String()
+		val = status.Config.Val(config.FrontendPluginPath(plugin.GetId(), param.Attrname)...).Default(val).String()
 
 		// Then we lookin foreach scope and get the last one set
 		for _, scope := range status.WsScopes {

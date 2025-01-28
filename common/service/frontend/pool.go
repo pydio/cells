@@ -291,7 +291,7 @@ func (p *PluginsPool) pluginsForStatus(ctx context.Context, status RequestStatus
 
 func (p *PluginsPool) I18nMessages(ctx context.Context, lang string) I18nMessages {
 	i := p.loadI18nMessages(lang)
-	appTitle := config.Get(ctx, "frontend", "plugin", "core.pydio", "APPLICATION_TITLE").String()
+	appTitle := config.Get(ctx, config.FrontendPluginPath(config.KeyFrontPluginCorePydio, config.KeyFrontApplicationTitle)...).String()
 	if appTitle == "" {
 		return i
 	}
