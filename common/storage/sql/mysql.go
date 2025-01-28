@@ -72,7 +72,7 @@ func (m *mysqlHelper) ApplyOrderedUpdates(db *gorm.DB, tableName string, sets []
 		} else if u.Key == "hash2" {
 			cName := "name"
 			if hasName {
-				cName = "uv.new_name"
+				cName = "CAST(uv.new_name as CHAR CHARACTER SET ascii)"
 			}
 			u.Value = gorm.Expr(m.HashParent(cName, "uv.new_level", "uv.new_mpath1", "uv.new_mpath2", "uv.new_mpath3", "uv.new_mpath4"))
 			namedSets = append(namedSets, fmt.Sprintf("%s=@%s", u.Key, u.Key))
