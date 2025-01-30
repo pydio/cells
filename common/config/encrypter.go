@@ -89,6 +89,22 @@ func (s storeWithEncrypterValues) Get() any {
 	return b
 }
 
+func (s storeWithEncrypterValues) String() string {
+	v := s.Values.Get()
+
+	str, ok := v.(string)
+	if !ok {
+		return ""
+	}
+
+	b, err := s.Decrypter.Decrypt(str)
+	if err != nil {
+		return str
+	}
+
+	return string(b)
+}
+
 func (s storeWithEncrypterValues) Set(data any) error {
 	switch v := data.(type) {
 	case string:
