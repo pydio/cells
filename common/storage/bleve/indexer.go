@@ -40,6 +40,7 @@ import (
 
 	"github.com/pydio/cells/v5/common/config"
 	"github.com/pydio/cells/v5/common/errors"
+	"github.com/pydio/cells/v5/common/runtime"
 	"github.com/pydio/cells/v5/common/storage/indexer"
 	"github.com/pydio/cells/v5/common/telemetry/log"
 	"github.com/pydio/cells/v5/common/utils/configx"
@@ -834,7 +835,7 @@ func (s *Indexer) openOneIndex(fullPath string, mappingName string) (bleve.Index
 			idx, err = bleve.NewUsing(fullPath, indexMapping, scorch.Name, boltdb.Name, nil)
 		}
 		if err != nil {
-			log.Logger(context.Background()).Error("Cannot open index on " + fullPath)
+			log.Logger(runtime.AsCoreContext(context.Background())).Error("Cannot open index on " + fullPath)
 			return nil, err
 		}
 	}
