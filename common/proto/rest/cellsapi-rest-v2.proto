@@ -239,7 +239,7 @@ message NodeLocator{
 
 // List of nodes, as returned by list/search operations. Facets and Pagination may be empty
 message NodeCollection {
-  repeated Node Nodes = 1 [(google.api.field_behavior) = REQUIRED];
+  repeated Node Nodes = 1;
   repeated tree.SearchFacet Facets = 3;
   Pagination Pagination = 2;
 }
@@ -266,7 +266,7 @@ message Version {
 }
 
 message VersionCollection {
-  repeated Version Versions = 1 [(google.api.field_behavior) = REQUIRED];
+  repeated Version Versions = 1;
 }
 
 // Lightweight node representation for creation, exposing a NodeLocator and additional data
@@ -308,7 +308,7 @@ message CheckResult {
 
 // Returns as many CheckResult as IncomingNodes passed in request
 message CreateCheckResponse {
-  repeated CheckResult Results = 1 [(google.api.field_behavior) = REQUIRED];
+  repeated CheckResult Results = 1;
 }
 
 // Collection of NodeLocator

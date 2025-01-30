@@ -694,9 +694,6 @@
           "type": "array"
         }
       },
-      "required": [
-        "Results"
-      ],
       "title": "Returns as many CheckResult as IncomingNodes passed in request",
       "type": "object"
     },
@@ -1172,9 +1169,6 @@
           "$ref": "#/definitions/restPagination"
         }
       },
-      "required": [
-        "Nodes"
-      ],
       "title": "List of nodes, as returned by list/search operations. Facets and Pagination may be empty",
       "type": "object"
     },
@@ -1740,9 +1734,6 @@
           "type": "array"
         }
       },
-      "required": [
-        "Versions"
-      ],
       "type": "object"
     },
     "restVersionMeta": {
