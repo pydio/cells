@@ -408,6 +408,9 @@ func (s *MetaServer) filterMetaToStore(ctx context.Context, metaStore map[string
 	for k, v := range metaStore {
 		if k == common.MetaNamespaceDatasourceName ||
 			k == common.MetaNamespaceDatasourcePath ||
+			k == common.InputResourceUUID ||
+			k == common.InputDraftMode ||
+			k == common.InputVersionId ||
 			strings.HasPrefix(k, "pydio:meta-loaded") ||
 			strings.HasPrefix(k, common.MetaNamespaceUserspacePrefix) ||
 			k == common.MetaNamespaceNodeName {

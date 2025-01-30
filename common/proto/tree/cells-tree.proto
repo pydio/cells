@@ -272,6 +272,7 @@ service NodeVersioner{
     rpc StoreVersion(StoreVersionRequest) returns (StoreVersionResponse) {};
     rpc ListVersions(ListVersionsRequest) returns (stream ListVersionsResponse) {};
     rpc HeadVersion(HeadVersionRequest) returns (HeadVersionResponse) {};
+    rpc DeleteVersion(HeadVersionRequest) returns (DeleteVersionResponse) {};
     rpc PruneVersions(PruneVersionsRequest) returns (PruneVersionsResponse) {};
     rpc ListVersioningPolicies(ListVersioningPoliciesRequest) returns (stream VersioningPolicy) {};
 }
@@ -287,38 +288,60 @@ message ListVersioningPoliciesRequest {
 
 message CreateVersionRequest{
     Node Node = 1;
-    NodeChangeEvent TriggerEvent = 2;
+    string VersionUuid = 2;
+    string OwnerName = 3;
+    string OwnerUuid = 4;
+    bool Draft = 5;
+    NodeChangeEvent TriggerEvent = 6;
 }
 
 message CreateVersionResponse{
-    ChangeLog Version = 1;
+    ContentRevision Version = 1;
+    bool Ignored = 2;
 }
 
 message ListVersionsRequest{
-    Node Node = 1;
+    Node Node = 1 [(buf.validate.field).required = true];
+    // Limit the number of results
+    int64 Limit = 2;
+    // Start listing at a given position
+    int64 Offset = 3;
+    // Sort by specific fields
+    string SortField = 4;
+    // Sort descending
+    bool SortDesc = 5;
+    // Filters by key => jsonEncoded value
+    map<string,string>Filters = 6;
 }
 
 message ListVersionsResponse{
-    ChangeLog Version = 1;
+    ContentRevision Version = 1;
 }
 
 message HeadVersionRequest{
-    Node Node = 1;
+    string NodeUuid = 1;
     string VersionId = 2;
 }
 
 message HeadVersionResponse{
-    ChangeLog Version = 1;
+    ContentRevision Version = 1;
+}
+
+message DeleteVersionResponse{
+    ContentRevision DeletedVersion = 1;
+    bool Success = 2;
+    string NewHead = 3;
 }
 
 message StoreVersionRequest{
     Node Node = 1;
-    ChangeLog Version = 2;
+    ContentRevision Version = 2;
 }
 
 message StoreVersionResponse{
     bool Success = 1;
-    repeated ChangeLog PruneVersions = 2;
+    ContentRevision Version = 3;
+    repeated ContentRevision PruneVersions = 2;
 }
 
 message PruneVersionsRequest{
@@ -327,7 +350,7 @@ message PruneVersionsRequest{
 }
 
 message PruneVersionsResponse{
-    repeated ChangeLog DeletedVersions = 1;
+    repeated ContentRevision DeletedVersions = 1;
 }
 
 enum VersioningNodeDeletedStrategy {
@@ -410,7 +433,7 @@ message Node{
     string ModeString = 11      [(orm.orm).gorm = {column: "mode"; type: "VARCHAR(10)"; notNull: true;}];
     // Hash of the content if node is a LEAF, Uuid or
     string Etag = 7     [(orm.orm).gorm = {column: "etag"; type: "VARCHAR(255)"; notNull: true;}];
-    // List of successive commits
+    // Deprecated - List of successive commits
     repeated ChangeLog Commits = 9 [deprecated=true];
 
     // ------------------------------------
@@ -437,6 +460,7 @@ message WorkspaceRelativePath {
     string WsScope = 5;
 }
 
+// Deprecated - Use ContentRevision instead
 message ChangeLog{
     // Unique commit ID
     string Uuid = 1;
@@ -454,6 +478,32 @@ message ChangeLog{
     NodeChangeEvent Event = 7;
     // Actual location of the stored version
     Node Location = 8;
+}
+
+// ContentRevision is a unique version for the content of a node
+message ContentRevision {
+    // Unique commit ID
+    string VersionId = 1;
+    // Human-readable description of what happened
+    string Description = 2;
+    // This revision is not published
+    bool Draft = 3;
+    // This revision is actually the current HEAD
+    bool IsHead = 4;
+    // Unix Timestamp
+    int64 MTime = 5;
+    // Content Size at that moment
+    int64 Size = 6;
+    // Contents Hash
+    string ETag = 7;
+    // Who performed this action - name
+    string OwnerName = 9;
+    // Who performed this action - uuid
+    string OwnerUuid = 10;
+    // Event that triggered this change
+    NodeChangeEvent Event = 11;
+    // Actual location of the stored version
+    Node Location = 12;
 }
 
 // Search Queries

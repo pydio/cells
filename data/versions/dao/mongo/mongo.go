@@ -28,7 +28,9 @@ import (
 
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo/options"
+	"go.uber.org/zap"
 
+	"github.com/pydio/cells/v5/common/errors"
 	"github.com/pydio/cells/v5/common/proto/tree"
 	"github.com/pydio/cells/v5/common/storage/mongodb"
 	"github.com/pydio/cells/v5/common/telemetry/log"
@@ -45,6 +47,7 @@ var (
 			Name: collVersions,
 			Indexes: []map[string]int{
 				{"node_uuid": 1},
+				{"draft": 1},
 				{"node_uuid": 1, "version_id": 1},
 				{"ts": -1},
 			},
@@ -63,22 +66,28 @@ type mVersion struct {
 	*tree.ChangeLog
 }
 
-func NewMongoDAO(db *mongodb.Indexer) versions.DAO {
-	return &mongoStore{Database: db.Database}
+type mRevision struct {
+	NodeUuid  string `bson:"node_uuid"`
+	VersionId string `bson:"version_id"`
+	Draft     bool   `bson:"draft"`
+	OwnerUuid string `bson:"owner_uuid"`
+	Timestamp int64  `bson:"ts"`
+	*tree.ContentRevision
 }
 
-type mongoStore struct {
+type Decoder interface {
+	Decode(v interface{}) error
+}
+
+func NewMongoDAO(db *mongodb.Indexer) versions.DAO {
+	return &MongoStore{Database: db.Database}
+}
+
+type MongoStore struct {
 	*mongodb.Database
 }
 
-//func (m *mongoStore) Init(ctx context.Context, values configx.Values) error {
-//	if er := model.Init(context.Background(), m.DAO); er != nil {
-//		return er
-//	}
-//	return m.DAO.Init(ctx, values)
-//}
-
-func (m *mongoStore) GetLastVersion(ctx context.Context, nodeUuid string) (*tree.ChangeLog, error) {
+func (m *MongoStore) GetLastVersion(ctx context.Context, nodeUuid string) (*tree.ContentRevision, error) {
 	res := m.Collection(collVersions).FindOne(ctx, bson.D{{"node_uuid", nodeUuid}}, &options.FindOneOptions{
 		Sort: bson.M{"ts": -1},
 	})
@@ -88,72 +97,75 @@ func (m *mongoStore) GetLastVersion(ctx context.Context, nodeUuid string) (*tree
 		}
 		return nil, res.Err()
 	}
-	mv := &mVersion{}
-	if e := res.Decode(mv); e != nil {
-		return nil, e
-	} else {
-		return mv.ChangeLog, nil
-	}
+	return m.decodeRevision(res)
 }
 
-func (m *mongoStore) GetVersions(ctx context.Context, nodeUuid string) (chan *tree.ChangeLog, error) {
-	logs := make(chan *tree.ChangeLog)
+func (m *MongoStore) GetVersions(ctx context.Context, nodeUuid string, offset int64, limit int64, sortField string, sortDesc bool, filters map[string]any) (chan *tree.ContentRevision, error) {
+	logs := make(chan *tree.ContentRevision)
+
 	go func() {
 		defer close(logs)
-		cursor, er := m.Collection(collVersions).Find(ctx, bson.D{{"node_uuid", nodeUuid}}, &options.FindOptions{
+		search := bson.D{{"node_uuid", nodeUuid}}
+		for k, v := range filters {
+			switch k {
+			case "draftStatus":
+				filterByType := v.(string)
+				if filterByType == "draft" {
+					search = append(search, bson.E{"draft", true})
+				} else if filterByType == "published" {
+					search = append(search, bson.E{"draft", false})
+				}
+			case "ownerUuid":
+				search = append(search, bson.E{"owner_uuid", v.(string)})
+			}
+		}
+		cursor, er := m.Collection(collVersions).Find(ctx, search, &options.FindOptions{
 			Sort: bson.M{"ts": -1},
 		})
 		if er != nil {
 			return
 		}
 		for cursor.Next(ctx) {
-			mv := &mVersion{}
-			if e := cursor.Decode(mv); e != nil {
-				continue
+			if cr, err := m.decodeRevision(cursor); err == nil {
+				logs <- cr
+			} else {
+				log.Logger(ctx).Warn("Could not decode content revision", zap.Error(err))
 			}
-			logs <- mv.ChangeLog
 		}
 	}()
 	return logs, nil
 }
 
-func (m *mongoStore) GetVersion(ctx context.Context, nodeUuid string, versionId string) (*tree.ChangeLog, error) {
+func (m *MongoStore) GetVersion(ctx context.Context, nodeUuid string, versionId string) (*tree.ContentRevision, error) {
 	res := m.Collection(collVersions).FindOne(ctx, bson.D{{"node_uuid", nodeUuid}, {"version_id", versionId}})
 	if res.Err() != nil {
 		if strings.Contains(res.Err().Error(), "no documents in result") {
-			return &tree.ChangeLog{}, nil
+			return nil, errors.WithStack(errors.VersionNotFound)
 		}
 		return nil, res.Err()
 	}
-	mv := &mVersion{}
-	if e := res.Decode(mv); e != nil {
-		return nil, e
-	} else {
-		return mv.ChangeLog, nil
-	}
+	return m.decodeRevision(res)
 }
 
-func (m *mongoStore) StoreVersion(ctx context.Context, nodeUuid string, log *tree.ChangeLog) error {
-	mv := &mVersion{
-		NodeUuid:  nodeUuid,
-		VersionId: log.Uuid,
-		Timestamp: time.Now().UnixNano(),
-		ChangeLog: log,
+func (m *MongoStore) StoreVersion(ctx context.Context, nodeUuid string, revision *tree.ContentRevision) error {
+	mv := &mRevision{
+		NodeUuid:        nodeUuid,
+		VersionId:       revision.VersionId,
+		Timestamp:       time.Now().UnixNano(),
+		Draft:           revision.Draft,
+		OwnerUuid:       revision.OwnerUuid,
+		ContentRevision: revision,
 	}
 	_, e := m.Collection(collVersions).InsertOne(ctx, mv)
 	return e
 }
 
-func (m *mongoStore) DeleteVersionsForNode(ctx context.Context, nodeUuid string, versions ...*tree.ChangeLog) error {
+func (m *MongoStore) DeleteVersionsForNode(ctx context.Context, nodeUuid string, versions ...string) error {
 	filter := bson.D{
 		{"node_uuid", nodeUuid},
 	}
 	if len(versions) > 0 {
-		var versionsIds []string
-		for _, v := range versions {
-			versionsIds = append(versionsIds, v.Uuid)
-		}
-		filter = append(filter, bson.E{Key: "version_id", Value: bson.M{"$in": versionsIds}})
+		filter = append(filter, bson.E{Key: "version_id", Value: bson.M{"$in": versions}})
 	}
 	res, e := m.Collection(collVersions).DeleteMany(ctx, filter)
 	if e != nil {
@@ -164,7 +176,7 @@ func (m *mongoStore) DeleteVersionsForNode(ctx context.Context, nodeUuid string,
 
 }
 
-func (m *mongoStore) DeleteVersionsForNodes(ctx context.Context, nodeUuid []string) error {
+func (m *MongoStore) DeleteVersionsForNodes(ctx context.Context, nodeUuid []string) error {
 	res, e := m.Collection(collVersions).DeleteMany(ctx, bson.D{{"node_uuid", bson.M{"$in": nodeUuid}}})
 	if e != nil {
 		return e
@@ -173,7 +185,7 @@ func (m *mongoStore) DeleteVersionsForNodes(ctx context.Context, nodeUuid []stri
 	return nil
 }
 
-func (m *mongoStore) ListAllVersionedNodesUuids(ctx context.Context) (chan string, chan bool, chan error) {
+func (m *MongoStore) ListAllVersionedNodesUuids(ctx context.Context) (chan string, chan bool, chan error) {
 	logs := make(chan string)
 	done := make(chan bool, 1)
 	errs := make(chan error)
@@ -198,4 +210,26 @@ func (m *mongoStore) ListAllVersionedNodesUuids(ctx context.Context) (chan strin
 		}
 	}()
 	return logs, done, errs
+}
+
+func (m *MongoStore) decodeRevision(d Decoder) (*tree.ContentRevision, error) {
+	mrv := &mRevision{}
+	if err := d.Decode(mrv); err == nil && mrv.ContentRevision != nil {
+		return mrv.ContentRevision, nil
+	}
+	cv := &mVersion{}
+	if err := d.Decode(cv); err == nil {
+		cLog := cv.ChangeLog
+		return &tree.ContentRevision{
+			VersionId:   cLog.Uuid,
+			Description: cLog.Description,
+			MTime:       cLog.MTime,
+			Size:        cLog.Size,
+			ETag:        string(cLog.Data),
+			OwnerName:   cLog.OwnerUuid, // This is normal
+			Event:       cLog.Event,
+			Location:    cLog.Location,
+		}, nil
+	}
+	return nil, fmt.Errorf("invalid format (tree.ContentRevision or tree.ChangeLog expected)")
 }

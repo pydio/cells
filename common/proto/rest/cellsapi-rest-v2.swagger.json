@@ -731,6 +731,17 @@
       "title": "Current datasource features",
       "type": "object"
     },
+    "restDeleteVersionResponse": {
+      "properties": {
+        "EmptyNodeDeleted": {
+          "type": "boolean"
+        },
+        "Success": {
+          "type": "boolean"
+        }
+      },
+      "type": "object"
+    },
     "restError": {
       "properties": {
         "Code": {
@@ -811,6 +822,10 @@
         "ContentType": {
           "type": "string"
         },
+        "DraftMode": {
+          "title": "Whether this resource should be created as draft",
+          "type": "boolean"
+        },
         "KnownSize": {
           "format": "int64",
           "type": "string"
@@ -825,11 +840,19 @@
           },
           "type": "array"
         },
+        "ResourceUuid": {
+          "title": "Pass a generated UUID to be used as the created node UUID",
+          "type": "string"
+        },
         "TemplateUuid": {
           "type": "string"
         },
         "Type": {
           "$ref": "#/definitions/treeNodeType"
+        },
+        "VersionId": {
+          "title": "Pass a generated UUID to be used as the versionId",
+          "type": "string"
         }
       },
       "required": [
@@ -1034,6 +1057,10 @@
           "title": "This node is bookmarked by the user",
           "type": "boolean"
         },
+        "IsDraft": {
+          "title": "Additional metadata for lifecycle",
+          "type": "boolean"
+        },
         "IsRecycleBin": {
           "title": "If this node is a RecycleBin folder",
           "type": "boolean"
@@ -1071,10 +1098,6 @@
           },
           "title": "List of available previews generated server-side",
           "type": "array"
-        },
-        "RevisionMeta": {
-          "$ref": "#/definitions/restRevisionMeta",
-          "title": "Additional metadata attached to a Version node"
         },
         "Shares": {
           "items": {
@@ -1116,6 +1139,10 @@
         "Uuid": {
           "title": "Unique Identifier",
           "type": "string"
+        },
+        "VersionMeta": {
+          "$ref": "#/definitions/restVersionMeta",
+          "title": "Additional metadata attached to a Version Node"
         }
       },
       "required": [
@@ -1198,6 +1225,29 @@
       "title": "Set of updates to apply to metadata",
       "type": "object"
     },
+    "restNodeVersionsFilter": {
+      "properties": {
+        "FilterBy": {
+          "$ref": "#/definitions/restVersionsTypes"
+        },
+        "Limit": {
+          "format": "int64",
+          "type": "string"
+        },
+        "Offset": {
+          "format": "int64",
+          "type": "string"
+        },
+        "SortDirDesc": {
+          "type": "boolean"
+        },
+        "SortField": {
+          "type": "string"
+        }
+      },
+      "title": "Filter used for listVersions calls",
+      "type": "object"
+    },
     "restNsOp": {
       "default": "PUT",
       "enum": [
@@ -1271,6 +1321,33 @@
       "title": "Response to an action triggered",
       "type": "object"
     },
+    "restPromoteParameters": {
+      "properties": {
+        "IgnoreConflicts": {
+          "title": "Ignore if another version has been created since the one we want to promote",
+          "type": "boolean"
+        },
+        "Publish": {
+          "title": "Whether to publish node at the same time after promoting this version",
+          "type": "boolean"
+        }
+      },
+      "type": "object"
+    },
+    "restPromoteVersionResponse": {
+      "properties": {
+        "Node": {
+          "$ref": "#/definitions/restNode"
+        },
+        "Published": {
+          "type": "boolean"
+        },
+        "Success": {
+          "type": "boolean"
+        }
+      },
+      "type": "object"
+    },
     "restPublicLinkDeleteSuccess": {
       "properties": {
         "Message": {
@@ -1312,18 +1389,47 @@
       "title": "Create or update a public link on a node",
       "type": "object"
     },
-    "restRevisionMeta": {
+    "restPublishCascadeResult": {
       "properties": {
-        "Description": {
+        "Error": {
           "type": "string"
         },
-        "Uuid": {
-          "type": "string"
+        "Node": {
+          "$ref": "#/definitions/restNode"
+        },
+        "Promoted": {
+          "type": "boolean"
+        },
+        "Success": {
+          "type": "boolean"
         }
       },
-      "required": [
-        "Uuid"
-      ],
+      "type": "object"
+    },
+    "restPublishNodeParameters": {
+      "properties": {
+        "Cascade": {
+          "type": "boolean"
+        },
+        "PromoteLatest": {
+          "type": "boolean"
+        }
+      },
+      "type": "object"
+    },
+    "restPublishNodeResponse": {
+      "properties": {
+        "CascadeResults": {
+          "items": {
+            "$ref": "#/definitions/restPublishCascadeResult",
+            "type": "object"
+          },
+          "type": "array"
+        },
+        "Node": {
+          "$ref": "#/definitions/restNode"
+        }
+      },
       "type": "object"
     },
     "restSelection": {
@@ -1578,6 +1684,100 @@
       "title": "Collection of Meta Namespaces",
       "type": "object"
     },
+    "restVersion": {
+      "properties": {
+        "Description": {
+          "title": "Human-readable description of what happened",
+          "type": "string"
+        },
+        "Draft": {
+          "title": "This revision is not published",
+          "type": "boolean"
+        },
+        "ETag": {
+          "title": "Contents Hash",
+          "type": "string"
+        },
+        "IsHead": {
+          "title": "This revision is actually the current HEAD",
+          "type": "boolean"
+        },
+        "MTime": {
+          "format": "int64",
+          "title": "Unix Timestamp",
+          "type": "string"
+        },
+        "OwnerName": {
+          "title": "Who performed this action - name",
+          "type": "string"
+        },
+        "OwnerUuid": {
+          "title": "Who performed this action - uuid",
+          "type": "string"
+        },
+        "Size": {
+          "format": "int64",
+          "title": "Content Size at that moment",
+          "type": "string"
+        },
+        "VersionId": {
+          "title": "Unique commit ID",
+          "type": "string"
+        }
+      },
+      "required": [
+        "VersionId"
+      ],
+      "type": "object"
+    },
+    "restVersionCollection": {
+      "properties": {
+        "Versions": {
+          "items": {
+            "$ref": "#/definitions/restVersion",
+            "type": "object"
+          },
+          "type": "array"
+        }
+      },
+      "required": [
+        "Versions"
+      ],
+      "type": "object"
+    },
+    "restVersionMeta": {
+      "properties": {
+        "Description": {
+          "type": "string"
+        },
+        "IsDraft": {
+          "type": "boolean"
+        },
+        "IsHead": {
+          "type": "boolean"
+        },
+        "OwnerUuid": {
+          "type": "string"
+        },
+        "VersionId": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "VersionId"
+      ],
+      "title": "VersionMeta",
+      "type": "object"
+    },
+    "restVersionsTypes": {
+      "default": "VersionsAll",
+      "enum": [
+        "VersionsAll",
+        "DraftsOnly",
+        "VersionsOnly"
+      ],
+      "type": "string"
+    },
     "serviceResourcePolicy": {
       "properties": {
         "Action": {
@@ -1682,6 +1882,7 @@
           "type": "string"
         }
       },
+      "title": "Deprecated - Use ContentRevision instead",
       "type": "object"
     },
     "treeGeoPoint": {
@@ -1732,7 +1933,7 @@
             "$ref": "#/definitions/treeChangeLog",
             "type": "object"
           },
-          "title": "List of successive commits",
+          "title": "Deprecated - List of successive commits",
           "type": "array"
         },
         "Etag": {
@@ -2727,7 +2928,7 @@
             }
           }
         },
-        "summary": "PatchNode is used to update a node specific meta. It is used for reserved meta as well (bookmarks, contentLock)",
+        "summary": "Update a node specific meta. It is used for reserved meta as well (bookmarks, contentLock)",
         "tags": [
           "NodeService"
         ]
@@ -2790,9 +2991,9 @@
         ]
       }
     },
-    "/n/node/{Uuid}/versions": {
-      "get": {
-        "operationId": "ListVersions",
+    "/n/node/{Uuid}/publish": {
+      "post": {
+        "operationId": "PublishNode",
         "parameters": [
           {
             "in": "path",
@@ -2801,17 +3002,78 @@
             "type": "string"
           },
           {
-            "in": "query",
-            "name": "Path",
-            "required": false,
-            "type": "string"
+            "in": "body",
+            "name": "Parameters",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/restPublishNodeParameters"
+            }
           }
         ],
         "responses": {
           "200": {
             "description": "A successful response.",
             "schema": {
-              "$ref": "#/definitions/restNodeCollection"
+              "$ref": "#/definitions/restPublishNodeResponse"
+            }
+          },
+          "401": {
+            "description": "User is not authenticated",
+            "schema": {
+              "$ref": "#/definitions/restError"
+            }
+          },
+          "403": {
+            "description": "User has no permission to access this particular resource",
+            "schema": {
+              "$ref": "#/definitions/restError"
+            }
+          },
+          "404": {
+            "description": "Resource does not exist in the system",
+            "schema": {
+              "$ref": "#/definitions/restError"
+            }
+          },
+          "500": {
+            "description": "An internal error occurred in the backend",
+            "schema": {
+              "$ref": "#/definitions/restError"
+            }
+          }
+        },
+        "summary": "Unset draft status of a resource, typically to publish a folder in draft mode",
+        "tags": [
+          "NodeService"
+        ]
+      }
+    },
+    "/n/node/{Uuid}/versions": {
+      "post": {
+        "operationId": "NodeVersions",
+        "parameters": [
+          {
+            "description": "The node Uuid",
+            "in": "path",
+            "name": "Uuid",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "description": "Additional parameters for filtering/sorting",
+            "in": "body",
+            "name": "Query",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/restNodeVersionsFilter"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/restVersionCollection"
             }
           },
           "401": {
@@ -2840,6 +3102,124 @@
           }
         },
         "summary": "List all known versions of a node",
+        "tags": [
+          "NodeService"
+        ]
+      }
+    },
+    "/n/node/{Uuid}/versions/{VersionId}": {
+      "delete": {
+        "operationId": "DeleteVersion",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "Uuid",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "in": "path",
+            "name": "VersionId",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/restDeleteVersionResponse"
+            }
+          },
+          "401": {
+            "description": "User is not authenticated",
+            "schema": {
+              "$ref": "#/definitions/restError"
+            }
+          },
+          "403": {
+            "description": "User has no permission to access this particular resource",
+            "schema": {
+              "$ref": "#/definitions/restError"
+            }
+          },
+          "404": {
+            "description": "Resource does not exist in the system",
+            "schema": {
+              "$ref": "#/definitions/restError"
+            }
+          },
+          "500": {
+            "description": "An internal error occurred in the backend",
+            "schema": {
+              "$ref": "#/definitions/restError"
+            }
+          }
+        },
+        "summary": "Delete a version by its ID",
+        "tags": [
+          "NodeService"
+        ]
+      }
+    },
+    "/n/node/{Uuid}/versions/{VersionId}/promote": {
+      "post": {
+        "operationId": "PromoteVersion",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "Uuid",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "in": "path",
+            "name": "VersionId",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "in": "body",
+            "name": "Parameters",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/restPromoteParameters"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/restPromoteVersionResponse"
+            }
+          },
+          "401": {
+            "description": "User is not authenticated",
+            "schema": {
+              "$ref": "#/definitions/restError"
+            }
+          },
+          "403": {
+            "description": "User has no permission to access this particular resource",
+            "schema": {
+              "$ref": "#/definitions/restError"
+            }
+          },
+          "404": {
+            "description": "Resource does not exist in the system",
+            "schema": {
+              "$ref": "#/definitions/restError"
+            }
+          },
+          "500": {
+            "description": "An internal error occurred in the backend",
+            "schema": {
+              "$ref": "#/definitions/restError"
+            }
+          }
+        },
+        "summary": "Promotes a version by ID to be the publicly available content of the node - files only",
         "tags": [
           "NodeService"
         ]

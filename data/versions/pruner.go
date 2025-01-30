@@ -32,20 +32,22 @@ import (
 
 // Simple struct used for sorting
 type distancedLog struct {
-	tree.ChangeLog
+	tree.ContentRevision
 	first    bool
 	Distance time.Duration
 }
 
 // Sort Changes by Time DESC
-type byTime []*tree.ChangeLog
+type byTime []*tree.ContentRevision
 
 func (s byTime) Len() int {
 	return len(s)
 }
+
 func (s byTime) Swap(i, j int) {
 	s[i], s[j] = s[j], s[i]
 }
+
 func (s byTime) Less(i, j int) bool {
 	return s[i].MTime > s[j].MTime
 }
@@ -56,9 +58,11 @@ type byDistances []*distancedLog
 func (s byDistances) Len() int {
 	return len(s)
 }
+
 func (s byDistances) Swap(i, j int) {
 	s[i], s[j] = s[j], s[i]
 }
+
 func (s byDistances) Less(i, j int) bool {
 	if s[i].first {
 		return false
@@ -74,7 +78,7 @@ type pruningPeriod struct {
 	start   time.Time
 	end     time.Time
 	max     int32
-	records []*tree.ChangeLog
+	records []*tree.ContentRevision
 }
 
 // Utils
@@ -85,8 +89,8 @@ func (p *pruningPeriod) String() string {
 }
 
 // Prune decides which versions to delete for this period.
-func (p *pruningPeriod) Prune() (toBeRemoved []*tree.ChangeLog) {
-	var newRecords []*tree.ChangeLog
+func (p *pruningPeriod) Prune() (toBeRemoved []*tree.ContentRevision) {
+	var newRecords []*tree.ContentRevision
 	if p.max == -1 {
 		return
 	} else if p.max == 0 {
@@ -96,9 +100,9 @@ func (p *pruningPeriod) Prune() (toBeRemoved []*tree.ChangeLog) {
 		sort.Sort(byDistances(distances))
 		for k, dLog := range distances {
 			if k < len(p.records)-int(p.max) {
-				toBeRemoved = append(toBeRemoved, &dLog.ChangeLog)
+				toBeRemoved = append(toBeRemoved, &dLog.ContentRevision)
 			} else {
-				newRecords = append(newRecords, &dLog.ChangeLog)
+				newRecords = append(newRecords, &dLog.ContentRevision)
 			}
 		}
 	}
@@ -107,8 +111,8 @@ func (p *pruningPeriod) Prune() (toBeRemoved []*tree.ChangeLog) {
 }
 
 // PruneAllWithMaxSize checks overall size and removes older versions. It should be called after pruning by periods.
-func PruneAllWithMaxSize(periods []*pruningPeriod, maxSize int64) (toBeRemoved []*tree.ChangeLog, remaining []*tree.ChangeLog) {
-	var allRecords []*tree.ChangeLog
+func PruneAllWithMaxSize(periods []*pruningPeriod, maxSize int64) (toBeRemoved []*tree.ContentRevision, remaining []*tree.ContentRevision) {
+	var allRecords []*tree.ContentRevision
 	for _, p := range periods {
 		allRecords = append(allRecords, p.records...)
 	}
@@ -131,12 +135,12 @@ func PruneAllWithMaxSize(periods []*pruningPeriod, maxSize int64) (toBeRemoved [
 	return
 }
 
-// recordsToDistances transforms a slice of ChangeLog to an ordered slice of distancedLog.
-func recordsToDistances(records []*tree.ChangeLog) (distances []*distancedLog) {
+// recordsToDistances transforms a slice of ContentRevision to an ordered slice of distancedLog.
+func recordsToDistances(records []*tree.ContentRevision) (distances []*distancedLog) {
 	sort.Sort(byTime(records))
 	for i := 0; i < len(records); i++ {
 		dLog := &distancedLog{}
-		dLog.ChangeLog = *records[i]
+		dLog.ContentRevision = *records[i]
 		if i == 0 {
 			dLog.first = true
 		} else {
@@ -175,7 +179,7 @@ func PreparePeriods(startTime time.Time, periods []*tree.VersioningKeepPeriod) (
 }
 
 // DispatchChangeLogsByPeriod places each change in its corresponding period
-func DispatchChangeLogsByPeriod(pruningPeriods []*pruningPeriod, changesChan chan *tree.ChangeLog) ([]*pruningPeriod, error) {
+func DispatchChangeLogsByPeriod(pruningPeriods []*pruningPeriod, changesChan chan *tree.ContentRevision) ([]*pruningPeriod, error) {
 	for l := range changesChan {
 		changeTime := time.Unix(l.MTime, 0)
 		for _, period := range pruningPeriods {

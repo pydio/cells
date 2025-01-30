@@ -153,15 +153,17 @@ func (h *Handler) TreeNodeToNode(n *tree.Node) *rest.Node {
 				rn.DataSourceFeatures.Versioned = true
 			}
 
-		case common.MetaNamespaceVersionId, common.MetaNamespaceVersionDesc:
-			if rn.RevisionMeta == nil {
-				rn.RevisionMeta = &rest.RevisionMeta{}
+		case common.MetaNamespaceVersionId, common.MetaNamespaceVersionDesc, common.MetaNamespaceVersionDraft:
+			if rn.VersionMeta == nil {
+				rn.VersionMeta = &rest.VersionMeta{}
 			}
 			value := strings.ReplaceAll(v, "\"", "")
 			if k == common.MetaNamespaceVersionId {
-				rn.RevisionMeta.Uuid = value
+				rn.VersionMeta.VersionId = value
+			} else if k == common.MetaNamespaceVersionDesc {
+				rn.VersionMeta.Description = value
 			} else {
-				rn.RevisionMeta.Description = value
+				rn.VersionMeta.IsDraft = v == "true"
 			}
 
 		case images.MetadataImageDimensions,

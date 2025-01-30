@@ -23,9 +23,7 @@ package restv2
 import (
 	restful "github.com/emicklei/go-restful/v3"
 
-	"github.com/pydio/cells/v5/common/client/commons"
 	"github.com/pydio/cells/v5/common/errors"
-	"github.com/pydio/cells/v5/common/nodes/compose"
 	"github.com/pydio/cells/v5/common/proto/rest"
 	"github.com/pydio/cells/v5/common/proto/tree"
 )
@@ -104,6 +102,10 @@ func (h *Handler) Lookup(req *restful.Request, resp *restful.Response) error {
 			}
 		}
 	}
+	// Make sure Nodes field is not empty but {}
+	if coll.Nodes == nil {
+		coll.Nodes = []*rest.Node{}
+	}
 
 	return resp.WriteEntity(coll)
 
@@ -119,32 +121,4 @@ func (h *Handler) GetByUuid(req *restful.Request, resp *restful.Response) error 
 		return er
 	}
 	return resp.WriteEntity(h.TreeNodeToNode(rr.GetNode()))
-}
-
-// ListVersions lists all versions of a node
-func (h *Handler) ListVersions(req *restful.Request, resp *restful.Response) error {
-	nodeUuid := req.PathParameter("Uuid")
-	ctx := req.Request.Context()
-	rn, er := h.UuidClient(true).ReadNode(ctx, &tree.ReadNodeRequest{Node: &tree.Node{Uuid: nodeUuid}})
-	if er != nil {
-		return er
-	}
-	node := rn.GetNode()
-	st, er := compose.PathClient().ListNodes(ctx, &tree.ListNodesRequest{
-		Node:         node,
-		WithVersions: true,
-	})
-	if er != nil {
-		return er
-	}
-	var nn []*rest.Node
-	er = commons.ForEach(st, er, func(response *tree.ListNodesResponse) error {
-		vNode := response.GetNode()
-		nn = append(nn, h.TreeNodeToNode(vNode))
-		return nil
-	})
-	if er != nil {
-		return er
-	}
-	return resp.WriteEntity(&rest.NodeCollection{Nodes: nn})
 }

@@ -26,6 +26,7 @@ import (
 	"io"
 	"net/url"
 	"path"
+	"slices"
 	"strings"
 	"time"
 
@@ -947,7 +948,19 @@ func MkDirsOrFiles(ctx context.Context, router nodes.Client, nodes []*tree.Node,
 		session = uuid.New()
 	}
 	for i, n := range nodes {
+		// Check node does not exist already (by path)
+		if _, statErr := router.ReadNode(ctx, &tree.ReadNodeRequest{Node: n, StatFlags: []uint32{tree.StatFlagMetaMinimal}}); statErr == nil {
+			return nil, errors.WithMessage(errors.StatusConflict, "Please use another file name!")
+		}
 		if !n.IsLeaf() {
+			// And double-check by ID if it is passed as parameter - already done in the PUT flow
+			if id := n.GetStringMeta(common.InputResourceUUID); id != "" {
+				if _, statErr := compose.UuidClient().ReadNode(ctx, &tree.ReadNodeRequest{Node: &tree.Node{Uuid: id}, StatFlags: []uint32{tree.StatFlagMetaMinimal}}); statErr == nil {
+					return nil, errors.WithMessage(errors.StatusConflict, "Please use another UUID")
+				}
+				n.SetUuid(id)
+				delete(n.MetaStore, common.InputResourceUUID)
+			}
 			// Additional folders checks for non-flat storages
 			if info, err := router.BranchInfoForNode(ctx, n); err != nil {
 				er = err
@@ -991,7 +1004,7 @@ func MkDirsOrFiles(ctx context.Context, router nodes.Client, nodes []*tree.Node,
 				}
 
 			} else {
-				contents := " " // Use simple space for empty files
+				contents := "" // Use simple space for empty files
 				if n.GetStringMeta(common.MetaNamespaceContents) != "" {
 					contents = n.GetStringMeta(common.MetaNamespaceContents)
 				}
@@ -1002,7 +1015,9 @@ func MkDirsOrFiles(ctx context.Context, router nodes.Client, nodes []*tree.Node,
 			for k, v := range n.GetMetaStore() {
 				// Translate node usermeta to PutRequestData.Meta
 				if strings.HasPrefix(k, common.MetaNamespaceUserspacePrefix) {
-					meta["X-Amz-Meta-"+k] = v
+					meta[common.XAmzMetaPrefix+k] = v
+				} else if slices.Contains([]string{common.InputResourceUUID, common.InputVersionId, common.InputDraftMode}, k) {
+					meta[common.XAmzMetaPrefix+k] = strings.ReplaceAll(v, "\"", "")
 				}
 			}
 			if _, er = router.PutObject(ctx, n, reader, &models.PutRequestData{Size: length, Metadata: meta}); er != nil {

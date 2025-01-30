@@ -60,13 +60,22 @@ func (h *Handler) Create(req *restful.Request, resp *restful.Response) error {
 			}
 			node.MustSetMeta(meta.GetNamespace(), i)
 		}
+		if n.DraftMode {
+			node.MustSetMeta(common.InputDraftMode, true)
+		}
+		if n.ResourceUuid != "" {
+			node.MustSetMeta(common.InputResourceUUID, n.ResourceUuid)
+		}
+		if n.VersionId != "" {
+			node.MustSetMeta(common.InputVersionId, n.VersionId)
+		}
 		tpl := n.GetTemplateUuid()
 		byTpl[tpl] = append(byTpl[tpl], node)
 	}
 	output := &rest.NodeCollection{}
 	// tpl may be an empty string
-	for tpl, nodes := range byTpl {
-		nn, er := userspace.MkDirsOrFiles(ctx, h.TreeHandler.GetRouter(), nodes, input.Recursive, tpl)
+	for tpl, newNodes := range byTpl {
+		nn, er := userspace.MkDirsOrFiles(ctx, h.TreeHandler.GetRouter(), newNodes, input.Recursive, tpl)
 		if er != nil {
 			return er
 		}

@@ -23,6 +23,8 @@ package bolt
 import (
 	"context"
 	"encoding/binary"
+	"fmt"
+	"slices"
 
 	"go.etcd.io/bbolt"
 	"go.uber.org/multierr"
@@ -70,10 +72,9 @@ func (b *BoltStore) Close() error {
 }
 
 // GetLastVersion retrieves the last version registered for this node.
-func (b *BoltStore) GetLastVersion(ctx context.Context, nodeUuid string) (log *tree.ChangeLog, err error) {
+func (b *BoltStore) GetLastVersion(ctx context.Context, nodeUuid string) (log *tree.ContentRevision, err error) {
 
 	err = b.View(func(tx *bbolt.Tx) error {
-
 		bucket := tx.Bucket(bucketName)
 		if bucket == nil {
 			return errors.WithStack(errors.BucketNotFound)
@@ -85,22 +86,28 @@ func (b *BoltStore) GetLastVersion(ctx context.Context, nodeUuid string) (log *t
 		}
 		c := nodeBucket.Cursor()
 		_, v := c.Last()
-		theLog := &tree.ChangeLog{}
-		e := proto.Unmarshal(v, theLog)
-		if e != nil {
-			return e
-		}
-		log = theLog
-		return nil
+		var er error
+		log, er = b.unmarshalRevision(v)
+		return er
 	})
 
 	return log, err
 }
 
 // GetVersions returns all versions from the node bucket, in reverse order (last inserted first).
-func (b *BoltStore) GetVersions(ctx context.Context, nodeUuid string) (chan *tree.ChangeLog, error) {
+func (b *BoltStore) GetVersions(ctx context.Context, nodeUuid string, offset int64, limit int64, sortField string, sortDesc bool, filters map[string]any) (chan *tree.ContentRevision, error) {
 
-	logChan := make(chan *tree.ChangeLog)
+	logChan := make(chan *tree.ContentRevision)
+	var filterByType string
+	var filterByOwnerUuid string
+	for k, v := range filters {
+		switch k {
+		case "draftStatus":
+			filterByType = v.(string)
+		case "ownerUuid":
+			filterByOwnerUuid = v.(string)
+		}
+	}
 
 	go func() {
 		defer func() {
@@ -119,13 +126,17 @@ func (b *BoltStore) GetVersions(ctx context.Context, nodeUuid string) (chan *tre
 			c := nodeBucket.Cursor()
 
 			for k, v := c.Last(); k != nil; k, v = c.Prev() {
-				aLog := &tree.ChangeLog{}
-				e := proto.Unmarshal(v, aLog)
+				cr, e := b.unmarshalRevision(v)
 				if e != nil {
 					return e
 				}
-				log.Logger(ctx).Debug("Versions:Bolt", aLog.Zap())
-				logChan <- aLog
+				if (filterByType == "draft" && !cr.Draft) || filterByType == "published" && cr.Draft {
+					continue
+				}
+				if filterByOwnerUuid != "" && cr.OwnerUuid != filterByOwnerUuid {
+					continue
+				}
+				logChan <- cr
 			}
 
 			return nil
@@ -140,7 +151,7 @@ func (b *BoltStore) GetVersions(ctx context.Context, nodeUuid string) (chan *tre
 }
 
 // StoreVersion stores a version in the node bucket.
-func (b *BoltStore) StoreVersion(ctx context.Context, nodeUuid string, log *tree.ChangeLog) error {
+func (b *BoltStore) StoreVersion(ctx context.Context, nodeUuid string, revision *tree.ContentRevision) error {
 
 	return b.Update(func(tx *bbolt.Tx) error {
 
@@ -152,7 +163,7 @@ func (b *BoltStore) StoreVersion(ctx context.Context, nodeUuid string, log *tree
 		if err != nil {
 			return err
 		}
-		newValue, e := proto.Marshal(log)
+		newValue, e := proto.Marshal(revision)
 		if e != nil {
 			return e
 		}
@@ -166,11 +177,11 @@ func (b *BoltStore) StoreVersion(ctx context.Context, nodeUuid string, log *tree
 }
 
 // GetVersion retrieves a specific version from the node bucket.
-func (b *BoltStore) GetVersion(ctx context.Context, nodeUuid string, versionId string) (*tree.ChangeLog, error) {
+func (b *BoltStore) GetVersion(ctx context.Context, nodeUuid string, versionId string) (*tree.ContentRevision, error) {
 
-	version := &tree.ChangeLog{}
+	var version *tree.ContentRevision
 
-	b.View(func(tx *bbolt.Tx) error {
+	err := b.View(func(tx *bbolt.Tx) error {
 
 		bucket := tx.Bucket(bucketName)
 		if bucket == nil {
@@ -183,20 +194,23 @@ func (b *BoltStore) GetVersion(ctx context.Context, nodeUuid string, versionId s
 
 		c := nodeBucket.Cursor()
 		for k, v := c.First(); k != nil; k, v = c.Next() {
-			vers := &tree.ChangeLog{}
-			if e := proto.Unmarshal(v, vers); e == nil && vers.Uuid == versionId {
-				version = vers
+			if cr, er := b.unmarshalRevision(v); er != nil {
+				return er
+			} else if cr.VersionId == versionId {
+				version = cr
 				break
 			}
 		}
 		return nil
 	})
-
-	return version, nil
+	if version == nil {
+		err = errors.WithMessage(errors.VersionNotFound, "cannot find version "+versionId)
+	}
+	return version, err
 }
 
 // DeleteVersionsForNode deletes whole node bucket at once.
-func (b *BoltStore) DeleteVersionsForNode(ctx context.Context, nodeUuid string, versions ...*tree.ChangeLog) error {
+func (b *BoltStore) DeleteVersionsForNode(ctx context.Context, nodeUuid string, versions ...string) error {
 
 	return b.Update(func(tx *bbolt.Tx) error {
 
@@ -211,12 +225,9 @@ func (b *BoltStore) DeleteVersionsForNode(ctx context.Context, nodeUuid string, 
 				c := nodeBucket.Cursor()
 				var keys [][]byte
 				for k, v := c.First(); k != nil; k, v = c.Next() {
-					vers := &tree.ChangeLog{}
-					if e := proto.Unmarshal(v, vers); e == nil {
-						for _, version := range versions {
-							if vers.Uuid == version.Uuid {
-								keys = append(keys, k)
-							}
+					if cr, er := b.unmarshalRevision(v); er == nil {
+						if slices.Contains(versions, cr.VersionId) {
+							keys = append(keys, k)
 						}
 					}
 				}
@@ -277,4 +288,26 @@ func (b *BoltStore) ListAllVersionedNodesUuids(ctx context.Context) (chan string
 	}()
 
 	return idsChan, done, errChan
+}
+
+func (b *BoltStore) unmarshalRevision(bb []byte) (r *tree.ContentRevision, e error) {
+	r = &tree.ContentRevision{}
+	if er := proto.Unmarshal(bb, r); er == nil && (r.Event != nil || r.Location != nil) {
+		return r, nil
+	}
+	// LegacyFormat
+	cLog := &tree.ChangeLog{}
+	if er := proto.Unmarshal(bb, cLog); er == nil {
+		return &tree.ContentRevision{
+			VersionId:   cLog.Uuid,
+			Description: cLog.Description,
+			MTime:       cLog.MTime,
+			Size:        cLog.Size,
+			ETag:        string(cLog.Data),
+			OwnerName:   cLog.OwnerUuid, // This is normal
+			Event:       cLog.Event,
+			Location:    cLog.Location,
+		}, nil
+	}
+	return nil, fmt.Errorf("invalid format (tree.ContentRevision or tree.ChangeLog expected)")
 }

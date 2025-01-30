@@ -23,7 +23,6 @@ package versions
 import (
 	"context"
 	"fmt"
-	"path"
 
 	"github.com/pkg/errors"
 	"go.uber.org/zap"
@@ -36,6 +35,7 @@ import (
 	"github.com/pydio/cells/v5/common/nodes"
 	"github.com/pydio/cells/v5/common/nodes/compose"
 	"github.com/pydio/cells/v5/common/nodes/models"
+	"github.com/pydio/cells/v5/common/permissions"
 	"github.com/pydio/cells/v5/common/proto/jobs"
 	"github.com/pydio/cells/v5/common/proto/tree"
 	"github.com/pydio/cells/v5/common/telemetry/log"
@@ -111,8 +111,16 @@ func (c *VersionAction) Run(ctx context.Context, channels *actions.RunnableChann
 		return input.WithError(e), e
 	}
 
+	userName, claims := permissions.FindUserNameInContext(ctx)
+	if claims.Subject == "" {
+		user, err := permissions.SearchUniqueUser(ctx, userName, "")
+		if err != nil {
+			return input.WithError(err), err
+		}
+		claims.Subject = user.GetUuid()
+	}
 	versionClient := tree.NewNodeVersionerClient(grpc.ResolveConn(ctx, common.ServiceVersionsGRPC))
-	request := &tree.CreateVersionRequest{Node: node}
+	request := &tree.CreateVersionRequest{Node: node, OwnerName: userName, OwnerUuid: claims.Subject}
 	if input.Event != nil {
 		ce := &tree.NodeChangeEvent{}
 		if err := anypb.UnmarshalTo(input.Event, ce, proto.UnmarshalOptions{}); err == nil {
@@ -123,7 +131,7 @@ func (c *VersionAction) Run(ctx context.Context, channels *actions.RunnableChann
 	if err != nil {
 		return input.WithError(err), err
 	}
-	if (resp.Version == nil || resp.Version == &tree.ChangeLog{}) {
+	if resp.Ignored {
 		// No version returned, means content did not change, do not update
 		return input.WithIgnore(), nil
 	}
@@ -133,16 +141,7 @@ func (c *VersionAction) Run(ctx context.Context, channels *actions.RunnableChann
 	ctx = nodes.WithBranchInfo(ctx, "to", branchInfo)
 
 	sourceNode := node.Clone()
-
-	vPath := node.Uuid + "__" + resp.Version.Uuid
-	targetNode := &tree.Node{
-		Uuid: vPath,
-		Path: path.Join(source.Name, vPath),
-		MetaStore: map[string]string{
-			common.MetaNamespaceDatasourceName: `"` + source.Name + `"`,
-			common.MetaNamespaceDatasourcePath: `"` + vPath + `"`,
-		},
-	}
+	targetNode := resp.Version.GetLocation()
 
 	objectInfo, err := getRouter().CopyObject(ctx, sourceNode, targetNode, &models.CopyRequestData{})
 	if err != nil {

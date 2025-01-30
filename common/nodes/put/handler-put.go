@@ -122,6 +122,14 @@ func (m *Handler) getOrCreatePutNode(ctx context.Context, nodePath string, reque
 		tmpNode.MustSetMeta(common.MetaNamespaceMime, requestData.MetaContentType())
 	}
 
+	// Uuid is passed for input node - double check that it does not already exist!
+	if id := requestData.InputResourceUuid(); id != "" {
+		if _, er := treeReader.ReadNode(ctx, &tree.ReadNodeRequest{Node: &tree.Node{Uuid: id}}); er == nil {
+			return nil, nil, errors.WithStack(errors.NodeIndexConflict)
+		}
+		tmpNode.SetUuid(id)
+	}
+
 	createResp, er := retryOnDuplicate(ctx, func(c context.Context) (*tree.CreateNodeResponse, error) {
 		return treeWriter.CreateNode(c, &tree.CreateNodeRequest{Node: tmpNode})
 	})

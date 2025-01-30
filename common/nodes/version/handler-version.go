@@ -23,18 +23,21 @@ package version
 import (
 	"context"
 	"io"
+	"time"
 
 	"go.uber.org/zap"
 	"google.golang.org/grpc"
 
 	"github.com/pydio/cells/v5/common"
+	"github.com/pydio/cells/v5/common/client/commons"
 	grpc2 "github.com/pydio/cells/v5/common/client/grpc"
-	"github.com/pydio/cells/v5/common/errors"
 	"github.com/pydio/cells/v5/common/nodes"
 	"github.com/pydio/cells/v5/common/nodes/abstract"
 	"github.com/pydio/cells/v5/common/nodes/models"
+	"github.com/pydio/cells/v5/common/permissions"
 	"github.com/pydio/cells/v5/common/proto/tree"
 	"github.com/pydio/cells/v5/common/telemetry/log"
+	"github.com/pydio/cells/v5/common/utils/uuid"
 )
 
 func WithVersions() nodes.Option {
@@ -65,7 +68,6 @@ func (v *Handler) ListNodes(ctx context.Context, in *tree.ListNodesRequest, opts
 		return nil, err
 	}
 	if in.WithVersions {
-
 		streamer := nodes.NewWrappingStreamer(ctx)
 		resp, e := v.Next.ReadNode(ctx, &tree.ReadNodeRequest{Node: in.Node})
 		if e != nil {
@@ -77,30 +79,21 @@ func (v *Handler) ListNodes(ctx context.Context, in *tree.ListNodesRequest, opts
 		}
 		go func() {
 			defer streamer.CloseSend()
-
-			log.Logger(ctx).Debug("should list versions of object", zap.Any("node", resp.Node), zap.Error(er))
-			for {
-				vResp, vE := versionStream.Recv()
-				if vE != nil {
-					if !errors.IsStreamFinished(vE) {
-						_ = streamer.SendError(vE)
-					}
-					break
-				}
-				if vResp == nil {
-					continue
-				}
+			_ = commons.ForEach(versionStream, nil, func(vResp *tree.ListVersionsResponse) error {
 				log.Logger(ctx).Debug("received version", zap.Any("version", vResp))
-				vNode := resp.Node
-				vNode.Etag = string(vResp.Version.Data)
+				vNode := resp.Node.Clone()
+				vNode.Etag = vResp.Version.ETag
 				vNode.MTime = vResp.Version.MTime
 				vNode.Size = vResp.Version.Size
-				vNode.MustSetMeta(common.MetaNamespaceVersionId, vResp.Version.Uuid)
+				vNode.MustSetMeta(common.MetaNamespaceVersionId, vResp.Version.VersionId)
 				vNode.MustSetMeta(common.MetaNamespaceVersionDesc, vResp.Version.Description)
-				streamer.Send(&tree.ListNodesResponse{
+				if vResp.Version.Draft {
+					vNode.MustSetMeta(common.MetaNamespaceVersionDraft, true)
+				}
+				return streamer.Send(&tree.ListNodesResponse{
 					Node: vNode,
 				})
-			}
+			})
 		}()
 		return streamer, nil
 
@@ -125,12 +118,12 @@ func (v *Handler) ReadNode(ctx context.Context, req *tree.ReadNodeRequest, opts 
 			node = resp.Node
 		}
 		log.Logger(ctx).Debug("Reading Node with Version ID - Found node")
-		vResp, err := v.getVersionClient(ctx).HeadVersion(ctx, &tree.HeadVersionRequest{Node: node, VersionId: vId})
+		vResp, err := v.getVersionClient(ctx).HeadVersion(ctx, &tree.HeadVersionRequest{NodeUuid: node.GetUuid(), VersionId: vId})
 		if err != nil {
 			return nil, err
 		}
 		log.Logger(ctx).Debug("Reading Node with Version ID - Found version", zap.Any("version", vResp.Version))
-		node.Etag = string(vResp.Version.Data)
+		node.Etag = vResp.Version.ETag
 		node.MTime = vResp.Version.MTime
 		node.Size = vResp.Version.Size
 		return &tree.ReadNodeResponse{Node: node}, nil
@@ -156,14 +149,14 @@ func (v *Handler) GetObject(ctx context.Context, node *tree.Node, requestData *m
 			}
 			node = resp.Node
 		}
-		vResp, err := v.getVersionClient(ctx).HeadVersion(ctx, &tree.HeadVersionRequest{Node: node, VersionId: requestData.VersionId})
+		vResp, err := v.getVersionClient(ctx).HeadVersion(ctx, &tree.HeadVersionRequest{NodeUuid: node.GetUuid(), VersionId: requestData.VersionId})
 		if err != nil {
 			return nil, err
 		}
 		node = vResp.Version.GetLocation()
 		// Append Version information
 		node.Size = vResp.Version.Size
-		node.Etag = string(vResp.Version.Data)
+		node.Etag = vResp.Version.ETag
 		node.MTime = vResp.Version.MTime
 		// Refresh context from location
 		dsName := node.GetStringMeta(common.MetaNamespaceDatasourceName)
@@ -196,7 +189,7 @@ func (v *Handler) CopyObject(ctx context.Context, from *tree.Node, to *tree.Node
 			}
 			from = resp.Node
 		}
-		vResp, err := v.getVersionClient(ctx).HeadVersion(ctx, &tree.HeadVersionRequest{Node: from, VersionId: requestData.SrcVersionId})
+		vResp, err := v.getVersionClient(ctx).HeadVersion(ctx, &tree.HeadVersionRequest{NodeUuid: from.GetUuid(), VersionId: requestData.SrcVersionId})
 		if err != nil {
 			return models.ObjectInfo{}, err
 		}
@@ -220,4 +213,69 @@ func (v *Handler) CopyObject(ctx context.Context, from *tree.Node, to *tree.Node
 	}
 
 	return v.Next.CopyObject(ctx, from, to, requestData)
+}
+
+func (v *Handler) PutObject(ctx context.Context, node *tree.Node, reader io.Reader, requestData *models.PutRequestData) (models.ObjectInfo, error) {
+	ctx, err := v.WrapContext(ctx)
+	if err != nil {
+		return models.ObjectInfo{}, err
+	}
+	if !nodes.IsFlatStorage(ctx, "in") {
+		return v.Next.PutObject(ctx, node, reader, requestData)
+	}
+
+	if requestData.Metadata[common.XAmzMetaPrefix+common.InputDraftMode] == "true" {
+
+		versionId := requestData.Metadata[common.XAmzMetaPrefix+common.InputVersionId]
+		if versionId == "" {
+			versionId = uuid.New()
+		}
+		clone := node.Clone()
+		if clone.GetStringMeta(common.MetaNamespaceDatasourceName) == "" {
+			branchInfo, _ := nodes.GetBranchInfo(ctx, "in")
+			clone.MustSetMeta(common.MetaNamespaceDatasourceName, branchInfo.Name)
+		}
+
+		// CreateVersion (not stored yet)
+		u, claims := permissions.FindUserNameInContext(ctx)
+		vr, er := v.getVersionClient(ctx).CreateVersion(ctx, &tree.CreateVersionRequest{
+			Node:         clone,
+			VersionUuid:  versionId,
+			OwnerName:    u,
+			OwnerUuid:    claims.Subject,
+			Draft:        true,
+			TriggerEvent: &tree.NodeChangeEvent{Type: tree.NodeChangeEvent_CREATE, Target: clone},
+		})
+		if er != nil {
+			return models.ObjectInfo{}, er
+		}
+		revision := vr.GetVersion()
+		revision.MTime = time.Now().Unix()
+		revision.Size = requestData.Size
+
+		// Refresh target and context from location
+		newTarget := vr.GetVersion().GetLocation()
+		source, e := nodes.GetSourcesPool(ctx).GetDataSourceInfo(newTarget.GetStringMeta(common.MetaNamespaceDatasourceName))
+		if e != nil {
+			return models.ObjectInfo{}, e
+		}
+		ctx = nodes.WithBranchInfo(ctx, "in", nodes.BranchInfo{LoadedSource: source})
+		log.Logger(ctx).Info("PutObject With VersionId "+versionId+" will update to new target in "+source.Name, revision.Zap(), newTarget.Zap())
+		oi, er := v.Next.PutObject(ctx, newTarget, reader, requestData)
+		if er != nil {
+			return models.ObjectInfo{}, er
+		}
+		if ex, o := reader.(common.ReaderMetaExtractor); o {
+			if mm, ok := ex.ExtractedMeta(); ok && mm[common.MetaNamespaceHash] != "" {
+				log.Logger(ctx).Info("Update revision with computed ETag" + mm[common.MetaNamespaceHash])
+				revision.ETag = mm[common.MetaNamespaceHash]
+			}
+		}
+		// Now store version
+		_, er = v.getVersionClient(ctx).StoreVersion(ctx, &tree.StoreVersionRequest{Node: clone, Version: revision})
+
+		return oi, er
+
+	}
+	return v.Next.PutObject(ctx, node, reader, requestData)
 }

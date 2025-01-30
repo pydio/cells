@@ -1416,6 +1416,7 @@ type NodeVersionerClient interface {
 	StoreVersion(ctx context.Context, in *StoreVersionRequest, opts ...grpc.CallOption) (*StoreVersionResponse, error)
 	ListVersions(ctx context.Context, in *ListVersionsRequest, opts ...grpc.CallOption) (NodeVersioner_ListVersionsClient, error)
 	HeadVersion(ctx context.Context, in *HeadVersionRequest, opts ...grpc.CallOption) (*HeadVersionResponse, error)
+	DeleteVersion(ctx context.Context, in *HeadVersionRequest, opts ...grpc.CallOption) (*DeleteVersionResponse, error)
 	PruneVersions(ctx context.Context, in *PruneVersionsRequest, opts ...grpc.CallOption) (*PruneVersionsResponse, error)
 	ListVersioningPolicies(ctx context.Context, in *ListVersioningPoliciesRequest, opts ...grpc.CallOption) (NodeVersioner_ListVersioningPoliciesClient, error)
 }
@@ -1487,6 +1488,15 @@ func (c *nodeVersionerClient) HeadVersion(ctx context.Context, in *HeadVersionRe
 	return out, nil
 }
 
+func (c *nodeVersionerClient) DeleteVersion(ctx context.Context, in *HeadVersionRequest, opts ...grpc.CallOption) (*DeleteVersionResponse, error) {
+	out := new(DeleteVersionResponse)
+	err := c.cc.Invoke(ctx, "/tree.NodeVersioner/DeleteVersion", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *nodeVersionerClient) PruneVersions(ctx context.Context, in *PruneVersionsRequest, opts ...grpc.CallOption) (*PruneVersionsResponse, error) {
 	out := new(PruneVersionsResponse)
 	err := c.cc.Invoke(ctx, "/tree.NodeVersioner/PruneVersions", in, out, opts...)
@@ -1536,6 +1546,7 @@ type NodeVersionerServer interface {
 	StoreVersion(context.Context, *StoreVersionRequest) (*StoreVersionResponse, error)
 	ListVersions(*ListVersionsRequest, NodeVersioner_ListVersionsServer) error
 	HeadVersion(context.Context, *HeadVersionRequest) (*HeadVersionResponse, error)
+	DeleteVersion(context.Context, *HeadVersionRequest) (*DeleteVersionResponse, error)
 	PruneVersions(context.Context, *PruneVersionsRequest) (*PruneVersionsResponse, error)
 	ListVersioningPolicies(*ListVersioningPoliciesRequest, NodeVersioner_ListVersioningPoliciesServer) error
 	mustEmbedUnimplementedNodeVersionerServer()
@@ -1556,6 +1567,9 @@ func (UnimplementedNodeVersionerServer) ListVersions(*ListVersionsRequest, NodeV
 }
 func (UnimplementedNodeVersionerServer) HeadVersion(context.Context, *HeadVersionRequest) (*HeadVersionResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method HeadVersion not implemented")
+}
+func (UnimplementedNodeVersionerServer) DeleteVersion(context.Context, *HeadVersionRequest) (*DeleteVersionResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method DeleteVersion not implemented")
 }
 func (UnimplementedNodeVersionerServer) PruneVersions(context.Context, *PruneVersionsRequest) (*PruneVersionsResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method PruneVersions not implemented")
@@ -1651,6 +1665,24 @@ func _NodeVersioner_HeadVersion_Handler(srv interface{}, ctx context.Context, de
 	return interceptor(ctx, in, info, handler)
 }
 
+func _NodeVersioner_DeleteVersion_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(HeadVersionRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(NodeVersionerServer).DeleteVersion(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/tree.NodeVersioner/DeleteVersion",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(NodeVersionerServer).DeleteVersion(ctx, req.(*HeadVersionRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _NodeVersioner_PruneVersions_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(PruneVersionsRequest)
 	if err := dec(in); err != nil {
@@ -1708,6 +1740,10 @@ var NodeVersioner_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "HeadVersion",
 			Handler:    _NodeVersioner_HeadVersion_Handler,
+		},
+		{
+			MethodName: "DeleteVersion",
+			Handler:    _NodeVersioner_DeleteVersion_Handler,
 		},
 		{
 			MethodName: "PruneVersions",
