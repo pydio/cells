@@ -22,22 +22,34 @@ package version
 
 import (
 	"context"
+	"fmt"
 	"io"
 	"time"
 
 	"go.uber.org/zap"
 	"google.golang.org/grpc"
+	"google.golang.org/protobuf/proto"
 
 	"github.com/pydio/cells/v5/common"
 	"github.com/pydio/cells/v5/common/client/commons"
 	grpc2 "github.com/pydio/cells/v5/common/client/grpc"
+	"github.com/pydio/cells/v5/common/errors"
 	"github.com/pydio/cells/v5/common/nodes"
 	"github.com/pydio/cells/v5/common/nodes/abstract"
 	"github.com/pydio/cells/v5/common/nodes/models"
 	"github.com/pydio/cells/v5/common/permissions"
 	"github.com/pydio/cells/v5/common/proto/tree"
 	"github.com/pydio/cells/v5/common/telemetry/log"
+	"github.com/pydio/cells/v5/common/utils/cache"
+	cache_helper "github.com/pydio/cells/v5/common/utils/cache/helper"
 	"github.com/pydio/cells/v5/common/utils/uuid"
+)
+
+var (
+	partsCacheConf = cache.Config{
+		Eviction:    "48h",
+		CleanWindow: "24h",
+	}
 )
 
 func WithVersions() nodes.Option {
@@ -225,42 +237,13 @@ func (v *Handler) PutObject(ctx context.Context, node *tree.Node, reader io.Read
 	}
 
 	if requestData.Metadata[common.XAmzMetaPrefix+common.InputDraftMode] == "true" {
-
-		versionId := requestData.Metadata[common.XAmzMetaPrefix+common.InputVersionId]
-		if versionId == "" {
-			versionId = uuid.New()
-		}
-		clone := node.Clone()
-		if clone.GetStringMeta(common.MetaNamespaceDatasourceName) == "" {
-			branchInfo, _ := nodes.GetBranchInfo(ctx, "in")
-			clone.MustSetMeta(common.MetaNamespaceDatasourceName, branchInfo.Name)
-		}
-
-		// CreateVersion (not stored yet)
-		u, claims := permissions.FindUserNameInContext(ctx)
-		vr, er := v.getVersionClient(ctx).CreateVersion(ctx, &tree.CreateVersionRequest{
-			Node:         clone,
-			VersionUuid:  versionId,
-			OwnerName:    u,
-			OwnerUuid:    claims.Subject,
-			Draft:        true,
-			TriggerEvent: &tree.NodeChangeEvent{Type: tree.NodeChangeEvent_CREATE, Target: clone},
-		})
+		nodes.MustEnsureDatasourceMeta(ctx, node, "in")
+		newTarget, revision, source, er := v.routeUploadToContentRevision(ctx, node.Clone(), requestData.Metadata, requestData.Size)
 		if er != nil {
 			return models.ObjectInfo{}, er
 		}
-		revision := vr.GetVersion()
-		revision.MTime = time.Now().Unix()
-		revision.Size = requestData.Size
-
-		// Refresh target and context from location
-		newTarget := vr.GetVersion().GetLocation()
-		source, e := nodes.GetSourcesPool(ctx).GetDataSourceInfo(newTarget.GetStringMeta(common.MetaNamespaceDatasourceName))
-		if e != nil {
-			return models.ObjectInfo{}, e
-		}
 		ctx = nodes.WithBranchInfo(ctx, "in", nodes.BranchInfo{LoadedSource: source})
-		log.Logger(ctx).Info("PutObject With VersionId "+versionId+" will update to new target in "+source.Name, revision.Zap(), newTarget.Zap())
+		log.Logger(ctx).Info("PutObject With VersionId "+revision.VersionId+" will update to new target in "+source.Name, revision.Zap(), newTarget.Zap())
 		oi, er := v.Next.PutObject(ctx, newTarget, reader, requestData)
 		if er != nil {
 			return models.ObjectInfo{}, er
@@ -272,10 +255,172 @@ func (v *Handler) PutObject(ctx context.Context, node *tree.Node, reader io.Read
 			}
 		}
 		// Now store version
-		_, er = v.getVersionClient(ctx).StoreVersion(ctx, &tree.StoreVersionRequest{Node: clone, Version: revision})
+		_, er = v.getVersionClient(ctx).StoreVersion(ctx, &tree.StoreVersionRequest{Node: node, Version: revision})
 
 		return oi, er
 
 	}
 	return v.Next.PutObject(ctx, node, reader, requestData)
+}
+
+func (v *Handler) MultipartCreate(ctx context.Context, node *tree.Node, requestData *models.MultipartRequestData) (string, error) {
+
+	if nodes.IsFlatStorage(ctx, "in") && requestData.Metadata[common.XAmzMetaPrefix+common.InputDraftMode] == "true" {
+		nodes.MustEnsureDatasourceMeta(ctx, node, "in")
+		target, revision, source, er := v.routeUploadToContentRevision(ctx, node.Clone(), requestData.Metadata, 0)
+		if er != nil {
+			return "", er
+		}
+		ctx = nodes.WithBranchInfo(ctx, "in", nodes.BranchInfo{LoadedSource: source})
+		uploadId, err := v.Next.MultipartCreate(ctx, target, requestData)
+		if err != nil {
+			return "", err
+		}
+		ca, er := v.multipartCache(ctx)
+		if er != nil {
+			return "", er
+		}
+		if er = v.cacheProto(ca, uploadId+"-target", target); er != nil {
+			return "", er
+		}
+		if er = v.cacheProto(ca, uploadId+"-revision", revision); er != nil {
+			return "", er
+		}
+		log.Logger(ctx).Debug("Create " + uploadId + " on " + target.GetPath())
+		return uploadId, nil
+	}
+	return v.Next.MultipartCreate(ctx, node, requestData)
+}
+
+func (v *Handler) MultipartPutObjectPart(ctx context.Context, target *tree.Node, uploadID string, partNumberMarker int, reader io.Reader, requestData *models.PutRequestData) (models.MultipartObjectPart, error) {
+	log.Logger(ctx).Debug("Receive ObjectPart " + uploadID + " on " + target.GetPath())
+	if nodes.IsFlatStorage(ctx, "in") {
+		ca, er := v.multipartCache(ctx)
+		if er != nil {
+			return models.MultipartObjectPart{}, er
+		}
+		newTarget := &tree.Node{}
+		if v.protoFromCache(ca, uploadID+"-target", newTarget) == nil {
+			log.Logger(ctx).Debug("Switching PutObjectPart target", newTarget.Zap("newTarget"))
+			source, err := nodes.GetSourcesPool(ctx).GetDataSourceInfo(newTarget.GetStringMeta(common.MetaNamespaceDatasourceName))
+			if err != nil {
+				return models.MultipartObjectPart{}, err
+			}
+			ctx = nodes.WithBranchInfo(ctx, "in", nodes.BranchInfo{LoadedSource: source})
+			return v.Next.MultipartPutObjectPart(ctx, newTarget, uploadID, partNumberMarker, reader, requestData)
+		}
+	}
+	return v.Next.MultipartPutObjectPart(ctx, target, uploadID, partNumberMarker, reader, requestData)
+}
+
+func (v *Handler) MultipartComplete(ctx context.Context, target *tree.Node, uploadID string, uploadedParts []models.MultipartObjectPart) (models.ObjectInfo, error) {
+	if nodes.IsFlatStorage(ctx, "in") {
+		ca, er := v.multipartCache(ctx)
+		if er != nil {
+			return models.ObjectInfo{}, er
+		}
+		newTarget := &tree.Node{}
+		if v.protoFromCache(ca, uploadID+"-target", newTarget) == nil {
+			nodes.MustEnsureDatasourceMeta(ctx, target, "in")
+
+			source, err := nodes.GetSourcesPool(ctx).GetDataSourceInfo(newTarget.GetStringMeta(common.MetaNamespaceDatasourceName))
+			if err != nil {
+				return models.ObjectInfo{}, err
+			}
+			revision := &tree.ContentRevision{}
+			if v.protoFromCache(ca, uploadID+"-revision", revision) != nil {
+				return models.ObjectInfo{}, errors.WithMessage(errors.VersionNotFound, "error while loading version from cache")
+			}
+			log.Logger(ctx).Info("Switching MultipartComplete target", newTarget.Zap("newTarget"))
+			ctx = nodes.WithBranchInfo(ctx, "in", nodes.BranchInfo{LoadedSource: source})
+			defer func() {
+				_ = ca.Delete(uploadID + "-target")
+				_ = ca.Delete(uploadID + "-revision")
+			}()
+			oi, e := v.Next.MultipartComplete(ctx, newTarget, uploadID, uploadedParts)
+			if e != nil {
+				return oi, err
+			}
+			// Now update ETag and Store revision
+			revision.ETag = target.GetStringMeta(common.MetaNamespaceHash)
+			_, er = v.getVersionClient(ctx).StoreVersion(ctx, &tree.StoreVersionRequest{Node: target, Version: revision})
+			return oi, er
+		}
+	}
+
+	return v.Next.MultipartComplete(ctx, target, uploadID, uploadedParts)
+}
+
+func (v *Handler) MultipartAbort(ctx context.Context, target *tree.Node, uploadID string, requestData *models.MultipartRequestData) error {
+	if nodes.IsFlatStorage(ctx, "in") {
+		ca, er := v.multipartCache(ctx)
+		if er != nil {
+			return er
+		}
+		newTarget := &tree.Node{}
+		if v.protoFromCache(ca, uploadID+"-target", newTarget) == nil {
+			source, err := nodes.GetSourcesPool(ctx).GetDataSourceInfo(newTarget.GetStringMeta(common.MetaNamespaceDatasourceName))
+			if err != nil {
+				return err
+			}
+			log.Logger(ctx).Info("Switching MultipartAbort target", newTarget.Zap("newTarget"))
+			ctx = nodes.WithBranchInfo(ctx, "in", nodes.BranchInfo{LoadedSource: source})
+			defer func() {
+				_ = ca.Delete(uploadID + "-target")
+				_ = ca.Delete(uploadID + "-revision")
+			}()
+			return v.Next.MultipartAbort(ctx, newTarget, uploadID, requestData)
+		}
+	}
+	return v.Next.MultipartAbort(ctx, target, uploadID, requestData)
+}
+
+func (v *Handler) routeUploadToContentRevision(ctx context.Context, node *tree.Node, userMeta map[string]string, knownSize int64) (*tree.Node, *tree.ContentRevision, nodes.LoadedSource, error) {
+	versionId := userMeta[common.XAmzMetaPrefix+common.InputVersionId]
+	if versionId == "" {
+		versionId = uuid.New()
+	}
+	// CreateVersion (not stored yet)
+	u, claims := permissions.FindUserNameInContext(ctx)
+	vr, er := v.getVersionClient(ctx).CreateVersion(ctx, &tree.CreateVersionRequest{
+		Node:         node,
+		VersionUuid:  versionId,
+		OwnerName:    u,
+		OwnerUuid:    claims.Subject,
+		Draft:        true,
+		TriggerEvent: &tree.NodeChangeEvent{Type: tree.NodeChangeEvent_CREATE, Target: node},
+	})
+	if er != nil {
+		return nil, nil, nodes.LoadedSource{}, er
+	}
+	revision := vr.GetVersion()
+	revision.MTime = time.Now().Unix()
+	revision.Size = knownSize
+
+	// Refresh target and context from location
+	newTarget := vr.GetVersion().GetLocation()
+	source, e := nodes.GetSourcesPool(ctx).GetDataSourceInfo(newTarget.GetStringMeta(common.MetaNamespaceDatasourceName))
+	return newTarget, revision, source, e
+
+}
+
+// multipartCache initializes a cache for multipart hashes
+func (v *Handler) multipartCache(ctx context.Context) (c cache.Cache, e error) {
+	return cache_helper.ResolveCache(ctx, common.CacheTypeShared, partsCacheConf)
+}
+
+func (v *Handler) cacheProto(c cache.Cache, k string, m proto.Message) error {
+	bb, er := proto.Marshal(m)
+	if er != nil {
+		return er
+	}
+	return c.Set(k, bb)
+}
+
+func (v *Handler) protoFromCache(c cache.Cache, k string, m proto.Message) error {
+	var bb []byte
+	if !c.Get(k, &bb) {
+		return fmt.Errorf("cache entry not found")
+	}
+	return proto.Unmarshal(bb, m)
 }

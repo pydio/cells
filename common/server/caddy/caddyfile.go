@@ -74,7 +74,7 @@ const (
   handle @cors {
     header Access-Control-Allow-Origin "{args[0]}"
 	header Vary Origin
-    header Access-Control-Expose-Headers "Authorization"
+    header Access-Control-Expose-Headers "Authorization,ETag"
 	header Access-Control-Allow-Credentials "true"
   }
 }

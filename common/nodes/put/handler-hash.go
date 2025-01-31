@@ -286,7 +286,7 @@ func (m *HashHandler) computeMultipartFinalHash(ctx context.Context, uploadID st
 		}
 	}
 	if len(parts) != partsNumber {
-		return "", errors.WithMessagef(errors.StatusDataLoss, "multipart upload parts number not equal to %d", partsNumber)
+		return "", errors.WithMessagef(errors.StatusDataLoss, "multipart upload parts number not equal to %d, found %d", partsNumber, len(parts))
 	}
 	summer := simd.MD5()
 	for i := 0; i < partsNumber; i++ {

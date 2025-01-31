@@ -71,6 +71,10 @@ func init() {
 func PolicyForNode(ctx context.Context, node *tree.Node) *tree.VersioningPolicy {
 
 	dataSourceName := node.GetStringMeta(common.MetaNamespaceDatasourceName)
+	if dataSourceName == "" {
+		log.Logger(ctx).Error("looking for versioning policy but node misses the datasource name")
+		return nil
+	}
 	var dsConfig *object.DataSource
 	if er := config.Get(ctx, "services", common.ServiceGrpcNamespace_+common.ServiceDataSync_+dataSourceName).Scan(&dsConfig); er != nil {
 		log.Logger(ctx).Error("cannot scan datasource config when reading PolicyForNode")

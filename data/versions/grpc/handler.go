@@ -187,7 +187,7 @@ func (h *Handler) StoreVersion(ctx context.Context, request *tree.StoreVersionRe
 	resp := &tree.StoreVersionResponse{}
 	p := versions.PolicyForNode(ctx, request.Node)
 	if p == nil {
-		log.Logger(ctx).Info("Ignoring StoreVersion for this node")
+		log.Logger(ctx).Info("No Policy found! Ignoring StoreVersion for node ", request.Node.Zap())
 		return resp, nil
 	}
 	log.Logger(ctx).Info("Storing Version for node ", request.Node.ZapUuid())
