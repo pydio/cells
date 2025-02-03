@@ -64,29 +64,30 @@ func (m *mysqlHelper) ApplyOrderedUpdates(db *gorm.DB, tableName string, sets []
 
 	var assigns []string
 	assigns = append(assigns, "uuid AS new_uuid")
-	updateName := false
+	nameUpdated := false
 	for _, u := range sets {
 		if u.Key == "hash" {
 			u.Value = gorm.Expr(`SHA1(fullpath)`)
 			namedSets = append(namedSets, fmt.Sprintf("%s=@%s", u.Key, u.Key))
 		} else if u.Key == "hash2" {
-			u.Value = gorm.Expr(`SHA1(CONCAT(uv.new_name, "__###PARENT_HASH###__", SUBSTRING_INDEX(uv.fullpath, '.', uv.new_level - 1)))`)
+			if nameUpdated {
+				u.Value = gorm.Expr(`SHA1(CONCAT(uv.new_name, "__###PARENT_HASH###__", SUBSTRING_INDEX(uv.fullpath, '.', uv.new_level - 1)))`)
+			} else {
+				u.Value = gorm.Expr(`SHA1(CONCAT(name, "__###PARENT_HASH###__", SUBSTRING_INDEX(uv.fullpath, '.', uv.new_level - 1)))`)
+
+			}
 			namedSets = append(namedSets, fmt.Sprintf("%s=@%s", u.Key, u.Key))
 		} else if u.Key == "mpath1" || u.Key == "mpath2" || u.Key == "mpath3" || u.Key == "mpath4" {
 			assigns = append(assigns, fmt.Sprintf("CAST(@%s as CHAR CHARACTER SET ascii) AS new_%s", u.Key, u.Key))
 			namedSets = append(namedSets, fmt.Sprintf("%s=uv.new_%s", u.Key, u.Key))
 		} else {
 			if u.Key == "name" {
-				updateName = true
+				nameUpdated = true
 			}
 			assigns = append(assigns, fmt.Sprintf("@%s AS new_%s", u.Key, u.Key))
 			namedSets = append(namedSets, fmt.Sprintf("%s=uv.new_%s", u.Key, u.Key))
 		}
 		args = append(args, sql.Named(u.Key, u.Value))
-	}
-
-	if !updateName {
-		assigns = append(assigns, fmt.Sprintf("name AS new_name"))
 	}
 
 	q := fmt.Sprintf("UPDATE `%s` JOIN (SELECT %s, CONCAT(@mpath1, @mpath2, @mpath3, @mpath4) as fullpath FROM %s) AS uv ON %s.uuid = uv.new_uuid SET %s WHERE %s", tableName, strings.Join(assigns, ", "), tableName, tableName, strings.Join(namedSets, ", "), strings.Join(namedWheres, " AND "))
