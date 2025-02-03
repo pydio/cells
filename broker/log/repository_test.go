@@ -37,6 +37,7 @@ import (
 	"github.com/pydio/cells/v4/common/proto/log"
 	"github.com/pydio/cells/v4/common/utils/configx"
 	json "github.com/pydio/cells/v4/common/utils/jsonx"
+	"github.com/pydio/cells/v4/common/utils/std"
 	"github.com/pydio/cells/v4/common/utils/uuid"
 )
 
@@ -96,24 +97,29 @@ func TestMessageRepository(t *testing.T) {
 		err4 := server.PutLog(bg, log2map("ERROR", "this is yet another test"))
 		So(err4, ShouldBeNil)
 
-		<-time.After(4 * time.Second)
 	})
 
 	Convey("Search a result", t, func() {
-		results, err := server.ListLogs(bg, fmt.Sprintf(
-			`+%s:*test* +%s:INFO +%s:>1142080000`, // ~01.01.2006
-			common.KeyMsg,
-			common.KeyLevel,
-			common.KeyTs,
-		), 0, 1000)
-		So(err, ShouldBeNil)
-
-		count := 0
-		// 	for _ = range results {
-		for range results {
-			count++
-		}
-		So(count, ShouldEqual, 2)
+		er := std.Retry(bg, func() error {
+			results, er := server.ListLogs(bg, fmt.Sprintf(
+				`+%s:*test* +%s:INFO +%s:>1142080000`, // ~01.01.2006
+				common.KeyMsg,
+				common.KeyLevel,
+				common.KeyTs,
+			), 0, 1000)
+			if er != nil {
+				return er
+			}
+			count := 0
+			for range results {
+				count++
+			}
+			if count != 2 {
+				return fmt.Errorf("expected 2 results, got %d", count)
+			}
+			return nil
+		}, 4*time.Second, 20*time.Second)
+		So(er, ShouldBeNil)
 	})
 }
 
