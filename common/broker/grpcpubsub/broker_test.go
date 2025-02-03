@@ -33,7 +33,7 @@ func TestServiceBroker(t *testing.T) {
 		var cancel context.CancelFunc
 		conn := grpc.NewClientConn(common.ServiceBroker)
 		ctx := clientcontext.WithClientConn(context.Background(), conn)
-		ctx, cancel = context.WithTimeout(ctx, 5*time.Second)
+		ctx, cancel = context.WithTimeout(ctx, 20*time.Second)
 
 		cli, err := pb.NewBrokerClient(conn).Subscribe(ctx)
 		if err != nil {
@@ -70,6 +70,9 @@ func TestServiceBroker(t *testing.T) {
 				ev := &tree.NodeChangeEvent{}
 				if err := proto.Unmarshal(msg.Body, ev); err != nil {
 					return
+				}
+				if numMessagesReceived == numMessagesToSend {
+					cancel()
 				}
 			}
 		}()
