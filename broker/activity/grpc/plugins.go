@@ -117,7 +117,7 @@ func init() {
 						return processOneWithTimeout(metadata.NewContext(c, md), msg)
 					}
 					return nil
-				}, broker.WithLocalQueue(fifo), counterName); e != nil {
+				}, broker.WithLocalQueue(fifo), counterName, broker.Queue("activity_tree")); e != nil {
 					return e
 				}
 
@@ -130,7 +130,7 @@ func init() {
 						return processOneWithTimeout(ctx, msg)
 					}
 					return nil
-				}, counterName); e != nil {
+				}, counterName, broker.Queue("activity_meta")); e != nil {
 					return e
 				}
 
@@ -140,7 +140,7 @@ func init() {
 						return subscriber.HandleIdmChange(ctx, msg)
 					}
 					return nil
-				}, counterName); e != nil {
+				}, counterName, broker.Queue("activity_idm")); e != nil {
 					return e
 				}
 
