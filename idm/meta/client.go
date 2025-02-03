@@ -67,12 +67,18 @@ var (
 	ExtractNodeMetadata ExtractionSource = "node_metadata"
 )
 
+const (
+	// TODO - MAKE CONFIGURABLE
+	draftMetaNamespace = "usermeta-draft"
+)
+
 type UserMetaClient interface {
 	UpdateMetaResolved(ctx context.Context, input *idm.UpdateUserMetaRequest) (*idm.UpdateUserMetaResponse, error)
 	UpdateLock(ctx context.Context, meta *idm.UserMeta, operation idm.UpdateUserMetaRequest_UserMetaOp) error
 	Namespaces(ctx context.Context) (map[string]*idm.UserMetaNamespace, error)
 	ExtractAndPut(ctx context.Context, resolved *tree.Node, ctxWorkspace *idm.Workspace, meta map[string]string, source ExtractionSource) (*idm.UpdateUserMetaResponse, error)
 	ServiceClient(ctx context.Context) idm.UserMetaServiceClient
+	DraftMetaNamespace(ctx context.Context) (string, bool)
 	TagValuesHandler() TagsValuesClient
 
 	IsContextEditable(ctx context.Context, resourceId string, policies []*serviceproto.ResourcePolicy) bool
@@ -278,6 +284,10 @@ func (u *umClient) ExtractAndPut(ctx context.Context, resolved *tree.Node, ctxWo
 	})
 }
 
+func (u *umClient) DraftMetaNamespace(ctx context.Context) (string, bool) {
+	return draftMetaNamespace, true
+}
+
 // ServiceClient lazily creates a client to the usermeta service
 func (u *umClient) ServiceClient(ctx context.Context) idm.UserMetaServiceClient {
 	return idm.NewUserMetaServiceClient(grpc.ResolveConn(ctx, common.ServiceUserMetaGRPC))
@@ -297,6 +307,13 @@ func (u *umClient) PoliciesForMeta(_ context.Context, _ string, _ interface{}) (
 func (u *umClient) fromNodeMeta(ctx context.Context, resolved *tree.Node, meta map[string]string, def map[string]*defaultMetaDefinition) (out []*idm.UserMeta, err error) {
 	var nss map[string]*idm.UserMetaNamespace
 	for k, v := range meta {
+		if strings.EqualFold(k, common.InputDraftMode) {
+			if dn, ok := u.DraftMetaNamespace(ctx); ok {
+				k = dn
+			} else {
+				return nil, errors.WithMessage(errors.InvalidParameters, "no meta namespace defined for Draft Mode")
+			}
+		}
 		if strings.HasPrefix(k, common.MetaNamespaceUserspacePrefix) {
 			if nss == nil {
 				if nss, err = u.Namespaces(ctx); err != nil {
@@ -335,7 +352,15 @@ func (u *umClient) fromNodeMeta(ctx context.Context, resolved *tree.Node, meta m
 func (u *umClient) fromAmzHeaders(ctx context.Context, resolved *tree.Node, meta map[string]string, def map[string]*defaultMetaDefinition) (out []*idm.UserMeta, err error) {
 	var nss map[string]*idm.UserMetaNamespace
 	for k, v := range meta {
-		if strings.HasPrefix(k, "X-Amz-Meta-") {
+		if strings.HasPrefix(k, common.XAmzMetaPrefix) {
+			key := strings.TrimPrefix(k, common.XAmzMetaPrefix)
+			if strings.EqualFold(key, common.InputDraftMode) {
+				if dn, ok := u.DraftMetaNamespace(ctx); ok {
+					key = dn
+				} else {
+					return nil, errors.WithMessage(errors.InvalidParameters, "no meta namespace defined for Draft Mode")
+				}
+			}
 			if nss == nil {
 				if nss, err = u.Namespaces(ctx); err != nil {
 					return nil, err
@@ -343,7 +368,7 @@ func (u *umClient) fromAmzHeaders(ctx context.Context, resolved *tree.Node, meta
 			}
 			var namespace *idm.UserMetaNamespace
 			for _, ns := range nss {
-				if strings.EqualFold(ns.Namespace, strings.TrimPrefix(k, "X-Amz-Meta-")) {
+				if strings.EqualFold(ns.Namespace, key) {
 					namespace = ns
 					break
 				}

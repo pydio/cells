@@ -146,9 +146,20 @@ message UserMeta {
   bool Editable = 4;
 }
 
-message RevisionMeta {
-  string Uuid = 1 [(google.api.field_behavior) = REQUIRED];
-  string Description = 2;
+//message Lifecycle {
+//  bool Enabled = 1;
+//  bool IsDraft = 2;
+//  string OwnerUuid = 3;
+//  string StatusNamespace = 4;
+//}
+
+// VersionMeta
+message VersionMeta {
+  string VersionId = 1 [(google.api.field_behavior) = REQUIRED];
+  string OwnerUuid = 2;
+  string Description = 3;
+  bool IsDraft = 4;
+  bool IsHead = 5;
 }
 
 // List of UserMeta
@@ -206,14 +217,17 @@ message Node {
 
   // Additional metadata extracted by the server if file is an image
   ImageMeta ImageMeta = 25;
-  // Additional metadata attached to a Version node
-  RevisionMeta RevisionMeta = 26;
   // Open map of metadata, values are JSON-encoded
   repeated JsonMeta Metadata = 21;
   // Open map of integers metadata published on folders
   repeated CountMeta FolderMeta = 15;
   // User-defined metadata
   repeated UserMeta UserMetadata = 22;
+
+  // Additional metadata for lifecycle
+  bool IsDraft = 27;
+  // Additional metadata attached to a Version Node
+  VersionMeta VersionMeta = 26;
 
 }
 
@@ -225,9 +239,34 @@ message NodeLocator{
 
 // List of nodes, as returned by list/search operations. Facets and Pagination may be empty
 message NodeCollection {
-  repeated Node Nodes = 1 [(google.api.field_behavior) = REQUIRED];
+  repeated Node Nodes = 1;
   repeated tree.SearchFacet Facets = 3;
   Pagination Pagination = 2;
+}
+
+message Version {
+  // Unique commit ID
+  string VersionId = 1 [(google.api.field_behavior) = REQUIRED];
+  // Human-readable description of what happened
+  string Description = 2;
+  // This revision is not published
+  bool Draft = 3;
+  // This revision is actually the current HEAD
+  bool IsHead = 4;
+  // Unix Timestamp
+  int64 MTime = 5;
+  // Content Size at that moment
+  int64 Size = 6;
+  // Contents Hash
+  string ETag = 7;
+  // Who performed this action - name
+  string OwnerName = 9;
+  // Who performed this action - uuid
+  string OwnerUuid = 10;
+}
+
+message VersionCollection {
+  repeated Version Versions = 1;
 }
 
 // Lightweight node representation for creation, exposing a NodeLocator and additional data
@@ -238,6 +277,13 @@ message IncomingNode {
   string TemplateUuid = 4;
   int64 KnownSize = 5;
   repeated UserMeta Metadata = 6;
+
+  // Whether this resource should be created as draft
+  bool DraftMode = 7;
+  // Pass a generated UUID to be used as the created node UUID
+  string ResourceUuid = 8;
+  // Pass a generated UUID to be used as the versionId
+  string VersionId = 9;
 }
 
 // Request for creating nodes
@@ -262,7 +308,7 @@ message CheckResult {
 
 // Returns as many CheckResult as IncomingNodes passed in request
 message CreateCheckResponse {
-  repeated CheckResult Results = 1 [(google.api.field_behavior) = REQUIRED];
+  repeated CheckResult Results = 1;
 }
 
 // Collection of NodeLocator
@@ -283,6 +329,81 @@ message LookupRequest {
   string SortField = 5;
   bool SortDirDesc = 6;
   repeated uint32 StatFlags = 7;
+}
+
+enum VersionsTypes {
+  VersionsAll = 0;
+  DraftsOnly = 1;
+  VersionsOnly = 2;
+}
+
+// Filter used for listVersions calls
+message NodeVersionsFilter {
+  VersionsTypes FilterBy = 1;
+  int64 Offset = 2;
+  int64 Limit = 3;
+  string SortField = 5;
+  bool SortDirDesc = 6;
+}
+
+// Request payload for listVersions
+message NodeVersionsRequest {
+  // The node Uuid
+  string Uuid = 1 [(google.api.field_behavior) = REQUIRED];
+  // Additional parameters for filtering/sorting
+  NodeVersionsFilter Query = 2;
+}
+
+// Retrieve a specific version of a node content
+message DeleteVersionRequest {
+  string Uuid = 1;
+  string VersionId = 2;
+}
+
+message DeleteVersionResponse {
+  bool Success = 1;
+  bool EmptyNodeDeleted = 2;
+}
+
+message PromoteParameters {
+  // Whether to publish node at the same time after promoting this version
+  bool Publish = 1;
+  // Ignore if another version has been created since the one we want to promote
+  bool IgnoreConflicts = 2;
+}
+
+message PromoteVersionRequest {
+  string Uuid = 1;
+  string VersionId = 2;
+  PromoteParameters Parameters = 3;
+}
+
+message PromoteVersionResponse {
+  Node Node = 1;
+  bool Success = 2;
+  bool Published = 3;
+}
+
+message PublishNodeParameters {
+  bool Cascade = 1;
+  bool PromoteLatest = 2;
+}
+
+message PublishCascadeResult {
+  Node Node = 1;
+  bool Success = 2;
+  string Error = 3;
+  bool Promoted = 4;
+}
+
+message PublishNodeResponse {
+  Node Node = 1;
+  repeated PublishCascadeResult CascadeResults = 2;
+}
+
+message PublishNodeRequest {
+  string Uuid = 1 [(google.api.field_behavior) = REQUIRED];
+  PublishNodeParameters Parameters = 2;
 }
 
 // Authorized actions that user can trigger
@@ -512,17 +633,42 @@ service NodeService {
       get: "/n/node/{Uuid}"
     };
   };
-  // PatchNode is used to update a node specific meta. It is used for reserved meta as well (bookmarks, contentLock)
+  // Update a node specific meta. It is used for reserved meta as well (bookmarks, contentLock)
   rpc PatchNode(PatchNodeRequest) returns (Node){
     option (google.api.http) = {
       patch: "/n/node/{Uuid}"
       body: "NodeUpdates"
     };
   };
-  // List all known versions of a node
-  rpc ListVersions(NodeLocator) returns (NodeCollection){
+
+  // Unset draft status of a resource, typically to publish a folder in draft mode
+  rpc PublishNode(PublishNodeRequest) returns (PublishNodeResponse){
     option (google.api.http) = {
-      get: "/n/node/{Uuid}/versions"
+      post: "/n/node/{Uuid}/publish"
+      body: "Parameters"
+    };
+  }
+
+  // Promotes a version by ID to be the publicly available content of the node - files only
+  rpc PromoteVersion(PromoteVersionRequest) returns (PromoteVersionResponse){
+    option (google.api.http) = {
+      post: "/n/node/{Uuid}/versions/{VersionId}/promote"
+      body: "Parameters"
+    };
+  }
+
+  // Delete a version by its ID
+  rpc DeleteVersion(DeleteVersionRequest) returns (DeleteVersionResponse){
+    option (google.api.http) = {
+      delete: "/n/node/{Uuid}/versions/{VersionId}"
+    };
+  }
+
+  // List all known versions of a node
+  rpc NodeVersions(NodeVersionsRequest) returns (VersionCollection){
+    option (google.api.http) = {
+      post: "/n/node/{Uuid}/versions"
+      body: "Query"
     };
   };
 

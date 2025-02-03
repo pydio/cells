@@ -429,6 +429,49 @@ func (log *ChangeLog) Zap() zapcore.Field {
 }
 
 // MarshalLogObject implements custom marshalling for logs
+func (cr *ContentRevision) MarshalLogObject(encoder zapcore.ObjectEncoder) error {
+	if cr == nil {
+		return nil
+	}
+	if cr.VersionId != "" {
+		encoder.AddString("Uuid", cr.VersionId)
+	}
+	if cr.Description != "" {
+		encoder.AddString("Description", cr.Description)
+	}
+	if cr.OwnerUuid != "" {
+		encoder.AddString("OwnerUuid", cr.OwnerUuid)
+	}
+	if cr.ETag != "" {
+		encoder.AddString("ETag", cr.ETag)
+	}
+	if cr.Draft {
+		encoder.AddBool("Draft", cr.Draft)
+	}
+	if cr.IsHead {
+		encoder.AddBool("IsHead", cr.IsHead)
+	}
+	if cr.MTime > 0 {
+		encoder.AddTime("MTime", time.Unix(cr.MTime, 0))
+	}
+	if cr.Size > 0 {
+		encoder.AddInt64("Size", cr.Size)
+	}
+	if cr.Event != nil {
+		_ = encoder.AddReflected("Event", cr.Event)
+	}
+	if cr.Location != nil {
+		_ = encoder.AddReflected("Location", cr.Location)
+	}
+	return nil
+}
+
+// Zap simply returns a zapcore.Field object populated with this ChangeLog uneder a standard key
+func (cr *ContentRevision) Zap() zapcore.Field {
+	return zap.Object(common.KeyChangeLog, cr)
+}
+
+// MarshalLogObject implements custom marshalling for logs
 func (policy *VersioningPolicy) MarshalLogObject(encoder zapcore.ObjectEncoder) error {
 	if policy == nil {
 		return nil

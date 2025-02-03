@@ -115,6 +115,14 @@ func (p *PutRequestData) ContentTypeUnknown() bool {
 	return cType == "" || defaultRx.MatchString(cType)
 }
 
+// InputResourceUuid reads metadata for a provided UUID for node creation
+func (p *PutRequestData) InputResourceUuid() string {
+	if p.Metadata == nil {
+		return ""
+	}
+	return p.Metadata[common.XAmzMetaPrefix+common.InputResourceUUID]
+}
+
 // GetRequestData passes optional Range instructions for reading file data
 type GetRequestData struct {
 	StartOffset int64

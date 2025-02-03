@@ -22,6 +22,7 @@ package nodes
 
 import (
 	"context"
+	"fmt"
 
 	"google.golang.org/protobuf/proto"
 
@@ -127,6 +128,18 @@ func AncestorsListFromContext(ctx context.Context, node *tree.Node, identifier s
 	}
 	return ctx, parents, nil
 
+}
+
+// MustEnsureDatasourceMeta makes sure that the node has the datasource name as meta, and sets it from the branchInfo
+// It assumes that the BranchInfo will be found, otherwise it panics
+func MustEnsureDatasourceMeta(ctx context.Context, node *tree.Node, identifier string) {
+	if node.GetStringMeta(common.MetaNamespaceDatasourceName) == "" {
+		if branchInfo, err := GetBranchInfo(ctx, identifier); err != nil {
+			panic(fmt.Errorf("failed to get branch info in MustEnsureDatasourceMeta: %v", err))
+		} else {
+			node.MustSetMeta(common.MetaNamespaceDatasourceName, branchInfo.Name)
+		}
+	}
 }
 
 // IsFlatStorage checks a context BranchInfo for the FlatStorage flag

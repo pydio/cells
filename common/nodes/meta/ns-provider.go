@@ -115,7 +115,7 @@ func (p *NsProvider) Load() {
 	defer func() {
 		p.loaded = true
 	}()
-	ct, ca := context.WithCancel(context.Background())
+	ct, ca := context.WithCancel(context.WithoutCancel(p.Ctx))
 	defer ca()
 	for _, srv := range services {
 		cl := idm.NewUserMetaServiceClient(grpc.ResolveConn(p.Ctx, srv.Name()))

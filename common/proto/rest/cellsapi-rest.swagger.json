@@ -5916,6 +5916,7 @@
           "type": "string"
         }
       },
+      "title": "Deprecated - Use ContentRevision instead",
       "type": "object"
     },
     "treeGeoPoint": {
@@ -6021,7 +6022,7 @@
             "$ref": "#/definitions/treeChangeLog",
             "type": "object"
           },
-          "title": "List of successive commits",
+          "title": "Deprecated - List of successive commits",
           "type": "array"
         },
         "Etag": {

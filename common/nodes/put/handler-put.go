@@ -122,6 +122,14 @@ func (m *Handler) getOrCreatePutNode(ctx context.Context, nodePath string, reque
 		tmpNode.MustSetMeta(common.MetaNamespaceMime, requestData.MetaContentType())
 	}
 
+	// Uuid is passed for input node - double check that it does not already exist!
+	if id := requestData.InputResourceUuid(); id != "" {
+		if _, er := treeReader.ReadNode(ctx, &tree.ReadNodeRequest{Node: &tree.Node{Uuid: id}}); er == nil {
+			return nil, nil, errors.WithStack(errors.NodeIndexConflict)
+		}
+		tmpNode.SetUuid(id)
+	}
+
 	createResp, er := retryOnDuplicate(ctx, func(c context.Context) (*tree.CreateNodeResponse, error) {
 		return treeWriter.CreateNode(c, &tree.CreateNodeRequest{Node: tmpNode})
 	})
@@ -343,8 +351,8 @@ func (m *Handler) MultipartCreate(ctx context.Context, node *tree.Node, requestD
 		if metaSize, ok := requestData.Metadata[common.XAmzMetaClearSize]; ok {
 			size, _ = strconv.ParseInt(metaSize, 10, 64)
 		}
-		newNode, onErrorFunc, nodeErr := m.getOrCreatePutNode(ctx, node.Path, &models.PutRequestData{Size: size}, updateNode)
-		log.Logger(ctx).Debug("PreLoad or PreCreate Node in tree", zap.String("path", node.Path), zap.Any("node", newNode), zap.Error(nodeErr))
+		newNode, onErrorFunc, nodeErr := m.getOrCreatePutNode(ctx, node.Path, &models.PutRequestData{Size: size, Metadata: requestData.Metadata}, updateNode)
+		log.Logger(ctx).Info("PreLoad or PreCreate Node in tree", zap.String("path", node.Path), zap.Any("node", newNode), zap.Error(nodeErr))
 		if nodeErr != nil {
 			if onErrorFunc != nil {
 				log.Logger(ctx).Debug("cannot get or create node ", zap.String("path", node.Path), zap.Error(nodeErr))

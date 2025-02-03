@@ -26,17 +26,17 @@ import (
 	"testing"
 	"time"
 
-	. "github.com/smartystreets/goconvey/convey"
-
 	"github.com/pydio/cells/v5/common/proto/tree"
+
+	. "github.com/smartystreets/goconvey/convey"
 )
 
-func generateChanges(durations ...string) (changes []*tree.ChangeLog) {
+func generateChanges(durations ...string) (changes []*tree.ContentRevision) {
 	for k, dString := range durations {
 		d, _ := ParseDuration(dString)
 		t := time.Now().Add(-d)
-		changes = append(changes, &tree.ChangeLog{
-			Uuid:        fmt.Sprintf("id-%v", k+1),
+		changes = append(changes, &tree.ContentRevision{
+			VersionId:   fmt.Sprintf("id-%v", k+1),
 			Description: fmt.Sprintf("Duration:%s", dString),
 			MTime:       t.Unix(),
 			Size:        20,
@@ -47,19 +47,19 @@ func generateChanges(durations ...string) (changes []*tree.ChangeLog) {
 
 func sortedUuids(distances []*distancedLog) (s []string) {
 	for _, d := range distances {
-		s = append(s, d.Uuid)
+		s = append(s, d.VersionId)
 	}
 	return
 }
 
-func dispatch(start time.Time, periods []*tree.VersioningKeepPeriod, changes []*tree.ChangeLog) ([]*pruningPeriod, error) {
+func dispatch(start time.Time, periods []*tree.VersioningKeepPeriod, changes []*tree.ContentRevision) ([]*pruningPeriod, error) {
 
 	pruningPeriods, e := PreparePeriods(start, periods)
 	if e != nil {
 		return pruningPeriods, e
 	}
 
-	c := make(chan *tree.ChangeLog)
+	c := make(chan *tree.ContentRevision)
 	go func() {
 		for _, change := range changes {
 			c <- change
@@ -70,6 +70,7 @@ func dispatch(start time.Time, periods []*tree.VersioningKeepPeriod, changes []*
 	return DispatchChangeLogsByPeriod(pruningPeriods, c)
 
 }
+
 func TestParseDuration(t *testing.T) {
 	Convey("Test Parse Durations", t, func() {
 		// Standard duration
@@ -92,6 +93,7 @@ func TestParseDuration(t *testing.T) {
 		So(e2, ShouldNotBeNil)
 	})
 }
+
 func TestByDistances(t *testing.T) {
 
 	Convey("Test Sorting By Distances", t, func() {
@@ -129,15 +131,16 @@ func TestByDistances(t *testing.T) {
 		}
 		toPrune = pruneTo3Period.Prune()
 		So(toPrune, ShouldHaveLength, len(changes)-3)
-		So(toPrune[0].Uuid, ShouldEqual, "id-2")
-		So(toPrune[1].Uuid, ShouldEqual, "id-4")
-		So(toPrune[2].Uuid, ShouldEqual, "id-5")
-		So(toPrune[3].Uuid, ShouldEqual, "id-3")
-		So(toPrune[4].Uuid, ShouldEqual, "id-6")
+		So(toPrune[0].VersionId, ShouldEqual, "id-2")
+		So(toPrune[1].VersionId, ShouldEqual, "id-4")
+		So(toPrune[2].VersionId, ShouldEqual, "id-5")
+		So(toPrune[3].VersionId, ShouldEqual, "id-3")
+		So(toPrune[4].VersionId, ShouldEqual, "id-6")
 		So(pruneTo3Period.records, ShouldHaveLength, 3)
 
 	})
 }
+
 func TestByMaxSize(t *testing.T) {
 
 	Convey("Test Pruning With Max Size", t, func() {
@@ -152,14 +155,14 @@ func TestByMaxSize(t *testing.T) {
 		So(toPrune, ShouldHaveLength, 5)
 		So(remaining, ShouldHaveLength, 3)
 		// Check values : oldest versions should be removed
-		So(remaining[0].Uuid, ShouldEqual, "id-1")
-		So(remaining[1].Uuid, ShouldEqual, "id-2")
-		So(remaining[2].Uuid, ShouldEqual, "id-3")
-		So(toPrune[0].Uuid, ShouldEqual, "id-4")
-		So(toPrune[1].Uuid, ShouldEqual, "id-5")
-		So(toPrune[2].Uuid, ShouldEqual, "id-6")
-		So(toPrune[3].Uuid, ShouldEqual, "id-7")
-		So(toPrune[4].Uuid, ShouldEqual, "id-8")
+		So(remaining[0].VersionId, ShouldEqual, "id-1")
+		So(remaining[1].VersionId, ShouldEqual, "id-2")
+		So(remaining[2].VersionId, ShouldEqual, "id-3")
+		So(toPrune[0].VersionId, ShouldEqual, "id-4")
+		So(toPrune[1].VersionId, ShouldEqual, "id-5")
+		So(toPrune[2].VersionId, ShouldEqual, "id-6")
+		So(toPrune[3].VersionId, ShouldEqual, "id-7")
+		So(toPrune[4].VersionId, ShouldEqual, "id-8")
 
 		toPrune, remaining = PruneAllWithMaxSize([]*pruningPeriod{noPrunePeriod}, 140)
 		So(toPrune, ShouldHaveLength, 1)
@@ -177,6 +180,7 @@ func TestByMaxSize(t *testing.T) {
 	})
 
 }
+
 func TestDispatchChangeLogs(t *testing.T) {
 
 	Convey("Test parse error", t, func() {

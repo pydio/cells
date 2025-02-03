@@ -29,6 +29,7 @@ import (
 	"github.com/pydio/cells/v5/common"
 	"github.com/pydio/cells/v5/common/client/commons/docstorec"
 	"github.com/pydio/cells/v5/common/config"
+	"github.com/pydio/cells/v5/common/errors"
 	"github.com/pydio/cells/v5/common/nodes"
 	"github.com/pydio/cells/v5/common/proto/docstore"
 	"github.com/pydio/cells/v5/common/proto/object"
@@ -70,6 +71,10 @@ func init() {
 func PolicyForNode(ctx context.Context, node *tree.Node) *tree.VersioningPolicy {
 
 	dataSourceName := node.GetStringMeta(common.MetaNamespaceDatasourceName)
+	if dataSourceName == "" {
+		log.Logger(ctx).Error("looking for versioning policy but node misses the datasource name")
+		return nil
+	}
 	var dsConfig *object.DataSource
 	if er := config.Get(ctx, "services", common.ServiceGrpcNamespace_+common.ServiceDataSync_+dataSourceName).Scan(&dsConfig); er != nil {
 		log.Logger(ctx).Error("cannot scan datasource config when reading PolicyForNode")
@@ -120,6 +125,32 @@ func DataSourceForPolicy(ctx context.Context, policy *tree.VersioningPolicy) (no
 	}
 }
 
+// LocationForNode computes version location for the current name
+func LocationForNode(ctx context.Context, node *tree.Node, versionId string) (*tree.Node, error) {
+	if nodeDS := node.GetStringMeta(common.MetaNamespaceDatasourceName); nodeDS == "" {
+		return nil, errors.WithMessage(errors.InvalidParameters, "input node is missing the datasource name metadata")
+	}
+	p := PolicyForNode(ctx, node)
+	var dsName string
+	if p != nil && p.VersionsDataSourceName != "default" {
+		dsName = p.VersionsDataSourceName
+	} else {
+		c := config.Get(ctx, "services", "pydio.versions-store")
+		dsName = c.Val("datasource").Default(configx.Reference("#/defaults/datasource")).String()
+	}
+	vPath := node.GetUuid() + "__" + versionId
+	return &tree.Node{
+		Uuid: vPath,
+		Path: path.Join(dsName, vPath),
+		Type: tree.NodeType_LEAF,
+		MetaStore: map[string]string{
+			common.MetaNamespaceDatasourceName: `"` + dsName + `"`,
+			common.MetaNamespaceDatasourcePath: `"` + vPath + `"`,
+		},
+	}, nil
+}
+
+// DefaultLocation returns legacy configuration for versions stored without Location
 func DefaultLocation(ctx context.Context, originalUUID, versionUUID string) *tree.Node {
 	c := config.Get(ctx, "services", "pydio.versions-store")
 	dsName := c.Val("datasource").Default(configx.Reference("#/defaults/datasource")).String()

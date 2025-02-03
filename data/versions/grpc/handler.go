@@ -35,7 +35,6 @@ import (
 	"github.com/pydio/cells/v5/common/client/commons/docstorec"
 	"github.com/pydio/cells/v5/common/client/commons/treec"
 	"github.com/pydio/cells/v5/common/errors"
-	"github.com/pydio/cells/v5/common/permissions"
 	activity2 "github.com/pydio/cells/v5/common/proto/activity"
 	"github.com/pydio/cells/v5/common/proto/docstore"
 	"github.com/pydio/cells/v5/common/proto/tree"
@@ -51,33 +50,17 @@ type Handler struct {
 	tree.UnimplementedNodeVersionerServer
 }
 
-func (h *Handler) buildVersionDescription(ctx context.Context, version *tree.ChangeLog) string {
+func (h *Handler) buildVersionDescription(ctx context.Context, version *tree.ContentRevision) string {
 	var description string
-	if version.OwnerUuid != "" && version.Event != nil {
+	if version.OwnerName != "" && version.Event != nil {
 		serverLinks := render.NewServerLinks()
 		serverLinks.URLS[render.ServerUrlTypeUsers], _ = url.Parse("user://")
-		ac, _ := activity.DocumentActivity(version.OwnerUuid, version.Event)
+		ac, _ := activity.DocumentActivity(version.OwnerName, version.Event)
 		description = render.Markdown(ac, activity2.SummaryPointOfView_SUBJECT, languages.UserLanguageFromContext(ctx, true), serverLinks)
 	} else {
 		description = "N/A"
 	}
 	return description
-}
-
-func NewChangeLogFromNode(ctx context.Context, node *tree.Node, event *tree.NodeChangeEvent) *tree.ChangeLog {
-
-	c := &tree.ChangeLog{}
-	c.Uuid = uuid.New()
-	c.Data = []byte(node.Etag)
-	c.MTime = node.MTime
-	c.Size = node.Size
-	c.Event = event
-	c.OwnerUuid, _ = permissions.FindUserNameInContext(ctx)
-	if c.OwnerUuid == "" {
-		log.Logger(ctx).Warn("Cannot find username in context when creating version, this is unexpected")
-	}
-	return c
-
 }
 
 func (h *Handler) ListVersions(request *tree.ListVersionsRequest, versionsStream tree.NodeVersioner_ListVersionsServer) error {
@@ -90,11 +73,26 @@ func (h *Handler) ListVersions(request *tree.ListVersionsRequest, versionsStream
 	}
 
 	log.Logger(ctx).Debug("[VERSION] ListVersions for node ", request.Node.Zap())
-	logs, _ := dao.GetVersions(ctx, request.Node.Uuid)
+	node := request.GetNode()
+	var filters map[string]any
+	if len(request.Filters) > 0 {
+		filters = make(map[string]any, len(request.Filters))
+		for k, js := range request.Filters {
+			var v any
+			if er := json.Unmarshal([]byte(js), &v); er != nil {
+				filters[k] = v
+			}
+		}
+	}
+
+	logs, err := dao.GetVersions(ctx, node.GetUuid(), request.GetOffset(), request.GetLimit(), request.GetSortField(), request.GetSortDesc(), filters)
+	if err != nil {
+		return err
+	}
 
 	for l := range logs {
 		if l.GetLocation() == nil {
-			l.Location = versions.DefaultLocation(ctx, request.Node.Uuid, l.Uuid)
+			l.Location = versions.DefaultLocation(ctx, request.Node.Uuid, l.VersionId)
 		}
 		l.Description = h.buildVersionDescription(ctx, l)
 		resp := &tree.ListVersionsResponse{Version: l}
@@ -111,37 +109,77 @@ func (h *Handler) HeadVersion(ctx context.Context, request *tree.HeadVersionRequ
 		return nil, err
 	}
 
-	v, e := dao.GetVersion(ctx, request.Node.Uuid, request.VersionId)
+	v, e := dao.GetVersion(ctx, request.GetNodeUuid(), request.GetVersionId())
 	if e != nil {
 		return nil, e
 	}
-	if (v != &tree.ChangeLog{}) {
-		if v.GetLocation() == nil {
-			v.Location = versions.DefaultLocation(ctx, request.Node.Uuid, v.Uuid)
-		}
-		return &tree.HeadVersionResponse{Version: v}, nil
+	if v.GetLocation() == nil {
+		v.Location = versions.DefaultLocation(ctx, request.GetNodeUuid(), v.VersionId)
 	}
-	return nil, errors.WithStack(errors.VersionNotFound)
+	return &tree.HeadVersionResponse{Version: v}, nil
 }
 
-func (h *Handler) CreateVersion(ctx context.Context, request *tree.CreateVersionRequest) (*tree.CreateVersionResponse, error) {
+func (h *Handler) DeleteVersion(ctx context.Context, request *tree.HeadVersionRequest) (*tree.DeleteVersionResponse, error) {
 
-	log.Logger(ctx).Debug("[VERSION] GetLastVersion for node " + request.Node.Uuid)
 	dao, err := manager.Resolve[versions.DAO](ctx)
 	if err != nil {
 		return nil, err
 	}
+	v, e := dao.GetVersion(ctx, request.GetNodeUuid(), request.GetVersionId())
+	if e != nil {
+		return nil, e
+	}
+	nUuid := request.GetNodeUuid()
+	e = dao.DeleteVersionsForNode(ctx, nUuid, request.GetVersionId())
+	if e != nil {
+		return nil, e
+	}
+	var newHead string
+	if lv, er := dao.GetLastVersion(ctx, nUuid); er == nil {
+		newHead = lv.GetVersionId()
+	}
+	return &tree.DeleteVersionResponse{DeletedVersion: v, Success: true, NewHead: newHead}, nil
+}
 
-	last, err := dao.GetLastVersion(ctx, request.Node.Uuid)
+func (h *Handler) CreateVersion(ctx context.Context, request *tree.CreateVersionRequest) (*tree.CreateVersionResponse, error) {
+
+	log.Logger(ctx).Debug("[VERSION] CreateVersion for node " + request.Node.Uuid)
+	dao, err := manager.Resolve[versions.DAO](ctx)
 	if err != nil {
 		return nil, err
 	}
-	log.Logger(ctx).Debug("[VERSION] GetLastVersion for node ", zap.Any("last", last), zap.Any("request", request))
-	resp := &tree.CreateVersionResponse{}
-	if last == nil || string(last.Data) != request.Node.Etag {
-		resp.Version = NewChangeLogFromNode(ctx, request.Node, request.TriggerEvent)
+	node := request.GetNode()
+
+	if !request.Draft {
+		if last, er := dao.GetLastVersion(ctx, request.Node.Uuid); er != nil {
+			return nil, err
+		} else if last != nil && last.ETag == node.Etag {
+			log.Logger(ctx).Debug("[VERSION] Found same last version for node, ignore version creation", zap.Any("last", last), zap.Any("request", request))
+			return &tree.CreateVersionResponse{Ignored: true}, nil
+		}
 	}
-	return resp, nil
+	// Create Revision
+	c := &tree.ContentRevision{
+		VersionId: request.VersionUuid,
+		Draft:     request.Draft,
+		MTime:     node.MTime,
+		Size:      node.Size,
+		ETag:      node.Etag,
+		OwnerName: request.OwnerName,
+		OwnerUuid: request.OwnerUuid,
+		Event:     request.TriggerEvent,
+	}
+	if c.VersionId == "" {
+		c.VersionId = uuid.New()
+	}
+
+	location, err := versions.LocationForNode(ctx, node, c.VersionId)
+	if err != nil {
+		return nil, err
+	}
+	c.Location = location
+
+	return &tree.CreateVersionResponse{Version: c}, nil
 }
 
 func (h *Handler) StoreVersion(ctx context.Context, request *tree.StoreVersionRequest) (*tree.StoreVersionResponse, error) {
@@ -149,7 +187,7 @@ func (h *Handler) StoreVersion(ctx context.Context, request *tree.StoreVersionRe
 	resp := &tree.StoreVersionResponse{}
 	p := versions.PolicyForNode(ctx, request.Node)
 	if p == nil {
-		log.Logger(ctx).Info("Ignoring StoreVersion for this node")
+		log.Logger(ctx).Info("No Policy found! Ignoring StoreVersion for node ", request.Node.Zap())
 		return resp, nil
 	}
 	log.Logger(ctx).Info("Storing Version for node ", request.Node.ZapUuid())
@@ -159,18 +197,32 @@ func (h *Handler) StoreVersion(ctx context.Context, request *tree.StoreVersionRe
 		return nil, err
 	}
 
+	/*
+		if request.Version.Location == nil {
+			if request.Version.Location, err = versions.LocationForNode(ctx, request.GetNode(), request.Version.VersionId); err != nil {
+				return nil, errors.WithMessage(errors.InvalidParameters, "cannot find location for storing version")
+			}
+		}
+
+	*/
+
 	if err := dao.StoreVersion(ctx, request.Node.Uuid, request.Version); err == nil {
 		resp.Success = true
+		resp.Version = request.Version
+	}
+	if request.Version.Draft {
+		return resp, nil
 	}
 
+	// Run pruning, on published versions only - Different pruning should be applied to drafts
 	pruningPeriods, err := versions.PreparePeriods(time.Now(), p.KeepPeriods)
 	if err != nil {
 		log.Logger(ctx).Error("cannot prepare periods for versions policy", p.Zap(), zap.Error(err))
 	}
-	logs, _ := dao.GetVersions(ctx, request.Node.Uuid)
+	logs, _ := dao.GetVersions(ctx, request.Node.Uuid, 0, 0, "", false, map[string]any{"draftStatus": "published"})
 	pruningPeriods, err = versions.DispatchChangeLogsByPeriod(pruningPeriods, logs)
 	log.Logger(ctx).Debug("[VERSION] Pruning Periods", log.DangerouslyZapSmallSlice("p", pruningPeriods))
-	var toRemove []*tree.ChangeLog
+	var toRemove []*tree.ContentRevision
 	for _, period := range pruningPeriods {
 		out := period.Prune()
 		toRemove = append(toRemove, out...)
@@ -180,15 +232,20 @@ func (h *Handler) StoreVersion(ctx context.Context, request *tree.StoreVersionRe
 		toRemove = append(toRemove, out...)
 	}
 	if len(toRemove) > 0 {
+		var removeIds []string
+		for _, tr := range toRemove {
+			removeIds = append(removeIds, tr.VersionId)
+		}
 		log.Logger(ctx).Debug("[VERSION] Pruning should remove", zap.Int("number", len(toRemove)))
-		if err := dao.DeleteVersionsForNode(ctx, request.Node.Uuid, toRemove...); err != nil {
+		if err := dao.DeleteVersionsForNode(ctx, request.Node.Uuid, removeIds...); err != nil {
 			return nil, err
 		}
 		resp.PruneVersions = toRemove
 	}
 	for _, pv := range resp.PruneVersions {
+		// Backward compat
 		if pv.Location == nil {
-			pv.Location = versions.DefaultLocation(ctx, request.Node.Uuid, pv.Uuid)
+			pv.Location = versions.DefaultLocation(ctx, request.Node.Uuid, pv.VersionId)
 		}
 	}
 
@@ -259,14 +316,15 @@ func (h *Handler) PruneVersions(ctx context.Context, request *tree.PruneVersions
 
 	resp := &tree.PruneVersionsResponse{}
 	for _, i := range idsToDelete {
-		allLogs, _ := dao.GetVersions(ctx, i)
+		allLogs, _ := dao.GetVersions(ctx, i, 0, 0, "", false, nil)
 		wg := &sync.WaitGroup{}
 		wg.Add(1)
 		go func() {
 			defer wg.Done()
 			for cLog := range allLogs {
+				// Backward compat stuff
 				if cLog.Location == nil {
-					cLog.Location = versions.DefaultLocation(ctx, i, cLog.Uuid)
+					cLog.Location = versions.DefaultLocation(ctx, i, cLog.VersionId)
 				} else {
 					cLog.Location.Type = tree.NodeType_LEAF
 				}

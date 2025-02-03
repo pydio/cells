@@ -136,7 +136,7 @@ func (c *OnDeleteVersionsAction) Run(ctx context.Context, channels *actions.Runn
 			if move {
 				backupNode := deleteNode.Clone()
 				// Create base-{DATE}-001-vUUID.ext
-				seeded := fmt.Sprintf("%s-%03d-%s-%s%s", prefix, i+1, time.Now().Format("2006-01-02"), strings.Split(version.GetUuid(), "-")[0], ext)
+				seeded := fmt.Sprintf("%s-%03d-%s-%s%s", prefix, i+1, time.Now().Format("2006-01-02"), strings.Split(version.GetVersionId(), "-")[0], ext)
 				backupNode.Path = path.Join(dir, seeded)
 				// Create parents if they do not exist
 				if !parentCreated {

@@ -32,11 +32,11 @@ import (
 var Drivers = service.StorageDrivers{}
 
 type DAO interface {
-	GetLastVersion(ctx context.Context, nodeUuid string) (*tree.ChangeLog, error)
-	GetVersions(ctx context.Context, nodeUuid string) (chan *tree.ChangeLog, error)
-	GetVersion(ctx context.Context, nodeUuid string, versionId string) (*tree.ChangeLog, error)
-	StoreVersion(ctx context.Context, nodeUuid string, log *tree.ChangeLog) error
-	DeleteVersionsForNode(ctx context.Context, nodeUuid string, versions ...*tree.ChangeLog) error
+	GetLastVersion(ctx context.Context, nodeUuid string) (*tree.ContentRevision, error)
+	GetVersions(ctx context.Context, nodeUuid string, offset int64, limit int64, sortField string, sortDesc bool, filters map[string]any) (chan *tree.ContentRevision, error)
+	GetVersion(ctx context.Context, nodeUuid string, versionId string) (*tree.ContentRevision, error)
+	StoreVersion(ctx context.Context, nodeUuid string, revision *tree.ContentRevision) error
+	DeleteVersionsForNode(ctx context.Context, nodeUuid string, versions ...string) error
 	DeleteVersionsForNodes(ctx context.Context, nodeUuid []string) error
 	ListAllVersionedNodesUuids(ctx context.Context) (chan string, chan bool, chan error)
 }
@@ -59,7 +59,7 @@ loop1:
 	for {
 		select {
 		case id := <-uuids:
-			versions, _ := from.GetVersions(fromCtx, id)
+			versions, _ := from.GetVersions(fromCtx, id, 0, 0, "", false, nil)
 			for version := range versions {
 				if dryRun {
 					out["Versions"]++

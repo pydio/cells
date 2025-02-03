@@ -515,6 +515,13 @@ func (s *NodeVersionerStub) Invoke(ctx context.Context, method string, args inte
 		} else {
 			e = er
 		}
+	case "/tree.NodeVersioner/DeleteVersion":
+		resp, er := s.NodeVersionerServer.DeleteVersion(ctx, args.(*HeadVersionRequest))
+		if er == nil {
+			e = stubs.AssignToInterface(resp, reply)
+		} else {
+			e = er
+		}
 	case "/tree.NodeVersioner/PruneVersions":
 		resp, er := s.NodeVersionerServer.PruneVersions(ctx, args.(*PruneVersionsRequest))
 		if er == nil {
