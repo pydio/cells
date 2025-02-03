@@ -838,10 +838,12 @@ func (dao *gormImpl[T]) MoveNodeTree(ctx context.Context, nodeFrom tree.ITreeNod
 			return err
 		}
 
-		rows, er := helper.ApplyOrderedUpdates(tx, tableName, updates, wheres)
-		log.Logger(ctx).Debug("Children rows affected by MoveNodeTree", zap.Int64("rows", rows))
-		return er
-
+		if rows, err := helper.ApplyOrderedUpdates(tx, tableName, updates, wheres); err != nil {
+			return err
+		} else {
+			log.Logger(ctx).Debug("Children rows affected by MoveNodeTree", zap.Int64("rows", rows))
+			return nil
+		}
 	})
 
 }
