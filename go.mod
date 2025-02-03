@@ -2,7 +2,7 @@ module github.com/pydio/cells/v4
 
 go 1.22.0
 
-toolchain go1.22.10
+toolchain go1.22.11
 
 require (
 	github.com/Masterminds/sprig/v3 v3.2.3
@@ -266,7 +266,7 @@ require (
 	github.com/golang-jwt/jwt/v4 v4.5.1 // indirect
 	github.com/golang/gddo v0.0.0-20190904175337-72a348e765d2 // indirect
 	github.com/golang/geo v0.0.0-20230421003525-6adc56603217 // indirect
-	github.com/golang/glog v1.2.0 // indirect
+	github.com/golang/glog v1.2.4 // indirect
 	github.com/golang/groupcache v0.0.0-20210331224755-41bb18bfe9da // indirect
 	github.com/golang/mock v1.6.0 // indirect
 	github.com/golang/protobuf v1.5.4 // indirect
