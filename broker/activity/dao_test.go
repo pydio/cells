@@ -23,6 +23,7 @@ package activity
 import (
 	"context"
 	"fmt"
+	"github.com/pydio/cells/v4/common/utils/std"
 	"log"
 	"os"
 	"path"
@@ -237,9 +238,15 @@ func TestInsertActivity(t *testing.T) {
 		wg.Wait()
 		So(err, ShouldBeNil)
 
-		<-time.After(time.Second * 5)
-		unread = dao.CountUnreadForUser(nil, "john")
-		So(unread, ShouldEqual, 0)
+		err = std.Retry(ctx, func() error {
+			unread = dao.CountUnreadForUser(ctx, "john")
+			if unread != 0 {
+				t.Log("CountUnreadForUser wrong, will retry", unread)
+				return fmt.Errorf("unread: %d, expected 0", unread)
+			}
+			return nil
+		}, 3*time.Second)
+		So(err, ShouldBeNil)
 	})
 }
 
