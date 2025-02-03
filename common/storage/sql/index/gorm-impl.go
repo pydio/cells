@@ -830,7 +830,7 @@ func (dao *gormImpl[T]) MoveNodeTree(ctx context.Context, nodeFrom tree.ITreeNod
 			{Key: "mpath3", Value: nodeTo.GetMPath().GetMPath3()},
 			{Key: "mpath4", Value: nodeTo.GetMPath().GetMPath4()},
 			{Key: "hash", Value: gorm.Expr(helper.Hash("mpath1", "mpath2", "mpath3", "mpath4"))},
-			{Key: "hash2", Value: gorm.Expr(helper.HashParent("mpath1", "level", "mpath2", "mpath3", "mpath4"))},
+			{Key: "hash2", Value: gorm.Expr(helper.HashParent("name", "level", "mpath1", "mpath2", "mpath3", "mpath4"))},
 		}, []sql.NamedArg{
 			sql.Named("wUuid", gorm.Expr("uuid = ?", nodeFrom.GetNode().GetUuid())),
 		})
