@@ -235,9 +235,9 @@ func TestInsertActivity(t *testing.T) {
 
 		err = dao.ActivitiesFor(ctx, activity.OwnerType_USER, "john", BoxInbox, "", 0, 100, resChan, doneChan)
 		wg.Wait()
-
-		time.Sleep(time.Second * 1)
 		So(err, ShouldBeNil)
+
+		<-time.After(time.Second * 5)
 		unread = dao.CountUnreadForUser(nil, "john")
 		So(unread, ShouldEqual, 0)
 	})

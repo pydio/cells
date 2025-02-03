@@ -25,6 +25,8 @@ import (
 	"context"
 	"encoding/binary"
 	"fmt"
+	"github.com/pydio/cells/v4/common/log"
+	"go.uber.org/zap"
 	"strconv"
 	"strings"
 	"time"
@@ -296,7 +298,9 @@ func (dao *boltdbimpl) ActivitiesFor(ctx context.Context, ownerType activity.Own
 	if refBoxOffset != BoxLastSent && ownerType == activity.OwnerType_USER && boxName == BoxInbox && len(lastRead) > 0 {
 		// Store last read in dedicated box
 		go func() {
-			dao.storeLastUserInbox(ownerId, BoxLastRead, lastRead)
+			if err := dao.storeLastUserInbox(ownerId, BoxLastRead, lastRead); err != nil {
+				log.Logger(ctx).Error("storeLastUserInbox failed", zap.Error(err))
+			}
 		}()
 	}
 
