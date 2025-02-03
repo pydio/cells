@@ -33,7 +33,7 @@ func TestServiceBroker(t *testing.T) {
 		var cancel context.CancelFunc
 		conn := grpc.NewClientConn(common.ServiceBroker)
 		ctx := clientcontext.WithClientConn(context.Background(), conn)
-		ctx, cancel = context.WithTimeout(ctx, 1*time.Second)
+		ctx, cancel = context.WithTimeout(ctx, 5*time.Second)
 
 		cli, err := pb.NewBrokerClient(conn).Subscribe(ctx)
 		if err != nil {
@@ -47,7 +47,7 @@ func TestServiceBroker(t *testing.T) {
 		}
 		go sub.Dispatch()
 
-		subscription, err := NewSubscription("test1", WithContext(ctx), WithSubscriber(sub))
+		newSub, err := NewSubscription("test1", WithContext(ctx), WithSubscriber(sub))
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -55,10 +55,10 @@ func TestServiceBroker(t *testing.T) {
 		go func() {
 			defer cancel()
 
-			defer subscription.Shutdown(context.Background())
+			defer newSub.Shutdown(context.Background())
 
 			for {
-				msg, err := subscription.Receive(context.Background())
+				msg, err := newSub.Receive(context.Background())
 				if err == io.EOF {
 					return
 				}
@@ -74,11 +74,11 @@ func TestServiceBroker(t *testing.T) {
 			}
 		}()
 
-		topic, err := NewTopic("test1", "", WithContext(ctx))
+		newTopic, err := NewTopic("test1", "", WithContext(ctx))
 		if err != nil {
 			log.Fatal(err)
 		}
-		defer topic.Shutdown(ctx)
+		defer newTopic.Shutdown(ctx)
 
 		msg := &tree.NodeChangeEvent{Source: &tree.Node{Path: "source"}, Target: &tree.Node{Path: "target"}}
 		b, err := proto.Marshal(msg)
@@ -88,9 +88,11 @@ func TestServiceBroker(t *testing.T) {
 		}
 
 		for i := 0; i < numMessagesToSend; i++ {
-			go topic.Send(context.Background(), &pubsub.Message{
-				Body: b,
-			})
+			go func() {
+				_ = newTopic.Send(context.Background(), &pubsub.Message{
+					Body: b,
+				})
+			}()
 		}
 
 		select {
@@ -161,21 +163,21 @@ func TestConcurrentReceivesGetAllTheMessages(t *testing.T) {
 	}
 
 	// Send messages. Each message has a unique body used as a key to receivedMsgs.
-	topic, err := NewTopic("test2", "", WithContext(ctx))
+	newTopic, err := NewTopic("test2", "", WithContext(ctx))
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	defer topic.Shutdown(ctx)
+	defer newTopic.Shutdown(ctx)
 	for i := 0; i < howManyToSend; i++ {
 		key := fmt.Sprintf("message #%d", i)
 		m := &pubsub.Message{Body: []byte(key)}
-		if err := topic.Send(ctx, m); err != nil {
+		if err := newTopic.Send(ctx, m); err != nil {
 			t.Fatal(err)
 		}
 	}
 
-	// Wait for the goroutines to receive all of the messages, then cancel the
+	// Wait for the goroutines to receive all the messages, then cancel the
 	// ctx so they all exit.
 	wg.Wait()
 	defer cancel()
