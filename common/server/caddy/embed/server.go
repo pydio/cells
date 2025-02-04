@@ -80,9 +80,9 @@ func New(ctx context.Context, asProxy bool) (server.Server, error) {
 	if asProxy {
 		srvName = "proxy"
 		srvID = "proxy" + "-" + uuid.New()
-		log.Logger(runtime.WithServiceName(context.Background(), "pydio.web.proxy")).Info("Starting caddy as reverse-proxy")
+		log.Logger(runtime.WithServiceName(runtime.AsCoreContext(ctx), "pydio.web.proxy")).Info("Starting caddy as reverse-proxy")
 	} else {
-		log.Logger(runtime.WithServiceName(context.Background(), "pydio.web.mux")).Info("Starting caddy server")
+		log.Logger(runtime.WithServiceName(runtime.AsCoreContext(ctx), "pydio.web.mux")).Info("Starting caddy server")
 	}
 
 	s := &Server{

@@ -124,7 +124,11 @@ func (h *Handler) PromoteVersion(req *restful.Request, resp *restful.Response) e
 
 	var published bool
 	if input.Publish {
-		ns, _ := h.UserMetaHandler.DraftMetaNamespace(ctx)
+		var ctxWorkspace *idm.Workspace
+		if bi, err := pc.BranchInfoForNode(ctx, targetNode); err == nil && bi.Workspace != nil {
+			ctxWorkspace = bi.Workspace
+		}
+		ns, _ := h.UserMetaHandler.DraftMetaNamespace(ctx, ctxWorkspace)
 		if targetNode.GetMetaBool(ns) {
 			log.Logger(ctx).Info("Should also publish this node")
 			mcl := idm.NewUserMetaServiceClient(grpc.ResolveConn(ctx, common.ServiceUserMetaGRPC))
@@ -157,11 +161,6 @@ func (h *Handler) PublishNode(req *restful.Request, resp *restful.Response) erro
 
 	ctx := req.Request.Context()
 
-	ns, ok := h.UserMetaHandler.DraftMetaNamespace(ctx)
-	if !ok {
-		return errors.WithMessage(errors.InvalidParameters, "no draft meta namespace defined")
-	}
-
 	nodeUuid := req.PathParameter("Uuid")
 	input := &rest.PublishNodeParameters{}
 	if err := req.ReadEntity(input); err != nil {
@@ -171,6 +170,15 @@ func (h *Handler) PublishNode(req *restful.Request, resp *restful.Response) erro
 	rN, er := h.UuidClient(true).ReadNode(ctx, &tree.ReadNodeRequest{Node: &tree.Node{Uuid: nodeUuid}})
 	if er != nil {
 		return er
+	}
+	pc := compose.PathClient()
+	var ctxWorkspace *idm.Workspace
+	if bi, err := pc.BranchInfoForNode(ctx, rN.GetNode()); err == nil && bi.Workspace != nil {
+		ctxWorkspace = bi.Workspace
+	}
+	ns, ok := h.UserMetaHandler.DraftMetaNamespace(ctx, ctxWorkspace)
+	if !ok {
+		return errors.WithMessage(errors.InvalidParameters, "no draft meta namespace defined")
 	}
 
 	node := rN.GetNode()

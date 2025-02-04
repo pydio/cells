@@ -68,6 +68,10 @@ var (
 )
 
 const (
+	frontPluginName         = "meta.user"
+	frontPluginDefaultMeta  = "USERMETA_DEFAULTS"
+	frontPluginDraftEnabled = "USERMETA_DRAFT_API"
+	frontPluginDraftMeta    = "USERMETA_DRAFT_NAMESPACE"
 	// TODO - MAKE CONFIGURABLE
 	draftMetaNamespace = "usermeta-draft"
 )
@@ -78,7 +82,7 @@ type UserMetaClient interface {
 	Namespaces(ctx context.Context) (map[string]*idm.UserMetaNamespace, error)
 	ExtractAndPut(ctx context.Context, resolved *tree.Node, ctxWorkspace *idm.Workspace, meta map[string]string, source ExtractionSource) (*idm.UpdateUserMetaResponse, error)
 	ServiceClient(ctx context.Context) idm.UserMetaServiceClient
-	DraftMetaNamespace(ctx context.Context) (string, bool)
+	DraftMetaNamespace(ctx context.Context, ctxWorkspace *idm.Workspace) (string, bool)
 	TagValuesHandler() TagsValuesClient
 
 	IsContextEditable(ctx context.Context, resourceId string, policies []*serviceproto.ResourcePolicy) bool
@@ -245,16 +249,16 @@ func (u *umClient) Namespaces(ctx context.Context) (map[string]*idm.UserMetaName
 func (u *umClient) ExtractAndPut(ctx context.Context, resolved *tree.Node, ctxWorkspace *idm.Workspace, meta map[string]string, source ExtractionSource) (*idm.UpdateUserMetaResponse, error) {
 	var um []*idm.UserMeta
 	var er error
-	id, err := u.incomingDefaults(ctx, resolved.Type, ctxWorkspace)
+	id, draftNs, err := u.incomingDefaults(ctx, resolved.Type, ctxWorkspace)
 	if err != nil {
 		return nil, err
 	}
 	if source == ExtractAmzHeaders {
-		if um, er = u.fromAmzHeaders(ctx, resolved, meta, id); er != nil {
+		if um, er = u.fromAmzHeaders(ctx, resolved, meta, id, draftNs); er != nil {
 			return nil, er
 		}
 	} else if source == ExtractNodeMetadata {
-		if um, er = u.fromNodeMeta(ctx, resolved, meta, id); er != nil {
+		if um, er = u.fromNodeMeta(ctx, resolved, meta, id, draftNs); er != nil {
 			return nil, er
 		}
 	} else {
@@ -284,8 +288,31 @@ func (u *umClient) ExtractAndPut(ctx context.Context, resolved *tree.Node, ctxWo
 	})
 }
 
-func (u *umClient) DraftMetaNamespace(ctx context.Context) (string, bool) {
-	return draftMetaNamespace, true
+func (u *umClient) DraftMetaNamespace(ctx context.Context, ctxWorkspace *idm.Workspace) (string, bool) {
+	// Global config first
+	var enabled bool
+	var draftNS string
+	glob := config.Get(ctx, config.FrontendPluginPath(frontPluginName)...)
+	enabled = glob.Val(frontPluginDraftEnabled).Bool()
+	draftNS = glob.Val(frontPluginDraftMeta).String()
+	// Contextual roles then
+	if ctxWorkspace != nil {
+		acl, e := permissions.AccessListFromContextClaims(ctx)
+		if e != nil {
+			return "", false
+		}
+		if e = permissions.AccessListLoadFrontValues(ctx, acl); e != nil {
+			return "", false
+		}
+		aclParams := acl.FlattenedFrontValues().Val("parameters", frontPluginName)
+		log.Logger(ctx).Debug("Checking default metadata " + aclParams.String())
+		scopes := permissions.FrontValuesScopesFromWorkspaces([]*idm.Workspace{ctxWorkspace})
+		for _, s := range scopes {
+			enabled = aclParams.Val(frontPluginDraftEnabled, s).Default(enabled).Bool()
+			draftNS = aclParams.Val(frontPluginDraftMeta, s).Default(draftNS).String()
+		}
+	}
+	return draftNS, enabled
 }
 
 // ServiceClient lazily creates a client to the usermeta service
@@ -304,15 +331,15 @@ func (u *umClient) PoliciesForMeta(_ context.Context, _ string, _ interface{}) (
 }
 
 // fromNodeMeta matches allowed namespaces from incoming node Metadata
-func (u *umClient) fromNodeMeta(ctx context.Context, resolved *tree.Node, meta map[string]string, def map[string]*defaultMetaDefinition) (out []*idm.UserMeta, err error) {
+func (u *umClient) fromNodeMeta(ctx context.Context, resolved *tree.Node, meta map[string]string, def map[string]*defaultMetaDefinition, draftNS string) (out []*idm.UserMeta, err error) {
 	var nss map[string]*idm.UserMetaNamespace
 	for k, v := range meta {
 		if strings.EqualFold(k, common.InputDraftMode) {
-			if dn, ok := u.DraftMetaNamespace(ctx); ok {
-				k = dn
-			} else {
+			if draftNS == "" {
 				return nil, errors.WithMessage(errors.InvalidParameters, "no meta namespace defined for Draft Mode")
 			}
+			// Replace key with draft namespace key
+			k = draftNS
 		}
 		if strings.HasPrefix(k, common.MetaNamespaceUserspacePrefix) {
 			if nss == nil {
@@ -349,17 +376,17 @@ func (u *umClient) fromNodeMeta(ctx context.Context, resolved *tree.Node, meta m
 }
 
 // fromAmzHeaders matches allowed namespaces from incoming request headers, sent as X-Amz-Meta-{Namespace} headers
-func (u *umClient) fromAmzHeaders(ctx context.Context, resolved *tree.Node, meta map[string]string, def map[string]*defaultMetaDefinition) (out []*idm.UserMeta, err error) {
+func (u *umClient) fromAmzHeaders(ctx context.Context, resolved *tree.Node, meta map[string]string, def map[string]*defaultMetaDefinition, draftNS string) (out []*idm.UserMeta, err error) {
 	var nss map[string]*idm.UserMetaNamespace
 	for k, v := range meta {
 		if strings.HasPrefix(k, common.XAmzMetaPrefix) {
 			key := strings.TrimPrefix(k, common.XAmzMetaPrefix)
 			if strings.EqualFold(key, common.InputDraftMode) {
-				if dn, ok := u.DraftMetaNamespace(ctx); ok {
-					key = dn
-				} else {
+				if draftNS == "" {
 					return nil, errors.WithMessage(errors.InvalidParameters, "no meta namespace defined for Draft Mode")
 				}
+				// Replace key with draft namespace key
+				key = draftNS
 			}
 			if nss == nil {
 				if nss, err = u.Namespaces(ctx); err != nil {
@@ -402,15 +429,16 @@ func (u *umClient) fromAmzHeaders(ctx context.Context, resolved *tree.Node, meta
 }
 
 // incomingDefaults parses configured defaults for the current scope
-func (u *umClient) incomingDefaults(ctx context.Context, inputType tree.NodeType, ws *idm.Workspace) (d map[string]*defaultMetaDefinition, err error) {
+func (u *umClient) incomingDefaults(ctx context.Context, inputType tree.NodeType, ws *idm.Workspace) (d map[string]*defaultMetaDefinition, draftNS string, err error) {
 	d = make(map[string]*defaultMetaDefinition)
-	pluginName := "meta.user"
-	varName := "USERMETA_DEFAULTS"
 	var jsonDefs string
+	var draftEnabled bool
 	// Global config first
-	if v := config.Get(ctx, config.FrontendPluginPath(pluginName)...).String(); v != "" {
-		jsonDefs = v
-	}
+	glob := config.Get(ctx, config.FrontendPluginPath(frontPluginName)...)
+	jsonDefs = glob.Val(frontPluginDefaultMeta).String()
+	draftEnabled = glob.Val(frontPluginDraftEnabled).Bool()
+	draftNS = glob.Val(frontPluginDraftMeta).String()
+
 	// Contextual roles then
 	if ws != nil {
 		acl, e := permissions.AccessListFromContextClaims(ctx)
@@ -422,12 +450,17 @@ func (u *umClient) incomingDefaults(ctx context.Context, inputType tree.NodeType
 			err = e
 			return
 		}
-		aclParams := acl.FlattenedFrontValues().Val("parameters", pluginName)
+		aclParams := acl.FlattenedFrontValues().Val("parameters", frontPluginName)
 		log.Logger(ctx).Debug("Checking default metadata " + aclParams.String())
 		scopes := permissions.FrontValuesScopesFromWorkspaces([]*idm.Workspace{ws})
 		for _, s := range scopes {
-			jsonDefs = aclParams.Val(varName, s).Default(jsonDefs).String()
+			jsonDefs = aclParams.Val(frontPluginDefaultMeta, s).Default(jsonDefs).String()
+			draftEnabled = aclParams.Val(frontPluginDraftEnabled, s).Default(draftEnabled).Bool()
+			draftNS = aclParams.Val(frontPluginDraftMeta, s).Default(draftNS).String()
 		}
+	}
+	if !draftEnabled { // if not enabled, ignore draftNS value
+		draftNS = ""
 	}
 	if jsonDefs != "" {
 		var dd []*defaultMetaDefinition
