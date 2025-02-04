@@ -33,7 +33,9 @@ func init() {
 }
 
 func NewRegistryDAO(ctx context.Context, db *gorm.DB) oauth.Registry {
-	cd := &oauth.AbstractRegistry{}
+	cd := &oauth.AbstractRegistry{
+		CellsCtx: ctx,
+	}
 	cd.Storage = newPersister(ctx, db, cd)
 	return cd
 }

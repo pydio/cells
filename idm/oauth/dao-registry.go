@@ -75,11 +75,6 @@ var _ Registry = (*AbstractRegistry)(nil)
 
 var (
 	RegistryDrivers service.StorageDrivers
-
-	logger     *logrusx.Logger
-	audit      *logrusx.Logger
-	loggerOnce = &sync.Once{}
-	auditOnce  = &sync.Once{}
 )
 
 type Registry interface {
@@ -103,12 +98,18 @@ type Registry interface {
 }
 
 type AbstractRegistry struct {
-	Storage persistence.Persister
+	Storage  persistence.Persister
+	CellsCtx context.Context
 	sql.Dependencies
 	cfg          *hconfig.DefaultProvider
 	routerPublic *httprouterx.RouterPublic
 	routerAdmin  *httprouterx.RouterAdmin
 	connectors   []auth.ConnectorConfig
+
+	logger     *logrusx.Logger
+	audit      *logrusx.Logger
+	loggerOnce sync.Once
+	auditOnce  sync.Once
 }
 
 func (m *AbstractRegistry) Migrate(ctx context.Context) error {
@@ -295,8 +296,13 @@ func (m *AbstractRegistry) GetLoginRequestAsFlow(ctx context.Context, challenge 
 
 func (m *AbstractRegistry) Logger() *logrusx.Logger {
 	serviceName := common.ServiceGrpcNamespace_ + common.ServiceOAuth
-	loggerOnce.Do(func() {
-		logCtx := runtime2.WithServiceName(context.Background(), serviceName)
+	m.loggerOnce.Do(func() {
+		logCtx := m.CellsCtx
+		if m.CellsCtx == nil {
+			logCtx = runtime2.CoreBackground()
+		}
+		logCtx = runtime2.WithServiceName(logCtx, serviceName)
+
 		r, w, _ := os.Pipe()
 		go func() {
 			scanner := bufio.NewScanner(r)
@@ -347,15 +353,15 @@ func (m *AbstractRegistry) Logger() *logrusx.Logger {
 				}
 			}
 		}()
-		logger = logrusx.New(serviceName, runtime.Version())
-		logger.Logger.SetOutput(w)
+		m.logger = logrusx.New(serviceName, runtime.Version())
+		m.logger.Logger.SetOutput(w)
 	})
-	return logger
+	return m.logger
 }
 
 func (m *AbstractRegistry) AuditLogger() *logrusx.Logger {
 	serviceName := common.ServiceGrpcNamespace_ + common.ServiceOAuth
-	auditOnce.Do(func() {
+	m.auditOnce.Do(func() {
 		logCtx := runtime2.WithServiceName(context.Background(), common.ServiceGrpcNamespace_+common.ServiceOAuth)
 		r, w, _ := os.Pipe()
 		go func() {
@@ -397,10 +403,10 @@ func (m *AbstractRegistry) AuditLogger() *logrusx.Logger {
 				}
 			}
 		}()
-		audit = logrusx.New(serviceName, runtime.Version())
-		audit.Logger.SetOutput(w)
+		m.audit = logrusx.New(serviceName, runtime.Version())
+		m.audit.Logger.SetOutput(w)
 	})
-	return audit
+	return m.audit
 
 }
 
