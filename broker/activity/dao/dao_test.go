@@ -43,6 +43,7 @@ import (
 	"github.com/pydio/cells/v5/common/runtime/manager"
 	"github.com/pydio/cells/v5/common/storage/test"
 	"github.com/pydio/cells/v5/common/utils/configx"
+	"github.com/pydio/cells/v5/common/utils/std"
 	"github.com/pydio/cells/v5/common/utils/uuid"
 
 	_ "github.com/pydio/cells/v5/common/storage/boltdb"
@@ -200,11 +201,17 @@ func TestInsertActivity(t *testing.T) {
 
 			err = dao.ActivitiesFor(ctx, proto.OwnerType_USER, "john", activity.BoxInbox, "", 0, 100, "", resChan, doneChan)
 			wg.Wait()
-
-			time.Sleep(time.Second * 1)
 			So(err, ShouldBeNil)
-			unread = dao.CountUnreadForUser(nil, "john")
-			So(unread, ShouldEqual, 0)
+
+			err = std.Retry(ctx, func() error {
+				unread = dao.CountUnreadForUser(nil, "john")
+				if unread == 0 {
+					return nil
+				} else {
+					return fmt.Errorf("unread is %d, expected 0", unread)
+				}
+			}, time.Second, 10*time.Second)
+			So(err, ShouldBeNil)
 		})
 	})
 }
