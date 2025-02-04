@@ -78,7 +78,8 @@ func (m *mysqlHelper) ApplyOrderedUpdates(db *gorm.DB, tableName string, sets []
 			}
 			namedSets = append(namedSets, fmt.Sprintf("%s=@%s", u.Key, u.Key))
 		} else if u.Key == "mpath1" || u.Key == "mpath2" || u.Key == "mpath3" || u.Key == "mpath4" {
-			assigns = append(assigns, fmt.Sprintf("CAST(@%s as CHAR CHARACTER SET ascii) AS new_%s", u.Key, u.Key))
+			//assigns = append(assigns, fmt.Sprintf("CAST(@%s as CHAR CHARACTER SET ascii) AS new_%s", u.Key, u.Key))
+			assigns = append(assigns, fmt.Sprintf("@%s AS new_%s", u.Key, u.Key))
 			namedSets = append(namedSets, fmt.Sprintf("%s=uv.new_%s", u.Key, u.Key))
 		} else {
 			if u.Key == "name" {
@@ -87,10 +88,11 @@ func (m *mysqlHelper) ApplyOrderedUpdates(db *gorm.DB, tableName string, sets []
 			assigns = append(assigns, fmt.Sprintf("@%s AS new_%s", u.Key, u.Key))
 			namedSets = append(namedSets, fmt.Sprintf("%s=uv.new_%s", u.Key, u.Key))
 		}
+
 		args = append(args, sql.Named(u.Key, u.Value))
 	}
 
-	q := fmt.Sprintf("UPDATE `%s` JOIN (SELECT %s, CONCAT(@mpath1, @mpath2, @mpath3, @mpath4) as fullpath FROM %s) AS uv ON %s.uuid = uv.new_uuid SET %s WHERE %s", tableName, strings.Join(assigns, ", "), tableName, tableName, strings.Join(namedSets, ", "), strings.Join(namedWheres, " AND "))
+	q := fmt.Sprintf("UPDATE `%s` JOIN (SELECT %s, CONCAT(CONVERT(@mpath1 USING utf8), CONVERT(@mpath2 USING utf8), CONVERT(@mpath3 USING utf8), CONVERT(@mpath4 USING utf8)) as fullpath FROM %s) AS uv ON %s.uuid = uv.new_uuid SET %s WHERE %s", tableName, strings.Join(assigns, ", "), tableName, tableName, strings.Join(namedSets, ", "), strings.Join(namedWheres, " AND "))
 	tx := db.Exec(q, args...)
 	return tx.RowsAffected, tx.Error
 }
