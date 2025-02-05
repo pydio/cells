@@ -7,7 +7,7 @@
 		</resources>
 	</client_settings>
 	<server_settings>
-		<global_param name="USERMETA_DEFAULTS" type="textarea" label="CONF_MESSAGE[Default Metadata]" description="CONF_MESSAGE[Default metadata values to be set on any new resource. JSON array of objects with keys {namespace*,value*,nodeType,templateType,override} ]" default="{}" expose="false"/>
+		<global_param name="USERMETA_DEFAULTS" type="textarea" label="CONF_MESSAGE[Default Metadata]" description="CONF_MESSAGE[Default metadata values to be set on any new resource. JSON array of objects with keys {namespace*,value*,nodeType,templateType,override} ]" default="[]" expose="false"/>
 		<global_param name="USERMETA_DRAFT_API" type="boolean" label="CONF_MESSAGE[Enable Draft API]" description="CONF_MESSAGE[Enable support Draft-Mode for resource creations. Versioning must be enabled on the underlying datasource.]" default="false" expose="true"/>
 		<global_param name="USERMETA_DRAFT_NAMESPACE" type="string" label="CONF_MESSAGE[Draft API Namespace]" description="CONF_MESSAGE[Boolean namespace (usermeta-XXX) to be used as a storage for Draft Mode (Draft API must be enabled).]" default="" expose="false"/>
 	</server_settings>

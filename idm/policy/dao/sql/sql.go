@@ -291,28 +291,32 @@ func (s *sqlimpl) deleteInTransaction(ctx context.Context, tx *gorm.DB, group *i
 			return err
 		}
 	}
+	// Clean orphan rows
+	if tx11 := tx.Where("id NOT IN (?)", tx.Model(&idm.PolicyActionRel{}).Select("DISTINCT action")).Delete(&idm.PolicyAction{}); tx11.Error != nil {
+		return tx11.Error
+	}
+	if tx21 := tx.Where("id NOT IN (?)", tx.Model(&idm.PolicySubjectRel{}).Select("DISTINCT subject")).Delete(&idm.PolicySubject{}); tx21.Error != nil {
+		return tx21.Error
+	}
+	if tx31 := tx.Where("id NOT IN (?)", tx.Model(&idm.PolicyResourceRel{}).Select("DISTINCT resource")).Delete(&idm.PolicyResource{}); tx31.Error != nil {
+		return tx31.Error
+	}
 	tx = tx.Where(&idm.PolicyGroup{Uuid: group.GetUuid()}).Delete(&idm.PolicyGroup{})
 	return tx.Error
 }
 
 func (s *sqlimpl) deletePolicyById(ctx context.Context, tx *gorm.DB, id string) error {
-	var aa []*idm.PolicyActionRel
-	tx.Where(&idm.PolicyActionRel{Policy: id}).Find(&aa)
-	for _, a := range aa {
-		tx.Where(&idm.PolicyAction{ID: a.Action}).Delete(&idm.PolicyAction{})
+	if tx1 := tx.Where(&idm.PolicyActionRel{Policy: id}).Delete(&idm.PolicyActionRel{}); tx1.Error != nil {
+		return tx1.Error
 	}
-	var ss []*idm.PolicySubjectRel
-	tx.Where(&idm.PolicySubjectRel{Policy: id}).Find(&ss)
-	for _, sub := range ss {
-		tx.Where(&idm.PolicySubject{ID: sub.Subject}).Delete(&idm.PolicySubject{})
+	if tx2 := tx.Where(&idm.PolicySubjectRel{Policy: id}).Delete(&idm.PolicySubjectRel{}); tx2.Error != nil {
+		return tx2.Error
 	}
-	var rr []*idm.PolicyResourceRel
-	tx.Where(&idm.PolicyResourceRel{Policy: id}).Find(&rr)
-	for _, r := range rr {
-		tx.Where(&idm.PolicyResource{ID: r.Resource}).Delete(&idm.PolicyResource{})
+	if tx3 := tx.Where(&idm.PolicyResourceRel{Policy: id}).Delete(&idm.PolicyResourceRel{}); tx3.Error != nil {
+		return tx3.Error
 	}
-	tx2 := tx.Where(&idm.Policy{ID: id}).Delete(&idm.Policy{})
-	return tx2.Error
+	tx4 := tx.Where(&idm.Policy{ID: id}).Delete(&idm.Policy{})
+	return tx4.Error
 }
 
 // IsAllowed implements API

@@ -105,7 +105,7 @@ TOKEN SCOPE
 		}
 		u, e := permissions.SearchUniqueUser(cmd.Context(), tokUserLogin, "")
 		if e != nil {
-			cmd.Println("Cannot find user")
+			cmd.Printf("Error while searching for user %s: %v\n", tokUserLogin, e)
 			return
 		}
 		cli := auth.NewPersonalAccessTokenServiceClient(grpc.ResolveConn(ctx, common.ServiceTokenGRPC))

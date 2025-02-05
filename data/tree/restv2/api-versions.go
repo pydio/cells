@@ -67,6 +67,7 @@ func (h *Handler) NodeVersions(req *restful.Request, resp *restful.Response) err
 			MTime:       vr.GetMTime(),
 			Size:        vr.GetSize(),
 			ETag:        vr.GetETag(),
+			ContentHash: vr.GetContentHash(),
 			OwnerName:   vr.GetOwnerName(),
 			OwnerUuid:   vr.GetOwnerUuid(),
 		})
@@ -128,8 +129,7 @@ func (h *Handler) PromoteVersion(req *restful.Request, resp *restful.Response) e
 		if bi, err := pc.BranchInfoForNode(ctx, targetNode); err == nil && bi.Workspace != nil {
 			ctxWorkspace = bi.Workspace
 		}
-		ns, _ := h.UserMetaHandler.DraftMetaNamespace(ctx, ctxWorkspace)
-		if targetNode.GetMetaBool(ns) {
+		if ns, ok := h.UserMetaHandler.DraftMetaNamespace(ctx, ctxWorkspace); ok && (targetNode.GetMetaBool(ns) || targetNode.GetMetaBool(common.MetaNamespaceNodeDraftMode)) {
 			log.Logger(ctx).Info("Should also publish this node")
 			mcl := idm.NewUserMetaServiceClient(grpc.ResolveConn(ctx, common.ServiceUserMetaGRPC))
 			_, er = mcl.UpdateUserMeta(ctx, &idm.UpdateUserMetaRequest{
@@ -146,6 +146,10 @@ func (h *Handler) PromoteVersion(req *restful.Request, resp *restful.Response) e
 				published = true
 			}
 		}
+	}
+	// Re-read updated node
+	if tgr, err := pc.ReadNode(ctx, &tree.ReadNodeRequest{Node: targetNode}); err == nil {
+		targetNode = tgr.GetNode()
 	}
 
 	rsp := &rest.PromoteVersionResponse{

@@ -150,6 +150,7 @@ var (
 						"rest:/templates",
 						"rest:/templates<.+>",
 						"rest:/auth/token/document",
+						"rest:/n/<.+>",
 					},
 					Actions: []string{"GET", "POST", "DELETE", "PUT", "PATCH"},
 					Effect:  ladon.AllowAccess,

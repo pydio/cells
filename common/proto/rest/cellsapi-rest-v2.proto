@@ -186,9 +186,9 @@ message Node {
 
   // ContentType in the form of application/mime
   string ContentType = 7;
-  // ContentsHash is a server-computed file signature
-  string ContentsHash = 8;
-  // HashingMethod refers to the method used for computing ContentsHash
+  // ContentHash is a server-computed file signature
+  string ContentHash = 8;
+  // HashingMethod refers to the method used for computing ContentHash
   string HashingMethod = 23;
   // StorageEtag refers to the storage underlying hash
   string StorageETag = 9;
@@ -257,8 +257,10 @@ message Version {
   int64 MTime = 5;
   // Content Size at that moment
   int64 Size = 6;
-  // Contents Hash
+  // Storage ETag
   string ETag = 7;
+  // ContentHash
+  string ContentHash = 8;
   // Who performed this action - name
   string OwnerName = 9;
   // Who performed this action - uuid

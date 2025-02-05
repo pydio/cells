@@ -68,160 +68,54 @@ func (m *Handler) Adapt(c nodes.Handler, options nodes.RouterOptions) nodes.Hand
 
 type onCreateErrorFunc func()
 
-func retryOnDuplicate(ctx context.Context, callback func(context.Context) (*tree.CreateNodeResponse, error), retries ...int) (*tree.CreateNodeResponse, error) {
-	resp, e := callback(ctx)
-	var r int
-	if len(retries) > 0 {
-		r = retries[0]
-	}
-	if e != nil && errors.Is(e, errors.NodeIndexConflict) && r < 3 {
-		<-time.After(100 * time.Millisecond)
-		resp, e = retryOnDuplicate(ctx, callback, r+1)
-	}
-	return resp, e
-}
-
-// getOrCreatePutNode creates a temporary node before calling a Put request.
-// If it is an update, should send back the already existing node.
-// Returns the node, a flag to tell whether it is created or not, and eventually an error
-// The Put event will afterward update the index
-func (m *Handler) getOrCreatePutNode(ctx context.Context, nodePath string, requestData *models.PutRequestData, preloadedNode ...*tree.Node) (*tree.Node, onCreateErrorFunc, error) {
-	var skipRead bool
-	if len(preloadedNode) > 0 {
-		if preloadedNode[0] != nil {
-			return preloadedNode[0], nil, nil
-		} else {
-			skipRead = true
-		}
-	}
-	treeReader := nodes.GetSourcesPool(ctx).GetTreeClient()
-	treeWriter := nodes.GetSourcesPool(ctx).GetTreeClientWrite()
-
-	treePath := strings.TrimLeft(nodePath, "/")
-
-	if !skipRead {
-		existingResp, err := treeReader.ReadNode(ctx, &tree.ReadNodeRequest{
-			Node: &tree.Node{
-				Path: treePath,
-			},
-		})
-		if err == nil && existingResp.Node != nil {
-			return existingResp.Node, nil, nil
-		}
-	}
-	// As we are not going through the real FS, make sure to normalize now the file path
-	tmpNode := &tree.Node{
-		Path:  string(norm.NFC.Bytes([]byte(treePath))),
-		MTime: time.Now().Unix(),
-		Size:  requestData.Size,
-		Type:  tree.NodeType_LEAF,
-		Etag:  common.NodeFlagEtagTemporary,
-	}
-
-	if !requestData.ContentTypeUnknown() {
-		tmpNode.MustSetMeta(common.MetaNamespaceMime, requestData.MetaContentType())
-	}
-
-	// Uuid is passed for input node - double check that it does not already exist!
-	if id := requestData.InputResourceUuid(); id != "" {
-		if _, er := treeReader.ReadNode(ctx, &tree.ReadNodeRequest{Node: &tree.Node{Uuid: id}}); er == nil {
-			return nil, nil, errors.WithStack(errors.NodeIndexConflict)
-		}
-		tmpNode.SetUuid(id)
-	}
-
-	createResp, er := retryOnDuplicate(ctx, func(c context.Context) (*tree.CreateNodeResponse, error) {
-		return treeWriter.CreateNode(c, &tree.CreateNodeRequest{Node: tmpNode})
-	})
+func (m *Handler) ReadNode(ctx context.Context, req *tree.ReadNodeRequest, opts ...grpc.CallOption) (*tree.ReadNodeResponse, error) {
+	resp, er := m.Next.ReadNode(ctx, req, opts...)
 	if er != nil {
-		return nil, nil, er
+		return resp, er
 	}
-
-	var ctxWs *idm.Workspace
-	if i, e := nodes.GetBranchInfo(ctx, "in"); e == nil && i.Workspace != nil {
-		ctxWs = i.Workspace
-	}
-	createdNode := createResp.GetNode()
-	if _, er = m.getMetaClient().ExtractAndPut(ctx, createdNode, ctxWs, requestData.Metadata, meta.ExtractAmzHeaders); er != nil {
-		return nil, nil, er
-	}
-
-	delNode := createdNode.Clone()
-	errorFunc := func() {
-		if ctx.Err() != nil {
-			ctx = propagator.ForkedBackgroundWithMeta(ctx)
-		}
-		_, e := treeWriter.DeleteNode(ctx, &tree.DeleteNodeRequest{Node: delNode})
-		if e != nil {
-			log.Logger(ctx).Error("Error while trying to delete temporary node after upload failure", zap.Error(e), delNode.Zap())
+	if bi, e := nodes.GetBranchInfo(ctx, "in"); e == nil && bi.Workspace != nil {
+		if ns, ok := m.getMetaClient().DraftMetaNamespace(ctx, bi.Workspace); ok && resp.GetNode().GetMetaBool(ns) {
+			n := resp.GetNode().Clone()
+			n.MustSetMeta(common.MetaNamespaceNodeDraftMode, true)
+			resp.Node = n
 		}
 	}
-	return createdNode, errorFunc, nil
-
+	return resp, er
 }
 
-// checkTypeChange verify if a node is about to be overriden with a different type
-func (m *Handler) checkTypeChange(ctx context.Context, node *tree.Node) (*tree.Node, error) {
-	resp, er := m.ReadNode(ctx, &tree.ReadNodeRequest{Node: node.Clone()})
-	if er != nil || resp == nil || resp.GetNode() == nil {
-		return nil, nil // Node does not already exist, ignore
+func (m *Handler) ListNodes(ctx context.Context, in *tree.ListNodesRequest, opts ...grpc.CallOption) (tree.NodeProvider_ListNodesClient, error) {
+	stream, er := m.Next.ListNodes(ctx, in, opts...)
+	if er != nil {
+		return nil, er
 	}
-	srcLeaf := node.GetType() == tree.NodeType_LEAF || node.GetType() == tree.NodeType_UNKNOWN
-	tgtLeaf := resp.GetNode().GetType() == tree.NodeType_LEAF
-	if srcLeaf != tgtLeaf {
-		if tgtLeaf {
-			return nil, errors.WithMessagef(errors.NodeTypeConflict, "A file already exists with the same name")
-		} else {
-			return nil, errors.WithMessagef(errors.NodeTypeConflict, "A folder already exists with the same name")
-		}
-	}
-	return resp.GetNode(), nil
-}
-
-// createParentIfNotExist Recursively create parents
-func (m *Handler) createParentIfNotExist(ctx context.Context, node *tree.Node, session string) error {
-	parentNode := &tree.Node{
-		Path:  path.Dir(node.Path),
-		Type:  tree.NodeType_COLLECTION,
-		MTime: time.Now().Unix(),
-	}
-	parentNode.MustSetMeta(common.MetaNamespaceDatasourcePath, path.Dir(node.GetStringMeta(common.MetaNamespaceDatasourcePath)))
-
-	if parentNode.Path == "/" || parentNode.Path == "" || parentNode.Path == "." {
-		return nil
-	}
-	if _, e := m.Next.ReadNode(ctx, &tree.ReadNodeRequest{Node: parentNode}); e != nil {
-		if er := m.createParentIfNotExist(ctx, parentNode, session); er != nil {
-			return er
-		}
-		if r, er2 := m.Next.CreateNode(ctx, &tree.CreateNodeRequest{Node: parentNode, IndexationSession: session}); er2 != nil {
-			if errors.Is(er2, errors.StatusConflict) {
-				return nil
-			}
-			return er2
-		} else if r != nil {
-			log.Logger(ctx).Debug("[PUT HANDLER] > Created parent node in S3", r.Node.Zap())
-			// As we are not going through the real FS, make sure to normalize now the file path
-			tmpNode := &tree.Node{
-				Uuid:  r.Node.Uuid,
-				Path:  string(norm.NFC.Bytes([]byte(r.Node.Path))),
-				MTime: time.Now().Unix(),
-				Size:  36,
-				Type:  tree.NodeType_COLLECTION,
-				Etag:  "-1",
-			}
-			treeWriter := nodes.GetSourcesPool(ctx).GetTreeClientWrite()
-			log.Logger(ctx).Debug("[PUT HANDLER] > Create Parent Node In Index", zap.String("UUID", tmpNode.Uuid), zap.String("Path", tmpNode.Path))
-			_, er := treeWriter.CreateNode(ctx, &tree.CreateNodeRequest{Node: tmpNode, IndexationSession: session})
-			if er != nil {
-				if errors.Is(er, errors.StatusConflict) {
-					return nil
+	if bi, e := nodes.GetBranchInfo(ctx, "in"); e == nil && bi.Workspace != nil {
+		if ns, ok := m.getMetaClient().DraftMetaNamespace(ctx, bi.Workspace); ok {
+			s := nodes.NewWrappingStreamer(stream.Context())
+			go func() {
+				defer s.CloseSend()
+				for {
+					resp, err := stream.Recv()
+					if err != nil {
+						if !errors.IsStreamFinished(err) {
+							_ = s.SendError(err)
+						}
+						break
+					}
+					if resp == nil {
+						continue
+					}
+					if resp.GetNode().GetMetaBool(ns) {
+						n := resp.GetNode().Clone()
+						n.MustSetMeta(common.MetaNamespaceNodeDraftMode, true)
+						resp.Node = n
+					}
+					_ = s.Send(resp)
 				}
-				return er
-			}
+			}()
+			return s, nil
 		}
 	}
-	return nil
+	return stream, er
 }
 
 // CreateNode recursively creates parents if they do not already exist
@@ -446,6 +340,162 @@ func (m *Handler) MultipartAbort(ctx context.Context, target *tree.Node, uploadI
 		deleteTemporary()
 	}
 	return e
+}
+
+func retryOnDuplicate(ctx context.Context, callback func(context.Context) (*tree.CreateNodeResponse, error), retries ...int) (*tree.CreateNodeResponse, error) {
+	resp, e := callback(ctx)
+	var r int
+	if len(retries) > 0 {
+		r = retries[0]
+	}
+	if e != nil && errors.Is(e, errors.NodeIndexConflict) && r < 3 {
+		<-time.After(100 * time.Millisecond)
+		resp, e = retryOnDuplicate(ctx, callback, r+1)
+	}
+	return resp, e
+}
+
+// getOrCreatePutNode creates a temporary node before calling a Put request.
+// If it is an update, should send back the already existing node.
+// Returns the node, a flag to tell whether it is created or not, and eventually an error
+// The Put event will afterward update the index
+func (m *Handler) getOrCreatePutNode(ctx context.Context, nodePath string, requestData *models.PutRequestData, preloadedNode ...*tree.Node) (*tree.Node, onCreateErrorFunc, error) {
+	var skipRead bool
+	if len(preloadedNode) > 0 {
+		if preloadedNode[0] != nil {
+			return preloadedNode[0], nil, nil
+		} else {
+			skipRead = true
+		}
+	}
+	treeReader := nodes.GetSourcesPool(ctx).GetTreeClient()
+	treeWriter := nodes.GetSourcesPool(ctx).GetTreeClientWrite()
+
+	treePath := strings.TrimLeft(nodePath, "/")
+
+	if !skipRead {
+		existingResp, err := treeReader.ReadNode(ctx, &tree.ReadNodeRequest{
+			Node: &tree.Node{
+				Path: treePath,
+			},
+		})
+		if err == nil && existingResp.Node != nil {
+			return existingResp.Node, nil, nil
+		}
+	}
+	// As we are not going through the real FS, make sure to normalize now the file path
+	tmpNode := &tree.Node{
+		Path:  string(norm.NFC.Bytes([]byte(treePath))),
+		MTime: time.Now().Unix(),
+		Size:  requestData.Size,
+		Type:  tree.NodeType_LEAF,
+		Etag:  common.NodeFlagEtagTemporary,
+	}
+
+	if !requestData.ContentTypeUnknown() {
+		tmpNode.MustSetMeta(common.MetaNamespaceMime, requestData.MetaContentType())
+	}
+
+	// Uuid is passed for input node - double check that it does not already exist!
+	if id := requestData.InputResourceUuid(); id != "" {
+		if _, er := treeReader.ReadNode(ctx, &tree.ReadNodeRequest{Node: &tree.Node{Uuid: id}}); er == nil {
+			return nil, nil, errors.WithStack(errors.NodeIndexConflict)
+		}
+		tmpNode.SetUuid(id)
+	}
+
+	createResp, er := retryOnDuplicate(ctx, func(c context.Context) (*tree.CreateNodeResponse, error) {
+		return treeWriter.CreateNode(c, &tree.CreateNodeRequest{Node: tmpNode})
+	})
+	if er != nil {
+		return nil, nil, er
+	}
+
+	var ctxWs *idm.Workspace
+	if i, e := nodes.GetBranchInfo(ctx, "in"); e == nil && i.Workspace != nil {
+		ctxWs = i.Workspace
+	}
+	createdNode := createResp.GetNode()
+	if _, er = m.getMetaClient().ExtractAndPut(ctx, createdNode, ctxWs, requestData.Metadata, meta.ExtractAmzHeaders); er != nil {
+		return nil, nil, er
+	}
+
+	delNode := createdNode.Clone()
+	errorFunc := func() {
+		if ctx.Err() != nil {
+			ctx = propagator.ForkedBackgroundWithMeta(ctx)
+		}
+		_, e := treeWriter.DeleteNode(ctx, &tree.DeleteNodeRequest{Node: delNode})
+		if e != nil {
+			log.Logger(ctx).Error("Error while trying to delete temporary node after upload failure", zap.Error(e), delNode.Zap())
+		}
+	}
+	return createdNode, errorFunc, nil
+
+}
+
+// checkTypeChange verify if a node is about to be overriden with a different type
+func (m *Handler) checkTypeChange(ctx context.Context, node *tree.Node) (*tree.Node, error) {
+	resp, er := m.ReadNode(ctx, &tree.ReadNodeRequest{Node: node.Clone()})
+	if er != nil || resp == nil || resp.GetNode() == nil {
+		return nil, nil // Node does not already exist, ignore
+	}
+	srcLeaf := node.GetType() == tree.NodeType_LEAF || node.GetType() == tree.NodeType_UNKNOWN
+	tgtLeaf := resp.GetNode().GetType() == tree.NodeType_LEAF
+	if srcLeaf != tgtLeaf {
+		if tgtLeaf {
+			return nil, errors.WithMessagef(errors.NodeTypeConflict, "A file already exists with the same name")
+		} else {
+			return nil, errors.WithMessagef(errors.NodeTypeConflict, "A folder already exists with the same name")
+		}
+	}
+	return resp.GetNode(), nil
+}
+
+// createParentIfNotExist Recursively create parents
+func (m *Handler) createParentIfNotExist(ctx context.Context, node *tree.Node, session string) error {
+	parentNode := &tree.Node{
+		Path:  path.Dir(node.Path),
+		Type:  tree.NodeType_COLLECTION,
+		MTime: time.Now().Unix(),
+	}
+	parentNode.MustSetMeta(common.MetaNamespaceDatasourcePath, path.Dir(node.GetStringMeta(common.MetaNamespaceDatasourcePath)))
+
+	if parentNode.Path == "/" || parentNode.Path == "" || parentNode.Path == "." {
+		return nil
+	}
+	if _, e := m.Next.ReadNode(ctx, &tree.ReadNodeRequest{Node: parentNode}); e != nil {
+		if er := m.createParentIfNotExist(ctx, parentNode, session); er != nil {
+			return er
+		}
+		if r, er2 := m.Next.CreateNode(ctx, &tree.CreateNodeRequest{Node: parentNode, IndexationSession: session}); er2 != nil {
+			if errors.Is(er2, errors.StatusConflict) {
+				return nil
+			}
+			return er2
+		} else if r != nil {
+			log.Logger(ctx).Debug("[PUT HANDLER] > Created parent node in S3", r.Node.Zap())
+			// As we are not going through the real FS, make sure to normalize now the file path
+			tmpNode := &tree.Node{
+				Uuid:  r.Node.Uuid,
+				Path:  string(norm.NFC.Bytes([]byte(r.Node.Path))),
+				MTime: time.Now().Unix(),
+				Size:  36,
+				Type:  tree.NodeType_COLLECTION,
+				Etag:  "-1",
+			}
+			treeWriter := nodes.GetSourcesPool(ctx).GetTreeClientWrite()
+			log.Logger(ctx).Debug("[PUT HANDLER] > Create Parent Node In Index", zap.String("UUID", tmpNode.Uuid), zap.String("Path", tmpNode.Path))
+			_, er := treeWriter.CreateNode(ctx, &tree.CreateNodeRequest{Node: tmpNode, IndexationSession: session})
+			if er != nil {
+				if errors.Is(er, errors.StatusConflict) {
+					return nil
+				}
+				return er
+			}
+		}
+	}
+	return nil
 }
 
 func (m *Handler) getMetaClient() meta.UserMetaClient {

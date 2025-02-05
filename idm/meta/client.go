@@ -29,6 +29,7 @@ import (
 	"text/template"
 
 	"go.uber.org/zap"
+	"google.golang.org/protobuf/proto"
 	"google.golang.org/protobuf/types/known/anypb"
 
 	"github.com/pydio/cells/v5/common"
@@ -72,12 +73,10 @@ const (
 	frontPluginDefaultMeta  = "USERMETA_DEFAULTS"
 	frontPluginDraftEnabled = "USERMETA_DRAFT_API"
 	frontPluginDraftMeta    = "USERMETA_DRAFT_NAMESPACE"
-	// TODO - MAKE CONFIGURABLE
-	draftMetaNamespace = "usermeta-draft"
 )
 
 type UserMetaClient interface {
-	UpdateMetaResolved(ctx context.Context, input *idm.UpdateUserMetaRequest) (*idm.UpdateUserMetaResponse, error)
+	UpdateMetaResolved(ctx context.Context, input *idm.UpdateUserMetaRequest, resolvedNSS ...*idm.UserMetaNamespace) (*idm.UpdateUserMetaResponse, error)
 	UpdateLock(ctx context.Context, meta *idm.UserMeta, operation idm.UpdateUserMetaRequest_UserMetaOp) error
 	Namespaces(ctx context.Context) (map[string]*idm.UserMetaNamespace, error)
 	ExtractAndPut(ctx context.Context, resolved *tree.Node, ctxWorkspace *idm.Workspace, meta map[string]string, source ExtractionSource) (*idm.UpdateUserMetaResponse, error)
@@ -110,7 +109,7 @@ func NewUserMetaClient(useCache ...cache.Config) UserMetaClient {
 
 // UpdateMetaResolved performs actual updates, including Policies checks but no
 // checks on the actual nodes (to be performed by callers)
-func (u *umClient) UpdateMetaResolved(ctx context.Context, input *idm.UpdateUserMetaRequest) (*idm.UpdateUserMetaResponse, error) {
+func (u *umClient) UpdateMetaResolved(ctx context.Context, input *idm.UpdateUserMetaRequest, resolvedNSS ...*idm.UserMetaNamespace) (*idm.UpdateUserMetaResponse, error) {
 	nsList, e := u.Namespaces(ctx)
 	if e != nil {
 		return nil, e
@@ -130,8 +129,14 @@ func (u *umClient) UpdateMetaResolved(ctx context.Context, input *idm.UpdateUser
 		if ns, exists = nsList[meta.Namespace]; !exists {
 			return nil, errors.WithMessagef(errors.StatusNotFound, "Namespace %s is not defined!", meta.Namespace)
 		}
-
-		if !u.MatchPolicies(ctx, meta.Namespace, ns.Policies, serviceproto.ResourcePolicyAction_WRITE) {
+		// Policies may be modified for default namespaces
+		policies := ns.Policies
+		for _, resolved := range resolvedNSS {
+			if resolved.Namespace == ns.Namespace {
+				policies = resolved.Policies
+			}
+		}
+		if !u.MatchPolicies(ctx, meta.Namespace, policies, serviceproto.ResourcePolicyAction_WRITE) {
 			return nil, errors.WithMessagef(errors.NamespaceNotAllowed, "Updating namespace %s is not allowed!", meta.Namespace)
 		}
 		if meta.Uuid != "" {
@@ -249,6 +254,7 @@ func (u *umClient) Namespaces(ctx context.Context) (map[string]*idm.UserMetaName
 func (u *umClient) ExtractAndPut(ctx context.Context, resolved *tree.Node, ctxWorkspace *idm.Workspace, meta map[string]string, source ExtractionSource) (*idm.UpdateUserMetaResponse, error) {
 	var um []*idm.UserMeta
 	var er error
+	var resolvedNSS []*idm.UserMetaNamespace
 	id, draftNs, err := u.incomingDefaults(ctx, resolved.Type, ctxWorkspace)
 	if err != nil {
 		return nil, err
@@ -267,6 +273,7 @@ func (u *umClient) ExtractAndPut(ctx context.Context, resolved *tree.Node, ctxWo
 	if len(id) > 0 {
 		for _, i := range id {
 			log.Logger(ctx).Info("Applying default meta value", zap.String("ns", i.Namespace), zap.Any("value", i.ResolvedValue))
+			resolvedNSS = append(resolvedNSS, i.ResolvedNS)
 			resolved.MustSetMeta(i.ResolvedNS.GetNamespace(), i.ResolvedValue)
 			jsonValue, _ := json.Marshal(i.ResolvedValue)
 			um = append(um, &idm.UserMeta{
@@ -285,7 +292,7 @@ func (u *umClient) ExtractAndPut(ctx context.Context, resolved *tree.Node, ctxWo
 	return u.UpdateMetaResolved(ctx, &idm.UpdateUserMetaRequest{
 		Operation: idm.UpdateUserMetaRequest_PUT,
 		MetaDatas: um,
-	})
+	}, resolvedNSS...)
 }
 
 func (u *umClient) DraftMetaNamespace(ctx context.Context, ctxWorkspace *idm.Workspace) (string, bool) {
@@ -483,13 +490,18 @@ func (u *umClient) incomingDefaults(ctx context.Context, inputType tree.NodeType
 			}
 			for _, ns := range nn {
 				if ns.Namespace == def.Namespace {
-					def.ResolvedNS = ns
+					def.ResolvedNS = proto.Clone(ns).(*idm.UserMetaNamespace)
 					break
 				}
 			}
 			if def.ResolvedNS == nil {
 				log.Logger(ctx).Warn(fmt.Sprintf("Defaults metadata point to an invalid namespace %s. Did you define it?", def.Namespace))
 				continue
+			}
+			// This is a default value, make sure that it is always writeable for the rest of the flow
+			def.ResolvedNS.Policies = []*serviceproto.ResourcePolicy{
+				{Action: serviceproto.ResourcePolicyAction_READ, Subject: "*", Resource: def.ResolvedNS.Namespace, Effect: serviceproto.ResourcePolicy_allow},
+				{Action: serviceproto.ResourcePolicyAction_WRITE, Subject: "*", Resource: def.ResolvedNS.Namespace, Effect: serviceproto.ResourcePolicy_allow},
 			}
 			// Template case - evaluate value
 			if def.TemplateType != "" {

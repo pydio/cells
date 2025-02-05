@@ -494,8 +494,10 @@ message ContentRevision {
     int64 MTime = 5;
     // Content Size at that moment
     int64 Size = 6;
-    // Contents Hash
+    // Storage ETag
     string ETag = 7;
+    // Internal Contents Hash
+    string ContentHash = 8;
     // Who performed this action - name
     string OwnerName = 9;
     // Who performed this action - uuid

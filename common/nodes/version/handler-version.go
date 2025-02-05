@@ -209,7 +209,7 @@ func (v *Handler) CopyObject(ctx context.Context, from *tree.Node, to *tree.Node
 			requestData.Metadata = make(map[string]string, 1)
 		}
 		requestData.Metadata[common.XAmzMetaNodeUuid] = from.Uuid // Make sure to keep Uuid!
-		if h := vResp.GetVersion().GetLocation().GetStringMeta(common.MetaNamespaceHash); h != "" {
+		if h := vResp.GetVersion().GetContentHash(); h != "" {
 			// log.Logger(ctx).Info("Setting MetaNamespaceHash in CopyRequest meta")
 			requestData.Metadata[common.MetaNamespaceHash] = h
 		}
@@ -248,10 +248,11 @@ func (v *Handler) PutObject(ctx context.Context, node *tree.Node, reader io.Read
 		if er != nil {
 			return models.ObjectInfo{}, er
 		}
+		revision.ETag = oi.ETag
 		if ex, o := reader.(common.ReaderMetaExtractor); o {
 			if mm, ok := ex.ExtractedMeta(); ok && mm[common.MetaNamespaceHash] != "" {
-				log.Logger(ctx).Info("Update revision with computed ETag" + mm[common.MetaNamespaceHash])
-				revision.ETag = mm[common.MetaNamespaceHash]
+				log.Logger(ctx).Info("Update revision with computed Hash" + mm[common.MetaNamespaceHash])
+				revision.ContentHash = mm[common.MetaNamespaceHash]
 			}
 		}
 		// Now store version
@@ -342,7 +343,8 @@ func (v *Handler) MultipartComplete(ctx context.Context, target *tree.Node, uplo
 				return oi, err
 			}
 			// Now update ETag and Store revision
-			revision.ETag = target.GetStringMeta(common.MetaNamespaceHash)
+			revision.ETag = oi.ETag
+			revision.ContentHash = target.GetStringMeta(common.MetaNamespaceHash)
 			_, er = v.getVersionClient(ctx).StoreVersion(ctx, &tree.StoreVersionRequest{Node: target, Version: revision})
 			return oi, er
 		}

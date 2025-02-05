@@ -199,6 +199,7 @@ const (
 	MetaNamespaceVersionId           = "versionId"
 	MetaNamespaceVersionDesc         = "versionDescription"
 	MetaNamespaceVersionDraft        = "versionDraft"
+	MetaNamespaceNodeDraftMode       = "draft-mode"
 	MetaNamespaceGeoLocation         = "GeoLocation"
 	MetaNamespaceContents            = "Contents"
 	MetaRecursiveChildrenSize        = "RecursiveChildrenSize"

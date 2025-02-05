@@ -157,6 +157,7 @@ func (c *VersionAction) Run(ctx context.Context, channels *actions.RunnableChann
 		storedVersion := resp.Version
 		storedVersion.Location = targetNode.Clone()
 		if h := node.GetStringMeta(common.MetaNamespaceHash); h != "" {
+			storedVersion.ContentHash = h
 			storedVersion.Location.MustSetMeta(common.MetaNamespaceHash, h)
 		}
 		response, err2 := versionClient.StoreVersion(ctx, &tree.StoreVersionRequest{

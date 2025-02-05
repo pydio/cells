@@ -118,7 +118,7 @@ func (h *Handler) TreeNodeToNode(n *tree.Node) *rest.Node {
 		case common.MetaNamespaceMime:
 			rn.ContentType = strings.ReplaceAll(v, "\"", "")
 		case common.MetaNamespaceHash:
-			rn.ContentsHash = strings.ReplaceAll(v, "\"", "")
+			rn.ContentHash = strings.ReplaceAll(v, "\"", "")
 		case common.MetaFlagHashingVersion:
 			rn.HashingMethod = strings.ReplaceAll(v, "\"", "")
 		case common.MetaFlagReadonly:
@@ -165,6 +165,9 @@ func (h *Handler) TreeNodeToNode(n *tree.Node) *rest.Node {
 			} else {
 				rn.VersionMeta.IsDraft = v == "true"
 			}
+
+		case common.MetaNamespaceNodeDraftMode:
+			rn.IsDraft = true
 
 		case images.MetadataImageDimensions,
 			images.MetadataCompatImageReadableDimensions,
