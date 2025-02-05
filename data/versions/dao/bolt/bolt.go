@@ -121,7 +121,7 @@ func (b *BoltStore) GetVersions(ctx context.Context, nodeUuid string, offset int
 			}
 			nodeBucket := bucket.Bucket([]byte(nodeUuid))
 			if nodeBucket == nil {
-				return errors.WithStack(errors.BucketNotFound)
+				return nil
 			}
 			c := nodeBucket.Cursor()
 

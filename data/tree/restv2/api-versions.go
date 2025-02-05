@@ -95,52 +95,22 @@ func (h *Handler) PromoteVersion(req *restful.Request, resp *restful.Response) e
 	if err := req.ReadEntity(input); err != nil {
 		return err
 	}
-	vcl := versionClient(ctx)
-	hr, er := vcl.HeadVersion(ctx, &tree.HeadVersionRequest{NodeUuid: nodeUuid, VersionId: versionUuid})
-	if er != nil {
-		return er
-	}
-	revision := hr.GetVersion()
-	_, cl := permissions.FindUserNameInContext(ctx)
-	if revision.GetDraft() && cl.Subject != revision.GetOwnerUuid() {
-		return errors.WithMessage(errors.StatusForbidden, "you are not allowed to promote this draft")
-	}
 
-	log.Logger(ctx).Info("Should now promote this revision: ", hr.GetVersion().Zap())
-	// Copy draft version as new content - this should create a new version, we can remove this draft afterward
-	pc := compose.PathClient()
-	if _, er = pc.CopyObject(ctx, targetNode, targetNode, &models.CopyRequestData{SrcVersionId: hr.GetVersion().VersionId}); er != nil {
-		log.Logger(ctx).Error("Cannot switch latest to head", zap.Error(er))
-		return er
-	}
-	if revision.GetDraft() {
-		if _, er = vcl.DeleteVersion(ctx, &tree.HeadVersionRequest{NodeUuid: nodeUuid, VersionId: versionUuid}); er != nil {
-			log.Logger(ctx).Error("Cannot delete draft version", zap.Error(er))
-		} else if _, er2 := compose.PathClient(nodes.AsAdmin()).DeleteNode(ctx, &tree.DeleteNodeRequest{Node: revision.GetLocation()}); er2 == nil {
-			log.Logger(ctx).Info("Deleted version blob", revision.GetLocation().Zap())
-		} else {
-			log.Logger(ctx).Error("Could not delete draft version blob", revision.GetLocation().Zap())
-		}
+	pathClient := compose.PathClient()
+	_, err := h.promoteDraftVersion(ctx, targetNode, versionUuid, pathClient, nil)
+	if err != nil {
+		return err
 	}
 
 	var published bool
 	if input.Publish {
 		var ctxWorkspace *idm.Workspace
-		if bi, err := pc.BranchInfoForNode(ctx, targetNode); err == nil && bi.Workspace != nil {
+		if bi, err := pathClient.BranchInfoForNode(ctx, targetNode); err == nil && bi.Workspace != nil {
 			ctxWorkspace = bi.Workspace
 		}
 		if ns, ok := h.UserMetaHandler.DraftMetaNamespace(ctx, ctxWorkspace); ok && (targetNode.GetMetaBool(ns) || targetNode.GetMetaBool(common.MetaNamespaceNodeDraftMode)) {
-			log.Logger(ctx).Info("Should also publish this node")
-			mcl := idm.NewUserMetaServiceClient(grpc.ResolveConn(ctx, common.ServiceUserMetaGRPC))
-			_, er = mcl.UpdateUserMeta(ctx, &idm.UpdateUserMetaRequest{
-				Operation: idm.UpdateUserMetaRequest_DELETE,
-				MetaDatas: []*idm.UserMeta{{
-					NodeUuid:     targetNode.GetUuid(),
-					Namespace:    ns,
-					ResolvedNode: targetNode,
-				}},
-			})
-			if er != nil {
+			log.Logger(ctx).Info("Now publish this node")
+			if er := h.publishDraftNode(ctx, targetNode, ns, nil); er != nil {
 				return er
 			} else {
 				published = true
@@ -148,7 +118,7 @@ func (h *Handler) PromoteVersion(req *restful.Request, resp *restful.Response) e
 		}
 	}
 	// Re-read updated node
-	if tgr, err := pc.ReadNode(ctx, &tree.ReadNodeRequest{Node: targetNode}); err == nil {
+	if tgr, err := pathClient.ReadNode(ctx, &tree.ReadNodeRequest{Node: targetNode}); err == nil {
 		targetNode = tgr.GetNode()
 	}
 
@@ -185,25 +155,49 @@ func (h *Handler) PublishNode(req *restful.Request, resp *restful.Response) erro
 		return errors.WithMessage(errors.InvalidParameters, "no draft meta namespace defined")
 	}
 
-	node := rN.GetNode()
-	if !node.IsLeaf() && input.Cascade {
-		// DO SOMETHING WITH CHILDREN
-	}
-
 	mcl := idm.NewUserMetaServiceClient(grpc.ResolveConn(ctx, common.ServiceUserMetaGRPC))
-	_, er = mcl.UpdateUserMeta(ctx, &idm.UpdateUserMetaRequest{
-		Operation: idm.UpdateUserMetaRequest_DELETE,
-		MetaDatas: []*idm.UserMeta{{
-			NodeUuid:     node.GetUuid(),
-			Namespace:    ns,
-			ResolvedNode: node,
-		}},
-	})
-	if er != nil {
+
+	node := rN.GetNode()
+	if er = h.publishDraftNode(ctx, node, ns, mcl); er != nil {
 		return er
 	}
 
-	return resp.WriteEntity(&rest.PublishNodeResponse{Node: h.TreeNodeToNode(node)})
+	var cascades []*rest.PublishCascadeResult
+	if !node.IsLeaf() && input.Cascade {
+		// Loop on children and publish them
+		vcl := versionClient(ctx)
+		st, se := pc.ListNodes(ctx, &tree.ListNodesRequest{Node: node, Recursive: true})
+		er = commons.ForEach(st, se, func(response *tree.ListNodesResponse) (ignore error) {
+			child := response.GetNode()
+			res := &rest.PublishCascadeResult{
+				Node: h.TreeNodeToNode(child),
+			}
+			if child.IsLeaf() {
+				rev, pe := h.promoteDraftVersion(ctx, child, "", pc, vcl)
+				if pe != nil {
+					res.Error = pe.Error()
+					cascades = append(cascades, res)
+					return
+				}
+				if rev != nil {
+					log.Logger(ctx).Info("Promoted draft version", child.ZapPath(), rev.Zap())
+					res.Promoted = true
+				}
+			}
+			if pe := h.publishDraftNode(ctx, child, ns, mcl); pe != nil {
+				res.Error = pe.Error()
+			} else {
+				res.Success = true
+			}
+			cascades = append(cascades, res)
+			return
+		})
+		if er != nil {
+			return er
+		}
+	}
+
+	return resp.WriteEntity(&rest.PublishNodeResponse{Node: h.TreeNodeToNode(node), CascadeResults: cascades})
 
 }
 
@@ -259,4 +253,70 @@ func (h *Handler) DeleteVersion(req *restful.Request, resp *restful.Response) er
 	rsp := &rest.PromoteVersionResponse{}
 
 	return resp.WriteEntity(rsp)
+}
+
+func (h *Handler) publishDraftNode(ctx context.Context, node *tree.Node, draftNS string, client idm.UserMetaServiceClient) error {
+	if client == nil {
+		client = idm.NewUserMetaServiceClient(grpc.ResolveConn(ctx, common.ServiceUserMetaGRPC))
+	}
+	_, er := client.UpdateUserMeta(ctx, &idm.UpdateUserMetaRequest{
+		Operation: idm.UpdateUserMetaRequest_DELETE,
+		MetaDatas: []*idm.UserMeta{{
+			NodeUuid:     node.GetUuid(),
+			Namespace:    draftNS,
+			ResolvedNode: node,
+		}},
+	})
+	return er
+}
+
+func (h *Handler) promoteDraftVersion(ctx context.Context, targetNode *tree.Node, versionUuid string, nodesCli nodes.Handler, versionCli tree.NodeVersionerClient) (*tree.ContentRevision, error) {
+	if versionCli == nil {
+		versionCli = versionClient(ctx)
+	}
+	var revision *tree.ContentRevision
+	_, cl := permissions.FindUserNameInContext(ctx)
+	if versionUuid != "" {
+		hr, er := versionCli.HeadVersion(ctx, &tree.HeadVersionRequest{NodeUuid: targetNode.GetUuid(), VersionId: versionUuid})
+		if er != nil {
+			return nil, er
+		}
+		revision = hr.GetVersion()
+		if revision.GetDraft() && cl.Subject != revision.GetOwnerUuid() {
+			return nil, errors.WithMessage(errors.StatusForbidden, "you are not allowed to promote this draft")
+		}
+	} else {
+		st, er := versionCli.ListVersions(ctx, &tree.ListVersionsRequest{Node: targetNode, Filters: map[string]string{"draftStatus": "\"draft\""}})
+		err := commons.ForEach(st, er, func(response *tree.ListVersionsResponse) error {
+			if revision != nil || !(response.GetVersion().GetDraft() && cl.Subject == response.GetVersion().GetOwnerUuid()) {
+				return nil
+			}
+			revision = response.GetVersion()
+			return nil
+		})
+		if err != nil {
+			return nil, err
+		}
+		if revision == nil {
+			// No revisions found to promote
+			return nil, nil
+		}
+	}
+
+	log.Logger(ctx).Info("Should now promote this revision: ", revision.Zap())
+	// Copy draft version as new content - this should create a new version, we can remove this draft afterward
+	if _, er := nodesCli.CopyObject(ctx, targetNode, targetNode, &models.CopyRequestData{SrcVersionId: revision.GetVersionId()}); er != nil {
+		log.Logger(ctx).Error("Cannot switch latest to head", zap.Error(er))
+		return nil, er
+	}
+	if revision.GetDraft() {
+		if _, er := versionCli.DeleteVersion(ctx, &tree.HeadVersionRequest{NodeUuid: targetNode.GetUuid(), VersionId: revision.GetVersionId()}); er != nil {
+			log.Logger(ctx).Error("Cannot delete draft version", zap.Error(er))
+		} else if _, er2 := compose.PathClient(nodes.AsAdmin()).DeleteNode(ctx, &tree.DeleteNodeRequest{Node: revision.GetLocation()}); er2 == nil {
+			log.Logger(ctx).Info("Deleted version blob", revision.GetLocation().Zap())
+		} else {
+			log.Logger(ctx).Error("Could not delete draft version blob", revision.GetLocation().Zap())
+		}
+	}
+	return revision, nil
 }

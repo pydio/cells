@@ -23,6 +23,7 @@ package grpc
 import (
 	"context"
 	"net/url"
+	"slices"
 	"sync"
 	"time"
 
@@ -75,12 +76,18 @@ func (h *Handler) ListVersions(request *tree.ListVersionsRequest, versionsStream
 	log.Logger(ctx).Debug("[VERSION] ListVersions for node ", request.Node.Zap())
 	node := request.GetNode()
 	var filters map[string]any
+	authorized := []string{"draftStatus", "ownerUuid"}
 	if len(request.Filters) > 0 {
 		filters = make(map[string]any, len(request.Filters))
 		for k, js := range request.Filters {
+			if !slices.Contains(authorized, k) {
+				return errors.WithMessage(errors.InvalidParameters, "unauthorized filtering key "+k)
+			}
 			var v any
-			if er := json.Unmarshal([]byte(js), &v); er != nil {
+			if er := json.Unmarshal([]byte(js), &v); er == nil {
 				filters[k] = v
+			} else {
+				return errors.WithMessage(errors.InvalidParameters, "filtering value must be JSON-encoded")
 			}
 		}
 	}
