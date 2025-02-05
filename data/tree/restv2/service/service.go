@@ -40,7 +40,7 @@ func init() {
 			service.Description("RESTful Gateway to Rest API v2"),
 			service.WithWeb(func(c context.Context) service.WebHandler {
 				return restv2.NewHandler()
-			}),
+			}, service.WithWebRoute(common.RouteApiRESTv2)),
 		)
 	})
 }

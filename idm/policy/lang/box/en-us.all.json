@@ -52,6 +52,9 @@
   "PolicyGroup.LoggedUsers.Rule6": {
     "other": "Write-access to FrontendService except global binaries uploads"
   },
+  "PolicyGroup.LoggedUsers.Rule7": {
+    "other": "Default REST accesses API V2 for a logged user"
+  },
 
   "PolicyGroup.OIDC.Title": {
     "other": "OpenIdConnect Operations"

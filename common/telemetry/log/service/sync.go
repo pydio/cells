@@ -162,6 +162,9 @@ func (syncer *LogSyncer) Sync() error {
 }
 
 func (syncer *LogSyncer) Close() error {
+	if syncer.closed {
+		return nil
+	}
 	syncer.closed = true
 	close(syncer.logSyncerMessages)
 	return nil

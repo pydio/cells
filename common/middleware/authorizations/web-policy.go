@@ -30,6 +30,7 @@ import (
 	"github.com/pydio/cells/v5/common"
 	"github.com/pydio/cells/v5/common/auth/claim"
 	"github.com/pydio/cells/v5/common/client/grpc"
+	"github.com/pydio/cells/v5/common/config/routing"
 	"github.com/pydio/cells/v5/common/permissions"
 	"github.com/pydio/cells/v5/common/proto/idm"
 	"github.com/pydio/cells/v5/common/telemetry/log"
@@ -64,9 +65,14 @@ func HttpWrapperPolicy(h http.Handler) http.Handler {
 		}
 
 		client := idm.NewPolicyEngineServiceClient(grpc.ResolveConn(ctx, common.ServicePolicyGRPC))
+		// we trim the prefix only for DefaultRoute /a - New APIs should be registered **with** their prefix
+		testURI := r.RequestURI
+		if routing.ResolvedURIFromContext(ctx) == common.DefaultRouteREST {
+			testURI = strings.TrimPrefix(testURI, common.DefaultRouteREST)
+		}
 		request := &idm.PolicyEngineRequest{
 			Subjects: subjects,
-			Resource: "rest:" + strings.TrimPrefix(r.RequestURI, common.DefaultRouteREST), // todo - should not use Default
+			Resource: "rest:" + testURI,
 			Action:   r.Method,
 		}
 

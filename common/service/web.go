@@ -70,7 +70,8 @@ func RegisterSwaggerJSON(json string) {
 
 func init() {
 	// Instanciate restful framework
-	routing.RegisterRoute(common.RouteApiREST, "Main REST API Endpoint", common.DefaultRouteREST)
+	routing.RegisterRoute(common.RouteApiREST, "Initial REST API Endpoint", common.DefaultRouteREST)
+	routing.RegisterRoute(common.RouteApiRESTv2, "REST API v2 Endpoint", common.DefaultRouteRESTv2)
 	runtime.RegisterEnvVariable("CELLS_WEB_RATE_LIMIT", "0", "Http API rate-limiter, as a number of token allowed per seconds. 0 means no limit.")
 	runtime.RegisterEnvVariable("CELLS_WEB_CORS_ALLOW_ALL", "false", "Should be used for DEV only, allow all CORS requests")
 	restful.RegisterEntityAccessor("application/json", new(middleware.ProtoEntityReaderWriter))
@@ -118,8 +119,27 @@ type swaggerRestMapper struct {
 	routeBuilder func(string) *restful.RouteBuilder
 }
 
+type WebOptions struct {
+	route string
+}
+
+type WebOption func(*WebOptions)
+
+func WithWebRoute(customRoute string) WebOption {
+	return func(o *WebOptions) {
+		o.route = customRoute
+	}
+}
+
 // WithWeb returns a web handler
-func WithWeb(handler func(ctx context.Context) WebHandler) ServiceOption {
+func WithWeb(handler func(ctx context.Context) WebHandler, options ...WebOption) ServiceOption {
+	// Init route with default
+	wo := &WebOptions{
+		route: common.RouteApiREST,
+	}
+	for _, option := range options {
+		option(wo)
+	}
 
 	return func(o *ServiceOptions) {
 
@@ -214,7 +234,7 @@ func WithWeb(handler func(ctx context.Context) WebHandler) ServiceOption {
 
 			wrapped = middleware.WebIncomingContextMiddleware(ctx, "", ContextKey, o.Server, wrapped)
 
-			sub := mux.Route(common.RouteApiREST)
+			sub := mux.Route(wo.route)
 			sub.Handle(serviceRoute, wrapped, routing.WithStripPrefix(), routing.WithEnsureTrailing())
 			return nil
 		}
@@ -224,7 +244,7 @@ func WithWeb(handler func(ctx context.Context) WebHandler) ServiceOption {
 			if !o.Server.As(&mux) {
 				return fmt.Errorf("server %s is not a mux", o.Name)
 			}
-			mux.Route(common.RouteApiREST).Deregister(serviceRoute)
+			mux.Route(wo.route).Deregister(serviceRoute)
 			return nil
 		}
 

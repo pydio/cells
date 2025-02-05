@@ -150,7 +150,16 @@ var (
 						"rest:/templates",
 						"rest:/templates<.+>",
 						"rest:/auth/token/document",
-						"rest:/n/<.+>",
+					},
+					Actions: []string{"GET", "POST", "DELETE", "PUT", "PATCH"},
+					Effect:  ladon.AllowAccess,
+				}),
+				converter.LadonToProtoPolicy(&ladon.DefaultPolicy{
+					ID:          "user-default-policy-apiv2",
+					Description: "PolicyGroup.LoggedUsers.Rule2",
+					Subjects:    []string{"profile:standard", "profile:shared"},
+					Resources: []string{
+						"rest:/v2/n/<.+>",
 					},
 					Actions: []string{"GET", "POST", "DELETE", "PUT", "PATCH"},
 					Effect:  ladon.AllowAccess,

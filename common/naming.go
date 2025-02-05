@@ -380,6 +380,7 @@ var (
 
 const (
 	RouteApiREST    = "api"
+	RouteApiRESTv2  = "api-v2"
 	RoutePublic     = "public"
 	RouteFrontend   = "frontend"
 	RouteBucketIO   = "io"
@@ -394,6 +395,7 @@ const (
 	DefaultRouteFrontend   = "/"
 	DefaultRouteInstall    = "/"
 	DefaultRouteREST       = "/a"
+	DefaultRouteRESTv2     = "/v2"
 	DefaultRoutePublic     = "/public"
 	DefaultRouteBucketIO   = "/io"
 	DefaultRouteBucketData = "/data"
