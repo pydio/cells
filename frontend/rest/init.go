@@ -97,6 +97,8 @@ func init() {
 	frontend.WrapAuthMiddleware(modifiers.LoginSuccessWrapper)
 	frontend.WrapAuthMiddleware(modifiers.LoginFailedWrapper)
 
+	frontend.WrapAuthMiddleware(modifiers.AuthorizationExchangePAT)
+
 	if os.Getenv("CELLS_ENABLE_FORMS_DEVEL") == "1" {
 		config.RegisterExposedConfigs("pydio.rest.forms-devel", formDevelConfigs)
 	}
