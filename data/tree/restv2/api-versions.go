@@ -42,9 +42,9 @@ func (h *Handler) NodeVersions(req *restful.Request, resp *restful.Response) err
 	if filter.FilterBy != rest.VersionsTypes_VersionsAll {
 		mapFilter = make(map[string]string)
 		if filter.FilterBy == rest.VersionsTypes_DraftsOnly {
-			mapFilter["draftStatus"] = "draft"
+			mapFilter["draftStatus"] = "\"draft\""
 		} else {
-			mapFilter["draftStatus"] = "published"
+			mapFilter["draftStatus"] = "\"published\""
 		}
 	}
 	vcl := versionClient(ctx)
@@ -56,9 +56,14 @@ func (h *Handler) NodeVersions(req *restful.Request, resp *restful.Response) err
 		SortDesc:  filter.GetSortDirDesc(),
 		Filters:   mapFilter,
 	})
-	versions := []*rest.Version{} // Create an empty array on purpose
+	_, claims := permissions.FindUserNameInContext(ctx)
+	var versions []*rest.Version // Create an empty array on purpose
 	err := commons.ForEach(st, er, func(response *tree.ListVersionsResponse) error {
+		// Show only current user's drafts
 		vr := response.GetVersion()
+		if vr.Draft && vr.OwnerUuid != claims.Subject {
+			return nil
+		}
 		versions = append(versions, &rest.Version{
 			VersionId:   vr.GetVersionId(),
 			Description: vr.GetDescription(),

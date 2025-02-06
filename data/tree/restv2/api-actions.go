@@ -32,6 +32,7 @@ import (
 	"github.com/pydio/cells/v5/common/middleware"
 	"github.com/pydio/cells/v5/common/proto/jobs"
 	"github.com/pydio/cells/v5/common/proto/rest"
+	"github.com/pydio/cells/v5/common/proto/tree"
 	json "github.com/pydio/cells/v5/common/utils/jsonx"
 	"github.com/pydio/cells/v5/common/utils/std"
 	rest2 "github.com/pydio/cells/v5/scheduler/jobs/rest"
@@ -61,14 +62,28 @@ func (h *Handler) PerformAction(req *restful.Request, resp *restful.Response) er
 	var params map[string]interface{}
 
 	// Pre-parse params
+	ur := h.UuidClient(true)
 	for _, n := range input.GetNodes() {
-		inPaths = append(inPaths, n.GetPath())
+		if pa := n.GetPath(); pa != "" {
+			inPaths = append(inPaths, pa)
+		} else if uid := n.GetUuid(); uid != "" {
+			if rsp, er := ur.ReadNode(ctx, &tree.ReadNodeRequest{Node: &tree.Node{Uuid: uid}}); er != nil {
+				return errors.WithMessage(errors.NodeNotFound, "cannot find node with uuid "+uid)
+			} else {
+				inPaths = append(inPaths, rsp.GetNode().GetPath())
+			}
+		} else {
+			return errors.WithMessage(errors.InvalidParameters, "locators must provide at least a path or a uuid")
+		}
 	}
 	// deduplicate just in case
 	inPaths = std.Unique(inPaths)
 
 	if input.GetTargetNode() != nil {
 		outPath = input.GetTargetNode().GetPath()
+		if outPath == "" {
+			return errors.WithMessage(errors.InvalidParameters, "targetNode MUST provide a path")
+		}
 	}
 	if input.GetJsonParameters() != "" {
 		if er := json.Unmarshal([]byte(input.GetJsonParameters()), &params); er != nil {
@@ -154,7 +169,7 @@ func (h *Handler) PerformAction(req *restful.Request, resp *restful.Response) er
 		er = std.Retry(ctx, func() error {
 			var tasks []*rest.BackgroundAction
 			for _, j := range jj {
-				a, t, e := h.backgroundActionForJob(ctx, j.GetID())
+				a, t, e := h.backgroundActionForJob(ctx, actionName, j.GetID())
 				if e != nil || t == "" || a.Status != input.GetAwaitStatus() {
 					return fmt.Errorf("not ready")
 				}
@@ -176,6 +191,7 @@ func (h *Handler) PerformAction(req *restful.Request, resp *restful.Response) er
 		}
 		for _, j := range jj {
 			ar.BackgroundActions = append(ar.BackgroundActions, &rest.BackgroundAction{
+				Name:    actionName,
 				JobUuid: j.GetID(),
 				Label:   j.GetLabel(),
 				Status:  jobs.TaskStatus_Unknown,
@@ -188,7 +204,7 @@ func (h *Handler) PerformAction(req *restful.Request, resp *restful.Response) er
 // BackgroundActionInfo answers to GET /node/action/{Name}/{JobUuid}
 func (h *Handler) BackgroundActionInfo(req *restful.Request, resp *restful.Response) error {
 	ctx := req.Request.Context()
-	ba, _, er := h.backgroundActionForJob(ctx, req.PathParameter("JobUuid"))
+	ba, _, er := h.backgroundActionForJob(ctx, req.PathParameter("Name"), req.PathParameter("JobUuid"))
 	if er != nil {
 		return er
 	}
@@ -202,9 +218,10 @@ func (h *Handler) ControlBackgroundAction(req *restful.Request, resp *restful.Re
 		return err
 	}
 	ctx := req.Request.Context()
+	actionName := req.PathParameter("Name")
 	jobUuid := req.PathParameter("JobUuid")
 	// Find corresponding task
-	_, task, er := h.backgroundActionForJob(ctx, jobUuid)
+	_, task, er := h.backgroundActionForJob(ctx, actionName, jobUuid)
 	if er != nil {
 		return er
 	}
@@ -218,7 +235,7 @@ func (h *Handler) ControlBackgroundAction(req *restful.Request, resp *restful.Re
 		return errors.Tag(err, errors.StatusInternalServerError)
 	}
 
-	ba, _, er := h.backgroundActionForJob(ctx, jobUuid)
+	ba, _, er := h.backgroundActionForJob(ctx, actionName, jobUuid)
 	if er != nil {
 		return er
 	}
@@ -226,7 +243,7 @@ func (h *Handler) ControlBackgroundAction(req *restful.Request, resp *restful.Re
 	return resp.WriteEntity(ba)
 }
 
-func (h *Handler) backgroundActionForJob(ctx context.Context, id string) (*rest.BackgroundAction, string, error) {
+func (h *Handler) backgroundActionForJob(ctx context.Context, actionName, id string) (*rest.BackgroundAction, string, error) {
 	cli := jobsc.JobServiceClient(ctx)
 	j, e := cli.GetJob(ctx, &jobs.GetJobRequest{
 		JobID:     id,
@@ -237,6 +254,7 @@ func (h *Handler) backgroundActionForJob(ctx context.Context, id string) (*rest.
 	}
 	var taskUuid string
 	ba := &rest.BackgroundAction{
+		Name:    actionName,
 		JobUuid: j.GetJob().GetID(),
 		Label:   j.GetJob().GetLabel(),
 	}
