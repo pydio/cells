@@ -226,6 +226,8 @@ message Node {
 
   // Additional metadata for lifecycle
   bool IsDraft = 27;
+  // Known versions - attached when flags WithVersionsXXX are passed
+  repeated Version Versions = 28;
   // Additional metadata attached to a Version Node
   VersionMeta VersionMeta = 26;
 
@@ -318,6 +320,15 @@ message NodeLocators {
   repeated NodeLocator Many = 1;
 }
 
+enum Flag {
+  WithMetaDefaults = 0;
+  WithMetaCoreOnly = 1;
+  WithMetaNone = 2;
+  WithVersionsAll = 3;
+  WithVersionsDraft = 4;
+  WithVersionsPublished = 5;
+}
+
 // Request for list/search. Accepts either
 // - a list of Locators (using path/* will list a folder's first level children) to retrieve stats about nodes
 // - a Query to search nodes in a more flexible way
@@ -330,13 +341,13 @@ message LookupRequest {
   int64 Limit = 4;
   string SortField = 5;
   bool SortDirDesc = 6;
-  repeated uint32 StatFlags = 7;
+  repeated Flag Flags = 7;
 }
 
 enum VersionsTypes {
   VersionsAll = 0;
-  DraftsOnly = 1;
-  VersionsOnly = 2;
+  VersionsDraft = 1;
+  VersionsPublished = 2;
 }
 
 // Filter used for listVersions calls

@@ -199,6 +199,7 @@ const (
 	MetaNamespaceVersionId           = "versionId"
 	MetaNamespaceVersionDesc         = "versionDescription"
 	MetaNamespaceVersionDraft        = "versionDraft"
+	MetaNamespaceContentRevisions    = "contentRevisions"
 	MetaNamespaceNodeDraftMode       = "draft-mode"
 	MetaNamespaceGeoLocation         = "GeoLocation"
 	MetaNamespaceContents            = "Contents"

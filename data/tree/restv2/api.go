@@ -166,6 +166,14 @@ func (h *Handler) TreeNodeToNode(n *tree.Node) *rest.Node {
 				rn.VersionMeta.IsDraft = v == "true"
 			}
 
+		case common.MetaNamespaceContentRevisions:
+			var cc []*tree.ContentRevision
+			if er := json.Unmarshal([]byte(v), &cc); er == nil {
+				for _, c := range cc {
+					rn.Versions = append(rn.Versions, h.TreeContentRevisionToVersion(c))
+				}
+			}
+
 		case common.MetaNamespaceNodeDraftMode:
 			rn.IsDraft = true
 
@@ -211,6 +219,22 @@ func (h *Handler) TreeNodeToNode(n *tree.Node) *rest.Node {
 
 	}
 	return rn
+}
+
+// TreeContentRevisionToVersion adapts tree.ContentRevision to rest.Version format
+func (h *Handler) TreeContentRevisionToVersion(contentRevision *tree.ContentRevision) *rest.Version {
+	return &rest.Version{
+		VersionId:   contentRevision.GetVersionId(),
+		Description: contentRevision.GetDescription(),
+		Draft:       contentRevision.GetDraft(),
+		IsHead:      contentRevision.GetIsHead(),
+		MTime:       contentRevision.GetMTime(),
+		Size:        contentRevision.GetSize(),
+		ETag:        contentRevision.GetETag(),
+		ContentHash: contentRevision.GetContentHash(),
+		OwnerName:   contentRevision.GetOwnerName(),
+		OwnerUuid:   contentRevision.GetOwnerUuid(),
+	}
 }
 
 // Thumbnails feeds a rest.FilePreview struct with incoming metadata

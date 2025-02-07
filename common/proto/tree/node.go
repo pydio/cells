@@ -51,6 +51,9 @@ const (
 	StatFlagFolderCounts
 	StatFlagMetaMinimal
 	StatFlagRecursiveCount
+	StatFlagVersionsAll
+	StatFlagVersionsDraft
+	StatFlagVersionsPublished
 
 	StatFlagHeaderName = "x-pydio-read-stat-flags"
 )
@@ -68,6 +71,32 @@ func (f Flags) Metas() bool {
 		}
 	}
 	return true
+}
+
+func (f Flags) Versions() bool {
+	for _, fl := range f {
+		if fl == StatFlagVersionsAll || fl == StatFlagVersionsDraft || fl == StatFlagVersionsPublished {
+			return true
+		}
+	}
+	return false
+}
+
+func (f Flags) VersionsFilter() string {
+	for _, fl := range f {
+		switch fl {
+		case StatFlagVersionsAll:
+			return ""
+		case StatFlagVersionsDraft:
+			return "draft"
+		case StatFlagVersionsPublished:
+			return "published"
+		default:
+			continue
+		}
+	}
+	return ""
+
 }
 
 func (f Flags) FolderCounts() bool {

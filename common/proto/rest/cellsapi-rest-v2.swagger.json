@@ -793,6 +793,18 @@
       "title": "Description of an available preview",
       "type": "object"
     },
+    "restFlag": {
+      "default": "WithMetaDefaults",
+      "enum": [
+        "WithMetaDefaults",
+        "WithMetaCoreOnly",
+        "WithMetaNone",
+        "WithVersionsAll",
+        "WithVersionsDraft",
+        "WithVersionsPublished"
+      ],
+      "type": "string"
+    },
     "restImageMeta": {
       "properties": {
         "Height": {
@@ -901,6 +913,12 @@
     },
     "restLookupRequest": {
       "properties": {
+        "Flags": {
+          "items": {
+            "$ref": "#/definitions/restFlag"
+          },
+          "type": "array"
+        },
         "Limit": {
           "format": "int64",
           "type": "string"
@@ -920,13 +938,6 @@
         },
         "SortField": {
           "type": "string"
-        },
-        "StatFlags": {
-          "items": {
-            "format": "int64",
-            "type": "integer"
-          },
-          "type": "array"
         }
       },
       "title": "Request for list/search. Accepts either\n- a list of Locators (using path/* will list a folder's first level children) to retrieve stats about nodes\n- a Query to search nodes in a more flexible way",
@@ -1140,6 +1151,14 @@
         "VersionMeta": {
           "$ref": "#/definitions/restVersionMeta",
           "title": "Additional metadata attached to a Version Node"
+        },
+        "Versions": {
+          "items": {
+            "$ref": "#/definitions/restVersion",
+            "type": "object"
+          },
+          "title": "Known versions - attached when flags WithVersionsXXX are passed",
+          "type": "array"
         }
       },
       "required": [
@@ -1768,8 +1787,8 @@
       "default": "VersionsAll",
       "enum": [
         "VersionsAll",
-        "DraftsOnly",
-        "VersionsOnly"
+        "VersionsDraft",
+        "VersionsPublished"
       ],
       "type": "string"
     },

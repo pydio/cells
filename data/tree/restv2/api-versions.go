@@ -41,7 +41,7 @@ func (h *Handler) NodeVersions(req *restful.Request, resp *restful.Response) err
 	var mapFilter map[string]string
 	if filter.FilterBy != rest.VersionsTypes_VersionsAll {
 		mapFilter = make(map[string]string)
-		if filter.FilterBy == rest.VersionsTypes_DraftsOnly {
+		if filter.FilterBy == rest.VersionsTypes_VersionsDraft {
 			mapFilter["draftStatus"] = "\"draft\""
 		} else {
 			mapFilter["draftStatus"] = "\"published\""
@@ -64,18 +64,7 @@ func (h *Handler) NodeVersions(req *restful.Request, resp *restful.Response) err
 		if vr.Draft && vr.OwnerUuid != claims.Subject {
 			return nil
 		}
-		versions = append(versions, &rest.Version{
-			VersionId:   vr.GetVersionId(),
-			Description: vr.GetDescription(),
-			Draft:       vr.GetDraft(),
-			IsHead:      vr.GetIsHead(),
-			MTime:       vr.GetMTime(),
-			Size:        vr.GetSize(),
-			ETag:        vr.GetETag(),
-			ContentHash: vr.GetContentHash(),
-			OwnerName:   vr.GetOwnerName(),
-			OwnerUuid:   vr.GetOwnerUuid(),
-		})
+		versions = append(versions, h.TreeContentRevisionToVersion(vr))
 		return nil
 	})
 	if err != nil {
@@ -123,7 +112,7 @@ func (h *Handler) PromoteVersion(req *restful.Request, resp *restful.Response) e
 		}
 	}
 	// Re-read updated node
-	if tgr, err := pathClient.ReadNode(ctx, &tree.ReadNodeRequest{Node: targetNode}); err == nil {
+	if tgr, err := pathClient.ReadNode(ctx, &tree.ReadNodeRequest{Node: targetNode, StatFlags: tree.Flags{tree.StatFlagVersionsAll}}); err == nil {
 		targetNode = tgr.GetNode()
 	}
 

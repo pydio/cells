@@ -50,7 +50,7 @@ func (h *Handler) Lookup(req *restful.Request, resp *restful.Response) error {
 			Query:       input.GetQuery(),
 			Size:        int32(input.GetLimit()),
 			From:        int32(input.GetOffset()),
-			StatFlags:   input.GetStatFlags(),
+			StatFlags:   h.parseFlags(input.GetFlags()),
 			SortField:   input.GetSortField(),
 			SortDirDesc: input.GetSortDirDesc(),
 		}
@@ -80,13 +80,12 @@ func (h *Handler) Lookup(req *restful.Request, resp *restful.Response) error {
 		} else if len(byPaths) > 0 {
 			// Use TreeHandler
 			nn, coll.Pagination, er = h.TreeHandler.LoadNodes(ctx, &rest.GetBulkMetaRequest{
-				NodePaths:        byPaths,
-				AllMetaProviders: !tree.StatFlags(input.GetStatFlags()).MinimalMetas(),
-				Offset:           int32(input.GetOffset()),
-				Limit:            int32(input.GetLimit()),
-				SortField:        input.GetSortField(),
-				SortDirDesc:      input.GetSortDirDesc(),
-			})
+				NodePaths:   byPaths,
+				Offset:      int32(input.GetOffset()),
+				Limit:       int32(input.GetLimit()),
+				SortField:   input.GetSortField(),
+				SortDirDesc: input.GetSortDirDesc(),
+			}, h.parseFlags(input.GetFlags()))
 			if er != nil {
 				return er
 			}
@@ -111,7 +110,7 @@ func (h *Handler) Lookup(req *restful.Request, resp *restful.Response) error {
 
 }
 
-// GetByUuid is a simple call on a node
+// GetByUuid is a simple call on a node - it requires default stats
 func (h *Handler) GetByUuid(req *restful.Request, resp *restful.Response) error {
 	nodeUuid := req.PathParameter("Uuid")
 	router := h.UuidClient(true)
@@ -121,4 +120,22 @@ func (h *Handler) GetByUuid(req *restful.Request, resp *restful.Response) error 
 		return er
 	}
 	return resp.WriteEntity(h.TreeNodeToNode(rr.GetNode()))
+}
+
+func (h *Handler) parseFlags(ff []rest.Flag) (flags tree.Flags) {
+	for _, f := range ff {
+		switch f {
+		case rest.Flag_WithMetaCoreOnly:
+			flags = append(flags, tree.StatFlagMetaMinimal)
+		case rest.Flag_WithVersionsAll:
+			flags = append(flags, tree.StatFlagVersionsAll)
+		case rest.Flag_WithVersionsDraft:
+			flags = append(flags, tree.StatFlagVersionsDraft)
+		case rest.Flag_WithVersionsPublished:
+			flags = append(flags, tree.StatFlagVersionsPublished)
+		case rest.Flag_WithMetaNone:
+			flags = append(flags, tree.StatFlagNone)
+		}
+	}
+	return
 }

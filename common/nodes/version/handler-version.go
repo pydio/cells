@@ -91,7 +91,7 @@ func (v *Handler) ListNodes(ctx context.Context, in *tree.ListNodesRequest, opts
 		}
 		go func() {
 			defer streamer.CloseSend()
-			_ = commons.ForEach(versionStream, nil, func(vResp *tree.ListVersionsResponse) error {
+			_ = commons.ForEach(versionStream, er, func(vResp *tree.ListVersionsResponse) error {
 				log.Logger(ctx).Debug("received version", zap.Any("version", vResp))
 				vNode := resp.Node.Clone()
 				vNode.Etag = vResp.Version.ETag
@@ -109,9 +109,42 @@ func (v *Handler) ListNodes(ctx context.Context, in *tree.ListNodesRequest, opts
 		}()
 		return streamer, nil
 
-	} else {
-		return v.Next.ListNodes(ctx, in, opts...)
 	}
+
+	sflags := tree.StatFlags(in.GetStatFlags())
+	if sflags.Versions() {
+		streamer := nodes.NewWrappingStreamer(ctx)
+		st, e := v.Next.ListNodes(ctx, in, opts...)
+		if e != nil {
+			return st, e
+		}
+		go func() {
+			defer streamer.CloseSend()
+			_ = commons.ForEach(st, e, func(vResp *tree.ListNodesResponse) error {
+				vNode := vResp.GetNode().Clone()
+				var ff map[string]string
+				if filter := sflags.VersionsFilter(); filter != "" {
+					ff = map[string]string{"draftStatus": "\"" + filter + "\""}
+				}
+				versionStream, er := v.getVersionClient(ctx).ListVersions(ctx, &tree.ListVersionsRequest{Node: vResp.GetNode(), Filters: ff})
+				var vv []*tree.ContentRevision
+				if ver := commons.ForEach(versionStream, er, func(vResp *tree.ListVersionsResponse) error {
+					vv = append(vv, vResp.GetVersion())
+					return nil
+				}); ver != nil {
+					return ver
+				}
+				if len(vv) > 0 {
+					vNode.MustSetMeta(common.MetaNamespaceContentRevisions, vv)
+				}
+				return streamer.Send(&tree.ListNodesResponse{Node: vNode})
+			})
+		}()
+
+		return streamer, nil
+	}
+
+	return v.Next.ListNodes(ctx, in, opts...)
 
 }
 
@@ -140,6 +173,32 @@ func (v *Handler) ReadNode(ctx context.Context, req *tree.ReadNodeRequest, opts 
 		node.Size = vResp.Version.Size
 		return &tree.ReadNodeResponse{Node: node}, nil
 
+	}
+
+	sflags := tree.StatFlags(req.GetStatFlags())
+	if sflags.Versions() {
+
+		resp, er := v.Next.ReadNode(ctx, req, opts...)
+		if er != nil {
+			return nil, er
+		}
+		respNode := resp.GetNode().Clone()
+		var ff map[string]string
+		if filter := sflags.VersionsFilter(); filter != "" {
+			ff = map[string]string{"draftStatus": "\"" + filter + "\""}
+		}
+		versionStream, er := v.getVersionClient(ctx).ListVersions(ctx, &tree.ListVersionsRequest{Node: resp.GetNode(), Filters: ff})
+		var vv []*tree.ContentRevision
+		if ver := commons.ForEach(versionStream, er, func(vResp *tree.ListVersionsResponse) error {
+			vv = append(vv, vResp.GetVersion())
+			return nil
+		}); ver != nil {
+			return nil, ver
+		}
+		if len(vv) > 0 {
+			respNode.MustSetMeta(common.MetaNamespaceContentRevisions, vv)
+		}
+		return &tree.ReadNodeResponse{Node: respNode}, nil
 	}
 
 	return v.Next.ReadNode(ctx, req, opts...)

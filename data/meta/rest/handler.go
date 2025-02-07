@@ -33,14 +33,12 @@ import (
 
 	"github.com/pydio/cells/v5/common"
 	"github.com/pydio/cells/v5/common/broker"
-	"github.com/pydio/cells/v5/common/client/commons/treec"
 	"github.com/pydio/cells/v5/common/errors"
 	"github.com/pydio/cells/v5/common/nodes"
 	"github.com/pydio/cells/v5/common/nodes/compose"
 	"github.com/pydio/cells/v5/common/proto/rest"
 	"github.com/pydio/cells/v5/common/proto/tree"
 	"github.com/pydio/cells/v5/common/telemetry/log"
-	json "github.com/pydio/cells/v5/common/utils/jsonx"
 )
 
 type Handler struct {
@@ -67,7 +65,7 @@ func (h *Handler) GetMeta(req *restful.Request, resp *restful.Response) error {
 	}
 	ctx := req.Request.Context()
 	nsRequest.NodePath = p
-	node, err := h.loadNodeByPath(ctx, nsRequest.NodePath, false)
+	node, err := h.loadNodeByPath(ctx, nsRequest.NodePath, tree.Flags{tree.StatFlagFolderCounts})
 	if err != nil {
 		return err
 	}
@@ -82,7 +80,7 @@ func (h *Handler) GetBulkMeta(req *restful.Request, resp *restful.Response) erro
 	}
 	output := &rest.BulkMetaResponse{}
 	ctx := req.Request.Context()
-	nn, pag, err := h.LoadNodes(ctx, &bulkRequest)
+	nn, pag, err := h.LoadNodes(ctx, &bulkRequest, tree.Flags{})
 	if err != nil {
 		return err
 	}
@@ -93,11 +91,12 @@ func (h *Handler) GetBulkMeta(req *restful.Request, resp *restful.Response) erro
 	return resp.WriteEntity(output)
 }
 
-func (h *Handler) LoadNodes(ctx context.Context, bulkRequest *rest.GetBulkMetaRequest) (nn []*tree.Node, pagination *rest.Pagination, er error) {
+func (h *Handler) LoadNodes(ctx context.Context, bulkRequest *rest.GetBulkMetaRequest, flags tree.Flags) (nn []*tree.Node, pagination *rest.Pagination, er error) {
 	var folderNodes []*tree.Node
+	flags = append(flags, tree.StatFlagFolderCounts)
 	for _, p := range bulkRequest.NodePaths {
 		if strings.HasSuffix(p, "/*") || bulkRequest.Versions {
-			if readResp, err := h.loadNodeByPath(ctx, strings.TrimSuffix(p, "/*"), true); err == nil {
+			if readResp, err := h.loadNodeByPath(ctx, strings.TrimSuffix(p, "/*"), flags); err == nil {
 				pathExt := strings.ToLower(filepath.Ext(readResp.Path))
 				if pathExt == ".zip" || pathExt == ".tar" || pathExt == ".tar.gz" {
 					readResp.Path += "/"
@@ -129,7 +128,7 @@ func (h *Handler) LoadNodes(ctx context.Context, bulkRequest *rest.GetBulkMetaRe
 			if asFolder {
 				continue
 			}
-			if node, err := h.loadNodeByPath(ctx, p, bulkRequest.AllMetaProviders); err == nil {
+			if node, err := h.loadNodeByPath(ctx, p, flags); err == nil {
 				nn = append(nn, node.WithoutReservedMetas())
 			}
 		}
@@ -162,6 +161,7 @@ func (h *Handler) LoadNodes(ctx context.Context, bulkRequest *rest.GetBulkMetaRe
 			Limit:        int64(bulkRequest.Limit),
 			SortField:    bulkRequest.SortField,
 			SortDirDesc:  bulkRequest.SortDirDesc,
+			StatFlags:    flags,
 		}
 		hasFilter := false
 		for k, v := range bulkRequest.GetFilters() {
@@ -254,74 +254,14 @@ func (h *Handler) LoadNodes(ctx context.Context, bulkRequest *rest.GetBulkMetaRe
 }
 
 func (h *Handler) SetMeta(req *restful.Request, resp *restful.Response) error {
-
-	p := req.PathParameter("NodePath")
-	var metaCollection rest.MetaCollection
-	if err := req.ReadEntity(&metaCollection); err != nil {
-		return err
-	}
-	node, err := h.loadNodeByPath(req.Request.Context(), p, false)
-	if err != nil {
-		return err
-	}
-	for _, m := range metaCollection.Metadatas {
-		ns := m.Namespace
-		var mm map[string]interface{}
-		e := json.Unmarshal([]byte(m.JsonMeta), &mm)
-		if e == nil {
-			node.MustSetMeta(ns, mm)
-		}
-	}
-	ctx := req.Request.Context()
-	er := h.GetRouter().WrapCallback(func(inputFilter nodes.FilterFunc, outputFilter nodes.FilterFunc) error {
-		ctx, node, _ = inputFilter(ctx, node, "in")
-
-		cli := treec.ServiceNodeReceiverClient(ctx, common.ServiceMeta)
-		if _, er := cli.UpdateNode(ctx, &tree.UpdateNodeRequest{From: node, To: node}); er != nil {
-			log.Logger(ctx).Error("Failed to change the meta data", zap.Error(er))
-			return er
-		}
-		return nil
-	})
-	if er != nil {
-		log.Logger(ctx).Error("Failed to change the meta data", zap.Error(er))
-		return er
-	}
-	return resp.WriteEntity(node.WithoutReservedMetas())
+	// DEPRECATED
+	return errors.WithMessage(errors.StatusForbidden, "This API is deprecated")
 
 }
 
 func (h *Handler) DeleteMeta(req *restful.Request, resp *restful.Response) error {
-
-	p := req.PathParameter("NodePath")
-	var nsRequest rest.MetaNamespaceRequest
-	if err := req.ReadEntity(&nsRequest); err != nil {
-		return err
-	}
-	nsRequest.NodePath = p
-	node, err := h.loadNodeByPath(req.Request.Context(), nsRequest.NodePath, false)
-	if err != nil {
-		return err
-	}
-	for _, ns := range nsRequest.Namespace {
-		node.MustSetMeta(ns, "")
-	}
-
-	ctx := req.Request.Context()
-	er := h.GetRouter().WrapCallback(func(inputFilter nodes.FilterFunc, outputFilter nodes.FilterFunc) error {
-		ctx, node, _ = inputFilter(ctx, node, "in")
-
-		cli := treec.ServiceNodeReceiverClient(ctx, common.ServiceMeta)
-		if _, er := cli.UpdateNode(ctx, &tree.UpdateNodeRequest{From: node, To: node}); er != nil {
-			return er
-		}
-		return nil
-	})
-	if er != nil {
-		return er
-	}
-	return resp.WriteEntity(node.WithoutReservedMetas())
-
+	// DEPRECATED
+	return errors.WithMessage(errors.StatusForbidden, "This API is deprecated")
 }
 
 func (h *Handler) GetRouter() nodes.Client {
@@ -331,16 +271,15 @@ func (h *Handler) GetRouter() nodes.Client {
 	return h.router
 }
 
-func (h *Handler) loadNodeByPath(ctx context.Context, nodePath string, loadExtended bool) (*tree.Node, error) {
-
+func (h *Handler) loadNodeByPath(ctx context.Context, nodePath string, flags tree.Flags) (*tree.Node, error) {
 	nodePath = strings.TrimSuffix(nodePath, "/")
 	response, err := h.GetRouter().ReadNode(ctx, &tree.ReadNodeRequest{
-		StatFlags: []uint32{tree.StatFlagFolderCounts},
+		StatFlags: flags,
 		Node: &tree.Node{
 			Path: nodePath,
 		},
 	})
-	log.Logger(ctx).Debug("Querying Tree Service by Path: ", zap.String("p", nodePath), zap.Bool("withExtended", loadExtended), zap.Any("resp", response), zap.Error(err))
+	log.Logger(ctx).Debug("Querying Tree Service by Path: ", zap.String("p", nodePath), zap.Any("flags", flags), zap.Any("resp", response), zap.Error(err))
 
 	if err != nil {
 		return nil, err
