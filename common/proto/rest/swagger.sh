@@ -56,7 +56,7 @@ if [[ -n "${GENERATE_SDKS_V1}" ]]; then
 
   echo "Generate Javascript version"
   [ -z "$BRANCH_PATH" ] && BRANCH_PATH=$GOPATH
-  [ -z "$MODULE_SRC_PATH" ] && MODULE_SRC_PATH=~/Sources/cells-sdk-js/src
+  [ -z "$MODULE_SRC_PATH" ] && MODULE_SRC_PATH=${GENERATE_SDKS_V1}/cells-sdk-js/src
 
   openapi-generator generate -i $BRANCH_PATH/src/github.com/pydio/cells/common/proto/rest/cellsapi-rest.swagger.json -g javascript -c swagger-jsclient.json -o /tmp/js-client
   rm -rf $MODULE_SRC_PATH

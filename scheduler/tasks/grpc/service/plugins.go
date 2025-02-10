@@ -96,6 +96,7 @@ func init() {
 					common.TopicJobConfigEvent,
 					common.TopicTreeChanges,
 					common.TopicMetaChanges,
+					common.TopicChatEvent,
 				}
 				for _, topic := range topics {
 					if er = broker.SubscribeCancellable(c, topic, func(ctx context.Context, msg broker.Message) error {

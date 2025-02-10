@@ -72,6 +72,7 @@ type ActionGetter interface {
 	GetTriggerFilter() *TriggerFilter
 	GetDataSelector() *DataSelector
 	GetDataFilter() *DataSelector
+	GetChatEventFilter() *ChatEventFilter
 	GetParameters() map[string]string
 	GetChainedActions() []*Action
 	GetFailedFilterActions() []*Action
@@ -98,6 +99,7 @@ type ActionSetter interface {
 	SetTriggerFilter(*TriggerFilter)
 	SetDataSelector(*DataSelector)
 	SetDataFilter(*DataSelector)
+	SetChatEventFilter(*ChatEventFilter)
 	SetParameters(map[string]string)
 	SetChainedActions([]*Action)
 	SetFailedFilterActions([]*Action)
@@ -237,6 +239,13 @@ func (x *Action) SetDataFilter(v *DataSelector) {
 
 	x.DataFilter = v
 }
+func (x *Action) SetChatEventFilter(v *ChatEventFilter) {
+	if x == nil {
+		x = new(Action)
+	}
+
+	x.ChatEventFilter = v
+}
 func (x *Action) SetParameters(v map[string]string) {
 	if x == nil {
 		x = new(Action)
@@ -312,6 +321,7 @@ type JobGetter interface {
 	GetIdmFilter() *IdmSelector
 	GetContextMetaFilter() *ContextMetaFilter
 	GetDataSourceFilter() *DataSourceSelector
+	GetChatEventFilter() *ChatEventFilter
 	GetParameters() []*JobParameter
 	GetResourcesDependencies() []*anypb.Any
 	GetTimeout() string
@@ -344,6 +354,7 @@ type JobSetter interface {
 	SetIdmFilter(*IdmSelector)
 	SetContextMetaFilter(*ContextMetaFilter)
 	SetDataSourceFilter(*DataSourceSelector)
+	SetChatEventFilter(*ChatEventFilter)
 	SetParameters([]*JobParameter)
 	SetResourcesDependencies([]*anypb.Any)
 	SetTimeout(string)
@@ -518,6 +529,13 @@ func (x *Job) SetDataSourceFilter(v *DataSourceSelector) {
 	}
 
 	x.DataSourceFilter = v
+}
+func (x *Job) SetChatEventFilter(v *ChatEventFilter) {
+	if x == nil {
+		x = new(Job)
+	}
+
+	x.ChatEventFilter = v
 }
 func (x *Job) SetParameters(v []*JobParameter) {
 	if x == nil {

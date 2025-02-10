@@ -2361,6 +2361,10 @@
           "title": "Other actions to perform after this one is finished,\nusing the Output of this action as Input for the next.\nIf there are many, it is considered they can be triggered\nin parallel",
           "type": "array"
         },
+        "ChatEventFilter": {
+          "$ref": "#/definitions/jobsChatEventFilter",
+          "title": "Filter values from ChatEvent"
+        },
         "ContextMetaFilter": {
           "$ref": "#/definitions/jobsContextMetaFilter",
           "title": "Metadata policy-based filter"
@@ -2595,6 +2599,23 @@
         }
       },
       "title": "ActionOutputFilter can be used to filter last message output",
+      "type": "object"
+    },
+    "jobsChatEventFilter": {
+      "properties": {
+        "Description": {
+          "title": "Selector additional description",
+          "type": "string"
+        },
+        "Label": {
+          "title": "Selector custom label",
+          "type": "string"
+        },
+        "Query": {
+          "$ref": "#/definitions/serviceQuery",
+          "title": "Query used to compute output object or list of objects"
+        }
+      },
       "type": "object"
     },
     "jobsCommand": {
@@ -2879,6 +2900,10 @@
         "AutoStart": {
           "title": "Start task as soon as job is inserted",
           "type": "boolean"
+        },
+        "ChatEventFilter": {
+          "$ref": "#/definitions/jobsChatEventFilter",
+          "title": "Filter values from ChatEvent"
         },
         "ContextMetaFilter": {
           "$ref": "#/definitions/jobsContextMetaFilter",

@@ -23,6 +23,7 @@ package tasks
 import (
 	"context"
 	"fmt"
+	"html"
 	"strings"
 
 	"go.uber.org/zap"
@@ -34,6 +35,7 @@ import (
 	"github.com/pydio/cells/v5/common/client/grpc"
 	"github.com/pydio/cells/v5/common/config"
 	"github.com/pydio/cells/v5/common/permissions"
+	"github.com/pydio/cells/v5/common/proto/chat"
 	"github.com/pydio/cells/v5/common/proto/idm"
 	"github.com/pydio/cells/v5/common/proto/jobs"
 	"github.com/pydio/cells/v5/common/proto/object"
@@ -127,6 +129,11 @@ func (s *Subscriber) Consume(ctx context.Context, topic string, msg broker.Messa
 		js := &jobs.JobChangeEvent{}
 		if ctx, e = msg.Unmarshal(ctx, js); e == nil {
 			return s.jobsChangeEvent(ctx, js)
+		}
+	case common.TopicChatEvent:
+		ce := &chat.ChatEvent{}
+		if ctx, e = msg.Unmarshal(ctx, ce); e == nil {
+			return s.chatEvent(ctx, ce)
 		}
 	case common.TopicTreeChanges:
 		if fromQueue {
@@ -433,6 +440,50 @@ func (s *Subscriber) idmEvent(ctx context.Context, event *idm.ChangeEvent) error
 	})
 }
 
+// chatEvent Reacts to a trigger linked to a chat.ChatEvent
+func (s *Subscriber) chatEvent(ctx context.Context, event *chat.ChatEvent) error {
+
+	defCache, _ := s.definitionsPool.Get(ctx)
+	return defCache.Iterate(func(jobId string, val interface{}) {
+		jobData, ok := val.(*jobs.Job)
+		if !ok || jobData.Inactive {
+			return
+		}
+
+		if len(jobData.EventNames) == 0 {
+			return
+		}
+		sameJob := s.contextJobSameUuid(ctx, jobId)
+		tCtx := s.prepareTaskContext(ctx, jobData, true, nil)
+		if jobData.ContextMetaFilter != nil && !s.jobLevelContextFilterPass(tCtx, jobData.ContextMetaFilter) {
+			return
+		}
+		if event.Message != nil && event.Message.Message != "" {
+			// ChatMessages are sanitized, and produce HTML Entities, we must re-decode them with Unescape
+			event.Message.Message = html.UnescapeString(event.Message.Message)
+		}
+		if jobData.ChatEventFilter != nil {
+			if _, _, ok := jobData.ChatEventFilter.Filter(tCtx, createMessageFromEvent(event)); !ok {
+				return
+			}
+		}
+		for _, eName := range jobData.EventNames {
+			if jobs.MatchesChatEvent(eName, event) {
+				if sameJob {
+					log.Logger(tCtx).Debug("Prevent loop for job " + jobData.Label + " on event " + eName)
+					continue
+				}
+				if err := s.requiresUnsupportedCapacity(ctx, jobData); err != nil {
+					continue
+				}
+				log.Logger(tCtx).Debug("Run Job " + jobId + " on event " + eName)
+				s.enqueue(tCtx, jobData, event)
+			}
+		}
+	})
+
+}
+
 // jobLevelFilterPass checks if a node must go through jobs at all (if there is a NodesSelector on the job level)
 func (s *Subscriber) jobLevelFilterPass(ctx context.Context, event *tree.NodeChangeEvent, filter *jobs.NodesSelector) bool {
 	var refNode *tree.Node
@@ -547,6 +598,11 @@ func createMessageFromEvent(event interface{}) *jobs.ActionMessage {
 		if idmEvent.Acl != nil {
 			initialInput = initialInput.WithAcl(idmEvent.Acl)
 		}
+
+	} else if chatEvent, ok := event.(*chat.ChatEvent); ok {
+
+		ap, _ := anypb.New(chatEvent)
+		initialInput.Event = ap
 
 	}
 

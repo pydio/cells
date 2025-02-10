@@ -134,9 +134,13 @@ func (m *mongoImpl) ListRooms(ctx context.Context, request *proto.ListRoomsReque
 }
 
 func (m *mongoImpl) RoomByUuid(ctx context.Context, byType proto.RoomType, roomUUID string) (*proto.ChatRoom, error) {
-	single := m.db.Collection("rooms").FindOne(ctx, bson.D{
-		{"type", byType}, {"uuid", roomUUID},
-	})
+	search := bson.D{
+		{"uuid", roomUUID},
+	}
+	if byType != proto.RoomType_ANY {
+		search = append(search, bson.E{Key: "type", Value: byType})
+	}
+	single := m.db.Collection("rooms").FindOne(ctx, search)
 	if single.Err() != nil {
 		return nil, single.Err()
 	}
