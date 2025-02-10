@@ -1084,7 +1084,7 @@ importers:
         version: 2.1692.0
       cells-sdk:
         specifier: github:pydio/cells-sdk-js#next
-        version: https://codeload.github.com/pydio/cells-sdk-js/tar.gz/29142aa0af58749517265e5569f1b1306ae9a377
+        version: https://codeload.github.com/pydio/cells-sdk-js/tar.gz/b8005a642f422ed81e2dc16db7c74207cc1f98fd
       classnames:
         specifier: ~2.1.3
         version: 2.1.5
@@ -3170,8 +3170,8 @@ packages:
   ccount@2.0.1:
     resolution: {integrity: sha512-eyrF0jiFpY+3drT6383f1qhkbGsLSifNAjA61IUjZjmLCWjItY6LB9ft9YhoDgwfmclB2zhu51Lc7+95b8NRAg==}
 
-  cells-sdk@https://codeload.github.com/pydio/cells-sdk-js/tar.gz/29142aa0af58749517265e5569f1b1306ae9a377:
-    resolution: {tarball: https://codeload.github.com/pydio/cells-sdk-js/tar.gz/29142aa0af58749517265e5569f1b1306ae9a377}
+  cells-sdk@https://codeload.github.com/pydio/cells-sdk-js/tar.gz/b8005a642f422ed81e2dc16db7c74207cc1f98fd:
+    resolution: {tarball: https://codeload.github.com/pydio/cells-sdk-js/tar.gz/b8005a642f422ed81e2dc16db7c74207cc1f98fd}
     version: 3.0.0
 
   chain-function@1.0.1:
@@ -8797,7 +8797,7 @@ snapshots:
 
   ccount@2.0.1: {}
 
-  cells-sdk@https://codeload.github.com/pydio/cells-sdk-js/tar.gz/29142aa0af58749517265e5569f1b1306ae9a377:
+  cells-sdk@https://codeload.github.com/pydio/cells-sdk-js/tar.gz/b8005a642f422ed81e2dc16db7c74207cc1f98fd:
     dependencies:
       superagent: 6.1.0
     transitivePeerDependencies:
