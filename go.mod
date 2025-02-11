@@ -118,13 +118,13 @@ require (
 	go.uber.org/zap v1.27.0
 	gocloud.dev v0.20.0
 	gocloud.dev/pubsub/rabbitpubsub v0.20.0
-	golang.org/x/crypto v0.31.0
+	golang.org/x/crypto v0.33.0
 	golang.org/x/exp v0.0.0-20240604190554-fc45aab8b7f8
 	golang.org/x/image v0.19.0
-	golang.org/x/net v0.31.0
+	golang.org/x/net v0.35.0
 	golang.org/x/oauth2 v0.20.0
-	golang.org/x/sync v0.10.0
-	golang.org/x/text v0.21.0
+	golang.org/x/sync v0.11.0
+	golang.org/x/text v0.22.0
 	golang.org/x/time v0.5.0
 	google.golang.org/genproto/googleapis/api v0.0.0-20240506185236-b8a5c65736ae
 	google.golang.org/grpc v1.63.2
@@ -495,8 +495,8 @@ require (
 	golang.org/x/crypto/x509roots/fallback v0.0.0-20240507223354-67b13616a595 // indirect
 	golang.org/x/lint v0.0.0-20210508222113-6edffad5e616 // indirect
 	golang.org/x/mod v0.22.0 // indirect
-	golang.org/x/sys v0.28.0 // indirect
-	golang.org/x/term v0.27.0 // indirect
+	golang.org/x/sys v0.30.0 // indirect
+	golang.org/x/term v0.29.0 // indirect
 	golang.org/x/tools v0.27.0 // indirect
 	golang.org/x/xerrors v0.0.0-20231012003039-104605ab7028 // indirect
 	google.golang.org/api v0.180.0 // indirect
@@ -516,9 +516,9 @@ require (
 // That one was published 6 months before official release ;-)
 retract v4.0.0
 
-replace github.com/minio/minio => github.com/pydio/minio v0.0.0-20250113172650-4cb7bcc847db
+replace github.com/minio/minio => github.com/pydio/minio v0.0.0-20250211141632-fd38661ac313
 
-//replace github.com/minio/minio => ../minio
+// replace github.com/minio/minio => ../minio
 
 //replace github.com/ory/x => /Users/charles/Sources/go/src/github.com/cdujeu/x
 replace github.com/ory/x => github.com/cdujeu/x v0.0.369-0.20240206135400-5f79e7bb2cd2
