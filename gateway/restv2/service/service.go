@@ -26,7 +26,7 @@ import (
 	"github.com/pydio/cells/v5/common"
 	"github.com/pydio/cells/v5/common/runtime"
 	"github.com/pydio/cells/v5/common/service"
-	"github.com/pydio/cells/v5/data/tree/restv2"
+	"github.com/pydio/cells/v5/gateway/restv2"
 )
 
 const Name = "n"

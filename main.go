@@ -65,7 +65,6 @@ import (
 	_ "github.com/pydio/cells/v5/data/templates/rest/service"
 	_ "github.com/pydio/cells/v5/data/tree/grpc/service"
 	_ "github.com/pydio/cells/v5/data/tree/rest/service"
-	_ "github.com/pydio/cells/v5/data/tree/restv2/service"
 	_ "github.com/pydio/cells/v5/data/versions/grpc/service"
 
 	// DataSources DAOs
@@ -122,6 +121,7 @@ import (
 	_ "github.com/pydio/cells/v5/gateway/data"
 	_ "github.com/pydio/cells/v5/gateway/dav"
 	_ "github.com/pydio/cells/v5/gateway/metrics"
+	_ "github.com/pydio/cells/v5/gateway/restv2/service"
 	_ "github.com/pydio/cells/v5/gateway/websocket/service"
 	_ "github.com/pydio/cells/v5/gateway/wopi"
 
