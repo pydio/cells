@@ -429,12 +429,34 @@ enum UserActionType {
   compress = 5;
 }
 
+// Delete specific options
+message ActionOptionsDelete {
+  bool PermanentDelete = 1;
+}
+
+// Copy/Move specific options
+message ActionOptionsCopyMove {
+  string TargetPath = 1 [(google.api.field_behavior) = REQUIRED];
+  bool TargetIsParent = 2;
+}
+
+// Extract/Compress specific options
+message ActionOptionsExtractCompress {
+  string TargetPath = 1 [(google.api.field_behavior) = REQUIRED];
+  string ArchiveFormat = 2 [(google.api.field_behavior) = REQUIRED];
+}
+
 // Parameters used by actions. Some may use Nodes/TargetNode, but not necessarily
 message ActionParameters {
   repeated NodeLocator Nodes = 2;
-  NodeLocator TargetNode = 3;
   string SelectionUuid = 4;
+  // Should be deprecated in favor of ActionOptions
   string JsonParameters = 5;
+  oneof ActionOptions {
+    ActionOptionsDelete DeleteOptions = 3;
+    ActionOptionsCopyMove CopyMoveOptions = 8;
+    ActionOptionsExtractCompress ExtractCompressOptions = 9;
+  }
 
   // Optionally wait for the task to exist with a specific status
   jobs.TaskStatus AwaitStatus = 6;

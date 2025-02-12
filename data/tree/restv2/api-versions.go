@@ -237,14 +237,17 @@ func (h *Handler) DeleteVersion(req *restful.Request, resp *restful.Response) er
 		log.Logger(ctx).Error("Could not delete draft version blob", v.GetLocation().Zap())
 	}
 
+	rsp := &rest.DeleteVersionResponse{
+		Success: true,
+	}
+
 	if len(vv) == 0 {
 		log.Logger(ctx).Info("Now we should also delete the node it it has no more versions")
 		if _, er = router.DeleteNode(ctx, &tree.DeleteNodeRequest{Node: targetNode, Silent: true}); er != nil {
 			return er
 		}
+		rsp.EmptyNodeDeleted = true
 	}
-
-	rsp := &rest.PromoteVersionResponse{}
 
 	return resp.WriteEntity(rsp)
 }

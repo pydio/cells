@@ -33,7 +33,6 @@ import (
 	"github.com/pydio/cells/v5/common/proto/jobs"
 	"github.com/pydio/cells/v5/common/proto/rest"
 	"github.com/pydio/cells/v5/common/proto/tree"
-	json "github.com/pydio/cells/v5/common/utils/jsonx"
 	"github.com/pydio/cells/v5/common/utils/std"
 	rest2 "github.com/pydio/cells/v5/scheduler/jobs/rest"
 	"github.com/pydio/cells/v5/scheduler/jobs/userspace"
@@ -56,13 +55,11 @@ func (h *Handler) PerformAction(req *restful.Request, resp *restful.Response) er
 	ll := middleware.DetectedLanguages(ctx)
 	var jj []*jobs.Job
 	router := h.TreeHandler.GetRouter()
+	ur := h.UuidClient(true)
 
 	var inPaths []string
-	var outPath string
-	var params map[string]interface{}
 
 	// Pre-parse params
-	ur := h.UuidClient(true)
 	for _, n := range input.GetNodes() {
 		if pa := n.GetPath(); pa != "" {
 			inPaths = append(inPaths, pa)
@@ -79,50 +76,34 @@ func (h *Handler) PerformAction(req *restful.Request, resp *restful.Response) er
 	// deduplicate just in case
 	inPaths = std.Unique(inPaths)
 
-	if input.GetTargetNode() != nil {
-		outPath = input.GetTargetNode().GetPath()
-		if outPath == "" {
-			return errors.WithMessage(errors.InvalidParameters, "targetNode MUST provide a path")
-		}
-	}
-	if input.GetJsonParameters() != "" {
-		if er := json.Unmarshal([]byte(input.GetJsonParameters()), &params); er != nil {
-			return errors.Tag(er, errors.UnmarshalError)
-		}
-	}
-
 	switch actionID {
 	case rest.UserActionType_copy, rest.UserActionType_move:
-
-		if len(inPaths) == 0 || outPath == "" {
-			return errors.WithMessage(errors.StatusBadRequest, "invalid action parameters")
+		cmo := input.GetCopyMoveOptions()
+		if len(inPaths) == 0 || cmo == nil || cmo.GetTargetPath() == "" {
+			return errors.WithMessage(errors.StatusBadRequest, "invalid delete parameters (no input nodes or target path)")
 		}
-		var targetIsParent bool
-		if params != nil {
-			p, ok := params["targetParent"]
-			targetIsParent = ok && p == true
-		}
-		j, er := userspace.CopyMoveTask(ctx, router, inPaths, outPath, targetIsParent, actionID == rest.UserActionType_move, ll...)
+		targetIsParent := cmo.GetTargetIsParent()
+		j, er := userspace.CopyMoveTask(ctx, router, inPaths, cmo.GetTargetPath(), targetIsParent, actionID == rest.UserActionType_move, ll...)
 		if er != nil {
 			return errors.Tag(er, errors.StatusInternalServerError)
 		}
 		jj = append(jj, j)
 
 	case rest.UserActionType_compress, rest.UserActionType_extract:
-
-		if len(inPaths) == 0 || outPath == "" || params == nil {
-			return errors.WithMessage(errors.StatusBadRequest, "invalid action parameters")
+		archiveOptions := input.GetExtractCompressOptions()
+		if len(inPaths) == 0 || archiveOptions == nil || archiveOptions.GetTargetPath() == "" {
+			return errors.WithMessage(errors.StatusBadRequest, "invalid action parameters (no input nodes found or target path)")
 		}
-		format, ok := params["format"]
-		if !ok {
+		format := archiveOptions.GetArchiveFormat()
+		if format == "" {
 			return errors.WithMessage(errors.StatusBadRequest, "invalid action parameters (missing format)")
 		}
 		var job *jobs.Job
 		var er error
 		if actionID == rest.UserActionType_compress {
-			job, er = userspace.CompressTask(ctx, router, inPaths, outPath, format.(string), ll...)
+			job, er = userspace.CompressTask(ctx, router, inPaths, archiveOptions.GetTargetPath(), archiveOptions.GetArchiveFormat(), ll...)
 		} else {
-			job, er = userspace.ExtractTask(ctx, router, inPaths[0], outPath, format.(string), ll...)
+			job, er = userspace.ExtractTask(ctx, router, inPaths[0], archiveOptions.GetTargetPath(), archiveOptions.GetArchiveFormat(), ll...)
 		}
 		if er != nil {
 			return errors.Tag(er, errors.StatusInternalServerError)
@@ -135,9 +116,8 @@ func (h *Handler) PerformAction(req *restful.Request, resp *restful.Response) er
 			return errors.WithMessage(errors.StatusBadRequest, "invalid action parameters")
 		}
 		var removePermanently bool
-		if params != nil {
-			p, ok := params["permanent"]
-			removePermanently = ok && p == true
+		if delOpts := input.GetDeleteOptions(); delOpts != nil {
+			removePermanently = delOpts.GetPermanentDelete()
 		}
 		delJobs, er := userspace.DeleteNodesTask(ctx, router, inPaths, removePermanently, ll...)
 		if er != nil {

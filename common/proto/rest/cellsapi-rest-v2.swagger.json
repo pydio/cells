@@ -476,6 +476,46 @@
       },
       "type": "object"
     },
+    "restActionOptionsCopyMove": {
+      "properties": {
+        "TargetIsParent": {
+          "type": "boolean"
+        },
+        "TargetPath": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "TargetPath"
+      ],
+      "title": "Copy/Move specific options",
+      "type": "object"
+    },
+    "restActionOptionsDelete": {
+      "properties": {
+        "PermanentDelete": {
+          "type": "boolean"
+        }
+      },
+      "title": "Delete specific options",
+      "type": "object"
+    },
+    "restActionOptionsExtractCompress": {
+      "properties": {
+        "ArchiveFormat": {
+          "type": "string"
+        },
+        "TargetPath": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "TargetPath",
+        "ArchiveFormat"
+      ],
+      "title": "Extract/Compress specific options",
+      "type": "object"
+    },
     "restActionParameters": {
       "properties": {
         "AwaitStatus": {
@@ -486,7 +526,17 @@
           "title": "Define a golang duration to wait for",
           "type": "string"
         },
+        "CopyMoveOptions": {
+          "$ref": "#/definitions/restActionOptionsCopyMove"
+        },
+        "DeleteOptions": {
+          "$ref": "#/definitions/restActionOptionsDelete"
+        },
+        "ExtractCompressOptions": {
+          "$ref": "#/definitions/restActionOptionsExtractCompress"
+        },
         "JsonParameters": {
+          "title": "Should be deprecated in favor of ActionOptions",
           "type": "string"
         },
         "Nodes": {
@@ -498,9 +548,6 @@
         },
         "SelectionUuid": {
           "type": "string"
-        },
-        "TargetNode": {
-          "$ref": "#/definitions/restNodeLocator"
         }
       },
       "title": "Parameters used by actions. Some may use Nodes/TargetNode, but not necessarily",

@@ -260,6 +260,10 @@ func (s *sqlimpl) ListPolicyGroups(ctx context.Context, filter string) (groups [
 			for _, sub := range p.OrmSubjects {
 				p.Subjects = append(p.Subjects, sub.Template)
 			}
+			// These should not be exposed to outside world
+			p.OrmActions = nil
+			p.OrmResources = nil
+			p.OrmSubjects = nil
 		}
 	}
 
