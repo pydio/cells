@@ -241,8 +241,8 @@ func (h *Handler) DeleteVersion(req *restful.Request, resp *restful.Response) er
 		Success: true,
 	}
 
-	if len(vv) == 0 {
-		log.Logger(ctx).Info("Now we should also delete the node it it has no more versions")
+	if targetNode.HasMetaKey(common.MetaNamespaceNodeDraftMode) && len(vv) == 0 {
+		log.Logger(ctx).Info("Now we should also delete the draft node as it has no more versions")
 		if _, er = router.DeleteNode(ctx, &tree.DeleteNodeRequest{Node: targetNode, Silent: true}); er != nil {
 			return er
 		}
