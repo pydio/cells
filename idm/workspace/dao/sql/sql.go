@@ -28,6 +28,7 @@ import (
 	"google.golang.org/protobuf/proto"
 	"google.golang.org/protobuf/types/known/anypb"
 	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
 
 	"github.com/pydio/cells/v5/common"
 	"github.com/pydio/cells/v5/common/errors"
@@ -68,8 +69,10 @@ func (s *sqlimpl) Add(ctx context.Context, in interface{}) (bool, error) {
 	var exSlug string
 	exist := &idm.Workspace{UUID: ws.UUID}
 	session := s.Session(ctx)
+	isUpdate := false
 	if tx := session.First(exist); tx.Error == nil {
 		exSlug = exist.Slug
+		isUpdate = true
 	}
 	if (exSlug == "" || exSlug != ws.Slug) && s.slugExists(ctx, ws.Slug) {
 		index := 1
@@ -85,12 +88,11 @@ func (s *sqlimpl) Add(ctx context.Context, in interface{}) (bool, error) {
 		ws.Slug = testSlug
 	}
 
-	tx := session.FirstOrCreate(ws)
-	if err := tx.Error; err != nil {
-		return false, err
+	if tx := session.Clauses(clause.OnConflict{UpdateAll: true}).Create(ws); tx.Error != nil {
+		return false, tx.Error
 	}
 
-	return tx.RowsAffected == 0, nil
+	return isUpdate, nil
 }
 
 // slugExists check in the DB if the slug already exists.

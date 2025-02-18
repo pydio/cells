@@ -97,6 +97,15 @@ func TestUniqueSlug(t *testing.T) {
 			So(err, ShouldBeNil)
 			So(ws3.Slug, ShouldEqual, "my-slug-2")
 
+			// Test Update
+			ws3.Label = "label updated"
+			ws3.Attributes = "JSON-ATTRIBUTES"
+			ws3.Description = "description updated"
+			update, err = mockDAO.Add(ctx, ws3)
+			So(update, ShouldBeTrue)
+			So(err, ShouldBeNil)
+			So(ws3.Slug, ShouldEqual, "my-slug-2")
+
 			q, _ := anypb.New(&idm.WorkspaceSingleQuery{
 				Uuid: "id2",
 			})
@@ -111,6 +120,24 @@ func TestUniqueSlug(t *testing.T) {
 				So(result.UUID, ShouldEqual, "id2")
 				So(result.Label, ShouldEqual, "label")
 				So(result.Slug, ShouldEqual, "my-slug-1")
+			}
+
+			q, _ = anypb.New(&idm.WorkspaceSingleQuery{
+				Uuid: "id3",
+			})
+			workspaces = new([]interface{})
+			er = mockDAO.Search(ctx, &service.Query{
+				SubQueries: []*anypb.Any{q},
+			}, workspaces)
+			So(er, ShouldBeNil)
+			So(workspaces, ShouldHaveLength, 1)
+			for _, w := range *workspaces {
+				result := w.(*idm.Workspace)
+				So(result.UUID, ShouldEqual, "id3")
+				So(result.Label, ShouldEqual, "label updated")
+				So(result.Attributes, ShouldEqual, "JSON-ATTRIBUTES")
+				So(result.Description, ShouldEqual, "description updated")
+				So(result.Slug, ShouldEqual, "my-slug-2")
 			}
 		})
 	})
