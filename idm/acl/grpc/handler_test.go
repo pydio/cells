@@ -72,6 +72,57 @@ func TestACL(t *testing.T) {
 			So(resp.GetACL().GetID(), ShouldEqual, "2")
 		})
 
+		Convey("Create Batch ACLs", t, func() {
+			resp, err := s.CreateACL(ctx, &idm.CreateACLRequest{
+				Batch: []*idm.ACL{
+					{
+						NodeID:      "batch-node-id",
+						WorkspaceID: "batch-ws-id",
+						Action:      &idm.ACLAction{Name: "read", Value: "1"},
+						RoleID:      "role-batch",
+					},
+					{
+						NodeID:      "batch-node-id-1",
+						WorkspaceID: "batch-ws-id",
+						Action:      &idm.ACLAction{Name: "read", Value: "1"},
+						RoleID:      "role-batch",
+					},
+					{
+						NodeID:      "batch-node-id-2",
+						WorkspaceID: "batch-ws-id",
+						Action:      &idm.ACLAction{Name: "read", Value: "1"},
+						RoleID:      "role-batch",
+					},
+				}},
+			)
+			So(err, ShouldBeNil)
+			So(resp.GetBatch(), ShouldHaveLength, 3)
+
+			// Re-add without ignoring dup error
+			_, err = s.CreateACL(ctx, &idm.CreateACLRequest{ACL: &idm.ACL{
+				NodeID:      "batch-node-id-1",
+				WorkspaceID: "batch-ws-id",
+				Action:      &idm.ACLAction{Name: "read", Value: "1"},
+				RoleID:      "role-batch"},
+			})
+			So(err, ShouldNotBeNil)
+
+			// Re-add ignoring dup error
+			_, err = s.CreateACL(ctx, &idm.CreateACLRequest{ACL: &idm.ACL{
+				NodeID:      "batch-node-id-1",
+				WorkspaceID: "batch-ws-id",
+				Action:      &idm.ACLAction{Name: "read", Value: "1"},
+				RoleID:      "role-batch"},
+				IgnoreDuplicates: true,
+			})
+			So(err, ShouldBeNil)
+
+			q, _ := anypb.New(&idm.ACLSingleQuery{WorkspaceIDs: []string{"batch-ws-id"}})
+			d, e := s.DeleteACL(ctx, &idm.DeleteACLRequest{Query: &service.Query{SubQueries: []*anypb.Any{q}}})
+			So(e, ShouldBeNil)
+			So(d.RowsDeleted, ShouldEqual, 3)
+		})
+
 		Convey("Get ACL", t, func() {
 			mock := &aclStreamMock{ctx: ctx}
 			err := s.StreamACL(mock)

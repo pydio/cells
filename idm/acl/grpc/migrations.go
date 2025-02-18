@@ -81,7 +81,7 @@ func UpgradeTo120(ctx context.Context) error {
 				Action:      permissions.AclRecycleRoot,
 			}
 			log.Logger(ctx).Info("Inserting new ACL")
-			if e := dao.Add(ctx, newAcl); e != nil {
+			if e := dao.Add(ctx, true, newAcl); e != nil {
 				log.Logger(ctx).Error("-- Could not create recycle_root ACL", zap.Error(e))
 			}
 		}
@@ -108,7 +108,7 @@ func UpgradeTo120(ctx context.Context) error {
 				Action: permissions.AclRecycleRoot,
 			}
 			log.Logger(ctx).Info("Should insert new ACL for personal folder", resp.Node.ZapPath())
-			if e := dao.Add(ctx, newAcl); e != nil {
+			if e := dao.Add(ctx, true, newAcl); e != nil {
 				log.Logger(ctx).Error("-- Could not create recycle_root ACL", zap.Error(e))
 			}
 		}

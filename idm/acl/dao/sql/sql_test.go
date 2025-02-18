@@ -83,7 +83,7 @@ func TestParallelAdds(t *testing.T) {
 				}
 				go func() {
 					defer wg.Done()
-					if e := dao.Add(ctx, a); e != nil {
+					if e := dao.Add(ctx, false, a); e != nil {
 						t.Log(e.Error())
 						errs = append(errs, e)
 					}
@@ -423,7 +423,7 @@ func simpleCrud(t *testing.T, ctx context.Context, dao acl.DAO, nodeId, roleId, 
 		WorkspaceID: wsId,
 		Action:      &idm.ACLAction{Name: actionName, Value: actionValue},
 	}
-	if e := dao.Add(ctx, a); e != nil {
+	if e := dao.Add(ctx, false, a); e != nil {
 		t.Errorf("Add %v", e)
 	}
 	var res []interface{}
@@ -470,7 +470,7 @@ func simpleCrud(t *testing.T, ctx context.Context, dao acl.DAO, nodeId, roleId, 
 
 func add(t *testing.T, ctx context.Context, dao acl.DAO, acls []*idm.ACL) error {
 	for _, a := range acls {
-		if er := dao.Add(ctx, a); er != nil {
+		if er := dao.Add(ctx, false, a); er != nil {
 			return er
 		}
 	}

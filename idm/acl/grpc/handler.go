@@ -54,16 +54,27 @@ func (h *Handler) CreateACL(ctx context.Context, req *idm.CreateACLRequest) (*id
 	if err != nil {
 		return nil, err
 	}
-
-	if err := dao.Add(ctx, req.ACL); err != nil {
-		return nil, err
+	var aa []*idm.ACL
+	if req.ACL != nil {
+		if err := dao.Add(ctx, req.IgnoreDuplicates, req.ACL); err != nil {
+			return nil, err
+		}
+		resp.ACL = req.ACL
+		aa = append(aa, req.ACL)
+	} else if len(req.Batch) > 0 {
+		if err := dao.Add(ctx, req.IgnoreDuplicates, req.Batch...); err != nil {
+			return nil, err
+		}
+		resp.Batch = req.Batch
+		aa = append(aa, req.Batch...)
+	}
+	for _, a := range aa {
+		broker.MustPublish(ctx, common.TopicIdmEvent, &idm.ChangeEvent{
+			Type: idm.ChangeEventType_UPDATE,
+			Acl:  a,
+		})
 	}
 
-	resp.ACL = req.ACL
-	broker.MustPublish(ctx, common.TopicIdmEvent, &idm.ChangeEvent{
-		Type: idm.ChangeEventType_UPDATE,
-		Acl:  req.ACL,
-	})
 	return resp, nil
 }
 

@@ -54,11 +54,11 @@ func NewDAO(db *gorm.DB) acl.DAO {
 
 type ACL struct {
 	ID          int64      `gorm:"primaryKey;column:id;autoIncrement;"`
-	ActionName  string     `gorm:"column:action_name;type:varchar(500);uniqueIndex:acls_u1"`
+	ActionName  string     `gorm:"column:action_name;type:varchar(500);index:,unique,composite:acls_u1"`
 	ActionValue string     `gorm:"column:action_value;type:varchar(500)"`
-	RoleID      int        `gorm:"column:role_id;default:-1;uniqueIndex:acls_u1"`
-	WorkspaceID int        `gorm:"column:workspace_id; default:-1;uniqueIndex:acls_u1"`
-	NodeID      int        `gorm:"column:node_id; default:-1;uniqueIndex:acls_u1"`
+	RoleID      int        `gorm:"column:role_id;default:-1;index:,unique,composite:acls_u1"`
+	WorkspaceID int        `gorm:"column:workspace_id; default:-1;index:,unique,composite:acls_u1"`
+	NodeID      int        `gorm:"column:node_id; default:-1;index:,unique,composite:acls_u1"`
 	Role        Role       `gorm:"foreignKey:RoleID"`
 	Workspace   Workspace  `gorm:"foreignKey:WorkspaceID"`
 	Node        Node       `gorm:"foreignKey:NodeID"`
@@ -116,8 +116,29 @@ func (s *sqlimpl) Migrate(ctx context.Context) error {
 }
 
 // Add inserts an ACL to the underlying SQL DB
-func (s *sqlimpl) Add(ctx context.Context, in interface{}) error {
-	return s.addWithDupCheck(ctx, s.Session(ctx), in, true)
+func (s *sqlimpl) Add(ctx context.Context, ignoreDuplicates bool, in ...*idm.ACL) error {
+	if len(in) < 1 {
+		return errors.WithMessage(errors.SqlDAO, "no acl passed to the dao")
+	}
+	if len(in) > 1 {
+		return s.Session(ctx).Transaction(func(tx *gorm.DB) error {
+			for _, a := range in {
+				if err := s.addWithDupCheck(ctx, tx, a, true); err != nil {
+					if ignoreDuplicates && errors.Is(err, gorm.ErrDuplicatedKey) {
+						return nil
+					}
+					return err
+				}
+			}
+			return nil
+		})
+	} else if err := s.addWithDupCheck(ctx, s.Session(ctx), in[0], true); err != nil {
+		if ignoreDuplicates && errors.Is(err, gorm.ErrDuplicatedKey) {
+			return nil
+		}
+		return err
+	}
+	return nil
 }
 
 var (
@@ -181,13 +202,14 @@ func (s *sqlimpl) addWithDupCheck(ctx context.Context, session *gorm.DB, in inte
 	}
 
 	if tx := session.Create(a); tx.Error != nil {
-		if errors.Is(tx.Error, gorm.ErrDuplicatedKey) && check {
+		firstErr := tx.Error
+		if errors.Is(firstErr, gorm.ErrDuplicatedKey) && check {
 			if tx = session.Where("expires_at IS NOT NULL AND expires_at < ?", time.Now()).Where(a).Delete(a); tx.Error == nil && tx.RowsAffected > 0 {
 				fmt.Println("[AddACL] Replacing one duplicate row that was in fact expired")
 				return s.addWithDupCheck(ctx, session, in, false)
 			}
 		}
-		return tx.Error
+		return firstErr
 	}
 
 	val.ID = fmt.Sprintf("%v", a.ID)

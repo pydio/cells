@@ -25,6 +25,7 @@ import (
 	"context"
 	"time"
 
+	"github.com/pydio/cells/v5/common/proto/idm"
 	service2 "github.com/pydio/cells/v5/common/proto/service"
 	"github.com/pydio/cells/v5/common/service"
 )
@@ -58,7 +59,7 @@ func ReadExpirationPeriod(p ExpirationProvider) *ExpirationPeriod {
 // DAO interface
 type DAO interface {
 	Migrate(context.Context) error
-	Add(context.Context, interface{}) error
+	Add(context.Context, bool, ...*idm.ACL) error
 	SetExpiry(context.Context, service2.Enquirer, *time.Time, *ExpirationPeriod) (int64, error)
 	Del(context.Context, service2.Enquirer, *ExpirationPeriod) (numRows int64, e error)
 	Search(context.Context, service2.Enquirer, *[]interface{}, *ExpirationPeriod) error

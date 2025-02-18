@@ -351,10 +351,13 @@ service ACLService {
 message CreateACLRequest{
     ACL ACL = 1;
     int64 ExpiresIn = 2;
+    repeated ACL Batch = 3;
+    bool IgnoreDuplicates = 4;
 }
 
 message CreateACLResponse{
     ACL ACL = 1;
+    repeated ACL Batch = 2;
 }
 
 message ExpireACLRequest{
