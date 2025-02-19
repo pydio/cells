@@ -2,14 +2,12 @@ package hooks
 
 import (
 	"context"
+	"fmt"
 	"net/http"
-	"net/url"
-	"strconv"
 	"strings"
 	"time"
 
 	"github.com/gorilla/mux"
-	"github.com/minio/minio-go/v7/pkg/signer"
 	"github.com/minio/minio/cmd"
 
 	"github.com/pydio/cells/v5/common"
@@ -24,24 +22,18 @@ import (
 
 // pydioAuthHandler - handles all the incoming authorization headers and validates them if possible.
 type pydioAuthHandler struct {
-	rootCtx      context.Context
-	handler      http.Handler
-	jwtVerifier  *auth.JWTVerifier
-	accessKey    string
-	accessSecret string
-	region       string
+	rootCtx     context.Context
+	handler     http.Handler
+	jwtVerifier *auth.JWTVerifier
 }
 
 // GetPydioAuthHandlerFunc validates Pydio authorization headers for the incoming request.
-func GetPydioAuthHandlerFunc(ctx context.Context, accessKey, secret, region string) mux.MiddlewareFunc {
+func GetPydioAuthHandlerFunc(ctx context.Context) mux.MiddlewareFunc {
 	return func(h http.Handler) http.Handler {
 		return &pydioAuthHandler{
-			rootCtx:      ctx,
-			handler:      h,
-			jwtVerifier:  auth.DefaultJWTVerifier(),
-			accessKey:    accessKey,
-			accessSecret: secret,
-			region:       region,
+			rootCtx:     ctx,
+			handler:     h,
+			jwtVerifier: auth.DefaultJWTVerifier(),
 		}
 	}
 }
@@ -64,11 +56,14 @@ func (a *pydioAuthHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	ctx = runtime.WithServiceName(ctx, common.ServiceGatewayData)
 	r = r.WithContext(ctx)
 
-	accessToken, doSign, doPreSign := a.extractToken(ctx, r)
+	accessToken, err := a.extractToken(ctx, r)
+	if err != nil {
+		log.Logger(ctx).Errorf("Error extracting token: %v", err)
+		cmd.ExposedWriteErrorResponse(ctx, w, cmd.ErrUnauthorizedAccess, reqURL)
+	}
 
 	if accessToken != "" {
 
-		var err error
 		var claims claim.Claims
 		ctx, claims, err = a.jwtVerifier.Verify(ctx, accessToken)
 		if err != nil {
@@ -89,14 +84,16 @@ func (a *pydioAuthHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		}
 		userName = claims.Name
 
-		if doSign {
-
-			r = signer.SignV4(*r, a.accessKey, a.accessSecret, "", a.region)
-
-		} else if doPreSign {
-
-			r = a.recomputePreSignV4(r)
-
+		// We may now have an updated secret key inferred from accessToken - using global one for now
+		secret := common.S3GatewayRootPassword
+		if sp := claims.GetSecretPair(); sp != "" {
+			secret = sp
+		}
+		ctx = cmd.ExposedUpdateContextWithCredentials(ctx, accessToken, secret, common.S3GatewayDefaultRegion)
+		r = r.WithContext(ctx)
+		if errCode := cmd.ExposedValidateRequestSignature(r); errCode != cmd.ErrNone {
+			cmd.ExposedWriteErrorResponse(ctx, w, errCode, r.URL)
+			return
 		}
 
 	} else {
@@ -133,100 +130,26 @@ func (a *pydioAuthHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 }
 
-func (a *pydioAuthHandler) extractToken(ctx context.Context, r *http.Request) (token string, doSign bool, doPresign bool) {
+func (a *pydioAuthHandler) extractToken(ctx context.Context, r *http.Request) (token string, er error) {
 
 	rq := r.URL.Query()
 
 	if bearer := r.Header.Get("X-Pydio-Bearer"); bearer != "" {
 
-		token = bearer
-		r.Header.Del("X-Pydio-Bearer")
+		return "", fmt.Errorf("X-Pydio-Bearer authentication method is deprecated")
 
 	} else if jwt := rq.Get("pydio_jwt"); len(jwt) > 0 {
 
-		//logger.Info("Found JWT in URL: replace by header and remove from URL")
-		token = jwt
+		return "", fmt.Errorf("pydio_jwt authentication method is deprecated")
 
-		rq.Del("pydio_jwt")
-		checkResignV4 := false
-		if r.Method == http.MethodGet {
-			// Force attachment (if not already set)
-			if !strings.HasPrefix(strings.TrimSpace(rq.Get("response-content-disposition")), "attachment") {
-				rq.Set("response-content-disposition", "attachment")
-				checkResignV4 = true
-			}
-		}
-		// Rebuild Query
-		r.URL.RawQuery = rq.Encode()
-		_ = r.ParseForm()
-		// If PresignedV4, flag for re-signing
-		if signedKey, err := cmd.ExposedParsePresignV4(ctx, r.Form); err == nil && (signedKey != a.accessKey || checkResignV4) {
-			doPresign = true
-		}
+	}
 
-	} else {
+	var s3Err cmd.APIErrorCode
+	token, s3Err = cmd.ExposedExtractKeyFromSignature(r)
 
-		if v4Auth := r.Header.Get("Authorization"); v4Auth == "" {
-			_ = r.ParseForm()
-			if signedKey, err := cmd.ExposedParsePresignV4(ctx, r.Form); err == nil && signedKey != a.accessKey {
-				token = signedKey
-				doPresign = true
-			}
-
-		} else if signedKey, err := cmd.ExposedParseSignV4(ctx, v4Auth); err == nil && signedKey != a.accessKey {
-			// Parse signature version '4' header.
-			log.Logger(ctx).Debug("Use AWS Api Key as JWT: " + signedKey)
-			token = signedKey
-			doSign = true
-		}
-
+	if s3Err != cmd.ErrNone {
+		return "", fmt.Errorf(s3Err.String())
 	}
 
 	return
-}
-
-func (a *pydioAuthHandler) recomputePreSignV4(r *http.Request) *http.Request {
-
-	origUrl := r.URL
-	origHeader := r.Header
-	newUrl := &url.URL{
-		Scheme: origUrl.Scheme,
-		Host:   origUrl.Host,
-		Path:   origUrl.Path,
-	}
-	newV := newUrl.Query()
-	expire := int64(900)
-	for k, vv := range origUrl.Query() {
-		if k == "X-Amz-Expires" {
-			if ex, e := strconv.ParseInt(strings.Join(vv, ""), 10, 64); e == nil {
-				expire = ex
-			}
-		}
-		if strings.HasPrefix(k, "X-Amz-") || k == "pydio_jwt" {
-			continue
-		}
-		for _, v := range vv {
-			newV.Set(k, v)
-		}
-	}
-	if len(newV) > 0 {
-		newUrl.RawQuery = newV.Encode()
-	}
-
-	newReq := *r
-	newReq.URL = newUrl
-	newReq.RequestURI = newUrl.RequestURI()
-	_ = newReq.ParseForm()
-	signed := signer.PreSignV4(newReq, a.accessKey, a.accessSecret, "", a.region, expire)
-	// Re-append headers
-	if len(origHeader) > 0 {
-		signed.Header = http.Header{}
-		for k, vv := range origHeader {
-			for _, v := range vv {
-				signed.Header.Set(k, v)
-			}
-		}
-	}
-
-	return signed
 }

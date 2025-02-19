@@ -20,6 +20,7 @@ import (
 	"github.com/pydio/cells/v5/common/proto/auth"
 	"github.com/pydio/cells/v5/common/runtime/manager"
 	json "github.com/pydio/cells/v5/common/utils/jsonx"
+	"github.com/pydio/cells/v5/common/utils/std"
 	"github.com/pydio/cells/v5/common/utils/uuid"
 	"github.com/pydio/cells/v5/idm/oauth"
 )
@@ -127,10 +128,13 @@ func (p *PATHandler) Verify(ctx context.Context, request *auth.VerifyTokenReques
 		ExpiresAt: time.Unix(pat.ExpiresAt, 0),
 		Audience:  []string{common.ServiceGrpcNamespace_ + common.ServiceToken},
 	}
-
-	if len(pat.Scopes) > 0 {
-		cl.Extra = map[string]interface{}{
-			"scopes": pat.Scopes,
+	if len(pat.Scopes) > 0 || pat.SecretPair != "" {
+		cl.Extra = map[string]interface{}{}
+		if len(pat.Scopes) > 0 {
+			cl.Extra["scopes"] = pat.Scopes
+		}
+		if len(pat.SecretPair) > 0 {
+			cl.Extra["secret_pair"] = pat.SecretPair
 		}
 	}
 
@@ -157,6 +161,7 @@ func (p *PATHandler) Generate(ctx context.Context, request *auth.PatGenerateRequ
 		Scopes:            request.Scopes,
 		AutoRefreshWindow: request.AutoRefreshWindow,
 		ExpiresAt:         request.ExpiresAt,
+		RevocationKey:     request.RevocationKey,
 	}
 
 	if request.AutoRefreshWindow > 0 {
@@ -177,18 +182,23 @@ func (p *PATHandler) Generate(ctx context.Context, request *auth.PatGenerateRequ
 	if err != nil {
 		return nil, err
 	}
+	if request.GenerateSecretPair {
+		token.SecretPair = std.Randkey(24)
+	}
 
 	if err := dao.Store(accessToken, token, false); err != nil {
 		return nil, err
 	}
 
 	return &auth.PatGenerateResponse{
-		TokenUuid:   token.Uuid,
 		AccessToken: accessToken,
+		TokenUuid:   token.Uuid,
+		SecretPair:  token.SecretPair,
 	}, nil
 }
 
 func (p *PATHandler) Revoke(ctx context.Context, request *auth.PatRevokeRequest) (*auth.PatRevokeResponse, error) {
+	// TODO - REVOKE BY RevocationKey
 	dao, err := p.getDao(ctx)
 	if err != nil {
 		return nil, err

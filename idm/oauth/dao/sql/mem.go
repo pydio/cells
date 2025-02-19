@@ -60,7 +60,7 @@ func (m *MemDAO) Store(accessToken string, token *auth.PersonalAccessToken, _ bo
 	return nil
 }
 
-func (m *MemDAO) Delete(patUuid string) error {
+func (m *MemDAO) Delete(patUuid string, isRevocationKey ...bool) error {
 	m.tLock.Lock()
 	defer m.tLock.Unlock()
 	for k, v := range m.tokens {

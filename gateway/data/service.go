@@ -216,7 +216,7 @@ func (g *gatewayDataServer) Init(ctx context.Context, mux routing.RouteRegistrar
 		middleware.HttpTracingMiddleware("minio"),
 		propagator.HttpContextMiddleware(middleware.ClientConnIncomingContext(ctx)),
 		propagator.HttpContextMiddleware(middleware.RegistryIncomingContext(ctx)),
-		hooks.GetPydioAuthHandlerFunc(ctx, common.S3GatewayRootUser, common.S3GatewayRootPassword, common.S3GatewayDefaultRegion),
+		hooks.GetPydioAuthHandlerFunc(ctx),
 	)
 
 	configDir, _ := runtime.ServiceDataDir(common.ServiceGatewayData)

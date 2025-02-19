@@ -151,6 +151,34 @@ func TestPatHandler_Revoke(t *testing.T) {
 			So(e, ShouldNotBeNil)
 		})
 	})
+
+	test.RunStorageTests(testCases, t, func(ctx context.Context) {
+
+		Convey("Test Revoke Access Tokens by Revocation Key", t, func() {
+			pat := &PATHandler{}
+			rsp, e := pat.Generate(ctx, &auth.PatGenerateRequest{
+				Type:      auth.PatType_PERSONAL,
+				UserUuid:  "admin-uuid",
+				UserLogin: "admin",
+				Label:     "Personal token for admin",
+				ExpiresAt: time.Now().Add(5 * time.Second).Unix(),
+
+				GenerateSecretPair: true,
+				RevocationKey:      "unique-revocation-key",
+				CacheKey:           "unique-cache-key",
+			})
+			So(e, ShouldBeNil)
+			So(rsp.SecretPair, ShouldNotBeEmpty)
+			accessToken := rsp.AccessToken
+			tokenUuid := rsp.TokenUuid
+			_, e = pat.Verify(ctx, &auth.VerifyTokenRequest{Token: accessToken})
+			So(e, ShouldBeNil)
+			_, e = pat.Revoke(ctx, &auth.PatRevokeRequest{Uuid: tokenUuid, ByRevocationKey: "unique-revocation-key"})
+			So(e, ShouldBeNil)
+			_, e = pat.Verify(ctx, &auth.VerifyTokenRequest{Token: accessToken})
+			So(e, ShouldNotBeNil)
+		})
+	})
 }
 
 func TestPathHandler_List(t *testing.T) {

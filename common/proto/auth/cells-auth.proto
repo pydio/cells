@@ -278,6 +278,10 @@ message PersonalAccessToken {
     string CreatedBy = 9;
     int64 CreatedAt = 10;
     int64 UpdatedAt = 11;
+
+    string CacheKey = 12;
+    string RevocationKey = 13;
+    string SecretPair = 14;
 }
 
 message PatGenerateRequest{
@@ -289,10 +293,15 @@ message PatGenerateRequest{
     int64 ExpiresAt = 6;
     string Issuer = 7;
     repeated string Scopes = 8;
+
+    string CacheKey = 9;
+    string RevocationKey = 10;
+    bool GenerateSecretPair = 11;
 }
 message PatGenerateResponse{
     string AccessToken = 1;
     string TokenUuid = 2;
+    string SecretPair = 3;
 }
 
 message PatListRequest{
@@ -305,6 +314,7 @@ message PatListResponse{
 
 message PatRevokeRequest{
     string Uuid = 1;
+    string ByRevocationKey = 2;
 }
 message PatRevokeResponse{
     bool Success = 1;

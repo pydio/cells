@@ -217,6 +217,11 @@ func (t *grpcToken) ScopedClaims(claims *claim.Claims) error {
 	if ss := t.claims.Get("scopes"); ss != nil {
 		claims.ProvidesScopes = true
 	}
+	if sp := t.claims.Get("secret_pair"); sp != nil {
+		if sps, ok := sp.(string); ok {
+			claims.AttachSecretPair(sps)
+		}
+	}
 	return nil
 }
 

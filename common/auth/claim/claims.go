@@ -53,6 +53,8 @@ type Claims struct {
 	GroupPath      string      `json:"groupPath" mapstructure:"groupPath"`
 	ProvidesScopes bool        `json:"providesScopes" mapstructure:"providesScopes"`
 	Scopes         []string    `json:"scopes" mapstructure:"scopes"`
+
+	secretPair string
 }
 
 func (c *Claims) GetClientApp() string {
@@ -80,4 +82,12 @@ func (c *Claims) GetUniqueKey() string {
 
 	return hex.EncodeToString(hash.Sum(nil)[:])
 
+}
+
+func (c *Claims) AttachSecretPair(sp string) {
+	c.secretPair = sp
+}
+
+func (c *Claims) GetSecretPair() string {
+	return c.secretPair
 }

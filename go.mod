@@ -529,8 +529,6 @@ require (
 
 //replace github.com/pydio/caddyvault => ../caddyvault
 
-replace github.com/minio/minio => github.com/pydio/minio v0.0.0-20250103143016-fcf4fedc377e
-
-//replace github.com/minio/minio => ../minio
+replace github.com/minio/minio => github.com/pydio/minio v0.0.0-20250214151954-26aa0136b6fe
 
 //replace github.com/mattn/go-sqlite3 => github.com/mattn/go-sqlite3 v1.14.16

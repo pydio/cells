@@ -43,6 +43,7 @@ var (
 	tokAutoRefresh   string
 	tokCreationQuiet bool
 	tokScopes        []string
+	tokSecretPair    bool
 )
 
 var pTokCmd = &cobra.Command{
@@ -110,13 +111,14 @@ TOKEN SCOPE
 		}
 		cli := auth.NewPersonalAccessTokenServiceClient(grpc.ResolveConn(ctx, common.ServiceTokenGRPC))
 		resp, e := cli.Generate(cmd.Context(), &auth.PatGenerateRequest{
-			Type:              auth.PatType_PERSONAL,
-			UserUuid:          u.Uuid,
-			UserLogin:         tokUserLogin,
-			Label:             "Command generated token",
-			ExpiresAt:         expire.Unix(),
-			AutoRefreshWindow: refreshSeconds,
-			Scopes:            tokScopes,
+			Type:               auth.PatType_PERSONAL,
+			UserUuid:           u.Uuid,
+			UserLogin:          tokUserLogin,
+			Label:              "Command generated token",
+			ExpiresAt:          expire.Unix(),
+			AutoRefreshWindow:  refreshSeconds,
+			Scopes:             tokScopes,
+			GenerateSecretPair: tokSecretPair,
 		})
 		if e != nil {
 			log.Fatal(e.Error())
@@ -136,6 +138,10 @@ TOKEN SCOPE
 				cmd.Println(promptui.IconGood + fmt.Sprintf(" This token for %s will expire on %s.", uDisplay, expire.Format(time.RFC850)))
 			}
 			cmd.Println(promptui.IconGood + " " + resp.AccessToken)
+			if tokSecretPair {
+				cmd.Println(promptui.IconGood + " You can use the following key as an S3 secret")
+				cmd.Println(promptui.IconGood + " " + resp.SecretPair)
+			}
 			cmd.Println("")
 			cmd.Println(promptui.IconWarn + " Make sure to secure it as it grants access to the user resources!")
 		}
@@ -149,4 +155,5 @@ func init() {
 	pTokCmd.Flags().StringVarP(&tokAutoRefresh, "auto", "a", "", "Auto-refresh expiration when token is used. Format is 20u where u is a unit: s (second), m (minute), h (hour), d(day).")
 	pTokCmd.Flags().StringSliceVarP(&tokScopes, "scope", "s", []string{}, "Optional scopes")
 	pTokCmd.Flags().BoolVarP(&tokCreationQuiet, "quiet", "q", false, "Only return the newly created token value (typically useful in automation scripts with a short expiry time)")
+	pTokCmd.Flags().BoolVarP(&tokSecretPair, "secret", "p", false, "Create a secret key along with the new token")
 }

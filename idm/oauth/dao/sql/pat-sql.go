@@ -22,6 +22,8 @@ package sql
 
 import (
 	"context"
+	"crypto/sha256"
+	"encoding/hex"
 	"time"
 
 	"gorm.io/gorm"
@@ -43,25 +45,11 @@ func NewPatDAO(db *gorm.DB) oauth.PatDAO {
 	return &sqlImpl{db: db}
 }
 
-/*
-// TODO - Token used to be sha256 encrypted !
-var (
-	queries = map[string]string{
-		"insert":       `INSERT INTO idm_personal_tokens VALUES (?,CONCAT('sha256:', SHA2(?, 256)),?,?,?,?,?,?,?,?,?,?)`,
-		"updateExpire": `UPDATE idm_personal_tokens SET expire_at=? WHERE uuid=?`,
-		"validToken":   `SELECT * FROM idm_personal_tokens WHERE access_token=CONCAT('sha256:', SHA2(?, 256)) AND expire_at > ? LIMIT 0,1`,
-		"listAll":      `SELECT * FROM idm_personal_tokens ORDER BY created_by DESC`,
-		"listByUser":   `SELECT * FROM idm_personal_tokens WHERE user_login LIKE ? ORDER BY created_by DESC`,
-		"listByType":   `SELECT * FROM idm_personal_tokens WHERE pat_type=? ORDER BY created_by DESC`,
-		"listByBoth":   `SELECT * FROM idm_personal_tokens WHERE pat_type=? AND user_login LIKE ? ORDER BY created_by DESC`,
-		"delete":       `DELETE FROM idm_personal_tokens WHERE uuid=?`,
-		"pruneExpired": `DELETE FROM idm_personal_tokens WHERE expire_at < ?`,
-		// Sqlite does not support CONCAT and SHA2 functions
-		"insert-sqlite":     `INSERT INTO idm_personal_tokens VALUES (?,?,?,?,?,?,?,?,?,?,?,?)`,
-		"validToken-sqlite": `SELECT * FROM idm_personal_tokens WHERE access_token=? AND expire_at > ? LIMIT 0,1`,
-	}
-)
-*/
+// sha256Hash hashes string to string for storing acccess Token
+func sha256Hash(input string) string {
+	hash := sha256.Sum256([]byte(input))
+	return hex.EncodeToString(hash[:])
+}
 
 type PersonalToken struct {
 	UUID              string       `gorm:"column:uuid; primaryKey; type:varchar(36) not null;"`
@@ -70,6 +58,8 @@ type PersonalToken struct {
 	Label             string       `gorm:"column:label;type:varchar(255) null;"`
 	UserUUID          string       `gorm:"column:user_uuid;type:varchar(255) not null;index;"`
 	UserLogin         string       `gorm:"column:user_login;type:varchar(255) not null;index;"`
+	SecretPair        string       `gorm:"column:secret_pair;type:varchar(255);"`
+	RevocationKey     string       `gorm:"column:revocation_key;type:varchar(255);index;"`
 	AutoRefreshWindow int32        `gorm:"column:auto_refresh;type: int default 0 null;"`
 	ExpiresAt         time.Time    `gorm:"column:expire_at;"`
 	CreatedBy         string       `gorm:"column:created_by;type:varchar(128) null;"`
@@ -93,6 +83,8 @@ func (u *PersonalToken) As(res *auth.PersonalAccessToken) (*auth.PersonalAccessT
 	res.CreatedAt = u.CreatedAt.Unix()
 	res.CreatedBy = u.CreatedBy
 	res.UpdatedAt = u.UpdatedAt.Unix()
+	res.RevocationKey = u.RevocationKey
+	res.SecretPair = u.SecretPair
 
 	if u.Scopes != "" {
 		if e := json.Unmarshal([]byte(u.Scopes), &res.Scopes); e != nil {
@@ -114,6 +106,8 @@ func (u *PersonalToken) From(res *auth.PersonalAccessToken) *PersonalToken {
 	u.CreatedAt = time.Unix(res.CreatedAt, 0)
 	u.CreatedBy = res.CreatedBy
 	u.UpdatedAt = time.Unix(res.UpdatedAt, 0)
+	u.RevocationKey = res.RevocationKey
+	u.SecretPair = res.SecretPair
 
 	return u
 }
@@ -136,12 +130,10 @@ func (s *sqlImpl) Migrate(ctx context.Context) error {
 }
 
 func (s *sqlImpl) Load(accessToken string) (*auth.PersonalAccessToken, error) {
-	//s.Lock()
-	//defer s.Unlock()
-
+	tx := s.instance()
 	token := &PersonalToken{}
-	tx := s.instance().
-		Where(&PersonalToken{AccessToken: accessToken}).
+	tx = tx.
+		Where(tx.Session(&gorm.Session{}).Or(&PersonalToken{AccessToken: accessToken}).Or(&PersonalToken{AccessToken: sha256Hash(accessToken)})).
 		Where(clause.Gt{Column: "expire_at", Value: time.Now()}).
 		First(token)
 
@@ -153,9 +145,6 @@ func (s *sqlImpl) Load(accessToken string) (*auth.PersonalAccessToken, error) {
 }
 
 func (s *sqlImpl) Store(accessToken string, token *auth.PersonalAccessToken, update bool) error {
-	//s.Lock()
-	//defer s.Unlock()
-
 	if update {
 		tx := s.instance().Model(&PersonalToken{}).Where(&PersonalToken{UUID: token.Uuid}).Update("expire_at", time.Unix(token.ExpiresAt, 0))
 		if tx.Error != nil {
@@ -164,7 +153,8 @@ func (s *sqlImpl) Store(accessToken string, token *auth.PersonalAccessToken, upd
 		return nil
 	} else {
 		res := (&PersonalToken{}).From(token)
-		res.AccessToken = accessToken
+		// SHA256 the token for storage
+		res.AccessToken = sha256Hash(accessToken)
 
 		tx := s.instance().Create(&res)
 		if tx.Error != nil {
@@ -174,11 +164,12 @@ func (s *sqlImpl) Store(accessToken string, token *auth.PersonalAccessToken, upd
 	}
 }
 
-func (s *sqlImpl) Delete(patUuid string) error {
-	//s.Lock()
-	//defer s.Unlock()
-
-	tx := s.instance().Where(&PersonalToken{UUID: patUuid}).Delete(&PersonalToken{})
+func (s *sqlImpl) Delete(patUuid string, isRevocationKey ...bool) error {
+	where := &PersonalToken{UUID: patUuid}
+	if len(isRevocationKey) > 0 && isRevocationKey[0] {
+		where = &PersonalToken{RevocationKey: patUuid}
+	}
+	tx := s.instance().Where(where).Delete(&PersonalToken{})
 	if tx.Error != nil {
 		return tx.Error
 	}
@@ -186,9 +177,6 @@ func (s *sqlImpl) Delete(patUuid string) error {
 }
 
 func (s *sqlImpl) List(byType auth.PatType, byUser string) ([]*auth.PersonalAccessToken, error) {
-	//s.Lock()
-	//defer s.Unlock()
-
 	var pts []*PersonalToken
 	var res []*auth.PersonalAccessToken
 

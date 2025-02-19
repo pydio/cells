@@ -36,8 +36,8 @@ type PatDAO interface {
 	Load(accessToken string) (*auth.PersonalAccessToken, error)
 	// Store inserts a PAT in the storage.
 	Store(accessToken string, token *auth.PersonalAccessToken, update bool) error
-	// Delete removes a PAT by its UUID.
-	Delete(patUuid string) error
+	// Delete removes a PAT by its UUID, or if specified, by any custom revocation key
+	Delete(patUuid string, isRevocationKey ...bool) error
 	// List lists all known PAT with optional filters.
 	List(byType auth.PatType, byUser string) ([]*auth.PersonalAccessToken, error)
 	// PruneExpired removes expired PAT from the storage.
