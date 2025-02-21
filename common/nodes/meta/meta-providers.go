@@ -23,6 +23,7 @@ package meta
 
 import (
 	"context"
+	"fmt"
 	"io"
 	"time"
 
@@ -135,7 +136,7 @@ func enrichNodesMetaFromProviders(ctx context.Context, streamers []tree.NodeProv
 		}
 		avgNano := float64(total.Nanoseconds()) / float64(l)
 		avg := time.Duration(avgNano)
-		log.Logger(ctx).Debug("EnrichMetaProvider - Average time spent", zap.Duration(n, avg))
+		log.Logger(ctx).Debug(fmt.Sprintf("EnrichMetaProvider - Average time spent for %s: %s", n, avg), zap.Duration(n, avg))
 	}
 
 }
