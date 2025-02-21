@@ -69,12 +69,26 @@ func (m *Handler) Adapt(c nodes.Handler, options nodes.RouterOptions) nodes.Hand
 type onCreateErrorFunc func()
 
 func (m *Handler) ReadNode(ctx context.Context, req *tree.ReadNodeRequest, opts ...grpc.CallOption) (*tree.ReadNodeResponse, error) {
+	var ns string
+	var nsOk bool
+	var draftCtx context.Context
+	var draftCa context.CancelFunc
+	if bi, e := nodes.GetBranchInfo(ctx, "in"); e == nil && bi.Workspace != nil {
+		draftCtx, draftCa = context.WithCancel(ctx)
+		defer draftCa()
+		go func() {
+			defer draftCa()
+			ns, nsOk = m.getMetaClient().DraftMetaNamespace(draftCtx, bi.Workspace)
+		}()
+	}
+
 	resp, er := m.Next.ReadNode(ctx, req, opts...)
 	if er != nil {
 		return resp, er
 	}
-	if bi, e := nodes.GetBranchInfo(ctx, "in"); e == nil && bi.Workspace != nil {
-		if ns, ok := m.getMetaClient().DraftMetaNamespace(ctx, bi.Workspace); ok && resp.GetNode().GetMetaBool(ns) {
+	if draftCtx != nil {
+		<-draftCtx.Done()
+		if nsOk && resp.GetNode().GetMetaBool(ns) {
 			n := resp.GetNode().Clone()
 			n.MustSetMeta(common.MetaNamespaceNodeDraftMode, true)
 			resp.Node = n
@@ -84,12 +98,26 @@ func (m *Handler) ReadNode(ctx context.Context, req *tree.ReadNodeRequest, opts 
 }
 
 func (m *Handler) ListNodes(ctx context.Context, in *tree.ListNodesRequest, opts ...grpc.CallOption) (tree.NodeProvider_ListNodesClient, error) {
+	var ns string
+	var nsOk bool
+	var draftCtx context.Context
+	var draftCa context.CancelFunc
+	if bi, e := nodes.GetBranchInfo(ctx, "in"); e == nil && bi.Workspace != nil {
+		draftCtx, draftCa = context.WithCancel(ctx)
+		defer draftCa()
+		go func() {
+			defer draftCa()
+			ns, nsOk = m.getMetaClient().DraftMetaNamespace(draftCtx, bi.Workspace)
+		}()
+	}
+
 	stream, er := m.Next.ListNodes(ctx, in, opts...)
 	if er != nil {
 		return nil, er
 	}
-	if bi, e := nodes.GetBranchInfo(ctx, "in"); e == nil && bi.Workspace != nil {
-		if ns, ok := m.getMetaClient().DraftMetaNamespace(ctx, bi.Workspace); ok {
+	if draftCtx != nil {
+		<-draftCtx.Done()
+		if nsOk {
 			s := nodes.NewWrappingStreamer(stream.Context())
 			go func() {
 				defer s.CloseSend()
