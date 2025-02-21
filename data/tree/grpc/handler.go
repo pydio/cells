@@ -853,7 +853,7 @@ func (s *TreeServer) lookUpByUuid(ctx context.Context, uuid string, statFlags ..
 	_ = k.Iterate(func(dsName string, val interface{}) {
 		ds := val.(DataSource)
 		if ds.IsInternal {
-			log.Logger(ctx).Info("Skipping internal DS " + dsName)
+			log.Logger(ctx).Debug("Lookup By Uuid: skipping internal DS " + dsName)
 			return
 		}
 		wg.Add(1)

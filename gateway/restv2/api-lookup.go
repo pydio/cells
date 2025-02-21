@@ -115,7 +115,14 @@ func (h *Handler) GetByUuid(req *restful.Request, resp *restful.Response) error 
 	nodeUuid := req.PathParameter("Uuid")
 	router := h.UuidClient(true)
 	ctx := req.Request.Context()
-	rr, er := router.ReadNode(ctx, &tree.ReadNodeRequest{Node: &tree.Node{Uuid: nodeUuid}})
+	rr, er := router.ReadNode(ctx, &tree.ReadNodeRequest{
+		Node: &tree.Node{Uuid: nodeUuid},
+		StatFlags: []uint32{
+			tree.StatFlagVersionsAll,
+			tree.StatFlagFolderSize,
+			tree.StatFlagFolderCounts,
+		},
+	})
 	if er != nil {
 		return er
 	}

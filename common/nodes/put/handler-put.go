@@ -158,8 +158,10 @@ func (m *Handler) CreateNode(ctx context.Context, in *tree.CreateNodeRequest, op
 		if er == nil && info.Workspace != nil {
 			ctxWs = info.Workspace
 		}
-		// Handle input metadata if set
-		_, err = m.getMetaClient().ExtractAndPut(ctx, resp.GetNode(), ctxWs, in.GetNode().GetMetaStore(), meta.ExtractNodeMetadata)
+		// Handle input metadata if set, except if it's an internal operation like copy/move
+		if !nodes.HasSkipAclCheck(ctx) {
+			_, err = m.getMetaClient().ExtractAndPut(ctx, resp.GetNode(), ctxWs, in.GetNode().GetMetaStore(), meta.ExtractNodeMetadata)
+		}
 		return resp, err
 	}
 	if e := m.createParentIfNotExist(ctx, in.GetNode().Clone(), in.GetIndexationSession()); e != nil {

@@ -83,6 +83,12 @@ func (e *Executor) ReadNode(ctx context.Context, in *tree.ReadNodeRequest, opts 
 		}
 	} else {
 
+		if in.GetNode().HasMetaKey("pydio:meta-loaded-" + common.ServiceMetaGRPC) {
+			// it has already been loaded during the incoming flow, return it now
+			log.Logger(ctx).Debug("Returning node directly as it was loaded during the incoming flow")
+			return &tree.ReadNodeResponse{Node: in.GetNode().Clone()}, nil
+		}
+
 		resp, err := nodes.GetSourcesPool(ctx).GetTreeClient().ReadNode(ctx, in, opts...)
 		/*
 			// Todo - check, should be handled at upper level
