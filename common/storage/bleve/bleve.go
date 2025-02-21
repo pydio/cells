@@ -62,7 +62,7 @@ func OpenPool(ctx context.Context, uu string) (storage.Storage, error) {
 			}
 		}
 
-		index, err := newBleveIndexer(&BleveConfig{
+		index, err := newBleveIndexer(ctx, &BleveConfig{
 			BlevePath:    u.Path,
 			RotationSize: rotationSize,
 			BatchSize:    batchSize,

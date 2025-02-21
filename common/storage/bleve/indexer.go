@@ -40,7 +40,6 @@ import (
 
 	"github.com/pydio/cells/v5/common/config"
 	"github.com/pydio/cells/v5/common/errors"
-	"github.com/pydio/cells/v5/common/runtime"
 	"github.com/pydio/cells/v5/common/storage/indexer"
 	"github.com/pydio/cells/v5/common/telemetry/log"
 	"github.com/pydio/cells/v5/common/utils/configx"
@@ -71,7 +70,7 @@ type Indexer struct {
 
 // NewIndexer creates and configures a default Bleve instance to store technical logs
 // Setting rotationSize to -1 fully disables rotation
-func newBleveIndexer(conf *BleveConfig) (*Indexer, error) {
+func newBleveIndexer(ctx context.Context, conf *BleveConfig) (*Indexer, error) {
 	if conf.RotationSize > -1 && conf.RotationSize < MinRotationSize {
 		return nil, errors.WithMessagef(errors.DAO, "use a rotation size bigger than %d", MinRotationSize)
 	}
@@ -81,7 +80,7 @@ func newBleveIndexer(conf *BleveConfig) (*Indexer, error) {
 	}
 
 	dir, prefix := filepath.Split(conf.BlevePath)
-	indexes, err := idx.openAllIndexes(dir, prefix, conf.MappingName)
+	indexes, err := idx.openAllIndexes(ctx, dir, prefix, conf.MappingName)
 	if err != nil {
 		return nil, err
 	}
@@ -482,7 +481,7 @@ func (s *Indexer) rotate(ctx context.Context) error {
 	rotationID := s.getNextRotationID(filepath.Join(path, prefix))
 	currentPath := s.getFullPath(path, prefix, rotationID)
 
-	idx, err := s.openOneIndex(currentPath, s.conf.MappingName)
+	idx, err := s.openOneIndex(ctx, currentPath, s.conf.MappingName)
 	if err != nil {
 		return err
 	}
@@ -528,7 +527,7 @@ func (s *Indexer) getWriteIndex(ctx context.Context) (bleve.Index, error) {
 	}
 
 	if len(indexes) < 1 {
-		idx, err := s.openOneIndex(fullPath, s.conf.MappingName)
+		idx, err := s.openOneIndex(ctx, fullPath, s.conf.MappingName)
 		if err != nil {
 			return nil, err
 		}
@@ -559,7 +558,7 @@ func (s *Indexer) getSearchIndex(ctx context.Context) (bleve.Index, error) {
 				}
 			}
 		} else {
-			ix, e := s.openOneIndex(fullPath, s.conf.MappingName)
+			ix, e := s.openOneIndex(ctx, fullPath, s.conf.MappingName)
 			if e != nil {
 				return nil, e
 			}
@@ -712,7 +711,7 @@ func (s *Indexer) Resync(ctx context.Context, logger func(string)) error {
 
 	// Replace to original bleve path
 	logger("Resync operation done, replacing current receiver with dup")
-	reopen, er := newBleveIndexer(s.conf)
+	reopen, er := newBleveIndexer(ctx, s.conf)
 	if er != nil {
 		return er
 	}
@@ -794,11 +793,11 @@ func (s *Indexer) listIndexes(path string, prefix string) (paths []string) {
 	return
 }
 
-func (s *Indexer) openAllIndexes(dir, prefix, mappingName string) ([]bleve.Index, error) {
+func (s *Indexer) openAllIndexes(ctx context.Context, dir, prefix, mappingName string) ([]bleve.Index, error) {
 	var indexes []bleve.Index
 
 	for _, fName := range s.listIndexes(dir, prefix) {
-		idx, err := s.openOneIndex(filepath.Join(dir, fName), mappingName)
+		idx, err := s.openOneIndex(ctx, filepath.Join(dir, fName), mappingName)
 		if err != nil {
 			return nil, err
 		}
@@ -810,10 +809,12 @@ func (s *Indexer) openAllIndexes(dir, prefix, mappingName string) ([]bleve.Index
 }
 
 // openOneIndex tries to open an existing index at a given path, or creates a new one
-func (s *Indexer) openOneIndex(fullPath string, mappingName string) (bleve.Index, error) {
+func (s *Indexer) openOneIndex(ctx context.Context, fullPath string, mappingName string, retry ...int) (bleve.Index, error) {
 
-	idx, err := bleve.Open(fullPath)
-	if err != nil {
+	idx, openErr := bleve.OpenUsing(fullPath, map[string]interface{}{
+		"bolt_timeout": "500ms",
+	})
+	if openErr != nil {
 		indexMapping := bleve.NewIndexMapping()
 		if s.codec != nil {
 			var val configx.Values
@@ -828,14 +829,14 @@ func (s *Indexer) openOneIndex(fullPath string, mappingName string) (bleve.Index
 		}
 
 		// Creates the new index and initializes the server
+		var err error
 		if fullPath == "" {
 			idx, err = bleve.NewMemOnly(indexMapping)
 		} else {
-			//			fmt.Println("*** Opening New Index", fullPath)
 			idx, err = bleve.NewUsing(fullPath, indexMapping, scorch.Name, boltdb.Name, nil)
 		}
 		if err != nil {
-			log.Logger(runtime.AsCoreContext(context.Background())).Error("Cannot open index on " + fullPath)
+			log.Logger(ctx).Error(fmt.Sprintf("Cannot open index on %s, original openError was %s, next New was %s ", fullPath, openErr.Error(), err.Error()))
 			return nil, err
 		}
 	}

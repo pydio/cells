@@ -23,6 +23,7 @@ package restv2
 import (
 	"context"
 	"fmt"
+	"path/filepath"
 	"strconv"
 	"strings"
 
@@ -189,6 +190,9 @@ func (h *Handler) TreeNodeToNode(n *tree.Node) *rest.Node {
 		case images.MetadataThumbnails:
 			rn.Previews = append(rn.Previews, h.Thumbnails(common.PydioThumbstoreNamespace, n.GetUuid(), v)...)
 
+		case "ImagePreview", "PDFPreview":
+			rn.Previews = append(rn.Previews, h.OtherPreview(common.PydioThumbstoreNamespace, strings.ReplaceAll(v, "\"", "")))
+
 		case common.MetaFlagWorkspacesShares:
 			var share []*idm.Workspace
 			if err := json.Unmarshal([]byte(v), &share); err == nil {
@@ -256,6 +260,25 @@ func (h *Handler) Thumbnails(bucket, nodeId, jsonThumbs string) (ff []*rest.File
 		})
 	}
 	return
+}
+
+// OtherPreview takes a simple value to build a rest.FilePreview
+func (h *Handler) OtherPreview(bucket, metaValue string) (f *rest.FilePreview) {
+	cType := ""
+	ext := strings.TrimPrefix(filepath.Ext(metaValue), ".")
+	switch ext {
+	case "pdf":
+		cType = "application/pdf"
+	case "png", "jpg", "webp", "jpeg":
+		cType = "image/" + ext
+	}
+	key := fmt.Sprintf("%s/%s", bucket, metaValue)
+	return &rest.FilePreview{
+		ContentType: cType,
+		Bucket:      strings.TrimPrefix(common.DefaultRouteBucketIO, "/"),
+		Key:         key,
+		Url:         common.DefaultRouteBucketIO + "/" + key,
+	}
 }
 
 // ImageMeta feeds a rest.ImageMeta struct with incoming metadata

@@ -252,8 +252,6 @@ func (j *JWTVerifier) verifyTokenWithRetry(ctx context.Context, rawIDToken strin
 			} else {
 				errs = append(errs, err)
 			}
-
-			log.Logger(ctx).Debug("jwt rawIdToken verify: failed, trying next", zap.Error(err))
 		}()
 	}
 	wg.Wait()
@@ -266,7 +264,7 @@ func (j *JWTVerifier) verifyTokenWithRetry(ctx context.Context, rawIDToken strin
 
 	if validToken == nil {
 		if len(errs) > 0 {
-			log.Logger(ctx).Info("could not validate token", zap.Errors("errors", errs))
+			log.Logger(ctx).Debug("jwt rawIdToken verify: failed", zap.Errors("errors", errs))
 		}
 		return nil, errors.WithStack(errors.EmptyIDToken)
 	}

@@ -166,8 +166,11 @@ func MemPool[T any](ctx context.Context, opener Opener[T], opt ...PoolOption[T])
 	return OpenPool(ctx, []string{"mem://" + memPoolShardExpr}, opener, opt...)
 }
 
-func (m Pool[T]) Get(ctx context.Context, resolutionData ...map[string]interface{}) (T, error) {
+func (m *Pool[T]) Get(ctx context.Context, resolutionData ...map[string]interface{}) (T, error) {
 	last := len(m.resolvers) - 1
+	m.lock.Lock()
+	defer m.lock.Unlock()
+
 	for i, resolver := range m.resolvers {
 		data := make(map[string]any)
 		for _, d := range resolutionData {
@@ -177,6 +180,7 @@ func (m Pool[T]) Get(ctx context.Context, resolutionData ...map[string]interface
 		}
 
 		// RESOLVE URL
+
 		realURL, er := resolver.Resolve(ctx, data)
 		if er != nil {
 			if i < last {
@@ -187,14 +191,10 @@ func (m Pool[T]) Get(ctx context.Context, resolutionData ...map[string]interface
 		}
 
 		// Lookup
-		m.lock.RLock()
 		if nq, ok := m.pool[realURL]; ok {
 			nq.active = time.Now()
-			m.lock.RUnlock()
-
 			return nq.t, nil
 		}
-		m.lock.RUnlock()
 
 		if m.options.Opener == nil {
 			var q T
@@ -210,13 +210,11 @@ func (m Pool[T]) Get(ctx context.Context, resolutionData ...map[string]interface
 		}
 
 		// Set
-		m.lock.Lock()
 		m.pool[realURL] = &namedT[T]{
 			t:      q,
 			name:   realURL,
 			active: time.Now(),
 		}
-		m.lock.Unlock()
 
 		m.on(ADD, realURL, q)
 
@@ -227,7 +225,7 @@ func (m Pool[T]) Get(ctx context.Context, resolutionData ...map[string]interface
 	return res, fmt.Errorf("cannot resolve")
 }
 
-func (m Pool[T]) Del(ctx context.Context, resolutionData ...map[string]interface{}) (bool, error) {
+func (m *Pool[T]) Del(ctx context.Context, resolutionData ...map[string]interface{}) (bool, error) {
 	last := len(m.resolvers) - 1
 	for i, resolver := range m.resolvers {
 		data := make(map[string]any)
@@ -247,15 +245,15 @@ func (m Pool[T]) Del(ctx context.Context, resolutionData ...map[string]interface
 		}
 
 		// Lookup
-		m.lock.RLock()
+		m.lock.Lock()
 		if q, ok := m.pool[realURL]; ok {
 			m.on(DELETE, realURL, q.t)
 
 			delete(m.pool, realURL)
-			m.lock.RUnlock()
+			m.lock.Unlock()
 			return true, nil
 		}
-		m.lock.RUnlock()
+		m.lock.Unlock()
 
 		return false, nil
 	}
