@@ -28,6 +28,8 @@ import (
 	"sync"
 	"time"
 
+	"go.opentelemetry.io/otel/attribute"
+	"go.opentelemetry.io/otel/trace"
 	"go.uber.org/zap"
 	"google.golang.org/grpc"
 	"google.golang.org/protobuf/proto"
@@ -43,8 +45,10 @@ import (
 	"github.com/pydio/cells/v5/common/proto/service"
 	"github.com/pydio/cells/v5/common/proto/tree"
 	"github.com/pydio/cells/v5/common/telemetry/log"
+	"github.com/pydio/cells/v5/common/telemetry/tracing"
 	"github.com/pydio/cells/v5/common/utils/cache"
 	"github.com/pydio/cells/v5/common/utils/cache/gocache"
+	json "github.com/pydio/cells/v5/common/utils/jsonx"
 	"github.com/pydio/cells/v5/common/utils/openurl"
 	"github.com/pydio/cells/v5/common/utils/propagator"
 	"github.com/pydio/cells/v5/common/utils/uuid"
@@ -87,9 +91,10 @@ func (l *changesListener) stop() {
 }
 
 type DataSource struct {
-	Name   string
-	writer tree.NodeReceiverClient
-	reader tree.NodeProviderClient
+	Name       string
+	IsInternal bool
+	writer     tree.NodeReceiverClient
+	reader     tree.NodeProviderClient
 }
 
 func NewDataSource(name string, reader tree.NodeProviderClient, writer tree.NodeReceiverClient) DataSource {
@@ -252,6 +257,11 @@ func (s *TreeServer) CreateNode(ctx context.Context, req *tree.CreateNodeRequest
 // ReadNode implementation for the TreeServer
 func (s *TreeServer) ReadNode(ctx context.Context, req *tree.ReadNodeRequest) (*tree.ReadNodeResponse, error) {
 
+	var span trace.Span
+	ctx, span = tracing.StartLocalSpan(ctx, "Tree.ReadNode")
+	bb, _ := json.Marshal(req)
+	span.SetAttributes(attribute.KeyValue{Key: "request", Value: attribute.StringValue(string(bb))})
+	defer span.End()
 	// Backward compat
 	if req.WithExtendedStats {
 		req.StatFlags = append(req.StatFlags, tree.StatFlagFolderCounts)
@@ -318,6 +328,11 @@ func (s *TreeServer) ListNodes(req *tree.ListNodesRequest, resp tree.NodeProvide
 
 	ctx := resp.Context()
 	defer track("ListNodes", ctx, time.Now(), req, resp)
+	var span trace.Span
+	ctx, span = tracing.StartLocalSpan(ctx, "Tree.ListNodes")
+	bb, _ := json.Marshal(req)
+	span.SetAttributes(attribute.KeyValue{Key: "request", Value: attribute.StringValue(string(bb))})
+	defer span.End()
 
 	var metaStreamer meta.Loader
 	var loadMetas bool
@@ -837,6 +852,10 @@ func (s *TreeServer) lookUpByUuid(ctx context.Context, uuid string, statFlags ..
 	k, _ := s.sourcesCaches.Get(ctx)
 	_ = k.Iterate(func(dsName string, val interface{}) {
 		ds := val.(DataSource)
+		if ds.IsInternal {
+			log.Logger(ctx).Info("Skipping internal DS " + dsName)
+			return
+		}
 		wg.Add(1)
 		go func(name string, reader tree.NodeProviderClient) {
 			defer wg.Done()

@@ -83,9 +83,10 @@ func (s *TreeServer) UpdateServicesList(ctx context.Context, retry int) {
 		dataSourceName := s.GetName()
 		indexService := common.ServiceDataIndexGRPC_ + dataSourceName
 		obj := DataSource{
-			Name:   dataSourceName,
-			writer: tree.NewNodeReceiverClient(grpc.ResolveConn(ctx, indexService)),
-			reader: tree.NewNodeProviderClient(grpc.ResolveConn(ctx, indexService)),
+			Name:       dataSourceName,
+			IsInternal: s.IsInternal(),
+			writer:     tree.NewNodeReceiverClient(grpc.ResolveConn(ctx, indexService)),
+			reader:     tree.NewNodeProviderClient(grpc.ResolveConn(ctx, indexService)),
 		}
 		dsKeys = append(dsKeys, dataSourceName)
 		_ = k.Set(dataSourceName, obj)
