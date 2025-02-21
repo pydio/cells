@@ -52,18 +52,17 @@ type BoltStore struct {
 	boltdb.DB
 }
 
-func NewBoltStore(db boltdb.DB) (versions.DAO, error) {
-
-	bs := &BoltStore{
+func NewBoltStore(db boltdb.DB) versions.DAO {
+	return &BoltStore{
 		DB: db,
 	}
+}
 
-	e2 := bs.Update(func(tx *bbolt.Tx) error {
+func (b *BoltStore) Migrate(ctx context.Context) error {
+	return b.Update(func(tx *bbolt.Tx) error {
 		_, e := tx.CreateBucketIfNotExists(bucketName)
 		return e
 	})
-	return bs, e2
-
 }
 
 func (b *BoltStore) Close() error {
