@@ -377,12 +377,12 @@ func (a *AccessList) IsLocked(ctx context.Context, nodes ...*tree.Node) bool {
 }
 
 // BelongsToWorkspaces finds corresponding workspace parents for this node.
-func (a *AccessList) BelongsToWorkspaces(ctx context.Context, nodes ...*tree.Node) (workspaces []*idm.Workspace, workspacesRoots map[string]string) {
+func (a *AccessList) BelongsToWorkspaces(ctx context.Context, nodes ...*tree.Node) (workspaces []*idm.Workspace, workspacesRoots map[string]*tree.Node) {
 	a.maskRootsLock.RLock()
 	defer a.maskRootsLock.RUnlock()
 
 	foundWorkspaces := make(map[string]bool)
-	workspacesRoots = make(map[string]string)
+	workspacesRoots = make(map[string]*tree.Node)
 	for _, node := range nodes {
 		uuid := node.Uuid
 		for wsId, wsRoots := range a.wssRootsMasks {
@@ -392,7 +392,7 @@ func (a *AccessList) BelongsToWorkspaces(ctx context.Context, nodes ...*tree.Nod
 			for rootId := range wsRoots {
 				if rootId == uuid {
 					foundWorkspaces[wsId] = true
-					workspacesRoots[wsId] = rootId
+					workspacesRoots[wsId] = node.Clone()
 				}
 			}
 		}
