@@ -53,31 +53,40 @@ import (
 	_ "github.com/pydio/cells/v5/gateway/data/gw"
 )
 
+// rewriteListBucketRequest intercepts is registered as a top-level rewriter to catch specific s3 requests
+// that are sent to the server root
+func rewriteListBucketRequest(request *http.Request, registrar routing.RouteRegistrar) {
+	pa := request.URL.Path
+	if strings.Contains(request.Header.Get("Authorization"), "AWS4-HMAC-SHA256") && (pa == "/" || pa == "" || strings.HasPrefix(pa, "/probe-bucket-sign")) {
+		// Find resolved pattern for main bucket (.e.g /io)
+		if pp := registrar.Patterns(common.RouteBucketIO); len(pp) > 0 {
+			resolvedPattern := strings.TrimSuffix(pp[0], "/")
+			resolvedPattern = path.Join(resolvedPattern, pa)
+			if strings.HasSuffix(pa, "/") {
+				resolvedPattern += "/"
+			}
+			request.URL.Path = resolvedPattern
+			request.URL.RawPath = resolvedPattern
+			log.Logger(request.Context()).Debug("S3 - Recognized ListBucket request on root, re-attach '" + pa + "' to correct endpoint " + request.URL.RawPath)
+			request.RequestURI = request.URL.RequestURI()
+		}
+	}
+}
+
+// patchListBucketRequest post-processes top-level requests modified by rewriteListBucketRequest to rewrite the route
+// for proper signature computation
 func patchListBucketRequest(request *http.Request) {
 	route := routing.ResolvedURIFromContext(request.Context())
 	testURI := strings.Replace(request.RequestURI, "?x-id=ListBuckets", "", 1)
-	if testURI == route || testURI == route+"/" {
+	if testURI == route {
+		request.RequestURI = ""
+		request.URL.Path = ""
+	} else if testURI == route+"/" {
 		request.RequestURI = "/"
 		request.URL.Path = "/"
 	} else if strings.HasPrefix(request.RequestURI, route+"/probe-bucket-sign") {
 		request.RequestURI = strings.TrimPrefix(request.RequestURI, route)
 		request.URL.Path = request.RequestURI
-	}
-}
-
-func rewriteListBucketRequest(request *http.Request, registrar routing.RouteRegistrar) {
-	pa := request.URL.Path
-	auth := request.Header.Get("Authorization")
-	ctx := request.Context()
-	if strings.Contains(auth, "AWS4-HMAC-SHA256") && (pa == "/" || strings.HasPrefix(pa, "/probe-bucket-sign")) {
-		// Find resolved pattern for main bucket (.e.g /io)
-		if pp := registrar.Patterns(common.RouteBucketIO); len(pp) > 0 {
-			resolvedPattern := pp[0]
-			log.Logger(ctx).Info("S3 - Recognized ListBucket request on root, re-attach to correct endpoint " + resolvedPattern)
-			request.URL.Path = path.Join(resolvedPattern, pa)
-			request.URL.RawPath = path.Join(resolvedPattern, pa)
-			request.RequestURI = request.URL.RequestURI()
-		}
 	}
 }
 
@@ -127,21 +136,6 @@ func init() {
 						}
 					}
 				}
-
-				/*
-					u, _ := url.Parse(fmt.Sprintf("http://localhost:%d", port))
-					proxy := httputil.NewSingleHostReverseProxy(u)
-
-					mux.Route(BucketIO).Handle("/", http.HandlerFunc(func(writer http.ResponseWriter, request *http.Request) {
-						patchListBucketRequest(request)
-						proxy.ServeHTTP(writer, request)
-					}))
-					mux.Route(BucketData).Handle("/", http.HandlerFunc(func(writer http.ResponseWriter, request *http.Request) {
-						patchListBucketRequest(request)
-						proxy.ServeHTTP(writer, request)
-					}))
-					mux.RegisterRewrite("ListBucket", rewriteListBucketRequest)
-				*/
 
 				var certFile, keyFile string
 				/*
@@ -238,7 +232,9 @@ func (g *gatewayDataServer) Init(ctx context.Context, mux routing.RouteRegistrar
 		// Make sure it conforms to this interface
 		router.ServeHTTP(&flusher{ResponseWriter: writer}, request)
 	})
+	mux.Route(common.RouteBucketIO).Handle("", handler)
 	mux.Route(common.RouteBucketIO).Handle("/", handler)
+	mux.Route(common.RouteBucketData).Handle("", handler)
 	mux.Route(common.RouteBucketData).Handle("/", handler)
 	mux.RegisterRewrite("ListBucket", rewriteListBucketRequest)
 
