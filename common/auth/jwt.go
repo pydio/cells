@@ -25,6 +25,7 @@ import (
 	"net/url"
 	"sort"
 	"strings"
+	"sync"
 
 	"go.uber.org/zap"
 	"golang.org/x/oauth2"
@@ -227,32 +228,50 @@ func (j *JWTVerifier) loadClaims(ctx context.Context, token IDToken, claims *cla
 
 func (j *JWTVerifier) verifyTokenWithRetry(ctx context.Context, rawIDToken string, isRetry bool) (IDToken, error) {
 
-	var idToken IDToken
-	var err error
+	pp := j.getProviders()
+	var errs []error
+	var validToken IDToken
+	wg := &sync.WaitGroup{}
+	wg.Add(len(pp))
+	ct, ca := context.WithCancel(ctx)
+	defer ca()
 
-	for _, provider := range j.getProviders() {
-		verifier, ok := provider.(Verifier)
-		if !ok {
-			continue
-		}
+	for _, provider := range pp {
+		go func() {
+			defer wg.Done()
+			verifier, ok := provider.(Verifier)
+			if !ok {
+				return
+			}
 
-		idToken, err = verifier.Verify(ctx, rawIDToken)
-		if err == nil {
-			break
-		}
+			idToken, err := verifier.Verify(ct, rawIDToken)
+			if err == nil {
+				validToken = idToken
+				ca() // Cancel other go-routines
+				return
+			} else {
+				errs = append(errs, err)
+			}
 
-		log.Logger(ctx).Debug("jwt rawIdToken verify: failed, trying next", zap.Error(err))
+			log.Logger(ctx).Debug("jwt rawIdToken verify: failed, trying next", zap.Error(err))
+		}()
 	}
+	wg.Wait()
+	/*
+		TODO - Is this still necessary ?
+		if validToken == nil && !isRetry {
+			return j.verifyTokenWithRetry(ctx, rawIDToken, true)
+		}
+	*/
 
-	if (idToken == nil || err != nil) && !isRetry {
-		return j.verifyTokenWithRetry(ctx, rawIDToken, true)
-	}
-
-	if idToken == nil {
+	if validToken == nil {
+		if len(errs) > 0 {
+			log.Logger(ctx).Info("could not validate token", zap.Errors("errors", errs))
+		}
 		return nil, errors.WithStack(errors.EmptyIDToken)
 	}
 
-	return idToken, nil
+	return validToken, nil
 }
 
 // Exchange retrieves an oauth2 Token from a code.
