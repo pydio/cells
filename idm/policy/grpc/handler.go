@@ -27,6 +27,7 @@ import (
 	"sync"
 
 	"github.com/ory/ladon"
+	"github.com/ory/ladon/manager/memory"
 	"go.uber.org/zap"
 
 	"github.com/pydio/cells/v5/common"
@@ -37,7 +38,9 @@ import (
 	"github.com/pydio/cells/v5/common/telemetry/log"
 	"github.com/pydio/cells/v5/common/utils/cache"
 	cache_helper "github.com/pydio/cells/v5/common/utils/cache/helper"
+	json "github.com/pydio/cells/v5/common/utils/jsonx"
 	"github.com/pydio/cells/v5/idm/policy"
+	"github.com/pydio/cells/v5/idm/policy/converter"
 )
 
 var groupsCacheConfig = cache.Config{
@@ -55,9 +58,34 @@ func NewHandler() idm.PolicyEngineServiceServer {
 
 func (h *Handler) IsAllowed(ctx context.Context, request *idm.PolicyEngineRequest) (*idm.PolicyEngineResponse, error) {
 
-	dao, er := manager.Resolve[policy.DAO](ctx)
-	if er != nil {
-		return nil, er
+	var checker func(context.Context, *ladon.Request) error
+
+	var bb []byte
+	if ka, err := cache_helper.ResolveCache(ctx, common.CacheTypeShared, groupsCacheConfig); err == nil && ka.Get("policyGroup", &bb) {
+		var all []*idm.PolicyGroup
+		if json.Unmarshal(bb, &all) == nil {
+			log.Logger(ctx).Debug("Policies.IsAllowed - checking with Memory Manager from cache")
+			mem := memory.NewMemoryManager()
+			for _, g := range all {
+				for _, p := range g.Policies {
+					_ = mem.Create(converter.ProtoToLadonPolicy(p))
+				}
+			}
+			checker = func(_ context.Context, r *ladon.Request) error {
+				return (&ladon.Ladon{Manager: mem}).IsAllowed(r)
+			}
+		}
+	}
+	if checker == nil {
+		dao, er := manager.Resolve[policy.DAO](ctx)
+		if er != nil {
+			return nil, er
+		}
+		checker = dao.IsAllowed
+		log.Logger(ctx).Debug("Policies.IsAllowed - checking directly in DB and heating cache")
+		defer func() {
+			_, _ = h.ListPolicyGroups(context.WithoutCancel(ctx), &idm.ListPolicyGroupsRequest{})
+		}()
 	}
 
 	response := &idm.PolicyEngineResponse{}
@@ -86,7 +114,7 @@ func (h *Handler) IsAllowed(ctx context.Context, request *idm.PolicyEngineReques
 				Action:   request.Action,
 				Context:  reqContext,
 			}
-			if err := dao.IsAllowed(ctx, ladonRequest); err == nil {
+			if err := checker(ctx, ladonRequest); err == nil {
 				// Explicit allow
 				allowed = true
 			} else if errors.Is(err, ladon.ErrRequestForcefullyDenied) {
@@ -144,11 +172,13 @@ func (h *Handler) ListPolicyGroups(ctx context.Context, request *idm.ListPolicyG
 
 	response := &idm.ListPolicyGroupsResponse{}
 
-	ka, er := cache_helper.ResolveCache(ctx, common.CacheTypeLocal, groupsCacheConfig)
-
-	if er == nil && request.Filter == "" && ka.Get("policyGroup", &response.PolicyGroups) {
-		response.Total = int32(len(response.PolicyGroups))
-		return response, nil
+	ka, er := cache_helper.ResolveCache(ctx, common.CacheTypeShared, groupsCacheConfig)
+	var bb []byte
+	if er == nil && request.Filter == "" && ka.Get("policyGroup", &bb) {
+		if json.Unmarshal(bb, &response.PolicyGroups) == nil {
+			response.Total = int32(len(response.PolicyGroups))
+			return response, nil
+		}
 	}
 
 	groups, err := dao.ListPolicyGroups(ctx, request.Filter)
@@ -159,7 +189,10 @@ func (h *Handler) ListPolicyGroups(ctx context.Context, request *idm.ListPolicyG
 	response.Total = int32(len(groups))
 
 	if request.Filter == "" && ka != nil {
-		_ = ka.Set("policyGroup", groups)
+		msg, _ := json.Marshal(groups)
+		if err = ka.Set("policyGroup", msg); err != nil {
+			log.Logger(ctx).Error("Cannot fill cache for policy groups", zap.Error(err))
+		}
 	}
 
 	return response, nil
@@ -172,7 +205,7 @@ func (h *Handler) StorePolicyGroup(ctx context.Context, request *idm.StorePolicy
 		return nil, er
 	}
 
-	if ka, er := cache_helper.ResolveCache(ctx, common.CacheTypeLocal, groupsCacheConfig); er == nil {
+	if ka, er := cache_helper.ResolveCache(ctx, common.CacheTypeShared, groupsCacheConfig); er == nil {
 		_ = ka.Delete("policyGroup")
 	}
 
@@ -201,7 +234,7 @@ func (h *Handler) DeletePolicyGroup(ctx context.Context, request *idm.DeletePoli
 		return nil, er
 	}
 
-	if ka, er := cache_helper.ResolveCache(ctx, common.CacheTypeLocal, groupsCacheConfig); er == nil {
+	if ka, er := cache_helper.ResolveCache(ctx, common.CacheTypeShared, groupsCacheConfig); er == nil {
 		_ = ka.Delete("policyGroup")
 	}
 
