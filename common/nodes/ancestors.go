@@ -26,7 +26,7 @@ import (
 	"strings"
 
 	"github.com/pydio/cells/v5/common"
-	"github.com/pydio/cells/v5/common/errors"
+	"github.com/pydio/cells/v5/common/client/commons"
 	"github.com/pydio/cells/v5/common/proto/tree"
 	"github.com/pydio/cells/v5/common/telemetry/tracing"
 	"github.com/pydio/cells/v5/common/utils/cache"
@@ -56,7 +56,7 @@ func getAncestorsNodesCache(ctx context.Context) cache.Cache {
 
 // BuildAncestorsList uses ListNodes with "Ancestors" flag to build the list of parent nodes.
 // It uses an internal short-lived cache to throttle calls to the TreeService
-func BuildAncestorsList(ctx context.Context, treeClient tree.NodeProviderClient, node *tree.Node) (parentUuids []*tree.Node, err error) {
+func BuildAncestorsList(ctx context.Context, treeClient tree.NodeProviderClient, node *tree.Node) (ancestors []*tree.Node, err error) {
 	/*
 		sT := time.Now()
 		defer func() {
@@ -65,24 +65,25 @@ func BuildAncestorsList(ctx context.Context, treeClient tree.NodeProviderClient,
 	*/
 	if node.GetPath() != "" {
 		var parents []*tree.Node
-		if getAncestorsParentsCache(ctx).Get(path.Dir(node.GetPath()), &parents) {
+		apc := getAncestorsParentsCache(ctx)
+		if apc.Get(path.Dir(node.GetPath()), &parents) {
 			var cachedNode *tree.Node
 			// Lookup First node
 			anc := getAncestorsNodesCache(ctx)
 			if anc.Get(node.GetPath(), &cachedNode) {
-				parentUuids = append(parentUuids, cachedNode)
+				ancestors = append(ancestors, cachedNode)
 			} else {
 				ctx, span := tracing.StartLocalSpan(ctx, "AncestorsRead")
 				r, er := treeClient.ReadNode(ctx, &tree.ReadNodeRequest{Node: node})
 				span.End()
 				if er != nil {
-					return parentUuids, er
+					return ancestors, er
 				}
 				_ = anc.Set(node.GetPath(), r.GetNode())
-				parentUuids = append(parentUuids, r.GetNode())
+				ancestors = append(ancestors, r.GetNode())
 			}
-			parentUuids = append(parentUuids, parents...)
-			return parentUuids, nil
+			ancestors = append(ancestors, parents...)
+			return ancestors, nil
 		}
 	}
 
@@ -90,35 +91,24 @@ func BuildAncestorsList(ctx context.Context, treeClient tree.NodeProviderClient,
 		Node:      node,
 		Ancestors: true,
 	})
-	if lErr != nil {
-		return parentUuids, lErr
-	}
-	// fmt.Println("Needs actual streaming", node.GetPath())
-	for {
-		parent, e := ancestorStream.Recv()
-		if e != nil {
-			if errors.IsStreamFinished(e) {
-				break
-			} else {
-				return nil, e
-			}
-		}
-		if parent == nil {
-			continue
-		}
-		parentUuids = append(parentUuids, parent.Node)
+	if er := commons.ForEach(ancestorStream, lErr, func(response *tree.ListNodesResponse) error {
+		ancestors = append(ancestors, response.GetNode())
+		return nil
+	}); er != nil {
+		return ancestors, er
 	}
 
-	if len(parentUuids) > 1 {
+	if len(ancestors) > 1 {
 		apc := getAncestorsParentsCache(ctx)
 		anc := getAncestorsNodesCache(ctx)
-		cNode := parentUuids[0]
-		pNodes := parentUuids[1:]
-		_ = anc.Set(node.GetPath(), cNode)
+		cNode := ancestors[0]
+		refPath := cNode.GetPath() // input node.GetPath() may NOT have path set
+		pNodes := ancestors[1:]
+		_ = anc.Set(refPath, cNode)
 		if !cNode.IsLeaf() {
-			storeParents(apc, node.GetPath(), parentUuids)
+			storeParents(apc, refPath, ancestors)
 		}
-		dirPath := path.Dir(node.GetPath())
+		dirPath := path.Dir(refPath)
 		if dirPath != "." && dirPath != "" {
 			storeParents(apc, dirPath, pNodes)
 			for i, n := range pNodes {
@@ -129,7 +119,7 @@ func BuildAncestorsList(ctx context.Context, treeClient tree.NodeProviderClient,
 			}
 		}
 	}
-	return parentUuids, err
+	return ancestors, err
 }
 
 func storeParents(apc cache.Cache, dirPath string, parents []*tree.Node) {

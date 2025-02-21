@@ -116,7 +116,8 @@ func (h *WorkspaceHandler) updateInputBranch(ctx context.Context, node *tree.Nod
 			keys.CtxWorkspaceUuid: branchInfo.Workspace.UUID,
 		})
 	}
-	return nodes.WithBranchInfo(ctx, identifier, branchInfo), node, nil
+	// Parents[0] is always the target node - Replace it now we already know its path!
+	return nodes.WithBranchInfo(ctx, identifier, branchInfo), parents[0].Clone(), nil
 }
 
 func (h *WorkspaceHandler) updateOutputBranch(ctx context.Context, node *tree.Node, identifier string) (context.Context, *tree.Node, error) {
@@ -159,23 +160,28 @@ func (h *WorkspaceHandler) updateOutputBranch(ctx context.Context, node *tree.No
 
 }
 
-func (h *WorkspaceHandler) relativePathToWsRoot(ctx context.Context, ws *idm.Workspace, nodeFullPath string, rootNodeId string) (string, error) {
+func (h *WorkspaceHandler) relativePathToWsRoot(ctx context.Context, ws *idm.Workspace, nodeFullPath string, rootNode *tree.Node) (string, error) {
 
-	if resp, e := h.Next.ReadNode(ctx, &tree.ReadNodeRequest{Node: &tree.Node{Uuid: rootNodeId}}); e == nil {
-		rootPath := resp.Node.Path
-		if strings.HasPrefix(nodeFullPath, rootPath) {
-			relPath := strings.TrimPrefix(nodeFullPath, rootPath)
-			if len(ws.RootUUIDs) > 1 {
-				// This workspace has multiple root, prepend the fake root key
-				rootKey := h.MakeRootKey(resp.Node)
-				relPath = path.Join(rootKey, relPath)
-			}
-			return relPath, nil
+	// In case its path is not loaded
+	if rootNode.GetPath() == "" {
+		log.Logger(ctx).Warn("relativePathToWsRoot called with empty root path, reloading", rootNode.Zap())
+		if resp, e := h.Next.ReadNode(ctx, &tree.ReadNodeRequest{Node: &tree.Node{Uuid: rootNode.GetUuid()}}); e == nil {
+			rootNode = resp.GetNode()
 		} else {
-			return "", errors.WithMessage(errors.NodeNotFound, "Cannot subtract paths "+nodeFullPath+" - "+rootPath)
+			return "", e
 		}
+	}
+	rootPath := rootNode.GetPath()
+	if strings.HasPrefix(nodeFullPath, rootPath) {
+		relPath := strings.TrimPrefix(nodeFullPath, rootPath)
+		if len(ws.RootUUIDs) > 1 {
+			// This workspace has multiple root, prepend the fake root key
+			rootKey := h.MakeRootKey(rootNode)
+			relPath = path.Join(rootKey, relPath)
+		}
+		return relPath, nil
 	} else {
-		return "", e
+		return "", errors.WithMessage(errors.NodeNotFound, "Cannot subtract paths "+nodeFullPath+" - "+rootPath)
 	}
 
 }
