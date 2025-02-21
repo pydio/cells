@@ -949,13 +949,13 @@ func MkDirsOrFiles(ctx context.Context, router nodes.Client, nodes []*tree.Node,
 	}
 	for i, n := range nodes {
 		// Check node does not exist already (by path)
-		if _, statErr := router.ReadNode(ctx, &tree.ReadNodeRequest{Node: n, StatFlags: []uint32{tree.StatFlagMetaMinimal}}); statErr == nil {
+		if _, statErr := router.ReadNode(ctx, &tree.ReadNodeRequest{Node: n, StatFlags: []uint32{tree.StatFlagExistsOnly}}); statErr == nil {
 			return nil, errors.WithMessage(errors.StatusConflict, "Please use another file name!")
 		}
 		if !n.IsLeaf() {
 			// And double-check by ID if it is passed as parameter - already done in the PUT flow
 			if id := n.GetStringMeta(common.InputResourceUUID); id != "" {
-				if _, statErr := compose.UuidClient().ReadNode(ctx, &tree.ReadNodeRequest{Node: &tree.Node{Uuid: id}, StatFlags: []uint32{tree.StatFlagMetaMinimal}}); statErr == nil {
+				if _, statErr := compose.UuidClient().ReadNode(ctx, &tree.ReadNodeRequest{Node: &tree.Node{Uuid: id}, StatFlags: []uint32{tree.StatFlagExistsOnly}}); statErr == nil {
 					return nil, errors.WithMessage(errors.StatusConflict, "Please use another UUID")
 				}
 				n.SetUuid(id)
@@ -1036,8 +1036,8 @@ func MkDirsOrFiles(ctx context.Context, router nodes.Client, nodes []*tree.Node,
 		pref := filesystem.CommonPrefix('/', folderPaths...)
 		if _, ok := folderChecks[pref]; ok {
 			// Check root folder
-			std.Retry(ctx, func() error {
-				_, e := router.ReadNode(ctx, &tree.ReadNodeRequest{Node: &tree.Node{Path: pref}})
+			_ = std.Retry(ctx, func() error {
+				_, e := router.ReadNode(ctx, &tree.ReadNodeRequest{Node: &tree.Node{Path: pref}, StatFlags: []uint32{tree.StatFlagExistsOnly}})
 				if e != nil {
 					return e
 				}

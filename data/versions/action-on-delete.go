@@ -178,7 +178,7 @@ func (c *OnDeleteVersionsAction) CreateParents(ctx context.Context, dirPath stri
 	for _, p := range parts {
 		crt = path.Join(crt, p)
 		dirNode := &tree.Node{Path: crt, Type: tree.NodeType_COLLECTION, MTime: time.Now().Unix()}
-		if _, e := getRouter().ReadNode(ctx, &tree.ReadNodeRequest{Node: dirNode}); e == nil {
+		if _, e := getRouter().ReadNode(ctx, &tree.ReadNodeRequest{Node: dirNode, StatFlags: []uint32{tree.StatFlagExistsOnly}}); e == nil {
 			// Already exists
 			continue
 		}

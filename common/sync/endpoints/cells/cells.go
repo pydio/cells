@@ -546,7 +546,7 @@ func (c *Abstract) readNodeBlocking(ctx context.Context, n tree.N) {
 		}
 		sendCtx, can := context.WithTimeout(ctx, 1*time.Second)
 		defer can()
-		_, e := cli.ReadNode(sendCtx, &tree.ReadNodeRequest{Node: n.AsProto()})
+		_, e := cli.ReadNode(sendCtx, &tree.ReadNodeRequest{Node: n.AsProto(), StatFlags: []uint32{tree.StatFlagNone}})
 		return e
 	}, 1*time.Second, 10*time.Second)
 }

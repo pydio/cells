@@ -428,7 +428,7 @@ func (m *Handler) getOrCreatePutNode(ctx context.Context, nodePath string, reque
 
 	// Uuid is passed for input node - double check that it does not already exist!
 	if id := requestData.InputResourceUuid(); id != "" {
-		if _, er := treeReader.ReadNode(ctx, &tree.ReadNodeRequest{Node: &tree.Node{Uuid: id}}); er == nil {
+		if _, er := treeReader.ReadNode(ctx, &tree.ReadNodeRequest{Node: &tree.Node{Uuid: id}, StatFlags: []uint32{tree.StatFlagNone}}); er == nil {
 			return nil, nil, errors.WithStack(errors.NodeIndexConflict)
 		}
 		tmpNode.SetUuid(id)
@@ -494,7 +494,7 @@ func (m *Handler) createParentIfNotExist(ctx context.Context, node *tree.Node, s
 	if parentNode.Path == "/" || parentNode.Path == "" || parentNode.Path == "." {
 		return nil
 	}
-	if _, e := m.Next.ReadNode(ctx, &tree.ReadNodeRequest{Node: parentNode}); e != nil {
+	if _, e := m.Next.ReadNode(ctx, &tree.ReadNodeRequest{Node: parentNode, StatFlags: []uint32{tree.StatFlagNone}}); e != nil {
 		if er := m.createParentIfNotExist(ctx, parentNode, session); er != nil {
 			return er
 		}

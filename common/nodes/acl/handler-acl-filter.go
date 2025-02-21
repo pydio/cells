@@ -76,6 +76,11 @@ func (a *FilterHandler) ReadNode(ctx context.Context, in *tree.ReadNodeRequest, 
 	// First load ancestors or grab them from BranchInfo
 	ctx, parents, err := nodes.AncestorsListFromContext(ctx, in.Node, "in", false)
 	if err != nil {
+		// Recheck is used to send proper error to user (NotFound vs Forbidden)
+		// If ExistsOnly, we don't care about the error code
+		if tree.StatFlags(in.StatFlags).ExistsOnly() {
+			return nil, err
+		}
 		return nil, a.recheckParents(ctx, err, in.Node, true, false)
 	}
 	if !accessList.CanRead(ctx, parents...) && !accessList.CanWrite(ctx, parents...) {

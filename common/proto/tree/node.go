@@ -26,6 +26,7 @@ import (
 	"fmt"
 	"io"
 	"path"
+	"slices"
 	"strconv"
 	"strings"
 	"time"
@@ -54,6 +55,7 @@ const (
 	StatFlagVersionsAll
 	StatFlagVersionsDraft
 	StatFlagVersionsPublished
+	StatFlagExistsOnly = 9
 
 	StatFlagHeaderName = "x-pydio-read-stat-flags"
 )
@@ -100,30 +102,19 @@ func (f Flags) VersionsFilter() string {
 }
 
 func (f Flags) FolderCounts() bool {
-	for _, fl := range f {
-		if fl == StatFlagFolderCounts {
-			return true
-		}
-	}
-	return false
+	return slices.Contains(f, StatFlagFolderCounts)
 }
 
 func (f Flags) RecursiveCount() bool {
-	for _, fl := range f {
-		if fl == StatFlagRecursiveCount {
-			return true
-		}
-	}
-	return false
+	return slices.Contains(f, StatFlagRecursiveCount)
 }
 
 func (f Flags) MinimalMetas() bool {
-	for _, fl := range f {
-		if fl == StatFlagMetaMinimal {
-			return true
-		}
-	}
-	return false
+	return slices.Contains(f, StatFlagMetaMinimal)
+}
+
+func (f Flags) ExistsOnly() bool {
+	return slices.Contains(f, StatFlagExistsOnly)
 }
 
 // String returns a string representation of the flags
