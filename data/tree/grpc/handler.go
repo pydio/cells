@@ -385,8 +385,8 @@ func (s *TreeServer) ListNodes(req *tree.ListNodesRequest, resp tree.NodeProvide
 		if loadMetas {
 			metaStreamer.LoadMetas(ctx, sendNode)
 		}
-		resp.Send(&tree.ListNodesResponse{
-			Node: sendNode,
+		_ = resp.Send(&tree.ListNodesResponse{
+			Node: sendNode.Clone(),
 		})
 
 		if len(dsPath) > 0 {
@@ -415,7 +415,7 @@ func (s *TreeServer) ListNodes(req *tree.ListNodesRequest, resp tree.NodeProvide
 				if loadMetas {
 					metaStreamer.LoadMetas(ctx, respNode)
 				}
-				resp.Send(&tree.ListNodesResponse{
+				_ = resp.Send(&tree.ListNodesResponse{
 					Node: respNode,
 				})
 			}
