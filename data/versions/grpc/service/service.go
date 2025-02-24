@@ -35,6 +35,7 @@ import (
 	"github.com/pydio/cells/v5/common/proto/jobs"
 	"github.com/pydio/cells/v5/common/proto/tree"
 	"github.com/pydio/cells/v5/common/runtime"
+	"github.com/pydio/cells/v5/common/runtime/manager"
 	"github.com/pydio/cells/v5/common/service"
 	"github.com/pydio/cells/v5/common/telemetry/log"
 	"github.com/pydio/cells/v5/common/utils/i18n/languages"
@@ -59,6 +60,10 @@ func init() {
 			service.Tag(common.ServiceTagData),
 			service.Description("Versioning service"),
 			service.Migrations([]*service.Migration{
+				{
+					TargetVersion: service.FirstRunOrChange(),
+					Up:            manager.StorageMigration(),
+				},
 				{
 					TargetVersion: service.FirstRun(),
 					Up:            InitDefaults,

@@ -159,7 +159,7 @@ func (h *Handler) CreateVersion(ctx context.Context, request *tree.CreateVersion
 
 	if !request.Draft {
 		if last, er := dao.GetLastVersion(ctx, request.Node.Uuid); er != nil {
-			return nil, err
+			return nil, er
 		} else if last != nil && last.ETag == node.Etag {
 			log.Logger(ctx).Debug("[VERSION] Found same last version for node, ignore version creation", zap.Any("last", last), zap.Any("request", request))
 			return &tree.CreateVersionResponse{Ignored: true}, nil
@@ -181,10 +181,10 @@ func (h *Handler) CreateVersion(ctx context.Context, request *tree.CreateVersion
 	}
 
 	if c.Location, err = versions.LocationForNode(ctx, node, c.VersionId); err != nil {
-		log.Logger(ctx).Info("CreateVersion could not create location", zap.Error(err))
+		log.Logger(ctx).Warn("CreateVersion could not create location", zap.Error(err))
 		return nil, err
 	} else {
-		log.Logger(ctx).Info("CreateVersion has location", c.Location.Zap("location"))
+		log.Logger(ctx).Debug("CreateVersion has location", c.Location.Zap("location"))
 	}
 
 	return &tree.CreateVersionResponse{Version: c}, nil
