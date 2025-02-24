@@ -24,13 +24,13 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/pkg/errors"
 	"go.uber.org/zap"
 	"google.golang.org/protobuf/proto"
 	"google.golang.org/protobuf/types/known/anypb"
 
 	"github.com/pydio/cells/v5/common"
 	"github.com/pydio/cells/v5/common/client/grpc"
+	"github.com/pydio/cells/v5/common/errors"
 	"github.com/pydio/cells/v5/common/forms"
 	"github.com/pydio/cells/v5/common/nodes"
 	"github.com/pydio/cells/v5/common/nodes/compose"
@@ -142,10 +142,15 @@ func (c *VersionAction) Run(ctx context.Context, channels *actions.RunnableChann
 
 	sourceNode := node.Clone()
 	targetNode := resp.Version.GetLocation()
+	if targetNode == nil {
+		er := errors.WithMessage(errors.NodeNotFound, "no content revision location found")
+		log.TasksLogger(ctx).Error("version.GetLocation is empty", zap.Any("version", resp.Version))
+		return input.WithError(er), er
+	}
 
 	objectInfo, err := getRouter().CopyObject(ctx, sourceNode, targetNode, &models.CopyRequestData{})
 	if err != nil {
-		err = errors.Wrap(err, fmt.Sprintf("Copying %s -> %s", sourceNode.GetPath(), targetNode.GetUuid()))
+		err = errors.WithMessage(err, fmt.Sprintf("Copying %s -> %s", sourceNode.GetPath(), targetNode.GetUuid()))
 		return input.WithError(err), err
 	}
 

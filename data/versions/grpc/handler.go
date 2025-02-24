@@ -180,11 +180,12 @@ func (h *Handler) CreateVersion(ctx context.Context, request *tree.CreateVersion
 		c.VersionId = uuid.New()
 	}
 
-	location, err := versions.LocationForNode(ctx, node, c.VersionId)
-	if err != nil {
+	if c.Location, err = versions.LocationForNode(ctx, node, c.VersionId); err != nil {
+		log.Logger(ctx).Info("CreateVersion could not create location", zap.Error(err))
 		return nil, err
+	} else {
+		log.Logger(ctx).Info("CreateVersion has location", c.Location.Zap("location"))
 	}
-	c.Location = location
 
 	return &tree.CreateVersionResponse{Version: c}, nil
 }
