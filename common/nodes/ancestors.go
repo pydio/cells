@@ -56,14 +56,8 @@ func getAncestorsNodesCache(ctx context.Context) cache.Cache {
 
 // BuildAncestorsList uses ListNodes with "Ancestors" flag to build the list of parent nodes.
 // It uses an internal short-lived cache to throttle calls to the TreeService
-func BuildAncestorsList(ctx context.Context, treeClient tree.NodeProviderClient, node *tree.Node) (ancestors []*tree.Node, err error) {
-	/*
-		sT := time.Now()
-		defer func() {
-			fmt.Println("--- End BuildAncestorsList for "+node.GetPath(), time.Since(sT))
-		}()
-	*/
-	if node.GetPath() != "" {
+func BuildAncestorsList(ctx context.Context, treeClient tree.NodeProviderClient, node *tree.Node, flags ...uint32) (ancestors []*tree.Node, err error) {
+	if node.GetPath() != "" && len(flags) == 0 {
 		var parents []*tree.Node
 		apc := getAncestorsParentsCache(ctx)
 		if apc.Get(path.Dir(node.GetPath()), &parents) {
@@ -90,6 +84,7 @@ func BuildAncestorsList(ctx context.Context, treeClient tree.NodeProviderClient,
 	ancestorStream, lErr := treeClient.ListNodes(ctx, &tree.ListNodesRequest{
 		Node:      node,
 		Ancestors: true,
+		StatFlags: flags,
 	})
 	if er := commons.ForEach(ancestorStream, lErr, func(response *tree.ListNodesResponse) error {
 		ancestors = append(ancestors, response.GetNode())
@@ -98,7 +93,7 @@ func BuildAncestorsList(ctx context.Context, treeClient tree.NodeProviderClient,
 		return ancestors, er
 	}
 
-	if len(ancestors) > 1 {
+	if len(flags) == 0 && len(ancestors) > 1 {
 		apc := getAncestorsParentsCache(ctx)
 		anc := getAncestorsNodesCache(ctx)
 		cNode := ancestors[0]
@@ -129,14 +124,14 @@ func storeParents(apc cache.Cache, dirPath string, parents []*tree.Node) {
 }
 
 // BuildAncestorsListOrParent builds ancestors list when the node does not exist yet, by trying to find all existing parents.
-func BuildAncestorsListOrParent(ctx context.Context, treeClient tree.NodeProviderClient, node *tree.Node) (parents []*tree.Node, err error) {
-	parents, err = BuildAncestorsList(ctx, treeClient, node)
+func BuildAncestorsListOrParent(ctx context.Context, treeClient tree.NodeProviderClient, node *tree.Node, flags ...uint32) (parents []*tree.Node, err error) {
+	parents, err = BuildAncestorsList(ctx, treeClient, node, flags...)
 	nodePathParts := strings.Split(node.Path, "/")
 	if err != nil && len(nodePathParts) > 1 {
 		// Try to list parent node right
 		parentNode := &tree.Node{}
 		parentNode.Path = strings.Join(nodePathParts[0:len(nodePathParts)-1], "/")
-		parents, err = BuildAncestorsListOrParent(ctx, treeClient, parentNode)
+		parents, err = BuildAncestorsListOrParent(ctx, treeClient, parentNode, flags...)
 		if err != nil {
 			return
 		}

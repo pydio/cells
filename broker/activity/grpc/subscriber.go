@@ -26,6 +26,7 @@ import (
 	"path"
 	"strings"
 	"sync"
+	"time"
 
 	"go.uber.org/zap"
 	"google.golang.org/protobuf/types/known/anypb"
@@ -267,31 +268,39 @@ func (e *MicroEventsSubscriber) parentsFromCache(ctx context.Context, node *tree
 
 	var parentUuids []string
 	loadedNode := node
+	treeClient := treec.NodeProviderClient(ctx)
+	treeStreamer := treec.NodeProviderStreamerClient(ctx)
 
 	// Current N
 	// parentUuids = append(parentUuids, node.Uuid)
 	if node.Path == "" && !isDel {
 		// Reload by Uuid
-		if resp, err := treec.NodeProviderClient(ctx).ReadNode(ctx, &tree.ReadNodeRequest{Node: &tree.Node{Uuid: node.Uuid}}); err == nil && resp.Node != nil {
+		if resp, err := treeClient.ReadNode(ctx, &tree.ReadNodeRequest{Node: &tree.Node{Uuid: node.Uuid}}); err == nil && resp.Node != nil {
 			loadedNode = resp.Node
 		} else if err != nil {
 			return nil, []string{}, err
 		}
 	}
-	/*
-		// For long paths, this may be more optimal
+
+	// For long paths, this is more optimal
+	if len(strings.Split(node.Path, "/")) > 50 {
 		n := time.Now()
-		if pp, e := nodes.BuildAncestorsListOrParent(ctx, e.getTreeClient(), node); e != nil {
+		if pp, e := nodes.BuildAncestorsListOrParent(ctx, treeClient, node, tree.StatFlagNone); e != nil {
 			return nil, parentUuids, e
 		} else {
 			for _, p := range pp {
 				parentUuids = append(parentUuids, p.Uuid)
+				_ = kach.Set(p.GetPath(), p.GetUuid())
 			}
-			log.Logger(ctx).Info("--- Build AncestorsListOrParent Took" + time.Since(n).String())
+			log.Logger(ctx).Debug("--- Build AncestorsListOrParent Took"+time.Since(n).String(), zap.String("path", node.Path))
 			return loadedNode, parentUuids, nil
 		}
-	*/
+	}
 
+	st, er := treeStreamer.ReadNodeStream(ctx)
+	if er != nil {
+		return nil, parentUuids, er
+	}
 	// Manually load parents from Path
 	parentPath := loadedNode.Path
 	for {
@@ -305,18 +314,23 @@ func (e *MicroEventsSubscriber) parentsFromCache(ctx context.Context, node *tree
 				parentUuids = append(parentUuids, pU)
 			}
 		} else {
-			resp, err := treec.NodeProviderClient(ctx).ReadNode(ctx, &tree.ReadNodeRequest{
+			rt := time.Now()
+			_ = st.Send(&tree.ReadNodeRequest{
 				Node:      &tree.Node{Path: parentPath},
 				StatFlags: []uint32{tree.StatFlagNone}},
 			)
-			if err == nil {
+			resp, receiveErr := st.Recv()
+			log.Logger(ctx).Debug("Read took", zap.Duration("read", time.Since(rt)), zap.String("path", parentPath))
+			if receiveErr != nil {
+				return nil, parentUuids, receiveErr
+			}
+			if resp.Success {
 				uuid := resp.Node.Uuid
-				kach.Set(parentPath, uuid)
+				_ = kach.Set(parentPath, uuid)
 				parentUuids = append(parentUuids, uuid)
-			} else if errors.Is(err, errors.StatusNotFound) {
-				kach.Set(parentPath, "**DELETED**")
 			} else {
-				return nil, []string{}, err
+				log.Logger(ctx).Debug("Node not found during read stream")
+				_ = kach.Set(parentPath, "**DELETED**")
 			}
 		}
 	}
