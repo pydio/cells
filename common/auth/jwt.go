@@ -37,7 +37,6 @@ import (
 	"github.com/pydio/cells/v5/common/proto/auth"
 	"github.com/pydio/cells/v5/common/proto/idm"
 	"github.com/pydio/cells/v5/common/telemetry/log"
-	"github.com/pydio/cells/v5/common/utils/propagator"
 )
 
 type ProviderType int
@@ -313,7 +312,7 @@ func (j *JWTVerifier) Verify(ctx context.Context, rawIDToken string) (context.Co
 		return ctx, *claims, err
 	}
 
-	ctx = ContextFromClaims(ctx, *claims)
+	ctx = claim.ToContext(ctx, *claims)
 
 	return ctx, *claims, nil
 }
@@ -433,8 +432,7 @@ func WithImpersonate(ctx context.Context, user *idm.User) context.Context {
 		}
 		c.Public = user.IsHidden()
 	}
-	ctx = propagator.WithAdditionalMetadata(ctx, map[string]string{common.PydioContextUserKey: user.Login})
-	return context.WithValue(ctx, claim.ContextKey, c)
+	return claim.ToContext(ctx, c)
 }
 
 func RegisterProvider(p Provider) {

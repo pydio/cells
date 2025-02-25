@@ -67,7 +67,7 @@ import (
 func DeleteNodesTask(ctx context.Context, router nodes.Client, selectedPaths []string, permanently bool, languages ...string) ([]*jobs.Job, error) {
 
 	var jj []*jobs.Job
-	username, _ := permissions.FindUserNameInContext(ctx)
+	username := claim.UserNameFromContext(ctx)
 	T := lang.Bundle().T(languages...)
 	selectedPaths = std.Unique(selectedPaths)
 
@@ -256,7 +256,10 @@ func CompressTask(ctx context.Context, router nodes.Client, selectedPaths []stri
 	selectedPaths = std.Unique(selectedPaths)
 	var out *jobs.Job
 	jobUuid := "compress-folders-" + uuid.New()
-	claims := ctx.Value(claim.ContextKey).(claim.Claims)
+	claims, ok := claim.FromContext(ctx)
+	if !ok {
+		return nil, errors.WithStack(errors.MissingClaims)
+	}
 	userName := claims.Name
 	permError := errors.WithMessage(errors.StatusForbidden, "Some files or folder are not allowed to be read or downloaded, you cannot build this archive")
 	if format != "zip" && format != "tar" && format != "tar.gz" {
@@ -367,7 +370,10 @@ func CompressTask(ctx context.Context, router nodes.Client, selectedPaths []stri
 func ExtractTask(ctx context.Context, router nodes.Client, selectedNode string, targetPath string, format string, languages ...string) (*jobs.Job, error) {
 
 	jobUuid := "extract-archive-" + uuid.New()
-	claims := ctx.Value(claim.ContextKey).(claim.Claims)
+	claims, ok := claim.FromContext(ctx)
+	if !ok {
+		return nil, errors.WithStack(errors.MissingClaims)
+	}
 	userName := claims.Name
 	T := lang.Bundle().T(languages...)
 	initialTargetPath := targetPath
@@ -463,7 +469,7 @@ func CopyMoveTask(ctx context.Context, router nodes.Client, selectedPaths []stri
 
 	var outJob *jobs.Job
 	jobUuid := "copy-move-" + uuid.New()
-	userName, _ := permissions.FindUserNameInContext(ctx)
+	userName := claim.UserNameFromContext(ctx)
 
 	sourceId := "in"
 	targetId := "in"
@@ -656,7 +662,10 @@ func WgetTask(ctx context.Context, router nodes.Client, parentPath string, urls 
 	taskLabel := T("Jobs.User.Wget")
 	var out []*jobs.Job
 
-	claims := ctx.Value(claim.ContextKey).(claim.Claims)
+	claims, ok := claim.FromContext(ctx)
+	if !ok {
+		return nil, errors.WithStack(errors.MissingClaims)
+	}
 	userName := claims.Name
 
 	var parentNode, fullPathParentNode *tree.Node
@@ -743,7 +752,10 @@ func WgetTask(ctx context.Context, router nodes.Client, parentPath string, urls 
 
 func P8migrationTask(ctx context.Context, jsonParams string) (*jobs.Job, error) {
 
-	claims := ctx.Value(claim.ContextKey).(claim.Claims)
+	claims, ok := claim.FromContext(ctx)
+	if !ok {
+		return nil, errors.WithStack(errors.MissingClaims)
+	}
 	if claims.Profile != common.PydioProfileAdmin {
 		return nil, errors.WithMessage(errors.StatusForbidden, "you are not allowed to create this job")
 	}
@@ -819,7 +831,7 @@ func RestoreTask(ctx context.Context, router nodes.Client, paths []string, langu
 	var jj []*jobs.Job
 	var nn []*tree.Node
 
-	username, _ := permissions.FindUserNameInContext(ctx)
+	username := claim.UserNameFromContext(ctx)
 	T := lang.Bundle().T(languages...)
 	moveLabel := T("Jobs.User.DirMove")
 	cli := jobsc.JobServiceClient(ctx)
@@ -918,7 +930,7 @@ func PersistSelection(ctx context.Context, nodes []*tree.Node) (string, error) {
 	if len(nodes) > 1 {
 		nodes = DeduplicateNodes(nodes)
 	}
-	username, _ := permissions.FindUserNameInContext(ctx)
+	username := claim.UserNameFromContext(ctx)
 	selectionUuid := uuid.New()
 	dcClient := docstorec.DocStoreClient(ctx)
 	data, _ := json.Marshal(nodes)

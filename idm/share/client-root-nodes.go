@@ -197,9 +197,9 @@ func (sc *Client) DetectInheritedPolicy(ctx context.Context, roots []*tree.Node,
 	}
 	if cellNode {
 		// Check if there is a default policy set for cells using custom folders
-		claims, ok := ctx.Value(claim.ContextKey).(claim.Claims)
+		claims, ok := claim.FromContext(ctx)
 		if !ok {
-			return "", errors.WithStack(errors.InvalidIDToken)
+			return "", errors.WithStack(errors.MissingClaims)
 		}
 		roles, er := permissions.GetRoles(ctx, strings.Split(claims.Roles, ","))
 		if er != nil {

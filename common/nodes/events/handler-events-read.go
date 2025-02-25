@@ -28,13 +28,13 @@ import (
 	"google.golang.org/grpc"
 
 	"github.com/pydio/cells/v5/common"
+	"github.com/pydio/cells/v5/common/auth/claim"
 	"github.com/pydio/cells/v5/common/broker"
 	"github.com/pydio/cells/v5/common/client/commons/docstorec"
 	"github.com/pydio/cells/v5/common/errors"
 	"github.com/pydio/cells/v5/common/nodes"
 	"github.com/pydio/cells/v5/common/nodes/abstract"
 	"github.com/pydio/cells/v5/common/nodes/models"
-	"github.com/pydio/cells/v5/common/permissions"
 	"github.com/pydio/cells/v5/common/proto/docstore"
 	"github.com/pydio/cells/v5/common/proto/tree"
 	"github.com/pydio/cells/v5/common/telemetry/log"
@@ -157,8 +157,8 @@ func (h *HandlerRead) GetObject(ctx context.Context, node *tree.Node, requestDat
 // sharedLinkWithDownloadLimit searches corresponding link and update download number, only in the case of a "Public" user (hidden)
 func (h *HandlerRead) sharedLinkWithDownloadLimit(ctx context.Context) (doc *docstore.Document, linkData *docstore.ShareDocument) {
 
-	userLogin, claims := permissions.FindUserNameInContext(ctx)
-	if !claims.Public {
+	claims, ok := claim.FromContext(ctx)
+	if !ok || !claims.Public {
 		return
 	}
 	store := docstorec.DocStoreClient(ctx)
@@ -167,7 +167,7 @@ func (h *HandlerRead) sharedLinkWithDownloadLimit(ctx context.Context) (doc *doc
 	lC, ca := context.WithCancel(ctx)
 	defer ca()
 	stream, e := store.ListDocuments(lC, &docstore.ListDocumentsRequest{StoreID: common.DocStoreIdShares, Query: &docstore.DocumentQuery{
-		MetaQuery: "+SHARE_TYPE:minisite +PRESET_LOGIN:" + userLogin + "",
+		MetaQuery: "+SHARE_TYPE:minisite +PRESET_LOGIN:" + claims.Name + "",
 	}})
 	if e != nil {
 		return
@@ -179,7 +179,7 @@ func (h *HandlerRead) sharedLinkWithDownloadLimit(ctx context.Context) (doc *doc
 	if doc == nil {
 		// Otherwise search with prelog_user
 		stream2, e := store.ListDocuments(lC, &docstore.ListDocumentsRequest{StoreID: common.DocStoreIdShares, Query: &docstore.DocumentQuery{
-			MetaQuery: "+SHARE_TYPE:minisite +PRELOG_USER:" + userLogin + "",
+			MetaQuery: "+SHARE_TYPE:minisite +PRELOG_USER:" + claims.Name + "",
 		}})
 		if e != nil {
 			return

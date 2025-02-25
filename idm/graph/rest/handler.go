@@ -33,6 +33,7 @@ import (
 
 	"github.com/pydio/cells/v5/common"
 	"github.com/pydio/cells/v5/common/auth"
+	"github.com/pydio/cells/v5/common/auth/claim"
 	"github.com/pydio/cells/v5/common/client/commons"
 	"github.com/pydio/cells/v5/common/client/commons/idmc"
 	"github.com/pydio/cells/v5/common/client/grpc"
@@ -200,7 +201,7 @@ func (h *GraphHandler) Recommend(req *restful.Request, rsp *restful.Response) er
 	if err != nil || len(accessList.GetWorkspaces()) == 0 {
 		return rsp.WriteEntity(&rest.RecommendResponse{})
 	}
-	uName, _ := permissions.FindUserNameInContext(ctx)
+	uName := claim.UserNameFromContext(ctx)
 	ak := map[string]struct{}{}
 	var an, bn []*tree.Node
 

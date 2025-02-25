@@ -42,7 +42,6 @@ import (
 	"github.com/pydio/cells/v5/common/utils/cache"
 	cache_helper "github.com/pydio/cells/v5/common/utils/cache/helper"
 	json "github.com/pydio/cells/v5/common/utils/jsonx"
-	"github.com/pydio/cells/v5/common/utils/propagator"
 )
 
 var (
@@ -268,27 +267,6 @@ func workspacesByUUIDs(ctx context.Context, uuids []string) (ww []*idm.Workspace
 
 }
 
-func FindUserNameInContext(ctx context.Context) (string, claim.Claims) {
-
-	var userName string
-	var claims claim.Claims
-	if ctx.Value(claim.ContextKey) != nil {
-		claims = ctx.Value(claim.ContextKey).(claim.Claims)
-		userName = claims.Name
-	} else if ctx.Value(common.PydioContextUserKey) != nil {
-		userName = ctx.Value(common.PydioContextUserKey).(string)
-	} else if ctx.Value(strings.ToLower(common.PydioContextUserKey)) != nil {
-		userName = ctx.Value(strings.ToLower(common.PydioContextUserKey)).(string)
-	} else if meta, ok := propagator.FromContextRead(ctx); ok {
-		if value, exists := meta[common.PydioContextUserKey]; exists {
-			userName = value
-		} else if value, exists := meta[strings.ToLower(common.PydioContextUserKey)]; exists {
-			userName = value
-		}
-	}
-	return userName, claims
-}
-
 // AccessListForLockedNodes builds a flattened node list containing all currently locked nodes
 func AccessListForLockedNodes(ctx context.Context, resolver VirtualPathResolver) (accessList *AccessList, err error) {
 
@@ -322,7 +300,7 @@ func AccessListFromContextClaims(ctx context.Context) (accessList *AccessList, e
 
 	accessList = NewAccessList()
 
-	claims, ok := ctx.Value(claim.ContextKey).(claim.Claims)
+	claims, ok := claim.FromContext(ctx)
 	if !ok {
 		log.Logger(ctx).Debug("No Claims in Context, workspaces will be empty - probably anonymous user")
 		return
@@ -626,7 +604,7 @@ func CheckContentLock(ctx context.Context, node *tree.Node) error {
 		return nil
 	}
 	var userName string
-	if claims, ok := ctx.Value(claim.ContextKey).(claim.Claims); ok {
+	if claims, ok := claim.FromContext(ctx); ok {
 		userName = claims.Name
 	}
 

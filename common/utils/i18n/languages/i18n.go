@@ -163,8 +163,7 @@ func UserLanguagesFromRestRequest(req *restful.Request) []string {
 // UserLanguageFromContext tries to find Claims in context and get the language for the corresponding user.
 // If nothing is found, if returnDefault is true it returns the global default language, otherwise it returns an empty string.
 func UserLanguageFromContext(ctx context.Context, returnDefault bool) string {
-	if claimVal := ctx.Value(claim.ContextKey); claimVal != nil {
-		claims := claimVal.(claim.Claims)
+	if claims, ok := claim.FromContext(ctx); ok {
 		u := &idm.User{Login: claims.Name}
 		for _, role := range strings.Split(claims.Roles, ",") {
 			u.Roles = append(u.Roles, &idm.Role{Uuid: role})

@@ -154,18 +154,15 @@ func PolicyContextFromNode(policyContext map[string]string, node *tree.Node) {
 
 func PolicyContextFromClaims(policyContext map[string]string, ctx context.Context) {
 	// Find profile in claims, if any
-	if cValue := ctx.Value(claim.ContextKey); cValue != nil {
-		if claims, ok := cValue.(claim.Claims); ok {
-			policyContext["ClaimsName"] = claims.Name
-			policyContext["ClaimsRoles"] = claims.Roles
-			policyContext["ClaimsSubject"] = claims.Subject
-			policyContext["ClaimsProfile"] = claims.Profile
-			policyContext["ClaimsGroupPath"] = claims.GroupPath
-			policyContext["ClaimsIssuer"] = claims.Issuer
-			policyContext["ClaimsClientApp"] = claims.GetClientApp()
-		}
+	if claims, ok := claim.FromContext(ctx); ok {
+		policyContext["ClaimsName"] = claims.Name
+		policyContext["ClaimsRoles"] = claims.Roles
+		policyContext["ClaimsSubject"] = claims.Subject
+		policyContext["ClaimsProfile"] = claims.Profile
+		policyContext["ClaimsGroupPath"] = claims.GroupPath
+		policyContext["ClaimsIssuer"] = claims.Issuer
+		policyContext["ClaimsClientApp"] = claims.GetClientApp()
 	}
-
 }
 
 func loadPoliciesByResourcesType(ctx context.Context, resType string) ([]*idm.Policy, error) {

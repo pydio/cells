@@ -7,13 +7,13 @@ import (
 	"go.uber.org/zap"
 
 	"github.com/pydio/cells/v5/common"
+	"github.com/pydio/cells/v5/common/auth/claim"
 	"github.com/pydio/cells/v5/common/client/commons"
 	"github.com/pydio/cells/v5/common/client/grpc"
 	"github.com/pydio/cells/v5/common/errors"
 	"github.com/pydio/cells/v5/common/nodes"
 	"github.com/pydio/cells/v5/common/nodes/compose"
 	"github.com/pydio/cells/v5/common/nodes/models"
-	"github.com/pydio/cells/v5/common/permissions"
 	"github.com/pydio/cells/v5/common/proto/idm"
 	"github.com/pydio/cells/v5/common/proto/rest"
 	"github.com/pydio/cells/v5/common/proto/tree"
@@ -56,7 +56,10 @@ func (h *Handler) NodeVersions(req *restful.Request, resp *restful.Response) err
 		SortDesc:  filter.GetSortDirDesc(),
 		Filters:   mapFilter,
 	})
-	_, claims := permissions.FindUserNameInContext(ctx)
+	claims, ok := claim.FromContext(ctx)
+	if !ok {
+		return errors.WithStack(errors.MissingClaims)
+	}
 	var versions []*rest.Version // Create an empty array on purpose
 	err := commons.ForEach(st, er, func(response *tree.ListVersionsResponse) error {
 		// Show only current user's drafts
@@ -212,7 +215,10 @@ func (h *Handler) DeleteVersion(req *restful.Request, resp *restful.Response) er
 	st, er := vcl.ListVersions(ctx, &tree.ListVersionsRequest{Node: targetNode})
 	var vv []*tree.ContentRevision
 	var v *tree.ContentRevision
-	_, cl := permissions.FindUserNameInContext(ctx)
+	cl, ok := claim.FromContext(ctx)
+	if !ok {
+		return errors.WithStack(errors.MissingClaims)
+	}
 	er = commons.ForEach(st, er, func(response *tree.ListVersionsResponse) error {
 		if response.GetVersion().VersionId == versionUuid && response.GetVersion().OwnerUuid == cl.Subject {
 			v = response.GetVersion()
@@ -272,7 +278,10 @@ func (h *Handler) promoteDraftVersion(ctx context.Context, targetNode *tree.Node
 		versionCli = versionClient(ctx)
 	}
 	var revision *tree.ContentRevision
-	_, cl := permissions.FindUserNameInContext(ctx)
+	cl, ok := claim.FromContext(ctx)
+	if !ok {
+		return nil, errors.WithStack(errors.MissingClaims)
+	}
 	if versionUuid != "" {
 		hr, er := versionCli.HeadVersion(ctx, &tree.HeadVersionRequest{NodeUuid: targetNode.GetUuid(), VersionId: versionUuid})
 		if er != nil {

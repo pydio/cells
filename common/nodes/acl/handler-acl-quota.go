@@ -31,6 +31,7 @@ import (
 	"google.golang.org/protobuf/types/known/anypb"
 
 	"github.com/pydio/cells/v5/common"
+	"github.com/pydio/cells/v5/common/auth"
 	"github.com/pydio/cells/v5/common/auth/claim"
 	"github.com/pydio/cells/v5/common/client/commons/idmc"
 	"github.com/pydio/cells/v5/common/client/commons/treec"
@@ -91,7 +92,7 @@ func (a *QuotaFilter) ReadNode(ctx context.Context, in *tree.ReadNodeRequest, op
 
 	var cacheKey string
 	ca := cache_helper.MustResolveCache(ctx, common.CacheTypeLocal, cacheConfig)
-	if claims, ok := ctx.Value(claim.ContextKey).(claim.Claims); ok {
+	if claims, ok := claim.FromContext(ctx); ok {
 		cacheKey = branch.Workspace.UUID + "-" + claims.Name
 		var qc *qCache
 		if ca != nil && ca.Get(cacheKey, &qc) {
@@ -194,7 +195,7 @@ func (a *QuotaFilter) WrappedCanApply(srcCtx context.Context, targetCtx context.
 // ComputeQuota finds quota and current usage for a given workspace
 func (a *QuotaFilter) ComputeQuota(ctx context.Context, workspace *idm.Workspace) (quota int64, usage int64, err error) {
 
-	claims, ok := ctx.Value(claim.ContextKey).(claim.Claims)
+	claims, ok := claim.FromContext(ctx)
 	if !ok {
 		return
 	}
@@ -257,16 +258,7 @@ func (a *QuotaFilter) FindParentWorkspaces(ctx context.Context, workspace *idm.W
 	}
 	log.Logger(ctx).Debug("AccessList From User", zap.Any("ownerUuid", ownerUuid), zap.Any("accessList", ownerAcls))
 
-	var roleIds []string
-	for _, r := range ownerAcls.GetRoles() {
-		roleIds = append(roleIds, r.Uuid)
-	}
-	claims := claim.Claims{
-		Name:      userObject.Login,
-		Roles:     strings.Join(roleIds, ","),
-		GroupPath: userObject.GroupPath,
-	}
-	parentContext = context.WithValue(ctx, claim.ContextKey, claims)
+	parentContext = auth.WithImpersonate(ctx, userObject)
 	vResolver := abstract.GetVirtualProvider().GetResolver(false)
 	ownerWsRoots := make(map[string]*idm.Workspace)
 

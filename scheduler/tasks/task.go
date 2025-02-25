@@ -30,7 +30,7 @@ import (
 	"google.golang.org/protobuf/encoding/protojson"
 
 	"github.com/pydio/cells/v5/common"
-	"github.com/pydio/cells/v5/common/permissions"
+	"github.com/pydio/cells/v5/common/auth/claim"
 	"github.com/pydio/cells/v5/common/proto/jobs"
 	"github.com/pydio/cells/v5/common/telemetry/log"
 	"github.com/pydio/cells/v5/common/utils/propagator"
@@ -67,7 +67,7 @@ type Task struct {
 // NewTaskFromEvent creates a task based on incoming job and event
 func NewTaskFromEvent(ctx context.Context, job *jobs.Job, event interface{}) *Task {
 	log.Logger(ctx).Debug("NewTaskFromEvent " + job.ID)
-	ctxUserName, _ := permissions.FindUserNameInContext(ctx)
+	ctxUserName := claim.UserNameFromContext(ctx)
 	taskID := uuid.New()
 	if trigger, ok := event.(*jobs.JobTriggerEvent); ok && trigger.RunTaskId != "" {
 		taskID = trigger.RunTaskId

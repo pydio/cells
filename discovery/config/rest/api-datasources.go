@@ -33,6 +33,7 @@ import (
 	"google.golang.org/protobuf/types/known/anypb"
 
 	"github.com/pydio/cells/v5/common"
+	"github.com/pydio/cells/v5/common/auth/claim"
 	"github.com/pydio/cells/v5/common/broker"
 	"github.com/pydio/cells/v5/common/client/commons/idmc"
 	"github.com/pydio/cells/v5/common/client/commons/jobsc"
@@ -41,7 +42,6 @@ import (
 	"github.com/pydio/cells/v5/common/config"
 	"github.com/pydio/cells/v5/common/errors"
 	"github.com/pydio/cells/v5/common/nodes"
-	"github.com/pydio/cells/v5/common/permissions"
 	"github.com/pydio/cells/v5/common/proto/idm"
 	"github.com/pydio/cells/v5/common/proto/jobs"
 	"github.com/pydio/cells/v5/common/proto/object"
@@ -173,7 +173,7 @@ func (s *Handler) PutDataSource(req *restful.Request, resp *restful.Response) er
 	config.SourceNamesToConfig(ctx, currentSources)
 	config.MinioConfigNamesToConfig(ctx, currentMinios)
 
-	u, _ := permissions.FindUserNameInContext(ctx)
+	u := claim.UserNameFromContext(ctx)
 	if u == "" {
 		u = "rest"
 	}
@@ -246,7 +246,7 @@ func (s *Handler) DeleteDataSource(req *restful.Request, resp *restful.Response)
 		config.MinioConfigNamesToConfig(ctx, currentMinios)
 	}
 
-	u, _ := permissions.FindUserNameInContext(req.Request.Context())
+	u := claim.UserNameFromContext(req.Request.Context())
 	if u == "" {
 		u = "rest"
 	}

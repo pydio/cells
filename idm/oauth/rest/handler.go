@@ -29,6 +29,7 @@ import (
 	"go.uber.org/zap"
 
 	"github.com/pydio/cells/v5/common"
+	"github.com/pydio/cells/v5/common/auth/claim"
 	"github.com/pydio/cells/v5/common/client/commons/docstorec"
 	"github.com/pydio/cells/v5/common/client/commons/idmc"
 	"github.com/pydio/cells/v5/common/client/grpc"
@@ -260,8 +261,11 @@ func (a *TokenHandler) GenerateDocumentAccessToken(req *restful.Request, resp *r
 	if e != nil {
 		return e
 	}
-	uName, claims := permissions.FindUserNameInContext(ctx)
-	uUuid := claims.Subject
+	claims, ok := claim.FromContext(ctx)
+	if !ok {
+		return errors.WithStack(errors.MissingClaims)
+	}
+
 	permission := "r" // Must be read at least by default !
 	if readResp.Node.GetStringMeta(common.MetaFlagReadonly) == "" {
 		permission = "rw"
@@ -278,8 +282,8 @@ func (a *TokenHandler) GenerateDocumentAccessToken(req *restful.Request, resp *r
 
 	generateRequest := &auth.PatGenerateRequest{
 		Type:              auth.PatType_DOCUMENT,
-		UserUuid:          uUuid,
-		UserLogin:         uName,
+		UserUuid:          claims.Subject,
+		UserLogin:         claims.Name,
 		Label:             "Temporary access token for document " + readResp.Node.Path,
 		AutoRefreshWindow: refresh,
 		Issuer:            req.Request.URL.String(),

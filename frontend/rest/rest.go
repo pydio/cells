@@ -33,6 +33,7 @@ import (
 	"google.golang.org/protobuf/types/known/emptypb"
 
 	"github.com/pydio/cells/v5/common"
+	"github.com/pydio/cells/v5/common/auth/claim"
 	"github.com/pydio/cells/v5/common/broker"
 	"github.com/pydio/cells/v5/common/client/commons/idmc"
 	"github.com/pydio/cells/v5/common/config"
@@ -366,7 +367,7 @@ func (a *FrontendHandler) FrontServeBinary(req *restful.Request, rsp *restful.Re
 
 	if readNode != nil {
 		// If anonymous GET, add system user in context before querying object service
-		if ctxUser, _ := permissions.FindUserNameInContext(ctx); ctxUser == "" {
+		if ctxUser := claim.UserNameFromContext(ctx); ctxUser == "" {
 			ctx = context.WithValue(ctx, common.PydioContextUserKey, common.PydioSystemUsername)
 		}
 		ctx = ctxWithoutCookies(ctx)
@@ -406,7 +407,10 @@ func (a *FrontendHandler) FrontPutBinary(req *restful.Request, rsp *restful.Resp
 	cType := strings.Split(f2.Header.Get("Content-Type"), "/")
 	extension := cType[1]
 	binaryId := uuid.New()[0:12] + "." + extension
-	ctxUser, ctxClaims := permissions.FindUserNameInContext(ctx)
+	ctxClaims, ok := claim.FromContext(ctx)
+	if !ok {
+		return errors.WithStack(errors.MissingClaims)
+	}
 
 	log.Logger(ctx).Debug("Upload Binary", zap.String("type", binaryType), zap.Any("header", f2))
 	router := compose.PathClient()
@@ -426,7 +430,7 @@ func (a *FrontendHandler) FrontPutBinary(req *restful.Request, rsp *restful.Resp
 			fileSize = si
 		}
 		// USER binaries can only be edited by context user or by admin
-		if ctxClaims.Profile != common.PydioProfileAdmin && ctxUser != binaryUuid {
+		if ctxClaims.Profile != common.PydioProfileAdmin && ctxClaims.Name != binaryUuid {
 			return errors.WithMessage(errors.StatusForbidden, "you are not allowed to edit this binary")
 		}
 

@@ -24,9 +24,11 @@ import (
 	"context"
 	"fmt"
 	"net/http"
+	"net/url"
 	"strings"
 
 	grpc_recovery "github.com/grpc-ecosystem/go-grpc-middleware/recovery"
+	"go.opentelemetry.io/otel/trace"
 	"go.uber.org/zap"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
@@ -40,6 +42,7 @@ import (
 	"github.com/pydio/cells/v5/common/runtime"
 	"github.com/pydio/cells/v5/common/server"
 	"github.com/pydio/cells/v5/common/telemetry/log"
+	"github.com/pydio/cells/v5/common/telemetry/tracing"
 	"github.com/pydio/cells/v5/common/utils/propagator"
 )
 
@@ -220,39 +223,59 @@ func ServiceIncomingContext(serverRuntimeContext context.Context) func(ctx conte
 
 func WebIncomingContextMiddleware(ct context.Context, endpoint string, serviceContextKey any, srv server.Server, h http.Handler) http.Handler {
 	return http.HandlerFunc(func(rw http.ResponseWriter, req *http.Request) {
-		ctx := propagator.ForkContext(req.Context(), ct)
+		var span trace.Span
+		ctx := req.Context()
+		ctx, span = tracing.StartLocalSpan(ctx, "WebIncomingContextMiddleware")
+		defer span.End()
 
-		var reg registry.Registry
-		propagator.Get(ctx, registry.ContextKey, &reg)
+		ctx = propagator.ForkContext(ctx, ct)
 
-		path := strings.TrimSuffix(req.RequestURI, req.URL.Path)
-		if endpoint != "" {
-			path = endpoint
-		}
+		var svc registry.Service
+		if !propagator.Get(ctx, serviceContextKey, &svc) {
+			log.Logger(ctx).Debug("Service not set, resolve it with registry")
 
-		endpoints := reg.ListAdjacentItems(
-			registry.WithAdjacentSourceItems([]registry.Item{srv}),
-			registry.WithAdjacentTargetOptions(registry.WithName(path), registry.WithType(pb.ItemType_ENDPOINT)),
-		)
+			var reg registry.Registry
+			propagator.Get(ctx, registry.ContextKey, &reg)
 
-		for _, ep := range endpoints {
-			services := reg.ListAdjacentItems(
-				registry.WithAdjacentSourceItems([]registry.Item{ep}),
-				registry.WithAdjacentTargetOptions(registry.WithType(pb.ItemType_SERVICE)),
-			)
-
-			if len(services) != 1 {
-				continue
+			// Reparse RequestURI to remove query string ?xxxx
+			origPath := req.RequestURI
+			u, _ := url.Parse(origPath)
+			path := strings.TrimSuffix(u.Path, req.URL.Path)
+			if endpoint != "" {
+				path = endpoint
 			}
 
-			ctx = propagator.With(ctx, serviceContextKey, services[0])
+			log.Logger(ctx).Debug("Start List Endpoints")
+
+			endpoints := reg.ListAdjacentItems(
+				registry.WithAdjacentSourceItems([]registry.Item{srv}),
+				registry.WithAdjacentTargetOptions(registry.WithName(path), registry.WithType(pb.ItemType_ENDPOINT)),
+			)
+
+			log.Logger(ctx).Debug("End List endpoints")
+
+			for _, ep := range endpoints {
+				services := reg.ListAdjacentItems(
+					registry.WithAdjacentSourceItems([]registry.Item{ep}),
+					registry.WithAdjacentTargetOptions(registry.WithType(pb.ItemType_SERVICE)),
+				)
+
+				if len(services) != 1 {
+					continue
+				}
+
+				ctx = propagator.With(ctx, serviceContextKey, services[0])
+			}
 		}
+
+		log.Logger(ctx).Debug("End List Adjacents, start ApplyHTTPIncoming")
 		req = req.WithContext(ctx)
 		var er error
 		if req, er = ApplyHTTPIncomingContextModifiers(req); er != nil {
 			rw.WriteHeader(http.StatusInternalServerError)
 			return
 		}
+		log.Logger(ctx).Debug("End ApplyHTTPIncoming")
 		h.ServeHTTP(rw, req)
 	})
 }

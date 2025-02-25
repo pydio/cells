@@ -26,7 +26,7 @@ import (
 	minio "github.com/minio/minio-go/v7"
 
 	"github.com/pydio/cells/v5/common"
-	"github.com/pydio/cells/v5/common/permissions"
+	"github.com/pydio/cells/v5/common/auth/claim"
 	"github.com/pydio/cells/v5/common/utils/propagator"
 )
 
@@ -44,7 +44,7 @@ type customHeadersRoundTripper struct {
 
 func (r *customHeadersRoundTripper) RoundTrip(request *http.Request) (*http.Response, error) {
 	ctx := request.Context()
-	if u, _ := permissions.FindUserNameInContext(ctx); u != "" {
+	if u := claim.UserNameFromContext(ctx); u != "" {
 		request.Header.Set(common.PydioContextUserKey, u)
 	}
 	if meta, ok := propagator.FromContextRead(ctx); ok {

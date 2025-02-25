@@ -27,9 +27,9 @@ import (
 	restful "github.com/emicklei/go-restful/v3"
 	"go.uber.org/zap"
 
+	"github.com/pydio/cells/v5/common/auth/claim"
 	"github.com/pydio/cells/v5/common/config"
 	"github.com/pydio/cells/v5/common/errors"
-	"github.com/pydio/cells/v5/common/permissions"
 	"github.com/pydio/cells/v5/common/proto/rest"
 	"github.com/pydio/cells/v5/common/telemetry/log"
 	json "github.com/pydio/cells/v5/common/utils/jsonx"
@@ -49,7 +49,7 @@ func (s *Handler) PutConfig(req *restful.Request, resp *restful.Response) error 
 	if configuration.FullPath == "" {
 		configuration.FullPath = req.PathParameter("FullPath")
 	}
-	u, _ := permissions.FindUserNameInContext(ctx)
+	u := claim.UserNameFromContext(ctx)
 	if u == "" {
 		u = "rest"
 	}

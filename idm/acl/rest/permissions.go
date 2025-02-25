@@ -44,10 +44,9 @@ import (
 // WriteAllowed returns an error if the Write permission is not present in an acl
 func (a *Handler) WriteAllowed(ctx context.Context, acl *idm.ACL) error {
 
-	if claims, ok := ctx.Value(claim.ContextKey).(claim.Claims); ok {
-		if claims.Profile == common.PydioProfileAdmin { // Always allow for admins
-			return nil
-		}
+	// Always allow for admins
+	if claims, ok := claim.FromContext(ctx); ok && claims.Profile == common.PydioProfileAdmin {
+		return nil
 	}
 
 	if acl.NodeID == "" && acl.RoleID != "" {

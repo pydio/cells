@@ -144,18 +144,14 @@ func buildFileFromNode(ctx context.Context, n *tree.Node) *File {
 	}
 
 	// Find user info in claims, if any
-	if cValue := ctx.Value(claim.ContextKey); cValue != nil {
-		if claims, ok := cValue.(claim.Claims); ok {
-
-			f.UserId = claims.Name
-			f.UserFriendlyName = claims.DisplayName
-
-			pydioReadOnly := n.GetStringMeta(common.MetaFlagReadonly)
-			if pydioReadOnly == "true" {
-				f.UserCanWrite = false
-			} else {
-				f.UserCanWrite = true
-			}
+	if claims, ok := claim.FromContext(ctx); ok {
+		f.UserId = claims.Name
+		f.UserFriendlyName = claims.DisplayName
+		pydioReadOnly := n.GetStringMeta(common.MetaFlagReadonly)
+		if pydioReadOnly == "true" {
+			f.UserCanWrite = false
+		} else {
+			f.UserCanWrite = true
 		}
 	} else {
 		log.Logger(ctx).Debug("No Claims Found", zap.Any("ctx", ctx))

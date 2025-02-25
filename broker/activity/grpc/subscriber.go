@@ -34,6 +34,7 @@ import (
 	"github.com/pydio/cells/v5/broker/activity"
 	"github.com/pydio/cells/v5/common"
 	"github.com/pydio/cells/v5/common/auth"
+	"github.com/pydio/cells/v5/common/auth/claim"
 	"github.com/pydio/cells/v5/common/broker"
 	"github.com/pydio/cells/v5/common/client/commons/idmc"
 	"github.com/pydio/cells/v5/common/client/commons/treec"
@@ -232,7 +233,7 @@ func (e *MicroEventsSubscriber) HandleIdmChange(ctx context.Context, msg *idm.Ch
 	}
 
 	if msg.Acl != nil {
-		author, _ := permissions.FindUserNameInContext(ctx)
+		author := claim.UserNameFromContext(ctx)
 		if msg.Attributes == nil {
 			msg.Attributes = make(map[string]string)
 		}

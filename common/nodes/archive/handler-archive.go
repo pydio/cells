@@ -31,12 +31,12 @@ import (
 	"google.golang.org/grpc"
 
 	"github.com/pydio/cells/v5/common"
+	"github.com/pydio/cells/v5/common/auth/claim"
 	"github.com/pydio/cells/v5/common/client/commons/docstorec"
 	"github.com/pydio/cells/v5/common/errors"
 	"github.com/pydio/cells/v5/common/nodes"
 	"github.com/pydio/cells/v5/common/nodes/abstract"
 	"github.com/pydio/cells/v5/common/nodes/models"
-	"github.com/pydio/cells/v5/common/permissions"
 	"github.com/pydio/cells/v5/common/proto/docstore"
 	"github.com/pydio/cells/v5/common/proto/tree"
 	"github.com/pydio/cells/v5/common/telemetry/log"
@@ -368,7 +368,7 @@ func (a *Handler) getSelectionByUuid(ctx context.Context, selectionUuid string) 
 		DocumentID: selectionUuid,
 	}); e == nil {
 		doc := resp.Document
-		username, _ := permissions.FindUserNameInContext(ctx)
+		username := claim.UserNameFromContext(ctx)
 		if username != doc.Owner {
 			return false, data, errors.WithMessage(errors.StatusForbidden, "this selection does not belong to you")
 		}

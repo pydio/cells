@@ -5,6 +5,7 @@ import (
 
 	"github.com/pydio/cells/v5/common"
 	"github.com/pydio/cells/v5/common/auth"
+	"github.com/pydio/cells/v5/common/auth/claim"
 	"github.com/pydio/cells/v5/common/nodes"
 	"github.com/pydio/cells/v5/common/nodes/compose"
 	"github.com/pydio/cells/v5/common/permissions"
@@ -38,7 +39,7 @@ func (s *ScopedRouterConsumer) GetHandler(ctx context.Context) (context.Context,
 	if s.owner == common.PydioSystemUsername || !s.ownerScope {
 		return ctx, compose.PathClientAdmin(), nil
 	} else {
-		if u, claims := permissions.FindUserNameInContext(ctx); u != s.owner || claims.Name != s.owner {
+		if claims, ok := claim.FromContext(ctx); !ok || claims.Name != s.owner {
 			if user, e := permissions.SearchUniqueUser(ctx, s.owner, ""); e != nil {
 				return ctx, nil, e
 			} else {

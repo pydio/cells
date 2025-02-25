@@ -29,6 +29,7 @@ import (
 	"google.golang.org/protobuf/types/known/anypb"
 
 	"github.com/pydio/cells/v5/common"
+	"github.com/pydio/cells/v5/common/auth/claim"
 	"github.com/pydio/cells/v5/common/client/grpc"
 	"github.com/pydio/cells/v5/common/errors"
 	"github.com/pydio/cells/v5/common/forms"
@@ -111,16 +112,14 @@ func (c *VersionAction) Run(ctx context.Context, channels *actions.RunnableChann
 		return input.WithError(e), e
 	}
 
-	userName, claims := permissions.FindUserNameInContext(ctx)
-	if claims.Subject == "" {
-		user, err := permissions.SearchUniqueUser(ctx, userName, "")
-		if err != nil {
-			return input.WithError(err), err
-		}
-		claims.Subject = user.GetUuid()
+	userName := claim.UserNameFromContext(ctx)
+	user, err := permissions.SearchUniqueUser(ctx, userName, "")
+	if err != nil {
+		return input.WithError(err), err
 	}
+	userId := user.GetUuid()
 	versionClient := tree.NewNodeVersionerClient(grpc.ResolveConn(ctx, common.ServiceVersionsGRPC))
-	request := &tree.CreateVersionRequest{Node: node, OwnerName: userName, OwnerUuid: claims.Subject}
+	request := &tree.CreateVersionRequest{Node: node, OwnerName: userName, OwnerUuid: userId}
 	if input.Event != nil {
 		ce := &tree.NodeChangeEvent{}
 		if err := anypb.UnmarshalTo(input.Event, ce, proto.UnmarshalOptions{}); err == nil {

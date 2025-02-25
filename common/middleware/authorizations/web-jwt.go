@@ -28,6 +28,7 @@ import (
 
 	"github.com/pydio/cells/v5/common"
 	"github.com/pydio/cells/v5/common/auth"
+	"github.com/pydio/cells/v5/common/auth/claim"
 	"github.com/pydio/cells/v5/common/errors"
 	"github.com/pydio/cells/v5/common/telemetry/log"
 )
@@ -46,8 +47,13 @@ func HttpWrapperJWT(h http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 
 		ctx := r.Context()
-		log.Logger(ctx).Debug("JWTHttpHandler: Checking JWT")
+		if _, ok := claim.FromContext(r.Context()); ok {
+			log.Logger(ctx).Debug("Skip IDToken check as claims are already in context")
+			h.ServeHTTP(w, r)
+			return
+		}
 
+		log.Logger(ctx).Debug("JWTHttpHandler: Checking JWT")
 		if val, ok1 := r.Header["Authorization"]; ok1 {
 
 			whole := strings.Join(val, "")

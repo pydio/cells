@@ -31,13 +31,13 @@ import (
 	"google.golang.org/protobuf/proto"
 
 	"github.com/pydio/cells/v5/common"
+	"github.com/pydio/cells/v5/common/auth/claim"
 	"github.com/pydio/cells/v5/common/client/commons"
 	grpc2 "github.com/pydio/cells/v5/common/client/grpc"
 	"github.com/pydio/cells/v5/common/errors"
 	"github.com/pydio/cells/v5/common/nodes"
 	"github.com/pydio/cells/v5/common/nodes/abstract"
 	"github.com/pydio/cells/v5/common/nodes/models"
-	"github.com/pydio/cells/v5/common/permissions"
 	"github.com/pydio/cells/v5/common/proto/tree"
 	"github.com/pydio/cells/v5/common/telemetry/log"
 	"github.com/pydio/cells/v5/common/utils/cache"
@@ -442,11 +442,14 @@ func (v *Handler) routeUploadToContentRevision(ctx context.Context, node *tree.N
 		versionId = uuid.New()
 	}
 	// CreateVersion (not stored yet)
-	u, claims := permissions.FindUserNameInContext(ctx)
+	claims, ok := claim.FromContext(ctx)
+	if !ok {
+		return nil, nil, nodes.LoadedSource{}, errors.WithStack(errors.MissingClaims)
+	}
 	vr, er := v.getVersionClient(ctx).CreateVersion(ctx, &tree.CreateVersionRequest{
 		Node:         node,
 		VersionUuid:  versionId,
-		OwnerName:    u,
+		OwnerName:    claims.Name,
 		OwnerUuid:    claims.Subject,
 		Draft:        true,
 		TriggerEvent: &tree.NodeChangeEvent{Type: tree.NodeChangeEvent_CREATE, Target: node},

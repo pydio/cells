@@ -72,6 +72,7 @@ var (
 	LoginNotAllowed = RegisterBaseSentinel(StatusUnauthorized, "login not allowed")
 	LoginFailed     = RegisterBaseSentinel(StatusUnauthorized, "login failed")
 	InvalidIDToken  = RegisterBaseSentinel(StatusUnauthorized, "invalid id_token")
+	MissingClaims   = RegisterBaseSentinel(StatusUnauthorized, "claims not found")
 	EmptyIDToken    = RegisterBaseSentinel(InvalidIDToken, "empty idToken")
 	ExpiredIDToken  = RegisterBaseSentinel(InvalidIDToken, "expired idToken")
 

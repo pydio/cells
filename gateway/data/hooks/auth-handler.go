@@ -107,13 +107,12 @@ func (a *pydioAuthHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 					s = append(s, role.Uuid)
 				}
 			}
-			anonClaim := claim.Claims{
+			ctx = claim.ToContext(ctx, claim.Claims{
 				Name:      common.PydioS3AnonUsername,
 				Roles:     strings.Join(s, ","),
 				Profile:   "anon",
 				GroupPath: "/",
-			}
-			ctx = context.WithValue(ctx, claim.ContextKey, anonClaim)
+			})
 
 		} else {
 

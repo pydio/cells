@@ -29,6 +29,7 @@ import (
 	activity2 "github.com/pydio/cells/v5/broker/activity"
 	"github.com/pydio/cells/v5/broker/activity/render"
 	"github.com/pydio/cells/v5/common"
+	"github.com/pydio/cells/v5/common/auth/claim"
 	"github.com/pydio/cells/v5/common/client/commons"
 	"github.com/pydio/cells/v5/common/client/grpc"
 	"github.com/pydio/cells/v5/common/errors"
@@ -151,7 +152,7 @@ func (a *ActivityHandler) Subscribe(req *restful.Request, rsp *restful.Response)
 	if err := req.ReadEntity(&subscription); err != nil {
 		return err
 	}
-	if name, _ := permissions.FindUserNameInContext(ctx); name == "" || subscription.UserId != name {
+	if name := claim.UserNameFromContext(ctx); name == "" || subscription.UserId != name {
 		return errors.WithMessage(errors.StatusForbidden, "you are not allowed to set subscription on this user")
 	}
 	resp, e := a.getClient().Subscribe(ctx, &activity.SubscribeRequest{
@@ -172,7 +173,7 @@ func (a *ActivityHandler) SearchSubscriptions(req *restful.Request, rsp *restful
 	if err := req.ReadEntity(&inputSearch); err != nil {
 		return err
 	}
-	name, _ := permissions.FindUserNameInContext(ctx)
+	name := claim.UserNameFromContext(ctx)
 	if name == "" {
 		return errors.WithMessage(errors.StatusForbidden, "you are not allowed to search for subscriptions")
 	}

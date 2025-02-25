@@ -35,10 +35,10 @@ import (
 
 	"github.com/pydio/cells/v5/common"
 	"github.com/pydio/cells/v5/common/auth"
+	"github.com/pydio/cells/v5/common/auth/claim"
 	"github.com/pydio/cells/v5/common/broker"
 	"github.com/pydio/cells/v5/common/client/commons/idmc"
 	"github.com/pydio/cells/v5/common/errors"
-	"github.com/pydio/cells/v5/common/permissions"
 	"github.com/pydio/cells/v5/common/proto/idm"
 	"github.com/pydio/cells/v5/common/proto/jobs"
 	pbservice "github.com/pydio/cells/v5/common/proto/service"
@@ -152,7 +152,7 @@ func (h *Handler) CreateUser(ctx context.Context, req *idm.CreateUserRequest) (*
 
 	if passChange != "" {
 		// Check if it is a "force pass change operation".
-		ctxLogin, _ := permissions.FindUserNameInContext(ctx)
+		ctxLogin := claim.UserNameFromContext(ctx)
 		if l, ok := out.Attributes["locks"]; ok && strings.Contains(l, "pass_change") && ctxLogin == out.Login {
 			if req.User.Password == req.User.OldPassword {
 				return nil, fmt.Errorf("new password is the same as the old password, please use a different one")
@@ -214,7 +214,7 @@ func (h *Handler) CreateUser(ctx context.Context, req *idm.CreateUserRequest) (*
 		if movedGroup != "" {
 			cEvent.Attributes["original_group"] = movedGroup
 		}
-		if cu, _ := permissions.FindUserNameInContext(ctx); cu != "" {
+		if cu := claim.UserNameFromContext(ctx); cu != "" {
 			cEvent.Attributes["ctx_username"] = cu
 		}
 		broker.MustPublish(ctx, common.TopicIdmEvent, cEvent)
@@ -263,7 +263,7 @@ func (h *Handler) DeleteUser(ctx context.Context, req *idm.DeleteUserRequest) (*
 	var autoClient *tasks.ReconnectingClient
 	var task *jobs.Task
 	var taskChan chan interface{}
-	uName, _ := permissions.FindUserNameInContext(ctx)
+	uName := claim.UserNameFromContext(ctx)
 	if tU, ok := propagator.CanonicalMeta(ctx, common.CtxMetaTaskUuid); ok {
 		jU, _ := propagator.CanonicalMeta(ctx, common.CtxMetaJobUuid)
 		task = &jobs.Task{

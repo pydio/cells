@@ -92,11 +92,10 @@ func SubjectsForResourcePolicyQuery(ctx context.Context, q *rest.ResourcePolicyQ
 	switch q.Type {
 	case rest.ResourcePolicyQuery_ANY, rest.ResourcePolicyQuery_NONE:
 
-		var value interface{}
-		if value = ctx.Value(claim.ContextKey); value == nil {
-			return subjects, errors.WithMessage(errors.StatusForbidden, "no context found to list resources")
+		claims, ok := claim.FromContext(ctx)
+		if !ok {
+			return subjects, errors.WithStack(errors.MissingClaims)
 		}
-		claims := value.(claim.Claims)
 		if claims.Profile != common.PydioProfileAdmin {
 			return subjects, errors.WithMessage(errors.StatusForbidden, "only admin profiles can list resources with ANY or NONE filter")
 		}
@@ -105,10 +104,9 @@ func SubjectsForResourcePolicyQuery(ctx context.Context, q *rest.ResourcePolicyQ
 	case rest.ResourcePolicyQuery_CONTEXT:
 
 		subjects = append(subjects, "*")
-		if value := ctx.Value(claim.ContextKey); value != nil {
-			claims := value.(claim.Claims)
+		if claims, ok := claim.FromContext(ctx); ok {
 			subjects = append(subjects, SubjectsFromClaim(claims)...)
-		} else if uName, _ := permissions.FindUserNameInContext(ctx); uName != "" {
+		} else if uName := claim.UserNameFromContext(ctx); uName != "" {
 			if uName == common.PydioSystemUsername {
 				subjects = append(subjects, "profile:"+common.PydioProfileAdmin)
 			} else if u, e := permissions.SearchUniqueUser(ctx, uName, ""); e == nil {
@@ -139,11 +137,10 @@ func SubjectsForResourcePolicyQuery(ctx context.Context, q *rest.ResourcePolicyQ
 		if q.UserId == "" {
 			return subjects, errors.WithMessage(errors.StatusBadRequest, "resources", "Please provide a non-empty user id")
 		}
-		var value interface{}
-		if value = ctx.Value(claim.ContextKey); value == nil {
-			return subjects, errors.WithMessage(errors.StatusBadRequest, "resources", "Only admin profiles can list resources of other users")
+		claims, ok := claim.FromContext(ctx)
+		if !ok {
+			return subjects, errors.WithStack(errors.MissingClaims)
 		}
-		claims := value.(claim.Claims)
 		if claims.Profile != common.PydioProfileAdmin {
 			return subjects, errors.WithMessage(errors.StatusForbidden, "resources", "Only admin profiles can list resources of other users")
 		}

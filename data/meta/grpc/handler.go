@@ -276,12 +276,7 @@ func (s *MetaServer) ListNodes(req *tree.ListNodesRequest, resp tree.NodeProvide
 }
 
 func (s *MetaServer) saveNode(ctx context.Context, node *tree.Node, silent, reload bool) (*tree.Node, error) {
-	var author = ""
-	if value := ctx.Value(claim.ContextKey); value != nil {
-		claims := value.(claim.Claims)
-		author = claims.Name
-	}
-
+	author := claim.UserNameFromContext(ctx)
 	if ca, _ := cache_helper.ResolveCache(ctx, common.CacheTypeShared, cache.Config{Eviction: "1m"}); ca != nil {
 		_ = ca.Delete(node.Uuid)
 	}

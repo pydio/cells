@@ -22,11 +22,15 @@
 package claim
 
 import (
+	"context"
 	"crypto/md5"
 	"encoding/hex"
 	"io"
 	"strings"
 	"time"
+
+	"github.com/pydio/cells/v5/common"
+	"github.com/pydio/cells/v5/common/utils/propagator"
 )
 
 const (
@@ -90,4 +94,58 @@ func (c *Claims) AttachSecretPair(sp string) {
 
 func (c *Claims) GetSecretPair() string {
 	return c.secretPair
+}
+
+// FromContext retrieves claims from context
+func FromContext(ctx context.Context) (Claims, bool) {
+	val := ctx.Value(ContextKey)
+	if val == nil {
+		return Claims{}, false
+	}
+	cl, ok := val.(Claims)
+	if !ok {
+		return Claims{}, false
+	}
+	return cl, true
+}
+
+// UserNameFromContext looks up for various keys to find username and **optionally** claims
+func UserNameFromContext(ctx context.Context) string {
+
+	var userName string
+	if claims, ok := FromContext(ctx); ok {
+		userName = claims.Name
+	} else if ctx.Value(common.PydioContextUserKey) != nil {
+		userName = ctx.Value(common.PydioContextUserKey).(string)
+	} else if ctx.Value(strings.ToLower(common.PydioContextUserKey)) != nil {
+		userName = ctx.Value(strings.ToLower(common.PydioContextUserKey)).(string)
+	} else if meta, ok1 := propagator.FromContextRead(ctx); ok1 {
+		if value, exists := meta[common.PydioContextUserKey]; exists {
+			userName = value
+		} else if value2, exists2 := meta[strings.ToLower(common.PydioContextUserKey)]; exists2 {
+			userName = value2
+		}
+	}
+	return userName
+}
+
+// ToContext feeds context with correct Keys and Metadata for a given Claims
+func ToContext(ctx context.Context, claims Claims) context.Context {
+	// Set context keys
+	ctx = context.WithValue(ctx, ContextKey, claims)
+	ctx = context.WithValue(ctx, common.PydioContextUserKey, claims.Name)
+
+	// Set context Metadata
+	md := make(map[string]string)
+	if existing, ok := propagator.FromContextRead(ctx); ok {
+		for k, v := range existing {
+			// Ignore existing version of PydioContextUserKey, it will be replaced after
+			if k == strings.ToLower(common.PydioContextUserKey) {
+				continue
+			}
+			md[k] = v
+		}
+	}
+	md[common.PydioContextUserKey] = claims.Name
+	return propagator.NewContext(ctx, md)
 }

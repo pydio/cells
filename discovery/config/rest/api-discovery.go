@@ -84,7 +84,7 @@ func (s *Handler) EndpointsDiscovery(req *restful.Request, resp *restful.Respons
 	endpointResponse := &rest.DiscoveryResponse{
 		Endpoints: make(map[string]string),
 	}
-	if _, ok := req.Request.Context().Value(claim.ContextKey).(claim.Claims); ok {
+	if _, ok := claim.FromContext(req.Request.Context()); ok {
 		endpointResponse.PackageType = common.PackageType
 		endpointResponse.PackageLabel = common.PackageLabel
 		endpointResponse.Version = common.Version().String()

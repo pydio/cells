@@ -29,11 +29,13 @@ import (
 
 	"github.com/jinzhu/copier"
 	toposort "github.com/philopon/go-toposort"
+	"go.opentelemetry.io/otel/trace"
 	"go.uber.org/zap"
 
 	"github.com/pydio/cells/v5/common/config"
 	"github.com/pydio/cells/v5/common/runtime"
 	"github.com/pydio/cells/v5/common/telemetry/log"
+	"github.com/pydio/cells/v5/common/telemetry/tracing"
 	"github.com/pydio/cells/v5/common/utils/configx"
 	"github.com/pydio/cells/v5/common/utils/i18n/languages"
 	json "github.com/pydio/cells/v5/common/utils/jsonx"
@@ -90,6 +92,10 @@ func (p *PluginsPool) Load(fs *UnionHttpFs) error {
 
 func (p *PluginsPool) RegistryForStatus(ctx context.Context, status RequestStatus) (*Cpydio_registry, error) {
 
+	var span trace.Span
+	ctx, span = tracing.StartLocalSpan(ctx, "RegistryForStatus")
+	defer span.End()
+
 	plugins := p.pluginsForStatus(ctx, status)
 	registry := &Cpydio_registry{}
 	registry.Cplugins = &Cplugins{}
@@ -106,7 +112,7 @@ func (p *PluginsPool) RegistryForStatus(ctx context.Context, status RequestStatu
 	}
 
 	for _, plugin := range plugins {
-
+		log.Logger(ctx).Debug("Plugin " + plugin.GetId())
 		configs := plugin.PluginConfigs(status)
 		var contribs *Cregistry_contributions
 		if p, ok := plugin.(*Cuploader); ok {

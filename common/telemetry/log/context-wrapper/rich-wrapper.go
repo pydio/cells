@@ -91,7 +91,7 @@ func RichContext(ctx context.Context, logger log.ZapLogger, fields ...zapcore.Fi
 			}
 		}
 	}
-	if claims, ok := ctx.Value(claim.ContextKey).(claim.Claims); ok {
+	if claims, ok := claim.FromContext(ctx); ok {
 		uuid := claims.Subject
 		fields = append(fields,
 			zap.String(common.KeyUsername, claims.Name),

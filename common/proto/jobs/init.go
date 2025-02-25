@@ -25,7 +25,6 @@ import (
 
 	grpc2 "google.golang.org/grpc"
 
-	"github.com/pydio/cells/v5/common/auth/claim"
 	"github.com/pydio/cells/v5/common/proto/idm"
 	"github.com/pydio/cells/v5/common/proto/tree"
 )
@@ -38,7 +37,7 @@ type ClientUniqueWorkspace func(ctx context.Context, wsUuid string, wsSlug strin
 
 type ClientUniqueUser func(ctx context.Context, login string, uuid string, queries ...*idm.UserSingleQuery) (user *idm.User, err error)
 
-type ClaimsUsernameParser func(ctx context.Context) (string, claim.Claims)
+type ClaimsUsernameParser func(ctx context.Context) string
 
 var (
 	freeStringEvaluator   FreeStringEvaluator

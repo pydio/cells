@@ -28,6 +28,7 @@ import (
 	"google.golang.org/grpc"
 
 	"github.com/pydio/cells/v5/common"
+	"github.com/pydio/cells/v5/common/auth/claim"
 	"github.com/pydio/cells/v5/common/broker"
 	grpc3 "github.com/pydio/cells/v5/common/client/grpc"
 	"github.com/pydio/cells/v5/common/permissions"
@@ -48,7 +49,7 @@ func init() {
 	jobs.RegisterConnexionResolver(func(ctx context.Context, serviceName string) grpc.ClientConnInterface {
 		return grpc3.ResolveConn(ctx, common.ServiceGrpcNamespace_+serviceName)
 	})
-	jobs.RegisterClaimsUsernameParser(permissions.FindUserNameInContext)
+	jobs.RegisterClaimsUsernameParser(claim.UserNameFromContext)
 	jobs.RegisterClientUniqueUser(permissions.SearchUniqueUser)
 	jobs.RegisterClientUniqueWorkspace(permissions.SearchUniqueWorkspace)
 

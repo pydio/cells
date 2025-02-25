@@ -81,8 +81,7 @@ func (s *JobsHandler) UserListJobs(req *restful.Request, rsp *restful.Response) 
 	cli := jobsc.JobServiceClient(ctx)
 	output := &rest.UserJobsCollection{}
 	var uName, profile string
-	if ctx.Value(claim.ContextKey) != nil {
-		claims := ctx.Value(claim.ContextKey).(claim.Claims)
+	if claims, ok := claim.FromContext(ctx); ok {
 		uName = claims.Name
 		profile = claims.Profile
 	}

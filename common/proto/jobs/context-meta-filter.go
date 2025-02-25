@@ -116,7 +116,7 @@ func (m *ContextMetaFilter) filterContextUserQueries(ctx context.Context, input 
 		Type:  IdmSelectorType_User,
 		Query: m.Query,
 	}
-	username, _ := claimsUsernameParser(ctx)
+	username := claimsUsernameParser(ctx)
 	var user *idm.User
 	if username == "" {
 		log.Logger(ctx).Debug("Applying filter on ContextUser: return false as user is not found in context")

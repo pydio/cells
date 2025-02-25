@@ -229,7 +229,11 @@ func (s *UserHandler) DeleteUser(req *restful.Request, rsp *restful.Response) er
 	login := req.PathParameter("Login")
 	ctx := req.Request.Context()
 	singleQ := &idm.UserSingleQuery{}
-	uName, claims := permissions.FindUserNameInContext(ctx)
+	claims, ok := claim.FromContext(ctx)
+	if !ok {
+		return errors.WithStack(errors.MissingClaims)
+	}
+
 	if strings.HasSuffix(req.Request.RequestURI, "%2F") || strings.HasSuffix(req.Request.RequestURI, "/") {
 		log.Logger(ctx).Info("Received User.Delete API request (GROUP)", zap.String("login", login), zap.String("crtGroup", claims.GroupPath), zap.String("request", req.Request.RequestURI))
 		if strings.HasPrefix(claims.GroupPath, "/"+login) {
@@ -238,7 +242,7 @@ func (s *UserHandler) DeleteUser(req *restful.Request, rsp *restful.Response) er
 		singleQ.GroupPath = login
 		singleQ.Recursive = true
 	} else {
-		if uName == login {
+		if claims.Name == login {
 			return errors.WithAPICode(errors.StatusForbidden, errors.ApiUserCannotDeleteOwn)
 		}
 		log.Logger(ctx).Debug("Received User.Delete API request (LOGIN)", zap.String("login", login), zap.String("request", req.Request.RequestURI))
@@ -270,7 +274,7 @@ func (s *UserHandler) DeleteUser(req *restful.Request, rsp *restful.Response) er
 
 	if singleQ.GroupPath != "" {
 
-		uName, _ := permissions.FindUserNameInContext(ctx)
+		uName := claim.UserNameFromContext(ctx)
 		// This is a group deletion - send it in background
 		jobUuid := uuid.New()
 		job := &jobs.Job{
@@ -348,7 +352,10 @@ func (s *UserHandler) PutUser(req *restful.Request, rsp *restful.Response) error
 		return errors.WithAPICode(errors.StatusConflict, errors.ApiUserAlreadyExists, "login", inputUser.GetLogin())
 	}
 	var existingAcls []*idm.ACL
-	ctxLogin, ctxClaims := permissions.FindUserNameInContext(ctx)
+	ctxClaims, ok := claim.FromContext(ctx)
+	if !ok {
+		return errors.WithStack(errors.MissingClaims)
+	}
 	if update != nil {
 		// Check User Policies
 		if !s.MatchPolicies(ctx, update.Uuid, update.Policies, service2.ResourcePolicyAction_WRITE) {
@@ -374,7 +381,7 @@ func (s *UserHandler) PutUser(req *restful.Request, rsp *restful.Response) error
 			return errors.Tag(err, errors.StatusForbidden)
 		}
 		// Check user own password change
-		if inputUser.Password != "" && ctxLogin == inputUser.Login {
+		if inputUser.Password != "" && ctxClaims.Name == inputUser.Login {
 			if _, err := cli.BindUser(ctx, &idm.BindUserRequest{UserName: inputUser.Login, Password: inputUser.OldPassword}); err != nil {
 				return errors.Tag(err, errors.StatusUnauthorized)
 			}
@@ -412,7 +419,7 @@ func (s *UserHandler) PutUser(req *restful.Request, rsp *restful.Response) error
 			}
 		}
 		// Check current isHidden
-		crtUser, e := permissions.SearchUniqueUser(ctx, ctxLogin, "")
+		crtUser, e := permissions.SearchUniqueUser(ctx, ctxClaims.Name, "")
 		if e != nil {
 			return errors.Tag(e, errors.StatusUnauthorized)
 		}
@@ -450,7 +457,7 @@ func (s *UserHandler) PutUser(req *restful.Request, rsp *restful.Response) error
 		// Std users can only create shared ones, except for delegated admins
 		// Double-check authorized access to /acl endpoint - if allowed, it's a delegated admin.
 		if ctxClaims.Profile == common.PydioProfileStandard && inputUser.Attributes[idm.UserAttrProfile] != common.PydioProfileShared &&
-			ctxLogin != inputUser.Login && !allowedUserSpecialPermissions(ctx, ctxClaims) {
+			ctxClaims.Name != inputUser.Login && !allowedUserSpecialPermissions(ctx, ctxClaims) {
 			return errors.WithAPICode(errors.StatusForbidden, errors.ApiUserCannotCreateProfile)
 		}
 		// Generic check - profile is never higher than current user profile

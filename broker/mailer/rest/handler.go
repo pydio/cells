@@ -85,7 +85,7 @@ func (mh *MailerHandler) Send(req *restful.Request, rsp *restful.Response) error
 	langs := middleware.DetectedLanguages(ctx)
 	cli := mailer.NewMailerServiceClient(grpc.ResolveConn(mh.RuntimeCtx, common.ServiceMailerGRPC))
 
-	claims, ok := ctx.Value(claim.ContextKey).(claim.Claims)
+	claims, ok := claim.FromContext(ctx)
 	if !ok {
 		return errors.WithMessage(errors.StatusForbidden, "sending email anonymously is forbidden")
 	}

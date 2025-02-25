@@ -50,7 +50,7 @@ func (sc *Client) ListSharedResources(ctx context.Context, subject string, scope
 	var subjects []string
 	var userId string
 	var admin bool
-	if claims, ok := ctx.Value(claim.ContextKey).(claim.Claims); ok {
+	if claims, ok := claim.FromContext(ctx); ok {
 		admin = claims.Profile == common.PydioProfileAdmin
 		userId = claims.Subject
 	}

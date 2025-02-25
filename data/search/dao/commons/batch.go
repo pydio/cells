@@ -35,7 +35,6 @@ import (
 	"go.uber.org/zap"
 
 	"github.com/pydio/cells/v5/common"
-	"github.com/pydio/cells/v5/common/auth"
 	"github.com/pydio/cells/v5/common/auth/claim"
 	"github.com/pydio/cells/v5/common/nodes"
 	"github.com/pydio/cells/v5/common/nodes/compose"
@@ -242,7 +241,7 @@ func (b *LocalBatch) LoadIndexableNode(indexNode *tree.IndexableNode, excludes m
 }
 
 func (b *LocalBatch) createBackgroundContext(parent context.Context) context.Context {
-	ctx := auth.ContextFromClaims(context.Background(), claim.Claims{
+	ctx := claim.ToContext(context.Background(), claim.Claims{
 		Name:      common.PydioSystemUsername,
 		Profile:   common.PydioProfileAdmin,
 		GroupPath: "/",

@@ -64,7 +64,7 @@ func (u *User) Load(ctx context.Context) error {
 
 	u.Workspaces = make(map[string]*Workspace)
 
-	claims, ok := ctx.Value(claim.ContextKey).(claim.Claims)
+	claims, ok := claim.FromContext(ctx)
 	if !ok {
 		// No user logged
 		return nil
@@ -73,7 +73,7 @@ func (u *User) Load(ctx context.Context) error {
 	u.Claims = claims
 
 	// Load user object
-	userName, _ := permissions.FindUserNameInContext(ctx)
+	userName := claim.UserNameFromContext(ctx)
 	if user, err := permissions.SearchUniqueUser(ctx, userName, ""); err != nil {
 		return err
 	} else {

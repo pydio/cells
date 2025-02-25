@@ -75,8 +75,8 @@ func (h *SharesHandler) GetShareClient() *share.Client {
 }
 
 func (h *SharesHandler) IdmUserFromClaims(ctx context.Context) (*idm.User, error) {
-	claims := ctx.Value(claim.ContextKey).(claim.Claims)
-	if claims.Subject == "" {
+	claims, ok := claim.FromContext(ctx)
+	if !ok || claims.Subject == "" {
 		return nil, errors.WithMessage(errors.InvalidIDToken, "missing subject on claims")
 	}
 	u, e := permissions.SearchUniqueUser(ctx, "", claims.Subject)
@@ -156,7 +156,7 @@ func (h *SharesHandler) DeleteCell(req *restful.Request, rsp *restful.Response) 
 
 	ctx := req.Request.Context()
 	id := req.PathParameter("Uuid")
-	ownerLogin, _ := permissions.FindUserNameInContext(ctx)
+	ownerLogin := claim.UserNameFromContext(ctx)
 	if ownerLogin == "" {
 		return errors.WithStack(errors.ContextUserNotFound)
 	}

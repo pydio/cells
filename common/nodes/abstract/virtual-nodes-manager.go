@@ -160,10 +160,10 @@ func (m *virtualNodesManager) ResolveInContext(ctx context.Context, vNode *tree.
 
 	ca := cache_helper.MustResolveCache(ctx, common.CacheTypeLocal, cacheConfig)
 	pool := nodes.GetSourcesPool(ctx)
-	userName, claims := permissions.FindUserNameInContext(ctx) // We may use Claims returned to grab role or user groupPath
-	if userName == "" {
+	claims, ok := claim.FromContext(ctx) // We may use Claims returned to grab role or user groupPath
+	if !ok {
 		log.Logger(ctx).Error("No UserName found in context, cannot resolve virtual node", zap.Any("ctx", ctx))
-		return nil, errors.WithStack(errors.AccessListNotFound)
+		return nil, errors.WithStack(errors.MissingClaims)
 	}
 	resolved, e := m.resolvePathWithClaims(ctx, vNode, claims, pool)
 	if e != nil {

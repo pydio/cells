@@ -31,10 +31,10 @@ import (
 	"google.golang.org/protobuf/types/known/anypb"
 
 	"github.com/pydio/cells/v5/common"
+	"github.com/pydio/cells/v5/common/auth/claim"
 	"github.com/pydio/cells/v5/common/broker"
 	"github.com/pydio/cells/v5/common/client/grpc"
 	"github.com/pydio/cells/v5/common/config"
-	"github.com/pydio/cells/v5/common/permissions"
 	"github.com/pydio/cells/v5/common/proto/chat"
 	"github.com/pydio/cells/v5/common/proto/idm"
 	"github.com/pydio/cells/v5/common/proto/jobs"
@@ -296,7 +296,7 @@ func (s *Subscriber) prepareTaskContext(ctx context.Context, job *jobs.Job, addS
 
 	// Add System User if necessary
 	if addSystemUser {
-		if u, _ := permissions.FindUserNameInContext(ctx); u == "" {
+		if u := claim.UserNameFromContext(ctx); u == "" {
 			ctx = propagator.WithAdditionalMetadata(ctx, map[string]string{common.PydioContextUserKey: common.PydioSystemUsername})
 			ctx = context.WithValue(ctx, common.PydioContextUserKey, common.PydioSystemUsername)
 		}
@@ -635,7 +635,7 @@ func logStartMessageFromEvent(ctx context.Context, event interface{}) {
 		msg = fmt.Sprintf("Starting job on %s node event", eT)
 	}
 	// Append user login
-	user, _ := permissions.FindUserNameInContext(ctx)
+	user := claim.UserNameFromContext(ctx)
 	if user != "" && user != common.PydioSystemUsername {
 		msg += " (triggered by user " + user + ")"
 	}

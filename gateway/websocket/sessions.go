@@ -62,7 +62,7 @@ const LimiterBurst = 20
 
 func updateSessionFromClaims(ctx context.Context, session *melody.Session, claims claim.Claims) {
 
-	ctx = context.WithValue(ctx, claim.ContextKey, claims)
+	ctx = claim.ToContext(ctx, claims)
 	vNodeResolver := abstract.GetVirtualProvider().GetResolver(true)
 	accessList, err := permissions.AccessListFromContextClaims(ctx)
 	if err != nil {
@@ -132,7 +132,7 @@ func prepareRemoteContext(parent context.Context, session *melody.Session) (cont
 	if !o2 {
 		return nil, fmt.Errorf("unexpected error: websocket session has no claims")
 	}
-	metaCtx := auth.ContextFromClaims(parent, cc)
+	metaCtx := claim.ToContext(parent, cc)
 	metaCtx = runtime.WithServiceName(metaCtx, common.ServiceGatewayNamespace_+common.ServiceWebSocket)
 	if md, o := session.Get(SessionMetaContext); o {
 		if meta, ok := md.(propagator.Metadata); ok {

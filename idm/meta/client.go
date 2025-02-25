@@ -33,6 +33,7 @@ import (
 	"google.golang.org/protobuf/types/known/anypb"
 
 	"github.com/pydio/cells/v5/common"
+	"github.com/pydio/cells/v5/common/auth/claim"
 	"github.com/pydio/cells/v5/common/client/commons"
 	"github.com/pydio/cells/v5/common/client/commons/idmc"
 	"github.com/pydio/cells/v5/common/client/grpc"
@@ -159,11 +160,14 @@ func (u *umClient) UpdateMetaResolved(ctx context.Context, input *idm.UpdateUser
 		}
 		// Now update policies for input Meta
 		if meta.Namespace == ReservedNamespaceBookmark {
-			userName, c := permissions.FindUserNameInContext(ctx)
+			c, ok := claim.FromContext(ctx)
+			if !ok {
+				return nil, errors.WithStack(errors.MissingClaims)
+			}
 			meta.Policies = []*serviceproto.ResourcePolicy{
 				{Action: serviceproto.ResourcePolicyAction_OWNER, Subject: c.Subject, Effect: serviceproto.ResourcePolicy_allow},
-				{Action: serviceproto.ResourcePolicyAction_READ, Subject: "user:" + userName, Effect: serviceproto.ResourcePolicy_allow},
-				{Action: serviceproto.ResourcePolicyAction_WRITE, Subject: "user:" + userName, Effect: serviceproto.ResourcePolicy_allow},
+				{Action: serviceproto.ResourcePolicyAction_READ, Subject: "user:" + c.Name, Effect: serviceproto.ResourcePolicy_allow},
+				{Action: serviceproto.ResourcePolicyAction_WRITE, Subject: "user:" + c.Name, Effect: serviceproto.ResourcePolicy_allow},
 				{Action: serviceproto.ResourcePolicyAction_WRITE, Subject: "profile:admin", Effect: serviceproto.ResourcePolicy_allow},
 			}
 		} else {
@@ -195,7 +199,7 @@ func (u *umClient) UpdateLock(ctx context.Context, meta *idm.UserMeta, operation
 		NodeIDs: []string{nodeUuid},
 		Actions: []*idm.ACLAction{{Name: permissions.AclContentLock.Name}},
 	})
-	userName, _ := permissions.FindUserNameInContext(ctx)
+	userName := claim.UserNameFromContext(ctx)
 	if userName == "" {
 		return errors.WithStack(errors.StatusLocked)
 	}

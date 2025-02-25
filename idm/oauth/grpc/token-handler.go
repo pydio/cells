@@ -14,9 +14,9 @@ import (
 	"github.com/ory/fosite/token/jwt"
 
 	"github.com/pydio/cells/v5/common"
+	"github.com/pydio/cells/v5/common/auth/claim"
 	"github.com/pydio/cells/v5/common/config"
 	"github.com/pydio/cells/v5/common/errors"
-	"github.com/pydio/cells/v5/common/permissions"
 	"github.com/pydio/cells/v5/common/proto/auth"
 	"github.com/pydio/cells/v5/common/runtime/manager"
 	json "github.com/pydio/cells/v5/common/utils/jsonx"
@@ -174,7 +174,7 @@ func (p *PATHandler) Generate(ctx context.Context, request *auth.PatGenerateRequ
 	}
 
 	token.CreatedAt = time.Now().Unix()
-	if uName, _ := permissions.FindUserNameInContext(ctx); uName != "" {
+	if uName := claim.UserNameFromContext(ctx); uName != "" {
 		token.CreatedBy = uName
 	}
 
