@@ -1,7 +1,8 @@
-# Changes between v4.4.9 and v4.4.10-alpha1
+# Changes between v4.4.9 and v4.4.10
 
-[See Full Changelog](https://github.com/pydio/cells/compare/v4.4.9...v4.4.10-alpha1)
+[See Full Changelog](https://github.com/pydio/cells/compare/v4.4.9...v4.4.10)
 
+- [#c8fa678](https://github.com/pydio/cells/commit/c8fa6785fcb86feb48242fecd079167e8b058a0e): Release v4.4.10-alpha1
 - [#a136988](https://github.com/pydio/cells/commit/a136988124cf6635f663028632608787453f6888): Use latest go 22
 - [#af63bfa](https://github.com/pydio/cells/commit/af63bfad8605a7e9a9ec778c98d2811ca7fc411a): Update dependencies
 - [#cdc09ab](https://github.com/pydio/cells/commit/cdc09abbec3762cada6a6d44f2ba5b9403000971): TestServiceBroker even longer timeout, and interrupt when it's done
