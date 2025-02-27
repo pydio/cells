@@ -67,57 +67,64 @@ type Dispatcher struct {
 func NewDispatcher(rootCtx context.Context, maxWorkers int, job *jobs.Job, tags map[string]string) *Dispatcher {
 	pool := make(chan chan RunnerFunc, maxWorkers)
 	jobQueue := make(chan RunnerFunc)
-	var fifoQueue chan RunnerFunc
-	ctx, can := context.WithCancel(rootCtx)
-	fifo, er := queue.OpenQueue(ctx, runtime.PersistingQueueURL("serviceName", common.ServiceGrpcNamespace_+common.ServiceTasks, "name", "jobs", "prefix", job.ID))
-	if er != nil {
-		can()
-		log.Logger(rootCtx).Warn("Cannot open fifo for dispatcher - job "+job.ID+", this will run without queue", zap.Error(er))
-	} else {
-		fifoQueue = make(chan RunnerFunc)
-		_ = fifo.Consume(func(mm ...broker.Message) {
-
-			for _, msg := range mm {
-				var event interface{}
-				var eventCtx context.Context
-				tce := &tree.NodeChangeEvent{}
-				ice := &idm.ChangeEvent{}
-				jte := &jobs.JobTriggerEvent{}
-				ce := &chat.ChatEvent{}
-				if ct, e := msg.Unmarshal(tce); e == nil {
-					event = tce
-					eventCtx = ct
-				} else if ct2, e := msg.Unmarshal(ice); e == nil {
-					event = ice
-					eventCtx = ct2
-				} else if ct3, e := msg.Unmarshal(jte); e == nil {
-					event = jte
-					eventCtx = ct3
-				} else if ct4, e := msg.Unmarshal(ce); e == nil {
-					event = ce
-					eventCtx = ct4
-				} else {
-					fmt.Println("Cannot unmarshall msg data to any known event type")
-					continue
-				}
-				eventCtx = runtime.ForkContext(eventCtx, rootCtx)
-				task := NewTaskFromEvent(rootCtx, eventCtx, job, event)
-				task.Queue(fifoQueue, jobQueue)
-			}
-		})
-	}
-	return &Dispatcher{
+	d := &Dispatcher{
 		workerPool: pool,
 		maxWorker:  maxWorkers,
 		jobQueue:   jobQueue,
 		tags:       tags,
 		activeChan: make(chan int, 100),
 		quit:       make(chan bool, 1),
-
-		fifo:       fifo,
-		fifoCancel: can,
-		fifoQueue:  fifoQueue,
 	}
+
+	if job.AutoClean {
+		log.Logger(rootCtx).Info("Starting AutoClean job without fifo")
+		return d
+	}
+
+	var fifoQueue chan RunnerFunc
+	ctx, can := context.WithCancel(rootCtx)
+	fifo, er := queue.OpenQueue(ctx, runtime.PersistingQueueURL("serviceName", common.ServiceGrpcNamespace_+common.ServiceTasks, "name", "jobs", "prefix", job.ID))
+	if er != nil {
+		can()
+		log.Logger(rootCtx).Warn("Cannot open fifo for dispatcher - job "+job.ID+", this will run without queue", zap.Error(er))
+		return d
+	}
+
+	fifoQueue = make(chan RunnerFunc)
+	_ = fifo.Consume(func(mm ...broker.Message) {
+
+		for _, msg := range mm {
+			var event interface{}
+			var eventCtx context.Context
+			tce := &tree.NodeChangeEvent{}
+			ice := &idm.ChangeEvent{}
+			jte := &jobs.JobTriggerEvent{}
+			ce := &chat.ChatEvent{}
+			if ct, e := msg.Unmarshal(tce); e == nil {
+				event = tce
+				eventCtx = ct
+			} else if ct2, e := msg.Unmarshal(ice); e == nil {
+				event = ice
+				eventCtx = ct2
+			} else if ct3, e := msg.Unmarshal(jte); e == nil {
+				event = jte
+				eventCtx = ct3
+			} else if ct4, e := msg.Unmarshal(ce); e == nil {
+				event = ce
+				eventCtx = ct4
+			} else {
+				fmt.Println("Cannot unmarshall msg data to any known event type")
+				continue
+			}
+			eventCtx = runtime.ForkContext(eventCtx, rootCtx)
+			task := NewTaskFromEvent(rootCtx, eventCtx, job, event)
+			task.Queue(fifoQueue, jobQueue)
+		}
+	})
+	d.fifo = fifo
+	d.fifoCancel = can
+	d.fifoQueue = fifoQueue
+	return d
 }
 
 func (d *Dispatcher) Queue() chan RunnerFunc {
