@@ -737,18 +737,11 @@ type MPathEquals struct {
 
 func (me MPathEquals) Build(builder clause.Builder) {
 	var expr []clause.Expression
-	if me.Value.GetMPath1() != "" {
-		expr = append(expr, clause.Like{Column: "mpath1", Value: me.Value.GetMPath1()})
-	}
-	if me.Value.GetMPath2() != "" {
-		expr = append(expr, clause.Like{Column: "mpath2", Value: me.Value.GetMPath2()})
-	}
-	if me.Value.GetMPath3() != "" {
-		expr = append(expr, clause.Like{Column: "mpath3", Value: me.Value.GetMPath3()})
-	}
-	if me.Value.GetMPath4() != "" {
-		expr = append(expr, clause.Like{Column: "mpath4", Value: me.Value.GetMPath4()})
-	}
+	// Do fill empty columns, otherwise searching for e.g mpath1 with "full" value will gather the childrens from mpath2, etc..
+	expr = append(expr, clause.Eq{Column: "mpath1", Value: me.Value.GetMPath1()})
+	expr = append(expr, clause.Eq{Column: "mpath2", Value: me.Value.GetMPath2()})
+	expr = append(expr, clause.Eq{Column: "mpath3", Value: me.Value.GetMPath3()})
+	expr = append(expr, clause.Eq{Column: "mpath4", Value: me.Value.GetMPath4()})
 
 	if len(expr) > 0 {
 		clause.And(expr...).Build(builder)

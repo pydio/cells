@@ -369,7 +369,7 @@ func (s *TreeServer) ListNodes(req *tree.ListNodesRequest, resp tree.NodeProvide
 		for pnode := range dao.GetNodesByMPaths(ctx, node.GetMPath().Parents()...) {
 			path = append(path, pnode.GetName())
 			pnode.GetNode().SetPath(safePath(strings.Join(path, "/")))
-			s.setDataSourceMeta(ctx, pnode)
+			_ = s.setDataSourceMeta(ctx, pnode)
 			nodes = append(nodes, pnode)
 		}
 		slices.Reverse(nodes)

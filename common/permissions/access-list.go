@@ -295,7 +295,7 @@ func (a *AccessList) CanWrite(ctx context.Context, nodes ...*tree.Node) bool {
 	// there should not be a leaf in the parents!
 	for _, node := range nodes[1:] {
 		if node.IsLeaf() {
-			log.Logger(ctx).Error("Trying to write a node under a leaf!")
+			log.Logger(ctx).Error("Trying to write a node under a leaf", node.ZapPath(), nodes[0].ZapPath())
 			return false
 		}
 	}
