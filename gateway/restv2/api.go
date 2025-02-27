@@ -23,6 +23,7 @@ package restv2
 import (
 	"context"
 	"fmt"
+	"net/http"
 	"path/filepath"
 	"strconv"
 	"strings"
@@ -54,6 +55,22 @@ type Handler struct {
 	TemplatesHandler *tpl.Handler
 	SharesHandler    *shares.SharesHandler
 	UserMetaHandler  *umeta.UserMetaHandler
+}
+
+type PreSigner interface {
+	PreSignV4(ctx context.Context, bucket, key string) (*http.Request, error)
+}
+
+type TNOptions struct {
+	PreSigner PreSigner
+}
+
+type TNOption func(o *TNOptions)
+
+func WithPreSigner(preSigner PreSigner) TNOption {
+	return func(o *TNOptions) {
+		o.PreSigner = preSigner
+	}
 }
 
 func NewHandler() *Handler {
@@ -89,7 +106,7 @@ func (h *Handler) UuidClient(external bool) nodes.Handler {
 }
 
 // TreeNodeToNode converts a tree.Node to rest.Node
-func (h *Handler) TreeNodeToNode(n *tree.Node) *rest.Node {
+func (h *Handler) TreeNodeToNode(ctx context.Context, n *tree.Node, oo ...TNOption) *rest.Node {
 	rn := &rest.Node{
 		Uuid:        n.GetUuid(),
 		Path:        n.GetPath(),
@@ -171,7 +188,7 @@ func (h *Handler) TreeNodeToNode(n *tree.Node) *rest.Node {
 			var cc []*tree.ContentRevision
 			if er := json.Unmarshal([]byte(v), &cc); er == nil {
 				for _, c := range cc {
-					rn.Versions = append(rn.Versions, h.TreeContentRevisionToVersion(c))
+					rn.Versions = append(rn.Versions, h.TreeContentRevisionToVersion(ctx, c))
 				}
 			}
 
@@ -185,13 +202,13 @@ func (h *Handler) TreeNodeToNode(n *tree.Node) *rest.Node {
 			images.MetadataCompatIsImage,
 			images.MetadataExif,
 			images.MetadataCompatOrientation:
-			rn.ImageMeta = h.ImageMeta(rn.ImageMeta, k, v)
+			rn.ImageMeta = h.ImageMeta(ctx, rn.ImageMeta, k, v)
 
 		case images.MetadataThumbnails:
-			rn.Previews = append(rn.Previews, h.Thumbnails(common.PydioThumbstoreNamespace, n.GetUuid(), v)...)
+			rn.Previews = append(rn.Previews, h.Thumbnails(ctx, common.PydioThumbstoreNamespace, n.GetUuid(), v, oo...)...)
 
 		case "ImagePreview", "PDFPreview":
-			rn.Previews = append(rn.Previews, h.OtherPreview(common.PydioThumbstoreNamespace, strings.ReplaceAll(v, "\"", "")))
+			rn.Previews = append(rn.Previews, h.OtherPreview(ctx, common.PydioThumbstoreNamespace, strings.ReplaceAll(v, "\"", ""), oo...))
 
 		case common.MetaFlagWorkspacesShares:
 			var share []*idm.Workspace
@@ -211,7 +228,7 @@ func (h *Handler) TreeNodeToNode(n *tree.Node) *rest.Node {
 		default:
 			if strings.HasPrefix(k, "ws_") || strings.HasPrefix(k, "repository_") {
 				// Build WorkspaceRoot
-				rn.ContextWorkspace = h.ContextWorkspace(rn.ContextWorkspace, k, v)
+				rn.ContextWorkspace = h.ContextWorkspace(ctx, rn.ContextWorkspace, k, v)
 			} else if strings.HasPrefix(k, common.MetaNamespaceUserspacePrefix) {
 				// UserMeta
 				rn.UserMetadata = append(rn.UserMetadata, &rest.UserMeta{Namespace: k, JsonValue: v})
@@ -226,7 +243,7 @@ func (h *Handler) TreeNodeToNode(n *tree.Node) *rest.Node {
 }
 
 // TreeContentRevisionToVersion adapts tree.ContentRevision to rest.Version format
-func (h *Handler) TreeContentRevisionToVersion(contentRevision *tree.ContentRevision) *rest.Version {
+func (h *Handler) TreeContentRevisionToVersion(ctx context.Context, contentRevision *tree.ContentRevision) *rest.Version {
 	return &rest.Version{
 		VersionId:   contentRevision.GetVersionId(),
 		Description: contentRevision.GetDescription(),
@@ -242,20 +259,35 @@ func (h *Handler) TreeContentRevisionToVersion(contentRevision *tree.ContentRevi
 }
 
 // Thumbnails feeds a rest.FilePreview struct with incoming metadata
-func (h *Handler) Thumbnails(bucket, nodeId, jsonThumbs string) (ff []*rest.FilePreview) {
+func (h *Handler) Thumbnails(ctx context.Context, slug, nodeId, jsonThumbs string, oo ...TNOption) (ff []*rest.FilePreview) {
+	opts := &TNOptions{}
+	for _, o := range oo {
+		o(opts)
+	}
 	var thumbs *images.ThumbnailsMeta
 	e := json.Unmarshal([]byte(jsonThumbs), &thumbs)
 	if e != nil {
 		return
 	}
+	bucket := common.DefaultRouteBucketIO
 	for _, t := range thumbs.Thumbnails {
-		key := fmt.Sprintf("%s/%s-%d.%s", bucket, nodeId, t.Size, t.Format)
+		key := fmt.Sprintf("%s/%s-%d.%s", slug, nodeId, t.Size, t.Format)
+		//url := common.DefaultRouteBucketIO + "/" + key
+		var url string
+		if opts.PreSigner != nil {
+			if req, err := opts.PreSigner.PreSignV4(ctx, bucket, key); err == nil {
+				url = req.URL.String()
+			} else {
+				fmt.Println("Could not create Presigned", err)
+			}
+		}
+
 		ff = append(ff, &rest.FilePreview{
 			Processing:  thumbs.Processing,
 			ContentType: "image/" + t.Format,
-			Bucket:      strings.TrimPrefix(common.DefaultRouteBucketIO, "/"),
+			Bucket:      strings.TrimPrefix(bucket, "/"),
 			Key:         key,
-			Url:         common.DefaultRouteBucketIO + "/" + key,
+			Url:         url,
 			Dimension:   int32(t.Size),
 		})
 	}
@@ -263,7 +295,7 @@ func (h *Handler) Thumbnails(bucket, nodeId, jsonThumbs string) (ff []*rest.File
 }
 
 // OtherPreview takes a simple value to build a rest.FilePreview
-func (h *Handler) OtherPreview(bucket, metaValue string) (f *rest.FilePreview) {
+func (h *Handler) OtherPreview(ctx context.Context, slug, metaValue string, oo ...TNOption) (f *rest.FilePreview) {
 	cType := ""
 	ext := strings.TrimPrefix(filepath.Ext(metaValue), ".")
 	switch ext {
@@ -272,17 +304,31 @@ func (h *Handler) OtherPreview(bucket, metaValue string) (f *rest.FilePreview) {
 	case "png", "jpg", "webp", "jpeg":
 		cType = "image/" + ext
 	}
-	key := fmt.Sprintf("%s/%s", bucket, metaValue)
+	key := fmt.Sprintf("%s/%s", slug, metaValue)
+	var url string
+	opts := &TNOptions{}
+	for _, o := range oo {
+		o(opts)
+	}
+	bucket := common.DefaultRouteBucketIO
+	if opts.PreSigner != nil {
+		if req, err := opts.PreSigner.PreSignV4(ctx, bucket, key); err == nil {
+			url = req.URL.String()
+		} else {
+			fmt.Println("Could not create Presigned", err)
+		}
+	}
+
 	return &rest.FilePreview{
 		ContentType: cType,
-		Bucket:      strings.TrimPrefix(common.DefaultRouteBucketIO, "/"),
+		Bucket:      strings.TrimPrefix(bucket, "/"),
 		Key:         key,
-		Url:         common.DefaultRouteBucketIO + "/" + key,
+		Url:         url,
 	}
 }
 
 // ImageMeta feeds a rest.ImageMeta struct with incoming metadata
-func (h *Handler) ImageMeta(m *rest.ImageMeta, k, v string) *rest.ImageMeta {
+func (h *Handler) ImageMeta(ctx context.Context, m *rest.ImageMeta, k, v string) *rest.ImageMeta {
 	if m == nil {
 		m = &rest.ImageMeta{}
 	}
@@ -310,7 +356,7 @@ func (h *Handler) ImageMeta(m *rest.ImageMeta, k, v string) *rest.ImageMeta {
 }
 
 // ContextWorkspace feeds a rest.ContextWorkspace struct with incoming metadata
-func (h *Handler) ContextWorkspace(ws *rest.ContextWorkspace, k, v string) *rest.ContextWorkspace {
+func (h *Handler) ContextWorkspace(ctx context.Context, ws *rest.ContextWorkspace, k, v string) *rest.ContextWorkspace {
 	if ws == nil {
 		ws = &rest.ContextWorkspace{}
 	}
@@ -341,9 +387,9 @@ func (h *Handler) ContextWorkspace(ws *rest.ContextWorkspace, k, v string) *rest
 }
 
 // TreeNodesToNodes applies TreeNodeToNode to all incoming nodes
-func (h *Handler) TreeNodesToNodes(nn []*tree.Node) (out []*rest.Node) {
+func (h *Handler) TreeNodesToNodes(ctx context.Context, nn []*tree.Node, oo ...TNOption) (out []*rest.Node) {
 	for _, n := range nn {
-		out = append(out, h.TreeNodeToNode(n))
+		out = append(out, h.TreeNodeToNode(ctx, n, oo...))
 	}
 	return out
 }

@@ -79,7 +79,7 @@ func (h *Handler) Create(req *restful.Request, resp *restful.Response) error {
 		if er != nil {
 			return er
 		}
-		output.Nodes = append(output.Nodes, h.TreeNodesToNodes(nn)...)
+		output.Nodes = append(output.Nodes, h.TreeNodesToNodes(ctx, nn)...)
 	}
 	return resp.WriteEntity(output)
 }
@@ -110,7 +110,7 @@ func (h *Handler) CreateCheck(req *restful.Request, resp *restful.Response) erro
 		cr := &rest.CheckResult{InputLocator: n.GetLocator(), Exists: false}
 		if rr, er := handler.ReadNode(ctx, &tree.ReadNodeRequest{Node: targetNode, StatFlags: []uint32{tree.StatFlagMetaMinimal}}); er == nil {
 			cr.Exists = true
-			cr.Node = h.TreeNodeToNode(rr.GetNode())
+			cr.Node = h.TreeNodeToNode(ctx, rr.GetNode())
 			if pa != "" && findNext {
 				// Find next available name
 				var childrenLocks []string

@@ -848,7 +848,8 @@
         "WithMetaNone",
         "WithVersionsAll",
         "WithVersionsDraft",
-        "WithVersionsPublished"
+        "WithVersionsPublished",
+        "WithPreSignedURLs"
       ],
       "type": "string"
     },

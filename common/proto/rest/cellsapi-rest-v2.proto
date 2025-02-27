@@ -327,6 +327,7 @@ enum Flag {
   WithVersionsAll = 3;
   WithVersionsDraft = 4;
   WithVersionsPublished = 5;
+  WithPreSignedURLs = 6;
 }
 
 // Request for list/search. Accepts either

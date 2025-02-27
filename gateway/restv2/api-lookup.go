@@ -21,11 +21,15 @@
 package restv2
 
 import (
+	"slices"
+
 	restful "github.com/emicklei/go-restful/v3"
+	"go.uber.org/zap"
 
 	"github.com/pydio/cells/v5/common/errors"
 	"github.com/pydio/cells/v5/common/proto/rest"
 	"github.com/pydio/cells/v5/common/proto/tree"
+	"github.com/pydio/cells/v5/common/telemetry/log"
 )
 
 // Lookup Combines LS and FIND in one endpoint
@@ -42,6 +46,7 @@ func (h *Handler) Lookup(req *restful.Request, resp *restful.Response) error {
 	if input.Input == nil {
 		return errors.WithMessage(errors.InvalidParameters, "please provide at least Locators or Query")
 	}
+	oo := h.TNOptionsFromFlags(req, input.Flags)
 
 	switch input.Input.(type) {
 	case *rest.LookupRequest_Query:
@@ -58,7 +63,7 @@ func (h *Handler) Lookup(req *restful.Request, resp *restful.Response) error {
 		if er != nil {
 			return er
 		}
-		coll.Nodes = h.TreeNodesToNodes(nn)
+		coll.Nodes = h.TreeNodesToNodes(ctx, nn, oo...)
 
 	case *rest.LookupRequest_Locators:
 		if len(input.GetLocators().Many) == 0 {
@@ -89,14 +94,14 @@ func (h *Handler) Lookup(req *restful.Request, resp *restful.Response) error {
 			if er != nil {
 				return er
 			}
-			coll.Nodes = h.TreeNodesToNodes(nn)
+			coll.Nodes = h.TreeNodesToNodes(ctx, nn, oo...)
 		} else {
 			router := h.UuidClient(true)
 			for _, u := range byUuids {
 				if rr, er := router.ReadNode(ctx, &tree.ReadNodeRequest{Node: &tree.Node{Uuid: u}}); er != nil {
 					return er
 				} else {
-					coll.Nodes = append(coll.Nodes, h.TreeNodeToNode(rr.GetNode()))
+					coll.Nodes = append(coll.Nodes, h.TreeNodeToNode(ctx, rr.GetNode(), oo...))
 				}
 			}
 		}
@@ -113,6 +118,7 @@ func (h *Handler) Lookup(req *restful.Request, resp *restful.Response) error {
 // GetByUuid is a simple call on a node - it requires default stats
 func (h *Handler) GetByUuid(req *restful.Request, resp *restful.Response) error {
 	nodeUuid := req.PathParameter("Uuid")
+
 	router := h.UuidClient(true)
 	ctx := req.Request.Context()
 	rr, er := router.ReadNode(ctx, &tree.ReadNodeRequest{
@@ -126,7 +132,19 @@ func (h *Handler) GetByUuid(req *restful.Request, resp *restful.Response) error 
 	if er != nil {
 		return er
 	}
-	return resp.WriteEntity(h.TreeNodeToNode(rr.GetNode()))
+	oo := h.TNOptionsFromFlags(req, []rest.Flag{rest.Flag_WithPreSignedURLs})
+	return resp.WriteEntity(h.TreeNodeToNode(ctx, rr.GetNode(), oo...))
+}
+
+func (h *Handler) TNOptionsFromFlags(req *restful.Request, ff []rest.Flag) (oo []TNOption) {
+	if slices.Contains(ff, rest.Flag_WithPreSignedURLs) {
+		if sig, err := NewV4SignerForRequest(req.Request); err != nil {
+			log.Logger(req.Request.Context()).Error("Cannot create signer", zap.Error(err))
+		} else {
+			oo = append(oo, WithPreSigner(sig))
+		}
+	}
+	return oo
 }
 
 func (h *Handler) parseFlags(ff []rest.Flag) (flags tree.Flags) {

@@ -67,7 +67,7 @@ func (h *Handler) NodeVersions(req *restful.Request, resp *restful.Response) err
 		if vr.Draft && vr.OwnerUuid != claims.Subject {
 			return nil
 		}
-		versions = append(versions, h.TreeContentRevisionToVersion(vr))
+		versions = append(versions, h.TreeContentRevisionToVersion(ctx, vr))
 		return nil
 	})
 	if err != nil {
@@ -120,7 +120,7 @@ func (h *Handler) PromoteVersion(req *restful.Request, resp *restful.Response) e
 	}
 
 	rsp := &rest.PromoteVersionResponse{
-		Node:      h.TreeNodeToNode(targetNode),
+		Node:      h.TreeNodeToNode(ctx, targetNode),
 		Success:   true,
 		Published: published,
 	}
@@ -167,7 +167,7 @@ func (h *Handler) PublishNode(req *restful.Request, resp *restful.Response) erro
 		er = commons.ForEach(st, se, func(response *tree.ListNodesResponse) (ignore error) {
 			child := response.GetNode()
 			res := &rest.PublishCascadeResult{
-				Node: h.TreeNodeToNode(child),
+				Node: h.TreeNodeToNode(ctx, child),
 			}
 			if child.IsLeaf() {
 				rev, pe := h.promoteDraftVersion(ctx, child, "", pc, vcl)
@@ -194,7 +194,7 @@ func (h *Handler) PublishNode(req *restful.Request, resp *restful.Response) erro
 		}
 	}
 
-	return resp.WriteEntity(&rest.PublishNodeResponse{Node: h.TreeNodeToNode(node), CascadeResults: cascades})
+	return resp.WriteEntity(&rest.PublishNodeResponse{Node: h.TreeNodeToNode(ctx, node), CascadeResults: cascades})
 
 }
 

@@ -130,7 +130,7 @@ func (h *Handler) PatchNode(req *restful.Request, resp *restful.Response) error 
 	if er != nil {
 		return er
 	}
-	return resp.WriteEntity(h.TreeNodeToNode(node.GetNode()))
+	return resp.WriteEntity(h.TreeNodeToNode(ctx, node.GetNode()))
 }
 
 // ListNamespaces GET /node/meta/namespace
@@ -168,7 +168,7 @@ func (h *Handler) UserBookmarks(req *restful.Request, resp *restful.Response) er
 		}
 		if rr, e := router.ReadNode(ctx, &tree.ReadNodeRequest{Node: node}); e == nil {
 			n := rr.GetNode()
-			output.Nodes = append(output.Nodes, h.TreeNodeToNode(n))
+			output.Nodes = append(output.Nodes, h.TreeNodeToNode(ctx, n))
 		} else {
 			log.Logger(ctx).Debug("Ignoring Bookmark: ", zap.Error(e))
 		}
