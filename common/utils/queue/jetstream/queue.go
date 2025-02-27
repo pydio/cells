@@ -90,7 +90,7 @@ func (q *Queue) PushRaw(ctx context.Context, message broker.Message) error {
 // Consume creates a jetstream Consumer with the current streamName
 func (q *Queue) Consume(process func(...broker.Message)) error {
 	// Create a stream
-	s, er := q.js.CreateStream(q.rootCtx, jetstream.StreamConfig{
+	s, er := q.js.CreateOrUpdateStream(q.rootCtx, jetstream.StreamConfig{
 		Name:     q.streamName,
 		Subjects: []string{q.streamName + ".*"},
 	})
