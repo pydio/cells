@@ -98,7 +98,10 @@ func (h *Handler) Lookup(req *restful.Request, resp *restful.Response) error {
 		} else {
 			router := h.UuidClient(true)
 			for _, u := range byUuids {
-				if rr, er := router.ReadNode(ctx, &tree.ReadNodeRequest{Node: &tree.Node{Uuid: u}}); er != nil {
+				if rr, er := router.ReadNode(ctx, &tree.ReadNodeRequest{
+					Node:      &tree.Node{Uuid: u},
+					StatFlags: h.parseFlags(input.GetFlags()),
+				}); er != nil {
 					return er
 				} else {
 					coll.Nodes = append(coll.Nodes, h.TreeNodeToNode(ctx, rr.GetNode(), oo...))
