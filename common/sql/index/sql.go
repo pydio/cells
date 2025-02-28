@@ -1578,6 +1578,38 @@ func prepareMPathParts(node *mtree.TreeNode) (string, string, string, string) {
 func getMPathEquals(mpath []byte) (string, []interface{}) {
 	var res []string
 	var args []interface{}
+	var upper *int
+
+	for {
+		cnt := (len(mpath) - 1) / indexLen
+		res = append(res, fmt.Sprintf(`mpath%d LIKE ?`, cnt+1))
+		args = append(args, mpath[(cnt*indexLen):])
+		if upper == nil {
+			upper = &cnt
+		}
+
+		if idx := cnt * indexLen; idx == 0 {
+			break
+		}
+
+		mpath = mpath[0 : cnt*indexLen]
+	}
+	for i := 3; i >= 0; i-- {
+		if i > *upper {
+			res = append(res, fmt.Sprintf(`mpath%d = ''`, i+1))
+		}
+	}
+
+	return strings.Join(res, " and "), args
+}
+
+// t.mpath LIKE ?
+func getMPathLike(mpath []byte) (string, []interface{}) {
+
+	mpath = append(mpath, []byte(".%")...)
+
+	var res []string
+	var args []interface{}
 
 	for {
 		cnt := (len(mpath) - 1) / indexLen
@@ -1592,14 +1624,6 @@ func getMPathEquals(mpath []byte) (string, []interface{}) {
 	}
 
 	return strings.Join(res, " and "), args
-}
-
-// t.mpath LIKE ?
-func getMPathLike(mpath []byte) (string, []interface{}) {
-
-	mpath = append(mpath, []byte(".%")...)
-
-	return getMPathEquals(mpath)
 }
 
 // and (t.mpath = ? OR t.mpath LIKE ?)
