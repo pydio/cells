@@ -280,19 +280,21 @@ func (e *MicroEventsSubscriber) parentsFromCache(ctx context.Context, node *tree
 			return nil, []string{}, err
 		}
 	}
-	/*
+
+	if len(strings.Split(node.Path, "/")) > 50 {
 		// For long paths, this may be more optimal
 		n := time.Now()
-		if pp, e := nodes.BuildAncestorsListOrParent(ctx, e.getTreeClient(), node); e != nil {
-			return nil, parentUuids, e
+		if pp, er := nodes.BuildAncestorsListOrParent(ctx, e.getTreeClient(), node); er != nil {
+			return nil, parentUuids, er
 		} else {
 			for _, p := range pp {
 				parentUuids = append(parentUuids, p.Uuid)
+				_ = e.parentsCache.Set(p.GetPath(), p.GetUuid())
 			}
-			log.Logger(ctx).Info("--- Build AncestorsListOrParent Took" + time.Since(n).String())
+			log.Logger(ctx).Debug("--- Build AncestorsListOrParent Took" + time.Since(n).String())
 			return loadedNode, parentUuids, nil
 		}
-	*/
+	}
 
 	// Manually load parents from Path
 	parentPath := loadedNode.Path
