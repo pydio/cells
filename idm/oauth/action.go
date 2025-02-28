@@ -25,6 +25,8 @@ import (
 	"fmt"
 	"time"
 
+	"go.uber.org/zap"
+
 	"github.com/pydio/cells/v5/common"
 	"github.com/pydio/cells/v5/common/client/commons/docstorec"
 	"github.com/pydio/cells/v5/common/client/grpc"
@@ -94,17 +96,21 @@ func (c *PruneTokensAction) Run(ctx context.Context, channels *actions.RunnableC
 	if er != nil {
 		return input.AsRunError(er)
 	}
-	if _, _, ok := routing.SiteFromContext(ctx, ss); !ok {
-		return input.AsRunError(fmt.Errorf("no site found in context - should be parametrized"))
-	}
-
-	if pruneResp, e := cli.PruneTokens(ctx, &auth.PruneTokensRequest{}); e != nil {
-		return input.WithError(e), e
-	} else {
-		if pruneResp.GetCount() > -1 {
-			log.TasksLogger(ctx).Info("OAuth Service: " + T("Auth.PruneJob.Revoked", struct{ Count int32 }{Count: pruneResp.GetCount()}))
+	for _, site := range ss {
+		tokenCtx, err := routing.SiteToContext(ctx, site)
+		if err != nil {
+			log.TasksLogger(ctx).Warn("Cannot run OAuth pruning on site "+site.GetDefaultBindURL(), zap.Error(err))
+			continue
 		}
-		output.AppendOutput(&jobs.ActionOutput{Success: true})
+		log.TasksLogger(ctx).Info("Running OAuth Pruning on site " + site.GetDefaultBindURL())
+		if pruneResp, e := cli.PruneTokens(tokenCtx, &auth.PruneTokensRequest{}); e != nil {
+			return input.WithError(e), e
+		} else {
+			if pruneResp.GetCount() > -1 {
+				log.TasksLogger(ctx).Info("OAuth Service: " + T("Auth.PruneJob.Revoked", struct{ Count int32 }{Count: pruneResp.GetCount()}))
+			}
+			output.AppendOutput(&jobs.ActionOutput{Success: true})
+		}
 	}
 
 	// Prune revoked tokens on OAuth service

@@ -63,6 +63,23 @@ func SiteFromContext(ctx context.Context, ss []*install.ProxyConfig) (*install.P
 	return found, u, found != nil
 }
 
+// SiteToContext artificially push a site and its Host to context for further resolution
+func SiteToContext(ctx context.Context, site *install.ProxyConfig) (context.Context, error) {
+	ee := site.GetExternalUrls()
+	var first *url.URL
+	for _, u := range ee {
+		first = u
+		break
+	}
+	if first == nil {
+		return ctx, fmt.Errorf("could not find at least one URL for site, this is unexpected")
+	}
+	return propagator.WithAdditionalMetadata(ctx, map[string]string{
+		common.XPydioSiteHash: site.Hash(),
+		keys.HttpMetaHost:     first.Host,
+	}), nil
+}
+
 // SiteContextDiscoveryRoutes lists all external urls for each registered routes, in the current site context
 func SiteContextDiscoveryRoutes(ctx context.Context, uriForSameSite ...bool) (map[string][]*url.URL, error) {
 	ss, er := LoadSites(ctx)

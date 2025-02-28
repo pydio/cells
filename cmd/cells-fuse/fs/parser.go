@@ -169,7 +169,7 @@ func ParseStorageURL(storageUrl string) (sc nodes.StorageClient, folderOrBucket 
 	_ = db.Close()
 
 	log.Printf("Now Opening snapshot %s, should load %d nodes", snFile, totalKeys)
-	sn, e := snapshot.NewBoltSnapshot(tmpSnapFolder, tmpSnapUuid)
+	sn, e := snapshot.NewBoltSnapshot(context.Background(), tmpSnapFolder, tmpSnapUuid)
 	if e != nil {
 		return
 	}

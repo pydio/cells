@@ -51,6 +51,7 @@ var (
 )
 
 type BoltSnapshot struct {
+	ctx        context.Context
 	db         *bbolt.DB
 	name       string
 	empty      bool
@@ -65,8 +66,11 @@ type BoltSnapshot struct {
 	manualCollector bool
 }
 
-func NewBoltSnapshot(folderPath, name string) (*BoltSnapshot, error) {
-	s := &BoltSnapshot{name: name}
+func NewBoltSnapshot(ctx context.Context, folderPath, name string) (*BoltSnapshot, error) {
+	s := &BoltSnapshot{
+		name: name,
+		ctx:  ctx,
+	}
 	options := bbolt.DefaultOptions
 	options.Timeout = 5 * time.Second
 	s.folderPath = folderPath
@@ -120,7 +124,7 @@ func (s *BoltSnapshot) startAutoBatching() {
 		if len(creates) == 0 {
 			return
 		}
-		log.Logger(context.Background()).Debug("Flushing AutoBatcher")
+		log.Logger(s.ctx).Debug("Flushing AutoBatcher")
 		s.db.Update(func(tx *bbolt.Tx) error {
 			b := tx.Bucket(bucketName)
 			if b == nil {
@@ -153,7 +157,7 @@ func (s *BoltSnapshot) startAutoBatching() {
 			nextTime = 1 * time.Hour
 		case <-s.autoBatchClose:
 			flush()
-			log.Logger(context.Background()).Debug("Closing AutoBatcher")
+			log.Logger(s.ctx).Debug("Closing AutoBatcher")
 			return
 		}
 	}
@@ -456,7 +460,7 @@ func (s *BoltSnapshot) Watch(recursivePath string) (*model.WatchObject, error) {
 }
 
 func (s *BoltSnapshot) marshal(node tree.N) []byte {
-	store := proto.Clone(node).(tree.N)
+	store := node.AsProto().Clone()
 	if !s.manualCollector {
 		store.SetMetaStore(nil)
 	}

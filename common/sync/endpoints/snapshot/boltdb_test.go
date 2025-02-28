@@ -115,7 +115,7 @@ func TestSnapshot(t *testing.T) {
 		testId := uuid.New()
 		folderPath := path.Join(os.TempDir(), "test-snap-tree-"+testId)
 		_ = os.MkdirAll(folderPath, 0755)
-		snapshot, e := NewBoltSnapshot(folderPath, "snapshot")
+		snapshot, e := NewBoltSnapshot(context.Background(), folderPath, "snapshot")
 		So(e, ShouldBeNil)
 		defer func() {
 			snapshot.Close(true)

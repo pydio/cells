@@ -232,7 +232,7 @@ func (c *CaptureAction) Run(ctx context.Context, channels *actions.RunnableChann
 
 		if sides == "both" || sides == "s3" {
 			infoLogger("[s3] Capturing s3 to Bolt")
-			sb, e := snapshot.NewBoltSnapshot(boltTmpFolder, dsName+"-source.db")
+			sb, e := snapshot.NewBoltSnapshot(ctx, boltTmpFolder, dsName+"-source.db")
 			if e != nil {
 				return input.WithError(e), e
 			}
@@ -249,7 +249,7 @@ func (c *CaptureAction) Run(ctx context.Context, channels *actions.RunnableChann
 
 		if sides == "both" || sides == "index" {
 			infoLogger("[index] Capturing index to Bolt")
-			tb, e := snapshot.NewBoltSnapshot(boltTmpFolder, dsName+"-target.db")
+			tb, e := snapshot.NewBoltSnapshot(ctx, boltTmpFolder, dsName+"-target.db")
 			if e != nil {
 				return input.WithError(e), e
 			}

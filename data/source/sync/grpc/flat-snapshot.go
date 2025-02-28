@@ -63,7 +63,7 @@ func newFlatSnapshot(ctx context.Context, ds *object.DataSource, client model.En
 		}
 	}
 	// Internal will prepend snapshot- to boltUuid
-	db, e := snapshot.NewBoltSnapshot(boltPath, boltUuid)
+	db, e := snapshot.NewBoltSnapshot(ctx, boltPath, boltUuid)
 	if e != nil {
 		return nil, e
 	}

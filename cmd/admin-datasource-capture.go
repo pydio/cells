@@ -139,7 +139,7 @@ EXAMPLES
 
 			if captureSides == "both" || captureSides == "s3" {
 				cmd.Println("[s3] Capturing s3 to Bolt")
-				sb, e := snapshot.NewBoltSnapshot(captureTarget, captureDsName+"-source.db")
+				sb, e := snapshot.NewBoltSnapshot(cmd.Context(), captureTarget, captureDsName+"-source.db")
 				if e != nil {
 					return e
 				}
@@ -163,7 +163,7 @@ EXAMPLES
 
 			if captureSides == "both" || captureSides == "index" {
 				cmd.Println("[index] Capturing index to Bolt")
-				tb, e := snapshot.NewBoltSnapshot(captureTarget, captureDsName+"-target.db")
+				tb, e := snapshot.NewBoltSnapshot(cmd.Context(), captureTarget, captureDsName+"-target.db")
 				if e != nil {
 					return e
 				}
