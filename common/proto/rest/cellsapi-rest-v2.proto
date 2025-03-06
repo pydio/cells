@@ -107,6 +107,12 @@ message DataSourceFeatures{
   bool Versioned = 2;
 }
 
+// Authenticated access to a content, with an expiration time
+message PreSignedURL {
+  string Url = 1;
+  int64 ExpiresAt = 2;
+}
+
 // If file is an image, extracted information about this image
 message ImageMeta {
   int32 Width = 1;
@@ -121,7 +127,7 @@ message FilePreview{
   string ContentType = 2;
   string Bucket = 3;
   string Key = 4;
-  string Url = 5;
+  PreSignedURL PreSignedGET = 5;
   int32 Dimension = 6;
 }
 
@@ -192,6 +198,8 @@ message Node {
   string HashingMethod = 23;
   // StorageEtag refers to the storage underlying hash
   string StorageETag = 9;
+  // PreSignedURL to retrieve the current content of this file
+  PreSignedURL PreSignedGET = 29;
 
   // If this node is a RecycleBin folder
   bool IsRecycleBin = 10;

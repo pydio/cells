@@ -21,7 +21,10 @@
 package restv2
 
 import (
+	"math"
+	"os"
 	"slices"
+	"time"
 
 	restful "github.com/emicklei/go-restful/v3"
 	"go.uber.org/zap"
@@ -29,8 +32,22 @@ import (
 	"github.com/pydio/cells/v5/common/errors"
 	"github.com/pydio/cells/v5/common/proto/rest"
 	"github.com/pydio/cells/v5/common/proto/tree"
+	"github.com/pydio/cells/v5/common/runtime"
 	"github.com/pydio/cells/v5/common/telemetry/log"
 )
+
+var (
+	presignDefaultExpiration int64 = 900
+)
+
+func init() {
+	runtime.RegisterEnvVariable("CELLS_PRESIGN_DEFAULT_EXPIRATION", "", "Override default expiration for pre-signed queries")
+	if exp := os.Getenv("CELLS_PRESIGN_DEFAULT_EXPIRATION"); exp != "" {
+		if d, er := time.ParseDuration(exp); er == nil {
+			presignDefaultExpiration = int64(math.Round(d.Seconds()))
+		}
+	}
+}
 
 // Lookup Combines LS and FIND in one endpoint
 func (h *Handler) Lookup(req *restful.Request, resp *restful.Response) error {
@@ -141,7 +158,7 @@ func (h *Handler) GetByUuid(req *restful.Request, resp *restful.Response) error 
 
 func (h *Handler) TNOptionsFromFlags(req *restful.Request, ff []rest.Flag) (oo []TNOption) {
 	if slices.Contains(ff, rest.Flag_WithPreSignedURLs) {
-		if sig, err := NewV4SignerForRequest(req.Request); err != nil {
+		if sig, err := NewV4SignerForRequest(req.Request, presignDefaultExpiration); err != nil {
 			log.Logger(req.Request.Context()).Error("Cannot create signer", zap.Error(err))
 		} else {
 			oo = append(oo, WithPreSigner(sig))

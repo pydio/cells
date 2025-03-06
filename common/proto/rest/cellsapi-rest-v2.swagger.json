@@ -830,11 +830,11 @@
         "Key": {
           "type": "string"
         },
+        "PreSignedGET": {
+          "$ref": "#/definitions/restPreSignedURL"
+        },
         "Processing": {
           "type": "boolean"
-        },
-        "Url": {
-          "type": "string"
         }
       },
       "title": "Description of an available preview",
@@ -1147,6 +1147,10 @@
           "title": "Node Path - Always starting with a workspace slug",
           "type": "string"
         },
+        "PreSignedGET": {
+          "$ref": "#/definitions/restPreSignedURL",
+          "title": "PreSignedURL to retrieve the current content of this file"
+        },
         "Previews": {
           "items": {
             "$ref": "#/definitions/restFilePreview",
@@ -1380,6 +1384,19 @@
         }
       },
       "title": "Response to an action triggered",
+      "type": "object"
+    },
+    "restPreSignedURL": {
+      "properties": {
+        "ExpiresAt": {
+          "format": "int64",
+          "type": "string"
+        },
+        "Url": {
+          "type": "string"
+        }
+      },
+      "title": "Authenticated access to a content, with an expiration time",
       "type": "object"
     },
     "restPromoteParameters": {

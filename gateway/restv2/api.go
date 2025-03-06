@@ -27,6 +27,7 @@ import (
 	"path/filepath"
 	"strconv"
 	"strings"
+	"time"
 
 	"go.uber.org/zap"
 
@@ -58,7 +59,7 @@ type Handler struct {
 }
 
 type PreSigner interface {
-	PreSignV4(ctx context.Context, bucket, key string) (*http.Request, error)
+	PreSignV4(ctx context.Context, bucket, key string) (*http.Request, time.Time, error)
 }
 
 type TNOptions struct {
@@ -119,6 +120,21 @@ func (h *Handler) TreeNodeToNode(ctx context.Context, n *tree.Node, oo ...TNOpti
 		// TODO Not Impl Yet
 		IsRecycled: false,
 		Activities: nil,
+	}
+	opts := &TNOptions{}
+	for _, o := range oo {
+		o(opts)
+	}
+	if opts.PreSigner != nil {
+		bucket := common.DefaultRouteBucketIO
+		if req, exp, err := opts.PreSigner.PreSignV4(ctx, bucket, n.GetPath()); err == nil {
+			rn.PreSignedGET = &rest.PreSignedURL{
+				Url:       req.URL.String(),
+				ExpiresAt: exp.Unix(),
+			}
+		} else {
+			log.Logger(ctx).Error("Cannot create preSigned", zap.Error(err))
+		}
 	}
 	for k, v := range n.GetMetaStore() {
 		if strings.HasPrefix(k, common.MetaNamespaceReservedPrefix_) {
@@ -273,22 +289,25 @@ func (h *Handler) Thumbnails(ctx context.Context, slug, nodeId, jsonThumbs strin
 	for _, t := range thumbs.Thumbnails {
 		key := fmt.Sprintf("%s/%s-%d.%s", slug, nodeId, t.Size, t.Format)
 		//url := common.DefaultRouteBucketIO + "/" + key
-		var url string
+		var pGet *rest.PreSignedURL
 		if opts.PreSigner != nil {
-			if req, err := opts.PreSigner.PreSignV4(ctx, bucket, key); err == nil {
-				url = req.URL.String()
+			if req, exp, err := opts.PreSigner.PreSignV4(ctx, bucket, key); err == nil {
+				pGet = &rest.PreSignedURL{
+					Url:       req.URL.String(),
+					ExpiresAt: exp.Unix(),
+				}
 			} else {
-				fmt.Println("Could not create Presigned", err)
+				log.Logger(ctx).Error("Cannot create presigned", zap.Error(err))
 			}
 		}
 
 		ff = append(ff, &rest.FilePreview{
-			Processing:  thumbs.Processing,
-			ContentType: "image/" + t.Format,
-			Bucket:      strings.TrimPrefix(bucket, "/"),
-			Key:         key,
-			Url:         url,
-			Dimension:   int32(t.Size),
+			Processing:   thumbs.Processing,
+			ContentType:  "image/" + t.Format,
+			Bucket:       strings.TrimPrefix(bucket, "/"),
+			Key:          key,
+			PreSignedGET: pGet,
+			Dimension:    int32(t.Size),
 		})
 	}
 	return
@@ -305,25 +324,28 @@ func (h *Handler) OtherPreview(ctx context.Context, slug, metaValue string, oo .
 		cType = "image/" + ext
 	}
 	key := fmt.Sprintf("%s/%s", slug, metaValue)
-	var url string
+	var pGet *rest.PreSignedURL
 	opts := &TNOptions{}
 	for _, o := range oo {
 		o(opts)
 	}
 	bucket := common.DefaultRouteBucketIO
 	if opts.PreSigner != nil {
-		if req, err := opts.PreSigner.PreSignV4(ctx, bucket, key); err == nil {
-			url = req.URL.String()
+		if req, exp, err := opts.PreSigner.PreSignV4(ctx, bucket, key); err == nil {
+			pGet = &rest.PreSignedURL{
+				Url:       req.URL.String(),
+				ExpiresAt: exp.Unix(),
+			}
 		} else {
-			fmt.Println("Could not create Presigned", err)
+			log.Logger(ctx).Error("Cannot create presigned", zap.Error(err))
 		}
 	}
 
 	return &rest.FilePreview{
-		ContentType: cType,
-		Bucket:      strings.TrimPrefix(bucket, "/"),
-		Key:         key,
-		Url:         url,
+		ContentType:  cType,
+		Bucket:       strings.TrimPrefix(bucket, "/"),
+		Key:          key,
+		PreSignedGET: pGet,
 	}
 }
 
