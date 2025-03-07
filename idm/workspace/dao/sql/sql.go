@@ -200,11 +200,11 @@ func (c *queryBuilder) Convert(ctx context.Context, val *anypb.Any, db *gorm.DB)
 
 	if q.HasAttribute != "" {
 		count++
-		db = sql.GormConvertString(db, q.Not, "attributes", "*"+q.HasAttribute+":*")
+		db = sql.GormConvertString(db, q.Not, "attributes", `*"`+q.HasAttribute+`":*`)
 	}
 	if q.AttributeName != "" && q.AttributeValue != "" {
 		count++
-		db = sql.GormConvertString(db, q.Not, "attributes", "*"+q.AttributeName+":"+q.AttributeValue+":*")
+		db = sql.GormConvertString(db, q.Not, "attributes", `*"`+q.AttributeName+`":"`+q.AttributeValue+`"*`)
 	}
 
 	return db, count > 0, nil
