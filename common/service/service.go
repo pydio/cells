@@ -262,17 +262,11 @@ func (s *service) Stop(oo ...registry.RegisterOption) error {
 		}
 	}
 
-	if s.Opts.serverStop != nil {
-		if err := s.Opts.serverStop(refCtx); err != nil {
-			return err
-		}
-	}
-
 	opts := &registry.RegisterOptions{}
 	for _, o := range oo {
 		o(opts)
 	}
-
+	// deregister before stop
 	if reg := s.Opts.GetRegistry(); reg != nil {
 		// Deregister to make sure to break existing links
 		if err := reg.Deregister(s, registry.WithRegisterFailFast()); err != nil {
@@ -285,7 +279,11 @@ func (s *service) Stop(oo ...registry.RegisterOption) error {
 		s.Opts.Logger().Warn("no registry attached")
 	}
 
-	s.Opts.Logger().Info("stopped")
+	if s.Opts.serverStop != nil {
+		if err := s.Opts.serverStop(refCtx); err != nil {
+			return err
+		}
+	}
 
 	return nil
 }
