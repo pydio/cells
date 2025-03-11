@@ -328,6 +328,9 @@ func (s *Handler) PerformSearch(ctx context.Context, searchRequest *tree.SearchR
 								if strings.HasPrefix(filtered.Path, w.Slug+"/") {
 									filtered.MustSetMeta(common.MetaFlagWorkspaceRepoId, w.UUID)
 									filtered.MustSetMeta(common.MetaFlagWorkspaceRepoDisplay, w.Label)
+									filtered.MustSetMeta(common.MetaFlagWorkspaceSlug, w.Slug)
+									filtered.MustSetMeta(common.MetaFlagWorkspaceScope, w.Scope.String())
+									filtered.MustSetMeta(common.MetaFlagWorkspaceDescription, w.Description)
 								}
 							}
 						}
