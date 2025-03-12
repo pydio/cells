@@ -315,12 +315,15 @@ func (s *Handler) PerformSearch(ctx context.Context, searchRequest *tree.SearchR
 					log.Logger(ctx).Debug("READ permission checked for " + node.Path)
 
 					if sErr := streamer.Send(&tree.ReadNodeRequest{Node: node.Clone()}); sErr != nil {
-						log.Logger(ctx).Debug("Cannot read " + node.Path)
+						log.Logger(ctx).Warn("Cannot send "+node.Path, zap.Error(sErr))
 						continue
 					}
 
-					if nsR, e := streamer.Recv(); e == nil {
+					if nsR, e := streamer.Recv(); e == nil && nsR.GetNode() != nil {
 						node = nsR.GetNode()
+					} else {
+						log.Logger(ctx).Debug("Cannot read "+node.Path, zap.Error(e))
+						continue
 					}
 
 					for r, p := range nodesPrefixes {
