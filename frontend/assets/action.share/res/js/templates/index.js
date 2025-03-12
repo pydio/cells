@@ -745,4 +745,4 @@ FilmStripMinisite= compose(
         connect()
     )(FilmStripMinisite)
 
-export {FolderMinisite, FileMinisite, DLTemplate, DropZoneMinisite, FilmStripMinisite}
+export {FolderMinisite, FileMinisite, DLTemplate, DropZoneMinisite, FilmStripMinisite, withUniqueNode, withRepositoriesListener, withSearchFormEnabled}
