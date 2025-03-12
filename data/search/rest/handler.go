@@ -34,6 +34,7 @@ import (
 	"github.com/pydio/cells/v5/common"
 	"github.com/pydio/cells/v5/common/client/commons/treec"
 	"github.com/pydio/cells/v5/common/client/grpc"
+	"github.com/pydio/cells/v5/common/errors"
 	"github.com/pydio/cells/v5/common/nodes"
 	"github.com/pydio/cells/v5/common/nodes/acl"
 	"github.com/pydio/cells/v5/common/nodes/compose"
@@ -279,69 +280,118 @@ func (s *Handler) PerformSearch(ctx context.Context, searchRequest *tree.SearchR
 		defer sClient.CloseSend()
 
 		log.Logger(ctx).Debug("Start Searching")
+		var ordered []string
+		var resolved []*tree.Node
 
-		wg := &sync.WaitGroup{}
-		throttle := make(chan struct{}, 5)
+		// Create a worker pool with dedicated streamers
+		type workItem struct {
+			node *tree.Node
+		}
+		numWorkers := 5
+		jobs := make(chan workItem)
+		results := make(chan *tree.Node)
+		var wg sync.WaitGroup
+
+		// Start workers
+		for i := 0; i < numWorkers; i++ {
+			// Create dedicated streamer for each worker
+			workerStreamer, err := treec.NodeProviderStreamerClient(ctx).ReadNodeStream(ctx)
+			if err != nil {
+				return err
+			}
+			defer workerStreamer.CloseSend()
+
+			wg.Add(1)
+			go func(streamer tree.NodeProviderStreamer_ReadNodeStreamClient) {
+				defer wg.Done()
+				for job := range jobs {
+					node := job.node
+					log.Logger(ctx).Debug("Search received " + node.Path)
+					wrapperCtx, wrapperN, _ := inputFilter(ctx, node, "in-"+node.Uuid)
+					if checkErr := router.WrappedCanApply(wrapperCtx, wrapperCtx, &tree.NodeChangeEvent{Type: tree.NodeChangeEvent_READ, Source: wrapperN}); checkErr != nil {
+						log.Logger(ctx).Debug("Skipping node in search results", node.ZapPath(), zap.Error(checkErr))
+						continue
+					}
+					log.Logger(ctx).Debug("READ permission checked for " + node.Path)
+
+					if sErr := streamer.Send(&tree.ReadNodeRequest{Node: node.Clone()}); sErr != nil {
+						log.Logger(ctx).Debug("Cannot read " + node.Path)
+						continue
+					}
+
+					if nsR, e := streamer.Recv(); e == nil {
+						node = nsR.GetNode()
+					}
+
+					for r, p := range nodesPrefixes {
+						if strings.HasPrefix(node.Path, r+"/") || node.Path == r {
+							_, filtered, outErr := outputFilter(ctx, node, "search-"+p)
+							if outErr != nil {
+								log.Logger(ctx).Warn("OutputFiltering node in search results has an error, this is unexpected", zap.Error(outErr))
+								continue
+							}
+							if userWorkspaces != nil {
+								for _, w := range userWorkspaces {
+									if strings.HasPrefix(filtered.Path, w.Slug+"/") {
+										filtered.MustSetMeta(common.MetaFlagWorkspaceRepoId, w.UUID)
+										filtered.MustSetMeta(common.MetaFlagWorkspaceRepoDisplay, w.Label)
+										filtered.MustSetMeta(common.MetaFlagWorkspaceSlug, w.Slug)
+										filtered.MustSetMeta(common.MetaFlagWorkspaceScope, w.Scope.String())
+										filtered.MustSetMeta(common.MetaFlagWorkspaceDescription, w.Description)
+									}
+								}
+							}
+							log.Logger(ctx).Debug("Append result " + filtered.Path)
+							results <- filtered.WithoutReservedMetas()
+						}
+					}
+				}
+			}(workerStreamer)
+		}
+
+		// Start result collector
+		resultsDone := make(chan struct{})
+		go func() {
+			for n := range results {
+				resolved = append(resolved, n)
+			}
+			close(resultsDone)
+		}()
+
+		// Send jobs to workers
 		for {
 			resp, rErr := sClient.Recv()
-			if resp == nil {
+			if errors.IsStreamFinished(rErr) {
 				break
 			} else if rErr != nil {
-				return err
+				return rErr
 			}
 			if resp.Facet != nil {
 				log.Logger(ctx).Debug("Facet Received " + resp.Facet.Label)
 				facets = append(facets, resp.Facet)
 				continue
 			}
-
-			wg.Add(1)
-			throttle <- struct{}{}
-			go func(node *tree.Node) {
-				defer func() {
-					wg.Done()
-					<-throttle
-				}()
-				log.Logger(ctx).Debug("Search received " + node.Path)
-				wrapperCtx, wrapperN, _ := inputFilter(ctx, node, "in-"+node.Uuid)
-				if checkErr := router.WrappedCanApply(wrapperCtx, wrapperCtx, &tree.NodeChangeEvent{Type: tree.NodeChangeEvent_READ, Source: wrapperN}); checkErr != nil {
-					log.Logger(ctx).Debug("Skipping node in search results", node.ZapPath(), zap.Error(checkErr))
-					return
-				}
-				log.Logger(ctx).Debug("READ permission checked for " + node.Path)
-
-				if sErr := nodeStreamer.Send(&tree.ReadNodeRequest{Node: node.Clone()}); sErr != nil {
-					log.Logger(ctx).Debug("Cannot read " + node.Path)
-				} else if nsR, e := nodeStreamer.Recv(); e == nil {
-					node = nsR.GetNode()
-				}
-
-				for r, p := range nodesPrefixes {
-					if strings.HasPrefix(node.Path, r+"/") || node.Path == r {
-						_, filtered, outErr := outputFilter(ctx, node, "search-"+p)
-						if outErr != nil {
-							log.Logger(ctx).Warn("OutputFiltering node in search results has an error, this is unexpected", zap.Error(outErr))
-							return
-						}
-						if userWorkspaces != nil {
-							for _, w := range userWorkspaces {
-								if strings.HasPrefix(filtered.Path, w.Slug+"/") {
-									filtered.MustSetMeta(common.MetaFlagWorkspaceRepoId, w.UUID)
-									filtered.MustSetMeta(common.MetaFlagWorkspaceRepoDisplay, w.Label)
-									filtered.MustSetMeta(common.MetaFlagWorkspaceSlug, w.Slug)
-									filtered.MustSetMeta(common.MetaFlagWorkspaceScope, w.Scope.String())
-									filtered.MustSetMeta(common.MetaFlagWorkspaceDescription, w.Description)
-								}
-							}
-						}
-						log.Logger(ctx).Debug("Append result " + filtered.Path)
-						nn = append(nn, filtered.WithoutReservedMetas())
-					}
-				}
-			}(resp.GetNode())
+			if resp.GetNode() != nil {
+				ordered = append(ordered, resp.GetNode().GetUuid())
+				jobs <- workItem{node: resp.GetNode().Clone()}
+			}
 		}
 
+		// Close jobs channel and wait for workers to finish
+		close(jobs)
 		wg.Wait()
+		close(results)
+		<-resultsDone
+
+		// Reorder results that may have been messed-up by concurrency!
+		for _, id := range ordered {
+			for _, n := range resolved {
+				if n.GetUuid() == id {
+					nn = append(nn, n)
+					break
+				}
+			}
+		}
 
 		return nil
 
