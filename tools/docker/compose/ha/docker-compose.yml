@@ -1,180 +1,448 @@
+version: '3.9'
+
 # Common variables
 x-cells: &cells-common
-  image: pydio/cells:4
-  restart: unless-stopped
-  environment:
-    - CELLS_WORKING_DIR=/var/cells
-    - CELLS_CONFIG=etcd://etcd:2379
-    - CELLS_REGISTRY=etcd://etcd:2379
-    - CELLS_BROKER=nats://nats:4222
-    - CELLS_KEYRING=vault://vault:8200/secret?key=master
-    - CELLS_CERTS_STORE=vault://vault:8200/caddycerts
-    - CELLS_CACHE=redis://redis:6379
-    - CELLS_ENABLE_PPROF=true
-    - CELLS_SITE_BIND_ADDRESS=0.0.0.0
-    - VAULT_TOKEN=${VAULT_ROOT_TOKEN}
 
+  image: pydio/cells:4  
+  restart: unless-stopped
+  networks:
+    - cells-ha-net
+  depends_on:
+    mysql:
+      condition: "service_healthy"
+    etcd0:
+      condition: "service_healthy"
+    redis:
+       condition: "service_started"
+    nats:
+      condition: "service_started"
+    vault:
+      condition: "service_started"
+    vault-init:
+      condition: "service_completed_successfully"
+    minio-createbuckets:
+      condition: "service_completed_successfully"
+    mongo:
+      condition: "service_started"
+    cells-install:
+      condition: "service_completed_successfully"
+    
 volumes:
+    cells_sql_data: {}
+    cells_working_dir: {}
     cells_data: {}
-    mysql_data: {}
     etcd_data: {}
     caddy_data: {}
     caddy_logs: {}
     caddy_config: {}
+    cells_minio_ha: {}
+    cells_vault: {}
+    cells_nginx_logs: {}
+    cells_nats_1: {}
+    cells_nats_2: {}
+    cells_nats: {}
+    cells_clamav: {}
+  
+networks:
+  cells-ha-net:
+    external: false
 
 services:
-
   # MySQL DB
   mysql:
-    image: mysql:8
+    image: mariadb
     restart: unless-stopped
+    ports:
+      - 3306:3306
     volumes:
-      - mysql_data:/var/lib/mysql
+      - cells_sql_data:/var/lib/mysql      
     environment:
-      - MYSQL_ROOT_PASSWORD=cells
-      - MYSQL_DATABASE=cells
-      - MYSQL_USER=${MYSQL_DB_USER}
-      - MYSQL_PASSWORD=${MYSQL_DB_PASSWORD}
-    command: [mysqld, --character-set-server=utf8mb4, --collation-server=utf8mb4_unicode_ci]
+      MYSQL_ROOT_PASSWORD: '${MARIADB_ROOT_PASSWORD}'
+      MYSQL_DATABASE: '${MARIADB_DATABASE}'
+      MYSQL_USER: '${MARIADB_DB_USER}'
+      MYSQL_PASSWORD: '${MARIADB_DB_PASSWORD}'
+    networks:
+      - cells-ha-net   
+    command:
+      [        
+        --character-set-server=utf8mb4,
+        --collation-server=utf8mb4_unicode_ci,
+        --max_connections=10000,
+        --max_allowed_packet=254108864,
+        --net_read_timeout=600,
+        --net_write_timeout=600
+      ]  
+    healthcheck:
+      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+      start_period: 10s
+      interval: 10s
+      timeout: 5s
+      retries: 3
 
   # Mongo DB
   mongo:
-    image:  mongo:5.0.12
+    image:  mongo:5.0.5
     restart: unless-stopped
-    expose: [27017]
+    container_name: mongo
+    ports:
+      - 27017:27017
+    networks:
+      - cells-ha-net      
 
   # ETCD Single-Node for registry and configs
-  etcd:
+  etcd0:
     image: quay.io/coreos/etcd:v3.5.2
     entrypoint: /usr/local/bin/etcd
+    restart: unless-stopped
+    container_name: etcd0
     ports:
-      - "4001:4001"
-      - "2380:2380"
-      - "2379:2379"
+      #- 4001:4001 
+      - 2380:2380 
+      - 2379:2379 
     volumes:
       - etcd_data:/etcd_data
-      - /usr/share/ca-certificates/:/etc/ssl/certs 
+      - /usr/share/ca-certificates/:/etc/ssl/certs
+    networks:
+      - cells-ha-net      
     command: 
-      - '--name=etcd-0' 
-      - '--advertise-client-urls=http://etcd:2379,http://etcd:4001'
-      - '--listen-client-urls=http://0.0.0.0:2379,http://0.0.0.0:4001'
-      - '--initial-advertise-peer-urls=http://etcd:2380'
+      - '--name=etcd-0'
+      - '--advertise-client-urls=http://etcd0:2379'
+      - '--listen-client-urls=http://0.0.0.0:2379'
+      - '--initial-advertise-peer-urls=http://etcd0:2380'
       - '--listen-peer-urls=http://0.0.0.0:2380'
-      - '--initial-cluster-token=etcd-cluster-1'
-      - '--initial-cluster=etcd-0=http://etcd:2380'
-      - '--initial-cluster-state=new'
+    healthcheck:
+      test: ["CMD", "etcdctl", "endpoint", "health"]
+      interval: 3s
+      timeout: 5s
+      retries: 5
+
 
   # Nats events broker
   nats:
     image: nats
-    expose:
-      - 4222
-      - 8222
+    container_name: nats
+    hostname: nats
+    restart: unless-stopped
+    expose: [4222,8222,6222]
+    volumes:
+      - cells_nats_1:/data
+    ports:
+      - 4222:4222
+      - 8222:8222
+      - 6222:6222
     #for verbose, use "--http_port 8222 -V"
-    command: "--http_port 8222"
+    command:
+      - "--http_port=8222"
+      - "--server_name=nats"
+      - "-js"
+      - "--cluster_name=NATS"
+      - "--cluster=nats://0.0.0.0:6222"
+      - "--routes=nats://nats-1:6222,nats://nats-2:6222"
+    networks:
+      - cells-ha-net
+
+  nats-1:
+    image: nats
+    container_name: nats-1
+    hostname: nats-1
+    restart: unless-stopped
+    expose: [4222,8222,6222]
+    volumes:
+      - cells_nats_1:/data
+#    ports:
+#      - 4222:4222
+#      - 8222:8222
+    #for verbose, use "--http_port 8222 -V"
+    command:
+      - "--http_port=8222"
+      - "--server_name=nats-1"
+      - "-js"
+      - "--cluster_name=NATS"
+      - "--cluster=nats://0.0.0.0:6222"
+      - "--routes=nats://ruser:T0pS3cr3t@nats:6222"
+    networks:
+      - cells-ha-net
+    depends_on:
+      nats:
+        condition: "service_started"
+
+  nats-2:
+    image: nats
+    container_name: nats-2
+    hostname: nats-2
+    restart: unless-stopped
+    expose: [4222,8222,6222]
+    volumes:
+      - cells_nats_2:/data
+#    ports:
+#      - 4222:4222
+#      - 8222:8222
+    #for verbose, use "--http_port 8222 -V"
+    command:
+      - "--http_port=8222"
+      - "-js"
+      - "--server_name=nats-2"
+      - "--cluster_name=NATS"
+      - "--cluster=nats://0.0.0.0:6222"
+      - "--routes=nats://ruser:T0pS3cr3t@nats:6222"
+    networks:
+      - cells-ha-net
+    depends_on:
+      nats:
+        condition: "service_started"
+
 
   # Hashicorp vault for keyring and certificates
   vault:
-    image: vault
+    image: hashicorp/vault
+    container_name: vault
+    restart: unless-stopped
     expose: [8200]
+    ports:
+      - 8200:8200
+      - 8201:8201  # cluster port
     environment:
-      - VAULT_DEV_ROOT_TOKEN_ID=${VAULT_ROOT_TOKEN}
+      - VAULT_TOKEN=${VAULT_ROOT_TOKEN} 
+      - VAULT_ADDR=http://vault:8200
+      - VAULT_API_ADDR=http://vault:8200
     cap_add:
       - IPC_LOCK
+    volumes:
+      - cells_vault:/vault/file:rw
+      - ./conf/vault.json:/vault/config/vault.json
+    networks:
+      - cells-ha-net
+    command: server
+
+
+  vault-init:
+    image: hashicorp/vault
+    container_name: vault-init
+    environment:
+      - VAULT_ADDR=http://vault:8200
+      - VAULT_API_ADDR=http://vault:8200
+      - CELLS_VAULT_TOKEN=${VAULT_ROOT_TOKEN} 
+    cap_add:
+      - IPC_LOCK
+    volumes:      
+      - ./conf/vault-init.sh:/usr/local/bin/vault-init.sh
+      - cells_vault:/vault/file:rw
+    command: ["/bin/sh", "-c", "/usr/local/bin/vault-init.sh"]
+    restart: on-failure
+    networks:
+      - cells-ha-net    
+    depends_on:
+      - vault
+   
 
   redis:
     image: redis
     hostname: redis
+    restart: unless-stopped
     expose: [6379]
-
-  minio:
-    image: quay.io/minio/minio
-    command: server --console-address ":9001" /data
-    hostname: minio
-    environment:
-      MINIO_ROOT_USER: ${MINIO_ROOT_USER}
-      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD}
-    expose:
-      - 9000
     ports:
-      - "9001:9001"
-    volumes:
-      - cells_data:/data
+      - 6379:6379
+    networks:
+      - cells-ha-net  
 
-  createbuckets:
-    image: minio/mc
+#
+  # CELLS MULTIPLE NODES
+  #
+  cells-install:
+    <<: *cells-common
+    hostname: cells-install
+    environment:
+      - CELLS_WORKING_DIR=/var/cells
+      - CELLS_CONFIG=etcd://etcd0:2379/config
+      - CELLS_VAULT=etcd://etcd0:2379/vault
+      - CELLS_REGISTRY=etcd://etcd0:2379
+      - CELLS_BROKER=nats://nats:4222
+      - CELLS_PERSISTQUEUE=nats://nats:4222      
+      - CELLS_KEYRING=vault://vault:8200/secret?key=master
+      - CELLS_CERTS_STORE=vault://vault:8200/caddycerts
+      - CELLS_CACHE=redis://redis:6379
+      - VAULT_TOKEN=${VAULT_ROOT_TOKEN}
+      - CELLS_VAULT_TOKEN=${VAULT_ROOT_TOKEN}    
+      - CELLS_ADVERTISE_ADDRESS=cells
+      - CELLS_BIND_ADDRESS=0.0.0.0    
+      - CELLS_EXTERNAL=${CELLS_URL}      
+      - CELLS_INSTALL_YAML=/pydio/unattended_install.yml
+    ports:
+      - 8078:8080
+      - 8002:8002
+    restart: on-failure
+    volumes:
+    - ./conf/unattended_install.yml:/pydio/unattended_install.yml
+    - ./conf/cells-init.sh:/var/cells/cells-init.sh:rx
+    command: ["/bin/sh", "-c", "/var/cells/cells-init.sh"]
     depends_on:
-      - minio
-    entrypoint: >
-      /bin/sh -c "
-      /usr/bin/mc config host add myminio http://minio:9000 ${MINIO_ROOT_USER} ${MINIO_ROOT_PASSWORD};
-      /usr/bin/mc rm -r --force myminio/pydiods1;
-      /usr/bin/mc rm -r --force myminio/personal;
-      /usr/bin/mc rm -r --force myminio/cellsdata;
-      /usr/bin/mc rm -r --force myminio/thumbs;
-      /usr/bin/mc rm -r --force myminio/versions;
-      /usr/bin/mc rm -r --force myminio/binaries;
-      /usr/bin/mc mb myminio/pydiods1;
-      /usr/bin/mc mb myminio/personal;
-      /usr/bin/mc mb myminio/cellsdata;
-      /usr/bin/mc mb myminio/thumbs;
-      /usr/bin/mc mb myminio/versions;
-      /usr/bin/mc mb myminio/binaries;
-      exit 0;
-      "
+      mysql:
+        condition: "service_healthy"
+      etcd0:
+        condition: "service_healthy"
+      redis:
+        condition: "service_started"
+      nats:
+        condition: "service_started"
+      vault:
+        condition: "service_started"
+      vault-init:
+        condition: "service_completed_successfully"
+      minio-ha:
+        condition: "service_started"
+      minio-createbuckets:
+        condition: "service_completed_successfully"
+      mongo:
+        condition: "service_started"
+             
   #
   # CELLS MULTIPLE NODES
-  # cells1 overrides env and volumes to access the install YAML
   #
   cells1:
     <<: *cells-common
     hostname: cells1
-    expose: [8080]
     environment:
       - CELLS_WORKING_DIR=/var/cells
-      - CELLS_CONFIG=etcd://etcd:2379
-      - CELLS_REGISTRY=etcd://etcd:2379
+      - CELLS_CONFIG=etcd://etcd0:2379/config
+      - CELLS_VAULT=etcd://etcd0:2379/vault
+      - CELLS_REGISTRY=etcd://etcd0:2379
       - CELLS_BROKER=nats://nats:4222
+      - CELLS_PERSISTQUEUE=nats://nats:4222
       - CELLS_KEYRING=vault://vault:8200/secret?key=master
       - CELLS_CERTS_STORE=vault://vault:8200/caddycerts
       - CELLS_CACHE=redis://redis:6379
-      - CELLS_ENABLE_PPROF=true
-      - CELLS_BIND_ADDRESS=0.0.0.0
       - VAULT_TOKEN=${VAULT_ROOT_TOKEN}
-      - CELLS_INSTALL_YAML=/pydio/config/install.yml
-      - INSTALL_MYSQL_DB_USER=${MYSQL_DB_USER}
-      - INSTALL_MYSQL_DB_PASSWORD=${MYSQL_DB_PASSWORD}
-      - INSTALL_MINIO_ROOT_USER=${MINIO_ROOT_USER}
-      - INSTALL_MINIO_ROOT_PASSWORD=${MINIO_ROOT_PASSWORD}
-    volumes:
-      - ./conf/install-conf.yml:/pydio/config/install.yml:ro
-#    ports:
-#      - "8080:8080" # We expose that port externally for first configuration step (access to https://localhost:8080)
-#      - "8002:8002" # uncomment if you want to browse the internal registry of this node using cells-ctl
+      - CELLS_ENABLE_PPROF=true
+      - CELLS_VAULT_TOKEN=${VAULT_ROOT_TOKEN}    
+      - CELLS_ADVERTISE_ADDRESS=cells1
+      - CELLS_BIND_ADDRESS=0.0.0.0    
+      - CELLS_EXTERNAL=${CELLS_URL}
+      - CELLS_INSTALL_YAML=/pydio/unattended_install.yml
+    ports:
+      - 8079:8080
+      - 8002:8002
+     
 
   cells2:
     <<: *cells-common
     hostname: cells2
-    expose: [8080]
-# uncomment if you want to open this instance directly on localhost:8082
-#    ports:
-#      - 8082:8080
+    environment:
+      - CELLS_WORKING_DIR=/var/cells
+      - CELLS_CONFIG=etcd://etcd0:2379/config
+      - CELLS_VAULT=etcd://etcd0:2379/vault
+      - CELLS_REGISTRY=etcd://etcd0:2379
+      - CELLS_BROKER=nats://nats:4222
+      - CELLS_PERSISTQUEUE=nats://nats:4222      
+      - CELLS_KEYRING=vault://vault:8200/secret?key=master
+      - CELLS_CERTS_STORE=vault://vault:8200/caddycerts
+      - CELLS_CACHE=redis://redis:6379
+      - VAULT_TOKEN=${VAULT_ROOT_TOKEN}
+      - CELLS_ENABLE_PPROF=true
+      - CELLS_VAULT_TOKEN=${VAULT_ROOT_TOKEN}    
+      - CELLS_ADVERTISE_ADDRESS=cells2
+      - CELLS_BIND_ADDRESS=0.0.0.0
+      - CELLS_EXTERNAL=${CELLS_URL}
+    ports:
+      - 8081:8080
+      - 8003:8002
+     
 
   cells3:
     <<: *cells-common
-    hostname: cells3
-    expose: [8080]
-# uncomment if you want to open this instance directly on localhost:8083
-#    ports:
-#      - 8083:8080
+    hostname: cells3  
+    environment:
+      - CELLS_WORKING_DIR=/var/cells
+      - CELLS_CONFIG=etcd://etcd0:2379/config
+      - CELLS_VAULT=etcd://etcd0:2379/vault
+      - CELLS_REGISTRY=etcd://etcd0:2379
+      - CELLS_BROKER=nats://nats:4222
+      - CELLS_PERSISTQUEUE=nats://nats:4222      
+      - CELLS_KEYRING=vault://vault:8200/secret?key=master
+      - CELLS_CERTS_STORE=vault://vault:8200/caddycerts
+      - CELLS_CACHE=redis://redis:6379
+      - VAULT_TOKEN=${VAULT_ROOT_TOKEN}
+      - CELLS_ENABLE_PPROF=true
+      - CELLS_VAULT_TOKEN=${VAULT_ROOT_TOKEN}    
+      - CELLS_ADVERTISE_ADDRESS=cells3
+      - CELLS_BIND_ADDRESS=0.0.0.0
+      - CELLS_EXTERNAL=${CELLS_URL}
+    ports:
+      - 8082:8080
+      - 8004:8002
+  
+  minio-ha:
+    image: minio/minio:latest
+    hostname: minio-ha
+    container_name: minio-ha
+    command: server --console-address ":9001" /data
+    environment:
+      MINIO_ENDPOINT: http://minio-ha:9000
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD}
+    ports:
+      - 9000:9000
+      - 9001:9001
+    volumes:
+      - cells_minio_ha:/data
+    networks:
+      - cells-ha-net        
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      interval: 3s
+      timeout: 2s
+      retries: 3
 
-  # Caddy reverse proxy, exposed as self-signed on port 445
+  minio-createbuckets:
+    image: minio/mc
+    networks:
+      - cells-ha-net        
+    entrypoint: >
+      /bin/sh -c "
+      /usr/bin/mc alias set myminio http://minio-ha:9000 '${MINIO_ROOT_USER}' '${MINIO_ROOT_PASSWORD}';
+      /usr/bin/mc mb myminio/thumbnails;
+      /usr/bin/mc policy set public myminio/thumbnails;
+      /usr/bin/mc mb myminio/personal;
+      /usr/bin/mc policy set public myminio/personal;
+      /usr/bin/mc mb myminio/pydiods1;
+      /usr/bin/mc policy set public myminio/pydiods1;
+      /usr/bin/mc mb myminio/versions;
+      /usr/bin/mc policy set public myminio/versions;
+      /usr/bin/mc mb myminio/cellsdata;
+      /usr/bin/mc policy set myminio/cellsdata;
+      /usr/bin/mc mb myminio/binaries;
+      /usr/bin/mc policy set public myminio/binaries;
+      exit 0;
+      "
+    depends_on:
+      minio-ha:
+        condition: service_healthy
+
+  # # Caddy reverse proxy, exposed as self-signed on port 445
   caddy:
-    image:  caddy:2-alpine
-    ports: ["8585:8585"]
+    image: caddy:latest
     restart: unless-stopped
+    container_name: caddy
+    ports:
+      - 443:443
     volumes:
       - ./conf/Caddyfile:/etc/caddy/Caddyfile
-      - caddy_logs:/var/caddy/logs
+      - ./conf/tls/selfsigned.crt:/etc/ssl/selfsigned.crt
+      - ./conf/tls/selfsigned.key:/etc/ssl/selfsigned.key
       - caddy_data:/data
       - caddy_config:/config
+    networks:
+      - cells-ha-net 
+
+  # nginx:
+  #   image: nginx:latest
+  #   ports: 
+  #     - 8585:8585
+  #   restart: unless-stopped
+  #   networks:
+  #     - cells-ha-net
+  #   volumes:
+  #     - ./conf/tls/selfsigned.crt:/etc/ssl/certs/selfsigned.crt
+  #     - ./conf/tls/dhparam.pem:/etc/ssl/certs/dhparam.pem
+  #     - ./conf/tls/selfsigned.key:/etc/ssl/certs/selfsigned.key
+  #     - ./conf/nginx/cells-ha.conf:/etc/nginx/conf.d/cells-ha.conf
+  #     - cells_nginx_logs:/var/log/nginx

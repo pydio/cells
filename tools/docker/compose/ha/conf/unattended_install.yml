@@ -13,21 +13,21 @@ dbconnectiontype: tcp
 dbtcphostname: mysql
 dbtcpport: 3306
 dbtcpname: cells
-dbtcpuser: {$INSTALL_MYSQL_DB_USER}
-dbtcppassword: {$INSTALL_MYSQL_DB_PASSWORD}
+dbtcpuser: cells
+dbtcppassword: cells
 
 # Mongo Setup
 documentsdsn: mongodb://mongo:27017/cells
 usedocumentsdsn: true
 
-# Advanced Datasource Setup
+# Advanced Datasource Setup 
 dstype: S3
-dss3custom: http://minio:9000
-dss3apikey: {$INSTALL_MINIO_ROOT_USER}
-dss3apisecret: {$INSTALL_MINIO_ROOT_PASSWORD}
+dss3custom: http://minio-ha:9000?minio=true
+dss3apikey: minioadminuser
+dss3apisecret: minioadminkey
 dss3bucketdefault: pydiods1
 dss3bucketpersonal: personal
 dss3bucketcells: cellsdata
 dss3bucketbinaries: binaries
-dss3bucketthumbs: thumbs
+dss3bucketthumbs: thumbnails
 dss3bucketversions: versions

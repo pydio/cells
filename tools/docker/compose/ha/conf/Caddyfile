@@ -1,16 +1,16 @@
-{
-    https_port 8585
-    skip_install_trust
-    local_certs
-}
-caddy {
-    reverse_proxy {
-        to https://cells1:8080 https://cells2:8080 https://cells3:8080
+:443 {
+    tls  /etc/ssl/selfsigned.crt /etc/ssl/selfsigned.key
+    reverse_proxy https://cells1:8080 https://cells2:8080 https://cells3:8080 {
         transport http {
-            tls
+            dial_timeout 5s
+
+            # require a great number for sync
+            response_header_timeout 3000s
             tls_insecure_skip_verify
         }
-        health_uri /pprofs
+        lb_policy cookie cells_ha_sticky
+        #lb_policy round_robin
+        #trusted_proxies x.x.x.x
     }
-    tls internal
 }
+
