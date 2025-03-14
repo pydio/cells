@@ -2828,8 +2828,8 @@ github.com/pydio/caddyvault v1.0.3 h1:QPf1cUNwDkxjevZdLS7x4ryDqMDYXznDGctUjiRgTH
 github.com/pydio/caddyvault v1.0.3/go.mod h1:TqPZn8TE/NPaDqtkX8zCRr/XXpCPjyPloQcBe1zOrbg=
 github.com/pydio/go v0.0.0-20191211170306-d00ac19450ef h1:5FyN7pndX4GyCAb0gdZgN78qJ1IGL1/Mj19bTijXgfk=
 github.com/pydio/go v0.0.0-20191211170306-d00ac19450ef/go.mod h1:H+DrbjBEehySj5ykZVFHF12kpfWtmKpsoyDZ16kUyqk=
-github.com/pydio/minio v0.0.0-20250214151954-26aa0136b6fe h1:v38SrQThrBamCiLHdz5Mrioc+Z+uqmFkezVRGDZQrzs=
-github.com/pydio/minio v0.0.0-20250214151954-26aa0136b6fe/go.mod h1:HoUTQc0mRkohJS2IVuXivpHo6KQO2A+FQjtTSCJO/2w=
+github.com/pydio/minio v0.0.0-20250314155004-84d2714bc31f h1:kkIzp0De8xS516W/nYuqbVQQt6dGNoGzoSlifgFX0Mw=
+github.com/pydio/minio v0.0.0-20250314155004-84d2714bc31f/go.mod h1:HoUTQc0mRkohJS2IVuXivpHo6KQO2A+FQjtTSCJO/2w=
 github.com/pydio/pydio-sdk-go v0.0.0-20190116153840-23ce5c39e65c h1:aC9RjBWAeYiyaXH60aHiEaSvYgpS9NyGbFvOl8xuIBg=
 github.com/pydio/pydio-sdk-go v0.0.0-20190116153840-23ce5c39e65c/go.mod h1:GqSiZ8UE5erTBYBBt9+mA4p9OdgVy24vgRLCEY85N7g=
 github.com/quic-go/qpack v0.5.1 h1:giqksBPnT/HDtZ6VhtFKgoLOWmlyo9Ei6u9PqzIMbhI=
