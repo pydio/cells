@@ -206,13 +206,15 @@ func (f *FlatStorageHandler) MultipartComplete(ctx context.Context, target *tree
 			if branchInfo, er := nodes.GetBranchInfo(ctx, "in"); er == nil && branchInfo.EncryptionMode != object.EncryptionMode_CLEAR {
 				if pS, e := f.encPlainSizeRecompute(ctx, target.GetUuid(), branchInfo.Name); e == nil {
 					// We have to reload the size from encryption service
-					//fmt.Println("Reading plain size from nodeKey service", pS)
 					meta[common.XAmzMetaClearSize] = fmt.Sprintf("%d", pS)
 				}
 			} else {
-				//fmt.Println("Setting size from uploaded S3 object", info.Size)
+				// Setting size from uploaded S3 object
 				meta[common.XAmzMetaClearSize] = fmt.Sprintf("%d", info.Size)
 			}
+		} else {
+			// Make sure known size is considered as clear size
+			meta[common.XAmzMetaClearSize] = fmt.Sprintf("%d", target.Size)
 		}
 		if h := target.GetStringMeta(common.MetaNamespaceHash); h != "" {
 			meta[common.MetaNamespaceHash] = h

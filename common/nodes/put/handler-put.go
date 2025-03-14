@@ -337,6 +337,7 @@ func (m *Handler) MultipartComplete(ctx context.Context, target *tree.Node, uplo
 		return models.ObjectInfo{}, fmt.Errorf("cannot find initial multipart node, this is not normal")
 	}
 	target.Uuid = resp.GetNode().GetUuid()
+	target.Size = resp.GetNode().GetSize()
 
 	return m.Next.MultipartComplete(ctx, target, uploadID, uploadedParts)
 }

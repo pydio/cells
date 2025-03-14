@@ -24,7 +24,9 @@ import (
 	"context"
 
 	"go.uber.org/zap"
+	"google.golang.org/protobuf/proto"
 	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
 	"gorm.io/gorm/schema"
 
 	"github.com/pydio/cells/v5/common/errors"
@@ -93,7 +95,10 @@ func (s *sqlimpl) ListEncryptedBlockInfo(ctx context.Context, nodeUuid string) (
 
 	var res []*encryption.RangedBlock
 
-	tx := s.Session(ctx).Find(&res).Where("node_uuid = ?", nodeUuid)
+	tx := s.Session(ctx).Where(&encryption.RangedBlock{NodeId: nodeUuid}).Order(clause.OrderBy{Columns: []clause.OrderByColumn{
+		{Column: clause.Column{Name: "part_id"}, Desc: false},
+		{Column: clause.Column{Name: "seq_start"}, Desc: false},
+	}}).Find(&res)
 	if err := tx.Error; err != nil {
 		return nil, err
 	}
@@ -143,14 +148,6 @@ func (s *sqlimpl) ClearNodeEncryptedPartBlockInfo(ctx context.Context, nodeUuid 
 }
 
 func (s *sqlimpl) CopyNode(ctx context.Context, srcUuid string, targetUuid string) error {
-	err := s.SaveNode(ctx, &encryption.Node{
-		NodeId: targetUuid,
-		Legacy: false,
-	})
-	if err != nil {
-		log.Logger(ctx).Error("failed to save new node", zap.Error(err))
-		return err
-	}
 
 	keys, err := s.GetAllNodeKey(ctx, srcUuid)
 	if err != nil {
@@ -158,34 +155,44 @@ func (s *sqlimpl) CopyNode(ctx context.Context, srcUuid string, targetUuid strin
 		return err
 	}
 
-	for _, key := range keys {
-		var newKey *encryption.NodeKey
-		*newKey = *key
-		newKey.NodeId = targetUuid
+	blocks, er := s.ListEncryptedBlockInfo(ctx, srcUuid)
+	if er != nil {
+		log.Logger(ctx).Error("failed to list source block list", zap.Error(er))
+		return er
+	}
 
-		err = s.SaveNodeKey(ctx, newKey)
-		if err != nil {
-			log.Logger(ctx).Error("failed to save key", zap.Any("key", newKey), zap.Error(err))
-			return err
+	return s.Session(ctx).Transaction(func(tx *gorm.DB) error {
+
+		if tx1 := tx.Create(&encryption.Node{
+			NodeId: targetUuid,
+		}); tx1.Error != nil {
+			return tx1.Error
 		}
-	}
 
-	blocks, err := s.ListEncryptedBlockInfo(ctx, srcUuid)
-	if err != nil {
-		log.Logger(ctx).Error("failed to list source block list", zap.Error(err))
-		return err
-	}
+		for _, ke := range keys {
+			newKey := &encryption.NodeKey{
+				NodeId:  targetUuid,
+				UserId:  ke.UserId,
+				OwnerId: ke.OwnerId,
+				KeyData: ke.KeyData,
+			}
+			newKey.NodeId = targetUuid
+			if txk := tx.Create(newKey); txk.Error != nil {
+				return txk.Error
+			}
+		}
 
-	for _, block := range blocks {
-		var newBlock *encryption.RangedBlock
-		*newBlock = *block
+		for _, block := range blocks {
+			newBlock := proto.Clone(block).(*encryption.RangedBlock)
+			newBlock.Id = 0 // reset id
+			newBlock.NodeId = targetUuid
+			if txb := tx.Create(newBlock); txb.Error != nil {
+				return txb.Error
+			}
+		}
+		return nil
+	})
 
-		newBlock.NodeId = targetUuid
-
-		s.Session(ctx).Create(newBlock)
-	}
-
-	return nil
 }
 
 func (s *sqlimpl) SaveNode(ctx context.Context, node *encryption.Node) error {
@@ -239,11 +246,13 @@ func (s *sqlimpl) SaveNodeKey(ctx context.Context, key *encryption.NodeKey) erro
 		return tx.Error
 	}
 
+	log.Logger(ctx).Debug("SaveNodeKey", zap.String("nodeId", key.NodeId), zap.String("user", key.UserId))
 	return nil
 }
 
 func (s *sqlimpl) GetNodeKey(ctx context.Context, nodeUuid string, user string) (*encryption.NodeKey, error) {
 	var row *encryption.NodeKey
+	log.Logger(ctx).Debug("GetNodeKey", zap.Any("nodeId", nodeUuid), zap.Any("user", user))
 
 	tx := s.Session(ctx).Where(&encryption.NodeKey{NodeId: nodeUuid, UserId: user}).First(&row)
 	if tx.Error != nil {
@@ -271,7 +280,7 @@ func (s *sqlimpl) DeleteNodeKey(ctx context.Context, key *encryption.NodeKey) er
 func (s *sqlimpl) GetAllNodeKey(ctx context.Context, nodeUuid string) ([]*encryption.NodeKey, error) {
 	var res []*encryption.NodeKey
 
-	tx := s.Session(ctx).Find(&res)
+	tx := s.Session(ctx).Where(&encryption.NodeKey{NodeId: nodeUuid}).Find(&res)
 	if err := tx.Error; err != nil {
 		if errors.Is(tx.Error, gorm.ErrRecordNotFound) {
 			return nil, errors.Tag(tx.Error, errors.KeyNotFound)

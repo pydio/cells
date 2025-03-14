@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2021. Abstrium SAS <team (at) pydio.com>
+ * Copyright (c) 2025 Abstrium SAS <team (at) pydio.com>
  * This file is part of Pydio Cells.
  *
  * Pydio Cells is free software: you can redistribute it and/or modify
@@ -217,21 +217,11 @@ func (e *Handler) PutObject(ctx context.Context, node *tree.Node, reader io.Read
 		return models.ObjectInfo{}, err
 	}
 
-	ct, cancel := context.WithCancel(ctx)
-	defer func() {
-		cancel()
-	}()
-	streamClient, err := e.getNodeKeyManagerClient(ctx).SetNodeInfo(ct)
+	streamer, err := newBlockStreamer(ctx, clone.Uuid)
 	if err != nil {
-		log.Logger(ctx).Error("views.handler.encryption.PutObject: failed to save node encryption info", zap.Error(err))
 		return models.ObjectInfo{}, err
 	}
-	streamer := &setBlockStream{
-		client:   streamClient,
-		nodeUuid: clone.Uuid,
-		keySent:  false,
-		ctx:      ctx,
-	}
+	defer streamer.Close()
 
 	var encryptionKeyPlainBytes []byte
 
@@ -447,18 +437,11 @@ func (e *Handler) MultipartCreate(ctx context.Context, target *tree.Node, reques
 		return "", err
 	}
 
-	streamClient, err := e.getNodeKeyManagerClient(ctx).SetNodeInfo(ctx)
+	streamer, err := newBlockStreamer(ctx, clone.Uuid)
 	if err != nil {
-		log.Logger(ctx).Error("views.handler.encryption.MultiPartCreate: failed to get data.key stream client", zap.Error(err))
 		return "", err
 	}
-
-	streamer := &setBlockStream{
-		client:   streamClient,
-		nodeUuid: clone.Uuid,
-		keySent:  false,
-		ctx:      ctx,
-	}
+	defer streamer.Close()
 
 	_, err = e.getNodeInfoForWrite(ctx, clone, true)
 	if err != nil {
@@ -493,9 +476,6 @@ func (e *Handler) MultipartCreate(ctx context.Context, target *tree.Node, reques
 		}
 	}
 
-	if err := streamer.Close(); err != nil {
-		log.Logger(ctx).Error("views.handler.encryption.MultiPartCreate: failed to close setNodeInfo stream", zap.Error(err))
-	}
 	return e.Next.MultipartCreate(ctx, target, requestData)
 }
 
@@ -531,20 +511,11 @@ func (e *Handler) MultipartPutObjectPart(ctx context.Context, target *tree.Node,
 	if err != nil {
 		return models.MultipartObjectPart{}, err
 	}
-
-	streamClient, err := e.getNodeKeyManagerClient(ctx).SetNodeInfo(ctx)
+	nodeBlocksStreamer, err := newBlockStreamer(ctx, clone.Uuid, uint32(partNumberMarker))
 	if err != nil {
-		log.Logger(ctx).Error("views.handler.encryption.MultiPartPutObject: failed to save node encryption info", zap.Error(err))
 		return models.MultipartObjectPart{}, err
 	}
-
-	nodeBlocksStreamer := &setBlockStream{
-		client:   streamClient,
-		nodeUuid: clone.Uuid,
-		keySent:  true,
-		partId:   uint32(partNumberMarker),
-		ctx:      ctx,
-	}
+	defer nodeBlocksStreamer.Close()
 	info, err := e.getNodeInfoForWrite(ctx, clone, false)
 	if err != nil {
 		log.Logger(ctx).Error("views.handler.encryption.MultiPartPutObject: failed to get node info", zap.Error(err))
@@ -659,80 +630,4 @@ func (e *Handler) getKeyProtectionTool(ctx context.Context) (UserKeyTool, error)
 
 func (e *Handler) getNodeKeyManagerClient(ctx context.Context) encryption.NodeKeyManagerClient {
 	return encryption.NewNodeKeyManagerClient(grpc.ResolveConn(ctx, common.ServiceEncKeyGRPC))
-}
-
-// setBlockStream
-type setBlockStream struct {
-	client   encryption.NodeKeyManager_SetNodeInfoClient
-	keySent  bool
-	nodeUuid string
-	position uint32
-	partId   uint32
-	ctx      context.Context
-	err      error
-}
-
-func (streamer *setBlockStream) SendKey(key *encryption.NodeKey) error {
-	if streamer.err != nil {
-		return streamer.err
-	}
-
-	key.NodeId = streamer.nodeUuid
-
-	streamer.err = streamer.client.Send(&encryption.SetNodeInfoRequest{
-		Action: "key",
-		SetNodeKey: &encryption.SetNodeKeyRequest{
-			NodeKey: key,
-		},
-	})
-	return streamer.err
-}
-
-func (streamer *setBlockStream) SendBlock(block *encryption.Block) error {
-	if streamer.err != nil {
-		return streamer.err
-	}
-
-	streamer.position++
-	block.Position = streamer.position
-	block.PartId = streamer.partId
-	block.Nonce = nil
-
-	setNodeInfoRequest := &encryption.SetNodeInfoRequest{
-		Action: "block",
-		SetBlock: &encryption.SetNodeBlockRequest{
-			NodeUuid: streamer.nodeUuid,
-			Block:    block,
-		},
-	}
-
-	streamer.err = streamer.client.Send(setNodeInfoRequest)
-	return streamer.err
-}
-
-func (streamer *setBlockStream) ClearBlocks(NodeId string) error {
-	if streamer.err != nil {
-		return streamer.err
-	}
-
-	setNodeInfoRequest := &encryption.SetNodeInfoRequest{
-		Action: "clearBlocks",
-		SetBlock: &encryption.SetNodeBlockRequest{
-			NodeUuid: streamer.nodeUuid,
-		},
-	}
-
-	streamer.err = streamer.client.Send(setNodeInfoRequest)
-	return streamer.err
-}
-
-func (streamer *setBlockStream) Close() error {
-	// send empty node to notify the end of the exchange
-	err := streamer.client.Send(&encryption.SetNodeInfoRequest{
-		Action: "close",
-	})
-	if err != nil {
-		log.Logger(streamer.ctx).Warn("data.key.service.SetBlockStream: could not send close action")
-	}
-	return streamer.client.CloseSend()
 }
