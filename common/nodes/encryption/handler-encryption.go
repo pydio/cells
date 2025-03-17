@@ -226,6 +226,7 @@ func (e *Handler) PutObject(ctx context.Context, node *tree.Node, reader io.Read
 	var encryptionKeyPlainBytes []byte
 
 	info, err := e.getNodeInfoForWrite(ctx, clone, true)
+	log.Logger(ctx).Debug("getNodeInfoForWrite", zap.Any("clone", clone), zap.Any("info", info), zap.Error(err))
 	if err != nil {
 		if !errors.Is(err, errors.StatusNotFound) {
 			return models.ObjectInfo{}, err
@@ -362,12 +363,14 @@ func (e *Handler) CopyObject(ctx context.Context, from *tree.Node, to *tree.Node
 		}
 		defer reader.Close()
 		log.Logger(ctx).Debug("views.handler.encryption.CopyObject: from one DS to another - force UUID", cloneTo.Zap("to"), zap.Any("srcInfo", srcInfo), zap.Any("destInfo", destInfo))
-		if !move {
+		if toUuid, ok := requestData.Metadata[common.XAmzMetaNodeUuid]; ok {
+			cloneTo.Uuid = toUuid
+		} else if !move {
 			cloneTo.RenewUuidIfEmpty(cloneTo.GetUuid() == cloneFrom.GetUuid())
 		} else {
 			cloneTo.Uuid = cloneFrom.GetUuid()
 		}
-		if destInfo.FlatStorage {
+		if destInfo.FlatStorage && requestData.SrcVersionId == "" {
 			// Insert in tree as temporary
 			cloneTo.Type = tree.NodeType_LEAF
 			cloneTo.Etag = common.NodeFlagEtagTemporary
@@ -381,6 +384,7 @@ func (e *Handler) CopyObject(ctx context.Context, from *tree.Node, to *tree.Node
 		}
 		putReqData.Metadata[common.XAmzMetaClearSize] = fmt.Sprintf("%d", cloneFrom.Size)
 		putReqData.Metadata[common.XAmzMetaNodeUuid] = cloneTo.Uuid
+		log.Logger(ctx).Debug("CopyObject Handler Encryption", zap.Any("from", cloneFrom), zap.Any("to", cloneTo))
 		oi, err := e.PutObject(writeCtx, cloneTo, reader, putReqData)
 		if err != nil {
 			log.Logger(ctx).Error("views.handler.encryption.CopyObject: Different Clients",

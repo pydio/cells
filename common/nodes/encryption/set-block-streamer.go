@@ -22,7 +22,6 @@ package encryption
 
 import (
 	"context"
-	"time"
 
 	"github.com/pydio/cells/v5/common"
 	"github.com/pydio/cells/v5/common/client/grpc"
@@ -31,17 +30,14 @@ import (
 
 func newBlockStreamer(ctx context.Context, nodeUuuid string, partId ...uint32) (*setBlockStream, error) {
 	cli := encryption2.NewNodeKeyManagerClient(grpc.ResolveConn(ctx, common.ServiceEncKeyGRPC))
-	ct, ca := context.WithTimeout(ctx, time.Second)
-	streamClient, err := cli.SetNodeInfo(ct)
+	streamClient, err := cli.SetNodeInfo(ctx)
 	if err != nil {
-		ca()
 		return nil, err
 	}
 	bs := &setBlockStream{
 		client:   streamClient,
 		nodeUuid: nodeUuuid,
-		ctx:      ct,
-		ca:       ca,
+		ctx:      ctx,
 	}
 	if len(partId) > 0 {
 		bs.partId = partId[0]
@@ -58,7 +54,6 @@ type setBlockStream struct {
 	position uint32
 	partId   uint32
 	ctx      context.Context
-	ca       context.CancelFunc
 	err      error
 }
 
@@ -118,7 +113,5 @@ func (streamer *setBlockStream) ClearBlocks(NodeId string) error {
 
 func (streamer *setBlockStream) Close() error {
 	// Streamer loop performs clean up on stream close
-	err := streamer.client.CloseSend()
-	streamer.ca()
-	return err
+	return streamer.client.CloseSend()
 }
