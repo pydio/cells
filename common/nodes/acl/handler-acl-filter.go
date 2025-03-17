@@ -153,7 +153,10 @@ func (a *FilterHandler) ListNodes(ctx context.Context, in *tree.ListNodesRequest
 				continue
 			}
 			// FILTER OUT NON READABLE NODES
-			newBranch := []*tree.Node{resp.Node}
+			var newBranch []*tree.Node
+			if len(parents) > 0 && parents[0].Path != resp.Node.Path {
+				newBranch = append(newBranch, resp.Node)
+			}
 			newBranch = append(newBranch, parents...)
 			if !accessList.CanRead(ctx, newBranch...) {
 				continue
