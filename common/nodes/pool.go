@@ -157,6 +157,11 @@ func (p *ClientsPool) GetTreeClientWrite() tree.NodeReceiverClient {
 // could be currently starting and not yet registered in the ClientsPool.
 func (p *ClientsPool) GetDataSourceInfo(dsName string, retries ...int) (LoadedSource, error) {
 
+	if dsName == "" {
+		log.Logger(context.Background()).Error("Entered GetDataSourceInfo with an empty dsName", zap.Stack("stack"))
+		return LoadedSource{}, fmt.Errorf("empty dsName")
+	}
+
 	if dsName == "default" {
 		dsName = config.Get("defaults", "datasource").Default("default").String()
 	}
