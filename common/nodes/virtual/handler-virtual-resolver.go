@@ -22,6 +22,8 @@ package virtual
 
 import (
 	"context"
+	"github.com/pydio/cells/v4/common"
+	"github.com/pydio/cells/v4/common/log"
 
 	"github.com/pydio/cells/v4/common/nodes"
 	"github.com/pydio/cells/v4/common/nodes/abstract"
@@ -67,7 +69,9 @@ func (v *ResolverHandler) updateInput(ctx context.Context, node *tree.Node, iden
 			if e != nil {
 				return ctx, node, e
 			}
-
+			if dsName := resolvedRoot.GetStringMeta(common.MetaNamespaceDatasourceName); dsName == "" {
+				log.Logger(ctx).Warn("Resolved a root node without datasource name info!", resolvedRoot.Zap())
+			}
 			branchInfo.Root = resolvedRoot
 			ctx = nodes.WithBranchInfo(ctx, identifier, branchInfo)
 			if accessList, ok := acl.FromContext(ctx); ok {
