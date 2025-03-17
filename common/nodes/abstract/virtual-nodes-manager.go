@@ -286,7 +286,7 @@ func (m *VirtualNodesManager) resolvePathWithClaims(ctx context.Context, vNode *
 
 		datasourceKeys := map[string]string{}
 		if len(clientsPool.GetDataSources()) == 0 {
-			log.Logger(ctx).Debug("Clientspool.clients is empty! reload datasources now!")
+			log.Logger(ctx).Warn("Clientspool.clients is empty! reload datasources now!")
 			clientsPool.LoadDataSources()
 		}
 		for key := range clientsPool.GetDataSources() {
@@ -304,6 +304,10 @@ func (m *VirtualNodesManager) resolvePathWithClaims(ctx context.Context, vNode *
 		} else {
 			log.Logger(ctx).Error("Cannot Run Javascript "+resolutionString, zap.Error(e), zap.Any("in", in), zap.Any("out", out))
 			return nil, e
+		}
+
+		if resolved.Path == "" {
+			log.Logger(ctx).Warn("Could not resolve path for", zap.Any("in", in))
 		}
 
 	} else {
