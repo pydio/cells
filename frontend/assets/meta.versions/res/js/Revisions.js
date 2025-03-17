@@ -164,6 +164,7 @@ class Revisions extends Component {
                 itemDesc={(item) => <Markdown urlTransform={(u)=>u} components={CustomComponents}>{item.getMetadata().get('versionDescription')}</Markdown>}
                 itemActions={this.itemActions.bind(this)}
                 itemAnnotations={this.itemAnnotations.bind(this)}
+                itemClassName={(item)=> (revs && revs.indexOf(item) === 0) ? 'current-revision': ''}
                 color={"#2196f3"}
             />
         )

@@ -554,7 +554,7 @@ class PydioApi{
             Bucket: 'io',
             Key: slug + node.getPath(),
             VersionId: versionId
-        });
+        }, node.getLabel());
 
     }
 

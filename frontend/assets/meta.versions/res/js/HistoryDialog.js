@@ -50,7 +50,7 @@ const HistoryDialog = createReactClass({
         return (
             <div style={{width: '100%'}} className="layout-fill vertical-layout">
                 <div style={{display:'flex', flexDirection:'column', color:'rgba(0,0,0,.87)'}} className={"version-history"}>
-                    <Revisions node={node} preselection={preselection} onRequestClose={this.dismiss.bind(this)}/>
+                    <Revisions className={"meta-revisions"} node={node} preselection={preselection} onRequestClose={this.dismiss.bind(this)}/>
                 </div>
             </div>
         );

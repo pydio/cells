@@ -35,10 +35,13 @@ class Item extends Component {
     }
 
     render() {
-        const {item, prev, next, itemUuid, itemMoment, itemDesc, itemAnnotations, itemActions, selected, onSelect, color} = this.props;
+        const {item, prev, next, itemUuid, itemMoment, itemDesc, itemAnnotations, itemActions, itemClassName, selected, onSelect, color} = this.props;
 
         const date = itemMoment(item)
         let className = 'tl-block';
+        if(itemClassName) {
+            className += ' ' + itemClassName(item)
+        }
         let sepClassName = 'sep-date';
         let similar = false
 
@@ -151,7 +154,7 @@ class Timeline extends Component {
     render() {
         const {muiTheme} = this.props;
         const {items, className='', useSelection=false, preSelection} = this.props;
-        const {itemUuid, itemMoment, itemActions, itemAnnotations, itemDesc, onItemSelect} = this.props;
+        const {itemUuid, itemMoment, itemActions, itemAnnotations, itemClassName, itemDesc, onItemSelect} = this.props;
         const {loadMoreAction, loadMoreLabel, loadMoreDisabled} = this.props;
         const {selection=preSelection} = this.state;
 
@@ -180,6 +183,7 @@ class Timeline extends Component {
                                 itemMoment={itemMoment}
                                 itemActions={itemActions}
                                 itemAnnotations={itemAnnotations}
+                                itemClassName={itemClassName}
                                 itemDesc={itemDesc}
                                 color={muiTheme.palette.mui3.primary}
                             />)

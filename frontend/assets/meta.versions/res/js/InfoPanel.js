@@ -31,9 +31,47 @@ class InfoPanel extends Component {
         if(!node || !node.getMetadata().has('datasource_versioning')) {
             return null
         }
+        const css = `
+        .timeline.small.meta-revisions .tl-timeline .tl-block .tl-card .tl-actions {
+            display: flex;
+        }
+        .timeline.meta-revisions .tl-timeline .tl-block.current-revision .tl-card{
+            position:relative;
+            box-shadow: none !important;
+        }
+        .timeline.meta-revisions.small .tl-timeline .tl-block.current-revision .tl-card{
+            background-color: var(--md-sys-color-tertiary-container);
+        }
+        .timeline.meta-revisions .tl-timeline .tl-block.current-revision .tl-card:before {
+            content: '';
+            border: 1px solid var(--md-sys-color-tertiary);
+            position: absolute;
+            top: -6px;
+            bottom: -6px;
+            right: -6px;
+            left: -6px;
+            border-radius: 6px;
+        }        
+        .timeline.meta-revisions.small .tl-timeline .tl-block.current-revision .tl-card:before {
+            border: 1px solid var(--md-sys-color-tertiary-container);
+        }
+        .timeline .tl-timeline .tl-block .tl-card .tl-actions a {
+            color: var(--md-sys-color-primary);
+            border: 1px solid var(--md-sys-color-primary);
+            padding: 0 12px;
+            border-radius: 20px; 
+            cursor: pointer;
+       }
+        .timeline .tl-timeline .tl-block .tl-card .tl-actions a:hover {
+            background-color: var(--md-sys-color-primary);
+            border: 1px solid var(--md-sys-color-primary);
+            color:var(--md-sys-color-on-primary) !important;
+       }
+        `
         return (
             <InfoPanelCard {...infoProps} identifier={"meta-versions"} icon={"mdi mdi-history"} style={this.props.style} title={Pydio.getMessages()['meta.versions.1']}>
-                <Revisions node={node} className={"small"} onClick={(versionId) => Pydio.getInstance().Controller.fireAction('versions_history', versionId)}/>
+                <Revisions node={node} className={"meta-revisions small"} onClick={(versionId) => Pydio.getInstance().Controller.fireAction('versions_history', versionId)}/>
+                <style type={"text/css"} dangerouslySetInnerHTML={{__html: css}}/>
             </InfoPanelCard>
         )
     }
