@@ -136,7 +136,7 @@ type mockSendBlockStreamClient struct {
 }
 
 func (sc *mockSendBlockStreamClient) CloseAndRecv() (*encryption.SetNodeInfoResponse, error) {
-	panic("implement me")
+	return &encryption.SetNodeInfoResponse{}, nil
 }
 
 func (sc *mockSendBlockStreamClient) Header() (metadata.MD, error) {
