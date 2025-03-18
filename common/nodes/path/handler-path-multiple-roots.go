@@ -87,9 +87,6 @@ func (m *MultipleRootsHandler) updateInputBranch(ctx context.Context, node *tree
 			return ctx, node, err
 		}
 		if !rootNode.IsLeaf() {
-			if dsName := rootNode.GetStringMeta(common.MetaNamespaceDatasourceName); dsName == "" {
-				log.Logger(ctx).Warn("Loaded a ws root node without datasource name info!", rootNode.Zap())
-			}
 			branch.Root = rootNode
 			return nodes.WithBranchInfo(ctx, identifier, branch), m.setWorkspaceRootFlag(branch.Workspace, node), nil
 		}

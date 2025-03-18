@@ -228,6 +228,11 @@ func (e *Handler) PutObject(ctx context.Context, node *tree.Node, reader io.Read
 		keySent:  false,
 		ctx:      ctx,
 	}
+	defer func() {
+		if er := streamer.Close(); er != nil {
+			log.Logger(ctx).Error("views.handler.encryption.MultiPartCreate: failed to close setNodeInfo stream", zap.Error(er))
+		}
+	}()
 
 	var encryptionKeyPlainBytes []byte
 
@@ -368,12 +373,14 @@ func (e *Handler) CopyObject(ctx context.Context, from *tree.Node, to *tree.Node
 		}
 		defer reader.Close()
 		log.Logger(ctx).Debug("views.handler.encryption.CopyObject: from one DS to another - force UUID", cloneTo.Zap("to"), zap.Any("srcInfo", srcInfo), zap.Any("destInfo", destInfo))
-		if !move {
+		if toUuid, ok := requestData.Metadata[common.XAmzMetaNodeUuid]; ok {
+			cloneTo.Uuid = toUuid
+		} else if !move {
 			cloneTo.RenewUuidIfEmpty(cloneTo.GetUuid() == cloneFrom.GetUuid())
 		} else {
 			cloneTo.Uuid = cloneFrom.GetUuid()
 		}
-		if destInfo.FlatStorage {
+		if destInfo.FlatStorage && requestData.SrcVersionId == "" {
 			// Insert in tree as temporary
 			cloneTo.Type = tree.NodeType_LEAF
 			cloneTo.Etag = common.NodeFlagEtagTemporary
@@ -455,6 +462,11 @@ func (e *Handler) MultipartCreate(ctx context.Context, target *tree.Node, reques
 		keySent:  false,
 		ctx:      ctx,
 	}
+	defer func() {
+		if er := streamer.Close(); er != nil {
+			log.Logger(ctx).Error("views.handler.encryption.MultiPartCreate: failed to close setNodeInfo stream", zap.Error(er))
+		}
+	}()
 
 	_, err = e.getNodeInfoForWrite(ctx, clone)
 	if err != nil {
@@ -489,9 +501,6 @@ func (e *Handler) MultipartCreate(ctx context.Context, target *tree.Node, reques
 		}
 	}
 
-	if err := streamer.Close(); err != nil {
-		log.Logger(ctx).Error("views.handler.encryption.MultiPartCreate: failed to close setNodeInfo stream", zap.Error(err))
-	}
 	return e.Next.MultipartCreate(ctx, target, requestData)
 }
 
@@ -541,6 +550,12 @@ func (e *Handler) MultipartPutObjectPart(ctx context.Context, target *tree.Node,
 		partId:   uint32(partNumberMarker),
 		ctx:      ctx,
 	}
+	defer func() {
+		if er := nodeBlocksStreamer.Close(); er != nil {
+			log.Logger(ctx).Error("views.handler.encryption.MultiPartCreate: failed to close setNodeInfo stream", zap.Error(er))
+		}
+	}()
+
 	info, err := e.getNodeInfoForWrite(ctx, clone)
 	if err != nil {
 		log.Logger(ctx).Error("views.handler.encryption.MultiPartPutObject: failed to get node info", zap.Error(err))
@@ -666,6 +681,7 @@ type setBlockStream struct {
 	partId   uint32
 	ctx      context.Context
 	err      error
+	closed   bool
 }
 
 func (streamer *setBlockStream) SendKey(key *encryption.NodeKey) error {
@@ -723,6 +739,10 @@ func (streamer *setBlockStream) ClearBlocks(NodeId string) error {
 }
 
 func (streamer *setBlockStream) Close() error {
+	if streamer.closed {
+		return nil
+	}
+	streamer.closed = true
 	// send empty node to notify the end of the exchange
 	err := streamer.client.Send(&encryption.SetNodeInfoRequest{
 		Action: "close",
@@ -730,5 +750,6 @@ func (streamer *setBlockStream) Close() error {
 	if err != nil {
 		log.Logger(streamer.ctx).Warn("data.key.service.SetBlockStream: could not send close action")
 	}
-	return streamer.client.CloseSend()
+	_, err = streamer.client.CloseAndRecv()
+	return err
 }

@@ -516,9 +516,7 @@ require (
 // That one was published 6 months before official release ;-)
 retract v4.0.0
 
-replace github.com/minio/minio => github.com/pydio/minio v0.0.0-20250211141632-fd38661ac313
-
-// replace github.com/minio/minio => ../minio
+replace github.com/minio/minio => github.com/pydio/minio v0.0.0-20250318140833-4b1cea701e67
 
 //replace github.com/ory/x => /Users/charles/Sources/go/src/github.com/cdujeu/x
 replace github.com/ory/x => github.com/cdujeu/x v0.0.369-0.20240206135400-5f79e7bb2cd2

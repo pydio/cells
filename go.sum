@@ -3540,8 +3540,8 @@ github.com/pydio/go v0.0.0-20191211170306-d00ac19450ef h1:5FyN7pndX4GyCAb0gdZgN7
 github.com/pydio/go v0.0.0-20191211170306-d00ac19450ef/go.mod h1:H+DrbjBEehySj5ykZVFHF12kpfWtmKpsoyDZ16kUyqk=
 github.com/pydio/melody v0.0.0-20190928133520-4271c6513fb6 h1:R2xi5pGxvwcVUTRh8CrDzdkYLIQT8nXvQHyXuYg1rRE=
 github.com/pydio/melody v0.0.0-20190928133520-4271c6513fb6/go.mod h1:E3dNe7CwsJgzZjN2xiAVfAd8Spkxbviek8AZ9wjaZHk=
-github.com/pydio/minio v0.0.0-20250211141632-fd38661ac313 h1:t8MQql4ZVDMRP3SqbaX0sQvbcBcZN03IJD0qR0gb83g=
-github.com/pydio/minio v0.0.0-20250211141632-fd38661ac313/go.mod h1:vqHBNA9H9tIaCAB1f5XTljkFLka5uFy8YcD7Q7Exr4o=
+github.com/pydio/minio v0.0.0-20250318140833-4b1cea701e67 h1:rwdjDfWUbnKlpu0lqRA3PTmvg2sIAAMPdEDS/x2r9IM=
+github.com/pydio/minio v0.0.0-20250318140833-4b1cea701e67/go.mod h1:vqHBNA9H9tIaCAB1f5XTljkFLka5uFy8YcD7Q7Exr4o=
 github.com/pydio/pydio-sdk-go v0.0.0-20190116153840-23ce5c39e65c h1:aC9RjBWAeYiyaXH60aHiEaSvYgpS9NyGbFvOl8xuIBg=
 github.com/pydio/pydio-sdk-go v0.0.0-20190116153840-23ce5c39e65c/go.mod h1:GqSiZ8UE5erTBYBBt9+mA4p9OdgVy24vgRLCEY85N7g=
 github.com/quic-go/qpack v0.5.1 h1:giqksBPnT/HDtZ6VhtFKgoLOWmlyo9Ei6u9PqzIMbhI=

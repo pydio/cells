@@ -183,17 +183,15 @@ func (km *NodeKeyManagerHandler) GetNodePlainSize(ctx context.Context, req *encr
 
 func (km *NodeKeyManagerHandler) SetNodeInfo(stream encryption.NodeKeyManager_SetNodeInfoServer) error {
 
-	ctx := stream.Context()
+	ctx := context.WithoutCancel(stream.Context())
 
-	var err error
 	sessionOpened := true
 
 	var rangedBlocks *key.RangedBlocks
 	var nodeUuid string
+	rsp := &encryption.SetNodeInfoResponse{}
 
 	for sessionOpened {
-
-		rsp := &encryption.SetNodeInfoResponse{}
 
 		req, err := stream.Recv()
 		if err != nil {
@@ -258,20 +256,17 @@ func (km *NodeKeyManagerHandler) SetNodeInfo(stream encryption.NodeKeyManager_Se
 
 		case "close":
 			sessionOpened = false
-			if rangedBlocks != nil {
-				km.dao.SaveEncryptedBlockInfo(nodeUuid, rangedBlocks)
-				rangedBlocks = nil
-			}
 		}
 
 	}
-
-	/*
-		if sce := stream.SendAndClose(nil); sce != nil {
-			log.Logger(ctx).Error("data.key.handler.SetNodeInfo: failed to close micro.stream", zap.Error(sce))
+	if rangedBlocks != nil {
+		if err := km.dao.SaveEncryptedBlockInfo(nodeUuid, rangedBlocks); err != nil {
+			rsp.ErrorText = err.Error()
 		}
-	*/
-	return err
+		rangedBlocks = nil
+	}
+
+	return stream.SendAndClose(rsp)
 }
 
 func (km *NodeKeyManagerHandler) CopyNodeInfo(ctx context.Context, req *encryption.CopyNodeInfoRequest) (*encryption.CopyNodeInfoResponse, error) {
