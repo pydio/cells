@@ -223,16 +223,21 @@ message GetNodePlainSizeResponse {
     int64 Size = 1;
 }
 
+enum SetNodeInfoActionType {
+    KEY = 0;
+    BLOCK = 1;
+    CLEAR = 2;
+    CLOSE = 3;
+}
+
 message SetNodeInfoRequest {
-    string Action = 1;
+    SetNodeInfoActionType Action = 1;
     SetNodeKeyRequest SetNodeKey = 2;
     SetNodeBlockRequest SetBlock = 3;
 }
 
 message SetNodeInfoResponse {
-    string ErrorText = 1;
-    SetNodeKeyResponse SetNodeKey = 2;
-    SetNodeBlockResponse SetBlock = 3;
+    map<string, int64> Processed = 1;
 }
 
 message DeleteNodeRequest {

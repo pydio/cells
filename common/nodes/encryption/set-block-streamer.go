@@ -23,21 +23,27 @@ package encryption
 import (
 	"context"
 
+	"go.uber.org/zap"
+
 	"github.com/pydio/cells/v5/common"
 	"github.com/pydio/cells/v5/common/client/grpc"
 	encryption2 "github.com/pydio/cells/v5/common/proto/encryption"
+	"github.com/pydio/cells/v5/common/telemetry/log"
 )
 
 func newBlockStreamer(ctx context.Context, nodeUuuid string, partId ...uint32) (*setBlockStream, error) {
 	cli := encryption2.NewNodeKeyManagerClient(grpc.ResolveConn(ctx, common.ServiceEncKeyGRPC))
-	streamClient, err := cli.SetNodeInfo(ctx)
+	ct, ca := context.WithCancel(ctx)
+	streamClient, err := cli.SetNodeInfo(ct)
 	if err != nil {
+		ca()
 		return nil, err
 	}
 	bs := &setBlockStream{
 		client:   streamClient,
 		nodeUuid: nodeUuuid,
-		ctx:      ctx,
+		ctx:      ct,
+		ca:       ca,
 	}
 	if len(partId) > 0 {
 		bs.partId = partId[0]
@@ -54,6 +60,7 @@ type setBlockStream struct {
 	position uint32
 	partId   uint32
 	ctx      context.Context
+	ca       context.CancelFunc
 	err      error
 }
 
@@ -65,7 +72,7 @@ func (streamer *setBlockStream) SendKey(key *encryption2.NodeKey) error {
 	key.NodeId = streamer.nodeUuid
 
 	streamer.err = streamer.client.Send(&encryption2.SetNodeInfoRequest{
-		Action: "key",
+		Action: encryption2.SetNodeInfoActionType_KEY,
 		SetNodeKey: &encryption2.SetNodeKeyRequest{
 			NodeKey: key,
 		},
@@ -84,7 +91,7 @@ func (streamer *setBlockStream) SendBlock(block *encryption2.Block) error {
 	block.Nonce = nil
 
 	setNodeInfoRequest := &encryption2.SetNodeInfoRequest{
-		Action: "block",
+		Action: encryption2.SetNodeInfoActionType_BLOCK,
 		SetBlock: &encryption2.SetNodeBlockRequest{
 			NodeUuid: streamer.nodeUuid,
 			Block:    block,
@@ -101,7 +108,7 @@ func (streamer *setBlockStream) ClearBlocks(NodeId string) error {
 	}
 
 	setNodeInfoRequest := &encryption2.SetNodeInfoRequest{
-		Action: "clearBlocks",
+		Action: encryption2.SetNodeInfoActionType_CLEAR,
 		SetBlock: &encryption2.SetNodeBlockRequest{
 			NodeUuid: streamer.nodeUuid,
 		},
@@ -113,5 +120,12 @@ func (streamer *setBlockStream) ClearBlocks(NodeId string) error {
 
 func (streamer *setBlockStream) Close() error {
 	// Streamer loop performs clean up on stream close
-	return streamer.client.CloseSend()
+	//	err := streamer.client.CloseSend()
+	resp, err := streamer.client.CloseAndRecv()
+	if err != nil {
+		return err
+	}
+	log.Logger(streamer.ctx).Info("Got response", zap.Any("response", resp))
+	streamer.ca()
+	return nil
 }

@@ -189,12 +189,11 @@ func (km *NodeKeyManagerHandler) SetNodeInfo(stream encryption.NodeKeyManager_Se
 		return err
 	}
 
-	sessionOpened := true
-
 	var rangedBlocks *encryption.RangedBlock
 	var nodeUuid string
+	received := make(map[string]int64, 4)
 
-	for sessionOpened {
+	for {
 
 		req, rErr := stream.Recv()
 		if rErr != nil {
@@ -203,16 +202,18 @@ func (km *NodeKeyManagerHandler) SetNodeInfo(stream encryption.NodeKeyManager_Se
 			}
 			break
 		}
-		log.Logger(ctx).Debug("Key Stream Received " + req.GetAction())
+		log.Logger(ctx).Debug("Key Stream Received " + req.GetAction().String())
+		received[req.Action.String()]++
+
 		switch req.Action {
 
-		case "key":
+		case encryption.SetNodeInfoActionType_KEY:
 
 			if err = km.saveNodeKey(ctx, req.SetNodeKey.NodeKey); err != nil {
 				log.Logger(ctx).Error("failed to save key", zap.Error(err))
 			}
 
-		case "clearBlocks":
+		case encryption.SetNodeInfoActionType_CLEAR:
 
 			if err = dao.ClearNodeEncryptedBlockInfo(ctx, req.SetBlock.NodeUuid); err != nil {
 				log.Logger(ctx).Error("failed to clear old blocks", zap.Error(err))
@@ -224,7 +225,7 @@ func (km *NodeKeyManagerHandler) SetNodeInfo(stream encryption.NodeKeyManager_Se
 				return err
 			}
 
-		case "block":
+		case encryption.SetNodeInfoActionType_BLOCK:
 			if nodeUuid == "" {
 				nodeUuid = req.SetBlock.NodeUuid
 			}
@@ -252,9 +253,6 @@ func (km *NodeKeyManagerHandler) SetNodeInfo(stream encryption.NodeKeyManager_Se
 				rangedBlocks.SeqEnd++
 			}
 
-		case "close":
-			sessionOpened = false
-			break
 		}
 
 	}
@@ -268,7 +266,7 @@ func (km *NodeKeyManagerHandler) SetNodeInfo(stream encryption.NodeKeyManager_Se
 		rangedBlocks = nil
 	}
 
-	return nil
+	return stream.SendAndClose(&encryption.SetNodeInfoResponse{Processed: received})
 }
 
 func (km *NodeKeyManagerHandler) CopyNodeInfo(ctx context.Context, req *encryption.CopyNodeInfoRequest) (*encryption.CopyNodeInfoResponse, error) {
