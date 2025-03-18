@@ -38,7 +38,7 @@ func init() {
 			service.Tag(common.ServiceTagDiscovery),
 			service.Description("Configuration"),
 			service.WithWeb(func(c context.Context) service.WebHandler {
-				return &rest.Handler{MainCtx: c}
+				return &rest.Handler{}
 			}),
 		)
 	}

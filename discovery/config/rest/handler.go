@@ -21,13 +21,10 @@
 package rest
 
 import (
-	"context"
 	"strings"
 )
 
-type Handler struct {
-	MainCtx context.Context
-}
+type Handler struct{}
 
 // SwaggerTags list the names of the service tags declared in the swagger json implemented by this service
 func (a *Handler) SwaggerTags() []string {

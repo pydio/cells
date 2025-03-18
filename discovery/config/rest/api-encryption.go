@@ -38,11 +38,12 @@ func (s *Handler) ListEncryptionKeys(req *restful.Request, resp *restful.Respons
 	if e := req.ReadEntity(&request); e != nil {
 		return e
 	}
+	ctx := req.Request.Context()
 
-	encClient := encryption.NewUserKeyStoreClient(grpc.ResolveConn(s.MainCtx, common.ServiceUserKeyGRPC))
+	encClient := encryption.NewUserKeyStoreClient(grpc.ResolveConn(ctx, common.ServiceUserKeyGRPC))
 	var response *encryption.AdminListKeysResponse
 	var err error
-	if response, err = encClient.AdminListKeys(req.Request.Context(), &request); err != nil {
+	if response, err = encClient.AdminListKeys(ctx, &request); err != nil {
 		return err
 	}
 	return resp.WriteEntity(response)
@@ -54,11 +55,12 @@ func (s *Handler) CreateEncryptionKey(req *restful.Request, resp *restful.Respon
 	if e := req.ReadEntity(&request); e != nil {
 		return e
 	}
+	ctx := req.Request.Context()
 
-	encClient := encryption.NewUserKeyStoreClient(grpc.ResolveConn(s.MainCtx, common.ServiceUserKeyGRPC))
+	encClient := encryption.NewUserKeyStoreClient(grpc.ResolveConn(ctx, common.ServiceUserKeyGRPC))
 	var response *encryption.AdminCreateKeyResponse
 	var err error
-	if response, err = encClient.AdminCreateKey(req.Request.Context(), &request); err != nil {
+	if response, err = encClient.AdminCreateKey(ctx, &request); err != nil {
 		return err
 	}
 	return resp.WriteEntity(response)
@@ -70,11 +72,12 @@ func (s *Handler) DeleteEncryptionKey(req *restful.Request, resp *restful.Respon
 	if e := req.ReadEntity(&request); e != nil {
 		return e
 	}
+	ctx := req.Request.Context()
 
-	encClient := encryption.NewUserKeyStoreClient(grpc.ResolveConn(s.MainCtx, common.ServiceUserKeyGRPC))
+	encClient := encryption.NewUserKeyStoreClient(grpc.ResolveConn(ctx, common.ServiceUserKeyGRPC))
 	var response *encryption.AdminDeleteKeyResponse
 	var err error
-	if response, err = encClient.AdminDeleteKey(req.Request.Context(), &request); err != nil {
+	if response, err = encClient.AdminDeleteKey(ctx, &request); err != nil {
 		return err
 	}
 	return resp.WriteEntity(response)
@@ -86,11 +89,12 @@ func (s *Handler) ExportEncryptionKey(req *restful.Request, resp *restful.Respon
 	if e := req.ReadEntity(&request); e != nil {
 		return e
 	}
+	ctx := req.Request.Context()
 
-	encClient := encryption.NewUserKeyStoreClient(grpc.ResolveConn(s.MainCtx, common.ServiceUserKeyGRPC))
+	encClient := encryption.NewUserKeyStoreClient(grpc.ResolveConn(ctx, common.ServiceUserKeyGRPC))
 	var response *encryption.AdminExportKeyResponse
 	var err error
-	if response, err = encClient.AdminExportKey(req.Request.Context(), &request); err != nil {
+	if response, err = encClient.AdminExportKey(ctx, &request); err != nil {
 		return err
 	}
 	return resp.WriteEntity(response)
@@ -102,11 +106,12 @@ func (s *Handler) ImportEncryptionKey(req *restful.Request, resp *restful.Respon
 	if e := req.ReadEntity(&request); e != nil {
 		return e
 	}
+	ctx := req.Request.Context()
 
-	encClient := encryption.NewUserKeyStoreClient(grpc.ResolveConn(s.MainCtx, common.ServiceUserKeyGRPC))
+	encClient := encryption.NewUserKeyStoreClient(grpc.ResolveConn(ctx, common.ServiceUserKeyGRPC))
 	var response *encryption.AdminImportKeyResponse
 	var err error
-	if response, err = encClient.AdminImportKey(req.Request.Context(), &request); err != nil {
+	if response, err = encClient.AdminImportKey(ctx, &request); err != nil {
 		return err
 	}
 	return resp.WriteEntity(response)
