@@ -1171,7 +1171,7 @@ let SimpleList = createReactClass({
     render: function(){
 
         let containerClasses = "material-list vertical-layout layout-fill";
-        const {className, showSelector, tableKeys, defaultGroupBy, dataModel, node, additionalActions, customToolbar, hideToolbar, emptyStateProps, entryHandleClicks} = this.props;
+        const {className, showSelector, tableKeys, defaultGroupBy, dataModel, node, additionalActions, customToolbar, hideToolbar, emptyStateProps, errorStateProps, entryHandleClicks} = this.props;
         if(className){
             containerClasses += " " + className;
         }
@@ -1232,6 +1232,14 @@ let SimpleList = createReactClass({
         }else if(emptyStateProps && emptyStateProps.checkEmptyState && emptyStateProps.checkEmptyState(node)){
 
             emptyState = <EmptyStateView {...emptyStateProps}/> ;
+
+        } else if(errorStateProps && !node.isLoading() && node.getLoadError()) {
+
+            emptyState = <EmptyStateView
+                {...errorStateProps}
+                secondaryTextId={node.getLoadError().message}
+                actionCallback={() => this.reload()}
+            />
 
         }
 

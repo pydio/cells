@@ -854,16 +854,29 @@ class MainFilesList extends React.Component {
         }
 
         const messages = pydio.MessageHash;
-        const canUpload = (pydio.Controller.getActionByName('upload') && !contextNode.getMetadata().has('node_readonly'));
+        const canUpload = !contextNode.getMetadata().has('node_readonly') && pydio.Controller.getActionByName('upload');
         const writeOnly = contextNode.getMetadata().has('node_writeonly');
         const secondary = messages[canUpload ? '565' : '566'];
         const iconClassName = canUpload ? 'mdi mdi-cloud-upload' : 'mdi mdi-folder-outline';
+        const errorStateProps = {
+            style           : {backgroundColor: 'transparent'},
+            iconStyle       : {fontSize: 80, padding: 20},
+            buttonContainerStyle: {marginTop: 30},
+            iconClassName   :"mdi mdi-alert-circle-outline",
+            primaryTextId   :"Oops, something went wrong!",
+            actionLabelId   : messages['149'],
+            actionIconClassName:"mdi mdi-refresh",
+            actionCallback: () => contextNode.reload()
+        }
+
         let emptyStateProps = {
             style           : {backgroundColor: 'transparent'},
+            buttonContainerStyle: {marginTop: 30},
             iconClassName   : iconClassName,
             primaryTextId   : messages['562'],
             secondaryTextId : secondary,
         };
+
         if(writeOnly) {
 
             emptyStateProps.primaryTextId = messages['ajax_gui.list.writeonly.emptystate.title']
@@ -872,12 +885,20 @@ class MainFilesList extends React.Component {
         } else if(contextNode.isRoot()){
             const isCell = (pydio.user && pydio.user.activeRepository) ? pydio.user.getRepositoriesList().get(pydio.user.activeRepository).getOwner() : false;
             const recyclePath = contextNode.getMetadata().get('repo_has_recycle');
-            emptyStateProps = {
-                style           : {backgroundColor: 'transparent'},
+            emptyStateProps = {...emptyStateProps,
                 iconClassName   : iconClassName,
                 primaryTextId   : isCell? messages['631'] : messages['563'],
                 secondaryTextId : secondary,
             };
+            if(canUpload) {
+                emptyStateProps = {...emptyStateProps,
+                    actionLabelId: canUpload.options.text_id,
+                    actionIconClassName: canUpload.options.icon_class,
+                    actionCallback: () => {
+                        pydio.Controller.fireAction('upload')
+                    }
+                }
+            }
             if(recyclePath){
                 emptyStateProps = {
                     ...emptyStateProps,
@@ -955,6 +976,7 @@ class MainFilesList extends React.Component {
                             renderActions: this.entryRenderActions.bind(this)
                         }}
                         emptyStateProps={emptyStateProps}
+                        errorStateProps={errorStateProps}
                         containerStyle={{...style, margin: -2, padding: 2}}
                         columnWidth={cWidth}
                         onScroll={onScroll}
@@ -1011,6 +1033,7 @@ class MainFilesList extends React.Component {
                 entriesProps={dMode === 'grid' ? {selectedAsBorder: true, noHover: true}:{}}
                 horizontalRibbon={this.props.horizontalRibbon}
                 emptyStateProps={emptyStateProps}
+                errorStateProps={errorStateProps}
                 defaultSortingInfo={{sortType:'file-natural',attribute:'',direction:'asc'}}
                 sortingPreferenceKey={'FSTemplate.FilesList.SortingInfo'}
                 onSortingInfoChange={sortingInfoChange}

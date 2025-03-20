@@ -23,6 +23,9 @@ import PathUtils from '../util/PathUtils'
 
 export default class AjxpNode extends Observable{
 
+    _loadError;
+    _isLoaded;
+
     /**
      *
      * @param path String
@@ -87,6 +90,18 @@ export default class AjxpNode extends Observable{
     }
 
     /**
+     * Set status on error
+     * @param e
+     */
+    setLoadError(e) {
+        this._loadError = e;
+    }
+
+    getLoadError(e) {
+        return this._loadError;
+    }
+
+    /**
      * Update node provider
      * @param iAjxpNodeProvider
      */
@@ -117,12 +132,20 @@ export default class AjxpNode extends Observable{
             this.notify("loaded");
             return;
         }
-        iAjxpNodeProvider.loadNode(this, function(node){
-            this._isLoaded = true;
-            this._isLoading = false;
+        const errorHandler = (e) => {
+            this.setLoading(false);
+            this.setLoadError(e);
+            this.notify('loaded');
+        };
+        const callbackHandler = (node) => {
+            this.setLoaded(true);
+            this.setLoading(false);
+            this.setLoadError(null);
             this.notify("loaded");
             this.notify("first_load");
-        }.bind(this), null, false, -1, additionalParameters);
+        }
+
+        iAjxpNodeProvider.loadNode(this, callbackHandler, null, false, -1, {...additionalParameters,errorHandler});
     }
     /**
      * Remove children and reload node
@@ -131,6 +154,7 @@ export default class AjxpNode extends Observable{
      */
     reload(iAjxpNodeProvider, silentClear = false){
         this._isLoaded = false;
+        this._loadError = null;
         this._children.forEach(function(child,key){
             if(!silentClear) {
                 child.notify("node_removed");
@@ -154,6 +178,7 @@ export default class AjxpNode extends Observable{
             this.notify("child_removed", child);
         }, this);
         this._isLoaded = false;
+        this._loadError = null;
         this.notify("force_clear");
     }
     /**
@@ -272,6 +297,7 @@ export default class AjxpNode extends Observable{
         }
         //this._isRoot = ajxpNode._isRoot;
         this._isLoaded = ajxpNode._isLoaded;
+        this._loadError = ajxpNode._loadError;
         this.fake = ajxpNode.fake;
         const meta = ajxpNode.getMetadata();
         if(metaMerge === "override") {

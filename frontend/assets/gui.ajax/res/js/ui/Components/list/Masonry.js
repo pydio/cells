@@ -202,7 +202,7 @@ function childrenToItems(node, itemProps) {
     return items;
 }
 
-export default React.memo(({className, dataModel, entryProps, emptyStateProps, containerStyle={}, columnWidth=220, onScroll}) => {
+export default React.memo(({className, dataModel, entryProps, emptyStateProps, errorStateProps, containerStyle={}, columnWidth=220, onScroll}) => {
 
     const itemProps = {dataModel, entryProps};
     const computeItems = () => {
@@ -292,12 +292,16 @@ export default React.memo(({className, dataModel, entryProps, emptyStateProps, c
         overscanBy: 6,
         render: ResizingCard
     });
-
-    let useEmptyView = emptyStateProps && !node.isLoading() && (!items || !items.length)
+    let emptyView;
+    if (errorStateProps && node.getLoadError()) {
+        emptyView = {...errorStateProps, secondaryTextId: node.getLoadError().message};
+    } else if(emptyStateProps && !node.isLoading() && (!items || !items.length)){
+        emptyView = emptyStateProps
+    }
     return (
         <div style={{flex: 1, overflowY:'auto', ...containerStyle}} className={className} ref={containerRef} onKeyDown={keyDown}>
-            {useEmptyView && <EmptyStateView pydio={Pydio.getInstance()} {...emptyStateProps} />}
-            {!useEmptyView && masonryElement}
+            {emptyView && <EmptyStateView pydio={Pydio.getInstance()} {...emptyView} />}
+            {!emptyView && masonryElement}
         </div>
     );
 

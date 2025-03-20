@@ -192,6 +192,9 @@ export default class MetaNodeProvider{
                 }
             });
         }).catch(e => {
+            if(optionalParameters && optionalParameters.errorHandler){
+                optionalParameters.errorHandler(e)
+            }
             Pydio.endLoading();
             console.log(e);
         });

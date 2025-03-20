@@ -36,7 +36,7 @@ class EmptyStateView extends Component{
 
     render(){
         const {style, iconClassName, primaryTextId, secondaryTextId, actionLabelId, actionCallback,
-            actionStyle, actionIconClassName, getMessage, iconStyle, legendStyle, muiTheme} = this.props;
+            actionStyle, actionIconClassName, getMessage, iconStyle, legendStyle, buttonContainerStyle, muiTheme} = this.props;
 
         const mainColor = Color(muiTheme.palette.mui3.outline||'#aaa');
 
@@ -71,7 +71,8 @@ class EmptyStateView extends Component{
             },
             buttonContainer: {
                 marginTop: 100,
-                textAlign: 'center'
+                textAlign: 'center',
+                ...buttonContainerStyle
             },
             buttonStyle: {
                 color: muiTheme.palette.mui3.primary
