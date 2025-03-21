@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<editor enabled="false" id="editor.bnote" openable="true" iconClass="mdi mdi-file-document-box" order="10" text="51" title="162" canWrite="true"
+        actions="BlockNote.Actions" className="BlockNote" mimes="note" label="CONF_MESSAGE[Block Note]" description="CONF_MESSAGE[Collaborative Pad]">
+	<client_settings>
+        <resources>
+            <js file="plug/editor.bnote/res/dist/BlockNote.min.js" className="BlockNote"/>
+            <i18n remote="plug/editor.bnote/i18n" namespace="bnote"/>
+			<css file="plug/editor.bnote/res/css/style.css" autoload="true"/>
+        </resources>
+	</client_settings>
+	<registry_contributions>
+		<extensions>
+			<extension mime="note" messageId="bnote.ext" font="file-document-edit-outline"/>
+		</extensions>
+		<!--
+		<client_configs>
+			<component_config component="InfoPanel">
+				<infoPanel mime="ajxp_root_node" reactComponent="BlockNote.InfoPanel" weight="-1000"/>
+				<infoPanel mime="context_node" reactComponent="BlockNote.InfoPanel" weight="-1000"/>
+			</component_config>
+		</client_configs>
+		-->
+	</registry_contributions>
+</editor>

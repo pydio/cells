@@ -51,13 +51,19 @@ function selectionToTemplates(dataModel, refTemplates){
 
     //const {dataModel} = this.props;
     let selection = dataModel.getSelectedNodes();
-    if((!selection || !selection.length) && dataModel.getContextNode() === dataModel.getRootNode()){
-        selection = [dataModel.getContextNode()];
-    }
+    //if((!selection || !selection.length) && dataModel.getContextNode() === dataModel.getRootNode()){
+       // selection = [dataModel.getContextNode()];
+    //}
     let primaryMime, templates = [], uniqueNode;
     let data = {};
     if(!selection || selection.length < 1){
-        primaryMime = 'no_selection';
+        const cNode= dataModel.getContextNode()
+        if(cNode) {
+            data.node = cNode
+            primaryMime = cNode === dataModel.getRootNode() ? 'ajxp_root_node' : 'context_node'
+        } else {
+            primaryMime = 'no_selection';
+        }
     }else if(selection.length > 1){
         primaryMime = 'generic_multiple';
         data.nodes = selection;
@@ -67,9 +73,11 @@ function selectionToTemplates(dataModel, refTemplates){
             primaryMime = 'generic_file';
         }else{
             primaryMime = 'generic_dir';
+            /*
             if(dataModel.getRootNode() === uniqueNode){
                 primaryMime = 'ajxp_root_node';
             }
+             */
         }
         data.node = uniqueNode;
     }

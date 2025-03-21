@@ -54,6 +54,7 @@ var BasePluginsBox = service.PluginBox{
 		"core.pydio",
 		"core.uploader",
 		"editor.browser",
+		"editor.bnote",
 		"editor.ckeditor",
 		"editor.codemirror",
 		"editor.diaporama",

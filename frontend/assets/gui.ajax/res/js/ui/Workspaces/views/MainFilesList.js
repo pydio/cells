@@ -681,9 +681,22 @@ class MainFilesList extends React.Component {
         const {displayMode} = this.state;
         const list = [
             {name:Pydio.getMessages()['ajax_gui.list.display-mode.list'],title:227,icon_class:'mdi mdi-view-list',value:'list',hasAccessKey:true,accessKey:'list_access_key'},
+        ];
+        if(this.props.pydio.Registry.findEditorById('editor.bnote')) {
+            ResourcesManager.loadClass('BlockNote').then((lib) => this.setState({BlockNote: lib}))
+            list.push(
+                {
+                    name: 'Pages',
+                    icon_class: 'mdi mdi-file-document-multiple',
+                    value: 'pages',
+                }
+            )
+        }
+        list.push(
             {name:Pydio.getMessages()['ajax_gui.list.display-mode.details'],title:461,icon_class:'mdi mdi-view-headline',value:'detail',hasAccessKey:true,accessKey:'detail_access_key'},
             {name:Pydio.getMessages()['ajax_gui.list.display-mode.thumbs'],title:229,icon_class:'mdi mdi-view-grid',value:'grid-160',hasAccessKey:true,accessKey:'thumbs_access_key', highlight:(v)=>v.indexOf('grid-')===0}
-        ];
+        )
+
         if(displayMode.indexOf('grid-') === 0) {
             list.push(
                 {
@@ -983,6 +996,19 @@ class MainFilesList extends React.Component {
                     />
                 </React.Fragment>
             )
+        } else if (dMode === 'pages') {
+            const {BlockNote} = this.state;
+            if(!BlockNote) {
+                return (
+                    <div>Loading...</div>
+                )
+            }
+            return (
+                <BlockNote.MainPanel
+                    dataModel={dataModel}
+                    style={{...style, overflowY: 'scroll'}}
+                />
+            );
         }
 
         let sortingInfoChange

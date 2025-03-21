@@ -9,6 +9,7 @@ import SimpleList from "./SimpleList";
 import EmptyStateView from "../views/EmptyStateView";
 import {debounce} from 'lodash'
 import {withNodeListenerEntry} from "./withNodeListenerEntry";
+import {useDataModelContextNodeAsItems, useDataModelSelection} from "./hooks";
 
 const rotations = {
     2:{scaleX:-1, scaleY:1},
@@ -92,21 +93,8 @@ const ResizingCard = withNodeListenerEntry(({width, data:{node, parent, dataMode
 
     // ratio may be modified by exif orientation
     let {ratio, src} = usePreview(node);
-    const [selected, setSelected] = useState(dataModel.getSelectedNodes().indexOf(node) > -1)
     const [hover, setHover] = useState(false);
-    useEffect(() => {
-        const handler = () => {
-            setSelected(dataModel.getSelectedNodes().indexOf(node) > -1);
-        }
-        dataModel.observe('selection_changed', handler);
-        return () => {
-            dataModel.stopObserving('selection_changed', handler);
-        }
-    }, [selected, node]);
-    let bs = 'rgb(0, 0, 0, .15) 0 0 10px';
-    if(selected){
-        bs = 'rgb(1, 141, 204) 0px 0px 0px 2px, rgb(0, 0, 0, .15) 0 0 10px';
-    }
+    const selected = useDataModelSelection(dataModel, node);
 
     const {handleClicks, renderIcon, renderActions} = entryProps;
     const labelStyle = {
@@ -205,54 +193,13 @@ function childrenToItems(node, itemProps) {
 export default React.memo(({className, dataModel, entryProps, emptyStateProps, errorStateProps, containerStyle={}, columnWidth=220, onScroll}) => {
 
     const itemProps = {dataModel, entryProps};
-    const computeItems = () => {
-        return childrenToItems(dataModel.getContextNode(), itemProps)
-    }
-
-    const [items, setItems] = useState(computeItems)
-    const [node, setNode] = useState(dataModel.getContextNode());
-    useEffect(() => {
-        const handler = () => {
-            const node = dataModel.getContextNode();
-            if(node.isLoaded()){
-                setNode(node);
-            } else{
-                node.observeOnce("loaded", () => setNode(node));
-            }
-        };
-        dataModel.observe('context_changed', handler);
-        return () => {
-            dataModel.stopObserving('context_changed', handler);
-        }
+    const {node, items} = useDataModelContextNodeAsItems(dataModel, (node, resize) => {
+        return childrenToItems(node, itemProps);
     });
-
-    useEffect(() => {
-        setItems(computeItems());
-        const childrenObserver = () => {
-            setItems(childrenToItems(node, itemProps))
-            triggerResize()
-        }
-        const childrenObserverResize = () => {
-            setItems(childrenToItems(node, itemProps))
-            window.dispatchEvent(new Event('resize'));
-            triggerResize()
-        }
-        node.observe("child_added", childrenObserverResize);
-        node.observe("child_removed", childrenObserver);
-        node.observe("child_replaced", childrenObserverResize);
-        return () => {
-            node.stopObserving("child_added", childrenObserverResize);
-            node.stopObserving("child_removed", childrenObserver);
-            node.stopObserving("child_replaced", childrenObserverResize);
-        }
-    }, [node])
-
-    if(!node.isLoaded()){
-        node.observeOnce("loaded", () => {
-            setItems(childrenToItems(node, itemProps));
-        });
-        node.load();
-    }
+    useEffect(()=>{
+        window.dispatchEvent(new Event('resize'));
+        triggerResize();
+    }, [items])
 
     const keyDown = (event) => {
         if(event.key === 'Enter' && dataModel.getUniqueNode()){

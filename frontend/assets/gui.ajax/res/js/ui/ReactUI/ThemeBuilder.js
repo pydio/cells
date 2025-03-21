@@ -528,7 +528,7 @@ export default class ThemeBuilder {
         const headerBase = 72
         const buttonsHeight = 24
         const buttonsFont = 13
-        const isGrid = !(displayMode==='list'||displayMode==='detail');
+        const isGrid = !(displayMode==='list'||displayMode==='detail'||displayMode==='pages');
 
         let styles = {
             masterMargin,

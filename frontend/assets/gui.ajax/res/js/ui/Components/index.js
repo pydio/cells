@@ -26,6 +26,8 @@ import ListPaginator from './list/ListPaginator'
 import MaterialTable from './list/MaterialTable'
 import Masonry from './list/Masonry'
 import Timeline from './list/Timeline'
+import {useDataModelSelection, useDataModelContextNodeAsItems} from './list/hooks'
+import {sortNodesNatural, nodesSorterByAttribute} from "./list/sorters";
 
 import {TreeView, DNDTreeView, FoldersTree} from './views/TreeView'
 
@@ -80,6 +82,10 @@ const PydioComponents = {
     MaterialTable,
     Masonry,
     Timeline,
+    useDataModelSelection,
+    useDataModelContextNodeAsItems,
+    sortNodesNatural,
+    nodesSorterByAttribute,
 
     TreeView                : TreeView,
     DNDTreeView             : DNDTreeView,
