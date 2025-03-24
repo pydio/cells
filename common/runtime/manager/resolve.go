@@ -24,7 +24,6 @@ import (
 	"context"
 	"fmt"
 	"reflect"
-	"runtime"
 
 	"go.opentelemetry.io/otel/trace"
 
@@ -207,7 +206,7 @@ func Resolve[T any](ctx context.Context, opts ...ResolveOption) (s T, final erro
 		// TODO - if we don't have all storages yet, we should wait for them to become available
 		// The context timeout should decide how long we wait for the storage to become available
 		if handlerT.NumIn() != assigned {
-			return t, errors.WithMessagef(errors.ResolveError, "number of connections (%d) differs from what is requested by handler %s (%d)", assigned, runtime.FuncForPC(handlerV.Pointer()).Name(), handlerT.NumIn())
+			continue
 		}
 
 		span.AddEvent("After Service Version")
@@ -227,6 +226,9 @@ func Resolve[T any](ctx context.Context, opts ...ResolveOption) (s T, final erro
 
 		return dao.(T), nil
 	}
+
+
+//	return t, errors.WithMessagef(errors.ResolveError, "number of connections (%d) differs from what is requested by handler %s (%d)", assigned, runtime.FuncForPC(handlerV.Pointer()).Name(), handlerT.NumIn())
 
 	return t, errors.WithMessage(errors.ResolveError, "could not find compatible storage for DAO parameter")
 }

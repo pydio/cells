@@ -1,0 +1,191 @@
+#------------------------------------------
+# Actual Bootstrap Keys
+#
+# Defaults variable values are injected at load time
+#------------------------------------------
+runtime: main
+connections:
+  grpcconn:
+    uri: 0.0.0.0:8030
+    services:
+      - filter: "{{ .Name }} ~= pydio.grpc..*"
+listeners:
+  grpcall:
+    type: tcp
+    bind: 0.0.0.0
+    port: 8030
+  http:
+    type: tcp
+    bind: 0.0.0.0
+    port: 8032
+servers:
+# Option 1 - directly use caddy as mux server - may create issues with websockets+http2
+#  caddy:
+#    type: caddy
+#    services:
+#      - filter: "{{ .Name }} ~= pydio\\.web\\.* or {{ .Name }} ~= pydio\\.rest\\.* or {{ .Name }} ~= pydio\\.gateway\\.*"
+# Option 2 - start caddy as proxy and native http server as mux
+  proxy:
+    type: caddy+proxy
+  http:
+    type: http
+    listener: http
+    services:
+      - filter: "{{ .Name }} ~= pydio\\.web\\.* or {{ .Name }} ~= pydio\\.rest\\.* or {{ .Name }} ~= pydio\\.gateway\\.*"
+  grpcall:
+    type: grpc
+    listener: grpcall
+    services:
+      - filter: "{{ .Name }} ~= pydio\\.grpc\\..*"
+  generic:
+    type: generic
+    services:
+      - filter: "{{ .Name }} ~= pydio\\.generic\\..*"
+
+queues:
+  debouncer:
+    uri: "mem://?debounce={{ .debounce }}&idle={{ .idle }}&max={{ .max }}&openerID={{ .openerID }}"
+  persistent:
+    uri: "fifo://{{ autoMkdir ( serviceDataDir .Service ) }}?name={{ .name }}&prefix={{ .prefix }}"
+
+caches:
+  local:
+    uri: "pm://?evictionTime={{ .evictionTime }}&cleanWindow={{ .cleanWindow }}&prefix={{ .prefix }}"
+  shared:
+    uri: "bigcache://?evictionTime={{ .evictionTime }}&cleanWindow={{ .cleanWindow }}&prefix={{ .prefix }}"
+
+
+#------------------------------------
+# All services
+#------------------------------------
+services: &services
+  pydio.grpc.oauth:
+    storages:
+      main:
+        - type: sql
+          prefix: oauth2_
+          singular: "true"
+  pydio.web.oauth:
+    storages:
+      main:
+        - type: sql
+          prefix: oauth2_
+          singular: "true"
+  pydio.rest.frontend:
+    storages:
+      main:
+        - type: sql
+          prefix: idm_
+  pydio.grpc.search:
+    storages:
+      main:
+        - type: mongo
+  pydio.grpc.chat:
+    storages:
+      main:
+        - type: mongo
+  pydio.grpc.data-key:
+    storages:
+      main:
+        - type: sql
+          prefix: enc_
+  pydio.grpc.activity:
+    storages:
+      main:
+        - type: mongo
+  pydio.grpc.versions:
+    storages:
+      main:
+        - type: mongo
+  pydio.grpc.mailer:
+    storages:
+      main:
+        - type: mongo
+  pydio.grpc.docstore:
+    storages:
+      main:
+        - type: mongo
+  pydio.grpc.log:
+    storages:
+      main:
+        - type: mongo
+  pydio.grpc.jobs:
+    storages:
+      main:
+        - type: mongo
+      logs:
+        - type: mongo
+  pydio.grpc.role:
+    storages:
+      main:
+        - type: sql
+          prefix: idm_
+          policies: idm_role_policies
+  pydio.grpc.acl:
+    storages:
+      main:
+        - type: sql
+          prefix: idm_
+  pydio.grpc.user:
+    storages:
+      main:
+        - type: sql
+          prefix: idm_
+          policies: idm_user_policies
+  pydio.grpc.token:
+    storages:
+      main:
+        - type: sql
+          prefix: idm_
+  pydio.grpc.key:
+    storages:
+      main:
+        - type: sql
+          prefix: data_key_
+  pydio.grpc.user-key:
+    storages:
+      main:
+        - type: sql
+          prefix: idm_
+  pydio.grpc.workspace:
+    storages:
+      main:
+        - type: sql
+          prefix: idm_
+          policies: idm_workspace_policies
+  pydio.grpc.meta:
+    storages:
+      main:
+        - type: sql
+          prefix: data_
+  pydio.grpc.policy:
+    storages:
+      main:
+        - type: sql
+          prefix: ladon_
+          singular: "true"
+  pydio.grpc.user-meta:
+    storages:
+      main:
+        - type: sql
+          prefix: idm_usr_
+          policies: idm_usr_meta_policies
+  pydio.grpc.data.index:
+    storages:
+      main:
+        - type: dssql
+          prefix: data_index_
+  pydio.grpc.data.sync:
+    storages:
+      main:
+        - type: dssql
+          prefix: data_sync_
+
+
+storages:
+  sql:
+    uri: "mysql://root:P@ssw0rd@tcp(localhost:3306)/cells?parseTime=true&prefix={{ .Meta.prefix }}&policies={{ .Meta.policies }}&singular={{ .Meta.singular }}"
+  dssql: 
+    uri: "mysql://root:P@ssw0rd@tcp(localhost:3306)/cells?parseTime=true&prefix={{ .Meta.prefix }}{{if ne .DataSource \"\"}}{{ .DataSource }}_{{end}}&policies={{ .Meta.policies }}&singular={{ .Meta.singular }}"
+  mongo:
+    uri: mongodb://localhost:27017/cells

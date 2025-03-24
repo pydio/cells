@@ -22,7 +22,7 @@ package cmd
 
 import (
 	"context"
-	"fmt"
+        "fmt"
 	"os"
 	"path/filepath"
 	"strings"
@@ -312,7 +312,7 @@ ENVIRONMENT
 				return err
 			}
 
-			if err := bootstrap.RegisterTemplate(filepath.Ext(runtime.KeyBootstrapFile), string(b)); err != nil {
+			if err := bootstrap.RegisterTemplate(strings.TrimLeft(filepath.Ext(file), "."), string(b)); err != nil {
 				return err
 			}
 			//} else if data := runtime.GetString(runtime.KeyBootstrapYAML); data != "" {
