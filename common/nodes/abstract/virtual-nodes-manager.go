@@ -276,6 +276,7 @@ func (m *virtualNodesManager) resolvePathWithClaims(ctx context.Context, vNode *
 	resolved := &tree.Node{}
 	jsUser := m.toJsUser(ctx, c)
 	resolutionString := vNode.MetaStore["resolution"]
+	splitPath := false
 	if cType, exists := vNode.MetaStore["contentType"]; exists && cType == "text/javascript" {
 
 		datasourceKeys := map[string]string{}
@@ -290,11 +291,35 @@ func (m *virtualNodesManager) resolvePathWithClaims(ctx context.Context, vNode *
 			"User":        jsUser,
 			"DataSources": datasourceKeys,
 		}
+		// Use interface to capture "undefined => nil" instead of "undefined" string
+		var dsNameInt interface{}
 		out := map[string]interface{}{
-			"Path": "",
+			"Path":           "",
+			"SplitMode":      false,
+			"DataSourceName": dsNameInt,
+			"DataSourcePath": "",
 		}
 		if e := permissions.RunJavaScript(ctx, resolutionString, in, out); e == nil {
-			resolved.Path = out["Path"].(string)
+			splitMode := out["SplitMode"].(bool)
+			if splitMode {
+				var dsName string
+				dsVal := out["DataSourceName"]
+				if dsVal != nil {
+					dsName, _ = dsVal.(string)
+				}
+				if dsVal == nil || dsName == "" {
+					log.Logger(ctx).Warn("Unknown datasource name while resolving template path", zap.Int("knownSources", len(datasourceKeys)), zap.String("template", resolutionString))
+					return nil, fmt.Errorf("cannot resolve datasource in template path, may be referring to an unavailable datasource")
+				}
+
+				dsPath := out["DataSourcePath"].(string)
+				resolved.Path = path.Join(dsName, dsPath)
+				resolved.MustSetMeta(common.MetaNamespaceDatasourceName, dsName)
+				resolved.MustSetMeta(common.MetaNamespaceDatasourcePath, dsPath)
+			} else {
+				resolved.Path = out["Path"].(string)
+				splitPath = true
+			}
 		} else {
 			log.Logger(ctx).Error("Cannot Run Javascript "+resolutionString, zap.Error(e), zap.Any("in", in), zap.Any("out", out))
 			return nil, e
@@ -302,13 +327,15 @@ func (m *virtualNodesManager) resolvePathWithClaims(ctx context.Context, vNode *
 
 	} else {
 		resolved.Path = strings.Replace(resolutionString, "{USERNAME}", jsUser.Name, -1)
+		splitPath = true
 	}
 
 	resolved.Type = vNode.Type
-
-	parts := strings.Split(resolved.Path, "/")
-	resolved.MustSetMeta(common.MetaNamespaceDatasourceName, parts[0])
-	resolved.MustSetMeta(common.MetaNamespaceDatasourcePath, strings.Join(parts[1:], "/"))
+	if splitPath {
+		parts := strings.Split(resolved.Path, "/")
+		resolved.MustSetMeta(common.MetaNamespaceDatasourceName, parts[0])
+		resolved.MustSetMeta(common.MetaNamespaceDatasourcePath, strings.Join(parts[1:], "/"))
+	}
 
 	return resolved, nil
 

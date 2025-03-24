@@ -23,9 +23,7 @@ package service
 
 import (
 	"context"
-	"github.com/pydio/cells/v5/common/proto/tree"
-	"github.com/pydio/cells/v5/common/runtime/manager"
-	"github.com/pydio/cells/v5/common/telemetry/log"
+
 	"go.uber.org/zap"
 	"google.golang.org/grpc"
 	"google.golang.org/protobuf/encoding/protojson"
@@ -33,8 +31,11 @@ import (
 	"github.com/pydio/cells/v5/common"
 	proto "github.com/pydio/cells/v5/common/proto/docstore"
 	"github.com/pydio/cells/v5/common/proto/sync"
+	"github.com/pydio/cells/v5/common/proto/tree"
 	"github.com/pydio/cells/v5/common/runtime"
+	"github.com/pydio/cells/v5/common/runtime/manager"
 	"github.com/pydio/cells/v5/common/service"
+	"github.com/pydio/cells/v5/common/telemetry/log"
 	"github.com/pydio/cells/v5/data/docstore"
 	grpc2 "github.com/pydio/cells/v5/data/docstore/grpc"
 )
@@ -113,8 +114,7 @@ func init() {
 func defaults() map[string]string {
 
 	return map[string]string{
-		"my-files": `{"Uuid":"my-files","Path":"my-files","Type":"COLLECTION","MetaStore":{"name":"my-files", "onDelete":"rename-uuid","resolution":"\/\/ Default node used for storing personal users data in separate folders. \n\/\/ Use Ctrl+Space to see the objects available for completion.\nPath = DataSources.personal + \"\/\" + User.Name;","contentType":"text\/javascript"}}`,
-		"cells":    `{"Uuid":"cells","Path":"cells","Type":"COLLECTION","MetaStore":{"name":"cells","resolution":"\/\/ Default node used as parent for creating empty cells. \n\/\/ Use Ctrl+Space to see the objects available for completion.\nPath = DataSources.cellsdata + \"\/\" + User.Name;","contentType":"text\/javascript"}}`,
+		"my-files": `{"Uuid":"my-files","Path":"my-files","Type":"COLLECTION","MetaStore":{"name":"my-files", "onDelete":"rename-uuid","resolution":"\/\/ Default node used for storing personal users data in separate folders. \n\/\/ Use Ctrl+Space to see the objects available for completion.\nSplitMode = true; DataSourceName = DataSources.personal; DataSourcePath = User.Name;","contentType":"text\/javascript"}}`,
+		"cells":    `{"Uuid":"cells","Path":"cells","Type":"COLLECTION","MetaStore":{"name":"cells","resolution":"\/\/ Default node used as parent for creating empty cells. \n\/\/ Use Ctrl+Space to see the objects available for completion.\nSplitMode = true; DataSourceName = DataSources.cellsdata; DataSourcePath = User.Name;","contentType":"text\/javascript"}}`,
 	}
-
 }

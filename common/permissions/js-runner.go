@@ -78,7 +78,7 @@ func RunJavaScript(ctx context.Context, script string, inputs map[string]interfa
 				case reflect.Bool:
 					outputs[oVar], _ = vmValue.ToBoolean()
 				default:
-					return errors.New("JS Runner : unsupported expected output type")
+					outputs[oVar], _ = vmValue.Export()
 				}
 
 			} else {
