@@ -22,6 +22,7 @@ package timer
 
 import (
 	"context"
+	"sync"
 
 	"github.com/pydio/cells/v4/common/client/grpc"
 
@@ -39,38 +40,41 @@ import (
 type EventProducer struct {
 	Context context.Context
 
-	Waiters   map[string]*schedule.Ticker
-	EventChan chan *jobs.JobTriggerEvent
-	StopChan  chan bool
-	TestChan  chan *jobs.JobTriggerEvent
+	waiters   map[string]*schedule.Ticker
+	waitersMu sync.Mutex
+
+	eventChan chan *jobs.JobTriggerEvent
+	stopChan  chan bool
+	testChan  chan *jobs.JobTriggerEvent
 }
 
 // NewEventProducer creates a pool of ScheduleWaiters that will send events based on pre-defined scheduling.
 func NewEventProducer(rootCtx context.Context) *EventProducer {
 	e := &EventProducer{
-		Waiters:   make(map[string]*schedule.Ticker),
-		StopChan:  make(chan bool, 1),
-		EventChan: make(chan *jobs.JobTriggerEvent),
+		waiters:   make(map[string]*schedule.Ticker),
+		waitersMu: sync.Mutex{},
+		stopChan:  make(chan bool, 1),
+		eventChan: make(chan *jobs.JobTriggerEvent),
 	}
 
 	e.Context = context.WithValue(rootCtx, common.PydioContextUserKey, common.PydioSystemUsername)
 
 	go func() {
-		defer close(e.StopChan)
-		defer close(e.EventChan)
+		defer close(e.stopChan)
+		defer close(e.eventChan)
 
 		for {
 			select {
-			case event := <-e.EventChan:
+			case event := <-e.eventChan:
 				log.Logger(e.Context).Debug("Sending Timer Event", zap.Any("event", event))
-				if e.TestChan != nil {
-					e.TestChan <- event
+				if e.testChan != nil {
+					e.testChan <- event
 				} else {
 					broker.MustPublish(e.Context, common.TopicTimerEvent, event)
 				}
 			case <-rootCtx.Done():
 				e.StopAll()
-			case <-e.StopChan:
+			case <-e.stopChan:
 				return
 			}
 		}
@@ -106,20 +110,25 @@ func (e *EventProducer) Start() error {
 
 // StopAll ranges all waiters from the EventProducer, calls Stop() and remove them from the Waiter pool.
 func (e *EventProducer) StopAll() {
-	for jId, w := range e.Waiters {
+	log.Logger(e.Context).Debug("Stopping all Event Producers")
+	e.waitersMu.Lock()
+	for jId, w := range e.waiters {
 		w.Stop()
-		delete(e.Waiters, jId)
+		delete(e.waiters, jId)
 	}
-	e.StopChan <- true
+	e.waitersMu.Unlock()
+	e.stopChan <- true
 }
 
 // StopWaiter stops a waiter given its ID and remove it from the Waiter pool.
 // If no waiter with this ID is registered, it returns silently.
 func (e *EventProducer) StopWaiter(jobId string) {
-	if w, ok := e.Waiters[jobId]; ok {
+	e.waitersMu.Lock()
+	if w, ok := e.waiters[jobId]; ok {
 		w.Stop()
-		delete(e.Waiters, jobId)
+		delete(e.waiters, jobId)
 	}
+	e.waitersMu.Unlock()
 }
 
 // StartOrUpdateJob creates a ScheduleWaiter and registers it in the EventProducer pool.
@@ -133,14 +142,16 @@ func (e *EventProducer) StartOrUpdateJob(job *jobs.Job) {
 	//schedule := job.Schedule
 	if s, err := schedule.NewTickerScheduleFromISO(job.Schedule.Iso8601Schedule); err == nil {
 		w := schedule.NewTicker(s, func() error {
-			e.EventChan <- &jobs.JobTriggerEvent{
+			e.eventChan <- &jobs.JobTriggerEvent{
 				JobID:    jobId,
 				Schedule: job.Schedule,
 			}
 			return nil
 		})
 		w.Start()
-		e.Waiters[jobId] = w
+		e.waitersMu.Lock()
+		e.waiters[jobId] = w
+		e.waitersMu.Unlock()
 	} else {
 		log.Logger(context.Background()).Error("Cannot register job", zap.Error(err))
 	}

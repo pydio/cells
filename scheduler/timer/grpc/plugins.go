@@ -24,6 +24,8 @@ package grpc
 import (
 	"context"
 	"fmt"
+	"github.com/pydio/cells/v4/common/log"
+	"go.uber.org/zap"
 
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/broker"
@@ -45,7 +47,7 @@ func init() {
 			service.Description("Triggers events based on a scheduler pattern"),
 			service.Unique(true),
 			service.WithGeneric(func(c context.Context, server *generic.Server) error {
-				producer := timer.NewEventProducer(c)
+				producer = timer.NewEventProducer(c)
 				subscriber := &timer.JobsEventsSubscriber{
 					Producer: producer,
 				}
@@ -59,7 +61,11 @@ func init() {
 					return fmt.Errorf("cannot subscribe on JobConfigEvent topic %v", er)
 				}
 
-				go producer.Start()
+				go func() {
+					if er := producer.Start(); er != nil {
+						log.Logger(ctx).Error("cannot start EventProducer", zap.Error(er))
+					}
+				}()
 				return nil
 
 			}),
