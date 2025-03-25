@@ -89,12 +89,16 @@ let MainPanel = ({dataModel, entryProps, muiTheme, style, contentMeta}) => {
         }
 
         const reloadIdentifier = nodeUUID + '#' + (loaded?'loaded':'loading')
+        const nodeReadonly = node.getMetadata().get('node_readonly')==='true'
         body = (
             <Pad
-                readOnly={false}
+                readOnly={nodeReadonly}
                 darkMode={muiTheme.darkMode}
                 initialContent={initialContent}
                 onChange={(blocks) => {
+                    if(nodeReadonly) {
+                        return
+                    }
                     setDirty(true)
                     save(blocks)
                 }}

@@ -87,7 +87,7 @@ export default ({initialContent = [], onChange, darkMode, readOnly, style}) => {
 
 
     let main;
-    if(readOnly) {
+    if(false && readOnly) {
         useEffect(() => {
             editor.blocksToFullHTML(initialContent||[]).then(res => setHtmlReady(res))
         }, [initialContent])
@@ -103,6 +103,7 @@ export default ({initialContent = [], onChange, darkMode, readOnly, style}) => {
     } else {
         main = (
             <BlockNoteView
+                editable={!readOnly}
                 onChange={() => onChange(editor.document)}
                 editor={editor}
                 theme={darkMode?"dark":"light"}
