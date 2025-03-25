@@ -1,5 +1,5 @@
 /*
- * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
+ * Copyright 2025 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
  *
  * Pydio is free software: you can redistribute it and/or modify
@@ -18,59 +18,99 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-import React, {useState, useEffect, useRef} from 'react'
+import React from 'react'
 import Pydio from 'pydio'
 const {PydioContextConsumer} = Pydio.requireLib('boot');
 import Pad from './pad'
 import { muiThemeable } from 'material-ui/styles'
 import {useNodeContent} from "./hooks";
+const { moment } = Pydio.requireLib('boot');
 const { useDataModelContextNodeAsItems } = Pydio.requireLib('components')
 
-let MainPanel = ({dataModel, muiTheme, style}) => {
+let MainPanel = ({dataModel, entryProps, muiTheme, style, contentMeta}) => {
 
     const {node} = useDataModelContextNodeAsItems(dataModel, (n) => {return []})
-    const {content=[], loaded, save} = useNodeContent(node)
+    const {content=[], loaded, save, dirty, setDirty} = useNodeContent(node, contentMeta)
+    let body, saveBlock;
 
-    let body;
-
-    if(!loaded) {
-        console.log('NOT LOADED', content)
-        return <div style={style}></div>
-    }
-
-    if(node) {
+    if(node && node.isLoaded() && loaded) {
+        const nodeUUID = node.getMetadata().get('uuid')
         const initialContent = content || []
         if(!initialContent.length) {
+            let title = node.getLabel()
+            if(node.getMetadata().has('ws_root')) {
+                title = Pydio.getInstance().user.getActiveRepositoryObject().getLabel() || title
+            }
+            const date = moment(new Date(parseInt(node.getMetadata().get('ajxp_modiftime'))*1000)).fromNow()
             initialContent.push({
-                "type": "heading",
-                "props": {
-                    "level": 2
+                    "type": "heading",
+                    "props": {
+                        "level": 2
+                    },
+                    "content": [
+                        {
+                            "type": "text",
+                            "text": title,
+                            "styles": {}
+                        }
+                    ]
                 },
-                "content": [
-                    {
-                        "type": "text",
-                        "text": node.getLabel(),
-                        "styles": {}
-                    }
-                ]
+                {
+                    "type": "paragraph",
+                    "props": {
+                        "textColor": "gray",
+                    },
+                    "content": [
+                        {
+                            "type": "text",
+                            "text": "Created "+date,
+                            "styles": {
+                                "textColor": "gray"
+                            }
+                        }
+                    ],
+                },
+                {"type":"paragraph", "content" : []}
+            );
+        }
+        let found = false;
+        initialContent.map(block => {
+            if(block.type === 'childrenList') {
+                block.props.dataModel = dataModel
+                block.props.entryProps = entryProps
+                found = true;
+            }
+        })
+        if(!found) {
+            initialContent.push({
+                type: "childrenList",
+                props:{dataModel, entryProps}
             })
         }
-        const reloadIdentifier = node.getMetadata().get('uuid') + '#' + (loaded?'loaded':'loading')
-        console.log(reloadIdentifier, initialContent)
+
+        const reloadIdentifier = nodeUUID + '#' + (loaded?'loaded':'loading')
         body = (
             <Pad
                 readOnly={false}
                 darkMode={muiTheme.darkMode}
                 initialContent={initialContent}
-                onChange={(blocks) => save(blocks)}
-                node={node}
+                onChange={(blocks) => {
+                    setDirty(true)
+                    save(blocks)
+                }}
                 key={reloadIdentifier}
             />
         )
+
+        if(dirty) {
+            saveBlock = <div style={{
+                position:'absolute', top: 35, right:50, opacity:0.5,
+                fontStyle:'italic', fontSize: 14}}>Changes not saved...</div>
+        }
     }
 
     return (
-        <div style={style}>{body}</div>
+        <div style={{...style, position:'relative'}}>{body}{saveBlock}</div>
     )
 }
 

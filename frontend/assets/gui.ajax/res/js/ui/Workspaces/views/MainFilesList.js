@@ -682,7 +682,7 @@ class MainFilesList extends React.Component {
         const list = [
             {name:Pydio.getMessages()['ajax_gui.list.display-mode.list'],title:227,icon_class:'mdi mdi-view-list',value:'list',hasAccessKey:true,accessKey:'list_access_key'},
         ];
-        if(this.props.pydio.Registry.findEditorById('editor.bnote')) {
+        if(this.props.pydio.Registry.findEditorById('editor.bnote') && this.props.pydio.getPluginConfigs('editor.bnote').get('BNOTE_PAGES_META')) {
             ResourcesManager.loadClass('BlockNote').then((lib) => this.setState({BlockNote: lib}))
             list.push(
                 {
@@ -1007,6 +1007,12 @@ class MainFilesList extends React.Component {
                 <BlockNote.MainPanel
                     dataModel={dataModel}
                     style={{...style, overflowY: 'scroll'}}
+                    contentMeta={this.props.pydio.getPluginConfigs('editor.bnote').get('BNOTE_PAGES_META')}
+                    entryProps={{
+                        handleClicks:this.entryHandleClicks.bind(this),
+                        renderIcon:this.entryRenderIcon.bind(this),
+                        renderActions: this.entryRenderActions.bind(this)
+                    }}
                 />
             );
         }

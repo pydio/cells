@@ -1,6 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <editor enabled="false" id="editor.bnote" openable="true" iconClass="mdi mdi-file-document-box" order="10" text="51" title="162" canWrite="true"
         actions="BlockNote.Actions" className="BlockNote" mimes="note" label="CONF_MESSAGE[Block Note]" description="CONF_MESSAGE[Collaborative Pad]">
+	<server_settings>
+		<global_param name="BNOTE_PAGES_META" type="string" label="CONF_MESSAGE[Pages Metadata Name]" description="CONF_MESSAGE[Set a metadata namespace to store folder pages contents. Metadata must be created before using that.]" exposed="true"/>
+	</server_settings>
 	<client_settings>
         <resources>
             <js file="plug/editor.bnote/res/dist/BlockNote.min.js" className="BlockNote"/>

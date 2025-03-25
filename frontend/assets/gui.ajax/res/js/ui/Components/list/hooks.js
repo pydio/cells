@@ -42,10 +42,11 @@ const useDataModelContextNodeAsItems = (dataModel, callback = (node) => {return 
     useEffect(() => {
         const handler = () => {
             const node = dataModel.getContextNode();
-            if(node.isLoaded()){
-                setNode(node);
-            } else{
-                node.observeOnce("loaded", () => setNode(node));
+            setNode(node);
+            if(!node.isLoaded()){
+                node.observeOnce("loaded", () => {
+                    setNode(node)
+                });
             }
         };
         dataModel.observe('context_changed', handler);

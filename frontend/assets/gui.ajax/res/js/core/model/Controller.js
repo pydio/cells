@@ -133,7 +133,7 @@ export default class Controller extends Observable{
             value.refreshFromI18NHash();
         });
     }
-    
+
     getDataModel(){
         return this._dataModel;
     }
@@ -159,7 +159,7 @@ export default class Controller extends Observable{
 	 * @param oUser User User instance
 	 */
 	setUser(oUser)
-	{	
+	{
 		this.oUser = oUser;
 		if(oUser != null && oUser.id !== 'guest' && oUser.getPreference('lang') != null
 			&& oUser.getPreference('lang') !== ""
@@ -170,7 +170,7 @@ export default class Controller extends Observable{
             this._pydioObject.loadI18NMessages(oUser.getPreference('lang'), false);
 		}
 	}
-			
+
 	/**
 	 * Filter the actions given the srcElement passed as arguments.
 	 * @param actionsSelectorAtt String An identifier among selectionContext, genericContext, a webfx object id
@@ -178,7 +178,7 @@ export default class Controller extends Observable{
 	 * @returns Array
 	 */
 	getContextActions(actionsSelectorAtt, ignoreGroups, onlyGroups)
-	{		
+	{
 		let contextActions = [];
 		let defaultGroup;
         let contextActionsGroup = new Map();
@@ -249,7 +249,7 @@ export default class Controller extends Observable{
         });
 		return contextActions;
 	}
-	
+
 
     getToolbarsActions(toolbarsList = [], groupOtherList = []){
 
@@ -316,7 +316,7 @@ export default class Controller extends Observable{
 
 	/**
 	 * Generic method to get actions for a given component part.
-	 * @param ajxpClassName String 
+	 * @param ajxpClassName String
 	 * @param widgetId String
 	 * @returns []
 	 */
@@ -330,9 +330,9 @@ export default class Controller extends Observable{
                 )
                 && !action.deny) actions.push(action);
 		});
-		return actions;		
+		return actions;
 	}
-	
+
 	/**
 	 * Finds a default action and fires it.
 	 * @param defaultName String ("file", "dir", "dragndrop", "ctrldragndrop")
@@ -348,7 +348,7 @@ export default class Controller extends Observable{
 			this.fireAction.apply(this, arguments);
 		}
 	}
-	
+
 	/**
 	 * Fire an action based on its name
 	 * @param actionName String The name of the action
@@ -363,21 +363,21 @@ export default class Controller extends Observable{
 			action.apply(args);
 		}
 	}
-	
+
 	/**
-	 * Registers an accesskey for a given action. 
+	 * Registers an accesskey for a given action.
 	 * @param key String The access key
 	 * @param actionName String The name of the action
-	 * @param optionnalCommand String An optionnal argument 
+	 * @param optionnalCommand String An optionnal argument
 	 * that will be passed to the action when fired.
 	 */
-	registerKey(key, actionName, optionnalCommand){		
+	registerKey(key, actionName, optionnalCommand){
 		if(optionnalCommand){
 			actionName = actionName + "::" + optionnalCommand;
 		}
 		this._registeredKeys.set(key.toLowerCase(), actionName);
 	}
-	
+
 	/**
 	 * Remove all registered keys.
 	 */
@@ -389,7 +389,7 @@ export default class Controller extends Observable{
 	 * @param keyName String A key name
 	 */
 	fireActionByKey(keyName)
-	{	
+	{
 		if(this._registeredKeys.get(keyName))
 		{
 			if(this._registeredKeys.get(keyName).indexOf("::")!==-1){
@@ -416,7 +416,7 @@ export default class Controller extends Observable{
 	}
 
 	/**
-	 * Spreads a selection change to all actions and to registered components 
+	 * Spreads a selection change to all actions and to registered components
 	 */
 	fireSelectionChange(){
 		this.actions.forEach(function(action){
@@ -424,9 +424,9 @@ export default class Controller extends Observable{
 		}.bind(this));
         this.notify("actions_refreshed");
 	}
-	
+
 	/**
-	 * Spreads a context change to all actions and to registered components 
+	 * Spreads a context change to all actions and to registered components
 	 * by triggering actions_refreshed event.
 	 */
 	fireContextChange(){
@@ -456,7 +456,7 @@ export default class Controller extends Observable{
 		this.actions = new Map();
 		this.clearRegisteredKeys();
 	}
-	
+
 	/**
 	 * Create actions from XML Registry
 	 * @param registry DOMDocument
@@ -471,9 +471,10 @@ export default class Controller extends Observable{
             this.registerAction(act);
         }.bind(this));
         this.notify("actions_loaded");
-        if(this._pydioObject.getPluginConfigs('action.advanced_settings').has('actions_a_c')){
+        const ac = this._pydioObject.getPluginConfigs('action.advanced_settings').get('actions_a_c');
+        if(ac){
             try {
-                const aa = JSON.parse(this._pydioObject.getPluginConfigs('action.advanced_settings').get('actions_a_c'))
+                const aa = JSON.parse(ac)
                 if(aa instanceof Object) {
                     Object.keys(aa).forEach(actionName => {
                         if(this.actions.has(actionName)) {
@@ -499,9 +500,9 @@ export default class Controller extends Observable{
             }
         }
 		this.fireContextChange();
-		this.fireSelectionChange();		
+		this.fireSelectionChange();
 	}
-	
+
 	/**
 	 * Registers an action to this manager (default, accesskey).
 	 * @param action Action
@@ -524,12 +525,12 @@ export default class Controller extends Observable{
 		}
 		action.setManager(this);
 	}
-	
+
 	/**
 	 * Parse an XML action node and registers the action
 	 * @param documentElement DOMNode The node to parse
 	 */
-	parseActions(documentElement){		
+	parseActions(documentElement){
 		const actions = XMLUtils.XPathSelectNodes(documentElement, "actions/action");
 		for(let i=0;i<actions.length;i++){
 			if(actions[i].nodeName != 'action') continue;
@@ -546,7 +547,7 @@ export default class Controller extends Observable{
 	 * @returns Action
 	 */
 	getActionByName (actionName){
-		return this.actions.get(actionName);		
+		return this.actions.get(actionName);
 	}
 
 	_sortToolbarsActions(toolbars){

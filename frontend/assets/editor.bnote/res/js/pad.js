@@ -33,27 +33,9 @@ const schema = BlockNoteSchema.create({
     },
 });
 
-export default ({initialContent = [], onChange, darkMode, readOnly, style, node}) => {
+export default ({initialContent = [], onChange, darkMode, readOnly, style}) => {
 
     const [htmlReady, setHtmlReady] = useState('')
-
-    if(node) {
-        let found = false;
-        initialContent.map(block => {
-            if(block.type === 'childrenList') {
-                block.props.node = node
-                found = true;
-            }
-        })
-        if(!found) {
-            initialContent.push({
-                type: "childrenList",
-                props:{
-                    node: node,
-                }
-            })
-        }
-    }
 
     // Creates a new editor instance.
     const editor = useCreateBlockNote({
@@ -87,6 +69,12 @@ export default ({initialContent = [], onChange, darkMode, readOnly, style, node}
         .react-mui-context.mui3-token .bn-children-list .mimefont-container {
             background-color: transparent !important;
         }
+        .ProseMirror-selectednode>.bn-block-content[data-content-type="childrenList"]>*{
+            outline: none;
+        }
+        .tree-icon.mdi.mdi-folder:before {
+            content: '\\F0DC9';
+        }
     `
 
     let main;
@@ -115,7 +103,7 @@ export default ({initialContent = [], onChange, darkMode, readOnly, style, node}
 
     // Renders the editor instance using a React component.
     return (
-        <div style={{flex: 1, width: '100%', backgroundColor:'var(--md-sys-color-surface)', padding: '10px 60px', userSelect:"inherit", ...style}}
+        <div style={{flex: 1, width: '100%', backgroundColor:'var(--md-sys-color-surface)', padding: '20px 60px', userSelect:"inherit", ...style}}
              onClick={(e) => e.stopPropagation()}
              onKeyUp={(e) => e.stopPropagation()}
         >

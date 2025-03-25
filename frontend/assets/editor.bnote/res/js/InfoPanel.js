@@ -30,10 +30,10 @@ import {useNodeContent} from "./hooks";
 
 let InfoPanel = ({node, muiTheme, ...infoProps}) => {
 
-    const {content, hasMeta, save} = useNodeContent(node)
+    const {content, loaded, save} = useNodeContent(node)
 
     let body;
-    if(!hasMeta) {
+    if(!loaded) {
         return null
     }
     if(content) {
