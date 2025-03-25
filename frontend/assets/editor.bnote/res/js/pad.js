@@ -20,9 +20,11 @@
 import React, {useState, useEffect} from 'react'
 import "@blocknote/core/fonts/inter.css";
 import { BlockNoteView } from "@blocknote/mantine";
-import { useCreateBlockNote, } from "@blocknote/react";
-import { BlockNoteSchema, defaultBlockSpecs } from "@blocknote/core";
+import { useCreateBlockNote } from "@blocknote/react";
+import { BlockNoteSchema, defaultBlockSpecs, defaultInlineContentSpecs } from "@blocknote/core";
 import {ChildrenList} from './ChildrenList';
+import {Mention, MentionSuggestionMenu} from './Mention'
+import {NodeRef, NodesSuggestionMenu} from "./NodeRef";
 
 const schema = BlockNoteSchema.create({
     blockSpecs: {
@@ -31,21 +33,16 @@ const schema = BlockNoteSchema.create({
         // Adds the Alert block.
         childrenList: ChildrenList,
     },
+    inlineContentSpecs: {
+        ...defaultInlineContentSpecs,
+        mention:Mention,
+        nodeRef:NodeRef,
+    }
 });
 
-export default ({initialContent = [], onChange, darkMode, readOnly, style}) => {
-
-    const [htmlReady, setHtmlReady] = useState('')
-
-    // Creates a new editor instance.
-    const editor = useCreateBlockNote({
-        schema,
-        initialContent:initialContent.length?initialContent:null
-    });
-
-    const css = `
+const css = `
         .bn-container *{
-            white-space: normal;
+            white-space: pre-wrap;
             user-select: text;
             -webkit-user-select: text;
         }
@@ -77,6 +74,18 @@ export default ({initialContent = [], onChange, darkMode, readOnly, style}) => {
         }
     `
 
+
+export default ({initialContent = [], onChange, darkMode, readOnly, style}) => {
+
+    const [htmlReady, setHtmlReady] = useState('')
+
+    // Creates a new editor instance.
+    const editor = useCreateBlockNote({
+        schema,
+        initialContent:initialContent.length?initialContent:null
+    });
+
+
     let main;
     if(readOnly) {
         useEffect(() => {
@@ -89,7 +98,7 @@ export default ({initialContent = [], onChange, darkMode, readOnly, style}) => {
                 dangerouslySetInnerHTML={{__html:htmlReady}}
             />)
         } else {
-            main = 'Rendring HTML...'
+            main = 'Rendering HTML...'
         }
     } else {
         main = (
@@ -97,13 +106,16 @@ export default ({initialContent = [], onChange, darkMode, readOnly, style}) => {
                 onChange={() => onChange(editor.document)}
                 editor={editor}
                 theme={darkMode?"dark":"light"}
-            />
+            >
+                <MentionSuggestionMenu editor={editor}/>
+                <NodesSuggestionMenu editor={editor}/>
+            </BlockNoteView>
         )
     }
 
     // Renders the editor instance using a React component.
     return (
-        <div style={{flex: 1, width: '100%', backgroundColor:'var(--md-sys-color-surface)', padding: '20px 60px', userSelect:"inherit", ...style}}
+        <div style={{flex: 1, width: '100%', backgroundColor:'var(--md-sys-color-surface)', paddingTop: 20, userSelect:"inherit", ...style}}
              onClick={(e) => e.stopPropagation()}
              onKeyUp={(e) => e.stopPropagation()}
         >
