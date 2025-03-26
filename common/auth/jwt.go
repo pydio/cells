@@ -393,7 +393,7 @@ func (j *JWTVerifier) Logout(ctx context.Context, url, subject, sessionID string
 
 // WithImpersonate Add a fake Claims in context to impersonate a user.
 func WithImpersonate(ctx context.Context, user *idm.User) context.Context {
-	roles := make([]string, len(user.Roles))
+	roles := make([]string, 0, len(user.Roles))
 	for _, r := range user.Roles {
 		roles = append(roles, r.Uuid)
 	}
