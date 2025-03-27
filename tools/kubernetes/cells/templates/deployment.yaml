@@ -81,8 +81,8 @@ spec:
             - name: CELLS_CACHE
               value: {{ include "cells.redisURL" (list . "/cache") }}
             {{- if .Values.redis.shortcacheEnabled }}
-            # - name: CELLS_SHORTCACHE
-            #   value: {{ include "cells.redisURL" (list . "/shortcache") }}
+            - name: CELLS_SHORTCACHE
+              value: {{ include "cells.redisURL" (list . "/shortcache") }}
             {{- end }}
             {{- end }}
             {{- if .Values.vault.enabled }}

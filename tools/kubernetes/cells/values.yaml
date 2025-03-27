@@ -234,6 +234,7 @@ mariadb-galera:
 
 redis:
   enabled: true
+  shortcacheEnabled: false
   volumePermissions:
     enabled: true
   auth:
