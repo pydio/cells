@@ -227,7 +227,7 @@ mariadb:
   tls:
     enabled: false
 
-mariadbgalera:
+mariadb-galera:
   enabled: false
   volumePermissions:
     enabled: true
