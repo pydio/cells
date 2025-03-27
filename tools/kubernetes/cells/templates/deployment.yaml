@@ -80,11 +80,20 @@ spec:
             {{- if .Values.redis.enabled }}
             - name: CELLS_CACHE
               value: {{ include "cells.redisURL" (list . "/cache") }}
+            {{- end }}
+
+            # always use default shortcache (local mem, not redis)
             {{- if .Values.redis.shortcacheEnabled }}
             - name: CELLS_SHORTCACHE
               value: {{ include "cells.redisURL" (list . "/shortcache") }}
             {{- end }}
-            {{- end }}
+
+            # Use nats jetstream for persist queue
+            {{- if .Values.nats.jetstream.enabled }}
+            - name: CELLS_PERSISTQUEUE
+              value: {{ include "cells.natsURL" . }}
+            {{- end }}  
+
             {{- if .Values.vault.enabled }}
             - name: CELLS_KEYRING
               value: {{ include "cells.vaultURL" . }}/secret?key=keyring

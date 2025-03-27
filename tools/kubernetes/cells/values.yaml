@@ -242,6 +242,12 @@ redis:
 
 nats:
   enabled: true
+  jetstream:
+    enabled: true
+  resourceType: statefulset
+  persistence:
+    enabled: true
+  replica: 1
   auth:
     enabled: false
   volumePermissions:
