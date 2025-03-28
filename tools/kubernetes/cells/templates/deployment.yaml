@@ -139,7 +139,13 @@ spec:
         {{- if .Values.etcd.enabled }}
         - name: wait-for-etcd
           image: busybox
-          command: ["sh", "-c", 'until nc -zw2 {{ include "cells.etcdHost" . | quote }} {{ include "cells.etcdPort" . | quote }}; do echo waiting for etcd; sleep 2; done']
+          command: ["sh", "-c" ]
+          args:
+            - >
+              until wget --spider -q http://{{ include "cells.etcdHost" . }}:{{ include "cells.etcdPort" . }}/health; do
+                echo "Waiting for the service ETCD for being healthy & ready";
+                sleep 2;
+              done;
         {{- end }}
         {{- if .Values.redis.enabled }}
         - name: wait-for-redis
