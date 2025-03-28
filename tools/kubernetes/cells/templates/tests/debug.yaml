@@ -1,0 +1,3399 @@
+---
+# Source: cells/charts/mariadb/templates/serviceaccount.yaml
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: cells-mariadb
+  namespace: "cells-ns"
+  labels:
+    app.kubernetes.io/name: mariadb
+    helm.sh/chart: mariadb-11.4.5
+    app.kubernetes.io/instance: cells
+    app.kubernetes.io/managed-by: Helm
+  annotations:
+    sidecar.istio.io/inject: "false"
+automountServiceAccountToken: false
+---
+# Source: cells/charts/minio/templates/serviceaccount.yaml
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: cells-minio
+  namespace: "cells-ns"
+  labels:
+    app.kubernetes.io/name: minio
+    helm.sh/chart: minio-12.1.1
+    app.kubernetes.io/instance: cells
+    app.kubernetes.io/managed-by: Helm
+automountServiceAccountToken: true
+secrets:
+  - name: cells-minio
+---
+# Source: cells/charts/mongodb/templates/serviceaccount.yaml
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: cells-mongodb
+  namespace: "cells-ns"
+  labels:
+    app.kubernetes.io/name: mongodb
+    helm.sh/chart: mongodb-13.6.6
+    app.kubernetes.io/instance: cells
+    app.kubernetes.io/managed-by: Helm
+secrets:
+  - name: cells-mongodb
+automountServiceAccountToken: true
+---
+# Source: cells/charts/redis/templates/serviceaccount.yaml
+apiVersion: v1
+kind: ServiceAccount
+automountServiceAccountToken: true
+metadata:
+  name: cells-redis
+  namespace: "cells-ns"
+  labels:
+    app.kubernetes.io/name: redis
+    helm.sh/chart: redis-17.6.0
+    app.kubernetes.io/instance: cells
+    app.kubernetes.io/managed-by: Helm
+---
+# Source: cells/charts/vault/templates/injector-serviceaccount.yaml
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: cells-vault-agent-injector
+  namespace: cells-ns
+  labels:
+    app.kubernetes.io/name: vault-agent-injector
+    app.kubernetes.io/instance: cells
+    app.kubernetes.io/managed-by: Helm
+---
+# Source: cells/charts/vault/templates/server-serviceaccount.yaml
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: cells-vault
+  namespace: cells-ns
+  labels:
+    helm.sh/chart: vault-0.23.0
+    app.kubernetes.io/name: vault
+    app.kubernetes.io/instance: cells
+    app.kubernetes.io/managed-by: Helm
+---
+# Source: cells/charts/mariadb/templates/secrets.yaml
+apiVersion: v1
+kind: Secret
+metadata:
+  name: cells-mariadb
+  namespace: "cells-ns"
+  labels:
+    app.kubernetes.io/name: mariadb
+    helm.sh/chart: mariadb-11.4.5
+    app.kubernetes.io/instance: cells
+    app.kubernetes.io/managed-by: Helm
+  annotations:
+    sidecar.istio.io/inject: "false"
+type: Opaque
+data:
+  mariadb-root-password: "NGcwMEtaZ0lseg=="
+---
+# Source: cells/charts/minio/templates/secrets.yaml
+apiVersion: v1
+kind: Secret
+metadata:
+  name: cells-minio
+  namespace: "cells-ns"
+  labels:
+    app.kubernetes.io/name: minio
+    helm.sh/chart: minio-12.1.1
+    app.kubernetes.io/instance: cells
+    app.kubernetes.io/managed-by: Helm
+type: Opaque
+data:
+  root-user: "YWRtaW4="
+  root-password: "TW0wNWJyYXR3TA=="
+---
+# Source: cells/charts/nats/templates/secrets.yaml
+apiVersion: v1
+kind: Secret
+metadata:
+  name: cells-nats
+  namespace: "cells-ns"
+  labels:
+    app.kubernetes.io/name: nats
+    helm.sh/chart: nats-7.5.6
+    app.kubernetes.io/instance: cells
+    app.kubernetes.io/managed-by: Helm
+data:
+  nats-server.conf: |-
+    CnNlcnZlcl9uYW1lOiAkTkFUU19TRVJWRVJfTkFNRQpsaXN0ZW46IDAuMC4wLjA6NDIyMgpodHRwOiAwLjAuMC4wOjgyMjIKCiMgQXV0aG9yaXphdGlvbiBmb3IgY2xpZW50IGNvbm5lY3Rpb25zCgojIExvZ2dpbmcgb3B0aW9ucwpkZWJ1ZzogZmFsc2UKdHJhY2U6IGZhbHNlCmxvZ3RpbWU6IGZhbHNlCiMgUGlkIGZpbGUKcGlkX2ZpbGU6ICIvb3B0L2JpdG5hbWkvbmF0cy90bXAvbmF0cy1zZXJ2ZXIucGlkIgoKIyBTb21lIHN5c3RlbSBvdmVycmlkZXMKCiMgQ2x1c3RlcmluZyBkZWZpbml0aW9uCmNsdXN0ZXIgewogIG5hbWU6ICJuYXRzIgogIGxpc3RlbjogMC4wLjAuMDo2MjIyCiAgIyBBdXRob3JpemF0aW9uIGZvciBjbHVzdGVyIGNvbm5lY3Rpb25zCiAgYXV0aG9yaXphdGlvbiB7CiAgICB1c2VyOiAibmF0c19jbHVzdGVyIgogICAgcGFzc3dvcmQ6ICJnVk5vR0xUQ0JGIgogICAgdGltZW91dDogIDEKICB9CiAgIyBSb3V0ZXMgYXJlIGFjdGl2ZWx5IHNvbGljaXRlZCBhbmQgY29ubmVjdGVkIHRvIGZyb20gdGhpcyBzZXJ2ZXIuCiAgIyBPdGhlciBzZXJ2ZXJzIGNhbiBjb25uZWN0IHRvIHVzIGlmIHRoZXkgc3VwcGx5IHRoZSBjb3JyZWN0IGNyZWRlbnRpYWxzCiAgIyBpbiB0aGVpciByb3V0ZXMgZGVmaW5pdGlvbnMgZnJvbSBhYm92ZQogIHJvdXRlcyA9IFsKICAgIG5hdHM6Ly9uYXRzX2NsdXN0ZXI6Z1ZOb0dMVENCRkBjZWxscy1uYXRzOjYyMjIKICBdCn0KIyBKZXRTdHJlYW0gY29uZmlndXJhdGlvbgpqZXRzdHJlYW06IGVuYWJsZWQKamV0c3RyZWFtIHsKICBzdG9yZV9kaXI6IC9kYXRhL2pldHN0cmVhbQogIG1heF9tZW1vcnlfc3RvcmU6IDFHCiAgbWF4X2ZpbGVfc3RvcmU6IDhHaQp9
+---
+# Source: cells/charts/mariadb/templates/primary/configmap.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: cells-mariadb
+  namespace: "cells-ns"
+  labels:
+    app.kubernetes.io/name: mariadb
+    helm.sh/chart: mariadb-11.4.5
+    app.kubernetes.io/instance: cells
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/component: primary
+  annotations:
+    sidecar.istio.io/inject: "false"
+data:
+  my.cnf: |-
+    [mysqld]
+    skip-name-resolve
+    explicit_defaults_for_timestamp
+    basedir=/opt/bitnami/mariadb
+    plugin_dir=/opt/bitnami/mariadb/plugin
+    port=3306
+    socket=/opt/bitnami/mariadb/tmp/mysql.sock
+    tmpdir=/opt/bitnami/mariadb/tmp
+    max_allowed_packet=128M
+    max_connections=2024
+    bind-address=*
+    pid-file=/opt/bitnami/mariadb/tmp/mysqld.pid
+    log-error=/opt/bitnami/mariadb/logs/mysqld.log
+    character-set-server=UTF8
+    collation-server=utf8_general_ci
+    slow_query_log=0
+    slow_query_log_file=/opt/bitnami/mariadb/logs/mysqld.log
+    long_query_time=10.0
+    
+    [client]
+    port=3306
+    socket=/opt/bitnami/mariadb/tmp/mysql.sock
+    default-character-set=UTF8
+    plugin_dir=/opt/bitnami/mariadb/plugin
+    
+    [manager]
+    port=3306
+    socket=/opt/bitnami/mariadb/tmp/mysql.sock
+    pid-file=/opt/bitnami/mariadb/tmp/mysqld.pid
+---
+# Source: cells/charts/mongodb/templates/common-scripts-cm.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: cells-mongodb-common-scripts
+  namespace: "cells-ns"
+  labels:
+    app.kubernetes.io/name: mongodb
+    helm.sh/chart: mongodb-13.6.6
+    app.kubernetes.io/instance: cells
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/component: mongodb
+data:
+  startup-probe.sh: |
+    #!/bin/bash
+    mongosh  $TLS_OPTIONS --port $MONGODB_PORT_NUMBER --eval 'db.hello().isWritablePrimary || db.hello().secondary' | grep 'true'
+  readiness-probe.sh: |
+    #!/bin/bash
+    # Run the proper check depending on the version
+    [[ $(mongod -version | grep "db version") =~ ([0-9]+\.[0-9]+\.[0-9]+) ]] && VERSION=${BASH_REMATCH[1]}
+    . /opt/bitnami/scripts/libversion.sh
+    VERSION_MAJOR="$(get_sematic_version "$VERSION" 1)"
+    VERSION_MINOR="$(get_sematic_version "$VERSION" 2)"
+    VERSION_PATCH="$(get_sematic_version "$VERSION" 3)"
+    if [[ ( "$VERSION_MAJOR" -ge 5 ) || ( "$VERSION_MAJOR" -ge 4 && "$VERSION_MINOR" -ge 4 && "$VERSION_PATCH" -ge 2 ) ]]; then
+        mongosh $TLS_OPTIONS --port $MONGODB_PORT_NUMBER --eval 'db.hello().isWritablePrimary || db.hello().secondary' | grep 'true'
+    else
+        mongosh  $TLS_OPTIONS --port $MONGODB_PORT_NUMBER --eval 'db.isMaster().ismaster || db.isMaster().secondary' | grep 'true'
+    fi
+  ping-mongodb.sh: |
+    #!/bin/bash
+    mongosh  $TLS_OPTIONS --port $MONGODB_PORT_NUMBER --eval "db.adminCommand('ping')"
+---
+# Source: cells/charts/redis/templates/configmap.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: cells-redis-configuration
+  namespace: "cells-ns"
+  labels:
+    app.kubernetes.io/name: redis
+    helm.sh/chart: redis-17.6.0
+    app.kubernetes.io/instance: cells
+    app.kubernetes.io/managed-by: Helm
+data:
+  redis.conf: |-
+    # User-supplied common configuration:
+    # Enable AOF https://redis.io/topics/persistence#append-only-file
+    appendonly yes
+    # Disable RDB persistence, AOF persistence already enabled.
+    save ""
+    # End of common configuration
+  master.conf: |-
+    dir /data
+    # User-supplied master configuration:
+    rename-command FLUSHDB ""
+    rename-command FLUSHALL ""
+    # End of master configuration
+  replica.conf: |-
+    dir /data
+    # User-supplied replica configuration:
+    rename-command FLUSHDB ""
+    rename-command FLUSHALL ""
+    # End of replica configuration
+---
+# Source: cells/charts/redis/templates/health-configmap.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: cells-redis-health
+  namespace: "cells-ns"
+  labels:
+    app.kubernetes.io/name: redis
+    helm.sh/chart: redis-17.6.0
+    app.kubernetes.io/instance: cells
+    app.kubernetes.io/managed-by: Helm
+data:
+  ping_readiness_local.sh: |-
+    #!/bin/bash
+
+    [[ -f $REDIS_PASSWORD_FILE ]] && export REDIS_PASSWORD="$(< "${REDIS_PASSWORD_FILE}")"
+    [[ -n "$REDIS_PASSWORD" ]] && export REDISCLI_AUTH="$REDIS_PASSWORD"
+    response=$(
+      timeout -s 3 $1 \
+      redis-cli \
+        -h localhost \
+        -p $REDIS_PORT \
+        ping
+    )
+    if [ "$?" -eq "124" ]; then
+      echo "Timed out"
+      exit 1
+    fi
+    if [ "$response" != "PONG" ]; then
+      echo "$response"
+      exit 1
+    fi
+  ping_liveness_local.sh: |-
+    #!/bin/bash
+
+    [[ -f $REDIS_PASSWORD_FILE ]] && export REDIS_PASSWORD="$(< "${REDIS_PASSWORD_FILE}")"
+    [[ -n "$REDIS_PASSWORD" ]] && export REDISCLI_AUTH="$REDIS_PASSWORD"
+    response=$(
+      timeout -s 3 $1 \
+      redis-cli \
+        -h localhost \
+        -p $REDIS_PORT \
+        ping
+    )
+    if [ "$?" -eq "124" ]; then
+      echo "Timed out"
+      exit 1
+    fi
+    responseFirstWord=$(echo $response | head -n1 | awk '{print $1;}')
+    if [ "$response" != "PONG" ] && [ "$responseFirstWord" != "LOADING" ] && [ "$responseFirstWord" != "MASTERDOWN" ]; then
+      echo "$response"
+      exit 1
+    fi
+  ping_readiness_master.sh: |-
+    #!/bin/bash
+
+    [[ -f $REDIS_MASTER_PASSWORD_FILE ]] && export REDIS_MASTER_PASSWORD="$(< "${REDIS_MASTER_PASSWORD_FILE}")"
+    [[ -n "$REDIS_MASTER_PASSWORD" ]] && export REDISCLI_AUTH="$REDIS_MASTER_PASSWORD"
+    response=$(
+      timeout -s 3 $1 \
+      redis-cli \
+        -h $REDIS_MASTER_HOST \
+        -p $REDIS_MASTER_PORT_NUMBER \
+        ping
+    )
+    if [ "$?" -eq "124" ]; then
+      echo "Timed out"
+      exit 1
+    fi
+    if [ "$response" != "PONG" ]; then
+      echo "$response"
+      exit 1
+    fi
+  ping_liveness_master.sh: |-
+    #!/bin/bash
+
+    [[ -f $REDIS_MASTER_PASSWORD_FILE ]] && export REDIS_MASTER_PASSWORD="$(< "${REDIS_MASTER_PASSWORD_FILE}")"
+    [[ -n "$REDIS_MASTER_PASSWORD" ]] && export REDISCLI_AUTH="$REDIS_MASTER_PASSWORD"
+    response=$(
+      timeout -s 3 $1 \
+      redis-cli \
+        -h $REDIS_MASTER_HOST \
+        -p $REDIS_MASTER_PORT_NUMBER \
+        ping
+    )
+    if [ "$?" -eq "124" ]; then
+      echo "Timed out"
+      exit 1
+    fi
+    responseFirstWord=$(echo $response | head -n1 | awk '{print $1;}')
+    if [ "$response" != "PONG" ] && [ "$responseFirstWord" != "LOADING" ]; then
+      echo "$response"
+      exit 1
+    fi
+  ping_readiness_local_and_master.sh: |-
+    script_dir="$(dirname "$0")"
+    exit_status=0
+    "$script_dir/ping_readiness_local.sh" $1 || exit_status=$?
+    "$script_dir/ping_readiness_master.sh" $1 || exit_status=$?
+    exit $exit_status
+  ping_liveness_local_and_master.sh: |-
+    script_dir="$(dirname "$0")"
+    exit_status=0
+    "$script_dir/ping_liveness_local.sh" $1 || exit_status=$?
+    "$script_dir/ping_liveness_master.sh" $1 || exit_status=$?
+    exit $exit_status
+---
+# Source: cells/charts/redis/templates/scripts-configmap.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: cells-redis-scripts
+  namespace: "cells-ns"
+  labels:
+    app.kubernetes.io/name: redis
+    helm.sh/chart: redis-17.6.0
+    app.kubernetes.io/instance: cells
+    app.kubernetes.io/managed-by: Helm
+data:
+  start-master.sh: |
+    #!/bin/bash
+
+    [[ -f $REDIS_PASSWORD_FILE ]] && export REDIS_PASSWORD="$(< "${REDIS_PASSWORD_FILE}")"
+    if [[ -f /opt/bitnami/redis/mounted-etc/master.conf ]];then
+        cp /opt/bitnami/redis/mounted-etc/master.conf /opt/bitnami/redis/etc/master.conf
+    fi
+    if [[ -f /opt/bitnami/redis/mounted-etc/redis.conf ]];then
+        cp /opt/bitnami/redis/mounted-etc/redis.conf /opt/bitnami/redis/etc/redis.conf
+    fi
+    ARGS=("--port" "${REDIS_PORT}")
+    ARGS+=("--protected-mode" "no")
+    ARGS+=("--include" "/opt/bitnami/redis/etc/redis.conf")
+    ARGS+=("--include" "/opt/bitnami/redis/etc/master.conf")
+    exec redis-server "${ARGS[@]}"
+  start-replica.sh: |
+    #!/bin/bash
+
+    get_port() {
+        hostname="$1"
+        type="$2"
+
+        port_var=$(echo "${hostname^^}_SERVICE_PORT_$type" | sed "s/-/_/g")
+        port=${!port_var}
+
+        if [ -z "$port" ]; then
+            case $type in
+                "SENTINEL")
+                    echo 26379
+                    ;;
+                "REDIS")
+                    echo 6379
+                    ;;
+            esac
+        else
+            echo $port
+        fi
+    }
+
+    get_full_hostname() {
+        hostname="$1"
+        echo "${hostname}.${HEADLESS_SERVICE}"
+    }
+
+    REDISPORT=$(get_port "$HOSTNAME" "REDIS")
+
+    [[ -f $REDIS_PASSWORD_FILE ]] && export REDIS_PASSWORD="$(< "${REDIS_PASSWORD_FILE}")"
+    [[ -f $REDIS_MASTER_PASSWORD_FILE ]] && export REDIS_MASTER_PASSWORD="$(< "${REDIS_MASTER_PASSWORD_FILE}")"
+    if [[ -f /opt/bitnami/redis/mounted-etc/replica.conf ]];then
+        cp /opt/bitnami/redis/mounted-etc/replica.conf /opt/bitnami/redis/etc/replica.conf
+    fi
+    if [[ -f /opt/bitnami/redis/mounted-etc/redis.conf ]];then
+        cp /opt/bitnami/redis/mounted-etc/redis.conf /opt/bitnami/redis/etc/redis.conf
+    fi
+
+    echo "" >> /opt/bitnami/redis/etc/replica.conf
+    echo "replica-announce-port $REDISPORT" >> /opt/bitnami/redis/etc/replica.conf
+    echo "replica-announce-ip $(get_full_hostname "$HOSTNAME")" >> /opt/bitnami/redis/etc/replica.conf
+    ARGS=("--port" "${REDIS_PORT}")
+    ARGS+=("--replicaof" "${REDIS_MASTER_HOST}" "${REDIS_MASTER_PORT_NUMBER}")
+    ARGS+=("--protected-mode" "no")
+    ARGS+=("--include" "/opt/bitnami/redis/etc/redis.conf")
+    ARGS+=("--include" "/opt/bitnami/redis/etc/replica.conf")
+    exec redis-server "${ARGS[@]}"
+---
+# Source: cells/charts/vault/templates/server-config-configmap.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: cells-vault-config
+  namespace: cells-ns
+  labels:
+    helm.sh/chart: vault-0.23.0
+    app.kubernetes.io/name: vault
+    app.kubernetes.io/instance: cells
+    app.kubernetes.io/managed-by: Helm
+data:
+  extraconfig-from-values.hcl: |-
+    disable_mlock = true
+    ui = true
+    
+    listener "tcp" {
+      tls_disable = 1
+      address = "[::]:8200"
+      cluster_address = "[::]:8201"
+      # Enable unauthenticated metrics access (necessary for Prometheus Operator)
+      #telemetry {
+      #  unauthenticated_metrics_access = "true"
+      #}
+    }
+    storage "file" {
+      path = "/vault/data"
+    }
+    
+    # Example configuration for using auto-unseal, using Google Cloud KMS. The
+    # GKMS keys must already exist, and the cluster must have a service account
+    # that is authorized to access GCP KMS.
+    #seal "gcpckms" {
+    #   project     = "vault-helm-dev"
+    #   region      = "global"
+    #   key_ring    = "vault-helm-unseal-kr"
+    #   crypto_key  = "vault-helm-unseal-key"
+    #}
+    
+    # Example configuration for enabling Prometheus metrics in your config.
+    #telemetry {
+    #  prometheus_retention_time = "30s",
+    #  disable_hostname = true
+    #}
+---
+# Source: cells/templates/configmap.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: cells
+data:
+  source: |
+    export VAULT_TOKEN=$(cat /vault/secrets/token)
+  install-conf.yaml: |
+    proxyconfigs:
+      - binds:
+        - 0.0.0.0:8080
+    
+    customconfigs:
+      
+      defaults/license/data: FAKE
+      frontend/plugin/core.pydio/APPLICATION_TITLE: My Pydio Cells Cluster
+    dbmanualdsn: mysql://root:$(MARIADB_ROOT_PASSWORD)@cells-mariadb.cells-ns.svc.cluster.local:3306/my_database?tls=true&tlsCertUUID=mariadb-tls.crt&tlsCertKeyUUID=mariadb-tls.key&tlsCertCAUUID=mariadb-ca.crt
+    dbconnectiontype: tcp
+    dbtcphostname: cells-mariadb.cells-ns.svc.cluster.local
+    dbtcpport: 3306
+    dbtcpname: cells
+    dbtcpuser: root
+    dbtcppassword: {$MARIADB_ROOT_PASSWORD}
+
+    documentsdsn: mongodb://cells-mongodb.cells-ns.svc.cluster.local:27017/cells-mongodb
+    usedocumentsdsn: true
+
+    # Defined in .env file
+    frontendlogin: admin
+    frontendpassword: P@ssw0rd
+
+    dstype: S3
+    dss3custom: http://cells-minio.cells-ns.svc.cluster.local:9000
+    dss3apikey: {$MINIO_ROOT_USER}
+    dss3apisecret: {$MINIO_ROOT_PASSWORD}
+    dss3bucketdefault: pydiods1
+    dss3bucketpersonal: personal
+    dss3bucketcells: cellsdata
+    dss3bucketbinaries: binaries
+    dss3bucketthumbs: thumbnails
+    dss3bucketversions: versions
+---
+# Source: cells/templates/configmap.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: cells-vault
+data:
+  bootstrap.sh: |
+    #!/bin/sh
+
+    OUTPUT=/tmp/output.txt        
+
+    export VAULT_TOKEN=$(cat /root/.vault-token)
+
+    export VAULT_ADDR=http://127.0.0.1:8200
+
+    COUNT=1
+    LIMIT=30
+    while [ 1 ]; do
+
+      VAULT_STATUS=$(vault status -format json)
+      EXIT_STATUS=$?
+
+      if echo \"$VAULT_STATUS\" | grep '"initialized": false'; then
+        if echo \"$VAULT_STATUS\" | grep '"type": "shamir"'; then
+          vault operator init -n 1 -t 1 >> ${OUTPUT?}
+
+          unseal=$(cat ${OUTPUT?} | grep "Unseal Key 1:" | sed -e "s/Unseal Key 1: //g")
+          vault operator unseal ${unseal?}
+        else
+          vault operator init >> ${OUTPUT?}
+        fi
+
+        root=$(cat ${OUTPUT?} | grep "Initial Root Token:" | sed -e "s/Initial Root Token: //g")
+
+        vault login -no-print ${root?}
+      
+        vault secrets enable -version=2 -path=secret kv
+        vault secrets enable -version=2 -path=caddycerts kv
+        vault secrets enable pki
+
+        vault write pki/root/generate/internal \
+          common_name=cells-ns.svc.cluster.local \
+          ttl=8760h
+    
+        vault write pki/config/urls \
+          issuing_certificates="vault://cells-vault.cells-ns.svc.cluster.local:8200/v1/pki/ca" \
+          crl_distribution_points="vault://cells-vault.cells-ns.svc.cluster.local:8200/v1/pki/crl"
+    
+        vault secrets tune -max-lease-ttl=8760h pki
+    
+        vault write pki/roles/application \
+          allowed_domains=*.cells-ns.svc.cluster.local \
+          allow_any_name=true \
+          allow_subdomains=true \
+          max_ttl=72h
+    
+        vault policy write pki /vault/userconfig/cells-vault/pki-policy.hcl
+
+        vault auth enable kubernetes
+
+        vault write auth/kubernetes/config \
+            kubernetes_host=https://kubernetes.default.svc \
+            kubernetes_ca_cert=@/var/run/secrets/kubernetes.io/serviceaccount/ca.crt
+
+        vault policy write app /vault/userconfig/cells-vault/app-policy.hcl
+
+        vault write auth/kubernetes/role/app \
+           bound_service_account_names=app \
+           bound_service_account_namespaces=cells-ns \
+           policies=app,pki \
+           ttl=24h
+
+        vault token create -policy=app
+
+ 
+      elif [ $EXIT_STATUS -eq 2 ]; then
+        echo "$VAULT_STATUS"
+        exit 0
+ 
+      elif [ $COUNT -ge $LIMIT ]; then
+        # Dont know what happened... Exiting
+        echo "$VAULT_STAUS"
+        exit 1
+      else
+        # For debugging\n
+        echo "$VAULT_STATUS"
+        exit 0
+      fi
+
+      COUNT=$((COUNT+1))
+
+      sleep 1
+    done
+
+  app-policy.hcl: |
+    path "auth/token/lookup-self" {
+        capabilities = ["read"]
+    }
+    path "sys/internal/ui/mounts/auth/token/lookup-self" {
+        capabilities = ["read"]
+    }
+    path "secret/*" {
+        capabilities = ["create", "update", "read", "delete"]
+    }
+    path "caddycerts/*" {
+        capabilities = ["create", "update", "read", "delete"]
+    }
+    path "pki*" {
+        capabilities = ["create", "update", "read", "delete"]
+    }
+
+  pki-policy.hcl: |
+    path "pki*"                    { capabilities = ["read", "list"] } 
+    path "pki/sign/application"    { capabilities = ["create", "update"] }
+    path "pki/issue/application"   { capabilities = ["create"] }
+---
+# Source: cells/charts/minio/templates/pvc.yaml
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: cells-minio
+  namespace: "cells-ns"
+  labels:
+    app.kubernetes.io/name: minio
+    helm.sh/chart: minio-12.1.1
+    app.kubernetes.io/instance: cells
+    app.kubernetes.io/managed-by: Helm
+spec:
+  accessModes:
+    - "ReadWriteOnce"
+  resources:
+    requests:
+      storage: "8Gi"
+---
+# Source: cells/charts/mongodb/templates/standalone/pvc.yaml
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: cells-mongodb
+  namespace: "cells-ns"
+  labels:
+    app.kubernetes.io/name: mongodb
+    helm.sh/chart: mongodb-13.6.6
+    app.kubernetes.io/instance: cells
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/component: mongodb
+spec:
+  accessModes:
+    - "ReadWriteOnce"
+  resources:
+    requests:
+      storage: "8Gi"
+---
+# Source: cells/charts/vault/templates/injector-clusterrole.yaml
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: cells-vault-agent-injector-clusterrole
+  labels:
+    app.kubernetes.io/name: vault-agent-injector
+    app.kubernetes.io/instance: cells
+    app.kubernetes.io/managed-by: Helm
+rules:
+- apiGroups: ["admissionregistration.k8s.io"]
+  resources: ["mutatingwebhookconfigurations"]
+  verbs:
+    - "get"
+    - "list"
+    - "watch"
+    - "patch"
+---
+# Source: cells/charts/vault/templates/injector-clusterrolebinding.yaml
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: cells-vault-agent-injector-binding
+  labels:
+    app.kubernetes.io/name: vault-agent-injector
+    app.kubernetes.io/instance: cells
+    app.kubernetes.io/managed-by: Helm
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: cells-vault-agent-injector-clusterrole
+subjects:
+- kind: ServiceAccount
+  name: cells-vault-agent-injector
+  namespace: cells-ns
+---
+# Source: cells/charts/vault/templates/server-clusterrolebinding.yaml
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: cells-vault-server-binding
+  labels:
+    helm.sh/chart: vault-0.23.0
+    app.kubernetes.io/name: vault
+    app.kubernetes.io/instance: cells
+    app.kubernetes.io/managed-by: Helm
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: system:auth-delegator
+subjects:
+- kind: ServiceAccount
+  name: cells-vault
+  namespace: cells-ns
+---
+# Source: cells/charts/mariadb/templates/primary/svc.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: cells-mariadb
+  namespace: "cells-ns"
+  labels:
+    app.kubernetes.io/name: mariadb
+    helm.sh/chart: mariadb-11.4.5
+    app.kubernetes.io/instance: cells
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/component: primary
+  annotations:
+    sidecar.istio.io/inject: "false"
+spec:
+  type: ClusterIP
+  sessionAffinity: None
+  ports:
+    - name: mysql
+      port: 3306
+      protocol: TCP
+      targetPort: mysql
+      nodePort: null
+  selector: 
+    app.kubernetes.io/name: mariadb
+    app.kubernetes.io/instance: cells
+    app.kubernetes.io/component: primary
+---
+# Source: cells/charts/minio/templates/service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: cells-minio
+  namespace: "cells-ns"
+  labels:
+    app.kubernetes.io/name: minio
+    helm.sh/chart: minio-12.1.1
+    app.kubernetes.io/instance: cells
+    app.kubernetes.io/managed-by: Helm
+spec:
+  type: ClusterIP
+  ports:
+    - name: minio-api
+      port: 9000
+      targetPort: minio-api
+      nodePort: null
+    - name: minio-console
+      port: 9001
+      targetPort: minio-console
+      nodePort: null
+  selector:
+    app.kubernetes.io/name: minio
+    app.kubernetes.io/instance: cells
+---
+# Source: cells/charts/mongodb/templates/standalone/svc.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: cells-mongodb
+  namespace: "cells-ns"
+  labels:
+    app.kubernetes.io/name: mongodb
+    helm.sh/chart: mongodb-13.6.6
+    app.kubernetes.io/instance: cells
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/component: mongodb
+spec:
+  type: ClusterIP
+  sessionAffinity: None
+  ports:
+    - name: "mongodb"
+      port: 27017
+      targetPort: mongodb
+      nodePort: null
+  selector:
+    app.kubernetes.io/name: mongodb
+    app.kubernetes.io/instance: cells
+    app.kubernetes.io/component: mongodb
+---
+# Source: cells/charts/nats/templates/headless-svc.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: cells-nats-headless
+  namespace: "cells-ns"
+  labels:
+    app.kubernetes.io/name: nats
+    helm.sh/chart: nats-7.5.6
+    app.kubernetes.io/instance: cells
+    app.kubernetes.io/managed-by: Helm
+spec:
+  type: ClusterIP
+  clusterIP: None
+  ports:
+    - name: tcp-client
+      port: 4222
+      targetPort: client
+    - name: tcp-cluster
+      port: 6222
+      targetPort: cluster
+    - name: tcp-monitoring
+      port: 8222
+      targetPort: monitoring
+  selector: 
+    app.kubernetes.io/name: nats
+    app.kubernetes.io/instance: cells
+---
+# Source: cells/charts/nats/templates/service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: cells-nats
+  namespace: "cells-ns"
+  labels:
+    app.kubernetes.io/name: nats
+    helm.sh/chart: nats-7.5.6
+    app.kubernetes.io/instance: cells
+    app.kubernetes.io/managed-by: Helm
+spec:
+  type: ClusterIP
+  sessionAffinity: None
+  ports:
+    - name: tcp-client
+      port: 4222
+      targetPort: client
+      nodePort: null
+    - name: tcp-cluster
+      port: 6222
+      targetPort: cluster
+      nodePort: null
+    - name: tcp-monitoring
+      port: 8222
+      targetPort: monitoring
+      nodePort: null
+  selector:
+    app.kubernetes.io/name: nats
+    app.kubernetes.io/instance: cells
+---
+# Source: cells/charts/redis/templates/headless-svc.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: cells-redis-headless
+  namespace: "cells-ns"
+  labels:
+    app.kubernetes.io/name: redis
+    helm.sh/chart: redis-17.6.0
+    app.kubernetes.io/instance: cells
+    app.kubernetes.io/managed-by: Helm
+  annotations:
+    
+spec:
+  type: ClusterIP
+  clusterIP: None
+  ports:
+    - name: tcp-redis
+      port: 6379
+      targetPort: redis
+  selector:
+    app.kubernetes.io/name: redis
+    app.kubernetes.io/instance: cells
+---
+# Source: cells/charts/redis/templates/master/service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: cells-redis-master
+  namespace: "cells-ns"
+  labels:
+    app.kubernetes.io/name: redis
+    helm.sh/chart: redis-17.6.0
+    app.kubernetes.io/instance: cells
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/component: master
+spec:
+  type: ClusterIP
+  internalTrafficPolicy: Cluster
+  sessionAffinity: None
+  ports:
+    - name: tcp-redis
+      port: 6379
+      targetPort: redis
+      nodePort: null
+  selector:
+    app.kubernetes.io/name: redis
+    app.kubernetes.io/instance: cells
+    app.kubernetes.io/component: master
+---
+# Source: cells/charts/redis/templates/replicas/service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: cells-redis-replicas
+  namespace: "cells-ns"
+  labels:
+    app.kubernetes.io/name: redis
+    helm.sh/chart: redis-17.6.0
+    app.kubernetes.io/instance: cells
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/component: replica
+spec:
+  type: ClusterIP
+  internalTrafficPolicy: Cluster
+  sessionAffinity: None
+  ports:
+    - name: tcp-redis
+      port: 6379
+      targetPort: redis
+      nodePort: null
+  selector:
+    app.kubernetes.io/name: redis
+    app.kubernetes.io/instance: cells
+    app.kubernetes.io/component: replica
+---
+# Source: cells/charts/vault/templates/injector-service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: cells-vault-agent-injector-svc
+  namespace: cells-ns
+  labels:
+    app.kubernetes.io/name: vault-agent-injector
+    app.kubernetes.io/instance: cells
+    app.kubernetes.io/managed-by: Helm
+  
+spec:
+  ports:
+  - name: https
+    port: 443
+    targetPort: 8080
+  selector:
+    app.kubernetes.io/name: vault-agent-injector
+    app.kubernetes.io/instance: cells
+    component: webhook
+---
+# Source: cells/charts/vault/templates/server-headless-service.yaml
+# Service for Vault cluster
+apiVersion: v1
+kind: Service
+metadata:
+  name: cells-vault-internal
+  namespace: cells-ns
+  labels:
+    helm.sh/chart: vault-0.23.0
+    app.kubernetes.io/name: vault
+    app.kubernetes.io/instance: cells
+    app.kubernetes.io/managed-by: Helm
+    vault-internal: "true"
+  annotations:
+
+spec:
+  clusterIP: None
+  publishNotReadyAddresses: true
+  ports:
+    - name: "http"
+      port: 8200
+      targetPort: 8200
+    - name: https-internal
+      port: 8201
+      targetPort: 8201
+  selector:
+    app.kubernetes.io/name: vault
+    app.kubernetes.io/instance: cells
+    component: server
+---
+# Source: cells/charts/vault/templates/server-service.yaml
+# Service for Vault cluster
+apiVersion: v1
+kind: Service
+metadata:
+  name: cells-vault
+  namespace: cells-ns
+  labels:
+    helm.sh/chart: vault-0.23.0
+    app.kubernetes.io/name: vault
+    app.kubernetes.io/instance: cells
+    app.kubernetes.io/managed-by: Helm
+  annotations:
+
+spec:
+  # We want the servers to become available even if they're not ready
+  # since this DNS is also used for join operations.
+  publishNotReadyAddresses: true
+  ports:
+    - name: http
+      port: 8200
+      targetPort: 8200
+    - name: https-internal
+      port: 8201
+      targetPort: 8201
+  selector:
+    app.kubernetes.io/name: vault
+    app.kubernetes.io/instance: cells
+    component: server
+---
+# Source: cells/templates/service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: cells
+  namespace: "cells-ns"
+  labels:
+    app.kubernetes.io/name: cells
+    helm.sh/chart: cells-0.1.2
+    app.kubernetes.io/instance: cells
+    app.kubernetes.io/managed-by: Helm
+spec:
+  type: NodePort
+  ports:
+    - port: 8080
+      targetPort: http
+      protocol: TCP
+      name: http
+  selector:
+    app.kubernetes.io/name: cells
+    app.kubernetes.io/instance: cells
+---
+# Source: cells/charts/minio/templates/standalone/deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: cells-minio
+  namespace: "cells-ns"
+  labels:
+    app.kubernetes.io/name: minio
+    helm.sh/chart: minio-12.1.1
+    app.kubernetes.io/instance: cells
+    app.kubernetes.io/managed-by: Helm
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: minio
+      app.kubernetes.io/instance: cells
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: minio
+        helm.sh/chart: minio-12.1.1
+        app.kubernetes.io/instance: cells
+        app.kubernetes.io/managed-by: Helm
+      annotations:
+        checksum/credentials-secret: 83206038da126ca1808130c52d338f24048b470d0b52b1a2e45f0cf4798e5e84
+    spec:
+      
+      serviceAccountName: cells-minio
+      affinity:
+        podAffinity:
+          
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - podAffinityTerm:
+                labelSelector:
+                  matchLabels:
+                    app.kubernetes.io/name: minio
+                    app.kubernetes.io/instance: cells
+                topologyKey: kubernetes.io/hostname
+              weight: 1
+        nodeAffinity:
+          
+      securityContext:
+        fsGroup: 1001
+      initContainers:
+        - name: volume-permissions
+          image: docker.io/bitnami/bitnami-shell:11-debian-11-r76
+          imagePullPolicy: "IfNotPresent"
+          command:
+            - /bin/bash
+            - -ec
+            - |
+              chown -R 1001:1001 /data
+          securityContext:
+            runAsUser: 0
+          resources:
+            limits: {}
+            requests: {}
+          volumeMounts:
+            - name: data
+              mountPath: /data
+      containers:
+        - name: minio
+          image: docker.io/bitnami/minio:2023.1.25-debian-11-r0
+          imagePullPolicy: "IfNotPresent"
+          securityContext:
+            runAsNonRoot: true
+            runAsUser: 1001
+          env:
+            - name: BITNAMI_DEBUG
+              value: "false"
+            - name: MINIO_SCHEME
+              value: "http"
+            - name: MINIO_FORCE_NEW_KEYS
+              value: "no"
+            - name: MINIO_ROOT_USER
+              valueFrom:
+                secretKeyRef:
+                  name: cells-minio
+                  key: root-user
+            - name: MINIO_ROOT_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: cells-minio
+                  key: root-password
+            - name: MINIO_DEFAULT_BUCKETS
+              value: thumbnails pydiods1 personal versions cellsdata binaries
+            - name: MINIO_BROWSER
+              value: "on"
+            - name: MINIO_PROMETHEUS_AUTH_TYPE
+              value: "public"
+            - name: MINIO_CONSOLE_PORT_NUMBER
+              value: "9001"
+          envFrom:
+          ports:
+            - name: minio-api
+              containerPort: 9000
+              protocol: TCP
+            - name: minio-console
+              containerPort: 9001
+              protocol: TCP
+          livenessProbe:
+            httpGet:
+              path: /minio/health/live
+              port: minio-api
+              scheme: "HTTP"
+            initialDelaySeconds: 5
+            periodSeconds: 5
+            timeoutSeconds: 5
+            successThreshold: 1
+            failureThreshold: 5
+          readinessProbe:
+            tcpSocket:
+              port: minio-api
+            initialDelaySeconds: 5
+            periodSeconds: 5
+            timeoutSeconds: 1
+            successThreshold: 1
+            failureThreshold: 5
+          resources:
+            limits: {}
+            requests: {}
+          volumeMounts:
+            - name: data
+              mountPath: /data
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: cells-minio
+---
+# Source: cells/charts/mongodb/templates/standalone/dep-sts.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: cells-mongodb
+  namespace: "cells-ns"
+  labels:
+    app.kubernetes.io/name: mongodb
+    helm.sh/chart: mongodb-13.6.6
+    app.kubernetes.io/instance: cells
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/component: mongodb
+spec:
+  replicas: 1
+  strategy:
+    type: RollingUpdate
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: mongodb
+      app.kubernetes.io/instance: cells
+      app.kubernetes.io/component: mongodb
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: mongodb
+        helm.sh/chart: mongodb-13.6.6
+        app.kubernetes.io/instance: cells
+        app.kubernetes.io/managed-by: Helm
+        app.kubernetes.io/component: mongodb
+    spec:
+      
+      serviceAccountName: cells-mongodb
+      affinity:
+        podAffinity:
+          
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - podAffinityTerm:
+                labelSelector:
+                  matchLabels:
+                    app.kubernetes.io/name: mongodb
+                    app.kubernetes.io/instance: cells
+                    app.kubernetes.io/component: mongodb
+                topologyKey: kubernetes.io/hostname
+              weight: 1
+        nodeAffinity:
+          
+      securityContext:
+        fsGroup: 1001
+        sysctls: []
+      
+      initContainers:
+        - name: volume-permissions
+          image: docker.io/bitnami/bitnami-shell:11-debian-11-r74
+          imagePullPolicy: "IfNotPresent"
+          command:
+            - /bin/bash
+          args:
+            - -ec
+            - |
+              mkdir -p /bitnami/mongodb/
+              chown 1001:1001 /bitnami/mongodb/
+              find  /bitnami/mongodb/ -mindepth 1 -maxdepth 1 -not -name ".snapshot" -not -name "lost+found" | xargs -r chown -R 1001:1001
+          securityContext:
+            runAsUser: 0
+          resources:
+            limits: {}
+            requests: {}
+          volumeMounts:
+            - name: datadir
+              mountPath: /bitnami/mongodb
+      containers:
+        - name: mongodb
+          image: docker.io/bitnami/mongodb:6.0.4-debian-11-r0
+          imagePullPolicy: "IfNotPresent"
+          securityContext:
+            runAsNonRoot: true
+            runAsUser: 1001
+          env:
+            - name: BITNAMI_DEBUG
+              value: "false"
+            - name: ALLOW_EMPTY_PASSWORD
+              value: "yes"
+            - name: MONGODB_SYSTEM_LOG_VERBOSITY
+              value: "0"
+            - name: MONGODB_DISABLE_SYSTEM_LOG
+              value: "no"
+            - name: MONGODB_DISABLE_JAVASCRIPT
+              value: "no"
+            - name: MONGODB_ENABLE_JOURNAL
+              value: "yes"
+            - name: MONGODB_PORT_NUMBER
+              value: "27017"
+            - name: MONGODB_ENABLE_IPV6
+              value: "no"
+            - name: MONGODB_ENABLE_DIRECTORY_PER_DB
+              value: "no"
+          ports:
+            - name: mongodb
+              containerPort: 27017
+          livenessProbe:
+            failureThreshold: 6
+            initialDelaySeconds: 30
+            periodSeconds: 20
+            successThreshold: 1
+            timeoutSeconds: 10
+            exec:
+              command:
+                - /bitnami/scripts/ping-mongodb.sh
+          readinessProbe:
+            failureThreshold: 6
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 5
+            exec:
+              command:
+                - /bitnami/scripts/readiness-probe.sh
+          resources:
+            limits: {}
+            requests: {}
+          volumeMounts:
+            - name: datadir
+              mountPath: /bitnami/mongodb
+              subPath: 
+            - name: common-scripts
+              mountPath: /bitnami/scripts
+      volumes:
+        - name: common-scripts
+          configMap:
+            name: cells-mongodb-common-scripts
+            defaultMode: 0550
+        - name: datadir
+          persistentVolumeClaim:
+            claimName: cells-mongodb
+---
+# Source: cells/charts/vault/templates/injector-deployment.yaml
+# Deployment for the injector
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: cells-vault-agent-injector
+  namespace: cells-ns
+  labels:
+    app.kubernetes.io/name: vault-agent-injector
+    app.kubernetes.io/instance: cells
+    app.kubernetes.io/managed-by: Helm
+    component: webhook
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: vault-agent-injector
+      app.kubernetes.io/instance: cells
+      component: webhook
+  
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: vault-agent-injector
+        app.kubernetes.io/instance: cells
+        component: webhook
+      annotations:
+        helm.sh/hook: pre-install
+        helm.sh/hook-weight: "-5"
+    spec:
+      
+      affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            - labelSelector:
+                matchLabels:
+                  app.kubernetes.io/name: vault-agent-injector
+                  app.kubernetes.io/instance: "cells"
+                  component: webhook
+              topologyKey: kubernetes.io/hostname
+  
+      
+      
+      
+      serviceAccountName: "cells-vault-agent-injector"
+      
+      securityContext:
+        runAsNonRoot: true
+        runAsGroup: 1000
+        runAsUser: 100
+        fsGroup: 1000
+      hostNetwork: false
+      containers:
+        - name: sidecar-injector
+          
+          image: "hashicorp/vault-k8s:1.1.0"
+          imagePullPolicy: "IfNotPresent"
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - ALL
+          env:
+            - name: AGENT_INJECT_LISTEN
+              value: :8080
+            - name: AGENT_INJECT_LOG_LEVEL
+              value: info
+            - name: AGENT_INJECT_VAULT_ADDR
+              value: http://cells-vault.cells-ns.svc:8200
+            - name: AGENT_INJECT_VAULT_AUTH_PATH
+              value: auth/kubernetes
+            - name: AGENT_INJECT_VAULT_IMAGE
+              value: "hashicorp/vault:1.12.1"
+            - name: AGENT_INJECT_TLS_AUTO
+              value: cells-vault-agent-injector-cfg
+            - name: AGENT_INJECT_TLS_AUTO_HOSTS
+              value: cells-vault-agent-injector-svc,cells-vault-agent-injector-svc.cells-ns,cells-vault-agent-injector-svc.cells-ns.svc
+            - name: AGENT_INJECT_LOG_FORMAT
+              value: standard
+            - name: AGENT_INJECT_REVOKE_ON_SHUTDOWN
+              value: "false"
+            - name: AGENT_INJECT_CPU_REQUEST
+              value: "250m"
+            - name: AGENT_INJECT_CPU_LIMIT
+              value: "500m"
+            - name: AGENT_INJECT_MEM_REQUEST
+              value: "64Mi"
+            - name: AGENT_INJECT_MEM_LIMIT
+              value: "128Mi"
+            - name: AGENT_INJECT_DEFAULT_TEMPLATE
+              value: "map"
+            - name: AGENT_INJECT_TEMPLATE_CONFIG_EXIT_ON_RETRY_FAILURE
+              value: "true"
+            
+            - name: POD_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+          args:
+            - agent-inject
+            - 2>&1
+          livenessProbe:
+            httpGet:
+              path: /health/ready
+              port: 8080
+              scheme: HTTPS
+            failureThreshold: 2
+            initialDelaySeconds: 5
+            periodSeconds: 2
+            successThreshold: 1
+            timeoutSeconds: 5
+          readinessProbe:
+            httpGet:
+              path: /health/ready
+              port: 8080
+              scheme: HTTPS
+            failureThreshold: 2
+            initialDelaySeconds: 5
+            periodSeconds: 2
+            successThreshold: 1
+            timeoutSeconds: 5
+---
+# Source: cells/templates/deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: cells
+  labels:
+    helm.sh/chart: cells-0.1.2
+    app.kubernetes.io/name: cells
+    app.kubernetes.io/instance: cells
+    app.kubernetes.io/version: "v4"
+    app.kubernetes.io/managed-by: Helm
+spec:
+  replicas: 1
+  strategy:
+    rollingUpdate:
+      maxUnavailable: 0
+      maxSurge: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: cells
+      app.kubernetes.io/instance: cells
+  template:
+    metadata:
+      annotations:
+        vault.hashicorp.com/agent-init-first: "true"
+        vault.hashicorp.com/agent-inject: "true"
+        vault.hashicorp.com/agent-inject-token: "true"
+        vault.hashicorp.com/role: app
+      labels:
+        app.kubernetes.io/name: cells
+        app.kubernetes.io/instance: cells
+    spec:
+      serviceAccountName: app
+      securityContext:
+        {}
+      containers:
+        - name: cells
+          securityContext:
+            {}
+          image: "pydio/cells:latest"
+          imagePullPolicy: IfNotPresent
+          command: ["/bin/sh"]
+          args:
+            ['-c', 'source /var/cells-install/source && cells start']
+          env:
+            - name: POD_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+            - name: CELLS_BIND_ADDRESS
+              value: 0.0.0.0
+            - name: CELLS_WORKING_DIR
+              value: /var/cells
+            - name: PYDIO_LOG
+              value: info
+            - name: ETCD_ROOT_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: cells-etcd
+                  key: etcd-root-password
+            - name: CELLS_CONFIG
+              value: etcd://root:$(ETCD_ROOT_PASSWORD)@cells-etcd.cells-ns.svc.cluster.local:2379/config
+            - name: CELLS_VAULT
+              value: etcd://root:$(ETCD_ROOT_PASSWORD)@cells-etcd.cells-ns.svc.cluster.local:2379/vault
+            - name: CELLS_REGISTRY
+              value: etcd://root:$(ETCD_ROOT_PASSWORD)@cells-etcd.cells-ns.svc.cluster.local:2379/registry
+            - name: CELLS_BROKER
+              value: nats://cells-nats.cells-ns.svc.cluster.local:4222
+            - name: CELLS_CACHE
+              value: redis://cells-redis-master.cells-ns.svc.cluster.local:6379/cache
+
+            # always use default shortcache (local mem, not redis)
+
+            # Use nats jetstream for persist queue
+            - name: CELLS_PERSISTQUEUE
+              value: nats://cells-nats.cells-ns.svc.cluster.local:4222
+            - name: CELLS_KEYRING
+              value: vault://cells-vault.cells-ns.svc.cluster.local:8200/secret?key=keyring
+            - name: CELLS_CERTS_STORE
+              value: vault://cells-vault.cells-ns.svc.cluster.local:8200/caddycerts
+          envFrom:
+          ports:
+            - name: http
+              containerPort: 8080
+              protocol: TCP
+            - name: discovery
+              containerPort: 8002
+              protocol: TCP
+          volumeMounts:
+            - name: cells
+              mountPath: /var/cells-install
+          readinessProbe:
+            httpGet:
+              path: /
+              port: http
+              scheme: HTTP
+            initialDelaySeconds: 15
+            periodSeconds: 20
+          resources:
+            {}
+      initContainers:
+        - name: wait-for-etcd
+          image: busybox
+          command: ["sh", "-c", 'until nc -zw2 "cells-etcd.cells-ns.svc.cluster.local" "2379"; do echo waiting for etcd; sleep 2; done']
+        - name: wait-for-redis
+          image: busybox
+          command: ["sh", "-c", 'until nc -zw2 "cells-redis-master.cells-ns.svc.cluster.local" "6379"; do echo waiting for etcd; sleep 2; done']
+        - name: wait-for-nats
+          image: busybox
+          command: ["sh", "-c", 'until nc -zw2 "cells-nats.cells-ns.svc.cluster.local" "4222"; do echo waiting for etcd; sleep 2; done']
+        - name: wait-for-vault
+          image: busybox
+          command: ["sh", "-c", 'until nc -zw2 "cells-vault.cells-ns.svc.cluster.local" "8200"; do echo waiting for vault; sleep 2; done']
+        - name: install
+          image: "pydio/cells:latest"
+          imagePullPolicy: IfNotPresent
+          command:
+            - "/bin/sh"
+            - "-c"
+            - |
+              sleep 3
+              source /var/cells-install/source
+              if ! cells admin config check; then 
+                cells configure
+              fi
+              sleep 3
+          env:
+            - name: CELLS_INSTALL_YAML
+              value: /var/cells-install/install-conf.yaml
+            - name: ETCD_ROOT_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: cells-etcd
+                  key: etcd-root-password
+            - name: CELLS_CONFIG
+              value: etcd://root:$(ETCD_ROOT_PASSWORD)@cells-etcd.cells-ns.svc.cluster.local:2379/config
+            - name: CELLS_VAULT
+              value: etcd://root:$(ETCD_ROOT_PASSWORD)@cells-etcd.cells-ns.svc.cluster.local:2379/vault
+            - name: CELLS_KEYRING
+              value: vault://cells-vault.cells-ns.svc.cluster.local:8200/secret?key=keyring
+            - name: MARIADB_ROOT_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: cells-mariadb
+                  key: mariadb-root-password
+            - name: MINIO_ROOT_USER
+              valueFrom:
+                secretKeyRef:
+                  name: cells-minio
+                  key: root-user
+            - name: MINIO_ROOT_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: cells-minio
+                  key: root-password
+            - name: CELLS_CERTS_STORE
+              value: vault://cells-vault.cells-ns.svc.cluster.local:8200/caddycerts
+          volumeMounts:
+            - name: cells
+              mountPath: /var/cells-install
+      volumes:
+        - name: cells
+          configMap:
+            name: cells
+---
+# Source: cells/charts/mariadb/templates/primary/statefulset.yaml
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: cells-mariadb
+  namespace: "cells-ns"
+  labels:
+    app.kubernetes.io/name: mariadb
+    helm.sh/chart: mariadb-11.4.5
+    app.kubernetes.io/instance: cells
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/component: primary
+  annotations:
+    sidecar.istio.io/inject: "false"
+spec:
+  replicas: 1
+  revisionHistoryLimit: 10
+  selector:
+    matchLabels: 
+      app.kubernetes.io/name: mariadb
+      app.kubernetes.io/instance: cells
+      app.kubernetes.io/component: primary
+  serviceName: cells-mariadb
+  updateStrategy:
+    type: RollingUpdate
+  template:
+    metadata:
+      annotations:
+        checksum/configuration: 74fd80bca8a9cf50d1202f7b9a79af519148a087c690d69be44edf4fb7bdb740
+        sidecar.istio.io/inject: "false"
+      labels:
+        app.kubernetes.io/name: mariadb
+        helm.sh/chart: mariadb-11.4.5
+        app.kubernetes.io/instance: cells
+        app.kubernetes.io/managed-by: Helm
+        app.kubernetes.io/component: primary
+    spec:
+      
+      serviceAccountName: cells-mariadb
+      affinity:
+        podAffinity:
+          
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - podAffinityTerm:
+                labelSelector:
+                  matchLabels:
+                    app.kubernetes.io/name: mariadb
+                    app.kubernetes.io/instance: cells
+                    app.kubernetes.io/component: primary
+                topologyKey: kubernetes.io/hostname
+              weight: 1
+        nodeAffinity:
+          
+      securityContext:
+        fsGroup: 1001
+      initContainers:
+        - name: volume-permissions
+          image: docker.io/bitnami/bitnami-shell:11-debian-11-r71
+          imagePullPolicy: "IfNotPresent"
+          command:
+            - /bin/bash
+            - -ec
+            - |
+              chown -R 1001:1001 /bitnami/mariadb
+          securityContext:
+            runAsUser: 0
+          resources:
+            limits: {}
+            requests: {}
+          volumeMounts:
+            - name: data
+              mountPath: /bitnami/mariadb
+      containers:
+        - name: mariadb
+          image: docker.io/bitnami/mariadb:10.6.11-debian-11-r22
+          imagePullPolicy: "IfNotPresent"
+          securityContext:
+            allowPrivilegeEscalation: false
+            privileged: false
+            runAsNonRoot: true
+            runAsUser: 1001
+          env:
+            - name: BITNAMI_DEBUG
+              value: "false"
+            - name: MARIADB_ROOT_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: cells-mariadb
+                  key: mariadb-root-password
+            - name: MARIADB_DATABASE
+              value: "my_database"
+          ports:
+            - name: mysql
+              containerPort: 3306
+          livenessProbe:
+            failureThreshold: 3
+            initialDelaySeconds: 120
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 1
+            exec:
+              command:
+                - /bin/bash
+                - -ec
+                - |
+                  password_aux="${MARIADB_ROOT_PASSWORD:-}"
+                  if [[ -f "${MARIADB_ROOT_PASSWORD_FILE:-}" ]]; then
+                      password_aux=$(cat "$MARIADB_ROOT_PASSWORD_FILE")
+                  fi
+                  mysqladmin status -uroot -p"${password_aux}"
+          readinessProbe:
+            failureThreshold: 3
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 1
+            exec:
+              command:
+                - /bin/bash
+                - -ec
+                - |
+                  password_aux="${MARIADB_ROOT_PASSWORD:-}"
+                  if [[ -f "${MARIADB_ROOT_PASSWORD_FILE:-}" ]]; then
+                      password_aux=$(cat "$MARIADB_ROOT_PASSWORD_FILE")
+                  fi
+                  mysqladmin status -uroot -p"${password_aux}"
+          resources: 
+            limits: {}
+            requests: {}
+          volumeMounts:
+            - name: data
+              mountPath: /bitnami/mariadb
+            - name: config
+              mountPath: /opt/bitnami/mariadb/conf/my.cnf
+              subPath: my.cnf
+      volumes:
+        - name: config
+          configMap:
+            name: cells-mariadb
+  volumeClaimTemplates:
+    - metadata:
+        name: data
+        labels: 
+          app.kubernetes.io/name: mariadb
+          app.kubernetes.io/instance: cells
+          app.kubernetes.io/component: primary
+      spec:
+        accessModes:
+          - "ReadWriteOnce"
+        resources:
+          requests:
+            storage: "8Gi"
+---
+# Source: cells/charts/nats/templates/statefulset.yaml
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: cells-nats
+  namespace: "cells-ns"
+  labels:
+    app.kubernetes.io/name: nats
+    helm.sh/chart: nats-7.5.6
+    app.kubernetes.io/instance: cells
+    app.kubernetes.io/managed-by: Helm
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: nats
+      app.kubernetes.io/instance: cells
+  serviceName: cells-nats-headless
+  updateStrategy:
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: nats
+        helm.sh/chart: nats-7.5.6
+        app.kubernetes.io/instance: cells
+        app.kubernetes.io/managed-by: Helm
+      annotations:
+        checksum/secret: d23ea014fa54f1cb125d329cf66af7085f13dd7c436d8bafdd05553f6e3f92a6
+    spec:
+      
+      affinity:
+        podAffinity:
+          
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - podAffinityTerm:
+                labelSelector:
+                  matchLabels:
+                    app.kubernetes.io/name: nats
+                    app.kubernetes.io/instance: cells
+                topologyKey: kubernetes.io/hostname
+              weight: 1
+        nodeAffinity:
+          
+      containers:
+        - name: nats
+          image: docker.io/bitnami/nats:2.9.11-debian-11-r0
+          imagePullPolicy: IfNotPresent
+          env:
+            - name: BITNAMI_DEBUG
+              value: "false"
+            - name: NATS_FILENAME
+              value: "nats-server"
+            - name: NATS_SERVER_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+          ports:
+            - name: client
+              containerPort: 4222
+            - name: cluster
+              containerPort: 6222
+            - name: monitoring
+              containerPort: 8222
+          livenessProbe:
+            failureThreshold: 6
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 5
+            httpGet:
+              path: /
+              port: monitoring
+          readinessProbe:
+            failureThreshold: 6
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 5
+            httpGet:
+              path: /
+              port: monitoring
+          resources:
+            limits: {}
+            requests: {}
+          volumeMounts:
+            - name: config
+              mountPath: /bitnami/nats/conf/nats-server.conf
+              subPath: nats-server.conf
+            - name: data
+              mountPath: /data
+      volumes:
+        - name: config
+          secret:
+            secretName: cells-nats
+  volumeClaimTemplates:
+    - metadata:
+        name: data
+        annotations:
+      spec:
+        accessModes:
+          - "ReadWriteOnce"
+        resources:
+          requests:
+            storage: "8Gi"
+---
+# Source: cells/charts/redis/templates/master/application.yaml
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: cells-redis-master
+  namespace: "cells-ns"
+  labels:
+    app.kubernetes.io/name: redis
+    helm.sh/chart: redis-17.6.0
+    app.kubernetes.io/instance: cells
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/component: master
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: redis
+      app.kubernetes.io/instance: cells
+      app.kubernetes.io/component: master
+  serviceName: cells-redis-headless
+  updateStrategy:
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: redis
+        helm.sh/chart: redis-17.6.0
+        app.kubernetes.io/instance: cells
+        app.kubernetes.io/managed-by: Helm
+        app.kubernetes.io/component: master
+      annotations:
+        checksum/configmap: 3aa3cb800bd874adce379677447925ac149b2f3bfc3bcee0f9ff6022800649b5
+        checksum/health: af3e9316d62677f182a41f8c2658c7df462659e7c537016933dd92ca2a323f5a
+        checksum/scripts: 8eb40ce2a330e4edfb5ea918659576624787f08d5cb4dbb8186265a6139f980e
+        checksum/secret: e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
+    spec:
+      
+      securityContext:
+        fsGroup: 1001
+      serviceAccountName: cells-redis
+      affinity:
+        podAffinity:
+          
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - podAffinityTerm:
+                labelSelector:
+                  matchLabels:
+                    app.kubernetes.io/name: redis
+                    app.kubernetes.io/instance: cells
+                    app.kubernetes.io/component: master
+                topologyKey: kubernetes.io/hostname
+              weight: 1
+        nodeAffinity:
+          
+      terminationGracePeriodSeconds: 30
+      containers:
+        - name: redis
+          image: docker.io/bitnami/redis:7.0.8-debian-11-r0
+          imagePullPolicy: "IfNotPresent"
+          securityContext:
+            runAsUser: 1001
+          command:
+            - /bin/bash
+          args:
+            - -c
+            - /opt/bitnami/scripts/start-scripts/start-master.sh
+          env:
+            - name: BITNAMI_DEBUG
+              value: "false"
+            - name: REDIS_REPLICATION_MODE
+              value: master
+            - name: ALLOW_EMPTY_PASSWORD
+              value: "yes"
+            - name: REDIS_TLS_ENABLED
+              value: "no"
+            - name: REDIS_PORT
+              value: "6379"
+          ports:
+            - name: redis
+              containerPort: 6379
+          livenessProbe:
+            initialDelaySeconds: 20
+            periodSeconds: 5
+            # One second longer than command timeout should prevent generation of zombie processes.
+            timeoutSeconds: 6
+            successThreshold: 1
+            failureThreshold: 5
+            exec:
+              command:
+                - sh
+                - -c
+                - /health/ping_liveness_local.sh 5
+          readinessProbe:
+            initialDelaySeconds: 20
+            periodSeconds: 5
+            timeoutSeconds: 2
+            successThreshold: 1
+            failureThreshold: 5
+            exec:
+              command:
+                - sh
+                - -c
+                - /health/ping_readiness_local.sh 1
+          resources:
+            limits: {}
+            requests: {}
+          volumeMounts:
+            - name: start-scripts
+              mountPath: /opt/bitnami/scripts/start-scripts
+            - name: health
+              mountPath: /health
+            - name: redis-data
+              mountPath: /data
+            - name: config
+              mountPath: /opt/bitnami/redis/mounted-etc
+            - name: redis-tmp-conf
+              mountPath: /opt/bitnami/redis/etc/
+            - name: tmp
+              mountPath: /tmp
+      initContainers:
+        - name: volume-permissions
+          image: docker.io/bitnami/bitnami-shell:11-debian-11-r72
+          imagePullPolicy: "IfNotPresent"
+          command:
+            - /bin/bash
+            - -ec
+            - |
+              chown -R 1001:1001 /data
+          securityContext:
+            runAsUser: 0
+          resources:
+            limits: {}
+            requests: {}
+          volumeMounts:
+            - name: redis-data
+              mountPath: /data
+      volumes:
+        - name: start-scripts
+          configMap:
+            name: cells-redis-scripts
+            defaultMode: 0755
+        - name: health
+          configMap:
+            name: cells-redis-health
+            defaultMode: 0755
+        - name: config
+          configMap:
+            name: cells-redis-configuration
+        - name: redis-tmp-conf
+          emptyDir: {}
+        - name: tmp
+          emptyDir: {}
+  volumeClaimTemplates:
+    - metadata:
+        name: redis-data
+        labels:
+          app.kubernetes.io/name: redis
+          app.kubernetes.io/instance: cells
+          app.kubernetes.io/component: master
+      spec:
+        accessModes:
+          - "ReadWriteOnce"
+        resources:
+          requests:
+            storage: "8Gi"
+---
+# Source: cells/charts/redis/templates/replicas/statefulset.yaml
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: cells-redis-replicas
+  namespace: "cells-ns"
+  labels:
+    app.kubernetes.io/name: redis
+    helm.sh/chart: redis-17.6.0
+    app.kubernetes.io/instance: cells
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/component: replica
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: redis
+      app.kubernetes.io/instance: cells
+      app.kubernetes.io/component: replica
+  serviceName: cells-redis-headless
+  updateStrategy:
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: redis
+        helm.sh/chart: redis-17.6.0
+        app.kubernetes.io/instance: cells
+        app.kubernetes.io/managed-by: Helm
+        app.kubernetes.io/component: replica
+      annotations:
+        checksum/configmap: 3aa3cb800bd874adce379677447925ac149b2f3bfc3bcee0f9ff6022800649b5
+        checksum/health: af3e9316d62677f182a41f8c2658c7df462659e7c537016933dd92ca2a323f5a
+        checksum/scripts: 8eb40ce2a330e4edfb5ea918659576624787f08d5cb4dbb8186265a6139f980e
+        checksum/secret: e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
+    spec:
+      
+      securityContext:
+        fsGroup: 1001
+      serviceAccountName: cells-redis
+      affinity:
+        podAffinity:
+          
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - podAffinityTerm:
+                labelSelector:
+                  matchLabels:
+                    app.kubernetes.io/name: redis
+                    app.kubernetes.io/instance: cells
+                    app.kubernetes.io/component: replica
+                topologyKey: kubernetes.io/hostname
+              weight: 1
+        nodeAffinity:
+          
+      terminationGracePeriodSeconds: 30
+      containers:
+        - name: redis
+          image: docker.io/bitnami/redis:7.0.8-debian-11-r0
+          imagePullPolicy: "IfNotPresent"
+          securityContext:
+            runAsUser: 1001
+          command:
+            - /bin/bash
+          args:
+            - -c
+            - /opt/bitnami/scripts/start-scripts/start-replica.sh
+          env:
+            - name: BITNAMI_DEBUG
+              value: "false"
+            - name: REDIS_REPLICATION_MODE
+              value: replica
+            - name: REDIS_MASTER_HOST
+              value: cells-redis-master-0.cells-redis-headless.cells-ns.svc.cluster.local
+            - name: REDIS_MASTER_PORT_NUMBER
+              value: "6379"
+            - name: ALLOW_EMPTY_PASSWORD
+              value: "yes"
+            - name: REDIS_TLS_ENABLED
+              value: "no"
+            - name: REDIS_PORT
+              value: "6379"
+          ports:
+            - name: redis
+              containerPort: 6379
+          startupProbe:
+            failureThreshold: 22
+            initialDelaySeconds: 10
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 5
+            tcpSocket:
+              port: redis
+          livenessProbe:
+            initialDelaySeconds: 20
+            periodSeconds: 5
+            timeoutSeconds: 6
+            successThreshold: 1
+            failureThreshold: 5
+            exec:
+              command:
+                - sh
+                - -c
+                - /health/ping_liveness_local_and_master.sh 5
+          readinessProbe:
+            initialDelaySeconds: 20
+            periodSeconds: 5
+            timeoutSeconds: 2
+            successThreshold: 1
+            failureThreshold: 5
+            exec:
+              command:
+                - sh
+                - -c
+                - /health/ping_readiness_local_and_master.sh 1
+          resources:
+            limits: {}
+            requests: {}
+          volumeMounts:
+            - name: start-scripts
+              mountPath: /opt/bitnami/scripts/start-scripts
+            - name: health
+              mountPath: /health
+            - name: redis-data
+              mountPath: /data
+            - name: config
+              mountPath: /opt/bitnami/redis/mounted-etc
+            - name: redis-tmp-conf
+              mountPath: /opt/bitnami/redis/etc
+      initContainers:
+        - name: volume-permissions
+          image: docker.io/bitnami/bitnami-shell:11-debian-11-r72
+          imagePullPolicy: "IfNotPresent"
+          command:
+            - /bin/bash
+            - -ec
+            - |
+              chown -R 1001:1001 /data
+          securityContext:
+            runAsUser: 0
+          resources:
+            limits: {}
+            requests: {}
+          volumeMounts:
+            - name: redis-data
+              mountPath: /data
+      volumes:
+        - name: start-scripts
+          configMap:
+            name: cells-redis-scripts
+            defaultMode: 0755
+        - name: health
+          configMap:
+            name: cells-redis-health
+            defaultMode: 0755
+        - name: config
+          configMap:
+            name: cells-redis-configuration
+        - name: redis-tmp-conf
+          emptyDir: {}
+  volumeClaimTemplates:
+    - metadata:
+        name: redis-data
+        labels:
+          app.kubernetes.io/name: redis
+          app.kubernetes.io/instance: cells
+          app.kubernetes.io/component: replica
+      spec:
+        accessModes:
+          - "ReadWriteOnce"
+        resources:
+          requests:
+            storage: "8Gi"
+---
+# Source: cells/charts/vault/templates/server-statefulset.yaml
+# StatefulSet to run the actual vault server cluster.
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: cells-vault
+  namespace: cells-ns
+  labels:
+    app.kubernetes.io/name: vault
+    app.kubernetes.io/instance: cells
+    app.kubernetes.io/managed-by: Helm
+spec:
+  serviceName: cells-vault-internal
+  podManagementPolicy: Parallel
+  replicas: 1
+  updateStrategy:
+    type: OnDelete
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: vault
+      app.kubernetes.io/instance: cells
+      component: server
+  template:
+    metadata:
+      labels:
+        helm.sh/chart: vault-0.23.0
+        app.kubernetes.io/name: vault
+        app.kubernetes.io/instance: cells
+        component: server
+      annotations:
+        helm.sh/hook: pre-install
+        helm.sh/hook-weight: "-5"
+    spec:
+      
+      affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            - labelSelector:
+                matchLabels:
+                  app.kubernetes.io/name: vault
+                  app.kubernetes.io/instance: "cells"
+                  component: server
+              topologyKey: kubernetes.io/hostname
+  
+      
+      
+      
+      terminationGracePeriodSeconds: 10
+      serviceAccountName: cells-vault
+      
+      securityContext:
+        runAsNonRoot: true
+        runAsGroup: 1000
+        runAsUser: 100
+        fsGroup: 1000
+      hostNetwork: false
+      volumes:
+        
+        - name: config
+          configMap:
+            name: cells-vault-config
+  
+        - name: userconfig-cells-vault
+          configMap:
+            name: cells-vault
+            defaultMode: 420
+        - name: home
+          emptyDir: {}
+      containers:
+        - name: vault
+          
+          image: hashicorp/vault:1.12.1
+          imagePullPolicy: IfNotPresent
+          command:
+          - "/bin/sh"
+          - "-ec"
+          args: 
+          - |
+            cp /vault/config/extraconfig-from-values.hcl /tmp/storageconfig.hcl;
+            [ -n "${HOST_IP}" ] && sed -Ei "s|HOST_IP|${HOST_IP?}|g" /tmp/storageconfig.hcl;
+            [ -n "${POD_IP}" ] && sed -Ei "s|POD_IP|${POD_IP?}|g" /tmp/storageconfig.hcl;
+            [ -n "${HOSTNAME}" ] && sed -Ei "s|HOSTNAME|${HOSTNAME?}|g" /tmp/storageconfig.hcl;
+            [ -n "${API_ADDR}" ] && sed -Ei "s|API_ADDR|${API_ADDR?}|g" /tmp/storageconfig.hcl;
+            [ -n "${TRANSIT_ADDR}" ] && sed -Ei "s|TRANSIT_ADDR|${TRANSIT_ADDR?}|g" /tmp/storageconfig.hcl;
+            [ -n "${RAFT_ADDR}" ] && sed -Ei "s|RAFT_ADDR|${RAFT_ADDR?}|g" /tmp/storageconfig.hcl;
+            /usr/local/bin/docker-entrypoint.sh vault server -config=/tmp/storageconfig.hcl 
+   
+          securityContext:
+            allowPrivilegeEscalation: false
+          env:
+            - name: HOST_IP
+              valueFrom:
+                fieldRef:
+                  fieldPath: status.hostIP
+            - name: POD_IP
+              valueFrom:
+                fieldRef:
+                  fieldPath: status.podIP
+            - name: VAULT_K8S_POD_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+            - name: VAULT_K8S_NAMESPACE
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.namespace
+            - name: VAULT_ADDR
+              value: "http://127.0.0.1:8200"
+            - name: VAULT_API_ADDR
+              value: "http://$(POD_IP):8200"
+            - name: SKIP_CHOWN
+              value: "true"
+            - name: SKIP_SETCAP
+              value: "true"
+            - name: HOSTNAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+            - name: VAULT_CLUSTER_ADDR
+              value: "https://$(HOSTNAME).cells-vault-internal:8201"
+            - name: HOME
+              value: "/home/vault"
+            
+            
+            
+          volumeMounts:
+          
+  
+    
+            - name: data
+              mountPath: /tmp/vault/data
+    
+  
+  
+            - name: config
+              mountPath: /vault/config
+  
+            - name: userconfig-cells-vault
+              readOnly: true
+              mountPath: /vault/userconfig/cells-vault
+            - name: home
+              mountPath: /home/vault
+          ports:
+            - containerPort: 8200
+              name: http
+            - containerPort: 8201
+              name: https-internal
+            - containerPort: 8202
+              name: http-rep
+          readinessProbe:
+            # Check status; unsealed vault servers return 0
+            # The exit code reflects the seal status:
+            #   0 - unsealed
+            #   1 - error
+            #   2 - sealed
+            exec:
+              command: ["/bin/sh", "-ec", "vault status -tls-skip-verify"]
+            failureThreshold: 2
+            initialDelaySeconds: 5
+            periodSeconds: 5
+            successThreshold: 1
+            timeoutSeconds: 3
+          lifecycle:
+            # Vault container doesn't receive SIGTERM from Kubernetes
+            # and after the grace period ends, Kube sends SIGKILL.  This
+            # causes issues with graceful shutdowns such as deregistering itself
+            # from Consul (zombie services).
+            preStop:
+              exec:
+                command: [
+                  "/bin/sh", "-c",
+                  # Adding a sleep here to give the pod eviction a
+                  # chance to propagate, so requests will not be made
+                  # to this pod while it's terminating
+                  "sleep 5 && kill -SIGTERM $(pidof vault)",
+                ]
+            postStart:
+              exec:
+                command:
+                - "/bin/sh"
+                - "-c"
+                - "sleep 5 && cp /vault/userconfig/cells-vault/bootstrap.sh /tmp/bootstrap.sh && chmod +x /tmp/bootstrap.sh && /tmp/bootstrap.sh"
+      
+  
+  volumeClaimTemplates:
+    - metadata:
+        name: data
+      
+      spec:
+        accessModes:
+          - ReadWriteOnce
+        resources:
+          requests:
+            storage: 10Gi
+---
+# Source: cells/templates/tests/etcd.yaml
+etcd:
+  replicaCount: 1
+  service:
+  enabled: true
+  podAnnotations: {  
+    "sidecar.istio.io/inject": "true"
+  }
+  commonAnnotations: {
+    "helm.sh/hook": "pre-install",
+    "helm.sh/hook-weight": "-2",
+    "sidecar.istio.io/inject": "true"
+  }
+  persistence:
+    enabled: true   
+    existingClaim:
+    storageClass: ""
+    annotations: {}
+    accessModes:
+      - ReadWriteOnce
+    ## @param primary.persistence.size MariaDB primary persistent volume size
+    ##
+    size: 8Gi 
+  auth:
+    rbac:
+      create: false
+    peer:
+      secureTransport: false
+      useAutoTLS: false
+    client:
+      secureTransport: false
+      enableAuthentication: false
+      existingSecret: "etcd-client-certs"
+      certFilename: "tls.crt"
+      certKeyFilename: "tls.key"
+      caFilename: "ca.crt"
+  volumePermissions:
+    enabled: true
+  livenessProbe:
+    enabled: true
+    initialDelaySeconds: 60
+    periodSeconds: 30
+    timeoutSeconds: 5
+    successThreshold: 1
+    failureThreshold: 5
+  
+  ## Configure extra options for readiness probe
+  ## ref: https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/#configure-probes
+  ## @param readinessProbe.enabled Enable readinessProbe
+  ## @param readinessProbe.initialDelaySeconds Initial delay seconds for readinessProbe
+  ## @param readinessProbe.periodSeconds Period seconds for readinessProbe
+  ## @param readinessProbe.timeoutSeconds Timeout seconds for readinessProbe
+  ## @param readinessProbe.failureThreshold Failure threshold for readinessProbe
+  ## @param readinessProbe.successThreshold Success threshold for readinessProbe
+  ##
+  readinessProbe:
+    enabled: true
+    initialDelaySeconds: 60
+    periodSeconds: 10
+    timeoutSeconds: 5
+    successThreshold: 1
+    failureThreshold: 5
+---
+# Source: cells/templates/tests/mariadb.yaml
+mariadb:
+  enabled: true
+  architecture: standalone
+  volumePermissions:
+    enabled: true
+  tls:
+    enabled: true
+    existingSecret: "cells-tls"
+    certFilename: tls.crt  # Defaults to "tls.crt"
+    certKeyFilename: tls.key  # Defaults to "tls.key"
+    caFilename: ca.crt  # Defaults to "ca.crt" (optional)
+  global:   
+    defaultStorageClass: ""
+  primary:
+    podAnnotations: {
+      "sidecar.istio.io/inject": "false"
+    }
+    configuration: |-
+      [mysqld]
+      skip-name-resolve
+      explicit_defaults_for_timestamp
+      basedir=/opt/bitnami/mariadb
+      plugin_dir=/opt/bitnami/mariadb/plugin
+      port=3306
+      socket=/opt/bitnami/mariadb/tmp/mysql.sock
+      tmpdir=/opt/bitnami/mariadb/tmp
+      max_allowed_packet=128M
+      max_connections=2024
+      bind-address=*
+      pid-file=/opt/bitnami/mariadb/tmp/mysqld.pid
+      log-error=/opt/bitnami/mariadb/logs/mysqld.log
+      character-set-server=UTF8
+      collation-server=utf8_general_ci
+      slow_query_log=0
+      slow_query_log_file=/opt/bitnami/mariadb/logs/mysqld.log
+      long_query_time=10.0
+
+      [client]
+      port=3306
+      socket=/opt/bitnami/mariadb/tmp/mysql.sock
+      default-character-set=UTF8
+      plugin_dir=/opt/bitnami/mariadb/plugin
+
+      [manager]
+      port=3306
+      socket=/opt/bitnami/mariadb/tmp/mysql.sock
+      pid-file=/opt/bitnami/mariadb/tmp/mysqld.pid
+  commonAnnotations: {
+    "sidecar.istio.io/inject": "false"
+  }
+---
+# Source: cells/templates/tests/mongodb.yaml
+mongodb:
+  enabled: true
+  auth: 
+    enabled: true
+    rootUser: "mongoDB-root"
+    rootPassword: "mongoDB-rootPassword"
+    usernames: ["cells"]
+    passwords: ["cells"]
+    databases: ["cells"]
+  volumePermissions:
+    enabled: true
+  architecture: replicaset
+  tls:
+    enabled: true
+    existingSecret: "abcde"
+    certFilename: tls.crt  # Defaults to "tls.crt"
+    certKeyFilename: tls.key  # Defaults to "tls.key"
+    caFilename: ca.crt  # Defaults to "ca.crt" (optional)
+---
+# Source: cells/templates/tests/nats.yaml
+nats:
+  config:
+    jetstream:
+      enabled: true
+      dir: /data
+      pvc:
+        enabled: true
+        size: 5Gi
+        storageClassName: gp3
+    nats:
+      port: 4222
+    cluster:
+      enabled: true
+      port: 6222
+      # must be 2 or higher when jetstream is enabled
+      replicas: 3
+
+# nats:
+#   enabled: true
+#   jetstream:
+#     enabled: true
+#     maxMemory: 1G
+#   auth:
+#     enabled: false
+#   volumePermissions:
+#     enabled: true
+#   podAnnotations: {
+#     "sidecar.istio.io/inject": "false" 
+#   }
+
+#   # allow pod to write down to mounted repository
+#   podSecurityContext: { enabled: true }
+
+#   persistence:
+#     enabled: true 
+#     storageClass: gp3
+#     annotations: {}
+#     accessModes:
+#       - ReadWriteOnce
+#     size: 8Gi
+#     selector: {}
+#   debug:
+#     enabled: false
+#   resourceType: statefulset
+#   # @param replicaCount Number of NATS nodes
+#   #
+#   replicaCount: 1
+#   # cluster:
+#   #   ## @param cluster.name Cluster name
+#   #   name: nats
+#   #   ## @param cluster.connectRetries Configure number of connect retries for implicit routes, otherwise leave blank
+#   #   ##
+#   #   connectRetries: ""
+#   #   ## Cluster Authentication
+#   #   ## ref: https://docs.nats.io/running-a-nats-service/configuration/securing_nats/auth_intro
+#   #   ## @param cluster.auth.enabled Switch to enable/disable cluster authentication
+#   #   ## @param cluster.auth.user Cluster authentication user
+#   #   ## @param cluster.auth.password Cluster authentication password
+#   #   ##
+#   #   auth:
+#   #     enabled: false
+#   #     user: nats_cluster
+#   #     password: "tataP@ssdslfj12"
+---
+# Source: cells/templates/tests/tls/notes.sh
+# ca
+# openssl req -x509 -sha256 -nodes -days 3650 -newkey rsa:4096 -subj '/O=Pydio Wire/CN=dev.pydio.local' -keyout ca.key -out ca.crt
+# # 
+# openssl req -out cells.pydio.local.csr -newkey rsa:2048 -nodes -keyout cells.pydio.local.key -subj "/CN=cells.pydio.local/O=pydio dev"
+# openssl x509 -req -sha256 -days 3650 -CA ca.crt -CAkey ca.key -set_serial 0 -in cells.pydio.local.csr -out cells.pydio.local.crt
+
+# openssl req -out prometheus.pydio.local.csr -newkey rsa:2048 -nodes -keyout prometheus.pydio.local.key -subj "/CN=prometheus.pydio.local/O=pydio dev"
+# openssl x509 -req -sha256 -days 3650 -CA ca.crt -CAkey ca.key -set_serial 0 -in prometheus.pydio.local.csr -out prometheus.pydio.local.crt
+
+# kubectl create secret generic cells-tls-secret -n cells --from-file=tls.crt=cells.pydio.local.crt --from-file=tls.key=cells.pydio.local.key --from-file=ca.crt=ca.crt
+---
+# Source: cells/templates/tests/values.yaml
+# Default values for cells.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+replicaCount: 1
+
+image:
+  repository: pydio/cells
+  pullPolicy: IfNotPresent
+  # Overrides the image tag whose default is the chart appVersion.
+  tag: latest
+
+imagePullSecrets: []
+nameOverride: ""
+fullnameOverride: ""
+clusterDomain: cluster.local
+
+serviceAccount:
+  create: true
+  annotations: {}
+  name: "app"
+
+podAnnotations: {
+  "vault.hashicorp.com/agent-inject": "true",
+  "vault.hashicorp.com/role": "app",
+  "vault.hashicorp.com/agent-init-first": "true",
+  "vault.hashicorp.com/agent-inject-token": "true"
+}
+
+podSecurityContext: {}
+
+securityContext: {}
+
+service:
+  type: NodePort
+  port: 8080
+  discoveryPort: 8002
+  binds:
+    # Set values here if you want to bind the port elsewhere
+  reverseproxyurl:
+  tlsconfig:
+
+  customconfigs: {
+    # Initial license
+    "defaults/license/data": "FAKE",
+
+    # Creates a kind-of sticky session for grpc requests, priority is given to local grpc servers for any outgoing request going to grpc
+    #"cluster/clients/grpc/loadBalancingStrategies[0]/name": "priority-local",
+
+    #
+    "frontend/plugin/core.pydio/APPLICATION_TITLE": "My Pydio Cells Cluster"
+  }
+
+
+## Enable tls in front of Cells containers.
+##
+tls:
+  ## @param tls.enabled Enable tls in front of the container
+  ##
+  enabled: false
+  ## @param tls.autoGenerated Generate automatically self-signed TLS certificates
+  ##
+  autoGenerated: false
+  ## @param tls.existingSecret Name of an existing secret holding the certificate information
+  ##
+  existingSecret: ""
+
+  ## @param tls.mountPath The mount path where the secret will be located
+  ## Custom mount path where the certificates will be located, if empty will default to /certs
+  mountPath: ""
+
+ingress:
+  ## @param ingress.enabled Enable ingress controller resource for Cells
+  ##
+  enabled: false
+  ## @param ingress.apiVersion Force Ingress API version (automatically detected if not set)
+  ##
+  apiVersion: ""
+  ## @param ingress.ingressClassName IngressClass that will be used to implement the Ingress (Kubernetes 1.18+)
+  ## This is supported in Kubernetes 1.18+ and required if you have more than one IngressClass marked as the default for your cluster.
+  ## ref: https://kubernetes.io/blog/2020/04/02/improvements-to-the-ingress-api-in-kubernetes-1.18/
+  ##
+  ingressClassName: ""
+  ## @param ingress.hostname Default host for the ingress resource
+  ##
+  hostname: cells.local
+  ## @param ingress.path The Path to Pydio Cells&reg;. You may need to set this to '/*' in order to use this with ALB ingress controllers.
+  ##
+  path: /
+  ## @param ingress.pathType Ingress path type
+  ##
+  pathType: Prefix
+  ## @param ingress.servicePort Service port to be used
+  ## Default is http. Alternative is https.
+  ##
+  servicePort: http
+  ## @param ingress.annotations Additional annotations for the Ingress resource. To enable certificate autogeneration, place here your cert-manager annotations.
+  ## For a full list of possible ingress annotations, please see
+  ## ref: https://github.com/kubernetes/ingress-nginx/blob/master/docs/user-guide/nginx-configuration/annotations.md
+  ## Use this parameter to set the required annotations for cert-manager, see
+  ## ref: https://cert-manager.io/docs/usage/ingress/#supported-annotations
+  ##
+  ## e.g:
+  ## annotations:
+  ##   kubernetes.io/ingress.class: nginx
+  ##   cert-manager.io/cluster-issuer: cluster-issuer-name
+  ##
+  annotations: {
+    "acme.cert-manager.io/http01-edit-in-place": "true",
+    "kubernetes.io/ingress.class": "nginx",
+    "cert-manager.io/cluster-issuer": "letsencrypt",
+    "nginx.ingress.kubernetes.io/proxy-body-size": "0"
+  }
+  ## @param ingress.tls Enable TLS configuration for the hostname defined at `ingress.hostname` parameter
+  ## TLS certificates will be retrieved from a TLS secret with name: `cells.local-tls`
+  ## You can:
+  ##   - Use the `ingress.secrets` parameter to create this TLS secret
+  ##   - Rely on cert-manager to create it by setting the corresponding annotations
+  ##   - Rely on Helm to create self-signed certificates by setting `ingress.selfSigned=true`
+  ##
+  tls: false
+  ## @param ingress.selfSigned Create a TLS secret for this ingress record using self-signed certificates generated by Helm
+  ##
+  selfSigned: false
+  ## @param ingress.extraHosts The list of additional hostnames to be covered with this ingress record.
+  ## Most likely the hostname above will be enough, but in the event more hosts are needed, this is an array
+  ## e.g:
+  ## extraHosts:
+  ##   - name: cells.local
+  ##     path: /
+  ##
+  extraHosts: []
+  ## @param ingress.extraPaths Any additional paths that may need to be added to the ingress under the main host
+  ## For example: The ALB ingress controller requires a special rule for handling SSL redirection.
+  ## extraPaths:
+  ## - path: /*
+  ##   backend:
+  ##     serviceName: ssl-redirect
+  ##     servicePort: use-annotation
+  ##
+  extraPaths: []
+  ## @param ingress.extraTls The tls configuration for additional hostnames to be covered with this ingress record.
+  ## see: https://kubernetes.io/docs/concepts/services-networking/ingress/#tls
+  ## e.g:
+  ## extraTls:
+  ## - hosts:
+  ##     - cells.local
+  ##   secretName: cells.local-tls
+  ##
+  extraTls: []
+  ## @param ingress.secrets If you're providing your own certificates, please use this to add the certificates as secrets
+  ## key and certificate are expected in PEM format
+  ## name should line up with a secretName set further up
+  ##
+  ## If it is not set and you're using cert-manager, this is unneeded, as it will create a secret for you with valid certificates
+  ## If it is not set and you're NOT using cert-manager either, self-signed certificates will be created valid for 365 days
+  ## It is also possible to create and manage the certificates outside of this helm chart
+  ## Please see README.md for more information
+  ##
+  ## Example
+  ## secrets:
+  ##   - name: cells.local-tls
+  ##     key: ""
+  ##     certificate: ""
+  ##
+  secrets: []
+  ## @param ingress.extraRules Additional rules to be covered with this ingress record
+  ## ref: https://kubernetes.io/docs/concepts/services-networking/ingress/#ingress-rules
+  ## e.g:
+  ## extraRules:
+  ## - host: example.local
+  ##     http:
+  ##       path: /
+  ##       backend:
+  ##         service:
+  ##           name: example-svc
+  ##           port:
+  ##             name: http
+  ##
+  extraRules: []
+
+ingress-nginx:
+  controller:
+    admissionWebhooks:
+      enabled: false
+    hostPort:
+      enabled: true
+    ingressClassResource:
+      default: true
+      enabled: true
+    kind: DaemonSet
+    service:
+      type: ClusterIP
+
+resources: {}
+  # We usually recommend not to specify default resources and to leave this as a conscious
+  # choice for the user. This also increases chances charts run on environments with little
+  # resources, such as Minikube. If you do want to specify resources, uncomment the following
+  # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
+  # limits:
+  #   cpu: 100m
+  #   memory: 128Mi
+  # requests:
+  #   cpu: 100m
+  #   memory: 128Mi
+
+autoscaling:
+  enabled: false
+  minReplicas: 1
+  maxReplicas: 100
+  targetCPUUtilizationPercentage: 80
+  # targetMemoryUtilizationPercentage: 80
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity: {}
+
+#------------------------------
+# Dependency settings
+#------------------------------
+mariadb:
+  enabled: true
+  volumePermissions:
+    enabled: true
+  tls:
+    enabled: false
+
+mariadb-galera:
+  enabled: false
+  volumePermissions:
+    enabled: true
+
+redis:
+  enabled: true
+  shortcacheEnabled: false
+  volumePermissions:
+    enabled: true
+  auth:
+    enabled: false
+
+nats:
+  enabled: true
+  jetstream:
+    enabled: true
+  resourceType: statefulset
+  persistence:
+    enabled: true
+  replica: 1
+  auth:
+    enabled: false
+  volumePermissions:
+    enabled: true
+
+etcd:
+  enabled: true
+  commonAnnotations: {
+    "helm.sh/hook": "pre-install",
+    "helm.sh/hook-weight": "-2"
+  }
+  auth:
+    rbac:
+      create: true
+    peer:
+      secureTransport: false
+      useAutoTLS: false
+    client:
+      secureTransport: false
+      enableAuthentication: false
+      existingSecret: "etcd-client-certs"
+      certFilename: "tls.crt"
+      certKeyFilename: "tls.key"
+      caFilename: "ca.crt"
+
+  volumePermissions:
+    enabled: true
+
+minio:
+  enabled: true
+  defaultBuckets: "thumbnails pydiods1 personal versions cellsdata binaries"
+
+  volumePermissions:
+    enabled: true
+
+mongodb:
+  enabled: true
+  auth: 
+    enabled: true
+    rootUser: "mongoDB-root"
+    rootPassword: "mongoDB-rootPassword"
+    usernames: ["cells"]
+    passwords: ["cells"]
+    databases: ["cells"]
+  volumePermissions:
+    enabled: true
+  architecture: replicaset
+  tls:
+    enabled: true
+    existingSecret: "abcde"
+    certFilename: tls.crt  # Defaults to "tls.crt"
+    certKeyFilename: tls.key  # Defaults to "tls.key"
+    caFilename: ca.crt  # Defaults to "ca.crt" (optional)
+
+
+vault:
+  enabled: true
+  injector:
+    annotations: {
+      "helm.sh/hook": "pre-install",
+      "helm.sh/hook-weight": "-5"
+    }
+    webhook:
+      annotations: {
+        "helm.sh/hook": "pre-install",
+        "helm.sh/hook-weight": "-5"
+      }
+      failurePolicy: Fail
+      namespaceSelector:
+        matchExpressions:
+        - key: kubernetes.io/metadata.name
+          operator: NotIn
+          values: ["vault","kube-system","kube-public","kube-node-lease"]
+  server:
+    annotations: {
+      "helm.sh/hook": "pre-install",
+      "helm.sh/hook-weight": "-5"
+    }
+    dataStorage:
+      mountPath: /tmp/vault/data
+    extraVolumes:
+    - type: configMap
+      name: cells-vault
+    postStart:
+    - "/bin/sh"
+    - "-c"
+    - "sleep 5 && cp /vault/userconfig/cells-vault/bootstrap.sh /tmp/bootstrap.sh && chmod +x /tmp/bootstrap.sh && /tmp/bootstrap.sh"
+  statefulset:
+    annotations: {
+      "helm.sh/hook": "pre-install",
+      "helm.sh/hook-weight": "-5"
+    }
+---
+# Source: cells/templates/tests/vault.yaml
+vault:
+  enabled: true
+  injector:
+    annotations: {
+      "helm.sh/hook": "pre-install",
+      "helm.sh/hook-weight": "-5"
+    }
+    webhook:
+      annotations: {
+        "helm.sh/hook": "pre-install",
+        "helm.sh/hook-weight": "-5"
+      }
+      failurePolicy: Fail
+      namespaceSelector:
+        matchExpressions:
+        - key: kubernetes.io/metadata.name
+          operator: NotIn
+          values: ["vault","kube-system","kube-public","kube-node-lease"]
+  server:
+    annotations: {
+      "helm.sh/hook": "pre-install",
+      "helm.sh/hook-weight": "-5"
+    }
+    dataStorage:
+      mountPath: /tmp/vault/data
+    extraVolumes:
+    - type: configMap
+      name: cells-vault
+    postStart:
+    - "/bin/sh"
+    - "-c"
+    - "sleep 5 && cp /vault/userconfig/cells-vault/bootstrap.sh /tmp/bootstrap.sh && chmod +x /tmp/bootstrap.sh && /tmp/bootstrap.sh"
+  statefulset:
+    annotations: {
+      "helm.sh/hook": "pre-install",
+      "helm.sh/hook-weight": "-5"
+    }
+---
+# Source: cells/charts/etcd/templates/pdb.yaml
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: cells-etcd
+  namespace: "cells-ns"
+  labels:
+    app.kubernetes.io/name: etcd
+    helm.sh/chart: etcd-8.7.3
+    app.kubernetes.io/instance: cells
+    app.kubernetes.io/managed-by: Helm
+  annotations:
+    helm.sh/hook: pre-install
+    helm.sh/hook-weight: "-2"
+spec:
+  minAvailable: 51%
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: etcd
+      app.kubernetes.io/instance: cells
+---
+# Source: cells/templates/serviceaccount.yaml
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: app
+  labels:
+    helm.sh/chart: cells-0.1.2
+    app.kubernetes.io/name: cells
+    app.kubernetes.io/instance: cells
+    app.kubernetes.io/version: "v4"
+    app.kubernetes.io/managed-by: Helm
+  annotations:
+    "helm.sh/hook": "pre-install"
+    "helm.sh/hook-weight": "-4"
+---
+# Source: cells/charts/etcd/templates/secrets.yaml
+apiVersion: v1
+kind: Secret
+metadata:
+  name: cells-etcd
+  namespace: "cells-ns"
+  labels:
+    app.kubernetes.io/name: etcd
+    helm.sh/chart: etcd-8.7.3
+    app.kubernetes.io/instance: cells
+    app.kubernetes.io/managed-by: Helm
+  annotations:
+    helm.sh/hook: pre-install
+    helm.sh/hook-weight: "-2"
+type: Opaque
+data:
+  etcd-root-password: "ZTdSM3ZyempHeQ=="
+---
+# Source: cells/charts/etcd/templates/token-secrets.yaml
+apiVersion: v1
+kind: Secret
+metadata:
+  name: cells-etcd-jwt-token
+  namespace: "cells-ns"
+  labels:
+    app.kubernetes.io/name: etcd
+    helm.sh/chart: etcd-8.7.3
+    app.kubernetes.io/instance: cells
+    app.kubernetes.io/managed-by: Helm
+  annotations:
+    helm.sh/hook: pre-install
+    helm.sh/hook-weight: "-2"
+type: Opaque
+data:
+  jwt-token.pem: "LS0tLS1CRUdJTiBSU0EgUFJJVkFURSBLRVktLS0tLQpNSUlKSndJQkFBS0NBZ0VBNk4rbEwrL21pcEVqWlhZcjNHeFJGc082YjF0L1FWSE02WkhibU4vK0I4S0J1R0N2CkpleVV5c3VkRUc1emlNcHY0L3VjdElhclhkR2RDVUJYQ0NqNFJtK1NpcDlmSENJVk5xMTJRWk9iOERFOC9UWGsKUmpzUE5UTnh6d3B3aXk1dk5WOFE4RzRFYnBNWEZZK2xtN09idWFYMlVYV1BkZ21vUkdGaVpQMm5DNy90bVIrYwpvVUowSjBNQytHa3Q1bURHamU5eHROMXgranZDOGswVlVMWXhPanlDd2RZZHc0SUc1V1Y4REoyMG5VZk9hZC92Ck9acnNzdDBuM213SmtCNlJGc1VCUXdja2xTTC9BRkRQdzNDVWxzbmhPZE14cWx3OGNvWk04Mjd4R2NpbEw2YjcKbFBxS0hqT1g1SjZzRGU3TmQrYnFhUHFmZFZJaUo0U050QmNrTW5EWk5TVVBsS1Nrd2Y4cXQwZ0xMMGxRZ2hnTgpmSTZyeTNmNEtxaldSbm82bklIdVM3TGQ5VVB2THRJdVppSkVvRkd1NWdpeC9QZENqTkxINXhIbVJLWWRUcDEwClNnZVZxUTBTTEhHMjY4UVN1V2g2QndtMjRmcVNGWXBPOVhxc09zUXNXTGZVZEc4eS83aXViN000NzQ3TGZrbkcKT1Y2akN1RWV1OVl2Zjh0Z2wvUEFCZWhtVktNazZCVDZ6VkJpVEhmZElWRnFvTEhZRWVUV3Z3cksyNllEMytxeApVT1VheStnaUhlT2VhOVg1d0V3UDE4a25LZFBvWmxqNVVWL3RmQ0p6ZWxlUWVNWEZtYXU1REE4K3pWKy9ldGVRCkkrcGZHZy9xNHkwVGwzSUJXdnducDQvM3JGTkJyeTdwTnIyNWgySzZyT09qRDhWNVNoakpVSHFKZjcwQ0F3RUEKQVFLQ0FnQVlESUNTb3NPOEs2RHNLWGYrRzNHRVdGSTRqY3BtaEh3VTR1czZybWNkaGdpL2NieWt2Zm5mdDRkUQoyeGN6V1RTVTVyY1lMWkFrOERDM2M5MkpDaklabEF3ZUpMYzl3SWRRVGptWUxCWStoOWMwand3ejlJVnRpUktICnZ4eEFRMXRZdDZpWUs4UnBadWRMWXJwSGloVGE1emk0ME5zdjVXOXJJR040Nm5rRnpaeEw0K2ZZLzNQZldoeEUKYXhoQ1lsd2U3RXRoMGp5akN1am0vTzdtbHVvZWlZRTNZMVZQaTI0SzRxQWM3V3hwa2JEUFhrRG1RZ21QcnljZQo0U2xicU14eS9ZVlQxcmtBYmN6SHk1Q3BMa2NxQzA4bkdaaFhiNDhPaExBTnM3ZFNZbFlzeGFIVmtNb1N0R0ZMClN0ZVoyTDkvVW1tQ3pkOEp6cUdZVXlnUElSU3JybVU3MGU5ekl3T0pKVERzQ2pvUkZDWWppVTZST1ZlY1dHbGMKdmlFaGhOUXRGckJpWmloQ0VJWUxjNXFpR3ZsM1BpQ00xclg3SElBdldsZktTODhFa3pMVHNBaEtYUmxBdjhnLwpVMytjQy9GMUFlNDlza1BhMitwWTdoQzBVNXdqcnBhOFNWWXNidXo0bU1IaTBOTFpUbXFyZHFXbThQL29pRnlDCmpMa0h1WWF0YzAyWDNPMlU4UWJhU3VVcU5Ddnh1b2xta0lscHJDZkJvZHUvUHc4L2hROVdHTmVPTzZ3VWhKUVcKZUl5ai9SRzNDZlpwRHZrL3IyS3dNZ3Y3YnEzTU1lV3RHUlJyeUFxZ25jV3krS29ITVFJdzVlckIxeWhuejJqaApYQXNjM3drVzVyTEVNTC9QOHpINW1ieTdiMEVkS3BGK1I3eUVaZStka3NIT1BqL0FRUUtDQVFFQS9TQXVxbnZaCmpQK0ptaDdINmxER05yU2VXSlNxS1diV1JSY1l4eVcrYjZwK0FlNG5PUWtSaVFMRlR3VVRDRjAveEpKR3k2U24KRHVjblpjaWxIOUx1djhHV0d2eDRhM3B2V05GMDhnTFQ3YkI2UnhIMHNBS3puQ2Q1MTNpdUtDNXZkcGk3cXorYgpFaTBTOGp0K2lwNklNSEg4UytxQ0NJbFVMS2ZLTDFkaTQ2TS9JNEtSUzF0RDVPZmo1V1hHeEVkVFoyVlBMQmExClQyeml5SVhqQXZyUGdOeDh6Ny9HRGpFTDZpV2lOZkllWXJwaXVGdEYwUlNlY0kxRzhEa2lHT2xnWGxwaHJmcU4KVk9yVWY1cWhIYWJzVVdzWDZJeDJjZW1yZTgycFdLSlVaZmo0RnZYbXdUamxyZm5YUG5GQXp2RVFHMEFUR01XSAppUU8wTWJOOEdmbWVTd0tDQVFFQTY0U1hkTFE0UnBsQzlVOFExZTZpb2wrdkhjM0J3WWZyZzhLZFprOGJmQ0FWCm5jQkFyRVB2Z0lSNFJ3UXcvM0ZIYzJZS3NJbndJOWc1Yy8xRU92UFp2L05kbnhDS21QR01SbDhDdEdWdko1TTcKWHdPZlY5UmRsVXIwV0V3enl1aWpqeVpFRlBZUmRFVXZ2RjZJV3puTExjaDl0Slkxa2x5SHlxcVVHZi9qVUgvMQpMdGJCRTNUbnBGK3dtaDQybkRhV3h0RlpWYjZuWkM0a2RXRW9lM2FJREdKR1dma2tjRDU0amJMVit3Vmw1V290Cjdmb04xT0l0M0U1dDUvek0xT09mR3kwYklWdWk4MVhuV2VBTnpmLzZxWUxxTVNWR2c1SHFXV0l3a01zWmdtMDYKOWNZNGdTREt4SzJqY3ZQVXpHckxrTUpJODV4UkVmR0UzZ2ZmUk14MUZ3S0NBUUFTSFVWNXFkZE53ZFBGRmNMVQp2K2NQYnltTnlVWE1KTEhjeStSWURCbHV3Rks0TEtUZDdnbzFOZCtNNGg0VWtTZkpGM2E5aUJEMGZoSlJ0R1FzCnZObWRHMnQwanZESE1FSGJwMUdwS0E2bWllU1dSWEN2VCtJdW9KeVZrT3RWc00wRlBiVGdjbkxVZ0NsRThJRUQKeG9pVWZ2UEJNdzBQTTFTMHhXVXdzaDQva0NVcWsyTjJjeGVPd0JHTkR4V0VZbDVUbmVwbWkxRjZWNTU3SHltNQp3dDBxcVp5OCtVcGhKWjFtcWo3TGdZSXZLb3Q2Q2Y0YkVsQ3NXVS9rVFJKbG1mM3RncVpPM3dsU05HUDBwY28xCjV3WXVaVzJXbE1hOUxDMjdkR0pVRjNuV3VsUjJ3QzQ5VWFjT0pqMERHUE84VzMvOWt6NUtuWWd2Zy9aWFFETDMKWU9lMUFvSUJBR1NoT0oxeXk0RE94MTlOTXlKVlhrUUdvaW9YMml1NHlaWjR0d3daek9LU1N1b21WUHZGNHpXRQpaR2Zqa0pQMGNOVUx5cEYzdnBWeU04b3RjdFBGa1VxRXo0SEJiWmEvem5IYThxcmxsRUxTazlHYkdLQk1hdGY1Ck9NSHBmVSs3YXZjbElIM2NUY1RpTXUxSGJ2ZWJrQWExM1pBbGhpcE5RdkFEUmxoOWowQzhDNlRCdWFsNGora1oKd2JsNEkxbEhzZEN0Ym9CR2YvczhBL1ByV1lLM09KWWgvM0UrRktXbzY1V1B6Z0g5WW5aTmtlWldxMFpFaGRmVgo0dnYyZGdhWVkwa1hVcnBFRHpIdGlIWk1WMW1uZ0JDaGtUTUNmRWlITmh5TzZiVlVNa2dhSjlFUHF1RHhnL0haClJ6YzhtN1hrQTZxTWVPTXQ3UzIvaGtmZ0VUT3lNRzBDZ2dFQVlpN1M1VGVNSll3d0UyRXF4Q25iejh6N1NWUEIKYlprUlpJS0JsMzFXVU5pZU52dlIwa3o1OVVydVdpMDUyamUxQm1tT2xBUUZaMlRnN0VJVDhkTERaR0JaMXlNTAp6eDgwK2N6dlVYeEhyOXJnRE1nYkc4NHp1ZVVDVWJUZGt3anMxMFlSVitjUERaRHFaSW1abUdHbjVvRHg4WEF3Cjg2L1U1aHkzcGZDZXBiek1QbGMxN3VZWGJoY1dpRHpkclZDWTFOKzBwdkFQSWVZR2Fkb0Q2ZEFJSCs1Q3dlb0kKbDI4QnZkamR1bXZGeU1rc082ZmpiZ1NuUkZta0hrQXlLK0tLSnJXcFBxUHVOTm5VbEhDY20yUklTUkNCbVVNbgpSSUtlQWFLRGFGUVh1dEFVbVhyWnU1Zzk4czEvRGtEN2ROYW9MekpFeDIzei80d0RVQXRxc1pNSkN3PT0KLS0tLS1FTkQgUlNBIFBSSVZBVEUgS0VZLS0tLS0K"
+---
+# Source: cells/charts/etcd/templates/svc-headless.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: cells-etcd-headless
+  namespace: "cells-ns"
+  labels:
+    app.kubernetes.io/name: etcd
+    helm.sh/chart: etcd-8.7.3
+    app.kubernetes.io/instance: cells
+    app.kubernetes.io/managed-by: Helm
+  annotations:
+    service.alpha.kubernetes.io/tolerate-unready-endpoints: "true"
+    helm.sh/hook: pre-install
+    helm.sh/hook-weight: "-2"
+spec:
+  type: ClusterIP
+  clusterIP: None
+  publishNotReadyAddresses: true
+  ports:
+    - name: client
+      port: 2379
+      targetPort: client
+    - name: peer
+      port: 2380
+      targetPort: peer
+  selector:
+    app.kubernetes.io/name: etcd
+    app.kubernetes.io/instance: cells
+---
+# Source: cells/charts/etcd/templates/svc.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: cells-etcd
+  namespace: "cells-ns"
+  labels:
+    app.kubernetes.io/name: etcd
+    helm.sh/chart: etcd-8.7.3
+    app.kubernetes.io/instance: cells
+    app.kubernetes.io/managed-by: Helm
+  annotations:
+    helm.sh/hook: pre-install
+    helm.sh/hook-weight: "-2"
+spec:
+  type: ClusterIP
+  sessionAffinity: None
+  ports:
+    - name: "client"
+      port: 2379
+      targetPort: client
+      nodePort: null
+    - name: "peer"
+      port: 2380
+      targetPort: peer
+      nodePort: null
+  selector:
+    app.kubernetes.io/name: etcd
+    app.kubernetes.io/instance: cells
+---
+# Source: cells/charts/vault/templates/tests/server-test.yaml
+apiVersion: v1
+kind: Pod
+metadata:
+  name: "cells-server-test"
+  namespace: cells-ns
+  annotations:
+    "helm.sh/hook": test
+spec:
+  
+  containers:
+    - name: cells-server-test
+      image: hashicorp/vault:1.12.1
+      imagePullPolicy: IfNotPresent
+      env:
+        - name: VAULT_ADDR
+          value: http://cells-vault.cells-ns.svc:8200
+        
+      command:
+        - /bin/sh
+        - -c
+        - |
+          echo "Checking for sealed info in 'vault status' output"
+          ATTEMPTS=10
+          n=0
+          until [ "$n" -ge $ATTEMPTS ]
+          do
+            echo "Attempt" $n...
+            vault status -format yaml | grep -E '^sealed: (true|false)' && break
+            n=$((n+1))
+            sleep 5
+          done
+          if [ $n -ge $ATTEMPTS ]; then
+            echo "timed out looking for sealed info in 'vault status' output"
+            exit 1
+          fi
+
+          exit 0
+      volumeMounts:
+  volumes:
+  restartPolicy: Never
+---
+# Source: cells/templates/tests/test-connection.yaml
+apiVersion: v1
+kind: Pod
+metadata:
+  name: "cells-test-connection"
+  labels:
+    helm.sh/chart: cells-0.1.2
+    app.kubernetes.io/name: cells
+    app.kubernetes.io/instance: cells
+    app.kubernetes.io/version: "v4"
+    app.kubernetes.io/managed-by: Helm
+  annotations:
+    "helm.sh/hook": test
+spec:
+  containers:
+    - name: wget
+      image: busybox
+      command: ['wget']
+      args: ['cells:8080']
+  restartPolicy: Never
+---
+# Source: cells/charts/etcd/templates/statefulset.yaml
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: cells-etcd
+  namespace: "cells-ns"
+  labels:
+    app.kubernetes.io/name: etcd
+    helm.sh/chart: etcd-8.7.3
+    app.kubernetes.io/instance: cells
+    app.kubernetes.io/managed-by: Helm
+  annotations:
+    helm.sh/hook: pre-install
+    helm.sh/hook-weight: "-2"
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: etcd
+      app.kubernetes.io/instance: cells
+  serviceName: cells-etcd-headless
+  podManagementPolicy: Parallel
+  updateStrategy:
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: etcd
+        helm.sh/chart: etcd-8.7.3
+        app.kubernetes.io/instance: cells
+        app.kubernetes.io/managed-by: Helm
+      annotations:
+        checksum/token-secret: f0c27485c190fe6c86e07c9971f797e7355074d07f353a1c87e6c2596e5ee265
+    spec:
+      
+      affinity:
+        podAffinity:
+          
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - podAffinityTerm:
+                labelSelector:
+                  matchLabels:
+                    app.kubernetes.io/name: etcd
+                    app.kubernetes.io/instance: cells
+                topologyKey: kubernetes.io/hostname
+              weight: 1
+        nodeAffinity:
+          
+      securityContext:
+        fsGroup: 1001
+      serviceAccountName: "default"
+      initContainers:
+        - name: volume-permissions
+          image: docker.io/bitnami/bitnami-shell:11-debian-11-r74
+          imagePullPolicy: "IfNotPresent"
+          command:
+            - /bin/bash
+            - -ec
+            - |
+              chown -R 1001:1001 /bitnami/etcd
+          securityContext:
+            runAsUser: 0
+          resources:
+            limits: {}
+            requests: {}
+          volumeMounts:
+            - name: data
+              mountPath: /bitnami/etcd
+      containers:
+        - name: etcd
+          image: docker.io/bitnami/etcd:3.5.7-debian-11-r0
+          imagePullPolicy: "IfNotPresent"
+          securityContext:
+            allowPrivilegeEscalation: false
+            runAsNonRoot: true
+            runAsUser: 1001
+          env:
+            - name: BITNAMI_DEBUG
+              value: "false"
+            - name: MY_POD_IP
+              valueFrom:
+                fieldRef:
+                  fieldPath: status.podIP
+            - name: MY_POD_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+            - name: MY_STS_NAME
+              value: "cells-etcd"
+            - name: ETCDCTL_API
+              value: "3"
+            - name: ETCD_ON_K8S
+              value: "yes"
+            - name: ETCD_START_FROM_SNAPSHOT
+              value: "no"
+            - name: ETCD_DISASTER_RECOVERY
+              value: "no"
+            - name: ETCD_NAME
+              value: "$(MY_POD_NAME)"
+            - name: ETCD_DATA_DIR
+              value: "/bitnami/etcd/data"
+            - name: ETCD_LOG_LEVEL
+              value: "info"
+            - name: ALLOW_NONE_AUTHENTICATION
+              value: "no"
+            - name: ETCD_ROOT_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: cells-etcd
+                  key: etcd-root-password
+            - name: ETCD_AUTH_TOKEN
+              value: "jwt,priv-key=/opt/bitnami/etcd/certs/token/jwt-token.pem,sign-method=RS256,ttl=10m"
+            - name: ETCD_ADVERTISE_CLIENT_URLS
+              value: "http://$(MY_POD_NAME).cells-etcd-headless.cells-ns.svc.cluster.local:2379,http://cells-etcd.cells-ns.svc.cluster.local:2379"
+            - name: ETCD_LISTEN_CLIENT_URLS
+              value: "http://0.0.0.0:2379"
+            - name: ETCD_INITIAL_ADVERTISE_PEER_URLS
+              value: "http://$(MY_POD_NAME).cells-etcd-headless.cells-ns.svc.cluster.local:2380"
+            - name: ETCD_LISTEN_PEER_URLS
+              value: "http://0.0.0.0:2380"
+            - name: ETCD_CLUSTER_DOMAIN
+              value: "cells-etcd-headless.cells-ns.svc.cluster.local"
+          envFrom:
+          ports:
+            - name: client
+              containerPort: 2379
+              protocol: TCP
+            - name: peer
+              containerPort: 2380
+              protocol: TCP
+          livenessProbe:
+            exec:
+              command:
+                - /opt/bitnami/scripts/etcd/healthcheck.sh
+            initialDelaySeconds: 60
+            periodSeconds: 30
+            timeoutSeconds: 5
+            successThreshold: 1
+            failureThreshold: 5
+          readinessProbe:
+            exec:
+              command:
+                - /opt/bitnami/scripts/etcd/healthcheck.sh
+            initialDelaySeconds: 60
+            periodSeconds: 10
+            timeoutSeconds: 5
+            successThreshold: 1
+            failureThreshold: 5
+          resources:
+            limits: {}
+            requests: {}
+          volumeMounts:
+            - name: data
+              mountPath: /bitnami/etcd
+            - name: etcd-jwt-token
+              mountPath: /opt/bitnami/etcd/certs/token/
+              readOnly: true
+      volumes:
+        - name: etcd-jwt-token
+          secret:
+            secretName: cells-etcd-jwt-token
+            defaultMode: 256
+  volumeClaimTemplates:
+    - metadata:
+        name: data
+      spec:
+        accessModes:
+          - "ReadWriteOnce"
+        resources:
+          requests:
+            storage: "8Gi"
+---
+# Source: cells/charts/vault/templates/injector-mutating-webhook.yaml
+apiVersion: admissionregistration.k8s.io/v1
+kind: MutatingWebhookConfiguration
+metadata:
+  name: cells-vault-agent-injector-cfg
+  labels:
+    app.kubernetes.io/name: vault-agent-injector
+    app.kubernetes.io/instance: cells
+    app.kubernetes.io/managed-by: Helm
+  annotations:
+    helm.sh/hook: pre-install
+    helm.sh/hook-weight: "-5"
+webhooks:
+  - name: vault.hashicorp.com
+    failurePolicy: Fail
+    matchPolicy: Exact
+    sideEffects: None
+    timeoutSeconds: 30
+    admissionReviewVersions: ["v1", "v1beta1"]
+    clientConfig:
+      service:
+        name: cells-vault-agent-injector-svc
+        namespace: cells-ns
+        path: "/mutate"
+      caBundle: ""
+    rules:
+      - operations: ["CREATE", "UPDATE"]
+        apiGroups: [""]
+        apiVersions: ["v1"]
+        resources: ["pods"]
+    namespaceSelector:
+      matchExpressions:
+      - key: kubernetes.io/metadata.name
+        operator: NotIn
+        values:
+        - vault
+        - kube-system
+        - kube-public
+        - kube-node-lease
+
+    objectSelector:
+      matchExpressions:
+      - key: app.kubernetes.io/name
+        operator: NotIn
+        values:
+        - vault-agent-injector

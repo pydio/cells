@@ -1,0 +1,61 @@
+etcd:
+  replicaCount: 1
+  service:
+  enabled: true
+  podAnnotations: {  
+    "sidecar.istio.io/inject": "true"
+  }
+  commonAnnotations: {
+    "helm.sh/hook": "pre-install",
+    "helm.sh/hook-weight": "-2",
+    "sidecar.istio.io/inject": "true"
+  }
+  persistence:
+    enabled: true   
+    existingClaim:
+    storageClass: ""
+    annotations: {}
+    accessModes:
+      - ReadWriteOnce
+    ## @param primary.persistence.size MariaDB primary persistent volume size
+    ##
+    size: 8Gi 
+  auth:
+    rbac:
+      create: false
+    peer:
+      secureTransport: false
+      useAutoTLS: false
+    client:
+      secureTransport: false
+      enableAuthentication: false
+      existingSecret: "etcd-client-certs"
+      certFilename: "tls.crt"
+      certKeyFilename: "tls.key"
+      caFilename: "ca.crt"
+  volumePermissions:
+    enabled: true
+  livenessProbe:
+    enabled: true
+    initialDelaySeconds: 60
+    periodSeconds: 30
+    timeoutSeconds: 5
+    successThreshold: 1
+    failureThreshold: 5
+  
+  ## Configure extra options for readiness probe
+  ## ref: https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/#configure-probes
+  ## @param readinessProbe.enabled Enable readinessProbe
+  ## @param readinessProbe.initialDelaySeconds Initial delay seconds for readinessProbe
+  ## @param readinessProbe.periodSeconds Period seconds for readinessProbe
+  ## @param readinessProbe.timeoutSeconds Timeout seconds for readinessProbe
+  ## @param readinessProbe.failureThreshold Failure threshold for readinessProbe
+  ## @param readinessProbe.successThreshold Success threshold for readinessProbe
+  ##
+  readinessProbe:
+    enabled: true
+    initialDelaySeconds: 60
+    periodSeconds: 10
+    timeoutSeconds: 5
+    successThreshold: 1
+    failureThreshold: 5
