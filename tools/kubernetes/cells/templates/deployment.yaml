@@ -157,7 +157,7 @@ spec:
           command: ["sh", "-c", 'until nc -zw2 {{ include "cells.vaultHost" . | quote }} {{ include "cells.vaultPort" . | quote }}; do echo waiting for vault; sleep 2; done']
         {{- end }}
         {{- if and .Values.etcd.enabled .Values.etcd.auth.client.secureTransport }}
-        - name: install-certs-etcd
+        - name: install-certs
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           command:
@@ -187,6 +187,14 @@ spec:
             - name: minio-secret
               mountPath: /var/certs/minio
             {{- end }}
+            {{- if and .Values.mariadb.enabled .Values.mariadb.tls.enabled }}
+            - name: mariadb-secret
+              mountPath: /var/certs/minio
+            {{- end }}
+            {{- if and .Values.mongodb.enabled .Values.mongodb.tls.enabled }}
+            - name: mongodb-secret
+              mountPath: /var/certs/minio
+            {{- end }}                        
         {{- end }}
         - name: install
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
@@ -271,6 +279,16 @@ spec:
           secret:
             secretName: {{ .Values.minio.tls.existingSecret }}
         {{- end }}
+        {{- if and .Values.minio.enabled .Values.minio.tls.enabled }}
+        - name: mariadb-secret
+          secret:
+            secretName: {{ .Values.mariadb.tls.existingSecret }}
+        {{- end }}
+        {{- if and .Values.minio.enabled .Values.minio.tls.enabled }}
+        - name: mongodb-secret
+          secret:
+            secretName: {{ .Values.mongodb.tls.existingSecret }}
+        {{- end }}                        
       {{- with .Values.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}

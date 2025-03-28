@@ -45,7 +45,7 @@ data:
     dbtcppassword: {$MARIADB_ROOT_PASSWORD}
     {{- end }}
 
-    documentsdsn: {{ include "cells.mongodbURL" . }}/cells
+    documentsdsn: {{ include "cells.mongodbURL" . }}
     usedocumentsdsn: true
 
     # Defined in .env file
