@@ -110,7 +110,7 @@ func uploadStream(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Check if LastModifiedTime changed, don't override	
+	// Check if LastModifiedTime changed, ask user to resolve the conflict
 	coolTimeStr := r.Header.Get("X-COOL-WOPI-Timestamp")
 	if coolTimeStr != "" {
 		coolTime, err := time.Parse(time.RFC3339, coolTimeStr)
@@ -128,7 +128,7 @@ func uploadStream(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 	}
-	
+
 	var size int64
 	if h, ok := r.Header["Content-Length"]; ok && len(h) > 0 {
 		size, _ = strconv.ParseInt(h[0], 10, 64)
@@ -148,10 +148,15 @@ func uploadStream(w http.ResponseWriter, r *http.Request) {
 	}
 
 	log.Logger(r.Context()).Debug("uploaded node", n.Zap(), zap.Int64("Data Length", written.Size))
-	
+
 	// Readnode for info
-	n, _ = findNodeFromRequest(r)
-		
+	n, err = findNodeFromRequest(r)
+
+	if err != nil {
+		w.WriteHeader(http.StatusNotFound)
+		return
+	}
+
 	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(map[string]interface{}{
 		"LastModifiedTime": n.GetModTime().Format(time.RFC3339),
@@ -174,7 +179,11 @@ func buildFileFromNode(ctx context.Context, n *tree.Node) *File {
 		if claims, ok := cValue.(claim.Claims); ok {
 
 			f.UserId = claims.Name
-			f.UserFriendlyName = claims.DisplayName
+			if claims.DisplayName == "" {
+				f.UserFriendlyName = claims.Name
+			} else {
+				f.UserFriendlyName = claims.DisplayName
+			}
 
 			pydioReadOnly := n.GetStringMeta(common.MetaFlagReadonly)
 			if pydioReadOnly == "true" {
