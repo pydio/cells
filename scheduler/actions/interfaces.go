@@ -31,6 +31,7 @@ import (
 	"github.com/pydio/cells/v5/common"
 	"github.com/pydio/cells/v5/common/forms"
 	"github.com/pydio/cells/v5/common/proto/jobs"
+	"github.com/pydio/cells/v5/common/proto/tree"
 )
 
 type Concrete func() ConcreteAction
@@ -84,6 +85,10 @@ type ConcreteAction interface {
 	Init(job *jobs.Job, action *jobs.Action) error
 	// Run performs the actual action code
 	Run(ctx context.Context, channels *RunnableChannels, input *jobs.ActionMessage) (*jobs.ActionMessage, error)
+}
+
+type IncomingMiddlewareAction interface {
+	HandleIncomingNode(ctx context.Context, input *tree.Node) (context.Context, *tree.Node, map[string]interface{}, error)
 }
 
 // TaskUpdaterDelegateAction Actions that implement this interface can send their status updates to a parent task

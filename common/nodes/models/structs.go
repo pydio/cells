@@ -43,6 +43,7 @@ type PutRequestData struct {
 	Md5Sum            []byte
 	Sha256Sum         []byte
 	Metadata          map[string]string
+	CheckedMetadata   map[string]interface{}
 	MultipartUploadID string
 	MultipartPartID   int
 }
@@ -155,7 +156,8 @@ func (c *CopyRequestData) SetMeta(key, value string) {
 
 // MultipartRequestData is a metadata container for Multipart List Requests
 type MultipartRequestData struct {
-	Metadata map[string]string
+	Metadata        map[string]string
+	CheckedMetadata map[string]interface{}
 
 	ListKeyMarker      string
 	ListUploadIDMarker string

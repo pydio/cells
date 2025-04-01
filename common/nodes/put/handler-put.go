@@ -57,7 +57,6 @@ func WithPutInterceptor() nodes.Option {
 // This temporary entry is updated later on by the sync service, once the object is written. It is deleted if the Put operation fails.
 type Handler struct {
 	abstract.Handler
-	partsCache cache.Cache
 	metaClient meta.UserMetaClient
 }
 
@@ -421,6 +420,10 @@ func (m *Handler) getOrCreatePutNode(ctx context.Context, nodePath string, reque
 		Size:  requestData.Size,
 		Type:  tree.NodeType_LEAF,
 		Etag:  common.NodeFlagEtagTemporary,
+	}
+
+	for k, v := range requestData.CheckedMetadata {
+		tmpNode.MustSetMeta(k, v)
 	}
 
 	if !requestData.ContentTypeUnknown() {

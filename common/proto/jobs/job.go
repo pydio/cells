@@ -121,3 +121,8 @@ func MustMarshalAnyMultiple(pbs ...proto.Message) (out []*anypb.Any) {
 	}
 	return
 }
+
+// GetNodesFilter is similar to GetNodeEventFilter, conforming to Action interface
+func (job *Job) GetNodesFilter() *NodesSelector {
+	return job.NodeEventFilter
+}

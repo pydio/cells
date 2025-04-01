@@ -204,6 +204,7 @@ func (s *Subscriber) Init(ctx context.Context) error {
 		}
 		_ = defCache.Set(resp.Job.ID, resp.Job)
 		s.getDispatcherForJob(ctx, resp.Job)
+		RegisterJobMiddlewares(ctx, resp.Job)
 	}
 
 	return nil
@@ -260,6 +261,7 @@ func (s *Subscriber) jobsChangeEvent(ctx context.Context, msg *jobs.JobChangeEve
 	dispCache, _ := s.dispatchersPool.Get(ctx)
 
 	if msg.JobRemoved != "" {
+		UnregisterJobMiddlewares(ctx, msg.JobRemoved)
 		_ = defCache.Delete(msg.JobRemoved)
 		var disp *Dispatcher
 		if ok := dispCache.Get(msg.JobRemoved, &disp); ok {
@@ -268,6 +270,11 @@ func (s *Subscriber) jobsChangeEvent(ctx context.Context, msg *jobs.JobChangeEve
 		}
 	}
 	if msg.JobUpdated != nil {
+		if msg.JobUpdated.Inactive {
+			UnregisterJobMiddlewares(ctx, msg.JobUpdated.GetID())
+		} else {
+			RegisterJobMiddlewares(ctx, msg.JobUpdated)
+		}
 		_ = defCache.Set(msg.JobUpdated.ID, msg.JobUpdated)
 		var disp *Dispatcher
 		if ok := dispCache.Get(msg.JobUpdated.ID, &disp); ok {
@@ -411,9 +418,6 @@ func (s *Subscriber) idmEvent(ctx context.Context, event *idm.ChangeEvent) error
 	return defCache.Iterate(func(jobId string, val interface{}) {
 		jobData, ok := val.(*jobs.Job)
 		if !ok || jobData.Inactive {
-			return
-		}
-		if jobData.Inactive {
 			return
 		}
 		sameJob := s.contextJobSameUuid(ctx, jobId)

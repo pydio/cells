@@ -73,8 +73,9 @@ type ThumbnailData struct {
 }
 
 type ThumbnailsMeta struct {
-	Processing bool
-	Thumbnails []ThumbnailData `json:"thumbnails"`
+	Processing bool            `json:"Processing,omitempty"`
+	Error      bool            `json:"Error,omitempty"`
+	Thumbnails []ThumbnailData `json:"thumbnails,omitempty"`
 }
 
 type ThumbnailExtractor struct {
@@ -154,7 +155,13 @@ func (t *ThumbnailExtractor) Run(ctx context.Context, channels *actions.Runnable
 
 	log.Logger(ctx).Debug("[THUMB EXTRACTOR] Resizing image...")
 	node := input.Nodes[0]
-	err := t.resize(ctx, node, t.thumbSizes)
+	meta, err := t.resize(ctx, node, t.thumbSizes)
+	if err == nil && meta != nil {
+		node.MustSetMeta(MetadataThumbnails, meta)
+	} else {
+		node.MustSetMeta(MetadataThumbnails, &ThumbnailsMeta{Error: true, Processing: false})
+	}
+	_, _ = t.metaClient.UpdateNode(ctx, &tree.UpdateNodeRequest{From: node, To: node})
 	if err != nil {
 		return input.WithError(err), err
 	}
@@ -174,11 +181,11 @@ func displayMemStat(_ context.Context, _ string) {
 	//stdlog.Printf("%s : \nAlloc = %v\nTotalAlloc = %v\nSys = %v\nNumGC = %v\n\n", position, m.Alloc / 1024 / 1024, m.TotalAlloc / 1024 / 1024, m.Sys / 1024, m.NumGC)
 }
 
-func (t *ThumbnailExtractor) resize(ctx context.Context, node *tree.Node, sizes map[string]int) error {
+func (t *ThumbnailExtractor) resize(ctx context.Context, node *tree.Node, sizes map[string]int) (*ThumbnailsMeta, error) {
 	displayMemStat(ctx, "START RESIZE")
 	// Open the test image.
 	if !node.HasSource() {
-		return fmt.Errorf("node does not have enough metadata for Resize (missing Source data)")
+		return nil, fmt.Errorf("node does not have enough metadata for Resize (missing Source data)")
 	}
 
 	log.Logger(ctx).Debug("[THUMB EXTRACTOR] Getting object content", zap.String("Path", node.Path), zap.Int64("Size", node.Size))
@@ -198,14 +205,14 @@ func (t *ThumbnailExtractor) resize(ctx context.Context, node *tree.Node, sizes 
 		errPath = routerNode.Path
 	}
 	if err != nil {
-		return errors.Wrap(err, errPath)
+		return nil, errors.Wrap(err, errPath)
 	}
 	defer reader.Close()
 
 	displayMemStat(ctx, "BEFORE DECODE")
 	src, err := imaging.Decode(reader)
 	if err != nil {
-		return errors.Wrap(err, errPath)
+		return nil, errors.Wrap(err, errPath)
 	}
 	displayMemStat(ctx, "AFTER DECODE")
 
@@ -222,13 +229,12 @@ func (t *ThumbnailExtractor) resize(ctx context.Context, node *tree.Node, sizes 
 		Height: height,
 	})
 	node.MustSetMeta(MetadataCompatIsImage, true)
-	node.MustSetMeta(MetadataThumbnails, &ThumbnailsMeta{Processing: true})
 	node.MustSetMeta(MetadataCompatImageHeight, height)
 	node.MustSetMeta(MetadataCompatImageWidth, width)
 	node.MustSetMeta(MetadataCompatImageReadableDimensions, fmt.Sprintf("%dpx X %dpx", width, height))
 
 	if _, err = t.metaClient.UpdateNode(ctx, &tree.UpdateNodeRequest{From: node, To: node}); err != nil {
-		return errors.Wrap(err, errPath)
+		return nil, errors.Wrap(err, errPath)
 	}
 
 	log.Logger(ctx).Debug("Thumbnails - Extracted dimension and saved in metadata", zap.Any("dimension", bounds))
@@ -244,10 +250,7 @@ func (t *ThumbnailExtractor) resize(ctx context.Context, node *tree.Node, sizes 
 		displayMemStat(ctx, "BEFORE WRITE SIZE FROM SRC")
 		updateMeta, err := t.writeSizeFromSrc(ctx, src, node, size, router)
 		if err != nil {
-			// Remove processing state from Metadata
-			node.MustSetMeta(MetadataThumbnails, nil)
-			t.metaClient.UpdateNode(ctx, &tree.UpdateNodeRequest{From: node, To: node})
-			return errors.Wrap(err, errPath)
+			return nil, errors.Wrap(err, errPath)
 		}
 		displayMemStat(ctx, "AFTER WRITE SIZE FROM SRC")
 		if updateMeta {
@@ -264,18 +267,7 @@ func (t *ThumbnailExtractor) resize(ctx context.Context, node *tree.Node, sizes 
 
 	displayMemStat(ctx, "AFTER TRIGGERING GC")
 
-	if (meta != &ThumbnailsMeta{}) {
-		node.MustSetMeta(MetadataThumbnails, meta)
-	} else {
-		node.MustSetMeta(MetadataThumbnails, nil)
-	}
-
-	_, err = t.metaClient.UpdateNode(ctx, &tree.UpdateNodeRequest{From: node, To: node})
-	if err != nil {
-		err = errors.Wrap(err, errPath)
-	}
-
-	return err
+	return meta, err
 }
 
 func (t *ThumbnailExtractor) writeSizeFromSrc(ctx context.Context, img image.Image, node *tree.Node, targetSize int, router nodes.Client) (bool, error) {

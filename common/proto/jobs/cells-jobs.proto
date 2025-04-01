@@ -243,6 +243,16 @@ message ChatEventFilterQuery {
     string MessageAuthor = 7;
 }
 
+message GenericFilter {
+    oneof Filter {
+        NodesSelector NodeSelector = 1;
+        IdmSelector IdmSelector = 2;
+        DataSourceSelector DataSourceSelector = 3;
+        ContextMetaFilter ContextMetaFilter = 4;
+        DataSelector DataSelector = 5;
+    }
+}
+
 message Schedule {
     // ISO 8601 Description of the scheduling for instance "R2/2015-06-04T19:25:16.828696-07:00/PT4S"
     // where first part is the number of repetitions (if 0, infinite repetition), 
@@ -732,6 +742,24 @@ message ActionMessage {
     repeated ActionOutput OutputChain = 5;
 }
 
+message MiddlewareDescriptor {
+    // Where this descriptor comes from
+    string JobID = 1;
+    // All filters will be applied
+    repeated GenericFilter Filters = 2;
+    // All actions will be applied
+    repeated Action Actions = 3;
+}
+
+message RegisteredMiddlewaresRequest {
+    string MiddlewareType = 1;
+}
+
+message RegisteredMiddlewaresResponse {
+    repeated MiddlewareDescriptor Descriptors = 1;
+}
+
 service TaskService {
     rpc Control(CtrlCommand) returns (CtrlCommandResponse) {};
+    rpc GetRegisteredMiddlewares(RegisteredMiddlewaresRequest) returns (RegisteredMiddlewaresResponse) {};
 }

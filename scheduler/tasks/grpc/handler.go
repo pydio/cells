@@ -39,3 +39,11 @@ func (h *TaskHandler) Control(ctx context.Context, command *jobs.CtrlCommand) (*
 	return &jobs.CtrlCommandResponse{Msg: "Published"}, nil
 
 }
+
+// GetRegisteredMiddlewares can serve the currently stored middlewares
+func (h *TaskHandler) GetRegisteredMiddlewares(ctx context.Context, _ *jobs.RegisteredMiddlewaresRequest) (*jobs.RegisteredMiddlewaresResponse, error) {
+	dd := tasks.ListJobsMiddlewares(ctx)
+	return &jobs.RegisteredMiddlewaresResponse{
+		Descriptors: dd,
+	}, nil
+}

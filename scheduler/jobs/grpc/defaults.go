@@ -77,25 +77,33 @@ func GetDefaultJobs() []*jobs.Job {
 		},
 		Actions: []*jobs.Action{
 			{
-				ID:            "actions.images.thumbnails",
-				Parameters:    map[string]string{"ThumbSizes": `{"sm":300,"md":1024}`},
-				TriggerFilter: triggerCreate,
-			},
-			{
-				ID:            "actions.images.exif",
-				TriggerFilter: triggerCreate,
-				NodesFilter: &jobs.NodesSelector{
-					Label: "Jpg only",
-					Query: &service.Query{
-						SubQueries: []*anypb.Any{jobs.MustMarshalAny(&tree.Query{
-							Extension: "jpg,jpeg",
-						})},
+				ID: "middleware.tree.meta",
+				Parameters: map[string]string{
+					"metaJSON": "{\"ImageThumbnails\":{\"Processing\": true}}",
+				},
+				ChainedActions: []*jobs.Action{
+					{
+						ID:            "actions.images.thumbnails",
+						Parameters:    map[string]string{"ThumbSizes": `{"sm":300,"md":1024}`},
+						TriggerFilter: triggerCreate,
+					},
+					{
+						ID:            "actions.images.exif",
+						TriggerFilter: triggerCreate,
+						NodesFilter: &jobs.NodesSelector{
+							Label: "Jpg only",
+							Query: &service.Query{
+								SubQueries: []*anypb.Any{jobs.MustMarshalAny(&tree.Query{
+									Extension: "jpg,jpeg",
+								})},
+							},
+						},
+					},
+					{
+						ID:            "actions.images.clean",
+						TriggerFilter: triggerDelete,
 					},
 				},
-			},
-			{
-				ID:            "actions.images.clean",
-				TriggerFilter: triggerDelete,
 			},
 		},
 	}

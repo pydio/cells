@@ -480,6 +480,7 @@ var JobService_ServiceDesc = grpc.ServiceDesc{
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type TaskServiceClient interface {
 	Control(ctx context.Context, in *CtrlCommand, opts ...grpc.CallOption) (*CtrlCommandResponse, error)
+	GetRegisteredMiddlewares(ctx context.Context, in *RegisteredMiddlewaresRequest, opts ...grpc.CallOption) (*RegisteredMiddlewaresResponse, error)
 }
 
 type taskServiceClient struct {
@@ -499,11 +500,21 @@ func (c *taskServiceClient) Control(ctx context.Context, in *CtrlCommand, opts .
 	return out, nil
 }
 
+func (c *taskServiceClient) GetRegisteredMiddlewares(ctx context.Context, in *RegisteredMiddlewaresRequest, opts ...grpc.CallOption) (*RegisteredMiddlewaresResponse, error) {
+	out := new(RegisteredMiddlewaresResponse)
+	err := c.cc.Invoke(ctx, "/jobs.TaskService/GetRegisteredMiddlewares", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // TaskServiceServer is the server API for TaskService service.
 // All implementations must embed UnimplementedTaskServiceServer
 // for forward compatibility
 type TaskServiceServer interface {
 	Control(context.Context, *CtrlCommand) (*CtrlCommandResponse, error)
+	GetRegisteredMiddlewares(context.Context, *RegisteredMiddlewaresRequest) (*RegisteredMiddlewaresResponse, error)
 	mustEmbedUnimplementedTaskServiceServer()
 }
 
@@ -513,6 +524,9 @@ type UnimplementedTaskServiceServer struct {
 
 func (UnimplementedTaskServiceServer) Control(context.Context, *CtrlCommand) (*CtrlCommandResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Control not implemented")
+}
+func (UnimplementedTaskServiceServer) GetRegisteredMiddlewares(context.Context, *RegisteredMiddlewaresRequest) (*RegisteredMiddlewaresResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetRegisteredMiddlewares not implemented")
 }
 func (UnimplementedTaskServiceServer) mustEmbedUnimplementedTaskServiceServer() {}
 
@@ -545,6 +559,24 @@ func _TaskService_Control_Handler(srv interface{}, ctx context.Context, dec func
 	return interceptor(ctx, in, info, handler)
 }
 
+func _TaskService_GetRegisteredMiddlewares_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(RegisteredMiddlewaresRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(TaskServiceServer).GetRegisteredMiddlewares(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/jobs.TaskService/GetRegisteredMiddlewares",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(TaskServiceServer).GetRegisteredMiddlewares(ctx, req.(*RegisteredMiddlewaresRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // TaskService_ServiceDesc is the grpc.ServiceDesc for TaskService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -555,6 +587,10 @@ var TaskService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "Control",
 			Handler:    _TaskService_Control_Handler,
+		},
+		{
+			MethodName: "GetRegisteredMiddlewares",
+			Handler:    _TaskService_GetRegisteredMiddlewares_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

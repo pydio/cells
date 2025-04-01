@@ -65,6 +65,7 @@ func pathComposer(oo ...nodes.Option) []nodes.Option {
 		events.WithAudit(),
 		acl.WithFilter(),
 		events.WithRead(),
+		put.WithJobsDynamicMiddlewares(),
 		put.WithPutInterceptor(),
 		put.WithHashInterceptor(),
 		acl.WithLock(),

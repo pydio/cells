@@ -47,4 +47,7 @@ func init() {
 		return &datasourceAttributeAction{}
 	})
 
+	manager.Register(middlewareMetaActionName, func() actions.ConcreteAction {
+		return &middlewareMetaAction{}
+	})
 }
