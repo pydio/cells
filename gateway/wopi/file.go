@@ -110,6 +110,25 @@ func uploadStream(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// Check if LastModifiedTime changed, don't override	
+	coolTimeStr := r.Header.Get("X-COOL-WOPI-Timestamp")
+	if coolTimeStr != "" {
+		coolTime, err := time.Parse(time.RFC3339, coolTimeStr)
+
+		if err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
+			return
+		}
+
+		if !coolTime.Equal(n.GetModTime()) {
+			w.WriteHeader(http.StatusConflict)
+			json.NewEncoder(w).Encode(map[string]interface{}{
+				"COOLStatusCode": 1010,
+			})
+			return
+		}
+	}
+	
 	var size int64
 	if h, ok := r.Header["Content-Length"]; ok && len(h) > 0 {
 		size, _ = strconv.ParseInt(h[0], 10, 64)
@@ -129,7 +148,14 @@ func uploadStream(w http.ResponseWriter, r *http.Request) {
 	}
 
 	log.Logger(r.Context()).Debug("uploaded node", n.Zap(), zap.Int64("Data Length", written.Size))
+	
+	// Readnode for info
+	n, _ = findNodeFromRequest(r)
+		
 	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(map[string]interface{}{
+		"LastModifiedTime": n.GetModTime().Format(time.RFC3339),
+	})
 }
 
 func buildFileFromNode(ctx context.Context, n *tree.Node) *File {
