@@ -99,9 +99,11 @@ func (m *DynamicJobsHandler) applyInputDescriptors(ctx context.Context, node *tr
 	checkedMetadata := make(map[string]interface{}, 0)
 	for _, d := range dd {
 		var mm map[string]interface{}
-		_, n, mm, applied, err = m.applyInputDescriptor(ctx, d, n)
+		var updatedNode *tree.Node
+		_, updatedNode, mm, applied, err = m.applyInputDescriptor(ctx, d, n)
 		if applied {
 			log.Logger(ctx).Debug("Applied input descriptor")
+			n = updatedNode
 			if mm != nil {
 				for k, v := range mm {
 					checkedMetadata[k] = v
