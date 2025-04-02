@@ -49,6 +49,11 @@ type QueryOptionsProvider interface {
 	BuildQueryOptions(query interface{}, offset, limit int32, sortFields string, sortDesc bool) (interface{}, error)
 }
 
+// QueryPreCountRequester adds an additional facet to send a Count request before sending the actual request
+type QueryPreCountRequester interface {
+	RequirePreCount() bool
+}
+
 // IndexIDProvider provides a method to retrieve a document unique ID
 type IndexIDProvider interface {
 	IndexID() string
