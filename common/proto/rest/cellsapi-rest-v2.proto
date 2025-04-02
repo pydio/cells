@@ -124,11 +124,12 @@ message ImageMeta {
 // Description of an available preview
 message FilePreview{
   bool Processing = 1;
-  string ContentType = 2;
-  string Bucket = 3;
-  string Key = 4;
-  PreSignedURL PreSignedGET = 5;
-  int32 Dimension = 6;
+  bool Error = 2;
+  string ContentType = 3;
+  string Bucket = 4;
+  string Key = 5;
+  PreSignedURL PreSignedGET = 6;
+  int32 Dimension = 7;
 }
 
 // Open definition for a key/value metadata, value stored in json

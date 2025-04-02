@@ -285,6 +285,13 @@ func (h *Handler) Thumbnails(ctx context.Context, slug, nodeId, jsonThumbs strin
 	if e != nil {
 		return
 	}
+	if len(thumbs.Thumbnails) == 0 {
+		ff = append(ff, &rest.FilePreview{
+			Processing: thumbs.Processing,
+			Error:      thumbs.Error,
+		})
+		return
+	}
 	bucket := common.DefaultRouteBucketIO
 	for _, t := range thumbs.Thumbnails {
 		key := fmt.Sprintf("%s/%s-%d.%s", slug, nodeId, t.Size, t.Format)
