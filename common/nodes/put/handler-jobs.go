@@ -60,8 +60,23 @@ func (m *DynamicJobsHandler) MultipartCreate(ctx context.Context, node *tree.Nod
 			requestData.CheckedMetadata[k] = v
 		}
 	}
-	return m.Next.MultipartCreate(ctx, node, requestData)
-
+	uploadID, er := m.Next.MultipartCreate(ctx, node, requestData)
+	if er != nil {
+		return "", er
+	}
+	if len(checkedMeta) > 0 {
+		uNode := node.Clone()
+		for k, v := range checkedMeta {
+			uNode.MustSetMeta(k, v)
+		}
+		cl := tree.NewNodeReceiverClient(grpc.ResolveConn(ctx, common.ServiceMeta))
+		if _, er = cl.UpdateNode(ctx, &tree.UpdateNodeRequest{From: uNode, To: uNode}); er != nil {
+			log.Logger(ctx).Warn("Failed to update node", zap.Error(er))
+		} else {
+			log.Logger(ctx).Info("Successfully updated node")
+		}
+	}
+	return uploadID, nil
 }
 
 func (m *DynamicJobsHandler) PutObject(ctx context.Context, node *tree.Node, reader io.Reader, requestData *models.PutRequestData) (models.ObjectInfo, error) {
@@ -83,7 +98,23 @@ func (m *DynamicJobsHandler) PutObject(ctx context.Context, node *tree.Node, rea
 			requestData.CheckedMetadata[k] = v
 		}
 	}
-	return m.Next.PutObject(ctx, node, reader, requestData)
+	oi, er := m.Next.PutObject(ctx, node, reader, requestData)
+	if er != nil {
+		return oi, er
+	}
+	if len(checkedMeta) > 0 {
+		uNode := node.Clone()
+		for k, v := range checkedMeta {
+			uNode.MustSetMeta(k, v)
+		}
+		cl := tree.NewNodeReceiverClient(grpc.ResolveConn(ctx, common.ServiceMetaGRPC))
+		if _, er = cl.UpdateNode(ctx, &tree.UpdateNodeRequest{From: uNode, To: uNode}); er != nil {
+			log.Logger(ctx).Warn("Failed to update node", zap.Error(er))
+		} else {
+			log.Logger(ctx).Info("Successfully updated node")
+		}
+	}
+	return oi, nil
 }
 
 func (m *DynamicJobsHandler) applyInputDescriptors(ctx context.Context, node *tree.Node, size int64) (context.Context, *tree.Node, map[string]interface{}, error) {
