@@ -177,6 +177,7 @@ func (i *Indexer) FindMany(ctx context.Context, query interface{}, offset, limit
 		o64 := int64(offset)
 		opts.Skip = &o64
 	}
+	var sendTotal *uint64
 	// Eventually override options
 	if op, ok := i.codec.(dao.QueryOptionsProvider); ok {
 		if oo, e := op.BuildQueryOptions(query, offset, limit, sortFields, sortDesc); e == nil {
@@ -197,9 +198,14 @@ func (i *Indexer) FindMany(ctx context.Context, query interface{}, offset, limit
 		}
 		filter := bson.D{}
 		filter = append(filter, filters...)
-		// Perform Query
-		//jsonLog, _ := bson.MarshalExtJSON(filter, false, false)
-		//fmt.Println(string(jsonLog))
+		if pc, ok := i.codec.(dao.QueryPreCountRequester); ok && pc.RequirePreCount() {
+			total, er := i.Collection(i.collection).CountDocuments(ctx, filter)
+			if er != nil {
+				return nil, er
+			}
+			tt := uint64(total)
+			sendTotal = &tt
+		}
 		cursor, err := i.Collection(i.collection).Find(ctx, filter, opts)
 		if err != nil {
 			return nil, err
@@ -219,6 +225,9 @@ func (i *Indexer) FindMany(ctx context.Context, query interface{}, offset, limit
 	fp, _ := codec.(dao.FacetParser)
 	go func() {
 		defer close(res)
+		if sendTotal != nil {
+			res <- *sendTotal
+		}
 		if searchCursor != nil {
 			for searchCursor.Next(ctx) {
 				if data, er := codec.Unmarshal(searchCursor); er == nil {
