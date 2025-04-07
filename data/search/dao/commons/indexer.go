@@ -125,13 +125,13 @@ func (s *Server) Flush(ctx context.Context) error {
 	return b.Flush()
 }
 
-func (s *Server) SearchNodes(ctx context.Context, queryObject *tree.Query, from int32, size int32, sortField string, sortDesc bool, resultChan chan *tree.Node, facets chan *tree.SearchFacet, doneChan chan bool) error {
+func (s *Server) SearchNodes(ctx context.Context, queryObject *tree.Query, from int32, size int32, sortField string, sortDesc bool, resultChan chan *tree.Node, facets chan *tree.SearchFacet, total chan uint64, doneChan chan bool) error {
 
 	nsProvider := meta.NewNsProvider(ctx)
 
-	accu := s.queryCodecProvider(manager.MustGetConfig(ctx).Val(), nsProvider)
+	codex := s.queryCodecProvider(manager.MustGetConfig(ctx).Val(), nsProvider)
 
-	searchResult, err := s.Indexer.FindMany(ctx, queryObject, from, size, sortField, sortDesc, accu)
+	searchResult, err := s.Indexer.FindMany(ctx, queryObject, from, size, sortField, sortDesc, codex)
 	if err != nil {
 		doneChan <- true
 		return err
@@ -143,12 +143,14 @@ func (s *Server) SearchNodes(ctx context.Context, queryObject *tree.Query, from 
 			resultChan <- item
 		case *tree.SearchFacet:
 			facets <- item
+		case uint64:
+			total <- item
 		default:
-			fmt.Println("unrecognized object")
+			log.Logger(ctx).Error(fmt.Sprintf("unexpected type recieved from search results channel %T", item))
 		}
 	}
 
-	if facetParser, ok := accu.(indexer.FacetParser); ok {
+	if facetParser, ok := codex.(indexer.FacetParser); ok {
 		for _, f := range facetParser.FlushCustomFacets() {
 			facets <- f.(*tree.SearchFacet)
 		}

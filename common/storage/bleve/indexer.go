@@ -403,10 +403,8 @@ func (s *Indexer) Search(ctx context.Context, qu *bleve.SearchRequest, res *[]in
 }
 
 func (s *Indexer) FindMany(ctx context.Context, qu interface{}, offset, limit int32, sortFields string, sortDesc bool, customCodec indexer.IndexCodex) (chan interface{}, error) {
-	codec := s.GetCodex()
-	if customCodec != nil {
-		codec = customCodec
-	}
+	codec, sendTotal := s.parseCodex(customCodec)
+
 	var request *bleve.SearchRequest
 	if codec == nil {
 		var q query.Query
@@ -455,6 +453,10 @@ func (s *Indexer) FindMany(ctx context.Context, qu interface{}, offset, limit in
 
 	go func() {
 		defer close(cRes)
+		// Send uint64 on channel, will be recognized as total
+		if sendTotal {
+			cRes <- sr.Total
+		}
 		// Send hits
 		for _, hit := range sr.Hits {
 			if codec != nil {
@@ -497,6 +499,21 @@ func (s *Indexer) GetCodex() indexer.IndexCodex {
 
 func (s *Indexer) SetCodex(c indexer.IndexCodex) {
 	s.codec = c
+}
+
+func (s *Indexer) parseCodex(override indexer.IndexCodex) (indexer.IndexCodex, bool) {
+	c := s.codec
+	if override != nil {
+		c = override
+	}
+	if c == nil {
+		return nil, false
+	}
+	returnTotal := false
+	if pc, ok := c.(indexer.QueryPreCountRequester); ok && pc.RequirePreCount() {
+		returnTotal = true
+	}
+	return c, returnTotal
 }
 
 //func (s *Indexer) getWriteIndex() bleve.Index {

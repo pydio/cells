@@ -142,8 +142,10 @@ func (s *SearchServer) Search(req *tree.SearchRequest, streamer tree.Searcher_Se
 	resultsChan := make(chan *tree.Node)
 	facetsChan := make(chan *tree.SearchFacet)
 	doneChan := make(chan bool)
+	totalChan := make(chan uint64)
 	defer close(resultsChan)
 	defer close(facetsChan)
+	defer close(totalChan)
 	defer close(doneChan)
 
 	engine, err := manager.Resolve[search.Engine](ctx)
@@ -164,8 +166,10 @@ func (s *SearchServer) Search(req *tree.SearchRequest, streamer tree.Searcher_Se
 		defer wg.Done()
 		for {
 			select {
+			case to := <-totalChan:
+				_ = streamer.Send(&tree.SearchResponse{Data: &tree.SearchResponse_Pagination{Pagination: &tree.SearchPagination{TotalHits: int64(to)}}})
 			case facet := <-facetsChan:
-				streamer.Send(&tree.SearchResponse{Facet: facet})
+				_ = streamer.Send(&tree.SearchResponse{Data: &tree.SearchResponse_Facet{Facet: facet}})
 			case node := <-resultsChan:
 				if node != nil {
 
@@ -195,7 +199,7 @@ func (s *SearchServer) Search(req *tree.SearchRequest, streamer tree.Searcher_Se
 						}
 
 						if readError == nil && response.GetNode() != nil {
-							_ = streamer.Send(&tree.SearchResponse{Node: response.Node})
+							_ = streamer.Send(&tree.SearchResponse{Data: &tree.SearchResponse_Node{Node: response.GetNode()}})
 						} else if errors.Is(readError, errors.StatusNotFound) {
 
 							log.Logger(ctx).Error("Found node that does not exists, send event to make sure all is sync'ed.", zap.String("uuid", node.Uuid))
@@ -206,7 +210,7 @@ func (s *SearchServer) Search(req *tree.SearchRequest, streamer tree.Searcher_Se
 						}
 					} else {
 						log.Logger(ctx).Debug("No Details needed, sending back node", zap.String("uuid", node.Uuid))
-						streamer.Send(&tree.SearchResponse{Node: node})
+						_ = streamer.Send(&tree.SearchResponse{Data: &tree.SearchResponse_Node{Node: node}})
 					}
 
 				}
@@ -216,7 +220,7 @@ func (s *SearchServer) Search(req *tree.SearchRequest, streamer tree.Searcher_Se
 		}
 	}()
 
-	if err := engine.SearchNodes(ctx, req.GetQuery(), req.GetFrom(), req.GetSize(), req.GetSortField(), req.GetSortDirDesc(), resultsChan, facetsChan, doneChan); err != nil {
+	if err := engine.SearchNodes(ctx, req.GetQuery(), req.GetFrom(), req.GetSize(), req.GetSortField(), req.GetSortDirDesc(), resultsChan, facetsChan, totalChan, doneChan); err != nil {
 		return err
 	}
 

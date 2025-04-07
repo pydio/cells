@@ -98,6 +98,10 @@ func createQueryCodec(values configx.Values, provider *meta.NsProvider) indexer.
 	}
 }
 
+func (b *Codec) RequirePreCount() bool {
+	return true
+}
+
 func (b *Codec) Marshal(input interface{}) (interface{}, error) {
 	// Input is already prepared, do nothing
 	return input, nil

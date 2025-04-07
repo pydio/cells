@@ -97,6 +97,10 @@ type Codex struct {
 	QueryConfigs    configx.Values
 }
 
+func (m *Codex) RequirePreCount() bool {
+	return true
+}
+
 // Marshal does nothing here, input is already marshalled for indexing
 func (m *Codex) Marshal(input interface{}) (interface{}, error) {
 	return input, nil

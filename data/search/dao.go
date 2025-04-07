@@ -33,7 +33,7 @@ type Engine interface {
 	indexer.Indexer
 	IndexNode(context.Context, *tree.Node, bool) error
 	DeleteNode(context.Context, *tree.Node) error
-	SearchNodes(context.Context, *tree.Query, int32, int32, string, bool, chan *tree.Node, chan *tree.SearchFacet, chan bool) error
+	SearchNodes(context.Context, *tree.Query, int32, int32, string, bool, chan *tree.Node, chan *tree.SearchFacet, chan uint64, chan bool) error
 	ClearIndex(ctx context.Context) error
 }
 

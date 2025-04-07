@@ -250,15 +250,15 @@ func (n *NodesSelector) performListing(ctx context.Context, serviceName string, 
 			}
 			break
 		}
-		if resp == nil || resp.Node == nil {
+		if resp == nil || resp.GetNode() == nil {
 			continue
 		}
 		received++
 		if !filter(resp.GetNode()) {
 			continue
 		}
-		log.Logger(ctx).Debug("Search Request with query received Node", resp.Node.ZapPath())
-		objects <- resp.Node
+		log.Logger(ctx).Debug("Search Request with query received Node", resp.GetNode().ZapPath())
+		objects <- resp.GetNode()
 		count++
 	}
 	mayHaveMore := req.Size > 0 && received == req.Size

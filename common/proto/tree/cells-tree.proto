@@ -245,9 +245,17 @@ message SearchFacet {
     int32 End = 8;
 }
 
+message SearchPagination {
+    // Total number of results
+    int64 TotalHits = 1;
+}
+
 message SearchResponse{
-    Node Node = 1;
-    SearchFacet Facet = 2;
+     oneof Data {
+        Node Node = 1;
+        SearchFacet Facet = 2;
+        SearchPagination Pagination = 3;
+    }
 }
 
 // ==========================================================

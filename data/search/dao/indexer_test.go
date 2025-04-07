@@ -106,12 +106,12 @@ func createNodes(ctx context.Context, s search.Engine) error {
 	return nil
 }
 
-func performSearch(ctx context.Context, index search.Engine, queryObject *tree.Query) ([]*tree.Node, error) {
+func performSearch(ctx context.Context, index search.Engine, queryObject *tree.Query) (results []*tree.Node, total uint64, err error) {
 
 	resultsChan := make(chan *tree.Node)
 	facetsChan := make(chan *tree.SearchFacet)
+	totalChan := make(chan uint64)
 	doneChan := make(chan bool)
-	var results []*tree.Node
 	var facets []*tree.SearchFacet
 	wg := &sync.WaitGroup{}
 	wg.Add(1)
@@ -125,6 +125,8 @@ func performSearch(ctx context.Context, index search.Engine, queryObject *tree.Q
 				}
 			case facet := <-facetsChan:
 				facets = append(facets, facet)
+			case to := <-totalChan:
+				total = to
 			case <-doneChan:
 				close(resultsChan)
 				close(facetsChan)
@@ -133,9 +135,9 @@ func performSearch(ctx context.Context, index search.Engine, queryObject *tree.Q
 		}
 	}()
 
-	e := index.SearchNodes(ctx, queryObject, 0, 10, "", false, resultsChan, facetsChan, doneChan)
+	e := index.SearchNodes(ctx, queryObject, 0, 10, "", false, resultsChan, facetsChan, totalChan, doneChan)
 	wg.Wait()
-	return results, e
+	return results, total, e
 
 }
 
@@ -252,7 +254,7 @@ func TestSearchNode(t *testing.T) {
 				FileName: "node",
 			}
 
-			results, e := performSearch(ctx, server, queryObject)
+			results, _, e := performSearch(ctx, server, queryObject)
 			So(e, ShouldBeNil)
 			So(results, ShouldHaveLength, 1)
 
@@ -260,7 +262,7 @@ func TestSearchNode(t *testing.T) {
 				FileName: "folder",
 			}
 
-			results, e = performSearch(ctx, server, queryObject)
+			results, _, e = performSearch(ctx, server, queryObject)
 			So(e, ShouldBeNil)
 			So(results, ShouldHaveLength, 1)
 
@@ -272,7 +274,7 @@ func TestSearchNode(t *testing.T) {
 				Extension: "txt",
 			}
 
-			results, e := performSearch(ctx, server, queryObject)
+			results, _, e := performSearch(ctx, server, queryObject)
 			So(e, ShouldBeNil)
 			So(results, ShouldHaveLength, 1)
 
@@ -289,7 +291,7 @@ func TestSearchNode(t *testing.T) {
 			queryObject = &tree.Query{
 				Extension: "png",
 			}
-			results, e = performSearch(ctx, server, queryObject)
+			results, _, e = performSearch(ctx, server, queryObject)
 			So(e, ShouldBeNil)
 			So(results, ShouldHaveLength, 1)
 
@@ -306,7 +308,7 @@ func TestSearchNode(t *testing.T) {
 				MaxSize: 30,
 			}
 
-			results, e := performSearch(ctx, server, queryObject)
+			results, _, e := performSearch(ctx, server, queryObject)
 			So(e, ShouldBeNil)
 			So(results, ShouldHaveLength, 1)
 
@@ -315,7 +317,7 @@ func TestSearchNode(t *testing.T) {
 				MinSize: 20,
 			}
 
-			results, e = performSearch(ctx, server, queryObject)
+			results, _, e = performSearch(ctx, server, queryObject)
 			So(e, ShouldBeNil)
 			So(results, ShouldHaveLength, 2)
 
@@ -324,7 +326,7 @@ func TestSearchNode(t *testing.T) {
 				MinSize: 40,
 			}
 
-			results, e = performSearch(ctx, server, queryObject)
+			results, _, e = performSearch(ctx, server, queryObject)
 			So(e, ShouldBeNil)
 			So(results, ShouldHaveLength, 0)
 
@@ -339,7 +341,7 @@ func TestSearchNode(t *testing.T) {
 				MaxDate: mtime + 100,
 			}
 
-			results, e := performSearch(ctx, server, queryObject)
+			results, _, e := performSearch(ctx, server, queryObject)
 			So(e, ShouldBeNil)
 			So(results, ShouldHaveLength, 2)
 
@@ -348,7 +350,7 @@ func TestSearchNode(t *testing.T) {
 				MinDate: mtime - 100,
 			}
 
-			results, e = performSearch(ctx, server, queryObject)
+			results, _, e = performSearch(ctx, server, queryObject)
 			So(e, ShouldBeNil)
 			So(results, ShouldHaveLength, 2)
 
@@ -360,7 +362,7 @@ func TestSearchNode(t *testing.T) {
 				FreeString: "+Meta.FreeMeta:FreeMetaValue",
 			}
 
-			results, e := performSearch(ctx, server, queryObject)
+			results, _, e := performSearch(ctx, server, queryObject)
 			So(e, ShouldBeNil)
 			So(results, ShouldHaveLength, 1)
 		})
@@ -371,7 +373,7 @@ func TestSearchNode(t *testing.T) {
 				FreeString: "+Meta.StarsMeta:5",
 			}
 
-			results, e := performSearch(ctx, server, queryObject)
+			results, _, e := performSearch(ctx, server, queryObject)
 			So(e, ShouldBeNil)
 			So(results, ShouldHaveLength, 1)
 		})
@@ -382,7 +384,7 @@ func TestSearchNode(t *testing.T) {
 				FreeString: "+Basename:node.txt +Meta.StarsMeta:5",
 			}
 
-			results, e := performSearch(ctx, server, queryObject)
+			results, _, e := performSearch(ctx, server, queryObject)
 			So(e, ShouldBeNil)
 			So(results, ShouldHaveLength, 1)
 		})
@@ -393,7 +395,7 @@ func TestSearchNode(t *testing.T) {
 				Type: 1,
 			}
 
-			results, e := performSearch(ctx, server, queryObject)
+			results, _, e := performSearch(ctx, server, queryObject)
 			So(e, ShouldBeNil)
 			So(results, ShouldHaveLength, 1)
 			So(results[0].GetUuid(), ShouldEqual, "docID1")
@@ -402,7 +404,7 @@ func TestSearchNode(t *testing.T) {
 				Type: 2,
 			}
 
-			results, e = performSearch(ctx, server, queryObject)
+			results, _, e = performSearch(ctx, server, queryObject)
 			So(e, ShouldBeNil)
 			So(results, ShouldHaveLength, 1)
 			So(results[0].GetUuid(), ShouldEqual, "docID2")
@@ -414,14 +416,14 @@ func TestSearchNode(t *testing.T) {
 			queryObject := &tree.Query{
 				Paths: []string{"/path/to"},
 			}
-			results, e := performSearch(ctx, server, queryObject)
+			results, _, e := performSearch(ctx, server, queryObject)
 			So(e, ShouldBeNil)
 			So(results, ShouldHaveLength, 0)
 
 			queryObject = &tree.Query{
 				Paths: []string{"/path/to/node.txt2"},
 			}
-			results, e = performSearch(ctx, server, queryObject)
+			results, _, e = performSearch(ctx, server, queryObject)
 			So(e, ShouldBeNil)
 			So(results, ShouldHaveLength, 0)
 
@@ -429,7 +431,7 @@ func TestSearchNode(t *testing.T) {
 				Paths: []string{"/path/to/node.txt"},
 			}
 
-			results, e = performSearch(ctx, server, queryObject)
+			results, _, e = performSearch(ctx, server, queryObject)
 			So(e, ShouldBeNil)
 			So(results, ShouldHaveLength, 1)
 
@@ -442,7 +444,7 @@ func TestSearchNode(t *testing.T) {
 				PathPrefix: []string{"/path/to"},
 			}
 
-			results, e := performSearch(ctx, server, queryObject)
+			results, _, e := performSearch(ctx, server, queryObject)
 			So(e, ShouldBeNil)
 			So(results, ShouldHaveLength, 1)
 
@@ -451,7 +453,7 @@ func TestSearchNode(t *testing.T) {
 				PathPrefix: []string{"/wrong/path"},
 			}
 
-			results, e = performSearch(ctx, server, queryObject)
+			results, _, e = performSearch(ctx, server, queryObject)
 			So(e, ShouldBeNil)
 			So(results, ShouldHaveLength, 0)
 
@@ -487,7 +489,7 @@ func TestSearchByGeolocation(t *testing.T) {
 				},
 			}
 
-			results, e := performSearch(ctx, server, queryObject)
+			results, _, e := performSearch(ctx, server, queryObject)
 			So(e, ShouldBeNil)
 			So(results, ShouldHaveLength, 1)
 
@@ -504,7 +506,7 @@ func TestSearchByGeolocation(t *testing.T) {
 				},
 			}
 
-			results, e = performSearch(ctx, server, queryObject)
+			results, _, e = performSearch(ctx, server, queryObject)
 			So(e, ShouldBeNil)
 			So(results, ShouldHaveLength, 1)
 
@@ -536,7 +538,7 @@ func TestDeleteNode(t *testing.T) {
 				FileName: "node",
 			}
 
-			results, e := performSearch(ctx, server, queryObject)
+			results, _, e := performSearch(ctx, server, queryObject)
 			So(e, ShouldBeNil)
 			So(results, ShouldHaveLength, 0)
 		})
@@ -587,35 +589,35 @@ func TestSearchByUuidsMatch(t *testing.T) {
 			queryObject := &tree.Query{
 				UUIDs: []string{"randomUUID"},
 			}
-			results, e := performSearch(ctx, server, queryObject)
+			results, _, e := performSearch(ctx, server, queryObject)
 			So(e, ShouldBeNil)
 			So(results, ShouldHaveLength, 0)
 
 			queryObject = &tree.Query{
 				UUIDs: []string{"docID1"},
 			}
-			results, e = performSearch(ctx, server, queryObject)
+			results, _, e = performSearch(ctx, server, queryObject)
 			So(e, ShouldBeNil)
 			So(results, ShouldHaveLength, 1)
 
 			queryObject = &tree.Query{
 				UUIDs: []string{"uuidpart1-uuidpart3"},
 			}
-			results, e = performSearch(ctx, server, queryObject)
+			results, _, e = performSearch(ctx, server, queryObject)
 			So(e, ShouldBeNil)
 			So(results, ShouldHaveLength, 1)
 
 			queryObject = &tree.Query{
 				UUIDs: []string{"docID1", "docID2"},
 			}
-			results, e = performSearch(ctx, server, queryObject)
+			results, _, e = performSearch(ctx, server, queryObject)
 			So(e, ShouldBeNil)
 			So(results, ShouldHaveLength, 2)
 
 			queryObject = &tree.Query{
 				FreeString: "+Uuid:\"docID1\"",
 			}
-			results, e = performSearch(ctx, server, queryObject)
+			results, _, e = performSearch(ctx, server, queryObject)
 			So(e, ShouldBeNil)
 			So(results, ShouldHaveLength, 1)
 
@@ -648,7 +650,7 @@ func TestClearIndex(t *testing.T) {
 				FileName: "node",
 			}
 
-			results, e := performSearch(ctx, server, queryObject)
+			results, _, e := performSearch(ctx, server, queryObject)
 			So(e, ShouldBeNil)
 			So(results, ShouldHaveLength, 0)
 		})
@@ -701,14 +703,14 @@ func TestExcludedNamespace(t *testing.T) {
 			queryObject := &tree.Query{
 				FreeString: "+Meta.indexable:\"value1\"",
 			}
-			nn, er := performSearch(ctx, server, queryObject)
+			nn, _, er := performSearch(ctx, server, queryObject)
 			So(er, ShouldBeNil)
 			So(nn, ShouldHaveLength, 1)
 
 			queryObject = &tree.Query{
 				FreeString: "+Meta.excluded:\"value2\"",
 			}
-			nn, er = performSearch(ctx, server, queryObject)
+			nn, _, er = performSearch(ctx, server, queryObject)
 			So(er, ShouldBeNil)
 			So(nn, ShouldHaveLength, 0)
 

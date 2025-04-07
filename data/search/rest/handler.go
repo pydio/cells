@@ -45,6 +45,7 @@ import (
 	"github.com/pydio/cells/v5/common/telemetry/log"
 	"github.com/pydio/cells/v5/common/telemetry/tracing"
 	"github.com/pydio/cells/v5/common/utils/propagator"
+	rest2 "github.com/pydio/cells/v5/data/meta/rest"
 	"github.com/pydio/cells/v5/idm/share"
 )
 
@@ -203,6 +204,7 @@ func (s *Handler) PerformSearch(ctx context.Context, searchRequest *tree.SearchR
 		err = er
 		return
 	}
+	skipped := 0
 
 	log.Logger(ctx).Debug("Start WrapCallback")
 
@@ -310,19 +312,22 @@ func (s *Handler) PerformSearch(ctx context.Context, searchRequest *tree.SearchR
 					wrapperCtx, wrapperN, _ := inputFilter(ctx, node, "in-"+node.Uuid)
 					if checkErr := router.WrappedCanApply(wrapperCtx, wrapperCtx, &tree.NodeChangeEvent{Type: tree.NodeChangeEvent_READ, Source: wrapperN}); checkErr != nil {
 						log.Logger(ctx).Debug("Skipping node in search results", node.ZapPath(), zap.Error(checkErr))
+						skipped++
 						continue
 					}
 					log.Logger(ctx).Debug("READ permission checked for " + node.Path)
 
 					if sErr := streamer.Send(&tree.ReadNodeRequest{Node: node.Clone()}); sErr != nil {
 						log.Logger(ctx).Warn("Cannot send "+node.Path, zap.Error(sErr))
+						skipped++
 						continue
 					}
 
 					if nsR, e := streamer.Recv(); e == nil && nsR.GetNode() != nil {
 						node = nsR.GetNode()
 					} else {
-						log.Logger(ctx).Debug("Cannot read "+node.Path, zap.Error(e))
+						log.Logger(ctx).Warn("Cannot read "+node.Path, zap.Error(e))
+						skipped++
 						continue
 					}
 
@@ -369,14 +374,14 @@ func (s *Handler) PerformSearch(ctx context.Context, searchRequest *tree.SearchR
 			} else if rErr != nil {
 				return rErr
 			}
-			if resp.Facet != nil {
-				log.Logger(ctx).Debug("Facet Received " + resp.Facet.Label)
-				facets = append(facets, resp.Facet)
+			if resp.GetFacet() != nil {
+				facets = append(facets, resp.GetFacet())
 				continue
-			}
-			if resp.GetNode() != nil {
+			} else if resp.GetNode() != nil {
 				ordered = append(ordered, resp.GetNode().GetUuid())
 				jobs <- workItem{node: resp.GetNode().Clone()}
+			} else if resp.GetPagination() != nil {
+				pagination = rest2.PopulatePagination(searchRequest.GetFrom(), searchRequest.GetSize(), int32(resp.GetPagination().GetTotalHits()))
 			}
 		}
 
@@ -402,6 +407,15 @@ func (s *Handler) PerformSearch(ctx context.Context, searchRequest *tree.SearchR
 	if err != nil {
 		return
 	}
-	pagination = &rest.Pagination{Total: int32(len(nn))}
+	if skipped > 0 {
+		log.Logger(ctx).Info("Search skipped some results", zap.Int("skipped", skipped))
+	}
+
+	if pagination == nil {
+		pagination = &rest.Pagination{
+			CurrentOffset: searchRequest.GetFrom(),
+			Total:         int32(len(nn)),
+		}
+	}
 	return
 }

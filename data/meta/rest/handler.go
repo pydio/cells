@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2021. Abstrium SAS <team (at) pydio.com>
+ * Copyright (c) 2025. Abstrium SAS <team (at) pydio.com>
  * This file is part of Pydio Cells.
  *
  * Pydio Cells is free software: you can redistribute it and/or modify
@@ -22,7 +22,6 @@ package rest
 
 import (
 	"context"
-	"math"
 	"path"
 	"path/filepath"
 	"strings"
@@ -216,34 +215,16 @@ func (h *Handler) LoadNodes(ctx context.Context, bulkRequest *rest.GetBulkMetaRe
 
 		// Handle Pagination
 		if total > 0 && bulkRequest.Limit > 0 && childrenLoaded < total {
-			var totalPages, crtPage, nextOffset, prevOffset int32
-			pageSize := bulkRequest.Limit
-			totalPages = int32(math.Ceil(float64(total) / float64(pageSize)))
-			crtPage = int32(math.Floor(float64(bulkRequest.Offset)/float64(pageSize))) + 1
-			if crtPage > 1 {
-				prevOffset = bulkRequest.Offset - pageSize
-			}
-			if crtPage < totalPages {
-				nextOffset = bulkRequest.Offset + pageSize
-			}
+			pagination = PopulatePagination(bulkRequest.Offset, bulkRequest.Limit, total)
 			// If the first page is already smaller than the limit, then do not send pagination data
 			// List may have been filtered out
 			if countDiffers && !hasFilter {
 				if childrenLoaded < bulkRequest.Limit-1 {
 					// Assume it's the last
-					totalPages = crtPage
+					pagination.TotalPages = pagination.CurrentPage
 				} else {
-					totalPages = -1
+					pagination.TotalPages = -1
 				}
-			}
-			pagination = &rest.Pagination{
-				Limit:         pageSize,
-				CurrentOffset: bulkRequest.Offset,
-				Total:         total,
-				CurrentPage:   crtPage,
-				TotalPages:    totalPages,
-				NextOffset:    nextOffset,
-				PrevOffset:    prevOffset,
 			}
 		}
 

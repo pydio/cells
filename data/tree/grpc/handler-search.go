@@ -63,7 +63,9 @@ func (sc *StreamConverter) RecvMsg(i interface{}) error {
 }
 
 func (sc *StreamConverter) Send(response *tree.ListNodesResponse) error {
-	return sc.wrapped.Send(&tree.SearchResponse{Node: response.GetNode()})
+	return sc.wrapped.Send(&tree.SearchResponse{
+		Data: &tree.SearchResponse_Node{Node: response.GetNode()},
+	})
 }
 
 // Search implements the SearchServer handler method. It will transform a tree.SearchRequest into an underlying ListNode query
