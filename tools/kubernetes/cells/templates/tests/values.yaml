@@ -261,7 +261,7 @@ etcd:
   }
   auth:
     rbac:
-      create: false
+      create: true
     peer:
       secureTransport: false
       useAutoTLS: false
@@ -286,9 +286,22 @@ minio:
 mongodb:
   enabled: true
   auth: 
-    enabled: false
+    enabled: true
+    rootUser: "mongoDB-root"
+    rootPassword: "mongoDB-rootPassword"
+    usernames: ["cells"]
+    passwords: ["cells"]
+    databases: ["cells"]
   volumePermissions:
     enabled: true
+  architecture: replicaset
+  tls:
+    enabled: true
+    existingSecret: "abcde"
+    certFilename: tls.crt  # Defaults to "tls.crt"
+    certKeyFilename: tls.key  # Defaults to "tls.key"
+    caFilename: ca.crt  # Defaults to "ca.crt" (optional)
+
 
 vault:
   enabled: true

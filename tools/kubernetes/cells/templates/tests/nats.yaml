@@ -1,0 +1,63 @@
+nats:
+  config:
+    jetstream:
+      enabled: true
+      dir: /data
+      pvc:
+        enabled: true
+        size: 5Gi
+        storageClassName: gp3
+    nats:
+      port: 4222
+    cluster:
+      enabled: true
+      port: 6222
+      # must be 2 or higher when jetstream is enabled
+      replicas: 3
+
+# nats:
+#   enabled: true
+#   jetstream:
+#     enabled: true
+#     maxMemory: 1G
+#   auth:
+#     enabled: false
+#   volumePermissions:
+#     enabled: true
+#   podAnnotations: {
+#     "sidecar.istio.io/inject": "false" 
+#   }
+
+#   # allow pod to write down to mounted repository
+#   podSecurityContext: { enabled: true }
+
+#   persistence:
+#     enabled: true 
+#     storageClass: gp3
+#     annotations: {}
+#     accessModes:
+#       - ReadWriteOnce
+#     size: 8Gi
+#     selector: {}
+#   debug:
+#     enabled: false
+#   resourceType: statefulset
+#   # @param replicaCount Number of NATS nodes
+#   #
+#   replicaCount: 1
+#   # cluster:
+#   #   ## @param cluster.name Cluster name
+#   #   name: nats
+#   #   ## @param cluster.connectRetries Configure number of connect retries for implicit routes, otherwise leave blank
+#   #   ##
+#   #   connectRetries: ""
+#   #   ## Cluster Authentication
+#   #   ## ref: https://docs.nats.io/running-a-nats-service/configuration/securing_nats/auth_intro
+#   #   ## @param cluster.auth.enabled Switch to enable/disable cluster authentication
+#   #   ## @param cluster.auth.user Cluster authentication user
+#   #   ## @param cluster.auth.password Cluster authentication password
+#   #   ##
+#   #   auth:
+#   #     enabled: false
+#   #     user: nats_cluster
+#   #     password: "tataP@ssdslfj12"
