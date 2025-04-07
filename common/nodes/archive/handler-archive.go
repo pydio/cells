@@ -207,6 +207,10 @@ func (a *Handler) ReadNode(ctx context.Context, in *tree.ReadNodeRequest, opts .
 
 func (a *Handler) ListNodes(ctx context.Context, in *tree.ListNodesRequest, opts ...grpc.CallOption) (tree.NodeProvider_ListNodesClient, error) {
 
+	if in.WithVersions {
+		return a.Next.ListNodes(ctx, in, opts...)
+	}
+
 	if ok, format, archivePath, innerPath := a.isArchivePath(ctx, in.Node.Path); ok {
 		extractor := &Reader{Router: a.Next}
 		statResp, e := a.Next.ReadNode(ctx, &tree.ReadNodeRequest{Node: &tree.Node{Path: archivePath}})
