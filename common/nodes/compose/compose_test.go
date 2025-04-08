@@ -74,25 +74,39 @@ func TestMain(m *testing.M) {
 }
 
 var (
-	testServices = map[string]map[string]any{
+	testServices = map[string]map[string]map[string]any{
 		common.ServiceUserGRPC: {
-			"sql": usrdao.NewDAO,
+			"sql": {
+				"func": usrdao.NewDAO,
+			},
 		},
 		common.ServiceRoleGRPC: {
-			"sql": roledao.NewDAO,
+			"sql": {
+				"func": roledao.NewDAO,
+			},
 		},
 		common.ServiceAclGRPC: {
-			"sql": acldao.NewDAO,
+			"sql": {
+				"func": acldao.NewDAO,
+			},
 		},
 		common.ServiceWorkspaceGRPC: {
-			"sql": wsdao.NewDAO,
+			"sql": {
+				"func": wsdao.NewDAO,
+			},
 		},
 		common.ServiceDocStoreGRPC: {
-			"dcbolt":  dcdao.NewBleveDAO,
-			"dcbleve": dcdao.NewBleveDAO,
+			"dcbolt": {
+				"func": dcdao.NewBleveDAO,
+			},
+			"dcbleve": {
+				"func": dcdao.NewBleveDAO,
+			},
 		},
 		common.ServiceMetaGRPC: {
-			"sql": metadao.NewMetaDAO,
+			"sql": {
+				"func": metadao.NewMetaDAO,
+			},
 		},
 		common.ServiceTreeGRPC: {},
 	}
@@ -107,7 +121,10 @@ func init() {
 	sql.TestPrintQueries = false
 
 	for _, ds := range dss {
-		testServices[common.ServiceDataIndexGRPC_+ds] = map[string]any{"sql": idxdao.NewDAO}
+		testServices[common.ServiceDataIndexGRPC_+ds] = map[string]map[string]any{"sql": {
+			"func":   idxdao.NewDAO,
+			"prefix": ds + "_",
+		}}
 	}
 
 	testcases = []test.ServicesStorageTestCase{

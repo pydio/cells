@@ -42,7 +42,7 @@ func openGoTemplate(s string) (Template, error) {
 	}
 	tplRegLock.RUnlock()
 
-	gt.tpl, er = template.New(uuid.New()).Funcs(fm).Parse(s)
+	gt.tpl, er = template.New(uuid.New()).Option("missingkey=zero").Funcs(fm).Parse(s)
 	if er != nil {
 		return nil, er
 	}

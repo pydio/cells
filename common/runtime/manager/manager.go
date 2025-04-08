@@ -869,7 +869,7 @@ func (m *manager) initServers(ctx context.Context, store configx.Values, base st
 
 func (m *manager) initServices(ctx context.Context, store configx.Values, base string) error {
 
-	runtime.Register("main", func(ctx context.Context) {
+	runtime.Register(m.ns, func(ctx context.Context) {
 		svcs, err := m.internalRegistry.List(registry.WithType(pb.ItemType_SERVICE))
 		if err != nil {
 			return
@@ -885,6 +885,7 @@ func (m *manager) initServices(ctx context.Context, store configx.Values, base s
 						continue
 					}
 					meta := maps.Clone(s.Options().Metadata)
+
 					meta["resolutionData"] = string(storagesMapStr)
 					s.Options().Metadata = meta
 					if err := m.Registry().Register(svc); err != nil {

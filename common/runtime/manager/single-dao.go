@@ -72,24 +72,24 @@ services:
   {{$name}}:
     storages:
       main:
-	    {{- range $idx, $dsn := $storage }}
+	    {{- range $idx, $dao := $storage }}
         - type: storage{{ $idx }}
-          {{if eq $name "pydio.grpc.user"}}policies: user_policies{{else if eq $name "pydio.grpc.role"}}policies: roles_policies{{else if eq $name "pydio.grpc.workspace"}}policies: ws_policies{{end}}
+          {{if index $dao "policies"}}policies: {{ index $dao "policies" }}{{end}}
+          {{if index $dao "prefix"}}prefix: {{ index $dao "prefix" }}{{end}}
 	    {{- end }}
   {{- end }}
 `
-
 	singleTpl   *template.Template
 	multipleTpl *template.Template
 )
 
 func init() {
 	var err error
-	singleTpl, err = template.New("test").Parse(singleYAML)
+	singleTpl, err = template.New("test").Option("missingkey=zero").Parse(singleYAML)
 	if err != nil {
 		panic(err)
 	}
-	multipleTpl, err = template.New("multiple").Parse(multipleYAML)
+	multipleTpl, err = template.New("multiple").Option("missingkey=zero").Parse(multipleYAML)
 	if err != nil {
 		panic(err)
 	}
@@ -133,11 +133,11 @@ func DSNtoContextDAO(ctx context.Context, dsn []string, daoFunc any) (context.Co
 		return nil, err
 	}
 
-	ctx = mgr.Context()
 	if err := mgr.Bootstrap(b.String()); err != nil {
 		return nil, err
 	}
 
+	ctx = mgr.Context()
 	ctx = propagator.With(ctx, service.ContextKey, svc)
 	ctx = runtime.MultiContextManager().RootContext(ctx)
 
@@ -148,7 +148,7 @@ func DSNtoContextDAO(ctx context.Context, dsn []string, daoFunc any) (context.Co
 	return ctx, nil
 }
 
-func MockServicesToContextDAO(ctx context.Context, dsn map[string]string, servicesWithDAO map[string]map[string]any) (context.Context, error) {
+func MockServicesToContextDAO(ctx context.Context, dsn map[string]string, servicesWithDAO map[string]map[string]map[string]any) (context.Context, error) {
 	// read template
 	b := &strings.Builder{}
 	data := map[string]interface{}{
@@ -165,7 +165,6 @@ func MockServicesToContextDAO(ctx context.Context, dsn map[string]string, servic
 	v.Set(runtime.KeyKeyring, "mem://")
 	v.Set(runtime.KeyRegistry, "mem://")
 	v.Set(runtime.KeyConfig, "mem://")
-	v.Set(runtime.KeyBootstrapYAML, b.String())
 	mem, _ := config.OpenStore(ctx, "mem://")
 	ctx = propagator.With(ctx, config.ContextKey, mem)
 
@@ -175,8 +174,8 @@ func MockServicesToContextDAO(ctx context.Context, dsn map[string]string, servic
 	//var svc service.Service
 	for name, daoDef := range servicesWithDAO {
 		var drivers service.StorageDrivers
-		for _, dao := range daoDef {
-			drivers.Register(dao)
+		for _, daoMap := range daoDef {
+			drivers.Register(daoMap["func"])
 		}
 		runtime.Register(ns, func(ctx context.Context) {
 			service.NewService(
@@ -193,6 +192,10 @@ func MockServicesToContextDAO(ctx context.Context, dsn map[string]string, servic
 
 	mgr, err := NewManager(ctx, ns, nil)
 	if err != nil {
+		return nil, err
+	}
+
+	if err := mgr.Bootstrap(b.String()); err != nil {
 		return nil, err
 	}
 

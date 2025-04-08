@@ -39,12 +39,18 @@ import (
 	"github.com/pydio/cells/v5/common/telemetry/log"
 	"github.com/pydio/cells/v5/common/telemetry/tracing"
 	"github.com/pydio/cells/v5/common/utils/configx"
+	"github.com/pydio/cells/v5/common/utils/openurl"
 	"github.com/pydio/cells/v5/common/utils/propagator"
 	"github.com/pydio/cells/v5/common/utils/std"
 )
 
 func init() {
 	propagator.RegisterKeyInjector[Manager](managerKey{})
+
+	openurl.RegisterTemplateInjector(func(_ context.Context, m map[string]any) error {
+		m["Meta"] = map[string]any{}
+		return nil
+	})
 }
 
 type InitProvider interface {

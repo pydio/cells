@@ -44,7 +44,7 @@ type StorageTestCase struct {
 type ServicesStorageTestCase struct {
 	DSN       map[string]string
 	Condition bool
-	Services  map[string]map[string]any
+	Services  map[string]map[string]map[string]any
 	Label     string
 }
 

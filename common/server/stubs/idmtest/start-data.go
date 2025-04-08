@@ -133,6 +133,7 @@ func RegisterIdmMocksWithData(ctx context.Context, testData *TestData) error {
 			continue
 		}
 		if err != nil {
+			fmt.Println("Returning error for ", item.Name())
 			return err
 		}
 		grpc.RegisterMock(item.Name(), cc)

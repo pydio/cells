@@ -24,6 +24,7 @@ import (
 	"context"
 	"crypto/md5"
 	"encoding/hex"
+	"fmt"
 	"net/http"
 	"os"
 	"path"
@@ -128,25 +129,47 @@ func TestMain(m *testing.M) {
 }
 
 var (
-	testServices = map[string]map[string]any{
+	testServices = map[string]map[string]map[string]any{
 		common.ServiceUserGRPC: {
-			"sql": usrdao.NewDAO,
+			"sql": {
+				"func":     usrdao.NewDAO,
+				"prefix":   "",
+				"policies": "user_policies",
+			},
 		},
 		common.ServiceRoleGRPC: {
-			"sql": roledao.NewDAO,
+			"sql": {
+				"func":     roledao.NewDAO,
+				"prefix":   "",
+				"policies": "role_policies",
+			},
 		},
 		common.ServiceAclGRPC: {
-			"sql": acldao.NewDAO,
+			"sql": {
+				"func":   acldao.NewDAO,
+				"prefix": "",
+			},
 		},
 		common.ServiceWorkspaceGRPC: {
-			"sql": wsdao.NewDAO,
+			"sql": {
+				"func":     wsdao.NewDAO,
+				"prefix":   "",
+				"policies": "ws_policies",
+			},
 		},
 		common.ServiceDocStoreGRPC: {
-			"dcbolt":  dcdao.NewBleveDAO,
-			"dcbleve": dcdao.NewBleveDAO,
+			"dcbolt": {
+				"func": dcdao.NewBleveDAO,
+			},
+			"dcbleve": {
+				"func": dcdao.NewBleveDAO,
+			},
 		},
 		common.ServiceMetaGRPC: {
-			"sql": metadao.NewMetaDAO,
+			"sql": {
+				"func":   metadao.NewMetaDAO,
+				"prefix": "",
+			},
 		},
 		common.ServiceTreeGRPC: {},
 	}
@@ -160,14 +183,16 @@ func init() {
 	unique := uuid.New()[:6] + "_"
 
 	for _, ds := range dss {
-		testServices[common.ServiceDataIndexGRPC_+ds] = map[string]any{"dssql": idxdao.NewDAO}
+		testServices[common.ServiceDataIndexGRPC_+ds] = map[string]map[string]any{"sql": {
+			"func":   idxdao.NewDAO,
+			"prefix": ds + "_",
+		}}
 	}
 
 	testcases = []test.ServicesStorageTestCase{
 		{
 			DSN: map[string]string{
-				"sql":     sql.SqliteDriver + "://" + sql.SharedMemDSN + "&hookNames=cleanTables&prefix=" + unique + "&policies=" + unique + "{{ .Meta.policies }}",
-				"dssql":   sql.SqliteDriver + "://" + sql.SharedMemDSN + "&hookNames=cleanTables&prefix=" + unique + "{{ .DataSource }}&policies=" + unique + "{{ .Meta.policies }}",
+				"sql":     sql.SqliteDriver + "://" + sql.SharedMemDSN + "&hookNames=cleanTables&prefix=" + unique + "{{ .Meta.prefix }}&policies=" + unique + "{{ .Meta.policies }}",
 				"dcbolt":  "boltdb://" + tmpPath + "/docstore-" + unique + ".db",
 				"dcbleve": "bleve://" + tmpPath + "/docstore-" + unique + ".bleve?rotationSize=-1",
 			},
@@ -186,13 +211,21 @@ func TestShareLinks(t *testing.T) {
 
 	test.RunServicesTests(testcases, t, func(ctx context.Context) {
 
+		sd, er := idmtest.GetStartData()
+		fmt.Println(er)
+		//So(er, ShouldBeNil)
+		er = idmtest.RegisterIdmMocksWithData(ctx, sd)
+		//So(er, ShouldBeNil)
+		er = datatest.RegisterDataServices(ctx)
+		//So(er, ShouldBeNil)
+
 		Convey("Setup Mock Data", t, func() {
-			sd, er := idmtest.GetStartData()
-			So(er, ShouldBeNil)
-			er = idmtest.RegisterIdmMocksWithData(ctx, sd)
-			So(er, ShouldBeNil)
-			er = datatest.RegisterDataServices(ctx)
-			So(er, ShouldBeNil)
+			//sd, er := idmtest.GetStartData()
+			//So(er, ShouldBeNil)
+			//er = idmtest.RegisterIdmMocksWithData(ctx, sd)
+			//So(er, ShouldBeNil)
+			//er = datatest.RegisterDataServices(ctx)
+			//So(er, ShouldBeNil)
 
 			// test docstore
 			dcc := docstore.NewDocStoreClient(grpc.ResolveConn(ctx, common.ServiceDocStoreGRPC))

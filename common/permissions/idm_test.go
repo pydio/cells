@@ -56,18 +56,26 @@ func TestMain(m *testing.M) {
 }
 
 var (
-	testServices = map[string]map[string]any{
+	testServices = map[string]map[string]map[string]any{
 		common.ServiceUserGRPC: {
-			"sql": usrdao.NewDAO,
+			"sql": {
+				"func": usrdao.NewDAO,
+			},
 		},
 		common.ServiceRoleGRPC: {
-			"sql": roledao.NewDAO,
+			"sql": {
+				"func": roledao.NewDAO,
+			},
 		},
 		common.ServiceAclGRPC: {
-			"sql": acldao.NewDAO,
+			"sql": {
+				"func": acldao.NewDAO,
+			},
 		},
 		common.ServiceWorkspaceGRPC: {
-			"sql": wsdao.NewDAO,
+			"sql": {
+				"func": wsdao.NewDAO,
+			},
 		},
 	}
 	testcases []test.ServicesStorageTestCase

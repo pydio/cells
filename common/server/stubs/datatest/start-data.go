@@ -38,6 +38,7 @@ import (
 
 func RegisterDataServices(ctx context.Context, nodes ...*tree.Node) error {
 
+	fmt.Println("In here")
 	var reg registry.Registry
 	if !propagator.Get(ctx, registry.ContextKey, &reg) {
 		return fmt.Errorf("cannot find registry in context")
@@ -62,6 +63,7 @@ func RegisterDataServices(ctx context.Context, nodes ...*tree.Node) error {
 			return err
 		}
 		if cc != nil {
+			fmt.Println("Registering mock ", item.Name())
 			grpc.RegisterMock(item.Name(), cc)
 		}
 	}

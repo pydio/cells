@@ -163,7 +163,7 @@ type keyPair struct {
 func tplEval(ctx context.Context, tpl, name string, conf config.Store, r runtime.Runtime) (string, error) {
 	t, err := template.New(name).Funcs(map[string]any{
 		"getServiceDataDir": runtime.MustServiceDataDir,
-	}).Delims("{{{{", "}}}}").Parse(tpl)
+	}).Delims("{{{{", "}}}}").Option("missingkey=zero").Parse(tpl)
 	if err != nil {
 		return "", err
 	}
