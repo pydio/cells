@@ -38,29 +38,45 @@ func SiteFromContext(ctx context.Context, ss []*install.ProxyConfig) (*install.P
 	if !ok {
 		return nil, nil, false
 	}
-	siteHash, ok2 := meta[common.XPydioSiteHash]
-	if !ok2 || len(siteHash) == 0 {
-		return nil, nil, false
-	}
-	var found *install.ProxyConfig
-	for _, site := range ss {
-		if site.Hash() == siteHash {
-			found = site
-			break
+
+	var pcs []*install.ProxyConfig
+
+	// Try to retrieve the proxy config directly from the hash
+	if siteHash, ok := meta[common.XPydioSiteHash]; ok && len(siteHash) == 1 {
+		for _, site := range ss {
+			if site.Hash() == siteHash {
+				pcs = append(pcs, site)
+				break
+			}
 		}
+
+		if len(pcs) == 0 {
+			return nil, nil, false
+		}
+	} else {
+		pcs = ss
 	}
-	var u *url.URL
-	if found != nil {
-		if host, o := propagator.CanonicalMeta(ctx, keys.HttpMetaHost); o {
-			for _, eu := range found.GetExternalUrls() {
+
+	if host, ok := propagator.CanonicalMeta(ctx, keys.HttpMetaHost); ok {
+		for _, pc := range pcs {
+			for _, eu := range pc.GetExternalUrls() {
 				if eu.Host == host {
-					u = eu
-					break
+					return pc, eu, true
 				}
 			}
 		}
+
+		u, err := url.Parse(host)
+		if err != nil {
+			return nil, nil, false
+		}
+
+		return &install.ProxyConfig{
+			ReverseProxyURL: host,
+		}, u, true
 	}
-	return found, u, found != nil
+
+	return nil, nil, false
 }
 
 // SiteToContext artificially push a site and its Host to context for further resolution

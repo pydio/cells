@@ -1,9 +1,15 @@
 storages:
   sql:
     uri: sqlite://{{ autoMkdirTmp "sqlite" }}/test.db
-  mongo:
-    uri: mongodb://localhost:27017/test
-  bleve:
-    uri: bleve://{{ autoMkdirTmp "bleve" }}
-  bolt:
-    uri: boltdb://{{ autoMkdirTmp "bolt" }}/test.bolt
+#  mongo:
+#    uri: mongodb://localhost:27017/test
+#  bleve:
+#    uri: bleve://{{ autoMkdirTmp "bleve" }}
+#  bolt:
+#    uri: boltdb://{{ autoMkdirTmp "bolt" }}/test.bolt
+
+services:
+  service.test:
+    storages:
+      main:
+        - type: sql

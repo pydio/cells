@@ -430,8 +430,27 @@ func (r *serverRegistrar) RegisterService(desc *grpc.ServiceDesc, impl interface
 		r.Server.RegisterService(desc, impl)
 	}
 
+	endpoints := r.reg.ListAdjacentItems(
+		registry.WithAdjacentSourceOptions(registry.WithID(r.id)),
+		registry.WithAdjacentEdgeOptions(registry.WithName("server")),
+		registry.WithAdjacentTargetOptions(registry.WithType(pb.ItemType_ENDPOINT)))
+
 	for _, method := range desc.Methods {
-		endpoint := util.CreateEndpoint("/"+desc.ServiceName+"/"+method.MethodName, impl, map[string]string{})
+		path := "/" + desc.ServiceName + "/" + method.MethodName
+
+		var found bool
+		for _, endpoint := range endpoints {
+			if endpoint.Name() == path {
+				found = true
+				break
+			}
+		}
+
+		if found {
+			continue
+		}
+
+		endpoint := util.CreateEndpoint(path, impl, map[string]string{})
 
 		if r.reg != nil {
 			r.reg.Register(endpoint,
@@ -441,13 +460,25 @@ func (r *serverRegistrar) RegisterService(desc *grpc.ServiceDesc, impl interface
 	}
 
 	for _, method := range desc.Streams {
+		path := "/" + desc.ServiceName + "/" + method.StreamName
+
+		var found bool
+		for _, endpoint := range endpoints {
+			if endpoint.Name() == path {
+				found = true
+				break
+			}
+		}
+
+		if found {
+			continue
+		}
+
 		endpoint := util.CreateEndpoint("/"+desc.ServiceName+"/"+method.StreamName, impl, map[string]string{})
 
 		if r.reg != nil {
 			r.reg.Register(endpoint,
-				registry.WithEdgeTo(r.id, "server", map[string]string{
-					"serverType": "grpc",
-				}))
+				registry.WithEdgeTo(r.id, "server", map[string]string{"serverType": "grpc"}))
 		}
 	}
 }

@@ -46,7 +46,7 @@ func init() {
 			service.Context(ctx),
 			service.Tag(common.ServiceTagData),
 			service.Description("Encryption Keys server"),
-			service.WithStorageDrivers(key.Drivers...),
+			service.WithStorageDrivers(key.Drivers),
 			service.Migrations([]*service.Migration{
 				{
 					TargetVersion: service.FirstRunOrChange(),

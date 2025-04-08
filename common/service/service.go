@@ -26,7 +26,6 @@ import (
 	"fmt"
 	"sync"
 
-	"go.uber.org/multierr"
 	"go.uber.org/zap"
 	"golang.org/x/exp/maps"
 
@@ -326,7 +325,7 @@ func (s *service) OnServe(oo ...registry.RegisterOption) error {
 		refCtx = s.Opts.rootContext
 	}
 
-	go func() {
+	/*go func() {
 		if locker := s.Opts.GetRegistry().NewLocker("update-service-version-" + s.Opts.Name); locker != nil {
 			locker.Lock()
 			defer locker.Unlock()
@@ -350,7 +349,7 @@ func (s *service) OnServe(oo ...registry.RegisterOption) error {
 		}); er != nil {
 			log.Logger(refCtx).Error("Error while updating service version", zap.Error(er))
 		}
-	}()
+	}()*/
 
 	for _, after := range s.Opts.AfterServe {
 		go func(f func(context.Context) error) {

@@ -52,7 +52,8 @@ func init() {
 			service.Tag(common.ServiceTagDatasource),
 			service.Description("Starter for data sources synchronizations"),
 			service.WithMigrateIterator(source.DataSourceContextKey, source.ListSources),
-			service.WithStorageDrivers(sync.Drivers...),
+			service.WithMigrateWatcher(source.DataSourceContextKey, source.WatchSources),
+			service.WithStorageDrivers(sync.Drivers),
 			service.WithGRPC(func(ctx context.Context, registrar grpc.ServiceRegistrar) error {
 				resolver := source.NewResolver[*grpc_sync.Syncer](source.DataSourceContextKey, common.ServiceDataSyncGRPC_, source.ListSources)
 				handler := &grpc_sync.Handler{

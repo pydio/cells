@@ -164,12 +164,12 @@ func configDbMoveOne(cmd *cobra.Command, dry, promptConfig bool, migOption *flat
 		svcFrom = service.NewService(
 			service.Name("From"),
 			service.Context(ctx),
-			service.WithStorageDrivers(migOption.SupportedDrivers[migOption.storageKey]...),
+			service.WithStorageDrivers(migOption.SupportedDrivers[migOption.storageKey]),
 		)
 		svcTo = service.NewService(
 			service.Name("To"),
 			service.Context(ctx),
-			service.WithStorageDrivers(migOption.SupportedDrivers[migOption.storageKey]...),
+			service.WithStorageDrivers(migOption.SupportedDrivers[migOption.storageKey]),
 		)
 	})
 	mgr, err := manager.NewManager(ctx, "test", nil)

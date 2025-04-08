@@ -181,9 +181,7 @@ func doRegister(ctx context.Context, m registry.Registry, ids *[]string) chan re
 			select {
 			case item := <-ch:
 				cnt = cnt + 1
-				t := time.Now()
 				m.Register(item)
-				fmt.Println("Registering took ", time.Now().Sub(t))
 				*ids = append(*ids, item.ID())
 			case <-ctx.Done():
 				return
@@ -198,15 +196,10 @@ func doTestAdd(t *testing.T, m registry.Registry) {
 	Convey("Add services to the registry", t, func() {
 		waitForQuiet := make(chan struct{})
 
-		//numNodes := 100
-		//numServers := 1000
-		//numServices := 1000
-		//numUpdates := 100
-
-		numNodes := 1000
-		numServers := 10000
-		numServices := 10000
-		numUpdates := 0
+		numNodes := 10
+		numServers := 1000
+		numServices := 1000
+		numUpdates := 100
 
 		w, err := m.Watch(registry.WithType(pb.ItemType_NODE), registry.WithType(pb.ItemType_SERVER), registry.WithType(pb.ItemType_SERVICE))
 		if err != nil {
@@ -230,7 +223,7 @@ func doTestAdd(t *testing.T, m registry.Registry) {
 		ch := doRegister(context.Background(), m, &itemsSentToRegisterIds)
 
 		go func() {
-			timer := time.NewTimer(2 * time.Second)
+			timer := time.NewTimer(1 * time.Second)
 			resCh := make(chan registry.Result)
 			go func() {
 				for {
@@ -251,12 +244,11 @@ func doTestAdd(t *testing.T, m registry.Registry) {
 						if done {
 							waitForQuiet <- struct{}{}
 						}
-
 					case res := <-resCh:
 
 						done = true
 
-						timer.Reset(2 * time.Second)
+						timer.Reset(1 * time.Second)
 
 						switch res.Action() {
 						case pb.ActionType_CREATE:
@@ -274,7 +266,7 @@ func doTestAdd(t *testing.T, m registry.Registry) {
 							}
 						}
 
-						fmt.Println("List ", len(createdItemIds), len(updatedItemIds), len(deletedItemIds))
+						//fmt.Println("List ", len(createdItemIds), len(updatedItemIds), len(deletedItemIds))
 					}
 				}
 			}()
@@ -297,8 +289,6 @@ func doTestAdd(t *testing.T, m registry.Registry) {
 		var servers []server.Server
 		for i := 0; i < numServers; i++ {
 			srv := grpc.New(ctx, grpc.WithName("mock"))
-
-			fmt.Println("Adding ", i)
 
 			ch <- srv
 
@@ -403,9 +393,7 @@ func doTestAdd(t *testing.T, m registry.Registry) {
 				}
 			}
 
-			fmt.Println("Waiting for quiet ?")
 			<-waitForQuiet
-			fmt.Println("Got it")
 
 			updatedItemIds = unique(updatedItemIds)
 			itemsSentToRegisterIds = unique(itemsSentToRegisterIds)
@@ -417,8 +405,6 @@ func doTestAdd(t *testing.T, m registry.Registry) {
 
 			reset()
 		}
-
-		//<-time.After(3 * time.Second)
 
 		// Delete
 		for _, s := range nodes {

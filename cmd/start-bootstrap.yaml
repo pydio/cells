@@ -36,7 +36,10 @@ servers:
     type: grpc
     listener: grpcall
     services:
-      - filter: "{{ .Name }} ~= pydio\\.grpc\\.*"
+      - filter: "{{ .Name }} ~= pydio\\.grpc\\..*"
+  generic:
+    type: generic
+    services:
 
 queues:
   debouncer:
@@ -180,10 +183,10 @@ services: &services
   pydio.grpc.data.index:
     storages:
       main:
-        - type: dssql
-          prefix: data_index_
+        - type: sql
+          prefix: data_index_{{ .DataSource }}_
   pydio.grpc.data.sync:
     storages:
       main:
-        - type: dssql
-          prefix: data_sync_
+        - type: sql
+          prefix: data_index_{{ .DataSource }}_

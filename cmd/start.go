@@ -22,7 +22,9 @@ package cmd
 
 import (
 	"context"
-        "fmt"
+	"encoding/json"
+	"errors"
+	"fmt"
 	"os"
 	"path/filepath"
 	"strings"
@@ -40,7 +42,7 @@ import (
 	"github.com/pydio/cells/v5/common/runtime"
 	"github.com/pydio/cells/v5/common/runtime/manager"
 	"github.com/pydio/cells/v5/common/telemetry/log"
-	"github.com/pydio/cells/v5/idm/user/grpc"
+	"github.com/pydio/cells/v5/common/utils/propagator"
 
 	_ "embed"
 )
@@ -207,11 +209,19 @@ ENVIRONMENT
 			return err
 		}
 
+		mgr.Bootstrap("")
+
 		ctx = mgr.Context()
-		cmd.SetContext(ctx)
 
 		// Checking if we need to install something
 		if niYamlFile != "" || niJsonFile != "" {
+
+			var data interface{}
+			if err := json.Unmarshal([]byte(config.SampleConfig), &data); err == nil {
+				if err := config.Set(ctx, data); err == nil {
+					config.Save(ctx, common.PydioSystemUsername, "Initialize with sample config")
+				}
+			}
 
 			installConf, err = nonInteractiveInstall(ctx)
 			fatalIfError(cmd, err)
@@ -236,30 +246,6 @@ ENVIRONMENT
 		}
 
 		runtime.GetRuntime().Set(runtime.KeyBootstrapYAML, bootstrap)
-
-		// Reading template
-		tmpl := template.New("storages").Delims("{{{{", "}}}}")
-		yml, err := tmpl.Parse(storagesYAML)
-		fatalIfError(cmd, err)
-
-		str := &strings.Builder{}
-
-		err = yml.Execute(str, installConf)
-		fatalIfError(cmd, err)
-
-		runtime.Register("system", func(ctx context.Context) {
-			if err := bootstrap.RegisterTemplate("yaml", str.String()); err != nil {
-				fatalIfError(cmd, err)
-			}
-			bootstrap.MustReset(ctx, nil)
-		})
-
-		_ = os.Setenv(grpc.EnvPydioAdminUserLogin, installConf.FrontendLogin)
-		_ = os.Setenv(grpc.EnvPydioAdminUserPassword, installConf.FrontendPassword)
-
-		for k, v := range installConf.CustomConfigs {
-			_ = os.Setenv("CELLS_CONFIG_"+k, v)
-		}
 
 		return nil
 	},
@@ -299,6 +285,11 @@ ENVIRONMENT
 			}
 		}*/
 
+		bootstrap, err := manager.NewBootstrap(ctx)
+		if err != nil {
+			return err
+		}
+
 		// A tracer may be configured, create a start trace
 		var span trace.Span
 		ctx, span = otel.GetTracerProvider().Tracer("cells-command").Start(ctx, "start", trace.WithSpanKind(trace.SpanKindInternal))
@@ -312,7 +303,7 @@ ENVIRONMENT
 				return err
 			}
 
-			if err := bootstrap.RegisterTemplate(strings.TrimLeft(filepath.Ext(file), "."), string(b)); err != nil {
+			if err := bootstrap.RegisterTemplate(ctx, strings.TrimPrefix(filepath.Ext(file), "."), string(b)); err != nil {
 				return err
 			}
 			//} else if data := runtime.GetString(runtime.KeyBootstrapYAML); data != "" {
@@ -330,7 +321,7 @@ ENVIRONMENT
 				return err
 			}
 
-			if err := bootstrap.RegisterTemplate("yaml", b.String()); err != nil {
+			if err := bootstrap.RegisterTemplate(ctx, "yaml", b.String()); err != nil {
 				return err
 			}
 		}
@@ -343,7 +334,7 @@ ENVIRONMENT
 			}
 		}
 
-		if er := bootstrap.RegisterTemplate("yaml", string(allSettingsYAML)); er != nil {
+		if er := bootstrap.RegisterTemplate(ctx, "yaml", string(allSettingsYAML)); er != nil {
 			return er
 		}
 		bootstrap.MustReset(ctx, nil)
@@ -352,13 +343,65 @@ ENVIRONMENT
 
 		broker.Register(broker.NewBroker(runtime.BrokerURL(), broker.WithContext(ctx)))
 
+		ctx = context.WithValue(ctx, "managertype", "standard")
+
 		m, err := manager.NewManager(ctx, runtime.NsMain, log.Logger(runtime.WithServiceName(ctx, "pydio.server.manager")))
 		if err != nil {
 			span.End()
 			return err
 		}
 
+		if err := m.Bootstrap(bootstrap.String()); err != nil {
+			return err
+		}
+
 		span.End()
+
+		// Reading template
+		tmpl := template.New("storages").Delims("{{", "}}")
+		yml, err := tmpl.Parse(storagesYAML)
+		fatalIfError(cmd, err)
+
+		if err := runtime.MultiContextManager().Iterate(m.Context(), func(ctx context.Context, name string) error {
+
+			// Starting a new manager that will handle the resources linked to this context
+			mcm, err := manager.NewManager(ctx, name, log.Logger(runtime.WithServiceName(ctx, "pydio.server."+name)))
+			if err != nil {
+				return err
+			}
+
+			runtime.MultiContextManager().CurrentContextProvider(ctx).SetRootContext(mcm.Context())
+
+			// Retrieve the config store from the new context manager
+			var configStore config.Store
+			propagator.Get(mcm.Context(), config.ContextKey, &configStore)
+
+			if configStore == nil {
+				return errors.New("no config store found")
+			}
+
+			var b strings.Builder
+			if err := yml.Execute(&b, map[string]any{
+				"storages": configStore.Val("databases").Map(),
+			}); err != nil {
+				return err
+			}
+
+			bootstrap, err := manager.NewBootstrap(mcm.Context())
+			if err != nil {
+				return err
+			}
+
+			if err := bootstrap.RegisterTemplate(ctx, "yaml", b.String()); err != nil {
+				return err
+			}
+
+			bootstrap.MustReset(ctx, nil)
+
+			return mcm.Bootstrap(bootstrap.String())
+		}); err != nil {
+			return err
+		}
 
 		if err := m.ServeAll(); err != nil {
 			return err

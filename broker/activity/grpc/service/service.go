@@ -68,7 +68,7 @@ func init() {
 					Up:            actions.RegisterDigestJob,
 				},
 			}),
-			service.WithStorageDrivers(activity.Drivers...),
+			service.WithStorageDrivers(activity.Drivers),
 			service.WithStorageMigrator(activity.Migrate),
 			service.WithGRPC(func(c context.Context, srv grpc.ServiceRegistrar) error {
 
@@ -89,6 +89,7 @@ func init() {
 				processOneWithTimeout := func(ct context.Context, event *tree.NodeChangeEvent) error {
 					var ca context.CancelFunc
 					ctx, ca = context.WithTimeout(propagator.ForkContext(ct, c), 10*time.Second)
+					ctx = propagator.ForkContext(ctx, runtime.MultiContextManager().CurrentContextProvider(ctx).Context(ctx))
 					defer ca()
 					return subscriber.HandleNodeChange(ctx, event)
 				}

@@ -1,6 +1,6 @@
 module github.com/pydio/cells-fuse
 
-go 1.23
+go 1.23.0
 
 toolchain go1.23.4
 
@@ -46,7 +46,7 @@ require (
 	github.com/goccy/go-json v0.10.4 // indirect
 	github.com/golang/groupcache v0.0.0-20210331224755-41bb18bfe9da // indirect
 	github.com/google/cel-go v0.22.1 // indirect
-	github.com/google/pprof v0.0.0-20240528025155-186aa0362fba // indirect
+	github.com/google/pprof v0.0.0-20241029153458-d1b30febd7db // indirect
 	github.com/google/uuid v1.6.0 // indirect
 	github.com/googleapis/gax-go/v2 v2.12.4 // indirect
 	github.com/grpc-ecosystem/go-grpc-middleware v1.4.0 // indirect
@@ -70,7 +70,7 @@ require (
 	github.com/modern-go/reflect2 v1.0.2 // indirect
 	github.com/munnerz/goautoneg v0.0.0-20191010083416-a7dc8b61c822 // indirect
 	github.com/nicksnyder/go-i18n/v2 v2.4.1 // indirect
-	github.com/onsi/ginkgo/v2 v2.19.0 // indirect
+	github.com/onsi/ginkgo/v2 v2.21.0 // indirect
 	github.com/ory/ladon v1.2.0 // indirect
 	github.com/ory/pagination v0.0.1 // indirect
 	github.com/pborman/uuid v1.2.1 // indirect
@@ -133,9 +133,9 @@ require (
 	gopkg.in/yaml.v2 v2.4.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 	gorm.io/gorm v1.25.12 // indirect
-	k8s.io/apimachinery v0.30.1 // indirect
-	k8s.io/klog/v2 v2.120.1 // indirect
-	k8s.io/utils v0.0.0-20230726121419-3b25d923346b // indirect
+	k8s.io/apimachinery v0.32.1 // indirect
+	k8s.io/klog/v2 v2.130.1 // indirect
+	k8s.io/utils v0.0.0-20241104100929-3ea5e8cea738 // indirect
 )
 
 replace github.com/minio/minio => github.com/pydio/minio v0.0.0-20230809141052-8bd460a77d09

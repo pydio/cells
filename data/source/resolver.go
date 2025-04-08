@@ -116,6 +116,11 @@ func ListSources(ctx context.Context) (sources []string) {
 	return
 }
 
+// WatchSources is a SourcesProvider returning *object.Datasource list
+func WatchSources(ctx context.Context) (watch.Receiver, error) {
+	return config.Watch(ctx, watch.WithChangesOnly(), watch.WithPath("services", common.ServiceDataIndexGRPC, "sources/*"))
+}
+
 // ListObjects is a SourcesProvider returning *object.MinioConfig list
 func ListObjects(ctx context.Context) (objects []string) {
 	for _, s := range config.ListMinioConfigsFromConfig(ctx) {

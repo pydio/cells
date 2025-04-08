@@ -1,6 +1,6 @@
 module github.com/pydio/cells/v5/cmd/protoc-gen-go-setter
 
-go 1.23
+go 1.23.0
 
 toolchain go1.23.2
 

@@ -59,7 +59,7 @@ func init() {
 					Up:            grpc2.InitDefaults,
 				},
 			}),
-			service.WithStorageDrivers(user.Drivers...),
+			service.WithStorageDrivers(user.Drivers),
 			service.WithGRPC(func(ctx context.Context, server grpc.ServiceRegistrar) error {
 
 				handler := grpc2.NewHandler()

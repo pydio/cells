@@ -446,9 +446,9 @@ func (u *umClient) incomingDefaults(ctx context.Context, inputType tree.NodeType
 	var draftEnabled bool
 	// Global config first
 	glob := config.Get(ctx, config.FrontendPluginPath(frontPluginName)...)
-	jsonDefs = glob.Val(frontPluginDefaultMeta).String()
-	draftEnabled = glob.Val(frontPluginDraftEnabled).Bool()
-	draftNS = glob.Val(frontPluginDraftMeta).String()
+	jsonDefs = glob.Val(frontPluginDefaultMeta).Default("").String()
+	draftEnabled = glob.Val(frontPluginDraftEnabled).Default(false).Bool()
+	draftNS = glob.Val(frontPluginDraftMeta).Default("").String()
 
 	// Contextual roles then
 	if ws != nil {

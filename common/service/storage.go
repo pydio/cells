@@ -26,14 +26,19 @@ import (
 	json "github.com/pydio/cells/v5/common/utils/jsonx"
 )
 
-type StorageDrivers []any
+type StorageDriver struct {
+	Handler      any
+	DefaultMetas []map[string]string
+}
 
-func (s *StorageDrivers) Register(f any) {
-	*s = append(*s, f)
+type StorageDrivers []StorageDriver
+
+func (s *StorageDrivers) Register(f any, defaultMetas ...map[string]string) {
+	*s = append(*s, StorageDriver{f, defaultMetas})
 }
 
 type StorageOptions struct {
-	SupportedDrivers map[string][]any
+	SupportedDrivers map[string]StorageDrivers
 	Handler          any
 	Migrator         MigratorFunc
 	prefix           interface{}
@@ -95,18 +100,20 @@ func WithStorageMigrator(d MigratorFunc) ServiceOption {
 }
 
 // WithNamedStorageDrivers allows supporting multiple set of drivers
-func WithNamedStorageDrivers(name string, f ...any) ServiceOption {
+func WithNamedStorageDrivers(name string, f StorageDrivers) ServiceOption {
 	return func(o *ServiceOptions) {
 		m := o.StorageOptions.SupportedDrivers
 		if m == nil {
-			m = make(map[string][]any)
+			m = make(map[string]StorageDrivers)
 		}
+
 		m[name] = f
+
 		o.StorageOptions.SupportedDrivers = m
 	}
 }
 
 // WithStorageDrivers adds a storage handler to the current service
-func WithStorageDrivers(f ...any) ServiceOption {
-	return WithNamedStorageDrivers("main", f...)
+func WithStorageDrivers(f StorageDrivers) ServiceOption {
+	return WithNamedStorageDrivers("main", f)
 }

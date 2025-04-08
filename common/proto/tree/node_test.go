@@ -21,9 +21,20 @@
 package tree
 
 import (
+	"database/sql"
+	"fmt"
+	"regexp"
+	"strings"
 	"testing"
 
+	sqlmock "github.com/DATA-DOG/go-sqlmock"
+	"gorm.io/driver/postgres"
+	"gorm.io/driver/sqlite"
+	"gorm.io/gorm"
+
 	"github.com/pydio/cells/v5/common"
+
+	_ "github.com/mattn/go-sqlite3"
 
 	. "github.com/smartystreets/goconvey/convey"
 )
@@ -112,4 +123,228 @@ func TestNodeMeta(t *testing.T) {
 
 	})
 
+}
+
+func TestMPathEquals_Build(t *testing.T) {
+	Convey("Test Build", t, func() {
+		db, mock, err := sqlmock.New()
+		So(err, ShouldBeNil)
+		defer db.Close()
+
+		// Open a GORM DB connection using the sqlmock database.
+		gormDB, err := gorm.Open(postgres.New(postgres.Config{
+			Conn:                 db,
+			PreferSimpleProtocol: true, // Use simple protocol to avoid transaction issues.
+		}), &gorm.Config{})
+		if err != nil {
+			t.Fatalf("failed to open gorm DB: %v", err)
+		}
+
+		mpathEquals := &MPathEquals{
+			Value: &MPath{
+				MPath1: "53719.624153.93104.48270.175984.80342.256879.397521.81935.74216.56093.918274.63458.782901.46520.13769.92468.351728.86745.190283.45682.30817.752190.63908.482965.12739.83547.92046.314687.75092.289134.67429.531728.86075.19403.827346.953182.74620.512984.678945",
+			},
+		}
+
+		queryRegex := regexp.QuoteMeta(`SELECT * FROM "nodes" WHERE ("mpath1" = $1 AND "level" = $2)`)
+
+		mock.
+			ExpectQuery(queryRegex).
+			WithArgs(mpathEquals.Value.GetMPath1(), mpathEquals.Value.Length()).
+			WillReturnRows(sqlmock.NewRows([]string{""}))
+
+		tx := gormDB.Where(mpathEquals).Find(&Node{})
+		So(tx.Error, ShouldBeNil)
+
+		if err := mock.ExpectationsWereMet(); err != nil {
+			So(err, ShouldBeNil)
+		}
+
+	})
+}
+
+func TestMPathLike_Build(t *testing.T) {
+	Convey("Test Build", t, func() {
+		db, mock, err := sqlmock.New()
+		So(err, ShouldBeNil)
+		defer db.Close()
+
+		// Open a GORM DB connection using the sqlmock database.
+		gormDB, err := gorm.Open(postgres.New(postgres.Config{
+			Conn:                 db,
+			PreferSimpleProtocol: true, // Use simple protocol to avoid transaction issues.
+		}), &gorm.Config{})
+		if err != nil {
+			t.Fatalf("failed to open gorm DB: %v", err)
+		}
+
+		type test struct {
+			Mpath       string
+			ExpectQuery string
+			ExpectArgs  []any
+		}
+
+		testcases := []test{
+			{
+				Mpath: "53719.624153.93104.48270.175984.80342.256879.397521.81935.74216.56093.918274.63458.782901.46520.13769.92468.351728.86745.190283.45682.30817.752190.63908.482965.12739.83547.92046.314687.75092.289134.67429.531728.86075.19403.827346.953182.74620.512984.678945",
+			},
+		}
+
+		for _, testcase := range testcases {
+
+			mpath := (&MPath{}).FromString(testcase.Mpath)
+			mpathEquals := &MPathLike{
+				Value: mpath,
+			}
+
+			queryRegex := regexp.QuoteMeta(`SELECT * FROM "nodes" WHERE ("mpath4" LIKE $1 AND "mpath3" LIKE $2 AND "mpath2" LIKE $3 AND "mpath1" LIKE $4 AND "level" > $5)`)
+
+			mock.
+				ExpectQuery(queryRegex).
+				WithArgs(mpathEquals.Value.GetMPath1()+"%", mpathEquals.Value.Length()).
+				WillReturnRows(sqlmock.NewRows([]string{""}))
+
+			tx := gormDB.Where(mpathEquals).Find(&Node{})
+			So(tx.Error, ShouldBeNil)
+
+			if err := mock.ExpectationsWereMet(); err != nil {
+				So(err, ShouldBeNil)
+			}
+		}
+
+	})
+}
+
+func TestMPathEquals_Valid(t *testing.T) {
+	Convey("Test Build", t, func() {
+		db, err := sql.Open("sqlite3", ":memory:")
+		So(err, ShouldBeNil)
+		defer db.Close()
+
+		// Open a GORM DB connection using the sqlmock database.
+		gormDB, err := gorm.Open(sqlite.Dialector{Conn: db}, &gorm.Config{})
+		if err != nil {
+			t.Fatalf("failed to open gorm DB: %v", err)
+		}
+
+		gormDB.AutoMigrate(&TreeNode{})
+		initialData := []*TreeNode{
+			{Name: "test1", MPath: (&MPath{}).FromString("53719.624153.93104.48270.175984.80342.256879.397521.81935.74216.56093.918274.63458.782901.46520.13769.92468.351728.86745.190283.45682.30817.752190.63908.482965.12739.83547.92046.314687.75092.289134.67429.531728.86075.19403.827346.953182.74620.512984.678945")},
+			{Name: "test2", MPath: (&MPath{}).FromString("53719.624153.93104.48270.175984.80342.256879.397521.81935.74216.56093.918274.63458.782901.46520.13769.92468.351728.86745.190283.45682.30817.752190.63908.482965.12739.83547.92046.314687.75092.289134.67429.531728.86075.19403.827346.953182.74620.512984.678945.1")},
+			{Name: "test3", MPath: (&MPath{}).FromString("53719.624153.93104.48270.175984.80342.256879.397521.81935.74216.56093.918274.63458.782901.46520.13769.92468.351728.86745.190283.45682.30817.752190.63908.482965.12739.83547.92046.314687.75092.289134.67429.531728.86075.19403.827346.953182.74620.512984.6789456")},
+			{Name: "test4", MPath: (&MPath{}).FromString("53719.624153.93104.48270.175984.80342.256879.397521.81935.74216.56093.918274.63458.782901.46520.13769.92468.351728.86745.190283.45682.30817.752190.63908.482965.12739.83547.92046.314687.75092.289134.67429.531728.86075.19403.827346.953182.74620.512984.6789456.1")},
+		}
+
+		if tx := gormDB.Create(initialData); tx.Error != nil {
+			t.Fatalf("failed to create initial data: %v", tx.Error)
+		}
+
+		type test struct {
+			Mpath string
+		}
+
+		testcases := []test{
+			{
+				Mpath: "53719.624153.93104.48270.175984.80342.256879.397521.81935.74216.56093.918274.63458.782901.46520.13769.92468.351728.86745.190283.45682.30817.752190.63908.482965.12739.83547.92046.314687.75092.289134.67429.531728.86075.19403.827346.953182.74620.512984.678945",
+			},
+		}
+
+		for _, testcase := range testcases {
+
+			mpath := (&MPath{}).FromString(testcase.Mpath)
+			mpathEquals := &MPathEquals{
+				Value: mpath,
+			}
+
+			var nodes []*TreeNode
+
+			tx := gormDB.Debug().Where(mpathEquals).Find(&nodes)
+			So(tx.Error, ShouldBeNil)
+
+			fmt.Println(nodes)
+			So(tx.RowsAffected, ShouldEqual, 1)
+		}
+	})
+}
+
+func TestMPathLike_Valid(t *testing.T) {
+	Convey("Test Build", t, func() {
+		db, err := sql.Open("sqlite3", ":memory:")
+		So(err, ShouldBeNil)
+		defer db.Close()
+
+		// Open a GORM DB connection using the sqlmock database.
+		gormDB, err := gorm.Open(sqlite.Dialector{Conn: db}, &gorm.Config{})
+		if err != nil {
+			t.Fatalf("failed to open gorm DB: %v", err)
+		}
+
+		gormDB.AutoMigrate(&TreeNode{})
+		initialData := []*TreeNode{
+			{Name: "test1", MPath: (&MPath{}).FromString("53719.624153.93104.48270.175984.80342.256879.397521.81935.74216.56093.918274.63458.782901.46520.13769.92468.351728.86745.190283.45682.30817.752190.63908.482965.12739.83547.92046.314687.75092.289134.67429.531728.86075.19403.827346.953182.74620.512984.678945")},
+			{Name: "test2", MPath: (&MPath{}).FromString("53719.624153.93104.48270.175984.80342.256879.397521.81935.74216.56093.918274.63458.782901.46520.13769.92468.351728.86745.190283.45682.30817.752190.63908.482965.12739.83547.92046.314687.75092.289134.67429.531728.86075.19403.827346.953182.74620.512984.678945.1")},
+			{Name: "test3", MPath: (&MPath{}).FromString("53719.624153.93104.48270.175984.80342.256879.397521.81935.74216.56093.918274.63458.782901.46520.13769.92468.351728.86745.190283.45682.30817.752190.63908.482965.12739.83547.92046.314687.75092.289134.67429.531728.86075.19403.827346.953182.74620.512984.6789456")},
+			{Name: "test4", MPath: (&MPath{}).FromString("53719.624153.93104.48270.175984.80342.256879.397521.81935.74216.56093.918274.63458.782901.46520.13769.92468.351728.86745.190283.45682.30817.752190.63908.482965.12739.83547.92046.314687.75092.289134.67429.531728.86075.19403.827346.953182.74620.512984.6789456.1")},
+		}
+
+		if tx := gormDB.Create(initialData); tx.Error != nil {
+			t.Fatalf("failed to create initial data: %v", tx.Error)
+		}
+
+		type test struct {
+			Mpath string
+		}
+
+		testcases := []test{
+			{
+				Mpath: "53719.624153.93104.48270.175984.80342.256879.397521.81935.74216.56093.918274.63458.782901.46520.13769.92468.351728.86745.190283.45682.30817.752190.63908.482965.12739.83547.92046.314687.75092.289134.67429.531728.86075.19403.827346.953182.74620.512984.678945",
+			},
+		}
+
+		gormDB.Callback().Query().After("*").Register("explain_analyze", explainAnalyzeCallback)
+
+		for _, testcase := range testcases {
+
+			mpath := (&MPath{}).FromString(testcase.Mpath)
+			mpathEquals := &MPathLike{
+				Value: mpath,
+			}
+
+			var nodes []*TreeNode
+
+			tx := gormDB.Where(mpathEquals).Find(&nodes)
+			So(tx.Error, ShouldBeNil)
+
+			fmt.Println(nodes)
+			So(tx.RowsAffected, ShouldEqual, 1)
+		}
+	})
+}
+
+// Custom Logger to Run EXPLAIN ANALYZE
+func explainAnalyzeCallback(db *gorm.DB) {
+
+	fmt.Println("explain analyze callback", db.DryRun, db.Statement.SQL)
+	if db.DryRun {
+		return
+	}
+
+	// Prepend "EXPLAIN ANALYZE" to the query
+	query := db.Statement.SQL.String()
+	if !strings.HasPrefix(strings.ToUpper(query), "EXPLAIN") {
+		query = "EXPLAIN QUERY PLAN " + query
+	}
+
+	fmt.Println(query)
+
+	// Execute the EXPLAIN ANALYZE query
+	var result []map[string]interface{}
+	db.Raw(query, db.Statement.Vars...).Scan(&result)
+
+	// Print the results
+	fmt.Println("=== SQLite Query Analysis ===")
+	for _, row := range result {
+		fmt.Println(row)
+	}
+	fmt.Println("=============================")
 }

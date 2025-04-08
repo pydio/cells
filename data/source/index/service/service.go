@@ -51,7 +51,7 @@ func init() {
 			service.Name(Name),
 			service.Context(ctx),
 			service.Tag(common.ServiceTagDatasource),
-			service.WithStorageDrivers(index.Drivers...),
+			service.WithStorageDrivers(index.Drivers),
 			service.Migrations([]*service.Migration{
 				{
 					TargetVersion: service.FirstRunOrChange(),
@@ -59,6 +59,7 @@ func init() {
 				},
 			}),
 			service.WithMigrateIterator(source.DataSourceContextKey, source.ListSources),
+			service.WithMigrateWatcher(source.DataSourceContextKey, source.WatchSources),
 			service.Description("Starter for data sources indexes"),
 			service.WithGRPC(func(ctx context.Context, srv grpc.ServiceRegistrar) error {
 
@@ -84,6 +85,7 @@ func init() {
 				object.RegisterResourceCleanerEndpointServer(srv, shared)
 				sync.RegisterSyncEndpointServer(srv, shared)
 				server.RegisterReadyzServer(srv, shared)
+
 				return nil
 			}),
 		)

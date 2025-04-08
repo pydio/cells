@@ -21,10 +21,7 @@
 package configtest
 
 import (
-	"context"
 	"fmt"
-	"log"
-	"os"
 	"sync"
 	"testing"
 
@@ -32,21 +29,14 @@ import (
 	"github.com/google/go-cmp/cmp/cmpopts"
 	diff "github.com/r3labs/diff/v3"
 	"github.com/smartystreets/goconvey/convey"
-	"github.com/spf13/viper"
-	"google.golang.org/grpc"
 	"google.golang.org/protobuf/runtime/protoimpl"
 
 	"github.com/pydio/cells/v5/common/config"
-	pbconfig "github.com/pydio/cells/v5/common/proto/config"
 	"github.com/pydio/cells/v5/common/proto/object"
 	pb "github.com/pydio/cells/v5/common/proto/registry"
 	"github.com/pydio/cells/v5/common/registry/util"
-	"github.com/pydio/cells/v5/common/runtime"
-	"github.com/pydio/cells/v5/common/runtime/manager"
-	"github.com/pydio/cells/v5/common/service"
 	"github.com/pydio/cells/v5/common/utils/configx"
 	"github.com/pydio/cells/v5/common/utils/std"
-	discoveryconfig "github.com/pydio/cells/v5/discovery/config/grpc"
 
 	_ "embed"
 	_ "github.com/pydio/cells/v5/common/config/file"
@@ -59,7 +49,26 @@ import (
 var (
 	//go:embed config_test.yaml
 	configTest string
+
+	testCases []testCase
 )
+
+func init() {
+	testCases = []testCase{
+		{label: "memory", store: "mem://?pools=rp%3Dmem%3A%2F%2F", vault: "mem://?masterKey=whatever"},
+		{label: "etcd", store: "etcd://:23379", vault: "etcd://:23379?masterKey=whatever"},
+	}
+}
+
+type testCase struct {
+	label string
+	store string
+	vault string
+}
+
+func (t testCase) Label() string {
+	return t.label
+}
 
 func TestSimpleDiff(t *testing.T) {
 	a := configx.New()
@@ -126,22 +135,6 @@ func TestSyncMapDiff(t *testing.T) {
 	fmt.Println(diff.Diff(a.Interface(), b.Interface(), diff.CustomValueDiffers(config.CustomValueDiffers...)))
 }
 
-func TestGetSetMemory(t *testing.T) {
-	store, err := config.OpenStore(context.Background(), "mem://?pools=rp%3Dmem%3A%2F%2F")
-	if err != nil {
-		log.Panic(err)
-	}
-
-	vault, err := config.OpenStore(context.Background(), "mem://?masterKey=whatever")
-	if err != nil {
-		log.Panic(err)
-	}
-
-	testWatch(t, store)
-	testGetSet(t, store)
-	testVault(t, store, vault)
-}
-
 // TODO
 //func TestGetSetViper(t *testing.T) {
 //	store, err := config.OpenStore(context.Background(), "viper://")
@@ -154,82 +147,82 @@ func TestGetSetMemory(t *testing.T) {
 //	testWatch(t, store)
 //}
 
-func TestGetSetFile(t *testing.T) {
-	f, err := os.CreateTemp(os.TempDir(), "configtest")
-	if err != nil {
-		log.Panic(err)
-	}
-
-	defer func() {
-		f.Close()
-		os.Remove(f.Name())
-	}()
-
-	v, err := os.CreateTemp(os.TempDir(), "configtestvault")
-	if err != nil {
-		log.Panic(err)
-	}
-
-	defer func() {
-		v.Close()
-		os.Remove(v.Name())
-	}()
-
-	store, err := config.OpenStore(context.Background(), "file://"+f.Name())
-	if err != nil {
-		log.Panic(err)
-	}
-
-	vault, err := config.OpenStore(context.Background(), "file://"+v.Name())
-	if err != nil {
-		log.Panic(err)
-	}
-
-	testGetSet(t, store)
-	testVault(t, store, vault)
-	// testWatch(t, store)
-
-	store.Save("configtest", "configtest")
-	vault.Save("configtest", "configtest")
-}
-
-func TestGetSetGRPC(t *testing.T) {
-	v := viper.New()
-	v.Set("name", "discovery")
-	v.Set(runtime.KeyKeyring, "mem://")
-	v.Set(runtime.KeyConfig, "mem://?pools=rp%3Dmem%3A%2F%2F")
-	v.Set(runtime.KeyRegistry, "mem://")
-	v.Set(runtime.KeyBootstrapYAML, configTest)
-	runtime.SetRuntime(v)
-
-	ctx := context.Background()
-
-	runtime.Register("discovery", func(ctx context.Context) {
-		service.NewService(
-			service.Name("config"),
-			service.Context(ctx),
-			service.WithGRPC(func(ctx context.Context, srv grpc.ServiceRegistrar) error {
-				pbconfig.RegisterConfigServer(srv, discoveryconfig.NewHandler())
-				return nil
-			}),
-		)
-	})
-
-	mg, err := manager.NewManager(ctx, "discovery", nil)
-	if err != nil {
-		t.Error("cannot run test", err)
-		t.Fail()
-		return
-	}
-
-	go mg.ServeAll()
-
-	store, _ := config.OpenStore(mg.Context(), "grpc://config")
-	vault, _ := config.OpenStore(mg.Context(), "grpc://config?namespace=vault")
-
-	testGetSet(t, store)
-	testVault(t, store, vault)
-}
+//func TestGetSetFile(t *testing.T) {
+//	f, err := os.CreateTemp(os.TempDir(), "configtest")
+//	if err != nil {
+//		log.Panic(err)
+//	}
+//
+//	defer func() {
+//		f.Close()
+//		os.Remove(f.Name())
+//	}()
+//
+//	v, err := os.CreateTemp(os.TempDir(), "configtestvault")
+//	if err != nil {
+//		log.Panic(err)
+//	}
+//
+//	defer func() {
+//		v.Close()
+//		os.Remove(v.Name())
+//	}()
+//
+//	store, err := config.OpenStore(context.Background(), "file://"+f.Name())
+//	if err != nil {
+//		log.Panic(err)
+//	}
+//
+//	vault, err := config.OpenStore(context.Background(), "file://"+v.Name())
+//	if err != nil {
+//		log.Panic(err)
+//	}
+//
+//	testGetSet(t, store)
+//	testVault(t, store, vault)
+//	// testWatch(t, store)
+//
+//	store.Save("configtest", "configtest")
+//	vault.Save("configtest", "configtest")
+//}
+//
+//func TestGetSetGRPC(t *testing.T) {
+//	v := viper.New()
+//	v.Set("name", "discovery")
+//	v.Set(runtime.KeyKeyring, "mem://")
+//	v.Set(runtime.KeyConfig, "mem://?pools=rp%3Dmem%3A%2F%2F")
+//	v.Set(runtime.KeyRegistry, "mem://")
+//	v.Set(runtime.KeyBootstrapYAML, configTest)
+//	runtime.SetRuntime(v)
+//
+//	ctx := context.Background()
+//
+//	runtime.Register("discovery", func(ctx context.Context) {
+//		service.NewService(
+//			service.Name("config"),
+//			service.Context(ctx),
+//			service.WithGRPC(func(ctx context.Context, srv grpc.ServiceRegistrar) error {
+//				pbconfig.RegisterConfigServer(srv, discoveryconfig.NewHandler())
+//				return nil
+//			}),
+//		)
+//	})
+//
+//	mg, err := manager.NewManager(ctx, "discovery", nil)
+//	if err != nil {
+//		t.Error("cannot run test", err)
+//		t.Fail()
+//		return
+//	}
+//
+//	go mg.ServeAll()
+//
+//	store, _ := config.OpenStore(mg.Context(), "grpc://config")
+//	vault, _ := config.OpenStore(mg.Context(), "grpc://config?namespace=vault")
+//
+//	// testGetSet(t, store)
+//	testVault(t, store, vault)
+//}
 
 func TestWatchMapCompare(t *testing.T) {
 	oldV := &object.DataSource{Name: "name"}

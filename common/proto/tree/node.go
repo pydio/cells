@@ -737,11 +737,24 @@ type MPathEquals struct {
 
 func (me MPathEquals) Build(builder clause.Builder) {
 	var expr []clause.Expression
-	// Do fill empty columns, otherwise searching for e.g mpath1 with "full" value will gather the childrens from mpath2, etc..
-	expr = append(expr, clause.Eq{Column: "mpath1", Value: me.Value.GetMPath1()})
-	expr = append(expr, clause.Eq{Column: "mpath2", Value: me.Value.GetMPath2()})
-	expr = append(expr, clause.Eq{Column: "mpath3", Value: me.Value.GetMPath3()})
-	expr = append(expr, clause.Eq{Column: "mpath4", Value: me.Value.GetMPath4()})
+
+	if mpath1 := me.Value.GetMPath1(); mpath1 != "" {
+		expr = append(expr, clause.Eq{Column: "mpath1", Value: me.Value.GetMPath1()})
+	}
+
+	if mpath2 := me.Value.GetMPath2(); mpath2 != "" {
+		expr = append(expr, clause.Eq{Column: "mpath2", Value: me.Value.GetMPath2()})
+	}
+
+	if mpath3 := me.Value.GetMPath3(); mpath3 != "" {
+		expr = append(expr, clause.Eq{Column: "mpath3", Value: me.Value.GetMPath3()})
+	}
+
+	if mpath4 := me.Value.GetMPath4(); mpath4 != "" {
+		expr = append(expr, clause.Eq{Column: "mpath4", Value: me.Value.GetMPath4()})
+	}
+
+	expr = append(expr, clause.Eq{Column: "level", Value: me.Value.Length()})
 
 	if len(expr) > 0 {
 		clause.And(expr...).Build(builder)
@@ -803,6 +816,8 @@ func (me MPathLike) Build(builder clause.Builder) {
 		expr = append(expr, clause.Like{Column: me.Alias + "mpath1", Value: "%"})
 	}
 
+	// expr = append(expr, clause.Gt{Column: me.Alias + "level", Value: me.Value.Length()})
+
 	clause.And(expr...).Build(builder)
 }
 
@@ -863,12 +878,14 @@ func (tn *TreeNode) TableName(namer schema.Namer) string {
 }
 
 func (tn *TreeNode) BeforeCreate(*gorm.DB) error {
+
 	tn.SetLevel(int64(tn.GetMPath().Length()))
 
 	return nil
 }
 
 func (tn *TreeNode) BeforeSave(*gorm.DB) error {
+
 	tn.SetLevel(int64(tn.GetMPath().Length()))
 
 	h := sha1.New()

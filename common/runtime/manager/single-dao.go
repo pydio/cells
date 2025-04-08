@@ -113,21 +113,21 @@ func DSNtoContextDAO(ctx context.Context, dsn []string, daoFunc any) (context.Co
 
 	runtime.SetRuntime(v)
 
+	sd := service.StorageDrivers{}
+	sd.Register(daoFunc)
+
 	var svc service.Service
 	runtime.Register("test", func(ctx context.Context) {
-		fmt.Println("Registering service ?")
 		svc = service.NewService(
 			service.Name("test"),
 			service.Context(ctx),
-			service.WithStorageDrivers(daoFunc),
+			service.WithStorageDrivers(sd),
 			service.Migrations([]*service.Migration{{
 				TargetVersion: service.FirstRun(),
 				Up:            StorageMigration(),
 			}}),
 		)
 	})
-
-	fmt.Println("Registering manager")
 
 	mgr, err := NewManager(ctx, "test", nil)
 	if err != nil {
@@ -171,15 +171,15 @@ func MockServicesToContextDAO(ctx context.Context, dsn map[string]string, servic
 
 	//var svc service.Service
 	for name, daoDef := range servicesWithDAO {
-		var drivers []any
+		var drivers service.StorageDrivers
 		for _, dao := range daoDef {
-			drivers = append(drivers, dao)
+			drivers.Register(dao)
 		}
 		runtime.Register(ns, func(ctx context.Context) {
 			service.NewService(
 				service.Name(name),
 				service.Context(ctx),
-				service.WithStorageDrivers(drivers...),
+				service.WithStorageDrivers(drivers),
 				service.Migrations([]*service.Migration{{
 					TargetVersion: service.FirstRun(),
 					Up:            StorageMigration(),

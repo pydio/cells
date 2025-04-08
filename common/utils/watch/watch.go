@@ -10,7 +10,6 @@ import (
 	diff "github.com/r3labs/diff/v3"
 
 	"github.com/pydio/cells/v5/common/utils/std"
-	"github.com/pydio/cells/v5/common/utils/uuid"
 )
 
 var (
@@ -198,13 +197,8 @@ func newReceiver(name string, opts ...WatchOption) (*receiver, error) {
 		regPath:     regPath,
 		level:       len(path),
 		changesOnly: o.ChangesOnly,
-		timeout:     2 * time.Second,
+		timeout:     100 * time.Millisecond,
 	}, nil
-}
-
-func NewReceiver(opts ...WatchOption) (Receiver, error) {
-	str := uuid.New()
-	return newReceiver("new receiver "+str, opts...)
 }
 
 func (r *receiver) Call(op diff.Change) error {

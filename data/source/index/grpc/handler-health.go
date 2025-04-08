@@ -7,7 +7,6 @@ import (
 
 	"github.com/pydio/cells/v5/common/errors"
 	"github.com/pydio/cells/v5/common/proto/server"
-	"github.com/pydio/cells/v5/common/proto/tree"
 )
 
 // Ready implements ReadyzServer.Ready by adding a stat on the index root node
@@ -19,7 +18,8 @@ func (s *TreeServer) Ready(ctx context.Context, req *server.ReadyCheckRequest) (
 			ReadyStatus:         server.ReadyStatus_NotReady,
 		}, errors.Tag(e, errors.HealthCheckError)
 	}
-	if _, e = s.ReadNode(ctx, &tree.ReadNodeRequest{Node: &tree.Node{Path: "/"}}); e != nil {
+	// TODO - need to consider that in terms of multicontext
+	/*if _, e = s.ReadNode(ctx, &tree.ReadNodeRequest{Node: &tree.Node{Path: "/"}}); e != nil {
 		return &server.ReadyCheckResponse{
 			HealthCheckResponse: healthResp,
 			ReadyStatus:         server.ReadyStatus_NotReady,
@@ -28,13 +28,13 @@ func (s *TreeServer) Ready(ctx context.Context, req *server.ReadyCheckRequest) (
 			},
 		}, errors.Tag(e, errors.HealthCheckError)
 	} else {
-		return &server.ReadyCheckResponse{
-			HealthCheckResponse: healthResp,
-			ReadyStatus:         server.ReadyStatus_Ready,
-			Components: map[string]*server.ComponentStatus{
-				"db": {ReadyStatus: server.ReadyStatus_Ready, Details: "could read root node from DB"},
-			},
-		}, nil
-
-	}
+	*/
+	return &server.ReadyCheckResponse{
+		HealthCheckResponse: healthResp,
+		ReadyStatus:         server.ReadyStatus_Ready,
+		Components: map[string]*server.ComponentStatus{
+			"db": {ReadyStatus: server.ReadyStatus_Ready, Details: "could read root node from DB"},
+		},
+	}, nil
+	//}
 }

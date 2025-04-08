@@ -23,8 +23,11 @@ package manager
 import (
 	"context"
 	"fmt"
+	"io"
 	"reflect"
+	"unsafe"
 
+	"github.com/valyala/fasttemplate"
 	"go.opentelemetry.io/otel/trace"
 
 	"github.com/pydio/cells/v5/common/config"
@@ -114,20 +117,25 @@ func Resolve[T any](ctx context.Context, opts ...ResolveOption) (s T, final erro
 		return t, errors.WithMessage(errors.ResolveError, "cannot find manager to load configs")
 	}
 
+	//for {
+
 	span.AddEvent("Before Listing")
 	edges, err := reg.List(
-		registry.WithMeta("name", o.Name),
+		//registry.WithMeta("name", o.Name),
 		registry.WithType(registry2.ItemType_EDGE),
 		registry.WithFilter(func(item registry.Item) bool {
-			if item.Name() != "storage" {
+
+			if item.Name() != "storage_"+o.Name {
 				return false
 			}
+
 			edge, ok := item.(registry.Edge)
 			if !ok {
 				return false
 			}
 
 			vv := edge.Vertices()
+
 			if vv[0] == svc.ID() {
 				return true
 			}
@@ -150,7 +158,8 @@ func Resolve[T any](ctx context.Context, opts ...ResolveOption) (s T, final erro
 	span.AddEvent("After Listing Storages")
 
 	// Inject dao in handler
-	for _, handler := range svc.Options().StorageOptions.SupportedDrivers[o.Name] {
+	for _, driver := range svc.Options().StorageOptions.SupportedDrivers[o.Name] {
+		handler := driver.Handler
 		handlerV := reflect.ValueOf(handler)
 		handlerT := reflect.TypeOf(handler)
 		if handlerV.Kind() != reflect.Func {
@@ -173,7 +182,13 @@ func Resolve[T any](ctx context.Context, opts ...ResolveOption) (s T, final erro
 					meta := edge.Metadata()
 					resolutionData := make(map[string]string, len(meta))
 					for k, v := range meta {
-						resolutionData[k] = v
+						t := fasttemplate.New(v, "{{", "}}")
+						resolutionData[k] = t.ExecuteFuncString(func(w io.Writer, tag string) (int, error) {
+							var s string
+							propagator.Get(ctx, svc.Options().MigrateIterator.ContextKey, &s)
+
+							return w.Write([]byte(s))
+						})
 					}
 
 					var stt storage.Storage
@@ -182,6 +197,7 @@ func Resolve[T any](ctx context.Context, opts ...ResolveOption) (s T, final erro
 						if err != nil {
 							return t, errors.Tag(err, errors.ResolveError)
 						}
+
 						connT := reflect.TypeOf(sttt)
 						conn := reflect.ValueOf(sttt)
 
@@ -194,13 +210,6 @@ func Resolve[T any](ctx context.Context, opts ...ResolveOption) (s T, final erro
 					}
 				}
 			}
-		}
-
-		span.AddEvent("Before Service Version")
-
-		// Double-checking all migrations
-		if err := service.UpdateServiceVersion(ctx, svc.Options()); err != nil {
-			return t, errors.Tag(err, errors.ResolveError)
 		}
 
 		// TODO - if we don't have all storages yet, we should wait for them to become available
@@ -224,11 +233,12 @@ func Resolve[T any](ctx context.Context, opts ...ResolveOption) (s T, final erro
 
 		span.AddEvent("After Init")
 
-		return dao.(T), nil
+		if conv, ok := dao.(T); ok {
+			return conv, nil
+		}
+
+		return t, errors.WithMessage(errors.ResolveError, "cannot convert to T for "+svc.Name())
 	}
-
-
-//	return t, errors.WithMessagef(errors.ResolveError, "number of connections (%d) differs from what is requested by handler %s (%d)", assigned, runtime.FuncForPC(handlerV.Pointer()).Name(), handlerT.NumIn())
 
 	return t, errors.WithMessage(errors.ResolveError, "could not find compatible storage for DAO parameter")
 }
@@ -290,5 +300,32 @@ func StorageMigration(opts ...ResolveOption) func(ctx2 context.Context) error {
 		}
 		log.Logger(ctx).Info("Running storage migration")
 		return mig.Migrate(ctx)
+	}
+}
+
+func printContextInternals(ctx interface{}, inner bool) {
+	contextValues := reflect.ValueOf(ctx).Elem()
+	contextKeys := reflect.TypeOf(ctx).Elem()
+
+	if !inner {
+		fmt.Printf("\nFields for %s.%s\n", contextKeys.PkgPath(), contextKeys.Name())
+	}
+
+	if contextKeys.Kind() == reflect.Struct {
+		for i := 0; i < contextValues.NumField(); i++ {
+			reflectValue := contextValues.Field(i)
+			reflectValue = reflect.NewAt(reflectValue.Type(), unsafe.Pointer(reflectValue.UnsafeAddr())).Elem()
+
+			reflectField := contextKeys.Field(i)
+
+			if reflectField.Name == "Context" {
+				printContextInternals(reflectValue.Interface(), true)
+			} else {
+				fmt.Printf("field name: %+v\n", reflectField.Name)
+				fmt.Printf("value: %+v\n", reflectValue.Interface())
+			}
+		}
+	} else {
+		fmt.Printf("context is empty (int)\n")
 	}
 }

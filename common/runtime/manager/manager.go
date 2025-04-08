@@ -24,6 +24,7 @@ import (
 	"bytes"
 	"context"
 	"fmt"
+	"maps"
 	"net"
 	"net/url"
 	"os"
@@ -38,6 +39,7 @@ import (
 	"github.com/manifoldco/promptui"
 	"github.com/pkg/errors"
 	"github.com/spf13/cast"
+	"go.uber.org/multierr"
 	"go.uber.org/zap"
 	"golang.org/x/sync/errgroup"
 	"google.golang.org/grpc"
@@ -48,7 +50,6 @@ import (
 	"github.com/pydio/cells/v5/common"
 	"github.com/pydio/cells/v5/common/broker"
 	"github.com/pydio/cells/v5/common/config"
-	"github.com/pydio/cells/v5/common/config/migrations"
 	"github.com/pydio/cells/v5/common/config/revisions"
 	"github.com/pydio/cells/v5/common/crypto/keyring"
 	"github.com/pydio/cells/v5/common/middleware"
@@ -68,6 +69,7 @@ import (
 	json "github.com/pydio/cells/v5/common/utils/jsonx"
 	"github.com/pydio/cells/v5/common/utils/openurl"
 	"github.com/pydio/cells/v5/common/utils/propagator"
+	"github.com/pydio/cells/v5/common/utils/uuid"
 	"github.com/pydio/cells/v5/common/utils/watch"
 
 	_ "embed"
@@ -79,6 +81,11 @@ const (
 	CommandRestart = "restart"
 )
 
+var (
+	//go:embed start-storages2.yaml
+	storages2YAML string
+)
+
 type Manager interface {
 	Context() context.Context
 	Registry() registry.Registry
@@ -88,7 +95,8 @@ type Manager interface {
 	WatchServicesConfigs()
 	WatchBroker(ctx context.Context, br broker.Broker) error
 
-	RegisterBootstrapTemplate(typ string, data string) error
+	Bootstrap(string) error
+	// RegisterBootstrapTemplate(typ string, data string) error
 	RegisterStorage(scheme string, options ...controller.Option[storage.Storage])
 	RegisterConfig(scheme string, config ...controller.Option[*openurl.Pool[config.Store]])
 	RegisterQueue(scheme string, opts ...controller.Option[broker.AsyncQueuePool])
@@ -102,9 +110,10 @@ type Manager interface {
 }
 
 type manager struct {
-	ctx       context.Context
+	ctx  context.Context
+	base string
+
 	bootstrap *Bootstrap
-	base      string
 
 	ns     string
 	srcUrl string
@@ -149,80 +158,105 @@ func NewManager(ctx context.Context, namespace string, logger log.ZapLogger, r .
 		caches:  controller.NewController[*openurl.Pool[cache.Cache]](),
 	}
 
+	m.ctx = propagator.With(m.ctx, ContextKey, m)
+
+	bootstrap, err := NewBootstrap(m.ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	m.bootstrap = bootstrap
+
 	localRuntime := runtime.GetRuntime()
 	if len(r) > 0 {
 		localRuntime = r[0]
 	}
 
-	ctx = propagator.With(ctx, ContextKey, m)
-	runtime.Init(ctx, "system")
-
-	bootstrapYAML := localRuntime.GetString(runtime.KeyBootstrapYAML)
-	bootstrap, err := config.OpenStore(ctx, "mem://?encode=yaml")
-	if err != nil {
-		return nil, err
-	}
-
-	str, err := tplEval(ctx, bootstrapYAML, "bootstrap", nil, localRuntime)
-	if err != nil {
-		return nil, err
-	} else {
-		if err := bootstrap.Set([]byte(str)); err != nil {
-			return nil, err
-		}
-	}
+	runtime.Init(m.ctx, "system")
 
 	base := localRuntime.GetString(runtime.KeyBootstrapRoot)
-	// if !runtime.IsSet(runtime.KeyBootstrapRoot) {
 	if name := runtime.Name(); name != "" && name != "default" {
 		base += strings.Join(strings.Split("_"+name, "_"), "/processes/")
 	}
-	//}
 
-	if err := m.initNamespace(ctx, bootstrap, base); err != nil {
-		return nil, err
-	}
-
-	if reg, err := m.initInternalRegistry(ctx, bootstrap, base); err != nil {
+	if reg, err := m.initInternalRegistry(m.ctx, m.bootstrap, m.base); err != nil {
 		return nil, err
 	} else {
 		m.internalRegistry = reg
 
 		go m.WatchTransientStatus()
+		// go m.WatchServers()
 
-		ctx = propagator.With(ctx, registry.ContextKey, reg)
+		m.ctx = propagator.With(m.ctx, registry.ContextKey, reg)
 	}
 
-	if kr, err := m.initKeyring(ctx); err != nil {
+	if kr, err := m.initKeyring(m.ctx); err != nil {
 		return nil, err
 	} else {
-		ctx = propagator.With(ctx, keyring.KeyringContextKey, kr)
+		m.ctx = propagator.With(m.ctx, keyring.KeyringContextKey, kr)
+	}
+
+	var parentStore *openurl.Pool[config.Store]
+	propagator.Get(m.ctx, config.ContextKey, &parentStore)
+
+	if parentStore == nil {
+
+		if store, vault, revisions, err := m.initConfig(m.ctx); err != nil {
+			return nil, err
+		} else {
+			m.ctx = propagator.With(m.ctx, config.ContextKey, store)
+			m.ctx = propagator.With(m.ctx, config.VaultKey, vault)
+			m.ctx = propagator.With(m.ctx, config.RevisionsKey, revisions)
+		}
+	}
+
+	return m, nil
+}
+
+func (m *manager) Bootstrap(bootstrapYAML string) error {
+	bootstrap, err := NewBootstrap(m.ctx)
+	if err != nil {
+		return err
+	}
+
+	m.bootstrap = bootstrap
+
+	str, err := tplEval(m.ctx, bootstrapYAML, "bootstrap", nil, runtime.GetRuntime())
+	if err != nil {
+		return err
+	} else {
+		if err := m.bootstrap.RegisterTemplate(m.ctx, "yaml", str); err != nil {
+			return err
+		}
+	}
+
+	if err := m.initNamespace(m.ctx, m.bootstrap, m.base); err != nil {
+		return err
 	}
 
 	// TODO : this would imply using eg.Wait() somewhere, is normal ?
 	var eg errgroup.Group
 	eg.Go(func() error {
-		return m.initProcesses(ctx, bootstrap, base)
+		return m.initProcesses(m.ctx, m.bootstrap, m.base)
 	})
 
 	// Initialising listeners
-	if err := m.initListeners(ctx, bootstrap, base); err != nil {
-		return nil, err
+	if err := m.initListeners(m.ctx, m.bootstrap.Val(), m.base); err != nil {
+		return err
 	}
 
 	// Initialising default connections
-	if err := m.initConnections(ctx, bootstrap, base); err != nil {
-		return nil, err
+	if err := m.initConnections(m.ctx, m.bootstrap.Val(), m.base); err != nil {
+		return err
 	}
 
 	// Connecting to the control plane if necessary
-	reg, err := registry.OpenRegistry(ctx, runtime.RegistryURL())
+	/*reg, err := registry.OpenRegistry(m.ctx, runtime.RegistryURL())
 	if err == nil {
-
 		// Registering everything
 		items, err := m.internalRegistry.List()
 		if err != nil {
-			return nil, err
+			return err
 		}
 		for _, item := range items {
 			reg.Register(item)
@@ -230,92 +264,57 @@ func NewManager(ctx context.Context, namespace string, logger log.ZapLogger, r .
 
 		m.internalRegistry = registry.NewFuncWrapper(m.internalRegistry,
 			registry.OnRegister(func(item *registry.Item, opts *[]registry.RegisterOption) {
-				//fmt.Println("Registering ", (*item).Name())
 				if err := reg.Register(*item, *opts...); err != nil {
 					fmt.Println("I have an error ", err)
 				}
 			}),
 		)
-	}
+	}*/
 
-	ctx = propagator.With(ctx, registry.ContextKey, m.internalRegistry)
+	m.ctx = propagator.With(m.ctx, registry.ContextKey, m.internalRegistry)
 
-	if store, vault, revisions, err := m.initConfig(ctx); err != nil {
-		return nil, err
-	} else {
-		ctx = propagator.With(ctx, config.ContextKey, store)
-		ctx = propagator.With(ctx, config.VaultKey, vault)
-		ctx = propagator.With(ctx, config.RevisionsKey, revisions)
+	//if store, vault, revisions, err := m.initConfig(m.ctx); err != nil {
+	//	return err
+	//} else {
+	//	m.ctx = propagator.With(m.ctx, config.ContextKey, store)
+	//	m.ctx = propagator.With(m.ctx, config.VaultKey, vault)
+	//	m.ctx = propagator.With(m.ctx, config.RevisionsKey, revisions)
 
-		// TODO - reload here with config
-		// bootstrapYAML := runtime.GetRuntime().GetString(runtime.KeyBootstrapYAML)
+	var store *openurl.Pool[config.Store]
+	propagator.Get(m.ctx, config.ContextKey, &store)
 
-		m.initTelemetry(ctx, bootstrap, store)
-
-		go func() {
-			if err := runtime.MultiContextManager().Iterate(ctx, func(ctx context.Context, name string) error {
-				var configStore config.Store
-				if ok := propagator.Get(ctx, config.ContextKey, &configStore); !ok {
-					return errors.New("config not reachable")
-				}
-
-				if configStore.Context(ctx).Val().Get() == nil {
-					var data any
-					if err := json.Unmarshal([]byte(config.SampleConfig), &data); err == nil {
-						if err := configStore.Context(ctx).Val().Set(data); err == nil {
-							if err := configStore.Save(common.PydioSystemUsername, "Initialize with sample config"); err != nil {
-								return err
-							}
-						}
-					}
-				}
-
-				if save, err := migrations.UpgradeConfigsIfRequired(configStore.Val(), common.Version()); err == nil && save {
-					if err := configStore.Save(common.PydioSystemUsername, "Configs upgrades applied"); err != nil {
-						return fmt.Errorf("could not save config migrations %v", err)
-					}
-				}
-
-				return nil
-			}); err != nil {
-				return
-			}
-
-			// TODO - must iterate somehow
-			//if err := bootstrap.reload(ctx, store); err != nil {
-			//	return nil, err
-			//}
-		}()
-	}
+	m.initTelemetry(m.ctx, m.bootstrap, store)
+	//}
 
 	// Initialising servers
-	if err := m.initServers(ctx, bootstrap, base); err != nil {
-		return nil, err
+	if err := m.initServers(m.ctx, m.bootstrap.Val(), m.base); err != nil {
+		return err
+	}
+
+	if err := m.initServices(m.ctx, m.bootstrap.Val(), m.base); err != nil {
+		return err
 	}
 
 	// Initialising storages
-	if err := m.initStorages(ctx, bootstrap, base); err != nil {
-		return nil, err
+	if err := m.initStorages(m.ctx, m.bootstrap.Val(), m.base); err != nil {
+		return err
 	}
 
 	// Initialising queues
-	if err := m.initQueues(ctx, bootstrap, base); err != nil {
-		return nil, err
+	if err := m.initQueues(m.ctx, m.bootstrap.Val(), m.base); err != nil {
+		return err
 	}
 
 	// Initialising caches
-	if err := m.initCaches(ctx, bootstrap, base); err != nil {
-		return nil, err
+	if err := m.initCaches(m.ctx, m.bootstrap.Val(), m.base); err != nil {
+		return err
 	}
 
-	fmt.Println("Initinng ", m.ns)
-	runtime.Init(ctx, m.ns)
+	runtime.Init(m.ctx, m.ns)
 
-	m.ctx = ctx
+	runtime.Init(m.ctx, runtime.NsConnReady)
 
-	runtime.Init(ctx, runtime.NsConnReady)
-
-	return m, nil
+	return nil
 }
 
 func (m *manager) Context() context.Context {
@@ -324,15 +323,6 @@ func (m *manager) Context() context.Context {
 
 func (m *manager) Registry() registry.Registry {
 	return m.internalRegistry
-}
-
-func (m *manager) RegisterBootstrapTemplate(typ string, data string) error {
-	if err := m.bootstrap.RegisterTemplate(typ, data); err != nil {
-		return err
-	}
-
-	m.bootstrap.MustReset(m.ctx, nil)
-	return nil
 }
 
 func (m *manager) RegisterStorage(scheme string, opts ...controller.Option[storage.Storage]) {
@@ -586,6 +576,11 @@ func (m *manager) initInternalRegistry(ctx context.Context, bootstrap config.Sto
 		}),
 	)
 
+	var parentRegistry registry.Registry
+	if propagator.Get(ctx, registry.ContextKey, &parentRegistry) && parentRegistry != nil {
+		return registry.NewCombinedRegistry(reg, parentRegistry), nil
+	}
+
 	return reg, nil
 }
 
@@ -765,7 +760,7 @@ func (m *manager) initProcesses(ctx context.Context, bootstrap config.Store, bas
 	}
 }
 
-func (m *manager) initListeners(ctx context.Context, store config.Store, base string) error {
+func (m *manager) initListeners(ctx context.Context, store configx.Values, base string) error {
 	listeners := store.Val(base + "/listeners")
 	for k, v := range listeners.Map() {
 		vv, err := cast.ToStringMapE(v)
@@ -807,14 +802,15 @@ func (m *manager) initListeners(ctx context.Context, store config.Store, base st
 				meta[registry.MetaTimestampKey] = fmt.Sprintf("%d", time.Now().UnixNano())
 				meta[registry.MetaStatusKey] = string(registry.StatusReady)
 				meta[registry.MetaDescriptionKey] = addr
-			}).Register(registry.NewRichItem(k, k, pb.ItemType_ADDRESS, lis), registry.WithEdgeTo(m.root.ID(), "listener", nil))
+				meta["host"] = runtime.GetString(runtime.KeyAdvertiseAddress)
+			}).Register(registry.NewRichItem(uuid.New(), k, pb.ItemType_ADDRESS, lis), registry.WithEdgeTo(m.root.ID(), "listener", nil))
 		}
 	}
 
 	return nil
 }
 
-func (m *manager) initServers(ctx context.Context, store config.Store, base string) error {
+func (m *manager) initServers(ctx context.Context, store configx.Values, base string) error {
 
 	servers := store.Val(base + "/servers")
 	for _, v := range servers.Map() {
@@ -838,20 +834,29 @@ func (m *manager) initServers(ctx context.Context, store config.Store, base stri
 		if srv != nil {
 			regOpts := []registry.RegisterOption{}
 
-			if l, ok := vv["listener"]; ok {
-				if ll, ok := l.(string); ok {
-					regOpts = append(regOpts, registry.WithEdgeTo(ll, "listener", nil))
-				}
-			}
-
 			if err := registry.NewMetaWrapper(m.internalRegistry, func(meta map[string]string) {
 				meta[registry.MetaTimestampKey] = fmt.Sprintf("%d", time.Now().UnixNano())
 				meta[registry.MetaStatusKey] = string(registry.StatusStopped)
+
+				if l, ok := vv["listener"]; ok {
+					ls, ok := l.(string)
+					if ok {
+						meta["listener"] = ls
+					}
+				}
 
 				// Adding the services filters as meta of the item for later resolution
 				if s, ok := vv["services"]; ok {
 					b, _ := json.Marshal(s)
 					meta["services"] = string(b)
+				}
+
+				if m, ok := vv["meta"]; ok {
+					if mm, ok := m.(map[any]any); ok {
+						for k, vvv := range mm {
+							meta[k.(string)] = vvv.(string)
+						}
+					}
 				}
 			}).Register(srv, regOpts...); err != nil {
 				return err
@@ -862,7 +867,38 @@ func (m *manager) initServers(ctx context.Context, store config.Store, base stri
 	return nil
 }
 
-func (m *manager) initConnections(ctx context.Context, store config.Store, base string) error {
+func (m *manager) initServices(ctx context.Context, store configx.Values, base string) error {
+
+	runtime.Register("main", func(ctx context.Context) {
+		svcs, err := m.internalRegistry.List(registry.WithType(pb.ItemType_SERVICE))
+		if err != nil {
+			return
+		}
+
+		for _, svc := range svcs {
+			var s service.Service
+			if svc.As(&s) {
+				storagesMap := store.Val(base+"/services", svc.Name(), "storages").Map()
+				if len(storagesMap) > 0 {
+					storagesMapStr, err := json.Marshal(storagesMap)
+					if err != nil {
+						continue
+					}
+					meta := maps.Clone(s.Options().Metadata)
+					meta["resolutionData"] = string(storagesMapStr)
+					s.Options().Metadata = meta
+					if err := m.Registry().Register(svc); err != nil {
+						continue
+					}
+				}
+			}
+		}
+	})
+
+	return nil
+}
+
+func (m *manager) initConnections(ctx context.Context, store configx.Values, base string) error {
 	connections := store.Val(base + "/connections")
 	for k, v := range connections.Map() {
 		vv, err := cast.ToStringMapE(v)
@@ -876,13 +912,17 @@ func (m *manager) initConnections(ctx context.Context, store config.Store, base 
 				var dialOptions []grpc.DialOption
 				// Checking if we need to retrieve a listener
 				if listenerName, ok := vv["listener"]; ok {
-					var lis net.Listener
-					listener, err := m.internalRegistry.Get(listenerName.(string), registry.WithType(pb.ItemType_ADDRESS))
+					listeners, err := m.internalRegistry.List(registry.WithName(listenerName.(string)), registry.WithType(pb.ItemType_ADDRESS))
 					if err != nil {
 						return nil, err
 					}
 
-					if listener.As(&lis) {
+					if len(listeners) != 1 {
+						return nil, errors.New("should only have one listener")
+					}
+
+					var lis net.Listener
+					if listeners[0].As(&lis) {
 						// If it is a bufconn, adding a context dialer
 						switch vlis := lis.(type) {
 						case *bufconn.Listener:
@@ -935,195 +975,100 @@ func (m *manager) initConnections(ctx context.Context, store config.Store, base 
 	return nil
 }
 
-func (m *manager) initStorages(ctx context.Context, store config.Store, base string) error {
-	runtime.Register(m.ns, func(ctx context.Context) {
-		storages := store.Val(base + "/storages")
-		for k := range storages.Map() {
-			uri := storages.Val(k, "uri").String()
-			pool, err := m.storage.Open(ctx, uri)
-			if err != nil {
-				fmt.Println("initStorages - cannot open pool with URI"+uri, err)
-				continue
-			}
-			regKey := k
-			er := registry.NewMetaWrapper(m.internalRegistry, func(meta map[string]string) {
-				meta[registry.MetaTimestampKey] = fmt.Sprintf("%d", time.Now().UnixNano())
-				meta[registry.MetaStatusKey] = string(registry.StatusTransient)
-			}).Register(registry.NewRichItem(regKey, regKey, pb.ItemType_GENERIC, pool), registry.WithEdgeTo(m.root.ID(), "storage", nil))
-			if er != nil {
-				fmt.Println("initQueues - cannot register queue pool with URI"+uri, er)
-			}
-		}
+func (m *manager) initStorages(ctx context.Context, store configx.Values, base string) error {
+	//runtime.Register(m.ns, func(ctx context.Context) {
+	storages := store.Val(base + "/storages")
+	storagesMap := storages.Map()
 
-		storageItems, err := m.internalRegistry.List(registry.WithType(pb.ItemType_STORAGE))
+	for k := range storagesMap {
+		uri := storages.Val(k, "uri").String()
+		pool, err := m.storage.Open(ctx, uri)
 		if err != nil {
-			return
+			fmt.Println("initStorages - cannot open pool with URI"+uri, err)
+			continue
+		}
+		regKey := k
+		er := registry.NewMetaWrapper(m.internalRegistry, func(meta map[string]string) {
+			meta["driver"] = storages.Val(k, "driver").String()
+			meta[registry.MetaTimestampKey] = fmt.Sprintf("%d", time.Now().UnixNano())
+			meta[registry.MetaStatusKey] = string(registry.StatusTransient)
+		}).Register(registry.NewRichItem(regKey, regKey, pb.ItemType_STORAGE, pool), registry.WithEdgeTo(m.root.ID(), "storage", nil))
+		if er != nil {
+			fmt.Println("initStorages - cannot register pool with URI"+uri, er)
+		}
+	}
+
+	storageItems, err := m.internalRegistry.List(registry.WithType(pb.ItemType_STORAGE))
+	if err != nil {
+		return err
+	}
+
+	services, err := m.internalRegistry.List(registry.WithType(pb.ItemType_SERVICE))
+	if err != nil {
+		return err
+	}
+
+	for _, ss := range services {
+		var svc service.Service
+		if !ss.As(&svc) {
+			continue
 		}
 
-		services, err := m.internalRegistry.List(registry.WithType(pb.ItemType_SERVICE))
-		if err != nil {
-			return
+		// Find storage and link it
+		// TODO - Named stores should come from the config then ?
+		var namedStores map[string][]map[string]string
+		if err := store.Val(base, "services", ss.Name(), "storages").Scan(&namedStores); err != nil {
+			return err
 		}
 
-		for _, ss := range services {
-			var svc service.Service
-			if !ss.As(&svc) {
-				continue
-			}
+		if len(namedStores) == 0 {
+			continue
+		}
 
-			// Find storage and link it
-			// TODO - Named stores should come from the config then ?
-			var namedStores map[string][]map[string]string
-			if err := store.Val(base, "services", ss.Name(), "storages").Scan(&namedStores); err != nil {
-				return
-			}
+		for name, stores := range namedStores {
+			for _, st := range stores {
+				for _, storageItem := range storageItems {
+					if st["type"] == storageItem.Name() {
+						st["name"] = name
 
-			if len(namedStores) == 0 {
-				continue
-			}
-
-			for name, stores := range namedStores {
-				for _, st := range stores {
-					for _, storageItem := range storageItems {
-						if st["type"] == storageItem.Name() {
-							st["name"] = name
-							_, _ = m.internalRegistry.RegisterEdge(ss.ID(), storageItem.ID(), "storage", st)
+						if _, err := m.internalRegistry.RegisterEdge(ss.ID(), storageItem.ID(), "storage", st); err != nil {
+							fmt.Println("ERror while registering ", storageItem.ID(), ss.Name())
 						}
 					}
 				}
 			}
 		}
-
-		//runtime.MultiContextManager().Iterate(ctx, func(ctx context.Context, name string) error {
-		//	var configStore config.Store
-		//	propagator.Get(ctx, config.ContextKey, &configStore)
-		//
-		//	if configStore == nil {
-		//		return nil
-		//	}
-		//
-		//	go func() {
-		//		storages := configStore.Val("storages").Map()
-		//
-		//		fmt.Println("Retrieved that list of storages ", storages)
-		//
-		//		for k := range storages {
-		//			uri, ok := storages["uri"]
-		//			if !ok {
-		//				continue
-		//			}
-		//
-		//			uristr, ok := uri.(string)
-		//			if !ok {
-		//				continue
-		//			}
-		//
-		//			conn, err := m.storage.Open(ctx, uristr)
-		//			if err != nil {
-		//				fmt.Println("initStorages - cannot open storage with uri "+uristr, err)
-		//				continue
-		//			}
-		//
-		//			if conn != nil {
-		//				registry.NewMetaWrapper(m.internalRegistry, func(meta map[string]string) {
-		//					meta[registry.MetaTimestampKey] = fmt.Sprintf("%d", time.Now().UnixNano())
-		//					meta[registry.MetaStatusKey] = string(registry.StatusTransient)
-		//				}).Register(registry.NewRichItem(k, k, pb.ItemType_STORAGE, conn), registry.WithEdgeTo(m.root.ID(), "storage", nil))
-		//			}
-		//		}
-		//
-		//		storageItems, err := m.internalRegistry.List(registry.WithType(pb.ItemType_STORAGE))
-		//		if err != nil {
-		//			return
-		//		}
-		//
-		//		services, err := m.internalRegistry.List(registry.WithType(pb.ItemType_SERVICE))
-		//		if err != nil {
-		//			return
-		//		}
-		//
-		//		for _, ss := range services {
-		//			var svc service.Service
-		//			if !ss.As(&svc) {
-		//				continue
-		//			}
-		//
-		//			// Find storage and link it
-		//			// TODO - Named stores should come from the config then ?
-		//			var namedStores map[string][]map[string]string
-		//			if err := store.Val(base, "services", ss.Name(), "storages").Scan(&namedStores); err != nil {
-		//				return
-		//			}
-		//
-		//			if len(namedStores) == 0 {
-		//				continue
-		//			}
-		//
-		//			for name, stores := range namedStores {
-		//				linked := false
-		//				for _, st := range stores {
-		//					for _, storageItem := range storageItems {
-		//						if st["type"] == storageItem.Name() {
-		//							st["name"] = name
-		//							_, _ = m.internalRegistry.RegisterEdge(ss.ID(), storageItem.ID(), "storage", st)
-		//							linked = true
-		//						}
-		//					}
-		//				}
-		//
-		//				if !linked {
-		//					continue
-		//				}
-		//
-		//				go func() {
-		//					ctx = propagator.With(ctx, service.ContextKey, svc)
-		//
-		//					if err := service.UpdateServiceVersion(ctx, svc.Options()); err != nil {
-		//						fmt.Println("I have an error here ", err)
-		//					}
-		//
-		//				}()
-		//			}
-		//		}
-		//
-		//		return
-		//	}()
-		//
-		//	return nil
-		//})
-
-		return
-	})
+	}
 
 	return nil
 }
 
-func (m *manager) initQueues(ctx context.Context, store config.Store, base string) error {
-	runtime.Register(m.ns, func(ctx context.Context) {
-		queues := store.Val(base + "/queues")
-		for k := range queues.Map() {
-			if k != common.QueueTypeDebouncer && k != common.QueueTypePersistent {
-				log.Logger(ctx).Error("WARNING - Cache key should be one of ['" + common.QueueTypeDebouncer + "', '" + common.QueueTypePersistent + "']. Key " + k + " will be useless")
-				continue
-			}
-			uri := queues.Val(k, "uri").String()
-			pool, err := m.queues.Open(ctx, uri)
-			if err != nil {
-				log.Logger(ctx).Error("initQueues - cannot open pool with URI"+uri, zap.Error(err))
-				continue
-			}
-			regKey := "queue-" + k
-			er := registry.NewMetaWrapper(m.internalRegistry, func(meta map[string]string) {
-				meta[registry.MetaTimestampKey] = fmt.Sprintf("%d", time.Now().UnixNano())
-				meta[registry.MetaStatusKey] = string(registry.StatusTransient)
-			}).Register(registry.NewRichItem(regKey, regKey, pb.ItemType_GENERIC, pool), registry.WithEdgeTo(m.root.ID(), "queue", nil))
-			if er != nil {
-				log.Logger(ctx).Error("initQueues - cannot register queue pool with URI"+uri, zap.Error(er))
-			} else {
-				log.Logger(ctx).Info("Registered Queue " + regKey + " with pool from uri " + uri)
-			}
+func (m *manager) initQueues(ctx context.Context, store configx.Values, base string) error {
+	// runtime.Register(m.ns, func(ctx context.Context) {
+	queues := store.Val(base + "/queues")
+	for k := range queues.Map() {
+		if k != common.QueueTypeDebouncer && k != common.QueueTypePersistent {
+			log.Logger(ctx).Error("WARNING - Cache key should be one of ['" + common.QueueTypeDebouncer + "', '" + common.QueueTypePersistent + "']. Key " + k + " will be useless")
+			continue
 		}
-	})
+		uri := queues.Val(k, "uri").String()
+		pool, err := m.queues.Open(ctx, uri)
+		if err != nil {
+			log.Logger(ctx).Error("initQueues - cannot open pool with URI"+uri, zap.Error(err))
+			continue
+		}
+		regKey := "queue-" + k
+		er := registry.NewMetaWrapper(m.internalRegistry, func(meta map[string]string) {
+			meta[registry.MetaTimestampKey] = fmt.Sprintf("%d", time.Now().UnixNano())
+			meta[registry.MetaStatusKey] = string(registry.StatusTransient)
+		}).Register(registry.NewRichItem(regKey, regKey, pb.ItemType_GENERIC, pool), registry.WithEdgeTo(m.root.ID(), "queue", nil))
+		if er != nil {
+			log.Logger(ctx).Error("initQueues - cannot register queue pool with URI"+uri, zap.Error(er))
+		} else {
+			log.Logger(ctx).Info("Registered Queue " + regKey + " with pool from uri " + uri)
+		}
+	}
+	//})
 
 	// TODO - we should watch the multi context manager to see if a new context has been added
 	runtime.MultiContextManager().Iterate(ctx, func(ctx context.Context, name string) error {
@@ -1162,32 +1107,32 @@ func (m *manager) initQueues(ctx context.Context, store config.Store, base strin
 	return nil
 }
 
-func (m *manager) initCaches(ctx context.Context, store config.Store, base string) error {
-	runtime.Register(m.ns, func(ctx context.Context) {
-		caches := store.Val(base + "/caches")
-		for k := range caches.Map() {
-			if k != common.CacheTypeShared && k != common.CacheTypeLocal {
-				log.Logger(ctx).Error("WARNING - Cache key should be one of ['" + common.CacheTypeLocal + "', '" + common.CacheTypeShared + "']. Key " + k + " will be useless")
-				continue
-			}
-			uri := caches.Val(k, "uri").String()
-			pool, err := m.caches.Open(ctx, uri)
-			if err != nil {
-				log.Logger(ctx).Error("initCaches - cannot open cache pool with URI"+uri, zap.Error(err))
-				continue
-			}
-			regKey := "cache-" + k
-			er := registry.NewMetaWrapper(m.Registry(), func(meta map[string]string) {
-				meta[registry.MetaTimestampKey] = fmt.Sprintf("%d", time.Now().UnixNano())
-				meta[registry.MetaStatusKey] = string(registry.StatusTransient)
-			}).Register(registry.NewRichItem(regKey, regKey, pb.ItemType_GENERIC, pool), registry.WithEdgeTo(m.root.ID(), "cache", nil))
-			if er != nil {
-				log.Logger(ctx).Error("initCaches - cannot register pool with URI"+uri, zap.Error(er))
-			} else {
-				log.Logger(ctx).Info("Registered Cache " + regKey + " with pool from uri " + uri)
-			}
+func (m *manager) initCaches(ctx context.Context, store configx.Values, base string) error {
+	// runtime.Register(m.ns, func(ctx context.Context) {
+	caches := store.Val(base + "/caches")
+	for k := range caches.Map() {
+		if k != common.CacheTypeShared && k != common.CacheTypeLocal {
+			log.Logger(ctx).Error("WARNING - Cache key should be one of ['" + common.CacheTypeLocal + "', '" + common.CacheTypeShared + "']. Key " + k + " will be useless")
+			continue
 		}
-	})
+		uri := caches.Val(k, "uri").String()
+		pool, err := m.caches.Open(ctx, uri)
+		if err != nil {
+			log.Logger(ctx).Error("initCaches - cannot open cache pool with URI"+uri, zap.Error(err))
+			continue
+		}
+		regKey := "cache-" + k
+		er := registry.NewMetaWrapper(m.Registry(), func(meta map[string]string) {
+			meta[registry.MetaTimestampKey] = fmt.Sprintf("%d", time.Now().UnixNano())
+			meta[registry.MetaStatusKey] = string(registry.StatusTransient)
+		}).Register(registry.NewRichItem(regKey, regKey, pb.ItemType_GENERIC, pool), registry.WithEdgeTo(m.root.ID(), "cache", nil))
+		if er != nil {
+			log.Logger(ctx).Error("initCaches - cannot register pool with URI"+uri, zap.Error(er))
+		} else {
+			log.Logger(ctx).Info("Registered Cache " + regKey + " with pool from uri " + uri)
+		}
+	}
+	// })
 
 	// TODO - we should watch the multi context manager to see if a new context has been added
 	runtime.MultiContextManager().Iterate(ctx, func(ctx context.Context, name string) error {
@@ -1234,6 +1179,10 @@ func (m *manager) ServeAll(oo ...server.ServeOption) error {
 	}).Register(m.root); err != nil {
 		return err
 	}
+
+	go m.WatchServices()
+
+	<-time.After(200 * time.Millisecond)
 
 	//go m.bootstrap.WatchConfAndReset(m.ctx, runtime.GetRuntime().GetString(runtime.KeyConfig), func(err error) {
 	//	fmt.Println("[bootstrap-watcher]" + err.Error())
@@ -1286,8 +1235,6 @@ func (m *manager) ServeAll(oo ...server.ServeOption) error {
 	// Starting servers attached to this node that are currently stopped
 	eg := &errgroup.Group{}
 	servers := serversWithStatus(m.internalRegistry, m.root, registry.StatusStopped)
-
-	fmt.Println("List of servers ", servers)
 
 	for _, srv := range servers {
 		func(srv server.Server) {
@@ -1345,16 +1292,20 @@ func (m *manager) StopAll() {
 }
 
 func (m *manager) startServer(srv server.Server, oo ...server.ServeOption) error {
-	opts := append(oo)
 
+	var regOpts []registry.RegisterOption
+
+	opts := append(oo)
 	opts = append(opts, server.WithContext(m.Context()))
 
-	// TODO - we should watch the listeners here
 	// Associating listener
 	listeners := m.Registry().ListAdjacentItems(
-		registry.WithAdjacentSourceItems([]registry.Item{srv}),
+		registry.WithAdjacentSourceItems([]registry.Item{m.root}),
 		registry.WithAdjacentEdgeOptions(registry.WithName("listener")),
-		registry.WithAdjacentTargetOptions(registry.WithType(pb.ItemType_ADDRESS)),
+		registry.WithAdjacentTargetOptions(
+			registry.WithName(srv.Metadata()["listener"]),
+			registry.WithType(pb.ItemType_ADDRESS),
+		),
 	)
 
 	if len(listeners) > 1 {
@@ -1363,6 +1314,7 @@ func (m *manager) startServer(srv server.Server, oo ...server.ServeOption) error
 		var lis net.Listener
 		if listeners[0].As(&lis) {
 			opts = append(opts, server.WithListener(lis))
+			regOpts = append(regOpts, registry.WithEdgeTo(listeners[0].ID(), "listener", nil))
 		}
 	}
 
@@ -1505,7 +1457,7 @@ func (m *manager) startServer(srv server.Server, oo ...server.ServeOption) error
 
 	if err := registry.NewMetaWrapper(m.internalRegistry, func(meta map[string]string) {
 		meta[registry.MetaStatusKey] = string(registry.StatusTransient)
-	}).Register(srv); err != nil {
+	}).Register(srv, regOpts...); err != nil {
 		return err
 	}
 
@@ -1575,7 +1527,7 @@ func (m *manager) serviceServeOptions(svc service.Service) []server.ServeOption 
 		server.WithBeforeServe(func(...registry.RegisterOption) error {
 			return svc.Start(registry.WithContextR(m.ctx))
 		}),
-		server.WithAfterServe(func(...registry.RegisterOption) error {
+		/*server.WithAfterServe(func(...registry.RegisterOption) error {
 			return runtime.MultiContextManager().Iterate(svc.Options().RuntimeContext(), func(ctx context.Context, name string) error {
 				ctx = propagator.With(ctx, service.ContextKey, svc)
 				if err := service.UpdateServiceVersion(ctx, svc.Options()); err != nil {
@@ -1584,7 +1536,7 @@ func (m *manager) serviceServeOptions(svc service.Service) []server.ServeOption 
 
 				return nil
 			})
-		}),
+		}),*/
 		server.WithAfterServe(func(...registry.RegisterOption) error {
 			return svc.OnServe(registry.WithContextR(m.ctx))
 		}),
@@ -1766,7 +1718,7 @@ func (m *manager) WatchTransientStatus() {
 			)
 			for _, item := range items {
 				itemStatus := item.Metadata()[registry.MetaStatusKey]
-				if itemStatus != string(registry.StatusReady) && itemStatus != string(registry.StatusWaiting) && itemStatus != string(registry.StatusError) {
+				if itemStatus != string(registry.StatusReady) && itemStatus != string(registry.StatusStopped) && itemStatus != string(registry.StatusWaiting) && itemStatus != string(registry.StatusError) {
 					statusToSet = string(registry.StatusTransient)
 
 					break
@@ -1860,5 +1812,203 @@ func (m *manager) WatchServerUniques(srv server.Server, ss []service.Service, co
 				}
 			}
 		})
+	}
+}
+
+func (m *manager) WatchBootstrap() {
+	r, err := m.bootstrap.Watch(watch.WithPath("*"), watch.WithChangesOnly())
+	if err != nil {
+		return
+	}
+
+	for {
+		res, err := r.Next()
+		if err != nil {
+			continue
+		}
+
+		val, ok := res.(configx.Values)
+		if !ok {
+			continue
+		}
+
+		// Initialising listeners
+		m.initListeners(m.ctx, val.Val("update"), m.base)
+
+		m.initConnections(m.ctx, val.Val("update"), m.base)
+
+		m.initServers(m.ctx, val.Val("update"), m.base)
+
+		m.initStorages(m.ctx, val.Val("update"), m.base)
+
+		m.initCaches(m.ctx, val.Val("update"), m.base)
+
+		m.initQueues(m.ctx, val.Val("update"), m.base)
+	}
+}
+
+func (m *manager) WatchServers() {
+	w, err := m.internalRegistry.Watch(registry.WithType(pb.ItemType_SERVER), registry.WithAction(pb.ActionType_CREATE))
+	if err != nil {
+		return
+	}
+	defer w.Stop()
+
+	for {
+		res, er := w.Next()
+		if er != nil {
+			break
+		}
+
+		for _, i := range res.Items() {
+
+			var srv server.Server
+			if i.As(&srv) {
+				if err := m.startServer(srv); err != nil {
+					continue
+				}
+			}
+		}
+	}
+}
+
+func (m *manager) WatchServices() {
+
+	w, err := m.internalRegistry.Watch(registry.WithType(pb.ItemType_SERVICE))
+	if err != nil {
+		return
+	}
+	defer w.Stop()
+
+	for {
+		res, er := w.Next()
+		if er != nil {
+			break
+		}
+
+		for _, i := range res.Items() {
+			var svc service.Service
+			if i.As(&svc) {
+				if err := runtime.MultiContextManager().Iterate(m.Context(), func(ctx context.Context, name string) error {
+
+					var mcm Manager
+					propagator.Get(ctx, ContextKey, &mcm)
+
+					ctx = propagator.With(ctx, service.ContextKey, svc)
+					ctx = context.WithValue(ctx, "managertype", "multicontext")
+
+					var store config.Store
+					propagator.Get(ctx, config.ContextKey, &store)
+
+					storageItems, err := mcm.Registry().List(registry.WithType(pb.ItemType_STORAGE))
+					if err != nil {
+						return err
+					}
+
+					if len(storageItems) > 0 && len(svc.Options().StorageOptions.SupportedDrivers) > 0 {
+
+						var resolutionData map[string][]map[string]string
+						if svc.Options().Metadata["resolutionData"] != "" {
+							if err := json.Unmarshal([]byte(svc.Options().Metadata["resolutionData"]), &resolutionData); err != nil {
+								return err
+							}
+						}
+
+						for key, supportedDrivers := range svc.Options().StorageOptions.SupportedDrivers {
+
+							for _, supportedDriver := range supportedDrivers {
+
+								handlerV := reflect.ValueOf(supportedDriver.Handler)
+								handlerT := reflect.TypeOf(supportedDriver.Handler)
+								if handlerV.Kind() != reflect.Func {
+									return errors.New("storage handler is not a function")
+								}
+
+								startsAt := 0
+								// Check if first expected parameter is a context, if so, use the input context
+								if handlerT.In(0).Implements(reflect.TypeOf((*context.Context)(nil)).Elem()) {
+									startsAt = 1
+								}
+
+								for i := startsAt; i < handlerT.NumIn(); i++ {
+									for _, storageItem := range storageItems {
+										var st storage.Storage
+										if !storageItem.As(&st) {
+											continue
+										}
+
+										out, err := st.Get(ctx)
+										if err != nil {
+											continue
+										}
+
+										if reflect.TypeOf(out) == handlerT.In(i) || (handlerT.In(i).Kind() == reflect.Interface && reflect.TypeOf(out).Implements(handlerT.In(i))) {
+											var meta map[string]string
+											for _, meta = range resolutionData[key] {
+												if meta["type"] == storageItem.Metadata()["driver"] {
+													break
+												}
+											}
+
+											// We need to register the edge between these two
+											_, err := mcm.Registry().RegisterEdge(svc.ID(), storageItem.ID(), "storage_"+key, meta)
+											if err != nil {
+												return err
+											}
+										}
+
+									}
+								}
+							}
+						}
+					}
+
+					go func(c context.Context, s service.Service) {
+						if s.Options().MigrateIterator.Lister != nil {
+							var errs []error
+							for _, key := range s.Options().MigrateIterator.Lister(ctx) {
+								c = propagator.With(c, s.Options().MigrateIterator.ContextKey, key)
+								errs = append(errs, service.UpdateServiceVersion(c, s.Options()))
+							}
+							if outE := multierr.Combine(errs...); outE != nil {
+								log.Logger(ctx).Error("One specific upgrade was not performed successfully, but process is continued", zap.Error(outE))
+							}
+
+						} else {
+
+							if err := service.UpdateServiceVersion(c, s.Options()); err != nil {
+								return
+							}
+						}
+
+						if w := s.Options().MigrateWatcher.Watcher; w != nil {
+							rw, err := w(c)
+							if err != nil {
+								return
+							}
+
+							for {
+								_, err := rw.Next()
+								if err != nil {
+									continue
+								}
+
+								for _, key := range store.Val("services/pydio.grpc.data.index/sources").StringArray() {
+									c = propagator.With(c, s.Options().MigrateIterator.ContextKey, key)
+									if err := service.UpdateServiceVersion(c, s.Options()); err != nil {
+										continue
+									}
+								}
+							}
+						}
+
+					}(ctx, svc)
+
+					return nil
+				}); err != nil {
+					panic(err)
+				}
+			}
+		}
 	}
 }

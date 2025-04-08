@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/pydio/cells/v5/common/middleware"
+	"github.com/pydio/cells/v5/common/runtime"
 	"github.com/pydio/cells/v5/common/utils/propagator"
 )
 
@@ -51,6 +52,8 @@ func ContextInjectorInterceptor() SubscriberInterceptor {
 		if ct, ok, er := middleware.ApplyGRPCIncomingContextModifiers(ctx); ok && er == nil {
 			return handler(ct, m)
 		}
+		// TODO - should it really be here ?
+		ctx = runtime.MultiContextManager().CurrentContextProvider(ctx).Context(ctx)
 		return handler(ctx, m)
 	}
 }

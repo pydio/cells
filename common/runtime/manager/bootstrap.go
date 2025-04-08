@@ -81,7 +81,7 @@ func NewBootstrap(ctx context.Context, r ...runtime.Runtime) (*Bootstrap, error)
 }
 
 // RegisterTemplate adds a new template to the list
-func (bs *Bootstrap) RegisterTemplate(typ string, tpl string) error {
+func (bs *Bootstrap) RegisterTemplate(ctx context.Context, typ string, tpl string) error {
 	v := viper.NewWithOptions(viper.KeyDelimiter("/"))
 	v.SetConfigType(typ)
 	if err := v.ReadConfig(bytes.NewBufferString(tpl)); err != nil {
@@ -90,6 +90,10 @@ func (bs *Bootstrap) RegisterTemplate(typ string, tpl string) error {
 
 	bs.templates = append(bs.templates, v)
 
+	if err := bs.reload(ctx, nil); err != nil {
+		return err
+	}
+
 	return nil
 }
 
@@ -97,29 +101,6 @@ func (bs *Bootstrap) RegisterTemplate(typ string, tpl string) error {
 func (bs *Bootstrap) MustReset(ctx context.Context, conf *openurl.Pool[config.Store]) {
 	_ = bs.reload(ctx, conf)
 }
-
-// WatchConfAndReset watches any config changes and reload the bootstrap. It is blocking, must be sent in goroutine.
-//func (bs *Bootstrap) WatchConfAndReset(ctx context.Context, configURL string, errorHandler func(error)) {
-//	conf, err := config.OpenStore(ctx, configURL)
-//	if err != nil {
-//		errorHandler(err)
-//		return
-//	}
-//	bs.MustReset(ctx, conf)
-//
-//	res, err := conf.Watch()
-//	if err != nil {
-//		errorHandler(err)
-//		return
-//	}
-//
-//	for {
-//		if _, er := res.Next(); er != nil {
-//			return
-//		}
-//		bs.MustReset(ctx, conf)
-//	}
-//}
 
 func (bs *Bootstrap) Viper() *Viper {
 	return bs.viper
@@ -161,7 +142,7 @@ func (bs *Bootstrap) reload(ctx context.Context, storePool *openurl.Pool[config.
 
 	bs.viper.Viper = runtimeConfig
 
-	return nil
+	return bs.Store.Set(bs.viper.AllSettings())
 }
 
 func (bs *Bootstrap) String() string {

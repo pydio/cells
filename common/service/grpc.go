@@ -89,8 +89,6 @@ type serviceRegistrar struct {
 //}
 
 func (s *serviceRegistrar) RegisterService(desc *grpc.ServiceDesc, impl interface{}) {
-	s.ServiceRegistrar.RegisterService(desc, impl)
-
 	// Listing endpoints linked to the server
 	srv, ok := s.ServiceRegistrar.(registry.Item)
 	if !ok {
@@ -114,6 +112,8 @@ func (s *serviceRegistrar) RegisterService(desc *grpc.ServiceDesc, impl interfac
 			registry.WithEdgeTo(srv.ID(), "server", map[string]string{"serverType": "grpc"}),
 		)
 	}
+
+	s.ServiceRegistrar.RegisterService(desc, impl)
 }
 
 func (s *serviceRegistrar) ID() string {

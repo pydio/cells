@@ -119,7 +119,7 @@ func init() {
 					return nil
 				},
 			}}),
-			service.WithStorageDrivers(oauth.RegistryDrivers...),
+			service.WithStorageDrivers(oauth.RegistryDrivers),
 			service.WithHTTPOptions(func(ctx context.Context, serveMux routing.RouteRegistrar, o *service.ServiceOptions) error {
 
 				handlerFunc := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {

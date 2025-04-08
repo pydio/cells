@@ -23,9 +23,6 @@ package grpc
 import (
 	"context"
 	"strings"
-	"time"
-
-	"go.uber.org/zap"
 
 	"github.com/pydio/cells/v5/common"
 	"github.com/pydio/cells/v5/common/client/grpc"
@@ -49,9 +46,9 @@ func (s *TreeServer) UpdateServicesList(ctx context.Context, retry int) {
 	}
 
 	k, _ := s.sourcesCaches.Get(ctx)
-	all, _ := k.KeysByPrefix("")
+	// all, _ := k.KeysByPrefix("")
 	_ = k.Reset()
-	initialLength := len(all)
+	// initialLength := len(all)
 
 	/*
 		var reg registry.Registry
@@ -93,14 +90,15 @@ func (s *TreeServer) UpdateServicesList(ctx context.Context, retry int) {
 		log.Logger(ctx).Debug("[Tree:UpdateServicesList] Add datasource " + dataSourceName)
 	}
 
+	// TODO - retest with new connections
 	// If registry event comes too soon, running services may not be loaded yet
-	if retry < 4 && initialLength == len(dsKeys) {
+	/*if retry < 4 && initialLength == len(dsKeys) {
 		<-time.After(10 * time.Second)
 		s.UpdateServicesList(ctx, retry+1)
 	}
 	if retry == 5 {
 		log.Logger(ctx).Debug("Force UpdateServicesList", zap.Strings("datasources", dsKeys))
-	}
+	}*/
 }
 
 // TODO - should be using the resolver for this ?

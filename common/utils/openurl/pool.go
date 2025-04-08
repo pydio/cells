@@ -180,7 +180,6 @@ func (m *Pool[T]) Get(ctx context.Context, resolutionData ...map[string]interfac
 		}
 
 		// RESOLVE URL
-
 		realURL, er := resolver.Resolve(ctx, data)
 		if er != nil {
 			if i < last {

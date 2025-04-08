@@ -2,9 +2,6 @@ package viper
 
 import (
 	"context"
-	"github.com/pydio/cells/v5/common/config/etcd"
-	"github.com/pydio/cells/v5/common/config/file"
-	"github.com/pydio/cells/v5/common/config/memory"
 	"testing"
 	"time"
 
@@ -12,6 +9,9 @@ import (
 	"github.com/stretchr/testify/assert"
 
 	"github.com/pydio/cells/v5/common/config"
+	"github.com/pydio/cells/v5/common/config/etcd"
+	"github.com/pydio/cells/v5/common/config/file"
+	"github.com/pydio/cells/v5/common/config/memory"
 	"github.com/pydio/cells/v5/common/utils/configx"
 	"github.com/pydio/cells/v5/common/utils/kv"
 	"github.com/pydio/cells/v5/common/utils/openurl"
@@ -21,7 +21,7 @@ import (
 func TestMemory(t *testing.T) {
 	u := &memory.MemOpener{}
 
-	store, err := u.Open(context.Background(), "mem://")
+	store, err := u.Open(context.Background(), "mem://", kv.NewStore())
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -33,7 +33,7 @@ func TestMemory(t *testing.T) {
 func TestFile(t *testing.T) {
 	u := &file.FileOpener{}
 
-	store, err := u.Open(context.Background(), "file:///tmp/test/cells.json")
+	store, err := u.Open(context.Background(), "file:///tmp/test/cells.json", kv.NewStore())
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -49,7 +49,7 @@ func TestFile(t *testing.T) {
 func TestETCD(t *testing.T) {
 	u := &etcd.EtcdOpener{}
 
-	store, err := u.Open(context.Background(), "etcd://0.0.0.0:23379/config")
+	store, err := u.Open(context.Background(), "etcd://0.0.0.0:23379/config", kv.NewStore())
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -201,7 +201,7 @@ func TestViperWithRefPool_Get(t *testing.T) {
 	}
 
 	// Create storeWithRefPool instance
-	vwrp := kv.newStoreWithRefPool(newViper(mainViper), refPool)
+	vwrp := config.NewStoreWithRefPool(newViper(mainViper), refPool)
 
 	// Table-driven tests
 	tests := []struct {
@@ -275,7 +275,7 @@ func TestViperWithRefPool_Set(t *testing.T) {
 	}
 
 	// Create the storeWithRefPool instance
-	vwrp := kv.newStoreWithRefPool(newViper(mainViper), refPool)
+	vwrp := config.NewStoreWithRefPool(newViper(mainViper), refPool)
 
 	// Table-driven tests
 	tests := []struct {
@@ -375,9 +375,7 @@ func TestViperWithRefPool_Watch(t *testing.T) {
 	}
 
 	// Create the storeWithRefPool instance
-	vwrp := &memory.memStore{Store: kv.newStoreWithRefPool(newViper(mainViper), refPool), clone: func(store config.Store) config.Store {
-		return &kv.storeWithRefPool{Store: store, refPool: refPool}
-	}}
+	vwrp := config.NewStoreWithRefPool(newViper(mainViper), refPool)
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {

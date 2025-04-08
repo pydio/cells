@@ -144,6 +144,7 @@ func (r *RichItem[T]) As(t any) bool {
 	if convertible, ok := any(r.item).(Convertible); ok {
 		return convertible.As(t)
 	}
+
 	return false
 }
 

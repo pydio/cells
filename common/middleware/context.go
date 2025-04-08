@@ -150,8 +150,10 @@ func ClientConnIncomingContext(serverRuntimeContext context.Context) func(ctx co
 
 // RegistryIncomingContext injects the registry in context
 func RegistryIncomingContext(serverRuntimeContext context.Context) func(ctx context.Context) (context.Context, bool, error) {
-	return func(ctx context.Context) (context.Context, bool, error) {
-		return propagator.ForkContext(ctx, serverRuntimeContext), true, nil
+	return func(ct context.Context) (context.Context, bool, error) {
+		ctx := propagator.ForkContext(ct, serverRuntimeContext)
+		ctx = runtime.MultiContextManager().CurrentContextProvider(ctx).Context(ctx)
+		return ctx, true, nil
 	}
 }
 
@@ -229,6 +231,7 @@ func WebIncomingContextMiddleware(ct context.Context, endpoint string, serviceCo
 		defer span.End()
 
 		ctx = propagator.ForkContext(ctx, ct)
+		ctx = runtime.MultiContextManager().CurrentContextProvider(ctx).Context(ctx)
 
 		var svc registry.Service
 		if !propagator.Get(ctx, serviceContextKey, &svc) {
@@ -282,7 +285,10 @@ func WebIncomingContextMiddleware(ct context.Context, endpoint string, serviceCo
 
 func HttpContextWrapper(svcContext context.Context, h http.Handler) http.Handler {
 	return http.HandlerFunc(func(rw http.ResponseWriter, req *http.Request) {
-		ctx := propagator.ForkContext(req.Context(), svcContext)
+
+		// First we retrieve the multicontext current provider
+		ctx := runtime.MultiContextManager().CurrentContextProvider(req.Context()).Context(req.Context())
+		ctx = runtime.MultiContextManager().CurrentContextProvider(ctx).Context(ctx)
 		var reg registry.Registry
 		propagator.Get(ctx, registry.ContextKey, &reg)
 		req, _ = ApplyHTTPIncomingContextModifiers(req.WithContext(ctx))

@@ -14,13 +14,16 @@ import (
 
 func init() {
 	runtime.Register("main", func(ctx context.Context) {
+		drivers := service.StorageDrivers{}
+		drivers.Register(sessions.NewSQLDAO)
+		drivers.Register(sessions.NewCookieDAO)
 		service.NewService(
 			service.Name(common.ServiceRestNamespace_+common.ServiceFrontend),
 			service.Context(ctx),
 			service.Tag(common.ServiceTagFrontend),
 			service.Description("REST service for serving specific requests directly to frontend"),
 			service.PluginBoxes(rest.BasePluginsBox),
-			service.WithStorageDrivers(sessions.NewSQLDAO, sessions.NewCookieDAO),
+			service.WithStorageDrivers(drivers),
 			service.Migrations([]*service.Migration{
 				{
 					TargetVersion: service.FirstRunOrChange(),

@@ -9,12 +9,11 @@ import (
 	"sync"
 	"time"
 
-	diff "github.com/r3labs/diff/v3"
-	"go.etcd.io/etcd/api/v3/mvccpb"
 	clientv3 "go.etcd.io/etcd/client/v3"
 	"go.etcd.io/etcd/client/v3/concurrency"
 
 	"github.com/pydio/cells/v5/common/utils/configx"
+	"github.com/pydio/cells/v5/common/utils/std"
 	"github.com/pydio/cells/v5/common/utils/watch"
 )
 
@@ -44,20 +43,20 @@ var (
 	errClosedChannel = errors.New("channel is closed")
 )
 
-func NewStore(ctx context.Context, values configx.Values, cli *clientv3.Client, prefix string, ttl int) (Store, error) {
+func NewStore(ctx context.Context, values configx.Values, cli *clientv3.Client, prefix string, ttl int) (*Store, error) {
 	var session *concurrency.Session
 	var leaseID clientv3.LeaseID
 
 	if ttl > -1 {
 		if s, err := concurrency.NewSession(cli, concurrency.WithTTL(ttl)); err != nil {
-			return Store{}, err
+			return &Store{}, err
 		} else {
 			session = s
 			leaseID = s.Lease()
 		}
 	}
 
-	m := Store{
+	m := &Store{
 		ctx:          ctx,
 		values:       values,
 		valuesLocker: &sync.RWMutex{},
@@ -82,33 +81,33 @@ func NewStore(ctx context.Context, values configx.Values, cli *clientv3.Client, 
 	return m, nil
 }
 
-func (m Store) Context(ctx context.Context) configx.Values {
+func (m *Store) Context(ctx context.Context) configx.Values {
 	return values{Values: m.values.Context(ctx), valuesLocker: m.valuesLocker, withKeys: m.withKeys, ops: m.ops, prefix: m.prefix, leaseID: m.leaseID}
 }
 
-func (m Store) Options() *configx.Options {
+func (m *Store) Options() *configx.Options {
 	return m.values.Options()
 }
 
-func (m Store) Key() []string {
+func (m *Store) Key() []string {
 	return m.values.Key()
 }
 
-func (m Store) Default(def any) configx.Values {
+func (m *Store) Default(def any) configx.Values {
 	return values{Values: m.values.Default(def), valuesLocker: m.valuesLocker, withKeys: m.withKeys, ops: m.ops, prefix: m.prefix, leaseID: m.leaseID}
 }
 
-func (m Store) Reset() {
+func (m *Store) Reset() {
 }
 
-func (m Store) Flush() {
+func (m *Store) Flush() {
 }
 
-func (m Store) As(out any) bool {
+func (m *Store) As(out any) bool {
 	return false
 }
 
-func (m Store) get(ctx context.Context) {
+func (m *Store) get(ctx context.Context) {
 	res, err := m.cli.Get(ctx, m.prefix, clientv3.WithPrefix())
 	if err != nil {
 		return
@@ -126,7 +125,7 @@ func (m Store) get(ctx context.Context) {
 	}
 }
 
-func (m Store) watch(ctx context.Context) {
+func (m *Store) watch(ctx context.Context) {
 	watcher := m.cli.Watch(ctx, m.prefix, clientv3.WithPrefix(), clientv3.WithPrevKV())
 	for {
 		select {
@@ -150,17 +149,18 @@ func (m Store) watch(ctx context.Context) {
 				}
 
 				var ops []*clientv3.Event
-				if !m.withKeys {
+				/*if !m.withKeys {
 					if op.PrevKv == nil {
 						continue
 					}
-					prev := configx.New(m.opts...)
-					neu := configx.New(m.opts...)
+
+					prev := kv.NewStore()
+					neu := kv.NewStore()
 
 					prev.Set(op.PrevKv.Value)
 					neu.Set(op.Kv.Value)
 
-					patch, err := diff.Diff(prev.Interface(), neu.Interface())
+					patch, err := diff.Diff(prev.Get(), neu.Get())
 					if err != nil {
 						continue
 					}
@@ -190,9 +190,9 @@ func (m Store) watch(ctx context.Context) {
 							},
 						})
 					}
-				} else {
-					ops = append(ops, op)
-				}
+				} else {*/
+				ops = append(ops, op)
+				//}
 
 				for _, op := range ops {
 					updated := m.receivers[:0]
@@ -209,18 +209,18 @@ func (m Store) watch(ctx context.Context) {
 	}
 }
 
-func (m Store) Get() any {
+func (m *Store) Get() any {
 	m.valuesLocker.RLock()
 	defer m.valuesLocker.RUnlock()
 
 	return m.values.Get()
 }
 
-func (m Store) Val(path ...string) configx.Values {
+func (m *Store) Val(path ...string) configx.Values {
 	return values{Values: m.values.Val(path...), valuesLocker: m.valuesLocker, withKeys: m.withKeys, ops: m.ops, prefix: m.prefix, leaseID: m.leaseID}
 }
 
-func (m Store) Set(data interface{}) error {
+func (m *Store) Set(data interface{}) error {
 	m.valuesLocker.Lock()
 	defer m.valuesLocker.Unlock()
 
@@ -233,11 +233,11 @@ func (m Store) Set(data interface{}) error {
 	return nil
 }
 
-func (m Store) Del() error {
+func (m *Store) Del() error {
 	return fmt.Errorf("not implemented")
 }
 
-func (m Store) save(ctx context.Context) {
+func (m *Store) save(ctx context.Context) {
 	var ops []clientv3.Op
 
 	batch := 20
@@ -291,7 +291,7 @@ func (m Store) save(ctx context.Context) {
 	}
 }
 
-func (m Store) Close(ctx context.Context) error {
+func (m *Store) Close(ctx context.Context) error {
 	if m.session != nil {
 		return m.session.Close()
 	}
@@ -299,7 +299,7 @@ func (m Store) Close(ctx context.Context) error {
 	return nil
 }
 
-func (m Store) Done() <-chan struct{} {
+func (m *Store) Done() <-chan struct{} {
 	if m.session != nil {
 		return m.session.Done()
 	}
@@ -307,7 +307,7 @@ func (m Store) Done() <-chan struct{} {
 	return nil
 }
 
-func (m Store) Save(ctxUser string, ctxMessage string) error {
+func (m *Store) Save(ctxUser string, ctxMessage string) error {
 	select {
 	case m.saveCh <- true:
 	case <-m.ctx.Done():
@@ -316,15 +316,15 @@ func (m Store) Save(ctxUser string, ctxMessage string) error {
 	return nil
 }
 
-func (m Store) Lock() {
+func (m *Store) Lock() {
 	m.locker.Lock()
 }
 
-func (m Store) Unlock() {
+func (m *Store) Unlock() {
 	m.locker.Unlock()
 }
 
-func (m Store) NewLocker(name string) sync.Locker {
+func (m *Store) NewLocker(name string) sync.Locker {
 	select {
 	case <-m.ctx.Done():
 		return nil
@@ -336,7 +336,8 @@ func (m Store) NewLocker(name string) sync.Locker {
 	return NewLocker(m.session, name)
 }
 
-func (m Store) Watch(opts ...watch.WatchOption) (watch.Receiver, error) {
+func (m *Store) Watch(opts ...watch.WatchOption) (watch.Receiver, error) {
+
 	o := &watch.WatchOptions{}
 	for _, opt := range opts {
 		opt(o)
@@ -421,7 +422,8 @@ func (r receiver) Next() (interface{}, error) {
 				continue
 			}
 			if r.changesOnly {
-				c := configx.New(r.opts...)
+
+				c := std.DeepClone(r.v)
 
 				for _, op := range changes {
 					if op.IsCreate() {

@@ -9,12 +9,13 @@ import (
 
 	cgrpc "github.com/pydio/cells/v5/common/client/grpc"
 	"github.com/pydio/cells/v5/common/config"
-	"github.com/pydio/cells/v5/common/config/memory"
 	pb "github.com/pydio/cells/v5/common/proto/config"
 	"github.com/pydio/cells/v5/common/runtime"
 	"github.com/pydio/cells/v5/common/service"
 	"github.com/pydio/cells/v5/common/storage/test"
 	"github.com/pydio/cells/v5/common/utils/configx"
+	"github.com/pydio/cells/v5/common/utils/kv"
+	"github.com/pydio/cells/v5/common/utils/watch"
 
 	_ "embed"
 	_ "github.com/pydio/cells/v5/common/registry/config"
@@ -57,7 +58,7 @@ func (t *testHandler) Delete(ctx context.Context, request *pb.DeleteRequest) (*p
 }
 
 func (t *testHandler) Watch(request *pb.WatchRequest, stream pb.Config_WatchServer) error {
-	w, err := t.store.Watch(configx.WithPath(request.GetPath()))
+	w, err := t.store.Watch(watch.WithPath(request.GetPath()))
 	if err != nil {
 		return err
 	}
@@ -91,7 +92,7 @@ func TestManagerConnection(t *testing.T) {
 				service.Context(ctx),
 				service.WithGRPC(func(ctx context.Context, registrar grpc.ServiceRegistrar) error {
 					pb.RegisterConfigServer(registrar, &testHandler{
-						store: memory.New(configx.WithJSON()),
+						store: kv.NewStore(),
 					})
 					return nil
 				}),

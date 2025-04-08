@@ -51,11 +51,13 @@ func MultiMatches(ctx1, ctx2 context.Context) bool {
 
 type ContextProvider interface {
 	ID() string
+	SetRootContext(context.Context)
 	Context(ctx context.Context) context.Context
 }
 
 type MultiContextProvider interface {
 	Current(ctx context.Context) string
+	CurrentContextProvider(ctx context.Context) ContextProvider
 	RootContext(ctx context.Context) context.Context
 	Iterate(ctx context.Context, add func(context.Context, string) error) error
 	Watch(ctx context.Context, add func(context.Context, string) error, remove func(context.Context, string) error, iterate bool) error
@@ -64,7 +66,12 @@ type MultiContextProvider interface {
 type basicMulti struct{}
 
 func (b *basicMulti) Current(ctx context.Context) string {
+
 	return "default"
+}
+
+func (b *basicMulti) CurrentContextProvider(ctx context.Context) ContextProvider {
+	return nil
 }
 
 func (b *basicMulti) RootContext(ctx context.Context) context.Context {

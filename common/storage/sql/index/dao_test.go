@@ -35,6 +35,7 @@ import (
 	"time"
 
 	"github.com/spf13/viper"
+	"go.uber.org/zap"
 	"golang.org/x/text/cases"
 	"golang.org/x/text/language"
 	"google.golang.org/protobuf/proto"
@@ -46,6 +47,7 @@ import (
 	"github.com/pydio/cells/v5/common/runtime/manager"
 	"github.com/pydio/cells/v5/common/storage/sql"
 	"github.com/pydio/cells/v5/common/storage/test"
+	"github.com/pydio/cells/v5/common/telemetry/log"
 	"github.com/pydio/cells/v5/common/utils/cache/gocache"
 	cache_helper "github.com/pydio/cells/v5/common/utils/cache/helper"
 	"github.com/pydio/cells/v5/common/utils/slug"
@@ -77,6 +79,12 @@ func TestMain(m *testing.M) {
 
 func testAll(t *testing.T, f func(dao testdao) func(*testing.T), cache ...bool) {
 	var cnt = 0
+	log.SetLoggerInit(func(_ context.Context) (*zap.Logger, []io.Closer) {
+		conf := zap.NewDevelopmentConfig()
+		conf.OutputPaths = []string{"stdout"}
+		logger, _ := conf.Build()
+		return logger, nil
+	}, nil)
 	test.RunStorageTests(testcases, t, func(ctx context.Context) {
 		dao, err := manager.Resolve[DAO](ctx)
 		if err != nil {

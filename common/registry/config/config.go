@@ -113,12 +113,16 @@ func (o *URLOpener) openURL(ctx context.Context, u *url.URL) (registry.Registry,
 
 		var store config.Store
 
-		store, err = etcd.NewStore(ctx, kv.NewStore().Val(), etcdConn, u.Path, 10)
+		store = kv.NewStore()
+		store = storeWithEncoder{Store: store, Unmarshaler: opts.Unmarshaler, Marshaller: opts.Marshaller}
+
+		store, err = etcd.NewStore(ctx, store.Val(), etcdConn, u.Path, 10)
 		if err != nil {
 			return nil, err
 		}
+
 		// TODO - move the store with encoder in kv ?
-		store = storeWithEncoder{Store: store, Unmarshaler: opts.Unmarshaler, Marshaller: opts.Marshaller}
+		// store = storeWithEncoder{Store: store, Unmarshaler: opts.Unmarshaler, Marshaller: opts.Marshaller}
 
 		reg = NewConfigRegistry(store, byName)
 	//case "file":
@@ -240,9 +244,14 @@ func (c *configRegistry) scanAndBroadcast(res configx.Values, bc broadcaster, bc
 
 		var items []registry.Item
 		for k, v := range itemsMap {
-			if item, ok := v.(registry.Item); ok {
+			switch item := v.(type) {
+			case *pb.Item:
+				items = append(items, util.ToItem(item))
+			case *registry.Item:
+				items = append(items, *item)
+			case registry.Item:
 				items = append(items, item)
-			} else {
+			default:
 				// For updates mainly, we may receive only parts of the item, so retrieving the full item in the registry
 				if item, err := c.Get(k, registry.WithType(bcType)); err == nil {
 					items = append(items, item)

@@ -49,7 +49,7 @@ func init() {
 			service.Context(ctx),
 			service.Tag(common.ServiceTagIdm),
 			service.Description("Workspaces Service"),
-			service.WithStorageDrivers(workspace.Drivers...),
+			service.WithStorageDrivers(workspace.Drivers),
 			service.Migrations([]*service.Migration{
 				{
 					TargetVersion: service.FirstRunOrChange(),

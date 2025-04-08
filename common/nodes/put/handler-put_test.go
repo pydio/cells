@@ -33,11 +33,14 @@ import (
 	"testing"
 
 	"github.com/pydio/cells/v5/common"
+	"github.com/pydio/cells/v5/common/config"
 	"github.com/pydio/cells/v5/common/nodes"
 	"github.com/pydio/cells/v5/common/nodes/models"
 	"github.com/pydio/cells/v5/common/proto/tree"
 	"github.com/pydio/cells/v5/common/utils/hasher"
+	"github.com/pydio/cells/v5/common/utils/kv"
 	"github.com/pydio/cells/v5/common/utils/openurl"
+	"github.com/pydio/cells/v5/common/utils/propagator"
 
 	. "github.com/smartystreets/goconvey/convey"
 )
@@ -64,6 +67,11 @@ func testMkFileResources() (*Handler, context.Context, *nodes.HandlerMock) {
 	h.Next = mock
 
 	ctx := context.Background()
+	store, _ := openurl.OpenPool(ctx, []string{""}, func(context.Context, string) (config.Store, error) {
+		return kv.NewStore(), nil
+	})
+
+	ctx = propagator.With(ctx, config.ContextKey, store)
 
 	return h, ctx, mock
 }

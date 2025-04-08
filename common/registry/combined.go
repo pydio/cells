@@ -12,7 +12,10 @@ type combinedRegistry struct {
 }
 
 func NewCombinedRegistry(main Registry, next Registry) Registry {
-	return &combinedRegistry{}
+	return &combinedRegistry{
+		Registry: main,
+		next:     next,
+	}
 }
 
 func (c *combinedRegistry) Get(s string, option ...Option) (Item, error) {

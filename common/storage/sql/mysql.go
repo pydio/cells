@@ -92,7 +92,9 @@ func (m *mysqlHelper) ApplyOrderedUpdates(db *gorm.DB, tableName string, sets []
 		args = append(args, sql.Named(u.Key, u.Value))
 	}
 
-	q := fmt.Sprintf("UPDATE `%s` JOIN (SELECT %s, CONCAT(CONVERT(@mpath1 USING utf8), CONVERT(@mpath2 USING utf8), CONVERT(@mpath3 USING utf8), CONVERT(@mpath4 USING utf8)) as fullpath FROM %s) AS uv ON %s.uuid = uv.new_uuid SET %s WHERE %s", tableName, strings.Join(assigns, ", "), tableName, tableName, strings.Join(namedSets, ", "), strings.Join(namedWheres, " AND "))
+	//q := fmt.Sprintf("UPDATE `%s` JOIN (SELECT %s, CONCAT(CONVERT(@mpath1 USING utf8), CONVERT(@mpath2 USING utf8), CONVERT(@mpath3 USING utf8), CONVERT(@mpath4 USING utf8)) as fullpath FROM %s) AS uv ON %s.uuid = uv.new_uuid SET %s WHERE %s", tableName, strings.Join(assigns, ", "), tableName, tableName, strings.Join(namedSets, ", "), strings.Join(namedWheres, " AND "))
+	q := fmt.Sprintf("UPDATE `%s` JOIN (SELECT %s, CONCAT(@mpath1, @mpath2, @mpath3, @mpath4) as fullpath FROM %s) AS uv ON %s.uuid = uv.new_uuid SET %s WHERE %s", tableName, strings.Join(assigns, ", "), tableName, tableName, strings.Join(namedSets, ", "), strings.Join(namedWheres, " AND "))
+
 	tx := db.Exec(q, args...)
 	return tx.RowsAffected, tx.Error
 }

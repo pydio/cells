@@ -37,6 +37,7 @@ import (
 	"github.com/pydio/cells/v5/common/utils/configx"
 	json "github.com/pydio/cells/v5/common/utils/jsonx"
 	"github.com/pydio/cells/v5/common/utils/openurl"
+	"github.com/pydio/cells/v5/common/utils/watch"
 )
 
 var (
@@ -55,7 +56,7 @@ func init() {
 	}
 }
 
-func (o *URLOpener) Open(ctx context.Context, urlstr string) (config.Store, error) {
+func (o *URLOpener) Open(ctx context.Context, urlstr string, base config.Store) (config.Store, error) {
 	u, err := url.Parse(urlstr)
 	if err != nil {
 		return nil, err
@@ -130,6 +131,16 @@ type SQL struct {
 	watchers []*receiver
 }
 
+func (s *SQL) Reset() {
+	//TODO implement me
+	panic("implement me")
+}
+
+func (s *SQL) Flush() {
+	//TODO implement me
+	panic("implement me")
+}
+
 func New(ctx context.Context, driver string, dsn string, prefix string) (config.Store, error) {
 	var db *gorm.DB
 
@@ -182,7 +193,7 @@ func (s *SQL) Get() any {
 
 	s.config = v
 
-	return v.Get(option...)
+	return v.Get()
 }
 
 func (s *SQL) Set(value interface{}) error {
@@ -225,8 +236,8 @@ func (s *SQL) Save(ctxUser, ctxMessage string) error {
 	return nil
 }
 
-func (s *SQL) Watch(oo ...configx.WatchOption) (configx.Receiver, error) {
-	opts := &configx.WatchOptions{}
+func (s *SQL) Watch(oo ...watch.WatchOption) (watch.Receiver, error) {
+	opts := &watch.WatchOptions{}
 	for _, o := range oo {
 		o(opts)
 	}

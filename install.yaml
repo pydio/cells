@@ -1,12 +1,16 @@
 # Basic no-TLS config for the embedded gateway
-#proxyconfig:
-#  binds:
-#    - localhost:8080
+proxyconfig:
+  binds:
+    - 0.0.0.0:8080
+  tlsconfig:
+    selfsigned:
 frontendlogin: admin
 frontendpassword: admin
 dbconnectiontype: manual
-dbmanualdsn: sqlite:///tmp/pydio/pydio.db
-#dbmanualdsn: mysql://root:P@ssw0rd@tcp(0.0.0.0:3306)/cells
+#dbmanualdsn: sqlite:///tmp/pydio/pydio.db?
+dbmanualdsn: mysql://root:P@ssw0rd@tcp(0.0.0.0:3306)/cells?parseTime=true&prefix={{.Meta.prefix}}&policies={{.Meta.policies}}&singular={{.Meta.singular}}
+#documentsdsn: mongodb://localhost:27017/cells?prefix={{.Meta.prefix}}
+#usedocumentsdsn: true
 
 #dsname: pydiods1
 #dsport: 8040
@@ -16,9 +20,13 @@ dbmanualdsn: sqlite:///tmp/pydio/pydio.db
 ##dss3folder: /Users/ghecquet/Library/Application Support/Pydio/cells/data
 #
 ## Custom title
-#customconfigs:
-#  frontend/plugin/core.pydio/APPLICATION_TITLE: Cells Demo v4
-#  # Enable specific login for the demo
-#  frontend/plugin/authfront.oauth/PYDIO_PLUGIN_ENABLED: false
-#  # display a countdown before reset
-#  frontend/plugin/action.demo_counter/PYDIO_PLUGIN_ENABLED: true
+customconfigs:
+  frontend/plugin/core.pydio/APPLICATION_TITLE: Cells Default install
+  # Enable specific login for the demo
+  frontend/plugin/authfront.oauth/PYDIO_PLUGIN_ENABLED: false
+  # display a countdown before reset
+  frontend/plugin/action.demo_counter/PYDIO_PLUGIN_ENABLED: true
+#  defaults/telemetry/loggers[0]/level: "debug"
+#  defaults/telemetry/otelService#json: "{\"attributes\": {\"deployment\": \"local\", \"name\": \"cells\"}}"
+#  defaults/telemetry/tracing/outputs#json: "[\"otlp+grpc+insecure://localhost:4317\"]"
+#  defaults/telemetry/metrics/readers#json: "[\"otlp+http://localhost:9090/api/v1/otlp/v1/metrics\"]"

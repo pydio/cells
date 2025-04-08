@@ -56,7 +56,7 @@ func init() {
 			service.Metadata(meta2.ServiceMetaNsProvider, "list"),
 			service.Metadata(meta2.ServiceMetaProviderRequired, "true"),
 			service.Description("User-defined Metadata"),
-			service.WithStorageDrivers(meta.Drivers...),
+			service.WithStorageDrivers(meta.Drivers),
 			service.Migrations([]*service.Migration{
 				{
 					TargetVersion: service.FirstRun(),

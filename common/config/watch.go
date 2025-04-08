@@ -47,6 +47,10 @@ func (m *storeWithWatcher) Val(path ...string) configx.Values {
 	}
 }
 
+func (m *storeWithWatcher) Set(data any) error {
+	return m.Val().Set(data)
+}
+
 func (m *storeWithWatcher) Watch(opts ...watch.WatchOption) (watch.Receiver, error) {
 	wo := &watch.WatchOptions{}
 	for _, o := range opts {

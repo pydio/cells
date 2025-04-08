@@ -68,6 +68,7 @@ func (i *Indexer) Init(ctx context.Context, cfg configx.Values) error {
 	if i.collection == "" {
 		return fmt.Errorf("indexer must provide a collection name")
 	}
+
 	if i.codec != nil {
 		if mo, ok := i.codec.GetModel(cfg); ok {
 			model := mo.(Model)

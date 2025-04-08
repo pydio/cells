@@ -53,7 +53,7 @@ func init() {
 			service.Context(ctx),
 			service.Tag(common.ServiceTagData),
 			service.Description("Generic document store"),
-			service.WithStorageDrivers(docstore.Drivers...),
+			service.WithStorageDrivers(docstore.Drivers),
 			service.WithStorageMigrator(docstore.Migrate),
 			service.Migrations([]*service.Migration{{
 				TargetVersion: service.FirstRun(),

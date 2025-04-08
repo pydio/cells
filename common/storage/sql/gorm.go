@@ -203,6 +203,10 @@ func OpenPool(ctx context.Context, uu string) (storage.Storage, error) {
 				}
 			}
 			conn, er = sql.Open(scheme, clean)
+
+			//conn.SetMaxIdleConns(10)
+			//conn.SetMaxOpenConns(100)
+			//conn.SetConnMaxLifetime(time.Minute)
 		default:
 			conn, er = sql.Open(scheme, clean)
 

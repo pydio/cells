@@ -45,7 +45,7 @@ func init() {
 			service.Context(ctx),
 			service.Tag(common.ServiceTagIdm),
 			service.Description("Roles Service"),
-			service.WithStorageDrivers(role.Drivers...),
+			service.WithStorageDrivers(role.Drivers),
 			service.Migrations(append([]*service.Migration{
 				{
 					TargetVersion: service.FirstRunOrChange(),

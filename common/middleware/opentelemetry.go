@@ -26,12 +26,14 @@ import (
 
 	"go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc"
 	"go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp"
+	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/trace"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/metadata"
 	"google.golang.org/grpc/stats"
+	"google.golang.org/grpc/stats/opentelemetry"
 	"google.golang.org/grpc/status"
 
 	"github.com/pydio/cells/v5/common/runtime"
@@ -64,6 +66,20 @@ func GrpcServerStatsHandler(ctx context.Context) (oo []grpc.ServerOption) {
 	for _, h := range st {
 		oo = append(oo, grpc.StatsHandler(h(ctx, false)))
 	}
+
+	opts := opentelemetry.Options{
+		MetricsOptions: opentelemetry.MetricsOptions{
+			MeterProvider: otel.GetMeterProvider(),
+			// Because Metrics is unset, the user will get default metrics.
+			MethodAttributeFilter: func(str string) bool {
+				// Will allow duplex/any other type of RPC.
+				return str != "/grpc.testing.TestService/UnaryCall"
+			},
+		},
+	}
+
+	oo = append(oo, opentelemetry.ServerOption(opts))
+
 	return
 }
 
@@ -74,6 +90,15 @@ func GrpcClientStatsHandler(ctx context.Context) (oo []grpc.DialOption) {
 	for _, h := range st {
 		oo = append(oo, grpc.WithStatsHandler(h(ctx, true)))
 	}
+
+	oo = append(oo, opentelemetry.DialOption(
+		opentelemetry.Options{
+			MetricsOptions: opentelemetry.MetricsOptions{
+				MeterProvider: otel.GetMeterProvider(),
+				//Metrics:       opentelemetry.DefaultMetrics(), // equivalent to unset - distinct from empty
+			},
+		}))
+
 	return
 }
 

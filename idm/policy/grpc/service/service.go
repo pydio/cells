@@ -62,7 +62,7 @@ func init() {
 			service.Context(ctx),
 			service.Tag(common.ServiceTagIdm),
 			service.Description("Policy Engine Service"),
-			service.WithStorageDrivers(policy.Drivers...),
+			service.WithStorageDrivers(policy.Drivers),
 			service.Migrations(migs),
 			service.WithGRPC(func(ctx context.Context, srv grpc.ServiceRegistrar) error {
 				handler := grpc2.NewHandler()

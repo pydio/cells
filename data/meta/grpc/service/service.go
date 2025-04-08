@@ -48,7 +48,7 @@ func init() {
 			service.Tag(common.ServiceTagData),
 			service.Description("Metadata server for tree nodes"),
 			service.Unique(true),
-			service.WithStorageDrivers(meta.Drivers...),
+			service.WithStorageDrivers(meta.Drivers),
 			service.Migrations([]*service.Migration{
 				{
 					TargetVersion: service.FirstRunOrChange(),

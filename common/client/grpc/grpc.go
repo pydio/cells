@@ -23,6 +23,7 @@ package grpc
 import (
 	"bytes"
 	"context"
+	"errors"
 	"fmt"
 	"path"
 	"regexp"
@@ -31,6 +32,7 @@ import (
 	"slices"
 	"strings"
 	"sync"
+	"sync/atomic"
 	"text/template"
 	"time"
 
@@ -77,18 +79,44 @@ func ResolveConn(ctx context.Context, serviceName string, opt ...Option) grpc.Cl
 		}
 	}
 
+	opts := new(Options)
+	for _, o := range opt {
+		o(opts)
+	}
+
+	cc := &clientConn{
+		callTimeout:    opts.CallTimeout,
+		balancerFilter: opts.BalancerFilter,
+		silentNotFound: opts.SilentNotFound,
+		serviceName:    serviceName,
+		headerKVs:      headerKVs,
+		lock:           &sync.Mutex{},
+	}
+
+	return cc
+}
+
+type clientConn struct {
+	conn atomic.Value
+	// grpc.ClientConnInterface
+	serviceName    string
+	headerKVs      []string
+	callTimeout    time.Duration
+	balancerFilter client.BalancerTargetFilter
+	silentNotFound bool
+
+	lock *sync.Mutex
+}
+
+func (cc *clientConn) resolveConn(ctx context.Context) error {
+	cc.lock.Lock()
+	defer cc.lock.Unlock()
+
 	var reg registry.Registry
 	propagator.Get(ctx, registry.ContextKey, &reg)
 
 	if reg == nil {
-		fmt.Println("[PANIC] ResolveConn called without a registry - will panic")
-		debug.PrintStack()
-		panic("Should have a registry")
-	}
-
-	opts := new(Options)
-	for _, o := range opt {
-		o(opts)
+		return errors.New("no registry found")
 	}
 
 	templates := make(map[string]*template.Template)
@@ -104,7 +132,7 @@ func ResolveConn(ctx context.Context, serviceName string, opt ...Option) grpc.Cl
 		return t, nil
 	}
 
-	cc, err := reg.List(
+	connPoolItems, err := reg.List(
 		registry.WithType(pb.ItemType_GENERIC),
 		registry.WithFilter(func(item registry.Item) bool {
 			// Retrieving server services information to see which services we need to start
@@ -124,7 +152,7 @@ func ResolveConn(ctx context.Context, serviceName string, opt ...Option) grpc.Cl
 						if err := tmpl.Execute(&buf, struct {
 							Name string
 						}{
-							Name: serviceName,
+							Name: cc.serviceName,
 						}); err != nil {
 							return false
 						}
@@ -156,46 +184,51 @@ func ResolveConn(ctx context.Context, serviceName string, opt ...Option) grpc.Cl
 			return true
 		}),
 	)
+
 	if err != nil {
-		return nil
+		return err
 	}
-	if len(cc) != 1 {
-		return nil // fmt.Errorf("expected 1 connection, ResolveConn returns nil for %s", serviceName)
+
+	if len(connPoolItems) != 1 {
+		return errors.New("ResolveConn called with multiple services")
 	}
+
 	var pool *openurl.Pool[grpc.ClientConnInterface]
-	if !cc[0].As(&pool) {
-		panic("Should be a connection")
+	if !connPoolItems[0].As(&pool) {
+		return errors.New("should be a connection")
 	}
 
 	conn, err := pool.Get(ctx)
 	if err != nil {
-		panic("Connection should be valid")
+		return errors.New("connection should be valid")
 	}
 
-	opts.ClientConn = conn
+	cc.conn.Store(conn)
 
-	return &clientConn{
-		callTimeout:         opts.CallTimeout,
-		ClientConnInterface: opts.ClientConn,
-		balancerFilter:      opts.BalancerFilter,
-		silentNotFound:      opts.SilentNotFound,
-		serviceName:         serviceName,
-		headerKVs:           headerKVs,
-	}
+	return nil
 }
 
-type clientConn struct {
-	grpc.ClientConnInterface
-	serviceName    string
-	headerKVs      []string
-	callTimeout    time.Duration
-	balancerFilter client.BalancerTargetFilter
-	silentNotFound bool
+func (cc *clientConn) getConn(ctx context.Context) (grpc.ClientConnInterface, error) {
+	conn := cc.conn.Load()
+	if conn != nil {
+		return conn.(grpc.ClientConnInterface), nil
+	}
+
+	if err := cc.resolveConn(ctx); err != nil {
+		return nil, err
+	}
+
+	return cc.getConn(ctx)
 }
 
 // Invoke performs a unary RPC and returns after the response is received
 // into reply.
 func (cc *clientConn) Invoke(ctx context.Context, method string, args interface{}, reply interface{}, opts ...grpc.CallOption) error {
+
+	conn, err := cc.getConn(ctx)
+	if err != nil {
+		return err
+	}
 
 	opts = append([]grpc.CallOption{
 		grpc.WaitForReady(true),
@@ -232,7 +265,7 @@ func (cc *clientConn) Invoke(ctx context.Context, method string, args interface{
 	if cc.balancerFilter != nil {
 		ctx = context.WithValue(ctx, ctxBalancerFilterKey{}, cc.balancerFilter)
 	}
-	er := cc.ClientConnInterface.Invoke(ctx, method, args, reply, opts...)
+	er := conn.Invoke(ctx, method, args, reply, opts...)
 	if er != nil && cancel != nil {
 		cancel()
 	}
@@ -246,6 +279,11 @@ var (
 
 // NewStream begins a streaming RPC.
 func (cc *clientConn) NewStream(ctx context.Context, desc *grpc.StreamDesc, method string, opts ...grpc.CallOption) (grpc.ClientStream, error) {
+	conn, err := cc.getConn(ctx)
+	if err != nil {
+		return nil, err
+	}
+
 	opts = append([]grpc.CallOption{
 		grpc.WaitForReady(true),
 	}, opts...)
@@ -273,7 +311,7 @@ func (cc *clientConn) NewStream(ctx context.Context, desc *grpc.StreamDesc, meth
 		ctx = context.WithValue(ctx, ctxBalancerFilterKey{}, cc.balancerFilter)
 	}
 
-	s, e := cc.ClientConnInterface.NewStream(ctx, desc, method, opts...)
+	s, e := conn.NewStream(ctx, desc, method, opts...)
 	if e != nil && cancel != nil {
 		cancel()
 	}

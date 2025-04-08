@@ -73,6 +73,7 @@ func contextEndpointRegistry(ctx context.Context, s registry.Item, reg registry.
 func unaryEndpointInterceptor(rootContext context.Context, s registry.Item) grpc.UnaryServerInterceptor {
 	return func(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (interface{}, error) {
 		ctx = propagator.ForkContext(ctx, rootContext)
+		ctx = runtime.MultiContextManager().CurrentContextProvider(ctx).Context(ctx)
 		var reg registry.Registry
 		propagator.Get(rootContext, registry.ContextKey, &reg)
 		ctx = contextEndpointRegistry(ctx, s, reg, info.FullMethod)
@@ -83,6 +84,8 @@ func unaryEndpointInterceptor(rootContext context.Context, s registry.Item) grpc
 func streamEndpointInterceptor(rootContext context.Context, s registry.Item) grpc.StreamServerInterceptor {
 	return func(srv interface{}, stream grpc.ServerStream, info *grpc.StreamServerInfo, handler grpc.StreamHandler) error {
 		ctx := propagator.ForkContext(stream.Context(), rootContext)
+		ctx = runtime.MultiContextManager().CurrentContextProvider(ctx).Context(ctx)
+
 		var reg registry.Registry
 		propagator.Get(rootContext, registry.ContextKey, &reg)
 		ctx = contextEndpointRegistry(ctx, s, reg, info.FullMethod)

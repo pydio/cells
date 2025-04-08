@@ -80,14 +80,15 @@ func init() {
 					return er
 				}
 				jobs.RegisterTaskServiceServer(server, new(grpc2.TaskHandler))
-				er = runtime.MultiContextManager().Iterate(c, func(tc context.Context, _ string) error {
+				// TODO - should be done in a migration
+				/*er = runtime.MultiContextManager().Iterate(c, func(tc context.Context, _ string) error {
 					// Force initialization of all subscribers now
 					_, e := subs.Get(tc)
 					return e
 				})
 				if er != nil {
 					return er
-				}
+				}*/
 				queueOpt := broker.Queue("tasks")
 				counterOpt := broker.WithCounterName("tasks")
 

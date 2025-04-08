@@ -41,7 +41,7 @@ func init() {
 
 type URLOpener struct{}
 
-func (o *URLOpener) Open(ctx context.Context, urlstr string) (config.Store, error) {
+func (o *URLOpener) Open(ctx context.Context, urlstr string, base config.Store) (config.Store, error) {
 	u, err := url.Parse(urlstr)
 	if err != nil {
 		return nil, err
@@ -93,6 +93,10 @@ type store struct {
 	v         configx.Values
 	locker    *sync.RWMutex
 }
+
+func (s *store) Reset() {}
+
+func (s *store) Flush() {}
 
 func (s *store) read() {
 	sec, er := s.cli.Logical().Read(s.storePath + "/data/" + s.keyName)

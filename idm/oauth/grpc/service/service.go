@@ -73,7 +73,7 @@ func init() {
 					Up:            insertPruningJob,
 				},
 			}),
-			service.WithStorageDrivers(oauth.RegistryDrivers...),
+			service.WithStorageDrivers(oauth.RegistryDrivers),
 			service.WithGRPC(func(ctx context.Context, server grpc.ServiceRegistrar) error {
 				h := grpc2.NewOAuthGRPCHandler()
 
@@ -99,7 +99,7 @@ func init() {
 			service.Context(ctx),
 			service.Tag(common.ServiceTagIdm),
 			service.Description("Personal Access Token Provider"),
-			service.WithStorageDrivers(oauth.PatDrivers...),
+			service.WithStorageDrivers(oauth.PatDrivers),
 			service.Migrations([]*service.Migration{{
 				TargetVersion: service.FirstRunOrChange(),
 				Up:            manager.StorageMigration(),

@@ -7,6 +7,8 @@ import (
 
 	"github.com/pydio/cells/v5/common/config"
 	"github.com/pydio/cells/v5/common/utils/configx"
+	"github.com/pydio/cells/v5/common/utils/kv"
+	"github.com/pydio/cells/v5/common/utils/watch"
 )
 
 // storeWithEncoder embeds Viper to extend its behavior
@@ -45,10 +47,26 @@ func (s storeWithEncoder) Val(path ...string) configx.Values {
 	}
 }
 
+func (s storeWithEncoder) Watch(opts ...watch.WatchOption) (watch.Receiver, error) {
+	r, err := s.Store.Watch(opts...)
+	if err != nil {
+		return nil, err
+	}
+	return storeWithEncoderReceiver{Receiver: r}, nil
+}
+
 type storeWithEncoderValues struct {
 	configx.Values
 	configx.Unmarshaler
 	configx.Marshaller
+}
+
+func (s storeWithEncoderValues) Clone() configx.Values {
+	return storeWithEncoderValues{
+		Values:      kv.NewStore().Val(),
+		Unmarshaler: s.Unmarshaler,
+		Marshaller:  s.Marshaller,
+	}
 }
 
 func (s storeWithEncoderValues) Context(ctx context.Context) configx.Values {
@@ -112,10 +130,26 @@ func (s storeWithEncoderValues) String() string {
 }
 
 func (s storeWithEncoderValues) Set(data any) error {
-	b, err := s.Marshaller.Marshal(data)
-	if err != nil {
-		return err
+	var a any
+
+	if b, ok := data.([]byte); ok {
+		if err := s.Unmarshaler.Unmarshal(b, &a); err == nil {
+			return s.Values.Set(a)
+		}
 	}
 
-	return s.Values.Set(b)
+	return s.Values.Set(data)
+}
+
+type storeWithEncoderReceiver struct {
+	watch.Receiver
+}
+
+func (s storeWithEncoderReceiver) Next() (any, error) {
+	n, err := s.Receiver.Next()
+	if err != nil {
+		return nil, err
+	}
+
+	return n, nil
 }

@@ -66,7 +66,7 @@ func init() {
 					},
 				},
 			}),
-			service.WithStorageDrivers(mailer2.Drivers...),
+			service.WithStorageDrivers(mailer2.Drivers),
 			service.WithStorageMigrator(mailer2.MigrateQueue),
 			service.WithGRPC(func(c context.Context, server grpc.ServiceRegistrar) error {
 

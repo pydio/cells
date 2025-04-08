@@ -64,6 +64,7 @@ func (o *Opener) OpenURL(ctx context.Context, u *url.URL) (metrics.ReaderProvide
 	case "otlp", "otlp+http":
 		exporter, err = otlpmetrichttp.New(ctx,
 			otlpmetrichttp.WithEndpoint(u.Host),
+			otlpmetrichttp.WithURLPath(u.Path),
 			otlpmetrichttp.WithCompression(otlpmetrichttp.GzipCompression),
 			otlpmetrichttp.WithTemporalitySelector(preferDeltaTemporalitySelector),
 			otlpmetrichttp.WithInsecure(),

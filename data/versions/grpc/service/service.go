@@ -74,7 +74,7 @@ func init() {
 				},
 			}),
 			service.WithStorageMigrator(versions.Migrate),
-			service.WithStorageDrivers(versions.Drivers...),
+			service.WithStorageDrivers(versions.Drivers),
 			service.WithGRPC(func(ctx context.Context, server grpc.ServiceRegistrar) error {
 				tree.RegisterNodeVersionerServer(server, &grpc2.Handler{})
 				return nil

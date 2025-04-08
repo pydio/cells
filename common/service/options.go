@@ -32,6 +32,7 @@ import (
 	"github.com/pydio/cells/v5/common/telemetry/log"
 	"github.com/pydio/cells/v5/common/utils/propagator"
 	"github.com/pydio/cells/v5/common/utils/uuid"
+	"github.com/pydio/cells/v5/common/utils/watch"
 )
 
 // ServiceOptions stores all options for a pydio service
@@ -57,6 +58,10 @@ type ServiceOptions struct {
 		ContextKey any
 		Lister     func(ctx context.Context) []string
 	} `json:"-"`
+	MigrateWatcher struct {
+		ContextKey any
+		Watcher    func(ctx context.Context) (watch.Receiver, error)
+	}
 
 	// Port      string
 	TLSConfig *tls.Config
@@ -241,6 +246,14 @@ func WithMigrateIterator(ctxKey any, lister func(ctx context.Context) []string) 
 	return func(o *ServiceOptions) {
 		o.MigrateIterator.ContextKey = ctxKey
 		o.MigrateIterator.Lister = lister
+	}
+}
+
+// WithMigrateWatcher injects an additional level of iteration for update service version
+func WithMigrateWatcher(ctxKey any, watcher func(ctx context.Context) (watch.Receiver, error)) ServiceOption {
+	return func(o *ServiceOptions) {
+		o.MigrateWatcher.ContextKey = ctxKey
+		o.MigrateWatcher.Watcher = watcher
 	}
 }
 

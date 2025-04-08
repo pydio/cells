@@ -23,9 +23,7 @@ package service
 
 import (
 	"context"
-	"time"
 
-	"go.uber.org/zap"
 	"google.golang.org/grpc"
 
 	"github.com/pydio/cells/v5/broker/log"
@@ -36,8 +34,6 @@ import (
 	"github.com/pydio/cells/v5/common/proto/sync"
 	"github.com/pydio/cells/v5/common/runtime"
 	"github.com/pydio/cells/v5/common/service"
-	log2 "github.com/pydio/cells/v5/common/telemetry/log"
-	json "github.com/pydio/cells/v5/common/utils/jsonx"
 )
 
 const (
@@ -51,16 +47,27 @@ func init() {
 			service.Context(ctx),
 			service.Tag(common.ServiceTagBroker),
 			service.Description("Syslog index store"),
-			service.WithStorageDrivers(log.Drivers...),
+			service.WithStorageDrivers(log.Drivers),
 			// TODO - Recheck
 			service.Migrations([]*service.Migration{{
 				TargetVersion: service.FirstRun(),
 				Up: func(ctx context.Context) error {
-					return config.Get(ctx, "services", Name).Val("loggers[0]").Set(map[string]any{
+					if err := config.Get(ctx, "defaults/telemetry/loggers").Set([]map[string]any{{
 						"encoding": "console",
 						"level":    "info",
 						"outputs":  []string{"stdout:///"},
-					})
+					}, {
+						"encoding": "json",
+						"level":    "info",
+						"outputs": []string{
+							"file://" + runtime.ApplicationWorkingDir(runtime.ApplicationDirLogs) + "/pydio.log",
+							"service:///?service=pydio.grpc.log",
+						},
+					}}); err != nil {
+						return err
+					}
+
+					return config.Save(ctx, "migration", "migration")
 				},
 			}}),
 			service.WithStorageMigrator(log.Migrate),
@@ -81,30 +88,34 @@ func init() {
 					HandlerName: common.ServiceGrpcNamespace_ + common.ServiceLog,
 				}
 
-				_ = runtime.MultiContextManager().Iterate(c, func(ctx context.Context, _ string) error {
-					cv := common.MakeCellsVersion()
-					m := map[string]string{
-						"logger":       common.ServiceGrpcNamespace_ + common.ServiceLog,
-						"msg":          "build-info | " + cv.PackageLabel + " - " + cv.Version + " - " + cv.BuildTime,
-						"level":        "info",
-						"ts":           time.Now().Format(time.RFC3339),
-						"PackageLabel": cv.PackageLabel,
-						"Version":      cv.Version,
-						"BuildTime":    cv.BuildTime,
-						"GitCommit":    cv.GitCommit,
-						"OS":           cv.OS,
-						"Arch":         cv.Arch,
-						"GoVersion":    cv.GoVersion,
-					}
-					data, _ := json.Marshal(m)
-					if er := handler.OneLog(ctx, &proto.Log{
-						Nano:    int32(time.Now().UnixNano()),
-						Message: data,
-					}); er != nil {
-						log2.Logger(ctx).Warn("cannot insert first line in logs", zap.Error(er))
-					}
-					return nil
-				})
+				// TODO - should be in migrations directly (multi context handled)
+				/*
+					_ = runtime.MultiContextManager().Iterate(c, func(ctx context.Context, _ string) error {
+						cv := common.MakeCellsVersion()
+						m := map[string]string{
+							"logger":       common.ServiceGrpcNamespace_ + common.ServiceLog,
+							"msg":          "build-info | " + cv.PackageLabel + " - " + cv.Version + " - " + cv.BuildTime,
+							"level":        "info",
+							"ts":           time.Now().Format(time.RFC3339),
+							"PackageLabel": cv.PackageLabel,
+							"Version":      cv.Version,
+							"BuildTime":    cv.BuildTime,
+							"GitCommit":    cv.GitCommit,
+							"OS":           cv.OS,
+							"Arch":         cv.Arch,
+							"GoVersion":    cv.GoVersion,
+						}
+						data, _ := json.Marshal(m)
+						if er := handler.OneLog(ctx, &proto.Log{
+							Nano:    int32(time.Now().UnixNano()),
+							Message: data,
+						}); er != nil {
+							log2.Logger(ctx).Warn("cannot insert first line in logs", zap.Error(er))
+						}
+						return nil
+					})
+
+				*/
 
 				proto.RegisterLogRecorderServer(server, handler)
 				sync.RegisterSyncEndpointServer(server, handler)

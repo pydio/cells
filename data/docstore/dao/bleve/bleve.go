@@ -45,7 +45,7 @@ func init() {
 	docstore.Drivers.Register(NewBleveDAO)
 }
 
-func NewBleveDAO(boltDB boltdb.DB, bleveIndex indexer.Indexer) docstore.DAO {
+func NewBleveDAO(boltDB boltdb.DB, bleveIndex *bleve2.Indexer) docstore.DAO {
 	return NewBleveEngine(boltDB, bleveIndex)
 }
 

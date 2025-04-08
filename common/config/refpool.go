@@ -26,8 +26,8 @@ type storeWithRefPool struct {
 	onClose []func()
 }
 
-// newStoreWithRefPool creates a new instance of storeWithRefPool
-func newStoreWithRefPool(v Store, rp map[string]*openurl.Pool[Store]) Store {
+// NewStoreWithRefPool creates a new instance of storeWithRefPool
+func NewStoreWithRefPool(v Store, rp map[string]*openurl.Pool[Store]) Store {
 	var watchers []watch.Watcher
 
 	// Adding pool watchers

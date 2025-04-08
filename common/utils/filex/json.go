@@ -55,7 +55,6 @@ func Read(filename string, readOnly ...bool) ([]byte, error) {
 	if err != nil {
 		return nil, err
 	}
-
 	return b, nil
 }
 

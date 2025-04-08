@@ -64,7 +64,7 @@ func init() {
 					"plainTextExtensions": "text,md",
 				}),
 			}),
-			service.WithStorageDrivers(search.Drivers...),
+			service.WithStorageDrivers(search.Drivers),
 			service.WithGRPC(func(c context.Context, server grpc.ServiceRegistrar) error {
 
 				searcher := &grpc2.SearchServer{

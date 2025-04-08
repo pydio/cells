@@ -41,7 +41,7 @@ func init() {
 			service.Context(ctx),
 			service.Tag(common.ServiceTagBroker),
 			service.Description("Chat Service to attach real-time chats to various object. Coupled with WebSocket"),
-			service.WithStorageDrivers(chat.Drivers...),
+			service.WithStorageDrivers(chat.Drivers),
 			service.WithStorageMigrator(chat.Migrate),
 			// service.WithStoragePrefix("chat"),
 			service.WithGRPC(func(c context.Context, server grpc.ServiceRegistrar) error {

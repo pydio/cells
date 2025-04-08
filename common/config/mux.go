@@ -146,7 +146,7 @@ func OpenStore(ctx context.Context, urlstr string) (Store, error) {
 
 	rp := PoolFromURL(ctx, u, OpenStore)
 
-	st = newStoreWithRefPool(st, rp)
+	st = NewStoreWithRefPool(st, rp)
 
 	st, err = defaultURLMux.OpenStore(ctx, urlstr, st)
 	if err != nil {

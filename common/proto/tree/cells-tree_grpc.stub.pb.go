@@ -9,7 +9,7 @@ package tree
 import (
 	context "context"
 	fmt "fmt"
-	stubs "github.com/pydio/cells/v5/common/server/stubs"
+	stubs "github.com/pydio/cells/v4/common/server/stubs"
 	grpc "google.golang.org/grpc"
 	io "io"
 	time "time"
@@ -46,15 +46,14 @@ func (s *NodeProviderStub) NewStream(ctx context.Context, desc *grpc.StreamDesc,
 	case "/tree.NodeProvider/ListNodes":
 		st := &NodeProviderStub_ListNodesStreamer{}
 		st.Init(ctx, func(i interface{}) error {
-			var e error
 			go func() {
 				defer func() {
 					close(st.RespChan)
 				}()
-				e = s.NodeProviderServer.ListNodes(i.(*ListNodesRequest), st)
+				s.NodeProviderServer.ListNodes(i.(*ListNodesRequest), st)
 			}()
 			<-time.After(100 * time.Millisecond)
-			return e
+			return nil
 		})
 		return st, nil
 	}
@@ -130,15 +129,14 @@ func (s *NodeChangesStreamerStub) NewStream(ctx context.Context, desc *grpc.Stre
 	case "/tree.NodeChangesStreamer/StreamChanges":
 		st := &NodeChangesStreamerStub_StreamChangesStreamer{}
 		st.Init(ctx, func(i interface{}) error {
-			var e error
 			go func() {
 				defer func() {
 					close(st.RespChan)
 				}()
-				e = s.NodeChangesStreamerServer.StreamChanges(i.(*StreamChangesRequest), st)
+				s.NodeChangesStreamerServer.StreamChanges(i.(*StreamChangesRequest), st)
 			}()
 			<-time.After(100 * time.Millisecond)
-			return e
+			return nil
 		})
 		return st, nil
 	}
@@ -379,15 +377,14 @@ func (s *NodeEventsProviderStub) NewStream(ctx context.Context, desc *grpc.Strea
 	case "/tree.NodeEventsProvider/WatchNode":
 		st := &NodeEventsProviderStub_WatchNodeStreamer{}
 		st.Init(ctx, func(i interface{}) error {
-			var e error
 			go func() {
 				defer func() {
 					close(st.RespChan)
 				}()
-				e = s.NodeEventsProviderServer.WatchNode(i.(*WatchNodeRequest), st)
+				s.NodeEventsProviderServer.WatchNode(i.(*WatchNodeRequest), st)
 			}()
 			<-time.After(100 * time.Millisecond)
-			return e
+			return nil
 		})
 		return st, nil
 	}
@@ -422,15 +419,14 @@ func (s *SearcherStub) NewStream(ctx context.Context, desc *grpc.StreamDesc, met
 	case "/tree.Searcher/Search":
 		st := &SearcherStub_SearchStreamer{}
 		st.Init(ctx, func(i interface{}) error {
-			var e error
 			go func() {
 				defer func() {
 					close(st.RespChan)
 				}()
-				e = s.SearcherServer.Search(i.(*SearchRequest), st)
+				s.SearcherServer.Search(i.(*SearchRequest), st)
 			}()
 			<-time.After(100 * time.Millisecond)
-			return e
+			return nil
 		})
 		return st, nil
 	}
@@ -540,29 +536,27 @@ func (s *NodeVersionerStub) NewStream(ctx context.Context, desc *grpc.StreamDesc
 	case "/tree.NodeVersioner/ListVersions":
 		st := &NodeVersionerStub_ListVersionsStreamer{}
 		st.Init(ctx, func(i interface{}) error {
-			var e error
 			go func() {
 				defer func() {
 					close(st.RespChan)
 				}()
-				e = s.NodeVersionerServer.ListVersions(i.(*ListVersionsRequest), st)
+				s.NodeVersionerServer.ListVersions(i.(*ListVersionsRequest), st)
 			}()
 			<-time.After(100 * time.Millisecond)
-			return e
+			return nil
 		})
 		return st, nil
 	case "/tree.NodeVersioner/ListVersioningPolicies":
 		st := &NodeVersionerStub_ListVersioningPoliciesStreamer{}
 		st.Init(ctx, func(i interface{}) error {
-			var e error
 			go func() {
 				defer func() {
 					close(st.RespChan)
 				}()
-				e = s.NodeVersionerServer.ListVersioningPolicies(i.(*ListVersioningPoliciesRequest), st)
+				s.NodeVersionerServer.ListVersioningPolicies(i.(*ListVersioningPoliciesRequest), st)
 			}()
 			<-time.After(100 * time.Millisecond)
-			return e
+			return nil
 		})
 		return st, nil
 	}
@@ -638,15 +632,14 @@ func (s *SyncChangesStub) NewStream(ctx context.Context, desc *grpc.StreamDesc, 
 	case "/tree.SyncChanges/Search":
 		st := &SyncChangesStub_SearchStreamer{}
 		st.Init(ctx, func(i interface{}) error {
-			var e error
 			go func() {
 				defer func() {
 					close(st.RespChan)
 				}()
-				e = s.SyncChangesServer.Search(i.(*SearchSyncChangeRequest), st)
+				s.SyncChangesServer.Search(i.(*SearchSyncChangeRequest), st)
 			}()
 			<-time.After(100 * time.Millisecond)
-			return e
+			return nil
 		})
 		return st, nil
 	}

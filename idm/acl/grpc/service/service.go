@@ -49,7 +49,7 @@ func init() {
 			service.Context(ctx),
 			service.Tag(common.ServiceTagIdm),
 			service.Description("Access Control List service"),
-			service.WithStorageDrivers(acl.Drivers...),
+			service.WithStorageDrivers(acl.Drivers),
 			service.Migrations([]*service.Migration{
 				{
 					TargetVersion: service.FirstRunOrChange(),

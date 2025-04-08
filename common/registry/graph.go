@@ -109,6 +109,7 @@ func (r *graphRegistry) Deregister(i Item, option ...RegisterOption) error {
 		return er
 	}
 	edges, err := r.clearEdges(i, option...)
+
 	for _, edge := range edges {
 		// Removing other edge if it was a dependence to the item
 		if edge.Vertices()[1] == i.ID() {

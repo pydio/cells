@@ -45,7 +45,6 @@ import (
 	"github.com/pydio/cells/v5/common/runtime/manager"
 	"github.com/pydio/cells/v5/common/storage"
 	"github.com/pydio/cells/v5/common/telemetry/log"
-	uuid2 "github.com/pydio/cells/v5/common/utils/uuid"
 )
 
 var (
@@ -84,62 +83,28 @@ func dsnFromInstallConfig(c *install.InstallConfig) (string, error) {
 }
 
 func installDocumentDSN(ctx context.Context, c *install.InstallConfig) error {
-
-	if c.GetDocumentsDSN() == "" {
-		return nil
-	}
-
-	var driver, dsn string
 	if strings.HasPrefix(c.DocumentsDSN, "mongodb://") {
-		driver = "mongodb"
-		dsn = c.DocumentsDSN
-	} else if strings.HasPrefix(c.DocumentsDSN, "boltdb") {
-		driver = "boltdb"
-		dsn = strings.TrimPrefix(c.DocumentsDSN, "boltdb://")
-	} else if strings.HasPrefix(c.DocumentsDSN, "bleve") {
-		driver = "bleve"
-		dsn = strings.TrimPrefix(c.DocumentsDSN, "bleve://")
-	}
-	dbKey := driver + "-" + strings.Split(uuid2.New(), "-")[0]
-	setDefaultsKey := ""
-	if c.GetUseDocumentsDSN() && driver == "mongodb" {
-		setDefaultsKey = "documentsDSN"
-	}
-	if er := config.SetDatabase(ctx, dbKey, driver, dsn, setDefaultsKey); er != nil {
-		return er
-	}
-	/*
-		if setDefaultsKey != "" {
-			ss, e := ListServicesWithStorage()
-			if e != nil {
-				return e
-			}
-			for _, s := range ss {
-				for _, storage := range s.Options().Storages {
-					var supports bool
-					for _, supported := range storage.SupportedDrivers {
-						if supported == driver {
-							supports = true
-							break
-						}
-					}
-					if supports {
-						if er := config.Set(dbKey, "services", s.Name(), storage.StorageKey); er != nil {
-							return er
-						} else {
-							fmt.Println("Assigning Document DSN to " + s.Name())
-						}
-					}
-				}
-			}
+		if err := config.SetDatabase(ctx, "mongodb", "mongodb", c.DocumentsDSN, "documentsDSN"); err != nil {
+			return err
+		}
+	} else {
+		if err := config.SetDatabase(ctx, "boltdb", "bolt", "boltdb://{{ autoMkdir (serviceDataDir .Service) }}/{{ .Meta.file }}", ""); err != nil {
+			return err
 		}
 
-	*/
+		if err := config.SetDatabase(ctx, "bleve", "bleve", "bleve://{{ autoMkdir (serviceDataDir .Service) }}/{{ .Meta.file }}", ""); err != nil {
+			return err
+		}
+	}
+
 	return nil
 }
 
 // DATABASES
 func actionDatabaseAdd(ctx context.Context, c *install.InstallConfig, flags byte) error {
+
+	// First removing the old install
+	config.Del(ctx, "databases")
 
 	if er := installDocumentDSN(ctx, c); er != nil {
 		return er
@@ -250,7 +215,7 @@ storages:
 		return err
 	}
 
-	if err := bootstrap.RegisterTemplate("yaml", str.String()); err != nil {
+	if err := bootstrap.RegisterTemplate(ctx, "yaml", str.String()); err != nil {
 		return err
 	}
 
@@ -261,6 +226,10 @@ storages:
 
 	mgr, err := manager.NewManager(ctx, "install", nil, localRuntime)
 	if err != nil {
+		return err
+	}
+
+	if err := mgr.Bootstrap(bootstrap.String()); err != nil {
 		return err
 	}
 

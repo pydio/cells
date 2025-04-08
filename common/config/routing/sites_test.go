@@ -7,6 +7,7 @@ import (
 	"testing"
 
 	mapstructure "github.com/go-viper/mapstructure/v2"
+	"github.com/golang/protobuf/jsonpb"
 	"google.golang.org/protobuf/proto"
 
 	"github.com/pydio/cells/v5/common/proto/install"
@@ -14,24 +15,22 @@ import (
 )
 
 func TestDecode(t *testing.T) {
-	data := `{"binds":["0.0.0.0:8080"],"routing":[{"effect":1,"matcher":"*"},{"effect":0,"matcher":"io"},{"effect":0,"matcher":"data"}],"tlsconfig":{"selfsigned":{}}}`
+	data := `{"Binds":["0.0.0.0:8080"],"Routing":[{"Effect":1,"Matcher":"*"},{"Effect":0,"Matcher":"io"},{"Effect":0,"Matcher":"data"}],"TLSConfig":{"selfsigned":{}}}`
 
 	var m map[string]any
 	json.Unmarshal([]byte(data), &m)
 
 	var tls install.ProxyConfig
 
-	json.NewDecoder()
+	//var m any
+	if err := json.Unmarshal([]byte(data), &tls); err != nil {
+		t.Fatal(err)
+	}
+	fmt.Println(tls)
 
-	// var m any
-	//if err := json.Unmarshal([]byte(data), &tls); err != nil {
-	//	t.Fatal(err)
-	//}
-	//fmt.Println(tls)
-	//
-	//if err := jsonpb.Unmarshal(strings.NewReader(data), &tls); err != nil {
-	//	t.Fatal(err)
-	//}
+	if err := jsonpb.Unmarshal(strings.NewReader(data), &tls); err != nil {
+		t.Fatal(err)
+	}
 
 	dec, err := mapstructure.NewDecoder(&mapstructure.DecoderConfig{
 		TagName: "json",
@@ -42,7 +41,6 @@ func TestDecode(t *testing.T) {
 			return in, nil
 		},
 		MatchName: func(mapKey string, fieldName string) bool {
-			//fmt.Println(mapKey, fieldName)
 			return strings.ToLower(mapKey) == strings.ToLower(fieldName)
 		},
 	})

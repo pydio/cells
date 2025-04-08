@@ -27,25 +27,17 @@ import (
 	"go.uber.org/zap"
 	"google.golang.org/grpc"
 
-	"github.com/pydio/cells/v5/broker/log"
+	broker_log "github.com/pydio/cells/v5/broker/log"
 	"github.com/pydio/cells/v5/common"
-	"github.com/pydio/cells/v5/common/broker"
-	grpc2 "github.com/pydio/cells/v5/common/client/grpc"
 	proto "github.com/pydio/cells/v5/common/proto/jobs"
 	log2 "github.com/pydio/cells/v5/common/proto/log"
 	"github.com/pydio/cells/v5/common/proto/sync"
 	"github.com/pydio/cells/v5/common/runtime"
 	"github.com/pydio/cells/v5/common/runtime/manager"
 	"github.com/pydio/cells/v5/common/service"
-	log3 "github.com/pydio/cells/v5/common/telemetry/log"
+	"github.com/pydio/cells/v5/common/telemetry/log"
 	"github.com/pydio/cells/v5/scheduler/jobs"
 	grpc3 "github.com/pydio/cells/v5/scheduler/jobs/grpc"
-)
-
-var (
-	Migration140 = false
-	Migration150 = false
-	Migration230 = false
 )
 
 const Name = common.ServiceGrpcNamespace_ + common.ServiceJobs
@@ -62,34 +54,29 @@ func init() {
 			service.Context(ctx),
 			service.Tag(common.ServiceTagScheduler),
 			service.Description("Store for scheduler jobs description"),
-			service.WithNamedStorageDrivers("main", jobs.Drivers...),
-			service.WithNamedStorageDrivers("logs", log.Drivers...),
+			service.WithNamedStorageDrivers("main", jobs.Drivers),
+			service.WithNamedStorageDrivers("logs", broker_log.Drivers),
 			service.WithStorageMigrator(jobs.Migrate),
 			service.Migrations([]*service.Migration{
 				{
+					TargetVersion: service.FirstRunOrChange(),
+					Up:            InitDefaults,
+				},
+				{
 					TargetVersion: service.ValidVersion("1.4.0"),
-					Up: func(ctx context.Context) error {
-						// Set flag for migration script to be run AfterStart (see below, handler cannot be shared)
-						Migration140 = true
-						return nil
-					},
+					Up:            Migration140,
 				},
 				{
 					TargetVersion: service.ValidVersion("1.5.0"),
-					Up: func(ctx context.Context) error {
-						// Set flag for migration script to be run AfterStart (see below, handler cannot be shared)
-						Migration150 = true
-						return nil
-					},
+					Up:            Migration150,
 				},
 				{
 					TargetVersion: service.ValidVersion("2.2.99"),
-					Up: func(ctx context.Context) error {
-						// Set flag for migration script to be run AfterStart (see below, handler cannot be shared)
-						Migration230 = true
-						return nil
-					},
+					Up:            Migration230,
 				},
+			}),
+			service.WithGRPCStop(func(ctx context.Context, server grpc.ServiceRegistrar) error {
+				return nil
 			}),
 			service.WithGRPC(func(ctx context.Context, server grpc.ServiceRegistrar) error {
 
@@ -101,107 +88,129 @@ func init() {
 				log2.RegisterLogRecorderServer(server, handler)
 				sync.RegisterSyncEndpointServer(server, handler)
 
-				autoStarts := make(map[context.Context][]*proto.Job)
-				ctx = runtime.WithServiceName(ctx, common.ServiceJobsGRPC)
-				logger := log3.Logger(ctx)
+				// TODO - should be in migrations directly (multi context handled)
+				/*
+					autoStarts := make(map[context.Context][]*proto.Job)
+					ctx = runtime.WithServiceName(ctx, common.ServiceJobsGRPC)
+					logger := log3.Logger(ctx)
 
-				_ = runtime.MultiContextManager().Iterate(ctx, func(c context.Context, _ string) error {
-					for _, j := range defaults {
-						if _, e := handler.GetJob(c, &proto.GetJobRequest{JobID: j.ID}); e != nil {
-							_, _ = handler.PutJob(c, &proto.PutJobRequest{Job: j})
-						}
-						// Force re-adding thumbs job
-						if Migration230 && j.ID == "thumbs-job" {
-							_, _ = handler.PutJob(c, &proto.PutJobRequest{Job: j})
-						}
-					}
-					// Clean tasks stuck in "Running" status
-					if _, er := handler.CleanStuckTasks(c, true, logger); er != nil {
-						logger.Warn("Could not run CleanStuckTasks: "+er.Error(), zap.Error(er))
-					}
-
-					// Clean user-jobs (AutoStart+AutoClean) without any tasks
-					if er := handler.CleanDeadUserJobs(c); er != nil {
-						logger.Warn("Could not run CleanDeadUserJobs: "+er.Error(), zap.Error(er))
-					}
-
-					if Migration140 {
-						if resp, e := handler.DeleteTasks(c, &proto.DeleteTasksRequest{
-							JobId:      "users-activity-digest",
-							Status:     []proto.TaskStatus{proto.TaskStatus_Any},
-							PruneLimit: 1,
-						}); e == nil {
-							logger.Info("Migration 1.4.0: removed tasks on job users-activity-digest that could fill up the scheduler", zap.Int("number", len(resp.Deleted)))
-						} else {
-							logger.Error("Error while trying to prune tasks for job users-activity-digest", zap.Error(e))
-						}
-						if resp, e := handler.DeleteTasks(c, &proto.DeleteTasksRequest{
-							JobId:      "resync-changes-job",
-							Status:     []proto.TaskStatus{proto.TaskStatus_Any},
-							PruneLimit: 1,
-						}); e == nil {
-							logger.Info("Migration 1.4.0: removed tasks on job resync-changes-job that could fill up the scheduler", zap.Int("number", len(resp.Deleted)))
-						} else {
-							logger.Error("Error while trying to prune tasks for job resync-changes-job", zap.Error(e))
-						}
-					}
-					if Migration150 {
-						// Remove archive-changes-job
-						if _, e := handler.DeleteJob(c, &proto.DeleteJobRequest{JobID: "archive-changes-job"}); e != nil {
-							logger.Error("Could not remove archive-changes-job", zap.Error(e))
-						} else {
-							logger.Info("[Migration] Removed archive-changes-job")
-						}
-						// Remove resync-changes-job
-						if _, e := handler.DeleteJob(c, &proto.DeleteJobRequest{JobID: "resync-changes-job"}); e != nil {
-							logger.Error("Could not remove resync-changes-job", zap.Error(e))
-						} else {
-							logger.Info("[Migration] Removed resync-changes-job")
-						}
-					}
-					if Migration230 {
-						// Remove clean thumbs job and re-insert thumbs job
-						if _, e := handler.DeleteJob(c, &proto.DeleteJobRequest{JobID: "clean-thumbs-job"}); e != nil {
-							logger.Error("Could not remove clean-thumbs-job", zap.Error(e))
-						} else {
-							logger.Info("[Migration] Removed clean-thumbs-job")
-						}
-					}
-
-					if jj, e := handler.ListAutoRestartJobs(c); e == nil && len(jj) > 0 {
-						autoStarts[c] = jj
-					}
-					return nil
-				})
-
-				// We should wait for service task to be started, then start jobs
-				var hc grpc2.HealthMonitor
-				if len(autoStarts) > 0 {
-					hc = grpc2.NewHealthChecker(ctx)
-					go func() {
-						hc.Monitor(common.ServiceGrpcNamespace_ + common.ServiceTasks)
-						for tc, jj := range autoStarts {
-							for _, j := range jj {
-								logger.Info("Sending a start event for job '" + j.Label + "'")
-								_ = broker.Publish(tc, common.TopicTimerEvent, &proto.JobTriggerEvent{
-									JobID:  j.ID,
-									RunNow: true,
-								})
+					// We should wait for service task to be started, then start jobs
+					var hc grpc2.HealthMonitor
+					if len(autoStarts) > 0 {
+						hc = grpc2.NewHealthChecker(ctx)
+						go func() {
+							hc.Monitor(common.ServiceGrpcNamespace_ + common.ServiceTasks)
+							for tc, jj := range autoStarts {
+								for _, j := range jj {
+									logger.Info("Sending a start event for job '" + j.Label + "'")
+									_ = broker.Publish(tc, common.TopicTimerEvent, &proto.JobTriggerEvent{
+										JobID:  j.ID,
+										RunNow: true,
+									})
+								}
 							}
+						}()
+					}
+
+					go func() {
+						<-ctx.Done()
+						handler.Close()
+						if hc != nil {
+							hc.Stop()
 						}
 					}()
-				}
-
-				go func() {
-					<-ctx.Done()
-					handler.Close()
-					if hc != nil {
-						hc.Stop()
-					}
-				}()
+				*/
 				return nil
 			}),
 		)
-
 	})
+}
+
+func InitDefaults(ctx context.Context) error {
+	handler := grpc3.NewJobsHandler(ctx, Name)
+	logger := log.Logger(ctx)
+	for _, j := range grpc3.GetDefaultJobs() {
+		if _, e := handler.GetJob(ctx, &proto.GetJobRequest{JobID: j.ID}); e != nil {
+			_, _ = handler.PutJob(ctx, &proto.PutJobRequest{Job: j})
+		}
+	}
+
+	// Clean tasks stuck in "Running" status
+	if _, er := handler.CleanStuckTasks(ctx, true, logger); er != nil {
+		logger.Warn("Could not run CleanStuckTasks: "+er.Error(), zap.Error(er))
+	}
+
+	// Clean user-jobs (AutoStart+AutoClean) without any tasks
+	if er := handler.CleanDeadUserJobs(ctx); er != nil {
+		logger.Warn("Could not run CleanDeadUserJobs: "+er.Error(), zap.Error(er))
+	}
+
+	return nil
+}
+
+func Migration140(ctx context.Context) error {
+	handler := grpc3.NewJobsHandler(ctx, Name)
+	logger := log.Logger(ctx)
+
+	if resp, e := handler.DeleteTasks(ctx, &proto.DeleteTasksRequest{
+		JobId:      "users-activity-digest",
+		Status:     []proto.TaskStatus{proto.TaskStatus_Any},
+		PruneLimit: 1,
+	}); e == nil {
+		logger.Info("Migration 1.4.0: removed tasks on job users-activity-digest that could fill up the scheduler", zap.Int("number", len(resp.Deleted)))
+	} else {
+		logger.Error("Error while trying to prune tasks for job users-activity-digest", zap.Error(e))
+	}
+	if resp, e := handler.DeleteTasks(ctx, &proto.DeleteTasksRequest{
+		JobId:      "resync-changes-job",
+		Status:     []proto.TaskStatus{proto.TaskStatus_Any},
+		PruneLimit: 1,
+	}); e == nil {
+		logger.Info("Migration 1.4.0: removed tasks on job resync-changes-job that could fill up the scheduler", zap.Int("number", len(resp.Deleted)))
+	} else {
+		logger.Error("Error while trying to prune tasks for job resync-changes-job", zap.Error(e))
+	}
+
+	return nil
+}
+
+func Migration150(ctx context.Context) error {
+	handler := grpc3.NewJobsHandler(ctx, Name)
+	logger := log.Logger(ctx)
+
+	// Remove archive-changes-job
+	if _, e := handler.DeleteJob(ctx, &proto.DeleteJobRequest{JobID: "archive-changes-job"}); e != nil {
+		logger.Error("Could not remove archive-changes-job", zap.Error(e))
+	} else {
+		logger.Info("[Migration] Removed archive-changes-job")
+	}
+	// Remove resync-changes-job
+	if _, e := handler.DeleteJob(ctx, &proto.DeleteJobRequest{JobID: "resync-changes-job"}); e != nil {
+		logger.Error("Could not remove resync-changes-job", zap.Error(e))
+	} else {
+		logger.Info("[Migration] Removed resync-changes-job")
+	}
+
+	return nil
+}
+
+func Migration230(ctx context.Context) error {
+	handler := grpc3.NewJobsHandler(ctx, Name)
+	logger := log.Logger(ctx)
+
+	// Remove clean thumbs job and re-insert thumbs job
+	if _, e := handler.DeleteJob(ctx, &proto.DeleteJobRequest{JobID: "clean-thumbs-job"}); e != nil {
+		logger.Error("Could not remove clean-thumbs-job", zap.Error(e))
+	} else {
+		logger.Info("[Migration] Removed clean-thumbs-job")
+	}
+
+	for _, j := range grpc3.GetDefaultJobs() {
+		// Force re-adding thumbs job
+		if j.ID == "thumbs-job" {
+			_, _ = handler.PutJob(ctx, &proto.PutJobRequest{Job: j})
+		}
+	}
+
+	return nil
 }

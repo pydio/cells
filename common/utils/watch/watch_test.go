@@ -2,6 +2,7 @@ package watch
 
 import (
 	"fmt"
+	"maps"
 	"testing"
 	"time"
 
@@ -60,5 +61,48 @@ func TestWatch(t *testing.T) {
 	w.Reset()
 
 	<-time.After(3 * time.Second)
+}
+
+type mockSimpleWatchType struct {
+	m map[string]any
+}
+
+func (m *mockSimpleWatchType) Clone() *mockSimpleWatchType {
+	return &mockSimpleWatchType{m: maps.Clone(m.m)}
+}
+
+func (m *mockSimpleWatchType) Set(key string, value any) {
+	m.m[key] = value
+}
+
+func (m *mockSimpleWatchType) Get() any {
+	return m.m
+}
+
+func (m *mockSimpleWatchType) Empty() {
+	m.m = map[string]any{}
+}
+
+func TestWatchSimple(t *testing.T) {
+	sources := []string{"test1"}
+
+	m := map[string]any{"sources": sources}
+
+	w := NewWatcher(&mockSimpleWatchType{m: m})
+
+	go w.Flush()
+
+	r, _ := w.Watch(WithPath("sources"))
+
+	go func() {
+		val, err := r.Next()
+		fmt.Println("val", val, err)
+	}()
+
+	sources = append(sources, "test2", "test3", "test4")
+	m["sources"] = sources
+	w.Reset()
+
+	<-time.After(10 * time.Minute)
 
 }
