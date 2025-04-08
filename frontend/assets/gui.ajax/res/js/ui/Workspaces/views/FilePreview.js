@@ -160,9 +160,9 @@ class FilePreview extends PureComponent {
         const pydio = Pydio.getInstance();
         let editors = pydio.Registry.findEditorsForMime((node.isLeaf()?node.getAjxpMime():"mime_folder"), true);
         if(!editors || !editors.length) {
-            if(richPreview && node.getMetadata().get('PDFPreview')) {
+            if(richPreview && node.getMetadata().get('PDFPreview') && !node.getMetadata().get('PDFPreview').Error) {
                 editors = pydio.Registry.findEditorsForMime('pdf', true);
-            } else if (node.getMetadata().get('ImagePreview')) {
+            } else if (node.getMetadata().get('ImagePreview') && !node.getMetadata().get('ImagePreview').Error) {
                 editors = pydio.Registry.findEditorsForMime('jpg', true);
             }
             if(!editors || !editors.length){

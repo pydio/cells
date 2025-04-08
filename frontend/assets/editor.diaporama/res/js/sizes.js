@@ -5,7 +5,7 @@ function urlForSize(node, viewType) {
     if(!node){
         return Promise.resolve("")
     }
-    if(!node.getMetadata().get("thumbnails") && node.getMetadata().get('ImagePreview')) {
+    if(!node.getMetadata().get("thumbnails") && node.getMetadata().has('ImagePreview')) {
         return imagePreviewUrl(node);
     }
     const meta = node.getMetadata().get("thumbnails") || [];
@@ -55,7 +55,16 @@ function urlForSize(node, viewType) {
 }
 
 function imagePreviewUrl(node) {
-    const prevName = node.getMetadata().get('ImagePreview');
+    const prevMeta = node.getMetadata().get('ImagePreview');
+    let prevName;
+    if (prevMeta instanceof Object) {
+        if(prevMeta.Error) {
+            return Promise.resolve("")
+        }
+        prevName = prevMeta.Key
+    } else {
+        prevName = prevMeta
+    }
     const ext = PathUtils.getFileExtension(prevName)
     return PydioApi.getClient().buildPresignedGetUrl(node, null, 'image/' + ext, {Bucket: 'io', Key:'pydio-thumbstore/' + prevName});
 }

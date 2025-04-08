@@ -30,9 +30,13 @@ export default function (pydio) {
         const agent = navigator.userAgent || '';
         const agentIsMobile = (agent.indexOf('iPhone')!==-1||agent.indexOf('iPod')!==-1||agent.indexOf('iPad')!==-1||agent.indexOf('iOs')!==-1);
         const hiddenForm = pydio.UI && pydio.UI.hasHiddenDownloadForm();
+        let pdfPreview = downloadNode.getMetadata().get('PDFPreview')
+        if (pdfPreview instanceof Object) {
+            pdfPreview = pdfPreview.Key
+        }
         client.buildPresignedGetUrl(downloadNode, null, '', {
             Bucket:'io',
-            Key:'pydio-thumbstore/'+downloadNode.getMetadata().get('PDFPreview'),
+            Key:'pydio-thumbstore/'+pdfPreview,
             Expires: 600
         }, attachmentName).then(url => {
             if(agentIsMobile || !hiddenForm){

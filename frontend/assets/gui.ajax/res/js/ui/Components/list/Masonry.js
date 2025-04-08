@@ -35,19 +35,26 @@ function rotate(rotation) {
 }
 
 function usePreview(node) {
-    let ratio = 0.5;
-    if(node.getMetadata().has('ImageDimensions')){
-        const dim = node.getMetadata().get('ImageDimensions')
-        ratio = dim.Height / dim.Width;
-    }
+    const [ratio, setRatio] = useState(0.5)
     const {src} = useImagePreview(node);
-    /*
-    const {loaded, dimensions} = useImage(src)
-    // Compute ratio
-    if(loaded && src && dimensions) {
-        ratio = dimensions.height/dimensions.width
-    }
-    */
+
+    useEffect(() => {
+        if(!src) {
+            setRatio(0.5)
+            return;
+        }
+        if(node.getMetadata().has('ImageDimensions')){
+            const dim = node.getMetadata().get('ImageDimensions')
+            setRatio(dim.Height / dim.Width)
+        } else {
+            const img = new Image();
+            img.src = src;
+            img.onload = () => {
+                const computedRatio = img.naturalHeight / img.naturalWidth;
+                setRatio(computedRatio);
+            };
+        }
+    }, [src]);
     return {ratio, src};
 }
 
