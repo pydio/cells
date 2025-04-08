@@ -85,10 +85,14 @@ class Viewer extends Component {
         const {node, pydio} = props;
 
         let bucketParams = null;
-        if (node.getMetadata().get('PDFPreview')) {
+        let pdfPreview = node.getMetadata().get('PDFPreview')
+        if (pdfPreview) {
+            if(pdfPreview instanceof Object) {
+                pdfPreview = pdfPreview.Key
+            }
             bucketParams = {
                 Bucket: 'io',
-                Key:'pydio-thumbstore/' + node.getMetadata().get('PDFPreview')
+                Key:'pydio-thumbstore/' + pdfPreview
             }
         }
         const distViewerPath = 'plug/editor.pdfjs/pdfjs-2.12.313-dist/web'

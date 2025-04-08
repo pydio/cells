@@ -66,7 +66,7 @@ const AppBar = ({pydio, muiTheme, styles, searchView, searchTools, searchViewTra
             stLabel = pydio.MessageHash['478'] // No results found
         } else if(resultsCount < limit) {
             stLabel = pydio.MessageHash['searchengine.results.foundN'].replace('%1', resultsCount)
-        } else if(resultsCount === limit) {
+        } else if(resultsCount >= limit) {
             stDisable = false
             stLabel = pydio.MessageHash['searchengine.results.withMore'].replace('%1', limit)
         }
