@@ -24,6 +24,7 @@ import (
 	"context"
 	"fmt"
 	"net/http"
+	"path"
 	"path/filepath"
 	"strconv"
 	"strings"
@@ -56,6 +57,12 @@ type Handler struct {
 	TemplatesHandler *tpl.Handler
 	SharesHandler    *shares.SharesHandler
 	UserMetaHandler  *umeta.UserMetaHandler
+}
+
+type ConvertToolMeta struct {
+	Processing bool   `json:"Processing,omitempty"`
+	Error      bool   `json:"Error,omitempty"`
+	Key        string `json:"Key,omitempty"`
 }
 
 type PreSigner interface {
@@ -224,7 +231,7 @@ func (h *Handler) TreeNodeToNode(ctx context.Context, n *tree.Node, oo ...TNOpti
 			rn.Previews = append(rn.Previews, h.Thumbnails(ctx, common.PydioThumbstoreNamespace, n.GetUuid(), v, oo...)...)
 
 		case "ImagePreview", "PDFPreview":
-			rn.Previews = append(rn.Previews, h.OtherPreview(ctx, common.PydioThumbstoreNamespace, strings.ReplaceAll(v, "\"", ""), oo...))
+			rn.Previews = append(rn.Previews, h.OtherPreview(ctx, common.PydioThumbstoreNamespace, v, oo...))
 
 		case common.MetaFlagWorkspacesShares:
 			var share []*idm.Workspace
@@ -321,16 +328,32 @@ func (h *Handler) Thumbnails(ctx context.Context, slug, nodeId, jsonThumbs strin
 }
 
 // OtherPreview takes a simple value to build a rest.FilePreview
-func (h *Handler) OtherPreview(ctx context.Context, slug, metaValue string, oo ...TNOption) (f *rest.FilePreview) {
+func (h *Handler) OtherPreview(ctx context.Context, slug, jsonValue string, oo ...TNOption) (f *rest.FilePreview) {
+	var imageKey string
+	var objectKey *ConvertToolMeta
+	if e := json.Unmarshal([]byte(jsonValue), &objectKey); e == nil {
+		if objectKey.Key == "" {
+			return &rest.FilePreview{
+				Processing: objectKey.Processing,
+				Error:      objectKey.Error,
+			}
+		}
+		imageKey = objectKey.Key
+	} else if er := json.Unmarshal([]byte(jsonValue), &imageKey); er == nil {
+		// old meta version with just a string
+	} else {
+		log.Logger(ctx).Error("Cannot unmarshall preview to string or object, this is not normal", zap.Error(er), zap.Error(e))
+	}
+
 	cType := ""
-	ext := strings.TrimPrefix(filepath.Ext(metaValue), ".")
+	ext := strings.TrimPrefix(filepath.Ext(imageKey), ".")
 	switch ext {
 	case "pdf":
 		cType = "application/pdf"
 	case "png", "jpg", "webp", "jpeg":
 		cType = "image/" + ext
 	}
-	key := fmt.Sprintf("%s/%s", slug, metaValue)
+	key := path.Join(slug, imageKey)
 	var pGet *rest.PreSignedURL
 	opts := &TNOptions{}
 	for _, o := range oo {
