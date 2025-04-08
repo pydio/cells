@@ -1,29 +1,14 @@
-import {Component} from 'react'
-import ResourcesManager from 'pydio/http/resources-manager'
+import React from 'react'
+import Pydio from 'pydio'
+const {useDiaporamaBadge} = Pydio.requireLib('hoc')
 
-class VideoBadge extends Component{
+const VideoBadge = ({node, pydio, mimeFontStyle}) => {
 
-    constructor(props, context){
-        super(props, context);
-        const {node, pydio} = props;
-        this.state = {hasImagePreview : false};
-        if(node.getMetadata().get('ImagePreview') && pydio.Registry.findEditorById('editor.diaporama')){
-            ResourcesManager.loadClass('PydioDiaporama').then( ns => {
-                this.setState({hasImagePreview: true, Badge:ns.Badge});
-            })
-        }
-
-    }
-
-    render(){
-
-        const {hasImagePreview, Badge} = this.state;
-        if(hasImagePreview) {
-            return <Badge {...this.props}/>
-        } else {
-            return <div className="mimefont mdi-file-video" style={this.props.mimeFontStyle}/>;
-        }
-
+    const {Badge} = useDiaporamaBadge(node)
+    if(Badge) {
+        return <Badge pydio={pydio} node={node} mimeFontStyle={mimeFontStyle}/>
+    } else {
+        return <div className="mimefont mdi-file-video" style={mimeFontStyle}/>;
     }
 
 }

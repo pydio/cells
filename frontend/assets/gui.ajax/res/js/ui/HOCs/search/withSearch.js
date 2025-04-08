@@ -226,7 +226,7 @@ export default function withSearch(Component, historyIdentifier, defaultScope){
                 this.setState({
                     searchLoading: false,
                     facets: response.Facets ||[],
-                    resultsCount: res.length
+                    resultsCount: response.Total || res.length
                 });
             }).catch(()=>{
                 searchRootNode.clear();
@@ -236,7 +236,7 @@ export default function withSearch(Component, historyIdentifier, defaultScope){
             });
 
         }
-        
+
         setValues(newValues){
             const {onUpdateSearch} = this.props;
             Object.keys(newValues).forEach(k => {
@@ -497,7 +497,7 @@ export default function withSearch(Component, historyIdentifier, defaultScope){
             }
 
             return (
-                <Component 
+                <Component
                     {...this.props}
                     searchTools={searchTools}
                 />
