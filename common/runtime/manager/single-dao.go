@@ -107,7 +107,6 @@ func DSNtoContextDAO(ctx context.Context, dsn []string, daoFunc any) (context.Co
 	v.Set(runtime.KeyKeyring, "mem://")
 	v.Set(runtime.KeyRegistry, "mem://")
 	v.Set(runtime.KeyConfig, "mem://")
-	v.Set(runtime.KeyBootstrapYAML, b.String())
 	mem, _ := config.OpenStore(ctx, "mem://")
 	ctx = propagator.With(ctx, config.ContextKey, mem)
 
@@ -135,6 +134,10 @@ func DSNtoContextDAO(ctx context.Context, dsn []string, daoFunc any) (context.Co
 	}
 
 	ctx = mgr.Context()
+	if err := mgr.Bootstrap(b.String()); err != nil {
+		return nil, err
+	}
+
 	ctx = propagator.With(ctx, service.ContextKey, svc)
 	ctx = runtime.MultiContextManager().RootContext(ctx)
 
