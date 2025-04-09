@@ -118,6 +118,7 @@ func DSNtoContextDAO(ctx context.Context, dsn []string, daoFunc any) (context.Co
 	var svc service.Service
 	runtime.Register("test", func(ctx context.Context) {
 		svc = service.NewService(
+			service.ID("test"),
 			service.Name("test"),
 			service.Context(ctx),
 			service.WithStorageDrivers(sd),

@@ -1888,6 +1888,7 @@ func (m *manager) WatchServices() {
 		}
 
 		for _, i := range res.Items() {
+
 			var svc service.Service
 			if i.As(&svc) {
 				if err := runtime.MultiContextManager().Iterate(m.Context(), func(ctx context.Context, name string) error {
@@ -1976,7 +1977,6 @@ func (m *manager) WatchServices() {
 							}
 
 						} else {
-
 							if err := service.UpdateServiceVersion(c, s.Options()); err != nil {
 								return
 							}
