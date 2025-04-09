@@ -55,12 +55,15 @@ func SkipTestController(t *testing.T) {
 	v.Set(runtime.KeyConfig, "mem://")
 	runtime.SetRuntime(v)
 
+	drivers := service.StorageDrivers{}
+	drivers.Register(NewDAO)
+
 	var svc service.Service
 	runtime.Register("test", func(ctx context.Context) {
 		svc = service.NewService(
 			service.Name("test"),
 			service.Context(ctx),
-			service.WithStorageDrivers(NewDAO),
+			service.WithStorageDrivers(drivers),
 		)
 	})
 

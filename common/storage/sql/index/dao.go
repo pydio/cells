@@ -23,6 +23,7 @@ package index
 
 import (
 	"context"
+	"sync"
 
 	"gorm.io/gorm"
 
@@ -113,5 +114,5 @@ type CacheDAO interface {
 
 // NewDAO for the common sql index
 func NewDAO[T tree.ITreeNode](db *gorm.DB) DAO {
-	return &gormImpl[T]{DB: db, factory: &treeNodeFactory[T]{}}
+	return &gormImpl[T]{DB: db, factory: &treeNodeFactory[T]{}, lock: &sync.Mutex{}}
 }

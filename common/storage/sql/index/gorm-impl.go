@@ -37,7 +37,6 @@ import (
 	"sync/atomic"
 	"time"
 
-	"github.com/go-gorm/caches"
 	"go.uber.org/zap"
 	"google.golang.org/protobuf/proto"
 	"gorm.io/gorm"
@@ -74,16 +73,20 @@ var _ DAO = (*gormImpl[tree.ITreeNode])(nil)
 type gormImpl[T tree.ITreeNode] struct {
 	DB      *gorm.DB
 	factory Factory[T]
+	lock    *sync.Mutex
 }
 
 func (dao *gormImpl[T]) instance(ctx context.Context) *gorm.DB {
 
-	cachesPlugin := &caches.Caches{Conf: &caches.Config{
+	dao.lock.Lock()
+	defer dao.lock.Unlock()
+
+	/*cachesPlugin := &caches.Caches{Conf: &caches.Config{
 		// Easer: true, // TODO - disabled that at super-fact calls to getNodeChild() randomly return results
 		// Cacher: NewCacher(c),
 	}}
 
-	dao.DB.Use(cachesPlugin)
+	dao.DB.Use(cachesPlugin)*/
 
 	t := dao.factory.Struct()
 	msg := proto.GetExtension(t.ProtoReflect().Descriptor().Options(), orm.E_OrmPolicy).(*orm.ORMMessagePolicy)
