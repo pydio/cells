@@ -79,7 +79,7 @@ func GetDefaultJobs() []*jobs.Job {
 			{
 				ID: "middleware.tree.meta",
 				Parameters: map[string]string{
-					"metaJSON": "{\"ImageThumbnails\":{\"Processing\": true}}",
+					"metaJSON": "{\"ImageThumbnails\":{\"Processing\": true, \"ContentType\": \"image/jpg\"}}",
 				},
 				ChainedActions: []*jobs.Action{
 					{
