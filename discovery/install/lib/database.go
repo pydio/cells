@@ -83,7 +83,7 @@ func dsnFromInstallConfig(c *install.InstallConfig) (string, error) {
 }
 
 func installDocumentDSN(ctx context.Context, c *install.InstallConfig) error {
-	if strings.HasPrefix(c.DocumentsDSN, "mongodb://") {
+	if c.UseDocumentsDSN && strings.HasPrefix(c.DocumentsDSN, "mongodb://") {
 		if err := config.SetDatabase(ctx, "mongodb", "mongodb", c.DocumentsDSN, "documentsDSN"); err != nil {
 			return err
 		}
