@@ -74,6 +74,10 @@ DESCRIPTION
 			return err
 		}
 
+		if err := mgr.Bootstrap(ctlBootstrap); err != nil {
+			return err
+		}
+
 		ctx = mgr.Context()
 		cmd.SetContext(ctx)
 
