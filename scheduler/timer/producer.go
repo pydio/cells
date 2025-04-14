@@ -22,6 +22,7 @@ package timer
 
 import (
 	"context"
+	"fmt"
 
 	"go.uber.org/zap"
 
@@ -87,6 +88,7 @@ func (e *EventProducer) Start() error {
 	cli := jobs.NewJobServiceClient(grpc.ResolveConn(e.Context, common.ServiceJobsGRPC))
 	streamer, err := cli.ListJobs(e.Context, &jobs.ListJobsRequest{TimersOnly: true})
 	if err != nil {
+		fmt.Println("HERE 7", e)
 		return err
 	}
 

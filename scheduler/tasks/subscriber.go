@@ -188,6 +188,7 @@ func (s *Subscriber) Init(ctx context.Context) error {
 	jobClients := jobs.NewJobServiceClient(grpc.ResolveConn(ctx, common.ServiceJobsGRPC))
 	streamer, e := jobClients.ListJobs(ctx, &jobs.ListJobsRequest{})
 	if e != nil {
+		fmt.Println("HERE 8", e)
 		return e
 	}
 	defCache, _ := s.definitionsPool.Get(ctx)

@@ -152,7 +152,12 @@ func ClientConnIncomingContext(serverRuntimeContext context.Context) func(ctx co
 func RegistryIncomingContext(serverRuntimeContext context.Context) func(ctx context.Context) (context.Context, bool, error) {
 	return func(ct context.Context) (context.Context, bool, error) {
 		ctx := propagator.ForkContext(ct, serverRuntimeContext)
-		ctx = runtime.MultiContextManager().CurrentContextProvider(ctx).Context(ctx)
+		ctxProvider := runtime.MultiContextManager().CurrentContextProvider(ctx)
+		if ctxProvider != nil {
+			return ctxProvider.Context(ctx), true, nil
+		} else {
+			fmt.Println("Failed to get current context")
+		}
 		return ctx, true, nil
 	}
 }

@@ -1,3 +1,5 @@
+//go:build storage || sql
+
 package sql
 
 import (

@@ -362,6 +362,8 @@ ENVIRONMENT
 		yml, err := tmpl.Parse(storagesYAML)
 		fatalIfError(cmd, err)
 
+		// Iterating through the multi context provider to initiate potential new context
+		span.AddEvent("multi-context init")
 		if err := runtime.MultiContextManager().Iterate(m.Context(), func(ctx context.Context, name string) error {
 
 			// Starting a new manager that will handle the resources linked to this context
@@ -402,6 +404,7 @@ ENVIRONMENT
 		}); err != nil {
 			return err
 		}
+		span.AddEvent("multi-context init end")
 
 		if err := m.ServeAll(); err != nil {
 			return err
